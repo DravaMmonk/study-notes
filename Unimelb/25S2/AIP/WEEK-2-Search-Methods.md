@@ -24,7 +24,7 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # WEEK 2 Search Methods
----
+
 ## Search Space
 - A set of search states
 - Forward Search (Progression)
@@ -57,7 +57,7 @@ Common Functions:
 	- $\mathrm{action}(\sigma)$ leads from $\mathrm{state}(\mathrm{parent}(\sigma))$ to $\mathrm{state}(\sigma)$
 	- $g(\sigma)$ denotes cost of path from the **root** to $\sigma$
 	- The **root**’s $\mathrm{parent}(\cdot)$ and $\mathrm{action}(\cdot)$ are undefined
----
+
 ## Search Methods
 ### Blind Search vs. Informed Search
 - Blind search not require any input beyond the problem
@@ -80,7 +80,7 @@ Common Functions:
 
 
 - Blind Search: *Completeness* 100%, but *poor efficient* when doing hard work
----
+
 ## Heuristic Functions
 - $h(n)$ - Estimated remaining cost (from current state to goal state)
 - $h^*(n)$ - Real remaining cost
@@ -96,7 +96,7 @@ Common Functions:
 - **Consistent** and **Goal-aware** $\to$ **Admissible**
 - **Admissible** $\to$ **Safe** and **Goal-aware**
 - *Note: Only these two*
----
+
 ## Informed Systematic Search Algorithms
 ### Greedy Best-First Search (with duplicate detection)
 - Use priority queue to sort $h(n)$ of each node in ascending order then do BFS to each node
@@ -218,7 +218,7 @@ def ida_star:
             return failure
         bound = t
 ```
----
+
 ## Evaluation of Search Methods
 ### Guarantees
 - **Completeness** sure to find a solution if there is one
@@ -229,12 +229,12 @@ def ida_star:
 	- **Branching factor** $b$ how many successors
 	- **Goal depth** $d$ number of actions to reach shallowest goal state
 ### Summary
-|          | DFS         | BFS   | IDS         | A*    | HC       | IDA*        |
-| :------- | ----------- | ----- | ----------- | ----- | -------- | ----------- |
-| Complete | ❌           | ✅     | ✅           | ✅     | ❌        | ✅           |
-| Optimal  | ❌           | ✅*    | ✅           | ✅*    | ❌        | ✅*          |
-| Time     | $\infty$    | $b^d$ | $b^d$       | $b^d$ | $\infty$ | $b^d$       |
-| Space    | $b \cdot d$ | $b^d$ | $b \cdot d$ | $b^d$ | $b$      | $b \cdot d$ |
+|          |     DFS     |  BFS  |     IDS     |  A*   |    HC    |    IDA*     |
+|:-------- |:-----------:|:-----:|:-----------:|:-----:|:--------:|:-----------:|
+| Complete |     ❌      |  ✅   |     ✅      |  ✅   |    ❌    |     ✅      |
+| Optimal  |     ❌      |  ✅*  |     ✅      |  ✅*  |    ❌    |     ✅*     |
+| Time     |  $\infty$   | $b^d$ |    $b^d$    | $b^d$ | $\infty$ |    $b^d$    |
+| Space    | $b \cdot d$ | $b^d$ | $b \cdot d$ | $b^d$ |   $b$    | $b \cdot d$ |
 - $b$ - Branching Factor: sum of number of child nodes of each node
 - $d$ - Solution Depth: *$minimum$* depth among all goal nodes
 - BFS is optimal only when uniform costs are applied 

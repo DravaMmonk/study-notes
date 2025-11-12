@@ -1,11 +1,11 @@
 # WEEK 4 Complexity
----
+
 ## Savitch’s Theorem 
 - NPSPACE = PSPACE
 	- Non-determinism won't make solvers more powerful.
 - PSPACE-complete
 	- The problem is at least hard as **any** Polynomial time problem
----
+
 ## Goals Definition
 - To make a **Satisficing** planning:
 	- $\mathrm{PlanEx}(P) = 1$ - Existence of a plan for problem $P$.
@@ -13,7 +13,7 @@
 	- **$\mathrm{PlanLen}(P) \le B$**  - Existence of a plan which length is at most $B$.
 - $\mathrm{PlanEx}$ and $\mathrm{PlanLen}$ is _PSPACE-complete_
 	- *In practice, optimal planning is almost never easy*
----
+
 ## STRIPS planning problem
 ### *STRIPS* = STanford Research Institute Problem Solver
 - Design Goals:

@@ -1,5 +1,5 @@
 # WEEK 3 Planning Methods
----
+
 ## Problem Solving
 ### Autonomous Behaviour in AI
 - Programming-based
@@ -12,7 +12,7 @@
 	- **Ambition 1.0** (Problem Solving) Write one program to solve a problem
 	- **Ambition 2.0** (Problem Generation) Write one program to solve a large class of problems
 	- **Ambition 3.0** (Meta Problem Solving) Write one program to solve a large class of problems **effectively**
----
+
 ## Solving Approaches
 ### Programming-Based Approach
 - **Pro**: Domain-knowledge easy to express
@@ -29,7 +29,7 @@
 - **Pros** Powerful; Quick; Flexible; Clear; Intelligent; Domain-independent
 - **Cons** Need a model (sometimes very hard); Efficiency loss
 - Always need trade-off between “Automatic and general” vs. “Manual work but effective”
----
+
 ## Planning Models
 ### Classical Planning Model 
 - Classical Planning Model = Basic State Model

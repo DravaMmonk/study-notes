@@ -1,6 +1,6 @@
 
 # WEEK 5 Relaxation
----
+
 ## Relaxation 
 - A method to compute heuristic functions $h(n)$
 	- Defines a transformation for **simplifying** the _STRIPS_ problem
@@ -36,7 +36,7 @@ $$
 	- Delete relaxation ← wide-spread for satisficing planning
 	- Abstractions
 	- Landmarks
----
+
 ## Delete Relaxation
  - Apply:
  $$
@@ -51,7 +51,7 @@ $$
 	- If $s$ is a goal state, then $s'$ must be a goal state.
 	- If $a^+$ is applicable in $s$, then $a^+$ must be applicable in $s'$.
 - $Result(s, a^+)$ dominates both $s$ and $Result(s, a)$
----
+
 ## Optimal Delete Relaxation Heuristic ($h^+$)
 ```
 def h_plus(s, G, A):
@@ -102,7 +102,7 @@ def h_plus(s, G, A):
 | B      |       ∞        |    4    |      4      |
 | C      |       ∞        |    5    | 2 (= 4 - 2) |
 
----
+
 ## $h^+$ Approximation Methods
 ### Fast Forward Heuristic ($h_{FF}$)
 ```
@@ -190,5 +190,5 @@ def h_max(s, G, A):
 - Pessimistic Estimation: admissible❌ informed✅ 
 	- However, it may **overcounts** by ignoring positive interactions, i.e. shared-path
 	- May result in dramatic over-estimates of $h^*$
----
+
 ## Relaxed Plans
