@@ -41,16 +41,44 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
+                "file": "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "WEEK-2-Search-Methods"
+              "title": "WEEK-3-Planning-Methods"
+            }
+          },
+          {
+            "id": "34cb778162527a77",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "WEEK-5-Relaxation"
+            }
+          },
+          {
+            "id": "5d35b800b078acb2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
+                "mode": "source",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "WEEK-5-Relaxation"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -123,7 +151,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
+                "file": "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -133,7 +161,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for WEEK-2-Search-Methods"
+              "title": "Backlinks for WEEK-5-Relaxation"
             }
           },
           {
@@ -142,12 +170,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
+                "file": "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from WEEK-2-Search-Methods"
+              "title": "Outgoing links from WEEK-5-Relaxation"
             }
           },
           {
@@ -185,13 +213,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
+                "file": "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of WEEK-2-Search-Methods"
+              "title": "Outline of WEEK-5-Relaxation"
             }
           },
           {
@@ -220,19 +248,18 @@
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
       "bases:Create new base": false,
-      "table-editor-obsidian:Advanced Tables Toolbar": false,
-      "smart-connections:Open: Smart Chat": false,
-      "smart-connections:Smart Connections: Open connections view": false,
-      "smart-connections:Smart Connections: Open random connection": true
+      "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "4ae416b095bb5fb0",
+  "active": "5d35b800b078acb2",
   "lastOpenFiles": [
-    "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
-    "Unimelb/25S2/AIP/WEEK-4-Complexity & Relaxation.md",
+    "Unimelb/25S2/AIP/WEEK-4-Complexity.md",
+    "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
     "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
+    "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
     "Unimelb/25S2/AIP/WEEK-1-General-Basics.md",
-    "Unimelb/25S2/AIP/assets/3_planning_process.png",
+    "Unimelb/25S2/AIP/WEEK-4-PDDL",
+    "Unimelb/25S2/AIP/assets/3_1_planning_process.png",
     "README.md",
     "Unimelb/25S2/AIP/assets/2_summary.png",
     "Unimelb/25S2/AIP/week-1-general-basics.md",

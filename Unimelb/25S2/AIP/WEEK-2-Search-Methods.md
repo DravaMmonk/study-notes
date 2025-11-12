@@ -24,11 +24,13 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # WEEK 2 Search Methods
+---
 ## Search Space
 - A set of search states
-Categories
-- **Progression**: search space = world space
-- **Regression**: search space = a sets of world spaces (conjunctive sub-goals)
+- Forward Search (Progression)
+	- search space = world space (represents the current real world)
+- Backward Search (Regression)
+	- search space = a sets of world spaces (represents all predications of sub-goals)
 ###### EXAMPLE
 In a robot delivery scene:
 ```
@@ -62,26 +64,24 @@ Common Functions:
 - No additional work but rarely effective
 - Informed search requires function $h(x)$ mapping states to estimates their goal distance
 - Effective but lots of work to construct $h(x)$
----
-### Blind Systematic Search
-- **BFS**
-- **DFS**
+### Blind Systematic Search Algorithms
+- **Breadth-First Search**
+- **Depth-First Search**
 - **Iterative Deepening Search**
-	Do DLS(DFS with depth limited) with continuously increasing depth limited
+	- Do DLS(DFS with depth limited) with continuously increasing depth limited by 1.
 
-| Properties       |   BFS    |     DFS     |   IDS    |
-|:---------------- |:--------:|:-----------:|:--------:|
-| Completeness     |    ✅    | ❌ (Cyclic) |    ✅    |
-| Uniform Cost     |    ✅    |     ❌      |    ✅    |
-| Time Complexity  | $O(b^d)$ |  $O(b^m)$   | $O(b^d)$ |
-| Space Complexity | $O(b^d)$ |   $O(d)$    |  $O(d)$  |
+| Properties       |   BFS    |    DFS     |   IDS    |
+| :--------------- | :------: | :--------: | :------: |
+| Completeness     |    ✅     | ❌ (Cyclic) |    ✅     |
+| Uniform Cost     |    ✅     |     ❌      |    ✅     |
+| Time Complexity  | $O(b^d)$ |  $O(b^m)$  | $O(b^d)$ |
+| Space Complexity | $O(b^d)$ |   $O(d)$   |  $O(d)$  |
 
-- $b$ - number of child nodes of each node
-- $d$ - *minimum* depth of all goal nodes
-- $m$ - *maximum* depth of the search tree
+
+
 - Blind Search: *Completeness* 100%, but *poor efficient* when doing hard work
 ---
-### Heuristic Functions
+## Heuristic Functions
 - $h(n)$ - Estimated remaining cost (from current state to goal state)
 - $h^*(n)$ - Real remaining cost
 - **proficiency** of $h(n)$ 
@@ -97,8 +97,8 @@ Common Functions:
 - **Admissible** $\to$ **Safe** and **Goal-aware**
 - *Note: Only these two*
 ---
-### Informed Systematic Search Algorithms
-#### Greedy Best-First Search (with duplicate detection)
+## Informed Systematic Search Algorithms
+### Greedy Best-First Search (with duplicate detection)
 - Use priority queue to sort $h(n)$ of each node in ascending order then do BFS to each node
 - If $h(n) = 0$, it becomes what fully depends on how we break ties
 - Queue: BFS/ Stack: DFS
@@ -124,7 +124,7 @@ def greedy_BFS:
     return failure
 ```
 ---
-#### A* (with duplicate detection and re-opening)
+### A* (with duplicate detection and re-opening)
 - **Only difference between greedy and A\*** $h(n) \rightarrow f(n)$
 - **Re-opening** if a node is closed but we find a better cost(n), then we can re-visit and extend this node
 ```
@@ -147,7 +147,7 @@ def a_star:
     return failure
 ```
 ---
-#### Weighted A*
+### Weighted A*
 $$
 f_W(n) = g(n) + W \cdot h(n)
 $$
@@ -160,7 +160,7 @@ $$
 | $W > 1$        | Bounded sub-optimal A* |
 - If $h$ is admissible, $f_W(n) \le W \cdot h(n)$
 ---
-#### Hill-Climbing
+### Hill-Climbing
 - Local Search: Can only find local maxima
 - Make sense only if h(n) > 0 for all non-goal states
 ```
@@ -177,7 +177,7 @@ def hill_climbing:
     return path
 ```
 ---
-#### Enforced Hill-Climbing
+### Enforced Hill-Climbing
 - Local Search: Do small range BFS when find local optimal
 - Can across small gap between local best and global best
 ```
@@ -202,7 +202,7 @@ def enforced_hill_climbing:
     return path
 ```
 ---
-#### Iterative Deepening A*
+### Iterative Deepening A*
 - IDS + A*: Use f(n) instead of depth to limit IDS
 - In First Search:  f(n) = f(start) = 0 + h(start)
 - Following Searches: f(n) = min_out_of_bound_excess
@@ -219,7 +219,7 @@ def ida_star:
         bound = t
 ```
 ---
-## 3. Evaluation of Search Methods
+## Evaluation of Search Methods
 ### Guarantees
 - **Completeness** sure to find a solution if there is one
 - **Optimality** solutions sure be optimal
@@ -229,7 +229,13 @@ def ida_star:
 	- **Branching factor** $b$ how many successors
 	- **Goal depth** $d$ number of actions to reach shallowest goal state
 ### Summary
-![summary](assets/2_summary.png)
-- $d$ is solution depth; $b$ is branching factor
-- BFS optimal when costs are uniform
-- A*/IDA* optimal when h is admissible ($h \le h^*$)
+|          | DFS         | BFS   | IDS         | A*    | HC       | IDA*        |
+| :------- | ----------- | ----- | ----------- | ----- | -------- | ----------- |
+| Complete | ❌           | ✅     | ✅           | ✅     | ❌        | ✅           |
+| Optimal  | ❌           | ✅*    | ✅           | ✅*    | ❌        | ✅*          |
+| Time     | $\infty$    | $b^d$ | $b^d$       | $b^d$ | $\infty$ | $b^d$       |
+| Space    | $b \cdot d$ | $b^d$ | $b \cdot d$ | $b^d$ | $b$      | $b \cdot d$ |
+- $b$ - Branching Factor: sum of number of child nodes of each node
+- $d$ - Solution Depth: *$minimum$* depth among all goal nodes
+- BFS is optimal only when uniform costs are applied 
+- A*/IDA* is optimal only when $h$ is admissible ($h \le h^*$)
