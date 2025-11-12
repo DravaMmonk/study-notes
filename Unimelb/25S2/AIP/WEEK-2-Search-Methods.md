@@ -26,7 +26,7 @@
 ## 1. Search Space
 A classical search space:
 - $\mathrm{start}(\cdot)$
-- $\mathrm{is\_target}(s)$ $s$ = search states
+- $\mathrm{is}\_\mathrm{target}(s)$ $s$ = search states
 - $\mathrm{succ}(s)$ find the successors/next states of $s$
 
 - **Progression**: search states = world states
