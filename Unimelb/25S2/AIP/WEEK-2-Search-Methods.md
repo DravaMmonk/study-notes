@@ -219,7 +219,7 @@ Complexity:
 		- **Goal depth** $d$ number of actions to reach shallowest goal state
 
 ### Summary
-![summary](2_summary.png)
+![summary](assets/2_summary.png)
 - $d$ is solution depth; $b$ is branching factor
 - BFS optimal when costs are uniform
 - A*/IDA* optimal when h is admissible ($h \le h^*$)

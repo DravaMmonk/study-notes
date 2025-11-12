@@ -23,7 +23,7 @@
 - **Cons** Slower; Hard to know which features to learn 
 ##### Model-Based Approach (Planning)
 - One model for one specific problem
-![Planning Process](Unimelb/25S2/AIP/assets/3_planning_process.png)
+![Planning Process](assets/3_planning_process.png)
 - **Pros** Powerful; Quick; Flexible; Clear; Intelligent; Domain-independent
 - **Cons** Need a model (sometimes very hard); Efficiency loss
 - Always need trade-off between “Automatic and general” vs. “Manual work but effective”
