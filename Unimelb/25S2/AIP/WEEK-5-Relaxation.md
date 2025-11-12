@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [WEEK 5 Relaxation](#week-5-relaxation)
+  - [Relaxation](#relaxation)
+    - [Components](#components)
+    - [Properties - The Relaxation is](#properties---the-relaxation-is)
+        - [Examples](#examples)
+    - [Still Unsatisfactory Efficiency?](#still-unsatisfactory-efficiency)
+  - [Delete Relaxation](#delete-relaxation)
+    - [Dominance](#dominance)
+  - [Optimal Delete Relaxation Heuristic ($h^+$)](#optimal-delete-relaxation-heuristic-h%5E)
+    - [Instance of $h^+$ - Bellman-Ford Algorithm](#instance-of-h%5E---bellman-ford-algorithm)
+          - [Example](#example)
+  - [$h^+$ Approximation Methods](#h%5E-approximation-methods)
+    - [Fast Forward Heuristic ($h_{FF}$)](#fast-forward-heuristic-h_ff)
+    - [Max Heuristic ($h^{max}$)](#max-heuristic-h%5Emax)
+    - [Additive Heuristic ($h^{add}$)](#additive-heuristic-h%5Eadd)
+  - [Relaxed Plans](#relaxed-plans)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 # WEEK 5 Relaxation
 

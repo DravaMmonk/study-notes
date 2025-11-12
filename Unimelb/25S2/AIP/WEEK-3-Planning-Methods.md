@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [WEEK 3 Planning Methods](#week-3-planning-methods)
+  - [Problem Solving](#problem-solving)
+    - [Autonomous Behaviour in AI](#autonomous-behaviour-in-ai)
+    - [3-level Solver Ambitions](#3-level-solver-ambitions)
+  - [Solving Approaches](#solving-approaches)
+    - [Programming-Based Approach](#programming-based-approach)
+    - [Learning-Based Approach](#learning-based-approach)
+    - [Model-Based Approach (Planning)](#model-based-approach-planning)
+  - [Planning Models](#planning-models)
+    - [Classical Planning Model](#classical-planning-model)
+      - [Assumptions](#assumptions)
+      - [Components](#components)
+      - [Outcomes](#outcomes)
+    - [Conformant Planning Model](#conformant-planning-model)
+      - [Components (*Diff with classic*)](#components-diff-with-classic)
+      - [Outcomes](#outcomes-1)
+    - [Markov Decision Processes (MDPs)](#markov-decision-processes-mdps)
+      - [Assumption](#assumption)
+      - [Components *(Diff with conformant)*](#components-diff-with-conformant)
+      - [Outcomes](#outcomes-2)
+    - [Partially Observable MDPs (POMDPs)](#partially-observable-mdps-pomdps)
+      - [Assumption](#assumption-1)
+      - [Components *(Diff with MDPs)*](#components-diff-with-mdps)
+      - [Outcomes](#outcomes-3)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # WEEK 3 Planning Methods
 
 ## Problem Solving

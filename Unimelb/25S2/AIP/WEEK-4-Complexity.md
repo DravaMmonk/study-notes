@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [WEEK 4 Complexity](#week-4-complexity)
+  - [Savitch’s Theorem](#savitchs-theorem)
+  - [Goals Definition](#goals-definition)
+  - [STRIPS planning problem](#strips-planning-problem)
+    - [*STRIPS* = STanford Research Institute Problem Solver](#strips--stanford-research-institute-problem-solver)
+    - [**Components**](#components)
+      - [Action](#action)
+      - [Result of the Action](#result-of-the-action)
+      - [Goal](#goal)
+    - [Properties](#properties)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # WEEK 4 Complexity
 
 ## Savitch’s Theorem 
