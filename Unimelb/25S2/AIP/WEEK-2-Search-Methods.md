@@ -23,27 +23,16 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## 1. Search Space
-A classical search space:
-- $\mathrm{start}(\cdot)$
-- $\mathrm{is}\_\mathrm{target}(s)$ $s$ = search states
-- $\mathrm{succ}(s)$ find the successors/next states of $s$
-
-- **Progression**: search states = world states
-- **Regression**: search states = sets of world states (conjunctive sub-goals)
-
-- Search states: states(verities) of the search space
-- Search nodes: 
-	- $\mathrm{state}(\sigma)$
-	- $\mathrm{parent}(\sigma)$ where $\sigma$ was reached
-	- $\mathrm{action}(\sigma)$ leads from $\mathrm{state}(\mathrm{parent}(\sigma))$ to $\mathrm{state}(\sigma)$
-	- $g(\sigma)$ denotes cost of path from the **root** to $\sigma$
-	- The **root**’s $\mathrm{parent}(\cdot)$ and $\mathrm{action}(\cdot)$ are undefined
-
-###### Example
+# WEEK 2 Search Methods
+## Search Space
+- A set of search states
+Categories
+- **Progression**: search space = world space
+- **Regression**: search space = a sets of world spaces (conjunctive sub-goals)
+###### EXAMPLE
 In a robot delivery scene:
 ```
-world_state_of_the_robot = {
+world_state_of_a_robot = {
     "position": (3, 5),
     "direction": "North",
     "battery": 80,
@@ -55,39 +44,61 @@ Regression:  搜索树上的每个节点共同组成“我们想要所有满足
 ```
 subgoals = {"position": (5, 8), "carrying_package": True}
 ```
-## 2. Search Methods
+Common Functions: 
+- $s$ = search states
+- $\mathrm{is}\_\mathrm{start}(s)$ return if the state is the start state of the search space
+- $\mathrm{is}\_\mathrm{target}(s)$ mark if the state is the goal state of the search space
+- $\mathrm{succ}(s)$ return a list of successors/next states of $s$
+- Search nodes: 
+	- $\mathrm{state}(\sigma)$
+	- $\mathrm{parent}(\sigma)$ where $\sigma$ was reached
+	- $\mathrm{action}(\sigma)$ leads from $\mathrm{state}(\mathrm{parent}(\sigma))$ to $\mathrm{state}(\sigma)$
+	- $g(\sigma)$ denotes cost of path from the **root** to $\sigma$
+	- The **root**’s $\mathrm{parent}(\cdot)$ and $\mathrm{action}(\cdot)$ are undefined
+---
+## Search Methods
 ### Blind Search vs. Informed Search
 - Blind search not require any input beyond the problem
 - No additional work but rarely effective
 - Informed search requires function $h(x)$ mapping states to estimates their goal distance
 - Effective but lots of work to construct $h(x)$
-
+---
 ### Blind Systematic Search
 - **BFS**
 - **DFS**
 - **Iterative Deepening Search**
 	Do DLS(DFS with depth limited) with continuously increasing depth limited
 
-BSS - *Completeness* 100%, but *less efficient* when doing hard work
+| Properties       |   BFS    |     DFS     |   IDS    |
+|:---------------- |:--------:|:-----------:|:--------:|
+| Completeness     |    ✅    | ❌ (Cyclic) |    ✅    |
+| Uniform Cost     |    ✅    |     ❌      |    ✅    |
+| Time Complexity  | $O(b^d)$ |  $O(b^m)$   | $O(b^d)$ |
+| Space Complexity | $O(b^d)$ |   $O(d)$    |  $O(d)$  |
 
+- $b$ - number of child nodes of each node
+- $d$ - *minimum* depth of all goal nodes
+- $m$ - *maximum* depth of the search tree
+- Blind Search: *Completeness* 100%, but *poor efficient* when doing hard work
+---
 ### Heuristic Functions
-- **Heuristic Function** $h(n)$ 
-	- Estimated remaining cost (heuristic value) from current state to goal state
-	- **h*(n)** real remaining cost
-- **proficiency of $h(n)$ **
+- $h(n)$ - Estimated remaining cost (from current state to goal state)
+- $h^*(n)$ - Real remaining cost
+- **proficiency** of $h(n)$ 
 	- $h = h^*$ perfectly informed, $h(n) = h^*(n) - \textbf{optimal } A^*$
 	- $h = 0$ no information at all - uniform cost search
-###### Properties of h(n)
+#### Properties
 - **Safe** $h(n) = \infty$ only if $h^*(n) = \infty$
 - **Goal-aware** $h(\text{goal}) = 0$
 - **Admissible** $h(n) \le h^*(n)$
 - **Consistent** $h(n) \le c(n,n’) + h(n’)$ for all possible $c(n, n’)$
-###### Relationships (Only these two)
-- Consistent and Goal-aware → Admissible
-- Admissible → Safe and Goal-aware
-
+#### Relations of properties
+- **Consistent** and **Goal-aware** $\to$ **Admissible**
+- **Admissible** $\to$ **Safe** and **Goal-aware**
+- *Note: Only these two*
+---
 ### Informed Systematic Search Algorithms
-##### Greedy Best-First Search (with duplicate detection)
+#### Greedy Best-First Search (with duplicate detection)
 - Use priority queue to sort $h(n)$ of each node in ascending order then do BFS to each node
 - If $h(n) = 0$, it becomes what fully depends on how we break ties
 - Queue: BFS/ Stack: DFS
@@ -112,8 +123,8 @@ def greedy_BFS:
             frontier.add(current, h(current), new_path)
     return failure
 ```
-
-##### A* (with duplicate detection and re-opening)
+---
+#### A* (with duplicate detection and re-opening)
 - **Only difference between greedy and A\*** $h(n) \rightarrow f(n)$
 - **Re-opening** if a node is closed but we find a better cost(n), then we can re-visit and extend this node
 ```
@@ -135,8 +146,8 @@ def a_star:
             frontier.add(current, cost(new_path) + h(current), new_path)
     return failure
 ```
-
-##### Weighted A*
+---
+#### Weighted A*
 $$
 f_W(n) = g(n) + W \cdot h(n)
 $$
@@ -148,10 +159,9 @@ $$
 | $W \to \infty$ |          GBFS          |
 | $W > 1$        | Bounded sub-optimal A* |
 - If $h$ is admissible, $f_W(n) \le W \cdot h(n)$
-
-#### Local Search
-##### Hill-Climbing
-- Can only find local maxima
+---
+#### Hill-Climbing
+- Local Search: Can only find local maxima
 - Make sense only if h(n) > 0 for all non-goal states
 ```
 def hill_climbing:
@@ -166,8 +176,9 @@ def hill_climbing:
             break    
     return path
 ```
-##### Enforced Hill-Climbing
-- Do small range BFS when find local optimal
+---
+#### Enforced Hill-Climbing
+- Local Search: Do small range BFS when find local optimal
 - Can across small gap between local best and global best
 ```
 def enforced_hill_climbing:
@@ -190,7 +201,8 @@ def enforced_hill_climbing:
                 return failure
     return path
 ```
-##### Iterative Deepening A*
+---
+#### Iterative Deepening A*
 - IDS + A*: Use f(n) instead of depth to limit IDS
 - In First Search:  f(n) = f(start) = 0 + h(start)
 - Following Searches: f(n) = min_out_of_bound_excess
@@ -206,18 +218,16 @@ def ida_star:
             return failure
         bound = t
 ```
-
-## 3. Search Methods Evaluations
-Guarantees:
-	**Completeness** sure to find a solution if there is one
-	**Optimality** solutions sure be optimal
-
-Complexity: 
-	Time/Space (Measured in generated states/states cost)
-	Typical **state space features** governing complexity
-		- **Branching factor** $b$ how many successors
-		- **Goal depth** $d$ number of actions to reach shallowest goal state
-
+---
+## 3. Evaluation of Search Methods
+### Guarantees
+- **Completeness** sure to find a solution if there is one
+- **Optimality** solutions sure be optimal
+### Complexity
+- Time/Space (Measured in generated states/states cost)
+- Typical **state space features** governing complexity
+	- **Branching factor** $b$ how many successors
+	- **Goal depth** $d$ number of actions to reach shallowest goal state
 ### Summary
 ![summary](assets/2_summary.png)
 - $d$ is solution depth; $b$ is branching factor

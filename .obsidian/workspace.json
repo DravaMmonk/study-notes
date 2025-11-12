@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
+                "file": "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "WEEK-3-Planning-Methods"
+              "title": "WEEK-2-Search-Methods"
             }
           }
         ],
@@ -123,7 +123,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
+                "file": "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -133,7 +133,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for WEEK-3-Planning-Methods"
+              "title": "Backlinks for WEEK-2-Search-Methods"
             }
           },
           {
@@ -142,12 +142,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
+                "file": "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from WEEK-3-Planning-Methods"
+              "title": "Outgoing links from WEEK-2-Search-Methods"
             }
           },
           {
@@ -185,13 +185,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
+                "file": "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of WEEK-3-Planning-Methods"
+              "title": "Outline of WEEK-2-Search-Methods"
             }
           },
           {
@@ -228,13 +228,13 @@
   },
   "active": "4ae416b095bb5fb0",
   "lastOpenFiles": [
-    "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
     "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
     "Unimelb/25S2/AIP/WEEK-4-Complexity & Relaxation.md",
+    "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
+    "Unimelb/25S2/AIP/WEEK-1-General-Basics.md",
     "Unimelb/25S2/AIP/assets/3_planning_process.png",
     "README.md",
     "Unimelb/25S2/AIP/assets/2_summary.png",
-    "Unimelb/25S2/AIP/WEEK-1-General-Basics.md",
     "Unimelb/25S2/AIP/week-1-general-basics.md",
     "Unimelb/25S2/AIP/WEEK.md",
     "Untitled.base",

@@ -1,6 +1,6 @@
 # WEEK 3 Planning Methods
 ---
-## Problem Solving
+## 1. Problem Solving
 ### Autonomous Behaviour in AI
 - Programming-based
 - Learning-Based
@@ -13,7 +13,7 @@
 - **Ambition 2.0** Write one program to solve a large class of problems
 - **Ambition 3.0** Write one program to solve a large class of problems effectively
 ---
-## Solving Approaches
+## 2. Solving Approaches
 ### Programming-Based Approach
 - **Pro**: Domain-knowledge easy to express
 - **Con**: Less Flexible (Can’t deal with situations not anticipated by programmer)
@@ -30,9 +30,8 @@
 - **Cons** Need a model (sometimes very hard); Efficiency loss
 - Always need trade-off between “Automatic and general” vs. “Manual work but effective”
 ---
-## Planning Models
----
-### 1. Classical Planning Model = Basic State Model
+## 3. Planning Models
+### (1) Classical Planning Model = Basic State Model
 - **Ambition** Write one program to solve all classical search problems
 #### Assumptions
 - Environment is deterministic
@@ -49,7 +48,7 @@
 - A seq of actions map s0 into goal states
 - **Optimal** if total cost to goal is minimum
 ---
-### 2. Conformant Planning Model
+### (2) Conformant Planning Model
 * $\approx$ Brute Force
 #### Components (Diff with classic)
 - Initial State $\to$ A set of possible initial states
@@ -60,7 +59,7 @@
 - **Goal Guarantee** Worst/Special case sensitive
 - **Unnecessary Work** Rarely optimal
 ---
-### 3. Markov Decision Processes (MDPs)
+### (3) Markov Decision Processes (MDPs)
 #### Assumption
 * The next state only depends on the current state and actions.
 $$
@@ -73,7 +72,7 @@ $$
 - Functions/Polices mapping states to **actions**
 - **Optimal** if total **expected** cost to goal is minimum
 ---
-### 4. Partially Observable MDPs (POMDPs)
+### (4) Partially Observable MDPs (POMDPs)
 #### Assumption
 - Markov Property
 - **Limited Observation** initial and goal state is **belief**
