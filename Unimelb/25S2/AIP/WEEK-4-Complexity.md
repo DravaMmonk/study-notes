@@ -58,6 +58,7 @@ $$
 - *which could also be seemed as a transition function*
 #### Goal
 - Find a list of actions $[a_1,a_2,a_3,\ldots]$ which satisfies:
+
 $$
 Result(Result(\ldots Result(I,a_1​) \ldots ,a_n−1​),a_n​) \models G
 $$
