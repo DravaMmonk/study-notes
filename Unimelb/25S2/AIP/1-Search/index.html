@@ -49,6 +49,8 @@
       
     
     
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -576,10 +578,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#greedy-best-first-search-with-duplicate-detection" class="md-nav__link">
+  <a href="#greedy-best-first-search-gbfs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Greedy Best-First Search (with duplicate detection)
+        Greedy Best-First Search (GBFS)
       
     </span>
   </a>
@@ -587,13 +589,30 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#a-with-duplicate-detection-and-re-opening" class="md-nav__link">
+  <a href="#a" class="md-nav__link">
     <span class="md-ellipsis">
       
-        A* (with duplicate detection and re-opening)
+        A*
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="A*">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#re-opening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-opening
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -634,7 +653,7 @@
   <a href="#iterative-deepening-a" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Iterative Deepening \(A^*\)
+        Iterative Deepening A*
       
     </span>
   </a>
@@ -719,7 +738,7 @@
   <span class="md-ellipsis">
     
   
-    2 Planning
+    2. Planning
   
 
     
@@ -747,7 +766,7 @@
   <span class="md-ellipsis">
     
   
-    3 Complexity
+    3. Complexity
   
 
     
@@ -775,7 +794,7 @@
   <span class="md-ellipsis">
     
   
-    4Relaxation
+    4. Relaxation
   
 
     
@@ -803,7 +822,7 @@
   <span class="md-ellipsis">
     
   
-    5 Exploration
+    5. Exploration
   
 
     
@@ -831,7 +850,7 @@
   <span class="md-ellipsis">
     
   
-    6 Reinforced Learning
+    6. Reinforced Learning
   
 
     
@@ -859,7 +878,7 @@
   <span class="md-ellipsis">
     
   
-    7 Model-based Reinforced Learning
+    7. Model-based Reinforced Learning
   
 
     
@@ -887,7 +906,7 @@
   <span class="md-ellipsis">
     
   
-    8 Model Free Reinforced Learning
+    8. Model Free Reinforced Learning
   
 
     
@@ -1047,7 +1066,13 @@
 <li><strong>Admissible</strong> <span class="arithmatex">\(\to\)</span> <strong>Safe</strong> &amp; <strong>Goal-aware</strong></li>
 </ul>
 <h2 id="informed-systematic-search-algorithms">Informed Systematic Search Algorithms<a class="headerlink" href="#informed-systematic-search-algorithms" title="Permanent link">&para;</a></h2>
-<h3 id="greedy-best-first-search-with-duplicate-detection">Greedy Best-First Search (with duplicate detection)<a class="headerlink" href="#greedy-best-first-search-with-duplicate-detection" title="Permanent link">&para;</a></h3>
+<h3 id="greedy-best-first-search-gbfs">Greedy Best-First Search (GBFS)<a class="headerlink" href="#greedy-best-first-search-gbfs" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use <strong>priority queue</strong> to sort <span class="arithmatex">\(h(n)\)</span> of each node in ascending order<ul>
+<li>If <span class="arithmatex">\(h(n) = 0\)</span>, it becomes what fully depends on how we break ties</li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre><span></span><code>def greedy_BFS:
     frontier = priority queue ordered by h(n)
     explored = set
@@ -1067,22 +1092,24 @@
     return unsolvable
 </code></pre></div>
 <ul>
-<li>Use <strong>priority queue</strong> to sort <span class="arithmatex">\(h(n)\)</span> of each node in ascending order<ul>
-<li>If <span class="arithmatex">\(h(n) = 0\)</span>, it becomes what fully depends on how we break ties</li>
-</ul>
-</li>
 <li>Completeness✅for safe heuristics; Optimal❌</li>
 </ul>
 <hr />
-<h3 id="a-with-duplicate-detection-and-re-opening">A* (with duplicate detection and re-opening)<a class="headerlink" href="#a-with-duplicate-detection-and-re-opening" title="Permanent link">&para;</a></h3>
+<h3 id="a">A*<a class="headerlink" href="#a" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Only difference from GBFS:<ul>
+<li><span class="arithmatex">\(h(n) \rightarrow f(n) = g(n) + h(n)\)</span></li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre><span></span><code>def a_star:
     frontier = priority queue ordered by f(n) = g(n) + h(n)
     explored = set
     path = list
-    frontier.add(start, h(start), path)
+    frontier.add(h(start), start, path)
     
     while frontier:
-        current = frontier.pop()
+        _, current, path = frontier.pop()
         if current == goal:
             return path
         if current in explored:
@@ -1090,13 +1117,44 @@
         explored.add(current)
         for successor in succ(current):
             new_path = path + action(current, successor)
-✏️            frontier.add(cost(new_path) + h(current), current, new_path)
+            f = cost(new_path) + h(current)
+✏️          frontier.add(f, successor, new_path)
     return unsolvable
 </code></pre></div>
+<h4 id="re-opening">Re-opening<a class="headerlink" href="#re-opening" title="Permanent link">&para;</a></h4>
 <ul>
-<li><strong>Only difference between greedy and A*</strong> <span class="arithmatex">\(h(n) \rightarrow f(n) = g(n) + h(n)\)</span></li>
-<li><strong>Re-opening</strong> if a node is closed but we find a better cost(n), then we can re-visit and extend this node</li>
+<li>a node <span class="arithmatex">\(n\)</span> is in <code>explored</code> but if we find a cheaper <span class="arithmatex">\(g(n)\)</span>, then we can re-open the <code>explored</code> set and extend this node</li>
+<li>Not needed if consistent✅<ul>
+<li><span class="arithmatex">\(g\)</span> is already cheapest</li>
 </ul>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>def a_star_with_re_opening:
+    frontier = priority queue ordered by f(n) = g(n) + h(n)
+    explored = set
+    path = list
+    frontier.add(h(start), start, path)
+
+✏️  g = dict
+✏️  g[start] = 0
+
+    while frontier:
+        _, current, path = frontier.pop()
+        if current == goal:
+            return path
+        explored.add(current)
+        for successor in succ(current):
+            new_path = path + action(current, successor)
+            new_g = cost(new_path)
+            if successor not in g or new_g &lt; g[successor]:
+                [successor] = new_g
+                f = g[successor] + h(successor)
+                frontier.add(f, successor, f)
+
+✏️              if successor in explored:     # Re-opening
+✏️                  explored.remove(successor)
+    return unsolvable
+</code></pre></div>
 <hr />
 <h3 id="weighted-a">Weighted A*<a class="headerlink" href="#weighted-a" title="Permanent link">&para;</a></h3>
 <div class="arithmatex">\[
@@ -1172,7 +1230,7 @@ f_W(n) = g(n) + W \cdot h(n)
 - Local Search: Do small range BFS when find local optimal
 - Can across small gap between local best and global best</p>
 <hr />
-<h3 id="iterative-deepening-a">Iterative Deepening <span class="arithmatex">\(A^*\)</span><a class="headerlink" href="#iterative-deepening-a" title="Permanent link">&para;</a></h3>
+<h3 id="iterative-deepening-a">Iterative Deepening A*<a class="headerlink" href="#iterative-deepening-a" title="Permanent link">&para;</a></h3>
 <ul>
 <li>IDS + <span class="arithmatex">\(A^*\)</span>: Use f(n) instead of depth to limit IDS<ul>
 <li>In First Search:  f(n) = f(start) = 0 + h(start)</li>

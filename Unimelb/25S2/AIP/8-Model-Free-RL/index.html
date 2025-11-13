@@ -21,7 +21,7 @@
     
     
       
-        <title>8 Model Free Reinforced Learning - Drava's Study Notes</title>
+        <title>8. Model Free Reinforced Learning - Drava's Study Notes</title>
       
     
     
@@ -46,6 +46,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -108,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              8 Model Free Reinforced Learning
+              8. Model Free Reinforced Learning
             
           </span>
         </div>
@@ -442,7 +444,7 @@
   <span class="md-ellipsis">
     
   
-    2 Planning
+    2. Planning
   
 
     
@@ -470,7 +472,7 @@
   <span class="md-ellipsis">
     
   
-    3 Complexity
+    3. Complexity
   
 
     
@@ -498,7 +500,7 @@
   <span class="md-ellipsis">
     
   
-    4Relaxation
+    4. Relaxation
   
 
     
@@ -526,7 +528,7 @@
   <span class="md-ellipsis">
     
   
-    5 Exploration
+    5. Exploration
   
 
     
@@ -554,7 +556,7 @@
   <span class="md-ellipsis">
     
   
-    6 Reinforced Learning
+    6. Reinforced Learning
   
 
     
@@ -582,7 +584,7 @@
   <span class="md-ellipsis">
     
   
-    7 Model-based Reinforced Learning
+    7. Model-based Reinforced Learning
   
 
     
@@ -619,7 +621,7 @@
   <span class="md-ellipsis">
     
   
-    8 Model Free Reinforced Learning
+    8. Model Free Reinforced Learning
   
 
     
@@ -637,7 +639,7 @@
   <span class="md-ellipsis">
     
   
-    8 Model Free Reinforced Learning
+    8. Model Free Reinforced Learning
   
 
     
@@ -671,14 +673,37 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Monte Carlo (MC) Learning">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mc-prediction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MC Prediction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MC Prediction">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#mc-policy-evaluation" class="md-nav__link">
+  <a href="#classical-policy-evaluation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        MC Policy Evaluation
+        Classical Policy Evaluation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Classical Policy Evaluation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#first-visit-vs-every-visit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First-Visit vs. Every-Visit
       
     </span>
   </a>
@@ -687,6 +712,161 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alpha-style-prediction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        \(\alpha\)-style prediction
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mc-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MC Control
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#temporal-difference-td-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporal Difference (TD) Learning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#td-prediction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TD Prediction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TD Prediction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#td0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TD(0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tdn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TD(n)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#td" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TD(𝝀)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TD(𝝀)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#eligibility-traces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Eligibility Traces
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forward-vs-backward-view" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forward vs. Backward View
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mc-vs-td" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MC vs. TD
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MC vs. TD">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-driving-home" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example - Driving Home
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-based-vs-model-free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model-based vs. Model-free
+      
+    </span>
+  </a>
   
 </li>
       
@@ -739,7 +919,7 @@
 
 
 
-<h1 id="8-model-free-reinforced-learning">8 Model Free Reinforced Learning<a class="headerlink" href="#8-model-free-reinforced-learning" title="Permanent link">&para;</a></h1>
+<h1 id="8-model-free-reinforced-learning">8. Model Free Reinforced Learning<a class="headerlink" href="#8-model-free-reinforced-learning" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="monte-carlo-mc-learning">Monte Carlo (MC) Learning<a class="headerlink" href="#monte-carlo-mc-learning" title="Permanent link">&para;</a></h2>
 <ul>
@@ -747,50 +927,121 @@
 <li>Calculate the <strong>average reward</strong> of them: <em>value = mean return</em></li>
 <li><em>Note: can only apply to </em><em>episodic</em><em> MDPs （有终止状态的Markov Decision Process)</em></li>
 </ul>
-<h3 id="mc-policy-evaluation">MC Policy Evaluation<a class="headerlink" href="#mc-policy-evaluation" title="Permanent link">&para;</a></h3>
+<h2 id="mc-prediction">MC Prediction<a class="headerlink" href="#mc-prediction" title="Permanent link">&para;</a></h2>
+<h3 id="classical-policy-evaluation">Classical Policy Evaluation<a class="headerlink" href="#classical-policy-evaluation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Compute value-function by using <strong>empirical mean</strong> instead of expectation
+    $$
+    V(s) = \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(N(s)\)</span> - how many times <span class="arithmatex">\(G_t\)</span> is visited</li>
+<li>when <span class="arithmatex">\(N(s) \to \infty\)</span>, <span class="arithmatex">\(V(s) \to v_\pi(s)\)</span>.</li>
+</ul>
+</li>
+</ul>
+<h4 id="first-visit-vs-every-visit">First-Visit vs. Every-Visit<a class="headerlink" href="#first-visit-vs-every-visit" title="Permanent link">&para;</a></h4>
+<ul>
+<li>In each episode, when the state will be counted and updated</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>First-Visit MC</th>
+<th>Every-Visit MC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>When?</td>
+<td>Only the <em>first</em> time appeard</td>
+<td><em>Every</em> time appeard</td>
+</tr>
+<tr>
+<td>Pros</td>
+<td>Avoids dependence between multiple visits</td>
+<td>Faster convergence in practice</td>
+</tr>
+<tr>
+<td>Cons</td>
+<td>Some visits ignored</td>
+<td>Higher variance</td>
+</tr>
+<tr>
+<td>Suitable Scenario</td>
+<td>Long episodes with repeated states</td>
+<td>Short episodes or rare-state situations</td>
+</tr>
+</tbody>
+</table>
+<h3 id="alpha-style-prediction"><span class="arithmatex">\(\alpha\)</span>-style prediction<a class="headerlink" href="#alpha-style-prediction" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>In practice, we often use learning rate <span class="arithmatex">\(\alpha\)</span> to replace strict mean:
+    $$
+    V(s) \gets V(s) + \alpha(G_t - V(s))
+    $$</p>
+<ul>
+<li>online learning supported</li>
+<li>better performance in non-stationary environment</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="mc-control">MC Control<a class="headerlink" href="#mc-control" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="temporal-difference-td-learning">Temporal Difference (TD) Learning<a class="headerlink" href="#temporal-difference-td-learning" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Key Mechanisms: <strong>bootstrap + sample</strong><ul>
+<li>Sampling: an "1-step experience" (TD(0))<ul>
+<li><span class="arithmatex">\(e = \{S_t \to A_t \to R_{t+1}, S_{t+1}\}\)</span></li>
+</ul>
+</li>
+<li>Bootstrapping: use estimation of future values to update the current value</li>
+</ul>
+</li>
+</ul>
 <div class="arithmatex">\[
-V_\pi(s) = \mathbb{E}\left[G \mid s \right]
+\text{TD-target} = \text{sample} + \gamma \cdot \text{bootstrap}
+\]</div>
+<hr />
+<h2 id="td-prediction">TD Prediction<a class="headerlink" href="#td-prediction" title="Permanent link">&para;</a></h2>
+<h3 id="td0">TD(0)<a class="headerlink" href="#td0" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Look 1-step
+$$
+V(S_t) \gets V(s_t) + \alpha(R_{t+1} + \gamma V(s_{t+1})-V(s_t))
+$$</p>
+</li>
+<li>
+<p><span class="arithmatex">\(R_{t+1}\)</span> - real reward</p>
+</li>
+<li><span class="arithmatex">\(\delta = R_{t+1} + \gamma V(s_{t+1})-V(s_t)\)</span> - TD Error</li>
+</ul>
+<h3 id="tdn">TD(n)<a class="headerlink" href="#tdn" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Look more steps into the future
+$$
+G^{(n)}<em>t = R</em>{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + {{\gamma^n V(S_{t+n})}}
+$$</li>
+</ul>
+<div class="arithmatex">\[
+\begin{align*}
+\color{red}{n} &amp; \color{red}{= 1}\ \text{(TD(0))}      &amp; G_t^{(1)}      &amp; = R_{t+1} + \gamma V(S_{t+1})\\[2pt]
+\color{red}{n} &amp; \color{red}{= 2}                   &amp; G_t^{(2)}      &amp; = R_{t+1} + \gamma R_{t+2} + \gamma^2 V(S_{t+2})\\[2pt]
+\color{red}{\vdots} &amp;                   &amp; \vdots         &amp; \\[2pt]
+\color{red}{n} &amp; \color{red}{= \infty}\ \text{(MC)} &amp; G_t^{(\infty)} &amp; = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{T-1} R_T
+\end{align*}
 \]</div>
 <ul>
-<li>Compute empirical mean from current time, using as many samples as we can</li>
-<li><strong>First-Visit MC</strong> Counting reward of only first visit of state s in each episode (from start to goal)</li>
-<li><strong>Every-Visit MC</strong> Counting reward of every visit of s in each episode</li>
-<li>Approximate V𝜋(s) finally but often slow and high square error</li>
-</ul>
-<p><strong>Temporal Difference (TD) Learning - bootstrap + sample</strong></p>
-<ul>
 <li>
-<p><strong>Lively update Value of state</strong> by “reward of current step + evaluation of next step”</p>
-</li>
-<li>
-<p>Don’t need to wait for the termination like MC, just approximate step by step</p>
-</li>
-</ul>
-<p><strong>TD(0) - Simplest TD Learning Algorithm</strong></p>
-<ul>
-<li>
-<p>V(s) ← V(s) + 𝛼[R + 𝛾V(s′) − V(s)]</p>
-</li>
-<li>
-<p><strong>V</strong> = value function</p>
-</li>
-<li><strong>R</strong> = reward</li>
-<li>𝜸 = discount factor (importance of next step reward)</li>
-<li><strong>R +</strong> 𝜸<strong>V(s′) − V(s)</strong> = 𝜹 =TD error (if we under/over-evaluate V(s))</li>
-<li>𝜶 = learning rate (length of each step) for normalisation</li>
-<li><strong>V(s) ← V(s) +</strong> 𝜶 · 𝜹 = Compromise of old V(s) and Error correction</li>
-</ul>
-<p><strong>TD(n) - Look more steps into the future</strong></p>
-<ul>
-<li>G(t; n) = R(t+1) <strong>+</strong> 𝜸R(t+2) + 𝜸²R(t+3) + ... + 𝜸ⁿ⁻¹R(t+n) + 𝜸ⁿV(S(t+n))</li>
-<li>
-<p>V(S(t)) ← V(S(t)) + 𝛼(G(t;n) - V(S(t))</p>
-</li>
-<li>
-<p>When n → ∞, TD(n) = MC</p>
-</li>
-<li>
-<p>How to choose n: </p>
+<p>Update in direction of error ([#<span class="arithmatex">\(\alpha\)</span>-style prediction])
+$$
+V(S_t) \;\leftarrow\; V(S_t) + \alpha \big({{G_t^{(n)} - V(S_t)}} \big)
+$$</p>
 </li>
 <li>
 <p>Root Mean Square (RMS) Errors 均方差根 ← 𝛼<strong>;</strong> online/offline updates (𝛼 → 0 or 𝛼 → 1)</p>
@@ -799,101 +1050,272 @@ V_\pi(s) = \mathbb{E}\left[G \mid s \right]
 <li>Small n → More rely on prediction, faster but higher bias</li>
 <li>Large n → More rely on exploitation, more precise but higher variance</li>
 </ul>
-<p><strong>TD(</strong>𝝀<strong>) - Average 1,2,…,n-Step Returns</strong></p>
+<h3 id="td">TD(𝝀)<a class="headerlink" href="#td" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>G(t; 𝜆) = (1 - 𝜆) · 𝛴 𝜆ⁿ⁻¹ G(t; n)</p>
+<p>Average n-Steps Returns</p>
 </li>
 <li>
-<p>When 𝜆 = 1, TD(𝜆) = MC; 𝜆 = 0, TD(𝜆) = TD(0)</p>
+<p>G(t; 𝜆) = (1 - 𝜆) · 𝛴 𝜆ⁿ⁻¹ G(t; n)</p>
 </li>
 <li>
 <p>Using weight (1 - 𝜆) · 𝜆ⁿ⁻¹ to balance short-term and long-term rewards</p>
 </li>
 </ul>
-<p><strong>Eligibility Traces - Simplify calculation of G(t;</strong> 𝝀<strong>)</strong></p>
+<h4 id="eligibility-traces">Eligibility Traces<a class="headerlink" href="#eligibility-traces" title="Permanent link">&para;</a></h4>
 <ul>
+<li>Simplify calculation of G(t; 𝝀**)</li>
 <li>
 <p>Define a <strong>trace</strong> E(t; s) of every state = How many time visited and how far from current state</p>
-</li>
-<li>
-<p>E(t; s)  =  𝛾𝜆E(t-1; s) + <em>1 if S(t) = s else 0</em></p>
+<ul>
+<li>E(t; s)  =  𝛾𝜆E(t-1; s) + <em>1 if S(t) = s else 0</em></li>
+</ul>
 </li>
 <li>
 <p>If we visit the state, it’s trace goes up suddenly (by 1), if we don’t visit it, it falls down continuously</p>
-</li>
-<li>
-<p>V(s) ← V(s) + 𝛼 · 𝛿 · E(t; s)</p>
+<ul>
+<li>V(s) ← V(s) + 𝛼 · 𝛿 · E(t; s)</li>
+</ul>
 </li>
 </ul>
-<p><strong>Forward View &amp; Backward View</strong></p>
+<h4 id="forward-vs-backward-view">Forward vs. Backward View<a class="headerlink" href="#forward-vs-backward-view" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Original way calculating G(t; 𝜆) is a <strong>Forward View</strong> of 𝜆-Reward, we have to wait episodes terminate so that we can calculate all G(t; n) (offline)</li>
-<li>
-<p>Eligibility Traces is a <strong>Backward View</strong> of 𝜆-Reward, we update prediction of state step by step(online)</p>
-</li>
-<li>
-<p>Backward Propagation - Use Eligibility Traces to propagate TD error 𝛿</p>
-</li>
-<li>
-<p>state visited more times  = more responsible on current TD error</p>
-</li>
-<li>
-<p><strong>Forward View = Backward View (in Batch/offline update)</strong></p>
-</li>
+<li>Eligibility Traces is a <strong>Backward View</strong> of 𝜆-Reward, we update prediction of state step by step(online)<ul>
+<li><strong>Backward Propagation</strong> - Use Eligibility Traces to propagate TD error</li>
+<li>state visited more times  = more responsible on current TD error</li>
 </ul>
-<p><strong>MC vs. TD</strong></p>
+</li>
+<li>Forward View = Backward View (in Batch/offline update)</li>
+</ul>
+<hr />
+<h2 id="mc-vs-td">MC vs. TD<a class="headerlink" href="#mc-vs-td" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Monte-Carlo (MC)</th>
+<th>Temporal-Difference (TD)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Learning timing</td>
+<td>Offline - Must wait until the episode ends</td>
+<td>Online - Learn after each step</td>
+</tr>
+<tr>
+<td>Assumption Needed</td>
+<td>episodic (terminating) environment only</td>
+<td>both episodic and continuing</td>
+</tr>
+<tr>
+<td>Target used</td>
+<td><span class="arithmatex">\(G_t\)</span></td>
+<td><span class="arithmatex">\(R_{t+1} + \gamma V(S_{t+1}\)</span>)</td>
+</tr>
+<tr>
+<td>Exploits Markov property?</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Bias</td>
+<td>Unbiased (return is true target)</td>
+<td>Biased (bootstraps using V(s′))</td>
+</tr>
+<tr>
+<td>Variance</td>
+<td>High (Every-visit)</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>B-V Trade-off</td>
+<td>Bias = 0, Variance ↑</td>
+<td>Bias ↑, Variance ↓</td>
+</tr>
+<tr>
+<td>Efficiency in Markov env</td>
+<td>⚠️Less efficient</td>
+<td>✅More efficient</td>
+</tr>
+<tr>
+<td>Efficiency in non-Markov or PMDP env</td>
+<td>✅More efficient with backup learning</td>
+<td>⚠️Less efficient</td>
+</tr>
+<tr>
+<td>Optimisation in limited experience (Batch)</td>
+<td>Average Return = minimise MSE</td>
+<td>Fit the most likelihood Markov model that best explains the data</td>
+</tr>
+</tbody>
+</table>
+<h5 id="example-driving-home">Example - Driving Home<a class="headerlink" href="#example-driving-home" title="Permanent link">&para;</a></h5>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Elapsed Time (min)</th>
+<th>Predicted Time to Go</th>
+<th>Predicted Total Time</th>
+<th>MC Update (After Back Home)</th>
+<th>MC New Predicated Time</th>
+<th>TD(0) Update - <span class="arithmatex">\(\gamma = 1, \alpha = 0.5\)</span></th>
+<th>TD New Predicated Time</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>leaving office</td>
+<td>0</td>
+<td>30</td>
+<td>30</td>
+<td>43</td>
+<td>43-0=43</td>
+<td>30+0.5(5+35-30)=35</td>
+<td>35-0=35</td>
+<td></td>
+</tr>
+<tr>
+<td>reach car, raining</td>
+<td>5</td>
+<td>35</td>
+<td>40</td>
+<td>43</td>
+<td>43-5=38</td>
+<td>40+0.5(20+15-40)=37.5</td>
+<td>37.5-5=32.5</td>
+<td></td>
+</tr>
+<tr>
+<td>exit highway</td>
+<td>20</td>
+<td>15</td>
+<td>35</td>
+<td>43</td>
+<td>43-20=23</td>
+<td>35+0.5(30+10-35)=37.5</td>
+<td>37.5-20=17.5</td>
+<td></td>
+</tr>
+<tr>
+<td>behind truck</td>
+<td>30</td>
+<td>10</td>
+<td>40</td>
+<td>43</td>
+<td>43-30=13</td>
+<td>40+0.5(40+3-40)=41.5</td>
+<td>41.5-30=11.5</td>
+<td></td>
+</tr>
+<tr>
+<td>home street</td>
+<td>40</td>
+<td>3</td>
+<td>43</td>
+<td>43</td>
+<td>43-40=3</td>
+<td>43+0.5(43+0-43)=43</td>
+<td>43-40=3</td>
+<td></td>
+</tr>
+<tr>
+<td>arrive home</td>
+<td>43</td>
+<td>0</td>
+<td>43</td>
+<td>43</td>
+<td>43-43=0</td>
+<td>43</td>
+<td>43-43=0</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>##### Example - BATCH</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li>
-<p>TD can learn without knowing the final outcome</p>
-</li>
-<li>
-<p>TD can learn <strong>online</strong> after every step</p>
-</li>
-<li>MC must wait until episode ends.  (offline)</li>
-<li>TD can learn from incomplete sequences</li>
-<li>MC can only learn from complete sequences</li>
-<li>TD works in continuing (non-terminating) environment</li>
-<li>
-<p>MC only works for episodic (terminating) environment </p>
-</li>
-<li>
-<p>Bias vs. Variance Trade-Off</p>
-</li>
-<li>
-<p>MC based on rewards after terminate <strong>unbiased</strong></p>
-</li>
-<li>True TD target is an <strong>unbiased</strong> estimated of V(s)</li>
-<li>Predicted TD target use V(s’) (next step value) to estimate V𝜋(s) (total value) → <strong>biased</strong></li>
-<li>MC bias0 variance↑</li>
-<li>
-<p>TD bias↑ variance↓</p>
-</li>
-<li>
-<p>TD exploits Markov property while MC doesn’t</p>
-</li>
-<li>
-<p>TD more efficient in Markov environment</p>
-</li>
-<li>
-<p>MC more effective in non-Markov environment</p>
-</li>
-<li>
-<p><strong>Partial observability &amp; non-stationarity</strong> → Environment can be non-Markov</p>
-</li>
-<li>
-<p>Bootstrapping and Sampling</p>
-</li>
-<li>
-<p>TD samples and bootstraps; MC samples but does not bootstrap</p>
-</li>
-<li>Tree Search (with heuristic search)/DP bootstraps but does not sample</li>
+<li>2-states: <span class="arithmatex">\(A\)</span>, <span class="arithmatex">\(B\)</span></li>
+<li>Reward Signal = <span class="arithmatex">\(\{0, 1\}\)</span></li>
+<li>Sampled Episodes:<ul>
+<li><span class="arithmatex">\(A \to 0\)</span>, <span class="arithmatex">\(B \to 0\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 0\)</span></li>
 </ul>
-<p><strong>Monte Carlo Tree Search (MCTS) - planning with a model</strong></p>
-<ul>
-<li>Selection → <strong>Expansion</strong> → <strong>Simulation</strong> → Back-propagation </li>
+</li>
+<li>MC Update:<ul>
+<li><span class="arithmatex">\(V(B) = 6/8 = 0.75\)</span></li>
+<li><span class="arithmatex">\(V(A) = 0 / 1 = 0\)</span></li>
 </ul>
-<p><strong>Multi-arm Bandits - UCB</strong></p>
+</li>
+<li>TD(0) Update:<ul>
+<li><span class="arithmatex">\(V(B) \to0.75\)</span></li>
+<li><span class="arithmatex">\(V(A) \to V(B) \to 0.75\)</span></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="model-based-vs-model-free">Model-based vs. Model-free<a class="headerlink" href="#model-based-vs-model-free" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Backup</th>
+<th>Bootstrap?</th>
+<th>Sampling?</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MC</td>
+<td>Full return</td>
+<td>❌Only real return</td>
+<td>✅Whole episode</td>
+<td>Unbiased; simple; intuitive</td>
+<td>High Variance; episodic needed; slow convergence</td>
+</tr>
+<tr>
+<td>TD(0)</td>
+<td>Next Step</td>
+<td>✅Estimate by next state V</td>
+<td>✅1-Step</td>
+<td>Low variance; online</td>
+<td>Biased; se</td>
+</tr>
+<tr>
+<td>Classical DP/Tree Search</td>
+<td>Full Expectation</td>
+<td>✅model-based bootstrapping</td>
+<td>❌All branches</td>
+<td>Precise; Fast convergence; High Controllability</td>
+<td>Model needed; Low Generalisation</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Comparison" src="../assets/8_1_depth_width.svg" /></p>
 
 
 
