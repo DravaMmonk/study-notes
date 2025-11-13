@@ -22,63 +22,21 @@
             }
           },
           {
-            "id": "43d2a28f5ea59a7b",
+            "id": "5abd86d438111420",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "WEEK-3-Planning-Methods"
-            }
-          },
-          {
-            "id": "4ae416b095bb5fb0",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
+                "file": "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
                 "mode": "source",
                 "source": true
-              },
-              "icon": "lucide-file",
-              "title": "WEEK-3-Planning-Methods"
-            }
-          },
-          {
-            "id": "34cb778162527a77",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "WEEK-7-Reinforced-Learning"
-            }
-          },
-          {
-            "id": "b161bfa052e2df04",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
-                "mode": "source",
-                "source": false
               },
               "icon": "lucide-file",
               "title": "WEEK-7-Reinforced-Learning"
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -135,7 +93,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 438.50312423706055
+    "width": 438.50312423706055,
+    "collapsed": true
   },
   "right": {
     "id": "6d8aeca418b42b5f",
@@ -236,7 +195,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -250,10 +210,15 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "b161bfa052e2df04",
+  "active": "5abd86d438111420",
   "lastOpenFiles": [
-    "7_1_maze.png",
+    "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
+    "docs/Unimelb/25S2/AIP/WEEK-8-Model-Free-Prediction.md",
+    "site/assets/images/favicon.png",
+    "docs/Unimelb/25S2/AIP/assets/7_1_maze 1.png",
     "docs/Unimelb/25S2/AIP/assets/7_1_maze.png",
+    "site/Unimelb/25S2 3",
+    "site/Unimelb/25S2/AIP/assets/7_1_maze.png",
     "site/Unimelb/25S2 2",
     "site/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning/index.html",
     "site/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning",
@@ -262,7 +227,6 @@
     "site/Unimelb/25S2/AIP/WEEK-2-Search/index.html",
     "site/Unimelb/25S2/AIP/WEEK-2-Search",
     "docs/Unimelb/25S2/AIP/WEEK-7-2-Markov-Learning-Process.md",
-    "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
     "docs/Unimelb/25S2/AIP/WEEK-6-Exploration-and-Exploitation.md",
     "docs/index.md",
     "docs/Unimelb/25S2/AIP/WEEK-3-Planning.md",
@@ -271,9 +235,7 @@
     "docs/Unimelb/25S2/AIP/WEEK-4-Complexity.md",
     "site/assets/javascripts/lunr/min/lunr.zh.min.js",
     "site/assets/javascripts/lunr/min/lunr.vi.min.js",
-    "site/assets/javascripts/lunr/min/lunr.tr.min.js",
     "site/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
-    "site/assets/images/favicon.png",
     "docs/Unimelb/25S2/AIP/WEEK-1-General-Basics.md",
     "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
     "docs/Unimelb/25S2/AIP/assets/3_1_planning_process.png",

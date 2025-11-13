@@ -131,6 +131,7 @@ flowchart LR
 	$$
 	M = \langle S, A, P, R, \gamma \rangle
 	$$
+	
 	- $A$ - a finite set of actions
 	- $P(s \to s) = P(s' \mid s)$
 	- $R(s) = \mathbb{E}[R' \mid s]$
@@ -152,20 +153,26 @@ flowchart LR
 	- → Model-based/Model-free
 
 ---
-### Value Function - $V(s)$
+### Value Function - $V(s), Q(s)$
 
-- Define and predict value of the state and future reward
+- Define and predict value of the state and future reward by using the expectation
+- State-value Function
+	- Return the value of current state
+		$$
+		V(s_t) = \mathbb{E}\big[G_t \mid s_t\big]
+		$$
+
+- State-action-value Function
+	- Return the value of the current state with a deterministic action applied
+		$$
+		Q_\pi(s_t,a) = \mathbb{E}_\pi \big[\, G_t \mid s_t,\, a \,\big]
+		$$
+
+- $G_t$ - the total discounted reward from time-step $t$
 	$$
-	V(s) = \mathbb{E}(G \mid s)
+	G_t = R_{t+1} + \gamma R_{t+2} + \ldots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}
 	$$
 	
-	- $\mathbb{E}(G \mid s)$ - Expect of future rewards
-
-- **Bellman Equation** 
-		- $G = R + \gamma G'$
-		- $\to V = R + \gamma PV \to V = (I - \gamma P)^{-1}R$
-		- $O(n^3)$
-		
 - Value function is **NOT** necessary for RL 
 	- → Value-based Model/ Policy-based Model
 
@@ -219,32 +226,7 @@ $$
 $$
 
 ---
-### Example - MAZE
-![Maze](assets/7_1_maze.png)
-- $S$ - Agent's possible locations
-- $A$ - Step directions $\mathtt{N, E, S, W}$
-- $R$ - $-1$ per time-step (encourage short-path solution)
-- $V(s)$ - the expected return of following the policy from each $s$ 
-	- closer to $g$ - $V(s)$ ⤴
-	- Farther away - $V(S)$ ⤵
-- $\pi(s)$ - Best action = Best $V(s')$
-- **Model**
-	- **Transition model** $P_{ss'}^a$ - how each action changes the state.
-	- **Reward model** $R_{s}^a$ - immediate reward from each state (same for all $a$).
-	- The model can be imperfect but supports planning and prediction.
-
----
-### Categorise of RL agents
-- Model
-	- **Model Based** - Simulate environment to gain first experience 
-	- **Model Free** - Gain experience from real interaction directly
-- Value-Policy
-	- **Value Based** - No Policy
-	- **Policy Based** - No Value Function = Policy Gradient
-	- **Actor-Critic** - Policy Based 演员 + Value Based 评论家
-
----
-## Balance Exploration & Exploitation in RL
+### Balance Exploration & Exploitation in Policy Design
 - **Exploitation** - select currently-known best action
 - **Exploration** - try a new action
 - **Trade-off Strategies**
@@ -267,3 +249,89 @@ $$
 			- $c$ - importance of exploration (**parameter**)
 			- $\ln{t}$ - explore more when time goes
 			- $N(a)$ - not try too many times on one same action
+
+---
+### Example - MAZE
+![Maze](assets/7_1_maze.png)
+
+- $S$ - Agent's possible locations
+- $A$ - Step directions $\mathtt{N, E, S, W}$
+- $R$ - $-1$ per time-step (encourage short-path solution)
+- $V(s)$ - the expected return of following the policy from each $s$ 
+	- closer to $g$ - $V(s)$ ⤴
+	- Farther away - $V(S)$ ⤵
+- $\pi(s)$ - Best action = Best $V(s')$
+- **Model**
+	- **Transition model** $P_{ss'}^a$ - how each action changes the state.
+	- **Reward model** $R_{s}^a$ - immediate reward from each state (same for all $a$).
+	- The model can be imperfect but supports planning and prediction.
+
+---
+### Categorise of RL agents
+- Model?
+	- **Model Based** - Simulate environment to gain first experience 
+	- **Model Free** - Gain experience from real interaction directly
+- Value-or-Policy?
+	- **Value Based** - No Policy
+	- **Policy Based** - No Value Function = Policy Gradient
+	- **Actor-Critic** - Policy Based 演员 + Value Based 评论家
+
+---
+## Solving a MDP Problem
+- Solve MDP
+- = Give a policy to find the best behaviour of the current state
+- = Find an action with $maximum$ action-value
+- = Optimise the Value Function
+
+### Optimal Value Function - $v_\ast(s)$, $q_\ast(s, a)$
+- Optimal State-value Function
+$$
+v_\ast(s) = \max_\pi v_\pi(s)
+$$
+
+- Optimal State-action-value Function
+$$
+q_\ast(s,a) = \max_\pi q_\pi(s,a)
+$$
+
+---
+### Bellman Equation 
+- A method for recursively handling with $v(s)$ evaluation and optimisation
+		$$ G_t = R_{t+1} + \gamma G_{t+1} $$
+	
+	- Based on "*look-ahead then back-up*" computational mechanism
+		- **Look-ahead**: to the next step → $r, s'$
+		- **Back-up**: to the current state → $v(s) = f(r,s')$
+
+| Categories  |                                                   Formula                                                   |
+| :---------- | :---------------------------------------------------------------------------------------------------------: |
+| Expectation |                        $$ v_\pi(s) = \mathbb{E}\left[r + \gamma v_\pi(s')\right] $$                         |
+|             |          $$ q_\pi(s,a) = \mathbb{E}\left[r + \gamma\mathbb{E} \left[q_\pi(s',a')\right]\right] $$           |
+| Expended    |       $$ v_\pi(s) = \sum_a \pi(a\mid s)\sum_{s',r} p(s',r\mid s,a)\bigl[r + \gamma v_\pi(s')\bigr] $$       |
+|             | $$ q_\pi(s,a) = \sum_{s',r} p(s',r\mid s,a)\left[r + \gamma \sum_{a'} \pi(a'\mid s') q_\pi(s',a')\right] $$ |
+| Optimality  |                 $$ v_\ast(s) = \max_a \mathbb{E}\left[\, r + \gamma v_\ast(s') \,\right] $$                 |
+|             |                $$ q_\ast(s,a) = \mathbb{E}\left[r + \gamma \max_{a'} q_\ast(s',a')\right] $$                |
+| Expended    |       $$ v_\ast(s) = \max_{a} \sum_{s'} P(s' \mid s,a)\left[ R(s,a,s') + \gamma v_\ast(s') \right] $$       |
+|             |       $$ q_\ast(s,a) = \sum_{s',r} p(s',r\mid s,a)\left[r + \gamma \max_{a'} q_\ast(s',a')\right] $$        |
+
+
+#### Solving the Bellman Equation
+- Solving the Bellman Expectation Equation
+	- Directly Compute $O(n^3)$
+$$
+v = R + \gamma Pv \to v = (I - \gamma P)^{-1}R
+$$
+
+		- only possible for small $P$ matrix
+
+	- Dynamic Programming
+	- Monte-Carlo Evaluation
+	- Temporal-Difference Learning
+
+- Solving the Bellman Optimality Equation
+	- No closed form solution
+	- Value Iteration
+	- Policy Iteration
+	- Q-learning
+	- SARSA
+
