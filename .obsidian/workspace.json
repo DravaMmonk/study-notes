@@ -97,12 +97,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
+                "file": "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
-              "title": "WEEK-2-Search-Methods"
+              "title": "WEEK-3-Planning-Methods"
             }
           }
         ],
@@ -281,10 +281,10 @@
   },
   "active": "a9c131e095fe66ae",
   "lastOpenFiles": [
+    "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
     "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
     "Unimelb/25S2/AIP/WEEK-6-Exploration-and-Exploitation.md",
     "Unimelb/25S2/AIP/WEEK-7-Introduce-to-Reinforced-Learning.md",
-    "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
     "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
     "Unimelb/25S2/AIP/WEEK-4-Complexity.md",
     "Unimelb/25S2/AIP/WEEK-1-General-Basics.md",

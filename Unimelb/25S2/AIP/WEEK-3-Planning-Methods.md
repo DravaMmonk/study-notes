@@ -53,25 +53,25 @@
 ## Planning Models
 ### Classical Planning Model 
 - Classical Planning Model = Basic State Model
-- Assumptions
-	- Deterministic
-	- Fully Observable
-	- Static World
-	- Discrete Time & Finite Actions
-	- Uniform Cost
-- Components 
+#### Assumptions
+- Deterministic
+- Fully Observable
+- Static World
+- Discrete Time & Finite Actions
+- Uniform Cost
+#### Components 
 $$
 M = \langle S, A, T, I, G \rangle
 $$
-	- $S$ - State spaces 
-	- $A(s)$ - Actions applicable for $s \in S$
-	- $T$ - Deterministic Transition Function: $s’ = T(A(s), s)$ shows one successor $s’$ of $s$
-	- $I$ Initial state
-	- $G$ Goal states
-	- Uniform action costs $c(A(s), s) = 1$
-- Outcomes
-	- A seq of actions map $s_0$ into $g$
-	- **Optimal** if total cost to goal is minimum
+- $S$ - State spaces 
+- $A(s)$ - Actions applicable for $s \in S$
+- $T$ - Deterministic Transition Function: $s’ = T(A(s), s)$ shows one successor $s’$ of $s$
+- $I$ Initial state
+- $G$ Goal states
+- Uniform action costs $c(A(s), s) = 1$
+#### Outcomes
+- A seq of actions map $s_0$ into $g$
+- **Optimal** if total cost to goal is minimum
 ---
 ### Conformant Planning Model
 * $\approx$ Brute Force
