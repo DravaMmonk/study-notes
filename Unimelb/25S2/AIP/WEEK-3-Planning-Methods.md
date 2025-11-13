@@ -87,10 +87,12 @@ $$
 ---
 ### Markov Decision Processes (MDPs)
 #### Assumption
+- Markov Property: the next state only depends on the current state and actions.
+
 $$
 P(s_{t+1} \mid s_t,a_t,s_{t-1},a_{t-1},\ldots) = P(s_{t+1} \mid s_t,a_t) 
 $$
-- Markov Property: the next state only depends on the current state and actions.
+
 - Fully Observable
 - Discrete Time & Finite Actions
 - Fixed Transition Probabilities
