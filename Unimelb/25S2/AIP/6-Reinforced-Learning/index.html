@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../WEEK-6-Exploration-and-Exploitation/">
+        <link rel="prev" href="../5-Exploration/">
       
       
-        <link rel="next" href="../WEEK-8-Model-Free-Prediction/">
+        <link rel="next" href="../7-Model-based%20RL/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>WEEK 7 Reinforced Learning - Drava's Study Notes</title>
+        <title>6 Reinforced Learning - Drava's Study Notes</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#week-7-reinforced-learning" class="md-skip">
+        <a href="#6-reinforced-learning" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              WEEK 7 Reinforced Learning
+              6 Reinforced Learning
             
           </span>
         </div>
@@ -409,14 +409,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-1-General-Basics/" class="md-nav__link">
+      <a href="../1-Search/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 1 General Basics
+    1. Search
   
 
     
@@ -437,14 +437,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-2-Search/" class="md-nav__link">
+      <a href="../2-Planning/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 2 Search
+    2 Planning
   
 
     
@@ -465,14 +465,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-3-Planning/" class="md-nav__link">
+      <a href="../3-Complexity/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 3 Planning
+    3 Complexity
   
 
     
@@ -493,14 +493,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-4-Complexity/" class="md-nav__link">
+      <a href="../4-Relaxation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 4 Complexity
+    4Relaxation
   
 
     
@@ -521,42 +521,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-5-Relaxation/" class="md-nav__link">
+      <a href="../5-Exploration/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 5 Relaxation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../WEEK-6-Exploration-and-Exploitation/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    WEEK 6 Exploration &amp; Exploitation
+    5 Exploration
   
 
     
@@ -593,7 +565,7 @@
   <span class="md-ellipsis">
     
   
-    WEEK 7 Reinforced Learning
+    6 Reinforced Learning
   
 
     
@@ -611,7 +583,7 @@
   <span class="md-ellipsis">
     
   
-    WEEK 7 Reinforced Learning
+    6 Reinforced Learning
   
 
     
@@ -716,21 +688,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#markov-decision-process" class="md-nav__link">
+  <a href="#state-s-p" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Markov Decision Process
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#general-assumption-s-p" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        General Assumption - \(S, P\)
+        State - \(S, P\)
       
     </span>
   </a>
@@ -742,67 +703,6 @@
     <span class="md-ellipsis">
       
         Reward - \(R\)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#discount-factor-gamma" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Discount Factor - \(\gamma\)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Discount Factor - \(\gamma\)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#why-discounting-is-used-in-mdps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Discounting is Used in MDPs
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#markov-process" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Markov process
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#markov-reward-processes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Markov Reward Processes
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#markov-decision-process_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Markov Decision Process
       
     </span>
   </a>
@@ -827,10 +727,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#model" class="md-nav__link">
+  <a href="#model-p-r" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Model
+        Model - \(P, R\)
       
     </span>
   </a>
@@ -838,10 +738,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#value-function-vs-qs" class="md-nav__link">
+  <a href="#value-function-v-q" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Value Function - \(V(s), Q(s)\)
+        Value Function - \(V, Q\)
       
     </span>
   </a>
@@ -849,22 +749,50 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#policy-pia-mid-s" class="md-nav__link">
+  <a href="#discount-factor-gamma" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Policy - \(\pi(a \mid s)\)
+        Discount Factor - \(\gamma\)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Policy - \(\pi(a \mid s)\)">
+    <nav class="md-nav" aria-label="Discount Factor - \(\gamma\)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#no-policy" class="md-nav__link">
+  <a href="#why-discounting-is-used" class="md-nav__link">
     <span class="md-ellipsis">
       
-        No Policy
+        Why Discounting is Used
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policy-pi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy - \(\pi\)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Policy - \(\pi\)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#implicit-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implicit Policy
       
     </span>
   </a>
@@ -904,11 +832,6 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
   <a href="#balance-exploration-exploitation-in-policy-design" class="md-nav__link">
     <span class="md-ellipsis">
@@ -917,6 +840,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -932,69 +860,13 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#categorise-of-rl-agents" class="md-nav__link">
+  <a href="#categories-of-rl-algorithms" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Categorise of RL agents
+        Categories of RL Algorithms
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#solving-a-mdp-problem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Solving a MDP Problem
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Solving a MDP Problem">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#optimal-value-function-v_asts-q_asts-a" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optimal Value Function - \(v_\ast(s)\), \(q_\ast(s, a)\)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#bellman-equation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Bellman Equation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Bellman Equation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#solving-the-bellman-equation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Solving the Bellman Equation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1019,14 +891,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-8-Model-Free-Prediction/" class="md-nav__link">
+      <a href="../7-Model-based%20RL/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 8 Model Free Prediction
+    7 Model-based Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8-Model-Free-RL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 Model Free Reinforced Learning
   
 
     
@@ -1080,11 +980,11 @@
 
 
 
-<h1 id="week-7-reinforced-learning">WEEK 7 Reinforced Learning<a class="headerlink" href="#week-7-reinforced-learning" title="Permanent link">&para;</a></h1>
+<h1 id="6-reinforced-learning">6 Reinforced Learning<a class="headerlink" href="#6-reinforced-learning" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="reinforced-learning">Reinforced Learning<a class="headerlink" href="#reinforced-learning" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Map Situations <span class="arithmatex">\(s\)</span> → Actions <span class="arithmatex">\(A\)</span> - so as to <span class="arithmatex">\(maximise\)</span> the Rewards <span class="arithmatex">\(R\)</span></li>
+<li>Policy + Reward + Trial-and-error interaction</li>
 </ul>
 <h3 id="planning-vs-learning">Planning vs Learning<a class="headerlink" href="#planning-vs-learning" title="Permanent link">&para;</a></h3>
 <table>
@@ -1214,22 +1114,17 @@
         V["Value Function V(s)"]
     end
 
-    S --&gt;|"(1) Input State"| P
+    S --&gt;|"(1) State s"| P
     P --&gt;|"(2) Action a"| Env
     Env --&gt;|"(3) Reward r, Next State s'"| V
     V --&gt;|"(4) Update Policy"| P
 </code></pre>
 <hr />
 <h2 id="environments">Environments<a class="headerlink" href="#environments" title="Permanent link">&para;</a></h2>
-<h3 id="markov-decision-process">Markov Decision Process<a class="headerlink" href="#markov-decision-process" title="Permanent link">&para;</a></h3>
-<ul>
-<li>MDP - General Simulator of the environment for Model-based RL</li>
-<li><em>Almost all RL problems can be formalised as MDPs</em></li>
-</ul>
-<h3 id="general-assumption-s-p">General Assumption - <span class="arithmatex">\(S, P\)</span><a class="headerlink" href="#general-assumption-s-p" title="Permanent link">&para;</a></h3>
+<h3 id="state-s-p">State - <span class="arithmatex">\(S, P\)</span><a class="headerlink" href="#state-s-p" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>State is Markov
+<p>All RL Algorithms assume that State is Markov:
     $$
     P(s' \mid s + H(s), a) = P(s' \mid s, a)
     $$</p>
@@ -1249,99 +1144,6 @@
 </li>
 </ul>
 <hr />
-<h3 id="discount-factor-gamma">Discount Factor - <span class="arithmatex">\(\gamma\)</span><a class="headerlink" href="#discount-factor-gamma" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Gamma (<span class="arithmatex">\(\gamma \ge 0\)</span>)</th>
-<th>Behaviour</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><span class="arithmatex">\(\gamma = 0\)</span></td>
-<td>Greedy</td>
-</tr>
-<tr>
-<td><span class="arithmatex">\(\gamma \to 0\)</span></td>
-<td>Myopic</td>
-</tr>
-<tr>
-<td><span class="arithmatex">\(\gamma \to 1\)</span></td>
-<td>Far-sighted</td>
-</tr>
-<tr>
-<td><span class="arithmatex">\(\gamma = 1\)</span></td>
-<td><strong>Guarantee</strong> only if all sequence terminate</td>
-</tr>
-</tbody>
-</table>
-<h4 id="why-discounting-is-used-in-mdps">Why Discounting is Used in MDPs<a class="headerlink" href="#why-discounting-is-used-in-mdps" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Technical Reasons</strong></li>
-<li>Makes modelling and computation easier (Bellman equations converge cleanly)</li>
-<li>Prevents infinite returns in cyclic Markov processes</li>
-<li>
-<p>Reflects uncertainty about far-future outcomes</p>
-</li>
-<li>
-<p><strong>Realistic Reasons</strong></p>
-</li>
-<li>In financial settings, immediate rewards can be reinvested (time value of money)</li>
-<li>Human and animal behaviour shows preference for immediate rewards over delayed rewards</li>
-</ul>
-<hr />
-<h3 id="markov-process">Markov process<a class="headerlink" href="#markov-process" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>A <em>memoryless</em> random process 
-    $$
-    M = \langle S, P \rangle
-    $$</p>
-<ul>
-<li><span class="arithmatex">\(S\)</span> - a finite set of states</li>
-<li><span class="arithmatex">\(P\)</span> - a state transition probability <strong><em>matrix</em></strong>, which maps every two states in <span class="arithmatex">\(S\)</span><ul>
-<li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
-<li>Each row of <span class="arithmatex">\(P\)</span> sums to 1</li>
-<li>🅄 For showing actions validations and non-deterministic</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h3 id="markov-reward-processes">Markov Reward Processes<a class="headerlink" href="#markov-reward-processes" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>A Markov chain with reward values:
-    $$
-    M = \langle S, P, R, \gamma \rangle
-    $$</p>
-<ul>
-<li><span class="arithmatex">\(R\)</span> - the reward function<ul>
-<li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
-</ul>
-</li>
-<li><span class="arithmatex">\(\gamma\)</span> - discount factor</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h3 id="markov-decision-process_1">Markov Decision Process<a class="headerlink" href="#markov-decision-process_1" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>Introduce <strong>agency</strong> 能动性 in terms of actions:
-    $$
-    M = \langle S, A, P, R, \gamma \rangle
-    $$</p>
-<ul>
-<li><span class="arithmatex">\(A\)</span> - a finite set of actions</li>
-<li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
-<li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
-</ul>
-</li>
-</ul>
-<hr />
 <h2 id="agents">Agents<a class="headerlink" href="#agents" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Prediction</strong>: Evaluate the future rewards of state-actions<ul>
@@ -1354,10 +1156,11 @@
 </li>
 </ul>
 <hr />
-<h3 id="model">Model<a class="headerlink" href="#model" title="Permanent link">&para;</a></h3>
+<h3 id="model-p-r">Model - <span class="arithmatex">\(P, R\)</span><a class="headerlink" href="#model-p-r" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Predicts what the environment will do next<ul>
-<li>→ Probability Function + Reward Function</li>
+<li>An internal simulator for predicting what the environment will do next<ul>
+<li>Transition Model: <span class="arithmatex">\(P(s' \mid s,a)\)</span></li>
+<li>Reward Model: <span class="arithmatex">\(R(s,a) = \mathbb{E}\left[\, R_{t+1} \mid s_t, a \,\right]\)</span></li>
 </ul>
 </li>
 <li>Simulation is <strong>NOT</strong> necessary for RL <ul>
@@ -1366,9 +1169,12 @@
 </li>
 </ul>
 <hr />
-<h3 id="value-function-vs-qs">Value Function - <span class="arithmatex">\(V(s), Q(s)\)</span><a class="headerlink" href="#value-function-vs-qs" title="Permanent link">&para;</a></h3>
+<h3 id="value-function-v-q">Value Function - <span class="arithmatex">\(V, Q\)</span><a class="headerlink" href="#value-function-v-q" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Define and predict value of the state and future reward by using the expectation</li>
+<li>Define and predict values of (current and future) states<ul>
+<li>by using the expectation of rewards</li>
+</ul>
+</li>
 <li>
 <p>State-value Function</p>
 <ul>
@@ -1401,17 +1207,64 @@
 </li>
 </ul>
 <hr />
-<h3 id="policy-pia-mid-s">Policy - <span class="arithmatex">\(\pi(a \mid s)\)</span><a class="headerlink" href="#policy-pia-mid-s" title="Permanent link">&para;</a></h3>
+<h3 id="discount-factor-gamma">Discount Factor - <span class="arithmatex">\(\gamma\)</span><a class="headerlink" href="#discount-factor-gamma" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Gamma (<span class="arithmatex">\(\gamma \ge 0\)</span>)</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\gamma = 0\)</span></td>
+<td>Greedy</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma \to 0\)</span></td>
+<td>Myopic</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma \to 1\)</span></td>
+<td>Far-sighted</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma = 1\)</span></td>
+<td><strong>Guarantee</strong> only if all sequence terminate</td>
+</tr>
+</tbody>
+</table>
+<h4 id="why-discounting-is-used">Why Discounting is Used<a class="headerlink" href="#why-discounting-is-used" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p><strong>Technical Reasons</strong></p>
+<ul>
+<li>Makes modelling and computation easier (Bellman equations converge cleanly)</li>
+<li>Prevents infinite returns in cyclic Markov processes</li>
+<li>Reflects uncertainty about far-future outcomes</li>
+</ul>
+</li>
+<li>
+<p><strong>Realistic Reasons</strong></p>
+<ul>
+<li>In financial settings, immediate rewards can be reinvested (time value of money)</li>
+<li>Human and animal behaviour shows preference for immediate rewards over delayed rewards</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="policy-pi">Policy - <span class="arithmatex">\(\pi\)</span><a class="headerlink" href="#policy-pi" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fully defines agent's behaviour</li>
 <li><strong>Stationary</strong> (Time-independent) - Only relies on the current state</li>
 </ul>
-<h4 id="no-policy">No Policy<a class="headerlink" href="#no-policy" title="Permanent link">&para;</a></h4>
+<h4 id="implicit-policy">Implicit Policy<a class="headerlink" href="#implicit-policy" title="Permanent link">&para;</a></h4>
 <div class="arithmatex">\[
 a = \arg\max_{a} Q(s, a) = \arg\max_{a} \sum^{s'} P(s,a,s') \cdot V(s')
 \]</div>
 <ul>
-<li>Compare expectations of all valid actions <span class="arithmatex">\(\approx\)</span> Brute Force</li>
+<li>Compare expectations of all valid actions <span class="arithmatex">\(\sim\)</span> Brute Force</li>
+<li>Common use in model-based RL</li>
 </ul>
 <h4 id="deterministic-policy">Deterministic Policy<a class="headerlink" href="#deterministic-policy" title="Permanent link">&para;</a></h4>
 <div class="arithmatex">\[
@@ -1454,7 +1307,7 @@ $$</p>
 \end{aligned}
 \]</div>
 <hr />
-<h3 id="balance-exploration-exploitation-in-policy-design">Balance Exploration &amp; Exploitation in Policy Design<a class="headerlink" href="#balance-exploration-exploitation-in-policy-design" title="Permanent link">&para;</a></h3>
+<h4 id="balance-exploration-exploitation-in-policy-design">Balance Exploration &amp; Exploitation in Policy Design<a class="headerlink" href="#balance-exploration-exploitation-in-policy-design" title="Permanent link">&para;</a></h4>
 <ul>
 <li><strong>Exploitation</strong> - select currently-known best action</li>
 <li><strong>Exploration</strong> - try a new action</li>
@@ -1470,7 +1323,7 @@ $$</p>
 <ul>
 <li>set a probability to each action and a temperature <span class="arithmatex">\(\tau\)</span> to control randomising
     $$
-    P(a) = \frac{\exp(\hat{Q}(a) / \tau)}{\sum_{a'} \exp(\hat{Q}(a') / \tau)}
+    P(a) = \frac{\exp(Q(a) / \tau)}{\sum_{a'} \exp(Q(a') / \tau)}
     $$</li>
 </ul>
 </li>
@@ -1480,7 +1333,7 @@ $$</p>
 <li>
 <p>exploitation + exploration bonus
     $$
-    a = \arg\max_a \left( \hat{Q}(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
+    a = \arg\max_a \left( Q(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
     $$</p>
 <ul>
 <li><span class="arithmatex">\(c\)</span> - importance of exploration (<strong>parameter</strong>)</li>
@@ -1514,7 +1367,7 @@ $$</p>
 </li>
 </ul>
 <hr />
-<h3 id="categorise-of-rl-agents">Categorise of RL agents<a class="headerlink" href="#categorise-of-rl-agents" title="Permanent link">&para;</a></h3>
+<h3 id="categories-of-rl-algorithms">Categories of RL Algorithms<a class="headerlink" href="#categories-of-rl-algorithms" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Model?<ul>
 <li><strong>Model Based</strong> - Simulate environment to gain first experience </li>
@@ -1522,121 +1375,9 @@ $$</p>
 </ul>
 </li>
 <li>Value-or-Policy?<ul>
-<li><strong>Value Based</strong> - No Policy</li>
+<li><strong>Value Based</strong> - Implicit Policy</li>
 <li><strong>Policy Based</strong> - No Value Function = Policy Gradient</li>
 <li><strong>Actor-Critic</strong> - Policy Based 演员 + Value Based 评论家</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="solving-a-mdp-problem">Solving a MDP Problem<a class="headerlink" href="#solving-a-mdp-problem" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Solve MDP</li>
-<li>= Give a policy to find the best behaviour of the current state</li>
-<li>= Find an action with <span class="arithmatex">\(maximum\)</span> action-value</li>
-<li>= Optimise the Value Function</li>
-</ul>
-<h3 id="optimal-value-function-v_asts-q_asts-a">Optimal Value Function - <span class="arithmatex">\(v_\ast(s)\)</span>, <span class="arithmatex">\(q_\ast(s, a)\)</span><a class="headerlink" href="#optimal-value-function-v_asts-q_asts-a" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>Optimal State-value Function
-$$
-v_\ast(s) = \max_\pi v_\pi(s)
-$$</p>
-</li>
-<li>
-<p>Optimal State-action-value Function
-$$
-q_\ast(s,a) = \max_\pi q_\pi(s,a)
-$$</p>
-</li>
-</ul>
-<hr />
-<h3 id="bellman-equation">Bellman Equation<a class="headerlink" href="#bellman-equation" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>A method for recursively handling with <span class="arithmatex">\(v(s)\)</span> evaluation and optimisation
-        $$ G_t = R_{t+1} + \gamma G_{t+1} $$</p>
-<ul>
-<li>Based on "<em>look-ahead then back-up</em>" computational mechanism<ul>
-<li><strong>Look-ahead</strong>: to the next step → <span class="arithmatex">\(r, s'\)</span></li>
-<li><strong>Back-up</strong>: to the current state → <span class="arithmatex">\(v(s) = f(r,s')\)</span></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Categories</th>
-<th style="text-align: center;">Formula</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">Expectation</td>
-<td style="text-align: center;">$$ v_\pi(s) = \mathbb{E}\left[r + \gamma v_\pi(s')\right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;"></td>
-<td style="text-align: center;">$$ q_\pi(s,a) = \mathbb{E}\left[r + \gamma\mathbb{E} \left[q_\pi(s',a')\right]\right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;">Expended</td>
-<td style="text-align: center;">$$ v_\pi(s) = \sum_a \pi(a\mid s)\sum_{s',r} p(s',r\mid s,a)\bigl[r + \gamma v_\pi(s')\bigr] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;"></td>
-<td style="text-align: center;">$$ q_\pi(s,a) = \sum_{s',r} p(s',r\mid s,a)\left[r + \gamma \sum_{a'} \pi(a'\mid s') q_\pi(s',a')\right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;">Optimality</td>
-<td style="text-align: center;">$$ v_\ast(s) = \max_a \mathbb{E}\left[\, r + \gamma v_\ast(s') \,\right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;"></td>
-<td style="text-align: center;">$$ q_\ast(s,a) = \mathbb{E}\left[r + \gamma \max_{a'} q_\ast(s',a')\right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;">Expended</td>
-<td style="text-align: center;">$$ v_\ast(s) = \max_{a} \sum_{s'} P(s' \mid s,a)\left[ R(s,a,s') + \gamma v_\ast(s') \right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;"></td>
-<td style="text-align: center;">$$ q_\ast(s,a) = \sum_{s',r} p(s',r\mid s,a)\left[r + \gamma \max_{a'} q_\ast(s',a')\right] $$</td>
-</tr>
-</tbody>
-</table>
-<h4 id="solving-the-bellman-equation">Solving the Bellman Equation<a class="headerlink" href="#solving-the-bellman-equation" title="Permanent link">&para;</a></h4>
-<ul>
-<li>
-<p>Solving the Bellman Expectation Equation</p>
-<ul>
-<li>
-<p>Directly Compute <span class="arithmatex">\(O(n^3)\)</span>
-$$
-v = R + \gamma Pv \to v = (I - \gamma P)^{-1}R
-$$</p>
-<ul>
-<li>only possible for small <span class="arithmatex">\(P\)</span> matrix</li>
-</ul>
-</li>
-<li>
-<p>Dynamic Programming</p>
-</li>
-<li>Monte-Carlo Evaluation</li>
-<li>Temporal-Difference Learning</li>
-</ul>
-</li>
-<li>
-<p>Solving the Bellman Optimality Equation</p>
-<ul>
-<li>No closed form solution</li>
-<li>Value Iteration</li>
-<li>Policy Iteration</li>
-<li>Q-learning</li>
-<li>SARSA</li>
 </ul>
 </li>
 </ul>

@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../WEEK-2-Search/">
+        <link rel="prev" href="../3-Complexity/">
       
       
-        <link rel="next" href="../WEEK-4-Complexity/">
+        <link rel="next" href="../5-Exploration/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>WEEK 3 Planning - Drava's Study Notes</title>
+        <title>4Relaxation - Drava's Study Notes</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#week-3-planning" class="md-skip">
+        <a href="#4relaxation" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              WEEK 3 Planning
+              4Relaxation
             
           </span>
         </div>
@@ -409,14 +409,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-1-General-Basics/" class="md-nav__link">
+      <a href="../1-Search/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 1 General Basics
+    1. Search
   
 
     
@@ -437,14 +437,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-2-Search/" class="md-nav__link">
+      <a href="../2-Planning/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 2 Search
+    2 Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3-Complexity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 Complexity
   
 
     
@@ -481,7 +509,7 @@
   <span class="md-ellipsis">
     
   
-    WEEK 3 Planning
+    4Relaxation
   
 
     
@@ -499,7 +527,7 @@
   <span class="md-ellipsis">
     
   
-    WEEK 3 Planning
+    4Relaxation
   
 
     
@@ -525,22 +553,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#problem-solving" class="md-nav__link">
+  <a href="#relaxation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Problem Solving
+        Relaxation
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Problem Solving">
+    <nav class="md-nav" aria-label="Relaxation">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#autonomous-behaviour-in-ai" class="md-nav__link">
+  <a href="#components" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Autonomous Behaviour in AI
+        Components
       
     </span>
   </a>
@@ -548,10 +576,38 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-level-solver-ambitions" class="md-nav__link">
+  <a href="#properties" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3-level Solver Ambitions
+        Properties
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#still-inefficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Still Inefficiency?
       
     </span>
   </a>
@@ -564,44 +620,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#solving-approaches" class="md-nav__link">
+  <a href="#delete-relaxation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Solving Approaches
+        Delete Relaxation
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Solving Approaches">
+    <nav class="md-nav" aria-label="Delete Relaxation">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#programming-based-approach" class="md-nav__link">
+  <a href="#dominance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Programming-Based Approach
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#learning-based-approach" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Learning-Based Approach
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#model-based-approach-planning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Model-Based Approach (Planning)
+        Dominance
       
     </span>
   </a>
@@ -614,22 +648,67 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planning-models" class="md-nav__link">
+  <a href="#optimal-delete-relaxation-heuristic-h" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Planning Models
+        Optimal Delete Relaxation Heuristic (\(h^+\))
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Planning Models">
+    <nav class="md-nav" aria-label="Optimal Delete Relaxation Heuristic (\(h^+\))">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#classical-planning-model" class="md-nav__link">
+  <a href="#bellman-ford-algorithm" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Classical Planning Model
+        Bellman-Ford Algorithm
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bellman-Ford Algorithm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#h-approximation-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        \(h^+\)-Approximation Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="\(h^+\)-Approximation Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plan-existence-checking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plan Existence Checking
       
     </span>
   </a>
@@ -637,10 +716,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#conformant-planning-model" class="md-nav__link">
+  <a href="#max-heuristic-hmax" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Conformant Planning Model
+        Max Heuristic (\(h^{max}\))
       
     </span>
   </a>
@@ -648,10 +727,38 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#markov-decision-processes-mdps" class="md-nav__link">
+  <a href="#additive-heuristic-hadd" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Markov Decision Processes (MDPs)
+        Additive Heuristic (\(h^{add}\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relaxed-plans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relaxed Plans
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relaxed Plans">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#best-supporter-function-bsp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Supporter Function \(bs(p)\)
       
     </span>
   </a>
@@ -659,10 +766,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#partially-observable-mdps-pomdps" class="md-nav__link">
+  <a href="#helpful-actions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Partially Observable MDPs (POMDPs)
+        Helpful Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relaxed-plan-heuristic-h_ff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relaxed Plan Heuristic (\(h_{FF}\))
       
     </span>
   </a>
@@ -690,14 +808,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-4-Complexity/" class="md-nav__link">
+      <a href="../5-Exploration/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 4 Complexity
+    5 Exploration
   
 
     
@@ -718,14 +836,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-5-Relaxation/" class="md-nav__link">
+      <a href="../6-Reinforced-Learning/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 5 Relaxation
+    6 Reinforced Learning
   
 
     
@@ -746,14 +864,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-6-Exploration-and-Exploitation/" class="md-nav__link">
+      <a href="../7-Model-based%20RL/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 6 Exploration &amp; Exploitation
+    7 Model-based Reinforced Learning
   
 
     
@@ -774,42 +892,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-7-Reinforced-Learning/" class="md-nav__link">
+      <a href="../8-Model-Free-RL/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 7 Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../WEEK-8-Model-Free-Prediction/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    WEEK 8 Model Free Prediction
+    8 Model Free Reinforced Learning
   
 
     
@@ -863,178 +953,347 @@
 
 
 
-<h1 id="week-3-planning">WEEK 3 Planning<a class="headerlink" href="#week-3-planning" title="Permanent link">&para;</a></h1>
+<h1 id="4relaxation">4Relaxation<a class="headerlink" href="#4relaxation" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="problem-solving">Problem Solving<a class="headerlink" href="#problem-solving" title="Permanent link">&para;</a></h2>
-<h3 id="autonomous-behaviour-in-ai">Autonomous Behaviour in AI<a class="headerlink" href="#autonomous-behaviour-in-ai" title="Permanent link">&para;</a></h3>
+<h2 id="relaxation">Relaxation<a class="headerlink" href="#relaxation" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Programming-based</li>
-<li>Learning-Based</li>
-<li>Model-Based</li>
-<li>Approaches not orthogonal</li>
-<li>Different models yield different types of <strong>controllers</strong> 执行动作的策略模块</li>
-</ul>
-<h3 id="3-level-solver-ambitions">3-level Solver Ambitions<a class="headerlink" href="#3-level-solver-ambitions" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Ambition</strong>: Write one program to solve all classical search problems<ul>
-<li><strong>Ambition 1.0</strong> (Problem Solving) Write one program to solve a problem</li>
-<li><strong>Ambition 2.0</strong> (Problem Generation) Write one program to solve a large class of problems</li>
-<li><strong>Ambition 3.0</strong> (Meta Problem Solving) Write one program to solve a large class of problems <strong>effectively</strong></li>
+<li>A method to compute heuristic functions <span class="arithmatex">\(h(n)\)</span><ul>
+<li>Defines a transformation for <strong>simplifying</strong> the <em>STRIPS</em> problem</li>
 </ul>
 </li>
 </ul>
-<hr />
-<h2 id="solving-approaches">Solving Approaches<a class="headerlink" href="#solving-approaches" title="Permanent link">&para;</a></h2>
-<h3 id="programming-based-approach">Programming-Based Approach<a class="headerlink" href="#programming-based-approach" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Pro</strong>: Domain-knowledge easy to express</li>
-<li><strong>Con</strong>: Less Flexible (Can’t deal with situations not anticipated by programmer)</li>
-</ul>
-<h3 id="learning-based-approach">Learning-Based Approach<a class="headerlink" href="#learning-based-approach" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Unsupervised/Reinforced Learning: Use reward &amp; penalise</li>
-<li>Supervised: Use labelled data</li>
-<li>Evolutionary: Use original controllers to mutate and recombine to build better controller</li>
-<li><strong>Pros</strong> Dose not require much knowledge in principle </li>
-<li><strong>Cons</strong> Slower; Hard to know which features to learn </li>
-</ul>
-<h3 id="model-based-approach-planning">Model-Based Approach (Planning)<a class="headerlink" href="#model-based-approach-planning" title="Permanent link">&para;</a></h3>
-<ul>
-<li>One model for one specific problem
-<img alt="Planning Process" src="../assets/3_1_planning_process.png" /></li>
-<li><strong>Pros</strong> Powerful; Quick; Flexible; Clear; Intelligent; Domain-independent</li>
-<li><strong>Cons</strong> Need a model (sometimes very hard); Efficiency loss</li>
-<li>Always need trade-off between “Automatic and general” vs. “Manual work but effective”</li>
-</ul>
-<hr />
-<h2 id="planning-models">Planning Models<a class="headerlink" href="#planning-models" title="Permanent link">&para;</a></h2>
-<h3 id="classical-planning-model">Classical Planning Model<a class="headerlink" href="#classical-planning-model" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Classical Planning Model = Basic State Model</li>
-<li>
-<p>Assumptions</p>
-<ul>
-<li>Deterministic</li>
-<li>Fully Observable</li>
-<li>Static World</li>
-<li>Discrete Time &amp; Finite Actions</li>
-<li>Uniform Cost</li>
-</ul>
-</li>
-<li>
-<p>Components </p>
+<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
 <div class="arithmatex">\[
-M = \langle S, A, T, I, G \rangle
+\mathcal{R} = (\mathcal{P'}, r, h'^*)
 \]</div>
 <ul>
-<li><span class="arithmatex">\(S\)</span> - State spaces </li>
-<li><span class="arithmatex">\(A(s)\)</span> - Actions applicable for <span class="arithmatex">\(s \in S\)</span></li>
-<li><span class="arithmatex">\(T\)</span> - Deterministic Transition Function: <span class="arithmatex">\(s’ = T(A(s), s)\)</span> shows one successor <span class="arithmatex">\(s’\)</span> of <span class="arithmatex">\(s\)</span></li>
-<li><span class="arithmatex">\(I\)</span> - Initial state</li>
-<li><span class="arithmatex">\(G\)</span> - Goal states</li>
-<li>Uniform action costs <span class="arithmatex">\(c(A(s), s) = 1\)</span></li>
+<li><span class="arithmatex">\(\mathcal{P}'\)</span> - the class of the simpler problem </li>
+<li><span class="arithmatex">\(r\)</span> - transformer turning the original problem into a simplified one</li>
+<li><span class="arithmatex">\(h'^*(n)\)</span> - Perfect heuristic function of the simplified problem </li>
+</ul>
+<h3 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h3>
+<p>The Relaxation is
+- <strong>Native</strong> - if <span class="arithmatex">\(\mathcal{P'} \subseteq \mathcal{P}\)</span> and  <span class="arithmatex">\(h'^*(n) = h(n)\)</span>
+- <strong>Efficiently Constructible</strong> - if a polynomial <span class="arithmatex">\(r\)</span> exists
+- <strong>Efficiently Computable</strong> - if a polynomial <span class="arithmatex">\(h’(n)\)</span> exists</p>
+<h5 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h5>
+<ol>
+<li>Route-Finding<ul>
+<li>Relaxation<ul>
+<li>Route-find as a bird (ignoring the road)</li>
 </ul>
 </li>
-<li>
-<p>Outcomes</p>
+<li>Outcome<ul>
+<li>Road Distance → Manhattan distance, Euclidean distance, etc.</li>
+</ul>
+</li>
+<li>Native❌ Efficiently constructible✅ Efficiently computable✅</li>
+</ul>
+</li>
+<li>Goal-Counting<ul>
+<li>Relaxation<ul>
+<li>Assume we can achieve each goal directly</li>
+</ul>
+</li>
+<li>Outcome<ul>
+<li>Tasks ← No precondition and delete</li>
+</ul>
+</li>
+<li>Admissible but still <em>NP-hard</em></li>
+<li>Native✅ Efficiently constructible✅ Efficiently computable❌</li>
+</ul>
+</li>
+</ol>
+<h3 id="still-inefficiency">Still Inefficiency?<a class="headerlink" href="#still-inefficiency" title="Permanent link">&para;</a></h3>
 <ul>
-<li>A seq of actions map <span class="arithmatex">\(s_0\)</span> into <span class="arithmatex">\(g\)</span></li>
-<li><strong>Optimal</strong> if total cost to goal is minimum</li>
+<li>Approximate <span class="arithmatex">\(h’^*\)</span></li>
+<li>Re-design <span class="arithmatex">\(h’^*\)</span> in a way so that it will typically be feasible<ul>
+<li>Critical path heuristics</li>
+<li><strong>Delete relaxation</strong> ← wide-spread for satisficing planning</li>
+<li>Abstractions</li>
+<li>Landmarks</li>
 </ul>
 </li>
 </ul>
 <hr />
-<h3 id="conformant-planning-model">Conformant Planning Model<a class="headerlink" href="#conformant-planning-model" title="Permanent link">&para;</a></h3>
+<h2 id="delete-relaxation">Delete Relaxation<a class="headerlink" href="#delete-relaxation" title="Permanent link">&para;</a></h2>
 <ul>
-<li><span class="arithmatex">\(\approx\)</span> Brute Force</li>
-<li>Components (<em>Diff with classic</em>)<ul>
-<li>Initial State → A set of possible initial states</li>
-<li>Deterministic Transition Function → <strong>Non</strong>-deterministic</li>
+<li>Apply <span class="arithmatex">\(Del(a) = \emptyset, \forall a \in A\)</span><ul>
+<li>which makes "once"  <code>TRUE</code> <em>predications</em> remain <code>TRUE</code> "forever"</li>
 </ul>
 </li>
-<li>Outcomes<ul>
-<li><strong>No Observation</strong> - No new info; must pre-planning</li>
-<li><strong>Goal Guarantee</strong></li>
-<li><strong>Rarely optimal</strong><ul>
-<li>Must map any possible <span class="arithmatex">\(s_0\)</span> to <span class="arithmatex">\(g\)</span>, too much unnecessary work</li>
-<li>Sensitive to Worst/Special case </li>
+<li><span class="arithmatex">\(a^+\)</span> - Actions after delete relaxation</li>
+<li><strong>Optimal</strong> Delete Relaxation is <strong>Admissible</strong> <span class="arithmatex">\(h^+(n) \le h^*(n)\)</span><ul>
+<li><em>(but find an optimal solution is still NP-hard)</em></li>
 </ul>
 </li>
+</ul>
+<h3 id="dominance">Dominance<a class="headerlink" href="#dominance" title="Permanent link">&para;</a></h3>
+<ul>
+<li><span class="arithmatex">\(s' \supseteq s\)</span> - <span class="arithmatex">\(s'\)</span> dominate <span class="arithmatex">\(s\)</span><ul>
+<li>If <span class="arithmatex">\(s\)</span> is a goal state, then <span class="arithmatex">\(s'\)</span> must be a goal state.</li>
+<li>If <span class="arithmatex">\(a^+\)</span> is applicable in <span class="arithmatex">\(s\)</span>, then <span class="arithmatex">\(a^+\)</span> must be applicable in <span class="arithmatex">\(s'\)</span>.</li>
+</ul>
+</li>
+<li><span class="arithmatex">\(Result(s, a^+)\)</span> dominates both <span class="arithmatex">\(s\)</span> and <span class="arithmatex">\(Result(s, a)\)</span></li>
+</ul>
+<hr />
+<h2 id="optimal-delete-relaxation-heuristic-h">Optimal Delete Relaxation Heuristic (<span class="arithmatex">\(h^+\)</span>)<a class="headerlink" href="#optimal-delete-relaxation-heuristic-h" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>def h_plus(s, G, A):
+    if G in s:
+        return 0
+
+    open = [s]
+    cost[s] = 0
+    cost[others] = inf
+    best = inf
+
+    while open:
+        cur_state = pop(open)
+        if G in cur_state:
+            best = min(best, cost[cur_state])
+            continue
+
+        for a in A:
+            if pre(a) in current:
+                next_state = current + add(a)
+                if cost[next_state] &gt; cost[cur_state] + 1:
+                    cost[next_state] = cost[current] + 1
+                    push(open, next_state)
+
+    if best == inf:
+        return unsolvable
+    else:
+        return best
+</code></pre></div>
+<ul>
+<li><strong>Native relaxation</strong>✅</li>
+<li>Safe✅, goal-aware✅, admissible guarantee✅</li>
+<li>Efficiently constructible✅ Polytime</li>
+<li>Efficiently computable❌<ul>
+<li><span class="arithmatex">\(\mathrm{PlanOpt^+} = \sum h^+\)</span> still <em>NP-hard</em></li>
 </ul>
 </li>
 </ul>
 <hr />
-<h3 id="markov-decision-processes-mdps">Markov Decision Processes (MDPs)<a class="headerlink" href="#markov-decision-processes-mdps" title="Permanent link">&para;</a></h3>
+<h3 id="bellman-ford-algorithm">Bellman-Ford Algorithm<a class="headerlink" href="#bellman-ford-algorithm" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Application based on <span class="arithmatex">\(h^+\)</span></li>
+<li>Distance estimate during the iterations in using shortest-distance algorithm</li>
+<li>Initially set start point <span class="arithmatex">\(= 0\)</span>; others <span class="arithmatex">\(= \infty\)</span>.</li>
+<li>Relax every edge (One iteration = all neighbour unexplored edges from one point)</li>
+<li>Use a table to note estimate length of shortest path from start to current point</li>
+</ul>
+<h6 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h6>
+<ul>
+<li>A→B(+4); A→C(+5); B→C(-2)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Vertex</th>
+<th style="text-align: center;">Initialisation</th>
+<th style="text-align: center;">Round 1</th>
+<th style="text-align: center;">Round 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">A</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">B</td>
+<td style="text-align: center;">∞</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td style="text-align: left;">C</td>
+<td style="text-align: center;">∞</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">2 (= 4 - 2)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="h-approximation-methods"><span class="arithmatex">\(h^+\)</span>-Approximation Methods<a class="headerlink" href="#h-approximation-methods" title="Permanent link">&para;</a></h2>
+<h3 id="plan-existence-checking">Plan Existence Checking<a class="headerlink" href="#plan-existence-checking" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>Assumption</p>
+<p>based on Fast Forward Heuristic (<span class="arithmatex">\(h_{FF}\)</span>)</p>
 <ul>
-<li>
-<p>Markov Property: the next state only depends on the current state and actions.</p>
-<div class="arithmatex">\[
-P(s_{t+1} \mid s_t,a_t,s_{t-1},a_{t-1},\ldots) = P(s_{t+1} \mid s_t,a_t) 
-\]</div>
-</li>
-<li>
-<p>Fully Observable</p>
-</li>
-<li>Discrete Time &amp; Finite Actions</li>
-<li>Fixed Transition Probabilities</li>
+<li>Expand the current state based on BrFS
+<div class="highlight"><pre><span></span><code>def is_plan_existence(s, G, A):
+    if G in s:
+        return TRUE
+
+    reached = s
+    while G not in reached:
+        new_facts = reached
+        for a in A:
+            if pre(a) in reached:
+                new_facts += add(a)
+        if new_facts == reached:
+            return FALSE
+        reached = new_facts
+
+    return TRUE
+</code></pre></div></li>
 </ul>
 </li>
 <li>
-<p>Components <em>(Diff with conformant)</em>
-    $$
-    M = \langle S,A,T,R,\gamma \rangle
-    $$</p>
+<p>Sound, complete, Terminates in <em>polytime</em>✅</p>
 <ul>
-<li>Introduce the <strong>Transition Probability Function</strong>:
-    $$
-    T(s, a, s') = P(s' \mid s, a)
-    $$</li>
-<li>Introduce <strong>Reward Function</strong> <span class="arithmatex">\(R\)</span> and <strong>Discount Factor</strong> <span class="arithmatex">\(\gamma\)</span>:<ul>
-<li>For estimating the <strong>value</strong> of each state</li>
+<li><span class="arithmatex">\(\mathrm{PlanEx}^+\)</span> now becomes a <em>polytime</em> problem</li>
 </ul>
 </li>
+<li>Safe✅, goal-aware✅, admissible❌ (Existence Check Only, usually far from optimal)</li>
+</ul>
+<hr />
+<h3 id="max-heuristic-hmax">Max Heuristic (<span class="arithmatex">\(h^{max}\)</span>)<a class="headerlink" href="#max-heuristic-hmax" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>def h_max(s, G, A):
+    for p in P:
+        if p in s:
+            cost[p] = 0
+        else:
+            cost[p] = inf
+
+    changed = True
+    while changed:
+        changed = false
+        for a in A:
+            if cost[q] &lt; inf for all q in pre(a):
+                # a is reachable
+                new_cost = 1 + max(cost[q] for q in pre(a))
+                for p in add(a):
+                    if new_cost &lt; cost[p]:
+                        cost[p] = new_cost
+                        changed = true
+
+    return max(cost[g] for g in G)
+</code></pre></div>
+<ul>
+<li>Efficient Computable✅ <em>Polytime</em><ul>
+<li>However, sometimes maybe too optimistic⚠️</li>
 </ul>
 </li>
-<li>
-<p>Outcomes</p>
+<li><strong>Optimistic</strong> Estimation: admissible✅</li>
+</ul>
+<hr />
+<h3 id="additive-heuristic-hadd">Additive Heuristic (<span class="arithmatex">\(h^{add}\)</span>)<a class="headerlink" href="#additive-heuristic-hadd" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>def h_sum(s, G, A):
+    for p in P:
+        if p in s:
+            cost[p] = 0
+        else:
+            cost[p] = inf
+
+    changed = True
+    while changed:
+        changed = false
+        for a in A:
+            if cost[q] &lt; inf for all q in pre(a):
+✏️              new_cost = 1 + sum(cost[q] for q in pre(a))
+                for p in add(a):
+                    if new_cost &lt; cost[p]:
+                        cost[p] = new_cost
+                        changed = true
+
+✏️  return sum(cost[g] for g in G)
+</code></pre></div>
 <ul>
-<li>Map states to <strong>actions</strong></li>
-<li><strong>Optimal</strong> if total <strong>expected</strong> cost to goal is <span class="arithmatex">\(minimum\)</span></li>
+<li>Efficient Computable✅ <em>Polytime</em></li>
+<li><strong>Pessimistic</strong> Estimation: admissible❌ informative✅ </li>
+<li><strong>Overcounts</strong> by ignoring positive interactions, i.e. shared sub-plans<ul>
+<li>May result in <span class="arithmatex">\(dramatic\)</span> over-estimates of <span class="arithmatex">\(h^*\)</span></li>
 </ul>
 </li>
 </ul>
 <hr />
-<h3 id="partially-observable-mdps-pomdps">Partially Observable MDPs (POMDPs)<a class="headerlink" href="#partially-observable-mdps-pomdps" title="Permanent link">&para;</a></h3>
+<h2 id="relaxed-plans">Relaxed Plans<a class="headerlink" href="#relaxed-plans" title="Permanent link">&para;</a></h2>
+<h3 id="best-supporter-function-bsp">Best Supporter Function <span class="arithmatex">\(bs(p)\)</span><a class="headerlink" href="#best-supporter-function-bsp" title="Permanent link">&para;</a></h3>
 <ul>
-<li>
-<p>Assumption</p>
-<ul>
-<li>Markov Property</li>
-<li><strong>Limited</strong> Observable</li>
+<li>Input: A predication <span class="arithmatex">\(p\)</span></li>
+<li>Output: The <span class="arithmatex">\(cheapest\)</span> action <span class="arithmatex">\(a\)</span> which make this predication <code>TRUE</code></li>
+<li>Prerequisites<ul>
+<li><span class="arithmatex">\(p \in add(a)\)</span> iff <span class="arithmatex">\(bs(p) = a\)</span></li>
+<li><span class="arithmatex">\(bs(\cdot)\)</span> is closed<ul>
+<li><span class="arithmatex">\(bs(p)\)</span> is defined for every <span class="arithmatex">\(p \in (P \backslash s)\)</span> that has a path to a goal <span class="arithmatex">\(g \in G\)</span></li>
 </ul>
 </li>
-<li>
-<p>Components <em>(Diff with MDPs)</em></p>
-<ul>
-<li>
-<p>Introduce <strong>Sensor Model</strong> (based on <strong>Probability Distribution</strong>)</p>
-<div class="arithmatex">\[
-\mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
-\]</div>
-</li>
-<li>
-<p>Initial/Goal States → Belief States <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> and <span class="arithmatex">\(\mathrm{b}(g)\)</span></p>
+<li><span class="arithmatex">\(bs(\cdot)\)</span> is well-bounded<ul>
+<li>Support Graph is <em>acyclic</em> </li>
+</ul>
 </li>
 </ul>
 </li>
-<li>
-<p>Outcomes</p>
+<li>If a relaxed plan exists, the closed well-founded <span class="arithmatex">\(bs(\cdot)\)</span> definitely exists.<ul>
+<li>There is a relaxed path from <span class="arithmatex">\(I\)</span> to <span class="arithmatex">\(G\)</span></li>
+<li>Every <span class="arithmatex">\(g\)</span> has at least one supporter, so as its subgoals</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="helpful-actions">Helpful Actions<a class="headerlink" href="#helpful-actions" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Map belief states into actions</li>
-<li><strong>Optimal</strong> if total expected cost from <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> to <span class="arithmatex">\(\mathrm{b}(g)\)</span> is minimum</li>
+<li>An action is helpful iff:<ul>
+<li>it is applicable in the current state (<span class="arithmatex">\(pre(a) \subseteq s\)</span>)</li>
+<li>it is contained in the final plan</li>
+</ul>
+</li>
+<li>Expanding only helpful actions does not guarantee completeness.</li>
+</ul>
+<hr />
+<h3 id="relaxed-plan-heuristic-h_ff">Relaxed Plan Heuristic (<span class="arithmatex">\(h_{FF}\)</span>)<a class="headerlink" href="#relaxed-plan-heuristic-h_ff" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Fast Forward Expansion + <em>Greedy Backward Extraction</em></p>
+<ul>
+<li>For each goal state <span class="arithmatex">\(g \in G\)</span>:<ul>
+<li>Find the cheapest <span class="arithmatex">\(a = bs(g)\)</span></li>
+<li>Add this action to the plan</li>
+<li>repeat on <span class="arithmatex">\(bs(pre(a))\)</span>
+<div class="highlight"><pre><span></span><code>def h_FF(I, G, A):
+    if G in I:
+        return 0
+
+    # Forward Expansion - BFS
+    reached = I
+    while G not in reached:
+        new_facts = reached
+        for a in A:
+            if pre(a) in reached:
+                new_facts += add(a)
+        if new_facts == reached:
+            return unsolvable
+        reached = new_facts
+
+    # Backward Extraction - Greedy
+    plan = []
+    subgoals = G
+    while subgoals not in I:
+        new_subgoals = []
+        for g in subgoals:
+            pick a s.t. g in add(a) and pre(a) in reached
+            plan += {a}
+            new_subgoals += pre(a)
+        subgoals = new_subgoals
+
+    return len(plan)
+</code></pre></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Same theoretical properties as <span class="arithmatex">\(h^{add}\)</span> but better in practice</p>
+<ul>
+<li>Overcount sub-plans shared by different sub-goals</li>
+<li>Best Supporter is greedily chosen and sub-optimal</li>
+<li>In practice, <span class="arithmatex">\(h_{FF}\)</span> typically does not over-estimate <span class="arithmatex">\(h^*\)</span>, or not by a large amount.</li>
 </ul>
 </li>
 </ul>

@@ -9,10 +9,8 @@
       
       
       
-        <link rel="prev" href="../WEEK-3-Planning/">
+        <link rel="prev" href="../7-Model-based%20RL/">
       
-      
-        <link rel="next" href="../WEEK-5-Relaxation/">
       
       
         
@@ -23,7 +21,7 @@
     
     
       
-        <title>WEEK 4 Complexity - Drava's Study Notes</title>
+        <title>8 Model Free Reinforced Learning - Drava's Study Notes</title>
       
     
     
@@ -74,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#week-4-complexity" class="md-skip">
+        <a href="#8-model-free-reinforced-learning" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              WEEK 4 Complexity
+              8 Model Free Reinforced Learning
             
           </span>
         </div>
@@ -409,14 +407,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-1-General-Basics/" class="md-nav__link">
+      <a href="../1-Search/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 1 General Basics
+    1. Search
   
 
     
@@ -437,14 +435,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-2-Search/" class="md-nav__link">
+      <a href="../2-Planning/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 2 Search
+    2 Planning
   
 
     
@@ -465,14 +463,126 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-3-Planning/" class="md-nav__link">
+      <a href="../3-Complexity/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 3 Planning
+    3 Complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4-Relaxation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5-Exploration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Exploration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6-Reinforced-Learning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7-Model-based%20RL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Model-based Reinforced Learning
   
 
     
@@ -509,7 +619,7 @@
   <span class="md-ellipsis">
     
   
-    WEEK 4 Complexity
+    8 Model Free Reinforced Learning
   
 
     
@@ -527,7 +637,7 @@
   <span class="md-ellipsis">
     
   
-    WEEK 4 Complexity
+    8 Model Free Reinforced Learning
   
 
     
@@ -553,105 +663,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#savitchs-theorem" class="md-nav__link">
+  <a href="#monte-carlo-mc-learning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Savitch’s Theorem
+        Monte Carlo (MC) Learning
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#goals-definition" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Goals Definition
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#strips-planning-problem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        STRIPS planning problem
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="STRIPS planning problem">
+    <nav class="md-nav" aria-label="Monte Carlo (MC) Learning">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#strips-stanford-research-institute-problem-solver" class="md-nav__link">
+  <a href="#mc-policy-evaluation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        STRIPS = STanford Research Institute Problem Solver
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#components" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Components
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#action" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Action
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#result-of-applying-actions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Result of applying actions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#goal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Goal
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#properties" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Properties
+        MC Policy Evaluation
       
     </span>
   </a>
@@ -667,118 +694,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../WEEK-5-Relaxation/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    WEEK 5 Relaxation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../WEEK-6-Exploration-and-Exploitation/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    WEEK 6 Exploration &amp; Exploitation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../WEEK-7-Reinforced-Learning/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    WEEK 7 Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../WEEK-8-Model-Free-Prediction/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    WEEK 8 Model Free Prediction
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -824,97 +739,161 @@
 
 
 
-<h1 id="week-4-complexity">WEEK 4 Complexity<a class="headerlink" href="#week-4-complexity" title="Permanent link">&para;</a></h1>
+<h1 id="8-model-free-reinforced-learning">8 Model Free Reinforced Learning<a class="headerlink" href="#8-model-free-reinforced-learning" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="savitchs-theorem">Savitch’s Theorem<a class="headerlink" href="#savitchs-theorem" title="Permanent link">&para;</a></h2>
+<h2 id="monte-carlo-mc-learning">Monte Carlo (MC) Learning<a class="headerlink" href="#monte-carlo-mc-learning" title="Permanent link">&para;</a></h2>
 <ul>
-<li>NPSPACE = PSPACE<ul>
-<li>Non-determinism won't make solvers more powerful.</li>
+<li>Set the state as initial state and run-to-end in the environment for multiple times</li>
+<li>Calculate the <strong>average reward</strong> of them: <em>value = mean return</em></li>
+<li><em>Note: can only apply to </em><em>episodic</em><em> MDPs （有终止状态的Markov Decision Process)</em></li>
 </ul>
-</li>
-<li>PSPACE-complete<ul>
-<li>The problem is at least hard as <strong>any</strong> Polynomial time problem</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="goals-definition">Goals Definition<a class="headerlink" href="#goals-definition" title="Permanent link">&para;</a></h2>
-<ul>
-<li>To make a <strong>Satisficing</strong> planning:<ul>
-<li><span class="arithmatex">\(\mathrm{PlanEx}(P) =\)</span> <code>TRUE</code> - Existence of a plan for problem <span class="arithmatex">\(P\)</span>.</li>
-</ul>
-</li>
-<li>To make a <strong>Optimal</strong> planning:<ul>
-<li><strong><span class="arithmatex">\(\mathrm{PlanLen}(P) \le B\)</span></strong>  - Existence of a plan which length is at most <span class="arithmatex">\(B\)</span>.</li>
-</ul>
-</li>
-<li><span class="arithmatex">\(\mathrm{PlanEx}\)</span> and <span class="arithmatex">\(\mathrm{PlanLen}\)</span> is <em>PSPACE-complete</em><ul>
-<li><em>In practice, optimal planning is almost never easy</em></li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="strips-planning-problem">STRIPS planning problem<a class="headerlink" href="#strips-planning-problem" title="Permanent link">&para;</a></h2>
-<h3 id="strips-stanford-research-institute-problem-solver"><em>STRIPS</em> = STanford Research Institute Problem Solver<a class="headerlink" href="#strips-stanford-research-institute-problem-solver" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Design Goals:<ul>
-<li><strong>Specification</strong> - concise model description</li>
-<li><strong>Computation</strong> - reveal useful information/structure for heuristics</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
+<h3 id="mc-policy-evaluation">MC Policy Evaluation<a class="headerlink" href="#mc-policy-evaluation" title="Permanent link">&para;</a></h3>
 <div class="arithmatex">\[
-P = \langle P,A,I,G \rangle
+V_\pi(s) = \mathbb{E}\left[G \mid s \right]
 \]</div>
 <ul>
-<li><span class="arithmatex">\(P\)</span> - All Possible Predicates</li>
-<li><span class="arithmatex">\(A\)</span> - Actions</li>
-<li><span class="arithmatex">\(I\)</span> - Initial States: Predicates initially to be <code>TRUE</code></li>
-<li><span class="arithmatex">\(G\)</span> - Goal Conditions: Predicates Finally need to be <code>TRUE</code></li>
+<li>Compute empirical mean from current time, using as many samples as we can</li>
+<li><strong>First-Visit MC</strong> Counting reward of only first visit of state s in each episode (from start to goal)</li>
+<li><strong>Every-Visit MC</strong> Counting reward of every visit of s in each episode</li>
+<li>Approximate V𝜋(s) finally but often slow and high square error</li>
 </ul>
-<h4 id="action">Action<a class="headerlink" href="#action" title="Permanent link">&para;</a></h4>
-<div class="arithmatex">\[
-a \in A, a = \langle Pre(a), Add(a), Del(a) \rangle
-\]</div>
+<p><strong>Temporal Difference (TD) Learning - bootstrap + sample</strong></p>
 <ul>
-<li><span class="arithmatex">\(Pre(a)\)</span> - Preconditions need to be <code>TRUE</code> before executing the action</li>
-<li><span class="arithmatex">\(Add(a)\)</span> - Add Effects: Preconditions set to be<code>TRUE</code> after execution</li>
-<li><span class="arithmatex">\(Del(a)\)</span> - Delete Effects: Preconditions set to be <code>FALSE</code> after execution</li>
-</ul>
-<h4 id="result-of-applying-actions">Result of applying actions<a class="headerlink" href="#result-of-applying-actions" title="Permanent link">&para;</a></h4>
-<div class="arithmatex">\[
-Result(s, a) = (s - Del(a)) \cup Add(a)
-\]</div>
-<ul>
-<li><em>which could also be seemed as a transition function</em></li>
-</ul>
-<h4 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Find a list of actions <span class="arithmatex">\([a_1,a_2,a_3,\ldots]\)</span> which satisfies:
-    $$
-    Result(Result(\ldots Result(I,a_1​) \ldots ,a_n−1​),a_n​) \models G
-    $$</li>
-</ul>
-<hr />
-<h3 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h3>
-<ul>
-<li>It turns a "solving" problem into a "search" problem</li>
-<li>Still <em>PSPACE-complete</em>, but "approximation" is able to be applied<ul>
-<li>Explicit Search 显式搜索<ul>
-<li>e.g. Blind/Heuristic search</li>
-<li>Not effective</li>
-</ul>
+<li>
+<p><strong>Lively update Value of state</strong> by “reward of current step + evaluation of next step”</p>
 </li>
-<li>Near Decomposition 近似分解<ul>
-<li>e.g. Relaxation: similar to Decrease/Divide &amp; Conquer</li>
-<li>Maybe fail</li>
-</ul>
+<li>
+<p>Don’t need to wait for the termination like MC, just approximate step by step</p>
 </li>
 </ul>
+<p><strong>TD(0) - Simplest TD Learning Algorithm</strong></p>
+<ul>
+<li>
+<p>V(s) ← V(s) + 𝛼[R + 𝛾V(s′) − V(s)]</p>
+</li>
+<li>
+<p><strong>V</strong> = value function</p>
+</li>
+<li><strong>R</strong> = reward</li>
+<li>𝜸 = discount factor (importance of next step reward)</li>
+<li><strong>R +</strong> 𝜸<strong>V(s′) − V(s)</strong> = 𝜹 =TD error (if we under/over-evaluate V(s))</li>
+<li>𝜶 = learning rate (length of each step) for normalisation</li>
+<li><strong>V(s) ← V(s) +</strong> 𝜶 · 𝜹 = Compromise of old V(s) and Error correction</li>
+</ul>
+<p><strong>TD(n) - Look more steps into the future</strong></p>
+<ul>
+<li>G(t; n) = R(t+1) <strong>+</strong> 𝜸R(t+2) + 𝜸²R(t+3) + ... + 𝜸ⁿ⁻¹R(t+n) + 𝜸ⁿV(S(t+n))</li>
+<li>
+<p>V(S(t)) ← V(S(t)) + 𝛼(G(t;n) - V(S(t))</p>
+</li>
+<li>
+<p>When n → ∞, TD(n) = MC</p>
+</li>
+<li>
+<p>How to choose n: </p>
+</li>
+<li>
+<p>Root Mean Square (RMS) Errors 均方差根 ← 𝛼<strong>;</strong> online/offline updates (𝛼 → 0 or 𝛼 → 1)</p>
+</li>
+<li>RMS Errors → different optimal choices of n</li>
+<li>Small n → More rely on prediction, faster but higher bias</li>
+<li>Large n → More rely on exploitation, more precise but higher variance</li>
+</ul>
+<p><strong>TD(</strong>𝝀<strong>) - Average 1,2,…,n-Step Returns</strong></p>
+<ul>
+<li>
+<p>G(t; 𝜆) = (1 - 𝜆) · 𝛴 𝜆ⁿ⁻¹ G(t; n)</p>
+</li>
+<li>
+<p>When 𝜆 = 1, TD(𝜆) = MC; 𝜆 = 0, TD(𝜆) = TD(0)</p>
+</li>
+<li>
+<p>Using weight (1 - 𝜆) · 𝜆ⁿ⁻¹ to balance short-term and long-term rewards</p>
 </li>
 </ul>
+<p><strong>Eligibility Traces - Simplify calculation of G(t;</strong> 𝝀<strong>)</strong></p>
+<ul>
+<li>
+<p>Define a <strong>trace</strong> E(t; s) of every state = How many time visited and how far from current state</p>
+</li>
+<li>
+<p>E(t; s)  =  𝛾𝜆E(t-1; s) + <em>1 if S(t) = s else 0</em></p>
+</li>
+<li>
+<p>If we visit the state, it’s trace goes up suddenly (by 1), if we don’t visit it, it falls down continuously</p>
+</li>
+<li>
+<p>V(s) ← V(s) + 𝛼 · 𝛿 · E(t; s)</p>
+</li>
+</ul>
+<p><strong>Forward View &amp; Backward View</strong></p>
+<ul>
+<li>Original way calculating G(t; 𝜆) is a <strong>Forward View</strong> of 𝜆-Reward, we have to wait episodes terminate so that we can calculate all G(t; n) (offline)</li>
+<li>
+<p>Eligibility Traces is a <strong>Backward View</strong> of 𝜆-Reward, we update prediction of state step by step(online)</p>
+</li>
+<li>
+<p>Backward Propagation - Use Eligibility Traces to propagate TD error 𝛿</p>
+</li>
+<li>
+<p>state visited more times  = more responsible on current TD error</p>
+</li>
+<li>
+<p><strong>Forward View = Backward View (in Batch/offline update)</strong></p>
+</li>
+</ul>
+<p><strong>MC vs. TD</strong></p>
+<ul>
+<li>
+<p>TD can learn without knowing the final outcome</p>
+</li>
+<li>
+<p>TD can learn <strong>online</strong> after every step</p>
+</li>
+<li>MC must wait until episode ends.  (offline)</li>
+<li>TD can learn from incomplete sequences</li>
+<li>MC can only learn from complete sequences</li>
+<li>TD works in continuing (non-terminating) environment</li>
+<li>
+<p>MC only works for episodic (terminating) environment </p>
+</li>
+<li>
+<p>Bias vs. Variance Trade-Off</p>
+</li>
+<li>
+<p>MC based on rewards after terminate <strong>unbiased</strong></p>
+</li>
+<li>True TD target is an <strong>unbiased</strong> estimated of V(s)</li>
+<li>Predicted TD target use V(s’) (next step value) to estimate V𝜋(s) (total value) → <strong>biased</strong></li>
+<li>MC bias0 variance↑</li>
+<li>
+<p>TD bias↑ variance↓</p>
+</li>
+<li>
+<p>TD exploits Markov property while MC doesn’t</p>
+</li>
+<li>
+<p>TD more efficient in Markov environment</p>
+</li>
+<li>
+<p>MC more effective in non-Markov environment</p>
+</li>
+<li>
+<p><strong>Partial observability &amp; non-stationarity</strong> → Environment can be non-Markov</p>
+</li>
+<li>
+<p>Bootstrapping and Sampling</p>
+</li>
+<li>
+<p>TD samples and bootstraps; MC samples but does not bootstrap</p>
+</li>
+<li>Tree Search (with heuristic search)/DP bootstraps but does not sample</li>
+</ul>
+<p><strong>Monte Carlo Tree Search (MCTS) - planning with a model</strong></p>
+<ul>
+<li>Selection → <strong>Expansion</strong> → <strong>Simulation</strong> → Back-propagation </li>
+</ul>
+<p><strong>Multi-arm Bandits - UCB</strong></p>
 
 
 
