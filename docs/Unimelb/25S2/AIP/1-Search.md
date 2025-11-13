@@ -1,4 +1,4 @@
-# WEEK 2 Search
+#  1. Search
 ---
 ## Search Space
 - A set of search states

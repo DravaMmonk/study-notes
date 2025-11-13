@@ -1,7 +1,7 @@
-# WEEK 7 Reinforced Learning
+# 6 Reinforced Learning
 ---
 ## Reinforced Learning
-- Map Situations $s$ → Actions $A$ - so as to $maximise$ the Rewards $R$
+- Policy + Reward + Trial-and-error interaction
 
 ### Planning vs Learning
 
@@ -51,7 +51,7 @@ flowchart LR
         V["Value Function V(s)"]
     end
 
-    S -->|"(1) Input State"| P
+    S -->|"(1) State s"| P
     P -->|"(2) Action a"| Env
     Env -->|"(3) Reward r, Next State s'"| V
     V -->|"(4) Update Policy"| P
@@ -61,12 +61,8 @@ flowchart LR
 ---
 ## Environments
 
-### Markov Decision Process
-- MDP - General Simulator of the environment for Model-based RL
-- _Almost all RL problems can be formalised as MDPs_
-
-### General Assumption - $S, P$
-- State is Markov
+### State - $S, P$
+- All RL Algorithms assume that State is Markov:
 	$$
 	P(s' \mid s + H(s), a) = P(s' \mid s, a)
 	$$
@@ -81,62 +77,6 @@ flowchart LR
 	- _All_ goals can be described by the $maximisation$ of expected cumulative reward
 
 ---
-### Discount Factor - $\gamma$
-
-| Gamma ($\gamma \ge 0$) | Behaviour                                    |
-| ---------------------- | -------------------------------------------- |
-| $\gamma = 0$           | Greedy                                       |
-| $\gamma \to 0$         | Myopic                                       |
-| $\gamma \to 1$         | Far-sighted                                  |
-| $\gamma = 1$           | **Guarantee** only if all sequence terminate |
-
-#### Why Discounting is Used in MDPs
-
-- **Technical Reasons**
-  - Makes modelling and computation easier (Bellman equations converge cleanly)
-  - Prevents infinite returns in cyclic Markov processes
-  - Reflects uncertainty about far-future outcomes
-
-- **Realistic Reasons**
-  - In financial settings, immediate rewards can be reinvested (time value of money)
-  - Human and animal behaviour shows preference for immediate rewards over delayed rewards
-
----
-### Markov process
-- A _memoryless_ random process 
-	$$
-	M = \langle S, P \rangle
-	$$
-	
-	- $S$ - a finite set of states
-	- $P$ - a state transition probability ***matrix***, which maps every two states in $S$
-		- $P(s \to s) = P(s' \mid s)$
-		- Each row of $P$ sums to 1
-		- 🅄 For showing actions validations and non-deterministic
-
----
-### Markov Reward Processes
-- A Markov chain with reward values:
-	$$
-	M = \langle S, P, R, \gamma \rangle
-	$$
-	
-	- $R$ - the reward function
-		- $R(s) = \mathbb{E}[R' \mid s]$
-	- $\gamma$ - discount factor
-
----
-### Markov Decision Process
-- Introduce **agency** 能动性 in terms of actions:
-	$$
-	M = \langle S, A, P, R, \gamma \rangle
-	$$
-	
-	- $A$ - a finite set of actions
-	- $P(s \to s) = P(s' \mid s)$
-	- $R(s) = \mathbb{E}[R' \mid s]$
-
----
 ## Agents
 
 - **Prediction**: Evaluate the future rewards of state-actions
@@ -145,17 +85,19 @@ flowchart LR
 	- → *Policy Function*
 
 ---
-### Model
+### Model - $P, R$
 
-- Predicts what the environment will do next
-	- → Probability Function + Reward Function
+- An internal simulator for predicting what the environment will do next
+	- Transition Model: $P(s' \mid s,a)$
+	- Reward Model: $R(s,a) = \mathbb{E}\left[\, R_{t+1} \mid s_t, a \,\right]$
 - Simulation is **NOT** necessary for RL 
 	- → Model-based/Model-free
 
 ---
-### Value Function - $V(s), Q(s)$
+### Value Function - $V, Q$
 
-- Define and predict value of the state and future reward by using the expectation
+- Define and predict values of (current and future) states
+	- by using the expectation of rewards
 - State-value Function
 	- Return the value of current state
 		$$
@@ -177,16 +119,38 @@ flowchart LR
 	- → Value-based Model/ Policy-based Model
 
 ---
-### Policy - $\pi(a \mid s)$
+### Discount Factor - $\gamma$
+
+| Gamma ($\gamma \ge 0$) | Behaviour                                    |
+| ---------------------- | -------------------------------------------- |
+| $\gamma = 0$           | Greedy                                       |
+| $\gamma \to 0$         | Myopic                                       |
+| $\gamma \to 1$         | Far-sighted                                  |
+| $\gamma = 1$           | **Guarantee** only if all sequence terminate |
+
+#### Why Discounting is Used
+
+- **Technical Reasons**
+	- Makes modelling and computation easier (Bellman equations converge cleanly)
+	- Prevents infinite returns in cyclic Markov processes
+	- Reflects uncertainty about far-future outcomes
+
+- **Realistic Reasons**
+	- In financial settings, immediate rewards can be reinvested (time value of money)
+	- Human and animal behaviour shows preference for immediate rewards over delayed rewards
+
+---
+### Policy - $\pi$
 - Fully defines agent's behaviour
 - **Stationary** (Time-independent) - Only relies on the current state
 
-#### No Policy
+#### Implicit Policy
 $$
 a = \arg\max_{a} Q(s, a) = \arg\max_{a} \sum^{s'} P(s,a,s') \cdot V(s')
 $$
 
-- Compare expectations of all valid actions $\approx$ Brute Force
+- Compare expectations of all valid actions $\sim$ Brute Force
+- Common use in model-based RL
 
 #### Deterministic Policy 
 $$
@@ -226,7 +190,7 @@ $$
 $$
 
 ---
-### Balance Exploration & Exploitation in Policy Design
+#### Balance Exploration & Exploitation in Policy Design
 - **Exploitation** - select currently-known best action
 - **Exploration** - try a new action
 - **Trade-off Strategies**
@@ -235,14 +199,14 @@ $$
 	- **softmax** 
 		- set a probability to each action and a temperature $\tau$ to control randomising
 			$$
-			P(a) = \frac{\exp(\hat{Q}(a) / \tau)}{\sum_{a'} \exp(\hat{Q}(a') / \tau)}
+			P(a) = \frac{\exp(Q(a) / \tau)}{\sum_{a'} \exp(Q(a') / \tau)}
 			$$
 
 	
 	- **Upper Confidence Bound (UCB)** 
 		- exploitation + exploration bonus
 			$$
-			a = \arg\max_a \left( \hat{Q}(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
+			a = \arg\max_a \left( Q(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
 			$$
 
 		
@@ -267,71 +231,11 @@ $$
 	- The model can be imperfect but supports planning and prediction.
 
 ---
-### Categorise of RL agents
+### Categories of RL Algorithms
 - Model?
 	- **Model Based** - Simulate environment to gain first experience 
 	- **Model Free** - Gain experience from real interaction directly
 - Value-or-Policy?
-	- **Value Based** - No Policy
+	- **Value Based** - Implicit Policy
 	- **Policy Based** - No Value Function = Policy Gradient
 	- **Actor-Critic** - Policy Based 演员 + Value Based 评论家
-
----
-## Solving a MDP Problem
-- Solve MDP
-- = Give a policy to find the best behaviour of the current state
-- = Find an action with $maximum$ action-value
-- = Optimise the Value Function
-
-### Optimal Value Function - $v_\ast(s)$, $q_\ast(s, a)$
-- Optimal State-value Function
-$$
-v_\ast(s) = \max_\pi v_\pi(s)
-$$
-
-- Optimal State-action-value Function
-$$
-q_\ast(s,a) = \max_\pi q_\pi(s,a)
-$$
-
----
-### Bellman Equation 
-- A method for recursively handling with $v(s)$ evaluation and optimisation
-		$$ G_t = R_{t+1} + \gamma G_{t+1} $$
-	
-	- Based on "*look-ahead then back-up*" computational mechanism
-		- **Look-ahead**: to the next step → $r, s'$
-		- **Back-up**: to the current state → $v(s) = f(r,s')$
-
-| Categories  |                                                   Formula                                                   |
-| :---------- | :---------------------------------------------------------------------------------------------------------: |
-| Expectation |                        $$ v_\pi(s) = \mathbb{E}\left[r + \gamma v_\pi(s')\right] $$                         |
-|             |          $$ q_\pi(s,a) = \mathbb{E}\left[r + \gamma\mathbb{E} \left[q_\pi(s',a')\right]\right] $$           |
-| Expended    |       $$ v_\pi(s) = \sum_a \pi(a\mid s)\sum_{s',r} p(s',r\mid s,a)\bigl[r + \gamma v_\pi(s')\bigr] $$       |
-|             | $$ q_\pi(s,a) = \sum_{s',r} p(s',r\mid s,a)\left[r + \gamma \sum_{a'} \pi(a'\mid s') q_\pi(s',a')\right] $$ |
-| Optimality  |                 $$ v_\ast(s) = \max_a \mathbb{E}\left[\, r + \gamma v_\ast(s') \,\right] $$                 |
-|             |                $$ q_\ast(s,a) = \mathbb{E}\left[r + \gamma \max_{a'} q_\ast(s',a')\right] $$                |
-| Expended    |       $$ v_\ast(s) = \max_{a} \sum_{s'} P(s' \mid s,a)\left[ R(s,a,s') + \gamma v_\ast(s') \right] $$       |
-|             |       $$ q_\ast(s,a) = \sum_{s',r} p(s',r\mid s,a)\left[r + \gamma \max_{a'} q_\ast(s',a')\right] $$        |
-
-
-#### Solving the Bellman Equation
-- Solving the Bellman Expectation Equation
-	- Directly Compute $O(n^3)$
-$$
-v = R + \gamma Pv \to v = (I - \gamma P)^{-1}R
-$$
-
-		- only possible for small $P$ matrix
-
-	- Dynamic Programming
-	- Monte-Carlo Evaluation
-	- Temporal-Difference Learning
-
-- Solving the Bellman Optimality Equation
-	- No closed form solution
-	- Value Iteration
-	- Policy Iteration
-	- Q-learning
-	- SARSA
-

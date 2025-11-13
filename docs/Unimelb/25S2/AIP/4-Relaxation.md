@@ -1,4 +1,4 @@
-# WEEK 5 Relaxation
+# 4Relaxation
 ---
 ## Relaxation 
 - A method to compute heuristic functions $h(n)$

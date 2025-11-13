@@ -1,4 +1,4 @@
-# WEEK 4 Complexity
+# 3 Complexity
 ---
 ## Savitch’s Theorem 
 - NPSPACE = PSPACE

@@ -13,30 +13,15 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "README"
-            }
-          },
-          {
-            "id": "5abd86d438111420",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
+                "file": "docs/Unimelb/25S2/AIP/6-Reinforced-Learning.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "WEEK-7-Reinforced-Learning"
+              "title": "6-Reinforced-Learning"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -93,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 438.50312423706055,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "6d8aeca418b42b5f",
@@ -110,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
+                "file": "docs/Unimelb/25S2/AIP/7-Model-based RL.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -120,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for WEEK-7-Reinforced-Learning"
+              "title": "Backlinks for 7-Model-based RL"
             }
           },
           {
@@ -210,35 +194,38 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "5abd86d438111420",
+  "active": "3bd43a5376de99bc",
   "lastOpenFiles": [
-    "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
-    "docs/Unimelb/25S2/AIP/WEEK-8-Model-Free-Prediction.md",
-    "site/assets/images/favicon.png",
-    "docs/Unimelb/25S2/AIP/assets/7_1_maze 1.png",
+    "docs/Unimelb/25S2/AIP/7-Model-based RL.md",
+    "docs/Unimelb/25S2/AIP/6-Reinforced-Learning.md",
+    "docs/Unimelb/25S2/AIP/8-Model-Free-RL.md",
+    "docs/Unimelb/25S2/AIP/2-Planning.md",
     "docs/Unimelb/25S2/AIP/assets/7_1_maze.png",
-    "site/Unimelb/25S2 3",
-    "site/Unimelb/25S2/AIP/assets/7_1_maze.png",
+    "docs/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
+    "README.md",
+    "Untitled.canvas",
+    "Untitled.base",
+    "docs/Unimelb/25S2/AIP/5-Exploration.md",
+    "docs/Unimelb/25S2/AIP/4-Relaxation.md",
+    "docs/Unimelb/25S2/AIP/3-Complexity.md",
+    "docs/Unimelb/25S2/AIP/1-Search.md",
+    "docs/Unimelb/25S2/AIP/1-General-Basics.md",
     "site/Unimelb/25S2 2",
-    "site/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning/index.html",
-    "site/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning",
+    "site/search/search_index.json",
+    "site/search",
+    "site/Unimelb/25S2/AIP/WEEK-8-Model-Free-Prediction/index.html",
+    "site/Unimelb/25S2/AIP/WEEK-8-Model-Free-Prediction",
+    "site/Unimelb/25S2/AIP/WEEK-6-Exploration-and-Exploitation/index.html",
+    "site/Unimelb/25S2/AIP/WEEK-6-Exploration-and-Exploitation",
     "site/Unimelb/25S2/AIP/WEEK-3-Planning/index.html",
     "site/Unimelb/25S2/AIP/WEEK-3-Planning",
-    "site/Unimelb/25S2/AIP/WEEK-2-Search/index.html",
-    "site/Unimelb/25S2/AIP/WEEK-2-Search",
+    "site/assets/images/favicon.png",
+    "docs/Unimelb/25S2/AIP/assets/7_1_maze 1.png",
+    "site/Unimelb/25S2/AIP/assets/7_1_maze.png",
     "docs/Unimelb/25S2/AIP/WEEK-7-2-Markov-Learning-Process.md",
-    "docs/Unimelb/25S2/AIP/WEEK-6-Exploration-and-Exploitation.md",
     "docs/index.md",
-    "docs/Unimelb/25S2/AIP/WEEK-3-Planning.md",
-    "docs/Unimelb/25S2/AIP/WEEK-2-Search.md",
-    "docs/Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
-    "docs/Unimelb/25S2/AIP/WEEK-4-Complexity.md",
-    "site/assets/javascripts/lunr/min/lunr.zh.min.js",
-    "site/assets/javascripts/lunr/min/lunr.vi.min.js",
     "site/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
-    "docs/Unimelb/25S2/AIP/WEEK-1-General-Basics.md",
     "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
-    "docs/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
     "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
     "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
     "Unimelb/25S2/AIP/WEEK-4-Complexity.md",
@@ -246,7 +233,6 @@
     "Unimelb/25S2/AIP/WEEK-7-Introduce-to-Reinforced-Learning.md",
     "Unimelb/25S2/AIP/WEEK-1-General-Basics.md",
     "Unimelb/25S2/AIP/assets/3_1_planning_process.png",
-    "README.md",
     "Unimelb/25S2/AIP/assets/2_summary.png",
     "Unimelb/25S2/AIP/week-1-general-basics.md",
     "Unimelb/25S2/AIP/WEEK.md",
