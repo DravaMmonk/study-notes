@@ -1,0 +1,1459 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../WEEK-6-Exploration-and-Exploitation/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>WEEK 7 Reinforced Learning - Drava's Study Notes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="pink">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#week-7-reinforced-learning" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Drava's Study Notes
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              WEEK 7 Reinforced Learning
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="pink"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="pink"  aria-hidden="true"  type="radio" name="__palette" id="__palette_1">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Drava's Study Notes
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drava's Study Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unimelb
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Unimelb
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25S2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    25S2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_1_1" id="__nav_2_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AIP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AIP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-1-General-Basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 1 General Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-2-Search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 2 Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-3-Planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 3 Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-4-Complexity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 4 Complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-5-Relaxation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 5 Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-6-Exploration-and-Exploitation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 6 Exploration &amp; Exploitation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 7 Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 7 Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#reinforced-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reinforced Learning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reinforced Learning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#planning-vs-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planning vs Learning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rl-vs-planning-vs-other-ml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RL vs. Planning vs. Other ML
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RL vs. Planning vs. Other ML">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-common-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example - Common Applications
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reinforced-learning-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reinforced Learning Process
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environments
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#markov-decision-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov Decision Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#general-assumption-s-p" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General Assumption - \(S, P\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reward-r" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reward - \(R\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#discount-factor-gamma" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discount Factor - \(\gamma\)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Discount Factor - \(\gamma\)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-discounting-is-used-in-mdps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Discounting is Used in MDPs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markov-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markov-reward-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov Reward Processes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markov-decision-process_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov Decision Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agents
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Agents">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value-function-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value Function - \(V(s)\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policy-pia-mid-s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy - \(\pi(a \mid s)\)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Policy - \(\pi(a \mid s)\)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#no-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deterministic-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deterministic Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policy-gradient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy Gradient
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#categorise-of-rl-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Categorise of RL agents
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#balance-exploration-exploitation-in-rl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Balance Exploration &amp; Exploitation in RL
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="week-7-reinforced-learning">WEEK 7 Reinforced Learning<a class="headerlink" href="#week-7-reinforced-learning" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="reinforced-learning">Reinforced Learning<a class="headerlink" href="#reinforced-learning" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Map Situations <span class="arithmatex">\(s\)</span> → Actions <span class="arithmatex">\(A\)</span> - so as to <span class="arithmatex">\(maximise\)</span> the Rewards <span class="arithmatex">\(R\)</span></li>
+</ul>
+<h3 id="planning-vs-learning">Planning vs Learning<a class="headerlink" href="#planning-vs-learning" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th><strong>Planning</strong></th>
+<th><strong>Learning</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Environment Model</strong></td>
+<td>Model is <strong>known</strong></td>
+<td>Model is <strong>unknown</strong></td>
+</tr>
+<tr>
+<td><strong>Learning Mode</strong></td>
+<td>Offline computation</td>
+<td>Online trial-and-error</td>
+</tr>
+<tr>
+<td><strong>Agent–Environment Interaction</strong></td>
+<td>No interaction with the real environment; uses internal simulator</td>
+<td>Must act in the real environment to gather experience</td>
+</tr>
+<tr>
+<td><strong>Policy Improvement</strong></td>
+<td>Through search, deliberation,  planning and introspection</td>
+<td>Through reward-driven learning</td>
+</tr>
+<tr>
+<td><strong>Suitable Scenarios</strong></td>
+<td>A precise model exists and simulation is cheap</td>
+<td>The model is unknown or hard to specify</td>
+</tr>
+<tr>
+<td><strong>Advantages</strong></td>
+<td>Safe, interpretable, no real-world risk</td>
+<td>Adaptive, risky working in complex/unknown environments</td>
+</tr>
+<tr>
+<td><strong>Disadvantages</strong></td>
+<td>Requires accurate model; modeling may be expensive</td>
+<td>Requires exploration; may be costly or risky</td>
+</tr>
+<tr>
+<td>Example - Atari Game</td>
+<td>Agent can query emulator for perfect model (source code)</td>
+<td>Agent can only sees pixels and scores on the screen → trial-and-error gameplay is necessary</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rl-vs-planning-vs-other-ml">RL vs. Planning vs. Other ML<a class="headerlink" href="#rl-vs-planning-vs-other-ml" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Dimension</th>
+<th style="text-align: left;">Reinforcement Learning</th>
+<th style="text-align: left;">Automated Planning</th>
+<th style="text-align: left;">Other ML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Action Outcomes</strong></td>
+<td style="text-align: left;"><strong>Non-deterministic</strong> — actions lead to probabilistic transitions</td>
+<td style="text-align: left;">Deterministic — outcome fully known from model</td>
+<td style="text-align: left;">Usually not modelled as sequential decisions</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Environment Representation</strong></td>
+<td style="text-align: left;"><strong>Probabilistic model</strong> of states, transitions, and rewards</td>
+<td style="text-align: left;">Symbolic or logical model (e.g., STRIPS)</td>
+<td style="text-align: left;">No explicit environment</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Learning Signal</strong></td>
+<td style="text-align: left;"><strong>Reward Signal</strong> - Feedback from environment</td>
+<td style="text-align: left;">Predefined goal or planner objective</td>
+<td style="text-align: left;">Labels or self-structures</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Data Structure</strong></td>
+<td style="text-align: left;"><strong>Sequential / Time series</strong> (non-i.i.d.)</td>
+<td style="text-align: left;">Discrete steps in a planning domain</td>
+<td style="text-align: left;">Often i.i.d. samples (independent &amp; identically distributed)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Search &amp; Optimisation</strong></td>
+<td style="text-align: left;">Trail-and-error search + Reward-driven</td>
+<td style="text-align: left;">state-space search + Predefined policy</td>
+<td style="text-align: left;">Gradient-based or statistical fitting</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Credit Assignment</strong></td>
+<td style="text-align: left;"><strong>Required</strong> — reward may be delayed over time</td>
+<td style="text-align: left;">Not relevant — goal known a priori</td>
+<td style="text-align: left;"><strong>Not Required</strong> - no delay</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h5 id="example-common-applications">Example - Common Applications<a class="headerlink" href="#example-common-applications" title="Permanent link">&para;</a></h5>
+<ul>
+<li>Making a humanoid robot walk</li>
+<li>Fine tuning LLMs using human/AI feedback</li>
+<li>Optimising operating system routines</li>
+<li>Controlling a power station</li>
+<li>Managing an investment portfolio</li>
+</ul>
+<hr />
+<h2 id="reinforced-learning-process">Reinforced Learning Process<a class="headerlink" href="#reinforced-learning-process" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    subgraph Env[Environment]
+        S[(State)]
+        R[(Reward)]
+    end
+
+    subgraph Agent[Agent]
+        P["Policy π(a|s)"]
+        V["Value Function V(s)"]
+    end
+
+    S --&gt;|"(1) Input State"| P
+    P --&gt;|"(2) Action a"| Env
+    Env --&gt;|"(3) Reward r, Next State s'"| V
+    V --&gt;|"(4) Update Policy"| P
+</code></pre>
+<hr />
+<h2 id="environments">Environments<a class="headerlink" href="#environments" title="Permanent link">&para;</a></h2>
+<h3 id="markov-decision-process">Markov Decision Process<a class="headerlink" href="#markov-decision-process" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MDP - General Simulator of the environment for Model-based RL</li>
+<li><em>Almost all RL problems can be formalised as MDPs</em></li>
+</ul>
+<h3 id="general-assumption-s-p">General Assumption - <span class="arithmatex">\(S, P\)</span><a class="headerlink" href="#general-assumption-s-p" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>State is Markov
+    $$
+    P(s' \mid s + H(s), a) = P(s' \mid s, a)
+    $$</p>
+<ul>
+<li>Once <span class="arithmatex">\(S\)</span> is known, <span class="arithmatex">\(H\)</span> can be thrown away</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="reward-r">Reward - <span class="arithmatex">\(R\)</span><a class="headerlink" href="#reward-r" title="Permanent link">&para;</a></h3>
+<ul>
+<li>A scalar feedback signal</li>
+<li>Indicates how well agent is doing at one step</li>
+<li><strong>Reward Hypothesis</strong><ul>
+<li><em>All</em> goals can be described by the <span class="arithmatex">\(maximisation\)</span> of expected cumulative reward</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="discount-factor-gamma">Discount Factor - <span class="arithmatex">\(\gamma\)</span><a class="headerlink" href="#discount-factor-gamma" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Gamma (<span class="arithmatex">\(\gamma \ge 0\)</span>)</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\gamma = 0\)</span></td>
+<td>Greedy</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma \to 0\)</span></td>
+<td>Myopic</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma \to 1\)</span></td>
+<td>Far-sighted</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma = 1\)</span></td>
+<td><strong>Guarantee</strong> only if all sequence terminate</td>
+</tr>
+</tbody>
+</table>
+<h4 id="why-discounting-is-used-in-mdps">Why Discounting is Used in MDPs<a class="headerlink" href="#why-discounting-is-used-in-mdps" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Technical Reasons</strong></li>
+<li>Makes modelling and computation easier (Bellman equations converge cleanly)</li>
+<li>Prevents infinite returns in cyclic Markov processes</li>
+<li>
+<p>Reflects uncertainty about far-future outcomes</p>
+</li>
+<li>
+<p><strong>Realistic Reasons</strong></p>
+</li>
+<li>In financial settings, immediate rewards can be reinvested (time value of money)</li>
+<li>Human and animal behaviour shows preference for immediate rewards over delayed rewards</li>
+</ul>
+<hr />
+<h3 id="markov-process">Markov process<a class="headerlink" href="#markov-process" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>A <em>memoryless</em> random process 
+    $$
+    M = \langle S, P \rangle
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(S\)</span> - a finite set of states</li>
+<li><span class="arithmatex">\(P\)</span> - a state transition probability <strong><em>matrix</em></strong>, which maps every two states in <span class="arithmatex">\(S\)</span><ul>
+<li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
+<li>Each row of <span class="arithmatex">\(P\)</span> sums to 1</li>
+<li>🅄 For showing actions validations and non-deterministic</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="markov-reward-processes">Markov Reward Processes<a class="headerlink" href="#markov-reward-processes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>A Markov chain with reward values:
+    $$
+    M = \langle S, P, R, \gamma \rangle
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(R\)</span> - the reward function<ul>
+<li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
+</ul>
+</li>
+<li><span class="arithmatex">\(\gamma\)</span> - discount factor</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="markov-decision-process_1">Markov Decision Process<a class="headerlink" href="#markov-decision-process_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Introduce <strong>agency</strong> 能动性 in terms of actions:
+    $$
+    M = \langle S, A, P, R, \gamma \rangle
+    $$<ul>
+<li><span class="arithmatex">\(A\)</span> - a finite set of actions</li>
+<li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
+<li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="agents">Agents<a class="headerlink" href="#agents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Prediction</strong>: Evaluate the future rewards of state-actions<ul>
+<li>→ <em>Value Function</em></li>
+</ul>
+</li>
+<li><strong>Control</strong>: Find the optimal policy<ul>
+<li>→ <em>Policy Function</em></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="model">Model<a class="headerlink" href="#model" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Predicts what the environment will do next<ul>
+<li>→ Probability Function + Reward Function</li>
+</ul>
+</li>
+<li>Simulation is <strong>NOT</strong> necessary for RL <ul>
+<li>→ Model-based/Model-free</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="value-function-vs">Value Function - <span class="arithmatex">\(V(s)\)</span><a class="headerlink" href="#value-function-vs" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Define and predict value of the state and future reward
+    $$
+    V(s) = \mathbb{E}(G \mid s)
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(\mathbb{E}(G \mid s)\)</span> - Expect of future rewards</li>
+</ul>
+</li>
+<li>
+<p><strong>Bellman Equation</strong> 
+        - <span class="arithmatex">\(G = R + \gamma G'\)</span>
+        - <span class="arithmatex">\(\to V = R + \gamma PV \to V = (I - \gamma P)^{-1}R\)</span>
+        - <span class="arithmatex">\(O(n^3)\)</span></p>
+</li>
+<li>
+<p>Value function is <strong>NOT</strong> necessary for RL </p>
+<ul>
+<li>→ Value-based Model/ Policy-based Model</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="policy-pia-mid-s">Policy - <span class="arithmatex">\(\pi(a \mid s)\)</span><a class="headerlink" href="#policy-pia-mid-s" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Fully defines agent's behaviour</li>
+<li><strong>Stationary</strong> (Time-independent) - Only relies on the current state</li>
+</ul>
+<h4 id="no-policy">No Policy<a class="headerlink" href="#no-policy" title="Permanent link">&para;</a></h4>
+<div class="arithmatex">\[
+a = \arg\max_{a} Q(s, a) = \arg\max_{a} \sum^{s'} P(s,a,s') \cdot V(s')
+\]</div>
+<ul>
+<li>Compare expectations of all valid actions <span class="arithmatex">\(\approx\)</span> Brute Force</li>
+</ul>
+<h4 id="deterministic-policy">Deterministic Policy<a class="headerlink" href="#deterministic-policy" title="Permanent link">&para;</a></h4>
+<div class="arithmatex">\[
+\pi(s) = a
+\]</div>
+<ul>
+<li>MRP = MDP + restricted by the deterministic policy</li>
+</ul>
+<p>#### Stochastic Policy 
+$$
+\pi(a \mid s) = P(a \mid s)
+$$</p>
+<ul>
+<li>Choose the optimal action or random one with a small probability</li>
+<li>Ability of exploration; Robustness✅</li>
+</ul>
+<h4 id="policy-gradient">Policy Gradient<a class="headerlink" href="#policy-gradient" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p>Maintain a set of parameters <span class="arithmatex">\(\theta\)</span> for <span class="arithmatex">\(maximising\)</span> future rewards
+$$
+J(\theta) = \mathbb{E}(G) = \sum_{\tau} P(\tau \mid \theta) \, G(\tau)
+$$</p>
+<ul>
+<li><span class="arithmatex">\(\tau\)</span> - A full path from initial state to the goal</li>
+</ul>
+</li>
+</ul>
+<div class="arithmatex">\[
+\begin{aligned}
+\nabla J(\theta)
+&amp;= \sum_{\tau} \nabla P(\tau \mid \theta) \, G(\tau)
+&amp;&amp; \text{(definition of expected return)} \\[4pt]
+&amp;= \sum_{\tau} P(\tau \mid \theta) \, \nabla \log P(\tau \mid \theta) \, G(\tau)
+&amp;&amp; \text{(apply log-derivative trick)} \\[4pt]
+&amp;= \mathbb{E}_{\tau \sim P(\tau \mid \theta)} \big[ \nabla \log P(\tau \mid \theta) \, G(\tau) \big]
+&amp;&amp; \text{(convert sum to expectation)} \\[4pt]
+&amp;= \mathbb{E}_{\pi_\theta} \big[ \nabla \log \pi_\theta(a \mid s) \, G(\tau) \big]
+&amp;&amp; \text{(expand trajectory likelihood)}
+\end{aligned}
+\]</div>
+<hr />
+<h3 id="categorise-of-rl-agents">Categorise of RL agents<a class="headerlink" href="#categorise-of-rl-agents" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Model<ul>
+<li><strong>Model Based</strong> - Simulate environment to gain first experience </li>
+<li><strong>Model Free</strong> - Gain experience from real interaction directly</li>
+</ul>
+</li>
+<li>Value-Policy<ul>
+<li><strong>Value Based</strong> - No Policy</li>
+<li><strong>Policy Based</strong> - No Value Function = Policy Gradient</li>
+<li><strong>Actor-Critic</strong> - Policy Based 演员 + Value Based 评论家</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="balance-exploration-exploitation-in-rl">Balance Exploration &amp; Exploitation in RL<a class="headerlink" href="#balance-exploration-exploitation-in-rl" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Exploitation</strong> - select currently-known best action</li>
+<li><strong>Exploration</strong> - try a new action</li>
+<li>
+<p><strong>Trade-off Strategies</strong></p>
+<ul>
+<li><strong>ε-greedy</strong> <ul>
+<li>most time exploitation (<span class="arithmatex">\(P = 1 - \varepsilon\)</span>), little time exploration (<span class="arithmatex">\(\varepsilon\)</span>)</li>
+</ul>
+</li>
+<li>
+<p><strong>softmax</strong> </p>
+<ul>
+<li>set a probability to each action and a temperature <span class="arithmatex">\(\tau\)</span> to control randomising
+    $$
+    P(a) = \frac{\exp(\hat{Q}(a) / \tau)}{\sum_{a'} \exp(\hat{Q}(a') / \tau)}
+    $$</li>
+</ul>
+</li>
+<li>
+<p><strong>Upper Confidence Bound (UCB)</strong> </p>
+<ul>
+<li>
+<p>exploitation + exploration bonus
+    $$
+    a = \arg\max_a \left( \hat{Q}(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(c\)</span> - importance of exploration (<strong>parameter</strong>)</li>
+<li><span class="arithmatex">\(\ln{t}\)</span> - explore more when time goes</li>
+<li><span class="arithmatex">\(N(a)\)</span> - not try too many times on one same action</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

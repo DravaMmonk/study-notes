@@ -12,7 +12,7 @@
         <link rel="prev" href="../WEEK-1-General-Basics/">
       
       
-        <link rel="next" href="../WEEK-3-Planning-Methods/">
+        <link rel="next" href="../WEEK-3-Planning/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>WEEK 2 Search Methods - Drava's Study Notes</title>
+        <title>WEEK 2 Search - Drava's Study Notes</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#week-2-search-methods" class="md-skip">
+        <a href="#week-2-search" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              WEEK 2 Search Methods
+              WEEK 2 Search
             
           </span>
         </div>
@@ -453,7 +453,7 @@
   <span class="md-ellipsis">
     
   
-    WEEK 2 Search Methods
+    WEEK 2 Search
   
 
     
@@ -471,7 +471,7 @@
   <span class="md-ellipsis">
     
   
-    WEEK 2 Search Methods
+    WEEK 2 Search
   
 
     
@@ -574,17 +574,6 @@
   
     <nav class="md-nav" aria-label="Heuristic Functions">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#properties" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Properties
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#relations-of-properties" class="md-nav__link">
@@ -751,14 +740,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-3-Planning-Methods/" class="md-nav__link">
+      <a href="../WEEK-3-Planning/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 3 Planning Methods
+    WEEK 3 Planning
   
 
     
@@ -863,14 +852,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-7-Introduce-to-Reinforced-Learning/" class="md-nav__link">
+      <a href="../WEEK-7-Reinforced-Learning/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 7 Introduce to Reinforced Learning
+    WEEK 7 Reinforced Learning
   
 
     
@@ -924,7 +913,7 @@
 
 
 
-<h1 id="week-2-search-methods">WEEK 2 Search Methods<a class="headerlink" href="#week-2-search-methods" title="Permanent link">&para;</a></h1>
+<h1 id="week-2-search">WEEK 2 Search<a class="headerlink" href="#week-2-search" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="search-space">Search Space<a class="headerlink" href="#search-space" title="Permanent link">&para;</a></h2>
 <ul>
@@ -946,12 +935,14 @@
     &quot;battery&quot;: 80,
     &quot;carrying_package&quot;: True
 }
-</code></pre></div>
-Progression: 搜索树上的每个节点就是机器人在某个位置、朝向、能量、负载的组合状态。
-Regression:  搜索树上的每个节点共同组成“我们想要所有满足一个条件的世界状态集合”。
+</code></pre></div></p>
+<ul>
+<li>Progression: 搜索树上的每个节点就是机器人在某个位置、朝向、能量、负载的组合状态。</li>
+<li>Regression:  搜索树上的每个节点共同组成“我们想要所有满足一个条件的世界状态集合”。</li>
+</ul>
 <div class="highlight"><pre><span></span><code>subgoals = {&quot;position&quot;: (5, 8), &quot;carrying_package&quot;: True}
 </code></pre></div>
-Common Functions: </p>
+<p>Common Functions: </p>
 <ul>
 <li><span class="arithmatex">\(s\)</span> = search states</li>
 <li><span class="arithmatex">\(\mathrm{is}\_\mathrm{start}(s)\)</span> return if the state is the start state of the search space</li>
@@ -996,13 +987,32 @@ Common Functions: </p>
 </ul>
 </li>
 </ul>
-<h4 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>Safe</strong> <span class="arithmatex">\(h(n) = \infty\)</span> iff <span class="arithmatex">\(h^{\ast}(n) = \infty\)</span></li>
-<li><strong>Goal-aware</strong> <span class="arithmatex">\(h(\text{goal}) = 0\)</span></li>
-<li><strong>Admissible</strong> <span class="arithmatex">\(h(n) \le h^*(n)\)</span></li>
-<li><strong>Consistent</strong> <span class="arithmatex">\(h(n) \le c(n,n’) + h(n’)\)</span> for all possible <span class="arithmatex">\(c(n, n’)\)</span></li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Safe</td>
+<td><span class="arithmatex">\(h(n) = \infty\)</span> iff <span class="arithmatex">\(h^{\ast}(n) = \infty\)</span></td>
+</tr>
+<tr>
+<td>Goal-Aware</td>
+<td><span class="arithmatex">\(h(\text{goal}) = 0\)</span></td>
+</tr>
+<tr>
+<td>Admissible</td>
+<td><span class="arithmatex">\(h(n) \le h^*(n)\)</span></td>
+</tr>
+<tr>
+<td>Consistent</td>
+<td><span class="arithmatex">\(h(n) \le c(n,n’) + h(n’)\)</span> for all possible <span class="arithmatex">\(c(n, n’)\)</span></td>
+</tr>
+</tbody>
+</table>
 <h4 id="relations-of-properties">Relations of properties<a class="headerlink" href="#relations-of-properties" title="Permanent link">&para;</a></h4>
 <ul>
 <li><strong>Consistent</strong> &amp; <strong>Goal-aware</strong> <span class="arithmatex">\(\to\)</span> <strong>Admissible</strong></li>
@@ -1081,12 +1091,12 @@ f_W(n) = g(n) + W \cdot h(n)
 <td style="text-align: center;">A*</td>
 </tr>
 <tr>
-<td style="text-align: left;"><span class="arithmatex">\(W \to \infty\)</span></td>
-<td style="text-align: center;">GBFS</td>
-</tr>
-<tr>
 <td style="text-align: left;"><span class="arithmatex">\(W &gt; 1\)</span></td>
 <td style="text-align: center;">Bounded sub-optimal A*</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(W \to \infty\)</span></td>
+<td style="text-align: center;">GBFS</td>
 </tr>
 </tbody>
 </table>
@@ -1285,7 +1295,7 @@ f_W(n) = g(n) + W \cdot h(n)
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "content.code.annotate", "content.tabs.link", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>

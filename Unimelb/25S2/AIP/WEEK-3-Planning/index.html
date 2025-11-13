@@ -9,8 +9,10 @@
       
       
       
-        <link rel="prev" href="../WEEK-6-Exploration-and-Exploitation/">
+        <link rel="prev" href="../WEEK-2-Search/">
       
+      
+        <link rel="next" href="../WEEK-4-Complexity/">
       
       
         
@@ -21,7 +23,7 @@
     
     
       
-        <title>WEEK 7 Introduce to Reinforced Learning - Drava's Study Notes</title>
+        <title>WEEK 3 Planning - Drava's Study Notes</title>
       
     
     
@@ -72,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#week-7-introduce-to-reinforced-learning" class="md-skip">
+        <a href="#week-3-planning" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              WEEK 7 Introduce to Reinforced Learning
+              WEEK 3 Planning
             
           </span>
         </div>
@@ -435,14 +437,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEEK-2-Search-Methods/" class="md-nav__link">
+      <a href="../WEEK-2-Search/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 2 Search Methods
+    WEEK 2 Search
   
 
     
@@ -460,17 +462,44 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../WEEK-3-Planning-Methods/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 3 Planning
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 3 Planning Methods
+    WEEK 3 Planning
   
 
     
@@ -479,6 +508,176 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problem-solving" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem Solving
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Problem Solving">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#autonomous-behaviour-in-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Autonomous Behaviour in AI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-level-solver-ambitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-level Solver Ambitions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solving-approaches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solving Approaches
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Solving Approaches">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#programming-based-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Programming-Based Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#learning-based-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning-Based Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-based-approach-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model-Based Approach (Planning)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#planning-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planning Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Planning Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classical-planning-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classical Planning Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conformant-planning-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conformant Planning Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markov-decision-processes-mdps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov Decision Processes (MDPs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#partially-observable-mdps-pomdps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partially Observable MDPs (POMDPs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -572,26 +771,17 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../WEEK-7-Reinforced-Learning/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WEEK 7 Introduce to Reinforced Learning
+    WEEK 7 Reinforced Learning
   
 
     
@@ -600,7 +790,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -646,194 +835,180 @@
 
 
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-<p><strong>Table of Contents</strong>  <em>generated with <a href="https://github.com/thlorenz/doctoc">DocToc</a></em></p>
+<h1 id="week-3-planning">WEEK 3 Planning<a class="headerlink" href="#week-3-planning" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="problem-solving">Problem Solving<a class="headerlink" href="#problem-solving" title="Permanent link">&para;</a></h2>
+<h3 id="autonomous-behaviour-in-ai">Autonomous Behaviour in AI<a class="headerlink" href="#autonomous-behaviour-in-ai" title="Permanent link">&para;</a></h3>
 <ul>
-<li><a href="#week-7-introduce-to-reinforced-learning">WEEK 7 Introduce to Reinforced Learning</a></li>
+<li>Programming-based</li>
+<li>Learning-Based</li>
+<li>Model-Based</li>
+<li>Approaches not orthogonal</li>
+<li>Different models yield different types of <strong>controllers</strong> 执行动作的策略模块</li>
 </ul>
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-<h1 id="week-7-introduce-to-reinforced-learning">WEEK 7 Introduce to Reinforced Learning<a class="headerlink" href="#week-7-introduce-to-reinforced-learning" title="Permanent link">&para;</a></h1>
+<h3 id="3-level-solver-ambitions">3-level Solver Ambitions<a class="headerlink" href="#3-level-solver-ambitions" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Map Situations to Actions - so as to <span class="arithmatex">\(maximise\)</span> the Rewards</li>
+<li><strong>Ambition</strong>: Write one program to solve all classical search problems<ul>
+<li><strong>Ambition 1.0</strong> (Problem Solving) Write one program to solve a problem</li>
+<li><strong>Ambition 2.0</strong> (Problem Generation) Write one program to solve a large class of problems</li>
+<li><strong>Ambition 3.0</strong> (Meta Problem Solving) Write one program to solve a large class of problems <strong>effectively</strong></li>
 </ul>
-<p><strong>Different from Automated Planning</strong>
-- Outcomes of actions are non-deterministic
-- Use probabilistic presentation on environment &amp; policy</p>
-<p><strong>Different from Other ML</strong>
-- Sequential Data - Time Series (non-i.i.d)
-- Trial-and-error Search - No supervisor, only signal from environment
-- Delayed Reward - credit assignment matters</p>
-<p><strong>Scenario</strong>
-- Environment is initially <strong>unknown</strong>
-- Agent <strong>interacts</strong> with environment
-- Agent improves its policy through prediction, planning, control and approximation</p>
-<p><strong>Components of the environment</strong></p>
-<p><strong>State</strong></p>
-<ul>
-<li>Ⓐ State is Markov</li>
-<li>
-<p><strong>State = f(History)</strong> </p>
-</li>
-<li>
-<p>Markov property 𝑃(𝘴’ | 𝘴+𝐻(𝘴), 𝑎) = 𝑃(𝘴’ | 𝘴, 𝑎)</p>
-</li>
-<li>Once S is known, H can be thrown away</li>
-</ul>
-<p><strong>Rewards</strong> </p>
-<ul>
-<li>A scalar feedback signal</li>
-<li>Indicates how well agent is doing at one step</li>
-<li><strong>Reward</strong> <strong>Hypothesis</strong> <em>All</em> goals can be described by the maximisation of expected cumulative reward.</li>
-</ul>
-<p><strong>Components of an RL Agent</strong></p>
-<p><strong>Two Key Problems  of RL</strong></p>
-<ul>
-<li>
-<p><strong>Prediction</strong></p>
-</li>
-<li>
-<p>Evaluate the future rewards of state-actions → Value Function</p>
-</li>
-<li>
-<p><strong>Control</strong></p>
-</li>
-<li>
-<p>Find the optimal policy → Policy Function</p>
 </li>
 </ul>
-<p><strong>Model</strong></p>
+<hr />
+<h2 id="solving-approaches">Solving Approaches<a class="headerlink" href="#solving-approaches" title="Permanent link">&para;</a></h2>
+<h3 id="programming-based-approach">Programming-Based Approach<a class="headerlink" href="#programming-based-approach" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Simulator of the environment based on observations of the agent</li>
-<li>Not necessary → Model-based/Model-free</li>
-<li>
-<p><strong>Probability Function</strong> </p>
-</li>
-<li>
-<p>𝓟(𝘴, 𝑎, 𝘴’) = 𝑃(𝘴’ | 𝘴, 𝑎)</p>
-</li>
-<li>
-<p><strong>Reward Function</strong></p>
-</li>
-<li>
-<p>𝓡(𝑎, 𝘴)  =  𝔼[𝘙’ | 𝘴, 𝑎]</p>
-</li>
+<li><strong>Pro</strong>: Domain-knowledge easy to express</li>
+<li><strong>Con</strong>: Less Flexible (Can’t deal with situations not anticipated by programmer)</li>
 </ul>
-<p><strong>Value Function</strong> </p>
+<h3 id="learning-based-approach">Learning-Based Approach<a class="headerlink" href="#learning-based-approach" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Not necessary → Value-based/Policy-based</li>
-<li>
-<p>Define and predict value of the state and future reward</p>
-</li>
-<li>
-<p>𝑉(𝘴) = 𝔼[𝐺 | 𝘴]  </p>
-</li>
-<li>Value of State = The Expect of future rewards 𝐺</li>
-<li>
-<p><strong>Bellman Equation</strong> O(n³)</p>
-</li>
-<li>
-<p>𝐺 = 𝘙 + 𝛾𝐺’</p>
-</li>
-<li>
-<p>𝛾 = discount factor</p>
-</li>
-<li>
-<p>→ 𝑉 = 𝓡 + 𝛾𝓟𝑉 → 𝑉 = (𝐼 - 𝛾𝓟)⁻¹𝓡</p>
-</li>
+<li>Unsupervised/Reinforced Learning: Use reward &amp; penalise</li>
+<li>Supervised: Use labelled data</li>
+<li>Evolutionary: Use original controllers to mutate and recombine to build better controller</li>
+<li><strong>Pros</strong> Dose not require much knowledge in principle </li>
+<li><strong>Cons</strong> Slower; Hard to know which features to learn </li>
 </ul>
-<p><strong>Policy Function</strong></p>
+<h3 id="model-based-approach-planning">Model-Based Approach (Planning)<a class="headerlink" href="#model-based-approach-planning" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Output:</strong> agent’s behaviour = next step action 𝑎</li>
-<li>
-<p><strong>No Policy - Brute Force</strong></p>
-</li>
-<li>
-<p>𝑎 = 𝐚𝐫𝐠 𝐦𝐚𝐱 𝑄(𝘴, 𝑎) = 𝐚𝐫𝐠 𝐦𝐚𝐱 𝚺 𝓟(𝘴, 𝑎, 𝘴’) · 𝑉(𝘴’)</p>
-</li>
-<li>
-<p>Compare expectations of all valid actions</p>
-</li>
-<li>
-<p><strong>Deterministic policy</strong> </p>
-</li>
-<li>
-<p>𝝅(𝘴) = 𝑎 </p>
-</li>
-<li>
-<p><strong>Stochastic Policy</strong> </p>
-</li>
-<li>
-<p>𝝅(𝑎 | 𝘴) = 𝑃(𝑎 | 𝘴)</p>
-</li>
-<li>Choose the optimal action or random one with a small probability</li>
-<li>
+<li>One model for one specific problem
+<img alt="Planning Process" src="../assets/3_1_planning_process.png" /></li>
+<li><strong>Pros</strong> Powerful; Quick; Flexible; Clear; Intelligent; Domain-independent</li>
+<li><strong>Cons</strong> Need a model (sometimes very hard); Efficiency loss</li>
+<li>Always need trade-off between “Automatic and general” vs. “Manual work but effective”</li>
+</ul>
+<hr />
+<h2 id="planning-models">Planning Models<a class="headerlink" href="#planning-models" title="Permanent link">&para;</a></h2>
+<h3 id="classical-planning-model">Classical Planning Model<a class="headerlink" href="#classical-planning-model" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Ability of exploration; Robustness</li>
+<li>Classical Planning Model = Basic State Model</li>
+<li>
+<p>Assumptions</p>
+<ul>
+<li>Deterministic</li>
+<li>Fully Observable</li>
+<li>Static World</li>
+<li>Discrete Time &amp; Finite Actions</li>
+<li>Uniform Cost</li>
 </ul>
 </li>
 <li>
-<p><strong>Policy Gradient</strong></p>
+<p>Components </p>
+<div class="arithmatex">\[
+M = \langle S, A, T, I, G \rangle
+\]</div>
+<ul>
+<li><span class="arithmatex">\(S\)</span> - State spaces </li>
+<li><span class="arithmatex">\(A(s)\)</span> - Actions applicable for <span class="arithmatex">\(s \in S\)</span></li>
+<li><span class="arithmatex">\(T\)</span> - Deterministic Transition Function: <span class="arithmatex">\(s’ = T(A(s), s)\)</span> shows one successor <span class="arithmatex">\(s’\)</span> of <span class="arithmatex">\(s\)</span></li>
+<li><span class="arithmatex">\(I\)</span> - Initial state</li>
+<li><span class="arithmatex">\(G\)</span> - Goal states</li>
+<li>Uniform action costs <span class="arithmatex">\(c(A(s), s) = 1\)</span></li>
+</ul>
 </li>
 <li>
-<p>𝐉(𝜃) = 𝔼[𝐺] = 𝚺 𝑃(𝜏 | 𝜃)𝐺(𝜏)</p>
-</li>
-<li>
-<p>𝜏 = A full path from initial state to the goal</p>
-</li>
-<li>
-<p>∇𝐉(𝜃) = 𝚺 ∇𝑃(𝜏 | 𝜃)𝐺(𝜏)</p>
-</li>
-<li>
-<p>← ∇𝑃(𝜏 | 𝜃) = 𝑃(𝜏 | 𝜃)∇㏒𝑃(𝜏 | 𝜃) (score function trick)</p>
-</li>
-<li>= 𝔼[∇㏒𝑃(𝜏 | 𝜃)𝐺(𝜏)]</li>
-<li>← 𝑃(𝜏 | 𝜃)𝐺(𝜏) = 𝚺 𝜋(𝑎 | 𝘴)𝐺</li>
-<li>
-<p>= 𝔼[∇㏒𝜋(𝑎 | 𝘴)𝐺]</p>
-</li>
-<li>
-<p>Maintain a set of parameters for maximising future rewards</p>
+<p>Outcomes</p>
+<ul>
+<li>A seq of actions map <span class="arithmatex">\(s_0\)</span> into <span class="arithmatex">\(g\)</span></li>
+<li><strong>Optimal</strong> if total cost to goal is minimum</li>
+</ul>
 </li>
 </ul>
-<p><strong>Learning Process</strong></p>
-<p>Environment → State, Reward → Agent → Update the previous policy → Make the  Decision → Environment</p>
-<p><strong>Categorise of RL agents</strong></p>
+<hr />
+<h3 id="conformant-planning-model">Conformant Planning Model<a class="headerlink" href="#conformant-planning-model" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Model Based</strong> - Simulate environment to gain first experience </li>
-<li>
-<p><strong>Model Free</strong> - Gain experience from real interaction directly</p>
-</li>
-<li>
-<p><strong>Value Based</strong> - No Policy</p>
-</li>
-<li><strong>Policy Based</strong> - No Value Function = Policy Gradient</li>
-<li><strong>Actor-Critic</strong> - Policy Based 演员 + Value Based 评论家</li>
+<li><span class="arithmatex">\(\approx\)</span> Brute Force</li>
+<li>Components (<em>Diff with classic</em>)<ul>
+<li>Initial State → A set of possible initial states</li>
+<li>Deterministic Transition Function → <strong>Non</strong>-deterministic</li>
 </ul>
-<p><strong>Exploration vs Exploitation Trade-off</strong></p>
-<ul>
-<li><strong>Exploitation</strong> - select currently-known best action</li>
-<li><strong>Exploration</strong> - try a new action</li>
+</li>
+<li>Outcomes<ul>
+<li><strong>No Observation</strong> - No new info; must pre-planning</li>
+<li><strong>Goal Guarantee</strong></li>
+<li><strong>Rarely optimal</strong><ul>
+<li>Must map any possible <span class="arithmatex">\(s_0\)</span> to <span class="arithmatex">\(g\)</span>, too much unnecessary work</li>
+<li>Sensitive to Worst/Special case </li>
 </ul>
-<p><strong>Trade-off Strategies</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="markov-decision-processes-mdps">Markov Decision Processes (MDPs)<a class="headerlink" href="#markov-decision-processes-mdps" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>ε-greedy</strong> all most all time (1-ε) exploitation (ε is very small)</li>
 <li>
-<p><strong>softmax</strong> set a probability to each action and a temperature τ to control </p>
+<p>Assumption</p>
+<ul>
+<li>
+<p>Markov Property: the next state only depends on the current state and actions.</p>
+<div class="arithmatex">\[
+P(s_{t+1} \mid s_t,a_t,s_{t-1},a_{t-1},\ldots) = P(s_{t+1} \mid s_t,a_t) 
+\]</div>
 </li>
 <li>
-<p>P(a) = exp(Q_a/τ)/Σexp(Q_others/τ)</p>
+<p>Fully Observable</p>
+</li>
+<li>Discrete Time &amp; Finite Actions</li>
+<li>Fixed Transition Probabilities</li>
+</ul>
 </li>
 <li>
-<p><strong>Upper Confidence Bound (UCB)</strong> exploitation + exploration bonus</p>
+<p>Components <em>(Diff with conformant)</em>
+    $$
+    M = \langle S,A,T,R,\gamma \rangle
+    $$</p>
+<ul>
+<li>Introduce the <strong>Transition Probability Function</strong>:
+    $$
+    T(s, a, s') = P(s' \mid s, a)
+    $$</li>
+<li>Introduce <strong>Reward Function</strong> <span class="arithmatex">\(R\)</span> and <strong>Discount Factor</strong> <span class="arithmatex">\(\gamma\)</span>:<ul>
+<li>For estimating the <strong>value</strong> of each state</li>
+</ul>
+</li>
+</ul>
 </li>
 <li>
-<p>a= argmax(Q̂(a) + c√(ln t/N(a)))</p>
+<p>Outcomes</p>
+<ul>
+<li>Map states to <strong>actions</strong></li>
+<li><strong>Optimal</strong> if total <strong>expected</strong> cost to goal is <span class="arithmatex">\(minimum\)</span></li>
+</ul>
 </li>
-<li><strong>c</strong> importance of exploration (<strong>parameter</strong>)</li>
-<li><strong>ln t</strong> explore more when time goes</li>
-<li><strong>N(a)</strong> not try too many times on same action</li>
+</ul>
+<hr />
+<h3 id="partially-observable-mdps-pomdps">Partially Observable MDPs (POMDPs)<a class="headerlink" href="#partially-observable-mdps-pomdps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Assumption</p>
+<ul>
+<li>Markov Property</li>
+<li><strong>Limited</strong> Observable</li>
+</ul>
+</li>
+<li>
+<p>Components <em>(Diff with MDPs)</em></p>
+<ul>
+<li>
+<p>Introduce <strong>Sensor Model</strong> (based on <strong>Probability Distribution</strong>)</p>
+<div class="arithmatex">\[
+\mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
+\]</div>
+</li>
+<li>
+<p>Initial/Goal States → Belief States <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> and <span class="arithmatex">\(\mathrm{b}(g)\)</span></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Outcomes</p>
+<ul>
+<li>Map belief states into actions</li>
+<li><strong>Optimal</strong> if total expected cost from <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> to <span class="arithmatex">\(\mathrm{b}(g)\)</span> is minimum</li>
+</ul>
+</li>
 </ul>
 
 
@@ -892,7 +1067,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "content.code.annotate", "content.tabs.link", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
