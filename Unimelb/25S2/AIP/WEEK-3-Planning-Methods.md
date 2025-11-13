@@ -111,15 +111,16 @@ $$
 - **Optimal** if total **expected** cost to goal is $minimum$
 ---
 ### Partially Observable MDPs (POMDPs)
-#### Assumption
-- Markov Property
-- **Limited** Observable
-#### Components *(Diff with MDPs)*
+- Assumption
+	- Markov Property
+	- **Limited** Observable
+- Components *(Diff with MDPs)*
+	- Introduce **Sensor Model** (based on **Probability Distribution**)
+
 $$
 \mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
 $$
-- Introduce **Sensor Model** (based on **Probability Distribution**)
-- Initial/Goal States → Belief States $\mathrm{b}(s_0)$ and $\mathrm{b}(g)$.
-#### Outcomes
-- Map belief states into actions
-- **Optimal** if total expected cost from $\mathrm{b}(s_0)$ to $\mathrm{b}(g)$ is minimum
+	- Initial/Goal States → Belief States $\mathrm{b}(s_0)$ and $\mathrm{b}(g)$.
+- Outcomes
+	- Map belief states into actions
+	- **Optimal** if total expected cost from $\mathrm{b}(s_0)$ to $\mathrm{b}(g)$ is minimum
