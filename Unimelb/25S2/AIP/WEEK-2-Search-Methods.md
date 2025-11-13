@@ -98,21 +98,19 @@ def greedy_BFS:
     frontier.add(start, h(start), path)
     
     while frontier:
-        current = open.pop()
+        current = frontier.pop()
         if current == goal:
             return path
         if current in explored:
             continue
         explored.add(current)
-        for successor in successors_of(current):
+        for successor in succ(current):
             new_path = path + action(current, successor)
-            frontier.add(current, h(current), new_path)
-    return failure
+            frontier.add(h(current), current, new_path)
+    return unsolvable
 ```
-- Use priority queue to sort $h(n)$ of each node in ascending order then do BFS to each node
-- If $h(n) = 0$, it becomes what fully depends on how we break ties
-- - Queue: BFS/ Stack: DFS
-- PQ(g(n)h: Uniform cost search
+- Use **priority queue** to sort $h(n)$ of each node in ascending order
+	- If $h(n) = 0$, it becomes what fully depends on how we break ties
 - Completeness✅for safe heuristics; Optimal❌
 ---
 ### A* (with duplicate detection and re-opening)
@@ -124,16 +122,16 @@ def a_star:
     frontier.add(start, h(start), path)
     
     while frontier:
-        current = open.pop()
+        current = frontier.pop()
         if current == goal:
             return path
         if current in explored:
             continue
         explored.add(current)
-        for successor in successors_of(current):
+        for successor in succ(current):
             new_path = path + action(current, successor)
-✏️            frontier.add(current, cost(new_path) + h(current), new_path)
-    return failure
+✏️            frontier.add(cost(new_path) + h(current), current, new_path)
+    return unsolvable
 ```
 - **Only difference between greedy and A\*** $h(n) \rightarrow f(n) = g(n) + h(n)$
 - **Re-opening** if a node is closed but we find a better cost(n), then we can re-visit and extend this node
@@ -157,7 +155,7 @@ def hill_climbing:
     path = list
     current = start
     while h(n) > 0:
-        best = argmin_h(successors_of(current))
+        best = argmin_h(succ(current))
         if best and h(best) < h(current):
             current = n
             path += action(current, best)
@@ -176,7 +174,7 @@ def enforced_hill_climbing:
     current = start
     while h(n) > 0:
         explored.add(current)
-        best = argmin_h(successors_of(current))
+        best = argmin_h(succ(current))
         if best and h(best) < h(current):
             path += action(current, best)
         else:
@@ -187,7 +185,7 @@ def enforced_hill_climbing:
                 path += action(parent, best_sub)
                 current = best_sub
             else:
-                return failure
+                return unsolvable
     return path
 ```
 - Local Search: Do small range BFS when find local optimal
@@ -205,7 +203,7 @@ def ida_star:
         if t == goal:
             return solution
         if t == infinity:
-            return failure
+            return unsolvable
         bound = t
 ```
 - Dealing with one of A*’s problem: large queue/closed_set
