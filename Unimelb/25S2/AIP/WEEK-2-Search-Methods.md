@@ -71,16 +71,6 @@ Common Functions:
 - **Depth-First Search**
 - **Iterative Deepening Search**
 	- Do DLS(DFS with depth limited) with continuously increasing depth limited by 1.
-
-| Properties       |   BFS    |    DFS     |   IDS    |
-| :--------------- | :------: | :--------: | :------: |
-| Completeness     |    ✅     | ❌ (Cyclic) |    ✅     |
-| Uniform Cost     |    ✅     |     ❌      |    ✅     |
-| Time Complexity  | $O(b^d)$ |  $O(b^m)$  | $O(b^d)$ |
-| Space Complexity | $O(b^d)$ |   $O(d)$   |  $O(d)$  |
-
-
-
 - Blind Search: *Completeness* 100%, but *poor efficient* when doing hard work
 
 ## Heuristic Functions
@@ -239,5 +229,6 @@ def ida_star:
 | Space    | $b \cdot d$ | $b^d$ | $b \cdot d$ | $b^d$ |   $b$    | $b \cdot d$ |
 - $b$ - Branching Factor: sum of number of child nodes of each node
 - $d$ - Solution Depth: *$minimum$* depth among all goal nodes
+- DFS cannot handle cyclic graph
 - BFS is optimal only when uniform costs are applied 
 - A*/IDA* is optimal only when $h$ is admissible ($h \le h^*$)

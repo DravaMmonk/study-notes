@@ -12,20 +12,9 @@
     - [Model-Based Approach (Planning)](#model-based-approach-planning)
   - [Planning Models](#planning-models)
     - [Classical Planning Model](#classical-planning-model)
-      - [Assumptions](#assumptions)
-      - [Components](#components)
-      - [Outcomes](#outcomes)
     - [Conformant Planning Model](#conformant-planning-model)
-      - [Components (*Diff with classic*)](#components-diff-with-classic)
-      - [Outcomes](#outcomes-1)
     - [Markov Decision Processes (MDPs)](#markov-decision-processes-mdps)
-      - [Assumption](#assumption)
-      - [Components *(Diff with conformant)*](#components-diff-with-conformant)
-      - [Outcomes](#outcomes-2)
     - [Partially Observable MDPs (POMDPs)](#partially-observable-mdps-pomdps)
-      - [Assumption](#assumption-1)
-      - [Components *(Diff with MDPs)*](#components-diff-with-mdps)
-      - [Outcomes](#outcomes-3)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -64,73 +53,73 @@
 ## Planning Models
 ### Classical Planning Model 
 - Classical Planning Model = Basic State Model
-#### Assumptions
-- Deterministic
-- Fully Observable
-- Static World
-- Discrete Time & Finite Actions
-- Uniform Cost
-#### Components 
+- Assumptions
+	- Deterministic
+	- Fully Observable
+	- Static World
+	- Discrete Time & Finite Actions
+	- Uniform Cost
+- Components 
 $$
 M = \langle S, A, T, I, G \rangle
 $$
-- $S$ - State spaces 
-- $A(s)$ - Actions applicable for $s \in S$
-- $T$ - Deterministic Transition Function: $s’ = T(A(s), s)$ shows one successor $s’$ of $s$
-- $I$ Initial state
-- $G$ Goal states
-- Uniform action costs $c(A(s), s) = 1$
-#### Outcomes
-- A seq of actions map $s_0$ into $g$
-- **Optimal** if total cost to goal is minimum
+	- $S$ - State spaces 
+	- $A(s)$ - Actions applicable for $s \in S$
+	- $T$ - Deterministic Transition Function: $s’ = T(A(s), s)$ shows one successor $s’$ of $s$
+	- $I$ Initial state
+	- $G$ Goal states
+	- Uniform action costs $c(A(s), s) = 1$
+- Outcomes
+	- A seq of actions map $s_0$ into $g$
+	- **Optimal** if total cost to goal is minimum
 ---
 ### Conformant Planning Model
 * $\approx$ Brute Force
-#### Components (*Diff with classic*)
-- Initial State → A set of possible initial states
-- Deterministic Transition Function → **Non**-deterministic
-#### Outcomes
-- **No Observation** - No new info; must pre-planning
-- **Goal Guarantee**
-- **Rarely optimal**
-	- Must map any possible $s_0$ to $g$, too much unnecessary work
-	- Sensitive to Worst/Special case 
+- Components (*Diff with classic*)
+	- Initial State → A set of possible initial states
+	- Deterministic Transition Function → **Non**-deterministic
+- Outcomes
+	- **No Observation** - No new info; must pre-planning
+	- **Goal Guarantee**
+	- **Rarely optimal**
+		- Must map any possible $s_0$ to $g$, too much unnecessary work
+		- Sensitive to Worst/Special case 
 ---
 ### Markov Decision Processes (MDPs)
-#### Assumption
-* Markov Property: the next state only depends on the current state and actions.
+- Assumption
+	* Markov Property: the next state only depends on the current state and actions.
 $$
 P(s_{t+1} \mid s_t,a_t,s_{t-1},a_{t-1},\ldots) = P(s_{t+1} \mid s_t,a_t) 
 $$
-- Fully Observable
-- Discrete Time & Finite Actions
-- Fixed Transition Probabilities
-#### Components *(Diff with conformant)*
+	- Fully Observable
+	- Discrete Time & Finite Actions
+	- Fixed Transition Probabilities
+- Components *(Diff with conformant)*
 $$
 M = \langle S,A,T,R,\gamma \rangle
 $$
-- Introduce the **Transition Probability Function** 
+	- Introduce the **Transition Probability Function** 
 $$
 T(s, a, s') = P(s' \mid s, a)
 $$
-	- $s' = \mathrm{succ}(s)$
-	- $\sum_{s' \in S}P(s' \mid s,a) = 1$
-- Introduce **Reward Function** $R$ and **Discount Factor** $\gamma$
-	- For estimating the **value** of each state
-#### Outcomes
-- A Functions/Policies for mapping states to **actions**
-- **Optimal** if total **expected** cost to goal is $minimum$
+		- $s' = \mathrm{succ}(s)$
+		- $\sum_{s' \in S}P(s' \mid s,a) = 1$
+	- Introduce **Reward Function** $R$ and **Discount Factor** $\gamma$
+		- For estimating the **value** of each state
+- Outcomes
+	- A Functions/Policies for mapping states to **actions**
+	- **Optimal** if total **expected** cost to goal is $minimum$
 ---
 ### Partially Observable MDPs (POMDPs)
-#### Assumption
-- Markov Property
-- **Limited** Observable
-#### Components *(Diff with MDPs)*
-- Introduce **Sensor Model** (based on **Probability Distribution**)
+- Assumption
+	- Markov Property
+	- **Limited** Observable
+- Components *(Diff with MDPs)*
+	- Introduce **Sensor Model** (based on **Probability Distribution**)
 $$
 \mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
 $$
-- Initial/Goal States → Belief States $\mathrm{b}(s_0)$ and $\mathrm{b}(g)$.
-#### Outcomes
-- Map belief states into actions
-- **Optimal** if total expected cost from $\mathrm{b}(s_0)$ to $\mathrm{b}(g)$ is minimum
+	- Initial/Goal States → Belief States $\mathrm{b}(s_0)$ and $\mathrm{b}(g)$.
+- Outcomes
+	- Map belief states into actions
+	- **Optimal** if total expected cost from $\mathrm{b}(s_0)$ to $\mathrm{b}(g)$ is minimum

@@ -14,10 +14,14 @@
     - [Instance of $h^+$ - Bellman-Ford Algorithm](#instance-of-h%5E---bellman-ford-algorithm)
           - [Example](#example)
   - [$h^+$ Approximation Methods](#h%5E-approximation-methods)
-    - [Fast Forward Heuristic ($h_{FF}$)](#fast-forward-heuristic-h_ff)
+    - [Plan Existence Checking based on Fast Forward Heuristic ($h_{FF}$)](#plan-existence-checking-based-on-fast-forward-heuristic-h_ff)
     - [Max Heuristic ($h^{max}$)](#max-heuristic-h%5Emax)
     - [Additive Heuristic ($h^{add}$)](#additive-heuristic-h%5Eadd)
   - [Relaxed Plans](#relaxed-plans)
+    - [**Best Supporter Function** $bs(p)$](#best-supporter-function-bsp)
+    - [Plan Extraction Process - Backward Extraction](#plan-extraction-process---backward-extraction)
+    - [Relaxed Plan Heuristic ($h_{FF}$)](#relaxed-plan-heuristic-h_ff)
+    - [Helpful Actions](#helpful-actions)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -125,15 +129,13 @@ def h_plus(s, G, A):
 | B      |       ∞        |    4    |      4      |
 | C      |       ∞        |    5    | 2 (= 4 - 2) |
 
-
 ## $h^+$ Approximation Methods
-### Fast Forward Heuristic ($h_{FF}$)
+### Plan Existence Checking based on Fast Forward Heuristic ($h_{FF}$)
 ```
-def h_FF(s, G, A):
+def is_plan_existence(s, G, A):
     if G in s:
-        return 0
+        return TRUE
     
-    # Forward Expansion - BFS try a for covering more predications
 	reached = s
     while G not in reached:
         new_facts = reached
@@ -141,24 +143,14 @@ def h_FF(s, G, A):
             if pre(a) in reached:
                 new_facts += add(a)
         if new_facts == reached:
-            return unsolvable
+            return FALSE
         reached = new_facts
-    
-    # Backward Extraction - Greedily try a for finding a solution
-    plan = []
-    subgoals = G
-    while subgoals not in s:
-	    new_subgoals = []
-	    for g in subgoals:
-		    pick a s.t. g in add(a) and pre(a) in reached
-		    plan += {a}
-		    new_subgoals += pre(a)
-		subgoals = new_subgoals
-    return len(plan)
+	
+	return TRUE
 ```
 - Sound, complete, Terminates in *polytime*✅
 	- $\mathrm{PlanEx}^+$ now becomes a *polytime* problem
-- Safe✅, goal-aware✅, admissible⚠️ 
+- Safe✅, goal-aware✅, admissible❌ (Existence Check Only, usually far from optimal)
 ---
 ### Max Heuristic ($h^{max}$)
 ```
@@ -185,11 +177,11 @@ def h_max(s, G, A):
 ```
 - Efficient Computable✅ *Polytime*
 	- However, sometimes maybe too optimistic⚠️
-- Optimistic Estimation: admissible✅
+- **Optimistic** Estimation: admissible✅
 ---
 ### Additive Heuristic ($h^{add}$)
 ```
-def h_max(s, G, A):
+def h_sum(s, G, A):
     for p in P:
         if p in s:
             cost[p] = 0
@@ -201,17 +193,74 @@ def h_max(s, G, A):
         changed = false
         for a in A:
             if cost[q] < inf for all q in pre(a):
- ✏️               new_cost = 1 + sum(cost[q] for q in pre(a))
+✏️	            new_cost = 1 + sum(cost[q] for q in pre(a))
                 for p in add(a):
                     if new_cost < cost[p]:
                         cost[p] = new_cost
                         changed = true
 
-    return max(cost[g] for g in G)
+✏️	return sum(cost[g] for g in G)
 ```
 - Efficient Computable✅ *Polytime*
-- Pessimistic Estimation: admissible❌ informed✅ 
-	- However, it may **overcounts** by ignoring positive interactions, i.e. shared-path
-	- May result in dramatic over-estimates of $h^*$
+- **Pessimistic** Estimation: admissible❌ informative✅ 
+- **Overcounts** by ignoring positive interactions, i.e. shared sub-plans
+	- May result in $dramatic$ over-estimates of $h^*$
 
 ## Relaxed Plans
+### **Best Supporter Function** $bs(p)$
+- Input: A predication $p$
+- Output: The $cheapest$ action $a$ which make this predication `TRUE`
+- Prerequisites
+	- $p \in add(a)$ iff $bs(p) = a$
+	- $bs(\cdot)$ is closed
+		- $bs(p)$ is defined for every $p \in (P \; \backslash \; s)$ that has a path to a goal $g \in G$
+	- $bs(\cdot)$ is well-bounded
+		- Support Graph is *acyclic* 
+- If a relaxed plan exists, the closed well-founded $bs(\cdot)$ definitely exists.
+	- There is a relaxed path from $I$ to $G$
+	- Every $g$ has at least one supporter, so as its subgoals
+### Plan Extraction Process - Backward Extraction
+- For each goal state $g \in G$:
+	- Find the cheapest $a = bs(g)$
+	- Add this action to the plan
+	- repeat on $bs(pre(a))$
+### Relaxed Plan Heuristic ($h_{FF}$)
+```
+def h_FF(I, G, A):
+    if G in I:
+        return 0
+    
+    # Forward Expansion - BFS
+	reached = I
+    while G not in reached:
+        new_facts = reached
+        for a in A:
+            if pre(a) in reached:
+                new_facts += add(a)
+        if new_facts == reached:
+            return unsolvable
+        reached = new_facts
+    
+    # Backward Extraction - Greedy
+    plan = []
+    subgoals = G
+    while subgoals not in I:
+	    new_subgoals = []
+	    for g in subgoals:
+		    pick a s.t. g in add(a) and pre(a) in reached
+		    plan += {a}
+		    new_subgoals += pre(a)
+		subgoals = new_subgoals
+    
+    return len(plan)
+```
+- Same theoretical properties as $h^{add}$ but better in practice
+	- Overcount sub-plans shared by different sub-goals
+	- Best Supporter is greedily chosen and sub-optimal
+	- In practice, $h_{FF}$ typically does not over-estimate $h^*$, or not by a large amount.
+---
+### Helpful Actions
+- An action is helpful iff:
+	- it is applicable in the current state ($pre(a) \subseteq s$)
+	- it is contained in the final plan
+- Expanding only helpful actions does not guarantee completeness.
