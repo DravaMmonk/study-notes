@@ -35,6 +35,7 @@
 $$
 \mathcal{R} = (\mathcal{P'}, r, h'^*)
 $$
+where
 - $\mathcal{P}'$ - the class of the simpler problem 
 - $r$ - transformer turning the original problem into a simplified one
 - $h'^*(n)$ - Perfect heuristic function of the simplified problem 
@@ -65,10 +66,7 @@ $$
 	- Landmarks
 
 ## Delete Relaxation
- - Apply:
- $$
- Del(a) = \emptyset, \forall a \in A
- $$
+ - Apply $Del(a) = \emptyset, \forall a \in A$
 	- which makes "once"  `TRUE` _predications_ remain `TRUE` "forever"
 - $a^+$ - Actions after delete relaxation
 - **Optimal** Delete Relaxation is **Admissible** $h^+(n) \le h^*(n)$
@@ -212,11 +210,11 @@ def h_sum(s, G, A):
 - Output: The $cheapest$ action $a$ which make this predication `TRUE`
 - Prerequisites
 	- $p \in add(a)$ iff $bs(p) = a$
-	- $bs(\cdot)$ is closed
-		- $bs(p)$ is defined for every $p \in (P \; \backslash \; s)$ that has a path to a goal $g \in G$
-	- $bs(\cdot)$ is well-bounded
+	- $bs\left(\cdot\right)$ is closed
+		- $bs(p)$ is defined for every $p \in (P \backslash s)$ that has a path to a goal $g \in G$
+	- $bs\left(\cdot\right)$ is well-bounded
 		- Support Graph is *acyclic* 
-- If a relaxed plan exists, the closed well-founded $bs(\cdot)$ definitely exists.
+- If a relaxed plan exists, the closed well-founded $bs\left(\cdot\right)$ definitely exists.
 	- There is a relaxed path from $I$ to $G$
 	- Every $g$ has at least one supporter, so as its subgoals
 ### Plan Extraction Process - Backward Extraction
