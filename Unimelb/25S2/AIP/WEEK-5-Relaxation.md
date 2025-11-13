@@ -210,11 +210,11 @@ def h_sum(s, G, A):
 - Output: The $cheapest$ action $a$ which make this predication `TRUE`
 - Prerequisites
 	- $p \in add(a)$ iff $bs(p) = a$
-	- $bs\left(\cdot\right)$ is closed
+	- $bs(\mathord{\cdot})$ is closed
 		- $bs(p)$ is defined for every $p \in (P \backslash s)$ that has a path to a goal $g \in G$
-	- $bs\left(\cdot\right)$ is well-bounded
+	- $bs(\cdot)$ is well-bounded
 		- Support Graph is *acyclic* 
-- If a relaxed plan exists, the closed well-founded $bs\left(\cdot\right)$ definitely exists.
+- If a relaxed plan exists, the closed well-founded $bs(\cdot)$ definitely exists.
 	- There is a relaxed path from $I$ to $G$
 	- Every $g$ has at least one supporter, so as its subgoals
 ### Plan Extraction Process - Backward Extraction
