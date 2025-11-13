@@ -1,13 +1,5 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [WEEK 1 General Basics](#week-1-general-basics)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # WEEK 1 General Basics
-
+---
 AIP - Artificial Intelligence Planning for Autonomy
 
 Agents - Sensors/Precepts → Actuators/Actions

@@ -1,32 +1,5 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [WEEK 2 Search Methods](#week-2-search-methods)
-  - [Search Space](#search-space)
-          - [EXAMPLE](#example)
-  - [Search Methods](#search-methods)
-    - [Blind Search vs. Informed Search](#blind-search-vs-informed-search)
-    - [Blind Systematic Search Algorithms](#blind-systematic-search-algorithms)
-  - [Heuristic Functions](#heuristic-functions)
-      - [Properties](#properties)
-      - [Relations of properties](#relations-of-properties)
-  - [Informed Systematic Search Algorithms](#informed-systematic-search-algorithms)
-    - [Greedy Best-First Search (with duplicate detection)](#greedy-best-first-search-with-duplicate-detection)
-    - [A* (with duplicate detection and re-opening)](#a-with-duplicate-detection-and-re-opening)
-    - [Weighted A*](#weighted-a)
-    - [Hill-Climbing](#hill-climbing)
-    - [Enforced Hill-Climbing](#enforced-hill-climbing)
-    - [Iterative Deepening A*](#iterative-deepening-a)
-  - [Evaluation of Search Methods](#evaluation-of-search-methods)
-    - [Guarantees](#guarantees)
-    - [Complexity](#complexity)
-    - [Summary](#summary)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # WEEK 2 Search Methods
-
+---
 ## Search Space
 - A set of search states
 - Forward Search (Progression)
@@ -49,6 +22,7 @@ Regression:  搜索树上的每个节点共同组成“我们想要所有满足
 subgoals = {"position": (5, 8), "carrying_package": True}
 ```
 Common Functions: 
+
 - $s$ = search states
 - $\mathrm{is}\_\mathrm{start}(s)$ return if the state is the start state of the search space
 - $\mathrm{is}\_\mathrm{target}(s)$ mark if the state is the goal state of the search space
@@ -60,12 +34,15 @@ Common Functions:
 	- $g(\sigma)$ denotes cost of path from the **root** to $\sigma$
 	- The **root**’s $\mathrm{parent}(\cdot)$ and $\mathrm{action}(\cdot)$ are undefined
 
+---
 ## Search Methods
+
 ### Blind Search vs. Informed Search
 - Blind search not require any input beyond the problem
 - No additional work but rarely effective
 - Informed search requires function $h(x)$ mapping states to estimates their goal distance
 - Effective but lots of work to construct $h(x)$
+
 ### Blind Systematic Search Algorithms
 - **Breadth-First Search**
 - **Depth-First Search**
@@ -73,6 +50,7 @@ Common Functions:
 	- Do DLS(DFS with depth limited) with continuously increasing depth limited by 1.
 - Blind Search: *Completeness* 100%, but *poor efficient* when doing hard work
 
+---
 ## Heuristic Functions
 - $h(n)$ - Estimated remaining cost (from current state to goal state)
 - $h^*(n)$ - Real remaining cost
@@ -109,9 +87,11 @@ def greedy_BFS:
             frontier.add(h(current), current, new_path)
     return unsolvable
 ```
+
 - Use **priority queue** to sort $h(n)$ of each node in ascending order
 	- If $h(n) = 0$, it becomes what fully depends on how we break ties
 - Completeness✅for safe heuristics; Optimal❌
+
 ---
 ### A* (with duplicate detection and re-opening)
 ```
@@ -133,8 +113,10 @@ def a_star:
 ✏️            frontier.add(cost(new_path) + h(current), current, new_path)
     return unsolvable
 ```
+
 - **Only difference between greedy and A\*** $h(n) \rightarrow f(n) = g(n) + h(n)$
 - **Re-opening** if a node is closed but we find a better cost(n), then we can re-visit and extend this node
+
 ---
 ### Weighted A*
 $$
@@ -142,12 +124,14 @@ f_W(n) = g(n) + W \cdot h(n)
 $$
 
 | Weight         |       Algorithm        |
-| :------------- | :--------------------: |
+|:-------------- |:----------------------:|
 | $W \to 0$      |   Digkstra Algorithm   |
 | $W \to 1$      |           A*           |
 | $W \to \infty$ |          GBFS          |
 | $W > 1$        | Bounded sub-optimal A* |
+
 - If $h$ is admissible, $f_W(n) \le W \cdot h(n)$
+
 ---
 ### Hill-Climbing
 ```
@@ -165,6 +149,7 @@ def hill_climbing:
 ```
 - Local Search: Can only find local maxima
 - Make sense only if $h(n) > 0$ for all non-goal states
+
 ---
 ### Enforced Hill-Climbing
 ```
@@ -190,9 +175,10 @@ def enforced_hill_climbing:
 ```
 - Local Search: Do small range BFS when find local optimal
 - Can across small gap between local best and global best
+
 ---
-### Iterative Deepening A*
-- IDS + A*: Use f(n) instead of depth to limit IDS
+### Iterative Deepening $A^*$
+- IDS + $A^*$: Use f(n) instead of depth to limit IDS
 	- In First Search:  f(n) = f(start) = 0 + h(start)
 	- Following Searches: f(n) = min_out_of_bound_excess
 ```
@@ -206,8 +192,9 @@ def ida_star:
             return unsolvable
         bound = t
 ```
-- Dealing with one of A*’s problem: large queue/closed_set
+- Dealing with one of $A^*$’s problem: large queue/closed_set
 
+---
 ## Evaluation of Search Methods
 ### Guarantees
 - **Completeness** sure to find a solution if there is one
@@ -218,14 +205,15 @@ def ida_star:
 	- **Branching factor** $b$ how many successors
 	- **Goal depth** $d$ number of actions to reach shallowest goal state
 ### Summary
-|          |     DFS     |  BFS  |     IDS     |  A*   |    HC    |    IDA*     |
+|          |     DFS     | BrFS  |     IDS     |  A*   |    HC    |    IDA*     |
 |:-------- |:-----------:|:-----:|:-----------:|:-----:|:--------:|:-----------:|
 | Complete |     ❌      |  ✅   |     ✅      |  ✅   |    ❌    |     ✅      |
 | Optimal  |     ❌      |  ✅*  |     ✅      |  ✅*  |    ❌    |     ✅*     |
 | Time     |  $\infty$   | $b^d$ |    $b^d$    | $b^d$ | $\infty$ |    $b^d$    |
 | Space    | $b \cdot d$ | $b^d$ | $b \cdot d$ | $b^d$ |   $b$    | $b \cdot d$ |
+
 - $b$ - Branching Factor: sum of number of child nodes of each node
 - $d$ - Solution Depth: *$minimum$* depth among all goal nodes
 - DFS cannot handle cyclic graph
 - BFS is optimal only when uniform costs are applied 
-- A*/IDA* is optimal only when $h$ is admissible ($h \le h^*$)
+- $A^*$ / Iterative Deepening $A^*$ is optimal only when $h$ is admissible ($h \le h^*$)
