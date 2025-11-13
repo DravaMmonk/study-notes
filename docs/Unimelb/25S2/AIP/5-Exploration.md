@@ -1,4 +1,4 @@
-# 5 Exploration 
+# 5. Exploration 
 ---
 ## Novelty
 - The size of the smallest **subset** of $P \subseteq s$, such that $s$ is the first state that makes $P$ `TRUE` during the search

@@ -1,4 +1,4 @@
-# 3 Complexity
+# 3. Complexity
 ---
 ## Savitch’s Theorem 
 - NPSPACE = PSPACE

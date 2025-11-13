@@ -1,4 +1,4 @@
-# 7 Model-based Reinforced Learning
+# 7. Model-based Reinforced Learning
 
 ### Markov Decision Process
 - MDP - General Simulator of the environment for Model-based RL

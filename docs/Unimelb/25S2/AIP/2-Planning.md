@@ -1,4 +1,4 @@
-# 2 Planning
+# 2. Planning
 ---
 ## Problem Solving
 ### Autonomous Behaviour in AI

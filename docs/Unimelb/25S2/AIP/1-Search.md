@@ -1,4 +1,4 @@
-#  1. Search
+# 1. Search
 ---
 ## Search Space
 - A set of search states
@@ -73,7 +73,10 @@ Common Functions:
 - **Admissible** $\to$ **Safe** & **Goal-aware**
 
 ## Informed Systematic Search Algorithms
-### Greedy Best-First Search (with duplicate detection)
+### Greedy Best-First Search (GBFS)
+- Use **priority queue** to sort $h(n)$ of each node in ascending order
+	- If $h(n) = 0$, it becomes what fully depends on how we break ties
+
 ```
 def greedy_BFS:
     frontier = priority queue ordered by h(n)
@@ -94,21 +97,22 @@ def greedy_BFS:
     return unsolvable
 ```
 
-- Use **priority queue** to sort $h(n)$ of each node in ascending order
-	- If $h(n) = 0$, it becomes what fully depends on how we break ties
 - Completeness✅for safe heuristics; Optimal❌
 
 ---
-### A* (with duplicate detection and re-opening)
+### A*
+- Only difference from GBFS:
+	- $h(n) \rightarrow f(n) = g(n) + h(n)$
+
 ```
 def a_star:
     frontier = priority queue ordered by f(n) = g(n) + h(n)
     explored = set
     path = list
-    frontier.add(start, h(start), path)
+    frontier.add(h(start), start, path)
     
     while frontier:
-        current = frontier.pop()
+        _, current, path = frontier.pop()
         if current == goal:
             return path
         if current in explored:
@@ -116,12 +120,45 @@ def a_star:
         explored.add(current)
         for successor in succ(current):
             new_path = path + action(current, successor)
-✏️            frontier.add(cost(new_path) + h(current), current, new_path)
+            f = cost(new_path) + h(current)
+✏️          frontier.add(f, successor, new_path)
     return unsolvable
 ```
 
-- **Only difference between greedy and A\*** $h(n) \rightarrow f(n) = g(n) + h(n)$
-- **Re-opening** if a node is closed but we find a better cost(n), then we can re-visit and extend this node
+#### Re-opening
+- a node $n$ is in `explored` but if we find a cheaper $g(n)$, then we can re-open the `explored` set and extend this node
+- Not needed if consistent✅
+	-  $g$ is already cheapest
+
+```
+def a_star_with_re_opening:
+    frontier = priority queue ordered by f(n) = g(n) + h(n)
+    explored = set
+	path = list
+    frontier.add(h(start), start, path)
+	
+✏️	g = dict
+✏️	g[start] = 0
+
+	while frontier:
+		_, current, path = frontier.pop()
+		if current == goal:
+			return path
+		explored.add(current)
+		for successor in succ(current):
+			new_path = path + action(current, successor)
+			new_g = cost(new_path)
+			if successor not in g or new_g < g[successor]:
+				[successor] = new_g
+				f = g[successor] + h(successor)
+				frontier.add(f, successor, f)
+                
+✏️				if successor in explored:     # Re-opening
+✏️					explored.remove(successor)
+	return unsolvable
+
+```
+
 
 ---
 ### Weighted A*
@@ -183,7 +220,7 @@ def enforced_hill_climbing:
 - Can across small gap between local best and global best
 
 ---
-### Iterative Deepening $A^*$
+### Iterative Deepening A*
 - IDS + $A^*$: Use f(n) instead of depth to limit IDS
 	- In First Search:  f(n) = f(start) = 0 + h(start)
 	- Following Searches: f(n) = min_out_of_bound_excess

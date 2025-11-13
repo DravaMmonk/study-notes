@@ -1,4 +1,4 @@
-# 6 Reinforced Learning
+# 6. Reinforced Learning
 ---
 ## Reinforced Learning
 - Policy + Reward + Trial-and-error interaction
