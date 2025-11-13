@@ -95,13 +95,17 @@ $$
 - Discrete Time & Finite Actions
 - Fixed Transition Probabilities
 - Components *(Diff with conformant)*
-	$$
-	M = \langle S,A,T,R,\gamma \rangle
-	$$
+
+$$
+M = \langle S,A,T,R,\gamma \rangle
+$$
+
 	- Introduce **Transition Probability Function** 
-		$$
-		T(s, a, s') = P(s' \mid s, a)
-		$$
+
+$$
+T(s, a, s') = P(s' \mid s, a)
+$$
+
 		- $s' = \mathrm{succ}(s)$
 		- $\sum_{s' \in S}P(s' \mid s,a) = 1$
 - Introduce **Reward Function** $R$ and **Discount Factor** $\gamma$
