@@ -188,7 +188,7 @@ $$
 
 - MRP = MDP + restricted by the deterministic policy
 
- #### Stochastic Policy 
+#### Stochastic Policy 
 $$
 \pi(a \mid s) = P(a \mid s)
 $$
@@ -217,6 +217,21 @@ $$
 && \text{(expand trajectory likelihood)}
 \end{aligned}
 $$
+
+---
+### Example - MAZE
+![Maze](assets/7_1_maze.png)
+- $S$ - Agent's possible locations
+- $A$ - Step directions $\mathtt{N, E, S, W}$
+- $R$ - $-1$ per time-step (encourage short-path solution)
+- $V(s)$ - the expected return of following the policy from each $s$ 
+	- closer to $g$ - $V(s)$ ⤴
+	- Farther away - $V(S)$ ⤵
+- $\pi(s)$ - Best action = Best $V(s')$
+- **Model**
+	- **Transition model** $P_{ss'}^a$ - how each action changes the state.
+	- **Reward model** $R_{s}^a$ - immediate reward from each state (same for all $a$).
+	- The model can be imperfect but supports planning and prediction.
 
 ---
 ### Categorise of RL agents
