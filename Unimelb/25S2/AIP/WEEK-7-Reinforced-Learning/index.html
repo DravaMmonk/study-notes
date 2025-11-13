@@ -881,6 +881,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#stochastic-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stochastic Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#policy-gradient" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -893,6 +904,17 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-maze" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example - MAZE
+      
+    </span>
+  </a>
   
 </li>
         
@@ -1300,10 +1322,10 @@ a = \arg\max_{a} Q(s, a) = \arg\max_{a} \sum^{s'} P(s,a,s') \cdot V(s')
 <ul>
 <li>MRP = MDP + restricted by the deterministic policy</li>
 </ul>
-<p>#### Stochastic Policy 
-$$
+<h4 id="stochastic-policy">Stochastic Policy<a class="headerlink" href="#stochastic-policy" title="Permanent link">&para;</a></h4>
+<div class="arithmatex">\[
 \pi(a \mid s) = P(a \mid s)
-$$</p>
+\]</div>
 <ul>
 <li>Choose the optimal action or random one with a small probability</li>
 <li>Ability of exploration; Robustness✅</li>
@@ -1333,6 +1355,20 @@ $$</p>
 &amp;&amp; \text{(expand trajectory likelihood)}
 \end{aligned}
 \]</div>
+<hr />
+<h3 id="example-maze">Example - MAZE<a class="headerlink" href="#example-maze" title="Permanent link">&para;</a></h3>
+<p><img alt="Maze" src="../assets/7_1_maze.png" />
+- <span class="arithmatex">\(S\)</span> - Agent's possible locations
+- <span class="arithmatex">\(A\)</span> - Step directions <span class="arithmatex">\(\mathtt{N, E, S, W}\)</span>
+- <span class="arithmatex">\(R\)</span> - <span class="arithmatex">\(-1\)</span> per time-step (encourage short-path solution)
+- <span class="arithmatex">\(V(s)\)</span> - the expected return of following the policy from each <span class="arithmatex">\(s\)</span> 
+    - closer to <span class="arithmatex">\(g\)</span> - <span class="arithmatex">\(V(s)\)</span> ⤴
+    - Farther away - <span class="arithmatex">\(V(S)\)</span> ⤵
+- <span class="arithmatex">\(\pi(s)\)</span> - Best action = Best <span class="arithmatex">\(V(s')\)</span>
+- <strong>Model</strong>
+    - <strong>Transition model</strong> <span class="arithmatex">\(P_{ss'}^a\)</span> - how each action changes the state.
+    - <strong>Reward model</strong> <span class="arithmatex">\(R_{s}^a\)</span> - immediate reward from each state (same for all <span class="arithmatex">\(a\)</span>).
+    - The model can be imperfect but supports planning and prediction.</p>
 <hr />
 <h3 id="categorise-of-rl-agents">Categorise of RL agents<a class="headerlink" href="#categorise-of-rl-agents" title="Permanent link">&para;</a></h3>
 <ul>
