@@ -1,0 +1,1299 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../WEEK-1-General-Basics/">
+      
+      
+        <link rel="next" href="../WEEK-3-Planning-Methods/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>WEEK 2 Search Methods - Drava's Study Notes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="pink">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#week-2-search-methods" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Drava's Study Notes
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              WEEK 2 Search Methods
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="pink"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="pink"  aria-hidden="true"  type="radio" name="__palette" id="__palette_1">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Drava's Study Notes
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drava's Study Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unimelb
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Unimelb
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25S2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    25S2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_1_1" id="__nav_2_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AIP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AIP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-1-General-Basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 1 General Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 2 Search Methods
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 2 Search Methods
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#search-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Space
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Search Space">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EXAMPLE
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#search-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Search Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blind-search-vs-informed-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blind Search vs. Informed Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blind-systematic-search-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blind Systematic Search Algorithms
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#heuristic-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Heuristic Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Heuristic Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relations-of-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relations of properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#informed-systematic-search-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Informed Systematic Search Algorithms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Informed Systematic Search Algorithms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#greedy-best-first-search-with-duplicate-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Greedy Best-First Search (with duplicate detection)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-with-duplicate-detection-and-re-opening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A* (with duplicate detection and re-opening)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#weighted-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Weighted A*
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hill-climbing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hill-Climbing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enforced-hill-climbing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enforced Hill-Climbing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iterative-deepening-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Iterative Deepening \(A^*\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evaluation-of-search-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evaluation of Search Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Evaluation of Search Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#guarantees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guarantees
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complexity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-3-Planning-Methods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 3 Planning Methods
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-4-Complexity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 4 Complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-5-Relaxation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 5 Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-6-Exploration-and-Exploitation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 6 Exploration &amp; Exploitation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-7-Introduce-to-Reinforced-Learning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 7 Introduce to Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="week-2-search-methods">WEEK 2 Search Methods<a class="headerlink" href="#week-2-search-methods" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="search-space">Search Space<a class="headerlink" href="#search-space" title="Permanent link">&para;</a></h2>
+<ul>
+<li>A set of search states</li>
+<li>Forward Search (Progression)<ul>
+<li>search space = world space (represents the current real world)</li>
+</ul>
+</li>
+<li>Backward Search (Regression)<ul>
+<li>search space = a sets of world spaces (represents all predications of sub-goals)</li>
+</ul>
+</li>
+</ul>
+<h6 id="example">EXAMPLE<a class="headerlink" href="#example" title="Permanent link">&para;</a></h6>
+<p>In a robot delivery scene:
+<div class="highlight"><pre><span></span><code>world_state_of_a_robot = {
+    &quot;position&quot;: (3, 5),
+    &quot;direction&quot;: &quot;North&quot;,
+    &quot;battery&quot;: 80,
+    &quot;carrying_package&quot;: True
+}
+</code></pre></div>
+Progression: 搜索树上的每个节点就是机器人在某个位置、朝向、能量、负载的组合状态。
+Regression:  搜索树上的每个节点共同组成“我们想要所有满足一个条件的世界状态集合”。
+<div class="highlight"><pre><span></span><code>subgoals = {&quot;position&quot;: (5, 8), &quot;carrying_package&quot;: True}
+</code></pre></div>
+Common Functions: </p>
+<ul>
+<li><span class="arithmatex">\(s\)</span> = search states</li>
+<li><span class="arithmatex">\(\mathrm{is}\_\mathrm{start}(s)\)</span> return if the state is the start state of the search space</li>
+<li><span class="arithmatex">\(\mathrm{is}\_\mathrm{target}(s)\)</span> mark if the state is the goal state of the search space</li>
+<li><span class="arithmatex">\(\mathrm{succ}(s)\)</span> return a list of successors/next states of <span class="arithmatex">\(s\)</span></li>
+<li>Search nodes: <ul>
+<li><span class="arithmatex">\(\mathrm{state}(\sigma)\)</span></li>
+<li><span class="arithmatex">\(\mathrm{parent}(\sigma)\)</span> where <span class="arithmatex">\(\sigma\)</span> was reached</li>
+<li><span class="arithmatex">\(\mathrm{action}(\sigma)\)</span> leads from <span class="arithmatex">\(\mathrm{state}(\mathrm{parent}(\sigma))\)</span> to <span class="arithmatex">\(\mathrm{state}(\sigma)\)</span></li>
+<li><span class="arithmatex">\(g(\sigma)\)</span> denotes cost of path from the <strong>root</strong> to <span class="arithmatex">\(\sigma\)</span></li>
+<li>The <strong>root</strong>’s <span class="arithmatex">\(\mathrm{parent}(\cdot)\)</span> and <span class="arithmatex">\(\mathrm{action}(\cdot)\)</span> are undefined</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="search-methods">Search Methods<a class="headerlink" href="#search-methods" title="Permanent link">&para;</a></h2>
+<h3 id="blind-search-vs-informed-search">Blind Search vs. Informed Search<a class="headerlink" href="#blind-search-vs-informed-search" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Blind search not require any input beyond the problem</li>
+<li>No additional work but rarely effective</li>
+<li>Informed search requires function <span class="arithmatex">\(h(x)\)</span> mapping states to estimates their goal distance</li>
+<li>Effective but lots of work to construct <span class="arithmatex">\(h(x)\)</span></li>
+</ul>
+<h3 id="blind-systematic-search-algorithms">Blind Systematic Search Algorithms<a class="headerlink" href="#blind-systematic-search-algorithms" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Breadth-First Search</strong></li>
+<li><strong>Depth-First Search</strong></li>
+<li><strong>Iterative Deepening Search</strong><ul>
+<li>Do DLS(DFS with depth limited) with continuously increasing depth limited by 1.</li>
+</ul>
+</li>
+<li>Blind Search: <em>Completeness</em> 100%, but <em>poor efficient</em> when doing hard work</li>
+</ul>
+<hr />
+<h2 id="heuristic-functions">Heuristic Functions<a class="headerlink" href="#heuristic-functions" title="Permanent link">&para;</a></h2>
+<ul>
+<li><span class="arithmatex">\(h(n)\)</span> - Estimated remaining cost (from current state to goal state)</li>
+<li><span class="arithmatex">\(h^*(n)\)</span> - Real remaining cost</li>
+<li><strong>proficiency</strong> of <span class="arithmatex">\(h(n)\)</span> <ul>
+<li><span class="arithmatex">\(h = h^{\ast}\)</span> perfectly informed, <span class="arithmatex">\(h(n) = h^{\ast}(n) - \textbf{optimal } A^{\ast}\)</span></li>
+<li><span class="arithmatex">\(h = 0\)</span> no information at all - uniform cost search</li>
+</ul>
+</li>
+</ul>
+<h4 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Safe</strong> <span class="arithmatex">\(h(n) = \infty\)</span> iff <span class="arithmatex">\(h^{\ast}(n) = \infty\)</span></li>
+<li><strong>Goal-aware</strong> <span class="arithmatex">\(h(\text{goal}) = 0\)</span></li>
+<li><strong>Admissible</strong> <span class="arithmatex">\(h(n) \le h^*(n)\)</span></li>
+<li><strong>Consistent</strong> <span class="arithmatex">\(h(n) \le c(n,n’) + h(n’)\)</span> for all possible <span class="arithmatex">\(c(n, n’)\)</span></li>
+</ul>
+<h4 id="relations-of-properties">Relations of properties<a class="headerlink" href="#relations-of-properties" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Consistent</strong> &amp; <strong>Goal-aware</strong> <span class="arithmatex">\(\to\)</span> <strong>Admissible</strong></li>
+<li><strong>Admissible</strong> <span class="arithmatex">\(\to\)</span> <strong>Safe</strong> &amp; <strong>Goal-aware</strong></li>
+</ul>
+<h2 id="informed-systematic-search-algorithms">Informed Systematic Search Algorithms<a class="headerlink" href="#informed-systematic-search-algorithms" title="Permanent link">&para;</a></h2>
+<h3 id="greedy-best-first-search-with-duplicate-detection">Greedy Best-First Search (with duplicate detection)<a class="headerlink" href="#greedy-best-first-search-with-duplicate-detection" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>def greedy_BFS:
+    frontier = priority queue ordered by h(n)
+    explored = set
+    path = list
+    frontier.add(start, h(start), path)
+    
+    while frontier:
+        current = frontier.pop()
+        if current == goal:
+            return path
+        if current in explored:
+            continue
+        explored.add(current)
+        for successor in succ(current):
+            new_path = path + action(current, successor)
+            frontier.add(h(current), current, new_path)
+    return unsolvable
+</code></pre></div>
+<ul>
+<li>Use <strong>priority queue</strong> to sort <span class="arithmatex">\(h(n)\)</span> of each node in ascending order<ul>
+<li>If <span class="arithmatex">\(h(n) = 0\)</span>, it becomes what fully depends on how we break ties</li>
+</ul>
+</li>
+<li>Completeness✅for safe heuristics; Optimal❌</li>
+</ul>
+<hr />
+<h3 id="a-with-duplicate-detection-and-re-opening">A* (with duplicate detection and re-opening)<a class="headerlink" href="#a-with-duplicate-detection-and-re-opening" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>def a_star:
+    frontier = priority queue ordered by f(n) = g(n) + h(n)
+    explored = set
+    path = list
+    frontier.add(start, h(start), path)
+    
+    while frontier:
+        current = frontier.pop()
+        if current == goal:
+            return path
+        if current in explored:
+            continue
+        explored.add(current)
+        for successor in succ(current):
+            new_path = path + action(current, successor)
+✏️            frontier.add(cost(new_path) + h(current), current, new_path)
+    return unsolvable
+</code></pre></div>
+<ul>
+<li><strong>Only difference between greedy and A*</strong> <span class="arithmatex">\(h(n) \rightarrow f(n) = g(n) + h(n)\)</span></li>
+<li><strong>Re-opening</strong> if a node is closed but we find a better cost(n), then we can re-visit and extend this node</li>
+</ul>
+<hr />
+<h3 id="weighted-a">Weighted A*<a class="headerlink" href="#weighted-a" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+f_W(n) = g(n) + W \cdot h(n)
+\]</div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Weight</th>
+<th style="text-align: center;">Algorithm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(W \to 0\)</span></td>
+<td style="text-align: center;">Digkstra Algorithm</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(W \to 1\)</span></td>
+<td style="text-align: center;">A*</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(W \to \infty\)</span></td>
+<td style="text-align: center;">GBFS</td>
+</tr>
+<tr>
+<td style="text-align: left;"><span class="arithmatex">\(W &gt; 1\)</span></td>
+<td style="text-align: center;">Bounded sub-optimal A*</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>If <span class="arithmatex">\(h\)</span> is admissible, <span class="arithmatex">\(f_W(n) \le W \cdot h(n)\)</span></li>
+</ul>
+<hr />
+<h3 id="hill-climbing">Hill-Climbing<a class="headerlink" href="#hill-climbing" title="Permanent link">&para;</a></h3>
+<p><div class="highlight"><pre><span></span><code>def hill_climbing:
+    path = list
+    current = start
+    while h(n) &gt; 0:
+        best = argmin_h(succ(current))
+        if best and h(best) &lt; h(current):
+            current = n
+            path += action(current, best)
+        else:
+            break    
+    return path
+</code></pre></div>
+- Local Search: Can only find local maxima
+- Make sense only if <span class="arithmatex">\(h(n) &gt; 0\)</span> for all non-goal states</p>
+<hr />
+<h3 id="enforced-hill-climbing">Enforced Hill-Climbing<a class="headerlink" href="#enforced-hill-climbing" title="Permanent link">&para;</a></h3>
+<p><div class="highlight"><pre><span></span><code>def enforced_hill_climbing:
+    path = list
+    explored = set
+    current = start
+    while h(n) &gt; 0:
+        explored.add(current)
+        best = argmin_h(succ(current))
+        if best and h(best) &lt; h(current):
+            path += action(current, best)
+        else:
+            subs = n for n in neighbours_of(current) and not in explored
+            best_sub = argmin_h(subs, goal=current)
+            if best_sub and h(best_sub) &lt; h(current):
+                path -= action(parent, current)
+                path += action(parent, best_sub)
+                current = best_sub
+            else:
+                return unsolvable
+    return path
+</code></pre></div>
+- Local Search: Do small range BFS when find local optimal
+- Can across small gap between local best and global best</p>
+<hr />
+<h3 id="iterative-deepening-a">Iterative Deepening <span class="arithmatex">\(A^*\)</span><a class="headerlink" href="#iterative-deepening-a" title="Permanent link">&para;</a></h3>
+<ul>
+<li>IDS + <span class="arithmatex">\(A^*\)</span>: Use f(n) instead of depth to limit IDS<ul>
+<li>In First Search:  f(n) = f(start) = 0 + h(start)</li>
+<li>Following Searches: f(n) = min_out_of_bound_excess
+<div class="highlight"><pre><span></span><code>def ida_star:
+    bound = f(start)
+    while True:
+        t = ids(start, bound)
+        if t == goal:
+            return solution
+        if t == infinity:
+            return unsolvable
+        bound = t
+</code></pre></div></li>
+</ul>
+</li>
+<li>Dealing with one of <span class="arithmatex">\(A^*\)</span>’s problem: large queue/closed_set</li>
+</ul>
+<hr />
+<h2 id="evaluation-of-search-methods">Evaluation of Search Methods<a class="headerlink" href="#evaluation-of-search-methods" title="Permanent link">&para;</a></h2>
+<h3 id="guarantees">Guarantees<a class="headerlink" href="#guarantees" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Completeness</strong> sure to find a solution if there is one</li>
+<li><strong>Optimality</strong> solutions sure be optimal</li>
+</ul>
+<h3 id="complexity">Complexity<a class="headerlink" href="#complexity" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Time/Space (Measured in generated states/states cost)</li>
+<li>Typical <strong>state space features</strong> governing complexity<ul>
+<li><strong>Branching factor</strong> <span class="arithmatex">\(b\)</span> how many successors</li>
+<li><strong>Goal depth</strong> <span class="arithmatex">\(d\)</span> number of actions to reach shallowest goal state</li>
+</ul>
+</li>
+</ul>
+<h3 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: center;">DFS</th>
+<th style="text-align: center;">BrFS</th>
+<th style="text-align: center;">IDS</th>
+<th style="text-align: center;">A*</th>
+<th style="text-align: center;">HC</th>
+<th style="text-align: center;">IDA*</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Complete</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Optimal</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅*</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅*</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅*</td>
+</tr>
+<tr>
+<td style="text-align: left;">Time</td>
+<td style="text-align: center;"><span class="arithmatex">\(\infty\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(\infty\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Space</td>
+<td style="text-align: center;"><span class="arithmatex">\(b \cdot d\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(b \cdot d\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(b\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(b \cdot d\)</span></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><span class="arithmatex">\(b\)</span> - Branching Factor: sum of number of child nodes of each node</li>
+<li><span class="arithmatex">\(d\)</span> - Solution Depth: <em><span class="arithmatex">\(minimum\)</span></em> depth among all goal nodes</li>
+<li>DFS cannot handle cyclic graph</li>
+<li>BFS is optimal only when uniform costs are applied </li>
+<li><span class="arithmatex">\(A^*\)</span> / Iterative Deepening <span class="arithmatex">\(A^*\)</span> is optimal only when <span class="arithmatex">\(h\)</span> is admissible (<span class="arithmatex">\(h \le h^*\)</span>)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "content.code.annotate", "content.tabs.link", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
