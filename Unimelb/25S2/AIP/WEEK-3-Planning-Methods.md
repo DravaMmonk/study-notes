@@ -94,21 +94,21 @@ $$
 - Fully Observable
 - Discrete Time & Finite Actions
 - Fixed Transition Probabilities
-#### Components *(Diff with conformant)*
-$$
-M = \langle S,A,T,R,\gamma \rangle
-$$
-$$
-T(s, a, s') = P(s' \mid s, a)
-$$
-- Introduce the **Transition Probability Function** 
-	- $s' = \mathrm{succ}(s)$
-	- $\sum_{s' \in S}P(s' \mid s,a) = 1$
+- Components *(Diff with conformant)*
+	$$
+	M = \langle S,A,T,R,\gamma \rangle
+	$$
+	- Introduce **Transition Probability Function** 
+		$$
+		T(s, a, s') = P(s' \mid s, a)
+		$$
+		- $s' = \mathrm{succ}(s)$
+		- $\sum_{s' \in S}P(s' \mid s,a) = 1$
 - Introduce **Reward Function** $R$ and **Discount Factor** $\gamma$
 	- For estimating the **value** of each state
-#### Outcomes
-- Map states to **actions**
-- **Optimal** if total **expected** cost to goal is $minimum$
+- Outcomes
+	- Map states to **actions**
+	- **Optimal** if total **expected** cost to goal is $minimum$
 ---
 ### Partially Observable MDPs (POMDPs)
 - Assumption
@@ -116,12 +116,12 @@ $$
 	- **Limited** Observable
 - Components *(Diff with MDPs)*
 	- Introduce **Sensor Model** (based on **Probability Distribution**)
+	- Initial/Goal States → Belief States $\mathrm{b}(s_0)$ and $\mathrm{b}(g)$
 
 $$
 \mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
 $$
 
-	- Initial/Goal States → Belief States $\mathrm{b}(s_0)$ and $\mathrm{b}(g)$.
 - Outcomes
 	- Map belief states into actions
 	- **Optimal** if total expected cost from $\mathrm{b}(s_0)$ to $\mathrm{b}(g)$ is minimum
