@@ -12,6 +12,8 @@
         <link rel="prev" href="../WEEK-6-Exploration-and-Exploitation/">
       
       
+        <link rel="next" href="../WEEK-8-Model-Free-Prediction/">
+      
       
         
       
@@ -836,10 +838,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#value-function-vs" class="md-nav__link">
+  <a href="#value-function-vs-qs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Value Function - \(V(s)\)
+        Value Function - \(V(s), Q(s)\)
       
     </span>
   </a>
@@ -908,6 +910,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#balance-exploration-exploitation-in-policy-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Balance Exploration &amp; Exploitation in Policy Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#example-maze" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -935,13 +948,58 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#balance-exploration-exploitation-in-rl" class="md-nav__link">
+  <a href="#solving-a-mdp-problem" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Balance Exploration &amp; Exploitation in RL
+        Solving a MDP Problem
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Solving a MDP Problem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#optimal-value-function-v_asts-q_asts-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optimal Value Function - \(v_\ast(s)\), \(q_\ast(s, a)\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bellman-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bellman Equation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bellman Equation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#solving-the-bellman-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solving the Bellman Equation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -949,6 +1007,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WEEK-8-Model-Free-Prediction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WEEK 8 Model Free Prediction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1243,10 +1329,12 @@
 <hr />
 <h3 id="markov-decision-process_1">Markov Decision Process<a class="headerlink" href="#markov-decision-process_1" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Introduce <strong>agency</strong> 能动性 in terms of actions:
+<li>
+<p>Introduce <strong>agency</strong> 能动性 in terms of actions:
     $$
     M = \langle S, A, P, R, \gamma \rangle
-    $$<ul>
+    $$</p>
+<ul>
 <li><span class="arithmatex">\(A\)</span> - a finite set of actions</li>
 <li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
 <li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
@@ -1278,22 +1366,32 @@
 </li>
 </ul>
 <hr />
-<h3 id="value-function-vs">Value Function - <span class="arithmatex">\(V(s)\)</span><a class="headerlink" href="#value-function-vs" title="Permanent link">&para;</a></h3>
+<h3 id="value-function-vs-qs">Value Function - <span class="arithmatex">\(V(s), Q(s)\)</span><a class="headerlink" href="#value-function-vs-qs" title="Permanent link">&para;</a></h3>
 <ul>
+<li>Define and predict value of the state and future reward by using the expectation</li>
 <li>
-<p>Define and predict value of the state and future reward
-    $$
-    V(s) = \mathbb{E}(G \mid s)
-    $$</p>
+<p>State-value Function</p>
 <ul>
-<li><span class="arithmatex">\(\mathbb{E}(G \mid s)\)</span> - Expect of future rewards</li>
+<li>Return the value of current state
+    $$
+    V(s_t) = \mathbb{E}\big[G_t \mid s_t\big]
+    $$</li>
 </ul>
 </li>
 <li>
-<p><strong>Bellman Equation</strong> 
-        - <span class="arithmatex">\(G = R + \gamma G'\)</span>
-        - <span class="arithmatex">\(\to V = R + \gamma PV \to V = (I - \gamma P)^{-1}R\)</span>
-        - <span class="arithmatex">\(O(n^3)\)</span></p>
+<p>State-action-value Function</p>
+<ul>
+<li>Return the value of the current state with a deterministic action applied
+    $$
+    Q_\pi(s_t,a) = \mathbb{E}_\pi \big[\, G_t \mid s_t,\, a \,\big]
+    $$</li>
+</ul>
+</li>
+<li>
+<p><span class="arithmatex">\(G_t\)</span> - the total discounted reward from time-step <span class="arithmatex">\(t\)</span>
+    $$
+    G_t = R_{t+1} + \gamma R_{t+2} + \ldots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}
+    $$</p>
 </li>
 <li>
 <p>Value function is <strong>NOT</strong> necessary for RL </p>
@@ -1356,36 +1454,7 @@ $$</p>
 \end{aligned}
 \]</div>
 <hr />
-<h3 id="example-maze">Example - MAZE<a class="headerlink" href="#example-maze" title="Permanent link">&para;</a></h3>
-<p><img alt="Maze" src="../assets/7_1_maze.png" />
-- <span class="arithmatex">\(S\)</span> - Agent's possible locations
-- <span class="arithmatex">\(A\)</span> - Step directions <span class="arithmatex">\(\mathtt{N, E, S, W}\)</span>
-- <span class="arithmatex">\(R\)</span> - <span class="arithmatex">\(-1\)</span> per time-step (encourage short-path solution)
-- <span class="arithmatex">\(V(s)\)</span> - the expected return of following the policy from each <span class="arithmatex">\(s\)</span> 
-    - closer to <span class="arithmatex">\(g\)</span> - <span class="arithmatex">\(V(s)\)</span> ⤴
-    - Farther away - <span class="arithmatex">\(V(S)\)</span> ⤵
-- <span class="arithmatex">\(\pi(s)\)</span> - Best action = Best <span class="arithmatex">\(V(s')\)</span>
-- <strong>Model</strong>
-    - <strong>Transition model</strong> <span class="arithmatex">\(P_{ss'}^a\)</span> - how each action changes the state.
-    - <strong>Reward model</strong> <span class="arithmatex">\(R_{s}^a\)</span> - immediate reward from each state (same for all <span class="arithmatex">\(a\)</span>).
-    - The model can be imperfect but supports planning and prediction.</p>
-<hr />
-<h3 id="categorise-of-rl-agents">Categorise of RL agents<a class="headerlink" href="#categorise-of-rl-agents" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Model<ul>
-<li><strong>Model Based</strong> - Simulate environment to gain first experience </li>
-<li><strong>Model Free</strong> - Gain experience from real interaction directly</li>
-</ul>
-</li>
-<li>Value-Policy<ul>
-<li><strong>Value Based</strong> - No Policy</li>
-<li><strong>Policy Based</strong> - No Value Function = Policy Gradient</li>
-<li><strong>Actor-Critic</strong> - Policy Based 演员 + Value Based 评论家</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="balance-exploration-exploitation-in-rl">Balance Exploration &amp; Exploitation in RL<a class="headerlink" href="#balance-exploration-exploitation-in-rl" title="Permanent link">&para;</a></h2>
+<h3 id="balance-exploration-exploitation-in-policy-design">Balance Exploration &amp; Exploitation in Policy Design<a class="headerlink" href="#balance-exploration-exploitation-in-policy-design" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Exploitation</strong> - select currently-known best action</li>
 <li><strong>Exploration</strong> - try a new action</li>
@@ -1421,6 +1490,153 @@ $$</p>
 </li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="example-maze">Example - MAZE<a class="headerlink" href="#example-maze" title="Permanent link">&para;</a></h3>
+<p><img alt="Maze" src="../assets/7_1_maze.png" /></p>
+<ul>
+<li><span class="arithmatex">\(S\)</span> - Agent's possible locations</li>
+<li><span class="arithmatex">\(A\)</span> - Step directions <span class="arithmatex">\(\mathtt{N, E, S, W}\)</span></li>
+<li><span class="arithmatex">\(R\)</span> - <span class="arithmatex">\(-1\)</span> per time-step (encourage short-path solution)</li>
+<li><span class="arithmatex">\(V(s)\)</span> - the expected return of following the policy from each <span class="arithmatex">\(s\)</span> <ul>
+<li>closer to <span class="arithmatex">\(g\)</span> - <span class="arithmatex">\(V(s)\)</span> ⤴</li>
+<li>Farther away - <span class="arithmatex">\(V(S)\)</span> ⤵</li>
+</ul>
+</li>
+<li><span class="arithmatex">\(\pi(s)\)</span> - Best action = Best <span class="arithmatex">\(V(s')\)</span></li>
+<li><strong>Model</strong><ul>
+<li><strong>Transition model</strong> <span class="arithmatex">\(P_{ss'}^a\)</span> - how each action changes the state.</li>
+<li><strong>Reward model</strong> <span class="arithmatex">\(R_{s}^a\)</span> - immediate reward from each state (same for all <span class="arithmatex">\(a\)</span>).</li>
+<li>The model can be imperfect but supports planning and prediction.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="categorise-of-rl-agents">Categorise of RL agents<a class="headerlink" href="#categorise-of-rl-agents" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Model?<ul>
+<li><strong>Model Based</strong> - Simulate environment to gain first experience </li>
+<li><strong>Model Free</strong> - Gain experience from real interaction directly</li>
+</ul>
+</li>
+<li>Value-or-Policy?<ul>
+<li><strong>Value Based</strong> - No Policy</li>
+<li><strong>Policy Based</strong> - No Value Function = Policy Gradient</li>
+<li><strong>Actor-Critic</strong> - Policy Based 演员 + Value Based 评论家</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="solving-a-mdp-problem">Solving a MDP Problem<a class="headerlink" href="#solving-a-mdp-problem" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Solve MDP</li>
+<li>= Give a policy to find the best behaviour of the current state</li>
+<li>= Find an action with <span class="arithmatex">\(maximum\)</span> action-value</li>
+<li>= Optimise the Value Function</li>
+</ul>
+<h3 id="optimal-value-function-v_asts-q_asts-a">Optimal Value Function - <span class="arithmatex">\(v_\ast(s)\)</span>, <span class="arithmatex">\(q_\ast(s, a)\)</span><a class="headerlink" href="#optimal-value-function-v_asts-q_asts-a" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Optimal State-value Function
+$$
+v_\ast(s) = \max_\pi v_\pi(s)
+$$</p>
+</li>
+<li>
+<p>Optimal State-action-value Function
+$$
+q_\ast(s,a) = \max_\pi q_\pi(s,a)
+$$</p>
+</li>
+</ul>
+<hr />
+<h3 id="bellman-equation">Bellman Equation<a class="headerlink" href="#bellman-equation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>A method for recursively handling with <span class="arithmatex">\(v(s)\)</span> evaluation and optimisation
+        $$ G_t = R_{t+1} + \gamma G_{t+1} $$</p>
+<ul>
+<li>Based on "<em>look-ahead then back-up</em>" computational mechanism<ul>
+<li><strong>Look-ahead</strong>: to the next step → <span class="arithmatex">\(r, s'\)</span></li>
+<li><strong>Back-up</strong>: to the current state → <span class="arithmatex">\(v(s) = f(r,s')\)</span></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Categories</th>
+<th style="text-align: center;">Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Expectation</td>
+<td style="text-align: center;">$$ v_\pi(s) = \mathbb{E}\left[r + \gamma v_\pi(s')\right] $$</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;">$$ q_\pi(s,a) = \mathbb{E}\left[r + \gamma\mathbb{E} \left[q_\pi(s',a')\right]\right] $$</td>
+</tr>
+<tr>
+<td style="text-align: left;">Expended</td>
+<td style="text-align: center;">$$ v_\pi(s) = \sum_a \pi(a\mid s)\sum_{s',r} p(s',r\mid s,a)\bigl[r + \gamma v_\pi(s')\bigr] $$</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;">$$ q_\pi(s,a) = \sum_{s',r} p(s',r\mid s,a)\left[r + \gamma \sum_{a'} \pi(a'\mid s') q_\pi(s',a')\right] $$</td>
+</tr>
+<tr>
+<td style="text-align: left;">Optimality</td>
+<td style="text-align: center;">$$ v_\ast(s) = \max_a \mathbb{E}\left[\, r + \gamma v_\ast(s') \,\right] $$</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;">$$ q_\ast(s,a) = \mathbb{E}\left[r + \gamma \max_{a'} q_\ast(s',a')\right] $$</td>
+</tr>
+<tr>
+<td style="text-align: left;">Expended</td>
+<td style="text-align: center;">$$ v_\ast(s) = \max_{a} \sum_{s'} P(s' \mid s,a)\left[ R(s,a,s') + \gamma v_\ast(s') \right] $$</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;">$$ q_\ast(s,a) = \sum_{s',r} p(s',r\mid s,a)\left[r + \gamma \max_{a'} q_\ast(s',a')\right] $$</td>
+</tr>
+</tbody>
+</table>
+<h4 id="solving-the-bellman-equation">Solving the Bellman Equation<a class="headerlink" href="#solving-the-bellman-equation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p>Solving the Bellman Expectation Equation</p>
+<ul>
+<li>
+<p>Directly Compute <span class="arithmatex">\(O(n^3)\)</span>
+$$
+v = R + \gamma Pv \to v = (I - \gamma P)^{-1}R
+$$</p>
+<ul>
+<li>only possible for small <span class="arithmatex">\(P\)</span> matrix</li>
+</ul>
+</li>
+<li>
+<p>Dynamic Programming</p>
+</li>
+<li>Monte-Carlo Evaluation</li>
+<li>Temporal-Difference Learning</li>
+</ul>
+</li>
+<li>
+<p>Solving the Bellman Optimality Equation</p>
+<ul>
+<li>No closed form solution</li>
+<li>Value Iteration</li>
+<li>Policy Iteration</li>
+<li>Q-learning</li>
+<li>SARSA</li>
 </ul>
 </li>
 </ul>
