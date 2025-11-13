@@ -1,4 +1,4 @@
-# WEEK 3 Planning Methods
+# WEEK 3 Planning
 ---
 ## Problem Solving
 ### Autonomous Behaviour in AI

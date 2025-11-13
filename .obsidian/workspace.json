@@ -55,16 +55,30 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
+                "file": "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
                 "mode": "source",
-                "source": true
+                "source": false
               },
               "icon": "lucide-file",
-              "title": "WEEK-2-Search-Methods"
+              "title": "WEEK-7-Reinforced-Learning"
+            }
+          },
+          {
+            "id": "b161bfa052e2df04",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "WEEK-7-Reinforced-Learning"
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -137,7 +151,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
+                "file": "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -147,7 +161,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for WEEK-5-Relaxation"
+              "title": "Backlinks for WEEK-7-Reinforced-Learning"
             }
           },
           {
@@ -218,8 +232,7 @@
               "title": "Advanced Tables"
             }
           }
-        ],
-        "currentTab": 5
+        ]
       }
     ],
     "direction": "horizontal",
@@ -237,40 +250,43 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "34cb778162527a77",
+  "active": "b161bfa052e2df04",
   "lastOpenFiles": [
+    "docs/Unimelb/25S2/AIP/WEEK-7-2-Markov-Learning-Process.md",
+    "docs/Unimelb/25S2/AIP/WEEK-7-Reinforced-Learning.md",
     "docs/Unimelb/25S2/AIP/WEEK-6-Exploration-and-Exploitation.md",
+    "docs/index.md",
+    "docs/Unimelb/25S2/AIP/WEEK-3-Planning.md",
+    "docs/Unimelb/25S2/AIP/WEEK-2-Search.md",
     "docs/Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
     "docs/Unimelb/25S2/AIP/WEEK-4-Complexity.md",
-    "docs/Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
-    "docs/Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
+    "site/assets/javascripts/lunr/min/lunr.zh.min.js",
+    "site/assets/javascripts/lunr/min/lunr.vi.min.js",
+    "site/assets/javascripts/lunr/min/lunr.tr.min.js",
+    "site/assets/javascripts/lunr/min/lunr.th.min.js",
+    "site/assets/javascripts/lunr/min/lunr.te.min.js",
+    "site/assets/javascripts/lunr/min/lunr.ta.min.js",
+    "site/assets/javascripts/lunr/min/lunr.sv.min.js",
+    "site/assets/javascripts/lunr/min/lunr.stemmer.support.min.js",
+    "site/assets/javascripts/lunr/min/lunr.sa.min.js",
+    "site/assets/javascripts/lunr/min/lunr.ru.min.js",
+    "site/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
+    "site/assets/images/favicon.png",
     "docs/Unimelb/25S2/AIP/WEEK-1-General-Basics.md",
     "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
     "docs/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
-    "docs/Unimelb/25S2/AIP/assets",
-    "docs/Unimelb/25S2/AIP/WEEK-7-Introduce-to-Reinforced-Learning.md",
-    "docs/Unimelb/25S2/AIP",
-    "docs/Unimelb/25S2",
-    "docs/Unimelb",
-    "docs/index.md",
-    "docs",
-    "mkdocs.yml",
     "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
     "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
     "Unimelb/25S2/AIP/WEEK-4-Complexity.md",
     "Unimelb/25S2/AIP/WEEK-6-Exploration-and-Exploitation.md",
     "Unimelb/25S2/AIP/WEEK-7-Introduce-to-Reinforced-Learning.md",
     "Unimelb/25S2/AIP/WEEK-1-General-Basics.md",
-    "Unimelb/25S2/AIP/WEEK-4-PDDL",
     "Unimelb/25S2/AIP/assets/3_1_planning_process.png",
     "README.md",
     "Unimelb/25S2/AIP/assets/2_summary.png",
     "Unimelb/25S2/AIP/week-1-general-basics.md",
     "Unimelb/25S2/AIP/WEEK.md",
-    "Untitled.base",
     "Unimelb.md",
-    "assets.md",
-    "Unimelb/25S2/AIP/assets",
-    "Unimelb/25S2/AIP"
+    "assets.md"
   ]
 }

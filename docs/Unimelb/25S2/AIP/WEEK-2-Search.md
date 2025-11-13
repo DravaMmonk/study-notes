@@ -1,4 +1,4 @@
-# WEEK 2 Search Methods
+# WEEK 2 Search
 ---
 ## Search Space
 - A set of search states
@@ -16,11 +16,14 @@ world_state_of_a_robot = {
     "carrying_package": True
 }
 ```
-Progression: 搜索树上的每个节点就是机器人在某个位置、朝向、能量、负载的组合状态。
-Regression:  搜索树上的每个节点共同组成“我们想要所有满足一个条件的世界状态集合”。
+
+- Progression: 搜索树上的每个节点就是机器人在某个位置、朝向、能量、负载的组合状态。
+- Regression:  搜索树上的每个节点共同组成“我们想要所有满足一个条件的世界状态集合”。
+
 ```
 subgoals = {"position": (5, 8), "carrying_package": True}
 ```
+
 Common Functions: 
 
 - $s$ = search states
@@ -57,11 +60,14 @@ Common Functions:
 - **proficiency** of $h(n)$ 
 	- $h = h^{\ast}$ perfectly informed, $h(n) = h^{\ast}(n) - \textbf{optimal } A^{\ast}$
 	- $h = 0$ no information at all - uniform cost search
-#### Properties
-- **Safe** $h(n) = \infty$ iff $h^{\ast}(n) = \infty$
-- **Goal-aware** $h(\text{goal}) = 0$
-- **Admissible** $h(n) \le h^*(n)$
-- **Consistent** $h(n) \le c(n,n’) + h(n’)$ for all possible $c(n, n’)$
+
+| Properties | Description                                            |
+| ---------- | ------------------------------------------------------ |
+| Safe       | $h(n) = \infty$ iff $h^{\ast}(n) = \infty$             |
+| Goal-Aware | $h(\text{goal}) = 0$                                   |
+| Admissible | $h(n) \le h^*(n)$                                      |
+| Consistent | $h(n) \le c(n,n’) + h(n’)$ for all possible $c(n, n’)$ |
+
 #### Relations of properties
 - **Consistent** & **Goal-aware** $\to$ **Admissible**
 - **Admissible** $\to$ **Safe** & **Goal-aware**
@@ -127,8 +133,8 @@ $$
 |:-------------- |:----------------------:|
 | $W \to 0$      |   Digkstra Algorithm   |
 | $W \to 1$      |           A*           |
-| $W \to \infty$ |          GBFS          |
 | $W > 1$        | Bounded sub-optimal A* |
+| $W \to \infty$ |          GBFS          |
 
 - If $h$ is admissible, $f_W(n) \le W \cdot h(n)$
 

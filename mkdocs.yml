@@ -1,4 +1,5 @@
 site_name: Drava's Study Notes
+
 theme:
   name: material
   features:
@@ -7,6 +8,8 @@ theme:
     - navigation.top
     - content.code.annotate
     - content.tabs.link
+    - content.tooltips
+    - diagrams
     - toc.integrate
   palette:
     - scheme: default
@@ -15,14 +18,20 @@ theme:
     - scheme: slate
       primary: indigo
       accent: pink
+
 markdown_extensions:
   - toc:
       permalink: true
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.arithmatex:
       generic: true
+
 extra_javascript:
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
