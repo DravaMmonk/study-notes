@@ -40,6 +40,7 @@
 $$
 P = \langle P,A,I,G \rangle
 $$
+where
 - $P$ - All Possible Predicates
 - $A$ - Actions
 - $I$ - Initial States: Predicates initially to be `TRUE`
@@ -48,6 +49,7 @@ $$
 $$
 a \in A, a = \langle Pre(a), Add(a), Del(a) \rangle
 $$
+where
 - $Pre(a)$ - Preconditions need to be `TRUE` before executing the action
 - $Add(a)$ - Add Effects: Preconditions set to be`TRUE` after execution
 - $Del(a)$ - Delete Effects: Preconditions set to be `FALSE` after execution
@@ -55,10 +57,9 @@ $$
 $$
 Result(s, a) = (s - Del(a)) \cup Add(a)
 $$
-- *which could also be seemed as a transition function*
+*which could also be seemed as a transition function*
 #### Goal
-- Find a list of actions $[a_1,a_2,a_3,\ldots]$ which satisfies:
-
+Find a list of actions $[a_1,a_2,a_3,\ldots]$ which satisfies:
 $$
 Result(Result(\ldots Result(I,a_1​) \ldots ,a_n−1​),a_n​) \models G
 $$

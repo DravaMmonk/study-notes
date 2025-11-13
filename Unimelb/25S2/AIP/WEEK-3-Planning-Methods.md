@@ -63,6 +63,7 @@
 $$
 M = \langle S, A, T, I, G \rangle
 $$
+where
 - $S$ - State spaces 
 - $A(s)$ - Actions applicable for $s \in S$
 - $T$ - Deterministic Transition Function: $s’ = T(A(s), s)$ shows one successor $s’$ of $s$
@@ -100,13 +101,12 @@ $$
 $$
 M = \langle S,A,T,R,\gamma \rangle
 $$
+- Introduce the **Transition Probability Function**:
 $$
 T(s, a, s') = P(s' \mid s, a)
 $$
-- Introduce the **Transition Probability Function** 
-	- $s' = \mathrm{succ}(s)$
-	- $\sum_{s' \in S}P(s' \mid s,a) = 1$
-- Introduce **Reward Function** $R$ and **Discount Factor** $\gamma$
+
+- Introduce **Reward Function** $R$ and **Discount Factor** $\gamma$:
 	- For estimating the **value** of each state
 #### Outcomes
 - Map states to **actions**
