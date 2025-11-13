@@ -77,25 +77,19 @@ Common Functions:
 - $h(n)$ - Estimated remaining cost (from current state to goal state)
 - $h^*(n)$ - Real remaining cost
 - **proficiency** of $h(n)$ 
-	- $h = h^*$ perfectly informed, $h(n) = h^*(n) - \textbf{optimal } A^*$
+	- $h = h^{\ast}$ perfectly informed, $h(n) = h^{\ast}(n) - \textbf{optimal } A^{\ast}$
 	- $h = 0$ no information at all - uniform cost search
 #### Properties
-- **Safe** $h(n) = \infty$ only if $h^*(n) = \infty$
+- **Safe** $h(n) = \infty$ iff $h^{\ast}(n) = \infty$
 - **Goal-aware** $h(\text{goal}) = 0$
 - **Admissible** $h(n) \le h^*(n)$
 - **Consistent** $h(n) \le c(n,n’) + h(n’)$ for all possible $c(n, n’)$
 #### Relations of properties
-- **Consistent** and **Goal-aware** $\to$ **Admissible**
-- **Admissible** $\to$ **Safe** and **Goal-aware**
-- *Note: Only these two*
+- **Consistent** & **Goal-aware** $\to$ **Admissible**
+- **Admissible** $\to$ **Safe** & **Goal-aware**
 
 ## Informed Systematic Search Algorithms
 ### Greedy Best-First Search (with duplicate detection)
-- Use priority queue to sort $h(n)$ of each node in ascending order then do BFS to each node
-- If $h(n) = 0$, it becomes what fully depends on how we break ties
-- Queue: BFS/ Stack: DFS
-- PQ(g(n)h: Uniform cost search
-- Completeness✅for safe heuristics; Optimal❌
 ```
 def greedy_BFS:
     frontier = priority queue ordered by h(n)
@@ -104,7 +98,7 @@ def greedy_BFS:
     frontier.add(start, h(start), path)
     
     while frontier:
-        current = open_set.pop()
+        current = open.pop()
         if current == goal:
             return path
         if current in explored:
@@ -115,10 +109,13 @@ def greedy_BFS:
             frontier.add(current, h(current), new_path)
     return failure
 ```
+- Use priority queue to sort $h(n)$ of each node in ascending order then do BFS to each node
+- If $h(n) = 0$, it becomes what fully depends on how we break ties
+- - Queue: BFS/ Stack: DFS
+- PQ(g(n)h: Uniform cost search
+- Completeness✅for safe heuristics; Optimal❌
 ---
 ### A* (with duplicate detection and re-opening)
-- **Only difference between greedy and A\*** $h(n) \rightarrow f(n)$
-- **Re-opening** if a node is closed but we find a better cost(n), then we can re-visit and extend this node
 ```
 def a_star:
     frontier = priority queue ordered by f(n) = g(n) + h(n)
@@ -127,7 +124,7 @@ def a_star:
     frontier.add(start, h(start), path)
     
     while frontier:
-        current = open_set.pop()
+        current = open.pop()
         if current == goal:
             return path
         if current in explored:
@@ -135,9 +132,11 @@ def a_star:
         explored.add(current)
         for successor in successors_of(current):
             new_path = path + action(current, successor)
-            frontier.add(current, cost(new_path) + h(current), new_path)
+✏️            frontier.add(current, cost(new_path) + h(current), new_path)
     return failure
 ```
+- **Only difference between greedy and A\*** $h(n) \rightarrow f(n) = g(n) + h(n)$
+- **Re-opening** if a node is closed but we find a better cost(n), then we can re-visit and extend this node
 ---
 ### Weighted A*
 $$
@@ -153,8 +152,6 @@ $$
 - If $h$ is admissible, $f_W(n) \le W \cdot h(n)$
 ---
 ### Hill-Climbing
-- Local Search: Can only find local maxima
-- Make sense only if h(n) > 0 for all non-goal states
 ```
 def hill_climbing:
     path = list
@@ -168,10 +165,10 @@ def hill_climbing:
             break    
     return path
 ```
+- Local Search: Can only find local maxima
+- Make sense only if $h(n) > 0$ for all non-goal states
 ---
 ### Enforced Hill-Climbing
-- Local Search: Do small range BFS when find local optimal
-- Can across small gap between local best and global best
 ```
 def enforced_hill_climbing:
     path = list
@@ -193,12 +190,13 @@ def enforced_hill_climbing:
                 return failure
     return path
 ```
+- Local Search: Do small range BFS when find local optimal
+- Can across small gap between local best and global best
 ---
 ### Iterative Deepening A*
 - IDS + A*: Use f(n) instead of depth to limit IDS
-- In First Search:  f(n) = f(start) = 0 + h(start)
-- Following Searches: f(n) = min_out_of_bound_excess
-- Dealing with one of A*’s problem: large queue/closed_set
+	- In First Search:  f(n) = f(start) = 0 + h(start)
+	- Following Searches: f(n) = min_out_of_bound_excess
 ```
 def ida_star:
     bound = f(start)
@@ -210,6 +208,7 @@ def ida_star:
             return failure
         bound = t
 ```
+- Dealing with one of A*’s problem: large queue/closed_set
 
 ## Evaluation of Search Methods
 ### Guarantees
