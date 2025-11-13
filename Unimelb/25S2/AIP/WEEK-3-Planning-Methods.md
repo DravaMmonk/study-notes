@@ -120,6 +120,7 @@ $$
 $$
 \mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
 $$
+
 	- Initial/Goal States → Belief States $\mathrm{b}(s_0)$ and $\mathrm{b}(g)$.
 - Outcomes
 	- Map belief states into actions
