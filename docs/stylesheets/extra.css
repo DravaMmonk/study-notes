@@ -1,106 +1,99 @@
 /* ============================================================
    MkDocs Material — Custom Sidebar Widths + Layout Enhancements
-   Author: ChatGPT
+   Author: ChatGPT (mobile-optimized)
    ============================================================ */
 
 /* ------------------------------------------------------------
-   1. 主要修改：调整左侧主导航栏宽度
+   1. Root variables (PC widths only)
    ------------------------------------------------------------ */
 :root {
-  --md-sidebar-width: 400px;              /* 左侧导航栏宽度 */
-  --md-sidebar-width-mobile: 260px;       /* 手机端宽度 */
-  --md-toc-width: 360px;                  /* 右侧 TOC 宽度 */
+  --md-sidebar-width: 400px;        /* Left navigation width on desktop */
+  --md-toc-width: 360px;            /* Right TOC width on desktop */
+  --md-sidebar-width-mobile: 0px;   /* Mobile: force hidden sidebar */
 }
 
 /* ------------------------------------------------------------
-   2. 左侧主侧边栏宽度（Desktop）
+   2. LEFT SIDEBAR (Desktop only)
    ------------------------------------------------------------ */
-/* 主侧边栏容器宽度（外层 aside） */
-.md-sidebar--primary {
-  width: 360px !important;       /* 想要多宽改这里 */
-  max-width: 360px !important;
-}
+@media (min-width: 769px) {
+  .md-sidebar--primary {
+    width: var(--md-sidebar-width) !important;
+    max-width: var(--md-sidebar-width) !important;
+  }
 
-/* 内层导航区域（你的元素） */
-.md-nav--primary.md-nav--integrated {
-  width: 360px !important;
-  max-width: 360px !important;
-}
+  .md-nav--primary.md-nav--integrated {
+    width: var(--md-sidebar-width) !important;
+    max-width: var(--md-sidebar-width) !important;
+  }
 
-/* 目录列表的宽度限制 */
-.md-nav--primary .md-nav__list {
-  max-width: 360px !important;
-}
+  .md-nav--primary .md-nav__list,
+  .md-nav--primary .md-nav__item,
+  .md-nav--primary .md-nav__link {
+    max-width: var(--md-sidebar-width) !important;
+  }
 
-/* 每一行目录项的宽度 */
-.md-nav--primary .md-nav__item {
-  max-width: 360px !important;
-}
-
-/* 菜单项文字宽度处理（最关键） */
-.md-nav--primary .md-nav__link {
-  max-width: 360px !important;
-  white-space: normal !important;
-  overflow-wrap: break-word;
+  .md-nav--primary .md-nav__link {
+    white-space: normal !important;
+    overflow-wrap: break-word;
+  }
 }
 
 /* ------------------------------------------------------------
-   3. 右侧 TOC 侧边栏宽度（Desktop）
+   3. RIGHT TOC (Desktop)
    ------------------------------------------------------------ */
+@media (min-width: 769px) {
+  .md-sidebar--secondary {
+    width: var(--md-toc-width) !important;
+    max-width: var(--md-toc-width) !important;
+  }
 
-/* 右侧 TOC 宽度应用 */
-.md-sidebar--secondary {
-  width: var(--md-toc-width) !important;
-  max-width: var(--md-toc-width) !important;
-}
+  .md-nav--secondary .md-nav__list,
+  .md-nav--secondary .md-nav__item,
+  .md-nav--secondary .md-nav__link {
+    max-width: var(--md-toc-width) !important;
+  }
 
-/* TOC 列表容器宽度 */
-.md-nav--secondary .md-nav__list {
-  max-width: var(--md-toc-width) !important;
-}
-
-/* TOC 每一项的宽度 */
-.md-nav--secondary .md-nav__item {
-  max-width: var(--md-toc-width) !important;
-}
-
-/* TOC 链接文本宽度（避免被强行折行） */
-.md-nav--secondary .md-nav__link {
-  max-width: var(--md-toc-width) !important;
-  white-space: normal !important;
-}
-
-/* 如果你还想防止文字溢出，用下面这一行： */
-.md-nav--secondary .md-nav__link {
-  overflow-wrap: break-word;
+  .md-nav--secondary .md-nav__link {
+    white-space: normal !important;
+    overflow-wrap: break-word;
+  }
 }
 
 /* ------------------------------------------------------------
-   4. 内容区最大宽度优化，让阅读更舒服
+   4. MOBILE FIX — critical (small screens)
    ------------------------------------------------------------ */
-.md-main__inner {
-  margin-left: 1rem;
-  margin-right: 1rem;
+@media (max-width: 768px) {
+
+  /* Hide LEFT sidebar fully */
+  .md-sidebar--primary {
+    display: none !important;
+    width: 0 !important;
+    max-width: 0 !important;
+  }
+
+  /* Hide RIGHT TOC fully */
+  .md-sidebar--secondary {
+    display: none !important;
+    width: 0 !important;
+    max-width: 0 !important;
+  }
+
+  /* Main content should fill the screen */
+  .md-main__inner {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Header title safe zone */
+  .md-header__title {
+    max-width: 100%;
+    text-overflow: ellipsis;
+  }
 }
 
 /* ------------------------------------------------------------
-   5. 防止侧边栏变宽后 nav 文字换行意外折叠
-   ------------------------------------------------------------ */
-.md-nav__title,
-.md-nav__item .md-nav__link {
-  white-space: normal;
-  line-height: 1.4;
-}
-
-/* ------------------------------------------------------------
-   6. 优化搜索面板，使其在宽侧栏下仍居中
-   ------------------------------------------------------------ */
-.md-search__inner {
-  max-width: 720px;
-}
-
-/* ------------------------------------------------------------
-   7. 左侧导航栏滚动条更柔和（美观）
+   5. Scrollbar styling (Desktop)
    ------------------------------------------------------------ */
 .md-sidebar--primary::-webkit-scrollbar,
 .md-sidebar--secondary::-webkit-scrollbar {
@@ -119,42 +112,48 @@
 }
 
 /* ------------------------------------------------------------
-   8. 浅色 & 深色模式适配（Material 自动切换）
+   6. Theme colors for sidebars (Desktop only)
    ------------------------------------------------------------ */
-[data-md-color-scheme="default"] {
-  --sidebar-bg: #f8f9fa;
-  --sidebar-text: #333;
-}
+@media (min-width: 769px) {
+  [data-md-color-scheme="default"] {
+    --sidebar-bg: #f8f9fa;
+    --sidebar-text: #333;
+  }
 
-[data-md-color-scheme="slate"] {
-  --sidebar-bg: #1f1f1f;
-  --sidebar-text: #e6e6e6;
-}
+  [data-md-color-scheme="slate"] {
+    --sidebar-bg: #1f1f1f;
+    --sidebar-text: #e6e6e6;
+  }
 
-.md-sidebar--primary {
-  background-color: var(--sidebar-bg);
-  color: var(--sidebar-text);
-}
-
-/* ------------------------------------------------------------
-   9. 移动端优化：避免侧边栏遮挡标题
-   ------------------------------------------------------------ */
-@media (max-width: 768px) {
   .md-sidebar--primary {
-    width: var(--md-sidebar-width-mobile);
-    max-width: var(--md-sidebar-width-mobile);
-  }
-
-  .md-sidebar--secondary {
-    display: none;   /* Mobile 下默认隐藏 TOC，避免拥挤 */
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
   }
 }
 
-/* ------------------------------------------------------------
-   10. 当左侧栏变宽后，logo & site name 居中更美观
-   ------------------------------------------------------------ */
-.md-header__title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* ============================================================
+   FULL-WIDTH CONTENT (Desktop)
+   让内容区在电脑端铺满整个页面
+   ============================================================ */
+@media (min-width: 769px) {
+
+  /* 解除 Material 默认内容宽度限制 */
+  .md-main__inner {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 2rem !important; /* 可调，保证不贴边 */
+  }
+
+  /* 主内容卡片也展开 */
+  .md-content {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .md-content__inner {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
 }

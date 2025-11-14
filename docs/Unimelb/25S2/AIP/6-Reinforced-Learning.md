@@ -1,7 +1,7 @@
 # 6. Reinforced Learning
 ---
 ## Reinforced Learning
-- Policy + Reward + Trial-and-error interaction
+- Policy + Reward + Trial-and-error Interaction
 
 ### Planning vs Learning
 
@@ -27,7 +27,6 @@
 | **Data Structure**             | **Sequential / Time series** (non-i.i.d.)                         | Discrete steps in a planning domain            | Often i.i.d. samples (independent & identically distributed) |
 | **Search & Optimisation**      | Trail-and-error search + Reward-driven                            | state-space search + Predefined policy         | Gradient-based or statistical fitting                        |
 | **Credit Assignment**          | **Required** — reward may be delayed over time                    | Not relevant — goal known a priori             | **Not Required** - no delay                                  |
-|                                |                                                                   |                                                |                                                              |
 
 ##### Example - Common Applications
 - Making a humanoid robot walk
@@ -51,7 +50,7 @@ flowchart LR
         V["Value Function V(s)"]
     end
 
-    S -->|"(1) State s"| P
+    S -->|"(1) Initial State s"| P
     P -->|"(2) Action a"| Env
     Env -->|"(3) Reward r, Next State s'"| V
     V -->|"(4) Update Policy"| P
@@ -68,6 +67,10 @@ flowchart LR
 	$$
 	
 	- Once $S$ is known, $H$ can be thrown away
+- Any RL problem can be made Markov by expanding the state
+	- Add history into the current state
+	- Add belief state (POMDP → belief-MDP)
+	- Add latent state (Model-based RL)
 
 ---
 ### Reward - $R$
@@ -85,7 +88,7 @@ flowchart LR
 	- → *Policy Function*
 
 ---
-### Model - $P, R$
+### Model - Latent $P, R$
 
 - An internal simulator for predicting what the environment will do next
 	- Transition Model: $P(s' \mid s,a)$
@@ -96,37 +99,75 @@ flowchart LR
 ---
 ### Value Function - $V, Q$
 
-- Define and predict values of (current and future) states
-	- by using the expectation of rewards
+- Define and predict values of states based on *the expectation of future rewards*
 - State-value Function
-	- Return the value of current state
+	- Output the value of current state
 		$$
-		V(s_t) = \mathbb{E}\big[G_t \mid s_t\big]
+		V_\pi(s) = \mathbb{E}_\pi\big[G_t \mid S_t = s\big]
 		$$
 
 - State-action-value Function
-	- Return the value of the current state with a deterministic action applied
+	- Output the value of the current state with a deterministic action applied
 		$$
-		Q_\pi(s_t,a) = \mathbb{E}_\pi \big[\, G_t \mid s_t,\, a \,\big]
+		Q_\pi(s,a) = \mathbb{E}_\pi \big[\, G_t \mid S_t = s,\, A_t = a \,\big]
 		$$
-
-- $G_t$ - the total discounted reward from time-step $t$
-	$$
-	G_t = R_{t+1} + \gamma R_{t+2} + \ldots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}
-	$$
-	
-- Value function is **NOT** necessary for RL 
-	- → Value-based Model/ Policy-based Model
 
 ---
-### Discount Factor - $\gamma$
+#### Return - $G_t$
+- total discounted reward of the future
+	$$
+	G_t = R_{t+1} + \gamma (R_{t+2} + \gamma (R_{t+3} + \ldots)) = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}
+	$$
 
-| Gamma ($\gamma \ge 0$) | Behaviour                                    |
-| ---------------------- | -------------------------------------------- |
-| $\gamma = 0$           | Greedy                                       |
-| $\gamma \to 0$         | Myopic                                       |
-| $\gamma \to 1$         | Far-sighted                                  |
-| $\gamma = 1$           | **Guarantee** only if all sequence terminate |
+---
+#### Bellman Expectation Equation 
+- **Bellman Equation**: Gives a recursive form of **Return**
+		$$ G_t = R_{t+1} + \gamma G_{t+1} $$
+	
+	- Based on "*look-ahead then back-up*" computational mechanism
+		- **Look-ahead**: to the next step → $r, s'$
+		- **Back-up**: to the current state → $v(s) = f(r,s')$
+
+- State-value Function (Deriving BEE)
+	$$
+	\begin{aligned}
+	v_\pi(s)
+	&= \mathbb{E}\!\left[r + \gamma v_\pi(s')\right] \\[6pt]
+	&= \sum_a \pi(a\mid s)\Bigl[\sum_r p(r\mid s,a)\,r
+	   + \gamma \sum_{s'} p(s'\mid s,a) \, v_\pi(s')\Bigr]
+	\end{aligned}
+	$$
+
+- State-action-value Function (Deriving BEE)
+	$$
+	\begin{aligned}
+	q_\pi(s,a)
+	&= \mathbb{E}\!\left[\, r + \gamma\, \mathbb{E}_{a'\sim\pi(\cdot\mid s')} \bigl[q_\pi(s',a')\bigr] \right] \\[6pt]
+	&= \sum_{s',r} p(s',r\mid s,a)\left[ r + \gamma \sum_{a'} \pi(a'\mid s')\, q_\pi(s',a') \right]
+	\end{aligned}
+	$$
+	
+- Solving the BEE
+	- Directly Compute $O(n^3)$
+		$$
+		v = R + \gamma Pv \to v = (I - \gamma P)^{-1}R
+		$$
+
+		- only possible for small $P$ matrix
+
+	- Dynamic Programming
+	- Monte-Carlo Evaluation
+	- Temporal-Difference Learning
+
+---
+#### Discount Factor - $\gamma$
+
+| Gamma ($0 \le \gamma \le 1$) | Behaviour                                    |
+| ---------------------------- | -------------------------------------------- |
+| $\gamma = 0$                 | Greedy                                       |
+| $\gamma \to 0$               | Myopic                                       |
+| $\gamma \to 1$               | Far-sighted                                  |
+| $\gamma = 1$                 | **Guarantee** only if all sequence terminate |
 
 #### Why Discounting is Used
 
@@ -143,80 +184,35 @@ flowchart LR
 ### Policy - $\pi$
 - Fully defines agent's behaviour
 - **Stationary** (Time-independent) - Only relies on the current state
-
-#### Implicit Policy
-$$
-a = \arg\max_{a} Q(s, a) = \arg\max_{a} \sum^{s'} P(s,a,s') \cdot V(s')
-$$
-
-- Compare expectations of all valid actions $\sim$ Brute Force
-- Common use in model-based RL
-
 #### Deterministic Policy 
+- Give the best action directly
 $$
-\pi(s) = a
+\pi(a \mid s) = \mathbf{1}\{\, a = a^*(s) \,\}
 $$
-
-- MRP = MDP + restricted by the deterministic policy
 
 #### Stochastic Policy 
+- Give the probability of each action
 $$
 \pi(a \mid s) = P(a \mid s)
 $$
 
-- Choose the optimal action or random one with a small probability
 - Ability of exploration; Robustness✅
 
-#### Policy Gradient
-- Maintain a set of parameters $\theta$ for $maximising$ future rewards
+#### Explicit Policy
+- Construct a model of $\pi$ and optimise its parameters $\theta$.
 $$
-J(\theta) = \mathbb{E}(G) = \sum_{\tau} P(\tau \mid \theta) \, G(\tau)
-$$
-
-	- $\tau$ - A full path from initial state to the goal
-
-$$
-\begin{aligned}
-\nabla J(\theta)
-&= \sum_{\tau} \nabla P(\tau \mid \theta) \, G(\tau)
-&& \text{(definition of expected return)} \\[4pt]
-&= \sum_{\tau} P(\tau \mid \theta) \, \nabla \log P(\tau \mid \theta) \, G(\tau)
-&& \text{(apply log-derivative trick)} \\[4pt]
-&= \mathbb{E}_{\tau \sim P(\tau \mid \theta)} \big[ \nabla \log P(\tau \mid \theta) \, G(\tau) \big]
-&& \text{(convert sum to expectation)} \\[4pt]
-&= \mathbb{E}_{\pi_\theta} \big[ \nabla \log \pi_\theta(a \mid s) \, G(\tau) \big]
-&& \text{(expand trajectory likelihood)}
-\end{aligned}
+\pi(a\mid s) = f(Q; \theta)
 $$
 
----
-#### Balance Exploration & Exploitation in Policy Design
-- **Exploitation** - select currently-known best action
-- **Exploration** - try a new action
-- **Trade-off Strategies**
-	- **ε-greedy** 
-		- most time exploitation ($P = 1 - \varepsilon$), little time exploration ($\varepsilon$)
-	- **softmax** 
-		- set a probability to each action and a temperature $\tau$ to control randomising
-			$$
-			P(a) = \frac{\exp(Q(a) / \tau)}{\sum_{a'} \exp(Q(a') / \tau)}
-			$$
-
-	
-	- **Upper Confidence Bound (UCB)** 
-		- exploitation + exploration bonus
-			$$
-			a = \arg\max_a \left( Q(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
-			$$
-
-		
-			- $c$ - importance of exploration (**parameter**)
-			- $\ln{t}$ - explore more when time goes
-			- $N(a)$ - not try too many times on one same action
+#### Implicit Policy
+- Optimise $Q$, $V$ directly
+$$
+\pi(a\mid s) = f(Q)
+$$
 
 ---
 ### Example - MAZE
-![Maze](assets/7_1_maze.png)
+![Maze](assets/6_1_maze.png)
 
 - $S$ - Agent's possible locations
 - $A$ - Step directions $\mathtt{N, E, S, W}$
@@ -225,7 +221,7 @@ $$
 	- closer to $g$ - $V(s)$ ⤴
 	- Farther away - $V(S)$ ⤵
 - $\pi(s)$ - Best action = Best $V(s')$
-- **Model**
+- Model
 	- **Transition model** $P_{ss'}^a$ - how each action changes the state.
 	- **Reward model** $R_{s}^a$ - immediate reward from each state (same for all $a$).
 	- The model can be imperfect but supports planning and prediction.
@@ -237,5 +233,5 @@ $$
 	- **Model Free** - Gain experience from real interaction directly
 - Value-or-Policy?
 	- **Value Based** - Implicit Policy
-	- **Policy Based** - No Value Function = Policy Gradient
+	- **Policy Based** - Not learn Value, learn Policy directly
 	- **Actor-Critic** - Policy Based 演员 + Value Based 评论家

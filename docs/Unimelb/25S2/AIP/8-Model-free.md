@@ -1,4 +1,4 @@
-# 8. Model Free Reinforced Learning
+# 8. Model-free Reinforced Learning
 ---
 ## Monte Carlo (MC) Learning
 - Set the state as initial state and run-to-end in the environment for multiple times
@@ -35,10 +35,6 @@
 	- better performance in non-stationary environment
 
 ---
-## MC Control
-
-
----
 ## Temporal Difference (TD) Learning
 - Key Mechanisms: **bootstrap + sample**
 	- Sampling: an "1-step experience" (TD(0))
@@ -54,12 +50,15 @@ $$
 
 ### TD(0)
 - Look 1-step
-$$
-V(S_t) \gets V(s_t) + \alpha(R_{t+1} + \gamma V(s_{t+1})-V(s_t))
-$$
+	$$
+	\begin{aligned}
+	V(S_t) 
+	&\gets V(S_t) + \alpha \big({{G_t^{(0)} - V(S_t)}} \\[6pt]
+	&= V(s_t) + \alpha(R_{t+1} + \gamma V(s_{t+1})-V(s_t))
+	\end{aligned}
+	$$
 
-- $R_{t+1}$ - real reward
-- $\delta = R_{t+1} + \gamma V(s_{t+1})-V(s_t)$ - TD Error
+	- $\delta = R_{t+1} + \gamma V(s_{t+1})-V(s_t)$ - TD Error
 
 ### TD(n) 
 - Look more steps into the future
@@ -78,36 +77,54 @@ $$
 
 - Update in direction of error ([#$\alpha$-style prediction])
 $$
-V(S_t) \;\leftarrow\; V(S_t) + \alpha \big({{G_t^{(n)} - V(S_t)}} \big)
+V(S_t) \;\gets\; V(S_t) + \alpha \big({{G_t^{(n)} - V(S_t)}} \big)
 $$
 
-- Root Mean Square (RMS) Errors 均方差根 ← 𝛼**;** online/offline updates (𝛼 → 0 or 𝛼 → 1)
-- RMS Errors → different optimal choices of n
-- Small n → More rely on prediction, faster but higher bias
-- Large n → More rely on exploitation, more precise but higher variance
+- How to choose $n$:
+	- Root Mean Square (RMS) Errors 均方差根
+		- change $\alpha$ → vary RMS Errors → different optimal $n$
+	- Small n → More rely on prediction, faster but higher bias
+	- Large n → More rely on exploitation, more precise but higher variance
 
-### TD(𝝀) 
-- Average n-Steps Returns
+### TD($\lambda$) 
+- Average n-Steps Returns - use weight ${{(1 - \lambda)\lambda^{\,n-1}}}$ to balance short-term and long-term rewards
+	$$
+	G_t^{\lambda} \;=\; {{(1 - \lambda) \sum_{n=1}^{\infty} \lambda^{\,n-1}}} G_t^{(n)}
+	$$
 
-- G(t; 𝜆) = (1 - 𝜆) · 𝛴 𝜆ⁿ⁻¹ G(t; n)
+$$
+V(S_t) \;\leftarrow\; V(S_t) + \alpha \big( G_t^{\lambda} - V(S_t) \big)
+$$
 
-- Using weight (1 - 𝜆) · 𝜆ⁿ⁻¹ to balance short-term and long-term rewards
+	- ✅Memoryless - i.e space complexity is same as TD(0)
+	- ⚠️Forward View - We cannot look into the far future during learning👇
 
-  
-#### Eligibility Traces
-- Simplify calculation of G(t; 𝝀**)
-- Define a **trace** E(t; s) of every state = How many time visited and how far from current state
-	- E(t; s)  =  𝛾𝜆E(t-1; s) + _1 if S(t) = s else 0_
-
-- If we visit the state, it’s trace goes up suddenly (by 1), if we don’t visit it, it falls down continuously
-	- V(s) ← V(s) + 𝛼 · 𝛿 · E(t; s)
-
-#### Forward vs. Backward View
-- Original way calculating G(t; 𝜆) is a **Forward View** of 𝜆-Reward, we have to wait episodes terminate so that we can calculate all G(t; n) (offline)
-- Eligibility Traces is a **Backward View** of 𝜆-Reward, we update prediction of state step by step(online)
-	- **Backward Propagation** - Use Eligibility Traces to propagate TD error
+### Backward View 
+- backward propagation
 	- state visited more times  = more responsible on current TD error
-- Forward View = Backward View (in Batch/offline update)
+	- Update **online**, every step, from incomplete sequences
+1. Update **Eligibility Trace**
+	- For each state s, at each time step:
+		- reduction by $\gamma \lambda$
+		- $+1$ if currently visiting
+	$$
+	E_t(s) = \gamma \lambda E_{t-1}(s) + \mathbf{1}(S_t = s)
+	$$
+	
+2. Compute TD Error
+	$$
+	\delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)
+	$$
+
+3. Update Value Function
+	$$
+	V(s) \gets V(s) + \alpha \, \delta_t \, E_t(s)
+	$$
+
+- In Batch/offline update, Forward View = Backward View
+$$
+\sum_{t=1}^T \alpha \, \delta_t \, E_t(s) = \sum_{t=1}^T \alpha (G_t^\lambda  - V(S_t)) \; \mathbf{1}(S_t = S)
+$$
 
 
 ---
