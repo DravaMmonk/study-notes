@@ -6,11 +6,17 @@ theme:
     - navigation.expand
     - navigation.sections
     - navigation.top
+    - navigation.tabs
+    - search.highlight
+    - search.suggest
+    - toc.integrate
+    - content.action.edit
+    - content.action.view
+    - content.code.copy
     - content.code.annotate
     - content.tabs.link
     - content.tooltips
     - diagrams
-    - toc.integrate
   palette:
     - scheme: default
       primary: blue
@@ -36,6 +42,4 @@ extra_javascript:
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
-extra_css:
-  - stylesheets/extra.css
 
