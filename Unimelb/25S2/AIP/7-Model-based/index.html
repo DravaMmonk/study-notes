@@ -12,7 +12,7 @@
         <link rel="prev" href="../6-Reinforced-Learning/">
       
       
-        <link rel="next" href="../8-Model-Free-RL/">
+        <link rel="next" href="../8-Model-free/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>7. Model-based Reinforced Learning - Drava's Study Notes</title>
+        <title>07. Model-based Reinforced Learning - Drava's Study Notes</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#7-model-based-reinforced-learning" class="md-skip">
+        <a href="#07-model-based-reinforced-learning" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              7. Model-based Reinforced Learning
+              07. Model-based Reinforced Learning
             
           </span>
         </div>
@@ -418,7 +418,7 @@
   <span class="md-ellipsis">
     
   
-    1. Search
+    01. Search
   
 
     
@@ -446,7 +446,7 @@
   <span class="md-ellipsis">
     
   
-    2. Planning
+    02. Planning
   
 
     
@@ -474,7 +474,7 @@
   <span class="md-ellipsis">
     
   
-    3. Complexity
+    03. Complexity
   
 
     
@@ -502,7 +502,7 @@
   <span class="md-ellipsis">
     
   
-    4. Relaxation
+    04. Relaxation
   
 
     
@@ -530,7 +530,7 @@
   <span class="md-ellipsis">
     
   
-    5. Exploration
+    05. Exploration
   
 
     
@@ -558,7 +558,7 @@
   <span class="md-ellipsis">
     
   
-    6. Reinforced Learning
+    06. Reinforced Learning
   
 
     
@@ -595,7 +595,7 @@
   <span class="md-ellipsis">
     
   
-    7. Model-based Reinforced Learning
+    07. Model-based Reinforced Learning
   
 
     
@@ -613,7 +613,7 @@
   <span class="md-ellipsis">
     
   
-    7. Model-based Reinforced Learning
+    07. Model-based Reinforced Learning
   
 
     
@@ -639,15 +639,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#markov-decision-process" class="md-nav__link">
+  <a href="#markov-decision-process-mdp" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Markov Decision Process
+        Markov Decision Process (MDP)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Markov Decision Process">
+    <nav class="md-nav" aria-label="Markov Decision Process (MDP)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -673,7 +673,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#markov-decision-process_1" class="md-nav__link">
+  <a href="#markov-decision-process" class="md-nav__link">
     <span class="md-ellipsis">
       
         Markov Decision Process
@@ -689,53 +689,25 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#solving-a-mdp-problem" class="md-nav__link">
+  <a href="#optimal-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Solving a MDP Problem
+        Optimal Policy
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Solving a MDP Problem">
+    <nav class="md-nav" aria-label="Optimal Policy">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#optimal-value-function-v_asts-q_asts-a" class="md-nav__link">
+  <a href="#bellman-optimality-equation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Optimal Value Function - \(v_\ast(s)\), \(q_\ast(s, a)\)
+        Bellman Optimality Equation
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#bellman-equation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Bellman Equation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Bellman Equation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#solving-the-bellman-equation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Solving the Bellman Equation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -760,14 +732,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../8-Model-Free-RL/" class="md-nav__link">
+      <a href="../8-Model-free/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    8. Model Free Reinforced Learning
+    08. Model-free Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../9-Function-Approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09. Function Approximation
   
 
     
@@ -821,14 +821,13 @@
 
 
 
-<h1 id="7-model-based-reinforced-learning">7. Model-based Reinforced Learning<a class="headerlink" href="#7-model-based-reinforced-learning" title="Permanent link">&para;</a></h1>
-<h3 id="markov-decision-process">Markov Decision Process<a class="headerlink" href="#markov-decision-process" title="Permanent link">&para;</a></h3>
+<h1 id="07-model-based-reinforced-learning">07. Model-based Reinforced Learning<a class="headerlink" href="#07-model-based-reinforced-learning" title="Permanent link">&para;</a></h1>
+<h2 id="markov-decision-process-mdp">Markov Decision Process (MDP)<a class="headerlink" href="#markov-decision-process-mdp" title="Permanent link">&para;</a></h2>
 <ul>
-<li>MDP - General Simulator of the environment for Model-based RL</li>
-<li><em>Almost all RL problems can be formalised as MDPs</em></li>
+<li>General Simulator of the environment for Model-based RL</li>
 </ul>
 <hr />
-<h4 id="markov-process">Markov process<a class="headerlink" href="#markov-process" title="Permanent link">&para;</a></h4>
+<h3 id="markov-process">Markov process<a class="headerlink" href="#markov-process" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>A <em>memoryless</em> random process 
@@ -847,7 +846,7 @@
 </li>
 </ul>
 <hr />
-<h4 id="markov-reward-processes">Markov Reward Processes<a class="headerlink" href="#markov-reward-processes" title="Permanent link">&para;</a></h4>
+<h3 id="markov-reward-processes">Markov Reward Processes<a class="headerlink" href="#markov-reward-processes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>A Markov chain with reward values:
@@ -864,7 +863,7 @@
 </li>
 </ul>
 <hr />
-<h4 id="markov-decision-process_1">Markov Decision Process<a class="headerlink" href="#markov-decision-process_1" title="Permanent link">&para;</a></h4>
+<h3 id="markov-decision-process">Markov Decision Process<a class="headerlink" href="#markov-decision-process" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>Introduce <strong>agency</strong> 能动性 in terms of actions:
@@ -879,109 +878,57 @@
 </li>
 </ul>
 <hr />
-<h2 id="solving-a-mdp-problem">Solving a MDP Problem<a class="headerlink" href="#solving-a-mdp-problem" title="Permanent link">&para;</a></h2>
+<h2 id="optimal-policy">Optimal Policy<a class="headerlink" href="#optimal-policy" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Solve MDP</li>
-<li>= Give a policy to find the best behaviour of the current state</li>
-<li>= Find an action with <span class="arithmatex">\(maximum\)</span> action-value</li>
+<li>Give a policy based on value function<ul>
+<li>= Find an action with <span class="arithmatex">\(maximum\)</span> state-action-value</li>
 <li>= Optimise the Value Function</li>
 </ul>
-<hr />
-<h3 id="optimal-value-function-v_asts-q_asts-a">Optimal Value Function - <span class="arithmatex">\(v_\ast(s)\)</span>, <span class="arithmatex">\(q_\ast(s, a)\)</span><a class="headerlink" href="#optimal-value-function-v_asts-q_asts-a" title="Permanent link">&para;</a></h3>
-<ul>
+</li>
 <li>
 <p>Optimal State-value Function
-$$
-v_\ast(s) = \max_\pi v_\pi(s)
-$$</p>
+    $$
+    V^\ast(s) = \max_\pi V_\pi(s)
+    $$</p>
 </li>
 <li>
 <p>Optimal State-action-value Function
-$$
-q_\ast(s,a) = \max_\pi q_\pi(s,a)
-$$</p>
+    $$
+    Q^\ast(s,a) = \max_\pi Q_\pi(s,a)
+    $$</p>
+</li>
+<li>
+<p>Optimal Policy
+    $$
+    a=\arg\max_a Q^\ast(s,a)
+    $$</p>
 </li>
 </ul>
 <hr />
-<h3 id="bellman-equation">Bellman Equation<a class="headerlink" href="#bellman-equation" title="Permanent link">&para;</a></h3>
+<h4 id="bellman-optimality-equation">Bellman Optimality Equation<a class="headerlink" href="#bellman-optimality-equation" title="Permanent link">&para;</a></h4>
 <ul>
 <li>
-<p>A method for recursively handling with <span class="arithmatex">\(v(s)\)</span> evaluation and optimisation
-        $$ G_t = R_{t+1} + \gamma G_{t+1} $$</p>
-<ul>
-<li>Based on "<em>look-ahead then back-up</em>" computational mechanism<ul>
-<li><strong>Look-ahead</strong>: to the next step → <span class="arithmatex">\(r, s'\)</span></li>
-<li><strong>Back-up</strong>: to the current state → <span class="arithmatex">\(v(s) = f(r,s')\)</span></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Categories</th>
-<th style="text-align: center;">Formula</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">Expectation</td>
-<td style="text-align: center;">$$ v_\pi(s) = \mathbb{E}\left[r + \gamma v_\pi(s')\right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;"></td>
-<td style="text-align: center;">$$ q_\pi(s,a) = \mathbb{E}\left[r + \gamma\mathbb{E} \left[q_\pi(s',a')\right]\right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;">Expended</td>
-<td style="text-align: center;">$$ v_\pi(s) = \sum_a \pi(a\mid s)\sum_{s',r} p(s',r\mid s,a)\bigl[r + \gamma v_\pi(s')\bigr] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;"></td>
-<td style="text-align: center;">$$ q_\pi(s,a) = \sum_{s',r} p(s',r\mid s,a)\left[r + \gamma \sum_{a'} \pi(a'\mid s') q_\pi(s',a')\right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;">Optimality</td>
-<td style="text-align: center;">$$ v_\ast(s) = \max_a \mathbb{E}\left[\, r + \gamma v_\ast(s') \,\right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;"></td>
-<td style="text-align: center;">$$ q_\ast(s,a) = \mathbb{E}\left[r + \gamma \max_{a'} q_\ast(s',a')\right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;">Expended</td>
-<td style="text-align: center;">$$ v_\ast(s) = \max_{a} \sum_{s'} P(s' \mid s,a)\left[ R(s,a,s') + \gamma v_\ast(s') \right] $$</td>
-</tr>
-<tr>
-<td style="text-align: left;"></td>
-<td style="text-align: center;">$$ q_\ast(s,a) = \sum_{s',r} p(s',r\mid s,a)\left[r + \gamma \max_{a'} q_\ast(s',a')\right] $$</td>
-</tr>
-</tbody>
-</table>
-<h4 id="solving-the-bellman-equation">Solving the Bellman Equation<a class="headerlink" href="#solving-the-bellman-equation" title="Permanent link">&para;</a></h4>
-<ul>
-<li>
-<p>Solving the Bellman Expectation Equation</p>
-<ul>
-<li>
-<p>Directly Compute <span class="arithmatex">\(O(n^3)\)</span>
-$$
-v = R + \gamma Pv \to v = (I - \gamma P)^{-1}R
-$$</p>
-<ul>
-<li>only possible for small <span class="arithmatex">\(P\)</span> matrix</li>
-</ul>
+<p>Optimal State-value Function (Deriving BEE)</p>
+<div class="arithmatex">\[
+\begin{align}
+v_\ast(s)
+&amp;= \max_a \; \mathbb{E}\!\left[\, r + \gamma v_\ast(s') \,\right] \\[6pt]
+&amp;= \max_a \; \sum_{s'} P(s' \mid s,a)\left[\, R(s,a,s') + \gamma v_\ast(s') \,\right]
+\end{align}
+\]</div>
 </li>
 <li>
-<p>Dynamic Programming</p>
-</li>
-<li>Monte-Carlo Evaluation</li>
-<li>Temporal-Difference Learning</li>
-</ul>
+<p>Optimal State-action-value Function (Deriving BEE)</p>
+<div class="arithmatex">\[
+\begin{align}
+q_\ast(s,a)
+&amp;= \mathbb{E} \left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right] \\[6pt]
+&amp;= \sum_{s',r} p(s',r\mid s,a)\left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right]
+\end{align}
+\]</div>
 </li>
 <li>
-<p>Solving the Bellman Optimality Equation</p>
+<p>Solving the BOE</p>
 <ul>
 <li>No closed form solution</li>
 <li>Value Iteration</li>
