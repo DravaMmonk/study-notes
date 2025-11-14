@@ -72,11 +72,6 @@
     transform: translateX(0);
   }
 
-  /* RIGHT TOC hidden on mobile (Material default) */
-  .md-sidebar--secondary {
-    display: none !important;
-  }
-
   /* Main content should fill width */
   .md-main__inner {
     margin: 0 !important;
