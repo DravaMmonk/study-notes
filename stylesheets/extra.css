@@ -49,35 +49,6 @@
   }
 }
 
-/* ------------------------------------------------------------
-   2. MOBILE — allow the drawer to work
-   ------------------------------------------------------------ */
-@media (max-width: 768px) {
-
-  /* NOTE: DO NOT hide or compress the primary sidebar! 
-     Allow Material to handle drawer transform animation. */
-
-  .md-sidebar--primary {
-    display: block !important;
-    width: 300px !important;       /* Drawer width */
-    max-width: 300px !important;
-    transform: translateX(-100%);  /* Initial hidden */
-    transition: transform 0.25s ease;
-    background-color: var(--sidebar-bg, #fff);
-    z-index: 20;
-  }
-
-  /* When drawer toggle is checked, slide it out */
-  .md-nav-toggle:checked ~ .md-sidebar--primary {
-    transform: translateX(0);
-  }
-
-  /* Main content should fill width */
-  .md-main__inner {
-    margin: 0 !important;
-    padding: 0 1rem !important;
-  }
-}
 
 /* ------------------------------------------------------------
    3. FULL-WIDTH Content on Desktop
