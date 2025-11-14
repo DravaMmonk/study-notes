@@ -12,7 +12,7 @@
         <link rel="prev" href="../09-TD/">
       
       
-        <link rel="next" href="../11-Policy-Approx/">
+        <link rel="next" href="../11-Batch/">
       
       
         
@@ -760,6 +760,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 Value Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -777,6 +795,197 @@
 
       </a>
       
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#function-approximation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Function Approximation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function Approximation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tabular-vs-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabular vs. Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#object-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Object Function
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optimise-object-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optimise Object Function
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feature-vectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature Vectors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-value-approximator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State-value Approximator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="State-value Approximator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#derive-from-monte-carlo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derive from Monte Carlo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derive-from-temporal-difference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derive from Temporal Difference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derive-from-td" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derive from TD(λ)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#action-state-value-approximator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action-state-value Approximator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Action-state-value Approximator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#derive-from-monte-carlo_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derive from Monte Carlo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derive-from-sarsa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derive from Sarsa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derive-from-td_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derive from TD(λ)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derive-from-q-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derive from Q-learning
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -789,14 +998,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-Policy-Approx/" class="md-nav__link">
+      <a href="../11-Batch/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    11 Policy Function Approximation
+    11 Batch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-Policy-Approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 Policy Function Approximation
   
 
     
@@ -852,7 +1089,207 @@
 
 <h1 id="10-value-function-approximation">10 Value Function Approximation<a class="headerlink" href="#10-value-function-approximation" title="Permanent link">&para;</a></h1>
 <hr />
-<p>Value Function</p>
+<h2 id="function-approximation">Function Approximation<a class="headerlink" href="#function-approximation" title="Permanent link">&para;</a></h2>
+<p>Approximate value function by tuning parameters <span class="arithmatex">\(w\)</span> of a function</p>
+<ul>
+<li><em>instead of a table (<span class="arithmatex">\(s\)</span>-<span class="arithmatex">\(a\)</span>) of discrete values (tabular)</em></li>
+</ul>
+<div class="arithmatex">\[
+\begin{align}
+\hat{v}(s, {\color{red}{\mathbf{w}}})\; &amp; {\color{red}{\approx}}\; v_{\pi}(s)\\[0pt]
+\;\;\;\hat{q}(s, a, {\color{red}{\mathbf{w}}})\; &amp; {\color{red}{\approx}}\; q_{\pi}(s, a)
+\end{align}
+\]</div>
+<h3 id="tabular-vs-function">Tabular vs. Function<a class="headerlink" href="#tabular-vs-function" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Tabular</th>
+<th>Function Approx.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Interpretability</strong></td>
+<td>✅Intuitive</td>
+<td>❌Hard to interpret</td>
+</tr>
+<tr>
+<td><strong>Scalability</strong></td>
+<td>❌Difficult for large/continuous spaces</td>
+<td>✅Much less memory required</td>
+</tr>
+<tr>
+<td><strong>Generalisability</strong></td>
+<td>❌Poor</td>
+<td>✅Generalises from seen situations to unseen situations</td>
+</tr>
+<tr>
+<td><strong>Bias</strong></td>
+<td>✅Accurate when state space is small</td>
+<td>⚠️<strong>Biased</strong> - State values cannot be represented accurately</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="object-function">Object Function<a class="headerlink" href="#object-function" title="Permanent link">&para;</a></h2>
+<p>Goal: <span class="arithmatex">\(minimise\)</span> <em>MSE</em> between approx function and true value function.</p>
+<div class="arithmatex">\[
+J(\mathbf{w}) = \mathbb{E}_\pi \left[ (v_\pi(S) - \hat{v}(S, \mathbf{w}))^2 \right]
+\]</div>
+<p>where <span class="arithmatex">\(S \in \mathcal{S}\)</span> - the state is a <em>Random Variable</em> which follows the probability distribution, e.g.:</p>
+<ul>
+<li><strong>Uniform Distribution</strong><ul>
+<li>All with the same probability</li>
+<li><span class="arithmatex">\(S = \frac{1}{|\mathcal{S}|}\)</span></li>
+<li>❌Too simple; not practical</li>
+</ul>
+</li>
+<li><strong>Stationary Distribution</strong><ul>
+<li>Describe the long-term behaviour of a Markov process<ul>
+<li><span class="arithmatex">\(d_\pi(s) \approx \frac{N(s)}{\sum_{s \in \mathcal{S}} N(s)}\)</span></li>
+</ul>
+</li>
+<li>Which can also be predicted by using <span class="arithmatex">\(P\)</span> from a model (MDP)<ul>
+<li><span class="arithmatex">\(d_\pi = d_\pi P\)</span></li>
+</ul>
+</li>
+<li>✅Stationary; can be learned</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="optimise-object-function">Optimise Object Function<a class="headerlink" href="#optimise-object-function" title="Permanent link">&para;</a></h2>
+<p>By using Gradient Descent:</p>
+<div class="arithmatex">\[
+w_{k+1} = w_k - \alpha \nabla J(w_k)
+\]</div>
+<p><span class="arithmatex">\(\nabla J(w_k)\)</span> can be calculated by:</p>
+<ul>
+<li><strong>Ture Gradient Descent</strong><ul>
+<li>need to calculate the expectation (collect all <span class="arithmatex">\(N\)</span> samples), not practical❌</li>
+</ul>
+</li>
+</ul>
+<div class="arithmatex">\[
+\begin{align}
+\nabla J(w)
+&amp; = \nabla \mathbb{E} \left[ (v_\pi(S) - \hat{v}(S, w))^2 \right] \\[0pt]
+&amp; \propto \mathbb{E}[(v_\pi(S)-\hat{v}(S,w))\,\nabla\hat{v}(S,w)]
+\end{align}
+\]</div>
+<ul>
+<li><strong>Stochastic Gradient Descent</strong><ul>
+<li>Use only 1 sample <span class="arithmatex">\(s_t\)</span> </li>
+<li>Online update, better generalisation✅</li>
+</ul>
+</li>
+</ul>
+<div class="arithmatex">\[
+w_{k+1} = w_k - \alpha\,
+\bigl(v_\pi(s_t) - \hat{v}(s_t,w_t)\bigr)\,
+\nabla \hat{v}(s_t,w_t)
+\]</div>
+<p>For remaining two terms:</p>
+<ul>
+<li><span class="arithmatex">\(\nabla\hat{v}(s_t,w_t)\)</span> ← Feature Vectors (Linear)</li>
+<li><span class="arithmatex">\(v_\pi(s_t)\)</span> ← Value Function Approximation</li>
+</ul>
+<hr />
+<h2 id="feature-vectors">Feature Vectors<a class="headerlink" href="#feature-vectors" title="Permanent link">&para;</a></h2>
+<p>Represent the state by a feature of vectors <span class="arithmatex">\(\mathbf{x}(s)\)</span>, so that in <strong>linear case</strong>:</p>
+<ul>
+<li>State-value Gradient:</li>
+</ul>
+<div class="arithmatex">\[
+\nabla\hat{v}(s,w) = \frac{\partial \hat v(s)}{\partial w} = \mathbf{x}(s)
+\]</div>
+<ul>
+<li>State-action-value Gradient:</li>
+</ul>
+<div class="arithmatex">\[
+\nabla \hat q(s,a,w) = \mathbf{x}(s,a)
+\]</div>
+<ul>
+<li>Intuitive; easy to implement; high interpretability✅</li>
+<li>Difficult to select appropriate feature vectors⚠️</li>
+</ul>
+<hr />
+<h2 id="state-value-approximator">State-value Approximator<a class="headerlink" href="#state-value-approximator" title="Permanent link">&para;</a></h2>
+<h3 id="derive-from-monte-carlo">Derive from Monte Carlo<a class="headerlink" href="#derive-from-monte-carlo" title="Permanent link">&para;</a></h3>
+<p>Use <span class="arithmatex">\(g_t\)</span> (discounted return starting from <span class="arithmatex">\(s_t\)</span>) to approximate:</p>
+<div class="arithmatex">\[
+v_\pi(s_t) = g_t
+\]</div>
+<ul>
+<li>converges to a local optimum, even for <em>non-linear</em> approximation</li>
+</ul>
+<hr />
+<h3 id="derive-from-temporal-difference">Derive from Temporal Difference<a class="headerlink" href="#derive-from-temporal-difference" title="Permanent link">&para;</a></h3>
+<p>Use <span class="arithmatex">\(r_{t+1} + \gamma \hat v(s_{t+1}, w_t) - \hat{v}(s_t, w_t)\)</span> (TD Error) to update approximator at each step:</p>
+<div class="arithmatex">\[
+v_\pi(s_t) = r_{t+1} + \gamma \hat v(s_{t+1}, w_t)
+\]</div>
+<ul>
+<li>Linear TD(0) converges close to the global optimum</li>
+</ul>
+<hr />
+<h3 id="derive-from-td">Derive from TD(λ)<a class="headerlink" href="#derive-from-td" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Forward View:</li>
+</ul>
+<div class="arithmatex">\[
+v_\pi(s_t) = g_t^\lambda
+\]</div>
+<ul>
+<li>Backward View: </li>
+</ul>
+<div class="arithmatex">\[
+\begin{align}
+\delta_t &amp; = r_{t+1} + \gamma \hat v(s_{t+1}, w_t)-\hat{v}(s_t, w_t) \\[4pt]
+E_t &amp; = \gamma \lambda E_{t-1} + \nabla\hat{v}(s_t,w_t) \\[4pt]
+w_{k+1} &amp;= w_k - \alpha \, \delta_t \, E_t
+\end{align}
+\]</div>
+<hr />
+<h2 id="action-state-value-approximator">Action-state-value Approximator<a class="headerlink" href="#action-state-value-approximator" title="Permanent link">&para;</a></h2>
+<p>Generally change <span class="arithmatex">\(v\)</span> to <span class="arithmatex">\(q\)</span> :</p>
+<div class="arithmatex">\[
+w_{k+1} = w_k 
+- \alpha\,
+\bigl(q_\pi(s_t,a_t)-\hat{q}(s_t,a_t,w_t)\bigr)\,
+\nabla \hat{q}(s_t,a_t,w_t)
+\]</div>
+<h3 id="derive-from-monte-carlo_1">Derive from Monte Carlo<a class="headerlink" href="#derive-from-monte-carlo_1" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+q_\pi(s_t,a_t) = g_t
+\]</div>
+<h3 id="derive-from-sarsa">Derive from Sarsa<a class="headerlink" href="#derive-from-sarsa" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+q_\pi(s_t,a_t) = r_{t+1} + \gamma \hat{q} (s_{t+1}, a_{t+1}, w_t)
+\]</div>
+<h3 id="derive-from-td_1">Derive from TD(λ)<a class="headerlink" href="#derive-from-td_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Forward View:</li>
+</ul>
+<div class="arithmatex">\[
+q_\pi(s_t, a_t) = g_t^\lambda
+\]</div>
+<ul>
+<li>Backward View: </li>
+</ul>
+<div class="arithmatex">\[
+\begin{align}
+\delta_t &amp; = r_{t+1} + \gamma \hat q(s_{t+1}, a_{t+1}, w_t)-\hat{q}(s_t, a_t, w_t) \\[4pt]
+E_t &amp; = \gamma \lambda E_{t-1} + \nabla\hat{q}(s_t,a_t,w_t) \\[4pt]
+w_{k+1} &amp;= w_k - \alpha \, \delta_t \, E_t
+\end{align}
+\]</div>
+<h3 id="derive-from-q-learning">Derive from Q-learning<a class="headerlink" href="#derive-from-q-learning" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+q_\pi(s_t,a_t) = r_{t+1} + \gamma \max_{a \in \mathcal{A}(s_{t+1})}\hat{q} (s_{t+1}, a, w_t)
+\]</div>
 
 
 

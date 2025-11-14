@@ -826,17 +826,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#alpha-style-mc" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        \(\alpha\)-style MC
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -909,14 +898,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-Policy-Approx/" class="md-nav__link">
+      <a href="../11-Batch/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    11 Policy Function Approximation
+    11 Batch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-Policy-Approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 Policy Function Approximation
   
 
     
@@ -980,22 +997,19 @@
 <ul>
 <li>Run-to-end in the environment for multiple times</li>
 <li>
-<p>Use <strong>average return</strong> to <strong>estimate</strong> value function</p>
-<ul>
-<li>
-<p><em>instead of solving <span class="arithmatex">\(v(n)\)</span> in Model-based RL</em>
-$$
+<p>Use <strong>average return</strong> to <strong>estimate</strong> value function, <em>instead of solving <span class="arithmatex">\(v(n)\)</span> in Model-based RL</em></p>
+<div class="arithmatex">\[
 V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
-$$</p>
-</li>
-<li>
-<p><span class="arithmatex">\(N(s)\)</span> - how many times <span class="arithmatex">\(G_t\)</span> is visited</p>
-</li>
+\]</div>
+<ul>
+<li><span class="arithmatex">\(N(s)\)</span> - how many times <span class="arithmatex">\(G_t\)</span> is visited</li>
 <li>When <span class="arithmatex">\(N(s) \to \infty\)</span>, <span class="arithmatex">\(V(s) \to v_\pi(s)\)</span>.</li>
-<li>Unbiased✅</li>
-<li>Can only apply to <strong>episodic</strong> 有终止状态 Markov environment⚠️</li>
 </ul>
 </li>
+<li>
+<p>Unbiased✅</p>
+</li>
+<li>Can only apply to <strong>episodic</strong> 有终止状态 Markov environment⚠️</li>
 </ul>
 <hr />
 <h2 id="mc-basic">MC Basic<a class="headerlink" href="#mc-basic" title="Permanent link">&para;</a></h2>
@@ -1029,7 +1043,7 @@ $$</p>
 <h2 id="mc-exploring-starts">MC Exploring Starts<a class="headerlink" href="#mc-exploring-starts" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Use <em>Generalised Policy Iteration</em> (GPI) Framework to improve efficiency<ul>
-<li>In an iteration, instead of do "Policy Evaluation → Policy Improvement" <strong>once</strong>, we repeat by doing sub-process of it</li>
+<li>In an iteration, instead of do "Policy Evaluation → Policy Improvement" <strong>once</strong>, do the sub-version of it <strong>repeatly</strong></li>
 </ul>
 </li>
 <li>For each episode <span class="arithmatex">\(e\)</span>:<ul>
@@ -1086,30 +1100,18 @@ $$</p>
 <hr />
 <h2 id="mc-varepsilon-greedy">MC + <span class="arithmatex">\(\varepsilon\)</span>-greedy<a class="headerlink" href="#mc-varepsilon-greedy" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Use soft policy (e.g. <span class="arithmatex">\(\varepsilon\)</span>-greedy) to remove needs of exploring start
-    $$
-    \pi(a|s) =
-    \begin{cases}
-    1 - (1 - \frac{1}{|\mathcal{A}(s)|}) \, \varepsilon, &amp; a = a^*_k \[6pt]
-    \frac{1}{|\mathcal{A}(s)|} \, \varepsilon, &amp; \text{otherwise}
-    \end{cases}
-    $$<ul>
+<li>
+<p>Use soft policy (e.g. <span class="arithmatex">\(\varepsilon\)</span>-greedy) to remove needs of exploring start</p>
+<div class="arithmatex">\[
+\pi(a|s) =
+\begin{cases}
+1 - (1 - \frac{1}{|\mathcal{A}(s)|}) \, \varepsilon, &amp; a = a^*_k \\[6pt]
+\frac{1}{|\mathcal{A}(s)|} \, \varepsilon, &amp; \text{otherwise}
+\end{cases}
+\]</div>
+<ul>
 <li><span class="arithmatex">\(|\mathcal{A}(s)|\)</span> - number of valid actions of state</li>
 <li>Balance Exploration &amp; Exploitation</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="alpha-style-mc"><span class="arithmatex">\(\alpha\)</span>-style MC<a class="headerlink" href="#alpha-style-mc" title="Permanent link">&para;</a></h2>
-<ul>
-<li>
-<p>In practice, we can also use learning rate <span class="arithmatex">\(\alpha\)</span> for replacing strict mean:
-    $$
-    V(s) \gets V(s) + \alpha(G_t - V(s))
-    $$</p>
-<ul>
-<li>online learning supported✅</li>
-<li>better performance in non-stationary environment✅</li>
 </ul>
 </li>
 </ul>

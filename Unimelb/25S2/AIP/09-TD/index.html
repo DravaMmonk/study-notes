@@ -836,7 +836,8 @@
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="TD(\(\lambda\))">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#backward-view" class="md-nav__link">
@@ -846,6 +847,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -867,10 +873,32 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#sarsa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sarsa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#n-step-sarsa" class="md-nav__link">
     <span class="md-ellipsis">
       
         \(n\)-step Sarsa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sarsalambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sarsa(\(\lambda\))
       
     </span>
   </a>
@@ -906,10 +934,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#process-of-q-learning" class="md-nav__link">
+  <a href="#q-learning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Process of Q-Learning
+        Q-Learning
       
     </span>
   </a>
@@ -993,14 +1021,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-Policy-Approx/" class="md-nav__link">
+      <a href="../11-Batch/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    11 Policy Function Approximation
+    11 Batch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-Policy-Approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 Policy Function Approximation
   
 
     
@@ -1068,7 +1124,10 @@
 </li>
 </ul>
 <div class="arithmatex">\[
-\text{TD-target} = \text{sample} + \gamma \cdot \text{bootstrap}
+\begin{align}
+\text{TD-target} &amp; = \text{sample} + \gamma \cdot \text{bootstrap} \\
+&amp; = \text{immediate reward} + \gamma \cdot \text{future value}
+\end{align}
 \]</div>
 <hr />
 <h2 id="td-prediction-of-state-value">TD (Prediction of State Value)<a class="headerlink" href="#td-prediction-of-state-value" title="Permanent link">&para;</a></h2>
@@ -1083,7 +1142,7 @@
 <div class="arithmatex">\[
 \begin{align}
 V(s_t) 
-&amp;\gets V(s_t) + \alpha \big({{G_t^{(0)} - V(s_t))}} \\[2pt]
+&amp;\gets V(s_t) + \alpha \big({{G_t^{(1)} - V(s_t))}} \\[2pt]
 &amp;= V(s_t) + \alpha(R_{t+1} + \gamma V(s_{t+1}) - V(s_t))
 \end{align}
 \]</div>
@@ -1149,7 +1208,7 @@ V(S_t) \;\leftarrow\; V(S_t) + \alpha \big( G_t^{\lambda} - V(S_t) \big)
 </ul>
 </li>
 </ul>
-<h3 id="backward-view">Backward View<a class="headerlink" href="#backward-view" title="Permanent link">&para;</a></h3>
+<h4 id="backward-view">Backward View<a class="headerlink" href="#backward-view" title="Permanent link">&para;</a></h4>
 <ul>
 <li>
 <p>backward propagation</p>
@@ -1163,17 +1222,19 @@ V(S_t) \;\leftarrow\; V(S_t) + \alpha \big( G_t^{\lambda} - V(S_t) \big)
 <ul>
 <li>For each state s, at each time step:<ul>
 <li>reduction by <span class="arithmatex">\(\gamma \lambda\)</span></li>
-<li><span class="arithmatex">\(+1\)</span> if currently visiting
-$$
-\begin{align<em>}
-E_0(s) &amp; = 0 \[0pt]
+<li><span class="arithmatex">\(+1\)</span> if currently visiting</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="arithmatex">\[
+\begin{align}
+E_0(s) &amp; = 0 \\[0pt]
 E_t(s) &amp; = \gamma \lambda E_{t-1}(s) + \mathbf{1}(S_t = s)
-\end{align</em>}
-$$</li>
-</ul>
-</li>
-</ul>
-</li>
+\end{align}
+\]</div>
+<ol>
 <li>
 <p>Compute TD Error
     $$
@@ -1192,7 +1253,7 @@ $$
 \sum_{t=1}^T \alpha \, \delta_t \, E_t(s) = \sum_{t=1}^T \alpha (G_t^\lambda  - V(S_t)) \; \mathbf{1}(S_t = S)
 $$</p>
 </li>
-</ul>
+</ol>
 <hr />
 <h2 id="sarsa-prediction-of-action-value">Sarsa (Prediction of Action Value)<a class="headerlink" href="#sarsa-prediction-of-action-value" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1202,6 +1263,8 @@ $$</p>
 <div class="arithmatex">\[
 Q(s_t,a_t) \gets Q(s_t,a_t) + \alpha (R_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t,a_t))
 \]</div>
+<hr />
+<h3 id="sarsa">Sarsa<a class="headerlink" href="#sarsa" title="Permanent link">&para;</a></h3>
 <ul>
 <li>For each episode:<ul>
 <li>For each state:<ul>
@@ -1232,31 +1295,32 @@ $$</li>
 <div class="arithmatex">\[
 Q(S_t, A_t) \;\leftarrow\; Q(S_t, A_t)
   + \alpha \Big( q_t^{(n)} - Q(S_t, A_t) \Big)
-$$
----
-### Sarsa($\lambda$)
-- Sarsa version of TD($\lambda$)
-    $$
-    q_t^\lambda \;=\; (1 - \lambda) \sum_{n=1}^{\infty} \lambda^{n-1} q_t^{(n)}
-    \]</div>
+\]</div>
+<hr />
+<h3 id="sarsalambda">Sarsa(<span class="arithmatex">\(\lambda\)</span>)<a class="headerlink" href="#sarsalambda" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
+<p>Sarsa version of TD(<span class="arithmatex">\(\lambda\)</span>)
+$$
+q_t^\lambda \;=\; (1 - \lambda) \sum_{n=1}^{\infty} \lambda^{n-1} q_t^{(n)}
+$$</p>
+</li>
+<li>
 <p>Forward View:
-    $$
-    Q(S_t, A_t) \;\leftarrow\; Q(S_t, A_t)</p>
-<ul>
-<li>\alpha \Big( q_t^\lambda - Q(S_t, A_t) \Big)
-$$</li>
-</ul>
+$$
+Q(S_t, A_t) \;\leftarrow\; Q(S_t, A_t) + \alpha \Big( q_t^\lambda - Q(S_t, A_t) \Big)
+$$</p>
 </li>
 <li>
 <p>Backward View:
-    $$
-    \begin{align<em>}
-    E_0(s,a) &amp; = 0 \[0pt]
-    E_t(s,a) &amp; = \gamma \lambda E_{t-1}(s,a) + \mathbf{1}(S_t = s, A_t = a)
-    \end{align</em>}
-    $$</p>
+$$
+\begin{align<em>}
+E_0(s,a) &amp; = 0 \[0pt]
+E_t(s,a) &amp; = \gamma \lambda E_{t-1}(s,a) + \mathbf{1}(S_t = s, A_t = a)
+\end{align</em>}
+$$</p>
+</li>
+</ul>
 <div class="arithmatex">\[
 \delta_t = R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t)
 \]</div>
@@ -1266,32 +1330,39 @@ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
 <hr />
 <h2 id="q-learning-off-policy-control">Q-Learning (Off-Policy Control)<a class="headerlink" href="#q-learning-off-policy-control" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Off-policy</strong>: Distinguish Target Policy from Behaviour Policy</li>
+<li><strong>Off-policy</strong>: Distinguish Target Policy from Behaviour Policy<ul>
 <li>✅Take use of experience from other policies</li>
-</ul>
-<h3 id="on-policy-vs-off-policy">On-policy vs. Off-policy<a class="headerlink" href="#on-policy-vs-off-policy" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Sarsa:</li>
-<li>Target: <span class="arithmatex">\(\vec{v} = r_{t+1} + \gamma q_t(s_{t+1}, a_{t+1})\)</span></li>
-<li>Behaviour: how generate <span class="arithmatex">\(a_{t+1}\)</span> from <span class="arithmatex">\(s_{t+1}\)</span></li>
-<li>Target Policy = Behaviour Policy = <span class="arithmatex">\(\pi_t\)</span></li>
-<li>Q-Learning</li>
-<li>Target: <span class="arithmatex">\(\vec{v} = r_{t+1} + \gamma \max_{a \in \mathcal{A}} q_t(s_{t+1}, a)\)</span></li>
-<li>Behaviour: how generate <span class="arithmatex">\(a_t\)</span> from <span class="arithmatex">\(s_t\)</span></li>
-<li>Target Policy = Optimal (State-action-value) Policy</li>
-<li>Behaviour Policy = Any policy</li>
 </ul>
 </li>
 </ul>
-<h3 id="process-of-q-learning">Process of Q-Learning<a class="headerlink" href="#process-of-q-learning" title="Permanent link">&para;</a></h3>
+<h3 id="on-policy-vs-off-policy">On-policy vs. Off-policy<a class="headerlink" href="#on-policy-vs-off-policy" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Sarsa:<ul>
+<li>Target: <span class="arithmatex">\(\vec{v} = r_{t+1} + \gamma q_t(s_{t+1}, a_{t+1})\)</span></li>
+<li>Behaviour: Generate <span class="arithmatex">\(a_{t+1}\)</span> from <span class="arithmatex">\(\pi_t(s_{t+1})\)</span></li>
+<li>Target Policy = Behaviour Policy = <span class="arithmatex">\(\pi_t\)</span></li>
+</ul>
+</li>
+<li>Q-Learning<ul>
+<li>Target: <span class="arithmatex">\(\vec{v} = r_{t+1} + \gamma \max_{a \in \mathcal{A}} q_t(s_{t+1}, a)\)</span></li>
+<li>Behaviour: Generate <span class="arithmatex">\(a_t\)</span> from <span class="arithmatex">\(\pi_b(s_t)\)</span></li>
+<li>Target Policy = Optimal (State-action-value) Policy</li>
+<li>Behaviour Policy = Any policies</li>
+</ul>
+</li>
+</ul>
+<h3 id="q-learning">Q-Learning<a class="headerlink" href="#q-learning" title="Permanent link">&para;</a></h3>
 <ul>
 <li>For each episode generated by <span class="arithmatex">\(\pi_b\)</span>:<ul>
 <li>For each time step:<ul>
 <li>Update q-value<ul>
-<li><span class="arithmatex">\(q_{t+1}(s_t, a_t) \gets q_t(s_t, a_t) + \alpha \bigl[  \left[r_{t+1} + \gamma \max_{a \in \mathcal{A}} q_t(s_{t+1}, a)\right] - q_t(s_t, a_t) \bigr]\)</span></li>
+<li><span class="arithmatex">\(q_{t+1}(s_t, a_t) \gets q_t(s_t, a_t) + \alpha \bigl(  \vec v - q_t(s_t, a_t) \bigr)\)</span></li>
 </ul>
 </li>
-<li>Update target policy</li>
+<li>Update target policy<ul>
+<li><span class="arithmatex">\(a = \arg\max_a q_{t+1} (s_t, a)\)</span></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1372,7 +1443,6 @@ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
 <th>MC New Predicated Time</th>
 <th>TD(0) Update - <span class="arithmatex">\(\gamma = 1, \alpha = 0.5\)</span></th>
 <th>TD New Predicated Time</th>
-<th></th>
 </tr>
 </thead>
 <tbody>
@@ -1385,7 +1455,6 @@ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
 <td>43-0=43</td>
 <td>30+0.5(5+35-30)=35</td>
 <td>35-0=35</td>
-<td></td>
 </tr>
 <tr>
 <td>reach car, raining</td>
@@ -1396,7 +1465,6 @@ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
 <td>43-5=38</td>
 <td>40+0.5(20+15-40)=37.5</td>
 <td>37.5-5=32.5</td>
-<td></td>
 </tr>
 <tr>
 <td>exit highway</td>
@@ -1407,7 +1475,6 @@ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
 <td>43-20=23</td>
 <td>35+0.5(30+10-35)=37.5</td>
 <td>37.5-20=17.5</td>
-<td></td>
 </tr>
 <tr>
 <td>behind truck</td>
@@ -1418,7 +1485,6 @@ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
 <td>43-30=13</td>
 <td>40+0.5(40+3-40)=41.5</td>
 <td>41.5-30=11.5</td>
-<td></td>
 </tr>
 <tr>
 <td>home street</td>
@@ -1429,7 +1495,6 @@ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
 <td>43-40=3</td>
 <td>43+0.5(43+0-43)=43</td>
 <td>43-40=3</td>
-<td></td>
 </tr>
 <tr>
 <td>arrive home</td>
@@ -1440,51 +1505,9 @@ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
 <td>43-43=0</td>
 <td>43</td>
 <td>43-43=0</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>##### Example - BATCH</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li>2-states: <span class="arithmatex">\(A\)</span>, <span class="arithmatex">\(B\)</span></li>
-<li>Reward Signal = <span class="arithmatex">\(\{0, 1\}\)</span></li>
-<li>Sampled Episodes:<ul>
-<li><span class="arithmatex">\(A \to 0\)</span>, <span class="arithmatex">\(B \to 0\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 0\)</span></li>
-</ul>
-</li>
-<li>MC Update:<ul>
-<li><span class="arithmatex">\(V(B) = 6/8 = 0.75\)</span></li>
-<li><span class="arithmatex">\(V(A) = 0 / 1 = 0\)</span></li>
-</ul>
-</li>
-<li>TD(0) Update:<ul>
-<li><span class="arithmatex">\(V(B) \to0.75\)</span></li>
-<li><span class="arithmatex">\(V(A) \to V(B) \to 0.75\)</span></li>
-</ul>
-</li>
-</ul>
-<hr />
 
 
 

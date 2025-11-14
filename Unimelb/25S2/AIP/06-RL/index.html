@@ -923,10 +923,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#explicit-policy" class="md-nav__link">
+  <a href="#on-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Explicit Policy
+        On-policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#off-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Off-policy
       
     </span>
   </a>
@@ -945,21 +956,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#on-policy" class="md-nav__link">
+  <a href="#explicit-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        On-policy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#off-policy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Off-policy
+        Explicit Policy
       
     </span>
   </a>
@@ -1126,14 +1126,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-Policy-Approx/" class="md-nav__link">
+      <a href="../11-Batch/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    11 Policy Function Approximation
+    11 Batch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-Policy-Approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 Policy Function Approximation
   
 
     
@@ -1420,28 +1448,27 @@
 </ul>
 </li>
 <li>
-<p>State-value Function (Deriving BEE)
-    $$
-    \begin{aligned}
-    v_\pi(s)
-    &amp;= \mathbb{E}!\left[r + \gamma v_\pi(s')\right] \[6pt]
-    &amp;= \sum_a \pi(a\mid s)\Bigl[\sum_r p(r\mid s,a)\,r</p>
-<ul>
-<li>\gamma \sum_{s'} p(s'\mid s,a) \, v_\pi(s')\Bigr]
-\end{aligned}
-$$</li>
+<p>State-value Function (Deriving BEE)</p>
+</li>
 </ul>
-</li>
-<li>
-<p>State-action-value Function (Deriving BEE)
-    $$
-    \begin{aligned}
-    q_\pi(s,a)
-    &amp;= \mathbb{E}!\left[\, r + \gamma\, \mathbb{E}<em>{a'\sim\pi(\cdot\mid s')} \bigl[q</em>\pi(s',a')\bigr] \right] \[6pt]
-    &amp;= \sum_{s',r} p(s',r\mid s,a)\left[ r + \gamma \sum_{a'} \pi(a'\mid s')\, q_\pi(s',a') \right]
-    \end{aligned}
-    $$</p>
-</li>
+<div class="arithmatex">\[
+\begin{aligned}
+v_\pi(s)
+&amp;= \mathbb{E}\!\left[r + \gamma v_\pi(s')\right] \\[6pt]
+&amp;= \sum_a \pi(a\mid s)\Bigl[\sum_r p(r\mid s,a)\,r + \gamma \sum_{s'} p(s'\mid s,a) \, v_\pi(s')\Bigr]
+\end{aligned}
+\]</div>
+<ul>
+<li>State-action-value Function (Deriving BEE)</li>
+</ul>
+<div class="arithmatex">\[
+\begin{aligned}
+q_\pi(s,a)
+&amp;= \mathbb{E}\!\left[\, r + \gamma\, \mathbb{E}_{a'\sim\pi(\cdot\mid s')} \bigl[q_\pi(s',a')\bigr] \right] \\[6pt]
+&amp;= \sum_{s',r} p(s',r\mid s,a)\left[ r + \gamma \sum_{a'} \pi(a'\mid s')\, q_\pi(s',a') \right]
+\end{aligned}
+\]</div>
+<ul>
 <li>
 <p>Solving the BEE</p>
 <ul>
@@ -1533,20 +1560,6 @@ $$</p>
 <p>Ability of exploration; Robustness✅</p>
 </li>
 </ul>
-<h4 id="explicit-policy">Explicit Policy<a class="headerlink" href="#explicit-policy" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Construct a model of <span class="arithmatex">\(\pi\)</span> and optimise its parameters <span class="arithmatex">\(\theta\)</span>.
-$$
-\pi(a\mid s) = f(Q; \theta)
-$$</li>
-</ul>
-<h4 id="implicit-policy">Implicit Policy<a class="headerlink" href="#implicit-policy" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Optimise <span class="arithmatex">\(Q\)</span>, <span class="arithmatex">\(V\)</span> directly
-$$
-\pi(a\mid s) = f(Q)
-$$</li>
-</ul>
 <h4 id="on-policy">On-policy<a class="headerlink" href="#on-policy" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Behaviour policy = Target policy</li>
@@ -1555,11 +1568,23 @@ $$</li>
 <ul>
 <li>Behaviour policy ≠ Target policy</li>
 </ul>
+<h4 id="implicit-policy">Implicit Policy<a class="headerlink" href="#implicit-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Optimise <span class="arithmatex">\(Q\)</span>, <span class="arithmatex">\(V\)</span> directly
+$$
+\pi(a\mid s) = \arg\max_a f(Q)
+$$</li>
+</ul>
+<h4 id="explicit-policy">Explicit Policy<a class="headerlink" href="#explicit-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Construct a model of <span class="arithmatex">\(\pi\)</span> and optimise its parameters <span class="arithmatex">\(w\)</span>.
+$$
+\pi(a\mid s) = f(Q; w)
+$$</li>
+</ul>
 <h4 id="soft-policy">Soft Policy<a class="headerlink" href="#soft-policy" title="Permanent link">&para;</a></h4>
 <ul>
-<li>Balance Exploration &amp; Exploitation</li>
-<li><strong>Exploitation</strong> - select currently-known best action</li>
-<li><strong>Exploration</strong> - try a new action</li>
+<li>✅Balance Exploration &amp; Exploitation</li>
 <li>
 <p>ε-greedy </p>
 <ul>
@@ -1618,12 +1643,15 @@ $$</li>
 </ul>
 </li>
 <li><strong>Function representation</strong><ul>
-<li>Function Approximation<ul>
-<li>Value Func Approx</li>
-<li>Policy Gradient</li>
+<li><strong>Value-based</strong><ul>
+<li>Value Function Approximation</li>
 </ul>
 </li>
+<li><strong>Policy-based</strong><ul>
+<li>Policy Gradient</li>
 <li>Actor-Critic Methods</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
