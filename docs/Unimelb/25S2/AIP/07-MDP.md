@@ -1,7 +1,8 @@
-# 07. Model-based Reinforced Learning
-
+# 7 Markov Decision Process
+---
 ## Markov Decision Process (MDP)
-- General Simulator of the environment for Model-based RL
+- MDP - General Simulator of the environment for Model-based RL
+- Model-based Learning + Optimal Policy
 
 ---
 ### Markov process
@@ -39,10 +40,8 @@
 	- $R(s) = \mathbb{E}[R' \mid s]$
 
 ---
-## Optimal Policy
-- Give a policy based on value function
-	- = Find an action with $maximum$ state-action-value
-	- = Optimise the Value Function
+## Greedy Optimal Policy
+- Give a policy based on the action which has $maximum$ state-action-value
 - Optimal State-value Function
 	$$
 	V^\ast(s) = \max_\pi V_\pi(s)
@@ -84,5 +83,21 @@
 	- No closed form solution
 	- Value Iteration
 	- Policy Iteration
-	- Q-learning
 	- SARSA
+	- Q-learning
+
+---
+### Example - MAZE
+![Maze](assets/6_1_maze.png)
+
+MDP Model of MAZE:
+- $S$ - Agent's possible locations
+- $A$ - Step directions $\mathtt{N, E, S, W}$
+- $P$ - Map $s, a \to s'$
+- $R$ - $-1$ per time-step (encourage short-path solution)
+
+Agent of MAZE:
+- $V(s)$ - the expected return of following the policy from each $s$ 
+	- closer to $g$ - $V(s)$ ⤴
+	- Farther away - $V(S)$ ⤵
+- $\pi(s)$ - Optimal Policy = Best $V(s')$

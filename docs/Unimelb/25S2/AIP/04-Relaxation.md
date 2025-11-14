@@ -1,4 +1,4 @@
-# 04. Relaxation
+# 4 Relaxation
 ---
 ## Relaxation 
 - A method to compute heuristic functions $h(n)$
