@@ -1,82 +1,64 @@
 /* ============================================================
-   Desktop Layout: Wider Sidebar + Full-Width Content
-   Mobile Layout: Preserve default Material behavior
+   Custom Layout for MkDocs Material
+   - Wider left sidebar on desktop
+   - Wider nav list inside sidebar
+   - Full-width content area on desktop
+   - Preserve mobile drawer layout
    ============================================================ */
 
+
 /* ------------------------------------------------------------
-   1. Desktop — Left Sidebar Width
+   Desktop: widen left sidebar + nav list
    ------------------------------------------------------------ */
 @media (min-width: 769px) {
 
-  /* 调整左侧 Sidebar 宽度 */
+  /* Outer left sidebar width */
   .md-sidebar--primary {
-    width: 340px !important;        /* ← 你想要多宽就改这里 */
+    width: 340px !important;      /* ← change this value if needed */
     max-width: 340px !important;
   }
 
-  /* 左侧导航内部最大宽度 */
-  .md-nav--primary.md-nav--integrated,
-  .md-nav--primary .md-nav__list,
-  .md-nav--primary .md-nav__item,
-  .md-nav--primary .md-nav__link {
+  /* Inner navigation container */
+  .md-nav--primary,
+  .md-nav--primary.md-nav--integrated {
+    width: 340px !important;
     max-width: 340px !important;
-    white-space: normal !important;
-    overflow-wrap: break-word;
+  }
+
+  /* Navigation list width (critical) */
+  .md-nav--primary .md-nav__list {
+    width: 340px !important;
+    max-width: 340px !important;
+  }
+
+  /* List items width */
+  .md-nav--primary .md-nav__item {
+    width: 340px !important;
+    max-width: 340px !important;
+  }
+
+  /* Navigation links width */
+  .md-nav--primary .md-nav__link {
+    width: 340px !important;
+    max-width: 340px !important;
+    white-space: normal !important;     /* allow wrapping */
+    overflow-wrap: break-word;          /* prevent overflow */
   }
 }
 
 /* ------------------------------------------------------------
-   2. Desktop — Full-width Content Area
+   Desktop: full-width content area
    ------------------------------------------------------------ */
 @media (min-width: 769px) {
 
-  /* 主内容区域占满宽度 */
+  /* Expand main content container */
   .md-main__inner,
   .md-content,
   .md-content__inner {
     max-width: 100% !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 0 2rem !important;   /* ← 内容左右内边距，别太贴边 */
+    padding: 0 2rem !important;   /* adjust left/right padding */
   }
 }
 
-/* ------------------------------------------------------------
-   3. Desktop — Right TOC Width（可选）
-   若你需要调宽目录（右栏），就开启下面代码
-   ------------------------------------------------------------ */
-
-/*
-@media (min-width: 769px) {
-  .md-sidebar--secondary {
-    width: 320px !important;
-    max-width: 320px !important;
-  }
-
-  .md-nav--secondary .md-nav__list,
-  .md-nav--secondary .md-nav__item,
-  .md-nav--secondary .md-nav__link {
-    max-width: 320px !important;
-    white-space: normal !important;
-    overflow-wrap: break-word;
-  }
-}
-*/
-
-/* ------------------------------------------------------------
-   4. Mobile — Do NOT modify sidebar (保持默认 Drawer)
-   ------------------------------------------------------------ */
-@media (max-width: 768px) {
-
-  /* 恢复默认，绝对不能隐藏或覆盖 */
-  .md-sidebar--primary,
-  .md-sidebar--secondary {
-    display: initial !important;
-    width: initial !important;
-    max-width: initial !important;
-  }
-
-  .md-main__inner {
-    padding: 0 1rem !important;  /* 手机保持舒适边距 */
-  }
-}
