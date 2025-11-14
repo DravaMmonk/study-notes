@@ -64,20 +64,6 @@
    ------------------------------------------------------------ */
 @media (max-width: 768px) {
 
-  /* Hide LEFT sidebar fully */
-  .md-sidebar--primary {
-    display: none !important;
-    width: 0 !important;
-    max-width: 0 !important;
-  }
-
-  /* Hide RIGHT TOC fully */
-  .md-sidebar--secondary {
-    display: none !important;
-    width: 0 !important;
-    max-width: 0 !important;
-  }
-
   /* Main content should fill the screen */
   .md-main__inner {
     margin-left: 0 !important;
