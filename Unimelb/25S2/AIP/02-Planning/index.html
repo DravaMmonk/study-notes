@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../2-Planning/">
+        <link rel="prev" href="../01-Search/">
       
       
-        <link rel="next" href="../4-Relaxation/">
+        <link rel="next" href="../03-Complexity/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>03. Complexity - Drava's Study Notes</title>
+        <title>2 Planning - Drava's Study Notes</title>
       
     
     
@@ -48,6 +48,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#03-complexity" class="md-skip">
+        <a href="#2-planning" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              03. Complexity
+              2 Planning
             
           </span>
         </div>
@@ -242,7 +244,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../1-Search/" class="md-tabs__link">
+        <a href="../01-Search/" class="md-tabs__link">
           
   
   
@@ -497,42 +499,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../1-Search/" class="md-nav__link">
+      <a href="../01-Search/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    01. Search
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../2-Planning/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    02. Planning
+    1 Search
   
 
     
@@ -569,7 +543,7 @@
   <span class="md-ellipsis">
     
   
-    03. Complexity
+    2 Planning
   
 
     
@@ -587,7 +561,7 @@
   <span class="md-ellipsis">
     
   
-    03. Complexity
+    2 Planning
   
 
     
@@ -613,44 +587,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#savitchs-theorem" class="md-nav__link">
+  <a href="#problem-solving" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Savitch’s Theorem
+        Problem Solving
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#goals-definition" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Goals Definition
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#strips-planning-problem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        STRIPS planning problem
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="STRIPS planning problem">
+    <nav class="md-nav" aria-label="Problem Solving">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#strips-stanford-research-institute-problem-solver" class="md-nav__link">
+  <a href="#autonomous-behaviour-in-ai" class="md-nav__link">
     <span class="md-ellipsis">
       
-        STRIPS = STanford Research Institute Problem Solver
+        Autonomous Behaviour in AI
       
     </span>
   </a>
@@ -658,44 +610,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#components" class="md-nav__link">
+  <a href="#3-level-solver-ambitions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Components
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#action" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Action
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#result-of-applying-actions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Result of applying actions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#goal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Goal
+        3-level Solver Ambitions
       
     </span>
   </a>
@@ -706,12 +624,107 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#properties" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#solving-approaches" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Properties
+        Solving Approaches
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Solving Approaches">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#programming-based-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Programming-Based Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#learning-based-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning-Based Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-based-approach-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model-Based Approach (Planning)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#planning-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planning Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Planning Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classical-planning-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classical Planning Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conformant-planning-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conformant Planning Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markov-decision-processes-mdps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov Decision Processes (MDPs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#partially-observable-mdps-pomdps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partially Observable MDPs (POMDPs)
       
     </span>
   </a>
@@ -739,14 +752,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../4-Relaxation/" class="md-nav__link">
+      <a href="../03-Complexity/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    04. Relaxation
+    3 Complexity
   
 
     
@@ -767,14 +780,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../5-Exploration/" class="md-nav__link">
+      <a href="../04-Relaxation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    05. Exploration
+    4 Relaxation
   
 
     
@@ -795,14 +808,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../6-Reinforced-Learning/" class="md-nav__link">
+      <a href="../05-Exploration/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    06. Reinforced Learning
+    5 Exploration
   
 
     
@@ -823,14 +836,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../7-Model-based/" class="md-nav__link">
+      <a href="../06-RL/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    07. Model-based Reinforced Learning
+    6 Reinforced Learning
   
 
     
@@ -851,14 +864,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../8-Model-free/" class="md-nav__link">
+      <a href="../07-MDP/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    08. Model-free Reinforced Learning
+    7 Markov Decision Process
   
 
     
@@ -879,14 +892,98 @@
   
   
     <li class="md-nav__item">
-      <a href="../9-Function-Approx/" class="md-nav__link">
+      <a href="../08-MC/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    09. Function Approximation
+    8 Monte Carlo Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-TD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 Temporal Difference Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-Value-Approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 Value Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-Policy-Approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 Policy Function Approximation
   
 
     
@@ -940,94 +1037,178 @@
 
 
 
-<h1 id="03-complexity">03. Complexity<a class="headerlink" href="#03-complexity" title="Permanent link">&para;</a></h1>
+<h1 id="2-planning">2 Planning<a class="headerlink" href="#2-planning" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="savitchs-theorem">Savitch’s Theorem<a class="headerlink" href="#savitchs-theorem" title="Permanent link">&para;</a></h2>
+<h2 id="problem-solving">Problem Solving<a class="headerlink" href="#problem-solving" title="Permanent link">&para;</a></h2>
+<h3 id="autonomous-behaviour-in-ai">Autonomous Behaviour in AI<a class="headerlink" href="#autonomous-behaviour-in-ai" title="Permanent link">&para;</a></h3>
 <ul>
-<li>NPSPACE = PSPACE<ul>
-<li>Non-determinism won't make solvers more powerful.</li>
+<li>Programming-based</li>
+<li>Learning-Based</li>
+<li>Model-Based</li>
+<li>Approaches not orthogonal</li>
+<li>Different models yield different types of <strong>controllers</strong> 执行动作的策略模块</li>
 </ul>
-</li>
-<li>PSPACE-complete<ul>
-<li>The problem is at least hard as <strong>any</strong> Polynomial time problem</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="goals-definition">Goals Definition<a class="headerlink" href="#goals-definition" title="Permanent link">&para;</a></h2>
+<h3 id="3-level-solver-ambitions">3-level Solver Ambitions<a class="headerlink" href="#3-level-solver-ambitions" title="Permanent link">&para;</a></h3>
 <ul>
-<li>To make a <strong>Satisficing</strong> planning:<ul>
-<li><span class="arithmatex">\(\mathrm{PlanEx}(P) =\)</span> <code>TRUE</code> - Existence of a plan for problem <span class="arithmatex">\(P\)</span>.</li>
-</ul>
-</li>
-<li>To make a <strong>Optimal</strong> planning:<ul>
-<li><strong><span class="arithmatex">\(\mathrm{PlanLen}(P) \le B\)</span></strong>  - Existence of a plan which length is at most <span class="arithmatex">\(B\)</span>.</li>
-</ul>
-</li>
-<li><span class="arithmatex">\(\mathrm{PlanEx}\)</span> and <span class="arithmatex">\(\mathrm{PlanLen}\)</span> is <em>PSPACE-complete</em><ul>
-<li><em>In practice, optimal planning is almost never easy</em></li>
+<li><strong>Ambition</strong>: Write one program to solve all classical search problems<ul>
+<li><strong>Ambition 1.0</strong> (Problem Solving) Write one program to solve a problem</li>
+<li><strong>Ambition 2.0</strong> (Problem Generation) Write one program to solve a large class of problems</li>
+<li><strong>Ambition 3.0</strong> (Meta Problem Solving) Write one program to solve a large class of problems <strong>effectively</strong></li>
 </ul>
 </li>
 </ul>
 <hr />
-<h2 id="strips-planning-problem">STRIPS planning problem<a class="headerlink" href="#strips-planning-problem" title="Permanent link">&para;</a></h2>
-<h3 id="strips-stanford-research-institute-problem-solver"><em>STRIPS</em> = STanford Research Institute Problem Solver<a class="headerlink" href="#strips-stanford-research-institute-problem-solver" title="Permanent link">&para;</a></h3>
+<h2 id="solving-approaches">Solving Approaches<a class="headerlink" href="#solving-approaches" title="Permanent link">&para;</a></h2>
+<h3 id="programming-based-approach">Programming-Based Approach<a class="headerlink" href="#programming-based-approach" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Design Goals:<ul>
-<li><strong>Specification</strong> - concise model description</li>
-<li><strong>Computation</strong> - reveal useful information/structure for heuristics</li>
+<li><strong>Pro</strong>: Domain-knowledge easy to express</li>
+<li><strong>Con</strong>: Less Flexible (Can’t deal with situations not anticipated by programmer)</li>
 </ul>
-</li>
+<h3 id="learning-based-approach">Learning-Based Approach<a class="headerlink" href="#learning-based-approach" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Unsupervised/Reinforced Learning: Use reward &amp; penalise</li>
+<li>Supervised: Use labelled data</li>
+<li>Evolutionary: Use original controllers to mutate and recombine to build better controller</li>
+<li><strong>Pros</strong> Dose not require much knowledge in principle </li>
+<li><strong>Cons</strong> Slower; Hard to know which features to learn </li>
+</ul>
+<h3 id="model-based-approach-planning">Model-Based Approach (Planning)<a class="headerlink" href="#model-based-approach-planning" title="Permanent link">&para;</a></h3>
+<ul>
+<li>One model for one specific problem
+<img alt="Planning Process" src="../assets/3_1_planning_process.png" /></li>
+<li><strong>Pros</strong> Powerful; Quick; Flexible; Clear; Intelligent; Domain-independent</li>
+<li><strong>Cons</strong> Need a model (sometimes very hard); Efficiency loss</li>
+<li>Always need trade-off between “Automatic and general” vs. “Manual work but effective”</li>
 </ul>
 <hr />
-<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
+<h2 id="planning-models">Planning Models<a class="headerlink" href="#planning-models" title="Permanent link">&para;</a></h2>
+<h3 id="classical-planning-model">Classical Planning Model<a class="headerlink" href="#classical-planning-model" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Classical Planning Model = Basic State Model</li>
+<li>
+<p>Assumptions</p>
+<ul>
+<li>Deterministic</li>
+<li>Fully Observable</li>
+<li>Static World</li>
+<li>Discrete Time &amp; Finite Actions</li>
+<li>Uniform Cost</li>
+</ul>
+</li>
+<li>
+<p>Components </p>
 <div class="arithmatex">\[
-P = \langle P,A,I,G \rangle
+M = \langle S, A, T, I, G \rangle
 \]</div>
 <ul>
-<li><span class="arithmatex">\(P\)</span> - All Possible Predicates</li>
-<li><span class="arithmatex">\(A\)</span> - Actions</li>
-<li><span class="arithmatex">\(I\)</span> - Initial States: Predicates initially to be <code>TRUE</code></li>
-<li><span class="arithmatex">\(G\)</span> - Goal Conditions: Predicates Finally need to be <code>TRUE</code></li>
+<li><span class="arithmatex">\(S\)</span> - State spaces </li>
+<li><span class="arithmatex">\(A(s)\)</span> - Actions applicable for <span class="arithmatex">\(s \in S\)</span></li>
+<li><span class="arithmatex">\(T\)</span> - Deterministic Transition Function: <span class="arithmatex">\(s’ = T(A(s), s)\)</span> shows one successor <span class="arithmatex">\(s’\)</span> of <span class="arithmatex">\(s\)</span></li>
+<li><span class="arithmatex">\(I\)</span> - Initial state</li>
+<li><span class="arithmatex">\(G\)</span> - Goal states</li>
+<li>Uniform action costs <span class="arithmatex">\(c(A(s), s) = 1\)</span></li>
 </ul>
-<h4 id="action">Action<a class="headerlink" href="#action" title="Permanent link">&para;</a></h4>
+</li>
+<li>
+<p>Outcomes</p>
+<ul>
+<li>A seq of actions map <span class="arithmatex">\(s_0\)</span> into <span class="arithmatex">\(g\)</span></li>
+<li><strong>Optimal</strong> if total cost to goal is minimum</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="conformant-planning-model">Conformant Planning Model<a class="headerlink" href="#conformant-planning-model" title="Permanent link">&para;</a></h3>
+<ul>
+<li><span class="arithmatex">\(\approx\)</span> Brute Force</li>
+<li>Components (<em>Diff with classic</em>)<ul>
+<li>Initial State → A set of possible initial states</li>
+<li>Deterministic Transition Function → <strong>Non</strong>-deterministic</li>
+</ul>
+</li>
+<li>Outcomes<ul>
+<li><strong>No Observation</strong> - No new info; must pre-planning</li>
+<li><strong>Goal Guarantee</strong></li>
+<li><strong>Rarely optimal</strong><ul>
+<li>Must map any possible <span class="arithmatex">\(s_0\)</span> to <span class="arithmatex">\(g\)</span>, too much unnecessary work</li>
+<li>Sensitive to Worst/Special case </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="markov-decision-processes-mdps">Markov Decision Processes (MDPs)<a class="headerlink" href="#markov-decision-processes-mdps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Assumption</p>
+<ul>
+<li>
+<p>Markov Property: the next state only depends on the current state and actions.</p>
 <div class="arithmatex">\[
-a \in A, a = \langle Pre(a), Add(a), Del(a) \rangle
+P(s_{t+1} \mid s_t,a_t,s_{t-1},a_{t-1},\ldots) = P(s_{t+1} \mid s_t,a_t) 
 \]</div>
-<ul>
-<li><span class="arithmatex">\(Pre(a)\)</span> - Preconditions need to be <code>TRUE</code> before executing the action</li>
-<li><span class="arithmatex">\(Add(a)\)</span> - Add Effects: Preconditions set to be<code>TRUE</code> after execution</li>
-<li><span class="arithmatex">\(Del(a)\)</span> - Delete Effects: Preconditions set to be <code>FALSE</code> after execution</li>
+</li>
+<li>
+<p>Fully Observable</p>
+</li>
+<li>Discrete Time &amp; Finite Actions</li>
+<li>Fixed Transition Probabilities</li>
 </ul>
-<h4 id="result-of-applying-actions">Result of applying actions<a class="headerlink" href="#result-of-applying-actions" title="Permanent link">&para;</a></h4>
-<div class="arithmatex">\[
-Result(s, a) = (s - Del(a)) \cup Add(a)
-\]</div>
-<ul>
-<li><em>which could also be seemed as a transition function</em></li>
-</ul>
-<h4 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Find a list of actions <span class="arithmatex">\([a_1,a_2,a_3,\ldots]\)</span> which satisfies:
+</li>
+<li>
+<p>Components <em>(Diff with conformant)</em>
     $$
-    Result(Result(\ldots Result(I,a_1​) \ldots ,a_n−1​),a_n​) \models G
+    M = \langle S,A,T,R,\gamma \rangle
+    $$</p>
+<ul>
+<li>Introduce the <strong>Transition Probability Function</strong>:
+    $$
+    T(s, a, s') = P(s' \mid s, a)
     $$</li>
+<li>Introduce <strong>Reward Function</strong> <span class="arithmatex">\(R\)</span> and <strong>Discount Factor</strong> <span class="arithmatex">\(\gamma\)</span>:<ul>
+<li>For estimating the <strong>value</strong> of each state</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Outcomes</p>
+<ul>
+<li>Map states to <strong>actions</strong></li>
+<li><strong>Optimal</strong> if total <strong>expected</strong> cost to goal is <span class="arithmatex">\(minimum\)</span></li>
+</ul>
+</li>
 </ul>
 <hr />
-<h3 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h3>
+<h3 id="partially-observable-mdps-pomdps">Partially Observable MDPs (POMDPs)<a class="headerlink" href="#partially-observable-mdps-pomdps" title="Permanent link">&para;</a></h3>
 <ul>
-<li>It turns a "solving" problem into a "search" problem</li>
-<li>Still <em>PSPACE-complete</em>, but "approximation" is able to be applied<ul>
-<li>Explicit Search 显式搜索<ul>
-<li>e.g. Blind/Heuristic search</li>
-<li>Not effective</li>
+<li>
+<p>Assumption</p>
+<ul>
+<li>Markov Property</li>
+<li><strong>Limited</strong> Observable</li>
 </ul>
 </li>
-<li>Near Decomposition 近似分解<ul>
-<li>e.g. Relaxation: similar to Decrease/Divide &amp; Conquer</li>
-<li>Maybe fail</li>
+<li>
+<p>Components <em>(Diff with MDPs)</em></p>
+<ul>
+<li>
+<p>Introduce <strong>Sensor Model</strong> (based on <strong>Probability Distribution</strong>)</p>
+<div class="arithmatex">\[
+\mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
+\]</div>
+</li>
+<li>
+<p>Initial/Goal States → Belief States <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> and <span class="arithmatex">\(\mathrm{b}(g)\)</span></p>
+</li>
 </ul>
 </li>
+<li>
+<p>Outcomes</p>
+<ul>
+<li>Map belief states into actions</li>
+<li><strong>Optimal</strong> if total expected cost from <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> to <span class="arithmatex">\(\mathrm{b}(g)\)</span> is minimum</li>
 </ul>
 </li>
 </ul>

@@ -9,8 +9,10 @@
       
       
       
-        <link rel="prev" href="../8-Model-free/">
+        <link rel="prev" href="../06-RL/">
       
+      
+        <link rel="next" href="../08-MC/">
       
       
         
@@ -21,7 +23,7 @@
     
     
       
-        <title>09. Function Approximation - Drava's Study Notes</title>
+        <title>7 Markov Decision Process - Drava's Study Notes</title>
       
     
     
@@ -46,6 +48,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -72,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#09-function-approximation" class="md-skip">
+        <a href="#7-markov-decision-process" class="md-skip">
           Skip to content
         </a>
       
@@ -106,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              09. Function Approximation
+              7 Markov Decision Process
             
           </span>
         </div>
@@ -240,7 +244,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../1-Search/" class="md-tabs__link">
+        <a href="../01-Search/" class="md-tabs__link">
           
   
   
@@ -495,14 +499,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../1-Search/" class="md-nav__link">
+      <a href="../01-Search/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    01. Search
+    1 Search
   
 
     
@@ -523,14 +527,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../2-Planning/" class="md-nav__link">
+      <a href="../02-Planning/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    02. Planning
+    2 Planning
   
 
     
@@ -551,14 +555,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../3-Complexity/" class="md-nav__link">
+      <a href="../03-Complexity/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    03. Complexity
+    3 Complexity
   
 
     
@@ -579,14 +583,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../4-Relaxation/" class="md-nav__link">
+      <a href="../04-Relaxation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    04. Relaxation
+    4 Relaxation
   
 
     
@@ -607,14 +611,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../5-Exploration/" class="md-nav__link">
+      <a href="../05-Exploration/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    05. Exploration
+    5 Exploration
   
 
     
@@ -635,70 +639,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../6-Reinforced-Learning/" class="md-nav__link">
+      <a href="../06-RL/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    06. Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../7-Model-based/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    07. Model-based Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../8-Model-free/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    08. Model-free Reinforced Learning
+    6 Reinforced Learning
   
 
     
@@ -735,7 +683,7 @@
   <span class="md-ellipsis">
     
   
-    09. Function Approximation
+    7 Markov Decision Process
   
 
     
@@ -753,7 +701,7 @@
   <span class="md-ellipsis">
     
   
-    09. Function Approximation
+    7 Markov Decision Process
   
 
     
@@ -779,22 +727,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#policy-function-approximation" class="md-nav__link">
+  <a href="#markov-decision-process-mdp" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Policy Function Approximation
+        Markov Decision Process (MDP)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Policy Function Approximation">
+    <nav class="md-nav" aria-label="Markov Decision Process (MDP)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#policy-gradient" class="md-nav__link">
+  <a href="#markov-process" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Policy Gradient
+        Markov process
       
     </span>
   </a>
@@ -802,10 +750,60 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#balance-exploration-exploitation" class="md-nav__link">
+  <a href="#markov-reward-processes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Balance Exploration &amp; Exploitation
+        Markov Reward Processes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markov-decision-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov Decision Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#greedy-optimal-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Greedy Optimal Policy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Greedy Optimal Policy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bellman-optimality-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bellman Optimality Equation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-maze" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example - MAZE
       
     </span>
   </a>
@@ -821,6 +819,118 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-MC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 Monte Carlo Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-TD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 Temporal Difference Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-Value-Approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 Value Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-Policy-Approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 Policy Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -866,73 +976,134 @@
 
 
 
-<h1 id="09-function-approximation">09. Function Approximation<a class="headerlink" href="#09-function-approximation" title="Permanent link">&para;</a></h1>
-<h2 id="policy-function-approximation">Policy Function Approximation<a class="headerlink" href="#policy-function-approximation" title="Permanent link">&para;</a></h2>
-<h3 id="policy-gradient">Policy Gradient<a class="headerlink" href="#policy-gradient" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>Maintain a set of parameters <span class="arithmatex">\(\theta\)</span> for <span class="arithmatex">\(maximising\)</span> future rewards
-    $$
-    J(\theta) = \mathbb{E}(G) = \sum_{\tau} P(\tau \mid \theta) \, G(\tau)
-    $$</p>
-<ul>
-<li><span class="arithmatex">\(\tau\)</span> - A full path from initial state to the goal</li>
-</ul>
-</li>
-</ul>
-<div class="arithmatex">\[
-\begin{aligned}
-\nabla J(\theta)
-&amp;= \sum_{\tau} \nabla P(\tau \mid \theta) \, G(\tau)
-&amp;&amp; \text{(definition of expected return)} \\[4pt]
-&amp;= \sum_{\tau} P(\tau \mid \theta) \, \nabla \log P(\tau \mid \theta) \, G(\tau)
-&amp;&amp; \text{(apply log-derivative trick)} \\[4pt]
-&amp;= \mathbb{E}_{\tau \sim P(\tau \mid \theta)} \big[ \nabla \log P(\tau \mid \theta) \, G(\tau) \big]
-&amp;&amp; \text{(convert sum to expectation)} \\[4pt]
-&amp;= \mathbb{E}_{\pi_\theta} \big[ \nabla \log \pi_\theta(a \mid s) \, G(\tau) \big]
-&amp;&amp; \text{(expand trajectory likelihood)}
-\end{aligned}
-\]</div>
+<h1 id="7-markov-decision-process">7 Markov Decision Process<a class="headerlink" href="#7-markov-decision-process" title="Permanent link">&para;</a></h1>
 <hr />
-<h3 id="balance-exploration-exploitation">Balance Exploration &amp; Exploitation<a class="headerlink" href="#balance-exploration-exploitation" title="Permanent link">&para;</a></h3>
+<h2 id="markov-decision-process-mdp">Markov Decision Process (MDP)<a class="headerlink" href="#markov-decision-process-mdp" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Exploitation</strong> - select currently-known best action</li>
-<li><strong>Exploration</strong> - try a new action</li>
-<li>
-<p>Balance Strategies</p>
-<ul>
-<li>ε-greedy <ul>
-<li>most time exploitation (<span class="arithmatex">\(P = 1 - \varepsilon\)</span>), little time exploration (<span class="arithmatex">\(\varepsilon\)</span>)</li>
+<li>MDP - General Simulator of the environment for Model-based RL</li>
+<li>Model-based Learning + Optimal Policy</li>
 </ul>
-</li>
-<li>
-<p>softmax </p>
-<ul>
-<li>set a probability to each action and a temperature <span class="arithmatex">\(\tau\)</span> to control randomising
-    $$
-    P(a) = \frac{\exp(Q(a) / \tau)}{\sum_{a'} \exp(Q(a') / \tau)}
-    $$</li>
-</ul>
-</li>
-<li>
-<p>Upper Confidence Bound (UCB) </p>
+<hr />
+<h3 id="markov-process">Markov process<a class="headerlink" href="#markov-process" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>exploitation + exploration bonus
+<p>A <em>memoryless</em> random process 
     $$
-    a = \arg\max_a \left( Q(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
+    M = \langle S, P \rangle
     $$</p>
 <ul>
-<li><span class="arithmatex">\(c\)</span> - importance of exploration (<strong>parameter</strong>)</li>
-<li><span class="arithmatex">\(\ln{t}\)</span> - explore more when time goes</li>
-<li><span class="arithmatex">\(N(a)\)</span> - not try too many times on one same action</li>
+<li><span class="arithmatex">\(S\)</span> - a finite set of states</li>
+<li><span class="arithmatex">\(P\)</span> - a state transition probability <strong><em>matrix</em></strong>, which maps every two states in <span class="arithmatex">\(S\)</span><ul>
+<li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
+<li>Each row of <span class="arithmatex">\(P\)</span> sums to 1</li>
+<li>🅄 For showing actions validations and non-deterministic</li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
+<hr />
+<h3 id="markov-reward-processes">Markov Reward Processes<a class="headerlink" href="#markov-reward-processes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>A Markov chain with reward values:
+    $$
+    M = \langle S, P, R, \gamma \rangle
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(R\)</span> - the reward function<ul>
+<li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
+</ul>
+</li>
+<li><span class="arithmatex">\(\gamma\)</span> - discount factor</li>
+</ul>
 </li>
 </ul>
+<hr />
+<h3 id="markov-decision-process">Markov Decision Process<a class="headerlink" href="#markov-decision-process" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Introduce <strong>agency</strong> 能动性 in terms of actions:
+    $$
+    M = \langle S, A, P, R, \gamma \rangle
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(A\)</span> - a finite set of actions</li>
+<li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
+<li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="greedy-optimal-policy">Greedy Optimal Policy<a class="headerlink" href="#greedy-optimal-policy" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Give a policy based on the action which has <span class="arithmatex">\(maximum\)</span> state-action-value</li>
+<li>
+<p>Optimal State-value Function
+    $$
+    V^\ast(s) = \max_\pi V_\pi(s)
+    $$</p>
+</li>
+<li>
+<p>Optimal State-action-value Function
+    $$
+    Q^\ast(s,a) = \max_\pi Q_\pi(s,a)
+    $$</p>
+</li>
+<li>
+<p>Optimal Policy
+    $$
+    a=\arg\max_a Q^\ast(s,a)
+    $$</p>
+</li>
+</ul>
+<hr />
+<h4 id="bellman-optimality-equation">Bellman Optimality Equation<a class="headerlink" href="#bellman-optimality-equation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p>Optimal State-value Function (Deriving BEE)</p>
+<div class="arithmatex">\[
+\begin{align}
+v_\ast(s)
+&amp;= \max_a \; \mathbb{E}\!\left[\, r + \gamma v_\ast(s') \,\right] \\[6pt]
+&amp;= \max_a \; \sum_{s'} P(s' \mid s,a)\left[\, R(s,a,s') + \gamma v_\ast(s') \,\right]
+\end{align}
+\]</div>
+</li>
+<li>
+<p>Optimal State-action-value Function (Deriving BEE)</p>
+<div class="arithmatex">\[
+\begin{align}
+q_\ast(s,a)
+&amp;= \mathbb{E} \left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right] \\[6pt]
+&amp;= \sum_{s',r} p(s',r\mid s,a)\left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right]
+\end{align}
+\]</div>
+</li>
+<li>
+<p>Solving the BOE</p>
+<ul>
+<li>No closed form solution</li>
+<li>Value Iteration</li>
+<li>Policy Iteration</li>
+<li>SARSA</li>
+<li>Q-learning</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="example-maze">Example - MAZE<a class="headerlink" href="#example-maze" title="Permanent link">&para;</a></h3>
+<p><img alt="Maze" src="../assets/6_1_maze.png" /></p>
+<p>MDP Model of MAZE:
+- <span class="arithmatex">\(S\)</span> - Agent's possible locations
+- <span class="arithmatex">\(A\)</span> - Step directions <span class="arithmatex">\(\mathtt{N, E, S, W}\)</span>
+- <span class="arithmatex">\(P\)</span> - Map <span class="arithmatex">\(s, a \to s'\)</span>
+- <span class="arithmatex">\(R\)</span> - <span class="arithmatex">\(-1\)</span> per time-step (encourage short-path solution)</p>
+<p>Agent of MAZE:
+- <span class="arithmatex">\(V(s)\)</span> - the expected return of following the policy from each <span class="arithmatex">\(s\)</span> 
+    - closer to <span class="arithmatex">\(g\)</span> - <span class="arithmatex">\(V(s)\)</span> ⤴
+    - Farther away - <span class="arithmatex">\(V(S)\)</span> ⤵
+- <span class="arithmatex">\(\pi(s)\)</span> - Optimal Policy = Best <span class="arithmatex">\(V(s')\)</span></p>
 
 
 

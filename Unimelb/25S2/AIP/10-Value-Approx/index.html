@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../4-Relaxation/">
+        <link rel="prev" href="../09-TD/">
       
       
-        <link rel="next" href="../6-Reinforced-Learning/">
+        <link rel="next" href="../11-Policy-Approx/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>05. Exploration - Drava's Study Notes</title>
+        <title>10 Value Function Approximation - Drava's Study Notes</title>
       
     
     
@@ -48,6 +48,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#05-exploration" class="md-skip">
+        <a href="#10-value-function-approximation" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              05. Exploration
+              10 Value Function Approximation
             
           </span>
         </div>
@@ -242,7 +244,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../1-Search/" class="md-tabs__link">
+        <a href="../01-Search/" class="md-tabs__link">
           
   
   
@@ -497,14 +499,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../1-Search/" class="md-nav__link">
+      <a href="../01-Search/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    01. Search
+    1 Search
   
 
     
@@ -525,14 +527,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../2-Planning/" class="md-nav__link">
+      <a href="../02-Planning/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    02. Planning
+    2 Planning
   
 
     
@@ -553,14 +555,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../3-Complexity/" class="md-nav__link">
+      <a href="../03-Complexity/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    03. Complexity
+    3 Complexity
   
 
     
@@ -581,14 +583,154 @@
   
   
     <li class="md-nav__item">
-      <a href="../4-Relaxation/" class="md-nav__link">
+      <a href="../04-Relaxation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    04. Relaxation
+    4 Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-Exploration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Exploration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-RL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-MDP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Markov Decision Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-MC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 Monte Carlo Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-TD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 Temporal Difference Learning
   
 
     
@@ -618,24 +760,6 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    05. Exploration
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -643,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    05. Exploration
+    10 Value Function Approximation
   
 
     
@@ -652,181 +776,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#novelty" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Novelty
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Novelty">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        EXAMPLE
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#width-based-planning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Width-Based Planning
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Width-Based Planning">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#iterated-width-iw" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Iterated Width (IW)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#serialised-iterated-width-siw" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Serialised Iterated Width (SIW)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#balancing-exploration-exploitation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Balancing Exploration &amp; Exploitation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Balancing Exploration &amp; Exploitation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#best-first-width-search-bfws" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Best-First Width Search (BFWS)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#models-to-simulators" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Models to Simulators
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Models to Simulators">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#models" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Models
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#simulators" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Simulators
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#simulated-bfws-framework" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Simulated BFWS Framework
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#arcade-learning-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Arcade Learning Environment
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -840,98 +789,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../6-Reinforced-Learning/" class="md-nav__link">
+      <a href="../11-Policy-Approx/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    06. Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../7-Model-based/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    07. Model-based Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../8-Model-free/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    08. Model-free Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../9-Function-Approx/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    09. Function Approximation
+    11 Policy Function Approximation
   
 
     
@@ -985,209 +850,9 @@
 
 
 
-<h1 id="05-exploration">05. Exploration<a class="headerlink" href="#05-exploration" title="Permanent link">&para;</a></h1>
+<h1 id="10-value-function-approximation">10 Value Function Approximation<a class="headerlink" href="#10-value-function-approximation" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="novelty">Novelty<a class="headerlink" href="#novelty" title="Permanent link">&para;</a></h2>
-<ul>
-<li>The size of the smallest <strong>subset</strong> of <span class="arithmatex">\(P \subseteq s\)</span>, such that <span class="arithmatex">\(s\)</span> is the first state that makes <span class="arithmatex">\(P\)</span> <code>TRUE</code> during the search</li>
-<li><strong>Width</strong>: The size of the smallest subset of <strong><span class="arithmatex">\(P\)</span></strong> needed to be considered to achieve the goal</li>
-</ul>
-<h5 id="example">EXAMPLE<a class="headerlink" href="#example" title="Permanent link">&para;</a></h5>
-<div class="arithmatex">\[
-p \to (p, q) \to (q, r) \to (p, r) \to (p, q, r)
-\]</div>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">Current State</th>
-<th style="text-align: center;">Smallest New Subset</th>
-<th style="text-align: center;">Novelty</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center;"><span class="arithmatex">\(p\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(p\)</span></td>
-<td style="text-align: center;">1</td>
-</tr>
-<tr>
-<td style="text-align: center;"><span class="arithmatex">\(p, q\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(q\)</span></td>
-<td style="text-align: center;">1</td>
-</tr>
-<tr>
-<td style="text-align: center;"><span class="arithmatex">\(q, r\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(r\)</span></td>
-<td style="text-align: center;">1</td>
-</tr>
-<tr>
-<td style="text-align: center;"><span class="arithmatex">\(p, r\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(p, r\)</span></td>
-<td style="text-align: center;">2</td>
-</tr>
-<tr>
-<td style="text-align: center;"><span class="arithmatex">\(p, q, r\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(p, q\)</span></td>
-<td style="text-align: center;">2</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="width-based-planning">Width-Based Planning<a class="headerlink" href="#width-based-planning" title="Permanent link">&para;</a></h2>
-<h3 id="iterated-width-iw">Iterated Width (IW)<a class="headerlink" href="#iterated-width-iw" title="Permanent link">&para;</a></h3>
-<ul>
-<li><span class="arithmatex">\(IW(k) =\)</span> BFS on <span class="arithmatex">\((Q \; \backslash \; s), \mathrm{novelty}(s) &gt; k\)</span><ul>
-<li><span class="arithmatex">\(IW(1) =\)</span> There is new <span class="arithmatex">\(p\)</span> appearing in every step in search</li>
-</ul>
-</li>
-<li><span class="arithmatex">\(IW\)</span> Algorithm<ul>
-<li>A sequence of calls <span class="arithmatex">\(IW(k), k=1,2,3,\ldots\)</span>, until the problem solved or <span class="arithmatex">\(k &gt; len(\bigcup P)\)</span> (return <code>unsolvable</code>). </li>
-<li>The <span class="arithmatex">\(minimum\)</span> <span class="arithmatex">\(k\)</span> is the <span class="arithmatex">\(\text{Width}\)</span> of the problem</li>
-</ul>
-</li>
-<li>Outcomes<ul>
-<li>Simple and Blind<ul>
-<li>Even don't need to know <span class="arithmatex">\(G\)</span> </li>
-</ul>
-</li>
-<li>However performs pretty well in practice<ul>
-<li><span class="arithmatex">\(IW(k \le 2)\)</span> can solve 88.3% IPC problems with single goals.</li>
-<li><em>Most classical problem (e.g. Blocks, Logistics, Gripper, n-puzzle) have a bounded width independent of problem size and initial situation</em></li>
-</ul>
-</li>
-<li><strong>Fast</strong> <span class="arithmatex">\(\mathrm{O}(n^k)\)</span></li>
-<li><strong>Optimal</strong> if in uniform cost</li>
-<li><strong>Complete</strong></li>
-</ul>
-</li>
-</ul>
-<hr />
-<h3 id="serialised-iterated-width-siw">Serialised Iterated Width (SIW)<a class="headerlink" href="#serialised-iterated-width-siw" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>Use <span class="arithmatex">\(IW\)</span> for decomposing problem and solving sub-problems individually
-<div class="highlight"><pre><span></span><code>def SIW(s, G):
-    state = s
-    plan = []
-    for g in serialize(G):
-        subplan = IW(state, goal=g)
-        plan += subplan
-        state = Result(subplan, state)
-    return plan
-</code></pre></div></p>
-</li>
-<li>
-<p>Better performance in <em>Joint Goals</em> problem</p>
-<ul>
-<li><em>(Multi goals but similar approaches)</em></li>
-</ul>
-</li>
-<li>Ⓛ Goals should be easy to serialise and have low width</li>
-</ul>
-<hr />
-<h2 id="balancing-exploration-exploitation">Balancing Exploration &amp; Exploitation<a class="headerlink" href="#balancing-exploration-exploitation" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Exploitation</strong>: Trusting your heuristic function<ul>
-<li>State-based Satisfying Planning Often Rely on:<ul>
-<li>heuristics derived from problem</li>
-<li>plugged into Greedy Best-First Search (GBFS)  </li>
-<li>extensions (e.g. helpful actions and landmarks)  </li>
-</ul>
-</li>
-<li>Often gets stuck in local minima<ul>
-<li>poly + sub-optimal or optimal + NP-hard</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>Exploration</strong>: Searching for Novelty<ul>
-<li>Novelty leads to much better performance in practice</li>
-<li>Can be <strong>model-free</strong> (No Rely/Assumption)</li>
-<li>Required for optimal behaviour (in RL and MTCS)</li>
-</ul>
-</li>
-<li>A good agent need to balance the Exploration and Exploitation</li>
-</ul>
-<h3 id="best-first-width-search-bfws">Best-First Width Search (BFWS)<a class="headerlink" href="#best-first-width-search-bfws" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Do BFS (Priority Queue) on a sequence of measures:
-    $$
-    BFWS(f) \text{ for } f= \langle w,f_1,f_2,\ldots \rangle
-    $$<ul>
-<li><span class="arithmatex">\(w\)</span> - Novelty-Measure</li>
-<li><span class="arithmatex">\(f_i\)</span> - tie breaker</li>
-</ul>
-</li>
-<li>Much more efficient than GBFS</li>
-</ul>
-<hr />
-<h2 id="models-to-simulators">Models to Simulators<a class="headerlink" href="#models-to-simulators" title="Permanent link">&para;</a></h2>
-<h3 id="models">Models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Nowadays, models become more powerful with helps of declarative programming<ul>
-<li>Expressive language features easily supported</li>
-<li>Development of external development tools</li>
-<li><strong>Fully-Black-Box</strong> procedures for higher-level abstraction and decomposing problems</li>
-</ul>
-</li>
-<li>However, Declarative Languages also have their downsides:<ul>
-<li>Model <span class="arithmatex">\(\ne\)</span> Language<ul>
-<li>Many problems fit Classical Planning model, but hard to express in PDDL</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>We need for planners that work without complete declarative representations</li>
-</ul>
-<hr />
-<h3 id="simulators">Simulators<a class="headerlink" href="#simulators" title="Permanent link">&para;</a></h3>
-<ul>
-<li>= Models but no <span class="arithmatex">\(pre(a)\)</span> and <span class="arithmatex">\(add(a)\)</span> for presenting <span class="arithmatex">\(a\)</span></li>
-<li>Outcomes<ul>
-<li>At the same level of efficiency as classic models</li>
-<li>Open up exciting possibilities for modelling beyond PDDL</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h3 id="simulated-bfws-framework">Simulated BFWS Framework<a class="headerlink" href="#simulated-bfws-framework" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Framework<ul>
-<li>Get communication across researchers and to build on each others’ work</li>
-</ul>
-</li>
-<li>Approaches<ul>
-<li>Get "states" from the simulator</li>
-<li>The optimal combination is <span class="arithmatex">\(BFWS(\langle w_h(s), h(s) \rangle)\)</span> <ul>
-<li><span class="arithmatex">\(w_h(s) =\)</span>  <span class="arithmatex">\(s'\)</span> which has smallest novelty and <span class="arithmatex">\(h(s') = h(s)\)</span></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>BFWS is the first planners using simulators</li>
-<li>Challenges of Width-Based Planning over Simulators<ul>
-<li>Non-linear dynamics  </li>
-<li>Perturbation in flight controls  </li>
-<li>Partial observability  </li>
-<li>Uncertainty about opponent strategy</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h3 id="arcade-learning-environment">Arcade Learning Environment<a class="headerlink" href="#arcade-learning-environment" title="Permanent link">&para;</a></h3>
-<ul>
-<li>A simple object-oriented framework to develop AI agents for Atari 2600 games<ul>
-<li>Deterministic</li>
-<li>Initial state fully known</li>
-</ul>
-</li>
-<li>Performance of <span class="arithmatex">\(IW(1)\)</span> <ul>
-<li>better in <em>34/54</em> games than 2BFS</li>
-<li>better in <em>31/54</em> games than UCT</li>
-<li>better in <em>45/49</em> games than DeepMind (RL method)</li>
-</ul>
-</li>
-</ul>
+<p>Value Function</p>
 
 
 

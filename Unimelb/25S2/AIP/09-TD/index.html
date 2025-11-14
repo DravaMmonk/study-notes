@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../1-Search/">
+        <link rel="prev" href="../08-MC/">
       
       
-        <link rel="next" href="../3-Complexity/">
+        <link rel="next" href="../10-Value-Approx/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>02. Planning - Drava's Study Notes</title>
+        <title>9 Temporal Difference Learning - Drava's Study Notes</title>
       
     
     
@@ -48,6 +48,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#02-planning" class="md-skip">
+        <a href="#9-temporal-difference-learning" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              02. Planning
+              9 Temporal Difference Learning
             
           </span>
         </div>
@@ -242,7 +244,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../1-Search/" class="md-tabs__link">
+        <a href="../01-Search/" class="md-tabs__link">
           
   
   
@@ -497,14 +499,210 @@
   
   
     <li class="md-nav__item">
-      <a href="../1-Search/" class="md-nav__link">
+      <a href="../01-Search/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    01. Search
+    1 Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-Planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-Complexity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 Complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-Relaxation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-Exploration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Exploration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-RL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-MDP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Markov Decision Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-MC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 Monte Carlo Learning
   
 
     
@@ -541,7 +739,7 @@
   <span class="md-ellipsis">
     
   
-    02. Planning
+    9 Temporal Difference Learning
   
 
     
@@ -559,7 +757,7 @@
   <span class="md-ellipsis">
     
   
-    02. Planning
+    9 Temporal Difference Learning
   
 
     
@@ -585,22 +783,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#problem-solving" class="md-nav__link">
+  <a href="#temporal-difference-td-learning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Problem Solving
+        Temporal Difference (TD) Learning
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Problem Solving">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#td-prediction-of-state-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TD (Prediction of State Value)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TD (Prediction of State Value)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#autonomous-behaviour-in-ai" class="md-nav__link">
+  <a href="#td0" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Autonomous Behaviour in AI
+        TD(0)
       
     </span>
   </a>
@@ -608,10 +817,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-level-solver-ambitions" class="md-nav__link">
+  <a href="#tdn" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3-level Solver Ambitions
+        TD(n)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tdlambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TD(\(\lambda\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backward-view" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backward View
       
     </span>
   </a>
@@ -624,44 +855,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#solving-approaches" class="md-nav__link">
+  <a href="#sarsa-prediction-of-action-value" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Solving Approaches
+        Sarsa (Prediction of Action Value)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Solving Approaches">
+    <nav class="md-nav" aria-label="Sarsa (Prediction of Action Value)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#programming-based-approach" class="md-nav__link">
+  <a href="#n-step-sarsa" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Programming-Based Approach
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#learning-based-approach" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Learning-Based Approach
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#model-based-approach-planning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Model-Based Approach (Planning)
+        \(n\)-step Sarsa
       
     </span>
   </a>
@@ -674,22 +883,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planning-models" class="md-nav__link">
+  <a href="#q-learning-off-policy-control" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Planning Models
+        Q-Learning (Off-Policy Control)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Planning Models">
+    <nav class="md-nav" aria-label="Q-Learning (Off-Policy Control)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#classical-planning-model" class="md-nav__link">
+  <a href="#on-policy-vs-off-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Classical Planning Model
+        On-policy vs. Off-policy
       
     </span>
   </a>
@@ -697,32 +906,38 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#conformant-planning-model" class="md-nav__link">
+  <a href="#process-of-q-learning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Conformant Planning Model
+        Process of Q-Learning
       
     </span>
   </a>
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#markov-decision-processes-mdps" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mc-vs-td" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Markov Decision Processes (MDPs)
+        MC vs. TD
       
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="MC vs. TD">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#partially-observable-mdps-pomdps" class="md-nav__link">
+  <a href="#example-driving-home" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Partially Observable MDPs (POMDPs)
+        Example - Driving Home
       
     </span>
   </a>
@@ -750,14 +965,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../3-Complexity/" class="md-nav__link">
+      <a href="../10-Value-Approx/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    03. Complexity
+    10 Value Function Approximation
   
 
     
@@ -778,154 +993,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../4-Relaxation/" class="md-nav__link">
+      <a href="../11-Policy-Approx/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    04. Relaxation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../5-Exploration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    05. Exploration
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../6-Reinforced-Learning/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    06. Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../7-Model-based/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    07. Model-based Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../8-Model-free/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    08. Model-free Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../9-Function-Approx/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    09. Function Approximation
+    11 Policy Function Approximation
   
 
     
@@ -979,181 +1054,437 @@
 
 
 
-<h1 id="02-planning">02. Planning<a class="headerlink" href="#02-planning" title="Permanent link">&para;</a></h1>
+<h1 id="9-temporal-difference-learning">9 Temporal Difference Learning<a class="headerlink" href="#9-temporal-difference-learning" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="problem-solving">Problem Solving<a class="headerlink" href="#problem-solving" title="Permanent link">&para;</a></h2>
-<h3 id="autonomous-behaviour-in-ai">Autonomous Behaviour in AI<a class="headerlink" href="#autonomous-behaviour-in-ai" title="Permanent link">&para;</a></h3>
+<h2 id="temporal-difference-td-learning">Temporal Difference (TD) Learning<a class="headerlink" href="#temporal-difference-td-learning" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Programming-based</li>
-<li>Learning-Based</li>
-<li>Model-Based</li>
-<li>Approaches not orthogonal</li>
-<li>Different models yield different types of <strong>controllers</strong> 执行动作的策略模块</li>
+<li>Key Mechanisms: <strong>bootstrap + sample</strong><ul>
+<li>Sampling: an "1-step experience" (TD(0))<ul>
+<li><span class="arithmatex">\(e = \{S_t \to A_t \to R_{t+1}, S_{t+1}\}\)</span></li>
 </ul>
-<h3 id="3-level-solver-ambitions">3-level Solver Ambitions<a class="headerlink" href="#3-level-solver-ambitions" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Ambition</strong>: Write one program to solve all classical search problems<ul>
-<li><strong>Ambition 1.0</strong> (Problem Solving) Write one program to solve a problem</li>
-<li><strong>Ambition 2.0</strong> (Problem Generation) Write one program to solve a large class of problems</li>
-<li><strong>Ambition 3.0</strong> (Meta Problem Solving) Write one program to solve a large class of problems <strong>effectively</strong></li>
+</li>
+<li>Bootstrapping: use estimation of future values to update the current value</li>
 </ul>
 </li>
 </ul>
-<hr />
-<h2 id="solving-approaches">Solving Approaches<a class="headerlink" href="#solving-approaches" title="Permanent link">&para;</a></h2>
-<h3 id="programming-based-approach">Programming-Based Approach<a class="headerlink" href="#programming-based-approach" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Pro</strong>: Domain-knowledge easy to express</li>
-<li><strong>Con</strong>: Less Flexible (Can’t deal with situations not anticipated by programmer)</li>
-</ul>
-<h3 id="learning-based-approach">Learning-Based Approach<a class="headerlink" href="#learning-based-approach" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Unsupervised/Reinforced Learning: Use reward &amp; penalise</li>
-<li>Supervised: Use labelled data</li>
-<li>Evolutionary: Use original controllers to mutate and recombine to build better controller</li>
-<li><strong>Pros</strong> Dose not require much knowledge in principle </li>
-<li><strong>Cons</strong> Slower; Hard to know which features to learn </li>
-</ul>
-<h3 id="model-based-approach-planning">Model-Based Approach (Planning)<a class="headerlink" href="#model-based-approach-planning" title="Permanent link">&para;</a></h3>
-<ul>
-<li>One model for one specific problem
-<img alt="Planning Process" src="../assets/3_1_planning_process.png" /></li>
-<li><strong>Pros</strong> Powerful; Quick; Flexible; Clear; Intelligent; Domain-independent</li>
-<li><strong>Cons</strong> Need a model (sometimes very hard); Efficiency loss</li>
-<li>Always need trade-off between “Automatic and general” vs. “Manual work but effective”</li>
-</ul>
-<hr />
-<h2 id="planning-models">Planning Models<a class="headerlink" href="#planning-models" title="Permanent link">&para;</a></h2>
-<h3 id="classical-planning-model">Classical Planning Model<a class="headerlink" href="#classical-planning-model" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Classical Planning Model = Basic State Model</li>
-<li>
-<p>Assumptions</p>
-<ul>
-<li>Deterministic</li>
-<li>Fully Observable</li>
-<li>Static World</li>
-<li>Discrete Time &amp; Finite Actions</li>
-<li>Uniform Cost</li>
-</ul>
-</li>
-<li>
-<p>Components </p>
 <div class="arithmatex">\[
-M = \langle S, A, T, I, G \rangle
+\text{TD-target} = \text{sample} + \gamma \cdot \text{bootstrap}
+\]</div>
+<hr />
+<h2 id="td-prediction-of-state-value">TD (Prediction of State Value)<a class="headerlink" href="#td-prediction-of-state-value" title="Permanent link">&para;</a></h2>
+<ul>
+<li>For each step, if <span class="arithmatex">\(s_t\)</span> is visited, update its value by <strong>looking forward</strong> to the reward of next step(s).</li>
+<li>❌Can neither estimate action values nor optimal policies</li>
+</ul>
+<h3 id="td0">TD(0)<a class="headerlink" href="#td0" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Look into the next <span class="arithmatex">\(1\)</span> step:</p>
+<div class="arithmatex">\[
+\begin{align}
+V(s_t) 
+&amp;\gets V(s_t) + \alpha \big({{G_t^{(0)} - V(s_t))}} \\[2pt]
+&amp;= V(s_t) + \alpha(R_{t+1} + \gamma V(s_{t+1}) - V(s_t))
+\end{align}
 \]</div>
 <ul>
-<li><span class="arithmatex">\(S\)</span> - State spaces </li>
-<li><span class="arithmatex">\(A(s)\)</span> - Actions applicable for <span class="arithmatex">\(s \in S\)</span></li>
-<li><span class="arithmatex">\(T\)</span> - Deterministic Transition Function: <span class="arithmatex">\(s’ = T(A(s), s)\)</span> shows one successor <span class="arithmatex">\(s’\)</span> of <span class="arithmatex">\(s\)</span></li>
-<li><span class="arithmatex">\(I\)</span> - Initial state</li>
-<li><span class="arithmatex">\(G\)</span> - Goal states</li>
-<li>Uniform action costs <span class="arithmatex">\(c(A(s), s) = 1\)</span></li>
-</ul>
-</li>
-<li>
-<p>Outcomes</p>
-<ul>
-<li>A seq of actions map <span class="arithmatex">\(s_0\)</span> into <span class="arithmatex">\(g\)</span></li>
-<li><strong>Optimal</strong> if total cost to goal is minimum</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h3 id="conformant-planning-model">Conformant Planning Model<a class="headerlink" href="#conformant-planning-model" title="Permanent link">&para;</a></h3>
-<ul>
-<li><span class="arithmatex">\(\approx\)</span> Brute Force</li>
-<li>Components (<em>Diff with classic</em>)<ul>
-<li>Initial State → A set of possible initial states</li>
-<li>Deterministic Transition Function → <strong>Non</strong>-deterministic</li>
-</ul>
-</li>
-<li>Outcomes<ul>
-<li><strong>No Observation</strong> - No new info; must pre-planning</li>
-<li><strong>Goal Guarantee</strong></li>
-<li><strong>Rarely optimal</strong><ul>
-<li>Must map any possible <span class="arithmatex">\(s_0\)</span> to <span class="arithmatex">\(g\)</span>, too much unnecessary work</li>
-<li>Sensitive to Worst/Special case </li>
+<li><span class="arithmatex">\(\vec{v} = R_{t+1} + \gamma V(s_{t+1})\)</span> - TD Target</li>
+<li><span class="arithmatex">\(\delta = \vec{v} - V(s_t)\)</span> - TD Error<ul>
+<li><em>Reflects the difference between <span class="arithmatex">\(v_t\)</span> and <span class="arithmatex">\(v_\pi\)</span></em></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 <hr />
-<h3 id="markov-decision-processes-mdps">Markov Decision Processes (MDPs)<a class="headerlink" href="#markov-decision-processes-mdps" title="Permanent link">&para;</a></h3>
+<h3 id="tdn">TD(n)<a class="headerlink" href="#tdn" title="Permanent link">&para;</a></h3>
 <ul>
-<li>
-<p>Assumption</p>
-<ul>
-<li>
-<p>Markov Property: the next state only depends on the current state and actions.</p>
+<li>Look into the next <span class="arithmatex">\(n-1\)</span> steps:</li>
+</ul>
 <div class="arithmatex">\[
-P(s_{t+1} \mid s_t,a_t,s_{t-1},a_{t-1},\ldots) = P(s_{t+1} \mid s_t,a_t) 
+G^{(n)}_t = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + {{\gamma^n V(S_{t+n})}}
 \]</div>
+<div class="arithmatex">\[
+\begin{align*}
+\color{red}{n} &amp; \color{red}{= 1}\ \text{(TD(0))}      &amp; G_t^{(1)}      &amp; = R_{t+1} + \gamma V(S_{t+1})\\[2pt]
+\color{red}{n} &amp; \color{red}{= 2}                   &amp; G_t^{(2)}      &amp; = R_{t+1} + \gamma R_{t+2} + \gamma^2 V(S_{t+2})\\[2pt]
+\color{red}{\vdots} &amp;                   &amp; \vdots         &amp; \\[2pt]
+\color{red}{n} &amp; \color{red}{= \infty}\ \text{(MC)} &amp; G_t^{(\infty)} &amp; = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{T-1} R_T
+\end{align*}
+\]</div>
+<ul>
+<li>
+<p>Update in direction of error
+$$
+V(S_t) \;\gets\; V(S_t) + \alpha \big({{G_t^{(n)} - V(S_t)}} \big)
+$$</p>
 </li>
 <li>
-<p>Fully Observable</p>
-</li>
-<li>Discrete Time &amp; Finite Actions</li>
-<li>Fixed Transition Probabilities</li>
+<p>How to choose <span class="arithmatex">\(n\)</span>:</p>
+<ul>
+<li>Root Mean Square (RMS) Errors 均方差根<ul>
+<li>change <span class="arithmatex">\(\alpha\)</span> → vary RMS Errors → different optimal <span class="arithmatex">\(n\)</span></li>
 </ul>
 </li>
+<li>Small n → More rely on prediction, faster but higher bias</li>
+<li>Large n → More rely on exploitation, more precise but higher variance</li>
+</ul>
+</li>
+<li>If <span class="arithmatex">\(n = \infty\)</span> , it turns into MC basic</li>
+</ul>
+<hr />
+<h3 id="tdlambda">TD(<span class="arithmatex">\(\lambda\)</span>)<a class="headerlink" href="#tdlambda" title="Permanent link">&para;</a></h3>
+<ul>
 <li>
-<p>Components <em>(Diff with conformant)</em>
+<p>Average n-Steps Returns - use weight <span class="arithmatex">\({{(1 - \lambda)\lambda^{\,n-1}}}\)</span> to balance short-term and long-term rewards
     $$
-    M = \langle S,A,T,R,\gamma \rangle
+    G_t^{\lambda} \;=\; {{(1 - \lambda) \sum_{n=1}^{\infty} \lambda^{\,n-1}}} G_t^{(n)}
     $$</p>
+<div class="arithmatex">\[
+V(S_t) \;\leftarrow\; V(S_t) + \alpha \big( G_t^{\lambda} - V(S_t) \big)
+\]</div>
 <ul>
-<li>Introduce the <strong>Transition Probability Function</strong>:
-    $$
-    T(s, a, s') = P(s' \mid s, a)
-    $$</li>
-<li>Introduce <strong>Reward Function</strong> <span class="arithmatex">\(R\)</span> and <strong>Discount Factor</strong> <span class="arithmatex">\(\gamma\)</span>:<ul>
-<li>For estimating the <strong>value</strong> of each state</li>
+<li>✅Memoryless - i.e space complexity is same as TD(0)</li>
+<li>⚠️Forward View - We cannot look into the far future during learning👇</li>
+</ul>
+</li>
+</ul>
+<h3 id="backward-view">Backward View<a class="headerlink" href="#backward-view" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>backward propagation</p>
+<ul>
+<li>state visited more times  = more responsible on current TD error</li>
+<li>Update <strong>online</strong>, every step, from incomplete sequences</li>
+</ul>
+</li>
+<li>
+<p>Update <strong>Eligibility Trace</strong></p>
+<ul>
+<li>For each state s, at each time step:<ul>
+<li>reduction by <span class="arithmatex">\(\gamma \lambda\)</span></li>
+<li><span class="arithmatex">\(+1\)</span> if currently visiting
+$$
+\begin{align<em>}
+E_0(s) &amp; = 0 \[0pt]
+E_t(s) &amp; = \gamma \lambda E_{t-1}(s) + \mathbf{1}(S_t = s)
+\end{align</em>}
+$$</li>
 </ul>
 </li>
 </ul>
 </li>
 <li>
-<p>Outcomes</p>
+<p>Compute TD Error
+    $$
+    \delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)
+    $$</p>
+</li>
+<li>
+<p>Update Value Function
+    $$
+    V(s) \gets V(s) + \alpha \, \delta_t \, E_t(s)
+    $$</p>
+</li>
+<li>
+<p>In Batch/Offline update, Forward View = Backward View
+$$
+\sum_{t=1}^T \alpha \, \delta_t \, E_t(s) = \sum_{t=1}^T \alpha (G_t^\lambda  - V(S_t)) \; \mathbf{1}(S_t = S)
+$$</p>
+</li>
+</ul>
+<hr />
+<h2 id="sarsa-prediction-of-action-value">Sarsa (Prediction of Action Value)<a class="headerlink" href="#sarsa-prediction-of-action-value" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Map states to <strong>actions</strong></li>
-<li><strong>Optimal</strong> if total <strong>expected</strong> cost to goal is <span class="arithmatex">\(minimum\)</span></li>
+<li>"State-action-reward-state-action" Algorithm</li>
+<li>A state-action function version of TD</li>
+</ul>
+<div class="arithmatex">\[
+Q(s_t,a_t) \gets Q(s_t,a_t) + \alpha (R_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t,a_t))
+\]</div>
+<ul>
+<li>For each episode:<ul>
+<li>For each state:<ul>
+<li>If <span class="arithmatex">\(s_t \ne g\)</span>:<ul>
+<li>Collect the experience <span class="arithmatex">\(\{s_t, a_t, r_{t+1}, s_{t+1}, a_{t+1}\}\)</span><ul>
+<li><span class="arithmatex">\(a_t\)</span> ← <span class="arithmatex">\(\pi(a \mid s_t)\)</span></li>
+<li><span class="arithmatex">\(r_{t+1}, s_{t+1}\)</span>  ← Environment</li>
+<li><span class="arithmatex">\(a_{t+1}\)</span>  ← <span class="arithmatex">\(\pi(a \mid s_{t+1})\)</span></li>
+</ul>
+</li>
+<li>Update <span class="arithmatex">\(q(s_t, a_t)\)</span></li>
+<li>Update <span class="arithmatex">\(\pi\)</span> based on policy iteration</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <hr />
-<h3 id="partially-observable-mdps-pomdps">Partially Observable MDPs (POMDPs)<a class="headerlink" href="#partially-observable-mdps-pomdps" title="Permanent link">&para;</a></h3>
+<h3 id="n-step-sarsa"><span class="arithmatex">\(n\)</span>-step Sarsa<a class="headerlink" href="#n-step-sarsa" title="Permanent link">&para;</a></h3>
 <ul>
-<li>
-<p>Assumption</p>
-<ul>
-<li>Markov Property</li>
-<li><strong>Limited</strong> Observable</li>
+<li>Sarsa version of TD(n):
+$$
+q_t^{(n)} = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \gamma^n Q(S_{t+n})
+$$</li>
 </ul>
-</li>
-<li>
-<p>Components <em>(Diff with MDPs)</em></p>
-<ul>
-<li>
-<p>Introduce <strong>Sensor Model</strong> (based on <strong>Probability Distribution</strong>)</p>
 <div class="arithmatex">\[
-\mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
-\]</div>
-</li>
-<li>
-<p>Initial/Goal States → Belief States <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> and <span class="arithmatex">\(\mathrm{b}(g)\)</span></p>
-</li>
-</ul>
-</li>
-<li>
-<p>Outcomes</p>
+Q(S_t, A_t) \;\leftarrow\; Q(S_t, A_t)
+  + \alpha \Big( q_t^{(n)} - Q(S_t, A_t) \Big)
+$$
+---
+### Sarsa($\lambda$)
+- Sarsa version of TD($\lambda$)
+    $$
+    q_t^\lambda \;=\; (1 - \lambda) \sum_{n=1}^{\infty} \lambda^{n-1} q_t^{(n)}
+    \]</div>
 <ul>
-<li>Map belief states into actions</li>
-<li><strong>Optimal</strong> if total expected cost from <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> to <span class="arithmatex">\(\mathrm{b}(g)\)</span> is minimum</li>
+<li>
+<p>Forward View:
+    $$
+    Q(S_t, A_t) \;\leftarrow\; Q(S_t, A_t)</p>
+<ul>
+<li>\alpha \Big( q_t^\lambda - Q(S_t, A_t) \Big)
+$$</li>
+</ul>
+</li>
+<li>
+<p>Backward View:
+    $$
+    \begin{align<em>}
+    E_0(s,a) &amp; = 0 \[0pt]
+    E_t(s,a) &amp; = \gamma \lambda E_{t-1}(s,a) + \mathbf{1}(S_t = s, A_t = a)
+    \end{align</em>}
+    $$</p>
+<div class="arithmatex">\[
+\delta_t = R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t)
+\]</div>
+<div class="arithmatex">\[
+Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
+\]</div>
+<hr />
+<h2 id="q-learning-off-policy-control">Q-Learning (Off-Policy Control)<a class="headerlink" href="#q-learning-off-policy-control" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Off-policy</strong>: Distinguish Target Policy from Behaviour Policy</li>
+<li>✅Take use of experience from other policies</li>
+</ul>
+<h3 id="on-policy-vs-off-policy">On-policy vs. Off-policy<a class="headerlink" href="#on-policy-vs-off-policy" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Sarsa:</li>
+<li>Target: <span class="arithmatex">\(\vec{v} = r_{t+1} + \gamma q_t(s_{t+1}, a_{t+1})\)</span></li>
+<li>Behaviour: how generate <span class="arithmatex">\(a_{t+1}\)</span> from <span class="arithmatex">\(s_{t+1}\)</span></li>
+<li>Target Policy = Behaviour Policy = <span class="arithmatex">\(\pi_t\)</span></li>
+<li>Q-Learning</li>
+<li>Target: <span class="arithmatex">\(\vec{v} = r_{t+1} + \gamma \max_{a \in \mathcal{A}} q_t(s_{t+1}, a)\)</span></li>
+<li>Behaviour: how generate <span class="arithmatex">\(a_t\)</span> from <span class="arithmatex">\(s_t\)</span></li>
+<li>Target Policy = Optimal (State-action-value) Policy</li>
+<li>Behaviour Policy = Any policy</li>
 </ul>
 </li>
 </ul>
+<h3 id="process-of-q-learning">Process of Q-Learning<a class="headerlink" href="#process-of-q-learning" title="Permanent link">&para;</a></h3>
+<ul>
+<li>For each episode generated by <span class="arithmatex">\(\pi_b\)</span>:<ul>
+<li>For each time step:<ul>
+<li>Update q-value<ul>
+<li><span class="arithmatex">\(q_{t+1}(s_t, a_t) \gets q_t(s_t, a_t) + \alpha \bigl[  \left[r_{t+1} + \gamma \max_{a \in \mathcal{A}} q_t(s_{t+1}, a)\right] - q_t(s_t, a_t) \bigr]\)</span></li>
+</ul>
+</li>
+<li>Update target policy</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="mc-vs-td">MC vs. TD<a class="headerlink" href="#mc-vs-td" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Monte-Carlo (MC)</th>
+<th>Temporal-Difference (TD)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Learning timing</td>
+<td>Offline - Update after the episode ends</td>
+<td>Online - Update immediately after receiving a reward</td>
+</tr>
+<tr>
+<td>Environment Assumption</td>
+<td>episodic  only</td>
+<td>both episodic and continuing</td>
+</tr>
+<tr>
+<td>Target used</td>
+<td><span class="arithmatex">\(\vec{v} = G_t\)</span></td>
+<td><span class="arithmatex">\(\vec{v} = R_{t+1} + \gamma V(S_{t+1}\)</span>)</td>
+</tr>
+<tr>
+<td>Bootstrapping?</td>
+<td>❌</td>
+<td>✅Value Updating relies on the previous estimate of this value (require initial guesses)</td>
+</tr>
+<tr>
+<td>Variance</td>
+<td>⚠️High - Samples of lots of variables</td>
+<td>✅Low</td>
+</tr>
+<tr>
+<td>Bias</td>
+<td>Unbiased (return is true target)</td>
+<td>Biased (bootstraps using V(s′))</td>
+</tr>
+<tr>
+<td>Exploits Markov property?</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Efficiency in Markov environment</td>
+<td>⚠️Less efficient</td>
+<td>✅More efficient</td>
+</tr>
+<tr>
+<td>Efficiency in non-Markov or PMDP env</td>
+<td>✅More efficient with backup learning</td>
+<td>⚠️Less efficient</td>
+</tr>
+<tr>
+<td>Optimisation in limited experience (Batch)</td>
+<td>Average Return = minimise MSE</td>
+<td>Fit the most likelihood Markov model that best explains the data</td>
+</tr>
+</tbody>
+</table>
+<h5 id="example-driving-home">Example - Driving Home<a class="headerlink" href="#example-driving-home" title="Permanent link">&para;</a></h5>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Elapsed Time (min)</th>
+<th>Predicted Time to Go</th>
+<th>Predicted Total Time</th>
+<th>MC Update (After Back Home)</th>
+<th>MC New Predicated Time</th>
+<th>TD(0) Update - <span class="arithmatex">\(\gamma = 1, \alpha = 0.5\)</span></th>
+<th>TD New Predicated Time</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>leaving office</td>
+<td>0</td>
+<td>30</td>
+<td>30</td>
+<td>43</td>
+<td>43-0=43</td>
+<td>30+0.5(5+35-30)=35</td>
+<td>35-0=35</td>
+<td></td>
+</tr>
+<tr>
+<td>reach car, raining</td>
+<td>5</td>
+<td>35</td>
+<td>40</td>
+<td>43</td>
+<td>43-5=38</td>
+<td>40+0.5(20+15-40)=37.5</td>
+<td>37.5-5=32.5</td>
+<td></td>
+</tr>
+<tr>
+<td>exit highway</td>
+<td>20</td>
+<td>15</td>
+<td>35</td>
+<td>43</td>
+<td>43-20=23</td>
+<td>35+0.5(30+10-35)=37.5</td>
+<td>37.5-20=17.5</td>
+<td></td>
+</tr>
+<tr>
+<td>behind truck</td>
+<td>30</td>
+<td>10</td>
+<td>40</td>
+<td>43</td>
+<td>43-30=13</td>
+<td>40+0.5(40+3-40)=41.5</td>
+<td>41.5-30=11.5</td>
+<td></td>
+</tr>
+<tr>
+<td>home street</td>
+<td>40</td>
+<td>3</td>
+<td>43</td>
+<td>43</td>
+<td>43-40=3</td>
+<td>43+0.5(43+0-43)=43</td>
+<td>43-40=3</td>
+<td></td>
+</tr>
+<tr>
+<td>arrive home</td>
+<td>43</td>
+<td>0</td>
+<td>43</td>
+<td>43</td>
+<td>43-43=0</td>
+<td>43</td>
+<td>43-43=0</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>##### Example - BATCH</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>2-states: <span class="arithmatex">\(A\)</span>, <span class="arithmatex">\(B\)</span></li>
+<li>Reward Signal = <span class="arithmatex">\(\{0, 1\}\)</span></li>
+<li>Sampled Episodes:<ul>
+<li><span class="arithmatex">\(A \to 0\)</span>, <span class="arithmatex">\(B \to 0\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 1\)</span>, <span class="arithmatex">\(B \to 0\)</span></li>
+</ul>
+</li>
+<li>MC Update:<ul>
+<li><span class="arithmatex">\(V(B) = 6/8 = 0.75\)</span></li>
+<li><span class="arithmatex">\(V(A) = 0 / 1 = 0\)</span></li>
+</ul>
+</li>
+<li>TD(0) Update:<ul>
+<li><span class="arithmatex">\(V(B) \to0.75\)</span></li>
+<li><span class="arithmatex">\(V(A) \to V(B) \to 0.75\)</span></li>
+</ul>
+</li>
+</ul>
+<hr />
 
 
 

@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../3-Complexity/">
+        <link rel="prev" href="../05-Exploration/">
       
       
-        <link rel="next" href="../5-Exploration/">
+        <link rel="next" href="../07-MDP/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>04. Relaxation - Drava's Study Notes</title>
+        <title>6 Reinforced Learning - Drava's Study Notes</title>
       
     
     
@@ -48,6 +48,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#04-relaxation" class="md-skip">
+        <a href="#6-reinforced-learning" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              04. Relaxation
+              6 Reinforced Learning
             
           </span>
         </div>
@@ -242,7 +244,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../1-Search/" class="md-tabs__link">
+        <a href="../01-Search/" class="md-tabs__link">
           
   
   
@@ -497,14 +499,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../1-Search/" class="md-nav__link">
+      <a href="../01-Search/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    01. Search
+    1 Search
   
 
     
@@ -525,14 +527,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../2-Planning/" class="md-nav__link">
+      <a href="../02-Planning/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    02. Planning
+    2 Planning
   
 
     
@@ -553,14 +555,70 @@
   
   
     <li class="md-nav__item">
-      <a href="../3-Complexity/" class="md-nav__link">
+      <a href="../03-Complexity/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    03. Complexity
+    3 Complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-Relaxation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-Exploration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Exploration
   
 
     
@@ -597,7 +655,7 @@
   <span class="md-ellipsis">
     
   
-    04. Relaxation
+    6 Reinforced Learning
   
 
     
@@ -615,7 +673,7 @@
   <span class="md-ellipsis">
     
   
-    04. Relaxation
+    6 Reinforced Learning
   
 
     
@@ -641,22 +699,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#relaxation" class="md-nav__link">
+  <a href="#reinforced-learning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Relaxation
+        Reinforced Learning
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Relaxation">
+    <nav class="md-nav" aria-label="Reinforced Learning">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#components" class="md-nav__link">
+  <a href="#planning-vs-learning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Components
+        Planning vs Learning
       
     </span>
   </a>
@@ -664,106 +722,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#properties" class="md-nav__link">
+  <a href="#rl-vs-planning-vs-other-ml" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Properties
+        RL vs. Planning vs. Other ML
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Properties">
+    <nav class="md-nav" aria-label="RL vs. Planning vs. Other ML">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
+  <a href="#example-common-applications" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Examples
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#still-inefficiency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Still Inefficiency?
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#delete-relaxation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Delete Relaxation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Delete Relaxation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#dominance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dominance
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#optimal-delete-relaxation-heuristic-h" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optimal Delete Relaxation Heuristic (\(h^+\))
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Optimal Delete Relaxation Heuristic (\(h^+\))">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#bellman-ford-algorithm" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Bellman-Ford Algorithm
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Bellman-Ford Algorithm">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
+        Example - Common Applications
       
     </span>
   </a>
@@ -781,22 +755,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#h-approximation-methods" class="md-nav__link">
+  <a href="#reinforced-learning-process" class="md-nav__link">
     <span class="md-ellipsis">
       
-        \(h^+\)-Approximation Methods
+        Reinforced Learning Process
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="\(h^+\)-Approximation Methods">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environments
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environments">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#plan-existence-checking" class="md-nav__link">
+  <a href="#state-s-p" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Plan Existence Checking
+        State - \(S, P\)
       
     </span>
   </a>
@@ -804,21 +789,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#max-heuristic-hmax" class="md-nav__link">
+  <a href="#reward-r" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Max Heuristic (\(h^{max}\))
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#additive-heuristic-hadd" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Additive Heuristic (\(h^{add}\))
+        Reward - \(R\)
       
     </span>
   </a>
@@ -831,22 +805,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#relaxed-plans" class="md-nav__link">
+  <a href="#agents" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Relaxed Plans
+        Agents
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Relaxed Plans">
+    <nav class="md-nav" aria-label="Agents">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#best-supporter-function-bsp" class="md-nav__link">
+  <a href="#model-latent-p-r" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Best Supporter Function \(bs(p)\)
+        Model - Latent \(P, R\)
       
     </span>
   </a>
@@ -854,10 +828,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#helpful-actions" class="md-nav__link">
+  <a href="#value-function-v-q" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Helpful Actions
+        Value Function - \(V, Q\)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Value Function - \(V, Q\)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-g_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return - \(G_t\)
       
     </span>
   </a>
@@ -865,10 +851,142 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#relaxed-plan-heuristic-h_ff" class="md-nav__link">
+  <a href="#bellman-expectation-equation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Relaxed Plan Heuristic (\(h_{FF}\))
+        Bellman Expectation Equation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#discount-factor-gamma" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discount Factor - \(\gamma\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-discounting-is-used" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Discounting is Used
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policy-pi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy - \(\pi\)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Policy - \(\pi\)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deterministic-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deterministic Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stochastic-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stochastic Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explicit-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implicit-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implicit Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On-policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#off-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Off-policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soft-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Soft Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#categories-of-rl-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Categories of RL Algorithms
       
     </span>
   </a>
@@ -896,14 +1014,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../5-Exploration/" class="md-nav__link">
+      <a href="../07-MDP/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    05. Exploration
+    7 Markov Decision Process
   
 
     
@@ -924,14 +1042,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../6-Reinforced-Learning/" class="md-nav__link">
+      <a href="../08-MC/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    06. Reinforced Learning
+    8 Monte Carlo Learning
   
 
     
@@ -952,14 +1070,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../7-Model-based/" class="md-nav__link">
+      <a href="../09-TD/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    07. Model-based Reinforced Learning
+    9 Temporal Difference Learning
   
 
     
@@ -980,14 +1098,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../8-Model-free/" class="md-nav__link">
+      <a href="../10-Value-Approx/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    08. Model-free Reinforced Learning
+    10 Value Function Approximation
   
 
     
@@ -1008,14 +1126,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../9-Function-Approx/" class="md-nav__link">
+      <a href="../11-Policy-Approx/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    09. Function Approximation
+    11 Policy Function Approximation
   
 
     
@@ -1069,347 +1187,447 @@
 
 
 
-<h1 id="04-relaxation">04. Relaxation<a class="headerlink" href="#04-relaxation" title="Permanent link">&para;</a></h1>
+<h1 id="6-reinforced-learning">6 Reinforced Learning<a class="headerlink" href="#6-reinforced-learning" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="relaxation">Relaxation<a class="headerlink" href="#relaxation" title="Permanent link">&para;</a></h2>
+<h2 id="reinforced-learning">Reinforced Learning<a class="headerlink" href="#reinforced-learning" title="Permanent link">&para;</a></h2>
 <ul>
-<li>A method to compute heuristic functions <span class="arithmatex">\(h(n)\)</span><ul>
-<li>Defines a transformation for <strong>simplifying</strong> the <em>STRIPS</em> problem</li>
+<li>Policy + Reward + Trial-and-error Interaction</li>
 </ul>
-</li>
-</ul>
-<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
-<div class="arithmatex">\[
-\mathcal{R} = (\mathcal{P'}, r, h'^*)
-\]</div>
-<ul>
-<li><span class="arithmatex">\(\mathcal{P}'\)</span> - the class of the simpler problem </li>
-<li><span class="arithmatex">\(r\)</span> - transformer turning the original problem into a simplified one</li>
-<li><span class="arithmatex">\(h'^*(n)\)</span> - Perfect heuristic function of the simplified problem </li>
-</ul>
-<h3 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h3>
-<p>The Relaxation is
-- <strong>Native</strong> - if <span class="arithmatex">\(\mathcal{P'} \subseteq \mathcal{P}\)</span> and  <span class="arithmatex">\(h'^*(n) = h(n)\)</span>
-- <strong>Efficiently Constructible</strong> - if a polynomial <span class="arithmatex">\(r\)</span> exists
-- <strong>Efficiently Computable</strong> - if a polynomial <span class="arithmatex">\(h’(n)\)</span> exists</p>
-<h5 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h5>
-<ol>
-<li>Route-Finding<ul>
-<li>Relaxation<ul>
-<li>Route-find as a bird (ignoring the road)</li>
-</ul>
-</li>
-<li>Outcome<ul>
-<li>Road Distance → Manhattan distance, Euclidean distance, etc.</li>
-</ul>
-</li>
-<li>Native❌ Efficiently constructible✅ Efficiently computable✅</li>
-</ul>
-</li>
-<li>Goal-Counting<ul>
-<li>Relaxation<ul>
-<li>Assume we can achieve each goal directly</li>
-</ul>
-</li>
-<li>Outcome<ul>
-<li>Tasks ← No precondition and delete</li>
-</ul>
-</li>
-<li>Admissible but still <em>NP-hard</em></li>
-<li>Native✅ Efficiently constructible✅ Efficiently computable❌</li>
-</ul>
-</li>
-</ol>
-<h3 id="still-inefficiency">Still Inefficiency?<a class="headerlink" href="#still-inefficiency" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Approximate <span class="arithmatex">\(h’^*\)</span></li>
-<li>Re-design <span class="arithmatex">\(h’^*\)</span> in a way so that it will typically be feasible<ul>
-<li>Critical path heuristics</li>
-<li><strong>Delete relaxation</strong> ← wide-spread for satisficing planning</li>
-<li>Abstractions</li>
-<li>Landmarks</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="delete-relaxation">Delete Relaxation<a class="headerlink" href="#delete-relaxation" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Apply <span class="arithmatex">\(Del(a) = \emptyset, \forall a \in A\)</span><ul>
-<li>which makes "once"  <code>TRUE</code> <em>predications</em> remain <code>TRUE</code> "forever"</li>
-</ul>
-</li>
-<li><span class="arithmatex">\(a^+\)</span> - Actions after delete relaxation</li>
-<li><strong>Optimal</strong> Delete Relaxation is <strong>Admissible</strong> <span class="arithmatex">\(h^+(n) \le h^*(n)\)</span><ul>
-<li><em>(but find an optimal solution is still NP-hard)</em></li>
-</ul>
-</li>
-</ul>
-<h3 id="dominance">Dominance<a class="headerlink" href="#dominance" title="Permanent link">&para;</a></h3>
-<ul>
-<li><span class="arithmatex">\(s' \supseteq s\)</span> - <span class="arithmatex">\(s'\)</span> dominate <span class="arithmatex">\(s\)</span><ul>
-<li>If <span class="arithmatex">\(s\)</span> is a goal state, then <span class="arithmatex">\(s'\)</span> must be a goal state.</li>
-<li>If <span class="arithmatex">\(a^+\)</span> is applicable in <span class="arithmatex">\(s\)</span>, then <span class="arithmatex">\(a^+\)</span> must be applicable in <span class="arithmatex">\(s'\)</span>.</li>
-</ul>
-</li>
-<li><span class="arithmatex">\(Result(s, a^+)\)</span> dominates both <span class="arithmatex">\(s\)</span> and <span class="arithmatex">\(Result(s, a)\)</span></li>
-</ul>
-<hr />
-<h2 id="optimal-delete-relaxation-heuristic-h">Optimal Delete Relaxation Heuristic (<span class="arithmatex">\(h^+\)</span>)<a class="headerlink" href="#optimal-delete-relaxation-heuristic-h" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>def h_plus(s, G, A):
-    if G in s:
-        return 0
-
-    open = [s]
-    cost[s] = 0
-    cost[others] = inf
-    best = inf
-
-    while open:
-        cur_state = pop(open)
-        if G in cur_state:
-            best = min(best, cost[cur_state])
-            continue
-
-        for a in A:
-            if pre(a) in current:
-                next_state = current + add(a)
-                if cost[next_state] &gt; cost[cur_state] + 1:
-                    cost[next_state] = cost[current] + 1
-                    push(open, next_state)
-
-    if best == inf:
-        return unsolvable
-    else:
-        return best
-</code></pre></div>
-<ul>
-<li><strong>Native relaxation</strong>✅</li>
-<li>Safe✅, goal-aware✅, admissible guarantee✅</li>
-<li>Efficiently constructible✅ Polytime</li>
-<li>Efficiently computable❌<ul>
-<li><span class="arithmatex">\(\mathrm{PlanOpt^+} = \sum h^+\)</span> still <em>NP-hard</em></li>
-</ul>
-</li>
-</ul>
-<hr />
-<h3 id="bellman-ford-algorithm">Bellman-Ford Algorithm<a class="headerlink" href="#bellman-ford-algorithm" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Application based on <span class="arithmatex">\(h^+\)</span></li>
-<li>Distance estimate during the iterations in using shortest-distance algorithm</li>
-<li>Initially set start point <span class="arithmatex">\(= 0\)</span>; others <span class="arithmatex">\(= \infty\)</span>.</li>
-<li>Relax every edge (One iteration = all neighbour unexplored edges from one point)</li>
-<li>Use a table to note estimate length of shortest path from start to current point</li>
-</ul>
-<h6 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h6>
-<ul>
-<li>A→B(+4); A→C(+5); B→C(-2)</li>
-</ul>
+<h3 id="planning-vs-learning">Planning vs Learning<a class="headerlink" href="#planning-vs-learning" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Vertex</th>
-<th style="text-align: center;">Initialisation</th>
-<th style="text-align: center;">Round 1</th>
-<th style="text-align: center;">Round 2</th>
+<th>Dimension</th>
+<th><strong>Planning</strong></th>
+<th><strong>Learning</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">A</td>
-<td style="text-align: center;">0</td>
-<td style="text-align: center;">0</td>
-<td style="text-align: center;">0</td>
+<td><strong>Environment Model</strong></td>
+<td>Model is <strong>known</strong></td>
+<td>Model is <strong>unknown</strong></td>
 </tr>
 <tr>
-<td style="text-align: left;">B</td>
-<td style="text-align: center;">∞</td>
-<td style="text-align: center;">4</td>
-<td style="text-align: center;">4</td>
+<td><strong>Learning Mode</strong></td>
+<td>Offline computation</td>
+<td>Online trial-and-error</td>
 </tr>
 <tr>
-<td style="text-align: left;">C</td>
-<td style="text-align: center;">∞</td>
-<td style="text-align: center;">5</td>
-<td style="text-align: center;">2 (= 4 - 2)</td>
+<td><strong>Agent–Environment Interaction</strong></td>
+<td>No interaction with the real environment; uses internal simulator</td>
+<td>Must act in the real environment to gather experience</td>
+</tr>
+<tr>
+<td><strong>Policy Improvement</strong></td>
+<td>Through search, deliberation,  planning and introspection</td>
+<td>Through reward-driven learning</td>
+</tr>
+<tr>
+<td><strong>Suitable Scenarios</strong></td>
+<td>A precise model exists and simulation is cheap</td>
+<td>The model is unknown or hard to specify</td>
+</tr>
+<tr>
+<td><strong>Advantages</strong></td>
+<td>Safe, interpretable, no real-world risk</td>
+<td>Adaptive, risky working in complex/unknown environments</td>
+</tr>
+<tr>
+<td><strong>Disadvantages</strong></td>
+<td>Requires accurate model; modeling may be expensive</td>
+<td>Requires exploration; may be costly or risky</td>
+</tr>
+<tr>
+<td>Example - Atari Game</td>
+<td>Agent can query emulator for perfect model (source code)</td>
+<td>Agent can only sees pixels and scores on the screen → trial-and-error gameplay is necessary</td>
 </tr>
 </tbody>
 </table>
+<h3 id="rl-vs-planning-vs-other-ml">RL vs. Planning vs. Other ML<a class="headerlink" href="#rl-vs-planning-vs-other-ml" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Dimension</th>
+<th style="text-align: left;">Reinforcement Learning</th>
+<th style="text-align: left;">Automated Planning</th>
+<th style="text-align: left;">Other ML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Action Outcomes</strong></td>
+<td style="text-align: left;"><strong>Non-deterministic</strong> — actions lead to probabilistic transitions</td>
+<td style="text-align: left;">Deterministic — outcome fully known from model</td>
+<td style="text-align: left;">Usually not modelled as sequential decisions</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Environment Representation</strong></td>
+<td style="text-align: left;"><strong>Probabilistic model</strong> of states, transitions, and rewards</td>
+<td style="text-align: left;">Symbolic or logical model (e.g., STRIPS)</td>
+<td style="text-align: left;">No explicit environment</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Learning Signal</strong></td>
+<td style="text-align: left;"><strong>Reward Signal</strong> - Feedback from environment</td>
+<td style="text-align: left;">Predefined goal or planner objective</td>
+<td style="text-align: left;">Labels or self-structures</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Data Structure</strong></td>
+<td style="text-align: left;"><strong>Sequential / Time series</strong> (non-i.i.d.)</td>
+<td style="text-align: left;">Discrete steps in a planning domain</td>
+<td style="text-align: left;">Often i.i.d. samples (independent &amp; identically distributed)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Search &amp; Optimisation</strong></td>
+<td style="text-align: left;">Trail-and-error search + Reward-driven</td>
+<td style="text-align: left;">state-space search + Predefined policy</td>
+<td style="text-align: left;">Gradient-based or statistical fitting</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Credit Assignment</strong></td>
+<td style="text-align: left;"><strong>Required</strong> — reward may be delayed over time</td>
+<td style="text-align: left;">Not relevant — goal known a priori</td>
+<td style="text-align: left;"><strong>Not Required</strong> - no delay</td>
+</tr>
+</tbody>
+</table>
+<h5 id="example-common-applications">Example - Common Applications<a class="headerlink" href="#example-common-applications" title="Permanent link">&para;</a></h5>
+<ul>
+<li>Making a humanoid robot walk</li>
+<li>Fine tuning LLMs using human/AI feedback</li>
+<li>Optimising operating system routines</li>
+<li>Controlling a power station</li>
+<li>Managing an investment portfolio</li>
+</ul>
 <hr />
-<h2 id="h-approximation-methods"><span class="arithmatex">\(h^+\)</span>-Approximation Methods<a class="headerlink" href="#h-approximation-methods" title="Permanent link">&para;</a></h2>
-<h3 id="plan-existence-checking">Plan Existence Checking<a class="headerlink" href="#plan-existence-checking" title="Permanent link">&para;</a></h3>
+<h2 id="reinforced-learning-process">Reinforced Learning Process<a class="headerlink" href="#reinforced-learning-process" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    subgraph Env[Environment]
+        S[(State)]
+        R[(Reward)]
+    end
+
+    subgraph Agent[Agent]
+        P["Policy π(a|s)"]
+        V["Value Function V(s)"]
+    end
+
+    S --&gt;|"(1) Initial State s"| P
+    P --&gt;|"(2) Action a"| Env
+    Env --&gt;|"(3) Reward r, Next State s'"| V
+    V --&gt;|"(4) Update Policy"| P
+</code></pre>
+<hr />
+<h2 id="environments">Environments<a class="headerlink" href="#environments" title="Permanent link">&para;</a></h2>
+<h3 id="state-s-p">State - <span class="arithmatex">\(S, P\)</span><a class="headerlink" href="#state-s-p" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>based on Fast Forward Heuristic (<span class="arithmatex">\(h_{FF}\)</span>)</p>
+<p>All RL Algorithms assume that State is Markov:
+    $$
+    P(s' \mid s + H(s), a) = P(s' \mid s, a)
+    $$</p>
 <ul>
-<li>Expand the current state based on BrFS
-<div class="highlight"><pre><span></span><code>def is_plan_existence(s, G, A):
-    if G in s:
-        return TRUE
-
-    reached = s
-    while G not in reached:
-        new_facts = reached
-        for a in A:
-            if pre(a) in reached:
-                new_facts += add(a)
-        if new_facts == reached:
-            return FALSE
-        reached = new_facts
-
-    return TRUE
-</code></pre></div></li>
+<li>Once <span class="arithmatex">\(S\)</span> is known, <span class="arithmatex">\(H\)</span> can be thrown away</li>
+<li>Any RL problem can be made Markov by expanding the state</li>
+<li>Add history into the current state</li>
+<li>Add belief state (POMDP → belief-MDP)</li>
+<li>Add latent state (Model-based RL)</li>
 </ul>
 </li>
+</ul>
+<hr />
+<h3 id="reward-r">Reward - <span class="arithmatex">\(R\)</span><a class="headerlink" href="#reward-r" title="Permanent link">&para;</a></h3>
+<ul>
+<li>A scalar feedback signal</li>
+<li>Indicates how well agent is doing at one step</li>
+<li><strong>Reward Hypothesis</strong><ul>
+<li><em>All</em> goals can be described by the <span class="arithmatex">\(maximisation\)</span> of expected cumulative reward</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="agents">Agents<a class="headerlink" href="#agents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Prediction</strong>: Evaluate the future rewards of state-actions<ul>
+<li>→ <em>Value Function</em></li>
+</ul>
+</li>
+<li><strong>Control</strong>: Find the optimal policy<ul>
+<li>→ <em>Policy Function</em></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="model-latent-p-r">Model - Latent <span class="arithmatex">\(P, R\)</span><a class="headerlink" href="#model-latent-p-r" title="Permanent link">&para;</a></h3>
+<ul>
+<li>An internal simulator for predicting what the environment will do next<ul>
+<li><strong>Transition model</strong>: <span class="arithmatex">\(P_{ss'}^a\)</span> - how each action changes the state</li>
+<li><strong>Reward model</strong>: <span class="arithmatex">\(R_{s}^a\)</span> - immediate reward from each state</li>
+<li>The model can be imperfect but supports planning and prediction</li>
+</ul>
+</li>
+<li>Simulation is <strong>NOT</strong> necessary for RL <ul>
+<li>→ Model-based/Model-free</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="value-function-v-q">Value Function - <span class="arithmatex">\(V, Q\)</span><a class="headerlink" href="#value-function-v-q" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Define and predict values of states based on <em>the expectation of future rewards</em></li>
 <li>
-<p>Sound, complete, Terminates in <em>polytime</em>✅</p>
+<p>State-value Function</p>
 <ul>
-<li><span class="arithmatex">\(\mathrm{PlanEx}^+\)</span> now becomes a <em>polytime</em> problem</li>
-</ul>
-</li>
-<li>Safe✅, goal-aware✅, admissible❌ (Existence Check Only, usually far from optimal)</li>
-</ul>
-<hr />
-<h3 id="max-heuristic-hmax">Max Heuristic (<span class="arithmatex">\(h^{max}\)</span>)<a class="headerlink" href="#max-heuristic-hmax" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>def h_max(s, G, A):
-    for p in P:
-        if p in s:
-            cost[p] = 0
-        else:
-            cost[p] = inf
-
-    changed = True
-    while changed:
-        changed = false
-        for a in A:
-            if cost[q] &lt; inf for all q in pre(a):
-                # a is reachable
-                new_cost = 1 + max(cost[q] for q in pre(a))
-                for p in add(a):
-                    if new_cost &lt; cost[p]:
-                        cost[p] = new_cost
-                        changed = true
-
-    return max(cost[g] for g in G)
-</code></pre></div>
-<ul>
-<li>Efficient Computable✅ <em>Polytime</em><ul>
-<li>However, sometimes maybe too optimistic⚠️</li>
-</ul>
-</li>
-<li><strong>Optimistic</strong> Estimation: admissible✅</li>
-</ul>
-<hr />
-<h3 id="additive-heuristic-hadd">Additive Heuristic (<span class="arithmatex">\(h^{add}\)</span>)<a class="headerlink" href="#additive-heuristic-hadd" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>def h_sum(s, G, A):
-    for p in P:
-        if p in s:
-            cost[p] = 0
-        else:
-            cost[p] = inf
-
-    changed = True
-    while changed:
-        changed = false
-        for a in A:
-            if cost[q] &lt; inf for all q in pre(a):
-✏️              new_cost = 1 + sum(cost[q] for q in pre(a))
-                for p in add(a):
-                    if new_cost &lt; cost[p]:
-                        cost[p] = new_cost
-                        changed = true
-
-✏️  return sum(cost[g] for g in G)
-</code></pre></div>
-<ul>
-<li>Efficient Computable✅ <em>Polytime</em></li>
-<li><strong>Pessimistic</strong> Estimation: admissible❌ informative✅ </li>
-<li><strong>Overcounts</strong> by ignoring positive interactions, i.e. shared sub-plans<ul>
-<li>May result in <span class="arithmatex">\(dramatic\)</span> over-estimates of <span class="arithmatex">\(h^*\)</span></li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="relaxed-plans">Relaxed Plans<a class="headerlink" href="#relaxed-plans" title="Permanent link">&para;</a></h2>
-<h3 id="best-supporter-function-bsp">Best Supporter Function <span class="arithmatex">\(bs(p)\)</span><a class="headerlink" href="#best-supporter-function-bsp" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Input: A predication <span class="arithmatex">\(p\)</span></li>
-<li>Output: The <span class="arithmatex">\(cheapest\)</span> action <span class="arithmatex">\(a\)</span> which make this predication <code>TRUE</code></li>
-<li>Prerequisites<ul>
-<li><span class="arithmatex">\(p \in add(a)\)</span> iff <span class="arithmatex">\(bs(p) = a\)</span></li>
-<li><span class="arithmatex">\(bs(\cdot)\)</span> is closed<ul>
-<li><span class="arithmatex">\(bs(p)\)</span> is defined for every <span class="arithmatex">\(p \in (P \backslash s)\)</span> that has a path to a goal <span class="arithmatex">\(g \in G\)</span></li>
-</ul>
-</li>
-<li><span class="arithmatex">\(bs(\cdot)\)</span> is well-bounded<ul>
-<li>Support Graph is <em>acyclic</em> </li>
-</ul>
-</li>
-</ul>
-</li>
-<li>If a relaxed plan exists, the closed well-founded <span class="arithmatex">\(bs(\cdot)\)</span> definitely exists.<ul>
-<li>There is a relaxed path from <span class="arithmatex">\(I\)</span> to <span class="arithmatex">\(G\)</span></li>
-<li>Every <span class="arithmatex">\(g\)</span> has at least one supporter, so as its subgoals</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h3 id="helpful-actions">Helpful Actions<a class="headerlink" href="#helpful-actions" title="Permanent link">&para;</a></h3>
-<ul>
-<li>An action is helpful iff:<ul>
-<li>it is applicable in the current state (<span class="arithmatex">\(pre(a) \subseteq s\)</span>)</li>
-<li>it is contained in the final plan</li>
-</ul>
-</li>
-<li>Expanding only helpful actions does not guarantee completeness.</li>
-</ul>
-<hr />
-<h3 id="relaxed-plan-heuristic-h_ff">Relaxed Plan Heuristic (<span class="arithmatex">\(h_{FF}\)</span>)<a class="headerlink" href="#relaxed-plan-heuristic-h_ff" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>Fast Forward Expansion + <em>Greedy Backward Extraction</em></p>
-<ul>
-<li>For each goal state <span class="arithmatex">\(g \in G\)</span>:<ul>
-<li>Find the cheapest <span class="arithmatex">\(a = bs(g)\)</span></li>
-<li>Add this action to the plan</li>
-<li>repeat on <span class="arithmatex">\(bs(pre(a))\)</span>
-<div class="highlight"><pre><span></span><code>def h_FF(I, G, A):
-    if G in I:
-        return 0
-
-    # Forward Expansion - BFS
-    reached = I
-    while G not in reached:
-        new_facts = reached
-        for a in A:
-            if pre(a) in reached:
-                new_facts += add(a)
-        if new_facts == reached:
-            return unsolvable
-        reached = new_facts
-
-    # Backward Extraction - Greedy
-    plan = []
-    subgoals = G
-    while subgoals not in I:
-        new_subgoals = []
-        for g in subgoals:
-            pick a s.t. g in add(a) and pre(a) in reached
-            plan += {a}
-            new_subgoals += pre(a)
-        subgoals = new_subgoals
-
-    return len(plan)
-</code></pre></div></li>
-</ul>
-</li>
+<li>Output the value of current state
+    $$
+    V_\pi(s) = \mathbb{E}_\pi\big[G_t \mid S_t = s\big]
+    $$</li>
 </ul>
 </li>
 <li>
-<p>Same theoretical properties as <span class="arithmatex">\(h^{add}\)</span> but better in practice</p>
+<p>State-action-value Function</p>
 <ul>
-<li>Overcount sub-plans shared by different sub-goals</li>
-<li>Best Supporter is greedily chosen and sub-optimal</li>
-<li>In practice, <span class="arithmatex">\(h_{FF}\)</span> typically does not over-estimate <span class="arithmatex">\(h^*\)</span>, or not by a large amount.</li>
+<li>Output the value of the current state with a deterministic action applied
+    $$
+    Q_\pi(s,a) = \mathbb{E}_\pi \big[\, G_t \mid S_t = s,\, A_t = a \,\big]
+    $$</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h4 id="return-g_t">Return - <span class="arithmatex">\(G_t\)</span><a class="headerlink" href="#return-g_t" title="Permanent link">&para;</a></h4>
+<ul>
+<li>total discounted reward of the future
+    $$
+    G_t = R_{t+1} + \gamma (R_{t+2} + \gamma (R_{t+3} + \ldots)) = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}
+    $$</li>
+</ul>
+<hr />
+<h4 id="bellman-expectation-equation">Bellman Expectation Equation<a class="headerlink" href="#bellman-expectation-equation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p><strong>Bellman Equation</strong>: Gives a recursive form of <strong>Return</strong>
+        $$ G_t = R_{t+1} + \gamma G_{t+1} $$</p>
+<ul>
+<li>Based on "<em>look-ahead then back-up</em>" computational mechanism<ul>
+<li><strong>Look-ahead</strong>: to the next step → <span class="arithmatex">\(r, s'\)</span></li>
+<li><strong>Back-up</strong>: to the current state → <span class="arithmatex">\(v(s) = f(r,s')\)</span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>State-value Function (Deriving BEE)
+    $$
+    \begin{aligned}
+    v_\pi(s)
+    &amp;= \mathbb{E}!\left[r + \gamma v_\pi(s')\right] \[6pt]
+    &amp;= \sum_a \pi(a\mid s)\Bigl[\sum_r p(r\mid s,a)\,r</p>
+<ul>
+<li>\gamma \sum_{s'} p(s'\mid s,a) \, v_\pi(s')\Bigr]
+\end{aligned}
+$$</li>
+</ul>
+</li>
+<li>
+<p>State-action-value Function (Deriving BEE)
+    $$
+    \begin{aligned}
+    q_\pi(s,a)
+    &amp;= \mathbb{E}!\left[\, r + \gamma\, \mathbb{E}<em>{a'\sim\pi(\cdot\mid s')} \bigl[q</em>\pi(s',a')\bigr] \right] \[6pt]
+    &amp;= \sum_{s',r} p(s',r\mid s,a)\left[ r + \gamma \sum_{a'} \pi(a'\mid s')\, q_\pi(s',a') \right]
+    \end{aligned}
+    $$</p>
+</li>
+<li>
+<p>Solving the BEE</p>
+<ul>
+<li>
+<p>Directly Compute <span class="arithmatex">\(O(n^3)\)</span>
+    $$
+    v = R + \gamma Pv \to v = (I - \gamma P)^{-1}R
+    $$</p>
+<ul>
+<li>only possible for small <span class="arithmatex">\(P\)</span> matrix</li>
+</ul>
+</li>
+<li>
+<p>Dynamic Programming</p>
+</li>
+<li>Monte-Carlo Evaluation</li>
+<li>Temporal-Difference Learning</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h4 id="discount-factor-gamma">Discount Factor - <span class="arithmatex">\(\gamma\)</span><a class="headerlink" href="#discount-factor-gamma" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Gamma (<span class="arithmatex">\(0 \le \gamma \le 1\)</span>)</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\gamma = 0\)</span></td>
+<td>Greedy</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma \to 0\)</span></td>
+<td>Myopic</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma \to 1\)</span></td>
+<td>Far-sighted</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma = 1\)</span></td>
+<td><strong>Guarantee</strong> only if all sequence terminate</td>
+</tr>
+</tbody>
+</table>
+<h4 id="why-discounting-is-used">Why Discounting is Used<a class="headerlink" href="#why-discounting-is-used" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p><strong>Technical Reasons</strong></p>
+<ul>
+<li>Makes modelling and computation easier (Bellman equations converge cleanly)</li>
+<li>Prevents infinite returns in cyclic Markov processes</li>
+<li>Reflects uncertainty about far-future outcomes</li>
+</ul>
+</li>
+<li>
+<p><strong>Realistic Reasons</strong></p>
+<ul>
+<li>In financial settings, immediate rewards can be reinvested (time value of money)</li>
+<li>Human and animal behaviour shows preference for immediate rewards over delayed rewards</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="policy-pi">Policy - <span class="arithmatex">\(\pi\)</span><a class="headerlink" href="#policy-pi" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Fully defines agent's behaviour</li>
+<li><strong>Stationary</strong> (Time-independent) - Only relies on the current state</li>
+</ul>
+<h4 id="deterministic-policy">Deterministic Policy<a class="headerlink" href="#deterministic-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Give the best action directly
+$$
+\pi(a \mid s) = \mathbf{1}{\, a = a^*(s) \,}
+$$</li>
+</ul>
+<h4 id="stochastic-policy">Stochastic Policy<a class="headerlink" href="#stochastic-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p>Give the probability of each action
+$$
+\pi(a \mid s) = P(a \mid s)
+$$</p>
+</li>
+<li>
+<p>Ability of exploration; Robustness✅</p>
+</li>
+</ul>
+<h4 id="explicit-policy">Explicit Policy<a class="headerlink" href="#explicit-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Construct a model of <span class="arithmatex">\(\pi\)</span> and optimise its parameters <span class="arithmatex">\(\theta\)</span>.
+$$
+\pi(a\mid s) = f(Q; \theta)
+$$</li>
+</ul>
+<h4 id="implicit-policy">Implicit Policy<a class="headerlink" href="#implicit-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Optimise <span class="arithmatex">\(Q\)</span>, <span class="arithmatex">\(V\)</span> directly
+$$
+\pi(a\mid s) = f(Q)
+$$</li>
+</ul>
+<h4 id="on-policy">On-policy<a class="headerlink" href="#on-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Behaviour policy = Target policy</li>
+</ul>
+<h4 id="off-policy">Off-policy<a class="headerlink" href="#off-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Behaviour policy ≠ Target policy</li>
+</ul>
+<h4 id="soft-policy">Soft Policy<a class="headerlink" href="#soft-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Balance Exploration &amp; Exploitation</li>
+<li><strong>Exploitation</strong> - select currently-known best action</li>
+<li><strong>Exploration</strong> - try a new action</li>
+<li>
+<p>ε-greedy </p>
+<ul>
+<li>most time exploitation (<span class="arithmatex">\(P = 1 - \varepsilon\)</span>), little time exploration (<span class="arithmatex">\(\varepsilon\)</span>)</li>
+</ul>
+</li>
+<li>
+<p>softmax </p>
+<ul>
+<li>set a probability to each action and a temperature <span class="arithmatex">\(\tau\)</span> to control randomising
+    $$
+    P(a) = \frac{\exp(Q(a) / \tau)}{\sum_{a'} \exp(Q(a') / \tau)}
+    $$</li>
+</ul>
+</li>
+<li>
+<p>Upper Confidence Bound (UCB) </p>
+<ul>
+<li>
+<p>exploitation + exploration bonus
+    $$
+    a = \arg\max_a \left( Q(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(c\)</span> - importance of exploration (<strong>parameter</strong>)</li>
+<li><span class="arithmatex">\(\ln{t}\)</span> - explore more when time goes</li>
+<li><span class="arithmatex">\(N(a)\)</span> - not try too many times on one same action</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="categories-of-rl-algorithms">Categories of RL Algorithms<a class="headerlink" href="#categories-of-rl-algorithms" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Model-based</strong><ul>
+<li>Markov Decision Processing<ul>
+<li>Value Iteration</li>
+<li>Policy Iteration</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Model-free</strong><ul>
+<li><strong>Non-incremental</strong><ul>
+<li>Monte Carlo Learning</li>
+</ul>
+</li>
+<li><strong>Incremental</strong><ul>
+<li><strong>Tabular representation</strong><ul>
+<li>Temporal-Difference Learning<ul>
+<li>Q-Learning</li>
+<li>SARSA</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Function representation</strong><ul>
+<li>Function Approximation<ul>
+<li>Value Func Approx</li>
+<li>Policy Gradient</li>
+</ul>
+</li>
+<li>Actor-Critic Methods</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
