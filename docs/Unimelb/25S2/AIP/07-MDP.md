@@ -91,12 +91,14 @@
 ![Maze](assets/6_1_maze.png)
 
 MDP Model of MAZE:
+
 - $S$ - Agent's possible locations
 - $A$ - Step directions $\mathtt{N, E, S, W}$
 - $P$ - Map $s, a \to s'$
 - $R$ - $-1$ per time-step (encourage short-path solution)
 
 Agent of MAZE:
+
 - $V(s)$ - the expected return of following the policy from each $s$ 
 	- closer to $g$ - $V(s)$ ⤴
 	- Farther away - $V(S)$ ⤵
