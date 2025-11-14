@@ -1,4 +1,4 @@
-# 11 Policy Function Approximation
+# 12 Policy Function Approximation
 ---
 ## Policy Gradient
 - Maintain a set of parameters $\theta$ for $maximising$ future rewards
