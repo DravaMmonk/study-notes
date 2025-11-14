@@ -1,31 +1,24 @@
 /* ============================================================
-   MkDocs Material — Custom Sidebar Widths + Layout Enhancements
-   Author: ChatGPT (mobile-optimized)
+   MkDocs Material — Custom Sidebar Widths + FULL Desktop Layout
+   FIXED: Mobile drawer not showing
    ============================================================ */
 
 /* ------------------------------------------------------------
-   1. Root variables (PC widths only)
+   1. Desktop Sidebar Widths
    ------------------------------------------------------------ */
 :root {
-  --md-sidebar-width: 400px;        /* Left navigation width on desktop */
-  --md-toc-width: 360px;            /* Right TOC width on desktop */
-  --md-sidebar-width-mobile: 0px;   /* Mobile: force hidden sidebar */
+  --md-sidebar-width: 400px;      /* Left navigation width */
+  --md-toc-width: 360px;          /* Right TOC width */
 }
 
-/* ------------------------------------------------------------
-   2. LEFT SIDEBAR (Desktop only)
-   ------------------------------------------------------------ */
+/* LEFT sidebar (desktop) */
 @media (min-width: 769px) {
   .md-sidebar--primary {
     width: var(--md-sidebar-width) !important;
     max-width: var(--md-sidebar-width) !important;
   }
 
-  .md-nav--primary.md-nav--integrated {
-    width: var(--md-sidebar-width) !important;
-    max-width: var(--md-sidebar-width) !important;
-  }
-
+  .md-nav--primary.md-nav--integrated,
   .md-nav--primary .md-nav__list,
   .md-nav--primary .md-nav__item,
   .md-nav--primary .md-nav__link {
@@ -38,9 +31,7 @@
   }
 }
 
-/* ------------------------------------------------------------
-   3. RIGHT TOC (Desktop)
-   ------------------------------------------------------------ */
+/* RIGHT sidebar (desktop TOC) */
 @media (min-width: 769px) {
   .md-sidebar--secondary {
     width: var(--md-toc-width) !important;
@@ -55,31 +46,60 @@
 
   .md-nav--secondary .md-nav__link {
     white-space: normal !important;
-    overflow-wrap: break-word;
   }
 }
 
 /* ------------------------------------------------------------
-   4. MOBILE FIX — critical (small screens)
+   2. MOBILE — allow the drawer to work
    ------------------------------------------------------------ */
 @media (max-width: 768px) {
 
-  /* Main content should fill the screen */
-  .md-main__inner {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    width: 100% !important;
+  /* NOTE: DO NOT hide or compress the primary sidebar! 
+     Allow Material to handle drawer transform animation. */
+
+  .md-sidebar--primary {
+    display: block !important;
+    width: 300px !important;       /* Drawer width */
+    max-width: 300px !important;
+    transform: translateX(-100%);  /* Initial hidden */
+    transition: transform 0.25s ease;
+    background-color: var(--sidebar-bg, #fff);
+    z-index: 20;
   }
 
-  /* Header title safe zone */
-  .md-header__title {
-    max-width: 100%;
-    text-overflow: ellipsis;
+  /* When drawer toggle is checked, slide it out */
+  .md-nav-toggle:checked ~ .md-sidebar--primary {
+    transform: translateX(0);
+  }
+
+  /* RIGHT TOC hidden on mobile (Material default) */
+  .md-sidebar--secondary {
+    display: none !important;
+  }
+
+  /* Main content should fill width */
+  .md-main__inner {
+    margin: 0 !important;
+    padding: 0 1rem !important;
   }
 }
 
 /* ------------------------------------------------------------
-   5. Scrollbar styling (Desktop)
+   3. FULL-WIDTH Content on Desktop
+   ------------------------------------------------------------ */
+@media (min-width: 769px) {
+  .md-main__inner,
+  .md-content,
+  .md-content__inner {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 2rem !important;
+  }
+}
+
+/* ------------------------------------------------------------
+   4. Scrollbar Styling
    ------------------------------------------------------------ */
 .md-sidebar--primary::-webkit-scrollbar,
 .md-sidebar--secondary::-webkit-scrollbar {
@@ -92,54 +112,20 @@
   border-radius: 3px;
 }
 
-.md-sidebar--primary::-webkit-scrollbar-thumb:hover,
-.md-sidebar--secondary::-webkit-scrollbar-thumb:hover {
-  background: rgba(0,0,0,0.35);
-}
-
 /* ------------------------------------------------------------
-   6. Theme colors for sidebars (Desktop only)
+   5. Theme Colors
    ------------------------------------------------------------ */
 @media (min-width: 769px) {
   [data-md-color-scheme="default"] {
     --sidebar-bg: #f8f9fa;
     --sidebar-text: #333;
   }
-
   [data-md-color-scheme="slate"] {
     --sidebar-bg: #1f1f1f;
     --sidebar-text: #e6e6e6;
   }
-
   .md-sidebar--primary {
     background-color: var(--sidebar-bg);
     color: var(--sidebar-text);
   }
-}
-
-/* ============================================================
-   FULL-WIDTH CONTENT (Desktop)
-   让内容区在电脑端铺满整个页面
-   ============================================================ */
-@media (min-width: 769px) {
-
-  /* 解除 Material 默认内容宽度限制 */
-  .md-main__inner {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 2rem !important; /* 可调，保证不贴边 */
-  }
-
-  /* 主内容卡片也展开 */
-  .md-content {
-    max-width: 100% !important;
-    width: 100% !important;
-  }
-
-  .md-content__inner {
-    max-width: 100% !important;
-    width: 100% !important;
-  }
-
 }
