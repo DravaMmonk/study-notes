@@ -1,4 +1,4 @@
-# 1. Search
+# 01. Search
 ---
 ## Search Space
 - A set of search states

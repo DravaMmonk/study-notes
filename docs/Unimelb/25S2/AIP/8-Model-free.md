@@ -1,4 +1,4 @@
-# 8. Model-free Reinforced Learning
+# 08. Model-free Reinforced Learning
 ---
 ## Monte Carlo (MC) Learning
 - Set the state as initial state and run-to-end in the environment for multiple times
@@ -50,20 +50,22 @@ $$
 
 ### TD(0)
 - Look 1-step
+
 	$$
-	\begin{aligned}
+	\begin{align}
 	V(S_t) 
-	&\gets V(S_t) + \alpha \big({{G_t^{(0)} - V(S_t)}} \\[6pt]
+	&\gets V(S_t) + \alpha \big({{G_t^{(0)} - V(S_t))}} \\[2pt]
 	&= V(s_t) + \alpha(R_{t+1} + \gamma V(s_{t+1})-V(s_t))
-	\end{aligned}
+	\end{align}
 	$$
 
 	- $\delta = R_{t+1} + \gamma V(s_{t+1})-V(s_t)$ - TD Error
 
 ### TD(n) 
 - Look more steps into the future
+
 $$
-G^{(n)}_t = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + {{\gamma^n V(S_{t+n})}}
+G^{(n)}_t = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + {{\gamma^n V(S_{t+n})}}
 $$
 
 $$
@@ -75,7 +77,7 @@ $$
 \end{align*}
 $$
 
-- Update in direction of error ([#$\alpha$-style prediction])
+- Update in direction of error
 $$
 V(S_t) \;\gets\; V(S_t) + \alpha \big({{G_t^{(n)} - V(S_t)}} \big)
 $$
@@ -92,9 +94,9 @@ $$
 	G_t^{\lambda} \;=\; {{(1 - \lambda) \sum_{n=1}^{\infty} \lambda^{\,n-1}}} G_t^{(n)}
 	$$
 
-$$
-V(S_t) \;\leftarrow\; V(S_t) + \alpha \big( G_t^{\lambda} - V(S_t) \big)
-$$
+	$$
+	V(S_t) \;\leftarrow\; V(S_t) + \alpha \big( G_t^{\lambda} - V(S_t) \big)
+	$$
 
 	- ✅Memoryless - i.e space complexity is same as TD(0)
 	- ⚠️Forward View - We cannot look into the far future during learning👇

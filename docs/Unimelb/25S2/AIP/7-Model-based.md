@@ -1,4 +1,4 @@
-# 7. Model-based Reinforced Learning
+# 07. Model-based Reinforced Learning
 
 ## Markov Decision Process (MDP)
 - General Simulator of the environment for Model-based RL
@@ -61,22 +61,25 @@
 ---
 #### Bellman Optimality Equation 
 - Optimal State-value Function (Deriving BEE)
-$$
-\begin{aligned}
-v_\ast(s)
-&= \max_a \; \mathbb{E}\!\left[\, r + \gamma v_\ast(s') \,\right] \\[6pt]
-&= \max_a \; \sum_{s'} P(s' \mid s,a)\left[\, R(s,a,s') + \gamma v_\ast(s') \,\right]
-\end{aligned}
-$$
+
+	$$
+	\begin{align}
+	v_\ast(s)
+	&= \max_a \; \mathbb{E}\!\left[\, r + \gamma v_\ast(s') \,\right] \\[6pt]
+	&= \max_a \; \sum_{s'} P(s' \mid s,a)\left[\, R(s,a,s') + \gamma v_\ast(s') \,\right]
+	\end{align}
+	$$
 
 - Optimal State-action-value Function (Deriving BEE)
-$$
-\begin{aligned}
-q_\ast(s,a)
-&= \mathbb{E}\!\left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right] \\[6pt]
-&= \sum_{s',r} p(s',r\mid s,a)\left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right]
-\end{aligned}
-$$
+
+	$$
+	\begin{align}
+	q_\ast(s,a)
+	&= \mathbb{E} \left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right] \\[6pt]
+	&= \sum_{s',r} p(s',r\mid s,a)\left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right]
+	\end{align}
+	$$
+
 - Solving the BOE
 	- No closed form solution
 	- Value Iteration

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/Unimelb/25S2/AIP/7-Model-based.md",
+                "file": "docs/Unimelb/25S2/AIP/6-Reinforced-Learning.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
-              "title": "7-Model-based"
+              "title": "6-Reinforced-Learning"
             }
           },
           {
@@ -29,14 +29,13 @@
               "state": {
                 "file": "docs/Unimelb/25S2/AIP/8-Model-free.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
               "title": "8-Model-free"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -110,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/Unimelb/25S2/AIP/8-Model-free.md",
+                "file": "docs/Unimelb/25S2/AIP/6-Reinforced-Learning.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -120,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 8-Model-free"
+              "title": "Backlinks for 6-Reinforced-Learning"
             }
           },
           {
@@ -210,19 +209,22 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "4c11b1d1525449a9",
+  "active": "8d607a939fb6b7c9",
   "lastOpenFiles": [
-    "docs/Unimelb/25S2/AIP/7-Model-based.md",
     "docs/Unimelb/25S2/AIP/8-Model-free.md",
-    "docs/Unimelb/25S2/AIP/6-Reinforced-Learning.md",
     "docs/Unimelb/25S2/AIP/9-Function-Approx.md",
     "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
+    "docs/Unimelb/25S2/AIP/7-Model-based.md",
+    "docs/Unimelb/25S2/AIP/6-Reinforced-Learning.md",
+    "docs/Unimelb/25S2/AIP/5-Exploration.md",
+    "docs/Unimelb/25S2/AIP/4-Relaxation.md",
+    "docs/Unimelb/25S2/AIP/3-Complexity.md",
+    "docs/Unimelb/25S2/AIP/2-Planning.md",
+    "docs/Unimelb/25S2/AIP/1-Search.md",
     "docs/Unimelb/25S2/AIP/9-Temporal-Difference.md",
     "Untitled.md",
     "Untitled",
     "docs/Unimelb/25S2/AIP/assets/6_1_maze.png",
-    "docs/Unimelb/25S2/AIP/5-Exploration.md",
-    "docs/Unimelb/25S2/AIP/1-Search.md",
     "site/search/search_index.json",
     "site/search",
     "site/Unimelb/25S2/AIP/8-Model-Free-RL/index.html",
@@ -233,11 +235,8 @@
     "site/404.html",
     "site/stylesheets/extra.css",
     "site/Unimelb/25S2/AIP/assets/8_1_depth_width.svg",
-    "docs/Unimelb/25S2/AIP/2-Planning.md",
-    "docs/Unimelb/25S2/AIP/3-Complexity.md",
     "docs/stylesheets/Untitled.md",
     "docs/Unimelb/25S2/AIP/assets/8_1_depth_width.svg",
-    "docs/Unimelb/25S2/AIP/4-Relaxation.md",
     "docs/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
     "README.md",
     "Untitled.canvas",
