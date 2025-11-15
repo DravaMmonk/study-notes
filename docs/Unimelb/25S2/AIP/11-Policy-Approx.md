@@ -348,4 +348,4 @@ $$
 = {\mathbb{E}_{\pi_{\theta}} \big[ \nabla_{\theta} \log \pi_{\theta}(s,a)\; \delta_{\pi_{\theta}} \big]}
 $$
 
-[^1]: P51 -【【强化学习的数学原理】课程：从零开始到透彻理解（完结）-哔哩哔哩】 https://b23.tv/pVXJKm8
+[^1]: 【第10课-Actor-Critic方法（Part2-Advantage Actor-Critic (A2C)）【强化学习的数学原理】-哔哩哔哩】 https://b23.tv/SlGApOj

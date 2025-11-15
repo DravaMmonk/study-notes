@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/index.md",
+                "file": "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "index"
+              "title": "11-Policy-Approx"
             }
           }
         ],
@@ -123,7 +123,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/index.md",
+                "file": "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -133,7 +133,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for index"
+              "title": "Backlinks for 11-Policy-Approx"
             }
           },
           {
@@ -223,16 +223,9 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "55e7e4bad64bb55e",
+  "active": "3f22eb8366d16a1b",
   "lastOpenFiles": [
-    "docs/Unimelb/25S2/AIP/01-Search.md",
     "docs/index.md",
-    "mdp.md",
-    "README.md",
-    "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
-    "README.md.sb-3ad015f2-5a0nJc",
-    "site/assets/javascripts 3",
-    "site/Unimelb/25S2 3",
     "site/search/search_index.json",
     "site/search",
     "site/Unimelb/25S2/AIP/12-Integrating/index.html",
@@ -240,6 +233,13 @@
     "site/Unimelb/25S2/AIP/11-Policy-Approx/index.html",
     "site/Unimelb/25S2/AIP/11-Policy-Approx",
     "site/Unimelb/25S2/AIP/10-Value-Approx/index.html",
+    "site/Unimelb/25S2/AIP/10-Value-Approx",
+    "site/Unimelb/25S2/AIP/09-TD/index.html",
+    "site/Unimelb/25S2/AIP/09-TD",
+    "docs/Unimelb/25S2/AIP/01-Search.md",
+    "mdp.md",
+    "README.md",
+    "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
     "site/Unimelb/25S2/AIP/assets/10_1_ab.svg",
     "docs/Unimelb/25S2/AIP/10-Value-Approx.md",
     "docs/Unimelb/25S2/AIP/12-Integrating.md",
@@ -270,7 +270,6 @@
     "docs/Unimelb/25S2/AIP/WEEK-7-2-Markov-Learning-Process.md",
     "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
     "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
-    "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md",
-    "Unimelb/25S2/AIP/WEEK-4-Complexity.md"
+    "Unimelb/25S2/AIP/WEEK-3-Planning-Methods.md"
   ]
 }
