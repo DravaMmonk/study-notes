@@ -23,7 +23,7 @@
     
     
       
-        <title>8 Monte Carlo Learning - Drava's Study Notes</title>
+        <title>8 Monte Carlo - Drava's Study Notes</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#8-monte-carlo-learning" class="md-skip">
+        <a href="#8-monte-carlo" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              8 Monte Carlo Learning
+              8 Monte Carlo
             
           </span>
         </div>
@@ -711,7 +711,7 @@
   <span class="md-ellipsis">
     
   
-    8 Monte Carlo Learning
+    8 Monte Carlo
   
 
     
@@ -729,7 +729,7 @@
   <span class="md-ellipsis">
     
   
-    8 Monte Carlo Learning
+    8 Monte Carlo
   
 
     
@@ -766,10 +766,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#monte-carlo-mc-motivation" class="md-nav__link">
+  <a href="#monte-carlo-mc-learning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Monte Carlo (MC) Motivation
+        Monte Carlo (MC) Learning
       
     </span>
   </a>
@@ -849,7 +849,7 @@
   <span class="md-ellipsis">
     
   
-    9 Temporal Difference Learning
+    9 Temporal Difference
   
 
     
@@ -898,14 +898,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-Batch/" class="md-nav__link">
+      <a href="../11-Policy-Approx/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    11 Batch
+    11 Policy Function Approximation
   
 
     
@@ -926,14 +926,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../12-Policy-Approx/" class="md-nav__link">
+      <a href="../12-Integrating/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    12 Policy Function Approximation
+    12 Integrating Learning and Planning
   
 
     
@@ -987,13 +987,26 @@
 
 
 
-<h1 id="8-monte-carlo-learning">8 Monte Carlo Learning<a class="headerlink" href="#8-monte-carlo-learning" title="Permanent link">&para;</a></h1>
+<h1 id="8-monte-carlo">8 Monte Carlo<a class="headerlink" href="#8-monte-carlo" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="model-based-model-free">Model-based → Model-free<a class="headerlink" href="#model-based-model-free" title="Permanent link">&para;</a></h2>
+<p>Model-based</p>
 <ul>
-<li>Learn from: Principle → Experience</li>
+<li>Learn from <strong>Simulator</strong> of Environment<ul>
+<li>Commonly use MDP to model the Markov Environment</li>
 </ul>
-<h2 id="monte-carlo-mc-motivation">Monte Carlo (MC) Motivation<a class="headerlink" href="#monte-carlo-mc-motivation" title="Permanent link">&para;</a></h2>
+</li>
+</ul>
+<p>Model-free</p>
+<ul>
+<li>Learn <strong>Experience</strong> from Environment<ul>
+<li>Experience: <span class="arithmatex">\(E_t = \langle S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1}, ... \rangle\)</span></li>
+</ul>
+</li>
+<li>Optimise <span class="arithmatex">\(V, Q, \pi\)</span> directly</li>
+</ul>
+<hr />
+<h2 id="monte-carlo-mc-learning">Monte Carlo (MC) Learning<a class="headerlink" href="#monte-carlo-mc-learning" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Run-to-end in the environment for multiple times</li>
 <li>

@@ -897,89 +897,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Policy - \(\pi\)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#deterministic-policy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Deterministic Policy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#stochastic-policy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Stochastic Policy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#on-policy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        On-policy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#off-policy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Off-policy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#implicit-policy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Implicit Policy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#explicit-policy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Explicit Policy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#soft-policy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Soft Policy
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
         
           <li class="md-nav__item">
@@ -1049,7 +966,7 @@
   <span class="md-ellipsis">
     
   
-    8 Monte Carlo Learning
+    8 Monte Carlo
   
 
     
@@ -1077,7 +994,7 @@
   <span class="md-ellipsis">
     
   
-    9 Temporal Difference Learning
+    9 Temporal Difference
   
 
     
@@ -1126,14 +1043,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-Batch/" class="md-nav__link">
+      <a href="../11-Policy-Approx/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    11 Batch
+    11 Policy Function Approximation
   
 
     
@@ -1154,14 +1071,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../12-Policy-Approx/" class="md-nav__link">
+      <a href="../12-Integrating/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    12 Policy Function Approximation
+    12 Integrating Learning and Planning
   
 
     
@@ -1340,7 +1257,7 @@
 
     subgraph Agent[Agent]
         P["Policy π(a|s)"]
-        V["Value Function V(s)"]
+        V["(Optional) Value Function"]
     end
 
     S --&gt;|"(1) Initial State s"| P
@@ -1541,121 +1458,37 @@ q_\pi(s,a)
 <li>Fully defines agent's behaviour</li>
 <li><strong>Stationary</strong> (Time-independent) - Only relies on the current state</li>
 </ul>
-<h4 id="deterministic-policy">Deterministic Policy<a class="headerlink" href="#deterministic-policy" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Give the best action directly
-$$
-\pi(a \mid s) = \mathbf{1}{\, a = a^*(s) \,}
-$$</li>
-</ul>
-<h4 id="stochastic-policy">Stochastic Policy<a class="headerlink" href="#stochastic-policy" title="Permanent link">&para;</a></h4>
-<ul>
-<li>
-<p>Give the probability of each action
-$$
-\pi(a \mid s) = P(a \mid s)
-$$</p>
-</li>
-<li>
-<p>Ability of exploration; Robustness✅</p>
-</li>
-</ul>
-<h4 id="on-policy">On-policy<a class="headerlink" href="#on-policy" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Behaviour policy = Target policy</li>
-</ul>
-<h4 id="off-policy">Off-policy<a class="headerlink" href="#off-policy" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Behaviour policy ≠ Target policy</li>
-</ul>
-<h4 id="implicit-policy">Implicit Policy<a class="headerlink" href="#implicit-policy" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Optimise <span class="arithmatex">\(Q\)</span>, <span class="arithmatex">\(V\)</span> directly
-$$
-\pi(a\mid s) = \arg\max_a f(Q)
-$$</li>
-</ul>
-<h4 id="explicit-policy">Explicit Policy<a class="headerlink" href="#explicit-policy" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Construct a model of <span class="arithmatex">\(\pi\)</span> and optimise its parameters <span class="arithmatex">\(w\)</span>.
-$$
-\pi(a\mid s) = f(Q; w)
-$$</li>
-</ul>
-<h4 id="soft-policy">Soft Policy<a class="headerlink" href="#soft-policy" title="Permanent link">&para;</a></h4>
-<ul>
-<li>✅Balance Exploration &amp; Exploitation</li>
-<li>
-<p>ε-greedy </p>
-<ul>
-<li>most time exploitation (<span class="arithmatex">\(P = 1 - \varepsilon\)</span>), little time exploration (<span class="arithmatex">\(\varepsilon\)</span>)</li>
-</ul>
-</li>
-<li>
-<p>softmax </p>
-<ul>
-<li>set a probability to each action and a temperature <span class="arithmatex">\(\tau\)</span> to control randomising
-    $$
-    P(a) = \frac{\exp(Q(a) / \tau)}{\sum_{a'} \exp(Q(a') / \tau)}
-    $$</li>
-</ul>
-</li>
-<li>
-<p>Upper Confidence Bound (UCB) </p>
-<ul>
-<li>
-<p>exploitation + exploration bonus
-    $$
-    a = \arg\max_a \left( Q(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
-    $$</p>
-<ul>
-<li><span class="arithmatex">\(c\)</span> - importance of exploration (<strong>parameter</strong>)</li>
-<li><span class="arithmatex">\(\ln{t}\)</span> - explore more when time goes</li>
-<li><span class="arithmatex">\(N(a)\)</span> - not try too many times on one same action</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
 <hr />
 <h3 id="categories-of-rl-algorithms">Categories of RL Algorithms<a class="headerlink" href="#categories-of-rl-algorithms" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Model-based</strong><ul>
 <li>Markov Decision Processing<ul>
 <li>Value Iteration</li>
 <li>Policy Iteration</li>
 </ul>
 </li>
 </ul>
-</li>
-<li><strong>Model-free</strong><ul>
-<li><strong>Non-incremental</strong><ul>
-<li>Monte Carlo Learning</li>
+<p><strong>Model-based → Model-free</strong></p>
+<ul>
+<li>Monte Carlo</li>
 </ul>
-</li>
-<li><strong>Incremental</strong><ul>
-<li><strong>Tabular representation</strong><ul>
-<li>Temporal-Difference Learning<ul>
-<li>Q-Learning</li>
+<p><strong>Non-incremental → Incremental</strong></p>
+<ul>
+<li>Temporal Difference<ul>
 <li>SARSA</li>
+<li>Q-Learning</li>
 </ul>
 </li>
 </ul>
-</li>
-<li><strong>Function representation</strong><ul>
-<li><strong>Value-based</strong><ul>
+<p><strong>Tabular representation → Function representation</strong></p>
+<ul>
 <li>Value Function Approximation</li>
 </ul>
-</li>
-<li><strong>Policy-based</strong><ul>
-<li>Policy Gradient</li>
-<li>Actor-Critic Methods</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
+<p><strong>Deterministic → Stochastic Policy</strong></p>
+<ul>
+<li>Finite Difference</li>
+<li>Policy Gradient<ul>
+<li>REINFORCE</li>
+<li>Actor-Critic</li>
 </ul>
 </li>
 </ul>

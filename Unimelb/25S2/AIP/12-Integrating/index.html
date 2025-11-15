@@ -9,10 +9,8 @@
       
       
       
-        <link rel="prev" href="../10-Value-Approx/">
+        <link rel="prev" href="../11-Policy-Approx/">
       
-      
-        <link rel="next" href="../12-Policy-Approx/">
       
       
         
@@ -23,7 +21,7 @@
     
     
       
-        <title>11 Batch - Drava's Study Notes</title>
+        <title>12 Integrating Learning and Planning - Drava's Study Notes</title>
       
     
     
@@ -76,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#11-batch" class="md-skip">
+        <a href="#12-integrating-learning-and-planning" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              11 Batch
+              12 Integrating Learning and Planning
             
           </span>
         </div>
@@ -702,7 +700,7 @@
   <span class="md-ellipsis">
     
   
-    8 Monte Carlo Learning
+    8 Monte Carlo
   
 
     
@@ -730,7 +728,7 @@
   <span class="md-ellipsis">
     
   
-    9 Temporal Difference Learning
+    9 Temporal Difference
   
 
     
@@ -776,6 +774,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-Policy-Approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 Policy Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -795,7 +821,7 @@
   <span class="md-ellipsis">
     
   
-    11 Batch
+    12 Integrating Learning and Planning
   
 
     
@@ -813,7 +839,7 @@
   <span class="md-ellipsis">
     
   
-    11 Batch
+    12 Integrating Learning and Planning
   
 
     
@@ -839,50 +865,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#batch" class="md-nav__link">
+  <a href="#model-free-integrated-architectures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Batch
+        Model-free → Integrated Architectures
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Batch">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example-mc-td-in-a-batch" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example - MC &amp; TD In a Batch
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#batch-methods" class="md-nav__link">
+  <a href="#simulation-based-search" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Batch Methods
+        Simulation-based Search
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Batch Methods">
+    <nav class="md-nav" aria-label="Simulation-based Search">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#least-squares-temporal-difference" class="md-nav__link">
+  <a href="#simple-monte-carlo-search" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Least Squares Temporal Difference
+        Simple Monte-Carlo Search
       
     </span>
   </a>
@@ -890,21 +899,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#gradient-descent" class="md-nav__link">
+  <a href="#monte-carlo-tree-search" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Gradient Descent:
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#deep-q-learning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Deep Q-Learning
+        Monte-Carlo Tree Search
       
     </span>
   </a>
@@ -920,34 +918,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../12-Policy-Approx/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    12 Policy Function Approximation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -993,68 +963,68 @@
 
 
 
-<h1 id="11-batch">11 Batch<a class="headerlink" href="#11-batch" title="Permanent link">&para;</a></h1>
+<h1 id="12-integrating-learning-and-planning">12 Integrating Learning and Planning<a class="headerlink" href="#12-integrating-learning-and-planning" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="batch">Batch<a class="headerlink" href="#batch" title="Permanent link">&para;</a></h2>
-<p><strong>Restricted Environment</strong>: Only limited and static samples can algorithms learn from</p>
+<h2 id="model-free-integrated-architectures">Model-free → Integrated Architectures<a class="headerlink" href="#model-free-integrated-architectures" title="Permanent link">&para;</a></h2>
+<p>Model-free</p>
+<ul>
+<li>No model</li>
+<li>Learn Value/Policy from experience</li>
+<li>Cannot look ahead❌</li>
+<li>Sample may be expensive⚠️</li>
+<li>May fall into sub-optimal</li>
+</ul>
+<p>Integrated Architectures</p>
+<ul>
+<li>Learn Model from experience</li>
+<li>Learn and plan Value/Policy from real and simulated experience</li>
+<li>Sample is efficient✅ (directly from simulators)</li>
+<li>Avoid model error✅ (Beyond Model-based)</li>
+<li>Supervised Learning methods can be used in model training✅</li>
+<li>Uncertainty can be learned in model training✅</li>
+<li>Modelling is hard❌<ul>
+<li>Need environment to be model-learnable⚠️</li>
+<li>Compounding model bias❌ (experience is from model)</li>
+</ul>
+</li>
+<li>High computation cost❌</li>
+</ul>
+<hr />
+<h2 id="simulation-based-search">Simulation-based Search<a class="headerlink" href="#simulation-based-search" title="Permanent link">&para;</a></h2>
+<p>Model-based RL + Model-free RL backup</p>
+<ol>
+<li>Collect the current state <span class="arithmatex">\(s_t\)</span> from real world</li>
+<li>For each <span class="arithmatex">\(a \in A\)</span>, simulate <span class="arithmatex">\(K\)</span> episodes from <span class="arithmatex">\(s_t\)</span>:<ul>
+<li>Use a model of MDP to look ahead</li>
+<li>Use <em>Forward Search</em> methods (e.g. BFS, DFS) to select action</li>
+<li>Terminate after running <span class="arithmatex">\(T-t\)</span> steps</li>
+</ul>
+</li>
+</ol>
 <div class="arithmatex">\[
-\mathcal{D} = \{\langle s_1, v^\pi_1 \rangle, \ldots, \langle s_n, v^\pi_n \rangle,\}
+\{ s_t^k, A_t^k, R_{t+1}^k, \ldots, S_T^k \}_{k=1}^K \;\sim\; \mathcal{M}_\nu
 \]</div>
-<p><strong>Distribution Shift</strong>: These samples may generate by a sub-optimal policy, so that:
-- Data may be out of distribution
-- Q-value may be over-estimated
-- Overfitting</p>
-<p><strong>Potential Suitable Methods:</strong>
-- Function Approximation → generalisability
-- Off-policy (e.g. Q-Learning) → static sample set
-- Supervised Learning Methods (e.g. Neural Network) → static sample set</p>
+<ol>
+<li>Take each episode as a experience for Model-free update</li>
+<li>Select the action in real world based on optimal policy from Model-free RL</li>
+</ol>
 <hr />
-<h5 id="example-mc-td-in-a-batch">Example - MC &amp; TD In a Batch<a class="headerlink" href="#example-mc-td-in-a-batch" title="Permanent link">&para;</a></h5>
-<p>2-states: <span class="arithmatex">\(A\)</span>, <span class="arithmatex">\(B\)</span></p>
-<p>Reward Signal = <span class="arithmatex">\(\{0, 1\}\)</span></p>
-<p>Sampled Episodes:
+<h3 id="simple-monte-carlo-search">Simple Monte-Carlo Search<a class="headerlink" href="#simple-monte-carlo-search" title="Permanent link">&para;</a></h3>
+<p>Derive from MC, update <span class="arithmatex">\(q\)</span> value by <strong>mean return</strong> of all episodes, select the optimal action with <span class="arithmatex">\(maximum\)</span> <span class="arithmatex">\(q\)</span>.</p>
+<hr />
+<h3 id="monte-carlo-tree-search">Monte-Carlo Tree Search<a class="headerlink" href="#monte-carlo-tree-search" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Build a search tree containing visited states and actions</li>
+<li>Update <span class="arithmatex">\(q\)</span> by mean return of episodes <em>starting from each <span class="arithmatex">\((s,a)\)</span></em></li>
+</ul>
+<p>$$
+q(s,a)
+= \frac{1}{N(s,a)} \sum_{k=1}^K \sum_{u=t}^T
+\mathbf{1}(S_u, A_u = s,a) \, G_u
 $$
-A \to 0, B \to 0, B \to 1, B \to 1, B \to 1, B \to 1, B \to 1, B \to 1, B \to 0
-$$</p>
-<p>MC Update:</p>
-<ul>
-<li><span class="arithmatex">\(V(B) = 6/8 = 0.75\)</span></li>
-<li><span class="arithmatex">\(V(A) = 0 / 1 = 0\)</span></li>
-</ul>
-<p>TD Update:</p>
-<ul>
-<li><span class="arithmatex">\(V(B) \to0.75\)</span></li>
-<li><span class="arithmatex">\(V(A) \to V(B) \to 0.75\)</span></li>
-</ul>
-<hr />
-<h2 id="batch-methods">Batch Methods<a class="headerlink" href="#batch-methods" title="Permanent link">&para;</a></h2>
-<h3 id="least-squares-temporal-difference">Least Squares Temporal Difference<a class="headerlink" href="#least-squares-temporal-difference" title="Permanent link">&para;</a></h3>
-<p>By <span class="arithmatex">\(minimising\)</span> <em>SSE</em> between approximate and true values</p>
-<div class="arithmatex">\[
-LS(\mathbf{w}) = \mathbb{E}_{s_i,v_i^\pi \sim \mathcal{D}} \left[ (v^\pi_i(s_i) - \hat{v}(s_i, \mathbf{w}))^2 \right]
-\]</div>
-<hr />
-<h3 id="gradient-descent">Gradient Descent:<a class="headerlink" href="#gradient-descent" title="Permanent link">&para;</a></h3>
-<p>By using Stochastic Gradient Descent:</p>
-<div class="arithmatex">\[
-w_{k+1} = w_k - \alpha\,
-\bigl(v^\pi - \hat{v}(s,w)\bigr)\,
-\nabla \hat{v}(s,w)
-\]</div>
-<hr />
-<h3 id="deep-q-learning">Deep Q-Learning<a class="headerlink" href="#deep-q-learning" title="Permanent link">&para;</a></h3>
-<p>By using Q-Learning + Neural Network:</p>
-<div class="arithmatex">\[
-L_i(\mathbf{w}_i)
-=\underbrace{\mathbb{E}_{(s,a,r,s')\sim \mathcal{D}_i}}_{\text{sampled from}\;D_i}
-\Big[
-\big(
-\underbrace{r+\gamma \max_{a'} Q(s',a';\mathbf{w}^{-}_i)}_{\text{TD target }}
--
-\underbrace{Q(s,a;\mathbf{w}_i)}_{\text{Q estimate}}
-\big)^2
-\Big]
-\]</div>
+Off-policy
+- Behaviour Policy: Forward Search methods
+- Optimal Policy: <span class="arithmatex">\(\arg\max q(s,a)\)</span></p>
 
 
 

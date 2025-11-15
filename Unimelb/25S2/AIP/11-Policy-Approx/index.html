@@ -9,8 +9,10 @@
       
       
       
-        <link rel="prev" href="../11-Batch/">
+        <link rel="prev" href="../10-Value-Approx/">
       
+      
+        <link rel="next" href="../12-Integrating/">
       
       
         
@@ -21,7 +23,7 @@
     
     
       
-        <title>12 Policy Function Approximation - Drava's Study Notes</title>
+        <title>11 Policy Function Approximation - Drava's Study Notes</title>
       
     
     
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#12-policy-function-approximation" class="md-skip">
+        <a href="#11-policy-function-approximation" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              12 Policy Function Approximation
+              11 Policy Function Approximation
             
           </span>
         </div>
@@ -700,7 +702,7 @@
   <span class="md-ellipsis">
     
   
-    8 Monte Carlo Learning
+    8 Monte Carlo
   
 
     
@@ -728,7 +730,7 @@
   <span class="md-ellipsis">
     
   
-    9 Temporal Difference Learning
+    9 Temporal Difference
   
 
     
@@ -774,34 +776,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../11-Batch/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    11 Batch
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -821,7 +795,7 @@
   <span class="md-ellipsis">
     
   
-    12 Policy Function Approximation
+    11 Policy Function Approximation
   
 
     
@@ -839,7 +813,7 @@
   <span class="md-ellipsis">
     
   
-    12 Policy Function Approximation
+    11 Policy Function Approximation
   
 
     
@@ -865,6 +839,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#value-based-policy-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value-based → Policy-based
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#policy-gradient" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -875,10 +860,266 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#objective-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Objective Function
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optimise-the-object-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optimise the Object Function
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deterministic-policy-stochasticsoft-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deterministic Policy → Stochastic/Soft Policy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deterministic Policy → Stochastic/Soft Policy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deterministicnear-deterministic-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deterministic/Near-deterministic Policy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deterministic/Near-deterministic Policy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-greedy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ε-greedy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upper-confidence-bound-ucb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upper Confidence Bound (UCB)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stochastic-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stochastic Policy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stochastic Policy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gaussian" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gaussian
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solve-the-score-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solve the Score Function
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#approximate-the-expected-return" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Approximate the Expected Return
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Approximate the Expected Return">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#average-state-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Average State Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-state-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start State Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#average-one-step-reward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Average One-step Reward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policy-gradient-theorem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy Gradient Theorem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reinforce" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        REINFORCE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#actor-critic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actor-Critic
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Actor-Critic">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QAC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a2c-advantage-actor-critic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A2C - Advantage actor-critic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-Integrating/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 Integrating Learning and Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -924,19 +1165,84 @@
 
 
 
-<h1 id="12-policy-function-approximation">12 Policy Function Approximation<a class="headerlink" href="#12-policy-function-approximation" title="Permanent link">&para;</a></h1>
+<h1 id="11-policy-function-approximation">11 Policy Function Approximation<a class="headerlink" href="#11-policy-function-approximation" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="policy-gradient">Policy Gradient<a class="headerlink" href="#policy-gradient" title="Permanent link">&para;</a></h2>
+<h2 id="value-based-policy-based">Value-based → Policy-based<a class="headerlink" href="#value-based-policy-based" title="Permanent link">&para;</a></h2>
+<p>In <strong>Value-based</strong> Algorithms:</p>
 <ul>
-<li>
-<p>Maintain a set of parameters <span class="arithmatex">\(\theta\)</span> for <span class="arithmatex">\(maximising\)</span> future rewards
-    $$
-    J(\theta) = \mathbb{E}(G) = \sum_{\tau} P(\tau \mid \theta) \, G(\tau)
-    $$</p>
+<li>A policy is optimal if it can <span class="arithmatex">\(maximise\)</span> every state value</li>
+</ul>
+<div class="arithmatex">\[
+\pi^\ast = \arg\max_\pi v_\pi(S)
+\]</div>
 <ul>
-<li><span class="arithmatex">\(\tau\)</span> - A full path from initial state to the goal</li>
+<li>We store all <span class="arithmatex">\(v_\pi(S)\)</span> in a tabular based on different <span class="arithmatex">\(\pi\)</span> so that we can choose best policy from them.</li>
+</ul>
+<p>In <strong>Policy-based</strong> Algorithms:</p>
+<ul>
+<li>We construct a model of <span class="arithmatex">\(\pi\)</span> and optimise by tuning its parameters <span class="arithmatex">\(\theta\)</span>.</li>
+</ul>
+<div class="arithmatex">\[
+\pi^\ast = \pi(a\mid S,\theta)
+\]</div>
+<ul>
+<li>Higher Level approximation✅<ul>
+<li>Higher space efficiency✅</li>
+<li>Higher generalisability✅</li>
+<li>Can learn stochastic policies✅</li>
 </ul>
 </li>
+<li>May converges to a local optimum⚠️</li>
+<li>Policy evaluation is inefficient and high-variance❌<ul>
+<li>Sampling looks for the whole trace - inefficient❌</li>
+<li>Off-policy unavailable (<span class="arithmatex">\(\theta\)</span> changed → data distribution changed → need new sampling)❌</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="policy-gradient">Policy Gradient<a class="headerlink" href="#policy-gradient" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Use a object function to define optimal policies: <span class="arithmatex">\(J(\theta\)</span>)</li>
+<li>Use gradient-based optimisation to search for optimal policies</li>
+</ol>
+<div class="arithmatex">\[
+\theta_{t+1} = \theta + \alpha \nabla J(\theta_t)
+\]</div>
+<hr />
+<h2 id="objective-function">Objective Function<a class="headerlink" href="#objective-function" title="Permanent link">&para;</a></h2>
+<p>Goal: <span class="arithmatex">\(maximise\)</span> the <strong>expected long-term return</strong> under the policy:</p>
+<div class="arithmatex">\[
+J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta}\left[\, G(\tau) \,\right],
+\]</div>
+<p>where</p>
+<ul>
+<li><span class="arithmatex">\(\tau\)</span> represents the trajectory generated by following such policy</li>
+</ul>
+<hr />
+<h2 id="optimise-the-object-function">Optimise the Object Function<a class="headerlink" href="#optimise-the-object-function" title="Permanent link">&para;</a></h2>
+<p>By using Gradient Descent:</p>
+<p>$$
+\theta_{k+1} = \theta_k - \alpha \nabla J(\theta_k)
+$$
+<span class="arithmatex">\(\nabla J(\theta_k)\)</span> can be computed by:</p>
+<ul>
+<li><strong>Finite Difference</strong><ul>
+<li>Run one episode on <span class="arithmatex">\(\theta_k\)</span> and get <span class="arithmatex">\(J(\theta_k)\)</span></li>
+<li>Slightly change <span class="arithmatex">\(\theta_k\)</span> to <span class="arithmatex">\(\theta_k + \epsilon \vec{e}_k\)</span><ul>
+<li>where <span class="arithmatex">\(\epsilon \vec{e}_k\)</span> is a small noise (in vector form)</li>
+</ul>
+</li>
+<li>Run one episode again on <span class="arithmatex">\(\theta_k + \epsilon \vec{e}_k\)</span> and get <span class="arithmatex">\(J(\theta_k + \epsilon \vec{e}_k)\)</span></li>
+<li>Estimate gradient by using finite difference:</li>
+</ul>
+</li>
+</ul>
+<div class="arithmatex">\[
+\nabla J(\theta) \approx 
+\frac{J(\theta + \epsilon e_i) - J(\theta)}{\epsilon}
+\]</div>
+<ul>
+<li><strong>True Gradient Descent</strong> (The Gradient-ascent Algorithm)</li>
 </ul>
 <div class="arithmatex">\[
 \begin{aligned}
@@ -947,11 +1253,238 @@
 &amp;&amp; \text{(apply log-derivative trick)} \\[4pt]
 &amp;= \mathbb{E}_{\tau \sim P(\tau \mid \theta)} \big[ \nabla \log P(\tau \mid \theta) \, G(\tau) \big]
 &amp;&amp; \text{(convert sum to expectation)} \\[4pt]
-&amp;= \mathbb{E}_{\pi_\theta} \big[ \nabla \log \pi_\theta(a \mid s) \, G(\tau) \big]
+&amp;= \mathbb{E}_{\pi_\theta} \big[ \nabla \log \pi_\theta(A \mid S) \, G(\tau) \big]
 &amp;&amp; \text{(expand trajectory likelihood)}
 \end{aligned}
 \]</div>
+<ul>
+<li><strong>Stochastic Gradient Descent</strong></li>
+</ul>
+<div class="arithmatex">\[
+\nabla J(\theta) \approx \nabla \log \pi_\theta (a_t \mid s_t) \, G(\tau)
+\]</div>
+<p>where</p>
+<ul>
+<li><span class="arithmatex">\(\nabla \log \pi_\theta(a \mid s)\)</span> is also called <strong>Score Function</strong></li>
+</ul>
+<blockquote>
+<p>[!NOTE]
+To compute Score Function, we can no longer use deterministic/non-linear/non-differentiable <span class="arithmatex">\(\{0,1\}\)</span> to describe policy. </p>
+<p>So we introduce some soft strategies to make policy probabilistic.</p>
+</blockquote>
 <hr />
+<h2 id="deterministic-policy-stochasticsoft-policy">Deterministic Policy → Stochastic/Soft Policy<a class="headerlink" href="#deterministic-policy-stochasticsoft-policy" title="Permanent link">&para;</a></h2>
+<h3 id="deterministicnear-deterministic-policy">Deterministic/Near-deterministic Policy<a class="headerlink" href="#deterministicnear-deterministic-policy" title="Permanent link">&para;</a></h3>
+<p>Give the optimal action directly:</p>
+<div class="arithmatex">\[
+\pi(a \mid s) = \mathbf{1}\{\, a = a^*(s) \,\}
+\]</div>
+<p>Or use soft policy for small explorations:</p>
+<h4 id="-greedy">ε-greedy<a class="headerlink" href="#-greedy" title="Permanent link">&para;</a></h4>
+<p>most time exploitation (<span class="arithmatex">\(P = 1 - \varepsilon\)</span>), little time exploration (<span class="arithmatex">\(\varepsilon\)</span>):</p>
+<div class="arithmatex">\[
+\pi(a \mid s) =
+\begin{cases}
+1 - \varepsilon + \dfrac{\varepsilon}{|\mathcal{A}|}, &amp; \text{if } a = \arg\max_{a'} Q(s,a') \\
+\dfrac{\varepsilon}{|\mathcal{A}|}, &amp; \text{otherwise}
+\end{cases}
+\]</div>
+<ul>
+<li>All previous RL methods' outputs are deterministic (The Optimum).</li>
+</ul>
+<h4 id="upper-confidence-bound-ucb">Upper Confidence Bound (UCB)<a class="headerlink" href="#upper-confidence-bound-ucb" title="Permanent link">&para;</a></h4>
+<p>exploitation + exploration bonus:</p>
+<div class="arithmatex">\[
+a = \arg\max_a \left( Q(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
+\]</div>
+<p>where</p>
+<ul>
+<li><span class="arithmatex">\(c\)</span> - importance of exploration (<strong>parameter</strong>)</li>
+<li><span class="arithmatex">\(\ln{t}\)</span> - explore more when time goes</li>
+<li><span class="arithmatex">\(N(a)\)</span> - not try too many times on one same action</li>
+</ul>
+<hr />
+<h3 id="stochastic-policy">Stochastic Policy<a class="headerlink" href="#stochastic-policy" title="Permanent link">&para;</a></h3>
+<p>Give the probability of each action:
+$$
+\pi(a \mid s) = P(a \mid s)
+$$
+- Ability of exploration; Robustness✅</p>
+<p>#### softmax </p>
+<div class="arithmatex">\[
+\pi(a \mid s)
+= \frac{\exp\!\left(h_\theta(s,a)\right)}
+       {\sum_{a' \in \mathcal{A}} \exp\!\left(h_\theta(s,a')\right)}
+\]</div>
+<p>where <span class="arithmatex">\(h(\cdot)\)</span> is another feature function</p>
+<h4 id="gaussian">Gaussian<a class="headerlink" href="#gaussian" title="Permanent link">&para;</a></h4>
+<p>Action space needs to be continuous:</p>
+<div class="arithmatex">\[
+\pi(a \mid s)
+= \frac{1}{\sqrt{2\pi\sigma_\theta^2(s)}}
+  \exp\!\left(
+    -\frac{\left(a-\mu_\theta(s)\right)^2}{2\sigma_\theta^2(s)}
+  \right).
+\]</div>
+<hr />
+<h2 id="solve-the-score-function">Solve the Score Function<a class="headerlink" href="#solve-the-score-function" title="Permanent link">&para;</a></h2>
+<p>By applying Softmax:</p>
+<div class="arithmatex">\[
+\begin{align}
+\nabla \log \pi_\theta(a \mid s)
+&amp;= \nabla h(a) - \mathbb{E}_{a' \sim \pi_\theta}[\nabla h(a')]
+\end{align}
+\]</div>
+<p>By applying Gaussian (assume <span class="arithmatex">\(\sigma\)</span> is fixed):</p>
+<div class="arithmatex">\[
+\nabla \log \pi_\theta(a \mid s) = \frac{a - \mu_\theta(s)}{\sigma^2}\nabla \mu_\theta(s)
+\]</div>
+<hr />
+<h2 id="approximate-the-expected-return">Approximate the Expected Return<a class="headerlink" href="#approximate-the-expected-return" title="Permanent link">&para;</a></h2>
+<h3 id="average-state-value">Average State Value<a class="headerlink" href="#average-state-value" title="Permanent link">&para;</a></h3>
+<p>By <span class="arithmatex">\(maximise\)</span> weighted average of all state values:</p>
+<div class="arithmatex">\[
+J(\theta) 
+= \sum_{s \in S}d^{\pi_\theta}(s)v^{\pi_\theta}(s)
+\]</div>
+<p>where</p>
+<ul>
+<li><span class="arithmatex">\(d^{\pi_\theta}(s)\)</span> is the weight (importance) of each state</li>
+</ul>
+<hr />
+<h3 id="start-state-value">Start State Value<a class="headerlink" href="#start-state-value" title="Permanent link">&para;</a></h3>
+<ul>
+<li>In episodic environments, we may only care about value of start states:</li>
+</ul>
+<div class="arithmatex">\[
+J(\theta) 
+= v^{\pi_\theta}(s_0)
+\]</div>
+<hr />
+<h3 id="average-one-step-reward">Average One-step Reward<a class="headerlink" href="#average-one-step-reward" title="Permanent link">&para;</a></h3>
+<p>By <span class="arithmatex">\(maximise\)</span> weighted average of all immediate rewards:</p>
+<div class="arithmatex">\[
+J(\theta) 
+= \sum_{s \in S}d^{\pi_\theta}(s) 
+\sum_{a \in A} \pi_\theta(a \mid s) \, R^a_s
+\]</div>
+<hr />
+<h3 id="policy-gradient-theorem">Policy Gradient Theorem<a class="headerlink" href="#policy-gradient-theorem" title="Permanent link">&para;</a></h3>
+<p>Average State Value and Average One-step Reward are <strong>Equivalent</strong>:</p>
+<div class="arithmatex">\[
+\bar{R}_\pi = (1 - \gamma) \, \bar{v}_\pi
+\]</div>
+<p>In Gradient Form:</p>
+<div class="arithmatex">\[
+\nabla \bar{R}_\pi \simeq { \mathbb{E}_{\pi_{\theta}} \bigl[ \nabla_{\theta} \log \pi_{\theta}(a \mid s) \; q_{\pi_{\theta}}(s,a) \bigr]}
+\]</div>
+<div class="arithmatex">\[
+\nabla \bar{v}_\pi = \frac{1}{1 - \gamma} \nabla \bar{R}_\pi
+\]</div>
+<div class="arithmatex">\[
+\nabla v_\pi(s_0) = { \mathbb{E}_{\pi_{\theta}} \bigl[ \nabla_{\theta} \log \pi_{\theta}(a \mid s_0) \; q_{\pi_{\theta}}(s_0,a) \bigr]}
+\]</div>
+<p>In summary, gradient version of above methods can be simplified to one formula:</p>
+<div class="arithmatex">\[
+\nabla_{\theta} J(\theta) 
+= { \mathbb{E}_{\pi_{\theta}} \bigl[ \nabla_{\theta} \log \pi_{\theta}(a \mid s) \; q_{\pi_{\theta}}(s, a) \bigr]}
+\]</div>
+<p>Then, we can use our familiar MC or value approximators to solve it.</p>
+<hr />
+<h3 id="reinforce">REINFORCE<a class="headerlink" href="#reinforce" title="Permanent link">&para;</a></h3>
+<p>Derive from MC, we can use return <span class="arithmatex">\(v_t\)</span> as an unbiased sample of <span class="arithmatex">\(q_{\pi_{\theta}}(s,a)\)</span>:</p>
+<div class="arithmatex">\[
+q_{\pi_{\theta}}(s,a) = v_t
+\]</div>
+<hr />
+<h3 id="actor-critic">Actor-Critic<a class="headerlink" href="#actor-critic" title="Permanent link">&para;</a></h3>
+<h4 id="qac">QAC<a class="headerlink" href="#qac" title="Permanent link">&para;</a></h4>
+<p>Derive from TD, we can use a value approximator to estimate action-value function:</p>
+<div class="arithmatex">\[
+q_{\pi_{\theta}}(s,a) = q(s,a, w)
+\]</div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Actor</th>
+<th>Critic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Role</strong></td>
+<td>Policy</td>
+<td>Policy Evaluation (Value Function)</td>
+</tr>
+<tr>
+<td><strong>Input</strong></td>
+<td>Score</td>
+<td>State, Reward, Action</td>
+</tr>
+<tr>
+<td><strong>Task</strong></td>
+<td>Update <span class="arithmatex">\(\theta\)</span> by Policy Gradient</td>
+<td>Update <span class="arithmatex">\(w\)</span> by Value Learning</td>
+</tr>
+<tr>
+<td><strong>Output</strong></td>
+<td>Action chosen by the policy</td>
+<td>Score (Value / Advantage)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="a2c-advantage-actor-critic">A2C - Advantage actor-critic<a class="headerlink" href="#a2c-advantage-actor-critic" title="Permanent link">&para;</a></h4>
+<p>Introduce a baseline for reducing variance without changing the expectation<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>:</p>
+<div class="arithmatex">\[
+\begin{align}
+\nabla_{\theta} J(\theta) 
+&amp;= { \mathbb{E}_{\pi_{\theta}} 
+\bigl[ \nabla_{\theta} \log \pi_{\theta}(a \mid s) \;
+q_{\pi_{\theta}}(s, a) \bigr]} \\[4pt]
+&amp;= { \mathbb{E}_{\pi_{\theta}} 
+\bigl[ \nabla_{\theta} \log \pi_{\theta}(a \mid s) \; 
+\left[ q_{\pi_{\theta}}(s, a) - B(s) \right] \bigr]}
+\end{align}
+\]</div>
+<ul>
+<li>A good (<strong>sub-optimal</strong>) baseline is the state value function <span class="arithmatex">\(v_{\pi_\theta}(s)\)</span></li>
+</ul>
+<p>By applying it, we can get the <strong>Advantage Function</strong>:</p>
+<div class="arithmatex">\[
+A_{\pi_{\theta}}(s,a) =q_{\pi_{\theta}}(s, a) - v_{\pi_\theta}(s)
+\]</div>
+<p>Then,</p>
+<div class="arithmatex">\[
+\nabla_{\theta} J(\theta) 
+= { \mathbb{E}_{\pi_{\theta}} \bigl[ \nabla_{\theta} \log \pi_{\theta}(a \mid s) \; A_{\pi_{\theta}}(s,a) \bigr]}
+\]</div>
+<p>Derive from TD, we can use <strong>TD error</strong> to <strong>unbiased</strong> estimate such function</p>
+<div class="arithmatex">\[
+\delta_{\pi_{\theta}} = r + \gamma v_{\pi_{\theta}}(s') - v_{\pi_{\theta}}(s)
+\]</div>
+<div class="arithmatex">\[
+\begin{align}
+\mathbb{E}_{\pi_{\theta}}[\delta_{\pi_{\theta}} \mid s,a]
+&amp;= \mathbb{E}_{\pi_{\theta}}[r + \gamma v_{\pi_{\theta}}(s') \mid s,a] - v_{\pi_{\theta}}(s) \\[2pt]
+&amp;= q^{\pi_{\theta}}(s,a) - v^{\pi_{\theta}}(s) \\[2pt]
+&amp;= A^{\pi_{\theta}}(s,a)
+\end{align}
+\]</div>
+<p>Finally, we in fact use the TD error to compute the policy gradient:</p>
+<div class="arithmatex">\[
+\nabla_{\theta} J(\theta)
+= {\mathbb{E}_{\pi_{\theta}} \big[ \nabla_{\theta} \log \pi_{\theta}(s,a)\; \delta_{\pi_{\theta}} \big]}
+\]</div>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>P51 -【【强化学习的数学原理】课程：从零开始到透彻理解（完结）-哔哩哔哩】 https://b23.tv/pVXJKm8&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
 
 
 
