@@ -9,34 +9,36 @@
       
       
       
-        <link rel="prev" href="../09-TD/">
+        <link rel="prev" href="08-MC.html">
       
       
-        <link rel="next" href="../11-Policy-Approx/">
+        <link rel="next" href="10-Value-Approx.html">
       
       
         
       
       
-      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>10 Value Function Approximation - Drava's Study Notes</title>
+        <title>9 Temporal Difference - Drava's Study Notes</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
 
     
     
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
       
     
     
@@ -49,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#10-value-function-approximation" class="md-skip">
+        <a href="#9-temporal-difference" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              10 Value Function Approximation
+              9 Temporal Difference
             
           </span>
         </div>
@@ -203,7 +205,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+      <a href="../../../index.html" class="md-tabs__link">
         
   
   
@@ -244,7 +246,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../01-Search/" class="md-tabs__link">
+        <a href="01-Search.html" class="md-tabs__link">
           
   
   
@@ -286,7 +288,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -304,7 +306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../../../index.html" class="md-nav__link">
         
   
   
@@ -499,7 +501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../01-Search/" class="md-nav__link">
+      <a href="01-Search.html" class="md-nav__link">
         
   
   
@@ -527,7 +529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-Planning/" class="md-nav__link">
+      <a href="02-Planning.html" class="md-nav__link">
         
   
   
@@ -555,7 +557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-Complexity/" class="md-nav__link">
+      <a href="03-Complexity.html" class="md-nav__link">
         
   
   
@@ -583,7 +585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-Relaxation/" class="md-nav__link">
+      <a href="04-Relaxation.html" class="md-nav__link">
         
   
   
@@ -611,7 +613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-Exploration/" class="md-nav__link">
+      <a href="05-Exploration.html" class="md-nav__link">
         
   
   
@@ -639,7 +641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../06-RL/" class="md-nav__link">
+      <a href="06-RL.html" class="md-nav__link">
         
   
   
@@ -667,7 +669,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-MDP/" class="md-nav__link">
+      <a href="07-MDP.html" class="md-nav__link">
         
   
   
@@ -695,7 +697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-MC/" class="md-nav__link">
+      <a href="08-MC.html" class="md-nav__link">
         
   
   
@@ -703,34 +705,6 @@
     
   
     8 Monte Carlo
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../09-TD/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    9 Temporal Difference
   
 
     
@@ -767,7 +741,7 @@
   <span class="md-ellipsis">
     
   
-    10 Value Function Approximation
+    9 Temporal Difference
   
 
     
@@ -778,14 +752,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="./" class="md-nav__link md-nav__link--active">
+      <a href="09-TD.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    10 Value Function Approximation
+    9 Temporal Difference
   
 
     
@@ -811,10 +785,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tabular-representation-function-representation" class="md-nav__link">
+  <a href="#non-incremental-incremental" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tabular Representation → Function Representation
+        Non-incremental → Incremental
       
     </span>
   </a>
@@ -822,10 +796,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#function-approximation" class="md-nav__link">
+  <a href="#temporal-difference-td-learning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Function Approximation
+        Temporal Difference (TD) Learning
       
     </span>
   </a>
@@ -833,44 +807,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#object-function" class="md-nav__link">
+  <a href="#prediction-of-state-value" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Object Function
+        Prediction of State Value
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#optimise-the-object-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optimise the Object Function
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#approximate-the-value-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Approximate the Value Function
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Approximate the Value Function">
+    <nav class="md-nav" aria-label="Prediction of State Value">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#feature-vectors" class="md-nav__link">
+  <a href="#td0" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Feature Vectors
+        TD(0)
       
     </span>
   </a>
@@ -878,105 +830,33 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#state-value-approximator" class="md-nav__link">
+  <a href="#tdn" class="md-nav__link">
     <span class="md-ellipsis">
       
-        State-value Approximator
+        TD(n)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="State-value Approximator">
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tdlambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TD(\(\lambda\))
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TD(\(\lambda\))">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#derive-from-monte-carlo" class="md-nav__link">
+  <a href="#backward-view" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Derive from Monte Carlo
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#derive-from-temporal-difference" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Derive from Temporal Difference
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#derive-from-td" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Derive from TD(λ)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#action-state-value-approximator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Action-state-value Approximator
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Action-state-value Approximator">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#derive-from-monte-carlo_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Derive from Monte Carlo
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#derive-from-sarsa" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Derive from Sarsa
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#derive-from-td_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Derive from TD(λ)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#derive-from-q-learning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Derive from Q-learning
+        Backward View
       
     </span>
   </a>
@@ -994,22 +874,77 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#batch" class="md-nav__link">
+  <a href="#prediction-of-action-value" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Batch
+        Prediction of Action Value
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Batch">
+    <nav class="md-nav" aria-label="Prediction of Action Value">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#example-mc-td-in-a-batch" class="md-nav__link">
+  <a href="#sarsa" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example - MC &amp; TD In a Batch
+        Sarsa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#n-step-sarsa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        \(n\)-step Sarsa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sarsalambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sarsa(\(\lambda\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#off-policy-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Off-Policy Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on-policy-off-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On-policy → Off-policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q-Learning
       
     </span>
   </a>
@@ -1022,44 +957,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#batch-methods" class="md-nav__link">
+  <a href="#mc-vs-td" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Batch Methods
+        MC vs. TD
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Batch Methods">
+    <nav class="md-nav" aria-label="MC vs. TD">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#least-squares-solution" class="md-nav__link">
+  <a href="#example-driving-home" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Least Squares Solution
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#stochastic-gradient-descent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Stochastic Gradient Descent
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#deep-q-learning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Deep Q-Learning
+        Example - Driving Home
       
     </span>
   </a>
@@ -1087,7 +1000,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-Policy-Approx/" class="md-nav__link">
+      <a href="10-Value-Approx.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 Value Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="11-Policy-Approx.html" class="md-nav__link">
         
   
   
@@ -1115,7 +1056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../12-Integrating/" class="md-nav__link">
+      <a href="12-Integrating.html" class="md-nav__link">
         
   
   
@@ -1176,312 +1117,391 @@
 
 
 
-<h1 id="10-value-function-approximation">10 Value Function Approximation<a class="headerlink" href="#10-value-function-approximation" title="Permanent link">&para;</a></h1>
+<h1 id="9-temporal-difference">9 Temporal Difference<a class="headerlink" href="#9-temporal-difference" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="tabular-representation-function-representation">Tabular Representation → Function Representation<a class="headerlink" href="#tabular-representation-function-representation" title="Permanent link">&para;</a></h2>
-<p>Tabular Presentation:</p>
+<h2 id="non-incremental-incremental">Non-incremental → Incremental<a class="headerlink" href="#non-incremental-incremental" title="Permanent link">&para;</a></h2>
+<p>Non-incremental (Batch):</p>
 <ul>
-<li>All values/policies are discrete and stored in a table</li>
-<li>We update values by change it directly</li>
+<li>Parameters updating per a <strong>batch</strong> of samples (a episode)</li>
+<li>Solving the optimal problem at once</li>
+<li>Offline Learning <ul>
+<li>Can handle high stochastic/batch environment✅</li>
+<li>Large space complexity❌ </li>
 </ul>
-<p>Function Presentation:</p>
+</li>
+<li>Closed-form<ul>
+<li>High computation cost❌</li>
+</ul>
+</li>
+</ul>
+<p>Incremental:</p>
 <ul>
-<li>We construct a function for fitting the value distribution</li>
-<li>We update value by tuning parameters of the function</li>
+<li>Parameters updating per one sample (a step)</li>
+<li>Step by step approaching the optimum</li>
+<li>Online Learning → One sample use once✅</li>
+<li>Higher generalisation✅</li>
+<li>Lower convergence; may can only approach local optima⚠️</li>
 </ul>
+<hr />
+<h2 id="temporal-difference-td-learning">Temporal Difference (TD) Learning<a class="headerlink" href="#temporal-difference-td-learning" title="Permanent link">&para;</a></h2>
+<p>Key Mechanisms: <strong>sample + bootstrap</strong></p>
+<p><strong>Sampling</strong>: an "1-step experience" (TD(0))</p>
+<ul>
+<li><span class="arithmatex">\(e = \{S_t \to A_t \to R_{t+1}, S_{t+1}\}\)</span></li>
+</ul>
+<p><strong>Bootstrapping</strong>: use estimation of future values to update the current value</p>
+<div class="arithmatex">\[
+\begin{align}
+\text{TD-target} &amp; = \text{sample} + \gamma \cdot \text{bootstrap} \\
+&amp; = \text{immediate reward} + \gamma \cdot \text{future value}
+\end{align}
+\]</div>
+<hr />
+<h2 id="prediction-of-state-value">Prediction of State Value<a class="headerlink" href="#prediction-of-state-value" title="Permanent link">&para;</a></h2>
+<ul>
+<li>For each step, if <span class="arithmatex">\(s_t\)</span> is visited, update its value by <strong>looking forward</strong> to the reward of next step(s).</li>
+<li>❌Can neither estimate action values nor optimal policies</li>
+</ul>
+<h3 id="td0">TD(0)<a class="headerlink" href="#td0" title="Permanent link">&para;</a></h3>
+<p>Look into the next <span class="arithmatex">\(1\)</span> step:</p>
+<pre><code>$$
+\begin{align}
+V(s_t) 
+&amp;\gets V(s_t) + \alpha \big({{G_t^{(1)} - V(s_t))}} \\[2pt]
+&amp;= V(s_t) + \alpha(R_{t+1} + \gamma V(s_{t+1}) - V(s_t))
+\end{align}
+$$
+</code></pre>
+<p>where</p>
+<ul>
+<li><span class="arithmatex">\(\vec{v} = R_{t+1} + \gamma V(s_{t+1})\)</span> - TD Target</li>
+<li><span class="arithmatex">\(\delta = \vec{v} - V(s_t)\)</span> - TD Error<ul>
+<li><em>Reflects the difference between <span class="arithmatex">\(v_t\)</span> and <span class="arithmatex">\(v_\pi\)</span></em></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="tdn">TD(n)<a class="headerlink" href="#tdn" title="Permanent link">&para;</a></h3>
+<p>Look into <span class="arithmatex">\(n-1\)</span> steps:</p>
+<div class="arithmatex">\[
+G^{(n)}_t = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + {{\gamma^n V(S_{t+n})}}
+\]</div>
+<div class="arithmatex">\[
+\begin{align*}
+\color{red}{n} &amp; \color{red}{= 1}\ \text{(TD(0))}      &amp; G_t^{(1)}      &amp; = R_{t+1} + \gamma V(S_{t+1})\\[2pt]
+\color{red}{n} &amp; \color{red}{= 2}                   &amp; G_t^{(2)}      &amp; = R_{t+1} + \gamma R_{t+2} + \gamma^2 V(S_{t+2})\\[2pt]
+\color{red}{\vdots} &amp;                   &amp; \vdots         &amp; \\[2pt]
+\color{red}{n} &amp; \color{red}{= \infty}\ \text{(MC)} &amp; G_t^{(\infty)} &amp; = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{T-1} R_T
+\end{align*}
+\]</div>
+<p>Update in direction of error</p>
+<div class="arithmatex">\[
+V(S_t) \;\gets\; V(S_t) + \alpha \big({{G_t^{(n)} - V(S_t)}} \big)
+\]</div>
+<p>How to choose <span class="arithmatex">\(n\)</span>:
+- Root Mean Square (RMS) Errors 均方差根
+    - change <span class="arithmatex">\(\alpha\)</span> → vary RMS Errors → different optimal <span class="arithmatex">\(n\)</span>
+- Large <span class="arithmatex">\(n\)</span> → More rely on exploitation, more precise but higher variance
+- Small <span class="arithmatex">\(n\)</span> → More rely on prediction, faster but higher bias
+- If <span class="arithmatex">\(n = \infty\)</span> , it turns into MC basic</p>
+<hr />
+<h3 id="tdlambda">TD(<span class="arithmatex">\(\lambda\)</span>)<a class="headerlink" href="#tdlambda" title="Permanent link">&para;</a></h3>
+<p>Average n-Steps Returns - use weight <span class="arithmatex">\({{(1 - \lambda)\lambda^{\,n-1}}}\)</span> to balance short-term and long-term rewards
+    $$
+    G_t^{\lambda} \;=\; {{(1 - \lambda) \sum_{n=1}^{\infty} \lambda^{\,n-1}}} G_t^{(n)}
+    $$</p>
+<pre><code>$$
+V(S_t) \;\leftarrow\; V(S_t) + \alpha \big( G_t^{\lambda} - V(S_t) \big)
+$$
+</code></pre>
+<ul>
+<li>✅Memoryless - i.e space complexity is same as TD(0)</li>
+<li>⚠️Forward View - We cannot look into the far future during learning👇</li>
+</ul>
+<h4 id="backward-view">Backward View<a class="headerlink" href="#backward-view" title="Permanent link">&para;</a></h4>
+<p>Update weight step by step by using <strong>Eligibility Trace</strong>:</p>
+<ul>
+<li>Initially set traces of all states <span class="arithmatex">\(E_0(s) \gets 0\)</span></li>
+<li>
+<p>In each step:</p>
+<ul>
+<li>
+<p>For each state:</p>
+<ul>
+<li>reduce traces value by <span class="arithmatex">\(\gamma \lambda\)</span></li>
+<li><span class="arithmatex">\(E_t(s)+1\)</span> if <span class="arithmatex">\(s\)</span> is currently visited</li>
+</ul>
+<div class="arithmatex">\[
+E_t(s) = \gamma \lambda E_{t-1}(s) + \mathbf{1}(S_t = s)
+\]</div>
+</li>
+<li>
+<p>Compute TD Error</p>
+<div class="arithmatex">\[
+\delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)
+\]</div>
+</li>
+<li>
+<p>Update Value Function</p>
+<div class="arithmatex">\[
+V(s) \gets V(s) + \alpha \, \delta_t \, E_t(s)
+\]</div>
+</li>
+</ul>
+</li>
+</ul>
+<p>At the end of episodes: <strong>Backward View = Forward View</strong></p>
+<div class="arithmatex">\[
+\sum_{t=1}^T \alpha \, \delta_t \, E_t(s) = \sum_{t=1}^T \alpha (G_t^\lambda  - V(S_t)) \; \mathbf{1}(S_t = S)
+\]</div>
+<hr />
+<h2 id="prediction-of-action-value">Prediction of Action Value<a class="headerlink" href="#prediction-of-action-value" title="Permanent link">&para;</a></h2>
+<p>Sarsa - "State-action-reward-state-action" Algorithm
+-  A state-action function version of TD</p>
+<div class="arithmatex">\[
+Q(s_t,a_t) \gets Q(s_t,a_t) + \alpha (R_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t,a_t))
+\]</div>
+<hr />
+<h3 id="sarsa">Sarsa<a class="headerlink" href="#sarsa" title="Permanent link">&para;</a></h3>
+<ul>
+<li>For each episode:<ul>
+<li>For each state:<ul>
+<li>If <span class="arithmatex">\(s_t \ne g\)</span>:<ul>
+<li>Collect the experience <span class="arithmatex">\(\{s_t, a_t, r_{t+1}, s_{t+1}, a_{t+1}\}\)</span><ul>
+<li><span class="arithmatex">\(a_t\)</span> ← <span class="arithmatex">\(\pi(a \mid s_t)\)</span></li>
+<li><span class="arithmatex">\(r_{t+1}, s_{t+1}\)</span>  ← Environment</li>
+<li><span class="arithmatex">\(a_{t+1}\)</span>  ← <span class="arithmatex">\(\pi(a \mid s_{t+1})\)</span></li>
+</ul>
+</li>
+<li>Update <span class="arithmatex">\(q(s_t, a_t)\)</span></li>
+<li>Update <span class="arithmatex">\(\pi\)</span> based on policy iteration</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="n-step-sarsa"><span class="arithmatex">\(n\)</span>-step Sarsa<a class="headerlink" href="#n-step-sarsa" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Sarsa version of TD(n):
+$$
+q_t^{(n)} = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \gamma^n Q(S_{t+n})
+$$</li>
+</ul>
+<div class="arithmatex">\[
+Q(S_t, A_t) \;\leftarrow\; Q(S_t, A_t)
+  + \alpha \Big( q_t^{(n)} - Q(S_t, A_t) \Big)
+\]</div>
+<hr />
+<h3 id="sarsalambda">Sarsa(<span class="arithmatex">\(\lambda\)</span>)<a class="headerlink" href="#sarsalambda" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Sarsa version of TD(<span class="arithmatex">\(\lambda\)</span>)
+$$
+q_t^\lambda \;=\; (1 - \lambda) \sum_{n=1}^{\infty} \lambda^{n-1} q_t^{(n)}
+$$</p>
+</li>
+<li>
+<p>Forward View:
+$$
+Q(S_t, A_t) \;\leftarrow\; Q(S_t, A_t) + \alpha \Big( q_t^\lambda - Q(S_t, A_t) \Big)
+$$</p>
+</li>
+<li>
+<p>Backward View:
+$$
+\begin{align<em>}
+E_0(s,a) &amp; = 0 \[0pt]
+E_t(s,a) &amp; = \gamma \lambda E_{t-1}(s,a) + \mathbf{1}(S_t = s, A_t = a)
+\end{align</em>}
+$$</p>
+</li>
+</ul>
+<div class="arithmatex">\[
+\delta_t = R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t)
+\]</div>
+<div class="arithmatex">\[
+Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
+\]</div>
+<hr />
+<h3 id="off-policy-control">Off-Policy Control<a class="headerlink" href="#off-policy-control" title="Permanent link">&para;</a></h3>
+<p><strong>Off-policy</strong>: Distinguish Target Policy and Behaviour (Sampling) Policy
+- ✅Take use of experience from other policies</p>
+<h3 id="on-policy-off-policy">On-policy → Off-policy<a class="headerlink" href="#on-policy-off-policy" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Sarsa:<ul>
+<li>Target: <span class="arithmatex">\(\vec{v} = r_{t+1} + \gamma q_t(s_{t+1}, a_{t+1})\)</span></li>
+<li>Sample: Generate <span class="arithmatex">\(a_t\)</span> from <span class="arithmatex">\(\pi_t(s_t)\)</span> and <span class="arithmatex">\(a_{t+1}\)</span> from <span class="arithmatex">\(\pi_t(s_{t+1})\)</span></li>
+<li>Target Policy = Behaviour Policy = <span class="arithmatex">\(\pi_t\)</span> </li>
+</ul>
+</li>
+<li>Q-Learning<ul>
+<li>Target: <span class="arithmatex">\(\vec{v} = r_{t+1} + \gamma \max_{a \in \mathcal{A}} q_t(s_{t+1}, a)\)</span></li>
+<li>Sample: Generate <span class="arithmatex">\(a_t\)</span> from <span class="arithmatex">\(\pi_b(s_t)\)</span></li>
+<li>Target Policy = Greedy Optimal <span class="arithmatex">\(q_t\)</span></li>
+<li>Behaviour Policy = Any policies (<span class="arithmatex">\(\pi_b\)</span>)</li>
+</ul>
+</li>
+</ul>
+<h3 id="q-learning">Q-Learning<a class="headerlink" href="#q-learning" title="Permanent link">&para;</a></h3>
+<ul>
+<li>For each episode generated by <span class="arithmatex">\(\pi_b\)</span>:<ul>
+<li>For each time step:<ul>
+<li>Update q-value<ul>
+<li><span class="arithmatex">\(q_{t+1}(s_t, a_t) \gets q_t(s_t, a_t) + \alpha \bigl(  \vec v - q_t(s_t, a_t) \bigr)\)</span></li>
+</ul>
+</li>
+<li>Update target policy<ul>
+<li><span class="arithmatex">\(a = \arg\max_a q_{t+1} (s_t, a)\)</span></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="mc-vs-td">MC vs. TD<a class="headerlink" href="#mc-vs-td" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>Aspect</th>
-<th>Tabular</th>
-<th>Function Approx.</th>
+<th>Monte-Carlo (MC)</th>
+<th>Temporal-Difference (TD)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Interpretability</strong></td>
-<td>✅Intuitive</td>
-<td>❌Hard to interpret</td>
+<td>Learning timing</td>
+<td>Offline - Update after the episode ends</td>
+<td>Online - Update immediately after receiving a reward</td>
 </tr>
 <tr>
-<td><strong>Scalability</strong></td>
-<td>❌Difficult for large/continuous spaces</td>
-<td>✅Much fewer memories required</td>
+<td>Environment Assumption</td>
+<td>episodic  only</td>
+<td>both episodic and continuing</td>
 </tr>
 <tr>
-<td><strong>Generalisability</strong></td>
-<td>❌Poor</td>
-<td>✅Generalises from seen situations to unseen situations</td>
+<td>Target used</td>
+<td><span class="arithmatex">\(\vec{v} = G_t\)</span></td>
+<td><span class="arithmatex">\(\vec{v} = R_{t+1} + \gamma V(S_{t+1}\)</span>)</td>
 </tr>
 <tr>
-<td><strong>Bias</strong></td>
-<td>✅Accurate when state space is small</td>
-<td>⚠️<strong>Biased</strong> - State values cannot be represented accurately</td>
+<td>Bootstrapping?</td>
+<td>❌</td>
+<td>✅Value Updating relies on the previous estimate of this value (require initial guesses)</td>
+</tr>
+<tr>
+<td>Variance</td>
+<td>⚠️High - Samples of lots of variables</td>
+<td>✅Low</td>
+</tr>
+<tr>
+<td>Bias</td>
+<td>Unbiased (return is true target)</td>
+<td>Biased (bootstraps using V(s′))</td>
+</tr>
+<tr>
+<td>Exploits Markov property?</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Efficiency in Markov environment</td>
+<td>⚠️Less efficient</td>
+<td>✅More efficient</td>
+</tr>
+<tr>
+<td>Efficiency in non-Markov or PMDP env</td>
+<td>✅More efficient with backup learning</td>
+<td>⚠️Less efficient</td>
+</tr>
+<tr>
+<td>Optimisation in limited experience (Batch)</td>
+<td>Average Return = minimise MSE</td>
+<td>Fit the most likelihood Markov model that best explains the data</td>
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="function-approximation">Function Approximation<a class="headerlink" href="#function-approximation" title="Permanent link">&para;</a></h2>
-<p>Approximate value function by constructing a new function and tuning parameters <span class="arithmatex">\(w\)</span>.</p>
-<ul>
-<li><em>instead of a table (<span class="arithmatex">\(s\)</span>-<span class="arithmatex">\(a\)</span>) of discrete values (tabular)</em></li>
-</ul>
-<div class="arithmatex">\[
-\begin{align}
-\hat{v}(s, {\color{red}{\mathbf{w}}})\; &amp; {\color{red}{\approx}}\; v_{\pi}(s)\\[0pt]
-\;\;\;\hat{q}(s, a, {\color{red}{\mathbf{w}}})\; &amp; {\color{red}{\approx}}\; q_{\pi}(s, a)
-\end{align}
-\]</div>
-<hr />
-<h2 id="object-function">Object Function<a class="headerlink" href="#object-function" title="Permanent link">&para;</a></h2>
-<p>Goal: <span class="arithmatex">\(minimise\)</span> <em>MSE</em> between approx function and true value function.</p>
-<div class="arithmatex">\[
-J(\mathbf{w}) = \mathbb{E}_\pi \left[ (v_\pi(S) - \hat{v}(S, \mathbf{w}))^2 \right]
-\]</div>
-<p>where <span class="arithmatex">\(S \in \mathcal{S}\)</span> - the state is a <em>Random Variable</em> which follows the probability distribution, e.g.:</p>
-<ul>
-<li><strong>Uniform Distribution</strong><ul>
-<li>All with the same probability</li>
-<li><span class="arithmatex">\(S = \frac{1}{|\mathcal{S}|}\)</span></li>
-<li>❌Too simple; not practical</li>
-</ul>
-</li>
-<li><strong>Stationary Distribution</strong><ul>
-<li>Describe the long-term behaviour of a Markov process<ul>
-<li><span class="arithmatex">\(d_\pi(s) \approx \frac{N(s)}{\sum_{s \in \mathcal{S}} N(s)}\)</span></li>
-</ul>
-</li>
-<li>Which can also be predicted by using <span class="arithmatex">\(P\)</span> from a model (MDP)<ul>
-<li><span class="arithmatex">\(d_\pi = d_\pi P\)</span></li>
-</ul>
-</li>
-<li>✅Stationary; can be learned</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="optimise-the-object-function">Optimise the Object Function<a class="headerlink" href="#optimise-the-object-function" title="Permanent link">&para;</a></h2>
-<p>By using Gradient Descent:</p>
-<div class="arithmatex">\[
-w_{k+1} = w_k - \alpha \nabla J(w_k)
-\]</div>
-<p><span class="arithmatex">\(\nabla J(w_k)\)</span> can be computed by:</p>
-<ul>
-<li><strong>Ture Gradient Descent</strong><ul>
-<li>need to calculate the expectation (collect all <span class="arithmatex">\(N\)</span> samples), not practical❌</li>
-</ul>
-</li>
-</ul>
-<div class="arithmatex">\[
-\begin{align}
-\nabla J(w)
-&amp; = \nabla \mathbb{E} \left[ (v_\pi(S) - \hat{v}(S, w))^2 \right] \\[0pt]
-&amp; \propto \mathbb{E}[(v_\pi(S)-\hat{v}(S,w))\,\nabla\hat{v}(S,w)]
-\end{align}
-\]</div>
-<ul>
-<li><strong>Stochastic Gradient Descent</strong><ul>
-<li>Use only 1 sample <span class="arithmatex">\(s_t\)</span> </li>
-<li>Online update, better generalisation✅</li>
-</ul>
-</li>
-</ul>
-<div class="arithmatex">\[
-\nabla J(w) \approx
-\bigl(v_\pi(s_t) - \hat{v}(s_t,w_t)\bigr) \,
-\nabla \hat{v}(s_t,w_t)
-\]</div>
-<p>For remaining two terms:</p>
-<ul>
-<li><span class="arithmatex">\(\nabla\hat{v}(s_t,w_t)\)</span> ← Feature Vectors (Linear)</li>
-<li><span class="arithmatex">\(v_\pi(s_t)\)</span> ← Value Function Approximation</li>
-</ul>
-<hr />
-<h2 id="approximate-the-value-function">Approximate the Value Function<a class="headerlink" href="#approximate-the-value-function" title="Permanent link">&para;</a></h2>
-<h3 id="feature-vectors">Feature Vectors<a class="headerlink" href="#feature-vectors" title="Permanent link">&para;</a></h3>
-<p>Represent the state by a feature of vectors <span class="arithmatex">\(\mathbf{x}(s)\)</span>, so that in <strong>linear case</strong>:</p>
-<ul>
-<li>State-value Gradient:</li>
-</ul>
-<div class="arithmatex">\[
-\nabla\hat{v}(s,w) = \frac{\partial \hat v(s)}{\partial w} = \mathbf{x}(s)
-\]</div>
-<ul>
-<li>State-action-value Gradient:</li>
-</ul>
-<div class="arithmatex">\[
-\nabla \hat q(s,a,w) = \mathbf{x}(s,a)
-\]</div>
-<ul>
-<li>Intuitive; easy to implement; high interpretability✅</li>
-<li>Difficult to select appropriate feature vectors⚠️</li>
-</ul>
-<hr />
-<h3 id="state-value-approximator">State-value Approximator<a class="headerlink" href="#state-value-approximator" title="Permanent link">&para;</a></h3>
-<h4 id="derive-from-monte-carlo">Derive from Monte Carlo<a class="headerlink" href="#derive-from-monte-carlo" title="Permanent link">&para;</a></h4>
-<p>Use <span class="arithmatex">\(g_t\)</span> (discounted return starting from <span class="arithmatex">\(s_t\)</span>) to approximate:</p>
-<div class="arithmatex">\[
-v_\pi(s_t) = g_t
-\]</div>
-<ul>
-<li>converges to a local optimum, even for <em>non-linear</em> approximation</li>
-</ul>
-<hr />
-<h4 id="derive-from-temporal-difference">Derive from Temporal Difference<a class="headerlink" href="#derive-from-temporal-difference" title="Permanent link">&para;</a></h4>
-<p>Use <span class="arithmatex">\(r_{t+1} + \gamma \hat v(s_{t+1}, w_t) - \hat{v}(s_t, w_t)\)</span> (TD Error) to update approximator at each step:</p>
-<div class="arithmatex">\[
-v_\pi(s_t) = r_{t+1} + \gamma \hat v(s_{t+1}, w_t)
-\]</div>
-<ul>
-<li>Linear TD(0) converges close to the global optimum</li>
-</ul>
-<hr />
-<h4 id="derive-from-td">Derive from TD(λ)<a class="headerlink" href="#derive-from-td" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Forward View:</li>
-</ul>
-<div class="arithmatex">\[
-v_\pi(s_t) = g_t^\lambda
-\]</div>
-<ul>
-<li>Backward View: </li>
-</ul>
-<div class="arithmatex">\[
-\begin{align}
-\delta_t &amp; = r_{t+1} + \gamma \hat v(s_{t+1}, w_t)-\hat{v}(s_t, w_t) \\[4pt]
-E_t &amp; = \gamma \lambda E_{t-1} + \nabla\hat{v}(s_t,w_t) \\[4pt]
-w_{k+1} &amp;= w_k - \alpha \, \delta_t \, E_t
-\end{align}
-\]</div>
-<hr />
-<h3 id="action-state-value-approximator">Action-state-value Approximator<a class="headerlink" href="#action-state-value-approximator" title="Permanent link">&para;</a></h3>
-<p>Generally change <span class="arithmatex">\(v\)</span> to <span class="arithmatex">\(q\)</span> :</p>
-<div class="arithmatex">\[
-w_{k+1} = w_k 
-- \alpha\,
-\bigl(q_\pi(s_t,a_t)-\hat{q}(s_t,a_t,w_t)\bigr)\,
-\nabla \hat{q}(s_t,a_t,w_t)
-\]</div>
-<h4 id="derive-from-monte-carlo_1">Derive from Monte Carlo<a class="headerlink" href="#derive-from-monte-carlo_1" title="Permanent link">&para;</a></h4>
-<div class="arithmatex">\[
-q_\pi(s_t,a_t) = g_t
-\]</div>
-<h4 id="derive-from-sarsa">Derive from Sarsa<a class="headerlink" href="#derive-from-sarsa" title="Permanent link">&para;</a></h4>
-<div class="arithmatex">\[
-q_\pi(s_t,a_t) = r_{t+1} + \gamma \hat{q} (s_{t+1}, a_{t+1}, w_t)
-\]</div>
-<h4 id="derive-from-td_1">Derive from TD(λ)<a class="headerlink" href="#derive-from-td_1" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Forward View:</li>
-</ul>
-<div class="arithmatex">\[
-q_\pi(s_t, a_t) = g_t^\lambda
-\]</div>
-<ul>
-<li>Backward View: </li>
-</ul>
-<div class="arithmatex">\[
-\begin{align}
-\delta_t &amp; = r_{t+1} + \gamma \hat q(s_{t+1}, a_{t+1}, w_t)-\hat{q}(s_t, a_t, w_t) \\[4pt]
-E_t &amp; = \gamma \lambda E_{t-1} + \nabla\hat{q}(s_t,a_t,w_t) \\[4pt]
-w_{k+1} &amp;= w_k - \alpha \, \delta_t \, E_t
-\end{align}
-\]</div>
-<h4 id="derive-from-q-learning">Derive from Q-learning<a class="headerlink" href="#derive-from-q-learning" title="Permanent link">&para;</a></h4>
-<div class="arithmatex">\[
-q_\pi(s_t,a_t) = r_{t+1} + \gamma \max_{a \in \mathcal{A}(s_{t+1})}\hat{q} (s_{t+1}, a, w_t)
-\]</div>
-<hr />
-<h2 id="batch">Batch<a class="headerlink" href="#batch" title="Permanent link">&para;</a></h2>
-<p><strong>Restricted Environment</strong>: Only limited and static samples can algorithms learn from</p>
-<div class="arithmatex">\[
-\mathcal{D} = \{\langle s_1, v^\pi_1 \rangle, \ldots, \langle s_n, v^\pi_n \rangle\}
-\]</div>
-<p><strong>Distribution Shift</strong>: These samples may generate by a sub-optimal policy, so that:
-- Data may be out of distribution
-- Q-value may be over-estimated
-- Overfitting</p>
-<p><strong>Potential Suitable Methods:</strong>
-- Function Approximation → generalisability
-- Off-policy (e.g. Q-Learning) → static sample set
-- Supervised Learning Methods (e.g. Neural Network) → static sample set</p>
-<hr />
-<h5 id="example-mc-td-in-a-batch">Example - MC &amp; TD In a Batch<a class="headerlink" href="#example-mc-td-in-a-batch" title="Permanent link">&para;</a></h5>
-<p><img alt="AB Example" src="../assets/10_1_ab.svg" /></p>
-<p>Sampled Episodes: 8 Samples (Limited)</p>
-<div class="arithmatex">\[
-\begin{align}
-A \to 0, B \to 0 \\
-B \to 1 \\
-B \to 1 \\
-B \to 1 \\
-B \to 1 \\
-B \to 1 \\
-B \to 1 \\
-B \to 0
-\end{align}
-\]</div>
-<p>MC Update:</p>
-<ul>
-<li><span class="arithmatex">\(v(B) = 6/8 = 0.75\)</span></li>
-<li><span class="arithmatex">\(v(A) = 0 / 1 = 0\)</span></li>
-</ul>
-<p>TD Update:</p>
-<ul>
-<li><span class="arithmatex">\(v(B) \to 0.75\)</span></li>
-<li><span class="arithmatex">\(v(A) = 0 + v(B) \to 0.75\)</span></li>
-</ul>
-<hr />
-<h2 id="batch-methods">Batch Methods<a class="headerlink" href="#batch-methods" title="Permanent link">&para;</a></h2>
-<h3 id="least-squares-solution">Least Squares Solution<a class="headerlink" href="#least-squares-solution" title="Permanent link">&para;</a></h3>
-<p>By <span class="arithmatex">\(minimising\)</span> <em>SSE</em> between approximate and true values:</p>
-<div class="arithmatex">\[
-LS(w_i) = \mathbb{E} \left[ (v^\pi(S) - \hat{v}(S, w))^2 \right]
-\]</div>
-<ul>
-<li>True values can be approximated by Return (MC) or Temporal Difference (TD)</li>
-<li>Using all samples at once</li>
-<li><span class="arithmatex">\(O(n^3)\)</span> or <span class="arithmatex">\(O(n^2)\)</span> by using "Sherman-Morrison"</li>
-</ul>
-<hr />
-<h3 id="stochastic-gradient-descent">Stochastic Gradient Descent<a class="headerlink" href="#stochastic-gradient-descent" title="Permanent link">&para;</a></h3>
-<p>By randomly sample a mini-batch of samples from <span class="arithmatex">\(\mathcal{D}\)</span>:</p>
-<div class="arithmatex">\[
-\mathcal{B} = \{\langle s_1, v^\pi_1 \rangle, \ldots, \langle s_k, v^\pi_k \rangle\}
-\]</div>
-<p>Then use gradient descent for updating:</p>
-<div class="arithmatex">\[
-w_{k+1} = w_k - \alpha\,
-\frac{1}{m} \sum_{\langle s_i, v^\pi_i \rangle \in \mathcal{B}}
-\bigl( v^\pi_i(s_i) - \hat{v}(s_i, w_i) \bigr)
-\nabla \hat{v}(s_i, w_i)
-\]</div>
-<hr />
-<h3 id="deep-q-learning">Deep Q-Learning<a class="headerlink" href="#deep-q-learning" title="Permanent link">&para;</a></h3>
-<p>By using Q-Learning + Neural Network (<span class="arithmatex">\(minimise\)</span> MSE <span class="arithmatex">\(\mathbf{Loss}(\cdot)\)</span>): </p>
-<div class="arithmatex">\[
-\mathbf{Loss}(w_i)
-=\underbrace{\mathbb{E}_{(s,a,r,s')\sim \mathcal{D}_i}}_{\text{sampled from}\;D_i}
-\Big[
-\big(
-\underbrace{r+\gamma \max_{a'} Q(s',a';w_i^-)}_{\text{TD target }}
--
-\underbrace{Q(s,a;w_i)}_{\text{Q estimate}}
-\big)^2
-\Big]
-\]</div>
-<ul>
-<li>Experience replay: <ul>
-<li>Randomly sample from non-i.i.d data → single sample/mini-batch</li>
-<li>✅For decorrelation (near-i.i.d)</li>
-</ul>
-</li>
-<li>Fixed Q-targets: <ul>
-<li><span class="arithmatex">\(w_i^-\)</span> will only be updated by <span class="arithmatex">\(w_i\)</span> (lively updated) after running a while (like 1000 steps)</li>
-<li>✅Reduce variance</li>
-</ul>
-</li>
-</ul>
+<h5 id="example-driving-home">Example - Driving Home<a class="headerlink" href="#example-driving-home" title="Permanent link">&para;</a></h5>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Elapsed Time (min)</th>
+<th>Predicted Time to Go</th>
+<th>Predicted Total Time</th>
+<th>MC Update (After Back Home)</th>
+<th>MC New Predicated Time</th>
+<th>TD(0) Update - <span class="arithmatex">\(\gamma = 1, \alpha = 0.5\)</span></th>
+<th>TD New Predicated Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>leaving office</td>
+<td>0</td>
+<td>30</td>
+<td>30</td>
+<td>43</td>
+<td>43-0=43</td>
+<td>30+0.5(5+35-30)=35</td>
+<td>35-0=35</td>
+</tr>
+<tr>
+<td>reach car, raining</td>
+<td>5</td>
+<td>35</td>
+<td>40</td>
+<td>43</td>
+<td>43-5=38</td>
+<td>40+0.5(20+15-40)=37.5</td>
+<td>37.5-5=32.5</td>
+</tr>
+<tr>
+<td>exit highway</td>
+<td>20</td>
+<td>15</td>
+<td>35</td>
+<td>43</td>
+<td>43-20=23</td>
+<td>35+0.5(30+10-35)=37.5</td>
+<td>37.5-20=17.5</td>
+</tr>
+<tr>
+<td>behind truck</td>
+<td>30</td>
+<td>10</td>
+<td>40</td>
+<td>43</td>
+<td>43-30=13</td>
+<td>40+0.5(40+3-40)=41.5</td>
+<td>41.5-30=11.5</td>
+</tr>
+<tr>
+<td>home street</td>
+<td>40</td>
+<td>3</td>
+<td>43</td>
+<td>43</td>
+<td>43-40=3</td>
+<td>43+0.5(43+0-43)=43</td>
+<td>43-40=3</td>
+</tr>
+<tr>
+<td>arrive home</td>
+<td>43</td>
+<td>0</td>
+<td>43</td>
+<td>43</td>
+<td>43-43=0</td>
+<td>43</td>
+<td>43-43=0</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -1539,10 +1559,10 @@ w_{k+1} = w_k - \alpha\,
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       

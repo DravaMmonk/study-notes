@@ -9,34 +9,36 @@
       
       
       
-        <link rel="prev" href="../07-MDP/">
+        <link rel="prev" href="01-Search.html">
       
       
-        <link rel="next" href="../09-TD/">
+        <link rel="next" href="03-Complexity.html">
       
       
         
       
       
-      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>8 Monte Carlo - Drava's Study Notes</title>
+        <title>2 Planning - Drava's Study Notes</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
 
     
     
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
       
     
     
@@ -49,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#8-monte-carlo" class="md-skip">
+        <a href="#2-planning" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              8 Monte Carlo
+              2 Planning
             
           </span>
         </div>
@@ -203,7 +205,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+      <a href="../../../index.html" class="md-tabs__link">
         
   
   
@@ -244,7 +246,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../01-Search/" class="md-tabs__link">
+        <a href="01-Search.html" class="md-tabs__link">
           
   
   
@@ -286,7 +288,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -304,7 +306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../../../index.html" class="md-nav__link">
         
   
   
@@ -499,7 +501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../01-Search/" class="md-nav__link">
+      <a href="01-Search.html" class="md-nav__link">
         
   
   
@@ -507,174 +509,6 @@
     
   
     1 Search
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../02-Planning/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    2 Planning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../03-Complexity/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    3 Complexity
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../04-Relaxation/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 Relaxation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../05-Exploration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    5 Exploration
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../06-RL/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    6 Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../07-MDP/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    7 Markov Decision Process
   
 
     
@@ -711,7 +545,7 @@
   <span class="md-ellipsis">
     
   
-    8 Monte Carlo
+    2 Planning
   
 
     
@@ -722,14 +556,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="./" class="md-nav__link md-nav__link--active">
+      <a href="02-Planning.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    8 Monte Carlo
+    2 Planning
   
 
     
@@ -755,55 +589,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#model-based-model-free" class="md-nav__link">
+  <a href="#problem-solving" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Model-based → Model-free
+        Problem Solving
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#monte-carlo-mc-learning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Monte Carlo (MC) Learning
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mc-basic" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        MC Basic
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mc-exploring-starts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        MC Exploring Starts
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="MC Exploring Starts">
+    <nav class="md-nav" aria-label="Problem Solving">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#first-visit-vs-every-visit" class="md-nav__link">
+  <a href="#autonomous-behaviour-in-ai" class="md-nav__link">
     <span class="md-ellipsis">
       
-        First-visit vs. Every-visit
+        Autonomous Behaviour in AI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-level-solver-ambitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-level Solver Ambitions
       
     </span>
   </a>
@@ -816,13 +628,113 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#mc-varepsilon-greedy" class="md-nav__link">
+  <a href="#solving-approaches" class="md-nav__link">
     <span class="md-ellipsis">
       
-        MC + \(\varepsilon\)-greedy
+        Solving Approaches
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Solving Approaches">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#programming-based-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Programming-Based Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#learning-based-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning-Based Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-based-approach-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model-Based Approach (Planning)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#planning-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planning Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Planning Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classical-planning-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classical Planning Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conformant-planning-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conformant Planning Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markov-decision-processes-mdps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov Decision Processes (MDPs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#partially-observable-mdps-pomdps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partially Observable MDPs (POMDPs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -842,7 +754,175 @@
   
   
     <li class="md-nav__item">
-      <a href="../09-TD/" class="md-nav__link">
+      <a href="03-Complexity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 Complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04-Relaxation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="05-Exploration.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Exploration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="06-RL.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="07-MDP.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Markov Decision Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="08-MC.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 Monte Carlo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="09-TD.html" class="md-nav__link">
         
   
   
@@ -870,7 +950,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../10-Value-Approx/" class="md-nav__link">
+      <a href="10-Value-Approx.html" class="md-nav__link">
         
   
   
@@ -898,7 +978,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-Policy-Approx/" class="md-nav__link">
+      <a href="11-Policy-Approx.html" class="md-nav__link">
         
   
   
@@ -926,7 +1006,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../12-Integrating/" class="md-nav__link">
+      <a href="12-Integrating.html" class="md-nav__link">
         
   
   
@@ -987,144 +1067,178 @@
 
 
 
-<h1 id="8-monte-carlo">8 Monte Carlo<a class="headerlink" href="#8-monte-carlo" title="Permanent link">&para;</a></h1>
+<h1 id="2-planning">2 Planning<a class="headerlink" href="#2-planning" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="model-based-model-free">Model-based → Model-free<a class="headerlink" href="#model-based-model-free" title="Permanent link">&para;</a></h2>
-<p>Model-based</p>
+<h2 id="problem-solving">Problem Solving<a class="headerlink" href="#problem-solving" title="Permanent link">&para;</a></h2>
+<h3 id="autonomous-behaviour-in-ai">Autonomous Behaviour in AI<a class="headerlink" href="#autonomous-behaviour-in-ai" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Learn from <strong>Simulator</strong> of Environment<ul>
-<li>Commonly use MDP to model the Markov Environment</li>
+<li>Programming-based</li>
+<li>Learning-Based</li>
+<li>Model-Based</li>
+<li>Approaches not orthogonal</li>
+<li>Different models yield different types of <strong>controllers</strong> 执行动作的策略模块</li>
+</ul>
+<h3 id="3-level-solver-ambitions">3-level Solver Ambitions<a class="headerlink" href="#3-level-solver-ambitions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Ambition</strong>: Write one program to solve all classical search problems<ul>
+<li><strong>Ambition 1.0</strong> (Problem Solving) Write one program to solve a problem</li>
+<li><strong>Ambition 2.0</strong> (Problem Generation) Write one program to solve a large class of problems</li>
+<li><strong>Ambition 3.0</strong> (Meta Problem Solving) Write one program to solve a large class of problems <strong>effectively</strong></li>
 </ul>
 </li>
 </ul>
-<p>Model-free</p>
+<hr />
+<h2 id="solving-approaches">Solving Approaches<a class="headerlink" href="#solving-approaches" title="Permanent link">&para;</a></h2>
+<h3 id="programming-based-approach">Programming-Based Approach<a class="headerlink" href="#programming-based-approach" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Learn <strong>Experience</strong> from Environment<ul>
-<li>Experience: <span class="arithmatex">\(E_t = \langle S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1}, ... \rangle\)</span></li>
+<li><strong>Pro</strong>: Domain-knowledge easy to express</li>
+<li><strong>Con</strong>: Less Flexible (Can’t deal with situations not anticipated by programmer)</li>
 </ul>
-</li>
-<li>Optimise <span class="arithmatex">\(V, Q, \pi\)</span> directly</li>
+<h3 id="learning-based-approach">Learning-Based Approach<a class="headerlink" href="#learning-based-approach" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Unsupervised/Reinforced Learning: Use reward &amp; penalise</li>
+<li>Supervised: Use labelled data</li>
+<li>Evolutionary: Use original controllers to mutate and recombine to build better controller</li>
+<li><strong>Pros</strong> Dose not require much knowledge in principle </li>
+<li><strong>Cons</strong> Slower; Hard to know which features to learn </li>
+</ul>
+<h3 id="model-based-approach-planning">Model-Based Approach (Planning)<a class="headerlink" href="#model-based-approach-planning" title="Permanent link">&para;</a></h3>
+<ul>
+<li>One model for one specific problem
+<img alt="Planning Process" src="assets/3_1_planning_process.png" /></li>
+<li><strong>Pros</strong> Powerful; Quick; Flexible; Clear; Intelligent; Domain-independent</li>
+<li><strong>Cons</strong> Need a model (sometimes very hard); Efficiency loss</li>
+<li>Always need trade-off between “Automatic and general” vs. “Manual work but effective”</li>
 </ul>
 <hr />
-<h2 id="monte-carlo-mc-learning">Monte Carlo (MC) Learning<a class="headerlink" href="#monte-carlo-mc-learning" title="Permanent link">&para;</a></h2>
+<h2 id="planning-models">Planning Models<a class="headerlink" href="#planning-models" title="Permanent link">&para;</a></h2>
+<h3 id="classical-planning-model">Classical Planning Model<a class="headerlink" href="#classical-planning-model" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Run-to-end in the environment for multiple times</li>
+<li>Classical Planning Model = Basic State Model</li>
 <li>
-<p>Use <strong>average return</strong> to <strong>estimate</strong> value function, <em>instead of solving <span class="arithmatex">\(v(n)\)</span> in Model-based RL</em></p>
+<p>Assumptions</p>
+<ul>
+<li>Deterministic</li>
+<li>Fully Observable</li>
+<li>Static World</li>
+<li>Discrete Time &amp; Finite Actions</li>
+<li>Uniform Cost</li>
+</ul>
+</li>
+<li>
+<p>Components </p>
 <div class="arithmatex">\[
-V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
+M = \langle S, A, T, I, G \rangle
 \]</div>
 <ul>
-<li><span class="arithmatex">\(N(s)\)</span> - how many times <span class="arithmatex">\(G_t\)</span> is visited</li>
-<li>When <span class="arithmatex">\(N(s) \to \infty\)</span>, <span class="arithmatex">\(V(s) \to v_\pi(s)\)</span>.</li>
+<li><span class="arithmatex">\(S\)</span> - State spaces </li>
+<li><span class="arithmatex">\(A(s)\)</span> - Actions applicable for <span class="arithmatex">\(s \in S\)</span></li>
+<li><span class="arithmatex">\(T\)</span> - Deterministic Transition Function: <span class="arithmatex">\(s’ = T(A(s), s)\)</span> shows one successor <span class="arithmatex">\(s’\)</span> of <span class="arithmatex">\(s\)</span></li>
+<li><span class="arithmatex">\(I\)</span> - Initial state</li>
+<li><span class="arithmatex">\(G\)</span> - Goal states</li>
+<li>Uniform action costs <span class="arithmatex">\(c(A(s), s) = 1\)</span></li>
 </ul>
 </li>
 <li>
-<p>Unbiased✅</p>
-</li>
-<li>Can only apply to <strong>episodic</strong> 有终止状态 Markov environment⚠️</li>
-</ul>
-<hr />
-<h2 id="mc-basic">MC Basic<a class="headerlink" href="#mc-basic" title="Permanent link">&para;</a></h2>
+<p>Outcomes</p>
 <ul>
-<li>Use MC motivation to transfer Policy Iteration into a Model-free method</li>
-<li>
-<p>For each iteration:</p>
-<ol>
-<li>Policy Evaluation (Predication)<ul>
-<li>For each <span class="arithmatex">\((s, a)\)</span>:<ul>
-<li>run <strong>sufficiently many</strong> episodes and get average return</li>
-<li>When <span class="arithmatex">\(N \to \infty\)</span>, <span class="arithmatex">\(Q(s, a) \to q_\pi(s, a)\)</span></li>
+<li>A seq of actions map <span class="arithmatex">\(s_0\)</span> into <span class="arithmatex">\(g\)</span></li>
+<li><strong>Optimal</strong> if total cost to goal is minimum</li>
 </ul>
-</li>
-</ul>
-</li>
-<li>Policy Improvement (Control)<ul>
-<li>Give the Greedy Optimal Policy based on estimated <span class="arithmatex">\(Q\)</span><ul>
-<li><span class="arithmatex">\(a^\ast = \arg\max_a q_\pi(s,a)\)</span></li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-</li>
-<li>
-<p>Convergence guarantee✅ Very low Time Efficiency; Not practical❌</p>
 </li>
 </ul>
 <hr />
-<h2 id="mc-exploring-starts">MC Exploring Starts<a class="headerlink" href="#mc-exploring-starts" title="Permanent link">&para;</a></h2>
+<h3 id="conformant-planning-model">Conformant Planning Model<a class="headerlink" href="#conformant-planning-model" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Use <em>Generalised Policy Iteration</em> (GPI) Framework to improve efficiency<ul>
-<li>In an iteration, instead of do "Policy Evaluation → Policy Improvement" <strong>once</strong>, do the sub-version of it <strong>repeatly</strong></li>
+<li><span class="arithmatex">\(\approx\)</span> Brute Force</li>
+<li>Components (<em>Diff with classic</em>)<ul>
+<li>Initial State → A set of possible initial states</li>
+<li>Deterministic Transition Function → <strong>Non</strong>-deterministic</li>
 </ul>
 </li>
-<li>For each episode <span class="arithmatex">\(e\)</span>:<ul>
-<li>Randomly pick one <span class="arithmatex">\((s, a)\)</span> and start learning (<strong>Exploring Start</strong>)</li>
-<li>For each <span class="arithmatex">\((s,a)\)</span> visited:<ul>
-<li><span class="arithmatex">\(N(s,a) \gets N(s,a) + 1\)</span></li>
-<li>Update <span class="arithmatex">\(Q(s,a) \gets \frac{1}{N(s,a)}(Q(s,a) + (G - Q(s,a))\)</span></li>
-<li>If <span class="arithmatex">\(Q\)</span> is updated, update <span class="arithmatex">\(a^\ast\)</span></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Data is used much more efficiently</li>
-<li><strong>Exploring Start</strong> can highly guarantee that every node is visited<ul>
-<li>However difficult in practice (limitation in environment)</li>
+<li>Outcomes<ul>
+<li><strong>No Observation</strong> - No new info; must pre-planning</li>
+<li><strong>Goal Guarantee</strong></li>
+<li><strong>Rarely optimal</strong><ul>
+<li>Must map any possible <span class="arithmatex">\(s_0\)</span> to <span class="arithmatex">\(g\)</span>, too much unnecessary work</li>
+<li>Sensitive to Worst/Special case </li>
 </ul>
 </li>
 </ul>
-<h4 id="first-visit-vs-every-visit">First-visit vs. Every-visit<a class="headerlink" href="#first-visit-vs-every-visit" title="Permanent link">&para;</a></h4>
-<ul>
-<li>How to deal with repeat visit of same <span class="arithmatex">\((s,a)\)</span> in a episode</li>
+</li>
 </ul>
-<table>
-<thead>
-<tr>
-<th>Aspect</th>
-<th>First-Visit MC</th>
-<th>Every-Visit MC</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>When?</td>
-<td>Only the <em>first</em> time appeared</td>
-<td><em>Every</em> time appeared</td>
-</tr>
-<tr>
-<td>Pros</td>
-<td>Avoids dependence between multiple visits</td>
-<td>Faster convergence in practice</td>
-</tr>
-<tr>
-<td>Cons</td>
-<td>Some visits ignored</td>
-<td>Higher variance</td>
-</tr>
-<tr>
-<td>Suitable Scenario</td>
-<td>Long episodes with repeated states</td>
-<td>Short episodes or rare-state situations</td>
-</tr>
-</tbody>
-</table>
 <hr />
-<h2 id="mc-varepsilon-greedy">MC + <span class="arithmatex">\(\varepsilon\)</span>-greedy<a class="headerlink" href="#mc-varepsilon-greedy" title="Permanent link">&para;</a></h2>
+<h3 id="markov-decision-processes-mdps">Markov Decision Processes (MDPs)<a class="headerlink" href="#markov-decision-processes-mdps" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>Use soft policy (e.g. <span class="arithmatex">\(\varepsilon\)</span>-greedy) to remove needs of exploring start</p>
+<p>Assumption</p>
+<ul>
+<li>
+<p>Markov Property: the next state only depends on the current state and actions.</p>
 <div class="arithmatex">\[
-\pi(a|s) =
-\begin{cases}
-1 - (1 - \frac{1}{|\mathcal{A}(s)|}) \, \varepsilon, &amp; a = a^*_k \\[6pt]
-\frac{1}{|\mathcal{A}(s)|} \, \varepsilon, &amp; \text{otherwise}
-\end{cases}
+P(s_{t+1} \mid s_t,a_t,s_{t-1},a_{t-1},\ldots) = P(s_{t+1} \mid s_t,a_t) 
 \]</div>
+</li>
+<li>
+<p>Fully Observable</p>
+</li>
+<li>Discrete Time &amp; Finite Actions</li>
+<li>Fixed Transition Probabilities</li>
+</ul>
+</li>
+<li>
+<p>Components <em>(Diff with conformant)</em>
+    $$
+    M = \langle S,A,T,R,\gamma \rangle
+    $$</p>
 <ul>
-<li><span class="arithmatex">\(|\mathcal{A}(s)|\)</span> - number of valid actions of state</li>
-<li>Balance Exploration &amp; Exploitation</li>
+<li>Introduce the <strong>Transition Probability Function</strong>:
+    $$
+    T(s, a, s') = P(s' \mid s, a)
+    $$</li>
+<li>Introduce <strong>Reward Function</strong> <span class="arithmatex">\(R\)</span> and <strong>Discount Factor</strong> <span class="arithmatex">\(\gamma\)</span>:<ul>
+<li>For estimating the <strong>value</strong> of each state</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Outcomes</p>
+<ul>
+<li>Map states to <strong>actions</strong></li>
+<li><strong>Optimal</strong> if total <strong>expected</strong> cost to goal is <span class="arithmatex">\(minimum\)</span></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="partially-observable-mdps-pomdps">Partially Observable MDPs (POMDPs)<a class="headerlink" href="#partially-observable-mdps-pomdps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Assumption</p>
+<ul>
+<li>Markov Property</li>
+<li><strong>Limited</strong> Observable</li>
+</ul>
+</li>
+<li>
+<p>Components <em>(Diff with MDPs)</em></p>
+<ul>
+<li>
+<p>Introduce <strong>Sensor Model</strong> (based on <strong>Probability Distribution</strong>)</p>
+<div class="arithmatex">\[
+\mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
+\]</div>
+</li>
+<li>
+<p>Initial/Goal States → Belief States <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> and <span class="arithmatex">\(\mathrm{b}(g)\)</span></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Outcomes</p>
+<ul>
+<li>Map belief states into actions</li>
+<li><strong>Optimal</strong> if total expected cost from <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> to <span class="arithmatex">\(\mathrm{b}(g)\)</span> is minimum</li>
 </ul>
 </li>
 </ul>
@@ -1185,10 +1299,10 @@ V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       

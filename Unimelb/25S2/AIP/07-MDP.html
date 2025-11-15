@@ -9,32 +9,36 @@
       
       
       
-        <link rel="prev" href="../11-Policy-Approx/">
+        <link rel="prev" href="06-RL.html">
       
+      
+        <link rel="next" href="08-MC.html">
       
       
         
       
       
-      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>12 Integrating Learning and Planning - Drava's Study Notes</title>
+        <title>7 Markov Decision Process - Drava's Study Notes</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
 
     
     
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
       
     
     
@@ -47,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -74,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#12-integrating-learning-and-planning" class="md-skip">
+        <a href="#7-markov-decision-process" class="md-skip">
           Skip to content
         </a>
       
@@ -88,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              12 Integrating Learning and Planning
+              7 Markov Decision Process
             
           </span>
         </div>
@@ -201,7 +205,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+      <a href="../../../index.html" class="md-tabs__link">
         
   
   
@@ -242,7 +246,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../01-Search/" class="md-tabs__link">
+        <a href="01-Search.html" class="md-tabs__link">
           
   
   
@@ -284,7 +288,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -302,7 +306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../../../index.html" class="md-nav__link">
         
   
   
@@ -497,7 +501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../01-Search/" class="md-nav__link">
+      <a href="01-Search.html" class="md-nav__link">
         
   
   
@@ -525,7 +529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-Planning/" class="md-nav__link">
+      <a href="02-Planning.html" class="md-nav__link">
         
   
   
@@ -553,7 +557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-Complexity/" class="md-nav__link">
+      <a href="03-Complexity.html" class="md-nav__link">
         
   
   
@@ -581,7 +585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-Relaxation/" class="md-nav__link">
+      <a href="04-Relaxation.html" class="md-nav__link">
         
   
   
@@ -609,7 +613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-Exploration/" class="md-nav__link">
+      <a href="05-Exploration.html" class="md-nav__link">
         
   
   
@@ -637,7 +641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../06-RL/" class="md-nav__link">
+      <a href="06-RL.html" class="md-nav__link">
         
   
   
@@ -645,146 +649,6 @@
     
   
     6 Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../07-MDP/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    7 Markov Decision Process
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../08-MC/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    8 Monte Carlo
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../09-TD/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    9 Temporal Difference
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../10-Value-Approx/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    10 Value Function Approximation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../11-Policy-Approx/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    11 Policy Function Approximation
   
 
     
@@ -821,7 +685,7 @@
   <span class="md-ellipsis">
     
   
-    12 Integrating Learning and Planning
+    7 Markov Decision Process
   
 
     
@@ -832,14 +696,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="./" class="md-nav__link md-nav__link--active">
+      <a href="07-MDP.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    12 Integrating Learning and Planning
+    7 Markov Decision Process
   
 
     
@@ -865,33 +729,72 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#model-free-integrated-architectures" class="md-nav__link">
+  <a href="#markov-decision-process-mdp" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Model-free → Integrated Architectures
+        Markov Decision Process (MDP)
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Markov Decision Process (MDP)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#markov-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markov-reward-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov Reward Processes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markov-decision-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markov Decision Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#simulation-based-search" class="md-nav__link">
+  <a href="#greedy-optimal-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Simulation-based Search
+        Greedy Optimal Policy
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Simulation-based Search">
+    <nav class="md-nav" aria-label="Greedy Optimal Policy">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#simple-monte-carlo-search" class="md-nav__link">
+  <a href="#bellman-optimality-equation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Simple Monte-Carlo Search
+        Bellman Optimality Equation
       
     </span>
   </a>
@@ -899,10 +802,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#monte-carlo-tree-search" class="md-nav__link">
+  <a href="#example-maze" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Monte-Carlo Tree Search
+        Example - MAZE
       
     </span>
   </a>
@@ -918,6 +821,146 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="08-MC.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 Monte Carlo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="09-TD.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 Temporal Difference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="10-Value-Approx.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 Value Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="11-Policy-Approx.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 Policy Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="12-Integrating.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 Integrating Learning and Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -963,68 +1006,140 @@
 
 
 
-<h1 id="12-integrating-learning-and-planning">12 Integrating Learning and Planning<a class="headerlink" href="#12-integrating-learning-and-planning" title="Permanent link">&para;</a></h1>
+<h1 id="7-markov-decision-process">7 Markov Decision Process<a class="headerlink" href="#7-markov-decision-process" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="model-free-integrated-architectures">Model-free → Integrated Architectures<a class="headerlink" href="#model-free-integrated-architectures" title="Permanent link">&para;</a></h2>
-<p>Model-free</p>
+<h2 id="markov-decision-process-mdp">Markov Decision Process (MDP)<a class="headerlink" href="#markov-decision-process-mdp" title="Permanent link">&para;</a></h2>
 <ul>
-<li>No model</li>
-<li>Learn Value/Policy from experience</li>
-<li>Cannot look ahead❌</li>
-<li>Sample may be expensive⚠️</li>
-<li>May fall into sub-optimal</li>
-</ul>
-<p>Integrated Architectures</p>
-<ul>
-<li>Learn Model from experience</li>
-<li>Learn and plan Value/Policy from real and simulated experience</li>
-<li>Sample is efficient✅ (directly from simulators)</li>
-<li>Avoid model error✅ (Beyond Model-based)</li>
-<li>Supervised Learning methods can be used in model training✅</li>
-<li>Uncertainty can be learned in model training✅</li>
-<li>Modelling is hard❌<ul>
-<li>Need environment to be model-learnable⚠️</li>
-<li>Compounding model bias❌ (experience is from model)</li>
-</ul>
-</li>
-<li>High computation cost❌</li>
+<li>MDP - General Simulator of the environment for Model-based RL</li>
+<li>Model-based Learning + Optimal Policy</li>
 </ul>
 <hr />
-<h2 id="simulation-based-search">Simulation-based Search<a class="headerlink" href="#simulation-based-search" title="Permanent link">&para;</a></h2>
-<p>Model-based RL + Model-free RL backup</p>
-<ol>
-<li>Collect the current state <span class="arithmatex">\(s_t\)</span> from real world</li>
-<li>For each <span class="arithmatex">\(a \in A\)</span>, simulate <span class="arithmatex">\(K\)</span> episodes from <span class="arithmatex">\(s_t\)</span>:<ul>
-<li>Use a model of MDP to look ahead</li>
-<li>Use <em>Forward Search</em> methods (e.g. BFS, DFS) to select action</li>
-<li>Terminate after running <span class="arithmatex">\(T-t\)</span> steps</li>
+<h3 id="markov-process">Markov process<a class="headerlink" href="#markov-process" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>A <em>memoryless</em> random process 
+    $$
+    M = \langle S, P \rangle
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(S\)</span> - a finite set of states</li>
+<li><span class="arithmatex">\(P\)</span> - a state transition probability <strong><em>matrix</em></strong>, which maps every two states in <span class="arithmatex">\(S\)</span><ul>
+<li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
+<li>Each row of <span class="arithmatex">\(P\)</span> sums to 1</li>
+<li>🅄 For showing actions validations and non-deterministic</li>
 </ul>
 </li>
-</ol>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="markov-reward-processes">Markov Reward Processes<a class="headerlink" href="#markov-reward-processes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>A Markov chain with reward values:
+    $$
+    M = \langle S, P, R, \gamma \rangle
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(R\)</span> - the reward function<ul>
+<li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
+</ul>
+</li>
+<li><span class="arithmatex">\(\gamma\)</span> - discount factor</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="markov-decision-process">Markov Decision Process<a class="headerlink" href="#markov-decision-process" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Introduce <strong>agency</strong> 能动性 in terms of actions:
+    $$
+    M = \langle S, A, P, R, \gamma \rangle
+    $$</p>
+<ul>
+<li><span class="arithmatex">\(A\)</span> - a finite set of actions</li>
+<li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
+<li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="greedy-optimal-policy">Greedy Optimal Policy<a class="headerlink" href="#greedy-optimal-policy" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Give a policy based on the action which has <span class="arithmatex">\(maximum\)</span> state-action-value</li>
+<li>
+<p>Optimal State-value Function
+    $$
+    V^\ast(s) = \max_\pi V_\pi(s)
+    $$</p>
+</li>
+<li>
+<p>Optimal State-action-value Function
+    $$
+    Q^\ast(s,a) = \max_\pi Q_\pi(s,a)
+    $$</p>
+</li>
+<li>
+<p>Optimal Policy
+    $$
+    a=\arg\max_a Q^\ast(s,a)
+    $$</p>
+</li>
+</ul>
+<hr />
+<h4 id="bellman-optimality-equation">Bellman Optimality Equation<a class="headerlink" href="#bellman-optimality-equation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p>Optimal State-value Function (Deriving BEE)</p>
 <div class="arithmatex">\[
-\{ s_t^k, A_t^k, R_{t+1}^k, \ldots, S_T^k \}_{k=1}^K \;\sim\; \mathcal{M}_\nu
+\begin{align}
+v_\ast(s)
+&amp;= \max_a \; \mathbb{E}\!\left[\, r + \gamma v_\ast(s') \,\right] \\[6pt]
+&amp;= \max_a \; \sum_{s'} P(s' \mid s,a)\left[\, R(s,a,s') + \gamma v_\ast(s') \,\right]
+\end{align}
 \]</div>
-<ol>
-<li>Take each episode as a experience for Model-free update</li>
-<li>Select the action in real world based on optimal policy from Model-free RL</li>
-</ol>
-<hr />
-<h3 id="simple-monte-carlo-search">Simple Monte-Carlo Search<a class="headerlink" href="#simple-monte-carlo-search" title="Permanent link">&para;</a></h3>
-<p>Derive from MC, update <span class="arithmatex">\(q\)</span> value by <strong>mean return</strong> of all episodes, select the optimal action with <span class="arithmatex">\(maximum\)</span> <span class="arithmatex">\(q\)</span>.</p>
-<hr />
-<h3 id="monte-carlo-tree-search">Monte-Carlo Tree Search<a class="headerlink" href="#monte-carlo-tree-search" title="Permanent link">&para;</a></h3>
+</li>
+<li>
+<p>Optimal State-action-value Function (Deriving BEE)</p>
+<div class="arithmatex">\[
+\begin{align}
+q_\ast(s,a)
+&amp;= \mathbb{E} \left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right] \\[6pt]
+&amp;= \sum_{s',r} p(s',r\mid s,a)\left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right]
+\end{align}
+\]</div>
+</li>
+<li>
+<p>Solving the BOE</p>
 <ul>
-<li>Build a search tree containing visited states and actions</li>
-<li>Update <span class="arithmatex">\(q\)</span> by mean return of episodes <em>starting from each <span class="arithmatex">\((s,a)\)</span></em></li>
+<li>No closed form solution</li>
+<li>Value Iteration</li>
+<li>Policy Iteration</li>
+<li>SARSA</li>
+<li>Q-learning</li>
 </ul>
-<p>$$
-q(s,a)
-= \frac{1}{N(s,a)} \sum_{k=1}^K \sum_{u=t}^T
-\mathbf{1}(S_u, A_u = s,a) \, G_u
-$$
-Off-policy
-- Behaviour Policy: Forward Search methods
-- Optimal Policy: <span class="arithmatex">\(\arg\max q(s,a)\)</span></p>
+</li>
+</ul>
+<hr />
+<h3 id="example-maze">Example - MAZE<a class="headerlink" href="#example-maze" title="Permanent link">&para;</a></h3>
+<p><img alt="Maze" src="assets/6_1_maze.png" /></p>
+<p>MDP Model of MAZE:</p>
+<ul>
+<li><span class="arithmatex">\(S\)</span> - Agent's possible locations</li>
+<li><span class="arithmatex">\(A\)</span> - Step directions <span class="arithmatex">\(\mathtt{N, E, S, W}\)</span></li>
+<li><span class="arithmatex">\(P\)</span> - Map <span class="arithmatex">\(s, a \to s'\)</span></li>
+<li><span class="arithmatex">\(R\)</span> - <span class="arithmatex">\(-1\)</span> per time-step (encourage short-path solution)</li>
+</ul>
+<p>Agent of MAZE:</p>
+<ul>
+<li><span class="arithmatex">\(V(s)\)</span> - the expected return of following the policy from each <span class="arithmatex">\(s\)</span> <ul>
+<li>closer to <span class="arithmatex">\(g\)</span> - <span class="arithmatex">\(V(s)\)</span> ⤴</li>
+<li>Farther away - <span class="arithmatex">\(V(S)\)</span> ⤵</li>
+</ul>
+</li>
+<li><span class="arithmatex">\(\pi(s)\)</span> - Optimal Policy = Best <span class="arithmatex">\(V(s')\)</span></li>
+</ul>
 
 
 
@@ -1082,10 +1197,10 @@ Off-policy
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       

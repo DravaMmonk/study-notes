@@ -9,34 +9,36 @@
       
       
       
-        <link rel="prev" href="../02-Planning/">
+        <link rel="prev" href="07-MDP.html">
       
       
-        <link rel="next" href="../04-Relaxation/">
+        <link rel="next" href="09-TD.html">
       
       
         
       
       
-      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>3 Complexity - Drava's Study Notes</title>
+        <title>8 Monte Carlo - Drava's Study Notes</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
 
     
     
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
       
     
     
@@ -49,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#3-complexity" class="md-skip">
+        <a href="#8-monte-carlo" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              3 Complexity
+              8 Monte Carlo
             
           </span>
         </div>
@@ -203,7 +205,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+      <a href="../../../index.html" class="md-tabs__link">
         
   
   
@@ -244,7 +246,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../01-Search/" class="md-tabs__link">
+        <a href="01-Search.html" class="md-tabs__link">
           
   
   
@@ -286,7 +288,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -304,7 +306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../../../index.html" class="md-nav__link">
         
   
   
@@ -499,7 +501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../01-Search/" class="md-nav__link">
+      <a href="01-Search.html" class="md-nav__link">
         
   
   
@@ -527,7 +529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-Planning/" class="md-nav__link">
+      <a href="02-Planning.html" class="md-nav__link">
         
   
   
@@ -535,6 +537,146 @@
     
   
     2 Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="03-Complexity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 Complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04-Relaxation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="05-Exploration.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Exploration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="06-RL.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="07-MDP.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Markov Decision Process
   
 
     
@@ -571,7 +713,7 @@
   <span class="md-ellipsis">
     
   
-    3 Complexity
+    8 Monte Carlo
   
 
     
@@ -582,14 +724,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="./" class="md-nav__link md-nav__link--active">
+      <a href="08-MC.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    3 Complexity
+    8 Monte Carlo
   
 
     
@@ -615,10 +757,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#savitchs-theorem" class="md-nav__link">
+  <a href="#model-based-model-free" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Savitch’s Theorem
+        Model-based → Model-free
       
     </span>
   </a>
@@ -626,10 +768,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#goals-definition" class="md-nav__link">
+  <a href="#monte-carlo-mc-learning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Goals Definition
+        Monte Carlo (MC) Learning
       
     </span>
   </a>
@@ -637,67 +779,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#strips-planning-problem" class="md-nav__link">
+  <a href="#mc-basic" class="md-nav__link">
     <span class="md-ellipsis">
       
-        STRIPS planning problem
+        MC Basic
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="STRIPS planning problem">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mc-exploring-starts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MC Exploring Starts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MC Exploring Starts">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#strips-stanford-research-institute-problem-solver" class="md-nav__link">
+  <a href="#first-visit-vs-every-visit" class="md-nav__link">
     <span class="md-ellipsis">
       
-        STRIPS = STanford Research Institute Problem Solver
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#components" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Components
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#action" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Action
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#result-of-applying-actions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Result of applying actions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#goal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Goal
+        First-visit vs. Every-visit
       
     </span>
   </a>
@@ -708,20 +816,15 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#properties" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#mc-varepsilon-greedy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Properties
+        MC + \(\varepsilon\)-greedy
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -741,147 +844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-Relaxation/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4 Relaxation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../05-Exploration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    5 Exploration
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../06-RL/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    6 Reinforced Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../07-MDP/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    7 Markov Decision Process
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../08-MC/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    8 Monte Carlo
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../09-TD/" class="md-nav__link">
+      <a href="09-TD.html" class="md-nav__link">
         
   
   
@@ -909,7 +872,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../10-Value-Approx/" class="md-nav__link">
+      <a href="10-Value-Approx.html" class="md-nav__link">
         
   
   
@@ -937,7 +900,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-Policy-Approx/" class="md-nav__link">
+      <a href="11-Policy-Approx.html" class="md-nav__link">
         
   
   
@@ -965,7 +928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../12-Integrating/" class="md-nav__link">
+      <a href="12-Integrating.html" class="md-nav__link">
         
   
   
@@ -1026,94 +989,144 @@
 
 
 
-<h1 id="3-complexity">3 Complexity<a class="headerlink" href="#3-complexity" title="Permanent link">&para;</a></h1>
+<h1 id="8-monte-carlo">8 Monte Carlo<a class="headerlink" href="#8-monte-carlo" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="savitchs-theorem">Savitch’s Theorem<a class="headerlink" href="#savitchs-theorem" title="Permanent link">&para;</a></h2>
+<h2 id="model-based-model-free">Model-based → Model-free<a class="headerlink" href="#model-based-model-free" title="Permanent link">&para;</a></h2>
+<p>Model-based</p>
 <ul>
-<li>NPSPACE = PSPACE<ul>
-<li>Non-determinism won't make solvers more powerful.</li>
-</ul>
-</li>
-<li>PSPACE-complete<ul>
-<li>The problem is at least hard as <strong>any</strong> Polynomial time problem</li>
+<li>Learn from <strong>Simulator</strong> of Environment<ul>
+<li>Commonly use MDP to model the Markov Environment</li>
 </ul>
 </li>
 </ul>
-<hr />
-<h2 id="goals-definition">Goals Definition<a class="headerlink" href="#goals-definition" title="Permanent link">&para;</a></h2>
+<p>Model-free</p>
 <ul>
-<li>To make a <strong>Satisficing</strong> planning:<ul>
-<li><span class="arithmatex">\(\mathrm{PlanEx}(P) =\)</span> <code>TRUE</code> - Existence of a plan for problem <span class="arithmatex">\(P\)</span>.</li>
+<li>Learn <strong>Experience</strong> from Environment<ul>
+<li>Experience: <span class="arithmatex">\(E_t = \langle S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1}, ... \rangle\)</span></li>
 </ul>
 </li>
-<li>To make a <strong>Optimal</strong> planning:<ul>
-<li><strong><span class="arithmatex">\(\mathrm{PlanLen}(P) \le B\)</span></strong>  - Existence of a plan which length is at most <span class="arithmatex">\(B\)</span>.</li>
-</ul>
-</li>
-<li><span class="arithmatex">\(\mathrm{PlanEx}\)</span> and <span class="arithmatex">\(\mathrm{PlanLen}\)</span> is <em>PSPACE-complete</em><ul>
-<li><em>In practice, optimal planning is almost never easy</em></li>
-</ul>
-</li>
+<li>Optimise <span class="arithmatex">\(V, Q, \pi\)</span> directly</li>
 </ul>
 <hr />
-<h2 id="strips-planning-problem">STRIPS planning problem<a class="headerlink" href="#strips-planning-problem" title="Permanent link">&para;</a></h2>
-<h3 id="strips-stanford-research-institute-problem-solver"><em>STRIPS</em> = STanford Research Institute Problem Solver<a class="headerlink" href="#strips-stanford-research-institute-problem-solver" title="Permanent link">&para;</a></h3>
+<h2 id="monte-carlo-mc-learning">Monte Carlo (MC) Learning<a class="headerlink" href="#monte-carlo-mc-learning" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Design Goals:<ul>
-<li><strong>Specification</strong> - concise model description</li>
-<li><strong>Computation</strong> - reveal useful information/structure for heuristics</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
+<li>Run-to-end in the environment for multiple times</li>
+<li>
+<p>Use <strong>average return</strong> to <strong>estimate</strong> value function, <em>instead of solving <span class="arithmatex">\(v(n)\)</span> in Model-based RL</em></p>
 <div class="arithmatex">\[
-P = \langle P,A,I,G \rangle
+V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
 \]</div>
 <ul>
-<li><span class="arithmatex">\(P\)</span> - All Possible Predicates</li>
-<li><span class="arithmatex">\(A\)</span> - Actions</li>
-<li><span class="arithmatex">\(I\)</span> - Initial States: Predicates initially to be <code>TRUE</code></li>
-<li><span class="arithmatex">\(G\)</span> - Goal Conditions: Predicates Finally need to be <code>TRUE</code></li>
+<li><span class="arithmatex">\(N(s)\)</span> - how many times <span class="arithmatex">\(G_t\)</span> is visited</li>
+<li>When <span class="arithmatex">\(N(s) \to \infty\)</span>, <span class="arithmatex">\(V(s) \to v_\pi(s)\)</span>.</li>
 </ul>
-<h4 id="action">Action<a class="headerlink" href="#action" title="Permanent link">&para;</a></h4>
-<div class="arithmatex">\[
-a \in A, a = \langle Pre(a), Add(a), Del(a) \rangle
-\]</div>
-<ul>
-<li><span class="arithmatex">\(Pre(a)\)</span> - Preconditions need to be <code>TRUE</code> before executing the action</li>
-<li><span class="arithmatex">\(Add(a)\)</span> - Add Effects: Preconditions set to be<code>TRUE</code> after execution</li>
-<li><span class="arithmatex">\(Del(a)\)</span> - Delete Effects: Preconditions set to be <code>FALSE</code> after execution</li>
-</ul>
-<h4 id="result-of-applying-actions">Result of applying actions<a class="headerlink" href="#result-of-applying-actions" title="Permanent link">&para;</a></h4>
-<div class="arithmatex">\[
-Result(s, a) = (s - Del(a)) \cup Add(a)
-\]</div>
-<ul>
-<li><em>which could also be seemed as a transition function</em></li>
-</ul>
-<h4 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Find a list of actions <span class="arithmatex">\([a_1,a_2,a_3,\ldots]\)</span> which satisfies:
-    $$
-    Result(Result(\ldots Result(I,a_1​) \ldots ,a_n−1​),a_n​) \models G
-    $$</li>
+</li>
+<li>
+<p>Unbiased✅</p>
+</li>
+<li>Can only apply to <strong>episodic</strong> 有终止状态 Markov environment⚠️</li>
 </ul>
 <hr />
-<h3 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h3>
+<h2 id="mc-basic">MC Basic<a class="headerlink" href="#mc-basic" title="Permanent link">&para;</a></h2>
 <ul>
-<li>It turns a "solving" problem into a "search" problem</li>
-<li>Still <em>PSPACE-complete</em>, but "approximation" is able to be applied<ul>
-<li>Explicit Search 显式搜索<ul>
-<li>e.g. Blind/Heuristic search</li>
-<li>Not effective</li>
+<li>Use MC motivation to transfer Policy Iteration into a Model-free method</li>
+<li>
+<p>For each iteration:</p>
+<ol>
+<li>Policy Evaluation (Predication)<ul>
+<li>For each <span class="arithmatex">\((s, a)\)</span>:<ul>
+<li>run <strong>sufficiently many</strong> episodes and get average return</li>
+<li>When <span class="arithmatex">\(N \to \infty\)</span>, <span class="arithmatex">\(Q(s, a) \to q_\pi(s, a)\)</span></li>
 </ul>
 </li>
-<li>Near Decomposition 近似分解<ul>
-<li>e.g. Relaxation: similar to Decrease/Divide &amp; Conquer</li>
-<li>Maybe fail</li>
 </ul>
 </li>
+<li>Policy Improvement (Control)<ul>
+<li>Give the Greedy Optimal Policy based on estimated <span class="arithmatex">\(Q\)</span><ul>
+<li><span class="arithmatex">\(a^\ast = \arg\max_a q_\pi(s,a)\)</span></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p>Convergence guarantee✅ Very low Time Efficiency; Not practical❌</p>
+</li>
+</ul>
+<hr />
+<h2 id="mc-exploring-starts">MC Exploring Starts<a class="headerlink" href="#mc-exploring-starts" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Use <em>Generalised Policy Iteration</em> (GPI) Framework to improve efficiency<ul>
+<li>In an iteration, instead of do "Policy Evaluation → Policy Improvement" <strong>once</strong>, do the sub-version of it <strong>repeatly</strong></li>
+</ul>
+</li>
+<li>For each episode <span class="arithmatex">\(e\)</span>:<ul>
+<li>Randomly pick one <span class="arithmatex">\((s, a)\)</span> and start learning (<strong>Exploring Start</strong>)</li>
+<li>For each <span class="arithmatex">\((s,a)\)</span> visited:<ul>
+<li><span class="arithmatex">\(N(s,a) \gets N(s,a) + 1\)</span></li>
+<li>Update <span class="arithmatex">\(Q(s,a) \gets \frac{1}{N(s,a)}(Q(s,a) + (G - Q(s,a))\)</span></li>
+<li>If <span class="arithmatex">\(Q\)</span> is updated, update <span class="arithmatex">\(a^\ast\)</span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Data is used much more efficiently</li>
+<li><strong>Exploring Start</strong> can highly guarantee that every node is visited<ul>
+<li>However difficult in practice (limitation in environment)</li>
+</ul>
+</li>
+</ul>
+<h4 id="first-visit-vs-every-visit">First-visit vs. Every-visit<a class="headerlink" href="#first-visit-vs-every-visit" title="Permanent link">&para;</a></h4>
+<ul>
+<li>How to deal with repeat visit of same <span class="arithmatex">\((s,a)\)</span> in a episode</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>First-Visit MC</th>
+<th>Every-Visit MC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>When?</td>
+<td>Only the <em>first</em> time appeared</td>
+<td><em>Every</em> time appeared</td>
+</tr>
+<tr>
+<td>Pros</td>
+<td>Avoids dependence between multiple visits</td>
+<td>Faster convergence in practice</td>
+</tr>
+<tr>
+<td>Cons</td>
+<td>Some visits ignored</td>
+<td>Higher variance</td>
+</tr>
+<tr>
+<td>Suitable Scenario</td>
+<td>Long episodes with repeated states</td>
+<td>Short episodes or rare-state situations</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="mc-varepsilon-greedy">MC + <span class="arithmatex">\(\varepsilon\)</span>-greedy<a class="headerlink" href="#mc-varepsilon-greedy" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Use soft policy (e.g. <span class="arithmatex">\(\varepsilon\)</span>-greedy) to remove needs of exploring start</p>
+<div class="arithmatex">\[
+\pi(a|s) =
+\begin{cases}
+1 - (1 - \frac{1}{|\mathcal{A}(s)|}) \, \varepsilon, &amp; a = a^*_k \\[6pt]
+\frac{1}{|\mathcal{A}(s)|} \, \varepsilon, &amp; \text{otherwise}
+\end{cases}
+\]</div>
+<ul>
+<li><span class="arithmatex">\(|\mathcal{A}(s)|\)</span> - number of valid actions of state</li>
+<li>Balance Exploration &amp; Exploitation</li>
 </ul>
 </li>
 </ul>
@@ -1174,10 +1187,10 @@ Result(s, a) = (s - Del(a)) \cup Add(a)
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       
