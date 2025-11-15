@@ -601,6 +601,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#forward-search-vs-backward-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forward Search vs. Backward Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#blind-search-vs-informed-search" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -611,23 +622,35 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#blind-systematic-search-algorithms" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Blind Systematic Search Algorithms
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
+  <a href="#blind-systematic-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blind Systematic Search
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#informed-systematic-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Informed Systematic Search
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Informed Systematic Search">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#heuristic-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -636,36 +659,7 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Heuristic Functions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#relations-of-properties" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Relations of properties
-      
-    </span>
-  </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#informed-systematic-search-algorithms" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Informed Systematic Search Algorithms
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Informed Systematic Search Algorithms">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#greedy-best-first-search-gbfs" class="md-nav__link">
@@ -1165,33 +1159,20 @@
 <h1 id="1-search">1 Search<a class="headerlink" href="#1-search" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="search-space">Search Space<a class="headerlink" href="#search-space" title="Permanent link">&para;</a></h2>
-<ul>
-<li>A set of search states</li>
-<li>Forward Search (Progression)<ul>
-<li>search space = world space (represents the current real world)</li>
-</ul>
-</li>
-<li>Backward Search (Regression)<ul>
-<li>search space = a sets of world spaces (represents all predications of sub-goals)</li>
-</ul>
-</li>
-</ul>
+<p><strong>Search Space</strong> - The set of all possible states and transitions that a search or planning algorithm must consider</p>
 <h6 id="example">EXAMPLE<a class="headerlink" href="#example" title="Permanent link">&para;</a></h6>
-<p>In a robot delivery scene:
+<p>In a robot delivery scene:</p>
 <div class="highlight"><pre><span></span><code>world_state_of_a_robot = {
     &quot;position&quot;: (3, 5),
     &quot;direction&quot;: &quot;North&quot;,
     &quot;battery&quot;: 80,
     &quot;carrying_package&quot;: True
 }
-</code></pre></div></p>
-<ul>
-<li>Progression: 搜索树上的每个节点就是机器人在某个位置、朝向、能量、负载的组合状态。</li>
-<li>Regression:  搜索树上的每个节点共同组成“我们想要所有满足一个条件的世界状态集合”。</li>
-</ul>
-<div class="highlight"><pre><span></span><code>subgoals = {&quot;position&quot;: (5, 8), &quot;carrying_package&quot;: True}
+
+subgoals = {&quot;position&quot;: (5, 8), &quot;carrying_package&quot;: True}
 </code></pre></div>
-<p>Common Functions: </p>
+<div class="admonition info">
+<p class="admonition-title">Common Functions</p>
 <ul>
 <li><span class="arithmatex">\(s\)</span> = search states</li>
 <li><span class="arithmatex">\(\mathrm{is}\_\mathrm{start}(s)\)</span> return if the state is the start state of the search space</li>
@@ -1206,8 +1187,21 @@
 </ul>
 </li>
 </ul>
+</div>
 <hr />
 <h2 id="search-methods">Search Methods<a class="headerlink" href="#search-methods" title="Permanent link">&para;</a></h2>
+<h3 id="forward-search-vs-backward-search">Forward Search vs. Backward Search<a class="headerlink" href="#forward-search-vs-backward-search" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Forward Search (Progression)<ul>
+<li>search space = world space (represents the current real world)</li>
+<li>BFS, DFS, A*, MDP</li>
+</ul>
+</li>
+<li>Backward Search (Regression)<ul>
+<li>search space = a sets of world spaces (represents all predications of sub-goals)</li>
+</ul>
+</li>
+</ul>
 <h3 id="blind-search-vs-informed-search">Blind Search vs. Informed Search<a class="headerlink" href="#blind-search-vs-informed-search" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Blind search not require any input beyond the problem</li>
@@ -1215,7 +1209,8 @@
 <li>Informed search requires function <span class="arithmatex">\(h(x)\)</span> mapping states to estimates their goal distance</li>
 <li>Effective but lots of work to construct <span class="arithmatex">\(h(x)\)</span></li>
 </ul>
-<h3 id="blind-systematic-search-algorithms">Blind Systematic Search Algorithms<a class="headerlink" href="#blind-systematic-search-algorithms" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="blind-systematic-search">Blind Systematic Search<a class="headerlink" href="#blind-systematic-search" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Breadth-First Search</strong></li>
 <li><strong>Depth-First Search</strong></li>
@@ -1223,18 +1218,19 @@
 <li>Do DLS(DFS with depth limited) with continuously increasing depth limited by 1.</li>
 </ul>
 </li>
-<li>Blind Search: <em>Completeness</em> 100%, but <em>poor efficient</em> when doing hard work</li>
 </ul>
+<blockquote>
+<p><em>Completeness</em> 100%✅ However really <em>poor efficient</em> when scale up☹️</p>
+</blockquote>
 <hr />
-<h2 id="heuristic-functions">Heuristic Functions<a class="headerlink" href="#heuristic-functions" title="Permanent link">&para;</a></h2>
+<h2 id="informed-systematic-search">Informed Systematic Search<a class="headerlink" href="#informed-systematic-search" title="Permanent link">&para;</a></h2>
+<h3 id="heuristic-functions">Heuristic Functions<a class="headerlink" href="#heuristic-functions" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(h(n)\)</span> - Estimated remaining cost (from current state to goal state)</p>
+<p><span class="arithmatex">\(h^*(n)\)</span> - Real remaining cost</p>
+<p><strong>proficiency</strong> of <span class="arithmatex">\(h(n)\)</span>:</p>
 <ul>
-<li><span class="arithmatex">\(h(n)\)</span> - Estimated remaining cost (from current state to goal state)</li>
-<li><span class="arithmatex">\(h^*(n)\)</span> - Real remaining cost</li>
-<li><strong>proficiency</strong> of <span class="arithmatex">\(h(n)\)</span> <ul>
 <li><span class="arithmatex">\(h = h^{\ast}\)</span> perfectly informed, <span class="arithmatex">\(h(n) = h^{\ast}(n) - \textbf{optimal } A^{\ast}\)</span></li>
 <li><span class="arithmatex">\(h = 0\)</span> no information at all - uniform cost search</li>
-</ul>
-</li>
 </ul>
 <table>
 <thead>
@@ -1262,12 +1258,14 @@
 </tr>
 </tbody>
 </table>
-<h4 id="relations-of-properties">Relations of properties<a class="headerlink" href="#relations-of-properties" title="Permanent link">&para;</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Relations of Properties</p>
 <ul>
-<li><strong>Consistent</strong> &amp; <strong>Goal-aware</strong> <span class="arithmatex">\(\to\)</span> <strong>Admissible</strong></li>
-<li><strong>Admissible</strong> <span class="arithmatex">\(\to\)</span> <strong>Safe</strong> &amp; <strong>Goal-aware</strong></li>
+<li>Consistent &amp; Goal-aware <span class="arithmatex">\(\to\)</span> Admissible</li>
+<li>Admissible <span class="arithmatex">\(\to\)</span> Safe &amp; Goal-aware</li>
 </ul>
-<h2 id="informed-systematic-search-algorithms">Informed Systematic Search Algorithms<a class="headerlink" href="#informed-systematic-search-algorithms" title="Permanent link">&para;</a></h2>
+</div>
+<hr />
 <h3 id="greedy-best-first-search-gbfs">Greedy Best-First Search (GBFS)<a class="headerlink" href="#greedy-best-first-search-gbfs" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Use <strong>priority queue</strong> to sort <span class="arithmatex">\(h(n)\)</span> of each node in ascending order<ul>
@@ -1293,9 +1291,9 @@
             frontier.add(h(current), current, new_path)
     return unsolvable
 </code></pre></div>
-<ul>
-<li>Completeness✅for safe heuristics; Optimal❌</li>
-</ul>
+<blockquote>
+<p>Completeness✅for safe heuristics; Optimal❌</p>
+</blockquote>
 <hr />
 <h3 id="a">A*<a class="headerlink" href="#a" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1324,13 +1322,7 @@
     return unsolvable
 </code></pre></div>
 <h4 id="re-opening">Re-opening<a class="headerlink" href="#re-opening" title="Permanent link">&para;</a></h4>
-<ul>
-<li>a node <span class="arithmatex">\(n\)</span> is in <code>explored</code> but if we find a cheaper <span class="arithmatex">\(g(n)\)</span>, then we can re-open the <code>explored</code> set and extend this node</li>
-<li>Not needed if consistent✅<ul>
-<li><span class="arithmatex">\(g\)</span> is already cheapest</li>
-</ul>
-</li>
-</ul>
+<p>a node <span class="arithmatex">\(n\)</span> is in <code>explored</code> but if we find a cheaper <span class="arithmatex">\(g(n)\)</span>, then we can re-open the <code>explored</code> set and extend this node</p>
 <div class="highlight"><pre><span></span><code>def a_star_with_re_opening:
     frontier = priority queue ordered by f(n) = g(n) + h(n)
     explored = set
@@ -1357,6 +1349,9 @@
 ✏️                  explored.remove(successor)
     return unsolvable
 </code></pre></div>
+<blockquote>
+<p>Not needed if consistent✅  <span class="arithmatex">\(g\)</span> is already cheapest</p>
+</blockquote>
 <hr />
 <h3 id="weighted-a">Weighted A*<a class="headerlink" href="#weighted-a" title="Permanent link">&para;</a></h3>
 <div class="arithmatex">\[
@@ -1388,12 +1383,13 @@ f_W(n) = g(n) + W \cdot h(n)
 </tr>
 </tbody>
 </table>
-<ul>
-<li>If <span class="arithmatex">\(h\)</span> is admissible, <span class="arithmatex">\(f_W(n) \le W \cdot h(n)\)</span></li>
-</ul>
+<blockquote>
+<p>If <span class="arithmatex">\(h\)</span> is admissible, <span class="arithmatex">\(f_W(n) \le W \cdot h(n)\)</span></p>
+</blockquote>
 <hr />
 <h3 id="hill-climbing">Hill-Climbing<a class="headerlink" href="#hill-climbing" title="Permanent link">&para;</a></h3>
-<p><div class="highlight"><pre><span></span><code>def hill_climbing:
+<p>Brute Force to find greedy best direction for heuristic descent</p>
+<div class="highlight"><pre><span></span><code>def hill_climbing:
     path = list
     current = start
     while h(n) &gt; 0:
@@ -1405,11 +1401,16 @@ f_W(n) = g(n) + W \cdot h(n)
             break    
     return path
 </code></pre></div>
-- Local Search: Can only find local maxima
-- Make sense only if <span class="arithmatex">\(h(n) &gt; 0\)</span> for all non-goal states</p>
+<blockquote>
+<ul>
+<li>Can only find local maxima</li>
+<li>Available only if <span class="arithmatex">\(h(n) &gt; 0\)</span> for all non-goal states</li>
+</ul>
+</blockquote>
 <hr />
 <h3 id="enforced-hill-climbing">Enforced Hill-Climbing<a class="headerlink" href="#enforced-hill-climbing" title="Permanent link">&para;</a></h3>
-<p><div class="highlight"><pre><span></span><code>def enforced_hill_climbing:
+<p>Do small range BFS when find local optimal</p>
+<div class="highlight"><pre><span></span><code>def enforced_hill_climbing:
     path = list
     explored = set
     current = start
@@ -1429,14 +1430,14 @@ f_W(n) = g(n) + W \cdot h(n)
                 return unsolvable
     return path
 </code></pre></div>
-- Local Search: Do small range BFS when find local optimal
-- Can across small gap between local best and global best</p>
+<blockquote>
+<p>Can across small gap between local best and global best</p>
+</blockquote>
 <hr />
 <h3 id="iterative-deepening-a">Iterative Deepening A*<a class="headerlink" href="#iterative-deepening-a" title="Permanent link">&para;</a></h3>
-<ul>
-<li>IDS + <span class="arithmatex">\(A^*\)</span>: Use f(n) instead of depth to limit IDS<ul>
-<li>In First Search:  f(n) = f(start) = 0 + h(start)</li>
-<li>Following Searches: f(n) = min_out_of_bound_excess
+<p>IDS + <span class="arithmatex">\(A^*\)</span>: Use f(n) instead of depth to limit IDS
+- In First Search:  f(n) = f(start) = 0 + h(start)
+- Following Searches: f(n) = min_out_of_bound_excess</p>
 <div class="highlight"><pre><span></span><code>def ida_star:
     bound = f(start)
     while True:
@@ -1446,11 +1447,10 @@ f_W(n) = g(n) + W \cdot h(n)
         if t == infinity:
             return unsolvable
         bound = t
-</code></pre></div></li>
-</ul>
-</li>
-<li>Dealing with one of <span class="arithmatex">\(A^*\)</span>’s problem: large queue/closed_set</li>
-</ul>
+</code></pre></div>
+<blockquote>
+<p>Solve one of <span class="arithmatex">\(A^*\)</span>’s problem: large queue/closed_set</p>
+</blockquote>
 <hr />
 <h2 id="evaluation-of-search-methods">Evaluation of Search Methods<a class="headerlink" href="#evaluation-of-search-methods" title="Permanent link">&para;</a></h2>
 <h3 id="guarantees">Guarantees<a class="headerlink" href="#guarantees" title="Permanent link">&para;</a></h3>
@@ -1519,6 +1519,7 @@ f_W(n) = g(n) + W \cdot h(n)
 </tr>
 </tbody>
 </table>
+<p>where</p>
 <ul>
 <li><span class="arithmatex">\(b\)</span> - Branching Factor: sum of number of child nodes of each node</li>
 <li><span class="arithmatex">\(d\)</span> - Solution Depth: <em><span class="arithmatex">\(minimum\)</span></em> depth among all goal nodes</li>
@@ -1526,6 +1527,7 @@ f_W(n) = g(n) + W \cdot h(n)
 <li>BFS is optimal only when uniform costs are applied </li>
 <li><span class="arithmatex">\(A^*\)</span> / Iterative Deepening <span class="arithmatex">\(A^*\)</span> is optimal only when <span class="arithmatex">\(h\)</span> is admissible (<span class="arithmatex">\(h \le h^*\)</span>)</li>
 </ul>
+<hr />
 
 
 

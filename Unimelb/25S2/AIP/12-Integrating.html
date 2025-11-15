@@ -968,18 +968,27 @@
 <h1 id="12-integrating-learning-and-planning">12 Integrating Learning and Planning<a class="headerlink" href="#12-integrating-learning-and-planning" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="model-free-integrated-architectures">Model-free → Integrated Architectures<a class="headerlink" href="#model-free-integrated-architectures" title="Permanent link">&para;</a></h2>
-<p>Model-free</p>
+<p><strong>Model-free</strong></p>
 <ul>
 <li>No model</li>
 <li>Learn Value/Policy from experience</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Pros &amp; Cons</p>
+<ul>
 <li>Cannot look ahead❌</li>
 <li>Sample may be expensive⚠️</li>
 <li>May fall into sub-optimal</li>
 </ul>
-<p>Integrated Architectures</p>
+</div>
+<p><strong>Integrated Architectures</strong></p>
 <ul>
 <li>Learn Model from experience</li>
 <li>Learn and plan Value/Policy from real and simulated experience</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Pros &amp; Cons</p>
+<ul>
 <li>Sample is efficient✅ (directly from simulators)</li>
 <li>Avoid model error✅ (Beyond Model-based)</li>
 <li>Supervised Learning methods can be used in model training✅</li>
@@ -991,6 +1000,7 @@
 </li>
 <li>High computation cost❌</li>
 </ul>
+</div>
 <hr />
 <h2 id="simulation-based-search">Simulation-based Search<a class="headerlink" href="#simulation-based-search" title="Permanent link">&para;</a></h2>
 <p>Model-based RL + Model-free RL backup</p>

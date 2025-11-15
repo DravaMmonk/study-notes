@@ -1270,9 +1270,8 @@ $$
 <li><span class="arithmatex">\(\nabla \log \pi_\theta(a \mid s)\)</span> is also called <strong>Score Function</strong></li>
 </ul>
 <blockquote>
-<p>[!NOTE]
-To compute Score Function, we can no longer use deterministic/non-linear/non-differentiable <span class="arithmatex">\(\{0,1\}\)</span> to describe policy. </p>
-<p>So we introduce some soft strategies to make policy probabilistic.</p>
+<p>To compute Score Function, we can no longer use deterministic/non-linear/non-differentiable <span class="arithmatex">\(\{0,1\}\)</span> to describe policy. </p>
+<p>So we introduce some <strong>soft policy</strong> strategies for making policy outputs are probabilistic.</p>
 </blockquote>
 <hr />
 <h2 id="deterministic-policy-stochasticsoft-policy">Deterministic Policy → Stochastic/Soft Policy<a class="headerlink" href="#deterministic-policy-stochasticsoft-policy" title="Permanent link">&para;</a></h2>
@@ -1291,9 +1290,9 @@ To compute Score Function, we can no longer use deterministic/non-linear/non-dif
 \dfrac{\varepsilon}{|\mathcal{A}|}, &amp; \text{otherwise}
 \end{cases}
 \]</div>
-<ul>
-<li>All previous RL methods' outputs are deterministic (The Optimum).</li>
-</ul>
+<blockquote>
+<p>All previous RL methods' outputs are deterministic (The Optimum).</p>
+</blockquote>
 <h4 id="upper-confidence-bound-ucb">Upper Confidence Bound (UCB)<a class="headerlink" href="#upper-confidence-bound-ucb" title="Permanent link">&para;</a></h4>
 <p>exploitation + exploration bonus:</p>
 <div class="arithmatex">\[
@@ -1355,9 +1354,7 @@ J(\theta)
 </ul>
 <hr />
 <h3 id="start-state-value">Start State Value<a class="headerlink" href="#start-state-value" title="Permanent link">&para;</a></h3>
-<ul>
-<li>In episodic environments, we may only care about value of start states:</li>
-</ul>
+<p>In episodic environments, we may only care about value of start states:</p>
 <div class="arithmatex">\[
 J(\theta) 
 = v^{\pi_\theta}(s_0)
@@ -1386,12 +1383,14 @@ J(\theta)
 <div class="arithmatex">\[
 \nabla v_\pi(s_0) = { \mathbb{E}_{\pi_{\theta}} \bigl[ \nabla_{\theta} \log \pi_{\theta}(a \mid s_0) \; q_{\pi_{\theta}}(s_0,a) \bigr]}
 \]</div>
-<p>In summary, gradient version of above methods can be simplified to one formula:</p>
+<p>In summary, gradient version of above methods can be simplified to just one formula:</p>
 <div class="arithmatex">\[
 \nabla_{\theta} J(\theta) 
 = { \mathbb{E}_{\pi_{\theta}} \bigl[ \nabla_{\theta} \log \pi_{\theta}(a \mid s) \; q_{\pi_{\theta}}(s, a) \bigr]}
 \]</div>
-<p>Then, we can use our familiar MC or value approximators to solve it.</p>
+<blockquote>
+<p>Then, we can use our familiar value approximators (MC/TD) to solve <span class="arithmatex">\(q_{\pi_{\theta}}(s, a)\)</span>.</p>
+</blockquote>
 <hr />
 <h3 id="reinforce">REINFORCE<a class="headerlink" href="#reinforce" title="Permanent link">&para;</a></h3>
 <p>Derive from MC, we can use return <span class="arithmatex">\(v_t\)</span> as an unbiased sample of <span class="arithmatex">\(q_{\pi_{\theta}}(s,a)\)</span>:</p>
@@ -1401,7 +1400,7 @@ q_{\pi_{\theta}}(s,a) = v_t
 <hr />
 <h3 id="actor-critic">Actor-Critic<a class="headerlink" href="#actor-critic" title="Permanent link">&para;</a></h3>
 <h4 id="qac">QAC<a class="headerlink" href="#qac" title="Permanent link">&para;</a></h4>
-<p>Derive from TD, we can use a value approximator to estimate action-value function:</p>
+<p>Derive from TD, we can use a value function approximator to estimate action-value function:</p>
 <div class="arithmatex">\[
 q_{\pi_{\theta}}(s,a) = q(s,a, w)
 \]</div>
@@ -1474,7 +1473,7 @@ A_{\pi_{\theta}}(s,a) =q_{\pi_{\theta}}(s, a) - v_{\pi_\theta}(s)
 &amp;= A^{\pi_{\theta}}(s,a)
 \end{align}
 \]</div>
-<p>Finally, we in fact use the TD error to compute the policy gradient:</p>
+<p>Finally, we in fact use the <strong>TD error</strong> to compute the policy gradient:</p>
 <div class="arithmatex">\[
 \nabla_{\theta} J(\theta)
 = {\mathbb{E}_{\pi_{\theta}} \big[ \nabla_{\theta} \log \pi_{\theta}(s,a)\; \delta_{\pi_{\theta}} \big]}
