@@ -3,26 +3,30 @@
 ---
 ## Model-free → Integrated Architectures
 
-Model-free
+**Model-free**
 
 - No model
 - Learn Value/Policy from experience
-- Cannot look ahead❌
-- Sample may be expensive⚠️
-- May fall into sub-optimal
 
-Integrated Architectures
+!!! note "Pros & Cons"
+	- Cannot look ahead❌
+	- Sample may be expensive⚠️
+	- May fall into sub-optimal
+
+**Integrated Architectures**
 
 - Learn Model from experience
 - Learn and plan Value/Policy from real and simulated experience
-- Sample is efficient✅ (directly from simulators)
-- Avoid model error✅ (Beyond Model-based)
-- Supervised Learning methods can be used in model training✅
-- Uncertainty can be learned in model training✅
-- Modelling is hard❌
-	- Need environment to be model-learnable⚠️
-	- Compounding model bias❌ (experience is from model)
-- High computation cost❌
+
+!!! note "Pros & Cons"
+	- Sample is efficient✅ (directly from simulators)
+	- Avoid model error✅ (Beyond Model-based)
+	- Supervised Learning methods can be used in model training✅
+	- Uncertainty can be learned in model training✅
+	- Modelling is hard❌
+		- Need environment to be model-learnable⚠️
+		- Compounding model bias❌ (experience is from model)
+	- High computation cost❌
 
 ---
 ## Simulation-based Search

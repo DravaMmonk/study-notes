@@ -103,10 +103,9 @@ where
 
 - $\nabla \log \pi_\theta(a \mid s)$ is also called **Score Function**
 
-> [!NOTE]
 > To compute Score Function, we can no longer use deterministic/non-linear/non-differentiable $\{0,1\}$ to describe policy. 
 > 
-> So we introduce some soft strategies to make policy probabilistic.
+> So we introduce some **soft policy** strategies for making policy outputs are probabilistic.
 
 ---
 ## Deterministic Policy → Stochastic/Soft Policy
@@ -133,7 +132,7 @@ $$
 $$
 
 
-- All previous RL methods' outputs are deterministic (The Optimum).
+> All previous RL methods' outputs are deterministic (The Optimum).
 
 #### Upper Confidence Bound (UCB) 
 
@@ -216,7 +215,8 @@ where
 
 ---
 ### Start State Value
-- In episodic environments, we may only care about value of start states:
+
+In episodic environments, we may only care about value of start states:
 
 $$
 J(\theta) 
@@ -258,14 +258,14 @@ $$
 $$
 
 
-In summary, gradient version of above methods can be simplified to one formula:
+In summary, gradient version of above methods can be simplified to just one formula:
 
 $$
 \nabla_{\theta} J(\theta) 
 = { \mathbb{E}_{\pi_{\theta}} \bigl[ \nabla_{\theta} \log \pi_{\theta}(a \mid s) \; q_{\pi_{\theta}}(s, a) \bigr]}
 $$
 
-Then, we can use our familiar MC or value approximators to solve it.
+> Then, we can use our familiar value approximators (MC/TD) to solve $q_{\pi_{\theta}}(s, a)$.
 
 ---
 ### REINFORCE
@@ -281,7 +281,7 @@ $$
 
 #### QAC
 
-Derive from TD, we can use a value approximator to estimate action-value function:
+Derive from TD, we can use a value function approximator to estimate action-value function:
 
 $$
 q_{\pi_{\theta}}(s,a) = q(s,a, w)
@@ -341,7 +341,7 @@ $$
 \end{align}
 $$
 
-Finally, we in fact use the TD error to compute the policy gradient:
+Finally, we in fact use the **TD error** to compute the policy gradient:
 
 $$
 \nabla_{\theta} J(\theta)

@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/index.md",
+                "file": "docs/Unimelb/25S2/AIP/02-Planning.md",
                 "mode": "source",
-                "source": true
+                "source": false
               },
               "icon": "lucide-file",
-              "title": "index"
+              "title": "02-Planning"
             }
           }
         ],
@@ -107,7 +107,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 279.5024719238281
+    "width": 279.5024719238281,
+    "collapsed": true
   },
   "right": {
     "id": "6d8aeca418b42b5f",
@@ -123,7 +124,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/index.md",
+                "file": "docs/Unimelb/25S2/AIP/01-Search.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -133,7 +134,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for index"
+              "title": "Backlinks for 01-Search"
             }
           },
           {
@@ -225,6 +226,13 @@
   },
   "active": "3f22eb8366d16a1b",
   "lastOpenFiles": [
+    "docs/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
+    "docs/Unimelb/25S2/AIP/02-Planning.md",
+    "docs/Unimelb/25S2/AIP/01-Search.md",
+    "docs/Unimelb/25S2/AIP/12-Integrating.md",
+    "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
+    "docs/index.md",
+    "site/assets/javascripts 3",
     "site/search/search_index.json",
     "site/search/search_index.js",
     "site/search",
@@ -234,7 +242,6 @@
     "site/Unimelb/25S2/AIP/09-TD.html",
     "site/Unimelb/25S2/AIP/08-MC.html",
     "site/Unimelb/25S2/AIP/07-MDP.html",
-    "site/Unimelb/25S2/AIP/06-RL.html",
     "site/apple-touch-icon-precomposed.png",
     "site/apple-touch-icon-120x120-precomposed.png",
     "docs/apple-touch-icon-precomposed.png",
@@ -243,18 +250,12 @@
     "docs/apple-touch-icon-120x120-precomposed.png",
     "apple-touch-icon-120x120-precomposed.png",
     "apple-touch-icon-120x120.png",
-    "site/Unimelb/25S2 3",
     "site/assets/icon-512.png",
-    "site/assets/icon-192.png",
     "docs/assets/Untitled.md",
     "Untitled.md",
-    "docs/index.md",
-    "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
-    "docs/Unimelb/25S2/AIP/01-Search.md",
     "mdp.md",
     "README.md",
     "docs/Unimelb/25S2/AIP/10-Value-Approx.md",
-    "docs/Unimelb/25S2/AIP/12-Integrating.md",
     "docs/Unimelb/25S2/AIP/09-TD.md",
     "docs/Unimelb/25S2/AIP/08-MC.md",
     "docs/Unimelb/25S2/AIP/06-RL.md",
@@ -267,7 +268,6 @@
     "docs/Unimelb/25S2/AIP/05-Exploration.md",
     "docs/Unimelb/25S2/AIP/04-Relaxation.md",
     "docs/Unimelb/25S2/AIP/03-Complexity.md",
-    "docs/Unimelb/25S2/AIP/02-Planning.md",
     "docs/stylesheets/Untitled.md",
     "docs/Unimelb/25S2/AIP/1-General-Basics.md",
     "docs/Unimelb/25S2/AIP/WEEK-7-2-Markov-Learning-Process.md",

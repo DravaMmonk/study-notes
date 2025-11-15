@@ -1,13 +1,13 @@
 # 1 Search
 ---
 ## Search Space
-- A set of search states
-- Forward Search (Progression)
-	- search space = world space (represents the current real world)
-- Backward Search (Regression)
-	- search space = a sets of world spaces (represents all predications of sub-goals)
+
+**Search Space** - The set of all possible states and transitions that a search or planning algorithm must consider
+
 ###### EXAMPLE
+
 In a robot delivery scene:
+
 ```
 world_state_of_a_robot = {
     "position": (3, 5),
@@ -15,30 +15,31 @@ world_state_of_a_robot = {
     "battery": 80,
     "carrying_package": True
 }
-```
 
-- Progression: 搜索树上的每个节点就是机器人在某个位置、朝向、能量、负载的组合状态。
-- Regression:  搜索树上的每个节点共同组成“我们想要所有满足一个条件的世界状态集合”。
-
-```
 subgoals = {"position": (5, 8), "carrying_package": True}
 ```
 
-Common Functions: 
-
-- $s$ = search states
-- $\mathrm{is}\_\mathrm{start}(s)$ return if the state is the start state of the search space
-- $\mathrm{is}\_\mathrm{target}(s)$ mark if the state is the goal state of the search space
-- $\mathrm{succ}(s)$ return a list of successors/next states of $s$
-- Search nodes: 
-	- $\mathrm{state}(\sigma)$
-	- $\mathrm{parent}(\sigma)$ where $\sigma$ was reached
-	- $\mathrm{action}(\sigma)$ leads from $\mathrm{state}(\mathrm{parent}(\sigma))$ to $\mathrm{state}(\sigma)$
-	- $g(\sigma)$ denotes cost of path from the **root** to $\sigma$
-	- The **root**’s $\mathrm{parent}(\cdot)$ and $\mathrm{action}(\cdot)$ are undefined
+!!! info "Common Functions"
+	- $s$ = search states
+	- $\mathrm{is}\_\mathrm{start}(s)$ return if the state is the start state of the search space
+	- $\mathrm{is}\_\mathrm{target}(s)$ mark if the state is the goal state of the search space
+	- $\mathrm{succ}(s)$ return a list of successors/next states of $s$
+	- Search nodes: 
+		- $\mathrm{state}(\sigma)$
+		- $\mathrm{parent}(\sigma)$ where $\sigma$ was reached
+		- $\mathrm{action}(\sigma)$ leads from $\mathrm{state}(\mathrm{parent}(\sigma))$ to $\mathrm{state}(\sigma)$
+		- $g(\sigma)$ denotes cost of path from the **root** to $\sigma$
+		- The **root**’s $\mathrm{parent}(\cdot)$ and $\mathrm{action}(\cdot)$ are undefined
 
 ---
 ## Search Methods
+
+### Forward Search vs. Backward Search
+- Forward Search (Progression)
+	- search space = world space (represents the current real world)
+	- BFS, DFS, A*, MDP
+- Backward Search (Regression)
+	- search space = a sets of world spaces (represents all predications of sub-goals)
 
 ### Blind Search vs. Informed Search
 - Blind search not require any input beyond the problem
@@ -46,20 +47,28 @@ Common Functions:
 - Informed search requires function $h(x)$ mapping states to estimates their goal distance
 - Effective but lots of work to construct $h(x)$
 
-### Blind Systematic Search Algorithms
+---
+## Blind Systematic Search
+
 - **Breadth-First Search**
 - **Depth-First Search**
 - **Iterative Deepening Search**
 	- Do DLS(DFS with depth limited) with continuously increasing depth limited by 1.
-- Blind Search: *Completeness* 100%, but *poor efficient* when doing hard work
+
+> *Completeness* 100%✅ However really *poor efficient* when scale up☹️
 
 ---
-## Heuristic Functions
-- $h(n)$ - Estimated remaining cost (from current state to goal state)
-- $h^*(n)$ - Real remaining cost
-- **proficiency** of $h(n)$ 
-	- $h = h^{\ast}$ perfectly informed, $h(n) = h^{\ast}(n) - \textbf{optimal } A^{\ast}$
-	- $h = 0$ no information at all - uniform cost search
+## Informed Systematic Search
+### Heuristic Functions
+
+$h(n)$ - Estimated remaining cost (from current state to goal state)
+
+$h^*(n)$ - Real remaining cost
+
+**proficiency** of $h(n)$:
+
+- $h = h^{\ast}$ perfectly informed, $h(n) = h^{\ast}(n) - \textbf{optimal } A^{\ast}$
+- $h = 0$ no information at all - uniform cost search
 
 | Properties | Description                                            |
 | ---------- | ------------------------------------------------------ |
@@ -68,11 +77,11 @@ Common Functions:
 | Admissible | $h(n) \le h^*(n)$                                      |
 | Consistent | $h(n) \le c(n,n’) + h(n’)$ for all possible $c(n, n’)$ |
 
-#### Relations of properties
-- **Consistent** & **Goal-aware** $\to$ **Admissible**
-- **Admissible** $\to$ **Safe** & **Goal-aware**
+!!! note "Relations of Properties"
+	- Consistent & Goal-aware $\to$ Admissible
+	- Admissible $\to$ Safe & Goal-aware
 
-## Informed Systematic Search Algorithms
+---
 ### Greedy Best-First Search (GBFS)
 - Use **priority queue** to sort $h(n)$ of each node in ascending order
 	- If $h(n) = 0$, it becomes what fully depends on how we break ties
@@ -97,7 +106,7 @@ def greedy_BFS:
     return unsolvable
 ```
 
-- Completeness✅for safe heuristics; Optimal❌
+> Completeness✅for safe heuristics; Optimal❌
 
 ---
 ### A*
@@ -126,9 +135,8 @@ def a_star:
 ```
 
 #### Re-opening
-- a node $n$ is in `explored` but if we find a cheaper $g(n)$, then we can re-open the `explored` set and extend this node
-- Not needed if consistent✅
-	-  $g$ is already cheapest
+
+a node $n$ is in `explored` but if we find a cheaper $g(n)$, then we can re-open the `explored` set and extend this node
 
 ```
 def a_star_with_re_opening:
@@ -159,6 +167,7 @@ def a_star_with_re_opening:
 
 ```
 
+> Not needed if consistent✅  $g$ is already cheapest
 
 ---
 ### Weighted A*
@@ -173,10 +182,13 @@ $$
 | $W > 1$        | Bounded sub-optimal A* |
 | $W \to \infty$ |          GBFS          |
 
-- If $h$ is admissible, $f_W(n) \le W \cdot h(n)$
+> If $h$ is admissible, $f_W(n) \le W \cdot h(n)$
 
 ---
 ### Hill-Climbing
+
+Brute Force to find greedy best direction for heuristic descent
+
 ```
 def hill_climbing:
     path = list
@@ -190,11 +202,15 @@ def hill_climbing:
             break    
     return path
 ```
-- Local Search: Can only find local maxima
-- Make sense only if $h(n) > 0$ for all non-goal states
+
+> - Can only find local maxima
+> - Available only if $h(n) > 0$ for all non-goal states
 
 ---
 ### Enforced Hill-Climbing
+
+Do small range BFS when find local optimal
+
 ```
 def enforced_hill_climbing:
     path = list
@@ -216,14 +232,16 @@ def enforced_hill_climbing:
                 return unsolvable
     return path
 ```
-- Local Search: Do small range BFS when find local optimal
-- Can across small gap between local best and global best
+
+> Can across small gap between local best and global best
 
 ---
 ### Iterative Deepening A*
-- IDS + $A^*$: Use f(n) instead of depth to limit IDS
-	- In First Search:  f(n) = f(start) = 0 + h(start)
-	- Following Searches: f(n) = min_out_of_bound_excess
+
+IDS + $A^*$: Use f(n) instead of depth to limit IDS
+- In First Search:  f(n) = f(start) = 0 + h(start)
+- Following Searches: f(n) = min_out_of_bound_excess
+ 
 ```
 def ida_star:
     bound = f(start)
@@ -235,18 +253,24 @@ def ida_star:
             return unsolvable
         bound = t
 ```
-- Dealing with one of $A^*$’s problem: large queue/closed_set
+
+ > Solve one of $A^*$’s problem: large queue/closed_set
+ 
 
 ---
 ## Evaluation of Search Methods
 ### Guarantees
+
 - **Completeness** sure to find a solution if there is one
 - **Optimality** solutions sure be optimal
+
 ### Complexity
+
 - Time/Space (Measured in generated states/states cost)
 - Typical **state space features** governing complexity
 	- **Branching factor** $b$ how many successors
 	- **Goal depth** $d$ number of actions to reach shallowest goal state
+
 ### Summary
 |          |     DFS     | BrFS  |     IDS     |  A*   |    HC    |    IDA*     |
 |:-------- |:-----------:|:-----:|:-----------:|:-----:|:--------:|:-----------:|
@@ -255,8 +279,12 @@ def ida_star:
 | Time     |  $\infty$   | $b^d$ |    $b^d$    | $b^d$ | $\infty$ |    $b^d$    |
 | Space    | $b \cdot d$ | $b^d$ | $b \cdot d$ | $b^d$ |   $b$    | $b \cdot d$ |
 
+where
+
 - $b$ - Branching Factor: sum of number of child nodes of each node
 - $d$ - Solution Depth: *$minimum$* depth among all goal nodes
 - DFS cannot handle cyclic graph
 - BFS is optimal only when uniform costs are applied 
 - $A^*$ / Iterative Deepening $A^*$ is optimal only when $h$ is admissible ($h \le h^*$)
+
+---
