@@ -4,8 +4,7 @@
 
 ### 🗓️ 2025 Semester 2
 
-#### ✏️ AI Planning for Autonomy - COMP90054 
-
+#### 📘 [AI Planning for Autonomy](Unimelb/25S2/AIP/01-Search.md)  
 
 
 

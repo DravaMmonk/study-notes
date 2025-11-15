@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
+                "file": "docs/index.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "11-Policy-Approx"
+              "title": "index"
             }
           }
         ],
@@ -107,8 +107,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 279.5024719238281,
-    "collapsed": true
+    "width": 279.5024719238281
   },
   "right": {
     "id": "6d8aeca418b42b5f",
@@ -124,7 +123,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
+                "file": "docs/index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -134,7 +133,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 11-Policy-Approx"
+              "title": "Backlinks for index"
             }
           },
           {
@@ -224,50 +223,50 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "3f22eb8366d16a1b",
+  "active": "55e7e4bad64bb55e",
   "lastOpenFiles": [
-    "docs/Unimelb/25S2/AIP/assets/Unconfirmed 836060.crdownload",
-    "docs/Unimelb/25S2/AIP/10-Value-Approx.md",
+    "docs/Unimelb/25S2/AIP/01-Search.md",
+    "docs/index.md",
+    "mdp.md",
+    "README.md",
     "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
+    "README.md.sb-3ad015f2-5a0nJc",
+    "site/assets/javascripts 3",
+    "site/Unimelb/25S2 3",
+    "site/search/search_index.json",
+    "site/search",
+    "site/Unimelb/25S2/AIP/12-Integrating/index.html",
+    "site/Unimelb/25S2/AIP/12-Integrating",
+    "site/Unimelb/25S2/AIP/11-Policy-Approx/index.html",
+    "site/Unimelb/25S2/AIP/11-Policy-Approx",
+    "site/Unimelb/25S2/AIP/10-Value-Approx/index.html",
+    "site/Unimelb/25S2/AIP/assets/10_1_ab.svg",
+    "docs/Unimelb/25S2/AIP/10-Value-Approx.md",
     "docs/Unimelb/25S2/AIP/12-Integrating.md",
     "docs/Unimelb/25S2/AIP/09-TD.md",
     "docs/Unimelb/25S2/AIP/08-MC.md",
     "docs/Unimelb/25S2/AIP/06-RL.md",
     "docs/Unimelb/25S2/AIP/07-MDP.md",
     "assets/7_1_ab..md",
-    "assets",
     "docs/Unimelb/25S2/AIP/assets/10_1_ab.svg",
-    "docs/Unimelb/25S2/AIP/assets/Unconfirmed 151960.crdownload",
     "Untitled.canvas",
     "docs/Unimelb/25S2/AIP/12-Actor-Critic.md",
     "docs/Unimelb/25S2/AIP/11-Batch.md",
-    "site/Unimelb/25S2 2",
-    "site/assets/javascripts 2",
-    "site/search/search_index.json",
-    "site/search",
-    "site/Unimelb/25S2/AIP/12-Policy-Approx/index.html",
-    "site/Unimelb/25S2/AIP/12-Policy-Approx",
-    "site/Unimelb/25S2/AIP/11-Batch/index.html",
-    "site/Unimelb/25S2/AIP/11-Batch",
     "site/Unimelb/25S2/AIP/assets/6_1_maze.png",
     "site/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
-    "docs/index.md",
     "docs/stylesheets/Untitled 1.md",
     "docs/Unimelb/25S2/AIP/05-Exploration.md",
     "docs/Unimelb/25S2/AIP/04-Relaxation.md",
     "docs/Unimelb/25S2/AIP/03-Complexity.md",
     "docs/Unimelb/25S2/AIP/02-Planning.md",
-    "docs/Unimelb/25S2/AIP/01-Search.md",
     "docs/Unimelb/25S2/AIP/assets/6_1_maze.png",
     "site/Unimelb/25S2/AIP/assets/8_1_depth_width.svg",
     "docs/stylesheets/Untitled.md",
     "docs/Unimelb/25S2/AIP/assets/8_1_depth_width.svg",
     "docs/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
-    "README.md",
     "docs/Unimelb/25S2/AIP/1-General-Basics.md",
     "site/assets/images/favicon.png",
     "docs/Unimelb/25S2/AIP/assets/7_1_maze 1.png",
-    "site/Unimelb/25S2/AIP/assets/7_1_maze.png",
     "docs/Unimelb/25S2/AIP/WEEK-7-2-Markov-Learning-Process.md",
     "Unimelb/25S2/AIP/WEEK-5-Relaxation.md",
     "Unimelb/25S2/AIP/WEEK-2-Search-Methods.md",
