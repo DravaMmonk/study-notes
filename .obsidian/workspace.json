@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/Unimelb/25S2/AIP/09-TD.md",
+                "file": "docs/Unimelb/25S2/AIP/05-Exploration.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
-              "title": "09-TD"
+              "title": "05-Exploration"
             }
           },
           {
@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/Unimelb/25S2/AIP/02-Planning.md",
+                "file": "docs/Unimelb/25S2/AIP/05-Exploration.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "02-Planning"
+              "title": "05-Exploration"
             }
           }
         ],
@@ -226,13 +226,14 @@
   },
   "active": "3f22eb8366d16a1b",
   "lastOpenFiles": [
-    "docs/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
+    "docs/Unimelb/25S2/AIP/06-RL.md",
+    "docs/Unimelb/25S2/AIP/09-TD.md",
+    "docs/Unimelb/25S2/AIP/08-MC.md",
+    "docs/Unimelb/25S2/AIP/07-MDP.md",
+    "docs/Unimelb/25S2/AIP/05-Exploration.md",
     "docs/Unimelb/25S2/AIP/02-Planning.md",
-    "docs/Unimelb/25S2/AIP/01-Search.md",
-    "docs/Unimelb/25S2/AIP/12-Integrating.md",
-    "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
-    "docs/index.md",
-    "site/assets/javascripts 3",
+    "site/Unimelb/25S2 2",
+    "site/assets/javascripts 2",
     "site/search/search_index.json",
     "site/search/search_index.js",
     "site/search",
@@ -241,7 +242,11 @@
     "site/Unimelb/25S2/AIP/10-Value-Approx.html",
     "site/Unimelb/25S2/AIP/09-TD.html",
     "site/Unimelb/25S2/AIP/08-MC.html",
-    "site/Unimelb/25S2/AIP/07-MDP.html",
+    "docs/Unimelb/25S2/AIP/assets/3_1_planning_process.png",
+    "docs/Unimelb/25S2/AIP/01-Search.md",
+    "docs/Unimelb/25S2/AIP/12-Integrating.md",
+    "docs/Unimelb/25S2/AIP/11-Policy-Approx.md",
+    "docs/index.md",
     "site/apple-touch-icon-precomposed.png",
     "site/apple-touch-icon-120x120-precomposed.png",
     "docs/apple-touch-icon-precomposed.png",
@@ -256,16 +261,11 @@
     "mdp.md",
     "README.md",
     "docs/Unimelb/25S2/AIP/10-Value-Approx.md",
-    "docs/Unimelb/25S2/AIP/09-TD.md",
-    "docs/Unimelb/25S2/AIP/08-MC.md",
-    "docs/Unimelb/25S2/AIP/06-RL.md",
-    "docs/Unimelb/25S2/AIP/07-MDP.md",
     "assets/7_1_ab..md",
     "Untitled.canvas",
     "docs/Unimelb/25S2/AIP/12-Actor-Critic.md",
     "docs/Unimelb/25S2/AIP/11-Batch.md",
     "docs/stylesheets/Untitled 1.md",
-    "docs/Unimelb/25S2/AIP/05-Exploration.md",
     "docs/Unimelb/25S2/AIP/04-Relaxation.md",
     "docs/Unimelb/25S2/AIP/03-Complexity.md",
     "docs/stylesheets/Untitled.md",
