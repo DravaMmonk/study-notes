@@ -974,7 +974,7 @@
 <li>Learn Value/Policy from experience</li>
 </ul>
 <div class="admonition note">
-<p class="admonition-title">Pros &amp; Cons</p>
+<p class="admonition-title">Outcome</p>
 <ul>
 <li>Cannot look ahead❌</li>
 <li>Sample may be expensive⚠️</li>
@@ -987,7 +987,7 @@
 <li>Learn and plan Value/Policy from real and simulated experience</li>
 </ul>
 <div class="admonition note">
-<p class="admonition-title">Pros &amp; Cons</p>
+<p class="admonition-title">Outcome</p>
 <ul>
 <li>Sample is efficient✅ (directly from simulators)</li>
 <li>Avoid model error✅ (Beyond Model-based)</li>
@@ -1029,14 +1029,18 @@
 <li>Build a search tree containing visited states and actions</li>
 <li>Update <span class="arithmatex">\(q\)</span> by mean return of episodes <em>starting from each <span class="arithmatex">\((s,a)\)</span></em></li>
 </ul>
-<p>$$
+<div class="arithmatex">\[
 q(s,a)
 = \frac{1}{N(s,a)} \sum_{k=1}^K \sum_{u=t}^T
 \mathbf{1}(S_u, A_u = s,a) \, G_u
-$$
-Off-policy
-- Behaviour Policy: Forward Search methods
-- Optimal Policy: <span class="arithmatex">\(\arg\max q(s,a)\)</span></p>
+\]</div>
+<div class="admonition note">
+<p class="admonition-title">MCTS is Off-policy</p>
+<ul>
+<li>Behaviour policy: rollout/simulation policy</li>
+<li>Target policy: greedy w.r.t search Q(s,a)</li>
+</ul>
+</div>
 
 
 

@@ -779,10 +779,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#mc-basic" class="md-nav__link">
+  <a href="#mc-policy-iteration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        MC Basic
+        MC Policy Iteration
       
     </span>
   </a>
@@ -818,10 +818,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#mc-varepsilon-greedy" class="md-nav__link">
+  <a href="#mc-greedy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        MC + \(\varepsilon\)-greedy
+        MC + ε-greedy
       
     </span>
   </a>
@@ -1009,30 +1009,31 @@
 </ul>
 <hr />
 <h2 id="monte-carlo-mc-learning">Monte Carlo (MC) Learning<a class="headerlink" href="#monte-carlo-mc-learning" title="Permanent link">&para;</a></h2>
-<ul>
+<ol>
 <li>Run-to-end in the environment for multiple times</li>
-<li>
-<p>Use <strong>average return</strong> to <strong>estimate</strong> value function, <em>instead of solving <span class="arithmatex">\(v(n)\)</span> in Model-based RL</em></p>
+<li>Use <strong>Average Actual Return</strong> to <strong>estimate</strong> value function</li>
+</ol>
 <div class="arithmatex">\[
 V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
 \]</div>
+<p>where</p>
 <ul>
 <li><span class="arithmatex">\(N(s)\)</span> - how many times <span class="arithmatex">\(G_t\)</span> is visited</li>
 <li>When <span class="arithmatex">\(N(s) \to \infty\)</span>, <span class="arithmatex">\(V(s) \to v_\pi(s)\)</span>.</li>
 </ul>
-</li>
-<li>
-<p>Unbiased✅</p>
-</li>
-<li>Can only apply to <strong>episodic</strong> 有终止状态 Markov environment⚠️</li>
-</ul>
-<hr />
-<h2 id="mc-basic">MC Basic<a class="headerlink" href="#mc-basic" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Outcomes: Monte Carlo</p>
 <ul>
-<li>Use MC motivation to transfer Policy Iteration into a Model-free method</li>
-<li>
-<p>For each iteration:</p>
-<ol>
+<li>Unbiased✅</li>
+<li>Can only apply to <strong>episodic</strong> (terminating) Markov environment⚠️</li>
+</ul>
+</div>
+<hr />
+<h2 id="mc-policy-iteration">MC Policy Iteration<a class="headerlink" href="#mc-policy-iteration" title="Permanent link">&para;</a></h2>
+<p>Directly transfer Policy Iteration into a Monte-Carlo version.</p>
+<p><strong>Algorithm</strong></p>
+<ul>
+<li>For each iteration:<ol>
 <li>Policy Evaluation (Predication)<ul>
 <li>For each <span class="arithmatex">\((s, a)\)</span>:<ul>
 <li>run <strong>sufficiently many</strong> episodes and get average return</li>
@@ -1050,19 +1051,22 @@ V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
 </li>
 </ol>
 </li>
-<li>
-<p>Convergence guarantee✅ Very low Time Efficiency; Not practical❌</p>
-</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Outcomes: MCPI</p>
+<ul>
+<li>Convergence guarantee✅ </li>
+<li>Very low Time Efficiency; Not practical❌</li>
+</ul>
+</div>
 <hr />
 <h2 id="mc-exploring-starts">MC Exploring Starts<a class="headerlink" href="#mc-exploring-starts" title="Permanent link">&para;</a></h2>
+<p><strong>Generalised Policy Iteration (GPI)</strong>: Repeatedly interleave evaluation and improvement, instead of doing them once.</p>
+<p><strong>Exploring Starts</strong>: Randomly select start points to avoid missing the optimal episode.</p>
+<p><strong>Algorithm</strong></p>
 <ul>
-<li>Use <em>Generalised Policy Iteration</em> (GPI) Framework to improve efficiency<ul>
-<li>In an iteration, instead of do "Policy Evaluation → Policy Improvement" <strong>once</strong>, do the sub-version of it <strong>repeatly</strong></li>
-</ul>
-</li>
-<li>For each episode <span class="arithmatex">\(e\)</span>:<ul>
-<li>Randomly pick one <span class="arithmatex">\((s, a)\)</span> and start learning (<strong>Exploring Start</strong>)</li>
+<li>Repeat:<ul>
+<li>Start from a random <span class="arithmatex">\((s_0, a_0)\)</span></li>
 <li>For each <span class="arithmatex">\((s,a)\)</span> visited:<ul>
 <li><span class="arithmatex">\(N(s,a) \gets N(s,a) + 1\)</span></li>
 <li>Update <span class="arithmatex">\(Q(s,a) \gets \frac{1}{N(s,a)}(Q(s,a) + (G - Q(s,a))\)</span></li>
@@ -1071,16 +1075,17 @@ V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
 </li>
 </ul>
 </li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Outcomes: ES-MC</p>
+<ul>
 <li>Data is used much more efficiently</li>
-<li><strong>Exploring Start</strong> can highly guarantee that every node is visited<ul>
+<li><strong>Exploring Start</strong> can highly guarantee that every node is visited</li>
 <li>However difficult in practice (limitation in environment)</li>
 </ul>
-</li>
-</ul>
-<h4 id="first-visit-vs-every-visit">First-visit vs. Every-visit<a class="headerlink" href="#first-visit-vs-every-visit" title="Permanent link">&para;</a></h4>
-<ul>
-<li>How to deal with repeat visit of same <span class="arithmatex">\((s,a)\)</span> in a episode</li>
-</ul>
+</div>
+<h3 id="first-visit-vs-every-visit">First-visit vs. Every-visit<a class="headerlink" href="#first-visit-vs-every-visit" title="Permanent link">&para;</a></h3>
+<p>Different ways to handle <strong>repeated visits</strong> of the same <span class="arithmatex">\((s,a)\)</span> pair during an episode:</p>
 <table>
 <thead>
 <tr>
@@ -1092,8 +1097,8 @@ V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
 <tbody>
 <tr>
 <td>When?</td>
-<td>Only the <em>first</em> time appeared</td>
-<td><em>Every</em> time appeared</td>
+<td>Only the <em>first</em> time visit</td>
+<td><em>Every</em> time visit</td>
 </tr>
 <tr>
 <td>Pros</td>
@@ -1113,10 +1118,8 @@ V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
 </tbody>
 </table>
 <hr />
-<h2 id="mc-varepsilon-greedy">MC + <span class="arithmatex">\(\varepsilon\)</span>-greedy<a class="headerlink" href="#mc-varepsilon-greedy" title="Permanent link">&para;</a></h2>
-<ul>
-<li>
-<p>Use soft policy (e.g. <span class="arithmatex">\(\varepsilon\)</span>-greedy) to remove needs of exploring start</p>
+<h2 id="mc-greedy">MC + ε-greedy<a class="headerlink" href="#mc-greedy" title="Permanent link">&para;</a></h2>
+<p>Use a soft policy (e.g., ε-greedy) to avoid the need for exploring starts.</p>
 <div class="arithmatex">\[
 \pi(a|s) =
 \begin{cases}
@@ -1124,12 +1127,20 @@ V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
 \frac{1}{|\mathcal{A}(s)|} \, \varepsilon, &amp; \text{otherwise}
 \end{cases}
 \]</div>
+<p>where</p>
 <ul>
 <li><span class="arithmatex">\(|\mathcal{A}(s)|\)</span> - number of valid actions of state</li>
 <li>Balance Exploration &amp; Exploitation</li>
 </ul>
-</li>
+<div class="admonition note">
+<p class="admonition-title">Outcomes: ε-greedy MC</p>
+<ul>
+<li>Ensures continual exploration by assigning non-zero probability to all actions. ✅</li>
+<li>More stable than pure greedy MC because it prevents being trapped in suboptimal actions early. ⭐️</li>
+<li>Slight performance trade-off: exploration introduces variance, but improves long-term value estimation and policy quality. 💭</li>
 </ul>
+</div>
+<hr />
 
 
 

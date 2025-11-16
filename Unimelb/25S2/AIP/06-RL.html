@@ -874,17 +874,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#why-discounting-is-used" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Discounting is Used
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -902,10 +891,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#categories-of-rl-algorithms" class="md-nav__link">
+  <a href="#reinforced-learning-algorithms" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Categories of RL Algorithms
+        Reinforced Learning Algorithms
       
     </span>
   </a>
@@ -1137,9 +1126,7 @@
 <h1 id="6-reinforced-learning">6 Reinforced Learning<a class="headerlink" href="#6-reinforced-learning" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="reinforced-learning">Reinforced Learning<a class="headerlink" href="#reinforced-learning" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Policy + Reward + Trial-and-error Interaction</li>
-</ul>
+<p>Key: Policy + Reward + Trial-and-error Interaction</p>
 <h3 id="planning-vs-learning">Planning vs Learning<a class="headerlink" href="#planning-vs-learning" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1270,15 +1257,14 @@
 <hr />
 <h2 id="environments">Environments<a class="headerlink" href="#environments" title="Permanent link">&para;</a></h2>
 <h3 id="state-s-p">State - <span class="arithmatex">\(S, P\)</span><a class="headerlink" href="#state-s-p" title="Permanent link">&para;</a></h3>
+<p><strong>All</strong> RL Algorithms assume that State is <strong>Markov</strong>:</p>
+<div class="arithmatex">\[
+P(s' \mid s + H(s), a) = P(s' \mid s, a)
+\]</div>
+<pre><code>- Once $S$ is known, $H$ can be thrown away
+</code></pre>
 <ul>
-<li>
-<p>All RL Algorithms assume that State is Markov:
-    $$
-    P(s' \mid s + H(s), a) = P(s' \mid s, a)
-    $$</p>
-<ul>
-<li>Once <span class="arithmatex">\(S\)</span> is known, <span class="arithmatex">\(H\)</span> can be thrown away</li>
-<li>Any RL problem can be made Markov by expanding the state</li>
+<li>Any RL problem can be made Markov by expanding the state<ul>
 <li>Add history into the current state</li>
 <li>Add belief state (POMDP → belief-MDP)</li>
 <li>Add latent state (Model-based RL)</li>
@@ -1436,32 +1422,28 @@ q_\pi(s,a)
 </tr>
 </tbody>
 </table>
-<h4 id="why-discounting-is-used">Why Discounting is Used<a class="headerlink" href="#why-discounting-is-used" title="Permanent link">&para;</a></h4>
-<ul>
-<li>
+<details class="note">
+<summary>Why Discounting is Used</summary>
 <p><strong>Technical Reasons</strong></p>
 <ul>
 <li>Makes modelling and computation easier (Bellman equations converge cleanly)</li>
 <li>Prevents infinite returns in cyclic Markov processes</li>
 <li>Reflects uncertainty about far-future outcomes</li>
 </ul>
-</li>
-<li>
 <p><strong>Realistic Reasons</strong></p>
 <ul>
 <li>In financial settings, immediate rewards can be reinvested (time value of money)</li>
 <li>Human and animal behaviour shows preference for immediate rewards over delayed rewards</li>
 </ul>
-</li>
-</ul>
+</details>
 <hr />
 <h3 id="policy-pi">Policy - <span class="arithmatex">\(\pi\)</span><a class="headerlink" href="#policy-pi" title="Permanent link">&para;</a></h3>
+<p>Fully defines agent's behaviour</p>
 <ul>
-<li>Fully defines agent's behaviour</li>
-<li><strong>Stationary</strong> (Time-independent) - Only relies on the current state</li>
+<li><strong>Stationary</strong>(Time-independent): Only relies on the current state</li>
 </ul>
 <hr />
-<h3 id="categories-of-rl-algorithms">Categories of RL Algorithms<a class="headerlink" href="#categories-of-rl-algorithms" title="Permanent link">&para;</a></h3>
+<h3 id="reinforced-learning-algorithms">Reinforced Learning Algorithms<a class="headerlink" href="#reinforced-learning-algorithms" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Markov Decision Processing<ul>
 <li>Value Iteration</li>
@@ -1494,6 +1476,7 @@ q_\pi(s,a)
 </ul>
 </li>
 </ul>
+<hr />
 
 
 

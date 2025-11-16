@@ -681,67 +681,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="A*">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#re-opening" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Re-opening
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#weighted-a" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Weighted A*
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#hill-climbing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Hill-Climbing
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#enforced-hill-climbing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Enforced Hill-Climbing
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#iterative-deepening-a" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Iterative Deepening A*
-      
-    </span>
-  </a>
-  
 </li>
         
       </ul>
@@ -1171,23 +1110,23 @@
 
 subgoals = {&quot;position&quot;: (5, 8), &quot;carrying_package&quot;: True}
 </code></pre></div>
-<div class="admonition info">
-<p class="admonition-title">Common Functions</p>
+<details class="info">
+<summary>Common Functions</summary>
+<p>Search states:</p>
 <ul>
-<li><span class="arithmatex">\(s\)</span> = search states</li>
 <li><span class="arithmatex">\(\mathrm{is}\_\mathrm{start}(s)\)</span> return if the state is the start state of the search space</li>
 <li><span class="arithmatex">\(\mathrm{is}\_\mathrm{target}(s)\)</span> mark if the state is the goal state of the search space</li>
 <li><span class="arithmatex">\(\mathrm{succ}(s)\)</span> return a list of successors/next states of <span class="arithmatex">\(s\)</span></li>
-<li>Search nodes: <ul>
+</ul>
+<p>Search nodes: </p>
+<ul>
 <li><span class="arithmatex">\(\mathrm{state}(\sigma)\)</span></li>
 <li><span class="arithmatex">\(\mathrm{parent}(\sigma)\)</span> where <span class="arithmatex">\(\sigma\)</span> was reached</li>
 <li><span class="arithmatex">\(\mathrm{action}(\sigma)\)</span> leads from <span class="arithmatex">\(\mathrm{state}(\mathrm{parent}(\sigma))\)</span> to <span class="arithmatex">\(\mathrm{state}(\sigma)\)</span></li>
 <li><span class="arithmatex">\(g(\sigma)\)</span> denotes cost of path from the <strong>root</strong> to <span class="arithmatex">\(\sigma\)</span></li>
 <li>The <strong>root</strong>’s <span class="arithmatex">\(\mathrm{parent}(\cdot)\)</span> and <span class="arithmatex">\(\mathrm{action}(\cdot)\)</span> are undefined</li>
 </ul>
-</li>
-</ul>
-</div>
+</details>
 <hr />
 <h2 id="search-methods">Search Methods<a class="headerlink" href="#search-methods" title="Permanent link">&para;</a></h2>
 <h3 id="forward-search-vs-backward-search">Forward Search vs. Backward Search<a class="headerlink" href="#forward-search-vs-backward-search" title="Permanent link">&para;</a></h3>
@@ -1219,14 +1158,20 @@ subgoals = {&quot;position&quot;: (5, 8), &quot;carrying_package&quot;: True}
 </ul>
 </li>
 </ul>
-<blockquote>
-<p><em>Completeness</em> 100%✅ However really <em>poor efficient</em> when scale up☹️</p>
-</blockquote>
+<details class="info">
+<summary>Properties</summary>
+<ul>
+<li><em>Completeness</em> 100%✅ </li>
+<li>Really <em>poor efficient</em> when scale up☹️</li>
+</ul>
+</details>
 <hr />
 <h2 id="informed-systematic-search">Informed Systematic Search<a class="headerlink" href="#informed-systematic-search" title="Permanent link">&para;</a></h2>
 <h3 id="heuristic-functions">Heuristic Functions<a class="headerlink" href="#heuristic-functions" title="Permanent link">&para;</a></h3>
-<p><span class="arithmatex">\(h(n)\)</span> - Estimated remaining cost (from current state to goal state)</p>
-<p><span class="arithmatex">\(h^*(n)\)</span> - Real remaining cost</p>
+<ul>
+<li><span class="arithmatex">\(h(n)\)</span> - Estimated remaining cost (from the current state to the goal state)</li>
+<li><span class="arithmatex">\(h^*(n)\)</span> - Actual remaining cost</li>
+</ul>
 <p><strong>proficiency</strong> of <span class="arithmatex">\(h(n)\)</span>:</p>
 <ul>
 <li><span class="arithmatex">\(h = h^{\ast}\)</span> perfectly informed, <span class="arithmatex">\(h(n) = h^{\ast}(n) - \textbf{optimal } A^{\ast}\)</span></li>
@@ -1258,11 +1203,11 @@ subgoals = {&quot;position&quot;: (5, 8), &quot;carrying_package&quot;: True}
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="admonition-title">Relations of Properties</p>
+<div class="admonition tip">
+<p class="admonition-title">Relations</p>
 <ul>
-<li>Consistent &amp; Goal-aware <span class="arithmatex">\(\to\)</span> Admissible</li>
-<li>Admissible <span class="arithmatex">\(\to\)</span> Safe &amp; Goal-aware</li>
+<li>Consistent &amp; Goal-aware → Admissible</li>
+<li>Admissible → Safe &amp; Goal-aware</li>
 </ul>
 </div>
 <hr />
@@ -1302,94 +1247,70 @@ subgoals = {&quot;position&quot;: (5, 8), &quot;carrying_package&quot;: True}
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre><span></span><code>def a_star:
-    frontier = priority queue ordered by f(n) = g(n) + h(n)
-    explored = set
-    path = list
-    frontier.add(h(start), start, path)
-    
-    while frontier:
-        _, current, path = frontier.pop()
-        if current == goal:
-            return path
-        if current in explored:
-            continue
-        explored.add(current)
-        for successor in succ(current):
-            new_path = path + action(current, successor)
-            f = cost(new_path) + h(current)
-✏️          frontier.add(f, successor, new_path)
-    return unsolvable
+<p><div class="highlight"><pre><span></span><code>function A*(start, goal):
+    open = priority queue
+    open.push(start, f(start))
+
+    while open is not empty:
+        n = open.pop_min_f()
+
+        if n == goal:
+            return reconstruct_path(n)
+
+        for each successor s of n:
+            compute g(s) and f(s)
+            open.push_or_update(s)
 </code></pre></div>
-<h4 id="re-opening">Re-opening<a class="headerlink" href="#re-opening" title="Permanent link">&para;</a></h4>
-<p>a node <span class="arithmatex">\(n\)</span> is in <code>explored</code> but if we find a cheaper <span class="arithmatex">\(g(n)\)</span>, then we can re-open the <code>explored</code> set and extend this node</p>
-<div class="highlight"><pre><span></span><code>def a_star_with_re_opening:
+<div class="highlight"><pre><span></span><code>#### Re-opening
+
+A node $n$ could be re-opened if we find a cheaper $g(n)$.
+</code></pre></div>
+def a_star_with_re_opening:
     frontier = priority queue ordered by f(n) = g(n) + h(n)
     explored = set
     path = list
-    frontier.add(h(start), start, path)
-
-✏️  g = dict
-✏️  g[start] = 0
-
-    while frontier:
-        _, current, path = frontier.pop()
-        if current == goal:
-            return path
-        explored.add(current)
-        for successor in succ(current):
-            new_path = path + action(current, successor)
-            new_g = cost(new_path)
-            if successor not in g or new_g &lt; g[successor]:
-                [successor] = new_g
-                f = g[successor] + h(successor)
-                frontier.add(f, successor, f)
-
-✏️              if successor in explored:     # Re-opening
+    frontier.add(h(start), start, path)</p>
+<p>✏️  g = dict
+✏️  g[start] = 0</p>
+<pre><code>while frontier:
+    _, current, path = frontier.pop()
+    if current == goal:
+        return path
+    explored.add(current)
+    for successor in succ(current):
+        new_path = path + action(current, successor)
+        new_g = cost(new_path)
+        if successor not in g or new_g &lt; g[successor]:
+            [successor] = new_g
+            f = g[successor] + h(successor)
+            frontier.add(f, successor, f)
+</code></pre>
+<p>✏️              if successor in explored:     # Re-opening
 ✏️                  explored.remove(successor)
-    return unsolvable
-</code></pre></div>
-<blockquote>
-<p>Not needed if consistent✅  <span class="arithmatex">\(g\)</span> is already cheapest</p>
-</blockquote>
-<hr />
-<h3 id="weighted-a">Weighted A*<a class="headerlink" href="#weighted-a" title="Permanent link">&para;</a></h3>
-<div class="arithmatex">\[
+    return unsolvable</p>
+<p><div class="highlight"><pre><span></span><code>Not needed if consistent✅  $g$ is already cheapest
+
+---
+### Weighted A*
+$$
 f_W(n) = g(n) + W \cdot h(n)
-\]</div>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Weight</th>
-<th style="text-align: center;">Algorithm</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><span class="arithmatex">\(W \to 0\)</span></td>
-<td style="text-align: center;">Digkstra Algorithm</td>
-</tr>
-<tr>
-<td style="text-align: left;"><span class="arithmatex">\(W \to 1\)</span></td>
-<td style="text-align: center;">A*</td>
-</tr>
-<tr>
-<td style="text-align: left;"><span class="arithmatex">\(W &gt; 1\)</span></td>
-<td style="text-align: center;">Bounded sub-optimal A*</td>
-</tr>
-<tr>
-<td style="text-align: left;"><span class="arithmatex">\(W \to \infty\)</span></td>
-<td style="text-align: center;">GBFS</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>If <span class="arithmatex">\(h\)</span> is admissible, <span class="arithmatex">\(f_W(n) \le W \cdot h(n)\)</span></p>
-</blockquote>
-<hr />
-<h3 id="hill-climbing">Hill-Climbing<a class="headerlink" href="#hill-climbing" title="Permanent link">&para;</a></h3>
-<p>Brute Force to find greedy best direction for heuristic descent</p>
-<div class="highlight"><pre><span></span><code>def hill_climbing:
+$$
+
+| Weight         |       Algorithm        |
+|:-------------- |:----------------------:|
+| $W \to 0$      |   Digkstra Algorithm   |
+| $W \to 1$      |           A*           |
+| $W &gt; 1$        | Bounded sub-optimal A* |
+| $W \to \infty$ |          GBFS          |
+
+&gt; If $h$ is admissible, $f_W(n) \le W \cdot h(n)$
+
+---
+### Hill-Climbing
+
+Brute Force to find greedy best direction for heuristic descent
+</code></pre></div>
+def hill_climbing:
     path = list
     current = start
     while h(n) &gt; 0:
@@ -1400,17 +1321,15 @@ f_W(n) = g(n) + W \cdot h(n)
         else:
             break    
     return path
+<div class="highlight"><pre><span></span><code>&gt; - Can only find local maxima
+&gt; - Available only if $h(n) &gt; 0$ for all non-goal states
+
+---
+### Enforced Hill-Climbing
+
+Do small range BFS when find local optimal
 </code></pre></div>
-<blockquote>
-<ul>
-<li>Can only find local maxima</li>
-<li>Available only if <span class="arithmatex">\(h(n) &gt; 0\)</span> for all non-goal states</li>
-</ul>
-</blockquote>
-<hr />
-<h3 id="enforced-hill-climbing">Enforced Hill-Climbing<a class="headerlink" href="#enforced-hill-climbing" title="Permanent link">&para;</a></h3>
-<p>Do small range BFS when find local optimal</p>
-<div class="highlight"><pre><span></span><code>def enforced_hill_climbing:
+def enforced_hill_climbing:
     path = list
     explored = set
     current = start
@@ -1429,16 +1348,16 @@ f_W(n) = g(n) + W \cdot h(n)
             else:
                 return unsolvable
     return path
-</code></pre></div>
-<blockquote>
-<p>Can across small gap between local best and global best</p>
-</blockquote>
-<hr />
-<h3 id="iterative-deepening-a">Iterative Deepening A*<a class="headerlink" href="#iterative-deepening-a" title="Permanent link">&para;</a></h3>
-<p>IDS + <span class="arithmatex">\(A^*\)</span>: Use f(n) instead of depth to limit IDS
+<div class="highlight"><pre><span></span><code>&gt; Can across small gap between local best and global best
+
+---
+### Iterative Deepening A*
+
+IDS + $A^*$: Use f(n) instead of depth to limit IDS
 - In First Search:  f(n) = f(start) = 0 + h(start)
-- Following Searches: f(n) = min_out_of_bound_excess</p>
-<div class="highlight"><pre><span></span><code>def ida_star:
+- Following Searches: f(n) = min_out_of_bound_excess
+</code></pre></div>
+def ida_star:
     bound = f(start)
     while True:
         t = ids(start, bound)
@@ -1447,7 +1366,7 @@ f_W(n) = g(n) + W \cdot h(n)
         if t == infinity:
             return unsolvable
         bound = t
-</code></pre></div>
+```</p>
 <blockquote>
 <p>Solve one of <span class="arithmatex">\(A^*\)</span>’s problem: large queue/closed_set</p>
 </blockquote>

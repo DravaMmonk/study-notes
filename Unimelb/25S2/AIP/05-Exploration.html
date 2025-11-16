@@ -812,17 +812,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#arcade-learning-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Arcade Learning Environment
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1127,6 +1116,10 @@
 <hr />
 <h2 id="balancing-the-exploitation-exploration">Balancing the Exploitation &amp; Exploration<a class="headerlink" href="#balancing-the-exploitation-exploration" title="Permanent link">&para;</a></h2>
 <p><strong>Exploitation</strong>: Trusting your heuristic function</p>
+<p><strong>Exploration</strong>: Searching for Unseen Facts (Novelty)</p>
+<div class="admonition note">
+<p class="admonition-title">Trade-off Exploitation &amp; Exploration</p>
+<p><strong>Exploitation</strong></p>
 <ul>
 <li>State-based Satisfying Planning has multiple reliances ⚠️<ul>
 <li>heuristics derived from problem</li>
@@ -1139,15 +1132,12 @@
 </ul>
 </li>
 </ul>
-<p><strong>Exploration</strong>: Searching for Novelty</p>
+<p><strong>Exploration</strong></p>
 <ul>
 <li>Novelty leads to much better performance in practice ✅</li>
 <li>Can be <strong>model-free</strong> (No Reliance/Assumption) ✅</li>
 <li>Required for optimal behaviour (in RL and MTCS) ⚠️</li>
 </ul>
-<div class="admonition tip">
-<p class="admonition-title">Notes</p>
-<p>A good agent needs to balance between Exploration and Exploitation</p>
 </div>
 <hr />
 <h2 id="novelty">Novelty<a class="headerlink" href="#novelty" title="Permanent link">&para;</a></h2>
@@ -1206,23 +1196,18 @@ p \to (p, q) \to (q, r) \to (p, r) \to (p, q, r)
 <li>A sequence of calls <span class="arithmatex">\(IW(k), k=1,2,3,\ldots\)</span>, until the problem solved or <span class="arithmatex">\(k &gt; len(\bigcup P)\)</span> (return <code>unsolvable</code>). </li>
 <li>The <span class="arithmatex">\(minimum\)</span> <span class="arithmatex">\(k\)</span> is the <span class="arithmatex">\(\text{Width}\)</span> of the problem</li>
 </ul>
-<details class="note">
-<summary>Outcomes of IW</summary>
+<div class="admonition note">
+<p class="admonition-title">Outcomes: IW</p>
 <ul>
-<li>Simple and Blind<ul>
-<li>No heuristic</li>
+<li>Simple and Blind; No need for heuristic ⭐️</li>
+<li><strong>Fast</strong> if small width <span class="arithmatex">\(\mathrm{O}(n^k)\)</span>✅<ul>
+<li>In practical, only <span class="arithmatex">\(IW(k \le 2)\)</span> can solve most of classical planning problems. </li>
 </ul>
 </li>
-<li>However performs pretty well in practice<ul>
-<li><span class="arithmatex">\(IW(k \le 2)\)</span> can solve 88.3% IPC problems with single goal.</li>
-<li><em>Most classical problem (e.g. Blocks, Logistics, Gripper, n-puzzle) have a bounded width independent of problem size and initial situation</em></li>
+<li><strong>Optimal</strong> if in uniform cost ✅</li>
+<li><strong>Complete</strong> ✅</li>
 </ul>
-</li>
-<li><strong>Fast</strong> <span class="arithmatex">\(\mathrm{O}(n^k)\)</span>✅</li>
-<li><strong>Optimal</strong> if in uniform cost✅</li>
-<li><strong>Complete</strong>✅</li>
-</ul>
-</details>
+</div>
 <hr />
 <h3 id="serialised-iterated-width-siw">Serialised Iterated Width (SIW)<a class="headerlink" href="#serialised-iterated-width-siw" title="Permanent link">&para;</a></h3>
 <p>Use <span class="arithmatex">\(IW\)</span> for decomposing multi-goals problem and solving sub-problems (with single goal) individually.</p>
@@ -1235,13 +1220,13 @@ p \to (p, q) \to (q, r) \to (p, r) \to (p, q, r)
         state = Result(subplan, state)
     return plan
 </code></pre></div>
-<details class="note">
-<summary>Outcomes of SIW</summary>
+<div class="admonition note">
+<p class="admonition-title">Outcomes: SIW</p>
 <ul>
-<li>Better performance in <em>Joint Goals</em> problem <em>(Multi goals but similar approaches)</em>.</li>
-<li>Goals need to be easy to serialise and have low width.</li>
+<li>Better performance in <em>Joint Goals</em> problem <em>(Multi goals but similar approaches)</em>. ✅</li>
+<li>Goals need to be easy to serialise and have low width. ⚠️</li>
 </ul>
-</details>
+</div>
 <hr />
 <h3 id="best-first-width-search-bfws">Best-First Width Search (BFWS)<a class="headerlink" href="#best-first-width-search-bfws" title="Permanent link">&para;</a></h3>
 <p>BFWS is a <strong>Framework</strong>:</p>
@@ -1249,8 +1234,9 @@ p \to (p, q) \to (q, r) \to (p, r) \to (p, q, r)
 <li><strong>Framework</strong>: Get communication across researchers and to build on each others’ work</li>
 <li>BFWS can be used as a framework to implement different measures</li>
 </ul>
+<hr />
 <h4 id="bfwsf">BFWS(<span class="arithmatex">\(f\)</span>)<a class="headerlink" href="#bfwsf" title="Permanent link">&para;</a></h4>
-<p>Apply BFS (Priority Queue) on a sequence of measures:</p>
+<p>Apply Best-first Search on a sequence of measures:</p>
 <div class="arithmatex">\[
 BFWS(f) \text{ for } f= \langle w,f_1,f_2,\ldots \rangle
 \]</div>
@@ -1269,27 +1255,32 @@ f = \langle w, h \rangle
 <li><span class="arithmatex">\(h = h_{add} \text{ or } h_{FF}\)</span> </li>
 <li><span class="arithmatex">\(w = w_h(s) =\)</span>  <span class="arithmatex">\(s'\)</span> which has smallest novelty and <span class="arithmatex">\(h(s') = h(s)\)</span></li>
 </ul>
-<details class="note">
-<summary>Outcomes</summary>
+<div class="admonition note">
+<p class="admonition-title">Outcomes: Classical BFWS</p>
 <ul>
-<li>Simple but practical✅</li>
-<li>Able to be implemented as a simulator</li>
+<li>Still simple but practical ✅</li>
+<li>Able to be implemented as a simulator ✅</li>
 </ul>
-</details>
+</div>
 <hr />
 <h2 id="model-simulator">Model → Simulator<a class="headerlink" href="#model-simulator" title="Permanent link">&para;</a></h2>
-<p><strong>Model</strong></p>
-<p>Describe problems in a compact form. (e.g. STRIPS, PDDL)</p>
-<details class="note">
-<summary>Outcomes of Model</summary>
+<p><strong>Model</strong>: Describe problems in a compact form. (e.g. STRIPS, PDDL)</p>
+<p><strong>Simulator</strong>: Black-box function that returns only the next state and reward. </p>
 <ul>
-<li>Powerful with help of declarative programming:<ul>
+<li><strong>No explicit preconditions or effects</strong> (no <span class="arithmatex">\(pre(a), add(a), del(a)\)</span>).  </li>
+<li>Used by RL / MCTS for <strong>forward simulation</strong>, not symbolic reasoning.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Model vs Simulator</p>
+<p><strong>Model</strong></p>
+<ul>
+<li>Powerful with development of <strong>declarative programming</strong>:<ul>
 <li>Expressive language features easily supported</li>
 <li>Development of external development tools</li>
-<li><strong>Fully-Black-Box</strong> procedures for higher-level abstraction and decomposing problems</li>
+<li><strong>Fully-Black-Box</strong> detailed procedures for higher-level abstraction and reasoning and decomposing problems</li>
 </ul>
 </li>
-<li>However, they also have downsides:<ul>
+<li>Limitations:<ul>
 <li><strong>Model <span class="arithmatex">\(\ne\)</span> Language</strong><ul>
 <li>Many problems fit Classical Planning model, but hard to express in STRIPS or PDDL</li>
 </ul>
@@ -1301,16 +1292,12 @@ f = \langle w, h \rangle
 </ul>
 </li>
 </ul>
-</details>
 <p><strong>Simulator</strong></p>
-<p>A model but no <span class="arithmatex">\(pre(a)\)</span> and <span class="arithmatex">\(add(a)\)</span> for presenting <span class="arithmatex">\(a\)</span>.</p>
-<details class="note">
-<summary>Outcomes of Simulator</summary>
 <ul>
 <li>At the same level of efficiency as classic models</li>
 <li>Open up exciting possibilities for modelling beyond PDDL (Model-free RL)</li>
 </ul>
-</details>
+</div>
 <hr />
 <h3 id="simulated-bfws">Simulated BFWS<a class="headerlink" href="#simulated-bfws" title="Permanent link">&para;</a></h3>
 <p>Implement BFWS(<span class="arithmatex">\(f\)</span>) algorithm to plan for simulators:</p>
@@ -1323,7 +1310,7 @@ s' = \text{Simulator.step}(s,a)
 <ul>
 <li>Choose the best action based on <span class="arithmatex">\(BFWS(\langle w_h(s), h(s) \rangle)\)</span></li>
 </ul>
-<details class="note">
+<details class="info">
 <summary><strong>Challenges</strong> of Width-Based Planning over Simulators</summary>
 <ul>
 <li>Non-linear dynamics  </li>
@@ -1332,19 +1319,23 @@ s' = \text{Simulator.step}(s,a)
 <li>Uncertainty about opponent strategy</li>
 </ul>
 </details>
-<hr />
-<h3 id="arcade-learning-environment">Arcade Learning Environment<a class="headerlink" href="#arcade-learning-environment" title="Permanent link">&para;</a></h3>
-<p>A simple object-oriented framework to develop AI agents for Atari 2600 games</p>
-<ul>
-<li>Deterministic</li>
-<li>Initial state fully known</li>
-</ul>
-<p>Performance of <span class="arithmatex">\(IW(1)\)</span> </p>
-<ul>
-<li>better in <em>34/54</em> games than 2BFS</li>
-<li>better in <em>31/54</em> games than UCT</li>
-<li>better in <em>45/49</em> games than DeepMind (RL method)</li>
-</ul>
+<!-- 
+---
+### Arcade Learning Environment
+
+A simple object-oriented framework to develop AI agents for Atari 2600 games
+
+- Deterministic
+- Initial state fully known
+
+??? note "Performance of $IW(1)$ in ALE"
+
+
+    - better in _34/54_ games than 2BFS
+    - better in _31/54_ games than UCT
+    - better in _45/49_ games than DeepMind (RL method)
+ -->
+
 <hr />
 <h2 id="plan-goal-recognition">Plan &amp; Goal Recognition<a class="headerlink" href="#plan-goal-recognition" title="Permanent link">&para;</a></h2>
 <h3 id="motivation">Motivation<a class="headerlink" href="#motivation" title="Permanent link">&para;</a></h3>
@@ -1385,9 +1376,9 @@ s' = \text{Simulator.step}(s,a)
 </li>
 <li><strong>Output</strong>: Select the most reasonable goals and/or in probabilistic distribution form</li>
 </ol>
-<details class="note">
-<summary>Probabilistic Goals</summary>
-<p>Derive from Bayes' Rule</p>
+<details class="tip">
+<summary>Transfer to Probabilistic Goals</summary>
+<p>Derive from <strong>Bayes' Rule</strong></p>
 <div class="arithmatex">\[
 P(G \mid O)
 = \alpha \, P(O \mid G)\, P(G),

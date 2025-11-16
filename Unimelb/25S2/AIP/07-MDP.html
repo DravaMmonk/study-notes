@@ -1009,37 +1009,34 @@
 <h1 id="7-markov-decision-process">7 Markov Decision Process<a class="headerlink" href="#7-markov-decision-process" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="markov-decision-process-mdp">Markov Decision Process (MDP)<a class="headerlink" href="#markov-decision-process-mdp" title="Permanent link">&para;</a></h2>
-<ul>
-<li>MDP - General Simulator of the environment for Model-based RL</li>
-<li>Model-based Learning + Optimal Policy</li>
-</ul>
+<p><strong>MDP</strong>: General Simulator of the environment for Model-based RL
+    - Model-based Learning + Optimal Policy</p>
 <hr />
 <h3 id="markov-process">Markov process<a class="headerlink" href="#markov-process" title="Permanent link">&para;</a></h3>
+<p>A <em>memoryless</em> random process </p>
 <ul>
-<li>
-<p>A <em>memoryless</em> random process 
-    $$
-    M = \langle S, P \rangle
-    $$</p>
+<li><strong>Memoryless</strong>: the state is Markov</li>
+<li>Introduce non-deterministic in terms of probabilistic transition <span class="arithmatex">\(P\)</span></li>
+</ul>
+<div class="arithmatex">\[
+M = \langle S, P \rangle
+\]</div>
+<p>where</p>
 <ul>
 <li><span class="arithmatex">\(S\)</span> - a finite set of states</li>
-<li><span class="arithmatex">\(P\)</span> - a state transition probability <strong><em>matrix</em></strong>, which maps every two states in <span class="arithmatex">\(S\)</span><ul>
-<li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
-<li>Each row of <span class="arithmatex">\(P\)</span> sums to 1</li>
-<li>🅄 For showing actions validations and non-deterministic</li>
-</ul>
-</li>
+<li><span class="arithmatex">\(P\)</span> - a <strong><em>matrix</em></strong> showing state transition probability<ul>
+<li><span class="arithmatex">\(P(s \to s') = P(s' \mid s), \forall s, s' \in S\)</span></li>
+<li>Each row/column of <span class="arithmatex">\(P\)</span> sums to 1</li>
 </ul>
 </li>
 </ul>
 <hr />
 <h3 id="markov-reward-processes">Markov Reward Processes<a class="headerlink" href="#markov-reward-processes" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>A Markov chain with reward values:
-    $$
-    M = \langle S, P, R, \gamma \rangle
-    $$</p>
+<p>A Markov chain with reward values:</p>
+<div class="arithmatex">\[
+M = \langle S, P, R, \gamma \rangle
+\]</div>
+<p>where</p>
 <ul>
 <li><span class="arithmatex">\(R\)</span> - the reward function<ul>
 <li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
@@ -1047,71 +1044,54 @@
 </li>
 <li><span class="arithmatex">\(\gamma\)</span> - discount factor</li>
 </ul>
-</li>
-</ul>
 <hr />
 <h3 id="markov-decision-process">Markov Decision Process<a class="headerlink" href="#markov-decision-process" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>Introduce <strong>agency</strong> 能动性 in terms of actions:
-    $$
-    M = \langle S, A, P, R, \gamma \rangle
-    $$</p>
+<p>Introduce <strong>agency</strong> in terms of actions:</p>
+<div class="arithmatex">\[
+M = \langle S, A, P, R, \gamma \rangle
+\]</div>
 <ul>
 <li><span class="arithmatex">\(A\)</span> - a finite set of actions</li>
 <li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
 <li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
 </ul>
-</li>
-</ul>
 <hr />
 <h2 id="greedy-optimal-policy">Greedy Optimal Policy<a class="headerlink" href="#greedy-optimal-policy" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Give a policy based on the action which has <span class="arithmatex">\(maximum\)</span> state-action-value</li>
-<li>
-<p>Optimal State-value Function
-    $$
-    V^\ast(s) = \max_\pi V_\pi(s)
-    $$</p>
-</li>
-<li>
-<p>Optimal State-action-value Function
-    $$
-    Q^\ast(s,a) = \max_\pi Q_\pi(s,a)
-    $$</p>
-</li>
-<li>
-<p>Optimal Policy
-    $$
-    a=\arg\max_a Q^\ast(s,a)
-    $$</p>
-</li>
-</ul>
+<p>Give a policy with <span class="arithmatex">\(maximum\)</span> state-action-value</p>
+<p><strong>Optimal State-value Function</strong></p>
+<div class="arithmatex">\[
+V^\ast(s) = \max_\pi V_\pi(s)
+\]</div>
+<p><strong>Optimal State-action-value Function</strong></p>
+<div class="arithmatex">\[
+Q^\ast(s,a) = \max_\pi Q_\pi(s,a)
+\]</div>
+<p><strong>Optimal Policy</strong></p>
+<div class="arithmatex">\[
+a=\arg\max_a Q^\ast(s,a)
+\]</div>
 <hr />
 <h4 id="bellman-optimality-equation">Bellman Optimality Equation<a class="headerlink" href="#bellman-optimality-equation" title="Permanent link">&para;</a></h4>
-<ul>
-<li>
-<p>Optimal State-value Function (Deriving BEE)</p>
+<p>Derived from the Bellman Equation, we can use "immediate reward + discounted return of next state" to express the expected return:</p>
+<p><strong>Optimal State-value Function</strong></p>
 <div class="arithmatex">\[
 \begin{align}
-v_\ast(s)
-&amp;= \max_a \; \mathbb{E}\!\left[\, r + \gamma v_\ast(s') \,\right] \\[6pt]
-&amp;= \max_a \; \sum_{s'} P(s' \mid s,a)\left[\, R(s,a,s') + \gamma v_\ast(s') \,\right]
+V^\ast(s)
+&amp;= \max_a \; \mathbb{E}\!\left[\, r + \gamma V^\ast(s') \,\right] \\[6pt]
+&amp;= \max_a \; \sum_{s'} P(s' \mid s,a)\left[\, r + \gamma V^\ast(s') \,\right]
 \end{align}
 \]</div>
-</li>
-<li>
-<p>Optimal State-action-value Function (Deriving BEE)</p>
+<p><strong>Optimal State-action-value Function</strong></p>
+<p>Select the action leading to <span class="arithmatex">\(maximum\)</span> state-action-value of the next state:</p>
 <div class="arithmatex">\[
 \begin{align}
-q_\ast(s,a)
-&amp;= \mathbb{E} \left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right] \\[6pt]
-&amp;= \sum_{s',r} p(s',r\mid s,a)\left[\, r + \gamma \max_{a'} q_\ast(s',a') \,\right]
+Q^\ast(s,a)
+&amp;= \mathbb{E} \left[\, r + \gamma \max_{a'} Q^\ast(s',a') \,\right] \\[6pt]
+&amp;= \sum_{s',r} P(s',r\mid s,a)\left[\, r + \gamma \max_{a'} Q^\ast(s',a') \,\right]
 \end{align}
 \]</div>
-</li>
-<li>
-<p>Solving the BOE</p>
+<details class="note">
+<summary>How to solve the Bellman Optimality Equation </summary>
 <ul>
 <li>No closed form solution</li>
 <li>Value Iteration</li>
@@ -1119,19 +1099,18 @@ q_\ast(s,a)
 <li>SARSA</li>
 <li>Q-learning</li>
 </ul>
-</li>
-</ul>
+</details>
 <hr />
 <h3 id="example-maze">Example - MAZE<a class="headerlink" href="#example-maze" title="Permanent link">&para;</a></h3>
 <p><img alt="Maze" src="assets/6_1_maze.png" /></p>
-<p>MDP Model of MAZE:</p>
+<p><strong>Environment</strong>:</p>
 <ul>
 <li><span class="arithmatex">\(S\)</span> - Agent's possible locations</li>
 <li><span class="arithmatex">\(A\)</span> - Step directions <span class="arithmatex">\(\mathtt{N, E, S, W}\)</span></li>
 <li><span class="arithmatex">\(P\)</span> - Map <span class="arithmatex">\(s, a \to s'\)</span></li>
 <li><span class="arithmatex">\(R\)</span> - <span class="arithmatex">\(-1\)</span> per time-step (encourage short-path solution)</li>
 </ul>
-<p>Agent of MAZE:</p>
+<p><strong>Agent</strong>:</p>
 <ul>
 <li><span class="arithmatex">\(V(s)\)</span> - the expected return of following the policy from each <span class="arithmatex">\(s\)</span> <ul>
 <li>closer to <span class="arithmatex">\(g\)</span> - <span class="arithmatex">\(V(s)\)</span> ⤴</li>
@@ -1140,6 +1119,7 @@ q_\ast(s,a)
 </li>
 <li><span class="arithmatex">\(\pi(s)\)</span> - Optimal Policy = Best <span class="arithmatex">\(V(s')\)</span></li>
 </ul>
+<hr />
 
 
 

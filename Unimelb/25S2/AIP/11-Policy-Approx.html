@@ -885,15 +885,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#deterministic-policy-stochasticsoft-policy" class="md-nav__link">
+  <a href="#deterministic-policy-stochastic-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Deterministic Policy → Stochastic/Soft Policy
+        Deterministic Policy → Stochastic Policy
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Deterministic Policy → Stochastic/Soft Policy">
+    <nav class="md-nav" aria-label="Deterministic Policy → Stochastic Policy">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -946,6 +946,17 @@
   
     <nav class="md-nav" aria-label="Stochastic Policy">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        softmax
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#gaussian" class="md-nav__link">
@@ -1187,20 +1198,25 @@
 <div class="arithmatex">\[
 \pi^\ast = \pi(a\mid S,\theta)
 \]</div>
+<div class="admonition note">
+<p class="admonition-title">Outcomes of Policy-Based Methods</p>
+<p><strong>Advantages</strong></p>
 <ul>
-<li>Higher Level approximation✅<ul>
-<li>Higher space efficiency✅</li>
-<li>Higher generalisability✅</li>
-<li>Can learn stochastic policies✅</li>
+<li>High-level function approximation  </li>
+<li>Much more space-efficient (no huge tabular, just a function with features/variables)  ⭐️</li>
+<li>Better generalisation across large/continuous state spaces ✅ </li>
+<li>Naturally supports <strong>stochastic policies</strong> ✅</li>
 </ul>
-</li>
-<li>May converges to a local optimum⚠️</li>
-<li>Policy evaluation is inefficient and high-variance❌<ul>
-<li>Sampling looks for the whole trace - inefficient❌</li>
-<li>Off-policy unavailable (<span class="arithmatex">\(\theta\)</span> changed → data distribution changed → need new sampling)❌</li>
+<p><strong>Disadvantages</strong></p>
+<ul>
+<li>May converge only to a <strong>local optimum</strong>  ⚠️</li>
+<li>Policy evaluation suffers from <strong>high variance</strong> ⚠️</li>
+<li>Monte-Carlo returns require full trajectory sampling → <strong>inefficient</strong>  </li>
+<li>Difficult to use <strong>off-policy</strong> ❌</li>
+<li>Updating <span class="arithmatex">\(\theta\)</span> changes the policy → changes the data distribution  </li>
+<li>Requires resampling under the new policy (no reuse of old data)</li>
 </ul>
-</li>
-</ul>
+</div>
 <hr />
 <h2 id="policy-gradient">Policy Gradient<a class="headerlink" href="#policy-gradient" title="Permanent link">&para;</a></h2>
 <ol>
@@ -1274,7 +1290,7 @@ $$
 <p>So we introduce some <strong>soft policy</strong> strategies for making policy outputs are probabilistic.</p>
 </blockquote>
 <hr />
-<h2 id="deterministic-policy-stochasticsoft-policy">Deterministic Policy → Stochastic/Soft Policy<a class="headerlink" href="#deterministic-policy-stochasticsoft-policy" title="Permanent link">&para;</a></h2>
+<h2 id="deterministic-policy-stochastic-policy">Deterministic Policy → Stochastic Policy<a class="headerlink" href="#deterministic-policy-stochastic-policy" title="Permanent link">&para;</a></h2>
 <h3 id="deterministicnear-deterministic-policy">Deterministic/Near-deterministic Policy<a class="headerlink" href="#deterministicnear-deterministic-policy" title="Permanent link">&para;</a></h3>
 <p>Give the optimal action directly:</p>
 <div class="arithmatex">\[
@@ -1290,9 +1306,6 @@ $$
 \dfrac{\varepsilon}{|\mathcal{A}|}, &amp; \text{otherwise}
 \end{cases}
 \]</div>
-<blockquote>
-<p>All previous RL methods' outputs are deterministic (The Optimum).</p>
-</blockquote>
 <h4 id="upper-confidence-bound-ucb">Upper Confidence Bound (UCB)<a class="headerlink" href="#upper-confidence-bound-ucb" title="Permanent link">&para;</a></h4>
 <p>exploitation + exploration bonus:</p>
 <div class="arithmatex">\[
@@ -1304,6 +1317,9 @@ a = \arg\max_a \left( Q(a) + c \sqrt{\frac{\ln t}{N(a)}} \right)
 <li><span class="arithmatex">\(\ln{t}\)</span> - explore more when time goes</li>
 <li><span class="arithmatex">\(N(a)\)</span> - not try too many times on one same action</li>
 </ul>
+<blockquote>
+<p>All previous RL methods' outputs can be deterministic (The Optimum) which do not need <strong>differentiable</strong> probabilities.</p>
+</blockquote>
 <hr />
 <h3 id="stochastic-policy">Stochastic Policy<a class="headerlink" href="#stochastic-policy" title="Permanent link">&para;</a></h3>
 <p>Give the probability of each action:
@@ -1311,7 +1327,7 @@ $$
 \pi(a \mid s) = P(a \mid s)
 $$
 - Ability of exploration; Robustness✅</p>
-<p>#### softmax </p>
+<h4 id="softmax">softmax<a class="headerlink" href="#softmax" title="Permanent link">&para;</a></h4>
 <div class="arithmatex">\[
 \pi(a \mid s)
 = \frac{\exp\!\left(h_\theta(s,a)\right)}
@@ -1336,10 +1352,16 @@ $$
 &amp;= \nabla h(a) - \mathbb{E}_{a' \sim \pi_\theta}[\nabla h(a')]
 \end{align}
 \]</div>
+<hr />
 <p>By applying Gaussian (assume <span class="arithmatex">\(\sigma\)</span> is fixed):</p>
 <div class="arithmatex">\[
 \nabla \log \pi_\theta(a \mid s) = \frac{a - \mu_\theta(s)}{\sigma^2}\nabla \mu_\theta(s)
 \]</div>
+<div class="admonition warning">
+<p class="admonition-title">ε-greedy CANNOT Be Used to solve the Score Function</p>
+<p>The score-function estimator requires a <strong>differentiable</strong> stochastic policy so that the log-probability gradient is well-defined.</p>
+<p>However, the <span class="arithmatex">\(\arg\max Q(s,a)\)</span> step used in ε-greedy is discrete and therefore <strong>non-differentiable</strong>, violating this requirement.</p>
+</div>
 <hr />
 <h2 id="approximate-the-expected-return">Approximate the Expected Return<a class="headerlink" href="#approximate-the-expected-return" title="Permanent link">&para;</a></h2>
 <h3 id="average-state-value">Average State Value<a class="headerlink" href="#average-state-value" title="Permanent link">&para;</a></h3>
@@ -1473,7 +1495,7 @@ A_{\pi_{\theta}}(s,a) =q_{\pi_{\theta}}(s, a) - v_{\pi_\theta}(s)
 &amp;= A^{\pi_{\theta}}(s,a)
 \end{align}
 \]</div>
-<p>Finally, we in fact use the <strong>TD error</strong> to compute the policy gradient:</p>
+<p>Finally, we actually just use the <strong>TD error</strong> to compute the policy gradient:</p>
 <div class="arithmatex">\[
 \nabla_{\theta} J(\theta)
 = {\mathbb{E}_{\pi_{\theta}} \big[ \nabla_{\theta} \log \pi_{\theta}(s,a)\; \delta_{\pi_{\theta}} \big]}
