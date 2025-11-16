@@ -226,23 +226,24 @@ Given a list of actions, find most possible goals accounting for such partially 
 	- Check if such plan accounting for input actions
 3. **Output**: Select the most reasonable goals and/or in probabilistic distribution form
 
-Derive from Bayes' Rule
-
-$$
-P(G \mid O)
-= \alpha \, P(O \mid G)\, P(G),
-$$
-
-where
-
-$$
-P(O \mid G)
-= \mathrm{exp}\!\left(
-- \big(c^{*}(P'[\neg O \mid G]) - c^{*}(P'[O \mid G])\big)
-\right).
-$$
-
-- $c^{*}(P'[\neg O \mid G])$ gives the optimal cost to $G$ **NOT** accounting for the partial observations $O$
-- $c^{*}(P'[O \mid G])$ gives the optimal cost to $G$ accounting for $O$
+??? note "Probabilistic Goals"
+	Derive from Bayes' Rule
+	
+	$$
+	P(G \mid O)
+	= \alpha \, P(O \mid G)\, P(G),
+	$$
+	
+	where
+	
+	$$
+	P(O \mid G)
+	= \mathrm{exp}\!\left(
+	- \big(c^{*}(P'[\neg O \mid G]) - c^{*}(P'[O \mid G])\big)
+	\right).
+	$$
+	
+	- $c^{*}(P'[\neg O \mid G])$ gives the optimal cost to $G$ **NOT** accounting for the partial observations $O$
+	- $c^{*}(P'[O \mid G])$ gives the optimal cost to $G$ accounting for $O$
 
 ---
