@@ -665,18 +665,7 @@
     </span>
   </a>
   
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#properties" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Properties
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Properties">
+    <nav class="md-nav" aria-label="Components">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -797,21 +786,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#plan-existence-checking" class="md-nav__link">
+  <a href="#relaxed-plan-existence-mathrmplanex" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Plan Existence Checking
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#max-heuristic-hmax" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Max Heuristic (\(h^{max}\))
+        Relaxed Plan Existence (\(\mathrm{PlanEx}^+\))
       
     </span>
   </a>
@@ -823,6 +801,17 @@
     <span class="md-ellipsis">
       
         Additive Heuristic (\(h^{add}\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#max-heuristic-hmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Max Heuristic (\(h^{max}\))
       
     </span>
   </a>
@@ -1160,29 +1149,31 @@
 <h1 id="4-relaxation">4 Relaxation<a class="headerlink" href="#4-relaxation" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="relaxation">Relaxation<a class="headerlink" href="#relaxation" title="Permanent link">&para;</a></h2>
-<ul>
-<li>A method to compute heuristic functions <span class="arithmatex">\(h(n)\)</span><ul>
-<li>Defines a transformation for <strong>simplifying</strong> the <em>STRIPS</em> problem</li>
-</ul>
-</li>
-</ul>
+<p>A transformation for <strong>simplifying</strong> the heuristic value computation.</p>
 <h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
 <div class="arithmatex">\[
 \mathcal{R} = (\mathcal{P'}, r, h'^*)
 \]</div>
+<p>where</p>
 <ul>
 <li><span class="arithmatex">\(\mathcal{P}'\)</span> - the class of the simpler problem </li>
 <li><span class="arithmatex">\(r\)</span> - transformer turning the original problem into a simplified one</li>
 <li><span class="arithmatex">\(h'^*(n)\)</span> - Perfect heuristic function of the simplified problem </li>
 </ul>
-<h3 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h3>
-<p>The Relaxation is
-- <strong>Native</strong> - if <span class="arithmatex">\(\mathcal{P'} \subseteq \mathcal{P}\)</span> and  <span class="arithmatex">\(h'^*(n) = h(n)\)</span>
-- <strong>Efficiently Constructible</strong> - if a polynomial <span class="arithmatex">\(r\)</span> exists
-- <strong>Efficiently Computable</strong> - if a polynomial <span class="arithmatex">\(h’(n)\)</span> exists</p>
+<details class="note">
+<summary>Properties of Relaxation</summary>
+<p>The relaxation is:</p>
+<ul>
+<li><strong>Native</strong> - if <span class="arithmatex">\(\mathcal{P'} \subseteq \mathcal{P}\)</span> and  <span class="arithmatex">\(h'^*(n) = h(n)\)</span></li>
+<li><strong>Efficiently Constructible</strong> - if a polynomial <span class="arithmatex">\(r\)</span> exists</li>
+<li><strong>Efficiently Computable</strong> - if a polynomial <span class="arithmatex">\(h’(n)\)</span> exists</li>
+</ul>
+</details>
 <h5 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h5>
 <ol>
-<li>Route-Finding<ul>
+<li>
+<p>Route-Finding</p>
+<ul>
 <li>Relaxation<ul>
 <li>Route-find as a bird (ignoring the road)</li>
 </ul>
@@ -1194,7 +1185,9 @@
 <li>Native❌ Efficiently constructible✅ Efficiently computable✅</li>
 </ul>
 </li>
-<li>Goal-Counting<ul>
+<li>
+<p>Goal-Counting</p>
+<ul>
 <li>Relaxation<ul>
 <li>Assume we can achieve each goal directly</li>
 </ul>
@@ -1221,28 +1214,23 @@
 </ul>
 <hr />
 <h2 id="delete-relaxation">Delete Relaxation<a class="headerlink" href="#delete-relaxation" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Apply <span class="arithmatex">\(Del(a) = \emptyset, \forall a \in A\)</span><ul>
-<li>which makes "once"  <code>TRUE</code> <em>predications</em> remain <code>TRUE</code> "forever"</li>
-</ul>
-</li>
-<li><span class="arithmatex">\(a^+\)</span> - Actions after delete relaxation</li>
-<li><strong>Optimal</strong> Delete Relaxation is <strong>Admissible</strong> <span class="arithmatex">\(h^+(n) \le h^*(n)\)</span><ul>
-<li><em>(but find an optimal solution is still NP-hard)</em></li>
-</ul>
-</li>
-</ul>
+<p>Apply <span class="arithmatex">\(Del(a) = \emptyset, \forall a \in A\)</span></p>
+<blockquote>
+<p>Facts once be <code>TRUE</code> will remain <code>TRUE</code> "forever"</p>
+</blockquote>
 <h3 id="dominance">Dominance<a class="headerlink" href="#dominance" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(s' \supseteq s\)</span> - <span class="arithmatex">\(s'\)</span> dominate <span class="arithmatex">\(s\)</span></p>
+<div class="admonition note">
+<p class="admonition-title">Key properties of Dominance</p>
 <ul>
-<li><span class="arithmatex">\(s' \supseteq s\)</span> - <span class="arithmatex">\(s'\)</span> dominate <span class="arithmatex">\(s\)</span><ul>
 <li>If <span class="arithmatex">\(s\)</span> is a goal state, then <span class="arithmatex">\(s'\)</span> must be a goal state.</li>
 <li>If <span class="arithmatex">\(a^+\)</span> is applicable in <span class="arithmatex">\(s\)</span>, then <span class="arithmatex">\(a^+\)</span> must be applicable in <span class="arithmatex">\(s'\)</span>.</li>
-</ul>
-</li>
 <li><span class="arithmatex">\(Result(s, a^+)\)</span> dominates both <span class="arithmatex">\(s\)</span> and <span class="arithmatex">\(Result(s, a)\)</span></li>
 </ul>
+</div>
 <hr />
 <h2 id="optimal-delete-relaxation-heuristic-h">Optimal Delete Relaxation Heuristic (<span class="arithmatex">\(h^+\)</span>)<a class="headerlink" href="#optimal-delete-relaxation-heuristic-h" title="Permanent link">&para;</a></h2>
+<p>Apply delete relaxation on heuristic computation.</p>
 <div class="highlight"><pre><span></span><code>def h_plus(s, G, A):
     if G in s:
         return 0
@@ -1270,6 +1258,8 @@
     else:
         return best
 </code></pre></div>
+<details class="note">
+<summary>Outcomes of <span class="arithmatex">\(h^+\)</span></summary>
 <ul>
 <li><strong>Native relaxation</strong>✅</li>
 <li>Safe✅, goal-aware✅, admissible guarantee✅</li>
@@ -1279,19 +1269,29 @@
 </ul>
 </li>
 </ul>
+</details>
 <hr />
 <h3 id="bellman-ford-algorithm">Bellman-Ford Algorithm<a class="headerlink" href="#bellman-ford-algorithm" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Application based on <span class="arithmatex">\(h^+\)</span></li>
-<li>Distance estimate during the iterations in using shortest-distance algorithm</li>
-<li>Initially set start point <span class="arithmatex">\(= 0\)</span>; others <span class="arithmatex">\(= \infty\)</span>.</li>
-<li>Relax every edge (One iteration = all neighbour unexplored edges from one point)</li>
-<li>Use a table to note estimate length of shortest path from start to current point</li>
+<p>A extension planning algorithm based on <span class="arithmatex">\(h^+\)</span></p>
+<ol>
+<li>Initially set <span class="arithmatex">\(d[s_0] = 0\)</span>; other <span class="arithmatex">\(d[s] = \infty\)</span>.</li>
+<li>Relax every edge<ul>
+<li>For each edge <span class="arithmatex">\(\langle u, r, v \rangle\)</span>:<ul>
+<li>If <span class="arithmatex">\(d[u] + w &lt; d[v]\)</span>, update <span class="arithmatex">\(d[v] \gets d[u] + w\)</span> </li>
 </ul>
+</li>
+<li>Repeat <span class="arithmatex">\(|V| - 1\)</span> times to ensure all shortest paths are propagated</li>
+</ul>
+</li>
+<li>Check all edges again, if any relaxable edges still exist, there are negative cycles in the graph</li>
+</ol>
+<details class="note">
+<summary>Outcomes of Bellman-Ford</summary>
+<p>Find all shortest path to every node at most <span class="arithmatex">\(|V| - 1\)</span> steps.✅
+Able to detect negative circles</p>
+</details>
 <h6 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h6>
-<ul>
-<li>A→B(+4); A→C(+5); B→C(-2)</li>
-</ul>
+<p>A→B(+4); A→C(+5); B→C(-2)</p>
 <table>
 <thead>
 <tr>
@@ -1324,12 +1324,14 @@
 </table>
 <hr />
 <h2 id="h-approximation-methods"><span class="arithmatex">\(h^+\)</span>-Approximation Methods<a class="headerlink" href="#h-approximation-methods" title="Permanent link">&para;</a></h2>
-<h3 id="plan-existence-checking">Plan Existence Checking<a class="headerlink" href="#plan-existence-checking" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>based on Fast Forward Heuristic (<span class="arithmatex">\(h_{FF}\)</span>)</p>
-<ul>
-<li>Expand the current state based on BrFS
+<blockquote>
+<p><span class="arithmatex">\(h^+\)</span> may be still too hard to get.</p>
+</blockquote>
+<h3 id="relaxed-plan-existence-mathrmplanex">Relaxed Plan Existence  (<span class="arithmatex">\(\mathrm{PlanEx}^+\)</span>)<a class="headerlink" href="#relaxed-plan-existence-mathrmplanex" title="Permanent link">&para;</a></h3>
+<p>Continuously expand the current state by BrFS until it covers all goal states.</p>
+<blockquote>
+<p>Derive from Fast Forward Heuristic (<span class="arithmatex">\(h_{FF}\)</span>)</p>
+</blockquote>
 <div class="highlight"><pre><span></span><code>def is_plan_existence(s, G, A):
     if G in s:
         return TRUE
@@ -1345,19 +1347,54 @@
         reached = new_facts
 
     return TRUE
-</code></pre></div></li>
-</ul>
-</li>
-<li>
-<p>Sound, complete, Terminates in <em>polytime</em>✅</p>
+</code></pre></div>
+<details class="note">
+<summary>Outcomes of <span class="arithmatex">\(\mathrm{PlanEx}^+\)</span></summary>
 <ul>
+<li>Sound, complete, Terminates in <em>polytime</em>✅<ul>
 <li><span class="arithmatex">\(\mathrm{PlanEx}^+\)</span> now becomes a <em>polytime</em> problem</li>
 </ul>
 </li>
 <li>Safe✅, goal-aware✅, admissible❌ (Existence Check Only, usually far from optimal)</li>
 </ul>
+</details>
+<hr />
+<h3 id="additive-heuristic-hadd">Additive Heuristic (<span class="arithmatex">\(h^{add}\)</span>)<a class="headerlink" href="#additive-heuristic-hadd" title="Permanent link">&para;</a></h3>
+<p>Take the <strong>sum</strong> of heuristic values to all goals from the current state.</p>
+<div class="highlight"><pre><span></span><code>def h_sum(s, G, A):
+    for p in P:
+        if p in s:
+            cost[p] = 0
+        else:
+            cost[p] = inf
+
+    changed = True
+    while changed:
+        changed = false
+        for a in A:
+            if cost[q] &lt; inf for all q in pre(a):
+✏️              new_cost = 1 + sum(cost[q] for q in pre(a))
+                for p in add(a):
+                    if new_cost &lt; cost[p]:
+                        cost[p] = new_cost
+                        changed = true
+
+✏️  return sum(cost[g] for g in G)
+</code></pre></div>
+<details class="note">
+<summary>Outcomes of <span class="arithmatex">\(h^{add}\)</span></summary>
+<ul>
+<li>Efficient Computable✅ <em>Polytime</em></li>
+<li><strong>Pessimistic</strong> Estimation: admissible❌ informative✅ </li>
+<li><strong>Overcounts</strong> by ignoring positive interactions, i.e. shared sub-plans<ul>
+<li>May result in <span class="arithmatex">\(dramatic\)</span> over-estimates of <span class="arithmatex">\(h^*\)</span></li>
+</ul>
+</li>
+</ul>
+</details>
 <hr />
 <h3 id="max-heuristic-hmax">Max Heuristic (<span class="arithmatex">\(h^{max}\)</span>)<a class="headerlink" href="#max-heuristic-hmax" title="Permanent link">&para;</a></h3>
+<p>Only take the <span class="arithmatex">\(highest\)</span> heuristic value to such goal from the current state.</p>
 <div class="highlight"><pre><span></span><code>def h_max(s, G, A):
     for p in P:
         if p in s:
@@ -1379,6 +1416,8 @@
 
     return max(cost[g] for g in G)
 </code></pre></div>
+<details class="note">
+<summary>Outcomes of <span class="arithmatex">\(h^{max}\)</span></summary>
 <ul>
 <li>Efficient Computable✅ <em>Polytime</em><ul>
 <li>However, sometimes maybe too optimistic⚠️</li>
@@ -1386,43 +1425,14 @@
 </li>
 <li><strong>Optimistic</strong> Estimation: admissible✅</li>
 </ul>
-<hr />
-<h3 id="additive-heuristic-hadd">Additive Heuristic (<span class="arithmatex">\(h^{add}\)</span>)<a class="headerlink" href="#additive-heuristic-hadd" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>def h_sum(s, G, A):
-    for p in P:
-        if p in s:
-            cost[p] = 0
-        else:
-            cost[p] = inf
-
-    changed = True
-    while changed:
-        changed = false
-        for a in A:
-            if cost[q] &lt; inf for all q in pre(a):
-✏️              new_cost = 1 + sum(cost[q] for q in pre(a))
-                for p in add(a):
-                    if new_cost &lt; cost[p]:
-                        cost[p] = new_cost
-                        changed = true
-
-✏️  return sum(cost[g] for g in G)
-</code></pre></div>
-<ul>
-<li>Efficient Computable✅ <em>Polytime</em></li>
-<li><strong>Pessimistic</strong> Estimation: admissible❌ informative✅ </li>
-<li><strong>Overcounts</strong> by ignoring positive interactions, i.e. shared sub-plans<ul>
-<li>May result in <span class="arithmatex">\(dramatic\)</span> over-estimates of <span class="arithmatex">\(h^*\)</span></li>
-</ul>
-</li>
-</ul>
+</details>
 <hr />
 <h2 id="relaxed-plans">Relaxed Plans<a class="headerlink" href="#relaxed-plans" title="Permanent link">&para;</a></h2>
 <h3 id="best-supporter-function-bsp">Best Supporter Function <span class="arithmatex">\(bs(p)\)</span><a class="headerlink" href="#best-supporter-function-bsp" title="Permanent link">&para;</a></h3>
+<p><strong>Input</strong>: A predication <span class="arithmatex">\(p\)</span>.</p>
+<p><strong>Output</strong>: The <span class="arithmatex">\(cheapest\)</span> action <span class="arithmatex">\(a\)</span> which supports <span class="arithmatex">\(p\)</span> as a fact.</p>
+<p><strong>Prerequisites</strong>：</p>
 <ul>
-<li>Input: A predication <span class="arithmatex">\(p\)</span></li>
-<li>Output: The <span class="arithmatex">\(cheapest\)</span> action <span class="arithmatex">\(a\)</span> which make this predication <code>TRUE</code></li>
-<li>Prerequisites<ul>
 <li><span class="arithmatex">\(p \in add(a)\)</span> iff <span class="arithmatex">\(bs(p) = a\)</span></li>
 <li><span class="arithmatex">\(bs(\cdot)\)</span> is closed<ul>
 <li><span class="arithmatex">\(bs(p)\)</span> is defined for every <span class="arithmatex">\(p \in (P \backslash s)\)</span> that has a path to a goal <span class="arithmatex">\(g \in G\)</span></li>
@@ -1433,33 +1443,35 @@
 </ul>
 </li>
 </ul>
-</li>
-<li>If a relaxed plan exists, the closed well-founded <span class="arithmatex">\(bs(\cdot)\)</span> definitely exists.<ul>
+<div class="admonition note">
+<p class="admonition-title">Properties of <span class="arithmatex">\(bs(p)\)</span></p>
+<ul>
+<li>If a relaxed plan exists, the closed well-founded <span class="arithmatex">\(bs(\cdot)\)</span> definitely exists.</li>
 <li>There is a relaxed path from <span class="arithmatex">\(I\)</span> to <span class="arithmatex">\(G\)</span></li>
 <li>Every <span class="arithmatex">\(g\)</span> has at least one supporter, so as its subgoals</li>
 </ul>
-</li>
-</ul>
+</div>
 <hr />
 <h3 id="helpful-actions">Helpful Actions<a class="headerlink" href="#helpful-actions" title="Permanent link">&para;</a></h3>
+<p>An action is helpful iff:</p>
 <ul>
-<li>An action is helpful iff:<ul>
 <li>it is applicable in the current state (<span class="arithmatex">\(pre(a) \subseteq s\)</span>)</li>
 <li>it is contained in the final plan</li>
 </ul>
-</li>
-<li>Expanding only helpful actions does not guarantee completeness.</li>
-</ul>
+<blockquote>
+<p>Expanding only helpful actions does not guarantee <strong><em>completeness</em></strong>.</p>
+</blockquote>
 <hr />
 <h3 id="relaxed-plan-heuristic-h_ff">Relaxed Plan Heuristic (<span class="arithmatex">\(h_{FF}\)</span>)<a class="headerlink" href="#relaxed-plan-heuristic-h_ff" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
 <p>Fast Forward Expansion + <em>Greedy Backward Extraction</em></p>
 <ul>
 <li>For each goal state <span class="arithmatex">\(g \in G\)</span>:<ul>
 <li>Find the cheapest <span class="arithmatex">\(a = bs(g)\)</span></li>
 <li>Add this action to the plan</li>
-<li>repeat on <span class="arithmatex">\(bs(pre(a))\)</span>
+<li>repeat on <span class="arithmatex">\(bs(pre(a))\)</span></li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre><span></span><code>def h_FF(I, G, A):
     if G in I:
         return 0
@@ -1487,20 +1499,16 @@
         subgoals = new_subgoals
 
     return len(plan)
-</code></pre></div></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
+</code></pre></div>
+<details class="note">
+<summary>Outcome of <span class="arithmatex">\(h_{FF}\)</span></summary>
 <p>Same theoretical properties as <span class="arithmatex">\(h^{add}\)</span> but better in practice</p>
 <ul>
 <li>Overcount sub-plans shared by different sub-goals</li>
 <li>Best Supporter is greedily chosen and sub-optimal</li>
 <li>In practice, <span class="arithmatex">\(h_{FF}\)</span> typically does not over-estimate <span class="arithmatex">\(h^*\)</span>, or not by a large amount.</li>
 </ul>
-</li>
-</ul>
+</details>
 
 
 
