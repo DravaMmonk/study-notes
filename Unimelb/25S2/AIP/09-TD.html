@@ -841,15 +841,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tdlambda" class="md-nav__link">
+  <a href="#td" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TD(\(\lambda\))
+        TD(λ)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="TD(\(\lambda\))">
+    <nav class="md-nav" aria-label="TD(λ)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1120,7 +1120,7 @@
 <h1 id="9-temporal-difference">9 Temporal Difference<a class="headerlink" href="#9-temporal-difference" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="non-incremental-incremental">Non-incremental → Incremental<a class="headerlink" href="#non-incremental-incremental" title="Permanent link">&para;</a></h2>
-<p>Non-incremental (Batch):</p>
+<p><strong>Non-incremental Methods(Batch)</strong></p>
 <ul>
 <li>Parameters updating per a <strong>batch</strong> of samples (a episode)</li>
 <li>Solving the optimal problem at once</li>
@@ -1134,7 +1134,7 @@
 </ul>
 </li>
 </ul>
-<p>Incremental:</p>
+<p><strong>Incremental Methods</strong></p>
 <ul>
 <li>Parameters updating per one sample (a step)</li>
 <li>Step by step approaching the optimum</li>
@@ -1144,12 +1144,10 @@
 </ul>
 <hr />
 <h2 id="temporal-difference-td-learning">Temporal Difference (TD) Learning<a class="headerlink" href="#temporal-difference-td-learning" title="Permanent link">&para;</a></h2>
-<p>Key Mechanisms: <strong>sample + bootstrap</strong></p>
-<p><strong>Sampling</strong>: an "1-step experience" (TD(0))</p>
-<ul>
-<li><span class="arithmatex">\(e = \{S_t \to A_t \to R_{t+1}, S_{t+1}\}\)</span></li>
-</ul>
-<p><strong>Bootstrapping</strong>: use estimation of future values to update the current value</p>
+<blockquote>
+<p>TD is the most basic incremental method based on <em>Bootstrapping</em>.</p>
+</blockquote>
+<p><strong>Bootstrapping</strong>: Use estimation of future values to update the current value.</p>
 <div class="arithmatex">\[
 \begin{align}
 \text{TD-target} &amp; = \text{sample} + \gamma \cdot \text{bootstrap} \\
@@ -1158,20 +1156,19 @@
 \]</div>
 <hr />
 <h2 id="prediction-of-state-value">Prediction of State Value<a class="headerlink" href="#prediction-of-state-value" title="Permanent link">&para;</a></h2>
+<p>For each step, if <span class="arithmatex">\(s_t\)</span> is visited, update its value by <strong>looking forward</strong> to the reward of next step(s).</p>
 <ul>
-<li>For each step, if <span class="arithmatex">\(s_t\)</span> is visited, update its value by <strong>looking forward</strong> to the reward of next step(s).</li>
-<li>❌Can neither estimate action values nor optimal policies</li>
+<li><strong>CANNOT</strong> estimate action values or optimal policies ❌</li>
 </ul>
 <h3 id="td0">TD(0)<a class="headerlink" href="#td0" title="Permanent link">&para;</a></h3>
 <p>Look into the next <span class="arithmatex">\(1\)</span> step:</p>
-<pre><code>$$
+<div class="arithmatex">\[
 \begin{align}
 V(s_t) 
 &amp;\gets V(s_t) + \alpha \big({{G_t^{(1)} - V(s_t))}} \\[2pt]
 &amp;= V(s_t) + \alpha(R_{t+1} + \gamma V(s_{t+1}) - V(s_t))
 \end{align}
-$$
-</code></pre>
+\]</div>
 <p>where</p>
 <ul>
 <li><span class="arithmatex">\(\vec{v} = R_{t+1} + \gamma V(s_{t+1})\)</span> - TD Target</li>
@@ -1194,30 +1191,34 @@ G^{(n)}_t = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + {{\gamma^
 \color{red}{n} &amp; \color{red}{= \infty}\ \text{(MC)} &amp; G_t^{(\infty)} &amp; = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{T-1} R_T
 \end{align*}
 \]</div>
-<p>Update in direction of error</p>
+<p>Update in direction of error:</p>
 <div class="arithmatex">\[
 V(S_t) \;\gets\; V(S_t) + \alpha \big({{G_t^{(n)} - V(S_t)}} \big)
 \]</div>
-<p>How to choose <span class="arithmatex">\(n\)</span>:
-- Root Mean Square (RMS) Errors 均方差根
-    - change <span class="arithmatex">\(\alpha\)</span> → vary RMS Errors → different optimal <span class="arithmatex">\(n\)</span>
-- Large <span class="arithmatex">\(n\)</span> → More rely on exploitation, more precise but higher variance
-- Small <span class="arithmatex">\(n\)</span> → More rely on prediction, faster but higher bias
-- If <span class="arithmatex">\(n = \infty\)</span> , it turns into MC basic</p>
-<hr />
-<h3 id="tdlambda">TD(<span class="arithmatex">\(\lambda\)</span>)<a class="headerlink" href="#tdlambda" title="Permanent link">&para;</a></h3>
-<p>Average n-Steps Returns - use weight <span class="arithmatex">\({{(1 - \lambda)\lambda^{\,n-1}}}\)</span> to balance short-term and long-term rewards
-    $$
-    G_t^{\lambda} \;=\; {{(1 - \lambda) \sum_{n=1}^{\infty} \lambda^{\,n-1}}} G_t^{(n)}
-    $$</p>
-<pre><code>$$
-V(S_t) \;\leftarrow\; V(S_t) + \alpha \big( G_t^{\lambda} - V(S_t) \big)
-$$
-</code></pre>
+<details class="note">
+<summary>How to choose a good <span class="arithmatex">\(n\)</span></summary>
 <ul>
-<li>✅Memoryless - i.e space complexity is same as TD(0)</li>
-<li>⚠️Forward View - We cannot look into the far future during learning👇</li>
+<li>Root Mean Square (RMS) Errors<ul>
+<li>change <span class="arithmatex">\(\alpha\)</span> → vary RMS Errors → different optimal <span class="arithmatex">\(n\)</span></li>
 </ul>
+</li>
+<li>Large <span class="arithmatex">\(n\)</span> → More rely on exploitation, more precise but higher variance</li>
+<li>Small <span class="arithmatex">\(n\)</span> → More rely on prediction, faster but higher bias</li>
+<li>If <span class="arithmatex">\(n = \infty\)</span> , it turns into MC basic</li>
+</ul>
+</details>
+<hr />
+<h3 id="td">TD(λ)<a class="headerlink" href="#td" title="Permanent link">&para;</a></h3>
+<p>Average n-Steps Returns - use weight <span class="arithmatex">\({{(1 - \lambda)\lambda^{\,n-1}}}\)</span> to balance short-term and long-term rewards</p>
+<div class="arithmatex">\[
+G_t^{\lambda} \;=\; {{(1 - \lambda) \sum_{n=1}^{\infty} \lambda^{\,n-1}}} G_t^{(n)}
+\]</div>
+<div class="arithmatex">\[
+V(S_t) \;\leftarrow\; V(S_t) + \alpha \big( G_t^{\lambda} - V(S_t) \big)
+\]</div>
+<p>??? note "Outcomes of TD(λ)
+    - ✅Memoryless - i.e space complexity is same as TD(0)
+    - ⚠️Forward View - We cannot look into the far future during learning👇</p>
 <h4 id="backward-view">Backward View<a class="headerlink" href="#backward-view" title="Permanent link">&para;</a></h4>
 <p>Update weight step by step by using <strong>Eligibility Trace</strong>:</p>
 <ul>
@@ -1256,8 +1257,10 @@ V(s) \gets V(s) + \alpha \, \delta_t \, E_t(s)
 \]</div>
 <hr />
 <h2 id="prediction-of-action-value">Prediction of Action Value<a class="headerlink" href="#prediction-of-action-value" title="Permanent link">&para;</a></h2>
-<p>Sarsa - "State-action-reward-state-action" Algorithm
--  A state-action function version of TD</p>
+<p><strong>Sarsa</strong> : "State-action-reward-state-action" Algorithm</p>
+<blockquote>
+<p>A state-action function version of TD</p>
+</blockquote>
 <div class="arithmatex">\[
 Q(s_t,a_t) \gets Q(s_t,a_t) + \alpha (R_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t,a_t))
 \]</div>
@@ -1284,25 +1287,25 @@ Q(s_t,a_t) \gets Q(s_t,a_t) + \alpha (R_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s
 </ul>
 <hr />
 <h3 id="n-step-sarsa"><span class="arithmatex">\(n\)</span>-step Sarsa<a class="headerlink" href="#n-step-sarsa" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Sarsa version of TD(n):
-$$
+<blockquote>
+<p>Sarsa version of TD(n)</p>
+</blockquote>
+<div class="arithmatex">\[
 q_t^{(n)} = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \gamma^n Q(S_{t+n})
-$$</li>
-</ul>
+\]</div>
 <div class="arithmatex">\[
 Q(S_t, A_t) \;\leftarrow\; Q(S_t, A_t)
   + \alpha \Big( q_t^{(n)} - Q(S_t, A_t) \Big)
 \]</div>
 <hr />
 <h3 id="sarsalambda">Sarsa(<span class="arithmatex">\(\lambda\)</span>)<a class="headerlink" href="#sarsalambda" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>Sarsa version of TD(<span class="arithmatex">\(\lambda\)</span>)
-$$
+<blockquote>
+<p>Sarsa version of TD(<span class="arithmatex">\(\lambda\)</span>)</p>
+</blockquote>
+<div class="arithmatex">\[
 q_t^\lambda \;=\; (1 - \lambda) \sum_{n=1}^{\infty} \lambda^{n-1} q_t^{(n)}
-$$</p>
-</li>
+\]</div>
+<ul>
 <li>
 <p>Forward View:
 $$
@@ -1330,20 +1333,18 @@ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
 <p><strong>Off-policy</strong>: Distinguish Target Policy and Behaviour (Sampling) Policy
 - ✅Take use of experience from other policies</p>
 <h3 id="on-policy-off-policy">On-policy → Off-policy<a class="headerlink" href="#on-policy-off-policy" title="Permanent link">&para;</a></h3>
+<p>Sarsa (On-policy)</p>
 <ul>
-<li>Sarsa:<ul>
 <li>Target: <span class="arithmatex">\(\vec{v} = r_{t+1} + \gamma q_t(s_{t+1}, a_{t+1})\)</span></li>
 <li>Sample: Generate <span class="arithmatex">\(a_t\)</span> from <span class="arithmatex">\(\pi_t(s_t)\)</span> and <span class="arithmatex">\(a_{t+1}\)</span> from <span class="arithmatex">\(\pi_t(s_{t+1})\)</span></li>
 <li>Target Policy = Behaviour Policy = <span class="arithmatex">\(\pi_t\)</span> </li>
 </ul>
-</li>
-<li>Q-Learning<ul>
+<p>Q-Learning (Off-policy)</p>
+<ul>
 <li>Target: <span class="arithmatex">\(\vec{v} = r_{t+1} + \gamma \max_{a \in \mathcal{A}} q_t(s_{t+1}, a)\)</span></li>
 <li>Sample: Generate <span class="arithmatex">\(a_t\)</span> from <span class="arithmatex">\(\pi_b(s_t)\)</span></li>
 <li>Target Policy = Greedy Optimal <span class="arithmatex">\(q_t\)</span></li>
 <li>Behaviour Policy = Any policies (<span class="arithmatex">\(\pi_b\)</span>)</li>
-</ul>
-</li>
 </ul>
 <h3 id="q-learning">Q-Learning<a class="headerlink" href="#q-learning" title="Permanent link">&para;</a></h3>
 <ul>
