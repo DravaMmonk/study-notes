@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/Unimelb/25S2/AIP/05-Exploration.md",
+                "file": "docs/Unimelb/25S2/AIP/09-TD.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
-              "title": "05-Exploration"
+              "title": "09-TD"
             }
           }
         ],
@@ -226,11 +226,11 @@
   },
   "active": "3f22eb8366d16a1b",
   "lastOpenFiles": [
+    "docs/Unimelb/25S2/AIP/08-MC.md",
+    "docs/Unimelb/25S2/AIP/05-Exploration.md",
     "docs/Unimelb/25S2/AIP/06-RL.md",
     "docs/Unimelb/25S2/AIP/09-TD.md",
-    "docs/Unimelb/25S2/AIP/08-MC.md",
     "docs/Unimelb/25S2/AIP/07-MDP.md",
-    "docs/Unimelb/25S2/AIP/05-Exploration.md",
     "docs/Unimelb/25S2/AIP/02-Planning.md",
     "site/Unimelb/25S2 2",
     "site/assets/javascripts 2",
