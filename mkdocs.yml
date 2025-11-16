@@ -29,6 +29,8 @@ markdown_extensions:
   - toc:
       permalink: true
   - admonition
+  - attr_list
+  - md_in_html
   - footnotes
   - pymdownx.details
   - pymdownx.superfences:

@@ -1,9 +1,8 @@
 # 7 Markov Decision Process
 ---
-## Markov Decision Process (MDP)
+## Markov Decision Process
 
-**MDP**: General Simulator of the environment for Model-based RL
-	- Model-based Learning + Optimal Policy
+General Simulator of the environment for Model-based RL
 
 ---
 ### Markov process
@@ -25,7 +24,7 @@ where
 	- Each row/column of $P$ sums to 1
 
 ---
-### Markov Reward Processes
+### Markov Reward Processes (MRP)
 
 A Markov chain with reward values:
 
@@ -40,7 +39,7 @@ where
 - $\gamma$ - discount factor
 
 ---
-### Markov Decision Process
+### Markov Decision Process (MDP)
 
 Introduce **agency** in terms of actions:
 
@@ -51,6 +50,30 @@ $$
 - $A$ - a finite set of actions
 - $P(s \to s) = P(s' \mid s)$
 - $R(s) = \mathbb{E}[R' \mid s]$
+
+---
+### Partially Observable MDP (POMDP)
+
+**Assumption**
+
+- Markov Property
+- **Limited** Observable
+
+**Components** *(Diff with MDP)*
+
+- Introduce **Sensor Model** (based on **Probability Distribution**)
+
+$$
+\mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
+$$
+
+- Initial/Goal States → Belief States $\mathrm{b}(s_0)$ and $\mathrm{b}(g)$
+
+**Outcomes**
+
+- Map belief states into actions
+- **Optimal** if total expected cost from $\mathrm{b}(s_0)$ to $\mathrm{b}(g)$ is minimum
+
 
 ---
 ## Greedy Optimal Policy
@@ -112,8 +135,7 @@ $$
 ---
 ### Example - MAZE
 
-![Maze](assets/6_1_maze.png)
-
+![[assets/6_1_maze.png|300]]
 **Environment**:
 
 - $S$ - Agent's possible locations

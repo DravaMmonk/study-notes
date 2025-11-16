@@ -10,46 +10,45 @@
 /* ------------------------------------------------------------
    Desktop: widen left sidebar + nav list
    ------------------------------------------------------------ */
-@media (min-width: 769px) {
+@media (min-width: 1220px) {
 
   /* Outer left sidebar width */
   .md-sidebar--primary {
-    width: 340px !important;      /* ← change this value if needed */
-    max-width: 340px !important;
+    width: 400px !important;
+    max-width: 400px !important;
+  }
+
+  .md-sidebar__inner {
+    width: 390px !important;
+    max-width: 390px !important;
   }
 
   /* Inner navigation container */
   .md-nav--primary,
   .md-nav--primary.md-nav--integrated {
-    width: 340px !important;
-    max-width: 340px !important;
+    width: 370px !important;
+    max-width: 370px !important;
   }
 
   /* Navigation list width (critical) */
   .md-nav--primary .md-nav__list {
-    width: 340px !important;
-    max-width: 340px !important;
+    width: 370px !important;
+    max-width: 370px !important;
   }
 
   /* List items width */
   .md-nav--primary .md-nav__item {
-    width: 340px !important;
-    max-width: 340px !important;
+    width: 370px !important;
+    max-width: 370px !important;
   }
 
   /* Navigation links width */
   .md-nav--primary .md-nav__link {
-    width: 340px !important;
-    max-width: 340px !important;
+    width: 370px !important;
+    max-width: 370px !important;
     white-space: normal !important;     /* allow wrapping */
     overflow-wrap: break-word;          /* prevent overflow */
   }
-}
-
-/* ------------------------------------------------------------
-   Desktop: full-width content area
-   ------------------------------------------------------------ */
-@media (min-width: 769px) {
 
   /* Expand main content container */
   .md-main__inner,
@@ -58,7 +57,9 @@
     max-width: 100% !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 0 2rem !important;   /* adjust left/right padding */
+    padding: 0 1.2rem 0 0 !important;   /* adjust left/right padding */
   }
 }
+
+
 
