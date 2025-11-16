@@ -4,20 +4,19 @@
 
 **Exploitation**: Trusting your heuristic function
 
-??? note "Outcomes"
-	- State-based Satisfying Planning has multiple reliances ⚠️
-		- heuristics derived from problem
-		- plugged into Greedy Best-First Search (GBFS)  
-		- extensions (e.g. helpful actions and landmarks)  
-	- Often gets stuck in local minima ❌
-		- poly + sub-optimal or optimal + NP-hard
+
+- State-based Satisfying Planning has multiple reliances ⚠️
+	- heuristics derived from problem
+	- plugged into Greedy Best-First Search (GBFS)  
+	- extensions (e.g. helpful actions and landmarks)  
+- Often gets stuck in local minima ❌
+	- poly + sub-optimal or optimal + NP-hard
 
 **Exploration**: Searching for Novelty
 
-??? note "Outcomes"
-	- Novelty leads to much better performance in practice ✅
-	- Can be **model-free** (No Reliance/Assumption) ✅
-	- Required for optimal behaviour (in RL and MTCS) ⚠️
+- Novelty leads to much better performance in practice ✅
+- Can be **model-free** (No Reliance/Assumption) ✅
+- Required for optimal behaviour (in RL and MTCS) ⚠️
 
 !!! tip "Notes"
 	A good agent needs to balance between Exploration and Exploitation
@@ -56,7 +55,7 @@ $$
 - A sequence of calls $IW(k), k=1,2,3,\ldots$, until the problem solved or $k > len(\bigcup P)$ (return `unsolvable`). 
 - The $minimum$ $k$ is the $\text{Width}$ of the problem
 
-??? note "Outcomes"
+??? note "Outcomes of IW"
 	- Simple and Blind
 		- No heuristic
 	- However performs pretty well in practice
@@ -82,7 +81,7 @@ def SIW(s, G):
     return plan
 ```
 
-??? note "Outcomes"
+??? note "Outcomes of SIW"
 	- Better performance in *Joint Goals* problem *(Multi goals but similar approaches)*.
 	- Goals need to be easy to serialise and have low width.
 
@@ -130,7 +129,7 @@ where
 
 Describe problems in a compact form. (e.g. STRIPS, PDDL)
 
-??? note "Outcomes"
+??? note "Outcomes of Model"
 	- Powerful with help of declarative programming:
 		- Expressive language features easily supported
 		- Development of external development tools
@@ -145,7 +144,7 @@ Describe problems in a compact form. (e.g. STRIPS, PDDL)
 
 A model but no $pre(a)$ and $add(a)$ for presenting $a$.
 
-??? note "Outcomes"
+??? note "Outcomes of Simulator"
 	- At the same level of efficiency as classic models
 	- Open up exciting possibilities for modelling beyond PDDL (Model-free RL)
 
@@ -163,11 +162,10 @@ $$
 - Choose the best action based on $BFWS(\langle w_h(s), h(s) \rangle)$
 
 ??? note "**Challenges** of Width-Based Planning over Simulators"
-
-- Non-linear dynamics  
-- Perturbation in flight controls  
-- Partial observability  
-- Uncertainty about opponent strategy
+	- Non-linear dynamics  
+	- Perturbation in flight controls  
+	- Partial observability  
+	- Uncertainty about opponent strategy
 
 ---
 ### Arcade Learning Environment
