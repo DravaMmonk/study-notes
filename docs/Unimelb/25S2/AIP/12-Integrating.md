@@ -8,32 +8,30 @@
 - No model
 - Learn Value/Policy from experience
 
-!!! note "Pros & Cons"
-	- Cannot look ahead❌
-	- Sample may be expensive⚠️
-	- May fall into sub-optimal
+> [!note] Outcome
+> - Cannot look ahead❌
+> - Sample may be expensive⚠️
+> - May fall into sub-optimal
 
 **Integrated Architectures**
 
 - Learn Model from experience
 - Learn and plan Value/Policy from real and simulated experience
 
-!!! note "Pros & Cons"
-	- Sample is efficient✅ (directly from simulators)
-	- Avoid model error✅ (Beyond Model-based)
-	- Supervised Learning methods can be used in model training✅
-	- Uncertainty can be learned in model training✅
-	- Modelling is hard❌
-		- Need environment to be model-learnable⚠️
-		- Compounding model bias❌ (experience is from model)
-	- High computation cost❌
+> [!note] Outcome
+> - Sample is efficient✅ (directly from simulators)
+> - Avoid model error✅ (Beyond Model-based)
+> - Supervised Learning methods can be used in model training✅
+> - Uncertainty can be learned in model training✅
+> - Modelling is hard❌
+> 	- Need environment to be model-learnable⚠️
+> 	- Compounding model bias❌ (experience is from model)
+> - High computation cost❌
 
 ---
 ## Simulation-based Search
 
 Model-based RL + Model-free RL backup
-
-
 
 1. Collect the current state $s_t$ from real world
 2. For each $a \in A$, simulate $K$ episodes from $s_t$:
@@ -64,7 +62,9 @@ q(s,a)
 = \frac{1}{N(s,a)} \sum_{k=1}^K \sum_{u=t}^T
 \mathbf{1}(S_u, A_u = s,a) \, G_u
 $$
-Off-policy
-- Behaviour Policy: Forward Search methods
-- Optimal Policy: $\arg\max q(s,a)$
 
+> [!note] MCTS is Off-policy
+> 
+> - Behaviour policy: rollout/simulation policy
+> - Target policy: greedy w.r.t search Q(s,a)
+> 

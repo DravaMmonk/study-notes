@@ -4,22 +4,25 @@
 
 **Exploitation**: Trusting your heuristic function
 
+**Exploration**: Searching for Unseen Facts (Novelty)
 
-- State-based Satisfying Planning has multiple reliances ⚠️
-	- heuristics derived from problem
-	- plugged into Greedy Best-First Search (GBFS)  
-	- extensions (e.g. helpful actions and landmarks)  
-- Often gets stuck in local minima ❌
-	- poly + sub-optimal or optimal + NP-hard
-
-**Exploration**: Searching for Novelty
-
-- Novelty leads to much better performance in practice ✅
-- Can be **model-free** (No Reliance/Assumption) ✅
-- Required for optimal behaviour (in RL and MTCS) ⚠️
-
-!!! tip "Notes"
-	A good agent needs to balance between Exploration and Exploitation
+> [!NOTE] Trade-off Exploitation & Exploration
+> 
+> **Exploitation**
+> 
+> - State-based Satisfying Planning has multiple reliances ⚠️
+> 	- heuristics derived from problem
+> 	- plugged into Greedy Best-First Search (GBFS)  
+> 	- extensions (e.g. helpful actions and landmarks)  
+> - Often gets stuck in local minima ❌
+> 	- poly + sub-optimal or optimal + NP-hard
+> 
+> **Exploration**
+> 
+> - Novelty leads to much better performance in practice ✅
+> - Can be **model-free** (No Reliance/Assumption) ✅
+> - Required for optimal behaviour (in RL and MTCS) ⚠️
+ 
 
 ---
 ## Novelty 
@@ -55,22 +58,20 @@ $$
 - A sequence of calls $IW(k), k=1,2,3,\ldots$, until the problem solved or $k > len(\bigcup P)$ (return `unsolvable`). 
 - The $minimum$ $k$ is the $\text{Width}$ of the problem
 
-??? note "Outcomes of IW"
-	- Simple and Blind
-		- No heuristic
-	- However performs pretty well in practice
-		- $IW(k \le 2)$ can solve 88.3% IPC problems with single goal.
-		- _Most classical problem (e.g. Blocks, Logistics, Gripper, n-puzzle) have a bounded width independent of problem size and initial situation_
-	- **Fast** $\mathrm{O}(n^k)$✅
-	- **Optimal** if in uniform cost✅
-	- **Complete**✅
+> [!NOTE] Outcomes: IW
+> 
+> - Simple and Blind; No need for heuristic ⭐️
+> - **Fast** if small width $\mathrm{O}(n^k)$✅
+> 	- In practical, only $IW(k \le 2)$ can solve most of classical planning problems. 
+> - **Optimal** if in uniform cost ✅
+> - **Complete** ✅
 
 ---
 ### Serialised Iterated Width (SIW)
 
 Use $IW$ for decomposing multi-goals problem and solving sub-problems (with single goal) individually.
 
-```
+```pseudo
 def SIW(s, G):
     state = s
     plan = []
@@ -81,9 +82,10 @@ def SIW(s, G):
     return plan
 ```
 
-??? note "Outcomes of SIW"
-	- Better performance in *Joint Goals* problem *(Multi goals but similar approaches)*.
-	- Goals need to be easy to serialise and have low width.
+> [!NOTE] Outcomes: SIW
+> 
+> - Better performance in *Joint Goals* problem *(Multi goals but similar approaches)*. ✅
+> - Goals need to be easy to serialise and have low width. ⚠️
 
 ---
 ### Best-First Width Search (BFWS)
@@ -93,9 +95,10 @@ BFWS is a **Framework**:
 - **Framework**: Get communication across researchers and to build on each others’ work
 - BFWS can be used as a framework to implement different measures
 
+---
 #### BFWS($f$)
 
-Apply BFS (Priority Queue) on a sequence of measures:
+Apply Best-first Search on a sequence of measures:
 
 $$
 BFWS(f) \text{ for } f= \langle w,f_1,f_2,\ldots \rangle
@@ -118,35 +121,40 @@ where
 - $h = h_{add} \text{ or } h_{FF}$ 
 - $w = w_h(s) =$  $s'$ which has smallest novelty and $h(s') = h(s)$
 
-??? note "Outcomes"
-	- Simple but practical✅
-	- Able to be implemented as a simulator
+
+> [!NOTE] Outcomes: Classical BFWS
+> 
+> - Still simple but practical ✅
+> - Able to be implemented as a simulator ✅
 
 ---
 ## Model → Simulator
 
-**Model**
+**Model**: Describe problems in a compact form. (e.g. STRIPS, PDDL)
 
-Describe problems in a compact form. (e.g. STRIPS, PDDL)
+**Simulator**: Black-box function that returns only the next state and reward. 
 
-??? note "Outcomes of Model"
-	- Powerful with help of declarative programming:
-		- Expressive language features easily supported
-		- Development of external development tools
-		- **Fully-Black-Box** procedures for higher-level abstraction and decomposing problems
-	- However, they also have downsides:
-		- **Model $\ne$ Language**
-			- Many problems fit Classical Planning model, but hard to express in STRIPS or PDDL
-		- **Declarative $\ne$ Practical**
-			- Simulation platforms may be black-boxes as well, they need for planners that work without complete declarative representations
+- **No explicit preconditions or effects** (no $pre(a), add(a), del(a)$).  
+- Used by RL / MCTS for **forward simulation**, not symbolic reasoning.
 
-**Simulator**
-
-A model but no $pre(a)$ and $add(a)$ for presenting $a$.
-
-??? note "Outcomes of Simulator"
-	- At the same level of efficiency as classic models
-	- Open up exciting possibilities for modelling beyond PDDL (Model-free RL)
+> [!note] Model vs Simulator
+> 
+> **Model**
+> 
+> - Powerful with development of **declarative programming**:
+> 	- Expressive language features easily supported
+> 	- Development of external development tools
+> 	- **Fully-Black-Box** detailed procedures for higher-level abstraction and reasoning and decomposing problems
+> - Limitations:
+> 	- **Model $\ne$ Language**
+> 		- Many problems fit Classical Planning model, but hard to express in STRIPS or PDDL
+> 	- **Declarative $\ne$ Practical**
+> 		- Simulation platforms may be black-boxes as well, they need for planners that work without complete declarative representations
+> 
+> **Simulator**
+> 
+> - At the same level of efficiency as classic models
+> - Open up exciting possibilities for modelling beyond PDDL (Model-free RL)
 
 ---
 ### Simulated BFWS
@@ -161,12 +169,14 @@ $$
 
 - Choose the best action based on $BFWS(\langle w_h(s), h(s) \rangle)$
 
-??? note "**Challenges** of Width-Based Planning over Simulators"
-	- Non-linear dynamics  
-	- Perturbation in flight controls  
-	- Partial observability  
-	- Uncertainty about opponent strategy
+> [!info]- **Challenges** of Width-Based Planning over Simulators
+> 
+> - Non-linear dynamics  
+> - Perturbation in flight controls  
+> - Partial observability  
+> - Uncertainty about opponent strategy
 
+%% 
 ---
 ### Arcade Learning Environment
 
@@ -175,12 +185,13 @@ A simple object-oriented framework to develop AI agents for Atari 2600 games
 - Deterministic
 - Initial state fully known
 
-Performance of $IW(1)$ 
-
-- better in _34/54_ games than 2BFS
-- better in _31/54_ games than UCT
-- better in _45/49_ games than DeepMind (RL method)
-
+> [!note]- Performance of $IW(1)$ in ALE
+> 
+> - better in _34/54_ games than 2BFS
+> - better in _31/54_ games than UCT
+> - better in _45/49_ games than DeepMind (RL method)
+ %%
+ 
 ---
 ## Plan & Goal Recognition
 
@@ -188,8 +199,9 @@ Performance of $IW(1)$
 
 **Folk Psychology**
 
-!!! info "Folk Psychology"
-	Humans can explain and predict behaviour and mental state of others.
+> [!info] Folk Psychology
+> 
+> Humans can explain and predict behaviour and mental state of others.
 
 To solve hard problems, we may need our planners recognise the "intention" and "motivation" behind the problem and environment.
 
@@ -197,10 +209,11 @@ To solve hard problems, we may need our planners recognise the "intention" and "
 
 Common sense makes human's initiative possible.
 
-!!! info "A Theory of Common Sense"
-	- We always assume that others are rational.
-	- We speculate beliefs, goals, reasons of others' actions.
-	- We use practical reasoning to assess what others' will do next.
+> [!info] A Theory of Common Sense
+> 
+> - We always assume that others are rational.
+> - We speculate beliefs, goals, reasons of others' actions.
+> - We use practical reasoning to assess what others' will do next.
 
 Planners can also use such formalised reasoning system as well.
 
@@ -226,24 +239,25 @@ Given a list of actions, find most possible goals accounting for such partially 
 	- Check if such plan accounting for input actions
 3. **Output**: Select the most reasonable goals and/or in probabilistic distribution form
 
-??? note "Probabilistic Goals"
-	Derive from Bayes' Rule
-	
-	$$
-	P(G \mid O)
-	= \alpha \, P(O \mid G)\, P(G),
-	$$
-	
-	where
-	
-	$$
-	P(O \mid G)
-	= \mathrm{exp}\!\left(
-	- \big(c^{*}(P'[\neg O \mid G]) - c^{*}(P'[O \mid G])\big)
-	\right).
-	$$
-	
-	- $c^{*}(P'[\neg O \mid G])$ gives the optimal cost to $G$ **NOT** accounting for the partial observations $O$
-	- $c^{*}(P'[O \mid G])$ gives the optimal cost to $G$ accounting for $O$
+> [!tip]- Transfer to Probabilistic Goals
+> 
+> Derive from **Bayes' Rule**
+> 
+> $$
+> P(G \mid O)
+> = \alpha \, P(O \mid G)\, P(G),
+> $$
+> 
+> where
+> 
+> $$
+> P(O \mid G)
+> = \mathrm{exp}\!\left(
+> - \big(c^{*}(P'[\neg O \mid G]) - c^{*}(P'[O \mid G])\big)
+> \right).
+> $$
+> 
+> - $c^{*}(P'[\neg O \mid G])$ gives the optimal cost to $G$ **NOT** accounting for the partial observations $O$
+> - $c^{*}(P'[O \mid G])$ gives the optimal cost to $G$ accounting for $O$
 
 ---

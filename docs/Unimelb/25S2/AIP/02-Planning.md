@@ -136,6 +136,7 @@ $$
 	- For estimating the **value** of each state
  
  **Outcomes**
+ 
 - Map states to **actions**
 - **Optimal** if total **expected** cost to goal is $minimum$
 

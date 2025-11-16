@@ -19,17 +19,20 @@ world_state_of_a_robot = {
 subgoals = {"position": (5, 8), "carrying_package": True}
 ```
 
-!!! info "Common Functions"
-	- $s$ = search states
-	- $\mathrm{is}\_\mathrm{start}(s)$ return if the state is the start state of the search space
-	- $\mathrm{is}\_\mathrm{target}(s)$ mark if the state is the goal state of the search space
-	- $\mathrm{succ}(s)$ return a list of successors/next states of $s$
-	- Search nodes: 
-		- $\mathrm{state}(\sigma)$
-		- $\mathrm{parent}(\sigma)$ where $\sigma$ was reached
-		- $\mathrm{action}(\sigma)$ leads from $\mathrm{state}(\mathrm{parent}(\sigma))$ to $\mathrm{state}(\sigma)$
-		- $g(\sigma)$ denotes cost of path from the **root** to $\sigma$
-		- The **root**’s $\mathrm{parent}(\cdot)$ and $\mathrm{action}(\cdot)$ are undefined
+> [!info]- Common Functions
+> Search states:
+> 
+> - $\mathrm{is}\_\mathrm{start}(s)$ return if the state is the start state of the search space
+> - $\mathrm{is}\_\mathrm{target}(s)$ mark if the state is the goal state of the search space
+> - $\mathrm{succ}(s)$ return a list of successors/next states of $s$
+> 
+> Search nodes: 
+> 
+> - $\mathrm{state}(\sigma)$
+> - $\mathrm{parent}(\sigma)$ where $\sigma$ was reached
+> - $\mathrm{action}(\sigma)$ leads from $\mathrm{state}(\mathrm{parent}(\sigma))$ to $\mathrm{state}(\sigma)$
+> - $g(\sigma)$ denotes cost of path from the **root** to $\sigma$
+> - The **root**’s $\mathrm{parent}(\cdot)$ and $\mathrm{action}(\cdot)$ are undefined
 
 ---
 ## Search Methods
@@ -55,15 +58,17 @@ subgoals = {"position": (5, 8), "carrying_package": True}
 - **Iterative Deepening Search**
 	- Do DLS(DFS with depth limited) with continuously increasing depth limited by 1.
 
-> *Completeness* 100%✅ However really *poor efficient* when scale up☹️
+> [!info]- Properties
+> 
+> - *Completeness* 100%✅ 
+> - Really *poor efficient* when scale up☹️
 
 ---
 ## Informed Systematic Search
 ### Heuristic Functions
 
-$h(n)$ - Estimated remaining cost (from current state to goal state)
-
-$h^*(n)$ - Real remaining cost
+- $h(n)$ - Estimated remaining cost (from the current state to the goal state)
+- $h^*(n)$ - Actual remaining cost
 
 **proficiency** of $h(n)$:
 
@@ -77,9 +82,10 @@ $h^*(n)$ - Real remaining cost
 | Admissible | $h(n) \le h^*(n)$                                      |
 | Consistent | $h(n) \le c(n,n’) + h(n’)$ for all possible $c(n, n’)$ |
 
-!!! note "Relations of Properties"
-	- Consistent & Goal-aware $\to$ Admissible
-	- Admissible $\to$ Safe & Goal-aware
+> [!tip] Relations
+> 
+> - Consistent & Goal-aware → Admissible
+> - Admissible → Safe & Goal-aware
 
 ---
 ### Greedy Best-First Search (GBFS)
@@ -113,30 +119,26 @@ def greedy_BFS:
 - Only difference from GBFS:
 	- $h(n) \rightarrow f(n) = g(n) + h(n)$
 
+```pseudo
+function A*(start, goal):
+    open = priority queue
+    open.push(start, f(start))
+
+    while open is not empty:
+        n = open.pop_min_f()
+
+        if n == goal:
+            return reconstruct_path(n)
+
+        for each successor s of n:
+            compute g(s) and f(s)
+            open.push_or_update(s)
 ```
-def a_star:
-    frontier = priority queue ordered by f(n) = g(n) + h(n)
-    explored = set
-    path = list
-    frontier.add(h(start), start, path)
-    
-    while frontier:
-        _, current, path = frontier.pop()
-        if current == goal:
-            return path
-        if current in explored:
-            continue
-        explored.add(current)
-        for successor in succ(current):
-            new_path = path + action(current, successor)
-            f = cost(new_path) + h(current)
-✏️          frontier.add(f, successor, new_path)
-    return unsolvable
 ```
 
 #### Re-opening
 
-a node $n$ is in `explored` but if we find a cheaper $g(n)$, then we can re-open the `explored` set and extend this node
+A node $n$ could be re-opened if we find a cheaper $g(n)$.
 
 ```
 def a_star_with_re_opening:
@@ -167,7 +169,7 @@ def a_star_with_re_opening:
 
 ```
 
-> Not needed if consistent✅  $g$ is already cheapest
+Not needed if consistent✅  $g$ is already cheapest
 
 ---
 ### Weighted A*

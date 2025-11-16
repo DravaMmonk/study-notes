@@ -20,17 +20,23 @@ $$
 \pi^\ast = \pi(a\mid S,\theta)
 $$
 
-
-
-- Higher Level approximation✅
-	- Higher space efficiency✅
-	- Higher generalisability✅
-	- Can learn stochastic policies✅
-- May converges to a local optimum⚠️
-- Policy evaluation is inefficient and high-variance❌
-	- Sampling looks for the whole trace - inefficient❌
-	- Off-policy unavailable ($\theta$ changed → data distribution changed → need new sampling)❌
-
+> [!note] Outcomes of Policy-Based Methods
+> 
+> **Advantages**
+> 
+> - High-level function approximation  
+> - Much more space-efficient (no huge tabular, just a function with features/variables)  ⭐️
+> - Better generalisation across large/continuous state spaces ✅ 
+> - Naturally supports **stochastic policies** ✅
+> 
+> **Disadvantages**
+> 
+> - May converge only to a **local optimum**  ⚠️
+> - Policy evaluation suffers from **high variance** ⚠️
+>   - Monte-Carlo returns require full trajectory sampling → **inefficient**  
+> - Difficult to use **off-policy** ❌
+>   - Updating $\theta$ changes the policy → changes the data distribution  
+>   - Requires resampling under the new policy (no reuse of old data)
 
 ---
 ## Policy Gradient
@@ -108,7 +114,7 @@ where
 > So we introduce some **soft policy** strategies for making policy outputs are probabilistic.
 
 ---
-## Deterministic Policy → Stochastic/Soft Policy
+## Deterministic Policy → Stochastic Policy
 ### Deterministic/Near-deterministic Policy 
 
 Give the optimal action directly:
@@ -131,9 +137,6 @@ $$
 \end{cases}
 $$
 
-
-> All previous RL methods' outputs are deterministic (The Optimum).
-
 #### Upper Confidence Bound (UCB) 
 
 exploitation + exploration bonus:
@@ -148,6 +151,8 @@ where
 - $\ln{t}$ - explore more when time goes
 - $N(a)$ - not try too many times on one same action
 
+> All previous RL methods' outputs can be deterministic (The Optimum) which do not need **differentiable** probabilities.
+
 ---
 ### Stochastic Policy 
 
@@ -158,7 +163,7 @@ $$
 - Ability of exploration; Robustness✅
 
 
- #### softmax 
+#### softmax 
 
 $$
 \pi(a \mid s)
@@ -191,12 +196,18 @@ $$
 &= \nabla h(a) - \mathbb{E}_{a' \sim \pi_\theta}[\nabla h(a')]
 \end{align}
 $$
-
+****
 By applying Gaussian (assume $\sigma$ is fixed):
 
 $$
 \nabla \log \pi_\theta(a \mid s) = \frac{a - \mu_\theta(s)}{\sigma^2}\nabla \mu_\theta(s)
 $$
+
+> [!warning] ε-greedy CANNOT Be Used to solve the Score Function
+> 
+> The score-function estimator requires a **differentiable** stochastic policy so that the log-probability gradient is well-defined.
+> 
+> However, the $\arg\max Q(s,a)$ step used in ε-greedy is discrete and therefore **non-differentiable**, violating this requirement.
 
 ---
 ## Approximate the Expected Return
@@ -341,7 +352,7 @@ $$
 \end{align}
 $$
 
-Finally, we in fact use the **TD error** to compute the policy gradient:
+Finally, we actually just use the **TD error** to compute the policy gradient:
 
 $$
 \nabla_{\theta} J(\theta)

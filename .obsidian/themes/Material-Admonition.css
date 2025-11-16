@@ -1,0 +1,49 @@
+/* =======================================================================
+   Obsidian Admonition — Full Material Theme Style
+   Makes !!! note / !!! warning match MkDocs Material visually
+   Compatible with Admonition plugin
+   ======================================================================= */
+
+/* Base box style */
+.admonition {
+  border-radius: 8px;
+  padding: 0 !important;
+  margin: 1em 0;
+  border-left: 6px solid var(--color);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+/* Title bar */
+.admonition-title {
+  padding: 8px 12px;
+  font-weight: 600;
+  color: white !important;
+  background-color: var(--color);
+}
+
+/* Content body */
+.admonition-content {
+  padding: 12px 16px 14px 16px;
+  background-color: var(--background);
+}
+
+/* Color themes */
+.admonition-note      { --color: #448aff; --background: rgba(68,138,255,0.05); }
+.admonition-info      { --color: #00acc1; --background: rgba(0,172,193,0.05); }
+.admonition-tip       { --color: #43a047; --background: rgba(67,160,71,0.05); }
+.admonition-success   { --color: #4caf50; --background: rgba(76,175,80,0.05); }
+.admonition-warning   { --color: #ffa000; --background: rgba(255,160,0,0.08); }
+.admonition-danger    { --color: #e53935; --background: rgba(229,57,53,0.07); }
+.admonition-question  { --color: #7e57c2; --background: rgba(126,87,194,0.07); }
+.admonition-example   { --color: #5c6bc0; --background: rgba(92,107,192,0.07); }
+
+/* Dark mode fine-tune */
+.theme-dark .admonition-content {
+  background-color: rgba(255,255,255,0.03);
+}
+
+/* Collapsible (??? syntax) */
+.admonition.is-collapsed .admonition-content {
+  display: none;
+}

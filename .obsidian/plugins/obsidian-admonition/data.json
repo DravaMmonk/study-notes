@@ -1,19 +1,6 @@
 {
-  "userAdmonitions": {
-    "note": {
-      "type": "note",
-      "color": "39, 37, 37",
-      "icon": {
-        "name": "book",
-        "type": "font-awesome"
-      },
-      "command": false,
-      "title": "note",
-      "injectColor": true,
-      "noTitle": false
-    }
-  },
-  "syntaxHighlight": true,
+  "userAdmonitions": {},
+  "syntaxHighlight": false,
   "copyButton": true,
   "version": "10.3.2",
   "autoCollapse": false,

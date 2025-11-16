@@ -1,4 +1,5 @@
 {
   "cssTheme": "Minimal",
-  "accentColor": "#a2ddec"
+  "accentColor": "#a2ddec",
+  "showRibbon": false
 }
