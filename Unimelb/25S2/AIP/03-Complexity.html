@@ -617,10 +617,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#savitchs-theorem" class="md-nav__link">
+  <a href="#complexity-of-a-problem" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Savitch’s Theorem
+        Complexity of a Problem
       
     </span>
   </a>
@@ -639,91 +639,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#strips-planning-problem" class="md-nav__link">
+  <a href="#strips" class="md-nav__link">
     <span class="md-ellipsis">
       
-        STRIPS planning problem
+        STRIPS
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="STRIPS planning problem">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#strips-stanford-research-institute-problem-solver" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        STRIPS = STanford Research Institute Problem Solver
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#components" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Components
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#action" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Action
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#result-of-applying-actions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Result of applying actions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#goal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Goal
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#properties" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Properties
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1030,95 +952,98 @@
 
 <h1 id="3-complexity">3 Complexity<a class="headerlink" href="#3-complexity" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="savitchs-theorem">Savitch’s Theorem<a class="headerlink" href="#savitchs-theorem" title="Permanent link">&para;</a></h2>
+<h2 id="complexity-of-a-problem">Complexity of a Problem<a class="headerlink" href="#complexity-of-a-problem" title="Permanent link">&para;</a></h2>
 <ul>
-<li>NPSPACE = PSPACE<ul>
-<li>Non-determinism won't make solvers more powerful.</li>
+<li><strong>P</strong>: Problem can be solved using polytime</li>
+<li><strong>NP</strong>: Problem can be solved using non-deterministic polytime</li>
+<li><strong>PSPACE</strong>: Problem can be solved using polynomial space</li>
+<li><strong>EXP</strong>: Problem can be solved using exponential time</li>
+</ul>
+<div class="arithmatex">\[
+P \subseteq NP \subseteq PSPACE \subseteq EXP
+\]</div>
+<div class="admonition info">
+<p class="admonition-title">Savitch’s Theorem </p>
+<p><strong><em>NPSPACE = PSPACE</em></strong>
+- Non-determinism won't make problems to be harder or solvers to be more powerful.</p>
+</div>
+<p>A decision problem <span class="arithmatex">\(L\)</span> is <strong><em>PSPACE-complete</em></strong> iff:</p>
+<ol>
+<li><span class="arithmatex">\(L \in\)</span> <strong><em>PSPACE</em></strong><ul>
+<li><span class="arithmatex">\(L\)</span> can be solved using polynomial space</li>
 </ul>
 </li>
-<li>PSPACE-complete<ul>
-<li>The problem is at least hard as <strong>any</strong> Polynomial time problem</li>
+<li><span class="arithmatex">\(L\)</span> is <strong><em>PSPACE-hard</em></strong><ul>
+<li>every problem in <strong><em>PSPACE</em></strong> can be polynomial-time reduced to <span class="arithmatex">\(L\)</span></li>
 </ul>
 </li>
-</ul>
+</ol>
 <hr />
 <h2 id="goals-definition">Goals Definition<a class="headerlink" href="#goals-definition" title="Permanent link">&para;</a></h2>
+<p><span class="arithmatex">\(\mathrm{PlanEx}(P)\)</span></p>
 <ul>
-<li>To make a <strong>Satisficing</strong> planning:<ul>
+<li>for making a <strong>Satisficing</strong> planning</li>
 <li><span class="arithmatex">\(\mathrm{PlanEx}(P) =\)</span> <code>TRUE</code> - Existence of a plan for problem <span class="arithmatex">\(P\)</span>.</li>
 </ul>
-</li>
-<li>To make a <strong>Optimal</strong> planning:<ul>
-<li><strong><span class="arithmatex">\(\mathrm{PlanLen}(P) \le B\)</span></strong>  - Existence of a plan which length is at most <span class="arithmatex">\(B\)</span>.</li>
-</ul>
-</li>
-<li><span class="arithmatex">\(\mathrm{PlanEx}\)</span> and <span class="arithmatex">\(\mathrm{PlanLen}\)</span> is <em>PSPACE-complete</em><ul>
-<li><em>In practice, optimal planning is almost never easy</em></li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="strips-planning-problem">STRIPS planning problem<a class="headerlink" href="#strips-planning-problem" title="Permanent link">&para;</a></h2>
-<h3 id="strips-stanford-research-institute-problem-solver"><em>STRIPS</em> = STanford Research Institute Problem Solver<a class="headerlink" href="#strips-stanford-research-institute-problem-solver" title="Permanent link">&para;</a></h3>
+<p><strong><span class="arithmatex">\(\mathrm{PlanLen}(P)\)</span></strong>  </p>
 <ul>
-<li>Design Goals:<ul>
+<li>for making a <strong>Optimal</strong> planning</li>
+<li><span class="arithmatex">\(mathrm{PlanLen}(P) \le B\)</span> - Existence of a plan which length is at most <span class="arithmatex">\(B\)</span>.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Both <span class="arithmatex">\(\mathrm{PlanEx}\)</span> and <span class="arithmatex">\(\mathrm{PlanLen}\)</span> are <em>PSPACE-complete</em>.
+- <em>In practice, optimal planning is almost never easy</em></p>
+</div>
+<hr />
+<h2 id="strips"><em>STRIPS</em><a class="headerlink" href="#strips" title="Permanent link">&para;</a></h2>
+<p><em>STRIPS</em> = "STanford Research Institute Problem Solver", which designed a language for:</p>
+<ul>
 <li><strong>Specification</strong> - concise model description</li>
 <li><strong>Computation</strong> - reveal useful information/structure for heuristics</li>
 </ul>
-</li>
-</ul>
-<hr />
-<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
+<p>All problems in following format can be solved by <em>STRIPS</em>:</p>
 <div class="arithmatex">\[
 P = \langle P,A,I,G \rangle
 \]</div>
+<p>where</p>
 <ul>
 <li><span class="arithmatex">\(P\)</span> - All Possible Predicates</li>
 <li><span class="arithmatex">\(A\)</span> - Actions</li>
 <li><span class="arithmatex">\(I\)</span> - Initial States: Predicates initially to be <code>TRUE</code></li>
 <li><span class="arithmatex">\(G\)</span> - Goal Conditions: Predicates Finally need to be <code>TRUE</code></li>
 </ul>
-<h4 id="action">Action<a class="headerlink" href="#action" title="Permanent link">&para;</a></h4>
+<p><strong>Actions</strong></p>
 <div class="arithmatex">\[
 a \in A, a = \langle Pre(a), Add(a), Del(a) \rangle
 \]</div>
+<p>where</p>
 <ul>
 <li><span class="arithmatex">\(Pre(a)\)</span> - Preconditions need to be <code>TRUE</code> before executing the action</li>
 <li><span class="arithmatex">\(Add(a)\)</span> - Add Effects: Preconditions set to be<code>TRUE</code> after execution</li>
 <li><span class="arithmatex">\(Del(a)\)</span> - Delete Effects: Preconditions set to be <code>FALSE</code> after execution</li>
 </ul>
-<h4 id="result-of-applying-actions">Result of applying actions<a class="headerlink" href="#result-of-applying-actions" title="Permanent link">&para;</a></h4>
+<p><strong>Result Function (Application/Transition Function)</strong></p>
 <div class="arithmatex">\[
 Result(s, a) = (s - Del(a)) \cup Add(a)
 \]</div>
-<ul>
-<li><em>which could also be seemed as a transition function</em></li>
-</ul>
-<h4 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h4>
-<ul>
-<li>Find a list of actions <span class="arithmatex">\([a_1,a_2,a_3,\ldots]\)</span> which satisfies:
-    $$
-    Result(Result(\ldots Result(I,a_1​) \ldots ,a_n−1​),a_n​) \models G
-    $$</li>
-</ul>
-<hr />
-<h3 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h3>
-<ul>
-<li>It turns a "solving" problem into a "search" problem</li>
-<li>Still <em>PSPACE-complete</em>, but "approximation" is able to be applied<ul>
-<li>Explicit Search 显式搜索<ul>
-<li>e.g. Blind/Heuristic search</li>
-<li>Not effective</li>
-</ul>
-</li>
-<li>Near Decomposition 近似分解<ul>
-<li>e.g. Relaxation: similar to Decrease/Divide &amp; Conquer</li>
-<li>Maybe fail</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<p><strong>Goal of <em>STRIPS</em></strong></p>
+<p>Find a list of actions <span class="arithmatex">\([a_1,a_2,a_3,\ldots]\)</span> which satisfies:</p>
+<div class="arithmatex">\[
+Result(Result(\ldots Result(I,a_1​) \ldots ,a_n−1​),a_n​) \models G
+\]</div>
+<div class="admonition note">
+<p class="admonition-title">Outcomes: <em>STRIPS</em></p>
+<p>It turns "Solving a problem" into "Search for solutions".</p>
+<p>Still <em>PSPACE-complete</em>, but problem is now more concise and intuitive:
+    - Explicit Search
+        - e.g. Blind/Heuristic search
+        - Optimal Solution Guarantee✅; Not effective❌</p>
+<p>And "<strong><em>approximation</em></strong>" is now able to be applied as well:
+    - Near Decomposition
+        - e.g. Relaxation
+        - Effective✅; Maybe fail❌</p>
+</div>
 
 
 

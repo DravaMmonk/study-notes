@@ -589,49 +589,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#problem-solving" class="md-nav__link">
+  <a href="#ai-solvers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Problem Solving
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Problem Solving">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#autonomous-behaviour-in-ai" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Autonomous Behaviour in AI
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-level-solver-ambitions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3-level Solver Ambitions
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#solver" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Solver
+        AI Solvers
       
     </span>
   </a>
@@ -639,15 +600,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#planning-models" class="md-nav__link">
+  <a href="#models-for-planning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Planning Models
+        Models for Planning
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Planning Models">
+    <nav class="md-nav" aria-label="Models for Planning">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -666,28 +627,6 @@
     <span class="md-ellipsis">
       
         Conformant Planning Model
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#markov-decision-process-mdp" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Markov Decision Process (MDP)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#partially-observable-mdp-pomdp" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Partially Observable MDP (POMDP)
       
     </span>
   </a>
@@ -1030,27 +969,19 @@
 
 <h1 id="2-planning">2 Planning<a class="headerlink" href="#2-planning" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="problem-solving">Problem Solving<a class="headerlink" href="#problem-solving" title="Permanent link">&para;</a></h2>
-<h3 id="autonomous-behaviour-in-ai">Autonomous Behaviour in AI<a class="headerlink" href="#autonomous-behaviour-in-ai" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Programming-based</li>
-<li>Learning-Based</li>
-<li>Model-Based</li>
-<li>Approaches not orthogonal</li>
-<li>Different models yield different types of <strong>controllers</strong></li>
-</ul>
-<h3 id="3-level-solver-ambitions">3-level Solver Ambitions<a class="headerlink" href="#3-level-solver-ambitions" title="Permanent link">&para;</a></h3>
+<h2 id="ai-solvers">AI Solvers<a class="headerlink" href="#ai-solvers" title="Permanent link">&para;</a></h2>
+<details class="note">
+<summary>3-level Solver Ambitions</summary>
 <p><strong>Ambition</strong>: Write one program to solve all classical search problems</p>
 <ul>
 <li><strong>Ambition 1.0</strong> (Problem Solving) Write one program to solve a problem</li>
 <li><strong>Ambition 2.0</strong> (Problem Generation) Write one program to solve a large class of problems</li>
 <li><strong>Ambition 3.0</strong> (Meta Problem Solving) Write one program to solve a large class of problems <strong>effectively</strong></li>
 </ul>
-<hr />
-<h2 id="solver">Solver<a class="headerlink" href="#solver" title="Permanent link">&para;</a></h2>
+</details>
 <p>Programming-Based:</p>
 <ul>
-<li>Use static programs designed by programmer</li>
+<li>Use static programs designed by the programmer</li>
 </ul>
 <p>Learning-Based:</p>
 <ul>
@@ -1058,9 +989,10 @@
 <li>Supervised: Use labelled data</li>
 <li>Evolutionary: Use original controllers to mutate and recombine to build better controller</li>
 </ul>
-<p>Model-Based Approach (Planning):</p>
+<p>Model-Based (Planning):</p>
 <ul>
-<li>Construct one model for one specific problem</li>
+<li>Construct a model for one specific class of problems</li>
+<li>Different models yield different types of <strong>controllers</strong></li>
 </ul>
 <p><img alt="Planning Process" src="assets/3_1_planning_process.png" /></p>
 <div class="admonition note">
@@ -1068,7 +1000,8 @@
 <p>Programming-Based</p>
 <ul>
 <li>Domain-knowledge easy to express✅</li>
-<li>Less Flexible☹️ Can’t deal with no anticipation of programmer❌</li>
+<li>Less Flexible☹️ </li>
+<li>Can’t deal with no anticipation of programmer❌</li>
 </ul>
 <p>Learning-Based</p>
 <ul>
@@ -1083,19 +1016,12 @@
 </div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>To design a good solver, always need trade-off between “Automatic and general” vs. “Manual work but effective”</p>
+<p>To design a good solver, always balance between “Automatic and General” vs. “Manual but Effective”</p>
 </div>
 <hr />
-<h2 id="planning-models">Planning Models<a class="headerlink" href="#planning-models" title="Permanent link">&para;</a></h2>
+<h2 id="models-for-planning">Models for Planning<a class="headerlink" href="#models-for-planning" title="Permanent link">&para;</a></h2>
 <h3 id="classical-planning-model">Classical Planning Model<a class="headerlink" href="#classical-planning-model" title="Permanent link">&para;</a></h3>
-<p>The most basic model for describing the environment</p>
-<p><strong>Assumptions</strong>
-- Deterministic
-- Fully Observable
-- Static World
-- Discrete Time &amp; Finite Actions
-- Uniform Cost</p>
-<p><strong>Components</strong> </p>
+<p>The most basic model for describing the environment, the goal output is a sequence of actions map <span class="arithmatex">\(I\)</span> to <span class="arithmatex">\(G\)</span>.</p>
 <div class="arithmatex">\[
 M = \langle S, A, T, I, G \rangle
 \]</div>
@@ -1108,87 +1034,39 @@ M = \langle S, A, T, I, G \rangle
 <li><span class="arithmatex">\(G\)</span> - Goal states</li>
 <li>Uniform action costs <span class="arithmatex">\(c(A(s), s) = 1\)</span></li>
 </ul>
-<p><strong>Outcomes</strong></p>
+<div class="admonition note">
+<p class="admonition-title">Properties of Classical Planning Model</p>
 <ul>
-<li>A seq of actions map <span class="arithmatex">\(s_0\)</span> into <span class="arithmatex">\(g\)</span></li>
-<li><strong>Optimal</strong> if total cost to goal is minimum</li>
+<li>Simple; Intuitive✅</li>
+<li><strong>Very strict assumptions</strong>❗️❗️<ul>
+<li>Deterministic</li>
+<li>Fully Observable</li>
+<li>Static World</li>
+<li>Discrete Time &amp; Finite Actions</li>
+<li>Uniform Cost</li>
 </ul>
+</li>
+</ul>
+</div>
 <hr />
 <h3 id="conformant-planning-model">Conformant Planning Model<a class="headerlink" href="#conformant-planning-model" title="Permanent link">&para;</a></h3>
-<p>Use Brute Force to handle with stochasticity.</p>
-<p><strong>Components</strong> (<em>Diff with classic</em>)</p>
+<p>Derived from Brute Force, implement the ability to handle stochasticity：</p>
 <ul>
 <li>Initial State → A set of possible initial states</li>
 <li>Deterministic Transition Function → <strong>Non</strong>-deterministic</li>
 </ul>
-<p><strong>Outcomes</strong></p>
+<div class="admonition note">
+<p class="admonition-title">Outcomes: Conformant</p>
 <ul>
-<li><strong>No Observation</strong> - No new info; must pre-planning</li>
-<li><strong>Goal Guarantee</strong></li>
-<li><strong>Rarely optimal</strong><ul>
+<li><strong>Goal Guarantee</strong> ✅</li>
+<li><strong>No Observation</strong> - No new info; must pre-planning⚠️</li>
+<li><strong>Rarely optimal</strong> ⚠️<ul>
 <li>Must map any possible <span class="arithmatex">\(s_0\)</span> to <span class="arithmatex">\(g\)</span>, too much unnecessary work</li>
 <li>Sensitive to Worst/Special case </li>
 </ul>
 </li>
 </ul>
-<hr />
-<h3 id="markov-decision-process-mdp">Markov Decision Process (MDP)<a class="headerlink" href="#markov-decision-process-mdp" title="Permanent link">&para;</a></h3>
-<p><strong>General Assumption</strong></p>
-<ul>
-<li>
-<p><strong>Markov Property</strong>: the next state only depends on the current state and actions.</p>
-<div class="arithmatex">\[
-P(s_{t+1} \mid s_t,a_t,s_{t-1},a_{t-1},\ldots) = P(s_{t+1} \mid s_t,a_t) 
-\]</div>
-</li>
-<li>
-<p>Fully Observable</p>
-</li>
-<li>Discrete Time &amp; Finite Actions</li>
-<li>Fixed Transition Probabilities</li>
-</ul>
-<p><strong>Components</strong> <em>(Diff with conformant)</em></p>
-<div class="arithmatex">\[
-M = \langle S,A,T,R,\gamma \rangle
-\]</div>
-<ul>
-<li>Introduce the <strong>Transition Probability Function</strong>:
-    $$
-    T(s, a, s') = P(s' \mid s, a)
-    $$</li>
-<li>Introduce <strong>Reward Function</strong> <span class="arithmatex">\(R\)</span> and <strong>Discount Factor</strong> <span class="arithmatex">\(\gamma\)</span>:<ul>
-<li>For estimating the <strong>value</strong> of each state</li>
-</ul>
-</li>
-</ul>
-<p><strong>Outcomes</strong></p>
-<ul>
-<li>Map states to <strong>actions</strong></li>
-<li><strong>Optimal</strong> if total <strong>expected</strong> cost to goal is <span class="arithmatex">\(minimum\)</span></li>
-</ul>
-<hr />
-<h3 id="partially-observable-mdp-pomdp">Partially Observable MDP (POMDP)<a class="headerlink" href="#partially-observable-mdp-pomdp" title="Permanent link">&para;</a></h3>
-<p><strong>Assumption</strong></p>
-<ul>
-<li>Markov Property</li>
-<li><strong>Limited</strong> Observable</li>
-</ul>
-<p><strong>Components</strong> <em>(Diff with MDP)</em></p>
-<ul>
-<li>Introduce <strong>Sensor Model</strong> (based on <strong>Probability Distribution</strong>)</li>
-</ul>
-<div class="arithmatex">\[
-\mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
-\]</div>
-<ul>
-<li>Initial/Goal States → Belief States <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> and <span class="arithmatex">\(\mathrm{b}(g)\)</span></li>
-</ul>
-<p><strong>Outcomes</strong></p>
-<ul>
-<li>Map belief states into actions</li>
-<li><strong>Optimal</strong> if total expected cost from <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> to <span class="arithmatex">\(\mathrm{b}(g)\)</span> is minimum</li>
-</ul>
-<hr />
+</div>
 
 
 

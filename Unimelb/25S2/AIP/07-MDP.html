@@ -729,15 +729,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#markov-decision-process-mdp" class="md-nav__link">
+  <a href="#markov-decision-process" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Markov Decision Process (MDP)
+        Markov Decision Process
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Markov Decision Process (MDP)">
+    <nav class="md-nav" aria-label="Markov Decision Process">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -752,10 +752,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#markov-reward-processes" class="md-nav__link">
+  <a href="#markov-reward-processes-mrp" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Markov Reward Processes
+        Markov Reward Processes (MRP)
       
     </span>
   </a>
@@ -763,10 +763,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#markov-decision-process" class="md-nav__link">
+  <a href="#markov-decision-process-mdp" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Markov Decision Process
+        Markov Decision Process (MDP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#partially-observable-mdp-pomdp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partially Observable MDP (POMDP)
       
     </span>
   </a>
@@ -1008,9 +1019,8 @@
 
 <h1 id="7-markov-decision-process">7 Markov Decision Process<a class="headerlink" href="#7-markov-decision-process" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="markov-decision-process-mdp">Markov Decision Process (MDP)<a class="headerlink" href="#markov-decision-process-mdp" title="Permanent link">&para;</a></h2>
-<p><strong>MDP</strong>: General Simulator of the environment for Model-based RL
-    - Model-based Learning + Optimal Policy</p>
+<h2 id="markov-decision-process">Markov Decision Process<a class="headerlink" href="#markov-decision-process" title="Permanent link">&para;</a></h2>
+<p>General Simulator of the environment for Model-based RL</p>
 <hr />
 <h3 id="markov-process">Markov process<a class="headerlink" href="#markov-process" title="Permanent link">&para;</a></h3>
 <p>A <em>memoryless</em> random process </p>
@@ -1031,7 +1041,7 @@ M = \langle S, P \rangle
 </li>
 </ul>
 <hr />
-<h3 id="markov-reward-processes">Markov Reward Processes<a class="headerlink" href="#markov-reward-processes" title="Permanent link">&para;</a></h3>
+<h3 id="markov-reward-processes-mrp">Markov Reward Processes (MRP)<a class="headerlink" href="#markov-reward-processes-mrp" title="Permanent link">&para;</a></h3>
 <p>A Markov chain with reward values:</p>
 <div class="arithmatex">\[
 M = \langle S, P, R, \gamma \rangle
@@ -1045,7 +1055,7 @@ M = \langle S, P, R, \gamma \rangle
 <li><span class="arithmatex">\(\gamma\)</span> - discount factor</li>
 </ul>
 <hr />
-<h3 id="markov-decision-process">Markov Decision Process<a class="headerlink" href="#markov-decision-process" title="Permanent link">&para;</a></h3>
+<h3 id="markov-decision-process-mdp">Markov Decision Process (MDP)<a class="headerlink" href="#markov-decision-process-mdp" title="Permanent link">&para;</a></h3>
 <p>Introduce <strong>agency</strong> in terms of actions:</p>
 <div class="arithmatex">\[
 M = \langle S, A, P, R, \gamma \rangle
@@ -1054,6 +1064,28 @@ M = \langle S, A, P, R, \gamma \rangle
 <li><span class="arithmatex">\(A\)</span> - a finite set of actions</li>
 <li><span class="arithmatex">\(P(s \to s) = P(s' \mid s)\)</span></li>
 <li><span class="arithmatex">\(R(s) = \mathbb{E}[R' \mid s]\)</span></li>
+</ul>
+<hr />
+<h3 id="partially-observable-mdp-pomdp">Partially Observable MDP (POMDP)<a class="headerlink" href="#partially-observable-mdp-pomdp" title="Permanent link">&para;</a></h3>
+<p><strong>Assumption</strong></p>
+<ul>
+<li>Markov Property</li>
+<li><strong>Limited</strong> Observable</li>
+</ul>
+<p><strong>Components</strong> <em>(Diff with MDP)</em></p>
+<ul>
+<li>Introduce <strong>Sensor Model</strong> (based on <strong>Probability Distribution</strong>)</li>
+</ul>
+<div class="arithmatex">\[
+\mathrm{b}(s_t) = P(s_t \mid \text{historical actions and observations})
+\]</div>
+<ul>
+<li>Initial/Goal States → Belief States <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> and <span class="arithmatex">\(\mathrm{b}(g)\)</span></li>
+</ul>
+<p><strong>Outcomes</strong></p>
+<ul>
+<li>Map belief states into actions</li>
+<li><strong>Optimal</strong> if total expected cost from <span class="arithmatex">\(\mathrm{b}(s_0)\)</span> to <span class="arithmatex">\(\mathrm{b}(g)\)</span> is minimum</li>
 </ul>
 <hr />
 <h2 id="greedy-optimal-policy">Greedy Optimal Policy<a class="headerlink" href="#greedy-optimal-policy" title="Permanent link">&para;</a></h2>
@@ -1102,7 +1134,7 @@ Q^\ast(s,a)
 </details>
 <hr />
 <h3 id="example-maze">Example - MAZE<a class="headerlink" href="#example-maze" title="Permanent link">&para;</a></h3>
-<p><img alt="Maze" src="assets/6_1_maze.png" /></p>
+<p><img alt="assets/6_1_maze.png" src="assets/6_1_maze.png" /></p>
 <p><strong>Environment</strong>:</p>
 <ul>
 <li><span class="arithmatex">\(S\)</span> - Agent's possible locations</li>
