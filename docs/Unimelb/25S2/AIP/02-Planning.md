@@ -1,6 +1,6 @@
 # 2 Planning
 ---
-## AI Solvers
+## AI Solver
 
 > [!note]- 3-level Solver Ambitions
 > 
@@ -13,12 +13,14 @@
 Programming-Based:
 
 - Use static programs designed by the programmer
+- e.g. Pac-man
 
 Learning-Based:
 
 - Unsupervised/Reinforced Learning: Use reward & penalise
 - Supervised: Use labelled data
 - Evolutionary: Use original controllers to mutate and recombine to build better controller
+- e.g. OpenAI-Five
 
 Model-Based (Planning):
 
