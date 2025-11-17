@@ -1085,6 +1085,186 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1_2" id="__nav_2_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IML
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IML
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IML/01-foundations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Foundations &amp; Basic Statistics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1_3" id="__nav_2_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MoC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    MoC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MoC/01-introduction.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1195,7 +1375,7 @@ G^{(n)}_t = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + {{\gamma^
 <div class="arithmatex">\[
 V(S_t) \;\gets\; V(S_t) + \alpha \big({{G_t^{(n)} - V(S_t)}} \big)
 \]</div>
-<details class="note">
+<details class="tip">
 <summary>How to choose a good <span class="arithmatex">\(n\)</span></summary>
 <ul>
 <li>Root Mean Square (RMS) Errors<ul>
@@ -1216,9 +1396,13 @@ G_t^{\lambda} \;=\; {{(1 - \lambda) \sum_{n=1}^{\infty} \lambda^{\,n-1}}} G_t^{(
 <div class="arithmatex">\[
 V(S_t) \;\leftarrow\; V(S_t) + \alpha \big( G_t^{\lambda} - V(S_t) \big)
 \]</div>
-<p>??? note "Outcomes of TD(λ)
-    - ✅Memoryless - i.e space complexity is same as TD(0)
-    - ⚠️Forward View - We cannot look into the far future during learning👇</p>
+<div class="admonition note">
+<p class="admonition-title">Outcomes: TD(λ)</p>
+<ul>
+<li>✅Memoryless - i.e space complexity is same as TD(0)</li>
+<li>⚠️Forward View - We cannot look into the far future during learning👇</li>
+</ul>
+</div>
 <h4 id="backward-view">Backward View<a class="headerlink" href="#backward-view" title="Permanent link">&para;</a></h4>
 <p>Update weight step by step by using <strong>Eligibility Trace</strong>:</p>
 <ul>
@@ -1313,15 +1497,15 @@ Q(S_t, A_t) \;\leftarrow\; Q(S_t, A_t) + \alpha \Big( q_t^\lambda - Q(S_t, A_t) 
 $$</p>
 </li>
 <li>
-<p>Backward View:
-$$
-\begin{align<em>}
-E_0(s,a) &amp; = 0 \[0pt]
-E_t(s,a) &amp; = \gamma \lambda E_{t-1}(s,a) + \mathbf{1}(S_t = s, A_t = a)
-\end{align</em>}
-$$</p>
+<p>Backward View:</p>
 </li>
 </ul>
+<div class="arithmatex">\[
+\begin{align*}
+E_0(s,a) &amp; = 0 \\[0pt]
+E_t(s,a) &amp; = \gamma \lambda E_{t-1}(s,a) + \mathbf{1}(S_t = s, A_t = a)
+\end{align*}
+\]</div>
 <div class="arithmatex">\[
 \delta_t = R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t)
 \]</div>
@@ -1330,8 +1514,10 @@ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha \,\delta_t \, E_t(s,a)
 \]</div>
 <hr />
 <h3 id="off-policy-control">Off-Policy Control<a class="headerlink" href="#off-policy-control" title="Permanent link">&para;</a></h3>
-<p><strong>Off-policy</strong>: Distinguish Target Policy and Behaviour (Sampling) Policy
-- ✅Take use of experience from other policies</p>
+<p><strong>Off-policy</strong>: Distinguish Target Policy and Behaviour (Sampling) Policy</p>
+<ul>
+<li>✅Take use of experience from other policies</li>
+</ul>
 <h3 id="on-policy-off-policy">On-policy → Off-policy<a class="headerlink" href="#on-policy-off-policy" title="Permanent link">&para;</a></h3>
 <p>Sarsa (On-policy)</p>
 <ul>
