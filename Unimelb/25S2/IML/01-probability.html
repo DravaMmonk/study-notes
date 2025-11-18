@@ -23,7 +23,7 @@
     
     
       
-        <title>1 Foundations & Basic Statistics - Drava's Study Notes</title>
+        <title>1 Probability - Drava's Study Notes</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#1-foundations-basic-statistics" class="md-skip">
+        <a href="#1-probability" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              1 Foundations &amp; Basic Statistics
+              1 Probability
             
           </span>
         </div>
@@ -996,7 +996,7 @@
   <span class="md-ellipsis">
     
   
-    1 Foundations &amp; Basic Statistics
+    1 Probability
   
 
     
@@ -1007,14 +1007,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="01-foundations.html" class="md-nav__link md-nav__link--active">
+      <a href="01-probability.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    1 Foundations &amp; Basic Statistics
+    1 Probability
   
 
     
@@ -1040,10 +1040,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#data" class="md-nav__link">
+  <a href="#probability-theory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data
+        Probability Theory
       
     </span>
   </a>
@@ -1051,96 +1051,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#models" class="md-nav__link">
+  <a href="#bayes-rule" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Models
+        Bayes Rule
       
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#learning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Learning
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#probability-basics-formula" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Probability Basics Formula
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Probability Basics Formula">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#change-of-logarithm-base" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Change of Logarithm Base
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#conditional-probability" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Conditional Probability
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#joint-probability" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Joint Probability
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#law-of-total-probability" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Law of Total Probability
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#bayes-theorem-naive-bayes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Bayes' Theorem (Naïve Bayes)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1157,10 +1074,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#information-self-information" class="md-nav__link">
+  <a href="#information-ig" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Information (Self-Information)
+        Information (IG)
       
     </span>
   </a>
@@ -1168,10 +1085,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#entropy-expected-information" class="md-nav__link">
+  <a href="#entropy_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Entropy (Expected Information)
+        Entropy
       
     </span>
   </a>
@@ -1355,99 +1272,78 @@
 
 
 
-<h1 id="1-foundations-basic-statistics">1 Foundations &amp; Basic Statistics<a class="headerlink" href="#1-foundations-basic-statistics" title="Permanent link">&para;</a></h1>
+<h1 id="1-probability">1 Probability<a class="headerlink" href="#1-probability" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="data"><strong>Data</strong><a class="headerlink" href="#data" title="Permanent link">&para;</a></h2>
+<h2 id="probability-theory">Probability Theory<a class="headerlink" href="#probability-theory" title="Permanent link">&para;</a></h2>
+<div class="admonition faq">
+<p class="admonition-title">What is Probability?</p>
 <ul>
-<li>Discrete vs. Continuous</li>
-<li>Big vs. Small</li>
-<li>Labeled vs. Unlabelled</li>
-<li>Public vs. Sensitive</li>
+<li>A <em>language</em> used for describing <strong>uncertainty</strong></li>
+<li>A <em>framework</em> of designing machine learning models</li>
+<li>A <em>foundation</em> of Learning &amp; Generalisation</li>
 </ul>
+</div>
 <hr />
-<h2 id="models"><strong>Models</strong><a class="headerlink" href="#models" title="Permanent link">&para;</a></h2>
+<h2 id="bayes-rule">Bayes Rule<a class="headerlink" href="#bayes-rule" title="Permanent link">&para;</a></h2>
+<div class="arithmatex">\[
+P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}
+\]</div>
+<p>where</p>
 <ul>
-<li>Basic Assumption: Samples are independent</li>
-<li>
-<p>Function mapping from inputs to outputs</p>
-</li>
-<li>
-<p>Parameters of function are unknown ← what the model need to learn</p>
-</li>
-<li>
-<p>Hyper-parameters are pre-defined and fixed</p>
-</li>
-<li>
-<p>Probabilistic vs. Geometric</p>
-</li>
-<li>Discriminative vs. Generative</li>
-<li>Linear vs. Non-linear</li>
-<li>Parametric vs. Non-parametric</li>
+<li><span class="arithmatex">\(P(A \mid B)\)</span> - The <em>belief</em> of <span class="arithmatex">\(A\)</span> if we have accounted for <span class="arithmatex">\(B\)</span> </li>
+<li><span class="arithmatex">\(P(A)\)</span> - The <em>belief</em> of <span class="arithmatex">\(A\)</span> without any additional acknowledge</li>
+<li><span class="arithmatex">\(P(B \mid A)\)</span> - The support <span class="arithmatex">\(B\)</span> provides for <span class="arithmatex">\(A\)</span></li>
+<li><span class="arithmatex">\(P(B)\)</span> - Constant for normalising</li>
 </ul>
-<hr />
-<h2 id="learning"><strong>Learning</strong><a class="headerlink" href="#learning" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Find the best model parameters</li>
-<li>Supervised vs. Unsupervised vs. Weak Supervised</li>
-</ul>
-<hr />
-<h2 id="probability-basics-formula">Probability Basics Formula<a class="headerlink" href="#probability-basics-formula" title="Permanent link">&para;</a></h2>
-<h3 id="change-of-logarithm-base">Change of Logarithm Base<a class="headerlink" href="#change-of-logarithm-base" title="Permanent link">&para;</a></h3>
-<div class="arithmatex">\[
-\log_a b = \frac{\log_c b}{\log_c a}
-\]</div>
-<p>Commonly used for converting between <span class="arithmatex">\(\log_2\)</span>, <span class="arithmatex">\(\log_{10}\)</span>, and <span class="arithmatex">\(\ln\)</span>.</p>
-<hr />
-<h3 id="conditional-probability">Conditional Probability<a class="headerlink" href="#conditional-probability" title="Permanent link">&para;</a></h3>
-<div class="arithmatex">\[
-P(A \mid B) = \frac{P(A \cap B)}{P(B)}
-\]</div>
-<hr />
-<h3 id="joint-probability">Joint Probability<a class="headerlink" href="#joint-probability" title="Permanent link">&para;</a></h3>
-<div class="arithmatex">\[
-P(A \cap B)
-= P(A \mid B)\, P(B)
-= P(B \mid A)\, P(A)
-\]</div>
-<hr />
-<h3 id="law-of-total-probability">Law of Total Probability<a class="headerlink" href="#law-of-total-probability" title="Permanent link">&para;</a></h3>
-<div class="arithmatex">\[
-P(A) = \sum_i P(A \mid B_i)\, P(B_i)
-\]</div>
-<hr />
-<h3 id="bayes-theorem-naive-bayes">Bayes' Theorem (Naïve Bayes)<a class="headerlink" href="#bayes-theorem-naive-bayes" title="Permanent link">&para;</a></h3>
-<div class="arithmatex">\[
-P(A \mid B) = \frac{P(B \mid A)\, P(A)}{P(B)}
-\]</div>
-<p>In Naïve Bayes, assuming feature independence:</p>
-<div class="arithmatex">\[
-P(y \mid x_1, x_2, \ldots, x_n)
-\propto P(y)\, \prod_i P(x_i \mid y)
-\]</div>
 <hr />
 <h2 id="entropy">Entropy<a class="headerlink" href="#entropy" title="Permanent link">&para;</a></h2>
-<h3 id="information-self-information">Information (Self-Information)<a class="headerlink" href="#information-self-information" title="Permanent link">&para;</a></h3>
+<h3 id="information-ig">Information (IG)<a class="headerlink" href="#information-ig" title="Permanent link">&para;</a></h3>
 <p>The information content of an outcome <span class="arithmatex">\(x\)</span>:</p>
 <div class="arithmatex">\[
 I(x) = -\log_2 P(x)
 \]</div>
 <ul>
-<li>Maps probability range <span class="arithmatex">\([0, 1]\)</span> to information range <span class="arithmatex">\([0, +\infty)\)</span>  </li>
-<li>Rare events <span class="arithmatex">\(\to\)</span> larger information gain</li>
+<li>Certain Events → Zero Information carried</li>
+<li>Common Events → Poor Information carried</li>
+<li>Rare Events → High Information carried</li>
+<li>Impossible Events → Infinity Information carried</li>
 </ul>
+<div class="admonition faq">
+<p class="admonition-title">Why is <em>Information</em> so denoted?</p>
+<p>Map a probability score (range <span class="arithmatex">\([0, 1]\)</span>) to a valued information score (range <span class="arithmatex">\([0, +\infty)\)</span> ).</p>
+</div>
 <hr />
-<h3 id="entropy-expected-information">Entropy (Expected Information)<a class="headerlink" href="#entropy-expected-information" title="Permanent link">&para;</a></h3>
-<p>Entropy is the expected information obtained from a random variable <span class="arithmatex">\(X\)</span>:</p>
+<h3 id="entropy_1">Entropy<a class="headerlink" href="#entropy_1" title="Permanent link">&para;</a></h3>
+<p>Entropy is the expected information obtained from a random variable <span class="arithmatex">\(X\)</span>, which is weighted sum of all <em>Information</em> carried by events may happened on <span class="arithmatex">\(X\)</span>:</p>
 <div class="arithmatex">\[
 H(X) = \mathbb{E}[I(X)] = -\sum_x P(x)\, \log_2 P(x)
 \]</div>
-<p>Interpretation:</p>
+<p>where</p>
 <ul>
-<li><span class="arithmatex">\(X\)</span> is a random variable with possible values <span class="arithmatex">\(x\)</span></li>
-<li><span class="arithmatex">\(P(x)\)</span> is the probability (weight) of outcome <span class="arithmatex">\(x\)</span></li>
-<li><span class="arithmatex">\(-\log_2 P(x)\)</span> is the information carried by outcome <span class="arithmatex">\(x\)</span></li>
+<li><span class="arithmatex">\(X\)</span> - a random variable with possible values <span class="arithmatex">\(x\)</span></li>
+<li><span class="arithmatex">\(P(x)\)</span> - the probability (weight) of outcome <span class="arithmatex">\(x\)</span></li>
+<li>
+<p><span class="arithmatex">\(-\log_2 P(x)\)</span> - the information carried by outcome <span class="arithmatex">\(x\)</span></p>
+</li>
+<li>
+<p>The value of <span class="arithmatex">\(X\)</span> is 100% <span class="arithmatex">\(a\)</span> → Entropy = 0</p>
+</li>
+<li>The value of <span class="arithmatex">\(X\)</span> is almost certain → Low Entropy</li>
+<li>The value of <span class="arithmatex">\(X\)</span> is highly uncertain → High Entropy</li>
+<li>The value of <span class="arithmatex">\(X\)</span> is 50% <span class="arithmatex">\(a\)</span> and 50% <span class="arithmatex">\(b\)</span> → Entropy = 1 bit</li>
 </ul>
-<p>High entropy = the random variable is highly uncertain / disordered.</p>
+<div class="admonition info">
+<p class="admonition-title">EXAMPLE</p>
+<p><span class="arithmatex">\(X = {a, b}\)</span></p>
+<p>Low Entropy (<span class="arithmatex">\(P(X = a) = 0.99; P(X = b) = 0.01\)</span>):</p>
+<div class="arithmatex">\[
+H(X) = - ((0.99 * \log_2 0.99) + (0.01 * \log_2 0.01) \approx 0.0807 \text{bits}
+\]</div>
+<p>High Entropy (<span class="arithmatex">\(P(X = a) = 0.51; P(X = b) = 0.49\)</span>):</p>
+<div class="arithmatex">\[
+H(X) = - ((0.51 * \log_2 0.51) + (0.49 * \log_2 0.49) \approx 0.9989 \text{bits}
+\]</div>
+</div>
 <hr />
 <h3 id="joint-entropy">Joint Entropy<a class="headerlink" href="#joint-entropy" title="Permanent link">&para;</a></h3>
 <div class="arithmatex">\[
@@ -1486,12 +1382,6 @@ H(X, Y)
 <div class="arithmatex">\[
 H(X, Y) = H(Y) + H(X \mid Y)
 \]</div>
-<p>Interpretation:</p>
-<ul>
-<li>For each <span class="arithmatex">\(y\)</span>, compute uncertainty of <span class="arithmatex">\(P(x \mid y)\)</span>  </li>
-<li>Weight it by <span class="arithmatex">\(P(y)\)</span>  </li>
-<li>Sum over all <span class="arithmatex">\(y\)</span></li>
-</ul>
 <hr />
 <h2 id="information-gain-mutual-information">Information Gain (Mutual Information)<a class="headerlink" href="#information-gain-mutual-information" title="Permanent link">&para;</a></h2>
 <p>Mutual Information measures how much knowing <span class="arithmatex">\(Y\)</span> reduces uncertainty about <span class="arithmatex">\(X\)</span>:</p>
@@ -1505,19 +1395,17 @@ IG(X; Y)
 = \sum_{x,y} P(x,y)\,
 \log_2 \frac{P(x,y)}{P(x)\, P(y)}
 \]</div>
-<p>Interpretation:</p>
+<details class="tip">
+<summary>Log Ratio</summary>
+<div class="arithmatex">\[
+r = \log_2 \frac{P(x,y)}{P(x)P(y)}
+\]</div>
 <ul>
-<li>Enumerate all <span class="arithmatex">\((x, y)\)</span> pairs</li>
-<li>Compute marginal probabilities <span class="arithmatex">\(P(x)\)</span> and <span class="arithmatex">\(P(y)\)</span></li>
-<li>Compute joint probabilities <span class="arithmatex">\(P(x,y)\)</span>  </li>
-<li>Compare joint probability with the “independent joint” <span class="arithmatex">\(P(x)P(y)\)</span></li>
+<li><span class="arithmatex">\(r = 0\)</span> → occurs as expected under independence </li>
+<li><span class="arithmatex">\(r &gt; 0\)</span> → co-occur more than expected → positive association </li>
+<li><span class="arithmatex">\(r &lt; 0\)</span> → co-occur less than expected → negative association</li>
 </ul>
-<p>Meaning of the log ratio:</p>
-<ul>
-<li><span class="arithmatex">\(\log_2 \frac{P(x,y)}{P(x)P(y)} = 0\)</span> → occurs as expected under independence  </li>
-<li><span class="arithmatex">\(&gt; 0\)</span> → co-occur more than expected → positive association  </li>
-<li><span class="arithmatex">\(&lt; 0\)</span> → co-occur less than expected → negative association</li>
-</ul>
+</details>
 <hr />
 
 
