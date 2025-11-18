@@ -14,7 +14,6 @@
 
 - 💭 CNN for Visual Recognition - Stanford CS231n
 - 💭 Natural Language Processing - Stanford CS224n
-- 💭 Machine Learning with Graphs - Stanford CS224w
 
 ## 📚 Reference
 

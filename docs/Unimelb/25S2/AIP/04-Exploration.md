@@ -1,4 +1,4 @@
-# 5 Exploration 
+# 4 Exploration 
 ---
 ## Balancing the Exploitation & Exploration
 

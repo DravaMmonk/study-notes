@@ -1,5 +1,4 @@
-
-# 12 Integrating Learning and Planning
+# 11 Integrating Learning and Planning
 ---
 ## Model-free → Integrated Architectures
 

@@ -1,4 +1,4 @@
-# 7 Markov Decision Process
+# 6 Markov Decision Process
 ---
 ## Markov Decision Process
 

@@ -1,4 +1,4 @@
-# 10 Value Function Approximation
+# 9 Value Function Approximation
 ---
 ## Tabular Representation → Function Representation
 

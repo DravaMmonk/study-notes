@@ -1,4 +1,47 @@
-# 4 Relaxation
+# 3 Relaxation
+---
+## Complexity
+
+- **P**: Problem can be solved using polytime
+- **NP**: Problem can be solved using non-deterministic polytime
+- **PSPACE**: Problem can be solved using polynomial space
+- **EXP**: Problem can be solved using exponential time
+
+
+$$
+P \subseteq NP \subseteq PSPACE \subseteq EXP
+$$
+
+> [!info] Savitch’s Theorem 
+> 
+> ***NPSPACE = PSPACE***
+> - Non-determinism won't make problems to be harder or solvers to be more powerful.
+
+A decision problem $L$ is ***PSPACE-complete*** iff:
+
+1. $L \in$ ***PSPACE***
+	- $L$ can be solved using polynomial space
+2. $L$ is ***PSPACE-hard***
+	- every problem in ***PSPACE*** can be polynomial-time reduced to $L$
+
+---
+## Goals Definition
+
+$\mathrm{PlanEx}(P)$
+
+- for making a **Satisficing** planning
+- $\mathrm{PlanEx}(P) =$ `TRUE` - Existence of a plan for problem $P$.
+
+
+**$\mathrm{PlanLen}(P)$**  
+
+- for making a **Optimal** planning
+-  $mathrm{PlanLen}(P) \le B$ - Existence of a plan which length is at most $B$.
+
+> [!note] Note
+> Both $\mathrm{PlanEx}$ and $\mathrm{PlanLen}$ are _PSPACE-complete_.
+> - *In practice, optimal planning is almost never easy*
+
 ---
 ## Relaxation 
 

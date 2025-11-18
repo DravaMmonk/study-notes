@@ -1,4 +1,4 @@
-# 11 Policy Function Approximation
+# 10 Policy Function Approximation
 ---
 ## Value-based → Policy-based
 

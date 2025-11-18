@@ -94,3 +94,66 @@ Derived from Brute Force, implement the ability to handle stochasticity：
 > - **Rarely optimal** ⚠️
 > 	- Must map any possible $s_0$ to $g$, too much unnecessary work
 > 	- Sensitive to Worst/Special case 
+
+
+---
+## Languages for Planning
+### *STRIPS*
+
+*STRIPS* = "STanford Research Institute Problem Solver", which designed a language for:
+
+- **Specification** - concise model description
+- **Computation** - reveal useful information/structure for heuristics
+
+All problems in following format can be solved by *STRIPS*:
+
+$$
+P = \langle P,A,I,G \rangle
+$$
+
+where
+
+- $P$ - All Possible Predicates
+- $A$ - Actions
+- $I$ - Initial States: Predicates initially to be `TRUE`
+- $G$ - Goal Conditions: Predicates Finally need to be `TRUE`
+
+**Actions**
+
+$$
+a \in A, a = \langle Pre(a), Add(a), Del(a) \rangle
+$$
+
+where
+
+- $Pre(a)$ - Preconditions need to be `TRUE` before executing the action
+- $Add(a)$ - Add Effects: Preconditions set to be`TRUE` after execution
+- $Del(a)$ - Delete Effects: Preconditions set to be `FALSE` after execution
+
+**Result Function (Application/Transition Function)**
+
+$$
+Result(s, a) = (s - Del(a)) \cup Add(a)
+$$
+
+**Goal of *STRIPS***
+
+Find a list of actions $[a_1,a_2,a_3,\ldots]$ which satisfies:
+
+$$
+Result(Result(\ldots Result(I,a_1​) \ldots ,a_n−1​),a_n​) \models G
+$$
+
+> [!NOTE] Outcomes: *STRIPS*
+> 
+> It turns "Solving a problem" into "Search for solutions".
+> 
+> Still _PSPACE-complete_, but problem is now more concise and intuitive:
+> 	- Explicit Search
+> 		- e.g. Blind/Heuristic search
+> 		- Optimal Solution Guarantee✅; Not effective❌
+> 
+> And "***approximation***" is now able to be applied as well:
+> 	- Near Decomposition
+> 		- e.g. Relaxation
+> 		- Effective✅; Maybe fail❌
