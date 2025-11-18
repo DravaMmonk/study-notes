@@ -9,28 +9,28 @@
       
       
       
-        <link rel="prev" href="07-MDP.html">
+        <link rel="prev" href="../index.html">
       
       
-        <link rel="next" href="09-TD.html">
+        <link rel="next" href="../Unimelb/25S2/AIP/01-Search.html">
       
       
         
       
       
-      <link rel="icon" href="../../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>8 Monte Carlo - Drava's Study Notes</title>
+        <title>1 Linear Classifier - Drava's Study Notes</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#8-monte-carlo" class="md-skip">
+        <a href="#1-linear-classifier" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              8 Monte Carlo
+              1 Linear Classifier
             
           </span>
         </div>
@@ -205,7 +205,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../index.html" class="md-tabs__link">
+      <a href="../index.html" class="md-tabs__link">
         
   
   
@@ -227,26 +227,42 @@
   
     
     
-      
-  
-  
-  
-    
-  
-  
-    
-    
-      
-  
-  
-  
-    
-  
-  
-    
-    
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="01-Search.html" class="md-tabs__link">
+        <a href="01-LC.html" class="md-tabs__link">
+          
+  
+  
+  Other
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../Unimelb/25S2/AIP/01-Search.html" class="md-tabs__link">
           
   
   
@@ -288,7 +304,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -306,7 +322,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../index.html" class="md-nav__link">
+      <a href="../index.html" class="md-nav__link">
         
   
   
@@ -361,7 +377,7 @@
   <span class="md-ellipsis">
     
   
-    Unimelb
+    Other
   
 
     
@@ -377,7 +393,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Unimelb
+    Other
   
 
           </label>
@@ -391,27 +407,123 @@
   
   
   
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="01-LC.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Linear Classifier
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
     
     
     
     
       
       
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
         
           
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
           
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unimelb
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Unimelb
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1" >
         
           
-          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
             
   
   
@@ -429,8 +541,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_2_1">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -444,8 +556,6 @@
                 
   
   
-    
-  
   
   
     
@@ -458,14 +568,16 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1" checked>
         
           
-          <label class="md-nav__link" for="__nav_2_1_1" id="__nav_2_1_1_label" tabindex="0">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1_1" id="__nav_3_1_1_label" tabindex="0">
             
   
   
@@ -483,8 +595,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_2_1_1">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_1">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -501,7 +613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="01-Search.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/AIP/01-Search.html" class="md-nav__link">
         
   
   
@@ -529,7 +641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-Planning.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/AIP/02-Planning.html" class="md-nav__link">
         
   
   
@@ -557,14 +669,14 @@
   
   
     <li class="md-nav__item">
-      <a href="03-Complexity.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/AIP/03-Relaxation.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    3 Complexity
+    3 Relaxation
   
 
     
@@ -585,14 +697,14 @@
   
   
     <li class="md-nav__item">
-      <a href="04-Relaxation.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/AIP/04-Exploration.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    4 Relaxation
+    4 Exploration
   
 
     
@@ -613,14 +725,14 @@
   
   
     <li class="md-nav__item">
-      <a href="05-Exploration.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/AIP/05-RL.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5 Exploration
+    5 Reinforced Learning
   
 
     
@@ -641,14 +753,14 @@
   
   
     <li class="md-nav__item">
-      <a href="06-RL.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/AIP/06-MDP.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    6 Reinforced Learning
+    6 Markov Decision Process
   
 
     
@@ -669,189 +781,14 @@
   
   
     <li class="md-nav__item">
-      <a href="07-MDP.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/AIP/07-MC.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    7 Markov Decision Process
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    8 Monte Carlo
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="08-MC.html" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    8 Monte Carlo
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#model-based-model-free" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Model-based → Model-free
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#monte-carlo-mc-learning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Monte Carlo (MC) Learning
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mc-policy-iteration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        MC Policy Iteration
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mc-exploring-starts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        MC Exploring Starts
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="MC Exploring Starts">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#first-visit-vs-every-visit" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        First-visit vs. Every-visit
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mc-greedy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        MC + ε-greedy
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="09-TD.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    9 Temporal Difference
+    7 Monte Carlo
   
 
     
@@ -872,14 +809,14 @@
   
   
     <li class="md-nav__item">
-      <a href="10-Value-Approx.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/AIP/08-TD.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    10 Value Function Approximation
+    8 Temporal Difference
   
 
     
@@ -900,14 +837,14 @@
   
   
     <li class="md-nav__item">
-      <a href="11-Policy-Approx.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/AIP/09-Value-Approx.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    11 Policy Function Approximation
+    9 Value Function Approximation
   
 
     
@@ -928,14 +865,42 @@
   
   
     <li class="md-nav__item">
-      <a href="12-Integrating.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/AIP/10-Policy-Approx.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    12 Integrating Learning and Planning
+    10 Policy Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Unimelb/25S2/AIP/11-Integrating.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 Integrating Learning and Planning
   
 
     
@@ -979,10 +944,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_1_2" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_2" >
         
           
-          <label class="md-nav__link" for="__nav_2_1_2" id="__nav_2_1_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
             
   
   
@@ -1000,8 +965,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_1_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1018,7 +983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../IML/01-foundations.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/IML/01-foundations.html" class="md-nav__link">
         
   
   
@@ -1069,10 +1034,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_1_3" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_2_1_3" id="__nav_2_1_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_1_3" id="__nav_3_1_3_label" tabindex="0">
             
   
   
@@ -1090,8 +1055,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_1_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1108,7 +1073,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../MoC/01-introduction.html" class="md-nav__link">
+      <a href="../Unimelb/25S2/MoC/01-introduction.html" class="md-nav__link">
         
   
   
@@ -1169,157 +1134,7 @@
 
 
 
-<h1 id="8-monte-carlo">8 Monte Carlo<a class="headerlink" href="#8-monte-carlo" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="model-based-model-free">Model-based → Model-free<a class="headerlink" href="#model-based-model-free" title="Permanent link">&para;</a></h2>
-<p>Model-based</p>
-<ul>
-<li>Learn from <strong>Simulator</strong> of Environment<ul>
-<li>Commonly use MDP to model the Markov Environment</li>
-</ul>
-</li>
-</ul>
-<p>Model-free</p>
-<ul>
-<li>Learn <strong>Experience</strong> from Environment<ul>
-<li>Experience: <span class="arithmatex">\(E_t = \langle S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1}, ... \rangle\)</span></li>
-</ul>
-</li>
-<li>Optimise <span class="arithmatex">\(V, Q, \pi\)</span> directly</li>
-</ul>
-<hr />
-<h2 id="monte-carlo-mc-learning">Monte Carlo (MC) Learning<a class="headerlink" href="#monte-carlo-mc-learning" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Run-to-end in the environment for multiple times</li>
-<li>Use <strong>Average Actual Return</strong> to <strong>estimate</strong> value function</li>
-</ol>
-<div class="arithmatex">\[
-V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
-\]</div>
-<p>where</p>
-<ul>
-<li><span class="arithmatex">\(N(s)\)</span> - how many times <span class="arithmatex">\(G_t\)</span> is visited</li>
-<li>When <span class="arithmatex">\(N(s) \to \infty\)</span>, <span class="arithmatex">\(V(s) \to v_\pi(s)\)</span>.</li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Outcomes: Monte Carlo</p>
-<ul>
-<li>Unbiased✅</li>
-<li>Can only apply to <strong>episodic</strong> (terminating) Markov environment⚠️</li>
-</ul>
-</div>
-<hr />
-<h2 id="mc-policy-iteration">MC Policy Iteration<a class="headerlink" href="#mc-policy-iteration" title="Permanent link">&para;</a></h2>
-<p>Directly transfer Policy Iteration into a Monte-Carlo version.</p>
-<p><strong>Algorithm</strong></p>
-<ul>
-<li>For each iteration:<ol>
-<li>Policy Evaluation (Predication)<ul>
-<li>For each <span class="arithmatex">\((s, a)\)</span>:<ul>
-<li>run <strong>sufficiently many</strong> episodes and get average return</li>
-<li>When <span class="arithmatex">\(N \to \infty\)</span>, <span class="arithmatex">\(Q(s, a) \to q_\pi(s, a)\)</span></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Policy Improvement (Control)<ul>
-<li>Give the Greedy Optimal Policy based on estimated <span class="arithmatex">\(Q\)</span><ul>
-<li><span class="arithmatex">\(a^\ast = \arg\max_a q_\pi(s,a)\)</span></li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Outcomes: MCPI</p>
-<ul>
-<li>Convergence guarantee✅ </li>
-<li>Very low Time Efficiency; Not practical❌</li>
-</ul>
-</div>
-<hr />
-<h2 id="mc-exploring-starts">MC Exploring Starts<a class="headerlink" href="#mc-exploring-starts" title="Permanent link">&para;</a></h2>
-<p><strong>Generalised Policy Iteration (GPI)</strong>: Repeatedly interleave evaluation and improvement, instead of doing them once.</p>
-<p><strong>Exploring Starts</strong>: Randomly select start points to avoid missing the optimal episode.</p>
-<p><strong>Algorithm</strong></p>
-<ul>
-<li>Repeat:<ul>
-<li>Start from a random <span class="arithmatex">\((s_0, a_0)\)</span></li>
-<li>For each <span class="arithmatex">\((s,a)\)</span> visited:<ul>
-<li><span class="arithmatex">\(N(s,a) \gets N(s,a) + 1\)</span></li>
-<li>Update <span class="arithmatex">\(Q(s,a) \gets \frac{1}{N(s,a)}(Q(s,a) + (G - Q(s,a))\)</span></li>
-<li>If <span class="arithmatex">\(Q\)</span> is updated, update <span class="arithmatex">\(a^\ast\)</span></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Outcomes: ES-MC</p>
-<ul>
-<li>Data is used much more efficiently</li>
-<li><strong>Exploring Start</strong> can highly guarantee that every node is visited</li>
-<li>However difficult in practice (limitation in environment)</li>
-</ul>
-</div>
-<h3 id="first-visit-vs-every-visit">First-visit vs. Every-visit<a class="headerlink" href="#first-visit-vs-every-visit" title="Permanent link">&para;</a></h3>
-<p>Different ways to handle <strong>repeated visits</strong> of the same <span class="arithmatex">\((s,a)\)</span> pair during an episode:</p>
-<table>
-<thead>
-<tr>
-<th>Aspect</th>
-<th>First-Visit MC</th>
-<th>Every-Visit MC</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>When?</td>
-<td>Only the <em>first</em> time visit</td>
-<td><em>Every</em> time visit</td>
-</tr>
-<tr>
-<td>Pros</td>
-<td>Avoids dependence between multiple visits</td>
-<td>Faster convergence in practice</td>
-</tr>
-<tr>
-<td>Cons</td>
-<td>Some visits ignored</td>
-<td>Higher variance</td>
-</tr>
-<tr>
-<td>Suitable Scenario</td>
-<td>Long episodes with repeated states</td>
-<td>Short episodes or rare-state situations</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="mc-greedy">MC + ε-greedy<a class="headerlink" href="#mc-greedy" title="Permanent link">&para;</a></h2>
-<p>Use a soft policy (e.g., ε-greedy) to avoid the need for exploring starts.</p>
-<div class="arithmatex">\[
-\pi(a|s) =
-\begin{cases}
-1 - (1 - \frac{1}{|\mathcal{A}(s)|}) \, \varepsilon, &amp; a = a^*_k \\[6pt]
-\frac{1}{|\mathcal{A}(s)|} \, \varepsilon, &amp; \text{otherwise}
-\end{cases}
-\]</div>
-<p>where</p>
-<ul>
-<li><span class="arithmatex">\(|\mathcal{A}(s)|\)</span> - number of valid actions of state</li>
-<li>Balance Exploration &amp; Exploitation</li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Outcomes: ε-greedy MC</p>
-<ul>
-<li>Ensures continual exploration by assigning non-zero probability to all actions. ✅</li>
-<li>More stable than pure greedy MC because it prevents being trapped in suboptimal actions early. ⭐️</li>
-<li>Slight performance trade-off: exploration introduces variance, but improves long-term value estimation and policy quality. 💭</li>
-</ul>
-</div>
+<h1 id="1-linear-classifier">1 Linear Classifier<a class="headerlink" href="#1-linear-classifier" title="Permanent link">&para;</a></h1>
 <hr />
 
 
@@ -1378,10 +1193,10 @@ V(s) \approx \frac{1}{N(s)} \sum_{i=1}^{N(s)} G_t^{(i)}
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       
