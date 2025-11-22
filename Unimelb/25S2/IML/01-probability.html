@@ -12,7 +12,7 @@
         <link rel="prev" href="../AIP/11-Integrating.html">
       
       
-        <link rel="next" href="../MoC/01-introduction.html">
+        <link rel="next" href="02-learning.html">
       
       
         
@@ -225,8 +225,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../../../Other/01-LC.html" class="md-tabs__link">
+        <a href="../../../Other/DLCV/01-CNN.html" class="md-tabs__link">
           
   
   
@@ -234,6 +241,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -406,15 +416,69 @@
   
   
   
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DLCV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DLCV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../../Other/01-LC.html" class="md-nav__link">
+      <a href="../../../Other/DLCV/01-CNN.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    1 Linear Classifier
+    1 Convolutional Neural Networks
   
 
     
@@ -423,6 +487,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1048,6 +1120,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Probability Theory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sample-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample Space
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#random-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Random Variable
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1123,10 +1223,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#information-gain-mutual-information" class="md-nav__link">
+  <a href="#mutual-information" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Information Gain (Mutual Information)
+        Mutual Information
       
     </span>
   </a>
@@ -1137,6 +1237,62 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="02-learning.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 Machine Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="03-KNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 K-Nearest Neighbours
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1275,14 +1431,60 @@
 <h1 id="1-probability">1 Probability<a class="headerlink" href="#1-probability" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="probability-theory">Probability Theory<a class="headerlink" href="#probability-theory" title="Permanent link">&para;</a></h2>
+<p><strong>Probability Theory</strong> is the <em>theoretical and mathematical foundation</em> of Machine Learning.</p>
 <div class="admonition faq">
 <p class="admonition-title">What is Probability?</p>
 <ul>
-<li>A <em>language</em> used for describing <strong>uncertainty</strong></li>
-<li>A <em>framework</em> of designing machine learning models</li>
-<li>A <em>foundation</em> of Learning &amp; Generalisation</li>
+<li>A <em>language</em> used for describing and quantifying <strong>Uncertainty</strong></li>
+<li>A <em>framework</em> of designing Machine Learning <strong>Models</strong><ul>
+<li>Distribution</li>
+<li>Prediction</li>
+<li>Optimisation</li>
+<li>Generalisation</li>
+<li>Evaluation</li>
+</ul>
+</li>
 </ul>
 </div>
+<h3 id="sample-space">Sample Space<a class="headerlink" href="#sample-space" title="Permanent link">&para;</a></h3>
+<p>Defines a set of events with mutually <strong>exclusive</strong> and <strong>exhaustive</strong> possibilities.</p>
+<div class="arithmatex">\[
+\Omega = \{ \omega_1, \omega_2, \ldots \}
+\]</div>
+<p><strong>Exclusive</strong>: Different events won't happen at the same time.</p>
+<div class="arithmatex">\[
+P(\omega_i \cap \omega_j) = 0, \forall (\omega_i, \omega_j )\in A
+\]</div>
+<p><strong>Exhaustive</strong>: The events listed is exactly all of possible events.</p>
+<div class="arithmatex">\[
+P(\Omega)=1
+\]</div>
+<details class="info">
+<summary>EXAMPLE</summary>
+<div class="arithmatex">\[
+\Omega_\text{Coin} = \{\text{heads}, \text{tails}\}
+\]</div>
+<div class="arithmatex">\[
+\Omega_\text{D6} = \{1,2,3,4,5,6\}
+\]</div>
+</details>
+<hr />
+<h3 id="random-variable">Random Variable<a class="headerlink" href="#random-variable" title="Permanent link">&para;</a></h3>
+<p>A function maps the outcome of a sample space to a value.</p>
+<div class="arithmatex">\[
+X: \Omega \to E
+\]</div>
+<details class="info">
+<summary>EXAMPLE</summary>
+<p>Use <span class="arithmatex">\(Y\)</span> to model a coin payoff for a successful bet on heads:</p>
+<div class="arithmatex">\[
+Y(\omega) = 
+\begin{cases}
+1, &amp;\text{if}\; \omega = \text{heads} \\
+0, &amp;\text{if}\; \omega = \text{tails}
+\end{cases}
+\]</div>
+</details>
 <hr />
 <h2 id="bayes-rule">Bayes Rule<a class="headerlink" href="#bayes-rule" title="Permanent link">&para;</a></h2>
 <div class="arithmatex">\[
@@ -1290,8 +1492,8 @@ P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}
 \]</div>
 <p>where</p>
 <ul>
-<li><span class="arithmatex">\(P(A \mid B)\)</span> - The <em>belief</em> of <span class="arithmatex">\(A\)</span> if we have accounted for <span class="arithmatex">\(B\)</span> </li>
-<li><span class="arithmatex">\(P(A)\)</span> - The <em>belief</em> of <span class="arithmatex">\(A\)</span> without any additional acknowledge</li>
+<li><span class="arithmatex">\(P(A \mid B)\)</span> - The <em>belief</em> of <span class="arithmatex">\(A\)</span> while given knowledge of <span class="arithmatex">\(B\)</span></li>
+<li><span class="arithmatex">\(P(A)\)</span> - The <em>belief</em> of <span class="arithmatex">\(A\)</span> without any knowledge</li>
 <li><span class="arithmatex">\(P(B \mid A)\)</span> - The support <span class="arithmatex">\(B\)</span> provides for <span class="arithmatex">\(A\)</span></li>
 <li><span class="arithmatex">\(P(B)\)</span> - Constant for normalising</li>
 </ul>
@@ -1310,11 +1512,11 @@ I(x) = -\log_2 P(x)
 </ul>
 <div class="admonition faq">
 <p class="admonition-title">Why is <em>Information</em> so denoted?</p>
-<p>Map a probability score (range <span class="arithmatex">\([0, 1]\)</span>) to a valued information score (range <span class="arithmatex">\([0, +\infty)\)</span> ).</p>
+<p>Map a <em>probability</em> (range <span class="arithmatex">\([0, 1]\)</span>) to a quantified score of <em>Information</em> (range <span class="arithmatex">\([0, +\infty)\)</span> ).</p>
 </div>
 <hr />
 <h3 id="entropy_1">Entropy<a class="headerlink" href="#entropy_1" title="Permanent link">&para;</a></h3>
-<p>Entropy is the expected information obtained from a random variable <span class="arithmatex">\(X\)</span>, which is weighted sum of all <em>Information</em> carried by events may happened on <span class="arithmatex">\(X\)</span>:</p>
+<p>The expected <em>Information</em> obtained from a random variable.</p>
 <div class="arithmatex">\[
 H(X) = \mathbb{E}[I(X)] = -\sum_x P(x)\, \log_2 P(x)
 \]</div>
@@ -1326,41 +1528,43 @@ H(X) = \mathbb{E}[I(X)] = -\sum_x P(x)\, \log_2 P(x)
 <p><span class="arithmatex">\(-\log_2 P(x)\)</span> - the information carried by outcome <span class="arithmatex">\(x\)</span></p>
 </li>
 <li>
-<p>The value of <span class="arithmatex">\(X\)</span> is 100% <span class="arithmatex">\(a\)</span> → Entropy = 0</p>
+<p>The value of <span class="arithmatex">\(X\)</span> is 100% <span class="arithmatex">\(a\)</span> → <span class="arithmatex">\(H(X) = 0\)</span></p>
 </li>
 <li>The value of <span class="arithmatex">\(X\)</span> is almost certain → Low Entropy</li>
 <li>The value of <span class="arithmatex">\(X\)</span> is highly uncertain → High Entropy</li>
-<li>The value of <span class="arithmatex">\(X\)</span> is 50% <span class="arithmatex">\(a\)</span> and 50% <span class="arithmatex">\(b\)</span> → Entropy = 1 bit</li>
+<li>The value of <span class="arithmatex">\(X\)</span> is 50% <span class="arithmatex">\(a\)</span> and 50% <span class="arithmatex">\(b\)</span> → <span class="arithmatex">\(H(X) = 1 \text{bit}\)</span></li>
 </ul>
 <div class="admonition info">
 <p class="admonition-title">EXAMPLE</p>
-<p><span class="arithmatex">\(X = {a, b}\)</span></p>
-<p>Low Entropy (<span class="arithmatex">\(P(X = a) = 0.99; P(X = b) = 0.01\)</span>):</p>
+<p><span class="arithmatex">\(X = \{a, b\}\)</span></p>
+<p><strong>Low Entropy</strong> (<span class="arithmatex">\(P(X = a) = 0.99; P(X = b) = 0.01\)</span>):</p>
 <div class="arithmatex">\[
 H(X) = - ((0.99 * \log_2 0.99) + (0.01 * \log_2 0.01) \approx 0.0807 \text{bits}
 \]</div>
-<p>High Entropy (<span class="arithmatex">\(P(X = a) = 0.51; P(X = b) = 0.49\)</span>):</p>
+<p><strong>High Entropy</strong> (<span class="arithmatex">\(P(X = a) = 0.51; P(X = b) = 0.49\)</span>):</p>
 <div class="arithmatex">\[
 H(X) = - ((0.51 * \log_2 0.51) + (0.49 * \log_2 0.49) \approx 0.9989 \text{bits}
 \]</div>
 </div>
 <hr />
 <h3 id="joint-entropy">Joint Entropy<a class="headerlink" href="#joint-entropy" title="Permanent link">&para;</a></h3>
+<p>The expected <em>Information</em> obtained from joint variables.</p>
 <div class="arithmatex">\[
 H(X, Y)
 = -\sum_{x,y} P(x, y)\, \log_2 P(x, y)
 \]</div>
 <hr />
 <h3 id="conditional-entropy">Conditional Entropy<a class="headerlink" href="#conditional-entropy" title="Permanent link">&para;</a></h3>
-<p>Definition:</p>
+<p>The expected <em>Information</em> obtained from one variable given knowledge of the other.</p>
 <div class="arithmatex">\[
 H(X \mid Y) = H(X, Y) - H(Y)
 \]</div>
-<p>Derivation via chain rule:</p>
-<p>Given<br />
-$$
+<details class="note">
+<summary>Derivation via chain rule</summary>
+<p>Given  </p>
+<div class="arithmatex">\[
 P(x, y) = P(y)\, P(x \mid y),
-$$</p>
+\]</div>
 <p>Substitute into joint entropy:</p>
 <div class="arithmatex">\[
 H(X, Y)
@@ -1382,12 +1586,15 @@ H(X, Y)
 <div class="arithmatex">\[
 H(X, Y) = H(Y) + H(X \mid Y)
 \]</div>
+</details>
 <hr />
-<h2 id="information-gain-mutual-information">Information Gain (Mutual Information)<a class="headerlink" href="#information-gain-mutual-information" title="Permanent link">&para;</a></h2>
-<p>Mutual Information measures how much knowing <span class="arithmatex">\(Y\)</span> reduces uncertainty about <span class="arithmatex">\(X\)</span>:</p>
+<h2 id="mutual-information">Mutual Information<a class="headerlink" href="#mutual-information" title="Permanent link">&para;</a></h2>
+<p>If we get the knowledge of <span class="arithmatex">\(Y\)</span> , how much we can reduces the <em>Uncertainty</em> about <span class="arithmatex">\(X\)</span>:</p>
 <div class="arithmatex">\[
-IG(X; Y) = H(X) - H(X \mid Y)
-         = H(Y) - H(Y \mid X)
+\begin{align}
+IG(X; Y) &amp;= H(X) - H(X \mid Y) \\[4pt]
+         &amp;= H(Y) - H(Y \mid X)
+\end{align}
 \]</div>
 <p>Mutual information can be expressed using joint probabilities:</p>
 <div class="arithmatex">\[

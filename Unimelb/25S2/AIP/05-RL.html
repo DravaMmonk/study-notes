@@ -225,8 +225,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../../../Other/01-LC.html" class="md-tabs__link">
+        <a href="../../../Other/DLCV/01-CNN.html" class="md-tabs__link">
           
   
   
@@ -234,6 +241,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -406,15 +416,69 @@
   
   
   
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DLCV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DLCV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../../Other/01-LC.html" class="md-nav__link">
+      <a href="../../../Other/DLCV/01-CNN.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    1 Linear Classifier
+    1 Convolutional Neural Networks
   
 
     
@@ -423,6 +487,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1254,6 +1326,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IML/02-learning.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 Machine Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IML/03-KNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 K-Nearest Neighbours
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1522,26 +1650,22 @@
 <div class="arithmatex">\[
 P(s' \mid s + H(s), a) = P(s' \mid s, a)
 \]</div>
-<pre><code>- Once $S$ is known, $H$ can be thrown away
-</code></pre>
 <ul>
-<li>Any RL problem can be made Markov by expanding the state<ul>
+<li>Once <span class="arithmatex">\(S\)</span> is known, <span class="arithmatex">\(H\)</span> can be thrown away</li>
+</ul>
+<p>Any RL problem can be made Markov by expanding the state:</p>
+<ul>
 <li>Add history into the current state</li>
 <li>Add belief state (POMDP → belief-MDP)</li>
 <li>Add latent state (Model-based RL)</li>
 </ul>
-</li>
-</ul>
 <hr />
 <h3 id="reward-r">Reward - <span class="arithmatex">\(R\)</span><a class="headerlink" href="#reward-r" title="Permanent link">&para;</a></h3>
-<ul>
-<li>A scalar feedback signal</li>
-<li>Indicates how well agent is doing at one step</li>
-<li><strong>Reward Hypothesis</strong><ul>
-<li><em>All</em> goals can be described by the <span class="arithmatex">\(maximisation\)</span> of expected cumulative reward</li>
-</ul>
-</li>
-</ul>
+<p>A scalar feedback signal, indicating how well agent is doing at one step.</p>
+<div class="admonition info">
+<p class="admonition-title"><strong>Reward Hypothesis</strong></p>
+<p><em>All</em> goals can be described by the <span class="arithmatex">\(maximisation\)</span> of expected cumulative reward</p>
+</div>
 <hr />
 <h2 id="agents">Agents<a class="headerlink" href="#agents" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1683,8 +1807,8 @@ q_\pi(s,a)
 </tr>
 </tbody>
 </table>
-<details class="note">
-<summary>Why Discounting is Used</summary>
+<details class="faq">
+<summary>Why Discounting is Used?</summary>
 <p><strong>Technical Reasons</strong></p>
 <ul>
 <li>Makes modelling and computation easier (Bellman equations converge cleanly)</li>

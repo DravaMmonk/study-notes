@@ -1,0 +1,2115 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../index.html">
+      
+      
+        <link rel="next" href="../../Unimelb/25S2/AIP/01-Search.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>1 Convolutional Neural Networks - Drava's Study Notes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="pink">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#1-convolutional-neural-networks" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Drava's Study Notes
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1 Convolutional Neural Networks
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="pink"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="pink"  aria-hidden="true"  type="radio" name="__palette" id="__palette_1">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Drava's Study Notes
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="01-CNN.html" class="md-tabs__link">
+          
+  
+  
+  Other
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../Unimelb/25S2/AIP/01-Search.html" class="md-tabs__link">
+          
+  
+  
+  Unimelb
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Drava's Study Notes
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drava's Study Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Other
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DLCV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DLCV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Convolutional Neural Networks
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="01-CNN.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Convolutional Neural Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#convolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Convolution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#perceptron-linear-classifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Perceptron → Linear Classifier
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Perceptron → Linear Classifier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classifier-score-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classifier (Score Function)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loss-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loss Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optimisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optimisation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linear-classifier-fully-connected-networks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linear Classifier → Fully-Connected Networks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Linear Classifier → Fully-Connected Networks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#activate-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Activate Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backpropagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backpropagation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fcns-convolutional-networks-cnns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FCNs → Convolutional Networks (CNNs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convolution-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Convolution Layer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Convolution Layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#padding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Padding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#downsampling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Downsampling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Downsampling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pooling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stride" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stride
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#normalisation-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Normalisation Layer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Normalisation Layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#normalise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Normalise
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affine-transform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affine Transform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dropout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dropout
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unimelb
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Unimelb
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25S2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    25S2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1_1" id="__nav_3_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AIP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AIP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/01-Search.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/02-Planning.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/03-Relaxation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/04-Exploration.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 Exploration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/05-RL.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/06-MDP.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Markov Decision Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/07-MC.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Monte Carlo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/08-TD.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 Temporal Difference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/09-Value-Approx.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 Value Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/10-Policy-Approx.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 Policy Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/AIP/11-Integrating.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 Integrating Learning and Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IML
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IML
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/IML/01-probability.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Probability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/IML/02-learning.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 Machine Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/IML/03-KNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 K-Nearest Neighbours
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1_3" id="__nav_3_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MoC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    MoC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Unimelb/25S2/MoC/01-introduction.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="1-convolutional-neural-networks">1 Convolutional Neural Networks<a class="headerlink" href="#1-convolutional-neural-networks" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="convolution">Convolution<a class="headerlink" href="#convolution" title="Permanent link">&para;</a></h2>
+<p>Convolution = Local weighted sum</p>
+<div class="arithmatex">\[
+O[x, y] = \sum_{i,j} I[x+i,\; y+j]\;K[i,j]
+\]</div>
+<p>Where</p>
+<ul>
+<li><span class="arithmatex">\(I\)</span> - Select a <strong>local patch</strong> of the image</li>
+<li><span class="arithmatex">\(K\)</span> - Multiply each value by the <strong>local weights</strong> defined in the kernel (filter/pattern)</li>
+<li><span class="arithmatex">\((x,y)\)</span> - Sum them to obtain one output value at position</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">What does a <em>filter</em> define?</p>
+<p><strong>1. Local Area</strong></p>
+<p>Range/Size of the filter = definition of <strong>locality</strong>.</p>
+<ul>
+<li>3×3 kernel → observes a 3×3 neighbourhood  </li>
+<li>5×5 kernel → observes a 5×5 neighbourhood  </li>
+</ul>
+<p><strong>2. Local Weights</strong></p>
+<p>The kernel values (<span class="arithmatex">\(K[i,j]\)</span>) themselves define the <strong>weights</strong> for combining the local pixels.</p>
+<ul>
+<li>Edge filter → positive + negative values  </li>
+<li>Blur filter → uniform weights  </li>
+</ul>
+</div>
+<p>To make the computation more machine-friendly, we can:</p>
+<ul>
+<li><strong>Build</strong> a filter</li>
+<li><strong>Slide</strong> - Scan (apply such filter to) the input with a local rule</li>
+<li><strong>Form</strong> the results into a new map</li>
+</ul>
+<details class="example">
+<summary>Sobel Horizontal Filter</summary>
+<p><strong>Input</strong></p>
+<div class="arithmatex">\[
+I =
+\begin{bmatrix}
+1 &amp; 2 &amp; 3 &amp; 2 &amp; 1 \\
+2 &amp; 4 &amp; 5 &amp; 4 &amp; 2 \\
+3 &amp; 5 &amp; 8 &amp; 5 &amp; 3 \\
+2 &amp; 4 &amp; 5 &amp; 4 &amp; 2 \\
+1 &amp; 2 &amp; 3 &amp; 2 &amp; 1
+\end{bmatrix}
+\]</div>
+<p><strong>Kernel</strong></p>
+<p>Detects <strong>horizontal edges</strong>:</p>
+<div class="arithmatex">\[
+K =
+\begin{bmatrix}
+1 &amp; 2 &amp; 1 \\
+0 &amp; 0 &amp; 0 \\
+-1 &amp; -2 &amp; -1
+\end{bmatrix}
+\]</div>
+<ul>
+<li>Top row = positive weights  </li>
+<li>Bottom row = negative weights  </li>
+<li>Measures intensity change in <strong>vertical direction</strong> → highlights <strong>horizontal boundaries</strong></li>
+</ul>
+<p><strong>Convolution</strong></p>
+<p>Compute the first output pixel <span class="arithmatex">\(O[0,0]\)</span></p>
+<ul>
+<li>Patch covered by kernel:</li>
+</ul>
+<div class="arithmatex">\[
+\begin{bmatrix}
+1 &amp; 2 &amp; 3 \\
+2 &amp; 4 &amp; 5 \\
+3 &amp; 5 &amp; 8
+\end{bmatrix}
+\]</div>
+<ul>
+<li>Multiply element-wise:</li>
+</ul>
+<div class="arithmatex">\[
+\begin{aligned}
+O[0,0] &amp;= 
+(1\cdot1 + 2\cdot2 + 3\cdot1) \\
+&amp;\quad + (2\cdot0 + 4\cdot0 + 5\cdot0) \\
+&amp;\quad + (3\cdot(-1) + 5\cdot(-2) + 8\cdot(-1))
+\end{aligned}
+\]</div>
+<ul>
+<li>Compute:</li>
+</ul>
+<div class="arithmatex">\[
+O[0,0] = (1 + 4 + 3) + 0 + (-3 -10 -8) = -13
+\]</div>
+<p>After sliding the kernel across all positions:</p>
+<div class="arithmatex">\[
+O =
+\begin{bmatrix}
+-13 &amp; -16 &amp; -13 \\
+0 &amp; 0 &amp; 0 \\
+13 &amp; 16 &amp; 13
+\end{bmatrix}
+\]</div>
+</details>
+<p>Outcomes tell us:</p>
+<ul>
+<li>Where the pattern occurs  </li>
+<li>How strongly it appears  </li>
+<li>How it varies across space  </li>
+</ul>
+<hr />
+<h2 id="perceptron-linear-classifier">Perceptron → Linear Classifier<a class="headerlink" href="#perceptron-linear-classifier" title="Permanent link">&para;</a></h2>
+<p><strong>Linear Classifier</strong> is a modern use of <strong>Perceptron</strong> for mapping image features to multiple categories.</p>
+<h3 id="classifier-score-function">Classifier (Score Function)<a class="headerlink" href="#classifier-score-function" title="Permanent link">&para;</a></h3>
+<p>Linear Boundary:</p>
+<div class="arithmatex">\[
+s_{x_i} = f(x_i, W) = Wx_i
+\]</div>
+<h3 id="loss-function">Loss Function<a class="headerlink" href="#loss-function" title="Permanent link">&para;</a></h3>
+<p>Cross-Entropy + softmax</p>
+<div class="arithmatex">\[
+L_i = - \log \frac{\exp(s_{y_i})}{\sum_j \exp(s_j)}
+\]</div>
+<ul>
+<li>Regularisation Loss (L2):</li>
+</ul>
+<div class="arithmatex">\[
+R(W) = \lambda ||W||^2
+\]</div>
+<ul>
+<li>Full Loss:</li>
+</ul>
+<div class="arithmatex">\[
+L = \frac{1}{N} \sum_{i=1}^{N} L_i + R(W)
+\]</div>
+<h3 id="optimisation">Optimisation<a class="headerlink" href="#optimisation" title="Permanent link">&para;</a></h3>
+<p><strong>RMSProp</strong>: Dynamically adjust learning rates of different gradients.</p>
+<p>Maintain weighted average square of gradients:</p>
+<div class="arithmatex">\[
+E[g^2] \gets \beta E[g^2] + (1 - \beta)g^2
+\]</div>
+<p>Update parameters:</p>
+<div class="arithmatex">\[
+W \gets W - \frac{\alpha}{\sqrt{E[g^2]}+\epsilon}g
+\]</div>
+<hr />
+<h2 id="linear-classifier-fully-connected-networks">Linear Classifier → Fully-Connected Networks<a class="headerlink" href="#linear-classifier-fully-connected-networks" title="Permanent link">&para;</a></h2>
+<h3 id="activate-function">Activate Function<a class="headerlink" href="#activate-function" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Introduce <strong><em>non-linearities</em></strong> to the model.</p>
+<div class="arithmatex">\[
+\underbrace{\text{Linear Operators} \to \textcolor{red}{\text{Activate Function}}}_{\text{Feedforward/Linear Layer, Convolutional Layer, etc.}} \to \ldots
+\]</div>
+<p><strong>Sigmoid</strong></p>
+<div class="arithmatex">\[
+\sigma(x) = \frac{1}{1+e^{-x}}
+$$
+$$
+L_i = \sum_{j \ne y_i}\big[1-\sigma(s_{y_i}-s_j)\big]
+\]</div>
+<div class="admonition note">
+<p class="admonition-title">Outcome of Sigmoid</p>
+<ul>
+<li>Squash numbers to range <span class="arithmatex">\([0, 1]\)</span></li>
+<li>Nice interpretability as a saturating "firing rate" of a biological neurone (historically popular) ✅</li>
+<li>Large positive/negative values can easily "kill" the gradients ❌</li>
+</ul>
+</div>
+<p><strong>ReLU</strong> (Rectified Linear Unit)</p>
+<div class="arithmatex">\[
+L_i = \sum_{j \ne y_i} \max (0, s_j - s_{y_i} + 1)
+\]</div>
+<div class="admonition note">
+<p class="admonition-title">Outcome of ReLU</p>
+<ul>
+<li>Does not saturate ✅</li>
+<li>Very computationally efficient ✅</li>
+<li>Converges much faster than sigmoid in practice ✅</li>
+<li><span class="arithmatex">\(\mu \ne 0\)</span> ⚠️</li>
+<li>Dead when all <span class="arithmatex">\(x &lt; 0\)</span> ❌</li>
+</ul>
+</div>
+<p><strong>GELU</strong> (Gaussian Error Linear Unit)</p>
+<div class="arithmatex">\[
+\Phi(x) = \frac{1}{\sqrt{2\pi}}\int_{-\infty}^x \,e^{-t^2/2}\,dt
+\]</div>
+<div class="arithmatex">\[
+\text{GELU}(x) = x\,\Phi(x)
+\]</div>
+<div class="arithmatex">\[
+L_i = \sum_{j \ne y_i} \text{GELU}(1 - (s_{y_i}-s_j))
+\]</div>
+<div class="admonition note">
+<p class="admonition-title">Outcome of GELU</p>
+<ul>
+<li>Very nice behaviour around 0 ✅</li>
+<li>Smoothness facilitates training in practice ✅</li>
+<li>Higher computational cost than ReLU ☹️</li>
+<li>partial saturate → Large negative values can still easily "kill" gradients ❌</li>
+</ul>
+</div>
+<p><strong>Other Activation Function</strong></p>
+<div class="arithmatex">\[
+\text{Leaky ReLU}(x)=\max(0.1x,\,x)
+\]</div>
+<div class="arithmatex">\[
+\text{ELU}(x) =
+\begin{cases}
+x, &amp; x \ge 0 \\
+\alpha(e^x-1), &amp; x \lt 0
+\end{cases}
+\]</div>
+<div class="arithmatex">\[
+\text{SiLU}(x) = x \cdot \sigma(x)
+\]</div>
+<h3 id="backpropagation">Backpropagation<a class="headerlink" href="#backpropagation" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart LR
+    o["\*"]
+
+    x --&gt; o
+    y --&gt; o
+    o --&gt; z
+    z --&gt; ...
+</code></pre>
+<p>Every Node knows its <strong><em>Local Gradients</em></strong>:</p>
+<div class="arithmatex">\[
+z = x \cdot y, \; \textcolor{green}{\frac{\partial z}{\partial x}} = y
+\]</div>
+<p>It gets <strong><em>Upstream Gradient</em></strong> from the next layer:</p>
+<div class="arithmatex">\[
+\textcolor{red}{\frac{\partial L}{\partial z}}
+\]</div>
+<p>Then, it can get <strong><em>Downstream Gradients</em></strong> by simply multiplying its local gradients (Chain Rule) and send to the previous layer:</p>
+<div class="arithmatex">\[
+\frac{\partial L}{\partial x} = \textcolor{green}{\frac{\partial z}{\partial x}} \cdot \textcolor{red}{\frac{\partial L}{\partial z}}
+\]</div>
+<pre class="mermaid"><code>flowchart LR
+    ... --&gt;|&amp;part;L#47;&amp;part;z| z
+    z --&gt;|&amp;part;L#47;&amp;part;x| x
+    z --&gt;|&amp;part;L#47;&amp;part;y| y</code></pre>
+<hr />
+<h2 id="fcns-convolutional-networks-cnns">FCNs → Convolutional Networks (CNNs)<a class="headerlink" href="#fcns-convolutional-networks-cnns" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Key Limitation of FCNs on Computer Vision</p>
+<p>The <strong><em>spatial structure</em></strong> of images is destroyed.</p>
+<ul>
+<li>The neurone of FCNs can only process data in <strong>1D vector</strong> structure.</li>
+<li>An image must be flattened before being passed into the network.</li>
+</ul>
+<p>Outcome:</p>
+<ul>
+<li><strong>Pixel Adjacency</strong> is lost</li>
+<li><strong>Geometry</strong> and <strong>topology</strong> in images disappear</li>
+</ul>
+<p>This problem is almost <strong>impossible</strong> to be solved in FCNs framework.</p>
+<ul>
+<li>Re-learn spatial structure is inefficient and requires huge datasets</li>
+<li>May need too much parameters, causing overfitting and poor generalisation</li>
+</ul>
+</div>
+<p>Solution of CNNs: <strong>Convolution</strong> + <strong>Downsample</strong></p>
+<ul>
+<li><strong>Convolution</strong> layers - Extract features with a limited view/filter for respecting 2D image structure.</li>
+<li><strong>Pooling</strong> layers (<strong>Downsample</strong>) - Expand receptive field (view) and dropdown resolution for faster computation.</li>
+<li><strong>Fully-Connected</strong> layers - Form an MLP at the end to predict scores and output categories.</li>
+</ul>
+<p>A CNN is a neural network with Convolution layers.</p>
+<hr />
+<h2 id="convolution-layer">Convolution Layer<a class="headerlink" href="#convolution-layer" title="Permanent link">&para;</a></h2>
+<p><em>Assume a colour (RGB) image with 32x32 pixels</em></p>
+<p><strong>FCNs</strong>: Use <em>stretch</em> to transfer an image into a 1D vector.</p>
+<pre class="mermaid"><code>flowchart LR
+    A["3x32x32 image"] --&gt;|"stretch"| B["1x3072 vector"]
+    B --&gt;|"10x3072" weights| C["score"]</code></pre>
+<p><strong>Convolution</strong>:</p>
+<ul>
+<li>Perform <em>filters</em> with a small view (e.g., only care about a local range of pixels, only care about contrast, only care about margin, ...).</li>
+<li>Convolve (slide) over all spatial locations on the image.</li>
+<li>Perform activation function (ReLU).</li>
+<li>Store results in an activation map.</li>
+</ul>
+<p>One Filter:</p>
+<pre class="mermaid"><code>flowchart LR
+    A["3x32x32 image"]
+    subgraph c["Convolution Layer"]
+        B["1 number"]
+        C["1 number"]
+        D["..."]
+        E["1 number"]
+    end
+    F["1x28x28 activation map"]
+
+    z["bias vector"] --&gt; c
+    A --&gt;|"3x5x5 filter at (0,0)"| B
+    A --&gt;|"slide filter to (1,0)"| C
+    A --&gt;|"slide filter to ..."| D
+    A --&gt;|"slide filter to (27,27)"| E
+    B --&gt;|"ReLU"| F
+    C --&gt;|"ReLU"| F
+    D --&gt;|"ReLU"| F
+    E --&gt;|"ReLU"| F</code></pre>
+<p>Multiple Filters:</p>
+<pre class="mermaid"><code>flowchart LR
+    A["3x32x32 image"]
+    subgraph c["Convolution Layer"]
+        B["Filter 1"]
+        C["Filter 2"]
+        D["..."]
+        E["Filter 6"]
+    end
+    F["6 28x28 activation maps"]
+
+    A --&gt;|"(0,0) -&gt; (27,27)"| B
+    A --&gt;|"(0,0) -&gt; (27,27)"| C
+    A --&gt;|"(0,0) -&gt; (27,27)"| D
+    A --&gt;|"(0,0) -&gt; (27,27)"| E
+    B --&gt;|"ReLU"| F
+    C --&gt;|"ReLU"| F
+    D --&gt;|"ReLU"| F
+    E --&gt;|"ReLU"| F
+    x["6D bias vector"] --&gt; c</code></pre>
+<p>One Convolution Layer:</p>
+<ul>
+<li>Input: <span class="arithmatex">\(C_\text{in} \times H \times W\)</span></li>
+<li>Filters: <span class="arithmatex">\(C_\text{out} \times C_\text{in} \times K_h \times K_w\)</span> </li>
+<li>Output: <span class="arithmatex">\(C_\text{out} \times (H - K_h + 1) \times (W - K_w + 1)\)</span></li>
+</ul>
+<p>Multiple Convolution Layers:</p>
+<pre class="mermaid"><code>flowchart LR
+    A["3x32x32 image"]
+    B["6 28x28 activation maps"]
+    C["10 24x24 activation maps"]
+
+    A --&gt;|6 5x5x3 filters + ReLU| B
+    B --&gt;|10 5x5x6 filters + ReLU| C
+    C --&gt;|CONV + ReLU| ...</code></pre>
+<hr />
+<h3 id="padding">Padding<a class="headerlink" href="#padding" title="Permanent link">&para;</a></h3>
+<p><em>Problem</em> - Feature maps <strong>shrink</strong> with each layer.</p>
+<div class="arithmatex">\[
+W' = W - K + 1 \lt W
+\]</div>
+<p><em>Solution</em> - Add padding around the input before sliding the filter.</p>
+<ul>
+<li>Raw Input: <span class="arithmatex">\(W \times W\)</span></li>
+<li>Padding: <span class="arithmatex">\(P\)</span></li>
+<li>Padded Input: <span class="arithmatex">\((W+2P) \times (W+2P)\)</span></li>
+<li>Filter: <span class="arithmatex">\(K \times K\)</span></li>
+<li>Output: <span class="arithmatex">\((W - K + 1 + 2P) \times (W - K + 1 + 2P)\)</span></li>
+</ul>
+<p><strong>Same Padding</strong>: In practice, we use padding to keep the output size the same as the input size.</p>
+<div class="arithmatex">\[
+P = \frac{K - 1}{2}
+\]</div>
+<hr />
+<h2 id="downsampling">Downsampling<a class="headerlink" href="#downsampling" title="Permanent link">&para;</a></h2>
+<h3 id="pooling">Pooling<a class="headerlink" href="#pooling" title="Permanent link">&para;</a></h3>
+<p><em>Problem</em> - <strong>Translation Variance</strong></p>
+<p>The visual features should not depend on absolute coordinates</p>
+<div class="arithmatex">\[
+\text{Conv}(\text{Translate}(X)) = 
+\text{Translate}(\text{Conv}(X))
+\]</div>
+<p><strong>Translation Variance</strong>: A slight spatial shift in the input image may produce significant variations in the resulting feature map, leading to instability in the classifier’s predictions.</p>
+<p><em>Solution</em> - Downsample by applying a pool filter with a fixed sampling rule.</p>
+<p><strong>Max Pool</strong></p>
+<div class="arithmatex">\[
+O[i,j]=\max_{u,v \in R} I[u,v]
+\]</div>
+<p><strong>Average Pool</strong></p>
+<div class="arithmatex">\[
+O[i,j]=\frac{1}{|R|}\sum_{u,v \in R}I[u,v]
+\]</div>
+<p>where</p>
+<ul>
+<li><span class="arithmatex">\(R\)</span> - View of the pool filter</li>
+</ul>
+<h3 id="stride">Stride<a class="headerlink" href="#stride" title="Permanent link">&para;</a></h3>
+<p><em>Problem</em> - Convolution operator cost a lot.</p>
+<div class="arithmatex">\[
+\text{ConvOps}_{S=1} = (W - K + 2P +1)^2
+\]</div>
+<p><em>Solution</em> - Downsample by increasing the <strong>Stride</strong>.</p>
+<ul>
+<li>Not continuously slide the filter (<span class="arithmatex">\(S = 1\)</span>) anymore, but step with a distance (<span class="arithmatex">\(S \ge 2\)</span>)).</li>
+</ul>
+<div class="arithmatex">\[
+\text{ConvOps}_{S} = (\frac{W - K + 2P}{S} +1)^2
+\]</div>
+<p>Modern CV designs (ResNet, MobileNet) use strided convolution instead of pooling.</p>
+<details class="faq">
+<summary>Why strided convolution is replacing pooling?</summary>
+<ul>
+<li><strong>Learnable downsampling</strong> — Stride reduces spatial size <em>while learning</em> how to combine features, unlike fixed max/avg rules.</li>
+<li><strong>Better information preservation</strong> — Pooling discards details abruptly; stride can preserve meaningful structure.</li>
+<li><strong>End-to-end optimisation</strong> — Stride integrates into convolution layers, making the whole pipeline differentiable and more stable.</li>
+<li><strong>Cleaner architecture</strong> — Fewer separate layers</li>
+</ul>
+</details>
+<div class="admonition tip">
+<p class="admonition-title">Summary</p>
+<p>Input: <span class="arithmatex">\(C_{in} \times H\times W\)</span></p>
+<p>Hyperparameters:
+- Kernel size: <span class="arithmatex">\(K_H\times K_W\)</span>
+- Number filters: <span class="arithmatex">\(C_{out}\)</span>
+- Padding: <span class="arithmatex">\(P\)</span>
+- Stride: <span class="arithmatex">\(S\)</span></p>
+<p>Weight matrix: <span class="arithmatex">\(C_{out} \times C_{in} \times K_H\times K_W\)</span></p>
+<p>Bias vector:  <span class="arithmatex">\(C_{out}\)</span></p>
+<p>Output size: <span class="arithmatex">\(C_{out} \times H'\times W'\)</span> </p>
+<p>where:</p>
+<ul>
+<li><span class="arithmatex">\(H'=\frac{H-K+2P}{S}+1\)</span></li>
+<li><span class="arithmatex">\(W'=\frac{W-K+2P}{S}+1\)</span></li>
+</ul>
+</div>
+<details class="info">
+<summary>Common Settings</summary>
+<ul>
+<li><span class="arithmatex">\(K_H=K_W\)</span> (Small square filters)</li>
+<li><span class="arithmatex">\(P=\frac{K-1}{2}\)</span> (Same padding)</li>
+<li><span class="arithmatex">\(C_{in}, C_{out} =32,64,128,256\)</span> (powers of 2)</li>
+<li><span class="arithmatex">\(K=3,P=1,S=1\)</span> (3×3 Filter)</li>
+<li><span class="arithmatex">\(K=5,P=2,S=1\)</span> (5×5 Filter)</li>
+<li><span class="arithmatex">\(K=1,P=0,S=1\)</span> (1×1 Filter)</li>
+<li><span class="arithmatex">\(K=3,P=1,S=2\)</span> (Downsample by 2)</li>
+</ul>
+</details>
+<hr />
+<h2 id="normalisation-layer">Normalisation Layer<a class="headerlink" href="#normalisation-layer" title="Permanent link">&para;</a></h2>
+<h3 id="normalise">Normalise<a class="headerlink" href="#normalise" title="Permanent link">&para;</a></h3>
+<p><em>Motivation</em> - Stabilise the <strong>Internal Covariate Shift</strong> by applying activate functions between layers, which causes</p>
+<ul>
+<li>unstable gradients</li>
+<li>slower convergence</li>
+<li>more difficulty in optimising deep models</li>
+</ul>
+<p>For each input vector:</p>
+<div class="arithmatex">\[
+\hat{x}_i = \frac{x_i-\mu}{\sigma+\varepsilon}
+\]</div>
+<ul>
+<li>Outcome: <span class="arithmatex">\(\bar{x} = 0\)</span>, <span class="arithmatex">\(s^2_x = 1\)</span>.</li>
+</ul>
+<div class="admonition faq">
+<p class="admonition-title">What is the statistical dimension of <span class="arithmatex">\(i\)</span></p>
+<ul>
+<li>Batch Norm: <span class="arithmatex">\(H, W, N\)</span> - normalise between samples</li>
+<li>Layer Norm: <span class="arithmatex">\(H, W, C\)</span> - normalise between channels</li>
+<li>Instance Norm: <span class="arithmatex">\(H, W\)</span> - normalise per sample per channel</li>
+<li>Group Norm:  <span class="arithmatex">\(H, W, c\)</span> - Divide channels into groups</li>
+</ul>
+<p><em>Channel = Depth/Features per pixel</em></p>
+</div>
+<hr />
+<h3 id="affine-transform">Affine Transform<a class="headerlink" href="#affine-transform" title="Permanent link">&para;</a></h3>
+<p><em>Problem</em> -  Directly use normalising will <strong>restricts the representational capacity</strong> of the network, which makes the model CANNOT:</p>
+<ul>
+<li>change the <strong>scale</strong> of the feature</li>
+<li><strong>shift</strong> the activation distribution</li>
+<li>preserve important <strong>magnitude information</strong></li>
+</ul>
+<p><em>Solution</em> - Introduce learnable parameters specifically for <strong>optimising distribution</strong> of original data.</p>
+<div class="arithmatex">\[
+y_i = \gamma \hat{x}_i + \beta
+\]</div>
+<ul>
+<li>Outcome: <span class="arithmatex">\(\bar{x} = \beta^\ast\)</span>, <span class="arithmatex">\(s^2 = \gamma^\ast\)</span>.</li>
+<li>If the original distribution is optimal, then:</li>
+</ul>
+<div class="arithmatex">\[
+\gamma = \sigma,\; \beta = \mu
+\]</div>
+<hr />
+<h3 id="dropout">Dropout<a class="headerlink" href="#dropout" title="Permanent link">&para;</a></h3>
+<p><em>Problem</em> - Overfitting from <strong>co-adaption</strong> of features:</p>
+<ul>
+<li>A group of Neurones work at same time</li>
+<li>Limited generalisation even scaling up the network</li>
+<li>Zero Training Loss but high validation loss</li>
+</ul>
+<p><em>Solution</em> - For each step, randomly (by a hyperparameter) dropout (block) some neurones (set to zero probability).</p>
+<p>Drop at training time (Forward Propagation):</p>
+<div class="arithmatex">\[
+\text{Conv} \to \text{GELU} \to \textcolor{red}{\text{Dropout}} \to \text{Next Layer}
+\]</div>
+<ul>
+<li>Sample a binary mask <span class="arithmatex">\(m_i \in \{0, 1\}\)</span> with <span class="arithmatex">\(p\)</span> (often 0.5)</li>
+</ul>
+<div class="arithmatex">\[
+m_i \sim \text{Bernoulli}(p)
+\]</div>
+<ul>
+<li><em>Original Dropout</em> (rarely used)</li>
+</ul>
+<div class="arithmatex">\[
+\tilde{x}_i = m_i \cdot x_i
+\]</div>
+<ul>
+<li><em>Inverted Dropout</em></li>
+</ul>
+<div class="arithmatex">\[
+\tilde{x}_i = \frac{m_i}{p} x_i
+\]</div>
+<p>Scale at test time:</p>
+<div class="arithmatex">\[
+\text{Output at test time} = \text{Expected output at training time}
+\]</div>
+<ul>
+<li><em>Original Dropout</em> - Output of neurone <span class="arithmatex">\(\ast \,p\)</span></li>
+<li><em>Inverted Dropout</em> - No additional steps required</li>
+</ul>
+<blockquote>
+<p>Not necessary (even not commonly used) in CNN architectures.</p>
+</blockquote>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

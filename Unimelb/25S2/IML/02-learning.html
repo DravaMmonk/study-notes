@@ -9,26 +9,28 @@
       
       
       
+        <link rel="prev" href="01-probability.html">
       
-        <link rel="next" href="Other/DLCV/01-CNN.html">
+      
+        <link rel="next" href="03-KNN.html">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>Drava's Study Notes</title>
+        <title>2 Machine Learning - Drava's Study Notes</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -49,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dravas-study-notes" class="md-skip">
+        <a href="#2-machine-learning" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Drava's Study Notes
+              2 Machine Learning
             
           </span>
         </div>
@@ -201,11 +203,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="index.html" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../../../index.html" class="md-tabs__link">
         
   
   
@@ -233,7 +233,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="Other/DLCV/01-CNN.html" class="md-tabs__link">
+        <a href="../../../Other/DLCV/01-CNN.html" class="md-tabs__link">
           
   
   
@@ -252,6 +252,8 @@
   
   
   
+    
+  
   
     
     
@@ -259,6 +261,8 @@
   
   
   
+    
+  
   
     
     
@@ -266,11 +270,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="Unimelb/25S2/AIP/01-Search.html" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../AIP/01-Search.html" class="md-tabs__link">
           
   
   
@@ -312,7 +318,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -327,37 +333,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Drava's Study Notes
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="index.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
         
   
   
@@ -373,76 +352,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#master-of-information-technology-in-the-university-of-melbourne" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🎓 Master of Information Technology in the University of Melbourne
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🎓 Master of Information Technology in the University of Melbourne">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#2025-semester-2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🗓️ 2025 Semester 2
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#other" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        💻 Other
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reference" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📚 Reference
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -562,7 +471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Other/DLCV/01-CNN.html" class="md-nav__link">
+      <a href="../../../Other/DLCV/01-CNN.html" class="md-nav__link">
         
   
   
@@ -602,28 +511,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -641,7 +553,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -656,28 +568,31 @@
                 
   
   
+    
   
   
+  
     
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
         
           
+          
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1" >
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
         
           
-          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="">
             
   
   
@@ -695,7 +610,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_1">
             <span class="md-nav__icon md-icon"></span>
             
@@ -767,7 +682,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/01-Search.html" class="md-nav__link">
+      <a href="../AIP/01-Search.html" class="md-nav__link">
         
   
   
@@ -795,7 +710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/02-Planning.html" class="md-nav__link">
+      <a href="../AIP/02-Planning.html" class="md-nav__link">
         
   
   
@@ -823,7 +738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/03-Relaxation.html" class="md-nav__link">
+      <a href="../AIP/03-Relaxation.html" class="md-nav__link">
         
   
   
@@ -851,7 +766,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/04-Exploration.html" class="md-nav__link">
+      <a href="../AIP/04-Exploration.html" class="md-nav__link">
         
   
   
@@ -879,7 +794,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/05-RL.html" class="md-nav__link">
+      <a href="../AIP/05-RL.html" class="md-nav__link">
         
   
   
@@ -907,7 +822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/06-MDP.html" class="md-nav__link">
+      <a href="../AIP/06-MDP.html" class="md-nav__link">
         
   
   
@@ -935,7 +850,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/07-MC.html" class="md-nav__link">
+      <a href="../AIP/07-MC.html" class="md-nav__link">
         
   
   
@@ -963,7 +878,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/08-TD.html" class="md-nav__link">
+      <a href="../AIP/08-TD.html" class="md-nav__link">
         
   
   
@@ -991,7 +906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/09-Value-Approx.html" class="md-nav__link">
+      <a href="../AIP/09-Value-Approx.html" class="md-nav__link">
         
   
   
@@ -1019,7 +934,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/10-Policy-Approx.html" class="md-nav__link">
+      <a href="../AIP/10-Policy-Approx.html" class="md-nav__link">
         
   
   
@@ -1047,7 +962,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/AIP/11-Integrating.html" class="md-nav__link">
+      <a href="../AIP/11-Integrating.html" class="md-nav__link">
         
   
   
@@ -1080,8 +995,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -1092,13 +1009,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" checked>
         
           
           <label class="md-nav__link" for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
@@ -1119,7 +1034,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1137,7 +1052,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/IML/01-probability.html" class="md-nav__link">
+      <a href="01-probability.html" class="md-nav__link">
         
   
   
@@ -1162,10 +1077,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="Unimelb/25S2/IML/02-learning.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 Machine Learning
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="02-learning.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1181,6 +1123,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#probability-theory-data-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probability Theory → Data Distribution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1193,7 +1188,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/IML/03-KNN.html" class="md-nav__link">
+      <a href="03-KNN.html" class="md-nav__link">
         
   
   
@@ -1283,7 +1278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Unimelb/25S2/MoC/01-introduction.html" class="md-nav__link">
+      <a href="../MoC/01-introduction.html" class="md-nav__link">
         
   
   
@@ -1344,20 +1339,109 @@
 
 
 
-<h1 id="dravas-study-notes">Drava's Study Notes<a class="headerlink" href="#dravas-study-notes" title="Permanent link">&para;</a></h1>
-<h2 id="master-of-information-technology-in-the-university-of-melbourne">🎓 Master of Information Technology in the University of Melbourne<a class="headerlink" href="#master-of-information-technology-in-the-university-of-melbourne" title="Permanent link">&para;</a></h2>
-<h3 id="2025-semester-2">🗓️ 2025 Semester 2<a class="headerlink" href="#2025-semester-2" title="Permanent link">&para;</a></h3>
+<h1 id="2-machine-learning">2 Machine Learning<a class="headerlink" href="#2-machine-learning" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="probability-theory-data-distribution">Probability Theory → Data Distribution<a class="headerlink" href="#probability-theory-data-distribution" title="Permanent link">&para;</a></h2>
+<p>In Machine Learning, we treat data as samples drawn from an <strong>unknown underlying probability distribution</strong>.</p>
+<div class="arithmatex">\[
+x_1, x_2, \ldots, x_n \sim P(X)
+\]</div>
+<p>where</p>
 <ul>
-<li>📘 <a href="Unimelb/25S2/AIP/01-Search.html">AI Planning for Autonomy - COMP90054</a></li>
-<li>🗓️ <a href="Unimelb/25S2/IML/01-probability.html">Introduce to the Machine Learning - COMP90049</a></li>
-<li>🗓️ <a href="Unimelb/25S2/MoC/01-introduction.html">Model of Computation - COMP30026</a></li>
-</ul>
-<h2 id="other">💻 Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h2>
+<li>Data points are samples of a random variable <span class="arithmatex">\(X\)</span>.</li>
+<li>Its behaviour is described by the distribution <span class="arithmatex">\(P(X)\)</span>.</li>
+<li>The distribution <span class="arithmatex">\(P(X)\)</span> is <strong>unknown</strong>.</li>
+<li>
 <ul>
-<li>💭 <a href="Other/DLCV/01-CNN.html">CNN for Visual Recognition - Stanford CS231n</a></li>
-<li>💭 Natural Language Processing - Stanford CS224n</li>
+<li>Our dataset is a <strong>finite snapshot</strong> of the true underlying distribution.</li>
 </ul>
-<h2 id="reference">📚 Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h2>
+</li>
+</ul>
+<p>The <strong>goal</strong> of Machine Learning is to recover information about such distribution, which is also called <strong>generalisation</strong>.</p>
+<ul>
+<li><strong>Generalisation</strong>: learning patterns from the underlying data distribution.</li>
+</ul>
+<hr />
+<h2 id="learning">Learning<a class="headerlink" href="#learning" title="Permanent link">&para;</a></h2>
+<p><em>generalisation</em> can be categorised into different paradigms depending on the available sources and the goal of the problem.</p>
+<table>
+<thead>
+<tr>
+<th>Learning Paradigm</th>
+<th>Input</th>
+<th>Mathematical Objective</th>
+<th>Practical Objective</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Unsupervised Learning</strong></td>
+<td>Only data samples (<span class="arithmatex">\(X\)</span>) without labels</td>
+<td>Directly learn the distribution (<span class="arithmatex">\(P(X)\)</span>)</td>
+<td>Discover the structures</td>
+</tr>
+<tr>
+<td><strong>Supervised Learning</strong></td>
+<td>Labeled pairs (<span class="arithmatex">\((X, Y)\)</span>)</td>
+<td>Learn the conditional distribution (<span class="arithmatex">\(P(Y \mid X)\)</span>)</td>
+<td>Solve the <em>classification</em> and <em>regression</em> problem</td>
+</tr>
+<tr>
+<td><strong>Weakly-Supervised Learning</strong></td>
+<td>Incomplete/noisy labels</td>
+<td>Learn an approximate <span class="arithmatex">\(P(Y \mid X)\)</span> using imperfect or indirect supervision</td>
+<td>Reduce labeling cost; learn from noisy/cheap labels</td>
+</tr>
+<tr>
+<td><strong>Generative Models</strong></td>
+<td>Labelled or Unlabelled</td>
+<td>Same output as the generative model</td>
+<td><em>Generate</em> new samples</td>
+</tr>
+<tr>
+<td><strong>Ensemble Learning</strong></td>
+<td>Diverse models trained on the same data</td>
+<td>Same output as the meta model.</td>
+<td>Increase accuracy, stability, robustness</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="models">Models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h2>
+<p><strong>Supervised Learning</strong></p>
+<ul>
+<li>K-Nearest Neighbours</li>
+<li>Linear Regression</li>
+<li>Logistic Regression</li>
+<li>Naive Bayes</li>
+<li>Decision Tree</li>
+<li>Support Vector Machine</li>
+<li>Perceptron</li>
+<li>Multilayer Perceptron (Neural Networks)</li>
+</ul>
+<p><strong>Unsupervised Learning</strong></p>
+<ul>
+<li>Clustering</li>
+<li>K-Mean Clustering</li>
+<li>Hierarchical Clustering</li>
+<li>Agglomerative Clustering</li>
+<li>Divisive Clustering</li>
+</ul>
+<p><strong>Weak-supervised Learning</strong></p>
+<ul>
+<li>Self-training<ul>
+<li>Self-supervised Learning</li>
+<li>Data argumentation</li>
+</ul>
+</li>
+<li>Active Learning</li>
+</ul>
+<p><strong>Ensemble Learning</strong></p>
+<ul>
+<li>Stacking</li>
+<li>Bagging (RF)</li>
+<li>Boosting (AdaBoost)</li>
+</ul>
 
 
 
@@ -1415,10 +1499,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       
