@@ -1,19 +1,124 @@
 # 1 Convolutional Neural Networks
 ---
-## Convolution
+## 2D Convolution
 
-Mathematical Intuition
+Convolution = Local weighted sum
 
-### Kernel (Filter)
+$$
+O[x, y] = \sum_{i,j} I[x+i,\; y+j]\;K[i,j]
+$$
 
+Where
 
+- $I$ - Select a **local patch** of the image
+- $K$ - Multiply each value by the **local weights** defined in the kernel (filter/pattern)
+- $(x,y)$ - Sum them to obtain one output value at position
 
-### Slide
+> [!NOTE] What does a *filter* define?
+> 
+> **1. Local Area**
+> 
+> Range/Size of the filter = definition of **locality**.
+> 
+> - 3×3 kernel → observes a 3×3 neighbourhood  
+> - 5×5 kernel → observes a 5×5 neighbourhood  
+> 
+> **2. Local Weights**
+> 
+> The kernel values ($K[i,j]$) themselves define the **weights** for combining the local pixels.
+> 
+> - Edge filter → positive + negative values  
+> - Blur filter → uniform weights  
 
+To make the computation more machine-friendly, we can:
+
+- **Build** a filter
+- **Slide** - Scan (apply such filter to) the input with a local rule
+- **Form** the results into a new map
+
+> [!example]- Sobel Horizontal Filter
+> 
+> **Input**
+> 
+> $$
+> I =
+> \begin{bmatrix}
+> 1 & 2 & 3 & 2 & 1 \\
+> 2 & 4 & 5 & 4 & 2 \\
+> 3 & 5 & 8 & 5 & 3 \\
+> 2 & 4 & 5 & 4 & 2 \\
+> 1 & 2 & 3 & 2 & 1
+> \end{bmatrix}
+> $$
+> 
+> **Kernel**
+> 
+> Detects **horizontal edges**:
+> 
+> $$
+> K =
+> \begin{bmatrix}
+> 1 & 2 & 1 \\
+> 0 & 0 & 0 \\
+> -1 & -2 & -1
+> \end{bmatrix}
+> $$
+> 
+> - Top row = positive weights  
+> - Bottom row = negative weights  
+> - Measures intensity change in **vertical direction** → highlights **horizontal boundaries**
+> 
+> **Convolution**
+> 
+> Compute the first output pixel \(O[0,0]\)
+> 
+> - Patch covered by kernel:
+> 
+> $$
+> \begin{bmatrix}
+> 1 & 2 & 3 \\
+> 2 & 4 & 5 \\
+> 3 & 5 & 8
+> \end{bmatrix}
+> $$
+> 
+> - Multiply element-wise:
+> 
+> $$
+> \begin{aligned}
+> O[0,0] &= 
+> (1\cdot1 + 2\cdot2 + 3\cdot1) \\
+> &\quad + (2\cdot0 + 4\cdot0 + 5\cdot0) \\
+> &\quad + (3\cdot(-1) + 5\cdot(-2) + 8\cdot(-1))
+> \end{aligned}
+> $$
+> 
+> - Compute:
+> 
+> $$
+> O[0,0] = (1 + 4 + 3) + 0 + (-3 -10 -8) = -13
+> $$
+> 
+> After sliding the kernel across all positions:
+> 
+> $$
+> O =
+> \begin{bmatrix}
+> -13 & -16 & -13 \\
+> 0 & 0 & 0 \\
+> 13 & 16 & 13
+> \end{bmatrix}
+> $$
+> 
+
+Outcomes tell us:
+
+- Where the pattern occurs  
+- How strongly it appears  
+- How it varies across space  
 
 ---
-## Convolutional Neural Networks
-### Perceptron → Linear Classifier
+## Perceptron → Linear Classifier
 
 **Linear Classifier** is a modern use of **Perceptron** for mapping image features to multiple categories.
 
@@ -62,7 +167,7 @@ W \gets W - \frac{\alpha}{\sqrt{E[g^2]}+\epsilon}g
 $$
 
 ---
-### Linear Classifier → Fully-Connected Networks
+## Linear Classifier → Fully-Connected Networks
 
 ### Activate Function 
 
@@ -113,7 +218,7 @@ flowchart LR
 ```
 
 ---
-### FCNs → Convolutional Networks (CNNs)
+## FCNs → Convolutional Networks (CNNs)
 
 > [!warning] Key Limitation of FCNs on Computer Vision
 > 
@@ -135,7 +240,7 @@ flowchart LR
 Solution of CNNs: **Convolution** + **Downsample**
 
 - **Convolution** layers - Extract features with a limited view/filter for respecting 2D image structure.
-- **Downsample (Pooling)** layers - Expand receptive field (view) and dropdown resolution for faster computation.
+- **Pooling** layers (**Downsample**) - Expand receptive field (view) and dropdown resolution for faster computation.
 - **Fully-Connected** layers - Form an MLP at the end to predict scores and output categories.
 
 A CNN is a neural network with Convolution layers.
@@ -145,9 +250,7 @@ A CNN is a neural network with Convolution layers.
 
 *Assume a colour (RGB) image with 32x32 pixels*
 
-**FCNs**
-
-Use *stretch* to transfer an image into a 1D vector.
+**FCNs**: Use *stretch* to transfer an image into a 1D vector.
 
 ```mermaid
 flowchart LR
@@ -155,12 +258,12 @@ flowchart LR
 	B -->|"10x3072" weights| C["score"]
 ```
 
-**Convolution**
+**Convolution**:
 
-- Perform *filters* with a small view (e.g., only care about a local range of pixels, only care about contrast, only care about margin, ...)
-- Convolve (slide) over all spatial locations on the image
-- Perform activation function (ReLU)
-- Store results in an activation map
+- Perform *filters* with a small view (e.g., only care about a local range of pixels, only care about contrast, only care about margin, ...).
+- Convolve (slide) over all spatial locations on the image.
+- Perform activation function (ReLU).
+- Store results in an activation map.
 
 One Filter:
 
@@ -232,13 +335,13 @@ flowchart LR
 ---
 ### Padding
 
-Problem1: Feature maps **shrink** with each layer.
+*Problem* - Feature maps **shrink** with each layer.
 
 $$
 W' = W - K + 1 \lt W
 $$
 
-Solution: Add padding around the input before sliding the filter.
+*Solution* - Add padding around the input before sliding the filter.
 
 - Raw Input: $W \times W$
 - Padding: $P$
@@ -246,9 +349,102 @@ Solution: Add padding around the input before sliding the filter.
 - Filter: $K \times K$
 - Output: $(W - K + 1 + 2P) \times (W - K + 1 + 2P)$
 
-If selected $P \ge K$, the maps won't shrink anymore.
+**Same Padding**: In practice, we use padding to keep the output size the same as the input size.
+
+$$
+P = \frac{K - 1}{2}
+$$
 
 ---
-### Receptive Fields
+## Downsampling
+
+### Pooling
+
+*Problem* - **Translation Variance**
+
+The visual features should not depend on absolute coordinates
+
+$$
+\text{Conv}(\text{Translate}(X)) = 
+\text{Translate}(\text{Conv}(X))
+$$
+
+**Translation Variance**: A slight spatial shift in the input image may produce significant variations in the resulting feature map, leading to instability in the classifier’s predictions.
+
+*Solution* - Downsample by applying a pool filter with a fixed sampling rule.
+
+**Max Pool**
+
+$$
+O[i,j]=\max_{u,v \in R} I[u,v]
+$$
+
+**Average Pool**
+
+$$
+O[i,j]=\frac{1}{|R|}\sum_{u,v \in R}I[u,v]
+$$
+
+where
+
+- $R$ - View of the pool filter
+
+### Stride
+
+*Problem* - Convolution operator cost a lot.
+
+$$
+\text{ConvOps}_{S=1} = (W - K + 2P +1)^2
+$$
+
+*Solution* - Downsample by increasing the **Stride**.
+
+- Not continuously slide the filter ($S = 1$) anymore, but step with a distance ($S \ge 2$)).
+
+$$
+\text{ConvOps}_{S} = (\frac{W - K + 2P}{S} +1)^2
+$$
+
+Modern CV designs (ResNet, MobileNet) use strided convolution instead of pooling.
+
+> [!faq]- Why strided convolution is replacing pooling?
+> 
+> - **Learnable downsampling** — Stride reduces spatial size _while learning_ how to combine features, unlike fixed max/avg rules.
+> - **Better information preservation** — Pooling discards details abruptly; stride can preserve meaningful structure.
+> - **End-to-end optimisation** — Stride integrates into convolution layers, making the whole pipeline differentiable and more stable.
+> - **Cleaner architecture** — Fewer separate layers
+
+> [!tip] Summary
+> 
+> Input: $C_{in} \times H\times W$
+> 
+> Hyperparameters:
+> - Kernel size: $K_H\times K_W$
+> - Number filters: $C_{out}$
+> - Padding: $P$
+> - Stride: $S$
+> 
+> Weight matrix: $C_{out} \times C_{in} \times K_H\times K_W$
+> 
+> Bias vector:  $C_{out}$
+> 
+> Output size: $C_{out} \times H'\times W'$ 
+> 
+> where:
+> 
+> - $H'=\frac{H-K+2P}{S}+1$
+> - $W'=\frac{W-K+2P}{S}+1$
+
+> [!info] Common Settings
+> 
+> - $K_H=K_W$ (Small square filters)
+> - $P=\frac{K-1}{2}$ (Same padding)
+> - $C_{in}, C_{out} =32,64,128,256$ (powers of 2)
+> - $K=3,P=1,S=1$ (3×3 Filter)
+> - $K=5,P=2,S=1$ (5×5 Filter)
+> - $K=1,P=0,S=1$ (1×1 Filter)
+> - $K=3,P=1,S=2$ (Downsample by 2)
+
+---
 
 

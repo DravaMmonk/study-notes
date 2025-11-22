@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "docs/Other/DLCV/01-CNN.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "01-CNN"
             }
           }
         ]
@@ -198,15 +198,17 @@
   },
   "active": "2c748b0436a5ce49",
   "lastOpenFiles": [
+    "docs/Unimelb/25S2/IML/02-learning.md",
+    "docs/Unimelb/25S2/IML/01-probability.md",
+    "docs/Unimelb/25S2/IML/03-KNN.md",
     "Untitled.md",
+    "README.md",
     "video_inventory.csv",
     "dog_info.csv",
     "docs/Other/DLCV/01-CNN.md",
     "Untitled",
     "dog_info.json",
-    "docs/Unimelb/25S2/IML/01-probability.md",
     "docs/Unimelb/25S2/AIP/01-Search.md",
-    "docs/Unimelb/25S2/IML/02-learning.md",
     "docs/index.md",
     "Other/DLCV/01-CNN.md",
     "Other/DLCV",
@@ -240,7 +242,6 @@
     "templates/callout-note.md",
     "docs/assets/Untitled.md",
     "mdp.md",
-    "README.md",
     "assets/7_1_ab..md",
     "Untitled.canvas",
     "docs/Unimelb/25S2/AIP/12-Actor-Critic.md"
