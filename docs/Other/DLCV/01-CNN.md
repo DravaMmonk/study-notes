@@ -1,6 +1,6 @@
 # 1 Convolutional Neural Networks
 ---
-## 2D Convolution
+## Convolution
 
 Convolution = Local weighted sum
 
@@ -171,11 +171,80 @@ $$
 
 ### Activate Function 
 
-Loss of hidden layers:
+**Goal**: Introduce ***non-linearities*** to the model.
+
+$$
+\underbrace{\text{Linear Operators} \to \textcolor{red}{\text{Activation Function}}}_{\text{Feedforward/Linear Layer, Convolutional Layer, etc.}} \to \ldots
+$$
+
+**Sigmoid**
+
+$$
+\sigma(x) = \frac{1}{1+e^{-x}}
+$$
+$$
+L_i = \sum_{j \ne y_i}\big[1-\sigma(s_{y_i}-s_j)\big]
+$$
+
+> [!NOTE] Outcome of Sigmoid
+> 
+> - Squash numbers to range $[0, 1]$
+> - Nice interpretability as a saturating "firing rate" of a biological neurone (historically popular) ✅
+> - Large positive/negative values can easily "kill" the gradients ❌
+
+**ReLU** (Rectified Linear Unit)
 
 $$
 L_i = \sum_{j \ne y_i} \max (0, s_j - s_{y_i} + 1)
 $$
+
+> [!NOTE] Outcome of ReLU
+> 
+> - Does not saturate ✅
+> - Very computationally efficient ✅
+> - Converges much faster than sigmoid in practice ✅
+> - $\mu \ne 0$ ⚠️
+> - Dead when all $x < 0$ ❌
+
+**GELU** (Gaussian Error Linear Unit)
+
+$$
+\Phi(x) = \frac{1}{\sqrt{2\pi}}\int_{-\infty}^x \,e^{-t^2/2}\,dt
+$$
+
+$$
+\text{GELU}(x) = x\,\Phi(x)
+$$
+
+$$
+L_i = \sum_{j \ne y_i} \text{GELU}(1 - (s_{y_i}-s_j))
+$$
+
+> [!NOTE] Outcome of GELU
+> 
+> - Very nice behaviour around 0 ✅
+> - Smoothness facilitates training in practice ✅
+> - Higher computational cost than ReLU ☹️
+> - partial saturate → Large negative values can still easily "kill" gradients ❌
+
+**Other Activation Function**
+
+$$
+\text{Leaky ReLU}(x)=\max(0.1x,\,x)
+$$
+
+$$
+\text{ELU}(x) =
+\begin{cases}
+x, & x \ge 0 \\
+\alpha(e^x-1), & x \lt 0
+\end{cases}
+$$
+
+$$
+\text{SiLU}(x) = x \cdot \sigma(x)
+$$
+
 
 ### Backpropagation
 
@@ -446,5 +515,101 @@ Modern CV designs (ResNet, MobileNet) use strided convolution instead of pooling
 > - $K=3,P=1,S=2$ (Downsample by 2)
 
 ---
+## Normalisation Layer
 
+### Normalise
 
+*Motivation* - Stabilise the **Internal Covariate Shift** by applying activate functions between layers, which causes
+
+- unstable gradients
+- slower convergence
+- more difficulty in optimising deep models
+
+For each input vector:
+
+$$
+\hat{x}_i = \frac{x_i-\mu}{\sigma+\varepsilon}
+$$
+
+- Outcome: $\bar{x} = 0$, $s^2_x = 1$.
+
+> [!faq] What is the statistical dimension of $i$
+> 
+> - Batch Norm: $H, W, N$ - normalise between samples
+> - Layer Norm: $H, W, C$ - normalise between channels
+> - Instance Norm: $H, W$ - normalise per sample per channel
+> - Group Norm:  $H, W, c$ - Divide channels into groups
+> 
+> *Channel = Depth/Features per pixel*
+
+---
+
+### Affine Transform
+
+*Problem* -  Directly use normalising will **restricts the representational capacity** of the network, which makes the model CANNOT:
+
+- change the **scale** of the feature
+- **shift** the activation distribution
+- preserve important **magnitude information**
+
+*Solution* - Introduce learnable parameters specifically for **optimising distribution** of original data.
+
+$$
+y_i = \gamma \hat{x}_i + \beta
+$$
+
+- Outcome: $\bar{x} = \beta^\ast$, $s^2 = \gamma^\ast$.
+- If the original distribution is optimal, then:
+
+$$
+\gamma = \sigma,\; \beta = \mu
+$$
+
+---
+
+### Dropout
+
+*Problem* - Overfitting from **co-adaption** of features:
+
+- A group of Neurones work at same time
+- Limited generalisation even scaling up the network
+- Zero Training Loss but high validation loss
+
+*Solution* - For each step, randomly (by a hyperparameter) dropout (block) some neurones (set to zero probability).
+
+Drop at training time (Forward Propagation):
+
+$$
+\text{Conv} \to \text{GELU} \to \textcolor{red}{\text{Dropout}} \to \text{Next Layer}
+$$
+
+- Sample a binary mask $m_i \in \{0, 1\}$ with $p$ (often 0.5)
+
+$$
+m_i \sim \text{Bernoulli}(p)
+$$
+
+- *Original Dropout* (rarely used)
+
+$$
+\tilde{x}_i = m_i \cdot x_i
+$$
+
+- *Inverted Dropout*
+
+$$
+\tilde{x}_i = \frac{m_i}{p} x_i
+$$
+
+Scale at test time:
+
+$$
+\text{Output at test time} = \text{Expected output at training time}
+$$
+
+- *Original Dropout* - Output of neurone $\ast \,p$
+- *Inverted Dropout* - No additional steps required
+
+> Not necessary (even not commonly used) in CNN architectures.
+
+---
