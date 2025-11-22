@@ -174,7 +174,7 @@ $$
 **Goal**: Introduce ***non-linearities*** to the model.
 
 $$
-\underbrace{\text{Linear Operators} \to \textcolor{red}{\text{Activation Function}}}_{\text{Feedforward/Linear Layer, Convolutional Layer, etc.}} \to \ldots
+\underbrace{\text{Linear Operators} \to \textcolor{red}{\text{Activate Function}}}_{\text{Feedforward/Linear Layer, Convolutional Layer, etc.}} \to \ldots
 $$
 
 **Sigmoid**
@@ -504,7 +504,7 @@ Modern CV designs (ResNet, MobileNet) use strided convolution instead of pooling
 > - $H'=\frac{H-K+2P}{S}+1$
 > - $W'=\frac{W-K+2P}{S}+1$
 
-> [!info] Common Settings
+> [!info]- Common Settings
 > 
 > - $K_H=K_W$ (Small square filters)
 > - $P=\frac{K-1}{2}$ (Same padding)
