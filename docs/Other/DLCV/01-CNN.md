@@ -504,7 +504,7 @@ Modern CV designs (ResNet, MobileNet) use strided convolution instead of pooling
 > - $H'=\frac{H-K+2P}{S}+1$
 > - $W'=\frac{W-K+2P}{S}+1$
 
-> [!info]- Common Settings
+> [!example]- Common Settings
 > 
 > - $K_H=K_W$ (Small square filters)
 > - $P=\frac{K-1}{2}$ (Same padding)
@@ -610,6 +610,6 @@ $$
 - *Original Dropout* - Output of neurone $\ast \,p$
 - *Inverted Dropout* - No additional steps required
 
-> Not necessary (even not commonly used) in CNN architectures.
+> Not necessary in CNN architectures (even not commonly used).
 
 ---

@@ -34,7 +34,7 @@ $$
 P(\Omega)=1
 $$
 
-> [!info]- EXAMPLE
+> [!example]- Sample spaces of Coin & Dice
 > 
 > $$
 > \Omega_\text{Coin} = \{\text{heads}, \text{tails}\}
@@ -53,7 +53,7 @@ $$
 X: \Omega \to E
 $$
 
-> [!info]- EXAMPLE
+> [!example]- the Random Variable of Coin
 > 
 > Use $Y$ to model a coin payoff for a successful bet on heads:
 > 
@@ -123,17 +123,17 @@ where
 - The value of $X$ is highly uncertain → High Entropy
 - The value of $X$ is 50% $a$ and 50% $b$ → $H(X) = 1 \text{bit}$
 
-> [!info] EXAMPLE
+> [!example]- Low Entropy vs. High Entropy
 > 
 > $X = \{a, b\}$
 > 
-> **Low Entropy** ($P(X = a) = 0.99; P(X = b) = 0.01$):
+> - **Low Entropy** ($P(X = a) = 0.99; P(X = b) = 0.01$):
 > 
 > $$
 > H(X) = - ((0.99 * \log_2 0.99) + (0.01 * \log_2 0.01) \approx 0.0807 \text{bits}
 > $$
 > 
-> **High Entropy** ($P(X = a) = 0.51; P(X = b) = 0.49$):
+> - **High Entropy** ($P(X = a) = 0.51; P(X = b) = 0.49$):
 > 
 > $$
 > H(X) = - ((0.51 * \log_2 0.51) + (0.49 * \log_2 0.49) \approx 0.9989 \text{bits}
@@ -227,5 +227,75 @@ $$
 > - $r > 0$ → co-occur more than expected → positive association 
 > - $r < 0$ → co-occur less than expected → negative association
 > 
+
+---
+
+## Probability Theory → Data Distribution
+
+In Machine Learning, we treat data as samples drawn from an **unknown underlying probability distribution**.
+
+$$
+x_1, x_2, \ldots, x_n \sim P(X)
+$$
+
+where
+
+- Data points are samples of a random variable $X$.
+- Its behaviour is described by the distribution $P(X)$.
+- The distribution $P(X)$ is **unknown**.
+- - Our dataset is a **finite snapshot** of the true underlying distribution.
+
+The **goal** of Machine Learning is to recover information about such distribution, which is also called **generalisation**.
+
+- **Generalisation**: learning patterns from the underlying data distribution.
+
+---
+## Machine Learning
+
+*generalisation* can be categorised into different paradigms depending on the available sources and the goal of the problem.
+
+| Learning Paradigm              | Input                                   | Mathematical Objective                                                     | Practical Objective                                 |
+| ------------------------------ | --------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------- |
+| **Unsupervised Learning**      | Only data samples ($X$) without labels  | Directly learn the distribution ($P(X)$)                                   | Discover the structures                             |
+| **Supervised Learning**        | Labeled pairs ($(X, Y)$)                | Learn the conditional distribution ($P(Y \mid X)$)                         | Solve the *classification* and *regression* problem |
+| **Weakly-Supervised Learning** | Incomplete/noisy labels                 | Learn an approximate $P(Y \mid X)$ using imperfect or indirect supervision | Reduce labeling cost; learn from noisy/cheap labels |
+| **Generative Models**          | Labelled or Unlabelled                  | Same output as the generative model                                        | *Generate* new samples                              |
+| **Ensemble Learning**          | Diverse models trained on the same data | Same output as the meta model.                                             | Increase accuracy, stability, robustness            |
+
+---
+## Models
+
+**Supervised Learning**
+
+- K-Nearest Neighbours
+- Linear Regression
+- Logistic Regression
+- Naive Bayes
+- Decision Tree
+- Support Vector Machine
+- Perceptron
+- Multilayer Perceptron (Neural Networks)
+
+**Unsupervised Learning**
+
+- Clustering
+- K-Mean Clustering
+- Hierarchical Clustering
+- Agglomerative Clustering
+- Divisive Clustering
+
+**Weak-supervised Learning**
+
+- Self-training
+	- Self-supervised Learning
+	- Data argumentation
+- Active Learning
+
+
+**Ensemble Learning**
+
+- Stacking
+- Bagging (RF)
+- Boosting (AdaBoost)
 
 ---

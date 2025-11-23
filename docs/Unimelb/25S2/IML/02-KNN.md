@@ -1,4 +1,4 @@
-# 3 K-Nearest Neighbours
+# 2 K-Nearest Neighbours
 ---
 ## Lazy Learning
 

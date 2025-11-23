@@ -199,14 +199,18 @@
   },
   "active": "2c748b0436a5ce49",
   "lastOpenFiles": [
-    "docs/Unimelb/25S2/IML/02-learning.md",
     "docs/Unimelb/25S2/IML/01-probability.md",
-    "docs/Unimelb/25S2/IML/03-KNN.md",
+    "docs/Unimelb/25S2/IML/02-KNN.md",
+    "docs/Unimelb/25S2/IML/02-learning.md",
+    "docs/Other/DLCV/01-CNN.md",
+    "site/Unimelb/25S2/IML/03-KNN.html",
+    "site/Unimelb/25S2/IML/02-learning.html",
+    "site/Other/DLCV/01-CNN.html",
+    "site/Other/DLCV",
     "Untitled.md",
     "README.md",
     "video_inventory.csv",
     "dog_info.csv",
-    "docs/Other/DLCV/01-CNN.md",
     "Untitled",
     "dog_info.json",
     "docs/Unimelb/25S2/AIP/01-Search.md",
@@ -221,10 +225,6 @@
     "docs/Unimelb/25S2/AIP/10-Policy-Approx.md",
     "docs/Unimelb/25S2/AIP/08-TD.md",
     "docs/Unimelb/25S2/AIP/09-Value-Approx.md",
-    "site/assets/javascripts 2",
-    "site/search/search_index.json",
-    "site/search/search_index.js",
-    "site/search",
     "site/assets/images/favicon.png",
     "site/assets/icon-512.png",
     "site/assets/icon-512 1.png",
@@ -244,7 +244,6 @@
     "docs/assets/Untitled.md",
     "mdp.md",
     "assets/7_1_ab..md",
-    "Untitled.canvas",
-    "docs/Unimelb/25S2/AIP/12-Actor-Critic.md"
+    "Untitled.canvas"
   ]
 }
