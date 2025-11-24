@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/Other/DLCV/01-CNN.md",
+                "file": "docs/Unimelb/25S2/IML/01-probability.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "01-CNN"
+              "title": "01-probability"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "6d8aeca418b42b5f",
@@ -199,6 +198,9 @@
   },
   "active": "2c748b0436a5ce49",
   "lastOpenFiles": [
+    "docs/Unimelb/25S2/IML/02-KNN.md",
+    "docs/Unimelb/25S2/IML/01-probability.md",
+    "docs/Other/DLCV/01-CNN.md",
     "5173",
     "trace-viewer/node_modules/eslint/package.json",
     "trace-viewer/node_modules/eslint/README.md",
@@ -215,7 +217,6 @@
     "trace-viewer/node_modules/scheduler/README.md",
     "trace-viewer/node_modules/scheduler/package.json",
     "trace-viewer/node_modules/scheduler/unstable_post_task.js",
-    "trace-viewer/node_modules/argparse/package.json",
     "trace-viewer/node_modules/argparse/CHANGELOG.md",
     "trace-viewer/node_modules/argparse/README.md",
     "trace-viewer/node_modules/optionator/README.md",
@@ -233,8 +234,6 @@
     "trace-viewer/node_modules/@babel/traverse/README.md",
     "trace-viewer/node_modules/eslint-plugin-react-hooks/README.md",
     "trace-viewer/node_modules/vite/README.md",
-    "trace-viewer/node_modules/vite/LICENSE.md",
-    "trace-viewer/node_modules/js-yaml/README.md",
     "trace-viewer/src/assets/react.svg",
     "trace-viewer/public/vite.svg",
     "site/assets/images/favicon.png",
