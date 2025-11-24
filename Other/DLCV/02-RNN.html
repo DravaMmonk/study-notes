@@ -9,28 +9,28 @@
       
       
       
-        <link rel="prev" href="02-learning.html">
+        <link rel="prev" href="01-CNN.html">
       
       
-        <link rel="next" href="../MoC/01-introduction.html">
+        <link rel="next" href="../../Unimelb/25S2/AIP/01-Search.html">
       
       
         
       
       
-      <link rel="icon" href="../../../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>3 K-Nearest Neighbours - Drava's Study Notes</title>
+        <title>02 RNN - Drava's Study Notes</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -77,11 +77,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#3-k-nearest-neighbours" class="md-skip">
-          Skip to content
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -92,7 +87,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +107,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              3 K-Nearest Neighbours
+              02 RNN
             
           </span>
         </div>
@@ -205,7 +200,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../index.html" class="md-tabs__link">
+      <a href="../../index.html" class="md-tabs__link">
         
   
   
@@ -219,45 +214,6 @@
 
       
         
-  
-  
-  
-  
-    
-    
-      
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../../Other/DLCV/01-CNN.html" class="md-tabs__link">
-          
-  
-  
-  Other
-
-        </a>
-      </li>
-    
-  
-
-    
-  
-
-      
-        
-  
-  
-  
-    
-  
-  
-    
-    
-      
   
   
   
@@ -276,7 +232,44 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../AIP/01-Search.html" class="md-tabs__link">
+        <a href="01-CNN.html" class="md-tabs__link">
+          
+  
+  
+  Other
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../Unimelb/25S2/AIP/01-Search.html" class="md-tabs__link">
           
   
   
@@ -318,7 +311,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+    <a href="../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -336,7 +329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../index.html" class="md-nav__link">
+      <a href="../../index.html" class="md-nav__link">
         
   
   
@@ -360,28 +353,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -399,7 +395,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -414,28 +410,31 @@
                 
   
   
+    
   
   
+  
     
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
         
           
+          
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_1" >
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
         
           
-          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="">
             
   
   
@@ -453,7 +452,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_1">
             <span class="md-nav__icon md-icon"></span>
             
@@ -471,7 +470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../Other/DLCV/01-CNN.html" class="md-nav__link">
+      <a href="01-CNN.html" class="md-nav__link">
         
   
   
@@ -492,6 +491,42 @@
 
               
             
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="02-RNN.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 RNN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -511,31 +546,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   
@@ -553,7 +585,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -568,31 +600,28 @@
                 
   
   
-    
   
   
-  
     
     
     
     
       
       
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
         
           
-          
         
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1" >
         
           
-          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
             
   
   
@@ -610,7 +639,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1">
             <span class="md-nav__icon md-icon"></span>
             
@@ -682,7 +711,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/01-Search.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/01-Search.html" class="md-nav__link">
         
   
   
@@ -710,7 +739,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/02-Planning.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/02-Planning.html" class="md-nav__link">
         
   
   
@@ -738,7 +767,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/03-Relaxation.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/03-Relaxation.html" class="md-nav__link">
         
   
   
@@ -766,7 +795,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/04-Exploration.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/04-Exploration.html" class="md-nav__link">
         
   
   
@@ -794,7 +823,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/05-RL.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/05-RL.html" class="md-nav__link">
         
   
   
@@ -822,7 +851,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/06-MDP.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/06-MDP.html" class="md-nav__link">
         
   
   
@@ -850,7 +879,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/07-MC.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/07-MC.html" class="md-nav__link">
         
   
   
@@ -878,7 +907,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/08-TD.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/08-TD.html" class="md-nav__link">
         
   
   
@@ -906,7 +935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/09-Value-Approx.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/09-Value-Approx.html" class="md-nav__link">
         
   
   
@@ -934,7 +963,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/10-Policy-Approx.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/10-Policy-Approx.html" class="md-nav__link">
         
   
   
@@ -962,7 +991,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AIP/11-Integrating.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/AIP/11-Integrating.html" class="md-nav__link">
         
   
   
@@ -995,8 +1024,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1009,11 +1036,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_2" >
         
           
           <label class="md-nav__link" for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
@@ -1034,7 +1063,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1052,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="01-probability.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/IML/01-probability.html" class="md-nav__link">
         
   
   
@@ -1080,14 +1109,14 @@
   
   
     <li class="md-nav__item">
-      <a href="02-learning.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/IML/02-KNN.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2 Machine Learning
+    2 K-Nearest Neighbours
   
 
     
@@ -1096,142 +1125,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    3 K-Nearest Neighbours
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="03-KNN.html" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    3 K-Nearest Neighbours
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#lazy-learning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Lazy Learning
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#measuring" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Measuring
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Measuring">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#nominal-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Nominal Features
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#numerical-feature-vectors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Numerical Feature Vectors
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ordinal-feature-vectors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Ordinal Feature Vectors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1306,7 +1199,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../MoC/01-introduction.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/MoC/01-introduction.html" class="md-nav__link">
         
   
   
@@ -1367,90 +1260,9 @@
 
 
 
-<h1 id="3-k-nearest-neighbours">3 K-Nearest Neighbours<a class="headerlink" href="#3-k-nearest-neighbours" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="lazy-learning">Lazy Learning<a class="headerlink" href="#lazy-learning" title="Permanent link">&para;</a></h2>
-<ul>
-<li>
-<p><strong>Lazy</strong>: No training; Compute at <strong>query</strong> time</p>
-</li>
-<li>
-<p>Store the training data; No Modelling &amp; Training</p>
-</li>
-<li>Computing when only predicting</li>
-</ul>
-<p>Pros &amp; Cons</p>
-<ul>
-<li>Effective</li>
-<li>Long predicting time (need to traverse the data)</li>
-</ul>
-<h2 id="measuring">Measuring<a class="headerlink" href="#measuring" title="Permanent link">&para;</a></h2>
-<h3 id="nominal-features">Nominal Features<a class="headerlink" href="#nominal-features" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Hamming Distance</strong> <span class="arithmatex">\(N(\text{mismatching features})\)</span></li>
-<li><strong>Simple Matching Distance</strong> <span class="arithmatex">\(1 - \frac{N(\text{matching features})}{N(\text{all features})}\)</span></li>
-<li><strong>Jaccard Distance</strong> <span class="arithmatex">\(1-\frac{|A \cap B|}{|A \cup B|}\)</span></li>
-</ul>
-<h3 id="numerical-feature-vectors">Numerical Feature Vectors<a class="headerlink" href="#numerical-feature-vectors" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Manhattan Distance</strong> <span class="arithmatex">\(\sum(A_i - B_i)\)</span></li>
-<li><strong>Euclidean Distance</strong> <span class="arithmatex">\(\sqrt{\sum(A_i - B_i)^2}\)</span></li>
-<li><strong>Cosine Distance</strong> <span class="arithmatex">\(1 - \cos(a,b) = 1 - \frac{a \cdot b}{|a||b|}\)</span></li>
-</ul>
-<details class="tip">
-<summary>When is <strong><em>Cosine Distance</em></strong> commonly used?</summary>
-<ul>
-<li><em>Normalised a·b = comparison only directions, no lengths</em></li>
-<li><em>Useful when compare long vs short documents / high vs low resolution images</em></li>
-</ul>
-</details>
-<h3 id="ordinal-feature-vectors">Ordinal Feature Vectors<a class="headerlink" href="#ordinal-feature-vectors" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Normalised Ranks</strong> map ranks evenly spaced in [0,1] then use numerical comparisons</li>
-</ul>
-<p><strong>Measure Weight</strong> </p>
-<ul>
-<li><strong>Majority Voting</strong> choose the most common label (all’s weight = 1)</li>
-<li><strong>Inverse Distance Weighting</strong> weight = 1/(distance + ϵ)</li>
-<li>
-<p><strong>Inverse Linear Distance</strong> weight = ( max - each distance) / ( max - min distance) among neighbours </p>
-</li>
-<li>
-<p><em>Normalised d(each) between [0, 1]</em></p>
-</li>
-</ul>
-<p><strong>Select K (The number of neighbours)</strong></p>
-<p><strong>Small K</strong></p>
-<ul>
-<li>Jagged decision boundary</li>
-<li>Capturing noise more easily</li>
-<li>Lower classifier performance</li>
-</ul>
-<p><strong>Large K</strong></p>
-<ul>
-<li>Smooth decision boundary</li>
-<li>Risk of grouping together unrelated classes</li>
-<li>Lower classifier performance as well if K is too big like even K = N)</li>
-</ul>
-<p><strong>KNN Algorithm Pros and Cons</strong></p>
-<p><strong>Pros</strong></p>
-<ul>
-<li>Intuitive and simple</li>
-<li>No need assumptions</li>
-<li>Supports both classification and regression</li>
-<li>No pre-training needed <strong><em>lazy</em></strong></li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul>
-<li>Expensive large data sets</li>
-<li>How to decide sub-methods is still a problem</li>
-</ul>
-<p><strong>Vs. Eager Learning</strong></p>
-<ul>
-<li><strong>Train</strong> a model using labelled training instances</li>
-<li>The model will <strong>generalise</strong> from seen data to unseen data</li>
-<li>Using the model to <strong>predict</strong> labels for test instances</li>
-</ul>
+  <h1>02 RNN</h1>
+
+
 
 
 
@@ -1508,10 +1320,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.expand", "navigation.sections", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       

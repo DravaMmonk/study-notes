@@ -12,7 +12,7 @@
         <link rel="prev" href="01-probability.html">
       
       
-        <link rel="next" href="03-KNN.html">
+        <link rel="next" href="../MoC/01-introduction.html">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>2 Machine Learning - Drava's Study Notes</title>
+        <title>2 K-Nearest Neighbours - Drava's Study Notes</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#2-machine-learning" class="md-skip">
+        <a href="#2-k-nearest-neighbours" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              2 Machine Learning
+              2 K-Nearest Neighbours
             
           </span>
         </div>
@@ -479,6 +479,34 @@
     
   
     1 Convolutional Neural Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Other/DLCV/02-RNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 RNN
   
 
     
@@ -1096,7 +1124,7 @@
   <span class="md-ellipsis">
     
   
-    2 Machine Learning
+    2 K-Nearest Neighbours
   
 
     
@@ -1107,14 +1135,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="02-learning.html" class="md-nav__link md-nav__link--active">
+      <a href="02-KNN.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    2 Machine Learning
+    2 K-Nearest Neighbours
   
 
     
@@ -1140,10 +1168,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#probability-theory-data-distribution" class="md-nav__link">
+  <a href="#lazy-learning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Probability Theory → Data Distribution
+        Lazy Learning
       
     </span>
   </a>
@@ -1151,24 +1179,52 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#learning" class="md-nav__link">
+  <a href="#measuring" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Learning
+        Measuring
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Measuring">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nominal-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nominal Features
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#models" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#numerical-feature-vectors" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Models
+        Numerical Feature Vectors
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ordinal-feature-vectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordinal Feature Vectors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1176,34 +1232,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="03-KNN.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    3 K-Nearest Neighbours
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1339,108 +1367,89 @@
 
 
 
-<h1 id="2-machine-learning">2 Machine Learning<a class="headerlink" href="#2-machine-learning" title="Permanent link">&para;</a></h1>
+<h1 id="2-k-nearest-neighbours">2 K-Nearest Neighbours<a class="headerlink" href="#2-k-nearest-neighbours" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="probability-theory-data-distribution">Probability Theory → Data Distribution<a class="headerlink" href="#probability-theory-data-distribution" title="Permanent link">&para;</a></h2>
-<p>In Machine Learning, we treat data as samples drawn from an <strong>unknown underlying probability distribution</strong>.</p>
-<div class="arithmatex">\[
-x_1, x_2, \ldots, x_n \sim P(X)
-\]</div>
-<p>where</p>
+<h2 id="lazy-learning">Lazy Learning<a class="headerlink" href="#lazy-learning" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Data points are samples of a random variable <span class="arithmatex">\(X\)</span>.</li>
-<li>Its behaviour is described by the distribution <span class="arithmatex">\(P(X)\)</span>.</li>
-<li>The distribution <span class="arithmatex">\(P(X)\)</span> is <strong>unknown</strong>.</li>
 <li>
-<ul>
-<li>Our dataset is a <strong>finite snapshot</strong> of the true underlying distribution.</li>
+<p><strong>Lazy</strong>: No training; Compute at <strong>query</strong> time</p>
+</li>
+<li>
+<p>Store the training data; No Modelling &amp; Training</p>
+</li>
+<li>Computing when only predicting</li>
 </ul>
+<p>Pros &amp; Cons</p>
+<ul>
+<li>Effective</li>
+<li>Long predicting time (need to traverse the data)</li>
+</ul>
+<h2 id="measuring">Measuring<a class="headerlink" href="#measuring" title="Permanent link">&para;</a></h2>
+<h3 id="nominal-features">Nominal Features<a class="headerlink" href="#nominal-features" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Hamming Distance</strong> <span class="arithmatex">\(N(\text{mismatching features})\)</span></li>
+<li><strong>Simple Matching Distance</strong> <span class="arithmatex">\(1 - \frac{N(\text{matching features})}{N(\text{all features})}\)</span></li>
+<li><strong>Jaccard Distance</strong> <span class="arithmatex">\(1-\frac{|A \cap B|}{|A \cup B|}\)</span></li>
+</ul>
+<h3 id="numerical-feature-vectors">Numerical Feature Vectors<a class="headerlink" href="#numerical-feature-vectors" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Manhattan Distance</strong> <span class="arithmatex">\(\sum(A_i - B_i)\)</span></li>
+<li><strong>Euclidean Distance</strong> <span class="arithmatex">\(\sqrt{\sum(A_i - B_i)^2}\)</span></li>
+<li><strong>Cosine Distance</strong> <span class="arithmatex">\(1 - \cos(a,b) = 1 - \frac{a \cdot b}{|a||b|}\)</span></li>
+</ul>
+<details class="tip">
+<summary>When is <strong><em>Cosine Distance</em></strong> commonly used?</summary>
+<ul>
+<li><em>Normalised a·b = comparison only directions, no lengths</em></li>
+<li><em>Useful when compare long vs short documents / high vs low resolution images</em></li>
+</ul>
+</details>
+<h3 id="ordinal-feature-vectors">Ordinal Feature Vectors<a class="headerlink" href="#ordinal-feature-vectors" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Normalised Ranks</strong> map ranks evenly spaced in [0,1] then use numerical comparisons</li>
+</ul>
+<p><strong>Measure Weight</strong> </p>
+<ul>
+<li><strong>Majority Voting</strong> choose the most common label (all’s weight = 1)</li>
+<li><strong>Inverse Distance Weighting</strong> weight = 1/(distance + ϵ)</li>
+<li>
+<p><strong>Inverse Linear Distance</strong> weight = ( max - each distance) / ( max - min distance) among neighbours </p>
+</li>
+<li>
+<p><em>Normalised d(each) between [0, 1]</em></p>
 </li>
 </ul>
-<p>The <strong>goal</strong> of Machine Learning is to recover information about such distribution, which is also called <strong>generalisation</strong>.</p>
+<p><strong>Select K (The number of neighbours)</strong></p>
+<p><strong>Small K</strong></p>
 <ul>
-<li><strong>Generalisation</strong>: learning patterns from the underlying data distribution.</li>
+<li>Jagged decision boundary</li>
+<li>Capturing noise more easily</li>
+<li>Lower classifier performance</li>
 </ul>
-<hr />
-<h2 id="learning">Learning<a class="headerlink" href="#learning" title="Permanent link">&para;</a></h2>
-<p><em>generalisation</em> can be categorised into different paradigms depending on the available sources and the goal of the problem.</p>
-<table>
-<thead>
-<tr>
-<th>Learning Paradigm</th>
-<th>Input</th>
-<th>Mathematical Objective</th>
-<th>Practical Objective</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Unsupervised Learning</strong></td>
-<td>Only data samples (<span class="arithmatex">\(X\)</span>) without labels</td>
-<td>Directly learn the distribution (<span class="arithmatex">\(P(X)\)</span>)</td>
-<td>Discover the structures</td>
-</tr>
-<tr>
-<td><strong>Supervised Learning</strong></td>
-<td>Labeled pairs (<span class="arithmatex">\((X, Y)\)</span>)</td>
-<td>Learn the conditional distribution (<span class="arithmatex">\(P(Y \mid X)\)</span>)</td>
-<td>Solve the <em>classification</em> and <em>regression</em> problem</td>
-</tr>
-<tr>
-<td><strong>Weakly-Supervised Learning</strong></td>
-<td>Incomplete/noisy labels</td>
-<td>Learn an approximate <span class="arithmatex">\(P(Y \mid X)\)</span> using imperfect or indirect supervision</td>
-<td>Reduce labeling cost; learn from noisy/cheap labels</td>
-</tr>
-<tr>
-<td><strong>Generative Models</strong></td>
-<td>Labelled or Unlabelled</td>
-<td>Same output as the generative model</td>
-<td><em>Generate</em> new samples</td>
-</tr>
-<tr>
-<td><strong>Ensemble Learning</strong></td>
-<td>Diverse models trained on the same data</td>
-<td>Same output as the meta model.</td>
-<td>Increase accuracy, stability, robustness</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="models">Models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h2>
-<p><strong>Supervised Learning</strong></p>
+<p><strong>Large K</strong></p>
 <ul>
-<li>K-Nearest Neighbours</li>
-<li>Linear Regression</li>
-<li>Logistic Regression</li>
-<li>Naive Bayes</li>
-<li>Decision Tree</li>
-<li>Support Vector Machine</li>
-<li>Perceptron</li>
-<li>Multilayer Perceptron (Neural Networks)</li>
+<li>Smooth decision boundary</li>
+<li>Risk of grouping together unrelated classes</li>
+<li>Lower classifier performance as well if K is too big like even K = N)</li>
 </ul>
-<p><strong>Unsupervised Learning</strong></p>
+<p><strong>KNN Algorithm Pros and Cons</strong></p>
+<p><strong>Pros</strong></p>
 <ul>
-<li>Clustering</li>
-<li>K-Mean Clustering</li>
-<li>Hierarchical Clustering</li>
-<li>Agglomerative Clustering</li>
-<li>Divisive Clustering</li>
+<li>Intuitive and simple</li>
+<li>No need assumptions</li>
+<li>Supports both classification and regression</li>
+<li>No pre-training needed <strong><em>lazy</em></strong></li>
 </ul>
-<p><strong>Weak-supervised Learning</strong></p>
+<p><strong>Cons</strong></p>
 <ul>
-<li>Self-training<ul>
-<li>Self-supervised Learning</li>
-<li>Data argumentation</li>
+<li>Expensive large data sets</li>
+<li>How to decide sub-methods is still a problem</li>
 </ul>
-</li>
-<li>Active Learning</li>
-</ul>
-<p><strong>Ensemble Learning</strong></p>
+<p><strong>Vs. Eager Learning</strong></p>
 <ul>
-<li>Stacking</li>
-<li>Bagging (RF)</li>
-<li>Boosting (AdaBoost)</li>
+<li><strong>Train</strong> a model using labelled training instances</li>
+<li>The model will <strong>generalise</strong> from seen data to unseen data</li>
+<li>Using the model to <strong>predict</strong> labels for test instances</li>
 </ul>
 
 

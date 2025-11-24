@@ -12,7 +12,7 @@
         <link rel="prev" href="../../index.html">
       
       
-        <link rel="next" href="../../Unimelb/25S2/AIP/01-Search.html">
+        <link rel="next" href="02-RNN.html">
       
       
         
@@ -629,6 +629,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#weight-initialisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Weight Initialisation
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -762,10 +773,49 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#residual-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Residual Learning
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="02-RNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 RNN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1353,42 +1403,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../Unimelb/25S2/IML/02-learning.html" class="md-nav__link">
+      <a href="../../Unimelb/25S2/IML/02-KNN.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2 Machine Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../Unimelb/25S2/IML/03-KNN.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    3 K-Nearest Neighbours
+    2 K-Nearest Neighbours
   
 
     
@@ -1677,7 +1699,7 @@ W \gets W - \frac{\alpha}{\sqrt{E[g^2]}+\epsilon}g
 <hr />
 <h2 id="linear-classifier-fully-connected-networks">Linear Classifier → Fully-Connected Networks<a class="headerlink" href="#linear-classifier-fully-connected-networks" title="Permanent link">&para;</a></h2>
 <h3 id="activate-function">Activate Function<a class="headerlink" href="#activate-function" title="Permanent link">&para;</a></h3>
-<p><strong>Goal</strong>: Introduce <strong><em>non-linearities</em></strong> to the model.</p>
+<p><em>Goal</em> - Introduce <strong><em>non-linearities</em></strong> to the model.</p>
 <div class="arithmatex">\[
 \underbrace{\text{Linear Operators} \to \textcolor{red}{\text{Activate Function}}}_{\text{Feedforward/Linear Layer, Convolutional Layer, etc.}} \to \ldots
 \]</div>
@@ -1743,6 +1765,7 @@ x, &amp; x \ge 0 \\
 <div class="arithmatex">\[
 \text{SiLU}(x) = x \cdot \sigma(x)
 \]</div>
+<hr />
 <h3 id="backpropagation">Backpropagation<a class="headerlink" href="#backpropagation" title="Permanent link">&para;</a></h3>
 <pre class="mermaid"><code>flowchart LR
     o["\*"]
@@ -1768,6 +1791,32 @@ z = x \cdot y, \; \textcolor{green}{\frac{\partial z}{\partial x}} = y
     ... --&gt;|&amp;part;L#47;&amp;part;z| z
     z --&gt;|&amp;part;L#47;&amp;part;x| x
     z --&gt;|&amp;part;L#47;&amp;part;y| y</code></pre>
+<hr />
+<h3 id="weight-initialisation">Weight Initialisation<a class="headerlink" href="#weight-initialisation" title="Permanent link">&para;</a></h3>
+<p><em>Goal</em> - Balance the output <strong>distribution</strong>, which includes:</p>
+<ul>
+<li>Activations in forward propagation</li>
+<li>Gradients in backward propagation</li>
+<li>Convergence in training</li>
+</ul>
+<p><em>Problem</em> - If initial weights are:</p>
+<ul>
+<li>too small → Vanishing Gradients</li>
+<li>too large → Explode Gradients</li>
+</ul>
+<p><em>Solution</em> - Kaiming/MSRA Initialisation</p>
+<div class="arithmatex">\[
+\text{Input Variance} = \text{Output Variance}
+\]</div>
+<p>For ReLU:</p>
+<div class="arithmatex">\[
+\text{std} = \sqrt\frac{2}{D_\text{in}}
+\]</div>
+<p>Set into Gaussian Distribution:</p>
+<div class="arithmatex">\[
+W \sim \mathcal{N}\,(0, \frac{2}{D_\text{in}})
+\]</div>
+<p>which means <span class="arithmatex">\(\bar{w} = 0\)</span>, <span class="arithmatex">\(s^2 = \frac{2}{D_\text{in}}\)</span>.</p>
 <hr />
 <h2 id="fcns-convolutional-networks-cnns">FCNs → Convolutional Networks (CNNs)<a class="headerlink" href="#fcns-convolutional-networks-cnns" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
@@ -1944,7 +1993,7 @@ O[i,j]=\frac{1}{|R|}\sum_{u,v \in R}I[u,v]
 <li><span class="arithmatex">\(W'=\frac{W-K+2P}{S}+1\)</span></li>
 </ul>
 </div>
-<details class="info">
+<details class="example">
 <summary>Common Settings</summary>
 <ul>
 <li><span class="arithmatex">\(K_H=K_W\)</span> (Small square filters)</li>
@@ -2041,8 +2090,40 @@ m_i \sim \text{Bernoulli}(p)
 <li><em>Inverted Dropout</em> - No additional steps required</li>
 </ul>
 <blockquote>
-<p>Not necessary (even not commonly used) in CNN architectures.</p>
+<p>Not necessary in CNN architectures (even not commonly used).</p>
 </blockquote>
+<hr />
+<h2 id="residual-learning">Residual Learning<a class="headerlink" href="#residual-learning" title="Permanent link">&para;</a></h2>
+<p><em>Problem</em> - <strong><em>Vanishing/Explode Gradients</em></strong> Problem in Deep Learning</p>
+<p><em>Solution</em> - Let each layer learn only the <strong>change</strong> (residual) from its input, not the full mapping.</p>
+<p><strong>Forward Propagation:</strong></p>
+<p>Add <span class="arithmatex">\(x\)</span> to the original output of each layer.</p>
+<div class="arithmatex">\[
+H(x) = F(x) + x
+\]</div>
+<pre class="mermaid"><code>graph TD
+
+    x([x]) --&gt; fblock["F(x) block"]
+    x --&gt;|shortcut| add(("(+)"))
+    fblock --&gt; add
+
+    add --&gt; output([output])</code></pre>
+<p><strong>Backward Propagation:</strong></p>
+<p>Apply <span class="arithmatex">\(1\)</span>  for ensuring that the gradient can propagate to earlier layers without <strong>degradation</strong>.</p>
+<div class="arithmatex">\[
+\frac{\partial L}{\partial x} = \frac{\partial L}{\partial H}\left(1+\frac{\partial F}{\partial x}\right)
+\]</div>
+<div class="admonition note">
+<p class="admonition-title">Outcome of Residual Learning</p>
+<ul>
+<li>The network is <strong>at least not worse than</strong> simple <span class="arithmatex">\(H(x) = x\)</span>. ✅<ul>
+<li>If <span class="arithmatex">\(F(x)\)</span> cannot learn something new, it at least keep the same output quality as doing nothing.</li>
+<li>Keep the variance/distribution at least good as the previous layer.</li>
+</ul>
+</li>
+<li>Backward propagation is still easy ✅</li>
+</ul>
+</div>
 <hr />
 
 

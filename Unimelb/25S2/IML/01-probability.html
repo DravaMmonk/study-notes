@@ -12,7 +12,7 @@
         <link rel="prev" href="../AIP/11-Integrating.html">
       
       
-        <link rel="next" href="02-learning.html">
+        <link rel="next" href="02-KNN.html">
       
       
         
@@ -479,6 +479,34 @@
     
   
     1 Convolutional Neural Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Other/DLCV/02-RNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 RNN
   
 
     
@@ -1233,6 +1261,39 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#probability-theory-data-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probability Theory → Data Distribution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#machine-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Machine Learning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Models
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1249,42 +1310,14 @@
   
   
     <li class="md-nav__item">
-      <a href="02-learning.html" class="md-nav__link">
+      <a href="02-KNN.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2 Machine Learning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="03-KNN.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    3 K-Nearest Neighbours
+    2 K-Nearest Neighbours
   
 
     
@@ -1459,8 +1492,8 @@ P(\omega_i \cap \omega_j) = 0, \forall (\omega_i, \omega_j )\in A
 <div class="arithmatex">\[
 P(\Omega)=1
 \]</div>
-<details class="info">
-<summary>EXAMPLE</summary>
+<details class="example">
+<summary>Sample spaces of Coin &amp; Dice</summary>
 <div class="arithmatex">\[
 \Omega_\text{Coin} = \{\text{heads}, \text{tails}\}
 \]</div>
@@ -1474,8 +1507,8 @@ P(\Omega)=1
 <div class="arithmatex">\[
 X: \Omega \to E
 \]</div>
-<details class="info">
-<summary>EXAMPLE</summary>
+<details class="example">
+<summary>the Random Variable of Coin</summary>
 <p>Use <span class="arithmatex">\(Y\)</span> to model a coin payoff for a successful bet on heads:</p>
 <div class="arithmatex">\[
 Y(\omega) = 
@@ -1534,18 +1567,22 @@ H(X) = \mathbb{E}[I(X)] = -\sum_x P(x)\, \log_2 P(x)
 <li>The value of <span class="arithmatex">\(X\)</span> is highly uncertain → High Entropy</li>
 <li>The value of <span class="arithmatex">\(X\)</span> is 50% <span class="arithmatex">\(a\)</span> and 50% <span class="arithmatex">\(b\)</span> → <span class="arithmatex">\(H(X) = 1 \text{bit}\)</span></li>
 </ul>
-<div class="admonition info">
-<p class="admonition-title">EXAMPLE</p>
+<details class="example">
+<summary>Low Entropy vs. High Entropy</summary>
 <p><span class="arithmatex">\(X = \{a, b\}\)</span></p>
-<p><strong>Low Entropy</strong> (<span class="arithmatex">\(P(X = a) = 0.99; P(X = b) = 0.01\)</span>):</p>
+<ul>
+<li><strong>Low Entropy</strong> (<span class="arithmatex">\(P(X = a) = 0.99; P(X = b) = 0.01\)</span>):</li>
+</ul>
 <div class="arithmatex">\[
 H(X) = - ((0.99 * \log_2 0.99) + (0.01 * \log_2 0.01) \approx 0.0807 \text{bits}
 \]</div>
-<p><strong>High Entropy</strong> (<span class="arithmatex">\(P(X = a) = 0.51; P(X = b) = 0.49\)</span>):</p>
+<ul>
+<li><strong>High Entropy</strong> (<span class="arithmatex">\(P(X = a) = 0.51; P(X = b) = 0.49\)</span>):</li>
+</ul>
 <div class="arithmatex">\[
 H(X) = - ((0.51 * \log_2 0.51) + (0.49 * \log_2 0.49) \approx 0.9989 \text{bits}
 \]</div>
-</div>
+</details>
 <hr />
 <h3 id="joint-entropy">Joint Entropy<a class="headerlink" href="#joint-entropy" title="Permanent link">&para;</a></h3>
 <p>The expected <em>Information</em> obtained from joint variables.</p>
@@ -1613,6 +1650,108 @@ r = \log_2 \frac{P(x,y)}{P(x)P(y)}
 <li><span class="arithmatex">\(r &lt; 0\)</span> → co-occur less than expected → negative association</li>
 </ul>
 </details>
+<hr />
+<h2 id="probability-theory-data-distribution">Probability Theory → Data Distribution<a class="headerlink" href="#probability-theory-data-distribution" title="Permanent link">&para;</a></h2>
+<p>In Machine Learning, we treat data as samples drawn from an <strong>unknown underlying probability distribution</strong>.</p>
+<div class="arithmatex">\[
+x_1, x_2, \ldots, x_n \sim P(X)
+\]</div>
+<p>where</p>
+<ul>
+<li>Data points are samples of a random variable <span class="arithmatex">\(X\)</span>.</li>
+<li>Its behaviour is described by the distribution <span class="arithmatex">\(P(X)\)</span>.</li>
+<li>The distribution <span class="arithmatex">\(P(X)\)</span> is <strong>unknown</strong>.</li>
+<li>
+<ul>
+<li>Our dataset is a <strong>finite snapshot</strong> of the true underlying distribution.</li>
+</ul>
+</li>
+</ul>
+<p>The <strong>goal</strong> of Machine Learning is to recover information about such distribution, which is also called <strong>generalisation</strong>.</p>
+<ul>
+<li><strong>Generalisation</strong>: learning patterns from the underlying data distribution.</li>
+</ul>
+<hr />
+<h2 id="machine-learning">Machine Learning<a class="headerlink" href="#machine-learning" title="Permanent link">&para;</a></h2>
+<p><em>generalisation</em> can be categorised into different paradigms depending on the available sources and the goal of the problem.</p>
+<table>
+<thead>
+<tr>
+<th>Learning Paradigm</th>
+<th>Input</th>
+<th>Mathematical Objective</th>
+<th>Practical Objective</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Unsupervised Learning</strong></td>
+<td>Only data samples (<span class="arithmatex">\(X\)</span>) without labels</td>
+<td>Directly learn the distribution (<span class="arithmatex">\(P(X)\)</span>)</td>
+<td>Discover the structures</td>
+</tr>
+<tr>
+<td><strong>Supervised Learning</strong></td>
+<td>Labeled pairs (<span class="arithmatex">\((X, Y)\)</span>)</td>
+<td>Learn the conditional distribution (<span class="arithmatex">\(P(Y \mid X)\)</span>)</td>
+<td>Solve the <em>classification</em> and <em>regression</em> problem</td>
+</tr>
+<tr>
+<td><strong>Weakly-Supervised Learning</strong></td>
+<td>Incomplete/noisy labels</td>
+<td>Learn an approximate <span class="arithmatex">\(P(Y \mid X)\)</span> using imperfect or indirect supervision</td>
+<td>Reduce labeling cost; learn from noisy/cheap labels</td>
+</tr>
+<tr>
+<td><strong>Generative Models</strong></td>
+<td>Labelled or Unlabelled</td>
+<td>Same output as the generative model</td>
+<td><em>Generate</em> new samples</td>
+</tr>
+<tr>
+<td><strong>Ensemble Learning</strong></td>
+<td>Diverse models trained on the same data</td>
+<td>Same output as the meta model.</td>
+<td>Increase accuracy, stability, robustness</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="models">Models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h2>
+<p><strong>Supervised Learning</strong></p>
+<ul>
+<li>K-Nearest Neighbours</li>
+<li>Linear Regression</li>
+<li>Logistic Regression</li>
+<li>Naive Bayes</li>
+<li>Decision Tree</li>
+<li>Support Vector Machine</li>
+<li>Perceptron</li>
+<li>Multilayer Perceptron (Neural Networks)</li>
+</ul>
+<p><strong>Unsupervised Learning</strong></p>
+<ul>
+<li>Clustering</li>
+<li>K-Mean Clustering</li>
+<li>Hierarchical Clustering</li>
+<li>Agglomerative Clustering</li>
+<li>Divisive Clustering</li>
+</ul>
+<p><strong>Weak-supervised Learning</strong></p>
+<ul>
+<li>Self-training<ul>
+<li>Self-supervised Learning</li>
+<li>Data argumentation</li>
+</ul>
+</li>
+<li>Active Learning</li>
+</ul>
+<p><strong>Ensemble Learning</strong></p>
+<ul>
+<li>Stacking</li>
+<li>Bagging (RF)</li>
+<li>Boosting (AdaBoost)</li>
+</ul>
 <hr />
 
 
