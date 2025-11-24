@@ -199,6 +199,8 @@
   },
   "active": "2c748b0436a5ce49",
   "lastOpenFiles": [
+    "site/Unimelb/25S2/IML/02-KNN.html",
+    "site/Other/DLCV/02-RNN.html",
     "docs/Other/DLCV/02-RNN.md",
     "docs/Other/DLCV/01-CNN.md",
     "docs/Unimelb/25S2/IML/01-probability.md",
@@ -218,7 +220,6 @@
     "docs/index.md",
     "Other/DLCV/01-CNN.md",
     "Other/DLCV",
-    "Other",
     "docs/Unimelb/25S2/MoC/01-introduction.md",
     "docs/Unimelb/25S2/AIP/05-RL.md",
     "docs/Unimelb/25S2/AIP/07-MC.md",
@@ -244,7 +245,6 @@
     "templates/callout-note.md",
     "docs/assets/Untitled.md",
     "mdp.md",
-    "assets/7_1_ab..md",
     "Untitled.canvas"
   ]
 }
