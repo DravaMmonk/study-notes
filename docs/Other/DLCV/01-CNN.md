@@ -171,7 +171,7 @@ $$
 
 ### Activate Function 
 
-**Goal**: Introduce ***non-linearities*** to the model.
+*Goal* - Introduce ***non-linearities*** to the model.
 
 $$
 \underbrace{\text{Linear Operators} \to \textcolor{red}{\text{Activate Function}}}_{\text{Feedforward/Linear Layer, Convolutional Layer, etc.}} \to \ldots
@@ -246,6 +246,8 @@ $$
 $$
 
 
+---
+
 ### Backpropagation
 
 
@@ -285,6 +287,41 @@ flowchart LR
     z -->|&part;L#47;&part;x| x
     z -->|&part;L#47;&part;y| y
 ```
+
+---
+### Weight Initialisation
+
+*Goal* - Balance the output **distribution**, which includes:
+
+- Activations in forward propagation
+- Gradients in backward propagation
+- Convergence in training
+
+*Problem* - If initial weights are:
+
+- too small → Vanishing Gradients
+- too large → Explode Gradients
+
+*Solution* - Kaiming/MSRA Initialisation
+
+$$
+\text{Input Variance} = \text{Output Variance}
+$$
+
+For ReLU:
+
+$$
+\text{std} = \sqrt\frac{2}{D_\text{in}}
+$$
+
+Set into Gaussian Distribution:
+
+$$
+W \sim \mathcal{N}\,(0, \frac{2}{D_\text{in}})
+$$
+
+which means $\bar{w} = 0$, $s^2 = \frac{2}{D_\text{in}}$.
+
 
 ---
 ## FCNs → Convolutional Networks (CNNs)
@@ -566,7 +603,6 @@ $$
 $$
 
 ---
-
 ### Dropout
 
 *Problem* - Overfitting from **co-adaption** of features:
@@ -611,5 +647,45 @@ $$
 - *Inverted Dropout* - No additional steps required
 
 > Not necessary in CNN architectures (even not commonly used).
+
+---
+## Residual Learning
+
+*Problem* - ***Vanishing/Explode Gradients*** Problem in Deep Learning
+
+*Solution* - Let each layer learn only the **change** (residual) from its input, not the full mapping.
+
+**Forward Propagation:**
+
+Add $x$ to the original output of each layer.
+
+$$
+H(x) = F(x) + x
+$$
+
+```mermaid
+graph TD
+
+    x([x]) --> fblock["F(x) block"]
+    x -->|shortcut| add(("(+)"))
+    fblock --> add
+
+    add --> output([output])
+```
+
+**Backward Propagation:**
+
+Apply $1$  for ensuring that the gradient can propagate to earlier layers without **degradation**.
+
+$$
+\frac{\partial L}{\partial x} = \frac{\partial L}{\partial H}\left(1+\frac{\partial F}{\partial x}\right)
+$$
+
+> [!NOTE] Outcome of Residual Learning
+> 
+> - The network is **at least not worse than** simple $H(x) = x$. ✅
+> 	- If $F(x)$ cannot learn something new, it at least keep the same output quality as doing nothing.
+> 	- Keep the variance/distribution at least good as the previous layer.
+> - Backward propagation is still easy ✅
 
 ---
