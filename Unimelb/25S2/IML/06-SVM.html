@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../../../Other/DLCV/02-RNN.html">
+        <link rel="prev" href="05-LR.html">
       
       
-        <link rel="next" href="02-Planning.html">
+        <link rel="next" href="../MoC/01-introduction.html">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>1 Search - Drava's Study Notes</title>
+        <title>6 Support Vector Machine - Drava's Study Notes</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#1-search" class="md-skip">
+        <a href="#6-support-vector-machine" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              1 Search
+              6 Support Vector Machine
             
           </span>
         </div>
@@ -276,7 +276,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="01-Search.html" class="md-tabs__link">
+        <a href="../AIP/01-Search.html" class="md-tabs__link">
           
   
   
@@ -653,8 +653,6 @@
                 
   
   
-    
-  
   
   
     
@@ -667,11 +665,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_1" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_1" >
         
           
           <label class="md-nav__link" for="__nav_3_1_1" id="__nav_3_1_1_label" tabindex="0">
@@ -692,7 +692,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_1">
             <span class="md-nav__icon md-icon"></span>
             
@@ -707,37 +707,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    1 Search
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="01-Search.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../AIP/01-Search.html" class="md-nav__link">
         
   
   
@@ -753,204 +726,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#search-space" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Search Space
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Search Space">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        EXAMPLE
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#search-methods" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Search Methods
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Search Methods">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#forward-search-vs-backward-search" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Forward Search vs. Backward Search
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#blind-search-vs-informed-search" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Blind Search vs. Informed Search
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#blind-systematic-search" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Blind Systematic Search
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#informed-systematic-search" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Informed Systematic Search
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Informed Systematic Search">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#heuristic-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Heuristic Functions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#greedy-best-first-search-gbfs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Greedy Best-First Search (GBFS)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#a" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A*
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#evaluation-of-search-methods" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Evaluation of Search Methods
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Evaluation of Search Methods">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#guarantees" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Guarantees
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#complexity" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Complexity
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -963,7 +738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="02-Planning.html" class="md-nav__link">
+      <a href="../AIP/02-Planning.html" class="md-nav__link">
         
   
   
@@ -991,7 +766,7 @@
   
   
     <li class="md-nav__item">
-      <a href="03-Relaxation.html" class="md-nav__link">
+      <a href="../AIP/03-Relaxation.html" class="md-nav__link">
         
   
   
@@ -1019,7 +794,7 @@
   
   
     <li class="md-nav__item">
-      <a href="04-Exploration.html" class="md-nav__link">
+      <a href="../AIP/04-Exploration.html" class="md-nav__link">
         
   
   
@@ -1047,7 +822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="05-RL.html" class="md-nav__link">
+      <a href="../AIP/05-RL.html" class="md-nav__link">
         
   
   
@@ -1075,7 +850,7 @@
   
   
     <li class="md-nav__item">
-      <a href="06-MDP.html" class="md-nav__link">
+      <a href="../AIP/06-MDP.html" class="md-nav__link">
         
   
   
@@ -1103,7 +878,7 @@
   
   
     <li class="md-nav__item">
-      <a href="07-MC.html" class="md-nav__link">
+      <a href="../AIP/07-MC.html" class="md-nav__link">
         
   
   
@@ -1131,7 +906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="08-TD.html" class="md-nav__link">
+      <a href="../AIP/08-TD.html" class="md-nav__link">
         
   
   
@@ -1159,7 +934,7 @@
   
   
     <li class="md-nav__item">
-      <a href="09-Value-Approx.html" class="md-nav__link">
+      <a href="../AIP/09-Value-Approx.html" class="md-nav__link">
         
   
   
@@ -1187,7 +962,7 @@
   
   
     <li class="md-nav__item">
-      <a href="10-Policy-Approx.html" class="md-nav__link">
+      <a href="../AIP/10-Policy-Approx.html" class="md-nav__link">
         
   
   
@@ -1215,7 +990,7 @@
   
   
     <li class="md-nav__item">
-      <a href="11-Integrating.html" class="md-nav__link">
+      <a href="../AIP/11-Integrating.html" class="md-nav__link">
         
   
   
@@ -1248,8 +1023,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -1260,13 +1037,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" checked>
         
           
           <label class="md-nav__link" for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
@@ -1287,7 +1062,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1305,7 +1080,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../IML/01-probability.html" class="md-nav__link">
+      <a href="01-probability.html" class="md-nav__link">
         
   
   
@@ -1333,7 +1108,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../IML/02-KNN.html" class="md-nav__link">
+      <a href="02-KNN.html" class="md-nav__link">
         
   
   
@@ -1361,7 +1136,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../IML/03-DT.html" class="md-nav__link">
+      <a href="03-DT.html" class="md-nav__link">
         
   
   
@@ -1389,7 +1164,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../IML/04-NB.html" class="md-nav__link">
+      <a href="04-NB.html" class="md-nav__link">
         
   
   
@@ -1417,7 +1192,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../IML/05-LR.html" class="md-nav__link">
+      <a href="05-LR.html" class="md-nav__link">
         
   
   
@@ -1442,10 +1217,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../IML/06-SVM.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Support Vector Machine
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="06-SVM.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1461,6 +1263,148 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#baseline-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Baseline Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linear-classifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linear Classifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#margin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Margin
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-vector-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support Vector Machine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variants-of-svm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variants of SVM
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Variants of SVM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soft-margin-svm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Soft-Margin SVM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-class-svm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Class SVM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#svm-for-ordinal-regression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SVM for Ordinal Regression
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ranking-svm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ranking SVM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-svm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel SVM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1596,356 +1540,187 @@
 
 
 
-<h1 id="1-search">1 Search<a class="headerlink" href="#1-search" title="Permanent link">&para;</a></h1>
+<h1 id="6-support-vector-machine">6 Support Vector Machine<a class="headerlink" href="#6-support-vector-machine" title="Permanent link">&para;</a></h1>
 <hr />
-<h2 id="search-space">Search Space<a class="headerlink" href="#search-space" title="Permanent link">&para;</a></h2>
-<p><strong>Search Space</strong> - The set of all possible states and transitions that a search or planning algorithm must consider</p>
-<h6 id="example">EXAMPLE<a class="headerlink" href="#example" title="Permanent link">&para;</a></h6>
-<p>In a robot delivery scene:</p>
-<div class="highlight"><pre><span></span><code>world_state_of_a_robot = {
-    &quot;position&quot;: (3, 5),
-    &quot;direction&quot;: &quot;North&quot;,
-    &quot;battery&quot;: 80,
-    &quot;carrying_package&quot;: True
-}
-
-subgoals = {&quot;position&quot;: (5, 8), &quot;carrying_package&quot;: True}
-</code></pre></div>
-<details class="info">
-<summary>Common Functions</summary>
-<p>Search states:</p>
+<h2 id="baseline-model">Baseline Model<a class="headerlink" href="#baseline-model" title="Permanent link">&para;</a></h2>
+<h3 id="linear-classifier">Linear Classifier<a class="headerlink" href="#linear-classifier" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+y = \theta^\top X + b
+\]</div>
 <ul>
-<li><span class="arithmatex">\(\mathrm{is}\_\mathrm{start}(s)\)</span> return if the state is the start state of the search space</li>
-<li><span class="arithmatex">\(\mathrm{is}\_\mathrm{target}(s)\)</span> mark if the state is the goal state of the search space</li>
-<li><span class="arithmatex">\(\mathrm{succ}(s)\)</span> return a list of successors/next states of <span class="arithmatex">\(s\)</span></li>
+<li><span class="arithmatex">\(\theta\)</span> defines the <strong>orientation</strong> of the decision boundary  </li>
+<li><span class="arithmatex">\(b\)</span> is the <strong>bias/offset</strong>, shifting the boundary for flexibility</li>
 </ul>
-<p>Search nodes: </p>
+<p>Decision boundary:</p>
+<div class="arithmatex">\[
+\theta^\top X + b = 0
+\]</div>
+<div class="admonition note">
+<p class="admonition-title">Difference Between Classification and Regression</p>
 <ul>
-<li><span class="arithmatex">\(\mathrm{state}(\sigma)\)</span></li>
-<li><span class="arithmatex">\(\mathrm{parent}(\sigma)\)</span> where <span class="arithmatex">\(\sigma\)</span> was reached</li>
-<li><span class="arithmatex">\(\mathrm{action}(\sigma)\)</span> leads from <span class="arithmatex">\(\mathrm{state}(\mathrm{parent}(\sigma))\)</span> to <span class="arithmatex">\(\mathrm{state}(\sigma)\)</span></li>
-<li><span class="arithmatex">\(g(\sigma)\)</span> denotes cost of path from the <strong>root</strong> to <span class="arithmatex">\(\sigma\)</span></li>
-<li>The <strong>root</strong>’s <span class="arithmatex">\(\mathrm{parent}(\cdot)\)</span> and <span class="arithmatex">\(\mathrm{action}(\cdot)\)</span> are undefined</li>
+<li>Regression approximates <strong>values</strong></li>
+<li>classification separates <strong>classes</strong> by a boundary.</li>
 </ul>
-</details>
-<hr />
-<h2 id="search-methods">Search Methods<a class="headerlink" href="#search-methods" title="Permanent link">&para;</a></h2>
-<h3 id="forward-search-vs-backward-search">Forward Search vs. Backward Search<a class="headerlink" href="#forward-search-vs-backward-search" title="Permanent link">&para;</a></h3>
+<p><strong>Logistic Regression</strong></p>
 <ul>
-<li>Forward Search (Progression)<ul>
-<li>search space = world space (represents the current real world)</li>
-<li>BFS, DFS, A*, MDP</li>
+<li>Predicts a <strong>continuous value</strong>  </li>
+<li>Decides the label by <strong>thresholding probability</strong></li>
+<li>Trained by <span class="arithmatex">\(maximising\)</span> <strong>log-likelihood</strong> or <span class="arithmatex">\(minimising\)</span> <strong>cross-entropy</strong></li>
 </ul>
-</li>
-<li>Backward Search (Regression)<ul>
-<li>search space = a sets of world spaces (represents all predications of sub-goals)</li>
-</ul>
-</li>
-</ul>
-<h3 id="blind-search-vs-informed-search">Blind Search vs. Informed Search<a class="headerlink" href="#blind-search-vs-informed-search" title="Permanent link">&para;</a></h3>
+<p><strong>Linear Classification</strong></p>
 <ul>
-<li>Blind search not require any input beyond the problem</li>
-<li>No additional work but rarely effective</li>
-<li>Informed search requires function <span class="arithmatex">\(h(x)\)</span> mapping states to estimates their goal distance</li>
-<li>Effective but lots of work to construct <span class="arithmatex">\(h(x)\)</span></li>
-</ul>
-<hr />
-<h2 id="blind-systematic-search">Blind Systematic Search<a class="headerlink" href="#blind-systematic-search" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Breadth-First Search</strong></li>
-<li><strong>Depth-First Search</strong></li>
-<li><strong>Iterative Deepening Search</strong><ul>
-<li>Do DLS(DFS with depth limited) with continuously increasing depth limited by 1.</li>
-</ul>
-</li>
-</ul>
-<details class="info">
-<summary>Properties</summary>
-<ul>
-<li><em>Completeness</em> 100%✅ </li>
-<li>Really <em>poor efficient</em> when scale up☹️</li>
-</ul>
-</details>
-<hr />
-<h2 id="informed-systematic-search">Informed Systematic Search<a class="headerlink" href="#informed-systematic-search" title="Permanent link">&para;</a></h2>
-<h3 id="heuristic-functions">Heuristic Functions<a class="headerlink" href="#heuristic-functions" title="Permanent link">&para;</a></h3>
-<ul>
-<li><span class="arithmatex">\(h(n)\)</span> - Estimated remaining cost (from the current state to the goal state)</li>
-<li><span class="arithmatex">\(h^*(n)\)</span> - Actual remaining cost</li>
-</ul>
-<p><strong>proficiency</strong> of <span class="arithmatex">\(h(n)\)</span>:</p>
-<ul>
-<li><span class="arithmatex">\(h = h^{\ast}\)</span> perfectly informed, <span class="arithmatex">\(h(n) = h^{\ast}(n) - \textbf{optimal } A^{\ast}\)</span></li>
-<li><span class="arithmatex">\(h = 0\)</span> no information at all - uniform cost search</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Properties</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Safe</td>
-<td><span class="arithmatex">\(h(n) = \infty\)</span> iff <span class="arithmatex">\(h^{\ast}(n) = \infty\)</span></td>
-</tr>
-<tr>
-<td>Goal-Aware</td>
-<td><span class="arithmatex">\(h(\text{goal}) = 0\)</span></td>
-</tr>
-<tr>
-<td>Admissible</td>
-<td><span class="arithmatex">\(h(n) \le h^*(n)\)</span></td>
-</tr>
-<tr>
-<td>Consistent</td>
-<td><span class="arithmatex">\(h(n) \le c(n,n’) + h(n’)\)</span> for all possible <span class="arithmatex">\(c(n, n’)\)</span></td>
-</tr>
-</tbody>
-</table>
-<div class="admonition tip">
-<p class="admonition-title">Relations</p>
-<ul>
-<li>Consistent &amp; Goal-aware → Admissible</li>
-<li>Admissible → Safe &amp; Goal-aware</li>
+<li>Predicts a <strong>discrete label</strong> directly for decision-making</li>
+<li>No probabilistic output</li>
+<li>Trained based on margin (SVM) or updating by GD methods (Neural Networks)</li>
 </ul>
 </div>
 <hr />
-<h3 id="greedy-best-first-search-gbfs">Greedy Best-First Search (GBFS)<a class="headerlink" href="#greedy-best-first-search-gbfs" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Use <strong>priority queue</strong> to sort <span class="arithmatex">\(h(n)\)</span> of each node in ascending order<ul>
-<li>If <span class="arithmatex">\(h(n) = 0\)</span>, it becomes what fully depends on how we break ties</li>
-</ul>
-</li>
-</ul>
-<div class="highlight"><pre><span></span><code>def greedy_BFS:
-    frontier = priority queue ordered by h(n)
-    explored = set
-    path = list
-    frontier.add(start, h(start), path)
-    
-    while frontier:
-        current = frontier.pop()
-        if current == goal:
-            return path
-        if current in explored:
-            continue
-        explored.add(current)
-        for successor in succ(current):
-            new_path = path + action(current, successor)
-            frontier.add(h(current), current, new_path)
-    return unsolvable
-</code></pre></div>
-<blockquote>
-<p>Completeness✅for safe heuristics; Optimal❌</p>
-</blockquote>
-<hr />
-<h3 id="a">A*<a class="headerlink" href="#a" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Only difference from GBFS:<ul>
-<li><span class="arithmatex">\(h(n) \rightarrow f(n) = g(n) + h(n)\)</span></li>
-</ul>
-</li>
-</ul>
-<p><div class="highlight"><pre><span></span><code>function A*(start, goal):
-    open = priority queue
-    open.push(start, f(start))
-
-    while open is not empty:
-        n = open.pop_min_f()
-
-        if n == goal:
-            return reconstruct_path(n)
-
-        for each successor s of n:
-            compute g(s) and f(s)
-            open.push_or_update(s)
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>#### Re-opening
-
-A node $n$ could be re-opened if we find a cheaper $g(n)$.
-</code></pre></div>
-def a_star_with_re_opening:
-    frontier = priority queue ordered by f(n) = g(n) + h(n)
-    explored = set
-    path = list
-    frontier.add(h(start), start, path)</p>
-<p>✏️  g = dict
-✏️  g[start] = 0</p>
-<pre><code>while frontier:
-    _, current, path = frontier.pop()
-    if current == goal:
-        return path
-    explored.add(current)
-    for successor in succ(current):
-        new_path = path + action(current, successor)
-        new_g = cost(new_path)
-        if successor not in g or new_g &lt; g[successor]:
-            [successor] = new_g
-            f = g[successor] + h(successor)
-            frontier.add(f, successor, f)
-</code></pre>
-<p>✏️              if successor in explored:     # Re-opening
-✏️                  explored.remove(successor)
-    return unsolvable</p>
-<p><div class="highlight"><pre><span></span><code>Not needed if consistent✅  $g$ is already cheapest
-
----
-### Weighted A*
+<h2 id="margin">Margin<a class="headerlink" href="#margin" title="Permanent link">&para;</a></h2>
+<p>For a labelled example <span class="arithmatex">\((x_i, y_i)\)</span> where <span class="arithmatex">\(y_i \in \{-1, +1\}\)</span>:</p>
+<p><strong>Functional margin:</strong>
 $$
-f_W(n) = g(n) + W \cdot h(n)
+\gamma_i^{(f)} = y_i(\theta^\top x_i + b)
+$$</p>
+<p><strong>Geometric margin (normalised):</strong>
 $$
-
-| Weight         |       Algorithm        |
-|:-------------- |:----------------------:|
-| $W \to 0$      |   Digkstra Algorithm   |
-| $W \to 1$      |           A*           |
-| $W &gt; 1$        | Bounded sub-optimal A* |
-| $W \to \infty$ |          GBFS          |
-
-&gt; If $h$ is admissible, $f_W(n) \le W \cdot h(n)$
-
----
-### Hill-Climbing
-
-Brute Force to find greedy best direction for heuristic descent
-</code></pre></div>
-def hill_climbing:
-    path = list
-    current = start
-    while h(n) &gt; 0:
-        best = argmin_h(succ(current))
-        if best and h(best) &lt; h(current):
-            current = n
-            path += action(current, best)
-        else:
-            break    
-    return path
-<div class="highlight"><pre><span></span><code>&gt; - Can only find local maxima
-&gt; - Available only if $h(n) &gt; 0$ for all non-goal states
-
----
-### Enforced Hill-Climbing
-
-Do small range BFS when find local optimal
-</code></pre></div>
-def enforced_hill_climbing:
-    path = list
-    explored = set
-    current = start
-    while h(n) &gt; 0:
-        explored.add(current)
-        best = argmin_h(succ(current))
-        if best and h(best) &lt; h(current):
-            path += action(current, best)
-        else:
-            subs = n for n in neighbours_of(current) and not in explored
-            best_sub = argmin_h(subs, goal=current)
-            if best_sub and h(best_sub) &lt; h(current):
-                path -= action(parent, current)
-                path += action(parent, best_sub)
-                current = best_sub
-            else:
-                return unsolvable
-    return path
-<div class="highlight"><pre><span></span><code>&gt; Can across small gap between local best and global best
-
----
-### Iterative Deepening A*
-
-IDS + $A^*$: Use f(n) instead of depth to limit IDS
-- In First Search:  f(n) = f(start) = 0 + h(start)
-- Following Searches: f(n) = min_out_of_bound_excess
-</code></pre></div>
-def ida_star:
-    bound = f(start)
-    while True:
-        t = ids(start, bound)
-        if t == goal:
-            return solution
-        if t == infinity:
-            return unsolvable
-        bound = t
-```</p>
-<blockquote>
-<p>Solve one of <span class="arithmatex">\(A^*\)</span>’s problem: large queue/closed_set</p>
-</blockquote>
+\gamma_i = \frac{y_i(\theta^\top x_i + b)}{|\theta|}
+$$</p>
+<p>Interpretation:
+- Large <span class="arithmatex">\(\gamma_i\)</span> → point is far from boundary → robust<br />
+- Small <span class="arithmatex">\(\gamma_i\)</span> → point near boundary → sensitive / error-prone  </p>
+<p><strong>Overall geometric margin:</strong>
+$$
+\gamma = \min_i \gamma_i
+$$</p>
 <hr />
-<h2 id="evaluation-of-search-methods">Evaluation of Search Methods<a class="headerlink" href="#evaluation-of-search-methods" title="Permanent link">&para;</a></h2>
-<h3 id="guarantees">Guarantees<a class="headerlink" href="#guarantees" title="Permanent link">&para;</a></h3>
+<h2 id="support-vector-machine">Support Vector Machine<a class="headerlink" href="#support-vector-machine" title="Permanent link">&para;</a></h2>
+<p>Goal: find <span class="arithmatex">\((\theta, b)\)</span> such that:</p>
 <ul>
-<li><strong>Completeness</strong> sure to find a solution if there is one</li>
-<li><strong>Optimality</strong> solutions sure be optimal</li>
+<li>All points correctly classified  </li>
+<li>Margin is <strong>maximised</strong></li>
 </ul>
-<h3 id="complexity">Complexity<a class="headerlink" href="#complexity" title="Permanent link">&para;</a></h3>
+<p>Start from:
+$$
+\max_{\theta} \frac{1}{|\theta|} \quad 
+\text{s.t. } y_i \frac{\theta^\top x_i}{|\theta|} \ge \frac{1}{|\theta|}
+$$</p>
+<p>Fix margin scale by requiring:</p>
+<div class="arithmatex">\[
+y_i(\theta^\top x_i) \ge 1
+\]</div>
+<p><strong>Optimisation</strong>:</p>
+<div class="arithmatex">\[
+\min_\theta \frac{1}{2}\|\theta\|^2
+\quad \text{s.t. } y_i(\theta^\top x_i) \ge 1
+\]</div>
+<div class="admonition note">
+<p class="admonition-title">Outcomes of SVM</p>
+<p>The solution depends only on <strong>support vectors</strong>:</p>
 <ul>
-<li>Time/Space (Measured in generated states/states cost)</li>
-<li>Typical <strong>state space features</strong> governing complexity<ul>
-<li><strong>Branching factor</strong> <span class="arithmatex">\(b\)</span> how many successors</li>
-<li><strong>Goal depth</strong> <span class="arithmatex">\(d\)</span> number of actions to reach shallowest goal state</li>
+<li>A few points “support” the boundary<ul>
+<li>Some points build two lines with the smallest gap</li>
+<li>The boundary is exact the <em>bisector</em> of the gap region</li>
+</ul>
+</li>
+<li>Any other points have <strong>zero contribution</strong><ul>
+<li>→ The solution is <strong>sparse</strong></li>
 </ul>
 </li>
 </ul>
-<h3 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;"></th>
-<th style="text-align: center;">DFS</th>
-<th style="text-align: center;">BrFS</th>
-<th style="text-align: center;">IDS</th>
-<th style="text-align: center;">A*</th>
-<th style="text-align: center;">HC</th>
-<th style="text-align: center;">IDA*</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">Complete</td>
-<td style="text-align: center;">❌</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">❌</td>
-<td style="text-align: center;">✅</td>
-</tr>
-<tr>
-<td style="text-align: left;">Optimal</td>
-<td style="text-align: center;">❌</td>
-<td style="text-align: center;">✅*</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅*</td>
-<td style="text-align: center;">❌</td>
-<td style="text-align: center;">✅*</td>
-</tr>
-<tr>
-<td style="text-align: left;">Time</td>
-<td style="text-align: center;"><span class="arithmatex">\(\infty\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(\infty\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
-</tr>
-<tr>
-<td style="text-align: left;">Space</td>
-<td style="text-align: center;"><span class="arithmatex">\(b \cdot d\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(b \cdot d\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(b^d\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(b\)</span></td>
-<td style="text-align: center;"><span class="arithmatex">\(b \cdot d\)</span></td>
-</tr>
-</tbody>
-</table>
-<p>where</p>
+<p><strong>Pros</strong>:</p>
 <ul>
-<li><span class="arithmatex">\(b\)</span> - Branching Factor: sum of number of child nodes of each node</li>
-<li><span class="arithmatex">\(d\)</span> - Solution Depth: <em><span class="arithmatex">\(minimum\)</span></em> depth among all goal nodes</li>
-<li>DFS cannot handle cyclic graph</li>
-<li>BFS is optimal only when uniform costs are applied </li>
-<li><span class="arithmatex">\(A^*\)</span> / Iterative Deepening <span class="arithmatex">\(A^*\)</span> is optimal only when <span class="arithmatex">\(h\)</span> is admissible (<span class="arithmatex">\(h \le h^*\)</span>)</li>
+<li>Efficient to compute  </li>
+<li>Simple and interpretable geometric model  </li>
+<li>Strong generalisation ability  </li>
+</ul>
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>Requires sufficient data  </li>
+<li>Sensitive to outliers  </li>
+<li>Cannot model non-linear separations (e.g., XOR) without kernels </li>
+</ul>
+</div>
+<hr />
+<h2 id="variants-of-svm">Variants of SVM<a class="headerlink" href="#variants-of-svm" title="Permanent link">&para;</a></h2>
+<h3 id="soft-margin-svm">Soft-Margin SVM<a class="headerlink" href="#soft-margin-svm" title="Permanent link">&para;</a></h3>
+<p>Allows margin violations using slack variables <span class="arithmatex">\(\xi_i\)</span>:</p>
+<p><strong>Optimisation</strong>:
+$$
+\min_{\theta, \xi} \frac{1}{2}|\theta|^2 + C\sum_i \xi_i
+$$</p>
+<p>Subject to:
+$$
+y_i (\theta^\top x_i + b) \ge 1 - \xi_i, \quad \xi_i \ge 0
+$$</p>
+<p>Interpretation of <span class="arithmatex">\(\xi_i\)</span>:</p>
+<ul>
+<li><span class="arithmatex">\(\xi_i = 0\)</span>: correctly classified &amp; outside margin  </li>
+<li><span class="arithmatex">\(0 &lt; \xi_i &lt; 1\)</span>: correctly classified but inside margin  </li>
+<li><span class="arithmatex">\(\xi_i &gt; 1\)</span>: misclassified  </li>
+</ul>
+<p>Role of <span class="arithmatex">\(C\)</span>:</p>
+<ul>
+<li>Large <span class="arithmatex">\(C\)</span> → penalise violations → risk overfitting  </li>
+<li>Small <span class="arithmatex">\(C\)</span> → allow more slack → risk underfitting  </li>
+</ul>
+<hr />
+<h3 id="multi-class-svm">Multi-Class SVM<a class="headerlink" href="#multi-class-svm" title="Permanent link">&para;</a></h3>
+<p>Learn <span class="arithmatex">\(K\)</span> classifiers:</p>
+<div class="arithmatex">\[
+\theta_1, \ldots, \theta_K
+\]</div>
+<p>Prediction:</p>
+<div class="arithmatex">\[
+\hat{y} = \arg\max_k \theta_k^\top x
+\]</div>
+<hr />
+<h3 id="svm-for-ordinal-regression">SVM for Ordinal Regression<a class="headerlink" href="#svm-for-ordinal-regression" title="Permanent link">&para;</a></h3>
+<p>For rating prediction (ordered labels):</p>
+<p>Let boundaries satisfy:
+$$
+b_1 &lt; b_2 &lt; \cdots &lt; b_{K-1}
+$$</p>
+<p>Constraint:
+$$
+b_{y_i-1} &lt; w^\top x_i &lt; b_{y_i}
+$$</p>
+<p><strong>Goal</strong>:</p>
+<ul>
+<li>Learn <span class="arithmatex">\(w\)</span> and ordered thresholds  </li>
+<li>Produce discrete ordered outputs  </li>
+</ul>
+<hr />
+<h3 id="ranking-svm">Ranking SVM<a class="headerlink" href="#ranking-svm" title="Permanent link">&para;</a></h3>
+<p>Rank candidates <span class="arithmatex">\(y\)</span> for users <span class="arithmatex">\(x\)</span> using:</p>
+<div class="arithmatex">\[
+f(x, y; \theta) = \theta^\top \Phi(x, y)
+\]</div>
+<p>Where</p>
+<ul>
+<li><span class="arithmatex">\(\Phi(x, y)\)</span> transforms the user–candidate pair  </li>
+<li>Output score determines ranking  </li>
+</ul>
+<p>Used for recommendation and ranking tasks.</p>
+<hr />
+<h3 id="kernel-svm">Kernel SVM<a class="headerlink" href="#kernel-svm" title="Permanent link">&para;</a></h3>
+<p>Linear SVM cannot solve non-linear problems (e.g., XOR), while Kernel functions implicitly map data to a higher dimension:</p>
+<div class="arithmatex">\[
+x' = \Phi(x)
+\]</div>
+<p>But we avoid computing <span class="arithmatex">\(\Phi(x)\)</span> explicitly by using the <strong>kernel trick</strong>:</p>
+<div class="arithmatex">\[
+K(x, x') = \Phi(x)^\top \Phi(x')
+\]</div>
+<p>Examples:</p>
+<ul>
+<li>Polynomial kernel  </li>
+<li>RBF/Gaussian kernel  </li>
+<li>Sigmoid kernel  </li>
+</ul>
+<p>Benefits:</p>
+<ul>
+<li>Solve complex non-linear classification  </li>
+<li>No explicit high-dimensional transformation required  </li>
 </ul>
 <hr />
 

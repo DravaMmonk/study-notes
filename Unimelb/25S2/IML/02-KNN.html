@@ -12,7 +12,7 @@
         <link rel="prev" href="01-probability.html">
       
       
-        <link rel="next" href="../MoC/01-introduction.html">
+        <link rel="next" href="03-DT.html">
       
       
         
@@ -1179,22 +1179,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#measuring" class="md-nav__link">
+  <a href="#measuring-distances" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Measuring
+        Measuring Distances
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Measuring">
+    <nav class="md-nav" aria-label="Measuring Distances">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#nominal-features" class="md-nav__link">
+  <a href="#nominal-categorical-unordered-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Nominal Features
+        Nominal (Categorical, Unordered) Features
       
     </span>
   </a>
@@ -1213,10 +1213,60 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ordinal-feature-vectors" class="md-nav__link">
+  <a href="#ordinal-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Ordinal Feature Vectors
+        Ordinal Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#weighting-neighbours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Weighting Neighbours
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choosing-k-the-number-of-neighbours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing K (The number of neighbours)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Choosing K (The number of neighbours)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#small-k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Small K
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#large-k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Large K
       
     </span>
   </a>
@@ -1232,6 +1282,118 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="03-DT.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 Decision Trees
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04-NB.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 Naive Bayes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="05-LR.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Linear &amp; Logistic Regression
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="06-SVM.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Support Vector Machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1370,87 +1532,141 @@
 <h1 id="2-k-nearest-neighbours">2 K-Nearest Neighbours<a class="headerlink" href="#2-k-nearest-neighbours" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="lazy-learning">Lazy Learning<a class="headerlink" href="#lazy-learning" title="Permanent link">&para;</a></h2>
+<p>KNN is a <strong>lazy learner</strong>:</p>
+<ul>
+<li>Training = Storing data<ul>
+<li><strong>No</strong> explicit (rule-based) training phase</li>
+</ul>
+</li>
+<li>Predicting = Vote/Avg of labels of nearest points<ul>
+<li>Computation happens <strong>only at prediction time</strong></li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Outcomes of Lazy Learning  </p>
+<p><strong>Pros</strong>
+- No training cost<br />
+- Simple and intuitive<br />
+- Non-parametric (no assumptions about underlying data distribution)<br />
+- Works for both classification and regression  </p>
+<p><strong>Cons</strong>
+- Prediction is expensive on large datasets (must compute many distances)<br />
+- Sensitive to irrelevant or unscaled features<br />
+- Requires careful choice of distance metric, K, weighting<br />
+- Performance degrades in high dimensions (curse of dimensionality)</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Lazy Learning vs. Eager Learning</p>
+<p><strong>Lazy Learning</strong></p>
+<ul>
+<li>No model is built  </li>
+<li>Must use all training samples at prediction time  </li>
+<li>Slow prediction, fast “training”</li>
+</ul>
+<p><strong>Eager Learning</strong></p>
+<ul>
+<li>Train a model that generalises the data  </li>
+<li>Fast inference once trained  </li>
+<li>Higher training cost, but much faster prediction  </li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Outcomes of KNN  </p>
+<p><strong>Pros</strong>
+- Intuitive, simple to implement<br />
+- No training time (lazy)<br />
+- Handles classification &amp; regression<br />
+- Non-parametric and flexible  </p>
+<p><strong>Cons</strong>
+- Slow prediction; requires large memory<br />
+- Sensitive to feature scaling<br />
+- Struggles in high dimensional spaces<br />
+- Many design choices (distance, K, weighting, feature scaling)</p>
+</div>
+<hr />
+<h2 id="measuring-distances">Measuring Distances<a class="headerlink" href="#measuring-distances" title="Permanent link">&para;</a></h2>
+<h3 id="nominal-categorical-unordered-features">Nominal (Categorical, Unordered) Features<a class="headerlink" href="#nominal-categorical-unordered-features" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p><strong>Lazy</strong>: No training; Compute at <strong>query</strong> time</p>
+<p><strong>Hamming Distance</strong><br />
+<span class="arithmatex">\(d = N(\text{mismatching features})\)</span></p>
 </li>
 <li>
-<p>Store the training data; No Modelling &amp; Training</p>
+<p><strong>Simple Matching Distance</strong><br />
+<span class="arithmatex">\(d = 1 - \frac{N(\text{matching})}{N(\text{all features})}\)</span></p>
 </li>
-<li>Computing when only predicting</li>
-</ul>
-<p>Pros &amp; Cons</p>
-<ul>
-<li>Effective</li>
-<li>Long predicting time (need to traverse the data)</li>
-</ul>
-<h2 id="measuring">Measuring<a class="headerlink" href="#measuring" title="Permanent link">&para;</a></h2>
-<h3 id="nominal-features">Nominal Features<a class="headerlink" href="#nominal-features" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Hamming Distance</strong> <span class="arithmatex">\(N(\text{mismatching features})\)</span></li>
-<li><strong>Simple Matching Distance</strong> <span class="arithmatex">\(1 - \frac{N(\text{matching features})}{N(\text{all features})}\)</span></li>
-<li><strong>Jaccard Distance</strong> <span class="arithmatex">\(1-\frac{|A \cap B|}{|A \cup B|}\)</span></li>
+<li>
+<p><strong>Jaccard Distance</strong> (ignores mutual absence)<br />
+<span class="arithmatex">\(d = 1 - \frac{|A \cap B|}{|A \cup B|}\)</span></p>
+</li>
 </ul>
 <h3 id="numerical-feature-vectors">Numerical Feature Vectors<a class="headerlink" href="#numerical-feature-vectors" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Manhattan Distance</strong> <span class="arithmatex">\(\sum(A_i - B_i)\)</span></li>
-<li><strong>Euclidean Distance</strong> <span class="arithmatex">\(\sqrt{\sum(A_i - B_i)^2}\)</span></li>
-<li><strong>Cosine Distance</strong> <span class="arithmatex">\(1 - \cos(a,b) = 1 - \frac{a \cdot b}{|a||b|}\)</span></li>
+<li>
+<p><strong>Manhattan Distance</strong><br />
+<span class="arithmatex">\(d = \sum_i |A_i - B_i|\)</span></p>
+</li>
+<li>
+<p><strong>Euclidean Distance</strong><br />
+<span class="arithmatex">\(d = \sqrt{\sum_i (A_i - B_i)^2}\)</span></p>
+</li>
+<li>
+<p><strong>Cosine Distance</strong><br />
+<span class="arithmatex">\(d = 1 - \cos(A,B) = 1 - \frac{A \cdot B}{\|A\| \|B\|}\)</span></p>
+</li>
 </ul>
-<details class="tip">
-<summary>When is <strong><em>Cosine Distance</em></strong> commonly used?</summary>
+<details class="question">
+<summary>When is Cosine Distance commonly used?</summary>
 <ul>
-<li><em>Normalised a·b = comparison only directions, no lengths</em></li>
-<li><em>Useful when compare long vs short documents / high vs low resolution images</em></li>
+<li>When <strong>magnitude should not affect similarity</strong>, only <strong>direction</strong>  </li>
+<li>High-dimensional spaces (text embeddings, TF-IDF vectors, image feature vectors)  </li>
+<li>Useful for comparing long vs short documents or high vs low resolution images</li>
 </ul>
 </details>
-<h3 id="ordinal-feature-vectors">Ordinal Feature Vectors<a class="headerlink" href="#ordinal-feature-vectors" title="Permanent link">&para;</a></h3>
+<h3 id="ordinal-features">Ordinal Features<a class="headerlink" href="#ordinal-features" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Normalised Ranks</strong> map ranks evenly spaced in [0,1] then use numerical comparisons</li>
+<li>Map ranks to evenly spaced values in <span class="arithmatex">\([0,1]\)</span><br />
+  e.g., <code>Low → 0</code>, <code>Medium → 0.5</code>, <code>High → 1</code>  </li>
+<li>Then apply a numerical distance metric (Euclidean, Manhattan)</li>
 </ul>
-<p><strong>Measure Weight</strong> </p>
+<hr />
+<h2 id="weighting-neighbours">Weighting Neighbours<a class="headerlink" href="#weighting-neighbours" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Majority Voting</strong> choose the most common label (all’s weight = 1)</li>
-<li><strong>Inverse Distance Weighting</strong> weight = 1/(distance + ϵ)</li>
 <li>
-<p><strong>Inverse Linear Distance</strong> weight = ( max - each distance) / ( max - min distance) among neighbours </p>
+<p><strong>Majority Voting</strong><br />
+  Each neighbour has equal weight <span class="arithmatex">\(=1\)</span></p>
 </li>
 <li>
-<p><em>Normalised d(each) between [0, 1]</em></p>
+<p><strong>Inverse Distance Weighting</strong><br />
+<span class="arithmatex">\(\text{weight} = \frac{1}{d + \epsilon}\)</span><br />
+  (Closer neighbours have much larger influence)</p>
+</li>
+<li>
+<p><strong>Inverse Linear Distance</strong><br />
+<span class="arithmatex">\(\text{weight} = \frac{d_{\max} - d_i}{d_{\max} - d_{\min}}\)</span><br />
+  Distances are first normalised into <span class="arithmatex">\([0,1]\)</span></p>
 </li>
 </ul>
-<p><strong>Select K (The number of neighbours)</strong></p>
-<p><strong>Small K</strong></p>
+<hr />
+<h2 id="choosing-k-the-number-of-neighbours">Choosing K (The number of neighbours)<a class="headerlink" href="#choosing-k-the-number-of-neighbours" title="Permanent link">&para;</a></h2>
+<h3 id="small-k">Small K<a class="headerlink" href="#small-k" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Jagged decision boundary</li>
-<li>Capturing noise more easily</li>
-<li>Lower classifier performance</li>
+<li>Highly sensitive to noise  </li>
+<li>Leads to a very jagged decision boundary  </li>
+<li>Risk of overfitting</li>
 </ul>
-<p><strong>Large K</strong></p>
+<h3 id="large-k">Large K<a class="headerlink" href="#large-k" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Smooth decision boundary</li>
-<li>Risk of grouping together unrelated classes</li>
-<li>Lower classifier performance as well if K is too big like even K = N)</li>
+<li>Smoother decision boundary  </li>
+<li>May mix unrelated classes  </li>
+<li>Too large (e.g., <span class="arithmatex">\(K=N\)</span>) → underfitting</li>
 </ul>
-<p><strong>KNN Algorithm Pros and Cons</strong></p>
-<p><strong>Pros</strong></p>
-<ul>
-<li>Intuitive and simple</li>
-<li>No need assumptions</li>
-<li>Supports both classification and regression</li>
-<li>No pre-training needed <strong><em>lazy</em></strong></li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul>
-<li>Expensive large data sets</li>
-<li>How to decide sub-methods is still a problem</li>
-</ul>
-<p><strong>Vs. Eager Learning</strong></p>
-<ul>
-<li><strong>Train</strong> a model using labelled training instances</li>
-<li>The model will <strong>generalise</strong> from seen data to unseen data</li>
-<li>Using the model to <strong>predict</strong> labels for test instances</li>
-</ul>
+<div class="admonition tip">
+<p class="admonition-title">Choose K by <strong>cross-validation</strong></p>
+<p>Odd K is often preferred for <strong>binary classification</strong> to avoid ties.</p>
+</div>
+<hr />
 
 
 
