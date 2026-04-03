@@ -20,7 +20,7 @@ These notes summarise the course materials up to `L11 Pretrained Models`.
 - Every factual claim is sourced in Markdown comments rather than visible inline citations.
 - Visible prose states the content directly and avoids source-reporting phrasing.
 - Formulas and tables are included only when the course materials or assigned readings support them directly.
-- The detailed repository-wide note standard is documented in [Note Taking Guidelines](/Users/drava/test/GitHub/study-notes/docs/NOTE_TAKING_GUIDELINES.md).
+- The detailed repository-wide note standard is documented in [Note Taking Guidelines](../../../NOTE_TAKING_GUIDELINES.md).
 
 ## Primary readings
 
