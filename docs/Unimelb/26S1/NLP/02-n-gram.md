@@ -1,121 +1,54 @@
-# 2 N-gram Language Model
----
-## Probability Foundation
+# 02 N-gram Language Models
 
-Joint to Conditional:  
-$$
-P(w_1, w_2, \cdots, w_m) = P(w_1)P(w_2 \mid w_1)P(w_3 \mid w_1,w_2)\cdots P(w_m \mid w_1, \cdots, w_{m-1})
-$$
+## Source Pack
+- Lecture: `L3 N-gram Language Models (v2)`, pp. 2-31.
+- Workshop: `workshop_nlp_JL_2026s1_wk3.pdf`.
+- Reading: course reading for this lecture (`E18 Chapter 6`, excluding 6.3).
 
-### Markov Assumption
+## What a Language Model Does
+- The lecture describes language models as a way to measure the quality or fluency of text using probabilities. [Source: L3 p.2]
+- The lecture uses speech recognition as a motivating example: a language model helps prefer a fluent analysis such as `recognise speech` over an implausible alternative such as `wreck a nice beach`. [Source: L3 p.2]
+- The lecture also lists query completion, optical character recognition, machine translation, summarisation, and dialogue systems as language-model applications. [Source: L3 p.4]
 
-$$
-P(w_i \mid w_1, \cdots, w_{i-1}) \approx P(w_i \mid w_{i-n+1}, \cdots, w_{i-1})
-$$
+## Chain Rule and the Markov Assumption
+- The lecture starts from the chain rule, expressing the joint probability of a sequence as a product of conditional probabilities over progressively longer histories. [Source: L3 p.6]
+- Because conditioning on the entire history is intractable, the lecture introduces the Markov assumption: approximate the probability of the next word using only the previous `n - 1` words. [Source: L3 p.7]
+- Under this approximation, unigram, bigram, and trigram models keep zero, one, or two previous words respectively. [Source: L3 p.7]
 
-> The Markov Assumption simplifies language modelling by assuming that the probability of a word depends only on a limited number of context instead of the entire word history.
+## Sentence Boundaries and Estimation
+- The lecture introduces special start and end tags so that sentence boundaries are part of the probability calculation. [Source: L3 p.15]
+- Maximum-likelihood estimation is done with corpus counts, directly paralleling the counting logic used in simpler probabilistic NLP models. [Source: L3 lecture derivation and worked examples; pp. 6-17]
+- The workshop uses the same setup and explicitly defines `M` as the total token count in the corpus and `V` as vocabulary size when computing smoothed unigram, bigram, and trigram probabilities. [Source: wk3 n-gram discussion slides]
 
-When $n=1$, a **uni-gram model**:  
-$$
-P(w_1, w_2, \cdots, w_m) = \prod_{i=1}^{m}P(w_i)
-\tag*{the dog $\overset{w_i}{\textcolor{red}{\text{barks}}}$}
-$$
+## Why Plain N-grams Break
+- The lecture lists three main problems with plain n-gram models: language has long-distance effects, probabilities become extremely small, and unseen n-grams lead to zero probabilities. [Source: L3 p.17]
+- Because a single zero factor collapses the whole sequence probability, smoothing is not optional in practical n-gram modelling. [Source: L3 pp. 17-18]
 
-- Output mostly random - not practical
+## Smoothing Family 1: Additive Methods
+- The lecture summarises smoothing as assigning some probability mass to unseen events while still keeping the total probability mass equal to one. [Source: L3 p.18]
+- Add-one (Laplacian) smoothing pretends that every n-gram has been seen one extra time. [Source: L3 p.19]
+- In the lecture's bigram example, `<s>` is excluded from the vocabulary because the model never has to predict `<s>` as the next token. [Source: L3 p.20]
+- The lecture then generalises add-one to add-`k` / Lidstone smoothing, where a fractional constant is added instead of one. [Source: L3 p.21]
 
-When $n=2$, a **bi-gram model**:  
-$$
-P(w_1, w_2, \cdots, w_m) = \prod_{i=1}^{m}P(w_i \mid w_{i-1})
-\tag*{the \textcolor{blue}{dog} $\overset{w_i}{\textcolor{red}{\text{barks}}}$}
-$$
-- Only one preceding word
+## Smoothing Family 2: Discounting and Backoff
+- Absolute discounting, as presented in the lecture, subtracts a fixed amount from observed counts and redistributes the borrowed mass to unseen n-grams. [Source: L3 pp. 23-24]
+- Katz backoff uses a lower-order model to distribute the leftover probability mass rather than sharing it equally across all unseen continuations. [Source: L3 p.25]
+- The lecture also shows a failure case for Katz backoff: if `reading glasses` and `reading Francisco` are both unseen, a pure lower-order model can prefer `Francisco` simply because the unigram `Francisco` is more frequent. [Source: L3 p.26]
 
-When $n=3$, a **tri-gram model**:  
-$$
-P(w_1, w_2, \cdots, w_m) = \prod_{i=1}^{m}P(w_i \mid w_{i-2}, w_{i-1}) \tag*{\textcolor{blue}{the dog} $\overset{w_i}{\textcolor{red}{\text{barks}}}$}
-$$
+## Kneser-Ney and Continuation Probability
+- The lecture introduces Kneser-Ney smoothing as redistributing probability mass according to how versatile a continuation is across distinct contexts. [Source: L3 p.27]
+- The key lower-order quantity is continuation probability: words that occur after many different predecessors receive higher lower-order probability. [Source: L3 pp. 27-28]
+- The lecture contrasts `glasses` with `Francisco`: `glasses` appears after many distinct words, while `Francisco` is largely tied to `San`, so Kneser-Ney prefers `glasses` in the `reading ___` context. [Source: L3 pp. 27-28]
+- The workshop explicitly asks students to compute continuation probabilities and compare unsmoothed, Laplacian, and Kneser-Ney results. [Source: wk3 KN smoothing slides]
 
-...
+## Interpolation
+- The lecture presents interpolation as a more systematic way to combine different n-gram orders, rather than using a hard backoff decision. [Source: L3 p.29]
+- In the lecture's interpolated trigram model, the trigram, bigram, and unigram components are combined with weights `lambda_3`, `lambda_2`, and `lambda_1` that sum to one and are learned on held-out data. [Source: L3 p.29]
 
-The **N-gram Model**:  
-$$
-P(w_1, w_2, \cdots, w_m) = \prod_{i=1}^{m} P(w_i \mid w_{i-n+1}, \cdots, w_{i-1})
-$$
+## What the Workshop Adds
+- The workshop reframes text classification and language modelling around the same representation question: how text is converted into features or counts is often the decisive modelling choice. [Source: wk3 discussion slides]
+- For n-gram exercises, the workshop has students compute unsmoothed and smoothed unigram/bigram/trigram probabilities by hand before moving to backoff and Kneser-Ney, reinforcing that the formulas are operational rather than purely theoretical. [Source: wk3 n-gram discussion slides]
 
-### Maximum Likelihood Estimation
-
-How to calculate $P(w_i)$?
-
-For uni-gram models,  
-$$
-P(w_i)=\frac{C(w_i)}{M}
-\tag*{$\frac{C(\text{barks})}{M}$}
-$$
-
-where,  
-- $M$ - Total number of word tokens in *corpus*
-
-For bi-gram models,  
-$$
-P(w_i)=\frac{C(w_{i-1}, w_i)}{C(w-{i-1})}
-\tag*{$\frac{C(\text{dog barks})}{C(\text{barks)}}$}
-$$
-
-...
-
-For n-gram models,  
-$$
-P(w_i \mid w_{i-n+1}, \cdots, w_{i-1}) = 
-\frac{C(w_{i-n+1}, \cdots, w_i)}{C(w_{i-n+1}, \cdots, w_{i-1})}
-$$
-
-### Problems of N-gram
-
-- Language has long distance effects
-	- large *n*
-- Resulting probabilities are often very small
-	- log transition
-- $P(w_i) = 0$ - one unseen n-grams → $P(\text{all}) = 0$
-	- smoothing
-
-### Smoothing
-
-Goal: Effective counts > 0; Total of smoothed probability = 1  
-
-**Laplacian** (Add-one)  
-- $\frac{C+1}{C+|V|}$
-- `<s>` is not part of vocabulary because we never need to infer its conditional probability (like $P(\text{<s>} \mid \text{something})$)
-
-**Lidstone** (Add-$\alpha$)  
-- $\alpha$ - a small number than 1
-- $\frac{C+\alpha}{C+\alpha|V|}$
-
-**Good-Turing** (Absolute Discounting)  
-- Seen: $C-d$; Unseen: $C+(d \times |V_{\text{seen}}|)/2$
-
- ![[Screenshot 2026-03-14 at 2.58.00 pm.png]]
- 
-**Backoff**  
-- Use a lower-order n-gram model when the higher-order n-gram is unseen.
-- **Katz Backoff** = Backoff + Good-Turing
-	- Discount probabilities of seen n-grams and assign the remaining probability mass to unseen n-grams via backoff.
-	- ⚠️It relies on unstable Good-Turing estimates and backs off to lower-order models that ignore useful contextual information.
-
-$$
-P_{Katz}(w_i|h) =  
-\begin{cases}  
-\frac{C(h,w_i)-d}{C(h)}, & C(h,w_i) > 0 \\  
-\alpha(h) P_{Katz}(w_i|h'), & C(h,w_i) = 0  
-\end{cases}
-$$
-where,  
-- $h = w^{i-1}_{i-n+1}$ - history
-
-**Kneser-Ney** (Continuation probability)
-- vs. Katz: For Lower-order Model - absolute counting → counting in distinct context
-$$
-P_{KN}(w_i \mid h) =  
-\frac{\max(C(h,w_i)-d,0)}{C(h)}  
-+  
-\alpha(h) P_{KN}(w_i \mid h')
-$$
+## Final Position of N-grams in the Subject
+- The lecture calls n-gram models simple but effective ways to capture linguistic predictability. [Source: L3 p.30]
+- It also stresses that they can be trained in an unsupervised way and scale to large corpora, but require smoothing and are no longer the dominant modern language-model architecture. [Source: L3 p.30]
