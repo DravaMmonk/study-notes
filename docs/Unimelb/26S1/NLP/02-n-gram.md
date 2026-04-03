@@ -1,69 +1,101 @@
 # 02 N-gram Language Models
 
-## Scope
+## What language models do
 
-- Lecture: `L3 N-gram Language Models`.
-- Workshop: `Week 3` n-gram exercises.
+- Language models assign probabilities to text sequences so that more fluent alternatives receive higher scores.
+<!-- Sources: L3 p.2 -->
+- Common applications include speech recognition, query completion, OCR, machine translation, summarisation, dialogue systems, and generation.
+<!-- Sources: L3 p.2-4 -->
 
-## What a language model is used for
+## Chain rule and n-gram approximation
 
-- The lecture introduces language models as models that assign probabilities to text sequences so that we can compare how fluent alternative strings are. [Sources: L3 p.2]
-- The lecture uses speech recognition, query completion, OCR, machine translation, summarisation, and dialogue systems as example applications. [Sources: L3 p.2-4]
-- The lecture also notes that language models can be used for generation and names them as part of the foundation of systems like ChatGPT. [Sources: L3 p.2]
+$$
+P(w_1,\dots,w_m)=\prod_{i=1}^{m} P(w_i \mid w_1,\dots,w_{i-1})
+$$
+<!-- Sources: L3 p.6 -->
 
-## From joint probability to n-grams
+$$
+P(w_i \mid w_1,\dots,w_{i-1}) \approx P(w_i \mid w_{i-n+1},\dots,w_{i-1})
+$$
+<!-- Sources: L3 p.7 -->
 
-- The lecture starts with the chain rule to rewrite the probability of a word sequence into a product of conditional probabilities. [Sources: L3 p.6]
-- The Markov assumption then approximates each conditional probability using only the previous `n - 1` words. [Sources: L3 p.7]
-- The lecture presents unigram, bigram, and trigram models as specific cases of this assumption. [Sources: L3 p.7]
-- Sentence boundary symbols `<s>` and `</s>` are included so the model can learn how sentences begin and end. [Sources: L3 p.9]
+- Unigram, bigram, and trigram models are the first three special cases of this approximation.
+<!-- Sources: L3 p.7 -->
+- Sentence boundary symbols such as `<s>` and `</s>` make sentence starts and ends part of the modelled distribution.
+<!-- Sources: L3 p.9 -->
 
-## Maximum likelihood estimation
+## Maximum-likelihood estimation
 
-- The lecture estimates unigram probabilities from corpus counts divided by the total number of word tokens. [Sources: L3 p.8]
-- The lecture estimates higher-order n-gram probabilities by dividing the count of an n-gram by the count of its `(n - 1)`-word history. [Sources: L3 p.8]
-- The lecture's trigram example expands `P(yes no no yes)` into five factors, including the probability of the sentence-end symbol after the final word. [Sources: L3 p.10]
-- The workshop explicitly works with a two-sentence `wood chuck` corpus and defines `M` as total token count and `V` as vocabulary size. [Sources: Wk3 p.17]
-- The workshop also explains why `<s>` is omitted from the vocabulary count used in final n-gram probabilities: it is inserted for context rather than treated as normal text content. [Sources: Wk3 p.17]
+$$
+P(w_i)=\frac{C(w_i)}{M}
+\qquad
+P(w_i \mid w_{i-n+1},\dots,w_{i-1})=\frac{C(w_{i-n+1},\dots,w_i)}{C(w_{i-n+1},\dots,w_{i-1})}
+$$
+<!-- Sources: L3 p.8 -->
 
-## Main limitations of count-based n-gram models
+- A two-sentence `wood chuck` corpus makes the token count `M` and vocabulary size `V` explicit in worked calculations.
+<!-- Sources: Wk3 p.17 -->
+- The start symbol is used for context but is omitted from the normal vocabulary count in the workshop calculations.
+<!-- Sources: Wk3 p.17 -->
 
-- The lecture highlights long-distance effects as a problem, because local context windows miss dependencies that are farther away in the sentence. [Sources: L3 p.16]
-- The lecture notes that multiplying many small probabilities can cause numerical underflow, motivating log probabilities in practice. [Sources: L3 p.16]
-- The lecture treats unseen n-grams as the central modelling problem, because a single zero factor collapses the full sequence probability to zero. [Sources: L3 p.16]
+## Main limitations
+
+- Fixed-width context misses long-distance dependencies.
+<!-- Sources: L3 p.16 -->
+- Multiplying many small probabilities leads to numerical underflow in practice.
+<!-- Sources: L3 p.16 -->
+- Unseen n-grams create zero probabilities, and a single zero factor collapses the entire sequence probability.
+<!-- Sources: L3 p.16 -->
 
 ## Smoothing families
 
-- The lecture defines smoothing as assigning some probability mass to unseen events while keeping total probability mass equal to 1. [Sources: L3 p.18]
-- The lecture lists Laplacian smoothing, add-k smoothing, absolute discounting, Kneser-Ney smoothing, and interpolation. [Sources: L3 p.18]
+| Method | Core idea |
+| --- | --- |
+| add-one | pretend every n-gram was seen once more |
+| add-k | add a smaller fractional constant |
+| absolute discounting | subtract fixed mass from seen events and reassign it |
+| backoff | use a lower-order model when a higher-order event is unseen |
+| Kneser-Ney | use continuation behaviour for the lower-order distribution |
+| interpolation | combine several n-gram orders at once |
+<!-- Sources: L3 p.18-29 -->
 
-## Add-one and add-k smoothing
+## Add-one and add-k
 
-- Laplacian smoothing in the lecture simply pretends each n-gram has been seen once more than it actually was. [Sources: L3 p.19]
-- The add-one example in the lecture shows that even an unseen bigram such as `P(ate | cheese)` receives non-zero probability after smoothing. [Sources: L3 p.20]
-- The lecture then generalises add-one to add-k or Lidstone smoothing by adding a smaller constant `k` instead of `1`. [Sources: L3 p.21-22]
-- The workshop mirrors these computations with unigram, bigram, and trigram examples on the `wood chuck` corpus. [Sources: Wk3 p.18-23]
+- Add-one smoothing gives non-zero probability even to unseen bigrams such as `P(ate | cheese)`.
+<!-- Sources: L3 p.19-20 -->
+- Add-k or Lidstone smoothing generalises add-one by replacing `1` with a smaller constant `k`.
+<!-- Sources: L3 p.21-22 -->
+- Unsmoothed and Laplacian-smoothed unigram, bigram, and trigram probabilities can be compared directly on the same toy corpus.
+<!-- Sources: Wk3 p.18-23 -->
 
 ## Absolute discounting, backoff, and Kneser-Ney
 
-- The lecture describes absolute discounting as subtracting a fixed amount from observed counts and redistributing the reserved mass to unseen events. [Sources: L3 p.23-24]
-- The lecture explains Katz backoff as using a lower-order model to redistribute that leftover mass when a higher-order n-gram is unseen. [Sources: L3 p.25]
-- The lecture points out a weakness of Katz backoff with the `reading ___` example: a frequent word like `Francisco` can be preferred over the more plausible `glasses` because raw unigram frequency is too blunt. [Sources: L3 p.26]
-- Kneser-Ney smoothing is presented as fixing this by using continuation probability, rewarding words that appear in many distinct contexts. [Sources: L3 p.27-28]
-- The workshop makes the same idea concrete by counting how many different preceding words `chuck` and `wood` have in the `wood chuck` corpus. [Sources: Wk3 p.24-25]
+- Absolute discounting subtracts a fixed amount from observed counts and reserves that mass for unseen events.
+<!-- Sources: L3 p.23-24 -->
+- Katz backoff redistributes leftover mass using a lower-order model when the higher-order n-gram is unseen.
+<!-- Sources: L3 p.25 -->
+- Raw unigram frequency can be a weak lower-order signal because frequent words may still be poor continuations in a given context.
+<!-- Sources: L3 p.26 -->
+- Kneser-Ney addresses this by rewarding words that appear in many distinct contexts rather than only words with high raw frequency.
+<!-- Sources: L3 p.27-28; Wk3 p.24-25 -->
 
 ## Interpolation
 
-- The lecture defines interpolation as combining multiple n-gram orders rather than only falling back after failure. [Sources: L3 p.29]
-- The interpolated trigram in the lecture is a weighted sum of trigram, bigram, and unigram probabilities, with weights learned on held-out data. [Sources: L3 p.29]
-- The workshop contrasts interpolation with backoff by noting that interpolation always mixes all relevant orders, whereas backoff only uses lower-order models when needed. [Sources: Wk3 p.27]
+$$
+P_{\mathrm{IN}}(w_i \mid w_{i-2},w_{i-1})
+=
+\lambda_3 P_3(w_i \mid w_{i-2},w_{i-1})
++ \lambda_2 P_2(w_i \mid w_{i-1})
++ \lambda_1 P_1(w_i)
+$$
+<!-- Sources: L3 p.29 -->
 
-## Worked-example lessons from the workshop
+- Interpolation always mixes several orders, while backoff only drops to lower orders when needed.
+<!-- Sources: L3 p.29; Wk3 p.27 -->
 
-- Week 3 uses the same corpus to compare unsmoothed, Laplacian-smoothed, and Kneser-Ney-smoothed models across unigram, bigram, and trigram settings. [Sources: Wk3 p.17-27]
-- The structure of the workshop makes one practical point very clear: increasing the n-gram order makes the model more context-sensitive, but also makes sparsity worse and therefore increases the importance of smoothing. [Sources: Wk3 p.18-27]
+## Practical takeaway
 
-## Final takeaways
-
-- The lecture concludes that n-gram language models are simple, unsupervised, scalable baselines for modelling the predictability of language. [Sources: L3 p.30]
-- The lecture also positions neural language models as the next step once we want stronger generalisation and better handling of sparsity. [Sources: L3 p.30]
+- Larger n-gram orders increase context sensitivity but also increase sparsity.
+<!-- Sources: Wk3 p.18-27 -->
+- N-gram models are simple, unsupervised, and scalable classical baselines, but stronger generalisation motivated the later move to neural language models.
+<!-- Sources: L3 p.30 -->

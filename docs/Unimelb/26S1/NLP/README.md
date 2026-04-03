@@ -15,14 +15,12 @@ These notes summarise the course materials up to `L11 Pretrained Models`.
 - [08 Word Embeddings](08-word-embeddings.md)
 - [09 Pretrained Models](09-pretrained-models.md)
 
-## Source policy
+## Note policy
 
-- Every claim in these notes is grounded in one or more of the following:
-  - lecture slides,
-  - workshop slides,
-  - assigned readings or linked papers.
-- Citations are attached at subsection or bullet level so that the origin of each statement can be traced quickly.
-- When a lecture slide and a reading present the same point, both are cited only when the reading adds useful precision.
+- Every factual claim is sourced in Markdown comments rather than visible inline citations.
+- Visible prose states the content directly and avoids source-reporting phrasing.
+- Formulas and tables are included only when the course materials or assigned readings support them directly.
+- The detailed repository-wide note standard is documented in [Note Taking Guidelines](/Users/drava/test/GitHub/study-notes/docs/NOTE_TAKING_GUIDELINES.md).
 
 ## Primary readings
 
