@@ -1,47 +1,59 @@
 # 07 Transformer
 
-## Source Pack
-- Lecture: `L9 Transformer (v3)`, pp. 2-35.
-- Reading: course reading for this lecture (`JM3 Chapter 8.1-8.5` as listed in the subject outline).
-- Primary paper cited in the lecture: Vaswani et al., "Attention Is All You Need" (2017).
+## Scope
 
-## Why the Architecture Changes Again
-- The lecture contrasts RNN language models with Transformers by noting that RNN computation must proceed sequentially, one word at a time. [Source: L9 p.2]
-- The Transformer removes state transfer between word positions, so per-position computation can be parallelised. [Source: L9 pp. 3-4]
-- The lecture explicitly answers "How?" with attention. [Source: L9 p.4]
+- Lecture: `L9 Transformer`.
+- Reading: `JM3 Chapter 8`.
 
-## Self-attention with Query, Key, and Value
-- The lecture presents self-attention as the mechanism for capturing dependencies between words. [Source: L9 pp. 7, 11]
-- In its formulation, a target word contributes a query vector, context words contribute key and value vectors, and the target representation is a weighted sum of value vectors. [Source: L9 p.11]
-- The lecture states that query, key, and value are all linear projections of embeddings. [Source: L9 p.11]
-- For matrix form, the lecture writes self-attention as `softmax(QK^T) V`, with scaled dot-product attention used to prevent values from growing too large. [Source: L9 p.13]
-- The lecture summarises the outcome as contextual representation: each word representation now takes neighbouring context into account. [Source: L9 p.14]
+## Why transformers replaced recurrent models
 
-## Multi-head Attention
-- The lecture argues that a single attention head cannot capture all relevant relations in a sentence, which motivates multi-head attention. [Source: L9 pp. 15-17]
-- Its summary of repeated attention computation is that each word's output embedding now bundles information gathered through multiple independent attention views. [Source: L9 pp. 16-17]
+- The lecture starts from an RNN language model and points out that recurrent computation is inherently sequential, because prediction for later positions depends on having completed earlier recurrent updates. [Sources: L9 p.2]
+- The transformer is introduced as removing this state transfer between positions, which allows prediction computations to be parallelised. [Sources: L9 p.3-4]
+- JM3 likewise describes transformers as non-recurrent models whose key mechanism is multi-head attention. [Sources: JM3 Ch.8, chapter introduction]
 
-## Transformer Block
-- The lecture defines a full transformer block as more than self-attention: it also contains a feedforward layer, two residual connections, and two normalisation layers. [Source: L9 p.19]
-- The feedforward sublayer is a two-layer network that expands and then compresses an embedding, using the same projection for each word position. [Source: L9 p.21]
-- Residual connections are described as direct paths from lower to higher layers that improve learning by giving higher layers access to lower-level representations. [Source: L9 p.22]
-- Layer norm is introduced as a regularisation-like normalisation over a single vector, analogous to a z-score with learnable scale and shift parameters. [Source: L9 p.23]
-- The lecture then presents the block composition order explicitly: multi-head attention, residual addition, layer norm, feedforward, another residual addition, and another layer norm. [Source: L9 p.24]
-- Deep language models arise by stacking many such transformer blocks; the lecture notes GPT-3 as an example with 96 blocks. [Source: L9 p.25]
+## Self-attention intuition
 
-## Positional Embeddings
-- Because plain query-key comparison is permutation-insensitive, the lecture points out that swapping words can otherwise produce the same output vectors. [Source: L9 p.27]
-- The fix in the lecture is positional embeddings: the input representation is the sum of word embeddings and position embeddings. [Source: L9 p.28]
-- The lecture's example uses a static sinusoidal function to map each position to a vector. [Source: L9 p.29]
+- The lecture motivates attention with the sentence `I made her duck`, where the representation of a target word should depend selectively on relevant context words. [Sources: L9 p.8-12]
+- In the lecture, query, key, and value are all vector projections of word embeddings. [Sources: L9 p.11]
+- The target word's representation is a weighted sum of value vectors, with the weights derived from comparisons between its query vector and context key vectors. [Sources: L9 p.11-13]
+- The lecture summarises the matrix form as `SelfAttention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V`. [Sources: L9 p.13]
+- JM3 describes the same mechanism as building contextualized representations by selectively attending to neighbouring tokens. [Sources: JM3 Ch.8, attention discussion]
 
-## Language-model Head
-- For training, the lecture keeps the next-word prediction objective and projects the final contextual embedding back into vocabulary space. [Source: L9 p.31]
-- The lecture notes that the same embedding matrix `E` can be reused for input and output vocabulary projection. [Source: L9 p.31]
+## Contextual representations
 
-## Context Window and Scaling
-- The lecture acknowledges that causal self-attention still uses a fixed left context window for prediction, but says the window is far larger than in classical n-gram models. [Source: L9 p.33]
-- Its concrete scale claim is that training can use about `100K` tokens of context and inference about `1M`. [Source: L9 p.33]
-- The lecture ends by calling the Transformer the dominant architecture for language modelling because it parallelises well and keeps improving when layers or attention heads are increased. [Source: L9 p.34]
+- The lecture's main conceptual claim is that self-attention produces contextual representations, meaning each word vector is updated using the surrounding sentence context. [Sources: L9 p.14]
+- This is a major difference from static embeddings, where the representation of a word type does not change from sentence to sentence. [Sources: L9 p.14; L10 p.21]
 
-## Main Takeaway
-- In the course narrative, the Transformer's importance is not just accuracy but the combination of contextual modelling, parallel training, and smooth scaling to larger models, which directly sets up the transition to pretrained language models and generative AI. [Source: L9 pp. 31-34]
+## Multi-head attention
+
+- The lecture argues that words can relate to each other syntactically, semantically, and discourse-wise, so one attention mechanism is not enough. [Sources: L9 p.15]
+- Multi-head attention therefore performs multiple independent attention computations and combines their outputs. [Sources: L9 p.15-16]
+- JM3 makes the same argument: different heads can specialise in different relationships while preserving a common model dimension after recombination. [Sources: JM3 Ch.8, multi-head attention]
+
+## Transformer block
+
+- The lecture defines a full transformer block as self-attention plus a feedforward sublayer, two residual connections, and two normalising layers. [Sources: L9 p.19]
+- The feedforward layer is a two-layer network applied independently at each position, expanding then compressing the embedding dimension. [Sources: L9 p.21]
+- Residual connections add lower-layer information directly to higher-layer outputs, improving optimisation by giving upper layers direct access to lower-level representations. [Sources: L9 p.22]
+- Layer norm is introduced as a vector-wise normalisation, analogous to a z-score with learned gain and offset parameters. [Sources: L9 p.23]
+- The lecture then puts these pieces together in an explicit block computation before stacking many such blocks. [Sources: L9 p.24-25]
+- JM3 describes the same block in terms of a residual stream that is progressively enriched by attention and feedforward modules. [Sources: JM3 Ch.8, transformer block discussion]
+
+## Positional embeddings
+
+- The lecture observes that pure query-key comparison is permutation-insensitive: swapping `I` and `made` would otherwise give the same attention computation. [Sources: L9 p.27]
+- Positional embeddings are therefore added to word embeddings so the model can represent sequence order. [Sources: L9 p.28]
+- The lecture presents sinusoidal position embeddings as one way to compute them. [Sources: L9 p.29]
+- JM3 explains the same input representation as the sum of a token embedding and a position embedding. [Sources: JM3 Ch.8, positional embedding discussion]
+
+## Language-model head and training
+
+- The lecture trains the transformer for next-word prediction by projecting the final hidden representation back into vocabulary space. [Sources: L9 p.31]
+- The training slides keep the model autoregressive: each target position only attends to a left context. [Sources: L9 p.31-32]
+- The lecture notes that this still looks like a fixed-context language model, but with a much larger window than classical n-gram models. [Sources: L9 p.33]
+
+## Why transformers scale
+
+- The lecture's closing message is that transformers became dominant because they parallelise well and keep improving as layers and heads are scaled up. [Sources: L9 p.34]
+- JM3 makes the same point more formally by emphasising the parallelisability of sequence processing and the strong empirical returns from scaling. [Sources: JM3 Ch.8, summary]
+- The Manning essay similarly identifies the transformer as the dominant modern model family and describes attention, residual connections, and normalisation as central pieces of the architecture. [Sources: Manning 2022, p. 130]

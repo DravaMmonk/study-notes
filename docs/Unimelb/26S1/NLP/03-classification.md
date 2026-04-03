@@ -1,85 +1,70 @@
 # 03 Text Classification
 
-## Source Pack
-- Lecture: `L4 Text Classification (v2)`, pp. 3-32.
-- Workshop: `workshop_nlp_JL_2026s1_wk3.pdf`.
-- Reading: course reading for this lecture (`E18 Chapter 4.1, 4.3-4.4.1`).
+## Scope
 
-## Classification Setup
-- The lecture defines classification as mapping a document `d` to a predicted class from a fixed categorical set `C = {c1, c2, ..., ck}`. [Source: L4 p.3]
-- The same slide distinguishes classification from regression and ranking: the output space is categorical rather than continuous or ordinal. [Source: L4 p.3]
-- The workshop rephrases the same formulation as "a document plus a fixed output set of labels goes to one predicted class". [Source: wk3 definition slides]
+- Lecture: `L4 Text Classification`.
+- Workshop: `Week 3` classification recap.
 
-## Representative NLP Classification Tasks
+## What text classification covers
 
-### Topic Classification
-- The lecture motivates topic classification via library science and information retrieval. [Source: L4 p.6]
-- It lists unigram bag-of-words features with stopword removal and longer n-grams for phrases as standard topic features. [Source: L4 p.6]
-- Example corpora in the lecture include Reuters/RCV1, PubMed abstracts, and tweets with hashtags. [Source: L4 p.6]
+- The lecture introduces text classification as assigning documents or text pairs to predefined labels. [Sources: L4 p.3]
+- The lecture examples include topic classification, sentiment analysis, native-language identification, and natural language inference. [Sources: L4 p.4-12]
 
-### Sentiment Analysis
-- The lecture frames sentiment analysis as opinion mining and business analytics. [Source: L4 p.8]
-- The target label set is positive, negative, or optionally neutral. [Source: L4 p.8]
-- The lecture lists n-grams and polarity lexicons as core features. [Source: L4 p.8]
+## Standard modelling workflow
 
-### Native-Language Identification
-- The lecture presents native-language identification as relevant to forensic linguistics and educational applications. [Source: L4 p.10]
-- Features named in the lecture include word n-grams, syntactic patterns such as POS or parse trees, and phonological features. [Source: L4 p.10]
+- The lecture gives a nine-step pipeline: identify a task, collect a corpus, annotate it, select features, choose an algorithm, train and tune on development data, iterate if needed, train the final model, and evaluate on held-out test data. [Sources: L4 p.13]
+- This workflow makes the data split explicit: the development set is for tuning and the test set is for final evaluation only. [Sources: L4 p.13, p.30]
 
-### Natural Language Inference
-- The lecture uses the synonym "textual entailment" for natural language inference. [Source: L4 p.12]
-- Its label space is entailment, contradiction, or neutral. [Source: L4 p.12]
-- Example features listed by the lecture are word overlap, sentence-length difference, and n-grams. [Source: L4 p.12]
+## How to choose an algorithm
 
-### Other Task Names in the Lecture
-- The lecture overview also names automatic fact-checking and paraphrase as common text classification-style tasks. [Source: L4 p.4]
+- The lecture recommends thinking about bias versus variance, modelling assumptions, complexity, and speed when selecting a classifier. [Sources: L4 p.15]
+- The lecture repeatedly frames classifier choice as a trade-off rather than a one-size-fits-all decision. [Sources: L4 p.15-31]
 
-## How to Build a Text Classifier
-- The lecture gives a nine-step pipeline: choose a task, collect a corpus, annotate it, select features, choose a learning algorithm, train and tune on held-out development data, iterate earlier steps if needed, train the final model, and evaluate on held-out test data. [Source: L4 p.13]
-- Hyper-parameter tuning should use a dedicated development set rather than the training or test set; the lecture also mentions k-fold cross-validation. [Source: L4 p.30]
+## Naive Bayes
 
-## Representation Is the Core Difficulty
-- The workshop says text classification is difficult mainly because of document representation: the model needs document features that distinguish labels. [Source: wk3 "Why is text classification difficult?" slides]
-- The workshop explicitly walks through one-hot encodings, bag-of-words, and TF-IDF as alternative ways to represent lexical evidence. [Source: wk3 representation slides]
-- The workshop summarises bag-of-words as representing text through word occurrence counts and motivates it with the intuition that documents with similar content should look similar in feature space. [Source: wk3 BoW slides]
+- The lecture defines Naive Bayes through Bayes' rule and the simplifying assumption that features are conditionally independent given the class. [Sources: L4 p.16]
+- The lecture lists its strengths as speed, robustness, low variance, and simplicity, especially when data are limited. [Sources: L4 p.17]
+- The lecture lists its weaknesses as unrealistic independence assumptions, lower accuracy in many settings, and the need for smoothing on unseen class-feature combinations. [Sources: L4 p.17]
 
-## Choosing an Algorithm
-- The lecture proposes four general criteria when choosing a classifier: bias-variance tradeoff, modelling assumptions, complexity, and speed. [Source: L4 p.15]
+## Logistic regression
 
-## Algorithm Notes from the Lecture
+- The lecture presents logistic regression as a linear classifier whose softmax output produces valid class probabilities. [Sources: L4 p.18]
+- The training objective is to maximise the probability of the training data, subject to regularisation that prefers smaller or sparser weights. [Sources: L4 p.18]
+- The lecture contrasts it with Naive Bayes by saying logistic regression handles correlated and diverse features better, but requires more data, feature scaling, and careful regularisation choices. [Sources: L4 p.19]
 
-### Naive Bayes
-- The lecture writes Naive Bayes as choosing the class with highest posterior under Bayes' law and explicitly states the naive independence assumption over features. [Source: L4 pp. 16-17]
-- The lecture's advantages are speed, robustness in low-data settings, low variance, and simplicity; its disadvantages are unrealistic independence assumptions, lower accuracy in many settings, and the need for smoothing. [Source: L4 p.17]
+## Support vector machines
 
-### Logistic Regression
-- The lecture describes logistic regression as a classifier despite its name and as a linear model combined with a softmax-like squashing step to produce valid probabilities. [Source: L4 p.18]
-- The lecture says it handles correlated features better than Naive Bayes, but is slower to train, benefits from feature scaling, needs more data in practice, and depends strongly on the regularisation choice. [Source: L4 p.19]
+- The lecture describes an SVM as finding a maximum-margin separating hyperplane. [Sources: L4 p.20]
+- The lecture lists its strengths as fast and accurate linear classification, support for non-linearity via kernels, and good behaviour with very large feature spaces. [Sources: L4 p.20]
+- The lecture lists multiclass awkwardness, feature scaling, class imbalance, and interpretability as drawbacks. [Sources: L4 p.20]
+- The lecture explicitly notes that, before deep learning, SVMs were especially popular in NLP. [Sources: L4 p.21]
 
-### Support Vector Machines
-- The lecture defines SVMs through the maximum-margin separating hyperplane. [Source: L4 p.20]
-- Its listed strengths are speed, strong accuracy for linear classification, support for non-linearity through kernels, and good behaviour on huge feature sets. [Source: L4 p.20]
-- Its listed weaknesses are awkward multiclass handling, need for feature scaling, poor behaviour under class imbalance, and weak interpretability. [Source: L4 p.20]
-- The lecture separately notes that SVMs were especially popular in pre-deep-learning NLP because text problems often have large feature sets and large datasets. [Source: L4 p.21]
+## k-nearest neighbour
 
-### K-Nearest Neighbour
-- The lecture defines KNN as classification by majority vote among the nearest training examples, with Euclidean or cosine distance as example neighbourhood metrics. [Source: L4 pp. 22-23]
-- Its pros are simplicity, no explicit training, natural multiclass behaviour, and optimality with infinite data; its cons are choosing `k`, class-imbalance sensitivity, neighbour-search cost, and heavy dependence on feature choice. [Source: L4 p.23]
-- The workshop reinforces KNN by showing both Euclidean-distance and cosine-similarity variants. [Source: wk3 KNN slides]
+- The lecture defines kNN as assigning the majority class among the nearest training examples in feature space. [Sources: L4 p.22]
+- Euclidean distance and cosine distance are listed as alternative similarity measures. [Sources: L4 p.22]
+- The lecture presents kNN as simple, training-free, and naturally multiclass, but also slow at prediction time and sensitive to the choice of `k`, class imbalance, and feature design. [Sources: L4 p.23]
 
-### Decision Trees and Random Forests
-- The lecture defines a decision tree as a classifier whose internal nodes test features and whose leaves return class decisions, using greedy maximisation of mutual information. [Source: L4 p.24]
-- Decision trees are described as fast to build/test, feature-scale insensitive, and good for small feature sets, but not competitive for large feature spaces and not as interpretable in practice as their reputation suggests. [Source: L4 p.25]
-- Random forests are introduced as ensembles of trees trained on different subsets of the data and feature space, with the final decision obtained by majority vote. [Source: L4 p.26]
-- The lecture says random forests are usually more accurate and robust than single trees and parallelise well, but remain weak on interpretability and slow on large feature sets. [Source: L4 p.27]
+## Decision trees and random forests
 
-### Neural Networks
-- The lecture characterises neural networks as layered systems with input, hidden, and output layers, where each node linearly combines its inputs and then applies an activation function. [Source: L4 p.28]
-- Their advantages in the lecture are power and reduced manual feature engineering; their drawbacks are optimisation difficulty, many hyper-parameters, slow training, and overfitting risk. [Source: L4 p.29]
+- The lecture defines a decision tree as a greedy tree of feature tests whose leaves are class decisions, with splits chosen by mutual information. [Sources: L4 p.24]
+- The lecture lists decision trees as fast, insensitive to feature scaling, and good for small feature sets, but weak on large feature sets and often less interpretable in practice than they appear. [Sources: L4 p.25]
+- Random forests are introduced as ensembles of decision trees trained on different subsets of the data and feature space, with majority voting at the end. [Sources: L4 p.26]
+- The lecture presents random forests as more accurate and robust than single trees, especially on medium-sized feature sets, while still sacrificing interpretability and speed at large scale. [Sources: L4 p.27]
 
-## Hyper-parameters and Overfitting
-- The lecture stresses that many hyper-parameters are effectively regularisation choices because they control model complexity. [Source: L4 p.30]
-- For multiple hyper-parameters, the lecture recommends grid search. [Source: L4 p.30]
+## Neural classifiers
 
-## Practical Summary
-- The lecture's closing advice is pragmatic rather than ideological: many algorithms are available, but if the goal is strong results on a new task, feature engineering and task setup matter as much as the choice of classifier. [Source: L4 pp. 31-32]
+- The lecture defines neural networks as layered sets of interconnected nodes with input, hidden, and output layers. [Sources: L4 p.28]
+- Each node applies a linear combination of incoming values followed by a non-linear activation before passing information onward. [Sources: L4 p.28]
+- The lecture's summary is that neural networks are extremely powerful and require less feature engineering, but are not off-the-shelf, have many hyper-parameters, train slowly, and overfit easily. [Sources: L4 p.29]
+
+## Hyper-parameter tuning
+
+- The lecture distinguishes model parameters from hyper-parameters and says that tuning must use development data rather than the training or test set. [Sources: L4 p.30]
+- It also names cross-validation and grid search as standard tools for tuning. [Sources: L4 p.30]
+- The lecture emphasises regularisation hyper-parameters because they control model complexity and help prevent overfitting. [Sources: L4 p.30]
+
+## What matters beyond the algorithm
+
+- The lecture's closing claim is that strong results on a new task often depend more on annotation quality, dataset size, and feature design than on the precise classifier chosen. [Sources: L4 p.31]
+- This is one of the key practical messages of the topic: algorithm choice matters, but data and representation often matter more. [Sources: L4 p.13-15, p.31]

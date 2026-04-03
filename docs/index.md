@@ -2,6 +2,10 @@
 
 ## 🎓 Master of Information Technology in the University of Melbourne
 
+### 🗓️ 2026 Semester 1
+
+- 🗓️ [Natural Language Processing - COMP90042](Unimelb/26S1/NLP/README.md)
+
 ### 🗓️ 2025 Semester 2
 
 - 📘 [AI Planning for Autonomy - COMP90054](Unimelb/25S2/AIP/01-Search.md)
@@ -16,4 +20,3 @@
 - 💭 Natural Language Processing - Stanford CS224n
 
 ## 📚 Reference
-

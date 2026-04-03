@@ -1,52 +1,68 @@
 # 06 Recurrent Networks
 
-## Source Pack
-- Lecture: `L8 Recurrent Networks (v2)`, pp. 2-42.
-- Workshop: `workshop_nlp_JL_2026s1_wk5.pdf`.
-- Reading: course reading for this lecture (`JM3 Chapter 13.1-13.5`).
+## Scope
 
-## Why Move Beyond Fixed-context Models
-- The lecture revisits n-gram language models, including feedforward neural versions, and shows that they still generate text from a fixed context window. [Source: L8 pp. 3-9]
-- Its explicit diagnosis is "limited context": a fixed-size window cannot naturally expand as the useful dependency span grows. [Source: L8 p.9]
+- Lecture: `L8 Recurrent Networks`.
+- Workshop: `Week 5` recurrent language model recap.
+- Reading: `JM3 Chapter 13`.
 
-## Core RNN Idea
-- Recurrent neural networks are introduced as models that can represent arbitrarily sized inputs by processing a sequence one element at a time. [Source: L8 p.11]
-- The lecture states the core recurrence as updating a state vector from the previous state and the current input. [Source: L8 pp. 11-13]
-- In the simple RNN shown in class, the update is `s_i = tanh(W_s s_{i-1} + W_x x_i + b)`. [Source: L8 p.13]
-- When unrolled across time, the same parameters are reused at every time step. [Source: L8 p.14]
+## Why move beyond feedforward language models
 
-## Training and Inference
-- The lecture explains that an unrolled RNN is just a very deep network with shared parameters, trained by backpropagation through time. [Source: L8 p.15]
-- In the language-model setup, the current token is mapped to an embedding, the hidden state stores information from earlier words, and the output distribution predicts the next word. [Source: L8 p.16]
-- The training loss in the lecture is the sum of negative log-likelihood terms over the predicted next-word distributions. [Source: L8 p.17]
+- The lecture uses a generated trigram-style sentence such as `I saw a table is round and about` to illustrate that finite-context models can miss global coherence. [Sources: L8 p.3-9]
+- The lecture identifies the fixed context window as the core limitation of n-gram and feedforward language models. [Sources: L8 p.9]
+- JM3 makes the same comparison explicitly: n-gram models have a limited context, feedforward neural language models have a fixed context, and RNNs instead process the sequence incrementally. [Sources: JM3 Ch.13, RNN language-model discussion]
 
-## Problems in RNN Generation
-- The lecture lists three problems with straightforward autoregressive generation from an RNN: mismatch between training and decoding, error propagation through intermediate predictions, and a tendency toward bland or generic language. [Source: L8 p.19]
+## Basic RNN idea
 
-## Vanishing Gradients
-- The lecture asks whether RNNs can really use their theoretically unbounded context and answers no: in practice, long-range dependencies are hard because of vanishing gradients. [Source: L8 p.21]
-- The reason given in the lecture is that gradients from later steps diminish quickly during backpropagation, so early inputs receive very small updates. [Source: L8 p.21]
-- The workshop repeats vanishing gradients as the main practical obstacle in standard RNNs. [Source: wk5 RNN discussion slides]
+- The lecture defines an RNN as processing the sequence one input at a time with a recurrent state vector that stores previously processed context. [Sources: L8 p.11-13]
+- The recurrence in the lecture is `s_i = tanh(W_s s_{i-1} + W_x x_i + b)`. [Sources: L8 p.13]
+- Unrolling the network over time makes the recurrence explicit and also shows that the same parameters are reused at every time step. [Sources: L8 p.14]
+- JM3 calls this simple architecture an Elman network or simple recurrent network and notes that it is the foundation for later recurrent variants. [Sources: JM3 Ch.13, section 13.1]
 
-## LSTM as the Fix
-- The lecture introduces LSTMs specifically to address vanishing gradients. [Source: L8 p.22]
-- Its core mechanism is a memory cell that preserves information across time, together with gates that decide what to write, forget, and expose. [Source: L8 pp. 22-30]
-- The lecture defines a gate as a sigmoid-produced vector with values between zero and one that is multiplied element-wise with another vector to control information flow. [Source: L8 p.23]
-- The forget gate determines how much old cell content should be discarded; the lecture illustrates this with changing subject information in `The cats that the boy likes`. [Source: L8 p.26]
-- The input gate determines how much new distilled information enters the memory cell. [Source: L8 p.27]
-- The output gate controls how much of the memory cell contributes to the next hidden state. [Source: L8 p.29]
-- The lecture closes the LSTM block with the standard gate equations for `f_t`, `i_t`, `o_t`, candidate cell state, updated cell state, and hidden state. [Source: L8 p.30]
+## Training with backpropagation through time
 
-## Applications Shown in the Lecture
-- The lecture gives character-level generation examples including Shakespeare text, Wikipedia-like text, and code generation. [Source: L8 pp. 32-34]
-- It also points to Deep-Speare as an example of generating Shakespearean sonnets. [Source: L8 p.35]
-- For supervised NLP, the lecture shows RNNs applied to text classification, where the word order matters, and to sequence labelling such as POS tagging. [Source: L8 pp. 37-38]
-- The lecture then stacks LSTMs vertically to form multi-layer LSTMs and combines forward and backward passes in bidirectional LSTMs. [Source: L8 pp. 39-40]
+- The lecture says that an unrolled RNN is just a very deep network with shared parameters, so it can be trained with backpropagation on the unrolled computation graph. [Sources: L8 p.15]
+- This training method is named backpropagation through time. [Sources: L8 p.15]
+- JM3 describes the same idea: first perform forward computation on the unrolled graph, then backpropagate gradients through that graph while tying repeated parameters together. [Sources: JM3 Ch.13, BPTT discussion]
 
-## Workshop Emphasis
-- The workshop compares FFNN and RNN language models through parameter counts, highlighting that an RNN reuses the same recurrent weight matrix rather than concatenating a new parameter block for every extra context position. [Source: wk5 parameter slides]
-- It explicitly states that RNN language models can capture arbitrarily long contexts and generalise better to unseen sequences than fixed-window n-gram models. [Source: wk5 RNN slides]
+## RNNs as language models
 
-## Final Trade-offs
-- The lecture summary credits RNNs with the ability to model long-range context and with the same broad task flexibility as feedforward networks. [Source: L8 p.41]
-- The lecture's downsides are sequential computation, weak practical handling of very long dependencies, poor stacking behaviour for deep LSTMs, and lower present-day popularity after the rise of Transformers. [Source: L8 p.41]
+- In the lecture's RNN language model, the current token is the input, the recurrent state encodes prior context, and the output distribution predicts the next token. [Sources: L8 p.16]
+- The training example `a cow eats grass` uses a per-step cross-entropy loss and sums the losses across time. [Sources: L8 p.17]
+- The generation slide shows the model running autoregressively: previously generated tokens become the next inputs. [Sources: L8 p.18]
+- The lecture then lists three generation problems: train-test mismatch, error propagation, and a tendency toward bland or generic language. [Sources: L8 p.19]
+
+## Why RNNs should be better than n-grams
+
+- The lecture claims that RNNs can in principle model infinite context because the state can summarize arbitrarily long prefixes. [Sources: L8 p.21]
+- The workshop translates this into a comparison statement: RNN language models can capture arbitrarily long contexts, while n-gram models use fixed-width histories. [Sources: Wk5 p.16]
+- The workshop also says that RNNs generalise better to unseen sequences than count-based n-gram models. [Sources: Wk5 p.16]
+
+## The vanishing gradient problem
+
+- The lecture answers its own `Language Model... Solved?` question by saying no: simple RNNs still fail to capture long-range dependencies well in practice because of vanishing gradients. [Sources: L8 p.21]
+- The explanation given is that gradients shrink quickly during backpropagation, so early inputs receive very weak updates. [Sources: L8 p.21]
+- The workshop reinforces the same point by saying that earlier layers in a deep unrolled RNN learn very slowly when gradients become tiny. [Sources: Wk5 p.17-18]
+- JM3 identifies vanishing gradients as one major reason simple RNNs struggle on long inputs. [Sources: JM3 Ch.13, LSTM motivation]
+
+## LSTM motivation and components
+
+- The lecture introduces LSTMs as the standard remedy for vanishing gradients. [Sources: L8 p.22]
+- The core idea is a memory cell whose contents are managed by gates that decide what to forget, what to write, and what to expose. [Sources: L8 p.22-30]
+- The lecture defines a gate as a vector with values between `0` and `1`, produced by a sigmoid and applied element-wise to control information flow. [Sources: L8 p.23]
+- The forget gate decides how much of the previous cell state to discard; the input gate decides how much new information to write; the output gate decides how much of the cell state becomes the next hidden state. [Sources: L8 p.26-29]
+- The summary slide provides the standard equations for `f_t`, `i_t`, `o_t`, `C_t`, and `h_t`. [Sources: L8 p.30]
+- The workshop states the same high-level point: LSTM and GRU variants address vanishing gradients through memory cells that preserve gradients across time. [Sources: Wk5 p.18]
+
+## Typical NLP uses
+
+- The lecture presents text classification as a sequence-classification application where the recurrent state over a sentence feeds a polarity decision. [Sources: L8 p.37]
+- It also presents sequence labelling, such as POS tagging, where an output label is produced at each time step. [Sources: L8 p.38]
+- Multi-layer LSTMs stack recurrent layers so that the output sequence of one layer becomes the input sequence of the next. [Sources: L8 p.39]
+- Bidirectional LSTMs use both left-to-right and right-to-left recurrent passes so that each output can depend on both past and future context. [Sources: L8 p.40]
+- JM3 makes the same architectural distinction and notes that bidirectional RNNs are especially useful when outputs at time `t` need information from both directions. [Sources: JM3 Ch.13, stacked and bidirectional RNN discussion]
+
+## Strengths and limitations
+
+- The lecture's final comparison is that recurrent models are flexible and can in principle capture long contexts. [Sources: L8 p.41]
+- Their main drawbacks are sequential computation, weak long-range behaviour in practice, poor stacking compared with later architectures, and reduced popularity after transformers. [Sources: L8 p.41]

@@ -1,68 +1,79 @@
 # 01 Text Preprocessing
 
-## Source Pack
-- Lecture: `L2 Text Preprocessing (v2)`, pp. 2-33.
-- Workshop: `workshop_nlp_JL_2026s1_wk2.pdf`.
-- Reading: SLP3 reading listed by the course for this lecture (`JM3 Chapter 2.4`).
+## Scope
 
-## Why Preprocessing Exists
-- The lecture motivates preprocessing by noting that most NLP applications take documents as input and that language is compositional, so a computer should break documents into smaller components before analysis. [Source: L2 p.2]
-- The lecture defines the core units used throughout the rest of the subject: a word, a sentence, a document, a corpus, a word token, and a word type. [Source: L2 p.3]
-- The lecture also contrasts token count and vocabulary size, illustrating that corpora with more tokens still continue to add new types; one example slide reports the Google N-gram corpus as roughly one trillion tokens and thirteen million types. [Source: L2 pp. 4-5]
+- Lecture: `L2 Text Preprocessing`.
+- Workshop: `Week 2`.
+- Reading: `JM3 Chapter 2`.
 
-## Standard Preprocessing Pipeline
-- The lecture gives the following pipeline: remove unwanted formatting, perform sentence segmentation, perform word tokenisation, normalise words, and remove stop words. [Source: L2 p.6]
-- The final choice of steps is task- and language-dependent; the lecture explicitly says preprocessing is unavoidable in text analysis, can strongly affect downstream applications, and is often language-dependent. [Source: L2 p.32]
+## Why preprocessing is the first step
 
-## Sentence Segmentation
-- A naive rule that splits on sentence punctuation such as `.`, `?`, or `!` fails because periods also appear in abbreviations and some punctuation can occur inside words. [Source: L2 p.8]
-- Requiring a following capital letter improves the heuristic but still fails on cases such as abbreviations followed by names. [Source: L2 p.8]
-- Lexicons can help, but the lecture says it is difficult to enumerate all relevant names and abbreviations. [Source: L2 p.8]
-- The lecture says state-of-the-art systems use machine learning rather than hand-written rules; one binary-classifier formulation decides for each period whether it ends a sentence. [Source: L2 pp. 8-9]
-- Example features for the binary classifier include neighbouring words, word-shape features such as casing and character length, and POS-based cues such as determiners tending to begin a sentence. [Source: L2 p.9]
+- The lecture frames preprocessing as necessary because most NLP applications receive documents as input, and computers must break language into smaller components before analysis. [Sources: L2 p.2]
+- The lecture's preprocessing pipeline has five steps: remove unwanted formatting, sentence segmentation, word tokenisation, word normalisation, and stopword removal. [Sources: L2 p.6]
+- The workshop repeats this motivation by defining tokenisation as segmenting text into tokens and by arguing that a document can be too large to manipulate directly without decomposition. [Sources: Wk2 p.11-12]
+- JM3 likewise describes tokenization as the first stage of modern NLP and as the process of segmenting running text into tokens. [Sources: JM3 Ch.2, opening pages; JM3 Ch.2 summary]
 
-## Word Tokenisation
-- The workshop defines tokenisation as segmenting text into tokens, which may be words or subwords. [Source: wk2 slide "What is tokenisation?"]
-- The workshop states tokenisation matters because long documents are hard to manipulate directly, and segmentation makes text easier for machines to process. [Source: wk2 slide "Why is it important?"]
-- For English, the lecture lists multiple failure cases for simple alphabetic splitting: abbreviations, hyphenated forms, numbers, dates, clitics, internet language, and multiword units such as "New Zealand". [Source: L2 p.11]
-- For Chinese, the lecture notes that some languages are written without spaces and that a single word may correspond to more than one character. [Source: L2 p.12]
-- The lecture presents MaxMatch as a standard vocabulary-based strategy for Chinese tokenisation: greedily match the longest item in the existing vocabulary. [Source: L2 p.13]
-- The same lecture immediately shows that MaxMatch can still fail because the vocabulary is uncertain and segmentation can remain ambiguous. [Source: L2 p.14]
+## Basic units
 
-## Subword Tokenisation and BPE
-- The lecture introduces byte-pair encoding (BPE) as a popular subword method whose core idea is to iteratively merge frequent pairs of characters. [Source: L2 p.15]
-- Its stated advantages are that tokenisation becomes data-informed, works across languages, and handles unknown words better than pure word-level tokenisation. [Source: L2 p.15]
-- The worked example in the lecture starts from a character vocabulary and repeatedly adds merged units such as `r_`, `er_`, `ew`, `new`, `ow`, `low`, and `newer_`. [Source: L2 pp. 16-21]
-- In practice, the lecture says BPE performs thousands of merges, representing frequent words as full words and rarer words as subwords; in the worst case, unseen test words fall back to individual letters. [Source: L2 p.22]
-- The workshop explicitly expects students to understand BPE and to be able to implement it. [Source: wk2 learning-outcomes slide]
+- The lecture distinguishes `word`, `sentence`, `document`, and `corpus`, and also distinguishes `word token` from `word type`. [Sources: L2 p.3]
+- In the lecture, a lexicon is the set of word types. [Sources: L2 p.3]
+- JM3 makes a related distinction between word types, the vocabulary size `|V|`, and word instances, the total number `N` of running words. [Sources: JM3 Ch.2, section 2.1]
+- The lecture uses corpus statistics from Switchboard, Shakespeare, and Google N-grams to show that the number of observed word types grows as the corpus grows. [Sources: L2 p.5]
 
-## Word Normalisation
-- The lecture groups lowercasing, morphology removal, spelling correction, and abbreviation expansion under normalisation. [Source: L2 p.24]
-- The stated goal of normalisation is to reduce vocabulary size by mapping multiple surface forms into the same type. [Source: L2 p.24]
+## Sentence segmentation
 
-## Inflectional vs Derivational Morphology
-- The lecture defines inflectional morphology as creating grammatical variants, and gives English noun number, verb tense/aspect/agreement, and adjective comparison as examples. [Source: L2 p.25]
-- The lecture separately defines derivational morphology as creating distinct words; English derivational suffixes often change lexical category, while prefixes often change meaning without changing lexical category. [Source: L2 p.27]
-- The workshop reinforces the distinction with examples such as `teacher -> teachers` for inflection and `teach -> teacher` for derivation. [Source: wk2 morphology discussion slides]
+- The lecture shows that a naive rule of splitting on sentence punctuation fails because periods also appear in abbreviations. [Sources: L2 p.8]
+- A regex-based refinement such as requiring sentence punctuation followed by a capital letter also fails, because abbreviations can be followed by proper names. [Sources: L2 p.8]
+- The lecture therefore presents machine learning sentence segmentation as a binary classification problem over each period. [Sources: L2 p.9]
+- The listed features include words before and after the period, word shape features such as case and length, and part-of-speech information. [Sources: L2 p.9]
 
-## Lemmatisation
-- The lecture defines lemmatisation as removing inflection to reach the lemma, the uninflected form. [Source: L2 p.26]
-- The lecture emphasises that lemmatisation is not a trivial stripping process in English because irregular forms exist; its examples include `poked -> poke`, `stopping -> stop`, `watches -> watch`, and `was -> be`. [Source: L2 p.26]
-- Because of these irregularities, the lecture says accurate lemmatisation requires a lexicon of lemmas. [Source: L2 p.26]
-- The workshop explains the same contrast with `Computers -> Computer` as a lemmatisation example. [Source: wk2 stemming-vs-lemmatisation slide]
+## Word tokenisation
 
-## Stemming
-- The lecture defines stemming as stripping suffixes to obtain a stem, even if the resulting string is not an actual lexical item. [Source: L2 p.28]
-- It explicitly says stemming usually produces even less lexical sparsity than lemmatisation and is popular in information retrieval, but the resulting stem may not be interpretable. [Source: L2 p.28]
-- The lecture presents the Porter stemmer as the most popular English stemmer and says it applies rewrite rules in stages, first removing inflectional suffixes and then derivational suffixes. [Source: L2 p.29]
-- The workshop uses `Computers -> Comput` as the contrasting stemming example. [Source: wk2 stemming-vs-lemmatisation slide]
+- For English, the lecture lists abbreviations, hyphens, numbers, dates, clitics, internet language, and multiword units as reasons a naive `\\w+` approach is inadequate. [Sources: L2 p.11]
+- For Chinese, the lecture explains that some Asian languages are written without spaces between words and that words often correspond to more than one character. [Sources: L2 p.12]
+- The lecture presents MaxMatch as a vocabulary-based greedy algorithm that chooses the longest matching word. [Sources: L2 p.13]
+- The lecture also shows a Chinese ambiguity example where the same character sequence can support different segmentations, demonstrating that an existing vocabulary is not enough to solve tokenisation perfectly. [Sources: L2 p.14]
+- The workshop mirrors the lecture by defining tokenisation as segmentation into words or subwords. [Sources: Wk2 p.11]
+- JM3 stresses that defining "word" is itself language- and task-dependent, especially across languages that do not mark word boundaries orthographically. [Sources: JM3 Ch.2, section 2.1]
 
-## Stopword Removal
-- The lecture defines stop words as words removed from the document, especially in bag-of-words representations. [Source: L2 p.31]
-- The lecture warns that stopword removal is not appropriate when sequence information matters. [Source: L2 p.31]
-- Candidate stopword lists may include closed-class/function words or high-frequency words; the lecture mentions toolkits such as NLTK and spaCy. [Source: L2 p.31]
+## Subword tokenisation and BPE
 
-## Practical Takeaways
-- The lecture concludes that simple rule-based preprocessing can work well but is rarely perfect, which is why preprocessing choices must follow the corpus and downstream task rather than a fixed recipe. [Source: L2 p.32]
-- The workshop frames the preprocessing notebook as the place where tokenisation, normalisation, and BPE move from conceptual definitions to implementation. [Source: wk2 programming slides]
+- The lecture introduces subword tokenisation with the example `colourless -> [colour] [less]` and motivates it as a way to be data-informed, multilingual, and more robust to unknown words. [Sources: L2 p.15]
+- The lecture's BPE walkthrough starts from characters, repeatedly merges the most frequent adjacent pair, and gradually creates larger units such as `er_`, `new`, and `low`. [Sources: L2 p.16-21]
+- The lecture states that, in practice, many merges are performed, so frequent words become whole tokens while rarer words are kept as shorter subwords; in the worst case, unseen words can still be decomposed into letters. [Sources: L2 p.22]
+- The workshop defines BPE as a subword tokenisation algorithm that iteratively merges frequent pairs of characters, and repeats the same advantages as the lecture. [Sources: Wk2 p.18]
+- JM3 explains BPE as a training phase that learns a vocabulary by iteratively merging frequent adjacent tokens and an encoding phase that segments test text using the learned vocabulary. [Sources: JM3 Ch.2, BPE discussion]
+- JM3 also states the main practical motivation for subwords: every unseen word can be represented as a sequence of known subword units. [Sources: JM3 Ch.2, BPE discussion]
 
+## Word normalisation
+
+- The lecture lists lowercasing, removing morphology, correcting spelling, and expanding abbreviations as normalisation operations. [Sources: L2 p.24]
+- The lecture gives the goal of normalisation as reducing vocabulary size and mapping related forms to the same type. [Sources: L2 p.24]
+- The workshop notes one trade-off explicitly: stemming and lemmatisation can keep some useful semantic information while also losing contextual information. [Sources: Wk2 p.13]
+
+## Inflectional vs derivational morphology
+
+- The lecture defines inflectional morphology as creating grammatical variants, and gives English examples on nouns, verbs, and adjectives. [Sources: L2 p.25]
+- The lecture notes that many languages have richer inflectional morphology than English, with French noun gender used as one example. [Sources: L2 p.25]
+- The lecture defines derivational morphology as creating distinct words, often by changing lexical category with suffixes or changing meaning with prefixes. [Sources: L2 p.27]
+- The workshop uses `teacher -> teachers` as an inflectional example and `teach -> teacher` as a derivational example. [Sources: Wk2 p.14]
+
+## Lemmatisation and stemming
+
+- The lecture defines lemmatisation as removing inflection to reach the lemma, and notes that irregular forms such as `was -> be` require a lexicon. [Sources: L2 p.26]
+- The lecture defines stemming as stripping suffixes to leave a stem, and notes that the result may not be a valid lexical item. [Sources: L2 p.28]
+- The lecture presents stemming as more aggressive than lemmatisation and as popular in information retrieval. [Sources: L2 p.28]
+- The lecture describes the Porter stemmer as the most popular English stemmer and says that it first strips inflectional suffixes and then derivational suffixes. [Sources: L2 p.29]
+- The workshop uses `Computers -> Computer` versus `Computers -> Comput` to contrast lemmatisation with stemming. [Sources: Wk2 p.13]
+- The workshop comparison table reinforces that stemming can output garbage tokens, whereas lemmatisation relies on a lexicon of valid words. [Sources: Wk2 p.15]
+
+## Stopword removal
+
+- The lecture defines stop words as words removed from a document, especially in bag-of-words representations. [Sources: L2 p.31]
+- The lecture warns that stopword removal is not appropriate when sequence information matters. [Sources: L2 p.31]
+- The lecture lists closed-class words and very high-frequency words as common sources of stopword lists, and names `NLTK` and `spaCy` as toolkits that provide them. [Sources: L2 p.31]
+
+## Practical takeaways
+
+- The lecture concludes that preprocessing is unavoidable in text analysis, can strongly affect downstream tasks, varies by corpus and task, and is often language-dependent. [Sources: L2 p.32]
+- The workshop learning goals for Week 2 were to become familiar with tokenisation, stemming, lemmatisation, and the BPE algorithm, including implementation. [Sources: Wk2 p.6]
