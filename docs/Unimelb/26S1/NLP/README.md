@@ -1,6 +1,6 @@
 # COMP90042 Natural Language Processing
 
-These notes summarise the course materials up to `L11 Pretrained Models`.
+These notes summarise the course materials up to `L16 Parameter Efficient Tuning`, with reading-backed draft notes for later RLHF, multimodal, and retrieval topics.
 
 ## Notes map
 
@@ -14,6 +14,11 @@ These notes summarise the course materials up to `L11 Pretrained Models`.
 - [07 Transformer](07-transformer.md)
 - [08 Word Embeddings](08-word-embeddings.md)
 - [09 Pretrained Models](09-pretrained-models.md)
+- [10 Large Language Models](10-large-language-models.md)
+- [11 Prompting and Instruction Tuning](11-prompting-and-instruction-tuning.md)
+- [12 Parameter Efficient Tuning](12-parameter-efficient-tuning.md)
+- [13 RLHF and Alignment](13-rlhf-and-alignment.md)
+- [14 Multimodal and Retrieval-Augmented Language Models](14-multimodal-and-retrieval-augmented-lms.md)
 
 ## Note policy
 
@@ -29,3 +34,13 @@ These notes summarise the course materials up to `L11 Pretrained Models`.
 - [GPT-1 paper](https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf)
 - [BERT paper](https://aclanthology.org/N19-1423.pdf)
 - [T5 paper](https://jmlr.org/papers/volume21/20-074/20-074.pdf)
+- [GPT-3 paper](https://arxiv.org/abs/2005.14165)
+- [FLAN paper](https://arxiv.org/abs/2109.01652)
+- [Scaling Instruction-Finetuned Language Models](https://jmlr.org/papers/v25/23-0870.html)
+- [LoRA paper](https://arxiv.org/abs/2106.09685)
+- [Prompt Tuning paper](https://aclanthology.org/2021.emnlp-main.243/)
+- [InstructGPT / RLHF paper](https://arxiv.org/abs/2203.02155)
+- [LLaVA paper](https://arxiv.org/abs/2304.08485)
+- [LLaVA-1.5 paper](https://openaccess.thecvf.com/content/CVPR2024/html/Liu_Improved_Baselines_with_Visual_Instruction_Tuning_CVPR_2024_paper.html)
+- [RETRO paper](https://proceedings.mlr.press/v162/borgeaud22a.html)
+- [KG-CoT paper](https://www.ijcai.org/proceedings/2024/734)
