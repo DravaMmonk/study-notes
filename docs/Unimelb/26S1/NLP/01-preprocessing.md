@@ -1,6 +1,36 @@
+---
+course: COMP90042 Natural Language Processing
+semester: 2026S1
+topic: Text Preprocessing
+source_type: lecture+workshop+reading
+status: draft
+review_priority: high
+---
+
 # 01 Text Preprocessing
 
+## Big Picture
+
+Text preprocessing turns raw documents into units that downstream models can count, classify, tag, or embed. The key design issue is that preprocessing is not neutral: tokenisation, segmentation, normalisation, and stopword removal all change the evidence available to later models.
+<!-- Sources: L2 p.2, p.6, p.32; Wk2 p.6; JM3 Ch.2 opening pages and summary -->
+
+## Learning Map
+
+- Prerequisite ideas: corpus, document, token, type, vocabulary, and downstream task.
+<!-- Sources: L2 p.3-6 -->
+- Core concepts: sentence segmentation, word tokenisation, subword tokenisation, BPE, normalisation, morphology, lemmatisation, stemming, and stopwords.
+<!-- Sources: L2 p.6-32; Wk2 p.13-18 -->
+- Main procedures: segment sentences, split tokens, handle unknown words, normalise forms when useful, and decide whether stopwords should be removed.
+<!-- Sources: L2 p.6-32; Wk2 p.6 -->
+- Tutorial skills: compare stemming and lemmatisation, explain BPE merges, and decide whether preprocessing fits a bag-of-words or sequence model.
+<!-- Sources: L2 p.15-31; Wk2 p.13-18 -->
+- Common traps: using whitespace tokenisation for every language, applying stopword removal to sequence-sensitive tasks, or assuming stemming always produces valid words.
+<!-- Sources: L2 p.11-14, p.28-31 -->
+
 ## Core motivation
+
+![A preprocessing pipeline showing how raw text is converted into analysable units.](assets/figures/01-preprocessing-l2-p06-pipeline.png)
+<!-- Figure source: L2 p.6 -->
 
 - Most NLP applications receive documents as input and must decompose them into smaller units before analysis.
 <!-- Sources: L2 p.2 -->
@@ -45,6 +75,9 @@
 <!-- Sources: L2 p.14 -->
 
 ## Subword tokenisation and BPE
+
+![Byte-pair encoding builds subword units by repeatedly merging frequent adjacent symbols.](assets/figures/01-preprocessing-l2-p28-bpe.png)
+<!-- Figure source: L2 p.28 -->
 
 - Subword tokenisation improves robustness to unknown words while staying data-informed and multilingual.
 <!-- Sources: L2 p.15 -->
@@ -97,3 +130,50 @@
 
 - Preprocessing choices depend on the corpus, the language, and the downstream task.
 <!-- Sources: L2 p.32; Wk2 p.6 -->
+
+## Tutorial Patterns
+
+| Pattern | What to Recognize | How to Solve | Common Mistake |
+| --- | --- | --- | --- |
+| Token/type counting | asks for running words vs distinct vocabulary entries | count every occurrence for tokens and unique forms for types | counting types as repeated tokens |
+| Sentence boundary ambiguity | punctuation is not always sentence-final | treat segmentation as classification over candidate punctuation | splitting every period |
+| BPE merge trace | frequent adjacent character/subword pairs are shown | repeatedly merge the highest-frequency pair | merging by semantic intuition instead of counts |
+| Stemming vs lemmatisation | asks about vocabulary reduction | lemmatisation returns dictionary forms; stemming strips affixes more aggressively | assuming stems must be valid words |
+<!-- Sources: L2 p.3-32; Wk2 p.13-18 -->
+
+## Key Comparisons
+
+| Choice | Keeps more linguistic form? | Reduces sparsity more? | Better fit |
+| --- | --- | --- | --- |
+| Lemmatisation | yes | moderate | tasks needing interpretable lexical forms |
+| Stemming | no | stronger | bag-of-words tasks where exact word form matters less |
+| Word tokenisation | yes | weaker for rare words | classical word-level models |
+| Subword tokenisation | partial | stronger for unknown words | multilingual and neural models |
+<!-- Sources: L2 p.15-29; Wk2 p.13-18 -->
+
+## Revision Checklist
+
+- [ ] Can define token, type, lexicon, and corpus.
+- [ ] Can explain why sentence segmentation is not just splitting on punctuation.
+- [ ] Can trace the basic BPE algorithm.
+- [ ] Can choose between stemming, lemmatisation, and no normalisation for a task.
+<!-- Sources: L2 p.3-32; Wk2 p.13-18 -->
+
+## Active Recall
+
+1. Why does vocabulary size keep growing as corpus size grows?
+2. What problem does subword tokenisation solve?
+3. When is stopword removal inappropriate?
+4. Why do irregular forms require lexical knowledge for lemmatisation?
+<!-- Sources: L2 p.5, p.15-31 -->
+
+## Glossary
+
+| Term | Meaning |
+| --- | --- |
+| Token | One running instance in text. |
+| Type | One distinct vocabulary item. |
+| BPE | Byte-pair encoding, a frequency-based subword merge algorithm. |
+| Lemma | A dictionary base form after removing inflection. |
+| Stem | A stripped form produced by a stemming algorithm. |
+<!-- Sources: L2 p.3-32; Wk2 p.13-18 -->

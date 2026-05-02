@@ -53,6 +53,9 @@ Residual connections and layer normalisation help transformer models train more 
 
 ### Scaling from GPT-1 to GPT-3
 
+![Scaling increases the number of parameters, layers, hidden dimensions, and training data across GPT generations.](assets/figures/10-llm-l12-p24-scaling.png)
+<!-- Figure source: L12 p.24 -->
+
 | Model | Training data highlighted in course | Parameters | Layers | Hidden dimension | Capability emphasis |
 | --- | --- | ---: | ---: | ---: | --- |
 | GPT-1 | BookCorpus / BookCrawl | 117M | 12 | 768 | unsupervised pretraining plus supervised fine-tuning |
@@ -64,6 +67,9 @@ The main difference between GPT-2 and GPT-3 is scale: GPT-3 uses far more parame
 <!-- Sources: W7 p.15-16; L12 p.31-40; Brown 2020 abstract -->
 
 ### In-context learning
+
+![In-context learning uses examples in the prompt instead of updating model parameters.](assets/figures/10-llm-l12-p34-emergence.png)
+<!-- Figure source: L12 p.34 -->
 
 > [!definition]
 > In-context learning solves a new task by placing a task description and optional input-output demonstrations in the prompt, without updating model parameters.

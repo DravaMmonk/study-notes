@@ -40,6 +40,9 @@ Parameter-efficient fine-tuning updates only a small subset of parameters or add
 
 ### Three computation functions
 
+![Parameter-efficient methods can be organised by where they modify computation.](assets/figures/12-peft-l15-p23-taxonomy.png)
+<!-- Figure source: L15-L16 p.23 -->
+
 | Family | Main idea | Representative methods | Main trade-off |
 | --- | --- | --- | --- |
 | Parameter composition | decompose or combine parameter updates | pruning, sparse fine-tuning, LoRA | strong parameter efficiency, but pruning may need retraining |
@@ -48,6 +51,9 @@ Parameter-efficient fine-tuning updates only a small subset of parameters or add
 <!-- Sources: L15-L16 p.23-25, p.56-60, p.69-85 -->
 
 ### LoRA
+
+![LoRA freezes the pretrained weight and learns a low-rank update.](assets/figures/12-peft-l15-p36-lora.png)
+<!-- Figure source: L15-L16 p.36 -->
 
 > [!definition]
 > LoRA freezes the pretrained weight matrix and learns a low-rank update, represented as the product of two smaller trainable matrices.
@@ -62,6 +68,9 @@ LoRA's deployment advantage is that its learned matrices can be merged into the 
 <!-- Sources: L15-L16 p.42; Hu 2022 abstract, Sec.1 -->
 
 ### Prompt tuning
+
+![Prompt tuning stores small learned prompts while sharing one frozen language model.](assets/figures/12-peft-lester-p02-prompt-tuning.png)
+<!-- Figure source: Lester 2021 p.2 -->
 
 > [!definition]
 > Prompt tuning learns continuous soft prompt embeddings that are prepended to the model input while the language model itself remains frozen.

@@ -32,6 +32,9 @@ This note is reading-backed because L17-L18 slides are not currently in the repo
 
 ### Alignment problem
 
+![RLHF starts from the mismatch between next-token prediction and user-preferred behaviour.](assets/figures/13-rlhf-l13-p14-rlhf-overview.png)
+<!-- Figure source: L13-L14 p.14 -->
+
 Large language models can generate fluent outputs that are untruthful, toxic, unhelpful, or otherwise not aligned with what users intend. Increasing model size alone does not inherently solve this mismatch.
 <!-- Sources: Ouyang 2022 abstract, Sec.1 -->
 
@@ -65,6 +68,9 @@ The output is a model such as InstructGPT, whose responses are trained to match 
 ## Methods and Workflows
 
 ### RLHF pipeline
+
+![The InstructGPT process uses demonstrations, preference rankings, a reward model, and PPO.](assets/figures/13-rlhf-ouyang-p03-process.png)
+<!-- Figure source: Ouyang 2022 p.3 -->
 
 1. Build a prompt dataset.
 2. Collect human-written ideal answers.

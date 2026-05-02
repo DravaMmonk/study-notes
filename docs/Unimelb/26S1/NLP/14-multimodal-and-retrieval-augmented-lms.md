@@ -32,6 +32,9 @@ This note is reading-backed because L19-L21 lecture slides are not currently in 
 
 ### Visual instruction tuning
 
+![LLaVA connects a visual encoder to an LLM through a projection layer.](assets/figures/14-multimodal-llava-p03-architecture.png)
+<!-- Figure source: Liu 2024 Visual Instruction Tuning p.3 -->
+
 > [!definition]
 > Visual instruction tuning adapts a multimodal model to follow language-image instructions, usually by training on image-instruction-response data.
 
@@ -54,6 +57,9 @@ The paper emphasises reproducible, data-efficient baselines: the final 13B check
 
 ### Retrieval-enhanced language modelling
 
+![RETRO retrieves neighbouring chunks from a large database and conditions generation on them.](assets/figures/14-rag-retro-p03-architecture.png)
+<!-- Figure source: Borgeaud 2022 p.3 -->
+
 > [!definition]
 > Retrieval-augmented language modelling conditions generation on external retrieved text rather than relying only on parametric memory.
 
@@ -67,6 +73,9 @@ Retrieval can improve factuality and interpretability by making some external ev
 <!-- Sources: Borgeaud 2022 Sec.4.4, Broader Impact Statement -->
 
 ### Knowledge-graph chain-of-thought
+
+![KG-CoT augments an LLM with explicit paths from a knowledge graph reasoner.](assets/figures/14-kgcot-zhao-p03-overview.png)
+<!-- Figure source: Zhao 2024 p.3 -->
 
 KG-CoT targets knowledge-intensive question answering by generating explicit reasoning paths over a knowledge graph before prompting the LLM.
 <!-- Sources: Zhao 2024 abstract, Sec.1 -->

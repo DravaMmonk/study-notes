@@ -26,12 +26,12 @@
 
 ### HDD (Hard Disk Drive)
 
-![[Screenshot 2026-03-09 at 1.01.35 pm.png]]
+![[assets/Screenshot 2026-03-09 at 1.01.35 pm.png]]
 
 
 > [!NOTE]- Head
 > 
-> ![[Screenshot 2026-03-09 at 1.03.58 pm.png]]
+> ![[assets/Screenshot 2026-03-09 at 1.03.58 pm.png]]
 > - Magnetic
 > - Left: Reader
 > - Right: Writer
@@ -57,7 +57,7 @@ $$
 
 ### Memories
 
-![[Screenshot 2026-03-09 at 1.25.47 pm.png]]
+![[assets/Screenshot 2026-03-09 at 1.25.47 pm.png]]
 
 Effective memory access time (EMAT): 
 $$
@@ -223,4 +223,3 @@ AWS Elastic Block Store (EBS)
 AWS Simple Storage Service (S3)  
 - Object Storage (Bucket - Objects)
 - Be accessed through API/HTTP
-

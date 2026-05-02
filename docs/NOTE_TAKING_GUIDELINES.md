@@ -4,6 +4,7 @@
 
 - These notes are evidence-backed study notes rather than free-form summaries.
 - Every factual claim must be traceable to lecture slides, workshop slides, assigned readings, or linked papers stored or referenced for the course.
+- For lecture and tutorial PDF summarization, also follow [OBSIDIAN_PDF_STUDY_NOTE_WORKFLOW.md](OBSIDIAN_PDF_STUDY_NOTE_WORKFLOW.md).
 
 ## Source annotation rules
 

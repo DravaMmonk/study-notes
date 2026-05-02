@@ -1,4 +1,31 @@
+---
+course: COMP90042 Natural Language Processing
+semester: 2026S1
+topic: N-gram Language Models
+source_type: lecture+workshop
+status: draft
+review_priority: high
+---
+
 # 02 N-gram Language Models
+
+## Big Picture
+
+N-gram language models estimate sequence probabilities from local word histories. They are simple, interpretable classical baselines that introduce core ideas reused later: probabilistic sequence modelling, sparse data, smoothing, and evaluation by held-out text likelihood.
+<!-- Sources: L3 p.2-7, p.16-30; Wk3 p.17-27 -->
+
+## Learning Map
+
+- Prerequisite ideas: token sequences, conditional probability, counts, vocabulary, and sentence boundary symbols.
+<!-- Sources: L3 p.6-9; Wk3 p.17 -->
+- Core concepts: chain rule, Markov approximation, maximum-likelihood estimation, sparsity, smoothing, backoff, interpolation, and Kneser-Ney.
+<!-- Sources: L3 p.6-30; Wk3 p.18-27 -->
+- Main procedures: count n-grams, estimate conditional probabilities, smooth unseen events, and compare sentence probabilities.
+<!-- Sources: L3 p.8-29; Wk3 p.17-27 -->
+- Tutorial skills: compute unigram/bigram/trigram probabilities with and without smoothing, and explain when lower-order models are used.
+<!-- Sources: Wk3 p.17-27 -->
+- Common traps: omitting sentence boundary symbols, letting one unseen n-gram zero the full sentence, or confusing backoff with interpolation.
+<!-- Sources: L3 p.9, p.16, p.25-29; Wk3 p.27 -->
 
 ## What language models do
 
@@ -8,6 +35,9 @@
 <!-- Sources: L3 p.2-4 -->
 
 ## Chain rule and n-gram approximation
+
+![The chain rule factorises a sentence probability into conditional token probabilities.](assets/figures/02-ngram-l3-p08-chain-rule.png)
+<!-- Figure source: L3 p.8 -->
 
 $$
 P(w_1,\dots,w_m)=\prod_{i=1}^{m} P(w_i \mid w_1,\dots,w_{i-1})
@@ -48,6 +78,9 @@ $$
 <!-- Sources: L3 p.16 -->
 
 ## Smoothing families
+
+![Smoothing reallocates probability mass so unseen n-grams do not receive zero probability.](assets/figures/02-ngram-l3-p25-smoothing.png)
+<!-- Figure source: L3 p.25 -->
 
 | Method | Core idea |
 | --- | --- |
@@ -99,3 +132,52 @@ $$
 <!-- Sources: Wk3 p.18-27 -->
 - N-gram models are simple, unsupervised, and scalable classical baselines, but stronger generalisation motivated the later move to neural language models.
 <!-- Sources: L3 p.30 -->
+
+## Tutorial Patterns
+
+| Pattern | What to Recognize | How to Solve | Common Mistake |
+| --- | --- | --- | --- |
+| MLE probability | asks for `P(word | context)` from counts | divide full n-gram count by context count | dividing by total corpus tokens for conditional probability |
+| Add-one/add-k smoothing | unseen n-gram has zero count | add smoothing mass to numerator and vocabulary-adjusted denominator | forgetting to adjust denominator |
+| Backoff | higher-order event is unseen | drop to a lower-order model with redistributed mass | mixing all orders regardless of seen/unseen status |
+| Interpolation | formula contains lambda weights | combine all selected n-gram orders | treating it as only a fallback mechanism |
+<!-- Sources: L3 p.8-29; Wk3 p.17-27 -->
+
+## Key Comparisons
+
+| Method | Handles unseen n-grams? | Uses lower-order information? | Main idea |
+| --- | --- | --- | --- |
+| MLE | no | no | observed relative frequency |
+| Add-k | yes | no | add a constant to every event |
+| Backoff | yes | only when needed | use lower order if higher order is unavailable |
+| Interpolation | yes | always | weighted mixture of several orders |
+| Kneser-Ney | yes | yes | lower-order continuation behaviour matters |
+<!-- Sources: L3 p.18-29; Wk3 p.24-27 -->
+
+## Revision Checklist
+
+- [ ] Can write the chain rule factorisation.
+- [ ] Can explain the n-gram Markov approximation.
+- [ ] Can compute an MLE bigram probability.
+- [ ] Can explain why smoothing is required.
+- [ ] Can distinguish interpolation from backoff.
+<!-- Sources: L3 p.6-30; Wk3 p.17-27 -->
+
+## Active Recall
+
+1. Why does a single unseen n-gram make an unsmoothed sentence probability zero?
+2. What does Kneser-Ney reward that raw unigram frequency misses?
+3. Why do larger n-gram orders increase sparsity?
+4. Why did neural language models improve on count-based n-grams?
+<!-- Sources: L3 p.16-30; Wk3 p.24-27 -->
+
+## Glossary
+
+| Term | Meaning |
+| --- | --- |
+| Language model | A model that assigns probabilities to token sequences. |
+| N-gram | A contiguous sequence of `n` tokens. |
+| Smoothing | Reassigning probability mass so unseen events can receive non-zero probability. |
+| Backoff | Falling back to a lower-order model when a higher-order event is unseen. |
+| Interpolation | Combining multiple n-gram orders with weights. |
+<!-- Sources: L3 p.2-30 -->

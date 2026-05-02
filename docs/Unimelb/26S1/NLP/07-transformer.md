@@ -1,4 +1,31 @@
+---
+course: COMP90042 Natural Language Processing
+semester: 2026S1
+topic: Transformer
+source_type: lecture+workshop+reading
+status: draft
+review_priority: high
+---
+
 # 07 Transformer
+
+## Big Picture
+
+Transformers replace recurrent state with attention over token representations, allowing much more parallel sequence processing. This architecture is the direct technical foundation for BERT, GPT, T5, and the later large language models.
+<!-- Sources: L9 p.2-4, p.34; W6 p.3-6; W7 p.5-8; Manning 2022 p.130 -->
+
+## Learning Map
+
+- Prerequisite ideas: embeddings, neural networks, sequence modelling, and matrix multiplication.
+<!-- Sources: L9 p.8-14 -->
+- Core concepts: self-attention, query/key/value projections, scaled dot-product attention, multi-head attention, residual connections, layer normalisation, positional embeddings, and causal masking.
+<!-- Sources: L9 p.8-34; W6 p.3-6; W7 p.5-8 -->
+- Main procedures: compute attention weights, combine value vectors, run multiple heads, add feedforward/residual/layer-norm blocks, and inject position information.
+<!-- Sources: L9 p.11-29; W6 p.3-6 -->
+- Tutorial skills: distinguish attention, self-attention, and cross-attention; explain decoder-only masking.
+<!-- Sources: W7 p.7-8 -->
+- Common traps: forgetting that pure attention has no order information, confusing bidirectional encoder attention with causal decoder attention, or treating attention as inherently sequential.
+<!-- Sources: L9 p.27-32; W7 p.7-8 -->
 
 ## Why transformers replaced recurrent models
 
@@ -8,6 +35,9 @@
 <!-- Sources: L9 p.34; Manning 2022 p.130 -->
 
 ## Self-attention
+
+![Scaled dot-product attention compares queries with keys, normalises scores, and combines values.](assets/figures/07-transformer-l9-p13-scaled-dot-product.png)
+<!-- Figure source: L9 p.13 -->
 
 - Self-attention builds a new representation for each token by comparing it with other tokens in the same sequence.
 <!-- Sources: L9 p.8-14 -->
@@ -31,6 +61,9 @@ $$
 
 ## Transformer block
 
+![A transformer block combines multi-head attention, feedforward layers, residual connections, and layer normalisation.](assets/figures/07-transformer-l9-p20-block.png)
+<!-- Figure source: L9 p.20 -->
+
 | Component | Role |
 | --- | --- |
 | self-attention | contextualise each token using the sequence |
@@ -47,6 +80,9 @@ $$
 <!-- Sources: L9 p.23 -->
 
 ## Positional embeddings
+
+![Positional embeddings inject order information into otherwise permutation-insensitive attention.](assets/figures/07-transformer-l9-p28-position.png)
+<!-- Figure source: L9 p.28 -->
 
 - Pure attention is permutation-insensitive, so order information must be injected separately.
 <!-- Sources: L9 p.27 -->
@@ -70,3 +106,50 @@ $$
 <!-- Sources: L9 p.34 -->
 - Parallelisable attention-based modelling is a major reason transformers enabled large language models and generative AI.
 <!-- Sources: L9 p.34; Manning 2022 p.130 -->
+
+## Tutorial Patterns
+
+| Pattern | What to Recognize | How to Solve | Common Mistake |
+| --- | --- | --- | --- |
+| Q/K/V explanation | asks what attention components mean | query is what is looking, key is what is compared, value is retrieved information | treating Q, K, V as unrelated token types |
+| Self vs cross attention | asks where Q/K/V come from | self-attention uses same sequence; cross-attention uses Q from one sequence and K/V from another | calling all attention self-attention |
+| Positional embeddings | asks why order is needed | attention alone is permutation-insensitive | assuming token order is automatic |
+| Decoder-only masking | asks what tokens can be attended to | causal mask blocks future tokens | allowing future tokens during language-model training |
+<!-- Sources: L9 p.8-32; W7 p.7-8 -->
+
+## Key Comparisons
+
+| Model | Context mechanism | Parallelism | Typical role |
+| --- | --- | --- | --- |
+| RNN | recurrent state | limited by sequence order | earlier sequence modelling |
+| Transformer encoder | bidirectional self-attention | high | understanding and representation |
+| Transformer decoder | masked self-attention | high during training | autoregressive generation |
+| Encoder-decoder transformer | encoder self-attention plus decoder cross-attention | high | conditional generation such as translation |
+<!-- Sources: L9 p.2-34; W7 p.7-8 -->
+
+## Revision Checklist
+
+- [ ] Can write the scaled dot-product self-attention formula.
+- [ ] Can explain why multi-head attention is useful.
+- [ ] Can explain the roles of residual connections and layer normalisation.
+- [ ] Can explain why positional embeddings are necessary.
+<!-- Sources: L9 p.8-34; W6 p.3-6; W7 p.5-8 -->
+
+## Active Recall
+
+1. Why are transformers easier to parallelise than RNNs?
+2. What does the softmax in attention normalise?
+3. Why does autoregressive training require masking?
+4. How does multi-head attention differ from a single attention computation?
+<!-- Sources: L9 p.2-34; W6 p.3-6; W7 p.5-8 -->
+
+## Glossary
+
+| Term | Meaning |
+| --- | --- |
+| Query | Vector representing what a token is looking for. |
+| Key | Vector used for comparison against a query. |
+| Value | Vector combined according to attention weights. |
+| Multi-head attention | Multiple attention computations whose outputs are recombined. |
+| Positional embedding | Vector added to represent token order. |
+<!-- Sources: L9 p.8-34; W7 p.7 -->

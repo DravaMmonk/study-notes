@@ -1,7 +1,20 @@
 [
+  "better-word-count",
   "dataview",
-  "table-editor-obsidian",
+  "highlightr-plugin",
+  "lapel",
+  "note-refactor-obsidian",
   "obsidian-admonition",
+  "obsidian-linter",
+  "obsidian-outliner",
+  "omnisearch",
+  "pdf-paste",
+  "pdf-plus",
+  "quickadd",
+  "smart-connections",
+  "table-editor-obsidian",
+  "tag-wrangler",
   "templater-obsidian",
-  "smart-connections"
+  "text-extractor",
+  "various-complements"
 ]

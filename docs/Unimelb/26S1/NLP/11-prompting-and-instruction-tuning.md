@@ -45,6 +45,9 @@ Prompt engineering can improve performance by making the task format, constraint
 
 ### Chain-of-thought prompting
 
+![Chain-of-thought prompting supplies intermediate reasoning demonstrations before the final answer.](assets/figures/11-prompting-l13-p38-chain-of-thought.png)
+<!-- Figure source: L13-L14 p.38 -->
+
 Chain-of-thought prompting adds intermediate reasoning steps to demonstrations so the model sees a worked reasoning pattern before answering. The lecture presents it as especially relevant for richer and multi-step reasoning tasks.
 <!-- Sources: L13-L14 p.35-37 -->
 
@@ -52,6 +55,9 @@ Zero-shot chain-of-thought uses a simple reasoning cue, such as asking the model
 <!-- Sources: L13-L14 p.36 -->
 
 ### Instruction tuning
+
+![Instruction tuning trains models on natural-language task instructions and desired completions.](assets/figures/11-prompting-l13-p44-instruction-tuning.png)
+<!-- Figure source: L13-L14 p.44 -->
 
 > [!definition]
 > Instruction tuning is supervised fine-tuning on instruction data, where each training example pairs a natural-language prompt with a desired completion.
@@ -64,6 +70,9 @@ The FLAN paper instruction-tunes a 137B pretrained model on more than 60 NLP dat
 
 Scaling instruction tuning further means scaling the number of tasks, the model size, and the use of chain-of-thought data. The Flan collection explores these three axes and reports broad improvements across model classes, prompting setups, and evaluation benchmarks.
 <!-- Sources: L13-L14 p.64-66; Chung 2024 abstract -->
+
+![The Flan collection mixes many instruction-formatted tasks to improve zero-shot generalisation.](assets/figures/11-prompting-flan-p04-mixture.png)
+<!-- Figure source: Chung 2024 p.4 -->
 
 ### Alpaca-style instruction data generation
 

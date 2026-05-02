@@ -35,7 +35,7 @@
 
 ## Project Charter - Beginning of the project
 
-![[Screenshot 2026-03-09 at 5.12.20 pm.png]]
+![[assets/Screenshot 2026-03-09 at 5.12.20 pm.png]]
 
 A set of documents which tells: 
 - Project Purpose
@@ -77,5 +77,5 @@ The project begins when the **Project Charter is permitted by sponsors**
 *When to choose Hybrid Models?*  
 - Client has a prescriptive model established
 
-![[Screenshot 2026-03-15 at 3.24.19 pm.png]]
-![[Screenshot 2026-03-15 at 3.28.23 pm.png]]
+![[assets/Screenshot 2026-03-15 at 3.24.19 pm.png]]
+![[assets/Screenshot 2026-03-15 at 3.28.23 pm.png]]

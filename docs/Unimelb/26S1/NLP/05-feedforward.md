@@ -1,6 +1,36 @@
+---
+course: COMP90042 Natural Language Processing
+semester: 2026S1
+topic: Feedforward Networks
+source_type: lecture+workshop
+status: draft
+review_priority: high
+---
+
 # 05 Feedforward Networks
 
+## Big Picture
+
+Feedforward networks introduce neural modelling for NLP: inputs are represented as vectors, hidden layers learn nonlinear combinations, and output layers produce probabilities for labels or next words. They bridge classical feature-based classifiers and later sequence models.
+<!-- Sources: L7 p.4-29; Wk5 p.10-15 -->
+
+## Learning Map
+
+- Prerequisite ideas: text classification, feature vectors, matrix multiplication, nonlinear activation, and probability outputs.
+<!-- Sources: L7 p.4-8 -->
+- Core concepts: multilayer perceptron, hidden layer, sigmoid, softmax, negative log-likelihood, gradient descent, dropout, and neural language modelling.
+<!-- Sources: L7 p.4-29 -->
+- Main procedures: build an input vector, compute hidden activations, produce output probabilities, train by gradient descent, and regularise.
+<!-- Sources: L7 p.4-10 -->
+- Tutorial skills: identify input/output shapes for document classification, language modelling, and POS tagging.
+<!-- Sources: L7 p.12-28; Wk5 p.10-15 -->
+- Common traps: treating neural models as feature-free, forgetting regularisation, or ignoring the fixed-window limitation in feedforward language models.
+<!-- Sources: L7 p.12-29 -->
+
 ## Core architecture
+
+![A feedforward network composes input, hidden, and output layers without recurrence.](assets/figures/05-feedforward-l7-p12-network.png)
+<!-- Figure source: L7 p.12 -->
 
 - Feedforward neural networks are also called multilayer perceptrons.
 <!-- Sources: L7 p.4 -->
@@ -22,6 +52,9 @@ $$
 <!-- Sources: L7 p.7 -->
 
 ## Training and regularisation
+
+![Feedforward training repeatedly computes predictions, losses, gradients, and parameter updates.](assets/figures/05-feedforward-l7-p22-training.png)
+<!-- Figure source: L7 p.22 -->
 
 - Training maximises the probability of the correct outputs or, equivalently, minimises negative log-likelihood.
 <!-- Sources: L7 p.8 -->
@@ -80,3 +113,49 @@ $$
 | less hand-engineered features | many vocabulary-driven parameters |
 | flexible task-specific architectures | data hungry without pretraining |
 <!-- Sources: L7 p.29; Wk5 p.10-15 -->
+
+## Tutorial Patterns
+
+| Pattern | What to Recognize | How to Solve | Common Mistake |
+| --- | --- | --- | --- |
+| Output choice | binary vs multiclass prediction | use sigmoid for binary and softmax for multiclass | using independent sigmoid outputs for one-of-many labels without reason |
+| Dropout question | asks about overfitting | explain random hidden-unit masking during training | applying dropout as a deterministic test-time deletion |
+| Feedforward LM | fixed prior context window | concatenate previous word embeddings and predict next word | assuming it can use arbitrary long context |
+| Neural POS tagging | current tag as classification | use word/tag embeddings as local context features | forgetting previous tag decisions affect features |
+<!-- Sources: L7 p.7-29; Wk5 p.10-15 -->
+
+## Key Comparisons
+
+| Model family | Context handling | Representation | Main limitation |
+| --- | --- | --- | --- |
+| Classical classifier | hand-designed features | sparse or engineered vectors | limited learned representation |
+| Feedforward NN | fixed input window | learned hidden features | no recurrent state over arbitrary length |
+| Feedforward neural LM | fixed previous tokens | learned embeddings | context length is still fixed |
+<!-- Sources: L7 p.12-29 -->
+
+## Revision Checklist
+
+- [ ] Can describe an MLP as layers of weighted nonlinear transformations.
+- [ ] Can explain when sigmoid and softmax are used.
+- [ ] Can explain dropout as training-time regularisation.
+- [ ] Can describe how a feedforward neural language model predicts the next word.
+<!-- Sources: L7 p.4-29 -->
+
+## Active Recall
+
+1. Why do feedforward neural LMs generalise better than count tables for similar words?
+2. What role does the hidden layer play?
+3. Why does dropout reduce reliance on particular neurons?
+4. What fixed-window limitation remains in feedforward language modelling?
+<!-- Sources: L7 p.4-29; Wk5 p.10-15 -->
+
+## Glossary
+
+| Term | Meaning |
+| --- | --- |
+| MLP | Multilayer perceptron, a feedforward neural network. |
+| Hidden layer | Intermediate nonlinear representation layer. |
+| Softmax | Function that maps scores to a probability distribution over classes. |
+| Dropout | Randomly zeroing activations during training for regularisation. |
+| Embedding | Dense learned vector representation for a token or symbol. |
+<!-- Sources: L7 p.4-29 -->

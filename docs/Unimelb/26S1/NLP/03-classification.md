@@ -1,4 +1,31 @@
+---
+course: COMP90042 Natural Language Processing
+semester: 2026S1
+topic: Text Classification
+source_type: lecture+workshop
+status: draft
+review_priority: high
+---
+
 # 03 Text Classification
+
+## Big Picture
+
+Text classification turns text into a fixed label decision. It is the first major supervised-learning setting in the course and introduces the full modelling workflow: dataset construction, annotation, feature design, model choice, development tuning, and held-out evaluation.
+<!-- Sources: L4 p.3-13, p.30-31; Wk3 p.4-15 -->
+
+## Learning Map
+
+- Prerequisite ideas: labelled datasets, features, train/dev/test splits, probability, and vector representations.
+<!-- Sources: L4 p.13, p.30; Wk3 p.4-8 -->
+- Core concepts: fixed label set, feature extraction, bias-variance trade-off, Naive Bayes, logistic regression, SVM, kNN, decision trees, random forests, and neural classifiers.
+<!-- Sources: L4 p.3-29 -->
+- Main procedures: define labels, collect and annotate data, choose representations, train models, tune on dev data, and evaluate once on held-out test data.
+<!-- Sources: L4 p.13, p.30 -->
+- Tutorial skills: choose suitable similarity metrics and model families for sparse text features.
+<!-- Sources: Wk3 p.10-15 -->
+- Common traps: tuning on test data, using Euclidean distance blindly for text kNN, or choosing a model without considering data size and feature space.
+<!-- Sources: L4 p.13, p.30-31; Wk3 p.10-15 -->
 
 ## Task shape
 
@@ -53,6 +80,9 @@ $$
 
 ## Logistic regression
 
+![Logistic regression maps weighted features to a class probability.](assets/figures/03-classification-l4-p13-logistic-regression.png)
+<!-- Figure source: L4 p.13 -->
+
 $$
 P(c \mid f_1,\dots,f_m)=\frac{1}{Z}\exp\left(\sum_{i=0}^{m} w_i f_i\right)
 $$
@@ -70,6 +100,9 @@ $$
 
 ## Practical notes from the workshop
 
+![Classification evaluation compares predicted labels against gold labels.](assets/figures/03-classification-l4-p30-evaluation.png)
+<!-- Figure source: L4 p.30 -->
+
 - Text representation is the central difficulty in many classification tasks.
 <!-- Sources: Wk3 p.4-8 -->
 - Cosine similarity is often preferable to Euclidean distance for text kNN.
@@ -81,3 +114,51 @@ $$
 
 - Dataset quality, dataset size, and feature design often matter more than the difference between several reasonable classifier choices.
 <!-- Sources: L4 p.31 -->
+
+## Tutorial Patterns
+
+| Pattern | What to Recognize | How to Solve | Common Mistake |
+| --- | --- | --- | --- |
+| Workflow question | asks how to build a classifier | describe task, corpus, labels, features, train/dev/test, model, evaluation | skipping dev data or using test data for tuning |
+| Model comparison | asks which classifier fits text data | compare feature size, data size, speed, and assumptions | choosing only by headline accuracy |
+| kNN text similarity | sparse high-dimensional text vectors | prefer cosine similarity when vector direction matters | using Euclidean distance without justification |
+| Linear SVM text task | many sparse features | use a linear kernel as a strong baseline | assuming nonlinear kernels are always better |
+<!-- Sources: L4 p.13-31; Wk3 p.10-15 -->
+
+## Key Comparisons
+
+| Model | Main assumption or mechanism | Good fit | Risk |
+| --- | --- | --- | --- |
+| Naive Bayes | conditional feature independence | small data, fast baseline | correlated features violate assumption |
+| Logistic regression | linear log-probability model | probabilistic classification | needs regularisation and scaling |
+| SVM | margin-based separator | sparse high-dimensional text | multiclass and imbalance handling |
+| kNN | nearest labelled examples | simple multiclass baseline | slow inference and sensitive feature space |
+| Neural network | learned nonlinear features | large datasets | overfitting and tuning cost |
+<!-- Sources: L4 p.16-29 -->
+
+## Revision Checklist
+
+- [ ] Can define text classification as input text to fixed label.
+- [ ] Can explain why dev and test data have different purposes.
+- [ ] Can compare Naive Bayes, logistic regression, SVM, and kNN for text.
+- [ ] Can explain why feature design matters in classical classifiers.
+<!-- Sources: L4 p.3-31; Wk3 p.4-15 -->
+
+## Active Recall
+
+1. Why is the test set not used during model tuning?
+2. What independence assumption makes Naive Bayes simple?
+3. Why can cosine similarity be better than Euclidean distance for text vectors?
+4. What makes linear SVMs strong baselines for sparse text?
+<!-- Sources: L4 p.13-31; Wk3 p.10-15 -->
+
+## Glossary
+
+| Term | Meaning |
+| --- | --- |
+| Label set | The finite set of possible classes. |
+| Development set | Data used to tune features, models, and hyperparameters. |
+| Test set | Held-out data used for final evaluation. |
+| Feature | A measurable property of the input used by a classifier. |
+| Regularisation | A training constraint or penalty to reduce overfitting. |
+<!-- Sources: L4 p.3-31 -->

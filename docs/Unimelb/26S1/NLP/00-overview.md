@@ -1,6 +1,36 @@
+---
+course: COMP90042 Natural Language Processing
+semester: 2026S1
+topic: Course Overview and History
+source_type: lecture+reading
+status: draft
+review_priority: medium
+---
+
 # 00 Course Overview and History
 
+## Big Picture
+
+NLP studies how to process human language computationally, from basic text processing through statistical models, neural networks, transformers, and modern large language models. This overview note is the course map: it explains why language is difficult, what the course expects, and how the historical shifts lead into the later model families.
+<!-- Sources: L1 p.5-6, p.14-21; Manning 2022 pp.127-132 -->
+
+## Learning Map
+
+- Prerequisite ideas: basic programming, probability, machine learning, and awareness that natural language is structured but ambiguous.
+<!-- Sources: L1 p.5, p.23-24 -->
+- Core concepts: NLP task pipeline, ambiguity, empirical evaluation, rule-based systems, statistical models, neural models, and pretrained foundation models.
+<!-- Sources: L1 p.14-32; Manning 2022 pp.127-132 -->
+- Main procedures: identify the language task, decide what structure must be extracted, choose a modelling family, and evaluate on realistic text data.
+<!-- Sources: L1 p.14-21; Manning 2022 pp.127-132 -->
+- Tutorial skills: connect a concrete NLP task to the course trajectory and explain why surface text is not enough.
+<!-- Sources: L1 p.15, p.23-24 -->
+- Common traps: assuming grammatical form implies meaningful content, assuming one sentence has one obvious structure, or treating LLMs as a break from earlier NLP rather than a continuation of pretraining and scaling.
+<!-- Sources: L1 p.23-32; Manning 2022 pp.128-132 -->
+
 ## What NLP studies
+
+![Examples of NLP application areas from the course introduction.](assets/figures/00-overview-l1-p14-nlp-applications.png)
+<!-- Figure source: L1 p.14 -->
 
 - Natural language processing is an interdisciplinary area spanning linguistics, computer science, and artificial intelligence.
 <!-- Sources: L1 p.14 -->
@@ -74,3 +104,48 @@
 <!-- Sources: Manning 2022 p.130 -->
 - Pretrained language models such as BERT and GPT are early examples of foundation models that can be adapted to many downstream tasks.
 <!-- Sources: Manning 2022 pp.127, 132 -->
+
+## Tutorial Patterns
+
+| Pattern | What to Recognize | How to Solve | Common Mistake |
+| --- | --- | --- | --- |
+| Ambiguous sentence | one surface form supports multiple parses or meanings | list the competing lexical, syntactic, or semantic interpretations | choosing the first plausible reading only |
+| Course-history question | asks how NLP changed over time | contrast rule-based, statistical, neural, and pretrained/LLM phases | treating deep learning as unrelated to earlier empirical NLP |
+| Task identification | gives a practical language application | name the input, output, and required linguistic structure | describing the application without the modelling target |
+<!-- Sources: L1 p.14-32; Manning 2022 pp.127-132 -->
+
+## Key Comparisons
+
+| Era | Main modelling style | Main limitation that motivates the next era |
+| --- | --- | --- |
+| Rule-based NLP | hand-built grammars and symbolic systems | expensive to scale and brittle outside designed domains |
+| Statistical NLP | empirical models trained from corpora | feature engineering and sparse data limitations |
+| Neural NLP | distributed representations and deep networks | large supervised data and architecture-specific adaptation needs |
+| Pretrained / LLM era | self-supervised models adapted across tasks | alignment, grounding, hallucination, and efficient adaptation |
+<!-- Sources: L1 p.26-32; Manning 2022 pp.127-132 -->
+
+## Revision Checklist
+
+- [ ] Can define NLP in terms of language data, algorithms, and human-language structure.
+- [ ] Can explain why `I made her duck` is ambiguous.
+- [ ] Can describe the four broad historical phases of NLP.
+- [ ] Can connect transformers and pretrained models to earlier course topics.
+<!-- Sources: L1 p.14-32; Manning 2022 pp.127-132 -->
+
+## Active Recall
+
+1. What kinds of structure must NLP systems recover from unstructured text?
+2. Why does grammaticality not guarantee plausible meaning?
+3. What changed between rule-based NLP and empirical machine-learning NLP?
+4. Why are BERT and GPT considered bridge models toward LLMs?
+<!-- Sources: L1 p.14-32; Manning 2022 pp.127-132 -->
+
+## Glossary
+
+| Term | Meaning |
+| --- | --- |
+| NLP | Computational processing and analysis of human language. |
+| Corpus | A collection of language data used for analysis or modelling. |
+| Ambiguity | Multiple plausible interpretations for the same language form. |
+| Foundation model | A broadly pretrained model that can be adapted across downstream tasks. |
+<!-- Sources: L1 p.14-32; Manning 2022 pp.127-132 -->

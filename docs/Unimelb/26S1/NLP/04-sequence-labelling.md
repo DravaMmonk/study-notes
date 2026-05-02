@@ -1,4 +1,31 @@
+---
+course: COMP90042 Natural Language Processing
+semester: 2026S1
+topic: Sequence Labelling
+source_type: lecture+workshop+reading
+status: draft
+review_priority: high
+---
+
 # 04 Sequence Labelling: POS Tagging and HMMs
+
+## Big Picture
+
+Sequence labelling predicts one label for each token while preserving dependencies between neighbouring labels. POS tagging is the course's main example, and HMMs introduce the idea that the globally best label sequence may differ from the locally best tag at each position.
+<!-- Sources: L5 p.2, p.12-27; L6 p.2-13; Wk4 p.12-22 -->
+
+## Learning Map
+
+- Prerequisite ideas: token sequences, conditional probability, dynamic programming, and classification.
+<!-- Sources: L5 p.2; L6 p.4-13 -->
+- Core concepts: POS tagsets, lexical ambiguity, unknown words, transition probabilities, emission probabilities, Markov assumptions, and Viterbi decoding.
+<!-- Sources: L5 p.5-28; L6 p.4-45 -->
+- Main procedures: estimate HMM parameters from tagged data, smooth unseen events, run Viterbi, and backtrace the best tag sequence.
+<!-- Sources: L6 p.6-13, p.33-40; Wk4 p.15-22 -->
+- Tutorial skills: identify HMM independence assumptions and compute dynamic-programming updates.
+<!-- Sources: L6 p.4-13; Wk4 p.12-22 -->
+- Common traps: tagging greedily left-to-right, ignoring unknown words, or confusing emission and transition probabilities.
+<!-- Sources: L5 p.28; L6 p.5-13 -->
 
 ## POS tagging basics
 
@@ -42,6 +69,9 @@
 
 ## HMM factorisation
 
+![A hidden Markov model separates hidden POS tags from observed words.](assets/figures/04-sequence-l6-p04-hmm-idea.png)
+<!-- Figure source: L6 p.4 -->
+
 $$
 \hat{t}_{1:n}=\arg\max_{t_{1:n}} P(t_{1:n}\mid w_{1:n})
 =
@@ -72,6 +102,9 @@ $$
 
 ## Viterbi decoding
 
+![Viterbi decoding keeps the best partial path ending in each tag at each position.](assets/figures/04-sequence-l6-p39-viterbi.png)
+<!-- Figure source: L6 p.39 -->
+
 $$
 \mathrm{dp}[i,t]
 =
@@ -100,3 +133,50 @@ $$
 
 - HMMs remain fast, conceptually clean, and competitive baseline models for sequence labelling.
 <!-- Sources: L6 p.45 -->
+
+## Tutorial Patterns
+
+| Pattern | What to Recognize | How to Solve | Common Mistake |
+| --- | --- | --- | --- |
+| POS ambiguity | same word can take multiple tags | use context and tag sequence probabilities | assigning one permanent tag per word type |
+| HMM probability | asks for tag sequence score | multiply transition and emission terms | using word-word transitions |
+| Viterbi table | asks for best sequence | fill max scores per position/tag and backtrace | choosing locally best tag without future context |
+| Unknown word | word unseen in training | use smoothing, hapax, morphology, or affixes | assigning zero probability to every unseen word |
+<!-- Sources: L5 p.10-28; L6 p.4-13, p.33-45; Wk4 p.12-22 -->
+
+## Key Comparisons
+
+| Approach | Uses sequence dependencies? | Main strength | Main weakness |
+| --- | --- | --- | --- |
+| Unigram tagger | no | strong simple baseline | ignores context |
+| Classifier tagger | limited local features | flexible features | error propagation |
+| HMM | yes, generative | global sequence decoding with Viterbi | simplifying independence assumptions |
+| Trigram HMM | yes, wider tag context | more context-sensitive | higher complexity and sparsity |
+<!-- Sources: L5 p.23-27; L6 p.41-45 -->
+
+## Revision Checklist
+
+- [ ] Can explain the difference between emission and transition probabilities.
+- [ ] Can write the HMM factorisation for POS tagging.
+- [ ] Can explain why Viterbi is dynamic programming.
+- [ ] Can state the `O(T^2 N)` first-order Viterbi complexity.
+<!-- Sources: L6 p.4-13, p.33-45; Wk4 p.12-22 -->
+
+## Active Recall
+
+1. Why can a unigram tagger be strong but still limited?
+2. What does the output-independence assumption say?
+3. Why is greedy decoding insufficient for POS tagging?
+4. Why does a trigram HMM increase sparsity pressure?
+<!-- Sources: L5 p.23-28; L6 p.4-45 -->
+
+## Glossary
+
+| Term | Meaning |
+| --- | --- |
+| POS tag | A syntactic category assigned to a token. |
+| Emission probability | Probability of a word given its hidden tag. |
+| Transition probability | Probability of a tag given previous tag context. |
+| Viterbi | Dynamic-programming algorithm for the best hidden-state sequence. |
+| Hapax legomenon | A word occurring once in a corpus, useful for unknown-word modelling. |
+<!-- Sources: L5 p.2-28; L6 p.4-45 -->
