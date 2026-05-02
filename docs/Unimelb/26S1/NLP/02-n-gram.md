@@ -154,11 +154,11 @@ $$
 
 ## Revision Checklist
 
-- [ ] Can write the chain rule factorisation.
-- [ ] Can explain the n-gram Markov approximation.
-- [ ] Can compute an MLE bigram probability.
-- [ ] Can explain why smoothing is required.
-- [ ] Can distinguish interpolation from backoff.
+- Can write the chain rule factorisation.
+- Can explain the n-gram Markov approximation.
+- Can compute an MLE bigram probability.
+- Can explain why smoothing is required.
+- Can distinguish interpolation from backoff.
 <!-- Sources: L3 p.6-30; Wk3 p.17-27 -->
 
 ## Active Recall

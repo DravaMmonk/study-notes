@@ -136,10 +136,10 @@ $$
 
 ## Revision Checklist
 
-- [ ] Can define text classification as input text to fixed label.
-- [ ] Can explain why dev and test data have different purposes.
-- [ ] Can compare Naive Bayes, logistic regression, SVM, and kNN for text.
-- [ ] Can explain why feature design matters in classical classifiers.
+- Can define text classification as input text to fixed label.
+- Can explain why dev and test data have different purposes.
+- Can compare Naive Bayes, logistic regression, SVM, and kNN for text.
+- Can explain why feature design matters in classical classifiers.
 <!-- Sources: L4 p.3-31; Wk3 p.4-15 -->
 
 ## Active Recall

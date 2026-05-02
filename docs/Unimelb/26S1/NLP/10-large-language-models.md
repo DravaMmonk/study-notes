@@ -119,10 +119,10 @@ This workflow is strongest when the task can be expressed compactly and does not
 
 ## Revision Checklist
 
-- [ ] Can explain why decoder-only masking is necessary for autoregressive generation.
-- [ ] Can distinguish zero-shot, one-shot, few-shot, and fine-tuning.
-- [ ] Can compare GPT-1, GPT-2, and GPT-3 using data, parameters, and capabilities.
-- [ ] Can state why in-context learning is useful but limited.
+- Can explain why decoder-only masking is necessary for autoregressive generation.
+- Can distinguish zero-shot, one-shot, few-shot, and fine-tuning.
+- Can compare GPT-1, GPT-2, and GPT-3 using data, parameters, and capabilities.
+- Can state why in-context learning is useful but limited.
 <!-- Sources: L12 p.10-43; W7 p.8-16; W8 p.3-4 -->
 
 ## Active Recall

@@ -151,10 +151,10 @@ Text preprocessing turns raw documents into units that downstream models can cou
 
 ## Revision Checklist
 
-- [ ] Can define token, type, lexicon, and corpus.
-- [ ] Can explain why sentence segmentation is not just splitting on punctuation.
-- [ ] Can trace the basic BPE algorithm.
-- [ ] Can choose between stemming, lemmatisation, and no normalisation for a task.
+- Can define token, type, lexicon, and corpus.
+- Can explain why sentence segmentation is not just splitting on punctuation.
+- Can trace the basic BPE algorithm.
+- Can choose between stemming, lemmatisation, and no normalisation for a task.
 <!-- Sources: L2 p.3-32; Wk2 p.13-18 -->
 
 ## Active Recall

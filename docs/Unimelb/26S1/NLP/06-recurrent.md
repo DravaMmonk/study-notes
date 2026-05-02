@@ -141,10 +141,10 @@ $$
 
 ## Revision Checklist
 
-- [ ] Can write the recurrent state update.
-- [ ] Can explain backpropagation through time.
-- [ ] Can describe vanishing gradients.
-- [ ] Can name the LSTM forget, input, and output gates.
+- Can write the recurrent state update.
+- Can explain backpropagation through time.
+- Can describe vanishing gradients.
+- Can name the LSTM forget, input, and output gates.
 <!-- Sources: L8 p.15-30; Wk5 p.16-18 -->
 
 ## Active Recall

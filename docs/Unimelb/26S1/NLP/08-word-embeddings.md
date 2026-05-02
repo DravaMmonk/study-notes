@@ -152,10 +152,10 @@ $$
 
 ## Revision Checklist
 
-- [ ] Can state the distributional hypothesis.
-- [ ] Can compute PMI from probabilities.
-- [ ] Can explain why SVD gives dense lower-dimensional vectors.
-- [ ] Can distinguish skip-gram, CBOW, and negative sampling.
+- Can state the distributional hypothesis.
+- Can compute PMI from probabilities.
+- Can explain why SVD gives dense lower-dimensional vectors.
+- Can distinguish skip-gram, CBOW, and negative sampling.
 <!-- Sources: L10 p.2-37; W6 p.8-15 -->
 
 ## Active Recall

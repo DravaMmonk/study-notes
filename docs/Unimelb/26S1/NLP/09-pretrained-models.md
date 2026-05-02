@@ -139,10 +139,10 @@ Pretrained models extend the idea of pretrained word vectors from an embedding m
 
 ## Revision Checklist
 
-- [ ] Can explain why pretraining the whole network is more powerful than only using pretrained word vectors.
-- [ ] Can compare GPT-1, BERT, and T5.
-- [ ] Can explain masked LM and span corruption.
-- [ ] Can describe the pretrain-then-fine-tune paradigm.
+- Can explain why pretraining the whole network is more powerful than only using pretrained word vectors.
+- Can compare GPT-1, BERT, and T5.
+- Can explain masked LM and span corruption.
+- Can describe the pretrain-then-fine-tune paradigm.
 <!-- Sources: L11 p.2-35; GPT-1 abstract; BERT abstract; T5 abstract -->
 
 ## Active Recall

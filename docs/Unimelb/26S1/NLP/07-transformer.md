@@ -126,10 +126,10 @@ $$
 
 ## Revision Checklist
 
-- [ ] Can write the scaled dot-product self-attention formula.
-- [ ] Can explain why multi-head attention is useful.
-- [ ] Can explain the roles of residual connections and layer normalisation.
-- [ ] Can explain why positional embeddings are necessary.
+- Can write the scaled dot-product self-attention formula.
+- Can explain why multi-head attention is useful.
+- Can explain the roles of residual connections and layer normalisation.
+- Can explain why positional embeddings are necessary.
 <!-- Sources: L9 p.8-34; W6 p.3-6; W7 p.5-8 -->
 
 ## Active Recall

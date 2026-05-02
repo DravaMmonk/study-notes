@@ -154,10 +154,10 @@ $$
 
 ## Revision Checklist
 
-- [ ] Can explain the difference between emission and transition probabilities.
-- [ ] Can write the HMM factorisation for POS tagging.
-- [ ] Can explain why Viterbi is dynamic programming.
-- [ ] Can state the `O(T^2 N)` first-order Viterbi complexity.
+- Can explain the difference between emission and transition probabilities.
+- Can write the HMM factorisation for POS tagging.
+- Can explain why Viterbi is dynamic programming.
+- Can state the `O(T^2 N)` first-order Viterbi complexity.
 <!-- Sources: L6 p.4-13, p.33-45; Wk4 p.12-22 -->
 
 ## Active Recall

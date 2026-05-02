@@ -125,10 +125,10 @@ NLP studies how to process human language computationally, from basic text proce
 
 ## Revision Checklist
 
-- [ ] Can define NLP in terms of language data, algorithms, and human-language structure.
-- [ ] Can explain why `I made her duck` is ambiguous.
-- [ ] Can describe the four broad historical phases of NLP.
-- [ ] Can connect transformers and pretrained models to earlier course topics.
+- Can define NLP in terms of language data, algorithms, and human-language structure.
+- Can explain why `I made her duck` is ambiguous.
+- Can describe the four broad historical phases of NLP.
+- Can connect transformers and pretrained models to earlier course topics.
 <!-- Sources: L1 p.14-32; Manning 2022 pp.127-132 -->
 
 ## Active Recall

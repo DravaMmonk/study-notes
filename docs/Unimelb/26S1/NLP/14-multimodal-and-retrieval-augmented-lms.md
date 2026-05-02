@@ -114,10 +114,10 @@ KG-CoT addresses two limitations of ordinary LLM prompting: parametric knowledge
 
 ## Revision Checklist
 
-- [ ] Can explain how LLaVA connects vision and language components.
-- [ ] Can distinguish visual instruction tuning from visual prompt tuning.
-- [ ] Can describe why retrieval helps with parametric knowledge limitations.
-- [ ] Can explain why knowledge-graph paths may be more useful than isolated retrieved facts.
+- Can explain how LLaVA connects vision and language components.
+- Can distinguish visual instruction tuning from visual prompt tuning.
+- Can describe why retrieval helps with parametric knowledge limitations.
+- Can explain why knowledge-graph paths may be more useful than isolated retrieved facts.
 <!-- Sources: Liu 2024 Visual Instruction Tuning Sec.1-2; Borgeaud 2022 abstract, Sec.2; Zhao 2024 abstract, Sec.1 -->
 
 ## Active Recall

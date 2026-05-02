@@ -119,10 +119,10 @@ The lecture highlights 175 human-written seed examples, 52K generated unique ins
 
 ## Revision Checklist
 
-- [ ] Can classify a scenario as prompting or instruction tuning.
-- [ ] Can explain why chain-of-thought is a prompting style, not a new model architecture.
-- [ ] Can describe how FLAN turns existing datasets into instruction data.
-- [ ] Can explain why scaling tasks and model size matter for instruction tuning.
+- Can classify a scenario as prompting or instruction tuning.
+- Can explain why chain-of-thought is a prompting style, not a new model architecture.
+- Can describe how FLAN turns existing datasets into instruction data.
+- Can explain why scaling tasks and model size matter for instruction tuning.
 <!-- Sources: L13-L14 p.34-66; W8 p.3-9; Wei 2022 abstract; Chung 2024 abstract -->
 
 ## Active Recall

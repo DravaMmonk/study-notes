@@ -133,10 +133,10 @@ $$
 
 ## Revision Checklist
 
-- [ ] Can describe an MLP as layers of weighted nonlinear transformations.
-- [ ] Can explain when sigmoid and softmax are used.
-- [ ] Can explain dropout as training-time regularisation.
-- [ ] Can describe how a feedforward neural language model predicts the next word.
+- Can describe an MLP as layers of weighted nonlinear transformations.
+- Can explain when sigmoid and softmax are used.
+- Can explain dropout as training-time regularisation.
+- Can describe how a feedforward neural language model predicts the next word.
 <!-- Sources: L7 p.4-29 -->
 
 ## Active Recall

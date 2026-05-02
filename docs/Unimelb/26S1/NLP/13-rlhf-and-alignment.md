@@ -102,10 +102,10 @@ RLHF uses human preferences as a reward signal, so the model is optimised toward
 
 ## Revision Checklist
 
-- [ ] Can explain why pretraining is misaligned with user intent.
-- [ ] Can draw the three-stage RLHF pipeline.
-- [ ] Can distinguish SFT data from reward-model data.
-- [ ] Can explain why the reward model outputs a scalar.
+- Can explain why pretraining is misaligned with user intent.
+- Can draw the three-stage RLHF pipeline.
+- Can distinguish SFT data from reward-model data.
+- Can explain why the reward model outputs a scalar.
 <!-- Sources: L13-L14 p.14-20; Ouyang 2022 abstract, Sec.1 -->
 
 ## Active Recall

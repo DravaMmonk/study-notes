@@ -129,10 +129,10 @@ Function composition methods such as adapters, Compacter, and IA3 can match or o
 
 ## Revision Checklist
 
-- [ ] Can explain why full fine-tuning becomes less practical for LLMs.
-- [ ] Can write the LoRA idea as a frozen matrix plus a low-rank update.
-- [ ] Can distinguish prompt tuning from prompt engineering.
-- [ ] Can choose between parameter, input, and function composition for a scenario.
+- Can explain why full fine-tuning becomes less practical for LLMs.
+- Can write the LoRA idea as a frozen matrix plus a low-rank update.
+- Can distinguish prompt tuning from prompt engineering.
+- Can choose between parameter, input, and function composition for a scenario.
 <!-- Sources: L15-L16 p.10-87; Hu 2022 abstract; Lester 2021 abstract -->
 
 ## Active Recall
