@@ -29,7 +29,6 @@ Text preprocessing turns raw documents into units that downstream models can cou
 
 ## Core motivation
 
-![A preprocessing pipeline showing how raw text is converted into analysable units.](assets/figures/01-preprocessing-l2-p06-pipeline.png)
 <!-- Figure source: L2 p.6 -->
 
 - Most NLP applications receive documents as input and must decompose them into smaller units before analysis.
@@ -76,7 +75,6 @@ Text preprocessing turns raw documents into units that downstream models can cou
 
 ## Subword tokenisation and BPE
 
-![Byte-pair encoding builds subword units by repeatedly merging frequent adjacent symbols.](assets/figures/01-preprocessing-l2-p28-bpe.png)
 <!-- Figure source: L2 p.28 -->
 
 - Subword tokenisation improves robustness to unknown words while staying data-informed and multilingual.

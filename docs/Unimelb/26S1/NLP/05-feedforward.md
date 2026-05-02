@@ -29,7 +29,6 @@ Feedforward networks introduce neural modelling for NLP: inputs are represented 
 
 ## Core architecture
 
-![A feedforward network composes input, hidden, and output layers without recurrence.](assets/figures/05-feedforward-l7-p12-network.png)
 <!-- Figure source: L7 p.12 -->
 
 - Feedforward neural networks are also called multilayer perceptrons.
@@ -53,7 +52,6 @@ $$
 
 ## Training and regularisation
 
-![Feedforward training repeatedly computes predictions, losses, gradients, and parameter updates.](assets/figures/05-feedforward-l7-p22-training.png)
 <!-- Figure source: L7 p.22 -->
 
 - Training maximises the probability of the correct outputs or, equivalently, minimises negative log-likelihood.

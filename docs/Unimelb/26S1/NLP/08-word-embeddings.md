@@ -29,7 +29,6 @@ Word embeddings represent lexical meaning as vectors derived from distributional
 
 ## Distributional hypothesis
 
-![The distributional hypothesis links word meaning to contextual distribution.](assets/figures/08-embeddings-l10-p15-distributional-semantics.png)
 <!-- Figure source: L10 p.15 -->
 
 - Word meaning can be inferred from contextual distribution.
@@ -77,7 +76,6 @@ $$
 
 ## Word2Vec
 
-![Word2Vec learns embeddings by predicting target-context relationships.](assets/figures/08-embeddings-l10-p21-word2vec.png)
 <!-- Figure source: L10 p.21 -->
 
 - Skip-gram predicts surrounding words from a target word, while CBOW predicts the target word from surrounding words.
@@ -111,7 +109,6 @@ $$
 
 ## Evaluation
 
-![Embedding spaces can encode and amplify social biases present in training data.](assets/figures/08-embeddings-l10-p34-bias.png)
 <!-- Figure source: L10 p.34 -->
 
 | Evaluation style | Example |

@@ -36,7 +36,6 @@ Transformers replace recurrent state with attention over token representations, 
 
 ## Self-attention
 
-![Scaled dot-product attention compares queries with keys, normalises scores, and combines values.](assets/figures/07-transformer-l9-p13-scaled-dot-product.png)
 <!-- Figure source: L9 p.13 -->
 
 - Self-attention builds a new representation for each token by comparing it with other tokens in the same sequence.
@@ -61,7 +60,6 @@ $$
 
 ## Transformer block
 
-![A transformer block combines multi-head attention, feedforward layers, residual connections, and layer normalisation.](assets/figures/07-transformer-l9-p20-block.png)
 <!-- Figure source: L9 p.20 -->
 
 | Component | Role |
@@ -81,7 +79,6 @@ $$
 
 ## Positional embeddings
 
-![Positional embeddings inject order information into otherwise permutation-insensitive attention.](assets/figures/07-transformer-l9-p28-position.png)
 <!-- Figure source: L9 p.28 -->
 
 - Pure attention is permutation-insensitive, so order information must be injected separately.

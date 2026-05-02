@@ -53,7 +53,6 @@ Residual connections and layer normalisation help transformer models train more 
 
 ### Scaling from GPT-1 to GPT-3
 
-![Scaling increases the number of parameters, layers, hidden dimensions, and training data across GPT generations.](assets/figures/10-llm-l12-p24-scaling.png)
 <!-- Figure source: L12 p.24 -->
 
 | Model | Training data highlighted in course | Parameters | Layers | Hidden dimension | Capability emphasis |
@@ -68,7 +67,6 @@ The main difference between GPT-2 and GPT-3 is scale: GPT-3 uses far more parame
 
 ### In-context learning
 
-![In-context learning uses examples in the prompt instead of updating model parameters.](assets/figures/10-llm-l12-p34-emergence.png)
 <!-- Figure source: L12 p.34 -->
 
 > [!definition]

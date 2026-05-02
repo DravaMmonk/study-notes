@@ -36,7 +36,6 @@ N-gram language models estimate sequence probabilities from local word histories
 
 ## Chain rule and n-gram approximation
 
-![The chain rule factorises a sentence probability into conditional token probabilities.](assets/figures/02-ngram-l3-p08-chain-rule.png)
 <!-- Figure source: L3 p.8 -->
 
 $$
@@ -79,7 +78,6 @@ $$
 
 ## Smoothing families
 
-![Smoothing reallocates probability mass so unseen n-grams do not receive zero probability.](assets/figures/02-ngram-l3-p25-smoothing.png)
 <!-- Figure source: L3 p.25 -->
 
 | Method | Core idea |

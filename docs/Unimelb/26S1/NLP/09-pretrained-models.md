@@ -51,7 +51,6 @@ Pretrained models extend the idea of pretrained word vectors from an embedding m
 
 ## BERT
 
-![BERT pretraining and fine-tuning reuse the same transformer encoder across downstream tasks.](assets/figures/09-pretrained-l11-p23-bert.png)
 <!-- Figure source: L11 p.23 -->
 
 - BERT is a bidirectional transformer encoder rather than a causal decoder.
@@ -69,7 +68,6 @@ Pretrained models extend the idea of pretrained word vectors from an embedding m
 
 ## Encoder, decoder, and encoder-decoder roles
 
-![ELMo represents an earlier contextual pretraining step before full transformer pretraining.](assets/figures/09-pretrained-l11-p13-elmo.png)
 <!-- Figure source: L11 p.13 -->
 
 - Encoder-style transformers are strong on understanding tasks because each token representation can use bidirectional context.
@@ -81,7 +79,6 @@ Pretrained models extend the idea of pretrained word vectors from an embedding m
 
 ## T5
 
-![T5 casts diverse NLP tasks into a unified text-to-text format.](assets/figures/09-pretrained-t5-p02-text-to-text.png)
 <!-- Figure source: T5 p.2 -->
 
 - T5 casts every NLP problem into a text-to-text format.

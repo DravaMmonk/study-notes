@@ -80,7 +80,6 @@ $$
 
 ## Logistic regression
 
-![Logistic regression maps weighted features to a class probability.](assets/figures/03-classification-l4-p13-logistic-regression.png)
 <!-- Figure source: L4 p.13 -->
 
 $$
@@ -100,7 +99,6 @@ $$
 
 ## Practical notes from the workshop
 
-![Classification evaluation compares predicted labels against gold labels.](assets/figures/03-classification-l4-p30-evaluation.png)
 <!-- Figure source: L4 p.30 -->
 
 - Text representation is the central difficulty in many classification tasks.

@@ -69,7 +69,6 @@ Sequence labelling predicts one label for each token while preserving dependenci
 
 ## HMM factorisation
 
-![A hidden Markov model separates hidden POS tags from observed words.](assets/figures/04-sequence-l6-p04-hmm-idea.png)
 <!-- Figure source: L6 p.4 -->
 
 $$
@@ -102,7 +101,6 @@ $$
 
 ## Viterbi decoding
 
-![Viterbi decoding keeps the best partial path ending in each tag at each position.](assets/figures/04-sequence-l6-p39-viterbi.png)
 <!-- Figure source: L6 p.39 -->
 
 $$

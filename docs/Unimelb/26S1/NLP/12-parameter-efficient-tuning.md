@@ -40,7 +40,6 @@ Parameter-efficient fine-tuning updates only a small subset of parameters or add
 
 ### Three computation functions
 
-![Parameter-efficient methods can be organised by where they modify computation.](assets/figures/12-peft-l15-p23-taxonomy.png)
 <!-- Figure source: L15-L16 p.23 -->
 
 | Family | Main idea | Representative methods | Main trade-off |
@@ -52,7 +51,6 @@ Parameter-efficient fine-tuning updates only a small subset of parameters or add
 
 ### LoRA
 
-![LoRA freezes the pretrained weight and learns a low-rank update.](assets/figures/12-peft-l15-p36-lora.png)
 <!-- Figure source: L15-L16 p.36 -->
 
 > [!definition]
@@ -69,7 +67,6 @@ LoRA's deployment advantage is that its learned matrices can be merged into the 
 
 ### Prompt tuning
 
-![Prompt tuning stores small learned prompts while sharing one frozen language model.](assets/figures/12-peft-lester-p02-prompt-tuning.png)
 <!-- Figure source: Lester 2021 p.2 -->
 
 > [!definition]

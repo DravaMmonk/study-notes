@@ -29,7 +29,6 @@ Recurrent networks model sequences by carrying a hidden state from one position 
 
 ## Why recurrent models matter
 
-![A recurrent network reuses the same transition across sequence positions.](assets/figures/06-recurrent-l8-p11-rnn.png)
 <!-- Figure source: L8 p.11 -->
 
 - Recurrent neural networks process arbitrarily long input sequences by repeatedly updating a state vector.
@@ -46,7 +45,6 @@ $$
 
 ## Training
 
-![Backpropagation through time unfolds recurrent computation before applying gradient updates.](assets/figures/06-recurrent-l8-p21-bptt.png)
 <!-- Figure source: L8 p.21 -->
 
 - Unrolling an RNN through time produces a deep computation graph with shared parameters across time steps.
@@ -79,7 +77,6 @@ $$
 
 ## LSTM memory and gates
 
-![LSTM cells use gates to control what information is written, kept, and exposed.](assets/figures/06-recurrent-l8-p39-lstm.png)
 <!-- Figure source: L8 p.39 -->
 
 - Long Short-term Memory networks address vanishing gradients by introducing a memory cell and gates that regulate information flow.

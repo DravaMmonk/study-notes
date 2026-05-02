@@ -29,7 +29,6 @@ NLP studies how to process human language computationally, from basic text proce
 
 ## What NLP studies
 
-![Examples of NLP application areas from the course introduction.](assets/figures/00-overview-l1-p14-nlp-applications.png)
 <!-- Figure source: L1 p.14 -->
 
 - Natural language processing is an interdisciplinary area spanning linguistics, computer science, and artificial intelligence.
