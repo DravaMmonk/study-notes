@@ -1717,6 +1717,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1744,6 +1751,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1773,6 +1787,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1800,6 +1821,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1829,6 +1857,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1856,6 +1891,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1885,6 +1927,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1912,6 +1961,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1950,6 +2006,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -1968,6 +2031,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
       
@@ -1985,6 +2055,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#big-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Map
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#distributional-hypothesis" class="md-nav__link">
@@ -2074,6 +2166,61 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tutorial-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tutorial Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Comparisons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2103,6 +2250,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2445,7 +2599,36 @@
 
 
 <h1 id="08-word-embeddings">08 Word Embeddings<a class="headerlink" href="#08-word-embeddings" title="Permanent link">&para;</a></h1>
+<h2 id="big-picture">Big Picture<a class="headerlink" href="#big-picture" title="Permanent link">&para;</a></h2>
+<p>Word embeddings represent lexical meaning as vectors derived from distributional context. They solve part of the sparsity problem in count-based NLP by letting similar words have similar dense representations, and they become the input layer for later neural models.</p>
+<!-- Sources: L10 p.2-37; W6 p.8-15; JM3 Ch.5 -->
+
+<h2 id="learning-map">Learning Map<a class="headerlink" href="#learning-map" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prerequisite ideas: vocabulary, co-occurrence counts, matrix representations, probability, and neural classification.</li>
+</ul>
+<!-- Sources: L10 p.8-24; W6 p.8-15 -->
+<ul>
+<li>Core concepts: distributional hypothesis, term-document matrices, TF-IDF, SVD, word-context matrices, PMI, Word2Vec, skip-gram, CBOW, negative sampling, and analogy evaluation.</li>
+</ul>
+<!-- Sources: L10 p.2-37; W6 p.8-15 -->
+<ul>
+<li>Main procedures: build count matrices, weight co-occurrences, reduce dimensionality, train predictive embeddings, and evaluate similarity or analogies.</li>
+</ul>
+<!-- Sources: L10 p.8-37; W6 p.8-15 -->
+<ul>
+<li>Tutorial skills: compute PMI, explain SVD as dense approximation, and distinguish skip-gram from CBOW.</li>
+</ul>
+<!-- Sources: W6 p.8-15 -->
+<ul>
+<li>Common traps: assuming raw frequency always indicates semantic association, confusing static and contextual embeddings, or treating analogies as the only evaluation.</li>
+</ul>
+<!-- Sources: L10 p.15-37; W7 p.3-4 -->
+
 <h2 id="distributional-hypothesis">Distributional hypothesis<a class="headerlink" href="#distributional-hypothesis" title="Permanent link">&para;</a></h2>
+<p><img alt="The distributional hypothesis links word meaning to contextual distribution." src="assets/figures/08-embeddings-l10-p15-distributional-semantics.png" /></p>
+<!-- Figure source: L10 p.15 -->
+
 <ul>
 <li>Word meaning can be inferred from contextual distribution.</li>
 </ul>
@@ -2524,6 +2707,9 @@
 <!-- Sources: L10 p.22 -->
 
 <h2 id="word2vec">Word2Vec<a class="headerlink" href="#word2vec" title="Permanent link">&para;</a></h2>
+<p><img alt="Word2Vec learns embeddings by predicting target-context relationships." src="assets/figures/08-embeddings-l10-p21-word2vec.png" /></p>
+<!-- Figure source: L10 p.21 -->
+
 <ul>
 <li>Skip-gram predicts surrounding words from a target word, while CBOW predicts the target word from surrounding words.</li>
 </ul>
@@ -2561,6 +2747,9 @@ L(\theta)=
 <!-- Sources: L10 p.30 -->
 
 <h2 id="evaluation">Evaluation<a class="headerlink" href="#evaluation" title="Permanent link">&para;</a></h2>
+<p><img alt="Embedding spaces can encode and amplify social biases present in training data." src="assets/figures/08-embeddings-l10-p34-bias.png" /></p>
+<!-- Figure source: L10 p.34 -->
+
 <table>
 <thead>
 <tr>
@@ -2600,11 +2789,143 @@ v(\text{queen}) \approx v(\text{woman}) - v(\text{man}) + v(\text{king})
 </ul>
 <!-- Sources: L10 p.36-37 -->
 
+<h2 id="tutorial-patterns">Tutorial Patterns<a class="headerlink" href="#tutorial-patterns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>What to Recognize</th>
+<th>How to Solve</th>
+<th>Common Mistake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PMI calculation</td>
+<td>gives counts for two events and co-occurrence</td>
+<td>compute probabilities and plug into PMI formula</td>
+<td>using raw counts directly inside the log ratio</td>
+</tr>
+<tr>
+<td>SVD explanation</td>
+<td>sparse matrix is too large/noisy</td>
+<td>reduce to dense low-rank approximation</td>
+<td>saying SVD merely deletes random features</td>
+</tr>
+<tr>
+<td>Skip-gram vs CBOW</td>
+<td>asks prediction direction</td>
+<td>skip-gram predicts context from target; CBOW predicts target from context</td>
+<td>reversing the two</td>
+</tr>
+<tr>
+<td>Negative sampling</td>
+<td>full softmax is expensive</td>
+<td>train real pairs vs sampled noise pairs</td>
+<td>treating negatives as all vocabulary words</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L10 p.15-30; W6 p.8-15 -->
+
+<h2 id="key-comparisons">Key Comparisons<a class="headerlink" href="#key-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Representation</th>
+<th>Context type</th>
+<th>Vector type</th>
+<th>Main limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Term-document counts</td>
+<td>document-level topic context</td>
+<td>sparse</td>
+<td>high dimensional and topic-biased</td>
+</tr>
+<tr>
+<td>PMI/SVD embeddings</td>
+<td>local or document co-occurrence</td>
+<td>dense after reduction</td>
+<td>depends on count design</td>
+</tr>
+<tr>
+<td>Word2Vec</td>
+<td>predictive local context</td>
+<td>dense learned vectors</td>
+<td>static word type representation</td>
+</tr>
+<tr>
+<td>Contextual embeddings</td>
+<td>sentence-specific context</td>
+<td>token-dependent vectors</td>
+<td>requires larger pretrained networks</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L10 p.8-37; W7 p.3-4 -->
+
+<h2 id="revision-checklist">Revision Checklist<a class="headerlink" href="#revision-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Can state the distributional hypothesis.</li>
+<li>[ ] Can compute PMI from probabilities.</li>
+<li>[ ] Can explain why SVD gives dense lower-dimensional vectors.</li>
+<li>[ ] Can distinguish skip-gram, CBOW, and negative sampling.</li>
+</ul>
+<!-- Sources: L10 p.2-37; W6 p.8-15 -->
+
+<h2 id="active-recall">Active Recall<a class="headerlink" href="#active-recall" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Why can raw co-occurrence counts overemphasise frequent words?</li>
+<li>What does a positive PMI value indicate?</li>
+<li>Why does negative sampling make training more efficient?</li>
+<li>Why do pretrained word vectors motivate whole-network pretraining?</li>
+</ol>
+<!-- Sources: L10 p.15-37; W6 p.8-15 -->
+
+<h2 id="glossary">Glossary<a class="headerlink" href="#glossary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distributional hypothesis</td>
+<td>Words with similar contexts tend to have similar meanings.</td>
+</tr>
+<tr>
+<td>TF-IDF</td>
+<td>Weighting that discounts words appearing in many documents.</td>
+</tr>
+<tr>
+<td>PMI</td>
+<td>Pointwise mutual information, association beyond independence.</td>
+</tr>
+<tr>
+<td>Skip-gram</td>
+<td>Word2Vec objective predicting context from a target word.</td>
+</tr>
+<tr>
+<td>CBOW</td>
+<td>Word2Vec objective predicting a target word from context.</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L10 p.2-37; W6 p.8-15 -->
 
 
 
 
 
+
+
+  
+  
 
 
 

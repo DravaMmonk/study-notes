@@ -1717,6 +1717,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1744,6 +1751,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1773,6 +1787,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1800,6 +1821,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1838,6 +1866,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -1856,6 +1891,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
       
@@ -1873,6 +1915,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#big-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Map
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#pos-tagging-basics" class="md-nav__link">
@@ -1973,6 +2037,61 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tutorial-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tutorial Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Comparisons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2003,6 +2122,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2030,6 +2156,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2059,6 +2192,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2087,6 +2227,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2114,6 +2261,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2456,6 +2610,32 @@
 
 
 <h1 id="04-sequence-labelling-pos-tagging-and-hmms">04 Sequence Labelling: POS Tagging and HMMs<a class="headerlink" href="#04-sequence-labelling-pos-tagging-and-hmms" title="Permanent link">&para;</a></h1>
+<h2 id="big-picture">Big Picture<a class="headerlink" href="#big-picture" title="Permanent link">&para;</a></h2>
+<p>Sequence labelling predicts one label for each token while preserving dependencies between neighbouring labels. POS tagging is the course's main example, and HMMs introduce the idea that the globally best label sequence may differ from the locally best tag at each position.</p>
+<!-- Sources: L5 p.2, p.12-27; L6 p.2-13; Wk4 p.12-22 -->
+
+<h2 id="learning-map">Learning Map<a class="headerlink" href="#learning-map" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prerequisite ideas: token sequences, conditional probability, dynamic programming, and classification.</li>
+</ul>
+<!-- Sources: L5 p.2; L6 p.4-13 -->
+<ul>
+<li>Core concepts: POS tagsets, lexical ambiguity, unknown words, transition probabilities, emission probabilities, Markov assumptions, and Viterbi decoding.</li>
+</ul>
+<!-- Sources: L5 p.5-28; L6 p.4-45 -->
+<ul>
+<li>Main procedures: estimate HMM parameters from tagged data, smooth unseen events, run Viterbi, and backtrace the best tag sequence.</li>
+</ul>
+<!-- Sources: L6 p.6-13, p.33-40; Wk4 p.15-22 -->
+<ul>
+<li>Tutorial skills: identify HMM independence assumptions and compute dynamic-programming updates.</li>
+</ul>
+<!-- Sources: L6 p.4-13; Wk4 p.12-22 -->
+<ul>
+<li>Common traps: tagging greedily left-to-right, ignoring unknown words, or confusing emission and transition probabilities.</li>
+</ul>
+<!-- Sources: L5 p.28; L6 p.5-13 -->
+
 <h2 id="pos-tagging-basics">POS tagging basics<a class="headerlink" href="#pos-tagging-basics" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Part-of-speech tagging assigns a syntactic category to each token in a sequence.</li>
@@ -2533,6 +2713,9 @@
 <!-- Sources: L5 p.28 -->
 
 <h2 id="hmm-factorisation">HMM factorisation<a class="headerlink" href="#hmm-factorisation" title="Permanent link">&para;</a></h2>
+<p><img alt="A hidden Markov model separates hidden POS tags from observed words." src="assets/figures/04-sequence-l6-p04-hmm-idea.png" /></p>
+<!-- Figure source: L6 p.4 -->
+
 <div class="arithmatex">\[
 \hat{t}_{1:n}=\arg\max_{t_{1:n}} P(t_{1:n}\mid w_{1:n})
 =
@@ -2571,6 +2754,9 @@ P(t_{1:n})=\prod_{i=1}^{n} P(t_i \mid t_{i-1})
 <!-- Sources: L6 p.7 -->
 
 <h2 id="viterbi-decoding">Viterbi decoding<a class="headerlink" href="#viterbi-decoding" title="Permanent link">&para;</a></h2>
+<p><img alt="Viterbi decoding keeps the best partial path ending in each tag at each position." src="assets/figures/04-sequence-l6-p39-viterbi.png" /></p>
+<!-- Figure source: L6 p.39 -->
+
 <div class="arithmatex">\[
 \mathrm{dp}[i,t]
 =
@@ -2612,11 +2798,143 @@ P(t_{1:n})=\prod_{i=1}^{n} P(t_i \mid t_{i-1})
 </ul>
 <!-- Sources: L6 p.45 -->
 
+<h2 id="tutorial-patterns">Tutorial Patterns<a class="headerlink" href="#tutorial-patterns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>What to Recognize</th>
+<th>How to Solve</th>
+<th>Common Mistake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POS ambiguity</td>
+<td>same word can take multiple tags</td>
+<td>use context and tag sequence probabilities</td>
+<td>assigning one permanent tag per word type</td>
+</tr>
+<tr>
+<td>HMM probability</td>
+<td>asks for tag sequence score</td>
+<td>multiply transition and emission terms</td>
+<td>using word-word transitions</td>
+</tr>
+<tr>
+<td>Viterbi table</td>
+<td>asks for best sequence</td>
+<td>fill max scores per position/tag and backtrace</td>
+<td>choosing locally best tag without future context</td>
+</tr>
+<tr>
+<td>Unknown word</td>
+<td>word unseen in training</td>
+<td>use smoothing, hapax, morphology, or affixes</td>
+<td>assigning zero probability to every unseen word</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L5 p.10-28; L6 p.4-13, p.33-45; Wk4 p.12-22 -->
+
+<h2 id="key-comparisons">Key Comparisons<a class="headerlink" href="#key-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Uses sequence dependencies?</th>
+<th>Main strength</th>
+<th>Main weakness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unigram tagger</td>
+<td>no</td>
+<td>strong simple baseline</td>
+<td>ignores context</td>
+</tr>
+<tr>
+<td>Classifier tagger</td>
+<td>limited local features</td>
+<td>flexible features</td>
+<td>error propagation</td>
+</tr>
+<tr>
+<td>HMM</td>
+<td>yes, generative</td>
+<td>global sequence decoding with Viterbi</td>
+<td>simplifying independence assumptions</td>
+</tr>
+<tr>
+<td>Trigram HMM</td>
+<td>yes, wider tag context</td>
+<td>more context-sensitive</td>
+<td>higher complexity and sparsity</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L5 p.23-27; L6 p.41-45 -->
+
+<h2 id="revision-checklist">Revision Checklist<a class="headerlink" href="#revision-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Can explain the difference between emission and transition probabilities.</li>
+<li>[ ] Can write the HMM factorisation for POS tagging.</li>
+<li>[ ] Can explain why Viterbi is dynamic programming.</li>
+<li>[ ] Can state the <code>O(T^2 N)</code> first-order Viterbi complexity.</li>
+</ul>
+<!-- Sources: L6 p.4-13, p.33-45; Wk4 p.12-22 -->
+
+<h2 id="active-recall">Active Recall<a class="headerlink" href="#active-recall" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Why can a unigram tagger be strong but still limited?</li>
+<li>What does the output-independence assumption say?</li>
+<li>Why is greedy decoding insufficient for POS tagging?</li>
+<li>Why does a trigram HMM increase sparsity pressure?</li>
+</ol>
+<!-- Sources: L5 p.23-28; L6 p.4-45 -->
+
+<h2 id="glossary">Glossary<a class="headerlink" href="#glossary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POS tag</td>
+<td>A syntactic category assigned to a token.</td>
+</tr>
+<tr>
+<td>Emission probability</td>
+<td>Probability of a word given its hidden tag.</td>
+</tr>
+<tr>
+<td>Transition probability</td>
+<td>Probability of a tag given previous tag context.</td>
+</tr>
+<tr>
+<td>Viterbi</td>
+<td>Dynamic-programming algorithm for the best hidden-state sequence.</td>
+</tr>
+<tr>
+<td>Hapax legomenon</td>
+<td>A word occurring once in a corpus, useful for unknown-word modelling.</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L5 p.2-28; L6 p.4-45 -->
 
 
 
 
 
+
+
+  
+  
 
 
 

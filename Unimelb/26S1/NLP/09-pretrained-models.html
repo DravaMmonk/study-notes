@@ -1717,6 +1717,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1744,6 +1751,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1773,6 +1787,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1800,6 +1821,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1829,6 +1857,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1856,6 +1891,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1885,6 +1927,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1913,6 +1962,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1940,6 +1996,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1978,6 +2041,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -1996,6 +2066,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
       
@@ -2013,6 +2090,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#big-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Map
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#from-pretrained-vectors-to-pretrained-networks" class="md-nav__link">
@@ -2096,6 +2195,61 @@
     <span class="md-ellipsis">
       
         Paradigm shift
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tutorial-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tutorial Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Comparisons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
       
     </span>
   </a>
@@ -2445,6 +2599,32 @@
 
 
 <h1 id="09-pretrained-models">09 Pretrained Models<a class="headerlink" href="#09-pretrained-models" title="Permanent link">&para;</a></h1>
+<h2 id="big-picture">Big Picture<a class="headerlink" href="#big-picture" title="Permanent link">&para;</a></h2>
+<p>Pretrained models extend the idea of pretrained word vectors from an embedding matrix to an entire neural network. Instead of learning a task model from scratch, a large model is first trained on broad self-supervised objectives and then adapted to downstream tasks.</p>
+<!-- Sources: L11 p.2-35; GPT-1 abstract; BERT abstract; T5 abstract; Manning 2022 pp.127-132 -->
+
+<h2 id="learning-map">Learning Map<a class="headerlink" href="#learning-map" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prerequisite ideas: word embeddings, transformers, encoder/decoder roles, language modelling, and fine-tuning.</li>
+</ul>
+<!-- Sources: L11 p.2-35 -->
+<ul>
+<li>Core concepts: generative pretraining, masked language modelling, next sentence prediction, text-to-text transfer, span corruption, and model adaptation.</li>
+</ul>
+<!-- Sources: L11 p.6-35; GPT-1 Sec.1,3; BERT Sec.3; T5 abstract, Sec.1-3 -->
+<ul>
+<li>Main procedures: pretrain on a broad self-supervised task, add or reuse a task interface, and fine-tune or cast downstream tasks into the model's format.</li>
+</ul>
+<!-- Sources: L11 p.8-35; GPT-1 Sec.1; BERT Sec.3; T5 Sec.1-3 -->
+<ul>
+<li>Tutorial skills: compare GPT-1, BERT, and T5 by architecture, objective, and downstream interface.</li>
+</ul>
+<!-- Sources: L11 p.6-34; W7 p.3-4 -->
+<ul>
+<li>Common traps: confusing encoder-only and decoder-only models, assuming all pretrained models use the same objective, or treating T5 as a classifier rather than text-to-text generation.</li>
+</ul>
+<!-- Sources: L11 p.13-34 -->
+
 <h2 id="from-pretrained-vectors-to-pretrained-networks">From pretrained vectors to pretrained networks<a class="headerlink" href="#from-pretrained-vectors-to-pretrained-networks" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Pretrained word vectors improve many downstream models when used to initialise the first layer.</li>
@@ -2482,6 +2662,9 @@
 <!-- Sources: GPT-1 Sec.3 -->
 
 <h2 id="bert">BERT<a class="headerlink" href="#bert" title="Permanent link">&para;</a></h2>
+<p><img alt="BERT pretraining and fine-tuning reuse the same transformer encoder across downstream tasks." src="assets/figures/09-pretrained-l11-p23-bert.png" /></p>
+<!-- Figure source: L11 p.23 -->
+
 <ul>
 <li>BERT is a bidirectional transformer encoder rather than a causal decoder.</li>
 </ul>
@@ -2508,6 +2691,9 @@
 <!-- Sources: BERT Sec.3 -->
 
 <h2 id="encoder-decoder-and-encoder-decoder-roles">Encoder, decoder, and encoder-decoder roles<a class="headerlink" href="#encoder-decoder-and-encoder-decoder-roles" title="Permanent link">&para;</a></h2>
+<p><img alt="ELMo represents an earlier contextual pretraining step before full transformer pretraining." src="assets/figures/09-pretrained-l11-p13-elmo.png" /></p>
+<!-- Figure source: L11 p.13 -->
+
 <ul>
 <li>Encoder-style transformers are strong on understanding tasks because each token representation can use bidirectional context.</li>
 </ul>
@@ -2522,6 +2708,9 @@
 <!-- Sources: L11 p.23-28 -->
 
 <h2 id="t5">T5<a class="headerlink" href="#t5" title="Permanent link">&para;</a></h2>
+<p><img alt="T5 casts diverse NLP tasks into a unified text-to-text format." src="assets/figures/09-pretrained-t5-p02-text-to-text.png" /></p>
+<!-- Figure source: T5 p.2 -->
+
 <ul>
 <li>T5 casts every NLP problem into a text-to-text format.</li>
 </ul>
@@ -2620,11 +2809,137 @@
 </ul>
 <!-- Sources: L11 p.35; Manning 2022 pp.128-132 -->
 
+<h2 id="tutorial-patterns">Tutorial Patterns<a class="headerlink" href="#tutorial-patterns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>What to Recognize</th>
+<th>How to Solve</th>
+<th>Common Mistake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture comparison</td>
+<td>asks GPT/BERT/T5 differences</td>
+<td>map GPT to decoder-only, BERT to encoder-only, T5 to encoder-decoder</td>
+<td>grouping all as identical transformers</td>
+</tr>
+<tr>
+<td>Objective comparison</td>
+<td>asks what is predicted in pretraining</td>
+<td>GPT predicts next token; BERT predicts masked tokens; T5 reconstructs corrupted spans</td>
+<td>calling all objectives next-word prediction</td>
+</tr>
+<tr>
+<td>Fine-tuning interface</td>
+<td>asks how downstream tasks are handled</td>
+<td>GPT/BERT add task heads or task formatting; T5 casts task as text-to-text</td>
+<td>assuming every model uses <code>[CLS]</code></td>
+</tr>
+<tr>
+<td>Static vs contextual</td>
+<td>asks why pretrained networks improve on embeddings</td>
+<td>whole network produces context-dependent representations</td>
+<td>treating pretrained vectors and BERT as the same level of pretraining</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L11 p.2-35; GPT-1 Sec.1,3; BERT Sec.3; T5 Sec.1-3 -->
+
+<h2 id="key-comparisons">Key Comparisons<a class="headerlink" href="#key-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Architecture</th>
+<th>Pretraining signal</th>
+<th>Downstream interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-1</td>
+<td>decoder-only</td>
+<td>next-word prediction</td>
+<td>task head plus fine-tuning</td>
+</tr>
+<tr>
+<td>BERT</td>
+<td>encoder-only</td>
+<td>masked LM plus next sentence prediction</td>
+<td><code>[CLS]</code> or token states with task head</td>
+</tr>
+<tr>
+<td>T5</td>
+<td>encoder-decoder</td>
+<td>span corruption</td>
+<td>every task as text-to-text</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L11 p.6-34; GPT-1 Sec.1,3; BERT Sec.3; T5 abstract, Sec.1-3 -->
+
+<h2 id="revision-checklist">Revision Checklist<a class="headerlink" href="#revision-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Can explain why pretraining the whole network is more powerful than only using pretrained word vectors.</li>
+<li>[ ] Can compare GPT-1, BERT, and T5.</li>
+<li>[ ] Can explain masked LM and span corruption.</li>
+<li>[ ] Can describe the pretrain-then-fine-tune paradigm.</li>
+</ul>
+<!-- Sources: L11 p.2-35; GPT-1 abstract; BERT abstract; T5 abstract -->
+
+<h2 id="active-recall">Active Recall<a class="headerlink" href="#active-recall" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Why is GPT-1 naturally suited to generation?</li>
+<li>Why is BERT bidirectional?</li>
+<li>How does T5 turn classification into generation?</li>
+<li>What changed in NLP when pretraining followed by fine-tuning became standard?</li>
+</ol>
+<!-- Sources: L11 p.6-35; Manning 2022 pp.127-132 -->
+
+<h2 id="glossary">Glossary<a class="headerlink" href="#glossary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pretraining</td>
+<td>Initial self-supervised training on broad data.</td>
+</tr>
+<tr>
+<td>Fine-tuning</td>
+<td>Task-specific training after pretraining.</td>
+</tr>
+<tr>
+<td>Masked LM</td>
+<td>Predicting masked tokens from bidirectional context.</td>
+</tr>
+<tr>
+<td>Span corruption</td>
+<td>Reconstructing removed spans marked by sentinel tokens.</td>
+</tr>
+<tr>
+<td>Text-to-text</td>
+<td>Representing every task as text input to text output.</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L11 p.2-35; BERT Sec.3; T5 Sec.1-3 -->
 
 
 
 
 
+
+
+  
+  
 
 
 

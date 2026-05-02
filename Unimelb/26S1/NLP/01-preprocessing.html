@@ -1717,6 +1717,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1754,6 +1761,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -1772,6 +1786,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
       
@@ -1789,6 +1810,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#big-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Map
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#core-motivation" class="md-nav__link">
@@ -1900,6 +1943,61 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tutorial-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tutorial Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Comparisons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1930,6 +2028,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1957,6 +2062,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1986,6 +2098,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2013,6 +2132,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2042,6 +2168,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2069,6 +2202,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2098,6 +2238,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2125,6 +2272,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2467,7 +2621,36 @@
 
 
 <h1 id="01-text-preprocessing">01 Text Preprocessing<a class="headerlink" href="#01-text-preprocessing" title="Permanent link">&para;</a></h1>
+<h2 id="big-picture">Big Picture<a class="headerlink" href="#big-picture" title="Permanent link">&para;</a></h2>
+<p>Text preprocessing turns raw documents into units that downstream models can count, classify, tag, or embed. The key design issue is that preprocessing is not neutral: tokenisation, segmentation, normalisation, and stopword removal all change the evidence available to later models.</p>
+<!-- Sources: L2 p.2, p.6, p.32; Wk2 p.6; JM3 Ch.2 opening pages and summary -->
+
+<h2 id="learning-map">Learning Map<a class="headerlink" href="#learning-map" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prerequisite ideas: corpus, document, token, type, vocabulary, and downstream task.</li>
+</ul>
+<!-- Sources: L2 p.3-6 -->
+<ul>
+<li>Core concepts: sentence segmentation, word tokenisation, subword tokenisation, BPE, normalisation, morphology, lemmatisation, stemming, and stopwords.</li>
+</ul>
+<!-- Sources: L2 p.6-32; Wk2 p.13-18 -->
+<ul>
+<li>Main procedures: segment sentences, split tokens, handle unknown words, normalise forms when useful, and decide whether stopwords should be removed.</li>
+</ul>
+<!-- Sources: L2 p.6-32; Wk2 p.6 -->
+<ul>
+<li>Tutorial skills: compare stemming and lemmatisation, explain BPE merges, and decide whether preprocessing fits a bag-of-words or sequence model.</li>
+</ul>
+<!-- Sources: L2 p.15-31; Wk2 p.13-18 -->
+<ul>
+<li>Common traps: using whitespace tokenisation for every language, applying stopword removal to sequence-sensitive tasks, or assuming stemming always produces valid words.</li>
+</ul>
+<!-- Sources: L2 p.11-14, p.28-31 -->
+
 <h2 id="core-motivation">Core motivation<a class="headerlink" href="#core-motivation" title="Permanent link">&para;</a></h2>
+<p><img alt="A preprocessing pipeline showing how raw text is converted into analysable units." src="assets/figures/01-preprocessing-l2-p06-pipeline.png" /></p>
+<!-- Figure source: L2 p.6 -->
+
 <ul>
 <li>Most NLP applications receive documents as input and must decompose them into smaller units before analysis.</li>
 </ul>
@@ -2552,6 +2735,9 @@
 <!-- Sources: L2 p.14 -->
 
 <h2 id="subword-tokenisation-and-bpe">Subword tokenisation and BPE<a class="headerlink" href="#subword-tokenisation-and-bpe" title="Permanent link">&para;</a></h2>
+<p><img alt="Byte-pair encoding builds subword units by repeatedly merging frequent adjacent symbols." src="assets/figures/01-preprocessing-l2-p28-bpe.png" /></p>
+<!-- Figure source: L2 p.28 -->
+
 <ul>
 <li>Subword tokenisation improves robustness to unknown words while staying data-informed and multilingual.</li>
 </ul>
@@ -2646,11 +2832,143 @@
 </ul>
 <!-- Sources: L2 p.32; Wk2 p.6 -->
 
+<h2 id="tutorial-patterns">Tutorial Patterns<a class="headerlink" href="#tutorial-patterns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>What to Recognize</th>
+<th>How to Solve</th>
+<th>Common Mistake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token/type counting</td>
+<td>asks for running words vs distinct vocabulary entries</td>
+<td>count every occurrence for tokens and unique forms for types</td>
+<td>counting types as repeated tokens</td>
+</tr>
+<tr>
+<td>Sentence boundary ambiguity</td>
+<td>punctuation is not always sentence-final</td>
+<td>treat segmentation as classification over candidate punctuation</td>
+<td>splitting every period</td>
+</tr>
+<tr>
+<td>BPE merge trace</td>
+<td>frequent adjacent character/subword pairs are shown</td>
+<td>repeatedly merge the highest-frequency pair</td>
+<td>merging by semantic intuition instead of counts</td>
+</tr>
+<tr>
+<td>Stemming vs lemmatisation</td>
+<td>asks about vocabulary reduction</td>
+<td>lemmatisation returns dictionary forms; stemming strips affixes more aggressively</td>
+<td>assuming stems must be valid words</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L2 p.3-32; Wk2 p.13-18 -->
+
+<h2 id="key-comparisons">Key Comparisons<a class="headerlink" href="#key-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Choice</th>
+<th>Keeps more linguistic form?</th>
+<th>Reduces sparsity more?</th>
+<th>Better fit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lemmatisation</td>
+<td>yes</td>
+<td>moderate</td>
+<td>tasks needing interpretable lexical forms</td>
+</tr>
+<tr>
+<td>Stemming</td>
+<td>no</td>
+<td>stronger</td>
+<td>bag-of-words tasks where exact word form matters less</td>
+</tr>
+<tr>
+<td>Word tokenisation</td>
+<td>yes</td>
+<td>weaker for rare words</td>
+<td>classical word-level models</td>
+</tr>
+<tr>
+<td>Subword tokenisation</td>
+<td>partial</td>
+<td>stronger for unknown words</td>
+<td>multilingual and neural models</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L2 p.15-29; Wk2 p.13-18 -->
+
+<h2 id="revision-checklist">Revision Checklist<a class="headerlink" href="#revision-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Can define token, type, lexicon, and corpus.</li>
+<li>[ ] Can explain why sentence segmentation is not just splitting on punctuation.</li>
+<li>[ ] Can trace the basic BPE algorithm.</li>
+<li>[ ] Can choose between stemming, lemmatisation, and no normalisation for a task.</li>
+</ul>
+<!-- Sources: L2 p.3-32; Wk2 p.13-18 -->
+
+<h2 id="active-recall">Active Recall<a class="headerlink" href="#active-recall" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Why does vocabulary size keep growing as corpus size grows?</li>
+<li>What problem does subword tokenisation solve?</li>
+<li>When is stopword removal inappropriate?</li>
+<li>Why do irregular forms require lexical knowledge for lemmatisation?</li>
+</ol>
+<!-- Sources: L2 p.5, p.15-31 -->
+
+<h2 id="glossary">Glossary<a class="headerlink" href="#glossary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token</td>
+<td>One running instance in text.</td>
+</tr>
+<tr>
+<td>Type</td>
+<td>One distinct vocabulary item.</td>
+</tr>
+<tr>
+<td>BPE</td>
+<td>Byte-pair encoding, a frequency-based subword merge algorithm.</td>
+</tr>
+<tr>
+<td>Lemma</td>
+<td>A dictionary base form after removing inflection.</td>
+</tr>
+<tr>
+<td>Stem</td>
+<td>A stripped form produced by a stemming algorithm.</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L2 p.3-32; Wk2 p.13-18 -->
 
 
 
 
 
+
+
+  
+  
 
 
 

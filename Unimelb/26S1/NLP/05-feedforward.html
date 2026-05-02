@@ -1717,6 +1717,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1744,6 +1751,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1773,6 +1787,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1801,6 +1822,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1828,6 +1856,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1866,6 +1901,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -1884,6 +1926,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
       
@@ -1901,6 +1950,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#big-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Map
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#core-architecture" class="md-nav__link">
@@ -1990,6 +2061,61 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tutorial-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tutorial Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Comparisons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2020,6 +2146,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2047,6 +2180,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2076,6 +2216,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2103,6 +2250,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2445,7 +2599,36 @@
 
 
 <h1 id="05-feedforward-networks">05 Feedforward Networks<a class="headerlink" href="#05-feedforward-networks" title="Permanent link">&para;</a></h1>
+<h2 id="big-picture">Big Picture<a class="headerlink" href="#big-picture" title="Permanent link">&para;</a></h2>
+<p>Feedforward networks introduce neural modelling for NLP: inputs are represented as vectors, hidden layers learn nonlinear combinations, and output layers produce probabilities for labels or next words. They bridge classical feature-based classifiers and later sequence models.</p>
+<!-- Sources: L7 p.4-29; Wk5 p.10-15 -->
+
+<h2 id="learning-map">Learning Map<a class="headerlink" href="#learning-map" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prerequisite ideas: text classification, feature vectors, matrix multiplication, nonlinear activation, and probability outputs.</li>
+</ul>
+<!-- Sources: L7 p.4-8 -->
+<ul>
+<li>Core concepts: multilayer perceptron, hidden layer, sigmoid, softmax, negative log-likelihood, gradient descent, dropout, and neural language modelling.</li>
+</ul>
+<!-- Sources: L7 p.4-29 -->
+<ul>
+<li>Main procedures: build an input vector, compute hidden activations, produce output probabilities, train by gradient descent, and regularise.</li>
+</ul>
+<!-- Sources: L7 p.4-10 -->
+<ul>
+<li>Tutorial skills: identify input/output shapes for document classification, language modelling, and POS tagging.</li>
+</ul>
+<!-- Sources: L7 p.12-28; Wk5 p.10-15 -->
+<ul>
+<li>Common traps: treating neural models as feature-free, forgetting regularisation, or ignoring the fixed-window limitation in feedforward language models.</li>
+</ul>
+<!-- Sources: L7 p.12-29 -->
+
 <h2 id="core-architecture">Core architecture<a class="headerlink" href="#core-architecture" title="Permanent link">&para;</a></h2>
+<p><img alt="A feedforward network composes input, hidden, and output layers without recurrence." src="assets/figures/05-feedforward-l7-p12-network.png" /></p>
+<!-- Figure source: L7 p.12 -->
+
 <ul>
 <li>Feedforward neural networks are also called multilayer perceptrons.</li>
 </ul>
@@ -2473,6 +2656,9 @@ h=\tanh(Wx+b)
 <!-- Sources: L7 p.7 -->
 
 <h2 id="training-and-regularisation">Training and regularisation<a class="headerlink" href="#training-and-regularisation" title="Permanent link">&para;</a></h2>
+<p><img alt="Feedforward training repeatedly computes predictions, losses, gradients, and parameter updates." src="assets/figures/05-feedforward-l7-p22-training.png" /></p>
+<!-- Figure source: L7 p.22 -->
+
 <ul>
 <li>Training maximises the probability of the correct outputs or, equivalently, minimises negative log-likelihood.</li>
 </ul>
@@ -2569,11 +2755,137 @@ y=\mathrm{softmax}(W_3 h)
 </table>
 <!-- Sources: L7 p.29; Wk5 p.10-15 -->
 
+<h2 id="tutorial-patterns">Tutorial Patterns<a class="headerlink" href="#tutorial-patterns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>What to Recognize</th>
+<th>How to Solve</th>
+<th>Common Mistake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Output choice</td>
+<td>binary vs multiclass prediction</td>
+<td>use sigmoid for binary and softmax for multiclass</td>
+<td>using independent sigmoid outputs for one-of-many labels without reason</td>
+</tr>
+<tr>
+<td>Dropout question</td>
+<td>asks about overfitting</td>
+<td>explain random hidden-unit masking during training</td>
+<td>applying dropout as a deterministic test-time deletion</td>
+</tr>
+<tr>
+<td>Feedforward LM</td>
+<td>fixed prior context window</td>
+<td>concatenate previous word embeddings and predict next word</td>
+<td>assuming it can use arbitrary long context</td>
+</tr>
+<tr>
+<td>Neural POS tagging</td>
+<td>current tag as classification</td>
+<td>use word/tag embeddings as local context features</td>
+<td>forgetting previous tag decisions affect features</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L7 p.7-29; Wk5 p.10-15 -->
+
+<h2 id="key-comparisons">Key Comparisons<a class="headerlink" href="#key-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Model family</th>
+<th>Context handling</th>
+<th>Representation</th>
+<th>Main limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classical classifier</td>
+<td>hand-designed features</td>
+<td>sparse or engineered vectors</td>
+<td>limited learned representation</td>
+</tr>
+<tr>
+<td>Feedforward NN</td>
+<td>fixed input window</td>
+<td>learned hidden features</td>
+<td>no recurrent state over arbitrary length</td>
+</tr>
+<tr>
+<td>Feedforward neural LM</td>
+<td>fixed previous tokens</td>
+<td>learned embeddings</td>
+<td>context length is still fixed</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L7 p.12-29 -->
+
+<h2 id="revision-checklist">Revision Checklist<a class="headerlink" href="#revision-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Can describe an MLP as layers of weighted nonlinear transformations.</li>
+<li>[ ] Can explain when sigmoid and softmax are used.</li>
+<li>[ ] Can explain dropout as training-time regularisation.</li>
+<li>[ ] Can describe how a feedforward neural language model predicts the next word.</li>
+</ul>
+<!-- Sources: L7 p.4-29 -->
+
+<h2 id="active-recall">Active Recall<a class="headerlink" href="#active-recall" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Why do feedforward neural LMs generalise better than count tables for similar words?</li>
+<li>What role does the hidden layer play?</li>
+<li>Why does dropout reduce reliance on particular neurons?</li>
+<li>What fixed-window limitation remains in feedforward language modelling?</li>
+</ol>
+<!-- Sources: L7 p.4-29; Wk5 p.10-15 -->
+
+<h2 id="glossary">Glossary<a class="headerlink" href="#glossary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MLP</td>
+<td>Multilayer perceptron, a feedforward neural network.</td>
+</tr>
+<tr>
+<td>Hidden layer</td>
+<td>Intermediate nonlinear representation layer.</td>
+</tr>
+<tr>
+<td>Softmax</td>
+<td>Function that maps scores to a probability distribution over classes.</td>
+</tr>
+<tr>
+<td>Dropout</td>
+<td>Randomly zeroing activations during training for regularisation.</td>
+</tr>
+<tr>
+<td>Embedding</td>
+<td>Dense learned vector representation for a token or symbol.</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L7 p.4-29 -->
 
 
 
 
 
+
+
+  
+  
 
 
 

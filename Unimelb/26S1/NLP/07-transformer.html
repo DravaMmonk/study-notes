@@ -1717,6 +1717,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1744,6 +1751,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1773,6 +1787,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1800,6 +1821,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1829,6 +1857,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1857,6 +1892,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1884,6 +1926,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1922,6 +1971,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -1940,6 +1996,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
       
@@ -1957,6 +2020,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#big-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Map
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#why-transformers-replaced-recurrent-models" class="md-nav__link">
@@ -2035,6 +2120,61 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tutorial-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tutorial Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Comparisons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2065,6 +2205,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2092,6 +2239,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2434,6 +2588,32 @@
 
 
 <h1 id="07-transformer">07 Transformer<a class="headerlink" href="#07-transformer" title="Permanent link">&para;</a></h1>
+<h2 id="big-picture">Big Picture<a class="headerlink" href="#big-picture" title="Permanent link">&para;</a></h2>
+<p>Transformers replace recurrent state with attention over token representations, allowing much more parallel sequence processing. This architecture is the direct technical foundation for BERT, GPT, T5, and the later large language models.</p>
+<!-- Sources: L9 p.2-4, p.34; W6 p.3-6; W7 p.5-8; Manning 2022 p.130 -->
+
+<h2 id="learning-map">Learning Map<a class="headerlink" href="#learning-map" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prerequisite ideas: embeddings, neural networks, sequence modelling, and matrix multiplication.</li>
+</ul>
+<!-- Sources: L9 p.8-14 -->
+<ul>
+<li>Core concepts: self-attention, query/key/value projections, scaled dot-product attention, multi-head attention, residual connections, layer normalisation, positional embeddings, and causal masking.</li>
+</ul>
+<!-- Sources: L9 p.8-34; W6 p.3-6; W7 p.5-8 -->
+<ul>
+<li>Main procedures: compute attention weights, combine value vectors, run multiple heads, add feedforward/residual/layer-norm blocks, and inject position information.</li>
+</ul>
+<!-- Sources: L9 p.11-29; W6 p.3-6 -->
+<ul>
+<li>Tutorial skills: distinguish attention, self-attention, and cross-attention; explain decoder-only masking.</li>
+</ul>
+<!-- Sources: W7 p.7-8 -->
+<ul>
+<li>Common traps: forgetting that pure attention has no order information, confusing bidirectional encoder attention with causal decoder attention, or treating attention as inherently sequential.</li>
+</ul>
+<!-- Sources: L9 p.27-32; W7 p.7-8 -->
+
 <h2 id="why-transformers-replaced-recurrent-models">Why transformers replaced recurrent models<a class="headerlink" href="#why-transformers-replaced-recurrent-models" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Removing recurrent state transfer between positions makes sequence processing much easier to parallelise.</li>
@@ -2445,6 +2625,9 @@
 <!-- Sources: L9 p.34; Manning 2022 p.130 -->
 
 <h2 id="self-attention">Self-attention<a class="headerlink" href="#self-attention" title="Permanent link">&para;</a></h2>
+<p><img alt="Scaled dot-product attention compares queries with keys, normalises scores, and combines values." src="assets/figures/07-transformer-l9-p13-scaled-dot-product.png" /></p>
+<!-- Figure source: L9 p.13 -->
+
 <ul>
 <li>Self-attention builds a new representation for each token by comparing it with other tokens in the same sequence.</li>
 </ul>
@@ -2475,6 +2658,9 @@
 <!-- Sources: L9 p.15-16; JM3 Ch.8 multi-head attention -->
 
 <h2 id="transformer-block">Transformer block<a class="headerlink" href="#transformer-block" title="Permanent link">&para;</a></h2>
+<p><img alt="A transformer block combines multi-head attention, feedforward layers, residual connections, and layer normalisation." src="assets/figures/07-transformer-l9-p20-block.png" /></p>
+<!-- Figure source: L9 p.20 -->
+
 <table>
 <thead>
 <tr>
@@ -2517,6 +2703,9 @@
 <!-- Sources: L9 p.23 -->
 
 <h2 id="positional-embeddings">Positional embeddings<a class="headerlink" href="#positional-embeddings" title="Permanent link">&para;</a></h2>
+<p><img alt="Positional embeddings inject order information into otherwise permutation-insensitive attention." src="assets/figures/07-transformer-l9-p28-position.png" /></p>
+<!-- Figure source: L9 p.28 -->
+
 <ul>
 <li>Pure attention is permutation-insensitive, so order information must be injected separately.</li>
 </ul>
@@ -2554,11 +2743,143 @@
 </ul>
 <!-- Sources: L9 p.34; Manning 2022 p.130 -->
 
+<h2 id="tutorial-patterns">Tutorial Patterns<a class="headerlink" href="#tutorial-patterns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>What to Recognize</th>
+<th>How to Solve</th>
+<th>Common Mistake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q/K/V explanation</td>
+<td>asks what attention components mean</td>
+<td>query is what is looking, key is what is compared, value is retrieved information</td>
+<td>treating Q, K, V as unrelated token types</td>
+</tr>
+<tr>
+<td>Self vs cross attention</td>
+<td>asks where Q/K/V come from</td>
+<td>self-attention uses same sequence; cross-attention uses Q from one sequence and K/V from another</td>
+<td>calling all attention self-attention</td>
+</tr>
+<tr>
+<td>Positional embeddings</td>
+<td>asks why order is needed</td>
+<td>attention alone is permutation-insensitive</td>
+<td>assuming token order is automatic</td>
+</tr>
+<tr>
+<td>Decoder-only masking</td>
+<td>asks what tokens can be attended to</td>
+<td>causal mask blocks future tokens</td>
+<td>allowing future tokens during language-model training</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L9 p.8-32; W7 p.7-8 -->
+
+<h2 id="key-comparisons">Key Comparisons<a class="headerlink" href="#key-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Context mechanism</th>
+<th>Parallelism</th>
+<th>Typical role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RNN</td>
+<td>recurrent state</td>
+<td>limited by sequence order</td>
+<td>earlier sequence modelling</td>
+</tr>
+<tr>
+<td>Transformer encoder</td>
+<td>bidirectional self-attention</td>
+<td>high</td>
+<td>understanding and representation</td>
+</tr>
+<tr>
+<td>Transformer decoder</td>
+<td>masked self-attention</td>
+<td>high during training</td>
+<td>autoregressive generation</td>
+</tr>
+<tr>
+<td>Encoder-decoder transformer</td>
+<td>encoder self-attention plus decoder cross-attention</td>
+<td>high</td>
+<td>conditional generation such as translation</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L9 p.2-34; W7 p.7-8 -->
+
+<h2 id="revision-checklist">Revision Checklist<a class="headerlink" href="#revision-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Can write the scaled dot-product self-attention formula.</li>
+<li>[ ] Can explain why multi-head attention is useful.</li>
+<li>[ ] Can explain the roles of residual connections and layer normalisation.</li>
+<li>[ ] Can explain why positional embeddings are necessary.</li>
+</ul>
+<!-- Sources: L9 p.8-34; W6 p.3-6; W7 p.5-8 -->
+
+<h2 id="active-recall">Active Recall<a class="headerlink" href="#active-recall" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Why are transformers easier to parallelise than RNNs?</li>
+<li>What does the softmax in attention normalise?</li>
+<li>Why does autoregressive training require masking?</li>
+<li>How does multi-head attention differ from a single attention computation?</li>
+</ol>
+<!-- Sources: L9 p.2-34; W6 p.3-6; W7 p.5-8 -->
+
+<h2 id="glossary">Glossary<a class="headerlink" href="#glossary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Query</td>
+<td>Vector representing what a token is looking for.</td>
+</tr>
+<tr>
+<td>Key</td>
+<td>Vector used for comparison against a query.</td>
+</tr>
+<tr>
+<td>Value</td>
+<td>Vector combined according to attention weights.</td>
+</tr>
+<tr>
+<td>Multi-head attention</td>
+<td>Multiple attention computations whose outputs are recombined.</td>
+</tr>
+<tr>
+<td>Positional embedding</td>
+<td>Vector added to represent token order.</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L9 p.8-34; W7 p.7 -->
 
 
 
 
 
+
+
+  
+  
 
 
 

@@ -1717,6 +1717,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1744,6 +1751,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1782,6 +1796,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -1800,6 +1821,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
       
@@ -1817,6 +1845,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#big-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Map
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#what-language-models-do" class="md-nav__link">
@@ -1917,6 +1967,61 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tutorial-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tutorial Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Comparisons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1947,6 +2052,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1974,6 +2086,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2003,6 +2122,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2030,6 +2156,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2059,6 +2192,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2087,6 +2227,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2114,6 +2261,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2456,6 +2610,32 @@
 
 
 <h1 id="02-n-gram-language-models">02 N-gram Language Models<a class="headerlink" href="#02-n-gram-language-models" title="Permanent link">&para;</a></h1>
+<h2 id="big-picture">Big Picture<a class="headerlink" href="#big-picture" title="Permanent link">&para;</a></h2>
+<p>N-gram language models estimate sequence probabilities from local word histories. They are simple, interpretable classical baselines that introduce core ideas reused later: probabilistic sequence modelling, sparse data, smoothing, and evaluation by held-out text likelihood.</p>
+<!-- Sources: L3 p.2-7, p.16-30; Wk3 p.17-27 -->
+
+<h2 id="learning-map">Learning Map<a class="headerlink" href="#learning-map" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prerequisite ideas: token sequences, conditional probability, counts, vocabulary, and sentence boundary symbols.</li>
+</ul>
+<!-- Sources: L3 p.6-9; Wk3 p.17 -->
+<ul>
+<li>Core concepts: chain rule, Markov approximation, maximum-likelihood estimation, sparsity, smoothing, backoff, interpolation, and Kneser-Ney.</li>
+</ul>
+<!-- Sources: L3 p.6-30; Wk3 p.18-27 -->
+<ul>
+<li>Main procedures: count n-grams, estimate conditional probabilities, smooth unseen events, and compare sentence probabilities.</li>
+</ul>
+<!-- Sources: L3 p.8-29; Wk3 p.17-27 -->
+<ul>
+<li>Tutorial skills: compute unigram/bigram/trigram probabilities with and without smoothing, and explain when lower-order models are used.</li>
+</ul>
+<!-- Sources: Wk3 p.17-27 -->
+<ul>
+<li>Common traps: omitting sentence boundary symbols, letting one unseen n-gram zero the full sentence, or confusing backoff with interpolation.</li>
+</ul>
+<!-- Sources: L3 p.9, p.16, p.25-29; Wk3 p.27 -->
+
 <h2 id="what-language-models-do">What language models do<a class="headerlink" href="#what-language-models-do" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Language models assign probabilities to text sequences so that more fluent alternatives receive higher scores.</li>
@@ -2467,6 +2647,9 @@
 <!-- Sources: L3 p.2-4 -->
 
 <h2 id="chain-rule-and-n-gram-approximation">Chain rule and n-gram approximation<a class="headerlink" href="#chain-rule-and-n-gram-approximation" title="Permanent link">&para;</a></h2>
+<p><img alt="The chain rule factorises a sentence probability into conditional token probabilities." src="assets/figures/02-ngram-l3-p08-chain-rule.png" /></p>
+<!-- Figure source: L3 p.8 -->
+
 <div class="arithmatex">\[
 P(w_1,\dots,w_m)=\prod_{i=1}^{m} P(w_i \mid w_1,\dots,w_{i-1})
 \]</div>
@@ -2518,6 +2701,9 @@ P(w_i \mid w_{i-n+1},\dots,w_{i-1})=\frac{C(w_{i-n+1},\dots,w_i)}{C(w_{i-n+1},\d
 <!-- Sources: L3 p.16 -->
 
 <h2 id="smoothing-families">Smoothing families<a class="headerlink" href="#smoothing-families" title="Permanent link">&para;</a></h2>
+<p><img alt="Smoothing reallocates probability mass so unseen n-grams do not receive zero probability." src="assets/figures/02-ngram-l3-p25-smoothing.png" /></p>
+<!-- Figure source: L3 p.25 -->
+
 <table>
 <thead>
 <tr>
@@ -2611,11 +2797,150 @@ P_{\mathrm{IN}}(w_i \mid w_{i-2},w_{i-1})
 </ul>
 <!-- Sources: L3 p.30 -->
 
+<h2 id="tutorial-patterns">Tutorial Patterns<a class="headerlink" href="#tutorial-patterns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>What to Recognize</th>
+<th>How to Solve</th>
+<th>Common Mistake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MLE probability</td>
+<td>asks for <code>P(word | context)</code> from counts</td>
+<td>divide full n-gram count by context count</td>
+<td>dividing by total corpus tokens for conditional probability</td>
+</tr>
+<tr>
+<td>Add-one/add-k smoothing</td>
+<td>unseen n-gram has zero count</td>
+<td>add smoothing mass to numerator and vocabulary-adjusted denominator</td>
+<td>forgetting to adjust denominator</td>
+</tr>
+<tr>
+<td>Backoff</td>
+<td>higher-order event is unseen</td>
+<td>drop to a lower-order model with redistributed mass</td>
+<td>mixing all orders regardless of seen/unseen status</td>
+</tr>
+<tr>
+<td>Interpolation</td>
+<td>formula contains lambda weights</td>
+<td>combine all selected n-gram orders</td>
+<td>treating it as only a fallback mechanism</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L3 p.8-29; Wk3 p.17-27 -->
+
+<h2 id="key-comparisons">Key Comparisons<a class="headerlink" href="#key-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Handles unseen n-grams?</th>
+<th>Uses lower-order information?</th>
+<th>Main idea</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MLE</td>
+<td>no</td>
+<td>no</td>
+<td>observed relative frequency</td>
+</tr>
+<tr>
+<td>Add-k</td>
+<td>yes</td>
+<td>no</td>
+<td>add a constant to every event</td>
+</tr>
+<tr>
+<td>Backoff</td>
+<td>yes</td>
+<td>only when needed</td>
+<td>use lower order if higher order is unavailable</td>
+</tr>
+<tr>
+<td>Interpolation</td>
+<td>yes</td>
+<td>always</td>
+<td>weighted mixture of several orders</td>
+</tr>
+<tr>
+<td>Kneser-Ney</td>
+<td>yes</td>
+<td>yes</td>
+<td>lower-order continuation behaviour matters</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L3 p.18-29; Wk3 p.24-27 -->
+
+<h2 id="revision-checklist">Revision Checklist<a class="headerlink" href="#revision-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Can write the chain rule factorisation.</li>
+<li>[ ] Can explain the n-gram Markov approximation.</li>
+<li>[ ] Can compute an MLE bigram probability.</li>
+<li>[ ] Can explain why smoothing is required.</li>
+<li>[ ] Can distinguish interpolation from backoff.</li>
+</ul>
+<!-- Sources: L3 p.6-30; Wk3 p.17-27 -->
+
+<h2 id="active-recall">Active Recall<a class="headerlink" href="#active-recall" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Why does a single unseen n-gram make an unsmoothed sentence probability zero?</li>
+<li>What does Kneser-Ney reward that raw unigram frequency misses?</li>
+<li>Why do larger n-gram orders increase sparsity?</li>
+<li>Why did neural language models improve on count-based n-grams?</li>
+</ol>
+<!-- Sources: L3 p.16-30; Wk3 p.24-27 -->
+
+<h2 id="glossary">Glossary<a class="headerlink" href="#glossary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Language model</td>
+<td>A model that assigns probabilities to token sequences.</td>
+</tr>
+<tr>
+<td>N-gram</td>
+<td>A contiguous sequence of <code>n</code> tokens.</td>
+</tr>
+<tr>
+<td>Smoothing</td>
+<td>Reassigning probability mass so unseen events can receive non-zero probability.</td>
+</tr>
+<tr>
+<td>Backoff</td>
+<td>Falling back to a lower-order model when a higher-order event is unseen.</td>
+</tr>
+<tr>
+<td>Interpolation</td>
+<td>Combining multiple n-gram orders with weights.</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L3 p.2-30 -->
 
 
 
 
 
+
+
+  
+  
 
 
 

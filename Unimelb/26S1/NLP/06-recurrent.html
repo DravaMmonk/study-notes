@@ -1717,6 +1717,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1744,6 +1751,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1773,6 +1787,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1800,6 +1821,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1829,6 +1857,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1856,6 +1891,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1894,6 +1936,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -1912,6 +1961,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
       
@@ -1929,6 +1985,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#big-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Map
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#why-recurrent-models-matter" class="md-nav__link">
@@ -2018,6 +2096,61 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tutorial-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tutorial Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Comparisons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2048,6 +2181,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2076,6 +2216,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2103,6 +2250,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2445,7 +2599,36 @@
 
 
 <h1 id="06-recurrent-networks">06 Recurrent Networks<a class="headerlink" href="#06-recurrent-networks" title="Permanent link">&para;</a></h1>
+<h2 id="big-picture">Big Picture<a class="headerlink" href="#big-picture" title="Permanent link">&para;</a></h2>
+<p>Recurrent networks model sequences by carrying a hidden state from one position to the next. They improve on fixed-window feedforward models by letting earlier context influence later predictions, but they are harder to train and less parallelisable than transformers.</p>
+<!-- Sources: L8 p.11-22, p.41; Wk5 p.16-18; JM3 Ch.13 BPTT discussion -->
+
+<h2 id="learning-map">Learning Map<a class="headerlink" href="#learning-map" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prerequisite ideas: feedforward networks, embeddings, gradient descent, and sequential language data.</li>
+</ul>
+<!-- Sources: L8 p.11-18 -->
+<ul>
+<li>Core concepts: recurrent state, unrolling, backpropagation through time, autoregressive generation, vanishing gradients, LSTM memory cell, and gates.</li>
+</ul>
+<!-- Sources: L8 p.11-41; Wk5 p.16-18 -->
+<ul>
+<li>Main procedures: update state for each token, predict outputs from state, unroll through time for training, and use gates to preserve or discard information.</li>
+</ul>
+<!-- Sources: L8 p.15-30 -->
+<ul>
+<li>Tutorial skills: explain why RNNs should beat n-grams in principle and why they struggle with long-range dependencies in practice.</li>
+</ul>
+<!-- Sources: L8 p.21; Wk5 p.16-18 -->
+<ul>
+<li>Common traps: assuming arbitrary-length state means perfect long-context learning, or forgetting RNN computation is sequential.</li>
+</ul>
+<!-- Sources: L8 p.21, p.41; Wk5 p.17-18 -->
+
 <h2 id="why-recurrent-models-matter">Why recurrent models matter<a class="headerlink" href="#why-recurrent-models-matter" title="Permanent link">&para;</a></h2>
+<p><img alt="A recurrent network reuses the same transition across sequence positions." src="assets/figures/06-recurrent-l8-p11-rnn.png" /></p>
+<!-- Figure source: L8 p.11 -->
+
 <ul>
 <li>Recurrent neural networks process arbitrarily long input sequences by repeatedly updating a state vector.</li>
 </ul>
@@ -2463,6 +2646,9 @@ y_i=\mathrm{softmax}(W_y s_i)
 <!-- Sources: L8 p.16 -->
 
 <h2 id="training">Training<a class="headerlink" href="#training" title="Permanent link">&para;</a></h2>
+<p><img alt="Backpropagation through time unfolds recurrent computation before applying gradient updates." src="assets/figures/06-recurrent-l8-p21-bptt.png" /></p>
+<!-- Figure source: L8 p.21 -->
+
 <ul>
 <li>Unrolling an RNN through time produces a deep computation graph with shared parameters across time steps.</li>
 </ul>
@@ -2507,6 +2693,9 @@ y_i=\mathrm{softmax}(W_y s_i)
 <!-- Sources: Wk5 p.17-18 -->
 
 <h2 id="lstm-memory-and-gates">LSTM memory and gates<a class="headerlink" href="#lstm-memory-and-gates" title="Permanent link">&para;</a></h2>
+<p><img alt="LSTM cells use gates to control what information is written, kept, and exposed." src="assets/figures/06-recurrent-l8-p39-lstm.png" /></p>
+<!-- Figure source: L8 p.39 -->
+
 <ul>
 <li>Long Short-term Memory networks address vanishing gradients by introducing a memory cell and gates that regulate information flow.</li>
 </ul>
@@ -2576,11 +2765,143 @@ h_t=o_t * \tanh(C_t)
 </ul>
 <!-- Sources: L8 p.41 -->
 
+<h2 id="tutorial-patterns">Tutorial Patterns<a class="headerlink" href="#tutorial-patterns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>What to Recognize</th>
+<th>How to Solve</th>
+<th>Common Mistake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RNN vs n-gram</td>
+<td>asks about context length</td>
+<td>RNN has a state summarising the prefix; n-gram uses fixed history</td>
+<td>claiming RNNs always remember all early tokens perfectly</td>
+</tr>
+<tr>
+<td>BPTT</td>
+<td>asks how recurrence is trained</td>
+<td>unroll through time and backpropagate through shared parameters</td>
+<td>treating each time step as unrelated parameters</td>
+</tr>
+<tr>
+<td>Vanishing gradient</td>
+<td>asks why long dependencies fail</td>
+<td>gradients shrink across many recurrent steps</td>
+<td>blaming only lack of data</td>
+</tr>
+<tr>
+<td>LSTM gates</td>
+<td>asks how memory is controlled</td>
+<td>map forget/input/output gates to discard/write/expose</td>
+<td>mixing up cell state and hidden output</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L8 p.15-30; Wk5 p.16-18 -->
+
+<h2 id="key-comparisons">Key Comparisons<a class="headerlink" href="#key-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Architecture</th>
+<th>Context mechanism</th>
+<th>Strength</th>
+<th>Weakness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Feedforward LM</td>
+<td>fixed context window</td>
+<td>parallel and simple</td>
+<td>cannot use arbitrary history</td>
+</tr>
+<tr>
+<td>Simple RNN</td>
+<td>recurrent hidden state</td>
+<td>sequence-length flexibility</td>
+<td>vanishing gradients</td>
+</tr>
+<tr>
+<td>LSTM</td>
+<td>gated memory cell</td>
+<td>better long-range signal preservation</td>
+<td>still sequential and slower to parallelise</td>
+</tr>
+<tr>
+<td>Bidirectional LSTM</td>
+<td>left and right context</td>
+<td>strong tagging representation</td>
+<td>unsuitable for left-to-right generation without future leakage</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L8 p.11-41; Wk5 p.16-18 -->
+
+<h2 id="revision-checklist">Revision Checklist<a class="headerlink" href="#revision-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Can write the recurrent state update.</li>
+<li>[ ] Can explain backpropagation through time.</li>
+<li>[ ] Can describe vanishing gradients.</li>
+<li>[ ] Can name the LSTM forget, input, and output gates.</li>
+</ul>
+<!-- Sources: L8 p.15-30; Wk5 p.16-18 -->
+
+<h2 id="active-recall">Active Recall<a class="headerlink" href="#active-recall" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Why is RNN generation autoregressive?</li>
+<li>What does the recurrent state represent?</li>
+<li>How do LSTMs address vanishing gradients?</li>
+<li>Why did transformers reduce the importance of RNNs for modern NLP?</li>
+</ol>
+<!-- Sources: L8 p.11-41 -->
+
+<h2 id="glossary">Glossary<a class="headerlink" href="#glossary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recurrent state</td>
+<td>A vector summarising the prefix processed so far.</td>
+</tr>
+<tr>
+<td>BPTT</td>
+<td>Backpropagation through time over an unrolled recurrent computation.</td>
+</tr>
+<tr>
+<td>Vanishing gradient</td>
+<td>Training signal shrinking across many steps.</td>
+</tr>
+<tr>
+<td>LSTM</td>
+<td>Long Short-term Memory network with gated memory.</td>
+</tr>
+<tr>
+<td>Bidirectional model</td>
+<td>A model that combines left-to-right and right-to-left context.</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L8 p.11-41; JM3 Ch.13 -->
 
 
 
 
 
+
+
+  
+  
 
 
 

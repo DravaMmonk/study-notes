@@ -1717,6 +1717,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1745,6 +1752,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -1772,6 +1786,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -1810,6 +1831,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
           <span class="md-nav__icon md-icon"></span>
         </label>
@@ -1828,6 +1856,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
       
@@ -1845,6 +1880,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#big-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#learning-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning Map
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#task-shape" class="md-nav__link">
@@ -1945,6 +2002,61 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tutorial-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tutorial Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Comparisons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1975,6 +2087,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2002,6 +2121,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2031,6 +2157,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2058,6 +2191,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2087,6 +2227,13 @@
   </span>
   
   
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
 
       </a>
     </li>
@@ -2114,6 +2261,13 @@
     
   </span>
   
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
   
 
       </a>
@@ -2456,6 +2610,32 @@
 
 
 <h1 id="03-text-classification">03 Text Classification<a class="headerlink" href="#03-text-classification" title="Permanent link">&para;</a></h1>
+<h2 id="big-picture">Big Picture<a class="headerlink" href="#big-picture" title="Permanent link">&para;</a></h2>
+<p>Text classification turns text into a fixed label decision. It is the first major supervised-learning setting in the course and introduces the full modelling workflow: dataset construction, annotation, feature design, model choice, development tuning, and held-out evaluation.</p>
+<!-- Sources: L4 p.3-13, p.30-31; Wk3 p.4-15 -->
+
+<h2 id="learning-map">Learning Map<a class="headerlink" href="#learning-map" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prerequisite ideas: labelled datasets, features, train/dev/test splits, probability, and vector representations.</li>
+</ul>
+<!-- Sources: L4 p.13, p.30; Wk3 p.4-8 -->
+<ul>
+<li>Core concepts: fixed label set, feature extraction, bias-variance trade-off, Naive Bayes, logistic regression, SVM, kNN, decision trees, random forests, and neural classifiers.</li>
+</ul>
+<!-- Sources: L4 p.3-29 -->
+<ul>
+<li>Main procedures: define labels, collect and annotate data, choose representations, train models, tune on dev data, and evaluate once on held-out test data.</li>
+</ul>
+<!-- Sources: L4 p.13, p.30 -->
+<ul>
+<li>Tutorial skills: choose suitable similarity metrics and model families for sparse text features.</li>
+</ul>
+<!-- Sources: Wk3 p.10-15 -->
+<ul>
+<li>Common traps: tuning on test data, using Euclidean distance blindly for text kNN, or choosing a model without considering data size and feature space.</li>
+</ul>
+<!-- Sources: L4 p.13, p.30-31; Wk3 p.10-15 -->
+
 <h2 id="task-shape">Task shape<a class="headerlink" href="#task-shape" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Text classification maps a document or text pair to one label from a fixed class set.</li>
@@ -2552,6 +2732,9 @@ P(C \mid F) \propto P(F \mid C) P(C)
 <!-- Sources: L4 p.16 -->
 
 <h2 id="logistic-regression">Logistic regression<a class="headerlink" href="#logistic-regression" title="Permanent link">&para;</a></h2>
+<p><img alt="Logistic regression maps weighted features to a class probability." src="assets/figures/03-classification-l4-p13-logistic-regression.png" /></p>
+<!-- Figure source: L4 p.13 -->
+
 <div class="arithmatex">\[
 P(c \mid f_1,\dots,f_m)=\frac{1}{Z}\exp\left(\sum_{i=0}^{m} w_i f_i\right)
 \]</div>
@@ -2573,6 +2756,9 @@ P(c \mid f_1,\dots,f_m)=\frac{1}{Z}\exp\left(\sum_{i=0}^{m} w_i f_i\right)
 <!-- Sources: L4 p.26 -->
 
 <h2 id="practical-notes-from-the-workshop">Practical notes from the workshop<a class="headerlink" href="#practical-notes-from-the-workshop" title="Permanent link">&para;</a></h2>
+<p><img alt="Classification evaluation compares predicted labels against gold labels." src="assets/figures/03-classification-l4-p30-evaluation.png" /></p>
+<!-- Figure source: L4 p.30 -->
+
 <ul>
 <li>Text representation is the central difficulty in many classification tasks.</li>
 </ul>
@@ -2592,11 +2778,149 @@ P(c \mid f_1,\dots,f_m)=\frac{1}{Z}\exp\left(\sum_{i=0}^{m} w_i f_i\right)
 </ul>
 <!-- Sources: L4 p.31 -->
 
+<h2 id="tutorial-patterns">Tutorial Patterns<a class="headerlink" href="#tutorial-patterns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>What to Recognize</th>
+<th>How to Solve</th>
+<th>Common Mistake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Workflow question</td>
+<td>asks how to build a classifier</td>
+<td>describe task, corpus, labels, features, train/dev/test, model, evaluation</td>
+<td>skipping dev data or using test data for tuning</td>
+</tr>
+<tr>
+<td>Model comparison</td>
+<td>asks which classifier fits text data</td>
+<td>compare feature size, data size, speed, and assumptions</td>
+<td>choosing only by headline accuracy</td>
+</tr>
+<tr>
+<td>kNN text similarity</td>
+<td>sparse high-dimensional text vectors</td>
+<td>prefer cosine similarity when vector direction matters</td>
+<td>using Euclidean distance without justification</td>
+</tr>
+<tr>
+<td>Linear SVM text task</td>
+<td>many sparse features</td>
+<td>use a linear kernel as a strong baseline</td>
+<td>assuming nonlinear kernels are always better</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L4 p.13-31; Wk3 p.10-15 -->
+
+<h2 id="key-comparisons">Key Comparisons<a class="headerlink" href="#key-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Main assumption or mechanism</th>
+<th>Good fit</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Naive Bayes</td>
+<td>conditional feature independence</td>
+<td>small data, fast baseline</td>
+<td>correlated features violate assumption</td>
+</tr>
+<tr>
+<td>Logistic regression</td>
+<td>linear log-probability model</td>
+<td>probabilistic classification</td>
+<td>needs regularisation and scaling</td>
+</tr>
+<tr>
+<td>SVM</td>
+<td>margin-based separator</td>
+<td>sparse high-dimensional text</td>
+<td>multiclass and imbalance handling</td>
+</tr>
+<tr>
+<td>kNN</td>
+<td>nearest labelled examples</td>
+<td>simple multiclass baseline</td>
+<td>slow inference and sensitive feature space</td>
+</tr>
+<tr>
+<td>Neural network</td>
+<td>learned nonlinear features</td>
+<td>large datasets</td>
+<td>overfitting and tuning cost</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L4 p.16-29 -->
+
+<h2 id="revision-checklist">Revision Checklist<a class="headerlink" href="#revision-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Can define text classification as input text to fixed label.</li>
+<li>[ ] Can explain why dev and test data have different purposes.</li>
+<li>[ ] Can compare Naive Bayes, logistic regression, SVM, and kNN for text.</li>
+<li>[ ] Can explain why feature design matters in classical classifiers.</li>
+</ul>
+<!-- Sources: L4 p.3-31; Wk3 p.4-15 -->
+
+<h2 id="active-recall">Active Recall<a class="headerlink" href="#active-recall" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Why is the test set not used during model tuning?</li>
+<li>What independence assumption makes Naive Bayes simple?</li>
+<li>Why can cosine similarity be better than Euclidean distance for text vectors?</li>
+<li>What makes linear SVMs strong baselines for sparse text?</li>
+</ol>
+<!-- Sources: L4 p.13-31; Wk3 p.10-15 -->
+
+<h2 id="glossary">Glossary<a class="headerlink" href="#glossary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Label set</td>
+<td>The finite set of possible classes.</td>
+</tr>
+<tr>
+<td>Development set</td>
+<td>Data used to tune features, models, and hyperparameters.</td>
+</tr>
+<tr>
+<td>Test set</td>
+<td>Held-out data used for final evaluation.</td>
+</tr>
+<tr>
+<td>Feature</td>
+<td>A measurable property of the input used by a classifier.</td>
+</tr>
+<tr>
+<td>Regularisation</td>
+<td>A training constraint or penalty to reduce overfitting.</td>
+</tr>
+</tbody>
+</table>
+<!-- Sources: L4 p.3-31 -->
 
 
 
 
 
+
+
+  
+  
 
 
 
