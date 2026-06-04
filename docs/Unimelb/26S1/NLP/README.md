@@ -1,6 +1,6 @@
 # COMP90042 Natural Language Processing
 
-These notes summarise the course materials up to `L16 Parameter Efficient Tuning`, with reading-backed draft notes for later RLHF, multimodal, and retrieval topics.
+These notes summarise the course materials up to `L24 Guest Lecture`, including review material and assigned readings.
 
 ## Notes map
 
@@ -18,7 +18,11 @@ These notes summarise the course materials up to `L16 Parameter Efficient Tuning
 - [11 Prompting and Instruction Tuning](11-prompting-and-instruction-tuning.md)
 - [12 Parameter Efficient Tuning](12-parameter-efficient-tuning.md)
 - [13 RLHF and Alignment](13-rlhf-and-alignment.md)
-- [14 Multimodal and Retrieval-Augmented Language Models](14-multimodal-and-retrieval-augmented-lms.md)
+- [14 Multimodal Large Language Models](14-multimodal-large-language-models.md)
+- [15 Retrieval and Knowledge-Augmented LMs](15-retrieval-and-knowledge-augmented-lms.md)
+- [16 Bias and Ethics](16-bias-and-ethics.md)
+- [17 Subject Review](17-subject-review.md)
+- [18 Guest Lecture: AI Intro for Nontechnical Audiences](18-guest-lecture-ai-intro-nontech.md)
 
 ## Note policy
 
@@ -44,3 +48,4 @@ These notes summarise the course materials up to `L16 Parameter Efficient Tuning
 - [LLaVA-1.5 paper](https://openaccess.thecvf.com/content/CVPR2024/html/Liu_Improved_Baselines_with_Visual_Instruction_Tuning_CVPR_2024_paper.html)
 - [RETRO paper](https://proceedings.mlr.press/v162/borgeaud22a.html)
 - [KG-CoT paper](https://www.ijcai.org/proceedings/2024/734)
+- [EACL Ethics Tutorial](https://ethics.aclweb.org/tutorials/EACL_2023/)
