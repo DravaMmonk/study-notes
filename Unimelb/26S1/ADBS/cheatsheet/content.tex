@@ -1,0 +1,693 @@
+\begin{topic}{0. Keyword Index by Exam Term}
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+Category & Search these terms / go to sections\\
+\midrule
+DBMS \& Architecture & DBMS purpose, efficiency, reliability (1); centralised, distributed, cloud, grid, P2P, web (4)\\
+Storage \& I/O & HDD, SSD, seek, rotation, cache, buffer (2); RAID, availability, CRC, reliable write/message, WAL, ARIES, checkpoint (24--31)\\
+SQL \& Query & SQL, relational algebra, selectivity, cardinality, statistics, enumeration, heuristic, adaptive, rewrite, nested-loop join (5--9)\\
+Indexes \& Spatial & index choice, hash, B+ tree, bitmap, R-tree, quadtree, EXPLAIN, fragmentation (10--13)\\
+Transactions & ACID, isolation, flat transaction, savepoint, cursor, nested transaction, parent/child, TP monitor, 2PC (14--16, 32)\\
+Concurrency \& Locks & dirty read, lost update, conflict, dependency graph, serialisability, wormhole, S/X, 2PL, isolation degree, deadlock, intention lock, update lock, OCC, snapshot (17--23, 33)\\
+Distributed Consistency & distributed transaction, replication, available copies, CAP, eventual consistency, BASE, PACELC (32--35)\\
+Backup \& Warehouse & remote backup, one-safe/two-safe, full/differential/incremental backup, data warehouse, ETL (36--37)\\
+\bottomrule
+\end{tabularx}
+\end{topic}
+
+\begin{topic}{1. DBMS Purpose, Efficiency and Reliability}
+\points
+\begin{itemize}
+  \item A DBMS stores an integrated collection of data and provides controlled, efficient and reliable access.
+  \item \kw{Efficiency}: response time and throughput; affected by storage, I/O, memory, architecture, data model, indexes and query plans.
+  \item \kw{Effectiveness}: concurrent users obtain correct results, not merely fast results.
+  \item \kw{Security/reliability}: access control, transactions, recovery, replication and fault tolerance preserve data and service.
+\end{itemize}
+\answer State the required property, identify the workload/failure/concurrency assumption, name the mechanism, then explain its benefit and cost.
+\worked ``The system must serve many users after a node failure'' requires availability and fault tolerance; replication helps, but adds coordination and consistency cost.
+\end{topic}
+
+\begin{formula}{2. HDD, SSD, Cache and Buffer I/O}
+\[
+T_{\mathrm{HDD}}=T_{\mathrm{seek}}+T_{\mathrm{rotation}}
++\frac{\mathrm{transfer\ size}}{\mathrm{bandwidth}},
+\qquad
+T_{\mathrm{SSD}}=\frac{\mathrm{transfer\ size}}{\mathrm{bandwidth}}
+\]
+\begin{itemize}
+  \item Seek moves the head to a track; rotation waits for the sector; transfer moves the bytes.
+  \item Large sequential I/O is dominated by transfer time; small random I/O is dominated by seek/rotation.
+\end{itemize}
+\worked With seek \(12\) ms, rotation \(4\) ms, bandwidth \(4\) MB/s: \(8\) MB takes \(12+4+2000=2016\) ms; \(8\) KB takes about \(18\) ms. The small request spends most of its time positioning the disk.
+\[
+EA=HC+(1-H)M,\qquad
+EA_{\mathrm{buffer}}=H_BB_C+(1-H_B)D
+\]
+\begin{itemize}
+  \item Weight hit and miss paths by probability; compare the final effective time, not hit ratio alone.
+  \item Tutorial example: \(0.5C+0.5(100C)=50.5C\), while \(0.9C+0.1(400C)=40.9C\); the larger-cache machine is faster despite slower memory.
+\end{itemize}
+\trap{Keep units consistent. Convert MB/s to KB/ms before adding millisecond latencies.}
+\end{formula}
+
+\begin{topic}{3. NoSQL: Key-Value, Document, Column, Graph}
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+Model & Strength and suitable workload & Limitation\\
+\midrule
+Key--value & \(\text{key}\arr\text{value}\); direct lookup, carts, sessions, caching; simple and scalable & Weak joins, relationships and rich predicates\\
+Document & JSON-like, nested and varying fields; articles/catalogues and evolving semi-structured records & Cross-document joins and constraints are weaker\\
+Column-based & Reads selected columns efficiently; large analytical scans and aggregation & Less natural for frequent whole-record retrieval/update\\
+Graph & Vertices and edges; multi-hop traversal, recommendations, friend-of-friend and paths & Extra complexity when relationships are not central\\
+\bottomrule
+\end{tabularx}
+\begin{itemize}
+  \item Select from the \textbf{dominant access pattern}, not merely the input format.
+  \item NoSQL commonly trades some relational joins, constraints, query flexibility or consistency guarantees for schema flexibility and horizontal scale.
+\end{itemize}
+\answer Identify the data structure and main operations; choose the model; explain the matching strength; finish with one lost capability.
+\trap{NoSQL means ``Not Only SQL'', not ``no SQL''.}
+\end{topic}
+
+\begin{topic}{4. Architecture: Centralised, Distributed, Cloud}
+\begin{itemize}
+  \item \kw{Centralised}: simple administration and consistency; limited scale and one failure domain.
+  \item \kw{Distributed}: owned sites share data/work; locality, scale and fault tolerance improve, but global coordination is harder.
+  \item \kw{Cloud}: elastic third-party infrastructure and low initial capital cost; privacy, control, vendor dependence and recurring cost matter.
+  \item \kw{Grid}: autonomous nodes contribute resources to a task. \kw{P2P}: dynamic decentralised membership. \kw{Web}: globally distributed data with different owners.
+\end{itemize}
+\worked Startup with one office, little capital and expected rapid growth: cloud is attractive because capacity can scale without building data centres. A large organisation requiring direct ownership/privacy across its own cities may prefer a distributed database.
+\answer Compare scale, ownership, privacy, availability, budget and administration. Borderline answers are acceptable when the trade-off is explicit.
+\end{topic}
+
+\begin{topic}{5. SQL, Relational Algebra and Query Pipeline}
+\[
+\begin{aligned}
+\text{SQL}&\arr\text{parse/translate}\arr\text{relational algebra}\\
+&\arr\text{physical plans}\arr\text{lowest estimated cost}\arr\text{execute}
+\end{aligned}
+\]
+\begin{itemize}
+  \item Selection \(\sigma\) chooses rows; projection \(\pi\) chooses columns; product \(\times\) forms all pairs; theta join \(\bowtie_\theta\) applies a condition; natural join \(\bowtie\) uses common attributes.
+  \item Example: \texttt{SELECT name FROM E WHERE salary>80000}
+  becomes \(\pi_{\mathrm{name}}(\sigma_{\mathrm{salary}>80000}(E))\).
+  \item Logical operators say \emph{what}; heap/index scan and nested-loop/hash/merge join say \emph{how}.
+  \item Equivalent expressions return the same result but may create very different intermediate sizes.
+\end{itemize}
+\answer Identify the query result, map clauses to logical operators, propose a useful rewrite, then discuss the physical access path.
+\end{topic}
+
+\begin{formula}{6. Selectivity, Cardinality and Statistics}
+\[
+|\sigma_\theta(R)|\approx RF(\theta)|R|,
+\qquad
+RF(A=v)\approx\frac{1}{V(A,R)}
+\]
+\[
+RF(\theta_1\land\theta_2)\approx RF(\theta_1)RF(\theta_2)
+\quad\text{if independent}
+\]
+\[
+|R\bowtie_{A=B}S|\approx
+\frac{|R||S|}{\max(V(A,R),V(B,S))}
+\]
+\begin{itemize}
+  \item \(V(A,R)\): distinct \(A\)-values. Keep tuple count \(n_R\), page count \(b_R\) and distinct count \(V(A,R)\) separate.
+  \item Uniformity and independence are assumptions. Skew and correlated predicates can make estimates wrong.
+  \item Statistics guide plan selection; sampling and histograms improve estimates.
+\end{itemize}
+\worked After many insertions/deletions, total rows may be unchanged but distributions/statistics may be stale. The optimiser then misestimates selectivity and chooses a formerly good but now poor plan. Refresh/recompile statistics and inspect the new plan.
+\end{formula}
+
+\begin{topic}{7. Query Optimisation: Enumeration, Heuristic, Adaptive}
+\begin{itemize}
+  \item \kw{Exhaustive enumeration}: cost many equivalent plans and select the cheapest. Best justified for expensive, complex multi-join queries; optimisation overhead/search space can be large.
+  \item \kw{Heuristic}: apply rules such as early selection/projection and restrictive operations first. Fast and suitable for simple queries, but not guaranteed globally optimal.
+  \item \kw{Adaptive}: execute part of a cost-based plan, observe actual cardinality and choose/revise the remaining plan. Useful when estimates are uncertain.
+  \item Real systems often use heuristics to prune the search space before cost-based comparison.
+\end{itemize}
+\worked Tutorial scenarios: a single-table query with two predicates can use heuristics; a five-table join benefits from cost-based enumeration, possibly adaptive re-estimation. A purely heuristic plan has no cost model to adapt in the same sense.
+\answer Compare query complexity, optimisation time, estimation uncertainty and the value of runtime feedback.
+\end{topic}
+
+\begin{topic}{8. Query Rewriting, Materialisation and Tuning}
+\begin{itemize}
+  \item Push selective predicates down: \(\sigma_c(R\bowtie S)\equiv\sigma_c(R)\bowtie S\) when \(c\) uses only \(R\).
+  \item Push projections down to reduce tuple width, but retain join, filter and output attributes.
+  \item Optimise the complete plan; the cheapest isolated operator may create an expensive intermediate result.
+  \item Refresh statistics; add an appropriate index; parameterise/rewrite repeated queries; force a plan only when the optimiser repeatedly fails.
+  \item Store derived/pre-joined data when computation is frequent and source changes are infrequent; pay refresh/storage cost.
+\end{itemize}
+\worked If \(R\) has one million rows but only \(1\%\) satisfy \(R.status='active'\), filtering before the join reduces the candidate rows to about \(10{,}000\).
+\end{topic}
+
+\begin{formula}{9. Nested-Loop Join Cost: Tuple vs Page}
+Let \(r\) be outer, \(s\) inner, \(n_r\) outer tuples and \(b_r,b_s\) page counts.
+\[
+\text{Tuple NLJ:}\quad I/O=b_r+n_rb_s,\qquad seeks=b_r+n_r
+\]
+\[
+\text{Page NLJ:}\quad I/O=b_r+b_rb_s,\qquad seeks=2b_r
+\]
+\begin{itemize}
+  \item Test both orientations: making the smaller relation outer often reduces repeated inner scans.
+  \item Page NLJ reuses one outer page across an inner scan and is normally much cheaper than tuple NLJ.
+  \item Merge join is attractive for ordered inputs; hash join for equality; neither choice should be justified without predicate/order/size assumptions.
+\end{itemize}
+\answer Define \(n\) versus \(b\), substitute carefully, evaluate both orientations, and state the cheaper plan.
+\trap{Under the course convention, tables currently in main memory do not change the optimiser's page-cost calculation. This is a sample-exam rule.}
+\end{formula}
+
+\begin{solidtopic}{10. Index Choice: Hash, B+ Tree, Bitmap, R-tree}
+\begin{itemize}
+  \item \kw{Equality on ID/name}: Hash or B+ tree. Hash gives direct bucket lookup; B+ tree also supports ordered lookup.
+  \item \kw{Range/inequality/order}: B+ tree. Ordered leaves support range scans and sorted traversal.
+  \item \kw{Low-cardinality filters}: Bitmap. Compact bit vectors support fast AND/OR over values such as status/state.
+  \item \kw{Region/distance/nearest neighbour}: R-tree or quadtree. Spatial partitions/boxes prune irrelevant regions.
+  \item \kw{Aggregate over every row}: usually no filtering index. Every record still contributes, so a scan may be cheaper.
+\end{itemize}
+\begin{itemize}
+  \item Always give \textbf{index type + search key + predicate + reason}.
+  \item Sample exam: income \(<70{,}000\) \arr B+ tree on income; within 5 km \arr R-tree/quadtree on location; average income \arr no filtering index.
+  \item A full scan may win for a small table, low-selectivity predicate or query needing most rows.
+  \item Clustered B+ tree helps when adjacent key values qualify; unclustered indexes may cause many random page reads.
+  \item Composite B+ tree \((A,B,C)\): use leftmost prefixes \(A\), \(A,B\), \(A,B,C\); \(B\) alone normally cannot seek.
+  \item \kw{Answer pattern}: state access pattern/selectivity, name the index, explain avoided pages/work, then mention write and space cost.
+  \item Equality-only unique lookup favours hash; use B+ tree when range/order/prefix matters. Bitmap suits read-mostly analytics; frequent updates make maintenance unattractive.
+\end{itemize}
+\worked \texttt{WHERE salary > 0}: likely no filtering index because most rows qualify. \texttt{WHERE id=?}: hash/B+ tree because it is highly selective.
+\answer ``Use a B+ tree with search key income because the predicate defines an ordered range; the tree finds the first qualifying key and scans adjacent leaves.''
+\end{solidtopic}
+
+\begin{topic}{11. Index Costs, EXPLAIN, Fragmentation, Statistics}
+\begin{itemize}
+  \item Benefits: fewer page reads for selective lookup; ordered range access; possible join/order/group support; a covering index may avoid base-table reads.
+  \item Costs: disk and buffer-pool space; every INSERT adds entries; DELETE removes them; indexed-column UPDATE removes/reinserts entries; writes and administration become slower.
+  \item Splits, merges, sparse pages and fragmentation can arise; unused/duplicate indexes provide cost without benefit.
+\end{itemize}
+\why An indexed UPDATE may still use the index to locate target rows quickly. It then pays base-page writes, logging/locking and index maintenance; if the indexed key changes, the old entry is deleted and a new entry inserted.
+\kw{Diagnosing slowdown after insert/delete}
+\begin{itemize}
+  \item \textbf{Stale statistics}: distributions changed, so cardinality estimates and the selected plan are wrong. Refresh statistics and compare estimates with actual rows.
+  \item \textbf{Fragmentation/sparse pages}: splits and deletions increased pages or random I/O. Measure it, then reorganise/rebuild when material.
+  \item The unchanged row count does not imply unchanged distribution, page layout, clustering or cache behaviour.
+\end{itemize}
+\texttt{CREATE INDEX idx ON R(A); \quad DROP INDEX idx;}
+
+\texttt{SELECT DISTINCT title FROM titles;}
+
+\texttt{SELECT COUNT(title) FROM titles WHERE title='Engineer';}
+\begin{itemize}
+  \item \texttt{EXPLAIN}: estimated access method, index, rows, filtering and join order.
+  \item \texttt{EXPLAIN ANALYZE}: executes and adds actual rows, time and loops. Large estimate error suggests stale statistics/skew/correlation.
+  \item \texttt{Using where}: filtering occurs. \texttt{Using index}: possibly covering; it does not prove a small scan.
+\end{itemize}
+\answer Compare the same query/data/cache conditions. Identify the changed operator, first large estimated-versus-actual row divergence, avoided pages/loops/sort, and measured runtime/buffer effect. Do not claim improvement from the index name alone.
+\end{topic}
+
+\begin{formula}{12. B+ Tree: Height, Search, Insert/Delete}
+\[
+h_{\max}=\left\lceil\log_{\lceil n/2\rceil}K\right\rceil
+\]
+\begin{itemize}
+  \item \(n\): maximum children; \(K\): search-key values. High fan-out keeps the tree shallow; every root-to-leaf path has equal depth.
+  \item Internal nodes route; linked leaves contain ordered keys/record pointers.
+  \item Equality descends to one leaf. Range finds the first key then follows leaf links.
+  \item Insert: leaf insertion, split on overflow, propagate separator; root split increases height. Delete: borrow/redistribute, otherwise merge and propagate.
+\end{itemize}
+\worked \(K=10{,}000{,}000\): \(n=4\Rightarrow\lceil\log_2K\rceil=24\); \(n=100\Rightarrow\lceil\log_{50}K\rceil=5\). For key ``Crick'', compare at each separator, descend left of Mozart and Einstein, find Crick in the leaf, then follow its record pointer.
+\end{formula}
+
+\begin{topic}{13. Hash, Bitmap, Quadtree and R-tree}
+\kw{Hash}
+\begin{itemize}
+  \item Hash key to bucket; excellent equality performance when distribution is uniform; no useful key order for ranges.
+\end{itemize}
+\kw{Bitmap}
+\begin{itemize}
+  \item One bitmap per value, one bit per record. For states \([VIC,NSW,WA,VIC,NSW]\):
+  \(VIC=10010,\ NSW=01001,\ WA=00100\).
+  \item Combine predicates with bitwise operations, e.g. \(VIC\lor NSW=11011\).
+\end{itemize}
+\kw{Quadtree/R-tree}
+\begin{itemize}
+  \item Quadtree recursively divides space. R-tree groups objects in minimum bounding rectangles.
+  \item Best-first nearest neighbour: prioritise the node/object with smallest minimum distance; stop only when the nearest queued object cannot be beaten.
+  \item Overlapping R-tree boxes may require multiple branches. Tutorial example: point \(i\) lies in BB1 and BB3, so both zero-distance branches must be expanded; object G is then nearest.
+\end{itemize}
+\end{topic}
+
+\begin{topic}{14. Transactions, ACID and Isolation}
+\begin{itemize}
+  \item \kw{Atomicity}: all actions occur or none. \kw{Consistency}: constraints hold before/after a correct transaction.
+  \item \kw{Isolation}: concurrent execution has the effect of some serial execution, without requiring literal one-at-a-time execution.
+  \item \kw{Durability}: committed effects survive failure.
+  \item Serial execution is correct but wastes parallel CPU/I/O and lets long transactions block everyone; isolation seeks serial-equivalent results with concurrency.
+\end{itemize}
+\kw{Distinguish the properties}: atomicity asks whether all effects survive together; isolation asks what concurrent/intermediate effects others may observe; durability asks whether a committed result survives a crash.
+\worked A transfer debits \(A\) and credits \(B\). Atomicity prevents debit without credit; consistency preserves the total-balance invariant; isolation hides the half-completed transfer; durability preserves both updates after commit.
+\answer Define the property, name the anomaly/failure it prevents, then explain how concurrency/recovery mechanisms enforce it.
+\end{topic}
+
+\begin{topic}{15. Flat Transactions, Savepoints and Cursor}
+\begin{itemize}
+  \item \kw{Flat}: one unit; failure can discard all work. Poor for a million-row bonus update because one late error wastes a long transaction.
+  \item \kw{Savepoints}: rollback to an intermediate state; earlier work is retained but becomes durable only at final commit.
+  \item \kw{Chained}: linked committed segments. \kw{Nested}: parent invokes subtransactions.
+\end{itemize}
+\texttt{BEGIN WORK; \quad COMMIT WORK; \quad ROLLBACK WORK;}
+\begin{itemize}
+  \item Tutorial trace rule: restore the exact variable/database state recorded at the named savepoint, then continue from there.
+  \item A \kw{singleton SELECT} returns one row directly; a \kw{cursor} points into a multi-row result and fetches rows one at a time.
+\end{itemize}
+\worked If a rollback returns to savepoint 2 where \(AccBalance1=100\), later changes setting it to \(0\) disappear; a second rollback to savepoint 2 restores \(100\) again.
+\end{topic}
+
+\begin{topic}{16. Nested Transactions, Parent/Child and TP Monitor}
+\kw{Nested rules}
+\begin{itemize}
+  \item Child commit is provisional: durable only when every ancestor commits.
+  \item If a subtransaction rolls back, all its descendants roll back.
+  \item Child changes become visible to its parent after child commit; parent objects are visible to children.
+\end{itemize}
+\worked If A, B and C commit but PARENT aborts, all roll back. If A, B and PARENT commit while C aborts, A/B/PARENT are durable and C is rolled back.
+\kw{TP monitor}
+\begin{itemize}
+  \item Integrates clients, services and heterogeneous DBMSs; coordinates communication, context, restart and global transaction work.
+  \item One process for every service is a bottleneck and concentrated failure point; distribution improves performance and fault containment.
+\end{itemize}
+\end{topic}
+
+\begin{topic}{17. Dirty Read, Lost Update and Conflict Types}
+\begin{itemize}
+  \item \kw{Dirty read}: read an uncommitted value that may be rolled back.
+  \item \kw{Unrepeatable read}: two reads of the same object see an intervening committed write.
+  \item \kw{Lost update}: one write overwrites a result computed from an earlier value by another transaction.
+\end{itemize}
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+Order on object \(O\) & Dependency\\
+\midrule
+\(W_i(O)\arr W_j(O)\) & write--write\\
+\(W_i(O)\arr R_j(O)\) & write--read\\
+\(R_i(O)\arr W_j(O)\) & read--write\\
+\(R_i(O)\arr R_j(O)\) & no conflict dependency\\
+\bottomrule
+\end{tabularx}
+\worked With \(B=50\), \(T_1:\times2,\times2\) and \(T_2:+10\): serial outcomes are \(210\) or \(240\). Interleaving after the first multiply can produce \(220\), which matches neither serial order and violates isolation.
+\end{topic}
+
+\begin{formula}{18. Dependency Graph, Serialisability, Wormhole}
+If \(T_i\) performs a conflicting action on \(O\) before \(T_j\):
+\[
+(T_i,O,T_j)\in DEP(H)
+\]
+\begin{enumerate}
+  \item Group actions by object and preserve time order.
+  \item Ignore read--read; add directed edges for W--W, W--R and R--W.
+  \item A directed cycle means no equivalent serial history. A DAG topological order gives a serial order; more than one topological order may be valid.
+\end{enumerate}
+\[
+Before(T)=\{U\mid U\leadsto T\},\qquad After(T)=\{U\mid T\leadsto U\}
+\]
+\[
+Before(T)\cap After(T)\ne\varnothing
+\iff T\text{ is in a cycle/wormhole}
+\]
+\worked Tutorial cycle \(T_1\arr T_3\arr T_2\arr T_1\) is not serialisable. Reversing the \(O_1\) edge gives \(T_3\arr T_2\arr T_1\), a valid serial order (independent \(T_5\) may be placed consistently).
+\worked If \(W_1(A)\) precedes \(R_2(A)\), add \(T_1\arr T_2\). If \(W_2(B)\) precedes \(R_1(B)\), add \(T_2\arr T_1\). The two-edge wormhole proves non-serialisability.
+\answer List edges with their object/conflict, draw/check the graph, state cycle or topological order, then conclude isolated/not isolated.
+\end{formula}
+
+\begin{topic}{19. S/X Locks, Well-Formedness and 2PL}
+\begin{tabularx}{\linewidth}{@{}lcc@{}}
+\toprule
+Current \(\backslash\) Request & S & X\\
+\midrule
+Free & \yes & \yes\\
+S & \yes & \no\\
+X & \no & \no\\
+\bottomrule
+\end{tabularx}
+\begin{itemize}
+  \item READ needs S or stronger; WRITE needs X.
+  \item \kw{Well formed}: every READ/WRITE/UNLOCK is covered by an earlier appropriate lock.
+  \item \kw{Two phase}: growing phase acquires locks; after the first unlock, shrinking begins and no new lock may be acquired.
+  \item If all transactions are well formed and two phase, every legal lock history is isolated. 2PL ensures serialisability but may deadlock.
+\end{itemize}
+\kw{Three separate checks}: legal means currently granted locks are compatible; well formed means operations hold the required lock; 2PL means no acquisition/upgrade after the first release/downgrade. A history can pass one and fail another.
+\why Each transaction has a lock point at its final acquisition. Ordering transactions by lock point is consistent with their conflicts, preventing a dependency cycle.
+\kw{Variants}: strict 2PL holds X locks to commit/abort and prevents cascading aborts; rigorous 2PL holds both S and X locks. Neither eliminates deadlock.
+\worked In a numbered trace, mark the first UNLOCK; every later LOCK line violates 2PL. Per-operation lock/unlock alone is insufficient because releasing between related operations can still produce a non-serial result.
+\answer ``The history is legal, but \(T_2\) requests \(X(B)\) after releasing \(S(A)\), so \(T_2\) violates 2PL and the 2PL serialisability theorem cannot be applied.''
+\end{topic}
+
+\begin{topic}{20. Isolation Degrees 0--3}
+\begin{tabularx}{\linewidth}{@{}cYY@{}}
+\toprule
+Degree & Guarantee & Required locking\\
+\midrule
+0 & Weak conflict protection & Writes well formed\\
+1 & No lost updates & X locks well formed and 2PL; reads may be unlocked\\
+2 & No lost updates/dirty reads; unrepeatable reads possible & Reads/writes well formed; X locks 2PL; S may release after read\\
+3 & Repeatable reads/full conflict protection & Complete well-formed 2PL for S and X\\
+\bottomrule
+\end{tabularx}
+\[
+\begin{array}{c|c}
+D1&W\arr W\\
+D2&W\arr W,\ W\arr R\\
+D3&W\arr W,\ W\arr R,\ R\arr W
+\end{array}
+\]
+\answer Find the weakest operation: an unlocked READ prevents Degree 2/3; an X-lock sequence that is not two phase prevents Degree 1+.
+\end{topic}
+
+\begin{topic}{21. Deadlock, Livelock, Spin Locks, Semaphores}
+\begin{itemize}
+  \item Deadlock is a cycle in a wait-for/resource-dependency graph; each transaction holds something the next needs.
+  \item Prevent with global resource order or preallocation; detect cycles and roll back a victim; timeout is practical for distributed deadlocks.
+  \item Immediate repeated rollback can cause livelock. Risk rises with concurrency, locks per transaction, hold time, hotspots and write conflicts.
+  \item OS locks sleep but pay context-switch cost; spin locks use atomic test-and-set/CAS and suit short low-contention waits; semaphores queue waiters.
+  \item FIFO handoff can create a convoy; waking all waiters reduces serial handoff but causes competition.
+\end{itemize}
+\worked Tutorial approximation with \(n\) other transactions, \(r\) exclusive locks each and \(R\) records gives lifetime wait probability \(\approx nr^2/(2R)\) and pair-deadlock probability growing roughly with \(n^2r^4/(4R^2)\). Use this only under the stated simplifying assumptions.
+\end{topic}
+
+\begin{formula}{22. Granular Locks: IS, IX, SIX, U, X}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}l|cccccc@{}}
+Request \(\backslash\) Current & IS & IX & S & SIX & U & X\\
+\hline
+IS  & \yes&\yes&\yes&\yes&\yes&\no\\
+IX  & \yes&\yes&\no &\no &\no &\no\\
+S   & \yes&\no &\yes&\no &\no &\no\\
+SIX & \yes&\no &\no &\no &\no &\no\\
+U   & \yes&\no &\yes&\no &\no &\no\\
+X   & \no &\no &\no &\no &\no &\no
+\end{tabularx}
+\normalsize
+\begin{itemize}
+  \item Rows are requests; columns are current modes. The matrix is directional for U/S in this course.
+  \item IS intends finer S; IX intends finer S/X; SIX is S here plus IX below; U reads with intent to update.
+  \item Acquire root-to-leaf, release leaf-to-root. S/IS on a non-root needs a suitable parent; X/U/SIX/IX needs IX or stronger on every ancestor.
+\end{itemize}
+\kw{Request procedure}
+\begin{enumerate}
+  \item Process stated arrival order and record only locks already \textbf{granted}.
+  \item Verify the required intention mode on every ancestor.
+  \item Compare the request with every granted target lock using the matrix.
+  \item Grant only if all checks pass; otherwise wait. A waiting request is not a current lock.
+  \item State queue policy: strict FIFO may block a later compatible request behind an earlier incompatible one.
+\end{enumerate}
+\answer For every request state ancestor status, current granted modes, compatibility result, grant/wait decision and resulting lock table. A compatible leaf lock cannot override a root conflict.
+\worked Sample pattern: T1's IS and T2's SIX can coexist at root, so T1/T2 run; later T3's S conflicts with existing SIX and waits. If T3 arrives before T2, T3's S can instead make T2 wait. Arrival order changes the runnable set.
+\end{formula}
+
+\begin{topic}{23. Update Locks, Escalation, OCC, Snapshot}
+\begin{itemize}
+  \item U lock admits one intended updater while allowing compatible earlier readers under the course matrix; it reduces S-to-X conversion deadlock.
+  \item Lock escalation replaces many fine locks with a coarse S/X lock: less management overhead, larger conflict range and less concurrency.
+  \item \kw{Pessimistic/2PL}: conflicts expected; prevent them before access; cost is locks, waits and deadlocks.
+  \item \kw{Optimistic}: conflicts rare; read/compute freely, validate near commit; cost is wasted work/retry when conflicts are common.
+  \item \kw{Snapshot isolation}: versioned consistent reads and first-writer-commits; high read concurrency but write skew can violate cross-row constraints.
+  \item \kw{Timestamp ordering}: globally consistent order; distributed form carries a coordinator-assigned timestamp to every server.
+\end{itemize}
+\worked Two transactions read \(A=B=100\), then independently set \(A=-100\) and \(B=-100\). No direct write conflict occurs, yet \(A+B\ge0\) fails: snapshot isolation is not automatically serialisable.
+\end{topic}
+
+\begin{formula}{24. Probability, Availability, RAID 0/1/5/6}
+\[
+P(A\cap B)=P(A)P(B)
+\]
+\[
+P(A\cup B)\approx P(A)+P(B)
+\quad\text{for small independent probabilities}
+\]
+\[
+Availability=\frac{MTTF}{MTTF+MTTR},\qquad
+P(\text{unavailable})\approx\frac{MTTR}{MTTF}
+\]
+If failure requires \(k\) of \(n\) disks simultaneously:
+\[
+P_{\mathrm{fail}}\approx\binom{n}{k}p^k,\qquad
+MTTF_{\mathrm{system}}\approx\frac{M^k}{\binom{n}{k}}
+\]
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}cYccc@{}}
+\toprule
+RAID & Organisation & Tolerates & Capacity & Course example\\
+\midrule
+0 & Block striping & 0 & \(nS\) & 2 disks: \(M/2\)\\
+1 & Mirroring & \(n-1\) & \(S\) & 2: \(M^2\), 3: \(M^3\)\\
+3/4/5 & Single parity & 1 & \((n-1)S\) & 3 disks: \(M^2/3\)\\
+6 & Dual parity & 2 & \((n-2)S\) & 5 disks: \(M^3/10\)\\
+\bottomrule
+\end{tabularx}
+\normalsize
+\begin{itemize}
+  \item RAID 0: throughput/capacity, no tolerance. RAID 1: best simple redundancy, lowest utilisation. RAID 4: parity-disk write bottleneck. RAID 5 distributes parity. RAID 6 pays extra parity/write cost for two failures.
+  \item Tutorial utilisation: RAID 0 \(100\%\), RAID 1 with two disks \(50\%\), RAID 3 with three disks \(2/3\).
+  \item Derive reliability by finding the minimum simultaneous failures that lose data, counting such combinations, multiplying by \(p^k\), then inverting the failure rate under the course approximation.
+\end{itemize}
+\worked Six 2-TB disks provide 12 TB raw. RAID 1 provides 6 TB usable; RAID 5 provides \(5\times2=10\) TB. Capacity and reliability are separate calculations.
+\worked RAID 0 loses data after any one of \(n\) disks fails, so \(P_{\rm loss}\approx np\). A mirrored pair requires both failures, \(p^2\). Single parity tolerates one failure but loses data for any pair, \(\binom n2p^2\).
+\trap{Tutorial text has a typo for RAID 0; doubled failure probability means MTTF halves, so use \(M/2\). State the independence/small-\(p\) assumption.}
+\end{formula}
+
+\begin{topic}{25. Fault Tolerance: Failvote, Failfast, CRC}
+\kw{Failvote vs failfast}
+\begin{itemize}
+  \item Failvote requires a majority of the original modules: stronger confidence, lower availability as failures accumulate.
+  \item Failfast excludes unavailable modules and takes a majority among working modules: higher availability, but one remaining module cannot be checked.
+\end{itemize}
+\kw{Reliable block write}
+\begin{itemize}
+  \item Duplex write stores two sequential copies with version numbers; choose the newest consistent copy.
+  \item Logged write stores the second representation in a log and is efficient for small changes.
+  \item CRC detects storage/transmission corruption and burst errors.
+\end{itemize}
+\answer Separate \emph{correctness of an accepted result} from \emph{availability of the service}.
+\end{topic}
+
+\begin{formula}{26. Reliable Message Passing: Out, Ack, In}
+\[
+Out=\#sent,\qquad Ack=\#acknowledged,\qquad In=\#received
+\]
+When B sends message \(k\) to A:
+\begin{enumerate}
+  \item B persistently records \(Out_k\) and sets \(Out=k\).
+  \item B sends; A persistently records \(In_k\) and sets \(In=k\).
+  \item A acknowledges \(k\); B persistently sets \(Ack=k\).
+\end{enumerate}
+\worked Initial A \((Out=3,Ack=3,In=6)\), B \((Out=6,Ack=6,In=3)\). B sends message 7 and receives the acknowledgement:
+\[
+A:(3,3,7),\qquad B:(7,7,3)
+\]
+\answer First identify sender and receiver. Only sender changes Out/Ack; only receiver changes In. Preserve stable-storage update order so retransmission/recovery is possible.
+\end{formula}
+
+\begin{topic}{27. Buffer Pool, STEAL/NO-FORCE, WAL}
+\begin{itemize}
+  \item \texttt{fix(page)} loads/pins; a fixed page cannot be evicted. \texttt{unfix} releases one user's pin. Dirty means memory is newer than disk.
+  \item STEAL allows uncommitted dirty pages to reach disk \arr recovery needs UNDO/old values.
+  \item NO-FORCE allows commit before every dirty page reaches disk \arr recovery needs REDO/new values.
+  \item ARIES supports efficient STEAL + NO-FORCE.
+\end{itemize}
+\kw{Write-ahead logging}
+\begin{enumerate}
+  \item Before a data page is written, its update log must be durable:
+  \(\boxed{pageLSN\le flushedLSN}\).
+  \item Before commit returns, the log through the commit record must be durable.
+\end{enumerate}
+\why Rule 1 ensures an on-disk uncommitted update can be undone; Rule 2 ensures a committed update absent from data pages can be redone.
+\end{topic}
+
+\begin{topic}{28. Log Records: LSN, pageLSN, CLR}
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+Field & Meaning\\
+\midrule
+LSN & Increasing log-record identifier\\
+pageLSN & Latest update/CLR applied to a page\\
+flushedLSN & Largest durable LSN\\
+prevLSN/lastLSN & Previous/latest log for a transaction\\
+recLSN & Earliest potentially unpropagated update that dirtied a page\\
+undoNextLSN & CLR pointer to the next action requiring undo\\
+\bottomrule
+\end{tabularx}
+\begin{itemize}
+  \item UPDATE: log XID/page/old/new/prevLSN; update lastLSN/pageLSN; first dirtying adds DPT entry with recLSN.
+  \item COMMIT: log commit, flush through commit LSN, return, later write END.
+  \item ABORT: log abort, follow prevLSN backwards, undo updates and write CLRs, then END.
+  \item CLR is redo-only: it records an undo already performed and is never undone again.
+\end{itemize}
+\end{topic}
+
+\begin{warningbox}{29. ARIES: Analysis, Redo, Undo}
+\[
+\boxed{\text{Analysis}\arr\text{Redo (repeat history)}\arr\text{Undo losers}}
+\]
+\kw{Analysis}
+\begin{itemize}
+  \item Start from checkpoint via master record; initialise transaction table and DPT from END\_CHECKPOINT.
+  \item Scan forward: update status/lastLSN; first UPDATE/CLR for a missing page adds DPT recLSN. END removes a transaction.
+  \item Committed/ended work is winner work; active/aborting transactions remaining are losers.
+\end{itemize}
+\kw{Redo}
+\begin{itemize}
+  \item Start at smallest DPT recLSN. For each UPDATE/CLR, skip if page absent from DPT, \(recLSN>LSN\), or disk \(pageLSN\ge LSN\); otherwise reapply and set pageLSN.
+  \item Redo repeats crash-time history, including loser updates/CLRs; it is not ``redo committed only''.
+\end{itemize}
+\smallskip
+\kw{Undo}
+\begin{itemize}
+  \item Initialise \(ToUndo\) with loser lastLSNs; repeatedly take the largest.
+  \item Ordinary update: restore old value, write CLR, follow prevLSN. CLR: follow undoNextLSN. End of chain: write END.
+\end{itemize}
+\why ARIES first restores the exact physical state at crash, then undoes losers once in a controlled order. A CLR records completed undo and is redo-only, so a second crash does not repeat that undo incorrectly.
+\kw{Interpret the structures}: the transaction table tracks status/log-chain end; DPT recLSN is the earliest update that may be missing from disk for a dirty page; pageLSN shows the latest update already present on that disk page.
+\end{warningbox}
+
+\begin{topic}{30. ARIES Worked Pattern: DPT, TT, ToUndo}
+\worked Tutorial log:
+\[
+\begin{array}{rll}
+10&T1:&P1:Y\arr Z\\
+15&T2:&P3:U\arr V\\
+25&CP:&TT=[T1:10,T2:15],DPT=[P1:10,P3:15]\\
+30&T1:&P2:W\arr X\\
+35&T1:&COMMIT\\
+40&T2:&P1:Z\arr T\\
+45&T2:&ABORT\\
+50&T2:&CLR\ P1=Z,\ undoNext=15
+\end{array}
+\]
+\begin{itemize}
+  \item Analysis reconstructs \(P1:10,P3:15,P2:30\); T1 is committing/winner, T2 aborting/loser with lastLSN 50.
+  \item Redo starts at 10 and conditionally reapplies 10,15,30,40 and CLR 50 according to DPT/pageLSN.
+  \item Undo starts \(ToUndo=\{50\}\); CLR 50 points to 15; undo LSN 15 by restoring \(P3=U\), write a CLR, then END.
+\end{itemize}
+\answer Present the final Analysis transaction table/DPT; a Redo row for each candidate showing DPT, recLSN and pageLSN tests; and a descending ToUndo trace showing each CLR, undoNextLSN and next queue state.
+\end{topic}
+
+\begin{topic}{31. Checkpoint, Shadow Paging, Recovery Cost}
+\kw{Checkpoint trade-off}
+\begin{itemize}
+  \item Frequent checkpoints reduce the log/history considered after a crash and shorten recovery.
+  \item They add normal-time log entries, disk I/O and transaction overhead. Choose based on recovery urgency versus throughput.
+\end{itemize}
+\kw{Shadow paging}
+\begin{itemize}
+  \item Keep immutable shadow and current page tables; update pages by copy-on-write.
+  \item Commit flushes modified pages/current table, then atomically redirects the fixed shadow pointer.
+  \item Advantage: no update log and simple crash recovery. Costs: page-table copying, garbage collection, fragmentation, high commit flushing and weak concurrency support.
+\end{itemize}
+\end{topic}
+
+\begin{topic}{32. Distributed Transactions and 2PC}
+\begin{itemize}
+  \item Atomic commit and global serial order are different: 2PC gives all-commit/all-abort; locking/timestamps/optimistic validation give consistent conflict order.
+  \item \kw{Phase 1}: coordinator sends PREPARE; participants force prepare state and vote YES/NO.
+  \item \kw{Phase 2}: all YES \arr record/send GLOBAL COMMIT; any NO/timeout \arr GLOBAL ABORT; participants record decision, act locally and release locks.
+  \item A YES vote promises that the participant has durable prepare state and can commit later; it therefore cannot unilaterally abort while uncertain.
+\end{itemize}
+\worked
+\begin{itemize}
+  \item P1/P2 YES, P3 NO \arr abort all.
+  \item Participant crashes before voting \arr timeout and abort.
+  \item Coordinator crashes after all YES \arr prepared participants cannot decide independently; request the decision and may block until recovery.
+\end{itemize}
+\why Blocking preserves atomicity: committing locally could conflict with another participant's abort. The cost is retained locks/resources and reduced availability while the durable global decision is unavailable.
+\answer State the durable state already reached, who can still decide, the timeout/recovery action, and why locks/blocking remain.
+\end{topic}
+
+\begin{topic}{33. Distributed Concurrency, Replication, Copies}
+\begin{itemize}
+  \item Locking must preserve the same T-before-U conflict order at every relevant server.
+  \item Timestamp ordering uses a globally unique coordinator timestamp carried with each object access.
+  \item Optimistic distributed control validates at each server during 2PC phase 1 using a globally consistent validation order.
+  \item Available Copies reads one available replica and writes all available replicas, but changing availability sets can hide conflicts and break one-copy serialisability.
+  \item Final conservative rule: before commit, verify that the contacted failed/available set did not change; otherwise abort, even if the particular execution might have been harmless.
+\end{itemize}
+\kw{Why local correctness is insufficient}: each server may have a serialisable local schedule but choose a different order for the same two global transactions. If site \(A\) orders \(T\arr U\) and site \(B\) orders \(U\arr T\), the combined dependency graph has a cycle.
+\worked Under Available Copies, \(T_1\) may read/write replica \(A\) while \(B\) is considered failed. If membership changes and \(T_2\) later uses stale \(B\) without learning \(T_1\)'s update, both transactions can appear locally valid but violate one-copy behaviour.
+\answer Explain the desired one-logical-copy behaviour, show how sites could miss one another, then state the validation/abort rule.
+\end{topic}
+
+\begin{topic}{34. CAP: Consistency, Availability, Partition}
+\begin{itemize}
+  \item \kw{Consistency}: one current logical value. \kw{Availability}: every request to a non-failing node receives a response. \kw{Partition tolerance}: service continues despite network separation.
+  \item During a partition, strict consistency and availability cannot both be guaranteed.
+  \item Strong consistency requires waiting, coordination or rejecting operations; this raises latency and lowers availability.
+  \item Eventual consistency allows temporary stale reads but replicas converge if updates stop.
+\end{itemize}
+\worked Sample exam: many geographically distributed servers, unreliable links and millions of users. Partitions are realistic; serving users with low latency/high availability is important, so eventual consistency is suitable if temporary staleness is acceptable.
+\kw{Answer-ready detail}
+\begin{itemize}
+  \item CP rejects/delays some partitioned requests to avoid conflicting or stale results.
+  \item AP continues serving but permits temporary divergence; versions, timestamps, quorums, CRDTs or application rules reconcile replicas later.
+  \item State the invariant: banking/payment often cannot accept divergence; feeds, caches or carts may tolerate it.
+\end{itemize}
+\worked Two partitioned cart replicas accept different additions. Availability is preserved and carts temporarily differ; set-union merge can converge later if duplicate/removal semantics are defined.
+\answer Identify partition risk; explain the C/A conflict; connect the choice to user-visible behaviour; state convergence/conflict resolution and its cost.
+\end{topic}
+
+\begin{formula}{35. Eventual, Causal, BASE and PACELC}
+\begin{itemize}
+  \item Strong: every read sees latest. Eventual: convergence later. Causal: preserve cause-before-effect.
+  \item Read-your-writes: see own latest update. Session: guarantee within one session. Monotonic read: never go backwards. Monotonic write: one process's writes keep issue order.
+\end{itemize}
+\[
+\text{BASE}=\text{Basically Available + Soft State + Eventual Consistency}
+\]
+\[
+\boxed{\text{If partition: A or C;\quad Else: Latency or C}}
+\]
+\begin{itemize}
+  \item PA/EL: available under partition, low latency normally. PC/EC: consistency in both cases.
+  \item PA/EC: available under partition, consistency normally. PC/EL: consistent under partition, low latency normally.
+  \item CAP describes the forced choice during partition; PACELC additionally describes latency-versus-consistency during normal operation.
+  \item NoSQL/partitioning link: scalable NoSQL systems often shard data and use BASE-style relaxed consistency to gain availability, latency and partition tolerance.
+\end{itemize}
+\worked Shopping cart/product display may favour availability; checkout/payment needs stronger consistency. Airline booking can tolerate more staleness with many seats than near sell-out. Apply guarantees per business function, not universally.
+\answer Name the weakest model preserving the application invariant; state the anomaly it permits, the availability/latency benefit, and why the anomaly is acceptable or repairable.
+\end{formula}
+
+\begin{topic}{36. Remote Backup: One-Safe, Two-Safe}
+\begin{itemize}
+  \item Heartbeats/multiple links distinguish primary failure from link failure; bad detection can create split brain.
+  \item Backup takeover redoes completed work and removes incomplete work. Periodic redo/checkpointing reduces takeover delay; a hot spare continually applies redo.
+  \item \kw{One-safe}: primary log only; low latency, possible acknowledged-data loss before replication.
+  \item \kw{Two-very-safe}: primary and backup durable before commit; strongest durability, but site/link failure blocks commit.
+  \item \kw{Two-safe}: two-very-safe normally, primary-only during backup outage; better availability but weaker degraded-mode durability.
+\end{itemize}
+\kw{Failure-analysis pattern}
+\begin{itemize}
+  \item Identify the last log record known durable at primary and backup.
+  \item Decide whether the client already received commit acknowledgement.
+  \item On takeover, redo durable committed work and undo/remove incomplete work.
+  \item Prevent both sites accepting writes simultaneously using a quorum, lease, fencing token or authoritative membership decision.
+\end{itemize}
+\worked If one-safe acknowledges after only the primary log is forced, immediate primary loss before shipping can lose an acknowledged transaction. Two-very-safe prevents that loss but cannot acknowledge while the backup/link is unavailable.
+\answer Compare durability, availability, latency and behaviour during link/site failure.
+\end{topic}
+
+\begin{topic}{37. Backup: Full/Differential, Warehouse, ETL}
+\kw{Backup}
+\begin{itemize}
+  \item Full versus partial depends on change scope; differential stores changes since the last full backup.
+  \item Incremental stores changes since the previous backup: smallest daily backup, but restore may need the full backup plus a long chain. Differential grows over time but restore needs only the full plus latest differential.
+  \item Higher frequency reduces possible data loss (RPO) but adds I/O/storage; restore design determines recovery time (RTO).
+  \item Historical copies enable point-in-time recovery.
+\end{itemize}
+\kw{Data warehouse}
+\begin{itemize}
+  \item Integrates historical data under a unified schema for analytics and moves decision support away from OLTP.
+  \item Source-driven pushes updates; destination-driven pulls. Exact 2PC synchronisation is usually too costly, so some staleness is accepted.
+  \item Requires schema integration, cleansing, deduplication and time dimensions; stored aggregates can replace detail when totals answer the workload.
+  \item OLTP favours current detailed records, short updates and concurrency; a warehouse favours historical snapshots, scans, aggregation and stable analytical schemas.
+\end{itemize}
+\worked A nightly differential plus weekly full backup limits the restore set to two backups, while log archiving between them supports point-in-time recovery. The schedule must still satisfy the required RPO and tested restore time.
+\answer Name the objective, choose the mechanism/frequency, and state freshness, recovery, storage and operational trade-offs. For warehousing, also explain why asynchronous ETL and accepted staleness protect OLTP throughput.
+\end{topic}

@@ -1,0 +1,98 @@
+\documentclass[a4paper,landscape,8pt]{extarticle}
+
+\usepackage[
+  top=5mm,
+  bottom=5mm,
+  left=5.5mm,
+  right=5.5mm,
+  headsep=1.2mm,
+  footskip=3.2mm
+]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,tabularx,array,multirow}
+\usepackage{multicol}
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage{hyperref}
+
+\definecolor{navy}{HTML}{17324D}
+\definecolor{blue}{HTML}{E8F1F8}
+\definecolor{pale}{HTML}{F4F6F8}
+\definecolor{warn}{HTML}{FFF1D6}
+\definecolor{red}{HTML}{9B2C2C}
+\definecolor{green}{HTML}{246B45}
+\definecolor{graytext}{HTML}{4A5568}
+
+\hypersetup{colorlinks=false,pdfborder={0 0 0}}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\scriptsize COMP90050 Advanced Database Systems}
+\fancyhead[C]{\scriptsize 2026 S1 Final Exam Quick Reference}
+\fancyhead[R]{\scriptsize Open-Book Written Exam}
+\fancyfoot[C]{\scriptsize \thepage}
+\renewcommand{\headrulewidth}{0.2pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\setlength{\columnsep}{3.5mm}
+\setlength{\columnseprule}{0.12pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.4pt}
+\setlength{\tabcolsep}{2.1pt}
+\renewcommand{\arraystretch}{0.9}
+\setlist[itemize]{nosep,leftmargin=3.2mm,label=\textbullet}
+\setlist[enumerate]{nosep,leftmargin=4mm}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcommand{\yes}{\textcolor{green}{\textbf{Y}}}
+\newcommand{\no}{\textcolor{red}{\textbf{N}}}
+\newcommand{\kw}[1]{\textbf{\textcolor{navy}{#1}}}
+\newcommand{\trap}[1]{\textcolor{red}{\textbf{Exam trap: }#1}}
+\newcommand{\arr}{\ensuremath{\rightarrow}}
+\newcommand{\points}{\textbf{Key points: }}
+\newcommand{\answer}{\textbf{Answer structure: }}
+\newcommand{\worked}{\textbf{Worked example: }}
+\newcommand{\why}{\textbf{Why it matters: }}
+
+\tcbset{
+  enhanced jigsaw,
+  breakable,
+  pad at break=0.5mm,
+  boxrule=0.35pt,
+  arc=0.7mm,
+  left=1.1mm,
+  right=1.1mm,
+  top=0.55mm,
+  bottom=0.55mm,
+  before skip=0.75mm,
+  after skip=0.75mm,
+  colframe=navy,
+  colback=white,
+  fonttitle=\bfseries,
+  coltitle=white,
+  colbacktitle=navy,
+  attach boxed title to top left={xshift=0.7mm,yshift=-1.1mm},
+  boxed title style={
+    boxrule=0pt,
+    arc=0.5mm,
+    left=0.9mm,
+    right=0.9mm,
+    top=0.4mm,
+    bottom=0.4mm
+  }
+}
+\newtcolorbox{topic}[1]{title={#1}}
+\newtcolorbox{solidtopic}[1]{title={#1},breakable=false}
+\newtcolorbox{formula}[1]{title={#1},colback=blue!35}
+\newtcolorbox{warningbox}[1]{title={#1},colback=warn,colframe=red,colbacktitle=red,breakable=false}
+\newtcolorbox{mini}[1]{title={#1},colback=pale,colframe=graytext,colbacktitle=graytext}
+
+\begin{document}
+\fontsize{6.35pt}{7.05pt}\selectfont
+\begin{multicols*}{3}
+\input{content}
+\end{multicols*}
+\end{document}
