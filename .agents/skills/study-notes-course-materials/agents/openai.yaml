@@ -1,0 +1,4 @@
+interface:
+  display_name: "Study Notes Course Materials"
+  short_description: "Course resources and notes for study-notes"
+  default_prompt: "Use $study-notes-course-materials to organize supplied course materials and update study-notes."

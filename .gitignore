@@ -187,6 +187,12 @@ cython_debug/
 
 # Local course materials and external readings
 docs/**/lecture/
+docs/**/transcript/
 docs/**/workshop/
 docs/**/tutorial/
 docs/**/readings/
+docs/**/assignment/
+docs/**/exam/
+
+# Slide screenshots rendered page-by-page from lecture PDFs
+docs/Unimelb/26S2/CV/assets/

@@ -2,6 +2,10 @@
 
 ## 🎓 Master of Information Technology in the University of Melbourne
 
+### 🗓️ 2026 Semester 2
+
+- 🗓️ [Computer Vision - COMP90086](Unimelb/26S2/CV/README.md)
+
 ### 🗓️ 2026 Semester 1
 
 - 🗓️ [Natural Language Processing - COMP90042](Unimelb/26S1/NLP/README.md)
