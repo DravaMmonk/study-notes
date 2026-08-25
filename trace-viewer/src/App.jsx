@@ -12,11 +12,11 @@ import {
   PanelRightClose,
   PanelRightOpen,
   Search,
-  Trash2,
   X,
 } from 'lucide-react'
 import './App.css'
 import 'katex/dist/katex.min.css'
+import AnnotationCard from './components/AnnotationCard'
 import { buildDocumentTree, noteDocuments, renderMarkdown } from './lib/content'
 import {
   addAnnotation,
@@ -241,8 +241,53 @@ function App() {
   }
 
   const handleCommentChange = (id, note) => {
-    updateAnnotation(activeDocument.path, id, { note })
+    try {
+      updateAnnotation(activeDocument.path, id, { note })
+      setAnnotations(getAnnotations(activeDocument.path))
+      return true
+    } catch {
+      setToast('Comment is too large for local storage')
+      return false
+    }
+  }
+
+  const createAnnotationFromQuote = (quoteValue, noteValue) => {
+    const quote = quoteValue.trim()
+    const note = noteValue.trim()
+    const article = articleRef.current
+    if (!quote || !note || !article) return false
+
+    const start = article.textContent.indexOf(quote)
+    if (start === -1) {
+      setToast('Passage not found in this note')
+      return false
+    }
+
+    if (annotations.some((annotation) => annotation.quote === quote && annotation.note === note)) {
+      setToast('Annotation already exists')
+      return false
+    }
+
+    const annotation = addAnnotation(activeDocument.path, {
+      start,
+      end: start + quote.length,
+      quote,
+      prefix: article.textContent.slice(Math.max(0, start - 32), start),
+      suffix: article.textContent.slice(start + quote.length, start + quote.length + 32),
+      color: 'amber',
+      note,
+    })
     setAnnotations(getAnnotations(activeDocument.path))
+    setActiveAnnotationId(annotation.id)
+    setInspectorOpen(true)
+    setToast('Annotation saved locally')
+    window.setTimeout(() => {
+      document.querySelector(`[data-annotation-id="${CSS.escape(annotation.id)}"]`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }, 80)
+    return true
   }
 
   const handleDelete = (id) => {
@@ -333,9 +378,11 @@ function App() {
         annotations={annotations}
         commentRef={commentRef}
         isOpen={inspectorOpen}
+        onAdd={createAnnotationFromQuote}
         onChange={handleCommentChange}
         onClose={() => setInspectorOpen(false)}
         onDelete={handleDelete}
+        onError={setToast}
         onExport={exportAnnotations}
         onJump={jumpToAnnotation}
         title={activeDocument.title}
@@ -430,7 +477,7 @@ function DocumentOutline({ headings }) {
   return (
     <nav className="document-outline" aria-label="On this page">
       <span>On this page</span>
-      {headings.slice(0, 8).map((heading) => (
+      {headings.map((heading) => (
         <a key={heading.id} href={`#${heading.id}`} className={`outline-level-${heading.level}`}>{heading.text}</a>
       ))}
     </nav>
@@ -470,13 +517,26 @@ function AnnotationInspector({
   annotations,
   commentRef,
   isOpen,
+  onAdd,
   onChange,
   onClose,
   onDelete,
+  onError,
   onExport,
   onJump,
   title,
 }) {
+  const [composerOpen, setComposerOpen] = useState(false)
+  const [composerQuote, setComposerQuote] = useState('')
+  const [composerNote, setComposerNote] = useState('')
+
+  const saveComposer = () => {
+    if (!onAdd(composerQuote, composerNote)) return
+    setComposerOpen(false)
+    setComposerQuote('')
+    setComposerNote('')
+  }
+
   return (
     <aside className={`annotation-inspector ${isOpen ? 'is-open' : ''}`}>
       <div className="inspector-header">
@@ -485,29 +545,49 @@ function AnnotationInspector({
       </div>
       <p className="inspector-context">{title}</p>
 
+      <button className="add-annotation-button" onClick={() => setComposerOpen((value) => !value)}>
+        <MessageSquareText size={15} /> {composerOpen ? 'Cancel' : 'Add annotation'}
+      </button>
+
+      {composerOpen && (
+        <div className="annotation-composer">
+          <label>
+            Passage to highlight
+            <textarea
+              value={composerQuote}
+              onChange={(event) => setComposerQuote(event.target.value)}
+              placeholder="Paste an exact passage from this note"
+              aria-label="Passage to highlight"
+            />
+          </label>
+          <label>
+            Question and answer
+            <textarea
+              value={composerNote}
+              onChange={(event) => setComposerNote(event.target.value)}
+              placeholder="问题：…\n\n答案：…"
+              aria-label="Question and answer"
+            />
+          </label>
+          <button type="button" onClick={saveComposer} disabled={!composerQuote.trim() || !composerNote.trim()}>
+            Save annotation
+          </button>
+        </div>
+      )}
+
       <div className="annotation-list">
         {annotations.length ? annotations.map((annotation) => (
-          <div
+          <AnnotationCard
             key={annotation.id}
-            className={`annotation-item ${activeAnnotationId === annotation.id ? 'is-active' : ''}`}
-            style={{ '--annotation-color': annotationColors[annotation.color] }}
-          >
-            <button className="quote-button" onClick={() => onJump(annotation.id)}>
-              <span className="quote-mark" />
-              <q>{annotation.quote}</q>
-            </button>
-            <textarea
-              ref={activeAnnotationId === annotation.id ? commentRef : null}
-              value={annotation.note}
-              onChange={(event) => onChange(annotation.id, event.target.value)}
-              placeholder="Add a comment…"
-              aria-label={`Comment on ${annotation.quote}`}
-            />
-            <div className="annotation-meta">
-              <span>{new Date(annotation.createdAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</span>
-              <button onClick={() => onDelete(annotation.id)} aria-label="Delete annotation"><Trash2 size={14} /></button>
-            </div>
-          </div>
+            active={activeAnnotationId === annotation.id}
+            annotation={annotation}
+            color={annotationColors[annotation.color]}
+            commentRef={commentRef}
+            onChange={onChange}
+            onDelete={onDelete}
+            onError={onError}
+            onJump={onJump}
+          />
         )) : (
           <div className="empty-annotations">
             <Highlighter size={24} />

@@ -125,3 +125,9 @@ export function renderMarkdown(markdown, sourcePath) {
 
   return { headings, html: document.body.innerHTML }
 }
+
+export function renderAnnotationMarkdown(markdown) {
+  if (!markdown) return ''
+  const unsafeHtml = markdownRenderer.parse(markdown, { breaks: true, gfm: true })
+  return DOMPurify.sanitize(unsafeHtml)
+}

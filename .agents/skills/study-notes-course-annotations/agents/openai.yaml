@@ -1,0 +1,4 @@
+interface:
+  display_name: "Study Notes Course Annotations"
+  short_description: "Capture course questions as highlighted note annotations"
+  default_prompt: "Use $study-notes-course-annotations to answer this course question and record it in the relevant note."

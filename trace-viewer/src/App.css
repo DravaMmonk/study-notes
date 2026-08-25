@@ -187,7 +187,7 @@
 .markdown-body .annotation-mark:hover { filter: saturate(1.15); }
 .markdown-body .annotation-mark.is-active { box-shadow: inset 0 -2px 0 #7d5b1d; }
 
-.document-outline { position: fixed; top: 100px; right: calc(var(--inspector-width) + max(20px, (100vw - var(--active-sidebar-width) - var(--inspector-width) - 1080px) / 2 + 24px)); width: 150px; display: flex; flex-direction: column; gap: 8px; }
+.document-outline { position: fixed; top: 100px; right: calc(var(--inspector-width) + max(20px, (100vw - var(--active-sidebar-width) - var(--inspector-width) - 1080px) / 2 + 24px)); width: 158px; max-height: calc(100vh - 132px); padding-right: 8px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: #c8c4b9 transparent; scrollbar-width: thin; }
 .document-outline > span { margin-bottom: 3px; color: #a09d94; font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
 .document-outline a { overflow: hidden; color: #95928a; font-size: 10px; line-height: 1.35; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; transition: color 150ms ease; }
 .document-outline a:hover { color: #6d4b13; }
@@ -199,18 +199,55 @@
 .inspector-header span { font-size: 12px; font-weight: 600; }
 .inspector-header strong { color: #9b998f; font-size: 10px; font-weight: 500; }
 .inspector-context { margin: 17px 20px 11px; overflow: hidden; color: #8b887f; font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif; font-size: 13px; font-style: italic; text-overflow: ellipsis; white-space: nowrap; }
+.add-annotation-button { min-height: 36px; margin: 0 12px 10px; display: flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid #d5d2c8; border-radius: 7px; color: #6f6d65; background: rgba(255, 255, 255, 0.42); cursor: pointer; font-size: 11px; }
+.add-annotation-button:hover { border-color: #bbb6aa; background: rgba(255, 255, 255, 0.75); }
+.annotation-composer { margin: 0 12px 12px; padding: 12px; display: grid; gap: 10px; border: 1px solid #d5d2c8; border-radius: 8px; background: rgba(255, 255, 255, 0.55); }
+.annotation-composer label { display: grid; gap: 5px; color: #77746b; font-size: 10px; font-weight: 600; letter-spacing: 0.03em; }
+.annotation-composer textarea { width: 100%; min-height: 62px; padding: 8px; resize: vertical; outline: 0; border: 1px solid #d8d4ca; border-radius: 6px; color: #4d4b45; background: #f8f6f0; font: 11px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.annotation-composer textarea:focus { border-color: #b89b5e; box-shadow: 0 0 0 2px rgba(184, 155, 94, 0.12); }
+.annotation-composer button { min-height: 34px; border: 0; border-radius: 6px; color: #f7f3e8; background: #3d3b34; cursor: pointer; font-size: 11px; }
+.annotation-composer button:disabled { cursor: default; opacity: 0.38; }
 .annotation-list { min-height: 0; padding: 0 12px 18px; flex: 1; overflow-y: auto; }
-.annotation-item { position: relative; margin: 0 0 9px; padding: 13px 13px 10px; border: 1px solid transparent; border-radius: 8px; background: rgba(255, 255, 255, 0.45); transition: border-color 160ms ease, background 160ms ease, transform 160ms ease; }
+.annotation-item { position: relative; margin: 0 0 8px; padding: 10px 11px 8px; border: 1px solid transparent; border-radius: 8px; background: rgba(255, 255, 255, 0.42); transition: border-color 160ms ease, background 160ms ease, transform 160ms ease; }
 .annotation-item:hover { background: rgba(255, 255, 255, 0.69); }
 .annotation-item.is-active { border-color: color-mix(in srgb, var(--annotation-color) 65%, #9a968c); background: rgba(255, 255, 255, 0.84); transform: translateX(-2px); }
-.quote-button { width: 100%; padding: 0; display: grid; grid-template-columns: 3px 1fr; gap: 10px; border: 0; background: transparent; cursor: pointer; text-align: left; }
-.quote-mark { width: 3px; height: 100%; min-height: 34px; border-radius: 5px; background: var(--annotation-color); }
-.quote-button q { display: -webkit-box; overflow: hidden; color: #494842; font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif; font-size: 14px; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.annotation-item.is-expanded { background: rgba(255, 255, 255, 0.78); }
+.quote-button { width: 100%; padding: 0; display: grid; grid-template-columns: 2px 1fr; gap: 8px; border: 0; background: transparent; cursor: pointer; text-align: left; }
+.quote-mark { width: 2px; height: 100%; min-height: 24px; border-radius: 4px; background: var(--annotation-color); }
+.quote-button q { display: -webkit-box; overflow: hidden; color: #6c6961; font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif; font-size: 11.5px; font-weight: 400; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .quote-button q::before, .quote-button q::after { color: #9a978e; }
-.annotation-item textarea { width: calc(100% - 13px); min-height: 32px; margin: 8px 0 2px 13px; padding: 7px 8px; resize: vertical; outline: 0; border: 0; border-radius: 5px; color: #515049; background: transparent; font-size: 11px; line-height: 1.45; }
-.annotation-item textarea:hover, .annotation-item textarea:focus { background: #f1efe8; }
-.annotation-item textarea::placeholder { color: #aaa79d; }
-.annotation-meta { margin-left: 13px; display: flex; align-items: center; justify-content: space-between; color: #aaa79e; font-size: 9px; text-transform: uppercase; }
+.comment-toggle { width: calc(100% - 10px); min-height: 28px; margin: 5px 0 0 10px; padding: 0 3px; display: flex; align-items: center; justify-content: space-between; border: 0; color: #858178; background: transparent; cursor: pointer; font-size: 9px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; }
+.comment-toggle:hover { color: #5e5b54; }
+.annotation-note-preview { color: #514f48; overflow-wrap: anywhere; }
+.annotation-note-preview.is-collapsed { max-height: 49px; margin: 0 4px 4px 13px; overflow: hidden; font-size: 11px; line-height: 1.48; -webkit-mask-image: linear-gradient(#000 64%, transparent); mask-image: linear-gradient(#000 64%, transparent); }
+.annotation-note-preview.is-expanded { min-height: 168px; padding: 13px 14px; border: 1px solid #ddd8cc; border-radius: 7px; background: #faf8f2; font-size: 14px; line-height: 1.65; animation: comment-expand 150ms ease-out; }
+.annotation-note-preview p { margin: 0 0 0.72em; }
+.annotation-note-preview p:last-child { margin-bottom: 0; }
+.annotation-note-preview h1, .annotation-note-preview h2, .annotation-note-preview h3 { margin: 1em 0 0.45em; color: #37362f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 650; line-height: 1.25; }
+.annotation-note-preview h1 { font-size: 1.28em; }
+.annotation-note-preview h2 { font-size: 1.16em; }
+.annotation-note-preview h3 { font-size: 1.05em; }
+.annotation-note-preview ul, .annotation-note-preview ol { margin: 0.5em 0; padding-left: 1.35em; }
+.annotation-note-preview blockquote { margin: 0.7em 0; padding-left: 0.8em; border-left: 2px solid var(--annotation-color); color: #6d6960; }
+.annotation-note-preview code { padding: 0.12em 0.28em; border-radius: 3px; background: #ece8de; font-size: 0.9em; }
+.annotation-note-preview pre { overflow-x: auto; padding: 10px; border-radius: 6px; background: #2f302c; color: #f3efe6; }
+.annotation-note-preview pre code { padding: 0; background: transparent; }
+.annotation-note-preview img { width: auto; max-width: 100%; max-height: 360px; display: block; margin: 10px auto; border-radius: 6px; object-fit: contain; }
+.annotation-note-preview a { color: #7c5a1f; text-underline-offset: 2px; }
+.comment-workspace { margin: 0 0 5px 10px; animation: comment-expand 150ms ease-out; }
+@keyframes comment-expand { from { opacity: 0; transform: translateY(-3px); } }
+.comment-toolbar { min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.comment-modes { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: 6px; background: #e5e1d7; }
+.comment-modes button, .image-button { min-height: 25px; padding: 0 8px; border: 0; border-radius: 4px; color: #7a766d; background: transparent; cursor: pointer; font-size: 9px; }
+.comment-modes button.is-active { color: #3f3d37; background: #faf8f2; box-shadow: 0 1px 2px rgba(48, 45, 37, 0.1); }
+.image-button { display: flex; align-items: center; gap: 5px; }
+.image-button:hover { color: #4c4942; background: #e8e4da; }
+.image-input { display: none; }
+.comment-editor { width: 100%; min-height: 180px; padding: 13px 14px; resize: vertical; outline: 0; border: 1px solid #d8d3c8; border-radius: 7px; color: #3f3e38; background: #faf8f2; font: 14px/1.62 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; animation: comment-expand 150ms ease-out; }
+.comment-editor:focus { border-color: #b89b5e; box-shadow: 0 0 0 2px rgba(184, 155, 94, 0.12); }
+.comment-editor::placeholder { color: #aaa69b; }
+.empty-comment { margin: 0 4px 5px 13px; color: #aaa69d; font-size: 10px; font-style: italic; }
+.annotation-meta { margin-left: 10px; display: flex; align-items: center; justify-content: space-between; color: #aaa79e; font-size: 9px; text-transform: uppercase; }
 .annotation-meta button { width: 26px; height: 24px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 5px; color: #9a978e; background: transparent; cursor: pointer; }
 .annotation-meta button:hover { color: #a65442; background: rgba(166, 84, 66, 0.08); }
 .empty-annotations { padding: 18vh 28px 0; color: #a09d94; text-align: center; }
