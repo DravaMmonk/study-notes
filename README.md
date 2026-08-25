@@ -20,3 +20,15 @@
 
 
 ## 📚 Reference
+
+## Local reader
+
+The `trace-viewer` directory contains **Fieldnotes**, a local Markdown reader with search, highlights, comments, and JSON export.
+
+```bash
+cd trace-viewer
+npm install
+npm run dev
+```
+
+Highlights and comments stay in the current browser and do not modify files under `docs/`.
