@@ -42,9 +42,18 @@ When slides are supplied or the page layout matters:
 
 Use the PDF workflow for visual fidelity, not just text extraction. A successful `pdftotext` command is not proof that a page rendered correctly.
 
+## Teaching goal and source hierarchy
+
+The primary goal is to help this student follow their Computer Vision classes and understand the course step by step. Assume only calculus, computing fundamentals, and basic machine-learning concepts, with no prior computer-vision knowledge.
+
+- **Primary: selected PPT pages with adjacent annotations.** Follow the lecture sequence, showing meaningful slide pages and explaining each course concept plainly for a beginner. Prioritise concepts occupying substantial slide time or important for learning and practising computer vision. Develop the examples provided on the slides; mark newly invented examples or outside material as `延伸内容`.
+- **Secondary: lecturer speech and original workshop design.** Place relevant supported quotations and original workshop tasks beside their PPT topics. Briefly explain new concepts introduced only by these sources, without creating a competing main lecture.
+- **Tertiary: Readings & Links.** Archive the supplied optional reading list. Include only short, necessary extensions in frontend-compatible collapsed `<details>` / `<summary>` sections marked `延伸内容（可选）`. Verify the collapsed content in the actual note frontend.
+- Keep main content within the supplied PPTs, workshops, and transcripts. Explicitly mark substantive outside content, additional derivations, and corrections beyond these sources as `延伸内容`. Distinguish source simplifications or errors from verified facts; do not promote optional readings into core content or claim to have read unavailable resources.
+
 ## Beginner-first note style
 
-Rewrite or extend the relevant existing note instead of creating a disconnected transcript summary. Preserve useful slide links and formulas, but make the explanation readable to someone seeing the concept for the first time.
+Rewrite or extend the relevant existing note instead of creating a disconnected transcript summary. Follow the source hierarchy above; the explanatory prompts below are optional aids, not a mandatory repeated template. Preserve useful slide links and formulas, but make the explanation readable to someone seeing the concept for the first time.
 
 For each major concept, use this order when it helps:
 
