@@ -2,9 +2,16 @@
 
 来源：`lecture/COMP90086-01-Introduction.pdf` 与 `transcript/COMP90086_2026_SM2 Week-01-W-transcript.txt`。
 
-这篇先不急着记算法。它要回答一个最基本的问题：**computer vision 到底要让电脑从图像中知道什么，并进一步做什么？**
+这篇先不急着记算法。它要回答一个最基本的问题：**计算机视觉到底要让电脑从图像中知道什么，并进一步做什么？**
 
-## 1. Computer vision 是什么
+学习路线：[先说清楚输出](#topic-1) → [为什么反推困难](#topic-2) → [识别的难处与视觉线索](#topic-3) → [应用怎样组合这些任务](#topic-4)。
+
+重点：分清任务输出与正向／反向问题。易错：高分类分数不代表系统已经理解场景。应用例子只需知道它们用了哪些任务。
+
+<a id="topic-1"></a>
+## 1. 视觉任务：先说清楚输出
+
+### 计算机视觉是什么
 
 ![Slide 6 - Computer vision](assets/01-introduction/slide-06.png)
 
@@ -12,23 +19,11 @@
 
 > 把图像或视频交给电脑，让电脑从中得到有用的理解，并据此做出判断或动作。
 
-所以 computer vision 不只是“认出这是一只猫”。它也可以回答：
-
-- 图像里有什么？
-- 每个物体在哪里？
-- 物体的边界和形状是什么？
-- 相机在哪里、场景有多远？
-- 机器人下一步应该抓哪个物体？
-
-“vision” 是输入形式，“understanding” 是我们希望得到的结果。输入可以来自普通相机、医学扫描、深度相机或多张照片；输出可以是类别、位置、三维结构、导航方向或动作。
-
 > **老师原话**：“Anything where image-based information goes into a computer and it does something intelligent with it.”
+>
+> **理解**：判断是不是视觉任务，可以先问：输入是否包含图像信息，输出是否支持理解或行动。
 
-### 一个医学成像例子
-
-老师提到：X-ray 比 CT 更便宜、辐射通常更低，也更容易获得；但 CT 包含更完整的三维信息。一个生成模型可以尝试根据一组 X-rays 生成与它们一致的 CT。这个例子说明 computer vision 可以和医学、生成模型结合，而不是只处理普通照片。
-
-## 2. 先分清几种常见任务
+### 先分清几种常见任务
 
 ![Slide 7 - Computer vision tasks](assets/01-introduction/slide-07.png)
 
@@ -36,51 +31,51 @@
 
 | 任务 | 它回答什么 | 输出例子 |
 | --- | --- | --- |
-| Recognition / classification | 整张图主要是什么类别？ | `dog` |
-| Detection | 哪些物体在哪里？ | 类别 + bounding box |
-| Semantic segmentation | 每个 pixel 属于哪一类？ | road、sky、person |
-| Instance segmentation | 每个 pixel 属于哪一个具体物体？ | person-1、person-2 |
-| 3D recovery | 场景的三维形状和深度是什么？ | depth、surface points |
-| Visual navigation | 我在哪里，应该往哪里走？ | camera pose、movement |
-| Visually guided action | 看完之后要做什么？ | robot grasp、避障 |
+| 识别／分类（classification） | 整张图主要是什么类别？ | `dog` |
+| 检测（detection） | 哪些物体在哪里？ | 类别 + 边界框 |
+| 语义分割（semantic segmentation） | 每个像素属于哪一类？ | road、sky、person |
+| 实例分割（instance segmentation） | 每个像素属于哪一个具体物体？ | person-1、person-2 |
+| 三维恢复 | 场景的三维形状和深度是什么？ | 深度、表面点 |
+| 视觉导航 | 我在哪里，应该往哪里走？ | 相机姿态、运动 |
+| 视觉引导的动作 | 看完之后要做什么？ | 机器人抓取、避障 |
 
-一个容易混淆的地方是：**classification 只给一个或少量类别标签；detection 还要给位置；segmentation 要把答案细化到 pixel。**
+一个容易混淆的地方是：**分类只给一个或少量类别标签；检测还要给位置；分割要把答案细化到像素。**
 
-> **老师原话**：“Not just classification.”
+<a id="topic-2"></a>
+## 2. 图像与世界：为什么反推困难
 
-## 3. Computer vision 和 computer graphics 的方向相反
+### 计算机视觉和计算机图形学的方向相反
 
 ![Slide 8 - Related fields](assets/01-introduction/slide-08.png)
 
 可以把两者想成一条箭头的两端：
 
-- **Computer graphics**：已知物体、材质、灯光和 camera，向前生成一张 image。
-- **Computer vision**：已知 image，反过来推测物体、材质、灯光和 camera。
+- **计算机图形学**：已知物体、材质、灯光和相机，向前生成一张图像。
+- **计算机视觉**：已知图像，反过来推测物体、材质、灯光和相机。
 
-因此 graphics 是 **forward problem**，vision 是 **inverse problem**。反问题通常更难，因为不同的三维场景可能产生很相似的二维图像。
+因此图形学是 **正向问题**，视觉是 **反向问题**。反问题通常更难，因为不同的三维场景可能产生很相似的二维图像。
 
 实际系统常把两者放在一起：先根据当前估计渲染一张预测图，再把预测图和真实图比较，用差异修正估计。这就是“render and compare”的基本想法。
 
-> **老师原话**：“Computer vision equals computer graphics to the power minus one.”
-
-这是帮助记忆的比喻，不是严格的数学公式。
-
-## 4. 课程会怎样展开
+### 课程会怎样展开
 
 ![Slide 12 - Subject content](assets/01-introduction/slide-12.png)
 
 课程大致从底层到高层推进：
 
-1. **Image formation**：图像是怎样由光、物体和相机形成的；
-2. **Digital images and filtering**：pixel、channel、kernel 和频率；
-3. **Recognition and representation learning**：如何从图像学习有用特征；
-4. **3D perception**：深度、相机运动和三维结构；
-5. **Generative models**：生成与图像有关的新内容；
-6. **Segmentation and detection**：让输出更细、更接近实际应用。
+1. **成像**：图像是怎样由光、物体和相机形成的；
+2. **数字图像与滤波**：像素、通道、卷积核和频率；
+3. **识别与表示学习**：如何从图像学习有用特征；
+4. **三维感知**：深度、相机运动和三维结构；
+5. **生成模型**：生成与图像有关的新内容；
+6. **分割与检测**：让输出更细、更接近实际应用。
 
-这条顺序很重要。后面的 CNN、生成模型和 detection 仍然依赖前面关于坐标、图像形成和 filtering 的基础。
+这条顺序很重要。后面的 CNN、生成模型和检测仍然依赖前面关于坐标、图像形成和滤波的基础。
 
-## 5. 为什么 recognition 很难
+<a id="topic-3"></a>
+## 3. 识别的难处与视觉线索
+
+### 为什么识别很难
 
 ![Slide 28 - Difficulties](assets/01-introduction/slide-28.png)
 
@@ -93,73 +88,72 @@
 - 物体被遮挡；
 - 图像中还有很多无关物体。
 
-同时，不同类别也可能长得很像。于是模型不能只记住某几个 pixel，而要学习较稳定的 **representation**（表示）。
+同时，不同类别也可能长得很像。于是模型不能只记住某几个像素，而要学习较稳定的 **representation（表示）**。
 
-一个好的 representation 要同时满足两件事：
+一个好的表示要同时满足两件事：
 
 1. 不同类别要能被分开；
 2. 同一类别的无关变化不要让表示完全改变。
 
-这里的“invariant” 不一定意味着完全不变。很多系统只要求对小变化保持 **tolerant**，也就是结果不要大幅恶化。
+本课常要求对无关变化有**容忍度**，即结果不大幅恶化；严格不变与近似稳定的区别放在第 5 讲解释。
 
-## 6. Biological vision 给出的直觉
+### 生物视觉给出的直觉
 
 ![Slide 29 - Visual encoding](assets/01-introduction/slide-29.png)
 
-老师用 biological vision 说明：视觉处理不一定是一条简单的直线。快速路径可能先给出一个猜测，后面的循环连接再检查并修正它。这个直觉后来会出现在 neural network 的多层 representation 中：早期层看简单局部模式，后面层组合它们。
+老师用生物视觉说明：视觉处理不一定是一条简单的直线。快速路径可能先给出一个猜测，后面的循环连接再检查并修正它。这个直觉后来会出现在神经网络的多层表示中：早期层看简单局部模式，后面层组合它们。
 
-> **老师原话**：“Sometimes the fast straight-through path will give you some guess ... looping mechanisms will then refine that estimate.”
+> **老师原话**：“These looping mechanisms will then refine that estimate and maybe change it.”
+>
+> **理解**：先猜再修正是一种处理思路；这句生物视觉类比不表示所有 CNN 都含有循环反馈。
 
 ![Slide 30 - Beyond classification](assets/01-introduction/slide-30.png)
 
-所以 computer vision 的输出不只包括 global label，还可能包括：
+这页是在前面的任务分类上补充更细的输出。重点看图中相同场景如何被标成不同信息：
 
-- 每个 object 的位置；
-- 每个 pixel 的语义；
-- object parts，例如 head、torso、legs；
-- surface normal，即表面朝向；
-- saliency，即哪些区域最值得关注。
+- 每个物体的位置；
+- 每个像素的语义；
+- 物体部件，例如注意力头、torso、legs；
+- 表面法线，即表面朝向；
+- 显著性，即哪些区域最值得关注。
 
-记忆方法：classification 主要回答“**是什么**”；detection 还回答“**在哪里**”；3D 和 action 还要回答“**结构怎样、下一步做什么**”。
-
-## 7. 多张照片如何帮助三维理解
+### 多张照片如何帮助三维理解
 
 ![Slide 31 - Rome in a day](assets/01-introduction/slide-31.png)
 
-一张照片丢失了部分深度信息。若有很多不同位置拍摄的照片，可以寻找照片之间的共同点，估计每个 camera 的位置，再把多条 viewing rays 交汇起来。
+一张照片丢失了部分深度信息。若有很多不同位置拍摄的照片，可以寻找照片之间的共同点，估计每个相机的位置，再把多条视线交汇起来。
 
-图中的黑色 prism 可以理解为 camera 的 viewing frustum：尖端是 camera 位置，四个侧面表示它看到的范围。系统通过许多照片估计这些 frustums 的关系，逐渐恢复城市的三维结构。
+图中的黑色棱锥可以理解为相机的视锥：尖端是相机位置，四个侧面表示它看到的范围。系统通过许多照片估计这些视锥的关系，逐渐恢复城市的三维结构。
 
-## 8. 三个应用例子
+<a id="topic-4"></a>
+## 4. 补充：应用怎样组合这些任务
 
-### Augmented reality
+### 增强现实（AR）
 
 ![Slide 32 - AR stormtrooper](assets/01-introduction/slide-32.png)
 
-AR 不是把一张图片简单贴到屏幕上。系统需要估计房间的 floor、墙面和 camera pose，才能把虚拟物体放到正确的三维位置，并产生看起来合理的 shadow。
+AR 不是把一张图片简单贴到屏幕上。系统需要估计房间的地面、墙面和相机姿态，才能把虚拟物体放到正确的三维位置，并产生看起来合理的阴影。
 
-### Tracking、rendering 和 interaction
+### 跟踪、渲染与交互
 
 ![Slide 33 - Sliding-block T-shirt](assets/01-introduction/slide-33.png)
 
-一个看似简单的 T-shirt AR app，实际上要完成四件事：找到 T-shirt、持续跟踪它、在它上面渲染内容、处理用户触摸。这说明真实应用通常把多个 vision task 组合起来。
+一个看似简单的 T-shirt AR app，实际上要完成四件事：找到 T-shirt、持续跟踪它、在它上面渲染内容、处理用户触摸。这说明真实应用通常把多个视觉任务组合起来。
 
-### Robot grasping
+### 机器人抓取
 
 ![Slide 34 - Robot vision](assets/01-introduction/slide-34.png)
 
-机器人相机看到 tray 里的物体后，不只是输出“这是杯子”。它还要估计物体位置和姿态，选择抓取方式，并考虑 robot 自身的误差。好的 vision output 必须足够支持后续 action。
+机器人相机看到托盘里的物体后，不只是输出“这是杯子”。它还要估计物体位置和姿态，选择抓取方式，并考虑机器人自身的误差。好的视觉输出必须足够支持后续动作。
 
-### GAN 与 diffusion
+### GAN 与扩散模型
 
 ![Slide 35 - GANs](assets/01-introduction/slide-35.png)
 
 GAN 例子用于说明生成模型的历史路线：模型先生成图像，再逐步提高分辨率。老师提醒，这类方法是课程背景的一部分；现在还需要理解 diffusion models，因为它们在许多生成任务上已经成为重要方法。
 
-## 9. 本讲复习
+## 本讲自测
 
-1. Computer vision 是从图像信息得到理解或动作，不等于 classification。
-2. Recognition、detection、segmentation、3D recovery 和 navigation 的输出形式不同。
-3. Graphics 是从世界生成图像；vision 是从图像反推世界。
-4. Recognition 难在同类变化很大、异类可能相似，还会受到遮挡和背景干扰。
-5. 后续学习的 filtering、CNN 和三维方法，都建立在 image formation、坐标和 representation 之上。
+1. 给一张街景图，分类、检测、分割各应输出什么？
+2. 为什么同一张照片可能对应不同的三维场景？
+3. 机器人抓杯子时，只有“杯子”这个类别标签够不够？

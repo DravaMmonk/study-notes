@@ -1,136 +1,60 @@
 # COMP90086 Computer Vision
 
-这些笔记帮助只有高等数学、计算机与机器学习基础概念的学生跟随课堂逐步学习。主体采用重点 PPT 页展示与紧邻页面批注，按课堂顺序解释概念、公式和原有例子；老师原话和 workshop 原始设计作为相关主题旁的次级补充。Readings & Links 只作可选折叠延伸，超出课件、课堂原话与 workshop 的补充明确标记为“延伸内容”。
+这套笔记面向刚入门计算机视觉的学习者。每讲先说明要解决的问题，再按专题展开；图片旁说明看什么，老师原话旁解释含义。**重点／难点／易错**表示学习时需要多花注意力的地方，不代表对考试范围的预测。补充资料简短列出或折叠，末尾用自测问题检查理解。
 
-## Notes map
+## 按知识模块学习
 
-- [01 Introduction](01-introduction.md)
-- [02 Imaging Basics](02-basics.md)
-- [03 Filters](03-filters.md)
-- [04 Fourier](04-fourier.md)
-- [05 Image Formation II](05-image-formation-ii.md)
-- [06 Convolutional Neural Networks I](06-cnns-i.md)
-- [07 Convolutional Neural Networks II](07-cnns-ii.md)
-- [08 Convolutional Neural Networks III](08-cnns-iii.md)
-- [09 Vision Transformers](09-vit.md)
-- [10 Representation Learning](10-representations.md)
-- [11 Local Features](11-features.md)
-- [12 Feature Matching](12-feature-matching.md)
+| 模块 | 学习顺序 | 要建立的能力 |
+| --- | --- | --- |
+| 图像怎样形成和存储 | [01 视觉任务](01-introduction.md) → [02 成像与数组](02-basics.md) → [05 光、颜色与边缘](05-image-formation-ii.md) | 分清现实场景、投影与像素值 |
+| 怎样处理图像 | [03 空间滤波](03-filters.md) → [04 频率滤波](04-fourier.md) | 理解局部加权计算，以及频率如何影响图像 |
+| 怎样学习图像特征 | [06 CNN 基础](06-cnns-i.md) → [07 CNN 训练](07-cnns-ii.md) → [08 结构与迁移](08-cnns-iii.md) → [09 ViT](09-vit.md) → [10 表示学习](10-representations.md) | 看懂信息流、参数、训练目标与模型边界 |
+| 怎样匹配并恢复三维 | [11 局部特征](11-features.md) → [12 特征匹配](12-feature-matching.md) → [13 深度与双目](13-depth-stereo.md) → [14 两视图几何](14-two-view-geometry.md) | 从外观候选走到几何约束与深度 |
+| 怎样生成新图像 | [15 AE 与 VAE](15-generation.md) → [16 GAN](16-gans.md) | 分清重建、采样、对抗训练与生成质量 |
 
-## Workshop 2 solution
+跟课时可按文件编号 01–16 阅读；复习时可按上表的专题阅读。跨讲重复概念只在其主要章节详细解释，其他地方链接回去。
 
-`workshop/week-02/workshop02_solution.ipynb` 补充了 Week 2 exercise solution，覆盖 bicubic resize、center crop、BGR/RGB channel handling、deep copy、subplot visualisation，以及由 sensor 尺寸和投影比例计算 focal length。相关实践要点已并入 [02 Imaging Basics](02-basics.md)。
+## Workshop 对应位置
 
-## Workshop 4 solution
+练习按包内周次编号；Canvas 部分页面的主题名称有错位。这里根据 Notebook 的实际内容连接笔记。
 
-`workshop/week-04/worksheet04_solution.ipynb` 包含颜色空间转换、颜色 manipulation、Lambertian image-formation 问题，以及在 MNIST 上比较 MLP 和 CNN 的完整参考实现。重点包括输入归一化、增加 channel 维度、softmax/cross-entropy、Keras model summary、参数数量计算，以及 CNN 的 weight sharing 如何减少参数。原始 `worksheet04.ipynb`、solution 和 `cannyimg.png`/`kodim23.png` 保存在本地 materials 目录中。
-
-## Workshop 5
-
-`workshop/week-05/worksheet05.ipynb` 与 `worksheet05_solution.ipynb` 继续练习 CNN parameter counting、VGG16 filters 和 feature maps、depthwise separable convolution，以及使用 pretrained ResNet50 的中间层提取 features。`harry.png` 与 `wallaby.jpeg` 是 Notebook 使用的本地图片。原题参数计算已补入 [CNNs II](07-cnns-ii.md)，separable CNN 补入 [CNNs III](08-cnns-iii.md)，可视化和特征提取补入 [Representation Learning](10-representations.md)。这份 workshop 作为 CNN baseline，与 [09 Vision Transformers](09-vit.md) 中的 CNN/ViT 比较相衔接。
-
-## Readings & links
-
-以下是课程页面列出的可选资源；它们用于延伸阅读，不是本仓库要执行的作业指令。
-
-### Week 3
-
-- *Computer Vision: Algorithms and Applications* (2nd ed.), chapters 2.3.2, 7.2, 13.1。
-- [Metamers demo](https://csci1230.graphics/demos/metamers/index.html)
-
-### Week 4
-
-- *Deep Learning With Python*，Francois Chollet，chapters 2.4.3, 5.1。
-- *Deep Learning*，Ian Goodfellow, Yoshua Bengio, Aaron Courville，chapters 9.2–9.3。
-- *Pattern Recognition and Machine Learning*，Christopher Bishop，chapter 5.5.6。
-- [ConvNetJS: Deep Learning in your browser](https://cs.stanford.edu/people/karpathy/convnetjs/)
-- [TensorFlow Neural Network Playground](https://playground.tensorflow.org/)
-
-### Week 5
-
-- [An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale](https://arxiv.org/abs/2010.11929)
-- [Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/abs/2103.00020)
-
-### Week 6
-
-- *Computer Vision: Algorithms and Applications* (2nd ed.), sections 7.1, 7.4, 8.1（本次未提供教材正文）。
-- [Hough Transform Demo](https://www.youtube.com/watch?v=ebfi7qOFLuo)（保留课程链接，视频内容未能读取）。
-- [RANSAC demo](https://www.visual-experiments.com/demo/ransac.js/)（网页可读取，交互未实测）。
-- 简短说明放在 [Feature Matching 的可选折叠栏](12-feature-matching.md)。
-
-## Assignment 1
-
-**Sampling, Aliasing, and Filtering**，截止时间为 **2026-08-23 23:59**，占总成绩 **6%**。本地 `assignment/A1/` 目录包含 specification、Jupyter Notebook template、`zoneplate.png` 和 `picket-fence.jpg`。
-
-任务分为三组：naive downsampling 与 aliasing、Gaussian anti-aliasing、以及 direct 2D / separable 1D / FFT 三种 filtering 实现与运行时间比较。需要分别提交带输出的 Notebook 和书面 PDF report；第 1、2、3 部分各不超过 500 words。
-
-## 证据范围
-
-- `01 Introduction`：使用 `lecture/COMP90086-01-Introduction.pdf` + `transcript/COMP90086_2026_SM2 Week-01-W-transcript.txt`。
-- `02 Imaging Basics`：使用 `lecture/COMP90086-02-Basics.pdf` + `transcript/COMP90086_2026_SM2 Week-01-F-transcript.txt`，并结合 `workshop02_solution.ipynb`。
-- `03 Filters`：使用 `lecture/COMP90086-03-Filters.pdf` + `transcript/COMP90086_2026_SM2 Week-02-W-transcript.txt`。
-- `04 Fourier`：使用 `lecture/COMP90086-04-Fourier.pdf` + `transcript/COMP90086_2026_SM2 Week-02-F-transcript.txt`。
-- `05 Image Formation II`：使用 `lecture/COMP90086-05-ImageFormationII.pdf` + `transcript/COMP90086_2026_SM2 Week-03-W-transcript.txt`。
-- `06 Convolutional Neural Networks I`：使用 `lecture/COMP90086-06-CNNsI.pdf` + `transcript/COMP90086_2026_SM2 Week-03-F-transcript.txt`。
-- `07 Convolutional Neural Networks II`：使用 `lecture/COMP90086-07-CNNsII.pdf` + `transcript/COMP90086_2026_SM2 Week-04-W-transcript.txt`。
-- `08 Convolutional Neural Networks III`：使用 `lecture/COMP90086-08-CNNsIII.pdf` + `transcript/COMP90086_2026_SM2 Week-04-F-transcript.txt`。
-- `09 Vision Transformers`：使用 `lecture/COMP90086-09-ViT.pdf`，与 `transcript/COMP90086_2026_SM2 Week-05-W-transcript.txt`，ViT 与 CLIP 论文保留在可选扩展阅读中。
-
-- `10 Representation Learning`：`lecture/COMP90086-10-representations.pdf` + `transcript/COMP90086_2026_SM2 Week-05-F-transcript.txt`，并结合 Workshop 5 的可视化与特征提取。
-- `11 Local Features`：`lecture/COMP90086-11-features.pdf` + `transcript/COMP90086_2026_SM2 Week-06-W-transcript.txt`。
-- `12 Feature Matching`：`lecture/COMP90086_12_feature-matching.pdf` + `transcript/COMP90086_2026_SM2 Week-06-F-transcript.txt`。
-
-本次下载名中的 `W/F-transcript-4` 对应 Week 5，`W/F-transcript-5` 对应 Week 6；依据实际讲课主题与 PPT 的 Week 标题映射，不把下载编号当教学周次。Lecture 10、11 封面仍有 2025 字样，原文件保持不变。Workshop 5 solution 与已有副本 SHA-256 完全一致，未重复归档；本次只阅读并整理 notebook，没有重新训练或运行其中模型。
-
-截图是从原始 PDF 按页渲染的 PNG，文件放在 `assets/` 中。笔记中的 slide 编号使用 PDF 页码。
-
-## Local materials
-
-原始课程材料保存在本地、不进版本库：
-
-| 目录 | 内容 |
+| 练习 | 笔记中的主要连接 |
 | --- | --- |
-| `lecture/` | lecture slides PDF |
-| `transcript/` | 按 Week/W/F 归档的 lecture transcripts |
-| `workshop/week-01/` | `worksheet01.ipynb` |
-| `workshop/week-02/` | `worksheet02.ipynb`、`workshop02_solution.ipynb` 与配套图片 |
-| `workshop/week-04/` | `worksheet04.ipynb`、`worksheet04_solution.ipynb` 与 `cannyimg.png`、`kodim23.png` |
-| `workshop/week-05/` | `worksheet05.ipynb`、`worksheet05_solution.ipynb` 与 `harry.png`、`wallaby.jpeg` |
-| `assignment/A1/` | A1 specification、Notebook template 与两张 test images |
-| `exam/` | practice exam 与 solution |
-| `assets/` | 从 slides 按页渲染的 PNG 截图 |
+| Week 1 安装与示例 | 图像数组与基础环境 |
+| Week 2 图像操作 | [02](02-basics.md)：通道顺序、裁剪、插值、单位换算 |
+| Week 3 滤波 | [03](03-filters.md)、[04](04-fourier.md)：空间与频域方法 |
+| Week 4 颜色与 MNIST | [05](05-image-formation-ii.md)、[07](07-cnns-ii.md)：亮度、颜色与 MLP/CNN 比较 |
+| Week 5 CNN 参数与特征 | [07](07-cnns-ii.md)、[08](08-cnns-iii.md)、[10](10-representations.md) |
+| Week 6 ViT 与 Grad-CAM | [09](09-vit.md)、[10](10-representations.md)：注意距离与类别热图 |
+| Week 7 Hough 与特征匹配 | [11](11-features.md)、[12](12-feature-matching.md) |
+| Week 8 标定、极线与双目 | [13](13-depth-stereo.md)、[14](14-two-view-geometry.md)；官方答案尚未发布 |
 
-## Note policy
+笔记解释原练习的目的与容易出错之处；本次整理没有重新执行或训练 Notebook 中的模型。
 
-这一科的笔记保留中文正文与 transcript 引用，未按仓库统一的 [Note Taking Guidelines](../../../NOTE_TAKING_GUIDELINES.md) 改写。英文术语在第一次出现时解释，后续保留英文是为了和 slides、代码及考试题目对应。
+## 资源与来源
 
-## New source checksums
+- [资源完整性](RESOURCE-STATUS.md)：截至 2026-09-18 的 Week 1–8 下载状态。
+- [Reading Links](READING-LINKS.md)：统一保存阅读链接与章节，避免各篇重复。
+- [资源清单与校验值](RESOURCE-INVENTORY.json)：来源、原始文件名与本地校验记录。
 
-这些 checksum 用于确认本地资源复制后没有改变；原始 Downloads 文件仍保留在原位置。
+每篇开头列出对应 PDF 和字幕。第 1–15 讲有本地字幕；第 16 讲暂时只有讲义依据。`老师原话`仅用于可与字幕核对的英文，中文说明是笔记对资源的解释。自拟例子与课外推导单独标明。
 
-| 文件 | SHA-256 |
+讲义截图编号均指 **PDF 页码**，未必等于页脚印刷编号；交互演示的截图是静态图。第 10、11 讲封面沿用旧年份，第 15、16 讲页脚沿用 Week 9，归档周次以 Canvas 当前发布位置和讲课主题为准。
+
+| 本地目录 | 内容 |
 | --- | --- |
-| `lecture/COMP90086-07-CNNsII.pdf` | `f0b7b1c69e304fd4432154c1913fe8165a97cd93d7a5784cefd3e96dec7c111f` |
-| `lecture/COMP90086-08-CNNsIII.pdf` | `66d8c69473e3a638c7e42a721e36f3283f9205185a9ec5bc001e168f39aad708` |
-| `transcript/COMP90086_2026_SM2 Week-04-W-transcript.txt` | `4a693ff5f06ed1ebe0bbfbab87c5d9eda5b7e61895cc91eabe3e3aa112b32d1c` |
-| `transcript/COMP90086_2026_SM2 Week-04-F-transcript.txt` | `d1642b35484be4b0deb9c631d060a4418e3d544e56ed7e461e0ac677f6d0cd30` |
-| `workshop/week-04/worksheet04_solution.ipynb` | `7e110f97c941e3c16d7d1e6bf38a896c8acac7188286a2edb2d5553753358911` |
-| `lecture/COMP90086-09-ViT.pdf` | `b67b41d95d387a773a1384197331a9763fa1697d1046262433b27196a1989c9c` |
-| `workshop/week-05/worksheet05.ipynb` | `44a36c0a5be46d2dcaedf7db546741a843e623929f61ce8b43ef5df64d95c3a7` |
-| `workshop/week-05/worksheet05_solution.ipynb` | `95ebc30ab1c7cd2e3a6b0d1b2f8eadc442ece2ba7a8f0f92640d9b9aa5f1d184` |
-| `workshop/week-05/harry.png` | `a5d89c8f938a45a79390f02c82b2ba3c67a5d723d0279d2bda8361b25dcbb49e` |
-| `workshop/week-05/wallaby.jpeg` | `19c5f19e99e24161763e07f2568894cf334e2bb5dcf8c53cbb6fad5cda95c868` |
+| `lecture/` | 16 份讲义 PDF |
+| `transcript/` | 15 份按 Week/W/F 归档的字幕 |
+| `workshop/week-NN/` | Week 1–8 练习与配套文件、Week 2–7 已发布答案 |
+| `workshop/packages/` | 原始 Workshop 压缩包 |
+| `assets/<topic>/` | 选用讲义页的 PNG 截图 |
+| `assignment/A1/` | 作业说明、Notebook 与测试图 |
+| `exam/` | 练习考试与答案 |
 
+原始课程资料和截图保留在本地，不提交到版本库。可复用的笔记整理规则位于仓库 `.agents/skills/study-notes-course-materials/SKILL.md`。
 
-### Week 5–6 本次补充校验
+## Assignment 1：已有资料
 
-| 文件 | SHA-256 |
-| --- | --- |
-| `lecture/COMP90086-10-representations.pdf` | `d21d1cecd7da6a49a98fb53abb487e06ca36f20738319f9496772fa665f3b0a3` |
-| `lecture/COMP90086-11-features.pdf` | `d96b16d46b5f8d02715656e9072e9d9889553ca629d05fd6e0ae9462a37f70f2` |
-| `lecture/COMP90086_12_feature-matching.pdf` | `6608997fb06674ba5ddedf9dc291abf81bf9b562ce3cda4e548163d3a4b5ba8c` |
-| `transcript/COMP90086_2026_SM2 Week-05-W-transcript.txt` | `79050d0134a759b982be682e3bd1314b1e612bd5d45515909dfd8806a4e667a7` |
-| `transcript/COMP90086_2026_SM2 Week-05-F-transcript.txt` | `f40e449e848a089faf4d105407c458a42b9a44e3b1c3efe2a77d2f82b8b6e22e` |
-| `transcript/COMP90086_2026_SM2 Week-06-W-transcript.txt` | `c65b037a721dd53d78f95e278a9de0dc53e2583769a04cb9e4e0b9526859a528` |
-| `transcript/COMP90086_2026_SM2 Week-06-F-transcript.txt` | `ffd6c4160aaf8df1fc38720e47b695cf526e106046709eaee26f18480dd14528` |
-| `workshop/week-05/worksheet05_solution.ipynb` | `95ebc30ab1c7cd2e3a6b0d1b2f8eadc442ece2ba7a8f0f92640d9b9aa5f1d184` |
+**Sampling, Aliasing, and Filtering**。原说明截止时间为 2026-08-23 23:59，占总成绩 6%；此处记录原要求，不代表当前延期或提交状态。
+
+任务包括降采样与混叠、高斯抗混叠，以及二维直接滤波、可分离一维滤波和 FFT 方法的运行时间比较。本地 `assignment/A1/` 保留说明、Notebook、`zoneplate.png` 和 `picket-fence.jpg`；具体交付要求以原说明为准。
