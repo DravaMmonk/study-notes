@@ -1,3 +1,5 @@
+import { observeHighlights } from './highlightGeometry'
+
 const storageKey = 'fieldnotes.annotations.v1'
 
 export const annotationColors = {
@@ -121,4 +123,6 @@ export function applyAnnotations(container, annotations, activeId) {
     }
     textNode.replaceWith(fragment)
   })
+
+  return observeHighlights(container)
 }

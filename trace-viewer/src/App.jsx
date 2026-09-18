@@ -16,7 +16,8 @@ import {
 } from 'lucide-react'
 import './App.css'
 import 'katex/dist/katex.min.css'
-import AnnotationCard from './components/AnnotationCard'
+import AnnotationEntry from './components/AnnotationEntry'
+import { annotationAtPoint } from './lib/highlightGeometry'
 import { buildDocumentTree, noteDocuments, renderMarkdown } from './lib/content'
 import {
   addAnnotation,
@@ -123,7 +124,7 @@ function App() {
     const article = articleRef.current
     if (!article) return
     article.innerHTML = renderedDocument.html
-    applyAnnotations(article, annotations, activeAnnotationId)
+    return applyAnnotations(article, annotations, activeAnnotationId)
   }, [renderedDocument, annotations, activeAnnotationId])
 
   useEffect(() => {
@@ -235,8 +236,9 @@ function App() {
       return
     }
     const mark = event.target.closest('mark[data-annotation-id]')
-    if (!mark) return
-    setActiveAnnotationId(mark.dataset.annotationId)
+    const id = mark?.dataset.annotationId ?? annotationAtPoint(articleRef.current, event.clientX, event.clientY)
+    if (!id) return
+    setActiveAnnotationId(id)
     setInspectorOpen(true)
   }
 
@@ -577,7 +579,7 @@ function AnnotationInspector({
 
       <div className="annotation-list">
         {annotations.length ? annotations.map((annotation) => (
-          <AnnotationCard
+          <AnnotationEntry
             key={annotation.id}
             active={activeAnnotationId === annotation.id}
             annotation={annotation}
