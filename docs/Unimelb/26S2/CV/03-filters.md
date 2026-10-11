@@ -51,6 +51,8 @@ $$
 
 **易错：先确定是否翻核。** 上式的 $i-u,j-v$ 表示卷积。若用“窗口直接与核对齐相乘”的互相关实现，偏移应读成 $i+u,j+v$ 。中心权重为 1、其余为 0 时两者都复制当前像素；非对称核的移动方向则不同，下一小节用图比较。
 
+<!-- figure: conv-press -->
+
 ### 互相关和卷积
 
 ![Slide 17 - Cross-correlation vs convolution](assets/03-filters/slide-17.png)

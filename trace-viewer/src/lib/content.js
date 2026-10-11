@@ -94,8 +94,13 @@ function slugify(value, seen) {
   return count ? `${base}-${count + 1}` : base
 }
 
+// An HTML comment on its own line, <!-- figure: name -->, marks where an interactive figure goes.
+// Obsidian and MkDocs hide the comment; here it becomes an empty slot the app fills.
+const figurePattern = /^[ \t]*<!--\s*figure:\s*([a-z0-9-]+)\s*-->[ \t]*$/gm
+
 export function renderMarkdown(markdown, sourcePath) {
-  const preparedMarkdown = resolveAssetReferences(markdown, sourcePath)
+  const withFigures = markdown.replace(figurePattern, (_, name) => `<div class="figure-slot" data-figure="${name}"></div>`)
+  const preparedMarkdown = resolveAssetReferences(withFigures, sourcePath)
   const unsafeHtml = markdownRenderer.parse(preparedMarkdown, { breaks: false, gfm: true })
   const parser = new DOMParser()
   const document = parser.parseFromString(DOMPurify.sanitize(unsafeHtml), 'text/html')

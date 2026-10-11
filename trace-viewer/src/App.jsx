@@ -1,22 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  BookOpen,
+  Box,
   ChevronDown,
   ChevronRight,
   Download,
   FileText,
   Highlighter,
   MessageSquareText,
+  Moon,
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
+  Ruler,
   Search,
+  Sun,
   X,
 } from 'lucide-react'
 import './App.css'
 import 'katex/dist/katex.min.css'
 import AnnotationEntry from './components/AnnotationEntry'
+import { createFigureHost } from './figures/host'
 import { annotationAtPoint } from './lib/highlightGeometry'
 import { buildDocumentTree, noteDocuments, renderMarkdown } from './lib/content'
 import {
@@ -37,6 +41,22 @@ function documentFromLocation() {
 
 const initialDocument = documentFromLocation()
 const sidebarStorageKey = 'fieldnotes.sidebar.open'
+const themeStorageKey = 'fieldnotes.theme'
+const themes = [
+  { id: 'paper', label: 'Paper', Icon: Sun },
+  { id: 'night', label: 'Night', Icon: Moon },
+  { id: 'blueprint', label: 'Blueprint', Icon: Ruler },
+]
+
+function initialTheme() {
+  try {
+    const saved = window.localStorage.getItem(themeStorageKey)
+    if (themes.some((theme) => theme.id === saved)) return saved
+  } catch {
+    // Storage can be unavailable; fall back to the system preference.
+  }
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'paper'
+}
 
 function initialSidebarState() {
   const savedState = window.localStorage.getItem(sidebarStorageKey)
@@ -54,6 +74,9 @@ function App() {
   const [inspectorOpen, setInspectorOpen] = useState(() => window.innerWidth > 690)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [toast, setToast] = useState('')
+  const [theme, setTheme] = useState(initialTheme)
+  const figureHosts = useRef(new Map())
+  const themeRef = useRef(theme)
   const searchRef = useRef(null)
   const articleRef = useRef(null)
   const commentRef = useRef(null)
@@ -77,6 +100,25 @@ function App() {
   useEffect(() => {
     window.localStorage.setItem(sidebarStorageKey, String(sidebarOpen))
   }, [sidebarOpen])
+
+  useEffect(() => {
+    themeRef.current = theme
+    document.documentElement.dataset.theme = theme
+    try {
+      window.localStorage.setItem(themeStorageKey, theme)
+    } catch {
+      // Theme still applies for this session.
+    }
+    figureHosts.current.forEach((figure) => figure.setTheme(theme))
+  }, [theme])
+
+  useEffect(() => {
+    const hosts = figureHosts.current
+    return () => {
+      hosts.forEach((figure) => figure.dispose())
+      hosts.clear()
+    }
+  }, [])
 
   useEffect(() => {
     const onLocationChange = () => {
@@ -124,8 +166,22 @@ function App() {
     const article = articleRef.current
     if (!article) return
     article.innerHTML = renderedDocument.html
+    // Figure hosts outlive re-renders, so a figure keeps its state while annotations change.
+    const hosts = figureHosts.current
+    const used = new Set()
+    article.querySelectorAll('.figure-slot').forEach((slot, index) => {
+      const key = `${activeDocument.path}#${index}#${slot.dataset.figure}`
+      used.add(key)
+      if (!hosts.has(key)) hosts.set(key, createFigureHost(slot.dataset.figure, themeRef.current))
+      slot.replaceWith(hosts.get(key).host)
+    })
+    hosts.forEach((figure, key) => {
+      if (used.has(key)) return
+      figure.dispose()
+      hosts.delete(key)
+    })
     return applyAnnotations(article, annotations, activeAnnotationId)
-  }, [renderedDocument, annotations, activeAnnotationId])
+  }, [activeDocument.path, renderedDocument, annotations, activeAnnotationId])
 
   useEffect(() => {
     if (!toast) return undefined
@@ -173,7 +229,8 @@ function App() {
     }
   }
 
-  const handleArticleMouseUp = () => {
+  const handleArticleMouseUp = (event) => {
+    if (event.target.closest('.figure-host')) return
     window.setTimeout(() => {
       const selection = window.getSelection()
       const article = articleRef.current
@@ -226,6 +283,7 @@ function App() {
   }
 
   const handleAnnotationClick = (event) => {
+    if (event.target.closest('.figure-host')) return
     const documentLink = event.target.closest('a[data-note-path]')
     if (documentLink) {
       const document = noteDocuments.find((item) => item.path === documentLink.dataset.notePath)
@@ -353,6 +411,7 @@ function App() {
             ))}
           </div>
           <div className="topbar-actions">
+            <ThemeSwitch theme={theme} onChange={setTheme} />
             <span className="annotation-count"><Highlighter size={15} /> {annotations.length}</span>
             <button
               className="icon-button"
@@ -403,12 +462,35 @@ function App() {
   )
 }
 
+function ThemeSwitch({ theme, onChange }) {
+  return (
+    <div className="theme-switch" role="radiogroup" aria-label="Theme">
+      {themes.map((option) => {
+        const ThemeIcon = option.Icon
+        return (
+          <button
+            key={option.id}
+            className="theme-option"
+            role="radio"
+            aria-checked={theme === option.id}
+            aria-label={option.label}
+            title={option.label}
+            onClick={() => onChange(option.id)}
+          >
+            <ThemeIcon size={14} strokeWidth={1.6} />
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 function Sidebar({ activePath, documentCount, isOpen, onClose, onNavigate, query, searchRef, setQuery, tree }) {
   return (
     <>
       <aside className={`sidebar ${isOpen ? 'is-open' : ''}`}>
         <div className="brand-row">
-          <div className="brand-mark"><BookOpen size={17} /></div>
+          <div className="brand-mark"><Box size={17} strokeWidth={1.5} /></div>
           <div>
             <strong>FIELDNOTES</strong>
             <span>Local study library</span>

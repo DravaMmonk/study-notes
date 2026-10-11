@@ -227,6 +227,8 @@ $$
 
 补边不只是为了“补回尺寸”。边缘外面的数值会影响边界附近的输出，因此 zero、reflect 或 replicate 会产生不同结果。
 
+<!-- figure: conv-press -->
+
 <a id="topic-4"></a>
 ## 4. 特征层次与能力边界
 
