@@ -97,6 +97,8 @@ $r_1,r_2$ 是 $R$ 的前两列。于是平面坐标到图像坐标由一个 $H$ 
 
 固定第一张图的一个点，只能确定一条空间视线，点可能在视线上不同深度。把这些可能位置投到第二张图，都会落在同一条极线上。**这缩小了搜索范围，却还没有确定具体对应点。**
 
+<!-- figure: epipolar-rig -->
+
 ### 本质矩阵 E：使用归一化相机坐标
 
 ![PDF 21 - Cross product and essential matrix](assets/14-two-view-geometry/slide-21.png)

@@ -45,6 +45,8 @@
 
 不要把最大池化当成“选出最亮的像素”。它是在特征图上选最大的**特征响应**；这个响应可能代表边缘、纹理或更高层的模式。池化也会丢弃其他位置的信息，所以要根据任务选择卷积核、步幅和池化类型。
 
+<!-- figure: pool-sorter -->
+
 #### Workshop 5 补充：沿原题计算参数与输出
 
 来源：`workshop/week-05/worksheet05_solution.ipynb` 开头的 CNN 参数题。原解答标题误写成 Exercise 3，但对应的是开头 Exercise 1。

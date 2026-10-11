@@ -100,6 +100,8 @@ $\odot$ 是逐元素乘法。随机部分放在 $\epsilon$ 中， $\mu,\sigma$ �
 
 </details>
 
+<!-- figure: vae-sampler -->
+
 ### 两项损失分别管什么
 
 ![PDF 36 - Variational objective](assets/15-generation/slide-36.png)

@@ -202,6 +202,8 @@ $$
 
 这个 $5\times5\times3$ 滤波器可以在 $28\times28$ 个 valid locations 重复使用，仍然只学习这 $76$ 个参数。这就是权重共享带来的巨大节省。
 
+<!-- figure: channel-stack -->
+
 ### 输出大小、步幅和补边
 
 ![Slide 47 - Convolution output size](assets/06-cnns-i/slide-47.png)

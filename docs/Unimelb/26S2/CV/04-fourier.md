@@ -154,6 +154,8 @@ $$
 H_{\mathrm{HP}}=1-H_{\mathrm{LP}}.
 $$
 
+<!-- figure: harmonic-analyser -->
+
 ### 频域与图像压缩
 
 ![Slide 52 - Frequency-domain compression](assets/04-fourier/slide-52.png)

@@ -25,6 +25,6 @@ A note can embed an interactive figure with an HTML comment on its own line:
 <!-- figure: conv-press -->
 ```
 
-Obsidian and MkDocs hide the comment; Fieldnotes replaces it with the figure. Available figures are listed in `src/figures/registry.js` (`conv-press`, `stereo-rangefinder`, `ransac-pegboard`). Each figure is drawn with the isometric kit from the [anatomy](https://github.com/wheresryan22/anatomy) skill (MIT, copied to `src/figures/kit/`) and renders inside a shadow root, so its text never shifts annotation offsets.
+Obsidian and MkDocs hide the comment; Fieldnotes replaces it with the figure. Each folder in `src/figures/` is one figure and its folder name is its id (the first three keep the ids `conv-press`, `stereo-rangefinder` and `ransac-pegboard`); `src/figures/registry.js` discovers them. The COMP90086 topic pages in `docs/Unimelb/26S2/CV/topics/` gather all sixteen. Each figure is drawn with the isometric kit from the [anatomy](https://github.com/wheresryan22/anatomy) skill (MIT, copied to `src/figures/kit/`) and renders inside a shadow root, so its text never shifts annotation offsets.
 
 Preview one figure on its own at `/figures.html?fig=conv-press&theme=light` (themes: `light`, `dark`, `blueprint`).

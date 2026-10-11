@@ -41,6 +41,8 @@ $$
 
 表面正对光源时， $\theta$ 小，亮度较高；表面转开时，亮度降低。这个模型把亮度写成几个因素的乘积，正好也说明了为什么反推困难：一个像素变亮，可能是光变强、材质更亮，也可能是表面方向变了。
 
+<!-- figure: lambert-studio -->
+
 ### 颜色不是一个波长，而是一段频谱的结果
 
 ![Slide 10 - Spectral power distribution](assets/05-image-formation-ii/slide-10.png)

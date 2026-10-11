@@ -15,6 +15,11 @@ document.body.classList.add('iso')
 document.body.dataset.theme = theme
 
 const module = await figures[name]()
+if (module.css) {
+  const extra = document.createElement('style')
+  extra.textContent = module.css
+  document.head.append(extra)
+}
 const root = document.querySelector('#figure-preview')
 root.innerHTML = module.render()
 module.mount(root)

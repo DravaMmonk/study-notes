@@ -90,6 +90,8 @@ $$
 
 这些参数对应不同判断，不能只调一个“灵敏度”就解决全部问题。
 
+<!-- figure: hough-accumulator -->
+
 ### Hough 为什么不适合直接搜索八维变换
 
 ![PPT 16 - Dimension and grid size](assets/12-feature-matching/slide-16.png)

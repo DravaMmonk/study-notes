@@ -31,6 +31,11 @@ export function createFigureHost(name, theme) {
   } else {
     load().then((module) => {
       if (disposed) return
+      if (module.css) {
+        const extra = document.createElement('style')
+        extra.textContent = module.css
+        shadow.insertBefore(extra, root)
+      }
       root.innerHTML = module.render()
       cleanup = module.mount(root) ?? cleanup
     })
