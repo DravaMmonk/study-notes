@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Box,
+  ArrowLeft,
+  ArrowRight,
   ChevronDown,
   ChevronRight,
   Download,
@@ -22,6 +24,7 @@ import './App.css'
 import 'katex/dist/katex.min.css'
 import AnnotationEntry from './components/AnnotationEntry'
 import { createFigureHost } from './figures/host'
+import { PHONE, useMedia } from './game/ui/useMedia'
 import { annotationAtPoint } from './lib/highlightGeometry'
 import { buildDocumentTree, noteDocuments, renderMarkdown } from './lib/content'
 import {
@@ -76,6 +79,11 @@ function App() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [toast, setToast] = useState('')
   const [theme, setTheme] = useState(initialTheme)
+  const [barHidden, setBarHidden] = useState(false)
+  const [lightbox, setLightbox] = useState(null)
+  const phone = useMedia(PHONE)
+  const lastScroll = useRef(0)
+  const shownPath = useRef(null)
   const figureHosts = useRef(new Map())
   const themeRef = useRef(theme)
   const searchRef = useRef(null)
@@ -142,6 +150,7 @@ function App() {
         searchRef.current?.focus()
       }
       if (event.key === 'Escape') {
+        setLightbox(null)
         setSelectionDraft(null)
         window.getSelection()?.removeAllRanges()
       }
@@ -157,6 +166,14 @@ function App() {
       const rect = article.getBoundingClientRect()
       const readableDistance = Math.max(article.offsetHeight - window.innerHeight * 0.55, 1)
       setScrollProgress(Math.min(100, Math.max(0, (-rect.top / readableDistance) * 100)))
+      // On narrow screens the bar slides away while reading down and returns on the way up.
+      const y = window.scrollY
+      if (window.matchMedia('(max-width: 690px)').matches && Math.abs(y - lastScroll.current) > 6) {
+        setBarHidden(y > lastScroll.current && y > 80)
+        lastScroll.current = y
+      } else if (y < 80) {
+        setBarHidden(false)
+      }
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -167,6 +184,12 @@ function App() {
     const article = articleRef.current
     if (!article) return
     article.innerHTML = renderedDocument.html
+    if (shownPath.current !== activeDocument.path) {
+      shownPath.current = activeDocument.path
+      article.classList.remove('is-entering')
+      void article.offsetWidth
+      article.classList.add('is-entering')
+    }
     // Figure hosts outlive re-renders, so a figure keeps its state while annotations change.
     const hosts = figureHosts.current
     const used = new Set()
@@ -285,6 +308,10 @@ function App() {
 
   const handleAnnotationClick = (event) => {
     if (event.target.closest('.figure-host')) return
+    if (event.target.tagName === 'IMG' && window.getSelection()?.isCollapsed !== false) {
+      setLightbox({ src: event.target.currentSrc || event.target.src, alt: event.target.alt })
+      return
+    }
     const documentLink = event.target.closest('a[data-note-path]')
     if (documentLink) {
       const document = noteDocuments.find((item) => item.path === documentLink.dataset.notePath)
@@ -394,7 +421,7 @@ function App() {
       />
 
       <main className="reading-workspace">
-        <header className="topbar">
+        <header className={`topbar ${barHidden ? 'is-hidden' : ''}`}>
           <button
             className="icon-button sidebar-toggle"
             onClick={() => setSidebarOpen((value) => !value)}
@@ -413,7 +440,7 @@ function App() {
           </div>
           <div className="topbar-actions">
             <a className="icon-button game-link" href="game.html" title="视觉完备：计算机视觉解谜关卡" aria-label="打开视觉完备游戏"><Puzzle size={17} /></a>
-            <ThemeSwitch theme={theme} onChange={setTheme} />
+            <ThemeSwitch theme={theme} onChange={setTheme} compact={phone} />
             <span className="annotation-count"><Highlighter size={15} /> {annotations.length}</span>
             <button
               className="icon-button"
@@ -432,9 +459,16 @@ function App() {
             onMouseUp={handleArticleMouseUp}
             onClick={handleAnnotationClick}
           />
-          <DocumentOutline headings={renderedDocument.headings} />
+          <NoteNeighbours current={activeDocument} onNavigate={navigateToDocument} />
+          <DocumentOutline key={activeDocument.path} headings={renderedDocument.headings} />
         </div>
       </main>
+      {lightbox && (
+        <button className="lightbox" onClick={() => setLightbox(null)} aria-label="关闭图片">
+          <img src={lightbox.src} alt={lightbox.alt} />
+          {lightbox.alt && <span>{lightbox.alt}</span>}
+        </button>
+      )}
 
       <AnnotationInspector
         activeAnnotationId={activeAnnotationId}
@@ -464,7 +498,18 @@ function App() {
   )
 }
 
-function ThemeSwitch({ theme, onChange }) {
+function ThemeSwitch({ theme, onChange, compact }) {
+  if (compact) {
+    const index = Math.max(0, themes.findIndex((option) => option.id === theme))
+    const current = themes[index]
+    const next = themes[(index + 1) % themes.length]
+    const CurrentIcon = current.Icon
+    return (
+      <button className="icon-button theme-cycle" onClick={() => onChange(next.id)} aria-label={`Theme: ${current.label}. Switch to ${next.label}`} title={current.label}>
+        <CurrentIcon size={17} strokeWidth={1.6} />
+      </button>
+    )
+  }
   return (
     <div className="theme-switch" role="radiogroup" aria-label="Theme">
       {themes.map((option) => {
@@ -531,11 +576,20 @@ function Sidebar({ activePath, documentCount, isOpen, onClose, onNavigate, query
 }
 
 function TreeNode({ node, activePath, onNavigate, depth }) {
-  const [expanded, setExpanded] = useState(depth < 2)
+  // Folders open by default near the root and whenever they hold the note being read.
+  const [manual, setManual] = useState(null)
+  const holdsActive = !node.document && activePath.startsWith(`${node.path}/`)
+  const expanded = manual ?? (depth < 2 || holdsActive)
+  const activeRef = useRef(null)
+  const isActive = node.document && activePath === node.document.path
+  useEffect(() => {
+    if (isActive) activeRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [isActive])
   if (node.document) {
     return (
       <button
-        className={`document-link ${activePath === node.document.path ? 'is-active' : ''}`}
+        ref={activeRef}
+        className={`document-link ${isActive ? 'is-active' : ''}`}
         style={{ '--tree-depth': depth }}
         onClick={() => onNavigate(node.document)}
       >
@@ -547,7 +601,7 @@ function TreeNode({ node, activePath, onNavigate, depth }) {
 
   return (
     <div className="tree-folder">
-      <button className="folder-label" style={{ '--tree-depth': depth }} onClick={() => setExpanded((value) => !value)}>
+      <button className="folder-label" style={{ '--tree-depth': depth }} onClick={() => setManual(!expanded)} aria-expanded={expanded}>
         {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         <span>{node.name}</span>
       </button>
@@ -559,13 +613,63 @@ function TreeNode({ node, activePath, onNavigate, depth }) {
 }
 
 function DocumentOutline({ headings }) {
+  const [current, setCurrent] = useState(null)
+  // Follow the reader: the last heading above the upper third of the screen is the current section.
+  useEffect(() => {
+    if (headings.length < 2) return undefined
+    let frame = 0
+    const update = () => {
+      frame = 0
+      let id = headings[0].id
+      for (const heading of headings) {
+        const node = document.getElementById(heading.id)
+        if (node && node.getBoundingClientRect().top < window.innerHeight * 0.3) id = heading.id
+      }
+      setCurrent(id)
+    }
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(update)
+    }
+    frame = window.requestAnimationFrame(update)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+  }, [headings])
   if (headings.length < 2) return null
   return (
     <nav className="document-outline" aria-label="On this page">
       <span>On this page</span>
       {headings.map((heading) => (
-        <a key={heading.id} href={`#${heading.id}`} className={`outline-level-${heading.level}`}>{heading.text}</a>
+        <a key={heading.id} href={`#${heading.id}`} className={`outline-level-${heading.level} ${current === heading.id ? 'is-current' : ''}`} aria-current={current === heading.id ? 'location' : undefined}>{heading.text}</a>
       ))}
+    </nav>
+  )
+}
+
+// Previous and next notes in the same folder, in library order.
+function NoteNeighbours({ current, onNavigate }) {
+  const folder = current.path.slice(0, current.path.lastIndexOf('/') + 1)
+  const siblings = noteDocuments.filter((document) => document.path.startsWith(folder) && !document.path.slice(folder.length).includes('/'))
+  const index = siblings.findIndex((document) => document.path === current.path)
+  const previous = siblings[index - 1]
+  const next = siblings[index + 1]
+  if (!previous && !next) return null
+  return (
+    <nav className="note-neighbours" aria-label="Neighbouring notes">
+      {previous ? (
+        <button className="note-neighbour" onClick={() => onNavigate(previous)}>
+          <span><ArrowLeft size={13} /> 上一篇</span>
+          <b>{previous.title}</b>
+        </button>
+      ) : <span />}
+      {next && (
+        <button className="note-neighbour is-next" onClick={() => onNavigate(next)}>
+          <span>下一篇 <ArrowRight size={13} /></span>
+          <b>{next.title}</b>
+        </button>
+      )}
     </nav>
   )
 }

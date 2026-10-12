@@ -55,7 +55,7 @@ const EXTRA = `
 .fx-grid b{padding:1px 0;text-align:center;font-weight:400;background:var(--anatomy-card)}
 .fx-grid b[data-sign="-1"]{color:var(--anatomy-muted)}
 .fx-grid b[data-sign="0"]{color:var(--anatomy-lo)}
-@media (max-width:560px){.fx-controls{gap:6px 12px}}
+@media (max-width:560px){.fx-controls{gap:6px 12px}.iso-plate{padding:38px 8px 58px}.iso-plate-corners{inset:14px 14px}.iso-plate-corner[data-corner="hint"]{bottom:18px}}
 `
 
 export const FIGURE_CSS = ISO_CSS + THEMES + EXTRA
