@@ -97,6 +97,7 @@
 .param-kernel input, .param-kernel output { width: 100%; min-width: 0; height: 22px; padding: 0 2px; border: 0; border-radius: 1px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--mono); font-size: 10.5px; text-align: center; line-height: 22px; }
 .param-kernel.is-learned output { color: var(--accent-ink); }
 .node-preview { margin: 8px 11px 0; min-height: 40px; display: grid; place-items: center; }
+.node-peek { margin: 4px 11px 0; color: var(--muted); font-family: var(--mono); font-size: 10px; font-variant-numeric: tabular-nums; }
 .node-error { padding: 14px 0; color: var(--faint); font-size: 11px; }
 
 .image-view { display: block; image-rendering: pixelated; box-shadow: 0 0 0 1px var(--line); background: var(--canvas); }

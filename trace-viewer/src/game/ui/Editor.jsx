@@ -30,6 +30,7 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
   const [zoom, setZoom] = useState(1)
   const [selected, setSelected] = useState(null)
   const [drag, setDrag] = useState(null)
+  const [peek, setPeek] = useState(null)
   const surface = useRef(null)
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
@@ -191,8 +192,9 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
                 <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => setParam(node, param.key, v)} />
               ))}
               <div className="node-preview">
-                {error ? <span className="node-error">{error}</span> : <ImageView img={value} size={NODE_W - 22} theme={theme} label="未连接" />}
+                {error ? <span className="node-error">{error}</span> : <ImageView img={value} size={NODE_W - 22} theme={theme} label="未连接" onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
               </div>
+              {peek?.id === node.id && <p className="node-peek">({peek.x}, {peek.y}) = {peek.value.toFixed(3)}</p>}
             </div>
           )
         })}

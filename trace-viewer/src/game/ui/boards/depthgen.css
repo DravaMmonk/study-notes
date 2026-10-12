@@ -1,0 +1,86 @@
+/* Boards of the depthgen pack: 7-4 EpipolarSearch and 8-3 GanDuel. Tokens only. */
+.dg { min-height: 0; padding: 28px 32px 40px; display: grid; grid-template-columns: minmax(0, auto) minmax(280px, 340px); gap: 28px; align-content: start; justify-content: start; overflow: auto; background: var(--canvas); }
+.dg-label { display: block; margin-bottom: 6px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .12em; }
+.dg-num { color: var(--muted); font-family: var(--mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+.dg-panel { display: grid; gap: 18px; align-content: start; padding: 18px; border-radius: 2px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); }
+.dg-button { min-height: 34px; padding: 6px 10px; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.dg-button small { color: var(--muted); font-family: var(--mono); font-size: 10.5px; white-space: nowrap; }
+.dg-button:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--ink), inset 3px 0 0 var(--accent); }
+.dg-button:disabled { color: var(--faint); cursor: default; }
+.dg-button.is-primary { color: var(--paper); background: var(--ink); box-shadow: none; justify-content: center; }
+.dg-button.is-primary:disabled { color: var(--paper); opacity: .5; }
+.dg-link { padding: 0; border: 0; color: var(--muted); background: none; font-size: 12px; cursor: pointer; }
+.dg-link:hover { color: var(--ink); }
+.dg-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid var(--hairline); }
+.dg-message { margin: 0; min-height: 18px; color: var(--body); font-size: 13px; line-height: 1.5; }
+.dg-message.is-good { color: var(--status); }
+.dg-message.is-bad { color: #c0604b; }
+
+/* ---- 7-4 ---- */
+.dg-views { display: flex; flex-wrap: wrap; gap: 22px; align-content: start; }
+.dg-view { margin: 0; }
+.dg-view figcaption { margin-top: 8px; color: var(--muted); font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; }
+.dg-frame { position: relative; }
+.dg-frame .image-view { position: absolute; inset: 0; }
+.dg-overlay { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+.dg-overlay.is-clickable { cursor: crosshair; }
+.dg-mark { fill: none; stroke-width: .28; }
+.dg-mark.is-target { stroke: var(--accent); fill: var(--accent); fill-opacity: .35; }
+.dg-mark.is-found { stroke: var(--status); fill: var(--status); fill-opacity: .45; }
+.dg-mark.is-wrong { stroke: #c0604b; fill: #c0604b; fill-opacity: .4; }
+.dg-mark-label { fill: var(--status); font-family: var(--mono); font-size: 1.5px; paint-order: stroke; stroke: var(--paper); stroke-width: .35; }
+.dg-window { fill: none; stroke: var(--accent); stroke-width: .16; stroke-dasharray: .5 .3; }
+.dg-window.is-good { stroke: var(--status); stroke-dasharray: none; }
+.dg-window.is-bad { stroke: #c0604b; stroke-dasharray: none; }
+.dg-line { stroke: var(--accent); stroke-width: .2; }
+.dg-line.is-old { stroke: var(--status); stroke-opacity: .55; stroke-dasharray: .6 .4; }
+.dg-cand { fill: var(--accent); fill-opacity: .8; }
+.dg-math { display: grid; gap: 12px; }
+.dg-matrix { border-collapse: collapse; font-family: var(--mono); font-size: 11px; color: var(--ink); border-left: 1px solid var(--rule); border-right: 1px solid var(--rule); }
+.dg-matrix td { padding: 2px 7px; text-align: right; font-variant-numeric: tabular-nums; }
+.dg-vector { margin: 0; color: var(--ink); font-family: var(--mono); font-size: 12px; line-height: 1.5; }
+.dg-budget { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; }
+.dg-budget .dg-label { grid-column: 1 / -1; margin: 0; }
+.dg-bar { height: 6px; border-radius: 1px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+.dg-bar i { display: block; height: 100%; background: var(--accent); transition: width 160ms ease; }
+.dg-modes { display: grid; gap: 6px; }
+.dg-result { display: grid; gap: 10px; min-height: 40px; }
+.dg-windows { display: flex; align-items: end; gap: 12px; }
+.dg-windows figure { margin: 0; }
+.dg-windows figcaption { margin-top: 4px; color: var(--muted); font-family: var(--mono); font-size: 10px; }
+.dg-profile { flex: 1; min-width: 0; }
+.dg-profile svg { display: block; width: 100%; height: 60px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); }
+.dg-profile polyline { fill: none; stroke: var(--accent); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+
+/* ---- 8-3 ---- */
+.dg-gan { grid-template-columns: minmax(0, 640px) minmax(260px, 320px); }
+.dg-plots { display: grid; gap: 14px; align-content: start; }
+.dg-plot { display: block; width: 100%; height: auto; border-radius: 2px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); }
+.dg-real { fill: var(--rule); fill-opacity: .6; }
+.dg-fake { fill: var(--accent); fill-opacity: .18; stroke: var(--accent); stroke-width: 1.2px; }
+.dg-real-ink { fill: var(--muted); }
+.dg-fake-ink { fill: var(--accent-ink); }
+.dg-axis { stroke: var(--rule); stroke-width: 1px; }
+.dg-pen { fill: var(--ink); }
+.dg-pen-label, .dg-tick, .dg-legend { fill: var(--muted); font-family: var(--mono); font-size: 10px; }
+.dg-legend { font-size: 10.5px; }
+.dg-dband { fill: var(--canvas); }
+.dg-half, .dg-guide { stroke: var(--rule); stroke-width: 1px; stroke-dasharray: 3 3; }
+.dg-dcurve { fill: none; stroke: var(--ink); stroke-width: 1.6px; }
+.dg-trace { fill: none; stroke-width: 1.6px; }
+.dg-trace.is-0 { stroke: var(--accent); }
+.dg-trace.is-1 { stroke: var(--ink); stroke-dasharray: 4 2; }
+.dg-control { display: grid; }
+.dg-segments { display: flex; gap: 1px; padding: 1px; border-radius: 2px; background: var(--hairline); }
+.dg-segments button { flex: 1; min-height: 28px; border: 0; border-radius: 1px; color: var(--muted); background: var(--paper); font-family: var(--mono); font-size: 11.5px; cursor: pointer; }
+.dg-segments button[aria-checked='true'] { color: var(--paper); background: var(--ink); }
+.dg-segments button:disabled { cursor: default; }
+.dg-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dg-readout { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 12.5px; }
+.dg-readout dt { color: var(--muted); }
+.dg-readout dd { margin: 0; color: var(--ink); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.dg-readout dd.is-good { color: var(--status); }
+
+@media (max-width: 1100px) {
+  .dg, .dg-gan { grid-template-columns: minmax(0, 1fr); }
+}

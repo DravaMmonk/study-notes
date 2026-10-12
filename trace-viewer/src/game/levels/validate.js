@@ -6,7 +6,10 @@ import { LEVELS } from './index.js'
 let problems = 0
 for (const level of LEVELS) {
   if (level.kind !== 'graph') {
-    console.log(`${level.id} ${level.title}: (${level.kind})`)
+    // Boards and probes may export verify(): '' when the level is winnable and its lesson holds.
+    const problem = level.verify ? level.verify() : ''
+    console.log(`${level.id} ${level.title}: (${level.kind}${level.board ? ` ${level.board}` : ''}) ${level.verify ? (problem ? `FAIL ${problem}` : 'verified') : 'no verify()'}`)
+    if (problem) problems += 1
     continue
   }
   const report = (graph) => {

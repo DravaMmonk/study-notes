@@ -52,6 +52,8 @@ const DESCRIPTIONS = {
   disparity: '左右图逐行匹配，输出视差，窗口可选',
 }
 
+const describe = (type) => DESCRIPTIONS[type] ?? NODE_TYPES[type]?.description ?? ''
+
 const INTRO = [
   '探测器 V-0，视觉芯片已上电。',
   '你的相机能把世界变成一格格数字，但你还看不懂它们。',
@@ -178,7 +180,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme }) {
     let next = board
     const history = []
     for (let i = 0; i < steps; i++) {
-      const result = trainStep(level, next, 1)
+      const result = trainStep(level, next, level.trainRate ?? 1)
       next = result.graph
       history.push(result.loss)
     }
@@ -207,9 +209,9 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme }) {
               {level.palette.length ? (
                 <div className="palette">
                   {level.palette.map((type) => (
-                    <button key={type} className="palette-item" onClick={() => addNode(type)} title={DESCRIPTIONS[type] ?? ''}>
+                    <button key={type} className="palette-item" onClick={() => addNode(type)} title={describe(type)}>
                       <span>{NODE_TYPES[type].label}</span>
-                      <small>{DESCRIPTIONS[type] ?? ''}</small>
+                      <small>{describe(type)}</small>
                     </button>
                   ))}
                 </div>
@@ -279,7 +281,7 @@ function BoardLevel({ level, onSolve, theme }) {
 }
 
 function LossCurve({ losses }) {
-  if (!losses.length) return <p className="panel-note">还没训练。每一步，九个权重都朝让误差变小的方向挪一点。</p>
+  if (!losses.length) return <p className="panel-note">还没训练。每一步，所有可学习的权重都朝让误差变小的方向挪一点。</p>
   const max = Math.max(...losses)
   const min = Math.min(...losses)
   const points = losses.map((v, i) => `${(i / Math.max(1, losses.length - 1)) * 200},${56 - ((Math.log(v + 1e-9) - Math.log(min + 1e-9)) / Math.max(1e-9, Math.log(max + 1e-9) - Math.log(min + 1e-9))) * 52}`)

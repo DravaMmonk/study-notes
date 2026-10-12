@@ -1,0 +1,110 @@
+/* Optics boards (0-5 暗箱, 3-3 朗伯台, 7-3 测距): drawn with the shared tokens only. */
+.optics { --optics-bad: #c0604b; min-height: 0; padding: 22px 28px 28px; display: grid; align-content: start; gap: 18px; overflow-y: auto; background: var(--canvas); }
+.optics svg text { font-family: var(--mono); }
+.optics-stage { width: 100%; height: auto; display: block; border-radius: 2px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); touch-action: none; user-select: none; }
+.optics-row { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 22px; align-items: start; }
+.optics-controls { display: grid; gap: 16px; align-content: start; }
+.optics-readout { margin: 0; color: var(--muted); font-family: var(--mono); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.optics-button { min-height: 30px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 2px; color: var(--paper); background: var(--ink); font-size: 12px; cursor: pointer; }
+
+/* shared drawing */
+.optics-axis { stroke: var(--rule); stroke-width: .6; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.optics-ray { stroke: var(--accent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.optics-ray.is-base { stroke: var(--muted); }
+.optics-ray.is-lost { stroke: var(--optics-bad); stroke-dasharray: 5 4; }
+.optics-tag, .optics-dim-label { fill: var(--muted); font-size: 10px; text-anchor: middle; }
+.optics-dim-label.is-left { text-anchor: end; }
+.optics-tick { stroke: var(--pre-ink); stroke-width: .3; opacity: .7; }
+.optics-tick-label { fill: var(--muted); font-size: 9px; }
+.optics-inset .optics-tick-label { fill: var(--pre-ink); font-size: 2.6px; opacity: .7; }
+.optics-dim line { stroke: var(--muted); stroke-width: 1; vector-effect: non-scaling-stroke; }
+
+/* 0-5 暗箱 */
+.optics-table { fill: var(--rail); stroke: var(--rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.optics-post { stroke: var(--rule); stroke-width: 3; }
+.optics-arrow { fill: var(--ink); }
+.optics-cone { fill: var(--accent); }
+.optics-cone.is-base { fill: var(--muted); }
+.optics-plate { fill: var(--ink); }
+.optics-screen { fill: var(--paper); stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.optics-image { stroke: var(--accent); stroke-linecap: butt; }
+.optics-handle { cursor: ew-resize; outline: none; }
+.optics-grip { fill: transparent; }
+.optics-handle:hover .optics-grip, .optics-handle:focus-visible .optics-grip { fill: var(--hover); stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.optics-inset { margin: 0; }
+.optics-inset svg { width: 100%; height: auto; display: block; border-radius: 2px; box-shadow: 0 0 0 1px var(--line); }
+.optics-inset-bg { fill: var(--pre-bg); }
+.optics-inset .optics-axis { stroke: var(--pre-line); }
+.optics-inset-image { fill: #fff6dc; }
+.optics-goal-line { stroke: var(--accent); stroke-width: .4; stroke-dasharray: 1.5 1; }
+.optics-inset figcaption, .optics figure figcaption { margin-top: 5px; display: flex; align-items: center; gap: 4px; color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+.optics-holes { display: flex; flex-wrap: wrap; gap: 4px; }
+.optics-holes button { min-width: 64px; min-height: 30px; padding: 4px 8px; display: grid; justify-items: center; gap: 2px; border: 0; border-radius: 2px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--mono); font-size: 11px; cursor: pointer; }
+.optics-holes button svg { width: 28px; height: 28px; }
+.optics-holes button circle { fill: var(--ink); }
+.optics-holes button.is-active { box-shadow: inset 0 0 0 1.5px var(--ink), inset 0 -3px 0 var(--accent); }
+.optics-goals { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.optics-goals li { min-height: 32px; padding: 0 10px; display: grid; grid-template-columns: 16px 40px 90px 1fr; align-items: center; gap: 8px; border-radius: 2px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font-size: 12.5px; }
+.optics-goals b { font-family: var(--mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+.optics-goals small { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.optics-goals .is-ok svg, .optics-shot.is-ok figcaption svg, .optics-table-readout .is-ok th svg { color: var(--status); }
+.optics-goals .is-bad svg, .optics-shot.is-bad figcaption svg, .optics-table-readout .is-bad th svg, .optics-twin-head.is-bad svg { color: var(--optics-bad); }
+.optics-twin-head.is-ok svg { color: var(--status); }
+
+/* 3-3 朗伯台 */
+.optics-lambert { grid-template-columns: 250px minmax(0, 1fr); align-items: start; gap: 28px; }
+.optics-lambert-controls { display: grid; gap: 14px; }
+.optics-dial { margin: 0; }
+.optics-dial svg { width: 100%; height: auto; display: block; cursor: crosshair; touch-action: none; outline: none; }
+.optics-dial svg:focus-visible .optics-dial-sky { stroke: var(--accent); }
+.optics-dial-sky { fill: var(--paper); stroke: var(--rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.optics-dial-ring { fill: none; stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.optics-dial-ridges line { stroke: var(--rule); stroke-width: 6; opacity: .35; stroke-linecap: round; }
+.optics-lamp { fill: var(--accent); stroke: var(--ink); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.optics-lamp.is-ghost { fill: none; stroke: var(--muted); stroke-dasharray: 3 2; }
+.optics-lamp-arm { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.optics-slider { display: grid; grid-template-columns: auto minmax(0, 1fr) 54px; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
+.optics-slider input { width: 100%; accent-color: var(--accent); }
+.optics-slider b { color: var(--ink); font-family: var(--mono); font-weight: 500; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+.optics-shots { display: grid; gap: 18px; align-content: start; }
+.optics-shot { padding: 12px 14px 14px; border-radius: 2px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); }
+.optics-shot.is-ok { box-shadow: inset 0 0 0 1.5px var(--status); }
+.optics-shot-images { display: flex; flex-wrap: wrap; gap: 14px; }
+.optics-shot-images figure, .optics-twin figure { margin: 0; }
+.optics-twin { padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; border-radius: 2px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule), inset 3px 0 0 var(--accent); }
+.optics-twin > div { display: grid; gap: 8px; justify-items: start; }
+.optics-twin-head { margin: 0; display: flex; align-items: center; gap: 6px; color: var(--heading); font-family: var(--serif); font-size: 16px; }
+
+/* 7-3 测距 */
+.optics-range { grid-template-columns: minmax(300px, 1fr) minmax(360px, 1.1fr); align-items: start; gap: 24px; }
+.optics-range-scene { max-height: calc(100vh - 110px); }
+.optics-side { display: grid; gap: 18px; align-content: start; }
+.optics-grid { stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.optics-robot { fill: var(--rail); stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.optics-camera { fill: var(--ink); }
+.optics-object { fill: var(--ink); }
+.optics-object rect { fill: var(--ink); }
+.optics-band { fill: var(--status); opacity: .16; }
+.optics-target.is-bad .optics-band { fill: var(--optics-bad); }
+.optics-errorbar line { stroke: var(--status); stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+.optics-target.is-bad .optics-errorbar line { stroke: var(--optics-bad); }
+.optics-target-label { fill: var(--ink); font-size: 11px; }
+.optics-target.is-bad .optics-target-label { fill: var(--optics-bad); }
+.optics-strips { width: 100%; height: auto; display: block; }
+.optics-strip { fill: var(--paper); stroke: var(--rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.optics-search { fill: var(--accent); opacity: .16; }
+.optics-search.is-miss { fill: var(--optics-bad); opacity: .22; }
+.optics-strip-label { fill: var(--muted); font-size: 13px; }
+.optics-mark { stroke: var(--ink); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.optics-link { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.optics-mark-label { fill: var(--ink); font-size: 13px; text-anchor: middle; }
+.optics-table-readout { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.optics-table-readout th, .optics-table-readout td { padding: 7px 8px; border-bottom: 1px solid var(--hairline); text-align: left; font-weight: 400; white-space: nowrap; }
+.optics-table-readout thead th { color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
+.optics-table-readout tbody th { display: flex; align-items: center; gap: 6px; }
+.optics-table-readout td { font-family: var(--mono); font-size: 11.5px; }
+.optics-table-readout .is-bad td:nth-child(4) { color: var(--optics-bad); }
+
+@media (max-width: 1100px) {
+  .optics-lambert, .optics-range, .optics-row { grid-template-columns: minmax(0, 1fr); }
+}

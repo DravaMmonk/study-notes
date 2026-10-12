@@ -35,4 +35,4 @@ Preview one figure on its own at `/figures.html?fig=conv-press&theme=light` (the
 
 - Design, research notes and the full level map: `src/game/DESIGN.md`.
 - Engine: `src/game/engine/` (images, node types, graph evaluation and training).
-- Levels: `src/game/levels/`. Every graph level carries a reference solution and, where the lesson depends on it, a naive one; `npm run levels` checks that each solution passes and each naive one fails.
+- Levels: `src/game/levels/` — 43 levels in nine chapters, from wiring a camera to a GAN. Every graph level carries a reference solution and, where the lesson depends on it, a naive one; every board level (`ui/boards/`) has a `verify()`. `npm run levels` checks them all.

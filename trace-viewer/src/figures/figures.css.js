@@ -43,7 +43,7 @@ const EXTRA = `
 .fx-neg>.iso-shade{fill:var(--anatomy-mid)}
 .fx-controls{display:flex;flex-wrap:wrap;gap:6px 18px;margin:2px 0 4px}
 .fx-control{display:flex;align-items:center;gap:2px;font-family:var(--anatomy-mono);font-size:10.5px;letter-spacing:.04em}
-.fx-control>span{margin-right:6px;color:var(--anatomy-muted);text-transform:uppercase;letter-spacing:.1em}
+.fx-control>span{margin-right:6px;color:var(--anatomy-muted);letter-spacing:.1em}
 .fx-control button{min-height:26px;padding:0 8px;border:0;border-radius:2px;color:var(--anatomy-text);background:transparent;box-shadow:inset 0 0 0 1px var(--anatomy-faint);font:inherit;cursor:pointer;transition:background 140ms ease,color 140ms ease}
 .fx-control button:hover{color:var(--anatomy-strong)}
 .fx-control button[aria-pressed="true"]{color:var(--anatomy-card);background:var(--anatomy-hi);box-shadow:none}

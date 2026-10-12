@@ -1,0 +1,33 @@
+.spec-board { min-height: 0; padding: 28px 32px 40px; display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 32px; align-content: start; overflow-y: auto; background: var(--canvas); }
+.spec-main { min-width: 0; display: grid; gap: 26px; align-content: start; }
+.spec-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.spec-card { min-width: 0; padding: 8px 8px 6px; display: grid; gap: 6px; justify-items: stretch; border: 0; border-radius: 2px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; transition: box-shadow 120ms ease, transform 120ms ease; }
+.spec-card .image-view { width: 100% !important; height: auto !important; aspect-ratio: 1; }
+.spec-card:hover { box-shadow: inset 0 0 0 1px var(--rule); }
+.spec-card.is-selected { box-shadow: inset 0 0 0 2px var(--accent); transform: translateY(-2px); }
+.spec-card.is-paired { box-shadow: inset 0 0 0 1px var(--rule), inset 0 -3px 0 var(--accent); }
+.spec-card.is-paired.is-selected { box-shadow: inset 0 0 0 2px var(--accent); }
+.spec-tag { display: flex; align-items: baseline; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.spec-tag b { color: var(--ink); font-weight: 500; }
+.spec-tag i { font-style: normal; }
+.spec-slot { min-width: 20px; padding: 0 4px; border-radius: 2px; text-align: center; color: var(--accent-ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); }
+.spec-actions { display: flex; align-items: center; gap: 14px; }
+.spec-check { min-height: 32px; padding: 0 18px; border: 0; border-radius: 2px; color: var(--paper); background: var(--ink); font-size: 13px; cursor: pointer; }
+.spec-check:disabled { color: var(--faint); background: var(--hover); box-shadow: inset 0 0 0 1px var(--line); cursor: default; }
+.spec-verdict { margin: 0; color: var(--muted); font-size: 13px; }
+
+.spec-lab { padding: 16px; display: grid; gap: 14px; align-content: start; border-radius: 2px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); }
+.spec-lab .panel-label { margin: 0; }
+.spec-lab-images { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.spec-lab-images figure { margin: 0; }
+.spec-lab-images .image-view { width: 100% !important; height: auto !important; aspect-ratio: 1; }
+.spec-lab-images figcaption { margin-top: 4px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
+.spec-slider { display: grid; gap: 4px; color: var(--muted); font-size: 12px; }
+.spec-slider span { display: flex; justify-content: space-between; }
+.spec-slider output { color: var(--ink); font-family: var(--mono); font-size: 11px; }
+.spec-slider input { width: 100%; accent-color: var(--accent); }
+
+@media (max-width: 1100px) {
+  .spec-board { grid-template-columns: minmax(0, 1fr); }
+  .spec-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
