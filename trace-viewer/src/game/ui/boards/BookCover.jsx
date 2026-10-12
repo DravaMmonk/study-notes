@@ -1,24 +1,43 @@
-import { useMemo, useRef, useState } from 'react'
-import { RotateCcw, X } from 'lucide-react'
-import { pixelUrl, svgPoint, useSolveOnce } from './matchDraw.js'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { Check, RotateCcw, X } from 'lucide-react'
+import { pixelUrl, svgPoint, useSolveOnce, useWidth } from './matchDraw.js'
+import { PHONE, useMedia } from '../useMedia.js'
 import './MatchBoards.css'
 
-// 6-5 书封面: drag from a point on the cover to the same point in the photo. Three pairs give an
-// affine map, four give a homography (solved by DLT); the cover is warped onto the photo with it.
+// 6-5 书封面: pair a point on the cover with the same point in the photo (drag from one to the other,
+// or tap one and then the other). Three pairs give an affine map, four give a homography (solved by
+// DLT); the cover is warped onto the photo with it.
 
-const S = 3
-const COVER_AT = [0, 40]
-const PHOTO_X = 250
-const SNAP = 16
+const S = 3 // svg units per image pixel
+const PAD = 14 // svg margin around each picture, room for armed rings and tags
+// Marker radius, tag size and snap distance (svg units) so that each reads at about the same screen
+// size: the cover and photo are drawn at different scales, and smaller on a phone.
+const SIZES = {
+  wide: { rCover: 6, rPhoto: 6, fsCover: 12, fsPhoto: 12, snapCover: 22, snapPhoto: 20 },
+  phone: { rCover: 8, rPhoto: 10, fsCover: 15, fsPhoto: 21, snapCover: 34, snapPhoto: 40 },
+}
+
+function toClient(svg, [x, y]) {
+  const point = svg.createSVGPoint()
+  point.x = x
+  point.y = y
+  const at = point.matrixTransform(svg.getScreenCTM())
+  return [at.x, at.y]
+}
 
 export default function BookCover({ level, onSolve }) {
   const m = level.model
+  const phone = useMedia(PHONE)
   const [pairs, setPairs] = useState([])
-  const [armed, setArmed] = useState(null)
-  const [draft, setDraft] = useState(null)
+  const [armed, setArmed] = useState(null) // { side: 'cover' | 'photo', index }
   const [message, setMessage] = useState('')
   const [overlay, setOverlay] = useState(true)
-  const svg = useRef(null)
+  const coverSvg = useRef(null)
+  const photoSvg = useRef(null)
+  const stage = useRef(null)
+  const links = useRef(null)
+  const draft = useRef(null)
+  const stageWidth = useWidth(stage)
 
   const fit = useMemo(() => m.fit(pairs), [m, pairs])
   const done = pairs.length === 4 && fit.error < m.tol
@@ -28,8 +47,28 @@ export default function BookCover({ level, onSolve }) {
   const photoUrl = useMemo(() => pixelUrl(m.PHOTO.w, m.PHOTO.h, (t) => m.renderPhoto(t)), [m])
   const warpUrl = useMemo(() => (fit.model ? pixelUrl(m.PHOTO.w, m.PHOTO.h, (t) => m.renderPhoto(t, fit.model, { desk: false })) : null), [m, fit.model])
 
-  const coverXY = ([x, y]) => [COVER_AT[0] + x * S, COVER_AT[1] + y * S]
-  const photoXY = ([u, v]) => [PHOTO_X + u * S, v * S]
+  const Z = phone ? SIZES.phone : SIZES.wide
+  const coverXY = ([x, y]) => [x * S, y * S]
+  const photoXY = ([u, v]) => [u * S, v * S]
+
+  // On a wide screen the pairs are joined by lines across the gap between the two pictures. The
+  // overlay is measured after layout and written directly, so a resize only moves the lines.
+  useLayoutEffect(() => {
+    const svg = links.current
+    if (!svg || !stage.current || !coverSvg.current || !photoSvg.current) return
+    const box = stage.current.getBoundingClientRect()
+    svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`)
+    svg.querySelectorAll('line[data-pair]').forEach((line) => {
+      const p = pairs[Number(line.dataset.pair)]
+      if (!p) return
+      const [x1, y1] = toClient(coverSvg.current, [m.coverPoints[p.cover][0] * S, m.coverPoints[p.cover][1] * S])
+      const [x2, y2] = toClient(photoSvg.current, [m.photoPoints[p.photo].at[0] * S, m.photoPoints[p.photo].at[1] * S])
+      line.setAttribute('x1', x1 - box.left)
+      line.setAttribute('y1', y1 - box.top)
+      line.setAttribute('x2', x2 - box.left)
+      line.setAttribute('y2', y2 - box.top)
+    })
+  }, [pairs, stageWidth, phone, m])
 
   const addPair = (cover, photo) => {
     const rest = pairs.filter((p) => p.cover !== cover && p.photo !== photo)
@@ -41,11 +80,11 @@ export default function BookCover({ level, onSolve }) {
     setPairs([...rest, { cover, photo }])
   }
 
-  const nearestPhoto = ([x, y]) => {
+  const nearest = (points, toXY, [x, y], snap) => {
     let best = -1
-    let bestD = SNAP
-    m.photoPoints.forEach((p, i) => {
-      const [px, py] = photoXY(p.at)
+    let bestD = snap
+    points.forEach((p, i) => {
+      const [px, py] = toXY(p)
       const d = Math.hypot(px - x, py - y)
       if (d < bestD) {
         best = i
@@ -54,107 +93,175 @@ export default function BookCover({ level, onSolve }) {
     })
     return best
   }
+  const coverAt = (event) => nearest(m.coverPoints, coverXY, svgPoint(coverSvg.current, event), Z.snapCover)
+  const photoAt = (event) => nearest(m.photoPoints, (p) => photoXY(p.at), svgPoint(photoSvg.current, event), Z.snapPhoto)
 
-  const beginDrag = (event, cover) => {
-    event.preventDefault()
+  // The dashed line that follows a drag, drawn straight into the overlay (no re-render per move).
+  const drawDraft = (from, event) => {
+    const line = draft.current
+    if (!line || !stage.current) return
+    if (!event) {
+      line.setAttribute('visibility', 'hidden')
+      return
+    }
+    const box = stage.current.getBoundingClientRect()
+    line.setAttribute('x1', from[0] - box.left)
+    line.setAttribute('y1', from[1] - box.top)
+    line.setAttribute('x2', event.clientX - box.left)
+    line.setAttribute('y2', event.clientY - box.top)
+    line.setAttribute('visibility', 'visible')
+  }
+
+  // Press on the cover: arm the nearest cover point and follow the pointer. Releasing over a photo
+  // point pairs them (a drag); releasing anywhere else keeps the point armed for a tap on the photo.
+  const pressCover = (event) => {
     event.stopPropagation()
-    setArmed(cover)
-    setDraft(svgPoint(svg.current, event))
-    const move = (e) => setDraft(svgPoint(svg.current, e))
+    const cover = coverAt(event)
+    if (cover < 0) {
+      setArmed(null)
+      return
+    }
+    if (armed?.side === 'photo') {
+      addPair(cover, armed.index)
+      setArmed(null)
+      return
+    }
+    event.preventDefault()
+    const wasArmed = armed?.side === 'cover' && armed.index === cover
+    const start = [event.clientX, event.clientY]
+    const from = toClient(coverSvg.current, coverXY(m.coverPoints[cover]))
+    setArmed({ side: 'cover', index: cover })
+    const move = (e) => drawDraft(from, e)
     const up = (e) => {
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
-      setDraft(null)
-      const target = nearestPhoto(svgPoint(svg.current, e))
+      window.removeEventListener('pointercancel', up)
+      drawDraft(from, null)
+      const moved = Math.hypot(e.clientX - start[0], e.clientY - start[1]) > 6
+      const target = e.type === 'pointerup' ? photoAt(e) : -1
       if (target >= 0) {
         addPair(cover, target)
+        setArmed(null)
+      } else if (!moved && wasArmed) {
         setArmed(null)
       }
     }
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
+    window.addEventListener('pointercancel', up)
   }
 
-  const clickPhoto = (event, photo) => {
+  // Tap on the photo: pair with the armed cover point, or arm the photo point and wait for the cover.
+  const tapPhoto = (event) => {
     event.stopPropagation()
-    if (armed === null) return
-    addPair(armed, photo)
-    setArmed(null)
+    const photo = photoAt(event)
+    if (photo < 0) {
+      setArmed(null)
+      return
+    }
+    if (armed?.side === 'cover') {
+      addPair(armed.index, photo)
+      setArmed(null)
+    } else {
+      setArmed(armed?.side === 'photo' && armed.index === photo ? null : { side: 'photo', index: photo })
+    }
   }
 
-  const usedCover = new Set(pairs.map((p) => p.cover))
-  const usedPhoto = new Set(pairs.map((p) => p.photo))
+  const usedCover = new Map(pairs.map((p, i) => [p.cover, i]))
+  const usedPhoto = new Map(pairs.map((p, i) => [p.photo, i]))
   const quad = fit.model ? [[0, 0], [m.COVER.w, 0], [m.COVER.w, m.COVER.h], [0, m.COVER.h]].map(([x, y]) => photoXY(m.project(fit.model, x, y))) : null
+  const hasError = Number.isFinite(fit.error)
   const errorOk = fit.error < m.tol
+  const cw = m.COVER.w * S
+  const ch = m.COVER.h * S
+  const pw = m.PHOTO.w * S
+  const ph = m.PHOTO.h * S
 
   let status = '至少连 3 对点，才能把封面贴上去。'
-  if (pairs.length === 3) status = fit.model ? '3 对点 → 仿射变换（6 个自由度）' : '这 3 对点在一条线上，定不出变换。'
-  if (pairs.length === 4) status = fit.model ? '4 对点 → 单应变换，用 DLT 求解（8 个自由度）' : '这 4 对点太集中或共线，定不出 H。'
+  if (pairs.length === 3) status = fit.model ? '3 对点 → 仿射变换（6 个自由度）。' : '这 3 对点在一条线上，定不出变换。'
+  if (pairs.length === 4) status = fit.model ? '4 对点 → 单应变换，用 DLT 求解（8 个自由度）。' : '这 4 对点太集中或共线，定不出 H。'
+  const prompt = armed?.side === 'cover' ? '已选封面上的点 → 再点照片里同一个点。' : armed?.side === 'photo' ? '已选照片里的点 → 再点封面上对应的点。' : '点封面上的一个圆点，再点照片里同一个位置的圆点；也可以直接拖过去。'
+
+  const marker = (side, i, [x, y], used, r, fs) => {
+    const isArmed = armed?.side === side && armed.index === i
+    return (
+      <g key={`${side}${i}`} data-cover={side === 'cover' ? i : undefined} data-photo={side === 'photo' ? i : undefined}>
+        {isArmed && <circle className="mb-armed" cx={x} cy={y} r={r * 2.1} />}
+        <circle className={`mb-${side}-key ${used.has(i) ? 'is-used' : ''} ${isArmed ? 'is-armed' : ''}`} cx={x} cy={y} r={r} />
+        {used.has(i) && <text className="mb-pair-tag" x={x + r + 2} y={y - r - 2} style={{ fontSize: fs }}>{used.get(i) + 1}</text>}
+      </g>
+    )
+  }
+
+  const goal = (
+    <ul className="bk-goals">
+      <li className={`bk-goal ${pairs.length === 4 ? 'is-pass' : ''}`}>
+        {pairs.length === 4 ? <Check size={16} /> : <X size={16} />}
+        <span>点对</span>
+        <b>{pairs.length} / 4</b>
+      </li>
+      <li className={`bk-goal ${hasError && errorOk ? 'is-pass' : ''}`}>
+        {hasError && errorOk ? <Check size={16} /> : <X size={16} />}
+        <span>误差 <small>&lt; {m.tol} px</small></span>
+        <b className={hasError ? (errorOk ? 'mb-ok' : 'mb-bad') : ''}>{hasError ? `${fit.error.toFixed(2)} px` : '—'}</b>
+      </li>
+    </ul>
+  )
 
   return (
-    <div className="mb mb-cover" onPointerDown={() => setArmed(null)}>
-      <svg ref={svg} className="mb-stage" viewBox={`-8 -26 ${PHOTO_X + m.PHOTO.w * S + 16} ${m.PHOTO.h * S + 34}`} role="img" aria-label="封面和照片">
-        <text className="mb-caption" x={COVER_AT[0]} y={-10}>封面</text>
-        <text className="mb-caption" x={PHOTO_X} y={-10}>照片</text>
-        <image className="mb-pixels" href={coverUrl} x={COVER_AT[0]} y={COVER_AT[1]} width={m.COVER.w * S} height={m.COVER.h * S} preserveAspectRatio="none" />
-        <rect className="mb-frame" x={COVER_AT[0]} y={COVER_AT[1]} width={m.COVER.w * S} height={m.COVER.h * S} />
-        <image className="mb-pixels" href={photoUrl} x={PHOTO_X} y={0} width={m.PHOTO.w * S} height={m.PHOTO.h * S} preserveAspectRatio="none" />
-        {overlay && warpUrl && <image className="mb-pixels" href={warpUrl} x={PHOTO_X} y={0} width={m.PHOTO.w * S} height={m.PHOTO.h * S} preserveAspectRatio="none" opacity={0.6} />}
-        <rect className="mb-frame" x={PHOTO_X} y={0} width={m.PHOTO.w * S} height={m.PHOTO.h * S} />
-        {quad && (
-          <svg x={PHOTO_X} y={0} width={m.PHOTO.w * S} height={m.PHOTO.h * S} viewBox={`${PHOTO_X} 0 ${m.PHOTO.w * S} ${m.PHOTO.h * S}`} overflow="hidden">
-            <polygon className={`mb-quad ${errorOk ? '' : 'is-bad'}`} points={quad.map((p) => p.join(',')).join(' ')} />
+    <div className="bk mb mb-cover" onPointerDown={() => setArmed(null)}>
+      <div className="bk-stage mb-cover-stage" ref={stage}>
+        <div className="mb-cover-grid">
+          <figure className="mb-cover-fig">
+            <span className="bk-label">封面</span>
+            <svg ref={coverSvg} className="mb-svg mb-drag" viewBox={`${-PAD} ${-PAD} ${cw + 2 * PAD} ${ch + 2 * PAD}`} role="img" aria-label="封面" onPointerDown={pressCover}>
+              <rect className="mb-hit" x={-PAD} y={-PAD} width={cw + 2 * PAD} height={ch + 2 * PAD} />
+              <image className="mb-pixels" href={coverUrl} x={0} y={0} width={cw} height={ch} preserveAspectRatio="none" />
+              <rect className="mb-frame" x={0} y={0} width={cw} height={ch} />
+              <g pointerEvents="none">{m.coverPoints.map((p, i) => marker('cover', i, coverXY(p), usedCover, Z.rCover, Z.fsCover))}</g>
+            </svg>
+          </figure>
+          <div className="mb-cover-aside">
+            {goal}
+            <p className={`bk-note mb-prompt ${armed ? 'is-armed' : ''}`}>{prompt}</p>
+          </div>
+          <figure className="mb-photo-fig">
+            <span className="bk-label">照片</span>
+            <svg ref={photoSvg} className="mb-svg" viewBox={`${-PAD} ${-PAD} ${pw + 2 * PAD} ${ph + 2 * PAD}`} role="img" aria-label="照片" onClick={tapPhoto} onPointerDown={(e) => e.stopPropagation()}>
+              <defs>
+                <clipPath id="mb-photo-clip"><rect x={0} y={0} width={pw} height={ph} /></clipPath>
+              </defs>
+              <rect className="mb-hit" x={-PAD} y={-PAD} width={pw + 2 * PAD} height={ph + 2 * PAD} />
+              <image className="mb-pixels" href={photoUrl} x={0} y={0} width={pw} height={ph} preserveAspectRatio="none" />
+              {warpUrl && <image className={`mb-pixels mb-warp ${overlay ? '' : 'is-hidden'}`} href={warpUrl} x={0} y={0} width={pw} height={ph} preserveAspectRatio="none" />}
+              {quad && <polygon className={`mb-quad ${errorOk ? '' : 'is-bad'}`} clipPath="url(#mb-photo-clip)" points={quad.map((p) => p.join(',')).join(' ')} />}
+              <rect className="mb-frame" x={0} y={0} width={pw} height={ph} />
+              <g pointerEvents="none">{m.photoPoints.map((p, i) => marker('photo', i, photoXY(p.at), usedPhoto, Z.rPhoto, Z.fsPhoto))}</g>
+            </svg>
+          </figure>
+        </div>
+        {!phone && (
+          <svg ref={links} className="mb-links" aria-hidden="true">
+            {pairs.map((p, i) => <line key={`${p.cover}-${p.photo}`} data-pair={i} className="mb-pair-line" />)}
+            <line ref={draft} className="mb-pair-line is-draft" visibility="hidden" />
           </svg>
         )}
+      </div>
 
-        {pairs.map((p, i) => {
-          const [x1, y1] = coverXY(m.coverPoints[p.cover])
-          const [x2, y2] = photoXY(m.photoPoints[p.photo].at)
-          return (
-            <g key={`${p.cover}-${p.photo}`}>
-              <line className="mb-pair-line" x1={x1} y1={y1} x2={x2} y2={y2} />
-              <text className="mb-pair-tag" x={x2 + 7} y={y2 - 6}>{i + 1}</text>
-              <text className="mb-pair-tag" x={x1 + 7} y={y1 - 6}>{i + 1}</text>
-            </g>
-          )
-        })}
-        {armed !== null && draft && <line className="mb-pair-line is-draft" x1={coverXY(m.coverPoints[armed])[0]} y1={coverXY(m.coverPoints[armed])[1]} x2={draft[0]} y2={draft[1]} />}
-
-        {m.photoPoints.map((p, i) => {
-          const [x, y] = photoXY(p.at)
-          return (
-            <g key={`p${i}`} data-photo={i} onPointerDown={(e) => clickPhoto(e, i)} style={{ cursor: 'pointer' }}>
-              <circle cx={x} cy={y} r={SNAP / 1.6} fill="transparent" />
-              <circle className={`mb-photo-key ${usedPhoto.has(i) ? 'is-used' : ''}`} cx={x} cy={y} r={4} />
-            </g>
-          )
-        })}
-        {m.coverPoints.map((p, i) => {
-          const [x, y] = coverXY(p)
-          return (
-            <g key={`c${i}`} data-cover={i} onPointerDown={(e) => beginDrag(e, i)}>
-              <circle cx={x} cy={y} r={11} fill="transparent" style={{ cursor: 'grab' }} />
-              <circle className={`mb-cover-key ${usedCover.has(i) ? 'is-used' : ''} ${armed === i ? 'is-armed' : ''}`} cx={x} cy={y} r={5} />
-            </g>
-          )
-        })}
-      </svg>
-
-      <div className="mb-row">
-        <section className="mb-panel">
-          <p className="mb-label">变换</p>
-          <p className="mb-note">{status}</p>
-          <p className="mb-readout">
-            平均误差 <b className={Number.isFinite(fit.error) ? (errorOk ? 'mb-ok' : 'mb-bad') : ''}>{Number.isFinite(fit.error) ? `${fit.error.toFixed(2)} px` : '—'}</b> · 目标 &lt; {m.tol} px
-          </p>
-          {message && <p className="mb-warn">{message}</p>}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button className="mb-button" onPointerDown={(e) => e.stopPropagation()} onClick={() => setOverlay((v) => !v)}>{overlay ? '隐藏贴图' : '显示贴图'}</button>
-            <button className="mb-button" onPointerDown={(e) => e.stopPropagation()} onClick={() => { setPairs([]); setMessage('') }}><RotateCcw size={13} /> 清空</button>
+      <section className="bk-panel mb-cover-details">
+        <div className="mb-cover-controls">
+          <span className="bk-label">变换</span>
+          <p className="bk-note mb-status">{status}</p>
+          {message && <p className="bk-verdict is-fail">{message}</p>}
+          <div className="bk-row">
+            <label className="bk-check" onPointerDown={(e) => e.stopPropagation()}>
+              <input type="checkbox" checked={overlay} onChange={(e) => setOverlay(e.target.checked)} /> 显示贴图
+            </label>
+            <button className="bk-btn" onClick={() => { setPairs([]); setArmed(null); setMessage('') }} disabled={!pairs.length}><RotateCcw size={14} /> 清空</button>
           </div>
-        </section>
-        <section className="mb-panel">
-          <p className="mb-label">点对 {pairs.length} / 4</p>
+        </div>
+        <div>
+          <span className="bk-label">点对 · 封面 → 照片</span>
           {pairs.length ? (
             <ol className="mb-pairs">
               {pairs.map((p, i) => {
@@ -162,17 +269,18 @@ export default function BookCover({ level, onSolve }) {
                 const [u, v] = m.photoPoints[p.photo].at
                 return (
                   <li key={`${p.cover}-${p.photo}`}>
-                    <span>{i + 1}. ({x}, {y}) → ({u.toFixed(0)}, {v.toFixed(0)})</span>
-                    <button aria-label={`删掉第 ${i + 1} 对`} onPointerDown={(e) => e.stopPropagation()} onClick={() => setPairs((all) => all.filter((_, j) => j !== i))}><X size={13} /></button>
+                    <i>{i + 1}</i>
+                    <span>({x}, {y}) → ({u.toFixed(0)}, {v.toFixed(0)})</span>
+                    <button aria-label={`删掉第 ${i + 1} 对`} onPointerDown={(e) => e.stopPropagation()} onClick={() => setPairs((all) => all.filter((_, j) => j !== i))}><X size={15} /></button>
                   </li>
                 )
               })}
             </ol>
           ) : (
-            <p className="mb-note">按住封面上的圆点，拖到照片里同一个位置的圆点上松开。</p>
+            <p className="bk-note">还没有点对。</p>
           )}
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   )
 }

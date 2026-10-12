@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, Check, Timer, X } from 'lucide-react'
 import ImageView from '../ImageView.jsx'
+import { PHONE, useMedia } from '../useMedia.js'
 import { rangeOf } from '../display.js'
 import './KernelRacer.css'
 
@@ -26,6 +27,7 @@ function KernelCard({ kernel }) {
 // 1-R 核速判: ten rounds, an input and an output, four kernel cards; pick the one that did it.
 // Rounds come from a seed (one per attempt) and get shorter; a switch turns the clock off.
 export default function KernelRacer({ level, onSolve, theme }) {
+  const phone = useMedia(PHONE)
   const [phase, setPhase] = useState('ready') // ready → play → done
   const [attempt, setAttempt] = useState(1)
   const [timed, setTimed] = useState(true)
@@ -96,60 +98,76 @@ export default function KernelRacer({ level, onSolve, theme }) {
   const range = round ? rangeOf(round.output) : null
 
   return (
-    <div className="racer">
-      <header className="racer-head">
-        <div className="racer-progress" aria-label={`第 ${Math.min(index + 1, total)} / ${total} 轮`}>
+    <div className="bk racer">
+      <header className="bk-panel is-quiet racer-head">
+        <div className="racer-progress" role="img" aria-label={`第 ${Math.min(index + 1, total)} / ${total} 轮，对 ${right} 轮`}>
           {Array.from({ length: total }, (_, i) => (
             <i key={i} className={i < results.length ? (results[i] ? 'is-right' : 'is-wrong') : i === index && phase === 'play' ? 'is-now' : ''} />
           ))}
         </div>
-        <span className="racer-score">对 {right} / {total} · 过关 {pass}</span>
-        <label className="racer-toggle">
+        <span className="bk-chip racer-score">对 {right} / {total} · 过关 {pass}</span>
+        <label className="bk-check racer-toggle">
           <input type="checkbox" checked={!timed} onChange={(e) => setTimed(!e.target.checked)} />
           不限时
         </label>
       </header>
 
       {phase === 'play' && round && (
-        <>
-          <div className="racer-clock" aria-hidden="true">
-            {timed && !feedback && <i key={`${attempt}-${index}`} style={{ animationDuration: `${limit}s` }} />}
+        <div className="bk-split is-even racer-play">
+          <section className="bk-stage racer-stage">
+            <div className="racer-clock" aria-hidden="true">
+              {timed && !feedback && <i key={`${attempt}-${index}`} style={{ animationDuration: `${limit}s` }} />}
+            </div>
+            <div className="racer-pair">
+              <figure>
+                <ImageView img={round.input} range={{ lo: 0, hi: 1 }} size={184} theme={theme} />
+                <figcaption className="bk-caption">输入</figcaption>
+              </figure>
+              <ArrowRight className="racer-arrow" size={20} strokeWidth={1.5} />
+              <figure>
+                <ImageView img={round.output} range={range} size={184} theme={theme} />
+                <figcaption className="bk-caption">输出{range.lo < 0 ? '（灰 = 0）' : ''}</figcaption>
+              </figure>
+            </div>
+            <p className="bk-caption racer-time">{timed ? <><Timer size={13} /> 第 {index + 1} 轮 · {limit.toFixed(1)} 秒</> : `第 ${index + 1} 轮 · 不限时`}</p>
+          </section>
+
+          <div className="bk-stack">
+            <div className="racer-choices" role="group" aria-label="哪个核">
+              {round.choices.map((k, i) => {
+                const state = feedback ? (i === round.answer ? 'is-right' : i === feedback.chosen ? 'is-wrong' : 'is-dim') : ''
+                return (
+                  <button key={`${index}-${i}`} className={`racer-choice ${state}`} onClick={() => answer(i)} disabled={Boolean(feedback)} aria-label={`选项 ${i + 1}`}>
+                    <span className="racer-key">{i + 1}</span>
+                    <KernelCard kernel={level.kernels[k]} />
+                    {state === 'is-right' && <Check className="racer-mark" size={16} />}
+                    {state === 'is-wrong' && <X className="racer-mark" size={16} />}
+                  </button>
+                )
+              })}
+            </div>
+            <p className={`bk-verdict racer-note ${feedback ? (feedback.chosen === round.answer ? 'is-pass' : 'is-fail') : ''}`} aria-live="polite">
+              {feedback ? (feedback.chosen === null ? '时间到。' : feedback.chosen === round.answer ? '对。' : '不对，是标出的那个。') : phone ? '点一个核。' : '点选，或按数字键 1–4。'}
+            </p>
           </div>
-          <div className="racer-stage">
-            <figure>
-              <ImageView img={round.input} range={{ lo: 0, hi: 1 }} size={184} theme={theme} />
-              <figcaption>输入</figcaption>
-            </figure>
-            <ArrowRight className="racer-arrow" size={22} strokeWidth={1.4} />
-            <figure>
-              <ImageView img={round.output} range={range} size={184} theme={theme} />
-              <figcaption>输出{range.lo < 0 ? '（灰 = 0）' : ''}</figcaption>
-            </figure>
-            <p className="racer-time">{timed ? <><Timer size={13} /> 本轮 {limit.toFixed(1)} 秒</> : '不限时'}</p>
-          </div>
-          <div className="racer-choices" role="group" aria-label="哪个核">
-            {round.choices.map((k, i) => {
-              const state = feedback ? (i === round.answer ? 'is-right' : i === feedback.chosen ? 'is-wrong' : 'is-dim') : ''
-              return (
-                <button key={`${index}-${i}`} className={`racer-choice ${state}`} onClick={() => answer(i)} disabled={Boolean(feedback)} aria-label={`选项 ${i + 1}`}>
-                  <span className="racer-key">{i + 1}</span>
-                  <KernelCard kernel={level.kernels[k]} />
-                  {state === 'is-right' && <Check className="racer-mark" size={16} />}
-                  {state === 'is-wrong' && <X className="racer-mark" size={16} />}
-                </button>
-              )
-            })}
-          </div>
-          <p className="racer-note" aria-live="polite">{feedback ? (feedback.chosen === null ? '时间到。' : feedback.chosen === round.answer ? '对。' : '不对，是标出的那个。') : '点选或按数字键 1–4。'}</p>
-        </>
+        </div>
       )}
 
       {phase !== 'play' && (
-        <div className="racer-gate">
-          {phase === 'done' && <p className="racer-result">{right >= pass ? `对了 ${right} / ${total}，过关。` : `对了 ${right} / ${total}，还差 ${pass - right} 轮。`}</p>}
-          <p className="racer-lede">每一轮给你一张输入、一张输出和四个 3×3 核。{timed ? '时间越来越短。' : '现在不限时。'}</p>
-          <button className="racer-start" onClick={start} autoFocus>{phase === 'done' ? '再来一局' : '开始'}</button>
-        </div>
+        <section className="bk-stage racer-gate">
+          {phase === 'done' && (
+            <p className={`bk-title racer-result ${right >= pass ? 'is-pass' : ''}`}>
+              {right >= pass ? `对了 ${right} / ${total}，过关。` : `对了 ${right} / ${total}，还差 ${pass - right} 轮。`}
+            </p>
+          )}
+          <p className="racer-lede">每一轮给你一张输入、一张输出和四个 3×3 核，选出做这件事的那个。</p>
+          <div className="racer-rules">
+            <span className="bk-chip">{total} 轮</span>
+            <span className="bk-chip">对 {pass} 轮过关</span>
+            <span className="bk-chip">{timed ? `${level.timeFor(0).toFixed(0)} 秒起，越来越短` : '不限时'}</span>
+          </div>
+          <button className="bk-btn is-primary racer-start" onClick={start} autoFocus>{phase === 'done' ? '再来一局' : '开始'}</button>
+        </section>
       )}
     </div>
   )

@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Check, X } from 'lucide-react'
+import { PHONE, useMedia } from '../useMedia.js'
+import { useTween } from './optics-motion.js'
 import './optics.css'
 
 // 0-5 暗箱: a camera obscura on a table, seen from the side, in millimetres. Drag the pinhole plate
@@ -10,6 +12,12 @@ import './optics.css'
 const TABLE_Y = -140 // mm, the tabletop under the axis
 const HEAD = { length: 18, width: 16 }
 
+// Drawing scale. On a phone the side view is stretched upwards (k) so it is tall enough to read in a
+// narrow column; straight lines stay straight, so every similar triangle is still true. u widens
+// the parts and their grips, fs is the label size in viewBox units (≥ 11 px on screen either way).
+const DESK = { k: 1, u: 1, fs: 11, x0: -100, x1: 715 }
+const PHONE_LAYOUT = { k: 2, u: 2.2, fs: 27, x0: -118, x1: 690 }
+
 // The arrow as a polygon in its own plane (x across, y up), base on the axis.
 const arrowShape = (height, shaft) => [
   [-shaft / 2, 0], [shaft / 2, 0], [shaft / 2, height - HEAD.length], [HEAD.width / 2, height - HEAD.length],
@@ -19,13 +27,20 @@ const pts = (list) => list.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).jo
 
 export default function OpticsObscura({ level, onSolve }) {
   const m = level.model
+  const phone = useMedia(PHONE)
+  const L = phone ? PHONE_LAYOUT : DESK
+  const blurId = useId()
   const [state, setState] = useState(m.START)
+  const [dragging, setDragging] = useState(null) // 'plate' | 'screen' while a pointer holds one
   const svg = useRef(null)
   const drag = useRef(null)
   const fired = useRef(false)
-  const v = m.view(state)
-  const goals = m.goals(v)
+  const goals = m.goals(m.view(state))
   const done = goals.every((g) => g.ok)
+
+  // The drawing follows a tweened copy of the state, so a new hole or a key nudge glides into place.
+  const [tZ, tS, tD] = useTween([state.Z, state.s, state.D], { instant: Boolean(dragging) })
+  const v = m.view({ Z: tZ, s: tS, D: tD })
 
   useEffect(() => {
     if (done && !fired.current) {
@@ -42,24 +57,28 @@ export default function OpticsObscura({ level, onSolve }) {
     return point.matrixTransform(svg.current.getScreenCTM().inverse()).x
   }
   const grab = (part) => (event) => {
+    event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
     drag.current = { part, offset: worldX(event) - (part === 'plate' ? state.Z : state.s) }
+    setDragging(part)
   }
   const slide = (event) => {
     if (drag.current) move(drag.current.part, worldX(event) - drag.current.offset)
   }
   const drop = () => {
     drag.current = null
+    setDragging(null)
   }
   const nudge = (part) => (event) => {
-    const step = { ArrowLeft: -1, ArrowRight: 1 }[event.key]
+    const step = { ArrowLeft: -1, ArrowRight: 1, ArrowDown: -1, ArrowUp: 1 }[event.key]
     if (!step) return
     event.preventDefault()
     move(part, (part === 'plate' ? state.Z : state.s) + step * (event.shiftKey ? 10 : 1))
   }
 
-  // Side view: world y up, SVG y down.
-  const Y = (y) => -y
+  // Side view: world y up, SVG y down, stretched by k.
+  const { k, u, fs } = L
+  const Y = (y) => -y * k
   const { Z, f, D } = v
   const s = Z + f
   const cone = (y0) => {
@@ -72,44 +91,72 @@ export default function OpticsObscura({ level, onSolve }) {
   const glow = Math.min(1, Math.max(0.06, v.light * 0.7))
   const image = arrowShape(m.ARROW, m.SHAFT).map(([x, y]) => [(-x * f) / Z, (-y * f) / Z])
 
-  return (
-    <div className="optics optics-obscura">
-      <svg ref={svg} className="optics-stage" viewBox="-95 -132 815 320" role="img" aria-label="暗箱侧视图" onPointerMove={slide} onPointerUp={drop} onPointerCancel={drop}>
-        <line className="optics-axis" x1={-60} y1={0} x2={m.TABLE + 50} y2={0} />
-        <rect className="optics-table" x={-50} y={Y(TABLE_Y)} width={m.TABLE + 90} height={10} />
-        {/* the object */}
-        <line className="optics-post" x1={0} y1={Y(TABLE_Y)} x2={0} y2={0} />
-        <polygon className="optics-arrow" points={pts(arrowShape(m.ARROW, m.SHAFT).map(([x, y]) => [x, Y(y)]))} />
-        {/* light through the hole, from the tip and from the base */}
-        <polygon className="optics-cone" points={tip.poly} style={{ opacity: 0.18 + 0.5 * glow }} />
-        <polygon className="optics-cone is-base" points={base.poly} style={{ opacity: 0.12 + 0.4 * glow }} />
-        <line className="optics-ray" x1={0} y1={Y(m.ARROW)} x2={s} y2={Y(tip.centre)} />
-        <line className="optics-ray is-base" x1={0} y1={0} x2={s} y2={0} />
-        {/* pinhole plate: two halves with the hole between */}
-        <g className="optics-handle" tabIndex={0} role="slider" aria-label="孔板位置 Z" aria-valuenow={Z} aria-valuemin={m.PLATE[0]} aria-valuemax={m.PLATE[1]} onPointerDown={grab('plate')} onKeyDown={nudge('plate')}>
-          <rect className="optics-grip" x={Z - 14} y={Y(116)} width={28} height={116 - TABLE_Y} />
-          <rect className="optics-plate" x={Z - 2} y={Y(116)} width={4} height={116 - D / 2} />
-          <rect className="optics-plate" x={Z - 2} y={Y(-D / 2)} width={4} height={D / 2 - TABLE_Y} />
-          <text className="optics-tag" x={Z} y={Y(124)}>孔板</text>
-        </g>
-        {/* screen */}
-        <g className="optics-handle" tabIndex={0} role="slider" aria-label="屏幕位置" aria-valuenow={s} aria-valuemin={Z + m.GAP} aria-valuemax={m.TABLE} onPointerDown={grab('screen')} onKeyDown={nudge('screen')}>
-          <rect className="optics-grip" x={s - 14} y={Y(60)} width={28} height={60 - TABLE_Y} />
-          <rect className="optics-screen" x={s} y={Y(60)} width={5} height={60 - TABLE_Y} />
-          <line className="optics-image" x1={s - 1.5} y1={0} x2={s - 1.5} y2={Y(v.image)} style={{ opacity: glow, strokeWidth: Math.max(1.2, v.blur) }} />
-          <text className="optics-tag" x={s} y={Y(68)}>屏幕</text>
-        </g>
-        {/* dimensions */}
-        <Dimension x0={0} x1={Z} y={Y(TABLE_Y) + 26} label={`Z = ${Z} mm`} />
-        <Dimension x0={Z} x1={s} y={Y(TABLE_Y) + 26} label={`f = ${f} mm`} />
-        <text className="optics-dim-label is-left" x={-10} y={Y(m.ARROW / 2)}>X = {m.ARROW} mm</text>
-      </svg>
+  const tableTop = Y(TABLE_Y)
+  const dimY = tableTop + 12 * k + fs * 0.9
+  const top = Y(116) - fs * 1.9
+  const bottom = dimY + fs * 2
+  const viewBox = `${L.x0} ${top.toFixed(1)} ${L.x1 - L.x0} ${(bottom - top).toFixed(1)}`
+  const grip = 22 * u // half-width of a part's touch area
+  const label = (name, value) => (phone ? `${name} ${value}` : `${name} = ${value} mm`)
 
-      <div className="optics-row">
-        <figure className="optics-inset">
+  return (
+    <div className="bk optics optics-obscura">
+      <figure className="bk-stage optics-figure">
+        <svg ref={svg} className="optics-drag" viewBox={viewBox} style={{ '--fs': `${fs}px` }} role="img" aria-label="暗箱侧视图" onPointerMove={slide} onPointerUp={drop} onPointerCancel={drop}>
+          <line className="optics-axis" x1={L.x0 + 20} y1={0} x2={m.TABLE + 40} y2={0} />
+          <rect className="optics-table" x={-40} y={tableTop} width={m.TABLE + 70} height={9 * k} rx={2} />
+          {/* the object */}
+          <rect className="optics-post" x={-1.5 * u} y={0} width={3 * u} height={tableTop} />
+          <polygon className="optics-arrow" points={pts(arrowShape(m.ARROW, m.SHAFT).map(([x, y]) => [x * u, Y(y)]))} />
+          {/* light through the hole, from the tip and from the base */}
+          <polygon className="optics-cone" points={tip.poly} style={{ opacity: 0.18 + 0.5 * glow }} />
+          <polygon className="optics-cone is-base" points={base.poly} style={{ opacity: 0.12 + 0.4 * glow }} />
+          <line className="optics-ray" x1={0} y1={Y(m.ARROW)} x2={s} y2={Y(tip.centre)} />
+          <line className="optics-ray is-base" x1={0} y1={0} x2={s} y2={0} />
+
+          {/* pinhole plate: two halves with the hole between */}
+          <g className={`optics-handle ${dragging === 'plate' ? 'is-dragging' : ''}`} tabIndex={0} role="slider" aria-label="孔板位置 Z" aria-valuenow={state.Z} aria-valuemin={m.PLATE[0]} aria-valuemax={m.PLATE[1]} aria-valuetext={`Z = ${state.Z} mm`} onPointerDown={grab('plate')} onKeyDown={nudge('plate')}>
+            <rect className="optics-grip" x={Z - grip} y={Y(116) - fs * 1.6} width={grip * 2} height={tableTop - Y(116) + fs * 1.6 + 9 * k} rx={6 * u} />
+            <rect className="optics-plate" x={Z - 2 * u} y={Y(116)} width={4 * u} height={Y(D / 2) - Y(116)} />
+            <rect className="optics-plate" x={Z - 2 * u} y={Y(-D / 2)} width={4 * u} height={tableTop - Y(-D / 2)} />
+            <Foot x={Z} y={tableTop} u={u} k={k} />
+            <text className="optics-tag" x={Z} y={Y(116) - fs * 0.5}>孔板</text>
+          </g>
+
+          {/* screen */}
+          <g className={`optics-handle ${dragging === 'screen' ? 'is-dragging' : ''}`} tabIndex={0} role="slider" aria-label="屏幕位置" aria-valuenow={state.s} aria-valuemin={state.Z + m.GAP} aria-valuemax={m.TABLE} aria-valuetext={`f = ${state.s - state.Z} mm`} onPointerDown={grab('screen')} onKeyDown={nudge('screen')}>
+            <rect className="optics-grip" x={s - grip + 2 * u} y={Y(60) - fs * 1.6} width={grip * 2} height={tableTop - Y(60) + fs * 1.6 + 9 * k} rx={6 * u} />
+            <rect className="optics-screen" x={s} y={Y(60)} width={4 * u} height={tableTop - Y(60)} />
+            <line className="optics-image" x1={s} y1={0} x2={s} y2={Y(v.image)} style={{ opacity: glow, strokeWidth: Math.max(1.5, v.blur * k) }} />
+            <Foot x={s + 2 * u} y={tableTop} u={u} k={k} />
+            <text className="optics-tag" x={s + 2 * u} y={Y(60) - fs * 0.5}>屏幕</text>
+          </g>
+
+          {/* dimensions, read from the real state */}
+          <Dimension x0={0} x1={Z} y={dimY} fs={fs} label={label('Z', state.Z)} />
+          <Dimension x0={Z} x1={s} y={dimY} fs={fs} label={label('f', state.s - state.Z)} />
+          <text className="optics-tag is-left" x={-8 * u} y={Y(m.ARROW / 2) + fs * 0.35}>{phone ? `X ${m.ARROW}` : `X = ${m.ARROW} mm`}</text>
+        </svg>
+        <figcaption className="bk-caption">{phone ? '左右拖孔板和屏幕 · 单位 mm' : '左右拖孔板和屏幕（也可聚焦后按方向键，Shift 一次 10 mm）'}</figcaption>
+      </figure>
+
+      <div className="optics-lower">
+        <section className="bk-panel optics-holes-panel">
+          <span className="bk-label">孔径 D</span>
+          <div className="bk-seg optics-holes" role="radiogroup" aria-label="孔径">
+            {m.HOLES.map((hole) => (
+              <button key={hole} role="radio" aria-checked={state.D === hole} className={state.D === hole ? 'is-active' : ''} onClick={() => setState((st) => ({ ...st, D: hole }))}>
+                <svg viewBox="-14 -14 28 28" aria-hidden="true"><circle r={hole * 4.6} /></svg>
+                <span>{hole} mm</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <figure className="bk-panel is-quiet optics-inset">
           <svg viewBox="-26 -12 52 72" role="img" aria-label="屏幕正面">
             <defs>
-              <filter id="obscura-blur" filterUnits="userSpaceOnUse" x={-26} y={-12} width={52} height={72}>
+              <filter id={blurId} filterUnits="userSpaceOnUse" x={-26} y={-12} width={52} height={72}>
                 <feGaussianBlur stdDeviation={v.blur / 4} />
               </filter>
             </defs>
@@ -117,57 +164,50 @@ export default function OpticsObscura({ level, onSolve }) {
             {Array.from({ length: 12 }, (_, i) => i * 5).map((mm) => (
               <g key={mm}>
                 <line className="optics-tick" x1={-26} y1={mm} x2={mm % 10 ? -24.5 : -23} y2={mm} />
-                {mm % 10 === 0 && mm > 0 && <text className="optics-tick-label" x={-22} y={mm + 1}>{mm}</text>}
+                {mm % 10 === 0 && mm > 0 && <text className="optics-tick-label" x={-22} y={mm + 1.4}>{mm}</text>}
               </g>
             ))}
-            <line className="optics-goal-line" x1={-26} y1={m.GOAL.height} x2={26} y2={m.GOAL.height} />
-            <line className="optics-axis" x1={-26} y1={0} x2={26} y2={0} />
-            <polygon className="optics-inset-image" points={pts(image.map(([x, y]) => [x, -y]))} filter="url(#obscura-blur)" style={{ opacity: glow }} />
+            <line className="optics-goal-line" x1={-14} y1={m.GOAL.height} x2={26} y2={m.GOAL.height} />
+            <line className="optics-inset-axis" x1={-26} y1={0} x2={26} y2={0} />
+            <polygon className="optics-inset-image" points={pts(image.map(([x, y]) => [x, -y]))} filter={`url(#${CSS.escape(blurId)})`} style={{ opacity: glow }} />
           </svg>
-          <figcaption>屏幕上（mm）</figcaption>
+          <figcaption className="bk-caption">屏幕正面 · mm</figcaption>
         </figure>
 
-        <div className="optics-controls">
-          <div>
-            <h3 className="panel-label">孔径 D</h3>
-            <div className="optics-holes" role="radiogroup" aria-label="孔径">
-              {m.HOLES.map((hole) => (
-                <button key={hole} role="radio" aria-checked={D === hole} className={D === hole ? 'is-active' : ''} onClick={() => setState((st) => ({ ...st, D: hole }))}>
-                  <svg viewBox="-14 -14 28 28" aria-hidden="true"><circle r={hole * 4.6} /></svg>
-                  <span>{hole} mm</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <Goals goals={goals} />
-        </div>
+        <ul className="bk-goals optics-goals" aria-live="polite">
+          {goals.map((g) => (
+            <li key={g.key} className={`bk-goal ${g.ok ? 'is-pass' : ''}`}>
+              {g.ok ? <Check size={16} /> : <X size={16} />}
+              <span>{g.label} <small>需 {g.need}</small></span>
+              <b>{g.value}</b>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )
 }
 
-function Dimension({ x0, x1, y, label }) {
+// A part's foot on the table, with two small chevrons: the cue that it slides.
+function Foot({ x, y, u, k }) {
+  const w = 13 * u
+  const h = 6 * k
   return (
-    <g className="optics-dim">
-      <line x1={x0} y1={y - 5} x2={x0} y2={y + 5} />
-      <line x1={x1} y1={y - 5} x2={x1} y2={y + 5} />
-      <line x1={x0} y1={y} x2={x1} y2={y} />
-      <text className="optics-dim-label" x={(x0 + x1) / 2} y={y + 15}>{label}</text>
+    <g className="optics-foot">
+      <rect x={x - w} y={y - h} width={w * 2} height={h} rx={h / 2} />
+      <path d={`M${x - w + 3 * u} ${y - h / 2} l${3 * u} ${-h / 3} v${(h * 2) / 3} z M${x + w - 3 * u} ${y - h / 2} l${-3 * u} ${-h / 3} v${(h * 2) / 3} z`} />
     </g>
   )
 }
 
-function Goals({ goals }) {
+function Dimension({ x0, x1, y, fs, label }) {
+  const tick = fs * 0.45
   return (
-    <ul className="optics-goals">
-      {goals.map((g) => (
-        <li key={g.key} className={g.ok ? 'is-ok' : 'is-bad'}>
-          {g.ok ? <Check size={14} /> : <X size={14} />}
-          <span>{g.label}</span>
-          <b>{g.value}</b>
-          <small>需 {g.need}</small>
-        </li>
-      ))}
-    </ul>
+    <g className="optics-dim">
+      <line x1={x0} y1={y - tick} x2={x0} y2={y + tick} />
+      <line x1={x1} y1={y - tick} x2={x1} y2={y + tick} />
+      <line x1={x0} y1={y} x2={x1} y2={y} />
+      <text className="optics-tag" x={(x0 + x1) / 2} y={y + fs * 1.3}>{label}</text>
+    </g>
   )
 }

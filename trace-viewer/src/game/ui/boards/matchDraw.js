@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // Small drawing helpers shared by the chapter 6 boards.
 
@@ -51,4 +51,18 @@ export function svgPoint(svg, event) {
   point.y = event.clientY
   const local = point.matrixTransform(svg.getScreenCTM().inverse())
   return [local.x, local.y]
+}
+
+// The rendered width of an element in CSS px, kept current with a ResizeObserver. Overlays use it as
+// their viewBox so text and markers stay a fixed screen size however wide the card is.
+export function useWidth(ref) {
+  const [width, setWidth] = useState(0)
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return undefined
+    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width))
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [ref])
+  return width
 }

@@ -1,50 +1,65 @@
-.racer { min-height: 0; padding: 24px 32px 40px; display: grid; gap: 20px; align-content: start; justify-items: center; overflow-y: auto; background: var(--canvas); }
-.racer > * { width: min(760px, 100%); }
-.racer-head { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
-.racer-progress { display: flex; gap: 4px; }
-.racer-progress i { width: 22px; height: 6px; border-radius: 1px; background: var(--line); }
+/* 1-R 核速判: progress strip, the input → output pair, four kernel cards and the start gate.
+   Layout, panels, chips and buttons come from the board kit (kit.css); only racer parts live here. */
+.racer { max-width: 1040px; }
+.racer-head { padding: 10px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.racer-progress { flex: 1 1 220px; max-width: 320px; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
+.racer-progress i { height: 6px; border-radius: 3px; background: var(--line); transition: background 220ms ease; }
 .racer-progress i.is-now { background: var(--rule); }
 .racer-progress i.is-right { background: var(--status); }
-.racer-progress i.is-wrong { background: var(--accent); }
-.racer-score { color: var(--muted); font-family: var(--mono); font-size: 11px; }
-.racer-toggle { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; cursor: pointer; }
-.racer-toggle input { accent-color: var(--accent); }
+.racer-progress i.is-wrong { background: var(--fail); }
+.racer-score { font-variant-numeric: tabular-nums; }
+.racer-toggle { margin-left: auto; color: var(--muted); }
 
-.racer-clock { height: 3px; background: var(--hairline); overflow: hidden; }
-.racer-clock i { display: block; height: 100%; background: var(--accent); transform-origin: left; animation: racer-drain linear forwards; }
+.racer-play { align-items: start; }
+.racer-stage { display: grid; gap: 12px; align-content: start; }
+.racer-clock { height: 4px; border-radius: 2px; background: var(--hairline); overflow: hidden; }
+.racer-clock i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transform-origin: left; animation: racer-drain linear forwards; }
 @keyframes racer-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
-@media (prefers-reduced-motion: reduce) { .racer-clock i { animation-timing-function: steps(8, end); } }
-
-.racer-stage { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 22px; }
-.racer-stage figure { margin: 0; }
-.racer-stage figcaption { margin-top: 6px; color: var(--muted); font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; }
+.racer-pair { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; }
+.racer-pair figure { margin: 0; }
+.racer-pair .image-view { width: 100% !important; height: auto !important; aspect-ratio: 1; border-radius: 8px; }
+.racer-pair .bk-caption { margin-top: 6px; }
 .racer-arrow { color: var(--faint); }
-.racer-time { width: 100%; margin: 0; display: flex; align-items: center; justify-content: center; gap: 5px; color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.racer-time { margin: 0; display: flex; align-items: center; gap: 5px; font-variant-numeric: tabular-nums; }
 
-.racer-choices { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.racer-choice { position: relative; padding: 12px 10px 10px; display: grid; justify-items: center; gap: 8px; border: 0; border-radius: 2px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; transition: box-shadow 120ms ease, opacity 120ms ease; }
+.racer-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.racer-choice { position: relative; min-height: 132px; padding: 16px 10px 10px; display: grid; place-items: center; border: 0; border-radius: 14px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline), 0 8px 20px -18px rgba(30, 26, 18, .6); font: inherit; cursor: pointer; transition: box-shadow 180ms ease, opacity 220ms ease, transform 160ms ease; }
 .racer-choice:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--ink); }
+.racer-choice:active:not(:disabled) { transform: scale(.98); }
 .racer-choice:disabled { cursor: default; }
-.racer-choice.is-right { box-shadow: inset 0 0 0 2px var(--status); }
-.racer-choice.is-wrong { box-shadow: inset 0 0 0 2px var(--accent); }
-.racer-choice.is-dim { opacity: .45; }
-.racer-key { position: absolute; top: 6px; left: 8px; color: var(--faint); font-family: var(--mono); font-size: 10px; }
-.racer-mark { position: absolute; top: 6px; right: 6px; }
+.racer-choice.is-right { box-shadow: inset 0 0 0 2px var(--status); background: color-mix(in srgb, var(--status) 8%, var(--paper)); }
+.racer-choice.is-wrong { box-shadow: inset 0 0 0 2px var(--fail); }
+.racer-choice.is-dim { opacity: .4; }
+.racer-key { position: absolute; top: 8px; left: 10px; color: var(--faint); font-family: var(--mono); font-size: 11px; }
+.racer-mark { position: absolute; top: 8px; right: 8px; }
 .racer-choice.is-right .racer-mark { color: var(--status); }
-.racer-choice.is-wrong .racer-mark { color: var(--accent-ink); }
+.racer-choice.is-wrong .racer-mark { color: var(--fail); }
 .racer-kernel { display: grid; justify-items: center; gap: 4px; }
-.racer-grid { display: grid; grid-template-columns: repeat(3, 30px); gap: 2px; }
-.racer-grid i { height: 26px; display: grid; place-items: center; border-radius: 1px; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); font-family: var(--mono); font-size: 12px; font-style: normal; }
+.racer-grid { display: grid; grid-template-columns: repeat(3, 34px); gap: 3px; }
+.racer-grid i { height: 30px; display: grid; place-items: center; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--hairline); color: var(--ink); font-family: var(--mono); font-size: 13px; font-style: normal; font-variant-numeric: tabular-nums; }
 .racer-grid i.is-zero { color: var(--faint); }
-.racer-kernel small { min-height: 14px; color: var(--muted); font-family: var(--mono); font-size: 11px; }
-.racer-note { margin: 0; min-height: 20px; color: var(--muted); font-size: 13px; text-align: center; }
+.racer-kernel small { min-height: 16px; color: var(--muted); font-family: var(--mono); font-size: 11.5px; }
+.racer-note { justify-content: center; color: var(--muted); }
 
-.racer-gate { padding: 40px 0; display: grid; justify-items: center; gap: 14px; text-align: center; }
-.racer-result { margin: 0; color: var(--heading); font-family: var(--serif); font-size: 22px; }
-.racer-lede { margin: 0; color: var(--body); font-family: var(--serif); font-size: 16px; line-height: 1.7; }
-.racer-start { min-height: 34px; padding: 0 22px; border: 0; border-radius: 2px; color: var(--paper); background: var(--ink); font-size: 13px; cursor: pointer; }
+.racer-gate { padding: 40px 24px; display: grid; justify-items: center; gap: 14px; text-align: center; }
+.racer-result { margin: 0; font-size: 24px; }
+.racer-result.is-pass { color: var(--status); }
+.racer-lede { max-width: 30em; text-wrap: balance; margin: 0; color: var(--body); font-family: var(--serif); font-size: 16px; line-height: 1.7; }
+.racer-rules { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.racer-start { min-width: 140px; min-height: 44px; margin-top: 4px; font-size: 14px; }
 
-@media (max-width: 700px) {
-  .racer { padding: 18px 16px 32px; }
-  .racer-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* The draining bar would empty at once with motion reduced; the round's seconds stay in the caption. */
+@media (prefers-reduced-motion: reduce) {
+  .racer-clock i { visibility: hidden; }
+}
+
+@media (max-width: 760px) {
+  .racer-head { padding: 10px 12px; }
+  .racer-progress { flex-basis: 100%; max-width: none; }
+  .racer-pair { gap: 6px; }
+  .racer-choices { gap: 8px; }
+  .racer-choice { min-height: 118px; padding: 18px 6px 8px; }
+  .racer-grid { grid-template-columns: repeat(3, 32px); }
+  .racer-grid i { height: 28px; }
+  .racer-gate { padding: 28px 16px; }
 }

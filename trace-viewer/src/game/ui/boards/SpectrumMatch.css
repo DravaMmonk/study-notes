@@ -1,33 +1,50 @@
-.spec-board { min-height: 0; padding: 28px 32px 40px; display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 32px; align-content: start; overflow-y: auto; background: var(--canvas); }
-.spec-main { min-width: 0; display: grid; gap: 26px; align-content: start; }
-.spec-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
-.spec-card { min-width: 0; padding: 8px 8px 6px; display: grid; gap: 6px; justify-items: stretch; border: 0; border-radius: 2px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; transition: box-shadow 120ms ease, transform 120ms ease; }
-.spec-card .image-view { width: 100% !important; height: auto !important; aspect-ratio: 1; }
+/* 2-2 看频谱: picture and spectrum cards plus the grating bench. Layout, panels, buttons, sliders
+   and the verdict come from the board kit (kit.css); only the cards and their pairing marks live here. */
+.spec-split { grid-template-columns: minmax(0, 1fr); }
+.spec-stage { padding: 16px 16px 14px; }
+.spec-label-gap { margin-top: 18px; }
+.spec-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+
+.spec-card { position: relative; min-width: 0; padding: 6px 6px 4px; display: grid; gap: 4px; border: 0; border-radius: 12px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; cursor: pointer; transition: box-shadow 180ms ease, transform 180ms ease, background 180ms ease; }
+.spec-card .image-view { width: 100% !important; height: auto !important; aspect-ratio: 1; border-radius: 8px; }
 .spec-card:hover { box-shadow: inset 0 0 0 1px var(--rule); }
-.spec-card.is-selected { box-shadow: inset 0 0 0 2px var(--accent); transform: translateY(-2px); }
-.spec-card.is-paired { box-shadow: inset 0 0 0 1px var(--rule), inset 0 -3px 0 var(--accent); }
-.spec-card.is-paired.is-selected { box-shadow: inset 0 0 0 2px var(--accent); }
-.spec-tag { display: flex; align-items: baseline; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.spec-card:active { transform: scale(.98); }
+.spec-card.is-paired { background: color-mix(in srgb, var(--accent) 9%, var(--canvas)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
+.spec-card.is-selected { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--accent), 0 12px 22px -14px rgba(30, 26, 18, .6); }
+.spec-tag { min-height: 22px; padding: 0 2px; display: flex; align-items: center; justify-content: space-between; gap: 4px; color: var(--muted); font-family: var(--mono); font-size: 12px; }
 .spec-tag b { color: var(--ink); font-weight: 500; }
 .spec-tag i { font-style: normal; }
-.spec-slot { min-width: 20px; padding: 0 4px; border-radius: 2px; text-align: center; color: var(--accent-ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); }
-.spec-actions { display: flex; align-items: center; gap: 14px; }
-.spec-check { min-height: 32px; padding: 0 18px; border: 0; border-radius: 2px; color: var(--paper); background: var(--ink); font-size: 13px; cursor: pointer; }
-.spec-check:disabled { color: var(--faint); background: var(--hover); box-shadow: inset 0 0 0 1px var(--line); cursor: default; }
-.spec-verdict { margin: 0; color: var(--muted); font-size: 13px; }
+.spec-slot { min-width: 22px; padding: 1px 5px; border-radius: 6px; text-align: center; color: var(--accent-ink); font-variant-numeric: tabular-nums; }
+.spec-card:not(.is-paired) .spec-slot { color: var(--faint); }
+.spec-card.is-paired .spec-slot { background: color-mix(in srgb, var(--accent) 18%, var(--paper)); }
 
-.spec-lab { padding: 16px; display: grid; gap: 14px; align-content: start; border-radius: 2px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); }
-.spec-lab .panel-label { margin: 0; }
-.spec-lab-images { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.spec-actions { margin-top: 16px; padding-top: 12px; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--hairline); }
+.spec-count { flex: none; font-variant-numeric: tabular-nums; }
+.spec-actions .bk-verdict { flex: 1; min-width: 0; color: var(--muted); }
+.spec-actions .bk-verdict.is-pass { color: var(--status); }
+.spec-actions .bk-verdict.is-fail { color: var(--fail); }
+.spec-check { flex: none; min-width: 96px; }
+
+.spec-lab { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 4px 28px; align-items: center; }
+.spec-lab > .bk-label { grid-column: 1 / -1; margin: 0 0 4px; }
+.spec-lab-controls { gap: 4px; }
+.spec-lab-images { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
 .spec-lab-images figure { margin: 0; }
-.spec-lab-images .image-view { width: 100% !important; height: auto !important; aspect-ratio: 1; }
-.spec-lab-images figcaption { margin-top: 4px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
-.spec-slider { display: grid; gap: 4px; color: var(--muted); font-size: 12px; }
-.spec-slider span { display: flex; justify-content: space-between; }
-.spec-slider output { color: var(--ink); font-family: var(--mono); font-size: 11px; }
-.spec-slider input { width: 100%; accent-color: var(--accent); }
+.spec-lab-images .image-view { width: 100% !important; height: auto !important; aspect-ratio: 1; border-radius: 8px; }
+.spec-lab-images .bk-caption { margin-top: 4px; }
+.spec-lab .bk-note { margin: 0; }
 
 @media (max-width: 1100px) {
-  .spec-board { grid-template-columns: minmax(0, 1fr); }
   .spec-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .spec-stage { padding: 12px 10px 0; }
+  .spec-row { gap: 8px; }
+  .spec-label-gap { margin-top: 14px; }
+  /* The count, verdict and check button ride along at the bottom of the pane while the cards scroll. */
+  .spec-actions { position: sticky; bottom: 0; z-index: 2; margin: 14px -10px 0; padding: 10px; flex-wrap: wrap; gap: 8px 10px; border-radius: 0 0 14px 14px; background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(8px); }
+  .spec-actions .bk-verdict { order: 3; flex-basis: 100%; font-size: 12.5px; }
+  .spec-check { margin-left: auto; min-height: 44px; }
+  .spec-lab { grid-template-columns: minmax(0, 1fr); row-gap: 8px; }
 }
