@@ -1,0 +1,77 @@
+/* Board kit: the shared look for every board level (kind: 'board'). Boards compose these classes and
+   keep only what is specific to them in their own stylesheet. Tokens come from src/tokens.css and
+   game.css (--fail, --fam-*). Phone layout (≤ 760px) stacks everything in one column. */
+
+.bk { width: 100%; max-width: 1180px; margin: 0 auto; padding: 24px 28px 40px; display: grid; gap: 16px; align-content: start; }
+.bk-split { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
+.bk-split.is-even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.bk-stack { display: grid; gap: 12px; align-content: start; }
+.bk-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* The main visual sits on a paper card; secondary panels on the canvas tone. */
+.bk-stage { position: relative; padding: 14px; border-radius: 16px; background: var(--paper); box-shadow: 0 0 0 1px var(--hairline), 0 14px 34px -24px rgba(30, 26, 18, .55); }
+.bk-stage > svg, .bk-stage > canvas, .bk-stage .bk-art { display: block; width: 100%; height: auto; }
+.bk-panel { padding: 14px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.bk-panel.is-quiet { background: var(--canvas); box-shadow: none; }
+.bk-label { display: block; margin: 0 0 8px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .14em; }
+.bk-title { margin: 0 0 6px; font-family: var(--serif); font-size: 18px; font-weight: 500; }
+.bk-note { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.bk-caption { margin: 8px 2px 0; color: var(--muted); font-family: var(--mono); font-size: 10.5px; line-height: 1.6; }
+
+/* Goals: one row per requirement, with live value and pass state. */
+.bk-goals { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.bk-goal { min-height: 40px; padding: 8px 12px; display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 8px; border-radius: 10px; background: var(--canvas); font-size: 13px; transition: background 220ms ease, box-shadow 220ms ease; }
+.bk-goal > svg:first-child { color: var(--fail); }
+.bk-goal.is-pass { background: color-mix(in srgb, var(--status) 10%, var(--paper)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--status) 35%, transparent); }
+.bk-goal.is-pass > svg:first-child { color: var(--status); }
+.bk-goal b { font-family: var(--mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+.bk-goal small { color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+
+.bk-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 6px; }
+.bk-stat { padding: 9px 11px; display: grid; gap: 2px; border-radius: 10px; background: var(--canvas); }
+.bk-stat b { font-family: var(--mono); font-size: 17px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.bk-stat span { color: var(--muted); font-size: 11px; }
+.bk-stat.is-pass b { color: var(--status); }
+.bk-stat.is-fail b { color: var(--fail); }
+
+/* Controls. Touch targets are at least 40px tall. */
+.bk-btn { min-height: 40px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 10px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: inherit; font-size: 13px; cursor: pointer; transition: box-shadow 160ms ease, transform 160ms ease, background 160ms ease; }
+.bk-btn:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+.bk-btn:active { transform: scale(.97); }
+.bk-btn:disabled { opacity: .45; cursor: default; transform: none; }
+.bk-btn.is-primary { color: var(--paper); background: var(--ink); box-shadow: none; }
+.bk-btn.is-active { color: var(--paper); background: var(--ink); box-shadow: none; }
+.bk-seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: 12px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.bk-seg > button { min-height: 36px; min-width: 40px; padding: 0 12px; border: 0; border-radius: 9px; color: var(--muted); background: transparent; font: inherit; font-size: 13px; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
+.bk-seg > button[aria-pressed='true'], .bk-seg > button.is-active { color: var(--ink); background: var(--paper); box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 0 0 1px var(--rule); }
+.bk-field { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 40px; font-size: 13px; }
+.bk-field > span:first-child { color: var(--muted); }
+.bk-field output, .bk-field > b { min-width: 4.5em; font-family: var(--mono); font-size: 12.5px; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.bk-range { width: 100%; height: 28px; margin: 0; background: transparent; appearance: none; -webkit-appearance: none; cursor: pointer; }
+.bk-range::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(var(--accent), var(--accent)) 0 / var(--fill, 50%) 100% no-repeat, var(--hairline); }
+.bk-range::-moz-range-track { height: 4px; border-radius: 4px; background: var(--hairline); }
+.bk-range::-moz-range-progress { height: 4px; border-radius: 4px; background: var(--accent); }
+.bk-range::-webkit-slider-thumb { width: 22px; height: 22px; margin-top: -9px; border: 0; border-radius: 50%; background: var(--paper); box-shadow: 0 0 0 2px var(--accent), 0 2px 6px rgba(0, 0, 0, .25); -webkit-appearance: none; }
+.bk-range::-moz-range-thumb { width: 22px; height: 22px; border: 0; border-radius: 50%; background: var(--paper); box-shadow: 0 0 0 2px var(--accent), 0 2px 6px rgba(0, 0, 0, .25); }
+.bk-check { min-height: 40px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.bk-check input { width: 18px; height: 18px; accent-color: var(--ink); }
+
+.bk-verdict { min-height: 22px; margin: 0; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.bk-verdict.is-pass { color: var(--status); }
+.bk-verdict.is-fail { color: var(--fail); }
+.bk-chip { min-height: 26px; padding: 0 9px; display: inline-flex; align-items: center; gap: 5px; border-radius: 13px; color: var(--muted); background: var(--canvas); font-family: var(--mono); font-size: 11px; }
+
+/* SVG helpers for drawn boards: strokes and fills read the theme. */
+.bk-svg-ink { stroke: var(--ink); fill: none; }
+.bk-svg-rule { stroke: var(--rule); fill: none; }
+.bk-svg-accent { stroke: var(--accent); fill: none; }
+.bk-svg-pass { stroke: var(--status); fill: none; }
+.bk-svg-fail { stroke: var(--fail); fill: none; }
+.bk-svg-text { fill: var(--muted); font-family: var(--mono); font-size: 11px; }
+
+@media (max-width: 760px) {
+  .bk { padding: 14px 12px 28px; gap: 12px; }
+  .bk-split, .bk-split.is-even { grid-template-columns: 1fr; }
+  .bk-stage { padding: 10px; border-radius: 14px; }
+  .bk-panel { padding: 12px; }
+}

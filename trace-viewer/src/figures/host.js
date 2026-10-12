@@ -11,13 +11,16 @@ const HOST_CSS = `${FIGURE_CSS}
 
 export const figureThemeOf = (theme) => ({ night: 'dark', blueprint: 'blueprint' })[theme] ?? 'light'
 
-export function createFigureHost(name, theme) {
+// `bare` drops the card frame, corner labels and legend, for using a figure as illustration.
+const BARE_CSS = `:host{margin:0}.iso-plate{padding:0;background:transparent;box-shadow:none}.iso-plate-corners,.iso-legend{display:none}.iso-stage{cursor:default}`
+
+export function createFigureHost(name, theme, { bare = false } = {}) {
   const host = document.createElement('div')
   host.className = 'figure-host'
   host.dataset.figure = name
   const shadow = host.attachShadow({ mode: 'open' })
   const style = document.createElement('style')
-  style.textContent = HOST_CSS
+  style.textContent = bare ? HOST_CSS + BARE_CSS : HOST_CSS
   const root = document.createElement('div')
   root.className = 'iso'
   root.dataset.theme = figureThemeOf(theme)

@@ -11,7 +11,7 @@ const cssColour = (name, fallback) => {
 
 // One image drawn pixel-for-pixel. With `against` it draws the error map instead: wrong pixels in
 // the accent colour, right ones faint.
-export default function ImageView({ img, range, size = 112, against, tolerance = 0.02, onHover, label, theme }) {
+export default function ImageView({ img, range, size = 112, against, tolerance = 0.02, onHover, label, theme, grid }) {
   const canvas = useRef(null)
 
   useEffect(() => {
@@ -22,13 +22,13 @@ export default function ImageView({ img, range, size = 112, against, tolerance =
     const context = node.getContext('2d')
     const pixels = context.createImageData(img.w, img.h)
     const { lo, hi } = range ?? rangeOf(img)
-    const accent = cssColour('--accent', [214, 155, 45])
+    const wrong = cssColour('--fail', [184, 87, 63])
     const faint = cssColour('--line', [222, 219, 209])
     for (let i = 0; i < img.data.length; i++) {
       let rgb
       if (against) {
         const error = Math.abs(img.data[i] - against.data[i])
-        rgb = error <= tolerance ? faint : accent
+        rgb = error <= tolerance ? faint : wrong
       } else {
         const g = Math.round(255 * Math.min(1, Math.max(0, (img.data[i] - lo) / (hi - lo))))
         rgb = [g, g, g]
@@ -49,7 +49,7 @@ export default function ImageView({ img, range, size = 112, against, tolerance =
     onHover({ x, y, value: img.data[y * img.w + x], expected: against?.data[y * img.w + x] })
   }
 
-  return (
+  const canvasEl = (
     <canvas
       ref={canvas}
       className="image-view"
@@ -58,5 +58,12 @@ export default function ImageView({ img, range, size = 112, against, tolerance =
       onPointerLeave={() => onHover?.(null)}
       aria-label={label}
     />
+  )
+  // A faint pixel grid once each pixel is big enough to read on its own.
+  if (!grid || size / img.w < 6) return canvasEl
+  return (
+    <span className="image-grid" style={{ '--cells': img.w, '--rows': img.h }}>
+      {canvasEl}
+    </span>
   )
 }
