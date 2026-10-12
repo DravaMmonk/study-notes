@@ -1,109 +1,8 @@
 /* Every colour is a token; a theme is only a token set (paper, night, blueprint).
    Small labels speak in the figures' engraved mono voice; rules are hairlines. */
 :root {
-  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --serif: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-
-  --ink: #282824;
-  --heading: #272723;
-  --body: #33332f;
-  --muted: #7a7970;
-  --faint: #a09d94;
-  --paper: #fbfaf6;
-  --canvas: #f3f1eb;
-  --rail: #ebe8e0;
-  --surface: rgba(255, 255, 255, 0.78);
-  --hover: rgba(45, 43, 38, 0.06);
-  --line: #dedbd1;
-  --hairline: rgba(76, 72, 62, 0.14);
-  --rule: #bfb9ac;
-  --accent: #c98f22;
-  --accent-ink: #8f5f12;
-  --code-bg: #efece4;
-  --code-ink: #7d5720;
-  --pre-bg: #2c2d29;
-  --pre-ink: #e9e6dc;
-  --pre-line: #3a3a35;
-  --toolbar-bg: #2d2d29;
-  --toolbar-ink: #f3f1ea;
-  --scrim: rgba(38, 37, 33, 0.24);
-  --lift: 0 10px 28px rgba(34, 32, 27, 0.16);
-  --status: #769373;
-  --mark-blend: multiply;
-  --mark-opacity: 0.28;
-  --mark-opacity-active: 0.42;
-  --selection: rgba(226, 176, 67, 0.28);
-
   --sidebar-width: 274px;
   --inspector-width: 360px;
-  color-scheme: light;
-}
-
-:root[data-theme='night'] {
-  --ink: #e6e4dc;
-  --heading: #efede6;
-  --body: #d2cfc6;
-  --muted: #8f8b80;
-  --faint: #6c695f;
-  --paper: #191917;
-  --canvas: #141413;
-  --rail: #111110;
-  --surface: rgba(255, 255, 255, 0.07);
-  --hover: rgba(255, 255, 255, 0.05);
-  --line: #2c2b27;
-  --hairline: rgba(255, 255, 255, 0.08);
-  --rule: #4a4842;
-  --accent: #e0b45a;
-  --accent-ink: #e7c27a;
-  --code-bg: #24231f;
-  --code-ink: #e2c189;
-  --pre-bg: #10100f;
-  --pre-ink: #e3e0d6;
-  --pre-line: #2c2b27;
-  --toolbar-bg: #ecebe6;
-  --toolbar-ink: #1b1b19;
-  --scrim: rgba(0, 0, 0, 0.45);
-  --lift: 0 10px 28px rgba(0, 0, 0, 0.45);
-  --status: #8fb08b;
-  --mark-blend: screen;
-  --mark-opacity: 0.24;
-  --mark-opacity-active: 0.36;
-  --selection: rgba(224, 180, 90, 0.28);
-  color-scheme: dark;
-}
-
-:root[data-theme='blueprint'] {
-  --ink: #eaf3fb;
-  --heading: #f3f8fd;
-  --body: #d4e3f1;
-  --muted: #8fb0d0;
-  --faint: #6f92b5;
-  --paper: #183757;
-  --canvas: #15314e;
-  --rail: #132c47;
-  --surface: rgba(255, 255, 255, 0.09);
-  --hover: rgba(255, 255, 255, 0.06);
-  --line: #2a4d72;
-  --hairline: rgba(200, 225, 250, 0.14);
-  --rule: #4f7499;
-  --accent: #f4d27a;
-  --accent-ink: #f6dc96;
-  --code-bg: #1f4267;
-  --code-ink: #f6dc96;
-  --pre-bg: #0f2740;
-  --pre-ink: #dcebf8;
-  --pre-line: #2a4d72;
-  --toolbar-bg: #eaf3fb;
-  --toolbar-ink: #15314e;
-  --scrim: rgba(5, 20, 36, 0.5);
-  --lift: 0 10px 28px rgba(4, 16, 30, 0.45);
-  --status: #9fd0a8;
-  --mark-blend: screen;
-  --mark-opacity: 0.26;
-  --mark-opacity-active: 0.38;
-  --selection: rgba(244, 210, 122, 0.3);
-  color-scheme: dark;
 }
 
 .app-shell {
@@ -182,6 +81,8 @@
 .icon-button:active { transform: scale(0.94); }
 .icon-button:focus-visible, .theme-option:focus-visible, .document-link:focus-visible, .folder-label:focus-visible { outline: 1px solid var(--muted); outline-offset: 2px; }
 .sidebar-close { display: none; margin-left: auto; }
+.game-link { margin-right: 6px; color: var(--muted); }
+.game-link:hover { color: var(--accent-ink); }
 
 .search-field {
   height: 36px;

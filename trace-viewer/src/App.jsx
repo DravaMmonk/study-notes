@@ -12,6 +12,7 @@ import {
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
+  Puzzle,
   Ruler,
   Search,
   Sun,
@@ -411,6 +412,7 @@ function App() {
             ))}
           </div>
           <div className="topbar-actions">
+            <a className="icon-button game-link" href="game.html" title="视觉完备：计算机视觉解谜关卡" aria-label="打开视觉完备游戏"><Puzzle size={17} /></a>
             <ThemeSwitch theme={theme} onChange={setTheme} />
             <span className="annotation-count"><Highlighter size={15} /> {annotations.length}</span>
             <button
