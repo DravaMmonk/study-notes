@@ -1,18 +1,57 @@
 /* Chapter 4's principle boards (Descent, Neuron, SlideWindow, EarlyStop). Layout and controls come
    from the board kit; plots and the stage list from waves.css. */
 
-/* 4-1 下山 */
-.ds-plots { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-.ds-tangent line { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
-.ds-tangent circle { fill: var(--paper); stroke: var(--accent-ink); stroke-width: 2; }
-.ds-map { position: relative; border-radius: 8px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--hairline); }
-.ds-map canvas, .ds-map-overlay { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
-.ds-contour { fill: none; stroke: var(--paper); stroke-opacity: .45; stroke-width: 1; }
-.ds-path { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
-.ds-here { fill: var(--accent); stroke: var(--paper); stroke-width: 2.5; }
-.ds-min { fill: none; stroke: var(--status); stroke-width: 2.5; }
-.ds-grad line { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
-.ds-grad circle { fill: var(--accent); }
+/* 4-1 下山: the 3D landscape */
+.ls { position: relative; width: 100%; border-radius: 14px; overflow: hidden; background: radial-gradient(ellipse at 50% 30%, var(--paper), var(--canvas)); box-shadow: inset 0 0 0 1px var(--hairline); touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+.ls:active { cursor: grabbing; }
+.ls canvas, .ls svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.ls-views { position: absolute; z-index: 2; top: 8px; right: 8px; }
+.ls-views button { min-height: 32px; }
+.ls-hint { position: absolute; z-index: 2; left: 10px; top: 12px; color: var(--muted); font-size: 11px; pointer-events: none; }
+.ls-axis { fill: var(--muted); font-family: var(--mono); font-size: 12px; text-anchor: middle; }
+.ls-zaxis line { stroke: var(--rule); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.ls-zaxis text { fill: var(--muted); font-size: 11px; text-anchor: end; }
+.ls-rail { fill: none; stroke: var(--paper); stroke-width: 5; stroke-linecap: round; opacity: .85; }
+.ls-rail + .ls-path-floor, .ls-rail { filter: drop-shadow(0 0 1px rgba(0, 0, 0, .25)); }
+.ls-path { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+.ls-path-floor { fill: none; stroke: var(--accent-ink); stroke-width: 1.4; stroke-dasharray: 3 3; opacity: .7; }
+.ls-min { fill: none; stroke: var(--status); stroke-width: 2.5; }
+.ls-grad line { stroke: var(--accent); stroke-width: 3.5; stroke-linecap: round; }
+.ls-grad circle { fill: var(--accent); }
+.ls-grad text, .ls-next text { fill: var(--accent-ink); font-size: 11.5px; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
+.ls-next path { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-dasharray: 5 4; opacity: .75; }
+.ls-next.is-off path, .ls-next.is-off text { stroke: var(--fail); fill: var(--fail); }
+.ls-next.is-off text { stroke: var(--paper); }
+.ls-ghost { fill: color-mix(in srgb, var(--accent) 25%, transparent); stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 3 2; }
+.ls-drop { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 3; opacity: .5; }
+.ls-shadow { fill: rgba(0, 0, 0, .28); }
+.ls-ball { fill: var(--accent); stroke: var(--paper); stroke-width: 2.5; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .35)); }
+.ls-ball-shine { fill: var(--paper); opacity: .7; pointer-events: none; }
+.ls-legend i { border: 0 !important; }
+.ls-key-ball { width: 10px !important; height: 10px !important; border-radius: 50%; background: var(--accent); }
+.ls-key-rail { height: 4px !important; border-radius: 2px; background: var(--paper); box-shadow: 0 0 0 1px var(--rule); }
+.ls-key-grad { height: 3px !important; background: var(--accent); }
+.ls-key-next { height: 0 !important; border-top: 2px dashed var(--ink) !important; opacity: .75; }
+.ds-machine { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; }
+.ds-knob-row { display: flex; gap: 10px; }
+.ds-miss line { stroke: var(--fail); stroke-width: 1.5; opacity: .55; }
+.ds-goal { stroke: var(--status); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.ds-auto { width: 100%; min-height: 48px; font-size: 15px; }
+.knob { margin: 0; display: grid; justify-items: center; gap: 2px; }
+.knob svg { display: block; overflow: visible; touch-action: none; outline: none; }
+.knob.is-live svg { cursor: grab; }
+.knob.is-live svg:focus-visible .knob-cap { stroke: var(--accent); stroke-width: 2.5; }
+.knob-track { fill: none; stroke: var(--hairline); stroke-width: 6; stroke-linecap: round; }
+.knob-fill { fill: none; stroke: var(--knob-accent, var(--accent)); stroke-width: 6; stroke-linecap: round; }
+.knob-tick { stroke: var(--rule); stroke-width: 1.5; }
+.knob-body { fill: var(--canvas); stroke: var(--rule); }
+.knob-cap { fill: var(--paper); stroke: var(--hairline); filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .18)); }
+.knob-pointer { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
+.knob-dot { fill: var(--knob-accent, var(--accent)); }
+.knob figcaption { display: flex; align-items: baseline; gap: 6px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.knob figcaption b { color: var(--ink); font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.knob.is-off figcaption b { color: var(--fail); }
+.ls-scale { color: var(--faint); font-size: 11px; }
 
 /* 4-3 一个神经元 */
 .nr-plots { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
@@ -66,6 +105,8 @@
 .es-now line { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 3; opacity: .6; }
 
 @media (max-width: 760px) {
+  .ds-machine { grid-template-columns: minmax(0, 1fr); }
+  .ds-knobs { justify-self: center; }
   .sw-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 

@@ -20,7 +20,11 @@ export default function Sheet({ title, onClose, children, footer }) {
           className="ph-handle"
           onPointerDown={(event) => {
             start.current = event.clientY
-            event.currentTarget.setPointerCapture?.(event.pointerId)
+            try {
+              event.currentTarget.setPointerCapture(event.pointerId)
+            } catch {
+              // A pointer that is already gone cannot be captured; the gesture still works.
+            }
           }}
           onPointerMove={(event) => start.current !== null && setDrag(Math.max(0, event.clientY - start.current))}
           onPointerUp={() => {

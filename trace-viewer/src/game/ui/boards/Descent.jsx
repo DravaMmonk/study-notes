@@ -1,16 +1,21 @@
-import { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Check, Footprints, RotateCcw } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowRight, Check, Footprints, Pause, Play, RotateCcw } from 'lucide-react'
 import { PHONE, useMedia } from '../useMedia.js'
-import { css, mix, tokenRGB } from '../views/views.js'
+import { useTween } from './optics-motion.js'
+import Knob from './Knob.jsx'
+import Landscape from './Landscape.jsx'
 import { Plot, Stages } from './WaveKit.jsx'
 import './waves.css'
 import './train.css'
 
-const W_RANGE = [-1, 2] // the one-knob stages draw w across this span
-const MAP = { w: [-1, 2.5], b: [-0.5, 1.5] } // the two-knob stage's map
+const KNOB_W = [-1, 2.5]
+const KNOB_B = [-0.6, 1.4]
+const LOG_LO = -4
+const LOG_HI = 0.5
 
-// 4-1 下山: one knob, then two. The left plot is the data and the model's line; the right shows the
-// loss as a function of the knob(s): a bowl, then a valley seen from above with the gradient arrow.
+// 4-1 下山: one knob, then two. The error is a landscape over the knobs, drawn in 3D: the ball is
+// the model, its path the steps taken, the gold arrow the uphill gradient, the dashed arc where the
+// next step lands. With one knob the ball runs on a rail (b = 0), a slice through the landscape.
 export default function Descent({ level, onSolve, theme }) {
   const m = level.descent
   const phone = useMedia(PHONE)
@@ -25,6 +30,9 @@ export default function Descent({ level, onSolve, theme }) {
   const loss = m.loss(s.rule, state.w, state.b)
   const { gw, gb } = m.grad(s.rule, state.w, state.b)
   const outOfSteps = s.budget && steps >= s.budget && loss > m.goal
+  // The ball glides between steps; everything else reads the real position.
+  const [tw, tb] = useTween([Number.isFinite(state.w) ? Math.max(-50, Math.min(50, state.w)) : 0, Number.isFinite(state.b) ? Math.max(-50, Math.min(50, state.b)) : 0], { ms: 360 })
+  const shown = { w: tw, b: tb }
 
   const arrive = (next, used) => {
     setState(next)
@@ -49,76 +57,97 @@ export default function Descent({ level, onSolve, theme }) {
     arrive(next, used)
   }
   const reset = (index = stage) => {
+    setAuto(false)
     const start = m.stages[index].start
     setState(start)
     setSteps(0)
     setTrail([start])
   }
   const go = (index) => {
+    setAuto(false)
     setStage(index)
     reset(index)
   }
 
+  // 「让机器自己调」: one step every half second until the bottom, the step budget, or a blow-up.
+  const [auto, setAuto] = useState(false)
+  const finished = (passed[stage] && loss <= m.goal) || (s.budget && steps >= s.budget) || !(loss < 50)
+  useEffect(() => {
+    if (!auto) return undefined
+    const timer = setTimeout(() => (finished ? setAuto(false) : walk(1)), s.mode === 'step2' ? 170 : 520)
+    return () => clearTimeout(timer)
+    // Re-arm after each step only, not on every animation frame of the gliding ball.
+  }, [auto, steps, state, rate]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const width = phone ? 340 : 600
   const fmt = (v) => (Math.abs(v) > 999 ? v.toExponential(1) : v.toFixed(3))
-  const status = passed[stage] && loss <= m.goal ? '到底了。' : outOfSteps ? `${s.budget} 步用完了，换个学习率再来。` : loss > 50 ? '冲出去了：每一步都越过谷底，越冲越远。' : s.mode === 'drag' ? '拖动 w。' : '按「走一步」。'
+  const status = passed[stage] && loss <= m.goal ? '到底了。' : outOfSteps ? `${s.budget} 步用完了，换个学习率再来。` : loss > 50 ? '冲出去了：每一步都越过谷底，越冲越远。' : s.mode === 'drag' ? '转动旋钮 w。' : auto ? '机器在调……' : '按「让机器自己调」或「走一步」。'
 
   return (
     <div className="bk wv ds">
       <div className="bk-split">
         <section className="bk-stage bk-stack">
-          <div className="ds-plots">
-            <div>
-              <span className="bk-label">样本和你的模型</span>
+          <div>
+            <span className="bk-label">误差地形 · 地面是旋钮（w 横着，b 往里），越高误差越大</span>
+            <Landscape m={m} rule={s.rule} state={shown} trail={trail} rail={s.mode !== 'step2'} next={s.mode === 'drag' || (passed[stage] && loss <= m.goal) ? null : m.step(s, state, rate)} grad={{ gw, gb }} width={width} theme={theme} solved={passed[stage]} />
+            <div className="wv-legend ls-legend">
+              <span><i className="ls-key-ball" />你现在的位置</span>
+              {s.mode !== 'step2' && <span><i className="ls-key-rail" />只能沿这条线走（b 固定为 0）</span>}
+              {s.mode !== 'drag' && <span><i className="ls-key-grad" />上坡方向（梯度）</span>}
+              {s.mode !== 'drag' && <span><i className="ls-key-next" />按「走一步」会落在哪</span>}
+              <span className="ls-scale">高度按误差的平方根画，谷底和陡坡都看得清</span>
+            </div>
+          </div>
+          <div className="ds-machine">
+            <div className="ds-knobs">
+              <span className="bk-label">旋钮{s.mode === 'drag' ? '（转它）' : '（机器在转）'}</span>
+              <div className="ds-knob-row">
+                <Knob label="w" value={state.w} min={KNOB_W[0]} max={KNOB_W[1]} onChange={s.mode === 'drag' ? (w) => arrive({ ...state, w }, 0) : null} size={phone ? 104 : 112} />
+                {s.mode === 'step2' && <Knob label="b" value={state.b} min={KNOB_B[0]} max={KNOB_B[1]} size={phone ? 104 : 112} />}
+              </div>
+            </div>
+            <div className="ds-model">
+              <span className="bk-label">旋钮决定这条线 · 线离样本越远误差越大</span>
               <Plot
-                width={width}
-                height={phone ? 170 : 180}
+                width={phone ? 340 : 360}
+                height={150}
                 lo={-0.2}
                 hi={1.2}
                 ticks={[0, 0.5, 1]}
                 span={1}
                 label="样本点和模型直线"
-                lines={[{ curve: (u) => state.w * u + state.b, kind: 'yours', label: '模型' }]}
+                lines={[{ curve: (u) => shown.w * u + shown.b, kind: 'yours', label: '模型' }]}
                 dots={m.xs.map((x) => ({ u: x, v: m.rules[s.rule](x), kind: 'ring', label: '样本' }))}
-              />
-              <p className="bk-caption">横轴：输入亮度 · 纵轴：输出 · 空心点：要学的样本</p>
+              >
+                {({ x, y }) => (
+                  <g className="ds-miss">
+                    {m.xs.map((v) => <line key={v} x1={x(v)} x2={x(v)} y1={y(m.rules[s.rule](v))} y2={y(shown.w * v + shown.b)} />)}
+                  </g>
+                )}
+              </Plot>
+              <p className="bk-caption">输出 = {state.w.toFixed(2)} × 输入{s.mode === 'step2' ? ` + ${state.b.toFixed(2)}` : ''} · 红色竖线：每个样本差了多少</p>
             </div>
-            <div>
-              <span className="bk-label">{s.mode === 'step2' ? '误差地形（越暗越低）' : '误差随 w 的变化'}</span>
-              {s.mode === 'step2' ? (
-                <LossMap m={m} rule={s.rule} state={state} trail={trail} grad={{ gw, gb }} width={width} theme={theme} showMin={passed[stage]} />
-              ) : (
-                <Plot
-                  width={width}
-                  height={phone ? 170 : 180}
-                  lo={0}
-                  hi={1}
-                  ticks={[0, 0.5, 1]}
-                  span={1}
-                  label="误差曲线"
-                  lines={s.mode === 'drag' && !passed[stage] ? [] : [{ curve: (u) => m.loss(s.rule, W_RANGE[0] + u * (W_RANGE[1] - W_RANGE[0])), kind: 'target', label: '误差' }]}
-                  dots={trail.filter((p) => Number.isFinite(p.w)).map((p) => ({ u: (p.w - W_RANGE[0]) / (W_RANGE[1] - W_RANGE[0]), v: m.loss(s.rule, p.w), kind: 'sample', label: '走过的位置' }))}
-                >
-                  {({ x, y }) => {
-                    const u = (state.w - W_RANGE[0]) / (W_RANGE[1] - W_RANGE[0])
-                    if (u < 0 || u > 1 || s.mode === 'drag') return null
-                    const du = 0.12
-                    const slope = gw * (W_RANGE[1] - W_RANGE[0])
-                    return (
-                      <g className="ds-tangent">
-                        <line x1={x(u - du)} y1={y(loss - slope * du)} x2={x(u + du)} y2={y(loss + slope * du)} />
-                        <circle cx={x(u)} cy={y(loss)} r={5} />
-                      </g>
-                    )
-                  }}
-                </Plot>
-              )}
-              <p className="bk-caption">{s.mode === 'step2' ? '横轴 w · 纵轴 b · 金色箭头 = 梯度（上坡）· 线 = 走过的路' : '横轴：w 从 −1 到 2 · 实心点：走过的位置'}</p>
-            </div>
+          </div>
+          <div className="ds-history">
+            <span className="bk-label">每一步之后的误差（对数刻度）</span>
+            <Plot
+              width={width}
+              height={phone ? 110 : 120}
+              lo={LOG_LO}
+              hi={LOG_HI}
+              ticks={[-3, -2, -1, 0]}
+              tickLabel={(t) => (t === 0 ? '1' : `0.${'0'.repeat(-t - 1)}1`)}
+              left={44}
+              span={Math.max(2, trail.length)}
+              label="误差随步数"
+              lines={[]}
+              dots={trail.map((p, i) => ({ u: (i + 0.5) / Math.max(2, trail.length), v: Math.max(LOG_LO, Math.min(LOG_HI, Math.log10(Math.max(1e-6, m.loss(s.rule, p.w, p.b))))), kind: 'point', label: `第 ${i} 步` }))}
+            >
+              {({ x, y }) => <line className="ds-goal" x1={x(0)} x2={x(1)} y1={y(Math.log10(m.goal))} y2={y(Math.log10(m.goal))} />}
+            </Plot>
           </div>
           <div className="bk-stats">
             <div className={`bk-stat ${loss <= m.goal ? 'is-pass' : ''}`}><b>{fmt(loss)}</b><span>误差（要 ≤ {m.goal}）</span></div>
-            <div className="bk-stat"><b>{fmt(state.w)}{s.mode === 'step2' ? ` · ${fmt(state.b)}` : ''}</b><span>{s.mode === 'step2' ? 'w · b' : 'w'}</span></div>
             {s.mode !== 'drag' && <div className="bk-stat"><b>{s.mode === 'step2' ? `${fmt(gw)} · ${fmt(gb)}` : fmt(gw)}</b><span>脚下的坡度{s.mode === 'step2' ? '（对 w · 对 b）' : ''}</span></div>}
             {s.budget && <div className={`bk-stat ${outOfSteps ? 'is-fail' : ''}`}><b>{steps} / {s.budget}</b><span>已走的步数</span></div>}
           </div>
@@ -130,11 +159,7 @@ export default function Descent({ level, onSolve, theme }) {
               <p className="wv-stage-note">{s.note}</p>
             </div>
             {s.mode === 'drag' ? (
-              <label className="bk-field">
-                <span>w</span>
-                <input className="bk-range" type="range" min={W_RANGE[0]} max={W_RANGE[1]} step={0.05} value={state.w} style={{ '--fill': `${((state.w - W_RANGE[0]) / (W_RANGE[1] - W_RANGE[0])) * 100}%` }} onChange={(event) => arrive({ ...state, w: Number(event.target.value) }, 0)} />
-                <output>{state.w.toFixed(2)}</output>
-              </label>
+              <p className="bk-caption">转动左下的旋钮 w（拖着转一圈，或用方向键）。看那条线怎么转、小球怎么在地形上走。</p>
             ) : (
               <>
                 <label className="bk-field">
@@ -143,9 +168,10 @@ export default function Descent({ level, onSolve, theme }) {
                   <output>{rate.toFixed(1)}</output>
                 </label>
                 <p className="bk-caption">每一步：w ← w − 学习率 × 坡度{s.mode === 'step2' ? '，b 也一样' : ''}</p>
+                <button className="bk-btn is-primary ds-auto" disabled={finished && !auto} onClick={() => setAuto(!auto)}>{auto ? <><Pause size={16} />暂停</> : <><Play size={16} />让机器自己调</>}</button>
                 <div className="bk-row">
-                  <button className="bk-btn is-primary" disabled={steps >= s.budget || (passed[stage] && loss <= m.goal)} onClick={() => walk(1)}><Footprints size={15} />走一步</button>
-                  {s.mode === 'step2' && <button className="bk-btn" disabled={steps >= s.budget || (passed[stage] && loss <= m.goal)} onClick={() => walk(10)}>走 10 步</button>}
+                  <button className="bk-btn" disabled={auto || finished} onClick={() => walk(1)}><Footprints size={15} />走一步</button>
+                  {s.mode === 'step2' && <button className="bk-btn" disabled={auto || finished} onClick={() => walk(10)}>走 10 步</button>}
                   <button className="bk-btn" onClick={() => reset()}><RotateCcw size={14} />回到起点</button>
                 </div>
               </>
@@ -160,84 +186,4 @@ export default function Descent({ level, onSolve, theme }) {
       </div>
     </div>
   )
-}
-
-// The two-knob loss seen from above: shaded by height with contour lines, the path walked, and the
-// gradient at the current point as an arrow (scaled down so it stays on the map).
-function LossMap({ m, rule, state, trail, grad, width, theme, showMin }) {
-  const canvas = useRef(null)
-  const height = Math.round(width * 0.62)
-  const toX = (w) => ((w - MAP.w[0]) / (MAP.w[1] - MAP.w[0])) * width
-  const toY = (b) => height - ((b - MAP.b[0]) / (MAP.b[1] - MAP.b[0])) * height
-
-  useEffect(() => {
-    const node = canvas.current
-    if (!node) return
-    const dpr = window.devicePixelRatio || 1
-    node.width = Math.round(width * dpr)
-    node.height = Math.round(height * dpr)
-    const ctx = node.getContext('2d')
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    const low = tokenRGB('--ink', [40, 38, 33])
-    const high = tokenRGB('--canvas', [243, 241, 235])
-    const cell = 4
-    for (let py = 0; py < height; py += cell) {
-      for (let px = 0; px < width; px += cell) {
-        const w = MAP.w[0] + ((px + cell / 2) / width) * (MAP.w[1] - MAP.w[0])
-        const b = MAP.b[1] - ((py + cell / 2) / height) * (MAP.b[1] - MAP.b[0])
-        const t = Math.min(1, Math.sqrt(m.loss(rule, w, b) / 0.6))
-        ctx.fillStyle = css(mix(low, high, 0.25 + 0.75 * t))
-        ctx.fillRect(px, py, cell, cell)
-      }
-    }
-  }, [m, rule, width, height, theme])
-
-  const path = trail.filter((p) => Number.isFinite(p.w) && Number.isFinite(p.b)).map((p, i) => `${i ? 'L' : 'M'}${toX(p.w).toFixed(1)},${toY(p.b).toFixed(1)}`).join('')
-  const size = Math.hypot(grad.gw, grad.gb)
-  const scale = size > 1e-9 ? Math.min(60, 40 * size) / size : 0
-  const [cx, cy] = [toX(state.w), toY(state.b)]
-  // Screen y grows downward while b grows upward.
-  const tip = [cx + grad.gw * scale, cy - grad.gb * scale]
-  const levels = [0.003, 0.01, 0.03, 0.08, 0.2, 0.45]
-  return (
-    <div className="ds-map" style={{ width: '100%', aspectRatio: `${width} / ${height}` }}>
-      <canvas ref={canvas} style={{ width: '100%', height: '100%' }} aria-hidden="true" />
-      <svg viewBox={`0 0 ${width} ${height}`} className="ds-map-overlay" role="img" aria-label="两个旋钮的误差地形">
-        {levels.map((level) => <path key={level} className="ds-contour" d={contour(m, rule, level, width, height)} />)}
-        <path className="ds-path" d={path} />
-        {showMin && <circle className="ds-min" cx={toX(0.5)} cy={toY(0.2)} r={6} />}
-        {size > 1e-6 && (
-          <g className="ds-grad">
-            <line x1={cx} y1={cy} x2={tip[0]} y2={tip[1]} />
-            <circle cx={tip[0]} cy={tip[1]} r={3} />
-          </g>
-        )}
-        <circle className="ds-here" cx={cx} cy={cy} r={6} />
-      </svg>
-    </div>
-  )
-}
-
-function contour(m, rule, level, width, height) {
-  const nx = 70
-  const ny = Math.round(nx * (height / width))
-  const at = (i, j) => m.loss(rule, MAP.w[0] + (i / nx) * (MAP.w[1] - MAP.w[0]), MAP.b[1] - (j / ny) * (MAP.b[1] - MAP.b[0])) - level
-  const point = (i, j) => [(i / nx) * width, (j / ny) * height]
-  let d = ''
-  for (let j = 0; j < ny; j++) {
-    for (let i = 0; i < nx; i++) {
-      const corners = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]]
-      const hits = []
-      for (let k = 0; k < 4; k++) {
-        const [a, b] = [corners[k], corners[(k + 1) % 4]]
-        const [va, vb] = [at(...a), at(...b)]
-        if ((va < 0) !== (vb < 0)) {
-          const t = va / (va - vb)
-          hits.push(point(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t))
-        }
-      }
-      for (let k = 0; k + 1 < hits.length; k += 2) d += `M${hits[k][0].toFixed(1)},${hits[k][1].toFixed(1)}L${hits[k + 1][0].toFixed(1)},${hits[k + 1][1].toFixed(1)}`
-    }
-  }
-  return d
 }
