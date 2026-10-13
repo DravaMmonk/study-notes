@@ -3,7 +3,6 @@
 :root {
   --fail: #b8573f;
   --bar-h: 52px;
-  --tab-h: 62px;
   --fam-io: var(--ink);
   --fam-pixel: #8b8577;
   --fam-neighbour: #c48a21;
@@ -107,7 +106,7 @@
 
 /* ---- level workbench ---- */
 .level-shell { position: relative; min-width: 0; min-height: 0; display: flex; }
-.level-shell > .level { flex: 1; min-width: 0; }
+.level-shell > .level, .level-shell > .level-phone { flex: 1; min-width: 0; }
 .level-shell.has-rail .level { grid-template-columns: 264px minmax(0, 1fr) 360px; }
 .level-shell.has-rail .level-board, .level-shell.has-rail .level-probe { grid-template-columns: 280px minmax(0, 1fr); }
 .level-rail { flex: none; width: 236px; height: calc(100dvh - var(--bar-h)); display: flex; flex-direction: column; border-right: 1px solid var(--hairline); background: var(--canvas); animation: rail-in 200ms ease; }
@@ -227,6 +226,13 @@
 .board.is-touch .port::before { content: ''; position: absolute; inset: -12px; border-radius: 50%; }
 .param { margin: 5px 10px 0; display: flex; align-items: center; justify-content: space-between; gap: 6px; color: var(--muted); font-size: 11px; }
 .param select, .param input { width: 76px; min-width: 0; height: 24px; padding: 0 6px; border: 0; border-radius: 6px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--mono); font-size: 11px; }
+.param-number { display: inline-flex; align-items: center; gap: 3px; }
+.param-number input { width: 56px; }
+.param-sign { width: 20px; height: 24px; padding: 0; border: 0; border-radius: 6px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--mono); font-size: 12px; cursor: pointer; }
+.param-kernel-wrap { margin: 6px 10px 0; display: grid; gap: 3px; }
+.param-kernel-wrap .param-kernel { margin: 0; }
+.param-kernel-wrap .param-kernel input.is-focused { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.param-kernel-sign { height: 22px; border: 0; border-radius: 5px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--mono); font-size: 10.5px; cursor: pointer; }
 .param-kernel { margin: 6px 10px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
 .param-kernel input, .param-kernel output { width: 100%; min-width: 0; height: 24px; padding: 0 2px; border: 0; border-radius: 4px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--mono); font-size: 10.5px; text-align: center; line-height: 24px; }
 .param-kernel.is-learned output { color: var(--ink); background: color-mix(in srgb, var(--fam-learned) calc(var(--w) * 30%), var(--canvas)); }
@@ -234,7 +240,7 @@
 .node-carries.is-input { left: 10px; right: 26px; justify-content: flex-end; }
 .node-preview { position: relative; margin: 9px 11px 0; min-height: 40px; display: grid; place-items: center; }
 .node-view { position: absolute; z-index: 2; top: 4px; right: 4px; height: 22px; padding: 0 7px 0 6px; display: inline-flex; align-items: center; gap: 4px; border: 0; border-radius: 7px; color: var(--ink); background: color-mix(in srgb, var(--paper) 88%, transparent); box-shadow: 0 0 0 1px var(--rule); font: inherit; font-size: 10.5px; cursor: pointer; opacity: .82; transition: opacity 160ms ease, box-shadow 160ms ease; backdrop-filter: blur(6px); }
-.node-view:hover, .node-view.is-open, .node-view:focus-visible, .is-phone .node-view { opacity: 1; }
+.node-view:hover, .node-view.is-open, .node-view:focus-visible { opacity: 1; }
 .node-view.is-open { box-shadow: 0 0 0 1.5px var(--accent); }
 .node.has-menu { z-index: 30; }
 .view-menu { position: absolute; z-index: 20; top: 30px; left: -6px; width: 196px; padding: 4px; display: grid; gap: 1px; border-radius: 12px; background: var(--paper); box-shadow: 0 0 0 1px var(--rule), 0 16px 34px -16px rgba(0, 0, 0, .45); animation: rise-in 160ms ease; }
@@ -324,9 +330,6 @@
 .probe-feedback { min-height: 22px; color: var(--fail) !important; font-family: var(--sans) !important; font-size: 13px !important; }
 
 /* ---- sheet and dialogs ---- */
-.fab { position: absolute; z-index: 7; right: 16px; bottom: 16px; width: 56px; height: 56px; display: grid; place-items: center; border: 0; border-radius: 18px; color: var(--paper); background: var(--ink); box-shadow: 0 14px 28px -14px rgba(0, 0, 0, .7); cursor: pointer; }
-.board-status { position: absolute; z-index: 6; left: 14px; bottom: 22px; min-height: 34px; padding: 0 12px; border: 0; border-radius: 17px; color: var(--ink); background: color-mix(in srgb, var(--paper) 90%, transparent); box-shadow: 0 0 0 1px var(--hairline), 0 8px 20px -14px rgba(0, 0, 0, .5); font-size: 12px; backdrop-filter: blur(10px); }
-.board-status.is-pass { color: var(--paper); background: var(--status); }
 .sheet-scrim { position: fixed; z-index: 60; inset: 0; display: flex; align-items: flex-end; background: var(--scrim); animation: fade-in 160ms ease; }
 .sheet { width: 100%; max-height: 72dvh; padding: 10px 16px calc(20px + env(safe-area-inset-bottom)); overflow-y: auto; border-radius: 20px 20px 0 0; background: var(--paper); box-shadow: 0 -10px 30px -10px rgba(0, 0, 0, .3); animation: sheet-in 240ms cubic-bezier(.2, .8, .2, 1); }
 .sheet::before { content: ''; display: block; width: 40px; height: 4px; margin: 0 auto 10px; border-radius: 2px; background: var(--rule); }
@@ -385,16 +388,6 @@
   .map-chapter { padding: 16px 12px 10px; }
   .map-level { min-height: 46px; }
 
-  .level, .level.is-phone { height: calc(100dvh - var(--bar-h)); display: block; position: relative; }
-  .level.is-phone [data-pane] { position: absolute; inset: 0 0 calc(var(--tab-h) + env(safe-area-inset-bottom)) 0; display: none; border: 0; }
-  .level.is-phone[data-tab='task'] [data-pane='task'],
-  .level.is-phone[data-tab='board'] [data-pane='board'],
-  .level.is-phone[data-tab='tests'] [data-pane='tests'],
-  .level.is-phone[data-tab='play'] [data-pane='play'] { display: block; }
-  .level.is-phone[data-tab='task'] [data-pane='task'] { display: flex; }
-  .level.is-phone .brief { padding: 20px 16px 28px; }
-  .level.is-phone .tests { padding: 16px 14px 28px; }
-  .level.is-phone .play-pane { overflow-y: auto; }
   .board-zoom { top: 12px; right: 12px; bottom: auto; }
   .board-views { top: 12px; left: 12px; bottom: auto; }
   /* Phones pinch to zoom, so only the fit button stays next to the view bar. */
@@ -402,12 +395,8 @@
   .board-views-label, .board-views button span { display: none; }
   .board-views button { width: 32px; padding: 0; justify-content: center; }
   .node-view span { display: none; }
-  .board-delete { bottom: 88px; }
   .test-images.is-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-  .tabbar { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; height: calc(var(--tab-h) + env(safe-area-inset-bottom)); padding: 6px 8px env(safe-area-inset-bottom); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; border-top: 1px solid var(--hairline); background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(14px); }
-  .tabbar button { display: grid; justify-items: center; align-content: center; gap: 3px; border: 0; border-radius: 12px; color: var(--muted); background: transparent; font-size: 11px; }
-  .tabbar button.is-active { color: var(--ink); background: var(--hover); }
 
   .probe { padding: 20px 16px; gap: 22px; }
   .probe-machine { gap: 12px; }
@@ -425,3 +414,77 @@
   .wire-flow { display: none; }
   .game *, .game *::before, .game *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; transition-duration: 1ms !important; }
 }
+
+/* ---- Phone: one scrolling page per level (task, pinned tests, the circuit as a list of steps) ---- */
+.level-phone { height: calc(100dvh - var(--bar-h)); overflow-y: auto; overscroll-behavior: contain; background: var(--canvas); padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+.pl-brief { padding: 14px 16px 12px; display: grid; gap: 8px; background: var(--paper); border-bottom: 1px solid var(--hairline); }
+.pl-brief .brief-head h1 { font-size: 22px; }
+.pl-brief .brief-text { margin: 0; font-size: 15.5px; line-height: 1.65; }
+.pl-brief .brief-text.is-clamped { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.pl-brief .hint-block { margin: 0; }
+.brief-more { justify-self: start; padding: 2px 0; border: 0; color: var(--accent-ink); background: none; font-size: 13px; cursor: pointer; }
+.pl-play .bk { padding-top: 12px; }
+.pl-footer { padding: 6px 16px 0; display: grid; gap: 16px; }
+.pl-footer .reset-button { margin: 0; min-height: 40px; }
+.pl-footer .train-buttons button { min-height: 44px; flex: 1; }
+
+/* The tests stay in sight while the steps scroll under them. */
+.pt { position: sticky; top: 0; z-index: 6; padding: 8px 12px 10px; display: grid; gap: 8px; border-bottom: 1px solid var(--hairline); background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(12px); }
+.pt-chips { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.pt-chips::-webkit-scrollbar { display: none; }
+.pt-chip { flex: none; min-height: 32px; padding: 0 11px; border: 0; border-radius: 16px; color: var(--fail); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 12.5px; }
+.pt-chip.is-pass { color: var(--status); }
+.pt-chip.is-active { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.pt-meter { flex: none; margin-left: auto; padding-left: 6px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.pt.is-pass .pt-meter { color: var(--status); }
+.pt-row { display: flex; align-items: center; gap: 10px; }
+.pt-row figure { margin: 0; display: grid; justify-items: center; gap: 3px; }
+.pt-row figcaption { color: var(--muted); font-family: var(--mono); font-size: 10px; }
+.pt-wide { flex: 1; min-width: 0; }
+.pt-numbers { grid-template-columns: auto auto; align-items: baseline; justify-content: start; column-gap: 8px; }
+.pt-numbers b { font-family: var(--mono); font-size: 17px; font-weight: 500; }
+.pt-numbers b.is-pass { color: var(--status); }
+.pt-numbers b.is-fail { color: var(--fail); }
+.pt-numbers span { color: var(--muted); font-size: 11px; }
+.pt-details { margin-left: auto; min-height: 40px; max-width: 34%; padding: 0 4px 0 8px; display: inline-flex; align-items: center; gap: 2px; border: 0; border-radius: 10px; color: var(--fail); background: transparent; font: inherit; font-size: 12px; text-align: right; line-height: 1.3; }
+.pt.is-pass .pt-details { color: var(--status); }
+
+/* Steps. Inputs are 16px so phones do not zoom into them. */
+.pb { padding: 12px; display: grid; gap: 10px; }
+.pb-sources { display: grid; gap: 6px; }
+.pb-source { border-radius: 12px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.pb-source summary { min-height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 8px; list-style: none; cursor: pointer; font-size: 14px; }
+.pb-source summary::-webkit-details-marker { display: none; }
+.pb-source summary small { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.pb-chevron { margin-left: auto; color: var(--faint); transition: transform 160ms ease; }
+.pb-source[open] .pb-chevron { transform: rotate(90deg); }
+.pb-source .pb-preview { padding: 0 12px 12px; }
+.pb-step { padding: 10px 12px 12px; display: grid; gap: 8px; border-radius: 14px; background: var(--paper); box-shadow: inset 3px 0 0 var(--fam, var(--rule)), var(--card-shadow); animation: card-in 220ms ease; }
+.pb-step header { display: flex; align-items: center; gap: 8px; }
+.pb-step h3 { margin: 0; flex: 1; font-size: 15px; font-weight: 500; }
+.pb-step .family-chip { width: 22px; height: 22px; border-radius: 6px; }
+.pb-delete { width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 10px; color: var(--muted); background: transparent; }
+.pb-port { min-height: 44px; display: grid; grid-template-columns: 4.6em minmax(0, 1fr); align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.pb-port select, .param.is-roomy select { width: 100%; min-height: 42px; padding: 0 10px; border: 0; border-radius: 10px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: inherit; font-size: 16px; }
+.pb-port.is-empty select { color: var(--fail); box-shadow: inset 0 0 0 1.5px var(--fail); }
+.param.is-roomy { margin: 0; min-height: 44px; font-size: 13px; }
+.param.is-roomy select { width: auto; min-width: 9em; }
+.param.is-roomy .param-number { gap: 6px; }
+.param.is-roomy .param-number input { width: 96px; height: 42px; border-radius: 10px; font-size: 16px; text-align: center; }
+.param.is-roomy .param-sign { width: 44px; height: 42px; border-radius: 10px; font-size: 18px; }
+.param-kernel-wrap.is-roomy { margin: 0; gap: 6px; }
+.param-kernel-wrap.is-roomy .param-kernel { gap: 4px; }
+.param-kernel-wrap.is-roomy .param-kernel input { height: 42px; border-radius: 8px; font-size: 16px; }
+.param-kernel-wrap.is-roomy .param-kernel-sign { height: 40px; border-radius: 10px; font-size: 13px; }
+.param-kernel.is-roomy output { height: 34px; line-height: 34px; font-size: 13px; }
+.pb-preview { display: grid; justify-items: center; gap: 6px; }
+.pb-error { margin: 0; color: var(--fail); font-size: 13px; }
+.pb-add { min-height: 50px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 14px; color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1.5px var(--rule); font: inherit; font-size: 15px; }
+.pb-add:active { background: var(--hover); }
+.pb-output.is-pass { box-shadow: inset 3px 0 0 var(--status), 0 0 0 1.5px color-mix(in srgb, var(--status) 55%, transparent); }
+.pb-output.is-fail { box-shadow: inset 3px 0 0 var(--fail), var(--card-shadow); }
+.pb-verdict { padding: 2px 8px; border-radius: 8px; color: var(--paper); background: var(--fail); font-size: 11.5px; font-style: normal; }
+.pb-output.is-pass .pb-verdict { background: var(--status); }
+.sheet .tests { padding: 0; border: 0; background: none; }
+/* The bar above already names the level. */
+.pl-brief .brief-head { display: none; }

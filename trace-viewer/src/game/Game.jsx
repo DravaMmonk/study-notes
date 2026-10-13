@@ -1,7 +1,7 @@
 import { Suspense, createElement, useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, FlaskConical, Lightbulb, ListChecks, Moon, PanelLeft, Plus, RotateCcw, Ruler, Sun, Target, Workflow, X } from 'lucide-react'
+import { ArrowLeft, Lightbulb, Moon, PanelLeft, Plus, RotateCcw, Ruler, Sun, X } from 'lucide-react'
 import { hasLearnable, runLevel, trainStep } from './engine/graph.js'
-import { NODE_TYPES, defaultParams } from './engine/nodes.js'
+import { NODE_TYPES, defaultParams, inputsOf } from './engine/nodes.js'
 import { CHAPTERS, LEVELS, levelById } from './levels/index.js'
 import { startBoard } from './levels/util.js'
 import { loadProgress, saveProgress } from './progress.js'
@@ -9,6 +9,7 @@ import Editor from './ui/Editor.jsx'
 import LevelMap from './ui/LevelMap.jsx'
 import LevelRail from './ui/LevelRail.jsx'
 import ProbeLevel from './ui/ProbeLevel.jsx'
+import PhoneBuilder, { PhoneTests } from './ui/PhoneBuilder.jsx'
 import TestPanel from './ui/TestPanel.jsx'
 import { boardFor } from './ui/boards/index.js'
 import { describe, familyOf, iconOf } from './ui/catalog.js'
@@ -186,7 +187,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   const [showHint, setShowHint] = useState(false)
   const [won, setWon] = useState(false)
   const [losses, setLosses] = useState([])
-  const [tab, setTab] = useState(level.kind === 'graph' ? 'board' : 'play')
+  const [showBrief, setShowBrief] = useState(false)
   const [sheet, setSheet] = useState(false)
   const flags = useMemo(() => new Set([...progress.flags, ...(level.grants ?? [])]), [progress.flags, level.grants])
   // The fixed cards are named and drawn by what they carry: a picture, a waveform or a number.
@@ -241,7 +242,21 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
     const slots = []
     for (let row = 0; row < 5; row++) for (let col = 0; col < 3; col++) slots.push([200 + col * 150, 40 + row * 190])
     const free = slots.find(([x, y]) => !board.nodes.some((n) => Math.abs(n.x - x) < 140 && Math.abs(n.y - y) < 170)) ?? [220 + (count % 4) * 30, 60 + (count % 6) * 30]
-    change({ ...board, nodes: [...board.nodes, { id, type, x: free[0], y: free[1], params: defaultParams(type) }] })
+    const node = { id, type, x: free[0], y: free[1], params: defaultParams(type) }
+    let wires = board.wires
+    // On a phone the circuit is a chain of steps: the new part takes what fed the output and then
+    // feeds the output itself. Parts with no inputs (generators) are only added.
+    if (phone) {
+      const out = board.nodes.find((n) => n.type === 'output')
+      const into = board.wires.find((w) => w.to === out?.id)
+      const from = into?.from ?? board.nodes.find((n) => n.type === 'input')?.id
+      const [first] = inputsOf(type)
+      if (first && from) {
+        wires = [...wires, { from, to: id, port: first }]
+        if (out) wires = [...wires.filter((w) => w.to !== out.id), { from: id, to: out.id, port: 'in' }]
+      }
+    }
+    change({ ...board, nodes: [...board.nodes, node], wires })
     setSheet(false)
   }
 
@@ -259,116 +274,71 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
 
   const nextLevel = LEVELS.find((l) => l.requires.includes(level.id) && l.requires.every((id) => id === level.id || progress.solved.includes(id)))
   const passed = run?.results.filter((r) => r.pass).length ?? 0
-  const tabs = level.kind === 'graph'
-    ? [['task', '任务', Target], ['board', '电路', Workflow], ['tests', `测试 ${passed}/${level.tests.length}`, ListChecks]]
-    : [['task', '任务', Target], ['play', level.kind === 'probe' ? '实验' : '机关', FlaskConical]]
 
-  const parts = (
-    <PartsList palette={level.palette} onAdd={addNode} />
+  const parts = <PartsList palette={level.palette} onAdd={addNode} />
+  // About three lines on a phone; longer task text starts folded.
+  const longBrief = level.brief.length > 66
+  const brief = (
+    <>
+      <header className="brief-head">
+        <span className="brief-id">{level.id}</span>
+        <h1>{level.title}</h1>
+      </header>
+      <p className={`brief-text ${phone && !showBrief && longBrief ? 'is-clamped' : ''}`} onClick={() => phone && setShowBrief(true)}>{level.brief}</p>
+      {phone && !showBrief && longBrief && <button className="brief-more" onClick={() => setShowBrief(true)}>展开说明</button>}
+      {level.hint && (
+        <div className="hint-block">
+          <button className="hint-toggle" onClick={() => setShowHint((v) => !v)} aria-expanded={showHint}><Lightbulb size={14} /> {showHint ? '收起提示' : '提示'}</button>
+          {showHint && <p className="hint">{level.hint}</p>}
+        </div>
+      )}
+    </>
   )
-
-  return (
-    <div className={`level level-${level.kind} ${phone ? 'is-phone' : ''}`} data-tab={phone ? tab : undefined}>
-      <aside className="brief" data-pane="task">
-        <header className="brief-head">
-          <span className="brief-id">{level.id}</span>
-          <h1>{level.title}</h1>
-        </header>
-        <p className="brief-text">{level.brief}</p>
-        {level.hint && (
-          <div className="hint-block">
-            <button className="hint-toggle" onClick={() => setShowHint((v) => !v)} aria-expanded={showHint}><Lightbulb size={14} /> {showHint ? '收起提示' : '提示'}</button>
-            {showHint && <p className="hint">{level.hint}</p>}
-          </div>
-        )}
-
-        {level.kind === 'graph' && (
-          <>
-            {!phone && (
-              <section>
-                <h3 className="panel-label">元件</h3>
-                {parts}
-                <p className="panel-note">从卡片右侧的圆点拖线到下一张卡片。选中卡片或连线后按 Delete 删除；按住 ⌘/Ctrl 滚动可缩放。</p>
-              </section>
-            )}
-
-            {hasLearnable(board) && (
-              <section>
-                <h3 className="panel-label">训练</h3>
-                <div className="train-buttons">
-                  <button onClick={() => train(1)}>训练 1 步</button>
-                  <button onClick={() => train(10)}>训练 10 步</button>
-                </div>
-                <LossCurve losses={losses} />
-              </section>
-            )}
-
-            <section className="score">
-              <h3 className="panel-label">评分</h3>
-              <div className="stat-row">
-                <div className="stat"><b>{run?.score.nodes ?? 0}</b><span>节点</span></div>
-                <div className="stat"><b>{run?.score.cost ?? 0}</b><span>计算量</span></div>
-                <div className={`stat ${run?.pass ? 'is-pass' : ''}`}><b>{passed}/{level.tests.length}</b><span>测试</span></div>
-              </div>
-              {run?.constraint && <p className="constraint">{run.constraint}</p>}
-              {progress.best[level.id] && <p className="panel-note">最佳：{progress.best[level.id].nodes} 个节点 · 计算量 {progress.best[level.id].cost}</p>}
-            </section>
-
-            <button className="reset-button" onClick={() => { change(startBoard(level)); setLosses([]) }}><RotateCcw size={13} /> 清空电路</button>
-          </>
-        )}
-      </aside>
-
-      {level.kind === 'graph' ? (
-        <>
-          <div className="board-pane" data-pane="board">
-            <Editor graph={board} onChange={change} run={run} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} touch={phone} hasPalette={level.palette.length > 0} />
-            {phone && level.palette.length > 0 && (
-              <button className="fab" onClick={() => setSheet(true)} aria-label="添加元件"><Plus size={22} /></button>
-            )}
-            {phone && run && (
-              <button className={`board-status ${run.pass ? 'is-pass' : ''}`} onClick={() => setTab('tests')}>
-                {run.pass ? '全部通过' : `${passed}/${level.tests.length} 通过 · 看测试`}
-              </button>
-            )}
-          </div>
-          <TestPanel level={level} run={run} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} theme={theme} scan={scan} onScan={setScan} inView={roleView('input')} outView={roleView('output')} onView={showRole} />
-        </>
-      ) : level.kind === 'board' ? (
-        <div className="play-pane" data-pane="play">
-          <Suspense fallback={<div className="board-loading">载入中…</div>}>
-            <BoardLevel level={level} onSolve={() => { solve(null); setWon(true) }} theme={theme} />
-          </Suspense>
-        </div>
-      ) : (
-        <div className="play-pane" data-pane="play">
-          <ProbeLevel level={level} onSolve={() => { solve(null); setWon(true) }} theme={theme} />
-        </div>
-      )}
-
-      {phone && (
-        <nav className="tabbar" aria-label="关卡视图">
-          {tabs.map(([id, label, Icon]) => (
-            <button key={id} className={tab === id ? 'is-active' : ''} aria-current={tab === id ? 'page' : undefined} onClick={() => setTab(id)}>
-              {createElement(Icon, { size: 18, strokeWidth: 1.6 })}
-              <span>{label}</span>
-            </button>
-          ))}
-        </nav>
-      )}
-
+  const training = level.kind === 'graph' && hasLearnable(board) && (
+    <section>
+      <h3 className="panel-label">训练</h3>
+      <div className="train-buttons">
+        <button onClick={() => train(1)}>训练 1 步</button>
+        <button onClick={() => train(10)}>训练 10 步</button>
+      </div>
+      <LossCurve losses={losses} />
+    </section>
+  )
+  const graphLevel = level.kind === 'graph'
+  const score = graphLevel && (
+    <section className="score">
+      <h3 className="panel-label">评分</h3>
+      <div className="stat-row">
+        <div className="stat"><b>{run?.score.nodes ?? 0}</b><span>节点</span></div>
+        <div className="stat"><b>{run?.score.cost ?? 0}</b><span>计算量</span></div>
+        <div className={`stat ${run?.pass ? 'is-pass' : ''}`}><b>{passed}/{level.tests.length}</b><span>测试</span></div>
+      </div>
+      {run?.constraint && <p className="constraint">{run.constraint}</p>}
+      {progress.best[level.id] && <p className="panel-note">最佳：{progress.best[level.id].nodes} 个节点 · 计算量 {progress.best[level.id].cost}</p>}
+    </section>
+  )
+  const reset = <button className="reset-button" onClick={() => { change(startBoard(level)); setLosses([]) }}><RotateCcw size={13} /> 清空电路</button>
+  const play = level.kind === 'board' ? (
+    <Suspense fallback={<div className="board-loading">载入中…</div>}>
+      <BoardLevel level={level} onSolve={() => { solve(null); setWon(true) }} theme={theme} />
+    </Suspense>
+  ) : (
+    <ProbeLevel level={level} onSolve={() => { solve(null); setWon(true) }} theme={theme} />
+  )
+  const testPanel = graphLevel && <TestPanel level={level} run={run} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} theme={theme} scan={scan} onScan={setScan} inView={roleView('input')} outView={roleView('output')} onView={showRole} />
+  const overlays = (
+    <>
       {sheet && (
         <div className="sheet-scrim" onClick={() => setSheet(false)}>
-          <div className="sheet" role="dialog" aria-modal="true" aria-label="元件" onClick={(e) => e.stopPropagation()}>
+          <div className="sheet" role="dialog" aria-modal="true" aria-label={sheet === 'tests' ? '测试详情' : '元件'} onClick={(e) => e.stopPropagation()}>
             <header>
-              <span className="panel-label">元件</span>
+              <span className="panel-label">{sheet === 'tests' ? '测试详情' : '选一个元件，接在最后'}</span>
               <button className="icon-only" onClick={() => setSheet(false)} aria-label="关闭"><X size={18} /></button>
             </header>
-            {parts}
+            {sheet === 'tests' ? testPanel : parts}
           </div>
         </div>
       )}
-
       {won && (
         <SolvedDialog
           level={level}
@@ -378,6 +348,62 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
           onNext={() => onNext(nextLevel.id)}
         />
       )}
+    </>
+  )
+
+  // On a phone everything is one scrolling page: the task, the tests pinned under it, then the
+  // circuit as a list of steps (or the board level itself).
+  if (phone) {
+    return (
+      <div className={`level-phone level-${level.kind}`}>
+        <section className="pl-brief">{brief}</section>
+        {level.kind === 'graph' ? (
+          <>
+            <PhoneTests level={level} run={run} testIndex={testIndex} onSelect={setTestIndex} onDetails={() => setSheet('tests')} theme={theme} inView={roleView('input')} outView={roleView('output')} />
+            <PhoneBuilder graph={board} onChange={change} run={run} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onAdd={() => setSheet('parts')} canAdd={level.palette.length > 0} />
+            <div className="pl-footer">
+              {training}
+              {score}
+              {reset}
+            </div>
+          </>
+        ) : (
+          <div className="pl-play">{play}</div>
+        )}
+        {overlays}
+      </div>
+    )
+  }
+
+  return (
+    <div className={`level level-${level.kind}`}>
+      <aside className="brief">
+        {brief}
+        {level.kind === 'graph' && (
+          <>
+            <section>
+              <h3 className="panel-label">元件</h3>
+              {parts}
+              <p className="panel-note">从卡片右侧的圆点拖线到下一张卡片。选中卡片或连线后按 Delete 删除；按住 ⌘/Ctrl 滚动可缩放。</p>
+            </section>
+            {training}
+            {score}
+            {reset}
+          </>
+        )}
+      </aside>
+
+      {level.kind === 'graph' ? (
+        <>
+          <div className="board-pane">
+            <Editor graph={board} onChange={change} run={run} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={level.palette.length > 0} />
+          </div>
+          {testPanel}
+        </>
+      ) : (
+        <div className="play-pane">{play}</div>
+      )}
+      {overlays}
     </div>
   )
 }

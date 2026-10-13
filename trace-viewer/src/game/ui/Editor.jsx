@@ -3,6 +3,7 @@ import { ArrowRightFromLine, ArrowRightToLine, Check, Maximize, Minus, Plus, Rot
 import { wouldCycle } from '../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../engine/nodes.js'
 import { familyOf, iconOf } from './catalog.js'
+import ParamControl from './ParamControl.jsx'
 import ValueView from './views/ValueView.jsx'
 import { IMAGE_VIEWS, KIND_NAMES, kindOf, nodeView } from './views/views.js'
 
@@ -389,38 +390,5 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
         <button onClick={fit} aria-label="适配画布"><Maximize size={13} /></button>
       </div>
     </div>
-  )
-}
-
-function ParamControl({ param, value, onChange }) {
-  const stop = (e) => e.stopPropagation()
-  if (param.kind === 'select') {
-    return (
-      <label className="param">
-        <span>{param.label}</span>
-        <select value={value} onChange={(e) => onChange(typeof param.options[0][0] === 'number' ? Number(e.target.value) : e.target.value)} onPointerDown={stop}>
-          {param.options.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
-        </select>
-      </label>
-    )
-  }
-  if (param.kind === 'kernel') {
-    return (
-      <div className={`param-kernel ${param.learnable ? 'is-learned' : ''}`} onPointerDown={stop}>
-        {value.map((w, i) =>
-          param.learnable ? (
-            <output key={i} style={{ '--w': Math.max(-1, Math.min(1, w)) }}>{w.toFixed(2)}</output>
-          ) : (
-            <input key={i} type="number" inputMode="decimal" step="any" value={Number(w.toFixed(4))} onChange={(e) => onChange(value.map((x, j) => (j === i ? Number(e.target.value) || 0 : x)))} aria-label={`权重 ${Math.floor(i / 3) + 1} 行 ${(i % 3) + 1} 列`} />
-          ),
-        )}
-      </div>
-    )
-  }
-  return (
-    <label className="param">
-      <span>{param.label}</span>
-      <input type="number" inputMode="decimal" step="any" value={value} onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))} onPointerDown={stop} />
-    </label>
   )
 }
