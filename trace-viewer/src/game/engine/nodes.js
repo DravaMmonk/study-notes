@@ -19,8 +19,8 @@ const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
 const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)
 
 export const NODE_TYPES = {
-  input: { label: '相机', inputs: [], fixed: true, eval: () => null, cost: 0 },
-  output: { label: '显示屏', inputs: ['in'], outputs: [], fixed: true, eval: () => null, cost: 0 },
+  input: { label: '输入', inputs: [], fixed: true, eval: () => null, cost: 0 },
+  output: { label: '输出', inputs: ['in'], outputs: [], fixed: true, eval: () => null, cost: 0 },
 
   // ---- primitives (chapter 0) ----
   mystery: { label: '？？？', inputs: ['in'], eval: ({ in: a }) => shift(a, 1, 0), cost: 0 },

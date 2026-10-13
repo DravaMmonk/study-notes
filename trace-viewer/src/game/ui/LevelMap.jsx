@@ -16,7 +16,7 @@ export default function LevelMap({ solved, best, onOpen, theme }) {
         <div className="map-hero-text">
           <p className="map-kicker">COMP90086 · 计算机视觉</p>
           <h1>视觉完备</h1>
-          <p className="map-lede">没有讲解，只有元件、测试图和一块显示屏。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。</p>
+          <p className="map-lede">没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。</p>
           <div className="map-progress" aria-label={`已通过 ${done} / ${LEVELS.length} 关`}>
             <span className="map-progress-bar"><i style={{ width: `${(done / LEVELS.length) * 100}%` }} /></span>
             <span>{done} / {LEVELS.length} 关</span>

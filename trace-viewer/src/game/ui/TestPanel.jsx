@@ -2,17 +2,18 @@ import { useState } from 'react'
 import { Check, X } from 'lucide-react'
 import ImageView from './ImageView.jsx'
 import { rangeOf } from './display.js'
-import ValueView, { CurveView, NumberCompare } from './views/ValueView.jsx'
+import CurveView from './views/CurveView.jsx'
+import ProfileView from './views/ProfileView.jsx'
+import ValueView, { NumberCompare } from './views/ValueView.jsx'
 import ViewSwitch from './views/ViewSwitch.jsx'
-import { kindOf } from './views/views.js'
+import { kindOf, rowOf } from './views/views.js'
 
 // The test panel: every test as a chip, and the chosen test laid out as input → expected / actual / error.
 // Numbers are compared on a scale, waveforms as one plot with the allowed band, 2-D values side by
-// side in the chosen view with a pixel map of the misses.
-export default function TestPanel({ level, run, testIndex, onSelect, inputLabels, views, theme }) {
+// side in the same view as their cards on the board (switching here switches the cards too), with
+// a pixel map of the misses. In the profile view the two rows are laid over each other.
+export default function TestPanel({ level, run, testIndex, onSelect, inputLabels, inView, outView, onView, scan, onScan, theme }) {
   const [probe, setProbe] = useState(null)
-  const [inView, setInView] = useState(views?.in ?? 'pixels')
-  const [outView, setOutView] = useState(views?.out ?? 'pixels')
   const test = level.tests[testIndex]
   const result = run?.results[testIndex]
   const passed = run?.results.filter((r) => r.pass).length ?? 0
@@ -46,12 +47,12 @@ export default function TestPanel({ level, run, testIndex, onSelect, inputLabels
         <div className="test-block">
           <div className="test-block-head">
             <span className="test-block-label">输入</span>
-            {inputsAreImages && <ViewSwitch value={inView} onChange={setInView} compact />}
+            {inputsAreImages && <ViewSwitch value={inView} onChange={(v) => onView('input', v)} compact />}
           </div>
           <div className={`test-images is-inputs ${inputsAreImages ? '' : 'is-wide'}`}>
             {Object.entries(test.inputs).map(([name, img]) => (
               <figure key={name}>
-                <ValueView img={img} view={inView} size={kindOf(img) === 'image' ? 132 : 280} theme={theme} onHover={setProbe} grid />
+                <ValueView img={img} view={inView} size={kindOf(img) === 'image' ? 132 : 280} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} grid />
                 <figcaption>{inputLabels?.[name] ?? '输入'}</figcaption>
               </figure>
             ))}
@@ -67,7 +68,7 @@ export default function TestPanel({ level, run, testIndex, onSelect, inputLabels
             <div key={name} className={`test-block ${check?.pass ? 'is-pass' : 'is-fail'}`}>
               <div className="test-block-head">
                 <span className="test-block-label">输出</span>
-                {kind === 'image' && <ViewSwitch value={outView} onChange={setOutView} compact />}
+                {kind === 'image' && <ViewSwitch value={outView} onChange={(v) => onView('output', v)} compact />}
               </div>
               {kind === 'number' ? (
                 <NumberCompare expected={expected.data[0]} actual={fits ? actual.data[0] : NaN} tolerance={tolerance} pass={check?.pass} />
@@ -77,7 +78,7 @@ export default function TestPanel({ level, run, testIndex, onSelect, inputLabels
                   <figcaption><i className="is-expected" />期望 <i className="is-band" />允许范围 <i />你的输出</figcaption>
                 </figure>
               ) : (
-                <OutputImages expected={expected} actual={actual} fits={fits} view={outView} tolerance={tolerance} theme={theme} onHover={setProbe} />
+                <OutputImages expected={expected} actual={actual} fits={fits} view={outView} tolerance={tolerance} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} />
               )}
               <p className={`test-verdict ${check?.pass ? 'is-pass' : 'is-fail'}`}>
                 {check?.pass ? <Check size={14} /> : <X size={14} />}
@@ -87,15 +88,40 @@ export default function TestPanel({ level, run, testIndex, onSelect, inputLabels
           )
         })}
         {(inputsAreImages || Object.values(test.expected).some((img) => kindOf(img) === 'image')) && <p className="pixel-probe">
-          {probe ? <>({probe.x}, {probe.y}) <b>{probe.value.toFixed(3)}</b>{probe.expected !== undefined ? <> · 期望 <b>{probe.expected.toFixed(3)}</b></> : null}</> : '把指针停在图上，看每一格的数值'}
+          {probe ? <>{probe.frequency ? '频率 ' : ''}({probe.x}, {probe.y}) <b>{probe.value.toFixed(3)}</b>{probe.expected !== undefined ? <> · 期望 <b>{probe.expected.toFixed(3)}</b></> : null}</> : '把指针停在图上，看每一格的数值'}
         </p>}
       </section>
     </aside>
   )
 }
 
-function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover }) {
+function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover, scan, onScan }) {
   const range = rangeOf(expected)
+  if (view === 'profile') {
+    const row = Math.min(expected.h - 1, Math.max(0, Math.round(scan * (expected.h - 1))))
+    return (
+      <>
+        <div className="test-images">
+          <figure>
+            <ProfileView img={expected} range={range} size={132} theme={theme} scan={scan} onScan={onScan} onHover={onHover} compact />
+            <figcaption>期望</figcaption>
+          </figure>
+          <figure>
+            {fits ? <ProfileView img={actual} range={range} size={132} theme={theme} scan={scan} onScan={onScan} onHover={onHover} compact /> : <ImageView img={null} label={actual ? '尺寸不对' : '未连接'} />}
+            <figcaption>你的输出</figcaption>
+          </figure>
+          <figure>
+            <ImageView img={fits ? actual : null} against={expected} tolerance={tolerance} theme={theme} onHover={onHover} label="—" grid />
+            <figcaption>误差</figcaption>
+          </figure>
+        </div>
+        <figure className="test-curve">
+          <CurveView img={fits ? rowOf(actual, row) : null} expected={rowOf(expected, row)} tolerance={tolerance} width={280} height={110} />
+          <figcaption>第 {row} 行：<i className="is-expected" />期望 <i className="is-band" />允许范围 <i />你的输出 · 在图上拖动换一行</figcaption>
+        </figure>
+      </>
+    )
+  }
   return (
     <div className="test-images">
       <figure>

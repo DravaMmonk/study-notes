@@ -1,5 +1,13 @@
 /* Value views: readouts, waveforms, terrains and slope maps (see views.js). */
-.terrain-view, .slope-view, .curve-view { display: block; max-width: 100%; }
+.terrain-view, .slope-view, .curve-view, .spectrum-view { display: block; max-width: 100%; }
+.value-view { display: grid; place-items: center; animation: view-in 220ms ease; }
+@keyframes view-in { from { opacity: 0; transform: scale(.985); } }
+.spectrum-view { border-radius: 4px; box-shadow: inset 0 0 0 1px var(--hairline); }
+.profile-view { display: grid; gap: 6px; }
+.profile-picture { position: relative; line-height: 0; }
+.profile-picture.is-draggable { cursor: ns-resize; touch-action: none; }
+.profile-line { position: absolute; left: -3px; right: -3px; height: 2px; margin-top: -1px; border-radius: 1px; background: var(--accent); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--paper) 80%, transparent); pointer-events: none; transition: top 120ms ease; }
+.profile-tag { position: absolute; left: 3px; margin-top: -19px; padding: 1px 5px; border-radius: 5px; color: var(--paper); background: var(--accent-ink); font-family: var(--mono); font-size: 9.5px; line-height: 1.4; pointer-events: none; transition: top 120ms ease; }
 .slope-view { border-radius: 4px; image-rendering: auto; }
 
 .number-view { min-height: 64px; display: grid; place-items: center; border-radius: 8px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
@@ -33,5 +41,6 @@
 .view-switch button[aria-pressed='true'] { color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--rule); }
 
 @media (prefers-reduced-motion: reduce) {
-  .number-mark { transition: none; }
+  .number-mark, .profile-line, .profile-tag { transition: none; }
+  .value-view { animation: none; }
 }

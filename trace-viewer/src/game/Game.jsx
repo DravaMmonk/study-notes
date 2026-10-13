@@ -12,7 +12,7 @@ import TestPanel from './ui/TestPanel.jsx'
 import { boardFor } from './ui/boards/index.js'
 import { describe, familyOf, iconOf } from './ui/catalog.js'
 import { PHONE, useMedia } from './ui/useMedia.js'
-import { SINK_NAMES, SOURCE_NAMES, kindOf, viewFor } from './ui/views/views.js'
+import { kindOf, nodeView, viewFor } from './ui/views/views.js'
 
 const THEMES = [
   ['paper', '纸面', Sun],
@@ -28,7 +28,7 @@ UNLOCKED_PART.invert = 'invert'
 
 const INTRO = [
   '探测器 V-0，视觉芯片已上电。',
-  '你的相机能把世界变成一格格数字，但你还看不懂它们。',
+  '传感器把世界变成一格格数字，可你还看不懂它们。',
   '母舰会给你一系列测试。每通过一个，你就多一个可以用的元件。',
   '没有说明书。动手试，看测试图，读数字。',
 ]
@@ -132,9 +132,11 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   const flags = useMemo(() => new Set([...progress.flags, ...(level.grants ?? [])]), [progress.flags, level.grants])
   // The fixed cards are named and drawn by what they carry: a picture, a waveform or a number.
   const ioKinds = level.kind === 'graph' ? Object.fromEntries([...Object.entries(level.tests[0].inputs), ...Object.entries(level.tests[0].expected)].map(([name, value]) => [name, kindOf(value)])) : {}
-  const inputLabels = level.inputLabels ?? (level.inputs.length > 1 ? { left: '左图', right: '右图', scene: '现场', empty: '空场' } : { in: SOURCE_NAMES[ioKinds.in] ?? '相机' })
-  const outputLabels = level.outputLabels ?? Object.fromEntries(level.outputs.map((name) => [name, SINK_NAMES[ioKinds[name]] ?? '显示屏']))
+  const inputLabels = level.inputLabels ?? (level.inputs.length > 1 ? { left: '左图', right: '右图', scene: '现场', empty: '空场' } : {})
+  const outputLabels = level.outputLabels ?? {}
   const views = { in: viewFor(level, 'in'), out: viewFor(level, 'out'), mid: viewFor(level, 'mid') }
+  // The row every profile view traces, as a fraction of the height, shared by cards and tests.
+  const [scan, setScan] = useState(0.5)
 
   const solve = (score) => {
     setProgress((p) => {
@@ -151,9 +153,11 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
     setWon(true)
   }
 
-  const change = (next, { quiet } = {}) => {
-    if (quiet) {
+  const change = (next, { quiet, keep } = {}) => {
+    if (quiet || keep) {
       setState((s) => ({ ...s, board: next }))
+      // A change of view is kept but does not touch the circuit, so the tests need not re-run.
+      if (keep) setProgress((p) => ({ ...p, boards: { ...p.boards, [level.id]: next } }))
       return
     }
     const result = runLevel(level, next)
@@ -161,6 +165,11 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
     setProgress((p) => ({ ...p, boards: { ...p.boards, [level.id]: next } }))
     if (result.pass) solve(result.score)
   }
+
+  // The test panel draws inputs and outputs the way their cards on the board do; switching either
+  // place switches both.
+  const roleView = (type) => nodeView(board.nodes.find((n) => n.type === type) ?? { type }, views)
+  const showRole = (type, shown) => change({ ...board, nodes: board.nodes.map((n) => (n.type === type ? { ...n, view: shown } : n)) }, { keep: true })
 
   const addNode = (type) => {
     const count = board.nodes.length
@@ -253,7 +262,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
       {level.kind === 'graph' ? (
         <>
           <div className="board-pane" data-pane="board">
-            <Editor graph={board} onChange={change} run={run} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} theme={theme} touch={phone} hasPalette={level.palette.length > 0} />
+            <Editor graph={board} onChange={change} run={run} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} touch={phone} hasPalette={level.palette.length > 0} />
             {phone && level.palette.length > 0 && (
               <button className="fab" onClick={() => setSheet(true)} aria-label="添加元件"><Plus size={22} /></button>
             )}
@@ -263,7 +272,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
               </button>
             )}
           </div>
-          <TestPanel level={level} run={run} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} views={views} theme={theme} />
+          <TestPanel level={level} run={run} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} theme={theme} scan={scan} onScan={setScan} inView={roleView('input')} outView={roleView('output')} onView={showRole} />
         </>
       ) : level.kind === 'board' ? (
         <div className="play-pane" data-pane="play">

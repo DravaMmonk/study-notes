@@ -1,10 +1,10 @@
-import { AudioWaveform, Box, Calculator, Camera, Grid3x3, Minimize2, Monitor, Network, Search, Sparkles } from 'lucide-react'
+import { ArrowRightFromLine, ArrowRightToLine, AudioWaveform, Box, Calculator, Grid3x3, Minimize2, Network, Search, Sparkles } from 'lucide-react'
 import { NODE_TYPES } from '../engine/nodes.js'
 
 // How each part looks on the board and in the parts list: a family (colour and icon) and a one-line
 // description. Families group parts by what they look at, which is the idea the game is teaching.
 export const FAMILIES = {
-  io: { label: '相机与显示屏', icon: Camera },
+  io: { label: '输入与输出', icon: ArrowRightFromLine },
   pixel: { label: '逐像素', icon: Calculator },
   neighbour: { label: '看邻居', icon: Grid3x3 },
   size: { label: '改尺寸', icon: Minimize2 },
@@ -30,7 +30,7 @@ const FAMILY_OF = {
 }
 
 export const familyOf = (type) => FAMILY_OF[type] ?? 'other'
-export const iconOf = (type) => (type === 'output' ? Monitor : FAMILIES[familyOf(type)].icon)
+export const iconOf = (type) => (type === 'output' ? ArrowRightToLine : FAMILIES[familyOf(type)].icon)
 
 const DESCRIPTIONS = {
   shift: '整张图挪一格；挪出边界的地方补 0',
