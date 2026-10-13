@@ -23,7 +23,7 @@ const FAMILY_OF = {
   sobelx: 'neighbour', sobely: 'neighbour', kernel3: 'neighbour', sharpen: 'neighbour', gradmag: 'neighbour', harris: 'neighbour',
   downsample: 'size', maxpool: 'size', lrnGap: 'size',
   argmin4: 'search', disparity: 'search',
-  fqSpectrum: 'frequency', fqLowpass: 'frequency',
+  fqSpectrum: 'frequency', fqLowpass: 'frequency', fqWave: 'frequency', fqMean: 'global',
   globalMax: 'global', attention: 'global', posenc: 'global',
   learn3: 'learned', lrnConv: 'learned', lrnDense: 'learned', lrnRgb: 'learned', lrnRes: 'learned',
   dg_encode: 'learned', dg_decode: 'learned', dg_decoder: 'learned', dg_mu: 'learned', dg_sigma: 'learned', dg_sample: 'learned', dg_reparam: 'learned',

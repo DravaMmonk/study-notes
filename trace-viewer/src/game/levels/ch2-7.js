@@ -13,14 +13,14 @@ const prefiltered = (img) => downsample(correlate(img, gaussianKernel(1), 'edge'
 
 export const chapter2 = [
   {
-    id: '2-1',
+    id: '2-8',
     chapter: 2,
     title: '缩小一半',
     brief: '把 32×32 的图缩成 16×16，看起来要和原图一样（只是变小）。',
-    hint: '只取一半的点，细纹会怎样？在扔掉点之前，先做点什么。',
-    after: '直接隔点取样，细纹会变成原图里没有的粗纹（莫尔纹），这就是混叠。先模糊把太细的纹去掉，再取样：抗混叠必须发生在采样之前。',
-    requires: ['1-3'],
-    unlocks: ['downsample'],
+    hint: '隔点取样把每行 32 个点变成 16 个。上一关说过：16 个点能分辨到哪个频率？更快的纹会怎样？在扔掉点之前，先做点什么。',
+    after: '直接隔点取样，频率高于 8 的细纹会折回来，冒充成原图里没有的粗纹（莫尔纹），这就是混叠。先用高斯模糊把这些频率压下去，再取样：抗混叠必须发生在采样之前。拍照、缩略图、CNN 里的步长卷积，都会遇到同一个问题。',
+    requires: ['2-7'],
+    unlocks: [],
     grants: ['edge-pad'],
     palette: ['downsample', 'gauss', 'box3'],
     check: { tolerance: 0.12, mismatches: 6 },
@@ -120,7 +120,7 @@ export const chapter4 = [
     brief: '同一组特征点有时会偏一格。把 16×16 缩成 8×8，偏一格时结果必须完全一样。',
     hint: '隔点取样会因为偏一格而错过亮点。有没有一种缩小，只关心“这一块里有没有”？',
     after: '最大池化只问“这 2×2 里最强的是多少”，点在块内挪动不影响答案。代价是丢掉了块内的精确位置。',
-    requires: ['4-2', '2-1'],
+    requires: ['4-2', '2-8'],
     unlocks: ['maxpool'],
     palette: ['downsample', 'maxpool', 'box3', 'relu'],
     tests: [

@@ -1,6 +1,7 @@
 import { NODE_TYPES } from '../engine/nodes.js'
 import { chapter0, chapter1 } from './ch0-1.js'
 import { chapter2, chapter3, chapter4, chapter6, chapter7 } from './ch2-7.js'
+import * as waves from './pack-waves.js'
 import * as freq from './pack-freq.js'
 import * as optics from './pack-optics.js'
 import * as attend from './pack-attend.js'
@@ -10,13 +11,13 @@ import * as learn from './pack-learn.js'
 
 // Extra level packs. Each module exports `levels` (an array) and optionally `nodes` (new node types
 // merged into NODE_TYPES). Add one import line and one entry in PACKS per pack.
-const PACKS = [optics, freq, attend, match, depthgen, learn]
+const PACKS = [optics, waves, freq, attend, match, depthgen, learn]
 for (const pack of PACKS) Object.assign(NODE_TYPES, pack.nodes ?? {})
 
 export const CHAPTERS = [
   { id: 0, title: '睁眼', lecture: '第 1–2 讲', question: '图像是什么' },
   { id: 1, title: '邻居', lecture: '第 3 讲', question: '怎样用邻居算出新图' },
-  { id: 2, title: '频率', lecture: '第 4 讲', question: '缩小时为什么会出错' },
+  { id: 2, title: '频率', lecture: '第 4 讲', question: '图像由哪些波组成' },
   { id: 3, title: '光与边', lecture: '第 5 讲', question: '边缘怎样不受灯光影响' },
   { id: 4, title: '学会看', lecture: '第 6–8 讲', question: '机器怎样自己学到滤波器' },
   { id: 5, title: '全局视野', lecture: '第 9–10 讲', question: '一步看到全图' },

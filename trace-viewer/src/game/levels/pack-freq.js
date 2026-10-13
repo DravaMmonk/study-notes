@@ -1,4 +1,5 @@
-// Chapter 2 (frequency, lecture 4) and the chapter 1 speed drill: 2-2 看频谱, 2-3 低通, 2-4 混合图像, 1-R 核速判.
+// Chapter 2 (frequency, lecture 4), the spectrum half, and the chapter 1 speed drill: 2-4 看频谱,
+// 2-6 低通, 2-9 混合图像, 1-R 核速判. The wave boards that lead up to them are in pack-waves.js.
 // Every spectrum, mask and target here is computed by engine/fourier.js (a plain 2-D DFT).
 import { GLYPHS, correlate, fromFn, gaussianKernel, map, patterns as P, random, zip } from '../engine/image.js'
 import { highpass, lowpass, magnitudeSpectrum, meanAbsDiff } from '../engine/fourier.js'
@@ -49,7 +50,7 @@ const grating = (fx, fy, amp = 0.4) => fromFn(N, N, (x, y) => 0.5 + amp * Math.c
 const plus = (a, b) => zip(a, b, (p, q) => p + q)
 const maxAbsDiff = (a, b) => a.data.reduce((worst, v, i) => Math.max(worst, Math.abs(v - b.data[i])), 0)
 
-// ---------------- 2-2 看频谱 ----------------
+// ---------------- 2-4 看频谱 ----------------
 
 const PICTURES = [
   ['A', grating(4, 0)], // coarse vertical stripes, period 8 px
@@ -99,16 +100,16 @@ const spectrumLevel = (() => {
   }
   const rotate90 = (img) => fromFn(img.w, img.h, (x, y) => img.data[x * img.w + (img.w - 1 - y)])
   return {
-    id: '2-2',
+    id: '2-4',
     kind: 'board',
     board: 'SpectrumMatch',
     chapter: 2,
     title: '看频谱',
-    brief: '下面是六张图各自的频谱，顺序打乱了。把它们配成对。',
-    hint: '先在右边的试验台上转一转、调一调条纹：亮点跟着怎样动？中心那一点又是什么？',
+    brief: '「频谱」元件就是你在 2-3 搭的探针，对每个 (kx, ky) 各量一次：位置是频率，亮度是那道波的振幅（取了对数）。下面六张图的频谱被打乱了，把它们配成对。',
+    hint: '先在试验台上转一转、调一调条纹：亮点跟着怎样动？还记得 2-1 的箭头吗？中心那一点是 (0, 0)，也就是平均亮度。',
     after: '频谱中心是平均亮度（直流分量），离中心越远代表变化越快：条纹越密，亮点离中心越远；条纹转 90°，亮点也转 90°，并且总是排在和条纹垂直的方向上。模糊的图只剩中心一团低频，噪声则什么频率都有。',
-    requires: ['2-1'],
-    unlocks: ['spectrum'],
+    requires: ['2-3'],
+    unlocks: [],
     pictures,
     spectra,
     lab,
@@ -136,7 +137,7 @@ const spectrumLevel = (() => {
   }
 })()
 
-// ---------------- 2-3 低通 ----------------
+// ---------------- 2-6 低通 ----------------
 
 // Fine-grained noise: random values with everything below 10 cycles per image removed, std 0.07.
 const fineNoise = (seed, std = 0.07) => {
@@ -157,14 +158,14 @@ const LOWPASS_SCENES = [
 const filter = (shape, R) => build({ f: ['fqLowpass', { shape, R }] }, ['in>f', 'f>out'])
 
 const lowpassLevel = {
-  id: '2-3',
+  id: '2-6',
   chapter: 2,
   title: '低通',
-  brief: '照片里混进了细密的噪点。去掉它们，输出要和期望一样干净、柔和。',
-  hint: '新元件在频谱上乘一个掩膜：半径以内留下，以外压掉。盯住误差图里边缘两侧出现的东西。',
-  after: '硬圆盘一刀切掉高频，等于在空间里用一个会振荡的核做卷积：边缘两侧冒出一圈圈亮暗波纹，这叫振铃。高斯掩膜平滑过渡，没有波纹。期望图其实是 σ = 1 的空间高斯模糊，而你用的是半径 R ≈ 5 的高斯掩膜：σ = N/(2πR) = 32/(2π·5) ≈ 1。空间里卷积，等于频域里相乘，这就是卷积定理。',
-  requires: ['2-2'],
-  unlocks: ['freq-filter'],
+  brief: '照片里混进了细密的噪点。用「频域低通」去掉它们，输出要和期望一样干净、柔和。',
+  hint: '这是二维的调音台：离频谱中心 R 以内的频率留下，以外压掉。调音台上哪种形状的增益不起波纹？盯住误差图里边缘两侧出现的东西。',
+  after: '和调音台上一样：硬圆盘一刀切，等于用一个带负瓣的核做卷积，边缘两侧冒出一圈圈亮暗波纹（振铃）；高斯掩膜平滑过渡，对应的核还是高斯，没有波纹。期望图其实是 σ = 1 的空间高斯模糊，对应的掩膜宽度 R = N/(2πσ) = 32/(2π) ≈ 5。空间里卷积，等于频域里相乘，这就是卷积定理。',
+  requires: ['2-5'],
+  unlocks: [],
   palette: ['fqLowpass', 'fqSpectrum', 'add', 'sub', 'scale'],
   check: { tolerance: 0.03, mismatches: 6 },
   tests: LOWPASS_SCENES.map(([label, img], index) => test(label, { in: plus(img, fineNoise(index + 31)) }, { out: softened(img) })),
@@ -175,7 +176,7 @@ const lowpassLevel = {
   alsoFails: [filter('disk', 4), filter('disk', 5), filter('disk', 10), filter('disk', 14), filter('gauss', 4), filter('gauss', 6.5), build({}, ['in>out'])],
 }
 
-// ---------------- 2-4 混合图像 ----------------
+// ---------------- 2-9 混合图像 ----------------
 
 const HYBRID_R = 3
 const hybrid = (a, b) => plus(lowpass(a, 'gauss', HYBRID_R), highpass(b, 'gauss', HYBRID_R))
@@ -188,7 +189,7 @@ const hybridGraph = (nodes, wires) => build(nodes, wires, { inputs: ['a', 'b'] }
 const gaussLow = (R = HYBRID_R) => ['fqLowpass', { shape: 'gauss', R }]
 
 const hybridLevel = {
-  id: '2-4',
+  id: '2-9',
   chapter: 2,
   title: '混合图像',
   inputs: ['a', 'b'],
@@ -196,7 +197,7 @@ const hybridLevel = {
   brief: '输出 = A 的低频 + B 的高频，两处都用半径 3 的高斯掩膜。近看是 B，远看是 A。',
   hint: '你只有低通。原图里去掉低频，还剩下什么？',
   after: '高通 = 原图 − 低通，也就是掩膜 1 − H。A 只留下大轮廓，B 只留下边缘和细纹，叠在一起：近看细节占上风，远看或眯起眼时细节消失，只剩 A。滤波是线性的，所以 低通(A − B) + B 也是同一个结果，只用一次变换。',
-  requires: ['2-3'],
+  requires: ['2-8'],
   unlocks: [],
   palette: ['fqLowpass', 'fqSpectrum', 'add', 'sub', 'scale'],
   check: { tolerance: 0.02 },
