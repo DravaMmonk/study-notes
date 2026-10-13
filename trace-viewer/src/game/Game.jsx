@@ -9,7 +9,7 @@ import Editor from './ui/Editor.jsx'
 import LevelMap from './ui/LevelMap.jsx'
 import LevelRail from './ui/LevelRail.jsx'
 import ProbeLevel from './ui/ProbeLevel.jsx'
-import PhoneBuilder, { PhoneTests } from './ui/PhoneBuilder.jsx'
+import PhoneBuilder from './ui/phone/PhoneBuilder.jsx'
 import TestPanel from './ui/TestPanel.jsx'
 import { boardFor } from './ui/boards/index.js'
 import { describe, familyOf, iconOf } from './ui/catalog.js'
@@ -359,13 +359,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
         <section className="pl-brief">{brief}</section>
         {level.kind === 'graph' ? (
           <>
-            <PhoneTests level={level} run={run} testIndex={testIndex} onSelect={setTestIndex} onDetails={() => setSheet('tests')} theme={theme} inView={roleView('input')} outView={roleView('output')} />
-            <PhoneBuilder graph={board} onChange={change} run={run} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onAdd={() => setSheet('parts')} canAdd={level.palette.length > 0} />
-            <div className="pl-footer">
-              {training}
-              {score}
-              {reset}
-            </div>
+            <PhoneBuilder level={level} graph={board} onChange={change} run={run} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} footer={<>{training}{score}{reset}</>} testDetails={testPanel} />
           </>
         ) : (
           <div className="pl-play">{play}</div>
