@@ -6,10 +6,7 @@ import ValueView from '../views/ValueView.jsx'
 import { kindOf, nodeView } from '../views/views.js'
 import { mapLayout } from './ops.js'
 
-const TILE_W = 92
-const TILE_H = 74
-const COL = 106
-const ROW = 96
+const GAP = 14 // between tiles in a row
 const PORT_TAGS = { a: 'a', b: 'b', left: '左', right: '右', c0: 'd0', c1: 'd1', c2: 'd2', c3: 'd3' }
 
 // The whole circuit at a glance, laid out by data flow (no dragging, no zooming): each block is a
@@ -32,9 +29,16 @@ export default function CircuitMap({ graph, values, errors, checks, views, theme
   }, [selected, graph.nodes.length])
 
   const { rank, lane, rows, lanes } = mapLayout(graph)
+  // Tiles grow to fill the width when there are few lanes, and never shrink below a readable size:
+  // a circuit wider than the screen scrolls sideways instead of being scaled down.
+  const TILE_W = Math.max(96, Math.min(150, Math.floor((paneWidth - 24) / lanes) - GAP))
+  const THUMB = Math.round(TILE_W * 0.52)
+  const TILE_H = THUMB + 46
+  const COL = TILE_W + GAP
+  const ROW = TILE_H + 30
   const width = Math.max(lanes * COL, COL) + 24
   const height = rows * ROW + 8
-  const scale = Math.max(0.68, Math.min(1, (paneWidth - 8) / width))
+  const scale = 1
   const pos = (id) => ({ x: width / 2 + lane.get(id) * COL, y: 8 + rank.get(id) * ROW })
   const portX = (node, port) => {
     const ports = inputsOf(node.type)
@@ -92,13 +96,13 @@ export default function CircuitMap({ graph, values, errors, checks, views, theme
                 className={`cm-tile ${selected === node.id ? 'is-selected' : ''} ${picking ? (feeds ? 'is-candidate' : 'is-dim') : ''} ${isPicking ? 'is-target' : ''} ${check ? (check.pass ? 'is-pass' : 'is-fail') : ''}`}
                 data-family={familyOf(node.type)}
                 data-id={node.id}
-                style={{ left: x - TILE_W / 2, top: y, width: TILE_W, height: TILE_H }}
+                style={{ left: x - TILE_W / 2, top: y, width: TILE_W, height: TILE_H, gridTemplateRows: `${THUMB}px auto` }}
                 onClick={() => onTap(node.id)}
                 disabled={Boolean(picking) && !feeds && !isPicking}
                 aria-label={nameOf(node)}
               >
                 <span className="cm-thumb">
-                  {error ? <i className="cm-error">!</i> : value ? <ValueView img={value} view={nodeView(node, views)} size={kindOf(value) === 'signal' ? 64 : 40} theme={theme} /> : <i className="cm-empty" />}
+                  {error ? <i className="cm-error" style={{ width: THUMB, height: THUMB }}>!</i> : value ? <ValueView img={value} view={nodeView(node, views)} size={kindOf(value) === 'signal' ? TILE_W - 12 : THUMB} theme={theme} /> : <i className="cm-empty" style={{ width: THUMB, height: THUMB }} />}
                 </span>
                 <span className="cm-name">
                   {node.type === 'output' && check ? (check.pass ? <Check size={11} /> : <X size={11} />) : createElement(iconOf(node.type), { size: 11, strokeWidth: 2 })}

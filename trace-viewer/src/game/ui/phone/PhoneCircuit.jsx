@@ -240,7 +240,7 @@ export default function PhoneCircuit({ level, graph, onChange, run, testIndex, o
           setSheet(null)
         }
         return (
-          <Sheet title={`${nameOf(target)} · ${param.label}`} onClose={close} footer={<div className="ph-live"><span>这一步现在的结果</span>{thumb(target, 64)}</div>}>
+          <Sheet title={`${nameOf(target)} · ${param.label}`} onClose={close} footer={<div className="ph-live"><span>这一步现在的结果</span>{thumb(target, 96)}</div>}>
             {param.kind === 'select' ? <ChoiceEditor param={param} value={target.params[param.key]} onChange={change} /> : param.kind === 'kernel' ? <KernelEditor param={param} value={target.params[param.key]} onChange={change} /> : <NumberEditor param={param} value={target.params[param.key]} onChange={change} />}
           </Sheet>
         )
@@ -278,7 +278,7 @@ function Inspector({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, er
               return (
                 <button key={port} className={`pc-port ${from ? '' : 'is-empty'} ${active ? 'is-active' : ''}`} onClick={() => onPick(node, port)}>
                   {ports.length > 1 && <i>{PORT_TAGS[port] ?? port}</i>}
-                  {from ? thumb(from, 30) : null}
+                  {from ? thumb(from, 38) : null}
                   <span>{active ? '在图上点一块…' : from ? nameOf(from) : '还没接'}</span>
                 </button>
               )
@@ -306,11 +306,11 @@ function Inspector({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, er
           <p className="ph-error">{error}</p>
         ) : node.type === 'output' && expected ? (
           <div className="pc-compare">
-            <figure><ValueView img={expected} view={shown} size={96} theme={theme} /><figcaption>期望</figcaption></figure>
-            <figure><ValueView img={value} view={shown} size={96} theme={theme} label="未连接" /><figcaption>你的</figcaption></figure>
+            <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 140 : 150} theme={theme} /><figcaption>期望</figcaption></figure>
+            <figure><ValueView img={value} view={shown} size={kindOf(expected) === 'image' ? 140 : 150} theme={theme} label="未连接" /><figcaption>你的</figcaption></figure>
           </div>
         ) : (
-          <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 132 : 260} theme={theme} label="还没有结果" grid scan={scan} onScan={onScan} />
+          <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 180 : 300} theme={theme} label="还没有结果" grid scan={scan} onScan={onScan} />
         )}
         {kindOf(value ?? expected) === 'image' && <ViewSwitch value={shown} onChange={onView} compact />}
       </div>

@@ -83,10 +83,7 @@ export default function Descent({ level, onSolve, theme }) {
   const fmt = (v) => (Math.abs(v) > 999 ? v.toExponential(1) : v.toFixed(3))
   const status = passed[stage] && loss <= m.goal ? '到底了。' : outOfSteps ? `${s.budget} 步用完了，换个学习率再来。` : loss > 50 ? '冲出去了：每一步都越过谷底，越冲越远。' : s.mode === 'drag' ? '转动旋钮 w。' : auto ? '机器在调……' : '按「让机器自己调」或「走一步」。'
 
-  return (
-    <div className="bk wv ds">
-      <div className="bk-split">
-        <section className="bk-stage bk-stack">
+  const landscape = (
           <div>
             <span className="bk-label">误差地形 · 地面是旋钮（w 横着，b 往里），越高误差越大</span>
             <Landscape m={m} rule={s.rule} state={shown} trail={trail} rail={s.mode !== 'step2'} next={s.mode === 'drag' || (passed[stage] && loss <= m.goal) ? null : m.step(s, state, rate)} grad={{ gw, gb }} width={width} theme={theme} solved={passed[stage]} />
@@ -98,7 +95,8 @@ export default function Descent({ level, onSolve, theme }) {
               <span className="ls-scale">高度按误差的平方根画，谷底和陡坡都看得清</span>
             </div>
           </div>
-          <div className="ds-machine">
+  )
+  const knobs = (
             <div className="ds-knobs">
               <span className="bk-label">旋钮{s.mode === 'drag' ? '（转它）' : '（机器在转）'}</span>
               <div className="ds-knob-row">
@@ -106,6 +104,8 @@ export default function Descent({ level, onSolve, theme }) {
                 {s.mode === 'step2' && <Knob label="b" value={state.b} min={KNOB_B[0]} max={KNOB_B[1]} size={phone ? 104 : 112} />}
               </div>
             </div>
+  )
+  const model = (
             <div className="ds-model">
               <span className="bk-label">旋钮决定这条线 · 线离样本越远误差越大</span>
               <Plot
@@ -127,7 +127,8 @@ export default function Descent({ level, onSolve, theme }) {
               </Plot>
               <p className="bk-caption">输出 = {state.w.toFixed(2)} × 输入{s.mode === 'step2' ? ` + ${state.b.toFixed(2)}` : ''} · 红色竖线：每个样本差了多少</p>
             </div>
-          </div>
+  )
+  const history = (
           <div className="ds-history">
             <span className="bk-label">每一步之后的误差（对数刻度）</span>
             <Plot
@@ -146,20 +147,22 @@ export default function Descent({ level, onSolve, theme }) {
               {({ x, y }) => <line className="ds-goal" x1={x(0)} x2={x(1)} y1={y(Math.log10(m.goal))} y2={y(Math.log10(m.goal))} />}
             </Plot>
           </div>
+  )
+  const stats = (
           <div className="bk-stats">
             <div className={`bk-stat ${loss <= m.goal ? 'is-pass' : ''}`}><b>{fmt(loss)}</b><span>误差（要 ≤ {m.goal}）</span></div>
             {s.mode !== 'drag' && <div className="bk-stat"><b>{s.mode === 'step2' ? `${fmt(gw)} · ${fmt(gb)}` : fmt(gw)}</b><span>脚下的坡度{s.mode === 'step2' ? '（对 w · 对 b）' : ''}</span></div>}
             {s.budget && <div className={`bk-stat ${outOfSteps ? 'is-fail' : ''}`}><b>{steps} / {s.budget}</b><span>已走的步数</span></div>}
           </div>
-        </section>
-        <div className="bk-stack">
+  )
+  const panel = (
           <section className="bk-panel bk-stack">
             <div>
               <span className="bk-label">第 {stage + 1} 步 · {s.title}</span>
               <p className="wv-stage-note">{s.note}</p>
             </div>
             {s.mode === 'drag' ? (
-              <p className="bk-caption">转动左下的旋钮 w（拖着转一圈，或用方向键）。看那条线怎么转、小球怎么在地形上走。</p>
+              <p className="bk-caption">转动旋钮 w（拖着转，或用方向键）。看那条线怎么转、小球怎么在地形上走。</p>
             ) : (
               <>
                 <label className="bk-field">
@@ -181,7 +184,47 @@ export default function Descent({ level, onSolve, theme }) {
               {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={() => { go(stage + 1); setReached(Math.max(reached, stage + 1)) }}>下一步 <ArrowRight size={15} /></button>}
             </div>
           </section>
-          <Stages stages={m.stages} current={stage} passed={passed} reached={reached} onPick={go} />
+  )
+  const stageList = <Stages stages={m.stages} current={stage} passed={passed} reached={reached} onPick={go} />
+
+  // On a phone the landscape and the knobs stay pinned at the top (the page pins a board's first
+  // block when it fits), and everything that explains them scrolls below.
+  if (phone) {
+    return (
+      <div className="bk wv ds">
+        <div className="bk-split">
+          <section className="bk-stage ds-pinned">
+            {landscape}
+            <div className="ds-phone-knobs">{knobs}</div>
+          </section>
+          <div className="bk-stack">
+            {panel}
+            <section className="bk-panel bk-stack">
+              {model}
+              {history}
+              {stats}
+            </section>
+            {stageList}
+          </div>
+        </div>
+      </div>
+    )
+  }
+  return (
+    <div className="bk wv ds">
+      <div className="bk-split">
+        <section className="bk-stage bk-stack">
+          {landscape}
+          <div className="ds-machine">
+            {knobs}
+            {model}
+          </div>
+          {history}
+          {stats}
+        </section>
+        <div className="bk-stack">
+          {panel}
+          {stageList}
         </div>
       </div>
     </div>

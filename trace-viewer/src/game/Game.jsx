@@ -1,4 +1,4 @@
-import { Suspense, createElement, useEffect, useMemo, useState } from 'react'
+import { Suspense, createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, Lightbulb, Moon, PanelLeft, Plus, RotateCcw, Ruler, Sun, X } from 'lucide-react'
 import { hasLearnable, runLevel, trainStep } from './engine/graph.js'
 import { NODE_TYPES, defaultParams, inputsOf } from './engine/nodes.js'
@@ -367,7 +367,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
     return (
       <div className={`level-phone level-${level.kind}`}>
         <section className="pl-brief">{brief}</section>
-        <div className="pl-play">{play}</div>
+        <PinnedPlay>{play}</PinnedPlay>
         {overlays}
       </div>
     )
@@ -404,6 +404,25 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
       {overlays}
     </div>
   )
+}
+
+// A board's first block (its main visual) is pinned at the top of the phone page while the rest
+// scrolls, but only when it fits in a little over half the screen; a taller one would hide its own
+// controls, so then the page simply scrolls.
+function PinnedPlay({ children }) {
+  const box = useRef(null)
+  const [pinned, setPinned] = useState(false)
+  useEffect(() => {
+    const el = box.current
+    const check = () => {
+      const first = el?.querySelector('.bk > .bk-split > :first-child')
+      setPinned(Boolean(first) && first.scrollHeight <= window.innerHeight * 0.56)
+    }
+    const observer = new ResizeObserver(() => requestAnimationFrame(check))
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+  return <div ref={box} className={`pl-play ${pinned ? 'is-pinned' : ''}`}>{children}</div>
 }
 
 function PartsList({ palette, onAdd }) {
