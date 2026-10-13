@@ -139,7 +139,7 @@ export const chapter4 = [
 
 // ---------------- chapter 6 · 认出同一个点 ----------------
 
-const HARRIS_T = 0.3
+const HARRIS_T = 0.22
 const cornerMask = (img) => map(harrisResponse(img), (v) => (v > HARRIS_T ? 1 : 0))
 
 export const chapter6 = [

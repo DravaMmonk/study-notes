@@ -29,6 +29,14 @@ for (const level of LEVELS) {
     const detail = run.results.map((r, i) => `${level.tests[i].label}:${r.checks.map((c) => `${c.pass ? '✓' : '✗'}${c.wrong}/${Number.isFinite(c.worst) ? c.worst.toFixed(3) : '∞'}`).join(',')}`).join('  ')
     return { run, detail }
   }
+  // An output that expects the same flat image in every test can be met by a constant, whatever the circuit.
+  for (const name of Object.keys(level.tests[0]?.expected ?? {})) {
+    const first = level.tests[0].expected[name]?.data?.[0]
+    if (level.tests.every((t) => t.expected[name]?.data?.every((v) => Math.abs(v - first) < 1e-9))) {
+      console.log(`${level.id}: FAIL every test expects the same flat ${name}, so a constant passes`)
+      problems += 1
+    }
+  }
   const good = report(level.solution)
   const line = [`${level.id} ${level.title}: solution ${good.run.pass ? 'PASS' : 'FAIL'} [n=${good.run.score.nodes} c=${good.run.score.cost}${good.run.constraint ? ` ${good.run.constraint}` : ''}]  ${good.detail}`]
   if (!good.run.pass) problems += 1
