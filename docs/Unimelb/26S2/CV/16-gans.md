@@ -1,6 +1,6 @@
 # COMP90086 Lecture 16 - Generative Adversarial Networks
 
-来源：`lecture/COMP90086-16-GANs.pdf`（41 页）。Canvas 发布在 Week 8，PDF 页脚沿用 Week 9。2026-09-18 核对时本讲录播尚无可下载字幕，因此本文依据讲义整理，不引用老师原话。下文页码为 PDF 页码。
+来源：`lecture/COMP90086-16-GANs.pdf`（41 页）。Canvas 发布在 Week 8，PDF 页脚沿用 Week 9。2026-10-13 已补充 `transcript/COMP90086_2026_SM2 Week-08-F-transcript.txt`（9 月 18 日），以及包含条件 GAN 回顾的 `Week-09-W-transcript.txt`（9 月 23 日）。本文以讲义为主，未新增逐字引语。下文页码为 PDF 页码。
 
 本讲回答：**不用逐像素重建目标，能否训练网络生成看起来真实的新图像？** GAN 让一个网络生成，另一个网络判断真假；难点在训练平衡与结果评估。
 

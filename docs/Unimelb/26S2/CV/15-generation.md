@@ -149,6 +149,10 @@ $$
 
 本周去噪演示与阅读链接集中在 [Reading Links](READING-LINKS.md)。
 
+### Workshop 9：从重建走向生成
+
+`workshop/week-09/worksheet9.ipynb` 与 `worksheet9_Autoencoders_solution.ipynb` 已归档，配套的 `pretrained_checkpoints/` 保留预训练权重。比较模型时，先区分“输入一张图再重建”与“从潜空间采样生成”；若进入对抗训练部分，接着阅读 [GAN 的两个网络](16-gans.md#topic-1)。本次只整理资源，没有运行或训练这些模型。
+
 ## 本讲自测
 
 1. $p(y\mid x)$ 与 $p(x\mid y)$ 的输入和预测对象各是什么？

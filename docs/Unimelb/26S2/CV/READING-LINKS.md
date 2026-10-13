@@ -1,8 +1,8 @@
 # COMP90086 Reading Links
 
-Checked against Canvas on 2026-09-18. Links and bibliographic references are preserved; external websites and textbook full text are not mirrored.
+Weeks 1-8 were checked on 2026-09-18; Weeks 9-11 were checked on 2026-10-13. Links and bibliographic references are preserved; external websites and textbook full text are not mirrored.
 
-Readings Online currently returns a Leganto error requesting contact with the subject coordinator or library. The weekly Canvas pages remain accessible.
+Readings Online was rechecked on 2026-10-13 and still returns a Leganto error requesting contact with the subject coordinator or library. The weekly Canvas pages remain accessible.
 
 ## Week 1: Introduction and imaging basics
 
@@ -96,3 +96,28 @@ Interactive lecture resources:
 - [Denoising autoencoder demo](https://cs.stanford.edu/people/karpathy/convnetjs/demo/autoencoder.html)
 - [GAN Lab](https://poloclub.github.io/ganlab/)
 - [SD-GAN demo](https://chrisdonahue.com/sdgan/)
+
+## Week 9: Diffusion Models
+
+[Canvas source](https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144259)
+
+- [Original Diffusion Paper](https://arxiv.org/pdf/2006.11239)
+- [Medium blog summarising diffusion](https://medium.com/@d3xvn/understanding-image-generation-with-diffusion-78eea7e7d6f8)
+
+## Week 10: Image segmentation
+
+[Canvas source](https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144260)
+
+- Computer Vision: Algorithms and Applications 2nd Ed, chapters 6.4, 4.3, 7.5
+- [GrabCut demo](https://chocopoule.github.io/grabcutweb/)
+- [removal.ai](https://removal.ai/)
+
+## Week 11: Object detection
+
+[Canvas source](https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144261)
+
+- Computer Vision: Algorithms and Applications 2nd Ed, chapter 6.3
+- [Object detection in the browser](https://braneshop.com.au/object-detection-in-the-browser.html)
+- [YOLO demo (uses camera)](https://modeldepot.github.io/tfjs-yolo-tiny-demo/)
+
+Workshop 11 setup links: [Google Colab](https://colab.google/) and [Detectron2 installation](https://github.com/facebookresearch/detectron2/blob/main/INSTALL.md). Canvas recommends Colab; the notebooks have not been executed during this import.

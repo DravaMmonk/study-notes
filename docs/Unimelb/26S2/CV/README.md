@@ -10,9 +10,10 @@
 | 怎样处理图像 | [03 空间滤波](03-filters.md) → [04 频率滤波](04-fourier.md) | 理解局部加权计算，以及频率如何影响图像 |
 | 怎样学习图像特征 | [06 CNN 基础](06-cnns-i.md) → [07 CNN 训练](07-cnns-ii.md) → [08 结构与迁移](08-cnns-iii.md) → [09 ViT](09-vit.md) → [10 表示学习](10-representations.md) | 看懂信息流、参数、训练目标与模型边界 |
 | 怎样匹配并恢复三维 | [11 局部特征](11-features.md) → [12 特征匹配](12-feature-matching.md) → [13 深度与双目](13-depth-stereo.md) → [14 两视图几何](14-two-view-geometry.md) | 从外观候选走到几何约束与深度 |
-| 怎样生成新图像 | [15 AE 与 VAE](15-generation.md) → [16 GAN](16-gans.md) | 分清重建、采样、对抗训练与生成质量 |
+| 怎样生成新图像 | [15 AE 与 VAE](15-generation.md) → [16 GAN](16-gans.md) → [17 扩散模型](17-diffusion.md) | 分清重建、对抗训练与逐步去噪 |
+| 怎样定位和分割物体 | [19 传统分割](19-segmentation-i.md) → [20 学习式分割](20-segmentation-ii.md) → [21 两阶段检测](21-object-detection-i.md) → [22 单阶段检测与评估](22-object-detection-ii.md) | 区分像素分组、类别、实例与边界框 |
 
-跟课时可按文件编号 01–16 阅读；复习时可按上表的专题阅读。想动手理解概念，可以看 [装置图鉴](topics/README.md)：16 台可交互的装置按上面五个模块分成五篇专题，也分别嵌在各讲对应的小节里（需在 Fieldnotes 中阅读）。跨讲重复概念只在其主要章节详细解释，其他地方链接回去。
+跟课时可按文件编号 01–22 阅读（目前共 21 篇；Canvas 未见第 18 讲链接，保留编号空缺）；复习时可按上表的专题阅读。想动手理解概念，可以看 [装置图鉴](topics/README.md)：16 台可交互的装置覆盖前 16 讲，分成五篇专题，也分别嵌在各讲对应的小节里（需在 Fieldnotes 中阅读）。跨讲重复概念只在其主要章节详细解释，其他地方链接回去。
 
 ## Workshop 对应位置
 
@@ -27,25 +28,28 @@
 | Week 5 CNN 参数与特征 | [07](07-cnns-ii.md)、[08](08-cnns-iii.md)、[10](10-representations.md) |
 | Week 6 ViT 与 Grad-CAM | [09](09-vit.md)、[10](10-representations.md)：注意距离与类别热图 |
 | Week 7 Hough 与特征匹配 | [11](11-features.md)、[12](12-feature-matching.md) |
-| Week 8 标定、极线与双目 | [13](13-depth-stereo.md)、[14](14-two-view-geometry.md)；官方答案尚未发布 |
+| Week 8 标定、极线与双目 | [13](13-depth-stereo.md)、[14](14-two-view-geometry.md)；答案已补齐 |
+| Week 9 Autoencoders 与 GAN | [15](15-generation.md)、[16](16-gans.md)；含预训练权重与答案 |
+| Week 10 Diffusion | [17](17-diffusion.md)：加噪、预测噪声与反向采样；含答案 |
+| Week 11 Image segmentation | [19](19-segmentation-i.md)、[20](20-segmentation-ii.md)；讲义页新版与 Workshop 页旧版分别保存 |
 
 笔记解释原练习的目的与容易出错之处；本次整理没有重新执行或训练 Notebook 中的模型。
 
 ## 资源与来源
 
-- [资源完整性](RESOURCE-STATUS.md)：截至 2026-09-18 的 Week 1–8 下载状态。
+- [资源完整性](RESOURCE-STATUS.md)：2026-10-13 增量更新至 Week 11，列出尚未发布或无法取得的项目。
 - [Reading Links](READING-LINKS.md)：统一保存阅读链接与章节，避免各篇重复。
 - [资源清单与校验值](RESOURCE-INVENTORY.json)：来源、原始文件名与本地校验记录。
 
-每篇开头列出对应 PDF 和字幕。第 1–15 讲有本地字幕；第 16 讲暂时只有讲义依据。`老师原话`仅用于可与字幕核对的英文，中文说明是笔记对资源的解释。自拟例子与课外推导单独标明。
+每篇开头列出对应 PDF 和字幕。第 1–17、19–20 讲有本地字幕；第 21–22 讲是依据已发布讲义的预习笔记，录播授课排在 10 月 14 日与 16 日。`老师原话`仅用于可与字幕核对的英文，中文说明是笔记对资源的解释。自拟例子与课外推导单独标明。
 
-讲义截图编号均指 **PDF 页码**，未必等于页脚印刷编号；交互演示的截图是静态图。第 10、11 讲封面沿用旧年份，第 15、16 讲页脚沿用 Week 9，归档周次以 Canvas 当前发布位置和讲课主题为准。
+讲义截图编号均指 **PDF 页码**，未必等于页脚印刷编号；交互演示的截图是静态图。第 10、11、21、22 讲封面沿用旧年份，第 15、16 讲页脚沿用 Week 9，归档周次以 Canvas 当前发布位置和讲课主题为准。
 
 | 本地目录 | 内容 |
 | --- | --- |
-| `lecture/` | 16 份讲义 PDF |
-| `transcript/` | 15 份按 Week/W/F 归档的字幕 |
-| `workshop/week-NN/` | Week 1–8 练习与配套文件、Week 2–7 已发布答案 |
+| `lecture/` | 21 份讲义 PDF |
+| `transcript/` | 19 份按 Week/W/F 归档的字幕 |
+| `workshop/week-NN/` | Week 1–11 练习与配套文件、Week 2–10 已发布答案 |
 | `workshop/packages/` | 原始 Workshop 压缩包 |
 | `assets/<topic>/` | 选用讲义页的 PNG 截图 |
 | `assignment/A1/` | 作业说明、Notebook 与测试图 |
