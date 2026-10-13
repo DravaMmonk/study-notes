@@ -283,6 +283,7 @@
 .test-detail { display: grid; gap: 14px; animation: rise-in 200ms ease; }
 .test-block { padding: 12px; border-radius: 12px; background: var(--canvas); }
 .test-block.is-pass { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--status) 40%, transparent); }
+.test-images .value-view, .test-curve .value-view { display: block; width: 100%; place-items: normal; }
 .test-block-head { margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .test-block-head .test-block-label { margin: 0; }
 .test-images.is-wide, .test-images.is-inputs.is-wide { grid-template-columns: minmax(0, 1fr); }

@@ -184,7 +184,7 @@ const lambert = (() => {
     brief: '拖动灯、调反射率，让你的渲染和照片一模一样。',
     hint: '亮度 = ρ·cos θ（θ 是法线和灯的夹角）。先让明暗条纹的位置对上，再调整体亮度。',
     after: '只看一张照片，「材质更亮、灯从斜侧照来」和「材质更暗、灯正对着照」可以一模一样：I = ρ·N·L 只给出 ρ 与夹角的组合。波纹板的法线都在一个平面里，灯沿波纹方向的那一份根本拍不出来。转 90° 再拍一张（等于换一盏已知方向的灯），多了一组方程，答案才唯一。',
-    requires: ['3-1'],
+    requires: ['3-2'],
     unlocks: [],
     model: { N, ALBEDO, ELEVATION, AZIMUTH, START, TOLERANCE, photoA, photoB, render, worst, matches, twinOf, snap, lightOf },
     verify,
