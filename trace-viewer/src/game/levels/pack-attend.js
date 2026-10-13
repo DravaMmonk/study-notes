@@ -80,7 +80,7 @@ const level51 = {
   hint: '3×3 的元件一次只看一格远。「注意力」把图切成 4×4 的图块，每块按相似度对所有图块加权平均；q 放大越大，越只看最像的几块。',
   after:
     '被擦的那块和远处的孪生块最像，于是一步就从对角取回了缺的格子。这就是自注意力：每个图块（token）用 q·k/√d 和所有图块打分，softmax 把分数变成和为 1 的权重，再对 v 加权平均。3×3 卷积叠 L 层也只看到 (2L+1)×(2L+1)。',
-  requires: ['4-3'],
+  requires: ['4-6'],
   unlocks: ['attention'],
   palette: ['attention', 'shift', 'box3', 'add', 'scale', 'threshold'],
   constraint: (score) => (score.nodes > 3 ? `用了 ${score.nodes} 个节点，最多 3 个` : ''),

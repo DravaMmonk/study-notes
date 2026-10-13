@@ -22,9 +22,8 @@ const pointerX = (event, width) => {
 // (pixels). `dots`: [{ u, v, kind }] drawn as stems with a dot (kind 'sample') or a hollow ring
 // ('ring'). Pointing at the plot (or tapping it) reads every line at that spot; with dots it snaps
 // to the nearest sample, and with step lines to the pixel. `span` is how many pixels the width is.
-export function Plot({ lines = [], dots = [], width = 600, height = 200, lo = 0, hi = 1, ticks = [0, 0.5, 1], label, span = 32, children }) {
+export function Plot({ lines = [], dots = [], width = 600, height = 200, lo = 0, hi = 1, ticks = [0, 0.5, 1], tickLabel = (t) => t, label, span = 32, left = 30, children }) {
   const [at, setAt] = useState(null)
-  const left = 30
   const right = 8
   const top = 10
   const bottom = 12
@@ -36,7 +35,18 @@ export function Plot({ lines = [], dots = [], width = 600, height = 200, lo = 0,
       const n = curve.length
       return curve.map((v, j) => `${j ? 'L' : 'M'}${x(j / n).toFixed(1)},${y(v).toFixed(1)}H${x((j + 1) / n).toFixed(1)}`).join('')
     }
-    return Array.from({ length: FINE + 1 }, (_, i) => `${i ? 'L' : 'M'}${x(i / FINE).toFixed(1)},${y(valueAt(curve, i / FINE)).toFixed(1)}`).join('')
+    // Gaps (NaN) lift the pen, so a curve can be drawn only up to a point.
+    let pen = false
+    return Array.from({ length: FINE + 1 }, (_, i) => {
+      const v = valueAt(curve, i / FINE)
+      if (!Number.isFinite(v)) {
+        pen = false
+        return ''
+      }
+      const move = pen ? 'L' : 'M'
+      pen = true
+      return `${move}${x(i / FINE).toFixed(1)},${y(v).toFixed(1)}`
+    }).join('')
   }
 
   const samples = dots.filter((d) => d.kind !== 'ring')
@@ -69,14 +79,14 @@ export function Plot({ lines = [], dots = [], width = 600, height = 200, lo = 0,
         {ticks.map((t) => (
           <g key={t}>
             <line className={`wv-grid ${t === 0 && lo < 0 ? 'is-zero' : ''}`} x1={left} x2={width - right} y1={y(t)} y2={y(t)} />
-            <text className="wv-tick" x={left - 6} y={y(t) + 4}>{t}</text>
+            <text className="wv-tick" x={left - 6} y={y(t) + 4}>{tickLabel(t)}</text>
           </g>
         ))}
         {lines.map((line, i) => <path key={i} className={`wv-line is-${line.kind}`} d={path(line)} />)}
         {dots.map((dot, i) => (
           <g key={i} className={`wv-dot is-${dot.kind ?? 'sample'}`}>
-            {dot.kind !== 'ring' && <line x1={x(dot.u)} x2={x(dot.u)} y1={y(Math.max(lo, Math.min(hi, 0)))} y2={y(dot.v)} />}
-            <circle cx={x(dot.u)} cy={y(dot.v)} r={dot.kind === 'ring' ? 6 : 3.6} />
+            {dot.kind !== 'ring' && dot.kind !== 'point' && <line x1={x(dot.u)} x2={x(dot.u)} y1={y(Math.max(lo, Math.min(hi, 0)))} y2={y(dot.v)} />}
+            <circle cx={x(dot.u)} cy={y(dot.v)} r={dot.kind === 'ring' ? 6 : dot.kind === 'point' ? 4.5 : 3.6} />
           </g>
         ))}
         {children?.({ x, y })}

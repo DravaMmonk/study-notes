@@ -529,7 +529,7 @@ export const levels = [
     brief: '先把图压成几个数，再由这几个数画回原图。用最少的数做到。',
     hint: '一个数只能让斑点沿一条线走。这些斑点在往几个方向变？',
     after: '编码器把图压成 z，解码器再从 z 画回来，目标就是输入自己，不需要标签。最窄的那层叫瓶颈：这一族斑点只在左右、上下两个方向变，所以瓶颈至少要两个数；一个数只能让斑点沿一条直线走。',
-    requires: ['4-6'],
+    requires: ['4-9'],
     unlocks: ['dg-decoder'],
     palette: ['dg_encode', 'dg_decode'],
     check: { tolerance: 0.08, mismatches: 3 },

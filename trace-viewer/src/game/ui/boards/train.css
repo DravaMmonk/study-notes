@@ -1,0 +1,74 @@
+/* Chapter 4's principle boards (Descent, Neuron, SlideWindow, EarlyStop). Layout and controls come
+   from the board kit; plots and the stage list from waves.css. */
+
+/* 4-1 下山 */
+.ds-plots { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.ds-tangent line { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
+.ds-tangent circle { fill: var(--paper); stroke: var(--accent-ink); stroke-width: 2; }
+.ds-map { position: relative; border-radius: 8px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--hairline); }
+.ds-map canvas, .ds-map-overlay { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.ds-contour { fill: none; stroke: var(--paper); stroke-opacity: .45; stroke-width: 1; }
+.ds-path { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+.ds-here { fill: var(--accent); stroke: var(--paper); stroke-width: 2.5; }
+.ds-min { fill: none; stroke: var(--status); stroke-width: 2.5; }
+.ds-grad line { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
+.ds-grad circle { fill: var(--accent); }
+
+/* 4-3 一个神经元 */
+.nr-plots { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+.nr-scatter { margin: 0; width: min(100%, 320px); }
+.nr-scatter svg { display: block; width: 100%; height: auto; }
+.nr-frame { fill: var(--canvas); stroke: var(--rule); }
+.nr-x { fill: var(--accent); }
+.nr-o { fill: var(--fam-size); }
+.nr-line { fill: none; stroke: var(--ink); stroke-width: 2; stroke-dasharray: 6 4; }
+.nr-point path, .nr-point circle { fill: none; stroke-width: 2.6; stroke-linecap: round; }
+.nr-point.is-ok path, .nr-point.is-ok circle { stroke: var(--ink); }
+.nr-point.is-bad path, .nr-point.is-bad circle { stroke: var(--fail); }
+.nr-point circle { fill: var(--paper); fill-opacity: .6; }
+.nr-axis { fill: var(--muted); font-family: var(--mono); font-size: 11px; }
+.nr-formula { margin: 0; display: grid; gap: 2px; font-family: var(--mono); font-size: 13px; text-align: center; }
+.nr-formula small { color: var(--muted); font-size: 11px; }
+.nr-hidden { font-weight: 500; }
+
+/* 4-5 滑窗. The slice colours stand for the red, green and blue input channels, as in 3-2. */
+.sw { --ch-R: #c2604f; --ch-G: #6f9a5c; --ch-B: #5b7fb2; }
+.sw-slide { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; justify-content: center; }
+.sw-slide figure { margin: 0; display: grid; gap: 6px; }
+.sw-slide svg { display: block; max-width: 100%; height: auto; }
+.sw-cell { stroke: var(--paper); stroke-width: 1; }
+.sw-cell.is-a { fill: var(--line); }
+.sw-cell.is-b { fill: color-mix(in srgb, var(--line) 60%, var(--paper)); }
+.sw-cell.is-pad { fill: var(--paper); stroke: var(--rule); stroke-dasharray: 2 2; }
+.sw-stop { fill: var(--accent-ink); opacity: .55; }
+.sw-window { fill: color-mix(in srgb, var(--accent) 18%, transparent); stroke: var(--accent); stroke-width: 2.5; transition: x 160ms ease, y 160ms ease; }
+.sw-out { fill: var(--line); stroke: var(--paper); stroke-width: 1; cursor: pointer; }
+.sw-out.is-on { fill: var(--accent); }
+.sw-formula { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 4px 12px; font-family: var(--mono); font-size: 14px; }
+.sw-formula b { color: var(--accent-ink); font-size: 18px; }
+.sw-formula small { color: var(--muted); font-size: 11.5px; }
+.sw-control { display: grid; gap: 4px; }
+.sw-answer input { width: 100%; min-height: 40px; padding: 0 10px; border: 0; border-radius: 10px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font-family: var(--mono); font-size: 15px; }
+.sw-answer .bk-field { grid-template-columns: auto minmax(0, 1fr) auto; }
+.sw-params { display: grid; gap: 12px; }
+.sw-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.sw-filter { padding: 8px; display: grid; gap: 6px; justify-items: center; border-radius: 10px; background: var(--canvas); }
+.sw-filter .bk-label { margin: 0; }
+.sw-cube { display: grid; gap: 3px; }
+.sw-slice { display: grid; grid-template-columns: repeat(3, 12px); gap: 2px; }
+.sw-slice i { width: 12px; height: 12px; border-radius: 2px; }
+.sw-slice.is-R i { background: color-mix(in srgb, var(--ch-R) 60%, var(--paper)); }
+.sw-slice.is-G i { background: color-mix(in srgb, var(--ch-G) 60%, var(--paper)); }
+.sw-slice.is-B i { background: color-mix(in srgb, var(--ch-B) 60%, var(--paper)); }
+.sw-bias { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+
+/* 4-10 什么时候停 */
+.es-now line { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 3; opacity: .6; }
+
+@media (max-width: 760px) {
+  .sw-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-window { transition: none; }
+}

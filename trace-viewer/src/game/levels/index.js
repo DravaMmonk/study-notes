@@ -9,10 +9,11 @@ import * as attend from './pack-attend.js'
 import * as match from './pack-match.js'
 import * as depthgen from './pack-depthgen.js'
 import * as learn from './pack-learn.js'
+import * as train from './pack-train.js'
 
 // Extra level packs. Each module exports `levels` (an array) and optionally `nodes` (new node types
 // merged into NODE_TYPES). Add one import line and one entry in PACKS per pack.
-const PACKS = [optics, light, waves, freq, attend, match, depthgen, learn]
+const PACKS = [optics, light, waves, freq, attend, match, depthgen, learn, train]
 for (const pack of PACKS) Object.assign(NODE_TYPES, pack.nodes ?? {})
 
 export const CHAPTERS = [
@@ -20,7 +21,7 @@ export const CHAPTERS = [
   { id: 1, title: '邻居', lecture: '第 3 讲', question: '怎样用邻居算出新图' },
   { id: 2, title: '频率', lecture: '第 4 讲', question: '图像由哪些波组成' },
   { id: 3, title: '光与边', lecture: '第 5 讲', question: '照片的明暗从哪来' },
-  { id: 4, title: '学会看', lecture: '第 6–8 讲', question: '机器怎样自己学到滤波器' },
+  { id: 4, title: '学会看', lecture: '第 6–8 讲', question: '机器怎样自己学会' },
   { id: 5, title: '全局视野', lecture: '第 9–10 讲', question: '一步看到全图' },
   { id: 6, title: '认出同一个点', lecture: '第 11–12 讲', question: '哪些点容易再找到' },
   { id: 7, title: '第三个维度', lecture: '第 13–14 讲', question: '两只眼睛怎样看出远近' },

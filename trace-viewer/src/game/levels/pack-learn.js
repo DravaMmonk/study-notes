@@ -1,8 +1,8 @@
 // Learn pack: chapter 4's second half (lectures 6–8), from stacking small kernels to residual nets.
-//   4-4 看得更大   — three stacked 3×3 layers see 7×7 (receptive field), one layer cannot.
-//   4-5 多通道     — one filter spans R, G and B; a greyscale pipeline cannot see a red↔green edge.
-//   4-6 分辨 X 和 O — the smallest CNN: conv → ReLU → pool → global average → dense → sigmoid, trained.
-//   4-7 训不动的深网 — six plain layers from small random weights never move; skip connections train.
+//   4-7 看得更大   — three stacked 3×3 layers see 7×7 (receptive field), one layer cannot.
+//   4-8 多通道     — one filter spans R, G and B; a greyscale pipeline cannot see a red↔green edge.
+//   4-9 分辨 X 和 O — the smallest CNN: conv → ReLU → pool → global average → dense → sigmoid, trained.
+//   4-11 训不动的深网 — six plain layers from small random weights never move; skip connections train.
 // The training claims are checked with the game's own trainer (finite differences + backtracking):
 // see the numbers next to each level.
 import { GLYPHS, addNoise, correlate, fromFn, image, map, patterns as P, random, zip } from '../engine/image.js'
@@ -278,13 +278,13 @@ export const levels = [
       ['缺一角的 7×7', blocks([[1, 1, 7, 7], [8, 8, 7, 7]], [[7, 7]], 4)],
     ]
     return {
-      id: '4-4',
+      id: '4-7',
       chapter: 4,
       title: '看得更大',
       brief: '只在“周围 7×7 全是亮的”格子输出 1，其余输出 0。手里只有 3×3 的元件。',
       hint: '一个 3×3 只看得到身边一圈。如果第二层看的是第一层的结果，它其实看到了多大？',
       after: '每层只看 3×3，可第二层看的是第一层的输出，等于看到了 5×5；第三层看到 7×7。这叫感受野：叠 L 层 3×3，感受野是 (2L+1)×(2L+1)。VGG 就靠堆小核看大范围，而且三层 3×3 只有 27 个权重，一个 7×7 核要 49 个。',
-      requires: ['4-3'],
+      requires: ['4-6'],
       unlocks: [],
       palette: ['box3', 'kernel3', 'threshold', 'relu', 'add', 'scale', 'offset'],
       check: { tolerance: 0.02 },
@@ -312,7 +312,7 @@ export const levels = [
     const perChannel = (wr, wg, wb) =>
       build({ r3: ['learn3', { w: wr }], g3: ['learn3', { w: wg }], b3: ['learn3', { w: wb }], s1: 'add', s2: 'add' }, ['r>r3', 'g>g3', 'b>b3', 'r3>s1.a', 'g3>s1.b', 's1>s2.a', 'b3>s2.b', 's2>out'], rgbInputs)
     return {
-      id: '4-5',
+      id: '4-8',
       chapter: 4,
       title: '多通道',
       inputs: ['r', 'g', 'b'],
@@ -320,7 +320,7 @@ export const levels = [
       brief: '输入把红、绿、蓝分成三张图送来（都已减去 0.5）。只描出红与绿交界处的边，只是变亮变暗、或只有蓝色在变的地方输出 0。',
       hint: '加成灰度图试试：红和绿一样亮时，交界就消失了。给每个通道各接一个可学习核，加起来，再训练。',
       after: '一个卷积核要同时覆盖所有输入通道：这里是 3×3×3 = 27 个权重，三份乘积加成一张激活图。训练出的红通道核和绿通道核正好相反，蓝通道的是 0，于是同时变亮的部分互相抵消，只剩颜色对比。CNN 第一层学到的颜色对比滤波器就是这样来的。',
-      requires: ['4-4'],
+      requires: ['4-7'],
       unlocks: ['lrn-rgb'],
       palette: ['learn3', 'kernel3', 'add', 'sub', 'scale'],
       trainRate: 8,
@@ -334,13 +334,13 @@ export const levels = [
     }
   })(),
   {
-    id: '4-6',
+    id: '4-9',
     chapter: 4,
     title: '分辨 X 和 O',
     brief: '输出一个数：是 X 就大于 0.6，是 O 就小于 0.4。字母会挪位置、变深浅、带噪点。',
-    hint: '卷积层找笔画，ReLU 只留下“找到了”的地方，池化和全局平均把“在哪里”扔掉，再用全连接和 Sigmoid 变成分数。搭好后按训练。',
+    hint: '卷积层找笔画，ReLU 只留下“找到了”的地方，池化和全局平均把“在哪里”扔掉，最后的全连接加 Sigmoid 就是 4-3 里那个神经元，把特征变成分数。搭好后按训练。',
     after: '这是一个最小的卷积网络：卷积找局部笔画，ReLU 把“有”和“没有”分开，池化和全局平均让答案不管字母在哪，全连接加 Sigmoid 把特征变成分数。要是一路全是线性运算（没有 ReLU，也没有最大池化），最后只剩“整张图有多亮”，而淡的 X 和浓的 O 一样亮。',
-    requires: ['4-5'],
+    requires: ['4-8'],
     unlocks: [],
     palette: ['lrnConv', 'relu', 'maxpool', 'downsample', 'lrnGap', 'lrnDense', 'lrnSigmoid'],
     trainRate: 200,
@@ -351,13 +351,13 @@ export const levels = [
     alsoFails: [xoNet({ pool: 'sample', ...XO_SOLUTION })],
   },
   {
-    id: '4-7',
+    id: '4-11',
     chapter: 4,
     title: '训不动的深网',
     brief: '把至少 6 个卷积层串成一条路，训练它做一次轻微的锐化：输出 = 原图 + 0.25 ×（原图 − 3×3 平均）。',
     hint: '每层都从很小的随机数开始，图每过一层就缩小几十倍。能不能让每一层默认“原样通过”，只去学要改的那一点？',
     after: '直接堆叠时，每层的梯度都要乘上其余各层的权重，层一多就乘得几乎为 0（梯度消失），损失纹丝不动。把每层的输入加到它的输出上，y = F(x) + x，每块一开始就是“原样通过”，只需学残差 F(x) = H(x) − x，梯度也沿捷径直达每一层。这就是 ResNet 的残差连接。',
-    requires: ['4-6'],
+    requires: ['4-10'],
     unlocks: ['lrn-res'],
     palette: ['lrnConv', 'add'],
     trainRate: 1,

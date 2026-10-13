@@ -33,6 +33,7 @@
 .wv-line.is-seen { stroke: var(--accent); stroke-width: 2.2; stroke-dasharray: 2 5; }
 .wv-dot line { stroke: var(--accent); stroke-width: 1.4; opacity: .55; }
 .wv-dot circle { fill: var(--accent); stroke: var(--paper); stroke-width: 1.5; }
+.wv-dot.is-point circle { fill: var(--accent); stroke: var(--paper); stroke-width: 1.5; }
 .wv-dot.is-ring circle { fill: none; stroke: var(--ink); stroke-width: 1.6; opacity: .75; }
 
 .wv-bars { touch-action: none; user-select: none; -webkit-user-select: none; }
@@ -121,3 +122,4 @@
   .wv-pair.is-three > :last-child { grid-column: 1 / -1; width: min(100%, 240px); justify-self: center; }
   .wv-formula { font-size: 12px; }
 }
+.wv-legend i.is-point { width: 9px; height: 9px; border: 0; border-radius: 50%; background: var(--accent); }
