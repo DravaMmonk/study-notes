@@ -1,5 +1,5 @@
-import { Suspense, createElement, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, FlaskConical, Lightbulb, ListChecks, Moon, Plus, RotateCcw, Ruler, Sun, Target, Workflow, X } from 'lucide-react'
+import { Suspense, createElement, useEffect, useMemo, useState } from 'react'
+import { ArrowLeft, FlaskConical, Lightbulb, ListChecks, Moon, PanelLeft, Plus, RotateCcw, Ruler, Sun, Target, Workflow, X } from 'lucide-react'
 import { hasLearnable, runLevel, trainStep } from './engine/graph.js'
 import { NODE_TYPES, defaultParams } from './engine/nodes.js'
 import { CHAPTERS, LEVELS, levelById } from './levels/index.js'
@@ -7,6 +7,7 @@ import { startBoard } from './levels/util.js'
 import { loadProgress, saveProgress } from './progress.js'
 import Editor from './ui/Editor.jsx'
 import LevelMap from './ui/LevelMap.jsx'
+import LevelRail from './ui/LevelRail.jsx'
 import ProbeLevel from './ui/ProbeLevel.jsx'
 import TestPanel from './ui/TestPanel.jsx'
 import { boardFor } from './ui/boards/index.js'
@@ -39,6 +40,18 @@ export default function Game() {
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme)
   const phone = useMedia(PHONE)
   const solved = useMemo(() => new Set(progress.solved), [progress.solved])
+  // The level list beside a level: docked on wide screens (remembered), a drawer on narrow ones.
+  const narrow = useMedia('(max-width: 1180px)')
+  const [rail, setRail] = useState(() => readRail())
+  const [drawer, setDrawer] = useState(false)
+  const showRail = narrow ? drawer : rail
+  const toggleRail = () => {
+    if (narrow) setDrawer((v) => !v)
+    else {
+      setRail(!rail)
+      writeRail(!rail)
+    }
+  }
 
   useEffect(() => saveProgress(progress), [progress])
   useEffect(() => {
@@ -66,7 +79,10 @@ export default function Game() {
     <div className={`game ${level ? 'is-playing' : 'is-mapping'}`}>
       <header className="game-bar">
         {level ? (
-          <button className="bar-button" onClick={() => open(null)} aria-label="回到关卡地图"><ArrowLeft size={16} /><span>地图</span></button>
+          <>
+            <button className="bar-button" onClick={() => open(null)} aria-label="回到关卡地图"><ArrowLeft size={16} /><span>地图</span></button>
+            <button className={`bar-button rail-toggle ${showRail ? 'is-on' : ''}`} onClick={toggleRail} aria-pressed={showRail} aria-label="关卡列表"><PanelLeft size={16} /><span>关卡</span></button>
+          </>
         ) : (
           <a className="bar-button" href="./" aria-label="回到 Fieldnotes"><ArrowLeft size={16} /><span>Fieldnotes</span></a>
         )}
@@ -82,12 +98,46 @@ export default function Game() {
       </header>
 
       {!level && <LevelMap solved={solved} best={progress.best} onOpen={open} theme={theme} />}
-      {level && <LevelScreen key={level.id} level={level} progress={progress} setProgress={setProgress} onExit={() => open(null)} onNext={open} theme={theme} phone={phone} />}
+      {level && (
+        <div className={`level-shell ${showRail && !narrow ? 'has-rail' : ''}`}>
+          {showRail && narrow && <div className="rail-scrim" onClick={() => setDrawer(false)} />}
+          {showRail && (
+            <LevelRail
+              current={level.id}
+              solved={solved}
+              overlay={narrow}
+              onClose={toggleRail}
+              onOpen={(id) => {
+                open(id)
+                setDrawer(false)
+              }}
+            />
+          )}
+          <LevelScreen key={level.id} level={level} progress={progress} setProgress={setProgress} onExit={() => open(null)} onNext={open} theme={theme} phone={phone} />
+        </div>
+      )}
       {!progress.seenIntro && (
         <Dialog title="上电" lines={INTRO} actions={[['开始', () => setProgress((p) => ({ ...p, seenIntro: true }))]]} intro />
       )}
     </div>
   )
+}
+
+const RAIL_KEY = 'vision-complete.rail'
+function readRail() {
+  try {
+    const saved = window.localStorage.getItem(RAIL_KEY)
+    return saved === null ? window.innerWidth >= 1360 : saved === '1'
+  } catch {
+    return true
+  }
+}
+function writeRail(on) {
+  try {
+    window.localStorage.setItem(RAIL_KEY, on ? '1' : '0')
+  } catch {
+    // The choice still holds for this visit.
+  }
 }
 
 function ThemeSwitch({ theme, onChange, compact }) {
@@ -128,7 +178,6 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   const [losses, setLosses] = useState([])
   const [tab, setTab] = useState(level.kind === 'graph' ? 'board' : 'play')
   const [sheet, setSheet] = useState(false)
-  const announced = useRef(progress.solved.includes(level.id))
   const flags = useMemo(() => new Set([...progress.flags, ...(level.grants ?? [])]), [progress.flags, level.grants])
   // The fixed cards are named and drawn by what they carry: a picture, a waveform or a number.
   const ioKinds = level.kind === 'graph' ? Object.fromEntries([...Object.entries(level.tests[0].inputs), ...Object.entries(level.tests[0].expected)].map(([name, value]) => [name, kindOf(value)])) : {}
@@ -138,6 +187,8 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   // The row every profile view traces, as a fraction of the height, shared by cards and tests.
   const [scan, setScan] = useState(0.5)
 
+  // Record a pass (and a better score), then announce it. Every completion opens the dialog, not
+  // only the first; a circuit that already passed and still passes after a tweak is not a new one.
   const solve = (score) => {
     setProgress((p) => {
       const best = p.best[level.id]
@@ -148,9 +199,6 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
         best: score && (!best || score.cost < best.cost || (score.cost === best.cost && score.nodes < best.nodes)) ? { ...p.best, [level.id]: score } : p.best,
       }
     })
-    if (announced.current) return
-    announced.current = true
-    setWon(true)
   }
 
   const change = (next, { quiet, keep } = {}) => {
@@ -161,9 +209,11 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
       return
     }
     const result = runLevel(level, next)
+    const newly = result.pass && !run?.pass
     setState({ board: next, run: result })
     setProgress((p) => ({ ...p, boards: { ...p.boards, [level.id]: next } }))
     if (result.pass) solve(result.score)
+    if (newly) setWon(true)
   }
 
   // The test panel draws inputs and outputs the way their cards on the board do; switching either
@@ -277,12 +327,12 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
       ) : level.kind === 'board' ? (
         <div className="play-pane" data-pane="play">
           <Suspense fallback={<div className="board-loading">载入中…</div>}>
-            <BoardLevel level={level} onSolve={() => solve(null)} theme={theme} />
+            <BoardLevel level={level} onSolve={() => { solve(null); setWon(true) }} theme={theme} />
           </Suspense>
         </div>
       ) : (
         <div className="play-pane" data-pane="play">
-          <ProbeLevel level={level} onSolve={() => solve(null)} theme={theme} />
+          <ProbeLevel level={level} onSolve={() => { solve(null); setWon(true) }} theme={theme} />
         </div>
       )}
 

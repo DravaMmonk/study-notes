@@ -74,7 +74,7 @@ export default function TestPanel({ level, run, testIndex, onSelect, inputLabels
                 <NumberCompare expected={expected.data[0]} actual={fits ? actual.data[0] : NaN} tolerance={tolerance} pass={check?.pass} />
               ) : kind === 'signal' ? (
                 <figure className="test-curve">
-                  <CurveView img={fits ? actual : null} expected={expected} tolerance={tolerance} width={280} height={120} />
+                  <CurveView img={fits ? actual : null} expected={expected} tolerance={tolerance} width={280} height={120} onHover={setProbe} />
                   <figcaption><i className="is-expected" />期望 <i className="is-band" />允许范围 <i />你的输出</figcaption>
                 </figure>
               ) : (
@@ -116,7 +116,7 @@ function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover,
           </figure>
         </div>
         <figure className="test-curve">
-          <CurveView img={fits ? rowOf(actual, row) : null} expected={rowOf(expected, row)} tolerance={tolerance} width={280} height={110} />
+          <CurveView img={fits ? rowOf(actual, row) : null} expected={rowOf(expected, row)} tolerance={tolerance} width={280} height={110} onHover={onHover} />
           <figcaption>第 {row} 行：<i className="is-expected" />期望 <i className="is-band" />允许范围 <i />你的输出 · 在图上拖动换一行</figcaption>
         </figure>
       </>

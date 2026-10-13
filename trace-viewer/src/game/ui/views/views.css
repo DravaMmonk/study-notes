@@ -1,5 +1,5 @@
 /* Value views: readouts, waveforms, terrains and slope maps (see views.js). */
-.terrain-view, .slope-view, .curve-view, .spectrum-view { display: block; max-width: 100%; }
+.terrain-view, .slope-view, .curve-view, .spectrum-view, .curve-wrap { display: block; max-width: 100%; }
 .value-view { display: grid; place-items: center; animation: view-in 220ms ease; }
 @keyframes view-in { from { opacity: 0; transform: scale(.985); } }
 .spectrum-view { border-radius: 4px; box-shadow: inset 0 0 0 1px var(--hairline); }
@@ -13,6 +13,16 @@
 .number-view { min-height: 64px; display: grid; place-items: center; border-radius: 8px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
 .number-view b { font-family: var(--mono); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink); }
 
+.curve-wrap { position: relative; }
+.curve-wrap .curve-view { width: 100%; height: auto; cursor: crosshair; touch-action: pan-y; }
+.curve-pick line { stroke: var(--ink); stroke-width: 1; opacity: .35; }
+.curve-pick circle { fill: var(--paper); stroke: var(--accent); stroke-width: 2; }
+.curve-pick circle.is-expected { stroke: var(--ink); stroke-width: 1.5; opacity: .7; }
+.curve-tip { position: absolute; z-index: 3; margin: -10px 0 0 10px; padding: 3px 7px; display: grid; gap: 0; border-radius: 7px; color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--rule), 0 8px 18px -10px rgba(0, 0, 0, .45); font-family: var(--mono); font-size: 10.5px; line-height: 1.35; white-space: nowrap; pointer-events: none; transform: translateY(-100%); }
+.curve-tip.is-left { transform: translate(calc(-100% - 20px), -100%); }
+.curve-tip i { color: var(--muted); font-style: normal; font-size: 9.5px; }
+.curve-tip b { font-weight: 500; font-variant-numeric: tabular-nums; }
+.curve-tip small { color: var(--muted); font-size: 9.5px; }
 .curve-view { border-radius: 6px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); overflow: visible; }
 .curve-floor { stroke: var(--hairline); }
 .curve-zero { stroke: var(--rule); stroke-dasharray: 2 3; }

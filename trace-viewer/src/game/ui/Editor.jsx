@@ -233,12 +233,17 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
     })
     onChange({ ...graph, nodes }, { keep: true })
   }
+  // The fixed cards are titled 输入 / 输出 (or by name when a level has several), and say under the
+  // title what they carry, so a long label never pushes the pass badge off the card.
   const titleOf = (node, spec) => {
     if (!spec.fixed) return spec.label
-    const name = node.params.name
-    const custom = node.type === 'input' ? inputLabels?.[name] : outputLabels?.[name]
-    const kind = KIND_NAMES[ioKinds?.[name]]
-    return [node.type === 'input' ? '输入' : '输出', custom ?? kind].filter(Boolean).join(' · ')
+    const custom = node.type === 'input' ? inputLabels?.[node.params.name] : outputLabels?.[node.params.name]
+    return custom ?? (node.type === 'input' ? '输入' : '输出')
+  }
+  const carriesOf = (node) => {
+    const kind = KIND_NAMES[ioKinds?.[node.params.name]]
+    const custom = node.type === 'input' ? inputLabels?.[node.params.name] : outputLabels?.[node.params.name]
+    return [custom ? (node.type === 'input' ? '输入' : '输出') : null, kind].filter(Boolean).join(' · ')
   }
 
   useEffect(() => {
@@ -314,7 +319,7 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
               <div className="node-head" onPointerDown={(e) => beginMove(e, node)}>
                 <i className="family-chip">{createElement(node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type), { size: 12, strokeWidth: 1.8 })}</i>
                 <span className="node-title">{title}</span>
-                {outputCheck && <em className="node-verdict">{outputCheck.pass ? '通过' : '未通过'}</em>}
+                {outputCheck && <em className="node-verdict" title={outputCheck.pass ? '这组测试通过' : outputCheck.reason}>{outputCheck.pass ? '通过' : '未通过'}</em>}
                 {!spec.fixed && (
                   <button className="node-delete" aria-label="删除卡片" onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ nodes: graph.nodes.filter((n) => n.id !== node.id), wires: graph.wires.filter((w) => w.from !== node.id && w.to !== node.id) })}>
                     <X size={12} />
@@ -322,6 +327,7 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
                 )}
               </div>
               <div className="node-ports" style={{ minHeight: Math.max(1, ports.length) * ROW }}>
+                {spec.fixed && <span className={`node-carries ${node.type === 'input' ? 'is-input' : ''}`}>{carriesOf(node)}</span>}
                 {ports.map((port, index) => (
                   <span key={port} className="node-port-label" style={{ top: index * ROW }}>
                     <i className={`port port-in ${graph.wires.some((w) => w.to === node.id && w.port === port) ? 'is-wired' : ''}`} data-port={port} data-port-node={node.id} />
