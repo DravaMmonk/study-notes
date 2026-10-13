@@ -101,8 +101,8 @@ function describe(a, s, v) {
     const samples = sampleAt(real, s.samples)
     const seen = a.aliasOf(v, s.samples)
     return {
-      lines: [{ curve: fine(real), kind: 'faint' }, { curve: fine(throughSamples(samples)), kind: 'seen' }],
-      dots: [...dotsOf(cosine(s.reference), s.samples, 'ring'), ...dotsOf(real, s.samples)],
+      lines: [{ curve: fine(real), kind: 'faint', label: '真实信号' }, { curve: fine(throughSamples(samples)), kind: 'seen', label: '从点上看起来' }],
+      dots: [...dotsOf(cosine(s.reference), s.samples, 'ring').map((d) => ({ ...d, label: 'k = 3 采到的' })), ...dotsOf(real, s.samples)],
       readout: `真实 k = ${v} · 16 个点看起来是 k = ${seen}`,
       status: v === s.reference.k ? '这就是 k = 3 本身，换一个。' : '点还没和圆圈重合。',
       win: `k = ${v} 采出来和 k = 3 一模一样：16 − 3 = 13，16 + 3 = 19。`,
@@ -112,7 +112,7 @@ function describe(a, s, v) {
     const real = cosine(s.wave)
     const ok = a.faithful(s.wave, v)
     return {
-      lines: [{ curve: fine(real), kind: 'faint' }, { curve: fine(throughSamples(sampleAt(real, v))), kind: 'seen' }],
+      lines: [{ curve: fine(real), kind: 'faint', label: '真实信号' }, { curve: fine(throughSamples(sampleAt(real, v))), kind: 'seen', label: '从点上看起来' }],
       dots: dotsOf(real, v),
       readout: `M = ${v} · 每个周期 ${(v / s.wave.k).toFixed(1)} 个点 · ${ok ? `看起来 k = ${s.wave.k}，看对了` : a.aliasOf(s.wave.k, v) === s.wave.k ? '频率像是对的，可振幅和位置都变了' : `看起来 k = ${a.aliasOf(s.wave.k, v)}，看错了`}`,
       status: ok ? '还能看对。再少几个点试试。' : '看错了：点太少。',
@@ -123,7 +123,7 @@ function describe(a, s, v) {
   const truth = a.signalOf(s.parts, s.samples / 2)
   const samples = sampleAt(real, s.samples)
   return {
-    lines: [{ curve: fine(real), kind: 'faint' }, { curve: fine(truth), kind: 'target' }, { curve: fine(throughSamples(samples)), kind: 'seen' }],
+    lines: [{ curve: fine(real), kind: 'faint', label: '真实信号' }, { curve: fine(truth), kind: 'target', label: '应有的样子' }, { curve: fine(throughSamples(samples)), kind: 'seen', label: '从点上看起来' }],
     dots: dotsOf(real, s.samples),
     readout: `采 16 个点，能分辨到 k = 8 · 采样前保留 k ≤ ${v}`,
     status: s.parts.some((p) => p.k <= v && 2 * p.k > s.samples) ? '有快波混进来了，它们会冒充成慢波。' : '滤得太多，把该留的也去掉了。',

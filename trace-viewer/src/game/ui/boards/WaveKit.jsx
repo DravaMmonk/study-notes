@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Check, Circle } from 'lucide-react'
 
 // Drawing pieces shared by chapter 2's wave boards (WaveTuner, WaveMixer, Equalizer, AliasProbe).
@@ -8,10 +8,22 @@ import { Check, Circle } from 'lucide-react'
 const FINE = 160
 const valueAt = (curve, u) => (typeof curve === 'function' ? curve(u) : curve[Math.min(curve.length - 1, Math.floor(u * curve.length))])
 
-// A line plot over one image width. `lines`: [{ curve, kind, steps }] where kind picks the stroke
-// (target, yours, faint, error) and `steps` draws an array of samples as flat steps (pixels).
-// `dots`: [{ u, v, kind }] drawn as stems with a dot (kind 'sample') or a hollow ring ('ring').
-export function Plot({ lines = [], dots = [], width = 600, height = 200, lo = 0, hi = 1, ticks = [0, 0.5, 1], label, children }) {
+const KIND_LABELS = { target: '目标', yours: '你的', faint: '原信号', error: '误差', seen: '看起来' }
+const fmt = (v) => (Number.isFinite(v) ? (Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(3)) : '—')
+
+// Which column the pointer is over, in viewBox units, from a pointer event on the svg.
+const pointerX = (event, width) => {
+  const box = event.currentTarget.getBoundingClientRect()
+  return ((event.clientX - box.left) / box.width) * width
+}
+
+// A line plot over one image width. `lines`: [{ curve, kind, steps, label }] where kind picks the
+// stroke (target, yours, faint, error, seen) and `steps` draws an array of samples as flat steps
+// (pixels). `dots`: [{ u, v, kind }] drawn as stems with a dot (kind 'sample') or a hollow ring
+// ('ring'). Pointing at the plot (or tapping it) reads every line at that spot; with dots it snaps
+// to the nearest sample, and with step lines to the pixel. `span` is how many pixels the width is.
+export function Plot({ lines = [], dots = [], width = 600, height = 200, lo = 0, hi = 1, ticks = [0, 0.5, 1], label, span = 32, children }) {
+  const [at, setAt] = useState(null)
   const left = 30
   const right = 8
   const top = 10
@@ -26,23 +38,64 @@ export function Plot({ lines = [], dots = [], width = 600, height = 200, lo = 0,
     }
     return Array.from({ length: FINE + 1 }, (_, i) => `${i ? 'L' : 'M'}${x(i / FINE).toFixed(1)},${y(valueAt(curve, i / FINE)).toFixed(1)}`).join('')
   }
+
+  const samples = dots.filter((d) => d.kind !== 'ring')
+  const stepped = lines.find((line) => line.steps)
+  const pick = (event) => {
+    const u = Math.min(1, Math.max(0, (pointerX(event, width) - left) / (width - left - right)))
+    if (samples.length) {
+      const nearest = samples.reduce((best, d) => (Math.abs(d.u - u) < Math.abs(best.u - u) ? d : best))
+      setAt({ u: nearest.u, sample: samples.indexOf(nearest), of: samples.length })
+    } else if (stepped) {
+      const n = stepped.curve.length
+      const j = Math.min(n - 1, Math.floor(u * n))
+      setAt({ u: (j + 0.5) / n, pixel: j })
+    } else setAt({ u })
+  }
+  const leave = (event) => event.pointerType === 'mouse' && setAt(null)
+
+  // What each line (and each dot at the picked sample) reads at the picked spot.
+  const readings = at
+    ? [
+        ...lines.map((line) => ({ kind: line.kind, label: line.label ?? KIND_LABELS[line.kind] ?? '', v: valueAt(line.curve, at.u) })),
+        ...dots.filter((d) => at.sample !== undefined && Math.abs(d.u - at.u) < 1e-9).map((d) => ({ kind: d.kind === 'ring' ? 'ring' : 'sample', label: d.label ?? (d.kind === 'ring' ? '参照点' : '采到的值'), v: d.v, dot: true })),
+      ]
+    : []
+  const where = !at ? '' : at.sample !== undefined ? `第 ${at.sample} 个点 / ${at.of}` : at.pixel !== undefined ? `x = ${at.pixel}` : `x = ${(at.u * span).toFixed(1)} px`
+
   return (
-    <svg className="wv-plot" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label}>
-      {ticks.map((t) => (
-        <g key={t}>
-          <line className={`wv-grid ${t === 0 && lo < 0 ? 'is-zero' : ''}`} x1={left} x2={width - right} y1={y(t)} y2={y(t)} />
-          <text className="wv-tick" x={left - 6} y={y(t) + 4}>{t}</text>
-        </g>
-      ))}
-      {lines.map((line, i) => <path key={i} className={`wv-line is-${line.kind}`} d={path(line)} />)}
-      {dots.map((dot, i) => (
-        <g key={i} className={`wv-dot is-${dot.kind ?? 'sample'}`}>
-          {dot.kind !== 'ring' && <line x1={x(dot.u)} x2={x(dot.u)} y1={y(Math.max(lo, Math.min(hi, 0)))} y2={y(dot.v)} />}
-          <circle cx={x(dot.u)} cy={y(dot.v)} r={dot.kind === 'ring' ? 6 : 3.6} />
-        </g>
-      ))}
-      {children?.({ x, y })}
-    </svg>
+    <div className="wv-plot-wrap">
+      <svg className="wv-plot" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label ?? ''}：指向一处读数`} onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
+        {ticks.map((t) => (
+          <g key={t}>
+            <line className={`wv-grid ${t === 0 && lo < 0 ? 'is-zero' : ''}`} x1={left} x2={width - right} y1={y(t)} y2={y(t)} />
+            <text className="wv-tick" x={left - 6} y={y(t) + 4}>{t}</text>
+          </g>
+        ))}
+        {lines.map((line, i) => <path key={i} className={`wv-line is-${line.kind}`} d={path(line)} />)}
+        {dots.map((dot, i) => (
+          <g key={i} className={`wv-dot is-${dot.kind ?? 'sample'}`}>
+            {dot.kind !== 'ring' && <line x1={x(dot.u)} x2={x(dot.u)} y1={y(Math.max(lo, Math.min(hi, 0)))} y2={y(dot.v)} />}
+            <circle cx={x(dot.u)} cy={y(dot.v)} r={dot.kind === 'ring' ? 6 : 3.6} />
+          </g>
+        ))}
+        {children?.({ x, y })}
+        {at && (
+          <g className="wv-pick">
+            <line x1={x(at.u)} x2={x(at.u)} y1={top} y2={height - bottom} />
+            {readings.filter((r) => !r.dot).map((r, i) => <circle key={i} className={`is-${r.kind}`} cx={x(at.u)} cy={y(r.v)} r={4} />)}
+          </g>
+        )}
+      </svg>
+      {at && (
+        <div className={`wv-tip ${at.u > 0.55 ? 'is-left' : ''}`} style={{ left: `${(x(at.u) / width) * 100}%` }}>
+          <i>{where}</i>
+          {readings.map((r, index) => (
+            <span key={index}><em className={`is-${r.kind}`} />{r.label}<b>{fmt(r.v)}</b></span>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -65,6 +118,7 @@ export function Band({ curve, width = 600, height = 30, label }) {
 export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, ghosts, shadows, width = 600, height = 220, under, readOnly, label, valueText }) {
   const svg = useRef(null)
   const dragging = useRef(false)
+  const [hot, setHot] = useState(null) // the column under the pointer, being dragged or focused
   const n = values.length
   const foot = under ? 46 : 24
   const top = 10
@@ -74,17 +128,33 @@ export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, 
   const zero = y(Math.max(min, Math.min(max, 0)))
   const snap = (v) => Math.min(max, Math.max(min, Math.round(v / step) * step))
 
-  const setFrom = (event) => {
+  const columnOf = (event) => {
     const matrix = svg.current?.getScreenCTM()
-    if (!matrix) return
+    if (!matrix) return null
     const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse())
-    const index = Math.min(n - 1, Math.max(0, Math.floor(point.x / col)))
+    return { point, index: Math.min(n - 1, Math.max(0, Math.floor(point.x / col))) }
+  }
+  const setFrom = (event) => {
+    const where = columnOf(event)
+    if (!where) return
+    const { point, index } = where
+    setHot(index)
     const value = snap(min + (1 - (point.y - top) / span) * (max - min))
     if (Math.abs(value - values[index]) > 1e-9) onChange(index, value)
   }
+  const watch = {
+    onPointerMove: (event) => {
+      if (dragging.current) setFrom(event)
+      else setHot(columnOf(event)?.index ?? null)
+    },
+    onPointerLeave: (event) => {
+      if (event.pointerType === 'mouse' && !dragging.current) setHot(null)
+    },
+  }
   const handlers = readOnly
-    ? {}
+    ? watch
     : {
+        ...watch,
         onPointerDown: (event) => {
           dragging.current = true
           try {
@@ -94,7 +164,6 @@ export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, 
           }
           setFrom(event)
         },
-        onPointerMove: (event) => dragging.current && setFrom(event),
         onPointerUp: () => {
           dragging.current = false
         },
@@ -140,11 +209,27 @@ export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, 
                 aria-valuenow={Number(v.toFixed(3))}
                 aria-valuetext={valueText?.(index, v)}
                 onKeyDown={keyFor(index)}
+                onFocus={() => setHot(index)}
+                onBlur={() => setHot(null)}
               />
             )}
           </g>
         )
       })}
+      {hot !== null && values[hot] !== undefined && (() => {
+        const v = values[hot]
+        const text = shadows ? `${shadows[hot].toFixed(2)} → ${v.toFixed(2)}` : v.toFixed(2)
+        const w = text.length * 7 + 12
+        const cx = Math.min(width - w / 2 - 2, Math.max(w / 2 + 2, hot * col + col / 2))
+        const above = Math.min(y(v), zero, shadows ? y(shadows[hot]) : Infinity) - 8
+        const cy = Math.max(top + 9, above - 9)
+        return (
+          <g className="wv-bar-badge" pointerEvents="none">
+            <rect x={cx - w / 2} y={cy - 9} width={w} height={18} rx={6} />
+            <text x={cx} y={cy + 4}>{text}</text>
+          </g>
+        )
+      })()}
     </svg>
   )
 }

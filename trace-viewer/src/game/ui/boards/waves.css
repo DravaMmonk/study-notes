@@ -2,6 +2,25 @@
    goals come from the board kit (kit.css); this file holds the plots, bars and stage stepper. */
 
 .wv-plot, .wv-bars, .wv-band, .wv-plane { display: block; width: 100%; height: auto; }
+.wv-plot-wrap { position: relative; }
+.wv-plot { cursor: crosshair; touch-action: pan-y; }
+.wv-pick line { stroke: var(--ink); stroke-width: 1; opacity: .3; }
+.wv-pick circle { fill: var(--paper); stroke: var(--accent); stroke-width: 2; }
+.wv-pick circle.is-target { stroke: var(--ink); }
+.wv-pick circle.is-faint { stroke: var(--rule); }
+.wv-pick circle.is-error { stroke: var(--fail); }
+.wv-tip { position: absolute; z-index: 3; top: 6px; margin-left: 12px; padding: 5px 9px; display: grid; gap: 1px; border-radius: 9px; background: var(--paper); box-shadow: 0 0 0 1px var(--rule), 0 10px 22px -12px rgba(0, 0, 0, .45); font-family: var(--mono); font-size: 11px; line-height: 1.45; white-space: nowrap; pointer-events: none; }
+.wv-tip.is-left { transform: translateX(calc(-100% - 24px)); }
+.wv-tip i { color: var(--muted); font-style: normal; font-size: 10px; }
+.wv-tip span { display: grid; grid-template-columns: 12px auto minmax(3.6em, 1fr); align-items: center; gap: 6px; color: var(--muted); }
+.wv-tip b { color: var(--ink); font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.wv-tip em { width: 12px; height: 0; border-top: 2px solid var(--accent); }
+.wv-tip em.is-target { border-top: 2px dashed var(--ink); opacity: .7; }
+.wv-tip em.is-faint { border-top-color: var(--rule); }
+.wv-tip em.is-error { border-top-color: var(--fail); }
+.wv-tip em.is-seen { border-top: 2px dotted var(--accent); }
+.wv-tip em.is-sample { width: 7px; height: 7px; border: 0; border-radius: 50%; background: var(--accent); }
+.wv-tip em.is-ring { width: 7px; height: 7px; border: 1.5px solid var(--ink); border-radius: 50%; }
 .wv-band { height: 30px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--hairline); }
 .wv-grid { stroke: var(--hairline); stroke-width: 1; }
 .wv-grid.is-zero { stroke: var(--rule); }
@@ -24,6 +43,8 @@
 .wv-bar-shadow { fill: var(--line); }
 .wv-bar-cap { fill: var(--paper); stroke: var(--accent-ink); stroke-width: 1.4; transition: y 160ms ease; }
 .wv-bar-ghost { stroke: var(--status); stroke-width: 2.4; stroke-linecap: round; }
+.wv-bar-badge rect { fill: var(--ink); }
+.wv-bar-badge text { fill: var(--paper); font-family: var(--mono); font-size: 11px; text-anchor: middle; font-variant-numeric: tabular-nums; }
 .wv-bar-label { fill: var(--muted); font-family: var(--mono); font-size: 12px; text-anchor: middle; }
 .wv-bar-hit { fill: transparent; cursor: ns-resize; outline: none; }
 .wv-bar-hit:focus-visible { fill: color-mix(in srgb, var(--accent) 10%, transparent); }

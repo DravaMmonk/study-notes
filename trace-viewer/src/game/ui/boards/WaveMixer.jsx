@@ -53,8 +53,8 @@ export default function WaveMixer({ level, onSolve }) {
         <div className="wv-row"><span>目标</span><Band curve={s.target} label="目标" /></div>
         <div className="wv-row"><span>你的</span><Band curve={yours} label="你叠出来的" /></div>
       </div>
-      <Plot width={width} height={phone ? 150 : 210} label="亮度曲线" lines={[{ curve: s.target, kind: 'target' }, { curve: yours, kind: 'yours' }]} />
-      <Plot width={width} height={phone ? 76 : 104} lo={-reach} hi={reach} ticks={[-reach, 0, reach].map((v) => Number(v.toFixed(1)))} label="误差曲线" lines={[{ curve: residual, kind: 'error' }]} />
+      <Plot width={width} height={phone ? 150 : 210} label="亮度曲线" lines={[{ curve: s.target, kind: 'target' }, { curve: yours, kind: 'yours', label: '你叠出来的' }]} />
+      <Plot width={width} height={phone ? 76 : 104} lo={-reach} hi={reach} ticks={[-reach, 0, reach].map((v) => Number(v.toFixed(1)))} label="误差曲线" lines={[{ curve: residual, kind: 'error', label: '目标 − 你的' }]} />
       <div className="wv-legend"><span><i className="is-target" />目标</span><span><i />你叠出来的</span><span><i className="is-error" />误差 = 目标 − 你的</span></div>
       <div className={`wv-meter ${match ? 'is-pass' : ''}`}>
         <div className="wv-meter-track" aria-hidden="true">

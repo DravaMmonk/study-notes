@@ -56,7 +56,7 @@ export default function WaveTuner({ level, onSolve, theme }) {
                 <div className="wv-row"><span>目标</span><Band curve={t.curve(target)} label="目标条纹" /></div>
                 <div className="wv-row"><span>你的波</span><Band curve={yours} label="你的条纹" /></div>
               </div>
-              <Plot width={width} height={phone ? 190 : 230} label="一行像素的亮度曲线" lines={[{ curve: t.curve(target), kind: 'target' }, { curve: yours, kind: 'yours' }]} />
+              <Plot width={width} height={phone ? 190 : 230} label="一行像素的亮度曲线" lines={[{ curve: t.curve(target), kind: 'target' }, { curve: yours, kind: 'yours', label: '你的波' }]} />
               <div className="wv-legend"><span><i className="is-target" />目标</span><span><i />你的波</span><span>横轴：一幅图的宽度</span></div>
               <p className="wv-formula">亮度 = <b>{p.c.toFixed(2)}</b> + <b>{p.A.toFixed(2)}</b> · cos(2π · <b>{p.k}</b> · u + <b>{p.phase}°</b>)</p>
             </>

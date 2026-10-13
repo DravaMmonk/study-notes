@@ -54,7 +54,7 @@ export default function Equalizer({ level, onSolve }) {
   const row = (
     <div>
       <span className="bk-label">一行像素</span>
-      <Plot width={width} height={phone ? 160 : 220} lo={0} hi={1} label="输入、输出和目标" lines={[{ curve: q.input, kind: 'faint', steps: true }, { curve: q.target, kind: 'target', steps: true }, { curve: output, kind: 'yours', steps: true }]} />
+      <Plot width={width} height={phone ? 160 : 220} lo={0} hi={1} label="输入、输出和目标" lines={[{ curve: q.input, kind: 'faint', steps: true, label: '输入' }, { curve: q.target, kind: 'target', steps: true }, { curve: output, kind: 'yours', steps: true, label: '输出' }]} />
       <div className="wv-legend"><span><i className="is-faint" />输入（有噪点）</span><span><i className="is-target" />目标</span><span><i />输出</span></div>
     </div>
   )
@@ -127,8 +127,9 @@ export default function Equalizer({ level, onSolve }) {
   )
 }
 
-// The kernel as stems around the centre tap, ±8 neighbours.
+// The kernel as stems around the centre tap, ±8 neighbours. Pointing at a stem reads its weight.
 function Kernel({ taps, width, height }) {
+  const [hot, setHot] = useState(null)
   const n = taps.length
   const reach = 8
   const shown = Array.from({ length: 2 * reach + 1 }, (_, i) => taps[n / 2 - reach + i])
@@ -137,20 +138,34 @@ function Kernel({ taps, width, height }) {
   const left = 12
   const col = (width - 2 * left) / shown.length
   const y = (v) => 8 + ((hi - v) / (hi - lo)) * (height - 26)
+  const pick = (event) => {
+    const box = event.currentTarget.getBoundingClientRect()
+    const px = ((event.clientX - box.left) / box.width) * width
+    setHot(Math.min(shown.length - 1, Math.max(0, Math.floor((px - left) / col))))
+  }
+  const sx = hot === null ? 0 : left + col * (hot + 0.5)
   return (
-    <svg className="wv-plot wv-stems" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="等效的空间核">
-      <line className="wv-grid is-zero" x1={left} x2={width - left} y1={y(0)} y2={y(0)} />
-      {shown.map((v, i) => {
-        const x = left + col * (i + 0.5)
-        const sign = v < -1e-4 ? 'is-neg' : 'is-pos'
-        return (
-          <g key={i}>
-            <line className={sign} x1={x} x2={x} y1={y(0)} y2={y(v)} />
-            <circle className={sign} cx={x} cy={y(v)} r={3} />
-            {(i - reach) % 4 === 0 && <text className="wv-tick" x={x + 4} y={height - 4}>{i - reach}</text>}
-          </g>
-        )
-      })}
-    </svg>
+    <div className="wv-plot-wrap">
+      <svg className="wv-plot wv-stems" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="等效的空间核：指向一根读权重" onPointerMove={pick} onPointerDown={pick} onPointerLeave={(event) => event.pointerType === 'mouse' && setHot(null)}>
+        <line className="wv-grid is-zero" x1={left} x2={width - left} y1={y(0)} y2={y(0)} />
+        {shown.map((v, i) => {
+          const x = left + col * (i + 0.5)
+          const sign = v < -1e-4 ? 'is-neg' : 'is-pos'
+          return (
+            <g key={i}>
+              <line className={sign} x1={x} x2={x} y1={y(0)} y2={y(v)} />
+              <circle className={sign} cx={x} cy={y(v)} r={i === hot ? 4.6 : 3} />
+              {(i - reach) % 4 === 0 && <text className="wv-tick" x={x + 4} y={height - 4}>{i - reach}</text>}
+            </g>
+          )
+        })}
+      </svg>
+      {hot !== null && (
+        <div className={`wv-tip ${hot > reach ? 'is-left' : ''}`} style={{ left: `${(sx / width) * 100}%` }}>
+          <i>{hot === reach ? '自己' : `${hot < reach ? '左' : '右'}边第 ${Math.abs(hot - reach)} 个邻居`}</i>
+          <span><em className={shown[hot] < -1e-4 ? 'is-error' : ''} />权重<b>{shown[hot].toFixed(3)}</b></span>
+        </div>
+      )}
+    </div>
   )
 }
