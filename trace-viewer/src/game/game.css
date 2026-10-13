@@ -424,6 +424,9 @@
 .pl-brief .hint-block { margin: 0; }
 .brief-more { justify-self: start; padding: 2px 0; border: 0; color: var(--accent-ink); background: none; font-size: 13px; cursor: pointer; }
 .pl-play .bk { padding-top: 12px; }
+/* Board levels on a phone: the main visual stays pinned at the top while the controls below
+   scroll, so every change is seen as it is made. */
+.pl-play .bk > .bk-split > :first-child { position: sticky; top: 0; z-index: 4; max-height: 54dvh; overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 0 0 1px var(--hairline), 0 14px 26px -18px rgba(30, 26, 18, .55); }
 .ph-footer .reset-button { margin: 0; min-height: 40px; }
 .ph-footer .train-buttons button { min-height: 44px; flex: 1; }
 .ph-sheet-body .tests { padding: 0; border: 0; background: none; }

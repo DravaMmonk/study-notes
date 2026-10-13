@@ -79,3 +79,32 @@ export function tailOf(graph) {
   const { sources, steps } = layout(graph)
   return steps.at(-1)?.id ?? sources[0]?.id ?? null
 }
+
+// Rows and lanes for the circuit map: inputs on the first row, each part one row below the lowest
+// of its sources, outputs on the last row. Within a row, blocks sit near the average lane of what
+// feeds them, so a branch and its merge read as lanes splitting and joining.
+export function mapLayout(graph) {
+  const { sources, steps, outputs } = layout(graph)
+  const rank = new Map(sources.map((n) => [n.id, 0]))
+  for (const node of steps) {
+    const from = graph.wires.filter((w) => w.to === node.id).map((w) => rank.get(w.from)).filter((r) => r !== undefined)
+    // Parts that read nothing (generators) start on the first row, beside the inputs.
+    rank.set(node.id, from.length ? Math.max(...from) + 1 : inputsOf(node.type).length ? 1 : 0)
+  }
+  const last = Math.max(0, ...steps.map((n) => rank.get(n.id)))
+  outputs.forEach((n) => rank.set(n.id, last + 1))
+  const rows = []
+  for (const node of [...sources, ...steps, ...outputs]) (rows[rank.get(node.id)] ??= []).push(node)
+  const lane = new Map()
+  rows.forEach((row = [], r) => {
+    if (r > 0) {
+      const centre = (node) => {
+        const from = graph.wires.filter((w) => w.to === node.id).map((w) => lane.get(w.from)).filter((x) => x !== undefined)
+        return from.length ? from.reduce((a, b) => a + b, 0) / from.length : 0
+      }
+      row.sort((a, b) => centre(a) - centre(b))
+    }
+    row.forEach((node, i) => lane.set(node.id, i - (row.length - 1) / 2))
+  })
+  return { rank, lane, rows: rows.length, lanes: Math.max(1, ...rows.map((row = []) => row.length)) }
+}

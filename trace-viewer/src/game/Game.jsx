@@ -9,7 +9,7 @@ import Editor from './ui/Editor.jsx'
 import LevelMap from './ui/LevelMap.jsx'
 import LevelRail from './ui/LevelRail.jsx'
 import ProbeLevel from './ui/ProbeLevel.jsx'
-import PhoneBuilder from './ui/phone/PhoneBuilder.jsx'
+import PhoneCircuit from './ui/phone/PhoneCircuit.jsx'
 import TestPanel from './ui/TestPanel.jsx'
 import { boardFor } from './ui/boards/index.js'
 import { describe, familyOf, iconOf } from './ui/catalog.js'
@@ -354,16 +354,20 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   // On a phone everything is one scrolling page: the task, the tests pinned under it, then the
   // circuit as a list of steps (or the board level itself).
   if (phone) {
+    // Circuit levels: the circuit map above, a dock with the task, the selected block and the
+    // tests below. Board levels: the task, then the board, whose main visual stays pinned.
+    if (level.kind === 'graph') {
+      return (
+        <div className="level-phone level-graph is-split">
+          <PhoneCircuit level={level} graph={board} onChange={change} run={run} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} brief={brief} training={training} footer={<>{score}{reset}</>} testDetails={testPanel} />
+          {overlays}
+        </div>
+      )
+    }
     return (
       <div className={`level-phone level-${level.kind}`}>
         <section className="pl-brief">{brief}</section>
-        {level.kind === 'graph' ? (
-          <>
-            <PhoneBuilder level={level} graph={board} onChange={change} run={run} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} footer={<>{training}{score}{reset}</>} testDetails={testPanel} />
-          </>
-        ) : (
-          <div className="pl-play">{play}</div>
-        )}
+        <div className="pl-play">{play}</div>
         {overlays}
       </div>
     )
