@@ -1,12 +1,9 @@
-// Optics pack: three bench levels about where pixels come from and what one picture cannot say.
+// Optics pack: two bench levels about where pixels come from and what one picture cannot say.
 //   0-5 暗箱  — the camera obscura: x = −f·X/Z, and a bigger hole is brighter but blurrier.
-//   3-3 朗伯台 — Lambertian shading: one photo leaves albedo and light tangled; a second view settles it.
 //   7-3 测距  — stereo range: z = f·b/d, |Δz| ≈ z²/(f·b)·|Δd|, against a limited disparity search.
 // Every board's maths lives here as pure functions (attached to the level as `model`), so the
 // boards only draw and the validator can prove each goal is reachable and each naive setting fails.
-import { fromFn } from '../engine/image.js'
 
-const rad = (deg) => (deg * Math.PI) / 180
 const range = (from, to, step) => {
   const out = []
   for (let i = 0; from + i * step <= to + 1e-9; i++) out.push(Math.round((from + i * step) * 1000) / 1000)
@@ -85,112 +82,6 @@ const obscura = (() => {
   }
 })()
 
-// ---------------- 3-3 · 朗伯台 ----------------
-// A corrugated matte sheet seen from above, 16×16 pixels. Its normals all lie in the x–z plane:
-// N = (sin a, 0, cos a), with the slope a running across the columns. Under one far lamp
-// L = (cos e·cos φ, cos e·sin φ, sin e) each pixel reads I = ρ·max(0, N·L) — which only sees
-// ρ·Lx and ρ·Lz, so a brighter sheet lit along the ridges looks exactly like a darker one lit across.
-// The second photo is taken after the turntable turns the sheet 90°: now N = (0, sin a, cos a) and
-// the photo sees ρ·Ly. Two photos pin down ρ and L together.
-
-const lambert = (() => {
-  const N = 16
-  const slope = (i) => rad(60 * Math.sin((2 * Math.PI * (i + 0.5)) / 8))
-  const ALBEDO = range(0.2, 1, 0.05)
-  const ELEVATION = range(10, 90, 5)
-  const AZIMUTH = range(-165, 180, 15)
-  const TRUTH = { rho: 0.8, el: 40, az: 60 }
-  const START = { rho: 0.5, el: 90, az: 0 }
-  const TOLERANCE = 0.03
-
-  const lightOf = ({ el, az }) => [Math.cos(rad(el)) * Math.cos(rad(az)), Math.cos(rad(el)) * Math.sin(rad(az)), Math.sin(rad(el))]
-
-  // turned = false: ridges run up–down (photo A); true: after the 90° turn (photo B).
-  const render = (setting, turned = false) => {
-    const L = lightOf(setting)
-    return fromFn(N, N, (x, y) => {
-      const a = slope(turned ? y : x)
-      const n = turned ? [0, Math.sin(a), Math.cos(a)] : [Math.sin(a), 0, Math.cos(a)]
-      return setting.rho * Math.max(0, n[0] * L[0] + n[1] * L[1] + n[2] * L[2])
-    })
-  }
-
-  const photoA = render(TRUTH, false)
-  const photoB = render(TRUTH, true)
-  const worst = (a, b) => {
-    let m = 0
-    for (let i = 0; i < a.data.length; i++) m = Math.max(m, Math.abs(a.data[i] - b.data[i]))
-    return m
-  }
-  const matches = (setting, turned = false) => worst(render(setting, turned), turned ? photoB : photoA) <= TOLERANCE
-
-  function* settings() {
-    for (const rho of ALBEDO) for (const el of ELEVATION) for (const az of el === 90 ? [0] : AZIMUTH) yield { rho, el, az }
-  }
-
-  // Another setting that reproduces photo A while differing as much as possible in albedo: the board
-  // shows it next to the player's first match, so the ambiguity is on screen, not in a sentence.
-  // It never matches photo B, so it cannot give the final answer away.
-  let firstMatches = null
-  const twinOf = (setting) => {
-    firstMatches ??= [...settings()].filter((s) => matches(s) && !matches(s, true))
-    let best = null
-    let score = -1
-    for (const s of firstMatches) {
-      const d = Math.abs(s.rho - setting.rho) + Math.abs(s.el - setting.el) / 90
-      if (d > score) {
-        best = s
-        score = d
-      }
-    }
-    return best
-  }
-
-  // Snap a raw (az, el) from the dial to the grid.
-  const snap = ({ rho, el, az }) => {
-    const e = Math.min(90, Math.max(10, Math.round(el / 5) * 5))
-    let a = Math.round(az / 15) * 15
-    while (a <= -180) a += 360
-    while (a > 180) a -= 360
-    return { rho: Math.min(1, Math.max(0.2, Math.round(rho * 20) / 20)), el: e, az: e === 90 ? 0 : a }
-  }
-
-  const verify = () => {
-    if (!matches(TRUTH) || !matches(TRUTH, true)) return 'the true setting does not reproduce its own photos'
-    if (matches(START)) return 'the starting setting already matches photo A'
-    const first = [...settings()].filter((s) => matches(s))
-    const rhos = first.map((s) => s.rho)
-    if (Math.max(...rhos) - Math.min(...rhos) < 0.15) return 'photo A alone is not ambiguous in albedo'
-    // The naive belief "brightness is just albedo, light from overhead" cannot match photo A.
-    if (ALBEDO.some((rho) => matches({ rho, el: 90, az: 0 }))) return 'an overhead lamp matches photo A'
-    const both = first.filter((s) => matches(s, true))
-    if (!both.length) return 'no setting matches both photos'
-    const far = both.find((s) => Math.abs(s.rho - TRUTH.rho) > 0.05 || Math.abs(s.el - TRUTH.el) > 5 || Math.abs(s.az - TRUTH.az) > 15)
-    if (far) return `the second photo leaves ambiguity: ${JSON.stringify(far)}`
-    // The twin shown after a first match must itself fail the second photo, whichever match was found.
-    for (const s of first) {
-      const twin = twinOf(s)
-      if (!twin || Math.abs(twin.rho - s.rho) < 0.1) return `no clear twin for ${JSON.stringify(s)}`
-    }
-    return ''
-  }
-
-  return {
-    id: '3-3',
-    kind: 'board',
-    board: 'OpticsLambert',
-    chapter: 3,
-    title: '朗伯台',
-    brief: '拖动灯、调反射率，让你的渲染和照片一模一样。',
-    hint: '亮度 = ρ·cos θ（θ 是法线和灯的夹角）。先让明暗条纹的位置对上，再调整体亮度。',
-    after: '只看一张照片，「材质更亮、灯从斜侧照来」和「材质更暗、灯正对着照」可以一模一样：I = ρ·N·L 只给出 ρ 与夹角的组合。波纹板的法线都在一个平面里，灯沿波纹方向的那一份根本拍不出来。转 90° 再拍一张（等于换一盏已知方向的灯），多了一组方程，答案才唯一。',
-    requires: ['3-2'],
-    unlocks: [],
-    model: { N, ALBEDO, ELEVATION, AZIMUTH, START, TOLERANCE, photoA, photoB, render, worst, matches, twinOf, snap, lightOf },
-    verify,
-  }
-})()
-
 // ---------------- 7-3 · 测距 ----------------
 // Two rectified pinhole cameras b apart, focal length f in pixels, 640 px wide images. A target at
 // lateral X and depth z lands at x = f·(X ± b/2)/z in the two images, so d = f·b/z. The matcher only
@@ -255,4 +146,4 @@ const ranging = (() => {
 })()
 
 export const nodes = {}
-export const levels = [obscura, lambert, ranging]
+export const levels = [obscura, ranging]

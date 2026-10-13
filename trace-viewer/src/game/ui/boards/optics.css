@@ -1,4 +1,4 @@
-/* Optics boards (0-5 暗箱, 3-3 朗伯台, 7-3 测距). Layout, panels, goals and controls come from the
+/* Optics boards (0-5 暗箱, 7-3 测距). Layout, panels, goals and controls come from the
    board kit (kit.css); this file keeps only the drawings and each board's own arrangement. Every
    colour is a token. SVG text sizes come from --fs (viewBox units chosen per layout so labels stay
    ≥ 11 px on screen). */
@@ -54,39 +54,6 @@
 .optics-inset-image { fill: color-mix(in srgb, var(--accent) 22%, var(--pre-ink)); transition: opacity 260ms ease; }
 .optics-goal-line { stroke: var(--accent); stroke-width: .5; stroke-dasharray: 1.5 1; }
 
-/* ---- 3-3 朗伯台 ---- */
-.optics-lambert { grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto 1fr; grid-template-areas: 'shots side' 'twin side'; align-items: start; }
-.optics-shots { grid-area: shots; display: grid; gap: 16px; }
-.optics-lamp-panel { grid-area: side; display: grid; gap: 10px; }
-.optics-shot { transition: box-shadow 220ms ease; }
-.optics-shot.is-pass { box-shadow: 0 0 0 1.5px var(--status), 0 14px 34px -24px rgba(30, 26, 18, .55); }
-.optics-shot-images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.optics-shot-images figure, .optics-twin figure { margin: 0; }
-.optics-shot .image-view, .optics-twin .image-view { width: 100% !important; height: auto !important; aspect-ratio: 1; }
-.optics-shot figcaption, .optics-twin figcaption { display: flex; align-items: center; gap: 4px; }
-.optics-diff svg { color: var(--fail); }
-.optics-diff.is-pass svg { color: var(--status); }
-.optics-dial { margin: 0; }
-.optics-dial svg { width: 100%; max-width: 300px; height: auto; margin: 0 auto; display: block; cursor: crosshair; touch-action: none; user-select: none; -webkit-user-select: none; outline: none; }
-.optics-dial svg:focus-visible .optics-dial-sky { stroke: var(--accent); stroke-width: 2; }
-.optics-dial figcaption { text-align: center; }
-.optics-dial-sky { fill: var(--canvas); stroke: var(--rule); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
-.optics-dial-ring { fill: none; stroke: var(--rule); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
-.optics-dial-label { fill: var(--muted); font-size: 9.5px; text-anchor: middle; }
-.optics-dial-ridges { transform-box: fill-box; transform-origin: center; transition: transform 500ms cubic-bezier(.3, .7, .2, 1); }
-.optics-dial-ridges line { stroke: var(--rule); stroke-width: 6; opacity: .45; stroke-linecap: round; }
-.optics-lamp { fill: var(--accent); stroke: var(--ink); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
-.optics-lamp.is-dragging { stroke-width: 2.4; }
-.optics-lamp.is-ghost { fill: none; stroke: var(--muted); stroke-dasharray: 3 2; }
-.optics-lamp-arm { stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
-.optics-twin { grid-area: twin; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 16px; align-items: center; box-shadow: inset 0 0 0 1px var(--hairline), inset 3px 0 0 var(--accent); animation: optics-rise 320ms ease both; }
-.optics-twin > div { display: grid; gap: 6px; justify-items: start; }
-.optics-twin .bk-caption { margin: 0; }
-.optics-twin-head { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 16px; }
-.optics-twin-head svg { flex: none; color: var(--status); }
-.optics-twin.is-settled .optics-twin-head svg { color: var(--fail); }
-@keyframes optics-rise { from { opacity: 0; transform: translateY(6px); } }
-
 /* ---- 7-3 测距 ---- */
 .optics-range-scene { max-height: calc(100dvh - 150px); margin: 0 auto; }
 .optics-grid { stroke: var(--hairline); stroke-width: 1; vector-effect: non-scaling-stroke; }
@@ -122,11 +89,6 @@
   .optics-lower .bk-goal span { display: grid; line-height: 1.35; }
   .optics-goals .bk-goal b { min-width: 0; }
 
-  .optics-lambert { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: 'shots' 'side' 'twin'; }
-  .optics-shot-images { gap: 8px; }
-  .optics-dial svg { max-width: 236px; }
-  .optics-twin { grid-template-columns: 84px minmax(0, 1fr); gap: 12px; }
-  .optics-twin .bk-btn { width: 100%; }
 
   .optics-range-scene { max-height: none; }
   .optics-range .bk-goal span { display: grid; line-height: 1.35; }

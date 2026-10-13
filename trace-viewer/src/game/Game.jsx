@@ -169,7 +169,12 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   // The board and its test results change together: tests re-run whenever the wiring or a parameter
   // changes, but not while a card is only being dragged around.
   const [{ board, run }, setState] = useState(() => {
-    const initial = progress.boards[level.id] ?? startBoard(level)
+    // A saved circuit whose inputs and outputs no longer match the level (it was saved for a level
+    // that has since moved) would leave the player with the wrong cards; start fresh instead.
+    const saved = progress.boards[level.id]
+    const names = (type) => (saved?.nodes ?? []).filter((n) => n.type === type).map((n) => n.params.name).sort().join()
+    const fits = saved && names('input') === [...level.inputs].sort().join() && names('output') === [...level.outputs].sort().join()
+    const initial = fits ? saved : startBoard(level)
     return { board: initial, run: level.kind === 'graph' ? runLevel(level, initial) : null }
   })
   const [testIndex, setTestIndex] = useState(0)

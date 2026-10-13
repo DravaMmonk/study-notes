@@ -1,7 +1,8 @@
-// Chapter 3 (light and edges, lecture 5), the hands-on half, written for a player who has never
-// met computer vision: why a spot in a photo is as bright as it is (3-1), how shadow and paint mix
-// (3-2), what a gradient is (3-4), and what lighting changes do to edges (3-6). The existing levels
-// (3-3 朗伯台, 3-5 梯度大小, 3-7 关灯也认得) build on these.
+// Chapter 3 (light and edges, lecture 5), written for a player who has never met computer vision.
+// It follows the lecture: why a spot in a photo is as bright as it is (3-1), what a colour is to a
+// camera (3-2), why one brightness cannot tell which way a surface faces (3-3), how shadow and
+// paint mix (3-4), what a gradient is (3-5), and what lighting does to edges (3-7). 3-6 梯度大小 and
+// 3-8 关灯也认得 (in ch2-7.js) turn these into an edge detector.
 import { GLYPHS, correlate, fromFn, map, patterns as P, zip } from '../engine/image.js'
 import { build, test } from './util.js'
 
@@ -83,7 +84,159 @@ const tileLevel = {
   },
 }
 
-// ---------------- 3-2 阴影还是颜色 ----------------
+// ---------------- 3-2 颜色是三个数 ----------------
+
+// Light is a mix of wavelengths, 400–700 nm, here ten bands 30 nm wide. A camera has three kinds
+// of sensor (like the eye's three cones), each summing the light with its own sensitivity curve;
+// those three sums are all it keeps. Readings are scaled so an even, full spectrum reads (1, 1, 1).
+const BANDS = Array.from({ length: 10 }, (_, i) => 415 + 30 * i)
+const SENSORS = { R: [590, 35], G: [540, 38], B: [450, 28] }
+const CHANNELS = ['R', 'G', 'B']
+const sensitivity = (channel, nm) => Math.exp(-((nm - SENSORS[channel][0]) ** 2) / (2 * SENSORS[channel][1] ** 2))
+const CHANNEL_SUM = Object.fromEntries(CHANNELS.map((c) => [c, BANDS.reduce((sum, nm) => sum + sensitivity(c, nm), 0)]))
+const reading = (spectrum, lamp) => Object.fromEntries(CHANNELS.map((c) => [c, BANDS.reduce((sum, nm, b) => sum + spectrum[b] * (lamp?.[b] ?? 1) * sensitivity(c, nm), 0) / CHANNEL_SUM[c]]))
+const readingGap = (a, b) => Math.max(...CHANNELS.map((c) => Math.abs(a[c] - b[c])))
+const COLOUR_TOLERANCE = 0.03
+const YELLOW_BANDS = [5, 6] // 565 and 595 nm
+const LAMPS = [
+  { key: 'day', label: '日光', spectrum: BANDS.map(() => 1) },
+  { key: 'warm', label: '暖白灯', spectrum: BANDS.map((_, i) => 0.3 + (0.7 * i) / 9) },
+  { key: 'green', label: '绿色 LED', spectrum: BANDS.map((nm) => (nm === 505 || nm === 535 ? 1 : 0)) },
+  { key: 'red', label: '红色 LED', spectrum: BANDS.map((nm) => (nm === 625 || nm === 655 ? 1 : 0)) },
+]
+const SPLIT = 0.1 // how far apart two readings must be to look different
+const COLOUR_STAGES = [
+  {
+    title: '调出这个颜色',
+    note: '每根推杆是一种波长的光有多少，从紫到红。相机只记下 R、G、B 三个读数。把推杆调到三个读数和目标一样。',
+    target: [0, 0, 0, 0, 0.1, 0.4, 0.8, 0.9, 0.7, 0.5],
+    goal: 'match',
+  },
+  {
+    title: '没有黄光的黄色',
+    note: '目标是纯黄光（只有 565 nm 一种波长）。可黄色和橙色的推杆坏了，只能用别的光。能让相机看到同一个黄色吗？',
+    target: [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    locked: YELLOW_BANDS,
+    goal: 'match',
+  },
+  {
+    title: '换盏灯就露馅',
+    note: '上一步你调的光谱和纯黄光，在日光下相机分不出来。把它们当成两块布的颜色，换几盏灯照照看：哪盏灯下它们不一样了？',
+    target: [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    goal: 'split',
+  },
+]
+const colourPasses = (stage, spectrum, lamp = 'day') => {
+  if (stage.goal === 'match') return readingGap(reading(spectrum), reading(stage.target)) <= COLOUR_TOLERANCE && (stage.locked ?? []).every((b) => spectrum[b] === 0)
+  const light = LAMPS.find((l) => l.key === lamp).spectrum
+  return readingGap(reading(spectrum, light), reading(stage.target, light)) >= SPLIT
+}
+// A reference answer for the yellow made of green and red light, found by a small grid search.
+const yellowMetamer = (() => {
+  const target = reading(COLOUR_STAGES[1].target)
+  let best = null
+  const steps = Array.from({ length: 21 }, (_, i) => i * 0.05)
+  for (const g of steps) for (const r of steps) {
+    const spectrum = BANDS.map((nm) => (nm === 535 ? g : nm === 625 ? r : 0))
+    const gap = readingGap(reading(spectrum), target)
+    if (!best || gap < best.gap) best = { spectrum, gap }
+  }
+  return best.spectrum
+})()
+
+const colourLevel = {
+  id: '3-2',
+  kind: 'board',
+  board: 'ColorMatch',
+  chapter: 3,
+  title: '颜色是三个数',
+  brief: '光不是一种颜色，而是许多波长的混合（像彩虹那样从紫到红）。相机和人眼一样，只有三种感光元件，各自对一段波长敏感，最后只记下 R、G、B 三个数。用推杆调配光谱，看看这三个数丢掉了什么。',
+  hint: '看下面三条灵敏度曲线：每个读数是推杆高度乘上曲线、再加起来。黄光同时碰到了哪两条曲线？',
+  after: '整条光谱被压成 3 个数，许多完全不同的光谱会得到同样的 R、G、B，这叫同色异谱。屏幕就是靠这一点，用红光加绿光让你「看到」黄色。可是换一盏灯，物体反射回来的光谱变了，两块在日光下一样的布就可能不一样了。RGB、HSV、Lab 只是给这三个数换不同的坐标：比如 Lab 把明暗和颜色分开，想改颜色又不改明暗时就在 Lab 里调。',
+  requires: ['3-1'],
+  unlocks: [],
+  colour: { bands: BANDS, channels: CHANNELS, sensitivity, reading, gap: readingGap, tolerance: COLOUR_TOLERANCE, lamps: LAMPS, split: SPLIT, stages: COLOUR_STAGES, passes: colourPasses },
+  verify() {
+    const blank = BANDS.map(() => 0)
+    if (colourPasses(COLOUR_STAGES[0], blank)) return '第 1 步一开始就过了'
+    if (!colourPasses(COLOUR_STAGES[0], COLOUR_STAGES[0].target)) return '第 1 步的目标自己都对不上'
+    if (!colourPasses(COLOUR_STAGES[1], yellowMetamer)) return `没有黄光拼不出黄色（差 ${readingGap(reading(yellowMetamer), reading(COLOUR_STAGES[1].target)).toFixed(3)}）`
+    if (colourPasses(COLOUR_STAGES[1], COLOUR_STAGES[1].target)) return '黄光推杆没有锁住'
+    // In daylight the two must look the same; some other lamp must tell them apart.
+    if (colourPasses(COLOUR_STAGES[2], yellowMetamer, 'day')) return '日光下就分得开'
+    const splits = LAMPS.filter((l) => colourPasses(COLOUR_STAGES[2], yellowMetamer, l.key)).map((l) => l.key)
+    if (!splits.length) return '换哪盏灯都分不开'
+    return ''
+  },
+}
+
+// ---------------- 3-3 一个亮度不够 ----------------
+
+// A surface's facing (its normal) is drawn as a point on a disc seen from above: the centre faces
+// straight up, the rim faces sideways; (x, y) with x to the right and y down the screen. Lit by a
+// lamp from direction L, it reads max(0, N·L) (white paint, lamp strength 1).
+const lampDir = (azimuth, elevation) => [Math.cos(elevation * DEG) * Math.cos(azimuth * DEG), Math.cos(elevation * DEG) * Math.sin(azimuth * DEG), Math.sin(elevation * DEG)]
+const NORMAL_LAMPS = { A: { label: '左边的灯', dir: lampDir(180, 40) }, B: { label: '上边的灯', dir: lampDir(270, 40) } }
+const normalOf = ([x, y]) => [x, y, Math.sqrt(Math.max(0, 1 - x * x - y * y))]
+const shade = (point, lamp) => {
+  const n = normalOf(point)
+  const l = NORMAL_LAMPS[lamp].dir
+  return Math.max(0, n[0] * l[0] + n[1] * l[1] + n[2] * l[2])
+}
+const NORMAL_TRUTH = [-0.45, 0.35]
+const NORMAL_TOLERANCE = 0.02
+const PHOTO = { A: shade(NORMAL_TRUTH, 'A'), B: shade(NORMAL_TRUTH, 'B') }
+const NORMAL_STAGES = [
+  {
+    title: '对上亮度',
+    note: '盘上每一点代表一种朝向：中心是脸朝天，越往外越歪，边缘是朝着侧面。盘的明暗就是每种朝向在左灯下有多亮。拖动圆点，让这块表面在照片里的亮度对上。',
+    lamps: ['A'],
+  },
+  {
+    title: '再找一个',
+    note: '照片还是同一张。找一个和刚才很不一样的朝向，亮度也对得上。',
+    lamps: ['A'],
+    apart: 0.35,
+  },
+  {
+    title: '开第二盏灯',
+    note: '又从上边打了一盏灯拍了一张。现在两张照片的亮度都要对上：表面到底朝哪边？',
+    lamps: ['A', 'B'],
+  },
+]
+const insideDisc = ([x, y]) => x * x + y * y <= 0.97 * 0.97
+const normalPasses = (stage, point, first) =>
+  insideDisc(point) && stage.lamps.every((lamp) => Math.abs(shade(point, lamp) - PHOTO[lamp]) <= NORMAL_TOLERANCE) && (!stage.apart || !first || Math.hypot(point[0] - first[0], point[1] - first[1]) >= stage.apart)
+
+const normalLevel = {
+  id: '3-3',
+  kind: 'board',
+  board: 'NormalProbe',
+  chapter: 3,
+  title: '一个亮度不够',
+  brief: '一块白色的表面，我们只拍到了它在照片里有多亮。能不能反过来，算出它朝哪个方向？在「朝向盘」上拖动，试试看。',
+  hint: '盘上亮度一样的点连成一条线。你要找的朝向在那条线上的哪儿？第二盏灯给了第二条线。',
+  after: '一个亮度只告诉你表面和灯之间的夹角，满足这个夹角的朝向是一整圈（盘上那条等亮线），所以单张照片恢复不出唯一的朝向。从明暗推形状（shape from shading）必须靠额外的假设：颜色均匀、灯已知、表面平滑。换灯再拍一张，第二条等亮线和第一条相交，答案只剩一两个点；用三盏灯就能连颜色一起解出来，这叫光度立体。',
+  requires: ['3-2'],
+  unlocks: [],
+  normal: { lamps: NORMAL_LAMPS, photo: PHOTO, shade, stages: NORMAL_STAGES, tolerance: NORMAL_TOLERANCE, passes: normalPasses, start: [0, 0], truth: NORMAL_TRUTH },
+  verify() {
+    if (normalPasses(NORMAL_STAGES[0], [0, 0])) return '一开始就对上了'
+    // Sample the disc: one lamp must allow far-apart answers, two lamps only answers near the truth.
+    const grid = []
+    for (let x = -0.96; x <= 0.96; x += 0.02) for (let y = -0.96; y <= 0.96; y += 0.02) grid.push([x, y])
+    const one = grid.filter((p) => normalPasses(NORMAL_STAGES[0], p))
+    const spread = Math.max(...one.map((p) => Math.hypot(p[0] - NORMAL_TRUTH[0], p[1] - NORMAL_TRUTH[1])))
+    if (spread < 0.6) return `一盏灯的答案不够多（最远 ${spread.toFixed(2)}）`
+    const two = grid.filter((p) => normalPasses(NORMAL_STAGES[2], p))
+    if (!two.length) return '两盏灯都对上的点不存在'
+    const far = Math.max(...two.map((p) => Math.hypot(p[0] - NORMAL_TRUTH[0], p[1] - NORMAL_TRUTH[1])))
+    if (far > 0.12) return `两盏灯后还有别的答案（离真值 ${far.toFixed(2)}）`
+    return ''
+  },
+}
+
+// ---------------- 3-4 阴影还是颜色 ----------------
 
 const paint = {
   checker: P.checker(4, 0.3, 0.9),
@@ -108,15 +261,15 @@ const SHADOW_SCENES = [
 const shadowGraph = (nodes, wires) => build(nodes, wires, { inputs: ['photo', 'light'] })
 
 const shadowLevel = {
-  id: '3-2',
+  id: '3-4',
   chapter: 3,
   title: '阴影还是颜色',
   inputs: ['photo', 'light'],
   inputLabels: { photo: '照片', light: '光照' },
   brief: '照片里每一点的亮度 = 表面本来的颜色（反射率）× 照到那一点的光。第二个输入告诉你每一点照到多少光（1 是满光，阴影里少得多）。去掉阴影和明暗，只输出表面本来的颜色。',
   hint: '照片 = 颜色 × 光照。已知其中两个，怎样求第三个？减法行不行，看看阴影里的格子。',
-  after: '颜色 = 照片 ÷ 光照。注意第四张：一面纯色的墙，照片里却有一条很硬的边，那是阴影的边，不是物体的边。照片里的边缘只说明「这里亮度变了」，变的可能是颜色，也可能只是光。真实相机不会附送光照图，所以计算机视觉常常要猜光照，下一关就是一个这样的猜测游戏。',
-  requires: ['3-1'],
+  after: '颜色 = 照片 ÷ 光照。注意第四张：一面纯色的墙，照片里却有一条很硬的边，那是阴影的边，不是物体的边。照片里的边缘只说明「这里亮度变了」，变的可能是颜色，也可能只是光。真实相机不会附送光照图，而 3-3 说过单看亮度也猜不准光照，所以接下来的边缘检测要想办法不被光照带偏。',
+  requires: ['3-3'],
   unlocks: [],
   palette: ['divide', 'sub', 'mul', 'add', 'scale', 'offset'],
   check: { tolerance: 0.02 },
@@ -130,7 +283,7 @@ const shadowLevel = {
   ],
 }
 
-// ---------------- 3-4 坡有多陡 ----------------
+// ---------------- 3-5 坡有多陡 ----------------
 
 // Fields are smooth brightness landscapes over a 16 × 16 picture, f(x, y) with x right and y down.
 // The slope at a pixel is measured the way a filter would: half the difference of the two
@@ -186,7 +339,7 @@ const slopePasses = (stage, g) => {
 }
 
 const slopeLevel = {
-  id: '3-4',
+  id: '3-5',
   kind: 'board',
   board: 'GradientProbe',
   chapter: 3,
@@ -194,7 +347,7 @@ const slopeLevel = {
   brief: '把图像想成一片地形：越亮越高。图上有个十字，量出那里往右和往下各陡多少，合成一支箭头。这支箭头叫梯度。',
   hint: '只看一条剖面：曲线在十字那一点往上走还是往下走？走得多快？斜线贴住曲线时，它的斜率就是答案。',
   after: '梯度是一个箭头 (gx, gy)：gx 是往右每走一格亮度变多少，gy 是往下。箭头总指向变亮最快的方向（山坡上指向山顶），长度 √(gx² + gy²) 说明有多陡。在边上，箭头又长又垂直于边：边缘就是梯度很大的地方。你在第 1 章搭的横向差分和 Sobel，就是在每个像素同时量 gx 或 gy。',
-  requires: ['3-3'],
+  requires: ['3-4'],
   unlocks: [],
   slope: { knobs: SLOPE_KNOBS, stages: SLOPE_STAGES, fields: FIELDS, truth: slopeTruth, passes: slopePasses, tolerance: SLOPE_TOLERANCE },
   verify() {
@@ -222,7 +375,7 @@ const slopeLevel = {
   },
 }
 
-// ---------------- 3-6 整体变亮 ----------------
+// ---------------- 3-7 整体变亮 ----------------
 
 const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
 const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)
@@ -265,7 +418,7 @@ const photoMatches = (s, target) => Math.abs(s.a - target.a) < 1e-6 && Math.abs(
 const lightPasses = (stage, s) => (stage.goal === 'photo' ? photoMatches(s, stage.target) : sameMask(edgesOf(relit(s), s.t), ORIGINAL_EDGES))
 
 const changeLevel = {
-  id: '3-6',
+  id: '3-7',
   kind: 'board',
   board: 'LightChange',
   chapter: 3,
@@ -273,7 +426,7 @@ const changeLevel = {
   brief: '同一个物体，开灯、关灯、换个灯泡拍出来的照片都不一样。边缘检测要找的是物体的边，不该跟着灯变。看看两种灯光变化各对边缘做了什么。',
   hint: '剖面图里，加亮是把整条曲线往上抬，调暗是把曲线压扁。哪一种会改变曲线的「陡」？',
   after: '整体加亮（每个像素 + b）只把地形整体抬高，坡度一点没变，所以边缘图不受影响：梯度对加亮是不变的。灯变暗（每个像素 × a）把所有坡度都乘了 a，固定的门槛就会漏掉边。把门槛也乘 a 就修好了，但我们不知道 a 是多少。下一关的办法：用图里最陡的那条边当尺子，把所有坡度除以它，结果就和 a 无关了。',
-  requires: ['3-5'],
+  requires: ['3-6'],
   unlocks: [],
   change: { knobs: LIGHT_KNOBS, start: LIGHT_START, stages: LIGHT_STAGES, scene: SCENE, relit, edgesOf, gradmag, original: ORIGINAL_EDGES, originalT: ORIGINAL_T, passes: lightPasses },
   verify() {
@@ -302,4 +455,4 @@ const changeLevel = {
 }
 
 export const nodes = {}
-export const levels = [tileLevel, shadowLevel, slopeLevel, changeLevel]
+export const levels = [tileLevel, colourLevel, normalLevel, shadowLevel, slopeLevel, changeLevel]

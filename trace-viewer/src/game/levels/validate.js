@@ -4,6 +4,18 @@ import { runLevel } from '../engine/graph.js'
 import { LEVELS } from './index.js'
 
 let problems = 0
+const seen = new Set()
+for (const level of LEVELS) {
+  if (seen.has(level.id)) {
+    console.log(`${level.id}: FAIL duplicate id`)
+    problems += 1
+  }
+  seen.add(level.id)
+  for (const id of level.requires) if (!LEVELS.some((l) => l.id === id)) {
+    console.log(`${level.id}: FAIL requires missing level ${id}`)
+    problems += 1
+  }
+}
 for (const level of LEVELS) {
   if (level.kind !== 'graph') {
     // Boards and probes may export verify(): '' when the level is winnable and its lesson holds.

@@ -40,6 +40,8 @@
 .wv-bars.is-readonly .wv-bar { fill: var(--accent); }
 .wv-bars.is-readonly .wv-bar-shadow { fill: var(--rule); opacity: .55; }
 .wv-bar-track { fill: var(--hairline); }
+.is-locked .wv-bar-track { fill: none; stroke: var(--rule); stroke-dasharray: 3 3; }
+.is-locked .wv-bar-label { fill: var(--faint); text-decoration: line-through; }
 .wv-bar-shadow { fill: var(--line); }
 .wv-bar-cap { fill: var(--paper); stroke: var(--accent-ink); stroke-width: 1.4; transition: y 160ms ease; }
 .wv-bar-ghost { stroke: var(--status); stroke-width: 2.4; stroke-linecap: round; }

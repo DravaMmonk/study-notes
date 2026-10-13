@@ -115,7 +115,7 @@ export function Band({ curve, width = 600, height = 30, label }) {
 // A row of draggable bars, like the faders of a mixing desk. Dragging across columns paints them.
 // `values` and `ghosts` (outlines drawn behind, e.g. the true amplitudes) are arrays of numbers;
 // `under` optionally draws a small picture under each bar ({ x, y, w, h, index } → svg).
-export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, ghosts, shadows, width = 600, height = 220, under, readOnly, label, valueText }) {
+export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, ghosts, shadows, width = 600, height = 220, under, readOnly, label, valueText, locked = [] }) {
   const svg = useRef(null)
   const dragging = useRef(false)
   const [hot, setHot] = useState(null) // the column under the pointer, being dragged or focused
@@ -139,6 +139,7 @@ export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, 
     if (!where) return
     const { point, index } = where
     setHot(index)
+    if (locked.includes(index)) return
     const value = snap(min + (1 - (point.y - top) / span) * (max - min))
     if (Math.abs(value - values[index]) > 1e-9) onChange(index, value)
   }
@@ -186,15 +187,15 @@ export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, 
         const barW = Math.min(30, col * 0.56)
         const cx = x0 + col / 2
         return (
-          <g key={index}>
+          <g key={index} className={locked.includes(index) ? 'is-locked' : ''}>
             {!readOnly && <rect className="wv-bar-track" x={cx - 2} y={top} width={4} height={span} rx={2} />}
             {shadows && <rect className="wv-bar-shadow" x={cx - barW / 2 - 3} y={Math.min(y(shadows[index]), zero)} width={barW + 6} height={Math.abs(zero - y(shadows[index]))} rx={3} />}
             <rect className="wv-bar" x={cx - barW / 2} y={Math.min(y(v), zero)} width={barW} height={Math.max(0.5, Math.abs(zero - y(v)))} rx={3} />
             {ghosts && <line className="wv-bar-ghost" x1={cx - barW / 2 - 4} x2={cx + barW / 2 + 4} y1={y(ghosts[index])} y2={y(ghosts[index])} />}
-            {!readOnly && <rect className="wv-bar-cap" x={cx - barW / 2 - 2} y={y(v) - 3} width={barW + 4} height={6} rx={3} />}
+            {!readOnly && !locked.includes(index) && <rect className="wv-bar-cap" x={cx - barW / 2 - 2} y={y(v) - 3} width={barW + 4} height={6} rx={3} />}
             <text className="wv-bar-label" x={cx} y={height - foot + 16}>{labels?.[index] ?? index}</text>
             {under?.({ x: x0 + 4, y: height - foot + 22, w: col - 8, h: foot - 26, index })}
-            {!readOnly && (
+            {!readOnly && !locked.includes(index) && (
               <rect
                 className="wv-bar-hit"
                 x={x0}
@@ -218,7 +219,7 @@ export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, 
       })}
       {hot !== null && values[hot] !== undefined && (() => {
         const v = values[hot]
-        const text = shadows ? `${shadows[hot].toFixed(2)} → ${v.toFixed(2)}` : v.toFixed(2)
+        const text = locked.includes(hot) ? '不能用' : shadows ? `${shadows[hot].toFixed(2)} → ${v.toFixed(2)}` : v.toFixed(2)
         const w = text.length * 7 + 12
         const cx = Math.min(width - w / 2 - 2, Math.max(w / 2 + 2, hot * col + col / 2))
         const above = Math.min(y(v), zero, shadows ? y(shadows[hot]) : Infinity) - 8
