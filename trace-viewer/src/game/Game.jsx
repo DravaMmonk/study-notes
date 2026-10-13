@@ -84,7 +84,12 @@ export default function Game() {
             <button className={`bar-button rail-toggle ${showRail ? 'is-on' : ''}`} onClick={toggleRail} aria-pressed={showRail} aria-label="关卡列表"><PanelLeft size={16} /><span>关卡</span></button>
           </>
         ) : (
-          <a className="bar-button" href="./" aria-label="回到 Fieldnotes"><ArrowLeft size={16} /><span>Fieldnotes</span></a>
+          // Built on its own (npm run build:game) the game sits in game/ beside the MkDocs notes.
+          import.meta.env.MODE === 'game' ? (
+            <a className="bar-button" href="../" aria-label="回到学习笔记"><ArrowLeft size={16} /><span>笔记</span></a>
+          ) : (
+            <a className="bar-button" href="./" aria-label="回到 Fieldnotes"><ArrowLeft size={16} /><span>Fieldnotes</span></a>
+          )
         )}
         <span className="game-brand"><i className="brand-chip" aria-hidden="true" />视觉完备</span>
         {level && (

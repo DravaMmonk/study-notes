@@ -3,7 +3,7 @@
 // camera (3-2), why one brightness cannot tell which way a surface faces (3-3), how shadow and
 // paint mix (3-4), what a gradient is (3-5), and what lighting does to edges (3-7). 3-6 梯度大小 and
 // 3-8 关灯也认得 (in ch2-7.js) turn these into an edge detector.
-import { GLYPHS, correlate, fromFn, map, patterns as P, zip } from '../engine/image.js'
+import { GLYPHS, correlate, fromFn, map, patterns as P, random, zip } from '../engine/image.js'
 import { build, test } from './util.js'
 
 const DEG = Math.PI / 180
@@ -377,45 +377,74 @@ const slopeLevel = {
 
 // ---------------- 3-7 整体变亮 ----------------
 
+// One scene (an F with faint surface texture) photographed under four lightings. An edge detector
+// marks pixels whose slope is above a threshold; the right answer is the F's outline. Adding light
+// leaves every slope alone, dimming scales them all, so one fixed threshold cannot serve every
+// photo, until each photo's slopes are measured against its own steepest edge.
 const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
 const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)
 const gradmag = (img) => zip(correlate(img, SOBEL_X, 'edge'), correlate(img, SOBEL_Y, 'edge'), Math.hypot)
-const SCENE = P.glyph(GLYPHS.F, 0.15, 0.55)
-const relit = ({ a, b }) => map(SCENE, (v) => a * v + b)
-const edgesOf = (img, t) => map(gradmag(img), (v) => (v > t + 1e-9 ? 1 : 0))
-const ORIGINAL_T = 0.1
-const ORIGINAL_EDGES = edgesOf(SCENE, ORIGINAL_T)
-const sameMask = (m, n) => m.data.every((v, i) => v === n.data[i])
-const LIGHT_KNOBS = {
-  b: { label: '整体加亮 b', min: -0.2, max: 0.3, step: 0.05 },
-  a: { label: '对比度 a', min: 0.25, max: 1.5, step: 0.05 },
-  t: { label: '边缘门槛 t', min: 0.01, max: 0.2, step: 0.01 },
+const CLEAN = P.glyph(GLYPHS.F, 0.2, 0.6)
+const TEXTURE = (() => {
+  const next = random(17)
+  return fromFn(16, 16, () => (next() - 0.5) * 0.08)
+})()
+const SCENE = zip(CLEAN, TEXTURE, (a, b) => a + b)
+const TRUE_EDGES = (() => {
+  const g = gradmag(CLEAN)
+  const peak = Math.max(...g.data)
+  return map(g, (v) => (v > 0.5 * peak ? 1 : 0))
+})()
+const PHOTOS = [
+  { key: 'A', label: '原图', a: 1, b: 0 },
+  { key: 'B', label: '整体加亮 +0.25', a: 1, b: 0.25 },
+  { key: 'C', label: '灯暗到 40%', a: 0.4, b: 0 },
+  { key: 'D', label: '不知道灯怎么变了', a: 0.6, b: 0.15 },
+].map((p) => ({ ...p, img: map(SCENE, (v) => p.a * v + p.b) }))
+const MISS_ALLOWED = 3
+// Edges of a photo at an absolute threshold, or relative to its steepest slope when `relative`.
+const edgesAt = (img, t, relative) => {
+  const g = gradmag(img)
+  const peak = relative ? Math.max(...g.data) : 1
+  return map(g, (v) => (v / peak > t ? 1 : 0))
 }
-const LIGHT_START = { a: 1, b: 0, t: ORIGINAL_T }
-const LIGHT_STAGES = [
+const misses = (mask) => mask.data.reduce((n, v, i) => n + (v !== TRUE_EDGES.data[i] ? 1 : 0), 0)
+const CHANGE_STAGES = [
   {
-    title: '整体加亮',
-    note: '每个像素都加上同一个数 b，整张图变亮。让你的图和「目标照片」一样，同时盯住右边的边缘图。',
-    knobs: ['b'],
-    goal: 'photo',
-    target: { a: 1, b: 0.2 },
+    title: '加亮不怕',
+    note: '坡度大于门槛 t 的像素算作边。拖动 t，先让原图的边缘图和「要找的边」一样；再看看加亮的那张。',
+    photos: ['A', 'B'],
+    controls: ['t'],
   },
   {
-    title: '灯暗了一半',
-    note: '这次灯只有一半亮：每个像素都乘 a。让你的图和目标照片一样。边缘图怎么了？',
-    knobs: ['a', 'b'],
-    goal: 'photo',
-    target: { a: 0.5, b: 0 },
+    title: '灯暗了',
+    note: '灯暗到 40% 后，原来的门槛漏掉了很多边。给暗的那张单独一个门槛 tC，让三张都对。看看 tC 和 t 的比值。',
+    photos: ['A', 'B', 'C'],
+    controls: ['t', 'tC'],
   },
   {
-    title: '修好门槛',
-    note: '灯还是暗的，可我们要的边一条也不能少。只能动边缘门槛 t：坡度大于 t 的地方才算边。',
-    knobs: ['t'],
-    goal: 'edges',
+    title: '不知道灯怎么变',
+    note: '第四张照片，灯怎么变的没人告诉你。现在所有照片只能共用一个门槛。打开「用最陡的边当尺子」：每张图的坡度先除以它自己最陡的那一处，再比门槛。',
+    photos: ['A', 'B', 'C', 'D'],
+    controls: ['relative', 'r'],
   },
 ]
-const photoMatches = (s, target) => Math.abs(s.a - target.a) < 1e-6 && Math.abs(s.b - target.b) < 1e-6
-const lightPasses = (stage, s) => (stage.goal === 'photo' ? photoMatches(s, stage.target) : sameMask(edgesOf(relit(s), s.t), ORIGINAL_EDGES))
+const CHANGE_KNOBS = {
+  t: { label: '门槛 t', min: 0.01, max: 0.25, step: 0.005 },
+  tC: { label: '暗照片的门槛 tC', min: 0.01, max: 0.25, step: 0.005 },
+  r: { label: '门槛（占最陡的比例）', min: 0.05, max: 1, step: 0.01 },
+}
+const CHANGE_START = { t: 0.02, tC: 0.02, relative: false, r: 0.2 }
+// The threshold each photo is checked at, for a stage and the player's settings.
+const thresholdFor = (stage, key, s) => {
+  if (stage.controls.includes('relative')) return s.relative ? { t: s.r, relative: true } : { t: s.t, relative: false }
+  return { t: key === 'C' && stage.controls.includes('tC') ? s.tC : s.t, relative: false }
+}
+const photoOk = (stage, photo, s) => {
+  const { t, relative } = thresholdFor(stage, photo.key, s)
+  return misses(edgesAt(photo.img, t, relative)) <= MISS_ALLOWED
+}
+const changePasses = (stage, s) => stage.photos.every((key) => photoOk(stage, PHOTOS.find((p) => p.key === key), s))
 
 const changeLevel = {
   id: '3-7',
@@ -423,33 +452,30 @@ const changeLevel = {
   board: 'LightChange',
   chapter: 3,
   title: '整体变亮',
-  brief: '同一个物体，开灯、关灯、换个灯泡拍出来的照片都不一样。边缘检测要找的是物体的边，不该跟着灯变。看看两种灯光变化各对边缘做了什么。',
-  hint: '剖面图里，加亮是把整条曲线往上抬，调暗是把曲线压扁。哪一种会改变曲线的「陡」？',
-  after: '整体加亮（每个像素 + b）只把地形整体抬高，坡度一点没变，所以边缘图不受影响：梯度对加亮是不变的。灯变暗（每个像素 × a）把所有坡度都乘了 a，固定的门槛就会漏掉边。把门槛也乘 a 就修好了，但我们不知道 a 是多少。下一关的办法：用图里最陡的那条边当尺子，把所有坡度除以它，结果就和 a 无关了。',
+  brief: '边缘检测器的规则很简单：坡度大于门槛的像素就是边。可同一个物体，开灯、关灯拍出来的坡度不一样。你来定门槛，让四种灯光下都找出同一组边（字母 F 的轮廓），而不是表面的细纹。',
+  hint: '看下面的坡度剖面：加亮的那条和原图完全重合，暗的那条被压扁了。门槛太低会把细纹当成边，太高会漏掉真正的边。',
+  after: '整体加亮（每个像素 + b）只把地形整体抬高，坡度一点没变，所以同一个门槛照样能用：梯度对加亮是不变的。灯变暗（每个像素 × a）把所有坡度都乘了 a，门槛也得乘 a 才行，你在第二步看到 tC ÷ t ≈ 0.4。不知道 a 的时候，就用每张图里最陡的坡度当尺子：坡度 ÷ 最陡坡度和 a 无关，一个门槛就能管所有灯光。下一关把这把尺子搭成电路。',
   requires: ['3-6'],
   unlocks: [],
-  change: { knobs: LIGHT_KNOBS, start: LIGHT_START, stages: LIGHT_STAGES, scene: SCENE, relit, edgesOf, gradmag, original: ORIGINAL_EDGES, originalT: ORIGINAL_T, passes: lightPasses },
+  change: { knobs: CHANGE_KNOBS, start: CHANGE_START, stages: CHANGE_STAGES, photos: PHOTOS, truth: TRUE_EDGES, gradmag, edgesAt, misses, missAllowed: MISS_ALLOWED, thresholdFor, photoOk, passes: changePasses },
   verify() {
-    let state = { ...LIGHT_START }
-    for (const [index, stage] of LIGHT_STAGES.entries()) {
-      const label = `第 ${index + 1} 步`
-      if (lightPasses(stage, state)) return `${label}一开始就过了`
-      const grid = (key) => {
-        const k = LIGHT_KNOBS[key]
-        return Array.from({ length: Math.round((k.max - k.min) / k.step) + 1 }, (_, i) => Math.round((k.min + i * k.step) * 100) / 100)
-      }
-      if (stage.goal === 'photo') {
-        state = { ...state, ...stage.target }
-        if (!stage.knobs.every((key) => grid(key).some((v) => Math.abs(v - state[key]) < 1e-6))) return `${label}的目标不在刻度上`
-      } else {
-        const good = grid('t').filter((t) => lightPasses(stage, { ...state, t }))
-        if (!good.length) return `${label}没有能用的门槛`
-        if (good.includes(ORIGINAL_T)) return `${label}原来的门槛就能用`
-        state = { ...state, t: good[0] }
-      }
-      if (index === 0 && !sameMask(edgesOf(relit(state), ORIGINAL_T), ORIGINAL_EDGES)) return '加亮改变了边缘图'
-      if (index === 1 && sameMask(edgesOf(relit(state), ORIGINAL_T), ORIGINAL_EDGES)) return '灯暗了边缘图却没变'
+    const grid = (key) => {
+      const k = CHANGE_KNOBS[key]
+      return Array.from({ length: Math.round((k.max - k.min) / k.step) + 1 }, (_, i) => Math.round((k.min + i * k.step) * 1000) / 1000)
     }
+    const [one, two, three] = CHANGE_STAGES
+    if (changePasses(one, CHANGE_START)) return '第 1 步一开始就过了'
+    const good1 = grid('t').filter((t) => changePasses(one, { ...CHANGE_START, t }))
+    if (!good1.length) return '第 1 步没有能用的门槛'
+    // Brightening never changes the answer: A and B agree at every threshold.
+    if (grid('t').some((t) => photoOk(one, PHOTOS[0], { t }) !== photoOk(one, PHOTOS[1], { t }))) return '加亮改变了边缘图'
+    // Step 2: one threshold cannot serve A and C, two can.
+    if (grid('t').some((t) => changePasses(two, { ...CHANGE_START, t, tC: t }))) return '第 2 步一个门槛就够了'
+    const pairs = good1.flatMap((t) => grid('tC').filter((tC) => changePasses(two, { ...CHANGE_START, t, tC })).map((tC) => tC / t))
+    if (!pairs.length) return '第 2 步没有能用的两个门槛'
+    // Step 3: without the ruler no single threshold works; with it, some do.
+    if (grid('t').some((t) => changePasses(three, { ...CHANGE_START, relative: false, t }))) return '第 3 步不用尺子也能过'
+    if (!grid('r').some((r) => changePasses(three, { ...CHANGE_START, relative: true, r }))) return '第 3 步用了尺子也过不了'
     return ''
   },
 }

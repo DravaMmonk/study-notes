@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:game": "vite build --config vite.game.config.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "levels": "node src/game/levels/validate.js"

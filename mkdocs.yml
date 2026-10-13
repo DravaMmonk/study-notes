@@ -41,6 +41,9 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
 
+hooks:
+  - hooks/vision_complete.py
+
 plugins:
   - search
   - awesome-pages

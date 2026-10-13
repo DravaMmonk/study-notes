@@ -90,14 +90,21 @@
 .gp-tangent circle { fill: var(--paper); stroke: var(--accent-ink); stroke-width: 2; }
 .gp-locked { opacity: .45; }
 
-/* 3-6 整体变亮 */
-.lc-pictures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.lc-pictures figure { position: relative; margin: 0; }
-.lc-pictures .image-view { width: 100% !important; height: auto !important; aspect-ratio: 1; border-radius: 8px; }
-.lc-pictures .bk-caption.is-fail { color: var(--fail); }
-.lc-row { position: absolute; left: 0; right: 0; height: 2px; margin-top: -1px; background: var(--accent); pointer-events: none; }
+/* 3-7 整体变亮 */
+.lc-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 10px; }
+.lc-card { margin: 0; padding: 10px; display: grid; gap: 6px; align-content: start; border-radius: 12px; background: var(--canvas); transition: box-shadow 200ms ease; }
+.lc-card .bk-label { margin: 0; }
+.lc-card.is-truth { justify-items: start; }
+.lc-card.is-pass { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--status) 45%, transparent); }
+.lc-card .image-view { border-radius: 6px; }
+.lc-pair { display: flex; gap: 6px; }
+.lc-verdict { display: flex; align-items: center; gap: 5px; font-size: 12px; }
+.lc-verdict.is-pass { color: var(--status); }
+.lc-verdict.is-fail { color: var(--fail); }
+.lc-verdict small { margin-left: auto; color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
 .lc-threshold line { stroke: var(--ink); stroke-dasharray: 6 5; opacity: .6; }
 .lc-threshold text { fill: var(--muted); font-family: var(--mono); font-size: 11px; }
+.lc-ruler { margin-bottom: 4px; font-weight: 500; }
 
 @media (max-width: 1100px) {
 }
@@ -105,7 +112,6 @@
 @media (max-width: 760px) {
   .cm-swatches { grid-template-columns: minmax(0, 1fr); }
   .lt-tiles.is-2 .lt-body, .lt-tiles.is-3 .lt-body { grid-template-columns: minmax(0, 120px) minmax(0, 1fr); gap: 10px; }
-  .lc-pictures { gap: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
