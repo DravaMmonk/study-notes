@@ -1,9 +1,10 @@
 import { createElement, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Maximize, Minus, Plus, Trash2, X } from 'lucide-react'
+import { Activity, Gauge, Hash, Maximize, Minus, Plus, Trash2, X } from 'lucide-react'
 import { wouldCycle } from '../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../engine/nodes.js'
 import { familyOf, iconOf } from './catalog.js'
-import ImageView from './ImageView.jsx'
+import ValueView from './views/ValueView.jsx'
+import { IMAGE_VIEWS, kindOf, nextView } from './views/views.js'
 
 // The board: parts are cards, wires run from a card's output (right) to another card's input (left).
 // Every card shows what it outputs for the selected test, so the player watches the image flow.
@@ -27,7 +28,7 @@ const curve = ([x1, y1], [x2, y2]) => {
 const PORT_LABELS = { a: 'a', b: 'b', in: '', left: '左', right: '右', c0: 'd=0', c1: 'd=1', c2: 'd=2', c3: 'd=3' }
 const clampZoom = (z) => Math.min(1.5, Math.max(0.35, Math.round(z * 100) / 100))
 
-export default function Editor({ graph, onChange, run, testIndex, flags, inputLabels, theme, touch, hasPalette }) {
+export default function Editor({ graph, onChange, run, testIndex, flags, inputLabels, outputLabels, views, ioKinds, theme, touch, hasPalette }) {
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   const [selected, setSelected] = useState(null)
   const [drag, setDrag] = useState(null)
@@ -214,6 +215,18 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
     window.addEventListener('pointerup', up)
   }
 
+  // How a card draws a 2-D value is the card's own choice, starting from the level's default for
+  // its role. Switching view changes nothing in the circuit, so it is not saved as a move.
+  const roleOf = (node) => (node.type === 'input' ? 'in' : node.type === 'output' ? 'out' : 'mid')
+  const viewOf = (node) => node.view ?? views?.[roleOf(node)] ?? 'pixels'
+  const setNodeView = (node, shown) => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, view: shown } : n)) }, { quiet: true })
+  const ioIcon = (node) => {
+    const kind = ioKinds?.[node.params.name]
+    if (kind === 'signal') return Activity
+    if (kind === 'number') return node.type === 'input' ? Hash : Gauge
+    return iconOf(node.type)
+  }
+
   const setParam = (node, key, value) => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
   const centre = () => {
@@ -258,7 +271,8 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
           const value = values?.get(node.id)
           const error = errors?.get(node.id)
           const ports = inputsOf(node.type)
-          const title = node.type === 'input' ? inputLabels?.[node.params.name] ?? '相机' : node.type === 'output' ? '显示屏' : spec.label
+          const title = node.type === 'input' ? inputLabels?.[node.params.name] ?? '相机' : node.type === 'output' ? outputLabels?.[node.params.name] ?? '显示屏' : spec.label
+          const shown = viewOf(node)
           const outputCheck = node.type === 'output' ? run?.results[testIndex]?.checks.find((c) => c.name === node.params.name) : null
           return (
             <div
@@ -269,7 +283,7 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
               style={{ left: node.x, top: node.y, width: NODE_W }}
             >
               <div className="node-head" onPointerDown={(e) => beginMove(e, node)}>
-                <i className="family-chip">{createElement(iconOf(node.type), { size: 12, strokeWidth: 1.8 })}</i>
+                <i className="family-chip">{createElement(spec.fixed ? ioIcon(node) : iconOf(node.type), { size: 12, strokeWidth: 1.8 })}</i>
                 <span className="node-title">{title}</span>
                 {outputCheck && <em className="node-verdict">{outputCheck.pass ? '通过' : '未通过'}</em>}
                 {!spec.fixed && (
@@ -291,7 +305,12 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
                 <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => setParam(node, param.key, v)} />
               ))}
               <div className="node-preview">
-                {error ? <span className="node-error">{error}</span> : <ImageView img={value} size={NODE_W - 22} theme={theme} label="未连接" grid onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
+                {error ? <span className="node-error">{error}</span> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label="未连接" grid onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
+                {!error && kindOf(value) === 'image' && (
+                  <button className="node-view" title={`显示：${IMAGE_VIEWS[shown].label}，点击换成${IMAGE_VIEWS[nextView(shown)].label}`} aria-label={`显示方式：${IMAGE_VIEWS[shown].label}`} onPointerDown={(e) => e.stopPropagation()} onClick={() => setNodeView(node, nextView(shown))}>
+                    {createElement(IMAGE_VIEWS[shown].icon, { size: 12, strokeWidth: 1.8 })}
+                  </button>
+                )}
               </div>
               {peek?.id === node.id && <p className="node-peek">({peek.x}, {peek.y}) = {peek.value.toFixed(3)}</p>}
             </div>

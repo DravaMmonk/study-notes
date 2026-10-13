@@ -46,6 +46,7 @@ const lit = (img, gain, offset) => map(img, (v) => v * gain + offset)
 export const chapter3 = [
   {
     id: '3-1',
+    views: { in: 'slope', out: 'terrain', mid: 'terrain' },
     chapter: 3,
     title: '梯度大小',
     brief: '不管边是横的、竖的还是斜的，都输出它有多“陡”：√(Gx² + Gy²)。',
@@ -59,6 +60,7 @@ export const chapter3 = [
   },
   {
     id: '3-2',
+    views: { in: 'slope', out: 'pixels', mid: 'terrain' },
     chapter: 3,
     title: '关灯也认得',
     brief: '同一个物体在不同灯光下拍了几次。每次都要标出同一组最强的边。',
@@ -142,6 +144,7 @@ const cornerMask = (img) => map(harrisResponse(img), (v) => (v > HARRIS_T ? 1 : 
 export const chapter6 = [
   {
     id: '6-1',
+    views: { in: 'slope', out: 'pixels', mid: 'terrain' },
     chapter: 6,
     title: '角点',
     brief: '只在角上输出 1。直边、平坦处都是 0。',
@@ -212,6 +215,7 @@ export const chapter7 = [
     const pairs = [11, 12, 13].map((seed) => stereoPair(seed, inSquare, 2, 0.1))
     return {
       id: '7-1',
+      views: { out: 'terrain' },
       chapter: 7,
       title: '找视差',
       inputs: ['left', 'right'],
@@ -236,6 +240,7 @@ export const chapter7 = [
     ]
     return {
       id: '7-2',
+      views: { out: 'terrain' },
       chapter: 7,
       title: '窗口多大',
       inputs: ['left', 'right'],

@@ -12,6 +12,7 @@ import TestPanel from './ui/TestPanel.jsx'
 import { boardFor } from './ui/boards/index.js'
 import { describe, familyOf, iconOf } from './ui/catalog.js'
 import { PHONE, useMedia } from './ui/useMedia.js'
+import { SINK_NAMES, SOURCE_NAMES, kindOf, viewFor } from './ui/views/views.js'
 
 const THEMES = [
   ['paper', '纸面', Sun],
@@ -129,7 +130,11 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   const [sheet, setSheet] = useState(false)
   const announced = useRef(progress.solved.includes(level.id))
   const flags = useMemo(() => new Set([...progress.flags, ...(level.grants ?? [])]), [progress.flags, level.grants])
-  const inputLabels = level.inputLabels ?? (level.inputs.length > 1 ? { left: '左图', right: '右图', scene: '现场', empty: '空场' } : { in: '相机' })
+  // The fixed cards are named and drawn by what they carry: a picture, a waveform or a number.
+  const ioKinds = level.kind === 'graph' ? Object.fromEntries([...Object.entries(level.tests[0].inputs), ...Object.entries(level.tests[0].expected)].map(([name, value]) => [name, kindOf(value)])) : {}
+  const inputLabels = level.inputLabels ?? (level.inputs.length > 1 ? { left: '左图', right: '右图', scene: '现场', empty: '空场' } : { in: SOURCE_NAMES[ioKinds.in] ?? '相机' })
+  const outputLabels = level.outputLabels ?? Object.fromEntries(level.outputs.map((name) => [name, SINK_NAMES[ioKinds[name]] ?? '显示屏']))
+  const views = { in: viewFor(level, 'in'), out: viewFor(level, 'out'), mid: viewFor(level, 'mid') }
 
   const solve = (score) => {
     setProgress((p) => {
@@ -248,7 +253,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
       {level.kind === 'graph' ? (
         <>
           <div className="board-pane" data-pane="board">
-            <Editor graph={board} onChange={change} run={run} testIndex={testIndex} flags={flags} inputLabels={inputLabels} theme={theme} touch={phone} hasPalette={level.palette.length > 0} />
+            <Editor graph={board} onChange={change} run={run} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} theme={theme} touch={phone} hasPalette={level.palette.length > 0} />
             {phone && level.palette.length > 0 && (
               <button className="fab" onClick={() => setSheet(true)} aria-label="添加元件"><Plus size={22} /></button>
             )}
@@ -258,7 +263,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
               </button>
             )}
           </div>
-          <TestPanel level={level} run={run} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} theme={theme} />
+          <TestPanel level={level} run={run} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} views={views} theme={theme} />
         </>
       ) : level.kind === 'board' ? (
         <div className="play-pane" data-pane="play">

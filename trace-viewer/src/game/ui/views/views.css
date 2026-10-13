@@ -1,0 +1,37 @@
+/* Value views: readouts, waveforms, terrains and slope maps (see views.js). */
+.terrain-view, .slope-view, .curve-view { display: block; max-width: 100%; }
+.slope-view { border-radius: 4px; image-rendering: auto; }
+
+.number-view { min-height: 64px; display: grid; place-items: center; border-radius: 8px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.number-view b { font-family: var(--mono); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink); }
+
+.curve-view { border-radius: 6px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); overflow: visible; }
+.curve-floor { stroke: var(--hairline); }
+.curve-zero { stroke: var(--rule); stroke-dasharray: 2 3; }
+.curve-line { fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linejoin: round; }
+.curve-dot { fill: var(--accent); }
+.curve-expected { fill: none; stroke: var(--ink); stroke-width: 1.3; stroke-dasharray: 4 3; opacity: .7; }
+.curve-band { fill: color-mix(in srgb, var(--status) 16%, transparent); stroke: none; }
+
+.number-compare { display: grid; gap: 10px; }
+.number-pair { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.number-pair div { padding: 8px 10px; display: grid; gap: 2px; border-radius: 10px; background: var(--paper); }
+.number-pair span { color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
+.number-pair b { font-family: var(--mono); font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.number-compare.is-fail .number-pair div:nth-child(3) b { color: var(--fail); }
+.number-compare.is-pass .number-pair div:nth-child(3) b { color: var(--status); }
+.number-scale { position: relative; height: 18px; border-radius: 9px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.number-band { position: absolute; top: 3px; bottom: 3px; border-radius: 6px; background: color-mix(in srgb, var(--status) 28%, transparent); }
+.number-mark { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1.5px; border-radius: 2px; transition: left 240ms ease; }
+.number-mark.is-expected { background: var(--ink); opacity: .55; }
+.number-mark.is-actual { background: var(--accent); }
+.number-legend { margin: 0; color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+
+/* The view switch on 2-D cards and test blocks. */
+.view-switch { display: inline-flex; gap: 1px; padding: 2px; border-radius: 8px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.view-switch button { min-width: 26px; height: 22px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 0; border-radius: 6px; color: var(--muted); background: transparent; font: inherit; font-size: 11px; cursor: pointer; }
+.view-switch button[aria-pressed='true'] { color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--rule); }
+
+@media (prefers-reduced-motion: reduce) {
+  .number-mark { transition: none; }
+}

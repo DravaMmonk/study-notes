@@ -148,6 +148,7 @@ export const chapter1 = [
   },
   {
     id: '1-3',
+    views: { out: 'terrain' },
     chapter: 1,
     title: '更圆的模糊',
     brief: '做出和目标一样的柔和模糊（σ ≈ 1.4 的高斯）。手里只有 3×3 平均。',
@@ -163,6 +164,7 @@ export const chapter1 = [
   },
   {
     id: '1-4',
+    views: { in: 'slope', out: 'terrain', mid: 'terrain' },
     chapter: 1,
     title: '台阶在哪',
     brief: '在亮度突然变化的地方输出变化量：输出 = 右边邻居 − 自己。',
@@ -175,6 +177,7 @@ export const chapter1 = [
   },
   {
     id: '1-5',
+    views: { in: 'slope', out: 'terrain', mid: 'terrain' },
     chapter: 1,
     title: '有噪声的边',
     brief: '照片里有噪声。只在真正的台阶处输出 1（台阶都是左暗右亮）。',
@@ -223,6 +226,7 @@ export const chapter1 = [
   },
   {
     id: '1-8',
+    views: { in: 'terrain', out: 'terrain', mid: 'terrain' },
     chapter: 1,
     title: '锐化',
     brief: '让细节更清楚：输出 = 原图 + 1.5 ×（原图 − 模糊图）。模糊用 σ = 1、复制边缘。',

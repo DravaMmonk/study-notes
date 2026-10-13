@@ -194,7 +194,10 @@
 .param-kernel { margin: 6px 10px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
 .param-kernel input, .param-kernel output { width: 100%; min-width: 0; height: 24px; padding: 0 2px; border: 0; border-radius: 4px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--mono); font-size: 10.5px; text-align: center; line-height: 24px; }
 .param-kernel.is-learned output { color: var(--ink); background: color-mix(in srgb, var(--fam-learned) calc(var(--w) * 30%), var(--canvas)); }
-.node-preview { margin: 9px 11px 0; min-height: 40px; display: grid; place-items: center; }
+.node-preview { position: relative; margin: 9px 11px 0; min-height: 40px; display: grid; place-items: center; }
+.node-view { position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 7px; color: var(--ink); background: color-mix(in srgb, var(--paper) 86%, transparent); box-shadow: 0 0 0 1px var(--rule); cursor: pointer; opacity: .85; transition: opacity 160ms ease; }
+.node-view:hover { opacity: 1; }
+.is-phone .node-view, .node-view:focus-visible { opacity: 1; }
 .node-peek { margin: 4px 11px 0; color: var(--muted); font-family: var(--mono); font-size: 10px; font-variant-numeric: tabular-nums; }
 .node-error { padding: 16px 0; color: var(--faint); font-size: 11px; }
 @keyframes card-in { from { opacity: 0; transform: translateY(6px) scale(.97); } }
@@ -228,6 +231,16 @@
 .test-detail { display: grid; gap: 14px; animation: rise-in 200ms ease; }
 .test-block { padding: 12px; border-radius: 12px; background: var(--canvas); }
 .test-block.is-pass { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--status) 40%, transparent); }
+.test-block-head { margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.test-block-head .test-block-label { margin: 0; }
+.test-images.is-wide, .test-images.is-inputs.is-wide { grid-template-columns: minmax(0, 1fr); }
+.test-images .curve-view, .test-images .terrain-view, .test-images .slope-view, .test-images .number-view, .test-curve .curve-view { width: 100% !important; height: auto !important; }
+.test-images .slope-view { aspect-ratio: 1; }
+.test-curve { margin: 0; }
+.test-curve figcaption { margin-top: 6px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; color: var(--muted); font-family: var(--mono); font-size: 10px; }
+.test-curve figcaption i { width: 14px; height: 0; border-top: 2px solid var(--accent); }
+.test-curve figcaption i.is-expected { border-top: 2px dashed var(--ink); opacity: .7; }
+.test-curve figcaption i.is-band { height: 8px; border: 0; border-radius: 2px; background: color-mix(in srgb, var(--status) 22%, transparent); }
 .test-block-label { display: block; margin-bottom: 8px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .14em; }
 .test-images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: start; }
 .test-images figure { margin: 0; }

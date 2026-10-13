@@ -97,7 +97,9 @@ export function compare(actual, expected, { tolerance = 0.02, mismatches = 0 } =
     worst = Math.max(worst, Number.isFinite(error) ? error : Infinity)
     if (!(error <= tolerance)) wrong += 1
   }
-  return { pass: wrong <= mismatches, wrong, worst, reason: wrong <= mismatches ? '' : `${wrong} 个像素超出容差` }
+  const unit = expected.w * expected.h === 1 ? null : expected.h === 1 ? '个采样点' : '个像素'
+  const reason = wrong <= mismatches ? '' : unit ? `${wrong} ${unit}超出容差` : `读数差了 ${worst.toFixed(3)}，超出容差 ${tolerance}`
+  return { pass: wrong <= mismatches, wrong, worst, reason }
 }
 
 // ---------- the test-image library ----------

@@ -15,27 +15,25 @@ const TAU = 2 * Math.PI
 export const nodes = {
   fqWave: {
     label: '波',
-    description: '一张 32×32 的波：cos 或 sin(2π(kx·x + ky·y)/32)，取值 −1…1',
+    description: '一道 32 个点的波：cos 或 sin(2π·k·x/32)，在 −1 和 1 之间摆动',
     inputs: [],
     params: [
-      { key: 'kx', label: 'kx', kind: 'number', min: 0, max: 8, step: 1, default: 1 },
-      { key: 'ky', label: 'ky', kind: 'number', min: -8, max: 8, step: 1, default: 0 },
+      { key: 'k', label: '频率 k', kind: 'number', min: 0, max: 16, step: 1, default: 1 },
       { key: 'form', label: '形状', kind: 'select', options: [['cos', 'cos'], ['sin', 'sin']], default: 'cos' },
     ],
     eval: (_, p) => {
-      const kx = Number(p.kx ?? 1)
-      const ky = Number(p.ky ?? 0)
+      const k = Number(p.k ?? 1)
       const f = p.form === 'sin' ? Math.sin : Math.cos
-      return fromFn(N, N, (x, y) => f((TAU * (kx * x + ky * y)) / N))
+      return fromFn(N, 1, (x) => f((TAU * k * x) / N))
     },
     cost: 2,
     unlock: 'wave',
   },
   fqMean: {
-    label: '全图平均',
-    description: '整张图填满它所有像素的平均值',
+    label: '求平均',
+    description: '把一列数平均成一个数',
     inputs: ['in'],
-    eval: ({ in: a }) => image(a.w, a.h, a.data.reduce((sum, v) => sum + v, 0) / a.data.length),
+    eval: ({ in: a }) => image(1, 1, a.data.reduce((sum, v) => sum + v, 0) / a.data.length),
     cost: 1,
   },
 }
@@ -200,46 +198,48 @@ const mixerLevel = {
 
 // ---------------- 2-3 频率探针 ----------------
 
-const waveX = (k, A, phase = 0) => fromFn(N, N, (x) => A * Math.cos((TAU * k * x) / N + (phase * Math.PI) / 180))
-const waveY = (k, A, phase = 0) => fromFn(N, N, (x, y) => A * Math.cos((TAU * k * y) / N + (phase * Math.PI) / 180))
-const sum = (...images) => images.reduce((a, b) => zip(a, b, (p, q) => p + q))
-const flat = (v) => image(N, N, v)
+// Signals are rows of 32 samples; the answer is a single number.
+const wave = (k, A, phase = 0) => fromFn(N, 1, (x) => A * Math.cos((TAU * k * x) / N + (phase * Math.PI) / 180))
+const sum = (...rows) => rows.reduce((a, b) => zip(a, b, (p, q) => p + q))
+const flat = (v) => image(N, 1, v)
 const PROBE_SCENES = [
-  ['A', [flat(0.5), waveX(3, 0.3), waveX(1, 0.1)], 0.3],
-  ['B', [flat(0.5), waveX(3, 0.2, 90), waveX(5, 0.15)], 0.2],
-  ['C', [flat(0.45), waveX(3, 0.25, 200), waveY(2, 0.1)], 0.25],
-  ['D', [flat(0.5), waveX(5, 0.3), waveX(1, 0.1, 60)], 0],
-  ['E', [flat(0.5), waveX(3, 0.15, 45), waveY(3, 0.12), waveX(4, 0.1)], 0.15],
+  ['A', [flat(0.5), wave(3, 0.3), wave(1, 0.1)], 0.3],
+  ['B', [flat(0.5), wave(3, 0.2, 90), wave(5, 0.15)], 0.2],
+  ['C', [flat(0.45), wave(3, 0.25, 200), wave(2, 0.1)], 0.25],
+  ['D', [flat(0.5), wave(5, 0.3), wave(1, 0.1, 60)], 0],
+  ['E', [flat(0.5), wave(3, 0.15, 45), wave(6, 0.12), wave(4, 0.1)], 0.15],
 ]
 const probe = (nodes, wires) => build(nodes, wires)
-const wave = (kx, form = 'cos', ky = 0) => ['fqWave', { kx, ky, form }]
+const osc = (k, form = 'cos') => ['fqWave', { k, form }]
+const fullProbe = (k) => probe(
+  { c: osc(k), s: osc(k, 'sin'), mc: 'mul', ms: 'mul', ac: 'fqMean', as: 'fqMean', qc: 'square', qs: 'square', t: 'add', r: 'sqrt', g: ['scale', { k: 2 }] },
+  ['in>mc.a', 'c>mc.b', 'in>ms.a', 's>ms.b', 'mc>ac', 'ms>as', 'ac>qc', 'as>qs', 'qc>t.a', 'qs>t.b', 't>r', 'r>g', 'g>out'],
+)
 
 const probeLevel = {
   id: '2-3',
   chapter: 2,
   title: '频率探针',
-  brief: '每张测试图里藏着一道横向频率 kx = 3 的波（有一张没有），混在别的波和平均亮度里。测出它的振幅 A，整张图都填这个数。',
-  hint: '把图和一道 kx = 3 的波逐点相乘再求平均：同频率的部分正负同号、留了下来，别的频率正负相抵。可藏着的波要是错开了位置呢？',
-  after: '这就是傅里叶变换：拿每个频率的 cos 和 sin 去和图逐点相乘、求平均。两个读数 a、b 合起来，振幅是 2·√(a² + b²)，和波错开多少无关；错开多少（相位）是 atan2(b, a)。只用 cos 的探针会把错开 90° 的波量成 0。「频谱」元件就是对每一个 (kx, ky) 都做一次你刚搭的探针，把测到的振幅画在 (kx, ky) 那一格：中心是 (0, 0)，也就是平均亮度。',
+  brief: '信号源送来一条 32 个点的波形，由几道波和一个平均亮度叠成。读出其中频率 k = 3 那道波的振幅 A，输出一个数。有一条波形里根本没有 k = 3。',
+  hint: '把波形和一道 k = 3 的波逐点相乘，再求平均：同频率的部分正负同号、留了下来，别的频率正负相抵。可藏着的波要是错开了位置呢？',
+  after: '这就是傅里叶变换：拿每个频率的 cos 和 sin 去和信号逐点相乘、求平均。两个读数 a、b 合起来，振幅是 2·√(a² + b²)，和波错开多少无关；错开多少（相位）是 atan2(b, a)。只用 cos 的探针会把错开 90° 的波量成 0。图像也一样，只是波有两个方向：「频谱」元件对每一个 (kx, ky) 都做一次你刚搭的探针，把测到的振幅画在 (kx, ky) 那一格，中心是 (0, 0)，也就是平均亮度。',
   requires: ['2-2'],
   unlocks: ['spectrum'],
   palette: ['fqWave', 'mul', 'fqMean', 'square', 'sqrt', 'add', 'scale'],
   check: { tolerance: 0.01 },
-  tests: PROBE_SCENES.map(([label, parts, A]) => test(`图 ${label}`, { in: sum(...parts) }, { out: flat(A) })),
-  solution: probe(
-    { c: wave(3), s: wave(3, 'sin'), mc: 'mul', ms: 'mul', ac: 'fqMean', as: 'fqMean', qc: 'square', qs: 'square', t: 'add', r: 'sqrt', k: ['scale', { k: 2 }] },
-    ['in>mc.a', 'c>mc.b', 'in>ms.a', 's>ms.b', 'mc>ac', 'ms>as', 'ac>qc', 'as>qs', 'qc>t.a', 'qs>t.b', 't>r', 'r>k', 'k>out'],
-  ),
+  inputLabels: { in: '信号源' },
+  tests: PROBE_SCENES.map(([label, parts, A]) => test(`波形 ${label}`, { in: sum(...parts) }, { out: image(1, 1, A) })),
+  solution: fullProbe(3),
   // The first probe everyone builds: multiply by a cosine, average, double. It misses shifted waves.
-  naive: probe({ c: wave(3), m: 'mul', a: 'fqMean', k: ['scale', { k: 2 }] }, ['in>m.a', 'c>m.b', 'm>a', 'a>k', 'k>out']),
+  naive: probe({ c: osc(3), m: 'mul', a: 'fqMean', g: ['scale', { k: 2 }] }, ['in>m.a', 'c>m.b', 'm>a', 'a>g', 'g>out']),
   alsoFails: [
     // Right idea, forgot that the average of cos² is ½.
-    probe({ c: wave(3), s: wave(3, 'sin'), mc: 'mul', ms: 'mul', ac: 'fqMean', as: 'fqMean', qc: 'square', qs: 'square', t: 'add', r: 'sqrt' }, ['in>mc.a', 'c>mc.b', 'in>ms.a', 's>ms.b', 'mc>ac', 'ms>as', 'ac>qc', 'as>qs', 'qc>t.a', 'qs>t.b', 't>r', 'r>out']),
+    probe({ c: osc(3), s: osc(3, 'sin'), mc: 'mul', ms: 'mul', ac: 'fqMean', as: 'fqMean', qc: 'square', qs: 'square', t: 'add', r: 'sqrt' }, ['in>mc.a', 'c>mc.b', 'in>ms.a', 's>ms.b', 'mc>ac', 'ms>as', 'ac>qc', 'as>qs', 'qc>t.a', 'qs>t.b', 't>r', 'r>out']),
     // Sine only.
-    probe({ s: wave(3, 'sin'), m: 'mul', a: 'fqMean', k: ['scale', { k: 2 }] }, ['in>m.a', 's>m.b', 'm>a', 'a>k', 'k>out']),
-    // The wrong direction: a vertical wave of the same frequency.
-    probe({ c: wave(0, 'cos', 3), s: wave(0, 'sin', 3), mc: 'mul', ms: 'mul', ac: 'fqMean', as: 'fqMean', qc: 'square', qs: 'square', t: 'add', r: 'sqrt', k: ['scale', { k: 2 }] }, ['in>mc.a', 'c>mc.b', 'in>ms.a', 's>ms.b', 'mc>ac', 'ms>as', 'ac>qc', 'as>qs', 'qc>t.a', 'qs>t.b', 't>r', 'r>k', 'k>out']),
-    // Just the average brightness.
+    probe({ s: osc(3, 'sin'), m: 'mul', a: 'fqMean', g: ['scale', { k: 2 }] }, ['in>m.a', 's>m.b', 'm>a', 'a>g', 'g>out']),
+    // The wrong frequency.
+    fullProbe(5),
+    // Just the average.
     probe({ a: 'fqMean' }, ['in>a', 'a>out']),
   ],
 }
