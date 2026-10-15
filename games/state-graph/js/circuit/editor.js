@@ -89,7 +89,7 @@ const sourceTag = (ui, src) => (src.startsWith('tap:') ? ui.taps[src.slice(4)].s
 
 /**
  * The whole editor. ui = { taps, avail, lit, outs, pick, wire, palette, win, sideView }
- * Pieces sit at free positions on a layer the level scales to fit (phones) or leaves at full size (desktop).
+ * Inputs sit along the top, components in their slots, outputs along the bottom; wires run between their dots.
  * With sideView the robot's window is drawn by the level into the side column instead of beside the board.
  */
 export function editorHTML(circ, ui) {

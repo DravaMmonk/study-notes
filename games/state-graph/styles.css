@@ -362,7 +362,7 @@ button:disabled{cursor:not-allowed}
 .cslot:active{background:var(--signal-soft)}
 .drag-piece .cslot,.drag-tray .cslot{border-color:var(--signal)}
 .cport.open .dot{border-color:var(--bad);background:var(--bad-soft)}
-.pickbar{position:fixed;z-index:40;left:12px;right:12px;bottom:calc(88px + env(safe-area-inset-bottom));min-height:46px;padding:6px 4px 6px 14px;display:flex;align-items:center;gap:8px;border-radius:14px;background:var(--ink);color:var(--panel);font:500 13px/1.5 var(--f-body);box-shadow:var(--card-lift)}
+.pickbar{position:fixed;z-index:40;left:12px;right:12px;bottom:calc(186px + env(safe-area-inset-bottom));min-height:46px;padding:6px 4px 6px 14px;display:flex;align-items:center;gap:8px;border-radius:14px;background:var(--ink);color:var(--panel);font:500 13px/1.5 var(--f-body);box-shadow:var(--card-lift)}
 .pickbar span{flex:1;min-width:0}
 .pickbar button{min-width:56px;min-height:38px;border-radius:10px;color:var(--signal);font:600 14px var(--f-body)}
 @media (min-width:1100px){#level.panel-stage .panel>.pickbar{position:sticky;left:auto;right:auto;bottom:24px;width:min(520px,100%);margin:0 auto}}
@@ -474,6 +474,8 @@ button:disabled{cursor:not-allowed}
 .robot{overflow:visible;filter:var(--drop)}
 .parts{position:relative;display:grid;gap:6px;padding:8px 10px;border-radius:14px;border:1.5px dashed var(--line);transition:background .15s,border-color .15s;user-select:none;-webkit-user-select:none}
 .parts:empty{display:none}
+/* Phones: the parts list docks at the bottom of the level while you scroll the board, like a tray. */
+@media (max-width:1099px){.parts{position:sticky;bottom:0;z-index:20;border:0;border-radius:16px 16px 0 0;background:var(--panel);box-shadow:0 -1px 0 var(--line),0 -14px 26px -20px rgba(0,0,0,.4);padding:8px 10px 10px}}
 .phead{display:flex;align-items:baseline;gap:8px}
 .phead h3{margin:0;font:600 12.5px var(--f-body);color:var(--ink-2)}
 .phead small{font-size:12px;color:var(--ink-3)}
@@ -489,9 +491,9 @@ button:disabled{cursor:not-allowed}
 .titem.armed{box-shadow:0 0 0 2px var(--signal)}
 .titem.ghost{position:fixed;left:0;top:0;z-index:80;pointer-events:none;box-shadow:var(--card-lift),0 0 0 2px var(--signal)}
 .tdrop{display:none;font:700 13px var(--f-body);color:var(--bad);text-align:center;padding:12px 0}
-.drag-node .parts{border-color:var(--bad)}
-.drag-node .parts .tdrop{display:grid;place-items:center;position:absolute;inset:0;z-index:2;margin:0;padding:0;border-radius:inherit;background:color-mix(in srgb,var(--panel) 80%,var(--bad-soft))}
-.drag-node .parts.over .tdrop{box-shadow:inset 0 0 0 2px var(--bad);background:color-mix(in srgb,var(--panel) 60%,var(--bad-soft))}
+.drag-piece .parts{border-color:var(--bad)}
+.drag-piece .parts .tdrop{display:grid;place-items:center;position:absolute;inset:0;z-index:2;margin:0;padding:0;border-radius:inherit;background:color-mix(in srgb,var(--panel) 80%,var(--bad-soft))}
+.drag-piece .parts.over .tdrop{box-shadow:inset 0 0 0 2px var(--bad);background:color-mix(in srgb,var(--panel) 60%,var(--bad-soft))}
 .cell.self rect{stroke:var(--bad);stroke-width:3}
 .cell.typed .val{fill:var(--signal)}
 .backbench{justify-self:start}
