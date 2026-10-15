@@ -1,7 +1,8 @@
 // Circuit levels: a robot walks the table cell by cell and runs the player's circuit board on each cell.
 // The player lights cells in the robot's window as inputs, wires components, and the board writes the robot's cell.
-// While building, the robot stands on a sample cell as a test bench: the player can type numbers into its window
-// and watch the board answer at once. A level may have several stages (a new world with new inputs).
+// Before a run the test board is a sandbox: the player types numbers into cells and puts the robot anywhere, and the
+// robot's cell shows the circuit's answer at once. Running clears the board and the robot starts from its usual cell.
+// A level may have several stages (a new world with new inputs).
 
 import { $, buzz, toast, signal, ICON } from '../util.js';
 import { rt, Anim } from '../runtime.js';
@@ -19,7 +20,7 @@ export function circuitMode(L, saved) {
     circs: stages.map((_, k) => (saved && saved.circs && saved.circs[k]) || blank()),
     dirs: { ...(L.dirs || {}), ...((saved && saved.dirs) || {}) },
     pick: null, armed: false, ti: 0, status: L.tests.map(() => null), view: null,
-    vmode: 'lit', bench: {}, sel: null, input: '',
+    typed: {}, robot: null, sel: null, input: '',
   };
   const robot = ROBOTS[L.robot];
   const stage = () => stages[st.stage], V = () => WORLDS[stage().world], circ = () => st.circs[st.stage];
@@ -34,50 +35,31 @@ export function circuitMode(L, saved) {
   /** Inputs this robot can light: the cells it sees, its arm, and the level's facts about its own cell. */
   const avail = () => [...visibleTaps(V(), robot.vision), ...(robot.arm ? V().armTaps : []), ...(stage().facts || [])];
 
-  /** Test bench: the sample cell, and the table as a correct machine would have left it when arriving there. */
-  function benchBase() {
-    const t = L.tests[st.ti], Vw = V(), o = opt(), cell = Vw.sample(t, o), shown = new Map(Vw.base ? Vw.base(t, o) : []);
-    if (stage().solution) {
-      const res = runCircuit(Vw, t, stage().solution, { ...o, dirs: L.solutionDirs || st.dirs }), here = Object.values(Vw.keys(t, cell))[0];
-      const q = res.steps.findIndex(x => x.at[0] === here);
-      res.steps.slice(0, Math.max(q, 0)).forEach(x => (x.writes || []).forEach(([k, v]) => shown.set(k, v)));
-    }
-    return { t, cell, shown };
-  }
-  /**
-   * A bench input: the player's number if they typed one, else what the robot would really read there.
-   * Reading a cell the machine has not computed yet gives「—」here and is remembered in `empty`, because a real run stops there.
-   */
-  function benchTap(b, id, empty) {
-    if (id in st.bench) return st.bench[id];
-    return readTap(V(), b.t, b.cell, id, key => { if (b.shown.has(key)) return b.shown.get(key); if (empty) empty.add(key); return null; });
-  }
-  function benchRun() {
-    const b = benchBase(), probe = {}, empty = new Set(), out = evaluate(circ(), id => benchTap(b, id, empty), V().outs.map(x => x[0]), probe).out;
-    return { b, probe, out, empty };
+  /** Sandbox: typed numbers on the board, the robot where the player put it, and its answer computed live. */
+  function sandbox() {
+    const t = L.tests[st.ti], Vw = V(), o = opt(), cell = st.robot || Vw.sample(t, o), keys = Vw.keys(t, cell);
+    const shown = new Map(Vw.base ? Vw.base(t, o) : []), reads = new Set(), empty = new Set(), probe = {};
+    Object.entries(st.typed).forEach(([k, v]) => shown.set(k, v));
+    const get = key => { reads.add(key); if (shown.has(key)) return shown.get(key); empty.add(key); return null; };
+    const { out } = evaluate(circ(), id => readTap(Vw, t, cell, id, get), Vw.outs.map(x => x[0]), probe);
+    Object.entries(keys).forEach(([id, key]) => shown.set(key, out[id]));
+    return { cell, at: Object.values(keys), shown, reads, empty, probe, typed: new Set(Object.keys(st.typed)), sel: st.sel };
   }
 
-  /** The robot's window: live during a run or an inspection, otherwise the test bench around the sample cell. */
+  /** The robot's window: live during a run or an inspection, otherwise around the robot on the sandbox. */
   function win() {
-    const t = L.tests[st.ti], Vw = V(), v = st.view, s = shownStep(), bench = s ? null : benchRun();
-    const cell = s ? s.cell : bench.b.cell, shown = new Map(v ? v.res.base : bench.b.shown);
+    const t = L.tests[st.ti], Vw = V(), v = st.view, s = shownStep(), box = s ? null : sandbox();
+    const cell = s ? s.cell : box.cell, shown = box ? box.shown : new Map(v.res.base);
     if (v) v.res.steps.slice(0, (v.focus ?? v.k - 1) + 1).forEach(x => (x.writes || []).forEach(([key, val]) => shown.set(key, val)));
-    const reads = new Set(s ? s.reads : []), at = key => (key !== null && shown.has(key) ? signal(shown.get(key)) : '');
-    const val = x => {
-      if (bench) return x.out ? signal(bench.out[x.out]) : x.tap && x.tap in st.bench ? signal(st.bench[x.tap]) : at(x.key);
-      return at(x.key);
-    };
-    const mark = x => ({ ...x, value: x.key === null ? '' : val(x), state: [(s && s.empty === x.key) || (bench && bench.empty.has(x.key) && !(x.tap in st.bench)) ? 'empty' : reads.has(x.key) ? 'read' : '', bench && x.tap && x.tap in st.bench ? 'typed' : '', st.sel && st.sel === x.tap ? 'editing' : ''].filter(Boolean).join(' ') });
+    const reads = s ? new Set(s.reads) : box.reads, isEmpty = key => (s ? s.empty === key : box.empty.has(key));
+    const mark = x => ({ ...x, value: x.key !== null && shown.has(x.key) ? signal(shown.get(x.key)) : '', state: isEmpty(x.key) ? 'empty' : reads.has(x.key) ? 'read' : '' });
     const w = windowOf(Vw, t, cell, robot.vision);
     w.wins = w.wins.map(x => ({ ...x, cells: x.cells.map(mark) }));
     if (w.arm) w.arm.cells = w.arm.cells.map(mark);
-    w.facts = (stage().facts || []).map(id => ({ id, value: signal(bench ? benchTap(bench.b, id) : readTap(Vw, t, cell, id, key => shown.get(key) ?? null)), state: bench && id in st.bench ? 'typed' : st.sel === id ? 'editing' : '' }));
-    w.note = bench && bench.empty.size ? '红格还没算出来：真正运行时，机器人会在这里停下' : bench ? (st.vmode === 'bench' ? '测试台：点格子改数' : `示例位置 · ${Vw.where(cell)}`) : v.focus !== null && v.focus !== undefined ? `查看${Vw.where(cell)}` : Vw.where(cell);
+    w.facts = (stage().facts || []).map(id => ({ id, value: signal(readTap(Vw, t, cell, id, key => shown.get(key) ?? null)) }));
+    w.note = box ? Vw.where(cell) : v.focus !== null && v.focus !== undefined ? `查看${Vw.where(cell)}` : Vw.where(cell);
     w.robot = robot;
-    w.mode = st.vmode;
-    w.bench = !!bench;
-    w.typed = Object.keys(st.bench).length > 0;
-    w.probe = bench ? bench.probe : s.probe;
+    w.probe = box ? box.probe : s.probe;
     return w;
   }
   const ui = () => ({ taps: taps(), avail: avail(), lit: litOf(circ()), outs: V().outs, slots: stage().slots, pick: st.pick, palette: stage().palette, win: win() });
@@ -175,15 +157,15 @@ export function circuitMode(L, saved) {
     st,
     save: () => ({ stage: st.stage, circs: st.circs, dirs: st.dirs }),
     tests: () => L.tests.map((t, k) => ({ label: `测试 ${k + 1} · ${label(t)}`, status: st.status[k] })),
-    selectTest(k) { st.ti = k; st.view = null; rt.refresh(); },
+    selectTest(k) { st.ti = k; st.view = null; st.typed = {}; st.robot = null; st.sel = null; rt.refresh(); },
     scene() {
       const t = L.tests[st.ti], v = st.view;
-      return { ...V().scene(t, v, { ...opt(), ...(v && v.end && v.pass && L.trace ? L.trace(t) : {}) }), look: robot.look };
+      return { ...V().scene(t, v, { ...opt(), ...(v && v.end && v.pass && L.trace ? L.trace(t) : {}), bench: v ? null : sandbox() }), look: robot.look };
     },
     boardOpt: () => L.boardOpt || { minScale: 0.7, maxScale: 1.25 },
     note() {
       const v = st.view, Vw = V();
-      if (!v) return `机器人按「${Vw.orderText(opt())}」的顺序一格一格地走，在每一格上运行你的电路板，把结果写进脚下的格子。`;
+      if (!v) return `测试棋盘：点一个格子可以填数，或者让机器人站过去，红框里马上显示电路板的答案。点「运行测试」会清空棋盘，机器人从头按「${Vw.orderText(opt())}」的顺序走。`;
       const s = shownStep();
       if (!v.end) return s ? `正在算${Vw.where(s.cell)}` : '';
       if (v.focus !== null && v.focus !== undefined) return `${Vw.where(s.cell)}：视野和电路板上的数，是机器人在这一格看到和算出的值。再点一次取消。`;
@@ -191,7 +173,7 @@ export function circuitMode(L, saved) {
       if (v.halt) return `机器在${Vw.where(s.cell)}出了错。${more}`;
       return `${v.pass ? `答案 ${signal(v.res.value)}，正确。` : `机器算出 ${signal(v.res.value)}，应该是 ${signal(L.expected[st.ti])}。`}${more}`;
     },
-    after: () => (L.after ? L.after(L.tests[st.ti], st.view) : ''),
+    after: () => `${st.view && st.view.end && !busy() ? '<button class="sec-btn backbench" type="button" data-act="sandbox">回到棋盘测试</button>' : ''}${L.after ? L.after(L.tests[st.ti], st.view) : ''}`,
     tip() {
       const c = circ();
       const g = L.guide ? L.guide(c, litOf(c)) : null;
@@ -215,11 +197,22 @@ export function circuitMode(L, saved) {
       if (!root.dataset.dnd) { root.dataset.dnd = '1'; enableDrag(root, $('#lvScroll'), dnd); }
     },
     dock: () => (st.sel ? { pad: true } : { meta: `${L.tests.length} 个测试 · ${circ().nodes.length} 个元件`, sec: circ().nodes.length && !busy() ? (st.armed ? '确认清空' : '清空') : '', secAct: 'clear', go: busy() ? '跳过动画' : '运行测试', act: 'run', busy: busy() }),
-    padTitle: () => `给「${taps()[st.sel].label}」填一个数，现在是 ${signal(benchTap(benchBase(), st.sel))}（不填就是「—」）`,
+    padTitle: () => `${V().name(st.sel)}：填一个数（不填 = 清空这一格）`,
+    /** An extra pad key that moves the robot onto the selected cell, when it can stand there. */
+    padExtra() {
+      const t = L.tests[st.ti], c = V().cellOf(t, st.sel, opt());
+      return c && !sandbox().at.includes(st.sel) ? { key: 'bot', label: '让机器人站到这一格' } : null;
+    },
     key(k) {
       if (k === 'del') st.input = st.input.slice(0, -1);
-      else if (k === 'ok') { st.bench[st.sel] = st.input === '' ? null : +st.input; st.sel = null; st.input = ''; buzz(8); }
-      else if (st.input.length < 3) st.input = (st.input === '0' ? '' : st.input) + k;
+      else if (k === 'bot') { st.robot = V().cellOf(L.tests[st.ti], st.sel, opt()); st.sel = null; st.input = ''; buzz(8); }
+      else if (k === 'ok') {
+        if (st.input === '') delete st.typed[st.sel];
+        else st.typed[st.sel] = +st.input;
+        st.sel = null;
+        st.input = '';
+        buzz(8);
+      } else if (st.input.length < 3) st.input = (st.input === '0' ? '' : st.input) + k;
       rt.refresh();
     },
     act(name, el) {
@@ -235,16 +228,7 @@ export function circuitMode(L, saved) {
         rt.refresh();
       }
       if (name === 'lit') { st.pick = null; setCirc(toggleLit(circ(), el.dataset.t)); buzz(6); rt.refresh(); }
-      if (name === 'vmode') { st.vmode = el.dataset.v; st.sel = null; st.pick = null; if (st.vmode === 'bench') st.view = null; rt.refresh(); }
-      if (name === 'bench') {
-        const id = el.dataset.t;
-        st.view = null;
-        st.pick = null;
-        if (taps()[id].type === 'bool') { const b = benchBase(); st.bench[id] = !benchTap(b, id); st.sel = null; buzz(6); }
-        else { st.sel = id; st.input = ''; }
-        rt.refresh();
-      }
-      if (name === 'benchreset') { st.bench = {}; st.sel = null; rt.refresh(); }
+      if (name === 'sandbox') { st.view = null; rt.refresh(); }
       if (name === 'node') { st.pick = null; openNode(el.dataset.n); }
       if (name === 'dir') { st.dirs[el.dataset.k] = el.dataset.v; changed(); buzz(6); rt.refresh(); }
       if (name === 'clear') {
@@ -256,7 +240,9 @@ export function circuitMode(L, saved) {
     },
     onCell(id) {
       const v = st.view;
-      if (busy() || !v || !v.end) return;
+      if (busy()) return;
+      if (!v) { st.sel = st.sel === id ? null : id; st.input = ''; st.pick = null; buzz(6); rt.refresh(); return; }
+      if (!v.end) return;
       let q = -1;
       v.res.steps.slice(0, v.k).forEach((s, j) => { if (s.at.includes(id)) q = j; });
       if (q < 0) return;
@@ -269,6 +255,9 @@ export function circuitMode(L, saved) {
       const miss = Vw.outs.find(([id]) => !c.wires.some(w => w.to === `out:${id}`));
       if (miss) { toast(`输出口「${miss[1]}」还没接线`); buzz(20); return; }
       st.pick = null;
+      st.sel = null;
+      st.typed = {};
+      st.robot = null;
       rt.startRun();
       st.status = L.tests.map(() => null);
       for (let k = 0; k < L.tests.length; k++) {

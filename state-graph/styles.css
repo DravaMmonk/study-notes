@@ -202,6 +202,7 @@ button:disabled{cursor:not-allowed}
 .key{min-height:46px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line);font:700 19px var(--f-mono)}
 .key:active{background:var(--chip-lit)}
 .key.wide{grid-column:span 2;font:700 15px var(--f-body)}
+.key.full{grid-column:1/-1;font:700 15px var(--f-body);background:var(--signal-soft);border-color:var(--signal);color:var(--signal)}
 .key.ok{background:var(--cyan);border-color:var(--cyan);color:#06131C;font:800 15px var(--f-body)}
 
 /* ---------- sheet ---------- */
@@ -397,11 +398,7 @@ button:disabled{cursor:not-allowed}
 .vhead b{display:block;font:700 13px/1.2 var(--f-display)}
 .vhead small{display:block;font:600 10px/1.3 var(--f-mono);color:var(--ink-3)}
 .vlook{width:30px;height:30px;flex:none;overflow:visible}
-.vmode{display:grid;grid-template-columns:1fr 1fr;width:100%;padding:2px;border-radius:9px;background:var(--board);border:1px solid var(--line)}
-.vmode button{padding:4px 0;border-radius:7px;font:700 11px/1.3 var(--f-body);color:var(--ink-3)}
-.vmode button[aria-pressed="true"]{background:var(--cyan);color:#06131C}
 .vnote{font:600 10px/1.35 var(--f-mono);color:var(--ink-3);text-align:center}
-.vreset{font:700 10px var(--f-body);color:var(--signal);text-decoration:underline}
 .vblock{display:grid;gap:3px;justify-items:center}
 .vsub{font:600 10px var(--f-body);color:var(--ink-3);text-align:center}
 .vwin{display:grid;gap:3px;grid-template-columns:repeat(3,var(--vc));grid-auto-rows:var(--vc)}
@@ -425,8 +422,6 @@ button:disabled{cursor:not-allowed}
 .vcell.self.on{box-shadow:inset 0 0 0 2px var(--cyan)}
 .vcell.read{box-shadow:0 0 0 2px var(--signal)}
 .vcell.empty{background:var(--bad-soft);box-shadow:0 0 0 2px var(--bad)}
-.vcell.typed .vv{color:var(--signal)}
-.vcell.editing{box-shadow:0 0 0 2.5px var(--signal);opacity:1}
 .vcell .tag{position:absolute;right:-6px;top:-7px;transform:scale(.8);z-index:2}
 .n5 .vcell .tag{transform:scale(.68);right:-7px;top:-8px}
 .vcell .vl{position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);font:600 9px var(--f-body);color:var(--ink-3);white-space:nowrap}
@@ -439,8 +434,6 @@ button:disabled{cursor:not-allowed}
 .vfact .glyph{width:20px;height:14px}
 .vfact .vv{font:700 10.5px var(--f-mono);color:var(--signal)}
 .vfact.on{border:2px solid var(--cyan);background:var(--cyan-soft)}
-.vfact.typed .vv{text-decoration:underline}
-.vfact.editing{box-shadow:0 0 0 2.5px var(--signal)}
 .vfact .tag{position:absolute;right:-6px;top:-8px;transform:scale(.85)}
 .g-cell{fill:var(--chip);stroke:var(--chip-line)}
 .g-ink{fill:none;stroke:var(--ink-2);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -479,6 +472,8 @@ button:disabled{cursor:not-allowed}
 .cedit.drag-node .tdrop{display:block}
 .cedit.drag-node .tlabel,.cedit.drag-node .titems{display:none}
 .cell.self rect{stroke:var(--bad);stroke-width:3}
+.cell.typed .val{fill:var(--signal)}
+.backbench{justify-self:start}
 .cell.on rect{stroke:var(--cyan);stroke-width:3;fill:var(--cyan-soft)}
 .dirrow{display:grid;gap:8px}
 .pal{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--panel-2)}

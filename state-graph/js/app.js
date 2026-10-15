@@ -60,10 +60,10 @@ function renderTests() {
 function renderDock() {
   const cur = rt.cur, d = cur.ctl.dock();
   if (d.pad) {
-    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], extra = cur.ctl.padExtra ? cur.ctl.padExtra() : null;
     $('#dock').innerHTML = `<div class="pad"><div class="pad-top"><span><b>${cur.ctl.padTitle()}</b></span><div class="pad-val" aria-live="polite">${cur.ctl.st.input || '_'}</div></div>
       <div class="keys">${keys.map(k => `<button class="key" type="button" data-key="${k}">${k}</button>`).join('')}
-      <button class="key wide" type="button" data-key="del">删除</button><button class="key" type="button" data-key="close" aria-label="收起键盘">收起</button><button class="key wide ok" type="button" data-key="ok">确定</button></div></div>`;
+      <button class="key wide" type="button" data-key="del">删除</button><button class="key" type="button" data-key="close" aria-label="收起键盘">收起</button><button class="key wide ok" type="button" data-key="ok">确定</button>${extra ? `<button class="key full" type="button" data-key="${extra.key}">${extra.label}</button>` : ''}</div></div>`;
     return;
   }
   $('#dock').innerHTML = `<div class="dock-in"><div class="dmeta">${d.meta || ''}</div>
@@ -266,6 +266,7 @@ function boot() {
   $('#board').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onCell(e); } });
   $('#tests').addEventListener('click', e => { const b = e.target.closest('[data-test]'); if (b && !rt.cur.running) rt.cur.ctl.selectTest(+b.dataset.test); });
   $('#panel').addEventListener('click', onAct);
+  $('#after').addEventListener('click', onAct);
   $('#panel').addEventListener('input', e => { if (e.target.id === 'nRange' && rt.cur.ctl.input) rt.cur.ctl.input(+e.target.value); });
   new ResizeObserver(() => { if (rt.cur && rt.cur.ctl.mounted) rt.cur.ctl.mounted(); }).observe($('#panel'));
   $('#dock').addEventListener('click', e => {
