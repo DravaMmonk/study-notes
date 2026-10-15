@@ -115,7 +115,7 @@ button:disabled{cursor:not-allowed}
 .title{font:700 clamp(54px,17vw,108px)/.95 var(--f-display);letter-spacing:-.02em;margin:10px 0 14px}
 .title em{font-style:normal;color:var(--signal)}
 .lede{max-width:31em;color:var(--ink-2);font-size:16px;margin:0;text-wrap:pretty}
-.hero-fig{margin:0;border-radius:20px;padding:12px;background:var(--board);border:1px solid var(--line);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px}
+.hero-fig{margin:0;border-radius:20px;padding:12px;background:var(--board);border:1px solid var(--line);}
 .hero-fig figcaption{font:12px/1.5 var(--f-mono);color:var(--ink-3);margin:6px 4px 2px}
 @media (min-width:860px){.hero{grid-template-columns:1.05fr .95fr;align-items:center}}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap}
@@ -164,7 +164,7 @@ button:disabled{cursor:not-allowed}
 .mrow .k{font:700 11.5px var(--f-mono);color:var(--ink-3);letter-spacing:.06em;white-space:nowrap}
 .tip{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--cyan-soft);color:var(--ink);font-size:14px}
 .tip b{font:700 11.5px var(--f-mono);color:var(--cyan);white-space:nowrap;margin-top:2px}
-.bcard{background:var(--board);border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px;background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px;scroll-margin-top:10px}
+.bcard{background:var(--board);border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px;scroll-margin-top:10px}
 .tests{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px}
 .tests::-webkit-scrollbar{display:none}
 .tchip{flex:none;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);display:inline-flex;align-items:center;gap:8px;font:600 12.5px var(--f-mono);color:var(--ink-2);white-space:nowrap}
@@ -250,7 +250,7 @@ button:disabled{cursor:not-allowed}
 .prose p{margin:0;color:var(--ink-2);font-size:15.5px;text-wrap:pretty}
 .prose p b{color:var(--ink)}
 .prose p strong{color:var(--signal);font-weight:700}
-.fig{border-radius:16px;background:var(--board);border:1px solid var(--line);padding:10px;background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px}
+.fig{border-radius:16px;background:var(--board);border:1px solid var(--line);padding:10px;}
 .fig svg{max-height:240px;margin:0 auto}
 .dots{display:flex;gap:6px;justify-content:center}
 .dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .2s,width .2s}
@@ -368,7 +368,7 @@ button:disabled{cursor:not-allowed}
 .cpcard{padding:14px 12px}
 .cedit{display:grid;gap:10px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .cmain{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
-.cboard{position:relative;display:grid;gap:22px;padding:12px 8px 14px;border-radius:14px;background:var(--board);border:1px solid var(--line);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px}
+.cboard{position:relative;display:grid;gap:22px;padding:12px 8px 14px;border-radius:14px;background:var(--board);border:1px solid var(--line);}
 .cwires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .cw-halo{fill:none;stroke:var(--board);stroke-width:7;stroke-linecap:round}
 .cw{fill:none;stroke-width:2.6;stroke-linecap:round;transition:opacity .15s,stroke-width .15s}
@@ -604,14 +604,20 @@ img{max-width:100%}
   .drag-node .parts{border:1.5px dashed var(--bad);padding:24px 10px;border-radius:14px}
 
   /* the stage: a dotted canvas */
+  .hero-fig,.fig,#level:not(.panel-stage) .bcard{background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px}
   #level:not(.panel-stage) .bcard{border:0;border-radius:0;padding:22px 28px 28px;gap:14px;align-content:start}
   #level:not(.panel-stage) .tests{margin:0;padding:0;flex-wrap:wrap}
   #level:not(.panel-stage) .board{margin:0;padding:0;overflow:visible}
   #level:not(.panel-stage) .board-svg{max-height:calc(100dvh - 260px)}
   #level.panel-stage .panel{padding:24px 28px 32px;gap:16px;align-items:center;background:var(--board);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:20px 20px}
-  #level.panel-stage .panel>*{width:100%;max-width:880px}
-  .cpcard{padding:16px 18px 18px;box-shadow:var(--card);border:0}
-  .cboard{padding:16px 14px 18px;gap:26px}
+  #level.panel-stage .panel>*{width:100%;max-width:960px}
+  /* the canvas is the circuit board: parts, terminals and wires sit straight on the dotted stage */
+  #level.panel-stage .cpcard{padding:0;gap:14px;background:none;border:0;box-shadow:none}
+  #level.panel-stage .cpcard h3{justify-content:flex-start;min-height:30px}
+  #level.panel-stage .cptitle{display:none}
+  #level.panel-stage .cpcard h3 small{font:600 11px var(--f-mono);letter-spacing:.06em}
+  #level.panel-stage .cboard{padding:6px 0 10px;gap:26px;background:none;border:0;border-radius:0}
+  #level.panel-stage .cview{background:var(--panel);border:0;box-shadow:var(--card);position:sticky;top:0}
   .cgrid{gap:40px 14px}
   .ccell{min-height:96px}
   .cview{--vc:42px;max-width:none;padding:12px 10px}
