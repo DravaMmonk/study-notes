@@ -1,4 +1,4 @@
-// Small pictures drawn in SVG: the robot that walks the table, and symbols for facts about its cell.
+// Symbols for facts about the robot's cell, drawn in SVG.
 
 /** Symbols in a 48×32 box, used on the fact chips under the robot's window. */
 export const ICONS = {
@@ -13,11 +13,3 @@ export const ICONS = {
   coin: '<circle class="g-mark" cx="24" cy="16" r="11"/><text class="g-tx g-dark" x="24" y="20.5">¥</text>',
   gem: '<path class="g-mark" d="M16 11L20 6H28L32 11L24 27Z"/><path class="g-gem" d="M16 11H32M20 6L24 27L28 6"/>',
 };
-
-/** The robot, in a 32×32 box: antenna, head with two eyes, wheels. */
-export const ROBOT = `<g class="bot">
-  <path class="bot-ant" d="M16 2.5V7"/><circle class="bot-lamp" cx="16" cy="2.6" r="2.2"/>
-  <rect class="bot-head" x="5" y="7" width="22" height="16" rx="5"/>
-  <circle class="bot-eye" cx="11.5" cy="15" r="2.4"/><circle class="bot-eye" cx="20.5" cy="15" r="2.4"/>
-  <rect class="bot-base" x="8" y="24" width="16" height="5" rx="2.5"/>
-</g>`;

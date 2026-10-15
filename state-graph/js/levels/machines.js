@@ -7,11 +7,10 @@ import { windowFig } from './figs.js';
 import { L12_COSTS } from './data.js';
 
 const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
-const NEAR = ['ul', 'up', 'ur', 'left', 'right', 'dl', 'down', 'dr'];
 
 export const machines = [
   {
-    id: 'copy', ch: 2, title: '机器人传话', short: '点亮一个格子，接一根线', mode: 'circuit',
+    id: 'copy', ch: 2, title: '机器人传话', short: '点亮一个格子，接一根线', mode: 'circuit', robot: 'scout',
     intro: [
       { t: '从这一章起，计算交给一个<b>小机器人</b>。它会一格一格地走过整张表，在每一格上做同一件事。' },
       { t: '这一关只有一排格子，最左边那格已经写好了一个数。机器人从第 2 格出发往右走，<b>每到一格，就把左边那格的数抄过来</b>。', fig: { ...gridScene(1, 5, { arrows: false, cell: (r, c) => (c < 2 ? { value: 7, cls: 'lit' } : c === 2 ? { value: '?', cls: 'hot' } : {}) }), robot: '0,2' } },
@@ -19,7 +18,7 @@ export const machines = [
       { t: '最后，从输入「左边」底部的圆点拖一根线，接到电路板最下面红框的「本格」。意思是：左边送来几，本格就写几。也可以先点一个圆点，再点另一个。' },
     ],
     mission: { goal: '让机器人把最左边格子里的数，一格一格抄到最右边：每一格都等于它左边那一格。', how: '在视野里点亮左边的格子，把输入「左边」连到「本格」，然后点「运行测试」。' },
-    world: 'grid', taps: NEAR, palette: [], slots: 0,
+    world: 'grid', facts: [], palette: [], slots: 0,
     guide: (c, lit) => (!lit.length ? '第 1 步：在右边的「机器人视野」里，点一下红框左边的格子，它会亮起蓝框。' : !c.wires.length ? '第 2 步：从电路板顶上「左边」底部的圆点拖一根线，接到最下面红框的「本格」。' : '第 3 步：点「运行测试」，看机器人一格一格地抄过去。'),
     tests: [{ R: 1, C: 5, given: { '0,0': 7 } }, { R: 1, C: 7, given: { '0,0': 3 } }],
     solution: circ([], ['tap:left>out:cell']),
@@ -28,7 +27,7 @@ export const machines = [
     debrief: { title: '机器人学会了抄', body: ['你只接了一根线，机器人就在每一格上照做了一遍。<b>电路板就是规则</b>：只写一次，机器人在每一格上都用它。', '下一关，格子要从两个方向收数了。'], note: '电路板描述一格的规则，机器人在每一格上运行它。' },
   },
   {
-    id: 'confluence', ch: 2, title: '两路汇合', short: '把两个数汇进一个元件', mode: 'circuit',
+    id: 'confluence', ch: 2, title: '两路汇合', short: '把两个数汇进一个元件', mode: 'circuit', robot: 'scout',
     intro: [
       { t: '回到棋盘城市：街道只能往右或往下走，每个路口的路线数 = 上面 + 左边。这一次，左上角的起点已经替你写好了 1，剩下的路口交给机器人。', fig: { ...gridScene(3, 4, { cell: (r, c) => (r === 0 && c === 0 ? { value: 1, cls: 'src' } : r === 1 && c === 1 ? { value: '?', cls: 'hot' } : {}) }), robot: '1,1' } },
       { t: '一根线只能送一个数。要把上面和左边<b>加在一起</b>，需要一个<b>元件</b>：汇合器。它顶上有三个输入圆点，把接进来的数加起来，从底部的圆点送出去。', fig: circuitFig({ taps: [['u', '上面 · 3'], ['l', '左边 · 7']], parts: [['m', '汇合器', '加起来']], outs: [['o', '本格 · 10']], wires: [['u', 'm'], ['l', 'm'], ['m', 'o']] }) },
@@ -36,7 +35,7 @@ export const machines = [
       { t: '<b>怎么放元件：</b>把电路板下面托盘里的汇合器，拖到电路板的空格上（点一下也行）。按住它可以拖到别的格子，拖回托盘就拿掉了。' },
     ],
     mission: { goal: '街道只能往右或往下走，起点已经写好 1。让机器人算出每个路口的路线数：每个路口 = 上面 + 左边。', how: '点亮上面和左边的格子，放一个汇合器，把两个输入接进汇合器，再把汇合器接到「本格」。' },
-    world: 'grid', taps: NEAR, palette: ['msum'], fresh: ['msum'], slots: 4,
+    world: 'grid', facts: [], palette: ['msum'], fresh: ['msum'], slots: 4,
     guide: (c, lit) => (!(lit.includes('up') && lit.includes('left')) ? '第 1 步：在视野里点亮红框上面和左边的两个格子。' : !c.nodes.length ? '第 2 步：把托盘里的「汇合器」拖到电路板的空格上，点一下也行。' : !c.wires.some(w => w.to.startsWith('out:')) ? '第 3 步：把「上面」「左边」各接到汇合器顶上的一个圆点，再把汇合器底部的圆点接到「本格」。' : null),
     tests: [{ R: 3, C: 4, given: { '0,0': 1 } }, { R: 4, C: 5, given: { '0,0': 1 } }],
     solution: circ([['m', 'msum']], ['tap:up>m:0', 'tap:left>m:1', 'm>out:cell']),
@@ -44,14 +43,14 @@ export const machines = [
     debrief: { title: '城市交给了机器人', body: ['第 6 关你亲手填了 12 个路口；现在你只接了三根线，机器人就把整座城市填满了。', '不过，起点那个 1 是我们替它写好的。下一关，让机器人自己认出起点。'], note: '汇合器把几根线送来的数加起来，「—」不参与。' },
   },
   {
-    id: 'origin', ch: 2, title: '认出起点', short: '常数和放行闸', mode: 'circuit',
+    id: 'origin', ch: 2, title: '认出起点', short: '常数和放行闸', mode: 'circuit', robot: 'scout',
     intro: [
       { t: '如果起点没有预先写好，机器人走到起点时，上面和左边都是「界外」，汇合器什么也收不到，只能输出「—」。所以这一关先单独练一件事：<b>只在起点写 1</b>。' },
       { t: '视野下面有一栏<b>本格信息</b>。其中「是起点」只在机器人站在起点时是「是」，别的格子都是「否」。它也能点亮成输入，送出的是「是 / 否」信号：菱形圆点，虚线。' },
       { t: '两个新元件：<b>常数</b>一直输出同一个数；<b>放行闸</b>只在条件口收到「是」时，才把数放过去，否则输出「—」。', fig: circuitFig({ taps: [['s', '是起点 · 是', 'bool']], parts: [['k', '常数', '= 1'], ['g', '放行闸', '是 → 放行']], outs: [['o', '本格 · 1']], wires: [['s', 'g', 'bool'], ['k', 'g'], ['g', 'o']] }) },
     ],
     mission: { goal: '让机器人只在起点格写 1，其余每一格都写「—」（什么也不写）。这一关会检查整张表的每一格。', how: '点亮「本格信息」里的「是起点」，用常数和放行闸拼出结果，接到「本格」。' },
-    world: 'grid', taps: [...NEAR, 'start'], palette: ['const', 'pass', 'msum'], fresh: ['const', 'pass'], slots: 4, checkAll: true,
+    world: 'grid', facts: ['start'], palette: ['const', 'pass', 'msum'], fresh: ['const', 'pass'], slots: 4, checkAll: true,
     guide: (c, lit) => (!lit.includes('start') ? '第 1 步：在视野下面的「本格信息」里，点亮「是起点」。' : !c.nodes.length ? '第 2 步：把托盘里的「常数」和「放行闸」拖到电路板上。' : null),
     tests: [{ R: 3, C: 4 }, { R: 2, C: 5 }],
     solution: circ([['k', 'const', 1], ['g', 'pass']], ['tap:start>g:0', 'k>g:1', 'g>out:cell']),
@@ -60,14 +59,14 @@ export const machines = [
     debrief: { title: '机器人认得起点了', body: ['放行闸像一道门：条件是「是」时才开。机器人走到起点，门开了，1 写了进去；走到别的格子，门关着，什么也不写。', '把这一关和上一关拼在一起：汇合器的第三个圆点接上放行闸，<b>起点写 1、其他路口加上面和左边</b>。下一关就这么做。'], note: '放行闸：条件是「是」才把数放过去，否则输出「—」。' },
   },
   {
-    id: 'stamp', ch: 2, title: '拼一台机器', short: '把前两关拼在一起', mode: 'circuit',
+    id: 'stamp', ch: 2, title: '拼一台机器', short: '把前两关拼在一起', mode: 'circuit', robot: 'scout',
     intro: [
       { t: '前两关，你分别教会了机器人两件事：<b>把上面和左边加起来</b>，以及<b>只在起点写 1</b>。这一关，起点不再替你写好。' },
       { t: '把两块电路拼在一起：汇合器顶上有三个圆点，除了上面和左边，第三个圆点正好可以接放行闸。起点格的上面和左边都是「—」，汇合器只收到放行闸的 1；在别的格子，放行闸输出「—」，汇合器只加上面和左边。', fig: circuitFig({ taps: [['u', '上面'], ['l', '左边'], ['s', '是起点', 'bool']], parts: [['k', '常数', '= 1', 0], ['g', '放行闸', '是 → 放行', 0], ['m', '汇合器', '加起来', 1]], outs: [['o', '本格']], wires: [['u', 'm'], ['l', 'm'], ['s', 'g', 'bool'], ['k', 'g'], ['g', 'm'], ['m', 'o']] }) },
       { t: '拼好之后，机器人会在三座大小不同的城市里测试你的电路板。通过后，这块电路板会变成一个新元件。' },
     ],
     mission: { goal: '只能往右或往下走，起点不再预先写好。拼一块电路板：起点写 1，其余每个路口 = 上面 + 左边，让机器人在三座城市里都算对路线数。', how: '在视野里点亮要读的格子，把元件拖上电路板并连线，然后点「运行测试」。没通过时，机器人会停在出错的格子，视野和电路板上的数，是它在这一格看到和算出的值。' },
-    world: 'grid', taps: [...NEAR, 'start'], palette: ['msum', 'const', 'pass'], fresh: ['msum', 'const', 'pass'], slots: 6,
+    world: 'grid', facts: ['start'], palette: ['msum', 'const', 'pass'], fresh: ['msum', 'const', 'pass'], slots: 6,
     tests: [{ R: 3, C: 4 }, { R: 4, C: 4 }, { R: 5, C: 6 }],
     solution: circ([['m', 'msum'], ['k', 'const', 1], ['g', 'pass']], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>g:0', 'k>g:1', 'g>m:2', 'm>out:cell']),
     hints: [
@@ -79,7 +78,7 @@ export const machines = [
     debrief: { title: '你拼出了第一台机器', body: ['它在 3×4、4×4、5×6 三座城市里都算对了。换成 100×100 的城市，同一块电路板也一样能算。', '每个格子的答案，都用前面格子的答案算出来，再记在表里。<strong>这种方法有一个正式的名字：动态规划</strong>。', '这块电路板存进了零件箱，名叫「路线计数器」。从下一关起，它就是托盘里的一个元件，可以直接放上新的电路板。'], note: '把规则拼成电路，机器就能填满任意大的表。这就是动态规划。' },
   },
   {
-    id: 'rocks', ch: 3, title: '落石', short: '在零件外面加一道闸', mode: 'circuit', uses: ['counter'],
+    id: 'rocks', ch: 3, title: '落石', short: '在零件外面加一道闸', mode: 'circuit', robot: 'scout', uses: ['counter'],
     intro: [
       { t: '山区的城市里，有些路口被落石堵住了（带斜纹的格子），<b>任何路线都不能经过它</b>。', fig: gridScene(3, 3, { cell: (r, c) => (r === 1 && c === 1 ? { cls: 'rock' } : {}) }) },
       { t: '上一关的电路板，已经变成了零件箱里的一个元件：<b>路线计数器</b>。它顶上有三个输入（上、左、起），底部一个输出。放上电路板、接好线就能用，里面不用再拼一遍。', fig: circuitFig({ taps: [['u', '上面'], ['l', '左边'], ['s', '是起点', 'bool']], parts: [['c', '路线计数器', '零件']], outs: [['o', '本格']], wires: [['u', 'c'], ['l', 'c'], ['s', 'c', 'bool'], ['c', 'o']] }) },
@@ -87,7 +86,7 @@ export const machines = [
       { t: '想一想：从起点走到石头格，有几条<b>真正走得通</b>的路线？石头格应该输出什么？' },
     ],
     mission: { goal: '只能往右或往下走，任何路线都不能经过石头格（带斜纹）。让机器人在有落石的城市里也算对路线数。', how: '路线计数器在托盘里，可以直接放上电路板。想办法让石头格输出「—」。' },
-    world: 'grid', taps: [...NEAR, 'start', 'rock'], palette: ['bp:stamp', 'block', 'msum', 'const', 'pass'], fresh: ['bp:stamp', 'block'], slots: 6,
+    world: 'grid', facts: ['start', 'rock'], palette: ['bp:stamp', 'block', 'msum', 'const', 'pass'], fresh: ['bp:stamp', 'block'], slots: 6,
     tests: [{ R: 4, C: 4, rocks: [[1, 1]] }, { R: 4, C: 5, rocks: [[1, 2], [2, 0]] }, { R: 5, C: 5, rocks: [[1, 3], [2, 1], [3, 3]] }],
     solution: circ([['c', 'bp:stamp'], ['b', 'block']], ['tap:up>c:0', 'tap:left>c:1', 'tap:start>c:2', 'tap:rock>b:0', 'c>b:1', 'b>out:cell']),
     hints: [
@@ -98,14 +97,14 @@ export const machines = [
     debrief: { title: '石头掐断了路线', body: ['石头格输出「—」之后，所有经过它的路线都被「掐断」了：汇合器会跳过「—」，它对后面的格子毫无贡献。', '<b>路线计数器里面一点都不用改。</b>你只是在它外面加了一道闸。造好的零件可以直接拿来用，再加一点新东西，去适应新情况。'], note: '走不通的格子输出「—」，经过它的路线就全被排除了。' },
   },
   {
-    id: 'slant', ch: 3, title: '斜街', short: '同一个零件，接法换一换', mode: 'circuit', uses: ['counter'],
+    id: 'slant', ch: 3, title: '斜街', short: '同一个零件，接法换一换', mode: 'circuit', robot: 'scout', uses: ['counter'],
     intro: [
       { t: '另一座城市的街道是斜的：每一步只能<b>往右</b>走一格，或者<b>往右下斜着</b>走一格。从左上角出发，到右下角一共有几条路线？', fig: { ...gridScene(3, 4, { arrows: false, cell: (r, c) => (r === 0 && c === 0 ? { corner: '起' } : r === 2 && c === 3 ? { corner: '终' } : {}) }), edges: [0, 1, 2].flatMap(r => [0, 1, 2].flatMap(c => [E(`${r},${c}`, `${r},${c + 1}`, 'dim'), ...(r < 2 ? [E(`${r},${c}`, `${r + 1},${c + 1}`, 'dim')] : [])])) } },
       { t: '只看最后一步：到这个路口，要么是从<b>左边</b>走过来的，要么是从<b>左上</b>斜着过来的。从上面是走不过来的。', fig: { cells: [N('ul', 0, 0, { w: 56, h: 56, label: '左上', cls: 'lit' }), N('u', 66, 0, { w: 56, h: 56, label: '上面', cls: 'dimc' }), N('l', 0, 66, { w: 56, h: 56, label: '左边', cls: 'lit' }), N('c', 66, 66, { w: 56, h: 56, value: '?', cls: 'sel' })], edges: [E('ul', 'c', 'hot'), E('l', 'c', 'hot')] } },
       { t: '这和路线计数器做的事几乎一样：两个来源加起来，起点算 1，只是来源换了方向。它的三个口上写着「上」「左」「起」，可它只管把前两个口的数加起来。<b>你把哪两个格子接给它，它就加哪两个。</b>' },
     ],
     mission: { goal: '每一步只能往右走一格，或往右下斜着走一格。算出从左上角到右下角有几条路线。', how: '路线计数器在托盘里。在视野里点亮这一关需要的格子，接到计数器上试试。走不到的格子会是「—」。' },
-    world: 'grid', taps: [...NEAR, 'start'], palette: ['bp:stamp', 'msum', 'const', 'pass', 'block'], slots: 4,
+    world: 'grid', facts: ['start'], palette: ['bp:stamp', 'msum', 'const', 'pass', 'block'], slots: 4,
     tests: [{ R: 3, C: 5 }, { R: 4, C: 6 }],
     solution: circ([['c', 'bp:stamp']], ['tap:left>c:0', 'tap:ul>c:1', 'tap:start>c:2', 'c>out:cell']),
     hints: [
@@ -116,16 +115,16 @@ export const machines = [
     debrief: { title: '零件不在乎方向', body: ['路线计数器的口上写着「上」「左」，可你接给它的是「左边」和「左上」，它照样算对了。', '<b>零件只认结构，不认名字</b>：两个来源相加，起点算 1。只要新问题也是这个结构，旧零件就能直接拿来用。', '下一关的问题，看起来和城市毫无关系。带着这个想法去看看。'], note: '零件只认结构：两个来源相加、起点算 1，换个方向照样能用。' },
   },
   {
-    id: 'stairs', ch: 3, title: '爬楼梯', short: '换一种视野，同样的结构', mode: 'circuit',
+    id: 'stairs', ch: 3, title: '爬楼梯', short: '换一种视野，同样的结构', mode: 'circuit', robot: 'ranger',
     intro: [
       { t: '换个问题。爬楼梯时，<b>每次可以迈 1 级，也可以迈 2 级</b>。爬到第 n 级，一共有多少种不同的走法？' },
       { t: '把每一级台阶当成一个格子，排成一行。第 0 级是地面。', fig: { cells: Array.from({ length: 6 }, (_, i) => ({ id: `s${i}`, x: i * 60, y: 0, w: 50, h: 50, value: '', corner: i })), edges: [] } },
       { t: '站到第 5 级的最后一步，要么是<b>从第 4 级迈 1 级</b>上来，要么是<b>从第 3 级迈 2 级</b>上来。', fig: { cells: Array.from({ length: 6 }, (_, i) => ({ id: `s${i}`, x: i * 60, y: 0, w: 50, h: 50, value: i === 5 ? '?' : '', corner: i, cls: i === 5 ? 'sel' : i >= 3 ? 'lit' : '' })), edges: [E('s4', 's5', 'hot'), E('s3', 's5', 'hot', -46)] } },
-      { t: '机器人这次在楼梯上走。视野竖了起来：脚下是这一级，下面是前 1、2、3 级，上面是后 1 级。「本格信息」里的「是地面」只在第 0 级是「是」。机器人从地面开始，一级一级往上走。' },
+      { t: '机器人这次在台阶这一排上走，从地面（第 0 级）开始，一级一级往右。可是前 2 级离它有两格远，<b>3×3 的视野看不到</b>。所以这一关，你的机器人升级成了 5×5 视野的「远望」。「本格信息」里的「是地面」只在第 0 级是「是」。' },
       { t: '拼一块电路板吧。上一关你发现：零件只认结构，不认名字。爬楼梯的结构，你是不是在哪儿见过？' },
     ],
-    mission: { goal: '每次只能迈 1 级或 2 级台阶，从地面（第 0 级）出发。算出爬到第 4、6、9 级各有几种走法。', how: '机器从第 0 级（地面）往上，一级一级地算。站在地面上，算 1 种走法。' },
-    world: 'strip', taps: ['m3', 'm2', 'm1', 'p1', 'ground'], palette: ['msum', 'const', 'pass', 'block', 'bp:stamp'], slots: 6,
+    mission: { goal: '每次只能迈 1 级或 2 级台阶，从地面（第 0 级）出发。算出爬到第 4、6、9 级各有几种走法。', how: '机器人从第 0 级（地面）往上，一级一级地走。站在地面上，算 1 种走法。视野里，红框左边一格是前 1 级，左边两格是前 2 级。' },
+    world: 'strip', facts: ['ground'], palette: ['msum', 'const', 'pass', 'block', 'bp:stamp'], slots: 6,
     tests: [{ n: 4 }, { n: 6 }, { n: 9 }],
     solution: circ([['m', 'msum'], ['k', 'const', 1], ['g', 'pass']], ['tap:m1>m:0', 'tap:m2>m:1', 'tap:ground>g:0', 'k>g:1', 'g>m:2', 'm>out:cell']),
     hints: [
@@ -133,12 +132,11 @@ export const machines = [
       '地面要算 1 种走法：「是地面」接放行闸的条件口，常数 1 接数口。',
       '也可以直接用路线计数器：前 1 级接它的「上」，前 2 级接「左」，是地面接「起」。',
     ],
-    diagnose: c => (usesTap(c, 'm3') ? '每次最多只能迈 2 级，「前 3 级」用不上。' : null),
     unlock: 'stairs',
     debrief: { title: '5 种、13 种、55 种', body: ['如果你把路线计数器拿来用了，你会发现：<b>它根本不知道自己在数楼梯</b>，可它算对了。', '城市路口和楼梯，表面上毫无关系，但它们的结构一样：每个格子的答案，都来自几个更早的格子，再加上一个起点。看出这种结构，是学会动态规划最关键的一步。'], note: '爬楼梯：第 i 级 = 第 i − 1 级 + 第 i − 2 级，地面算 1 种。' },
   },
   {
-    id: 'order', ch: 4, title: '倒着算', short: '机器换了方向，电路也得跟着换', mode: 'circuit', uses: ['counter'],
+    id: 'order', ch: 4, title: '倒着算', short: '机器换了方向，电路也得跟着换', mode: 'circuit', robot: 'ranger', uses: ['counter'],
     intro: [
       { t: '之前机器总是从左上角开始，一行一行地算。<b>为什么不能随便从哪里开始？</b>' },
       { t: '因为每个格子要读它上面和左边的格子。如果那些格子还空着，机器就算不下去了。', fig: { cells: [N('a', 0, 0, { w: 56, h: 56, value: 1, cls: 'lit' }), N('b', 66, 0, { w: 56, h: 56, value: '空', cls: 'bad' }), N('c', 0, 66, { w: 56, h: 56, value: 1, cls: 'lit' }), N('d', 66, 66, { w: 56, h: 56, value: '?', cls: 'sel' })], edges: [E('b', 'd', 'bad'), E('c', 'd', 'hot')] } },
@@ -146,7 +144,7 @@ export const machines = [
       { t: '路线计数器要读上面和左边，可在这台机器上，那些格子总是还空着。换个想法：不数「从起点到这里」，而是数<b>「从这里到终点」</b>有几条路线。从这一格出发，第一步要么往右，要么往下……最后，答案会出现在起点。' },
     ],
     mission: { goal: '路线仍然只能往右或往下走，但机器人从右下角倒着走。拼一块电路板，让左上角的起点格算出从起点到终点的路线数。', how: '「本格信息」里多了「是终点」。机器人读到还空着的格子，就会停下来。' },
-    world: 'grid', taps: [...NEAR, 'start', 'end'], scan: 'rowBR', answerAt: 'start', palette: ['msum', 'const', 'pass', 'block', 'bp:stamp'], slots: 6,
+    world: 'grid', facts: ['start', 'end'], scan: 'rowBR', answerAt: 'start', palette: ['msum', 'const', 'pass', 'block', 'bp:stamp'], slots: 6,
     tests: [{ R: 4, C: 5 }, { R: 3, C: 6 }],
     solution: circ([['c', 'bp:stamp']], ['tap:right>c:0', 'tap:down>c:1', 'tap:end>c:2', 'c>out:cell']),
     hints: [
@@ -159,7 +157,7 @@ export const machines = [
     debrief: { title: '顺序决定了能读谁', body: ['机器从右下往左上算，每个格子被计算时，它右边和下面的格子都已经算好了，所以电路只能读这两个方向。', '<b>计算顺序和电路是一对</b>：先算被依赖的格子，再算依赖它们的格子。满足这个条件的顺序，程序员叫它「拓扑序」。', '起点格的答案和以前一样。从起点数到终点，和从终点数回起点，是同一个问题的两种问法。'], note: '合法的顺序：每个格子都排在它要读的格子之后。' },
   },
   {
-    id: 'cheapest', ch: 5, title: '最省力', short: '把「加起来」换成「取较小」', mode: 'circuit',
+    id: 'cheapest', ch: 5, title: '最省力', short: '把「加起来」换成「取较小」', mode: 'circuit', robot: 'ranger',
     intro: [
       { t: '现在每个路口都要花一点体力才能通过，就是格子左上角的小数字。从左上走到右下，<b>最少要花多少体力？</b>', fig: gridScene(3, 3, { cell: (r, c) => ({ corner: [[1, 3, 1], [1, 5, 1], [4, 2, 1]][r][c] }) }) },
       { t: '还是只看最后一步：到这个路口，要么从上面来，要么从左边来。' },
@@ -168,7 +166,7 @@ export const machines = [
       { t: '别忘了起点：起点的上面和左边都是「—」，可经过起点，也要花它自己的体力。' },
     ],
     mission: { goal: '只能往右或往下走，每经过一个路口（包括起点和终点）都要花掉它左上角写的体力。算出从左上到右下最少要花多少体力。', how: '格子左上角的小数字是这一格的体力，「本格信息」里可以点亮「本格体力」。这一关解锁了「取较小」汇合器和加法器。' },
-    world: 'grid', taps: [...NEAR, 'start', 'cost'], palette: [...KIT, 'bp:stamp'], fresh: ['mmin', 'add'], slots: 6,
+    world: 'grid', facts: ['start', 'cost'], palette: [...KIT, 'bp:stamp'], fresh: ['mmin', 'add'], slots: 6,
     tests: [{ R: 3, C: 3, costs: [[1, 3, 1], [1, 5, 1], [4, 2, 1]] }, { R: 2, C: 3, costs: [[1, 2, 3], [4, 5, 6]] }, { R: 4, C: 4, costs: L12_COSTS }],
     solution: circ([['m', 'mmin'], ['k', 'const', 0], ['g', 'pass'], ['a', 'add']], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>g:0', 'k>g:1', 'g>m:2', 'm>a:0', 'tap:cost>a:1', 'a>out:cell']),
     hints: [

@@ -4,7 +4,7 @@
 // Port ids: sources are 'tap:<id>' or '<nodeId>'; sinks are '<nodeId>:<k>' or 'out:<id>'.
 
 import { def, wouldCycle } from './components.js';
-import { ICONS, ROBOT } from './glyphs.js';
+import { ICONS } from './glyphs.js';
 import { signal } from '../util.js';
 
 export const isSink = p => p.startsWith('out:') || (!p.startsWith('tap:') && p.includes(':'));
@@ -83,7 +83,6 @@ const sourceTag = (ui, src) => (src.startsWith('tap:') ? ui.taps[src.slice(4)].s
 
 /**
  * The whole editor. ui = { taps, avail, lit, outs, slots, pick, palette, win }
- * win = { cols, rows, cells: [{ c, r, key, tap?, out?, corner?, cls?, value, state? }], colLabels?, rowLabels?, gapCol?, facts: [{ id, value }], note }
  */
 export function editorHTML(circ, ui) {
   const lit = litOf(circ), from = new Map(circ.wires.map(w => [w.to, w.from]));
@@ -137,28 +136,34 @@ export function editorHTML(circ, ui) {
   </div>`;
 }
 
-/** The robot's window: lit inputs in blue, the robot's own cell framed red. Values are live during a run. */
+/**
+ * The robot's window. In 「选输入」 mode a tap on a cell lights it as an input (blue); in 「测试」 mode it edits
+ * the number the bench feeds in. The robot's own cells are framed red. Values are live during a run.
+ * ui.win = { robot, wins: [{ label, n, cells }], arm, facts, note, mode, bench, typed }
+ */
 export function viewHTML(circ, ui) {
-  const lit = litOf(circ), w = ui.win, lx = w.rowLabels ? 1 : 0, ly = w.colLabels ? 1 : 0;
-  const cols = Array.from({ length: w.cols }, (_, c) => (c === w.gapCol ? '14px' : 'var(--vc)')).join(' ');
-  const parts = [];
-  (w.colLabels || []).forEach((t, c) => parts.push(`<span class="vlab" style="grid-area:1/${c + 1 + lx}">${t}</span>`));
-  (w.rowLabels || []).forEach((t, r) => parts.push(`<span class="vlab" style="grid-area:${r + 1 + ly}/1">${t}</span>`));
-  if (w.gapCol !== undefined) for (let r = 0; r < w.rows; r++) parts.push(`<span class="vgap" style="grid-area:${r + 1 + ly}/${w.gapCol + 1 + lx}">…</span>`);
-  w.cells.forEach(x => {
-    const can = x.tap && ui.avail.includes(x.tap), on = can && lit.includes(x.tap), area = `grid-area:${x.r + 1 + ly}/${x.c + 1 + lx}`;
-    const cls = ['vcell', x.cls, x.key === null ? 'off' : '', can ? 'can' : '', on ? 'on' : '', x.out ? 'self' : '', x.state || ''].filter(Boolean).join(' ');
-    const inner = `${x.corner !== '' && x.corner !== undefined ? `<span class="vc">${x.corner}</span>` : ''}<span class="vv">${x.key === null ? '界外' : x.value}</span>${on ? `<span class="tag" style="--c:${sourceColor(ui, `tap:${x.tap}`)}">${ui.taps[x.tap].short}</span>` : ''}${x.out && x.out === ui.outs[0][0] ? `<svg class="vbot" viewBox="0 0 32 32" aria-hidden="true">${ROBOT}</svg>` : ''}`;
-    parts.push(can
-      ? `<button class="${cls}" type="button" style="${area}" data-act="lit" data-t="${x.tap}" aria-pressed="${on}" aria-label="${on ? '取消' : '点亮'}输入 ${ui.taps[x.tap].label}">${inner}</button>`
-      : `<span class="${cls}" style="${area}">${inner}</span>`);
-  });
-  const facts = ui.win.facts.filter(f => ui.avail.includes(f.id)).map(f => {
+  const lit = litOf(circ), w = ui.win, act = w.mode === 'bench' ? 'bench' : 'lit', vision = (w.wins[0].n - 1) / 2;
+  const tag = id => `<span class="tag" style="--c:${sourceColor(ui, `tap:${id}`)}">${ui.taps[id].short}</span>`;
+  const cellHTML = (x, opts = {}) => {
+    const can = !!x.tap && ui.avail.includes(x.tap), on = can && lit.includes(x.tap), click = can && (act === 'lit' || x.key !== null);
+    const cls = ['vcell', x.cls, x.key === null ? 'off' : '', can ? 'can' : '', on ? 'on' : '', x.out ? 'self' : '', x.state].filter(Boolean).join(' ');
+    const inner = `${x.corner !== '' && x.corner !== undefined && x.key !== null ? `<span class="vc">${x.corner}</span>` : ''}<span class="vv">${x.key === null ? '' : x.value}</span>${on ? tag(x.tap) : ''}${opts.bot ? `<svg class="vbot" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg>` : ''}${opts.label ? `<span class="vl">${opts.label}</span>` : ''}`;
+    const style = opts.area ? ` style="grid-area:${opts.area}"` : '';
+    return click
+      ? `<button class="${cls}" type="button"${style} data-act="${act}" data-t="${x.tap}" aria-pressed="${on}" aria-label="${act === 'lit' ? (on ? '取消输入' : '点亮输入') : '填数'} ${ui.taps[x.tap].label}">${inner}</button>`
+      : `<span class="${cls}"${style}>${inner}</span>`;
+  };
+  const wins = w.wins.map((win, k) => `<div class="vblock">${win.label ? `<span class="vsub">${win.label}</span>` : ''}
+    <div class="vwin n${win.n}">${win.cells.map(x => cellHTML(x, { area: `${x.r + 1}/${x.c + 1}`, bot: !k && x.r === vision && x.c === vision })).join('')}</div></div>`).join('');
+  const arm = w.arm ? `<div class="varm"><span class="vsub">伸缩臂 · ${w.arm.label}</span><div class="varm-row">${w.arm.cells.map(x => cellHTML(x, { label: x.label })).join('')}</div></div>` : '';
+  const facts = w.facts.map(f => {
     const m = ui.taps[f.id], on = lit.includes(f.id);
-    return `<button class="vfact${on ? ' on' : ''}" type="button" data-act="lit" data-t="${f.id}" aria-pressed="${on}">${iconSVG(m.icon)}<span>${m.label}</span><span class="vv">${f.value}</span>${on ? `<span class="tag" style="--c:${sourceColor(ui, `tap:${f.id}`)}">${m.short}</span>` : ''}</button>`;
+    return `<button class="vfact${on ? ' on' : ''}${f.state ? ` ${f.state}` : ''}" type="button" data-act="${act}" data-t="${f.id}" aria-pressed="${on}">${iconSVG(m.icon)}<span>${m.label}</span><span class="vv">${f.value}</span>${on ? tag(f.id) : ''}</button>`;
   }).join('');
-  return `<div class="vhead">机器人视野<small>${w.note}</small></div>
-    <div class="vwin" style="grid-template-columns:${lx ? 'auto ' : ''}${cols}">${parts.join('')}</div>
+  return `<div class="vhead"><svg class="vlook" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg><div><b>${w.robot.name}</b><small>视野 ${w.wins[0].n}×${w.wins[0].n}${w.robot.arm ? ' · 伸缩臂' : ''}</small></div></div>
+    <div class="vmode" role="group" aria-label="视野模式"><button type="button" data-act="vmode" data-v="lit" aria-pressed="${act === 'lit'}">选输入</button><button type="button" data-act="vmode" data-v="bench" aria-pressed="${act === 'bench'}">测试</button></div>
+    <div class="vnote">${w.note}${w.bench && w.typed ? ' <button type="button" class="vreset" data-act="benchreset">还原</button>' : ''}</div>
+    ${wins}${arm}
     ${facts ? `<div class="vfacts"><span class="vsub">本格信息</span>${facts}</div>` : ''}`;
 }
 
