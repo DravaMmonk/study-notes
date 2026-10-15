@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, Check, Eye, EyeOff } from 'lucide-react'
 import { PHONE, useMedia } from '../useMedia.js'
 import { css, tokenRGB } from '../views/views.js'
 import { Stages } from './WaveKit.jsx'
+import FigureStage from '../FigureStage.jsx'
 import './waves.css'
 import './light.css'
 
@@ -30,9 +31,15 @@ export default function NormalProbe({ level, onSolve, theme }) {
   const [stage, setStage] = useState(0)
   const [passed, setPassed] = useState(() => m.stages.map(() => false))
   const [reached, setReached] = useState(0)
+  const [active, setActive] = useState('A')
   const s = m.stages[stage]
   const point = points[stage]
   const match = m.passes(s, point, first)
+  const lit = s.lamps.includes(active) ? active : s.lamps[0]
+  const bench = useMemo(
+    () => ({ point, active: lit, tolerance: m.tolerance, lamps: Object.fromEntries(s.lamps.map((lamp) => [lamp, { dir: m.lamps[lamp].dir, photo: m.photo[lamp] }])) }),
+    [point, lit, m, s],
+  )
 
   const move = (next) => {
     setPoints(points.map((p, i) => (i === stage ? next : p)))
@@ -50,12 +57,16 @@ export default function NormalProbe({ level, onSolve, theme }) {
 
   // Equal-brightness lines: shown once the first photo is matched, or on request in the last step.
   const showLines = stage === 1 || (stage === 0 && passed[0]) || lines || (stage === 2 && passed[2])
-  const size = s.lamps.length > 1 ? (phone ? 150 : 228) : phone ? 240 : 260
+  const size = s.lamps.length > 1 ? (phone ? 150 : 200) : phone ? 200 : 220
 
   return (
     <div className="bk wv np">
       <div className="bk-split">
         <section className="bk-stage bk-stack">
+          <figure className="np-bench">
+            <FigureStage name="normal-studio" theme={theme} props={bench} onChange={(change) => (change.point ? move(change.point) : change.active && setActive(change.active))} />
+            <figcaption className="bk-caption">在台面上拖动，法线杆跟着手指歪{s.lamps.length > 1 ? ' · 点一盏灯，看它那张照片' : ''} · 近处的灰阶尺：游标是现在的亮度，小旗是照片里的亮度</figcaption>
+          </figure>
           <div className={`np-discs is-${s.lamps.length}`}>
             {s.lamps.map((lamp) => (
               <Disc key={lamp} m={m} lamp={lamp} point={point} onMove={move} size={size} showLine={showLines} first={stage === 1 ? first : null} theme={theme} />

@@ -13,20 +13,26 @@ export const figureThemeOf = (theme) => ({ night: 'dark', blueprint: 'blueprint'
 
 // `bare` drops the card frame, corner labels and legend, for using a figure as illustration.
 const BARE_CSS = `:host{margin:0}.iso-plate{padding:0;background:transparent;box-shadow:none}.iso-plate-corners,.iso-legend{display:none}.iso-stage{cursor:default}`
+// `stage` is a bare figure the reader plays with: it keeps its own cursors and is never cropped on phones.
+const STAGE_CSS = `.iso-stage{cursor:auto}@media (max-width:560px){.iso-plate .iso-svg{width:100%;margin-left:0}}`
 
-export function createFigureHost(name, theme, { bare = false } = {}) {
+// A figure's mount(root, { props, emit }) may return a cleanup function or { update(props), destroy() }.
+// `props` go in at mount and with update(); `onChange` hears what the reader changed inside the figure.
+export function createFigureHost(name, theme, { bare = false, stage = false, props, onChange } = {}) {
   const host = document.createElement('div')
   host.className = 'figure-host'
   host.dataset.figure = name
   const shadow = host.attachShadow({ mode: 'open' })
   const style = document.createElement('style')
-  style.textContent = bare ? HOST_CSS + BARE_CSS : HOST_CSS
+  style.textContent = HOST_CSS + (bare || stage ? BARE_CSS : '') + (stage ? STAGE_CSS : '')
   const root = document.createElement('div')
   root.className = 'iso'
   root.dataset.theme = figureThemeOf(theme)
   shadow.append(style, root)
 
   let cleanup = () => {}
+  let update = () => {}
+  let latest = props
   let disposed = false
   const load = figures[name]
   if (!load) {
@@ -40,12 +46,21 @@ export function createFigureHost(name, theme, { bare = false } = {}) {
         shadow.insertBefore(extra, root)
       }
       root.innerHTML = module.render()
-      cleanup = module.mount(root) ?? cleanup
+      const mounted = module.mount(root, { props: latest, emit: onChange })
+      if (typeof mounted === 'function') cleanup = mounted
+      else if (mounted) {
+        cleanup = () => mounted.destroy?.()
+        update = (next) => mounted.update?.(next)
+      }
     })
   }
 
   return {
     host,
+    update(next) {
+      latest = next
+      update(next)
+    },
     setTheme(next) {
       root.dataset.theme = figureThemeOf(next)
     },

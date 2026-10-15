@@ -55,6 +55,8 @@
 .cm-lamps { display: grid; gap: 8px; }
 
 /* 3-3 一个亮度不够 */
+.np-bench { margin: 0; display: grid; gap: 6px; }
+.np-bench .figure-stage { width: 100%; max-width: 560px; margin: 0 auto; }
 .np-discs { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
 .np-disc { margin: 0; display: grid; gap: 6px; justify-items: center; }
 .np-surface { position: relative; touch-action: none; cursor: grab; }
