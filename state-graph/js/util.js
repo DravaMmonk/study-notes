@@ -2,6 +2,8 @@
 
 export const $ = (s, r = document) => r.querySelector(s);
 export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+/** The desktop workbench layout (see styles.css). */
+export const wide = () => matchMedia('(min-width: 1100px)').matches;
 export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 export const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* no haptics */ } };
 export const sleep = ms => new Promise(r => setTimeout(r, ms));

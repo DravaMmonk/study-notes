@@ -82,7 +82,8 @@ export function sourceColor(ui, src) {
 const sourceTag = (ui, src) => (src.startsWith('tap:') ? ui.taps[src.slice(4)].short : letter(src));
 
 /**
- * The whole editor. ui = { taps, avail, lit, outs, slots, pick, wire, palette, win }
+ * The whole editor. ui = { taps, avail, lit, outs, slots, pick, wire, palette, win, sideView }
+ * With sideView the robot's window is drawn by the level into the side column instead of beside the board.
  */
 export function editorHTML(circ, ui) {
   const lit = litOf(circ), from = new Map(circ.wires.map(w => [w.to, w.from]));
@@ -125,7 +126,7 @@ export function editorHTML(circ, ui) {
         ${ui.palette.length ? `<div class="cgrid">${cells}</div>` : ''}
         <div class="couts" style="--n:${ui.outs.length}">${outs}</div>
       </div>
-      <aside class="cview" id="cview">${viewHTML(circ, ui)}</aside>
+      ${ui.sideView ? '' : `<aside class="cview" id="cview">${viewHTML(circ, ui)}</aside>`}
     </div>
   </div>`;
 }
