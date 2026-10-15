@@ -4,7 +4,7 @@
 // robot's cell shows the circuit's answer at once. Running clears the board and the robot starts from its usual cell.
 // A level may have several stages (a new world with new inputs).
 
-import { $, $$, buzz, toast, signal, ICON } from '../util.js';
+import { $, $$, buzz, toast, signal, ICON, wide } from '../util.js';
 import { rt, Anim } from '../runtime.js';
 import { WORLDS, runCircuit, readTap, windowOf, visibleTaps } from '../circuit/worlds.js';
 import { ROBOTS } from '../circuit/robots.js';
@@ -61,7 +61,7 @@ export function circuitMode(L, saved) {
     w.probe = box ? box.probe : s.probe;
     return w;
   }
-  const ui = () => ({ taps: taps(), avail: avail(), lit: litOf(circ()), outs: V().outs, slots: stage().slots, pick: st.pick, wire: st.wire, palette: stage().palette, win: win() });
+  const ui = () => ({ taps: taps(), avail: avail(), lit: litOf(circ()), outs: V().outs, slots: stage().slots, pick: st.pick, wire: st.wire, palette: stage().palette, win: win(), sideView: wide() });
   const firstFree = () => placement(circ(), stage().slots).free[0];
   const hintFor = () => {
     const s = stage(), d = L.diagnose ? L.diagnose(circ(), st) : null;
@@ -196,6 +196,7 @@ export function circuitMode(L, saved) {
       return stage().tip ? { text: stage().tip } : null;
     },
     panelStage: true,
+    sideView: true,
     dnd,
     parts() {
       const fresh = stage().fresh || [];

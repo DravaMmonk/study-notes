@@ -2,7 +2,7 @@
 // Game modes talk to the shell only through `rt` (runtime.js). From 1100px the level screen is a workbench:
 // brief on the left, the mode's main pane in the middle (the board, or the panel when `ctl.panelStage`), the rest on the right.
 
-import { $, $$, reduced, buzz, sleep, ICON, toast } from './util.js';
+import { $, $$, reduced, buzz, sleep, ICON, toast, wide } from './util.js';
 import { sceneSVG, gridScene } from './svg.js';
 import { routeSteps } from './algo.js';
 import { rt, Anim } from './runtime.js';
@@ -12,7 +12,7 @@ import { MODES } from './modes/index.js';
 import { initTheme } from './theme.js';
 import { enableDrag } from './circuit/drag.js';
 
-const wide = matchMedia('(min-width: 1100px)'), docked = matchMedia('(min-width: 1500px)');
+const docked = matchMedia('(min-width: 1500px)');
 const RAIL = 'state-graph-rail';
 let railOpen = (() => { try { return localStorage.getItem(RAIL) !== '0'; } catch (e) { return true; } })() && docked.matches;
 
@@ -89,6 +89,8 @@ function refresh() {
   const a = document.activeElement, sig = a && a.dataset && a.closest && a.closest('#panel, #board') && (a.dataset.act || a.dataset.test) ? focusSig(a) : null;
   renderMission();
   renderTests();
+  // On a desktop the robot's window sits in the side column, under the tests.
+  $('#view').innerHTML = cur.ctl.sideView && wide() ? '<aside class="cview" id="cview"></aside>' : '';
   renderBoard();
   $('#panel').innerHTML = cur.ctl.panel();
   $('#parts').innerHTML = cur.ctl.parts ? cur.ctl.parts() : '';
@@ -103,7 +105,7 @@ function refreshKeepRange() {
   renderDock();
 }
 
-function startRun() { rt.cur.running = true; Anim.begin(); renderDock(); if (!wide.matches) $('#bcard').scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' }); }
+function startRun() { rt.cur.running = true; Anim.begin(); renderDock(); if (!wide()) $('#bcard').scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' }); }
 function endRun() { rt.cur.running = false; }
 
 /* ================= level rail ================= */
@@ -302,6 +304,7 @@ function boot() {
   $('#tests').addEventListener('click', e => { const b = e.target.closest('[data-test]'); if (b && !rt.cur.running) rt.cur.ctl.selectTest(+b.dataset.test); });
   $('#panel').addEventListener('click', onAct);
   $('#after').addEventListener('click', onAct);
+  $('#view').addEventListener('click', onAct);
   $('#panel').addEventListener('input', e => { if (e.target.id === 'nRange' && rt.cur.ctl.input) rt.cur.ctl.input(+e.target.value); });
   new ResizeObserver(() => { if (rt.cur && rt.cur.ctl.mounted) rt.cur.ctl.mounted(); }).observe($('#panel'));
   $('#dock').addEventListener('click', e => {
@@ -346,7 +349,7 @@ function boot() {
   $('#parts').addEventListener('click', onAct);
   enableDrag($('#level'), () => (rt.cur && rt.cur.ctl.dnd) || null);
   docked.addEventListener('change', () => { if (!docked.matches) railOpen = false; renderRail(); });
-  wide.addEventListener('change', () => { if (rt.cur) refresh(); });
+  matchMedia('(min-width: 1100px)').addEventListener('change', () => { if (rt.cur) refresh(); });
   initTheme();
   wireSheetDrag();
   renderMap();

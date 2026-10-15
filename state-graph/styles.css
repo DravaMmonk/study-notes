@@ -293,7 +293,7 @@ button:disabled{cursor:not-allowed}
 .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:60;max-width:calc(100% - 32px);transform:translate(-50%,calc(-100% - 24px));padding:11px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;box-shadow:0 10px 30px -10px rgba(0,0,0,.7);transition:transform .3s cubic-bezier(.2,.85,.25,1);text-align:center}
 .toast.show{transform:translate(-50%,0)}
 /* ---------- chapter 7–10 ---------- */
-#after:empty{display:none}
+#after:empty,#view:empty{display:none}
 .chip[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink)}
 .chip:disabled{opacity:.55;border-style:dashed}
 .chips.col{flex-direction:column;align-items:stretch}
@@ -573,6 +573,7 @@ img{max-width:100%}
   .lv-scroll,.lv-grid{display:contents}
   .brief{grid-area:brief;display:flex;flex-direction:column;gap:22px;overflow-y:auto;padding:22px 20px 28px;background:var(--panel);border-right:1px solid var(--line);scrollbar-width:thin}
   .bcard,.panel{min-height:0;overflow-y:auto;scrollbar-width:thin}
+  .bcard>*,.panel>*{flex-shrink:0}
   #level.panel-stage .panel,#level:not(.panel-stage) .bcard{grid-area:stage}
   #level.panel-stage .bcard,#level:not(.panel-stage) .panel{grid-area:side}
   .dock{grid-area:dock;border-left:1px solid var(--line);padding:12px 16px}
@@ -617,7 +618,8 @@ img{max-width:100%}
   #level.panel-stage .cptitle{display:none}
   #level.panel-stage .cpcard h3 small{font:600 11px var(--f-mono);letter-spacing:.06em}
   #level.panel-stage .cboard{padding:6px 0 10px;gap:26px;background:none;border:0;border-radius:0}
-  #level.panel-stage .cview{background:var(--panel);border:0;box-shadow:var(--card);position:sticky;top:0}
+  #level.panel-stage .cmain{grid-template-columns:minmax(0,1fr)}
+  #view .cview{max-width:none;background:var(--board);border:0;box-shadow:inset 0 0 0 1px var(--line)}
   .cgrid{gap:40px 14px}
   .ccell{min-height:96px}
   .cview{--vc:42px;max-width:none;padding:12px 10px}
