@@ -6,7 +6,7 @@ import { describe, familyOf, iconOf } from '../catalog.js'
 import ValueView from '../views/ValueView.jsx'
 import ViewSwitch from '../views/ViewSwitch.jsx'
 import { KIND_NAMES, kindOf, nodeView } from '../views/views.js'
-import { enableDrag } from './drag.js'
+import { enableDrag } from '../../../../../games/kit/drag.js'
 import { ChoiceEditor, KernelEditor, NumberEditor } from './Editors.jsx'
 import { NUMBERS, connect, feeding, layout, moveTo, placeAt, placement, removeNode, setParam } from './ops.js'
 import { AddSheet, ParamChip, SourceSheet, TestCarousel } from './parts.jsx'
@@ -128,18 +128,24 @@ export default function PhoneCircuit({ level, graph, onChange, onReset, run, tes
     if (wire(picking, p)) setPicking(null)
     return undefined
   }
+  // A wire from port `p` dropped on (or, with `p` picked, tapped onto) a block lands on its output, or on its
+  // first free input.
+  const wireToCard = (p, id) => {
+    const node = byId(id)
+    if (parsePort(p).side === 'in') return node.type !== 'output' && wire(p, outPort(id))
+    const ports = node.type === 'input' ? [] : inputsOf(node.type)
+    const open = ports.find((port) => !feeding(graph, id, port) && !refusal(p, inPort(id, port))) ?? ports.find((port) => !refusal(p, inPort(id, port)))
+    if (!open) {
+      setToast('这一块没有能接这根线的口')
+      return false
+    }
+    return wire(p, inPort(id, open))
+  }
   // While a dot is picked, tapping a block wires it too: to its output, or to its first free input.
   const onNode = (id) => {
-    const node = byId(id)
     if (picking) {
-      const pick = parsePort(picking)
-      if (pick.side === 'in' && node.type !== 'output') return onPort(outPort(id))
-      if (pick.side === 'out') {
-        const ports = node.type === 'input' ? [] : inputsOf(node.type)
-        const open = ports.find((port) => !feeding(graph, id, port)) ?? ports[0]
-        if (open) return onPort(inPort(id, open))
-      }
-      return setPicking(null)
+      if (wireToCard(picking, id)) setPicking(null)
+      return undefined
     }
     buzz(4)
     setSheet({ kind: 'part', node: id })
@@ -180,45 +186,42 @@ export default function PhoneCircuit({ level, graph, onChange, onReset, run, tes
     setToast('清空了电路')
   }
 
-  // Drag and drop on the board, the tray and the dots. Handlers read the latest props through a ref.
+  // Drag and drop on the board, the tray and the dots, through the shared circuit kit (games/kit/drag.js, also
+  // used by 状态之图). Handlers read the latest props through a ref.
   const latest = useRef(null)
   const say = (note) => setToast(note)
   const unpick = () => setPicking(null)
   useEffect(() => {
-    latest.current = { graph, wire, place, edit, remove, say, unpick }
+    latest.current = { graph, wire, place, edit, remove, say, unpick, wireToCard }
   })
   useEffect(() => {
     const el = root.current
-    return enableDrag(el, scroller.current, {
+    const board = () => el.querySelector('.pb-board')
+    const handlers = {
+      scroller: scroller.current,
       start: (g) => g.kind === 'port' && latest.current.unpick(),
-      move: (g) => {
-        if (g.kind !== 'port') return
-        const board = el.querySelector('.pb-board')
-        if (board) drawWires(board, latest.current.graph, { from: g.id, x: g.x, y: g.y })
-      },
+      move: (g) => g.kind === 'port' && board() && drawWires(board(), latest.current.graph, { from: g.id, x: g.x, y: g.y }),
       drop: (g) => {
         const L = latest.current
         const over = g.over
-        if (g.kind === 'port') {
-          if (over && over.dataset.port !== g.id) L.wire(g.id, over.dataset.port)
-          return
+        const slot = over?.dataset.slot !== undefined && over ? Number(over.dataset.slot) : null
+        if (g.kind === 'port' && over) {
+          if (over.dataset.p && over.dataset.p !== g.id) L.wire(g.id, over.dataset.p)
+          else if (over.dataset.piece) L.wireToCard(g.id, over.dataset.piece)
         }
-        if (!over) return
-        if (g.kind === 'tray') {
-          const at = Number(over.dataset.slot)
-          if (placement(L.graph).free.includes(at)) L.place(g.id, at)
+        if (g.kind === 'tray' && slot !== null) {
+          if (placement(L.graph).free.includes(slot)) L.place(g.id, slot)
           else L.say('这一格已经有元件了')
         }
-        if (g.kind === 'node') {
-          if (over.dataset.trash !== undefined) L.remove(g.id)
-          else L.edit(moveTo(L.graph, g.id, Number(over.dataset.slot)))
+        if (g.kind === 'piece' && over) {
+          if (slot !== null) L.edit(moveTo(L.graph, g.id, slot))
+          else L.remove(g.id)
         }
+        if (board()) drawWires(board(), L.graph)
       },
-      end: () => {
-        const board = el.querySelector('.pb-board')
-        if (board) drawWires(board, latest.current.graph)
-      },
-    })
+      end: () => board() && drawWires(board(), latest.current.graph),
+    }
+    return enableDrag(el, () => handlers)
   }, [])
 
   const pickNote = picking && (() => {

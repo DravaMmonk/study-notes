@@ -19,7 +19,7 @@ export function drawWires(el, graph, live) {
   if (!svg) return
   const origin = el.getBoundingClientRect()
   const at = (p) => {
-    const dot = el.querySelector(`[data-port="${CSS.escape(p)}"]`)
+    const dot = el.querySelector(`[data-p="${CSS.escape(p)}"]`)
     if (!dot) return null
     const box = dot.getBoundingClientRect()
     return [box.left + box.width / 2 - origin.left, box.top + box.height / 2 - origin.top]

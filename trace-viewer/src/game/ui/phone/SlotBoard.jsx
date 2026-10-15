@@ -40,7 +40,7 @@ export default function SlotBoard({ graph, values, errors, checks, expected, vie
       key={p}
       type="button"
       className={`pb-dot ${dotClass(p, extra)}`}
-      data-port={p}
+      data-p={p}
       onClick={(event) => {
         event.stopPropagation()
         onPort(p)
@@ -97,7 +97,7 @@ export default function SlotBoard({ graph, values, errors, checks, expected, vie
           const param = (spec.params ?? [])[0]
           return (
             <div key={node.id} className="pb-cell" data-slot={at}>
-              <div className="pb-tile" data-drag={node.id} data-family={familyOf(node.type)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
+              <div className="pb-tile" data-piece={node.id} data-drag data-family={familyOf(node.type)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
                 <span className="pb-ins">{inputs(node)}</span>
                 <span className="pb-thumb">{thumbOf(node)}</span>
                 <span className="pb-name">{createElement(iconOf(node.type), { size: 12, strokeWidth: 2 })}{nameOf(node)}</span>

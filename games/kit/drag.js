@@ -6,12 +6,13 @@
 //   [data-p="id"]      a port: dragging it pulls a wire, and it is a target for wires
 //   [data-tray="kind"] a palette item: dragging it brings a new piece onto the board
 //   [data-canvas]      where a new piece can be dropped      [data-trash]  where a dragged piece is removed
+//   [data-slot="n"]    a cell of a slot board: a piece or a palette item dropped there lands in that cell
 //
 // While a piece moves it is translated (in its own, unscaled pixels) and never animated, so it stays under the
 // pointer; the app commits the new position on drop. Touch drags start after a short hold, so a quick swipe still
 // scrolls. A finished drag swallows the click that would follow it.
 
-const HOLD = 170, SLOP = 6, EDGE = 56;
+const HOLD = 170, SLOP = 6, EDGE = 56, DWELL = 18; // DWELL: frames in an edge strip before it scrolls
 const buzz = ms => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch { /* no haptics */ } };
 
 let swallowUntil = 0;
@@ -30,11 +31,13 @@ function scrollParent(el) {
 export const scaleOf = el => el.getBoundingClientRect().width / el.offsetWidth || 1;
 
 /**
- * Enable dragging inside `root`. handlers() → { start?(g), move?(g), drop(g), end?() } | null, read at each pointerdown.
+ * Enable dragging inside `root`. handlers() → { start?(g), move?(g), drop(g), end?(), scroller? } | null, read at each
+ * pointerdown; `scroller` names the pane to auto-scroll when it is not an ancestor of what is dragged (a board above a
+ * docked palette).
  * g = { kind: 'piece' | 'port' | 'tray', id, el, x, y, dx, dy, over }: x, y are client coordinates; dx, dy how far a
- * piece moved in its own pixels; `over` the element under the pointer that can take the drop — [data-trash] for a
- * piece, [data-canvas] for a tray item, a port [data-p] or a piece [data-piece] for a wire. Returns a function that
- * disables dragging again.
+ * piece moved in its own pixels; `over` the element under the pointer that can take the drop — a cell [data-slot]
+ * or [data-trash] for a piece, a cell or [data-canvas] for a tray item, a port [data-p] or a piece [data-piece] for
+ * a wire. Returns a function that disables dragging again.
  */
 export function enableDrag(root, handlers) {
   let g = null;
@@ -50,7 +53,7 @@ export function enableDrag(root, handlers) {
     const el = document.elementFromPoint(x, y);
     if (!el) return null;
     if (g.kind === 'port') return el.closest('[data-p]') || el.closest('[data-piece]');
-    return el.closest(g.kind === 'piece' ? '[data-trash]' : '[data-canvas]');
+    return el.closest('[data-slot]') || el.closest(g.kind === 'piece' ? '[data-trash]' : '[data-canvas]');
   };
 
   function start() {
@@ -77,12 +80,17 @@ export function enableDrag(root, handlers) {
     if (g.h.move) g.h.move(g);
   }
 
-  /** Scroll while the pointer rests near the top or bottom edge of the scrolling pane. */
+  /**
+   * Scroll while the pointer rests in the strip just inside the top or bottom edge of the scrolling pane. It has to
+   * rest there a moment first: a drag from a palette docked under the pane crosses the bottom strip on its way up,
+   * and must not scroll the cell it is heading for away. Outside the pane nothing scrolls.
+   */
   function tick() {
     if (!g || !g.on) return;
     const r = g.scroller.getBoundingClientRect(), top = Math.max(r.top, 0), bottom = Math.min(r.bottom, innerHeight);
-    const dy = g.y < top + EDGE ? -9 : g.y > bottom - EDGE ? 9 : 0;
-    if (dy) { g.scroller.scrollTop += dy; update(); }
+    const dy = g.y > top && g.y < top + EDGE ? -9 : g.y < bottom && g.y > bottom - EDGE ? 9 : 0;
+    g.dwell = dy ? (g.dwell || 0) + 1 : 0;
+    if (dy && g.dwell > DWELL) { g.scroller.scrollTop += dy; update(); }
     requestAnimationFrame(tick);
   }
 
@@ -126,7 +134,7 @@ export function enableDrag(root, handlers) {
     if (g || e.button > 0 || !h) return;
     const t = target(e.target);
     if (!t || !root.contains(t.el)) return;
-    const touch = e.pointerType !== 'mouse', scroller = scrollParent(t.el);
+    const touch = e.pointerType !== 'mouse', scroller = h.scroller || scrollParent(t.el);
     g = { ...t, h, scroller, sc: scaleOf(t.el), dx: 0, dy: 0, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
     if (!touch && t.kind !== 'tray') e.preventDefault();
     if (touch) g.timer = setTimeout(() => { if (g && !g.on) { g.armed = true; root.classList.add('armed'); g.el.classList.add('armed'); buzz(6); } }, HOLD);
