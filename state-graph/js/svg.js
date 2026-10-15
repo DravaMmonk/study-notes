@@ -1,7 +1,9 @@
-// SVG board drawing: scenes are { cells, edges, texts?, paths? } in board units, scaled to fit.
+// SVG board drawing: scenes are { cells, edges, texts?, paths?, robot? } in board units, scaled to fit.
+// `robot` is the id of the cell the robot stands on; it is drawn perched on that cell's top edge.
 
 import { fmt } from './util.js';
 import { buildTree } from './algo.js';
+import { ROBOT } from './circuit/glyphs.js';
 
 let svgSeq = 0;
 const f1 = v => Math.round(v * 10) / 10;
@@ -35,9 +37,10 @@ function edgeSVG(A, B, e, twin, uid) {
 function cellSVG(c, uid) {
   const hw = c.w / 2, hh = c.h / 2, cls = c.cls || '', rock = cls.includes('rock');
   const tap = c.tap ? ` data-cell="${c.id}" role="button" tabindex="0" aria-label="${c.aria || c.label || c.id}"` : '';
-  const valY = c.label ? (c.sub ? 3 : 8) : 0;
+  const valY = c.icon ? hh - 13 : c.label ? (c.sub ? 3 : 8) : 0;
   return `<g class="cell ${cls}${c.tap ? ' tap' : ''}"${tap} transform="translate(${c.x} ${c.y})">
     <rect x="${-hw}" y="${-hh}" width="${c.w}" height="${c.h}" rx="${c.rx ?? 12}"${rock ? ` style="fill:url(#${uid}-hatch)"` : ''}/>
+    ${c.icon ? `<svg class="glyph" x="-25" y="${-hh + 5}" width="50" height="33" viewBox="0 0 48 32">${c.icon}</svg>` : ''}
     ${c.label ? `<text class="lb" y="${-hh + 17}">${c.label}</text>` : ''}
     ${c.corner !== undefined && c.corner !== null && c.corner !== '' ? `<text class="cn" x="${-hw + 6}" y="${-hh + 14}">${c.corner}</text>` : ''}
     <text class="val" y="${valY}">${fmt(c.value)}</text>
@@ -56,6 +59,8 @@ export function sceneSVG(scene, opt = {}) {
     x0 = Math.min(x0, lx); x1 = Math.max(x1, lx + w); y0 = Math.min(y0, t.y - 14); y1 = Math.max(y1, t.y + 5);
   }
   for (const p of scene.paths || []) if (p.box) { x0 = Math.min(x0, p.box[0]); y0 = Math.min(y0, p.box[1]); x1 = Math.max(x1, p.box[2]); y1 = Math.max(y1, p.box[3]); }
+  const bot = scene.robot && by[scene.robot] ? { x: by[scene.robot].x + by[scene.robot].w / 2 - 22, y: by[scene.robot].y - by[scene.robot].h / 2 - 20 } : null;
+  if (bot) { y0 = Math.min(y0, bot.y); x1 = Math.max(x1, bot.x + 30); }
   const pathSVG = (scene.paths || []).map(p => `<path class="edge ${p.cls}" d="${p.d}"${MARKED.has(p.cls) ? ` marker-end="url(#${uid}-${p.cls})"` : ''}/>`).join('');
   const textSVG = (scene.texts || []).map(t => `<text class="tx ${t.cls || ''}" x="${t.x}" y="${t.y}" text-anchor="${t.anchor || 'middle'}">${t.t}</text>`).join('');
   const pairs = new Set(edges.map(e => `${e.a}>${e.b}`));
@@ -65,7 +70,7 @@ export function sceneSVG(scene, opt = {}) {
     <pattern id="${uid}-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" style="fill:var(--chip)"/><rect width="3" height="8" style="fill:var(--wire)"/></pattern></defs>`;
   const minW = opt.minScale ? `min-width:${Math.round(vw * opt.minScale)}px;` : '';
   const maxW = opt.maxScale ? `max-width:${Math.round(vw * opt.maxScale)}px;margin:0 auto;` : '';
-  return `<svg class="board-svg" viewBox="${f1(x0 - pad)} ${f1(y0 - pad)} ${f1(vw)} ${f1(vh)}" width="100%" style="${minW}${maxW}" role="img" aria-label="${opt.label || '示意图'}">${defs}<g>${edges.map(e => edgeSVG(by[e.a], by[e.b], e, pairs.has(`${e.b}>${e.a}`), uid)).join('')}</g><g>${cells.map(c => cellSVG(c, uid)).join('')}</g>${pathSVG}${textSVG}</svg>`;
+  return `<svg class="board-svg" viewBox="${f1(x0 - pad)} ${f1(y0 - pad)} ${f1(vw)} ${f1(vh)}" width="100%" style="${minW}${maxW}" role="img" aria-label="${opt.label || '示意图'}">${defs}<g>${edges.map(e => edgeSVG(by[e.a], by[e.b], e, pairs.has(`${e.b}>${e.a}`), uid)).join('')}</g><g>${cells.map(c => cellSVG(c, uid)).join('')}</g>${pathSVG}${textSVG}${bot ? `<svg class="robot" x="${f1(bot.x)}" y="${f1(bot.y)}" width="30" height="30" viewBox="0 0 32 32">${ROBOT}</svg>` : ''}</svg>`;
 }
 
 /* ---------- reusable scene shapes ---------- */
@@ -138,16 +143,16 @@ export function knapFig(o = {}) {
 }
 
 /**
- * A small circuit diagram for intro pages: inputs on top, components in rows, outputs at the bottom.
- * spec = { taps: [[id, label, kind?]], parts: [[id, name, tag?, row?]], outs: [[id, label]], wires: [[from, to, kind?]] }
+ * A small circuit diagram for intro pages: probes on top, components in rows, outputs at the bottom.
+ * spec = { taps: [[id, label, kind?, glyph?]], parts: [[id, name, tag?, row?]], outs: [[id, label, glyph?]], wires: [[from, to, kind?]] }
  */
 export function circuitFig(spec) {
-  const colW = 118, rowH = 96, cells = [], partRows = Math.max(1, ...spec.parts.map(p => (p[3] || 0) + 1));
+  const colW = 118, rowH = 104, cells = [], partRows = Math.max(1, ...spec.parts.map(p => (p[3] || 0) + 1));
   const place = (list, y, mk) => list.forEach((it, k) => cells.push(mk(it, (k - (list.length - 1) / 2) * colW, y)));
-  place(spec.taps, 0, ([id, l, kind], x, y) => ({ id, x, y, w: 100, h: 40, value: l, cls: `ctap${kind === 'bool' ? ' bool' : ''}` }));
+  place(spec.taps, 0, ([id, l, kind, icon], x, y) => ({ id, x, y, w: 100, h: icon ? 72 : 40, value: l, icon, cls: `ctap${kind === 'bool' ? ' bool' : ''}` }));
   for (let r = 0; r < partRows; r++) {
     place(spec.parts.filter(p => (p[3] || 0) === r), rowH * (r + 1), ([id, name, tag], x, y) => ({ id, x, y, w: 104, h: tag ? 58 : 48, label: name, sub: tag, cls: 'cpartf' }));
   }
-  place(spec.outs, rowH * (partRows + 1), ([id, l], x, y) => ({ id, x, y, w: 100, h: 40, value: l, cls: 'coutf' }));
+  place(spec.outs, rowH * (partRows + 1), ([id, l, icon], x, y) => ({ id, x, y, w: 100, h: icon ? 72 : 40, value: l, icon, cls: 'coutf' }));
   return { cells, edges: spec.wires.map(([a, b, kind]) => E(a, b, kind === 'bool' ? 'sel' : kind === 'off' ? 'dim' : 'hot')) };
 }

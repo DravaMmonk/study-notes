@@ -19,7 +19,7 @@ function registerBlueprint(L, i) {
   const V = WORLDS[L.world], ports = L.blueprint;
   BLUEPRINTS[`bp:${L.id}`] = {
     name: PARTS[L.unlock].name,
-    desc: `你在第 ${i + 1} 关拼出的电路板，现在是一个元件。输入口：${ports.map(id => V.taps[id].label).join('、')}。`,
+    desc: `你在第 ${i + 1} 关拼出的电路板，现在是一个元件。顶上的输入：${ports.map(id => V.taps[id].label).join('、')}。`,
     ins: ports.map(id => V.taps[id].type), labels: ports.map(id => V.taps[id].short), tapIds: ports, out: V.outs[0][0],
     circuit: L.solution,
   };

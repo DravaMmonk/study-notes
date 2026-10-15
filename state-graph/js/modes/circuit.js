@@ -1,11 +1,13 @@
-// Circuit levels: the player builds the rule as a circuit board, and the machine runs it on every cell.
-// A level may have several stages (a new world with new taps), e.g. one layer first, then two.
+// Circuit levels: a robot walks the table cell by cell and runs the player's circuit board on each cell.
+// The player lights cells in the robot's window as inputs, wires components, and the board writes the robot's cell.
+// A level may have several stages (a new world with new inputs), e.g. one layer first, then two.
 
 import { $, buzz, toast, signal, ICON } from '../util.js';
 import { rt, Anim } from '../runtime.js';
 import { WORLDS, runCircuit } from '../circuit/worlds.js';
 import { def, blank } from '../circuit/components.js';
-import { boardHTML, drawWires, paintProbe, connect, unwire, removeNode, placeNode, isSink } from '../circuit/editor.js';
+import { editorHTML, viewHTML, drawWires, paintProbe, connect, unwire, removeNode, placeNode, moveNode, toggleLit, litOf, placement, isSink } from '../circuit/editor.js';
+import { enableDrag } from '../circuit/drag.js';
 import { PARTS } from '../levels/parts.js';
 
 export function circuitMode(L, saved) {
@@ -24,6 +26,20 @@ export function circuitMode(L, saved) {
   const changed = () => { st.status = L.tests.map(() => null); st.view = null; st.armed = false; rt.persist(); };
   const setCirc = c => { st.circs[st.stage] = c; changed(); };
   const shownStep = () => { const v = st.view; if (!v || !v.k) return null; return v.res.steps[v.focus ?? v.k - 1]; };
+
+  /** The robot's window: around the cell being computed (or inspected), else around a sample cell. */
+  function win() {
+    const t = L.tests[st.ti], Vw = V(), v = st.view, s = shownStep(), cell = s ? s.cell : Vw.sample(t, opt());
+    const shown = new Map(v ? v.res.base : []);
+    if (v) v.res.steps.slice(0, (v.focus ?? v.k - 1) + 1).forEach(x => (x.writes || []).forEach(([key, val]) => shown.set(key, val)));
+    const w = Vw.window(t, cell), reads = new Set(s ? s.reads : []);
+    w.cells = w.cells.map(x => ({ ...x, value: x.key !== null && shown.has(x.key) ? signal(shown.get(x.key)) : '', state: s && s.empty === x.key ? 'empty' : reads.has(x.key) ? 'read' : '' }));
+    w.facts = (Vw.facts || []).filter(id => stage().taps.includes(id)).map(id => ({ id, value: signal(Vw.tap(t, cell, id, () => null)) }));
+    w.note = !s ? '示例位置' : v.focus !== null && v.focus !== undefined ? `查看${Vw.where(cell)}` : Vw.where(cell);
+    return w;
+  }
+  const ui = () => ({ taps: taps(), avail: stage().taps, lit: litOf(circ()), outs: V().outs, slots: stage().slots, pick: st.pick, palette: stage().palette, win: win() });
+  const firstFree = () => placement(circ(), stage().slots).free[0];
   const hintFor = () => {
     const s = stage(), d = L.diagnose ? L.diagnose(circ(), st) : null;
     return d || (s.hints ? s.hints[Math.min(Math.max(rt.cur.fails - 1, 0), s.hints.length - 1)] : null);
@@ -35,7 +51,7 @@ export function circuitMode(L, saved) {
       const d = def(kind);
       return `<button class="pal" type="button" data-act="put" data-k="${kind}"><span class="pal-ic${d.bp ? ' bp' : ''}">${d.bp ? ICON.part : d.icon}</span><span class="pal-tx"><b>${d.name}${d.tag && kind !== 'const' ? ` · ${d.tag}` : ''}${fresh.includes(kind) ? '<em>新</em>' : ''}</b><small>${d.desc}</small></span></button>`;
     }).join('');
-    rt.openSheet(`<div><div class="kicker sig">空位 ${slot + 1}</div><h3 class="sh" id="sheetTitle">放一个元件</h3></div>
+    rt.openSheet(`<div><div class="kicker sig">元件</div><h3 class="sh" id="sheetTitle">放一个元件</h3></div>
       <div class="list">${rows}</div>
       <div class="acts"><button class="btn sec" type="button" data-close>取消</button></div>`, {
       put: el => { setCirc(placeNode(circ(), el.dataset.k, slot)); buzz(8); rt.closeSheet(); rt.refresh(); },
@@ -53,18 +69,40 @@ export function circuitMode(L, saved) {
     });
   }
 
+  function connectPorts(a, b) {
+    const r = connect(circ(), taps(), a, b);
+    if (r.msg) { toast(r.msg); buzz(20); return false; }
+    if (r.circ) { setCirc(r.circ); buzz(8); }
+    return !!r.circ;
+  }
+
+  /** Drag handlers: move or remove components, drop new ones from the tray, pull wires between ports. */
+  const dnd = {
+    move(g) { drawWires($('#cboard'), circ(), ui(), null, g.kind === 'port' ? { from: g.id, x: g.x, y: g.y } : null); },
+    drop(g) {
+      const over = g.over;
+      if (g.kind === 'port' && over) { if (connectPorts(g.id, over.dataset.p)) st.pick = null; }
+      if (g.kind === 'node' && over) {
+        if (over.dataset.trash !== undefined) { setCirc(removeNode(circ(), g.id)); toast('拿掉了一个元件'); }
+        else setCirc(moveNode(circ(), g.id, +over.dataset.at, stage().slots));
+      }
+      if (g.kind === 'tray' && over) {
+        const at = +over.dataset.at;
+        if (placement(circ(), stage().slots).free.includes(at)) setCirc(placeNode(circ(), g.id, at));
+        else toast('这一格已经有元件了');
+      }
+      rt.refresh();
+    },
+    end: () => rt.refresh(),
+  };
+
   function onPort(p) {
     if (!st.pick) {
       if (isSink(p) && circ().wires.some(w => w.to === p)) { setCirc(unwire(circ(), p)); toast('拆掉了一根线'); buzz(8); }
       else st.pick = p;
-      rt.refresh();
-      return;
-    }
-    if (st.pick === p) { st.pick = null; rt.refresh(); return; }
-    const r = connect(circ(), taps(), st.pick, p);
-    if (r.same) st.pick = p;
-    else if (r.msg) { toast(r.msg); buzz(20); }
-    else { setCirc(r.circ); st.pick = null; buzz(8); }
+    } else if (st.pick === p) st.pick = null;
+    else if (isSink(st.pick) === isSink(p)) st.pick = p;
+    else if (connectPorts(st.pick, p)) st.pick = null;
     rt.refresh();
   }
 
@@ -103,10 +141,10 @@ export function circuitMode(L, saved) {
     boardOpt: () => L.boardOpt || { minScale: 0.7, maxScale: 1.25 },
     note() {
       const v = st.view, Vw = V();
-      if (!v) return `电路板会装在每一个格子上。机器按「${Vw.orderText(opt())}」的顺序，一格一格地算。`;
+      if (!v) return `机器人按「${Vw.orderText(opt())}」的顺序一格一格地走，在每一格上运行你的电路板，把结果写进脚下的格子。`;
       const s = shownStep();
       if (!v.end) return s ? `正在算${Vw.where(s.cell)}` : '';
-      if (v.focus !== null && v.focus !== undefined) return `${Vw.where(s.cell)}：电路板上的小数字，是机器在这一格算出的值。再点一次取消。`;
+      if (v.focus !== null && v.focus !== undefined) return `${Vw.where(s.cell)}：视野和电路板上的数，是机器人在这一格看到和算出的值。再点一次取消。`;
       const more = Vw.inspect === false ? '' : '点棋盘上算过的格子，可以查看机器在那一格算出的值。';
       if (v.halt) return `机器在${Vw.where(s.cell)}出了错。${more}`;
       return `${v.pass ? `答案 ${signal(v.res.value)}，正确。` : `机器算出 ${signal(v.res.value)}，应该是 ${signal(L.expected[st.ti])}。`}${more}`;
@@ -115,25 +153,28 @@ export function circuitMode(L, saved) {
     tip() {
       const c = circ();
       if (L.guide && st.stage === 0) {
-        if (!c.nodes.length) return { text: '第 1 步：点电路板中间的「＋ 放元件」，放一个汇合器。' };
-        if (!c.wires.length) return { text: '第 2 步：点顶上的「上面」输入口，再点汇合器顶上的一个圆点，就连上了一根线。' };
-        if (!c.wires.some(w => w.to.startsWith('out:'))) return { text: '记得把汇合器底部的输出圆点，连到最下面的「本格」。' };
+        if (!(c.lit || []).length && !c.wires.length) return { text: '第 1 步：在右边的「机器人视野」里，点亮机器人上面和左边的格子，它们会变成电路板顶上的输入。' };
+        if (!c.nodes.length) return { text: '第 2 步：把托盘里的「汇合器」拖到电路板的空格上（点一下也行）。' };
+        if (!c.wires.length) return { text: '第 3 步：从输入底部的圆点拖一根线到汇合器顶上的圆点。也可以先点一个圆点，再点另一个。' };
+        if (!c.wires.some(w => w.to.startsWith('out:'))) return { text: '最后，把汇合器底部的圆点连到最下面红框的「本格」。' };
       }
       return stage().tip ? { text: stage().tip } : null;
     },
     panel() {
-      const s = stage(), uses = L.uses ? `<div class="chips">${L.uses.map(k => `<span class="tag">${ICON.part}零件 · ${PARTS[k].name}</span>`).join('')}</div>` : '';
+      const uses = L.uses ? `<div class="chips">${L.uses.map(k => `<span class="tag">${ICON.part}零件 · ${PARTS[k].name}</span>`).join('')}</div>` : '';
       const dirs = L.dirs ? `<div class="pcard"><h3>改写方向<small>机器上的两个开关</small></h3>${['01', 'inf'].map(kind => `<div class="dirrow"><div class="optlabel">${kind === '01' ? '每件最多拿一次时' : '每件可以拿很多次时'}</div>
         <div class="chips two" role="radiogroup" aria-label="改写方向">${[['asc', '从左往右 →'], ['desc', '← 从右往左']].map(([v, l]) => `<button class="chip" type="button" role="radio" aria-checked="${st.dirs[kind] === v}" data-act="dir" data-k="${kind}" data-v="${v}">${l}</button>`).join('')}</div></div>`).join('')}</div>` : '';
-      return `<div class="pcard"><h3>电路板<small>${st.pick ? '再点一个亮起的接口' : '点空位放元件，点两个接口连线'}</small></h3>${uses}
-        ${boardHTML(circ(), { taps: taps(), tapIds: s.taps, outs: V().outs, slots: s.slots, pick: st.pick })}</div>${dirs}`;
+      return `<div class="pcard cpcard"><h3>电路板<small>${st.pick ? '再点一个亮起的圆点' : '拖动元件，从圆点拉线'}</small></h3>${uses}
+        ${editorHTML(circ(), ui())}</div>${dirs}`;
     },
     mounted() {
       const root = $('#circ');
       if (!root) return;
-      const s = shownStep(), probe = s ? s.probe : null;
-      drawWires(root, circ(), taps(), st.pick, probe);
+      const s = shownStep(), probe = s ? s.probe : null, u = ui();
+      $('#cview').innerHTML = viewHTML(circ(), u);
+      drawWires($('#cboard'), circ(), u, probe);
       paintProbe(root, probe);
+      if (!root.dataset.dnd) { root.dataset.dnd = '1'; enableDrag(root, $('#lvScroll'), dnd); }
     },
     dock: () => ({ meta: `${L.tests.length} 个测试 · ${circ().nodes.length} 个元件`, sec: circ().nodes.length && !busy() ? (st.armed ? '确认清空' : '清空') : '', secAct: 'clear', go: busy() ? '跳过动画' : '运行测试', act: 'run', busy: busy() }),
     act(name, el) {
@@ -141,6 +182,14 @@ export function circuitMode(L, saved) {
       if (busy()) return;
       if (name === 'port') onPort(el.dataset.p);
       if (name === 'slot') { st.pick = null; openPalette(+el.dataset.s); }
+      if (name === 'tray') {
+        const at = firstFree();
+        st.pick = null;
+        setCirc(placeNode(circ(), el.dataset.k, at));
+        buzz(8);
+        rt.refresh();
+      }
+      if (name === 'lit') { st.pick = null; setCirc(toggleLit(circ(), el.dataset.t)); buzz(6); rt.refresh(); }
       if (name === 'node') { st.pick = null; openNode(el.dataset.n); }
       if (name === 'dir') { st.dirs[el.dataset.k] = el.dataset.v; changed(); buzz(6); rt.refresh(); }
       if (name === 'clear') {

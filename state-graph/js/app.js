@@ -71,7 +71,7 @@ function renderDock() {
     ${d.go ? `<button class="go${d.busy ? ' busy' : ''}${cur.L.coach && cur.L.coach(cur.ctl.st).run ? ' pulse' : ''}" type="button" data-act="${d.act}">${d.busy ? ICON.skip : d.goIcon || ICON.play}<span>${d.go}</span></button>` : ''}</div>`;
 }
 
-const FOCUS_KEYS = ['act', 'c', 'j', 'k', 'r', 'g', 's', 'o', 'p', 'n', 'v', 'test'];
+const FOCUS_KEYS = ['act', 'c', 'j', 'k', 'r', 'g', 's', 'o', 'p', 'n', 't', 'v', 'test'];
 const focusSig = el => FOCUS_KEYS.map(k => el.dataset[k] || '').join('|');
 function refresh() {
   const cur = rt.cur;
