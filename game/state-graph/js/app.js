@@ -153,7 +153,7 @@ function closeSheet() {
 
 function openIntro(page = 0) {
   const { L, i } = rt.cur, pages = L.intro, p = pages[page], last = page === pages.length - 1;
-  openSheet(`<div><div class="kicker sig">第 ${i + 1} 关 · 原理 ${page + 1}/${pages.length}</div><h3 class="sh" id="sheetTitle">${L.title}</h3></div>
+  openSheet(`<div><div class="kicker sig">第 ${i + 1} 关 · 引入 ${page + 1}/${pages.length}</div><h3 class="sh" id="sheetTitle">${L.title}</h3></div>
     ${p.fig ? `<div class="fig">${sceneSVG(p.fig, { pad: 12, maxScale: 1.3 })}</div>` : ''}
     <div class="prose"><p>${p.t}</p></div>
     <div class="dots" aria-hidden="true">${pages.map((_, k) => `<i class="${k === page ? 'on' : ''}"></i>`).join('')}</div>
