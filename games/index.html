@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="把课程做成解谜关卡的学习游戏：视觉完备（计算机视觉）、状态之图（动态规划）。">
+<meta name="theme-color" content="#f3f1eb">
+<title>游戏 — Study Notes</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23282824'/%3E%3Cpath d='M32 64V32H64' fill='%23c98f22'/%3E%3C/svg%3E">
+<script>try{const t=localStorage.getItem("fieldnotes.theme");document.documentElement.dataset.theme=["paper","night","blueprint"].includes(t)?t:matchMedia("(prefers-color-scheme: dark)").matches?"night":"paper"}catch(e){document.documentElement.dataset.theme="paper"}</script>
+<link rel="stylesheet" href="kit/tokens.css">
+<link rel="stylesheet" href="kit/wires.css">
+<link rel="stylesheet" href="hub.css">
+<script type="module" src="hub.js"></script>
+</head>
+<body>
+<header class="bar">
+  <a class="back" href="../">← 学习笔记</a>
+  <span class="brand"><i class="chip"></i>游戏</span>
+  <button class="theme" type="button" data-theme-toggle></button>
+</header>
+<main>
+  <section class="hero">
+    <p class="kicker">把一门课做成一串关卡</p>
+    <h1>游戏</h1>
+    <p class="lede">每一关只给几个元件和一组测试，你把元件接成一台机器，让测试全部通过。做出来的机器会变成后面关卡的元件，一关一关地，把整门课的核心想法亲手搭一遍。</p>
+  </section>
+  <section class="games" id="games" aria-label="游戏"></section>
+  <p class="more">新的游戏做好后会出现在这里。</p>
+</main>
+</body>
+</html>

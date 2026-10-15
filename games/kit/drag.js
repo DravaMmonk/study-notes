@@ -1,15 +1,23 @@
-// Pointer dragging for the circuit editor: move any piece (component, input or output terminal) to a new spot,
-// drag a new component in from the parts list, pull a wire from one port to another. Touch drags start after a short hold, so a quick swipe still scrolls.
-// The shell enables it once on the level screen; the open level supplies the handlers (or none).
-
-import { buzz } from '../util.js';
+// Circuit kit: pointer dragging for a component board, shared by 状态之图 (games/state-graph/) and Vision Complete
+// (trace-viewer/src/game/). Framework-free; each app marks its DOM with data attributes and supplies handlers.
+//
+// Markup contract
+//   [data-piece="id"]  an element that can be moved; [data-drag] on it (or inside it) is the handle to grab it by
+//   [data-p="id"]      a port: dragging it pulls a wire, and it is a target for wires
+//   [data-tray="kind"] a palette item: dragging it brings a new piece onto the board
+//   [data-canvas]      where a new piece can be dropped      [data-trash]  where a dragged piece is removed
+//
+// While a piece moves it is translated (in its own, unscaled pixels) and never animated, so it stays under the
+// pointer; the app commits the new position on drop. Touch drags start after a short hold, so a quick swipe still
+// scrolls. A finished drag swallows the click that would follow it.
 
 const HOLD = 170, SLOP = 6, EDGE = 56;
+const buzz = ms => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch { /* no haptics */ } };
+
 let swallowUntil = 0;
-// A finished drag must not also count as a tap on whatever sits under the finger.
 document.addEventListener('click', e => { if (performance.now() < swallowUntil) { e.stopPropagation(); e.preventDefault(); } }, true);
 
-/** The nearest ancestor that scrolls vertically: the phone page or a workbench column. */
+/** The nearest ancestor that scrolls vertically (a page or a pane), for auto-scroll while dragging. */
 function scrollParent(el) {
   for (let e = el.parentElement; e; e = e.parentElement) {
     const y = getComputedStyle(e).overflowY;
@@ -18,40 +26,44 @@ function scrollParent(el) {
   return document.scrollingElement;
 }
 
+/** How much an element is scaled on screen (a zoomed or fitted board), so client pixels convert to its own. */
+export const scaleOf = el => el.getBoundingClientRect().width / el.offsetWidth || 1;
+
 /**
- * handlers() → { start(g), move(g), drop(g), end() } | null, where g = { kind: 'node' | 'tray' | 'port', id, x, y, dx, dy, over }.
- * A 'node' drag moves any [data-drag] piece; dx, dy is how far it moved in the piece's own (unscaled) pixels.
- * `over` is the element under the pointer: the parts list [data-trash] for a piece, the board [data-canvas] for a new
- * component, or for a wire a port [data-p] or a piece [data-drag] (the level picks the port).
+ * Enable dragging inside `root`. handlers() → { start?(g), move?(g), drop(g), end?() } | null, read at each pointerdown.
+ * g = { kind: 'piece' | 'port' | 'tray', id, el, x, y, dx, dy, over }: x, y are client coordinates; dx, dy how far a
+ * piece moved in its own pixels; `over` the element under the pointer that can take the drop — [data-trash] for a
+ * piece, [data-canvas] for a tray item, a port [data-p] or a piece [data-piece] for a wire. Returns a function that
+ * disables dragging again.
  */
 export function enableDrag(root, handlers) {
   let g = null;
 
   const target = el => {
-    const port = el.closest('[data-p]'), node = el.closest('[data-drag]'), tray = el.closest('[data-tray]');
+    const port = el.closest('[data-p]'), handle = el.closest('[data-drag]'), tray = el.closest('[data-tray]');
     if (port) return { kind: 'port', id: port.dataset.p, el: port };
-    if (node) return { kind: 'node', id: node.dataset.drag, el: node };
+    if (handle) { const piece = handle.closest('[data-piece]'); if (piece) return { kind: 'piece', id: piece.dataset.piece, el: piece }; }
     if (tray) return { kind: 'tray', id: tray.dataset.tray, el: tray };
     return null;
   };
   const overAt = (x, y) => {
     const el = document.elementFromPoint(x, y);
     if (!el) return null;
-    if (g.kind === 'port') return el.closest('[data-p]') || el.closest('[data-drag]');
-    return g.kind === 'node' ? el.closest('[data-trash]') : el.closest('[data-canvas]');
+    if (g.kind === 'port') return el.closest('[data-p]') || el.closest('[data-piece]');
+    return el.closest(g.kind === 'piece' ? '[data-trash]' : '[data-canvas]');
   };
 
   function start() {
     g.on = true;
     root.classList.add('dragging', `drag-${g.kind}`);
-    if (g.kind === 'node') g.el.classList.add('lift');
+    if (g.kind === 'piece') { g.el.classList.add('lift'); g.el.style.transition = 'none'; }
     if (g.kind === 'tray') {
       g.ghost = g.el.cloneNode(true);
       g.ghost.classList.add('ghost');
       document.body.append(g.ghost);
     }
     buzz(8);
-    g.h.start(g);
+    if (g.h.start) g.h.start(g);
     tick();
   }
 
@@ -60,9 +72,9 @@ export function enableDrag(root, handlers) {
     if (over !== g.over) { if (g.over) g.over.classList.remove('over'); if (over) over.classList.add('over'); g.over = over; }
     g.dx = (g.x - g.x0) / g.sc;
     g.dy = (g.y - g.y0 + g.scroller.scrollTop - g.st0) / g.sc;
-    if (g.kind === 'node') g.el.style.transform = `translate(${g.dx}px, ${g.dy}px)`;
+    if (g.kind === 'piece') g.el.style.transform = `translate(${g.dx}px, ${g.dy}px)`;
     if (g.ghost) g.ghost.style.transform = `translate(${g.x - 40}px, ${g.y - 26}px)`;
-    g.h.move(g);
+    if (g.h.move) g.h.move(g);
   }
 
   /** Scroll while the pointer rests near the top or bottom edge of the scrolling pane. */
@@ -84,12 +96,13 @@ export function enableDrag(root, handlers) {
     root.classList.remove('dragging', 'armed', `drag-${done.kind}`);
     done.el.classList.remove('lift', 'armed');
     done.el.style.transform = '';
+    done.el.style.transition = '';
     if (done.ghost) done.ghost.remove();
     if (done.over) done.over.classList.remove('over');
     if (done.on) {
       swallowUntil = performance.now() + 40;
       if (drop) done.h.drop(done);
-      else done.h.end();
+      else if (done.h.end) done.h.end();
     }
   }
 
@@ -108,19 +121,28 @@ export function enableDrag(root, handlers) {
   const onUp = e => { if (g && e.pointerId === g.pid) finish(true); };
   const onCancel = e => { if (g && e.pointerId === g.pid) finish(false); };
 
-  root.addEventListener('pointerdown', e => {
+  const onDown = e => {
     const h = handlers();
     if (g || e.button > 0 || !h) return;
     const t = target(e.target);
-    if (!t) return;
+    if (!t || !root.contains(t.el)) return;
     const touch = e.pointerType !== 'mouse', scroller = scrollParent(t.el);
-    g = { ...t, h, scroller, sc: t.el.getBoundingClientRect().width / t.el.offsetWidth || 1, dx: 0, dy: 0, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
+    g = { ...t, h, scroller, sc: scaleOf(t.el), dx: 0, dy: 0, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
+    if (!touch && t.kind !== 'tray') e.preventDefault();
     if (touch) g.timer = setTimeout(() => { if (g && !g.on) { g.armed = true; root.classList.add('armed'); g.el.classList.add('armed'); buzz(6); } }, HOLD);
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
     window.addEventListener('pointercancel', onCancel);
-  });
+  };
   // Once a touch drag is armed, the finger moves the part instead of the page.
-  root.addEventListener('touchmove', e => { if (g && g.armed) e.preventDefault(); }, { passive: false });
-  root.addEventListener('contextmenu', e => { if (g) e.preventDefault(); });
+  const onTouch = e => { if (g && g.armed) e.preventDefault(); };
+  const onMenu = e => { if (g) e.preventDefault(); };
+  root.addEventListener('pointerdown', onDown);
+  root.addEventListener('touchmove', onTouch, { passive: false });
+  root.addEventListener('contextmenu', onMenu);
+  return () => {
+    root.removeEventListener('pointerdown', onDown);
+    root.removeEventListener('touchmove', onTouch);
+    root.removeEventListener('contextmenu', onMenu);
+  };
 }

@@ -96,21 +96,22 @@ export function circuitMode(L, saved) {
   const dnd = {
     start(g) {
       st.wire = null;
+      g.u = ui();
       if (g.kind !== 'port') return;
       $('#circ').classList.add('picking');
       $$('#circ [data-p]').forEach(el => el.classList.toggle('can', el.dataset.p !== g.id && !!connect(circ(), taps(), g.id, el.dataset.p).circ));
     },
-    move(g) { const u = ui(); drawWires($('#cboard'), circ(), u, u.win.probe, g.kind === 'port' ? { from: g.id, x: g.x, y: g.y } : null); },
+    move(g) { drawWires($('#cboard'), circ(), g.u, g.u.win.probe, g.kind === 'port' ? { from: g.id, x: g.x, y: g.y } : null); },
     drop(g) {
       const over = g.over;
       if (g.kind === 'port' && over) {
-        const onto = over.dataset.drag, to = over.dataset.p || (onto && pieceKind(onto) === 'node' && !isSink(g.id) ? cardPort(g.id, onto) : onto);
+        const onto = over.dataset.piece, to = over.dataset.p || (onto && pieceKind(onto) === 'node' && !isSink(g.id) ? cardPort(g.id, onto) : onto);
         if (to && connectPorts(g.id, to)) st.pick = null;
       }
-      if (g.kind === 'node') {
+      if (g.kind === 'piece') {
         if (over && pieceKind(g.id) === 'node') { setCirc(removeNode(circ(), g.id)); toast('拿掉了一个元件'); }
         else {
-          const el = $(`#clayer [data-drag="${g.id}"]`);
+          const el = $(`#clayer [data-piece="${g.id}"]`);
           setCirc(movePiece(circ(), g.id, [snap(el.offsetLeft + g.dx), snap(el.offsetTop + g.dy)]));
         }
       }

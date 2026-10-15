@@ -1,43 +1,17 @@
 /* Layout: level map ⇄ level bench. Phones get one column with a dock; from 1100px the level is a workbench
-   (brief | stage | side) after Vision Complete. Two token sets: paper (default) and night, chosen by data-theme. */
+   (brief | stage | side) after Vision Complete. Colors, themes and wire styles come from ../kit, shared with it. */
 :root{
-  --bg:#F3F1EB; --panel:#FBFAF6; --panel-2:#F0EDE5; --line:#DEDBD1; --board:#F6F4EE; --dot:rgba(76,72,62,.17);
-  --chip:#FFFFFF; --chip-line:#D2CDC1; --chip-lit:#EEEADF;
-  --ink:#282824; --ink-2:#5C5A52; --ink-3:#8C897F;
-  --wire:#A39E91; --wire-dim:#D7D3C7;
-  --signal:#C98A1C; --signal-ink:#2A1D05; --signal-soft:rgba(201,138,28,.13);
-  --cyan:#3F7FB5; --cyan-ink:#FFFFFF; --cyan-soft:rgba(63,127,181,.12);
-  --good:#5E8F5A; --good-soft:rgba(94,143,90,.15); --bad:#B8573F; --bad-soft:rgba(184,87,63,.12);
-  --t0:#E3B04F; --t1:#8DB3D6; --t2:#9CC48F; --t3:#E89B73; --t4:#C6A3CD; --t5:#B5AFA2; --t-ink:#1F1D18;
-  --w0:#3F7FB5; --w1:#CF6A3B; --w2:#B98516; --w3:#5E9A3A; --w4:#B4579A; --w5:#2F918F;
-  --n0:#6E6AB8; --n1:#8E5BB5; --n2:#3E9B78; --n3:#A88420; --n4:#B04FA8; --n5:#6F7A88; --tag-ink:#FFFFFF;
-  --bot-body:#FFFFFF; --bot-line:#2A2A26; --bot-ant:#3B3A35;
-  --scrim:rgba(38,37,33,.3);
-  --card:0 1px 0 rgba(255,255,255,.7) inset,0 0 0 1px var(--line),0 8px 22px -14px rgba(40,34,20,.35);
-  --lift:0 0 0 1px var(--ink),0 18px 34px -14px rgba(40,34,20,.45);
-  --drop:drop-shadow(0 2px 2px rgba(40,34,20,.3));
+  /* Semantic names for this game, mapped onto the shared palette (../kit/tokens.css), so all three themes apply. */
+  --bg:var(--canvas); --panel:var(--paper); --panel-2:color-mix(in srgb,var(--canvas) 65%,var(--rail)); --board:color-mix(in srgb,var(--paper) 50%,var(--canvas));
+  --dot:var(--hairline); --chip:var(--surface); --chip-line:color-mix(in srgb,var(--rule) 55%,var(--line)); --chip-lit:color-mix(in srgb,var(--rule) 22%,var(--paper));
+  --ink-2:color-mix(in srgb,var(--body) 55%,var(--muted)); --ink-3:var(--muted);
+  --wire:color-mix(in srgb,var(--rule) 75%,var(--muted)); --wire-dim:var(--line);
+  --signal:var(--accent); --signal-ink:#2A1D05; --signal-soft:color-mix(in srgb,var(--accent) 14%,transparent);
+  --cyan:var(--select); --cyan-ink:var(--select-ink); --cyan-soft:color-mix(in srgb,var(--select) 13%,transparent);
+  --good:var(--status); --good-soft:color-mix(in srgb,var(--status) 16%,transparent); --bad:var(--fail); --bad-soft:color-mix(in srgb,var(--fail) 13%,transparent);
   --f-display:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
   --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --f-body:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;
-  color-scheme:light;
-}
-:root[data-theme="night"]{
-  --bg:#11151B; --panel:#181E26; --panel-2:#1F2630; --line:#2C3644; --board:#141920; --dot:rgba(150,170,200,.10);
-  --chip:#222A35; --chip-line:#3A4656; --chip-lit:#29323F;
-  --ink:#E8EDF3; --ink-2:#A6B2BF; --ink-3:#717E8D;
-  --wire:#56647A; --wire-dim:#323C49;
-  --signal:#F6B93E; --signal-ink:#1E1606; --signal-soft:rgba(246,185,62,.14);
-  --cyan:#5EC8FF; --cyan-ink:#06131C; --cyan-soft:rgba(94,200,255,.14);
-  --good:#47D49F; --good-soft:rgba(71,212,159,.16); --bad:#FF6B5A; --bad-soft:rgba(255,107,90,.16);
-  --t0:#F6B93E; --t1:#5EC8FF; --t2:#47D49F; --t3:#FF8A65; --t4:#B79CFF; --t5:#8FA1B5; --t-ink:#12161C;
-  --w0:#5EC8FF; --w1:#FF8A65; --w2:#F6B93E; --w3:#A3E635; --w4:#F78FB3; --w5:#4DD0E1;
-  --n0:#C7D2FE; --n1:#B79CFF; --n2:#47D49F; --n3:#FFD166; --n4:#E879F9; --n5:#94A3B8; --tag-ink:#10141A;
-  --bot-body:#E3EAF2; --bot-line:#0E1217; --bot-ant:#E3EAF2;
-  --scrim:rgba(4,7,10,.7);
-  --card:0 0 0 1px var(--line),0 10px 24px -12px rgba(0,0,0,.7);
-  --lift:0 0 0 1px var(--ink),0 18px 40px -12px rgba(0,0,0,.85);
-  --drop:drop-shadow(0 3px 3px rgba(0,0,0,.55));
-  color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box}
 html{height:100%;box-sizing:border-box;background:var(--bg)}
@@ -112,6 +86,8 @@ button:disabled{cursor:not-allowed}
 /* ---------- map ---------- */
 .wrap{max-width:1040px;margin:0 auto;padding-block:28px 56px;display:flex;flex-direction:column;gap:28px}
 .hero{display:grid;gap:22px}
+.hub{display:inline-block;margin:0 0 18px -8px;padding:6px 8px;border-radius:6px;font:600 11.5px var(--f-mono);letter-spacing:.04em;color:var(--ink-3);text-decoration:none}
+.hub:hover{color:var(--ink);background:var(--panel-2)}
 .title{font:700 clamp(54px,17vw,108px)/.95 var(--f-display);letter-spacing:-.02em;margin:10px 0 14px}
 .title em{font-style:normal;color:var(--signal)}
 .lede{max-width:31em;color:var(--ink-2);font-size:16px;margin:0;text-wrap:pretty}
@@ -371,17 +347,8 @@ button:disabled{cursor:not-allowed}
 .cboard{position:relative;min-width:0;border-radius:14px;background:var(--board);border:1px solid var(--line);overflow:hidden}
 .clayer{position:absolute;left:10px;top:12px;transform-origin:0 0}
 .cwires{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
-.cw-halo{fill:none;stroke:var(--board);stroke-width:7;stroke-linecap:round}
-.cw{fill:none;stroke-width:2.6;stroke-linecap:round;transition:opacity .15s,stroke-width .15s}
-.cw.bool{stroke-width:2}
-.cw.dead{stroke-dasharray:3 5;opacity:.6}
-.cw.on{stroke-width:3.8;opacity:1}
-.cw.dim{opacity:.22}
-.cw-flow{fill:none;stroke:var(--board);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:.1 22;animation:wflow 1.6s linear infinite;pointer-events:none}
-@keyframes wflow{to{stroke-dashoffset:-22.1}}
-.cw-hit{fill:none;stroke:transparent;stroke-width:16;pointer-events:stroke;cursor:pointer}
-.cwg.sel .cw-halo{stroke:var(--signal-soft);stroke-width:12}
-.cw.rubber{stroke:var(--signal);stroke-width:2.4;stroke-dasharray:5 5}
+.cboard{--kw-halo:var(--board)}
+.kw.is-bool .kw-line{stroke-width:2px}
 .cdel{min-height:30px;padding:0 10px;border-radius:9px;background:var(--bad);color:var(--panel);font:600 12.5px var(--f-body)}
 .cempty{position:absolute;left:0;top:0;width:222px;margin:0;padding:10px 6px;border-radius:10px;border:1px dashed var(--line);font-size:12px;color:var(--ink-3);text-align:center}
 .cport{position:relative;display:flex;flex-direction:column;align-items:center;transition:opacity .15s}
@@ -410,7 +377,7 @@ button:disabled{cursor:not-allowed}
 .cnode.bp{box-shadow:var(--card),0 0 0 1.5px var(--signal);background:linear-gradient(var(--signal-soft),var(--signal-soft)),var(--panel)}
 .cnode.over{box-shadow:var(--card),0 0 0 2px var(--signal)}
 .cnode.armed,.cterm.armed,.cend.armed{transform:scale(1.04);box-shadow:0 0 0 2px var(--signal)}
-.cnode.lift,.cterm.lift,.cend.lift{z-index:30;pointer-events:none;box-shadow:var(--lift),0 0 0 2px var(--signal)}
+.cnode.lift,.cterm.lift,.cend.lift{z-index:30;pointer-events:none;box-shadow:var(--card-lift),0 0 0 2px var(--signal)}
 .cins{position:absolute;left:0;right:0;top:-16px;display:flex;justify-content:space-evenly;z-index:3}
 .cin{width:26px;height:44px;padding-top:8.5px;gap:3px}
 .cin .pl{font:700 10px/1 var(--f-body);color:var(--ink-3);white-space:nowrap}
@@ -502,7 +469,7 @@ button:disabled{cursor:not-allowed}
 .titem small{font:600 10.5px var(--f-mono);color:var(--ink-3)}
 .titem.bp{box-shadow:var(--card),0 0 0 1.5px var(--signal)}
 .titem.armed{box-shadow:0 0 0 2px var(--signal)}
-.titem.ghost{position:fixed;left:0;top:0;z-index:80;pointer-events:none;box-shadow:var(--lift),0 0 0 2px var(--signal)}
+.titem.ghost{position:fixed;left:0;top:0;z-index:80;pointer-events:none;box-shadow:var(--card-lift),0 0 0 2px var(--signal)}
 .tdrop{display:none;font:700 13px var(--f-body);color:var(--bad);text-align:center;padding:12px 0}
 .drag-node .parts{border-color:var(--bad)}
 .drag-node .parts .tdrop{display:grid;place-items:center;position:absolute;inset:0;z-index:2;margin:0;padding:0;border-radius:inherit;background:color-mix(in srgb,var(--panel) 80%,var(--bad-soft))}
@@ -542,10 +509,9 @@ img{max-width:100%}
   .chead:hover{background:var(--panel-2)}
   .cport:hover .dot{transform:scale(1.25);border-color:var(--signal)}
   .cport.bool:hover .dot{transform:rotate(45deg) scale(1.15)}
-  .cwg:hover .cw:not(.dim){stroke-width:3.8}
   .vcell.can:hover{border-color:var(--cyan);opacity:1}
   .vfact:hover{border-color:var(--cyan)}
-  .titem:hover{box-shadow:var(--lift);transform:translateY(-1px)}
+  .titem:hover{box-shadow:var(--card-lift);transform:translateY(-1px)}
   .go:hover{filter:brightness(1.05)}
   .dot{transition:background .15s,box-shadow .15s,transform .15s}
 }

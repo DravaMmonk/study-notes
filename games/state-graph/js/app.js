@@ -10,7 +10,7 @@ import { S, save, resetAll } from './store.js';
 import { LEVELS, CHAPTERS, PARTS } from './levels/index.js';
 import { MODES } from './modes/index.js';
 import { initTheme } from './theme.js';
-import { enableDrag } from './circuit/drag.js';
+import { enableDrag } from '../../kit/drag.js';
 
 const docked = matchMedia('(min-width: 1500px)');
 const RAIL = 'state-graph-rail';

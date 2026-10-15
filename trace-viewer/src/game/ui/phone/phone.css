@@ -121,14 +121,14 @@
 .cm-stub text { fill: var(--fail); font-family: var(--mono); font-size: 9.5px; text-anchor: middle; }
 .cm-stub.is-picking circle { fill: var(--accent); stroke: var(--accent); }
 .cm-stub.is-picking text { fill: var(--paper); }
-.cm-tile { position: absolute; padding: 7px 5px 5px; display: grid; justify-items: center; align-items: center; gap: 2px; border: 0; border-radius: 14px; color: var(--ink); background: var(--paper); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), var(--card-shadow); font: inherit; transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease; animation: card-in 220ms ease; }
+.cm-tile { position: absolute; padding: 7px 5px 5px; display: grid; justify-items: center; align-items: center; gap: 2px; border: 0; border-radius: 14px; color: var(--ink); background: var(--paper); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), var(--card); font: inherit; transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease; animation: card-in 220ms ease; }
 .cm-tile:active { transform: scale(.96); }
 .cm-tile.is-selected { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2.5px var(--accent), 0 12px 24px -14px rgba(0, 0, 0, .5); }
 .cm-tile.is-candidate { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent), 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent); animation: cm-pulse 1.4s ease-in-out infinite; }
 .cm-tile.is-dim { opacity: .32; }
 .cm-tile.is-target { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--ink); }
 .cm-tile.is-pass { box-shadow: inset 0 3px 0 var(--status), 0 0 0 2px color-mix(in srgb, var(--status) 60%, transparent); }
-.cm-tile.is-fail { box-shadow: inset 0 3px 0 var(--fail), var(--card-shadow); }
+.cm-tile.is-fail { box-shadow: inset 0 3px 0 var(--fail), var(--card); }
 @keyframes cm-pulse { 50% { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent), 0 0 0 9px color-mix(in srgb, var(--accent) 10%, transparent); } }
 .cm-thumb { line-height: 0; }
 .cm-thumb .image-view, .cm-thumb canvas, .cm-thumb svg { border-radius: 6px; }

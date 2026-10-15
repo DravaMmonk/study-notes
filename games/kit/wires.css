@@ -1,0 +1,21 @@
+/* Circuit kit: how wires look, in every game. An app draws each wire as
+
+     <g class="kw [is-live | is-dead] [is-selected] [is-hot] [is-dim]" style="--kw: <color>">
+       <path class="kw-halo"/> <path class="kw-line"/> [<path class="kw-flow"/>] <path class="kw-hit"/>
+     </g>
+
+   and a wire being pulled as <path class="kw-draft"/>. A live wire carries a value and shows dots flowing along
+   it; a dead one carries nothing and is dashed. --kw-halo is the board's background, so crossing wires stay apart. */
+.kw { --kw: var(--muted); }
+.kw-halo { fill: none; stroke: var(--kw-halo, var(--canvas)); stroke-width: 7px; stroke-linecap: round; }
+.kw-line { fill: none; stroke: var(--kw); stroke-width: 2.6px; stroke-linecap: round; transition: stroke-width 150ms ease, opacity 150ms ease; }
+.kw.is-dead .kw-line { stroke-dasharray: 3 5; opacity: .6; }
+.kw.is-dim .kw-line { opacity: .22; }
+.kw.is-hot .kw-line, .kw.is-selected .kw-line { stroke-width: 3.8px; opacity: 1; }
+.kw.is-selected .kw-halo { stroke: color-mix(in srgb, var(--accent) 24%, transparent); stroke-width: 12px; }
+.kw-flow { fill: none; stroke: var(--kw-halo, var(--canvas)); stroke-width: 2.4px; stroke-linecap: round; stroke-dasharray: .1 22; animation: kw-flow 1.6s linear infinite; pointer-events: none; }
+.kw-hit { fill: none; stroke: transparent; stroke-width: 16px; pointer-events: stroke; cursor: pointer; }
+.kw-draft { fill: none; stroke: var(--accent); stroke-width: 2.4px; stroke-linecap: round; stroke-dasharray: 5 5; }
+@keyframes kw-flow { to { stroke-dashoffset: -22.1; } }
+@media (hover: hover) and (pointer: fine) { .kw:hover .kw-line { stroke-width: 3.8px; } }
+@media (prefers-reduced-motion: reduce) { .kw-flow { display: none; } }

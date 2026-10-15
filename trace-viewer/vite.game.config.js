@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 
 // The game on its own, for GitHub Pages: `npm run build:game` writes dist-game/ with the game as
 // index.html and relative paths, so it works from any sub-folder (it is published at
-// https://dravammonk.github.io/study-notes/game/, beside the MkDocs notes).
+// https://dravammonk.github.io/study-notes/game/vision-complete/, under the games hub in games/).
 const outDir = resolve(import.meta.dirname, 'dist-game')
 
 export default defineConfig({

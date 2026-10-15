@@ -4,7 +4,9 @@
 // The parts list lives outside the editor (the level's brief on a desktop, under the board on a phone).
 // Port ids: sources are 'tap:<id>' or '<nodeId>'; sinks are '<nodeId>:<k>' or 'out:<id>'.
 
-import { def, wouldCycle } from './components.js';
+import { def } from './components.js';
+import { wouldCycle } from '../../../kit/graph.js';
+import { curve, centerIn, pointIn } from '../../../kit/wires.js';
 import { ICONS } from './glyphs.js';
 import { signal } from '../util.js';
 
@@ -29,7 +31,8 @@ export function connect(circ, taps, a, b) {
   if (portType(circ, taps, from) !== portType(circ, taps, to)) {
     return { msg: portType(circ, taps, to) === 'bool' ? '条件口只接「是 / 否」信号，比如「是起点」。' : '「是 / 否」信号只能接到闸门的条件口。' };
   }
-  if (!to.startsWith('out:') && wouldCycle(circ, from, nodeOf(to))) return { msg: '这样会绕成一个圈：元件要等自己算完，才能算自己。' };
+  const edges = circ.wires.filter(w => !w.to.startsWith('out:')).map(w => [w.from, nodeOf(w.to)]);
+  if (!to.startsWith('out:') && wouldCycle(edges, from, nodeOf(to))) return { msg: '这样会绕成一个圈：元件要等自己算完，才能算自己。' };
   return { circ: { ...circ, wires: [...circ.wires.filter(w => w.to !== to), { from, to }] } };
 }
 
@@ -118,7 +121,7 @@ export function editorHTML(circ, ui) {
 
   const terms = ui.avail.filter(id => lit.includes(id)).map(id => {
     const m = ui.taps[id], p = `tap:${id}`;
-    return `<div class="cterm" data-drag="${p}" data-act="port" data-q="${p}" style="${at(p)};--c:${sourceColor(ui, p)}" title="拖动可以移动；从圆点拉线到元件">
+    return `<div class="cterm" data-piece="${p}" data-drag data-act="port" data-q="${p}" style="${at(p)};--c:${sourceColor(ui, p)}" title="拖动可以移动；从圆点拉线到元件">
       <span class="cl"><span class="tag">${m.short}</span><b>${m.label}</b></span><span class="pv" data-pv="${p}"></span>
       <button class="${portCls(p, m.type)} cdot" type="button" data-act="port" data-p="${p}" aria-label="输入 ${m.label}"><i class="dot" data-dot="${p}"></i></button></div>`;
   }).join('');
@@ -129,7 +132,7 @@ export function editorHTML(circ, ui) {
       const p = `${id}:${k}`, lb = d.labels ? d.labels[k] : '';
       return `<button class="${portCls(p, type)} cin" type="button" data-act="port" data-p="${p}" aria-label="${letter(id)} 的输入${lb ? ` ${lb}` : ` ${k + 1}`}" title="${from.has(p) ? '点一下拆掉这根线' : type === 'bool' ? '条件口：接「是 / 否」' : '输入口'}"><i class="dot" data-dot="${p}"></i>${sinkTag(p, lb ? `<span class="pl">${lb}</span>` : '')}</button>`;
     }).join('');
-    return `<div class="cnode${d.bp ? ' bp' : ''}${n.kind === 'const' ? ' konst' : ''}" data-drag="${id}" style="${at(id)};--c:${sourceColor(ui, id)}">
+    return `<div class="cnode${d.bp ? ' bp' : ''}${n.kind === 'const' ? ' konst' : ''}" data-piece="${id}" data-drag style="${at(id)};--c:${sourceColor(ui, id)}">
       <div class="cins">${ins}</div>
       <button class="chead" type="button" data-act="node" data-n="${id}" title="${d.desc}"><em class="cid">${letter(id)}</em><b>${d.name}</b><small>${n.kind === 'const' ? `= ${n.value}` : d.tag}</small></button>
       <button class="${portCls(id, 'num')} cout" type="button" data-act="port" data-p="${id}" aria-label="${letter(id)} 的输出" title="从这里拉线"><span class="pv" data-pv="${id}"></span><i class="dot" data-dot="${id}"></i></button>
@@ -138,7 +141,7 @@ export function editorHTML(circ, ui) {
 
   const outs = ui.outs.map(([id, label]) => {
     const p = `out:${id}`;
-    return `<div class="cend" data-drag="${p}" data-act="port" data-q="${p}" style="${at(p)}" title="拖动可以移动">
+    return `<div class="cend" data-piece="${p}" data-drag data-act="port" data-q="${p}" style="${at(p)}" title="拖动可以移动">
       <button class="${portCls(p, 'num')} cdot" type="button" data-act="port" data-p="${p}" aria-label="输出 ${label}"><i class="dot" data-dot="${p}"></i></button><span class="cl">${sinkTag(p, '')}<b>${label}</b></span><span class="pv" data-pv="${p}"></span></div>`;
   }).join('');
 
@@ -191,22 +194,20 @@ export function viewHTML(circ, ui) {
  * dots flowing down it; one carrying 「—」 is dashed. Each wire has a wide invisible stroke to click it by.
  */
 export function drawWires(board, circ, ui, probe, rubber) {
-  const layer = board.querySelector('.clayer'), svg = layer.querySelector('.cwires'), box = layer.getBoundingClientRect(), s = box.width / layer.offsetWidth || 1;
-  const local = (x, y) => [(x - box.left) / s, (y - box.top) / s];
-  const pt = id => { const d = layer.querySelector(`[data-dot="${id}"]`); if (!d) return null; const r = d.getBoundingClientRect(); return local(r.left + r.width / 2, r.top + r.height / 2); };
-  const curve = (a, b) => { const dy = Math.max(24, Math.abs(b[1] - a[1]) * 0.5); return `M${a[0]} ${a[1]}C${a[0]} ${a[1] + dy} ${b[0]} ${b[1] - dy} ${b[0]} ${b[1]}`; };
+  const layer = board.querySelector('.clayer'), svg = layer.querySelector('.cwires');
+  const pt = id => { const d = layer.querySelector(`[data-dot="${id}"]`); return d ? centerIn(layer, d) : null; };
   const paths = circ.wires.map(w => {
     const a = pt(w.from), b = pt(w.to);
     if (!a || !b) return '';
     const v = probe ? probe[w.from] : undefined, focus = (ui.pick && (w.from === ui.pick || w.to === ui.pick)) || ui.wire === w.to;
     const live = v !== undefined && v !== null && v !== false, dead = v === null;
-    const cls = [portType(circ, ui.taps, w.from), focus ? 'on' : '', (ui.pick || ui.wire) && !focus ? 'dim' : '', dead ? 'dead' : ''].filter(Boolean).join(' ');
+    const cls = ['kw', `is-${portType(circ, ui.taps, w.from)}`, live ? 'is-live' : dead ? 'is-dead' : '', ui.wire === w.to ? 'is-selected' : focus ? 'is-hot' : '', (ui.pick || ui.wire) && !focus ? 'is-dim' : ''].filter(Boolean).join(' ');
     const d = curve(a, b);
-    return `<g class="cwg${ui.wire === w.to ? ' sel' : ''}"><path class="cw-halo" d="${d}"/><path class="cw ${cls}" style="stroke:${sourceColor(ui, w.from)}" d="${d}"/>${live ? `<path class="cw-flow" d="${d}"/>` : ''}<path class="cw-hit" data-act="wire" data-w="${w.to}" d="${d}"><title>点一下选中这根线</title></path></g>`;
+    return `<g class="${cls}" style="--kw:${sourceColor(ui, w.from)}"><path class="kw-halo" d="${d}"/><path class="kw-line" d="${d}"/>${live ? `<path class="kw-flow" d="${d}"/>` : ''}<path class="kw-hit" data-act="wire" data-w="${w.to}" d="${d}"><title>点一下选中这根线</title></path></g>`;
   });
   if (rubber) {
-    const a = pt(rubber.from), b = local(rubber.x, rubber.y);
-    if (a) paths.push(`<path class="cw rubber" d="${isSink(rubber.from) ? curve(b, a) : curve(a, b)}"/>`);
+    const a = pt(rubber.from), b = pointIn(layer, rubber.x, rubber.y);
+    if (a) paths.push(`<path class="kw-draft" d="${isSink(rubber.from) ? curve(b, a) : curve(a, b)}"/>`);
   }
   svg.innerHTML = paths.join('');
 }

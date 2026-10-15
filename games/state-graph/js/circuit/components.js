@@ -52,23 +52,10 @@ export function evaluate(circ, tap, outs, probe = {}) {
   return { out, probe };
 }
 
-/** True when wiring `from` into a port of node `toNode` would close a loop. */
-export function wouldCycle(circ, from, toNode) {
-  const seen = new Set(), stack = [from];
-  while (stack.length) {
-    const id = stack.pop();
-    if (id === toNode) return true;
-    if (seen.has(id) || id.startsWith('tap:')) continue;
-    seen.add(id);
-    circ.wires.forEach(w => { if (w.to.startsWith(`${id}:`)) stack.push(w.from); });
-  }
-  return false;
-}
-
 /** Compact circuit notation for reference solutions: nodes [[id, kind, value?]], wires ['from>to']. */
 export function circ(nodes, wires) {
   return {
-    nodes: nodes.map(([id, kind, value], slot) => ({ id, kind, slot, ...(value !== undefined ? { value } : {}) })),
+    nodes: nodes.map(([id, kind, value]) => ({ id, kind, ...(value !== undefined ? { value } : {}) })),
     wires: wires.map(s => { const [from, to] = s.split('>'); return { from, to }; }),
   };
 }
