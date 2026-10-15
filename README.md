@@ -14,6 +14,8 @@
 
 ## 💻 Other
 
+- [状态之图](https://dravammonk.github.io/study-notes/state-graph/)：从零开始的动态规划解谜游戏，23 关。源码是 `state-graph/index.html` 一个文件，推送后由 `.github/workflows/deploy-state-graph.yml` 发布。
+
 
 
 

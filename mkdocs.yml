@@ -43,6 +43,7 @@ markdown_extensions:
 
 hooks:
   - hooks/vision_complete.py
+  - hooks/state_graph.py
 
 plugins:
   - search

@@ -1,0 +1,32 @@
+# Publish 状态之图 (the single-page dynamic programming game in state-graph/) to GitHub Pages at /study-notes/state-graph/.
+# Same layout as deploy-game.yml: with destination_dir the action only replaces the state-graph/ folder on gh-pages,
+# and the MkDocs hook hooks/state_graph.py copies the page into every notes build, so a notes deploy keeps it.
+name: Deploy state graph
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'state-graph/**'
+      - '.github/workflows/deploy-state-graph.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-state-graph
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: state-graph
+          destination_dir: state-graph
+          commit_message: 'deploy: 状态之图'
