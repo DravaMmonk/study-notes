@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react'
-import { ArrowRight, Check, FlaskConical, Lock, Workflow } from 'lucide-react'
+import { ArrowRight, Check, FlaskConical, Lock, LockOpen, Workflow } from 'lucide-react'
 import { createFigureHost } from '../../figures/host.js'
 import { CHAPTERS, LEVELS, isOpen } from '../levels/index.js'
 import { PLANNED } from '../levels/planned.js'
 
 // The level map: a hero with a working machine, a "continue" button, then each chapter as a trace on
 // a circuit board, its levels as pads along it.
-export default function LevelMap({ solved, best, onOpen, theme }) {
+export default function LevelMap({ solved, best, all, onAll, onOpen, theme }) {
   const done = LEVELS.filter((level) => solved.has(level.id)).length
-  const next = LEVELS.find((level) => !solved.has(level.id) && isOpen(level, solved))
+  const next = LEVELS.find((level) => !solved.has(level.id) && isOpen(level, solved, all))
 
   return (
     <main className="level-map">
@@ -21,6 +21,12 @@ export default function LevelMap({ solved, best, onOpen, theme }) {
             <span className="map-progress-bar"><i style={{ width: `${(done / LEVELS.length) * 100}%` }} /></span>
             <span>{done} / {LEVELS.length} 关</span>
           </div>
+          <label className="map-all">
+            <input type="checkbox" checked={Boolean(all)} onChange={(event) => onAll(event.target.checked)} />
+            <span className="map-all-switch" aria-hidden="true"><i /></span>
+            {all ? <LockOpen size={14} /> : <Lock size={14} />}
+            <span>全部解锁<small>{all ? '任意一关都能直接玩；进度照常记录' : '打开后不用按顺序，任意一关都能直接玩'}</small></span>
+          </label>
           {next && (
             <button className="map-continue" onClick={() => onOpen(next.id)}>
               <span>{done ? '继续' : '开始'}</span>
@@ -47,7 +53,7 @@ export default function LevelMap({ solved, best, onOpen, theme }) {
               </header>
               <ol className="map-trace">
                 {levels.map((level) => {
-                  const open = isOpen(level, solved)
+                  const open = isOpen(level, solved, all)
                   const won = solved.has(level.id)
                   const state = won ? 'is-solved' : open ? 'is-open' : 'is-locked'
                   return (

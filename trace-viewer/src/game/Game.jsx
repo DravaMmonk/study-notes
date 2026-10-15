@@ -2,7 +2,7 @@ import { Suspense, createElement, useEffect, useMemo, useRef, useState } from 'r
 import { ArrowLeft, Lightbulb, Moon, PanelLeft, Plus, RotateCcw, Ruler, Sun, X } from 'lucide-react'
 import { hasLearnable, runLevel, trainStep } from './engine/graph.js'
 import { NODE_TYPES, defaultParams, inputsOf } from './engine/nodes.js'
-import { CHAPTERS, LEVELS, levelById } from './levels/index.js'
+import { CHAPTERS, LEVELS, levelById, unlocksBefore } from './levels/index.js'
 import { startBoard } from './levels/util.js'
 import { loadProgress, saveProgress } from './progress.js'
 import { applyTheme } from '../../../games/kit/theme.js'
@@ -97,7 +97,7 @@ export default function Game() {
         <ThemeSwitch theme={theme} onChange={setTheme} compact={phone} />
       </header>
 
-      {!level && <LevelMap solved={solved} best={progress.best} onOpen={open} theme={theme} />}
+      {!level && <LevelMap solved={solved} best={progress.best} all={progress.all} onAll={(all) => setProgress((p) => ({ ...p, all }))} onOpen={open} theme={theme} />}
       {level && (
         <div className={`level-shell ${showRail && !narrow ? 'has-rail' : ''}`}>
           {showRail && narrow && <div className="rail-scrim" onClick={() => setDrawer(false)} />}
@@ -105,6 +105,7 @@ export default function Game() {
             <LevelRail
               current={level.id}
               solved={solved}
+              all={progress.all}
               overlay={narrow}
               onClose={toggleRail}
               onOpen={(id) => {
@@ -194,7 +195,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   const [losses, setLosses] = useState([])
   const [showBrief, setShowBrief] = useState(false)
   const [sheet, setSheet] = useState(false)
-  const flags = useMemo(() => new Set([...progress.flags, ...(level.grants ?? [])]), [progress.flags, level.grants])
+  const flags = useMemo(() => new Set([...progress.flags, ...(level.grants ?? []), ...(progress.all ? unlocksBefore(level) : [])]), [progress.flags, progress.all, level])
   // The fixed cards are named and drawn by what they carry: a picture, a waveform or a number.
   const ioKinds = level.kind === 'graph' ? Object.fromEntries([...Object.entries(level.tests[0].inputs), ...Object.entries(level.tests[0].expected)].map(([name, value]) => [name, kindOf(value)])) : {}
   const inputLabels = level.inputLabels ?? (level.inputs.length > 1 ? { left: '左图', right: '右图', scene: '现场', empty: '空场' } : {})
@@ -291,7 +292,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
     change(next)
   }
 
-  const nextLevel = LEVELS.find((l) => l.requires.includes(level.id) && l.requires.every((id) => id === level.id || progress.solved.includes(id)))
+  const nextLevel = LEVELS.find((l) => l.requires.includes(level.id) && (progress.all || l.requires.every((id) => id === level.id || progress.solved.includes(id))))
   const passed = shown?.results.filter((r) => r.pass).length ?? 0
 
   const parts = <PartsList palette={level.palette} onAdd={addNode} />

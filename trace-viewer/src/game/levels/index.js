@@ -40,4 +40,12 @@ export const LEVELS = [...chapter0, ...chapter1, ...chapter2, ...chapter3, ...ch
 
 export const levelById = Object.fromEntries(LEVELS.map((level) => [level.id, level]))
 
-export const isOpen = (level, solved) => level.requires.every((id) => solved.has(id))
+// A level is open once every level it requires is solved, or always when the player has unlocked everything.
+export const isOpen = (level, solved, all = false) => all || level.requires.every((id) => solved.has(id))
+
+// Everything a player playing in order has unlocked by the time they reach `level`: the unlocks of every level
+// before it. Used when all levels are open, so a level entered early still has the options it expects.
+export function unlocksBefore(level) {
+  const at = LEVELS.indexOf(level)
+  return LEVELS.slice(0, Math.max(0, at)).flatMap((l) => l.unlocks ?? [])
+}

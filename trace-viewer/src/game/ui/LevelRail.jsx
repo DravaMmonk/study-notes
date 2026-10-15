@@ -4,7 +4,7 @@ import { CHAPTERS, LEVELS, isOpen } from '../levels/index.js'
 
 // The level list beside a level: every chapter, the current one open, each level with its state.
 // Picking a level switches to it directly, without going back to the map.
-export default function LevelRail({ current, solved, onOpen, onClose, overlay }) {
+export default function LevelRail({ current, solved, all, onOpen, onClose, overlay }) {
   const chapterOf = LEVELS.find((level) => level.id === current)?.chapter
   const [openChapters, setOpenChapters] = useState(() => new Set([chapterOf]))
   const list = useRef(null)
@@ -51,7 +51,7 @@ export default function LevelRail({ current, solved, onOpen, onClose, overlay })
               {expanded && (
                 <ol>
                   {levels.map((level) => {
-                    const open = isOpen(level, solved)
+                    const open = isOpen(level, solved, all)
                     const won = solved.has(level.id)
                     const here = level.id === current
                     return (

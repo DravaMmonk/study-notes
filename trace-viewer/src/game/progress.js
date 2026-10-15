@@ -27,9 +27,9 @@ function migrate(saved) {
 export function loadProgress() {
   try {
     const saved = migrate(JSON.parse(window.localStorage.getItem(KEY)) ?? { version: VERSION })
-    return { version: VERSION, solved: saved.solved ?? [], flags: saved.flags ?? [], boards: saved.boards ?? {}, best: saved.best ?? {}, seenIntro: Boolean(saved.seenIntro) }
+    return { version: VERSION, solved: saved.solved ?? [], flags: saved.flags ?? [], boards: saved.boards ?? {}, best: saved.best ?? {}, seenIntro: Boolean(saved.seenIntro), all: Boolean(saved.all) }
   } catch {
-    return { version: VERSION, solved: [], flags: [], boards: {}, best: {}, seenIntro: false }
+    return { version: VERSION, solved: [], flags: [], boards: {}, best: {}, seenIntro: false, all: false }
   }
 }
 

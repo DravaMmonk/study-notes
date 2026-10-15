@@ -64,6 +64,15 @@
 .map-progress { margin-top: 26px; display: flex; align-items: center; gap: 12px; color: var(--muted); font-family: var(--mono); font-size: 11px; }
 .map-progress-bar { width: 180px; height: 4px; overflow: hidden; border-radius: 4px; background: var(--hairline); }
 .map-progress-bar i { display: block; height: 100%; border-radius: inherit; background: var(--status); transition: width 600ms cubic-bezier(.2, .8, .2, 1); }
+.map-all { position: relative; margin-top: 14px; width: fit-content; max-width: 100%; min-height: 44px; display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 13.5px; cursor: pointer; user-select: none; }
+.map-all input { position: absolute; opacity: 0; pointer-events: none; }
+.map-all-switch { flex: none; width: 36px; height: 22px; padding: 2px; border-radius: 11px; background: var(--line); transition: background 180ms ease; }
+.map-all-switch i { display: block; width: 18px; height: 18px; border-radius: 50%; background: var(--paper); box-shadow: 0 1px 3px rgba(0, 0, 0, .25); transition: transform 180ms ease; }
+.map-all input:checked + .map-all-switch { background: var(--accent); }
+.map-all input:checked + .map-all-switch i { transform: translateX(14px); }
+.map-all input:focus-visible + .map-all-switch { outline: 2px solid var(--accent); outline-offset: 2px; }
+.map-all span:last-child { display: grid; gap: 1px; color: var(--ink); }
+.map-all small { color: var(--muted); font-size: 11.5px; }
 .map-continue { margin-top: 18px; min-height: 48px; padding: 0 18px; display: inline-flex; align-items: center; gap: 12px; border: 0; border-radius: 12px; color: var(--paper); background: var(--ink); box-shadow: 0 10px 24px -14px rgba(0, 0, 0, .6); cursor: pointer; transition: transform 180ms ease, box-shadow 180ms ease; }
 .map-continue span { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; opacity: .7; }
 .map-continue b { font-size: 15px; font-weight: 500; }
