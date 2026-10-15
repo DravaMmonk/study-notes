@@ -434,3 +434,43 @@
 .sheet .tests { padding: 0; border: 0; background: none; }
 /* The bar above already names the level. */
 .pl-brief .brief-head { display: none; }
+
+/* A level's 引入: a bottom sheet on a phone, a card in the middle on a desktop. */
+.intro-scrim { position: fixed; z-index: 70; inset: 0; display: grid; place-items: center; padding: 24px; background: var(--scrim); animation: fade-in 160ms ease; }
+.intro-card { width: min(540px, 100%); max-height: min(760px, calc(100dvh - 48px)); display: flex; flex-direction: column; overflow: hidden; border-radius: 20px; background: var(--paper); box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .45), 0 0 0 1px var(--hairline); animation: card-in 220ms cubic-bezier(.2, .8, .2, 1); }
+.intro-head { padding: 14px 10px 0 22px; display: flex; align-items: center; justify-content: space-between; }
+.intro-kicker { color: var(--accent-ink); font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; }
+.intro-close { width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 12px; color: var(--muted); background: transparent; cursor: pointer; }
+.intro-close:hover { background: var(--hover); }
+.intro-card h2 { margin: 2px 22px 10px; font-family: var(--serif); font-size: 24px; font-weight: 500; }
+.intro-body { min-height: 0; overflow-y: auto; padding: 0 22px 8px; display: grid; gap: 14px; animation: fade-in 180ms ease; }
+.intro-text { margin: 0; color: var(--body, var(--ink)); font-size: 16px; line-height: 1.8; }
+.intro-text b { color: var(--ink); font-weight: 650; }
+.intro-figure { margin: 0; padding: 14px 12px 10px; display: grid; justify-items: center; gap: 8px; border-radius: 14px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.intro-figure.is-art { padding: 6px 4px; }
+.intro-figure.is-art .figure-stage { width: 100%; }
+.intro-figure figcaption { color: var(--muted); font-size: 12.5px; line-height: 1.5; text-align: center; }
+.intro-flow { max-width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+.intro-values { display: flex; gap: 8px; }
+.intro-value { display: grid; justify-items: center; gap: 4px; line-height: 0; }
+.intro-value .image-view, .intro-value canvas { border-radius: 6px; }
+.intro-value small { color: var(--muted); font-family: var(--mono); font-size: 10.5px; line-height: 1.3; }
+.intro-arrow { color: var(--muted); }
+.intro-part { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); }
+.intro-part b { padding: 4px 9px; border-radius: 8px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); font-size: 13px; font-weight: 500; }
+.intro-foot { padding: 12px 18px calc(16px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--hairline); }
+.intro-dots { flex: 1; display: flex; gap: 5px; }
+.intro-dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--line); transition: width 200ms ease, background 200ms ease; }
+.intro-dots i.is-on { width: 18px; background: var(--accent); }
+.intro-back, .intro-next { min-height: 44px; padding: 0 16px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 12px; font: inherit; font-size: 15px; cursor: pointer; }
+.intro-back { color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); }
+.intro-next { min-width: 120px; justify-content: center; color: var(--paper); background: var(--ink); font-weight: 600; }
+.intro-next:active, .intro-back:active { transform: scale(.97); }
+@media (max-width: 640px) {
+  .intro-scrim { padding: 0; place-items: end stretch; }
+  .intro-card { width: 100%; max-height: 90dvh; border-radius: 22px 22px 0 0; animation: sheet-in 260ms cubic-bezier(.2, .8, .2, 1); }
+  .intro-card h2 { font-size: 22px; }
+  .intro-text { font-size: 15.5px; }
+  .intro-button span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .intro-scrim, .intro-card, .intro-body { animation: none; } }

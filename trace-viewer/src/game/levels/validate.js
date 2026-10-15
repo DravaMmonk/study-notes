@@ -1,7 +1,14 @@
 /* global process */
 // node src/game/levels/validate.js — every reference solution must pass its level, every naive one must fail.
+import { existsSync, readdirSync } from 'node:fs'
 import { runLevel } from '../engine/graph.js'
 import { LEVELS } from './index.js'
+import { introProblems } from './intros/index.js'
+
+// The figures an intro may show: every folder of src/figures with a figure.js, under the id the registry gives it.
+const FIGURE_IDS = { conv: 'conv-press', stereo: 'stereo-rangefinder', ransac: 'ransac-pegboard' }
+const figuresDir = new URL('../../figures/', import.meta.url)
+const FIGURES = readdirSync(figuresDir).filter((name) => existsSync(new URL(`${name}/figure.js`, figuresDir))).map((name) => FIGURE_IDS[name] ?? name)
 
 let problems = 0
 const seen = new Set()
@@ -13,6 +20,12 @@ for (const level of LEVELS) {
   seen.add(level.id)
   for (const id of level.requires) if (!LEVELS.some((l) => l.id === id)) {
     console.log(`${level.id}: FAIL requires missing level ${id}`)
+    problems += 1
+  }
+}
+for (const level of LEVELS) {
+  for (const problem of introProblems(level, FIGURES)) {
+    console.log(`${level.id}: FAIL 引入：${problem}`)
     problems += 1
   }
 }

@@ -1,12 +1,14 @@
 import { Suspense, createElement, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, Lightbulb, Moon, PanelLeft, Plus, RotateCcw, Ruler, Sun, X } from 'lucide-react'
+import { ArrowLeft, BookOpen, Lightbulb, Moon, PanelLeft, Plus, RotateCcw, Ruler, Sun, X } from 'lucide-react'
 import { hasLearnable, runLevel, trainStep } from './engine/graph.js'
 import { NODE_TYPES, defaultParams, inputsOf } from './engine/nodes.js'
 import { CHAPTERS, LEVELS, levelById, unlocksBefore } from './levels/index.js'
+import { INTROS } from './levels/intros/index.js'
 import { startBoard } from './levels/util.js'
 import { loadProgress, saveProgress } from './progress.js'
 import { applyTheme } from '../../../games/kit/theme.js'
 import Editor from './ui/Editor.jsx'
+import IntroSheet from './ui/IntroSheet.jsx'
 import LevelMap from './ui/LevelMap.jsx'
 import LevelRail from './ui/LevelRail.jsx'
 import ProbeLevel from './ui/ProbeLevel.jsx'
@@ -39,6 +41,9 @@ const INTRO = [
 export default function Game() {
   const [progress, setProgress] = useState(loadProgress)
   const [levelId, setLevelId] = useState(() => new URLSearchParams(window.location.search).get('level'))
+  // A level's 引入 opens by itself the first time the level is entered (after the game's own first dialog), and
+  // again whenever the player asks for it from the bar.
+  const [introFor, setIntroFor] = useState(null)
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme)
   const phone = useMedia(PHONE)
   const solved = useMemo(() => new Set(progress.solved), [progress.solved])
@@ -94,6 +99,7 @@ export default function Game() {
             {chapter && <small>{chapter.title}</small>}
           </span>
         )}
+        {level && INTROS[level.id] && <button className="bar-button intro-button" onClick={() => setIntroFor(level.id)} aria-label="引入"><BookOpen size={16} /><span>引入</span></button>}
         <ThemeSwitch theme={theme} onChange={setTheme} compact={phone} />
       </header>
 
@@ -116,6 +122,17 @@ export default function Game() {
           )}
           <LevelScreen key={level.id} level={level} progress={progress} setProgress={setProgress} onExit={() => open(null)} onNext={open} theme={theme} phone={phone} />
         </div>
+      )}
+      {level && INTROS[level.id] && (introFor === level.id || (progress.seenIntro && !progress.introSeen?.[level.id])) && (
+        <IntroSheet
+          key={level.id}
+          level={level}
+          theme={theme}
+          onClose={() => {
+            setIntroFor(null)
+            setProgress((p) => ({ ...p, introSeen: { ...p.introSeen, [level.id]: true } }))
+          }}
+        />
       )}
       {!progress.seenIntro && (
         <Dialog title="上电" lines={INTRO} actions={[['开始', () => setProgress((p) => ({ ...p, seenIntro: true }))]]} intro />
