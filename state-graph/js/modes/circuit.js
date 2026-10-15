@@ -230,7 +230,7 @@ export function circuitMode(L, saved) {
       const uses = L.uses ? `<div class="chips">${L.uses.map(k => `<span class="tag">${ICON.part}零件 · ${PARTS[k].name}</span>`).join('')}</div>` : '';
       const dirs = L.dirs ? `<div class="pcard"><h3>改写方向<small>机器上的两个开关</small></h3>${['01', 'inf'].map(kind => `<div class="dirrow"><div class="optlabel">${kind === '01' ? '每件最多拿一次时' : '每件可以拿很多次时'}</div>
         <div class="chips two" role="radiogroup" aria-label="改写方向">${[['asc', '从左往右 →'], ['desc', '← 从右往左']].map(([v, l]) => `<button class="chip" type="button" role="radio" aria-checked="${st.dirs[kind] === v}" data-act="dir" data-k="${kind}" data-v="${v}">${l}</button>`).join('')}</div></div>`).join('')}</div>` : '';
-      return `<div class="pcard cpcard"><h3>电路板${st.wire ? '<button class="cdel" type="button" data-act="unwire">删除连线</button>' : `<small>${st.pick ? '再点一个亮起的圆点' : '拖动元件，从圆点拉线'}</small>`}</h3>${uses}
+      return `<div class="pcard cpcard"><h3><span class="cptitle">电路板</span>${st.wire ? '<button class="cdel" type="button" data-act="unwire">删除连线</button>' : `<small>${st.pick ? '再点一个亮起的圆点' : '拖动元件，从圆点拉线'}</small>`}</h3>${uses}
         ${editorHTML(circ(), ui())}</div>${dirs}`;
     },
     mounted() {
