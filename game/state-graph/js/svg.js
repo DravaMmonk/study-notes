@@ -61,6 +61,9 @@ export function sceneSVG(scene, opt = {}) {
   for (const p of scene.paths || []) if (p.box) { x0 = Math.min(x0, p.box[0]); y0 = Math.min(y0, p.box[1]); x1 = Math.max(x1, p.box[2]); y1 = Math.max(y1, p.box[3]); }
   const bots = [].concat(scene.robot || []).filter(id => by[id]).map(id => ({ x: by[id].x + by[id].w / 2 - 22, y: by[id].y - by[id].h / 2 - 20 }));
   bots.forEach(b => { y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + 30); });
+  // A scene that can show the robot keeps room for it over every cell it could stand on (not the table's axis
+  // labels), so the board does not rescale, and seem to flash, when the robot reaches the top row or right column.
+  if ('robot' in scene) for (const c of cells) if (!/\baxis\b/.test(c.cls || '')) { y0 = Math.min(y0, c.y - c.h / 2 - 20); x1 = Math.max(x1, c.x + c.w / 2 + 8); }
   const pathSVG = (scene.paths || []).map(p => `<path class="edge ${p.cls}" d="${p.d}"${MARKED.has(p.cls) ? ` marker-end="url(#${uid}-${p.cls})"` : ''}/>`).join('');
   const textSVG = (scene.texts || []).map(t => `<text class="tx ${t.cls || ''}" x="${t.x}" y="${t.y}" text-anchor="${t.anchor || 'middle'}">${t.t}</text>`).join('');
   const pairs = new Set(edges.map(e => `${e.a}>${e.b}`));

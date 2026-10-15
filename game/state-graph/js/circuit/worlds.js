@@ -491,6 +491,9 @@ const roll = world({
       row.vals.forEach((v, w) => cells.push({ id: `${r}:${w}`, x: w * sp, y: r * rowH, w: sz, h: sz, value: signal(v), cls: row.cls(w) }));
       if (row.arrow) edges.push(E(`${r}:${row.arrow[0]}`, `${r}:${row.arrow[1]}`, row.arrow[2] ? 'bad' : 'hot', -36));
     });
+    // Keep room for the longest row label from the start, so the board does not shift when a label changes.
+    const longest = t.items.reduce((a, it) => (it.n.length > a.length ? it.n : a), '');
+    texts.push({ x: -sz / 2 - 10, y: 5, t: `正在处理${longest}`, anchor: 'end', cls: 'reserve' });
     const live = rows.find(row => row.arrow);
     return { cells, edges, texts, robot: live ? `${rows.indexOf(live)}:${live.arrow[1]}` : null };
   },
