@@ -9,7 +9,7 @@ import { rt, Anim } from '../runtime.js';
 import { WORLDS, runCircuit, readTap, windowOf, visibleTaps } from '../circuit/worlds.js';
 import { ROBOTS } from '../circuit/robots.js';
 import { def, blank, evaluate } from '../circuit/components.js';
-import { editorHTML, viewHTML, drawWires, paintProbe, connect, unwire, removeNode, placeNode, movePiece, toggleLit, litOf, isSink, pieceKind, spotFor, SIZE } from '../circuit/editor.js';
+import { editorHTML, viewHTML, drawWires, paintProbe, connect, unwire, removeNode, placeNode, moveNode, placement, toggleLit, litOf, isSink } from '../circuit/editor.js';
 import { PARTS } from '../levels/parts.js';
 
 export function circuitMode(L, saved) {
@@ -62,7 +62,6 @@ export function circuitMode(L, saved) {
     return w;
   }
   const ui = () => ({ taps: taps(), avail: avail(), lit: litOf(circ()), outs: V().outs, pick: st.pick, wire: st.wire, palette: stage().palette, win: win(), sideView: wide() });
-  const snap = v => Math.max(0, Math.round(v / 4) * 4);
   const hintFor = () => {
     const s = stage(), d = L.diagnose ? L.diagnose(circ(), st) : null;
     return d || (s.hints ? s.hints[Math.min(Math.max(rt.cur.fails - 1, 0), s.hints.length - 1)] : null);
@@ -86,6 +85,20 @@ export function circuitMode(L, saved) {
     return !!r.circ;
   }
 
+  /** Pick a part for an empty slot: the level's parts, each with what it does. */
+  function openSlot(at) {
+    const fresh = stage().fresh || [];
+    const rows = stage().palette.map(kind => {
+      const d = def(kind);
+      return `<button class="pal" type="button" data-act="put" data-k="${kind}"><span class="pal-ic${d.bp ? ' bp' : ''}">${d.bp ? ICON.part : d.icon}</span><span class="pal-tx"><b>${d.name}${d.tag && kind !== 'const' ? ` · ${d.tag}` : ''}${fresh.includes(kind) ? '<em>新</em>' : ''}</b><small>${d.desc}</small></span></button>`;
+    }).join('');
+    rt.openSheet(`<div><div class="kicker sig">元件</div><h3 class="sh" id="sheetTitle">放进第 ${at + 1} 格</h3></div>
+      <div class="list">${rows}</div>
+      <div class="acts"><button class="btn sec" type="button" data-close>取消</button></div>`, {
+      put: el => { setCirc(placeNode(circ(), el.dataset.k, at)); buzz(8); rt.closeSheet(); rt.refresh(); },
+    });
+  }
+
   /** The port a wire dropped on a component card lands in: its first free input that accepts the wire, else the first that does. */
   function cardPort(from, id) {
     const ok = def(circ().nodes.find(n => n.id === id).kind).ins.map((_, k) => `${id}:${k}`).filter(p => connect(circ(), taps(), from, p).circ);
@@ -104,20 +117,20 @@ export function circuitMode(L, saved) {
     move(g) { drawWires($('#cboard'), circ(), g.u, g.u.win.probe, g.kind === 'port' ? { from: g.id, x: g.x, y: g.y } : null); },
     drop(g) {
       const over = g.over;
+      const slot = over && over.dataset.slot !== undefined ? +over.dataset.slot : null;
       if (g.kind === 'port' && over) {
-        const onto = over.dataset.piece, to = over.dataset.p || (onto && pieceKind(onto) === 'node' && !isSink(g.id) ? cardPort(g.id, onto) : onto);
+        const onto = over.dataset.piece, to = over.dataset.p || (onto ? (isSink(g.id) ? onto : cardPort(g.id, onto)) : null);
         if (to && connectPorts(g.id, to)) st.pick = null;
       }
-      if (g.kind === 'piece') {
-        if (over && pieceKind(g.id) === 'node') { setCirc(removeNode(circ(), g.id)); toast('拿掉了一个元件'); }
-        else {
-          const el = $(`#clayer [data-piece="${g.id}"]`);
-          setCirc(movePiece(circ(), g.id, [snap(el.offsetLeft + g.dx), snap(el.offsetTop + g.dy)]));
-        }
+      if (g.kind === 'piece' && over) {
+        if (slot !== null) setCirc(moveNode(circ(), g.id, slot));
+        else { setCirc(removeNode(circ(), g.id)); toast('拿掉了一个元件'); }
       }
       if (g.kind === 'tray' && over) {
-        const box = $('#clayer').getBoundingClientRect(), sc = box.width / $('#clayer').offsetWidth || 1, [w, h] = SIZE.node;
-        setCirc(placeNode(circ(), g.id, [snap((g.x - box.left) / sc - w / 2), snap((g.y - box.top) / sc - h / 2)]));
+        const free = placement(circ()).free;
+        if (slot === null) setCirc(placeNode(circ(), g.id, free[0]));
+        else if (free.includes(slot)) setCirc(placeNode(circ(), g.id, slot));
+        else toast('这一格已经有元件了');
       }
       rt.refresh();
     },
@@ -195,8 +208,8 @@ export function circuitMode(L, saved) {
         return `<button class="titem${d.bp ? ' bp' : ''}" type="button" data-act="tray" data-k="${kind}" data-tray="${kind}" title="${d.desc}">
           <span class="ti-ic">${d.bp ? ICON.part : d.icon}</span><span class="ti-tx"><b>${d.name}${fresh.includes(kind) ? '<em>新</em>' : ''}</b><small>${kind === 'const' ? '一个数' : d.tag}</small><span class="ti-ds">${d.desc}</span></span><span class="ti-add" aria-hidden="true">＋</span></button>`;
       }).join('');
-      return `<header class="phead"><h3>元件</h3><small>拖到电路板上，或点一下</small></header><div class="plist">${items}</div>
-        <p class="tdrop">拖到这里拿掉元件</p><p class="pnote">从圆点拉线到另一个圆点，也可以直接拖到元件上。点一下连线可以选中它，按 Delete 删除；Esc 取消。</p>`;
+      return `<header class="phead"><h3>元件</h3><small>点一下放进空格，按住拖到某一格</small></header><div class="plist">${items}</div>
+        <p class="tdrop">拖到这里拿掉元件</p><p class="pnote">点两个圆点连线，或从一个圆点拖到另一个；选中圆点后点一块也能接。点已接好的输入口就拆掉。按住一块可以换格子，拖回这里就是拿掉。点一下连线可以选中它，按 Delete 删除；Esc 取消。</p>`;
     },
     /** Delete key: remove the selected wire. */
     remove() {
@@ -221,16 +234,12 @@ export function circuitMode(L, saved) {
       const uses = L.uses ? `<div class="chips">${L.uses.map(k => `<span class="tag">${ICON.part}零件 · ${PARTS[k].name}</span>`).join('')}</div>` : '';
       const dirs = L.dirs ? `<div class="pcard"><h3>改写方向<small>机器上的两个开关</small></h3>${['01', 'inf'].map(kind => `<div class="dirrow"><div class="optlabel">${kind === '01' ? '每件最多拿一次时' : '每件可以拿很多次时'}</div>
         <div class="chips two" role="radiogroup" aria-label="改写方向">${[['asc', '从左往右 →'], ['desc', '← 从右往左']].map(([v, l]) => `<button class="chip" type="button" role="radio" aria-checked="${st.dirs[kind] === v}" data-act="dir" data-k="${kind}" data-v="${v}">${l}</button>`).join('')}</div></div>`).join('')}</div>` : '';
-      return `<div class="pcard cpcard"><h3><span class="cptitle">电路板</span>${st.wire ? '<button class="cdel" type="button" data-act="unwire">删除连线</button>' : `<small>${st.pick ? '再点一个亮起的圆点' : '拖动元件，从圆点拉线'}</small>`}</h3>${uses}
-        ${editorHTML(circ(), ui())}</div>${dirs}`;
+      return `<div class="pcard cpcard"><h3><span class="cptitle">电路板</span>${st.wire ? '<button class="cdel" type="button" data-act="unwire">删除连线</button>' : '<small>点圆点连线，按住元件换格子</small>'}</h3>${uses}
+        ${editorHTML(circ(), ui())}</div>${dirs}${st.pick ? `<div class="pickbar" role="status"><span>${isSink(st.pick) ? '这个输入口读谁？点一个亮起的输出口（块底下的圆点），或点那一块' : '接到哪？点一个亮起的输入口（块顶上的圆点），或点那一块'}</span><button type="button" data-act="unpick">取消</button></div>` : ''}`;
     },
     mounted() {
       const root = $('#circ');
       if (!root) return;
-      // Phones scale the board to the card's width; a desktop canvas shows it at full size and scrolls.
-      const layer = $('#clayer'), w = +layer.dataset.w, h = +layer.dataset.h, pad = layer.offsetLeft, sc = wide() ? 1 : Math.min(1, ($('#cboard').clientWidth - 2 * pad) / w);
-      layer.style.transform = sc < 1 ? `scale(${sc})` : '';
-      $('#cboard').style.height = `${Math.ceil(h * sc + 2 * layer.offsetTop)}px`;
       const u = ui();
       $('#cview').innerHTML = viewHTML(circ(), u);
       drawWires($('#cboard'), circ(), u, u.win.probe);
@@ -262,16 +271,27 @@ export function circuitMode(L, saved) {
       if (name === 'wire') { st.pick = null; st.wire = st.wire === el.dataset.w ? null : el.dataset.w; buzz(6); rt.refresh(); }
       if (name === 'unwire') ctl.remove();
       if (name === 'tray') {
-        const at = spotFor(circ(), ui(), 'node');
         st.pick = null;
         st.wire = null;
-        setCirc(placeNode(circ(), el.dataset.k, at));
+        setCirc(placeNode(circ(), el.dataset.k, placement(circ()).free[0]));
         buzz(8);
         rt.refresh();
       }
-      if (name === 'lit') { st.pick = null; st.wire = null; setCirc(toggleLit(circ(), el.dataset.t, spotFor(circ(), ui(), 'term'))); buzz(6); rt.refresh(); }
+      if (name === 'slot') { st.pick = null; st.wire = null; openSlot(+el.dataset.at); }
+      if (name === 'unpick') { st.pick = null; rt.refresh(); }
+      if (name === 'lit') { st.pick = null; st.wire = null; setCirc(toggleLit(circ(), el.dataset.t)); buzz(6); rt.refresh(); }
       if (name === 'sandbox') { st.view = null; rt.refresh(); }
-      if (name === 'node') { st.pick = null; openNode(el.dataset.n); }
+      if (name === 'node') {
+        // With a dot picked, tapping a card wires it: to its output, or to its first free input that fits.
+        if (st.pick) {
+          const id = el.dataset.n, to = isSink(st.pick) ? id : cardPort(st.pick, id);
+          if (to && connectPorts(st.pick, to)) st.pick = null;
+          else if (!to) { toast('这一块没有能接这根线的口'); buzz(20); }
+          rt.refresh();
+          return;
+        }
+        openNode(el.dataset.n);
+      }
       if (name === 'dir') { st.dirs[el.dataset.k] = el.dataset.v; changed(); buzz(6); rt.refresh(); }
       if (name === 'clear') {
         if (!st.armed) { st.armed = true; rt.refresh(); setTimeout(() => { if (st.armed) { st.armed = false; rt.refresh(); } }, 2600); return; }
