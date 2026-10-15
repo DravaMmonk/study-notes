@@ -1,5 +1,6 @@
-// App shell: level map, level screen (mission, board, panel, dock), bottom sheets and boot.
-// Game modes talk to the shell only through `rt` (runtime.js).
+// App shell: level map, level screen (brief, board, panel, dock), level rail, sheets and boot.
+// Game modes talk to the shell only through `rt` (runtime.js). From 1100px the level screen is a workbench:
+// brief on the left, the mode's main pane in the middle (the board, or the panel when `ctl.panelStage`), the rest on the right.
 
 import { $, $$, reduced, buzz, sleep, ICON, toast } from './util.js';
 import { sceneSVG, gridScene } from './svg.js';
@@ -8,6 +9,12 @@ import { rt, Anim } from './runtime.js';
 import { S, save, resetAll } from './store.js';
 import { LEVELS, CHAPTERS, PARTS } from './levels/index.js';
 import { MODES } from './modes/index.js';
+import { initTheme } from './theme.js';
+import { enableDrag } from './circuit/drag.js';
+
+const wide = matchMedia('(min-width: 1100px)'), docked = matchMedia('(min-width: 1500px)');
+const RAIL = 'state-graph-rail';
+let railOpen = (() => { try { return localStorage.getItem(RAIL) !== '0'; } catch (e) { return true; } })() && docked.matches;
 
 const hasPart = k => LEVELS.some(L => L.unlock === k && S.done[L.id]);
 const isBlueprint = k => LEVELS.some(L => L.unlock === k && L.blueprint);
@@ -24,8 +31,11 @@ function openLevel(i) {
   $('#level').hidden = false;
   $('#lvCh').textContent = `第 ${L.ch + 1} 章 · ${CHAPTERS[L.ch].name}`;
   $('#lvTitle').textContent = `${i + 1}. ${L.title}`;
+  $('#level').classList.toggle('panel-stage', !!rt.cur.ctl.panelStage);
+  if (!docked.matches) railOpen = false;
+  renderRail();
   refresh();
-  $('#lvScroll').scrollTop = 0;
+  $$('#lvScroll, #brief, #bcard, #panel').forEach(el => { el.scrollTop = 0; });
   if (!S.seen[L.id]) openIntro();
 }
 
@@ -39,8 +49,8 @@ function leaveLevel() {
 }
 
 function renderMission() {
-  const L = rt.cur.L, tip = rt.cur.ctl.tip ? rt.cur.ctl.tip() : null;
-  $('#mission').innerHTML = `<div class="mrow"><span class="k">目标</span><p>${L.mission.goal}</p></div><div class="mrow"><span class="k">怎么玩</span><p>${L.mission.how}</p></div>${tip ? `<div class="tip"><b>提示</b><span>${tip.text}</span></div>` : ''}`;
+  const { L, i } = rt.cur, tip = rt.cur.ctl.tip ? rt.cur.ctl.tip() : null;
+  $('#mission').innerHTML = `<header class="bhead"><span class="eyebrow">第 ${i + 1} 关 · ${CHAPTERS[L.ch].name}</span><h1>${L.title}</h1></header><div class="mrow"><span class="k">目标</span><p>${L.mission.goal}</p></div><div class="mrow"><span class="k">怎么玩</span><p>${L.mission.how}</p></div>${tip ? `<div class="tip"><b>提示</b><span>${tip.text}</span></div>` : ''}`;
 }
 
 function renderBoard() {
@@ -81,6 +91,7 @@ function refresh() {
   renderTests();
   renderBoard();
   $('#panel').innerHTML = cur.ctl.panel();
+  $('#parts').innerHTML = cur.ctl.parts ? cur.ctl.parts() : '';
   if (cur.ctl.mounted) cur.ctl.mounted();
   renderDock();
   if (sig) { const el = $$('#panel [data-act], #board [data-act]').find(e => focusSig(e) === sig); if (el) el.focus({ preventScroll: true }); }
@@ -92,8 +103,31 @@ function refreshKeepRange() {
   renderDock();
 }
 
-function startRun() { rt.cur.running = true; Anim.begin(); renderDock(); if (matchMedia('(max-width: 899px)').matches) $('#bcard').scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' }); }
+function startRun() { rt.cur.running = true; Anim.begin(); renderDock(); if (!wide.matches) $('#bcard').scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' }); }
 function endRun() { rt.cur.running = false; }
+
+/* ================= level rail ================= */
+
+function renderRail() {
+  const here = rt.cur ? rt.cur.i : -1;
+  $('#level').classList.toggle('rail-open', railOpen);
+  $('#btnRail').setAttribute('aria-expanded', String(railOpen));
+  if (!railOpen) return;
+  $('#rail').innerHTML = `<div class="rail-head"><b>关卡</b><small>${LEVELS.filter(L => S.done[L.id]).length} / ${LEVELS.length}</small></div>
+    <div class="rail-list">${CHAPTERS.map((ch, c) => `<section class="rail-ch${rt.cur && rt.cur.L.ch === c ? ' here' : ''}"><h3><span>${c + 1}</span>${ch.name}</h3><ol>${LEVELS.map((L, i) => [L, i]).filter(([L]) => L.ch === c).map(([L, i]) => {
+      const st = status(i);
+      return `<li><button class="rail-lv ${st}${i === here ? ' here' : ''}" type="button" data-rail="${i}" ${st === 'locked' ? 'disabled' : ''}${i === here ? ' aria-current="page"' : ''}><i class="pad">${st === 'done' ? ICON.check : st === 'locked' ? ICON.lock : ''}</i><span class="no">${i + 1}</span><span class="tt">${L.title}</span>${L.mode === 'circuit' ? `<span class="kind" title="电路板">${ICON.wire}</span>` : ''}</button></li>`;
+    }).join('')}</ol></section>`).join('')}</div>`;
+  const cur = $('#rail .here');
+  if (cur) cur.scrollIntoView({ block: 'nearest' });
+}
+
+function toggleRail(open = !railOpen) {
+  railOpen = open;
+  if (docked.matches) { try { localStorage.setItem(RAIL, open ? '1' : '0'); } catch (e) { /* storage unavailable */ } }
+  renderRail();
+  if (rt.cur && rt.cur.ctl.mounted) requestAnimationFrame(() => rt.cur && rt.cur.ctl.mounted());
+}
 
 /* ================= sheets ================= */
 
@@ -149,6 +183,7 @@ function pass() {
   const { L, i } = rt.cur, last = i === LEVELS.length - 1, fresh = L.unlock && !S.done[L.id];
   S.done[L.id] = true;
   save();
+  renderRail();
   buzz([15, 40, 15, 40, 60]);
   openSheet(`<div><div class="kicker good">第 ${i + 1} 关 · 完成</div><h3 class="sh" id="sheetTitle">${L.debrief.title}</h3></div>
     <div class="prose">${L.debrief.body.map(p => `<p>${p}</p>`).join('')}</div>
@@ -276,7 +311,16 @@ function boot() {
   });
   document.addEventListener('keydown', e => {
     const cur = rt.cur;
-    if (e.key === 'Escape') { if (!$('#sheet').hidden) closeSheet(); else if (cur) leaveLevel(); return; }
+    if (e.key === 'Escape') {
+      if (!$('#sheet').hidden) closeSheet();
+      else if (railOpen && !docked.matches) toggleRail(false);
+      else if (cur && cur.ctl.cancel) cur.ctl.cancel();
+      return;
+    }
+    if ((e.key === 'Delete' || e.key === 'Backspace') && cur && cur.ctl.remove && !cur.ctl.st.sel && $('#sheet').hidden && !e.target.closest('input,textarea')) {
+      if (cur.ctl.remove()) e.preventDefault();
+      return;
+    }
     if (cur && cur.ctl.key && cur.ctl.st.sel && $('#sheet').hidden && !e.target.closest('button,input')) {
       if (/^[0-9]$/.test(e.key)) cur.ctl.key(e.key);
       else if (e.key === 'Backspace') cur.ctl.key('del');
@@ -288,6 +332,22 @@ function boot() {
     const a = e.target.closest('[data-act]');
     if (a && sheetActs[a.dataset.act]) sheetActs[a.dataset.act](a);
   });
+  $('#btnRail').innerHTML = ICON.rail;
+  $('#btnRail').addEventListener('click', () => toggleRail());
+  $('#railScrim').addEventListener('click', () => toggleRail(false));
+  $('#rail').addEventListener('click', e => {
+    const b = e.target.closest('[data-rail]');
+    if (!b) return;
+    if (!docked.matches) railOpen = false;
+    if (rt.cur && rt.cur.running) Anim.skip();
+    closeSheet();
+    openLevel(+b.dataset.rail);
+  });
+  $('#parts').addEventListener('click', onAct);
+  enableDrag($('#level'), () => (rt.cur && rt.cur.ctl.dnd) || null);
+  docked.addEventListener('change', () => { if (!docked.matches) railOpen = false; renderRail(); });
+  wide.addEventListener('change', () => { if (rt.cur) refresh(); });
+  initTheme();
   wireSheetDrag();
   renderMap();
   heroLoop();

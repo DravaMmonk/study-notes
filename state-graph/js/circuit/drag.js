@@ -1,5 +1,6 @@
-// Pointer dragging for the circuit editor: move a component to another cell, drag a new one in from the tray,
+// Pointer dragging for the circuit editor: move a component to another cell, drag a new one in from the parts list,
 // pull a wire from one port to another. Touch drags start after a short hold, so a quick swipe still scrolls.
+// The shell enables it once on the level screen; the open level supplies the handlers (or none).
 
 import { buzz } from '../util.js';
 
@@ -8,11 +9,21 @@ let swallowUntil = 0;
 // A finished drag must not also count as a tap on whatever sits under the finger.
 document.addEventListener('click', e => { if (performance.now() < swallowUntil) { e.stopPropagation(); e.preventDefault(); } }, true);
 
+/** The nearest ancestor that scrolls vertically: the phone page or a workbench column. */
+function scrollParent(el) {
+  for (let e = el.parentElement; e; e = e.parentElement) {
+    const y = getComputedStyle(e).overflowY;
+    if ((y === 'auto' || y === 'scroll') && e.scrollHeight > e.clientHeight) return e;
+  }
+  return document.scrollingElement;
+}
+
 /**
- * h = { move(g), drop(g), end() }, where g = { kind: 'node' | 'tray' | 'port', id, x, y, over }
- * `over` is the element under the pointer: a cell [data-at], a port [data-p] or the tray [data-trash].
+ * handlers() → { start(g), move(g), drop(g), end() } | null, where g = { kind: 'node' | 'tray' | 'port', id, x, y, over }.
+ * `over` is the element under the pointer: a cell [data-at], the parts list [data-trash], or for a wire a port [data-p]
+ * or a component card [data-drag] (the level picks the card's free input).
  */
-export function enableDrag(root, scroller, h) {
+export function enableDrag(root, handlers) {
   let g = null;
 
   const target = el => {
@@ -25,7 +36,7 @@ export function enableDrag(root, scroller, h) {
   const overAt = (x, y) => {
     const el = document.elementFromPoint(x, y);
     if (!el) return null;
-    if (g.kind === 'port') return el.closest('[data-p]');
+    if (g.kind === 'port') return el.closest('[data-p]') || el.closest('[data-drag]');
     return el.closest('[data-at]') || (g.kind === 'node' ? el.closest('[data-trash]') : null);
   };
 
@@ -39,22 +50,24 @@ export function enableDrag(root, scroller, h) {
       document.body.append(g.ghost);
     }
     buzz(8);
+    g.h.start(g);
     tick();
   }
 
   function update() {
     const over = overAt(g.x, g.y);
     if (over !== g.over) { if (g.over) g.over.classList.remove('over'); if (over) over.classList.add('over'); g.over = over; }
-    if (g.kind === 'node') g.el.style.transform = `translate(${g.x - g.x0}px, ${g.y - g.y0 + scroller.scrollTop - g.st0}px)`;
+    if (g.kind === 'node') g.el.style.transform = `translate(${g.x - g.x0}px, ${g.y - g.y0 + g.scroller.scrollTop - g.st0}px)`;
     if (g.ghost) g.ghost.style.transform = `translate(${g.x - 40}px, ${g.y - 26}px)`;
-    h.move(g);
+    g.h.move(g);
   }
 
-  /** Scroll the level while the pointer rests near its top or bottom edge. */
+  /** Scroll while the pointer rests near the top or bottom edge of the scrolling pane. */
   function tick() {
     if (!g || !g.on) return;
-    const r = scroller.getBoundingClientRect(), dy = g.y < r.top + EDGE ? -9 : g.y > r.bottom - EDGE ? 9 : 0;
-    if (dy) { scroller.scrollTop += dy; update(); }
+    const r = g.scroller.getBoundingClientRect(), top = Math.max(r.top, 0), bottom = Math.min(r.bottom, innerHeight);
+    const dy = g.y < top + EDGE ? -9 : g.y > bottom - EDGE ? 9 : 0;
+    if (dy) { g.scroller.scrollTop += dy; update(); }
     requestAnimationFrame(tick);
   }
 
@@ -72,8 +85,8 @@ export function enableDrag(root, scroller, h) {
     if (done.over) done.over.classList.remove('over');
     if (done.on) {
       swallowUntil = performance.now() + 40;
-      if (drop) h.drop(done);
-      else h.end();
+      if (drop) done.h.drop(done);
+      else done.h.end();
     }
   }
 
@@ -93,11 +106,12 @@ export function enableDrag(root, scroller, h) {
   const onCancel = e => { if (g && e.pointerId === g.pid) finish(false); };
 
   root.addEventListener('pointerdown', e => {
-    if (g || e.button > 0) return;
+    const h = handlers();
+    if (g || e.button > 0 || !h) return;
     const t = target(e.target);
     if (!t) return;
-    const touch = e.pointerType !== 'mouse';
-    g = { ...t, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
+    const touch = e.pointerType !== 'mouse', scroller = scrollParent(t.el);
+    g = { ...t, h, scroller, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
     if (touch) g.timer = setTimeout(() => { if (g && !g.on) { g.armed = true; root.classList.add('armed'); g.el.classList.add('armed'); buzz(6); } }, HOLD);
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
