@@ -9,7 +9,7 @@ import { rt, Anim } from '../runtime.js';
 import { WORLDS, runCircuit, readTap, windowOf, visibleTaps } from '../circuit/worlds.js';
 import { ROBOTS } from '../circuit/robots.js';
 import { def, blank, evaluate } from '../circuit/components.js';
-import { editorHTML, viewHTML, drawWires, paintProbe, connect, unwire, removeNode, placeNode, moveNode, toggleLit, litOf, placement, isSink } from '../circuit/editor.js';
+import { editorHTML, viewHTML, drawWires, paintProbe, connect, unwire, removeNode, placeNode, movePiece, toggleLit, litOf, isSink, pieceKind, spotFor, SIZE } from '../circuit/editor.js';
 import { PARTS } from '../levels/parts.js';
 
 export function circuitMode(L, saved) {
@@ -61,25 +61,12 @@ export function circuitMode(L, saved) {
     w.probe = box ? box.probe : s.probe;
     return w;
   }
-  const ui = () => ({ taps: taps(), avail: avail(), lit: litOf(circ()), outs: V().outs, slots: stage().slots, pick: st.pick, wire: st.wire, palette: stage().palette, win: win(), sideView: wide() });
-  const firstFree = () => placement(circ(), stage().slots).free[0];
+  const ui = () => ({ taps: taps(), avail: avail(), lit: litOf(circ()), outs: V().outs, pick: st.pick, wire: st.wire, palette: stage().palette, win: win(), sideView: wide() });
+  const snap = v => Math.max(0, Math.round(v / 4) * 4);
   const hintFor = () => {
     const s = stage(), d = L.diagnose ? L.diagnose(circ(), st) : null;
     return d || (s.hints ? s.hints[Math.min(Math.max(rt.cur.fails - 1, 0), s.hints.length - 1)] : null);
   };
-
-  function openPalette(slot) {
-    const fresh = stage().fresh || [];
-    const rows = stage().palette.map(kind => {
-      const d = def(kind);
-      return `<button class="pal" type="button" data-act="put" data-k="${kind}"><span class="pal-ic${d.bp ? ' bp' : ''}">${d.bp ? ICON.part : d.icon}</span><span class="pal-tx"><b>${d.name}${d.tag && kind !== 'const' ? ` · ${d.tag}` : ''}${fresh.includes(kind) ? '<em>新</em>' : ''}</b><small>${d.desc}</small></span></button>`;
-    }).join('');
-    rt.openSheet(`<div><div class="kicker sig">元件</div><h3 class="sh" id="sheetTitle">放一个元件</h3></div>
-      <div class="list">${rows}</div>
-      <div class="acts"><button class="btn sec" type="button" data-close>取消</button></div>`, {
-      put: el => { setCirc(placeNode(circ(), el.dataset.k, slot)); buzz(8); rt.closeSheet(); rt.refresh(); },
-    });
-  }
 
   function openNode(id) {
     const n = circ().nodes.find(x => x.id === id), d = def(n.kind);
@@ -113,21 +100,23 @@ export function circuitMode(L, saved) {
       $('#circ').classList.add('picking');
       $$('#circ [data-p]').forEach(el => el.classList.toggle('can', el.dataset.p !== g.id && !!connect(circ(), taps(), g.id, el.dataset.p).circ));
     },
-    move(g) { drawWires($('#cboard'), circ(), ui(), null, g.kind === 'port' ? { from: g.id, x: g.x, y: g.y } : null); },
+    move(g) { const u = ui(); drawWires($('#cboard'), circ(), u, u.win.probe, g.kind === 'port' ? { from: g.id, x: g.x, y: g.y } : null); },
     drop(g) {
       const over = g.over;
       if (g.kind === 'port' && over) {
-        const to = over.dataset.p || (isSink(g.id) ? null : cardPort(g.id, over.dataset.drag));
+        const onto = over.dataset.drag, to = over.dataset.p || (onto && pieceKind(onto) === 'node' && !isSink(g.id) ? cardPort(g.id, onto) : onto);
         if (to && connectPorts(g.id, to)) st.pick = null;
       }
-      if (g.kind === 'node' && over) {
-        if (over.dataset.trash !== undefined) { setCirc(removeNode(circ(), g.id)); toast('拿掉了一个元件'); }
-        else setCirc(moveNode(circ(), g.id, +over.dataset.at, stage().slots));
+      if (g.kind === 'node') {
+        if (over && pieceKind(g.id) === 'node') { setCirc(removeNode(circ(), g.id)); toast('拿掉了一个元件'); }
+        else {
+          const el = $(`#clayer [data-drag="${g.id}"]`);
+          setCirc(movePiece(circ(), g.id, [snap(el.offsetLeft + g.dx), snap(el.offsetTop + g.dy)]));
+        }
       }
       if (g.kind === 'tray' && over) {
-        const at = +over.dataset.at;
-        if (placement(circ(), stage().slots).free.includes(at)) setCirc(placeNode(circ(), g.id, at));
-        else toast('这一格已经有元件了');
+        const box = $('#clayer').getBoundingClientRect(), sc = box.width / $('#clayer').offsetWidth || 1, [w, h] = SIZE.node;
+        setCirc(placeNode(circ(), g.id, [snap((g.x - box.left) / sc - w / 2), snap((g.y - box.top) / sc - h / 2)]));
       }
       rt.refresh();
     },
@@ -237,6 +226,10 @@ export function circuitMode(L, saved) {
     mounted() {
       const root = $('#circ');
       if (!root) return;
+      // Phones scale the board to the card's width; a desktop canvas shows it at full size and scrolls.
+      const layer = $('#clayer'), w = +layer.dataset.w, h = +layer.dataset.h, pad = layer.offsetLeft, sc = wide() ? 1 : Math.min(1, ($('#cboard').clientWidth - 2 * pad) / w);
+      layer.style.transform = sc < 1 ? `scale(${sc})` : '';
+      $('#cboard').style.height = `${Math.ceil(h * sc + 2 * layer.offsetTop)}px`;
       const u = ui();
       $('#cview').innerHTML = viewHTML(circ(), u);
       drawWires($('#cboard'), circ(), u, u.win.probe);
@@ -264,19 +257,18 @@ export function circuitMode(L, saved) {
     act(name, el) {
       if (name === 'run') { if (busy()) Anim.skip(); else ctl.run(); return; }
       if (busy()) return;
-      if (name === 'port') onPort(el.dataset.p);
+      if (name === 'port') onPort(el.dataset.p || el.dataset.q);
       if (name === 'wire') { st.pick = null; st.wire = st.wire === el.dataset.w ? null : el.dataset.w; buzz(6); rt.refresh(); }
       if (name === 'unwire') ctl.remove();
-      if (name === 'slot') { st.pick = null; st.wire = null; openPalette(+el.dataset.s); }
       if (name === 'tray') {
-        const at = firstFree();
+        const at = spotFor(circ(), ui(), 'node');
         st.pick = null;
         st.wire = null;
         setCirc(placeNode(circ(), el.dataset.k, at));
         buzz(8);
         rt.refresh();
       }
-      if (name === 'lit') { st.pick = null; setCirc(toggleLit(circ(), el.dataset.t)); buzz(6); rt.refresh(); }
+      if (name === 'lit') { st.pick = null; st.wire = null; setCirc(toggleLit(circ(), el.dataset.t, spotFor(circ(), ui(), 'term'))); buzz(6); rt.refresh(); }
       if (name === 'sandbox') { st.view = null; rt.refresh(); }
       if (name === 'node') { st.pick = null; openNode(el.dataset.n); }
       if (name === 'dir') { st.dirs[el.dataset.k] = el.dataset.v; changed(); buzz(6); rt.refresh(); }

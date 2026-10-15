@@ -1,6 +1,6 @@
 // Circuit editor markup and drawing.
-// Left: the circuit board — input terminals on top (one per lit cell), components on a two-column grid,
-// output terminals at the bottom. Right: the robot's window, where the player lights cells as inputs.
+// Left: the circuit board — input terminals (one per lit cell), components and output terminals, each at a
+// position the player can drag it to. Right: the robot's window, where the player lights cells as inputs.
 // The parts list lives outside the editor (the level's brief on a desktop, under the board on a phone).
 // Port ids: sources are 'tap:<id>' or '<nodeId>'; sinks are '<nodeId>:<k>' or 'out:<id>'.
 
@@ -38,41 +38,64 @@ export const unwire = (circ, sink) => ({ ...circ, wires: circ.wires.filter(w => 
 /** Lit inputs: the cells the player lit, plus any input that already carries a wire. */
 export const litOf = circ => [...new Set([...(circ.lit || []), ...circ.wires.filter(w => w.from.startsWith('tap:')).map(w => w.from.slice(4))])];
 
-/** Light or unlight an input cell; unlighting also removes its wires. */
-export function toggleLit(circ, tap) {
-  const lit = litOf(circ);
-  if (!lit.includes(tap)) return { ...circ, lit: [...lit, tap] };
-  return { ...circ, lit: lit.filter(x => x !== tap), wires: circ.wires.filter(w => w.from !== `tap:${tap}`) };
+/** Light an input cell (its terminal goes to spot p) or unlight it, which also removes its wires. */
+export function toggleLit(circ, tap, p) {
+  const lit = litOf(circ), pos = { ...circ.pos };
+  if (!lit.includes(tap)) return { ...circ, lit: [...lit, tap], pos: { ...pos, [`tap:${tap}`]: p } };
+  delete pos[`tap:${tap}`];
+  return { ...circ, lit: lit.filter(x => x !== tap), wires: circ.wires.filter(w => w.from !== `tap:${tap}`), pos };
 }
 
-/** Component cells: every node at its saved cell, or at the first free cell. */
-export function placement(circ, slots) {
-  const cell = {}, used = new Set();
-  circ.nodes.forEach(n => { const a = (circ.at || {})[n.id]; if (Number.isInteger(a) && !used.has(a)) { cell[n.id] = a; used.add(a); } });
-  circ.nodes.forEach(n => { if (cell[n.id] === undefined) { let a = 0; while (used.has(a)) a++; cell[n.id] = a; used.add(a); } });
-  const even = v => v + (v % 2);
-  const size = Math.max(slots, even(circ.nodes.length + 1), even(Math.max(-1, ...Object.values(cell)) + 1));
-  return { cell, size, free: Array.from({ length: size }, (_, a) => a).filter(a => !used.has(a)) };
+/** Board pieces, in board pixels: input terminals, components and output terminals. Every piece can be moved. */
+export const SIZE = { term: [96, 56], node: [104, 84], out: [120, 52] };
+const GAP = 14, COL = SIZE.node[0] + GAP, ROOM = 36;
+export const pieceKind = id => (id.startsWith('tap:') ? 'term' : id.startsWith('out:') ? 'out' : 'node');
+const rect = (id, [x, y]) => [x, y, ...SIZE[pieceKind(id)]];
+const pieces = (circ, ui) => [...ui.avail.filter(id => litOf(circ).includes(id)).map(id => `tap:${id}`), ...circ.nodes.map(n => n.id), ...ui.outs.map(o => `out:${o[0]}`)];
+
+/** The first spot in the two default columns that keeps clear of the given pieces; components start below the inputs. */
+function freeSpot(placed, kind) {
+  const [w, h] = SIZE[kind], rects = placed.map(([id, p]) => rect(id, p));
+  const top = kind === 'node' ? Math.max(0, ...placed.filter(([id]) => pieceKind(id) === 'term').map(([id, p]) => rect(id, p)).map(r => r[1] + r[3] + ROOM)) : 0;
+  for (let y = top; ; y += 24) {
+    for (let x = 0; x <= COL; x += COL) {
+      if (!rects.some(([rx, ry, rw, rh]) => x < rx + rw + GAP && rx < x + w + GAP && y < ry + rh + ROOM && ry < y + h + ROOM)) return [x, y];
+    }
+  }
 }
 
-export function placeNode(circ, kind, at) {
+/**
+ * Where every piece sits: its saved position, else a free spot. Output terminals without a saved position
+ * wait below everything else, so they stay at the bottom as the circuit grows.
+ */
+export function layout(circ, ui) {
+  const ids = pieces(circ, ui), pos = {}, saved = circ.pos || {};
+  ids.filter(id => saved[id]).forEach(id => { pos[id] = saved[id]; });
+  ids.filter(id => !pos[id] && pieceKind(id) !== 'out').forEach(id => { pos[id] = freeSpot(Object.entries(pos), pieceKind(id)); });
+  const outs = ids.filter(id => !pos[id]);
+  if (outs.length) {
+    const y = Math.max(0, ...Object.entries(pos).map(([id, p]) => rect(id, p)).map(r => r[1] + r[3])) + ROOM + 8, w = outs.length * (SIZE.out[0] + GAP) - GAP, x0 = Math.max(0, (2 * COL - GAP - w) / 2);
+    outs.forEach((id, k) => { pos[id] = [x0 + k * (SIZE.out[0] + GAP), y]; });
+  }
+  return pos;
+}
+
+/** A spot for a new piece of this kind, clear of every piece that already has a place. */
+export const spotFor = (circ, ui, kind) => freeSpot(Object.entries(layout(circ, ui)).filter(([id]) => pieceKind(id) !== 'out' || (circ.pos || {})[id]), kind);
+
+export function placeNode(circ, kind, p) {
   const id = `n${Math.max(0, ...circ.nodes.map(n => +n.id.slice(1))) + 1}`;
-  return { ...circ, nodes: [...circ.nodes, { id, kind, ...(kind === 'const' ? { value: 1 } : {}) }], at: { ...circ.at, [id]: at } };
+  return { ...circ, nodes: [...circ.nodes, { id, kind, ...(kind === 'const' ? { value: 1 } : {}) }], pos: { ...circ.pos, [id]: p } };
 }
 
 export function removeNode(circ, id) {
-  const at = { ...circ.at };
-  delete at[id];
-  return { ...circ, nodes: circ.nodes.filter(n => n.id !== id), wires: circ.wires.filter(w => w.from !== id && nodeOf(w.to) !== id), at };
+  const pos = { ...circ.pos };
+  delete pos[id];
+  return { ...circ, nodes: circ.nodes.filter(n => n.id !== id), wires: circ.wires.filter(w => w.from !== id && nodeOf(w.to) !== id), pos };
 }
 
-/** Move a component to another cell, swapping with whatever sits there. */
-export function moveNode(circ, id, to, slots) {
-  const { cell } = placement(circ, slots), at = { ...cell }, other = Object.keys(cell).find(k => cell[k] === to);
-  if (other) at[other] = cell[id];
-  at[id] = to;
-  return { ...circ, at };
-}
+/** Put a piece at a new spot on the board. */
+export const movePiece = (circ, id, p) => ({ ...circ, pos: { ...circ.pos, [id]: p } });
 
 /** One color per source: lit inputs from one palette in level order, components from another by their number. */
 export function sourceColor(ui, src) {
@@ -82,49 +105,51 @@ export function sourceColor(ui, src) {
 const sourceTag = (ui, src) => (src.startsWith('tap:') ? ui.taps[src.slice(4)].short : letter(src));
 
 /**
- * The whole editor. ui = { taps, avail, lit, outs, slots, pick, wire, palette, win, sideView }
+ * The whole editor. ui = { taps, avail, lit, outs, pick, wire, palette, win, sideView }
+ * Pieces sit at free positions on a layer the level scales to fit (phones) or leaves at full size (desktop).
  * With sideView the robot's window is drawn by the level into the side column instead of beside the board.
  */
 export function editorHTML(circ, ui) {
-  const lit = litOf(circ), from = new Map(circ.wires.map(w => [w.to, w.from]));
+  const lit = litOf(circ), from = new Map(circ.wires.map(w => [w.to, w.from])), pos = layout(circ, ui);
   const can = p => !!ui.pick && ui.pick !== p && isSink(p) !== isSink(ui.pick) && !!connect(circ, ui.taps, ui.pick, p).circ;
   const portCls = (p, type) => `cport ${type}${ui.pick === p ? ' picked' : ''}${can(p) ? ' can' : ''}${from.has(p) || circ.wires.some(w => w.from === p) ? ' wired' : ''}`;
   const sinkTag = (p, fallback) => (from.has(p) ? `<span class="tag" style="--c:${sourceColor(ui, from.get(p))}">${sourceTag(ui, from.get(p))}</span>` : fallback);
+  const at = id => { const [x, y] = pos[id], [w, h] = SIZE[pieceKind(id)]; return `left:${x}px;top:${y}px;width:${w}px;height:${h}px`; };
 
   const terms = ui.avail.filter(id => lit.includes(id)).map(id => {
     const m = ui.taps[id], p = `tap:${id}`;
-    return `<button class="${portCls(p, m.type)} cterm" type="button" data-act="port" data-p="${p}" style="--c:${sourceColor(ui, p)}" aria-label="输入 ${m.label}" title="从圆点拉线到元件">
-      <span class="tag">${m.short}</span><b>${m.label}</b><span class="pv" data-pv="${p}"></span><i class="dot" data-dot="${p}"></i></button>`;
+    return `<div class="cterm" data-drag="${p}" data-act="port" data-q="${p}" style="${at(p)};--c:${sourceColor(ui, p)}" title="拖动可以移动；从圆点拉线到元件">
+      <span class="cl"><span class="tag">${m.short}</span><b>${m.label}</b></span><span class="pv" data-pv="${p}"></span>
+      <button class="${portCls(p, m.type)} cdot" type="button" data-act="port" data-p="${p}" aria-label="输入 ${m.label}"><i class="dot" data-dot="${p}"></i></button></div>`;
   }).join('');
 
-  const { cell, size } = placement(circ, ui.slots), byCell = Object.fromEntries(Object.entries(cell).map(([id, a]) => [a, id]));
-  const cells = Array.from({ length: size }, (_, a) => {
-    const id = byCell[a];
-    if (!id) return `<div class="ccell" data-at="${a}"><button class="cslot" type="button" data-act="slot" data-s="${a}" aria-label="空位，放一个元件"><span aria-hidden="true">＋</span></button></div>`;
-    const n = circ.nodes.find(x => x.id === id), d = def(n.kind), color = sourceColor(ui, id);
+  const nodes = circ.nodes.map(n => {
+    const id = n.id, d = def(n.kind);
     const ins = d.ins.map((type, k) => {
       const p = `${id}:${k}`, lb = d.labels ? d.labels[k] : '';
       return `<button class="${portCls(p, type)} cin" type="button" data-act="port" data-p="${p}" aria-label="${letter(id)} 的输入${lb ? ` ${lb}` : ` ${k + 1}`}" title="${from.has(p) ? '点一下拆掉这根线' : type === 'bool' ? '条件口：接「是 / 否」' : '输入口'}"><i class="dot" data-dot="${p}"></i>${sinkTag(p, lb ? `<span class="pl">${lb}</span>` : '')}</button>`;
     }).join('');
-    return `<div class="ccell" data-at="${a}"><div class="cnode${d.bp ? ' bp' : ''}${n.kind === 'const' ? ' konst' : ''}" data-drag="${id}" style="--c:${color}">
+    return `<div class="cnode${d.bp ? ' bp' : ''}${n.kind === 'const' ? ' konst' : ''}" data-drag="${id}" style="${at(id)};--c:${sourceColor(ui, id)}">
       <div class="cins">${ins}</div>
       <button class="chead" type="button" data-act="node" data-n="${id}" title="${d.desc}"><em class="cid">${letter(id)}</em><b>${d.name}</b><small>${n.kind === 'const' ? `= ${n.value}` : d.tag}</small></button>
       <button class="${portCls(id, 'num')} cout" type="button" data-act="port" data-p="${id}" aria-label="${letter(id)} 的输出" title="从这里拉线"><span class="pv" data-pv="${id}"></span><i class="dot" data-dot="${id}"></i></button>
-    </div></div>`;
+    </div>`;
   }).join('');
 
   const outs = ui.outs.map(([id, label]) => {
     const p = `out:${id}`;
-    return `<button class="${portCls(p, 'num')} cend" type="button" data-act="port" data-p="${p}" aria-label="输出 ${label}"><i class="dot" data-dot="${p}"></i>${sinkTag(p, '')}<b>${label}</b><span class="pv" data-pv="${p}"></span></button>`;
+    return `<div class="cend" data-drag="${p}" data-act="port" data-q="${p}" style="${at(p)}" title="拖动可以移动">
+      <button class="${portCls(p, 'num')} cdot" type="button" data-act="port" data-p="${p}" aria-label="输出 ${label}"><i class="dot" data-dot="${p}"></i></button><span class="cl">${sinkTag(p, '')}<b>${label}</b></span><span class="pv" data-pv="${p}"></span></div>`;
   }).join('');
 
+  const ext = Object.entries(pos).map(([id, p]) => rect(id, p)), W = Math.max(2 * COL - GAP, ...ext.map(r => r[0] + r[2])), H = Math.max(0, ...ext.map(r => r[1] + r[3])) + 22;
   return `<div class="cedit${ui.pick ? ' picking' : ''}" id="circ">
     <div class="cmain">
-      <div class="cboard" id="cboard">
-        <svg class="cwires" aria-hidden="true"></svg>
-        <div class="cterms">${terms || '<p class="cempty">点右边视野里的格子，把它变成输入</p>'}</div>
-        ${ui.palette.length ? `<div class="cgrid">${cells}</div>` : ''}
-        <div class="couts" style="--n:${ui.outs.length}">${outs}</div>
+      <div class="cboard" id="cboard" data-canvas>
+        <div class="clayer" id="clayer" style="width:${W}px;height:${H}px" data-w="${W}" data-h="${H}">
+          <svg class="cwires" aria-hidden="true" width="${W}" height="${H}"></svg>
+          ${terms || '<p class="cempty">点视野里的格子，把它变成输入</p>'}${nodes}${outs}
+        </div>
       </div>
       ${ui.sideView ? '' : `<aside class="cview" id="cview">${viewHTML(circ, ui)}</aside>`}
     </div>
@@ -166,10 +191,10 @@ export function viewHTML(circ, ui) {
  * dots flowing down it; one carrying 「—」 is dashed. Each wire has a wide invisible stroke to click it by.
  */
 export function drawWires(board, circ, ui, probe, rubber) {
-  const svg = board.querySelector('.cwires'), box = board.getBoundingClientRect();
-  const pt = id => { const d = board.querySelector(`[data-dot="${id}"]`); if (!d) return null; const r = d.getBoundingClientRect(); return [r.left + r.width / 2 - box.left, r.top + r.height / 2 - box.top]; };
+  const layer = board.querySelector('.clayer'), svg = layer.querySelector('.cwires'), box = layer.getBoundingClientRect(), s = box.width / layer.offsetWidth || 1;
+  const local = (x, y) => [(x - box.left) / s, (y - box.top) / s];
+  const pt = id => { const d = layer.querySelector(`[data-dot="${id}"]`); if (!d) return null; const r = d.getBoundingClientRect(); return local(r.left + r.width / 2, r.top + r.height / 2); };
   const curve = (a, b) => { const dy = Math.max(24, Math.abs(b[1] - a[1]) * 0.5); return `M${a[0]} ${a[1]}C${a[0]} ${a[1] + dy} ${b[0]} ${b[1] - dy} ${b[0]} ${b[1]}`; };
-  svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
   const paths = circ.wires.map(w => {
     const a = pt(w.from), b = pt(w.to);
     if (!a || !b) return '';
@@ -180,7 +205,7 @@ export function drawWires(board, circ, ui, probe, rubber) {
     return `<g class="cwg${ui.wire === w.to ? ' sel' : ''}"><path class="cw-halo" d="${d}"/><path class="cw ${cls}" style="stroke:${sourceColor(ui, w.from)}" d="${d}"/>${live ? `<path class="cw-flow" d="${d}"/>` : ''}<path class="cw-hit" data-act="wire" data-w="${w.to}" d="${d}"><title>点一下选中这根线</title></path></g>`;
   });
   if (rubber) {
-    const a = pt(rubber.from), b = [rubber.x - box.left, rubber.y - box.top];
+    const a = pt(rubber.from), b = local(rubber.x, rubber.y);
     if (a) paths.push(`<path class="cw rubber" d="${isSink(rubber.from) ? curve(b, a) : curve(a, b)}"/>`);
   }
   svg.innerHTML = paths.join('');
