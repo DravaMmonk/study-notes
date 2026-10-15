@@ -31,8 +31,10 @@ Preview one figure on its own at `/figures.html?fig=conv-press&theme=light` (the
 
 ## Vision Complete (视觉完备)
 
-`game.html` is a puzzle game that turns COMP90086 into levels in the manner of *Turing Complete*: each level gives a goal, a few parts and a set of test images; the player wires an image pipeline on a board and every test runs live. Solving a level unlocks its part for later levels. Open it from the puzzle icon in the Fieldnotes top bar or at `/game.html`; progress is kept in the browser.
+`game.html` is a puzzle game that turns COMP90086 into levels in the manner of *Turing Complete*: each level gives a goal, a few parts and a set of test images; the player wires an image pipeline on a board and every test runs live. Solving a level unlocks its part for later levels. Open it from the puzzle icon in the Fieldnotes top bar or at `/game.html`; progress is kept in the browser. It is published at `/study-notes/game/vision-complete/`, under the games hub in `../games/`.
+
+- Shared with 状态之图 through `../games/kit/`: moving cards and pulling wires (`drag.js`), wire geometry and styles (`wires.js`, `wires.css`), the cycle check (`graph.js`), the colour tokens and theme (`tokens.css`, `theme.js`, also used by Fieldnotes). A change there changes both games.
 
 - Design, research notes and the full level map: `src/game/DESIGN.md`.
 - Engine: `src/game/engine/` (images, node types, graph evaluation and training).
-- Levels: `src/game/levels/` — 43 levels in nine chapters, from wiring a camera to a GAN. Every graph level carries a reference solution and, where the lesson depends on it, a naive one; every board level (`ui/boards/`) has a `verify()`. `npm run levels` checks them all.
+- Levels: `src/game/levels/` — 57 levels in nine chapters, from wiring a camera to a GAN. Every graph level carries a reference solution and, where the lesson depends on it, a naive one; every board level (`ui/boards/`) has a `verify()`. `npm run levels` checks them all.

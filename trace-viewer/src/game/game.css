@@ -1,7 +1,6 @@
-/* Vision Complete: the Fieldnotes tokens and engraved mono voice, laid out as a workbench.
+/* Vision Complete: the shared tokens (games/kit/tokens.css) and engraved mono voice, laid out as a workbench.
    Part families get muted, natural colours; everything else stays in the paper/ink palette. */
 :root {
-  --fail: #b8573f;
   --bar-h: 52px;
   --fam-io: var(--ink);
   --fam-pixel: #8b8577;
@@ -12,11 +11,8 @@
   --fam-global: #4f9393;
   --fam-learned: #c1693f;
   --fam-other: var(--muted);
-  --card-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 0 0 1px var(--rule), 0 8px 22px -12px rgba(40, 34, 20, .35);
-  --card-shadow-lift: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 0 0 1px var(--ink), 0 16px 30px -14px rgba(40, 34, 20, .45);
 }
 :root[data-theme='night'], :root[data-theme='blueprint'] {
-  --fail: #e0806a;
   --fam-pixel: #a8a294;
   --fam-neighbour: #e0ac4f;
   --fam-size: #8db3d6;
@@ -24,8 +20,6 @@
   --fam-frequency: #c5a0cc;
   --fam-global: #7fc2c2;
   --fam-learned: #e8946b;
-  --card-shadow: 0 0 0 1px var(--rule), 0 10px 24px -12px rgba(0, 0, 0, .7);
-  --card-shadow-lift: 0 0 0 1px var(--ink), 0 18px 34px -14px rgba(0, 0, 0, .8);
 }
 
 [data-family='io'] { --fam: var(--fam-io); }
@@ -193,19 +187,12 @@
 .board-wires { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; }
 .board-empty { position: absolute; z-index: 1; top: 50%; left: 50%; width: min(320px, 80%); margin: 0; padding: 16px 18px; color: var(--muted); border-radius: 14px; background: color-mix(in srgb, var(--paper) 80%, transparent); box-shadow: 0 0 0 1px var(--hairline); font-size: 13px; line-height: 1.6; text-align: center; transform: translate(-50%, 40px); pointer-events: none; }
 
-.wire { pointer-events: stroke; cursor: pointer; }
-.wire-hit { fill: none; stroke: transparent; stroke-width: 16px; }
-.wire-line { fill: none; stroke: color-mix(in srgb, var(--fam, var(--muted)) 55%, var(--rule)); stroke-width: 2.4px; stroke-linecap: round; transition: stroke 200ms ease; }
-.wire.is-live .wire-line { stroke: color-mix(in srgb, var(--fam, var(--muted)) 75%, var(--ink) 10%); }
-.wire.is-dead .wire-line { stroke-dasharray: 3 5; stroke: var(--rule); }
-.wire-flow { fill: none; stroke: var(--paper); stroke-width: 2.6px; stroke-dasharray: .1 26; stroke-linecap: round; opacity: .95; animation: wire-flow 2.2s linear infinite; pointer-events: none; }
-.wire.is-selected .wire-line { stroke: var(--accent); stroke-width: 3px; }
-.wire-line.is-drafting { stroke: var(--accent); stroke-dasharray: 5 5; }
-@keyframes wire-flow { to { stroke-dashoffset: -26.1; } }
+.kw { --kw: color-mix(in srgb, var(--fam, var(--muted)) 55%, var(--rule)); --kw-halo: var(--canvas); }
+.kw.is-live { --kw: color-mix(in srgb, var(--fam, var(--muted)) 75%, var(--ink) 10%); }
 
-.node { position: absolute; padding-bottom: 10px; border-radius: 12px; background: var(--paper); box-shadow: var(--card-shadow); cursor: default; animation: card-in 240ms cubic-bezier(.2, .8, .2, 1); transition: box-shadow 180ms ease; }
+.node { position: absolute; padding-bottom: 10px; border-radius: 12px; background: var(--paper); box-shadow: var(--card); cursor: default; animation: card-in 240ms cubic-bezier(.2, .8, .2, 1); transition: box-shadow 180ms ease; }
 .node::before { content: ''; position: absolute; top: 0; left: 12px; right: 12px; height: 2px; border-radius: 0 0 2px 2px; background: var(--fam, var(--muted)); opacity: .85; }
-.node.is-selected { box-shadow: var(--card-shadow-lift); }
+.node.is-selected { box-shadow: var(--card-lift); }
 .node-input, .node-output { background: var(--surface); }
 .node-output.is-pass { box-shadow: 0 0 0 2px var(--status), 0 10px 26px -14px color-mix(in srgb, var(--status) 70%, transparent); }
 .node-output.is-fail { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--fail) 70%, transparent), 0 8px 22px -14px rgba(0, 0, 0, .4); }
@@ -411,7 +398,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .level-rail, .rail-scrim { animation: none; }
-  .wire-flow { display: none; }
   .game *, .game *::before, .game *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; transition-duration: 1ms !important; }
 }
 

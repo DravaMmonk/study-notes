@@ -131,10 +131,10 @@
 .pb-wire { fill: none; stroke: color-mix(in srgb, var(--fam, var(--ink)) 75%, var(--rule)); stroke-width: 2.6; stroke-linecap: round; }
 .pb-wire.is-live { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 6 5; }
 .pb-terms { position: relative; display: flex; justify-content: center; gap: 10px; }
-.pb-term { position: relative; flex: 0 1 160px; min-width: 0; padding: 10px 12px 18px; display: grid; justify-items: center; gap: 4px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule), var(--card-shadow); }
+.pb-term { position: relative; flex: 0 1 160px; min-width: 0; padding: 10px 12px 18px; display: grid; justify-items: center; gap: 4px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule), var(--card); }
 .pb-term.is-output { padding: 20px 12px 10px; }
-.pb-term.is-output.is-pass { box-shadow: inset 0 0 0 2px var(--status), var(--card-shadow); }
-.pb-term.is-output.is-fail { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fail) 55%, var(--rule)), var(--card-shadow); }
+.pb-term.is-output.is-pass { box-shadow: inset 0 0 0 2px var(--status), var(--card); }
+.pb-term.is-output.is-fail { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fail) 55%, var(--rule)), var(--card); }
 .pb-term.is-output.is-pass .pb-name svg { color: var(--status); }
 .pb-term.is-output.is-fail .pb-name svg { color: var(--fail); }
 .pb-compare { display: flex; gap: 10px; }
@@ -145,7 +145,7 @@
 .pb-cell.is-over { box-shadow: 0 0 0 2.5px var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .pb-slot { display: grid; place-items: center; border: 0; border-radius: 16px; color: var(--faint, var(--muted)); background: color-mix(in srgb, var(--paper) 55%, transparent); outline: 1.5px dashed var(--rule); outline-offset: -1px; font: inherit; }
 .pb-slot:active { background: var(--hover); }
-.pb-tile { position: relative; padding: 16px 8px 16px; display: grid; justify-items: center; align-content: start; gap: 4px; border-radius: 16px; color: var(--ink); background: var(--paper); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), var(--card-shadow); outline: none; cursor: pointer; -webkit-touch-callout: none; animation: card-in 200ms ease; }
+.pb-tile { position: relative; padding: 16px 8px 16px; display: grid; justify-items: center; align-content: start; gap: 4px; border-radius: 16px; color: var(--ink); background: var(--paper); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), var(--card); outline: none; cursor: pointer; -webkit-touch-callout: none; animation: card-in 200ms ease; }
 .pb-tile:active { transform: scale(.98); }
 .pb-tile:focus-visible { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent); }
 .pb-tile.is-lifted { opacity: .35; }

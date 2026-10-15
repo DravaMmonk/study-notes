@@ -5,6 +5,7 @@ import { NODE_TYPES, defaultParams, inputsOf } from './engine/nodes.js'
 import { CHAPTERS, LEVELS, levelById } from './levels/index.js'
 import { startBoard } from './levels/util.js'
 import { loadProgress, saveProgress } from './progress.js'
+import { applyTheme } from '../../../games/kit/theme.js'
 import Editor from './ui/Editor.jsx'
 import LevelMap from './ui/LevelMap.jsx'
 import LevelRail from './ui/LevelRail.jsx'
@@ -55,14 +56,7 @@ export default function Game() {
   }
 
   useEffect(() => saveProgress(progress), [progress])
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    try {
-      window.localStorage.setItem('fieldnotes.theme', theme)
-    } catch {
-      // Theme still applies for this session.
-    }
-  }, [theme])
+  useEffect(() => applyTheme(theme), [theme])
 
   const open = (id) => {
     setLevelId(id)
@@ -85,9 +79,9 @@ export default function Game() {
             <button className={`bar-button rail-toggle ${showRail ? 'is-on' : ''}`} onClick={toggleRail} aria-pressed={showRail} aria-label="关卡列表"><PanelLeft size={16} /><span>关卡</span></button>
           </>
         ) : (
-          // Built on its own (npm run build:game) the game sits in game/ beside the MkDocs notes.
+          // Built on its own (npm run build:game) the game sits in game/vision-complete/, under the games hub.
           import.meta.env.MODE === 'game' ? (
-            <a className="bar-button" href="../" aria-label="回到学习笔记"><ArrowLeft size={16} /><span>笔记</span></a>
+            <a className="bar-button" href="../" aria-label="回到游戏列表"><ArrowLeft size={16} /><span>游戏</span></a>
           ) : (
             <a className="bar-button" href="./" aria-label="回到 Fieldnotes"><ArrowLeft size={16} /><span>Fieldnotes</span></a>
           )

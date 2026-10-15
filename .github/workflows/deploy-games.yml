@@ -1,0 +1,50 @@
+# Publish the games to GitHub Pages at /study-notes/game/: the hub and the shared kit from games/, 状态之图 from
+# games/state-graph/, and Vision Complete built from trace-viewer/ into game/vision-complete/. With destination_dir
+# the action only replaces the game/ folder on gh-pages; the MkDocs hook hooks/games.py assembles the same folder
+# into every notes build, so a notes deploy keeps it.
+name: Deploy games
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'games/**'
+      - 'trace-viewer/**'
+      - '.github/workflows/deploy-games.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-games
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: trace-viewer/package-lock.json
+      - run: npm ci
+        working-directory: trace-viewer
+      - run: npm run levels
+        working-directory: trace-viewer
+      - run: npm run build:game
+        working-directory: trace-viewer
+      - name: Assemble game/
+        run: |
+          mkdir -p _site
+          cp -r games/. _site/
+          cp -r trace-viewer/dist-game _site/vision-complete
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: _site
+          destination_dir: game
+          commit_message: 'deploy: games'

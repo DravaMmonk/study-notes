@@ -1,5 +1,7 @@
 import { createElement, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ArrowRightFromLine, ArrowRightToLine, Check, Maximize, Minus, Plus, RotateCcw, Trash2, X } from 'lucide-react'
+import { enableDrag } from '../../../../games/kit/drag.js'
+import { curve as kitCurve, pointIn } from '../../../../games/kit/wires.js'
 import { wouldCycle } from '../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../engine/nodes.js'
 import { familyOf, iconOf } from './catalog.js'
@@ -9,22 +11,24 @@ import { IMAGE_VIEWS, KIND_NAMES, kindOf, nodeView } from './views/views.js'
 
 // The board: parts are cards, wires run from a card's output (right) to another card's input (left).
 // Every card shows what it outputs for the selected test, so the player watches the image flow.
+// Moving cards and pulling wires is the shared circuit kit (games/kit/drag.js), also used by 状态之图: cards are
+// [data-piece] with their header as the [data-drag] handle, ports are [data-p] ('<node>' for an output,
+// '<node>|<port>' for an input). Panning and zooming the board stay here.
 
 const NODE_W = 140
 const HEADER = 30
 const ROW = 20
 const portY = (index) => HEADER + 10 + index * ROW
 
-const portPosition = (node, port) => {
-  if (port === 'out') return [node.x + NODE_W, node.y + portY(0)]
+// `shift` is how far a card being dragged has moved, so its wires follow it before the move is committed.
+const portPosition = (node, port, shift) => {
+  const [sx, sy] = shift?.id === node.id ? [shift.dx, shift.dy] : [0, 0]
+  if (port === 'out') return [node.x + sx + NODE_W, node.y + sy + portY(0)]
   const index = Math.max(0, inputsOf(node.type).indexOf(port))
-  return [node.x, node.y + portY(index)]
+  return [node.x + sx, node.y + sy + portY(index)]
 }
 
-const curve = ([x1, y1], [x2, y2]) => {
-  const bend = Math.max(48, Math.abs(x2 - x1) / 2)
-  return `M${x1} ${y1} C${x1 + bend} ${y1} ${x2 - bend} ${y2} ${x2} ${y2}`
-}
+const curve = (a, b) => kitCurve(a, b, 'x', 48)
 
 const PORT_LABELS = { a: 'a', b: 'b', in: '', left: '左', right: '右', c0: 'd=0', c1: 'd=1', c2: 'd=2', c3: 'd=3' }
 const clampZoom = (z) => Math.min(1.5, Math.max(0.35, Math.round(z * 100) / 100))
@@ -33,9 +37,11 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   const [selected, setSelected] = useState(null)
   const [drag, setDrag] = useState(null)
+  const [shift, setShift] = useState(null)
   const [peek, setPeek] = useState(null)
   const [menu, setMenu] = useState(null) // id of the card whose view menu is open
   const surface = useRef(null)
+  const layer = useRef(null)
   const pointers = useRef(new Map())
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
@@ -91,11 +97,6 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   })
-
-  const local = (event) => {
-    const box = surface.current.getBoundingClientRect()
-    return [(event.clientX - box.left - view.x) / view.zoom, (event.clientY - box.top - view.y) / view.zoom]
-  }
 
   const zoomAt = (factor, cx, cy) =>
     setView((v) => {
@@ -167,55 +168,49 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
     return () => node.removeEventListener('wheel', onWheel)
   }, [])
 
-  const beginMove = (event, node) => {
-    if (event.button !== 0) return
-    event.stopPropagation()
-    setSelected({ node: node.id })
-    const [sx, sy] = local(event)
-    const origin = { x: node.x, y: node.y }
-    let latest = graph
-    let moved = false
-    const move = (e) => {
-      const [x, y] = local(e)
-      moved = true
-      latest = { ...latest, nodes: latest.nodes.map((n) => (n.id === node.id ? { ...n, x: Math.round(origin.x + x - sx), y: Math.round(origin.y + y - sy) } : n)) }
-      onChange(latest, { quiet: true })
+  // Dropping a wire on an input port uses that port; dropping it on a card uses the card's first free input.
+  const connectTo = (from, over) => {
+    let to = null
+    let port = null
+    if (over?.dataset.p?.includes('|')) [to, port] = over.dataset.p.split('|')
+    else if (over?.dataset.piece) {
+      to = over.dataset.piece
+      const ports = inputsOf(graph.nodes.find((n) => n.id === to)?.type ?? 'output')
+      port = ports.find((p) => !graph.wires.some((w) => w.to === to && w.port === p)) ?? ports[0]
     }
-    const up = () => {
-      window.removeEventListener('pointermove', move)
-      window.removeEventListener('pointerup', up)
-      if (moved) onChange(latest)
-    }
-    window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
+    if (!to || !port || !graph.nodes.some((n) => n.id === to) || wouldCycle(graph, from, to)) return
+    onChange({ ...graph, wires: [...graph.wires.filter((w) => !(w.to === to && w.port === port)), { from, to, port }] })
   }
 
-  const beginWire = (event, node) => {
-    event.stopPropagation()
-    event.preventDefault()
-    const [x, y] = local(event)
-    setDrag({ from: node.id, x, y })
-    const move = (e) => {
-      const [mx, my] = local(e)
-      setDrag({ from: node.id, x: mx, y: my })
+  // Wires are pulled from outputs only; a drag that starts on an input does nothing.
+  const handlers = useRef(null)
+  useLayoutEffect(() => {
+    handlers.current = {
+      start(g) {
+        if (g.kind === 'piece') setSelected({ node: g.id })
+      },
+      move(g) {
+        if (g.kind === 'piece') setShift({ id: g.id, dx: g.dx, dy: g.dy })
+        if (g.kind === 'port' && !g.id.includes('|')) {
+          const [x, y] = pointIn(layer.current, g.x, g.y)
+          setDrag({ from: g.id, x, y })
+        }
+      },
+      drop(g) {
+        setShift(null)
+        setDrag(null)
+        if (g.kind === 'piece') {
+          onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === g.id ? { ...n, x: Math.round(n.x + g.dx), y: Math.round(n.y + g.dy) } : n)) })
+        }
+        if (g.kind === 'port' && !g.id.includes('|')) connectTo(g.id, g.over)
+      },
+      end() {
+        setShift(null)
+        setDrag(null)
+      },
     }
-    const up = (e) => {
-      window.removeEventListener('pointermove', move)
-      window.removeEventListener('pointerup', up)
-      setDrag(null)
-      const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-port], [data-node]')
-      if (!target) return
-      const to = target.dataset.port ? target.dataset.portNode : target.dataset.node
-      const toNode = graph.nodes.find((n) => n.id === to)
-      if (!toNode) return
-      const ports = inputsOf(toNode.type)
-      const port = target.dataset.port ?? ports.find((p) => !graph.wires.some((w) => w.to === to && w.port === p)) ?? ports[0]
-      if (!port || wouldCycle(graph, node.id, to)) return
-      onChange({ ...graph, wires: [...graph.wires.filter((w) => !(w.to === to && w.port === port)), { from: node.id, to, port }] })
-    }
-    window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
-  }
+  })
+  useEffect(() => enableDrag(surface.current, () => handlers.current), [])
 
   // How a card draws a 2-D value is the card's own choice, starting from the level's default for
   // its role. Switching view changes nothing in the circuit, so it is not saved as a move.
@@ -277,29 +272,30 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
       {!placed && hasPalette && (
         <p className="board-empty">{touch ? '点右下角的 ＋ 放一个元件上来，再从卡片右侧的圆点拖线连接。' : '从左边选一个元件放上来，再从卡片右侧的圆点拖线连接。'}</p>
       )}
-      <div className="board-layer" style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
+      <div className="board-layer" ref={layer} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
         <svg className="board-wires" width="4000" height="3000">
           {graph.wires.map((wire) => {
             const from = byId.get(wire.from)
             const to = byId.get(wire.to)
             if (!from || !to) return null
-            const d = curve(portPosition(from, 'out'), portPosition(to, wire.port))
+            const d = curve(portPosition(from, 'out', shift), portPosition(to, wire.port, shift))
             const active = selected?.wire?.to === wire.to && selected?.wire?.port === wire.port
             const live = Boolean(values?.get(wire.from))
             return (
               <g
                 key={`${wire.to}.${wire.port}`}
-                className={`wire ${active ? 'is-selected' : ''} ${live ? 'is-live' : 'is-dead'}`}
+                className={`kw ${active ? 'is-selected' : ''} ${live ? 'is-live' : 'is-dead'}`}
                 data-family={familyOf(from.type)}
                 onPointerDown={(e) => { e.stopPropagation(); setSelected({ wire }) }}
               >
-                <path className="wire-hit" d={d} />
-                <path className="wire-line" d={d} />
-                {live && <path className="wire-flow" d={d} />}
+                <path className="kw-halo" d={d} />
+                <path className="kw-line" d={d} />
+                {live && <path className="kw-flow" d={d} />}
+                <path className="kw-hit" d={d} />
               </g>
             )
           })}
-          {drag && <path className="wire-line is-drafting" d={curve(portPosition(byId.get(drag.from), 'out'), [drag.x, drag.y])} />}
+          {drag && <path className="kw-draft" d={curve(portPosition(byId.get(drag.from), 'out'), [drag.x, drag.y])} />}
         </svg>
         {graph.nodes.map((node) => {
           const spec = NODE_TYPES[node.type]
@@ -313,11 +309,12 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
             <div
               key={node.id}
               data-node={node.id}
+              data-piece={node.id}
               data-family={familyOf(node.type)}
               className={`node node-${node.type} ${menu === node.id ? 'has-menu' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${outputCheck ? (outputCheck.pass ? 'is-pass' : 'is-fail') : ''}`}
               style={{ left: node.x, top: node.y, width: NODE_W }}
             >
-              <div className="node-head" onPointerDown={(e) => beginMove(e, node)}>
+              <div className="node-head" data-drag onPointerDown={() => setSelected({ node: node.id })}>
                 <i className="family-chip">{createElement(node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type), { size: 12, strokeWidth: 1.8 })}</i>
                 <span className="node-title">{title}</span>
                 {outputCheck && <em className="node-verdict" title={outputCheck.pass ? '这组测试通过' : outputCheck.reason}>{outputCheck.pass ? '通过' : '未通过'}</em>}
@@ -331,11 +328,11 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
                 {spec.fixed && <span className={`node-carries ${node.type === 'input' ? 'is-input' : ''}`}>{carriesOf(node)}</span>}
                 {ports.map((port, index) => (
                   <span key={port} className="node-port-label" style={{ top: index * ROW }}>
-                    <i className={`port port-in ${graph.wires.some((w) => w.to === node.id && w.port === port) ? 'is-wired' : ''}`} data-port={port} data-port-node={node.id} />
+                    <i className={`port port-in ${graph.wires.some((w) => w.to === node.id && w.port === port) ? 'is-wired' : ''}`} data-p={`${node.id}|${port}`} />
                     {PORT_LABELS[port] ?? port}
                   </span>
                 ))}
-                {node.type !== 'output' && <i className={`port port-out ${graph.wires.some((w) => w.from === node.id) ? 'is-wired' : ''}`} onPointerDown={(e) => beginWire(e, node)} title="拖到另一张卡片的输入" />}
+                {node.type !== 'output' && <i className={`port port-out ${graph.wires.some((w) => w.from === node.id) ? 'is-wired' : ''}`} data-p={node.id} title="拖到另一张卡片的输入" />}
               </div>
               {(spec.params ?? []).filter((p) => !p.unlock || flags.has(p.unlock)).map((param) => (
                 <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => setParam(node, param.key, v)} />

@@ -1,5 +1,7 @@
-/* Shared colour tokens for Fieldnotes and Vision Complete. A theme is only a token set
-   (paper, night, blueprint), chosen by data-theme on <html>. */
+/* Shared colour tokens for the games in games/ (状态之图, Vision Complete) and for Fieldnotes. A theme is only a
+   token set (paper, night, blueprint), chosen by data-theme on <html>; kit/theme.js keeps the choice. The last
+   block holds what the games share beyond the page palette: failure and selection colors, card shadows, the
+   hues that tell wires and tiles apart, and the robot's colors. */
 :root {
   --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --serif: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
@@ -102,4 +104,39 @@
   --mark-opacity-active: 0.38;
   --selection: rgba(244, 210, 122, 0.3);
   color-scheme: dark;
+}
+
+/* ---- game layer ---- */
+:root {
+  --fail: #b8573f;
+  --select: #3f7fb5;
+  --select-ink: #ffffff;
+  --card: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 0 0 1px var(--rule), 0 8px 22px -12px rgba(40, 34, 20, .35);
+  --card-lift: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 0 0 1px var(--ink), 0 16px 30px -14px rgba(40, 34, 20, .45);
+  --drop: drop-shadow(0 2px 2px rgba(40, 34, 20, .3));
+  --w0: #3f7fb5; --w1: #cf6a3b; --w2: #b98516; --w3: #5e9a3a; --w4: #b4579a; --w5: #2f918f;
+  --n0: #6e6ab8; --n1: #8e5bb5; --n2: #3e9b78; --n3: #a88420; --n4: #b04fa8; --n5: #6f7a88;
+  --t0: #e3b04f; --t1: #8db3d6; --t2: #9cc48f; --t3: #e89b73; --t4: #c6a3cd; --t5: #b5afa2;
+  --t-ink: #1f1d18;
+  --tag-ink: #ffffff;
+  --bot-body: #ffffff; --bot-line: #2a2a26; --bot-ant: #3b3a35;
+}
+
+:root[data-theme='night'], :root[data-theme='blueprint'] {
+  --fail: #e0806a;
+  --select: #5ec8ff;
+  --select-ink: #06131c;
+  --card: 0 0 0 1px var(--rule), 0 10px 24px -12px rgba(0, 0, 0, .7);
+  --card-lift: 0 0 0 1px var(--ink), 0 18px 34px -14px rgba(0, 0, 0, .8);
+  --drop: drop-shadow(0 3px 3px rgba(0, 0, 0, .55));
+  --w0: #5ec8ff; --w1: #ff8a65; --w2: #f6b93e; --w3: #a3e635; --w4: #f78fb3; --w5: #4dd0e1;
+  --n0: #c7d2fe; --n1: #b79cff; --n2: #47d49f; --n3: #ffd166; --n4: #e879f9; --n5: #94a3b8;
+  --t0: #f6b93e; --t1: #5ec8ff; --t2: #47d49f; --t3: #ff8a65; --t4: #b79cff; --t5: #8fa1b5;
+  --t-ink: #12161c;
+  --tag-ink: #10141a;
+  --bot-body: #e3eaf2; --bot-line: #0e1217; --bot-ant: #e3eaf2;
+}
+
+:root[data-theme='blueprint'] {
+  --select: #9fe6ff;
 }

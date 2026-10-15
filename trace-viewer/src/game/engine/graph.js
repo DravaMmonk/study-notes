@@ -1,24 +1,11 @@
+import { wouldCycle as cycles } from '../../../../games/kit/graph.js'
 import { compare } from './image.js'
 import { NODE_TYPES, inputsOf } from './nodes.js'
 
 // A graph is { nodes: [{ id, type, x, y, params }], wires: [{ from, to, port }] } where `from` and
 // `to` are node ids and `port` is the input port name on `to`. Each node has a single output.
 
-export function wouldCycle(graph, from, to) {
-  if (from === to) return true
-  const next = new Map()
-  for (const wire of graph.wires) next.set(wire.from, [...(next.get(wire.from) ?? []), wire.to])
-  const stack = [to]
-  const seen = new Set()
-  while (stack.length) {
-    const id = stack.pop()
-    if (id === from) return true
-    if (seen.has(id)) continue
-    seen.add(id)
-    stack.push(...(next.get(id) ?? []))
-  }
-  return false
-}
+export const wouldCycle = (graph, from, to) => cycles(graph.wires.map((w) => [w.from, w.to]), from, to)
 
 export function order(graph) {
   const incoming = new Map(graph.nodes.map((node) => [node.id, 0]))
