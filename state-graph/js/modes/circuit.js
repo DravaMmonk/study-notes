@@ -4,13 +4,12 @@
 // robot's cell shows the circuit's answer at once. Running clears the board and the robot starts from its usual cell.
 // A level may have several stages (a new world with new inputs).
 
-import { $, buzz, toast, signal, ICON } from '../util.js';
+import { $, $$, buzz, toast, signal, ICON } from '../util.js';
 import { rt, Anim } from '../runtime.js';
 import { WORLDS, runCircuit, readTap, windowOf, visibleTaps } from '../circuit/worlds.js';
 import { ROBOTS } from '../circuit/robots.js';
 import { def, blank, evaluate } from '../circuit/components.js';
 import { editorHTML, viewHTML, drawWires, paintProbe, connect, unwire, removeNode, placeNode, moveNode, toggleLit, litOf, placement, isSink } from '../circuit/editor.js';
-import { enableDrag } from '../circuit/drag.js';
 import { PARTS } from '../levels/parts.js';
 
 export function circuitMode(L, saved) {
@@ -20,7 +19,7 @@ export function circuitMode(L, saved) {
     circs: stages.map((_, k) => (saved && saved.circs && saved.circs[k]) || blank()),
     dirs: { ...(L.dirs || {}), ...((saved && saved.dirs) || {}) },
     pick: null, armed: false, ti: 0, status: L.tests.map(() => null), view: null,
-    typed: {}, robot: null, sel: null, input: '',
+    typed: {}, robot: null, sel: null, input: '', wire: null,
   };
   const robot = ROBOTS[L.robot];
   const stage = () => stages[st.stage], V = () => WORLDS[stage().world], circ = () => st.circs[st.stage];
@@ -62,7 +61,7 @@ export function circuitMode(L, saved) {
     w.probe = box ? box.probe : s.probe;
     return w;
   }
-  const ui = () => ({ taps: taps(), avail: avail(), lit: litOf(circ()), outs: V().outs, slots: stage().slots, pick: st.pick, palette: stage().palette, win: win() });
+  const ui = () => ({ taps: taps(), avail: avail(), lit: litOf(circ()), outs: V().outs, slots: stage().slots, pick: st.pick, wire: st.wire, palette: stage().palette, win: win() });
   const firstFree = () => placement(circ(), stage().slots).free[0];
   const hintFor = () => {
     const s = stage(), d = L.diagnose ? L.diagnose(circ(), st) : null;
@@ -100,12 +99,27 @@ export function circuitMode(L, saved) {
     return !!r.circ;
   }
 
-  /** Drag handlers: move or remove components, drop new ones from the tray, pull wires between ports. */
+  /** The port a wire dropped on a component card lands in: its first free input that accepts the wire, else the first that does. */
+  function cardPort(from, id) {
+    const ok = def(circ().nodes.find(n => n.id === id).kind).ins.map((_, k) => `${id}:${k}`).filter(p => connect(circ(), taps(), from, p).circ);
+    return ok.find(p => !circ().wires.some(w => w.to === p)) || ok[0] || null;
+  }
+
+  /** Drag handlers: move or remove components, drop new ones from the parts list, pull wires between ports. */
   const dnd = {
+    start(g) {
+      st.wire = null;
+      if (g.kind !== 'port') return;
+      $('#circ').classList.add('picking');
+      $$('#circ [data-p]').forEach(el => el.classList.toggle('can', el.dataset.p !== g.id && !!connect(circ(), taps(), g.id, el.dataset.p).circ));
+    },
     move(g) { drawWires($('#cboard'), circ(), ui(), null, g.kind === 'port' ? { from: g.id, x: g.x, y: g.y } : null); },
     drop(g) {
       const over = g.over;
-      if (g.kind === 'port' && over) { if (connectPorts(g.id, over.dataset.p)) st.pick = null; }
+      if (g.kind === 'port' && over) {
+        const to = over.dataset.p || (isSink(g.id) ? null : cardPort(g.id, over.dataset.drag));
+        if (to && connectPorts(g.id, to)) st.pick = null;
+      }
       if (g.kind === 'node' && over) {
         if (over.dataset.trash !== undefined) { setCirc(removeNode(circ(), g.id)); toast('拿掉了一个元件'); }
         else setCirc(moveNode(circ(), g.id, +over.dataset.at, stage().slots));
@@ -121,6 +135,7 @@ export function circuitMode(L, saved) {
   };
 
   function onPort(p) {
+    st.wire = null;
     if (!st.pick) {
       if (isSink(p) && circ().wires.some(w => w.to === p)) { setCirc(unwire(circ(), p)); toast('拆掉了一根线'); buzz(8); }
       else st.pick = p;
@@ -180,11 +195,42 @@ export function circuitMode(L, saved) {
       if (g) return { text: g };
       return stage().tip ? { text: stage().tip } : null;
     },
+    panelStage: true,
+    dnd,
+    parts() {
+      const fresh = stage().fresh || [];
+      const items = stage().palette.map(kind => {
+        const d = def(kind);
+        return `<button class="titem${d.bp ? ' bp' : ''}" type="button" data-act="tray" data-k="${kind}" data-tray="${kind}" title="${d.desc}">
+          <span class="ti-ic">${d.bp ? ICON.part : d.icon}</span><span class="ti-tx"><b>${d.name}${fresh.includes(kind) ? '<em>新</em>' : ''}</b><small>${kind === 'const' ? '一个数' : d.tag}</small><span class="ti-ds">${d.desc}</span></span><span class="ti-add" aria-hidden="true">＋</span></button>`;
+      }).join('');
+      return `<header class="phead"><h3>元件</h3><small>拖到电路板上，或点一下</small></header><div class="plist">${items}</div>
+        <p class="tdrop">拖到这里拿掉元件</p><p class="pnote">从圆点拉线到另一个圆点，也可以直接拖到元件上。点一下连线可以选中它，按 Delete 删除；Esc 取消。</p>`;
+    },
+    /** Delete key: remove the selected wire. */
+    remove() {
+      if (!st.wire || busy()) return false;
+      setCirc(unwire(circ(), st.wire));
+      st.wire = null;
+      buzz(8);
+      rt.refresh();
+      return true;
+    },
+    /** Esc: drop a half-made wire, the wire selection or the number pad. */
+    cancel() {
+      if (!st.pick && !st.wire && !st.sel) return false;
+      st.pick = null;
+      st.wire = null;
+      st.sel = null;
+      st.input = '';
+      rt.refresh();
+      return true;
+    },
     panel() {
       const uses = L.uses ? `<div class="chips">${L.uses.map(k => `<span class="tag">${ICON.part}零件 · ${PARTS[k].name}</span>`).join('')}</div>` : '';
       const dirs = L.dirs ? `<div class="pcard"><h3>改写方向<small>机器上的两个开关</small></h3>${['01', 'inf'].map(kind => `<div class="dirrow"><div class="optlabel">${kind === '01' ? '每件最多拿一次时' : '每件可以拿很多次时'}</div>
         <div class="chips two" role="radiogroup" aria-label="改写方向">${[['asc', '从左往右 →'], ['desc', '← 从右往左']].map(([v, l]) => `<button class="chip" type="button" role="radio" aria-checked="${st.dirs[kind] === v}" data-act="dir" data-k="${kind}" data-v="${v}">${l}</button>`).join('')}</div></div>`).join('')}</div>` : '';
-      return `<div class="pcard cpcard"><h3>电路板<small>${st.pick ? '再点一个亮起的圆点' : '拖动元件，从圆点拉线'}</small></h3>${uses}
+      return `<div class="pcard cpcard"><h3>电路板${st.wire ? '<button class="cdel" type="button" data-act="unwire">删除连线</button>' : `<small>${st.pick ? '再点一个亮起的圆点' : '拖动元件，从圆点拉线'}</small>`}</h3>${uses}
         ${editorHTML(circ(), ui())}</div>${dirs}`;
     },
     mounted() {
@@ -194,7 +240,6 @@ export function circuitMode(L, saved) {
       $('#cview').innerHTML = viewHTML(circ(), u);
       drawWires($('#cboard'), circ(), u, u.win.probe);
       paintProbe(root, u.win.probe);
-      if (!root.dataset.dnd) { root.dataset.dnd = '1'; enableDrag(root, $('#lvScroll'), dnd); }
     },
     dock: () => (st.sel ? { pad: true } : { meta: `${L.tests.length} 个测试 · ${circ().nodes.length} 个元件`, sec: circ().nodes.length && !busy() ? (st.armed ? '确认清空' : '清空') : '', secAct: 'clear', go: busy() ? '跳过动画' : '运行测试', act: 'run', busy: busy() }),
     padTitle: () => `${V().name(st.sel)}：填一个数（不填 = 清空这一格）`,
@@ -219,10 +264,13 @@ export function circuitMode(L, saved) {
       if (name === 'run') { if (busy()) Anim.skip(); else ctl.run(); return; }
       if (busy()) return;
       if (name === 'port') onPort(el.dataset.p);
-      if (name === 'slot') { st.pick = null; openPalette(+el.dataset.s); }
+      if (name === 'wire') { st.pick = null; st.wire = st.wire === el.dataset.w ? null : el.dataset.w; buzz(6); rt.refresh(); }
+      if (name === 'unwire') ctl.remove();
+      if (name === 'slot') { st.pick = null; st.wire = null; openPalette(+el.dataset.s); }
       if (name === 'tray') {
         const at = firstFree();
         st.pick = null;
+        st.wire = null;
         setCirc(placeNode(circ(), el.dataset.k, at));
         buzz(8);
         rt.refresh();
@@ -255,6 +303,7 @@ export function circuitMode(L, saved) {
       const miss = Vw.outs.find(([id]) => !c.wires.some(w => w.to === `out:${id}`));
       if (miss) { toast(`输出口「${miss[1]}」还没接线`); buzz(20); return; }
       st.pick = null;
+      st.wire = null;
       st.sel = null;
       st.typed = {};
       st.robot = null;

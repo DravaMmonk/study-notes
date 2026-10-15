@@ -1,6 +1,7 @@
 // Circuit editor markup and drawing.
 // Left: the circuit board — input terminals on top (one per lit cell), components on a two-column grid,
 // output terminals at the bottom. Right: the robot's window, where the player lights cells as inputs.
+// The parts list lives outside the editor (the level's brief on a desktop, under the board on a phone).
 // Port ids: sources are 'tap:<id>' or '<nodeId>'; sinks are '<nodeId>:<k>' or 'out:<id>'.
 
 import { def, wouldCycle } from './components.js';
@@ -9,8 +10,7 @@ import { signal } from '../util.js';
 
 export const isSink = p => p.startsWith('out:') || (!p.startsWith('tap:') && p.includes(':'));
 const nodeOf = p => p.split(':')[0];
-const TAP_COLORS = ['#5EC8FF', '#FF8A65', '#F6B93E', '#A3E635', '#F78FB3', '#4DD0E1'];
-const NODE_COLORS = ['#C7D2FE', '#B79CFF', '#47D49F', '#FFD166', '#E879F9', '#94A3B8'];
+const HUES = 6; // wire colors are theme tokens: --w0…--w5 for lit inputs, --n0…--n5 for components
 export const letter = id => String.fromCharCode(64 + +id.slice(1));
 const iconSVG = kind => `<svg class="glyph" viewBox="0 0 48 32" aria-hidden="true">${ICONS[kind]}</svg>`;
 
@@ -76,13 +76,13 @@ export function moveNode(circ, id, to, slots) {
 
 /** One color per source: lit inputs from one palette in level order, components from another by their number. */
 export function sourceColor(ui, src) {
-  if (!src.startsWith('tap:')) return NODE_COLORS[(+src.slice(1) - 1) % NODE_COLORS.length];
-  return TAP_COLORS[ui.avail.filter(id => ui.lit.includes(id)).indexOf(src.slice(4)) % TAP_COLORS.length];
+  if (!src.startsWith('tap:')) return `var(--n${(+src.slice(1) - 1) % HUES})`;
+  return `var(--w${ui.avail.filter(id => ui.lit.includes(id)).indexOf(src.slice(4)) % HUES})`;
 }
 const sourceTag = (ui, src) => (src.startsWith('tap:') ? ui.taps[src.slice(4)].short : letter(src));
 
 /**
- * The whole editor. ui = { taps, avail, lit, outs, slots, pick, palette, win }
+ * The whole editor. ui = { taps, avail, lit, outs, slots, pick, wire, palette, win }
  */
 export function editorHTML(circ, ui) {
   const lit = litOf(circ), from = new Map(circ.wires.map(w => [w.to, w.from]));
@@ -92,7 +92,7 @@ export function editorHTML(circ, ui) {
 
   const terms = ui.avail.filter(id => lit.includes(id)).map(id => {
     const m = ui.taps[id], p = `tap:${id}`;
-    return `<button class="${portCls(p, m.type)} cterm" type="button" data-act="port" data-p="${p}" style="--c:${sourceColor(ui, p)}" aria-label="输入 ${m.label}">
+    return `<button class="${portCls(p, m.type)} cterm" type="button" data-act="port" data-p="${p}" style="--c:${sourceColor(ui, p)}" aria-label="输入 ${m.label}" title="从圆点拉线到元件">
       <span class="tag">${m.short}</span><b>${m.label}</b><span class="pv" data-pv="${p}"></span><i class="dot" data-dot="${p}"></i></button>`;
   }).join('');
 
@@ -103,23 +103,18 @@ export function editorHTML(circ, ui) {
     const n = circ.nodes.find(x => x.id === id), d = def(n.kind), color = sourceColor(ui, id);
     const ins = d.ins.map((type, k) => {
       const p = `${id}:${k}`, lb = d.labels ? d.labels[k] : '';
-      return `<button class="${portCls(p, type)} cin" type="button" data-act="port" data-p="${p}" aria-label="${letter(id)} 的输入${lb ? ` ${lb}` : ` ${k + 1}`}"><i class="dot" data-dot="${p}"></i>${sinkTag(p, lb ? `<span class="pl">${lb}</span>` : '')}</button>`;
+      return `<button class="${portCls(p, type)} cin" type="button" data-act="port" data-p="${p}" aria-label="${letter(id)} 的输入${lb ? ` ${lb}` : ` ${k + 1}`}" title="${from.has(p) ? '点一下拆掉这根线' : type === 'bool' ? '条件口：接「是 / 否」' : '输入口'}"><i class="dot" data-dot="${p}"></i>${sinkTag(p, lb ? `<span class="pl">${lb}</span>` : '')}</button>`;
     }).join('');
     return `<div class="ccell" data-at="${a}"><div class="cnode${d.bp ? ' bp' : ''}${n.kind === 'const' ? ' konst' : ''}" data-drag="${id}" style="--c:${color}">
       <div class="cins">${ins}</div>
-      <button class="chead" type="button" data-act="node" data-n="${id}"><em class="cid">${letter(id)}</em><b>${d.name}</b><small>${n.kind === 'const' ? `= ${n.value}` : d.tag}</small></button>
-      <button class="${portCls(id, 'num')} cout" type="button" data-act="port" data-p="${id}" aria-label="${letter(id)} 的输出"><span class="pv" data-pv="${id}"></span><i class="dot" data-dot="${id}"></i></button>
+      <button class="chead" type="button" data-act="node" data-n="${id}" title="${d.desc}"><em class="cid">${letter(id)}</em><b>${d.name}</b><small>${n.kind === 'const' ? `= ${n.value}` : d.tag}</small></button>
+      <button class="${portCls(id, 'num')} cout" type="button" data-act="port" data-p="${id}" aria-label="${letter(id)} 的输出" title="从这里拉线"><span class="pv" data-pv="${id}"></span><i class="dot" data-dot="${id}"></i></button>
     </div></div>`;
   }).join('');
 
   const outs = ui.outs.map(([id, label]) => {
     const p = `out:${id}`;
     return `<button class="${portCls(p, 'num')} cend" type="button" data-act="port" data-p="${p}" aria-label="输出 ${label}"><i class="dot" data-dot="${p}"></i>${sinkTag(p, '')}<b>${label}</b><span class="pv" data-pv="${p}"></span></button>`;
-  }).join('');
-
-  const tray = ui.palette.map(kind => {
-    const d = def(kind);
-    return `<button class="titem${d.bp ? ' bp' : ''}" type="button" data-act="tray" data-k="${kind}" data-tray="${kind}"><b>${d.name}</b><small>${kind === 'const' ? '一个数' : d.tag}</small></button>`;
   }).join('');
 
   return `<div class="cedit${ui.pick ? ' picking' : ''}" id="circ">
@@ -132,7 +127,6 @@ export function editorHTML(circ, ui) {
       </div>
       <aside class="cview" id="cview">${viewHTML(circ, ui)}</aside>
     </div>
-    ${tray ? `<div class="ctray" data-trash><span class="tlabel">元件托盘<small>拖到电路板上，或点一下</small></span><span class="tdrop">拖到这里拿掉元件</span><div class="titems">${tray}</div></div>` : ''}
   </div>`;
 }
 
@@ -166,7 +160,10 @@ export function viewHTML(circ, ui) {
     ${facts ? `<div class="vfacts"><span class="vsub">本格信息</span>${facts}</div>` : ''}`;
 }
 
-/** Wires as vertical S-curves under a dark halo, colored by source. A wire glows while it carries a value. */
+/**
+ * Wires as vertical S-curves over a halo the color of the board, colored by source. A wire carrying a number shows
+ * dots flowing down it; one carrying 「—」 is dashed. Each wire has a wide invisible stroke to click it by.
+ */
 export function drawWires(board, circ, ui, probe, rubber) {
   const svg = board.querySelector('.cwires'), box = board.getBoundingClientRect();
   const pt = id => { const d = board.querySelector(`[data-dot="${id}"]`); if (!d) return null; const r = d.getBoundingClientRect(); return [r.left + r.width / 2 - box.left, r.top + r.height / 2 - box.top]; };
@@ -175,10 +172,11 @@ export function drawWires(board, circ, ui, probe, rubber) {
   const paths = circ.wires.map(w => {
     const a = pt(w.from), b = pt(w.to);
     if (!a || !b) return '';
-    const v = probe ? probe[w.from] : undefined, focus = ui.pick && (w.from === ui.pick || w.to === ui.pick);
-    const cls = [portType(circ, ui.taps, w.from), focus ? 'on' : '', ui.pick && !focus ? 'dim' : '', v !== undefined && v !== null && v !== false ? 'live' : ''].filter(Boolean).join(' ');
+    const v = probe ? probe[w.from] : undefined, focus = (ui.pick && (w.from === ui.pick || w.to === ui.pick)) || ui.wire === w.to;
+    const live = v !== undefined && v !== null && v !== false, dead = v === null;
+    const cls = [portType(circ, ui.taps, w.from), focus ? 'on' : '', (ui.pick || ui.wire) && !focus ? 'dim' : '', dead ? 'dead' : ''].filter(Boolean).join(' ');
     const d = curve(a, b);
-    return `<path class="cw-halo" d="${d}"/><path class="cw ${cls}" style="stroke:${sourceColor(ui, w.from)}" d="${d}"/>`;
+    return `<g class="cwg${ui.wire === w.to ? ' sel' : ''}"><path class="cw-halo" d="${d}"/><path class="cw ${cls}" style="stroke:${sourceColor(ui, w.from)}" d="${d}"/>${live ? `<path class="cw-flow" d="${d}"/>` : ''}<path class="cw-hit" data-act="wire" data-w="${w.to}" d="${d}"><title>点一下选中这根线</title></path></g>`;
   });
   if (rubber) {
     const a = pt(rubber.from), b = [rubber.x - box.left, rubber.y - box.top];

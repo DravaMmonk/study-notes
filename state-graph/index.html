@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="零基础动态规划解谜游戏：27 关从格子和箭头出发，用元件亲手拼出路线计数器、分层状态机、对齐表和背包表的电路。">
-<meta name="theme-color" content="#11151B">
+<meta name="theme-color" content="#F3F1EB">
 <title>状态之图</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Serif+SC:wght@700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Serif+SC:wght@600;700&display=swap">
 <link rel="stylesheet" href="styles.css">
+<script>try{if(localStorage.getItem("state-graph-theme")==="night")document.documentElement.dataset.theme="night"}catch(e){}</script>
 <script type="module" src="js/app.js"></script>
 </head>
 <body>
@@ -31,6 +32,7 @@
         <div class="toolbar">
           <button class="pill" id="btnParts" type="button">零件箱 <b id="partCount"></b></button>
           <button class="pill" id="btnNotes" type="button">笔记本 <b id="noteCount"></b></button>
+          <button class="pill icon" type="button" data-theme-toggle aria-label="切换浅色 / 深色"></button>
           <button class="pill icon" id="btnSettings" type="button" aria-label="设置"></button>
         </div>
         <div id="banner"></div>
@@ -43,21 +45,27 @@
   <section id="level" class="screen" hidden>
     <header class="lv-top gutter">
       <button class="iconbtn" id="btnBack" type="button" aria-label="返回关卡地图"></button>
+      <button class="iconbtn desk" id="btnRail" type="button" aria-label="关卡列表" aria-expanded="false"></button>
+      <span class="brand desk"><i class="brand-chip"></i>状态之图</span>
       <div class="lv-titles"><div class="eyebrow" id="lvCh"></div><h2 id="lvTitle"></h2></div>
       <button class="introbtn" id="btnIntro" type="button">原理</button>
+      <button class="iconbtn desk" type="button" data-theme-toggle aria-label="切换浅色 / 深色"></button>
     </header>
+    <nav class="rail" id="rail" aria-label="关卡列表"></nav>
+    <div class="rail-scrim" id="railScrim"></div>
     <div class="lv-scroll" id="lvScroll">
       <div class="lv-grid gutter">
-        <div class="lv-main">
+        <aside class="brief" id="brief">
           <section class="mission" id="mission" aria-label="任务"></section>
-          <section class="bcard" id="bcard" aria-label="棋盘">
-            <div class="tests" id="tests" role="tablist" aria-label="测试"></div>
-            <div class="board" id="board"></div>
-            <p class="bnote" id="bnote"></p>
-            <div id="after"></div>
-          </section>
-        </div>
-        <aside class="lv-side"><div class="panel" id="panel"></div></aside>
+          <section class="parts" id="parts" aria-label="元件" data-trash></section>
+        </aside>
+        <section class="bcard" id="bcard" aria-label="棋盘">
+          <div class="tests" id="tests" role="tablist" aria-label="测试"></div>
+          <div class="board" id="board"></div>
+          <p class="bnote" id="bnote"></p>
+          <div id="after"></div>
+        </section>
+        <div class="panel" id="panel"></div>
       </div>
     </div>
     <footer class="dock gutter" id="dock"></footer>
