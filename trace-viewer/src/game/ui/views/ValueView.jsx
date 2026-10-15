@@ -46,7 +46,7 @@ export function NumberCompare({ actual, expected, tolerance, pass }) {
   const hi = Math.max(1, ...values.map((v) => v + 0.2))
   const at = (v) => `${((v - lo) / (hi - lo)) * 100}%`
   return (
-    <div className={`number-compare ${pass ? 'is-pass' : 'is-fail'}`}>
+    <div className={`number-compare ${pass === null ? '' : pass ? 'is-pass' : 'is-fail'}`}>
       <div className="number-pair">
         <div><span>期望</span><b>{formatNumber(expected)}</b></div>
         <div><span>你的输出</span><b>{Number.isFinite(actual) ? formatNumber(actual) : '—'}</b></div>

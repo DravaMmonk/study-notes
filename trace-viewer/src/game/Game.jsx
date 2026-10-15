@@ -165,6 +165,14 @@ function ThemeSwitch({ theme, onChange, compact }) {
   )
 }
 
+// A run with every test's verdict hidden: the outputs are real, but nothing is marked passed or failed yet.
+const untested = (run) => ({
+  ...run,
+  pass: false,
+  untested: true,
+  results: run.results.map((r) => ({ ...r, pass: null, checks: r.checks.map((c) => ({ ...c, pass: null, reason: '' })) })),
+})
+
 function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phone }) {
   // The board and its test results change together: tests re-run whenever the wiring or a parameter
   // changes, but not while a card is only being dragged around.
@@ -180,6 +188,9 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   const [testIndex, setTestIndex] = useState(0)
   const [showHint, setShowHint] = useState(false)
   const [won, setWon] = useState(false)
+  // The circuit's results update live, but whether it passes is only shown, and the level only completed, once
+  // the player runs the tests; any change to the circuit makes it untested again.
+  const [tested, setTested] = useState(false)
   const [losses, setLosses] = useState([])
   const [showBrief, setShowBrief] = useState(false)
   const [sheet, setSheet] = useState(false)
@@ -214,12 +225,26 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
       return
     }
     const result = runLevel(level, next)
-    const newly = result.pass && !run?.pass
     setState({ board: next, run: result })
+    setTested(false)
     setProgress((p) => ({ ...p, boards: { ...p.boards, [level.id]: next } }))
-    if (result.pass) solve(result.score)
-    if (newly) setWon(true)
   }
+
+  // Run the tests: a passing circuit completes the level (every time, not only the first); a failing one
+  // shows the first test it fails. Returns { pass, passed }.
+  const runTests = () => {
+    if (!run) return { pass: false, passed: 0 }
+    setTested(true)
+    if (run.pass) {
+      solve(run.score)
+      setWon(true)
+    } else {
+      const first = run.results.findIndex((r) => !r.pass)
+      if (first >= 0) setTestIndex(first)
+    }
+    return { pass: run.pass, passed: run.results.filter((r) => r.pass).length }
+  }
+  const shown = useMemo(() => (tested || !run ? run : untested(run)), [tested, run])
 
   // The test panel draws inputs and outputs the way their cards on the board do; switching either
   // place switches both.
@@ -267,7 +292,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   }
 
   const nextLevel = LEVELS.find((l) => l.requires.includes(level.id) && l.requires.every((id) => id === level.id || progress.solved.includes(id)))
-  const passed = run?.results.filter((r) => r.pass).length ?? 0
+  const passed = shown?.results.filter((r) => r.pass).length ?? 0
 
   const parts = <PartsList palette={level.palette} onAdd={addNode} />
   // About three lines on a phone; longer task text starts folded.
@@ -305,7 +330,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
       <div className="stat-row">
         <div className="stat"><b>{run?.score.nodes ?? 0}</b><span>节点</span></div>
         <div className="stat"><b>{run?.score.cost ?? 0}</b><span>计算量</span></div>
-        <div className={`stat ${run?.pass ? 'is-pass' : ''}`}><b>{passed}/{level.tests.length}</b><span>测试</span></div>
+        <div className={`stat ${shown?.pass ? 'is-pass' : ''}`}><b>{shown?.untested ? '—' : passed}/{level.tests.length}</b><span>{shown?.untested ? '还没测试' : '测试'}</span></div>
       </div>
       {run?.constraint && <p className="constraint">{run.constraint}</p>}
       {progress.best[level.id] && <p className="panel-note">最佳：{progress.best[level.id].nodes} 个节点 · 计算量 {progress.best[level.id].cost}</p>}
@@ -319,7 +344,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   ) : (
     <ProbeLevel level={level} onSolve={() => { solve(null); setWon(true) }} theme={theme} />
   )
-  const testPanel = graphLevel && <TestPanel level={level} run={run} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} theme={theme} scan={scan} onScan={setScan} inView={roleView('input')} outView={roleView('output')} onView={showRole} />
+  const testPanel = graphLevel && <TestPanel level={level} run={shown} onTest={runTests} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} theme={theme} scan={scan} onScan={setScan} inView={roleView('input')} outView={roleView('output')} onView={showRole} />
   const overlays = (
     <>
       {sheet && (
@@ -353,7 +378,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
     if (level.kind === 'graph') {
       return (
         <div className="level-phone level-graph is-split">
-          <PhoneCircuit level={level} graph={board} onChange={change} run={run} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onReset={() => { change(startBoard(level)); setLosses([]) }} brief={brief} training={training} footer={score} testDetails={testPanel} />
+          <PhoneCircuit level={level} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onReset={() => { change(startBoard(level)); setLosses([]) }} brief={brief} training={training} footer={score} testDetails={testPanel} />
           {overlays}
         </div>
       )
@@ -388,7 +413,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
       {level.kind === 'graph' ? (
         <>
           <div className="board-pane">
-            <Editor graph={board} onChange={change} run={run} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={level.palette.length > 0} />
+            <Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={level.palette.length > 0} />
           </div>
           {testPanel}
         </>

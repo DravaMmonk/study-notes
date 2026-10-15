@@ -1,5 +1,5 @@
 import { createElement, useEffect, useRef, useState } from 'react'
-import { ArrowDownToLine, Check, ChevronDown, ChevronRight, Trash2, Undo2, X } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronDown, ChevronRight, Circle, Play, Trash2, Undo2, X } from 'lucide-react'
 import { wouldCycle } from '../../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../../engine/nodes.js'
 import { describe, familyOf, iconOf } from '../catalog.js'
@@ -22,7 +22,7 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 // the current test. Wires go dot to dot (tap one dot, then another, or drag between them); tapping a
 // wired input unplugs it. Parts come from the tray (tap to drop into the next free slot, or hold and
 // drag into a slot); holding a placed part moves it, or drags it back onto the tray to remove it.
-export default function PhoneCircuit({ level, graph, onChange, onReset, run, testIndex, onTestIndex, flags, inputLabels, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
+export default function PhoneCircuit({ level, graph, onChange, onReset, run, onTest, testIndex, onTestIndex, flags, inputLabels, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
   const [sheet, setSheet] = useState(null)
   const [history, setHistory] = useState([])
@@ -174,6 +174,15 @@ export default function PhoneCircuit({ level, graph, onChange, onReset, run, tes
     edit(removeNode(graph, id), `拿掉了 ${nameOf(byId(id))}`)
     setSheet(null)
   }
+  // Run the tests: a pass opens the level's completion dialog; otherwise say how many passed and show the first
+  // test that fails (the game selects it).
+  const test = () => {
+    setPicking(null)
+    const { pass, passed: ok } = onTest()
+    if (pass) return
+    buzz(20)
+    setToast(ok ? `${ok}/${all} 组通过，红色的那组还没对` : '还没有一组通过，看看输出和期望差在哪')
+  }
   const clear = () => {
     if (!armed) {
       buzz(4)
@@ -236,8 +245,8 @@ export default function PhoneCircuit({ level, graph, onChange, onReset, run, tes
         {level.tests.map((test, index) => {
           const pass = run?.results[index]?.pass
           return (
-            <button key={test.label} className={`pb-test ${index === testIndex ? 'is-on' : ''} ${pass ? 'is-pass' : 'is-fail'}`} onClick={() => onTestIndex(index)} aria-pressed={index === testIndex}>
-              {pass ? <Check size={12} /> : <X size={12} />}{test.label}
+            <button key={test.label} className={`pb-test ${index === testIndex ? 'is-on' : ''} ${pass === null ? '' : pass ? 'is-pass' : 'is-fail'}`} onClick={() => onTestIndex(index)} aria-pressed={index === testIndex}>
+              {pass === null ? <Circle size={10} /> : pass ? <Check size={12} /> : <X size={12} />}{test.label}
             </button>
           )
         })}
@@ -283,10 +292,10 @@ export default function PhoneCircuit({ level, graph, onChange, onReset, run, tes
 
       <footer className="pb-bar">
         <button className="pb-icon" onClick={undo} disabled={!history.length} aria-label="撤销"><Undo2 size={18} /></button>
-        <span className="pb-meta">{all} 个测试 · {steps.length} 个元件</span>
+        <button className="pb-meta" onClick={() => setSheet({ kind: 'tests' })}>{run?.untested ? `${all} 组测试 · 还没测` : `${passed}/${all} 组通过`}<small>测试详情 ›</small></button>
         {steps.length > 0 && <button className={`pb-clear ${armed ? 'is-armed' : ''}`} onClick={clear}>{armed ? '确认清空' : '清空'}</button>}
-        <button className={`pb-go ${run?.pass ? 'is-pass' : ''}`} onClick={() => setSheet({ kind: 'tests' })}>
-          {run?.pass ? <Check size={17} /> : null}测试 {passed}/{all}
+        <button className={`pb-go ${run?.pass ? 'is-pass' : ''}`} onClick={test}>
+          {run?.pass ? <Check size={17} /> : <Play size={15} />}{run?.pass ? '全部通过' : '运行测试'}
         </button>
       </footer>
 
@@ -409,7 +418,7 @@ function PartPanel({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, er
       )}
 
       <div className="pc-section pc-result">
-        <span className="pc-label">{node.type === 'output' ? (check?.pass ? '这组通过' : check?.reason || '还没通过') : '算出的结果（当前这组测试）'}</span>
+        <span className="pc-label">{node.type === 'output' ? (check?.pass === null ? '还没测试：点「运行测试」看是否通过' : check?.pass ? '这组通过' : check?.reason || '还没通过') : '算出的结果（当前这组测试）'}</span>
         {error ? (
           <p className="ph-error">{error}</p>
         ) : node.type === 'output' && expected ? (

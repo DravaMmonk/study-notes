@@ -311,13 +311,13 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
               data-node={node.id}
               data-piece={node.id}
               data-family={familyOf(node.type)}
-              className={`node node-${node.type} ${menu === node.id ? 'has-menu' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${outputCheck ? (outputCheck.pass ? 'is-pass' : 'is-fail') : ''}`}
+              className={`node node-${node.type} ${menu === node.id ? 'has-menu' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${outputCheck && outputCheck.pass !== null ? (outputCheck.pass ? 'is-pass' : 'is-fail') : ''}`}
               style={{ left: node.x, top: node.y, width: NODE_W }}
             >
               <div className="node-head" data-drag onPointerDown={() => setSelected({ node: node.id })}>
                 <i className="family-chip">{createElement(node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type), { size: 12, strokeWidth: 1.8 })}</i>
                 <span className="node-title">{title}</span>
-                {outputCheck && <em className="node-verdict" title={outputCheck.pass ? '这组测试通过' : outputCheck.reason}>{outputCheck.pass ? '通过' : '未通过'}</em>}
+                {outputCheck && outputCheck.pass !== null && <em className="node-verdict" title={outputCheck.pass ? '这组测试通过' : outputCheck.reason}>{outputCheck.pass ? '通过' : '未通过'}</em>}
                 {!spec.fixed && (
                   <button className="node-delete" aria-label="删除卡片" onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ nodes: graph.nodes.filter((n) => n.id !== node.id), wires: graph.wires.filter((w) => w.from !== node.id && w.to !== node.id) })}>
                     <X size={12} />

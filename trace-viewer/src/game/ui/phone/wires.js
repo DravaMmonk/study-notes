@@ -24,11 +24,23 @@ export function drawWires(el, graph, live) {
     const box = dot.getBoundingClientRect()
     return [box.left + box.width / 2 - origin.left, box.top + box.height / 2 - origin.top]
   }
+  const middle = el.clientWidth / 2
   const curve = ([ax, ay], [bx, by]) => {
     const drop = Math.max(28, Math.abs(by - ay) / 2)
     // A wire that has to climb loops out sideways instead of cutting through the blocks.
-    const side = by < ay + 10 ? (bx >= ax ? 1 : -1) * 70 : 0
-    return `M${ax.toFixed(1)},${ay.toFixed(1)} C${(ax + side).toFixed(1)},${(ay + drop).toFixed(1)} ${(bx + side).toFixed(1)},${(by - drop).toFixed(1)} ${bx.toFixed(1)},${by.toFixed(1)}`
+    if (by < ay + 10) {
+      const side = (bx >= ax ? 1 : -1) * 70
+      return `M${ax.toFixed(1)},${ay.toFixed(1)} C${(ax + side).toFixed(1)},${(ay + drop).toFixed(1)} ${(bx + side).toFixed(1)},${(by - drop).toFixed(1)} ${bx.toFixed(1)},${by.toFixed(1)}`
+    }
+    // A wire that runs down past a whole row turns toward the middle of the board at once, so it is clear of the
+    // short wire to the block just below and never reads as passing through that block's input. If it ends in its
+    // own column it stays out there until it comes back in.
+    if (by - ay > 150) {
+      const side = (ax < middle ? 1 : -1) * 96
+      const back = Math.abs(bx - ax) < 30 ? side : 0
+      return `M${ax.toFixed(1)},${ay.toFixed(1)} C${(ax + side).toFixed(1)},${(ay + 30).toFixed(1)} ${(bx + back).toFixed(1)},${(by - drop).toFixed(1)} ${bx.toFixed(1)},${by.toFixed(1)}`
+    }
+    return `M${ax.toFixed(1)},${ay.toFixed(1)} C${ax.toFixed(1)},${(ay + drop).toFixed(1)} ${bx.toFixed(1)},${(by - drop).toFixed(1)} ${bx.toFixed(1)},${by.toFixed(1)}`
   }
   const family = (id) => familyOf(graph.nodes.find((n) => n.id === id)?.type ?? 'input')
   let markup = ''

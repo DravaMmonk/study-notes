@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, X } from 'lucide-react'
+import { Check, Circle, Play, X } from 'lucide-react'
 import ImageView from './ImageView.jsx'
 import { rangeOf } from './display.js'
 import CurveView from './views/CurveView.jsx'
@@ -12,7 +12,7 @@ import { kindOf, rowOf } from './views/views.js'
 // Numbers are compared on a scale, waveforms as one plot with the allowed band, 2-D values side by
 // side in the same view as their cards on the board (switching here switches the cards too), with
 // a pixel map of the misses. In the profile view the two rows are laid over each other.
-export default function TestPanel({ level, run, testIndex, onSelect, inputLabels, inView, outView, onView, scan, onScan, theme }) {
+export default function TestPanel({ level, run, onTest, testIndex, onSelect, inputLabels, inView, outView, onView, scan, onScan, theme }) {
   const [probe, setProbe] = useState(null)
   const test = level.tests[testIndex]
   const result = run?.results[testIndex]
@@ -24,18 +24,23 @@ export default function TestPanel({ level, run, testIndex, onSelect, inputLabels
     <aside className="tests" data-pane="tests">
       <header className="panel-head">
         <span>测试</span>
-        <span className={`tests-meter ${run?.pass ? 'is-pass' : ''}`} aria-label={`${passed} / ${all} 通过`}>
-          {level.tests.map((t, index) => <i key={t.label} className={run?.results[index]?.pass ? 'is-on' : ''} />)}
-          <b>{passed}/{all}</b>
-        </span>
+        {run?.untested ? (
+          <span className="tests-meter is-untested">还没测试</span>
+        ) : (
+          <span className={`tests-meter ${run?.pass ? 'is-pass' : ''}`} aria-label={`${passed} / ${all} 通过`}>
+            {level.tests.map((t, index) => <i key={t.label} className={run?.results[index]?.pass ? 'is-on' : ''} />)}
+            <b>{passed}/{all}</b>
+          </span>
+        )}
       </header>
+      {onTest && <button className={`run-tests ${run?.pass ? 'is-pass' : ''}`} onClick={onTest}>{run?.pass ? <Check size={15} /> : <Play size={14} />}{run?.pass ? '全部通过 · 再测一次' : '运行测试'}</button>}
       <ol className="test-list">
         {level.tests.map((t, index) => {
           const ok = run?.results[index]?.pass
           return (
             <li key={t.label}>
-              <button className={`test-row ${index === testIndex ? 'is-active' : ''} ${ok ? 'is-pass' : 'is-fail'}`} onClick={() => onSelect(index)} aria-pressed={index === testIndex}>
-                {ok ? <Check size={13} /> : <X size={13} />}
+              <button className={`test-row ${index === testIndex ? 'is-active' : ''} ${ok === null ? '' : ok ? 'is-pass' : 'is-fail'}`} onClick={() => onSelect(index)} aria-pressed={index === testIndex}>
+                {ok === null ? <Circle size={11} /> : ok ? <Check size={13} /> : <X size={13} />}
                 <span>{t.label}</span>
               </button>
             </li>
@@ -65,7 +70,7 @@ export default function TestPanel({ level, run, testIndex, onSelect, inputLabels
           const kind = kindOf(expected)
           const fits = actual?.w === expected.w && actual?.h === expected.h
           return (
-            <div key={name} className={`test-block ${check?.pass ? 'is-pass' : 'is-fail'}`}>
+            <div key={name} className={`test-block ${check?.pass === null ? '' : check?.pass ? 'is-pass' : 'is-fail'}`}>
               <div className="test-block-head">
                 <span className="test-block-label">输出</span>
                 {kind === 'image' && <ViewSwitch value={outView} onChange={(v) => onView('output', v)} compact />}
@@ -80,10 +85,14 @@ export default function TestPanel({ level, run, testIndex, onSelect, inputLabels
               ) : (
                 <OutputImages expected={expected} actual={actual} fits={fits} view={outView} tolerance={tolerance} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} />
               )}
-              <p className={`test-verdict ${check?.pass ? 'is-pass' : 'is-fail'}`}>
-                {check?.pass ? <Check size={14} /> : <X size={14} />}
-                {check?.pass ? '这组通过' : check?.reason || '未通过'}
-              </p>
+              {check?.pass === null ? (
+                <p className="test-verdict">点「运行测试」看这组是否通过</p>
+              ) : (
+                <p className={`test-verdict ${check?.pass ? 'is-pass' : 'is-fail'}`}>
+                  {check?.pass ? <Check size={14} /> : <X size={14} />}
+                  {check?.pass ? '这组通过' : check?.reason || '未通过'}
+                </p>
+              )}
             </div>
           )
         })}

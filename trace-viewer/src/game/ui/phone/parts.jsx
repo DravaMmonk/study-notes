@@ -1,5 +1,5 @@
 import { createElement, useRef } from 'react'
-import { Check, ChevronRight, X } from 'lucide-react'
+import { Check, ChevronRight, Circle, X } from 'lucide-react'
 import { evaluate } from '../../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../../engine/nodes.js'
 import { FAMILIES, describe, familyOf, iconOf } from '../catalog.js'
@@ -104,20 +104,21 @@ export function TestCarousel({ level, run, testIndex, onTestIndex, theme, views 
       <div className="ph-tests-strip" ref={strip} onScroll={onScroll}>
         {level.tests.map((test, index) => {
           const result = run?.results[index]
+          const verdict = result?.pass === null ? '' : result?.pass ? 'is-pass' : 'is-fail'
           const [name, expected] = Object.entries(test.expected)[0]
           const actual = result?.outputs[name]
           const fits = actual?.w === expected.w && actual?.h === expected.h
           const kind = kindOf(expected)
           const tolerance = (test.check ?? level.check)?.tolerance ?? 0.02
           return (
-            <article key={test.label} className={`ph-test ${index === testIndex ? 'is-active' : ''} ${result?.pass ? 'is-pass' : 'is-fail'}`} onClick={() => go(index)}>
-              <header>{result?.pass ? <Check size={13} /> : <X size={13} />}<b>{test.label}</b><small>{index + 1}/{level.tests.length}</small></header>
+            <article key={test.label} className={`ph-test ${index === testIndex ? 'is-active' : ''} ${verdict}`} onClick={() => go(index)}>
+              <header>{verdict === '' ? <Circle size={11} /> : result?.pass ? <Check size={13} /> : <X size={13} />}<b>{test.label}</b><small>{index + 1}/{level.tests.length}</small></header>
               <div className="ph-test-row">
                 <figure><ValueView img={Object.values(test.inputs)[0]} view={views.in} size={kindOf(Object.values(test.inputs)[0]) === 'image' ? 64 : 104} theme={theme} /><figcaption>输入</figcaption></figure>
                 {kind === 'signal' ? (
                   <figure className="is-wide"><CurveView img={fits ? actual : null} expected={expected} tolerance={tolerance} width={150} height={64} /><figcaption>期望和你的</figcaption></figure>
                 ) : kind === 'number' ? (
-                  <figure className="is-wide ph-test-numbers"><span><b>{formatNumber(expected.data[0])}</b>期望</span><span><b className={result?.pass ? 'is-pass' : 'is-fail'}>{fits ? formatNumber(actual.data[0]) : '—'}</b>你的</span></figure>
+                  <figure className="is-wide ph-test-numbers"><span><b>{formatNumber(expected.data[0])}</b>期望</span><span><b className={verdict}>{fits ? formatNumber(actual.data[0]) : '—'}</b>你的</span></figure>
                 ) : (
                   <>
                     <figure><ValueView img={expected} view={views.out} size={64} theme={theme} /><figcaption>期望</figcaption></figure>

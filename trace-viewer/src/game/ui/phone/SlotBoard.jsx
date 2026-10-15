@@ -60,12 +60,16 @@ export default function SlotBoard({ graph, values, errors, checks, expected, vie
   }
   const inputs = (node) =>
     inputsOf(node.type).map((port) => {
-      const wired = Boolean(feeding(graph, node.id, port))
+      const from = graph.nodes.find((n) => n.id === feeding(graph, node.id, port))
       const tag = inputsOf(node.type).length > 1 ? PORT_TAGS[port] ?? port : ''
+      // Beside a wired input, where it reads from: a part's number, or the input's name. A wire between two
+      // parts stacked in one column is short, so this says what it connects even where the wire is hard to see.
+      const source = from && (from.type === 'input' ? nameOf(from) : nameOf(from).split(' ')[0])
       return (
         <span key={port} className="pb-in">
-          {dot(inPort(node.id, port), `${nameOf(node)} 的输入${tag ? ` ${tag}` : ''}${wired ? '（已接，点一下拆掉）' : ''}`, wired ? 'is-in is-wired' : 'is-in is-open')}
+          {dot(inPort(node.id, port), `${nameOf(node)} 的输入${tag ? ` ${tag}` : ''}${from ? `（读 ${nameOf(from)}，点一下拆掉）` : ''}`, from ? 'is-in is-wired' : 'is-in is-open')}
           {tag && <em>{tag}</em>}
+          {source && <b className="pb-src" data-family={familyOf(from.type)}>{source}</b>}
         </span>
       )
     })
@@ -117,13 +121,13 @@ export default function SlotBoard({ graph, values, errors, checks, expected, vie
           const view = nodeView(node, views)
           const big = kindOf(want) === 'signal' ? 96 : 64
           return (
-            <div key={node.id} className={`pb-term is-output ${check ? (check.pass ? 'is-pass' : 'is-fail') : ''}`} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+            <div key={node.id} className={`pb-term is-output ${check && check.pass !== null ? (check.pass ? 'is-pass' : 'is-fail') : ''}`} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
               <span className="pb-ins">{inputs(node)}</span>
               <span className="pb-compare">
                 <figure>{want && <ValueView img={want} view={view} size={big} theme={theme} />}<figcaption>期望</figcaption></figure>
                 <figure>{got ? <ValueView img={got} view={view} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>你的</figcaption></figure>
               </span>
-              <span className="pb-name">{check?.pass ? <Check size={13} /> : <X size={13} />}{nameOf(node)}</span>
+              <span className="pb-name">{check?.pass === null || !check ? null : check.pass ? <Check size={13} /> : <X size={13} />}{nameOf(node)}</span>
             </div>
           )
         })}
