@@ -22,17 +22,17 @@ export const strings = [
     debrief: { title: '最长公共子序列', body: ['你连出的线，从左往右读，就是两串字共有的一串，叫作<b>公共子序列</b>。最多能连几根，就是<b>最长公共子序列</b>的长度。', '它的用途很多：比较两份文件改了哪里、比对两段 DNA 有多像、判断两份作业是不是抄的。', '四五个字还能试出来，可两段 DNA 动辄上万个字母，不可能一根根地试。下一关，把它交给表格。'], note: '公共子序列：两串字里，按顺序都出现的一串。连线不能交叉。' },
   },
   {
-    id: 'lcs', ch: 8, title: '对齐表', short: '让表格替你连线', mode: 'circuit',
+    id: 'lcs', ch: 8, title: '对齐表', short: '让表格替你连线', mode: 'circuit', robot: 'ranger',
     intro: [
       { t: '字一多，连线就很难试全了。我们把它交给一张新的表：<b>对齐表</b>。一个词写在上面，一个词写在左边。', fig: tableFig('ABD', 'BD', () => '', { cls: () => '' }) },
       { t: '格子 (行, 列) 记着：<b>左边词的前「行」个字，和上面词的前「列」个字，最长能连几根线</b>。右下角就是整个答案。', fig: tableFig('ABD', 'BD', [[0, 0, 0, 0], [0, 0, 1, 1], [0, 0, 1, 2]], { cls: (i, j) => (i === 2 && j === 3 ? 'sel' : 'lit') }) },
       { t: '第 0 行和第 0 列表示「一个字都没有」。空的那一边连不出任何线，所以全是 0，机器已经替你填好了。', fig: tableFig('ABD', 'BD', (i, j) => (i && j ? '' : 0), { cls: (i, j) => (i && j ? '' : 'lit') }) },
       { t: '还是只看最后一步。如果这一行和这一列的字<b>相同</b>，就能把它们连一根线：答案是<b>左上角的数 + 1</b>。', fig: tableFig('ABD', 'BD', (i, j) => (i === 2 && j === 3 ? '?' : i === 1 && j === 2 ? 1 : ''), { cls: (i, j) => (i === 2 && j === 3 ? 'sel eq' : i === 1 && j === 2 ? 'lit' : ''), edges: [['1,2', '2,3', 'hot']] }) },
       { t: '如果两个字<b>不同</b>，它们至少有一个连不上线：丢掉这一行的字（看上面），或者丢掉这一列的字（看左边），取较好的那个。', fig: tableFig('ABD', 'BD', (i, j) => (i === 2 && j === 2 ? '?' : i === 1 && j === 2 ? 1 : i === 2 && j === 1 ? 0 : ''), { cls: (i, j) => (i === 2 && j === 2 ? 'sel' : (i === 1 && j === 2) || (i === 2 && j === 1) ? 'lit' : ''), edges: [['1,2', '2,2', 'hot'], ['2,1', '2,2', 'hot']] }) },
-      { t: '机器人的视野里是它左上、上面、左边三个格子，旁边标着这一行、这一列的字。「本格信息」里的「两字相同」告诉你，红框这一行和这一列的字是不是一样。拼一块电路板吧。' },
+      { t: '机器人在对齐表上一格一格地走，视野里看得见它左上、上面、左边的格子（标着 = 的格子，这一行和这一列的字相同）。「本格信息」里的「两字相同」告诉你，红框这一行和这一列的字是不是一样。拼一块电路板吧。' },
     ],
     mission: { goal: '拼出对齐表的电路，算出两个词最长的公共子序列有几个字（两个词里按顺序都出现的一串字）。', how: '前两个测试，就是你上一关亲手连过的两道题。通过后，看看表格里藏着的连线。' },
-    world: 'align', border0: true, taps: ['ul', 'up', 'left', 'same'], palette: KIT, slots: 6,
+    world: 'align', border0: true, facts: ['same'], palette: KIT, slots: 6,
     tests: [{ top: 'CABD', left: 'ABCD' }, { top: 'ABCBDAB', left: 'BDCABA' }, { top: 'GATTACA', left: 'CATTAG' }],
     solution: circ([['k', 'const', 1], ['a', 'add'], ['g', 'pass'], ['m', 'mmax']], ['tap:ul>a:0', 'k>a:1', 'tap:same>g:0', 'a>g:1', 'tap:up>m:0', 'tap:left>m:1', 'g>m:2', 'm>out:cell']),
     hints: [
@@ -57,7 +57,7 @@ export const strings = [
     debrief: { title: '表格替你连好了线', body: ['在对齐表里，<b>每走一次对角线，就是连了一根线</b>。只有字相同才能走对角线，而路线总是从左上走向右下，所以线永远不会交叉。', '7 个字对 6 个字，亲手试要试很久，表格只填了 56 个格子。两段一万个字母的 DNA，也只要填一亿个格子，电脑一眨眼就能算完。'], note: '对齐表：字相同，左上 + 1；不同，取上面和左边中较大的。' },
   },
   {
-    id: 'edit', ch: 8, title: '改错字', short: '每条来路都有代价', mode: 'circuit', uses: ['align'],
+    id: 'edit', ch: 8, title: '改错字', short: '每条来路都有代价', mode: 'circuit', robot: 'ranger', uses: ['align'],
     intro: [
       { t: '输入法会帮你改错字。它要回答一个问题：把一个词改成另一个词，<b>最少要几步</b>？' },
       { t: '每一步只能做一件事：<b>删掉</b>一个字、<b>插入</b>一个字，或者把一个字<b>换成</b>另一个字。比如 CAT → CUT 只要 1 步：把 A 换成 U。', fig: { cells: [...'CAT'].map((ch, i) => ({ id: `a${i}`, x: i * 54, y: 0, w: 44, h: 44, value: ch, cls: i === 1 ? 'tile bad' : 'tile ok' })).concat([...'CUT'].map((ch, i) => ({ id: `b${i}`, x: i * 54, y: 110, w: 44, h: 44, value: ch, cls: i === 1 ? 'tile hot' : 'tile ok' }))), edges: [E('a0', 'b0', 'link'), E('a1', 'b1', 'hot'), E('a2', 'b2', 'link')] } },
@@ -66,7 +66,7 @@ export const strings = [
       { t: '这一次，第 0 行和第 0 列<b>没有现成的数</b>，也要由电路来算。想一想：把原词的前 3 个字改成空词，要几步？两边都是空词时呢？' },
     ],
     mission: { goal: '每一步只能删掉、插入或替换一个字。拼出改错字的电路，算出把一个词改成另一个词的最少步数。', how: '这块电路板要用到好几个元件。通过后，看看表格倒推出的具体改法。' },
-    world: 'align', border0: false, taps: ['ul', 'up', 'left', 'same', 'start'], palette: KIT, slots: 8,
+    world: 'align', border0: false, facts: ['same', 'start'], palette: KIT, slots: 8,
     tests: [{ left: 'CAT', top: 'CUT' }, { left: 'HORSE', top: 'ROS' }, { left: 'KITTEN', top: 'SITTING' }],
     testLabel: t => `${t.left} → ${t.top}`,
     solution: circ([['k', 'const', 1], ['n', 'mmin'], ['a', 'add'], ['z', 'const', 0], ['g0', 'pass'], ['g1', 'pass'], ['m', 'mmin']], [

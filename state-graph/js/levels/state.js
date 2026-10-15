@@ -17,18 +17,18 @@ function robConflict(a) {
 
 export const state = [
   {
-    id: 'robber', ch: 7, title: '不能连着偷', short: '一个数记不住全部', mode: 'circuit',
+    id: 'robber', ch: 7, title: '不能连着偷', short: '一个数记不住全部', mode: 'circuit', robot: 'scout',
     intro: [
       { t: '新的一章，一个新难题。一条街上有一排房子，每家藏着一些钱。小偷<b>不能连着偷相邻的两家</b>，否则会触发警报。最多能偷到多少钱？', fig: { cells: houseRow(STREET), edges: [] } },
       { t: '比如偷 1 号、3 号、5 号，一共 2 + 9 + 1 = <b>12</b>。偷 2 号和 4 号，只有 7 + 3 = 10。', fig: { cells: houseRow(STREET, j => (j % 2 ? 'dimc' : 'hot')), edges: [] } },
-      { t: '这一章的机器人很省内存：<b>它只能看见上一家的格子</b>。视野里左边是上一家的格子，右边红框是这一家；「本格信息」里的「这家的钱」是这家藏的钱。', fig: { cells: [0, 1, 2, 3].map(i => ({ id: `f${i}`, x: i * 62, y: 0, w: 52, h: 52, value: '', corner: i, cls: i === 3 ? 'sel' : i === 2 ? 'lit' : 'dimc' })), edges: [E('f0', 'f1', 'dim'), E('f1', 'f2', 'dim'), E('f2', 'f3', 'hot')] } },
+      { t: '这一章换回老朋友「小方」：它的视野只有 3×3，每到一家，只看得见<b>上一家的格子</b>，看不见更早的。视野里红框是这一家，左边一格是上一家；「本格信息」里的「这家的钱」是这家藏的钱。', fig: { cells: [0, 1, 2, 3].map(i => ({ id: `f${i}`, x: i * 62, y: 0, w: 52, h: 52, value: '', corner: i, cls: i === 3 ? 'sel' : i === 2 ? 'lit' : 'dimc' })), edges: [E('f0', 'f1', 'dim'), E('f1', 'f2', 'dim'), E('f2', 'f3', 'hot')] } },
       { t: '要钱最多，合并时应该取较大，元件里新添了「取较大」汇合器。先试试只用一行格子，每格记「看完前 i 家，最多偷到多少」。<b>如果失败了，请仔细读失败的原因</b>，它会告诉你一件很重要的事。' },
     ],
     mission: { goal: '不能偷相邻的两家，否则会触发警报。算出每条街最多能偷多少钱。', how: '先拼一块电路板试试。这一关的第一次失败在计划之中，请仔细读失败的原因。' },
     tests: [{ a: STREET }, { a: [5, 1, 1, 5] }, { a: [4, 10, 3, 1, 8, 6] }],
     stages: [
       {
-        world: 'rob1', taps: ['prev', 'money'], palette: KIT, fresh: ['mmax'], slots: 6,
+        world: 'rob1', facts: ['money'], palette: KIT, fresh: ['mmax'], slots: 6,
         onFail: ({ L, k, res, advance }) => ({
           head: '一个数记不住全部',
           body: `第 ${k + 1} 条街最多能偷 <b>${L.expected[k]}</b>，机器算出了 <b>${res.value ?? '—'}</b>。可这次的问题不在电路：只要每家只有一个格子，怎么拼都会出错。看这个反例：`,
@@ -38,9 +38,9 @@ export const state = [
         }),
       },
       {
-        world: 'rob2', taps: ['pn', 'pr', 'money'], palette: KIT, slots: 6,
+        world: 'rob2', facts: ['money'], palette: KIT, slots: 6,
         unlockToast: '解锁了「分层」：现在每家有三个格子',
-        tip: '现在每家有三个格子：「这家没偷」「这家偷了」「最多偷到」。视野里左边一列是上一家的三个格子，点亮「没偷」「偷了」就能读它们。第 0 家还没开始：没偷 = 0，偷了 = —（不可能）。',
+        tip: '现在每家有三个格子，机器人站在中间那一格上。视野里一列红框从上到下是「这家没偷」「这家偷了」「最多偷到」；左边一列是上一家的三格。第 0 家还没开始：没偷 = 0，偷了 = —（不可能）。',
         solution: circ([['n', 'mmax'], ['a', 'add'], ['b', 'mmax']], ['tap:pn>n:0', 'tap:pr>n:1', 'tap:pn>a:0', 'tap:money>a:1', 'n>b:0', 'a>b:1', 'n>out:no', 'a>out:yes', 'b>out:best']),
         hints: [
           '这家不偷的话，上一家偷没偷都可以：没偷 = 取较大（上家没偷，上家偷了）。',
@@ -66,7 +66,7 @@ export const state = [
     debrief: { title: '你找到了一个反例', body: ['两条路线停在同一格，只记位置的计数器会把它们存进同一个格子。可一条带着钥匙、一条空着手，下一步一个能过门、一个过不去。', '<b>状态相同、未来不同</b>，这就是状态设计有漏洞的铁证。', '修好它的办法你已经知道了：让状态多记一件事。下一关，把迷宫叠成两层。'], note: '反例：两段历史落进同一个状态，未来却不一样。' },
   },
   {
-    id: 'keydoor', ch: 7, title: '钥匙与门', short: '把棋盘叠成两层', mode: 'circuit', uses: ['counter', 'layer'],
+    id: 'keydoor', ch: 7, title: '钥匙与门', short: '把棋盘叠成两层', mode: 'circuit', robot: 'twin', uses: ['counter', 'layer'],
     intro: [
       { t: '要修好计数器，就让状态多记一件事：<b>有没有钥匙</b>。办法是把棋盘复制一份，叠成两层。', fig: layerFig() },
       { t: '上层装着「没钥匙」的路线，下层装着「有钥匙」的路线。所有路线都从<b>上层的起点</b>出发。' },
@@ -75,7 +75,7 @@ export const state = [
       { t: '你要想清楚三件事：两层的门分别怎么处理？钥匙格上，上层的路线要去哪？下层怎么接住它们？两个路线计数器，加上几道闸门和一个汇合器，就够了。' },
     ],
     mission: { goal: '只能往右或往下走，穿过门之前必须拿过钥匙。让两层电路算对每张地图上的合法路线数。', how: '合法路线只能往右或往下走，穿过门之前必须拿过钥匙。终点的答案 = 上层终点 + 下层终点。' },
-    world: 'key', taps: ['tu', 'tl', 'bu', 'bl', 'start', 'key', 'door'], palette: ['bp:stamp', ...KIT], slots: 8,
+    world: 'key', facts: ['start', 'key', 'door'], palette: ['bp:stamp', ...KIT], slots: 8,
     tests: KEY_MAPS,
     solution: circ([['c1', 'bp:stamp'], ['t', 'block'], ['u', 'block'], ['c2', 'bp:stamp'], ['g', 'pass'], ['m', 'msum']], [
       'tap:tu>c1:0', 'tap:tl>c1:1', 'tap:start>c1:2', 'tap:door>t:0', 'c1>t:1', 'tap:key>u:0', 't>u:1', 'u>out:top',

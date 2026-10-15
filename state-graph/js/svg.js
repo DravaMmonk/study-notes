@@ -1,9 +1,9 @@
 // SVG board drawing: scenes are { cells, edges, texts?, paths?, robot? } in board units, scaled to fit.
-// `robot` is the id of the cell the robot stands on; it is drawn perched on that cell's top edge.
+// `robot` is the id (or ids) of the cell the robot stands on, drawn perched on its top edge; `look` picks the robot's picture.
 
 import { fmt } from './util.js';
 import { buildTree } from './algo.js';
-import { ROBOT } from './circuit/glyphs.js';
+import { ROBOTS } from './circuit/robots.js';
 
 let svgSeq = 0;
 const f1 = v => Math.round(v * 10) / 10;
@@ -59,8 +59,8 @@ export function sceneSVG(scene, opt = {}) {
     x0 = Math.min(x0, lx); x1 = Math.max(x1, lx + w); y0 = Math.min(y0, t.y - 14); y1 = Math.max(y1, t.y + 5);
   }
   for (const p of scene.paths || []) if (p.box) { x0 = Math.min(x0, p.box[0]); y0 = Math.min(y0, p.box[1]); x1 = Math.max(x1, p.box[2]); y1 = Math.max(y1, p.box[3]); }
-  const bot = scene.robot && by[scene.robot] ? { x: by[scene.robot].x + by[scene.robot].w / 2 - 22, y: by[scene.robot].y - by[scene.robot].h / 2 - 20 } : null;
-  if (bot) { y0 = Math.min(y0, bot.y); x1 = Math.max(x1, bot.x + 30); }
+  const bots = [].concat(scene.robot || []).filter(id => by[id]).map(id => ({ x: by[id].x + by[id].w / 2 - 22, y: by[id].y - by[id].h / 2 - 20 }));
+  bots.forEach(b => { y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + 30); });
   const pathSVG = (scene.paths || []).map(p => `<path class="edge ${p.cls}" d="${p.d}"${MARKED.has(p.cls) ? ` marker-end="url(#${uid}-${p.cls})"` : ''}/>`).join('');
   const textSVG = (scene.texts || []).map(t => `<text class="tx ${t.cls || ''}" x="${t.x}" y="${t.y}" text-anchor="${t.anchor || 'middle'}">${t.t}</text>`).join('');
   const pairs = new Set(edges.map(e => `${e.a}>${e.b}`));
@@ -70,7 +70,7 @@ export function sceneSVG(scene, opt = {}) {
     <pattern id="${uid}-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" style="fill:var(--chip)"/><rect width="3" height="8" style="fill:var(--wire)"/></pattern></defs>`;
   const minW = opt.minScale ? `min-width:${Math.round(vw * opt.minScale)}px;` : '';
   const maxW = opt.maxScale ? `max-width:${Math.round(vw * opt.maxScale)}px;margin:0 auto;` : '';
-  return `<svg class="board-svg" viewBox="${f1(x0 - pad)} ${f1(y0 - pad)} ${f1(vw)} ${f1(vh)}" width="100%" style="${minW}${maxW}" role="img" aria-label="${opt.label || '示意图'}">${defs}<g>${edges.map(e => edgeSVG(by[e.a], by[e.b], e, pairs.has(`${e.b}>${e.a}`), uid)).join('')}</g><g>${cells.map(c => cellSVG(c, uid)).join('')}</g>${pathSVG}${textSVG}${bot ? `<svg class="robot" x="${f1(bot.x)}" y="${f1(bot.y)}" width="30" height="30" viewBox="0 0 32 32">${ROBOT}</svg>` : ''}</svg>`;
+  return `<svg class="board-svg" viewBox="${f1(x0 - pad)} ${f1(y0 - pad)} ${f1(vw)} ${f1(vh)}" width="100%" style="${minW}${maxW}" role="img" aria-label="${opt.label || '示意图'}">${defs}<g>${edges.map(e => edgeSVG(by[e.a], by[e.b], e, pairs.has(`${e.b}>${e.a}`), uid)).join('')}</g><g>${cells.map(c => cellSVG(c, uid)).join('')}</g>${pathSVG}${textSVG}${bots.map(b => `<svg class="robot" x="${f1(b.x)}" y="${f1(b.y)}" width="30" height="30" viewBox="0 0 32 32">${scene.look || ROBOTS.scout.look}</svg>`).join('')}</svg>`;
 }
 
 /* ---------- reusable scene shapes ---------- */

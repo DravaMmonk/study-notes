@@ -4,6 +4,8 @@ import { gridScene } from '../svg.js';
 import { WORLDS, runCircuit } from '../circuit/worlds.js';
 import { BLUEPRINTS } from '../circuit/components.js';
 import { PARTS } from './parts.js';
+import { ROBOTS } from '../circuit/robots.js';
+import { visionFig } from './figs.js';
 import { basics } from './basics.js';
 import { machines } from './machines.js';
 import { state } from './state.js';
@@ -24,6 +26,15 @@ function registerBlueprint(L, i) {
     circuit: L.solution,
   };
 }
+
+/** The first level that uses a robot model introduces it: the very first one meets you, later ones are upgrades. */
+const met = new Set();
+LEVELS.filter(L => L.mode === 'circuit').forEach(L => {
+  if (met.has(L.robot)) return;
+  const r = ROBOTS[L.robot], n = 2 * r.vision + 1;
+  L.intro = [{ t: `${met.size ? '机器人升级了！新型号' : '认识你的机器人'}：<b>「${r.name}」</b>。${r.desc}图里蓝框是它的视野（${n}×${n}），红框是它脚下的格子。`, fig: visionFig(L.robot) }, ...L.intro];
+  met.add(L.robot);
+});
 
 LEVELS.forEach((L, i) => {
   if (L.mode === 'fill' && L.grid) {
