@@ -147,7 +147,7 @@ export function viewHTML(circ, ui) {
   const cellHTML = (x, opts = {}) => {
     const can = !!x.tap && ui.avail.includes(x.tap), on = can && lit.includes(x.tap);
     const cls = ['vcell', x.cls, x.key === null ? 'off' : '', can ? 'can' : '', on ? 'on' : '', x.out ? 'self' : '', x.state].filter(Boolean).join(' ');
-    const inner = `${x.corner !== '' && x.corner !== undefined && x.key !== null ? `<span class="vc">${x.corner}</span>` : ''}<span class="vv">${x.key === null ? '' : x.value}</span>${on ? tag(x.tap) : ''}${opts.bot ? `<svg class="vbot" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg>` : ''}${opts.label ? `<span class="vl">${opts.label}</span>` : ''}`;
+    const inner = `${x.corner !== '' && x.corner !== undefined && x.key !== null ? `<span class="vc">${x.corner}</span>` : ''}<span class="vv">${x.key === null ? '界外' : x.value}</span>${on ? tag(x.tap) : ''}${opts.bot ? `<svg class="vbot" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg>` : ''}${opts.label ? `<span class="vl">${opts.label}</span>` : ''}`;
     const style = opts.area ? ` style="grid-area:${opts.area}"` : '';
     return can
       ? `<button class="${cls}" type="button"${style} data-act="lit" data-t="${x.tap}" aria-pressed="${on}" aria-label="${on ? '取消输入' : '点亮输入'} ${ui.taps[x.tap].label}">${inner}</button>`

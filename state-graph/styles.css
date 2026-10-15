@@ -409,7 +409,6 @@ button:disabled{cursor:not-allowed}
 .vcell .vv{font-variant-numeric:tabular-nums}
 .vcell .vc{position:absolute;left:2px;top:0;font:600 8px var(--f-mono);color:var(--ink-3)}
 .n5 .vcell .vc{display:none}
-.vcell.off{background:transparent;border-style:dotted;border-color:var(--line);opacity:.4}
 .vcell.rock{background:repeating-linear-gradient(45deg,var(--chip) 0 4px,var(--wire) 4px 6px)}
 .vcell.house{background:var(--panel);border-color:var(--line)}
 .vcell.house .vv{color:var(--signal)}
@@ -417,6 +416,9 @@ button:disabled{cursor:not-allowed}
 .vcell.eq .vc{color:var(--cyan)}
 .vcell.can{opacity:1;cursor:pointer;border-style:dashed;border-color:var(--wire)}
 .vcell.can:active{transform:scale(.92)}
+.vcell.off{background:repeating-linear-gradient(135deg,transparent 0 3px,var(--line) 3px 4px);border-style:dotted;border-color:var(--line)}
+.vcell.off .vv{font:600 8px var(--f-body);color:var(--ink-3)}
+.n5 .vcell.off .vv{font-size:7px}
 .vcell.on{border:2.2px solid var(--cyan);background:var(--cyan-soft)}
 .vcell.self{opacity:1;border:2.2px solid var(--bad)}
 .vcell.self.on{box-shadow:inset 0 0 0 2px var(--cyan)}
