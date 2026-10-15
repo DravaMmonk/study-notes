@@ -345,12 +345,19 @@ button:disabled{cursor:not-allowed}
 .cedit{display:grid;gap:10px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .cmain{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
 /* Phones: the robot's window first (that is where inputs come from), then the board at full width. */
-.cmain>.cview{order:-1;justify-self:stretch;max-width:none;grid-template-columns:auto minmax(0,1fr);grid-template-areas:'head win' 'note win' 'facts win' 'arm arm';justify-items:start;align-items:start;column-gap:14px;padding:10px 12px}
-.cmain>.cview .vhead{grid-area:head}.cmain>.cview .vnote{grid-area:note;text-align:left;max-width:9.5em}.cmain>.cview .vblock{grid-area:win;justify-self:end}.cmain>.cview .vfacts{grid-area:facts}.cmain>.cview .varm{grid-area:arm;justify-self:center}
+.cmain>.cview{order:-1;justify-self:stretch;max-width:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:'head facts' 'note facts' 'wins wins' 'arm arm';justify-items:start;align-items:start;gap:8px 12px;padding:10px 12px}
+.cmain>.cview .vhead{grid-area:head}.cmain>.cview .vnote{grid-area:note;text-align:left;text-wrap:balance}.cmain>.cview .vwins{grid-area:wins;justify-self:stretch}.cmain>.cview .vfacts{grid-area:facts;justify-self:stretch}.cmain>.cview .varm{grid-area:arm;justify-self:center}
+.vwins{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 16px}
 .cboard{position:relative;min-width:0;border-radius:14px;background:var(--board);border:1px solid var(--line);padding:12px 8px 16px}
 .clayer{position:relative;display:grid;gap:26px}
-.cwires{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
-.cboard{--kw-halo:var(--board)}
+/* Wires run over the cards, each on a pale casing the colour of a card, so it reads as lying on top; the dots
+   sit above the wires so they stay easy to hit. */
+.cwires{position:absolute;left:0;top:0;z-index:2;pointer-events:none;overflow:visible}
+.cboard{--kw-halo:var(--panel)}
+.cwires .kw-halo{stroke-width:6px;opacity:.85}
+.cnode.lift{z-index:30}
+/* On touch screens a wire over a card must not swallow the tap meant for the card: wires are unplugged at their input dot there. */
+@media (pointer:coarse){.cwires .kw-hit{pointer-events:none}}
 .kw.is-bool .kw-line{stroke-width:2px}
 .cdel{min-height:30px;padding:0 10px;border-radius:9px;background:var(--bad);color:var(--panel);font:600 12.5px var(--f-body)}
 .cempty{flex:1;margin:0;padding:10px 6px;border-radius:10px;border:1px dashed var(--line);font-size:12px;color:var(--ink-3);text-align:center}
@@ -424,11 +431,11 @@ button:disabled{cursor:not-allowed}
 .vcell .vv{font-variant-numeric:tabular-nums}
 .vcell .vc{position:absolute;left:2px;top:0;font:600 8px var(--f-mono);color:var(--ink-3)}
 .n5 .vcell .vc{display:none}
-.vcell.rock{background:repeating-linear-gradient(45deg,var(--chip) 0 4px,var(--wire) 4px 6px)}
-.vcell.house{background:var(--panel);border-color:var(--line)}
-.vcell.house .vv{color:var(--signal)}
-.vcell.key{border-color:var(--signal)} .vcell.door{border-color:var(--t3);border-style:dashed}
-.vcell.eq .vc{color:var(--cyan)}
+.vcell.v-rock{background:repeating-linear-gradient(45deg,var(--chip) 0 4px,var(--wire) 4px 6px)}
+.vcell.v-house{background:var(--panel);border-color:var(--line)}
+.vcell.v-house .vv{color:var(--signal)}
+.vcell.v-key{border-color:var(--signal)} .vcell.v-door{border-color:var(--t3);border-style:dashed}
+.vcell.v-eq .vc{color:var(--cyan)}
 .vcell.can{opacity:1;cursor:pointer;border-style:dashed;border-color:var(--wire)}
 .vcell.can:active{transform:scale(.92)}
 .vcell.off{background:repeating-linear-gradient(135deg,transparent 0 3px,var(--line) 3px 4px);border-style:dotted;border-color:var(--line)}
@@ -437,8 +444,8 @@ button:disabled{cursor:not-allowed}
 .vcell.on{border:2.2px solid var(--cyan);background:var(--cyan-soft)}
 .vcell.self{opacity:1;border:2.2px solid var(--bad)}
 .vcell.self.on{box-shadow:inset 0 0 0 2px var(--cyan)}
-.vcell.read{box-shadow:0 0 0 2px var(--signal)}
-.vcell.empty{background:var(--bad-soft);box-shadow:0 0 0 2px var(--bad)}
+.vcell.v-read{box-shadow:0 0 0 2px var(--signal)}
+.vcell.v-empty{background:var(--bad-soft);box-shadow:0 0 0 2px var(--bad)}
 .vcell .tag{position:absolute;right:-6px;top:-7px;transform:scale(.8);z-index:2}
 .n5 .vcell .tag{transform:scale(.68);right:-7px;top:-8px}
 .vcell .vl{position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);font:600 9px var(--f-body);color:var(--ink-3);white-space:nowrap}

@@ -151,7 +151,9 @@ export function viewHTML(circ, ui) {
   const tag = id => `<span class="tag" style="--c:${sourceColor(ui, `tap:${id}`)}">${ui.taps[id].short}</span>`;
   const cellHTML = (x, opts = {}) => {
     const can = !!x.tap && ui.avail.includes(x.tap), on = can && lit.includes(x.tap);
-    const cls = ['vcell', x.cls, x.key === null ? 'off' : '', can ? 'can' : '', on ? 'on' : '', x.out ? 'self' : '', x.state].filter(Boolean).join(' ');
+    // World marks (key, door, rock…) and read states get a v- prefix, so page-wide rules such as the keypad's .key or
+    // the empty-state .empty never reach a cell.
+    const cls = ['vcell', ...String(x.cls || '').split(' ').filter(Boolean).map(c => `v-${c}`), x.key === null ? 'off' : '', can ? 'can' : '', on ? 'on' : '', x.out ? 'self' : '', x.state && `v-${x.state}`].filter(Boolean).join(' ');
     const inner = `${x.corner !== '' && x.corner !== undefined && x.key !== null ? `<span class="vc">${x.corner}</span>` : ''}<span class="vv">${x.key === null ? '界外' : x.value}</span>${on ? tag(x.tap) : ''}${opts.bot ? `<svg class="vbot" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg>` : ''}${opts.label ? `<span class="vl">${opts.label}</span>` : ''}`;
     const style = opts.area ? ` style="grid-area:${opts.area}"` : '';
     return can
@@ -167,7 +169,7 @@ export function viewHTML(circ, ui) {
   }).join('');
   return `<div class="vhead"><svg class="vlook" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg><div><b>${w.robot.name}</b><small>视野 ${w.wins[0].n}×${w.wins[0].n}${w.robot.arm ? ' · 伸缩臂' : ''}</small></div></div>
     <div class="vnote">${w.note} · 点格子选输入</div>
-    ${wins}${arm}
+    <div class="vwins">${wins}</div>${arm}
     ${facts ? `<div class="vfacts"><span class="vsub">本格信息</span>${facts}</div>` : ''}`;
 }
 
