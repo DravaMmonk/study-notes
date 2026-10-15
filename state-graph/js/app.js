@@ -89,7 +89,7 @@ function refresh() {
   const a = document.activeElement, sig = a && a.dataset && a.closest && a.closest('#panel, #board') && (a.dataset.act || a.dataset.test) ? focusSig(a) : null;
   renderMission();
   renderTests();
-  // On a desktop the robot's window sits in the side column, under the tests.
+  // On a desktop the robot's window sits in the side column, under the test board.
   $('#view').innerHTML = cur.ctl.sideView && wide() ? '<aside class="cview" id="cview"></aside>' : '';
   renderBoard();
   $('#panel').innerHTML = cur.ctl.panel();

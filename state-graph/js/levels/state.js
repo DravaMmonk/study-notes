@@ -28,7 +28,7 @@ export const state = [
     tests: [{ a: STREET }, { a: [5, 1, 1, 5] }, { a: [4, 10, 3, 1, 8, 6] }],
     stages: [
       {
-        world: 'rob1', facts: ['money'], palette: KIT, fresh: ['mmax'], slots: 6,
+        world: 'rob1', facts: ['money'], palette: KIT, fresh: ['mmax'],
         onFail: ({ L, k, res, advance }) => ({
           head: '一个数记不住全部',
           body: `第 ${k + 1} 条街最多能偷 <b>${L.expected[k]}</b>，机器算出了 <b>${res.value ?? '—'}</b>。可这次的问题不在电路：只要每家只有一个格子，怎么拼都会出错。看这个反例：`,
@@ -38,7 +38,7 @@ export const state = [
         }),
       },
       {
-        world: 'rob2', facts: ['money'], palette: KIT, slots: 6,
+        world: 'rob2', facts: ['money'], palette: KIT,
         unlockToast: '解锁了「分层」：现在每家有三个格子',
         tip: '现在每家有三个格子，机器人站在中间那一格上。视野里一列红框从上到下是「这家没偷」「这家偷了」「最多偷到」；左边一列是上一家的三格。第 0 家还没开始：没偷 = 0，偷了 = —（不可能）。',
         solution: circ([['n', 'mmax'], ['a', 'add'], ['b', 'mmax']], ['tap:pn>n:0', 'tap:pr>n:1', 'tap:pn>a:0', 'tap:money>a:1', 'n>b:0', 'a>b:1', 'n>out:no', 'a>out:yes', 'b>out:best']),
@@ -75,7 +75,7 @@ export const state = [
       { t: '你要想清楚三件事：两层的门分别怎么处理？钥匙格上，上层的路线要去哪？下层怎么接住它们？两个路线计数器，加上几道闸门和一个汇合器，就够了。' },
     ],
     mission: { goal: '只能往右或往下走，穿过门之前必须拿过钥匙。让两层电路算对每张地图上的合法路线数。', how: '合法路线只能往右或往下走，穿过门之前必须拿过钥匙。终点的答案 = 上层终点 + 下层终点。' },
-    world: 'key', facts: ['start', 'key', 'door'], palette: ['bp:stamp', ...KIT], slots: 8,
+    world: 'key', facts: ['start', 'key', 'door'], palette: ['bp:stamp', ...KIT],
     tests: KEY_MAPS,
     solution: circ([['c1', 'bp:stamp'], ['t', 'block'], ['u', 'block'], ['c2', 'bp:stamp'], ['g', 'pass'], ['m', 'msum']], [
       'tap:tu>c1:0', 'tap:tl>c1:1', 'tap:start>c1:2', 'tap:door>t:0', 'c1>t:1', 'tap:key>u:0', 't>u:1', 'u>out:top',

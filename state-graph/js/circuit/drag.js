@@ -1,5 +1,5 @@
-// Pointer dragging for the circuit editor: move a component to another cell, drag a new one in from the parts list,
-// pull a wire from one port to another. Touch drags start after a short hold, so a quick swipe still scrolls.
+// Pointer dragging for the circuit editor: move any piece (component, input or output terminal) to a new spot,
+// drag a new component in from the parts list, pull a wire from one port to another. Touch drags start after a short hold, so a quick swipe still scrolls.
 // The shell enables it once on the level screen; the open level supplies the handlers (or none).
 
 import { buzz } from '../util.js';
@@ -19,9 +19,10 @@ function scrollParent(el) {
 }
 
 /**
- * handlers() → { start(g), move(g), drop(g), end() } | null, where g = { kind: 'node' | 'tray' | 'port', id, x, y, over }.
- * `over` is the element under the pointer: a cell [data-at], the parts list [data-trash], or for a wire a port [data-p]
- * or a component card [data-drag] (the level picks the card's free input).
+ * handlers() → { start(g), move(g), drop(g), end() } | null, where g = { kind: 'node' | 'tray' | 'port', id, x, y, dx, dy, over }.
+ * A 'node' drag moves any [data-drag] piece; dx, dy is how far it moved in the piece's own (unscaled) pixels.
+ * `over` is the element under the pointer: the parts list [data-trash] for a piece, the board [data-canvas] for a new
+ * component, or for a wire a port [data-p] or a piece [data-drag] (the level picks the port).
  */
 export function enableDrag(root, handlers) {
   let g = null;
@@ -37,7 +38,7 @@ export function enableDrag(root, handlers) {
     const el = document.elementFromPoint(x, y);
     if (!el) return null;
     if (g.kind === 'port') return el.closest('[data-p]') || el.closest('[data-drag]');
-    return el.closest('[data-at]') || (g.kind === 'node' ? el.closest('[data-trash]') : null);
+    return g.kind === 'node' ? el.closest('[data-trash]') : el.closest('[data-canvas]');
   };
 
   function start() {
@@ -57,7 +58,9 @@ export function enableDrag(root, handlers) {
   function update() {
     const over = overAt(g.x, g.y);
     if (over !== g.over) { if (g.over) g.over.classList.remove('over'); if (over) over.classList.add('over'); g.over = over; }
-    if (g.kind === 'node') g.el.style.transform = `translate(${g.x - g.x0}px, ${g.y - g.y0 + g.scroller.scrollTop - g.st0}px)`;
+    g.dx = (g.x - g.x0) / g.sc;
+    g.dy = (g.y - g.y0 + g.scroller.scrollTop - g.st0) / g.sc;
+    if (g.kind === 'node') g.el.style.transform = `translate(${g.dx}px, ${g.dy}px)`;
     if (g.ghost) g.ghost.style.transform = `translate(${g.x - 40}px, ${g.y - 26}px)`;
     g.h.move(g);
   }
@@ -111,7 +114,7 @@ export function enableDrag(root, handlers) {
     const t = target(e.target);
     if (!t) return;
     const touch = e.pointerType !== 'mouse', scroller = scrollParent(t.el);
-    g = { ...t, h, scroller, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
+    g = { ...t, h, scroller, sc: t.el.getBoundingClientRect().width / t.el.offsetWidth || 1, dx: 0, dy: 0, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
     if (touch) g.timer = setTimeout(() => { if (g && !g.on) { g.armed = true; root.classList.add('armed'); g.el.classList.add('armed'); buzz(6); } }, HOLD);
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);

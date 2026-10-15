@@ -29,7 +29,7 @@ export const knapsack = [
       { t: '这一关的机器人「长臂」站在 (第 i 行, 容量 w) 上。正上方的格子在视野里就能看到；可往左「重量」格可能很远，视野装不下。这就要用它的<b>伸缩臂</b>：视野下面的「伸缩臂」会伸到往左「这件物品的重量」格，上一行、本行各读一格。「本格信息」里是这件物品的「物品价值」。' },
     ],
     mission: { goal: '总重量不能超过容量，每件物品最多拿一次。拼出背包表的电路，算出每个背包最多能装多少价值。', how: '前两个测试，就是你上一关亲手装过的背包。通过后，绿色格子是倒推出的装法。' },
-    world: 'knap', facts: ['value'], palette: KIT, slots: 6,
+    world: 'knap', facts: ['value'], palette: KIT,
     tests: [PACK_A, PACK_B, PACK_C],
     solution: circ([['a', 'add'], ['m', 'mmax']], ['tap:upk>a:0', 'tap:value>a:1', 'tap:up>m:0', 'a>m:1', 'm>out:cell']),
     hints: [
@@ -56,7 +56,7 @@ export const knapsack = [
       { t: '真正的难点是机器上的两个<b>方向开关</b>：处理一件物品时，从左往右改写，还是从右往左？给两种背包各拨一个方向。' },
     ],
     mission: { goal: '一种背包每件最多拿一次，另一种每件可以拿很多次，总重量都不能超过容量。拼好电路，再为两种背包各拨一个方向，让四个测试都算对。', how: '方向开关在电路板下面。黄色是正在改写的格子；红色表示读到了这一轮刚改过的值。' },
-    world: 'roll', facts: ['value'], palette: KIT, slots: 6, noTrace: true,
+    world: 'roll', facts: ['value'], palette: KIT, noTrace: true,
     dirs: { '01': 'asc', inf: 'desc' }, solutionDirs: { '01': 'desc', inf: 'asc' },
     tests: [
       { kind: '01', W: 6, items: [{ n: '罐头', w: 1, v: 1 }, { n: '雨衣', w: 3, v: 4 }, { n: '毯子', w: 4, v: 5 }] },

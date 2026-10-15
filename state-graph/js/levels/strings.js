@@ -32,7 +32,7 @@ export const strings = [
       { t: '机器人在对齐表上一格一格地走，视野里看得见它左上、上面、左边的格子（标着 = 的格子，这一行和这一列的字相同）。「本格信息」里的「两字相同」告诉你，红框这一行和这一列的字是不是一样。拼一块电路板吧。' },
     ],
     mission: { goal: '拼出对齐表的电路，算出两个词最长的公共子序列有几个字（两个词里按顺序都出现的一串字）。', how: '前两个测试，就是你上一关亲手连过的两道题。通过后，看看表格里藏着的连线。' },
-    world: 'align', border0: true, facts: ['same'], palette: KIT, slots: 6,
+    world: 'align', border0: true, facts: ['same'], palette: KIT,
     tests: [{ top: 'CABD', left: 'ABCD' }, { top: 'ABCBDAB', left: 'BDCABA' }, { top: 'GATTACA', left: 'CATTAG' }],
     solution: circ([['k', 'const', 1], ['a', 'add'], ['g', 'pass'], ['m', 'mmax']], ['tap:ul>a:0', 'k>a:1', 'tap:same>g:0', 'a>g:1', 'tap:up>m:0', 'tap:left>m:1', 'g>m:2', 'm>out:cell']),
     hints: [
@@ -66,7 +66,7 @@ export const strings = [
       { t: '这一次，第 0 行和第 0 列<b>没有现成的数</b>，也要由电路来算。想一想：把原词的前 3 个字改成空词，要几步？两边都是空词时呢？' },
     ],
     mission: { goal: '每一步只能删掉、插入或替换一个字。拼出改错字的电路，算出把一个词改成另一个词的最少步数。', how: '这块电路板要用到好几个元件。通过后，看看表格倒推出的具体改法。' },
-    world: 'align', border0: false, facts: ['same', 'start'], palette: KIT, slots: 8,
+    world: 'align', border0: false, facts: ['same', 'start'], palette: KIT,
     tests: [{ left: 'CAT', top: 'CUT' }, { left: 'HORSE', top: 'ROS' }, { left: 'KITTEN', top: 'SITTING' }],
     testLabel: t => `${t.left} → ${t.top}`,
     solution: circ([['k', 'const', 1], ['n', 'mmin'], ['a', 'add'], ['z', 'const', 0], ['g0', 'pass'], ['g1', 'pass'], ['m', 'mmin']], [
