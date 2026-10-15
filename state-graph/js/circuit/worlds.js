@@ -7,6 +7,7 @@
 // World interface (built with world()):
 //   taps: { id: { label, short, type, icon?, off? } }   off = [layer, dr, dc] for a cell near the robot
 //   facts: tap ids that describe the robot's own cell   armTaps?: taps read by the telescopic arm
+//   shown?(L, dr, dc) → true for an offset the robot sees but cannot light (e.g. a fact drawn on the board)
 //   outs: [[id, label, [layer, dr, dc]]]               the cells the robot writes
 //   here(t, cell) → [[r, c] per layer]   keyAt(t, layer, r, c) → table key | null   mark?(t, key) → { corner, cls }
 //   fact(t, cell, id, get) → value of a non-offset tap  arm?(t, cell) → { label, cells: [{ tap, key, label }] }
@@ -40,7 +41,7 @@ function world(def) {
   layers.forEach((ln, L) => {
     for (let dr = -REACH; dr <= REACH; dr++) for (let dc = -REACH; dc <= REACH; dc++) {
       const k = `${L},${dr},${dc}`;
-      if (tapAt[k] || outAt.has(k) || (!dr && !dc)) continue;
+      if (tapAt[k] || outAt.has(k) || (!dr && !dc) || (def.shown && def.shown(L, dr, dc))) continue;
       const [label, short, arrow] = dirName(dr, dc);
       taps[`o${L}_${dr}_${dc}`] = layers.length > 1 ? cell(`${ln}·${label}`, ln[0] + arrow, [L, dr, dc]) : cell(label, short, [L, dr, dc]);
       tapAt[k] = `o${L}_${dr}_${dc}`;
@@ -227,11 +228,13 @@ function robPlan(a) {
   return plan;
 }
 
-/** rows: [[outId, label, value before house 1]]; the robot stands on the middle row of its column. */
+/** rows: [[outId, label, value before house 1]]; the robot stands on the middle row of its column.
+ *  The houses' money is drawn on the board's top row but is read only as the fact 「这家的钱」. */
 const street = (rows, taps) => {
   const mid = Math.floor((rows.length - 1) / 2), V = world({
     taps: { ...taps, money: num('这家的钱', '钱', 'coin') },
     facts: ['money'],
+    shown: (L, dr) => dr === -1 - mid,
     outs: rows.map(([id, label], r) => [id, label, [0, r - mid, 0]]),
     here: (t, { i }) => [[1 + mid, i]],
     keyAt: (t, L, r, c) => (r === 0 ? (c >= 1 && c <= t.a.length ? `h:${c}` : null) : r <= rows.length && c >= 0 && c <= t.a.length ? `${r - 1}:${c}` : null),
