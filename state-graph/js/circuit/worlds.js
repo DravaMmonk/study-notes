@@ -12,7 +12,7 @@
 //   fact(t, cell, id, get) → value of a non-offset tap  arm?(t, cell) → { label, cells: [{ tap, key, label }] }
 //   base(t, o) → [[key, value]]   order(t, o) → [cell]   keys(t, cell) → { outId: key }
 //   answer(t, table, o)   where(cell) / name(key) / label(t) / orderText(o)   inspect?: false when cells cannot be tapped
-//   sample(t, o) → cell   the robot's spot while idle (the test bench)
+//   sample(t, o) → cell   where the robot waits before a run   cellOf(t, key, o) → cell the robot can stand on
 //   scene(t, view, o) → board scene (with `robot` on the cell being computed)
 
 import { E } from '../svg.js';
@@ -46,7 +46,9 @@ function world(def) {
       tapAt[k] = `o${L}_${dr}_${dc}`;
     }
   });
-  return { ...def, layers, taps, tapAt };
+  /** The robot's cell for a board cell the player tapped, or null when the robot cannot stand there. */
+  const cellOf = (t, key, o) => def.order(t, o).find(c => Object.values(def.keys(t, c)).includes(key)) || null;
+  return { cellOf, ...def, layers, taps, tapAt };
 }
 
 /** Taps a robot with this vision can light: the cells it sees, in board order. */
@@ -97,31 +99,46 @@ export function runCircuit(V, t, circ, o = {}) {
 /* ---------- board marking shared by every world ---------- */
 
 /**
- * view = { res, k, end, halt, pass, focus } (null before a run: only the world's pre-filled cells show);: k steps are shown; `halt` marks a stop at a wrong step;
+ * view = { res, k, end, halt, pass, focus }: k steps are shown; `halt` marks a stop at a wrong step;
  * `focus` is a step the player tapped to inspect after the run.
+ * bench (no view): the board as a sandbox = { cell, at, shown, reads, empty, typed, sel } — the robot stands on `cell`,
+ * `shown` holds the typed numbers plus the robot's live output; `empty` are read cells that hold nothing.
  */
-function look(view, answerKeys, base = []) {
-  if (!view) {
+function look(view, answerKeys, base = [], bench = null) {
+  if (!view && !bench) {
     const shown = new Map(base);
-    return { shown, act: null, robot: null, reads: new Set(), cls: key => (shown.has(key) ? 'lit' : ''), val: key => (shown.has(key) ? signal(shown.get(key)) : ''), arrows: () => [] };
+    return { shown, act: null, robot: null, reads: new Set(), cls: key => (shown.has(key) ? 'lit' : ''), val: key => (shown.has(key) ? signal(shown.get(key)) : ''), arrows: () => [], tap: () => false };
   }
-  const { res, k } = view, shown = new Map(res.base);
-  res.steps.slice(0, k).forEach(s => (s.writes || []).forEach(([key, v]) => shown.set(key, v)));
-  const focused = view.focus !== null && view.focus !== undefined;
-  const ai = focused ? view.focus : view.halt || !view.end ? k - 1 : -1, act = ai >= 0 ? res.steps[ai] : null, last = res.steps[k - 1];
-  const actCls = focused ? 'sel' : view.halt ? 'bad' : 'hot', reads = new Set(act ? act.reads : []), done = view.end && !view.halt;
+  let shown, act, actCls, done = false, last = null;
+  if (view) {
+    const { res, k } = view, focused = view.focus !== null && view.focus !== undefined;
+    shown = new Map(res.base);
+    res.steps.slice(0, k).forEach(s => (s.writes || []).forEach(([key, v]) => shown.set(key, v)));
+    const ai = focused ? view.focus : view.halt || !view.end ? k - 1 : -1;
+    act = ai >= 0 ? res.steps[ai] : null;
+    last = res.steps[k - 1];
+    actCls = focused ? 'sel' : view.halt ? 'bad' : 'hot';
+    done = view.end && !view.halt;
+  } else {
+    shown = bench.shown;
+    act = { cell: bench.cell, at: bench.at, reads: [...bench.reads], empty: null };
+    actCls = 'self';
+  }
+  const reads = new Set(act ? act.reads : []), bad = key => (act && act.empty === key) || (bench && bench.empty.has(key));
   return {
     shown, act, reads, robot: act ? act.at[0] : last ? last.at[0] : null,
     val: key => (shown.has(key) ? signal(shown.get(key)) : ''),
     cls(key) {
       const on = act && act.at.includes(key);
-      return [on ? actCls : '', reads.has(key) ? (act.empty === key ? 'bad' : 'pred') : '', shown.has(key) && !on ? 'lit' : '', done && answerKeys.includes(key) ? (view.pass ? 'ok' : 'bad') : ''].filter(Boolean).join(' ');
+      return [on ? actCls : '', reads.has(key) ? (bad(key) ? 'bad' : 'pred') : '', shown.has(key) && !on ? 'lit' : '', done && answerKeys.includes(key) ? (view.pass ? 'ok' : 'bad') : '', bench && bench.typed.has(key) ? 'typed' : '', bench && bench.sel === key ? 'sel' : ''].filter(Boolean).join(' ');
     },
     /** Arrows from every cell read in the focused step to the cell it fed. */
     arrows(to = () => act.at[0], bend = () => 0) {
       if (!act) return [];
-      return [...reads].map(r => E(r, to(r), act.empty === r ? 'bad' : actCls === 'sel' ? 'sel' : 'hot', bend(r)));
+      return [...reads].filter(r => !act.at.includes(r)).map(r => E(r, to(r), bad(r) ? 'bad' : actCls === 'sel' ? 'sel' : 'hot', bend(r)));
     },
+    /** Cells can be tapped to inspect after a run, or to edit while the board is a sandbox. */
+    tap: key => (view ? inspectable(view, key) : true),
   };
 }
 const inspectable = (view, key) => !!view && view.end && view.res.steps.some(s => s.at.includes(key));
@@ -165,10 +182,10 @@ const grid = world({
   orderText: o => ORDERS[o.scan || 'rowTL'].l,
   sample: t => { const r = Math.min(1, t.R - 1), c = Math.min(1, t.C - 1); return { r, c, id: `${r},${c}` }; },
   scene(t, view, o) {
-    const g = look(view, [grid.answerKey(t, o)], grid.base(t)), cells = [];
+    const g = look(view, [grid.answerKey(t, o)], grid.base(t), o.bench), cells = [];
     for (let r = 0; r < t.R; r++) for (let c = 0; c < t.C; c++) {
       const id = `${r},${c}`, m = grid.mark(t, id);
-      cells.push({ id, x: c * 64, y: r * 64, w: 56, h: 56, value: g.val(id), corner: m.corner, cls: `${m.cls} ${g.cls(id)}`, tap: inspectable(view, id), aria: rcName(id) });
+      cells.push({ id, x: c * 64, y: r * 64, w: 56, h: 56, value: g.val(id), corner: m.corner, cls: `${m.cls} ${g.cls(id)}`, tap: g.tap(id), aria: rcName(id) });
     }
     return { cells, edges: g.arrows(), robot: g.robot };
   },
@@ -192,9 +209,9 @@ const strip = world({
   label: t => `第 ${t.n} 级`,
   orderText: () => '从第 0 级往上',
   sample: t => ({ i: Math.min(3, t.n), id: String(Math.min(3, t.n)) }),
-  scene(t, view) {
-    const g = look(view, [String(t.n)]);
-    const cells = Array.from({ length: t.n + 1 }, (_, i) => ({ id: String(i), x: i * 58, y: 0, w: 50, h: 50, value: g.val(String(i)), corner: i, cls: g.cls(String(i)), tap: inspectable(view, String(i)), aria: `第 ${i} 级` }));
+  scene(t, view, o = {}) {
+    const g = look(view, [String(t.n)], [], o.bench);
+    const cells = Array.from({ length: t.n + 1 }, (_, i) => ({ id: String(i), x: i * 58, y: 0, w: 50, h: 50, value: g.val(String(i)), corner: i, cls: g.cls(String(i)), tap: g.tap(String(i)), aria: `第 ${i} 级` }));
     const d = r => Math.abs(+r - +g.act.at[0]);
     return { cells, edges: g.arrows(undefined, r => (d(r) > 1 ? -(16 + 16 * d(r)) : 0)), robot: g.robot };
   },
@@ -230,8 +247,8 @@ const street = (rows, taps) => {
     label: t => `${t.a.length} 户人家`,
     orderText: () => '从 1 号往后',
     sample: t => ({ i: Math.min(2, t.a.length) }),
-    scene(t, view) {
-      const g = look(view, [V.answerKey(t)], V.base(t)), n = t.a.length, sp = 60, sz = 50, y0 = 92;
+    scene(t, view, o = {}) {
+      const g = look(view, [V.answerKey(t)], V.base(t), o.bench), n = t.a.length, sp = 60, sz = 50, y0 = 92;
       const plan = view && view.end && view.pass && rows.length > 1 ? robPlan(t.a) : [];
       const cells = t.a.map((x, j) => ({ id: `h:${j + 1}`, x: (j + 1) * sp, y: 0, w: sz, h: 58, label: `${j + 1}号`, value: x, cls: `house${plan.includes(j + 1) ? ' hot' : g.reads.has(`h:${j + 1}`) ? ' pred' : ''}` }));
       const texts = [{ x: -sz / 2 - 10, y: 5, t: '每家的钱', anchor: 'end' }];
@@ -239,7 +256,7 @@ const street = (rows, taps) => {
         texts.push({ x: -sz / 2 - 10, y: y0 + r * sp + 5, t: label, anchor: 'end', cls: 'hd' });
         for (let i = 0; i <= n; i++) {
           const id = `${r}:${i}`;
-          cells.push({ id, x: i * sp, y: y0 + r * sp, w: sz, h: sz, value: g.val(id), corner: r === 0 ? i : '', cls: g.cls(id), tap: inspectable(view, id), aria: V.name(id) });
+          cells.push({ id, x: i * sp, y: y0 + r * sp, w: sz, h: sz, value: g.val(id), corner: r === 0 ? i : '', cls: g.cls(id), tap: g.tap(id), aria: V.name(id) });
         }
       });
       return { cells, edges: g.arrows(rk => (rk.startsWith('h:') ? `0:${g.act.cell.i}` : `${rk.split(':')[0]}:${g.act.cell.i}`)), texts, robot: g.robot };
@@ -286,14 +303,14 @@ const keyMaze = world({
   label: t => `${t.R}×${t.C} · ${t.doors.length} 扇门`,
   orderText: () => ORDERS.rowTL.l,
   sample: () => ({ r: 1, c: 1, id: '1,1' }),
-  scene(t, view) {
-    const g = look(view, keyMaze.answerKey(t)), sp = 62, sz = 54, gap = 82, layerY = L => L * (t.R * sp + gap);
+  scene(t, view, o = {}) {
+    const g = look(view, keyMaze.answerKey(t), [], o.bench), sp = 62, sz = 54, gap = 82, layerY = L => L * (t.R * sp + gap);
     const cells = [], texts = [];
     [0, 1].forEach(L => {
       texts.push({ x: -sz / 2, y: layerY(L) - sz / 2 - 14, t: L ? '下层 · 有钥匙' : '上层 · 没钥匙', anchor: 'start', cls: 'hd' });
       for (let r = 0; r < t.R; r++) for (let c = 0; c < t.C; c++) {
         const key = `${L}:${r},${c}`, m = keyMaze.mark(t, key);
-        cells.push({ id: key, x: c * sp, y: layerY(L) + r * sp, w: sz, h: sz, value: g.val(key), label: m.cls === 'key' ? '钥匙' : m.cls === 'door' ? '门' : '', corner: m.cls ? '' : m.corner, cls: `${m.cls} ${g.cls(key)}`, tap: inspectable(view, key), aria: keyMaze.name(key) });
+        cells.push({ id: key, x: c * sp, y: layerY(L) + r * sp, w: sz, h: sz, value: g.val(key), label: m.cls === 'key' ? '钥匙' : m.cls === 'door' ? '门' : '', corner: m.cls ? '' : m.corner, cls: `${m.cls} ${g.cls(key)}`, tap: g.tap(key), aria: keyMaze.name(key) });
       }
     });
     return { cells, edges: g.arrows(rk => `${rk[0]}:${g.act.cell.id}`), texts, robot: g.robot ? [g.robot, `1${g.robot.slice(1)}`] : null };
@@ -334,13 +351,13 @@ const align = world({
   sample: t => { const i = Math.min(2, t.left.length), j = Math.min(2, t.top.length); return { i, j, id: `${i},${j}` }; },
   /** o.path: cells of a traced answer; o.okTop / o.okLeft: matched letters to highlight. */
   scene(t, view, o = {}) {
-    const g = look(view, [align.answerKey(t)], align.base(t, o)), sp = 52, sz = 44, cells = [], path = new Set(o.path || []);
+    const g = look(view, [align.answerKey(t)], align.base(t, o), o.bench), sp = 52, sz = 44, cells = [], path = new Set(o.path || []);
     const okT = o.okTop || new Set(), okL = o.okLeft || new Set();
     for (let j = 0; j <= t.top.length; j++) cells.push({ id: `t${j}`, x: j * sp, y: -sp + 10, w: sz, h: 32, value: j ? t.top[j - 1] : '空', cls: `axis${j ? '' : ' axis0'}${okT.has(j - 1) ? ' ok' : ''}` });
     for (let i = 0; i <= t.left.length; i++) cells.push({ id: `l${i}`, x: -sp + 8, y: i * sp, w: 32, h: sz, value: i ? t.left[i - 1] : '空', cls: `axis${i ? '' : ' axis0'}${okL.has(i - 1) ? ' ok' : ''}` });
     for (let i = 0; i <= t.left.length; i++) for (let j = 0; j <= t.top.length; j++) {
       const id = `${i},${j}`, m = align.mark(t, id);
-      cells.push({ id, x: j * sp, y: i * sp, w: sz, h: sz, value: g.val(id), corner: m.corner || '', cls: [m.cls, g.cls(id), path.has(id) ? 'path' : ''].filter(Boolean).join(' '), tap: inspectable(view, id), aria: align.name(id) });
+      cells.push({ id, x: j * sp, y: i * sp, w: sz, h: sz, value: g.val(id), corner: m.corner || '', cls: [m.cls, g.cls(id), path.has(id) ? 'path' : ''].filter(Boolean).join(' '), tap: g.tap(id), aria: align.name(id) });
     }
     const edges = g.arrows();
     for (let q = 0; q + 1 < (o.path || []).length; q++) edges.push(E(o.path[q + 1], o.path[q], 'good'));
@@ -384,14 +401,14 @@ const knap = world({
   sample: t => ({ i: 1, w: t.W, id: `1,${t.W}` }),
   /** o.path: cells of the traced packing. */
   scene(t, view, o = {}) {
-    const g = look(view, [knap.answerKey(t)], knap.base(t)), sp = 50, sz = 44, cells = [], path = new Set(o.path || []);
+    const g = look(view, [knap.answerKey(t)], knap.base(t), o.bench), sp = 50, sz = 44, cells = [], path = new Set(o.path || []);
     const texts = [{ x: -sz / 2 - 10, y: -sp + 19, t: '容量', anchor: 'end' }];
     for (let w = 0; w <= t.W; w++) cells.push({ id: `ax${w}`, x: w * sp, y: -sp + 14, w: sz, h: 26, value: w, cls: 'axis' });
     ['不放东西', ...t.items.map(it => `${it.n} ${it.w}kg · ${it.v}`)].forEach((lb, i) => {
       texts.push({ x: -sz / 2 - 10, y: i * sp + 5, t: lb, anchor: 'end', cls: g.act && g.act.cell.i === i ? 'hd' : '' });
       for (let w = 0; w <= t.W; w++) {
         const id = `${i},${w}`;
-        cells.push({ id, x: w * sp, y: i * sp, w: sz, h: sz, value: g.val(id), cls: [g.cls(id), path.has(id) ? 'path' : ''].filter(Boolean).join(' '), tap: inspectable(view, id), aria: knap.name(id) });
+        cells.push({ id, x: w * sp, y: i * sp, w: sz, h: sz, value: g.val(id), cls: [g.cls(id), path.has(id) ? 'path' : ''].filter(Boolean).join(' '), tap: g.tap(id), aria: knap.name(id) });
       }
     });
     return { cells, edges: g.arrows(undefined, r => (+r.split(',')[0] === g.act.cell.i ? -34 : 0)), texts, robot: g.robot };
@@ -441,9 +458,20 @@ const roll = world({
     });
     return { row, snaps, item, touched, reused };
   },
-  scene(t, view) {
+  scene(t, view, o = {}) {
     const W = t.W, sp = 50, sz = 44, rowH = 60, cells = [], edges = [], texts = [{ x: -sz / 2 - 10, y: -sp + 19, t: '容量 w', anchor: 'end' }];
     for (let w = 0; w <= W; w++) cells.push({ id: `ax${w}`, x: w * sp, y: -sp + 14, w: sz, h: 26, value: w, cls: 'axis' });
+    const b = o.bench;
+    if (!view && b) {
+      texts.push({ x: -sz / 2 - 10, y: 5, t: 'dp · 测试', anchor: 'end', cls: 'hd' });
+      for (let w = 0; w <= W; w++) {
+        const id = String(w), self = b.at.includes(id);
+        const cls = [self ? 'self' : b.shown.has(id) ? 'lit' : '', b.reads.has(id) && !self ? (b.empty.has(id) ? 'bad' : 'pred') : '', b.typed.has(id) ? 'typed' : '', b.sel === id ? 'sel' : ''];
+        cells.push({ id, x: w * sp, y: 0, w: sz, h: sz, value: b.shown.has(id) ? signal(b.shown.get(id)) : '', cls: cls.filter(Boolean).join(' '), tap: true, aria: `dp[${w}]` });
+      }
+      [...b.reads].filter(r => !b.at.includes(r)).forEach(r => edges.push(E(r, b.at[0], b.empty.has(r) ? 'bad' : 'hot', -36)));
+      return { cells, edges, texts, robot: b.at[0] };
+    }
     const rows = [];
     if (!view || !view.k) rows.push({ lb: 'dp · 初始', vals: Array(W + 1).fill(0), cls: () => 'lit' });
     else {

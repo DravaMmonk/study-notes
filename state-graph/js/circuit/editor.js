@@ -137,20 +137,20 @@ export function editorHTML(circ, ui) {
 }
 
 /**
- * The robot's window. In 「选输入」 mode a tap on a cell lights it as an input (blue); in 「测试」 mode it edits
- * the number the bench feeds in. The robot's own cells are framed red. Values are live during a run.
- * ui.win = { robot, wins: [{ label, n, cells }], arm, facts, note, mode, bench, typed }
+ * The robot's window: the board around the robot. A tap on a cell lights it as an input (blue);
+ * the robot's own cells are framed red. Values follow the test board or the run.
+ * ui.win = { robot, wins: [{ label, n, cells }], arm, facts, note }
  */
 export function viewHTML(circ, ui) {
-  const lit = litOf(circ), w = ui.win, act = w.mode === 'bench' ? 'bench' : 'lit', vision = (w.wins[0].n - 1) / 2;
+  const lit = litOf(circ), w = ui.win, vision = (w.wins[0].n - 1) / 2;
   const tag = id => `<span class="tag" style="--c:${sourceColor(ui, `tap:${id}`)}">${ui.taps[id].short}</span>`;
   const cellHTML = (x, opts = {}) => {
-    const can = !!x.tap && ui.avail.includes(x.tap), on = can && lit.includes(x.tap), click = can && (act === 'lit' || x.key !== null);
+    const can = !!x.tap && ui.avail.includes(x.tap), on = can && lit.includes(x.tap);
     const cls = ['vcell', x.cls, x.key === null ? 'off' : '', can ? 'can' : '', on ? 'on' : '', x.out ? 'self' : '', x.state].filter(Boolean).join(' ');
     const inner = `${x.corner !== '' && x.corner !== undefined && x.key !== null ? `<span class="vc">${x.corner}</span>` : ''}<span class="vv">${x.key === null ? '' : x.value}</span>${on ? tag(x.tap) : ''}${opts.bot ? `<svg class="vbot" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg>` : ''}${opts.label ? `<span class="vl">${opts.label}</span>` : ''}`;
     const style = opts.area ? ` style="grid-area:${opts.area}"` : '';
-    return click
-      ? `<button class="${cls}" type="button"${style} data-act="${act}" data-t="${x.tap}" aria-pressed="${on}" aria-label="${act === 'lit' ? (on ? '取消输入' : '点亮输入') : '填数'} ${ui.taps[x.tap].label}">${inner}</button>`
+    return can
+      ? `<button class="${cls}" type="button"${style} data-act="lit" data-t="${x.tap}" aria-pressed="${on}" aria-label="${on ? '取消输入' : '点亮输入'} ${ui.taps[x.tap].label}">${inner}</button>`
       : `<span class="${cls}"${style}>${inner}</span>`;
   };
   const wins = w.wins.map((win, k) => `<div class="vblock">${win.label ? `<span class="vsub">${win.label}</span>` : ''}
@@ -158,11 +158,10 @@ export function viewHTML(circ, ui) {
   const arm = w.arm ? `<div class="varm"><span class="vsub">伸缩臂 · ${w.arm.label}</span><div class="varm-row">${w.arm.cells.map(x => cellHTML(x, { label: x.label })).join('')}</div></div>` : '';
   const facts = w.facts.map(f => {
     const m = ui.taps[f.id], on = lit.includes(f.id);
-    return `<button class="vfact${on ? ' on' : ''}${f.state ? ` ${f.state}` : ''}" type="button" data-act="${act}" data-t="${f.id}" aria-pressed="${on}">${iconSVG(m.icon)}<span>${m.label}</span><span class="vv">${f.value}</span>${on ? tag(f.id) : ''}</button>`;
+    return `<button class="vfact${on ? ' on' : ''}" type="button" data-act="lit" data-t="${f.id}" aria-pressed="${on}">${iconSVG(m.icon)}<span>${m.label}</span><span class="vv">${f.value}</span>${on ? tag(f.id) : ''}</button>`;
   }).join('');
   return `<div class="vhead"><svg class="vlook" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg><div><b>${w.robot.name}</b><small>视野 ${w.wins[0].n}×${w.wins[0].n}${w.robot.arm ? ' · 伸缩臂' : ''}</small></div></div>
-    <div class="vmode" role="group" aria-label="视野模式"><button type="button" data-act="vmode" data-v="lit" aria-pressed="${act === 'lit'}">选输入</button><button type="button" data-act="vmode" data-v="bench" aria-pressed="${act === 'bench'}">测试</button></div>
-    <div class="vnote">${w.note}${w.bench && w.typed ? ' <button type="button" class="vreset" data-act="benchreset">还原</button>' : ''}</div>
+    <div class="vnote">${w.note} · 点格子选输入</div>
     ${wins}${arm}
     ${facts ? `<div class="vfacts"><span class="vsub">本格信息</span>${facts}</div>` : ''}`;
 }
