@@ -73,7 +73,7 @@ export function circ(nodes, wires) {
   };
 }
 
-export const blank = () => ({ nodes: [], wires: [] });
+export const blank = () => ({ nodes: [], wires: [], lit: [], at: {} });
 export const usesTap = (c, id) => c.wires.some(w => w.from === `tap:${id}`);
 export const hasKind = (c, kind) => c.nodes.some(n => n.kind === kind);
 export const clone = c => JSON.parse(JSON.stringify(c));
