@@ -30,7 +30,7 @@ export function circuitMode(L, saved) {
   /** The robot's window: around the cell being computed (or inspected), else around a sample cell. */
   function win() {
     const t = L.tests[st.ti], Vw = V(), v = st.view, s = shownStep(), cell = s ? s.cell : Vw.sample(t, opt());
-    const shown = new Map(v ? v.res.base : []);
+    const shown = new Map(v ? v.res.base : Vw.base ? Vw.base(t, opt()) : []);
     if (v) v.res.steps.slice(0, (v.focus ?? v.k - 1) + 1).forEach(x => (x.writes || []).forEach(([key, val]) => shown.set(key, val)));
     const w = Vw.window(t, cell), reads = new Set(s ? s.reads : []);
     w.cells = w.cells.map(x => ({ ...x, value: x.key !== null && shown.has(x.key) ? signal(shown.get(x.key)) : '', state: s && s.empty === x.key ? 'empty' : reads.has(x.key) ? 'read' : '' }));
@@ -152,12 +152,8 @@ export function circuitMode(L, saved) {
     after: () => (L.after ? L.after(L.tests[st.ti], st.view) : ''),
     tip() {
       const c = circ();
-      if (L.guide && st.stage === 0) {
-        if (!(c.lit || []).length && !c.wires.length) return { text: '第 1 步：在右边的「机器人视野」里，点亮机器人上面和左边的格子，它们会变成电路板顶上的输入。' };
-        if (!c.nodes.length) return { text: '第 2 步：把托盘里的「汇合器」拖到电路板的空格上（点一下也行）。' };
-        if (!c.wires.length) return { text: '第 3 步：从输入底部的圆点拖一根线到汇合器顶上的圆点。也可以先点一个圆点，再点另一个。' };
-        if (!c.wires.some(w => w.to.startsWith('out:'))) return { text: '最后，把汇合器底部的圆点连到最下面红框的「本格」。' };
-      }
+      const g = L.guide ? L.guide(c, litOf(c)) : null;
+      if (g) return { text: g };
       return stage().tip ? { text: stage().tip } : null;
     },
     panel() {
@@ -217,8 +213,10 @@ export function circuitMode(L, saved) {
       rt.startRun();
       st.status = L.tests.map(() => null);
       for (let k = 0; k < L.tests.length; k++) {
-        const t = L.tests[k], res = runCircuit(Vw, t, c, o), ok = !res.error && res.value === L.expected[k];
-        const mm = ok || res.error || stage().onFail ? null : firstMismatch(t, res);
+        const t = L.tests[k], res = runCircuit(Vw, t, c, o);
+        // checkAll levels grade every cell, not just the answer cell.
+        const mm = res.error || stage().onFail || (!L.checkAll && res.value === L.expected[k]) ? null : firstMismatch(t, res);
+        const ok = !res.error && res.value === L.expected[k] && !mm;
         const stop = mm ? mm.q + 1 : res.steps.length;
         st.ti = k;
         st.status[k] = 'run';

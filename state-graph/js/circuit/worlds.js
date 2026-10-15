@@ -42,11 +42,14 @@ export function runCircuit(V, t, c, o = {}) {
 /* ---------- board marking shared by every world ---------- */
 
 /**
- * view = { res, k, end, halt, pass, focus }: k steps are shown; `halt` marks a stop at a wrong step;
+ * view = { res, k, end, halt, pass, focus } (null before a run: only the world's pre-filled cells show);: k steps are shown; `halt` marks a stop at a wrong step;
  * `focus` is a step the player tapped to inspect after the run.
  */
-function look(view, answerKeys) {
-  if (!view) return { shown: new Map(), act: null, robot: null, reads: new Set(), cls: () => '', val: () => '', arrows: () => [] };
+function look(view, answerKeys, base = []) {
+  if (!view) {
+    const shown = new Map(base);
+    return { shown, act: null, robot: null, reads: new Set(), cls: key => (shown.has(key) ? 'lit' : ''), val: key => (shown.has(key) ? signal(shown.get(key)) : ''), arrows: () => [] };
+  }
   const { res, k } = view, shown = new Map(res.base);
   res.steps.slice(0, k).forEach(s => (s.writes || []).forEach(([key, v]) => shown.set(key, v)));
   const focused = view.focus !== null && view.focus !== undefined;
@@ -81,7 +84,9 @@ const grid = {
   },
   facts: ['start', 'end', 'rock', 'cost'],
   outs: [['cell', '本格']],
-  order: (t, o) => ORDERS[o.scan || 'rowTL'].list(t.R, t.C).map(([r, c]) => ({ r, c, id: `${r},${c}` })),
+  /** t.given: cells written before the robot starts, e.g. { '0,0': 1 }; the robot skips them. */
+  base: t => Object.entries(t.given || {}),
+  order: (t, o) => ORDERS[o.scan || 'rowTL'].list(t.R, t.C).map(([r, c]) => ({ r, c, id: `${r},${c}` })).filter(cell => !(cell.id in (t.given || {}))),
   keys: (t, cell) => ({ cell: cell.id }),
   where: cell => rcName(cell.id),
   tap(t, { r, c }, id, get) {
@@ -111,7 +116,7 @@ const grid = {
     return { cols: 3, rows: 3, cells };
   },
   scene(t, view, o) {
-    const g = look(view, [grid.answerKey(t, o)]), rocks = new Set((t.rocks || []).map(p => p.join(','))), cells = [];
+    const g = look(view, [grid.answerKey(t, o)], grid.base(t)), rocks = new Set((t.rocks || []).map(p => p.join(','))), cells = [];
     for (let r = 0; r < t.R; r++) for (let c = 0; c < t.C; c++) {
       const id = `${r},${c}`, corner = t.costs ? t.costs[r][c] : id === '0,0' ? '起' : r === t.R - 1 && c === t.C - 1 ? '终' : '';
       cells.push({ id, x: c * 64, y: r * 64, w: 56, h: 56, value: g.val(id), corner, cls: `${rocks.has(id) ? 'rock ' : ''}${g.cls(id)}`, tap: inspectable(view, id), aria: rcName(id) });
@@ -189,7 +194,7 @@ const street = (rows, prevTaps) => ({
     return { cols: 2, rows: rows.length, cells, colLabels: [i > 1 ? `${i - 1}号` : '开始', `${i}号`], rowLabels: rows.length > 1 ? rows.map(x => x[1].slice(-2)) : null };
   },
   scene(t, view) {
-    const g = look(view, [this.answerKey(t)]), n = t.a.length, sp = 60, sz = 50, y0 = 92;
+    const g = look(view, [this.answerKey(t)], this.base()), n = t.a.length, sp = 60, sz = 50, y0 = 92;
     const plan = view && view.end && view.pass && rows.length > 1 ? robPlan(t.a) : [];
     const cells = t.a.map((x, j) => ({ id: `h${j + 1}`, x: (j + 1) * sp, y: 0, w: sz, h: 58, label: `${j + 1}号`, value: x, cls: `house${plan.includes(j + 1) ? ' hot' : ''}` }));
     const texts = [{ x: -sz / 2 - 10, y: 5, t: '每家的钱', anchor: 'end' }];
@@ -313,7 +318,7 @@ const align = {
   },
   /** o.path: cells of a traced answer; o.okTop / o.okLeft: matched letters to highlight. */
   scene(t, view, o = {}) {
-    const g = look(view, [align.answerKey(t)]), sp = 52, sz = 44, cells = [], path = new Set(o.path || []);
+    const g = look(view, [align.answerKey(t)], align.base(t, o)), sp = 52, sz = 44, cells = [], path = new Set(o.path || []);
     const okT = o.okTop || new Set(), okL = o.okLeft || new Set();
     for (let j = 0; j <= t.top.length; j++) cells.push({ id: `t${j}`, x: j * sp, y: -sp + 10, w: sz, h: 32, value: j ? t.top[j - 1] : '空', cls: `axis${j ? '' : ' axis0'}${okT.has(j - 1) ? ' ok' : ''}` });
     for (let i = 0; i <= t.left.length; i++) cells.push({ id: `l${i}`, x: -sp + 8, y: i * sp, w: 32, h: sz, value: i ? t.left[i - 1] : '空', cls: `axis${i ? '' : ' axis0'}${okL.has(i - 1) ? ' ok' : ''}` });
@@ -367,7 +372,7 @@ const knap = {
   },
   /** o.path: cells of the traced packing. */
   scene(t, view, o = {}) {
-    const g = look(view, [knap.answerKey(t)]), sp = 50, sz = 44, cells = [], path = new Set(o.path || []);
+    const g = look(view, [knap.answerKey(t)], knap.base(t)), sp = 50, sz = 44, cells = [], path = new Set(o.path || []);
     const texts = [{ x: -sz / 2 - 10, y: -sp + 19, t: '容量', anchor: 'end' }];
     for (let w = 0; w <= t.W; w++) cells.push({ id: `ax${w}`, x: w * sp, y: -sp + 14, w: sz, h: 26, value: w, cls: 'axis' });
     ['不放东西', ...t.items.map(it => `${it.n} ${it.w}kg · ${it.v}`)].forEach((lb, i) => {
