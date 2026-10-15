@@ -1,5 +1,4 @@
-// Ch.1–2: wire arrows between cells by tapping two cells, then run the flow.
-// With L.streets, arrows may only follow the given streets, which are drawn faintly until wired.
+// Ch.1: wire arrows between cells by tapping two cells, then run the flow.
 
 import { buzz, toast } from '../util.js';
 import { evalGraph } from '../algo.js';
@@ -23,7 +22,6 @@ export function wireMode(L, saved) {
         return { id: c.id, x: c.x, y: c.y, w: 92, h: 76, label: c.label, value: v, sub: c.goal !== undefined ? `需要 ${c.goal}` : '', cls: cls.filter(Boolean).join(' '), tap: true, aria: `${c.label}格子` };
       });
       const edges = st.edges.map(([a, b]) => E(a, b, st.hot.some(e => e[0] === a && e[1] === b) ? 'hot' : st.cycle && st.cycle.includes(a) && st.cycle.includes(b) ? 'bad' : 'idle'));
-      (L.streets || []).filter(([a, b]) => !has(a, b)).forEach(([a, b]) => edges.push(E(a, b, 'dim')));
       return { cells, edges };
     },
     note: () => st.sel ? `已选中「${by[st.sel].label}」。再点另一个格子连箭头，或者再点它一次取消选中。` : st.edges.length ? `已连 ${st.edges.length} 根箭头。` : '还没有箭头。',
@@ -33,7 +31,6 @@ export function wireMode(L, saved) {
       else if (st.sel === id) st.sel = null;
       else {
         if (by[id].fixed !== undefined) { toast('源格子里的数是固定的，不能往里连箭头'); buzz(20); st.sel = null; }
-        else if (L.streets && !L.streets.some(([a, b]) => a === st.sel && b === id)) { toast('这两个地点之间没有这个方向的单行道'); buzz(20); st.sel = null; }
         else {
           const a = st.sel;
           if (has(a, id)) { st.edges = st.edges.filter(e => !(e[0] === a && e[1] === id)); toast('拆掉了一根箭头'); }

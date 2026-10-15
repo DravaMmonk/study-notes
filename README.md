@@ -14,7 +14,7 @@
 
 ## 💻 Other
 
-- [状态之图](https://dravammonk.github.io/study-notes/state-graph/)：从零开始的动态规划解谜游戏，28 关，机器关卡用元件拼电路板。源码在 `state-graph/`（无构建的 ES 模块：`js/circuit` 是电路引擎与编辑器，`js/levels` 是关卡数据，`js/modes` 是各类玩法），推送后由 `.github/workflows/deploy-state-graph.yml` 发布。
+- [状态之图](https://dravammonk.github.io/study-notes/state-graph/)：从零开始的动态规划解谜游戏，27 关，机器关卡用元件拼电路板。源码在 `state-graph/`（无构建的 ES 模块：`js/circuit` 是电路引擎与编辑器，`js/levels` 是关卡数据，`js/modes` 是各类玩法），推送后由 `.github/workflows/deploy-state-graph.yml` 发布。
 
 
 
