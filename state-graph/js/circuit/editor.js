@@ -128,12 +128,12 @@ export function editorHTML(circ, ui) {
       <div class="cboard" id="cboard">
         <svg class="cwires" aria-hidden="true"></svg>
         <div class="cterms">${terms || '<p class="cempty">点右边视野里的格子，把它变成输入</p>'}</div>
-        <div class="cgrid">${cells}</div>
+        ${ui.palette.length ? `<div class="cgrid">${cells}</div>` : ''}
         <div class="couts" style="--n:${ui.outs.length}">${outs}</div>
       </div>
       <aside class="cview" id="cview">${viewHTML(circ, ui)}</aside>
     </div>
-    <div class="ctray" data-trash><span class="tlabel">元件托盘<small>拖到电路板上，或点一下</small></span><span class="tdrop">拖到这里拿掉元件</span><div class="titems">${tray}</div></div>
+    ${tray ? `<div class="ctray" data-trash><span class="tlabel">元件托盘<small>拖到电路板上，或点一下</small></span><span class="tdrop">拖到这里拿掉元件</span><div class="titems">${tray}</div></div>` : ''}
   </div>`;
 }
 
