@@ -26,16 +26,16 @@ export function ParamChip({ param, value }) {
   return <><i>{param.label}</i>{formatNumber(value ?? 0)}</>
 }
 
-// Every part, grouped by family, each previewed as if added here, on the current test.
-export function AddSheet({ level, graph, anchor, next, test, anchorName, theme, onAdd, onClose }) {
+// Every part, grouped by family, each previewed reading `previewFrom` on the current test.
+export function AddSheet({ level, graph, previewFrom, test, title, theme, onAdd, onClose }) {
   const groups = Object.entries(FAMILIES).map(([key, family]) => [family, level.palette.filter((type) => familyOf(type) === key)]).filter(([, types]) => types.length)
   const previewOf = (type) => {
-    const { graph: trial, id } = insertAfter(graph, anchor, type, next)
+    const { graph: trial, id } = insertAfter(graph, previewFrom, type, null)
     const { values, errors } = evaluate(trial, test.inputs)
     return errors.get(id) ? null : values.get(id)
   }
   return (
-    <Sheet title={anchorName ? `接在「${anchorName}」后面` : '添加元件'} onClose={onClose}>
+    <Sheet title={title} onClose={onClose}>
       {groups.map(([family, types]) => (
         <section key={family.label} className="ph-group">
           <h3>{family.label}</h3>

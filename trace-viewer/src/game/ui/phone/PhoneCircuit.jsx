@@ -1,34 +1,36 @@
 import { createElement, useEffect, useRef, useState } from 'react'
-import { ArrowDownToLine, Check, ChevronRight, List, Plus, Trash2, Undo2, X } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronDown, ChevronRight, Trash2, Undo2, X } from 'lucide-react'
 import { wouldCycle } from '../../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../../engine/nodes.js'
 import { describe, familyOf, iconOf } from '../catalog.js'
 import ValueView from '../views/ValueView.jsx'
 import ViewSwitch from '../views/ViewSwitch.jsx'
 import { KIND_NAMES, kindOf, nodeView } from '../views/views.js'
-import CircuitMap from './CircuitMap.jsx'
+import { enableDrag } from './drag.js'
 import { ChoiceEditor, KernelEditor, NumberEditor } from './Editors.jsx'
-import { NUMBERS, connect, feeding, insertAfter, layout, setParam, skip, tailOf } from './ops.js'
+import { NUMBERS, connect, feeding, layout, moveTo, placeAt, placement, removeNode, setParam } from './ops.js'
 import { AddSheet, ParamChip, SourceSheet, TestCarousel } from './parts.jsx'
 import Sheet from './Sheet.jsx'
+import SlotBoard from './SlotBoard.jsx'
+import { PORT_TAGS, drawWires, inPort, outPort, parsePort } from './wires.js'
 import './phone.css'
 
 const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
-const PORT_TAGS = { a: 'a', b: 'b', left: '左', right: '右', c0: 'd0', c1: 'd1', c2: 'd2', c3: 'd3' }
-const DOCK = { s: 30, m: 46, l: 74 } // dock heights, in % of the screen
 
-// The phone's circuit screen, in two zones. The upper one is the circuit map: the whole circuit,
-// laid out by data flow, always in view. The lower one is a dock with three tabs: the task, the
-// selected block (its inputs, settings and result) and the tests. Wiring is done on the map: tap
-// an input in the dock, then tap the block on the map that should feed it.
-export default function PhoneCircuit({ level, graph, onChange, run, testIndex, onTestIndex, flags, inputLabels, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
-  const [tab, setTab] = useState('task')
-  const [selected, setSelected] = useState(null)
-  const [picking, setPicking] = useState(null) // { node, port } while choosing a source on the map
+// The phone's circuit screen, after the board in 状态之图: the level's inputs on top, parts in a
+// grid of slots that keep their place, the outputs at the bottom, each block showing its result on
+// the current test. Wires go dot to dot (tap one dot, then another, or drag between them); tapping a
+// wired input unplugs it. Parts come from the tray (tap to drop into the next free slot, or hold and
+// drag into a slot); holding a placed part moves it, or drags it back onto the tray to remove it.
+export default function PhoneCircuit({ level, graph, onChange, onReset, run, testIndex, onTestIndex, flags, inputLabels, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
+  const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
   const [sheet, setSheet] = useState(null)
   const [history, setHistory] = useState([])
   const [toast, setToast] = useState(null)
-  const [dock, setDock] = useState('m')
+  const [armed, setArmed] = useState(false)
+  const [briefOpen, setBriefOpen] = useState(true)
+  const root = useRef(null)
+  const scroller = useRef(null)
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
   const checks = run?.results[testIndex]?.checks
@@ -36,12 +38,14 @@ export default function PhoneCircuit({ level, graph, onChange, run, testIndex, o
   const passed = run?.results.filter((r) => r.pass).length ?? 0
   const all = level.tests.length
   const byId = (id) => graph.nodes.find((n) => n.id === id)
-  const node = byId(selected)
+  // Parts are numbered in the order of their slots, so a number stays put while wires change.
+  const slots = placement(graph).cell
+  const order = [...slots.keys()].sort((a, b) => slots.get(a) - slots.get(b))
 
   const edit = (next, note) => {
     setHistory((h) => [...h.slice(-49), graph])
     onChange(next)
-    if (note) setToast(note)
+    setToast(note ?? null)
   }
   const undo = () => {
     if (!history.length) return
@@ -49,13 +53,18 @@ export default function PhoneCircuit({ level, graph, onChange, run, testIndex, o
     onChange(history.at(-1))
     setHistory((h) => h.slice(0, -1))
     setToast(null)
-    if (selected && !history.at(-1).nodes.some((n) => n.id === selected)) setSelected(null)
+    setPicking(null)
   }
   useEffect(() => {
     if (!toast) return undefined
-    const timer = setTimeout(() => setToast(null), 4000)
+    const timer = setTimeout(() => setToast(null), 3600)
     return () => clearTimeout(timer)
   }, [toast])
+  useEffect(() => {
+    if (!armed) return undefined
+    const timer = setTimeout(() => setArmed(false), 2600)
+    return () => clearTimeout(timer)
+  }, [armed])
   const wasPassing = useRef(run?.pass)
   useEffect(() => {
     if (run?.pass && !wasPassing.current) buzz([12, 60, 18])
@@ -66,7 +75,7 @@ export default function PhoneCircuit({ level, graph, onChange, run, testIndex, o
     if (!n) return ''
     if (n.type === 'input') return inputLabels?.[n.params.name] ?? (sources.length > 1 ? n.params.name : '输入')
     if (n.type === 'output') return outputLabels?.[n.params.name] ?? '输出'
-    const index = steps.indexOf(n)
+    const index = order.indexOf(n.id)
     return `${NUMBERS[index] ?? `#${index + 1}`} ${NODE_TYPES[n.type].label}`
   }
   const thumb = (n, size = 52) => {
@@ -74,115 +83,230 @@ export default function PhoneCircuit({ level, graph, onChange, run, testIndex, o
     if (errors?.get(n.id)) return <span className="ph-thumb-error" style={{ width: size, height: size }}>!</span>
     return <ValueView img={value} view={nodeView(n, views)} size={kindOf(value) === 'signal' ? size * 1.6 : size} theme={theme} label="—" />
   }
-  const nextAfter = (id) => {
-    const chain = [...sources, ...steps]
-    const i = chain.findIndex((n) => n.id === id)
-    return chain[i + 1]?.type === 'input' ? null : chain[i + 1]?.id ?? null
-  }
-  const canFeed = (id) => picking && id !== picking.node && byId(id)?.type !== 'output' && !wouldCycle(graph, id, picking.node)
 
-  const tap = (id) => {
-    if (picking) {
-      if (id === picking.node) return setPicking(null)
-      if (!canFeed(id)) return undefined
-      buzz()
-      edit(connect(graph, picking.node, picking.port, id))
-      setPicking(null)
-      return undefined
+  // Wiring: a source (an output dot) to a sink (an input dot), in either order.
+  const ends = (a, b) => {
+    const [pa, pb] = [parsePort(a), parsePort(b)]
+    if (pa.side === pb.side) return null
+    const [from, to] = pa.side === 'out' ? [pa, pb] : [pb, pa]
+    return { from: from.id, to: to.id, port: to.port }
+  }
+  const refusal = (a, b) => {
+    const e = ends(a, b)
+    if (!e) return '两头都是输出口（或都是输入口）：一头接输出，一头接输入。'
+    if (e.from === e.to) return '一块不能读它自己。'
+    if (wouldCycle(graph, e.from, e.to)) return '这样会绕成一个圈：这一块要等自己算完，才能算自己。'
+    return null
+  }
+  const canLand = (p) => Boolean(picking) && !refusal(picking, p)
+  const wire = (a, b) => {
+    const why = refusal(a, b)
+    if (why) {
+      buzz(20)
+      setToast(why)
+      return false
     }
-    buzz(4)
-    setSelected(id)
-    setTab('node')
+    const { from, to, port } = ends(a, b)
+    buzz()
+    edit(connect(graph, to, port, from))
+    return true
+  }
+  const onPort = (p) => {
+    const side = parsePort(p)
+    if (!picking) {
+      if (side.side === 'in' && feeding(graph, side.id, side.port)) {
+        buzz([6, 30, 6])
+        edit(connect(graph, side.id, side.port, null), '拆掉了一根线')
+        return
+      }
+      buzz(4)
+      setPicking(p)
+      return
+    }
+    if (picking === p) return setPicking(null)
+    if (parsePort(picking).side === side.side) return setPicking(p)
+    if (wire(picking, p)) setPicking(null)
     return undefined
   }
-  const add = (type) => {
-    const anchor = sheet.anchor
-    let { graph: next, id } = insertAfter(graph, anchor, type, nextAfter(anchor))
-    // The first part of a circuit also becomes what the output shows.
-    const out = next.nodes.find((n) => n.type === 'output')
-    if (out && !feeding(next, out.id, 'in')) next = connect(next, out.id, 'in', id)
-    buzz()
-    edit(next)
-    setSheet(null)
-    setSelected(id)
-    setTab('node')
-  }
-  const remove = (n) => {
-    buzz([6, 40, 6])
-    edit(skip(graph, n.id), `已删除 ${nameOf(n)}`)
-    setSelected(null)
-  }
-  const startPick = (n, port) => {
+  // While a dot is picked, tapping a block wires it too: to its output, or to its first free input.
+  const onNode = (id) => {
+    const node = byId(id)
+    if (picking) {
+      const pick = parsePort(picking)
+      if (pick.side === 'in' && node.type !== 'output') return onPort(outPort(id))
+      if (pick.side === 'out') {
+        const ports = node.type === 'input' ? [] : inputsOf(node.type)
+        const open = ports.find((port) => !feeding(graph, id, port)) ?? ports[0]
+        if (open) return onPort(inPort(id, open))
+      }
+      return setPicking(null)
+    }
     buzz(4)
-    setPicking({ node: n.id, port })
-    if (dock === 'l') setDock('m')
+    setSheet({ kind: 'part', node: id })
+    return undefined
   }
 
-  // Drag the dock's handle to make it smaller or larger; it settles on the nearest size.
-  const handle = useRef(null)
-  const onHandleDown = (event) => {
-    handle.current = { y: event.clientY, start: DOCK[dock] }
-  }
-  const onHandleUp = (event) => {
-    if (!handle.current) return
-    const dy = event.clientY - handle.current.y
-    if (Math.abs(dy) < 6) setDock(dock === 'l' ? 'm' : dock === 'm' ? 'l' : 'm')
-    else {
-      const target = handle.current.start - (dy / window.innerHeight) * 100
-      setDock(Object.entries(DOCK).reduce((best, [key, h]) => (Math.abs(h - target) < Math.abs(DOCK[best] - target) ? key : best), 'm'))
+  // Placing parts. The very first part of a one-input level is wired in for you, so the board
+  // shows something at once; after that, wiring is the player's.
+  const place = (type, at) => {
+    let { graph: next, id } = placeAt(graph, type, at)
+    const out = next.nodes.find((n) => n.type === 'output')
+    const [first] = inputsOf(type)
+    let note = `放进了第 ${at + 1} 格 · 从圆点拉线接上`
+    if (!steps.length && sources.length === 1 && out && !feeding(next, out.id, 'in')) {
+      if (first) next = connect(next, id, first, sources[0].id)
+      next = connect(next, out.id, 'in', id)
+      note = `接好了：${nameOf(sources[0])} → ${NODE_TYPES[type].label} → ${nameOf(out)}`
     }
-    handle.current = null
+    buzz()
+    edit(next, note)
+    setSheet(null)
   }
+  const placeFirstFree = (type) => place(type, placement(graph).free[0])
+  const remove = (id) => {
+    buzz([6, 40, 6])
+    edit(removeNode(graph, id), `拿掉了 ${nameOf(byId(id))}`)
+    setSheet(null)
+  }
+  const clear = () => {
+    if (!armed) {
+      buzz(4)
+      setArmed(true)
+      return
+    }
+    setArmed(false)
+    setHistory((h) => [...h.slice(-49), graph])
+    onReset()
+    setToast('清空了电路')
+  }
+
+  // Drag and drop on the board, the tray and the dots. Handlers read the latest props through a ref.
+  const latest = useRef(null)
+  const say = (note) => setToast(note)
+  const unpick = () => setPicking(null)
+  useEffect(() => {
+    latest.current = { graph, wire, place, edit, remove, say, unpick }
+  })
+  useEffect(() => {
+    const el = root.current
+    return enableDrag(el, scroller.current, {
+      start: (g) => g.kind === 'port' && latest.current.unpick(),
+      move: (g) => {
+        if (g.kind !== 'port') return
+        const board = el.querySelector('.pb-board')
+        if (board) drawWires(board, latest.current.graph, { from: g.id, x: g.x, y: g.y })
+      },
+      drop: (g) => {
+        const L = latest.current
+        const over = g.over
+        if (g.kind === 'port') {
+          if (over && over.dataset.port !== g.id) L.wire(g.id, over.dataset.port)
+          return
+        }
+        if (!over) return
+        if (g.kind === 'tray') {
+          const at = Number(over.dataset.slot)
+          if (placement(L.graph).free.includes(at)) L.place(g.id, at)
+          else L.say('这一格已经有元件了')
+        }
+        if (g.kind === 'node') {
+          if (over.dataset.trash !== undefined) L.remove(g.id)
+          else L.edit(moveTo(L.graph, g.id, Number(over.dataset.slot)))
+        }
+      },
+      end: () => {
+        const board = el.querySelector('.pb-board')
+        if (board) drawWires(board, latest.current.graph)
+      },
+    })
+  }, [])
+
+  const pickNote = picking && (() => {
+    const p = parsePort(picking)
+    const node = byId(p.id)
+    return p.side === 'out' ? `「${nameOf(node)}」接到哪？点一个输入口（块顶上的圆点），或点那一块` : `「${nameOf(node)}」${inputsOf(node.type).length > 1 ? `的 ${PORT_TAGS[p.port] ?? p.port} ` : ''}读哪个结果？点一个输出口（块底下的圆点），或点那一块`
+  })()
 
   return (
-    <div className="pc" style={{ '--dock': `${DOCK[dock]}%` }}>
-      <section className="pc-map" aria-label="电路图">
-        {picking ? (
-          <div className="pc-banner is-picking">
-            <span>点一块，接到「{nameOf(byId(picking.node))}」{inputsOf(byId(picking.node).type).length > 1 ? `的 ${PORT_TAGS[picking.port] ?? picking.port}` : ''}</span>
-            <button onClick={() => setSheet({ kind: 'source', node: picking.node, port: picking.port })} aria-label="从列表选"><List size={16} /></button>
-            <button onClick={() => setPicking(null)}>取消</button>
-          </div>
-        ) : (
-          <button className={`pc-pass ${run?.pass ? 'is-pass' : ''}`} onClick={() => setTab('tests')}>
-            {run?.pass ? <Check size={14} /> : <X size={14} />}{passed}/{all} 通过
+    <div className="pb" ref={root}>
+      <nav className="pb-tests" aria-label="测试">
+        {level.tests.map((test, index) => {
+          const pass = run?.results[index]?.pass
+          return (
+            <button key={test.label} className={`pb-test ${index === testIndex ? 'is-on' : ''} ${pass ? 'is-pass' : 'is-fail'}`} onClick={() => onTestIndex(index)} aria-pressed={index === testIndex}>
+              {pass ? <Check size={12} /> : <X size={12} />}{test.label}
+            </button>
+          )
+        })}
+      </nav>
+
+      <div className="pb-scroll" ref={scroller}>
+        <section className={`pb-brief ${briefOpen ? 'is-open' : ''}`}>
+          <button className="pb-brief-toggle" onClick={() => setBriefOpen(!briefOpen)} aria-expanded={briefOpen}>
+            <span>任务</span>
+            <ChevronDown size={16} />
           </button>
-        )}
-        <CircuitMap graph={graph} values={values} errors={errors} checks={checks} views={views} theme={theme} selected={selected} picking={picking} canFeed={canFeed} nameOf={nameOf} onTap={tap} />
-      </section>
+          {briefOpen && <div className="pb-brief-body">{brief}</div>}
+        </section>
+        {!steps.length && level.palette.length > 0 && <p className="pb-howto is-first">{sources.length === 1 ? "从下面的托盘点一个元件，它会放进空格并自动接好。之后点两个圆点就能连线。" : "从下面的托盘点一个元件放进空格，再点两个圆点把它接上：一头点块底下的输出口，一头点块顶上的输入口。"}</p>}
+        <SlotBoard
+          graph={graph}
+          values={values}
+          errors={errors}
+          checks={checks}
+          expected={level.tests[testIndex].expected}
+          views={views}
+          theme={theme}
+          nameOf={nameOf}
+          picking={picking}
+          canLand={canLand}
+          onPort={onPort}
+          onNode={onNode}
+          onSlot={(at) => level.palette.length && setSheet({ kind: 'add', at })}
+        />
+        {steps.length > 0 && <p className="pb-howto">点两个圆点连线，或从一个圆点拖到另一个；点已接好的输入口就拆掉。按住一块可以挪格子，拖回下面的托盘就是拿掉。</p>}
+      </div>
 
-      <section className="pc-dock" aria-label="控制台">
-        <div className="pc-handle" onPointerDown={onHandleDown} onPointerUp={onHandleUp} onPointerCancel={() => { handle.current = null }} role="button" aria-label="调整控制台高度"><i /></div>
-        <header className="pc-dock-head">
-          <div className="pc-tabs" role="tablist">
-            <button role="tab" aria-selected={tab === 'task'} onClick={() => setTab('task')}>任务</button>
-            <button role="tab" aria-selected={tab === 'node'} onClick={() => setTab('node')}>{node ? nameOf(node) : '选中的块'}</button>
-            <button role="tab" aria-selected={tab === 'tests'} className={run?.pass ? 'is-pass' : ''} onClick={() => setTab('tests')}>测试 {passed}/{all}</button>
-          </div>
-          <button className="pc-undo" onClick={undo} disabled={!history.length} aria-label="撤销"><Undo2 size={18} /></button>
-          {level.palette.length > 0 && (
-            <button className="pc-add" onClick={() => { buzz(); setSheet({ kind: 'add', anchor: node && node.type !== 'output' ? node.id : tailOf(graph) }) }} aria-label={node && node.type !== 'output' ? `在 ${nameOf(node)} 后面添加` : '添加元件'}><Plus size={20} /></button>
-          )}
-        </header>
+      {level.palette.length > 0 && (
+        <section className="pb-tray" data-trash aria-label="元件托盘：点一下放进空格，按住拖到某一格">
+          {level.palette.map((type) => (
+            <button key={type} type="button" className="pb-part" data-tray={type} data-family={familyOf(type)} onClick={() => placeFirstFree(type)}>
+              <i className="family-chip">{createElement(iconOf(type), { size: 13, strokeWidth: 1.8 })}</i>
+              <b>{NODE_TYPES[type].label}</b>
+            </button>
+          ))}
+        </section>
+      )}
 
-        <div className="pc-dock-body">
-          {tab === 'task' && (
-            <div className="pc-task">
-              {brief}
-              <p className="pc-howto">上面是整个电路：从「输入」往下流到「输出」。点一块在这里调它；点「＋」加元件，会接在选中的那块后面。</p>
-              {footer}
-            </div>
-          )}
+      <footer className="pb-bar">
+        <button className="pb-icon" onClick={undo} disabled={!history.length} aria-label="撤销"><Undo2 size={18} /></button>
+        <span className="pb-meta">{all} 个测试 · {steps.length} 个元件</span>
+        {steps.length > 0 && <button className={`pb-clear ${armed ? 'is-armed' : ''}`} onClick={clear}>{armed ? '确认清空' : '清空'}</button>}
+        <button className={`pb-go ${run?.pass ? 'is-pass' : ''}`} onClick={() => setSheet({ kind: 'tests' })}>
+          {run?.pass ? <Check size={17} /> : null}测试 {passed}/{all}
+        </button>
+      </footer>
 
-          {tab === 'node' && !node && (
-            <div className="pc-empty">
-              <p>点电路图上的一块，就能在这里看它读什么、怎么设置、算出了什么。</p>
-              {level.palette.length > 0 && <button className="bk-btn is-primary" onClick={() => setSheet({ kind: 'add', anchor: tailOf(graph) })}><Plus size={16} />添加第一个元件</button>}
-            </div>
-          )}
+      {pickNote ? (
+        <div className="pb-banner" role="status">
+          <span>{pickNote}</span>
+          <button onClick={() => setPicking(null)}>取消</button>
+        </div>
+      ) : toast && (
+        <div className="ph-toast pb-toast" role="status">
+          <span>{toast}</span>
+          {history.length > 0 && <button onClick={undo}>撤销</button>}
+        </div>
+      )}
 
-          {tab === 'node' && node && (
-            <Inspector
+      {sheet?.kind === 'add' && (
+        <AddSheet level={level} graph={graph} previewFrom={sources[0]?.id} test={level.tests[testIndex]} title={`放进第 ${sheet.at + 1} 格`} theme={theme} onAdd={(type) => place(type, sheet.at)} onClose={() => setSheet(null)} />
+      )}
+      {sheet?.kind === 'part' && byId(sheet.node) && (() => {
+        const node = byId(sheet.node)
+        return (
+          <Sheet title={nameOf(node)} onClose={() => setSheet(null)}>
+            <PartPanel
               node={node}
               graph={graph}
               flags={flags}
@@ -198,37 +322,29 @@ export default function PhoneCircuit({ level, graph, onChange, run, testIndex, o
               theme={theme}
               scan={scan}
               onScan={onScan}
-              picking={picking}
-              onPick={startPick}
+              onSource={(port) => setSheet({ kind: 'source', node: node.id, port })}
               onParam={(key) => setSheet({ kind: 'param', node: node.id, key, before: graph })}
               onView={(v) => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, view: v } : n)) }, { keep: true })}
-              onInsert={level.palette.length > 0 && node.type !== 'output' ? () => setSheet({ kind: 'add', anchor: node.id }) : null}
-              onDelete={NODE_TYPES[node.type].fixed ? null : () => remove(node)}
+              onDelete={NODE_TYPES[node.type].fixed ? null : () => remove(node.id)}
             />
-          )}
-
-          {tab === 'tests' && (
-            <div className="pc-tests">
-              <TestCarousel level={level} run={run} testIndex={testIndex} onTestIndex={onTestIndex} theme={theme} views={views} graph={graph} />
-              <button className="bk-btn pc-detail" onClick={() => setSheet({ kind: 'tests' })}>看这组测试的详情<ChevronRight size={15} /></button>
-              {training}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {toast && (
-        <div className="ph-toast pc-toast" role="status">
-          <span>{toast}</span>
-          <button onClick={undo}>撤销</button>
-        </div>
-      )}
-
-      {sheet?.kind === 'add' && (
-        <AddSheet level={level} graph={graph} anchor={sheet.anchor} next={nextAfter(sheet.anchor)} test={level.tests[testIndex]} anchorName={nameOf(byId(sheet.anchor))} theme={theme} onAdd={add} onClose={() => setSheet(null)} />
-      )}
+          </Sheet>
+        )
+      })()}
       {sheet?.kind === 'source' && (
-        <SourceSheet graph={graph} node={byId(sheet.node)} port={sheet.port} options={[...sources, ...steps].filter((n) => n.id !== sheet.node && !wouldCycle(graph, n.id, sheet.node))} nameOf={nameOf} thumb={thumb} onPick={(from) => { buzz(); edit(connect(graph, sheet.node, sheet.port, from)); setSheet(null); setPicking(null) }} onClose={() => setSheet(null)} />
+        <SourceSheet
+          graph={graph}
+          node={byId(sheet.node)}
+          port={sheet.port}
+          options={[...sources, ...steps].filter((n) => n.id !== sheet.node && !wouldCycle(graph, n.id, sheet.node))}
+          nameOf={nameOf}
+          thumb={thumb}
+          onPick={(from) => {
+            buzz()
+            edit(connect(graph, sheet.node, sheet.port, from))
+            setSheet({ kind: 'part', node: sheet.node })
+          }}
+          onClose={() => setSheet({ kind: 'part', node: sheet.node })}
+        />
       )}
       {sheet?.kind === 'param' && (() => {
         const target = byId(sheet.node)
@@ -237,7 +353,7 @@ export default function PhoneCircuit({ level, graph, onChange, run, testIndex, o
         const change = (v) => onChange(setParam(graph, target.id, param.key, v))
         const close = () => {
           if (graph !== sheet.before) setHistory((h) => [...h.slice(-49), sheet.before])
-          setSheet(null)
+          setSheet({ kind: 'part', node: target.id })
         }
         return (
           <Sheet title={`${nameOf(target)} · ${param.label}`} onClose={close} footer={<div className="ph-live"><span>这一步现在的结果</span>{thumb(target, 96)}</div>}>
@@ -245,14 +361,25 @@ export default function PhoneCircuit({ level, graph, onChange, run, testIndex, o
           </Sheet>
         )
       })()}
-      {sheet?.kind === 'tests' && <Sheet title={`测试 ${passed} / ${all}`} onClose={() => setSheet(null)}>{testDetails}</Sheet>}
+      {sheet?.kind === 'tests' && (
+        <Sheet title={`测试 ${passed} / ${all}`} onClose={() => setSheet(null)}>
+          <div className="pb-test-sheet">
+            <TestCarousel level={level} run={run} testIndex={testIndex} onTestIndex={onTestIndex} theme={theme} views={views} graph={graph} />
+            {training}
+            <details className="pb-details">
+              <summary>这组测试的详情</summary>
+              {testDetails}
+            </details>
+            {footer}
+          </div>
+        </Sheet>
+      )}
     </div>
   )
 }
 
-// The selected block: where its inputs come from (tap to choose on the map), its settings, and
-// what it makes on the current test.
-function Inspector({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, error, check, expected, views, theme, scan, onScan, picking, onPick, onParam, onView, onInsert, onDelete }) {
+// One block in a sheet: where its inputs come from, its settings, and what it makes on this test.
+function PartPanel({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, error, check, expected, views, theme, scan, onScan, onSource, onParam, onView, onDelete }) {
   const spec = NODE_TYPES[node.type]
   const ports = node.type === 'input' ? [] : inputsOf(node.type)
   const params = (spec.params ?? []).filter((p) => !p.unlock || flags.has(p.unlock))
@@ -261,31 +388,9 @@ function Inspector({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, er
     <div className="pc-inspect" data-family={familyOf(node.type)}>
       <header className="pc-inspect-head">
         <span className="ph-node">{node.type === 'output' ? <ArrowDownToLine size={15} /> : createElement(iconOf(node.type), { size: 15, strokeWidth: 1.8 })}</span>
-        <div>
-          <b>{nameOf(node)}</b>
-          <small>{node.type === 'input' || node.type === 'output' ? KIND_NAMES[ioKinds?.[node.params.name]] : describe(node.type)}</small>
-        </div>
-        {onDelete && <button className="pc-icon is-danger" onClick={onDelete} aria-label="删除这一块"><Trash2 size={17} /></button>}
+        <small>{node.type === 'input' || node.type === 'output' ? KIND_NAMES[ioKinds?.[node.params.name]] : describe(node.type)}</small>
+        {onDelete && <button className="pc-icon is-danger" onClick={onDelete} aria-label="拿掉这一块"><Trash2 size={17} /></button>}
       </header>
-
-      {ports.length > 0 && (
-        <div className="pc-section">
-          <span className="pc-label">读哪个结果 · 点一下，再到图上点来源</span>
-          <div className="pc-ports">
-            {ports.map((port) => {
-              const from = byId(feeding(graph, node.id, port))
-              const active = picking?.node === node.id && picking.port === port
-              return (
-                <button key={port} className={`pc-port ${from ? '' : 'is-empty'} ${active ? 'is-active' : ''}`} onClick={() => onPick(node, port)}>
-                  {ports.length > 1 && <i>{PORT_TAGS[port] ?? port}</i>}
-                  {from ? thumb(from, 38) : null}
-                  <span>{active ? '在图上点一块…' : from ? nameOf(from) : '还没接'}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
 
       {params.length > 0 && (
         <div className="pc-section">
@@ -310,12 +415,29 @@ function Inspector({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, er
             <figure><ValueView img={value} view={shown} size={kindOf(expected) === 'image' ? 140 : 150} theme={theme} label="未连接" /><figcaption>你的</figcaption></figure>
           </div>
         ) : (
-          <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 180 : 300} theme={theme} label="还没有结果" grid scan={scan} onScan={onScan} />
+          <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 200 : 300} theme={theme} label="还没有结果" grid scan={scan} onScan={onScan} />
         )}
         {kindOf(value ?? expected) === 'image' && <ViewSwitch value={shown} onChange={onView} compact />}
       </div>
 
-      {onInsert && <button className="bk-btn pc-insert" onClick={onInsert}><Plus size={15} />在这块后面接一个元件</button>}
+      {ports.length > 0 && (
+        <div className="pc-section">
+          <span className="pc-label">读哪个结果 · 也可以在板上连圆点</span>
+          <div className="pc-ports">
+            {ports.map((port) => {
+              const from = byId(feeding(graph, node.id, port))
+              return (
+                <button key={port} className={`pc-port ${from ? '' : 'is-empty'}`} onClick={() => onSource(port)}>
+                  {ports.length > 1 && <i>{PORT_TAGS[port] ?? port}</i>}
+                  {from ? thumb(from, 38) : null}
+                  <span>{from ? nameOf(from) : '还没接'}</span>
+                  <ChevronRight size={15} />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -53,16 +53,8 @@ export function insertAfter(graph, after, type, nextInLine) {
   return { graph: { ...graph, nodes: [...graph.nodes, node], wires }, id }
 }
 
-// Remove a step and let whatever read it read the step's own first input instead, so deleting a
-// block from the middle of a chain does not break the chain.
-export function skip(graph, id) {
-  const [first] = inputsOf(graph.nodes.find((n) => n.id === id)?.type ?? 'input')
-  const upstream = first ? feeding(graph, id, first) : null
-  const wires = graph.wires
-    .filter((w) => w.to !== id)
-    .flatMap((w) => (w.from !== id ? [w] : upstream ? [{ ...w, from: upstream }] : []))
-  return { nodes: graph.nodes.filter((n) => n.id !== id), wires }
-}
+// Take a part off the board with its wires.
+export const removeNode = (graph, id) => ({ ...graph, nodes: graph.nodes.filter((n) => n.id !== id), wires: graph.wires.filter((w) => w.from !== id && w.to !== id) })
 
 export function connect(graph, id, port, from) {
   const wires = graph.wires.filter((w) => !(w.to === id && w.port === port))
@@ -71,40 +63,49 @@ export function connect(graph, id, port, from) {
 
 export const setParam = (graph, id, key, value) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
 
-// Where "append" inserts: after whatever feeds the first output, else after the last block.
-export function tailOf(graph) {
-  const out = graph.nodes.find((n) => n.type === 'output')
-  const fed = out ? feeding(graph, out.id, 'in') : null
-  if (fed) return fed
-  const { sources, steps } = layout(graph)
-  return steps.at(-1)?.id ?? sources[0]?.id ?? null
+// Phone slots: each part sits in a numbered cell of a two-column grid and stays there. A part keeps
+// its saved `slot` when it is free; parts without one take the first free cells in data-flow order.
+// The grid always ends with at least one empty row, so there is room to drop a new part.
+export function placement(graph) {
+  const { steps } = layout(graph)
+  const cell = new Map()
+  const used = new Set()
+  for (const node of steps) {
+    if (Number.isInteger(node.slot) && node.slot >= 0 && !used.has(node.slot)) {
+      cell.set(node.id, node.slot)
+      used.add(node.slot)
+    }
+  }
+  for (const node of steps) {
+    if (cell.has(node.id)) continue
+    let at = 0
+    while (used.has(at)) at += 1
+    cell.set(node.id, at)
+    used.add(at)
+  }
+  const even = (n) => n + (n % 2)
+  const size = Math.max(4, even(Math.max(-1, ...used) + 1) + 2)
+  return { cell, size, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
 }
 
-// Rows and lanes for the circuit map: inputs on the first row, each part one row below the lowest
-// of its sources, outputs on the last row. Within a row, blocks sit near the average lane of what
-// feeds them, so a branch and its merge read as lanes splitting and joining.
-export function mapLayout(graph) {
-  const { sources, steps, outputs } = layout(graph)
-  const rank = new Map(sources.map((n) => [n.id, 0]))
-  for (const node of steps) {
-    const from = graph.wires.filter((w) => w.to === node.id).map((w) => rank.get(w.from)).filter((r) => r !== undefined)
-    // Parts that read nothing (generators) start on the first row, beside the inputs.
-    rank.set(node.id, from.length ? Math.max(...from) + 1 : inputsOf(node.type).length ? 1 : 0)
+// Put a new part of `type` into slot `at`, unwired.
+export function placeAt(graph, type, at) {
+  const id = freshId(graph, type)
+  const [x, y] = placeNear(graph, graph.nodes.at(-1))
+  return { graph: { ...graph, nodes: [...graph.nodes, { id, type, x, y, slot: at, params: defaultParams(type) }] }, id }
+}
+
+// Move a part to slot `at`; a part already there swaps into the moved part's old slot.
+export function moveTo(graph, id, at) {
+  const { cell } = placement(graph)
+  const from = cell.get(id)
+  const other = [...cell].find(([, slot]) => slot === at)?.[0]
+  return {
+    ...graph,
+    nodes: graph.nodes.map((n) => {
+      if (n.id === id) return { ...n, slot: at }
+      if (n.id === other) return { ...n, slot: from }
+      return cell.has(n.id) ? { ...n, slot: cell.get(n.id) } : n
+    }),
   }
-  const last = Math.max(0, ...steps.map((n) => rank.get(n.id)))
-  outputs.forEach((n) => rank.set(n.id, last + 1))
-  const rows = []
-  for (const node of [...sources, ...steps, ...outputs]) (rows[rank.get(node.id)] ??= []).push(node)
-  const lane = new Map()
-  rows.forEach((row = [], r) => {
-    if (r > 0) {
-      const centre = (node) => {
-        const from = graph.wires.filter((w) => w.to === node.id).map((w) => lane.get(w.from)).filter((x) => x !== undefined)
-        return from.length ? from.reduce((a, b) => a + b, 0) / from.length : 0
-      }
-      row.sort((a, b) => centre(a) - centre(b))
-    }
-    row.forEach((node, i) => lane.set(node.id, i - (row.length - 1) / 2))
-  })
-  return { rank, lane, rows: rows.length, lanes: Math.max(1, ...rows.map((row = []) => row.length)) }
 }

@@ -359,7 +359,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
     if (level.kind === 'graph') {
       return (
         <div className="level-phone level-graph is-split">
-          <PhoneCircuit level={level} graph={board} onChange={change} run={run} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} brief={brief} training={training} footer={<>{score}{reset}</>} testDetails={testPanel} />
+          <PhoneCircuit level={level} graph={board} onChange={change} run={run} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onReset={() => { change(startBoard(level)); setLosses([]) }} brief={brief} training={training} footer={score} testDetails={testPanel} />
           {overlays}
         </div>
       )
