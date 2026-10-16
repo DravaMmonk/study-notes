@@ -1,17 +1,20 @@
 // Circuit levels: a robot walks the table cell by cell and runs the player's circuit board on each cell.
-// The player lights cells in the robot's window as inputs, wires components, and the board writes the robot's cell.
+// The player lights cells in the robot's window as inputs, wires components on the shared circuit editor (the one
+// Vision Complete uses, ../../../kit/circuit, through `ctl.board` and ../circuit/board.js), and the board writes the
+// robot's cell.
 // Before a run the test board is a sandbox: the player types numbers into cells and puts the robot anywhere, and the
 // robot's cell shows the circuit's answer at once. Running clears the board and the robot starts from its usual cell.
 // A level may have several stages: a new world with new inputs (when a run fails on purpose), or a new question on
 // the same board (when every test passes; `carry` keeps the circuit). A stage may give the player a scan-order dial,
 // a filter for the sweeping arm, or scan in rounds until the table settles.
 
-import { $, $$, buzz, toast, signal, ICON, wide } from '../util.js';
+import { $, buzz, toast, signal, ICON, wide } from '../util.js';
 import { rt, Anim } from '../runtime.js';
 import { WORLDS, runCircuit, readTap, windowOf, visibleTaps, MAX_ROUNDS } from '../circuit/worlds.js';
 import { ROBOTS } from '../circuit/robots.js';
 import { def, blank, evaluate, clone } from '../circuit/components.js';
-import { editorHTML, viewHTML, drawWires, paintProbe, connect, unwire, removeNode, placeNode, moveNode, placement, toggleLit, litOf, isSink } from '../circuit/editor.js';
+import { viewHTML, removeNode, placeNode, toggleLit, litOf } from '../circuit/editor.js';
+import { toGraph, fromGraph, create, partsFor } from '../circuit/board.js';
 import { PARTS } from '../levels/parts.js';
 import { tr, lazy } from '../i18n.js';
 import { KEY_COLORS } from '../circuit/worlds/maze.js';
@@ -42,8 +45,8 @@ export function circuitMode(L, saved) {
     scan: stages.map((s, k) => (saved && saved.scan && saved.scan[k]) || (s.dial ? s.dial[0] : null)),
     filter: stages.map((s, k) => (saved && saved.filter && saved.filter[k]) || 'all'),
     mem: stages.map((s, k) => (saved && saved.mem && saved.mem[k]) || []),
-    pick: null, armed: false, ti: 0, status: [], view: null,
-    typed: {}, robot: null, sel: null, input: '', wire: null,
+    armed: false, ti: 0, status: [], view: null,
+    typed: {}, robot: null, sel: null, input: '',
   };
   const robot = ROBOTS[L.robot];
   const stage = () => stages[st.stage], V = () => WORLDS[stage().world], circ = () => st.circs[st.stage];
@@ -90,7 +93,9 @@ export function circuitMode(L, saved) {
     w.probe = box ? box.probe : s.probe;
     return w;
   }
-  const ui = () => ({ taps: V().taps, avail: avail(), lit: litOf(circ()), outs: V().outs, pick: st.pick, wire: st.wire, palette: stage().palette, win: win(), sideView: wide() });
+  const ui = () => ({ taps: V().taps, avail: avail(), lit: litOf(circ()), outs: V().outs, palette: stage().palette, win: win(), sideView: wide() });
+  /** The world's inputs and outputs as the shared editor sees them (../circuit/board.js). */
+  const terms = () => ({ taps: V().taps, avail: avail(), outs: V().outs });
   /** The hint for this failure, worded again in the current language whenever the fail sheet is redrawn. */
   const hintFor = () => {
     const s = stage(), c = circ(), fails = rt.cur.fails;
@@ -113,12 +118,9 @@ export function circuitMode(L, saved) {
     }, () => openNode(id));
   }
 
-  function connectPorts(a, b) {
-    const r = connect(circ(), io(), a, b);
-    if (r.msg) { toast(r.msg); buzz(20); return false; }
-    if (r.circ) { setCirc(r.circ); buzz(8); }
-    return !!r.circ;
-  }
+  /** The rewrite-direction switches of the knapsack levels, under the board. */
+  const dirsCard = () => (L.dirs ? `<div class="pcard"><h3>${tr('改写方向', 'Rewrite direction')}<small>${tr('机器上的两个开关', 'two switches on the machine')}</small></h3>${['01', 'inf'].map(kind => `<div class="dirrow"><div class="optlabel">${kind === '01' ? tr('每件最多拿一次时', 'When each item can be taken at most once') : tr('每件可以拿很多次时', 'When each item can be taken many times')}</div>
+        <div class="chips two" role="radiogroup" aria-label="${tr('改写方向', 'Rewrite direction')}">${[['asc', tr('从左往右 →', 'left to right →')], ['desc', tr('← 从右往左', '← right to left')]].map(([v, l]) => `<button class="chip" type="button" role="radio" aria-checked="${st.dirs[kind] === v}" data-act="dir" data-k="${kind}" data-v="${v}">${l}</button>`).join('')}</div></div>`).join('')}</div>` : '');
 
   /** Pick a part for an empty slot: the level's parts, each with what it does. */
   function openSlot(at) {
@@ -132,55 +134,6 @@ export function circuitMode(L, saved) {
       <div class="acts"><button class="btn sec" type="button" data-close>${tr('取消', 'Cancel')}</button></div>`, {
       put: el => { setCirc(placeNode(circ(), el.dataset.k, at)); buzz(8); rt.closeSheet(); rt.refresh(); },
     }, () => openSlot(at));
-  }
-
-  /** The port a wire dropped on a component card lands in: its first free input that accepts the wire, else the first that does. */
-  function cardPort(from, id) {
-    const ok = def(circ().nodes.find(n => n.id === id).kind).ins.map((_, k) => `${id}:${k}`).filter(p => connect(circ(), io(), from, p).circ);
-    return ok.find(p => !circ().wires.some(w => w.to === p)) || ok[0] || null;
-  }
-
-  /** Drag handlers: move or remove components, drop new ones from the parts list, pull wires between ports. */
-  const dnd = {
-    start(g) {
-      st.wire = null;
-      g.u = ui();
-      if (g.kind !== 'port') return;
-      $('#circ').classList.add('picking');
-      $$('#circ [data-p]').forEach(el => el.classList.toggle('can', el.dataset.p !== g.id && !!connect(circ(), io(), g.id, el.dataset.p).circ));
-    },
-    move(g) { drawWires($('#cboard'), circ(), g.u, g.u.win.probe, g.kind === 'port' ? { from: g.id, x: g.x, y: g.y } : null); },
-    drop(g) {
-      const over = g.over;
-      const slot = over && over.dataset.slot !== undefined ? +over.dataset.slot : null;
-      if (g.kind === 'port' && over) {
-        const onto = over.dataset.piece, to = over.dataset.p || (onto ? (isSink(g.id) ? onto : cardPort(g.id, onto)) : null);
-        if (to && connectPorts(g.id, to)) st.pick = null;
-      }
-      if (g.kind === 'piece' && over) {
-        if (slot !== null) setCirc(moveNode(circ(), g.id, slot));
-        else { setCirc(removeNode(circ(), g.id)); toast(tr('拿掉了一个元件', 'Removed a component')); }
-      }
-      if (g.kind === 'tray' && over) {
-        const free = placement(circ()).free;
-        if (slot === null) setCirc(placeNode(circ(), g.id, free[0]));
-        else if (free.includes(slot)) setCirc(placeNode(circ(), g.id, slot));
-        else toast(tr('这一格已经有元件了', 'That slot already has a component'));
-      }
-      rt.refresh();
-    },
-    end: () => rt.refresh(),
-  };
-
-  function onPort(p) {
-    st.wire = null;
-    if (!st.pick) {
-      if (isSink(p) && circ().wires.some(w => w.to === p)) { setCirc(unwire(circ(), p)); toast(tr('拆掉了一根线', 'Removed a wire')); buzz(8); }
-      else st.pick = p;
-    } else if (st.pick === p) st.pick = null;
-    else if (isSink(st.pick) === isSink(p)) st.pick = p;
-    else if (connectPorts(st.pick, p)) st.pick = null;
-    rt.refresh();
   }
 
   /** First step whose outputs differ from the reference circuit's; scanning in rounds, the first cell that settled wrong. */
@@ -295,31 +248,32 @@ export function circuitMode(L, saved) {
     },
     panelStage: true,
     sideView: true,
-    dnd,
-    parts() {
-      const fresh = stage().fresh || [];
-      const items = stage().palette.map(kind => {
-        const d = def(kind);
-        return `<button class="titem${d.bp ? ' bp' : ''}" type="button" data-act="tray" data-k="${kind}" data-tray="${kind}" title="${d.desc}">
-          <span class="ti-ic">${d.bp ? ICON.part : d.icon}</span><span class="ti-tx"><b>${d.name}${fresh.includes(kind) ? `<em>${tr('新', 'new')}</em>` : ''}</b><small>${kind === 'const' ? tr('一个数', 'a number') : d.tag}</small><span class="ti-ds">${d.desc}</span></span><span class="ti-add" aria-hidden="true">＋</span></button>`;
-      }).join('');
-      return `<header class="phead"><h3>${tr('元件', 'Components')}</h3><small>${tr('点一下放进空格，按住拖到某一格', 'Click to drop into a free slot, or hold and drag to a slot')}</small></header><div class="plist">${items}</div>
-        <p class="tdrop">${tr('拖到这里拿掉元件', 'Drag here to remove a component')}</p><p class="pnote">${tr('点两个圆点连线，或从一个圆点拖到另一个；选中圆点后点一块也能接。点已接好的输入口就拆掉。按住一块可以换格子，拖回这里就是拿掉。点一下连线可以选中它，按 Delete 删除；Esc 取消。', 'Click two dots to wire them, or drag from one dot to another; with a dot picked, clicking a component also connects it. Click a wired input to unwire it. Hold a component to move it to another slot, or drag it back here to remove it. Click a wire to select it and press Delete to remove it; Esc cancels.')}</p>`;
+    /** The board, played on the shared circuit editor: the graph it shows, how a change comes back, new parts, sheets. */
+    board: {
+      graph: () => toGraph(circ(), terms()),
+      parts: () => partsFor(circ(), terms()),
+      probe: () => win().probe,
+      change(next, { keep } = {}) {
+        if (busy()) return;
+        const c = fromGraph(next, circ());
+        // A card moved only changes where it sits: kept, but the tests need not run again.
+        if (keep) { st.circs[st.stage] = c; rt.persist(); } else setCirc(c);
+        rt.refresh();
+      },
+      create,
+      reset() { setCirc(blank()); rt.refresh(); },
+      palette: () => stage().palette.map(kind => { const d = def(kind); return { type: kind, label: d.tag && kind !== 'const' && !d.bp ? lazy(() => `${d.name} · ${d.tag}`) : d.name, desc: d.desc, icon: d.bp ? '◆' : d.icon, tag: kind === 'const' ? tr('一个数', 'a number') : d.tag, fresh: (stage().fresh || []).includes(kind) }; }),
+      consts: () => stage().consts || [0, 1, 2, 3, 4, 5],
+      /** The models a merger can swap to in place (its wires stay). */
+      swaps: kind => (MERGES.includes(kind) ? MERGES.filter(k => k === kind || stage().palette.includes(k)) : []),
+      setValue(id, v) { if (busy()) return; setCirc({ ...circ(), nodes: circ().nodes.map(x => (x.id === id ? { ...x, value: v } : x)) }); buzz(6); rt.refresh(); },
+      swap(id, kind) { if (busy()) return; setCirc({ ...circ(), nodes: circ().nodes.map(x => (x.id === id ? { ...x, kind } : x)) }); buzz(8); rt.refresh(); },
+      openNode: id => { if (!busy() && circ().nodes.some(n => n.id === id)) openNode(id); },
+      openSlot: at => { if (!busy()) openSlot(at); },
     },
-    /** Delete key: remove the selected wire. */
-    remove() {
-      if (!st.wire || busy()) return false;
-      setCirc(unwire(circ(), st.wire));
-      st.wire = null;
-      buzz(8);
-      rt.refresh();
-      return true;
-    },
-    /** Esc: drop a half-made wire, the wire selection or the number pad. */
+    /** Esc: put the number pad away. */
     cancel() {
-      if (!st.pick && !st.wire && !st.sel) return false;
-      st.pick = null;
-      st.wire = null;
+      if (!st.sel) return false;
       st.sel = null;
       st.input = '';
       rt.refresh();
@@ -327,22 +281,18 @@ export function circuitMode(L, saved) {
     },
     panel() {
       const uses = L.uses ? `<div class="chips">${L.uses.map(k => `<span class="tag">${ICON.part}${tr('零件', 'Part')} · ${PARTS[k].name}</span>`).join('')}</div>` : '';
-      const dirs = L.dirs ? `<div class="pcard"><h3>${tr('改写方向', 'Rewrite direction')}<small>${tr('机器上的两个开关', 'two switches on the machine')}</small></h3>${['01', 'inf'].map(kind => `<div class="dirrow"><div class="optlabel">${kind === '01' ? tr('每件最多拿一次时', 'When each item can be taken at most once') : tr('每件可以拿很多次时', 'When each item can be taken many times')}</div>
-        <div class="chips two" role="radiogroup" aria-label="${tr('改写方向', 'Rewrite direction')}">${[['asc', tr('从左往右 →', 'left to right →')], ['desc', tr('← 从右往左', '← right to left')]].map(([v, l]) => `<button class="chip" type="button" role="radio" aria-checked="${st.dirs[kind] === v}" data-act="dir" data-k="${kind}" data-v="${v}">${l}</button>`).join('')}</div></div>`).join('')}</div>` : '';
       const s = stage(), flash = st.flashAt && Date.now() - st.flashAt < 1800;
       const dial = s.dial ? `<div class="pcard dial${flash ? ' flash' : ''}"><h3>${tr('扫描顺序', 'Scan order')}<small>${tr('机器人按这个顺序走过整张表', 'the robot walks the whole table in this order')}</small></h3>
         <div class="dialopts" role="radiogroup" aria-label="${tr('扫描顺序', 'Scan order')}">${s.dial.map(id => { const d = V().dial[id]; return `<button class="dialopt" type="button" role="radio" aria-checked="${st.scan[st.stage] === id}" data-act="scan" data-v="${id}">${orderFig(d.fig)}<span>${d.l}</span></button>`; }).join('')}</div></div>` : '';
       const mem = s.memory ? memoryCard(s, st.mem[st.stage], tests()[st.ti]) : '';
-      return `${mem}${dial}<div class="pcard cpcard"><h3><span class="cptitle">${tr('电路板', 'Circuit board')}</span>${st.wire ? `<button class="cdel" type="button" data-act="unwire">${tr('删除连线', 'Delete wire')}</button>` : `<small>${tr('点圆点连线，按住元件换格子', 'click dots to wire, hold a component to move it')}</small>`}</h3>${uses}
-        ${editorHTML(circ(), ui())}</div>${dirs}${st.pick ? `<div class="pickbar" role="status"><span>${isSink(st.pick) ? tr('这个输入口读谁？点一个亮起的输出口（块底下的圆点），或点那一块', 'What should this input read? Click a highlighted output (the dot under a component), or the component itself') : tr('接到哪？点一个亮起的输入口（块顶上的圆点），或点那一块', 'Where does it go? Click a highlighted input (a dot on top of a component), or the component itself')}</span><button type="button" data-act="unpick">${tr('取消', 'Cancel')}</button></div>` : ''}`;
+      return `${mem}${dial}${uses}`;
     },
+    /** Under the board: the rewrite-direction switches. */
+    panelAfter: () => dirsCard(),
+    /** The robot's window, beside the board on a desktop and above it on a phone. */
     mounted() {
-      const root = $('#circ');
-      if (!root) return;
-      const u = ui();
-      $('#cview').innerHTML = viewHTML(circ(), u);
-      drawWires($('#cboard'), circ(), u, u.win.probe);
-      paintProbe(root, u.win.probe);
+      const view = $('#cview');
+      if (view) view.innerHTML = viewHTML(circ(), ui());
     },
     dock: () => (st.sel ? { pad: true } : { meta: `${stages.length > 1 ? tr(`阶段 ${st.stage + 1}/${stages.length} · `, `Stage ${st.stage + 1}/${stages.length} · `) : ''}${tr(`${tests().length} 个测试 · ${circ().nodes.length} 个元件`, `${tests().length} tests · ${circ().nodes.length} component${circ().nodes.length === 1 ? '' : 's'}`)}`, sec: circ().nodes.length && !busy() ? (st.armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear')) : '', secAct: 'clear', go: busy() ? tr('跳过动画', 'Skip animation') : tr('运行测试', 'Run tests'), act: 'run', busy: busy() }),
     padTitle: () => tr(`${V().name(st.sel)}：填一个数（不填 = 清空这一格）`, `${V().name(st.sel)}: type a number (leave blank to clear the cell)`),
@@ -366,31 +316,8 @@ export function circuitMode(L, saved) {
     act(name, el) {
       if (name === 'run') { if (busy()) Anim.skip(); else ctl.run(); return; }
       if (busy()) return;
-      if (name === 'port') onPort(el.dataset.p || el.dataset.q);
-      if (name === 'wire') { st.pick = null; st.wire = st.wire === el.dataset.w ? null : el.dataset.w; buzz(6); rt.refresh(); }
-      if (name === 'unwire') ctl.remove();
-      if (name === 'tray') {
-        st.pick = null;
-        st.wire = null;
-        setCirc(placeNode(circ(), el.dataset.k, placement(circ()).free[0]));
-        buzz(8);
-        rt.refresh();
-      }
-      if (name === 'slot') { st.pick = null; st.wire = null; openSlot(+el.dataset.at); }
-      if (name === 'unpick') { st.pick = null; rt.refresh(); }
-      if (name === 'lit') { st.pick = null; st.wire = null; setCirc(toggleLit(circ(), el.dataset.t)); buzz(6); rt.refresh(); }
+      if (name === 'lit') { setCirc(toggleLit(circ(), el.dataset.t)); buzz(6); rt.refresh(); }
       if (name === 'sandbox') { st.view = null; rt.refresh(); }
-      if (name === 'node') {
-        // With a dot picked, tapping a card wires it: to its output, or to its first free input that fits.
-        if (st.pick) {
-          const id = el.dataset.n, to = isSink(st.pick) ? id : cardPort(st.pick, id);
-          if (to && connectPorts(st.pick, to)) st.pick = null;
-          else if (!to) { toast(tr('这一块没有能接这根线的口', 'This component has no port that takes this wire')); buzz(20); }
-          rt.refresh();
-          return;
-        }
-        openNode(el.dataset.n);
-      }
       if (name === 'scan') { st.scan[st.stage] = el.dataset.v; changed(); buzz(6); rt.refresh(); }
       if (name === 'mem') { const m = st.mem[st.stage], v = el.dataset.v; st.mem[st.stage] = m.includes(v) ? m.filter(x => x !== v) : [...m, v]; st.robot = null; st.typed = {}; changed(); buzz(6); rt.refresh(); }
       if (name === 'filter') { st.filter[st.stage] = el.dataset.v; changed(); buzz(6); rt.refresh(); }
@@ -398,14 +325,13 @@ export function circuitMode(L, saved) {
       if (name === 'clear') {
         if (!st.armed) { st.armed = true; rt.refresh(); setTimeout(() => { if (st.armed) { st.armed = false; rt.refresh(); } }, 2600); return; }
         setCirc(blank());
-        st.pick = null;
         rt.refresh();
       }
     },
     onCell(id) {
       const v = st.view;
       if (busy()) return;
-      if (!v) { st.sel = st.sel === id ? null : id; st.input = ''; st.pick = null; buzz(6); rt.refresh(); return; }
+      if (!v) { st.sel = st.sel === id ? null : id; st.input = ''; buzz(6); rt.refresh(); return; }
       if (!v.end) return;
       let q = -1;
       v.res.steps.slice(0, v.k).forEach((s, j) => { if (s.at.includes(id)) q = j; });

@@ -32,14 +32,6 @@
 [data-family='other'] { --fam: var(--fam-other); }
 
 /* ---- the brief's parts, score and training (the shell lays out the workbench: games/kit/shell/shell.css) ---- */
-.palette { display: grid; gap: 6px; }
-.palette-item { width: 100%; padding: 8px 10px 8px 8px; display: grid; grid-template-columns: 26px minmax(0, 1fr) 14px; align-items: center; gap: 8px; border: 0; border-radius: 10px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); text-align: left; cursor: pointer; transition: box-shadow 160ms ease, transform 160ms ease, background 160ms ease; }
-.palette-item:hover { background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule), 0 6px 16px -12px rgba(0, 0, 0, .5); transform: translateY(-1px); }
-.palette-item:active { transform: translateY(0) scale(.99); }
-.palette-text { min-width: 0; display: grid; gap: 1px; }
-.palette-text span { font-size: 13px; }
-.palette-text small { overflow: hidden; color: var(--muted); font-size: 11px; line-height: 1.35; text-overflow: ellipsis; }
-.palette-add { color: var(--faint); }
 
 .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .stat { padding: 8px 10px; display: grid; gap: 2px; border-radius: 10px; background: var(--canvas); }
@@ -61,39 +53,14 @@
 .loss figcaption span { color: var(--faint); }
 
 /* ---- board ---- */
-.board { position: relative; height: 100%; min-height: 0; overflow: hidden; background: var(--canvas); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
-.board:active { cursor: grabbing; }
-.board-grid { position: absolute; inset: 0; background-image: radial-gradient(circle, color-mix(in srgb, var(--rule) 70%, transparent) 1px, transparent 1.3px); }
-.board-layer { position: absolute; inset: 0; }
-.board-wires { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; }
-.board-empty { position: absolute; z-index: 1; top: 50%; left: 50%; width: min(320px, 80%); margin: 0; padding: 16px 18px; color: var(--muted); border-radius: 14px; background: color-mix(in srgb, var(--paper) 80%, transparent); box-shadow: 0 0 0 1px var(--hairline); font-size: 13px; line-height: 1.6; text-align: center; transform: translate(-50%, 40px); pointer-events: none; }
 
-.kw { --kw: color-mix(in srgb, var(--fam, var(--muted)) 55%, var(--rule)); --kw-halo: var(--canvas); }
-.kw.is-live { --kw: color-mix(in srgb, var(--fam, var(--muted)) 75%, var(--ink) 10%); }
 
-.node { position: absolute; padding-bottom: 10px; border-radius: 12px; background: var(--paper); box-shadow: var(--card); cursor: default; animation: card-in 240ms cubic-bezier(.2, .8, .2, 1); transition: box-shadow 180ms ease; }
-.node::before { content: ''; position: absolute; top: 0; left: 12px; right: 12px; height: 2px; border-radius: 0 0 2px 2px; background: var(--fam, var(--muted)); opacity: .85; }
-.node.is-selected { box-shadow: var(--card-lift); }
 .node-input, .node-output { background: var(--surface); }
 .node-output.is-pass { box-shadow: 0 0 0 2px var(--status), 0 10px 26px -14px color-mix(in srgb, var(--status) 70%, transparent); }
 .node-output.is-fail { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--fail) 70%, transparent), 0 8px 22px -14px rgba(0, 0, 0, .4); }
-.node-head { height: 30px; padding: 0 6px 0 8px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--hairline); font-size: 12.5px; cursor: grab; touch-action: none; user-select: none; }
-.node-head .family-chip { width: 20px; height: 20px; border-radius: 5px; }
-.node-title { min-width: 0; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .node-verdict { padding: 1px 6px; border-radius: 6px; color: var(--paper); background: var(--fail); font-family: var(--mono); font-size: 9.5px; font-style: normal; }
 .node-output.is-pass .node-verdict { background: var(--status); }
-.node-delete { width: 22px; height: 22px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 6px; color: var(--faint); background: none; cursor: pointer; }
-.node-delete:hover { color: var(--fail); background: var(--hover); }
-.node-ports { position: relative; margin-top: 6px; }
-.node-port-label { position: absolute; left: 12px; height: 20px; display: flex; align-items: center; color: var(--muted); font-family: var(--mono); font-size: 10px; }
-.port { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--paper); box-shadow: 0 0 0 1.5px var(--fam, var(--ink)); transition: background 160ms ease, transform 160ms ease; }
-.port.is-wired { background: var(--fam, var(--ink)); }
-.port-in { left: -18px; top: 4px; }
-.port-out { right: -6px; top: 4px; cursor: crosshair; }
-.port:hover { transform: scale(1.25); background: var(--accent); }
 .board.is-touch .port::before { content: ''; position: absolute; inset: -12px; border-radius: 50%; }
-.param { margin: 5px 10px 0; display: flex; align-items: center; justify-content: space-between; gap: 6px; color: var(--muted); font-size: 11px; }
-.param select, .param input { width: 76px; min-width: 0; height: 24px; padding: 0 6px; border: 0; border-radius: 6px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--mono); font-size: 11px; }
 .param-number { display: inline-flex; align-items: center; gap: 3px; }
 .param-number input { width: 56px; }
 .param-kernel-wrap { margin: 6px 10px 0; display: grid; gap: 3px; }
@@ -101,8 +68,6 @@
 .param-kernel { margin: 6px 10px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
 .param-kernel input, .param-kernel output { width: 100%; min-width: 0; height: 24px; padding: 0 2px; border: 0; border-radius: 4px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--mono); font-size: 10.5px; text-align: center; line-height: 24px; }
 .param-kernel.is-learned output { color: var(--ink); background: color-mix(in srgb, var(--fam-learned) calc(var(--w) * 30%), var(--canvas)); }
-.node-carries { position: absolute; top: 0; left: 26px; right: 10px; height: 20px; display: flex; align-items: center; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .04em; pointer-events: none; }
-.node-carries.is-input { left: 10px; right: 26px; justify-content: flex-end; }
 .node-preview { position: relative; margin: 9px 11px 0; min-height: 40px; display: grid; place-items: center; }
 .node-view { position: absolute; z-index: 2; top: 4px; right: 4px; height: 22px; padding: 0 7px 0 6px; display: inline-flex; align-items: center; gap: 4px; border: 0; border-radius: 7px; color: var(--ink); background: color-mix(in srgb, var(--paper) 88%, transparent); box-shadow: 0 0 0 1px var(--rule); font: inherit; font-size: 10.5px; cursor: pointer; opacity: .82; transition: opacity 160ms ease, box-shadow 160ms ease; backdrop-filter: blur(6px); }
 .node-view:hover, .node-view.is-open, .node-view:focus-visible { opacity: 1; }
@@ -123,14 +88,7 @@
 .board-views-reset { margin-left: 2px; }
 .node-peek { margin: 4px 11px 0; color: var(--muted); font-family: var(--mono); font-size: 10px; font-variant-numeric: tabular-nums; }
 .node-error { padding: 16px 0; color: var(--faint); font-size: 11px; }
-@keyframes card-in { from { opacity: 0; transform: translateY(6px) scale(.97); } }
 
-.board-zoom { position: absolute; z-index: 5; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 1px; padding: 2px; border-radius: 10px; background: color-mix(in srgb, var(--paper) 88%, transparent); box-shadow: 0 0 0 1px var(--hairline), 0 6px 18px -12px rgba(0, 0, 0, .4); backdrop-filter: blur(10px); }
-.board-zoom button, .board-zoom output { min-width: 30px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 8px; color: var(--muted); background: transparent; font-family: var(--mono); font-size: 11px; }
-.board-zoom button { cursor: pointer; }
-.board-zoom button:hover { color: var(--ink); background: var(--hover); }
-.board-zoom output { min-width: 44px; }
-.board-delete { position: absolute; z-index: 6; left: 50%; bottom: 16px; min-height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 18px; color: var(--paper); background: var(--fail); box-shadow: 0 10px 22px -12px rgba(0, 0, 0, .5); font-size: 12.5px; transform: translateX(-50%); cursor: pointer; animation: rise-in 180ms ease; }
 
 .image-view { display: block; image-rendering: pixelated; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); background: var(--canvas); }
 .image-grid { position: relative; display: inline-block; line-height: 0; }
@@ -206,10 +164,8 @@
 
 /* ---- phone ---- */
 @media (max-width: 760px) {
-  .board-zoom { top: 12px; right: 12px; bottom: auto; }
   .board-views { top: 12px; left: 12px; bottom: auto; }
   /* Phones pinch to zoom, so only the fit button stays next to the view bar. */
-  .board-zoom output, .board-zoom button:not(:last-child) { display: none; }
   .board-views-label, .board-views button span { display: none; }
   .board-views button { width: 32px; padding: 0; justify-content: center; }
   .node-view span { display: none; }

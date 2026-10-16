@@ -1,6 +1,7 @@
 import { Suspense, createElement, useMemo, useState } from 'react'
-import { Plus, RotateCcw } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 import { Brief, PhonePage, PinnedPlay, Workbench } from '../../../games/kit/shell/index.js'
+import { Palette, freeSpot } from '../../../games/kit/circuit/index.js'
 import { L, tr } from '../../../games/kit/shell/i18n.js'
 import { hasLearnable, runLevel, trainStep } from './engine/graph.js'
 import { NODE_TYPES, defaultParams } from './engine/nodes.js'
@@ -111,11 +112,9 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
     let index = count
     while (taken.has(`${type}-${index}`)) index += 1
     const id = `${type}-${index}`
-    // Drop the new card in the first free slot of a loose grid between the camera and the display.
-    const slots = []
-    for (let row = 0; row < 5; row++) for (let col = 0; col < 3; col++) slots.push([200 + col * 150, 40 + row * 190])
-    const free = slots.find(([x, y]) => !board.nodes.some((n) => Math.abs(n.x - x) < 140 && Math.abs(n.y - y) < 170)) ?? [220 + (count % 4) * 30, 60 + (count % 6) * 30]
-    const node = { id, type, x: free[0], y: free[1], params: defaultParams(type) }
+    // Drop the new card in the first free spot of a loose grid between the camera and the display.
+    const [x, y] = freeSpot(board)
+    const node = { id, type, x, y, params: defaultParams(type) }
     change({ ...board, nodes: [...board.nodes, node] })
   }
 
@@ -133,7 +132,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
 
   const passed = shown?.results.filter((r) => r.pass).length ?? 0
 
-  const parts = <PartsList palette={level.palette} onAdd={addNode} />
+  const parts = <Palette items={level.palette.map((type) => ({ type, label: NODE_TYPES[type].label, desc: describe(type), icon: iconOf(type), family: familyOf(type) }))} onAdd={addNode} />
   const brief = <Brief game={game} level={level} hint={level.hint} phone={phone} />
   const training = level.kind === 'graph' && hasLearnable(board) && (
     <section>
@@ -207,24 +206,6 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
       stage={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={level.palette.length > 0} />}
       side={testPanel}
     />
-  )
-}
-
-function PartsList({ palette, onAdd }) {
-  if (!palette.length) return <p className="panel-note">{tr('这一关不需要元件。', 'This level needs no parts.')}</p>
-  return (
-    <div className="palette">
-      {palette.map((type) => (
-        <button key={type} className="palette-item" data-family={familyOf(type)} onClick={() => onAdd(type)} title={describe(type)}>
-          <i className="family-chip">{createElement(iconOf(type), { size: 14, strokeWidth: 1.7 })}</i>
-          <span className="palette-text">
-            <span>{L(NODE_TYPES[type].label)}</span>
-            <small>{describe(type)}</small>
-          </span>
-          <Plus size={14} className="palette-add" />
-        </button>
-      ))}
-    </div>
   )
 }
 

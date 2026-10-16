@@ -5,6 +5,7 @@ import { buzz, reduced, ICON } from './util.js'
 import { sceneSVG } from './svg.js'
 import { rt, Anim } from './runtime.js'
 import { MODES } from './modes/index.js'
+import { SgCanvas, SgPalette, SgPhone } from './circuit/BoardView.jsx'
 
 // A State Graph level on the shared game shell (games/kit/shell). Each level is played by a mode controller
 // (js/modes/*: wire, trace, fill, circuit, …) that draws HTML and talks to the page only through `rt`
@@ -74,7 +75,10 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       q('#view').innerHTML = ctl.sideView && !phone ? '<aside class="cview" id="cview"></aside>' : ''
       renderBoard()
       q('#panel').innerHTML = ctl.panel()
-      q('#parts').innerHTML = ctl.parts ? ctl.parts() : ''
+      const after = q('#panelAfter')
+      if (after) after.innerHTML = ctl.panelAfter ? ctl.panelAfter() : ''
+      const partsBox = q('#parts')
+      if (partsBox) partsBox.innerHTML = ctl.parts ? ctl.parts() : ''
       if (ctl.mounted) ctl.mounted()
       renderDock()
       setTick((t) => t + 1)
@@ -222,7 +226,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       tip={tip?.text}
       phone={phone}
     >
-      {!phone && <section className="parts" id="parts" data-trash />}
+      {!phone && (ctl.board ? <SgPalette board={ctl.board} /> : <section className="parts" id="parts" data-trash />)}
     </Brief>
   )
   // The mode's regions. Each is painted by the mode (innerHTML), never by React, so they have no React children.
@@ -235,8 +239,16 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       <div id="after" />
     </section>
   )
-  const panel = <div className="panel" id="panel" />
   const dock = <footer className="dock" id="dock" />
+  // Circuit levels play on the shared circuit editor (./circuit/BoardView.jsx): the mode's cards (memory, scan order)
+  // above it, its direction switches under it.
+  const panel = ctl.board ? (
+    <div className="panel sg-boardpanel">
+      <div id="panel" />
+      {!phone && <SgCanvas board={ctl.board} />}
+      <div id="panelAfter" />
+    </div>
+  ) : <div className="panel" id="panel" />
   const modeSheet = sheet && (
     <Sheet onClose={() => setSheet(null)}>
       <div
@@ -254,6 +266,18 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
     </Sheet>
   )
 
+  if (phone && ctl.board) {
+    return (
+      <PhonePage rootRef={root} brief={brief} className="sg-level is-circuit">
+        {bcard}
+        {panel}
+        <aside className="cview" id="cview" />
+        <SgPhone board={ctl.board} rootRef={root} dock={dock} />
+        <div className="toast" id="toast" role="status" />
+        {modeSheet}
+      </PhonePage>
+    )
+  }
   if (phone) {
     return (
       <PhonePage rootRef={root} brief={brief} className="sg-level">

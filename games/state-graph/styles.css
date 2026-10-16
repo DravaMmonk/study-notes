@@ -272,80 +272,10 @@ button:disabled{cursor:not-allowed}
 .ref{display:grid;gap:2px;padding:10px 12px;border-radius:12px;background:var(--panel-2)}
 .ref b{font:600 14.5px var(--f-display)}
 .ref span{font-size:13px;color:var(--ink-2)}
-/* ---------- circuit editor: board (left) + robot window (right) + tray ---------- */
-.cpcard{padding:14px 12px}
-.cedit{display:grid;gap:10px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.cmain{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
-/* Phones: the robot's window first (that is where inputs come from), then the board at full width. */
-.cmain>.cview{order:-1;justify-self:stretch;max-width:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:'head facts' 'note facts' 'wins wins' 'arm arm';justify-items:start;align-items:start;gap:8px 12px;padding:10px 12px}
-.cmain>.cview .vhead{grid-area:head}.cmain>.cview .vnote{grid-area:note;text-align:left;text-wrap:balance}.cmain>.cview .vwins{grid-area:wins;justify-self:stretch}.cmain>.cview .vfacts{grid-area:facts;justify-self:stretch}.cmain>.cview .varm{grid-area:arm;justify-self:center}
+/* ---------- the robot's window (the circuit board itself is the shared editor, ../kit/circuit) ---------- */
 .vwins{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 16px}
-.cboard{position:relative;min-width:0;border-radius:14px;background:var(--board);border:1px solid var(--line);padding:12px 8px 16px}
-.clayer{position:relative;display:grid;gap:26px}
-/* Wires run over the cards, each on a pale casing the colour of a card, so it reads as lying on top; the dots
-   sit above the wires so they stay easy to hit. */
-.cwires{position:absolute;left:0;top:0;z-index:2;pointer-events:none;overflow:visible}
-.cboard{--kw-halo:var(--panel)}
-.cwires .kw-halo{stroke-width:6px;opacity:.85}
-.cnode.lift{z-index:30}
-/* On touch screens a wire over a card must not swallow the tap meant for the card: wires are unplugged at their input dot there. */
-@media (pointer:coarse){.cwires .kw-hit{pointer-events:none}}
-.kw.is-bool .kw-line{stroke-width:2px}
-.cdel{min-height:30px;padding:0 10px;border-radius:9px;background:var(--bad);color:var(--panel);font:600 12.5px var(--f-body)}
-.cempty{flex:1;margin:0;padding:10px 6px;border-radius:10px;border:1px dashed var(--line);font-size:12px;color:var(--ink-3);text-align:center}
-.cterms,.couts{display:flex;flex-wrap:wrap;justify-content:center;gap:24px 8px}
-.cgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 8px}
-.ccell{min-height:86px;display:grid;border-radius:13px}
-.ccell.over{box-shadow:0 0 0 2px var(--signal);background:var(--signal-soft)}
-.cslot{display:grid;place-items:center;border-radius:13px;border:1.5px dashed var(--line);color:var(--ink-3);font:400 20px var(--f-body);background:transparent}
-.cslot:active{background:var(--signal-soft)}
-.drag-piece .cslot,.drag-tray .cslot{border-color:var(--signal)}
-.cport.open .dot{border-color:var(--bad);background:var(--bad-soft)}
-.pickbar{position:fixed;z-index:40;left:12px;right:12px;bottom:calc(186px + env(safe-area-inset-bottom));min-height:46px;padding:6px 4px 6px 14px;display:flex;align-items:center;gap:8px;border-radius:14px;background:var(--ink);color:var(--panel);font:500 13px/1.5 var(--f-body);box-shadow:var(--card-lift)}
-.pickbar span{flex:1;min-width:0}
-.pickbar button{min-width:56px;min-height:38px;border-radius:10px;color:var(--signal);font:600 14px var(--f-body)}
-@media (min-width:761px){.sg-level.panel-stage .panel>.pickbar{position:sticky;left:auto;right:auto;bottom:24px;width:min(520px,100%);margin:0 auto}}
-.cpcard .chips .tag{height:auto;padding:5px 8px;gap:6px;background:var(--signal-soft);color:var(--signal);font:600 11.5px var(--f-mono)}
-.cpcard .chips .tag svg{width:16px;height:16px}
-.cport{position:relative;display:flex;flex-direction:column;align-items:center;transition:opacity .15s}
-.dot{display:block;flex:none;width:15px;height:15px;border-radius:50%;background:var(--board);border:2.5px solid var(--c,var(--wire));transition:background .15s,box-shadow .15s}
-.cport.bool .dot{border-radius:4px;transform:rotate(45deg) scale(.9)}
-.cport.wired .dot{background:var(--c,var(--wire))}
-.cin.wired .dot{background:var(--wire);border-color:var(--wire)}
-.cport.picked .dot{background:var(--signal);border-color:var(--signal);box-shadow:0 0 0 6px var(--signal-soft)}
-.cport.can .dot,.cport.over .dot{border-color:var(--signal);animation:can 1s ease-in-out infinite}
-@keyframes can{50%{box-shadow:0 0 0 7px var(--signal-soft)}}
-.cedit.picking .cport:not(.can):not(.picked),.cedit.picking .chead{opacity:.4}
 .tag{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 4px;border-radius:5px;background:var(--c);color:var(--tag-ink);font:700 10px/1 var(--f-body);white-space:nowrap}
-.pv{font:700 11.5px/1.2 var(--f-mono);color:var(--signal);font-variant-numeric:tabular-nums;white-space:nowrap}
-.pv:not(.on){display:none}
-.cterm{padding:6px 4px 0;justify-content:flex-start!important;border-radius:10px;background:var(--panel);box-shadow:var(--card);border-top:3px solid var(--c);gap:2px;text-align:center}
-.cterm b{font:600 11.5px/1.2 var(--f-body);color:var(--ink)}
-.cend{padding:0 4px 6px;justify-content:flex-end!important;border-radius:10px;background:var(--panel);border:2px solid var(--bad);gap:2px;text-align:center}
-.cend b{font:600 12px/1.2 var(--f-body)}
-.cterm,.cend{position:relative;flex:0 1 96px;min-width:72px;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation}
-.cterm{padding-bottom:14px}.cend{padding-top:14px;min-width:110px}
-.cdot{position:absolute;left:50%;width:30px;height:26px;margin-left:-15px;display:grid;place-items:center;z-index:3}
-.cterm .cdot{bottom:-13px} .cend .cdot{top:-13px}
 .cl{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 4px}
-.cterm.over,.cend.over{box-shadow:var(--card),0 0 0 2px var(--signal)}
-.cnode{position:relative;height:100%;cursor:grab;display:flex;flex-direction:column;border-radius:13px;background:var(--panel);box-shadow:var(--card);touch-action:manipulation;transition:box-shadow .15s,transform .15s}
-.cnode::before{content:"";position:absolute;top:0;left:14px;right:14px;height:3px;border-radius:0 0 3px 3px;background:var(--c);opacity:.9}
-.cnode.bp{box-shadow:var(--card),0 0 0 1.5px var(--signal);background:linear-gradient(var(--signal-soft),var(--signal-soft)),var(--panel)}
-.cnode.over{box-shadow:var(--card),0 0 0 2px var(--signal)}
-.cnode.armed,.cterm.armed,.cend.armed{transform:scale(1.04);box-shadow:0 0 0 2px var(--signal)}
-.cnode.lift,.cterm.lift,.cend.lift{z-index:30;pointer-events:none;box-shadow:var(--card-lift),0 0 0 2px var(--signal)}
-.cins{position:absolute;left:0;right:0;top:-16px;display:flex;justify-content:space-evenly;z-index:3}
-.cin{width:26px;height:44px;padding-top:8.5px;gap:3px}
-.cin .pl{font:700 10px/1 var(--f-body);color:var(--ink-3);white-space:nowrap}
-.chead{flex:1;display:grid;place-content:center;gap:2px;padding:26px 4px 20px;border-radius:12px;text-align:center;position:relative}
-.chead b{font:600 13px/1.2 var(--f-display)}
-.chead small{font:600 10.5px/1.2 var(--f-mono);color:var(--ink-3)}
-.cid{position:absolute;left:5px;bottom:5px;font:700 10.5px/1 var(--f-mono);font-style:normal;color:var(--tag-ink);background:var(--c);border-radius:4px;padding:2px 4px}
-.cnode.bp .chead small{color:var(--signal)}
-.cnode.konst .chead small{font-size:15px;color:var(--signal)}
-.cout{position:absolute;left:50%;bottom:-17px;width:34px;height:34px;margin-left:-17px;justify-content:flex-end;padding-bottom:9.5px;z-index:3}
-.cout .pv{position:absolute;left:30px;bottom:12px;padding:1px 5px;border-radius:6px;background:var(--bg)}
 .cview{--vc:32px;display:grid;gap:7px;justify-items:center;align-content:start;padding:8px 6px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);max-width:150px}
 @media (min-width:420px){.cview{--vc:38px;max-width:200px}}
 .vhead{display:flex;align-items:center;gap:6px}
@@ -411,28 +341,6 @@ button:disabled{cursor:not-allowed}
 .bot-arm{fill:none;stroke:var(--bot-ant);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .bot-claw{fill:none;stroke:var(--signal);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .robot{overflow:visible;filter:var(--drop)}
-.parts{position:relative;display:grid;gap:6px;padding:8px 10px;border-radius:14px;border:1.5px dashed var(--line);transition:background .15s,border-color .15s;user-select:none;-webkit-user-select:none}
-.parts:empty{display:none}
-/* Phones: the parts list docks at the bottom of the level while you scroll the board, like a tray. */
-@media (max-width:760px){.parts{position:sticky;bottom:0;z-index:20;border:0;border-radius:16px 16px 0 0;background:var(--panel);box-shadow:0 -1px 0 var(--line),0 -14px 26px -20px rgba(0,0,0,.4);padding:8px 10px 10px}}
-.phead{display:flex;align-items:baseline;gap:8px}
-.phead h3{margin:0;font:600 12.5px var(--f-body);color:var(--ink-2)}
-.phead small{font-size:12px;color:var(--ink-3)}
-.plist{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
-.plist::-webkit-scrollbar{display:none}
-.ti-ic,.ti-ds,.ti-add,.pnote{display:none}
-.ti-tx{display:grid;gap:1px}
-.ti-tx b em{font:700 10px var(--f-mono);font-style:normal;margin-left:6px;padding:1px 5px;border-radius:5px;background:var(--signal);color:var(--signal-ink);vertical-align:1px}
-.titem{flex:none;min-width:64px;padding:7px 9px;border-radius:10px;background:var(--panel);box-shadow:var(--card);display:grid;gap:1px;text-align:center;touch-action:manipulation;transition:box-shadow .15s,transform .15s}
-.titem b{font:600 12.5px var(--f-display)}
-.titem small{font:600 10.5px var(--f-mono);color:var(--ink-3)}
-.titem.bp{box-shadow:var(--card),0 0 0 1.5px var(--signal)}
-.titem.armed{box-shadow:0 0 0 2px var(--signal)}
-.titem.ghost{position:fixed;left:0;top:0;z-index:80;pointer-events:none;box-shadow:var(--card-lift),0 0 0 2px var(--signal)}
-.tdrop{display:none;font:700 13px var(--f-body);color:var(--bad);text-align:center;padding:12px 0}
-.drag-piece .parts{border-color:var(--bad)}
-.drag-piece .parts .tdrop{display:grid;place-items:center;position:absolute;inset:0;z-index:2;margin:0;padding:0;border-radius:inherit;background:color-mix(in srgb,var(--panel) 80%,var(--bad-soft))}
-.drag-piece .parts.over .tdrop{box-shadow:inset 0 0 0 2px var(--bad);background:color-mix(in srgb,var(--panel) 60%,var(--bad-soft))}
 .cell.self rect{stroke:var(--bad);stroke-width:3}
 .cell.typed .val{fill:var(--signal)}
 .backbench{justify-self:start}
@@ -452,8 +360,6 @@ button:disabled{cursor:not-allowed}
 .cell.cpartf rect{fill:var(--panel);stroke:var(--chip-line);stroke-width:1.8}
 .cell.cpartf .lb{fill:var(--ink);font:600 13.5px var(--f-display)}
 .cell.cpartf .sb{fill:var(--signal);font:600 11px var(--f-mono)}
-.cell.coutf rect{fill:none;stroke:var(--signal);stroke-dasharray:5 4}
-.cell.coutf .val{fill:var(--signal)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 /* Page shell: safe-area padding for notched phones and a hard [hidden] rule (screens toggle with the hidden attribute). */
 [hidden]{display:none!important}
@@ -464,14 +370,9 @@ img{max-width:100%}
   .iconbtn:hover,.introbtn:hover,.pill:hover,.sec-btn:hover,.btn.sec:hover{background:var(--panel-2)}
   .chip:hover:not(:disabled):not([aria-checked="true"]):not([aria-pressed="true"]),.mchip:hover,.qopt:hover,.itm:hover{border-color:var(--ink-3)}
   .cell.tap:hover rect{stroke:var(--ink-3)}
-  .chead:hover{background:var(--panel-2)}
-  .cport:hover .dot{transform:scale(1.25);border-color:var(--signal)}
-  .cport.bool:hover .dot{transform:rotate(45deg) scale(1.15)}
   .vcell.can:hover{border-color:var(--cyan);opacity:1}
   .vfact:hover{border-color:var(--cyan)}
-  .titem:hover{box-shadow:var(--card-lift);transform:translateY(-1px)}
   .go:hover{filter:brightness(1.05)}
-  .dot{transition:background .15s,box-shadow .15s,transform .15s}
 }
 
 /* ---------- desktop workbench (above 760px): the shell's brief | stage | side (games/kit/shell), the same frame as
@@ -489,18 +390,6 @@ img{max-width:100%}
   .pad{max-width:none}
 
   /* the parts list sits in the brief */
-  .parts{border:0;padding:0;gap:10px;background:none}
-  .phead h3{font:600 10.5px var(--f-mono);letter-spacing:.14em;color:var(--ink-3)}
-  .phead small{display:none}
-  .plist{flex-direction:column;overflow:visible;gap:6px}
-  .titem{display:grid;grid-template-columns:28px minmax(0,1fr) 14px;align-items:center;gap:10px;padding:9px 10px 9px 9px;text-align:left;border-radius:11px;cursor:grab}
-  .ti-ic{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:color-mix(in srgb,var(--signal) 14%,transparent);color:var(--signal);font:600 14px var(--f-display)}
-  .ti-ic svg{width:16px;height:16px}
-  .ti-tx b{font-size:13.5px}
-  .ti-tx small{display:none}
-  .ti-ds{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11.5px;line-height:1.45;color:var(--ink-3)}
-  .ti-add{display:block;color:var(--ink-3);font-size:14px}
-  .pnote{display:block;margin:2px 0 0;font-size:11.5px;line-height:1.6;color:var(--ink-3)}
 
   /* the stage: a dotted canvas */
   .hero-fig,.fig,.sg-level:not(.panel-stage) .stage-pane{background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px}
@@ -512,18 +401,9 @@ img{max-width:100%}
   .sg-level.panel-stage .stage-pane .panel{padding:24px 28px 32px;gap:16px;align-items:center}
   .sg-level.panel-stage .panel>*{width:100%;max-width:960px}
   /* the canvas is the circuit board: parts, terminals and wires sit straight on the dotted stage */
-  .sg-level.panel-stage .cpcard{padding:0;gap:14px;background:none;border:0;box-shadow:none}
-  .sg-level.panel-stage .cpcard h3{justify-content:flex-start;min-height:30px}
-  .sg-level.panel-stage .cptitle{display:none}
-  .sg-level.panel-stage .cpcard h3 small{font:600 11px var(--f-mono);letter-spacing:.06em}
-  .sg-level.panel-stage .cboard{background:none;border:0;border-radius:0;overflow:visible;min-height:calc(100dvh - 170px);padding:14px 0 0}
-  .sg-level.panel-stage .clayer{max-width:560px;margin:0 auto}
-  .sg-level.panel-stage .ccell{min-height:96px}
-  .sg-level.panel-stage .cmain{grid-template-columns:minmax(0,1fr)}
   #view .cview{max-width:none;background:var(--board);border:0;box-shadow:inset 0 0 0 1px var(--line)}
   .cview{--vc:42px;max-width:none;padding:12px 10px}
   .vwin.n5{--vc:32px}
-  .cmain{gap:14px}
 
   /* the side: tests or the rules */
   .sg-level:not(.panel-stage) .sg-side .panel{padding:18px 16px;gap:12px}
@@ -538,7 +418,6 @@ img{max-width:100%}
   .sg-level{display:flex;flex-direction:column;gap:12px;padding-bottom:0}
   .sg-level>.bcard,.sg-level>.panel{margin:0 12px}
   .sg-foot{position:sticky;bottom:0;z-index:20;margin-top:auto;display:grid;gap:0;background:var(--panel);box-shadow:0 -1px 0 var(--line),0 -14px 26px -20px rgba(0,0,0,.4)}
-  .sg-foot .parts{position:static;box-shadow:none;border-radius:0}
   .dock{padding-inline:max(12px,env(safe-area-inset-left,0px));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 }
 /* Language button (js/i18n.js); English pages hide the Chinese markup until it has been swapped. */
@@ -553,11 +432,6 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .cell.void .val{fill:var(--ink-3);font-size:14px}
 .cell.coin .cn{fill:var(--signal);font-size:12px}
 .cell .bar{fill:var(--cyan);opacity:.8}
-.cport.list .dot{width:22px;border-radius:5px}
-.cport.any .dot{border-style:dashed}
-.kw.is-nums .kw-line,.kw.is-bools .kw-line{stroke-width:5.5px}
-.kw.is-nums .kw-halo,.kw.is-bools .kw-halo{stroke-width:11px}
-.kw.is-nums .kw-flow,.kw.is-bools .kw-flow{stroke-width:2px;stroke-dasharray:3 6}
 .dialopts{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
 .dialopt{display:grid;gap:7px;justify-items:center;align-content:start;padding:10px 8px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel-2);font-size:12.5px;line-height:1.35;text-align:center}
 .dialopt[aria-checked="true"]{border-color:var(--cyan);background:var(--cyan-soft);box-shadow:inset 0 0 0 1px var(--cyan)}
@@ -609,3 +483,26 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .cell.cut rect{stroke:var(--bad);stroke-width:2.6}
 .thumbs figure{min-width:0}
 .thumbs .board-svg{max-width:100%}
+
+/* ---------- circuit levels on the shared circuit editor (../kit/circuit, js/circuit/BoardView.jsx) ---------- */
+[data-family='sg'] { --fam: var(--accent); }
+.sg-boardpanel { display: flex; flex-direction: column; gap: 16px; }
+.sg-boardpanel > #panel, .sg-boardpanel > #panelAfter { display: flex; flex-direction: column; gap: 16px; }
+.sg-boardpanel > #panel:empty, .sg-boardpanel > #panelAfter:empty { display: none; }
+.sg-canvas { position: relative; flex: 1; min-height: max(460px, calc(100dvh - 300px)); border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.sg-canvas .board { position: absolute; inset: 0; height: auto; }
+.sg-level.panel-stage .stage-pane .sg-boardpanel { padding: 20px 24px 24px; min-height: 100%; }
+.sg-level.panel-stage .stage-pane .sg-boardpanel > * { width: 100%; max-width: none; }
+.sg-body { margin: 6px 10px 0; display: grid; gap: 4px; }
+.sg-body .param { margin: 0; }
+.sg-tag { color: var(--muted); font: 600 11px var(--f-mono); }
+.sg-val, .sg-thumb { min-width: 44px; min-height: 30px; padding: 2px 8px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); background: var(--panel-2); font: 700 15px var(--f-mono); font-style: normal; font-variant-numeric: tabular-nums; }
+.sg-val.is-on, .sg-thumb.is-on { color: var(--ink); background: color-mix(in srgb, var(--fam, var(--accent)) 14%, var(--paper)); }
+.sg-thumb { min-width: 60px; min-height: 40px; font-size: 18px; }
+/* Ports by the signal they carry: a number is round, a yes / no a diamond, a whole segment a bar, either dashed. */
+.port.look-bool, .pb-dot.look-bool i { border-radius: 2px; transform: rotate(45deg) scale(.86); }
+.port.look-list, .pb-dot.look-list i { border-radius: 3px; }
+.port.look-any, .pb-dot.look-any i { outline: 1.5px dashed var(--fam, var(--ink)); outline-offset: 1px; }
+.sg-level.is-circuit .cview { margin: 0 12px; }
+.sg-slots { padding: 8px 12px 16px; background-image: radial-gradient(var(--hairline) 1px, transparent 1px); background-size: 18px 18px; }
+.sg-level.is-circuit .pb-banner, .sg-level.is-circuit .pb-toast { bottom: calc(150px + env(safe-area-inset-bottom)); }

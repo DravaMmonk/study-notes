@@ -7,9 +7,10 @@ import { L, keyOf, tr } from '../../../../../games/kit/shell/i18n.js'
 import CurveView from '../views/CurveView.jsx'
 import ValueView from '../views/ValueView.jsx'
 import { formatNumber, kindOf } from '../views/views.js'
-import { feeding, insertAfter } from './ops.js'
+import { feeding } from '../../../../../games/kit/circuit/index.js'
+import { insertAfter } from './ops.js'
 import Sheet from '../../../../../games/kit/shell/Sheet.jsx'
-import { PORT_TAGS } from './wires.js'
+import { PORT_LABELS as PORT_TAGS } from '../parts.js'
 
 // Pieces the phone circuit screen shares: the chip that shows a setting, the sheet for adding a
 // part (each previewed where it would go), the list for choosing a source, and the test cards.
