@@ -36,21 +36,12 @@
 .game.is-playing { height: 100dvh; overflow: hidden; }
 .game :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---- top bar ---- */
-.game-bar { position: sticky; z-index: 30; top: 0; padding: 0 14px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--hairline); background: color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter: blur(14px) saturate(1.2); }
-.bar-button { height: 32px; padding: 0 10px 0 8px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 6px; color: var(--muted); background: transparent; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-decoration: none; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
-.bar-button:hover { color: var(--ink); background: var(--hover); }
-.game-brand { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: .2em; white-space: nowrap; }
-.brand-chip { width: 14px; height: 14px; border-radius: 3px; background: linear-gradient(135deg, var(--ink) 0 50%, var(--accent) 50% 100%); box-shadow: 0 0 0 1px var(--rule); }
+/* ---- top bar: the kit's .kit-bar (games/kit/ui.css); only the level title is the game's own ---- */
+.game-brand { white-space: nowrap; }
 .game-level-title { min-width: 0; flex: 1; display: flex; align-items: baseline; gap: 8px; overflow: hidden; white-space: nowrap; }
 .game-level-title b { color: var(--accent-ink); font-family: var(--mono); font-size: 11px; font-weight: 500; }
 .game-level-title span { overflow: hidden; color: var(--ink); font-size: 13px; text-overflow: ellipsis; }
 .game-level-title small { color: var(--faint); font-family: var(--mono); font-size: 10.5px; }
-.game-bar .theme-switch, .game-bar .theme-cycle { margin-left: auto; }
-.theme-switch { display: flex; gap: 1px; padding: 2px; border-radius: 8px; background: var(--hairline); }
-.theme-option { width: 30px; height: 26px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 6px; color: var(--muted); background: transparent; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
-.theme-option[aria-checked='true'] { color: var(--paper); background: var(--ink); }
-.theme-cycle { width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 10px; color: var(--ink); background: var(--hover); cursor: pointer; }
 
 /* ---- map ---- */
 .level-map { min-width: 0; padding: 0 0 96px; background:

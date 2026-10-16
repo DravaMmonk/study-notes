@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ImagePlus, Trash2 } from 'lucide-react'
 import { renderAnnotationMarkdown } from '../lib/content'
+import { translate } from '../lib/strings'
 
 const maxEmbeddedImageSize = 1024 * 1024
 
@@ -9,6 +10,7 @@ function AnnotationEntry({
   annotation,
   color,
   commentRef,
+  lang,
   onChange,
   onDelete,
   onError,
@@ -17,6 +19,7 @@ function AnnotationEntry({
   const [mode, setMode] = useState(active && !annotation.note ? 'edit' : 'preview')
   const editorRef = useRef(null)
   const imageInputRef = useRef(null)
+  const t = (key, vars) => translate(lang, key, vars)
   const renderedNote = useMemo(() => renderAnnotationMarkdown(annotation.note), [annotation.note])
 
   useEffect(() => {
@@ -53,11 +56,11 @@ function AnnotationEntry({
     event.target.value = ''
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      onError('Choose an image file')
+      onError(t('chooseImage'))
       return
     }
     if (file.size > maxEmbeddedImageSize) {
-      onError('Images must be smaller than 1 MB')
+      onError(t('imageTooLarge'))
       return
     }
 
@@ -66,7 +69,7 @@ function AnnotationEntry({
       const alt = file.name.replaceAll('[', '').replaceAll(']', '') || 'annotation image'
       insertMarkdown(`![${alt}](${reader.result})`)
     })
-    reader.addEventListener('error', () => onError('Image could not be read'))
+    reader.addEventListener('error', () => onError(t('imageUnreadable')))
     reader.readAsDataURL(file)
   }
 
@@ -74,9 +77,9 @@ function AnnotationEntry({
     <article
       className={`annotation-item ${active ? 'is-active' : ''}`}
       style={{ '--annotation-color': color }}
-      aria-label={`Annotation on ${annotation.quote}`}
+      aria-label={t('annotationOn', { quote: annotation.quote })}
     >
-      <button className="quote-button" onClick={() => onJump(annotation.id)} title="Show passage in note">
+      <button className="quote-button" onClick={() => onJump(annotation.id)} title={t('showPassage')}>
         <span className="quote-mark" aria-hidden="true" />
         <q>{annotation.quote}</q>
       </button>
@@ -87,34 +90,34 @@ function AnnotationEntry({
           className="comment-editor"
           value={annotation.note}
           onChange={(event) => onChange(annotation.id, event.target.value)}
-          placeholder="Write Markdown…"
-          aria-label={`Comment on ${annotation.quote}`}
+          placeholder={t('writeMarkdown')}
+          aria-label={t('commentOn', { quote: annotation.quote })}
         />
       ) : (
         <div className="annotation-note-preview">
           {annotation.note
             ? <div dangerouslySetInnerHTML={{ __html: renderedNote }} />
-            : <p className="empty-comment">No comment yet</p>}
+            : <p className="empty-comment">{t('noComment')}</p>}
         </div>
       )}
 
       <div className="annotation-meta">
         <time dateTime={annotation.createdAt}>
-          {new Date(annotation.createdAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
+          {new Date(annotation.createdAt).toLocaleDateString(lang === 'en' ? 'en-AU' : 'zh-CN', { day: 'numeric', month: 'short' })}
         </time>
         <div className="annotation-actions">
           {mode === 'edit' && (
-            <button onClick={() => imageInputRef.current?.click()} aria-label="Insert image">
-              <ImagePlus size={14} /> Image
+            <button onClick={() => imageInputRef.current?.click()} aria-label={t('insertImage')}>
+              <ImagePlus size={14} /> {t('image')}
             </button>
           )}
           <button
             onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')}
-            aria-label={`${mode === 'edit' ? 'Finish editing' : 'Edit'} annotation on ${annotation.quote}`}
+            aria-label={`${t(mode === 'edit' ? 'finishEditing' : 'edit')} · ${t('annotationOn', { quote: annotation.quote })}`}
           >
-            {mode === 'edit' ? 'Done' : annotation.note ? 'Edit' : 'Add comment'}
+            {t(mode === 'edit' ? 'done' : annotation.note ? 'edit' : 'addComment')}
           </button>
-          <button className="delete-annotation" onClick={() => onDelete(annotation.id)} aria-label="Delete annotation">
+          <button className="delete-annotation" onClick={() => onDelete(annotation.id)} aria-label={t('deleteAnnotation')}>
             <Trash2 size={14} />
           </button>
         </div>

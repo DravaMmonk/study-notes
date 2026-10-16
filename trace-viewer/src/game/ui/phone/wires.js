@@ -2,7 +2,7 @@ import { familyOf } from '../catalog.js'
 
 // Ports and wires of the phone board.
 
-export const PORT_TAGS = { a: 'a', b: 'b', left: '左', right: '右', c0: 'd0', c1: 'd1', c2: 'd2', c3: 'd3' }
+export const PORT_TAGS = { a: 'a', b: 'b', left: { zh: '左', en: 'left' }, right: { zh: '右', en: 'right' }, c0: 'd0', c1: 'd1', c2: 'd2', c3: 'd3' }
 
 // Port ids: a block's output is `out:<id>`, an input is `in:<id>:<port>`.
 export const outPort = (id) => `out:${id}`

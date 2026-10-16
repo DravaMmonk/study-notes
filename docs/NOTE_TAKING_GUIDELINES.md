@@ -43,7 +43,15 @@
 - Prefer one file per lecture topic cluster rather than one file per raw PDF.
 - Start with the concept, not with commentary about the source.
 - Use short sections with stable headings so the note can be reviewed quickly before class, tutorials, or exams.
-- Keep all documentation text and all Markdown comments in English.
+- Keep all Markdown comments (source annotations) in English, in both language versions.
+
+## Bilingual rules
+
+- Every note exists in English and Chinese. The file a note was first written in stays `X.md`; its translation sits beside it as `X.zh.md` (an English original) or `X.en.md` (a Chinese original).
+- Keep the two versions in step: same headings, formulas, tables, images, anchors and source comments, in the same order. A change to one is a change to both.
+- Link to another note's version in the same language (for example from `X.zh.md` to `Y.zh.md`, or to `Y.md` when Y was written in Chinese). The site and Fieldnotes also send readers to their language automatically.
+- In Chinese text, give the English term in parentheses the first time a technical term appears.
+- Give each new course folder its English and Chinese title in `docs/.sections.json`.
 
 ## Local material handling rules
 

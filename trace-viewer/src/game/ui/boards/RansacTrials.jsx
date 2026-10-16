@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Check, X } from 'lucide-react'
 import { useSolveOnce } from './matchDraw.js'
 import { PHONE, useMedia } from '../useMedia.js'
+import { L, keyOf, tr } from '../../i18n.js'
 import './MatchBoards.css'
 
 // 6-4 共识: RANSAC for a line. The player sets one inlier threshold δ (it depends on the noise) and a
@@ -43,21 +44,21 @@ export default function RansacTrials({ level, onSolve }) {
   return (
     <div className="bk mb mb-ransac">
       <div className="mb-head">
-        <div className="bk-seg" role="group" aria-label="外点比例">
+        <div className="bk-seg" role="group" aria-label={tr('外点比例', 'Outlier ratio')}>
           {m.stages.map((s, i) => (
-            <button key={s.label} aria-pressed={i === stageIndex} onClick={() => choose(i)}>
+            <button key={keyOf(s.label)} aria-pressed={i === stageIndex} onClick={() => choose(i)}>
               {runs[i].pass ? <Check size={14} className="mb-ok" /> : <X size={14} className="mb-bad" />}
-              {s.label}
+              {L(s.label)}
             </button>
           ))}
         </div>
-        {!phone && <span className={`bk-chip ${done ? 'is-pass' : ''}`}>{runs.filter((r) => r.pass).length} / {m.stages.length} 种比例通过</span>}
+        {!phone && <span className={`bk-chip ${done ? 'is-pass' : ''}`}>{runs.filter((r) => r.pass).length} / {m.stages.length} {tr('种比例通过', 'ratios passed')}</span>}
       </div>
 
       <div className="bk-split mb-ransac-split">
         <figure className="bk-stage mb-ransac-stage">
-          <span className="bk-label">{stage.label} · 第 {trialIndex + 1} 次试验 · 最佳一轮</span>
-          <svg className="mb-svg" viewBox="-25 -25 50 50" role="img" aria-label="一次试验：点、抽中的两点和找到的直线">
+          <span className="bk-label">{L(stage.label)} · {tr(`第 ${trialIndex + 1} 次试验`, `Trial ${trialIndex + 1}`)} · {tr('最佳一轮', 'best round')}</span>
+          <svg className="mb-svg" viewBox="-25 -25 50 50" role="img" aria-label={tr('一次试验：点、抽中的两点和找到的直线', 'One trial: the points, the two drawn points and the line found')}>
             <defs>
               <clipPath id="mb-ransac-clip"><rect x={-24} y={-24} width={48} height={48} /></clipPath>
             </defs>
@@ -71,15 +72,15 @@ export default function RansacTrials({ level, onSolve }) {
           </svg>
           <p className="mb-trial-verdict">
             {trial.ok ? <Check size={15} className="mb-ok" /> : <X size={15} className="mb-bad" />}
-            <span className={trial.ok ? 'mb-ok' : 'mb-bad'}>{trial.ok ? '成功' : '失败'}</span>
-            <span className="mb-readout">支持 <b>{trial.result?.inliers ?? 0}</b> 个点 · 真内点 <b>{trial.inliers}</b> 个</span>
+            <span className={trial.ok ? 'mb-ok' : 'mb-bad'}>{trial.ok ? tr('成功', 'Success') : tr('失败', 'Failure')}</span>
+            <span className="mb-readout">{tr('支持', 'Support')} <b>{trial.result?.inliers ?? 0}</b> {tr('个点', 'points')} · {tr('真内点', 'true inliers')} <b>{trial.inliers}</b>{tr(' 个', '')}</span>
           </p>
           <label className="bk-field mb-delta">
             <span>δ</span>
-            <input className="bk-range" type="range" min={D_MIN} max={D_MAX} step={0.05} value={delta} style={{ '--fill': `${((delta - D_MIN) / (D_MAX - D_MIN)) * 100}%` }} onChange={(e) => setDelta(Number(e.target.value))} aria-label="内点阈值 δ" />
+            <input className="bk-range" type="range" min={D_MIN} max={D_MAX} step={0.05} value={delta} style={{ '--fill': `${((delta - D_MIN) / (D_MAX - D_MIN)) * 100}%` }} onChange={(e) => setDelta(Number(e.target.value))} aria-label={tr('内点阈值 δ', 'Inlier threshold δ')} />
             <output>{delta.toFixed(2)} px</output>
           </label>
-          <figcaption className="bk-caption">δ 由三种比例共用。色带是离直线不到 δ 的范围；虚线是真的直线，圈出的是抽中的两点</figcaption>
+          <figcaption className="bk-caption">{tr('δ 由三种比例共用。色带是离直线不到 δ 的范围；虚线是真的直线，圈出的是抽中的两点', 'δ is shared by all three ratios. The band covers everything closer than δ to the line; the dashed line is the true line, and the circled points are the two drawn')}</figcaption>
         </figure>
 
         <div className="bk-stack mb-cards">
@@ -88,17 +89,17 @@ export default function RansacTrials({ level, onSolve }) {
             const over = ks[i] > s.budget
             const active = i === stageIndex
             return (
-              <section key={s.label} className={`bk-panel mb-card ${active ? 'is-active' : ''} ${run.pass ? 'is-pass' : ''}`} onPointerDown={() => choose(i)}>
+              <section key={keyOf(s.label)} className={`bk-panel mb-card ${active ? 'is-active' : ''} ${run.pass ? 'is-pass' : ''}`} onPointerDown={() => choose(i)}>
                 <div className="mb-card-head">
                   {run.pass ? <Check size={16} className="mb-ok" /> : <X size={16} className="mb-bad" />}
-                  <span>{s.label}</span>
+                  <span>{L(s.label)}</span>
                   <span className="mb-readout"><b className={run.rate >= 0.99 ? 'mb-ok' : ''}>{(run.rate * 100).toFixed(1)}%</b> <small>{run.wins}/{m.trials}</small></span>
                 </div>
                 <label className="bk-field">
                   <span>k</span>
                   <span className="mb-k-track" style={{ '--budget': (s.budget - 1) / (K_MAX - 1) }}>
-                    <i title={`预算 ${s.budget} 轮`} />
-                    <input className="bk-range" type="range" min={1} max={K_MAX} step={1} value={ks[i]} style={{ '--fill': `${((ks[i] - 1) / (K_MAX - 1)) * 100}%` }} onChange={(e) => setKs((all) => all.map((k, j) => (j === i ? Number(e.target.value) : k)))} aria-label={`${s.label} 的轮数 k`} />
+                    <i title={tr(`预算 ${s.budget} 轮`, `Budget ${s.budget} rounds`)} />
+                    <input className="bk-range" type="range" min={1} max={K_MAX} step={1} value={ks[i]} style={{ '--fill': `${((ks[i] - 1) / (K_MAX - 1)) * 100}%` }} onChange={(e) => setKs((all) => all.map((k, j) => (j === i ? Number(e.target.value) : k)))} aria-label={tr(`${L(s.label)} 的轮数 k`, `Rounds k for ${L(s.label)}`)} />
                   </span>
                   <output className={over ? 'mb-bad' : ''}>{ks[i]} / {s.budget}</output>
                 </label>
@@ -106,11 +107,11 @@ export default function RansacTrials({ level, onSolve }) {
                   <span className={run.rate >= 0.99 ? 'is-ok' : ''} style={{ transform: `scaleX(${run.rate})` }} />
                   <i />
                 </div>
-                <p className={`mb-card-foot ${over ? 'mb-bad' : ''}`}>{over ? `k 超出预算 ${s.budget} 轮` : `预算 k ≤ ${s.budget} · 目标 ≥ 99%`}</p>
+                <p className={`mb-card-foot ${over ? 'mb-bad' : ''}`}>{over ? tr(`k 超出预算 ${s.budget} 轮`, `k is over the budget of ${s.budget} rounds`) : tr(`预算 k ≤ ${s.budget} · 目标 ≥ 99%`, `Budget k ≤ ${s.budget} · goal ≥ 99%`)}</p>
                 {(!phone || active) && (
-                  <div className="mb-strip" role="group" aria-label={`${m.trials} 次试验`}>
+                  <div className="mb-strip" role="group" aria-label={tr(`${m.trials} 次试验`, `${m.trials} trials`)}>
                     {run.outcomes.map((ok, t) => (
-                      <button key={t} className={`${ok ? '' : 'is-fail'} ${active && t === trialIndex ? 'is-active' : ''}`} aria-label={`第 ${t + 1} 次${ok ? '成功' : '失败'}`} onClick={() => { choose(i); setTrialIndex(t) }} />
+                      <button key={t} className={`${ok ? '' : 'is-fail'} ${active && t === trialIndex ? 'is-active' : ''}`} aria-label={tr(`第 ${t + 1} 次${ok ? '成功' : '失败'}`, `Trial ${t + 1}: ${ok ? 'success' : 'failure'}`)} onClick={() => { choose(i); setTrialIndex(t) }} />
                     ))}
                   </div>
                 )}

@@ -52,18 +52,18 @@ export function evaluate(graph, inputs) {
       continue
     }
     if (missing) {
-      errors.set(id, '缺少输入')
+      errors.set(id, { zh: '缺少输入', en: 'Missing input' })
       continue
     }
     const sizes = Object.values(ins).map((img) => `${img.w}×${img.h}`)
     if (new Set(sizes).size > 1) {
-      errors.set(id, '输入尺寸不同')
+      errors.set(id, { zh: '输入尺寸不同', en: 'Inputs differ in size' })
       continue
     }
     try {
       values.set(id, spec.eval(ins, node.params ?? {}))
     } catch {
-      errors.set(id, '无法计算')
+      errors.set(id, { zh: '无法计算', en: 'Cannot compute' })
     }
   }
   return { values, errors }

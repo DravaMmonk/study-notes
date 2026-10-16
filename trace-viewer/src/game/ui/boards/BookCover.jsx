@@ -2,6 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Check, RotateCcw, X } from 'lucide-react'
 import { pixelUrl, svgPoint, useSolveOnce, useWidth } from './matchDraw.js'
 import { PHONE, useMedia } from '../useMedia.js'
+import { L, tr } from '../../i18n.js'
 import './MatchBoards.css'
 
 // 6-5 书封面: pair a point on the cover with the same point in the photo (drag from one to the other,
@@ -30,7 +31,7 @@ export default function BookCover({ level, onSolve }) {
   const phone = useMedia(PHONE)
   const [pairs, setPairs] = useState([])
   const [armed, setArmed] = useState(null) // { side: 'cover' | 'photo', index }
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState('') // '' or a { zh, en } pair, resolved at render
   const [overlay, setOverlay] = useState(true)
   const coverSvg = useRef(null)
   const photoSvg = useRef(null)
@@ -73,7 +74,7 @@ export default function BookCover({ level, onSolve }) {
   const addPair = (cover, photo) => {
     const rest = pairs.filter((p) => p.cover !== cover && p.photo !== photo)
     if (rest.length >= 4) {
-      setMessage('最多 4 对点。先删掉一对。')
+      setMessage({ zh: '最多 4 对点。先删掉一对。', en: 'At most 4 pairs. Delete one first.' })
       return
     }
     setMessage('')
@@ -177,10 +178,15 @@ export default function BookCover({ level, onSolve }) {
   const pw = m.PHOTO.w * S
   const ph = m.PHOTO.h * S
 
-  let status = '至少连 3 对点，才能把封面贴上去。'
-  if (pairs.length === 3) status = fit.model ? '3 对点 → 仿射变换（6 个自由度）。' : '这 3 对点在一条线上，定不出变换。'
-  if (pairs.length === 4) status = fit.model ? '4 对点 → 单应变换，用 DLT 求解（8 个自由度）。' : '这 4 对点太集中或共线，定不出 H。'
-  const prompt = armed?.side === 'cover' ? '已选封面上的点 → 再点照片里同一个点。' : armed?.side === 'photo' ? '已选照片里的点 → 再点封面上对应的点。' : '点封面上的一个圆点，再点照片里同一个位置的圆点；也可以直接拖过去。'
+  let status = tr('至少连 3 对点，才能把封面贴上去。', 'Join at least 3 pairs before the cover can be pasted on.')
+  if (pairs.length === 3) status = fit.model ? tr('3 对点 → 仿射变换（6 个自由度）。', '3 pairs → affine transform (6 degrees of freedom).') : tr('这 3 对点在一条线上，定不出变换。', 'These 3 pairs lie on one line and cannot fix a transform.')
+  if (pairs.length === 4) status = fit.model ? tr('4 对点 → 单应变换，用 DLT 求解（8 个自由度）。', '4 pairs → homography, solved with DLT (8 degrees of freedom).') : tr('这 4 对点太集中或共线，定不出 H。', 'These 4 pairs are too bunched up or collinear to fix H.')
+  const prompt =
+    armed?.side === 'cover'
+      ? tr('已选封面上的点 → 再点照片里同一个点。', 'Cover point selected → now click the same point in the photo.')
+      : armed?.side === 'photo'
+        ? tr('已选照片里的点 → 再点封面上对应的点。', 'Photo point selected → now click the matching point on the cover.')
+        : tr('点封面上的一个圆点，再点照片里同一个位置的圆点；也可以直接拖过去。', 'Click a dot on the cover, then the dot at the same place in the photo; or just drag across.')
 
   const marker = (side, i, [x, y], used, r, fs) => {
     const isArmed = armed?.side === side && armed.index === i
@@ -197,12 +203,12 @@ export default function BookCover({ level, onSolve }) {
     <ul className="bk-goals">
       <li className={`bk-goal ${pairs.length === 4 ? 'is-pass' : ''}`}>
         {pairs.length === 4 ? <Check size={16} /> : <X size={16} />}
-        <span>点对</span>
+        <span>{tr('点对', 'Pairs')}</span>
         <b>{pairs.length} / 4</b>
       </li>
       <li className={`bk-goal ${hasError && errorOk ? 'is-pass' : ''}`}>
         {hasError && errorOk ? <Check size={16} /> : <X size={16} />}
-        <span>误差 <small>&lt; {m.tol} px</small></span>
+        <span>{tr('误差', 'Error')} <small>&lt; {m.tol} px</small></span>
         <b className={hasError ? (errorOk ? 'mb-ok' : 'mb-bad') : ''}>{hasError ? `${fit.error.toFixed(2)} px` : '—'}</b>
       </li>
     </ul>
@@ -213,8 +219,8 @@ export default function BookCover({ level, onSolve }) {
       <div className="bk-stage mb-cover-stage" ref={stage}>
         <div className="mb-cover-grid">
           <figure className="mb-cover-fig">
-            <span className="bk-label">封面</span>
-            <svg ref={coverSvg} className="mb-svg mb-drag" viewBox={`${-PAD} ${-PAD} ${cw + 2 * PAD} ${ch + 2 * PAD}`} role="img" aria-label="封面" onPointerDown={pressCover}>
+            <span className="bk-label">{tr('封面', 'Cover')}</span>
+            <svg ref={coverSvg} className="mb-svg mb-drag" viewBox={`${-PAD} ${-PAD} ${cw + 2 * PAD} ${ch + 2 * PAD}`} role="img" aria-label={tr('封面', 'Cover')} onPointerDown={pressCover}>
               <rect className="mb-hit" x={-PAD} y={-PAD} width={cw + 2 * PAD} height={ch + 2 * PAD} />
               <image className="mb-pixels" href={coverUrl} x={0} y={0} width={cw} height={ch} preserveAspectRatio="none" />
               <rect className="mb-frame" x={0} y={0} width={cw} height={ch} />
@@ -226,8 +232,8 @@ export default function BookCover({ level, onSolve }) {
             <p className={`bk-note mb-prompt ${armed ? 'is-armed' : ''}`}>{prompt}</p>
           </div>
           <figure className="mb-photo-fig">
-            <span className="bk-label">照片</span>
-            <svg ref={photoSvg} className="mb-svg" viewBox={`${-PAD} ${-PAD} ${pw + 2 * PAD} ${ph + 2 * PAD}`} role="img" aria-label="照片" onClick={tapPhoto} onPointerDown={(e) => e.stopPropagation()}>
+            <span className="bk-label">{tr('照片', 'Photo')}</span>
+            <svg ref={photoSvg} className="mb-svg" viewBox={`${-PAD} ${-PAD} ${pw + 2 * PAD} ${ph + 2 * PAD}`} role="img" aria-label={tr('照片', 'Photo')} onClick={tapPhoto} onPointerDown={(e) => e.stopPropagation()}>
               <defs>
                 <clipPath id="mb-photo-clip"><rect x={0} y={0} width={pw} height={ph} /></clipPath>
               </defs>
@@ -250,18 +256,18 @@ export default function BookCover({ level, onSolve }) {
 
       <section className="bk-panel mb-cover-details">
         <div className="mb-cover-controls">
-          <span className="bk-label">变换</span>
+          <span className="bk-label">{tr('变换', 'Transform')}</span>
           <p className="bk-note mb-status">{status}</p>
-          {message && <p className="bk-verdict is-fail">{message}</p>}
+          {message && <p className="bk-verdict is-fail">{L(message)}</p>}
           <div className="bk-row">
             <label className="bk-check" onPointerDown={(e) => e.stopPropagation()}>
-              <input type="checkbox" checked={overlay} onChange={(e) => setOverlay(e.target.checked)} /> 显示贴图
+              <input type="checkbox" checked={overlay} onChange={(e) => setOverlay(e.target.checked)} /> {tr('显示贴图', 'Show the pasted cover')}
             </label>
-            <button className="bk-btn" onClick={() => { setPairs([]); setArmed(null); setMessage('') }} disabled={!pairs.length}><RotateCcw size={14} /> 清空</button>
+            <button className="bk-btn" onClick={() => { setPairs([]); setArmed(null); setMessage('') }} disabled={!pairs.length}><RotateCcw size={14} /> {tr('清空', 'Clear')}</button>
           </div>
         </div>
         <div>
-          <span className="bk-label">点对 · 封面 → 照片</span>
+          <span className="bk-label">{tr('点对 · 封面 → 照片', 'Pairs · cover → photo')}</span>
           {pairs.length ? (
             <ol className="mb-pairs">
               {pairs.map((p, i) => {
@@ -271,13 +277,13 @@ export default function BookCover({ level, onSolve }) {
                   <li key={`${p.cover}-${p.photo}`}>
                     <i>{i + 1}</i>
                     <span>({x}, {y}) → ({u.toFixed(0)}, {v.toFixed(0)})</span>
-                    <button aria-label={`删掉第 ${i + 1} 对`} onPointerDown={(e) => e.stopPropagation()} onClick={() => setPairs((all) => all.filter((_, j) => j !== i))}><X size={15} /></button>
+                    <button aria-label={tr(`删掉第 ${i + 1} 对`, `Delete pair ${i + 1}`)} onPointerDown={(e) => e.stopPropagation()} onClick={() => setPairs((all) => all.filter((_, j) => j !== i))}><X size={15} /></button>
                   </li>
                 )
               })}
             </ol>
           ) : (
-            <p className="bk-note">还没有点对。</p>
+            <p className="bk-note">{tr('还没有点对。', 'No pairs yet.')}</p>
           )}
         </div>
       </section>

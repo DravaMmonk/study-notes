@@ -3,6 +3,7 @@ import { Check, RotateCcw, X } from 'lucide-react'
 import ImageView from '../ImageView.jsx'
 import { PHONE, useMedia } from '../useMedia.js'
 import './depthgen.css'
+import { L, tr } from '../../i18n.js'
 
 // 7-4 只在一条线上找: click a point in the left view, then spend a comparison budget searching the
 // right view. The whole image does not fit the budget, the same row misses (the views are not
@@ -37,10 +38,10 @@ function DrawnLine({ from, to }) {
 }
 
 const MODES = [
-  ['all', '整张右图逐点比'],
-  ['row', '只比同一行 v′ = v'],
-  ['point', '比点 (a/c, b/c)'],
-  ['line', '沿直线 a·u′ + b·v′ + c = 0'],
+  ['all', { zh: '整张右图逐点比', en: 'Every point in the right image' }],
+  ['row', { zh: '只比同一行 v′ = v', en: 'Only the same row v′ = v' }],
+  ['point', { zh: '比点 (a/c, b/c)', en: 'The point (a/c, b/c)' }],
+  ['line', { zh: '沿直线 a·u′ + b·v′ + c = 0', en: 'Along the line a·u′ + b·v′ + c = 0' }],
 ]
 
 export default function EpipolarSearch({ level, onSolve, theme }) {
@@ -51,7 +52,7 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
   const [point, setPoint] = useState(null) // { u, v, spent }
   const [result, setResult] = useState(null) // { id, mode, search, message }
   const [found, setFound] = useState([]) // [{ u, v, x, y, line }]
-  const [note, setNote] = useState('')
+  const [note, setNote] = useState('') // '' or a { zh, en } pair
   const solved = useRef(false)
   const rightView = useRef(null)
 
@@ -72,13 +73,13 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
     const u = Math.min(m.W - 1, Math.max(0, Math.floor(((event.clientX - box.left) / box.width) * m.W)))
     const v = Math.min(m.W - 1, Math.max(0, Math.floor(((event.clientY - box.top) / box.height) * m.W)))
     if (found.some((f) => f.u === u && f.v === v)) {
-      setNote('这个点已经找到了，换一个。')
+      setNote({ zh: '这个点已经找到了，换一个。', en: 'You already found this point. Pick another.' })
       return
     }
     if (!m.truth(u, v)) {
       setPoint(null)
       setResult(null)
-      setNote('这一点在右图里看不到，或者窗口跨在木板边上。换一个。')
+      setNote({ zh: '这一点在右图里看不到，或者窗口跨在木板边上。换一个。', en: "This point can't be seen in the right image, or its window straddles the board's edge. Pick another." })
       return
     }
     setNote('')
@@ -92,15 +93,15 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
     const remaining = m.BUDGET - point.spent
     const id = (result?.id ?? 0) + 1
     if (count > remaining) {
-      setResult({ id, mode, message: `要比较 ${count} 次，预算只剩 ${remaining} 次。` })
+      setResult({ id, mode, message: { zh: `要比较 ${count} 次，预算只剩 ${remaining} 次。`, en: `That takes ${count} comparisons; only ${remaining} left in the budget.` } })
       return
     }
     const search = m.search(point.u, point.v, mode)
     setPoint({ ...point, spent: point.spent + count })
     let message
-    if (!search.best) message = '这个“点”在图外。'
-    else if (search.found) message = '对上了。'
-    else message = '最像的那一处不是同一点。'
+    if (!search.best) message = { zh: '这个“点”在图外。', en: 'This "point" is outside the image.' }
+    else if (search.found) message = { zh: '对上了。', en: 'A match.' }
+    else message = { zh: '最像的那一处不是同一点。', en: 'The most similar spot is not the same point.' }
     setResult({ id, mode, search, message })
     if (search.found) setFound((all) => [...all, { u: point.u, v: point.v, x: search.best.x, y: search.best.y, line: m.line(point.u, point.v) }])
     // On a phone the right view sits below the buttons: bring it up so the search is seen.
@@ -127,14 +128,14 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
       <ul className="bk-goals">
         <li className={`bk-goal ${done ? 'is-pass' : ''}`}>
           {done ? <Check size={16} /> : <X size={16} />}
-          <span>在右图找到同一点 <small>3 个</small></span>
-          <span className="epi-pips" aria-label={`已找到 ${found.length} / ${GOAL}`}>
+          <span>{tr('在右图找到同一点', 'Find the same point in the right image')} <small>{tr('3 个', '3 points')}</small></span>
+          <span className="epi-pips" aria-label={tr(`已找到 ${found.length} / ${GOAL}`, `Found ${found.length} / ${GOAL}`)}>
             {Array.from({ length: GOAL }, (_, i) => <i key={i} className={i < found.length ? 'is-on' : ''} />)}
           </span>
         </li>
       </ul>
       <div className="epi-budget">
-        <span>这个点的预算</span>
+        <span>{tr('这个点的预算', 'Budget for this point')}</span>
         <div className="epi-meter"><i style={{ transform: `scaleX(${remaining / m.BUDGET})` }} /></div>
         <b>{remaining} / {m.BUDGET}</b>
       </div>
@@ -145,7 +146,7 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
     <figure className="epi-view">
       <div className="epi-frame">
         <ImageView img={left} size={W * 10} range={{ lo: 0, hi: 1 }} theme={theme} />
-        <svg className="epi-overlay is-clickable" viewBox={`0 0 ${W} ${W}`} onClick={pick} role="img" aria-label="左图：点一个点">
+        <svg className="epi-overlay is-clickable" viewBox={`0 0 ${W} ${W}`} onClick={pick} role="img" aria-label={tr('左图：点一个点', 'Left image: click a point')}>
           {found.map((f, i) => (
             <g key={i}>
               <circle className="epi-mark is-found" cx={f.u + 0.5} cy={f.v + 0.5} r={0.7} />
@@ -160,7 +161,7 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
           )}
         </svg>
       </div>
-      <figcaption><span>左图 · 点一个点</span><b>{point ? `p = (${point.u}, ${point.v}, 1)` : '—'}</b></figcaption>
+      <figcaption><span>{tr('左图 · 点一个点', 'Left image · click a point')}</span><b>{point ? `p = (${point.u}, ${point.v}, 1)` : '—'}</b></figcaption>
     </figure>
   )
 
@@ -169,7 +170,7 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
     <figure className="epi-view" ref={rightView}>
       <div className="epi-frame">
         <ImageView img={right} size={W * 10} range={{ lo: 0, hi: 1 }} theme={theme} />
-        <svg className="epi-overlay" viewBox={`0 0 ${W} ${W}`} role="img" aria-label="右图：搜索的位置">
+        <svg className="epi-overlay" viewBox={`0 0 ${W} ${W}`} role="img" aria-label={tr('右图：搜索的位置', 'Right image: where the search looked')}>
           {found.map((f, i) => {
             const seg = clipLine(f.line, W)
             return (
@@ -195,7 +196,7 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
           )}
         </svg>
       </div>
-      <figcaption><span>右图 · 另一台相机，没有对齐</span><b>{search?.best ? `(${search.best.x.toFixed(1)}, ${search.best.y.toFixed(1)})` : '—'}</b></figcaption>
+      <figcaption><span>{tr('右图 · 另一台相机，没有对齐', 'Right image · another camera, not aligned')}</span><b>{search?.best ? `(${search.best.x.toFixed(1)}, ${search.best.y.toFixed(1)})` : '—'}</b></figcaption>
     </figure>
   )
 
@@ -203,15 +204,15 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
     <section className="bk-panel epi-modes">
       <div className="epi-fp">
         <span className="bk-label">F·p = (a, b, c)</span>
-        <b>{line ? `(${line.map(fmt).join(', ')})` : '先在左图点一个点'}</b>
+        <b>{line ? `(${line.map(fmt).join(', ')})` : tr('先在左图点一个点', 'Click a point in the left image first')}</b>
       </div>
       <div className="epi-mode-grid">
         {MODES.map(([mode, label]) => {
           const over = costs && costs[mode] > remaining
           return (
             <button key={mode} className={`bk-btn epi-mode ${result?.mode === mode ? 'is-current' : ''}`} disabled={!point} onClick={() => run(mode)}>
-              <span>{label}</span>
-              <small className={over ? 'is-over' : ''}>{costs ? `${costs[mode]} 次${over ? ' · 超预算' : ''}` : '—'}</small>
+              <span>{L(label)}</span>
+              <small className={over ? 'is-over' : ''}>{costs ? tr(`${costs[mode]} 次${over ? ' · 超预算' : ''}`, `${costs[mode]} ${costs[mode] === 1 ? 'comparison' : 'comparisons'}${over ? ' · over budget' : ''}`) : '—'}</small>
             </button>
           )
         })}
@@ -223,21 +224,21 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
   const peak = profile ? Math.max(...profile) || 1 : 1
   const outcome = (
     <section className="bk-panel epi-result" aria-live="polite">
-      <span className="bk-label">比较结果</span>
-      {note && <p className="bk-verdict is-fail">{note}</p>}
-      {result && <p className={`bk-verdict ${search?.found ? 'is-pass' : 'is-fail'}`}>{result.message}{result.mode === 'point' && search ? ` (${search.list[0].map((v) => v.toFixed(1)).join(', ')})` : ''}</p>}
-      {!note && !result && <p className="bk-note epi-empty">{point ? '选一种找法，比较会花掉预算。' : '在左图点一个点，看它的 5×5 窗口在右图里像哪里。'}</p>}
+      <span className="bk-label">{tr('比较结果', 'Comparison result')}</span>
+      {note && <p className="bk-verdict is-fail">{L(note)}</p>}
+      {result && <p className={`bk-verdict ${search?.found ? 'is-pass' : 'is-fail'}`}>{L(result.message)}{result.mode === 'point' && search ? ` (${search.list[0].map((v) => v.toFixed(1)).join(', ')})` : ''}</p>}
+      {!note && !result && <p className="bk-note epi-empty">{point ? tr('选一种找法，比较会花掉预算。', 'Choose a way to search; every comparison spends budget.') : tr('在左图点一个点，看它的 5×5 窗口在右图里像哪里。', 'Click a point in the left image and see where its 5×5 window looks alike in the right image.')}</p>}
       {windows && (
         <div className="epi-windows">
-          <figure><ImageView img={windows.left} size={64} range={{ lo: 0, hi: 1 }} theme={theme} /><figcaption>左图窗口</figcaption></figure>
-          <figure><ImageView img={windows.right} size={64} range={{ lo: 0, hi: 1 }} theme={theme} /><figcaption>右图最像处</figcaption></figure>
+          <figure><ImageView img={windows.left} size={64} range={{ lo: 0, hi: 1 }} theme={theme} /><figcaption>{tr('左图窗口', 'Left window')}</figcaption></figure>
+          <figure><ImageView img={windows.right} size={64} range={{ lo: 0, hi: 1 }} theme={theme} /><figcaption>{tr('右图最像处', 'Best match on the right')}</figcaption></figure>
           {best >= 0 && (
             <figure className="epi-profile">
-              <svg viewBox="0 0 100 40" preserveAspectRatio="none" role="img" aria-label="沿搜索路径的差异">
+              <svg viewBox="0 0 100 40" preserveAspectRatio="none" role="img" aria-label={tr('沿搜索路径的差异', 'Difference along the search path')}>
                 <polyline points={profile.map((d, i) => `${(i / (profile.length - 1)) * 100},${38 - (d / peak) * 34}`).join(' ')} />
                 <line x1={(best / (profile.length - 1)) * 100} x2={(best / (profile.length - 1)) * 100} y1={0} y2={40} />
               </svg>
-              <figcaption>沿路径的差异 · 竖线是最小处</figcaption>
+              <figcaption>{tr('沿路径的差异 · 竖线是最小处', 'Difference along the path · the vertical line marks the minimum')}</figcaption>
             </figure>
           )}
         </div>
@@ -247,13 +248,13 @@ export default function EpipolarSearch({ level, onSolve, theme }) {
 
   const math = (
     <section className="bk-panel epi-math">
-      <span className="bk-label">F（已给出）</span>
+      <span className="bk-label">{tr('F（已给出）', 'F (given)')}</span>
       <table className="epi-matrix">
         <tbody>
           {m.F.map((row, i) => <tr key={i}>{row.map((v, j) => <td key={j}>{fmt(v)}</td>)}</tr>)}
         </tbody>
       </table>
-      <button className="bk-btn epi-reset" onClick={reset}><RotateCcw size={14} /> 重来</button>
+      <button className="bk-btn epi-reset" onClick={reset}><RotateCcw size={14} /> {tr('重来', 'Start over')}</button>
     </section>
   )
 

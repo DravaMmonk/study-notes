@@ -4,6 +4,7 @@ import { reduced, buzz, toast } from '../util.js';
 import { allRoutes } from '../algo.js';
 import { E } from '../svg.js';
 import { rt } from '../runtime.js';
+import { tr } from '../i18n.js';
 
 export function traceMode(L, saved) {
   const st = { route: [], found: saved && saved.found ? saved.found : [], flash: null };
@@ -24,21 +25,21 @@ export function traceMode(L, saved) {
       const edges = L.edges.map(([a, b]) => E(a, b, onRoute(a, b) ? (st.route.length ? 'sel' : 'good') : 'idle'));
       return { cells, edges };
     },
-    note: () => st.route.length ? `当前路线：${st.route.map(name).join(' → ')}` : `从「${name(L.start)}」开始点。`,
+    note: () => st.route.length ? `${tr('当前路线：', 'Current route: ')}${st.route.map(name).join(' → ')}` : tr(`从「${name(L.start)}」开始点。`, `Start by clicking “${name(L.start)}”.`),
     onCell(id) {
       st.flash = null;
       if (!st.route.length) {
-        if (id !== L.start) { toast(`路线要从「${name(L.start)}」出发`); buzz(20); return; }
+        if (id !== L.start) { toast(tr(`路线要从「${name(L.start)}」出发`, `A route has to start at “${name(L.start)}”`)); buzz(20); return; }
         st.route = [id];
       } else {
         const last = st.route[st.route.length - 1];
         if (id === last) { st.route.pop(); rt.refresh(); return; }
-        if (!has(last, id)) { toast(`没有从「${name(last)}」通往「${name(id)}」的单行道`); buzz(20); return; }
+        if (!has(last, id)) { toast(tr(`没有从「${name(last)}」通往「${name(id)}」的单行道`, `There is no one-way street from “${name(last)}” to “${name(id)}”`)); buzz(20); return; }
         st.route.push(id);
         if (id === L.end) {
           const key = st.route.join('>');
-          if (st.found.some(r => r.join('>') === key)) toast('这条路线已经找过了');
-          else { st.found = [...st.found, st.route]; toast(`找到第 ${st.found.length} 条路线`); buzz(15); }
+          if (st.found.some(r => r.join('>') === key)) toast(tr('这条路线已经找过了', 'You already found this route'));
+          else { st.found = [...st.found, st.route]; toast(tr(`找到第 ${st.found.length} 条路线`, `Found route ${st.found.length}`)); buzz(15); }
           st.flash = st.route;
           st.route = [];
           rt.persist();
@@ -51,12 +52,12 @@ export function traceMode(L, saved) {
       rt.refresh();
     },
     panel() {
-      return `<div class="pcard"><h3>已找到的路线<small>${st.found.length} / ${total}</small></h3>
-        <div class="routes">${st.found.length ? st.found.map((r, k) => `<div class="route">${k + 1}. ${r.map(name).join(' → ')}</div>`).join('') : '<div class="route empty">还没有</div>'}
-        ${st.route.length ? `<div class="route now">正在走：${st.route.map(name).join(' → ')}</div>` : ''}</div></div>
-        <div class="pcard"><h3>规则</h3><p>只能顺着箭头走。点到「${name(L.end)}」就记下一条路线；同一条路线只算一次。</p></div>`;
+      return `<div class="pcard"><h3>${tr('已找到的路线', 'Routes found')}<small>${st.found.length} / ${total}</small></h3>
+        <div class="routes">${st.found.length ? st.found.map((r, k) => `<div class="route">${k + 1}. ${r.map(name).join(' → ')}</div>`).join('') : `<div class="route empty">${tr('还没有', 'None yet')}</div>`}
+        ${st.route.length ? `<div class="route now">${tr('正在走：', 'Walking: ')}${st.route.map(name).join(' → ')}</div>` : ''}</div></div>
+        <div class="pcard"><h3>${tr('规则', 'Rule')}</h3><p>${tr(`只能顺着箭头走。点到「${name(L.end)}」就记下一条路线；同一条路线只算一次。`, `You can only follow the arrows. Reaching “${name(L.end)}” records a route; each route counts only once.`)}</p></div>`;
     },
-    dock: () => ({ meta: `已找到 <b>${st.found.length}</b> / ${total} 条`, sec: st.route.length ? '撤销一步' : '', secAct: 'undo' }),
+    dock: () => ({ meta: tr(`已找到 <b>${st.found.length}</b> / ${total} 条`, `Found <b>${st.found.length}</b> / ${total}`), sec: st.route.length ? tr('撤销一步', 'Undo a step') : '', secAct: 'undo' }),
     act(name2) { if (name2 === 'undo') { st.route.pop(); rt.refresh(); } },
   };
 }

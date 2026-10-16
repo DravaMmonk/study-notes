@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { Check, Circle } from 'lucide-react'
+import { L, tr } from '../../i18n.js'
 
 // Drawing pieces shared by chapter 2's wave boards (WaveTuner, WaveMixer, Equalizer, AliasProbe).
 // Curves are functions of u, the position across one image width (0 … 1), or arrays of samples.
@@ -8,7 +9,13 @@ import { Check, Circle } from 'lucide-react'
 const FINE = 160
 const valueAt = (curve, u) => (typeof curve === 'function' ? curve(u) : curve[Math.min(curve.length - 1, Math.floor(u * curve.length))])
 
-const KIND_LABELS = { target: '目标', yours: '你的', faint: '原信号', error: '误差', seen: '看起来' }
+const KIND_LABELS = {
+  target: { zh: '目标', en: 'target' },
+  yours: { zh: '你的', en: 'yours' },
+  faint: { zh: '原信号', en: 'original' },
+  error: { zh: '误差', en: 'error' },
+  seen: { zh: '看起来', en: 'looks like' },
+}
 const fmt = (v) => (Number.isFinite(v) ? (Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(3)) : '—')
 
 // Which column the pointer is over, in viewBox units, from a pointer event on the svg.
@@ -67,15 +74,15 @@ export function Plot({ lines = [], dots = [], width = 600, height = 200, lo = 0,
   // What each line (and each dot at the picked sample) reads at the picked spot.
   const readings = at
     ? [
-        ...lines.map((line) => ({ kind: line.kind, label: line.label ?? KIND_LABELS[line.kind] ?? '', v: valueAt(line.curve, at.u) })),
-        ...dots.filter((d) => at.sample !== undefined && Math.abs(d.u - at.u) < 1e-9).map((d) => ({ kind: d.kind === 'ring' ? 'ring' : 'sample', label: d.label ?? (d.kind === 'ring' ? '参照点' : '采到的值'), v: d.v, dot: true })),
+        ...lines.map((line) => ({ kind: line.kind, label: L(line.label ?? KIND_LABELS[line.kind] ?? ''), v: valueAt(line.curve, at.u) })),
+        ...dots.filter((d) => at.sample !== undefined && Math.abs(d.u - at.u) < 1e-9).map((d) => ({ kind: d.kind === 'ring' ? 'ring' : 'sample', label: L(d.label) ?? (d.kind === 'ring' ? tr('参照点', 'reference') : tr('采到的值', 'sampled value')), v: d.v, dot: true })),
       ]
     : []
-  const where = !at ? '' : at.sample !== undefined ? `第 ${at.sample} 个点 / ${at.of}` : at.pixel !== undefined ? `x = ${at.pixel}` : `x = ${(at.u * span).toFixed(1)} px`
+  const where = !at ? '' : at.sample !== undefined ? tr(`第 ${at.sample} 个点 / ${at.of}`, `point ${at.sample} / ${at.of}`) : at.pixel !== undefined ? `x = ${at.pixel}` : `x = ${(at.u * span).toFixed(1)} px`
 
   return (
     <div className="wv-plot-wrap">
-      <svg className="wv-plot" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label ?? ''}：指向一处读数`} onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
+      <svg className="wv-plot" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={tr(`${L(label) ?? ''}：指向一处读数`, `${L(label) ?? ''}: point at a spot to read it`)} onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
         {ticks.map((t) => (
           <g key={t}>
             <line className={`wv-grid ${t === 0 && lo < 0 ? 'is-zero' : ''}`} x1={left} x2={width - right} y1={y(t)} y2={y(t)} />
@@ -113,7 +120,7 @@ export function Plot({ lines = [], dots = [], width = 600, height = 200, lo = 0,
 export function Band({ curve, width = 600, height = 30, label }) {
   const n = 96
   return (
-    <svg className="wv-band" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label={label}>
+    <svg className="wv-band" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label={L(label)}>
       {Array.from({ length: n }, (_, i) => {
         const g = Math.round(255 * Math.min(1, Math.max(0, valueAt(curve, (i + 0.5) / n))))
         return <rect key={i} x={(i / n) * width} y={0} width={width / n + 0.6} height={height} fill={`rgb(${g},${g},${g})`} />
@@ -190,7 +197,7 @@ export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, 
   }
 
   return (
-    <svg ref={svg} className={`wv-bars ${readOnly ? 'is-readonly' : ''}`} viewBox={`0 0 ${width} ${height}`} role="group" aria-label={label} {...handlers}>
+    <svg ref={svg} className={`wv-bars ${readOnly ? 'is-readonly' : ''}`} viewBox={`0 0 ${width} ${height}`} role="group" aria-label={L(label)} {...handlers}>
       <line className="wv-grid" x1={0} x2={width} y1={zero} y2={zero} />
       {values.map((v, index) => {
         const x0 = index * col
@@ -203,7 +210,7 @@ export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, 
             <rect className="wv-bar" x={cx - barW / 2} y={Math.min(y(v), zero)} width={barW} height={Math.max(0.5, Math.abs(zero - y(v)))} rx={3} />
             {ghosts && <line className="wv-bar-ghost" x1={cx - barW / 2 - 4} x2={cx + barW / 2 + 4} y1={y(ghosts[index])} y2={y(ghosts[index])} />}
             {!readOnly && !locked.includes(index) && <rect className="wv-bar-cap" x={cx - barW / 2 - 2} y={y(v) - 3} width={barW + 4} height={6} rx={3} />}
-            <text className="wv-bar-label" x={cx} y={height - foot + 16}>{labels?.[index] ?? index}</text>
+            <text className="wv-bar-label" x={cx} y={height - foot + 16}>{L(labels?.[index]) ?? index}</text>
             {under?.({ x: x0 + 4, y: height - foot + 22, w: col - 8, h: foot - 26, index })}
             {!readOnly && !locked.includes(index) && (
               <rect
@@ -214,7 +221,7 @@ export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, 
                 height={height}
                 tabIndex={0}
                 role="slider"
-                aria-label={`${labels?.[index] ?? index}`}
+                aria-label={`${L(labels?.[index]) ?? index}`}
                 aria-valuemin={min}
                 aria-valuemax={max}
                 aria-valuenow={Number(v.toFixed(3))}
@@ -229,7 +236,7 @@ export function Bars({ values, onChange, min = 0, max = 1, step = 0.01, labels, 
       })}
       {hot !== null && values[hot] !== undefined && (() => {
         const v = values[hot]
-        const text = locked.includes(hot) ? '不能用' : shadows ? `${shadows[hot].toFixed(2)} → ${v.toFixed(2)}` : v.toFixed(2)
+        const text = locked.includes(hot) ? tr('不能用', 'locked') : shadows ? `${shadows[hot].toFixed(2)} → ${v.toFixed(2)}` : v.toFixed(2)
         const w = text.length * 7 + 12
         const cx = Math.min(width - w / 2 - 2, Math.max(w / 2 + 2, hot * col + col / 2))
         const above = Math.min(y(v), zero, shadows ? y(shadows[hot]) : Infinity) - 8
@@ -256,14 +263,14 @@ export function Squiggle({ x, y, w, h, k, form = 'sin' }) {
 // the furthest one reached can be reopened.
 export function Stages({ stages, current, passed, reached, onPick }) {
   return (
-    <ol className="bk-goals" aria-label="步骤">
+    <ol className="bk-goals" aria-label={tr('步骤', 'Steps')}>
       {stages.map((stage, index) => {
         const done = passed[index]
         const open = index <= reached
         return (
           <li key={index} className={`bk-goal wv-goal-row ${done ? 'is-pass' : ''} ${index === current ? 'is-current' : ''} ${open ? '' : 'is-locked'}`}>
             {done ? <Check size={16} /> : <Circle size={14} />}
-            {open && index !== current ? <button onClick={() => onPick(index)}>{stage.title}</button> : <span>{stage.title}</span>}
+            {open && index !== current ? <button onClick={() => onPick(index)}>{L(stage.title)}</button> : <span>{L(stage.title)}</span>}
             <small>{index + 1} / {stages.length}</small>
           </li>
         )

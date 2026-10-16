@@ -1,24 +1,28 @@
 // Chapter 10: recognise the familiar machines inside everyday stories.
 
+import { T } from '../i18n.js';
+
+const COUNTER = T('路线计数器', 'Route Counter'), STAIRS = T('台阶计数器', 'Stair Counter'), LAYER = T('分层', 'Layers'), ALIGN = T('对齐表', 'Alignment Table'), PACK = T('背包表', 'Knapsack Table');
+
 export const graduate = [
   {
-    id: 'disguise', ch: 10, title: '认出伪装', short: '题目不会写着「动态规划」', mode: 'match',
+    id: 'disguise', ch: 10, title: T('认出伪装', 'See through the disguise'), short: T('题目不会写着「动态规划」', 'Problems don’t say “dynamic programming”'), mode: 'match',
     intro: [
-      { t: '最后一关没有棋盘。下面每个小故事里，都藏着一个你已经会解的问题。' },
-      { t: '真实的问题从来不会写着「动态规划」。它们会伪装成铺地砖、排训练计划、改作业……认出背后的结构，就成功了一大半。' },
-      { t: '给每个故事选一台合适的机器。小心：其中有的故事，<b>根本不需要动态规划</b>。' },
+      { t: T('最后一关没有棋盘。下面每个小故事里，都藏着一个你已经会解的问题。', 'The last level has no board. Each little story below hides a problem you already know how to solve.') },
+      { t: T('真实的问题从来不会写着「动态规划」。它们会伪装成铺地砖、排训练计划、改作业……认出背后的结构，就成功了一大半。', 'Real problems never come labeled “dynamic programming”. They are disguised as laying tiles, planning workouts, marking homework… Recognize the structure underneath, and you are most of the way there.') },
+      { t: T('给每个故事选一台合适的机器。小心：其中有的故事，<b>根本不需要动态规划</b>。', 'Choose the right machine for each story. Careful: some of these stories <b>don’t need dynamic programming at all</b>.') },
     ],
-    mission: { goal: '为每个故事选一台能解决它的机器。有的故事根本不需要动态规划。', how: '在每个故事下面选一个答案，全部选完后点「检查」。选错的故事会给出提示。' },
-    options: [{ v: 'counter', l: '路线计数器' }, { v: 'stairs', l: '台阶计数器' }, { v: 'layer', l: '分层' }, { v: 'align', l: '对齐表' }, { v: 'pack', l: '背包表' }, { v: 'none', l: '不需要动态规划' }],
-    refs: [['路线计数器', '网格里只能往右、往下走，每格 = 上面 + 左边。'], ['台阶计数器', '排成一行，每格 = 前面几格之和。'], ['分层', '状态多记一件事，表复制成几层。'], ['对齐表', '两串文字，一个放上面，一个放左边。'], ['背包表', '容量有限，每件东西拿或不拿。']],
+    mission: { goal: T('为每个故事选一台能解决它的机器。有的故事根本不需要动态规划。', 'For each story, choose a machine that solves it. Some stories don’t need dynamic programming at all.'), how: T('在每个故事下面选一个答案，全部选完后点「检查」。选错的故事会给出提示。', 'Pick an answer under each story, then click “Check” once they are all answered. Stories you get wrong will give you a hint.') },
+    options: [{ v: 'counter', l: COUNTER }, { v: 'stairs', l: STAIRS }, { v: 'layer', l: LAYER }, { v: 'align', l: ALIGN }, { v: 'pack', l: PACK }, { v: 'none', l: T('不需要动态规划', 'No dynamic programming needed') }],
+    refs: [[COUNTER, T('网格里只能往右、往下走，每格 = 上面 + 左边。', 'On a grid you can only go right or down; each cell = up + left.')], [STAIRS, T('排成一行，每格 = 前面几格之和。', 'Laid out in a row; each cell = the sum of a few cells before it.')], [LAYER, T('状态多记一件事，表复制成几层。', 'The state remembers one more thing; the table is copied into layers.')], [ALIGN, T('两串文字，一个放上面，一个放左边。', 'Two strings, one along the top and one down the left.')], [PACK, T('容量有限，每件东西拿或不拿。', 'Limited capacity; each thing is either taken or left.')]],
     stories: [
-      { id: 's1', t: '走廊长 n 米。地砖有 1 米长和 2 米长两种，铺满走廊一共有几种铺法？', a: 'stairs', why: '看最后一块砖：要么 1 米长，要么 2 米长。铺到第 n 米的方法数 = 第 n − 1 米 + 第 n − 2 米，和爬楼梯一模一样。', hint: '铺到第 n 米时，最后一块砖有几种可能？这和哪一关很像？' },
-      { id: 's2', t: '两份作业几乎一样。老师想知道：最少改几个字（删、插、换），能把一份变成另一份？', a: 'align', why: '两串文字，一份放上面，一份放左边，每根箭头带上代价，就是第 23 关的改错字。', hint: '有两串文字要比较。' },
-      { id: 's3', t: '健身计划：每天可以训练或休息，但不能连续两天训练。每天训练的效果不同，怎样安排总效果最好？', a: 'layer', why: '「不能连续两天」就是「不能连着偷」。状态要多记一件事：昨天练没练。', hint: '「不能连续两天」像哪一关？状态只记「第几天」够吗？' },
-      { id: 's4', t: '预算 100 元，想买几门网课。每门课有价格和收获，每门最多买一次。怎么买收获最大？', a: 'pack', why: '价格就是重量，预算就是背包容量，收获就是价值。每门最多一次，所以是 0/1 背包。', hint: '预算是有限的，每门课买或不买。' },
-      { id: 's5', t: '在一排数字里，找出最大的那个。', a: 'none', why: '从头看到尾，记住见过的最大值就行，每个数只看一次。没有需要拆成小问题再拼起来的结构。', hint: '这个问题需要拆成小问题、再把答案拼起来吗？' },
-      { id: 's6', t: '扫地机器人在摆着家具的房间里，只能往右或往下走。从门口到对角的墙角，有几条不同的路线？', a: 'counter', why: '棋盘城市加落石：家具格记 0，其余每格 = 上面 + 左边。', hint: '只能往右或往下走的网格，在哪一章见过？' },
+      { id: 's1', t: T('走廊长 n 米。地砖有 1 米长和 2 米长两种，铺满走廊一共有几种铺法？', 'A corridor is n meters long. Tiles come in two lengths, 1 meter and 2 meters. How many ways are there to tile the whole corridor?'), a: 'stairs', why: T('看最后一块砖：要么 1 米长，要么 2 米长。铺到第 n 米的方法数 = 第 n − 1 米 + 第 n − 2 米，和爬楼梯一模一样。', 'Look at the last tile: it is either 1 meter or 2 meters long. Ways to tile n meters = ways for n − 1 + ways for n − 2, exactly like climbing stairs.'), hint: T('铺到第 n 米时，最后一块砖有几种可能？这和哪一关很像？', 'When you reach meter n, what could the last tile be? Which level does that remind you of?') },
+      { id: 's2', t: T('两份作业几乎一样。老师想知道：最少改几个字（删、插、换），能把一份变成另一份？', 'Two homework assignments are almost identical. The teacher wants to know: what is the fewest letters to change (delete, insert, replace) to turn one into the other?'), a: 'align', why: T('两串文字，一份放上面，一份放左边，每根箭头带上代价，就是第 23 关的改错字。', 'Two strings, one along the top and one down the left, with a cost on every arrow: that is level 23, Fix the typo.'), hint: T('有两串文字要比较。', 'There are two strings to compare.') },
+      { id: 's3', t: T('健身计划：每天可以训练或休息，但不能连续两天训练。每天训练的效果不同，怎样安排总效果最好？', 'A fitness plan: each day you either train or rest, but you can’t train two days in a row. Training pays off differently each day. How should you plan for the best total result?'), a: 'layer', why: T('「不能连续两天」就是「不能连着偷」。状态要多记一件事：昨天练没练。', '“Not two days in a row” is just “no two houses in a row”. The state has to remember one more thing: whether you trained yesterday.'), hint: T('「不能连续两天」像哪一关？状态只记「第几天」够吗？', 'Which level does “not two days in a row” remind you of? Is remembering just “which day” enough?') },
+      { id: 's4', t: T('预算 100 元，想买几门网课。每门课有价格和收获，每门最多买一次。怎么买收获最大？', 'You have a budget of 100 to spend on online courses. Each course has a price and a payoff, and you can buy each at most once. What should you buy for the biggest payoff?'), a: 'pack', why: T('价格就是重量，预算就是背包容量，收获就是价值。每门最多一次，所以是 0/1 背包。', 'The price is the weight, the budget is the backpack’s capacity, and the payoff is the value. Each course at most once, so it is a 0/1 knapsack.'), hint: T('预算是有限的，每门课买或不买。', 'The budget is limited, and each course is either bought or not.') },
+      { id: 's5', t: T('在一排数字里，找出最大的那个。', 'Find the largest number in a row of numbers.'), a: 'none', why: T('从头看到尾，记住见过的最大值就行，每个数只看一次。没有需要拆成小问题再拼起来的结构。', 'Just read from start to end and remember the largest value seen so far, looking at each number once. There is no structure that needs breaking into smaller problems and putting back together.'), hint: T('这个问题需要拆成小问题、再把答案拼起来吗？', 'Does this problem need breaking into smaller problems whose answers are then put together?') },
+      { id: 's6', t: T('扫地机器人在摆着家具的房间里，只能往右或往下走。从门口到对角的墙角，有几条不同的路线？', 'A robot vacuum in a furnished room can only move right or down. How many different routes lead from the doorway to the opposite corner?'), a: 'counter', why: T('棋盘城市加落石：家具格记 0，其余每格 = 上面 + 左边。', 'A grid city with rockfalls: furniture cells count 0, and every other cell = up + left.'), hint: T('只能往右或往下走的网格，在哪一章见过？', 'Where have you seen a grid where you can only go right or down?') },
     ],
-    debrief: { title: '毕业了', body: ['真实世界的问题不会写着「动态规划」。你要做的，是从故事里认出熟悉的结构：<b>最后一步有几种可能？小问题的答案能不能拼出大问题？状态要记住什么？</b>', '你从格子和箭头出发，拼出了路线计数器、台阶计数器、分层、对齐表、背包表和滚动数组。它们就是动态规划里最常用的几种模型。', '下次遇到一个看起来很难的问题，先问一句：<strong>它的状态是什么？</strong>'], note: '认出结构：最后一步有几种可能？状态要记住什么？' },
+    debrief: { title: T('毕业了', 'Graduated'), body: [T('真实世界的问题不会写着「动态规划」。你要做的，是从故事里认出熟悉的结构：<b>最后一步有几种可能？小问题的答案能不能拼出大问题？状态要记住什么？</b>', 'Real-world problems don’t come labeled “dynamic programming”. Your job is to recognize a familiar structure in the story: <b>what could the last step be? Can the answers to small problems be put together into the big one? What must the state remember?</b>'), T('你从格子和箭头出发，拼出了路线计数器、台阶计数器、分层、对齐表、背包表和滚动数组。它们就是动态规划里最常用的几种模型。', 'Starting from cells and arrows, you built the Route Counter, the Stair Counter, Layers, the Alignment Table, the Knapsack Table and the Rolling Array. These are the models you will use most often in dynamic programming.'), T('下次遇到一个看起来很难的问题，先问一句：<strong>它的状态是什么？</strong>', 'Next time you meet a problem that looks hard, start by asking: <strong>what is its state?</strong>')], note: T('认出结构：最后一步有几种可能？状态要记住什么？', 'Recognize the structure: what could the last step be? What must the state remember?') },
   },
 ];

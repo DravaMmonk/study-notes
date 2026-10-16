@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { applyOrder, createIdle, createLoop, svgNode } from '../common.js'
+import { applyOrder, createIdle, createLoop, svgNode, t } from '../common.js'
 import { BINS, REAL, SEEDS, STEPS, accuracy, binCentre, binOf, D, fakes, meanD, trajectory, value } from './model.js'
 
 // Fig · The forgery inspection bench.
@@ -153,14 +153,17 @@ export const css = '.iso-solid.gb-real[data-seamless]>.iso-shade[data-shade]{fil
 
 // ---------- the live figure ----------
 
-export const meta = { id: 'gan-bench', fig: 'Fig 16.1', title: '真伪检验台' }
+export const meta = { id: 'gan-bench', fig: 'Fig 16.1', title: '真伪检验台', titleEn: 'Real-or-fake bench' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '真伪检验台。后排架子装着一批真实样本，分成两个峰；前排架子接住生成器两个喷嘴落下的一批假样本。两排后面立着一把轮廓规，四十根板条的高度描出判别器 D(x)，中间横着一根 D = 1/2 的细线。每一步先调整板条，再让喷嘴向板条高的地方滑动并重新落下一批小球。',
+      'A real-or-fake inspection bench. The back rack holds a batch of real samples in two modes; the front rack catches a batch of fake samples dropped by the generator’s two nozzles. Behind both racks stands a profile gauge whose forty slats trace the discriminator D(x), with a thin line across it at D = 1/2. Each step first adjusts the slats, then slides the nozzles toward where the slats are high and drops a fresh batch of balls.',
+    ),
     body: [
       `<defs><clipPath id="gan-drain"><path d="${k.pathOf([at([-400, 0, FLOOR]), at([400, 0, FLOOR]), at([400, 0, 400]), at([-400, 0, 400])], true)}"/></clipPath></defs>`,
       base(),
@@ -178,30 +181,33 @@ export function render() {
       `<g data-part="carriage-1">${carriage(1)}${arm(1)}</g>`,
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="GAN 训练">
-    <div class="fx-control"><span>起步</span>${Object.entries(SEEDS).map(([id, seed]) => `<button type="button" data-set="seed" data-value="${id}">${seed.name}</button>`).join('')}</div>
-    <div class="fx-control"><span>训练</span><button type="button" data-set="step" data-value="1">一步 ›</button><button type="button" data-set="run" data-value="1">连续</button><button type="button" data-set="reset" data-value="1">重置</button></div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, 'GAN 训练', 'GAN training')}">
+    <div class="fx-control"><span>${t(lang, '起步', 'Start')}</span>${Object.entries(SEEDS).map(([id, seed]) => `<button type="button" data-set="seed" data-value="${id}">${t(lang, seed.name, seed.nameEn)}</button>`).join('')}</div>
+    <div class="fx-control"><span>${t(lang, '训练', 'Train')}</span><button type="button" data-set="step" data-value="1">${t(lang, '一步 ›', 'Step ›')}</button><button type="button" data-set="run" data-value="1">${t(lang, '连续', 'Run')}</button><button type="button" data-set="reset" data-value="1">${t(lang, '重置', 'Reset')}</button></div>
   </div>
-  <div class="fx-calc"><span>V(D, G) = E[log D(x)] + E[log(1 − D(G(z)))] =</span><b data-calc="v"></b><i>·</i><span>平衡点 log ¼ ≈ −1.39</span><i>·</i><span>D(真) 均值</span><b data-calc="real"></b><span>D(假) 均值</span><b data-calc="fake"></b></div>`
+  <div class="fx-calc"><span>V(D, G) = E[log D(x)] + E[log(1 − D(G(z)))] =</span><b data-calc="v"></b><i>·</i><span>${t(lang, '平衡点', 'equilibrium')} log ¼ ≈ −1.39</span><i>·</i><span>${t(lang, 'D(真) 均值', 'mean D(real)')}</span><b data-calc="real"></b><span>${t(lang, 'D(假) 均值', 'mean D(fake)')}</span><b data-calc="fake"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '空格一步 · 回车连续',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '空格一步 · 回车连续', 'Space steps · Enter runs'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '生成器的两个喷嘴' },
-        { mark: 'dim', label: '深色球：真实样本 · 白球：生成样本' },
-        { mark: 'raised', label: '板条高度 = D(x)' },
+        { mark: 'lit', label: t(lang, '生成器的两个喷嘴', 'the generator’s two nozzles') },
+        { mark: 'dim', label: t(lang, '深色球：真实样本 · 白球：生成样本', 'dark balls: real samples · white balls: generated') },
+        { mark: 'raised', label: t(lang, '板条高度 = D(x)', 'slat height = D(x)') },
       ],
-      caption:
+      caption: t(
+        lang,
         '每一步先训练判别器：后排真样本多的地方板条升高、前排假样本多的地方板条降低。再训练生成器：喷嘴沿板条变高的方向滑动，换一批小球落下。分开起步时两个喷嘴各占一个峰，板条全部落到 ½ 的细线上，D 准确率回到 0.5；同点起步时两个喷嘴梯度完全相同、永远分不开，假样本全堆在一个峰上，判别器在另一个峰上留着高高的脊，这就是 mode collapse。注意第 0 步 D 也是 0.5：分不清真假不等于生成器学好了。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="真伪检验台。空格或右方向键训练一步，回车连续训练，R 重置，C 切换起步方式。">${svg}</div>`,
+        'Each step trains the discriminator first: slats rise where the back rack has many real samples and drop where the front rack has many fakes. Then it trains the generator: the nozzles slide toward where the slats are rising and drop a new batch of balls. Started apart, the two nozzles each take one mode, every slat settles onto the ½ line, and D’s accuracy returns to 0.5. Started on the same spot, the two nozzles get exactly the same gradient and can never separate; all the fakes pile onto one mode while the discriminator keeps a tall ridge over the other one: this is mode collapse. Note that D is also at 0.5 at step 0: being unable to tell real from fake does not mean the generator has learned.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, '真伪检验台。空格或右方向键训练一步，回车连续训练，R 重置，C 切换起步方式。', 'Real-or-fake bench. Space or the right arrow trains one step, Enter trains continuously, R resets, C switches the start.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -317,7 +323,7 @@ export function mount(root) {
 
   function say() {
     const s = state.shown
-    const text = `第 ${s.step} 步 · D 准确率 ${accuracy(s).toFixed(2)}`
+    const text = t(lang, `第 ${s.step} 步 · D 准确率 ${accuracy(s).toFixed(2)}`, `Step ${s.step} · D accuracy ${accuracy(s).toFixed(2)}`)
     if (readout.textContent !== text) readout.textContent = text
     calc.v.textContent = value(s).toFixed(2).replace('-', '−')
     calc.real.textContent = meanD(s, REAL).toFixed(2)
@@ -326,7 +332,7 @@ export function mount(root) {
 
   function describe() {
     const s = state.shown
-    stage.setAttribute('aria-valuetext', `${SEEDS[state.seed].name}，第 ${s.step} 步，D 准确率 ${accuracy(s).toFixed(2)}，喷嘴位于 ${s.g.m.map((m) => m.toFixed(1)).join(' 和 ')}`)
+    stage.setAttribute('aria-valuetext', t(lang, `${SEEDS[state.seed].name}，第 ${s.step} 步，D 准确率 ${accuracy(s).toFixed(2)}，喷嘴位于 ${s.g.m.map((m) => m.toFixed(1)).join(' 和 ')}`, `${SEEDS[state.seed].nameEn}, step ${s.step}, D accuracy ${accuracy(s).toFixed(2)}, nozzles at ${s.g.m.map((m) => m.toFixed(1)).join(' and ')}`))
     buttons.forEach((button) => {
       const { set, value: v } = button.dataset
       if (set === 'seed') button.setAttribute('aria-pressed', String(v === state.seed))

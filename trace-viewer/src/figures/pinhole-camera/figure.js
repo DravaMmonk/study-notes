@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { clamp, createIdle, createLoop, floorPoint, follow, viewBoxPoint } from '../common.js'
+import { clamp, createIdle, createLoop, floorPoint, follow, t, viewBoxPoint } from '../common.js'
 import { ARROW, DEPTH, FOCALS, HOLES, POST, mm, view } from './model.js'
 
 // Fig · The pinhole camera on an optical bench.
@@ -185,14 +185,17 @@ function frame() {
   return out.join('')
 }
 
-export const meta = { id: 'pinhole-camera', fig: 'Fig 2.1', title: '针孔相机' }
+export const meta = { id: 'pinhole-camera', fig: 'Fig 2.1', title: '针孔相机', titleEn: 'Pinhole camera' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '光具座上的针孔相机。导轨零点处是前立板，板前的光阑滑片带三个大小不同的针孔；皮腔连到后立板，后立板的毛玻璃朝向读者，前后滑动后立板就改变焦距 f。导轨远端的小车载着一支直立箭头；两根细线从箭头尖和底部连到针孔。毛玻璃上的箭头倒立，高度为 f 乘 X 除以 Z。',
+      'A pinhole camera on an optical bench. At the rail’s zero stands the front standard, with a stop slide in front of it holding three pinholes of different sizes; a bellows runs back to the rear standard, whose ground-glass image plane faces the reader, and sliding the rear standard back and forth changes the focal length f. A carriage at the far end of the rail carries an upright arrow; two strings run from the arrow’s tip and foot to the pinhole. The arrow on the ground glass is inverted, and its height is f times X divided by Z.',
+    ),
     body: [
       base(),
       `<g data-part="object">${object()}</g>`,
@@ -205,25 +208,28 @@ export function render() {
       `<g data-part="rear-front">${frame()}${post(-1, POSTS.half - POSTS.d, true)}</g>`,
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="针孔相机设置">
-    <div class="fx-control"><span>焦距</span>${[50, 100, 150].map((f) => `<button type="button" data-set="f" data-value="${f}">${f} mm</button>`).join('')}</div>
-    <div class="fx-control"><span>孔径</span>${HOLES.map((d) => `<button type="button" data-set="d" data-value="${d}">${d} mm</button>`).join('')}</div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '针孔相机设置', 'Camera settings')}">
+    <div class="fx-control"><span>${t(lang, '焦距', 'Focal length')}</span>${[50, 100, 150].map((f) => `<button type="button" data-set="f" data-value="${f}">${f} mm</button>`).join('')}</div>
+    <div class="fx-control"><span>${t(lang, '孔径', 'Aperture')}</span>${HOLES.map((d) => `<button type="button" data-set="d" data-value="${d}">${d} mm</button>`).join('')}</div>
   </div>
-  <div class="fx-calc"><span>x = −f·X / Z =</span><b data-calc="x"></b><i>·</i><span>光斑 D(Z+f)/Z =</span><b data-calc="blur"></b><i>·</i><span>f/D =</span><b data-calc="stop"></b></div>`
+  <div class="fx-calc"><span>x = −f·X / Z =</span><b data-calc="x"></b><i>·</i><span>${t(lang, '光斑', 'blur')} D(Z+f)/Z =</span><b data-calc="blur"></b><i>·</i><span>f/D =</span><b data-calc="stop"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '悬停导轨 · 方向键',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '悬停导轨 · 方向键', 'Hover the rail · arrow keys'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '毛玻璃上的倒像' },
-        { mark: 'raised', label: '物体：100 mm 高的箭头' },
-        { mark: 'edge', label: '细线：射向针孔的光线' },
+        { mark: 'lit', label: t(lang, '毛玻璃上的倒像', 'inverted image on the ground glass') },
+        { mark: 'raised', label: t(lang, '物体：100 mm 高的箭头', 'object: an arrow 100 mm tall') },
+        { mark: 'edge', label: t(lang, '细线：射向针孔的光线', 'strings: rays heading for the pinhole') },
       ],
-      caption:
+      caption: t(
+        lang,
         '沿导轨推远箭头（Z 变大）或滑动后立板（f 变化），毛玻璃上的像总是倒立，高 x = −f·X/Z：Z 加倍，像缩成一半；f 加倍，像放大一倍。换上大孔，进光按 (D/f)² 增多，但每个点在玻璃上铺成直径约 D(Z+f)/Z 的光斑，像就糊了。各方向都按 1 单位 = 4 mm 绘制，同一把尺在针孔前读 Z、在针孔后读 f。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="针孔相机。左右方向键移动箭头，上下方向键移动后立板，1 到 3 换孔径。">${svg}</div>`,
+        'Push the arrow down the rail (Z grows) or slide the rear standard (f changes): the image on the ground glass is always inverted, with height x = −f·X/Z. Double Z and the image shrinks to half; double f and it doubles in size. Fit a larger hole and the light let in grows as (D/f)², but every point spreads into a blur disc about D(Z+f)/Z across on the glass, and the image goes soft. Everything is drawn at 1 unit = 4 mm in every direction, so the same scale reads Z in front of the pinhole and f behind it.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, '针孔相机。左右方向键移动箭头，上下方向键移动后立板，1 到 3 换孔径。', 'Pinhole camera. Left and right arrow keys move the arrow, up and down move the rear standard, and 1 to 3 change the aperture.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
@@ -242,7 +248,7 @@ function imageSvg(m) {
   return `<path class="pc-image" d="${arrow}"/><path class="pc-image" d="${stem}" opacity=".45"/>`
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -298,7 +304,7 @@ export function mount(root) {
     const pin = [0, 0, AXIS]
     const foot = [zu, 0, CAR_TOP + 2.5]
     nodes.rays.innerHTML = L(k.segment([zu, 0, AXIS + ARROW * U], pin, P) + k.segment(foot, pin, P), { tone: 'mid' }) + D([at(foot)], { size: 0.6, tone: 'hi' })
-    const text = `f ${state.fx.toFixed(0)} mm · Z ${state.z.toFixed(0)} mm · 像高 ${mm(v.image)}`
+    const text = `f ${state.fx.toFixed(0)} mm · Z ${state.z.toFixed(0)} mm · ${t(lang, '像高', 'x')} ${mm(v.image)}`
     if (readout.textContent !== text) readout.textContent = text
     calc.x.textContent = `−${state.fx.toFixed(0)} × ${ARROW} / ${state.z.toFixed(0)} = ${mm(v.image)}`
     calc.blur.textContent = mm(v.blur)
@@ -307,7 +313,7 @@ export function mount(root) {
 
   function describe() {
     const v = view(state.f, state.Z, HOLES[state.hole])
-    stage.setAttribute('aria-valuetext', `物距 ${state.Z} 毫米，焦距 ${state.f} 毫米，孔径 ${HOLES[state.hole]} 毫米，像高 ${Math.abs(v.image).toFixed(1)} 毫米，倒立`)
+    stage.setAttribute('aria-valuetext', t(lang, `物距 ${state.Z} 毫米，焦距 ${state.f} 毫米，孔径 ${HOLES[state.hole]} 毫米，像高 ${Math.abs(v.image).toFixed(1)} 毫米，倒立`, `Object distance ${state.Z} mm, focal length ${state.f} mm, aperture ${HOLES[state.hole]} mm, image height ${Math.abs(v.image).toFixed(1)} mm, inverted`))
     buttons.forEach((button) => {
       const value = Number(button.dataset.value)
       button.setAttribute('aria-pressed', String(button.dataset.set === 'f' ? value === state.f : value === HOLES[state.hole]))

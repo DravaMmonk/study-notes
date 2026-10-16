@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrowRight, Check } from 'lucide-react'
 import { fromFn } from '../../engine/image.js'
+import { L, tr } from '../../i18n.js'
 import ImageView from '../ImageView.jsx'
 import { PHONE, useMedia } from '../useMedia.js'
 import { useTween } from './optics-motion.js'
@@ -72,18 +73,18 @@ export default function GradientProbe({ level, onSolve, theme }) {
               <Arrow className="gp-arrow" x={px + 0.5} y={py + 0.5} dx={tgx * ARROW} dy={tgy * ARROW} />
               <circle className="gp-probe" cx={px + 0.5} cy={py + 0.5} r={0.45} />
             </svg>
-            <figcaption className="bk-caption">越亮越高 · 金色箭头 = (gx, gy){passed[stage] ? ' · 绿色 = 真实梯度' : ''}</figcaption>
+            <figcaption className="bk-caption">{tr('越亮越高 · 金色箭头 = (gx, gy)', 'Brighter is higher · gold arrow = (gx, gy)')}{passed[stage] ? tr(' · 绿色 = 真实梯度', ' · green = the true gradient') : ''}</figcaption>
           </figure>
           <div className="gp-sections">
             <div>
-              <span className="bk-label">横剖面：第 {py} 行，往右走</span>
-              <Plot width={width} height={phone ? 130 : 140} span={N} label="横剖面" lines={[{ curve: across, kind: 'target', label: '亮度' }]}>
+              <span className="bk-label">{tr(`横剖面：第 ${py} 行，往右走`, `Horizontal cross-section: row ${py}, going right`)}</span>
+              <Plot width={width} height={phone ? 130 : 140} span={N} label={tr('横剖面', 'Horizontal cross-section')} lines={[{ curve: across, kind: 'target', label: tr('亮度', 'brightness') }]}>
                 {tangent(px, f(px, py), tgx)}
               </Plot>
             </div>
             <div>
-              <span className="bk-label">竖剖面：第 {px} 列，往下走</span>
-              <Plot width={width} height={phone ? 130 : 140} span={N} label="竖剖面" lines={[{ curve: down, kind: 'target', label: '亮度' }]}>
+              <span className="bk-label">{tr(`竖剖面：第 ${px} 列，往下走`, `Vertical cross-section: column ${px}, going down`)}</span>
+              <Plot width={width} height={phone ? 130 : 140} span={N} label={tr('竖剖面', 'Vertical cross-section')} lines={[{ curve: down, kind: 'target', label: tr('亮度', 'brightness') }]}>
                 {tangent(py, f(px, py), tgy)}
               </Plot>
             </div>
@@ -92,8 +93,8 @@ export default function GradientProbe({ level, onSolve, theme }) {
         <div className="bk-stack">
           <section className="bk-panel bk-stack">
             <div>
-              <span className="bk-label">第 {stage + 1} 步 · {s.title}</span>
-              <p className="wv-stage-note">{s.note}</p>
+              <span className="bk-label">{tr(`第 ${stage + 1} 步`, `Step ${stage + 1}`)} · {L(s.title)}</span>
+              <p className="wv-stage-note">{L(s.note)}</p>
             </div>
             <div>
               {['gx', 'gy'].map((key) => {
@@ -101,7 +102,7 @@ export default function GradientProbe({ level, onSolve, theme }) {
                 const locked = !s.knobs.includes(key)
                 return (
                   <label key={key} className={`bk-field ${locked ? 'gp-locked' : ''}`}>
-                    <span>{knob.label}</span>
+                    <span>{L(knob.label)}</span>
                     <input className="bk-range" type="range" disabled={locked} min={knob.min} max={knob.max} step={knob.step} value={g[key]} style={{ '--fill': `${((g[key] - knob.min) / (knob.max - knob.min)) * 100}%` }} aria-valuetext={g[key].toFixed(2)} onChange={(event) => turn(key, Number(event.target.value))} />
                     <output>{g[key] >= 0 ? '+' : ''}{g[key].toFixed(2)}</output>
                   </label>
@@ -109,12 +110,12 @@ export default function GradientProbe({ level, onSolve, theme }) {
               })}
             </div>
             <div className="bk-stats">
-              <div className="bk-stat"><b>{size.toFixed(3)}</b><span>有多陡 √(gx²+gy²)</span></div>
-              <div className="bk-stat"><b>{size > 1e-6 ? `${Math.round(angle)}°` : '—'}</b><span>朝哪边（右 = 0°，上 = 90°）</span></div>
+              <div className="bk-stat"><b>{size.toFixed(3)}</b><span>{tr('有多陡 √(gx²+gy²)', 'Steepness √(gx²+gy²)')}</span></div>
+              <div className="bk-stat"><b>{size > 1e-6 ? `${Math.round(angle)}°` : '—'}</b><span>{tr('朝哪边（右 = 0°，上 = 90°）', 'Direction (right = 0°, up = 90°)')}</span></div>
             </div>
             <div className="wv-next">
-              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />两条斜线都贴住了。</> : '让金色斜线贴住剖面曲线。'}</p>
-              {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={advance}>下一步 <ArrowRight size={15} /></button>}
+              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />{tr('两条斜线都贴住了。', 'Both lines lie along their curves.')}</> : tr('让金色斜线贴住剖面曲线。', 'Make the gold lines lie along the cross-section curves.')}</p>
+              {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={advance}>{tr('下一步', 'Next')} <ArrowRight size={15} /></button>}
             </div>
           </section>
           <Stages stages={m.stages} current={stage} passed={passed} reached={reached} onPick={setStage} />

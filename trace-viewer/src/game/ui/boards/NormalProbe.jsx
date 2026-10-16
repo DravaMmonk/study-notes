@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, Check, Eye, EyeOff } from 'lucide-react'
+import { L, tr } from '../../i18n.js'
 import { PHONE, useMedia } from '../useMedia.js'
 import { css, tokenRGB } from '../views/views.js'
 import { Stages } from './WaveKit.jsx'
@@ -12,11 +13,13 @@ const RIM = 0.97 // the furthest a point may go: a surface almost on its side
 // Facing as words: which way the surface leans and how far.
 const describe = ([x, y]) => {
   const r = Math.hypot(x, y)
-  if (r < 0.08) return '几乎脸朝天'
+  if (r < 0.08) return tr('几乎脸朝天', 'Facing almost straight up')
   const tilt = Math.round((Math.asin(Math.min(1, r)) * 180) / Math.PI)
   const angle = (Math.atan2(-y, x) * 180) / Math.PI
   const names = ['右', '右上', '上', '左上', '左', '左下', '下', '右下']
-  return `朝${names[Math.round(((angle + 360) % 360) / 45) % 8]}歪 ${tilt}°`
+  const englishNames = ['right', 'up and right', 'up', 'up and left', 'left', 'down and left', 'down', 'down and right']
+  const index = Math.round(((angle + 360) % 360) / 45) % 8
+  return tr(`朝${names[index]}歪 ${tilt}°`, `Leaning ${tilt}° ${englishNames[index]}`)
 }
 
 // 3-3 一个亮度不够: a facing is a point on a disc seen from above (centre = facing up). Each disc is
@@ -65,7 +68,7 @@ export default function NormalProbe({ level, onSolve, theme }) {
         <section className="bk-stage bk-stack">
           <figure className="np-bench">
             <FigureStage name="normal-studio" theme={theme} props={bench} onChange={(change) => (change.point ? move(change.point) : change.active && setActive(change.active))} />
-            <figcaption className="bk-caption">在台面上拖动，法线杆跟着手指歪{s.lamps.length > 1 ? ' · 点一盏灯，看它那张照片' : ''} · 近处的灰阶尺：游标是现在的亮度，小旗是照片里的亮度</figcaption>
+            <figcaption className="bk-caption">{tr('在台面上拖动，法线杆跟着手指歪', 'Drag on the bench and the normal rod leans with your finger')}{s.lamps.length > 1 ? tr(' · 点一盏灯，看它那张照片', ' · tap a lamp to see its photo') : ''} · {tr('近处的灰阶尺：游标是现在的亮度，小旗是照片里的亮度', 'the grey scale in front: the slider is the brightness now, the flag is the brightness in the photo')}</figcaption>
           </figure>
           <div className={`np-discs is-${s.lamps.length}`}>
             {s.lamps.map((lamp) => (
@@ -79,27 +82,27 @@ export default function NormalProbe({ level, onSolve, theme }) {
               return (
                 <div key={lamp} className={`bk-stat ${ok ? 'is-pass' : ''}`}>
                   <b>{value.toFixed(3)}</b>
-                  <span>{m.lamps[lamp].label}下的亮度 · 照片里 {m.photo[lamp].toFixed(3)}</span>
+                  <span>{tr(`${L(m.lamps[lamp].label)}下的亮度 · 照片里 ${m.photo[lamp].toFixed(3)}`, `Brightness under the ${L(m.lamps[lamp].label)} · photo ${m.photo[lamp].toFixed(3)}`)}</span>
                 </div>
               )
             })}
-            <div className="bk-stat"><b className="np-facing">{describe(point)}</b><span>现在这块表面的朝向</span></div>
+            <div className="bk-stat"><b className="np-facing">{describe(point)}</b><span>{tr('现在这块表面的朝向', "This surface's facing now")}</span></div>
           </div>
         </section>
         <div className="bk-stack">
           <section className="bk-panel bk-stack">
             <div>
-              <span className="bk-label">第 {stage + 1} 步 · {s.title}</span>
-              <p className="wv-stage-note">{s.note}</p>
+              <span className="bk-label">{tr(`第 ${stage + 1} 步`, `Step ${stage + 1}`)} · {L(s.title)}</span>
+              <p className="wv-stage-note">{L(s.note)}</p>
             </div>
             {stage === 2 && !passed[2] && (
-              <button className="bk-btn" onClick={() => setLines(!lines)}>{lines ? <EyeOff size={14} /> : <Eye size={14} />}{lines ? '藏起等亮线' : '显示等亮线'}</button>
+              <button className="bk-btn" onClick={() => setLines(!lines)}>{lines ? <EyeOff size={14} /> : <Eye size={14} />}{lines ? tr('藏起等亮线', 'Hide equal-brightness lines') : tr('显示等亮线', 'Show equal-brightness lines')}</button>
             )}
             <div className="wv-next">
               <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">
-                {match ? <><Check size={15} />对上了。</> : stage === 1 && first && Math.hypot(point[0] - first[0], point[1] - first[1]) < (s.apart ?? 0) && s.lamps.every((l) => Math.abs(m.shade(point, l) - m.photo[l]) <= m.tolerance) ? '亮度对了，但离第一个答案太近。' : '拖动圆点。'}
+                {match ? <><Check size={15} />{tr('对上了。', 'It matches.')}</> : stage === 1 && first && Math.hypot(point[0] - first[0], point[1] - first[1]) < (s.apart ?? 0) && s.lamps.every((l) => Math.abs(m.shade(point, l) - m.photo[l]) <= m.tolerance) ? tr('亮度对了，但离第一个答案太近。', 'The brightness is right, but this is too close to your first answer.') : tr('拖动圆点。', 'Drag the dot.')}
               </p>
-              {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={advance}>下一步 <ArrowRight size={15} /></button>}
+              {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={advance}>{tr('下一步', 'Next')} <ArrowRight size={15} /></button>}
             </div>
           </section>
           <Stages stages={m.stages} current={stage} passed={passed} reached={reached} onPick={setStage} />
@@ -178,7 +181,7 @@ function Disc({ m, lamp, point, onMove, size, showLine, first, theme }) {
         }}
       >
         <canvas ref={canvas} style={{ width: size, height: size }} aria-hidden="true" />
-        <svg viewBox={`0 0 ${size} ${size}`} className="np-overlay" role="img" aria-label={`朝向盘，${m.lamps[lamp].label}`}>
+        <svg viewBox={`0 0 ${size} ${size}`} className="np-overlay" role="img" aria-label={tr(`朝向盘，${L(m.lamps[lamp].label)}`, `Facing disc, ${L(m.lamps[lamp].label)}`)}>
           <circle className="np-ring" cx={half} cy={half} r={(half - 4) * Math.sin(Math.PI / 6)} />
           <circle className="np-ring" cx={half} cy={half} r={(half - 4) * Math.sin(Math.PI / 3)} />
           <text className="np-ring-text" x={half + 3} y={half - (half - 4) * Math.sin(Math.PI / 6) - 3}>30°</text>
@@ -193,7 +196,7 @@ function Disc({ m, lamp, point, onMove, size, showLine, first, theme }) {
           <circle className="np-handle" cx={hx} cy={hy} r={9} />
         </svg>
       </div>
-      <figcaption className="bk-caption">{m.lamps[lamp].label}照着 · 灯标 = 正对这盏灯的朝向{showLine ? ' · 金线 = 和照片一样亮的所有朝向' : ''}</figcaption>
+      <figcaption className="bk-caption">{tr(`${L(m.lamps[lamp].label)}照着 · 灯标 = 正对这盏灯的朝向`, `Lit by the ${L(m.lamps[lamp].label)} · lamp mark = the facing that points straight at this lamp`)}{showLine ? tr(' · 金线 = 和照片一样亮的所有朝向', ' · gold line = every facing as bright as the photo') : ''}</figcaption>
     </figure>
   )
 }

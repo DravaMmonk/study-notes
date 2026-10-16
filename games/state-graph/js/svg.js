@@ -4,6 +4,13 @@
 import { fmt } from './util.js';
 import { buildTree } from './algo.js';
 import { ROBOTS } from './circuit/robots.js';
+import { T, tr } from './i18n.js';
+
+/** Words drawn on boards by several figures and worlds. */
+export const W = {
+  key: T('钥匙', 'key'), door: T('门', 'door'), start: T('起', 'S'), end: T('终', 'E'), empty: T('空', '∅'),
+  upper: T('上层 · 没钥匙', 'Upper · no key'), lower: T('下层 · 有钥匙', 'Lower · has key'), capacity: T('容量', 'capacity'),
+};
 
 let svgSeq = 0;
 const f1 = v => Math.round(v * 10) / 10;
@@ -73,7 +80,7 @@ export function sceneSVG(scene, opt = {}) {
     <pattern id="${uid}-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" style="fill:var(--chip)"/><rect width="3" height="8" style="fill:var(--wire)"/></pattern></defs>`;
   const minW = opt.minScale ? `min-width:${Math.round(vw * opt.minScale)}px;` : '';
   const maxW = opt.maxScale ? `max-width:${Math.round(vw * opt.maxScale)}px;margin:0 auto;` : '';
-  return `<svg class="board-svg" viewBox="${f1(x0 - pad)} ${f1(y0 - pad)} ${f1(vw)} ${f1(vh)}" width="100%" style="${minW}${maxW}" role="img" aria-label="${opt.label || '示意图'}">${defs}<g>${edges.map(e => edgeSVG(by[e.a], by[e.b], e, pairs.has(`${e.b}>${e.a}`), uid)).join('')}</g><g>${cells.map(c => cellSVG(c, uid)).join('')}</g>${pathSVG}${textSVG}${bots.map(b => `<svg class="robot" x="${f1(b.x)}" y="${f1(b.y)}" width="30" height="30" viewBox="0 0 32 32">${scene.look || ROBOTS.scout.look}</svg>`).join('')}</svg>`;
+  return `<svg class="board-svg" viewBox="${f1(x0 - pad)} ${f1(y0 - pad)} ${f1(vw)} ${f1(vh)}" width="100%" style="${minW}${maxW}" role="img" aria-label="${opt.label || tr('示意图', 'Diagram')}">${defs}<g>${edges.map(e => edgeSVG(by[e.a], by[e.b], e, pairs.has(`${e.b}>${e.a}`), uid)).join('')}</g><g>${cells.map(c => cellSVG(c, uid)).join('')}</g>${pathSVG}${textSVG}${bots.map(b => `<svg class="robot" x="${f1(b.x)}" y="${f1(b.y)}" width="30" height="30" viewBox="0 0 32 32">${scene.look || ROBOTS.scout.look}</svg>`).join('')}</svg>`;
 }
 
 /* ---------- reusable scene shapes ---------- */
@@ -97,15 +104,15 @@ export function treeScene(n) {
   return { cells, edges };
 }
 
-export const houseRow = (a, cls) => a.map((x, j) => N(`h${j}`, j * 62, 0, { w: 52, h: 60, label: `${j + 1}号`, value: x, cls: `house ${cls ? cls(j) : ''}` }));
+export const houseRow = (a, cls) => a.map((x, j) => N(`h${j}`, j * 62, 0, { w: 52, h: 60, label: T(`${j + 1}号`, `#${j + 1}`), value: x, cls: `house ${cls ? cls(j) : ''}` }));
 
 export function layerFig(o = {}) {
   const sp = 62, sz = 54, gapY = 176, cells = [], texts = [], paths = [];
   [0, 1].forEach(L => {
-    texts.push({ x: -sz / 2, y: L * gapY - sz / 2 - 14, t: L ? '下层 · 有钥匙' : '上层 · 没钥匙', anchor: 'start', cls: 'hd' });
+    texts.push({ x: -sz / 2, y: L * gapY - sz / 2 - 14, t: L ? W.lower : W.upper, anchor: 'start', cls: 'hd' });
     for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) {
       const key = r === 1 && c === 0, door = r === 1 && c === 2;
-      cells.push({ id: `${L}:${r},${c}`, x: c * sp, y: L * gapY + r * sp, w: sz, h: sz, value: o.vals ? o.vals[L][r][c] : '', label: key ? '钥匙' : door ? '门' : '', corner: r === 0 && c === 0 ? '起' : '', cls: [key ? 'key' : '', door ? 'door' : '', o.vals ? 'lit' : ''].filter(Boolean).join(' ') });
+      cells.push({ id: `${L}:${r},${c}`, x: c * sp, y: L * gapY + r * sp, w: sz, h: sz, value: o.vals ? o.vals[L][r][c] : '', label: key ? W.key : door ? W.door : '', corner: r === 0 && c === 0 ? W.start : '', cls: [key ? 'key' : '', door ? 'door' : '', o.vals ? 'lit' : ''].filter(Boolean).join(' ') });
     }
   });
   if (o.xfer) { const xl = -sz / 2 - 24; paths.push({ d: `M${-sz / 2 - 2} ${sp} H${xl} V${gapY + sp} H${-sz / 2 - 7}`, cls: 'hot', box: [xl - 4, sp, 0, gapY + sp] }); }
@@ -125,8 +132,8 @@ export function linkFig(a, b, links, bad = []) {
 
 export function tableFig(top, left, vals, o = {}) {
   const sp = 52, sz = 44, cells = [];
-  for (let j = 0; j <= top.length; j++) cells.push({ id: `t${j}`, x: j * sp, y: -sp + 10, w: sz, h: 32, value: j ? top[j - 1] : '空', cls: j ? 'axis' : 'axis axis0' });
-  for (let i = 0; i <= left.length; i++) cells.push({ id: `l${i}`, x: -sp + 8, y: i * sp, w: 32, h: sz, value: i ? left[i - 1] : '空', cls: i ? 'axis' : 'axis axis0' });
+  for (let j = 0; j <= top.length; j++) cells.push({ id: `t${j}`, x: j * sp, y: -sp + 10, w: sz, h: 32, value: j ? top[j - 1] : W.empty, cls: j ? 'axis' : 'axis axis0' });
+  for (let i = 0; i <= left.length; i++) cells.push({ id: `l${i}`, x: -sp + 8, y: i * sp, w: 32, h: sz, value: i ? left[i - 1] : W.empty, cls: i ? 'axis' : 'axis axis0' });
   for (let i = 0; i <= left.length; i++) for (let j = 0; j <= top.length; j++) {
     cells.push({ id: `${i},${j}`, x: j * sp, y: i * sp, w: sz, h: sz, value: typeof vals === 'function' ? vals(i, j) : vals[i][j], cls: o.cls ? o.cls(i, j) : 'lit' });
   }
@@ -136,8 +143,8 @@ export function tableFig(top, left, vals, o = {}) {
 export function knapFig(o = {}) {
   const f = [[0, 0, 0, 0], [0, 0, 3, 3], [0, 2, 3, 5]], sp = 52, sz = 44, cells = [], texts = [];
   for (let w = 0; w <= 3; w++) cells.push({ id: `ax${w}`, x: w * sp, y: -sp + 14, w: sz, h: 26, value: w, cls: 'axis' });
-  texts.push({ x: -sz / 2 - 10, y: -sp + 19, t: '容量', anchor: 'end' });
-  ['不放东西', '相机 2kg · 3', '水壶 1kg · 2'].forEach((t, i) => texts.push({ x: -sz / 2 - 10, y: i * sp + 5, t, anchor: 'end' }));
+  texts.push({ x: -sz / 2 - 10, y: -sp + 19, t: W.capacity, anchor: 'end' });
+  [T('不放东西', 'nothing'), T('相机 2kg · 3', 'camera 2kg · 3'), T('水壶 1kg · 2', 'bottle 1kg · 2')].forEach((t, i) => texts.push({ x: -sz / 2 - 10, y: i * sp + 5, t, anchor: 'end' }));
   for (let i = 0; i < 3; i++) for (let w = 0; w <= 3; w++) {
     const show = !o.show || o.show(i, w);
     cells.push({ id: `${i},${w}`, x: w * sp, y: i * sp, w: sz, h: sz, value: show ? f[i][w] : '', cls: o.cls ? o.cls(i, w) : 'lit' });

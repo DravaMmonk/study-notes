@@ -107,8 +107,8 @@ export const meanD = (state, samples) => samples.reduce((sum, x) => sum + D(stat
 // Two starts. Apart, the nozzles split and cover both modes. Started on the same spot, they get the
 // same gradient every step, so they never separate: all fakes pile on one mode while D chases them.
 export const SEEDS = {
-  balanced: { name: '分开起步', m: [-0.35, 0.45] },
-  collapse: { name: '同点起步', m: [1.2, 1.2] },
+  balanced: { name: '分开起步', nameEn: 'Apart', m: [-0.35, 0.45] },
+  collapse: { name: '同点起步', nameEn: 'Same spot', m: [1.2, 1.2] },
 }
 export const STEPS = 48
 export function trajectory(seed) {

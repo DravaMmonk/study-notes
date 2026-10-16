@@ -11,6 +11,12 @@ npm run dev
 
 Open the local URL printed by Vite. The library is generated from every Markdown file under `docs/` whenever the app starts or builds.
 
+## Two languages
+
+Every note is read in English or Chinese. The library lists each note once, by its original `X.md`; the reader opens its translation (`X.zh.md` or `X.en.md`) when that is the reader's language, and the 中/EN button in the top bar switches both the note and the interface. The choice is shared with the notes site and the games (`../games/kit/lang.js`). Folder names come from `../docs/.sections.json`; interface text is in `src/lib/strings.js`. Each language version keeps its own annotations.
+
+The top bar, buttons and note typography are the shared kit's (`../games/kit/ui.css`, `prose.css`), the same as on the notes site and in the games.
+
 ## Annotations
 
 Select text in any note to open the annotation toolbar. A highlight can use one of four colours, and the comment action opens the annotation panel for writing a note. Annotations are stored in browser `localStorage`; source Markdown files are never modified.

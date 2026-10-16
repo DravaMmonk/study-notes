@@ -24,8 +24,8 @@ export function windowOf(map, i, j) {
 }
 
 export const POOLS = {
-  max: { name: '最大池化', short: 'max', of: (values) => Math.max(...values) },
-  avg: { name: '平均池化', short: '均值', of: (values) => values.reduce((sum, value) => sum + value, 0) / values.length },
+  max: { name: '最大池化', nameEn: 'Max pooling', short: 'max', shortEn: 'max', of: (values) => Math.max(...values) },
+  avg: { name: '平均池化', nameEn: 'Average pooling', short: '均值', shortEn: 'avg', of: (values) => values.reduce((sum, value) => sum + value, 0) / values.length },
 }
 
 export function pooled(mode, shift) {

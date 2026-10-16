@@ -4,8 +4,60 @@
     {
       "name": "fieldnotes",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "trace-viewer", "run", "dev", "--", "--port", "5173", "--strictPort"],
+      "runtimeArgs": [
+        "--prefix",
+        "trace-viewer",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5173",
+        "--strictPort"
+      ],
       "port": 5173
+    },
+    {
+      "name": "fieldnotes-lan",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "trace-viewer",
+        "run",
+        "dev",
+        "--",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "5174",
+        "--strictPort"
+      ],
+      "port": 5174
+    },
+    {
+      "name": "notes-site",
+      "runtimeExecutable": "mkdocs",
+      "runtimeArgs": [
+        "serve",
+        "--dev-addr",
+        "127.0.0.1:8010",
+        "--no-livereload"
+      ],
+      "port": 8010
+    },
+    {
+      "name": "fieldnotes-i18n",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "trace-viewer",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5180",
+        "--strictPort"
+      ],
+      "port": 5180
     }
   ]
 }

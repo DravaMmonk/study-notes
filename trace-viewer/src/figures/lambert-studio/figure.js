@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { clamp, createIdle, createLoop, follow, viewBoxPoint } from '../common.js'
+import { clamp, createIdle, createLoop, follow, t, viewBoxPoint } from '../common.js'
 import { cameraOf } from '../kit/iso-kit.js'
 import { ALBEDOS, ALBEDO_B, NORMAL_A, NORMAL_B, POWERS, SWING, TILT, scene } from './model.js'
 
@@ -225,14 +225,17 @@ function lampSvg(deg) {
   return { svg: out.join(''), lens: G.circleOf(head, 14, 4.2, P), lensCentre: G.pointOf(head, 14, 0, 0), mid }
 }
 
-export const meta = { id: 'lambert-studio', fig: 'Fig 5.1', title: '朗伯摄影台' }
+export const meta = { id: 'lambert-studio', fig: 'Fig 5.1', title: '朗伯摄影台', titleEn: 'Lambertian studio' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '朗伯反射的小摄影台。转台上放两张哑光测试卡：一张深色卡平放，一张反射率 0.8 的浅色卡在铰链支架上后仰 60 度；每张卡中心立着一根法线小杆。聚光灯沿弧形导轨移动，始终对准中心，灯到中心销的细线就是光线方向。卡面的明暗等于灯功率乘反射率乘夹角余弦；前方灰阶条上的两个游标读出两张卡的亮度。灯在正上方时两张卡读数相同。',
+      'A small studio for Lambertian reflectance. A turntable holds two matte test cards: a dark card lying flat, and a bright card of albedo 0.8 leaned back 60 degrees on a hinged easel; a small normal post stands at the centre of each card. A spotlight rides an arc rail, always aimed at the centre, and the string from the lamp to the centre pin is the light direction. Each card’s shading is lamp power times albedo times the cosine of the angle; two sliders on the grey-scale strip in front read off the two cards’ brightness. With the lamp straight overhead the two cards read the same.',
+    ),
     body: [
       base(),
       turntable(),
@@ -247,25 +250,28 @@ export function render() {
       '<path data-part="dial" class="iso-line" data-tone="hi" data-free="end" style="stroke-width:1" d=""/>',
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="摄影台设置">
-    <div class="fx-control"><span>灯功率</span>${POWERS.map((p) => `<button type="button" data-set="power" data-value="${p}">${p.toFixed(1)}</button>`).join('')}</div>
-    <div class="fx-control"><span>深色卡反射率</span>${ALBEDOS.map((r) => `<button type="button" data-set="albedo" data-value="${r}">${r.toFixed(1)}</button>`).join('')}</div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '摄影台设置', 'Studio settings')}">
+    <div class="fx-control"><span>${t(lang, '灯功率', 'Lamp power')}</span>${POWERS.map((p) => `<button type="button" data-set="power" data-value="${p}">${p.toFixed(1)}</button>`).join('')}</div>
+    <div class="fx-control"><span>${t(lang, '深色卡反射率', 'Dark card albedo')}</span>${ALBEDOS.map((r) => `<button type="button" data-set="albedo" data-value="${r}">${r.toFixed(1)}</button>`).join('')}</div>
   </div>
   <div class="fx-calc"><span>I = I_L·R·cosθ</span><i>·</i><span>A:</span><b data-calc="a"></b><i>·</i><span>B:</span><b data-calc="b"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '悬停弧轨 · 方向键',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '悬停弧轨 · 方向键', 'Hover the rail · arrow keys'),
       readout: '',
       keys: [
-        { mark: 'raised', label: '测试卡与法线杆 N' },
-        { mark: 'lit', label: '聚光灯，细线为光线方向 L' },
-        { mark: 'flat', label: '灰阶条：两个游标读亮度' },
+        { mark: 'raised', label: t(lang, '测试卡与法线杆 N', 'test card and normal post N') },
+        { mark: 'lit', label: t(lang, '聚光灯，细线为光线方向 L', 'spotlight; the string is light direction L') },
+        { mark: 'flat', label: t(lang, '灰阶条：两个游标读亮度', 'grey-scale strip: two sliders read brightness') },
       ],
-      caption:
+      caption: t(
+        lang,
         `沿弧轨推动聚光灯，每张卡的明暗按 I = I_L·R·cosθ 变化，θ 是法线杆与灯线的夹角。灯在正上方时，平放的深色卡（R = 0.4，cos 0° = 1）和后仰 60° 的浅色卡（R = ${ALBEDO_B}，cos 60° = 0.5）同为 0.40：只看亮度，分不出“材质暗”还是“朝向偏”。把灯摆向一侧，两张卡立刻分开；改灯功率只会让两者同比变化。`,
-      body: `<div class="iso-stage" tabindex="0" role="slider" aria-label="朗伯摄影台。左右方向键摆动聚光灯，上下方向键改灯功率，1 到 3 换深色卡的反射率。" aria-valuemin="${SWING[0]}" aria-valuemax="${SWING[1]}">${svg}</div>`,
+        `Push the spotlight along the rail and each card’s shading follows I = I_L·R·cosθ, where θ is the angle between the normal post and the lamp string. With the lamp overhead, the flat dark card (R = 0.4, cos 0° = 1) and the bright card leaned back 60° (R = ${ALBEDO_B}, cos 60° = 0.5) both read 0.40: from brightness alone you cannot tell “dark material” from “turned away”. Swing the lamp to one side and the two cards split at once; changing lamp power only scales both by the same factor.`,
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="slider" aria-label="${t(lang, '朗伯摄影台。左右方向键摆动聚光灯，上下方向键改灯功率，1 到 3 换深色卡的反射率。', 'Lambertian studio. Left and right arrow keys swing the spotlight, up and down change lamp power, and 1 to 3 set the dark card’s albedo.')}" aria-valuemin="${SWING[0]}" aria-valuemax="${SWING[1]}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
@@ -290,7 +296,7 @@ function rider(x, y, tone) {
   return S(k.slabOf(plan, 0, 1.6, P, 3, 0.4), { tone, crease: tone === 'hi' ? 'lo' : 'faint' }) + D([at([x, y + 1.5, 1.6])], { size: 0.45, tone })
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -339,7 +345,7 @@ export function mount(root) {
     const deg = Math.round(state.angle)
     const text = `θ ${String(deg).replace('-', '−')}° · I_A ${s.a.value.toFixed(2)} ${same ? '=' : '·'} I_B ${s.b.value.toFixed(2)}`
     if (readout.textContent !== text) readout.textContent = text
-    const term = (r, t) => `${state.powerShown.toFixed(1)} × ${r.toFixed(1)} × cos ${Math.round(t.theta)}° = ${t.value.toFixed(2)}`
+    const term = (r, card) => `${state.powerShown.toFixed(1)} × ${r.toFixed(1)} × cos ${Math.round(card.theta)}° = ${card.value.toFixed(2)}`
     calc.a.textContent = term(state.albedo, s.a)
     calc.b.textContent = term(ALBEDO_B, s.b)
   }
@@ -347,7 +353,7 @@ export function mount(root) {
   function describe() {
     const s = scene({ angle: state.target, power: state.power, albedo: state.albedo })
     stage.setAttribute('aria-valuenow', String(Math.round(state.target)))
-    stage.setAttribute('aria-valuetext', `灯偏离正上方 ${Math.round(state.target)} 度，功率 ${state.power}，深色卡读数 ${s.a.value.toFixed(2)}，浅色卡读数 ${s.b.value.toFixed(2)}`)
+    stage.setAttribute('aria-valuetext', t(lang, `灯偏离正上方 ${Math.round(state.target)} 度，功率 ${state.power}，深色卡读数 ${s.a.value.toFixed(2)}，浅色卡读数 ${s.b.value.toFixed(2)}`, `Lamp ${Math.round(state.target)} degrees from overhead, power ${state.power}, dark card reads ${s.a.value.toFixed(2)}, bright card reads ${s.b.value.toFixed(2)}`))
     buttons.forEach((button) => button.setAttribute('aria-pressed', String(Number(button.dataset.value) === state[button.dataset.set])))
   }
 

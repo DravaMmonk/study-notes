@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Delete } from 'lucide-react'
+import { L, tr } from '../../i18n.js'
 
 // Setting editors for the phone. Numbers are typed on the game's own keypad (it has the minus key
 // the phone's numeric keyboard lacks) or nudged by the slider and the step keys; choices are big
@@ -31,13 +32,13 @@ export function Keypad({ value, onChange, step = 0.1, min, max }) {
     return commit(show(bounded))
   }
   const keys = ['7', '8', '9', 'back', '4', '5', '6', '±', '1', '2', '3', '.', 'clear', '0', '-', '+']
-  const label = { back: <Delete size={20} />, clear: '清零', '-': `−${step}`, '+': `＋${step}`, '±': '±' }
+  const label = { back: <Delete size={20} />, clear: tr('清零', 'Clear'), '-': `−${step}`, '+': `＋${step}`, '±': '±' }
   return (
     <div className="ph-keypad-wrap">
       <output className="ph-keypad-value" aria-live="polite">{draft}</output>
-      <div className="ph-keypad" role="group" aria-label="数字键盘">
+      <div className="ph-keypad" role="group" aria-label={tr('数字键盘', 'Number keypad')}>
         {keys.map((key) => (
-          <button key={key} className={`ph-key ${/\d/.test(key) ? '' : 'is-fn'} ${key === '±' ? 'is-sign' : ''}`} onClick={() => press(key)} aria-label={key === 'back' ? '删除一位' : key === 'clear' ? '清零' : key === '±' ? '正负号' : key === '-' ? `减 ${step}` : key === '+' ? `加 ${step}` : key}>
+          <button key={key} className={`ph-key ${/\d/.test(key) ? '' : 'is-fn'} ${key === '±' ? 'is-sign' : ''}`} onClick={() => press(key)} aria-label={key === 'back' ? tr('删除一位', 'Delete a digit') : key === 'clear' ? tr('清零', 'Clear') : key === '±' ? tr('正负号', 'Change sign') : key === '-' ? tr(`减 ${step}`, `Minus ${step}`) : key === '+' ? tr(`加 ${step}`, `Plus ${step}`) : key}>
             {label[key] ?? key}
           </button>
         ))}
@@ -57,7 +58,7 @@ export function NumberEditor({ param, value, onChange }) {
   return (
     <div className="ph-number">
       {has && (
-        <input className="bk-range ph-slider" type="range" min={param.min} max={param.max} step={step} value={value ?? 0} style={{ '--fill': `${(((value ?? 0) - param.min) / (param.max - param.min)) * 100}%` }} onChange={(event) => slide(Number(event.target.value))} aria-label={param.label} />
+        <input className="bk-range ph-slider" type="range" min={param.min} max={param.max} step={step} value={value ?? 0} style={{ '--fill': `${(((value ?? 0) - param.min) / (param.max - param.min)) * 100}%` }} onChange={(event) => slide(Number(event.target.value))} aria-label={L(param.label)} />
       )}
       <Keypad key={key} value={value} onChange={onChange} step={step} min={param.min} max={param.max} />
     </div>
@@ -66,9 +67,9 @@ export function NumberEditor({ param, value, onChange }) {
 
 export function ChoiceEditor({ param, value, onChange }) {
   return (
-    <div className="ph-choices" role="radiogroup" aria-label={param.label}>
+    <div className="ph-choices" role="radiogroup" aria-label={L(param.label)}>
       {param.options.map(([v, text]) => (
-        <button key={v} role="radio" aria-checked={value === v} className={value === v ? 'is-on' : ''} onClick={() => { buzz(); onChange(v) }}>{text}</button>
+        <button key={v} role="radio" aria-checked={value === v} className={value === v ? 'is-on' : ''} onClick={() => { buzz(); onChange(v) }}>{L(text)}</button>
       ))}
     </div>
   )
@@ -80,15 +81,15 @@ export function KernelEditor({ param, value, onChange }) {
     return (
       <div className="ph-kernel is-learned">
         {value.map((w, i) => <span key={i} style={{ '--w': Math.max(-1, Math.min(1, w)) }}>{w.toFixed(2)}</span>)}
-        <p>这些权重由训练决定，不能手调。</p>
+        <p>{tr('这些权重由训练决定，不能手调。', 'These weights are set by training and cannot be adjusted by hand.')}</p>
       </div>
     )
   }
   return (
     <div className="ph-kernel-edit">
-      <div className="ph-kernel" role="group" aria-label="3×3 权重">
+      <div className="ph-kernel" role="group" aria-label={tr('3×3 权重', '3×3 weights')}>
         {value.map((w, i) => (
-          <button key={i} className={i === cell ? 'is-on' : ''} style={{ '--w': Math.max(-1, Math.min(1, w)) }} onClick={() => { buzz(); setCell(i) }} aria-label={`第 ${Math.floor(i / 3) + 1} 行第 ${(i % 3) + 1} 列，${show(w)}`}>
+          <button key={i} className={i === cell ? 'is-on' : ''} style={{ '--w': Math.max(-1, Math.min(1, w)) }} onClick={() => { buzz(); setCell(i) }} aria-label={tr(`第 ${Math.floor(i / 3) + 1} 行第 ${(i % 3) + 1} 列，${show(w)}`, `Row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}: ${show(w)}`)}>
             {show(w)}
           </button>
         ))}

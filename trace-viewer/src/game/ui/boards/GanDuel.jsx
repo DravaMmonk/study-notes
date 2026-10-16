@@ -2,12 +2,13 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Check, RotateCcw, X } from 'lucide-react'
 import { PHONE, useMedia } from '../useMedia.js'
 import './depthgen.css'
+import { tr } from '../../i18n.js'
 
-// 8-3 骗过鉴定员: the player sets how a turn splits between the discriminator and the generator and
-// plays turns. A greedy generator drives both pens onto the discriminator's favourite spot (mode
+// 8-3 骗过鉴定员: the player sets how a turn splits between the judge and the generator and
+// plays turns. A greedy generator drives both pens onto the judge's favourite spot (mode
 // collapse) and then hops between the humps; a patient schedule settles one pen on each hump.
 //
-// One chart, one x axis (the data value, −4…4): the histograms on top, the discriminator's D(x) under
+// One chart, one x axis (the data value, −4…4): the histograms on top, the judge's D(x) under
 // them, and the pens' history under that, newest turn at the top, so a pen's trace starts where it
 // stands in the histogram.
 
@@ -146,14 +147,14 @@ export default function GanDuel({ level, onSolve }) {
   const stage = (
     <section className="bk-stage gan-stage">
       <div className="gan-head">
-        <span className="gan-key"><i className="is-real" />真实数据</span>
-        <span className="gan-key"><i className="is-fake" />生成器画的</span>
-        <span className="gan-key"><i className="is-pen0" />笔 1</span>
-        <span className="gan-key"><i className="is-pen1" />笔 2</span>
-        <span className="bk-chip gan-turn">第 {state.turn} 回合</span>
+        <span className="gan-key"><i className="is-real" />{tr('真实数据', 'Real data')}</span>
+        <span className="gan-key"><i className="is-fake" />{tr('生成器画的', 'Generated')}</span>
+        <span className="gan-key"><i className="is-pen0" />{tr('笔 1', 'Pen 1')}</span>
+        <span className="gan-key"><i className="is-pen1" />{tr('笔 2', 'Pen 2')}</span>
+        <span className="bk-chip gan-turn">{tr(`第 ${state.turn} 回合`, `Round ${state.turn}`)}</span>
       </div>
       <div className="gan-frame" ref={frame}>
-        <svg className="gan-chart" viewBox={`0 0 ${width} ${H}`} width={width} height={H} role="img" aria-label="真实数据和生成样本的分布、鉴定员的判断 D(x)，以及两支笔随回合的位置">
+        <svg className="gan-chart" viewBox={`0 0 ${width} ${H}`} width={width} height={H} role="img" aria-label={tr('真实数据和生成样本的分布、鉴定员的判断 D(x)，以及两支笔随回合的位置', "The distributions of real and generated samples, the judge's judgement D(x), and the two pens' positions round by round")}>
           {/* histograms */}
           {real.map((h, i) => <rect key={`r${i}`} className="gan-real" x={X0 + i * binW + 1} y={HB - bar(h)} width={Math.max(1, binW - 2)} height={bar(h)} />)}
           {fake.map((h, i) => (h > 0 ? <rect key={`f${i}`} className="gan-fake" x={X0 + i * binW + 2.5} y={HB - bar(h)} width={Math.max(1, binW - 5)} height={bar(h)} /> : null))}
@@ -183,41 +184,41 @@ export default function GanDuel({ level, onSolve }) {
           ))}
 
           {/* titles last, on a paper halo, so the pen lines pass behind them */}
-          <text className="gan-title is-on-band" x={X0 + 8} y={DT + 16}>鉴定员 D(x)：觉得 x 是真数据的把握</text>
-          <text className="gan-title" x={X0} y={TT - 10}>两支笔走过的位置 ↓ 越往下越早（最近 {TRACE} 回合）</text>
+          <text className="gan-title is-on-band" x={X0 + 8} y={DT + 16}>{tr('鉴定员 D(x)：觉得 x 是真数据的把握', 'Judge D(x): how sure it is that x is real')}</text>
+          <text className="gan-title" x={X0} y={TT - 10}>{tr(`两支笔走过的位置 ↓ 越往下越早（最近 ${TRACE} 回合）`, `Where the two pens have been ↓ lower is earlier (last ${TRACE} rounds)`)}</text>
         </svg>
       </div>
       <p className={`bk-verdict gan-verdict ${merged && state.turn > 0 ? 'is-fail' : ''}`} aria-live="polite">
-        {merged && state.turn > 0 ? '两支笔重合了，再也分不开：模式坍塌。' : '笔 1 和笔 2 各画一半样本；竖线是它们此刻的位置。'}
+        {merged && state.turn > 0 ? tr('两支笔重合了，再也分不开：模式坍塌。', 'The two pens have merged and can no longer separate: mode collapse.') : tr('笔 1 和笔 2 各画一半样本；竖线是它们此刻的位置。', 'Pen 1 and pen 2 each draw half the samples; the vertical lines are where they are now.')}
       </p>
     </section>
   )
 
   const goals = (
     <section className="bk-panel gan-goals">
-      <span className="bk-label">目标 · 同时满足，连续 {m.WIN} 回合</span>
+      <span className="bk-label">{tr(`目标 · 同时满足，连续 ${m.WIN} 回合`, `Goals · all at once, ${m.WIN} rounds in a row`)}</span>
       <ul className="bk-goals">
-        <Goal pass={measure.left >= 0.4} value={pct(measure.left)}>左堆 <small>≥ 40%</small></Goal>
-        <Goal pass={measure.right >= 0.4} value={pct(measure.right)}>右堆 <small>≥ 40%</small></Goal>
-        <Goal pass={Math.abs(measure.accuracy - 0.5) <= 0.05} value={`${(measure.accuracy * 100).toFixed(1)}%`}>准确率 <small>50 ± 5%</small></Goal>
-        <Goal pass={state.streak >= m.WIN} value={`${Math.min(state.streak, m.WIN)} / ${m.WIN}`}>连续达标</Goal>
+        <Goal pass={measure.left >= 0.4} value={pct(measure.left)}>{tr('左堆', 'Left cluster')} <small>≥ 40%</small></Goal>
+        <Goal pass={measure.right >= 0.4} value={pct(measure.right)}>{tr('右堆', 'Right cluster')} <small>≥ 40%</small></Goal>
+        <Goal pass={Math.abs(measure.accuracy - 0.5) <= 0.05} value={`${(measure.accuracy * 100).toFixed(1)}%`}>{tr('准确率', 'Accuracy')} <small>50 ± 5%</small></Goal>
+        <Goal pass={state.streak >= m.WIN} value={`${Math.min(state.streak, m.WIN)} / ${m.WIN}`}>{tr('连续达标', 'Streak')}</Goal>
       </ul>
     </section>
   )
 
   const actions = (
     <div className="gan-actions">
-      <button className="bk-btn is-primary" disabled={busy} onClick={() => setState((s) => m.turn(s, schedule))}>走 1 回合</button>
-      <button className="bk-btn" disabled={busy} onClick={() => setRunning(10)}>{busy ? `还剩 ${running} 回合` : '走 10 回合'}</button>
-      <button className="bk-btn gan-reset" onClick={reset} aria-label="重来"><RotateCcw size={14} /><span>重来</span></button>
+      <button className="bk-btn is-primary" disabled={busy} onClick={() => setState((s) => m.turn(s, schedule))}>{tr('走 1 回合', 'Play 1 round')}</button>
+      <button className="bk-btn" disabled={busy} onClick={() => setRunning(10)}>{busy ? tr(`还剩 ${running} 回合`, `${running} ${running === 1 ? 'round' : 'rounds'} left`) : tr('走 10 回合', 'Play 10 rounds')}</button>
+      <button className="bk-btn gan-reset" onClick={reset} aria-label={tr('重来', 'Start over')}><RotateCcw size={14} /><span>{tr('重来', 'Start over')}</span></button>
     </div>
   )
 
   const settings = (
     <section className="bk-panel gan-settings">
-      <Choice label="鉴定员每回合练" options={m.OPTIONS.dSteps} value={schedule.dSteps} onChange={set('dSteps')} format={(v) => `${v} 步`} disabled={busy} />
-      <Choice label="生成器每回合练" options={m.OPTIONS.gSteps} value={schedule.gSteps} onChange={set('gSteps')} format={(v) => `${v} 步`} disabled={busy} />
-      <Choice label="生成器步长" options={m.OPTIONS.gRate} value={schedule.gRate} onChange={set('gRate')} format={(v) => String(v)} disabled={busy} />
+      <Choice label={tr('鉴定员每回合练', 'Judge trains per round')} options={m.OPTIONS.dSteps} value={schedule.dSteps} onChange={set('dSteps')} format={(v) => tr(`${v} 步`, `${v} ${v === 1 ? 'step' : 'steps'}`)} disabled={busy} />
+      <Choice label={tr('生成器每回合练', 'Generator trains per round')} options={m.OPTIONS.gSteps} value={schedule.gSteps} onChange={set('gSteps')} format={(v) => tr(`${v} 步`, `${v} ${v === 1 ? 'step' : 'steps'}`)} disabled={busy} />
+      <Choice label={tr('生成器步长', 'Generator step size')} options={m.OPTIONS.gRate} value={schedule.gRate} onChange={set('gRate')} format={(v) => String(v)} disabled={busy} />
       {!phone && actions}
     </section>
   )

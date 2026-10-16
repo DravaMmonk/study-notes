@@ -1,0 +1,5 @@
+{#- The kit's theme (games/kit/theme.js, key fieldnotes.theme) on <html> before first paint, as on every other page. -#}
+{% extends "base.html" %}
+{% block extrahead %}
+  <script>try{var t=localStorage.getItem("fieldnotes.theme");document.documentElement.dataset.theme=["paper","night","blueprint"].indexOf(t)>-1?t:matchMedia("(prefers-color-scheme: dark)").matches?"night":"paper"}catch(e){document.documentElement.dataset.theme="paper"}</script>
+{% endblock %}

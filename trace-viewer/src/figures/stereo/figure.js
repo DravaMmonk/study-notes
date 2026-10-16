@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { clamp, createIdle, createLoop, floorPoint, follow, viewBoxPoint } from '../common.js'
+import { clamp, createIdle, createLoop, floorPoint, follow, t, viewBoxPoint } from '../common.js'
 import { BASELINES, DEPTH, FOCAL, measure } from './model.js'
 
 // Fig · The stereo rangefinder.
@@ -164,14 +164,17 @@ const stopArt = () => {
   return S(k.slabOf(plan, RAIL_TOP, 3, P, 2, 0.4), { tone: 'mid' }) + D([at([0, -4.5, RAIL_TOP + 3]), at([0, 4.5, RAIL_TOP + 3])], { size: 0.4 })
 }
 
-export const meta = { id: 'stereo-rangefinder', fig: 'Fig 13.1', title: '双目测距仪' }
+export const meta = { id: 'stereo-rangefinder', fig: 'Fig 13.1', title: '双目测距仪', titleEn: 'Stereo rangefinder' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '光具座上的双目测距仪。两台相机装在横向滑台上，沿导轨望向小车上的目标球，两根细绳从镜头拉到球上。每台相机顶上的取景屏用亮点显示目标的成像位置；两台相机之间的表盘读出视差，导轨上的两个限位块标出视差差一个像素时对应的深度。',
+      'A stereo rangefinder on an optical bench. Two cameras sit on a cross slide and look down the rail at a target ball on a carriage, with a thin string running from each lens to the ball. A viewfinder screen on top of each camera shows where the target lands in that image as a bright dot; a dial between the cameras reads the disparity, and two stops on the rail mark the depths that a one-pixel disparity error would report.',
+    ),
     body: [
       base(),
       '<path class="fx-band" data-part="band" d=""/>',
@@ -189,28 +192,32 @@ export function render() {
       `<g data-part="hub">${D([at([DIAL[0], DIAL[1], DIAL_TOP + 0.2])], { size: 0.7, tone: 'hi' })}</g>`,
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="基线">
-    <div class="fx-control"><span>基线</span>${BASELINES.map((b) => `<button type="button" data-set="baseline" data-value="${b}">${Math.round(b * 100)} cm</button>`).join('')}</div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '基线', 'Baseline')}">
+    <div class="fx-control"><span>${t(lang, '基线', 'Baseline')}</span>${BASELINES.map((b) => `<button type="button" data-set="baseline" data-value="${b}">${Math.round(b * 100)} cm</button>`).join('')}</div>
   </div>
   <div class="fx-calc"><span>z = f·b / d =</span><b data-calc="z"></b><i>·</i><span>|Δz| ≈ z² / (f·b) · 1 px =</span><b data-calc="dz"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '悬停导轨 · 方向键',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '悬停导轨 · 方向键', 'Hover the rail · arrow keys'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '目标球与视差指针' },
-        { mark: 'raised', label: '取景屏：目标在两台相机中的成像' },
-        { mark: 'flat', label: '阴影段：视差差 ±1 px 对应的深度' },
+        { mark: 'lit', label: t(lang, '目标球与视差指针', 'target ball and disparity needle') },
+        { mark: 'raised', label: t(lang, '取景屏：目标在两台相机中的成像', 'viewfinders: the target’s image in each camera') },
+        { mark: 'flat', label: t(lang, '阴影段：视差差 ±1 px 对应的深度', 'shaded span: depth range for ±1 px disparity') },
       ],
-      caption: `把目标往后推，两块取景屏上的亮点都向中间靠拢：视差 d = x − x′ 按 1/z 缩小。导轨上的两个限位块标出视差差 1 像素时会报出的深度，它们的间距按 z² 增长，所以距离加倍，同样的误差变成四倍。f = ${FOCAL} px。深度按每米 40 单位绘制，基线按每米 300 单位绘制，横向放大以便分辨两台相机。`,
-      body: `<div class="iso-stage" tabindex="0" role="slider" aria-label="双目测距仪。左右方向键移动目标，上下方向键改变基线。" aria-valuemin="${DEPTH[0]}" aria-valuemax="${DEPTH[1]}">${svg}</div>`,
+      caption: t(
+        lang,
+        `把目标往后推，两块取景屏上的亮点都向中间靠拢：视差 d = x − x′ 按 1/z 缩小。导轨上的两个限位块标出视差差 1 像素时会报出的深度，它们的间距按 z² 增长，所以距离加倍，同样的误差变成四倍。f = ${FOCAL} px。深度按每米 40 单位绘制，基线按每米 300 单位绘制，横向放大以便分辨两台相机。`,
+        `Push the target back and the bright dots on both viewfinders drift toward the centre: the disparity d = x − x′ shrinks as 1/z. The two stops on the rail mark the depths that would be reported if the disparity were off by one pixel; their spacing grows as z², so doubling the distance makes the same error four times larger. f = ${FOCAL} px. Depth is drawn at 40 units per metre and the baseline at 300 units per metre, exaggerated sideways so the two cameras can be told apart.`,
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="slider" aria-label="${t(lang, '双目测距仪。左右方向键移动目标，上下方向键改变基线。', 'Stereo rangefinder. Left and right arrows move the target; up and down arrows change the baseline.')}" aria-valuemin="${DEPTH[0]}" aria-valuemax="${DEPTH[1]}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -262,7 +269,7 @@ export function mount(root) {
   function describe() {
     const m = measure(state.target, state.baseline)
     stage.setAttribute('aria-valuenow', state.target.toFixed(2))
-    stage.setAttribute('aria-valuetext', `目标距离 ${state.target.toFixed(1)} 米，视差 ${m.disparity.toFixed(0)} 像素，基线 ${Math.round(state.baseline * 100)} 厘米`)
+    stage.setAttribute('aria-valuetext', t(lang, `目标距离 ${state.target.toFixed(1)} 米，视差 ${m.disparity.toFixed(0)} 像素，基线 ${Math.round(state.baseline * 100)} 厘米`, `Target at ${state.target.toFixed(1)} metres, disparity ${m.disparity.toFixed(0)} pixels, baseline ${Math.round(state.baseline * 100)} centimetres`))
     buttons.forEach((button) => button.setAttribute('aria-pressed', String(Number(button.dataset.value) === state.baseline)))
   }
 

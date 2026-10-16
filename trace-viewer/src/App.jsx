@@ -9,24 +9,24 @@ import {
   FileText,
   Highlighter,
   MessageSquareText,
-  Moon,
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
-  Puzzle,
-  Ruler,
   Search,
-  Sun,
   X,
 } from 'lucide-react'
 import './App.css'
 import 'katex/dist/katex.min.css'
+import { applyLang, currentLang, otherLang } from '../../games/kit/lang.js'
+import { THEMES, nextTheme, themeLabel } from '../../games/kit/theme.js'
+import sections from '../../docs/.sections.json'
 import AnnotationEntry from './components/AnnotationEntry'
 import { createFigureHost } from './figures/host'
 import { PHONE, useMedia } from './game/ui/useMedia'
 import { annotationAtPoint } from './lib/highlightGeometry'
-import { buildDocumentTree, noteDocuments, renderMarkdown } from './lib/content'
+import { buildDocumentTree, libraryDocuments, noteDocuments, renderMarkdown, versionOf } from './lib/content'
+import { translate } from './lib/strings'
 import {
   addAnnotation,
   annotationColors,
@@ -38,24 +38,21 @@ import {
 
 const defaultDocument = noteDocuments.find((document) => document.path === 'index.md') ?? noteDocuments[0]
 
-function documentFromLocation() {
+// The note in the address, in the reader's language.
+function documentFromLocation(lang) {
   const requestedPath = new URLSearchParams(window.location.search).get('note')
-  return noteDocuments.find((document) => document.path === requestedPath) ?? defaultDocument
+  return versionOf(noteDocuments.find((document) => document.path === requestedPath) ?? defaultDocument, lang)
 }
 
-const initialDocument = documentFromLocation()
+const initialDocument = documentFromLocation(currentLang())
 const sidebarStorageKey = 'fieldnotes.sidebar.open'
 const themeStorageKey = 'fieldnotes.theme'
-const themes = [
-  { id: 'paper', label: 'Paper', Icon: Sun },
-  { id: 'night', label: 'Night', Icon: Moon },
-  { id: 'blueprint', label: 'Blueprint', Icon: Ruler },
-]
+const sectionTitle = (path, lang) => sections[path]?.[lang]
 
 function initialTheme() {
   try {
     const saved = window.localStorage.getItem(themeStorageKey)
-    if (themes.some((theme) => theme.id === saved)) return saved
+    if (THEMES.some(([id]) => id === saved)) return saved
   } catch {
     // Storage can be unavailable; fall back to the system preference.
   }
@@ -69,6 +66,8 @@ function initialSidebarState() {
 }
 
 function App() {
+  const [lang, setLang] = useState(currentLang)
+  const t = (key, vars) => translate(lang, key, vars)
   const [activeDocument, setActiveDocument] = useState(initialDocument)
   const [query, setQuery] = useState('')
   const [annotations, setAnnotations] = useState(() => getAnnotations(initialDocument.path))
@@ -86,6 +85,7 @@ function App() {
   const shownPath = useRef(null)
   const figureHosts = useRef(new Map())
   const themeRef = useRef(theme)
+  const langRef = useRef(lang)
   const searchRef = useRef(null)
   const articleRef = useRef(null)
   const commentRef = useRef(null)
@@ -98,10 +98,12 @@ function App() {
 
   const filteredDocuments = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase()
-    if (!normalizedQuery) return noteDocuments
-    return noteDocuments.filter((document) =>
-      `${document.title} ${document.path} ${document.content}`.toLocaleLowerCase().includes(normalizedQuery),
-    )
+    if (!normalizedQuery) return libraryDocuments
+    return libraryDocuments.filter((document) => {
+      const zh = versionOf(document, 'zh')
+      const en = versionOf(document, 'en')
+      return `${zh.title} ${en.title} ${document.path} ${zh.content} ${en.content}`.toLocaleLowerCase().includes(normalizedQuery)
+    })
   }, [query])
 
   const tree = useMemo(() => buildDocumentTree(filteredDocuments), [filteredDocuments])
@@ -122,6 +124,12 @@ function App() {
   }, [theme])
 
   useEffect(() => {
+    langRef.current = lang
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'
+    document.title = lang === 'zh' ? 'Fieldnotes — 本地学习书库' : 'Fieldnotes — Local Study Library'
+  }, [lang])
+
+  useEffect(() => {
     const hosts = figureHosts.current
     return () => {
       hosts.forEach((figure) => figure.dispose())
@@ -131,7 +139,7 @@ function App() {
 
   useEffect(() => {
     const onLocationChange = () => {
-      const nextDocument = documentFromLocation()
+      const nextDocument = documentFromLocation(langRef.current)
       setActiveDocument(nextDocument)
       setAnnotations(getAnnotations(nextDocument.path))
       setActiveAnnotationId(null)
@@ -196,7 +204,7 @@ function App() {
     article.querySelectorAll('.figure-slot').forEach((slot, index) => {
       const key = `${activeDocument.path}#${index}#${slot.dataset.figure}`
       used.add(key)
-      if (!hosts.has(key)) hosts.set(key, createFigureHost(slot.dataset.figure, themeRef.current))
+      if (!hosts.has(key)) hosts.set(key, createFigureHost(slot.dataset.figure, themeRef.current, { lang: activeDocument.lang ?? langRef.current }))
       slot.replaceWith(hosts.get(key).host)
     })
     hosts.forEach((figure, key) => {
@@ -205,7 +213,7 @@ function App() {
       hosts.delete(key)
     })
     return applyAnnotations(article, annotations, activeAnnotationId)
-  }, [activeDocument.path, renderedDocument, annotations, activeAnnotationId])
+  }, [activeDocument.path, activeDocument.lang, renderedDocument, annotations, activeAnnotationId])
 
   useEffect(() => {
     if (!toast) return undefined
@@ -236,21 +244,30 @@ function App() {
     }
   }, [selectionDraft])
 
-  const navigateToDocument = (targetDocument, heading = '') => {
+  // Open a note in the reader's language (or in `language`, when switching).
+  const navigateToDocument = (note, heading = '', language = lang) => {
+    const targetDocument = versionOf(note, language)
     if (targetDocument.path === activeDocument.path) return
     const url = new URL(window.location.href)
     url.searchParams.set('note', targetDocument.path)
     url.hash = heading
-    window.history.pushState({}, '', url)
+    window.history[language === lang ? 'pushState' : 'replaceState']({}, '', url)
     setActiveDocument(targetDocument)
     setAnnotations(getAnnotations(targetDocument.path))
     setActiveAnnotationId(null)
     setSelectionDraft(null)
     if (window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false)
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    if (language === lang) window.scrollTo({ top: 0, behavior: 'instant' })
     if (heading) {
       window.setTimeout(() => document.querySelector(heading)?.scrollIntoView({ block: 'start' }), 0)
     }
+  }
+
+  const switchLanguage = () => {
+    const next = otherLang(lang)
+    applyLang(next)
+    setLang(next)
+    navigateToDocument(activeDocument, '', next)
   }
 
   const handleArticleMouseUp = (event) => {
@@ -302,7 +319,7 @@ function App() {
       setInspectorOpen(true)
       window.setTimeout(() => commentRef.current?.focus(), 80)
     } else {
-      setToast('Highlight saved locally')
+      setToast(t('highlightSaved'))
     }
   }
 
@@ -334,7 +351,7 @@ function App() {
       setAnnotations(getAnnotations(activeDocument.path))
       return true
     } catch {
-      setToast('Comment is too large for local storage')
+      setToast(t('commentTooLarge'))
       return false
     }
   }
@@ -347,12 +364,12 @@ function App() {
 
     const start = article.textContent.indexOf(quote)
     if (start === -1) {
-      setToast('Passage not found in this note')
+      setToast(t('passageNotFound'))
       return false
     }
 
     if (annotations.some((annotation) => annotation.quote === quote && annotation.note === note)) {
-      setToast('Annotation already exists')
+      setToast(t('annotationExists'))
       return false
     }
 
@@ -368,7 +385,7 @@ function App() {
     setAnnotations(getAnnotations(activeDocument.path))
     setActiveAnnotationId(annotation.id)
     setInspectorOpen(true)
-    setToast('Annotation saved locally')
+    setToast(t('annotationSaved'))
     window.setTimeout(() => {
       document.querySelector(`[data-annotation-id="${CSS.escape(annotation.id)}"]`)?.scrollIntoView({
         behavior: 'smooth',
@@ -382,7 +399,7 @@ function App() {
     deleteAnnotation(activeDocument.path, id)
     setAnnotations(getAnnotations(activeDocument.path))
     setActiveAnnotationId(null)
-    setToast('Annotation deleted')
+    setToast(t('annotationDeleted'))
   }
 
   const jumpToAnnotation = (id) => {
@@ -401,7 +418,7 @@ function App() {
     link.download = `${activeDocument.slug}-annotations.json`
     link.click()
     URL.revokeObjectURL(url)
-    setToast('Annotations exported')
+    setToast(t('annotationsExported'))
   }
 
   return (
@@ -409,8 +426,9 @@ function App() {
       <div className="reading-progress" style={{ transform: `scaleX(${scrollProgress / 100})` }} />
 
       <Sidebar
-        activePath={activeDocument.path}
-        documentCount={noteDocuments.length}
+        activeBase={activeDocument.basePath}
+        documentCount={libraryDocuments.length}
+        lang={lang}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onNavigate={navigateToDocument}
@@ -421,31 +439,35 @@ function App() {
       />
 
       <main className="reading-workspace">
-        <header className={`topbar ${barHidden ? 'is-hidden' : ''}`}>
+        {/* The kit's top bar (games/kit/ui.css), as on the notes site and in the games. */}
+        <header className={`kit-bar topbar ${barHidden ? 'is-hidden' : ''}`}>
           <button
-            className="icon-button sidebar-toggle"
+            className="kit-btn sidebar-toggle"
             onClick={() => setSidebarOpen((value) => !value)}
-            aria-label={sidebarOpen ? 'Collapse library' : 'Expand library'}
+            aria-label={t(sidebarOpen ? 'collapseLibrary' : 'expandLibrary')}
             aria-pressed={sidebarOpen}
           >
             {sidebarOpen ? <PanelLeftClose size={19} /> : <PanelLeftOpen size={19} />}
           </button>
-          <div className="breadcrumbs" title={activeDocument.path}>
-            {activeDocument.path.split('/').map((part, index, parts) => (
-              <span key={`${part}-${index}`}>
-                {part.replace(/\.md$/, '')}
-                {index < parts.length - 1 && <i>/</i>}
-              </span>
-            ))}
-          </div>
-          <div className="topbar-actions">
-            <a className="icon-button game-link" href="game.html" title="视觉完备：计算机视觉解谜关卡" aria-label="打开视觉完备游戏"><Puzzle size={17} /></a>
-            <ThemeSwitch theme={theme} onChange={setTheme} compact={phone} />
-            <span className="annotation-count"><Highlighter size={15} /> {annotations.length}</span>
+          <Breadcrumbs document={activeDocument} lang={lang} />
+          {!phone && (
+            <nav className="kit-nav" aria-label={t('site')}>
+              <a href="./" aria-current="page">{t('notes')}</a>
+              <a href="game.html">{t('games')}</a>
+            </nav>
+          )}
+          <div className="kit-actions topbar-actions">
+            <button className="kit-btn" data-lang-toggle onClick={switchLanguage} title={t('switchLang')} aria-label={t('switchLang')} lang={lang === 'zh' ? 'en' : 'zh-CN'}>
+              {lang === 'zh' ? 'EN' : '中'}
+            </button>
+            <button className="kit-btn" onClick={() => setTheme(nextTheme(theme))} title={t('switchTheme', { theme: themeLabel(nextTheme(theme)) })} aria-label={t('switchTheme', { theme: themeLabel(nextTheme(theme)) })}>
+              {themeLabel(theme)}
+            </button>
+            <span className="annotation-count" title={t('annotationCount')}><Highlighter size={15} /> {annotations.length}</span>
             <button
-              className="icon-button"
+              className="kit-btn"
               onClick={() => setInspectorOpen((value) => !value)}
-              aria-label={inspectorOpen ? 'Close annotations' : 'Open annotations'}
+              aria-label={t(inspectorOpen ? 'closeAnnotations' : 'openAnnotations')}
             >
               {inspectorOpen ? <PanelRightClose size={19} /> : <PanelRightOpen size={19} />}
             </button>
@@ -455,16 +477,16 @@ function App() {
         <div className="document-frame">
           <article
             ref={articleRef}
-            className="markdown-body"
+            className="markdown-body kit-prose"
             onMouseUp={handleArticleMouseUp}
             onClick={handleAnnotationClick}
           />
-          <NoteNeighbours current={activeDocument} onNavigate={navigateToDocument} />
-          <DocumentOutline key={activeDocument.path} headings={renderedDocument.headings} />
+          <NoteNeighbours current={activeDocument} lang={lang} onNavigate={navigateToDocument} />
+          <DocumentOutline key={activeDocument.path} headings={renderedDocument.headings} label={t('onThisPage')} />
         </div>
       </main>
       {lightbox && (
-        <button className="lightbox" onClick={() => setLightbox(null)} aria-label="关闭图片">
+        <button className="lightbox" onClick={() => setLightbox(null)} aria-label={t('closeImage')}>
           <img src={lightbox.src} alt={lightbox.alt} />
           {lightbox.alt && <span>{lightbox.alt}</span>}
         </button>
@@ -475,6 +497,7 @@ function App() {
         annotations={annotations}
         commentRef={commentRef}
         isOpen={inspectorOpen}
+        lang={lang}
         onAdd={createAnnotationFromQuote}
         onChange={handleCommentChange}
         onClose={() => setInspectorOpen(false)}
@@ -489,6 +512,7 @@ function App() {
         <SelectionToolbar
           ref={selectionToolbarRef}
           draft={selectionDraft}
+          lang={lang}
           onCreate={createHighlight}
           onDismiss={() => setSelectionDraft(null)}
         />
@@ -498,41 +522,25 @@ function App() {
   )
 }
 
-function ThemeSwitch({ theme, onChange, compact }) {
-  if (compact) {
-    const index = Math.max(0, themes.findIndex((option) => option.id === theme))
-    const current = themes[index]
-    const next = themes[(index + 1) % themes.length]
-    const CurrentIcon = current.Icon
-    return (
-      <button className="icon-button theme-cycle" onClick={() => onChange(next.id)} aria-label={`Theme: ${current.label}. Switch to ${next.label}`} title={current.label}>
-        <CurrentIcon size={17} strokeWidth={1.6} />
-      </button>
-    )
-  }
+// Where the note sits: its folders by their course and semester names, then the note's title.
+function Breadcrumbs({ document, lang }) {
+  const folders = document.basePath.split('/').slice(0, -1)
+  const parts = folders.map((_, index) => sectionTitle(folders.slice(0, index + 1).join('/'), lang) ?? folders[index])
+  parts.push(document.title)
   return (
-    <div className="theme-switch" role="radiogroup" aria-label="Theme">
-      {themes.map((option) => {
-        const ThemeIcon = option.Icon
-        return (
-          <button
-            key={option.id}
-            className="theme-option"
-            role="radio"
-            aria-checked={theme === option.id}
-            aria-label={option.label}
-            title={option.label}
-            onClick={() => onChange(option.id)}
-          >
-            <ThemeIcon size={14} strokeWidth={1.6} />
-          </button>
-        )
-      })}
+    <div className="kit-crumbs breadcrumbs" title={document.path}>
+      {parts.map((part, index) => (
+        <span key={`${part}-${index}`}>
+          {part}
+          {index < parts.length - 1 && <i>/</i>}
+        </span>
+      ))}
     </div>
   )
 }
 
-function Sidebar({ activePath, documentCount, isOpen, onClose, onNavigate, query, searchRef, setQuery, tree }) {
+function Sidebar({ activeBase, documentCount, isOpen, lang, onClose, onNavigate, query, searchRef, setQuery, tree }) {
+  const t = (key) => translate(lang, key)
   return (
     <>
       <aside className={`sidebar ${isOpen ? 'is-open' : ''}`}>
@@ -540,9 +548,9 @@ function Sidebar({ activePath, documentCount, isOpen, onClose, onNavigate, query
           <div className="brand-mark"><Box size={17} strokeWidth={1.5} /></div>
           <div>
             <strong>FIELDNOTES</strong>
-            <span>Local study library</span>
+            <span>{t('brandTagline')}</span>
           </div>
-          <button className="icon-button sidebar-close" onClick={onClose} aria-label="Close library"><X size={18} /></button>
+          <button className="icon-button sidebar-close" onClick={onClose} aria-label={t('closeLibrary')}><X size={18} /></button>
         </div>
 
         <label className="search-field">
@@ -551,37 +559,38 @@ function Sidebar({ activePath, documentCount, isOpen, onClose, onNavigate, query
             ref={searchRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search notes"
-            aria-label="Search notes"
+            placeholder={t('searchNotes')}
+            aria-label={t('searchNotes')}
           />
           <kbd>⌘K</kbd>
         </label>
 
-        <div className="library-heading"><span>Library</span><span>{documentCount}</span></div>
+        <div className="library-heading"><span>{t('library')}</span><span>{documentCount}</span></div>
         <nav className="document-tree">
           {tree.children.length ? (
             tree.children.map((node) => (
-              <TreeNode key={node.path} node={node} activePath={activePath} onNavigate={onNavigate} depth={0} />
+              <TreeNode key={node.path} node={node} activeBase={activeBase} lang={lang} onNavigate={onNavigate} depth={0} />
             ))
           ) : (
-            <div className="empty-search">No notes found</div>
+            <div className="empty-search">{t('noNotes')}</div>
           )}
         </nav>
 
-        <div className="sidebar-footer"><span className="status-dot" /><span>Reading local Markdown</span></div>
+        <div className="sidebar-footer"><span className="status-dot" /><span>{t('readingLocal')}</span></div>
       </aside>
-      {isOpen && <button className="mobile-scrim" onClick={onClose} aria-label="Close library overlay" />}
+      {isOpen && <button className="mobile-scrim" onClick={onClose} aria-label={t('closeLibraryOverlay')} />}
     </>
   )
 }
 
-function TreeNode({ node, activePath, onNavigate, depth }) {
+// The library lists each note once (its original); titles and folder names follow the reader's language.
+function TreeNode({ node, activeBase, lang, onNavigate, depth }) {
   // Folders open by default near the root and whenever they hold the note being read.
   const [manual, setManual] = useState(null)
-  const holdsActive = !node.document && activePath.startsWith(`${node.path}/`)
+  const holdsActive = !node.document && activeBase.startsWith(`${node.path}/`)
   const expanded = manual ?? (depth < 2 || holdsActive)
   const activeRef = useRef(null)
-  const isActive = node.document && activePath === node.document.path
+  const isActive = node.document && activeBase === node.document.basePath
   useEffect(() => {
     if (isActive) activeRef.current?.scrollIntoView({ block: 'nearest' })
   }, [isActive])
@@ -594,7 +603,7 @@ function TreeNode({ node, activePath, onNavigate, depth }) {
         onClick={() => onNavigate(node.document)}
       >
         <FileText size={14} />
-        <span>{node.document.title}</span>
+        <span>{versionOf(node.document, lang).title}</span>
       </button>
     )
   }
@@ -603,16 +612,16 @@ function TreeNode({ node, activePath, onNavigate, depth }) {
     <div className="tree-folder">
       <button className="folder-label" style={{ '--tree-depth': depth }} onClick={() => setManual(!expanded)} aria-expanded={expanded}>
         {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-        <span>{node.name}</span>
+        <span>{sectionTitle(node.path, lang) ?? node.name}</span>
       </button>
       {expanded && node.children.map((child) => (
-        <TreeNode key={child.path} node={child} activePath={activePath} onNavigate={onNavigate} depth={depth + 1} />
+        <TreeNode key={child.path} node={child} activeBase={activeBase} lang={lang} onNavigate={onNavigate} depth={depth + 1} />
       ))}
     </div>
   )
 }
 
-function DocumentOutline({ headings }) {
+function DocumentOutline({ headings, label }) {
   const [current, setCurrent] = useState(null)
   // Follow the reader: the last heading above the upper third of the screen is the current section.
   useEffect(() => {
@@ -639,8 +648,8 @@ function DocumentOutline({ headings }) {
   }, [headings])
   if (headings.length < 2) return null
   return (
-    <nav className="document-outline" aria-label="On this page">
-      <span>On this page</span>
+    <nav className="document-outline" aria-label={label}>
+      <span>{label}</span>
       {headings.map((heading) => (
         <a key={heading.id} href={`#${heading.id}`} className={`outline-level-${heading.level} ${current === heading.id ? 'is-current' : ''}`} aria-current={current === heading.id ? 'location' : undefined}>{heading.text}</a>
       ))}
@@ -649,24 +658,25 @@ function DocumentOutline({ headings }) {
 }
 
 // Previous and next notes in the same folder, in library order.
-function NoteNeighbours({ current, onNavigate }) {
-  const folder = current.path.slice(0, current.path.lastIndexOf('/') + 1)
-  const siblings = noteDocuments.filter((document) => document.path.startsWith(folder) && !document.path.slice(folder.length).includes('/'))
-  const index = siblings.findIndex((document) => document.path === current.path)
-  const previous = siblings[index - 1]
-  const next = siblings[index + 1]
+function NoteNeighbours({ current, lang, onNavigate }) {
+  const t = (key) => translate(lang, key)
+  const folder = current.basePath.slice(0, current.basePath.lastIndexOf('/') + 1)
+  const siblings = libraryDocuments.filter((document) => document.path.startsWith(folder) && !document.path.slice(folder.length).includes('/'))
+  const index = siblings.findIndex((document) => document.path === current.basePath)
+  const previous = siblings[index - 1] && versionOf(siblings[index - 1], lang)
+  const next = siblings[index + 1] && versionOf(siblings[index + 1], lang)
   if (!previous && !next) return null
   return (
-    <nav className="note-neighbours" aria-label="Neighbouring notes">
+    <nav className="note-neighbours" aria-label={t('neighbours')}>
       {previous ? (
         <button className="note-neighbour" onClick={() => onNavigate(previous)}>
-          <span><ArrowLeft size={13} /> 上一篇</span>
+          <span><ArrowLeft size={13} /> {t('previous')}</span>
           <b>{previous.title}</b>
         </button>
       ) : <span />}
       {next && (
         <button className="note-neighbour is-next" onClick={() => onNavigate(next)}>
-          <span>下一篇 <ArrowRight size={13} /></span>
+          <span>{t('next')} <ArrowRight size={13} /></span>
           <b>{next.title}</b>
         </button>
       )}
@@ -674,7 +684,8 @@ function NoteNeighbours({ current, onNavigate }) {
   )
 }
 
-function SelectionToolbar({ draft, onCreate, onDismiss, ref }) {
+function SelectionToolbar({ draft, lang, onCreate, onDismiss, ref }) {
+  const t = (key, vars) => translate(lang, key, vars)
   return (
     <div
       ref={ref}
@@ -682,7 +693,7 @@ function SelectionToolbar({ draft, onCreate, onDismiss, ref }) {
       style={{ left: draft.x, top: draft.y }}
       onPointerDown={(event) => event.preventDefault()}
     >
-      <button className="toolbar-close" onClick={onDismiss} aria-label="Dismiss selection"><X size={14} /></button>
+      <button className="toolbar-close" onClick={onDismiss} aria-label={t('dismissSelection')}><X size={14} /></button>
       <div className="color-options">
         {Object.entries(annotationColors).map(([name, value]) => (
           <button
@@ -690,13 +701,13 @@ function SelectionToolbar({ draft, onCreate, onDismiss, ref }) {
             className="color-swatch"
             style={{ '--swatch': value }}
             onClick={() => onCreate(name)}
-            aria-label={`Highlight ${name}`}
+            aria-label={t('highlight', { color: t(name) })}
           />
         ))}
       </div>
       <span className="toolbar-divider" />
       <button className="comment-action" onClick={() => onCreate('amber', true)}>
-        <MessageSquareText size={15} /> Comment
+        <MessageSquareText size={15} /> {t('comment')}
       </button>
     </div>
   )
@@ -707,6 +718,7 @@ function AnnotationInspector({
   annotations,
   commentRef,
   isOpen,
+  lang,
   onAdd,
   onChange,
   onClose,
@@ -716,6 +728,7 @@ function AnnotationInspector({
   onJump,
   title,
 }) {
+  const t = (key) => translate(lang, key)
   const [composerOpen, setComposerOpen] = useState(false)
   const [composerQuote, setComposerQuote] = useState('')
   const [composerNote, setComposerNote] = useState('')
@@ -730,37 +743,37 @@ function AnnotationInspector({
   return (
     <aside className={`annotation-inspector ${isOpen ? 'is-open' : ''}`}>
       <div className="inspector-header">
-        <div><span>Annotations</span><strong>{annotations.length}</strong></div>
-        <button className="icon-button" onClick={onClose} aria-label="Close annotations"><X size={18} /></button>
+        <div><span>{t('annotations')}</span><strong>{annotations.length}</strong></div>
+        <button className="icon-button" onClick={onClose} aria-label={t('closeAnnotations')}><X size={18} /></button>
       </div>
       <p className="inspector-context">{title}</p>
 
       <button className="add-annotation-button" onClick={() => setComposerOpen((value) => !value)}>
-        <MessageSquareText size={15} /> {composerOpen ? 'Cancel' : 'Add annotation'}
+        <MessageSquareText size={15} /> {t(composerOpen ? 'cancel' : 'addAnnotation')}
       </button>
 
       {composerOpen && (
         <div className="annotation-composer">
           <label>
-            Passage to highlight
+            {t('passage')}
             <textarea
               value={composerQuote}
               onChange={(event) => setComposerQuote(event.target.value)}
-              placeholder="Paste an exact passage from this note"
-              aria-label="Passage to highlight"
+              placeholder={t('passagePlaceholder')}
+              aria-label={t('passage')}
             />
           </label>
           <label>
-            Question and answer
+            {t('questionAnswer')}
             <textarea
               value={composerNote}
               onChange={(event) => setComposerNote(event.target.value)}
-              placeholder="问题：…\n\n答案：…"
-              aria-label="Question and answer"
+              placeholder={t('questionAnswerPlaceholder')}
+              aria-label={t('questionAnswer')}
             />
           </label>
           <button type="button" onClick={saveComposer} disabled={!composerQuote.trim() || !composerNote.trim()}>
-            Save annotation
+            {t('saveAnnotation')}
           </button>
         </div>
       )}
@@ -773,6 +786,7 @@ function AnnotationInspector({
             annotation={annotation}
             color={annotationColors[annotation.color]}
             commentRef={commentRef}
+            lang={lang}
             onChange={onChange}
             onDelete={onDelete}
             onError={onError}
@@ -781,14 +795,14 @@ function AnnotationInspector({
         )) : (
           <div className="empty-annotations">
             <Highlighter size={24} />
-            <strong>No annotations yet</strong>
-            <p>Select any passage in the note to highlight it or add a comment.</p>
+            <strong>{t('noAnnotations')}</strong>
+            <p>{t('noAnnotationsHint')}</p>
           </div>
         )}
       </div>
 
       {annotations.length > 0 && (
-        <button className="export-button" onClick={onExport}><Download size={15} /> Export this note</button>
+        <button className="export-button" onClick={onExport}><Download size={15} /> {t('exportNote')}</button>
       )}
     </aside>
   )

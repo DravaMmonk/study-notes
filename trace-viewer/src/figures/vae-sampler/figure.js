@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { applyOrder, clamp, createIdle, createLoop, follow, svgNode } from '../common.js'
+import { applyOrder, clamp, createIdle, createLoop, follow, svgNode, t } from '../common.js'
 import { BINS, INPUTS, MU, PRIOR, ROWS, RUN, SIGMA, balls as runOf, edgeEps, epsOf, format, kl, reconstruction, sampleOf, shapeRing } from './model.js'
 
 // Fig · The VAE sampler.
@@ -232,14 +232,17 @@ const shapePlate = (z, [cx, cy], tone, lit = false) =>
 
 // ---------- the live figure ----------
 
-export const meta = { id: 'vae-sampler', fig: 'Fig 15.1', title: 'VAE 采样机' }
+export const meta = { id: 'vae-sampler', fig: 'Fig 15.1', title: 'VAE 采样机', titleEn: 'VAE sampler' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       'VAE 采样机。小球从顶部漏斗落下，穿过七排固定的钉子落进八个格子，格子位置就是标准正态噪声 ε。格子下方的一排导流片把每个格子引向下方滑动的收集槽：收集槽的位置是 μ，剪式伸缩架张开的程度是 σ，所以小球落在 z = μ + σ·ε。编码器上的表盘读出 KL 散度，前方读头跟随最新的小球，把 z 送进解码器，解码器顶上的板变成对应形状。',
+      'A VAE sampler. Balls drop from a hopper at the top, bounce through seven rows of fixed pins and land in eight bins; the bin a ball lands in is a draw of standard normal noise ε. A row of guide vanes below the bins steers each bin into a sliding collector underneath: the collector’s position is μ and the spread of the scissor linkage is σ, so each ball lands at z = μ + σ·ε. A dial on the encoder reads the KL divergence, and a read head in front follows the newest ball and feeds its z to the decoder, whose top plate takes on the matching shape.',
+    ),
     body: [
       `<defs><clipPath id="vae-drain"><path d="${k.pathOf([at([-400, BY, Z_TRAY]), at([400, BY, Z_TRAY]), at([400, BY, 400]), at([-400, BY, 400])], true)}"/></clipPath></defs>`,
       base(),
@@ -263,31 +266,34 @@ export function render() {
       '<g data-part="output"></g>',
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="VAE 采样设置">
-    <div class="fx-control"><span>输入 x</span>${Object.entries(INPUTS).map(([id, input]) => `<button type="button" data-set="input" data-value="${id}">${input.name}</button>`).join('')}</div>
-    <div class="fx-control"><span>模式</span><button type="button" data-set="mode" data-value="encode">编码</button><button type="button" data-set="mode" data-value="generate">从先验生成</button></div>
-    <div class="fx-control"><span>小球</span><button type="button" data-set="drop" data-value="1">放一颗 ›</button><button type="button" data-set="empty" data-value="1">清空</button></div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, 'VAE 采样设置', 'VAE sampler settings')}">
+    <div class="fx-control"><span>${t(lang, '输入 x', 'Input x')}</span>${Object.entries(INPUTS).map(([id, input]) => `<button type="button" data-set="input" data-value="${id}">${t(lang, input.name, input.nameEn)}</button>`).join('')}</div>
+    <div class="fx-control"><span>${t(lang, '模式', 'Mode')}</span><button type="button" data-set="mode" data-value="encode">${t(lang, '编码', 'Encode')}</button><button type="button" data-set="mode" data-value="generate">${t(lang, '从先验生成', 'From prior')}</button></div>
+    <div class="fx-control"><span>${t(lang, '小球', 'Balls')}</span><button type="button" data-set="drop" data-value="1">${t(lang, '放一颗 ›', 'Drop one ›')}</button><button type="button" data-set="empty" data-value="1">${t(lang, '清空', 'Clear')}</button></div>
   </div>
-  <div class="fx-calc"><span>z = μ + σ·ε =</span><b data-calc="z"></b><i>·</i><span>KL = ½(μ² + σ² − 1 − ln σ²) =</span><b data-calc="kl"></b><i>·</i><span>重建 E‖x̂ − x‖² =</span><b data-calc="rec"></b></div>`
+  <div class="fx-calc"><span>z = μ + σ·ε =</span><b data-calc="z"></b><i>·</i><span>KL = ½(μ² + σ² − 1 − ln σ²) =</span><b data-calc="kl"></b><i>·</i><span>${t(lang, '重建', 'Recon.')} E‖x̂ − x‖² =</span><b data-calc="rec"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '方向键 · G 生成',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '方向键 · G 生成', 'Arrow keys · G: generate'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '最新的小球与它的解码结果' },
-        { mark: 'raised', label: '钉板：噪声 ε ~ N(0, 1)' },
-        { mark: 'flat', label: '导流片：z = μ + σ·ε' },
+        { mark: 'lit', label: t(lang, '最新的小球与它的解码结果', 'newest ball and its decoded output') },
+        { mark: 'raised', label: t(lang, '钉板：噪声 ε ~ N(0, 1)', 'pin board: noise ε ~ N(0, 1)') },
+        { mark: 'flat', label: t(lang, '导流片：z = μ + σ·ε', 'guide vanes: z = μ + σ·ε') },
       ],
-      caption:
+      caption: t(
+        lang,
         '钉子固定不动，随机性全在 ε：小球落进哪一格就是一次 ε ~ N(0, 1)。编码器只决定收集槽停在 μ、剪式架张开到 σ，于是同一批 ε 被确定地搬到 z = μ + σ·ε；拨动 μ 或 σ，已落下的小球跟着平移和伸缩，这正是重参数化让梯度能穿过采样的原因。σ 越小重建越准但 KL 越大；切到“从先验生成”时导流片竖直，z 直接取自 N(0, 1)，不需要输入图像。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="VAE 采样机。左右方向键改变 μ，上下方向键改变 σ，空格放一颗球，G 切换从先验生成，1 到 3 选择输入。">${svg}</div>`,
+        'The pins never move; all the randomness lives in ε: the bin a ball falls into is one draw of ε ~ N(0, 1). The encoder only decides where the collector stops (μ) and how far the scissor linkage opens (σ), so the same batch of ε is carried deterministically to z = μ + σ·ε. Nudge μ or σ and the balls already landed shift and stretch with it — exactly why the reparameterisation trick lets gradients pass through the sampling step. A smaller σ gives a sharper reconstruction but a larger KL. Switch to “From prior” and the vanes stand straight: z comes directly from N(0, 1), with no input image needed.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, 'VAE 采样机。左右方向键改变 μ，上下方向键改变 σ，空格放一颗球，G 切换从先验生成，1 到 3 选择输入。', 'VAE sampler. Left and right arrows change μ, up and down arrows change σ, Space drops a ball, G toggles generating from the prior, and 1 to 3 pick the input.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -480,7 +486,7 @@ export function mount(root) {
     const { mu, sigma } = state
     const value = kl(mu, sigma)
     const text = state.mode === 'generate' && Math.abs(mu) < 0.01 && Math.abs(sigma - 1) < 0.01
-      ? `从先验生成 · z = ε · KL ${format(value)}`
+      ? `${t(lang, '从先验生成', 'From prior')} · z = ε · KL ${format(value)}`
       : `μ ${format(mu)} · σ ${format(sigma)} · KL ${format(value)}`
     if (readout.textContent !== text) readout.textContent = text
     const latest = state.latest
@@ -488,14 +494,18 @@ export function mount(root) {
       ? `${format(mu)} + ${format(sigma)} × ${format(epsOf(latest.bin))} = ${format(sampleOf(mu, sigma, latest.bin))}`
       : '…'
     calc.kl.textContent = format(value)
-    calc.rec.textContent = state.mode === 'encode' ? format(reconstruction(mu, sigma, INPUTS[state.input].mu) * SHAPE * SHAPE) : '无输入'
+    calc.rec.textContent = state.mode === 'encode' ? format(reconstruction(mu, sigma, INPUTS[state.input].mu) * SHAPE * SHAPE) : t(lang, '无输入', 'no input')
   }
 
   function describe() {
     const goal = state.target
     stage.setAttribute('aria-valuetext', state.mode === 'generate'
-      ? '从先验生成：μ = 0，σ = 1，KL = 0'
-      : `输入${INPUTS[state.input].name}：μ ${format(goal.mu)}，σ ${format(goal.sigma)}，KL ${format(kl(goal.mu, goal.sigma))}`)
+      ? t(lang, '从先验生成：μ = 0，σ = 1，KL = 0', 'Generating from the prior: μ = 0, σ = 1, KL = 0')
+      : t(
+        lang,
+        `输入${INPUTS[state.input].name}：μ ${format(goal.mu)}，σ ${format(goal.sigma)}，KL ${format(kl(goal.mu, goal.sigma))}`,
+        `Input ${INPUTS[state.input].nameEn.toLowerCase()}: μ ${format(goal.mu)}, σ ${format(goal.sigma)}, KL ${format(kl(goal.mu, goal.sigma))}`,
+      ))
     buttons.forEach((button) => {
       const { set, value } = button.dataset
       if (set === 'input') button.setAttribute('aria-pressed', String(state.mode === 'encode' && value === state.input))

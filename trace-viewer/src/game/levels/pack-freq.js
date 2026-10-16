@@ -12,8 +12,8 @@ const N = 32
 
 export const nodes = {
   fqSpectrum: {
-    label: '频谱',
-    description: '中心化、取对数的幅度谱：中心是平均亮度，越往外变化越快',
+    label: { zh: '频谱', en: 'Spectrum' },
+    description: { zh: '中心化、取对数的幅度谱：中心是平均亮度，越往外变化越快', en: 'The centred, log-scaled magnitude spectrum: the centre is the average brightness, and further out means faster change' },
     inputs: ['in'],
     eval: ({ in: a }) => magnitudeSpectrum(a),
     // A forward 2-D FFT costs about 2·log2(N²) complex multiply-adds per pixel; 20 at 32×32.
@@ -21,12 +21,12 @@ export const nodes = {
     unlock: 'spectrum',
   },
   fqLowpass: {
-    label: '频域低通',
-    description: '变换到频域，乘一个以中心为圆心的掩膜，再变换回来',
+    label: { zh: '频域低通', en: 'Frequency low-pass' },
+    description: { zh: '变换到频域，乘一个以中心为圆心的掩膜，再变换回来', en: 'Transforms to the frequency domain, multiplies by a mask centred on the middle, and transforms back' },
     inputs: ['in'],
     params: [
-      { key: 'shape', label: '掩膜', kind: 'select', options: [['disk', '硬圆盘'], ['gauss', '高斯']], default: 'disk' },
-      { key: 'R', label: '半径 R', kind: 'number', min: 0.5, max: 16, step: 0.5, default: 8 },
+      { key: 'shape', label: { zh: '掩膜', en: 'Mask' }, kind: 'select', options: [['disk', { zh: '硬圆盘', en: 'Hard disk' }], ['gauss', { zh: '高斯', en: 'Gaussian' }]], default: 'disk' },
+      { key: 'R', label: { zh: '半径 R', en: 'Radius R' }, kind: 'number', min: 0.5, max: 16, step: 0.5, default: 8 },
     ],
     eval: ({ in: a }, p) => lowpass(a, p.shape ?? 'disk', Number(p.R ?? 8)),
     // Forward and inverse FFT plus the mask multiply.
@@ -104,10 +104,10 @@ const spectrumLevel = (() => {
     kind: 'board',
     board: 'SpectrumMatch',
     chapter: 2,
-    title: '看频谱',
-    brief: '「频谱」元件就是你在 2-3 搭的探针，对每个 (kx, ky) 各量一次：位置是频率，亮度是那道波的振幅（取了对数）。下面六张图的频谱被打乱了，把它们配成对。',
-    hint: '先在试验台上转一转、调一调条纹：亮点跟着怎样动？还记得 2-1 的箭头吗？中心那一点是 (0, 0)，也就是平均亮度。',
-    after: '频谱中心是平均亮度（直流分量），离中心越远代表变化越快：条纹越密，亮点离中心越远；条纹转 90°，亮点也转 90°，并且总是排在和条纹垂直的方向上。模糊的图只剩中心一团低频，噪声则什么频率都有。',
+    title: { zh: '看频谱', en: 'Reading spectra' },
+    brief: { zh: '「频谱」元件就是你在 2-3 搭的探针，对每个 (kx, ky) 各量一次：位置是频率，亮度是那道波的振幅（取了对数）。下面六张图的频谱被打乱了，把它们配成对。', en: 'The "Spectrum" part is the probe you built in 2-3, run once for each (kx, ky): position is frequency, and brightness is that wave\'s amplitude (on a log scale). The spectra of the six pictures below have been shuffled. Pair them up.' },
+    hint: { zh: '先在试验台上转一转、调一调条纹：亮点跟着怎样动？还记得 2-1 的箭头吗？中心那一点是 (0, 0)，也就是平均亮度。', en: 'First turn and adjust the stripes on the bench: how do the bright dots move? Remember the arrow in 2-1? The dot in the centre is (0, 0), the average brightness.' },
+    after: { zh: '频谱中心是平均亮度（直流分量），离中心越远代表变化越快：条纹越密，亮点离中心越远；条纹转 90°，亮点也转 90°，并且总是排在和条纹垂直的方向上。模糊的图只剩中心一团低频，噪声则什么频率都有。', en: 'The centre of a spectrum is the average brightness (the DC component), and further from the centre means faster change: the denser the stripes, the further the dots sit from the centre. Turn the stripes by 90° and the dots turn by 90° too, always lined up perpendicular to the stripes. A blurred picture keeps only a clump of low frequencies in the centre, while noise has every frequency.' },
     requires: ['2-3'],
     unlocks: [],
     pictures,
@@ -150,26 +150,26 @@ const fineNoise = (seed, std = 0.07) => {
 const softened = (img) => correlate(img, gaussianKernel(1), 'edge')
 // Grey levels 0.2…0.8 so the noisy photos stay inside 0…1.
 const LOWPASS_SCENES = [
-  ['方块', box(8, 8, 16, 16, 0.2, 0.8)],
-  ['圆盘', disk(15.5, 15.5, 10, 0.2, 0.8)],
-  ['字母 T', glyph(GLYPHS.T, 0.2, 0.8)],
-  ['横条', box(6, 12, 20, 8, 0.25, 0.75)],
+  [{ zh: '方块', en: 'Square' }, box(8, 8, 16, 16, 0.2, 0.8)],
+  [{ zh: '圆盘', en: 'Disk' }, disk(15.5, 15.5, 10, 0.2, 0.8)],
+  [{ zh: '字母 T', en: 'Letter T' }, glyph(GLYPHS.T, 0.2, 0.8)],
+  [{ zh: '横条', en: 'Horizontal bar' }, box(6, 12, 20, 8, 0.25, 0.75)],
 ]
 // Held back: new shapes under new noise, one of them dark on a light ground.
 const LOWPASS_HIDDEN = [
-  ['字母 L', glyph(GLYPHS.L, 0.2, 0.8, 8, 5)],
-  ['两个圆点', fromFn(N, N, (x, y) => ((x - 10) ** 2 + (y - 11) ** 2 <= 25 || (x - 21) ** 2 + (y - 20) ** 2 <= 25 ? 0.8 : 0.2))],
-  ['亮底暗块', box(10, 6, 12, 18, 0.75, 0.25)],
+  [{ zh: '字母 L', en: 'Letter L' }, glyph(GLYPHS.L, 0.2, 0.8, 8, 5)],
+  [{ zh: '两个圆点', en: 'Two dots' }, fromFn(N, N, (x, y) => ((x - 10) ** 2 + (y - 11) ** 2 <= 25 || (x - 21) ** 2 + (y - 20) ** 2 <= 25 ? 0.8 : 0.2))],
+  [{ zh: '亮底暗块', en: 'Dark block on light ground' }, box(10, 6, 12, 18, 0.75, 0.25)],
 ]
 const filter = (shape, R) => build({ f: ['fqLowpass', { shape, R }] }, ['in>f', 'f>out'])
 
 const lowpassLevel = {
   id: '2-6',
   chapter: 2,
-  title: '低通',
-  brief: '照片里混进了细密的噪点。用「频域低通」去掉它们，输出要和期望一样干净、柔和。',
-  hint: '这是二维的调音台：离频谱中心 R 以内的频率留下，以外压掉。调音台上哪种形状的增益不起波纹？盯住误差图里边缘两侧出现的东西。',
-  after: '和调音台上一样：硬圆盘一刀切，等于用一个带负瓣的核做卷积，边缘两侧冒出一圈圈亮暗波纹（振铃）；高斯掩膜平滑过渡，对应的核还是高斯，没有波纹。期望图其实是 σ = 1 的空间高斯模糊，对应的掩膜宽度 R = N/(2πσ) = 32/(2π) ≈ 5。空间里卷积，等于频域里相乘，这就是卷积定理。',
+  title: { zh: '低通', en: 'Low-pass' },
+  brief: { zh: '照片里混进了细密的噪点。用「频域低通」去掉它们，输出要和期望一样干净、柔和。', en: 'Fine noise has crept into the photos. Remove it with "Frequency low-pass": the output must be as clean and soft as the expected image.' },
+  hint: { zh: '这是二维的调音台：离频谱中心 R 以内的频率留下，以外压掉。调音台上哪种形状的增益不起波纹？盯住误差图里边缘两侧出现的东西。', en: 'This is a 2-D equaliser: frequencies within R of the spectrum\'s centre stay, and the rest are pressed down. Which gain shape on the equaliser made no ripples? Watch what appears on both sides of the edges in the error map.' },
+  after: { zh: '和调音台上一样：硬圆盘一刀切，等于用一个带负瓣的核做卷积，边缘两侧冒出一圈圈亮暗波纹（振铃）；高斯掩膜平滑过渡，对应的核还是高斯，没有波纹。期望图其实是 σ = 1 的空间高斯模糊，对应的掩膜宽度 R = N/(2πσ) = 32/(2π) ≈ 5。空间里卷积，等于频域里相乘，这就是卷积定理。', en: 'Just as on the equaliser: a hard disk cuts sharply, which is the same as a convolution with a kernel that has negative lobes, so rings of light and dark ripple out on both sides of an edge (ringing). A Gaussian mask falls off smoothly; its kernel is still a Gaussian, with no ripples. The expected image is in fact a spatial Gaussian blur with σ = 1, which matches a mask width of R = N/(2πσ) = 32/(2π) ≈ 5. Convolution in space equals multiplication in the frequency domain: this is the convolution theorem.' },
   requires: ['2-5'],
   unlocks: [],
   palette: ['fqLowpass', 'fqSpectrum', 'add', 'sub', 'scale'],
@@ -188,16 +188,16 @@ const lowpassLevel = {
 const HYBRID_R = 3
 const hybrid = (a, b) => plus(lowpass(a, 'gauss', HYBRID_R), highpass(b, 'gauss', HYBRID_R))
 const HYBRID_PAIRS = [
-  ['圆盘 + X', disk(15.5, 15.5, 9, 0.15, 0.85), glyph(GLYPHS.X, 0.35, 0.65)],
-  ['方块 + T', box(6, 6, 20, 20, 0.15, 0.85), glyph(GLYPHS.T, 0.35, 0.65)],
-  ['小圆 + 棋盘', disk(11, 12, 7, 0.15, 0.85), checker(2, 0.4, 0.6)],
+  [{ zh: '圆盘 + X', en: 'Disk + X' }, disk(15.5, 15.5, 9, 0.15, 0.85), glyph(GLYPHS.X, 0.35, 0.65)],
+  [{ zh: '方块 + T', en: 'Square + T' }, box(6, 6, 20, 20, 0.15, 0.85), glyph(GLYPHS.T, 0.35, 0.65)],
+  [{ zh: '小圆 + 棋盘', en: 'Small disk + checkerboard' }, disk(11, 12, 7, 0.15, 0.85), checker(2, 0.4, 0.6)],
 ]
 // Held back: B at full contrast with big shapes of its own, and the roles of letter and shape swapped,
 // so a high-pass of B with the wrong mask or radius, or B let through whole, shows.
 const HYBRID_HIDDEN = [
-  ['横条 + O', box(4, 10, 24, 12, 0.2, 0.8), glyph(GLYPHS.O, 0.1, 0.9)],
-  ['X + 圆盘', glyph(GLYPHS.X, 0.15, 0.85), disk(18, 14, 8, 0.2, 0.8)],
-  ['暗圆 + 粗棋盘', disk(19, 17, 8, 0.85, 0.15), checker(4, 0.25, 0.75)],
+  [{ zh: '横条 + O', en: 'Horizontal bar + O' }, box(4, 10, 24, 12, 0.2, 0.8), glyph(GLYPHS.O, 0.1, 0.9)],
+  [{ zh: 'X + 圆盘', en: 'X + disk' }, glyph(GLYPHS.X, 0.15, 0.85), disk(18, 14, 8, 0.2, 0.8)],
+  [{ zh: '暗圆 + 粗棋盘', en: 'Dark disk + coarse checkerboard' }, disk(19, 17, 8, 0.85, 0.15), checker(4, 0.25, 0.75)],
 ]
 const hybridGraph = (nodes, wires) => build(nodes, wires, { inputs: ['a', 'b'] })
 const gaussLow = (R = HYBRID_R) => ['fqLowpass', { shape: 'gauss', R }]
@@ -205,12 +205,12 @@ const gaussLow = (R = HYBRID_R) => ['fqLowpass', { shape: 'gauss', R }]
 const hybridLevel = {
   id: '2-9',
   chapter: 2,
-  title: '混合图像',
+  title: { zh: '混合图像', en: 'Hybrid images' },
   inputs: ['a', 'b'],
   inputLabels: { a: 'A', b: 'B' },
-  brief: '输出 = A 的低频 + B 的高频，两处都用半径 3 的高斯掩膜。近看是 B，远看是 A。',
-  hint: '你只有低通。原图里去掉低频，还剩下什么？',
-  after: '高通 = 原图 − 低通，也就是掩膜 1 − H。A 只留下大轮廓，B 只留下边缘和细纹，叠在一起：近看细节占上风，远看或眯起眼时细节消失，只剩 A。滤波是线性的，所以 低通(A − B) + B 也是同一个结果，只用一次变换。',
+  brief: { zh: '输出 = A 的低频 + B 的高频，两处都用半径 3 的高斯掩膜。近看是 B，远看是 A。', en: 'Output = the low frequencies of A + the high frequencies of B, both with a Gaussian mask of radius 3. Up close you see B; from afar, A.' },
+  hint: { zh: '你只有低通。原图里去掉低频，还剩下什么？', en: 'You only have a low-pass. Take the low frequencies out of an image: what is left?' },
+  after: { zh: '高通 = 原图 − 低通，也就是掩膜 1 − H。A 只留下大轮廓，B 只留下边缘和细纹，叠在一起：近看细节占上风，远看或眯起眼时细节消失，只剩 A。滤波是线性的，所以 低通(A − B) + B 也是同一个结果，只用一次变换。', en: 'High-pass = image − low-pass, that is, the mask 1 − H. A keeps only its broad outline and B only its edges and fine texture. Added together, the detail wins up close; from afar, or with squinted eyes, the detail disappears and only A is left. Filtering is linear, so low-pass(A − B) + B gives the same result with a single transform.' },
   requires: ['2-8'],
   unlocks: [],
   palette: ['fqLowpass', 'fqSpectrum', 'add', 'sub', 'scale'],
@@ -294,10 +294,10 @@ const racerLevel = {
   kind: 'board',
   board: 'KernelRacer',
   chapter: 1,
-  title: '核速判',
-  brief: '看输入和输出，选出是哪个 3×3 核做的（按「3×3 核」元件的读法）。10 轮对 8 轮过关，越往后越快。',
-  hint: '权重全正、和为 1：变软。正负相抵、和为 0：平坦处变 0。只有一个 1：整张图挪了一格。',
-  after: '你已经能从结果反推核：全正且和为 1 是平滑，越集中越接近原图；和为 0 的核只对变化有反应，是求导；中心大、四周为负是锐化；只有一个 1 是平移，挪的方向和 1 的位置相反。',
+  title: { zh: '核速判', en: 'Kernel sprint' },
+  brief: { zh: '看输入和输出，选出是哪个 3×3 核做的（按「3×3 核」元件的读法）。10 轮对 8 轮过关，越往后越快。', en: 'Look at the input and the output, and pick the 3×3 kernel that made it (read the way the "3×3 kernel" part reads it). Get 8 of 10 rounds right to pass; it gets faster as you go.' },
+  hint: { zh: '权重全正、和为 1：变软。正负相抵、和为 0：平坦处变 0。只有一个 1：整张图挪了一格。', en: 'All weights positive, summing to 1: softer. Positives and negatives cancelling, summing to 0: flat areas become 0. A single 1: the whole image shifts by one pixel.' },
+  after: { zh: '你已经能从结果反推核：全正且和为 1 是平滑，越集中越接近原图；和为 0 的核只对变化有反应，是求导；中心大、四周为负是锐化；只有一个 1 是平移，挪的方向和 1 的位置相反。', en: 'You can now work back from a result to its kernel. All positive and summing to 1 is smoothing, and the more concentrated, the closer to the original. A kernel that sums to 0 responds only to change: a derivative. A large centre with negative neighbours is sharpening. A single 1 is a shift, moving the opposite way from where the 1 sits.' },
   requires: ['1-6'],
   unlocks: [],
   kernels: RACER_KERNELS,

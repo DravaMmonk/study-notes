@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, X } from 'lucide-react'
 import { tokenColour, useSolveOnce, useWidth } from './matchDraw.js'
 import { PHONE, useMedia } from '../useMedia.js'
+import { L, keyOf, tr } from '../../i18n.js'
 import './MatchBoards.css'
 
 // 6-3 投票: edge points vote into a (θ, ρ) accumulator. One dial sets the bin size; the two highest
@@ -98,19 +99,19 @@ export default function HoughVote({ level, onSolve, theme }) {
 
   const binControl = (
     <section className="bk-panel">
-      <span className="bk-label">分箱大小</span>
+      <span className="bk-label">{tr('分箱大小', 'Bin size')}</span>
       <label className="bk-field mb-coarse">
-        <span>细</span>
-        <input className="bk-range" type="range" min={0} max={m.steps.length - 1} step={1} value={step} style={{ '--fill': `${(step / (m.steps.length - 1)) * 100}%` }} onChange={(e) => setStep(Number(e.target.value))} aria-label="分箱大小" />
-        <span>粗</span>
+        <span>{tr('细', 'Fine')}</span>
+        <input className="bk-range" type="range" min={0} max={m.steps.length - 1} step={1} value={step} style={{ '--fill': `${(step / (m.steps.length - 1)) * 100}%` }} onChange={(e) => setStep(Number(e.target.value))} aria-label={tr('分箱大小', 'Bin size')} />
+        <span>{tr('粗', 'Coarse')}</span>
       </label>
       {phone ? (
-        <p className="mb-readout mb-bin-line">Δθ <b>{dTheta}°</b> · Δρ <b>{dRho} px</b> · <b>{run.acc.nT}×{run.acc.nR}</b> 格</p>
+        <p className="mb-readout mb-bin-line">Δθ <b>{dTheta}°</b> · Δρ <b>{dRho} px</b> · <b>{run.acc.nT}×{run.acc.nR}</b> {tr('格', 'cells')}</p>
       ) : (
         <div className="bk-stats">
           <div className="bk-stat"><b>{dTheta}°</b><span>Δθ</span></div>
           <div className="bk-stat"><b>{dRho} px</b><span>Δρ</span></div>
-          <div className="bk-stat"><b>{run.acc.nT}×{run.acc.nR}</b><span>格</span></div>
+          <div className="bk-stat"><b>{run.acc.nT}×{run.acc.nR}</b><span>{tr('格', 'cells')}</span></div>
         </div>
       )}
     </section>
@@ -118,15 +119,15 @@ export default function HoughVote({ level, onSolve, theme }) {
 
   const goals = (
     <section className="bk-panel">
-      <span className="bk-label">目标 · 前两个峰分别对上 A 和 B</span>
+      <span className="bk-label">{tr('目标 · 前两个峰分别对上 A 和 B', 'Goal · the top two peaks match A and B')}</span>
       <ul className="bk-goals">
         {m.scenes.map((s, i) => {
           const hits = runs[i].found.filter((f) => f >= 0).length
           return (
-            <li key={s.label} className={`bk-goal ${runs[i].pass ? 'is-pass' : ''} ${i === sceneIndex ? 'is-current' : ''}`}>
+            <li key={keyOf(s.label)} className={`bk-goal ${runs[i].pass ? 'is-pass' : ''} ${i === sceneIndex ? 'is-current' : ''}`}>
               {runs[i].pass ? <Check size={16} /> : <X size={16} />}
-              <span>{s.label}</span>
-              <b>对上 {hits}/2</b>
+              <span>{L(s.label)}</span>
+              <b>{tr('对上', 'matched')} {hits}/2</b>
             </li>
           )
         })}
@@ -136,10 +137,10 @@ export default function HoughVote({ level, onSolve, theme }) {
 
   const peaks = (
     <section className="bk-panel">
-      <span className="bk-label">{scene.label} · 票数最高的峰</span>
+      <span className="bk-label">{L(scene.label)} · {tr('票数最高的峰', 'peaks with the most votes')}</span>
       <table className="mb-table">
         <thead>
-          <tr><th>峰</th><th>θ</th><th>ρ</th><th>票</th><th>对上</th></tr>
+          <tr><th>{tr('峰', 'Peak')}</th><th>θ</th><th>ρ</th><th>{tr('票', 'Votes')}</th><th>{tr('对上', 'Matches')}</th></tr>
         </thead>
         <tbody>
           {run.peaks.slice(0, 3).map((p, i) => {
@@ -156,28 +157,28 @@ export default function HoughVote({ level, onSolve, theme }) {
           })}
         </tbody>
       </table>
-      <p className="bk-note">容差 {m.tol.theta}°、{m.tol.rho} px。</p>
+      <p className="bk-note">{tr(`容差 ${m.tol.theta}°、${m.tol.rho} px。`, `Tolerance ${m.tol.theta}°, ${m.tol.rho} px.`)}</p>
     </section>
   )
 
   return (
     <div className="bk mb mb-hough">
       <div className="mb-head">
-        <div className="bk-seg" role="group" aria-label="边缘图">
+        <div className="bk-seg" role="group" aria-label={tr('边缘图', 'Edge images')}>
           {m.scenes.map((s, i) => (
-            <button key={s.label} aria-pressed={i === sceneIndex} onClick={() => setSceneIndex(i)}>
+            <button key={keyOf(s.label)} aria-pressed={i === sceneIndex} onClick={() => setSceneIndex(i)}>
               {runs[i].pass ? <Check size={14} className="mb-ok" /> : <X size={14} className="mb-bad" />}
-              {s.label}
+              {L(s.label)}
             </button>
           ))}
         </div>
-        {!phone && <span className={`bk-chip ${done ? 'is-pass' : ''}`}>{passed} / {m.scenes.length} 张图通过</span>}
+        {!phone && <span className={`bk-chip ${done ? 'is-pass' : ''}`}>{passed} / {m.scenes.length} {tr('张图通过', 'images passed')}</span>}
       </div>
 
       <div className="bk-stage mb-hough-stage">
         <figure className="mb-hough-points">
-          <div className="mb-fig-head"><span className="bk-label">边缘点 · 图像空间</span></div>
-          <svg className="mb-svg" viewBox="-25 -25 50 50" role="img" aria-label="边缘点和找到的直线">
+          <div className="mb-fig-head"><span className="bk-label">{tr('边缘点 · 图像空间', 'Edge points · image space')}</span></div>
+          <svg className="mb-svg" viewBox="-25 -25 50 50" role="img" aria-label={tr('边缘点和找到的直线', 'Edge points and the lines found')}>
             <defs>
               <clipPath id="mb-hough-clip"><rect x={-25} y={-25} width={50} height={50} /></clipPath>
             </defs>
@@ -193,19 +194,19 @@ export default function HoughVote({ level, onSolve, theme }) {
               return <text key={`n${i}`} className="mb-line-name" x={line.rho * Math.cos(t) - Math.sin(t) * s} y={line.rho * Math.sin(t) + Math.cos(t) * s}>{NAMES[i]}</text>
             })}
           </svg>
-          <figcaption className="bk-caption">虚线 A、B 是要找的两条线；实线是票数最高的两个峰（红色：没对上）</figcaption>
+          <figcaption className="bk-caption">{tr('虚线 A、B 是要找的两条线；实线是票数最高的两个峰（红色：没对上）', 'Dashed A and B are the two lines to find; solid lines are the two peaks with the most votes (red: no match)')}</figcaption>
         </figure>
 
         <figure className="mb-hough-acc">
           <div className="mb-fig-head">
-            <span className="bk-label">累加器 · (θ, ρ) 参数空间</span>
-            <div className="bk-seg mb-zoom" role="group" aria-label="累加器视图">
-              <button aria-pressed={zoom} onClick={() => setZoom(true)}>放大</button>
-              <button aria-pressed={!zoom} onClick={() => setZoom(false)}>全图</button>
+            <span className="bk-label">{tr('累加器 · (θ, ρ) 参数空间', 'Accumulator · (θ, ρ) parameter space')}</span>
+            <div className="bk-seg mb-zoom" role="group" aria-label={tr('累加器视图', 'Accumulator view')}>
+              <button aria-pressed={zoom} onClick={() => setZoom(true)}>{tr('放大', 'Zoom in')}</button>
+              <button aria-pressed={!zoom} onClick={() => setZoom(false)}>{tr('全图', 'Full view')}</button>
             </div>
           </div>
           <div className="mb-acc" ref={box}>
-            <canvas ref={canvas} aria-label="累加器" />
+            <canvas ref={canvas} aria-label={tr('累加器', 'Accumulator')} />
             <svg viewBox={`0 0 ${aw} ${ah}`} aria-hidden="true">
               {scene.lines.map((line, i) => (
                 <g key={i} className="mb-acc-target" style={{ transform: `translate(${ax(line.theta)}px, ${ay(line.rho)}px)` }}>
@@ -223,7 +224,7 @@ export default function HoughVote({ level, onSolve, theme }) {
             <span className="mb-axis is-x">θ {fmt(view.t0)}° → {fmt(view.t1)}°</span>
             <span className="mb-axis is-y">ρ {fmt(view.r1)} ↓ {fmt(view.r0)}</span>
           </div>
-          <figcaption className="bk-caption">每个点在这里投出一条曲线，格子越浓票越多；圆圈 1、2 是两个最高峰，十字是 A、B 的位置</figcaption>
+          <figcaption className="bk-caption">{tr('每个点在这里投出一条曲线，格子越浓票越多；圆圈 1、2 是两个最高峰，十字是 A、B 的位置', 'Each point votes along a curve here; the darker a cell, the more votes. Circles 1 and 2 are the two highest peaks; the crosses mark A and B')}</figcaption>
         </figure>
       </div>
 

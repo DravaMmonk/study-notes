@@ -1,0 +1,58 @@
+{
+  "Unimelb": {
+    "en": "University of Melbourne",
+    "zh": "墨尔本大学"
+  },
+  "Unimelb/26S2": {
+    "en": "2026 Semester 2",
+    "zh": "2026 年第二学期"
+  },
+  "Unimelb/26S2/CV": {
+    "en": "COMP90086 Computer Vision",
+    "zh": "COMP90086 计算机视觉"
+  },
+  "Unimelb/26S2/CV/topics": {
+    "en": "Device gallery",
+    "zh": "装置图鉴"
+  },
+  "Unimelb/26S1": {
+    "en": "2026 Semester 1",
+    "zh": "2026 年第一学期"
+  },
+  "Unimelb/26S1/NLP": {
+    "en": "COMP90042 Natural Language Processing",
+    "zh": "COMP90042 自然语言处理"
+  },
+  "Unimelb/26S1/ADBS": {
+    "en": "COMP90050 Advanced Database Systems",
+    "zh": "COMP90050 高级数据库系统"
+  },
+  "Unimelb/26S1/SPM": {
+    "en": "SWEN90016 Software Processes and Management",
+    "zh": "SWEN90016 软件过程与管理"
+  },
+  "Unimelb/25S2": {
+    "en": "2025 Semester 2",
+    "zh": "2025 年第二学期"
+  },
+  "Unimelb/25S2/AIP": {
+    "en": "COMP90054 AI Planning for Autonomy",
+    "zh": "COMP90054 面向自主系统的 AI 规划"
+  },
+  "Unimelb/25S2/IML": {
+    "en": "COMP90049 Introduction to Machine Learning",
+    "zh": "COMP90049 机器学习导论"
+  },
+  "Unimelb/25S2/MoC": {
+    "en": "COMP30026 Models of Computation",
+    "zh": "COMP30026 计算模型"
+  },
+  "Other": {
+    "en": "Self-study",
+    "zh": "自学"
+  },
+  "Other/DLCV": {
+    "en": "CS231n Deep Learning for Computer Vision",
+    "zh": "CS231n 计算机视觉深度学习"
+  }
+}

@@ -1,7 +1,7 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { clamp, createIdle, createLoop, floorPoint, follow, viewBoxPoint } from '../common.js'
-import { CORNER_AT, HALF, K, KIND_LABEL, STATIONS, STEP, cost, measure } from './model.js'
+import { clamp, createIdle, createLoop, floorPoint, follow, t, viewBoxPoint } from '../common.js'
+import { CORNER_AT, HALF, K, KIND_LABEL, KIND_LABEL_EN, STATIONS, STEP, cost, measure } from './model.js'
 
 // Fig · The Harris probe.
 // A stepped test plate is the image: the raised block is bright, the low floor dark, so the plate
@@ -255,7 +255,7 @@ const slider = (z) => {
 
 // ---------- the live figure ----------
 
-export const meta = { id: 'harris-probe', fig: 'Fig 11.1', title: 'Harris 探测台' }
+export const meta = { id: 'harris-probe', fig: 'Fig 11.1', title: 'Harris 探测台', titleEn: 'Harris probe bench' }
 
 export const css = `
 .hp-floor>.iso-top{fill:var(--anatomy-shade-1)}
@@ -264,12 +264,15 @@ export const css = `
 .hp-lens .iso-shade,.hp-lens .iso-fill{transition:fill 260ms ease,stroke 260ms ease}
 `
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '检测 Harris 角点的探测台。台上的试板带一个凸起的台阶块，块面亮、地面暗，因此试板上有平坦区、一条直边和一个角。龙门架带着一个方形探测窗在试板上移动；每到一处，窗口绕小圆晃动一圈，极坐标盘画出各个方向的位移代价 E，两块表读出矩阵 M 的两个特征值，立柱上的滑块读出响应 R，越过角点阈值时顶上的指示灯亮起。',
+      'A probe bench for Harris corners. The test plate carries a raised step block, bright on top and dark on the floor, so the plate has flat regions, a straight edge and a corner. A gantry carries a square probe window across the plate; at each stop the window wobbles once around a small circle, a polar chart draws the shift cost E in every direction, two dials read the two eigenvalues of the structure tensor M, and a slider on the column reads the response R, lighting the lamp on top when it crosses the corner threshold.',
+    ),
     body: [
       base(),
       rail(-RAIL_Y),
@@ -290,28 +293,32 @@ export function render() {
       '<g data-part="pen"></g>',
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="探测位置">
-    <div class="fx-control"><span>位置</span>${STATIONS.map((s, index) => `<button type="button" data-set="station" data-value="${index}">${s.label}</button>`).join('')}</div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '探测位置', 'Probe position')}">
+    <div class="fx-control"><span>${t(lang, '位置', 'Go to')}</span>${STATIONS.map((s, index) => `<button type="button" data-set="station" data-value="${index}">${t(lang, s.label, s.labelEn)}</button>`).join('')}</div>
   </div>
   <div class="fx-calc"><span>M =</span><b data-calc="m"></b><i>·</i><span>R = AC − B² − k(A + C)² =</span><b data-calc="r"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '悬停试板 · 方向键',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '悬停试板 · 方向键', 'Hover the plate · arrow keys'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '探测窗：17 × 17 像素的图块' },
-        { mark: 'raised', label: '两块表：λ1（左）与 λ2（右）' },
-        { mark: 'flat', label: '圆盘：各方向的 E(u, v)' },
+        { mark: 'lit', label: t(lang, '探测窗：17 × 17 像素的图块', 'probe window: a 17 × 17 pixel patch') },
+        { mark: 'raised', label: t(lang, '两块表：λ1（左）与 λ2（右）', 'dials: λ1 (left) and λ2 (right)') },
+        { mark: 'flat', label: t(lang, '圆盘：各方向的 E(u, v)', 'polar chart: E(u, v) in every direction') },
       ],
-      caption: `试板的高度就是亮度：凸块亮、地面暗。窗口每到一处就绕小圆晃一圈，圆盘画出沿各方向移动的代价 E(u, v) ≈ [u v] M [u v]ᵀ：平坦处缩成一点，直边处是“8”字，只沿跨边方向变大；角点处接近一个圆，最弱方向也不小。两块表读出这条曲线的最长和最短半径 λ1、λ2；立柱读出 R = λ1λ2 − k(λ1 + λ2)²（k = ${K}），越过阈值时灯亮。数值按“直边 λ1 = 1”归一化。`,
-      body: `<div class="iso-stage" tabindex="0" role="slider" aria-label="Harris 探测台。方向键移动探测窗，数字键 1、2、3 跳到平坦、边缘、角点，空格重新晃动测量。">${svg}</div>`,
+      caption: t(
+        lang,
+        `试板的高度就是亮度：凸块亮、地面暗。窗口每到一处就绕小圆晃一圈，圆盘画出沿各方向移动的代价 E(u, v) ≈ [u v] M [u v]ᵀ：平坦处缩成一点，直边处是“8”字，只沿跨边方向变大；角点处接近一个圆，最弱方向也不小。两块表读出这条曲线的最长和最短半径 λ1、λ2；立柱读出 R = λ1λ2 − k(λ1 + λ2)²（k = ${K}），越过阈值时灯亮。数值按“直边 λ1 = 1”归一化。`,
+        `The plate’s height is its brightness: the block is bright, the floor dark. At each stop the window wobbles once around a small circle, and the polar chart draws the cost of shifting in each direction, E(u, v) ≈ [u v] M [u v]ᵀ. On a flat region it shrinks to a point; on a straight edge it is a figure 8 that grows only across the edge; at a corner it is close to a circle, so even the weakest direction is large. The two dials read the curve’s longest and shortest radii, the eigenvalues λ1 and λ2; the column reads R = λ1λ2 − k(λ1 + λ2)² (k = ${K}), and the lamp lights when R crosses the threshold. Values are normalised so a straight edge has λ1 = 1.`,
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="slider" aria-label="${t(lang, 'Harris 探测台。方向键移动探测窗，数字键 1、2、3 跳到平坦、边缘、角点，空格重新晃动测量。', 'Harris probe bench. Arrow keys move the probe window, keys 1, 2 and 3 jump to flat, edge and corner, Space wobbles and measures again.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -375,7 +382,7 @@ export function mount(root) {
     const tip = [CHART[0] + Math.cos(state.phi) * r, CHART[1] + Math.sin(state.phi) * r]
     nodes.pen.innerHTML = (r > 0.3 ? L(k.lineOnTop(CHART, tip, CHART_TOP + 0.15, P), { tone: 'mid' }) : '') + D([at([CHART[0], CHART[1], CHART_TOP + 0.15])], { size: 0.6, tone: 'mid' }) + D([at([tip[0], tip[1], CHART_TOP + 0.2])], { size: 0.9, tone: 'hi' })
 
-    const text = `λ1 ${m.l1.toFixed(2)} · λ2 ${m.l2.toFixed(2)} · R ${m.R.toFixed(2)} · ${KIND_LABEL[m.kind]}`
+    const text = `λ1 ${m.l1.toFixed(2)} · λ2 ${m.l2.toFixed(2)} · R ${m.R.toFixed(2)} · ${t(lang, KIND_LABEL[m.kind], KIND_LABEL_EN[m.kind])}`
     if (readout.textContent !== text) readout.textContent = text
     const f = (value) => value.toFixed(2)
     calc.m.textContent = `[${f(m.A)} ${f(m.B)}; ${f(m.B)} ${f(m.C)}]`
@@ -384,7 +391,7 @@ export function mount(root) {
 
   function describe() {
     const m = measure(state.tx, state.ty)
-    stage.setAttribute('aria-valuetext', `窗口在 (${Math.round(state.tx)}, ${Math.round(state.ty)})，λ1 ${m.l1.toFixed(2)}，λ2 ${m.l2.toFixed(2)}，R ${m.R.toFixed(2)}，${KIND_LABEL[m.kind]}`)
+    stage.setAttribute('aria-valuetext', t(lang, `窗口在 (${Math.round(state.tx)}, ${Math.round(state.ty)})，λ1 ${m.l1.toFixed(2)}，λ2 ${m.l2.toFixed(2)}，R ${m.R.toFixed(2)}，${KIND_LABEL[m.kind]}`, `Window at (${Math.round(state.tx)}, ${Math.round(state.ty)}), λ1 ${m.l1.toFixed(2)}, λ2 ${m.l2.toFixed(2)}, R ${m.R.toFixed(2)}, ${KIND_LABEL_EN[m.kind]}`))
     buttons.forEach((button, index) => {
       const s = STATIONS[index]
       button.setAttribute('aria-pressed', String(Math.hypot(s.x - state.tx, s.y - state.ty) < 0.5))

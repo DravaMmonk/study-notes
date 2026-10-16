@@ -1,7 +1,7 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
 import { cameraOf } from '../kit/iso-kit.js'
-import { clamp, createIdle, createLoop, follow, viewBoxPoint } from '../common.js'
+import { clamp, createIdle, createLoop, follow, t, viewBoxPoint } from '../common.js'
 import { ORDERS, WHEELS, coefficient, gains, overshoot, sigmaOf, sum } from './model.js'
 
 // Fig · The harmonic synthesiser.
@@ -217,15 +217,18 @@ function penSvg() {
   return out.join('')
 }
 
-export const meta = { id: 'harmonic-analyser', fig: 'Fig 4.1', title: '谐波合成机' }
+export const meta = { id: 'harmonic-analyser', fig: 'Fig 4.1', title: '谐波合成机', titleEn: 'Harmonic synthesiser' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const wheels = Array.from({ length: WHEELS }, (_, index) => index)
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '谐波合成机。八个齿轮分别以手摇曲柄的 1、3、5 直到 15 倍转速旋转，每个轮上的曲柄销离轮心 4/(πk)，带动开槽的轭上下做正弦运动并顶起一个滑轮；一根绳交替绕过这些动滑轮和其间的定滑轮，末端吊着记录笔，笔的高度是各项之和的两倍，在移动的记录纸上画出方波。滤波就是把高次轮上的销子推回轮心。',
+      'A harmonic synthesiser. Eight gears turn at 1, 3, 5 and on up to 15 times the speed of the hand crank. The crank pin on each wheel sits 4/(πk) from its centre and drives a slotted yoke up and down in a sine, lifting a pulley; one cord winds alternately over these moving pulleys and the fixed pulleys between them, and a pen hangs from its end. The pen’s height is twice the sum of the terms, so it draws a square wave on the moving chart paper. Filtering means pushing the pins on the higher-order wheels back toward the centre.',
+    ),
     body: [
       base(),
       chartBack(),
@@ -247,26 +250,29 @@ export function render() {
       `<g data-part="pen">${penSvg()}</g>`,
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="滤波设置">
-    <div class="fx-control"><span>截止</span>${[1, 2, 3, 5, 8].map((n) => `<button type="button" data-set="n" data-value="${n}">${n}</button>`).join('')}</div>
-    <div class="fx-control"><span>掩膜</span><button type="button" data-set="shape" data-value="hard">硬切</button><button type="button" data-set="shape" data-value="gauss">高斯</button></div>
-    <div class="fx-control"><span>通带</span><button type="button" data-set="pass" data-value="low">低通</button><button type="button" data-set="pass" data-value="high">高通</button></div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '滤波设置', 'Filter settings')}">
+    <div class="fx-control"><span>${t(lang, '截止', 'Cutoff')}</span>${[1, 2, 3, 5, 8].map((n) => `<button type="button" data-set="n" data-value="${n}">${n}</button>`).join('')}</div>
+    <div class="fx-control"><span>${t(lang, '掩膜', 'Mask')}</span><button type="button" data-set="shape" data-value="hard">${t(lang, '硬切', 'Hard')}</button><button type="button" data-set="shape" data-value="gauss">${t(lang, '高斯', 'Gaussian')}</button></div>
+    <div class="fx-control"><span>${t(lang, '通带', 'Pass')}</span><button type="button" data-set="pass" data-value="low">${t(lang, '低通', 'Low-pass')}</button><button type="button" data-set="pass" data-value="high">${t(lang, '高通', 'High-pass')}</button></div>
   </div>
   <div class="fx-calc"><span>S(t) = Σ H(k)·4/(πk)·sin kt，H =</span><span class="hs-gains" data-calc="gains"></span></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '悬停轮子 · 方向键',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '悬停轮子 · 方向键', 'Hover a wheel · arrow keys'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '记录笔与纸上的曲线' },
-        { mark: 'raised', label: '曲柄销：离轮心 = 该频率的振幅' },
-        { mark: 'edge', label: '求和绳' },
+        { mark: 'lit', label: t(lang, '记录笔与纸上的曲线', 'pen and the curve on the paper') },
+        { mark: 'raised', label: t(lang, '曲柄销：离轮心 = 该频率的振幅', 'crank pin: distance from centre = that frequency’s amplitude') },
+        { mark: 'edge', label: t(lang, '求和绳', 'summing cord') },
       ],
-      caption:
+      caption: t(
+        lang,
         '手摇一圈，第 k 个轮转 k 圈，轭把销子的圆周运动变成 (4/πk)·sin kt，绳子把八项加起来交给记录笔：方波就是这些正弦波之和。低通就是把高次轮的销子推回轮心：只剩几个谐波时，跳变变缓、两侧出现波纹，硬切时过冲约为跳变的 9%，加再多谐波也不消失（振铃）。高斯掩膜逐渐减小各项，振铃几乎消失但边缘更钝；高通 H = 1 − H_LP 去掉低频，平台被抹平，剩下的起伏挤在跳变附近。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="谐波合成机。左右方向键改变保留的谐波数，空格切换硬切与高斯，H 切换低通与高通。">${svg}</div>`,
+        'One turn of the handle turns the k-th wheel k times; the yoke turns the pin’s circular motion into (4/πk)·sin kt, and the cord adds the eight terms and hands the total to the pen: a square wave is the sum of these sine waves. A low-pass filter pushes the pins on the higher-order wheels back to the centre. With only a few harmonics left, the jumps soften and ripples appear on either side; with a hard cut the overshoot is about 9% of the jump and does not go away however many harmonics you add (ringing). A Gaussian mask shrinks the terms gradually, so the ringing almost disappears but the edges get blunter. A high-pass filter, H = 1 − H_LP, removes the low frequencies: the flat tops are wiped out and what wiggles remain crowd around the jumps.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, '谐波合成机。左右方向键改变保留的谐波数，空格切换硬切与高斯，H 切换低通与高通。', 'Harmonic synthesiser. Left and right arrows change how many harmonics are kept, Space toggles hard and Gaussian masks, H toggles low-pass and high-pass.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
@@ -287,7 +293,7 @@ function onPlaneY([sx, sy], y0) {
   return [x, z]
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -369,15 +375,19 @@ export function mount(root) {
     nodes.columns.innerHTML = L(columns.join(''), { tone: 'faint' })
 
     const text = config.pass === 'high'
-      ? `高通 · 去掉前 ${config.n} 个谐波`
-      : `${config.shape === 'gauss' ? `高斯低通 σ≈${sigmaOf(config.n).toFixed(1)}` : `保留 ${config.n} 个谐波`} · 过冲 ${Math.max(0, Math.round(overshoot(state.weights) * 100))}%`
+      ? t(lang, `高通 · 去掉前 ${config.n} 个谐波`, `High-pass · drop ${config.n}`)
+      : `${config.shape === 'gauss' ? `${t(lang, '高斯低通', 'Gaussian')} σ≈${sigmaOf(config.n).toFixed(1)}` : t(lang, `保留 ${config.n} 个谐波`, `Keep ${config.n}`)} · ${t(lang, '过冲', 'overshoot')} ${Math.max(0, Math.round(overshoot(state.weights) * 100))}%`
     if (readout.textContent !== text) readout.textContent = text
   }
 
   function describe() {
     const target = gains(config)
     calc.innerHTML = target.map((g, index) => `<b title="k = ${ORDERS[index]}"${g < 0.005 ? ' data-off' : ''}>${g.toFixed(2)}</b>`).join('')
-    stage.setAttribute('aria-valuetext', config.pass === 'high' ? `高通，去掉前 ${config.n} 个谐波` : `${config.shape === 'gauss' ? '高斯' : '硬切'}低通，保留约 ${config.n} 个谐波`)
+    stage.setAttribute('aria-valuetext', t(
+      lang,
+      config.pass === 'high' ? `高通，去掉前 ${config.n} 个谐波` : `${config.shape === 'gauss' ? '高斯' : '硬切'}低通，保留约 ${config.n} 个谐波`,
+      config.pass === 'high' ? `High-pass, first ${config.n} harmonics removed` : `${config.shape === 'gauss' ? 'Gaussian' : 'Hard'} low-pass, about ${config.n} harmonics kept`,
+    ))
     buttons.forEach((button) => button.setAttribute('aria-pressed', String(String(config[button.dataset.set]) === button.dataset.value)))
   }
 

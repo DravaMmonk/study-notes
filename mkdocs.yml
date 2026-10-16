@@ -2,9 +2,11 @@ site_name: Drava's Study Notes
 
 theme:
   name: material
+  custom_dir: overrides
+  font: false
   features:
-    - navigation.expand
     - navigation.sections
+    - navigation.indexes
     - navigation.top
     - navigation.tabs
     - search.highlight
@@ -17,13 +19,6 @@ theme:
     - content.tabs.link
     - content.tooltips
     - diagrams
-  palette:
-    - scheme: default
-      primary: blue
-      accent: pink
-    - scheme: slate
-      primary: indigo
-      accent: pink
 
 markdown_extensions:
   - toc:
@@ -43,6 +38,7 @@ markdown_extensions:
 
 hooks:
   - hooks/games.py
+  - hooks/i18n.py
 
 plugins:
   - search
@@ -52,10 +48,14 @@ plugins:
   - obsidian-support
 
 extra_javascript:
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - javascripts/site.js
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
+# The shared kit lives in games/kit and is published at game/kit/ (hooks/games.py).
 extra_css:
+  - game/kit/tokens.css
+  - game/kit/ui.css
+  - game/kit/prose.css
   - stylesheets/extra.css
 
 extra:

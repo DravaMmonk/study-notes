@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { clamp, createIdle, createLoop, follow } from '../common.js'
+import { clamp, createIdle, createLoop, follow, t } from '../common.js'
 import { N, PROBE, STEPS, TAU, angleOf, train } from './model.js'
 
 // Fig · The contrastive board.
@@ -283,14 +283,17 @@ function pegSvg(row, col, p) {
   return S(k.cylinder(x, y, 1.5, PEG_TOP, height, P, 16), { tone, crease: 'none' }) + S(k.cylinder(x, y, 2.1, PEG_TOP + height, 1, P, 18), { tone, crease: diagonal ? 'lo' : 'faint' })
 }
 
-export const meta = { id: 'contrastive-board', fig: 'Fig 10.1', title: '对比学习转盘' }
+export const meta = { id: 'contrastive-board', fig: 'Fig 10.1', title: '对比学习转盘', titleEn: 'Contrastive turntable' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '对比学习转盘。归一化后的嵌入向量只能落在圆周上，所以转盘上有两圈轨道：外圈是第一视图或图片，内圈是第二视图或文字；同一角度表示同一方向。每对正样本之间连着一根弹簧。摇一圈手柄就是一步梯度下降：配对的两块滑块转到一起，不同图片彼此散开，表盘读出对比损失，旁边四乘四的钉板显示每一行的 softmax 选择概率，对角线逐渐升高。CLIP 模式下外圈还有一张新照片，虚线探针指向离它最近的文字，即零样本分类。',
+      'A contrastive turntable. Normalised embeddings can only lie on a circle, so the turntable has two tracks: the outer one holds the first views or the images, the inner one the second views or the captions, and the same angle means the same direction. A spring joins each positive pair. One turn of the crank is one step of gradient descent: the two pucks of a pair rotate together while different images spread apart, a dial reads out the contrastive loss, and a four-by-four pegboard beside it shows each row’s softmax probabilities, its diagonal rising step by step. In CLIP mode the outer track also carries a new photo, and a dashed probe points to the caption nearest to it: zero-shot classification.',
+    ),
     body: [
       base(),
       batchRack(),
@@ -305,25 +308,28 @@ export function render() {
       '<g data-part="crank"></g>',
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="训练设置">
-    <div class="fx-control"><span>配对</span><button type="button" data-set="mode" data-value="simclr">SimCLR · 两个视图</button><button type="button" data-set="mode" data-value="clip">CLIP · 图与文</button></div>
-    <div class="fx-control"><span>训练</span><button type="button" data-set="step" data-value="1">摇一步 ›</button><button type="button" data-set="reset" data-value="1">重来</button></div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '训练设置', 'Training settings')}">
+    <div class="fx-control"><span>${t(lang, '配对', 'Pairs')}</span><button type="button" data-set="mode" data-value="simclr">${t(lang, 'SimCLR · 两个视图', 'SimCLR · two views')}</button><button type="button" data-set="mode" data-value="clip">${t(lang, 'CLIP · 图与文', 'CLIP · image–text')}</button></div>
+    <div class="fx-control"><span>${t(lang, '训练', 'Train')}</span><button type="button" data-set="step" data-value="1">${t(lang, '摇一步 ›', 'Step ›')}</button><button type="button" data-set="reset" data-value="1">${t(lang, '重来', 'Reset')}</button></div>
   </div>
-  <div class="fx-calc"><span>ℓ_i = −log p_ii，p_ij = softmax(sim(z_i, z′_j) / τ)，τ = ${TAU}</span><i>·</i><span>对角 p_ii</span><b data-calc="diag"></b><span data-calc="zero"></span></div>`
+  <div class="fx-calc"><span>${t(lang, `ℓ_i = −log p_ii，p_ij = softmax(sim(z_i, z′_j) / τ)，τ = ${TAU}`, `ℓ_i = −log p_ii, p_ij = softmax(sim(z_i, z′_j) / τ), τ = ${TAU}`)}</span><i>·</i><span>${t(lang, '对角 p_ii', 'diagonal p_ii')}</span><b data-calc="diag"></b><span data-calc="zero"></span></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '空格摇一步 · R 重来',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '空格摇一步 · R 重来', 'Space steps · R resets'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '表盘指针：对比损失' },
-        { mark: 'raised', label: '滑块：嵌入方向，弹簧连正对' },
-        { mark: 'flat', label: '钉板：每行 softmax，对角为正对' },
+        { mark: 'lit', label: t(lang, '表盘指针：对比损失', 'dial needle: contrastive loss') },
+        { mark: 'raised', label: t(lang, '滑块：嵌入方向，弹簧连正对', 'puck: embedding direction, springs join positive pairs') },
+        { mark: 'flat', label: t(lang, '钉板：每行 softmax，对角为正对', 'pegboard: softmax per row, diagonal = positive pairs') },
       ],
-      caption:
+      caption: t(
+        lang,
         '嵌入向量先归一化，只剩方向，所以滑块只能沿圆形轨道走，相似度就是两者夹角的余弦。每摇一圈做一步梯度下降，降低 ℓ = −log( exp(s⁺/τ) / Σ exp(s/τ) )：同一张图的两个视图被拉到同一方向，别的图片作为负对被推开；没有任何类别标签，配对来自“它们出自同一张图”。未训练时编码器只看增强带来的干扰，损失接近乱猜的 log 4 ≈ 1.39。CLIP 把内圈换成文字说明；训练后，新照片离哪段文字最近就归哪一类，这就是零样本分类。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="对比学习转盘。空格或右方向键训练一步，R 重新开始，M 切换 SimCLR 与 CLIP。">${svg}</div>`,
+        'Embeddings are normalised first, leaving only a direction, so the pucks can only travel along circular tracks and similarity is the cosine of the angle between them. Each turn of the crank takes one step of gradient descent on ℓ = −log( exp(s⁺/τ) / Σ exp(s/τ) ): the two views of the same image are pulled into the same direction, and the other images are pushed away as negatives. No class labels are used; the pairing comes from “they came from the same image”. Untrained, the encoder looks only at the nuisance introduced by augmentation, and the loss sits near the chance level of log 4 ≈ 1.39. CLIP swaps the inner track for text captions; after training, a new photo belongs to whichever caption lies nearest: zero-shot classification.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, '对比学习转盘。空格或右方向键训练一步，R 重新开始，M 切换 SimCLR 与 CLIP。', 'Contrastive turntable. Space or the right arrow key trains one step, R starts over, M switches between SimCLR and CLIP.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
@@ -332,7 +338,7 @@ export const css = `
 .cb-groove{fill:var(--anatomy-shade-0);stroke:none}
 `
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -380,10 +386,11 @@ export function mount(root) {
     nodes.needle.setAttribute('d', needle(f.loss))
     nodes.crank.innerHTML = crankArm(state.shown)
 
-    const text = `第 ${Math.round(state.shown)} 步 · 损失 ${f.loss.toFixed(2)} · s⁺ ${f.positive.toFixed(2)}`
+    const text = t(lang, `第 ${Math.round(state.shown)} 步 · 损失 ${f.loss.toFixed(2)} · s⁺ ${f.positive.toFixed(2)}`, `step ${Math.round(state.shown)} · loss ${f.loss.toFixed(2)} · s⁺ ${f.positive.toFixed(2)}`)
     if (readout.textContent !== text) readout.textContent = text
     calc.diag.textContent = f.rows.map((row, index) => row[index].toFixed(2)).join('  ')
-    calc.zero.textContent = clip ? `· 零样本：新照片 → 文字 ${f.pick + 1}${f.pick === PROBE.cls ? '（对）' : '（错）'}` : ''
+    const correct = f.pick === PROBE.cls
+    calc.zero.textContent = clip ? t(lang, `· 零样本：新照片 → 文字 ${f.pick + 1}${correct ? '（对）' : '（错）'}`, `· zero-shot: new photo → caption ${f.pick + 1}${correct ? ' (correct)' : ' (wrong)'}`) : ''
   }
 
   function describe() {
@@ -391,7 +398,14 @@ export function mount(root) {
     buttons.forEach((button) => {
       if (button.dataset.set === 'mode') button.setAttribute('aria-pressed', String(button.dataset.value === state.mode))
     })
-    stage.setAttribute('aria-valuetext', `${state.mode === 'clip' ? 'CLIP 图文配对' : 'SimCLR 两个视图'}，第 ${state.step} 步，损失 ${end.loss.toFixed(2)}，正对平均相似度 ${end.positive.toFixed(2)}`)
+    stage.setAttribute(
+      'aria-valuetext',
+      t(
+        lang,
+        `${state.mode === 'clip' ? 'CLIP 图文配对' : 'SimCLR 两个视图'}，第 ${state.step} 步，损失 ${end.loss.toFixed(2)}，正对平均相似度 ${end.positive.toFixed(2)}`,
+        `${state.mode === 'clip' ? 'CLIP image–text pairs' : 'SimCLR two views'}, step ${state.step}, loss ${end.loss.toFixed(2)}, mean positive-pair similarity ${end.positive.toFixed(2)}`,
+      ),
+    )
   }
 
   function tick(dt, calm) {

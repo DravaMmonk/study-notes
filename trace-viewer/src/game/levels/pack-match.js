@@ -2,6 +2,7 @@
 // Hough voting, RANSAC rounds, and the book-cover homography. All four are boards; the game logic
 // lives here as plain functions (level.model) so `npm run levels` can prove every lesson.
 import { random } from '../engine/image.js'
+import { keyOf } from '../i18n.js'
 import { affineFit, homographyDLT, houghAccumulate, houghPeaks, invert3, lineGap, lineThrough, project, rankCandidates, ransacLine } from '../engine/match.js'
 
 const gauss = (next) => {
@@ -68,9 +69,9 @@ function matchPair({ label, seed, marks, fence, shift: [tx, ty], noise, gain, of
 }
 
 const MATCH_PAIRS = [
-  matchPair({ label: '第 1 组', seed: 26, marks: [[9, 8], [22, 10], [33, 7], [44, 12], [14, 27], [40, 28]], fence: [8, 19, 7], shift: [3, 1], noise: 0.03, fenceKeys: [0, 1, 3, 5] }),
-  matchPair({ label: '第 2 组', seed: 36, marks: [[12, 9], [27, 6], [38, 11], [47, 8], [20, 28], [35, 29]], fence: [5, 20, 8], shift: [-2, 2], noise: 0.06, fenceKeys: [0, 2, 4, 6, 7] }),
-  matchPair({ label: '第 3 组', seed: 3, marks: [[10, 10], [24, 7], [36, 9], [45, 27], [15, 28], [30, 29]], fence: [12, 19, 6], shift: [4, -1], noise: 0.03, gain: 1.15, offset: 0.06, fenceKeys: [0, 2, 3, 5] }),
+  matchPair({ label: { zh: '第 1 组', en: 'Set 1' }, seed: 26, marks: [[9, 8], [22, 10], [33, 7], [44, 12], [14, 27], [40, 28]], fence: [8, 19, 7], shift: [3, 1], noise: 0.03, fenceKeys: [0, 1, 3, 5] }),
+  matchPair({ label: { zh: '第 2 组', en: 'Set 2' }, seed: 36, marks: [[12, 9], [27, 6], [38, 11], [47, 8], [20, 28], [35, 29]], fence: [5, 20, 8], shift: [-2, 2], noise: 0.06, fenceKeys: [0, 2, 4, 6, 7] }),
+  matchPair({ label: { zh: '第 3 组', en: 'Set 3' }, seed: 3, marks: [[10, 10], [24, 7], [36, 9], [45, 27], [15, 28], [30, 29]], fence: [12, 19, 6], shift: [4, -1], noise: 0.03, gain: 1.15, offset: 0.06, fenceKeys: [0, 2, 3, 5] }),
 ]
 
 // For every keypoint of A: the candidates of B ranked by distance, d₁, d₂ and whether the nearest is right.
@@ -144,9 +145,9 @@ function houghScene(seed, lines, outliers, sigma = 0.7) {
 }
 
 const HOUGH_SCENES = [
-  { label: '两条轨道', lines: [{ theta: 60, rho: -2, n: 32 }, { theta: 63, rho: 3, n: 24 }], points: houghScene(6, [{ theta: 60, rho: -2, n: 32 }, { theta: 63, rho: 3, n: 24 }], 16) },
-  { label: '一长一短', lines: [{ theta: 150, rho: 9, n: 34 }, { theta: 100, rho: -15, n: 20, from: -14, to: 14 }], points: houghScene(22, [{ theta: 150, rho: 9, n: 34 }, { theta: 100, rho: -15, n: 20, from: -14, to: 14 }], 16) },
-  { label: '挨得很近', lines: [{ theta: 15, rho: 4, n: 30 }, { theta: 10, rho: 13, n: 22 }], points: houghScene(4, [{ theta: 15, rho: 4, n: 30 }, { theta: 10, rho: 13, n: 22 }], 18) },
+  { label: { zh: '两条轨道', en: 'Two rails' }, lines: [{ theta: 60, rho: -2, n: 32 }, { theta: 63, rho: 3, n: 24 }], points: houghScene(6, [{ theta: 60, rho: -2, n: 32 }, { theta: 63, rho: 3, n: 24 }], 16) },
+  { label: { zh: '一长一短', en: 'One long, one short' }, lines: [{ theta: 150, rho: 9, n: 34 }, { theta: 100, rho: -15, n: 20, from: -14, to: 14 }], points: houghScene(22, [{ theta: 150, rho: 9, n: 34 }, { theta: 100, rho: -15, n: 20, from: -14, to: 14 }], 16) },
+  { label: { zh: '挨得很近', en: 'Close together' }, lines: [{ theta: 15, rho: 4, n: 30 }, { theta: 10, rho: 13, n: 22 }], points: houghScene(4, [{ theta: 15, rho: 4, n: 30 }, { theta: 10, rho: 13, n: 22 }], 18) },
 ]
 
 // The peak's line is the vote-weighted centre of its 3×3 cells (a common sub-bin refinement).
@@ -213,9 +214,9 @@ const RANSAC_SIGMA = 0.5
 const RANSAC_TRIALS = 200
 const RANSAC_TOL = { theta: 5, rho: 2 }
 const RANSAC_STAGES = [
-  { label: '外点 25%', outliers: 0.25, budget: 10 },
-  { label: '外点 50%', outliers: 0.5, budget: 25 },
-  { label: '外点 70%', outliers: 0.7, budget: 66 },
+  { label: { zh: '外点 25%', en: 'Outliers 25%' }, outliers: 0.25, budget: 10 },
+  { label: { zh: '外点 50%', en: 'Outliers 50%' }, outliers: 0.5, budget: 25 },
+  { label: { zh: '外点 70%', en: 'Outliers 70%' }, outliers: 0.7, budget: 66 },
 ]
 
 function ransacData(stage, trial) {
@@ -260,10 +261,10 @@ function verifyRansac() {
   if (!passAll(RANSAC_SOLUTION.delta, RANSAC_SOLUTION.k)) return `reference δ=${RANSAC_SOLUTION.delta}, k=${RANSAC_SOLUTION.k} fails`
   for (const [i, stage] of RANSAC_STAGES.entries()) {
     const theory = ransacRounds(1 - stage.outliers)
-    if (theory > stage.budget) return `${stage.label}: formula needs ${theory} rounds, budget ${stage.budget}`
+    if (theory > stage.budget) return `${keyOf(stage.label)}: formula needs ${theory} rounds, budget ${stage.budget}`
     // Far fewer rounds than the formula asks for must fail.
-    if (ransacRate(stage, Math.ceil(theory / 3), RANSAC_SOLUTION.delta).pass) return `${stage.label}: k = ${Math.ceil(theory / 3)} already passes`
-    if (i && ransacRate(stage, RANSAC_STAGES[0].budget, RANSAC_SOLUTION.delta).pass) return `${stage.label}: the first stage's k passes, k needs no thought`
+    if (ransacRate(stage, Math.ceil(theory / 3), RANSAC_SOLUTION.delta).pass) return `${keyOf(stage.label)}: k = ${Math.ceil(theory / 3)} already passes`
+    if (i && ransacRate(stage, RANSAC_STAGES[0].budget, RANSAC_SOLUTION.delta).pass) return `${keyOf(stage.label)}: the first stage's k passes, k needs no thought`
   }
   // δ too large lets outliers in; δ too small loses inliers; neither is rescued by the budget.
   if (passAll(6, RANSAC_STAGES.map((s) => s.budget))) return 'δ = 6 passes'
@@ -440,10 +441,19 @@ export const levels = [
     kind: 'board',
     board: 'MatchRatio',
     chapter: 6,
-    title: '找对应',
-    brief: '左图每个关键点，取右图里 5×5 窗口最像的候选（距离 d = √SSD 最小）。定一条接受规则：三组图里接受的匹配不能有错，独特的点都要找回。',
-    hint: '点开一个连错的点，比较它的第一名 d₁ 和第二名 d₂。重复的纹理里，最像的不一定是对的。',
-    after: '栅栏一格格完全一样，第一名和第二名几乎一样近：这种匹配再“像”也不可信，而且 d₁ 本身可以很小，所以只看距离挡不住它。距离比检验 d₁ / d₂ < r 只接受第一名明显领先的匹配，整体变亮也不影响比值。课上取 r = 0.8；剩下的错误要靠几何一致性再筛。',
+    title: { zh: '找对应', en: 'Find correspondences' },
+    brief: {
+      zh: '左图每个关键点，取右图里 5×5 窗口最像的候选（距离 d = √SSD 最小）。定一条接受规则：三组图里接受的匹配不能有错，独特的点都要找回。',
+      en: 'Each keypoint in the left image takes the candidate in the right image whose 5×5 window is most alike (smallest distance d = √SSD). Set a rule for which matches to accept: in all three sets, no accepted match may be wrong, and every distinctive point must be found.',
+    },
+    hint: {
+      zh: '点开一个连错的点，比较它的第一名 d₁ 和第二名 d₂。重复的纹理里，最像的不一定是对的。',
+      en: 'Open a point that is matched wrongly and compare its first place d₁ with its second place d₂. In repeated texture, the most alike is not always the right one.',
+    },
+    after: {
+      zh: '栅栏一格格完全一样，第一名和第二名几乎一样近：这种匹配再“像”也不可信，而且 d₁ 本身可以很小，所以只看距离挡不住它。距离比检验 d₁ / d₂ < r 只接受第一名明显领先的匹配，整体变亮也不影响比值。课上取 r = 0.8；剩下的错误要靠几何一致性再筛。',
+      en: 'Every tile of the fence is identical, so the first and second places are almost equally close: however "alike" such a match is, it cannot be trusted, and d₁ itself can be very small, so a distance threshold alone cannot stop it. The ratio test d₁ / d₂ < r only accepts a match whose first place is clearly ahead, and a brighter image does not change the ratio. The lecture uses r = 0.8; the mistakes that remain are filtered out by geometric consistency.',
+    },
     requires: ['6-1'],
     unlocks: [],
     model: { pairs: MATCH_PAIRS, rows: MATCH_ROWS, judge: judgeMatches, accept: acceptMatch, W: MW, H: MH, R: MR },
@@ -454,10 +464,19 @@ export const levels = [
     kind: 'board',
     board: 'HoughVote',
     chapter: 6,
-    title: '投票',
-    brief: '每个边缘点给所有经过它的直线 (θ, ρ) 各投一票。调分箱大小，让三张图里票数最高的两个峰正好是那两条线。',
-    hint: '格子太细，同一条线带噪声的票落不进同一格；太粗，两条相近的线挤进同一个峰。',
-    after: 'Hough 把“找一条线”变成“在累加器里找峰”。分箱太细，噪声把一条线的票拆成许多小峰；太粗，相近的两条线合成一个峰。合适的分箱取决于噪声和线的间距。直线只有 2 个参数；单应变换有 8 个，每维 10 格就是 10⁸ 格，所以下一关换一种办法。',
+    title: { zh: '投票', en: 'Voting' },
+    brief: {
+      zh: '每个边缘点给所有经过它的直线 (θ, ρ) 各投一票。调分箱大小，让三张图里票数最高的两个峰正好是那两条线。',
+      en: 'Each edge point casts one vote for every line (θ, ρ) that passes through it. Adjust the bin size so that in all three images the two peaks with the most votes are exactly the two lines.',
+    },
+    hint: {
+      zh: '格子太细，同一条线带噪声的票落不进同一格；太粗，两条相近的线挤进同一个峰。',
+      en: "With cells too fine, one line's noisy votes do not land in the same cell; too coarse, and two nearby lines squeeze into one peak.",
+    },
+    after: {
+      zh: 'Hough 把“找一条线”变成“在累加器里找峰”。分箱太细，噪声把一条线的票拆成许多小峰；太粗，相近的两条线合成一个峰。合适的分箱取决于噪声和线的间距。直线只有 2 个参数；单应变换有 8 个，每维 10 格就是 10⁸ 格，所以下一关换一种办法。',
+      en: 'Hough turns "find a line" into "find a peak in the accumulator". With bins too fine, noise splits one line\'s votes into many small peaks; too coarse, and two nearby lines merge into one peak. The right bin size depends on the noise and on how far apart the lines are. A line has only 2 parameters; a homography has 8, and 10 cells per dimension makes 10⁸ cells, so the next level takes another approach.',
+    },
     requires: ['6-2'],
     unlocks: [],
     model: { scenes: HOUGH_SCENES, steps: HOUGH_STEPS, run: houghRun, rhoMax: HOUGH_RHO_MAX, tol: HOUGH_TOL },
@@ -468,10 +487,19 @@ export const levels = [
     kind: 'board',
     board: 'RansacTrials',
     chapter: 6,
-    title: '共识',
-    brief: '每轮随机抽 2 个点连成直线，数离它不到 δ 的点，k 轮后留下支持最多的一条。三种外点比例下，各用不超过预算的 k，让 200 次试验的成功率都 ≥ 99%。',
-    hint: '外点越多，一轮抽中两个内点的机会越小。δ 只和噪声有关：太小漏掉真内点，太大把外点也算进来。',
-    after: '一轮两点都是内点的概率是 p²，k 轮全落空的概率是 (1 − p²)ᵏ。要成功率达到 P，就要 k ≥ log(1 − P) / log(1 − pⁿ)：p = 0.5、n = 2、P = 0.99 时是 17 轮，内点只剩 30% 时要 49 轮。轮数由内点比例决定，δ 由噪声决定，两者不能互相代替。',
+    title: { zh: '共识', en: 'Consensus' },
+    brief: {
+      zh: '每轮随机抽 2 个点连成直线，数离它不到 δ 的点，k 轮后留下支持最多的一条。三种外点比例下，各用不超过预算的 k，让 200 次试验的成功率都 ≥ 99%。',
+      en: 'Each round draws 2 random points, joins them into a line and counts the points closer than δ to it; after k rounds the line with the most support is kept. For each of the three outlier ratios, use a k within the budget so that the success rate over 200 trials is ≥ 99%.',
+    },
+    hint: {
+      zh: '外点越多，一轮抽中两个内点的机会越小。δ 只和噪声有关：太小漏掉真内点，太大把外点也算进来。',
+      en: 'The more outliers, the smaller the chance that a round draws two inliers. δ depends only on the noise: too small misses true inliers, too large counts outliers in as well.',
+    },
+    after: {
+      zh: '一轮两点都是内点的概率是 p²，k 轮全落空的概率是 (1 − p²)ᵏ。要成功率达到 P，就要 k ≥ log(1 − P) / log(1 − pⁿ)：p = 0.5、n = 2、P = 0.99 时是 17 轮，内点只剩 30% 时要 49 轮。轮数由内点比例决定，δ 由噪声决定，两者不能互相代替。',
+      en: 'The chance that both points of a round are inliers is p², and the chance that all k rounds miss is (1 − p²)ᵏ. To reach a success rate P you need k ≥ log(1 − P) / log(1 − pⁿ): with p = 0.5, n = 2 and P = 0.99 that is 17 rounds, and with only 30% inliers it takes 49. The number of rounds is set by the inlier ratio and δ by the noise; neither can stand in for the other.',
+    },
     requires: ['6-3'],
     unlocks: [],
     model: { stages: RANSAC_STAGES, trials: RANSAC_TRIALS, rate: ransacRate, trial: ransacTrial, rounds: ransacRounds, tol: RANSAC_TOL, n: RANSAC_N },
@@ -482,10 +510,19 @@ export const levels = [
     kind: 'board',
     board: 'BookCover',
     chapter: 6,
-    title: '书封面',
-    brief: '从封面上的点拖到照片里同一个点，连出对应点对。把封面贴回照片，平均误差小于 1.5 像素即通过。',
-    hint: '3 对点只能定出仿射变换，平行线永远平行。斜着拍的书，远的一边更短。',
-    after: '单应矩阵 H 有 8 个自由度，每对点给 2 个方程，所以至少要 4 对点，游戏用 DLT 从你的点对解出了 H。3 对点只能定出仿射（6 个自由度），它保持平行，贴不上透视下的书。实际流水线里，这些点对来自距离比检验后的候选，再由 RANSAC 反复抽 4 对、数内点选出来。',
+    title: { zh: '书封面', en: 'Book cover' },
+    brief: {
+      zh: '从封面上的点拖到照片里同一个点，连出对应点对。把封面贴回照片，平均误差小于 1.5 像素即通过。',
+      en: 'Drag from a point on the cover to the same point in the photo to make a pair of corresponding points. The cover is pasted back onto the photo; you pass when the mean error is under 1.5 pixels.',
+    },
+    hint: {
+      zh: '3 对点只能定出仿射变换，平行线永远平行。斜着拍的书，远的一边更短。',
+      en: 'Three pairs only fix an affine transform, where parallel lines always stay parallel. In a book photographed at an angle, the far edge is shorter.',
+    },
+    after: {
+      zh: '单应矩阵 H 有 8 个自由度，每对点给 2 个方程，所以至少要 4 对点，游戏用 DLT 从你的点对解出了 H。3 对点只能定出仿射（6 个自由度），它保持平行，贴不上透视下的书。实际流水线里，这些点对来自距离比检验后的候选，再由 RANSAC 反复抽 4 对、数内点选出来。',
+      en: 'The homography H has 8 degrees of freedom and each pair of points gives 2 equations, so it needs at least 4 pairs; the game solved H from your pairs with DLT. Three pairs only fix an affine map (6 degrees of freedom), which keeps lines parallel and cannot fit a book seen in perspective. In a real pipeline the pairs come from candidates that passed the ratio test, and RANSAC picks them by repeatedly drawing 4 pairs and counting inliers.',
+    },
     requires: ['6-4'],
     unlocks: [],
     model: { COVER, PHOTO, coverPoints: COVER_POINTS, photoPoints: PHOTO_POINTS, fit: fitCover, tol: COVER_TOL, renderPhoto, renderCover, project, trueQuad: COVER_QUAD },

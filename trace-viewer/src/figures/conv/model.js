@@ -15,10 +15,10 @@ export const N = IMAGE.length
 export const K = 3
 
 export const KERNELS = {
-  box: { name: '均值', short: 'box', weights: [[1, 1, 1], [1, 1, 1], [1, 1, 1]], divisor: 9 },
-  gauss: { name: '高斯', short: 'gauss', weights: [[1, 2, 1], [2, 4, 2], [1, 2, 1]], divisor: 16 },
-  sobel: { name: 'Sobel x', short: 'sobel', weights: [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], divisor: 1 },
-  sharpen: { name: '锐化', short: 'sharpen', weights: [[0, -1, 0], [-1, 5, -1], [0, -1, 0]], divisor: 1 },
+  box: { name: '均值', nameEn: 'Box', short: 'box', weights: [[1, 1, 1], [1, 1, 1], [1, 1, 1]], divisor: 9 },
+  gauss: { name: '高斯', nameEn: 'Gaussian', short: 'gauss', weights: [[1, 2, 1], [2, 4, 2], [1, 2, 1]], divisor: 16 },
+  sobel: { name: 'Sobel x', nameEn: 'Sobel x', short: 'sobel', weights: [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], divisor: 1 },
+  sharpen: { name: '锐化', nameEn: 'Sharpen', short: 'sharpen', weights: [[0, -1, 0], [-1, 5, -1], [0, -1, 0]], divisor: 1 },
 }
 
 export const outputSize = (padding, stride) => Math.floor((N - K + 2 * padding) / stride) + 1

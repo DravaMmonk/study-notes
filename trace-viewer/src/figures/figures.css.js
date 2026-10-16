@@ -36,6 +36,7 @@ const EXTRA = `
 .iso-legend{font:13px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .iso-caption{max-width:62ch}
 .iso-plate-corner[data-corner="hint"],.iso-plate-corner[data-corner="title"]{max-width:46%;overflow:hidden;text-overflow:ellipsis}
+.iso:lang(en) .iso-plate-corner[data-corner="hint"],.iso:lang(en) .iso-plate-corner[data-corner="title"]{letter-spacing:.05em}
 .iso-stage{outline:none;touch-action:pan-y;cursor:crosshair}
 .iso-stage:focus-visible{outline:1px solid var(--anatomy-muted);outline-offset:6px}
 .fx-neg>.iso-top{fill:var(--anatomy-lo)}

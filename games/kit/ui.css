@@ -1,0 +1,94 @@
+/* Shared interface pieces for every page of the study notes, on the tokens in tokens.css.
+
+   Top bar (one per page, the same everywhere):
+     <header class="kit-bar">
+       <a class="kit-brand" href="…/"><i class="kit-chip"></i><span>学习笔记</span></a>
+       <nav class="kit-nav"><a href="…/" aria-current="page">笔记</a><a href="…/game/">游戏</a></nav>
+       <span class="kit-crumbs">COMP90086<i>/</i>滤波</span>
+       <div class="kit-actions"><button class="kit-btn" data-lang-toggle>EN</button><button class="kit-btn" data-theme-toggle>浅色</button></div>
+     </header>
+   Page head: .kit-hero > .kit-kicker + h1.kit-title + .kit-lede.  Cards: .kit-cards > a.kit-card > .kit-card-body. */
+
+/* ---- top bar ---- */
+.kit-bar {
+  position: sticky; top: 0; z-index: 30;
+  height: var(--bar-h); padding: 0 var(--gutter);
+  display: flex; align-items: center; gap: 14px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  font: var(--fs-ui)/1 var(--sans);
+}
+.kit-brand { flex: none; display: inline-flex; align-items: center; gap: 9px; color: var(--ink); text-decoration: none; font: 500 var(--fs-label)/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; }
+.kit-chip { flex: none; width: 14px; height: 14px; border-radius: 3px; background: linear-gradient(135deg, var(--ink) 0 50%, var(--accent) 50% 100%); box-shadow: 0 0 0 1px var(--rule); }
+.kit-nav { flex: none; display: flex; align-items: center; gap: 2px; padding-left: 12px; border-left: 1px solid var(--hairline); }
+.kit-nav a { padding: 7px 10px; border-radius: var(--r-sm); color: var(--muted); text-decoration: none; font: var(--fs-label)/1 var(--mono); letter-spacing: .08em; }
+.kit-nav a:hover { color: var(--ink); background: var(--hover); }
+.kit-nav a[aria-current] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--accent); border-radius: var(--r-sm) var(--r-sm) 0 0; }
+.kit-crumbs { min-width: 0; flex: 1; overflow: hidden; color: var(--faint); font: 10.5px/1 var(--mono); letter-spacing: .04em; white-space: nowrap; text-overflow: ellipsis; }
+.kit-crumbs i { padding: 0 7px; color: var(--rule); font-style: normal; }
+.kit-crumbs > :last-child { color: var(--muted); }
+.kit-spacer { flex: 1; }
+.kit-actions { flex: none; margin-left: auto; display: flex; align-items: center; gap: 4px; }
+
+/* ---- buttons ---- */
+.kit-btn {
+  height: 32px; min-width: 32px; padding: 0 10px;
+  display: inline-grid; grid-auto-flow: column; place-items: center; gap: 6px;
+  border: 0; border-radius: var(--r-md);
+  color: var(--ink); background: transparent;
+  font: 500 12px/1 var(--sans); letter-spacing: .02em; text-decoration: none;
+  cursor: pointer; transition: background 140ms ease, color 140ms ease;
+}
+.kit-btn:hover { background: var(--hover); }
+.kit-btn:focus-visible, .kit-nav a:focus-visible, .kit-brand:focus-visible, .kit-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.kit-btn.is-quiet { color: var(--muted); }
+/* A back link or a labelled tool in the bar: small mono text, optionally after an icon. */
+.kit-btn.is-label { padding: 0 10px 0 8px; color: var(--muted); font: var(--fs-label)/1 var(--mono); letter-spacing: .04em; }
+.kit-btn.is-label:hover, .kit-btn.is-label.is-on { color: var(--ink); }
+.kit-btn.is-solid { background: var(--hover); }
+.kit-btn[data-lang-toggle] { font: 600 11px/1 var(--mono); letter-spacing: .06em; }
+
+/* ---- page head ---- */
+.kit-hero { padding: 56px 0 34px; max-width: 40em; }
+.kit-kicker { margin: 0 0 12px; color: var(--muted); font: var(--fs-label)/1.4 var(--mono); letter-spacing: var(--track-label); }
+.kit-title { margin: 0; color: var(--heading); font: 500 var(--fs-title)/1.02 var(--serif); letter-spacing: -.02em; }
+/* Under a title, a short rule with ticks, like the strips on the figures' base plates. */
+.kit-title::after, .kit-rule {
+  content: ''; display: block; width: 132px; height: 7px; margin-top: 26px;
+  border-top: 1px solid var(--rule);
+  background:
+    linear-gradient(var(--accent), var(--accent)) 0 0 / 42px 2px no-repeat,
+    repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 12px) 0 0 / 100% 4px no-repeat,
+    repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 60px) 0 0 / 100% 7px no-repeat;
+}
+.kit-lede { margin: 22px 0 0; color: var(--body); font: var(--fs-lede)/1.75 var(--serif); }
+.kit-section { margin: 48px 0 16px; display: flex; align-items: baseline; gap: 12px; color: var(--heading); font: 500 24px/1.2 var(--serif); }
+.kit-section small { color: var(--faint); font: var(--fs-label)/1 var(--mono); letter-spacing: .1em; }
+
+/* ---- cards ---- */
+.kit-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+.kit-cards.is-wide { grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 22px; }
+.kit-card {
+  position: relative; display: grid; grid-template-rows: auto 1fr; overflow: hidden;
+  border-radius: var(--r-lg); color: var(--ink); background: var(--paper); text-decoration: none;
+  box-shadow: var(--card); transition: transform .18s ease, box-shadow .18s ease;
+}
+.kit-card:hover { transform: translateY(-2px); box-shadow: var(--card-lift); }
+.kit-card-body { padding: 18px 20px 16px; display: flex; flex-direction: column; gap: 6px; }
+.kit-card-topic { color: var(--accent-ink); font: var(--fs-label)/1.4 var(--mono); letter-spacing: .1em; }
+.kit-card-title { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; color: var(--heading); font: 500 22px/1.25 var(--serif); }
+.kit-card-title small { color: var(--faint); font: var(--fs-label)/1.4 var(--mono); letter-spacing: .08em; }
+.kit-card-desc { margin: 0; flex: 1; color: var(--body); font: var(--fs-small)/var(--lh-ui) var(--sans); }
+.kit-card-foot { margin-top: 6px; display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--muted); font: var(--fs-label)/1.4 var(--mono); }
+.kit-card-foot b { color: var(--ink); font: 600 var(--fs-ui)/1 var(--sans); }
+
+@media (max-width: 640px) {
+  .kit-bar { gap: 10px; }
+  .kit-brand span, .kit-crumbs { display: none; }
+  .kit-nav { padding-left: 8px; }
+  .kit-hero { padding: 32px 0 22px; }
+  .kit-lede { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .kit-card, .kit-btn { transition: none; } }

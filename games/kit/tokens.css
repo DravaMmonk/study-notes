@@ -1,11 +1,35 @@
-/* Shared colour tokens for the games in games/ (状态之图, Vision Complete) and for Fieldnotes. A theme is only a
+/* Shared tokens for everything in the study notes: the notes site, Fieldnotes, the games hub and the games (状态之图,
+   Vision Complete). Components built on them live beside this file: ui.css (top bar, buttons, page hero, cards) and
+   prose.css (note typography). A theme is only a
    token set (paper, night, blueprint), chosen by data-theme on <html>; kit/theme.js keeps the choice. The last
    block holds what the games share beyond the page palette: failure and selection colors, card shadows, the
    hues that tell wires and tiles apart, and the robot's colors. */
 :root {
-  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --serif: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Georgia, 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', 'SimSun', serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'PingFang SC', monospace;
+
+  /* Type scale. Labels are small spaced mono; interface text is sans; reading text and titles are serif. */
+  --fs-label: 11px;
+  --fs-ui: 13px;
+  --fs-small: 14.5px;
+  --fs-body: 18px;
+  --fs-lede: 18px;
+  --fs-h2: 31px;
+  --fs-h3: 23px;
+  --fs-h4: 19px;
+  --fs-title: clamp(40px, 6vw, 64px);
+  --lh-body: 1.78;
+  --lh-ui: 1.55;
+  --track-label: 0.14em;
+  --measure: 690px;
+
+  /* Shape and rhythm. */
+  --bar-h: 52px;
+  --gutter: max(16px, env(safe-area-inset-left));
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 16px;
 
   --ink: #282824;
   --heading: #272723;

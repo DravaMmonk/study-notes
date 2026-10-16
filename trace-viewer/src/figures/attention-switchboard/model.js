@@ -10,10 +10,10 @@ export const HEADS = 2
 export const D_K = D_MODEL / HEADS
 
 export const CLASSES = [
-  { id: 'sky', name: '天空', z: [1, 0, 0, 0] },
-  { id: 'sun', name: '太阳', z: [0.6, 0.8, 0, 0] },
-  { id: 'tree', name: '树', z: [0, 0, 1, 0] },
-  { id: 'grass', name: '草地', z: [0, 0, 0.6, 0.8] },
+  { id: 'sky', name: '天空', nameEn: 'sky', z: [1, 0, 0, 0] },
+  { id: 'sun', name: '太阳', nameEn: 'sun', z: [0.6, 0.8, 0, 0] },
+  { id: 'tree', name: '树', nameEn: 'tree', z: [0, 0, 1, 0] },
+  { id: 'grass', name: '草地', nameEn: 'grass', z: [0, 0, 0.6, 0.8] },
 ]
 
 // The picture, row by row from the top: sky with a sun, two trees each side, grass below.
@@ -41,10 +41,11 @@ export const tokens = (withPosition) =>
 
 // W_Q = W_K = g·(projection onto one half of x). Head 1 reads the content half, head 2 the address half.
 const HEAD = [
-  { name: '头 1 · 内容', from: 0, gain: Math.sqrt(6) },
-  { name: '头 2 · 位置', from: 4, gain: Math.sqrt(4) },
+  { name: '头 1 · 内容', nameEn: 'Head 1 · content', from: 0, gain: Math.sqrt(6) },
+  { name: '头 2 · 位置', nameEn: 'Head 2 · position', from: 4, gain: Math.sqrt(4) },
 ]
 export const headName = (head) => HEAD[head].name
+export const headNameEn = (head) => HEAD[head].nameEn
 
 const project = (x, head) => x.slice(HEAD[head].from, HEAD[head].from + D_K).map((value) => value * HEAD[head].gain)
 const dot = (a, b) => a.reduce((sum, value, index) => sum + value * b[index], 0)

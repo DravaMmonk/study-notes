@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { L, tr } from '../i18n.js'
 
 // The controls for a part's settings on the desktop board: a choice, a number, or a 3×3 grid of weights.
 // Number fields keep what is being typed (a lone "-", "0.") until it reads as a number and accept the
@@ -44,9 +45,9 @@ export default function ParamControl({ param, value, onChange, roomy }) {
   if (param.kind === 'select') {
     return (
       <label className={`param ${roomy ? 'is-roomy' : ''}`}>
-        <span>{param.label}</span>
+        <span>{L(param.label)}</span>
         <select value={value} onChange={(e) => onChange(typeof param.options[0][0] === 'number' ? Number(e.target.value) : e.target.value)} onPointerDown={stop}>
-          {param.options.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
+          {param.options.map(([v, text]) => <option key={v} value={v}>{L(text)}</option>)}
         </select>
       </label>
     )
@@ -64,7 +65,7 @@ export default function ParamControl({ param, value, onChange, roomy }) {
       <div className={`param-kernel-wrap ${roomy ? 'is-roomy' : ''}`} onPointerDown={stop}>
         <div className="param-kernel">
           {value.map((w, i) => (
-            <NumberInput key={i} value={w} onChange={(v) => setCell(i, v)} label={`权重 ${Math.floor(i / 3) + 1} 行 ${(i % 3) + 1} 列`} />
+            <NumberInput key={i} value={w} onChange={(v) => setCell(i, v)} label={tr(`权重 ${Math.floor(i / 3) + 1} 行 ${(i % 3) + 1} 列`, `Weight, row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}`)} />
           ))}
         </div>
       </div>
@@ -72,9 +73,9 @@ export default function ParamControl({ param, value, onChange, roomy }) {
   }
   return (
     <label className={`param ${roomy ? 'is-roomy' : ''}`}>
-      <span>{param.label}</span>
+      <span>{L(param.label)}</span>
       <span className="param-number">
-        <NumberInput value={value ?? 0} onChange={onChange} label={param.label} />
+        <NumberInput value={value ?? 0} onChange={onChange} label={L(param.label)} />
       </span>
     </label>
   )

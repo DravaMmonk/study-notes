@@ -68,30 +68,30 @@ function gaussian(next) {
 
 export const nodes = {
   dg_encode: {
-    label: '编码器',
-    description: '把整张图压成一行 k 个数（权重靠训练）',
+    label: { zh: '编码器', en: 'Encoder' },
+    description: { zh: '把整张图压成一行 k 个数（权重靠训练）', en: 'Squeezes the whole image into a row of k numbers (weights come from training)' },
     inputs: ['in'],
     params: [
-      { key: 'k', label: '几个数', kind: 'select', options: [[1, '1 个'], [2, '2 个'], [3, '3 个']], default: 1 },
+      { key: 'k', label: { zh: '几个数', en: 'How many numbers' }, kind: 'select', options: [[1, { zh: '1 个', en: '1' }], [2, { zh: '2 个', en: '2' }], [3, { zh: '3 个', en: '3' }]], default: 1 },
       // Hidden from the card (its flag is never earned) but still trained: 48 weights.
-      { key: 'w', label: '权重', kind: 'kernel', learnable: true, unlock: 'dg-weights-hidden', default: ENCODER_START },
+      { key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, unlock: 'dg-weights-hidden', default: ENCODER_START },
     ],
     eval: ({ in: a }, p) => encode(a, p.w ?? ENCODER_START, Number(p.k ?? 1)),
     cost: 16,
     unlock: 'dg-autoencoder',
   },
   dg_decode: {
-    label: '解码器',
-    description: '由那几个数画回一张图（权重靠训练）',
+    label: { zh: '解码器', en: 'Decoder' },
+    description: { zh: '由那几个数画回一张图（权重靠训练）', en: 'Draws an image back from those numbers (weights come from training)' },
     inputs: ['in'],
-    params: [{ key: 'w', label: '权重', kind: 'kernel', learnable: true, unlock: 'dg-weights-hidden', default: DECODER_START }],
+    params: [{ key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, unlock: 'dg-weights-hidden', default: DECODER_START }],
     eval: ({ in: z }, p) => decode(z, p.w ?? DECODER_START),
     cost: 16,
     unlock: 'dg-autoencoder',
   },
   dg_decoder: {
-    label: '解码器（已训练）',
-    description: '两个数 → 一个斑点：z₁ 管左右，z₂ 管上下',
+    label: { zh: '解码器（已训练）', en: 'Decoder (trained)' },
+    description: { zh: '两个数 → 一个斑点：z₁ 管左右，z₂ 管上下', en: 'Two numbers → one blob: z₁ moves it left–right, z₂ up–down' },
     inputs: ['in'],
     eval: ({ in: z }) => {
       if (z.h !== 1 || z.w !== 2) throw new Error('要两个数')
@@ -102,7 +102,7 @@ export const nodes = {
   },
   dg_mu: {
     label: 'μ',
-    description: '两个可训练的数：分布的中心',
+    description: { zh: '两个可训练的数：分布的中心', en: 'Two trainable numbers: the centre of the distribution' },
     inputs: [],
     params: [{ key: 'w', label: 'μ', kind: 'kernel', learnable: true, default: [0, 0] }],
     eval: (_, p) => code(p.w ?? [0, 0]),
@@ -111,7 +111,7 @@ export const nodes = {
   },
   dg_sigma: {
     label: 'σ',
-    description: '两个可训练的数：分布有多散',
+    description: { zh: '两个可训练的数：分布有多散', en: 'Two trainable numbers: how spread out the distribution is' },
     inputs: [],
     params: [{ key: 'w', label: 'σ', kind: 'kernel', learnable: true, default: [1, 1] }],
     eval: (_, p) => code(p.w ?? [1, 1]),
@@ -119,8 +119,8 @@ export const nodes = {
     unlock: 'dg-latent',
   },
   dg_sample: {
-    label: '采样 z ~ N(μ, σ²)',
-    description: '每算一次都重新抽一个随机数',
+    label: { zh: '采样 z ~ N(μ, σ²)', en: 'Sample z ~ N(μ, σ²)' },
+    description: { zh: '每算一次都重新抽一个随机数', en: 'Draws a fresh random number every time it runs' },
     inputs: ['μ', 'σ'],
     eval: ({ μ: mu, σ: sigma }) => {
       const next = random(Math.floor(Math.random() * 2 ** 31))
@@ -130,8 +130,8 @@ export const nodes = {
     unlock: 'dg-latent',
   },
   dg_reparam: {
-    label: '重参数化 μ + σ·ε',
-    description: '随机只从 ε 进来，μ、σ 照常求导',
+    label: { zh: '重参数化 μ + σ·ε', en: 'Reparameterization μ + σ·ε' },
+    description: { zh: '随机只从 ε 进来，μ、σ 照常求导', en: 'Randomness enters only through ε; μ and σ differentiate as usual' },
     inputs: ['μ', 'σ', 'ε'],
     eval: ({ μ: mu, σ: sigma, ε: eps }) => code(Array.from(mu.data, (m, i) => m + sigma.data[i] * eps.data[i])),
     cost: 2,
@@ -463,13 +463,13 @@ function verifyGan() {
 const AE_POSITIONS = [[3.5, 3.5], [3.8, 6.33], [3.5, 9.17], [3.8, 12], [6.33, 3.7], [6.63, 6.53], [6.33, 9.37], [6.63, 12.2], [9.17, 3.5], [9.47, 6.33], [9.17, 9.17], [9.47, 12], [12, 3.7], [12.3, 6.53], [12, 9.37], [12.3, 12.2]]
 const aeTests = AE_POSITIONS.map(([x, y], i) => {
   const img = blob(x, y)
-  return test(`斑点 ${i + 1}`, { in: img }, { out: img })
+  return test({ zh: `斑点 ${i + 1}`, en: `Blob ${i + 1}` }, { in: img }, { out: img })
 })
 // Held back: blobs at places the training never showed. A two-number autoencoder trained from the default start
 // draws them right from the step its visible tests first pass, and every step after.
 const AE_HIDDEN = [[4.17, 10.45], [7.97, 11.46], [7.92, 5.1]].map(([x, y], i) => {
   const img = blob(x, y)
-  return test(`新位置 ${i + 1}`, { in: img }, { out: img })
+  return test({ zh: `新位置 ${i + 1}`, en: `New place ${i + 1}` }, { in: img }, { out: img })
 })
 
 // Whether the camera can reach the display without passing an encoder.
@@ -511,13 +511,13 @@ const EPS = (() => {
   return Array.from({ length: 5 }, () => [gaussian(next), gaussian(next)])
 })()
 const reparamTests = EPS.map((e, i) =>
-  test(`噪声 ${i + 1}`, { eps: code(e) }, { out: blobAt(TEACHER_MU[0] + TEACHER_SIGMA[0] * e[0], TEACHER_MU[1] + TEACHER_SIGMA[1] * e[1]) }),
+  test({ zh: `噪声 ${i + 1}`, en: `Noise ${i + 1}` }, { eps: code(e) }, { out: blobAt(TEACHER_MU[0] + TEACHER_SIGMA[0] * e[0], TEACHER_MU[1] + TEACHER_SIGMA[1] * e[1]) }),
 )
 // Held back: fresh noise from another seed, drawn by the same teacher.
 const reparamHidden = (() => {
   const next = random(2025)
   return Array.from({ length: 3 }, () => [gaussian(next), gaussian(next)])
-})().map((e, i) => test(`新噪声 ${i + 1}`, { eps: code(e) }, { out: blobAt(TEACHER_MU[0] + TEACHER_SIGMA[0] * e[0], TEACHER_MU[1] + TEACHER_SIGMA[1] * e[1]) }))
+})().map((e, i) => test({ zh: `新噪声 ${i + 1}`, en: `New noise ${i + 1}` }, { eps: code(e) }, { out: blobAt(TEACHER_MU[0] + TEACHER_SIGMA[0] * e[0], TEACHER_MU[1] + TEACHER_SIGMA[1] * e[1]) }))
 const latentGraph = (nodesSpec, wires) => build(nodesSpec, wires, { inputs: ['eps'] })
 
 export const levels = [
@@ -526,10 +526,10 @@ export const levels = [
     kind: 'board',
     board: 'EpipolarSearch',
     chapter: 7,
-    title: '只在一条线上找',
-    brief: '在左图点一个点，在右图找到同一点。每个点最多比较 40 次；找到 3 个就过关。',
-    hint: '两台相机没有对齐，同一点不在同一行。F·p 算出来的三个数 (a, b, c) 是什么？',
-    after: '左图的一个点只确定一条视线，这条视线上所有可能的深度，投到右图都落在同一条极线 l′ = F·p 上：a·u′ + b·v′ + c = 0。F·p 是一条线，不是一个点；点在线上的哪里，取决于它有多远。二维搜索于是变成一维，所有极线都汇向极点。',
+    title: { zh: '只在一条线上找', en: 'Search along one line' },
+    brief: { zh: '在左图点一个点，在右图找到同一点。每个点最多比较 40 次；找到 3 个就过关。', en: 'Click a point in the left image and find the same point in the right image. Each point allows at most 40 comparisons; find 3 to pass.' },
+    hint: { zh: '两台相机没有对齐，同一点不在同一行。F·p 算出来的三个数 (a, b, c) 是什么？', en: 'The two cameras are not aligned, so the same point is not on the same row. What are the three numbers (a, b, c) that F·p gives you?' },
+    after: { zh: '左图的一个点只确定一条视线，这条视线上所有可能的深度，投到右图都落在同一条极线 l′ = F·p 上：a·u′ + b·v′ + c = 0。F·p 是一条线，不是一个点；点在线上的哪里，取决于它有多远。二维搜索于是变成一维，所有极线都汇向极点。', en: 'A point in the left image only fixes a line of sight. Every possible depth along that line projects into the right image onto the same epipolar line l′ = F·p: a·u′ + b·v′ + c = 0. F·p is a line, not a point; where the point sits on it depends on how far away it is. So a 2-D search becomes 1-D, and all epipolar lines meet at the epipole.' },
     requires: ['7-2'],
     unlocks: [],
     model: epipolarModel,
@@ -538,10 +538,10 @@ export const levels = [
   {
     id: '8-1',
     chapter: 8,
-    title: '两个数记住一张图',
-    brief: '先把图压成几个数，再由这几个数画回原图。用最少的数做到。',
-    hint: '一个数只能让斑点沿一条线走。这些斑点在往几个方向变？',
-    after: '编码器把图压成 z，解码器再从 z 画回来，目标就是输入自己，不需要标签。最窄的那层叫瓶颈：这一族斑点只在左右、上下两个方向变，所以瓶颈至少要两个数；一个数只能让斑点沿一条直线走。',
+    title: { zh: '两个数记住一张图', en: 'Two numbers to remember an image' },
+    brief: { zh: '先把图压成几个数，再由这几个数画回原图。用最少的数做到。', en: 'Squeeze the image into a few numbers, then draw the original back from those numbers. Do it with as few numbers as you can.' },
+    hint: { zh: '一个数只能让斑点沿一条线走。这些斑点在往几个方向变？', en: 'One number can only move the blob along a line. In how many directions do these blobs vary?' },
+    after: { zh: '编码器把图压成 z，解码器再从 z 画回来，目标就是输入自己，不需要标签。最窄的那层叫瓶颈：这一族斑点只在左右、上下两个方向变，所以瓶颈至少要两个数；一个数只能让斑点沿一条直线走。', en: 'The encoder squeezes the image into z, and the decoder draws it back from z; the target is the input itself, so no labels are needed. The narrowest layer is called the bottleneck: this family of blobs varies only left–right and up–down, so the bottleneck needs at least two numbers; one number can only move the blob along a straight line.' },
     requires: ['4-9'],
     unlocks: ['dg-decoder'],
     palette: ['dg_encode', 'dg_decode'],
@@ -549,9 +549,9 @@ export const levels = [
     check: { tolerance: 0.2, mismatches: 3 },
     trainRate: 30,
     constraint: (score, graph) => {
-      if (bypassesBottleneck(graph)) return '图像没有经过编码器'
+      if (bypassesBottleneck(graph)) return { zh: '图像没有经过编码器', en: 'The image does not pass through the encoder' }
       const widest = Math.max(0, ...graph.nodes.filter((n) => n.type === 'dg_encode').map((n) => Number(n.params.k ?? 1)))
-      return widest > 2 ? `瓶颈有 ${widest} 个数，最多 2 个` : ''
+      return widest > 2 ? { zh: `瓶颈有 ${widest} 个数，最多 2 个`, en: `The bottleneck has ${widest} numbers; at most 2 allowed` } : ''
     },
     tests: aeTests,
     hidden: AE_HIDDEN,
@@ -562,12 +562,12 @@ export const levels = [
   {
     id: '8-2',
     chapter: 8,
-    title: '随机也能求导',
+    title: { zh: '随机也能求导', en: 'Differentiating through randomness' },
     inputs: ['eps'],
-    inputLabels: { eps: '噪声 ε' },
-    brief: '老师用每组的噪声 ε 画出了右边的斑点（z 从 N(μ, σ²) 中采样）。学出 μ 和 σ，用同样的 ε 画出同样的图。',
-    hint: '采样器每算一次都换一个随机数，训练看到的只是噪声。能不能让随机只从 ε 进来？',
-    after: '采样这一步没法求导：每次重抽，训练分不清结果变好是因为改了 μ、σ 还是运气。把它写成 z = μ + σ·ε，随机全部来自输入 ε，z 对 μ、σ 就只是乘和加，梯度清清楚楚。这叫重参数化，VAE 的编码器就是这样训练的。',
+    inputLabels: { eps: { zh: '噪声 ε', en: 'Noise ε' } },
+    brief: { zh: '老师用每组的噪声 ε 画出了右边的斑点（z 从 N(μ, σ²) 中采样）。学出 μ 和 σ，用同样的 ε 画出同样的图。', en: 'The teacher drew the blob on the right from each set\'s noise ε (z sampled from N(μ, σ²)). Learn μ and σ, and draw the same image from the same ε.' },
+    hint: { zh: '采样器每算一次都换一个随机数，训练看到的只是噪声。能不能让随机只从 ε 进来？', en: 'The sampler draws a new random number every time it runs, so all training sees is noise. Can you make the randomness come in only through ε?' },
+    after: { zh: '采样这一步没法求导：每次重抽，训练分不清结果变好是因为改了 μ、σ 还是运气。把它写成 z = μ + σ·ε，随机全部来自输入 ε，z 对 μ、σ 就只是乘和加，梯度清清楚楚。这叫重参数化，VAE 的编码器就是这样训练的。', en: 'You cannot differentiate through the sampling step: with a fresh draw each time, training cannot tell whether a better result came from changing μ and σ or from luck. Write it as z = μ + σ·ε instead: all the randomness comes from the input ε, z is just a multiply and an add of μ and σ, and the gradient is perfectly clear. This is called reparameterization, and it is how a VAE\'s encoder is trained.' },
     requires: ['8-1'],
     unlocks: ['dg-reparam'],
     grants: ['mul'],
@@ -589,10 +589,10 @@ export const levels = [
     kind: 'board',
     board: 'GanDuel',
     chapter: 8,
-    title: '骗过鉴定员',
-    brief: '生成器有两支笔，要画出和真实数据一样的两堆点。轮流训练鉴定员和生成器，直到两堆都画到、鉴定员只能瞎猜。',
-    hint: '生成器一回合走太远，就会一起冲向鉴定员此刻最相信的那一处。',
-    after: '鉴定员不动、生成器猛练，生成器就把所有样本都放到鉴定员最相信的那一点：两支笔重合，只画一堆，这就是模式坍塌；鉴定员一反应，它们又一起跳到另一堆。让鉴定员跟上、生成器小步走，两支笔才会各占一堆，最后鉴定员的准确率回到 50%。',
+    title: { zh: '骗过鉴定员', en: 'Fool the judge' },
+    brief: { zh: '生成器有两支笔，要画出和真实数据一样的两堆点。轮流训练鉴定员和生成器，直到两堆都画到、鉴定员只能瞎猜。', en: 'The generator has two pens and must draw two clusters of points just like the real data. Take turns training the judge and the generator until both clusters are covered and the judge can only guess.' },
+    hint: { zh: '生成器一回合走太远，就会一起冲向鉴定员此刻最相信的那一处。', en: 'If the generator moves too far in one round, both pens rush together to the spot the judge trusts most right now.' },
+    after: { zh: '鉴定员不动、生成器猛练，生成器就把所有样本都放到鉴定员最相信的那一点：两支笔重合，只画一堆，这就是模式坍塌；鉴定员一反应，它们又一起跳到另一堆。让鉴定员跟上、生成器小步走，两支笔才会各占一堆，最后鉴定员的准确率回到 50%。', en: 'If the judge stands still while the generator trains hard, the generator puts every sample on the one spot the judge trusts most: the two pens merge and draw only one cluster. This is mode collapse; as soon as the judge reacts, they jump together to the other cluster. Let the judge keep up and the generator take small steps, and the pens settle on one cluster each, until the judge\'s accuracy is back to 50%.' },
     requires: ['8-2'],
     unlocks: [],
     model: ganModel,

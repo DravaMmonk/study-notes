@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight, Check, X } from 'lucide-react'
+import { L, keyOf, tr } from '../../i18n.js'
 import ImageView from '../ImageView.jsx'
 import { PHONE, useMedia } from '../useMedia.js'
 import { Plot, Stages } from './WaveKit.jsx'
@@ -46,7 +47,7 @@ export default function LightChange({ level, onSolve, theme }) {
     return Array.from(g.data.slice(ROW * 16, ROW * 16 + 16), (v) => v / peak)
   }
   const lines = photos.map((p) => ({ curve: slopeRow(p.img), kind: LINE_KINDS[p.key], steps: true, label: p.label }))
-  const thresholds = st.controls.includes('tC') ? [['t', s.t], ['tC', s.tC]] : [[relative ? '门槛' : 't', relative ? s.r : s.t]]
+  const thresholds = st.controls.includes('tC') ? [['t', s.t], ['tC', s.tC]] : [[relative ? { zh: '门槛', en: 'threshold' } : 't', relative ? s.r : s.t]]
   const hi = relative ? 1.1 : 0.3
   const width = phone ? 340 : 600
   const size = phone ? 72 : 92
@@ -57,9 +58,9 @@ export default function LightChange({ level, onSolve, theme }) {
         <section className="bk-stage bk-stack">
           <div className="lc-cards">
             <figure className="lc-card is-truth">
-              <span className="bk-label">要找的边</span>
+              <span className="bk-label">{tr('要找的边', 'Edges to find')}</span>
               <ImageView img={m.truth} range={FULL} size={size} theme={theme} />
-              <figcaption className="bk-caption">字母 F 的轮廓</figcaption>
+              <figcaption className="bk-caption">{tr('字母 F 的轮廓', 'Outline of the letter F')}</figcaption>
             </figure>
             {photos.map((p) => {
               const { t, relative: rel } = m.thresholdFor(st, p.key, s)
@@ -69,50 +70,50 @@ export default function LightChange({ level, onSolve, theme }) {
               const ok = missing + extra <= m.missAllowed
               return (
                 <figure key={p.key} className={`lc-card ${ok ? 'is-pass' : 'is-fail'}`}>
-                  <span className="bk-label">{p.label}</span>
+                  <span className="bk-label">{L(p.label)}</span>
                   <div className="lc-pair">
                     <ImageView img={p.img} range={FULL} size={size} theme={theme} />
                     <ImageView img={mask} range={FULL} size={size} theme={theme} />
                   </div>
                   <figcaption className={`lc-verdict ${ok ? 'is-pass' : 'is-fail'}`}>
                     {ok ? <Check size={13} /> : <X size={13} />}
-                    {ok ? '边找对了' : `漏 ${missing} · 多 ${extra}`}
-                    <small>{rel ? `÷ 最陡 > ${t.toFixed(2)}` : `> ${t.toFixed(3)}`}</small>
+                    {ok ? tr('边找对了', 'Edges right') : tr(`漏 ${missing} · 多 ${extra}`, `${missing} missed · ${extra} extra`)}
+                    <small>{rel ? tr(`÷ 最陡 > ${t.toFixed(2)}`, `÷ steepest > ${t.toFixed(2)}`) : `> ${t.toFixed(3)}`}</small>
                   </figcaption>
                 </figure>
               )
             })}
           </div>
           <div>
-            <span className="bk-label">第 {ROW} 行的坡度{relative ? '（除以各自最陡的坡度）' : ''}</span>
-            <Plot width={width} height={phone ? 170 : 200} lo={0} hi={hi} ticks={relative ? [0, 0.5, 1] : [0, 0.1, 0.2]} span={16} label="各张照片的坡度剖面" lines={lines}>
+            <span className="bk-label">{tr(`第 ${ROW} 行的坡度`, `Slope along row ${ROW}`)}{relative ? tr('（除以各自最陡的坡度）', " (divided by each photo's steepest slope)") : ''}</span>
+            <Plot width={width} height={phone ? 170 : 200} lo={0} hi={hi} ticks={relative ? [0, 0.5, 1] : [0, 0.1, 0.2]} span={16} label={tr('各张照片的坡度剖面', 'Slope cross-section of each photo')} lines={lines}>
               {({ x, y }) => (
                 <g className="lc-threshold">
                   {thresholds.map(([name, v]) => (
-                    <g key={name}>
+                    <g key={keyOf(name)}>
                       <line x1={x(0)} x2={x(1)} y1={y(v)} y2={y(v)} />
-                      <text x={x(1) - 4} y={y(v) - 5} textAnchor="end">{name}</text>
+                      <text x={x(1) - 4} y={y(v) - 5} textAnchor="end">{L(name)}</text>
                     </g>
                   ))}
                 </g>
               )}
             </Plot>
             <div className="wv-legend">
-              {photos.map((p) => <span key={p.key}><i className={`is-${LINE_KINDS[p.key]}`} />{p.label}</span>)}
+              {photos.map((p) => <span key={p.key}><i className={`is-${LINE_KINDS[p.key]}`} />{L(p.label)}</span>)}
             </div>
           </div>
         </section>
         <div className="bk-stack">
           <section className="bk-panel bk-stack">
             <div>
-              <span className="bk-label">第 {stage + 1} 步 · {st.title}</span>
-              <p className="wv-stage-note">{st.note}</p>
+              <span className="bk-label">{tr(`第 ${stage + 1} 步`, `Step ${stage + 1}`)} · {L(st.title)}</span>
+              <p className="wv-stage-note">{L(st.note)}</p>
             </div>
             <div>
               {st.controls.includes('relative') && (
                 <label className="bk-check lc-ruler">
                   <input type="checkbox" checked={s.relative} onChange={(event) => update({ ...s, relative: event.target.checked })} />
-                  用最陡的边当尺子
+                  {tr('用最陡的边当尺子', 'Use the steepest edge as a ruler')}
                 </label>
               )}
               {st.controls.filter((key) => key !== 'relative').map((key) => {
@@ -120,7 +121,7 @@ export default function LightChange({ level, onSolve, theme }) {
                 const knob = m.knobs[shown]
                 return (
                   <label key={shown} className="bk-field">
-                    <span>{knob.label}</span>
+                    <span>{L(knob.label)}</span>
                     <input className="bk-range" type="range" min={knob.min} max={knob.max} step={knob.step} value={s[shown]} style={{ '--fill': `${((s[shown] - knob.min) / (knob.max - knob.min)) * 100}%` }} onChange={(event) => update({ ...s, [shown]: Number(event.target.value) })} />
                     <output>{s[shown].toFixed(shown === 'r' ? 2 : 3)}</output>
                   </label>
@@ -130,12 +131,12 @@ export default function LightChange({ level, onSolve, theme }) {
             {st.controls.includes('tC') && (
               <div className="bk-stats">
                 <div className="bk-stat"><b>{(s.tC / s.t).toFixed(2)}</b><span>tC ÷ t</span></div>
-                <div className="bk-stat"><b>0.40</b><span>灯暗到原来的</span></div>
+                <div className="bk-stat"><b>0.40</b><span>{tr('灯暗到原来的', 'Lamp now ÷ before')}</span></div>
               </div>
             )}
             <div className="wv-next">
-              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />每张照片的边都找对了。</> : '还有照片的边没找对。'}</p>
-              {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={advance}>下一步 <ArrowRight size={15} /></button>}
+              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />{tr('每张照片的边都找对了。', "Every photo's edges are right.")}</> : tr('还有照片的边没找对。', "Some photos' edges are still wrong.")}</p>
+              {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={advance}>{tr('下一步', 'Next')} <ArrowRight size={15} /></button>}
             </div>
           </section>
           <Stages stages={m.stages} current={stage} passed={passed} reached={reached} onPick={setStage} />

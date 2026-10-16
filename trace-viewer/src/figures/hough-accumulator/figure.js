@@ -1,5 +1,5 @@
 import * as k from '../kit/iso-kit.js'
-import { applyOrder, clamp, createIdle, createLoop, follow, svgNode } from '../common.js'
+import { applyOrder, clamp, createIdle, createLoop, follow, svgNode, t } from '../common.js'
 import { BINS, HALF, ballots, grid, makePoints, peakOf, rhoOf } from './model.js'
 
 // Fig · The Hough voting machine.
@@ -243,14 +243,17 @@ function scribe(theta, rho) {
 
 // ---------- the live figure ----------
 
-export const meta = { id: 'hough-accumulator', fig: 'Fig 12.2', title: 'Hough 投票机' }
+export const meta = { id: 'hough-accumulator', fig: 'Fig 12.2', title: 'Hough 投票机', titleEn: 'Hough voting machine' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       'Hough 变换的投票机。左边的板上立着十二根边缘点钉，中心转轴带一根指向法向 θ 的臂，臂上的滑块带着一把直尺，直尺始终穿过正在读取的钉，滑块离中心的距离就是 ρ。右边龙门上的投币槽跟着同一个 θ 和 ρ 在累加盘上方移动，每经过一列就往对应的 (θ, ρ) 格投下一枚筹码。所有钉投完后，最高的一摞就是检测到的直线，直尺停在这条线上并把它刻在板上。',
+      'A voting machine for the Hough transform. On the board at the left stand twelve pins, one per edge point; a central pivot carries an arm pointing along the normal direction θ, and a slider on the arm carries a straightedge that always passes through the pin being read, so the slider’s distance from the centre is ρ. On the right, a coin chute on a gantry follows the same θ and ρ over the accumulator tray and drops one token into the matching (θ, ρ) bin at every column it passes. Once every pin has voted, the tallest stack is the detected line: the straightedge stops on it and scribes it onto the board.',
+    ),
     body: [
       base(),
       rails(),
@@ -263,30 +266,33 @@ export function render() {
       '<g data-part="arm"></g>',
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="Hough 设置">
-    <div class="fx-control"><span>分箱</span>${Object.values(BINS).map((b) => `<button type="button" data-set="bins" data-value="${b.name}">${b.label}</button>`).join('')}</div>
-    <div class="fx-control"><span>投票</span><button type="button" data-set="step">下一点 ›</button><button type="button" data-set="all">全部</button><button type="button" data-set="restart">重来</button></div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, 'Hough 设置', 'Hough settings')}">
+    <div class="fx-control"><span>${t(lang, '分箱', 'Bins')}</span>${Object.values(BINS).map((b) => `<button type="button" data-set="bins" data-value="${b.name}">${t(lang, b.label, b.labelEn)}</button>`).join('')}</div>
+    <div class="fx-control"><span>${t(lang, '投票', 'Vote')}</span><button type="button" data-set="step">${t(lang, '下一点 ›', 'Next point ›')}</button><button type="button" data-set="all">${t(lang, '全部', 'All')}</button><button type="button" data-set="restart">${t(lang, '重来', 'Restart')}</button></div>
   </div>
   <div class="fx-calc"><span data-calc="label"></span><b data-calc="value"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '空格 · A 全部 · R',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '空格 · A 全部 · R', 'Space · A for all · R'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '正在投票的点（结束后：峰值那一摞）' },
-        { mark: 'raised', label: '筹码摞：每格的票数' },
-        { mark: 'flat', label: '直尺：候选直线 (θ, ρ)' },
+        { mark: 'lit', label: t(lang, '正在投票的点（结束后：峰值那一摞）', 'point now voting (afterwards: the peak stack)') },
+        { mark: 'raised', label: t(lang, '筹码摞：每格的票数', 'token stacks: votes in each bin') },
+        { mark: 'flat', label: t(lang, '直尺：候选直线 (θ, ρ)', 'straightedge: candidate line (θ, ρ)') },
       ],
-      caption:
+      caption: t(
+        lang,
         '臂指向直线的法向 θ，直尺始终穿过正在读取的钉，所以滑块离中心的距离就是 ρ = x cos θ + y sin θ。臂扫过 0–180°，投币槽在累加盘上沿同一条正弦曲线每列投一枚：一个点在参数空间里是一条曲线。九个近似共线的点的曲线在同一格相交，筹码堆成最高的一摞；三个外点的票散落各处，摞不起来。分箱太细，带噪声的票会被拆进相邻格，峰值变矮。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="Hough 投票机。空格投下一点，A 全部投完，R 重来，B 切换分箱。">${svg}</div>`,
+        'The arm points along the line’s normal θ and the straightedge always passes through the pin being read, so the slider’s distance from the centre is ρ = x cos θ + y sin θ. As the arm sweeps 0–180°, the chute drops one token per column along the same sinusoid on the accumulator: one point becomes a curve in parameter space. The curves of the nine nearly collinear points cross in the same bin, and their tokens pile into the tallest stack; the three outliers’ votes scatter and never build up. With bins that are too fine, noisy votes split across neighbouring bins and the peak gets shorter.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, 'Hough 投票机。空格投下一点，A 全部投完，R 重来，B 切换分箱。', 'Hough voting machine. Space votes the next point, A casts all votes, R restarts, B switches the bins.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -457,12 +463,12 @@ export function mount(root) {
 
     let text
     if (final) {
-      text = `峰值 ${final.votes} 票 · θ ${final.theta}° · ρ ${final.rho}`
-      calc.label.textContent = '最高一摞 (θ, ρ) ='
-      calc.value.textContent = `(${final.theta}°, ${final.rho}) · ${final.votes} / ${N} 点投中`
+      text = `${t(lang, `峰值 ${final.votes} 票`, `Peak ${final.votes} votes`)} · θ ${final.theta}° · ρ ${final.rho}`
+      calc.label.textContent = t(lang, '最高一摞 (θ, ρ) =', 'Tallest stack (θ, ρ) =')
+      calc.value.textContent = `(${final.theta}°, ${final.rho}) · ${final.votes} / ${N} ${t(lang, '点投中', 'points on it')}`
     } else {
       const theta = clamp(state.theta, 0, 180)
-      text = `第 ${Math.min(state.index + 1, N)}/${N} 点 · θ ${Math.round(theta)}° · ρ ${state.rho.toFixed(1)}`
+      text = `${t(lang, `第 ${Math.min(state.index + 1, N)}/${N} 点`, `Point ${Math.min(state.index + 1, N)}/${N}`)} · θ ${Math.round(theta)}° · ρ ${state.rho.toFixed(1)}`
       calc.label.textContent = 'ρ = x cos θ + y sin θ ='
       calc.value.textContent = `${point.x.toFixed(1)} cos ${Math.round(theta)}° + ${point.y.toFixed(1)} sin ${Math.round(theta)}° = ${rhoOf(point, theta).toFixed(1)}`
     }

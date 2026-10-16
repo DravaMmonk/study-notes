@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, ChevronDown, FlaskConical, Lock, PanelLeftClose, Workflow } from 'lucide-react'
+import { L, tr } from '../i18n.js'
 import { CHAPTERS, LEVELS, isOpen } from '../levels/index.js'
 
 // The level list beside a level: every chapter, the current one open, each level with its state.
@@ -28,11 +29,11 @@ export default function LevelRail({ current, solved, all, onOpen, onClose, overl
     })
 
   return (
-    <nav className={`level-rail ${overlay ? 'is-overlay' : ''}`} aria-label="关卡列表">
+    <nav className={`level-rail ${overlay ? 'is-overlay' : ''}`} aria-label={tr('关卡列表', 'Level list')}>
       <header className="rail-head">
-        <span>关卡</span>
+        <span>{tr('关卡', 'Levels')}</span>
         <small>{LEVELS.filter((level) => solved.has(level.id)).length} / {LEVELS.length}</small>
-        <button className="rail-close" onClick={onClose} aria-label="收起关卡列表" title="收起关卡列表"><PanelLeftClose size={16} /></button>
+        <button className="rail-close" onClick={onClose} aria-label={tr('收起关卡列表', 'Hide level list')} title={tr('收起关卡列表', 'Hide level list')}><PanelLeftClose size={16} /></button>
       </header>
       <div className="rail-list" ref={list}>
         {CHAPTERS.map((chapter) => {
@@ -44,7 +45,7 @@ export default function LevelRail({ current, solved, all, onOpen, onClose, overl
             <section key={chapter.id} className={`rail-chapter ${chapter.id === chapterOf ? 'is-current' : ''}`}>
               <button className="rail-chapter-head" onClick={() => toggle(chapter.id)} aria-expanded={expanded}>
                 <span className="rail-chapter-index">{chapter.id}</span>
-                <span className="rail-chapter-title">{chapter.title}</span>
+                <span className="rail-chapter-title">{L(chapter.title)}</span>
                 <span className="rail-chapter-count">{finished}/{levels.length}</span>
                 <ChevronDown size={14} className="rail-chevron" />
               </button>
@@ -60,12 +61,12 @@ export default function LevelRail({ current, solved, all, onOpen, onClose, overl
                           className={`rail-level ${won ? 'is-solved' : open ? 'is-open' : 'is-locked'} ${here ? 'is-here' : ''}`}
                           disabled={!open && !won}
                           aria-current={here ? 'page' : undefined}
-                          title={open || won ? `${level.id} ${level.title}` : `${level.id} ${level.title}：先通过 ${level.requires.filter((id) => !solved.has(id)).join('、')}`}
+                          title={open || won ? `${level.id} ${L(level.title)}` : tr(`${level.id} ${L(level.title)}：先通过 ${level.requires.filter((id) => !solved.has(id)).join('、')}`, `${level.id} ${L(level.title)}: first pass ${level.requires.filter((id) => !solved.has(id)).join(', ')}`)}
                           onClick={() => onOpen(level.id)}
                         >
                           <span className="rail-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={10} />}</span>
                           <span className="rail-id">{level.id}</span>
-                          <span className="rail-title">{level.title}</span>
+                          <span className="rail-title">{L(level.title)}</span>
                           {level.kind === 'graph' ? <Workflow size={12} className="rail-kind" /> : <FlaskConical size={12} className="rail-kind" />}
                         </button>
                       </li>

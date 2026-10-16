@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { tr } from '../../i18n.js'
 import { formatNumber } from './views.js'
 
 const signalRange = (...signals) => {
@@ -44,7 +45,7 @@ export default function CurveView({ img, expected, tolerance, width = 112, heigh
   const shown = value ?? want
   return (
     <div className="curve-wrap" style={{ width }}>
-      <svg className="curve-view" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="波形：指向一个点看它的数值" onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
+      <svg className="curve-view" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={tr('波形：指向一个点看它的数值', 'Waveform: point at a spot to read its value')} onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
         {lo < 0 && <line className="curve-zero" x1={pad} x2={width - pad} y1={y(0)} y2={y(0)} />}
         <line className="curve-floor" x1={pad} x2={width - pad} y1={height - pad} y2={height - pad} />
         {band && <path className="curve-band" d={band} />}
@@ -63,7 +64,7 @@ export default function CurveView({ img, expected, tolerance, width = 112, heigh
         <span className={`curve-tip ${x(at) > width / 2 ? 'is-left' : ''}`} style={{ left: `${(x(at) / width) * 100}%`, top: `${(y(shown) / height) * 100}%` }}>
           <i>x = {at}</i>
           {value !== null && value !== undefined && <b>{formatNumber(value)}</b>}
-          {img && want !== null && want !== undefined && <small>期望 {formatNumber(want)}</small>}
+          {img && want !== null && want !== undefined && <small>{tr('期望', 'expected')} {formatNumber(want)}</small>}
         </span>
       )}
     </div>

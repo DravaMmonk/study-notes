@@ -1,5 +1,7 @@
 // Pure algorithms shared by the hand-played levels, the figures and the answer checks.
 
+import { T, tr } from './i18n.js';
+
 export function evalGraph(cells, edges) {
   const ids = cells.map(c => c.id), indeg = {}, out = {};
   ids.forEach(i => { indeg[i] = 0; out[i] = []; });
@@ -25,10 +27,10 @@ export function allRoutes(start, end, edges) {
 
 /** Scan orders for a grid: each returns [[row, col], ...]. */
 export const ORDERS = {
-  rowTL: { l: '逐行，从左上开始', list: (R, C) => { const o = []; for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) o.push([r, c]); return o; } },
-  rowBR: { l: '逐行，从右下开始', list: (R, C) => ORDERS.rowTL.list(R, C).reverse() },
-  colL: { l: '逐列，从左往右', list: (R, C) => { const o = []; for (let c = 0; c < C; c++) for (let r = 0; r < R; r++) o.push([r, c]); return o; } },
-  colR: { l: '逐列，从右往左', list: (R, C) => { const o = []; for (let c = C - 1; c >= 0; c--) for (let r = 0; r < R; r++) o.push([r, c]); return o; } },
+  rowTL: { l: T('逐行，从左上开始', 'row by row, from the top left'), list: (R, C) => { const o = []; for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) o.push([r, c]); return o; } },
+  rowBR: { l: T('逐行，从右下开始', 'row by row, from the bottom right'), list: (R, C) => ORDERS.rowTL.list(R, C).reverse() },
+  colL: { l: T('逐列，从左往右', 'column by column, left to right'), list: (R, C) => { const o = []; for (let c = 0; c < C; c++) for (let r = 0; r < R; r++) o.push([r, c]); return o; } },
+  colR: { l: T('逐列，从右往左', 'column by column, right to left'), list: (R, C) => { const o = []; for (let c = C - 1; c >= 0; c--) for (let r = 0; r < R; r++) o.push([r, c]); return o; } },
 };
 
 /** Route counts on an R×C right/down grid, filled in the given scan order. */
@@ -134,4 +136,4 @@ export function editTrace(left, top, f) {
   return { ops: ops.reverse(), cells };
 }
 
-export const rcName = id => { const [r, c] = id.split(',').map(Number); return `第 ${r + 1} 行第 ${c + 1} 列`; };
+export const rcName = id => { const [r, c] = id.split(',').map(Number); return tr(`第 ${r + 1} 行第 ${c + 1} 列`, `row ${r + 1}, column ${c + 1}`); };

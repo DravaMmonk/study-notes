@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { tr } from '../../i18n.js'
 import { css, mix, tokenRGB } from '../views/views.js'
 import { useTween } from './optics-motion.js'
 
@@ -14,7 +15,7 @@ const ZTOP = 4
 const lift = (loss) => Math.min(1, Math.sqrt(Math.max(0, loss) / ZTOP))
 const NW = 34
 const NB = 22
-const VIEWS = [['top', '俯视', { yaw: -20, pitch: 84 }], ['angle', '斜看', { yaw: -32, pitch: 34 }], ['side', '侧视', { yaw: 0, pitch: 6 }]]
+const VIEWS = [['top', ['俯视', 'Top'], { yaw: -20, pitch: 84 }], ['angle', ['斜看', 'Angled'], { yaw: -32, pitch: 34 }], ['side', ['侧视', 'Side'], { yaw: 0, pitch: 6 }]]
 
 export default function Landscape({ m, rule, state, trail, rail, next, grad, width, theme, solved }) {
   const canvas = useRef(null)
@@ -148,13 +149,13 @@ export default function Landscape({ m, rule, state, trail, rail, next, grad, wid
   return (
     <div className="ls" style={{ aspectRatio: `${width} / ${height}` }} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={end} onPointerCancel={end} onPointerLeave={end}>
       <canvas ref={canvas} aria-hidden="true" />
-      <div className="ls-views bk-seg" role="radiogroup" aria-label="视角">
+      <div className="ls-views bk-seg" role="radiogroup" aria-label={tr('视角', 'View')}>
         {VIEWS.map(([key, label, preset]) => (
-          <button key={key} role="radio" aria-checked={turn.yaw === preset.yaw && turn.pitch === preset.pitch} aria-pressed={turn.yaw === preset.yaw && turn.pitch === preset.pitch} onClick={() => setTurn(preset)}>{label}</button>
+          <button key={key} role="radio" aria-checked={turn.yaw === preset.yaw && turn.pitch === preset.pitch} aria-pressed={turn.yaw === preset.yaw && turn.pitch === preset.pitch} onClick={() => setTurn(preset)}>{tr(...label)}</button>
         ))}
       </div>
-      <span className="ls-hint" aria-hidden="true">左右拖动可以转</span>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="误差地形：地面是两个旋钮 w 和 b，高度是误差">
+      <span className="ls-hint" aria-hidden="true">{tr('左右拖动可以转', 'Drag sideways to turn')}</span>
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={tr('误差地形：地面是两个旋钮 w 和 b，高度是误差', 'Error landscape: the floor is the two knobs w and b, the height is the error')}>
         {axis('w →', DOMAIN.w[1] + 0.15, DOMAIN.b[0], 0)}
         {axis('b →', DOMAIN.w[0], DOMAIN.b[1] + 0.15, 0)}
         {(() => {
@@ -163,7 +164,7 @@ export default function Landscape({ m, rule, state, trail, rail, next, grad, wid
           return (
             <g className="ls-zaxis">
               <line x1={base.x} y1={base.y} x2={top.x} y2={top.y} />
-              <text x={top.x - 4} y={top.y - 6}>误差 ↑</text>
+              <text x={top.x - 4} y={top.y - 6}>{tr('误差 ↑', 'error ↑')}</text>
             </g>
           )
         })()}
@@ -175,7 +176,7 @@ export default function Landscape({ m, rule, state, trail, rail, next, grad, wid
           <g className="ls-grad">
             <line x1={shadow.x} y1={shadow.y} x2={arrowTip.x} y2={arrowTip.y} />
             <circle cx={arrowTip.x} cy={arrowTip.y} r={3.5} />
-            <text x={arrowTip.x + 6} y={arrowTip.y - 4}>上坡</text>
+            <text x={arrowTip.x + 6} y={arrowTip.y - 4}>{tr('上坡', 'uphill')}</text>
           </g>
         )}
         {landing && (() => {
@@ -188,7 +189,7 @@ export default function Landscape({ m, rule, state, trail, rail, next, grad, wid
             <g className={`ls-next ${off ? 'is-off' : ''}`}>
               <path d={`M${shadow.x},${shadow.y} Q${(shadow.x + floor.x) / 2},${Math.min(shadow.y, floor.y) - 26} ${floor.x},${floor.y}`} />
               <circle className="ls-ghost" cx={ghost.x} cy={ghost.y} r={7} />
-              <text x={floor.x + 8} y={floor.y + 14}>{off ? '冲出地图' : '下一步落在这'}</text>
+              <text x={floor.x + 8} y={floor.y + 14}>{off ? tr('冲出地图', 'off the map') : tr('下一步落在这', 'next step lands here')}</text>
             </g>
           )
         })()}

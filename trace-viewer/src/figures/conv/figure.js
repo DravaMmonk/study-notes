@@ -1,5 +1,5 @@
 import * as k from '../kit/iso-kit.js'
-import { applyOrder, clamp, createIdle, createLoop, floorPoint, follow, spring, svgNode, viewBoxPoint } from '../common.js'
+import { applyOrder, clamp, createIdle, createLoop, floorPoint, follow, spring, svgNode, t, viewBoxPoint } from '../common.js'
 import { IMAGE, K, KERNELS, N, appliedWeights, format, outputSize, respond, responseMap, windowOrigin } from './model.js'
 
 // Fig · The filter press.
@@ -175,22 +175,26 @@ export const meta = {
   id: 'conv-press',
   fig: 'Fig 3.1',
   title: '滤波压机',
+  titleEn: 'Filter press',
 }
 
-const KEYS = [
-  { mark: 'lit', label: '正在设定的输出针' },
-  { mark: 'raised', label: '像素针：高度 = 亮度' },
-  { mark: 'dim', label: '深色垫圈：负权重' },
+const keysOf = (lang) => [
+  { mark: 'lit', label: t(lang, '正在设定的输出针', 'output pin being set') },
+  { mark: 'raised', label: t(lang, '像素针：高度 = 亮度', 'pixel pin: height = intensity') },
+  { mark: 'dim', label: t(lang, '深色垫圈：负权重', 'dark washer: negative weight') },
 ]
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const bed = tray(IN_FLOOR)
   const outTray = tray(OUT_FLOOR)
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '底板上的滤波压机。龙门横梁带着一个三乘三的弹簧探针压头，在七乘七的像素针床上移动，针的高度就是图像亮度；压头顶面每根螺柱上的垫圈数等于该位置的卷积核权重。压头落下后，同一横梁上的设定器把输出盘中对应的针升到加权和。',
+      'A filter press on a base plate. A gantry beam carries a three-by-three head of spring feelers over a seven-by-seven bed of pixel pins whose heights are the image intensities; the washers stacked on each stud on top of the head count that position’s kernel weight. When the head comes down, a setter on the same beam raises the matching pin in the output tray to the weighted sum.',
+    ),
     body: [
       base(),
       `<g data-part="upright-right">${upright(RAIL_Y[1])}</g>`,
@@ -207,28 +211,31 @@ export function render() {
       `<g data-part="beam">${beam()}</g>`,
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="滤波设置">
-    <div class="fx-control"><span>卷积核</span>${Object.entries(KERNELS).map(([id, kernel]) => `<button type="button" data-set="kernel" data-value="${id}">${kernel.name}</button>`).join('')}</div>
-    <div class="fx-control"><span>模式</span><button type="button" data-set="flip" data-value="0">互相关</button><button type="button" data-set="flip" data-value="1">卷积</button></div>
-    <div class="fx-control"><span>补边</span><button type="button" data-set="padding" data-value="0">0</button><button type="button" data-set="padding" data-value="1">1</button></div>
-    <div class="fx-control"><span>步幅</span><button type="button" data-set="stride" data-value="1">1</button><button type="button" data-set="stride" data-value="2">2</button></div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '滤波设置', 'Filter settings')}">
+    <div class="fx-control"><span>${t(lang, '卷积核', 'Kernel')}</span>${Object.entries(KERNELS).map(([id, kernel]) => `<button type="button" data-set="kernel" data-value="${id}">${t(lang, kernel.name, kernel.nameEn)}</button>`).join('')}</div>
+    <div class="fx-control"><span>${t(lang, '模式', 'Mode')}</span><button type="button" data-set="flip" data-value="0">${t(lang, '互相关', 'Correlation')}</button><button type="button" data-set="flip" data-value="1">${t(lang, '卷积', 'Convolution')}</button></div>
+    <div class="fx-control"><span>${t(lang, '补边', 'Padding')}</span><button type="button" data-set="padding" data-value="0">0</button><button type="button" data-set="padding" data-value="1">1</button></div>
+    <div class="fx-control"><span>${t(lang, '步幅', 'Stride')}</span><button type="button" data-set="stride" data-value="1">1</button><button type="button" data-set="stride" data-value="2">2</button></div>
   </div>
   <div class="fx-calc" aria-live="off"><span class="fx-grid" data-calc="window"></span><i>⊙</i><span class="fx-grid" data-calc="kernel"></span><i data-calc="divisor"></i><i>=</i><b data-calc="sum"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '悬停针床 · 方向键移动',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '悬停针床 · 方向键移动', 'Hover the bed · arrow keys move'),
       readout: '',
-      keys: KEYS,
-      caption:
+      keys: keysOf(lang),
+      caption: t(
+        lang,
         '压头抬起、龙门步进，九根探针落在一个 3 × 3 窗口上；压头顶面每根螺柱上的垫圈数就是该位置的权重，深色垫圈为负。设定器把输出盘里对应的针升到 Σ f·h。输出边长 = ⌊(N − K + 2P) / S⌋ + 1：不补边时 7 → 5，补边 1 时 7 → 7，步幅 2 约减半。选“卷积”时权重先旋转 180° 再压下：对称的核没有变化，Sobel 的左右两列互换符号。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="滤波压机。方向键移动窗口，Home 与 End 跳到两角。">${svg}</div>`,
+        'The head lifts, the gantry steps, and nine feelers land on a 3 × 3 window; the washers on each stud on top of the head are that position’s weight, dark ones negative. The setter raises the matching pin in the output tray to Σ f·h. Output side = ⌊(N − K + 2P) / S⌋ + 1: with no padding 7 → 5, with padding 1 7 → 7, and stride 2 roughly halves it. Choosing “Convolution” rotates the weights by 180° before pressing: a symmetric kernel is unchanged, while Sobel’s left and right columns swap sign.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, '滤波压机。方向键移动窗口，Home 与 End 跳到两角。', 'Filter press. Arrow keys move the window; Home and End jump to the corners.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -414,7 +421,7 @@ export function mount(root) {
     calc.kernel.innerHTML = terms.map(([, w]) => `<b data-sign="${Math.sign(w)}">${String(w).replace('-', '−')}</b>`).join('')
     calc.divisor.textContent = kernel.divisor === 1 ? '' : `÷ ${kernel.divisor}`
     calc.sum.textContent = format(value)
-    stage.setAttribute('aria-valuetext', `输出第 ${i + 1} 行第 ${j + 1} 列，共 ${state.size} × ${state.size}：${format(value)}`)
+    stage.setAttribute('aria-valuetext', t(lang, `输出第 ${i + 1} 行第 ${j + 1} 列，共 ${state.size} × ${state.size}：${format(value)}`, `Output row ${i + 1}, column ${j + 1} of ${state.size} × ${state.size}: ${format(value)}`))
     buttons.forEach((button) => {
       const current = String(button.dataset.set === 'flip' ? Number(config.flip) : config[button.dataset.set])
       button.setAttribute('aria-pressed', String(button.dataset.value === current))
@@ -424,7 +431,7 @@ export function mount(root) {
   function say() {
     const [i, j] = state.target
     const ready = state.visited.has(`${i},${j}`)
-    const text = `g[${i},${j}] = ${ready ? format(state.values[i][j]) : '…'} · 输出 ${state.size}×${state.size}`
+    const text = `g[${i},${j}] = ${ready ? format(state.values[i][j]) : '…'} · ${t(lang, '输出', 'output')} ${state.size}×${state.size}`
     if (readout.textContent !== text) readout.textContent = text
   }
 

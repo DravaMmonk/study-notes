@@ -1,12 +1,14 @@
 import { Suspense, createElement, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, BookOpen, Lightbulb, Moon, PanelLeft, Plus, RotateCcw, Ruler, Sun, X } from 'lucide-react'
+import { ArrowLeft, BookOpen, Lightbulb, PanelLeft, Plus, RotateCcw, X } from 'lucide-react'
 import { hasLearnable, runLevel, trainStep } from './engine/graph.js'
 import { NODE_TYPES, defaultParams, inputsOf } from './engine/nodes.js'
 import { CHAPTERS, LEVELS, levelById, unlocksBefore } from './levels/index.js'
 import { INTROS } from './levels/intros/index.js'
 import { startBoard, withHidden } from './levels/util.js'
 import { loadProgress, saveProgress } from './progress.js'
-import { applyTheme } from '../../../games/kit/theme.js'
+import { applyTheme, nextTheme, themeLabel } from '../../../games/kit/theme.js'
+import { applyLang, currentLang, otherLang } from '../../../games/kit/lang.js'
+import { L, getLang, keyOf, tr } from './i18n.js'
 import Editor from './ui/Editor.jsx'
 import IntroSheet from './ui/IntroSheet.jsx'
 import LevelMap from './ui/LevelMap.jsx'
@@ -19,24 +21,34 @@ import { describe, familyOf, iconOf } from './ui/catalog.js'
 import { PHONE, useMedia } from './ui/useMedia.js'
 import { kindOf, nodeView, viewFor } from './ui/views/views.js'
 
-const THEMES = [
-  ['paper', '纸面', Sun],
-  ['night', '夜间', Moon],
-  ['blueprint', '蓝图', Ruler],
-]
+// Built on its own (npm run build:game) the game sits in game/vision-complete/ under the notes site and the games
+// hub; inside Fieldnotes (npm run dev) the notes are the reader at ./ and there is no hub.
+const SITE = import.meta.env.MODE === 'game' ? { notes: '../../', games: '../' } : { notes: './', games: null }
 
 // Unlock flags → the part they give, for the solved dialog.
 const UNLOCKED_PART = Object.fromEntries(Object.entries(NODE_TYPES).filter(([, spec]) => spec.unlock).map(([type, spec]) => [spec.unlock, type]))
-const UNLOCK_NAMES = { 'edge-pad': '补边方式：复制边缘', shift: '平移', invert: '反相' }
+const UNLOCK_NAMES = {
+  'edge-pad': { zh: '补边方式：复制边缘', en: 'Padding: replicate edge' },
+  shift: { zh: '平移', en: 'Shift' },
+  invert: { zh: '反相', en: 'Invert' },
+}
 UNLOCKED_PART.shift = 'shift'
 UNLOCKED_PART.invert = 'invert'
 
 const INTRO = [
-  '探测器 V-0，视觉芯片已上电。',
-  '传感器把世界变成一格格数字，可你还看不懂它们。',
-  '母舰会给你一系列测试。每通过一个，你就多一个可以用的元件。',
-  '没有说明书。动手试，看测试图，读数字。',
+  { zh: '探测器 V-0，视觉芯片已上电。', en: 'Probe V-0, vision chip powered on.' },
+  { zh: '传感器把世界变成一格格数字，可你还看不懂它们。', en: 'Your sensor turns the world into a grid of numbers, but you cannot read them yet.' },
+  { zh: '母舰会给你一系列测试。每通过一个，你就多一个可以用的元件。', en: 'The mothership will send you a series of tests. Each one you pass gives you a new part to use.' },
+  { zh: '没有说明书。动手试，看测试图，读数字。', en: 'There is no manual. Try things, look at the test pictures, read the numbers.' },
 ]
+
+// Fixed cards on a level with several inputs, unless the level names them itself.
+const INPUT_LABELS = {
+  left: { zh: '左图', en: 'Left image' },
+  right: { zh: '右图', en: 'Right image' },
+  scene: { zh: '现场', en: 'Scene' },
+  empty: { zh: '空场', en: 'Empty scene' },
+}
 
 export default function Game() {
   const [progress, setProgress] = useState(loadProgress)
@@ -45,6 +57,14 @@ export default function Game() {
   // again whenever the player asks for it from the bar.
   const [introFor, setIntroFor] = useState(null)
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme)
+  // The reading language, shared with every other page (games/kit/lang.js). Changing it re-renders the whole game in
+  // place: boards and progress live in state and storage that do not depend on it, so nothing is lost.
+  const [lang, setLang] = useState(currentLang)
+  useEffect(() => {
+    const onLang = (event) => setLang(event.detail === 'en' ? 'en' : 'zh')
+    window.addEventListener('langchange', onLang)
+    return () => window.removeEventListener('langchange', onLang)
+  }, [])
   const phone = useMedia(PHONE)
   const solved = useMemo(() => new Set(progress.solved), [progress.solved])
   // The level list beside a level: docked on wide screens (remembered), a drawer on narrow ones.
@@ -62,6 +82,10 @@ export default function Game() {
 
   useEffect(() => saveProgress(progress), [progress])
   useEffect(() => applyTheme(theme), [theme])
+  useEffect(() => {
+    document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
+    document.title = tr('视觉完备 — Vision Complete', 'Vision Complete — 视觉完备')
+  }, [lang])
 
   const open = (id) => {
     setLevelId(id)
@@ -77,30 +101,37 @@ export default function Game() {
 
   return (
     <div className={`game ${level ? 'is-playing' : 'is-mapping'}`}>
-      <header className="game-bar">
+      {/* The kit's top bar (games/kit/ui.css), the same on every page of the notes and games. */}
+      <header className="kit-bar game-bar">
         {level ? (
           <>
-            <button className="bar-button" onClick={() => open(null)} aria-label="回到关卡地图"><ArrowLeft size={16} /><span>地图</span></button>
-            <button className={`bar-button rail-toggle ${showRail ? 'is-on' : ''}`} onClick={toggleRail} aria-pressed={showRail} aria-label="关卡列表"><PanelLeft size={16} /><span>关卡</span></button>
+            <button className="kit-btn is-label bar-button" onClick={() => open(null)} aria-label={tr('回到关卡地图', 'Back to the level map')}><ArrowLeft size={16} /><span>{tr('地图', 'Map')}</span></button>
+            <button className={`kit-btn is-label bar-button rail-toggle ${showRail ? 'is-on' : ''}`} onClick={toggleRail} aria-pressed={showRail} aria-label={tr('关卡列表', 'Level list')}><PanelLeft size={16} /><span>{tr('关卡', 'Levels')}</span></button>
           </>
         ) : (
-          // Built on its own (npm run build:game) the game sits in game/vision-complete/, under the games hub.
-          import.meta.env.MODE === 'game' ? (
-            <a className="bar-button" href="../" aria-label="回到游戏列表"><ArrowLeft size={16} /><span>游戏</span></a>
-          ) : (
-            <a className="bar-button" href="./" aria-label="回到 Fieldnotes"><ArrowLeft size={16} /><span>Fieldnotes</span></a>
-          )
+          <a className="kit-btn is-label bar-button" href={SITE.games ?? SITE.notes} aria-label={SITE.games ? tr('回到游戏列表', 'Back to the games') : tr('回到笔记', 'Back to the notes')}><ArrowLeft size={16} /><span>{SITE.games ? tr('游戏', 'Games') : tr('笔记', 'Notes')}</span></a>
         )}
-        <span className="game-brand"><i className="brand-chip" aria-hidden="true" />视觉完备</span>
+        <span className="kit-brand game-brand"><i className="kit-chip" aria-hidden="true" /><span>{tr('视觉完备', 'Vision Complete')}</span></span>
+        {!level && !phone && (
+          <nav className="kit-nav" aria-label={tr('站点', 'Site')}>
+            <a href={SITE.notes}>{tr('笔记', 'Notes')}</a>
+            {SITE.games && <a href={SITE.games} aria-current="page">{tr('游戏', 'Games')}</a>}
+          </nav>
+        )}
         {level && (
           <span className="game-level-title">
             <b>{level.id}</b>
-            <span>{level.title}</span>
-            {chapter && <small>{chapter.title}</small>}
+            <span>{L(level.title)}</span>
+            {chapter && <small>{L(chapter.title)}</small>}
           </span>
         )}
-        {level && INTROS[level.id] && <button className="bar-button intro-button" onClick={() => setIntroFor(level.id)} aria-label="引入"><BookOpen size={16} /><span>引入</span></button>}
-        <ThemeSwitch theme={theme} onChange={setTheme} compact={phone} />
+        {level && INTROS[level.id] && <button className="kit-btn is-label bar-button intro-button" onClick={() => setIntroFor(level.id)} aria-label={tr('引入', 'Intro')}><BookOpen size={16} /><span>{tr('引入', 'Intro')}</span></button>}
+        <div className="kit-actions">
+          <LangToggle lang={lang} />
+          <button className="kit-btn" onClick={() => setTheme(nextTheme(theme))} title={tr(`换成${themeLabel(nextTheme(theme))}`, `Switch to ${themeLabel(nextTheme(theme))}`)} aria-label={tr(`换成${themeLabel(nextTheme(theme))}`, `Switch to ${themeLabel(nextTheme(theme))}`)}>
+            {themeLabel(theme)}
+          </button>
+        </div>
       </header>
 
       {!level && <LevelMap solved={solved} best={progress.best} all={progress.all} onAll={(all) => setProgress((p) => ({ ...p, all }))} onOpen={open} theme={theme} />}
@@ -135,7 +166,7 @@ export default function Game() {
         />
       )}
       {!progress.seenIntro && (
-        <Dialog title="上电" lines={INTRO} actions={[['开始', () => setProgress((p) => ({ ...p, seenIntro: true }))]]} intro />
+        <Dialog title={tr('上电', 'Power on')} lines={INTRO.map(L)} actions={[[tr('开始', 'Start'), () => setProgress((p) => ({ ...p, seenIntro: true }))]]} intro />
       )}
     </div>
   )
@@ -158,28 +189,14 @@ function writeRail(on) {
   }
 }
 
-function ThemeSwitch({ theme, onChange, compact }) {
-  if (compact) {
-    const index = THEMES.findIndex(([id]) => id === theme)
-    const [, label, Icon] = THEMES[index] ?? THEMES[0]
-    const next = THEMES[(index + 1) % THEMES.length]
-    return (
-      <button className="theme-cycle" onClick={() => onChange(next[0])} aria-label={`主题：${label}，点按切换到${next[1]}`}>
-        {createElement(Icon, { size: 16, strokeWidth: 1.6 })}
-      </button>
-    )
-  }
+// Switches the reading language for this game and every other page. It shows the language it switches to.
+function LangToggle({ lang }) {
+  const next = otherLang(lang)
+  const name = next === 'en' ? 'Switch to English' : '切换到中文'
   return (
-    <div className="theme-switch" role="radiogroup" aria-label="主题">
-      {THEMES.map((option) => {
-        const [id, label, ThemeIcon] = option
-        return (
-          <button key={id} className="theme-option" role="radio" aria-checked={theme === id} aria-label={label} title={label} onClick={() => onChange(id)}>
-            <ThemeIcon size={14} strokeWidth={1.6} />
-          </button>
-        )
-      })}
-    </div>
+    <button className="kit-btn" data-lang-toggle onClick={() => applyLang(next)} aria-label={name} title={name} lang={next === 'en' ? 'en' : 'zh-CN'}>
+      {next === 'en' ? 'EN' : '中'}
+    </button>
   )
 }
 
@@ -226,7 +243,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   }, [progress.flags, progress.all, level])
   // The fixed cards are named and drawn by what they carry: a picture, a waveform or a number.
   const ioKinds = level.kind === 'graph' ? Object.fromEntries([...Object.entries(level.tests[0].inputs), ...Object.entries(level.tests[0].expected)].map(([name, value]) => [name, kindOf(value)])) : {}
-  const inputLabels = level.inputLabels ?? (level.inputs.length > 1 ? { left: '左图', right: '右图', scene: '现场', empty: '空场' } : {})
+  const inputLabels = level.inputLabels ?? (level.inputs.length > 1 ? INPUT_LABELS : {})
   const outputLabels = level.outputLabels ?? {}
   const views = { in: viewFor(level, 'in'), out: viewFor(level, 'out'), mid: viewFor(level, 'mid') }
   // The row every profile view traces, as a fraction of the height, shared by cards and tests.
@@ -332,30 +349,30 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   const passed = shown?.results.filter((r) => r.pass).length ?? 0
 
   const parts = <PartsList palette={level.palette} onAdd={addNode} />
-  // About three lines on a phone; longer task text starts folded.
-  const longBrief = level.brief.length > 66
+  // About three lines on a phone (66 Chinese characters, about 150 English ones); longer task text starts folded.
+  const longBrief = L(level.brief).length > (getLang() === 'en' ? 150 : 66)
   const brief = (
     <>
       <header className="brief-head">
         <span className="brief-id">{level.id}</span>
-        <h1>{level.title}</h1>
+        <h1>{L(level.title)}</h1>
       </header>
-      <p className={`brief-text ${phone && !showBrief && longBrief ? 'is-clamped' : ''}`} onClick={() => phone && setShowBrief(true)}>{level.brief}</p>
-      {phone && !showBrief && longBrief && <button className="brief-more" onClick={() => setShowBrief(true)}>展开说明</button>}
+      <p className={`brief-text ${phone && !showBrief && longBrief ? 'is-clamped' : ''}`} onClick={() => phone && setShowBrief(true)}>{L(level.brief)}</p>
+      {phone && !showBrief && longBrief && <button className="brief-more" onClick={() => setShowBrief(true)}>{tr('展开说明', 'Show more')}</button>}
       {level.hint && (
         <div className="hint-block">
-          <button className="hint-toggle" onClick={() => setShowHint((v) => !v)} aria-expanded={showHint}><Lightbulb size={14} /> {showHint ? '收起提示' : '提示'}</button>
-          {showHint && <p className="hint">{level.hint}</p>}
+          <button className="hint-toggle" onClick={() => setShowHint((v) => !v)} aria-expanded={showHint}><Lightbulb size={14} /> {showHint ? tr('收起提示', 'Hide hint') : tr('提示', 'Hint')}</button>
+          {showHint && <p className="hint">{L(level.hint)}</p>}
         </div>
       )}
     </>
   )
   const training = level.kind === 'graph' && hasLearnable(board) && (
     <section>
-      <h3 className="panel-label">训练</h3>
+      <h3 className="panel-label">{tr('训练', 'Training')}</h3>
       <div className="train-buttons">
-        <button onClick={() => train(1)}>训练 1 步</button>
-        <button onClick={() => train(10)}>训练 10 步</button>
+        <button onClick={() => train(1)}>{tr('训练 1 步', 'Train 1 step')}</button>
+        <button onClick={() => train(10)}>{tr('训练 10 步', 'Train 10 steps')}</button>
       </div>
       <LossCurve losses={losses} />
     </section>
@@ -363,19 +380,19 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   const graphLevel = level.kind === 'graph'
   const score = graphLevel && (
     <section className="score">
-      <h3 className="panel-label">评分</h3>
+      <h3 className="panel-label">{tr('评分', 'Score')}</h3>
       <div className="stat-row">
-        <div className="stat"><b>{run?.score.nodes ?? 0}</b><span>节点</span></div>
-        <div className="stat"><b>{run?.score.cost ?? 0}</b><span>计算量</span></div>
-        <div className={`stat ${shown?.pass ? 'is-pass' : ''}`}><b>{shown?.untested ? '—' : passed}/{playLevel.tests.length}</b><span>{shown?.untested ? '还没测试' : '测试'}</span></div>
+        <div className="stat"><b>{run?.score.nodes ?? 0}</b><span>{tr('节点', 'Parts')}</span></div>
+        <div className="stat"><b>{run?.score.cost ?? 0}</b><span>{tr('计算量', 'Cost')}</span></div>
+        <div className={`stat ${shown?.pass ? 'is-pass' : ''}`}><b>{shown?.untested ? '—' : passed}/{playLevel.tests.length}</b><span>{shown?.untested ? tr('还没测试', 'Not tested') : tr('测试', 'Tests')}</span></div>
       </div>
-      {run?.constraint && <p className="constraint">{run.constraint}</p>}
-      {progress.best[level.id] && <p className="panel-note">最佳：{progress.best[level.id].nodes} 个节点 · 计算量 {progress.best[level.id].cost}</p>}
+      {run?.constraint && <p className="constraint">{L(run.constraint)}</p>}
+      {progress.best[level.id] && <p className="panel-note">{tr(`最佳：${progress.best[level.id].nodes} 个节点 · 计算量 ${progress.best[level.id].cost}`, `Best: ${progress.best[level.id].nodes} parts · cost ${progress.best[level.id].cost}`)}</p>}
     </section>
   )
-  const reset = <button className="reset-button" onClick={() => { change(startBoard(level)); setLosses([]) }}><RotateCcw size={13} /> 清空电路</button>
+  const reset = <button className="reset-button" onClick={() => { change(startBoard(level)); setLosses([]) }}><RotateCcw size={13} /> {tr('清空电路', 'Clear circuit')}</button>
   const play = level.kind === 'board' ? (
-    <Suspense fallback={<div className="board-loading">载入中…</div>}>
+    <Suspense fallback={<div className="board-loading">{tr('载入中…', 'Loading…')}</div>}>
       <BoardLevel level={level} onSolve={() => { solve(null); setWon(true) }} theme={theme} />
     </Suspense>
   ) : (
@@ -386,10 +403,10 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
     <>
       {sheet && (
         <div className="sheet-scrim" onClick={() => setSheet(false)}>
-          <div className="sheet" role="dialog" aria-modal="true" aria-label={sheet === 'tests' ? '测试详情' : '元件'} onClick={(e) => e.stopPropagation()}>
+          <div className="sheet" role="dialog" aria-modal="true" aria-label={sheet === 'tests' ? tr('测试详情', 'Test details') : tr('元件', 'Parts')} onClick={(e) => e.stopPropagation()}>
             <header>
-              <span className="panel-label">{sheet === 'tests' ? '测试详情' : '选一个元件，接在最后'}</span>
-              <button className="icon-only" onClick={() => setSheet(false)} aria-label="关闭"><X size={18} /></button>
+              <span className="panel-label">{sheet === 'tests' ? tr('测试详情', 'Test details') : tr('选一个元件，接在最后', 'Pick a part to add at the end')}</span>
+              <button className="icon-only" onClick={() => setSheet(false)} aria-label={tr('关闭', 'Close')}><X size={18} /></button>
             </header>
             {sheet === 'tests' ? testPanel : parts}
           </div>
@@ -436,9 +453,9 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
         {level.kind === 'graph' && (
           <>
             <section>
-              <h3 className="panel-label">元件</h3>
+              <h3 className="panel-label">{tr('元件', 'Parts')}</h3>
               {parts}
-              <p className="panel-note">从卡片右侧的圆点拖线到下一张卡片。选中卡片或连线后按 Delete 删除；按住 ⌘/Ctrl 滚动可缩放。</p>
+              <p className="panel-note">{tr('从卡片右侧的圆点拖线到下一张卡片。选中卡片或连线后按 Delete 删除；按住 ⌘/Ctrl 滚动可缩放。', 'Drag a wire from the dot on the right of a card to the next card. Select a card or wire and press Delete to remove it; hold ⌘/Ctrl and scroll to zoom.')}</p>
             </section>
             {training}
             {score}
@@ -482,14 +499,14 @@ function PinnedPlay({ children }) {
 }
 
 function PartsList({ palette, onAdd }) {
-  if (!palette.length) return <p className="panel-note">这一关不需要元件。</p>
+  if (!palette.length) return <p className="panel-note">{tr('这一关不需要元件。', 'This level needs no parts.')}</p>
   return (
     <div className="palette">
       {palette.map((type) => (
         <button key={type} className="palette-item" data-family={familyOf(type)} onClick={() => onAdd(type)} title={describe(type)}>
           <i className="family-chip">{createElement(iconOf(type), { size: 14, strokeWidth: 1.7 })}</i>
           <span className="palette-text">
-            <span>{NODE_TYPES[type].label}</span>
+            <span>{L(NODE_TYPES[type].label)}</span>
             <small>{describe(type)}</small>
           </span>
           <Plus size={14} className="palette-add" />
@@ -502,22 +519,22 @@ function PartsList({ palette, onAdd }) {
 // Boards are module-level lazy components looked up by name.
 function BoardLevel({ level, onSolve, theme }) {
   const board = boardFor(level.board)
-  if (!board) return <div className="board-loading">这个机关台还没做好。</div>
+  if (!board) return <div className="board-loading">{tr('这个机关台还没做好。', 'This bench is not built yet.')}</div>
   return createElement(board, { level, onSolve, theme })
 }
 
 function LossCurve({ losses }) {
-  if (!losses.length) return <p className="panel-note">还没训练。每一步，所有可学习的权重都朝让误差变小的方向挪一点。</p>
+  if (!losses.length) return <p className="panel-note">{tr('还没训练。每一步，所有可学习的权重都朝让误差变小的方向挪一点。', 'Not trained yet. Each step nudges every learnable weight in the direction that makes the error smaller.')}</p>
   const max = Math.max(...losses)
   const min = Math.min(...losses)
   const points = losses.map((v, i) => `${(i / Math.max(1, losses.length - 1)) * 200},${56 - ((Math.log(v + 1e-9) - Math.log(min + 1e-9)) / Math.max(1e-9, Math.log(max + 1e-9) - Math.log(min + 1e-9))) * 52}`)
   return (
     <figure className="loss">
-      <svg viewBox="0 0 200 60" preserveAspectRatio="none" role="img" aria-label="损失曲线">
+      <svg viewBox="0 0 200 60" preserveAspectRatio="none" role="img" aria-label={tr('损失曲线', 'Loss curve')}>
         <polyline className="loss-area" points={`0,60 ${points.join(' ')} 200,60`} />
         <polyline points={points.join(' ')} />
       </svg>
-      <figcaption>损失 {losses.at(-1).toExponential(1)}<span>对数刻度</span></figcaption>
+      <figcaption>{tr('损失', 'Loss')} {losses.at(-1).toExponential(1)}<span>{tr('对数刻度', 'log scale')}</span></figcaption>
     </figure>
   )
 }
@@ -527,28 +544,28 @@ function SolvedDialog({ level, onStay, onExit, next, onNext }) {
   const extras = level.unlocks.filter((flag) => !UNLOCKED_PART[flag] || !NODE_TYPES[UNLOCKED_PART[flag]]).map((flag) => UNLOCK_NAMES[flag] ?? flag)
   return (
     <div className="dialog-scrim">
-      <div className="dialog is-solved" role="dialog" aria-modal="true" aria-label="通过">
+      <div className="dialog is-solved" role="dialog" aria-modal="true" aria-label={tr('通过', 'Passed')}>
         <div className="solved-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" /><path d="M12 20.5l5.5 5.5L28.5 14" /></svg></div>
-        <h2>通过 · {level.id} {level.title}</h2>
-        <p>{level.after}</p>
+        <h2>{tr('通过', 'Passed')} · {level.id} {L(level.title)}</h2>
+        <p>{L(level.after)}</p>
         {(parts.length > 0 || extras.length > 0) && (
           <div className="unlocked">
-            <span className="panel-label">解锁</span>
+            <span className="panel-label">{tr('解锁', 'Unlocked')}</span>
             <div className="unlocked-list">
               {parts.map((type) => (
                 <span key={type} className="unlocked-part" data-family={familyOf(type)}>
                   <i className="family-chip">{createElement(iconOf(type), { size: 14, strokeWidth: 1.7 })}</i>
-                  {NODE_TYPES[type].label}
+                  {L(NODE_TYPES[type].label)}
                 </span>
               ))}
-              {extras.map((text) => <span key={text} className="unlocked-part">{text}</span>)}
+              {extras.map((text) => <span key={keyOf(text)} className="unlocked-part">{L(text)}</span>)}
             </div>
           </div>
         )}
         <div className="dialog-actions">
-          <button onClick={onStay}>留在这里</button>
-          <button onClick={onExit}>回地图</button>
-          {next && <button className="is-primary" onClick={onNext} autoFocus>下一关 · {next.title}</button>}
+          <button onClick={onStay}>{tr('留在这里', 'Stay here')}</button>
+          <button onClick={onExit}>{tr('回地图', 'Back to map')}</button>
+          {next && <button className="is-primary" onClick={onNext} autoFocus>{tr('下一关', 'Next level')} · {L(next.title)}</button>}
         </div>
       </div>
     </div>
@@ -560,7 +577,7 @@ function Dialog({ title, lines, actions, intro }) {
     <div className="dialog-scrim">
       <div className={`dialog ${intro ? 'is-intro' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
         <h2>{title}</h2>
-        {lines.map((line, index) => <p key={line} style={{ '--line': index }}>{line}</p>)}
+        {lines.map((line, index) => <p key={index} style={{ '--line': index }}>{line}</p>)}
         <div className="dialog-actions">
           {actions.map(([label, action], index) => (
             <button key={label} className={index === actions.length - 1 ? 'is-primary' : ''} onClick={action} autoFocus={index === actions.length - 1}>{label}</button>

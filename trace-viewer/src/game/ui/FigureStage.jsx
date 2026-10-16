@@ -1,29 +1,33 @@
 import { useEffect, useRef } from 'react'
 import { createFigureHost } from '../../figures/host.js'
+import { useLang } from '../i18n.js'
 
 // An anatomy-kit figure used as a level's stage: the game passes its state in as props and hears what
 // the player changes inside the drawing through onChange.
 export default function FigureStage({ name, theme, props, onChange, className = '' }) {
   const box = useRef(null)
   const host = useRef(null)
-  const first = useRef(props)
+  const latest = useRef(props)
+  const lang = useLang()
   const listener = useRef(onChange)
 
   useEffect(() => {
     listener.current = onChange
+    latest.current = props
   })
 
   useEffect(() => {
-    const figure = createFigureHost(name, theme, { stage: true, props: first.current, onChange: (change) => listener.current?.(change) })
+    const figure = createFigureHost(name, theme, { lang, stage: true, props: latest.current, onChange: (change) => listener.current?.(change) })
     box.current.append(figure.host)
     host.current = figure
     return () => {
       figure.dispose()
       host.current = null
     }
-    // The figure mounts once per name; theme and props reach it through the effects below.
+    // The figure mounts once per name and language (a host's language is fixed, so a switch rebuilds it with
+    // the latest props); theme and props reach it through the effects below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name])
+  }, [name, lang])
 
   useEffect(() => {
     host.current?.setTheme(theme)

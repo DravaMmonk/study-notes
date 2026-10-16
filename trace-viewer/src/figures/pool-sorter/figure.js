@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { applyOrder, clamp, createIdle, createLoop, floorPoint, follow, spring, svgNode, viewBoxPoint } from '../common.js'
+import { applyOrder, clamp, createIdle, createLoop, floorPoint, follow, spring, svgNode, t, viewBoxPoint } from '../common.js'
 import { N, OUT, POOLS, STRIDE, format, mapOf, pooled, windowOf, winnerOf } from './model.js'
 
 // Fig · The pooling press.
@@ -253,16 +253,19 @@ function pinSvg(x, y, size, height, { lit = false, tone = 'hi' } = {}) {
 
 // ---------- the live figure ----------
 
-export const meta = { id: 'pool-sorter', fig: 'Fig 7.1', title: '池化压床' }
+export const meta = { id: 'pool-sorter', fig: 'Fig 7.1', title: '池化压床', titleEn: 'Pooling press' }
 
 export const css = '.pool-grid{grid-template-columns:repeat(2,2.2em)}'
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '底板上的池化压床。四乘四的激活值立成针，针高就是激活值，装在十字滑台上。固定的压头有两根联动的竖杆：一根带平压板，落在二乘二窗口上，只能停在最高的针上；另一根把旁边二乘二输出盘里对应的针升到同样高度。滑台每次走两根针。切换到平均池化时，压板换成两级平衡杆，四只脚都着地，中间支点的高度就是平均值。',
+      'A pooling press on a base plate. A four-by-four activation map stands as pins on a cross-slide table, each pin’s height its activation. The fixed press head has two coupled quills: one carries a flat platen that comes down on a two-by-two window and can only stop on the tallest pin; the other raises the matching pin in the two-by-two output tray beside it to the same height. The table moves two pins at a time. Switched to average pooling, the platen becomes a two-level balance beam whose four feet all touch down, and the height of its central pivot is the mean.',
+    ),
     body: [
       base(),
       column(),
@@ -277,30 +280,33 @@ export function render() {
       D([at([DIAL[0], DIAL[1], DIAL[2] + 4.1])], { size: 0.7, tone: 'hi' }),
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="池化设置">
-    <div class="fx-control"><span>池化</span><button type="button" data-set="mode" data-value="max">最大</button><button type="button" data-set="mode" data-value="avg">平均</button></div>
-    <div class="fx-control"><span>输入</span><button type="button" data-set="shift" data-value="0">原图</button><button type="button" data-set="shift" data-value="-1">左移 1 格</button></div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '池化设置', 'Pooling settings')}">
+    <div class="fx-control"><span>${t(lang, '池化', 'Pooling')}</span><button type="button" data-set="mode" data-value="max">${t(lang, '最大', 'Max')}</button><button type="button" data-set="mode" data-value="avg">${t(lang, '平均', 'Average')}</button></div>
+    <div class="fx-control"><span>${t(lang, '输入', 'Input')}</span><button type="button" data-set="shift" data-value="0">${t(lang, '原图', 'Original')}</button><button type="button" data-set="shift" data-value="-1">${t(lang, '左移 1 格', 'Shift left 1')}</button></div>
   </div>
-  <div class="fx-calc"><span data-calc="op"></span><span class="fx-grid pool-grid" data-calc="window"></span><i>=</i><b data-calc="value"></b><i>·</i><span>输出</span><span class="fx-grid pool-grid" data-calc="out"></span><span data-calc="before-label"></span><span class="fx-grid pool-grid" data-calc="before"></span><i>·</i><span>参数 0</span></div>`
+  <div class="fx-calc"><span data-calc="op"></span><span class="fx-grid pool-grid" data-calc="window"></span><i>=</i><b data-calc="value"></b><i>·</i><span>${t(lang, '输出', 'output')}</span><span class="fx-grid pool-grid" data-calc="out"></span><span data-calc="before-label"></span><span class="fx-grid pool-grid" data-calc="before"></span><i>·</i><span>${t(lang, '参数 0', '0 parameters')}</span></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '悬停针床 · 方向键',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '悬停针床 · 方向键', 'Hover the bed · arrow keys'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '压板停在其上的最高针' },
-        { mark: 'raised', label: '激活针：高度 = 激活值' },
-        { mark: 'flat', label: '输出针：一个窗口一根' },
+        { mark: 'lit', label: t(lang, '压板停在其上的最高针', 'tallest pin, where the platen stops') },
+        { mark: 'raised', label: t(lang, '激活针：高度 = 激活值', 'activation pin: height = activation') },
+        { mark: 'flat', label: t(lang, '输出针：一个窗口一根', 'output pin: one per window') },
       ],
-      caption:
+      caption: t(
+        lang,
         '滑台每次走两根针（步幅 2），压板落到 2 × 2 窗口上，只能停在最高的那根针上，其余三根留着空隙；联动的放置杆把输出盘里对应的针升到同样高度，4 × 4 就变成 2 × 2。换成平均池化时，压板换成两级平衡杆，四只脚都着地，中间支点的高度就是平均值，峰值被摊平。池化没有要学习的参数；把输入左移一格，最大池化的输出只有一个变了（6 8 3 4 → 7 8 3 4），平均池化变了三个。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="池化压床。方向键选择窗口，M 切换最大或平均池化，S 平移输入。">${svg}</div>`,
+        'The table steps two pins at a time (stride 2) and the platen comes down on a 2 × 2 window. It can only stop on the tallest pin, leaving a gap above the other three, and the coupled setter raises the matching pin in the output tray to the same height, so 4 × 4 downsamples to 2 × 2. With average pooling the platen becomes a two-level balance beam: all four feet touch down, the height of the central pivot is the mean, and peaks get flattened. Pooling has no learnable parameters. Shift the input one column left and only one max-pooling output changes (6 8 3 4 → 7 8 3 4), while average pooling changes three.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, '池化压床。方向键选择窗口，M 切换最大或平均池化，S 平移输入。', 'Pooling press. Arrow keys choose the window, M switches between max and average pooling, and S shifts the input.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -489,11 +495,11 @@ export function mount(root) {
     const table = pooled(config.mode, config.shift)
     calc.out.innerHTML = table.flatMap((row, a) => row.map((value, b) => `<b>${state.measured.has(`${a},${b}`) ? format(value) : '·'}</b>`)).join('')
     const before = pooled(config.mode, 0)
-    calc['before-label'].textContent = config.shift ? '平移前' : ''
+    calc['before-label'].textContent = config.shift ? t(lang, '平移前', 'before shift') : ''
     calc.before.style.display = config.shift ? '' : 'none'
     calc.before.innerHTML = before.flatMap((row) => row.map((value) => `<b>${format(value)}</b>`)).join('')
     buttons.forEach((node) => node.setAttribute('aria-pressed', String(node.dataset.value === String(config[node.dataset.set]))))
-    stage.setAttribute('aria-valuetext', `${pool.name}，窗口第 ${i + 1} 行第 ${j + 1} 列：${values.join('、')}，输出 ${format(result)}`)
+    stage.setAttribute('aria-valuetext', t(lang, `${pool.name}，窗口第 ${i + 1} 行第 ${j + 1} 列：${values.join('、')}，输出 ${format(result)}`, `${pool.nameEn}, window row ${i + 1}, column ${j + 1}: ${values.join(', ')}; output ${format(result)}`))
   }
 
   function say(pose) {
@@ -501,10 +507,10 @@ export function mount(root) {
     const values = windowOf(valuesOf(), i, j)
     const result = POOLS[config.mode].of(values)
     let text
-    if (state.touring && state.tour.phase === 'reset') text = `${POOLS[config.mode].name} · 4×4 → 2×2`
-    else if (!pose.aligned) text = `步幅 2 · 移到窗口 (${i},${j})`
-    else if (state.measured.has(`${i},${j}`)) text = `窗口 (${i},${j}) · ${values.join(' ')} → ${POOLS[config.mode].short} ${format(result)}`
-    else text = `窗口 (${i},${j}) · 下压`
+    if (state.touring && state.tour.phase === 'reset') text = `${t(lang, POOLS[config.mode].name, POOLS[config.mode].nameEn)} · 4×4 → 2×2`
+    else if (!pose.aligned) text = t(lang, `步幅 2 · 移到窗口 (${i},${j})`, `stride 2 · to window (${i},${j})`)
+    else if (state.measured.has(`${i},${j}`)) text = `${t(lang, '窗口', 'window')} (${i},${j}) · ${values.join(' ')} → ${t(lang, POOLS[config.mode].short, POOLS[config.mode].shortEn)} ${format(result)}`
+    else text = t(lang, `窗口 (${i},${j}) · 下压`, `window (${i},${j}) · pressing`)
     if (readout.textContent !== text) readout.textContent = text
   }
 

@@ -13,18 +13,21 @@ import { build, test } from './util.js'
 
 export const nodes = {
   attention: {
-    label: '注意力',
-    description: '切成 4×4 图块；每块按 softmax(q·k/√d) 对所有块的 v 加权平均。只接 Q 时，K、V 也用它',
+    label: { zh: '注意力', en: 'Attention' },
+    description: {
+      zh: '切成 4×4 图块；每块按 softmax(q·k/√d) 对所有块的 v 加权平均。只接 Q 时，K、V 也用它',
+      en: "Cuts the image into 4×4 patches; each patch takes the average of every patch's v, weighted by softmax(q·k/√d). With only Q wired, K and V use it too",
+    },
     inputs: ['Q', 'K', 'V'],
     optional: ['K', 'V'],
-    params: [{ key: 's', label: 'q 放大', kind: 'number', min: 0, max: 100, step: 1, default: 1 }],
+    params: [{ key: 's', label: { zh: 'q 放大', en: 'q scale' }, kind: 'number', min: 0, max: 100, step: 1, default: 1 }],
     eval: ({ Q, K, V }, p) => attention(Q, K ?? Q, V ?? K ?? Q, p.s ?? 1),
     cost: 32,
     unlock: 'attention',
   },
   posenc: {
-    label: '位置编码',
-    description: '按阅读顺序第 i 个图块，每格加上 g·i',
+    label: { zh: '位置编码', en: 'Positional encoding' },
+    description: { zh: '按阅读顺序第 i 个图块，每格加上 g·i', en: 'Adds g·i to every pixel of the i-th patch in reading order' },
     inputs: ['in'],
     params: [{ key: 'g', label: 'g', kind: 'number', min: 0, max: 0.2, step: 0.01, default: 0.05 }],
     eval: ({ in: a }, p) => positionCode(a, p.g ?? 0.05),
@@ -65,32 +68,40 @@ const tiled = (items) =>
 const repaired = (items) => tiled(items.map(([name, row, col]) => [name, row, col]))
 
 const CORNERS = [
-  ['左上缺', [['X', 0, 0, [[0, 0], [1, 1], [3, 3]]], ['X', 3, 3], ['C', 0, 3], ['P', 2, 1]]],
-  ['右下缺', [['R', 0, 0], ['R', 3, 3, [[1, 0], [0, 1], [3, 2]]], ['K', 1, 2], ['S', 3, 0]]],
-  ['右上缺', [['S', 0, 3, [[0, 3], [1, 3], [2, 2]]], ['S', 3, 0], ['X', 1, 1], ['R', 2, 3]]],
-  ['两对都缺', [['C', 0, 0, [[0, 0], [3, 0]]], ['C', 3, 3], ['K', 0, 3], ['K', 3, 0, [[0, 1], [3, 3], [2, 2]]]]],
-  ['没缺', [['P', 0, 0], ['P', 3, 3], ['R', 1, 2], ['C', 2, 0]]],
+  [{ zh: '左上缺', en: 'Top left erased' }, [['X', 0, 0, [[0, 0], [1, 1], [3, 3]]], ['X', 3, 3], ['C', 0, 3], ['P', 2, 1]]],
+  [{ zh: '右下缺', en: 'Bottom right erased' }, [['R', 0, 0], ['R', 3, 3, [[1, 0], [0, 1], [3, 2]]], ['K', 1, 2], ['S', 3, 0]]],
+  [{ zh: '右上缺', en: 'Top right erased' }, [['S', 0, 3, [[0, 3], [1, 3], [2, 2]]], ['S', 3, 0], ['X', 1, 1], ['R', 2, 3]]],
+  [{ zh: '两对都缺', en: 'Both pairs erased' }, [['C', 0, 0, [[0, 0], [3, 0]]], ['C', 3, 3], ['K', 0, 3], ['K', 3, 0, [[0, 1], [3, 3], [2, 2]]]]],
+  [{ zh: '没缺', en: 'Nothing erased' }, [['P', 0, 0], ['P', 3, 3], ['R', 1, 2], ['C', 2, 0]]],
 ]
 
 // Held back: the anti-diagonal pair erased at the bottom left, and a scene with all four corners
 // filled so the erased tile has neighbours to mistake for its twin.
 const CORNERS_HIDDEN = [
-  ['左下缺', [['K', 3, 0, [[0, 0], [1, 1], [2, 2]]], ['K', 0, 3], ['R', 1, 1], ['C', 2, 2]]],
-  ['四角都有', [['P', 0, 3, [[1, 1], [1, 3]]], ['P', 3, 0], ['X', 0, 0], ['S', 3, 3], ['C', 1, 2]]],
+  [{ zh: '左下缺', en: 'Bottom left erased' }, [['K', 3, 0, [[0, 0], [1, 1], [2, 2]]], ['K', 0, 3], ['R', 1, 1], ['C', 2, 2]]],
+  [{ zh: '四角都有', en: 'All four corners filled' }, [['P', 0, 3, [[1, 1], [1, 3]]], ['P', 3, 0], ['X', 0, 0], ['S', 3, 3], ['C', 1, 2]]],
 ]
 
 const level51 = {
   id: '5-1',
   chapter: 5,
-  title: '补全对角',
-  brief: '一对对角上本是同一个图案，其中一个被擦掉了几格。把它补回来，其余不变；最多 3 个节点。',
-  hint: '3×3 的元件一次只看一格远。「注意力」把图切成 4×4 的图块，每块按相似度对所有图块加权平均；q 放大越大，越只看最像的几块。',
-  after:
-    '被擦的那块和远处的孪生块最像，于是一步就从对角取回了缺的格子。这就是自注意力：每个图块（token）用 q·k/√d 和所有图块打分，softmax 把分数变成和为 1 的权重，再对 v 加权平均。3×3 卷积叠 L 层也只看到 (2L+1)×(2L+1)。',
+  title: { zh: '补全对角', en: 'Mend across the diagonal' },
+  brief: {
+    zh: '一对对角上本是同一个图案，其中一个被擦掉了几格。把它补回来，其余不变；最多 3 个节点。',
+    en: 'Two opposite corners hold the same pattern, but a few pixels of one copy have been erased. Restore them and leave everything else unchanged; at most 3 nodes.',
+  },
+  hint: {
+    zh: '3×3 的元件一次只看一格远。「注意力」把图切成 4×4 的图块，每块按相似度对所有图块加权平均；q 放大越大，越只看最像的几块。',
+    en: 'A 3×3 part only sees one pixel away at a time. "Attention" cuts the image into 4×4 patches and gives each patch an average of all the patches, weighted by similarity; the larger the q scale, the more it looks only at the few most similar ones.',
+  },
+  after: {
+    zh: '被擦的那块和远处的孪生块最像，于是一步就从对角取回了缺的格子。这就是自注意力：每个图块（token）用 q·k/√d 和所有图块打分，softmax 把分数变成和为 1 的权重，再对 v 加权平均。3×3 卷积叠 L 层也只看到 (2L+1)×(2L+1)。',
+    en: 'The erased patch looks most like its far-off twin, so in one step it fetched the missing pixels from the opposite corner. That is self-attention: each patch (token) scores every patch with q·k/√d, softmax turns the scores into weights that sum to 1, and the v are averaged with those weights. Stack L layers of 3×3 convolution and you still only see (2L+1)×(2L+1).',
+  },
   requires: ['4-6'],
   unlocks: ['attention'],
   palette: ['attention', 'shift', 'box3', 'add', 'scale', 'threshold'],
-  constraint: (score) => (score.nodes > 3 ? `用了 ${score.nodes} 个节点，最多 3 个` : ''),
+  constraint: (score) => (score.nodes > 3 ? { zh: `用了 ${score.nodes} 个节点，最多 3 个`, en: `${score.nodes} nodes used; at most 3` } : ''),
   tests: CORNERS.map(([label, items]) => test(label, { in: tiled(items) }, { out: repaired(items) })),
   hidden: CORNERS_HIDDEN.map(([label, items]) => test(label, { in: tiled(items) }, { out: repaired(items) })),
   solution: build({ a: ['attention', { s: 8 }], t: ['threshold', { t: 0.3 }] }, ['in>a.Q', 'a>t', 't>out']),
@@ -116,7 +127,7 @@ const orderScene = (bright, dark) => fromFn(16, 16, (x, y) => {
 })
 const ORDER_PAIRS = [[1, 2], [5, 9], [3, 12]]
 const orderTest = ([bright, dark]) =>
-  test(`亮 ${bright + 1} · 暗 ${dark + 1}`, { in: orderScene(bright, dark) }, { out: fromFn(16, 16, () => (bright < dark ? 1 : 0)) })
+  test({ zh: `亮 ${bright + 1} · 暗 ${dark + 1}`, en: `Bright ${bright + 1} · dark ${dark + 1}` }, { in: orderScene(bright, dark) }, { out: fromFn(16, 16, () => (bright < dark ? 1 : 0)) })
 const ORDER_TESTS = ORDER_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]]).map(orderTest)
 // Held back: neighbours across a row break (later column, earlier row), one directly above the
 // other, and the two far corners, so reading columns only, or rows only, is caught.
@@ -149,11 +160,19 @@ const orderGraph = ({ position = 'v', s = 60 } = {}) => {
 const level52 = {
   id: '5-2',
   chapter: 5,
-  title: '顺序盲',
-  brief: '按阅读顺序（先左后右，再从上到下），亮块排在暗块前面就整张图输出 1，否则输出 0。',
-  hint: 'Q、K 决定看谁，V 决定带回什么。让一个头只看亮块、另一个只看暗块（先反相），都从带位置的图里取 V，再相减。',
-  after:
-    '没有位置时，把两个图块对调，注意力的输出也只是跟着对调：它看到的是一袋图块，不是一串。加上位置编码 z̃ᵢ = zᵢ + pᵢ，每个图块带着自己的地址，顺序才进得了计算。ViT 在进入第一层之前就把位置加到每个图块上。',
+  title: { zh: '顺序盲', en: 'Blind to order' },
+  brief: {
+    zh: '按阅读顺序（先左后右，再从上到下），亮块排在暗块前面就整张图输出 1，否则输出 0。',
+    en: 'In reading order (left to right, then top to bottom), if the bright patch comes before the dark one, output 1 over the whole image; otherwise output 0.',
+  },
+  hint: {
+    zh: 'Q、K 决定看谁，V 决定带回什么。让一个头只看亮块、另一个只看暗块（先反相），都从带位置的图里取 V，再相减。',
+    en: 'Q and K decide whom to look at; V decides what comes back. Let one head look only at the bright patch and another only at the dark one (invert first), take V from the position-coded image for both, then subtract.',
+  },
+  after: {
+    zh: '没有位置时，把两个图块对调，注意力的输出也只是跟着对调：它看到的是一袋图块，不是一串。加上位置编码 z̃ᵢ = zᵢ + pᵢ，每个图块带着自己的地址，顺序才进得了计算。ViT 在进入第一层之前就把位置加到每个图块上。',
+    en: "Without position, swap two patches and attention's output just swaps with them: it sees a bag of patches, not a sequence. Add a positional encoding z̃ᵢ = zᵢ + pᵢ and every patch carries its own address, so order can enter the computation. ViT adds the position to every patch before the first layer.",
+  },
   requires: ['5-1'],
   unlocks: ['posenc'],
   palette: ['attention', 'posenc', 'invert', 'sub', 'add', 'scale', 'offset', 'threshold'],
@@ -354,11 +373,16 @@ const level53 = {
   kind: 'board',
   board: 'AttendContrast',
   chapter: 5,
-  title: '拉近与推开',
-  brief: '没有标签，只有每张图的两个变形版本。训练编码器，让测验里的每个视图都以 ≥ 50% 的概率认出自己的搭档。',
-  hint: '只拉近搭档，最省事的办法是什么？看看所有点最后去了哪里。',
-  after:
-    '只拉近正对时，把所有图都放到同一点就能让损失最小，却什么也分不出：这叫坍缩。InfoNCE 的分母把同一批里的其他视图当作负对推开，点才在圆上散开。变形本身提供了答案，不需要人工标签：这就是自监督的对比学习（SimCLR）。',
+  title: { zh: '拉近与推开', en: 'Pull close, push apart' },
+  brief: {
+    zh: '没有标签，只有每张图的两个变形版本。训练编码器，让测验里的每个视图都以 ≥ 50% 的概率认出自己的搭档。',
+    en: 'No labels, only two altered versions of each image. Train the encoder so that every view in the quiz picks out its partner with probability ≥ 50%.',
+  },
+  hint: { zh: '只拉近搭档，最省事的办法是什么？看看所有点最后去了哪里。', en: 'If you only pull partners together, what is the laziest way to do it? Watch where all the dots end up.' },
+  after: {
+    zh: '只拉近正对时，把所有图都放到同一点就能让损失最小，却什么也分不出：这叫坍缩。InfoNCE 的分母把同一批里的其他视图当作负对推开，点才在圆上散开。变形本身提供了答案，不需要人工标签：这就是自监督的对比学习（SimCLR）。',
+    en: "When only positive pairs are pulled together, putting every image at the same point minimises the loss but tells nothing apart: this is called collapse. InfoNCE's denominator treats the other views in the batch as negative pairs and pushes them away, so the dots spread out round the circle. The alterations themselves supply the answer, with no human labels: this is self-supervised contrastive learning (SimCLR).",
+  },
   requires: ['5-2'],
   unlocks: [],
   model: contrast,

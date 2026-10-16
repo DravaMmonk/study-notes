@@ -16,9 +16,12 @@ const BARE_CSS = `:host{margin:0}.iso-plate{padding:0;background:transparent;box
 // `stage` is a bare figure the reader plays with: it keeps its own cursors and is never cropped on phones.
 const STAGE_CSS = `.iso-stage{cursor:auto}@media (max-width:560px){.iso-plate .iso-svg{width:100%;margin-left:0}}`
 
-// A figure's mount(root, { props, emit }) may return a cleanup function or { update(props), destroy() }.
+// A figure's mount(root, { props, emit, lang }) may return a cleanup function or { update(props), destroy() }.
 // `props` go in at mount and with update(); `onChange` hears what the reader changed inside the figure.
-export function createFigureHost(name, theme, { bare = false, stage = false, props, onChange } = {}) {
+// `lang` ('zh' | 'en') picks the language of every label, caption and readout; it is fixed for the host's
+// life, so to switch language dispose the host and create a new one.
+export function createFigureHost(name, theme, { lang = 'zh', bare = false, stage = false, props, onChange } = {}) {
+  lang = lang === 'en' ? 'en' : 'zh'
   const host = document.createElement('div')
   host.className = 'figure-host'
   host.dataset.figure = name
@@ -28,6 +31,7 @@ export function createFigureHost(name, theme, { bare = false, stage = false, pro
   const root = document.createElement('div')
   root.className = 'iso'
   root.dataset.theme = figureThemeOf(theme)
+  root.lang = lang === 'en' ? 'en' : 'zh-CN'
   shadow.append(style, root)
 
   let cleanup = () => {}
@@ -45,8 +49,8 @@ export function createFigureHost(name, theme, { bare = false, stage = false, pro
         extra.textContent = module.css
         shadow.insertBefore(extra, root)
       }
-      root.innerHTML = module.render()
-      const mounted = module.mount(root, { props: latest, emit: onChange })
+      root.innerHTML = module.render({ lang })
+      const mounted = module.mount(root, { props: latest, emit: onChange, lang })
       if (typeof mounted === 'function') cleanup = mounted
       else if (mounted) {
         cleanup = () => mounted.destroy?.()

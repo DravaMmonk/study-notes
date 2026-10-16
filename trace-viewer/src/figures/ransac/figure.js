@@ -1,5 +1,5 @@
 import * as k from '../kit/iso-kit.js'
-import { createIdle, createLoop, follow, spring } from '../common.js'
+import { createIdle, createLoop, follow, spring, t } from '../common.js'
 import { COUNT, CONFIDENCE, HALF, run } from './model.js'
 
 // Fig · The RANSAC peg board.
@@ -183,14 +183,17 @@ function frameSvg(line, threshold) {
   return { svg: out.join(''), nearSide }
 }
 
-export const meta = { id: 'ransac-pegboard', fig: 'Fig 12.1', title: 'RANSAC 钉板' }
+export const meta = { id: 'ransac-pegboard', fig: 'Fig 12.1', title: 'RANSAC 钉板', titleEn: 'RANSAC pegboard' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '用于 RANSAC 直线拟合的钉板。板上有二十根钉；带两条侧导轨的直尺框架架在两根升起的钉上，落在导轨之间的钉升起表示投票。板旁的计票柱读出票数并记住最佳票数，表盘每轮走一格。',
+      'A pegboard for fitting a line with RANSAC. The board holds twenty pegs; a straightedge frame with two side rails rests on two raised pegs, and any peg that falls between the rails rises to cast a vote. A tally column beside the board reads the vote count and remembers the best so far, and a dial advances one notch per iteration.',
+    ),
     body: [
       base(),
       '<g data-part="scribe"></g>',
@@ -203,31 +206,34 @@ export function render() {
       '<g data-part="best"></g>',
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="RANSAC 设置">
-    <div class="fx-control"><span>外点比例</span><button type="button" data-set="outliers" data-value="6">30%</button><button type="button" data-set="outliers" data-value="10">50%</button></div>
-    <div class="fx-control"><span>阈值 δ</span><button type="button" data-set="threshold" data-value="3">3</button><button type="button" data-set="threshold" data-value="6">6</button></div>
-    <div class="fx-control"><span>轮次</span><button type="button" data-set="step" data-value="1">下一轮 ›</button><button type="button" data-set="restart" data-value="1">重来</button></div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, 'RANSAC 设置', 'RANSAC settings')}">
+    <div class="fx-control"><span>${t(lang, '外点比例', 'Outliers')}</span><button type="button" data-set="outliers" data-value="6">30%</button><button type="button" data-set="outliers" data-value="10">50%</button></div>
+    <div class="fx-control"><span>${t(lang, '阈值 δ', 'Threshold δ')}</span><button type="button" data-set="threshold" data-value="3">3</button><button type="button" data-set="threshold" data-value="6">6</button></div>
+    <div class="fx-control"><span>${t(lang, '轮次', 'Iteration')}</span><button type="button" data-set="step" data-value="1">${t(lang, '下一轮 ›', 'Next ›')}</button><button type="button" data-set="restart" data-value="1">${t(lang, '重来', 'Restart')}</button></div>
   </div>
   <div class="fx-calc"><span>k ≥ log(1 − P) / log(1 − pⁿ) =</span><b data-calc="k"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '空格：下一轮 · R：重来',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '空格：下一轮 · R：重来', 'Space: next · R: restart'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '本轮抽中的两根钉' },
-        { mark: 'raised', label: '导轨之间的钉：投票' },
-        { mark: 'flat', label: '板上刻线：目前最佳模型' },
+        { mark: 'lit', label: t(lang, '本轮抽中的两根钉', 'the two pegs sampled this round') },
+        { mark: 'raised', label: t(lang, '导轨之间的钉：投票', 'pegs between the rails: votes') },
+        { mark: 'flat', label: t(lang, '板上刻线：目前最佳模型', 'line scribed on the board: best model so far') },
       ],
-      caption:
+      caption: t(
+        lang,
         '每轮随机抽两根钉（确定一条直线的最少点数），再让所有钉投票。两根都是内点时，真实直线上的钉几乎都落进导轨之间；抽到外点时只收得到寥寥几根。计票柱上的止挡只升不降，记住最佳一轮；表盘走完 k 格后，最佳一轮的全部内点一起升起，直尺落在它们上面，这就是重拟合（refit），最终的线刻在板上。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="RANSAC 钉板。空格进入下一轮，R 重新开始。">${svg}</div>`,
+        'Each round samples two pegs at random (the minimal sample that fixes a line), then every peg votes. When both are inliers, nearly every peg on the true line falls between the rails; when an outlier is drawn, only a handful do. The stop on the tally column only ever rises, so it remembers the best round. Once the dial has run through all k notches, every inlier of the best round rises together and the straightedge settles onto them — this is the refit — and the final line is scribed into the board.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, 'RANSAC 钉板。空格进入下一轮，R 重新开始。', 'RANSAC pegboard. Space runs the next round; R starts over.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -259,7 +265,7 @@ export function mount(root) {
     state.pegs = state.run.points.map((point) => ({ point, height: { at: REST, rate: 0 } }))
     nodes.dial.innerHTML = dialArt(state.run.k)
     const p = (COUNT - config.outliers) / COUNT
-    calc.textContent = `log(0.01) / log(1 − ${p.toFixed(1)}²) = ${(Math.log(1 - CONFIDENCE) / Math.log(1 - p * p)).toFixed(1)} → ${state.run.k} 轮`
+    calc.textContent = `log(0.01) / log(1 − ${p.toFixed(1)}²) = ${(Math.log(1 - CONFIDENCE) / Math.log(1 - p * p)).toFixed(1)} → ${state.run.k}${t(lang, ' 轮', ' rounds')}`
     buttons.forEach((button) => {
       const { set, value } = button.dataset
       if (set === 'outliers' || set === 'threshold') button.setAttribute('aria-pressed', String(Number(value) === config[set]))
@@ -297,10 +303,10 @@ export function mount(root) {
     const round = current()
     const best = state.refit ? state.run.rounds.at(-1).best : round?.best
     const text = state.refit
-      ? `重拟合 · ${COUNT} 点中 ${state.run.finalVotes.length} 个内点`
+      ? t(lang, `重拟合 · ${COUNT} 点中 ${state.run.finalVotes.length} 个内点`, `Refit · ${state.run.finalVotes.length} of ${COUNT} inliers`)
       : round
-        ? `第 ${state.round + 1} / ${state.run.k} 轮 · 票数 ${round.votes.length} · 最佳 ${best.votes.length}`
-        : `共 ${state.run.k} 轮`
+        ? t(lang, `第 ${state.round + 1} / ${state.run.k} 轮 · 票数 ${round.votes.length} · 最佳 ${best.votes.length}`, `Round ${state.round + 1}/${state.run.k} · votes ${round.votes.length} · best ${best.votes.length}`)
+        : t(lang, `共 ${state.run.k} 轮`, `${state.run.k} rounds`)
     if (readout.textContent !== text) readout.textContent = text
   }
 

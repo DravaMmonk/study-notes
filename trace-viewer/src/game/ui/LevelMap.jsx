@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { ArrowRight, Check, FlaskConical, Lock, LockOpen, Workflow } from 'lucide-react'
 import { createFigureHost } from '../../figures/host.js'
+import { L, tr, useLang } from '../i18n.js'
 import { CHAPTERS, LEVELS, isOpen } from '../levels/index.js'
 import { PLANNED } from '../levels/planned.js'
 
@@ -14,23 +15,23 @@ export default function LevelMap({ solved, best, all, onAll, onOpen, theme }) {
     <main className="level-map">
       <header className="map-hero">
         <div className="map-hero-text">
-          <p className="map-kicker">COMP90086 · 计算机视觉</p>
-          <h1>视觉完备</h1>
-          <p className="map-lede">没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。</p>
-          <div className="map-progress" aria-label={`已通过 ${done} / ${LEVELS.length} 关`}>
+          <p className="map-kicker">COMP90086 · {tr('计算机视觉', 'Computer Vision')}</p>
+          <h1>{tr('视觉完备', 'Vision Complete')}</h1>
+          <p className="map-lede">{tr('没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。', 'No lectures: just parts, tests and a set of inputs and outputs. Start from “move the picture one pixel”, build blur, edges, corners and disparity yourself, and finally teach the machine to see.')}</p>
+          <div className="map-progress" aria-label={tr(`已通过 ${done} / ${LEVELS.length} 关`, `${done} of ${LEVELS.length} levels passed`)}>
             <span className="map-progress-bar"><i style={{ width: `${(done / LEVELS.length) * 100}%` }} /></span>
-            <span>{done} / {LEVELS.length} 关</span>
+            <span>{tr(`${done} / ${LEVELS.length} 关`, `${done} / ${LEVELS.length} levels`)}</span>
           </div>
           <label className="map-all">
             <input type="checkbox" checked={Boolean(all)} onChange={(event) => onAll(event.target.checked)} />
             <span className="map-all-switch" aria-hidden="true"><i /></span>
             {all ? <LockOpen size={14} /> : <Lock size={14} />}
-            <span>全部解锁<small>{all ? '任意一关都能直接玩；进度照常记录' : '打开后不用按顺序，任意一关都能直接玩'}</small></span>
+            <span>{tr('全部解锁', 'Unlock all')}<small>{all ? tr('任意一关都能直接玩；进度照常记录', 'Any level can be played now; progress is still recorded') : tr('打开后不用按顺序，任意一关都能直接玩', 'Turn on to play any level, in any order')}</small></span>
           </label>
           {next && (
             <button className="map-continue" onClick={() => onOpen(next.id)}>
-              <span>{done ? '继续' : '开始'}</span>
-              <b>{next.id} · {next.title}</b>
+              <span>{done ? tr('继续', 'Continue') : tr('开始', 'Start')}</span>
+              <b>{next.id} · {L(next.title)}</b>
               <ArrowRight size={16} />
             </button>
           )}
@@ -46,9 +47,9 @@ export default function LevelMap({ solved, best, all, onAll, onOpen, theme }) {
           return (
             <section key={chapter.id} className={`map-chapter ${finished === levels.length && levels.length ? 'is-complete' : ''}`}>
               <header>
-                <span className="chapter-index">第 {chapter.id} 章 · {chapter.lecture}</span>
-                <h2>{chapter.title}</h2>
-                <p>{chapter.question}</p>
+                <span className="chapter-index">{tr(`第 ${chapter.id} 章`, `Chapter ${chapter.id}`)} · {L(chapter.lecture)}</span>
+                <h2>{L(chapter.title)}</h2>
+                <p>{L(chapter.question)}</p>
                 <span className="chapter-meter"><i style={{ width: `${levels.length ? (finished / levels.length) * 100 : 0}%` }} /></span>
               </header>
               <ol className="map-trace">
@@ -61,21 +62,21 @@ export default function LevelMap({ solved, best, all, onAll, onOpen, theme }) {
                       <button className={`map-level ${state} ${next?.id === level.id ? 'is-next' : ''}`} disabled={!open} onClick={() => onOpen(level.id)}>
                         <span className="map-pad" aria-hidden="true">{won ? <Check size={12} strokeWidth={2.4} /> : open ? null : <Lock size={10} />}</span>
                         <span className="map-level-id">{level.id}</span>
-                        <span className="map-level-title">{level.title}</span>
-                        <span className="map-level-kind" title={level.kind === 'graph' ? '搭电路' : '机关台'}>
+                        <span className="map-level-title">{L(level.title)}</span>
+                        <span className="map-level-kind" title={level.kind === 'graph' ? tr('搭电路', 'Build a circuit') : tr('机关台', 'Bench')}>
                           {level.kind === 'graph' ? <Workflow size={13} /> : <FlaskConical size={13} />}
                         </span>
-                        {won && best[level.id] && <span className="map-level-best">{best[level.id].nodes} 件 · {best[level.id].cost}</span>}
+                        {won && best[level.id] && <span className="map-level-best">{tr(`${best[level.id].nodes} 件`, `${best[level.id].nodes} parts`)} · {best[level.id].cost}</span>}
                       </button>
                     </li>
                   )
                 })}
                 {planned.map(([id, title]) => (
                   <li key={id} className="is-planned">
-                    <span className="map-level is-planned" title="已设计，待开放">
+                    <span className="map-level is-planned" title={tr('已设计，待开放', 'Designed, not open yet')}>
                       <span className="map-pad" aria-hidden="true" />
                       <span className="map-level-id">{id}</span>
-                      <span className="map-level-title">{title}</span>
+                      <span className="map-level-title">{L(title)}</span>
                     </span>
                   </li>
                 ))}
@@ -92,12 +93,14 @@ export default function LevelMap({ solved, best, all, onAll, onOpen, theme }) {
 function HeroMachine({ theme }) {
   const slot = useRef(null)
   const figure = useRef(null)
+  const lang = useLang()
+  // A host's language is fixed, so a language switch rebuilds it.
   useEffect(() => {
-    const host = createFigureHost('conv-press', theme, { bare: true })
+    const host = createFigureHost('conv-press', theme, { lang, bare: true })
     figure.current = host
     slot.current.append(host.host)
     return () => host.dispose()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lang]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => figure.current?.setTheme(theme), [theme])
   return <div className="map-hero-art" ref={slot} aria-hidden="true" />
 }

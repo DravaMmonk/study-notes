@@ -1,5 +1,6 @@
 import { NODE_TYPES, defaultParams, inputsOf } from '../../engine/nodes.js'
 import { GLYPHS, patterns } from '../../engine/image.js'
+import { isPair } from '../../i18n.js'
 import ch0 from './ch0.js'
 import ch1 from './ch1.js'
 import ch2 from './ch2.js'
@@ -14,14 +15,14 @@ import ch8 from './ch8.js'
 //
 //   INTROS['1-1'] = [{ t, fig? }, …]
 //
-// t   一段话，可以用 <b>…</b> 加粗。
+// t   一段话 { zh, en }，两边都可以用 <b>…</b> 加粗。
 // fig 可选的配图，三种之一：
 //   { test: 0 }                            本关第 0 组测试：输入 → 期望（只有电路关有测试）
 //   { part: 'shift', params: { dir: '→' }, input: 'square' }
 //                                          一个元件处理一张图：输入 → 元件 → 输出。两个输入的元件用
 //                                          inputs: ['square', 'disk']。图案见 source() 下面。
 //   { figure: 'conv-press' }               src/figures/ 里的一张插图（笔记里用的那种实物模型）
-// 任何配图都可以加 caption: '…' 作为图注；test 和 part 还可以加 view: 'terrain' 等画法。
+// 任何配图都可以加 caption: { zh, en } 作为图注；test 和 part 还可以加 view: 'terrain' 等画法。
 export const INTROS = { ...ch0, ...ch1, ...ch2, ...ch3, ...ch4, ...ch5, ...ch6, ...ch7, ...ch8 }
 
 // The pictures an intro can show without a test: a pattern by name ('square'), with its arguments
@@ -60,7 +61,8 @@ export function introProblems(level, figureNames) {
   const problems = []
   pages.forEach((page, i) => {
     const where = `第 ${i + 1} 页`
-    if (!page.t || !page.t.trim()) problems.push(`${where}没有文字`)
+    const text = isPair(page.t) ? page.t.zh : page.t
+    if (!text || !text.trim()) problems.push(`${where}没有文字`)
     const fig = page.fig
     if (!fig) return
     if (fig.test !== undefined && !level.tests?.[fig.test]) problems.push(`${where}要第 ${fig.test} 组测试，可这一关没有`)

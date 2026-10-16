@@ -3,6 +3,7 @@ import { Check, X } from 'lucide-react'
 import { PHONE, useMedia } from '../useMedia.js'
 import { useTween } from './optics-motion.js'
 import './optics.css'
+import { L, tr } from '../../i18n.js'
 
 // 7-3 测距: a robot's stereo rig seen from above (sideways distances drawn 4× wider than depth so the
 // baseline is visible; straight lines stay straight, so the triangulation picture is still true).
@@ -46,7 +47,7 @@ export default function OpticsRange({ level, onSolve }) {
     <div className="bk optics optics-range">
       <div className="bk-split">
         <figure className="bk-stage optics-figure">
-          <svg className="optics-range-scene" viewBox="-270 -460 540 513" style={{ '--fs': `${fs}px` }} role="img" aria-label="俯视图：机器人和三个障碍物">
+          <svg className="optics-range-scene" viewBox="-270 -460 540 513" style={{ '--fs': `${fs}px` }} role="img" aria-label={tr('俯视图：机器人和三个障碍物', 'Top view: the robot and three obstacles')}>
             {[1, 2, 3, 4, 5, 6, 7].map((z) => (
               <g key={z}>
                 <line className="optics-grid" x1={-262} y1={-z * SZ} x2={262} y2={-z * SZ} />
@@ -76,7 +77,7 @@ export default function OpticsRange({ level, onSolve }) {
                       {Number.isFinite(d.far) && d.far < 7.2 && <line x1={x - 7} y1={-d.far * SZ} x2={x + 7} y2={-d.far * SZ} />}
                     </g>
                   )}
-                  <text className="optics-target-label" x={x + (t.key === 'wall' ? 68 : 32)} y={y + fs * 0.35}>{t.label}{r.why ? ` · ${r.why}` : ''}</text>
+                  <text className="optics-target-label" x={x + (t.key === 'wall' ? 68 : 32)} y={y + fs * 0.35}>{L(t.label)}{r.why ? ` · ${L(r.why)}` : ''}</text>
                 </g>
               )
             })}
@@ -85,14 +86,14 @@ export default function OpticsRange({ level, onSolve }) {
             <circle className="optics-camera" cx={camR} cy={0} r={6} />
             <text className="optics-tag" x={0} y={28 + fs * 1.4}>b = {rig.b.toFixed(2)} m</text>
           </svg>
-          <figcaption className="bk-caption">俯视；横向放大 4 倍。竖条 = 视差差 1 px 时的深度范围，色块 = 要求</figcaption>
+          <figcaption className="bk-caption">{tr('俯视；横向放大 4 倍。竖条 = 视差差 1 px 时的深度范围，色块 = 要求', 'Top view; sideways stretched 4×. Bar = depth range for a 1 px disparity error, shaded band = requirement')}</figcaption>
         </figure>
 
         <div className="bk-stack">
           <section className="bk-panel bk-stack">
             <div>
-              <span className="bk-label">镜头 f</span>
-              <div className="bk-seg optics-focals" role="radiogroup" aria-label="镜头焦距">
+              <span className="bk-label">{tr('镜头 f', 'Lens f')}</span>
+              <div className="bk-seg optics-focals" role="radiogroup" aria-label={tr('镜头焦距', 'Lens focal length')}>
                 {m.FOCALS.map((f) => (
                   <button key={f} role="radio" aria-checked={rig.f === f} className={rig.f === f ? 'is-active' : ''} onClick={() => setRig((r) => ({ ...r, f }))}>
                     {f} px
@@ -101,7 +102,7 @@ export default function OpticsRange({ level, onSolve }) {
               </div>
             </div>
             <label className="bk-field">
-              <span>基线 b</span>
+              <span>{tr('基线 b', 'Baseline b')}</span>
               <input className="bk-range" type="range" min={0} max={m.BASELINES.length - 1} step={1} value={bIndex} style={{ '--fill': fill }} aria-valuetext={`${rig.b.toFixed(2)} m`} onChange={(event) => setRig((r) => ({ ...r, b: m.BASELINES[Number(event.target.value)] }))} />
               <output>{rig.b.toFixed(2)} m</output>
             </label>
@@ -112,16 +113,16 @@ export default function OpticsRange({ level, onSolve }) {
             {rows.map(({ t, r }) => (
               <li key={t.key} className={`bk-goal ${r.ok ? 'is-pass' : ''}`}>
                 {r.ok ? <Check size={16} /> : <X size={16} />}
-                <span>{t.label} · {t.z} m <small>视差 {r.d.toFixed(1)} px{r.inRange ? '' : ` > ${m.D_MAX}`} · 需 ± {t.tol} m</small></span>
-                <b className={r.ok ? '' : 'is-fail'}>{r.inView && r.inRange ? span(r) : r.why}</b>
+                <span>{L(t.label)} · {t.z} m <small>{tr('视差', 'disparity')} {r.d.toFixed(1)} px{r.inRange ? '' : ` > ${m.D_MAX}`} · {tr('需', 'need')} ± {t.tol} m</small></span>
+                <b className={r.ok ? '' : 'is-fail'}>{r.inView && r.inRange ? span(r) : L(r.why)}</b>
               </li>
             ))}
           </ul>
 
           <figure className="bk-panel optics-strips-panel">
-            <svg className="optics-strips" viewBox={`${-STRIP / 2 - sfs * 2.6} ${-sfs * 1.5} ${STRIP + sfs * 2.6 + 6} ${100 + sfs * 1.5}`} style={{ '--fs': `${sfs}px` }} role="img" aria-label="左图和右图里障碍物的位置">
-              <text className="optics-tag is-end" x={-STRIP / 2 - 6} y={12 + sfs * 0.35}>左图</text>
-              <text className="optics-tag is-end" x={-STRIP / 2 - 6} y={82 + sfs * 0.35}>右图</text>
+            <svg className="optics-strips" viewBox={`${-STRIP / 2 - sfs * 2.6} ${-sfs * 1.5} ${STRIP + sfs * 2.6 + 6} ${100 + sfs * 1.5}`} style={{ '--fs': `${sfs}px` }} role="img" aria-label={tr('左图和右图里障碍物的位置', 'Where the obstacles land in the left and right images')}>
+              <text className="optics-tag is-end" x={-STRIP / 2 - 6} y={12 + sfs * 0.35}>{tr('左图', 'Left')}</text>
+              <text className="optics-tag is-end" x={-STRIP / 2 - 6} y={82 + sfs * 0.35}>{tr('右图', 'Right')}</text>
               <rect className="optics-strip" x={-STRIP / 2} y={0} width={STRIP} height={24} rx={3} />
               <rect className="optics-strip" x={-STRIP / 2} y={70} width={STRIP} height={24} rx={3} />
               {drawn.map(({ t, r, d }) => {
@@ -134,12 +135,12 @@ export default function OpticsRange({ level, onSolve }) {
                     {Math.abs(xr) <= STRIP / 2 && <line className="optics-link" x1={xl} y1={24} x2={xr} y2={70} />}
                     <line className="optics-mark" x1={xl} y1={0} x2={xl} y2={24} />
                     {Math.abs(xr) <= STRIP / 2 && <line className="optics-mark" x1={xr} y1={70} x2={xr} y2={94} />}
-                    <text className="optics-mark-label" x={xl} y={-6}>{t.label}</text>
+                    <text className="optics-mark-label" x={xl} y={-6}>{L(t.label)}</text>
                   </g>
                 )
               })}
             </svg>
-            <figcaption className="bk-caption">阴影 = 匹配器在右图里搜索的 {m.D_MAX} px</figcaption>
+            <figcaption className="bk-caption">{tr(`阴影 = 匹配器在右图里搜索的 ${m.D_MAX} px`, `Shading = the ${m.D_MAX} px the matcher searches in the right image`)}</figcaption>
           </figure>
         </div>
       </div>

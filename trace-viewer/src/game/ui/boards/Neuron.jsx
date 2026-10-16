@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight, Check } from 'lucide-react'
+import { L, tr } from '../../i18n.js'
 import { PHONE, useMedia } from '../useMedia.js'
 import { Stages } from './WaveKit.jsx'
 import './waves.css'
@@ -50,18 +51,18 @@ export default function Neuron({ level, onSolve }) {
         <section className="bk-stage bk-stack">
           <div className="nr-plots">
             <Scatter
-              title={hiddenOn ? '原来的两个数（分数由整个网络算出）' : '每张字母图 = 一个点'}
-              xLabel="斜笔画"
-              yLabel="弯笔画"
+              title={hiddenOn ? tr('原来的两个数（分数由整个网络算出）', 'The original two numbers (scored by the whole network)') : tr('每张字母图 = 一个点', 'Each letter image = one point')}
+              xLabel={tr('斜笔画', 'diagonal stroke')}
+              yLabel={tr('弯笔画', 'curved stroke')}
               points={points.map(([label, f1, f2]) => ({ label, x: f1, y: f2, ok: m.pointOk(st, s, [label, f1, f2]) }))}
               score={(x, y) => m.score(st, s, x, y)}
               size={size}
             />
             {hiddenOn && (
               <Scatter
-                title="隐藏层眼里的同一批点"
-                xLabel="隐藏 1 = ReLU(斜 − 弯)"
-                yLabel="隐藏 2 = ReLU(弯 − 斜)"
+                title={tr('隐藏层眼里的同一批点', 'The same points, as the hidden layer sees them')}
+                xLabel={tr('隐藏 1 = ReLU(斜 − 弯)', 'hidden 1 = ReLU(diag − curve)')}
+                yLabel={tr('隐藏 2 = ReLU(弯 − 斜)', 'hidden 2 = ReLU(curve − diag)')}
                 points={points.map(([label, f1, f2]) => {
                   const [h1, h2] = m.hidden(f1, f2)
                   return { label, x: h1, y: h2, ok: m.pointOk(st, s, [label, f1, f2]) }
@@ -72,24 +73,24 @@ export default function Neuron({ level, onSolve }) {
             )}
           </div>
           <p className="nr-formula">
-            {hiddenOn ? '分数 = σ( v1 · 隐藏1 + v2 · 隐藏2 + c )' : '分数 = σ( w1 · 斜 + w2 · 弯 + b )'}
-            <small>σ 把任意的数压到 0 和 1 之间：0 处正好是 0.5</small>
+            {hiddenOn ? tr('分数 = σ( v1 · 隐藏1 + v2 · 隐藏2 + c )', 'score = σ( v1 · hidden1 + v2 · hidden2 + c )') : tr('分数 = σ( w1 · 斜 + w2 · 弯 + b )', 'score = σ( w1 · diag + w2 · curve + b )')}
+            <small>{tr('σ 把任意的数压到 0 和 1 之间：0 处正好是 0.5', 'σ squashes any number to between 0 and 1; at 0 it gives exactly 0.5')}</small>
           </p>
           <div className="bk-stats">
-            <div className={`bk-stat ${right('X') === total('X') ? 'is-pass' : 'is-fail'}`}><b>{right('X')} / {total('X')}</b><span>X 的分数 &gt; {st.margin}</span></div>
-            <div className={`bk-stat ${right('O') === total('O') ? 'is-pass' : 'is-fail'}`}><b>{right('O')} / {total('O')}</b><span>O 的分数 &lt; {(1 - st.margin).toFixed(1)}</span></div>
+            <div className={`bk-stat ${right('X') === total('X') ? 'is-pass' : 'is-fail'}`}><b>{right('X')} / {total('X')}</b><span>{tr(`X 的分数 > ${st.margin}`, `X scores > ${st.margin}`)}</span></div>
+            <div className={`bk-stat ${right('O') === total('O') ? 'is-pass' : 'is-fail'}`}><b>{right('O')} / {total('O')}</b><span>{tr(`O 的分数 < ${(1 - st.margin).toFixed(1)}`, `O scores < ${(1 - st.margin).toFixed(1)}`)}</span></div>
           </div>
         </section>
         <div className="bk-stack">
           <section className="bk-panel bk-stack">
             <div>
-              <span className="bk-label">第 {stage + 1} 步 · {st.title}</span>
-              <p className="wv-stage-note">{st.note}</p>
+              <span className="bk-label">{tr(`第 ${stage + 1} 步`, `Step ${stage + 1}`)} · {L(st.title)}</span>
+              <p className="wv-stage-note">{L(st.note)}</p>
             </div>
             {st.hidden && (
               <label className="bk-check nr-hidden">
                 <input type="checkbox" checked={s.hidden} onChange={(event) => update({ ...s, hidden: event.target.checked })} />
-                加一层隐藏层（两个 ReLU 神经元）
+                {tr('加一层隐藏层（两个 ReLU 神经元）', 'Add a hidden layer (two ReLU neurons)')}
               </label>
             )}
             <div>
@@ -97,7 +98,7 @@ export default function Neuron({ level, onSolve }) {
                 const knob = m.knobs[key]
                 return (
                   <label key={key} className="bk-field">
-                    <span>{knob.label}</span>
+                    <span>{L(knob.label)}</span>
                     <input className="bk-range" type="range" min={knob.min} max={knob.max} step={knob.step} value={s[key]} style={{ '--fill': `${((s[key] - knob.min) / (knob.max - knob.min)) * 100}%` }} onChange={(event) => update({ ...s, [key]: Number(event.target.value) })} />
                     <output>{s[key].toFixed(1)}</output>
                   </label>
@@ -105,8 +106,8 @@ export default function Neuron({ level, onSolve }) {
               })}
             </div>
             <div className="wv-next">
-              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />全部分对了。</> : '还有点在错的一边，或者不够肯定。'}</p>
-              {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={() => { go(stage + 1); setReached(Math.max(reached, stage + 1)) }}>下一步 <ArrowRight size={15} /></button>}
+              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />{tr('全部分对了。', 'Every point is on the right side.')}</> : tr('还有点在错的一边，或者不够肯定。', 'Some points are still on the wrong side, or not sure enough.')}</p>
+              {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={() => { go(stage + 1); setReached(Math.max(reached, stage + 1)) }}>{tr('下一步', 'Next step')} <ArrowRight size={15} /></button>}
             </div>
           </section>
           <Stages stages={m.stages} current={stage} passed={passed} reached={reached} onPick={go} />

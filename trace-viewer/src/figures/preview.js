@@ -1,10 +1,12 @@
 import { FIGURE_CSS } from './figures.css.js'
 import { figures } from './registry.js'
 
-// Standalone preview for checking one figure in light DOM: /figures.html?fig=conv-press&theme=light
+// Standalone preview for checking one figure in light DOM: /figures.html?fig=conv-press&theme=light&lang=en
 const params = new URLSearchParams(window.location.search)
 const name = params.get('fig') ?? Object.keys(figures)[0]
 const theme = params.get('theme') ?? 'light'
+const lang = params.get('lang') === 'en' ? 'en' : 'zh'
+document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
 
 const style = document.createElement('style')
 style.textContent = `${FIGURE_CSS}
@@ -21,5 +23,5 @@ if (module.css) {
   document.head.append(extra)
 }
 const root = document.querySelector('#figure-preview')
-root.innerHTML = module.render()
-module.mount(root)
+root.innerHTML = module.render({ lang })
+module.mount(root, { lang })

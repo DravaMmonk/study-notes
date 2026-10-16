@@ -8,11 +8,11 @@ import { Grid3x3, Mountain, Navigation, Orbit, ScanLine } from 'lucide-react'
 export const kindOf = (img) => (!img ? null : img.w * img.h === 1 ? 'number' : img.h === 1 ? 'signal' : 'image')
 
 export const IMAGE_VIEWS = {
-  pixels: { label: '像素', icon: Grid3x3, hint: '亮度就是灰度' },
-  terrain: { label: '地形', icon: Mountain, hint: '亮度当作高度' },
-  slope: { label: '坡度', icon: Navigation, hint: '箭头指向变亮最快的方向' },
-  profile: { label: '剖面', icon: ScanLine, hint: '一行像素的亮度曲线' },
-  spectrum: { label: '频谱', icon: Orbit, hint: '各频率的波有多强' },
+  pixels: { label: { zh: '像素', en: 'Pixels' }, icon: Grid3x3, hint: { zh: '亮度就是灰度', en: 'brightness as grey level' } },
+  terrain: { label: { zh: '地形', en: 'Terrain' }, icon: Mountain, hint: { zh: '亮度当作高度', en: 'brightness as height' } },
+  slope: { label: { zh: '坡度', en: 'Slope' }, icon: Navigation, hint: { zh: '箭头指向变亮最快的方向', en: 'arrows point where it brightens fastest' } },
+  profile: { label: { zh: '剖面', en: 'Profile' }, icon: ScanLine, hint: { zh: '一行像素的亮度曲线', en: 'the brightness along one row of pixels' } },
+  spectrum: { label: { zh: '频谱', en: 'Spectrum' }, icon: Orbit, hint: { zh: '各频率的波有多强', en: 'how strong the wave at each frequency is' } },
 }
 
 // The view a level starts each role in: `level.views = { in, out, mid }` (2-D values only).
@@ -24,7 +24,7 @@ export const roleOf = (node) => (node.type === 'input' ? 'in' : node.type === 'o
 export const nodeView = (node, views) => node.view ?? views?.[roleOf(node)] ?? 'pixels'
 
 // What the fixed cards carry, for their titles.
-export const KIND_NAMES = { image: '图像', signal: '波形', number: '数值' }
+export const KIND_NAMES = { image: { zh: '图像', en: 'image' }, signal: { zh: '波形', en: 'waveform' }, number: { zh: '数值', en: 'number' } }
 
 // A theme colour as [r, g, b], read from a CSS custom property (hex or rgb()).
 export function tokenRGB(name, fallback) {

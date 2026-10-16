@@ -35,9 +35,9 @@ const obscura = (() => {
   }
 
   const goals = (v) => [
-    { key: 'height', label: '像高', value: `${Math.abs(v.image).toFixed(1)} mm`, need: `${GOAL.height} ± ${GOAL.slack} mm`, ok: Math.abs(Math.abs(v.image) - GOAL.height) <= GOAL.slack },
-    { key: 'blur', label: '模糊', value: `${v.blur.toFixed(2)} mm`, need: `< ${GOAL.blur} mm`, ok: v.blur < GOAL.blur },
-    { key: 'light', label: '亮度', value: v.light.toFixed(2), need: `≥ ${GOAL.light.toFixed(2)}`, ok: v.light >= GOAL.light },
+    { key: 'height', label: { zh: '像高', en: 'Image height' }, value: `${Math.abs(v.image).toFixed(1)} mm`, need: `${GOAL.height} ± ${GOAL.slack} mm`, ok: Math.abs(Math.abs(v.image) - GOAL.height) <= GOAL.slack },
+    { key: 'blur', label: { zh: '模糊', en: 'Blur' }, value: `${v.blur.toFixed(2)} mm`, need: `< ${GOAL.blur} mm`, ok: v.blur < GOAL.blur },
+    { key: 'light', label: { zh: '亮度', en: 'Brightness' }, value: v.light.toFixed(2), need: `≥ ${GOAL.light.toFixed(2)}`, ok: v.light >= GOAL.light },
   ]
   const solved = (state) => goals(view(state)).every((g) => g.ok)
 
@@ -71,10 +71,10 @@ const obscura = (() => {
     kind: 'board',
     board: 'OpticsObscura',
     chapter: 0,
-    title: '暗箱',
-    brief: '让箭头在屏幕上成 30 mm 高的像：要够清楚，也要够亮。',
-    hint: '拖孔板和屏幕，在孔板上换孔。像高只看 f 和 Z 的比例；孔大了亮但糊，孔小了清楚但暗。',
-    after: '像高只看比例：x = −f·X/Z，屏幕离孔越远、物体离孔越近，像越大，而且总是倒的。孔越大，同一点的光在屏上铺成越大的斑 D·(Z+f)/Z，像越亮也越糊；屏幕拉近也更亮。镜头就是为了打破这个两难：开大孔，同时把光重新聚回一点。',
+    title: { zh: '暗箱', en: 'Camera obscura' },
+    brief: { zh: '让箭头在屏幕上成 30 mm 高的像：要够清楚，也要够亮。', en: 'Make the arrow form a 30 mm tall image on the screen: sharp enough, and bright enough.' },
+    hint: { zh: '拖孔板和屏幕，在孔板上换孔。像高只看 f 和 Z 的比例；孔大了亮但糊，孔小了清楚但暗。', en: 'Drag the pinhole plate and the screen, and change the hole in the plate. Image height depends only on the ratio of f to Z; a big hole is bright but blurry, a small hole is sharp but dim.' },
+    after: { zh: '像高只看比例：x = −f·X/Z，屏幕离孔越远、物体离孔越近，像越大，而且总是倒的。孔越大，同一点的光在屏上铺成越大的斑 D·(Z+f)/Z，像越亮也越糊；屏幕拉近也更亮。镜头就是为了打破这个两难：开大孔，同时把光重新聚回一点。', en: 'Image height depends only on a ratio: x = −f·X/Z. The farther the screen is from the hole and the nearer the object, the bigger the image, and it is always upside down. The bigger the hole, the bigger the spot D·(Z+f)/Z that light from one point spreads into on the screen, so the image gets brighter and blurrier; moving the screen closer also makes it brighter. A lens exists to break this trade-off: open a big hole, and bring the light back together to a point.' },
     requires: ['0-1'],
     unlocks: [],
     model: { ARROW, SHAFT, TABLE, PLATE, GAP, HOLES, GOAL, START, view, goals, solved, clamp },
@@ -94,9 +94,9 @@ const ranging = (() => {
   const D_MAX = 64 // px, the disparity search range
   const WIDTH = 640 // px
   const TARGETS = [
-    { key: 'box', label: '箱子', X: -0.3, z: 1.5, tol: 0.1 },
-    { key: 'door', label: '门框', X: 0.45, z: 3, tol: 0.25 },
-    { key: 'wall', label: '墙', X: 0, z: 6, tol: 0.5 },
+    { key: 'box', label: { zh: '箱子', en: 'Box' }, X: -0.3, z: 1.5, tol: 0.1 },
+    { key: 'door', label: { zh: '门框', en: 'Door frame' }, X: 0.45, z: 3, tol: 0.25 },
+    { key: 'wall', label: { zh: '墙', en: 'Wall' }, X: 0, z: 6, tol: 0.5 },
   ]
   const START = { f: 800, b: 0.06 }
 
@@ -110,7 +110,7 @@ const ranging = (() => {
     const far = d > 1 ? (f * b) / (d - 1) : Infinity
     const spread = (target.z * target.z) / (f * b)
     const precise = far - target.z <= target.tol && target.z - near <= target.tol
-    const why = !inView ? '出画' : !inRange ? '超出搜索' : !precise ? '误差太大' : ''
+    const why = !inView ? { zh: '出画', en: 'out of frame' } : !inRange ? { zh: '超出搜索', en: 'beyond search' } : !precise ? { zh: '误差太大', en: 'error too large' } : ''
     return { xl, xr, d, inView, inRange, near, far, spread, precise, ok: inView && inRange && precise, why }
   }
   const solved = (rig) => TARGETS.every((t) => measure(t, rig).ok)
@@ -134,10 +134,10 @@ const ranging = (() => {
     kind: 'board',
     board: 'OpticsRange',
     chapter: 7,
-    title: '测距',
-    brief: '给机器人的双目相机选镜头和基线，让三个障碍物都配得上，而且测得够准。',
-    hint: 'z = f·b/d。基线越宽，远处越准；可近处的视差也越大，超过 64 px 的搜索范围就配不上了。',
-    after: '深度误差 |Δz| ≈ z²/(f·b)·|Δd|：同样差一个像素，远两倍的东西误差大四倍。加宽基线或换长焦能让远处更准，却让近处的视差变大、超出搜索范围（两图外观也差得更多）。要紧的只是 f·b 的乘积，所以要在「近处配得上」和「远处够准」之间取一段。',
+    title: { zh: '测距', en: 'Ranging' },
+    brief: { zh: '给机器人的双目相机选镜头和基线，让三个障碍物都配得上，而且测得够准。', en: "Choose a lens and a baseline for the robot's stereo camera so all three obstacles can be matched, and measured precisely enough." },
+    hint: { zh: 'z = f·b/d。基线越宽，远处越准；可近处的视差也越大，超过 64 px 的搜索范围就配不上了。', en: 'z = f·b/d. A wider baseline makes far things more precise; but near things get a bigger disparity too, and past the 64 px search range they can no longer be matched.' },
+    after: { zh: '深度误差 |Δz| ≈ z²/(f·b)·|Δd|：同样差一个像素，远两倍的东西误差大四倍。加宽基线或换长焦能让远处更准，却让近处的视差变大、超出搜索范围（两图外观也差得更多）。要紧的只是 f·b 的乘积，所以要在「近处配得上」和「远处够准」之间取一段。', en: 'Depth error |Δz| ≈ z²/(f·b)·|Δd|: for the same one-pixel slip, something twice as far has four times the error. A wider baseline or a longer lens makes far things more precise, but makes the disparity of near things bigger and pushes it past the search range (and the two images look more different too). Only the product f·b matters, so you pick a range between "near things still match" and "far things are precise enough".' },
     requires: ['7-2'],
     unlocks: [],
     model: { FOCALS, BASELINES, D_MAX, WIDTH, TARGETS, START, measure, solved },

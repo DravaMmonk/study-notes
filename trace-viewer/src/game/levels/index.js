@@ -17,15 +17,15 @@ const PACKS = [optics, light, waves, freq, attend, match, depthgen, learn, train
 for (const pack of PACKS) Object.assign(NODE_TYPES, pack.nodes ?? {})
 
 export const CHAPTERS = [
-  { id: 0, title: '睁眼', lecture: '第 1–2 讲', question: '图像是什么' },
-  { id: 1, title: '邻居', lecture: '第 3 讲', question: '怎样用邻居算出新图' },
-  { id: 2, title: '频率', lecture: '第 4 讲', question: '图像由哪些波组成' },
-  { id: 3, title: '光与边', lecture: '第 5 讲', question: '照片的明暗从哪来' },
-  { id: 4, title: '学会看', lecture: '第 6–8 讲', question: '机器怎样自己学会' },
-  { id: 5, title: '全局视野', lecture: '第 9–10 讲', question: '一步看到全图' },
-  { id: 6, title: '认出同一个点', lecture: '第 11–12 讲', question: '哪些点容易再找到' },
-  { id: 7, title: '第三个维度', lecture: '第 13–14 讲', question: '两只眼睛怎样看出远近' },
-  { id: 8, title: '画出没见过的图', lecture: '第 15–16 讲', question: '从随机数生成图像' },
+  { id: 0, title: { zh: '睁眼', en: 'Opening Eyes' }, lecture: { zh: '第 1–2 讲', en: 'Lectures 1–2' }, question: { zh: '图像是什么', en: 'What is an image?' } },
+  { id: 1, title: { zh: '邻居', en: 'Neighbours' }, lecture: { zh: '第 3 讲', en: 'Lecture 3' }, question: { zh: '怎样用邻居算出新图', en: 'How do neighbours make a new image?' } },
+  { id: 2, title: { zh: '频率', en: 'Frequency' }, lecture: { zh: '第 4 讲', en: 'Lecture 4' }, question: { zh: '图像由哪些波组成', en: 'Which waves make up an image?' } },
+  { id: 3, title: { zh: '光与边', en: 'Light and Edges' }, lecture: { zh: '第 5 讲', en: 'Lecture 5' }, question: { zh: '照片的明暗从哪来', en: 'Where do light and shade come from?' } },
+  { id: 4, title: { zh: '学会看', en: 'Learning to See' }, lecture: { zh: '第 6–8 讲', en: 'Lectures 6–8' }, question: { zh: '机器怎样自己学会', en: 'How does a machine learn by itself?' } },
+  { id: 5, title: { zh: '全局视野', en: 'The Whole Picture' }, lecture: { zh: '第 9–10 讲', en: 'Lectures 9–10' }, question: { zh: '一步看到全图', en: 'Seeing the whole image in one step' } },
+  { id: 6, title: { zh: '认出同一个点', en: 'The Same Point Again' }, lecture: { zh: '第 11–12 讲', en: 'Lectures 11–12' }, question: { zh: '哪些点容易再找到', en: 'Which points are easy to find again?' } },
+  { id: 7, title: { zh: '第三个维度', en: 'The Third Dimension' }, lecture: { zh: '第 13–14 讲', en: 'Lectures 13–14' }, question: { zh: '两只眼睛怎样看出远近', en: 'How do two eyes judge distance?' } },
+  { id: 8, title: { zh: '画出没见过的图', en: 'Drawing the Unseen' }, lecture: { zh: '第 15–16 讲', en: 'Lectures 15–16' }, question: { zh: '从随机数生成图像', en: 'Making images from random numbers' } },
 ]
 
 const ORDER = (level) => level.chapter * 100 + (Number(level.id.split('-')[1]) || 50)

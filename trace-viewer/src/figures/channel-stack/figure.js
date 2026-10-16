@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
-import { applyOrder, clamp, createIdle, createLoop, follow, spring, svgNode } from '../common.js'
-import { CHANNELS, CHOICES, DEFAULTS, DRAWN, NOTE_N, convParams, fcParams, group, outSize, perFilter, wan, windows } from './model.js'
+import { applyOrder, clamp, createIdle, createLoop, follow, spring, svgNode, t } from '../common.js'
+import { CHANNELS, CHANNELS_EN, CHOICES, DEFAULTS, DRAWN, NOTE_N, convParams, fcParams, group, mega, outSize, perFilter, wan, windows } from './model.js'
 
 // Fig · The channel punch.
 // An 8 × 8 bed of pixel columns: each column is a stack of C_in chips, one per input channel.
@@ -259,14 +259,17 @@ function trolley(cx, cy) {
 
 // ---------- the live figure ----------
 
-export const meta = { id: 'channel-stack', fig: 'Fig 6.1', title: '多通道冲床' }
+export const meta = { id: 'channel-stack', fig: 'Fig 6.1', title: '多通道冲床', titleEn: 'Multi-channel punch' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '底板上的多通道冲床。输入针床是八乘八根像素柱，每根柱由若干片叠成，一片对应一个输入通道。龙门上的冲模有 K 乘 K 那么宽、和通道数一样多层，压一次盖住一整块，只得到一个数；同一滑架上的放置器把这个数作为一片放到输出针床上。扫完所有窗口，输出柱多出一层，即一张激活图。转盘上放着 C_out 个冲模，逐个换上，输出柱就长到 C_out 层。',
+      'A multi-channel punch on a base plate. The input bed is eight by eight pixel columns, each a stack of chips, one chip per input channel. The die on the gantry is K by K wide and has as many layers as there are channels; one stroke covers a whole block and yields a single number, which a placer on the same carriage drops as a chip onto the output bed. Once every window has been swept, each output column has grown by one layer: one activation map. A turntable holds C_out dies; swapped in one at a time, they grow the output columns to C_out layers.',
+    ),
     body: [
       base(),
       `<g data-part="upright-far">${upright(RAIL_Y[0])}</g>`,
@@ -277,31 +280,34 @@ export function render() {
     ],
   })
   const button = (set, value, text) => `<button type="button" data-set="${set}" data-value="${value}">${text}</button>`
-  const controls = `<div class="fx-controls" role="group" aria-label="卷积层设置">
-    <div class="fx-control"><span>输入通道 C_in</span>${CHOICES.cin.map((v) => button('cin', v, v)).join('')}</div>
-    <div class="fx-control"><span>核 K</span>${CHOICES.k.map((v) => button('k', v, `${v}×${v}`)).join('')}</div>
-    <div class="fx-control"><span>滤波器 C_out</span>${CHOICES.cout.map((v) => button('cout', v, v)).join('')}</div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '卷积层设置', 'Conv layer settings')}">
+    <div class="fx-control"><span>${t(lang, '输入通道 C_in', 'Channels C_in')}</span>${CHOICES.cin.map((v) => button('cin', v, v)).join('')}</div>
+    <div class="fx-control"><span>${t(lang, '核 K', 'Kernel K')}</span>${CHOICES.k.map((v) => button('k', v, `${v}×${v}`)).join('')}</div>
+    <div class="fx-control"><span>${t(lang, '滤波器 C_out', 'Filters C_out')}</span>${CHOICES.cout.map((v) => button('cout', v, v)).join('')}</div>
   </div>
   <div class="fx-calc"><span>(K·K·C_in + 1)·C_out =</span><b data-calc="conv"></b><i>·</i><span data-calc="fc-label"></span><b data-calc="fc"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '←→ 换滤波器 · 空格',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '←→ 换滤波器 · 空格', '←→ switch filter · space'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '正在工作的冲模：K × K × C_in' },
-        { mark: 'raised', label: '像素柱：一片一个输入通道' },
-        { mark: 'flat', label: '输出柱：一层一张激活图' },
+        { mark: 'lit', label: t(lang, '正在工作的冲模：K × K × C_in', 'working die: K × K × C_in') },
+        { mark: 'raised', label: t(lang, '像素柱：一片一个输入通道', 'pixel column: one chip per input channel') },
+        { mark: 'flat', label: t(lang, '输出柱：一层一张激活图', 'output column: one layer per activation map') },
       ],
-      caption:
+      caption: t(
+        lang,
         '冲模的每一层对准一个输入通道，所以一个 5 × 5 × 3 的滤波器压一次就盖住整块 5 × 5 × 3 的像素，只得到一个数；扫完所有窗口，输出柱多出一层，就是一张激活图。转盘上有几个冲模，输出柱就长几层，成为下一层的输入通道。参数 = (K·K·C_in + 1)·C_out，+1 是每个冲模顶上的偏置旋钮；窗口再多也共用同一组冲模，所以参数与图像大小无关。针床只画了 8 × 8，计数按笔记的 32 × 32 输入。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="多通道冲床。左右方向键切换滤波器，空格暂停或继续，Home 重新开始。">${svg}</div>`,
+        'Each layer of the die lines up with one input channel, so a 5 × 5 × 3 filter covers a whole 5 × 5 × 3 block of pixels in one stroke and yields a single number; once every window has been swept, each output column has one more layer: an activation map. The output columns grow one layer per die on the turntable, and those layers become the input channels of the next layer. Parameters = (K·K·C_in + 1)·C_out, where the +1 is the bias knob on top of each die; however many windows there are, they all share the same dies, so the parameter count does not depend on the image size. The bed is drawn only 8 × 8; the counts use the note’s 32 × 32 input.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, '多通道冲床。左右方向键切换滤波器，空格暂停或继续，Home 重新开始。', 'Multi-channel punch. Left and right arrow keys switch filters, space pauses or resumes, Home starts over.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -596,16 +602,16 @@ export function mount(root) {
   }
 
   function say(pose) {
-    const total = `${group(convParams(config))} 参数`
+    const total = t(lang, `${group(convParams(config))} 参数`, `${group(convParams(config))} params`)
     const of = `${pose.o + 1}/${config.cout}`
     const kind = pose.kind
     let text
-    if (kind === 'sweep') text = `滤波器 ${of} · 窗口 ${pose.window + 1}/${build.plan.list.length} · ${total}`
-    else if (kind === 'hold') text = `输出 ${build.plan.m}×${build.plan.m}×${config.cout} · ${total}`
-    else if (kind === 'clear') text = `清空输出 · ${total}`
-    else if (kind === 'grab' || kind === 'load') text = `装冲模 ${of} · ${total}`
-    else text = `卸冲模 ${of} · ${total}`
-    if (!state.playing) text = `已暂停 · 滤波器 ${of} · ${total}`
+    if (kind === 'sweep') text = t(lang, `滤波器 ${of} · 窗口 ${pose.window + 1}/${build.plan.list.length} · ${total}`, `filter ${of} · window ${pose.window + 1}/${build.plan.list.length} · ${total}`)
+    else if (kind === 'hold') text = t(lang, `输出 ${build.plan.m}×${build.plan.m}×${config.cout} · ${total}`, `out ${build.plan.m}×${build.plan.m}×${config.cout} · ${total}`)
+    else if (kind === 'clear') text = t(lang, `清空输出 · ${total}`, `clearing output · ${total}`)
+    else if (kind === 'grab' || kind === 'load') text = t(lang, `装冲模 ${of} · ${total}`, `loading die ${of} · ${total}`)
+    else text = t(lang, `卸冲模 ${of} · ${total}`, `unloading die ${of} · ${total}`)
+    if (!state.playing) text = t(lang, `已暂停 · 滤波器 ${of} · ${total}`, `paused · filter ${of} · ${total}`)
     if (readout.textContent !== text) readout.textContent = text
   }
 
@@ -616,10 +622,17 @@ export function mount(root) {
     const n = NOTE_N
     const o = outSize(n, config.k)
     calc.conv.textContent = `(${config.k}·${config.k}·${config.cin} + 1)·${config.cout} = ${each} × ${config.cout} = ${group(total)}`
-    calc['fc-label'].textContent = `全连接（${n}×${n}×${config.cin} → ${o}×${o}×${config.cout}）=`
-    calc.fc.textContent = `${group(fc)}（${wan(fc)}）`
+    calc['fc-label'].textContent = t(lang, `全连接（${n}×${n}×${config.cin} → ${o}×${o}×${config.cout}）=`, `fully connected (${n}×${n}×${config.cin} → ${o}×${o}×${config.cout}) =`)
+    calc.fc.textContent = t(lang, `${group(fc)}（${wan(fc)}）`, `${group(fc)} (${mega(fc)})`)
     buttons.forEach((node) => node.setAttribute('aria-pressed', String(Number(node.dataset.value) === config[node.dataset.set])))
-    stage.setAttribute('aria-valuetext', `${config.cout} 个 ${config.k}×${config.k}×${config.cin} 的滤波器（${CHANNELS[config.cin].join('、')}），共 ${total} 个参数；同样输入输出的全连接层要 ${fc} 个。`)
+    stage.setAttribute(
+      'aria-valuetext',
+      t(
+        lang,
+        `${config.cout} 个 ${config.k}×${config.k}×${config.cin} 的滤波器（${CHANNELS[config.cin].join('、')}），共 ${total} 个参数；同样输入输出的全连接层要 ${fc} 个。`,
+        `${config.cout} ${config.k}×${config.k}×${config.cin} ${config.cout === 1 ? 'filter' : 'filters'} (${CHANNELS_EN[config.cin].join(', ')}), ${group(total)} parameters in all; a fully connected layer with the same input and output needs ${group(fc)}.`,
+      ),
+    )
   }
 
   function tick(dt, calm) {

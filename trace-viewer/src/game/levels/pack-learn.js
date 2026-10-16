@@ -42,23 +42,23 @@ const CONV_INIT = (() => {
 
 export const nodes = {
   lrnConv: {
-    label: '卷积层',
-    description: '可学习 3×3 核，从一组很小的随机数开始',
+    label: { zh: '卷积层', en: 'Conv layer' },
+    description: { zh: '可学习 3×3 核，从一组很小的随机数开始', en: 'Learnable 3×3 kernel, starting from a set of very small random numbers' },
     inputs: ['in'],
-    params: [{ key: 'w', label: '权重', kind: 'kernel', learnable: true, default: CONV_INIT }],
+    params: [{ key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, default: CONV_INIT }],
     eval: ({ in: a }, p) => conv3(a, p.w ?? CONV_INIT),
     cost: 9,
   },
   lrnGap: {
-    label: '全局平均',
-    description: '整张图求平均，变成 1×1',
+    label: { zh: '全局平均', en: 'Global average' },
+    description: { zh: '整张图求平均，变成 1×1', en: 'Averages the whole image down to 1×1' },
     inputs: ['in'],
     eval: ({ in: a }) => image(1, 1, a.data.reduce((sum, v) => sum + v, 0) / a.data.length),
     cost: 1,
   },
   lrnDense: {
-    label: '全连接 w·x + b',
-    description: '可学习的权重 w 和偏置 b',
+    label: { zh: '全连接 w·x + b', en: 'Dense w·x + b' },
+    description: { zh: '可学习的权重 w 和偏置 b', en: 'Learnable weight w and bias b' },
     inputs: ['in'],
     params: [{ key: 'p', label: 'w, b', kind: 'kernel', learnable: true, default: [1, 0] }],
     eval: ({ in: a }, p) => map(a, (v) => (p.p?.[0] ?? 1) * v + (p.p?.[1] ?? 0)),
@@ -66,17 +66,17 @@ export const nodes = {
   },
   lrnSigmoid: {
     label: 'Sigmoid',
-    description: '1 / (1 + e⁻ˣ)，把任意数压到 0…1',
+    description: { zh: '1 / (1 + e⁻ˣ)，把任意数压到 0…1', en: '1 / (1 + e⁻ˣ): squashes any number into 0…1' },
     inputs: ['in'],
     eval: ({ in: a }) => map(a, (v) => 1 / (1 + Math.exp(-v))),
     cost: 2,
   },
   // Earned by solving 4-5 and 4-7.
   lrnRgb: {
-    label: '多通道 3×3 核',
-    description: '一个核横跨 R、G、B：3×3×3 个可学习权重',
+    label: { zh: '多通道 3×3 核', en: 'Multichannel 3×3 kernel' },
+    description: { zh: '一个核横跨 R、G、B：3×3×3 个可学习权重', en: 'One kernel spans R, G and B: 3×3×3 learnable weights' },
     inputs: ['r', 'g', 'b'],
-    params: [{ key: 'w', label: '权重', kind: 'kernel', learnable: true, default: Array(27).fill(0) }],
+    params: [{ key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, default: Array(27).fill(0) }],
     eval: ({ r, g, b }, p) => {
       const w = p.w ?? Array(27).fill(0)
       const [R, G, B] = [conv3(r, w.slice(0, 9)), conv3(g, w.slice(9, 18)), conv3(b, w.slice(18, 27))]
@@ -86,10 +86,10 @@ export const nodes = {
     unlock: 'lrn-rgb',
   },
   lrnRes: {
-    label: '残差块',
-    description: '输出 = 输入 + 卷积层(输入)',
+    label: { zh: '残差块', en: 'Residual block' },
+    description: { zh: '输出 = 输入 + 卷积层(输入)', en: 'output = input + conv layer(input)' },
     inputs: ['in'],
-    params: [{ key: 'w', label: '权重', kind: 'kernel', learnable: true, default: CONV_INIT }],
+    params: [{ key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, default: CONV_INIT }],
     eval: ({ in: a }, p) => {
       const f = conv3(a, p.w ?? CONV_INIT)
       return { w: a.w, h: a.h, data: f.data.map((v, i) => v + a.data[i]) }
@@ -198,12 +198,12 @@ const XO_CASES = [
 // Held back, drawn the same way: glyphs the network has not seen. The reference network, and the variants with
 // two poolings or pooling before ReLU, all get them right from the step their visible tests first pass.
 const XO_HIDDEN = [
-  ['新的 X', ['X', 3, 2, 0.85, 0]],
-  ['新的 O', ['O', 4, 1, 0.78, 0]],
-  ['新的 X 带噪点', ['X', 5, 4, 0.89, 160]],
+  [{ zh: '新的 X', en: 'New X' }, ['X', 3, 2, 0.85, 0]],
+  [{ zh: '新的 O', en: 'New O' }, ['O', 4, 1, 0.78, 0]],
+  [{ zh: '新的 X 带噪点', en: 'New X with noise' }, ['X', 5, 4, 0.89, 160]],
 ]
 // Numbered per letter, so sixteen labels stay distinct: X 1, O 1, X 2 …
-const xoLabel = ([name, , , , seed], i) => `${name} ${Math.floor(i / 2) + 1}${seed ? ' 噪点' : ''}`
+const xoLabel = ([name, , , , seed], i) => ({ zh: `${name} ${Math.floor(i / 2) + 1}${seed ? ' 噪点' : ''}`, en: `${name} ${Math.floor(i / 2) + 1}${seed ? ' noisy' : ''}` })
 
 // Weights the game's trainer reaches from CONV_INIT on the reference network after 80 steps (it first passes
 // after 59 and holds from 69). The linear weights are where 400 steps leave a network with no ReLU or pooling,
@@ -282,25 +282,25 @@ const SHARPEN_RESIDUAL = BOX3.map((v, i) => 0.25 * ((i === 4 ? 1 : 0) - v))
 export const levels = [
   (() => {
     const cases = [
-      ['7×7 方块', blocks([[4, 5, 7, 7]], [], 1)],
-      ['5×5 和 3×3', blocks([[1, 1, 5, 5], [10, 9, 3, 3]], [], 2)],
-      ['9×7 方块和长条', blocks([[1, 1, 9, 7], [2, 11, 12, 3]], [], 3)],
-      ['缺一角的 7×7', blocks([[1, 1, 7, 7], [8, 8, 7, 7]], [[7, 7]], 4)],
+      [{ zh: '7×7 方块', en: '7×7 block' }, blocks([[4, 5, 7, 7]], [], 1)],
+      [{ zh: '5×5 和 3×3', en: '5×5 and 3×3' }, blocks([[1, 1, 5, 5], [10, 9, 3, 3]], [], 2)],
+      [{ zh: '9×7 方块和长条', en: '9×7 block and a long bar' }, blocks([[1, 1, 9, 7], [2, 11, 12, 3]], [], 3)],
+      [{ zh: '缺一角的 7×7', en: '7×7 missing a corner' }, blocks([[1, 1, 7, 7], [8, 8, 7, 7]], [[7, 7]], 4)],
     ]
     // Held back: a shape that is not a rectangle, a missing pixel in the middle of an edge rather than
     // at a corner, and a one-pixel dark seam, each of which a loose threshold lets through.
     const hiddenCases = [
-      ['L 形', blocks([[1, 1, 7, 13], [1, 7, 14, 7]], [], 5)],
-      ['边上缺一点的 9×9', blocks([[3, 3, 9, 9]], [[7, 3]], 6)],
-      ['中间一道缝', blocks([[1, 4, 14, 8]], Array.from({ length: 8 }, (_, i) => [8, 4 + i]), 7)],
+      [{ zh: 'L 形', en: 'L shape' }, blocks([[1, 1, 7, 13], [1, 7, 14, 7]], [], 5)],
+      [{ zh: '边上缺一点的 9×9', en: '9×9 missing a pixel on one edge' }, blocks([[3, 3, 9, 9]], [[7, 3]], 6)],
+      [{ zh: '中间一道缝', en: 'Seam down the middle' }, blocks([[1, 4, 14, 8]], Array.from({ length: 8 }, (_, i) => [8, 4 + i]), 7)],
     ]
     return {
       id: '4-7',
       chapter: 4,
-      title: '看得更大',
-      brief: '只在“周围 7×7 全是亮的”格子输出 1，其余输出 0。手里只有 3×3 的元件。',
-      hint: '一个 3×3 只看得到身边一圈。如果第二层看的是第一层的结果，它其实看到了多大？',
-      after: '每层只看 3×3，可第二层看的是第一层的输出，等于看到了 5×5；第三层看到 7×7。这叫感受野：叠 L 层 3×3，感受野是 (2L+1)×(2L+1)。VGG 就靠堆小核看大范围，而且三层 3×3 只有 27 个权重，一个 7×7 核要 49 个。',
+      title: { zh: '看得更大', en: 'Seeing further' },
+      brief: { zh: '只在“周围 7×7 全是亮的”格子输出 1，其余输出 0。手里只有 3×3 的元件。', en: 'Output 1 only at pixels where "the whole 7×7 around it is bright", and 0 everywhere else. You only have 3×3 parts.' },
+      hint: { zh: '一个 3×3 只看得到身边一圈。如果第二层看的是第一层的结果，它其实看到了多大？', en: 'A 3×3 sees only the ring of pixels right around it. If a second layer looks at the first layer\'s result, how much does it really see?' },
+      after: { zh: '每层只看 3×3，可第二层看的是第一层的输出，等于看到了 5×5；第三层看到 7×7。这叫感受野：叠 L 层 3×3，感受野是 (2L+1)×(2L+1)。VGG 就靠堆小核看大范围，而且三层 3×3 只有 27 个权重，一个 7×7 核要 49 个。', en: 'Each layer looks at only 3×3, but the second layer looks at the first layer\'s output, so in effect it sees 5×5; the third sees 7×7. This is the receptive field: stack L layers of 3×3 and the receptive field is (2L+1)×(2L+1). VGG sees large areas by stacking small kernels, and three 3×3 layers have only 27 weights, while a single 7×7 kernel needs 49.' },
       requires: ['4-6'],
       unlocks: [],
       palette: ['box3', 'kernel3', 'threshold', 'relu', 'add', 'scale', 'offset'],
@@ -317,22 +317,22 @@ export const levels = [
   })(),
   (() => {
     const cases = [
-      ['红绿对半，一样亮', colourScene((x) => (x < 8 ? RED : GREEN))],
-      ['只有明暗', colourScene((x, y) => (x >= 4 && x < 12 && y >= 4 && y < 12 ? [0.8, 0.8, 0.8] : [0.2, 0.2, 0.2]))],
-      ['绿底红点，旁边一块蓝', colourScene((x, y) => {
+      [{ zh: '红绿对半，一样亮', en: 'Half red, half green, equally bright' }, colourScene((x) => (x < 8 ? RED : GREEN))],
+      [{ zh: '只有明暗', en: 'Only light and dark' }, colourScene((x, y) => (x >= 4 && x < 12 && y >= 4 && y < 12 ? [0.8, 0.8, 0.8] : [0.2, 0.2, 0.2]))],
+      [{ zh: '绿底红点，旁边一块蓝', en: 'Red spot on green, with a blue patch beside it' }, colourScene((x, y) => {
         if ((x - 5.5) ** 2 + (y - 6.5) ** 2 <= 12) return RED
         if (x >= 11 && y >= 9 && y < 14) return [0.3, 0.7, 0.9]
         return GREEN
       })],
-      ['彩色噪点 A', colourNoise(9)],
-      ['彩色噪点 B', colourNoise(11)],
+      [{ zh: '彩色噪点 A', en: 'Colour noise A' }, colourNoise(9)],
+      [{ zh: '彩色噪点 B', en: 'Colour noise B' }, colourNoise(11)],
     ]
     // Held back: a slanted red↔green border under a brightness ramp, fresh colour noise, and a scene
     // where only blue and the overall brightness change.
     const hiddenCases = [
-      ['红绿斜分，上暗下亮', colourScene((x, y) => (x + y < 15 ? RED : GREEN).map((v) => v + (y - 7.5) * 0.02))],
-      ['彩色噪点 C', colourNoise(13)],
-      ['灰色渐变上的蓝条', colourScene((x, y) => {
+      [{ zh: '红绿斜分，上暗下亮', en: 'Red and green split diagonally, darker at the top' }, colourScene((x, y) => (x + y < 15 ? RED : GREEN).map((v) => v + (y - 7.5) * 0.02))],
+      [{ zh: '彩色噪点 C', en: 'Colour noise C' }, colourNoise(13)],
+      [{ zh: '灰色渐变上的蓝条', en: 'Blue bar on a grey gradient' }, colourScene((x, y) => {
         const grey = 0.25 + 0.03 * x
         return [grey, grey, y >= 5 && y < 10 ? 0.9 : grey]
       })],
@@ -342,12 +342,12 @@ export const levels = [
     return {
       id: '4-8',
       chapter: 4,
-      title: '多通道',
+      title: { zh: '多通道', en: 'Multiple channels' },
       inputs: ['r', 'g', 'b'],
-      inputLabels: { r: '红 R', g: '绿 G', b: '蓝 B' },
-      brief: '输入把红、绿、蓝分成三张图送来（都已减去 0.5）。只描出红与绿交界处的边，只是变亮变暗、或只有蓝色在变的地方输出 0。',
-      hint: '加成灰度图试试：红和绿一样亮时，交界就消失了。给每个通道各接一个可学习核，加起来，再训练。',
-      after: '一个卷积核要同时覆盖所有输入通道：这里是 3×3×3 = 27 个权重，三份乘积加成一张激活图。训练出的红通道核和绿通道核正好相反，蓝通道的是 0，于是同时变亮的部分互相抵消，只剩颜色对比。CNN 第一层学到的颜色对比滤波器就是这样来的。',
+      inputLabels: { r: { zh: '红 R', en: 'Red R' }, g: { zh: '绿 G', en: 'Green G' }, b: { zh: '蓝 B', en: 'Blue B' } },
+      brief: { zh: '输入把红、绿、蓝分成三张图送来（都已减去 0.5）。只描出红与绿交界处的边，只是变亮变暗、或只有蓝色在变的地方输出 0。', en: 'The input arrives as three images, red, green and blue (each with 0.5 already subtracted). Trace only the edges where red meets green; output 0 where things only get brighter or darker, or where only blue changes.' },
+      hint: { zh: '加成灰度图试试：红和绿一样亮时，交界就消失了。给每个通道各接一个可学习核，加起来，再训练。', en: 'Try adding them into a greyscale image: when red and green are equally bright, the border disappears. Give each channel its own learnable kernel, add the results, then train.' },
+      after: { zh: '一个卷积核要同时覆盖所有输入通道：这里是 3×3×3 = 27 个权重，三份乘积加成一张激活图。训练出的红通道核和绿通道核正好相反，蓝通道的是 0，于是同时变亮的部分互相抵消，只剩颜色对比。CNN 第一层学到的颜色对比滤波器就是这样来的。', en: 'A convolution kernel has to cover all the input channels at once: here that is 3×3×3 = 27 weights, and the three sets of products add up to one activation map. The trained red-channel and green-channel kernels come out exactly opposite and the blue one is 0, so whatever brightens in every channel cancels out and only the colour contrast is left. This is where the colour-contrast filters in a CNN\'s first layer come from.' },
       requires: ['4-7'],
       unlocks: ['lrn-rgb'],
       palette: ['learn3', 'kernel3', 'add', 'sub', 'scale'],
@@ -365,10 +365,10 @@ export const levels = [
   {
     id: '4-9',
     chapter: 4,
-    title: '分辨 X 和 O',
-    brief: '输出一个数：是 X 就大于 0.6，是 O 就小于 0.4。字母会挪位置、变深浅、带噪点。',
-    hint: '卷积层找笔画，ReLU 只留下“找到了”的地方，池化和全局平均把“在哪里”扔掉，最后的全连接加 Sigmoid 就是 4-3 里那个神经元，把特征变成分数。搭好后按训练。',
-    after: '这是一个最小的卷积网络：卷积找局部笔画，ReLU 把“有”和“没有”分开，池化和全局平均让答案不管字母在哪，全连接加 Sigmoid 把特征变成分数。要是一路全是线性运算（没有 ReLU，也没有最大池化），最后只剩“整张图有多亮”，而淡的 X 和浓的 O 一样亮。',
+    title: { zh: '分辨 X 和 O', en: 'Tell X from O' },
+    brief: { zh: '输出一个数：是 X 就大于 0.6，是 O 就小于 0.4。字母会挪位置、变深浅、带噪点。', en: 'Output one number: above 0.6 for an X, below 0.4 for an O. The letters move around, vary in strength and carry noise.' },
+    hint: { zh: '卷积层找笔画，ReLU 只留下“找到了”的地方，池化和全局平均把“在哪里”扔掉，最后的全连接加 Sigmoid 就是 4-3 里那个神经元，把特征变成分数。搭好后按训练。', en: 'The conv layer looks for strokes, ReLU keeps only the places where something "was found", pooling and global average throw away "where", and the final dense layer plus sigmoid is the neuron from 4-3, turning features into a score. Once it is built, press Train.' },
+    after: { zh: '这是一个最小的卷积网络：卷积找局部笔画，ReLU 把“有”和“没有”分开，池化和全局平均让答案不管字母在哪，全连接加 Sigmoid 把特征变成分数。要是一路全是线性运算（没有 ReLU，也没有最大池化），最后只剩“整张图有多亮”，而淡的 X 和浓的 O 一样亮。', en: 'This is the smallest convolutional network: the convolution finds local strokes, ReLU separates "there" from "not there", pooling and global average make the answer the same wherever the letter is, and the dense layer plus sigmoid turns features into a score. If every operation along the way were linear (no ReLU and no max pooling), all that would be left is "how bright the whole image is", and a faint X is as bright as a strong O.' },
     requires: ['4-8'],
     unlocks: [],
     palette: ['lrnConv', 'relu', 'maxpool', 'downsample', 'lrnGap', 'lrnDense', 'lrnSigmoid'],
@@ -384,10 +384,10 @@ export const levels = [
   {
     id: '4-11',
     chapter: 4,
-    title: '训不动的深网',
-    brief: '把至少 6 个卷积层串成一条路，训练它做一次轻微的锐化：输出 = 原图 + 0.25 ×（原图 − 3×3 平均）。',
-    hint: '每层都从很小的随机数开始，图每过一层就缩小几十倍。能不能让每一层默认“原样通过”，只去学要改的那一点？',
-    after: '直接堆叠时，每层的梯度都要乘上其余各层的权重，层一多就乘得几乎为 0（梯度消失），损失纹丝不动。把每层的输入加到它的输出上，y = F(x) + x，每块一开始就是“原样通过”，只需学残差 F(x) = H(x) − x，梯度也沿捷径直达每一层。这就是 ResNet 的残差连接。',
+    title: { zh: '训不动的深网', en: 'The deep net that will not train' },
+    brief: { zh: '把至少 6 个卷积层串成一条路，训练它做一次轻微的锐化：输出 = 原图 + 0.25 ×（原图 − 3×3 平均）。', en: 'Chain at least 6 conv layers into one path and train it to do a light sharpen: output = image + 0.25 × (image − 3×3 average).' },
+    hint: { zh: '每层都从很小的随机数开始，图每过一层就缩小几十倍。能不能让每一层默认“原样通过”，只去学要改的那一点？', en: 'Every layer starts from very small random numbers, so the image shrinks tens of times over at each layer. Could each layer "pass its input straight through" by default, and learn only the small part that needs changing?' },
+    after: { zh: '直接堆叠时，每层的梯度都要乘上其余各层的权重，层一多就乘得几乎为 0（梯度消失），损失纹丝不动。把每层的输入加到它的输出上，y = F(x) + x，每块一开始就是“原样通过”，只需学残差 F(x) = H(x) − x，梯度也沿捷径直达每一层。这就是 ResNet 的残差连接。', en: 'When layers are simply stacked, each layer\'s gradient is multiplied by the weights of all the other layers; with many layers the product is almost 0 (vanishing gradients) and the loss does not budge. Add each layer\'s input to its output, y = F(x) + x, and every block starts out "passing its input straight through": it only has to learn the residual F(x) = H(x) − x, and the gradient reaches every layer directly along the shortcut. This is ResNet\'s residual connection.' },
     requires: ['4-10'],
     unlocks: ['lrn-res'],
     palette: ['lrnConv', 'add'],
@@ -395,17 +395,17 @@ export const levels = [
     check: { tolerance: 0.04 },
     constraint: (_, graph) => {
       const depth = depthOf(graph)
-      return depth < DEEP ? `最深的一条路上只有 ${depth} 个卷积层，至少要 ${DEEP} 个` : ''
+      return depth < DEEP ? { zh: `最深的一条路上只有 ${depth} 个卷积层，至少要 ${DEEP} 个`, en: `The deepest path has only ${depth} conv ${depth === 1 ? 'layer' : 'layers'}; it needs at least ${DEEP}` } : ''
     },
     tests: [
-      ['字母 X', P.glyph(GLYPHS.X)],
-      ['圆盘', P.disk()],
-      ['带噪方块', addNoise(P.square(3, 5, 7), 3, 0.2)],
-      ['棋盘', P.checker(3)],
+      [{ zh: '字母 X', en: 'Letter X' }, P.glyph(GLYPHS.X)],
+      [{ zh: '圆盘', en: 'Disc' }, P.disk()],
+      [{ zh: '带噪方块', en: 'Noisy square' }, addNoise(P.square(3, 5, 7), 3, 0.2)],
+      [{ zh: '棋盘', en: 'Checkerboard' }, P.checker(3)],
     ].map(([label, img]) => test(label, { in: img }, { out: sharpen(img) })),
     hidden: [
-      ['字母 L', P.glyph(GLYPHS.L, 0.2, 0.8, 4, 3)],
-      ['竖条纹', P.stripes(6, 0.2, 0.8)],
+      [{ zh: '字母 L', en: 'Letter L' }, P.glyph(GLYPHS.L, 0.2, 0.8, 4, 3)],
+      [{ zh: '竖条纹', en: 'Vertical stripes' }, P.stripes(6, 0.2, 0.8)],
     ].map(([label, img]) => test(label, { in: img }, { out: sharpen(img) })),
     solution: deepNet(true, DEEP, (i) => (i === 0 ? SHARPEN_RESIDUAL : ZERO9)),
     naive: deepNet(false),

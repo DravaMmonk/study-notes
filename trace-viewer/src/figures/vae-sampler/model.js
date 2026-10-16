@@ -20,9 +20,9 @@ export const SIGMA = [0.4, 1.1]
 
 // What the encoder outputs for each input plate. The plate itself is decode(μ).
 export const INPUTS = {
-  diamond: { name: '菱形', mu: -1.1, sigma: 0.45 },
-  circle: { name: '圆', mu: 0.1, sigma: 0.5 },
-  square: { name: '方', mu: 1.25, sigma: 0.42 },
+  diamond: { name: '菱形', nameEn: 'Diamond', mu: -1.1, sigma: 0.45 },
+  circle: { name: '圆', nameEn: 'Circle', mu: 0.1, sigma: 0.5 },
+  square: { name: '方', nameEn: 'Square', mu: 1.25, sigma: 0.42 },
 }
 export const PRIOR = { mu: 0, sigma: 1 }
 

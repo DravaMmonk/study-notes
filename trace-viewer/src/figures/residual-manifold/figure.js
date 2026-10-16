@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { clamp, createIdle, createLoop, follow } from '../common.js'
+import { clamp, createIdle, createLoop, follow, t } from '../common.js'
 import { BRANCH, DEPTHS, PLAIN, atInput, factorOf, format, gradientAt } from './model.js'
 
 // Fig · The residual manifold.
@@ -149,40 +149,47 @@ function needleD(cx, cy, r, z, value) {
 
 // ---------- the live figure ----------
 
-export const meta = { id: 'residual-manifold', fig: 'Fig 8.1', title: '残差管路' }
+export const meta = { id: 'residual-manifold', fig: 'Fig 8.1', title: '残差管路', titleEn: 'Residual manifold' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '底板上的一条管路：左端是输入集管和输入端梯度表，右端是损失罐。中间串着若干个阀块，代表权重层 F。每个阀块都可以被一段带闸阀的旁路管绕过，这就是恒等跳连。梯度压力从损失罐出发沿管路往回传，每经过一块就乘上这一块的斜率，阀块入口的小表读出这一处的梯度。',
+      'A pipeline on a base plate: an input manifold with the input gradient gauge on the left, a loss tank on the right. In between sits a chain of valve blocks, each standing for a weight layer F. Every valve block can be bypassed by a length of pipe with a gate valve — the identity skip connection. Gradient pressure flows back from the loss tank along the pipeline, multiplied by each block’s slope as it passes, and a small gauge at each block’s inlet reads the gradient there.',
+    ),
     body: [base(), '<g data-part="work"></g>'],
   })
   const button = (set, value, text) => `<button type="button" data-set="${set}" data-value="${value}">${text}</button>`
-  const controls = `<div class="fx-controls" role="group" aria-label="管路设置">
-    <div class="fx-control"><span>跳连</span>${button('skip', 0, '关')}${button('skip', 1, '开')}</div>
-    <div class="fx-control"><span>深度</span>${DEPTHS.map((d) => button('depth', d, `${d} 块`)).join('')}</div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '管路设置', 'Pipeline settings')}">
+    <div class="fx-control"><span>${t(lang, '跳连', 'Skip')}</span>${button('skip', 0, t(lang, '关', 'Off'))}${button('skip', 1, t(lang, '开', 'On'))}</div>
+    <div class="fx-control"><span>${t(lang, '深度', 'Blocks')}</span>${DEPTHS.map((d) => button('depth', d, t(lang, `${d} 块`, `${d}`))).join('')}</div>
   </div>
   <div class="fx-calc"><span>∂L/∂x =</span><span data-calc="terms"></span><i>=</i><b data-calc="value"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '空格开关 · ←→深度',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '空格开关 · ←→深度', 'Space: skip · ←→ depth'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '输入端梯度表' },
-        { mark: 'raised', label: '阀块：权重层 F(x)' },
-        { mark: 'flat', label: '旁路管：恒等跳连 x' },
+        { mark: 'lit', label: t(lang, '输入端梯度表', 'gradient gauge at the input') },
+        { mark: 'raised', label: t(lang, '阀块：权重层 F(x)', 'valve block: weight layer F(x)') },
+        { mark: 'flat', label: t(lang, '旁路管：恒等跳连 x', 'bypass pipe: identity skip x') },
       ],
-      caption: `梯度从右端的损失罐出发，以 1 为起点沿管路往回传，每经过一个阀块就乘上它的斜率，入口小表读出这一处的梯度。关上旁路阀就是普通网络：设每块斜率 ${PLAIN}，8 块后只剩 ${PLAIN}⁸ ≈ ${format(PLAIN ** 8)}，靠近输入的层几乎得不到梯度。打开旁路阀，每块输出 F(x) + x，斜率变成 1 + g′：旁路那一份 1 原样通过，分支 F 只需学残差 H(x) − x，g′ 很小（这里在 ±0.08 以内），所以输入端仍读到约 1。`,
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="残差管路。空格开关旁路阀，左右方向键改变深度。">${svg}</div>`,
+      caption: t(
+        lang,
+        `梯度从右端的损失罐出发，以 1 为起点沿管路往回传，每经过一个阀块就乘上它的斜率，入口小表读出这一处的梯度。关上旁路阀就是普通网络：设每块斜率 ${PLAIN}，8 块后只剩 ${PLAIN}⁸ ≈ ${format(PLAIN ** 8)}，靠近输入的层几乎得不到梯度。打开旁路阀，每块输出 F(x) + x，斜率变成 1 + g′：旁路那一份 1 原样通过，分支 F 只需学残差 H(x) − x，g′ 很小（这里在 ±0.08 以内），所以输入端仍读到约 1。`,
+        `Gradient starts at 1 in the loss tank on the right and flows back along the pipeline, multiplied by each valve block’s slope as it passes; the small inlet gauge reads the gradient at that point. With the bypass valves shut this is a plain network: at a slope of ${PLAIN} per block, eight blocks leave only ${PLAIN}⁸ ≈ ${format(PLAIN ** 8)}, so the layers near the input receive almost no gradient. Open the bypass valves and each block outputs F(x) + x, with slope 1 + g′: the shortcut’s 1 passes straight through, and the branch F only has to learn the residual H(x) − x, so g′ is small (within ±0.08 here) and the input still reads about 1.`,
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, '残差管路。空格开关旁路阀，左右方向键改变深度。', 'Residual manifold. Space opens or shuts the bypass valves; left and right arrows change the depth.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const work = svg.querySelector('[data-part="work"]')
@@ -366,16 +373,16 @@ export function mount(root) {
     calc.terms.textContent = terms
     calc.value.textContent = format(value)
     buttons.forEach((node) => node.setAttribute('aria-pressed', String(Number(node.dataset.value) === (node.dataset.set === 'skip' ? Number(state.skip) : state.depth))))
-    stage.setAttribute('aria-valuetext', `${state.skip ? '有' : '无'}跳连，${depth} 块：输入端梯度 ${format(value)}`)
+    stage.setAttribute('aria-valuetext', t(lang, `${state.skip ? '有' : '无'}跳连，${depth} 块：输入端梯度 ${format(value)}`, `${state.skip ? 'With' : 'Without'} skip connections, ${depth} blocks: gradient at the input ${format(value)}`))
   }
 
   function say() {
     const depth = state.depth
     const passed = clamp(Math.floor(state.front), 0, depth)
     let text
-    if (state.phase === 'valves') text = state.skip ? '打开旁路阀 · 恒等跳连' : '关闭旁路阀 · 普通网络'
-    else if (state.phase === 'wave' && passed < depth) text = `反传 · 过了 ${passed}/${depth} 块 · ${format(gradientAt(depth, state.skip, depth - passed))}`
-    else text = `${state.skip ? '有' : '无'}跳连 · ${depth} 块 · 梯度 ${format(atInput(depth, state.skip))}`
+    if (state.phase === 'valves') text = state.skip ? t(lang, '打开旁路阀 · 恒等跳连', 'Bypass open · identity') : t(lang, '关闭旁路阀 · 普通网络', 'Bypass shut · plain net')
+    else if (state.phase === 'wave' && passed < depth) text = `${t(lang, `反传 · 过了 ${passed}/${depth} 块`, `Backprop · ${passed}/${depth} blocks`)} · ${format(gradientAt(depth, state.skip, depth - passed))}`
+    else text = t(lang, `${state.skip ? '有' : '无'}跳连 · ${depth} 块 · 梯度 ${format(atInput(depth, state.skip))}`, `${state.skip ? 'Skip' : 'No skip'} · ${depth} blocks · grad ${format(atInput(depth, state.skip))}`)
     if (readout.textContent !== text) readout.textContent = text
   }
 

@@ -15,6 +15,7 @@ export const DEFAULTS = { cin: 3, k: 5, cout: 6 }
 
 // What each input channel is, bottom chip first (grey, RGB, RGB plus depth).
 export const CHANNELS = { 1: ['灰度'], 3: ['R', 'G', 'B'], 4: ['R', 'G', 'B', 'D'] }
+export const CHANNELS_EN = { 1: ['grey'], 3: ['R', 'G', 'B'], 4: ['R', 'G', 'B', 'D'] }
 
 // Valid convolution, stride 1, no padding: N − K + 1 per side.
 export const outSize = (n, k) => n - k + 1
@@ -45,3 +46,6 @@ export const group = (value) => value.toLocaleString('en-US')
 
 // Ten-thousands, the way the note reads large counts (1445.5 万).
 export const wan = (value) => (value >= 1e4 ? `${(value / 1e4).toFixed(value >= 1e6 ? 0 : 1)} 万` : group(value))
+
+// Millions, for the English readout (14.5 M).
+export const mega = (value) => (value >= 1e6 ? `${(value / 1e6).toFixed(1)} M` : group(value))

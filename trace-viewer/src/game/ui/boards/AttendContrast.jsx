@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, RotateCcw, X } from 'lucide-react'
 import ImageView from '../ImageView.jsx'
 import { useMedia } from '../useMedia.js'
+import { tr } from '../../i18n.js'
 import './AttendContrast.css'
 
 const QUIZ_SEED = 901
@@ -79,20 +80,20 @@ export default function AttendContrast({ level, onSolve, theme }) {
   const tag = (i) => `${m.NAMES[quiz[i].image]}${(i % 2) + 1}`
   const at = (i, r = 1) => [Math.cos(shown[i]) * r, -Math.sin(shown[i]) * r]
   const status = report.collapsed
-    ? ['is-fail', '坍缩：所有视图挤到了同一个方向，谁也认不出谁。']
+    ? ['is-fail', tr('坍缩：所有视图挤到了同一个方向，谁也认不出谁。', 'Collapsed: every view is squeezed into the same direction, and none can tell the others apart.')]
     : report.pass
-      ? ['is-pass', '通过：每个视图都认得出自己的搭档。']
-      : ['', state.t ? '继续训练，看点往哪里走。' : '还没训练：编码器是随机的。']
+      ? ['is-pass', tr('通过：每个视图都认得出自己的搭档。', 'Passed: every view recognises its partner.')]
+      : ['', state.t ? tr('继续训练，看点往哪里走。', 'Keep training and watch where the dots go.') : tr('还没训练：编码器是随机的。', 'Not trained yet: the encoder is random.')]
 
   return (
     <div className="bk contrast">
       <div className="bk-split contrast-split">
         <section className="bk-stage contrast-stage">
           <div className="contrast-stage-head">
-            <span className="bk-label">嵌入平面 · 测验视图</span>
-            <span className="bk-chip contrast-step">第 {state.t} 步</span>
+            <span className="bk-label">{tr('嵌入平面 · 测验视图', 'Embedding plane · quiz views')}</span>
+            <span className="bk-chip contrast-step">{tr(`第 ${state.t} 步`, `Step ${state.t}`)}</span>
           </div>
-          <svg className="contrast-plane" viewBox="-1.32 -1.32 2.64 2.64" role="img" aria-label="嵌入平面：每个视图是单位圆上的一点">
+          <svg className="contrast-plane" viewBox="-1.32 -1.32 2.64 2.64" role="img" aria-label={tr('嵌入平面：每个视图是单位圆上的一点', 'Embedding plane: each view is a point on the unit circle')}>
             <line className="plane-axis" x1="-1.25" y1="0" x2="1.25" y2="0" />
             <line className="plane-axis" x1="0" y1="-1.25" x2="0" y2="1.25" />
             <circle className="plane-circle" cx="0" cy="0" r="1" />
@@ -112,18 +113,18 @@ export default function AttendContrast({ level, onSolve, theme }) {
             })}
           </svg>
           <p className={`bk-verdict contrast-verdict ${status[0]}`} aria-live="polite">{status[1]}</p>
-          <p className="bk-caption contrast-legend"><span>● 第 1 个视图</span><span>○ 第 2 个视图</span><span>— 连线连着同一张图的两个视图</span></p>
+          <p className="bk-caption contrast-legend"><span>{tr('● 第 1 个视图', '● First view')}</span><span>{tr('○ 第 2 个视图', '○ Second view')}</span><span>{tr('— 连线连着同一张图的两个视图', '— A line joins the two views of the same image')}</span></p>
         </section>
 
         <div className="bk-stack">
           <section className="bk-panel">
-            <span className="bk-label">目标</span>
+            <span className="bk-label">{tr('目标', 'Goals')}</span>
             <ul className="bk-goals">
               <Goal pass={report.worst >= m.GOAL} value={pct(report.worst)}>
-                认对搭档的最低概率 <small>≥ {pct(m.GOAL)}</small>
+                {tr('认对搭档的最低概率', 'Lowest chance of picking the partner')} <small>≥ {pct(m.GOAL)}</small>
               </Goal>
               <Goal pass={!report.collapsed} value={report.negative.toFixed(2)}>
-                负对平均 sim，不坍缩 <small>≤ {m.COLLAPSE}</small>
+                {tr('负对平均 sim，不坍缩', 'Mean sim of negative pairs, no collapse')} <small>≤ {m.COLLAPSE}</small>
               </Goal>
             </ul>
           </section>
@@ -134,22 +135,22 @@ export default function AttendContrast({ level, onSolve, theme }) {
             </p>
             <div className="bk-row contrast-checks">
               <label className="bk-check">
-                <input type="checkbox" checked disabled /> 拉近搭档（分子）
+                <input type="checkbox" checked disabled /> {tr('拉近搭档（分子）', 'Pull partners close (numerator)')}
               </label>
               <label className="bk-check">
-                <input type="checkbox" checked={push} onChange={(e) => setPush(e.target.checked)} /> 推开其他视图（分母）
+                <input type="checkbox" checked={push} onChange={(e) => setPush(e.target.checked)} /> {tr('推开其他视图（分母）', 'Push other views away (denominator)')}
               </label>
             </div>
             <div className="bk-row">
-              <button className="bk-btn" onClick={() => train(1)}>训练 1 步</button>
-              <button className="bk-btn is-primary" onClick={() => train(20)}>训练 20 步</button>
-              <button className="bk-btn contrast-reset" onClick={reset}><RotateCcw size={14} /> 重置编码器</button>
+              <button className="bk-btn" onClick={() => train(1)}>{tr('训练 1 步', 'Train 1 step')}</button>
+              <button className="bk-btn is-primary" onClick={() => train(20)}>{tr('训练 20 步', 'Train 20 steps')}</button>
+              <button className="bk-btn contrast-reset" onClick={reset}><RotateCcw size={14} /> {tr('重置编码器', 'Reset encoder')}</button>
             </div>
             <LossLine losses={state.losses} positive={report.positive} />
           </section>
 
           <figure className="bk-panel contrast-matrix">
-            <figcaption className="bk-label">每行在其余 {us.length - 1} 个视图里选搭档 · τ = {m.TAU}</figcaption>
+            <figcaption className="bk-label">{tr(`每行在其余 ${us.length - 1} 个视图里选搭档`, `Each row picks a partner from the other ${us.length - 1} views`)} · τ = {m.TAU}</figcaption>
             <table>
               <thead>
                 <tr>
@@ -169,7 +170,7 @@ export default function AttendContrast({ level, onSolve, theme }) {
                         key={k}
                         className={k === a ? 'is-self' : k === (a ^ 1) ? 'is-partner' : ''}
                         style={k === a ? undefined : { background: `color-mix(in srgb, var(--accent) ${Math.round(p * 100)}%, var(--paper))` }}
-                        aria-label={k === a ? undefined : `${tag(a)} 选 ${tag(k)}：${pct(p)}`}
+                        aria-label={k === a ? undefined : tr(`${tag(a)} 选 ${tag(k)}：${pct(p)}`, `${tag(a)} picks ${tag(k)}: ${pct(p)}`)}
                       >
                         {k === a ? '' : p >= 0.095 ? Math.round(p * 100) : ''}
                       </td>
@@ -178,7 +179,7 @@ export default function AttendContrast({ level, onSolve, theme }) {
                 ))}
               </tbody>
             </table>
-            <p className="bk-caption">数字是选中的概率（%）；粗框是真正的搭档。</p>
+            <p className="bk-caption">{tr('数字是选中的概率（%）；粗框是真正的搭档。', 'Numbers are the chance of being picked (%); the bold frame marks the true partner.')}</p>
           </figure>
         </div>
       </div>
@@ -187,18 +188,18 @@ export default function AttendContrast({ level, onSolve, theme }) {
 }
 
 function LossLine({ losses, positive }) {
-  const tail = <> · 正对平均 sim <b>{positive.toFixed(2)}</b></>
-  if (losses.length < 2) return <p className="bk-note contrast-curve-empty">训练后，损失曲线画在这里{tail}</p>
+  const tail = <> · {tr('正对平均 sim', 'mean sim of positive pairs')} <b>{positive.toFixed(2)}</b></>
+  if (losses.length < 2) return <p className="bk-note contrast-curve-empty">{tr('训练后，损失曲线画在这里', 'After training, the loss curve is drawn here')}{tail}</p>
   const max = Math.max(...losses)
   const min = Math.min(...losses)
   const span = Math.max(1e-9, max - min)
   const points = losses.map((v, i) => `${(i / (losses.length - 1)) * 200},${56 - ((v - min) / span) * 52}`)
   return (
     <figure className="contrast-curve">
-      <svg viewBox="0 0 200 60" preserveAspectRatio="none" role="img" aria-label="损失曲线">
+      <svg viewBox="0 0 200 60" preserveAspectRatio="none" role="img" aria-label={tr('损失曲线', 'Loss curve')}>
         <polyline points={points.join(' ')} />
       </svg>
-      <figcaption className="bk-caption">损失 <b>{losses.at(-1).toFixed(2)}</b> · 最近 {losses.length} 步{tail}</figcaption>
+      <figcaption className="bk-caption">{tr('损失', 'Loss')} <b>{losses.at(-1).toFixed(2)}</b> · {tr(`最近 ${losses.length} 步`, `last ${losses.length} steps`)}{tail}</figcaption>
     </figure>
   )
 }

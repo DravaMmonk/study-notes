@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight, Check } from 'lucide-react'
+import { L, tr } from '../../i18n.js'
 import ImageView from '../ImageView.jsx'
 import { PHONE, useMedia } from '../useMedia.js'
 import { useTween } from './optics-motion.js'
@@ -53,12 +54,12 @@ export default function WaveTuner({ level, onSolve, theme }) {
           ) : (
             <>
               <div className="wv-rows">
-                <div className="wv-row"><span>目标</span><Band curve={t.curve(target)} label="目标条纹" /></div>
-                <div className="wv-row"><span>你的波</span><Band curve={yours} label="你的条纹" /></div>
+                <div className="wv-row"><span>{tr('目标', 'Target')}</span><Band curve={t.curve(target)} label={tr('目标条纹', 'Target stripes')} /></div>
+                <div className="wv-row"><span>{tr('你的波', 'Your wave')}</span><Band curve={yours} label={tr('你的条纹', 'Your stripes')} /></div>
               </div>
-              <Plot width={width} height={phone ? 190 : 230} label="一行像素的亮度曲线" lines={[{ curve: t.curve(target), kind: 'target' }, { curve: yours, kind: 'yours', label: '你的波' }]} />
-              <div className="wv-legend"><span><i className="is-target" />目标</span><span><i />你的波</span><span>横轴：一幅图的宽度</span></div>
-              <p className="wv-formula">亮度 = <b>{p.c.toFixed(2)}</b> + <b>{p.A.toFixed(2)}</b> · cos(2π · <b>{p.k}</b> · u + <b>{p.phase}°</b>)</p>
+              <Plot width={width} height={phone ? 190 : 230} label={tr('一行像素的亮度曲线', 'Brightness along one row of pixels')} lines={[{ curve: t.curve(target), kind: 'target' }, { curve: yours, kind: 'yours', label: tr('你的波', 'your wave') }]} />
+              <div className="wv-legend"><span><i className="is-target" />{tr('目标', 'Target')}</span><span><i />{tr('你的波', 'Your wave')}</span><span>{tr('横轴：一幅图的宽度', 'Across: one image width')}</span></div>
+              <p className="wv-formula">{tr('亮度', 'Brightness')} = <b>{p.c.toFixed(2)}</b> + <b>{p.A.toFixed(2)}</b> · cos(2π · <b>{p.k}</b> · u + <b>{p.phase}°</b>)</p>
             </>
           )}
         </section>
@@ -66,8 +67,8 @@ export default function WaveTuner({ level, onSolve, theme }) {
         <div className="bk-stack">
           <section className="bk-panel bk-stack">
             <div>
-              <span className="bk-label">第 {stage + 1} 条 · {s.title}</span>
-              <p className="wv-stage-note">{s.note}</p>
+              <span className="bk-label">{tr(`第 ${stage + 1} 条`, `Pattern ${stage + 1}`)} · {L(s.title)}</span>
+              <p className="wv-stage-note">{L(s.note)}</p>
             </div>
             <div>
               {s.knobs.map((key) => {
@@ -75,7 +76,7 @@ export default function WaveTuner({ level, onSolve, theme }) {
                 const fill = `${((p[key] - knob.min) / (knob.max - knob.min)) * 100}%`
                 return (
                   <label key={key} className="bk-field">
-                    <span>{knob.label}</span>
+                    <span>{L(knob.label)}</span>
                     <input className="bk-range" type="range" min={knob.min} max={knob.max} step={knob.step} value={p[key]} style={{ '--fill': fill }} aria-valuetext={format(key, p[key])} onChange={(event) => turn(key, Number(event.target.value))} />
                     <output>{format(key, p[key])}</output>
                   </label>
@@ -84,10 +85,10 @@ export default function WaveTuner({ level, onSolve, theme }) {
             </div>
             <div className="wv-next">
               <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">
-                {match ? <><Check size={15} />对上了。</> : '还没对上。'}
+                {match ? <><Check size={15} />{tr('对上了。', 'It matches.')}</> : tr('还没对上。', 'Not matching yet.')}
               </p>
               {match && stage < t.stages.length - 1 && (
-                <button className="bk-btn is-primary" onClick={advance}>下一条 <ArrowRight size={15} /></button>
+                <button className="bk-btn is-primary" onClick={advance}>{tr('下一条', 'Next pattern')} <ArrowRight size={15} /></button>
               )}
             </div>
           </section>
@@ -111,7 +112,7 @@ function TwoD({ t, target, shown, p, theme }) {
       <div className="wv-pair is-three">
         <figure>
           <ImageView img={t.planeWave(target)} range={FULL} size={220} theme={theme} />
-          <figcaption className="bk-caption">目标</figcaption>
+          <figcaption className="bk-caption">{tr('目标', 'Target')}</figcaption>
         </figure>
         <figure>
           <ImageView img={t.planeWave(yours)} range={FULL} size={220} theme={theme} />
@@ -122,14 +123,14 @@ function TwoD({ t, target, shown, p, theme }) {
               <polygon className="wv-arrow-head" points={[tip, head(1), head(-1)].map((q) => q.join(',')).join(' ')} />
             </svg>
           )}
-          <figcaption className="bk-caption">你的波 · 箭头 = (kx, ky)</figcaption>
+          <figcaption className="bk-caption">{tr('你的波 · 箭头 = (kx, ky)', 'Your wave · arrow = (kx, ky)')}</figcaption>
         </figure>
         <figure>
           <FrequencyPlane kx={shown.kx} ky={shown.ky} />
-          <figcaption className="bk-caption">频率平面：一道波 = 一个点和它的镜像</figcaption>
+          <figcaption className="bk-caption">{tr('频率平面：一道波 = 一个点和它的镜像', 'Frequency plane: one wave = a dot and its mirror image')}</figcaption>
         </figure>
       </div>
-      <p className="wv-formula">亮度 = 0.50 + 0.40 · cos(2π · (<b>{p.kx}</b>·x + <b>{p.ky}</b>·y) / 32)</p>
+      <p className="wv-formula">{tr('亮度', 'Brightness')} = 0.50 + 0.40 · cos(2π · (<b>{p.kx}</b>·x + <b>{p.ky}</b>·y) / 32)</p>
     </>
   )
 }
@@ -140,7 +141,7 @@ function FrequencyPlane({ kx, ky }) {
   const size = (2 * R + 1) * cell
   const at = (k) => (k + R) * cell + cell / 2
   return (
-    <svg className="wv-plane" viewBox={`-14 -14 ${size + 28} ${size + 28}`} role="img" aria-label={`频率平面上的点 (${Math.round(kx)}, ${Math.round(ky)})`}>
+    <svg className="wv-plane" viewBox={`-14 -14 ${size + 28} ${size + 28}`} role="img" aria-label={tr(`频率平面上的点 (${Math.round(kx)}, ${Math.round(ky)})`, `Dot on the frequency plane at (${Math.round(kx)}, ${Math.round(ky)})`)}>
       <rect className="wv-plane-cell" x={0} y={0} width={size} height={size} rx={4} />
       {Array.from({ length: 2 * R }, (_, i) => (
         <g key={i}>

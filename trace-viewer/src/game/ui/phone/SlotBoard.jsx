@@ -2,6 +2,7 @@ import { createElement, useLayoutEffect, useRef } from 'react'
 import { Check, Plus, X } from 'lucide-react'
 import { NODE_TYPES, inputsOf } from '../../engine/nodes.js'
 import { familyOf, iconOf } from '../catalog.js'
+import { L, tr } from '../../i18n.js'
 import ValueView from '../views/ValueView.jsx'
 import { kindOf, nodeView } from '../views/views.js'
 import { feeding, layout, placement } from './ops.js'
@@ -53,7 +54,7 @@ export default function SlotBoard({ graph, values, errors, checks, expected, vie
   const thumbOf = (node, size = THUMB) => {
     const value = values?.get(node.id)
     const open = node.type !== 'input' && inputsOf(node.type).some((port) => !feeding(graph, node.id, port))
-    if (open) return <i className="pb-empty" style={{ width: size, height: size }}>待接线</i>
+    if (open) return <i className="pb-empty" style={{ width: size, height: size }}>{tr('待接线', 'unwired')}</i>
     if (errors?.get(node.id)) return <i className="pb-error" style={{ width: size, height: size }}>!</i>
     if (!value) return <i className="pb-empty" style={{ width: size, height: size }} />
     return <ValueView img={value} view={nodeView(node, views)} size={kindOf(value) === 'signal' ? size * 1.6 : size} theme={theme} />
@@ -61,13 +62,13 @@ export default function SlotBoard({ graph, values, errors, checks, expected, vie
   const inputs = (node) =>
     inputsOf(node.type).map((port) => {
       const from = graph.nodes.find((n) => n.id === feeding(graph, node.id, port))
-      const tag = inputsOf(node.type).length > 1 ? PORT_TAGS[port] ?? port : ''
+      const tag = inputsOf(node.type).length > 1 ? L(PORT_TAGS[port]) ?? port : ''
       // Beside a wired input, where it reads from: a part's number, or the input's name. A wire between two
       // parts stacked in one column is short, so this says what it connects even where the wire is hard to see.
       const source = from && (from.type === 'input' ? nameOf(from) : nameOf(from).split(' ')[0])
       return (
         <span key={port} className="pb-in">
-          {dot(inPort(node.id, port), `${nameOf(node)} 的输入${tag ? ` ${tag}` : ''}${from ? `（读 ${nameOf(from)}，点一下拆掉）` : ''}`, from ? 'is-in is-wired' : 'is-in is-open')}
+          {dot(inPort(node.id, port), tr(`${nameOf(node)} 的输入${tag ? ` ${tag}` : ''}${from ? `（读 ${nameOf(from)}，点一下拆掉）` : ''}`, `${nameOf(node)} input${tag ? ` ${tag}` : ''}${from ? ` (reads ${nameOf(from)}; tap to unplug)` : ''}`), from ? 'is-in is-wired' : 'is-in is-open')}
           {tag && <em>{tag}</em>}
           {source && <b className="pb-src" data-family={familyOf(from.type)}>{source}</b>}
         </span>
@@ -82,7 +83,7 @@ export default function SlotBoard({ graph, values, errors, checks, expected, vie
           <div key={node.id} className="pb-term" role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             <span className="pb-thumb">{thumbOf(node, 64)}</span>
             <span className="pb-name">{nameOf(node)}</span>
-            <span className="pb-out">{dot(outPort(node.id), `${nameOf(node)} 的输出`, 'is-out')}</span>
+            <span className="pb-out">{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), 'is-out')}</span>
           </div>
         ))}
       </div>
@@ -93,7 +94,7 @@ export default function SlotBoard({ graph, values, errors, checks, expected, vie
           if (!node) {
             return (
               <div key={`slot-${at}`} className="pb-cell" data-slot={at}>
-                <button type="button" className="pb-slot" onClick={() => onSlot(at)} aria-label={`在第 ${at + 1} 格放一个元件`}><Plus size={20} /></button>
+                <button type="button" className="pb-slot" onClick={() => onSlot(at)} aria-label={tr(`在第 ${at + 1} 格放一个元件`, `Place a part in slot ${at + 1}`)}><Plus size={20} /></button>
               </div>
             )
           }
@@ -106,7 +107,7 @@ export default function SlotBoard({ graph, values, errors, checks, expected, vie
                 <span className="pb-thumb">{thumbOf(node)}</span>
                 <span className="pb-name">{createElement(iconOf(node.type), { size: 12, strokeWidth: 2 })}{nameOf(node)}</span>
                 {param && <span className="pb-param"><ParamChip param={param} value={node.params[param.key]} /></span>}
-                <span className="pb-out">{dot(outPort(node.id), `${nameOf(node)} 的输出`, 'is-out')}</span>
+                <span className="pb-out">{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), 'is-out')}</span>
               </div>
             </div>
           )
@@ -124,8 +125,8 @@ export default function SlotBoard({ graph, values, errors, checks, expected, vie
             <div key={node.id} className={`pb-term is-output ${check && check.pass !== null ? (check.pass ? 'is-pass' : 'is-fail') : ''}`} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
               <span className="pb-ins">{inputs(node)}</span>
               <span className="pb-compare">
-                <figure>{want && <ValueView img={want} view={view} size={big} theme={theme} />}<figcaption>期望</figcaption></figure>
-                <figure>{got ? <ValueView img={got} view={view} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>你的</figcaption></figure>
+                <figure>{want && <ValueView img={want} view={view} size={big} theme={theme} />}<figcaption>{tr('期望', 'Expected')}</figcaption></figure>
+                <figure>{got ? <ValueView img={got} view={view} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{tr('你的', 'Yours')}</figcaption></figure>
               </span>
               <span className="pb-name">{check?.pass === null || !check ? null : check.pass ? <Check size={13} /> : <X size={13} />}{nameOf(node)}</span>
             </div>

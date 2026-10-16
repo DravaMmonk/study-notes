@@ -4,6 +4,7 @@ import { enableDrag } from '../../../../games/kit/drag.js'
 import { curve as kitCurve, pointIn } from '../../../../games/kit/wires.js'
 import { wouldCycle } from '../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../engine/nodes.js'
+import { L, tr } from '../i18n.js'
 import { familyOf, iconOf } from './catalog.js'
 import ParamControl from './ParamControl.jsx'
 import ValueView from './views/ValueView.jsx'
@@ -30,7 +31,7 @@ const portPosition = (node, port, shift) => {
 
 const curve = (a, b) => kitCurve(a, b, 'x', 48)
 
-const PORT_LABELS = { a: 'a', b: 'b', in: '', left: '左', right: '右', c0: 'd=0', c1: 'd=1', c2: 'd=2', c3: 'd=3' }
+const PORT_LABELS = { a: 'a', b: 'b', in: '', left: { zh: '左', en: 'left' }, right: { zh: '右', en: 'right' }, c0: 'd=0', c1: 'd=1', c2: 'd=2', c3: 'd=3' }
 const clampZoom = (z) => Math.min(1.5, Math.max(0.35, Math.round(z * 100) / 100))
 
 export default function Editor({ graph, onChange, run, testIndex, flags, inputLabels, outputLabels, views, ioKinds, scan, onScan, theme, touch, hasPalette }) {
@@ -232,14 +233,14 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
   // The fixed cards are titled 输入 / 输出 (or by name when a level has several), and say under the
   // title what they carry, so a long label never pushes the pass badge off the card.
   const titleOf = (node, spec) => {
-    if (!spec.fixed) return spec.label
+    if (!spec.fixed) return L(spec.label)
     const custom = node.type === 'input' ? inputLabels?.[node.params.name] : outputLabels?.[node.params.name]
-    return custom ?? (node.type === 'input' ? '输入' : '输出')
+    return L(custom) ?? (node.type === 'input' ? tr('输入', 'Input') : tr('输出', 'Output'))
   }
   const carriesOf = (node) => {
-    const kind = KIND_NAMES[ioKinds?.[node.params.name]]
+    const kind = L(KIND_NAMES[ioKinds?.[node.params.name]])
     const custom = node.type === 'input' ? inputLabels?.[node.params.name] : outputLabels?.[node.params.name]
-    return [custom ? (node.type === 'input' ? '输入' : '输出') : null, kind].filter(Boolean).join(' · ')
+    return [custom ? (node.type === 'input' ? tr('输入', 'input') : tr('输出', 'output')) : null, kind].filter(Boolean).join(' · ')
   }
 
   useEffect(() => {
@@ -270,7 +271,7 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
     <div className={`board ${touch ? 'is-touch' : ''}`} ref={surface} onPointerDown={beginPan}>
       <div className="board-grid" style={{ backgroundPosition: `${view.x}px ${view.y}px`, backgroundSize: `${20 * view.zoom}px ${20 * view.zoom}px` }} />
       {!placed && hasPalette && (
-        <p className="board-empty">{touch ? '点右下角的 ＋ 放一个元件上来，再从卡片右侧的圆点拖线连接。' : '从左边选一个元件放上来，再从卡片右侧的圆点拖线连接。'}</p>
+        <p className="board-empty">{touch ? tr('点右下角的 ＋ 放一个元件上来，再从卡片右侧的圆点拖线连接。', 'Tap ＋ at the bottom right to place a part, then drag a wire from the dot on the right of a card.') : tr('从左边选一个元件放上来，再从卡片右侧的圆点拖线连接。', 'Pick a part on the left to place it, then drag a wire from the dot on the right of a card.')}</p>
       )}
       <div className="board-layer" ref={layer} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
         <svg className="board-wires" width="4000" height="3000">
@@ -317,9 +318,9 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
               <div className="node-head" data-drag onPointerDown={() => setSelected({ node: node.id })}>
                 <i className="family-chip">{createElement(node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type), { size: 12, strokeWidth: 1.8 })}</i>
                 <span className="node-title">{title}</span>
-                {outputCheck && outputCheck.pass !== null && <em className="node-verdict" title={outputCheck.pass ? '这组测试通过' : outputCheck.reason}>{outputCheck.pass ? '通过' : '未通过'}</em>}
+                {outputCheck && outputCheck.pass !== null && <em className="node-verdict" title={outputCheck.pass ? tr('这组测试通过', 'This test passes') : L(outputCheck.reason)}>{outputCheck.pass ? tr('通过', 'Pass') : tr('未通过', 'Fail')}</em>}
                 {!spec.fixed && (
-                  <button className="node-delete" aria-label="删除卡片" onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ nodes: graph.nodes.filter((n) => n.id !== node.id), wires: graph.wires.filter((w) => w.from !== node.id && w.to !== node.id) })}>
+                  <button className="node-delete" aria-label={tr('删除卡片', 'Delete card')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ nodes: graph.nodes.filter((n) => n.id !== node.id), wires: graph.wires.filter((w) => w.from !== node.id && w.to !== node.id) })}>
                     <X size={12} />
                   </button>
                 )}
@@ -329,35 +330,35 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
                 {ports.map((port, index) => (
                   <span key={port} className="node-port-label" style={{ top: index * ROW }}>
                     <i className={`port port-in ${graph.wires.some((w) => w.to === node.id && w.port === port) ? 'is-wired' : ''}`} data-p={`${node.id}|${port}`} />
-                    {PORT_LABELS[port] ?? port}
+                    {L(PORT_LABELS[port]) ?? port}
                   </span>
                 ))}
-                {node.type !== 'output' && <i className={`port port-out ${graph.wires.some((w) => w.from === node.id) ? 'is-wired' : ''}`} data-p={node.id} title="拖到另一张卡片的输入" />}
+                {node.type !== 'output' && <i className={`port port-out ${graph.wires.some((w) => w.from === node.id) ? 'is-wired' : ''}`} data-p={node.id} title={tr('拖到另一张卡片的输入', 'Drag to an input of another card')} />}
               </div>
               {(spec.params ?? []).filter((p) => !p.unlock || flags.has(p.unlock)).map((param) => (
                 <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => setParam(node, param.key, v)} />
               ))}
               <div className="node-preview">
-                {error ? <span className="node-error">{error}</span> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label="未连接" grid scan={scan} onScan={onScan} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
+                {error ? <span className="node-error">{L(error)}</span> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label={tr('未连接', 'Not connected')} grid scan={scan} onScan={onScan} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
                 {!error && kindOf(value) === 'image' && (
-                  <button className={`node-view ${menu === node.id ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={menu === node.id} aria-label={`显示方式：${IMAGE_VIEWS[shown].label}`} title="换一种画法" onPointerDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === node.id ? null : node.id)}>
+                  <button className={`node-view ${menu === node.id ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={menu === node.id} aria-label={tr(`显示方式：${L(IMAGE_VIEWS[shown].label)}`, `Display: ${L(IMAGE_VIEWS[shown].label)}`)} title={tr('换一种画法', 'Draw it another way')} onPointerDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === node.id ? null : node.id)}>
                     {createElement(IMAGE_VIEWS[shown].icon, { size: 12, strokeWidth: 1.8 })}
-                    <span>{IMAGE_VIEWS[shown].label}</span>
+                    <span>{L(IMAGE_VIEWS[shown].label)}</span>
                   </button>
                 )}
                 {menu === node.id && (
-                  <div className="view-menu" role="menu" aria-label="显示方式" onPointerDown={(e) => e.stopPropagation()}>
+                  <div className="view-menu" role="menu" aria-label={tr('显示方式', 'Display')} onPointerDown={(e) => e.stopPropagation()}>
                     {Object.entries(IMAGE_VIEWS).map(([key, option]) => (
                       <button key={key} role="menuitemradio" aria-checked={shown === key} onClick={() => { showAs([node.id], key); setMenu(null) }}>
                         {createElement(option.icon, { size: 14, strokeWidth: 1.7 })}
-                        <span><b>{option.label}</b><small>{option.hint}</small></span>
+                        <span><b>{L(option.label)}</b><small>{L(option.hint)}</small></span>
                         {shown === key && <Check size={13} />}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
-              {peek?.id === node.id && <p className="node-peek">{peek.frequency ? '频率 ' : ''}({peek.x}, {peek.y}) = {peek.value.toFixed(3)}</p>}
+              {peek?.id === node.id && <p className="node-peek">{peek.frequency ? tr('频率 ', 'frequency ') : ''}({peek.x}, {peek.y}) = {peek.value.toFixed(3)}</p>}
             </div>
           )
         })}
@@ -365,26 +366,26 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
 
       {canDelete && (
         <button className="board-delete" onPointerDown={(e) => e.stopPropagation()} onClick={removeSelected}>
-          <Trash2 size={14} /> {selected.wire ? '删除连线' : '删除卡片'}
+          <Trash2 size={14} /> {selected.wire ? tr('删除连线', 'Delete wire') : tr('删除卡片', 'Delete card')}
         </button>
       )}
       {imageCards.length > 0 && (
-        <div className="board-views" role="group" aria-label="所有图像卡片的显示方式" onPointerDown={(e) => e.stopPropagation()}>
-          <span className="board-views-label">全部画成</span>
+        <div className="board-views" role="group" aria-label={tr('所有图像卡片的显示方式', 'Display of every image card')} onPointerDown={(e) => e.stopPropagation()}>
+          <span className="board-views-label">{tr('全部画成', 'Draw all as')}</span>
           {Object.entries(IMAGE_VIEWS).map(([key, option]) => (
-            <button key={key} aria-pressed={shared === key} title={`${option.label}：${option.hint}`} onClick={() => showAs(imageCards.map((n) => n.id), key)}>
+            <button key={key} aria-pressed={shared === key} title={tr(`${L(option.label)}：${L(option.hint)}`, `${L(option.label)}: ${L(option.hint)}`)} onClick={() => showAs(imageCards.map((n) => n.id), key)}>
               {createElement(option.icon, { size: 14, strokeWidth: 1.7 })}
-              <span>{option.label}</span>
+              <span>{L(option.label)}</span>
             </button>
           ))}
-          {customised && <button className="board-views-reset" title="恢复这一关的默认画法" aria-label="恢复默认画法" onClick={resetViews}><RotateCcw size={13} /></button>}
+          {customised && <button className="board-views-reset" title={tr('恢复这一关的默认画法', "Restore this level's default views")} aria-label={tr('恢复默认画法', 'Restore default views')} onClick={resetViews}><RotateCcw size={13} /></button>}
         </div>
       )}
       <div className="board-zoom" onPointerDown={(e) => e.stopPropagation()}>
-        <button onClick={() => zoomAt(0.85, ...centre())} aria-label="缩小"><Minus size={14} /></button>
+        <button onClick={() => zoomAt(0.85, ...centre())} aria-label={tr('缩小', 'Zoom out')}><Minus size={14} /></button>
         <output>{Math.round(view.zoom * 100)}%</output>
-        <button onClick={() => zoomAt(1 / 0.85, ...centre())} aria-label="放大"><Plus size={14} /></button>
-        <button onClick={fit} aria-label="适配画布"><Maximize size={13} /></button>
+        <button onClick={() => zoomAt(1 / 0.85, ...centre())} aria-label={tr('放大', 'Zoom in')}><Plus size={14} /></button>
+        <button onClick={fit} aria-label={tr('适配画布', 'Fit to view')}><Maximize size={13} /></button>
       </div>
     </div>
   )

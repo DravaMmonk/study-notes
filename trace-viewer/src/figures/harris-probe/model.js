@@ -10,9 +10,9 @@ export const SIGMA = 4
 export const CORNER_AT = 0.02 // R above this is a corner
 export const EDGE_AT = -0.005 // R below this is an edge
 export const STATIONS = [
-  { name: 'flat', label: '平坦', x: 24, y: 32 },
-  { name: 'edge', label: '边缘', x: STEP.x, y: -22 },
-  { name: 'corner', label: '角点', x: STEP.x, y: STEP.y },
+  { name: 'flat', label: '平坦', labelEn: 'Flat', x: 24, y: 32 },
+  { name: 'edge', label: '边缘', labelEn: 'Edge', x: STEP.x, y: -22 },
+  { name: 'corner', label: '角点', labelEn: 'Corner', x: STEP.x, y: STEP.y },
 ]
 
 const smooth = (t) => {
@@ -68,3 +68,4 @@ export const cost = (m, phi) => {
 }
 
 export const KIND_LABEL = { flat: '平坦', edge: '边缘', corner: '角点' }
+export const KIND_LABEL_EN = { flat: 'flat', edge: 'edge', corner: 'corner' }

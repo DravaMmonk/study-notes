@@ -3,27 +3,28 @@ import { Check, ChevronRight, Circle, X } from 'lucide-react'
 import { evaluate } from '../../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../../engine/nodes.js'
 import { FAMILIES, describe, familyOf, iconOf } from '../catalog.js'
+import { L, keyOf, tr } from '../../i18n.js'
 import CurveView from '../views/CurveView.jsx'
 import ValueView from '../views/ValueView.jsx'
 import { formatNumber, kindOf } from '../views/views.js'
 import { feeding, insertAfter } from './ops.js'
 import Sheet from './Sheet.jsx'
+import { PORT_TAGS } from './wires.js'
 
 // Pieces the phone circuit screen shares: the chip that shows a setting, the sheet for adding a
 // part (each previewed where it would go), the list for choosing a source, and the test cards.
 
-const PORT_TAGS = { a: 'a', b: 'b', left: '左', right: '右', c0: 'd0', c1: 'd1', c2: 'd2', c3: 'd3' }
 
 export function ParamChip({ param, value }) {
-  if (param.kind === 'select') return <>{param.options.find(([v]) => v === value)?.[1] ?? value}</>
+  if (param.kind === 'select') return <>{L(param.options.find(([v]) => v === value)?.[1]) ?? value}</>
   if (param.kind === 'kernel') {
     return (
-      <span className="ph-mini-kernel" aria-label={param.learnable ? '训练出的 3×3 核' : '3×3 核'}>
+      <span className="ph-mini-kernel" aria-label={param.learnable ? tr('训练出的 3×3 核', 'Trained 3×3 kernel') : tr('3×3 核', '3×3 kernel')}>
         {value.map((w, i) => <i key={i} style={{ '--w': Math.max(-1, Math.min(1, w)) }} />)}
       </span>
     )
   }
-  return <><i>{param.label}</i>{formatNumber(value ?? 0)}</>
+  return <><i>{L(param.label)}</i>{formatNumber(value ?? 0)}</>
 }
 
 // Every part, grouped by family, each previewed reading `previewFrom` on the current test.
@@ -37,18 +38,18 @@ export function AddSheet({ level, graph, previewFrom, test, title, theme, onAdd,
   return (
     <Sheet title={title} onClose={onClose}>
       {groups.map(([family, types]) => (
-        <section key={family.label} className="ph-group">
-          <h3>{family.label}</h3>
+        <section key={keyOf(family.label)} className="ph-group">
+          <h3>{L(family.label)}</h3>
           <div className="ph-parts">
             {types.map((type) => {
               const value = previewOf(type)
               return (
                 <button key={type} className="ph-part" data-family={familyOf(type)} onClick={() => onAdd(type)}>
                   <span className="ph-part-preview">
-                    {value ? <ValueView img={value} size={kindOf(value) === 'signal' ? 92 : 64} theme={theme} /> : <span className="ph-part-need">{inputsOf(type).length > 1 ? `${inputsOf(type).length} 个输入` : '加上看看'}</span>}
+                    {value ? <ValueView img={value} size={kindOf(value) === 'signal' ? 92 : 64} theme={theme} /> : <span className="ph-part-need">{inputsOf(type).length > 1 ? tr(`${inputsOf(type).length} 个输入`, `${inputsOf(type).length} inputs`) : tr('加上看看', 'Add to see')}</span>}
                   </span>
                   <span className="ph-part-text">
-                    <b><i className="family-chip">{createElement(iconOf(type), { size: 12, strokeWidth: 1.8 })}</i>{NODE_TYPES[type].label}</b>
+                    <b><i className="family-chip">{createElement(iconOf(type), { size: 12, strokeWidth: 1.8 })}</i>{L(NODE_TYPES[type].label)}</b>
                     <small>{describe(type)}</small>
                   </span>
                 </button>
@@ -64,7 +65,7 @@ export function AddSheet({ level, graph, previewFrom, test, title, theme, onAdd,
 export function SourceSheet({ graph, node, port, options, nameOf, thumb, onPick, onClose }) {
   const current = feeding(graph, node.id, port)
   return (
-    <Sheet title={`「${nameOf(node)}」${inputsOf(node.type).length > 1 ? ` 的输入 ${PORT_TAGS[port] ?? port}` : ' 读哪个结果'}`} onClose={onClose}>
+    <Sheet title={inputsOf(node.type).length > 1 ? tr(`「${nameOf(node)}」 的输入 ${L(PORT_TAGS[port]) ?? port}`, `"${nameOf(node)}" input ${L(PORT_TAGS[port]) ?? port}`) : tr(`「${nameOf(node)}」 读哪个结果`, `Which result "${nameOf(node)}" reads`)} onClose={onClose}>
       <div className="ph-sources">
         {options.map((n) => (
           <button key={n.id} className={`ph-source ${n.id === current ? 'is-on' : ''}`} onClick={() => onPick(n.id)}>
@@ -73,7 +74,7 @@ export function SourceSheet({ graph, node, port, options, nameOf, thumb, onPick,
             {n.id === current ? <Check size={18} /> : <ChevronRight size={16} />}
           </button>
         ))}
-        {current && <button className="ph-source is-clear" onClick={() => onPick(null)}><X size={18} /><span>断开</span></button>}
+        {current && <button className="ph-source is-clear" onClick={() => onPick(null)}><X size={18} /><span>{tr('断开', 'Disconnect')}</span></button>}
       </div>
     </Sheet>
   )
@@ -100,7 +101,7 @@ export function TestCarousel({ level, run, testIndex, onTestIndex, theme, views 
     onTestIndex(index)
   }
   return (
-    <section className="ph-tests" aria-label="测试">
+    <section className="ph-tests" aria-label={tr('测试', 'Tests')}>
       <div className="ph-tests-strip" ref={strip} onScroll={onScroll}>
         {level.tests.map((test, index) => {
           const result = run?.results[index]
@@ -111,18 +112,18 @@ export function TestCarousel({ level, run, testIndex, onTestIndex, theme, views 
           const kind = kindOf(expected)
           const tolerance = (test.check ?? level.check)?.tolerance ?? 0.02
           return (
-            <article key={test.label} className={`ph-test ${index === testIndex ? 'is-active' : ''} ${verdict}`} onClick={() => go(index)}>
-              <header>{verdict === '' ? <Circle size={11} /> : result?.pass ? <Check size={13} /> : <X size={13} />}<b>{test.label}</b>{test.hidden && <em className="hidden-tag">隐藏</em>}<small>{index + 1}/{level.tests.length}</small></header>
+            <article key={keyOf(test.label)} className={`ph-test ${index === testIndex ? 'is-active' : ''} ${verdict}`} onClick={() => go(index)}>
+              <header>{verdict === '' ? <Circle size={11} /> : result?.pass ? <Check size={13} /> : <X size={13} />}<b>{L(test.label)}</b>{test.hidden && <em className="hidden-tag">{tr('隐藏', 'hidden')}</em>}<small>{index + 1}/{level.tests.length}</small></header>
               <div className="ph-test-row">
-                <figure><ValueView img={Object.values(test.inputs)[0]} view={views.in} size={kindOf(Object.values(test.inputs)[0]) === 'image' ? 64 : 104} theme={theme} /><figcaption>输入</figcaption></figure>
+                <figure><ValueView img={Object.values(test.inputs)[0]} view={views.in} size={kindOf(Object.values(test.inputs)[0]) === 'image' ? 64 : 104} theme={theme} /><figcaption>{tr('输入', 'Input')}</figcaption></figure>
                 {kind === 'signal' ? (
-                  <figure className="is-wide"><CurveView img={fits ? actual : null} expected={expected} tolerance={tolerance} width={150} height={64} /><figcaption>期望和你的</figcaption></figure>
+                  <figure className="is-wide"><CurveView img={fits ? actual : null} expected={expected} tolerance={tolerance} width={150} height={64} /><figcaption>{tr('期望和你的', 'Expected and yours')}</figcaption></figure>
                 ) : kind === 'number' ? (
-                  <figure className="is-wide ph-test-numbers"><span><b>{formatNumber(expected.data[0])}</b>期望</span><span><b className={verdict}>{fits ? formatNumber(actual.data[0]) : '—'}</b>你的</span></figure>
+                  <figure className="is-wide ph-test-numbers"><span><b>{formatNumber(expected.data[0])}</b>{tr('期望', 'expected')}</span><span><b className={verdict}>{fits ? formatNumber(actual.data[0]) : '—'}</b>{tr('你的', 'yours')}</span></figure>
                 ) : (
                   <>
-                    <figure><ValueView img={expected} view={views.out} size={64} theme={theme} /><figcaption>期望</figcaption></figure>
-                    <figure><ValueView img={fits ? actual : null} view={views.out} size={64} theme={theme} label="—" /><figcaption>你的</figcaption></figure>
+                    <figure><ValueView img={expected} view={views.out} size={64} theme={theme} /><figcaption>{tr('期望', 'Expected')}</figcaption></figure>
+                    <figure><ValueView img={fits ? actual : null} view={views.out} size={64} theme={theme} label="—" /><figcaption>{tr('你的', 'Yours')}</figcaption></figure>
                   </>
                 )}
               </div>
@@ -131,7 +132,7 @@ export function TestCarousel({ level, run, testIndex, onTestIndex, theme, views 
         })}
       </div>
       <div className="ph-dots" aria-hidden="true">
-        {level.tests.map((t, index) => <i key={t.label} className={`${index === testIndex ? 'is-active' : ''} ${run?.results[index]?.pass ? 'is-pass' : ''}`} />)}
+        {level.tests.map((t, index) => <i key={keyOf(t.label)} className={`${index === testIndex ? 'is-active' : ''} ${run?.results[index]?.pass ? 'is-pass' : ''}`} />)}
       </div>
     </section>
   )

@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { clamp, createLoop, floorPoint, viewBoxPoint } from '../common.js'
+import { clamp, createLoop, floorPoint, t, viewBoxPoint } from '../common.js'
 
 // Fig · The facing bench (3-3 一个亮度不够).
 // A white test card rides a ball joint on a post in the middle of a bench; a rod out of its face is its
@@ -151,26 +151,34 @@ function card(n, value, lit, lensAt) {
   return front ? post + board + face + string + rod : rod + string + board + post
 }
 
-export const meta = { id: 'normal-studio', fig: 'Fig 3.3', title: '朝向台' }
+export const meta = { id: 'normal-studio', fig: 'Fig 3.3', title: '朝向台', titleEn: 'Orientation bench' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label: '朝向台：台面中央一根立柱顶着球铰，球铰上装一张白色测试卡，卡面中心伸出一根法线杆。左边和后边各有一盏聚光灯对准卡片。卡面的亮度等于法线和灯线夹角的余弦；近处两条灰阶尺各对应一盏灯，游标是卡片现在的亮度，小旗是照片里的亮度。',
+    label: t(
+      lang,
+      '朝向台：台面中央一根立柱顶着球铰，球铰上装一张白色测试卡，卡面中心伸出一根法线杆。左边和后边各有一盏聚光灯对准卡片。卡面的亮度等于法线和灯线夹角的余弦；近处两条灰阶尺各对应一盏灯，游标是卡片现在的亮度，小旗是照片里的亮度。',
+      'Orientation bench: a post in the middle of the bench holds a ball joint carrying a white test card, with a normal rod sticking out of the centre of its face. Two spotlights, one on the left and one at the back, are aimed at the card. The card’s brightness is the cosine of the angle between the normal and the lamp string; the two grey-scale rulers on the near edge belong to one lamp each, with a slider for the card’s brightness now and a flag for its brightness in the photo.',
+    ),
     body: [base(), '<g data-part="rulers"></g>', '<g data-part="lamps"></g>', '<g data-part="card"></g>', '<g data-part="marks"></g>', '<g data-part="hits"></g>'],
   })
   return k.plateHtml({
     fig: meta.fig,
-    title: meta.title,
-    hint: '在台面上拖动 · 点灯切换',
+    title: t(lang, meta.title, meta.titleEn),
+    hint: t(lang, '在台面上拖动 · 点灯切换', 'Drag on the bench · tap a lamp'),
     keys: [
-      { mark: 'raised', label: '测试卡与法线杆 N' },
-      { mark: 'lit', label: '亮着的灯，细线是光线 L' },
-      { mark: 'flat', label: '灰阶尺：游标是现在，小旗是照片' },
+      { mark: 'raised', label: t(lang, '测试卡与法线杆 N', 'test card and normal rod N') },
+      { mark: 'lit', label: t(lang, '亮着的灯，细线是光线 L', 'lit lamp; the string is light direction L') },
+      { mark: 'flat', label: t(lang, '灰阶尺：游标是现在，小旗是照片', 'grey-scale ruler: slider is now, flag is the photo') },
     ],
-    caption: '卡面亮度 = max(0, N·L)。只看一盏灯，和照片一样亮的朝向有一整圈；换另一盏灯再比一次，才剩下一个。',
-    body: `<div class="iso-stage ns-stage" tabindex="0" role="slider" aria-label="朝向台。拖动改变测试卡的朝向，方向键微调。">${svg}</div>`,
+    caption: t(
+      lang,
+      '卡面亮度 = max(0, N·L)。只看一盏灯，和照片一样亮的朝向有一整圈；换另一盏灯再比一次，才剩下一个。',
+      'Card brightness = max(0, N·L). With one lamp alone, a whole ring of orientations matches the brightness in the photo; check against the other lamp as well and only one is left.',
+    ),
+    body: `<div class="iso-stage ns-stage" tabindex="0" role="slider" aria-label="${t(lang, '朝向台。拖动改变测试卡的朝向，方向键微调。', 'Orientation bench. Drag to change the test card’s orientation; arrow keys fine-tune it.')}">${svg}</div>`,
   })
 }
 
@@ -182,7 +190,7 @@ export const css = `
 .ns-stage.is-grabbing .ns-grab{cursor:grabbing}
 `
 
-export function mount(root, { props, emit } = {}) {
+export function mount(root, { props, emit, lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -212,7 +220,7 @@ export function mount(root, { props, emit } = {}) {
     nodes.hits.innerHTML = `<circle class="ns-grab" data-grab cx="${grab[0].toFixed(1)}" cy="${(grab[1] - 4).toFixed(1)}" r="${(CARD * 2.6 * G.scaleOf(P)).toFixed(1)}"/>` +
       lamps.map(([name, l]) => {
         const [x, y] = at(l.head)
-        return `<circle class="ns-hit" data-lamp="${name}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}"><title>${name === state.active ? '这盏灯亮着' : '点亮这盏灯'}</title></circle>`
+        return `<circle class="ns-hit" data-lamp="${name}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}"><title>${name === state.active ? t(lang, '这盏灯亮着', 'This lamp is on') : t(lang, '点亮这盏灯', 'Switch this lamp on')}</title></circle>`
       }).join('')
   }
 
@@ -228,7 +236,7 @@ export function mount(root, { props, emit } = {}) {
       return marks(name, now, l.photo, Math.abs(now - l.photo) <= (state.tolerance ?? 0.02))
     }).join('')
     const deg = Math.round((Math.asin(Math.min(1, Math.hypot(...shown.point))) * 180) / Math.PI)
-    stage.setAttribute('aria-valuetext', `卡片歪了 ${deg} 度，在亮着的灯下亮度 ${value.toFixed(2)}`)
+    stage.setAttribute('aria-valuetext', t(lang, `卡片歪了 ${deg} 度，在亮着的灯下亮度 ${value.toFixed(2)}`, `Card tilted ${deg} degrees, brightness ${value.toFixed(2)} under the lit lamp`))
   }
 
   function tick(dt, calm) {

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight, Check } from 'lucide-react'
+import { L, tr } from '../../i18n.js'
 import { PHONE, useMedia } from '../useMedia.js'
 import { useTween } from './optics-motion.js'
 import { Stages } from './WaveKit.jsx'
@@ -48,13 +49,13 @@ export default function LightTile({ level, onSolve }) {
         <div className="bk-stack">
           <section className="bk-panel bk-stack">
             <div>
-              <span className="bk-label">第 {stage + 1} 步 · {s.title}</span>
-              <p className="wv-stage-note">{s.note}</p>
+              <span className="bk-label">{tr(`第 ${stage + 1} 步`, `Step ${stage + 1}`)} · {L(s.title)}</span>
+              <p className="wv-stage-note">{L(s.note)}</p>
             </div>
-            <p className="lt-law">亮度 = 灯的强度 × 反射率 × cos θ</p>
+            <p className="lt-law">{tr('亮度 = 灯的强度 × 反射率 × cos θ', 'Brightness = lamp strength × reflectance × cos θ')}</p>
             <div className="wv-next">
-              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />都是 {s.target.toFixed(2)} 了。</> : `目标亮度 ${s.target.toFixed(2)}`}</p>
-              {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={advance}>下一步 <ArrowRight size={15} /></button>}
+              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />{tr(`都是 ${s.target.toFixed(2)} 了。`, `All at ${s.target.toFixed(2)} now.`)}</> : tr(`目标亮度 ${s.target.toFixed(2)}`, `Target brightness ${s.target.toFixed(2)}`)}</p>
+              {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={advance}>{tr('下一步', 'Next')} <ArrowRight size={15} /></button>}
             </div>
           </section>
           <Stages stages={m.stages} current={stage} passed={passed} reached={reached} onPick={setStage} />
@@ -70,24 +71,24 @@ function TileCard({ tile, value, m, target, onTurn }) {
   const ok = Math.abs(b - target) <= m.tolerance
   return (
     <figure className={`lt-tile ${ok ? 'is-pass' : ''}`}>
-      <figcaption className="bk-label">{tile.label}</figcaption>
+      <figcaption className="bk-label">{L(tile.label)}</figcaption>
       <div className="lt-body">
         <SideView theta={theta} I={I} R={R} />
         <div className="lt-info">
         <div className="lt-reading">
           <span className="lt-swatch" style={{ background: `rgb(${Array(3).fill(Math.round(255 * Math.min(1, b))).join(',')})` }} aria-hidden="true" />
           <span>
-            <small>照片里的亮度</small>
+            <small>{tr('照片里的亮度', 'Brightness in the photo')}</small>
             <b>{b.toFixed(3)}</b>
           </span>
-          <span className={`lt-goal ${ok ? 'is-pass' : ''}`}>{ok ? <Check size={14} /> : null}目标 {target.toFixed(2)}</span>
+          <span className={`lt-goal ${ok ? 'is-pass' : ''}`}>{ok ? <Check size={14} /> : null}{tr('目标', 'Target')} {target.toFixed(2)}</span>
         </div>
         <p className="lt-formula">{value.I.toFixed(2)} × {value.R.toFixed(2)} × cos {value.theta}° = {b.toFixed(3)}</p>
         {tile.knobs.map((key) => {
           const knob = m.knobs[key]
           return (
             <label key={key} className="bk-field">
-              <span>{knob.label}</span>
+              <span>{L(knob.label)}</span>
               <input className="bk-range" type="range" min={knob.min} max={knob.max} step={knob.step} value={value[key]} style={{ '--fill': `${((value[key] - knob.min) / (knob.max - knob.min)) * 100}%` }} aria-valuetext={format(key, value[key])} onChange={(event) => onTurn(key, Number(event.target.value))} />
               <output>{format(key, value[key])}</output>
             </label>
@@ -116,13 +117,13 @@ function SideView({ theta, I, R }) {
   const grey = Math.round(255 * R)
   const arc = `M${cx},${ground - 34} A34,34 0 0,1 ${cx + 34 * d[0]},${ground + 34 * d[1]}`
   return (
-    <svg className="lt-side" viewBox="0 0 240 150" role="img" aria-label={`侧视图：灯偏离正上方 ${Math.round(theta)}°`}>
+    <svg className="lt-side" viewBox="0 0 240 150" role="img" aria-label={tr(`侧视图：灯偏离正上方 ${Math.round(theta)}°`, `Side view: the lamp is ${Math.round(theta)}° from straight overhead`)}>
       <line className="lt-ground" x1={4} x2={236} y1={ground + 9} y2={ground + 9} />
       <rect className="lt-slab" x={cx - 112} y={ground} width={224} height={9} rx={2} fill={`rgb(${grey},${grey},${grey})`} />
       <rect className="lt-footprint" x={cx - half} y={ground - 3} width={half * 2} height={3} rx={1.5} style={{ opacity: 0.35 + 0.65 * I }} />
       {rays.map((r, i) => r && <line key={i} className="lt-ray" x1={r[2]} y1={r[3]} x2={r[0]} y2={r[1]} style={{ opacity: 0.25 + 0.6 * I }} />)}
       <line className="lt-normal" x1={cx} y1={ground} x2={cx} y2={ground - 100} />
-      {theta > 12 && <text className="lt-text" x={cx - 6} y={ground - 70} textAnchor="end">法线</text>}
+      {theta > 12 && <text className="lt-text" x={cx - 6} y={ground - 70} textAnchor="end">{tr('法线', 'normal')}</text>}
       {theta > 2 && <path className="lt-arc" d={arc} />}
       {theta > 2 && <text className="lt-text is-accent" x={cx + 40 * Math.sin(t / 2) + 4} y={ground - 40 * Math.cos(t / 2)}>θ</text>}
       <circle className="lt-glow" cx={lamp[0]} cy={lamp[1]} r={10 + 8 * I} style={{ opacity: 0.15 + 0.35 * I }} />

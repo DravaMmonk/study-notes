@@ -1,35 +1,54 @@
-# Drava's Study Notes
-## 🎓 Master of Information Technology in the University of Melbourne
+# Drava's Study Notes · Drava 的学习笔记
 
-### 🗓️ 2026 Semester 1
+Lecture notes from the Master of Information Technology at the University of Melbourne, in English and Chinese, plus puzzle games that rebuild a course by hand.
 
-#### 📘 Natural Language Processing - COMP90042
+墨尔本大学信息技术硕士的课程笔记，中英双语；另有几款解谜游戏，把一门课亲手搭一遍。
 
-### 🗓️ 2025 Semester 2
+- **Notes · 笔记**: <https://dravammonk.github.io/study-notes/> (MkDocs, from `docs/`)
+- **Games · 游戏**: <https://dravammonk.github.io/study-notes/game/>
+- **Fieldnotes**: a local reader with highlights and comments (`trace-viewer/`) · 本地阅读器，可高亮和批注
 
-#### 📘 AI Planning for Autonomy - COMP90054
+## Courses · 课程
 
+| Semester · 学期 | Course · 课程 |
+| --- | --- |
+| 2026 S2 | COMP90086 Computer Vision · 计算机视觉 |
+| 2026 S1 | COMP90042 Natural Language Processing · 自然语言处理; COMP90050 Advanced Database Systems · 高级数据库系统; SWEN90016 Software Processes and Management · 软件过程与管理 |
+| 2025 S2 | COMP90054 AI Planning for Autonomy · 面向自主系统的 AI 规划; COMP90049 Introduction to Machine Learning · 机器学习导论; COMP30026 Models of Computation · 计算模型 |
 
+Self-study · 自学: Stanford CS231n.
 
+## Bilingual notes · 中英双语
 
-## 💻 Other
+Every note has an English and a Chinese version. The file a note was first written in stays `X.md`; its translation sits beside it as `X.zh.md` or `X.en.md`. Folder titles in both languages are in `docs/.sections.json`. The rules are in [`docs/NOTE_TAKING_GUIDELINES.md`](docs/NOTE_TAKING_GUIDELINES.md).
 
-- [游戏](https://dravammonk.github.io/study-notes/game/)：把课程做成解谜关卡的学习游戏，都在 `games/` 下，推送后由 `.github/workflows/deploy-games.yml` 发布到 `/game/`。
-  - `games/index.html`：游戏导航页，游戏列表在 `games/games.js`，新游戏放进 `games/` 并在这里加一项。
-  - `games/kit/`：两款游戏共享的底层——元件拖动与拉线（`drag.js`）、连线几何（`wires.js`）、成环检测（`graph.js`）、配色与主题（`tokens.css`、`theme.js`）、连线样式（`wires.css`）。改这里，两款游戏一起变。
-  - [视觉完备](https://dravammonk.github.io/study-notes/game/vision-complete/)：计算机视觉解谜，57 关，源码在 `trace-viewer/src/game/`（React，构建后发布到 `/game/vision-complete/`）。
-  - [状态之图](https://dravammonk.github.io/study-notes/game/state-graph/)：从零开始的动态规划解谜，27 关，源码在 `games/state-graph/`（无构建的 ES 模块：`js/circuit` 是电路引擎与编辑器，`js/levels` 是关卡数据，`js/modes` 是各类玩法）。
+每篇笔记都有中英两个版本：最初写成的文件保持 `X.md`，译文放在旁边，命名为 `X.zh.md` 或 `X.en.md`；文件夹的中英标题在 `docs/.sections.json`。
 
+The language choice is shared by the site, Fieldnotes and the games (`localStorage` key `fieldnotes.lang`, helper `games/kit/lang.js`). On the site, `hooks/i18n.py` pairs each note with its translation, keeps translations out of the nav and sends readers to their language; `docs/javascripts/site.js` adds the 中/EN button.
 
+## One interface kit · 统一的界面工具包
 
+Every page (the notes site, Fieldnotes, the games hub and both games) is built on `games/kit/`, published at `/game/kit/`:
 
+- `tokens.css`: colours for the three themes (paper, night, blueprint), fonts and the type scale · 三套主题配色、字体与字号
+- `ui.css`: the top bar, buttons, page hero and cards · 顶栏、按钮、页头与卡片
+- `prose.css`: note typography, shared by Fieldnotes and the site · 正文排版
+- `lang.js`, `theme.js`, `bar.js`: language, theme and the top bar's buttons · 语言、主题与顶栏按钮
+- `drag.js`, `wires.js`, `graph.js`, `wires.css`: the games' circuit board · 游戏的电路板
 
+The site maps Material for MkDocs onto these tokens in `docs/stylesheets/extra.css` and `overrides/main.html`.
 
-## 📚 Reference
+## Games · 游戏
 
-## Local reader
+Puzzle games that turn a course into levels, under `games/`, published to `/game/` by `.github/workflows/deploy-games.yml` (and by `hooks/games.py` with every site build).
 
-The `trace-viewer` directory contains **Fieldnotes**, a local Markdown reader with search, highlights, comments, and JSON export.
+- `games/index.html`: the games hub; the list is in `games/games.js`. · 游戏导航页，游戏列表在 `games/games.js`。
+- [Vision Complete · 视觉完备](https://dravammonk.github.io/study-notes/game/vision-complete/): computer vision, 58 levels; source in `trace-viewer/src/game/` (React, built into `/game/vision-complete/`).
+- [State Graph · 状态之图](https://dravammonk.github.io/study-notes/game/state-graph/): dynamic programming from zero, 27 levels; source in `games/state-graph/` (ES modules, no build).
+
+## Local reader · 本地阅读器
+
+`trace-viewer/` contains **Fieldnotes**, a local Markdown reader with search, highlights, comments and JSON export.
 
 ```bash
 cd trace-viewer
@@ -37,4 +56,10 @@ npm install
 npm run dev
 ```
 
-Highlights and comments stay in the current browser and do not modify files under `docs/`.
+Highlights and comments stay in the current browser and do not modify files under `docs/`. Each language version of a note keeps its own annotations.
+
+## Build the site · 构建网站
+
+```bash
+mkdocs serve
+```

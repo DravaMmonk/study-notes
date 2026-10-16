@@ -88,7 +88,10 @@ export function maxPool(img, size = 2) {
 
 export function compare(actual, expected, { tolerance = 0.02, mismatches = 0 } = {}) {
   if (!actual || actual.w !== expected.w || actual.h !== expected.h) {
-    return { pass: false, reason: actual ? `尺寸应为 ${expected.w}×${expected.h}，实际 ${actual.w}×${actual.h}` : '输出未连接', worst: Infinity, wrong: Infinity }
+    const reason = actual
+      ? { zh: `尺寸应为 ${expected.w}×${expected.h}，实际 ${actual.w}×${actual.h}`, en: `Size should be ${expected.w}×${expected.h}, got ${actual.w}×${actual.h}` }
+      : { zh: '输出未连接', en: 'Output not connected' }
+    return { pass: false, reason, worst: Infinity, wrong: Infinity }
   }
   let wrong = 0
   let worst = 0
@@ -97,8 +100,13 @@ export function compare(actual, expected, { tolerance = 0.02, mismatches = 0 } =
     worst = Math.max(worst, Number.isFinite(error) ? error : Infinity)
     if (!(error <= tolerance)) wrong += 1
   }
-  const unit = expected.w * expected.h === 1 ? null : expected.h === 1 ? '个采样点' : '个像素'
-  const reason = wrong <= mismatches ? '' : unit ? `${wrong} ${unit}超出容差` : `读数差了 ${worst.toFixed(3)}，超出容差 ${tolerance}`
+  // The reason is a { zh, en } pair, read in the player's language when shown.
+  const unit = expected.w * expected.h === 1 ? null : expected.h === 1 ? ['个采样点', wrong === 1 ? 'sample' : 'samples'] : ['个像素', wrong === 1 ? 'pixel' : 'pixels']
+  const reason = wrong <= mismatches
+    ? ''
+    : unit
+      ? { zh: `${wrong} ${unit[0]}超出容差`, en: `${wrong} ${unit[1]} outside the tolerance` }
+      : { zh: `读数差了 ${worst.toFixed(3)}，超出容差 ${tolerance}`, en: `Reading off by ${worst.toFixed(3)}, beyond the tolerance of ${tolerance}` }
   return { pass: wrong <= mismatches, wrong, worst, reason }
 }
 

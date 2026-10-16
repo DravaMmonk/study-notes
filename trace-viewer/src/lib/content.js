@@ -26,8 +26,11 @@ function normalizePath(path) {
   return parts.join('/')
 }
 
+// YAML front matter (`---` … `---` at the top) is for MkDocs; the reader drops it and only reads its title.
+const frontMatterPattern = /^---\n([\s\S]*?)\n---\n/
+
 function getTitle(content, path) {
-  const heading = content.match(/^#\s+(.+)$/m)?.[1]
+  const heading = content.match(frontMatterPattern)?.[1].match(/^title:\s*(.+)$/m)?.[1] ?? content.match(/^#\s+(.+)$/m)?.[1]
   if (heading) return heading.replace(/[*_`]/g, '').trim()
   const filename = path.split('/').at(-1).replace(/\.md$/, '')
   if (filename.toLocaleLowerCase() === 'readme') return path.split('/').at(-2) ?? 'Overview'
@@ -37,18 +40,50 @@ function getTitle(content, path) {
     .replace(/\b\w/g, (letter) => letter.toLocaleUpperCase())
 }
 
+// Every note is bilingual: X.md is the original, in whichever language it was written, and its translation sits
+// beside it as X.zh.md (an English original) or X.en.md (a Chinese original). basePath ties the two together.
+const translationPattern = /\.(zh|en)\.md$/
+
 export const noteDocuments = Object.entries(markdownModules)
   .map(([sourcePath, content]) => {
     const path = sourcePath.replace('../../../docs/', '')
+    const suffix = path.match(translationPattern)?.[1]
     return {
-      content,
+      content: content.replace(frontMatterPattern, ''),
       path,
+      basePath: suffix ? path.replace(translationPattern, '.md') : path,
+      lang: suffix ?? null,
       slug: path.replace(/\.md$/, '').replaceAll('/', '-').toLocaleLowerCase(),
       sourcePath,
       title: getTitle(content, path),
     }
   })
   .sort((left, right) => left.path.localeCompare(right.path, undefined, { numeric: true }))
+
+const versionsByBase = new Map()
+noteDocuments.forEach((document) => {
+  if (!versionsByBase.has(document.basePath)) versionsByBase.set(document.basePath, {})
+})
+noteDocuments.forEach((document) => {
+  const versions = versionsByBase.get(document.basePath)
+  if (document.lang) versions[document.lang] = document
+})
+// An original's language is the one its translation is not; a note without a translation stays lang null.
+noteDocuments.forEach((document) => {
+  if (document.lang) return
+  const versions = versionsByBase.get(document.basePath)
+  if (versions.zh) document.lang = 'en'
+  else if (versions.en) document.lang = 'zh'
+  if (document.lang) versions[document.lang] = document
+})
+
+/** The version of a note in a language, or the note itself when it has no translation. */
+export function versionOf(document, lang) {
+  return versionsByBase.get(document.basePath)?.[lang] ?? document
+}
+
+/** One entry per note for the library: the originals. */
+export const libraryDocuments = noteDocuments.filter((document) => document.path === document.basePath)
 
 export function buildDocumentTree(documents) {
   const root = { name: 'root', path: '', children: [] }
@@ -69,7 +104,19 @@ export function buildDocumentTree(documents) {
     })
   })
 
+  sortTree(root)
   return root
+}
+
+// The same order as the notes site's nav: home, the courses (newest semester first), self-study, then the rest.
+const topOrder = ['index.md', 'Unimelb', 'Other']
+function sortTree(node) {
+  if (!node.children) return
+  const rank = (child) => (node.path === '' ? (topOrder.indexOf(child.path) + 1 || topOrder.length + 1) : 0)
+  const newestFirst = node.path === 'Unimelb'
+  node.children.sort((left, right) => rank(left) - rank(right)
+    || (newestFirst ? right.name.localeCompare(left.name) : 0))
+  node.children.forEach(sortTree)
 }
 
 function resolveAssetReferences(markdown, sourcePath) {
@@ -94,6 +141,9 @@ function slugify(value, seen) {
   return count ? `${base}-${count + 1}` : base
 }
 
+// The games are published with the notes site; the reader only serves Vision Complete (game.html) itself.
+const publishedSite = 'https://dravammonk.github.io/study-notes/'
+
 // An HTML comment on its own line, <!-- figure: name -->, marks where an interactive figure goes.
 // Obsidian and MkDocs hide the comment; here it becomes an empty slot the app fills.
 const figurePattern = /^[ \t]*<!--\s*figure:\s*([a-z0-9-]+)\s*-->[ \t]*$/gm
@@ -113,6 +163,12 @@ export function renderMarkdown(markdown, sourcePath) {
 
   document.body.querySelectorAll('a').forEach((link) => {
     const href = link.getAttribute('href') ?? ''
+    if (/^game\//.test(href)) {
+      const local = href.startsWith('game/vision-complete/')
+      link.setAttribute('href', local ? 'game.html' : `${publishedSite}${href}`)
+      if (!local) { link.target = '_blank'; link.rel = 'noreferrer' }
+      return
+    }
     if (/^https?:/.test(href)) {
       link.target = '_blank'
       link.rel = 'noreferrer'

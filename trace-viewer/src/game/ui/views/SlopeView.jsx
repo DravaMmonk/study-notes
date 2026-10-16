@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { correlate } from '../../engine/image.js'
+import { tr } from '../../i18n.js'
 import { rangeOf } from '../display.js'
 import { css, mix, tokenRGB } from './views.js'
 
@@ -117,5 +118,5 @@ export default function SlopeView({ img, range, size = 112, theme, onHover }) {
     const y = Math.floor(((event.clientY - box.top) / box.height) * img.h)
     if (x >= 0 && y >= 0 && x < img.w && y < img.h) onHover({ x, y, value: img.data[y * img.w + x] })
   }
-  return <canvas ref={canvas} className="slope-view" style={{ width: size, height: size * (img.h / img.w) }} onPointerMove={hover} onPointerLeave={() => onHover?.(null)} aria-label="坡度图：箭头指向变亮最快的方向，越长越陡" />
+  return <canvas ref={canvas} className="slope-view" style={{ width: size, height: size * (img.h / img.w) }} onPointerMove={hover} onPointerLeave={() => onHover?.(null)} aria-label={tr('坡度图：箭头指向变亮最快的方向，越长越陡', 'Slope map: arrows point where it brightens fastest; longer is steeper')} />
 }

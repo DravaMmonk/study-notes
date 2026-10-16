@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { tr } from '../../i18n.js'
 import { css, mix, tokenRGB } from './views.js'
 
 // A 2-D value as a landscape seen from above at an angle: each pixel's value is a height. Smoothing
@@ -93,5 +94,5 @@ export default function TerrainView({ img, range, size = 112, theme }) {
   }, [img, range, size, height, theme])
 
   if (!img) return null
-  return <canvas ref={canvas} className="terrain-view" style={{ width: size, height }} aria-label="地形图：亮度是高度" />
+  return <canvas ref={canvas} className="terrain-view" style={{ width: size, height }} aria-label={tr('地形图：亮度是高度', 'Terrain: brightness is height')} />
 }

@@ -1,6 +1,6 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { clamp, createIdle, createLoop, floorPoint, follow, viewBoxPoint } from '../common.js'
+import { clamp, createIdle, createLoop, floorPoint, follow, t, viewBoxPoint } from '../common.js'
 import { CAM1, CAM2, DEPTH, EPIPOLE1, EPIPOLE2, FOCAL, FOCAL_PX, GLASS, HEIGHT, PER_M, POINTS, PX, lineOf, measure, onGlass, pointAt, vec } from './model.js'
 
 // Fig · The epipolar rig.
@@ -147,18 +147,21 @@ const markSvg = (cam, image, tone, size) => {
 
 // ---------- the live figure ----------
 
-export const meta = { id: 'epipolar-rig', fig: 'Fig 14.1', title: '极线装置' }
+export const meta = { id: 'epipolar-rig', fig: 'Fig 14.1', title: '极线装置', titleEn: 'Epipolar rig' }
 
 export const css = `
 .iso .ep-glass{fill:var(--anatomy-top);stroke:none}
 `
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '光具座上的两台箱式相机，背面是毛玻璃。相机 2 在相机 1 前方并转了一个角度，两台相机没有校正。一根绷紧的细线从相机 1 的镜头沿所选像点的视线拉到远处的靶板上，一颗珠子在线上滑动；一根细绳从珠子连到相机 2 的镜头。珠子在相机 2 毛玻璃上的像始终落在刻好的一条直线上，即极线；连接两镜头的基线穿过相机 2 毛玻璃的位置是极点，所有极线都经过它。',
+      'Two box cameras with ground-glass backs on an optical bench. Camera 2 sits in front of camera 1 and is turned at an angle; the pair is not rectified. A taut wire runs from camera 1’s lens along the viewing ray of the chosen image point to a target board in the distance, with a bead sliding on it; a thread runs from the bead to camera 2’s lens. The bead’s image on camera 2’s ground glass always falls on a single scribed line, the epipolar line; the baseline joining the two lenses pierces camera 2’s ground glass at the epipole, and every epipolar line passes through it.',
+    ),
     body: [
       base(),
       board(),
@@ -173,28 +176,32 @@ export function render() {
       '<g data-part="glass-1"></g>',
     ],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="相机 1 中的像点">
-    <div class="fx-control"><span>像点 x</span>${POINTS.map((p, index) => `<button type="button" data-set="point" data-value="${index}">${p.label}</button>`).join('')}</div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '相机 1 中的像点', 'Image point in camera 1')}">
+    <div class="fx-control"><span>${t(lang, '像点 x', 'Point x')}</span>${POINTS.map((p, index) => `<button type="button" data-set="point" data-value="${index}">${p.label}</button>`).join('')}</div>
   </div>
   <div class="fx-calc"><span>x =</span><b data-calc="x"></b><i>·</i><span>x′ =</span><b data-calc="x2"></b><i>·</i><span>x′ᵀ F x =</span><b data-calc="r"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '悬停导轨 · 方向键',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '悬停导轨 · 方向键', 'Hover the rail · arrow keys'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '珠子：深度未知的空间点' },
-        { mark: 'raised', label: '相机 2 毛玻璃上的刻线：极线 l′ = F x' },
-        { mark: 'flat', label: '基线细绳：穿过毛玻璃处是极点 e′' },
+        { mark: 'lit', label: t(lang, '珠子：深度未知的空间点', 'bead: a 3D point of unknown depth') },
+        { mark: 'raised', label: t(lang, '相机 2 毛玻璃上的刻线：极线 l′ = F x', 'scribed line on camera 2’s glass: epipolar line l′ = F x') },
+        { mark: 'flat', label: t(lang, '基线细绳：穿过毛玻璃处是极点 e′', 'baseline thread: meets the glass at the epipole e′') },
       ],
-      caption: `相机 1 只知道点在它的像 x 上，于是点可能在整根细线上任意深度。把珠子沿线推远拉近，它在相机 2 毛玻璃上的像只沿一条刻线移动：一个点在图 1 里只约束图 2 里的一条线，x′ᵀ F x = 0。换一个像点，刻线绕着极点 e′ 转动，因为每条极线都经过基线穿过玻璃的那一点。两台相机没有校正，所以极线是斜的；毛玻璃上的像是倒立的。f = ${FOCAL_PX} px。`,
-      body: `<div class="iso-stage" tabindex="0" role="slider" aria-label="极线装置。左右方向键移动珠子的深度，上下方向键换相机 1 中的像点。" aria-valuemin="${DEPTH[0]}" aria-valuemax="${DEPTH[1]}">${svg}</div>`,
+      caption: t(
+        lang,
+        `相机 1 只知道点在它的像 x 上，于是点可能在整根细线上任意深度。把珠子沿线推远拉近，它在相机 2 毛玻璃上的像只沿一条刻线移动：一个点在图 1 里只约束图 2 里的一条线，x′ᵀ F x = 0。换一个像点，刻线绕着极点 e′ 转动，因为每条极线都经过基线穿过玻璃的那一点。两台相机没有校正，所以极线是斜的；毛玻璃上的像是倒立的。f = ${FOCAL_PX} px。`,
+        `All camera 1 knows is that the point projects to its image x, so the point could be at any depth along the whole wire. Slide the bead nearer or farther along the wire and its image on camera 2’s ground glass moves only along one scribed line: a point in image 1 constrains its match in image 2 to a line, x′ᵀ F x = 0. Pick another image point and the line pivots about the epipole e′, because every epipolar line passes through the spot where the baseline pierces the glass. The cameras are not rectified, so the epipolar lines are slanted; the image on the ground glass is upside down. f = ${FOCAL_PX} px.`,
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="slider" aria-label="${t(lang, '极线装置。左右方向键移动珠子的深度，上下方向键换相机 1 中的像点。', 'Epipolar rig. Left and right arrow keys move the bead’s depth; up and down arrow keys change the image point in camera 1.')}" aria-valuemin="${DEPTH[0]}" aria-valuemax="${DEPTH[1]}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -223,7 +230,7 @@ export function mount(root) {
     const l1 = vec.cross([point.u, point.v, 1], [EPIPOLE1.u, EPIPOLE1.v, 1])
     nodes.glass1.innerHTML = L(lineOnGlass(CAM1, l1), { tone: 'lo' }) + markSvg(CAM1, EPIPOLE1, 'mid', 0.6) + markSvg(CAM1, point, 'hi', 0.9)
 
-    const text = `深度 ${state.depth.toFixed(1)} m · 距极线 ${m.distance.toFixed(1)} px ✓`
+    const text = t(lang, `深度 ${state.depth.toFixed(1)} m · 距极线 ${m.distance.toFixed(1)} px ✓`, `depth ${state.depth.toFixed(1)} m · ${m.distance.toFixed(1)} px off line ✓`)
     if (readout.textContent !== text) readout.textContent = text
     const px = (p) => `(${Math.round(p.u)}, ${Math.round(p.v)})`
     calc.x.textContent = px(point)
@@ -234,7 +241,10 @@ export function mount(root) {
   function describe() {
     const p = POINTS[state.index]
     stage.setAttribute('aria-valuenow', state.target.toFixed(1))
-    stage.setAttribute('aria-valuetext', `像点 ${p.label}，珠子深度 ${state.target.toFixed(1)} 米，它在相机 2 中的像落在极线上`)
+    stage.setAttribute(
+      'aria-valuetext',
+      t(lang, `像点 ${p.label}，珠子深度 ${state.target.toFixed(1)} 米，它在相机 2 中的像落在极线上`, `Image point ${p.label}, bead depth ${state.target.toFixed(1)} m; its image in camera 2 lies on the epipolar line`),
+    )
     buttons.forEach((button, index) => button.setAttribute('aria-pressed', String(index === state.index)))
   }
 

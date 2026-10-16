@@ -1,65 +1,143 @@
 /* ============================================================
-   Custom Layout for MkDocs Material
-   - Wider left sidebar on desktop
-   - Wider nav list inside sidebar
-   - Full-width content area on desktop
-   - Preserve mobile drawer layout
+   The notes site in the shared kit (games/kit: tokens.css, ui.css, prose.css), the same look as Fieldnotes and the
+   games. Material keeps the layout, search and drawer; this file maps its colours and fonts onto the kit tokens and
+   restyles its header, tabs, sidebars and footer to match the kit's top bar. The theme (paper / night / blueprint)
+   is data-theme on <html>, set before paint by overrides/main.html and switched by javascripts/site.js.
    ============================================================ */
 
-
-/* ------------------------------------------------------------
-   Desktop: widen left sidebar + nav list
-   ------------------------------------------------------------ */
-@media (min-width: 1220px) {
-
-  /* Outer left sidebar width */
-  .md-sidebar--primary {
-    width: 400px !important;
-    max-width: 400px !important;
-  }
-
-  .md-sidebar__inner {
-    width: 390px !important;
-    max-width: 390px !important;
-  }
-
-  /* Inner navigation container */
-  .md-nav--primary,
-  .md-nav--primary.md-nav--integrated {
-    width: 370px !important;
-    max-width: 370px !important;
-  }
-
-  /* Navigation list width (critical) */
-  .md-nav--primary .md-nav__list {
-    width: 370px !important;
-    max-width: 370px !important;
-  }
-
-  /* List items width */
-  .md-nav--primary .md-nav__item {
-    width: 370px !important;
-    max-width: 370px !important;
-  }
-
-  /* Navigation links width */
-  .md-nav--primary .md-nav__link {
-    width: 370px !important;
-    max-width: 370px !important;
-    white-space: normal !important;     /* allow wrapping */
-    overflow-wrap: break-word;          /* prevent overflow */
-  }
-
-  /* Expand main content container */
-  .md-main__inner,
-  .md-content,
-  .md-content__inner {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 1.2rem 0 0 !important;   /* adjust left/right padding */
-  }
+:root, [data-md-color-scheme] {
+  --md-text-font-family: var(--sans);
+  --md-code-font-family: var(--mono);
+  --md-default-bg-color: var(--paper);
+  --md-default-fg-color: var(--ink);
+  --md-default-fg-color--light: var(--muted);
+  --md-default-fg-color--lighter: var(--faint);
+  --md-default-fg-color--lightest: var(--line);
+  --md-primary-fg-color: var(--paper);
+  --md-primary-fg-color--light: var(--canvas);
+  --md-primary-fg-color--dark: var(--rail);
+  --md-primary-bg-color: var(--ink);
+  --md-primary-bg-color--light: var(--muted);
+  --md-accent-fg-color: var(--accent);
+  --md-accent-fg-color--transparent: color-mix(in srgb, var(--accent) 12%, transparent);
+  --md-accent-bg-color: var(--paper);
+  --md-typeset-color: var(--body);
+  --md-typeset-a-color: var(--accent-ink);
+  --md-typeset-table-color: var(--line);
+  --md-code-bg-color: var(--code-bg);
+  --md-code-fg-color: var(--code-ink);
+  --md-admonition-bg-color: var(--paper);
+  --md-admonition-fg-color: var(--body);
+  --md-footer-bg-color: var(--canvas);
+  --md-footer-bg-color--dark: var(--rail);
+  --md-footer-fg-color: var(--ink);
+  --md-footer-fg-color--light: var(--muted);
+  --md-footer-fg-color--lighter: var(--faint);
+  --md-shadow-z1: none;
+  --md-shadow-z2: var(--lift);
+  --md-shadow-z3: var(--lift);
 }
 
+html { background: var(--paper); }
+body { color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; }
+::selection { background: var(--selection); }
 
+/* ---- header: the kit's top bar ---- */
+.md-header, .md-header--shadow {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  border-bottom: 1px solid var(--hairline);
+  box-shadow: none;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.md-header__inner { height: var(--bar-h); padding: 0 calc(var(--gutter) - .2rem); }
+.md-header__button { color: var(--muted); }
+.md-header__button:hover { color: var(--ink); opacity: 1; }
+.md-header__button.md-logo { margin: 0 .2rem 0 0; padding: .4rem; }
+.md-header__button.md-logo svg, .md-header__button.md-logo img { display: none; }
+.md-header__button.md-logo::before { content: ''; display: block; width: 14px; height: 14px; border-radius: 3px; background: linear-gradient(135deg, var(--ink) 0 50%, var(--accent) 50% 100%); box-shadow: 0 0 0 1px var(--rule); }
+.md-header__title { margin-left: .4rem; height: var(--bar-h); line-height: var(--bar-h); }
+.md-header__topic:first-child { font-family: var(--mono); font-size: var(--fs-label); font-weight: 500; letter-spacing: .2em; text-transform: uppercase; }
+.md-header__topic + .md-header__topic { font-family: var(--serif); font-size: var(--fs-small); font-weight: 500; letter-spacing: 0; }
+.md-header .kit-nav { margin: 0 .4rem; }
+.md-header .kit-actions { margin-left: .2rem; }
+.md-header .kit-btn { color: var(--ink); }
+@media (max-width: 600px) { .md-header .kit-nav { display: none; } }
 
+/* Search, in the bar's quiet style. */
+.md-search__form { height: 32px; border-radius: var(--r-md); background: var(--hover); box-shadow: none; }
+.md-search__form:hover { background: color-mix(in srgb, var(--ink) 9%, transparent); }
+.md-search__input { color: var(--ink); font: var(--fs-ui) var(--sans); }
+.md-search__input::placeholder, .md-search__icon { color: var(--muted); }
+[data-md-toggle=search]:checked ~ .md-header .md-search__form { border-radius: var(--r-md) var(--r-md) 0 0; background: var(--paper); box-shadow: 0 0 0 1px var(--line); }
+.md-search__output { border-radius: 0 0 var(--r-md) var(--r-md); box-shadow: var(--lift); }
+.md-search__scrollwrap { background: var(--paper); }
+.md-search-result__meta { color: var(--muted); background: var(--canvas); font: var(--fs-label) var(--mono); letter-spacing: .06em; }
+.md-search-result mark { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 18%, transparent); }
+
+/* ---- tabs: the sections, as mono labels under the bar ---- */
+.md-tabs { color: var(--muted); background: var(--paper); border-bottom: 1px solid var(--hairline); }
+.md-tabs__list { margin-left: calc(var(--gutter) - .2rem); }
+.md-tabs__item { height: 2.2rem; padding: 0 .9rem 0 0; }
+.md-tabs__link { margin-top: .75rem; font: var(--fs-label)/1 var(--mono); letter-spacing: .1em; opacity: 1; color: var(--muted); }
+.md-tabs__link:hover, .md-tabs__item--active .md-tabs__link { color: var(--ink); }
+.md-tabs__item--active .md-tabs__link { text-decoration: underline 2px var(--accent); text-underline-offset: 10px; }
+
+/* ---- sidebars ---- */
+.md-main { background: var(--paper); }
+.md-sidebar--primary .md-sidebar__scrollwrap { scrollbar-color: var(--rule) transparent; }
+.md-nav { font: var(--fs-ui)/1.5 var(--sans); }
+.md-nav__title { color: var(--faint); font: 500 10px/1.4 var(--mono); letter-spacing: var(--track-label); text-transform: uppercase; }
+.md-nav__link { margin-top: .5em; color: var(--muted); }
+.md-nav__link:hover, .md-nav__link:focus { color: var(--ink); }
+.md-nav__item .md-nav__link--active, .md-nav__link--active { color: var(--accent-ink); font-weight: 600; }
+.md-nav__item--section > .md-nav__link, .md-nav--primary > .md-nav__list > .md-nav__item--nested > .md-nav__link {
+  margin-top: 1.4em; color: var(--faint); font: 500 10px/1.4 var(--mono); letter-spacing: var(--track-label); text-transform: uppercase;
+}
+.md-nav--secondary .md-nav__link { font-size: 12.5px; }
+.md-nav--secondary .md-nav__title { box-shadow: none; background: transparent; }
+
+@media (min-width: 1220px) {
+  /* A wider library column, so long note titles wrap instead of being cut. */
+  .md-sidebar--primary { width: 320px; }
+  .md-sidebar--primary .md-sidebar__scrollwrap { border-right: 1px solid var(--hairline); }
+  .md-nav--primary .md-nav__link { white-space: normal; overflow-wrap: break-word; }
+}
+@media (max-width: 1219.98px) {
+  .md-nav--primary .md-nav__title { color: var(--ink); background: var(--canvas); }
+  .md-nav--primary .md-nav__title[for=__drawer] { color: var(--ink); background: var(--paper); font-size: var(--fs-label); }
+  .md-sidebar--primary { background: var(--paper); }
+}
+
+/* ---- the note itself: the kit's prose at a reading measure ---- */
+.md-content { max-width: calc(var(--measure) + 6rem); margin: 0 auto; }
+.md-content__inner { margin: 0 2.4rem; padding-top: 2.6rem; padding-bottom: 6rem; }
+.md-content__inner > :first-child { margin-top: 0; }
+@media (max-width: 600px) { .md-content__inner { margin: 0 var(--gutter); padding-top: 1.6rem; } }
+.md-typeset .headerlink { color: var(--faint); }
+.md-typeset .headerlink:hover, .md-typeset :target > .headerlink { color: var(--accent); }
+.md-typeset h1 .headerlink { display: none; }
+.md-typeset .md-content__button { display: none; }
+.md-typeset .admonition, .md-typeset details {
+  border: 0; border-left: 2px solid var(--accent); border-radius: 0 2px 2px 0;
+  background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font-size: .9em;
+}
+.md-typeset :is(.admonition-title, summary) { background: transparent; color: var(--muted); font: 500 var(--fs-label)/1.6 var(--mono); letter-spacing: .06em; }
+.md-typeset :is(.admonition-title, summary)::before { background-color: var(--accent); }
+.md-typeset .tabbed-labels > label { font: var(--fs-label) var(--mono); letter-spacing: .06em; }
+.md-typeset .arithmatex { overflow-x: auto; }
+
+/* ---- the home page: kit hero and cards (their prose spacing is in games/kit/prose.css) ---- */
+.md-typeset .kit-title::before { display: none; }
+.md-typeset .kit-section .headerlink { display: none; }
+.md-content:has(.kit-hero) { max-width: 1040px; }
+
+/* ---- footer: previous / next as quiet cards ---- */
+.md-footer { color: var(--ink); background: var(--paper); border-top: 1px solid var(--hairline); }
+.md-footer__inner { max-width: calc(var(--measure) + 6rem); }
+.md-footer__link { opacity: 1; }
+.md-footer__link:hover .md-footer__title { color: var(--accent-ink); }
+.md-footer__title { font: 500 var(--fs-h4)/1.3 var(--serif); }
+.md-footer__direction { color: var(--faint); font: var(--fs-label) var(--mono); letter-spacing: .1em; opacity: 1; }
+.md-footer-meta { display: none; }
+.md-top { color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--line), var(--lift); font: var(--fs-label) var(--mono); }

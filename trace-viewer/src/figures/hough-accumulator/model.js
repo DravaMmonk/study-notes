@@ -6,8 +6,8 @@ export const HALF = 18 // board coordinates run −HALF..HALF, one unit per pixe
 export const LINE = { theta: 30, rho: 12 } // degrees, pixels
 export const RHO_LIMIT = 27
 export const BINS = {
-  coarse: { name: 'coarse', label: '粗 15° × 6', dTheta: 15, dRho: 6 },
-  fine: { name: 'fine', label: '细 7.5° × 3', dTheta: 7.5, dRho: 3 },
+  coarse: { name: 'coarse', label: '粗 15° × 6', labelEn: 'Coarse 15° × 6', dTheta: 15, dRho: 6 },
+  fine: { name: 'fine', label: '细 7.5° × 3', labelEn: 'Fine 7.5° × 3', dTheta: 7.5, dRho: 3 },
 }
 
 function random(seed) {

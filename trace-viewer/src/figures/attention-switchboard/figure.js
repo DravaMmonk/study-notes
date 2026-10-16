@@ -1,7 +1,7 @@
 import * as k from '../kit/iso-kit.js'
 import * as G from '../kit/lathe.js'
-import { clamp, createIdle, createLoop, floorPoint, follow, spring, viewBoxPoint } from '../common.js'
-import { CLASSES, D_K, IMAGE, SIZE, attend, classOf, headName, indexOf } from './model.js'
+import { clamp, createIdle, createLoop, floorPoint, follow, spring, t, viewBoxPoint } from '../common.js'
+import { CLASSES, D_K, IMAGE, SIZE, attend, classOf, headName, headNameEn, indexOf } from './model.js'
 
 // Fig · The attention switchboard.
 // A 4 × 4 picture is cut into sixteen patch tiles on an exchange board; each tile's face carries what
@@ -247,35 +247,41 @@ function cordPieces(from, to, tone) {
   return pieces
 }
 
-export const meta = { id: 'attention-switchboard', fig: 'Fig 9.1', title: '注意力交换台' }
+export const meta = { id: 'attention-switchboard', fig: 'Fig 9.1', title: '注意力交换台', titleEn: 'Attention switchboard' }
 
-export function render() {
+export function render({ lang = 'zh' } = {}) {
   const svg = k.figureSvg({
     width: W,
     height: H,
-    label:
+    label: t(
+      lang,
       '注意力交换台。一张四乘四的小图被切成十六块图块，排在交换台上，每块的色调表示它的内容。查询插头从一块图块的插孔里升起，插头顶端引出十六根接线，连到每块图块角上的量杆；量杆的高度就是该图块的 softmax 注意力权重。旁边的玻璃柱按同样的权重分层装满，表示输出是各图块的加权混合。旋钮切换注意力头，拨杆收起或升起每块图块上的位置标签。',
+      'An attention switchboard. A small four-by-four image is cut into sixteen patches laid out on the board, each tinted by what it shows. A query plug rises from one patch’s socket, and sixteen cords run from its tip to a gauge rod at the corner of every patch; each rod’s height is that patch’s softmax attention weight. A glass column beside the board fills in layers by the same weights, showing the output as a weighted mix of the patches. A knob switches the attention head, and a lever lowers or raises the position tag on every patch.',
+    ),
     body: [base(), board(), '<g data-part="bed"></g>', columnArt(), '<g data-part="column"></g>', columnTop(), knobBase(), '<path data-part="pointer" class="iso-line" data-tone="hi" data-free="end" style="stroke-width:1.1" d=""/>', leverBase(), '<g data-part="bat"></g>'],
   })
-  const controls = `<div class="fx-controls" role="group" aria-label="注意力设置">
-    <div class="fx-control"><span>注意力头</span><button type="button" data-set="head" data-value="0">头 1 · 内容</button><button type="button" data-set="head" data-value="1">头 2 · 位置</button></div>
-    <div class="fx-control"><span>位置编码</span><button type="button" data-set="pos" data-value="1">加上</button><button type="button" data-set="pos" data-value="0">去掉</button></div>
+  const controls = `<div class="fx-controls" role="group" aria-label="${t(lang, '注意力设置', 'Attention settings')}">
+    <div class="fx-control"><span>${t(lang, '注意力头', 'Head')}</span><button type="button" data-set="head" data-value="0">${t(lang, headName(0), headNameEn(0))}</button><button type="button" data-set="head" data-value="1">${t(lang, headName(1), headNameEn(1))}</button></div>
+    <div class="fx-control"><span>${t(lang, '位置编码', 'Positional encoding')}</span><button type="button" data-set="pos" data-value="1">${t(lang, '加上', 'On')}</button><button type="button" data-set="pos" data-value="0">${t(lang, '去掉', 'Off')}</button></div>
   </div>
   <div class="fx-calc"><span>a_j = softmax(q·k_j / √${D_K})</span><i>·</i><span>y = Σ a_j v_j =</span><b data-calc="mix"></b></div>`
   return k
     .plateHtml({
       fig: meta.fig,
-      title: meta.title,
-      hint: '悬停图块 · 方向键',
+      title: t(lang, meta.title, meta.titleEn),
+      hint: t(lang, '悬停图块 · 方向键', 'Hover a patch · arrow keys'),
       readout: '',
       keys: [
-        { mark: 'lit', label: '查询插头：当前的 query 图块' },
-        { mark: 'raised', label: '量杆高度：权重 a_j' },
-        { mark: 'flat', label: '玻璃柱：输出 y，按 a_j 分层' },
+        { mark: 'lit', label: t(lang, '查询插头：当前的 query 图块', 'query plug: the current query patch') },
+        { mark: 'raised', label: t(lang, '量杆高度：权重 a_j', 'rod height: weight a_j') },
+        { mark: 'flat', label: t(lang, '玻璃柱：输出 y，按 a_j 分层', 'glass column: output y, layered by a_j') },
       ],
-      caption:
+      caption: t(
+        lang,
         '查询插头从一块图块升起，一步就接到全部十六块图块，包括它自己：每根量杆的高度是 a_j = softmax(q·k_j / √d)，所有量杆加起来恰好是 1，所以右边的玻璃柱总是正好装满，各层厚度就是从各图块读到的份量。头 1 比较内容，远处同样是树的图块也会被选中；头 2 比较位置编码，只看附近。把位置标签收起后，头 2 分不出谁在哪里，十六根量杆一样高（1/16）：注意力本身不知道顺序，位置必须加进 token 里。',
-      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="注意力交换台。方向键移动查询图块，H 切换注意力头，P 加上或去掉位置编码。">${svg}</div>`,
+        'The query plug rises from one patch and is wired to all sixteen patches in a single step, itself included: each rod’s height is a_j = softmax(q·k_j / √d), and the rods always add up to exactly 1, so the glass column on the right is always exactly full, each layer as thick as the share read from that patch. Head 1 compares content, so a distant patch that is also a tree gets picked too; head 2 compares positional encodings and only looks nearby. Lower the position tags and head 2 can no longer tell where anything is, so all sixteen rods stand at the same height (1/16): attention on its own knows nothing of order, and position has to be added into the tokens.',
+      ),
+      body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${t(lang, '注意力交换台。方向键移动查询图块，H 切换注意力头，P 加上或去掉位置编码。', 'Attention switchboard. Arrow keys move the query patch, H switches the head, P adds or removes positional encoding.')}">${svg}</div>`,
     })
     .replace('<figcaption class="iso-legend">', `<figcaption class="iso-legend">${controls}`)
 }
@@ -289,7 +295,7 @@ export const css = `
 .as-hole{fill:var(--anatomy-hi);opacity:.55}
 `
 
-export function mount(root) {
+export function mount(root, { lang = 'zh' } = {}) {
   const stage = root.querySelector('.iso-stage')
   const svg = stage.querySelector('svg')
   const part = (name) => svg.querySelector(`[data-part="${name}"]`)
@@ -317,7 +323,16 @@ export function mount(root) {
       button.setAttribute('aria-pressed', String(button.dataset.value === value))
     })
     const [r, c] = config.q
-    stage.setAttribute('aria-valuetext', `查询图块第 ${r + 1} 行第 ${c + 1} 列（${CLASSES[classOf(r, c)].name}），${headName(config.head)}，${config.pos ? '已加' : '未加'}位置编码；最大权重 ${Math.max(...result.weights).toFixed(2)}`)
+    const cls = CLASSES[classOf(r, c)]
+    const peak = Math.max(...result.weights).toFixed(2)
+    stage.setAttribute(
+      'aria-valuetext',
+      t(
+        lang,
+        `查询图块第 ${r + 1} 行第 ${c + 1} 列（${cls.name}），${headName(config.head)}，${config.pos ? '已加' : '未加'}位置编码；最大权重 ${peak}`,
+        `Query patch row ${r + 1}, column ${c + 1} (${cls.nameEn}), ${headNameEn(config.head)}, positional encoding ${config.pos ? 'on' : 'off'}; largest weight ${peak}`,
+      ),
+    )
   }
 
   function draw() {
@@ -367,9 +382,9 @@ export function mount(root) {
     nodes.bat.innerHTML = leverBat(state.bat)
 
     const [r, c] = config.q
-    const text = `查询 (${r},${c}) · 最大权重 ${peak.toFixed(2)} · Σ=1`
+    const text = t(lang, `查询 (${r},${c}) · 最大权重 ${peak.toFixed(2)} · Σ=1`, `query (${r},${c}) · peak ${peak.toFixed(2)} · Σ=1`)
     if (readout.textContent !== text) readout.textContent = text
-    const output = CLASSES.map((cls, index) => ({ name: cls.name, share: cells.reduce((sum, cell, j) => sum + (classOf(cell.row, cell.col) === index ? weights[j] : 0), 0) }))
+    const output = CLASSES.map((cls, index) => ({ name: t(lang, cls.name, cls.nameEn), share: cells.reduce((sum, cell, j) => sum + (classOf(cell.row, cell.col) === index ? weights[j] : 0), 0) }))
       .sort((a, b) => b.share - a.share)
       .filter((entry) => entry.share >= 0.005)
       .slice(0, 3)

@@ -112,3 +112,7 @@ export const svgNode = (markup) => {
   template.innerHTML = markup
   return template
 }
+
+// The reading language the host passes in ('zh' | 'en'): t(lang, '中文', 'English').
+// Figures render once per language; the host rebuilds a figure to switch it.
+export const t = (lang, zh, en) => (lang === 'en' ? en : zh)
