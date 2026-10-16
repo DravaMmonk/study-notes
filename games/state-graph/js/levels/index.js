@@ -15,10 +15,11 @@ import { skeleton } from './skeleton.js';
 import { sweep } from './sweep.js';
 import { orders } from './orders.js';
 import { states } from './states.js';
+import { topdown } from './topdown.js';
 import { graduate } from './graduate.js';
 
 export { CHAPTERS, PARTS } from './parts.js';
-export const LEVELS = [...basics, ...machines, ...state, ...strings, ...knapsack, ...skeleton, ...sweep, ...orders, ...states, ...graduate];
+export const LEVELS = [...basics, ...machines, ...state, ...strings, ...knapsack, ...skeleton, ...sweep, ...orders, ...states, ...topdown, ...graduate];
 
 /** A circuit level's board becomes a component for later levels (it runs the reference board). */
 function registerBlueprint(L, i) {
