@@ -50,6 +50,23 @@ for (const level of LEVELS) {
       problems += 1
     }
   }
+  // Every circuit level keeps tests back: a run must pass them too, and they are shown only once it is solved.
+  if (!level.hidden?.length) {
+    console.log(`${level.id}: FAIL 没有隐藏测试`)
+    problems += 1
+  }
+  for (const t of level.hidden ?? []) {
+    if (level.tests.some((v) => v.label === t.label)) {
+      console.log(`${level.id}: FAIL 隐藏测试「${t.label}」和可见测试重名`)
+      problems += 1
+    }
+  }
+  if (level.hidden?.length) {
+    const hiddenRun = runLevel({ ...level, tests: level.hidden }, level.solution)
+    const detail = hiddenRun.results.map((r, i) => `${level.hidden[i].label}:${r.checks.map((c) => `${c.pass ? '✓' : '✗'}${c.wrong}`).join(',')}`).join('  ')
+    console.log(`${level.id} hidden: solution ${hiddenRun.results.every((r) => r.pass) ? 'PASS' : 'FAIL'}  ${detail}`)
+    if (!hiddenRun.results.every((r) => r.pass)) problems += 1
+  }
   const good = report(level.solution)
   const line = [`${level.id} ${level.title}: solution ${good.run.pass ? 'PASS' : 'FAIL'} [n=${good.run.score.nodes} c=${good.run.score.cost}${good.run.constraint ? ` ${good.run.constraint}` : ''}]  ${good.detail}`]
   if (!good.run.pass) problems += 1

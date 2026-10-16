@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
-// The controls for a part's settings: a choice, a number, or a 3×3 grid of weights. Number fields
-// keep what is being typed (a lone "-", "0.") until it reads as a number, accept the full-width and
-// typographic minus signs that Chinese and phone keyboards produce, and have a ± button because the
-// numeric keypad on phones has no minus key.
+// The controls for a part's settings on the desktop board: a choice, a number, or a 3×3 grid of weights.
+// Number fields keep what is being typed (a lone "-", "0.") until it reads as a number and accept the
+// full-width and typographic minus signs that Chinese keyboards produce, so a minus is simply typed.
+// (Phones edit numbers on their own keypad, which has a ± key.)
 
 const stop = (event) => event.stopPropagation()
 const parse = (text) => {
@@ -40,12 +40,7 @@ export function NumberInput({ value, onChange, label, className, onFocus }) {
   )
 }
 
-const SignButton = ({ onClick, label = '正负号' }) => (
-  <button type="button" className="param-sign" aria-label={label} title={label} onPointerDown={stop} onClick={onClick}>±</button>
-)
-
 export default function ParamControl({ param, value, onChange, roomy }) {
-  const [focused, setFocused] = useState(4)
   if (param.kind === 'select') {
     return (
       <label className={`param ${roomy ? 'is-roomy' : ''}`}>
@@ -69,10 +64,9 @@ export default function ParamControl({ param, value, onChange, roomy }) {
       <div className={`param-kernel-wrap ${roomy ? 'is-roomy' : ''}`} onPointerDown={stop}>
         <div className="param-kernel">
           {value.map((w, i) => (
-            <NumberInput key={i} className={i === focused ? 'is-focused' : ''} value={w} onChange={(v) => setCell(i, v)} onFocus={() => setFocused(i)} label={`权重 ${Math.floor(i / 3) + 1} 行 ${(i % 3) + 1} 列`} />
+            <NumberInput key={i} value={w} onChange={(v) => setCell(i, v)} label={`权重 ${Math.floor(i / 3) + 1} 行 ${(i % 3) + 1} 列`} />
           ))}
         </div>
-        <button type="button" className="param-kernel-sign" onClick={() => setCell(focused, -value[focused])}>± 选中格</button>
       </div>
     )
   }
@@ -81,7 +75,6 @@ export default function ParamControl({ param, value, onChange, roomy }) {
       <span>{param.label}</span>
       <span className="param-number">
         <NumberInput value={value ?? 0} onChange={onChange} label={param.label} />
-        <SignButton onClick={() => onChange(-(value ?? 0))} />
       </span>
     </label>
   )

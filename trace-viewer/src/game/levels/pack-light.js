@@ -258,6 +258,16 @@ const SHADOW_SCENES = [
   ['条纹 + 杆影', paint.stripes, light.pole],
   ['白墙 + 墙角阴影', paint.plain, light.corner],
 ]
+// Held back: new paint under light that changes top to bottom, in patches, and down to 0.25, so a
+// circuit tuned to the visible light levels (or to light that only changes left to right) shows.
+const SHADOW_HIDDEN = [
+  ['字母 L + 顶光', P.glyph(GLYPHS.L, 0.2, 0.8, 4, 2), fromFn(16, 16, (x, y) => 0.3 + 0.045 * y)],
+  ['圆盘 + 树影', P.disk(8, 7, 5, 0.8, 0.3), fromFn(16, 16, (x, y) => ((3 * x + 5 * y) % 7 < 3 ? 0.25 : 0.9))],
+  ['斑点墙 + 两道影', (() => {
+    const next = random(77)
+    return fromFn(16, 16, () => 0.2 + 0.7 * next())
+  })(), fromFn(16, 16, (x) => (x % 8 < 3 ? 0.3 : 1))],
+]
 const shadowGraph = (nodes, wires) => build(nodes, wires, { inputs: ['photo', 'light'] })
 
 const shadowLevel = {
@@ -274,6 +284,7 @@ const shadowLevel = {
   palette: ['divide', 'sub', 'mul', 'add', 'scale', 'offset'],
   check: { tolerance: 0.02 },
   tests: SHADOW_SCENES.map(([label, colour, lit]) => test(label, { photo: photo(colour, lit), light: lit }, { out: colour })),
+  hidden: SHADOW_HIDDEN.map(([label, colour, lit]) => test(label, { photo: photo(colour, lit), light: lit }, { out: colour })),
   solution: shadowGraph({ d: 'divide' }, ['photo>d.a', 'light>d.b', 'd>out']),
   // Taking the shadow away by subtracting: right only where the light is full.
   naive: shadowGraph({ s: 'sub', o: ['offset', { c: 1 }] }, ['photo>s.a', 'light>s.b', 's>o', 'o>out']),

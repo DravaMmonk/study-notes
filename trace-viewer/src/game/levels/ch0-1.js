@@ -26,6 +26,7 @@ export const chapter0 = [
     unlocks: [],
     palette: [],
     tests: scenes().map(([label, img]) => test(label, { in: img }, { out: img })),
+    hidden: [['挪开的字母 X', P.glyph(GLYPHS.X, 0.1, 0.9, 6, 5)], ['随机纹理', P.noise(7)]].map(([label, img]) => test(label, { in: img }, { out: img })),
     solution: build({}, ['in>out']),
   },
   {
@@ -58,6 +59,7 @@ export const chapter0 = [
     unlocks: ['invert'],
     palette: ['scale', 'offset', 'add', 'sub'],
     tests: scenes().map(([label, img]) => test(label, { in: img }, { out: map(img, (v) => 1 - v) })),
+    hidden: [['斜坡', P.rampX()], ['随机纹理', P.noise(3)]].map(([label, img]) => test(label, { in: img }, { out: map(img, (v) => 1 - v) })),
     solution: build({ k: ['scale', { k: -1 }], c: ['offset', { c: 1 }] }, ['in>k', 'k>c', 'c>out']),
   },
   (() => {
@@ -65,6 +67,7 @@ export const chapter0 = [
     const object = (bg, x0, y0) => fromFn(16, 16, (x, y) => bg.data[y * 16 + x] + (x >= x0 && x < x0 + 4 && y >= y0 && y < y0 + 4 ? 0.3 : 0))
     const mask = (x0, y0) => fromFn(16, 16, (x, y) => (x >= x0 && x < x0 + 4 && y >= y0 && y < y0 + 4 ? 1 : 0))
     const cases = [[2, 3, 1], [9, 9, 2], [10, 2, 3], [3, 10, 4]]
+    const hiddenCases = [['左下角', 0, 12, 5], ['右边亮处', 12, 6, 6], ['正中', 6, 6, 7]]
     return {
       id: '0-4',
       chapter: 0,
@@ -79,6 +82,10 @@ export const chapter0 = [
       tests: cases.map(([x0, y0, seed], index) => {
         const bg = background(seed)
         return test(`第 ${index + 1} 组`, { scene: object(bg, x0, y0), empty: bg }, { out: mask(x0, y0) })
+      }),
+      hidden: hiddenCases.map(([label, x0, y0, seed]) => {
+        const bg = background(seed)
+        return test(label, { scene: object(bg, x0, y0), empty: bg }, { out: mask(x0, y0) })
       }),
       solution: build({ d: 'sub', t: ['threshold', { t: 0.15 }] }, ['scene>d.a', 'empty>d.b', 'd>t', 't>out'], { inputs: ['scene', 'empty'] }),
       naive: build({ t: ['threshold', { t: 0.6 }] }, ['scene>t', 't>out'], { inputs: ['scene', 'empty'] }),
@@ -108,6 +115,7 @@ export const chapter1 = [
     unlocks: ['blur3h'],
     palette: ['shift', 'add', 'sub', 'scale'],
     tests: scenes().map(([label, img]) => test(label, { in: img }, { out: hblur(img) })),
+    hidden: [['挪开的字母 F', P.glyph(GLYPHS.F, 0.1, 0.9, 5, 2)], ['随机纹理', P.noise(11)]].map(([label, img]) => test(label, { in: img }, { out: hblur(img) })),
     solution: build({ l: ['shift', { dir: '←' }], r: ['shift', { dir: '→' }], a: 'add', b: 'add', k: ['scale', { k: 1 / 3 }] }, ['in>l', 'in>r', 'l>a.a', 'r>a.b', 'a>b.a', 'in>b.b', 'b>k', 'k>out']),
   },
   {
@@ -122,6 +130,7 @@ export const chapter1 = [
     palette: ['shift', 'add', 'scale', 'blur3h'],
     constraint: (score) => (score.cost > 6 ? `计算量 ${score.cost}，超过 6` : ''),
     tests: scenes().map(([label, img]) => test(label, { in: img }, { out: box(img) })),
+    hidden: [['挪开的字母 L', P.glyph(GLYPHS.L, 0.1, 0.9, 2, 5)], ['随机纹理', P.noise(13)]].map(([label, img]) => test(label, { in: img }, { out: box(img) })),
     solution: build({ h: 'blur3h', u: ['shift', { dir: '↑' }], d: ['shift', { dir: '↓' }], a: 'add', b: 'add', k: ['scale', { k: 1 / 3 }] }, ['in>h', 'h>u', 'h>d', 'u>a.a', 'd>a.b', 'a>b.a', 'h>b.b', 'b>k', 'k>out']),
     naive: (() => {
       const nodes = {}
@@ -159,6 +168,7 @@ export const chapter1 = [
     palette: ['box3', 'scale', 'add'],
     check: { tolerance: 0.025 },
     tests: [['亮点', P.impulse(7, 7)], ['方块', P.square(5, 5, 6)], ['圆盘', P.disk(7.5, 7.5, 3.5)]].map(([label, img]) => test(label, { in: img }, { out: correlate(img, GAUSS_TARGET) })),
+    hidden: [['偏一边的亮点', P.impulse(4, 10)], ['偏一边的圆盘', P.disk(9.5, 6.5, 3)], ['字母 T', P.glyph(GLYPHS.T)]].map(([label, img]) => test(label, { in: img }, { out: correlate(img, GAUSS_TARGET) })),
     solution: build({ a: 'box3', b: 'box3', c: 'box3' }, ['in>a', 'a>b', 'b>c', 'c>out']),
     naive: build({ a: 'box3', b: 'box3' }, ['in>a', 'a>b', 'b>out']),
   },
@@ -173,6 +183,7 @@ export const chapter1 = [
     unlocks: ['diffx'],
     palette: ['shift', 'sub', 'add', 'scale'],
     tests: [['台阶', P.stepX(8)], ['方块', P.square()], ['斜坡', P.rampX()], ['字母 L', P.glyph(GLYPHS.L)]].map(([label, img]) => test(label, { in: img }, { out: diffx(img) })),
+    hidden: [['亮到暗的台阶', P.stepX(5, 0.85, 0.15)], ['挪开的字母 F', P.glyph(GLYPHS.F, 0.1, 0.9, 6, 4)], ['随机纹理', P.noise(17)]].map(([label, img]) => test(label, { in: img }, { out: diffx(img) })),
     solution: build({ l: ['shift', { dir: '←' }], d: 'sub' }, ['in>l', 'l>d.a', 'in>d.b', 'd>out']),
   },
   {
@@ -190,6 +201,9 @@ export const chapter1 = [
     tests: [[5, 1], [8, 2], [11, 3], [7, 4]].map(([edge, seed]) =>
       test(`台阶 x=${edge}`, { in: addNoise(cleanStep(edge, 0.15, 0.85), seed, 0.22) }, { out: edgeTarget(cleanStep(edge, 0.15, 0.85)) }),
     ),
+    hidden: [[6, 5], [9, 7], [10, 19]].map(([edge, seed]) =>
+      test(`新台阶 x=${edge}`, { in: addNoise(cleanStep(edge, 0.15, 0.85), seed, 0.22) }, { out: edgeTarget(cleanStep(edge, 0.15, 0.85)) }),
+    ),
     solution: build({ b: 'box3', d: 'diffx', t: ['threshold', { t: 0.15 }] }, ['in>b', 'b>d', 'd>t', 't>out']),
     naive: build({ d: 'diffx', t: ['threshold', { t: 0.15 }] }, ['in>d', 'd>t', 't>out']),
   },
@@ -204,6 +218,7 @@ export const chapter1 = [
     unlocks: ['kernel3'],
     palette: ['kernel3'],
     tests: [['亮点', P.impulse(7, 7)], ['方块', P.square()], ['字母 F', P.glyph(GLYPHS.F)]].map(([label, img]) => test(label, { in: img }, { out: convolve(img, MYSTERY) })),
+    hidden: [['挪开的字母 L', P.glyph(GLYPHS.L, 0.1, 0.9, 4, 2)], ['随机纹理', P.noise(23)]].map(([label, img]) => test(label, { in: img }, { out: convolve(img, MYSTERY) })),
     solution: build({ k: ['kernel3', { w: flipKernel(MYSTERY) }] }, ['in>k', 'k>out']),
     naive: build({ k: ['kernel3', { w: MYSTERY }] }, ['in>k', 'k>out']),
   },
@@ -221,6 +236,9 @@ export const chapter1 = [
     tests: [['亮底方块', P.square(5, 5, 6, 0.85, 0.3)], ['亮底圆', P.disk(7.5, 7.5, 4, 0.9, 0.2)], ['亮底字母', P.glyph(GLYPHS.T, 0.9, 0.2)]].map(([label, img]) =>
       test(label, { in: img }, { out: box(img, 'edge') }),
     ),
+    hidden: [['贴边的暗方块', P.square(0, 10, 5, 0.8, 0.3)], ['亮底字母 X', P.glyph(GLYPHS.X, 0.75, 0.15, 6, 4)], ['亮底竖条', P.stepX(13, 0.9, 0.35)]].map(([label, img]) =>
+      test(label, { in: img }, { out: box(img, 'edge') }),
+    ),
     solution: build({ b: ['box3', { border: 'edge' }] }, ['in>b', 'b>out']),
     naive: build({ b: 'box3' }, ['in>b', 'b>out']),
   },
@@ -235,6 +253,10 @@ export const chapter1 = [
     unlocks: ['sharpen'],
     palette: ['gauss', 'sub', 'add', 'scale'],
     tests: scenes().slice(0, 4).map(([label, img]) => {
+      const blurred = correlate(img, gaussianKernel(1), 'edge')
+      return test(label, { in: img }, { out: zip(img, blurred, (a, b) => a + 1.5 * (a - b)) })
+    }),
+    hidden: [['挪开的字母 L', P.glyph(GLYPHS.L, 0.1, 0.9, 5, 4)], ['随机纹理', P.noise(21)]].map(([label, img]) => {
       const blurred = correlate(img, gaussianKernel(1), 'edge')
       return test(label, { in: img }, { out: zip(img, blurred, (a, b) => a + 1.5 * (a - b)) })
     }),

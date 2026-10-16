@@ -4,7 +4,7 @@ import { hasLearnable, runLevel, trainStep } from './engine/graph.js'
 import { NODE_TYPES, defaultParams, inputsOf } from './engine/nodes.js'
 import { CHAPTERS, LEVELS, levelById, unlocksBefore } from './levels/index.js'
 import { INTROS } from './levels/intros/index.js'
-import { startBoard } from './levels/util.js'
+import { startBoard, withHidden } from './levels/util.js'
 import { loadProgress, saveProgress } from './progress.js'
 import { applyTheme } from '../../../games/kit/theme.js'
 import Editor from './ui/Editor.jsx'
@@ -201,8 +201,14 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
     const names = (type) => (saved?.nodes ?? []).filter((n) => n.type === type).map((n) => n.params.name).sort().join()
     const fits = saved && names('input') === [...level.inputs].sort().join() && names('output') === [...level.outputs].sort().join()
     const initial = fits ? saved : startBoard(level)
-    return { board: initial, run: level.kind === 'graph' ? runLevel(level, initial) : null }
+    return { board: initial, run: level.kind === 'graph' ? runLevel(progress.solved.includes(level.id) ? withHidden(level) : level, initial) : null }
   })
+  // A circuit level's hidden tests are checked by every run but shown only once the level is solved; from then on
+  // they sit in the test list like the others. Training only ever sees the visible tests.
+  const revealed = progress.solved.includes(level.id)
+  const playLevel = useMemo(() => (revealed ? withHidden(level) : level), [revealed, level])
+  const hiddenCount = revealed ? 0 : level.hidden?.length ?? 0
+  const [hiddenMiss, setHiddenMiss] = useState(null) // { failed, total } after a run whose visible tests passed
   const [testIndex, setTestIndex] = useState(0)
   const [showHint, setShowHint] = useState(false)
   const [won, setWon] = useState(false)
@@ -242,7 +248,8 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
       if (keep) setProgress((p) => ({ ...p, boards: { ...p.boards, [level.id]: next } }))
       return
     }
-    const result = runLevel(level, next)
+    const result = runLevel(playLevel, next)
+    setHiddenMiss(null)
     setState({ board: next, run: result })
     setTested(false)
     setProgress((p) => ({ ...p, boards: { ...p.boards, [level.id]: next } }))
@@ -253,14 +260,21 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   const runTests = () => {
     if (!run) return { pass: false, passed: 0 }
     setTested(true)
-    if (run.pass) {
+    // Before the level is solved, its hidden tests run here too; the player learns only how many failed.
+    const hiddenRun = hiddenCount ? runLevel({ ...level, tests: level.hidden }, board) : null
+    const hiddenFailed = hiddenRun ? hiddenRun.results.filter((r) => !r.pass).length : 0
+    const pass = run.pass && !hiddenFailed
+    setHiddenMiss(run.pass && hiddenFailed ? { failed: hiddenFailed, total: hiddenCount } : null)
+    if (pass) {
       solve(run.score)
       setWon(true)
-    } else {
+      // Now solved: the hidden tests join the list, with this circuit's results on them.
+      if (hiddenRun) setState((s) => ({ ...s, run: runLevel(withHidden(level), s.board) }))
+    } else if (!run.pass) {
       const first = run.results.findIndex((r) => !r.pass)
       if (first >= 0) setTestIndex(first)
     }
-    return { pass: run.pass, passed: run.results.filter((r) => r.pass).length }
+    return { pass, passed: run.results.filter((r) => r.pass).length, hiddenFailed, hiddenTotal: hiddenCount }
   }
   const shown = useMemo(() => (tested || !run ? run : untested(run)), [tested, run])
 
@@ -348,7 +362,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
       <div className="stat-row">
         <div className="stat"><b>{run?.score.nodes ?? 0}</b><span>节点</span></div>
         <div className="stat"><b>{run?.score.cost ?? 0}</b><span>计算量</span></div>
-        <div className={`stat ${shown?.pass ? 'is-pass' : ''}`}><b>{shown?.untested ? '—' : passed}/{level.tests.length}</b><span>{shown?.untested ? '还没测试' : '测试'}</span></div>
+        <div className={`stat ${shown?.pass ? 'is-pass' : ''}`}><b>{shown?.untested ? '—' : passed}/{playLevel.tests.length}</b><span>{shown?.untested ? '还没测试' : '测试'}</span></div>
       </div>
       {run?.constraint && <p className="constraint">{run.constraint}</p>}
       {progress.best[level.id] && <p className="panel-note">最佳：{progress.best[level.id].nodes} 个节点 · 计算量 {progress.best[level.id].cost}</p>}
@@ -362,7 +376,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   ) : (
     <ProbeLevel level={level} onSolve={() => { solve(null); setWon(true) }} theme={theme} />
   )
-  const testPanel = graphLevel && <TestPanel level={level} run={shown} onTest={runTests} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} theme={theme} scan={scan} onScan={setScan} inView={roleView('input')} outView={roleView('output')} onView={showRole} />
+  const testPanel = graphLevel && <TestPanel level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} run={shown} onTest={runTests} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} theme={theme} scan={scan} onScan={setScan} inView={roleView('input')} outView={roleView('output')} onView={showRole} />
   const overlays = (
     <>
       {sheet && (
@@ -396,7 +410,7 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
     if (level.kind === 'graph') {
       return (
         <div className="level-phone level-graph is-split">
-          <PhoneCircuit level={level} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onReset={() => { change(startBoard(level)); setLosses([]) }} brief={brief} training={training} footer={score} testDetails={testPanel} />
+          <PhoneCircuit level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onReset={() => { change(startBoard(level)); setLosses([]) }} brief={brief} training={training} footer={score} testDetails={testPanel} />
           {overlays}
         </div>
       )

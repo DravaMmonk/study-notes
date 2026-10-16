@@ -24,3 +24,7 @@ export function build(nodes, wires, { inputs = ['in'], outputs = ['out'] } = {})
 export const startBoard = (level) => build({}, [], { inputs: level.inputs, outputs: level.outputs })
 
 export const test = (label, inputs, expected, check) => ({ label, inputs, expected, check })
+
+// A level's tests with its hidden ones after them, each marked hidden: what the player sees once the level
+// is solved, and what a run must pass before that.
+export const withHidden = (level) => (level.hidden?.length ? { ...level, tests: [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] } : level)

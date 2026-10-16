@@ -155,6 +155,12 @@ const LOWPASS_SCENES = [
   ['字母 T', glyph(GLYPHS.T, 0.2, 0.8)],
   ['横条', box(6, 12, 20, 8, 0.25, 0.75)],
 ]
+// Held back: new shapes under new noise, one of them dark on a light ground.
+const LOWPASS_HIDDEN = [
+  ['字母 L', glyph(GLYPHS.L, 0.2, 0.8, 8, 5)],
+  ['两个圆点', fromFn(N, N, (x, y) => ((x - 10) ** 2 + (y - 11) ** 2 <= 25 || (x - 21) ** 2 + (y - 20) ** 2 <= 25 ? 0.8 : 0.2))],
+  ['亮底暗块', box(10, 6, 12, 18, 0.75, 0.25)],
+]
 const filter = (shape, R) => build({ f: ['fqLowpass', { shape, R }] }, ['in>f', 'f>out'])
 
 const lowpassLevel = {
@@ -169,6 +175,7 @@ const lowpassLevel = {
   palette: ['fqLowpass', 'fqSpectrum', 'add', 'sub', 'scale'],
   check: { tolerance: 0.03, mismatches: 6 },
   tests: LOWPASS_SCENES.map(([label, img], index) => test(label, { in: plus(img, fineNoise(index + 31)) }, { out: softened(img) })),
+  hidden: LOWPASS_HIDDEN.map(([label, img], index) => test(label, { in: plus(img, fineNoise(index + 41)) }, { out: softened(img) })),
   solution: filter('gauss', 5),
   // The first idea: cut the spectrum off sharply. No radius works: small ones ring and over-blur,
   // large ones let the noise back in.
@@ -184,6 +191,13 @@ const HYBRID_PAIRS = [
   ['圆盘 + X', disk(15.5, 15.5, 9, 0.15, 0.85), glyph(GLYPHS.X, 0.35, 0.65)],
   ['方块 + T', box(6, 6, 20, 20, 0.15, 0.85), glyph(GLYPHS.T, 0.35, 0.65)],
   ['小圆 + 棋盘', disk(11, 12, 7, 0.15, 0.85), checker(2, 0.4, 0.6)],
+]
+// Held back: B at full contrast with big shapes of its own, and the roles of letter and shape swapped,
+// so a high-pass of B with the wrong mask or radius, or B let through whole, shows.
+const HYBRID_HIDDEN = [
+  ['横条 + O', box(4, 10, 24, 12, 0.2, 0.8), glyph(GLYPHS.O, 0.1, 0.9)],
+  ['X + 圆盘', glyph(GLYPHS.X, 0.15, 0.85), disk(18, 14, 8, 0.2, 0.8)],
+  ['暗圆 + 粗棋盘', disk(19, 17, 8, 0.85, 0.15), checker(4, 0.25, 0.75)],
 ]
 const hybridGraph = (nodes, wires) => build(nodes, wires, { inputs: ['a', 'b'] })
 const gaussLow = (R = HYBRID_R) => ['fqLowpass', { shape: 'gauss', R }]
@@ -202,6 +216,7 @@ const hybridLevel = {
   palette: ['fqLowpass', 'fqSpectrum', 'add', 'sub', 'scale'],
   check: { tolerance: 0.02 },
   tests: HYBRID_PAIRS.map(([label, a, b]) => test(label, { a, b }, { out: hybrid(a, b) })),
+  hidden: HYBRID_HIDDEN.map(([label, a, b]) => test(label, { a, b }, { out: hybrid(a, b) })),
   solution: hybridGraph({ la: gaussLow(), lb: gaussLow(), hb: 'sub', sum: 'add' }, ['a>la', 'b>lb', 'b>hb.a', 'lb>hb.b', 'la>sum.a', 'hb>sum.b', 'sum>out']),
   naive: hybridGraph({ sum: 'add' }, ['a>sum.a', 'b>sum.b', 'sum>out']),
   alsoFails: [

@@ -29,6 +29,11 @@ export const chapter2 = [
       ['细条纹', P.stripes(2.5, 0.1, 0.9, 32, 32)],
       ['大圆盘', fromFn(32, 32, (x, y) => ((x - 15.5) ** 2 + (y - 15.5) ** 2 < 100 ? 0.9 : 0.1))],
     ].map(([label, img]) => test(label, { in: img }, { out: prefiltered(img) })),
+    hidden: [
+      ['横向细条纹', fromFn(32, 32, (x, y) => (Math.floor((y * 2) / 2.5) % 2 ? 0.9 : 0.1))],
+      ['细棋盘', fromFn(32, 32, (x, y) => ((x + y) % 2 ? 0.85 : 0.15))],
+      ['偏心斑马板', fromFn(32, 32, (x, y) => 0.5 + 0.4 * Math.cos(0.05 * ((x - 10) ** 2 + (y - 20) ** 2)))],
+    ].map(([label, img]) => test(label, { in: img }, { out: prefiltered(img) })),
     solution: build({ g: ['gauss', { sigma: 1, border: 'edge' }], d: 'downsample' }, ['in>g', 'g>d', 'd>out']),
     naive: build({ d: 'downsample' }, ['in>d', 'd>out']),
   },
@@ -57,6 +62,7 @@ export const chapter3 = [
     grants: ['square'],
     palette: ['sobelx', 'sobely', 'square', 'sqrt', 'add', 'scale'],
     tests: [['方块', P.square()], ['圆盘', P.disk()], ['字母 X', P.glyph(GLYPHS.X)], ['角', P.corner()]].map(([label, img]) => test(label, { in: img }, { out: gradmag(img) })),
+    hidden: [['低对比圆盘', P.disk(9, 6, 4, 0.4, 0.65)], ['挪开的字母 T', P.glyph(GLYPHS.T, 0.2, 0.75, 5, 4)], ['斜坡', fromFn(16, 16, (x, y) => 0.1 + 0.03 * x + 0.02 * y)]].map(([label, img]) => test(label, { in: img }, { out: gradmag(img) })),
     solution: build({ x: 'sobelx', y: 'sobely', xx: 'square', yy: 'square', a: 'add', r: 'sqrt' }, ['in>x', 'in>y', 'x>xx', 'y>yy', 'xx>a.a', 'yy>a.b', 'a>r', 'r>out']),
   },
   {
@@ -75,6 +81,11 @@ export const chapter3 = [
       const scene = P.glyph(GLYPHS.F, 0.15, 0.55)
       return test(`灯光 ×${gain}${offset ? ` ${offset > 0 ? '+' : ''}${offset}` : ''}`, { in: lit(scene, gain, offset) }, { out: edgeMask(scene) })
     }),
+    hidden: [
+      ['换个物体 · 弱光', P.glyph(GLYPHS.T, 0.2, 0.6, 4, 3), 0.35, 0.02],
+      ['换个物体 · 强光', P.square(3, 5, 7, 0.1, 0.5), 1.8, 0.1],
+      ['换个物体 · 灰蒙蒙', P.glyph(GLYPHS.L, 0.15, 0.55, 6, 4), 0.5, 0.45],
+    ].map(([label, scene, gain, offset]) => test(label, { in: lit(scene, gain, offset) }, { out: edgeMask(scene) })),
     solution: build({ g: ['gradmag', { border: 'edge' }], m: 'globalMax', d: 'divide', t: ['threshold', { t: 0.5 }] }, ['in>g', 'g>m', 'g>d.a', 'm>d.b', 'd>t', 't>out']),
     naive: build({ g: 'gradmag', t: ['threshold', { t: 0.1 }] }, ['in>g', 'g>t', 't>out']),
   },
@@ -99,6 +110,7 @@ export const chapter4 = [
     palette: ['learn3'],
     check: { tolerance: 0.02 },
     tests: [1, 2, 3, 4].map((seed) => test(`样本 ${seed}`, { in: noiseScene(seed) }, { out: correlate(noiseScene(seed), HIDDEN) })),
+    hidden: [7, 8].map((seed) => test(`新样本 ${seed}`, { in: noiseScene(seed) }, { out: correlate(noiseScene(seed), HIDDEN) })),
     solution: build({ k: ['learn3', { w: HIDDEN }] }, ['in>k', 'k>out']),
     naive: build({ k: 'learn3' }, ['in>k', 'k>out']),
   },
@@ -113,6 +125,11 @@ export const chapter4 = [
     unlocks: ['relu'],
     palette: ['diffx', 'relu', 'scale', 'add', 'sub'],
     tests: [['方块', P.square()], ['亮底暗块', P.square(4, 4, 8, 0.9, 0.1)], ['字母 O', P.glyph(GLYPHS.O)], ['棋盘', P.checker()]].map(([label, img]) => test(label, { in: img }, { out: absdiff(img) })),
+    hidden: [
+      ['往右变暗的坡', fromFn(16, 16, (x) => 0.85 - 0.04 * x)],
+      ['挪开的低对比圆盘', P.disk(10, 6, 3.5, 0.35, 0.6)],
+      ['字母 X', P.glyph(GLYPHS.X, 0.8, 0.2, 4, 4)],
+    ].map(([label, img]) => test(label, { in: img }, { out: absdiff(img) })),
     solution: build({ d: 'diffx', p: 'relu', n: ['scale', { k: -1 }], q: 'relu', a: 'add' }, ['in>d', 'd>p', 'd>n', 'n>q', 'p>a.a', 'q>a.b', 'a>out']),
     naive: build({ d: 'diffx' }, ['in>d', 'd>out']),
   },
@@ -132,6 +149,14 @@ export const chapter4 = [
       ['偏右', [[5, 4], [11, 6], [7, 12]]],
       ['偏下', [[4, 5], [10, 7], [6, 13]]],
     ].map(([label, points]) => test(label, { in: dotsAt(points) }, { out: maxPool(dotsAt([[4, 4], [10, 6], [6, 12]]), 2) })),
+    hidden: [
+      ['另一组 · 原位', [0, 0]],
+      ['另一组 · 偏右下', [1, 1]],
+      ['另一组 · 偏下', [0, 1]],
+    ].map(([label, [dx, dy]]) => {
+      const base = [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
+      return test(label, { in: dotsAt(base.map(([x, y]) => [x + dx, y + dy])) }, { out: maxPool(dotsAt(base), 2) })
+    }),
     solution: build({ m: 'maxpool' }, ['in>m', 'm>out']),
     naive: build({ d: 'downsample' }, ['in>d', 'd>out']),
   },
@@ -157,6 +182,7 @@ export const chapter6 = [
     palette: ['sobelx', 'sobely', 'mul', 'box3', 'add', 'sub', 'scale', 'threshold'],
     check: { tolerance: 0.5, mismatches: 2 },
     tests: [['一个角', P.corner()], ['方块', P.square(4, 4, 8)], ['直边', P.stepX(8)], ['字母 L', P.glyph(GLYPHS.L)]].map(([label, img]) => test(label, { in: img }, { out: cornerMask(img) })),
+    hidden: [['字母 T', P.glyph(GLYPHS.T, 0.1, 0.9, 4, 3)], ['挪开的小方块', P.square(8, 2, 5)], ['横边', P.stepY(9)]].map(([label, img]) => test(label, { in: img }, { out: cornerMask(img) })),
     solution: build(
       {
         x: 'sobelx', y: 'sobely', xx: 'mul', yy: 'mul', xy: 'mul', sxx: 'box3', syy: 'box3', sxy: 'box3',
@@ -185,6 +211,9 @@ function stereoPair(seed, region, d = 2, noise = 0) {
 }
 const inSquare = (x, y) => x >= 5 && x < 11 && y >= 4 && y < 12
 const inBar = (x, y) => x >= 7 && x < 10 && y >= 2 && y < 14
+const inLeftBlock = (x, y) => x >= 3 && x < 10 && y >= 3 && y < 10
+const inLowBlock = (x, y) => x >= 6 && x < 13 && y >= 7 && y < 14
+const inLeftBar = (x, y) => x >= 4 && x < 7 && y >= 1 && y < 13
 
 // The reference matcher for 7-1: compare the left image with the right one shifted by d = 0…3,
 // optionally summing the squared error over a 3×3 window, and keep the best d.
@@ -229,6 +258,10 @@ export const chapter7 = [
       palette: ['shift', 'sub', 'square', 'box3', 'argmin4', 'add'],
       check: { tolerance: 0.1, mismatches: 34 },
       tests: pairs.map((pair, index) => test(`第 ${index + 1} 对`, { left: pair.left, right: pair.right }, { out: pair.truth })),
+      hidden: [
+        ['远一点的块', stereoPair(14, inLeftBlock, 1, 0.1)],
+        ['近一点的块', stereoPair(15, inLowBlock, 3, 0.1)],
+      ].map(([label, pair]) => test(label, { left: pair.left, right: pair.right }, { out: pair.truth })),
       solution: matcher(true),
       naive: matcher(false),
     }
@@ -253,6 +286,10 @@ export const chapter7 = [
       palette: ['disparity'],
       check: { tolerance: 1.01, mismatches: 28 },
       tests: cases.map(([label, pair]) => test(label, { left: pair.left, right: pair.right }, { out: pair.truth })),
+      hidden: [
+        ['换个位置的噪声块', stereoPair(25, inLowBlock, 2, 0.3)],
+        ['另一根细柱', stereoPair(26, inLeftBar, 2)],
+      ].map(([label, pair]) => test(label, { left: pair.left, right: pair.right }, { out: pair.truth })),
       solution: build({ d: ['disparity', { window: 5 }] }, ['left>d.left', 'right>d.right', 'd>out'], { inputs: ['left', 'right'] }),
       naive: build({ d: ['disparity', { window: 1 }] }, ['left>d.left', 'right>d.right', 'd>out'], { inputs: ['left', 'right'] }),
       alsoFails: [build({ d: ['disparity', { window: 3 }] }, ['left>d.left', 'right>d.right', 'd>out'], { inputs: ['left', 'right'] }), build({ d: ['disparity', { window: 7 }] }, ['left>d.left', 'right>d.right', 'd>out'], { inputs: ['left', 'right'] })],

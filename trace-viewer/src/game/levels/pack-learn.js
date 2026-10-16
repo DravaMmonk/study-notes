@@ -194,6 +194,12 @@ const XO_CASES = [
   ['O', 1, 5, 0.9, 0],
   ['O', 4, 1, 0.75, 8],
 ]
+// Held back, drawn the same way: new places, inks and noise seeds inside the same ranges.
+const XO_HIDDEN = [
+  ['另一处的 X', ['X', 2, 4, 0.85, 0]],
+  ['靠下的淡 O 带噪点', ['O', 3, 5, 0.6, 126]],
+  ['偏上的 X 带噪点', ['X', 4, 1, 0.9, 129]],
+]
 const xoLabel = ([name, ox, oy, hi, seed]) => `${name}${ox !== 3 || oy !== 3 ? ' 挪位' : ''}${hi < 0.7 ? ' 淡' : ''}${seed ? ' 噪点' : ''}`
 
 // Weights the game's trainer reaches from CONV_INIT on the reference network (60 steps; it first
@@ -277,6 +283,13 @@ export const levels = [
       ['9×7 方块和长条', blocks([[1, 1, 9, 7], [2, 11, 12, 3]], [], 3)],
       ['缺一角的 7×7', blocks([[1, 1, 7, 7], [8, 8, 7, 7]], [[7, 7]], 4)],
     ]
+    // Held back: a shape that is not a rectangle, a missing pixel in the middle of an edge rather than
+    // at a corner, and a one-pixel dark seam, each of which a loose threshold lets through.
+    const hiddenCases = [
+      ['L 形', blocks([[1, 1, 7, 13], [1, 7, 14, 7]], [], 5)],
+      ['边上缺一点的 9×9', blocks([[3, 3, 9, 9]], [[7, 3]], 6)],
+      ['中间一道缝', blocks([[1, 4, 14, 8]], Array.from({ length: 8 }, (_, i) => [8, 4 + i]), 7)],
+    ]
     return {
       id: '4-7',
       chapter: 4,
@@ -289,6 +302,7 @@ export const levels = [
       palette: ['box3', 'kernel3', 'threshold', 'relu', 'add', 'scale', 'offset'],
       check: { tolerance: 0.02 },
       tests: cases.map(([label, { scene, fits }]) => test(label, { in: scene }, { out: fits })),
+      hidden: hiddenCases.map(([label, { scene, fits }]) => test(label, { in: scene }, { out: fits })),
       solution: erode([0.85, 0.95, 0.95]),
       naive: erode([0.85]),
       alsoFails: [
@@ -309,6 +323,16 @@ export const levels = [
       ['彩色噪点 A', colourNoise(9)],
       ['彩色噪点 B', colourNoise(11)],
     ]
+    // Held back: a slanted red↔green border under a brightness ramp, fresh colour noise, and a scene
+    // where only blue and the overall brightness change.
+    const hiddenCases = [
+      ['红绿斜分，上暗下亮', colourScene((x, y) => (x + y < 15 ? RED : GREEN).map((v) => v + (y - 7.5) * 0.02))],
+      ['彩色噪点 C', colourNoise(13)],
+      ['灰色渐变上的蓝条', colourScene((x, y) => {
+        const grey = 0.25 + 0.03 * x
+        return [grey, grey, y >= 5 && y < 10 ? 0.9 : grey]
+      })],
+    ]
     const perChannel = (wr, wg, wb) =>
       build({ r3: ['learn3', { w: wr }], g3: ['learn3', { w: wg }], b3: ['learn3', { w: wb }], s1: 'add', s2: 'add' }, ['r>r3', 'g>g3', 'b>b3', 'r3>s1.a', 'g3>s1.b', 's1>s2.a', 'b3>s2.b', 's2>out'], rgbInputs)
     return {
@@ -325,6 +349,7 @@ export const levels = [
       palette: ['learn3', 'kernel3', 'add', 'sub', 'scale'],
       trainRate: 8,
       tests: cases.map(([label, { inputs, expected }]) => test(label, inputs, expected)),
+      hidden: hiddenCases.map(([label, { inputs, expected }]) => test(label, inputs, expected)),
       solution: perChannel(LAP, NEG_LAP, ZERO9),
       naive: build({ s1: 'add', s2: 'add', k: ['scale', { k: 1 / 3 }], l: ['learn3', { w: LAP.map((v) => v * 3) }] }, ['r>s1.a', 'g>s1.b', 's1>s2.a', 'b>s2.b', 's2>k', 'k>l', 'l>out'], rgbInputs),
       alsoFails: [
@@ -346,6 +371,7 @@ export const levels = [
     trainRate: 200,
     check: { tolerance: 0.4 },
     tests: XO_CASES.map((c) => test(xoLabel(c), { in: glyphAt(c[0], c[1], c[2], c[3], c[4]) }, { out: image(1, 1, c[0] === 'X' ? 1 : 0) })),
+    hidden: XO_HIDDEN.map(([label, c]) => test(label, { in: glyphAt(c[0], c[1], c[2], c[3], c[4]) }, { out: image(1, 1, c[0] === 'X' ? 1 : 0) })),
     solution: xoNet(XO_SOLUTION),
     naive: xoNet({ relu: false, pool: 'none', ...XO_LINEAR }),
     alsoFails: [xoNet({ pool: 'sample', ...XO_SOLUTION })],
@@ -371,6 +397,10 @@ export const levels = [
       ['圆盘', P.disk()],
       ['带噪方块', addNoise(P.square(3, 5, 7), 3, 0.2)],
       ['棋盘', P.checker(3)],
+    ].map(([label, img]) => test(label, { in: img }, { out: sharpen(img) })),
+    hidden: [
+      ['字母 L', P.glyph(GLYPHS.L, 0.2, 0.8, 4, 3)],
+      ['竖条纹', P.stripes(6, 0.2, 0.8)],
     ].map(([label, img]) => test(label, { in: img }, { out: sharpen(img) })),
     solution: deepNet(true, DEEP, (i) => (i === 0 ? SHARPEN_RESIDUAL : ZERO9)),
     naive: deepNet(false),

@@ -22,7 +22,7 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 // the current test. Wires go dot to dot (tap one dot, then another, or drag between them); tapping a
 // wired input unplugs it. Parts come from the tray (tap to drop into the next free slot, or hold and
 // drag into a slot); holding a placed part moves it, or drags it back onto the tray to remove it.
-export default function PhoneCircuit({ level, graph, onChange, onReset, run, onTest, testIndex, onTestIndex, flags, inputLabels, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
+export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph, onChange, onReset, run, onTest, testIndex, onTestIndex, flags, inputLabels, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
   const [sheet, setSheet] = useState(null)
   const [history, setHistory] = useState([])
@@ -178,10 +178,11 @@ export default function PhoneCircuit({ level, graph, onChange, onReset, run, onT
   // test that fails (the game selects it).
   const test = () => {
     setPicking(null)
-    const { pass, passed: ok } = onTest()
+    const { pass, passed: ok, hiddenFailed, hiddenTotal } = onTest()
     if (pass) return
     buzz(20)
-    setToast(ok ? `${ok}/${all} 组通过，红色的那组还没对` : '还没有一组通过，看看输出和期望差在哪')
+    if (ok === all && hiddenFailed) setToast(`这 ${all} 组都通过了，可 ${hiddenTotal} 组隐藏测试里有 ${hiddenFailed} 组没过：电路可能只对这几张图凑巧成立`)
+    else setToast(ok ? `${ok}/${all} 组通过，红色的那组还没对` : '还没有一组通过，看看输出和期望差在哪')
   }
   const clear = () => {
     if (!armed) {
@@ -247,6 +248,7 @@ export default function PhoneCircuit({ level, graph, onChange, onReset, run, onT
           return (
             <button key={test.label} className={`pb-test ${index === testIndex ? 'is-on' : ''} ${pass === null ? '' : pass ? 'is-pass' : 'is-fail'}`} onClick={() => onTestIndex(index)} aria-pressed={index === testIndex}>
               {pass === null ? <Circle size={10} /> : pass ? <Check size={12} /> : <X size={12} />}{test.label}
+              {test.hidden && <em className="hidden-tag">隐藏</em>}
             </button>
           )
         })}
@@ -292,10 +294,10 @@ export default function PhoneCircuit({ level, graph, onChange, onReset, run, onT
 
       <footer className="pb-bar">
         <button className="pb-icon" onClick={undo} disabled={!history.length} aria-label="撤销"><Undo2 size={18} /></button>
-        <button className="pb-meta" onClick={() => setSheet({ kind: 'tests' })}>{run?.untested ? `${all} 组测试 · 还没测` : `${passed}/${all} 组通过`}<small>测试详情 ›</small></button>
+        <button className="pb-meta" onClick={() => setSheet({ kind: 'tests' })}>{run?.untested ? `${all} 组测试${hiddenCount ? ` + ${hiddenCount} 组隐藏` : ''} · 还没测` : hiddenMiss ? `隐藏测试 ${hiddenMiss.failed} 组没过` : `${passed}/${all} 组通过`}<small>测试详情 ›</small></button>
         {steps.length > 0 && <button className={`pb-clear ${armed ? 'is-armed' : ''}`} onClick={clear}>{armed ? '确认清空' : '清空'}</button>}
-        <button className={`pb-go ${run?.pass ? 'is-pass' : ''}`} onClick={test}>
-          {run?.pass ? <Check size={17} /> : <Play size={15} />}{run?.pass ? '全部通过' : '运行测试'}
+        <button className={`pb-go ${run?.pass && !hiddenMiss ? 'is-pass' : ''}`} onClick={test}>
+          {run?.pass && !hiddenMiss ? <Check size={17} /> : <Play size={15} />}{run?.pass && !hiddenMiss ? '全部通过' : '运行测试'}
         </button>
       </footer>
 
@@ -376,6 +378,11 @@ export default function PhoneCircuit({ level, graph, onChange, onReset, run, onT
       {sheet?.kind === 'tests' && (
         <Sheet title={`测试 ${passed} / ${all}`} onClose={() => setSheet(null)}>
           <div className="pb-test-sheet">
+            {hiddenMiss ? (
+              <p className="hidden-note is-fail">这些测试都通过了，但 {hiddenMiss.total} 组隐藏测试里有 {hiddenMiss.failed} 组没过：电路可能只对这几张图凑巧成立。</p>
+            ) : hiddenCount > 0 ? (
+              <p className="hidden-note">另有 {hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。</p>
+            ) : null}
             <TestCarousel level={level} run={run} testIndex={testIndex} onTestIndex={onTestIndex} theme={theme} views={views} graph={graph} />
             {training}
             <details className="pb-details">

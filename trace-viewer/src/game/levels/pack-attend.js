@@ -72,6 +72,13 @@ const CORNERS = [
   ['没缺', [['P', 0, 0], ['P', 3, 3], ['R', 1, 2], ['C', 2, 0]]],
 ]
 
+// Held back: the anti-diagonal pair erased at the bottom left, and a scene with all four corners
+// filled so the erased tile has neighbours to mistake for its twin.
+const CORNERS_HIDDEN = [
+  ['左下缺', [['K', 3, 0, [[0, 0], [1, 1], [2, 2]]], ['K', 0, 3], ['R', 1, 1], ['C', 2, 2]]],
+  ['四角都有', [['P', 0, 3, [[1, 1], [1, 3]]], ['P', 3, 0], ['X', 0, 0], ['S', 3, 3], ['C', 1, 2]]],
+]
+
 const level51 = {
   id: '5-1',
   chapter: 5,
@@ -85,6 +92,7 @@ const level51 = {
   palette: ['attention', 'shift', 'box3', 'add', 'scale', 'threshold'],
   constraint: (score) => (score.nodes > 3 ? `用了 ${score.nodes} 个节点，最多 3 个` : ''),
   tests: CORNERS.map(([label, items]) => test(label, { in: tiled(items) }, { out: repaired(items) })),
+  hidden: CORNERS_HIDDEN.map(([label, items]) => test(label, { in: tiled(items) }, { out: repaired(items) })),
   solution: build({ a: ['attention', { s: 8 }], t: ['threshold', { t: 0.3 }] }, ['in>a.Q', 'a>t', 't>out']),
   naive: build({ b: 'box3', c: 'box3', t: ['threshold', { t: 0.2 }] }, ['in>b', 'b>c', 'c>t', 't>out']),
   alsoFails: [
@@ -107,9 +115,12 @@ const orderScene = (bright, dark) => fromFn(16, 16, (x, y) => {
   return i === bright ? 0.9 : i === dark ? 0.1 : GREY
 })
 const ORDER_PAIRS = [[1, 2], [5, 9], [3, 12]]
-const ORDER_TESTS = ORDER_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]]).map(([bright, dark]) =>
-  test(`亮 ${bright + 1} · 暗 ${dark + 1}`, { in: orderScene(bright, dark) }, { out: fromFn(16, 16, () => (bright < dark ? 1 : 0)) }),
-)
+const orderTest = ([bright, dark]) =>
+  test(`亮 ${bright + 1} · 暗 ${dark + 1}`, { in: orderScene(bright, dark) }, { out: fromFn(16, 16, () => (bright < dark ? 1 : 0)) })
+const ORDER_TESTS = ORDER_PAIRS.flatMap(([a, b]) => [[a, b], [b, a]]).map(orderTest)
+// Held back: neighbours across a row break (later column, earlier row), one directly above the
+// other, and the two far corners, so reading columns only, or rows only, is caught.
+const ORDER_HIDDEN = [[7, 8], [10, 6], [15, 0]].map(orderTest)
 
 // Two heads: one whose Q·K finds the brightest patch, one (on the negative) the darkest. Both carry V
 // with the position code, so their difference is −0.8 + g·(dark − bright).
@@ -147,6 +158,7 @@ const level52 = {
   unlocks: ['posenc'],
   palette: ['attention', 'posenc', 'invert', 'sub', 'add', 'scale', 'offset', 'threshold'],
   tests: ORDER_TESTS,
+  hidden: ORDER_HIDDEN,
   solution: orderGraph({ position: 'v' }),
   naive: orderGraph({ position: 'none' }),
   // The position only steers who is looked at; what comes back carries no address.

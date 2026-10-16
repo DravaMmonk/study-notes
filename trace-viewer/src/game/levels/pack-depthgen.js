@@ -463,6 +463,13 @@ const aeTests = AE_POSITIONS.map(([x, y], i) => {
   const img = blob(x, y)
   return test(`斑点 ${i + 1}`, { in: img }, { out: img })
 })
+// Held back: three of the blobs nudged a quarter pixel. Six blobs are too few to pin down 16 encoder
+// weights per number, so a trained encoder only knows the neighbourhood of each blob it saw; a blob at
+// a truly new place fails however long it trains (an exact centroid encoder would pass anywhere).
+const AE_HIDDEN = [[11.75, 5, 2], [12, 11.25, 4], [3.5, 9.25, 6]].map(([x, y, i]) => {
+  const img = blob(x, y)
+  return test(`斑点 ${i} 挪一点`, { in: img }, { out: img })
+})
 
 // Whether the camera can reach the display without passing an encoder.
 function bypassesBottleneck(graph) {
@@ -505,6 +512,11 @@ const EPS = (() => {
 const reparamTests = EPS.map((e, i) =>
   test(`噪声 ${i + 1}`, { eps: code(e) }, { out: blobAt(TEACHER_MU[0] + TEACHER_SIGMA[0] * e[0], TEACHER_MU[1] + TEACHER_SIGMA[1] * e[1]) }),
 )
+// Held back: fresh noise from another seed, drawn by the same teacher.
+const reparamHidden = (() => {
+  const next = random(2025)
+  return Array.from({ length: 3 }, () => [gaussian(next), gaussian(next)])
+})().map((e, i) => test(`新噪声 ${i + 1}`, { eps: code(e) }, { out: blobAt(TEACHER_MU[0] + TEACHER_SIGMA[0] * e[0], TEACHER_MU[1] + TEACHER_SIGMA[1] * e[1]) }))
 const latentGraph = (nodesSpec, wires) => build(nodesSpec, wires, { inputs: ['eps'] })
 
 export const levels = [
@@ -540,6 +552,7 @@ export const levels = [
       return widest > 2 ? `瓶颈有 ${widest} 个数，最多 2 个` : ''
     },
     tests: aeTests,
+    hidden: AE_HIDDEN,
     solution: aeGraph(2, AE_TRAINED_2),
     naive: aeGraph(1, AE_TRAINED_1),
     alsoFails: [build({}, ['in>out']), aeGraph(3, AE_TRAINED_2)],
@@ -560,6 +573,7 @@ export const levels = [
     check: { tolerance: 0.05, mismatches: 2 },
     trainRate: 5,
     tests: reparamTests,
+    hidden: reparamHidden,
     solution: latentGraph({ m: ['dg_mu', { w: TEACHER_MU }], s: ['dg_sigma', { w: TEACHER_SIGMA }], x: 'mul', a: 'add', d: 'dg_decoder' }, ['s>x.a', 'eps>x.b', 'm>a.a', 'x>a.b', 'a>d', 'd>out']),
     // Even with the teacher's own μ and σ, fresh draws cannot reproduce (or be trained towards) the tests.
     naive: latentGraph({ m: ['dg_mu', { w: TEACHER_MU }], s: ['dg_sigma', { w: TEACHER_SIGMA }], z: 'dg_sample', d: 'dg_decoder' }, ['m>z.μ', 's>z.σ', 'z>d', 'd>out']),

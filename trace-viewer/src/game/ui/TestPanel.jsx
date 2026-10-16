@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Circle, Play, X } from 'lucide-react'
+import { Check, Circle, EyeOff, Play, X } from 'lucide-react'
 import ImageView from './ImageView.jsx'
 import { rangeOf } from './display.js'
 import CurveView from './views/CurveView.jsx'
@@ -12,7 +12,7 @@ import { kindOf, rowOf } from './views/views.js'
 // Numbers are compared on a scale, waveforms as one plot with the allowed band, 2-D values side by
 // side in the same view as their cards on the board (switching here switches the cards too), with
 // a pixel map of the misses. In the profile view the two rows are laid over each other.
-export default function TestPanel({ level, run, onTest, testIndex, onSelect, inputLabels, inView, outView, onView, scan, onScan, theme }) {
+export default function TestPanel({ level, run, onTest, hiddenCount = 0, hiddenMiss, testIndex, onSelect, inputLabels, inView, outView, onView, scan, onScan, theme }) {
   const [probe, setProbe] = useState(null)
   const test = level.tests[testIndex]
   const result = run?.results[testIndex]
@@ -33,7 +33,12 @@ export default function TestPanel({ level, run, onTest, testIndex, onSelect, inp
           </span>
         )}
       </header>
-      {onTest && <button className={`run-tests ${run?.pass ? 'is-pass' : ''}`} onClick={onTest}>{run?.pass ? <Check size={15} /> : <Play size={14} />}{run?.pass ? '全部通过 · 再测一次' : '运行测试'}</button>}
+      {onTest && <button className={`run-tests ${run?.pass && !hiddenMiss ? 'is-pass' : ''}`} onClick={onTest}>{run?.pass && !hiddenMiss ? <Check size={15} /> : <Play size={14} />}{run?.pass && !hiddenMiss ? '全部通过 · 再测一次' : '运行测试'}</button>}
+      {hiddenMiss ? (
+        <p className="hidden-note is-fail"><X size={13} />下面的测试都通过了，但 {hiddenMiss.total} 组隐藏测试里有 {hiddenMiss.failed} 组没过：电路可能只对这几张图凑巧成立。</p>
+      ) : hiddenCount > 0 ? (
+        <p className="hidden-note"><EyeOff size={13} />另有 {hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。</p>
+      ) : null}
       <ol className="test-list">
         {level.tests.map((t, index) => {
           const ok = run?.results[index]?.pass
@@ -42,6 +47,7 @@ export default function TestPanel({ level, run, onTest, testIndex, onSelect, inp
               <button className={`test-row ${index === testIndex ? 'is-active' : ''} ${ok === null ? '' : ok ? 'is-pass' : 'is-fail'}`} onClick={() => onSelect(index)} aria-pressed={index === testIndex}>
                 {ok === null ? <Circle size={11} /> : ok ? <Check size={13} /> : <X size={13} />}
                 <span>{t.label}</span>
+                {t.hidden && <em className="hidden-tag">隐藏</em>}
               </button>
             </li>
           )

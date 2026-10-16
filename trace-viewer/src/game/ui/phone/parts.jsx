@@ -112,7 +112,7 @@ export function TestCarousel({ level, run, testIndex, onTestIndex, theme, views 
           const tolerance = (test.check ?? level.check)?.tolerance ?? 0.02
           return (
             <article key={test.label} className={`ph-test ${index === testIndex ? 'is-active' : ''} ${verdict}`} onClick={() => go(index)}>
-              <header>{verdict === '' ? <Circle size={11} /> : result?.pass ? <Check size={13} /> : <X size={13} />}<b>{test.label}</b><small>{index + 1}/{level.tests.length}</small></header>
+              <header>{verdict === '' ? <Circle size={11} /> : result?.pass ? <Check size={13} /> : <X size={13} />}<b>{test.label}</b>{test.hidden && <em className="hidden-tag">隐藏</em>}<small>{index + 1}/{level.tests.length}</small></header>
               <div className="ph-test-row">
                 <figure><ValueView img={Object.values(test.inputs)[0]} view={views.in} size={kindOf(Object.values(test.inputs)[0]) === 'image' ? 64 : 104} theme={theme} /><figcaption>输入</figcaption></figure>
                 {kind === 'signal' ? (

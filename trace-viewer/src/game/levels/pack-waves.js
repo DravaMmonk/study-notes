@@ -209,6 +209,12 @@ const PROBE_SCENES = [
   ['D', [flat(0.5), wave(5, 0.3), wave(1, 0.1, 60)], 0],
   ['E', [flat(0.5), wave(3, 0.15, 45), wave(6, 0.12), wave(4, 0.1)], 0.15],
 ]
+// Held back: the k = 3 wave at phases no visible scene uses, next to its neighbour k = 4 and under
+// louder waves, so a probe that only works near 0° or 90°, or reads the loudest wave, is caught.
+const PROBE_HIDDEN = [
+  ['F', [flat(0.6), wave(3, 0.35, 300), wave(4, 0.2), wave(7, 0.1, 20)], 0.35],
+  ['G', [flat(0.3), wave(2, 0.3, 50), wave(3, 0.08, 135), wave(8, 0.2)], 0.08],
+]
 const probe = (nodes, wires) => build(nodes, wires)
 const osc = (k, form = 'cos') => ['fqWave', { k, form }]
 const fullProbe = (k) => probe(
@@ -228,6 +234,7 @@ const probeLevel = {
   palette: ['fqWave', 'mul', 'fqMean', 'square', 'sqrt', 'add', 'scale'],
   check: { tolerance: 0.01 },
   tests: PROBE_SCENES.map(([label, parts, A]) => test(`波形 ${label}`, { in: sum(...parts) }, { out: image(1, 1, A) })),
+  hidden: PROBE_HIDDEN.map(([label, parts, A]) => test(`波形 ${label}`, { in: sum(...parts) }, { out: image(1, 1, A) })),
   solution: fullProbe(3),
   // The first probe everyone builds: multiply by a cosine, average, double. It misses shifted waves.
   naive: probe({ c: osc(3), m: 'mul', a: 'fqMean', g: ['scale', { k: 2 }] }, ['in>m.a', 'c>m.b', 'm>a', 'a>g', 'g>out']),
