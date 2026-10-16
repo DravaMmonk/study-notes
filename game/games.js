@@ -8,7 +8,7 @@ export const GAMES = [
   {
     id: 'vision-complete', href: 'vision-complete/', title: '视觉完备', en: 'Vision Complete', topic: 'COMP90086 · 计算机视觉',
     desc: '没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。',
-    levels: 57, art: 'pipeline',
+    levels: 58, art: 'pipeline',
     progress: () => (read('vision-complete.v1')?.solved || []).length,
   },
   {
