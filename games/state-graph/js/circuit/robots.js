@@ -49,7 +49,7 @@ export const ROBOTS = {
       <rect class="bot-base" x="10" y="23.5" width="16" height="5.5" rx="2.7"/>`),
   },
   stack: {
-    name: '千层', vision: 1,
+    name: '千层', vision: 1, arm: true, armName: '旁边那层',
     desc: '能同时站在很多层上：表有几层，它就在每一层的同一格上各算一次。每一层都有 3×3 的视野，还看得见「少一把钥匙的那一层」。',
     look: look(`<path class="bot-ant" d="M16 1.5V5"/><circle class="bot-lamp" cx="16" cy="2" r="1.9"/>
       <rect class="bot-head" x="5" y="5" width="22" height="8" rx="3"/><rect class="bot-head" x="5" y="13.5" width="22" height="8" rx="3"/>

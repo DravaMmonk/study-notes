@@ -14,10 +14,11 @@ import { knapsack } from './knapsack.js';
 import { skeleton } from './skeleton.js';
 import { sweep } from './sweep.js';
 import { orders } from './orders.js';
+import { states } from './states.js';
 import { graduate } from './graduate.js';
 
 export { CHAPTERS, PARTS } from './parts.js';
-export const LEVELS = [...basics, ...machines, ...state, ...strings, ...knapsack, ...skeleton, ...sweep, ...orders, ...graduate];
+export const LEVELS = [...basics, ...machines, ...state, ...strings, ...knapsack, ...skeleton, ...sweep, ...orders, ...states, ...graduate];
 
 /** A circuit level's board becomes a component for later levels (it runs the reference board). */
 function registerBlueprint(L, i) {
@@ -51,7 +52,7 @@ LEVELS.forEach((L, i) => {
     // Answers come from the reference board of each stage, run the way the reference is meant to run.
     (L.stages || [L]).forEach(s => {
       if (!s.solution) return;
-      const o = { ...s, dirs: L.solutionDirs || {}, ...(s.dial ? { scan: s.solutionScan } : {}), filter: s.solutionFilter || 'all' };
+      const o = { ...s, dirs: L.solutionDirs || {}, ...(s.dial ? { scan: s.solutionScan } : {}), filter: s.solutionFilter || 'all', remember: s.solutionMem || [] };
       s.expected = (s.tests || L.tests).map(t => runCircuit(WORLDS[s.world], t, s.solution, o).value);
     });
     L.expected = (L.stages || [L]).at(-1).expected;

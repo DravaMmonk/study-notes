@@ -10,7 +10,8 @@
 //   facts: tap ids that describe the robot's own cell   armTaps?: taps read by the telescopic arm
 //   shown?(L, dr, dc) → true for an offset the robot sees but cannot light (e.g. a fact drawn on the board)
 //   outs: [[id, label, [layer, dr, dc]]]               the cells the robot writes
-//   here(t, cell) → [[r, c] per layer]   keyAt(t, layer, r, c) → table key | null   mark?(t, key) → { corner, cls }
+//   here(t, cell) → [[r, c] per layer]   keyAt(t, layer, r, c, cell) → table key | null   mark?(t, key) → { corner, cls }
+//   winLabel?(t, cell) → a caption for the robot's window (e.g. which layer it stands on)
 //   fact(t, cell, id, get, o) → value of a non-offset tap
 //   arm?(t, cell, o) → { label, cells: [{ tap, key, label }] } for a telescopic arm, or { label, sweeps: [{ tap, label,
 //     cells: [{ key, label, out? }] }], filters? } for a sweeping arm, whose taps read the swept cells as one segment
@@ -66,7 +67,7 @@ export const visibleTaps = (V, vision) => Object.keys(V.taps).filter(id => { con
 export function readTap(V, t, c, id, get, o = {}) {
   const m = V.taps[id];
   if (!m.off) return V.fact(t, c, id, get, o);
-  const [L, dr, dc] = m.off, [r, col] = V.here(t, c)[L], key = V.keyAt(t, L, r + dr, col + dc);
+  const [L, dr, dc] = m.off, [r, col] = V.here(t, c)[L], key = V.keyAt(t, L, r + dr, col + dc, c);
   return key === null ? null : get(key);
 }
 
@@ -76,10 +77,10 @@ export function windowOf(V, t, c, vision, o = {}) {
   const wins = V.here(t, c).map(([r, col], L) => {
     const cells = [];
     for (let dr = -vision; dr <= vision; dr++) for (let dc = -vision; dc <= vision; dc++) {
-      const key = V.keyAt(t, L, r + dr, col + dc), out = V.outs.find(o => o[2].join(',') === `${L},${dr},${dc}`);
+      const key = V.keyAt(t, L, r + dr, col + dc, c), out = V.outs.find(o => o[2].join(',') === `${L},${dr},${dc}`);
       cells.push({ r: dr + vision, c: dc + vision, key, tap: V.tapAt[`${L},${dr},${dc}`] || null, out: out ? out[0] : null, ...(key !== null && V.mark ? V.mark(t, key) : {}) });
     }
-    return { label: V.layers.length > 1 ? V.layers[L] : '', n, cells };
+    return { label: V.layers.length > 1 ? V.layers[L] : V.winLabel ? V.winLabel(t, c) : '', n, cells };
   });
   return { wins, arm: V.arm ? V.arm(t, c, o) : null };
 }

@@ -159,7 +159,7 @@ export function viewHTML(circ, ui) {
   };
   const wins = w.wins.map((win, k) => `<div class="vblock">${win.label ? `<span class="vsub">${win.label}</span>` : ''}
     <div class="vwin n${win.n}">${win.cells.map(x => cellHTML(x, { area: `${x.r + 1}/${x.c + 1}`, bot: !k && x.r === vision && x.c === vision })).join('')}</div></div>`).join('');
-  const arm = !w.arm ? '' : w.arm.sweeps ? sweepHTML(w.arm, ui, lit, tag) : `<div class="varm"><span class="vsub">伸缩臂 · ${w.arm.label}</span><div class="varm-row">${w.arm.cells.map(x => cellHTML(x, { label: x.label })).join('')}</div></div>`;
+  const arm = !w.arm ? '' : w.arm.sweeps ? sweepHTML(w.arm, ui, lit, tag) : `<div class="varm"><span class="vsub">${w.robot.armName} · ${w.arm.label}</span><div class="varm-row">${w.arm.cells.map(x => cellHTML(x, { label: x.label })).join('')}</div></div>`;
   const facts = w.facts.map(f => {
     const m = ui.taps[f.id], on = lit.includes(f.id);
     return `<button class="vfact${on ? ' on' : ''}" type="button" data-act="lit" data-t="${f.id}" aria-pressed="${on}">${iconSVG(m.icon)}<span>${m.label}</span><span class="vv">${f.value}</span>${on ? tag(f.id) : ''}</button>`;

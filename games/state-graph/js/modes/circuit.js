@@ -13,8 +13,17 @@ import { ROBOTS } from '../circuit/robots.js';
 import { def, blank, evaluate, clone } from '../circuit/components.js';
 import { editorHTML, viewHTML, drawWires, paintProbe, connect, unwire, removeNode, placeNode, moveNode, placement, toggleLit, litOf, isSink } from '../circuit/editor.js';
 import { PARTS } from '../levels/parts.js';
+import { KEY_COLORS } from '../circuit/worlds/maze.js';
 
 const MERGES = ['msum', 'mmin', 'mmax'];
+
+/** What the state remembers: one switch per key color; the table has a layer for every set of remembered keys. */
+function memoryCard(s, mem, t) {
+  const n = 2 ** mem.length;
+  return `<div class="pcard memo"><h3>状态记住什么<small>${n} 层 · 每层 ${t.R * t.C} 格 · 一共 ${n * t.R * t.C} 格</small></h3>
+    <div class="chips">${s.memory.map(c => `<button class="chip memk k-${c}" type="button" role="switch" aria-checked="${mem.includes(c)}" data-act="mem" data-v="${c}"><span class="box"></span>记住${KEY_COLORS[c].n}钥匙</button>`).join('')}</div>
+    <p>每多记一把钥匙，表就多一倍的层：每一层是「手里正好有这几把钥匙」的路线。</p></div>`;
+}
 
 /** A small picture of a scan order: the cells of a little table numbered in the order the robot visits them. */
 function orderFig({ R, C, list }) {
@@ -31,13 +40,14 @@ export function circuitMode(L, saved) {
     dirs: { ...(L.dirs || {}), ...((saved && saved.dirs) || {}) },
     scan: stages.map((s, k) => (saved && saved.scan && saved.scan[k]) || (s.dial ? s.dial[0] : null)),
     filter: stages.map((s, k) => (saved && saved.filter && saved.filter[k]) || 'all'),
+    mem: stages.map((s, k) => (saved && saved.mem && saved.mem[k]) || []),
     pick: null, armed: false, ti: 0, status: [], view: null,
     typed: {}, robot: null, sel: null, input: '', wire: null,
   };
   const robot = ROBOTS[L.robot];
   const stage = () => stages[st.stage], V = () => WORLDS[stage().world], circ = () => st.circs[st.stage];
   const tests = () => stage().tests || L.tests, expected = () => stage().expected || L.expected;
-  const opt = () => ({ ...stage(), dirs: st.dirs, ...(stage().dial ? { scan: st.scan[st.stage] } : {}), filter: st.filter[st.stage] });
+  const opt = () => ({ ...stage(), dirs: st.dirs, ...(stage().dial ? { scan: st.scan[st.stage] } : {}), filter: st.filter[st.stage], remember: st.mem[st.stage] });
   const io = () => ({ taps: V().taps, outs: V().outs });
   const label = t => (L.testLabel || V().label)(t);
   const busy = () => rt.cur.running;
@@ -202,7 +212,7 @@ export function circuitMode(L, saved) {
       const s = res.steps[mm.q];
       return { head: `测试 ${k + 1} 没通过`, body: `${label(t)}：机器在<b>${Vw.where(s.cell)}</b>出了错。「${Vw.outs[mm.z][1]}」应该是 <b>${signal(mm.want)}</b>，你的电路算出了 <b>${signal(mm.got)}</b>。棋盘停在了这一格；电路板上的小数字，是机器在这一格算出的值。` };
     }
-    return { head: `测试 ${k + 1} 没通过`, body: `${label(t)}：答案应该是 <b>${signal(expected()[k])}</b>，机器算出了 <b>${signal(res.value)}</b>。${L.explain ? L.explain(t, res, st) : ''}` };
+    return { head: `测试 ${k + 1} 没通过`, body: `${label(t)}：答案应该是 <b>${signal(expected()[k])}</b>，机器算出了 <b>${signal(res.value)}</b>。${L.explain ? L.explain(t, res, st) : ''}`, extra: L.counter ? L.counter(t, res, opt()) : '' };
   }
 
   /** Every test of a stage passed and another stage follows: say what it showed, then move on (keeping the board). */
@@ -231,7 +241,7 @@ export function circuitMode(L, saved) {
 
   const ctl = {
     st,
-    save: () => ({ stage: st.stage, circs: st.circs, dirs: st.dirs, scan: st.scan, filter: st.filter }),
+    save: () => ({ stage: st.stage, circs: st.circs, dirs: st.dirs, scan: st.scan, filter: st.filter, mem: st.mem }),
     tests: () => tests().map((t, k) => ({ label: `测试 ${k + 1} · ${label(t)}`, status: st.status[k] })),
     selectTest(k) { st.ti = k; st.view = null; st.typed = {}; st.robot = null; st.sel = null; rt.refresh(); },
     scene() {
@@ -296,7 +306,8 @@ export function circuitMode(L, saved) {
       const s = stage(), flash = st.flashAt && Date.now() - st.flashAt < 1800;
       const dial = s.dial ? `<div class="pcard dial${flash ? ' flash' : ''}"><h3>扫描顺序<small>机器人按这个顺序走过整张表</small></h3>
         <div class="dialopts" role="radiogroup" aria-label="扫描顺序">${s.dial.map(id => { const d = V().dial[id]; return `<button class="dialopt" type="button" role="radio" aria-checked="${st.scan[st.stage] === id}" data-act="scan" data-v="${id}">${orderFig(d.fig)}<span>${d.l}</span></button>`; }).join('')}</div></div>` : '';
-      return `${dial}<div class="pcard cpcard"><h3><span class="cptitle">电路板</span>${st.wire ? '<button class="cdel" type="button" data-act="unwire">删除连线</button>' : '<small>点圆点连线，按住元件换格子</small>'}</h3>${uses}
+      const mem = s.memory ? memoryCard(s, st.mem[st.stage], tests()[st.ti]) : '';
+      return `${mem}${dial}<div class="pcard cpcard"><h3><span class="cptitle">电路板</span>${st.wire ? '<button class="cdel" type="button" data-act="unwire">删除连线</button>' : '<small>点圆点连线，按住元件换格子</small>'}</h3>${uses}
         ${editorHTML(circ(), ui())}</div>${dirs}${st.pick ? `<div class="pickbar" role="status"><span>${isSink(st.pick) ? '这个输入口读谁？点一个亮起的输出口（块底下的圆点），或点那一块' : '接到哪？点一个亮起的输入口（块顶上的圆点），或点那一块'}</span><button type="button" data-act="unpick">取消</button></div>` : ''}`;
     },
     mounted() {
@@ -355,6 +366,7 @@ export function circuitMode(L, saved) {
         openNode(el.dataset.n);
       }
       if (name === 'scan') { st.scan[st.stage] = el.dataset.v; changed(); buzz(6); rt.refresh(); }
+      if (name === 'mem') { const m = st.mem[st.stage], v = el.dataset.v; st.mem[st.stage] = m.includes(v) ? m.filter(x => x !== v) : [...m, v]; st.robot = null; st.typed = {}; changed(); buzz(6); rt.refresh(); }
       if (name === 'filter') { st.filter[st.stage] = el.dataset.v; changed(); buzz(6); rt.refresh(); }
       if (name === 'dir') { st.dirs[el.dataset.k] = el.dataset.v; changed(); buzz(6); rt.refresh(); }
       if (name === 'clear') {
@@ -425,6 +437,10 @@ export function circuitMode(L, saved) {
       }
       rt.endRun();
       rt.refresh();
+      if (s.minLayers && 2 ** st.mem[st.stage].length > s.minLayers) {
+        rt.fail({ head: '答案对了，可表太大了', body: `每个测试都算对了，可你的状态记了 ${st.mem[st.stage].length} 件事，表有 ${2 ** st.mem[st.stage].length} 层。其实有的事<b>不记也不会算错</b>：用最少的层再通过一次。`, hint: hintFor() });
+        return;
+      }
       if (st.stage < stages.length - 1) { stageDone(); return; }
       rt.pass();
     },
