@@ -86,7 +86,7 @@ export const strings = [
       return `<div class="afterbox"><span class="eyebrow">表格倒推出的改法 · ${n} 步</span><div class="diff">${ops.map(tile).join('')}</div><p class="cap">从右下角倒推：走对角线是保留或替换，往上是删除，往左是插入。</p></div>`;
     },
     boardOpt: { minScale: 0.66, maxScale: 1.2 },
-    unlock: 'cost',
+    unlock: 'cost', blueprint: ['ul', 'up', 'left', 'same', 'start'],
     debrief: { title: '编辑距离', body: ['把一个词改成另一个词的最少步数，叫作<b>编辑距离</b>。输入法纠错、搜索引擎的「你是不是要找」、基因突变分析，用的都是它。', '和上一关比，表格的形状一点没变，只是<b>给每条来路标上代价，再取较小</b>。连边上的一行一列，也是同一块电路算出来的。同一张对齐表，换一块电路板，就能回答另一个问题。'], note: '编辑距离：删除、插入、替换各 + 1，字相同可以免费保留，取较小。' },
   },
 ];
