@@ -33,12 +33,30 @@ export const ROBOTS = {
       <rect class="bot-base" x="6" y="22" width="20" height="7" rx="3"/>`),
   },
   reach: {
-    name: T('长臂', 'Longarm'), vision: 2, arm: true,
+    name: T('长臂', 'Longarm'), vision: 2, arm: true, armName: T('伸缩臂', 'telescopic arm'),
     desc: T('视野 5×5，还多了一条伸缩臂：能往左伸出「这件物品的重量」那么多格，读到视野外面的格子。', "Vision 5×5, plus a telescopic arm: it reaches left by as many cells as “this item's weight” and reads cells outside its view."),
     look: look(`<path class="bot-ant" d="M20 2.5V7"/><circle class="bot-lamp" cx="20" cy="2.6" r="2.2"/>
       <rect class="bot-head" x="10" y="7" width="20" height="15" rx="5"/>
       <circle class="bot-eye" cx="16" cy="14.5" r="2.3"/><circle class="bot-eye" cx="24" cy="14.5" r="2.3"/>
       <path class="bot-arm" d="M11 18H4.5V11.5"/><path class="bot-claw" d="M2 9.5L4.5 11.5L7 9.5"/>
       <rect class="bot-base" x="12" y="23.5" width="16" height="5.5" rx="2.7"/>`),
+  },
+  broom: {
+    name: T('扫帚', 'Broom'), vision: 1, arm: true, armName: T('扫描臂', 'sweep arm'),
+    desc: T('视野 3×3，还带一条扫描臂：一次扫过一整段格子，把整段的数一起送进电路板，段里有几格都行。', 'Vision 3×3, plus a sweep arm: it sweeps a whole run of cells in one go and feeds every number in the run into the circuit board, however many cells the run has.'),
+    look: look(`<path class="bot-ant" d="M16 2.5V7"/><circle class="bot-lamp" cx="16" cy="2.6" r="2.2"/>
+      <rect class="bot-head" x="8" y="7" width="20" height="15" rx="5"/>
+      <circle class="bot-eye" cx="14" cy="14.5" r="2.2"/><circle class="bot-eye" cx="22" cy="14.5" r="2.2"/>
+      <path class="bot-arm" d="M8.5 19H2.5"/><path class="bot-claw" d="M1.5 15V23M4 15V23"/>
+      <rect class="bot-base" x="10" y="23.5" width="16" height="5.5" rx="2.7"/>`),
+  },
+  stack: {
+    name: T('千层', 'Layercake'), vision: 1, arm: true, armName: T('旁边那层', 'the layer next door'),
+    desc: T('能同时站在很多层上：表有几层，它就在每一层的同一格上各算一次。每一层都有 3×3 的视野，还看得见「少一把钥匙的那一层」。', 'It stands on many layers at once: however many layers the table has, it works once on the same cell of each. Every layer gets 3×3 vision, and it can also see “the layer with one key fewer”.'),
+    look: look(`<path class="bot-ant" d="M16 1.5V5"/><circle class="bot-lamp" cx="16" cy="2" r="1.9"/>
+      <rect class="bot-head" x="5" y="5" width="22" height="8" rx="3"/><rect class="bot-head" x="5" y="13.5" width="22" height="8" rx="3"/>
+      <circle class="bot-eye" cx="12" cy="9" r="1.7"/><circle class="bot-eye" cx="20" cy="9" r="1.7"/>
+      <circle class="bot-eye-l" cx="12" cy="17.5" r="1.7"/><circle class="bot-eye-l" cx="20" cy="17.5" r="1.7"/>
+      <rect class="bot-base" x="7" y="23" width="18" height="6" rx="3"/>`),
   },
 };

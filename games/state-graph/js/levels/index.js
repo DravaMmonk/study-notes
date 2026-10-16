@@ -11,20 +11,28 @@ import { machines } from './machines.js';
 import { state } from './state.js';
 import { strings } from './strings.js';
 import { knapsack } from './knapsack.js';
+import { skeleton } from './skeleton.js';
+import { sweep } from './sweep.js';
+import { orders } from './orders.js';
+import { states } from './states.js';
+import { topdown } from './topdown.js';
+import { rounds } from './rounds.js';
+import { language } from './language.js';
+import { seams } from './seams.js';
 import { graduate } from './graduate.js';
 import { tr, lazy } from '../i18n.js';
 
 export { CHAPTERS, PARTS } from './parts.js';
-export const LEVELS = [...basics, ...machines, ...state, ...strings, ...knapsack, ...graduate];
+export const LEVELS = [...basics, ...machines, ...state, ...strings, ...knapsack, ...skeleton, ...sweep, ...orders, ...states, ...topdown, ...rounds, ...language, ...seams, ...graduate];
 
 /** A circuit level's board becomes a component for later levels (it runs the reference board). */
 function registerBlueprint(L, i) {
-  const V = WORLDS[L.world], ports = L.blueprint;
+  const last = (L.stages || [L]).at(-1), V = WORLDS[last.world], ports = L.blueprint;
   BLUEPRINTS[`bp:${L.id}`] = {
     name: PARTS[L.unlock].name,
     desc: lazy(() => tr(`你在第 ${i + 1} 关拼出的电路板，现在是一个元件。顶上的输入：${ports.map(id => V.taps[id].label).join('、')}。`, `The circuit board you built in level ${i + 1}, now a component. Inputs on top: ${ports.map(id => V.taps[id].label).join(', ')}.`)),
-    ins: ports.map(id => V.taps[id].type), labels: ports.map(id => V.taps[id].short), tapIds: ports, out: V.outs[0][0],
-    circuit: L.solution,
+    ins: ports.map(id => ({ num: 'num', bool: 'bool', nums: 'num*', bools: 'bool*' })[V.taps[id].type]), labels: ports.map(id => V.taps[id].short), tapIds: ports,
+    out: V.outs[0][0], outType: V.outs[0][3], circuit: last.solution,
   };
 }
 
@@ -51,8 +59,13 @@ LEVELS.forEach((L, i) => {
     L.end = `${R - 1},${C - 1}`;
   }
   if (L.mode === 'circuit') {
-    const last = (L.stages || [L]).at(-1);
-    L.expected = L.tests.map(t => runCircuit(WORLDS[last.world], t, last.solution, { ...last, dirs: L.solutionDirs || {} }).value);
+    // Answers come from the reference board of each stage, run the way the reference is meant to run.
+    (L.stages || [L]).forEach(s => {
+      if (!s.solution) return;
+      const o = { ...s, dirs: L.solutionDirs || {}, ...(s.dial ? { scan: s.solutionScan } : {}), filter: s.solutionFilter || 'all', remember: s.solutionMem || [] };
+      s.expected = (s.tests || L.tests).map(t => runCircuit(WORLDS[s.world], t, s.solution, o).value);
+    });
+    L.expected = (L.stages || [L]).at(-1).expected;
     if (L.blueprint) registerBlueprint(L, i);
   }
 });

@@ -87,7 +87,7 @@ export const strings = [
       return `<div class="afterbox"><span class="eyebrow">${tr(`表格倒推出的改法 · ${n} 步`, `The edits traced back from the table · ${n} step${n === 1 ? '' : 's'}`)}</span><div class="diff">${ops.map(tile).join('')}</div><p class="cap">${tr('从右下角倒推：走对角线是保留或替换，往上是删除，往左是插入。', 'Walking back from the bottom-right corner: a diagonal step is a keep or a replace, a step up is a delete, and a step left is an insert.')}</p></div>`;
     },
     boardOpt: { minScale: 0.66, maxScale: 1.2 },
-    unlock: 'cost',
+    unlock: 'cost', blueprint: ['ul', 'up', 'left', 'same', 'start'],
     debrief: { title: T('编辑距离', 'Edit distance'), body: [T('把一个词改成另一个词的最少步数，叫作<b>编辑距离</b>。输入法纠错、搜索引擎的「你是不是要找」、基因突变分析，用的都是它。', 'The fewest steps that turn one word into another is called the <b>edit distance</b>. Autocorrect, a search engine’s “Did you mean…?” and the analysis of gene mutations all rely on it.'), T('和上一关比，表格的形状一点没变，只是<b>给每条来路标上代价，再取较小</b>。连边上的一行一列，也是同一块电路算出来的。同一张对齐表，换一块电路板，就能回答另一个问题。', 'Compared with the last level, the table’s shape didn’t change at all: you just <b>gave every way in a cost and took the min</b>. Even the row and column along the edges were computed by the same circuit. The same alignment table with a different circuit board answers a different question.')], note: T('编辑距离：删除、插入、替换各 + 1，字相同可以免费保留，取较小。', 'Edit distance: delete, insert and replace each cost 1, a matching letter can be kept for free, and you take the min.') },
   },
 ];

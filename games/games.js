@@ -18,10 +18,10 @@ export const GAMES = [
   {
     id: 'state-graph', href: 'state-graph/', title: '状态之图', en: 'State Graph', topic: { zh: '从零开始 · 动态规划', en: 'From scratch · Dynamic Programming' },
     desc: {
-      zh: '不需要任何编程或算法基础。从格子和箭头出发，让一个小机器人在棋盘上一格一格地算，拼出数路线、比文字、装背包的电路板。',
-      en: 'No programming or algorithms background needed. Starting from cells and arrows, a little robot works across a board cell by cell while you wire up the circuit boards that count routes, compare words and pack a backpack.',
+      zh: '不需要任何编程或算法基础。从格子和箭头出发，让一个小机器人在棋盘上一格一格地算，拼出数路线、比文字、装背包的电路板，再用到博弈、语言、图片和强化学习上。',
+      en: 'No programming or algorithms background needed. Starting from cells and arrows, a little robot works across a board cell by cell while you wire up the circuit boards that count routes, compare words and pack a backpack, then carry them over to games, language, pictures and reinforcement learning.',
     },
-    levels: 27, art: 'grid',
+    levels: 56, art: 'grid',
     progress: () => Object.keys(read('state-graph-v2')?.done || {}).length,
   },
 ];

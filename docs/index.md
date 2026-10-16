@@ -41,7 +41,7 @@ hide:
 <div class="kit-cards">
 <a class="kit-card" href="game/index.html"><div class="kit-card-body"><span class="kit-card-topic">GAMES</span><span class="kit-card-title">Game hub</span><span class="kit-card-desc">Courses turned into puzzle levels: wire a few parts into a machine until every test passes.</span><span class="kit-card-foot"><span>2 games</span><b>Open →</b></span></div></a>
 <a class="kit-card" href="game/vision-complete/index.html"><div class="kit-card-body"><span class="kit-card-topic">COMP90086 · Computer vision</span><span class="kit-card-title">Vision Complete</span><span class="kit-card-desc">Build blur, edges, corners and disparity from parts, then teach a machine to see.</span><span class="kit-card-foot"><span>58 levels</span><b>Play →</b></span></div></a>
-<a class="kit-card" href="game/state-graph/index.html"><div class="kit-card-body"><span class="kit-card-topic">From zero · Dynamic programming</span><span class="kit-card-title">State Graph</span><span class="kit-card-desc">Starting from cells and arrows, build the boards that count paths, compare strings and pack knapsacks.</span><span class="kit-card-foot"><span>27 levels</span><b>Play →</b></span></div></a>
+<a class="kit-card" href="game/state-graph/index.html"><div class="kit-card-body"><span class="kit-card-topic">From zero · Dynamic programming</span><span class="kit-card-title">State Graph</span><span class="kit-card-desc">Starting from cells and arrows, build the boards that count paths, compare strings and pack knapsacks, then carry them to games, language, pictures and reinforcement learning.</span><span class="kit-card-foot"><span>56 levels</span><b>Play →</b></span></div></a>
 </div>
 
 <h2 class="kit-section">Self-study &amp; reference</h2>

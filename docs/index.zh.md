@@ -41,7 +41,7 @@ hide:
 <div class="kit-cards">
 <a class="kit-card" href="game/index.html"><div class="kit-card-body"><span class="kit-card-topic">游戏</span><span class="kit-card-title">游戏导航</span><span class="kit-card-desc">把课程做成解谜关卡：把几个元件接成一台机器，直到测试全部通过。</span><span class="kit-card-foot"><span>2 款游戏</span><b>打开 →</b></span></div></a>
 <a class="kit-card" href="game/vision-complete/index.html"><div class="kit-card-body"><span class="kit-card-topic">COMP90086 · 计算机视觉</span><span class="kit-card-title">视觉完备</span><span class="kit-card-desc">用元件亲手搭出模糊、边缘、角点和视差，最后让机器学会看。</span><span class="kit-card-foot"><span>58 关</span><b>开始 →</b></span></div></a>
-<a class="kit-card" href="game/state-graph/index.html"><div class="kit-card-body"><span class="kit-card-topic">从零开始 · 动态规划</span><span class="kit-card-title">状态之图</span><span class="kit-card-desc">从格子和箭头出发，拼出数路线、比文字、装背包的电路板。</span><span class="kit-card-foot"><span>27 关</span><b>开始 →</b></span></div></a>
+<a class="kit-card" href="game/state-graph/index.html"><div class="kit-card-body"><span class="kit-card-topic">从零开始 · 动态规划</span><span class="kit-card-title">状态之图</span><span class="kit-card-desc">从格子和箭头出发，拼出数路线、比文字、装背包的电路板，再用到博弈、语言、图片和强化学习上。</span><span class="kit-card-foot"><span>56 关</span><b>开始 →</b></span></div></a>
 </div>
 
 <h2 class="kit-section">自学与参考</h2>

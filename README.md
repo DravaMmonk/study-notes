@@ -44,7 +44,7 @@ Puzzle games that turn a course into levels, under `games/`, published to `/game
 
 - `games/index.html`: the games hub; the list is in `games/games.js`. · 游戏导航页，游戏列表在 `games/games.js`。
 - [Vision Complete · 视觉完备](https://dravammonk.github.io/study-notes/game/vision-complete/): computer vision, 58 levels; source in `trace-viewer/src/game/` (React, built into `/game/vision-complete/`).
-- [State Graph · 状态之图](https://dravammonk.github.io/study-notes/game/state-graph/): dynamic programming from zero, 27 levels; source in `games/state-graph/` (ES modules, no build).
+- [State Graph · 状态之图](https://dravammonk.github.io/study-notes/game/state-graph/): dynamic programming from zero, 56 levels; source in `games/state-graph/` (ES modules, no build).
 
 ## Local reader · 本地阅读器
 

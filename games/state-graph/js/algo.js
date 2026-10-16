@@ -31,6 +31,7 @@ export const ORDERS = {
   rowBR: { l: T('逐行，从右下开始', 'row by row, from the bottom right'), list: (R, C) => ORDERS.rowTL.list(R, C).reverse() },
   colL: { l: T('逐列，从左往右', 'column by column, left to right'), list: (R, C) => { const o = []; for (let c = 0; c < C; c++) for (let r = 0; r < R; r++) o.push([r, c]); return o; } },
   colR: { l: T('逐列，从右往左', 'column by column, right to left'), list: (R, C) => { const o = []; for (let c = C - 1; c >= 0; c--) for (let r = 0; r < R; r++) o.push([r, c]); return o; } },
+  colRB: { l: T('逐列，从右下往上', 'column by column, from the bottom right upwards'), list: (R, C) => ORDERS.colL.list(R, C).reverse() },
 };
 
 /** Route counts on an R×C right/down grid, filled in the given scan order. */

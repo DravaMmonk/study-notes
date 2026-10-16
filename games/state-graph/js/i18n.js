@@ -36,7 +36,7 @@ export function paintStatic(root = document) {
   paintText(root);
   document.title = tr('状态之图', 'State Graph');
   const meta = document.querySelector('meta[name="description"]');
-  if (meta) meta.content = tr('零基础动态规划解谜游戏：27 关从格子和箭头出发，用元件亲手拼出路线计数器、分层状态机、对齐表和背包表的电路。', 'A dynamic programming puzzle game for complete beginners: 27 levels that start from cells and arrows and have you wire up a route counter, a layered state machine, an alignment table and a knapsack table yourself.');
+  if (meta) meta.content = tr('零基础动态规划解谜游戏：56 关从格子和箭头出发，用元件亲手拼出路线计数器、分层状态机、对齐表和背包表的电路，再用到博弈、语言、图片和强化学习上。', 'A dynamic programming puzzle game for complete beginners: 56 levels that start from cells and arrows and have you wire up a route counter, a layered state machine, an alignment table and a knapsack table yourself, then put them to work on games, language, pictures and reinforcement learning.');
 }
 
 /** The language buttons ([data-lang-toggle]): switch, repaint static text, then let the app re-render. */
