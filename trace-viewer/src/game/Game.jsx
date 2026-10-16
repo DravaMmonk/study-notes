@@ -218,7 +218,12 @@ function LevelScreen({ level, progress, setProgress, onExit, onNext, theme, phon
   const [losses, setLosses] = useState([])
   const [showBrief, setShowBrief] = useState(false)
   const [sheet, setSheet] = useState(false)
-  const flags = useMemo(() => new Set([...progress.flags, ...(level.grants ?? []), ...(progress.all ? unlocksBefore(level) : [])]), [progress.flags, progress.all, level])
+  // A level may withhold a flag the player already has, when its puzzle is to build that very thing by hand.
+  const flags = useMemo(() => {
+    const set = new Set([...progress.flags, ...(level.grants ?? []), ...(progress.all ? unlocksBefore(level) : [])])
+    for (const flag of level.withhold ?? []) set.delete(flag)
+    return set
+  }, [progress.flags, progress.all, level])
   // The fixed cards are named and drawn by what they carry: a picture, a waveform or a number.
   const ioKinds = level.kind === 'graph' ? Object.fromEntries([...Object.entries(level.tests[0].inputs), ...Object.entries(level.tests[0].expected)].map(([name, value]) => [name, kindOf(value)])) : {}
   const inputLabels = level.inputLabels ?? (level.inputs.length > 1 ? { left: '左图', right: '右图', scene: '现场', empty: '空场' } : {})

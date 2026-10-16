@@ -73,7 +73,7 @@ export const chapter3 = [
     brief: '同一个物体在不同灯光下拍了几次：有的整体变亮，有的灯暗了一半。每次都要标出同一组边。上一关你发现，灯一暗，坡度就一起变小，固定门槛会漏边。',
     hint: '不知道灯暗了多少，就拿图里最陡的那条边当尺子：所有坡度都除以它。灯暗一半，尺子也短一半，比值不变。',
     after: '求坡度去掉了整体加亮（偏置），除以最陡的坡度去掉了整体倍数（增益）。设计特征时先问：哪些变化不应该改变答案？这叫不变性。注意图外补的数：补 0 会在图边造出一条随灯光变化的假边，所以要复制边缘。',
-    requires: ['3-7', '1-7'],
+    requires: ['3-7', '1-8'],
     unlocks: ['normalize'],
     grants: ['normalize', 'edge-pad'],
     palette: ['gradmag', 'globalMax', 'divide', 'threshold', 'scale', 'offset'],
