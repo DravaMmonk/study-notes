@@ -12,5 +12,6 @@ import { packMode } from './pack.js';
 import { matchMode } from './match.js';
 import { askMode } from './ask.js';
 import { policyMode } from './policy.js';
+import { seamMode } from './seam.js';
 
-export const MODES = { wire: wireMode, trace: traceMode, fill: fillMode, circuit: circuitMode, back: backMode, explode: explodeMode, breach: breachMode, link: linkMode, pack: packMode, match: matchMode, ask: askMode, policy: policyMode };
+export const MODES = { wire: wireMode, trace: traceMode, fill: fillMode, circuit: circuitMode, back: backMode, explode: explodeMode, breach: breachMode, link: linkMode, pack: packMode, match: matchMode, ask: askMode, policy: policyMode, seam: seamMode };

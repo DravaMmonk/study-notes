@@ -724,3 +724,7 @@ img{max-width:100%}
 .vcell.v-gold{border-color:var(--signal)} .vcell.v-trap,.vcell.v-cliff{border-color:var(--bad)}
 .vcell .vv.long{font-size:8px;letter-spacing:-.02em}
 .n5 .vcell .vv.long{font-size:7px}
+.cell.px rect{stroke:none}
+.cell.cut rect{stroke:var(--bad);stroke-width:2.6}
+.thumbs figure{min-width:0}
+.thumbs .board-svg{max-width:100%}

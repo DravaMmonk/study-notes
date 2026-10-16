@@ -10,7 +10,8 @@ import { knap, roll } from './worlds/knap.js';
 import { interval } from './worlds/interval.js';
 import { vgrid } from './worlds/value.js';
 import { tags } from './worlds/tags.js';
+import { pic } from './worlds/picture.js';
 
 export { visibleTaps, readTap, windowOf, runCircuit, MAX_ROUNDS } from './world.js';
 
-export const WORLDS = { grid, gridYes, piles, strip, pile, coins, words, rob1, rob2, prefix, heights, key: keyMaze, keys: keysMaze, align, local, knap, roll, interval, vgrid, tags };
+export const WORLDS = { grid, gridYes, piles, strip, pile, coins, words, rob1, rob2, prefix, heights, key: keyMaze, keys: keysMaze, align, local, knap, roll, interval, vgrid, tags, pic };

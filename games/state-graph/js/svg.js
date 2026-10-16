@@ -41,7 +41,7 @@ function cellSVG(c, uid) {
   // Long numbers (7.29, 1,024) shrink to fit their cell instead of spilling over its edge.
   const fit = len > 3 && /^[-−\d.,%]+$/.test(txt) ? ` style="font-size:${f1(Math.min(21, (c.w - 8) / (len * 0.62)))}px"` : '';
   return `<g class="cell ${cls}${c.tap ? ' tap' : ''}"${tap} transform="translate(${c.x} ${c.y})">
-    <rect x="${-hw}" y="${-hh}" width="${c.w}" height="${c.h}" rx="${c.rx ?? 12}"${rock ? ` style="fill:url(#${uid}-hatch)"` : ''}/>
+    <rect x="${-hw}" y="${-hh}" width="${c.w}" height="${c.h}" rx="${c.rx ?? 12}"${rock ? ` style="fill:url(#${uid}-hatch)"` : c.fill ? ` style="fill:${c.fill}"` : ''}/>
     ${c.icon ? `<svg class="glyph" x="-25" y="${-hh + 5}" width="50" height="33" viewBox="0 0 48 32">${c.icon}</svg>` : ''}
     ${c.label ? `<text class="lb" y="${-hh + 17}">${c.label}</text>` : ''}
     ${c.corner !== undefined && c.corner !== null && c.corner !== '' ? `<text class="cn" x="${-hw + 6}" y="${-hh + 14}">${c.corner}</text>` : ''}
