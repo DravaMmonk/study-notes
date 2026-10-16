@@ -1,7 +1,8 @@
 // Value maps: a treasure, traps and cliffs whose values are fixed, walls nobody can enter, and floor cells whose value
 // is how good it is to stand there. Levels on these maps scan in rounds until the table stops changing.
 
-import { E } from '../../svg.js';
+import { E, W } from '../../svg.js';
+import { T, tr } from '../../i18n.js';
 import { rcName } from '../../algo.js';
 import { world, look } from '../world.js';
 import { gridDef } from './grid.js';
@@ -16,7 +17,7 @@ export function tileAt(t, r, c) {
   return 'floor';
 }
 const FIXED = { gold: 10, trap: -10, cliff: -10, wall: null };
-const LABEL = { gold: '宝藏', trap: '陷阱', cliff: '悬崖', wall: '' };
+const LABEL = { gold: T('宝藏', 'treasure'), trap: T('陷阱', 'trap'), cliff: T('悬崖', 'cliff'), wall: '' };
 
 /**
  * The robot's best move from every floor cell once the values have settled: to the best neighbour, or, on a slippery
@@ -43,14 +44,14 @@ export const vgrid = world({
   facts: [],
   mark(t, key) {
     const [r, c] = key.split(',').map(Number), k = tileAt(t, r, c);
-    return { cls: k === 'floor' ? '' : k === 'wall' ? 'rock' : k, label: LABEL[k] || '', corner: r + c === 0 ? '起' : '' };
+    return { cls: k === 'floor' ? '' : k === 'wall' ? 'rock' : k, label: LABEL[k] || '', corner: r + c === 0 ? W.start : '' };
   },
   /** Fixed tiles hold their value from the start; every floor cell starts at 0. */
   base: t => { const b = []; for (let r = 0; r < t.R; r++) for (let c = 0; c < t.C; c++) { const k = tileAt(t, r, c); b.push([`${r},${c}`, k === 'floor' ? 0 : FIXED[k]]); } return b; },
   order: t => { const o = []; for (let r = 0; r < t.R; r++) for (let c = 0; c < t.C; c++) if (tileAt(t, r, c) === 'floor') o.push({ r, c, id: `${r},${c}` }); return o; },
   answerKey: () => '0,0',
-  label: t => `${t.R}×${t.C}${t.slip ? ' · 会打滑' : ''}`,
-  orderText: () => '逐行，从左上开始，一轮一轮地扫',
+  label: t => `${t.R}×${t.C}${t.slip ? tr(' · 会打滑', ' · slippery') : ''}`,
+  orderText: () => tr('逐行，从左上开始，一轮一轮地扫', 'row by row from the top left, round after round'),
   sample: t => ({ r: 0, c: 0, id: '0,0' }),
   scene(t, view, o) {
     const g = look(view, [this.answerKey(t, o)], this.base(t, o), o.bench), cells = [];

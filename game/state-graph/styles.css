@@ -9,9 +9,10 @@
   --signal:var(--accent); --signal-ink:#2A1D05; --signal-soft:color-mix(in srgb,var(--accent) 14%,transparent);
   --cyan:var(--select); --cyan-ink:var(--select-ink); --cyan-soft:color-mix(in srgb,var(--select) 13%,transparent);
   --good:var(--status); --good-soft:color-mix(in srgb,var(--status) 16%,transparent); --bad:var(--fail); --bad-soft:color-mix(in srgb,var(--fail) 13%,transparent);
-  --f-display:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
-  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  --f-body:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;
+  /* The kit's type (tokens.css): serif titles, sans interface, mono labels. */
+  --f-display:var(--serif);
+  --f-mono:var(--mono);
+  --f-body:var(--sans);
 }
 *,*::before,*::after{box-sizing:border-box}
 html{height:100%;box-sizing:border-box;background:var(--bg)}
@@ -80,6 +81,8 @@ button:disabled{cursor:not-allowed}
 .cell.axis rect{fill:none;stroke:none}
 .cell.axis .val{fill:var(--cyan);font-size:19px}
 .cell.axis.axis0 .val{fill:var(--ink-3);font:600 12px var(--f-body)}
+/* English words on a table's axis (State Graph's language levels) are longer than the Chinese ones. */
+.cell.axis.word .val{font:600 12px var(--f-body)}
 .cell.axis.ok rect{fill:var(--good-soft);stroke:none}
 .cell.axis.ok .val{fill:var(--good)}
 @keyframes flow{to{stroke-dashoffset:-14}}
@@ -87,9 +90,7 @@ button:disabled{cursor:not-allowed}
 /* ---------- map ---------- */
 .wrap{max-width:1040px;margin:0 auto;padding-block:28px 56px;display:flex;flex-direction:column;gap:28px}
 .hero{display:grid;gap:22px}
-.hub{display:inline-block;margin:0 0 18px -8px;padding:6px 8px;border-radius:6px;font:600 11.5px var(--f-mono);letter-spacing:.04em;color:var(--ink-3);text-decoration:none}
-.hub:hover{color:var(--ink);background:var(--panel-2)}
-.title{font:700 clamp(54px,17vw,108px)/.95 var(--f-display);letter-spacing:-.02em;margin:10px 0 14px}
+.title{font:500 clamp(54px,17vw,108px)/.95 var(--f-display);letter-spacing:-.02em;margin:10px 0 14px}
 .title em{font-style:normal;color:var(--signal)}
 .lede{max-width:31em;color:var(--ink-2);font-size:16px;margin:0;text-wrap:pretty}
 .hero-fig{margin:0;border-radius:20px;padding:12px;background:var(--board);border:1px solid var(--line);}
@@ -123,7 +124,7 @@ button:disabled{cursor:not-allowed}
 .foot{margin:0;font-size:13px;color:var(--ink-3);max-width:40em}
 
 /* ---------- level ---------- */
-.lv-top{display:flex;align-items:center;gap:6px;padding-block:8px;background:var(--panel);border-bottom:1px solid var(--line)}
+.lv-top{gap:6px}
 .iconbtn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
 .iconbtn:hover{background:var(--panel-2)}
 .lv-titles{min-width:0;flex:1}
@@ -551,8 +552,6 @@ img{max-width:100%}
   .lv-top{grid-area:top;height:56px;padding:0 12px;gap:4px;background:color-mix(in srgb,var(--panel) 92%,transparent)}
   .lv-top .iconbtn{width:38px;height:38px;border-radius:9px;color:var(--ink-2)}
   .lv-top .iconbtn[aria-expanded="true"]{background:var(--panel-2);color:var(--ink)}
-  .brand{align-items:center;gap:8px;margin:0 10px 0 4px;font:600 11.5px var(--f-mono);letter-spacing:.2em;color:var(--ink-2);white-space:nowrap}
-  .brand-chip{width:14px;height:14px;border-radius:3px;background:linear-gradient(135deg,var(--ink) 0 50%,var(--signal) 50% 100%);box-shadow:0 0 0 1px var(--line)}
   .lv-titles{display:flex;flex-direction:row-reverse;justify-content:flex-end;align-items:baseline;gap:10px}
   .lv-titles h2{font-size:17px}
   .lv-titles .eyebrow{font-size:11px}
@@ -661,6 +660,8 @@ img{max-width:100%}
 }
 .rail,.rail-scrim{display:none}
 @media (min-width:1100px){.lv-top .iconbtn.desk{display:grid}}
+/* Language button (js/i18n.js); English pages hide the Chinese markup until it has been swapped. */
+html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 
 /* ---------- chapters 12–20: yes/no tables, segments, scan orders, rounds ---------- */
 .cell.yes rect{fill:var(--good-soft);stroke:var(--good)}

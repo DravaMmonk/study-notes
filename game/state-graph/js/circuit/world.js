@@ -23,6 +23,7 @@
 //   rounds (scan again and again until the table stops changing).
 
 import { E } from '../svg.js';
+import { T, lazy } from '../i18n.js';
 import { signal } from '../util.js';
 import { evaluate } from './components.js';
 
@@ -33,11 +34,20 @@ export const seg = (label, short, type = 'nums') => ({ label, short, type });
 
 /** How far any robot can see; a robot's vision (1 or 2) picks the taps it can use. */
 const REACH = 2;
-const RING = { '-1,-1': ['左上', '左上', '↖'], '-1,0': ['上面', '上', '↑'], '-1,1': ['右上', '右上', '↗'], '0,-1': ['左边', '左', '←'], '0,1': ['右边', '右', '→'], '1,-1': ['左下', '左下', '↙'], '1,0': ['下面', '下', '↓'], '1,1': ['右下', '右下', '↘'] };
+/** Names of the cells around the robot: [label, short tag]. */
+export const DIR = {
+  ul: [T('左上', 'up-left'), T('左上', '↖')], up: [T('上面', 'up'), T('上', 'up')], ur: [T('右上', 'up-right'), T('右上', '↗')], left: [T('左边', 'left'), T('左', 'left')],
+  right: [T('右边', 'right'), T('右', 'right')], dl: [T('左下', 'down-left'), T('左下', '↙')], down: [T('下面', 'down'), T('下', 'down')], dr: [T('右下', 'down-right'), T('右下', '↘')],
+};
+/** The robot's own cell, as an output label. */
+export const THIS_CELL = T('本格', 'this cell');
+const RING = { '-1,-1': [...DIR.ul, '↖'], '-1,0': [...DIR.up, '↑'], '-1,1': [...DIR.ur, '↗'], '0,-1': [...DIR.left, '←'], '0,1': [...DIR.right, '→'], '1,-1': [...DIR.dl, '↙'], '1,0': [...DIR.down, '↓'], '1,1': [...DIR.dr, '↘'] };
 function dirName(dr, dc) {
   if (RING[`${dr},${dc}`]) return RING[`${dr},${dc}`];
   const v = dr ? `${dr < 0 ? '上' : '下'}${Math.abs(dr)}` : '', h = dc ? `${dc < 0 ? '左' : '右'}${Math.abs(dc)}` : '';
-  return [v + h, v + h, v + h];
+  const ve = dr ? `${dr < 0 ? 'up' : 'down'} ${Math.abs(dr)}` : '', he = dc ? `${dc < 0 ? 'left' : 'right'} ${Math.abs(dc)}` : '';
+  const arrows = `${dr ? `${dr < 0 ? '↑' : '↓'}${Math.abs(dr)}` : ''}${dc ? `${dc < 0 ? '←' : '→'}${Math.abs(dc)}` : ''}`;
+  return [T(v + h, [ve, he].filter(Boolean).join(' ')), T(v + h, arrows), T(v + h, arrows)];
 }
 
 /** Complete a world: one tap for every board cell within REACH of the robot that the world has not named. */
@@ -51,7 +61,7 @@ export function world(def) {
       const k = `${L},${dr},${dc}`;
       if (tapAt[k] || outAt.has(k) || (!dr && !dc) || (def.shown && def.shown(L, dr, dc))) continue;
       const [label, short, arrow] = dirName(dr, dc);
-      taps[`o${L}_${dr}_${dc}`] = layers.length > 1 ? cell(`${ln}·${label}`, ln[0] + arrow, [L, dr, dc], type) : cell(label, short, [L, dr, dc], type);
+      taps[`o${L}_${dr}_${dc}`] = layers.length > 1 ? cell(lazy(() => `${ln}·${label}`), lazy(() => String(ln)[0] + arrow), [L, dr, dc], type) : cell(label, short, [L, dr, dc], type);
       tapAt[k] = `o${L}_${dr}_${dc}`;
     }
   });

@@ -4,6 +4,7 @@
 // column without cutting through what stands out in it.
 
 import { rcName } from '../../algo.js';
+import { T, tr } from '../../i18n.js';
 import { world, look, num, yes } from '../world.js';
 import { gridDef } from './grid.js';
 
@@ -31,14 +32,14 @@ export const shade = v => `color-mix(in srgb, var(--ink) ${Math.round(8 + v * 9)
 
 export const pic = world({
   ...gridDef,
-  taps: { ul: gridDef.taps.ul, up: gridDef.taps.up, ur: gridDef.taps.ur, left: gridDef.taps.left, right: gridDef.taps.right, dl: gridDef.taps.dl, down: gridDef.taps.down, dr: gridDef.taps.dr, energy: num('本格能量', '能', 'bolt'), top: yes('是顶行', '顶', 'flag') },
+  taps: { ul: gridDef.taps.ul, up: gridDef.taps.up, ur: gridDef.taps.ur, left: gridDef.taps.left, right: gridDef.taps.right, dl: gridDef.taps.dl, down: gridDef.taps.down, dr: gridDef.taps.dr, energy: num(T('本格能量', 'pixel energy'), T('能', 'E'), 'bolt'), top: yes(T('是顶行', 'is top row'), T('顶', 'top'), 'flag') },
   facts: ['energy', 'top'],
   mark: (t, key) => { const [r, c] = key.split(',').map(Number); return { corner: energy(t.img)[r][c] }; },
   fact: (t, { r, c }, id) => (id === 'top' ? r === 0 : energy(t.img)[r][c]),
   answerKeys: t => t.img[0].map((_, c) => `${t.R - 1},${c}`),
   answer(t, table) { return Math.min(...this.answerKeys(t).map(k => table.get(k) ?? Infinity)); },
-  label: t => `${t.C}×${t.R} 像素`,
-  orderText: () => '逐行，从顶行往下',
+  label: t => tr(`${t.C}×${t.R} 像素`, `${t.C}×${t.R} pixels`),
+  orderText: () => tr('逐行，从顶行往下', 'row by row, from the top row down'),
   scene(t, view, o) {
     const g = look(view, [], [], o.bench), sp = 46, sz = 40, px = 13, cells = [], path = new Set(o.path || []);
     // The picture itself, small, to the left of its table.

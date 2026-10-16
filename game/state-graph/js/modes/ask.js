@@ -8,6 +8,7 @@ import { buzz, fmt, reduced, ICON } from '../util.js';
 import { E } from '../svg.js';
 import { rt, Anim } from '../runtime.js';
 import { rcName } from '../algo.js';
+import { tr } from '../i18n.js';
 
 /** The table behind the questions: what a cell depends on, its own answer when it has no dependencies, and how answers combine. */
 function problem(a) {
@@ -27,7 +28,7 @@ function problem(a) {
     deps: id => { const [i, j] = id.split(',').map(Number); return Array.from({ length: j - i }, (_, d) => [`${i},${i + d}`, `${i + d + 1},${j}`]).flat(); },
     base: id => { const [i, j] = id.split(',').map(Number); return i === j ? 0 : null; },
     join: (vals, id) => { const [i, j] = id.split(',').map(Number); let best = Infinity; for (let k = 0; k + 1 < vals.length; k += 2) best = Math.min(best, vals[k] + vals[k + 1]); return best + sum(i, j); },
-    name: id => { const [i, j] = id.split(',').map(Number); return `第 ${i + 1}–${j + 1} 堆`; },
+    name: id => { const [i, j] = id.split(',').map(Number); return tr(`第 ${i + 1}–${j + 1} 堆`, `piles ${i + 1}–${j + 1}`); },
   };
 }
 
@@ -98,7 +99,7 @@ export function askMode(L, saved) {
     })(root(), 0);
     const cells = st.nodes.map(n => ({
       id: n.id, x: pos[n.id].x * 54, y: pos[n.id].y * 68, w: 48, h: 48, rx: 24, label: P.short(n.cell), value: n.value === null ? '?' : n.value,
-      cls: [`s${P.color(n.cell)}`, n.link ? 'ghost' : '', !n.kids && !n.link && n.value === null ? 'coach' : ''].filter(Boolean).join(' '), tap: !n.kids && !n.link && n.value === null, aria: `问${P.name(n.cell)}`,
+      cls: [`s${P.color(n.cell)}`, n.link ? 'ghost' : '', !n.kids && !n.link && n.value === null ? 'coach' : ''].filter(Boolean).join(' '), tap: !n.kids && !n.link && n.value === null, aria: tr(`问${P.name(n.cell)}`, `Ask ${P.name(n.cell)}`),
     }));
     const edges = st.nodes.filter(n => n.parent).map(n => E(n.parent, n.id, n.link ? 'dim' : 'idle'));
     return { cells, edges };
@@ -107,7 +108,7 @@ export function askMode(L, saved) {
     const firsts = st.nodes.filter(n => !n.link), cells = [], edges = [];
     firsts.forEach(n => {
       const [r, c] = n.cell.split(',').map(Number);
-      cells.push({ id: n.cell, x: c * 66, y: r * 66, w: 54, h: 54, label: P.short(n.cell), value: n.value === null ? '?' : n.value, cls: [n.value !== null ? 'lit' : '', !n.kids && n.value === null ? 'coach' : ''].join(' '), tap: !n.kids && n.value === null, aria: `问${P.name(n.cell)}` });
+      cells.push({ id: n.cell, x: c * 66, y: r * 66, w: 54, h: 54, label: P.short(n.cell), value: n.value === null ? '?' : n.value, cls: [n.value !== null ? 'lit' : '', !n.kids && n.value === null ? 'coach' : ''].join(' '), tap: !n.kids && n.value === null, aria: tr(`问${P.name(n.cell)}`, `Ask ${P.name(n.cell)}`) });
     });
     const has = new Set(cells.map(c => c.id));
     firsts.forEach(n => (n.kids || []).forEach(k => { const m = st.nodes.find(x => x.id === k); if (has.has(m.cell)) edges.push(E(m.cell, n.cell, m.link ? 'sel' : 'idle')); }));
@@ -150,7 +151,7 @@ export function askMode(L, saved) {
     for (let d = 1; d < n; d++) for (let i = 0; i + d < n; i++) len.set(`${i},${i + d}`, ++k);
     // Only segments of two or more stones are computed: rows 0 … n − 2, columns 1 … n − 1.
     const fig = m => `<span class="ofig big" style="--oc:${n - 1}">${Array.from({ length: (n - 1) ** 2 }, (_, q) => { const i = Math.floor(q / (n - 1)), j = (q % (n - 1)) + 1; return i < j ? `<i>${m.get(`${i},${j}`)}</i>` : '<i class="no"></i>'; }).join('')}</span>`;
-    return `<div class="afterbox"><span class="eyebrow">两种顺序</span><div class="orders"><figure>${fig(by)}<figcaption>递归自己走出来的</figcaption></figure><figure>${fig(len)}<figcaption>按长度，从短到长</figcaption></figure></div></div>`;
+    return `<div class="afterbox"><span class="eyebrow">${tr('两种顺序', 'Two orders')}</span><div class="orders"><figure>${fig(by)}<figcaption>${tr('递归自己走出来的', 'The one recursion walked')}</figcaption></figure><figure>${fig(len)}<figcaption>${tr('按长度，从短到长', 'By length, shortest first')}</figcaption></figure></div></div>`;
   }
   async function play(all) {
     if (st.step >= st.events.length) return;
@@ -173,30 +174,30 @@ export function askMode(L, saved) {
     note() {
       if (a.kind === 'interval') {
         const e = st.events[st.step - 1];
-        if (!e) return '点「走一步」，看递归从右上角那一格开始问。黄框是正在问的格子，虚框是在等答案的格子。';
-        if (e.t === 'enter') return `问${P.name(e.cell)}：它要先知道每个切分点左右两段的答案。`;
-        if (e.t === 'hit') return `${P.name(e.cell)}已经${P.base(e.cell) !== null ? '不用算（单独一堆是 0）' : '算过了，直接拿来用'}。`;
-        return `${P.name(e.cell)}算完了：${e.v}。它是第 ${e.order} 个算完的格子。`;
+        if (!e) return tr('点「走一步」，看递归从右上角那一格开始问。黄框是正在问的格子，虚框是在等答案的格子。', 'Click “Step” and watch the recursion start asking from the top-right cell. A yellow frame is the cell being asked; dashed frames are cells waiting for answers.');
+        if (e.t === 'enter') return tr(`问${P.name(e.cell)}：它要先知道每个切分点左右两段的答案。`, `Asking ${P.name(e.cell)}: first it needs the answers for the left and right parts at every split point.`);
+        if (e.t === 'hit') return P.base(e.cell) !== null ? tr(`${P.name(e.cell)}已经不用算（单独一堆是 0）。`, `${P.name(e.cell)} needs no working out (a single pile is 0).`) : tr(`${P.name(e.cell)}已经算过了，直接拿来用。`, `${P.name(e.cell)} has already been worked out, so its answer is used straight away.`);
+        return tr(`${P.name(e.cell)}算完了：${e.v}。它是第 ${e.order} 个算完的格子。`, `${P.name(e.cell)} is done: ${e.v}. It is cell number ${e.order} to be finished.`);
       }
-      if (st.answered && a.memo && !st.memo) return `答案 ${root().value}，可一共问了 ${st.asked} 次。打开「记下来」，再问一遍。`;
-      if (st.answered) return st.memo ? `答案 ${root().value}。表一共 ${P.size} 格，这次只问了 ${st.asked} 次。` : `答案 ${root().value}。表一共 ${P.size} 格，可一共问了 ${st.asked} 次：同一种颜色的问题被问了好几遍。`;
-      return st.memo ? '点一个带问号的格子提问。箭头从被问的格子指向提问的格子；问过的格子记下来了，再被问到时直接拿答案（蓝色箭头）。' : '点一个带问号的圆圈提问：它会变成它需要的几个小问题。同一种颜色是同一个格子。';
+      if (st.answered && a.memo && !st.memo) return tr(`答案 ${root().value}，可一共问了 ${st.asked} 次。打开「记下来」，再问一遍。`, `The answer is ${root().value}, but it took ${st.asked} questions. Turn on “Write it down” and ask again.`);
+      if (st.answered) return st.memo ? tr(`答案 ${root().value}。表一共 ${P.size} 格，这次只问了 ${st.asked} 次。`, `The answer is ${root().value}. The table has ${P.size} cells, and this time it took only ${st.asked} questions.`) : tr(`答案 ${root().value}。表一共 ${P.size} 格，可一共问了 ${st.asked} 次：同一种颜色的问题被问了好几遍。`, `The answer is ${root().value}. The table has ${P.size} cells, yet it took ${st.asked} questions: questions of the same colour were asked again and again.`);
+      return st.memo ? tr('点一个带问号的格子提问。箭头从被问的格子指向提问的格子；问过的格子记下来了，再被问到时直接拿答案（蓝色箭头）。', 'Click a cell with a question mark to ask it. Arrows point from the cell being asked to the cell asking; a cell already asked has its answer written down, so when it is asked again the answer comes straight back (blue arrows).') : tr('点一个带问号的圆圈提问：它会变成它需要的几个小问题。同一种颜色是同一个格子。', 'Click a circle with a question mark to ask it: it turns into the smaller questions it needs. The same colour means the same cell.');
     },
     after: () => (a.kind === 'interval' && ended() ? compare() : ''),
     panel() {
       if (a.kind === 'interval') {
         const q = L.question;
-        return `<div class="pcard"><h3>递归<small>${Math.min(st.step, st.events.length)} / ${st.events.length} 步</small></h3><p>从右上角那一格（整排石子）开始问。每一格先问它每个切分点的左段和右段，问过的直接拿答案。格子角上的 #数字，是它<b>算完的先后</b>。</p></div>
-          ${ended() ? `<div class="pcard"><h3>想一想</h3><p><b>${q.q}</b></p>${q.opts.map((o, k) => `<button class="qopt" type="button" data-act="answer" data-k="${k}">${o}</button>`).join('')}</div>` : ''}`;
+        return `<div class="pcard"><h3>${tr('递归', 'Recursion')}<small>${tr(`${Math.min(st.step, st.events.length)} / ${st.events.length} 步`, `step ${Math.min(st.step, st.events.length)} / ${st.events.length}`)}</small></h3><p>${tr('从右上角那一格（整排石子）开始问。每一格先问它每个切分点的左段和右段，问过的直接拿答案。格子角上的 #数字，是它<b>算完的先后</b>。', 'Asking starts from the top-right cell (the whole row of stones). Each cell first asks the left part and right part at each of its split points; cells already asked hand back their answer at once. The #number in a cell’s corner is <b>the order in which it was finished</b>.')}</p></div>
+          ${ended() ? `<div class="pcard"><h3>${tr('想一想', 'Think about it')}</h3><p><b>${q.q}</b></p>${q.opts.map((o, k) => `<button class="qopt" type="button" data-act="answer" data-k="${k}">${o}</button>`).join('')}</div>` : ''}`;
       }
       const over = st.asked > P.size;
-      return `<div class="pcard"><h3>提问次数</h3><div class="askn"><span class="bignum${over ? ' over' : ''}">${fmt(st.asked)}</span><span>表一共 <b>${P.size}</b> 格</span></div>${over ? '<p class="msg bad">问的次数已经超过表的格数了：好多问题你已经问过了。</p>' : ''}</div>
-        ${a.memo ? `<div class="pcard"><div class="setrow plain"><div><b>记下来</b><p>问过的格子把答案记在表里，再被问到就不再往下问。切换会从头问起。</p></div><button class="switch" type="button" role="switch" aria-checked="${st.memo}" aria-label="记下来" data-act="memo"></button></div></div>` : ''}
-        <div class="pcard"><h3>提问</h3><p>点棋盘上带问号的${st.memo ? '格子' : '圆圈'}，一个一个问；问累了，就让机器一口气问完。</p><div class="chips"><button class="chip" type="button" data-act="all"${pending().length ? '' : ' disabled'}>${ICON.play} 一口气问完</button><button class="chip ghost" type="button" data-act="again">从头再问</button></div></div>`;
+      return `<div class="pcard"><h3>${tr('提问次数', 'Questions asked')}</h3><div class="askn"><span class="bignum${over ? ' over' : ''}">${fmt(st.asked)}</span><span>${tr(`表一共 <b>${P.size}</b> 格`, `The table has <b>${P.size}</b> cells`)}</span></div>${over ? `<p class="msg bad">${tr('问的次数已经超过表的格数了：好多问题你已经问过了。', 'You have now asked more questions than the table has cells: many of them you had asked before.')}</p>` : ''}</div>
+        ${a.memo ? `<div class="pcard"><div class="setrow plain"><div><b>${tr('记下来', 'Write it down')}</b><p>${tr('问过的格子把答案记在表里，再被问到就不再往下问。切换会从头问起。', 'A cell that has been asked writes its answer into the table, and asking it again goes no further. Switching starts the asking over.')}</p></div><button class="switch" type="button" role="switch" aria-checked="${st.memo}" aria-label="${tr('记下来', 'Write it down')}" data-act="memo"></button></div></div>` : ''}
+        <div class="pcard"><h3>${tr('提问', 'Asking')}</h3><p>${st.memo ? tr('点棋盘上带问号的格子，一个一个问；问累了，就让机器一口气问完。', 'Click the cells on the board with question marks to ask them one by one; when you have had enough, let the machine ask the rest in one go.') : tr('点棋盘上带问号的圆圈，一个一个问；问累了，就让机器一口气问完。', 'Click the circles on the board with question marks to ask them one by one; when you have had enough, let the machine ask the rest in one go.')}</p><div class="chips"><button class="chip" type="button" data-act="all"${pending().length ? '' : ' disabled'}>${ICON.play} ${tr('一口气问完', 'Ask them all')}</button><button class="chip ghost" type="button" data-act="again">${tr('从头再问', 'Start over')}</button></div></div>`;
     },
     dock() {
-      if (a.kind === 'interval') return ended() ? { meta: '回答规则面板里的问题' } : { meta: `第 ${st.step} / ${st.events.length} 步`, sec: '走一步', secAct: 'step', go: rt.cur.running ? '跳过动画' : '自动走完', act: 'auto', busy: rt.cur.running };
-      return { meta: `已经问了 <b>${st.asked}</b> 次 · 表 ${P.size} 格`, go: rt.cur.running ? '跳过动画' : '一口气问完', act: 'all', busy: rt.cur.running };
+      if (a.kind === 'interval') return ended() ? { meta: tr('回答规则面板里的问题', 'Answer the question in the side panel') } : { meta: tr(`第 ${st.step} / ${st.events.length} 步`, `Step ${st.step} / ${st.events.length}`), sec: tr('走一步', 'Step'), secAct: 'step', go: rt.cur.running ? tr('跳过动画', 'Skip animation') : tr('自动走完', 'Run to the end'), act: 'auto', busy: rt.cur.running };
+      return { meta: tr(`已经问了 <b>${st.asked}</b> 次 · 表 ${P.size} 格`, `<b>${st.asked}</b> asked so far · table of ${P.size} cells`), go: rt.cur.running ? tr('跳过动画', 'Skip animation') : tr('一口气问完', 'Ask them all'), act: 'all', busy: rt.cur.running };
     },
     onCell(id) {
       if (rt.cur.running) return;

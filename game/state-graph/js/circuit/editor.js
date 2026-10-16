@@ -10,6 +10,7 @@ import { wouldCycle } from '../../../kit/graph.js';
 import { curve, centerIn, pointIn } from '../../../kit/wires.js';
 import { ICONS } from './glyphs.js';
 import { signal } from '../util.js';
+import { tr } from '../i18n.js';
 
 export const isSink = p => p.startsWith('out:') || (!p.startsWith('tap:') && p.includes(':'));
 const nodeOf = p => p.split(':')[0];
@@ -29,7 +30,7 @@ export function connect(circ, io, a, b) {
   if (isSink(a) === isSink(b)) return { same: true };
   const [from, to] = isSink(a) ? [b, a] : [a, b];
   const edges = circ.wires.filter(w => !w.to.startsWith('out:')).map(w => [w.from, nodeOf(w.to)]);
-  if (!to.startsWith('out:') && wouldCycle(edges, from, nodeOf(to))) return { msg: '这样会绕成一个圈：元件要等自己算完，才能算自己。' };
+  if (!to.startsWith('out:') && wouldCycle(edges, from, nodeOf(to))) return { msg: tr('这样会绕成一个圈：元件要等自己算完，才能算自己。', 'That would make a loop: a component would have to wait for its own result before it could compute it.') };
   const next = { ...circ, wires: [...circ.wires.filter(w => w.to !== to), { from, to }] }, msg = typeError(next, io);
   return msg ? { msg } : { circ: next };
 }
@@ -97,30 +98,30 @@ export function editorHTML(circ, ui) {
 
   const terms = ui.avail.filter(id => lit.includes(id)).map(id => {
     const m = ui.taps[id], p = `tap:${id}`;
-    return `<div class="cterm" data-act="port" data-q="${p}" style="--c:${sourceColor(ui, p)}" title="从圆点拉线到元件">
+    return `<div class="cterm" data-act="port" data-q="${p}" style="--c:${sourceColor(ui, p)}" title="${tr('从圆点拉线到元件', 'Drag a wire from the dot to a component')}">
       <span class="cl"><span class="tag">${m.short}</span><b>${m.label}</b></span><span class="pv" data-pv="${p}"></span>
-      <button class="${portCls(p)} cdot" type="button" data-act="port" data-p="${p}" aria-label="输入 ${m.label}"><i class="dot" data-dot="${p}"></i></button></div>`;
+      <button class="${portCls(p)} cdot" type="button" data-act="port" data-p="${p}" aria-label="${tr('输入', 'Input')} ${m.label}"><i class="dot" data-dot="${p}"></i></button></div>`;
   }).join('');
 
   const nodeHTML = n => {
     const id = n.id, d = def(n.kind);
     const ins = d.ins.map((type, k) => {
       const p = `${id}:${k}`, lb = d.labels ? d.labels[k] : '';
-      return `<button class="${portCls(p)} cin" type="button" data-act="port" data-p="${p}" aria-label="${letter(id)} 的输入${lb ? ` ${lb}` : ` ${k + 1}`}" title="${from.has(p) ? '点一下拆掉这根线' : type.startsWith('bool') ? '条件口：接「是 / 否」' : '输入口：还没接线'}"><i class="dot" data-dot="${p}"></i>${sinkTag(p, lb ? `<span class="pl">${lb}</span>` : '')}</button>`;
+      return `<button class="${portCls(p)} cin" type="button" data-act="port" data-p="${p}" aria-label="${tr(`${letter(id)} 的输入${lb ? ` ${lb}` : ` ${k + 1}`}`, `${letter(id)} input ${lb || k + 1}`)}" title="${from.has(p) ? tr('点一下拆掉这根线', 'Click to remove this wire') : type.startsWith('bool') ? tr('条件口：接「是 / 否」', 'Condition port: takes yes / no') : tr('输入口：还没接线', 'Input port: not wired yet')}"><i class="dot" data-dot="${p}"></i>${sinkTag(p, lb ? `<span class="pl">${lb}</span>` : '')}</button>`;
     }).join('');
     return `<div class="cnode${d.bp ? ' bp' : ''}${n.kind === 'const' ? ' konst' : ''}" data-piece="${id}" data-drag style="--c:${sourceColor(ui, id)}">
       <div class="cins">${ins}</div>
       <button class="chead" type="button" data-act="node" data-n="${id}" title="${d.desc}"><em class="cid">${letter(id)}</em><b>${d.name}</b><small>${n.kind === 'const' ? `= ${n.value}` : d.tag}</small></button>
-      <button class="${portCls(id)} cout" type="button" data-act="port" data-p="${id}" aria-label="${letter(id)} 的输出" title="从这里拉线"><span class="pv" data-pv="${id}"></span><i class="dot" data-dot="${id}"></i></button>
+      <button class="${portCls(id)} cout" type="button" data-act="port" data-p="${id}" aria-label="${tr(`${letter(id)} 的输出`, `${letter(id)} output`)}" title="${tr('从这里拉线', 'Drag a wire from here')}"><span class="pv" data-pv="${id}"></span><i class="dot" data-dot="${id}"></i></button>
     </div>`;
   };
   const bySlot = Object.fromEntries(Object.entries(cell).map(([id, a]) => [a, circ.nodes.find(n => n.id === id)]));
-  const cells = Array.from({ length: size }, (_, a) => `<div class="ccell" data-slot="${a}">${bySlot[a] ? nodeHTML(bySlot[a]) : `<button class="cslot" type="button" data-act="slot" data-at="${a}" aria-label="在第 ${a + 1} 格放一个元件">＋</button>`}</div>`).join('');
+  const cells = Array.from({ length: size }, (_, a) => `<div class="ccell" data-slot="${a}">${bySlot[a] ? nodeHTML(bySlot[a]) : `<button class="cslot" type="button" data-act="slot" data-at="${a}" aria-label="${tr(`在第 ${a + 1} 格放一个元件`, `Put a component in slot ${a + 1}`)}">＋</button>`}</div>`).join('');
 
   const outs = ui.outs.map(([id, label]) => {
     const p = `out:${id}`;
     return `<div class="cend" data-act="port" data-q="${p}">
-      <button class="${portCls(p)} cdot" type="button" data-act="port" data-p="${p}" aria-label="输出 ${label}"><i class="dot" data-dot="${p}"></i></button><span class="cl">${sinkTag(p, '')}<b>${label}</b></span><span class="pv" data-pv="${p}"></span></div>`;
+      <button class="${portCls(p)} cdot" type="button" data-act="port" data-p="${p}" aria-label="${tr('输出', 'Output')} ${label}"><i class="dot" data-dot="${p}"></i></button><span class="cl">${sinkTag(p, '')}<b>${label}</b></span><span class="pv" data-pv="${p}"></span></div>`;
   }).join('');
 
   return `<div class="cedit${ui.pick ? ' picking' : ''}" id="circ">
@@ -128,7 +129,7 @@ export function editorHTML(circ, ui) {
       <div class="cboard" id="cboard" data-canvas>
         <div class="clayer" id="clayer">
           <svg class="cwires" aria-hidden="true"></svg>
-          <div class="cterms">${terms || '<p class="cempty">点视野里的格子，把它变成输入</p>'}</div>
+          <div class="cterms">${terms || `<p class="cempty">${tr('点视野里的格子，把它变成输入', 'Click a cell in the view to make it an input')}</p>`}</div>
           <div class="cgrid">${cells}</div>
           <div class="couts">${outs}</div>
         </div>
@@ -151,10 +152,10 @@ export function viewHTML(circ, ui) {
     // World marks (key, door, rock…) and read states get a v- prefix, so page-wide rules such as the keypad's .key or
     // the empty-state .empty never reach a cell.
     const cls = ['vcell', ...String(x.cls || '').split(' ').filter(Boolean).map(c => `v-${c}`), x.key === null ? 'off' : '', can ? 'can' : '', on ? 'on' : '', x.out ? 'self' : '', x.state && `v-${x.state}`].filter(Boolean).join(' ');
-    const v = x.key === null ? '界外' : x.value, inner = `${x.corner !== '' && x.corner !== undefined && x.key !== null ? `<span class="vc">${x.corner}</span>` : ''}<span class="vv${String(v).length > 4 ? ' long' : ''}">${v}</span>${on ? tag(x.tap) : ''}${opts.bot ? `<svg class="vbot" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg>` : ''}${opts.label ? `<span class="vl">${opts.label}</span>` : ''}`;
+    const v = x.key === null ? tr('界外', 'out') : x.value, inner = `${x.corner !== '' && x.corner !== undefined && x.key !== null ? `<span class="vc">${x.corner}</span>` : ''}<span class="vv${String(v).length > 4 ? ' long' : ''}">${v}</span>${on ? tag(x.tap) : ''}${opts.bot ? `<svg class="vbot" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg>` : ''}${opts.label ? `<span class="vl">${opts.label}</span>` : ''}`;
     const style = opts.area ? ` style="grid-area:${opts.area}"` : '';
     return can
-      ? `<button class="${cls}" type="button"${style} data-act="lit" data-t="${x.tap}" aria-pressed="${on}" aria-label="${on ? '取消输入' : '点亮输入'} ${ui.taps[x.tap].label}">${inner}</button>`
+      ? `<button class="${cls}" type="button"${style} data-act="lit" data-t="${x.tap}" aria-pressed="${on}" aria-label="${on ? tr('取消输入', 'Remove input') : tr('点亮输入', 'Light input')} ${ui.taps[x.tap].label}">${inner}</button>`
       : `<span class="${cls}"${style}>${inner}</span>`;
   };
   const wins = w.wins.map((win, k) => `<div class="vblock">${win.label ? `<span class="vsub">${win.label}</span>` : ''}
@@ -164,10 +165,10 @@ export function viewHTML(circ, ui) {
     const m = ui.taps[f.id], on = lit.includes(f.id);
     return `<button class="vfact${on ? ' on' : ''}" type="button" data-act="lit" data-t="${f.id}" aria-pressed="${on}">${iconSVG(m.icon)}<span>${m.label}</span><span class="vv">${f.value}</span>${on ? tag(f.id) : ''}</button>`;
   }).join('');
-  return `<div class="vhead"><svg class="vlook" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg><div><b>${w.robot.name}</b><small>视野 ${w.wins[0].n}×${w.wins[0].n}${w.robot.arm ? ` · ${w.robot.armName}` : ''}</small></div></div>
-    <div class="vnote">${w.note} · 点格子选输入</div>
+  return `<div class="vhead"><svg class="vlook" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg><div><b>${w.robot.name}</b><small>${tr('视野', 'Vision')} ${w.wins[0].n}×${w.wins[0].n}${w.robot.arm ? ` · ${w.robot.armName}` : ''}</small></div></div>
+    <div class="vnote">${w.note} · ${tr('点格子选输入', 'click cells to pick inputs')}</div>
     <div class="vwins">${wins}</div>${arm}
-    ${facts ? `<div class="vfacts"><span class="vsub">本格信息</span>${facts}</div>` : ''}`;
+    ${facts ? `<div class="vfacts"><span class="vsub">${tr('本格信息', 'This cell')}</span>${facts}</div>` : ''}`;
 }
 
 /**
@@ -175,13 +176,13 @@ export function viewHTML(circ, ui) {
  * cell). The player lights a sweep by tapping its strip; a level may let the player pick the arm's filter.
  */
 function sweepHTML(arm, ui, lit, tag) {
-  const strip = sw => (sw.cells.length ? sw.cells.map(x => `<span class="vcell sm${x.out ? ' v-out' : ''}${x.state ? ` v-${x.state}` : ''}">${x.label !== undefined ? `<span class="vc">${x.label}</span>` : ''}<span class="vv">${x.value}</span></span>`).join('') : '<em class="vnone">一格也没有</em>');
+  const strip = sw => (sw.cells.length ? sw.cells.map(x => `<span class="vcell sm${x.out ? ' v-out' : ''}${x.state ? ` v-${x.state}` : ''}">${x.label !== undefined ? `<span class="vc">${x.label}</span>` : ''}<span class="vv">${x.value}</span></span>`).join('') : `<em class="vnone">${tr('一格也没有', 'no cells at all')}</em>`);
   const sweeps = arm.sweeps.map(sw => {
     const can = ui.avail.includes(sw.tap), on = can && lit.includes(sw.tap), body = `<span class="vsl">${sw.label}</span><span class="vstrip">${strip(sw)}</span>${on ? tag(sw.tap) : ''}`;
-    return can ? `<button class="vsweep${on ? ' on' : ''}" type="button" data-act="lit" data-t="${sw.tap}" aria-pressed="${on}" aria-label="${on ? '取消输入' : '点亮输入'} ${ui.taps[sw.tap].label}">${body}</button>` : `<span class="vsweep">${body}</span>`;
+    return can ? `<button class="vsweep${on ? ' on' : ''}" type="button" data-act="lit" data-t="${sw.tap}" aria-pressed="${on}" aria-label="${on ? tr('取消输入', 'Remove input') : tr('点亮输入', 'Light input')} ${ui.taps[sw.tap].label}">${body}</button>` : `<span class="vsweep">${body}</span>`;
   }).join('');
-  const filters = arm.filters ? `<div class="vfilts" role="radiogroup" aria-label="扫描臂的筛选"><span class="vsub">筛选</span>${arm.filters.map(f => `<button class="vfilt" type="button" role="radio" aria-checked="${arm.filter === f.v}" data-act="filter" data-v="${f.v}">${f.l}</button>`).join('')}</div>` : '';
-  return `<div class="varm sweeps"><span class="vsub">扫描臂 · ${arm.label}</span>${sweeps}${filters}</div>`;
+  const filters = arm.filters ? `<div class="vfilts" role="radiogroup" aria-label="${tr('扫描臂的筛选', 'Sweep arm filter')}"><span class="vsub">${tr('筛选', 'Filter')}</span>${arm.filters.map(f => `<button class="vfilt" type="button" role="radio" aria-checked="${arm.filter === f.v}" data-act="filter" data-v="${f.v}">${f.l}</button>`).join('')}</div>` : '';
+  return `<div class="varm sweeps"><span class="vsub">${tr('扫描臂', 'Sweep arm')} · ${arm.label}</span>${sweeps}${filters}</div>`;
 }
 
 /**
@@ -198,7 +199,7 @@ export function drawWires(board, circ, ui, probe, rubber) {
     const live = v !== undefined && v !== null && v !== false, dead = v === null;
     const cls = ['kw', `is-${srcType(circ, { taps: ui.taps, outs: ui.outs }, w.from)}`, live ? 'is-live' : dead ? 'is-dead' : '', ui.wire === w.to ? 'is-selected' : focus ? 'is-hot' : '', (ui.pick || ui.wire) && !focus ? 'is-dim' : ''].filter(Boolean).join(' ');
     const d = curve(a, b);
-    return `<g class="${cls}" style="--kw:${sourceColor(ui, w.from)}"><path class="kw-halo" d="${d}"/><path class="kw-line" d="${d}"/>${live ? `<path class="kw-flow" d="${d}"/>` : ''}<path class="kw-hit" data-act="wire" data-w="${w.to}" d="${d}"><title>点一下选中这根线</title></path></g>`;
+    return `<g class="${cls}" style="--kw:${sourceColor(ui, w.from)}"><path class="kw-halo" d="${d}"/><path class="kw-line" d="${d}"/>${live ? `<path class="kw-flow" d="${d}"/>` : ''}<path class="kw-hit" data-act="wire" data-w="${w.to}" d="${d}"><title>${tr('点一下选中这根线', 'Click to select this wire')}</title></path></g>`;
   });
   if (rubber) {
     const a = pt(rubber.from), b = pointIn(layer, rubber.x, rubber.y);

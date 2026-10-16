@@ -1,0 +1,54 @@
+/* Note typography, the same in Fieldnotes (.kit-prose) and on the notes site (Material's .md-typeset), on the tokens
+   in tokens.css. Reading text and headings are serif at a book measure; labels (table heads, summaries) are mono. */
+:is(.kit-prose, .md-typeset) { color: var(--body); font-family: var(--serif); font-size: var(--fs-body); line-height: var(--lh-body); }
+:is(.kit-prose, .md-typeset) > :first-child { margin-top: 0; }
+:is(.kit-prose, .md-typeset) :is(h1, h2, h3, h4) { color: var(--heading); font-family: var(--serif); font-weight: 500; letter-spacing: -.02em; scroll-margin-top: calc(var(--bar-h) + 34px); }
+:is(.kit-prose, .md-typeset) h1 { max-width: 720px; margin: 0 0 40px; font-size: clamp(36px, 5vw, 60px); line-height: 1.05; }
+:is(.kit-prose, .md-typeset) h1::after {
+  content: ''; display: block; width: 132px; height: 7px; margin-top: 26px;
+  border-top: 1px solid var(--rule);
+  background:
+    linear-gradient(var(--accent), var(--accent)) 0 0 / 42px 2px no-repeat,
+    repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 12px) 0 0 / 100% 4px no-repeat,
+    repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 60px) 0 0 / 100% 7px no-repeat;
+}
+:is(.kit-prose, .md-typeset) h2 { margin: 62px 0 18px; font-size: var(--fs-h2); line-height: 1.2; }
+:is(.kit-prose, .md-typeset) h3 { margin: 42px 0 13px; font-size: var(--fs-h3); line-height: 1.3; }
+:is(.kit-prose, .md-typeset) h4 { margin: 32px 0 10px; font-size: var(--fs-h4); line-height: 1.4; }
+:is(.kit-prose, .md-typeset) p { margin: 0 0 20px; }
+:is(.kit-prose, .md-typeset) strong { color: var(--heading); font-weight: 600; }
+:is(.kit-prose, .md-typeset) a { color: var(--accent-ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+:is(.kit-prose, .md-typeset) a:hover { color: var(--accent); }
+:is(.kit-prose, .md-typeset) :is(ul, ol) { margin: 0 0 24px; padding-left: 24px; }
+:is(.kit-prose, .md-typeset) li { margin: 0 0 7px; padding-left: 3px; }
+:is(.kit-prose, .md-typeset) li::marker { color: var(--accent); }
+:is(.kit-prose, .md-typeset) blockquote { margin: 34px 0; padding: 4px 0 4px 23px; color: var(--muted); border-left: 1px solid var(--rule); font-style: italic; }
+:is(.kit-prose, .md-typeset) blockquote p:last-child { margin-bottom: 0; }
+:is(.kit-prose, .md-typeset) hr { margin: 50px 0; border: 0; border-top: 1px solid var(--line); }
+:is(.kit-prose, .md-typeset) img { display: block; max-width: 100%; height: auto; margin: 32px auto; border-radius: var(--r-sm); box-shadow: 0 0 0 1px var(--line), 0 14px 30px -22px rgba(30, 26, 18, .45); }
+:is(.kit-prose, .md-typeset) :not(pre) > code { padding: .15em .34em; border-radius: 2px; color: var(--code-ink); background: var(--code-bg); font-family: var(--mono); font-size: .79em; word-break: break-word; }
+:is(.kit-prose, .md-typeset) pre { margin: 28px 0; padding: 20px 22px; overflow-x: auto; border-radius: 2px; color: var(--pre-ink); background: var(--pre-bg); box-shadow: 0 0 0 1px var(--pre-line); }
+:is(.kit-prose, .md-typeset) pre code { padding: 0; color: inherit; background: transparent; font-family: var(--mono); font-size: 13px; line-height: 1.7; }
+:is(.kit-prose, .md-typeset) table:not([class]) { width: 100%; margin: 28px 0; border-collapse: collapse; font-family: var(--sans); font-size: var(--fs-ui); }
+:is(.kit-prose, .md-typeset) :is(th, td) { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+:is(.kit-prose, .md-typeset) th { color: var(--muted); border-bottom-color: var(--rule); font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+:is(.kit-prose, .md-typeset) details { margin: 28px 0; padding: 12px 16px; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--line); }
+:is(.kit-prose, .md-typeset) summary { color: var(--muted); font-family: var(--mono); font-size: var(--fs-label); letter-spacing: .06em; cursor: pointer; }
+:is(.kit-prose, .md-typeset) .katex-display { margin: 1.2em 0; padding: 4px 0; overflow-x: auto; overflow-y: hidden; }
+
+/* Pages built from ui.css pieces inside a note (the home page's hero and cards) keep the pieces' own spacing. */
+:is(.kit-prose, .md-typeset) .kit-hero { padding: 8px 0 18px; }
+:is(.kit-prose, .md-typeset) h1.kit-title { margin: 0; font-size: var(--fs-title); }
+:is(.kit-prose, .md-typeset) .kit-kicker { margin: 0 0 12px; }
+:is(.kit-prose, .md-typeset) .kit-lede { margin: 22px 0 0; max-width: 40em; }
+:is(.kit-prose, .md-typeset) h2.kit-section { margin: 52px 0 16px; font-size: 24px; }
+:is(.kit-prose, .md-typeset) a.kit-card { color: var(--ink); text-decoration: none; }
+:is(.kit-prose, .md-typeset) .kit-card :is(span, p) { display: block; margin: 0; }
+:is(.kit-prose, .md-typeset) .kit-card .kit-card-foot { display: flex; }
+:is(.kit-prose, .md-typeset) .kit-card-title { font-size: 21px; }
+
+@media (max-width: 690px) {
+  :is(.kit-prose, .md-typeset) { font-size: 17px; line-height: 1.74; }
+  :is(.kit-prose, .md-typeset) h2 { margin-top: 48px; font-size: 26px; }
+  :is(.kit-prose, .md-typeset) h3 { font-size: 21px; }
+}

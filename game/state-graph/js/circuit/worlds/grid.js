@@ -1,7 +1,9 @@
 // Street-map grids: right/down routes, the same board holding 是 / 否, and two piles of stones laid out as a grid.
 
 import { ORDERS, rcName } from '../../algo.js';
-import { world, look, cell, num, yes } from '../world.js';
+import { W } from '../../svg.js';
+import { T, tr } from '../../i18n.js';
+import { world, look, cell, num, yes, DIR, THIS_CELL } from '../world.js';
 
 export const inGrid = (t, r, c) => r >= 0 && r < t.R && c >= 0 && c < t.C;
 const isRock = (t, r, c) => (t.rocks || []).some(p => p[0] === r && p[1] === c);
@@ -12,20 +14,20 @@ export const GRID_DIAL = Object.fromEntries(Object.entries(ORDERS).map(([id, o])
 /** The street map. Worlds built on it override what they need; methods refer to the world they end up in (this). */
 export const gridDef = {
   taps: {
-    ul: cell('左上', '左上', [0, -1, -1]), up: cell('上面', '上', [0, -1, 0]), ur: cell('右上', '右上', [0, -1, 1]), left: cell('左边', '左', [0, 0, -1]),
-    right: cell('右边', '右', [0, 0, 1]), dl: cell('左下', '左下', [0, 1, -1]), down: cell('下面', '下', [0, 1, 0]), dr: cell('右下', '右下', [0, 1, 1]),
-    start: yes('是起点', '起', 'flag'), end: yes('是终点', '终', 'goal'), rock: yes('是石头', '石', 'rock'),
-    cost: num('本格体力', '体', 'bolt'), coin: num('本格金币', '币', 'coin'),
+    ul: cell(...DIR.ul, [0, -1, -1]), up: cell(...DIR.up, [0, -1, 0]), ur: cell(...DIR.ur, [0, -1, 1]), left: cell(...DIR.left, [0, 0, -1]),
+    right: cell(...DIR.right, [0, 0, 1]), dl: cell(...DIR.dl, [0, 1, -1]), down: cell(...DIR.down, [0, 1, 0]), dr: cell(...DIR.dr, [0, 1, 1]),
+    start: yes(T('是起点', 'is start'), T('起', 'start'), 'flag'), end: yes(T('是终点', 'is end'), T('终', 'end'), 'goal'), rock: yes(T('是石头', 'is rock'), T('石', 'rock'), 'rock'),
+    cost: num(T('本格体力', 'cell energy'), T('体', 'nrg'), 'bolt'), coin: num(T('本格金币', 'cell coins'), T('币', 'coin'), 'coin'),
   },
   facts: ['start', 'end', 'rock', 'cost', 'coin'],
-  outs: [['cell', '本格', [0, 0, 0]]],
+  outs: [['cell', THIS_CELL, [0, 0, 0]]],
   dial: GRID_DIAL,
   here: (t, { r, c }) => [[r, c]],
   keyAt: (t, L, r, c) => (inGrid(t, r, c) ? `${r},${c}` : null),
   /** The number a cell shows in its corner: its cost, its coins, or 起 / 终. */
   mark(t, key) {
     const [r, c] = key.split(',').map(Number);
-    const corner = t.costs ? t.costs[r][c] : t.coins ? t.coins[r][c] : key === '0,0' ? '起' : r === t.R - 1 && c === t.C - 1 ? '终' : '';
+    const corner = t.costs ? t.costs[r][c] : t.coins ? t.coins[r][c] : key === '0,0' ? W.start : r === t.R - 1 && c === t.C - 1 ? W.end : '';
     return { corner, cls: isRock(t, r, c) ? 'rock' : t.coins && t.coins[r][c] ? 'coin' : '' };
   },
   fact(t, { r, c }, id) {
@@ -46,7 +48,7 @@ export const gridDef = {
   answerKey: (t, o) => (o.answerAt === 'start' ? '0,0' : `${t.R - 1},${t.C - 1}`),
   answer(t, table, o) { return table.get(this.answerKey(t, o)); },
   name: key => rcName(key),
-  label: t => `${t.R}×${t.C}${t.rocks ? ` · ${t.rocks.length} 块石头` : ''}`,
+  label: t => `${t.R}×${t.C}${t.rocks ? tr(` · ${t.rocks.length} 块石头`, ` · ${t.rocks.length} rock${t.rocks.length > 1 ? 's' : ''}`) : ''}`,
   orderText: o => ORDERS[o.scan || 'rowTL'].l,
   sample: t => { const r = Math.min(1, t.R - 1), c = Math.min(1, t.C - 1); return { r, c, id: `${r},${c}` }; },
   scene(t, view, o) {
@@ -71,16 +73,16 @@ export const gridYes = world({ ...gridDef, cellType: 'bool' });
 export const piles = world({
   ...gridDef,
   cellType: 'bool',
-  taps: { up: cell('A 堆少 1 颗', 'A−1', [0, -1, 0]), left: cell('B 堆少 1 颗', 'B−1', [0, 0, -1]), ul: cell('两堆各少 1 颗', '各−1', [0, -1, -1]) },
+  taps: { up: cell(T('A 堆少 1 颗', 'one fewer in A'), 'A−1', [0, -1, 0]), left: cell(T('B 堆少 1 颗', 'one fewer in B'), 'B−1', [0, 0, -1]), ul: cell(T('两堆各少 1 颗', 'one fewer in each'), T('各−1', 'AB−1'), [0, -1, -1]) },
   facts: [],
   mark: () => ({ corner: '' }),
-  where: x => `A 堆 ${x.r} 颗、B 堆 ${x.c} 颗`,
-  name: key => { const [a, b] = key.split(','); return `A 堆 ${a} 颗、B 堆 ${b} 颗`; },
-  label: t => `${t.R - 1} 颗和 ${t.C - 1} 颗`,
-  orderText: () => '逐行，从两堆都空开始',
+  where: x => tr(`A 堆 ${x.r} 颗、B 堆 ${x.c} 颗`, `${x.r} in pile A, ${x.c} in pile B`),
+  name: key => { const [a, b] = key.split(','); return tr(`A 堆 ${a} 颗、B 堆 ${b} 颗`, `${a} in pile A, ${b} in pile B`); },
+  label: t => tr(`${t.R - 1} 颗和 ${t.C - 1} 颗`, `${t.R - 1} and ${t.C - 1} stones`),
+  orderText: () => tr('逐行，从两堆都空开始', 'row by row, starting with both piles empty'),
   scene(t, view, o) {
     const g = look(view, [this.answerKey(t, o)], [], o.bench), sp = 54, sz = 46, cells = [];
-    const texts = [{ x: -sp - 12, y: -sp + 19, t: 'B 堆', anchor: 'end' }, { x: -sp - 12, y: 5, t: 'A 堆', anchor: 'end' }];
+    const texts = [{ x: -sp - 12, y: -sp + 19, t: tr('B 堆', 'pile B'), anchor: 'end' }, { x: -sp - 12, y: 5, t: tr('A 堆', 'pile A'), anchor: 'end' }];
     for (let c = 0; c < t.C; c++) cells.push({ id: `bx${c}`, x: c * sp, y: -sp + 14, w: sz, h: 26, value: c, cls: 'axis' });
     for (let r = 0; r < t.R; r++) {
       cells.push({ id: `ax${r}`, x: -sp + 8, y: r * sp, w: 30, h: sz, value: r, cls: 'axis' });

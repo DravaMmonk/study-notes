@@ -1,5 +1,7 @@
 // Shared DOM, formatting and feedback helpers.
 
+import { T, tr } from './i18n.js';
+
 export const $ = (s, r = document) => r.querySelector(s);
 export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 /** The desktop workbench layout (see styles.css). */
@@ -9,7 +11,7 @@ export const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } 
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 export const OPS = { sum: a => a.reduce((s, x) => s + x, 0), min: a => Math.min(...a), max: a => Math.max(...a) };
-export const opLabel = { sum: '加起来', min: '取较小', max: '取较大' };
+export const opLabel = { sum: T('加起来', 'sum'), min: T('取较小', 'min'), max: T('取较大', 'max') };
 
 /** Number formatting for board cells; null renders empty. Fractions keep two decimals, or two significant digits below 1. */
 export function fmt(v) {
@@ -22,7 +24,7 @@ export function fmt(v) {
   return v == null ? '' : String(v);
 }
 /** Signal formatting for circuit values: null is "no route", booleans are yes/no, a segment lists its first few values. */
-export const signal = v => (Array.isArray(v) ? `[${v.slice(0, 4).map(signal).join(' ')}${v.length > 4 ? ' …' : ''}]` : v === null ? '—' : v === true ? '是' : v === false ? '否' : fmt(v));
+export const signal = v => (Array.isArray(v) ? `[${v.slice(0, 4).map(signal).join(' ')}${v.length > 4 ? ' …' : ''}]` : v === null ? '—' : v === true ? tr('是', 'yes') : v === false ? tr('否', 'no') : fmt(v));
 
 export const ICON = {
   back: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -42,7 +44,7 @@ export const ICON = {
 let toastTimer = 0;
 export function toast(msg) {
   const t = $('#toast');
-  t.textContent = msg;
+  t.textContent = String(msg);
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
