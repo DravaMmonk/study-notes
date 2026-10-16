@@ -717,3 +717,8 @@ img{max-width:100%}
 .ofig.big{grid-template-columns:repeat(var(--oc),28px);gap:3px}
 .ofig.big i{width:28px;height:28px;font-size:12px;line-height:26px}
 .chip svg{flex:none}
+.cell.gold rect{fill:var(--signal-soft);stroke:var(--signal);stroke-width:2.4}
+.cell.gold .lb,.cell.gold .val{fill:var(--signal)}
+.cell.trap rect,.cell.cliff rect{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.8}
+.cell.trap .lb,.cell.trap .val,.cell.cliff .lb,.cell.cliff .val{fill:var(--bad)}
+.vcell.v-gold{border-color:var(--signal)} .vcell.v-trap,.vcell.v-cliff{border-color:var(--bad)}

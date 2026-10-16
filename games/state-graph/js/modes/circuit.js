@@ -253,11 +253,12 @@ export function circuitMode(L, saved) {
       const v = st.view, Vw = V();
       if (!v) return `测试棋盘：点一个格子可以填数，或者让机器人站过去，红框里马上显示电路板的答案。点「运行测试」会清空棋盘，机器人从头按「${Vw.orderText(opt())}」的顺序走。`;
       const s = shownStep();
-      if (!v.end) return s ? `正在算${Vw.where(s.cell)}` : '';
+      if (!v.end) return s ? `${s.round ? `第 ${s.round} 轮 · ` : ''}正在算${Vw.where(s.cell)}${s.round ? '。黄框是这一轮里变了的格子。' : ''}` : '';
       if (v.focus !== null && v.focus !== undefined) return `${Vw.where(s.cell)}：视野和电路板上的数，是机器人在这一格看到和算出的值。再点一次取消。`;
       const more = Vw.inspect === false ? '' : '点棋盘上算过的格子，可以查看机器在那一格算出的值。';
       if (v.halt) return `机器在${Vw.where(s.cell)}出了错。${more}`;
-      return `${v.pass ? `答案 ${signal(v.res.value)}，正确。` : `机器算出 ${signal(v.res.value)}，应该是 ${signal(expected()[st.ti])}。`}${more}`;
+      const rounds = v.res.rounds ? `扫了 ${v.res.rounds} 轮，最后一轮一格也没变。` : '';
+      return `${rounds}${v.pass ? `答案 ${signal(v.res.value)}，正确。` : `机器算出 ${signal(v.res.value)}，应该是 ${signal(expected()[st.ti])}。`}${more}`;
     },
     after: () => `${st.view && st.view.end && !busy() ? '<button class="sec-btn backbench" type="button" data-act="sandbox">回到棋盘测试</button>' : ''}${L.after ? L.after(tests()[st.ti], st.view, st) : ''}`,
     tip() {
