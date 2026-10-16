@@ -184,33 +184,37 @@ function glyphAt(name, ox, oy, hi, seed) {
   const noisy = addNoise(clean, seed, 0.08)
   return fromFn(16, 16, (x, y) => (x === 0 || y === 0 || x === 15 || y === 15 ? clean.data[y * 16 + x] : noisy.data[y * 16 + x]))
 }
-// [glyph, x offset, y offset, ink, noise seed]. Mean brightness: X(0.65) 0.177 < O(0.6) 0.194 <
-// X(0.9) 0.213 < X(0.95) 0.220 < O(0.75) 0.222 < O(0.9) 0.250, so no single brightness cut works.
+// [glyph, x offset, y offset, ink, noise seed]: sixteen glyphs at every offset 1–5, inks 0.7–0.95, two with
+// noise. Six used to be too few: a trained network got only about half of new glyphs right; with these the
+// reference network passes after 59 steps, holds from step 69, and by then gets nearly every new glyph right. Inks stay at 0.7 or more, because a one-kernel network
+// cannot tell a fainter X from a strong O. Mean brightness interleaves (the brightest X, 0.2195, outshines the
+// dimmest O, 0.2125), so no single brightness cut separates them and a network with no ReLU or max pooling fails.
 const XO_CASES = [
-  ['X', 3, 3, 0.9, 0],
-  ['X', 5, 2, 0.65, 0],
-  ['X', 1, 4, 0.95, 7],
-  ['O', 3, 3, 0.6, 0],
-  ['O', 1, 5, 0.9, 0],
-  ['O', 4, 1, 0.75, 8],
+  ['O', 1, 4, 0.89, 0], ['X', 4, 1, 0.76, 0], ['O', 2, 4, 0.85, 239], ['X', 1, 2, 0.86, 0],
+  ['O', 1, 5, 0.78, 0], ['X', 3, 5, 0.86, 0], ['O', 4, 3, 0.7, 0], ['X', 3, 3, 0.9, 0],
+  ['O', 2, 4, 0.86, 0], ['X', 4, 5, 0.91, 0], ['O', 5, 4, 0.89, 0], ['X', 2, 1, 0.81, 0],
+  ['O', 1, 5, 0.8, 0], ['X', 2, 4, 0.95, 0], ['O', 3, 3, 0.78, 570], ['X', 3, 3, 0.93, 0],
 ]
-// Held back, drawn the same way: new places, inks and noise seeds inside the same ranges.
+// Held back, drawn the same way: glyphs the network has not seen. The reference network, and the variants with
+// two poolings or pooling before ReLU, all get them right from the step their visible tests first pass.
 const XO_HIDDEN = [
-  ['另一处的 X', ['X', 2, 4, 0.85, 0]],
-  ['靠下的淡 O 带噪点', ['O', 3, 5, 0.6, 126]],
-  ['偏上的 X 带噪点', ['X', 4, 1, 0.9, 129]],
+  ['新的 X', ['X', 3, 2, 0.85, 0]],
+  ['新的 O', ['O', 4, 1, 0.78, 0]],
+  ['新的 X 带噪点', ['X', 5, 4, 0.89, 160]],
 ]
-const xoLabel = ([name, ox, oy, hi, seed]) => `${name}${ox !== 3 || oy !== 3 ? ' 挪位' : ''}${hi < 0.7 ? ' 淡' : ''}${seed ? ' 噪点' : ''}`
+// Numbered per letter, so sixteen labels stay distinct: X 1, O 1, X 2 …
+const xoLabel = ([name, , , , seed], i) => `${name} ${Math.floor(i / 2) + 1}${seed ? ' 噪点' : ''}`
 
-// Weights the game's trainer reaches from CONV_INIT on the reference network (60 steps; it first
-// passes after ~11). The linear weights are where 400 steps leave a network with no ReLU or pooling.
+// Weights the game's trainer reaches from CONV_INIT on the reference network after 80 steps (it first passes
+// after 59 and holds from 69). The linear weights are where 400 steps leave a network with no ReLU or pooling,
+// still wrong on 4 of the 16.
 const XO_SOLUTION = {
-  w: [-0.0634, 4.3001, -2.7399, 0.5517, -0.8246, -0.9946, -0.9817, -3.4019, 3.2936],
-  p: [7.0717, -5.3686],
+  w: [2.1414, 1.9876, -3.8059, -2.6066, -1.9976, 2.9058, -0.944, -1.5222, 0.9997],
+  p: [6.6784, -4.1486],
 }
 const XO_LINEAR = {
-  w: [-1.08, -1.0106, -1.0993, -1.0314, -0.8977, -1.039, -1.0551, -1.0416, -1.0605],
-  p: [3.0206, 5.8],
+  w: [1.4764, 1.5599, 1.4452, 1.5596, 1.7468, 1.5528, 1.4841, 1.5482, 1.4974],
+  p: [-4.8973, 14.4896],
 }
 const xoNet = ({ relu = true, pool = 'max', w = CONV_INIT, p = [1, 0] } = {}) => {
   const nodes = { c: ['lrnConv', { w: [...w] }] }
@@ -368,9 +372,10 @@ export const levels = [
     requires: ['4-8'],
     unlocks: [],
     palette: ['lrnConv', 'relu', 'maxpool', 'downsample', 'lrnGap', 'lrnDense', 'lrnSigmoid'],
-    trainRate: 200,
+    // Smaller than it was: at 200 the steps zig-zag, so a passing network kept failing again for a while.
+    trainRate: 80,
     check: { tolerance: 0.4 },
-    tests: XO_CASES.map((c) => test(xoLabel(c), { in: glyphAt(c[0], c[1], c[2], c[3], c[4]) }, { out: image(1, 1, c[0] === 'X' ? 1 : 0) })),
+    tests: XO_CASES.map((c, i) => test(xoLabel(c, i), { in: glyphAt(c[0], c[1], c[2], c[3], c[4]) }, { out: image(1, 1, c[0] === 'X' ? 1 : 0) })),
     hidden: XO_HIDDEN.map(([label, c]) => test(label, { in: glyphAt(c[0], c[1], c[2], c[3], c[4]) }, { out: image(1, 1, c[0] === 'X' ? 1 : 0) })),
     solution: xoNet(XO_SOLUTION),
     naive: xoNet({ relu: false, pool: 'none', ...XO_LINEAR }),

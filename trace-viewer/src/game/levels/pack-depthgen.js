@@ -458,17 +458,18 @@ function verifyGan() {
 // ======================= levels =======================
 
 // 8-1 test images: blobs spread in both directions, so no single line through them fits.
-const AE_POSITIONS = [[4, 4.5], [11.5, 5], [6, 11.5], [12, 11], [8, 8], [3.5, 9]]
+// Sixteen blobs on a slightly staggered 4×4 grid over the middle of the image. Six used to be too few: they
+// could not pin down the encoder's weights, so a trained encoder only knew the places it had seen.
+const AE_POSITIONS = [[3.5, 3.5], [3.8, 6.33], [3.5, 9.17], [3.8, 12], [6.33, 3.7], [6.63, 6.53], [6.33, 9.37], [6.63, 12.2], [9.17, 3.5], [9.47, 6.33], [9.17, 9.17], [9.47, 12], [12, 3.7], [12.3, 6.53], [12, 9.37], [12.3, 12.2]]
 const aeTests = AE_POSITIONS.map(([x, y], i) => {
   const img = blob(x, y)
   return test(`斑点 ${i + 1}`, { in: img }, { out: img })
 })
-// Held back: three of the blobs nudged a quarter pixel. Six blobs are too few to pin down 16 encoder
-// weights per number, so a trained encoder only knows the neighbourhood of each blob it saw; a blob at
-// a truly new place fails however long it trains (an exact centroid encoder would pass anywhere).
-const AE_HIDDEN = [[11.75, 5, 2], [12, 11.25, 4], [3.5, 9.25, 6]].map(([x, y, i]) => {
+// Held back: blobs at places the training never showed. A two-number autoencoder trained from the default start
+// draws them right from the step its visible tests first pass, and every step after.
+const AE_HIDDEN = [[4.17, 10.45], [7.97, 11.46], [7.92, 5.1]].map(([x, y], i) => {
   const img = blob(x, y)
-  return test(`斑点 ${i} 挪一点`, { in: img }, { out: img })
+  return test(`新位置 ${i + 1}`, { in: img }, { out: img })
 })
 
 // Whether the camera can reach the display without passing an encoder.
@@ -489,15 +490,15 @@ function bypassesBottleneck(graph) {
   return false
 }
 
-// Weights reached by pressing 训练 from the default start (trainStep at trainRate 30): two numbers pass
-// after ~30 steps; one number is stuck after 800 steps, two of six blobs right at best.
+// Weights reached by pressing 训练 from the default start (trainStep at trainRate 30): two numbers pass after
+// 18 steps (these are 20 steps later); one number after 400 steps still draws only 4 of the 16 blobs.
 const AE_TRAINED_2 = {
-  enc: [0.149, -0.409, -0.256, 0.312, -0.193, -0.157, 0.298, 0.217, -0.19, -0.429, -0.828, -0.469, 0.111, 0.7, 0.535, 0.173, -0.354, -0.736, -1.011, -0.282, 0.145, 0.529, 0.569, 0.464, 0.195, 0.193, 0.251, 0.006, -0.233, 0.199, -0.208, 0.053, ...ENCODER_START.slice(32)],
-  dec: [0.265, 1.486, 0.015, 1.317, -0.22, -0.08, 0.209, 0.19],
+  enc: [0.147, -0.326, -0.312, 0.003, -0.008, 0.077, 0.312, 0.226, -0.314, -0.812, -0.779, -0.045, -0.077, 0.498, 0.899, 0.39, -0.377, -0.847, -0.985, -0.191, -0.146, 0.321, 0.652, 0.562, 0.197, 0.189, 0.232, 0.08, -0.148, 0.011, -0.446, 0.004, ...ENCODER_START.slice(32)],
+  dec: [0.474, 1.49, 0.015, 1.479, -0.5, -0.08, 0.345, 0.064],
 }
 const AE_TRAINED_1 = {
-  enc: [0.139, -0.498, -0.716, -0.528, -0.514, 0.868, 1.719, 0.657, -0.164, -0.154, -0.14, -0.244, -0.096, 0.84, 0.583, 0.144, ...ENCODER_START.slice(16)],
-  dec: [0.711, 0.201, 0.015, 2.339, 0.003, -0.08, -0.367, 0.976],
+  enc: [0.039, -0.696, -0.56, -0.061, 0.012, 0.236, 0.694, 0.431, -0.3, -0.658, -0.54, -0.033, -0.075, 0.336, 0.667, 0.339, ...ENCODER_START.slice(16)],
+  dec: [1.113, 0.201, 0.015, 1.111, 0.003, -0.08, 0.143, 0.131],
 }
 const aeGraph = (k, trained) =>
   build({ e: ['dg_encode', { k, w: trained.enc }], d: ['dg_decode', { w: trained.dec }] }, ['in>e', 'e>d', 'd>out'])
@@ -544,7 +545,8 @@ export const levels = [
     requires: ['4-9'],
     unlocks: ['dg-decoder'],
     palette: ['dg_encode', 'dg_decode'],
-    check: { tolerance: 0.08, mismatches: 3 },
+    // Within 0.2 a pixel, which is a blob drawn less than half a pixel off; one number misses by several pixels.
+    check: { tolerance: 0.2, mismatches: 3 },
     trainRate: 30,
     constraint: (score, graph) => {
       if (bypassesBottleneck(graph)) return '图像没有经过编码器'
