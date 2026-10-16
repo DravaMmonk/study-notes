@@ -22,6 +22,7 @@ export const GAMES = [
       en: 'No programming or algorithms background needed. Starting from cells and arrows, a little robot works across a board cell by cell while you wire up the circuit boards that count routes, compare words and pack a backpack, then carry them over to games, language, pictures and reinforcement learning.',
     },
     levels: 56, art: 'grid',
-    progress: () => Object.keys(read('state-graph-v2')?.done || {}).length,
+    // Saved by the shared game shell under <id>.v1; saves from before it under state-graph-v2.
+    progress: () => (read('state-graph.v1')?.solved || Object.keys(read('state-graph-v2')?.done || {})).length,
   },
 ];
