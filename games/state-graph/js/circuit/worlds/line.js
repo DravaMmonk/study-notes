@@ -51,7 +51,7 @@ export const strip = line({
 
 /** A pile of n stones; cell i holds whether the player to move, with i stones left, wins. */
 export const pile = line({
-  cellType: 'bool', noun: i => `剩 ${i} 颗`, out: '先手赢吗', ground: ['一颗不剩', '空', 'ground'], label: t => `${t.n} 颗石子`, orderText: '从一颗不剩开始，一颗一颗往上',
+  cellType: 'bool', noun: i => `剩 ${i} 颗`, out: '轮到的人赢吗', ground: ['一颗不剩', '空', 'ground'], label: t => `${t.n} 颗石子`, orderText: '从一颗不剩开始，一颗一颗往上',
   near: { m2: ['拿走 2 颗后', '−2'], m1: ['拿走 1 颗后', '−1'], p1: ['多 1 颗', '+1'] },
 });
 
@@ -66,7 +66,7 @@ export const coins = line({
 
 /** Splitting a string into dictionary words: position i is "the first i letters"; the arm looks back at every position. */
 export const words = line({
-  cellType: 'bool', size: t => t.s.length, noun: i => `前 ${i} 个字母`, out: '拆得开吗', ground: ['是开头', '头', 'flag'], label: t => t.s, orderText: '从开头往右', top: t => t.s,
+  cellType: 'bool', size: t => t.s.length, noun: i => `前 ${i} 个字母`, out: '切得开吗', ground: ['是开头', '头', 'flag'], label: t => t.s, orderText: '从开头往右', top: t => t.s,
   near: { m2: ['少 2 个字母', '−2'], m1: ['少 1 个字母', '−1'], p1: ['多 1 个字母', '+1'] },
   armTaps: ['前面每个位置', '扫', 'bools'],
   arm(t, { i }, o) {

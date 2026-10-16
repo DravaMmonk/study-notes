@@ -77,7 +77,7 @@ const doorAtCell = (t, r, c) => { const d = t.doors.find(x => x.at[0] === r && x
 export const keysMaze = world({
   taps: {
     up: cell('本层·上面', '上', [0, -1, 0]), left: cell('本层·左边', '左', [0, 0, -1]),
-    start: yes('是起点', '起', 'flag'), gain: yes('捡到本层的钥匙', '捡', 'key'), lose: yes('钥匙会把路线带走', '走', 'key'), shut: yes('门对本层关着', '关', 'door'),
+    start: yes('是起点', '起', 'flag'), gain: yes('捡到钥匙', '捡', 'key'), lose: yes('路线被带走', '走', 'key'), shut: yes('门关着', '关', 'door'),
     upPrev: cell('那层·上面', '那↑'), leftPrev: cell('那层·左边', '那←'),
   },
   facts: ['start', 'gain', 'lose', 'shut'],

@@ -1,4 +1,4 @@
-// Chapter 13: a cell's sources can be a whole segment — the broom robot's arm sweeps it, a filter picks from it.
+// Chapter 12: a cell's sources can be a whole segment — the broom robot's arm sweeps it, a filter picks from it.
 
 import { houseRow } from '../svg.js';
 import { circ, usesTap } from '../circuit/components.js';
@@ -29,11 +29,11 @@ export const sweep = [
       {
         world: 'prefix', facts: ['money'], palette: KIT, checkAll: true, noArm: true, ask: '扫描臂收起来了：只用左边一格和这家的钱。',
         solution: circ([['a', 'add']], ['tap:prev>a:0', 'tap:money>a:1', 'a>out:cell']),
-        hints: ['到这一家一共的钱 = 到上一家一共的钱 + 这家的钱。', '点亮左边一格和「这家的钱」，接进加法器。'],
+        hints: ['到这一家一共的钱 = 到上一家一共的钱 + 这家的钱。', '点亮「上一格」和「这家的钱」，接进加法器。'],
       },
     ],
     unlock: 'sweep',
-    debrief: { title: '能用上一格，就别重扫', body: ['两种做法答案一样。可扫描臂在第 n 家要读 n 格，100 户人家一共要读 5,050 格；用左边一格，每家只读 1 格，一共 100 格。', '<b>能用上一格存好的答案，就别从头再扫一遍</b>：这是动态规划的老规矩。', '可有的问题，左边一格<b>不够用</b>：答案要从一整段里挑。下一关就是。'], note: '前缀和：到这一家一共 = 到上一家一共 + 这家。能用上一格，就别重扫。' },
+    debrief: { title: '能用上一格，就别重扫', body: ['两种做法答案一样。可扫描臂在第 n 家要读 n 格，100 户人家一共要读 5050 格；用左边一格，每家只读 1 格，一共 100 格。', '<b>能用上一格存好的答案，就别从头再扫一遍</b>：这是动态规划的老规矩。', '可有的问题，左边一格<b>不够用</b>：答案要从一整段里挑。下一关就是。'], note: '前缀和：到这一家一共 = 到上一家一共 + 这家。能用上一格，就别重扫。' },
   },
   {
     id: 'rising', ch: 11, title: '越来越高', short: '在一整段里挑', mode: 'circuit', robot: 'broom',
@@ -49,7 +49,7 @@ export const sweep = [
     solution: circ([['m', 'mmax'], ['k', 'const', 1], ['a', 'add']], ['tap:seg>m:0', 'm>a:0', 'k>a:1', 'a>out:cell']),
     hints: ['这一根前面可以接任何一根，只要比它矮：把扫描臂点亮，再打开筛选「只留比这根矮的」。', '在留下的格子里挑最大的，再算上这一根自己：取较大，然后 + 1。'],
     diagnose: (c, st) => (usesTap(c, 'seg') && st.filter[st.stage] !== 'lower' ? '扫描臂现在把前面每一根都扫进来了。接在一根比它高（或一样高）的柱子后面，就不是一根比一根高了：打开筛选。' : null),
-    debrief: { title: '最长上升子序列', body: ['这一格的来路不再是固定的一两格，而是<b>前面所有符合条件的格子</b>，有几条要看数据。', '这个问题叫<b>最长上升子序列</b>：股价最长连涨了几段、一堆版本最多能排出多长的升级路线，用的都是它。'], note: '来路可以是一整段：在所有比我矮的格子里取最大，再 + 1。' },
+    debrief: { title: '最长上升子序列', body: ['这一格的来路不再是固定的一两格，而是<b>前面所有符合条件的格子</b>，有几条要看数据。', '这个问题叫<b>最长上升子序列</b>：从一串股价里最多挑出几天、一天比一天高，一堆版本最多能排出多长的升级路线，用的都是它。'], note: '来路可以是一整段：在所有比我矮的格子里取最大，再 + 1。' },
   },
   {
     id: 'change', ch: 11, title: '凑零钱', short: '每种硬币各退一步', mode: 'circuit', robot: 'broom',
@@ -65,7 +65,7 @@ export const sweep = [
       {
         world: 'coins', facts: ['ground'], palette: KIT, ask: '最少要几枚硬币？',
         solution: circ([['a', 'add'], ['k', 'const', 1], ['m', 'mmin'], ['z', 'const', 0], ['g', 'pass']], ['tap:seg>a:0', 'k>a:1', 'a>m:0', 'tap:ground>g:0', 'z>g:1', 'g>m:1', 'm>out:cell']),
-        hints: ['最后一枚可能是任何一种硬币：点亮扫描臂，它送来每种硬币各退一枚之前的格子。', '加法器能给一整段的每个数都 + 1（算上最后这一枚），再接「取较小」。', '0 元不需要硬币：「是 0 元」放行一个 0。'],
+        hints: ['最后一枚可能是任何一种硬币：点亮扫描臂，它送来付这一枚之前（每种硬币各退一枚之后）的格子。', '加法器能给一整段的每个数都 + 1（算上最后这一枚），再接「取较小」。', '0 元不需要硬币：「是 0 元」放行一个 0。'],
         done: { head: '最少几枚算好了', body: ['同一张表，换个问题：一共有几种付法？想想要换哪个元件。'] },
       },
       {
@@ -77,7 +77,7 @@ export const sweep = [
     debrief: { title: '硬币问题', body: ['扫描臂按每种硬币各退一步，因为最后一枚可能是任何一种。求最少几枚，取较小再 + 1；数付法，就加起来。', '看看第二个问题的答案：1 + 2 和 2 + 1 被算成了两种。表只记「凑到了几元」，不记用过哪些硬币，所以<b>先付哪一枚</b>就算不同的付法。只想数组合的话，得一种硬币一种硬币地加进来，就像第 10 章的背包表。'], note: '凑零钱：最后一枚可能是任何一种硬币，来路就是每种硬币各退一步。' },
   },
   {
-    id: 'wordbreak', ch: 11, title: '拆单词', short: '挑出刚好是一个词的', mode: 'circuit', robot: 'broom',
+    id: 'wordbreak', ch: 11, title: '切单词', short: '挑出刚好是一个词的', mode: 'circuit', robot: 'broom',
     intro: [
       { t: '一串字母没有空格，比如 catsanddog。它能不能切成词典里的词？', fig: { cells: letters('catsanddog'), edges: [] } },
       { t: '格子 i 记：<b>前 i 个字母能不能切开</b>。第 0 格是开头，一个字母都没有，当然能。' },

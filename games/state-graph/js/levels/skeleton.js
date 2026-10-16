@@ -1,4 +1,4 @@
-// Chapter 12: one skeleton, many questions — swap the merge, then fill the table with 是 / 否 and with wins and losses.
+// Chapter 11: one skeleton, many questions — swap the merge, then fill the table with 是 / 否 and with wins and losses.
 
 import { gridScene, circuitFig } from '../svg.js';
 import { circ, hasKind } from '../circuit/components.js';
@@ -50,7 +50,7 @@ export const skeleton = [
       { t: '新元件：「<b>任一是</b>」汇合器。接进来的信号里只要有一个「是」，它就输出「是」。到一个路口，上面或左边只要有一边能到，这里就能到。', fig: circuitFig({ taps: [['u', '上面 · 否', 'bool'], ['l', '左边 · 是', 'bool']], parts: [['m', '汇合器', '任一是']], outs: [['o', '本格 · 是']], wires: [['u', 'm', 'bool'], ['l', 'm', 'bool'], ['m', 'o', 'bool']] }) },
       { t: '起点本身当然能到。石头格呢？拦截闸现在也能拦「是 / 否」：被拦下的格子写「—」，「任一是」不会把它当成「是」。' },
     ],
-    mission: { goal: '只能往右或往下走，不能经过石头。每个格子写上「是」或「否」：从起点能不能走到这里。', how: '这一关会检查整张表。点亮上面、左边和「是起点」，用「任一是」汇合器合起来，别忘了石头。' },
+    mission: { goal: '只能往右或往下走，不能经过石头。每个格子写上「是」或「否」：从起点能不能走到这里（石头格写「—」）。', how: '这一关会检查整张表。点亮上面、左边和「是起点」，用「任一是」汇合器合起来，别忘了石头。' },
     world: 'gridYes', facts: ['start', 'rock'], palette: YESNO, fresh: ['many'], checkAll: true,
     tests: [{ R: 4, C: 5, rocks: [[0, 3], [1, 1], [2, 3]] }, { R: 4, C: 4, rocks: [[0, 2], [1, 1], [2, 0]] }, { R: 5, C: 5, rocks: [[1, 2], [2, 1], [3, 3], [4, 2]] }],
     testLabel: t => `${t.R}×${t.C} · ${t.rocks.length} 块石头`,
@@ -63,8 +63,8 @@ export const skeleton = [
     intro: [
       { t: '桌上有一堆石子。两个人轮流拿，每次拿 <b>1 颗或 2 颗</b>，拿走最后一颗的人赢。轮到你先拿，你能赢吗？' },
       { t: '把「还剩几颗」排成一行，每一格记：<b>轮到你、还剩这么多颗时，你能不能赢</b>。一颗不剩时轮到你，说明对手刚拿走了最后一颗：你输了。', fig: { cells: Array.from({ length: 6 }, (_, i) => ({ id: `p${i}`, x: i * 60, y: 0, w: 50, h: 50, corner: i, ...(i === 0 ? yn(false) : {}) })), edges: [] } },
-      { t: '只看你这一步：拿 1 颗，对手面对「拿走 1 颗后」那一格；拿 2 颗，对手面对「拿走 2 颗后」那一格。<b>只要有一种拿法让对手落进「输」的格子，你就赢</b>。' },
-      { t: '新元件「<b>取反</b>」：「是」变「否」，「否」变「是」。格子里记的是「轮到的人能不能赢」，对手能赢，就是你输。', fig: circuitFig({ taps: [['a', '对手 · 否', 'bool']], parts: [['n', '取反', '是 ↔ 否']], outs: [['o', '你 · 是']], wires: [['a', 'n', 'bool'], ['n', 'o', 'bool']] }) },
+      { t: '只看你这一步：拿 1 颗，对手面对「拿走 1 颗后」那一格；拿 2 颗，对手面对「拿走 2 颗后」那一格。想一想：对手面对的格子是「是」还是「否」的时候，你才能赢？两种拿法里，要几种行得通才够？' },
+      { t: '新元件「<b>取反</b>」：「是」变「否」，「否」变「是」。格子里记的是「轮到的人能不能赢」。你拿完以后，轮到的是谁？', fig: circuitFig({ taps: [['a', '对手 · 否', 'bool']], parts: [['n', '取反', '是 ↔ 否']], outs: [['o', '你 · 是']], wires: [['a', 'n', 'bool'], ['n', 'o', 'bool']] }) },
     ],
     mission: { goal: '每次拿 1 颗或 2 颗，拿走最后一颗的人赢。算出石子还剩几颗时，轮到的人能不能赢。', how: '这一关会检查整行。视野里点亮「拿走 1 颗后」和「拿走 2 颗后」，用取反和「任一是」拼出电路。' },
     world: 'pile', facts: ['ground'], palette: YESNO, fresh: ['not'], checkAll: true,
@@ -79,13 +79,13 @@ export const skeleton = [
     intro: [
       { t: '这次有两堆石子：A 堆和 B 堆。每次可以从一堆里拿 1 颗，或者<b>两堆各拿 1 颗</b>。拿走最后一颗的人赢。' },
       { t: '「还剩多少」这回要用两个数来记，表就变成了一张棋盘：第 a 行第 b 列，是「A 堆剩 a 颗、B 堆剩 b 颗」的局面。', fig: gridScene(3, 3, { arrows: false, cell: (r, c) => (r === 2 && c === 2 ? { value: '?', cls: 'sel' } : r === 0 && c === 0 ? yn(false) : {}) }) },
-      { t: '三种拿法，对手分别落到上面、左边和左上那一格。规则和上一关一样。拼好之后，看看整张棋盘上长出了什么花纹。' },
+      { t: '三种拿法，对手分别落到「A 堆少 1 颗」（上面）、「B 堆少 1 颗」（左边）和「两堆各少 1 颗」（左上）那一格。规则和上一关一样。拼好之后，看看整张棋盘上长出了什么花纹。' },
     ],
     mission: { goal: '每次从一堆里拿 1 颗，或者两堆各拿 1 颗，拿走最后一颗的人赢。算出每种局面下，轮到的人能不能赢。', how: '这一关会检查整张棋盘。通过后，看看「是」和「否」排成了什么样子。' },
     world: 'piles', facts: [], palette: YESNO, checkAll: true,
     tests: [{ R: 4, C: 5 }, { R: 5, C: 5 }, { R: 6, C: 7 }],
     solution: circ([['a', 'not'], ['b', 'not'], ['c', 'not'], ['m', 'many']], ['tap:up>a:0', 'tap:left>b:0', 'tap:ul>c:0', 'a>m:0', 'b>m:1', 'c>m:2', 'm>out:cell']),
-    hints: ['三种拿法：只拿 A 堆（上面）、只拿 B 堆（左边）、两堆各拿（左上）。', '每种拿法都取反，再一起接进「任一是」。'],
+    hints: ['三种拿法：「A 堆少 1 颗」「B 堆少 1 颗」「两堆各少 1 颗」，三格都要点亮。', '每种拿法都取反，再一起接进「任一是」。'],
     unlock: 'judge', blueprint: ['up', 'left', 'ul'],
     boardOpt: { minScale: 0.62, maxScale: 1.15 },
     debrief: { title: '棋盘上的花纹', body: ['「否」都落在 A、B 都是偶数的格子上。这样的局面，不管你怎么拿，对手都能把它变回「两堆都是偶数」。', '这块电路板存进了零件箱，叫「输赢判定器」：读三个对手局面，判断这一格能不能赢。', '这一章里，同一副骨架换个汇合器，就能数个数、找最多、找最少、问能不能到、判输赢。'], note: '两堆石子：每个局面 = 任一（对手局面取反）。' },
