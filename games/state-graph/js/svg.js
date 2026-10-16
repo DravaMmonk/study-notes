@@ -37,13 +37,16 @@ function edgeSVG(A, B, e, twin, uid) {
 function cellSVG(c, uid) {
   const hw = c.w / 2, hh = c.h / 2, cls = c.cls || '', rock = cls.includes('rock');
   const tap = c.tap ? ` data-cell="${c.id}" role="button" tabindex="0" aria-label="${c.aria || c.label || c.id}"` : '';
-  const valY = c.icon ? hh - 13 : c.label ? (c.sub ? 3 : 8) : 0;
+  const valY = c.icon ? hh - 13 : c.label ? (c.sub ? 3 : 8) : 0, txt = fmt(c.value), len = [...txt].length;
+  // Long numbers (7.29, 1,024) shrink to fit their cell instead of spilling over its edge.
+  const fit = len > 3 && /^[-−\d.,%]+$/.test(txt) ? ` style="font-size:${f1(Math.min(21, (c.w - 8) / (len * 0.62)))}px"` : '';
   return `<g class="cell ${cls}${c.tap ? ' tap' : ''}"${tap} transform="translate(${c.x} ${c.y})">
     <rect x="${-hw}" y="${-hh}" width="${c.w}" height="${c.h}" rx="${c.rx ?? 12}"${rock ? ` style="fill:url(#${uid}-hatch)"` : ''}/>
     ${c.icon ? `<svg class="glyph" x="-25" y="${-hh + 5}" width="50" height="33" viewBox="0 0 48 32">${c.icon}</svg>` : ''}
     ${c.label ? `<text class="lb" y="${-hh + 17}">${c.label}</text>` : ''}
     ${c.corner !== undefined && c.corner !== null && c.corner !== '' ? `<text class="cn" x="${-hw + 6}" y="${-hh + 14}">${c.corner}</text>` : ''}
-    <text class="val" y="${valY}">${fmt(c.value)}</text>
+    <text class="val" y="${valY}"${fit}>${txt}</text>
+    ${c.bar !== undefined ? `<rect class="bar" x="${-hw + 5}" y="${hh - 8}" width="${f1(Math.max(0, Math.min(1, c.bar)) * (c.w - 10))}" height="3.5" rx="1.75"/>` : ''}
     ${c.sub ? `<text class="sb" y="${hh - 10}">${c.sub}</text>` : ''}
   </g>`;
 }

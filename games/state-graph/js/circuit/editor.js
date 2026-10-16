@@ -5,7 +5,7 @@
 // The parts list lives outside the editor (the level's brief on a desktop, under the board on a phone).
 // Port ids: sources are 'tap:<id>' or '<nodeId>'; sinks are '<nodeId>:<k>' or 'out:<id>'.
 
-import { def } from './components.js';
+import { def, srcType, sinkType, typeError } from './components.js';
 import { wouldCycle } from '../../../kit/graph.js';
 import { curve, centerIn, pointIn } from '../../../kit/wires.js';
 import { ICONS } from './glyphs.js';
@@ -17,24 +17,21 @@ const HUES = 6; // wire colors are theme tokens: --w0…--w5 for lit inputs, --n
 export const letter = id => String.fromCharCode(64 + +id.slice(1));
 const iconSVG = kind => `<svg class="glyph" viewBox="0 0 48 32" aria-hidden="true">${ICONS[kind]}</svg>`;
 
-/** 'num' or 'bool' for any port. */
-export function portType(circ, taps, p) {
-  if (p.startsWith('tap:')) return taps[p.slice(4)].type;
-  if (p.startsWith('out:') || !p.includes(':')) return 'num';
-  const n = circ.nodes.find(x => x.id === nodeOf(p));
-  return def(n.kind).ins[+p.split(':')[1]];
+/** How a port looks: 'num' (round), 'bool' (a diamond), 'list' (a bar: a whole segment) or 'any'. */
+export function portLook(circ, io, p) {
+  if (!isSink(p)) { const t = srcType(circ, io, p); return t.endsWith('s') ? 'list' : t; }
+  const t = sinkType(circ, io, p);
+  return t.startsWith('bool') ? 'bool' : t === 'any' ? 'any' : 'num';
 }
 
 /** Try to wire two ports in either order. Returns { circ } on success, { same } for two ports on one side, or { msg }. */
-export function connect(circ, taps, a, b) {
+export function connect(circ, io, a, b) {
   if (isSink(a) === isSink(b)) return { same: true };
   const [from, to] = isSink(a) ? [b, a] : [a, b];
-  if (portType(circ, taps, from) !== portType(circ, taps, to)) {
-    return { msg: portType(circ, taps, to) === 'bool' ? '条件口只接「是 / 否」信号，比如「是起点」。' : '「是 / 否」信号只能接到闸门的条件口。' };
-  }
   const edges = circ.wires.filter(w => !w.to.startsWith('out:')).map(w => [w.from, nodeOf(w.to)]);
   if (!to.startsWith('out:') && wouldCycle(edges, from, nodeOf(to))) return { msg: '这样会绕成一个圈：元件要等自己算完，才能算自己。' };
-  return { circ: { ...circ, wires: [...circ.wires.filter(w => w.to !== to), { from, to }] } };
+  const next = { ...circ, wires: [...circ.wires.filter(w => w.to !== to), { from, to }] }, msg = typeError(next, io);
+  return msg ? { msg } : { circ: next };
 }
 
 export const unwire = (circ, sink) => ({ ...circ, wires: circ.wires.filter(w => w.to !== sink) });
@@ -93,28 +90,28 @@ const sourceTag = (ui, src) => (src.startsWith('tap:') ? ui.taps[src.slice(4)].s
  * With sideView the robot's window is drawn by the level into the side column instead of beside the board.
  */
 export function editorHTML(circ, ui) {
-  const lit = litOf(circ), from = new Map(circ.wires.map(w => [w.to, w.from])), { cell, size } = placement(circ);
-  const can = p => !!ui.pick && ui.pick !== p && isSink(p) !== isSink(ui.pick) && !!connect(circ, ui.taps, ui.pick, p).circ;
-  const portCls = (p, type) => `cport ${type}${ui.pick === p ? ' picked' : ''}${can(p) ? ' can' : ''}${from.has(p) || circ.wires.some(w => w.from === p) ? ' wired' : isSink(p) ? ' open' : ''}`;
+  const lit = litOf(circ), from = new Map(circ.wires.map(w => [w.to, w.from])), { cell, size } = placement(circ), io = { taps: ui.taps, outs: ui.outs };
+  const can = p => !!ui.pick && ui.pick !== p && isSink(p) !== isSink(ui.pick) && !!connect(circ, io, ui.pick, p).circ;
+  const portCls = (p, type = portLook(circ, io, p)) => `cport ${type}${ui.pick === p ? ' picked' : ''}${can(p) ? ' can' : ''}${from.has(p) || circ.wires.some(w => w.from === p) ? ' wired' : isSink(p) ? ' open' : ''}`;
   const sinkTag = (p, fallback) => (from.has(p) ? `<span class="tag" style="--c:${sourceColor(ui, from.get(p))}">${sourceTag(ui, from.get(p))}</span>` : fallback);
 
   const terms = ui.avail.filter(id => lit.includes(id)).map(id => {
     const m = ui.taps[id], p = `tap:${id}`;
     return `<div class="cterm" data-act="port" data-q="${p}" style="--c:${sourceColor(ui, p)}" title="从圆点拉线到元件">
       <span class="cl"><span class="tag">${m.short}</span><b>${m.label}</b></span><span class="pv" data-pv="${p}"></span>
-      <button class="${portCls(p, m.type)} cdot" type="button" data-act="port" data-p="${p}" aria-label="输入 ${m.label}"><i class="dot" data-dot="${p}"></i></button></div>`;
+      <button class="${portCls(p)} cdot" type="button" data-act="port" data-p="${p}" aria-label="输入 ${m.label}"><i class="dot" data-dot="${p}"></i></button></div>`;
   }).join('');
 
   const nodeHTML = n => {
     const id = n.id, d = def(n.kind);
     const ins = d.ins.map((type, k) => {
       const p = `${id}:${k}`, lb = d.labels ? d.labels[k] : '';
-      return `<button class="${portCls(p, type)} cin" type="button" data-act="port" data-p="${p}" aria-label="${letter(id)} 的输入${lb ? ` ${lb}` : ` ${k + 1}`}" title="${from.has(p) ? '点一下拆掉这根线' : type === 'bool' ? '条件口：接「是 / 否」' : '输入口：还没接线'}"><i class="dot" data-dot="${p}"></i>${sinkTag(p, lb ? `<span class="pl">${lb}</span>` : '')}</button>`;
+      return `<button class="${portCls(p)} cin" type="button" data-act="port" data-p="${p}" aria-label="${letter(id)} 的输入${lb ? ` ${lb}` : ` ${k + 1}`}" title="${from.has(p) ? '点一下拆掉这根线' : type.startsWith('bool') ? '条件口：接「是 / 否」' : '输入口：还没接线'}"><i class="dot" data-dot="${p}"></i>${sinkTag(p, lb ? `<span class="pl">${lb}</span>` : '')}</button>`;
     }).join('');
     return `<div class="cnode${d.bp ? ' bp' : ''}${n.kind === 'const' ? ' konst' : ''}" data-piece="${id}" data-drag style="--c:${sourceColor(ui, id)}">
       <div class="cins">${ins}</div>
       <button class="chead" type="button" data-act="node" data-n="${id}" title="${d.desc}"><em class="cid">${letter(id)}</em><b>${d.name}</b><small>${n.kind === 'const' ? `= ${n.value}` : d.tag}</small></button>
-      <button class="${portCls(id, 'num')} cout" type="button" data-act="port" data-p="${id}" aria-label="${letter(id)} 的输出" title="从这里拉线"><span class="pv" data-pv="${id}"></span><i class="dot" data-dot="${id}"></i></button>
+      <button class="${portCls(id)} cout" type="button" data-act="port" data-p="${id}" aria-label="${letter(id)} 的输出" title="从这里拉线"><span class="pv" data-pv="${id}"></span><i class="dot" data-dot="${id}"></i></button>
     </div>`;
   };
   const bySlot = Object.fromEntries(Object.entries(cell).map(([id, a]) => [a, circ.nodes.find(n => n.id === id)]));
@@ -123,7 +120,7 @@ export function editorHTML(circ, ui) {
   const outs = ui.outs.map(([id, label]) => {
     const p = `out:${id}`;
     return `<div class="cend" data-act="port" data-q="${p}">
-      <button class="${portCls(p, 'num')} cdot" type="button" data-act="port" data-p="${p}" aria-label="输出 ${label}"><i class="dot" data-dot="${p}"></i></button><span class="cl">${sinkTag(p, '')}<b>${label}</b></span><span class="pv" data-pv="${p}"></span></div>`;
+      <button class="${portCls(p)} cdot" type="button" data-act="port" data-p="${p}" aria-label="输出 ${label}"><i class="dot" data-dot="${p}"></i></button><span class="cl">${sinkTag(p, '')}<b>${label}</b></span><span class="pv" data-pv="${p}"></span></div>`;
   }).join('');
 
   return `<div class="cedit${ui.pick ? ' picking' : ''}" id="circ">
@@ -162,15 +159,29 @@ export function viewHTML(circ, ui) {
   };
   const wins = w.wins.map((win, k) => `<div class="vblock">${win.label ? `<span class="vsub">${win.label}</span>` : ''}
     <div class="vwin n${win.n}">${win.cells.map(x => cellHTML(x, { area: `${x.r + 1}/${x.c + 1}`, bot: !k && x.r === vision && x.c === vision })).join('')}</div></div>`).join('');
-  const arm = w.arm ? `<div class="varm"><span class="vsub">伸缩臂 · ${w.arm.label}</span><div class="varm-row">${w.arm.cells.map(x => cellHTML(x, { label: x.label })).join('')}</div></div>` : '';
+  const arm = !w.arm ? '' : w.arm.sweeps ? sweepHTML(w.arm, ui, lit, tag) : `<div class="varm"><span class="vsub">伸缩臂 · ${w.arm.label}</span><div class="varm-row">${w.arm.cells.map(x => cellHTML(x, { label: x.label })).join('')}</div></div>`;
   const facts = w.facts.map(f => {
     const m = ui.taps[f.id], on = lit.includes(f.id);
     return `<button class="vfact${on ? ' on' : ''}" type="button" data-act="lit" data-t="${f.id}" aria-pressed="${on}">${iconSVG(m.icon)}<span>${m.label}</span><span class="vv">${f.value}</span>${on ? tag(f.id) : ''}</button>`;
   }).join('');
-  return `<div class="vhead"><svg class="vlook" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg><div><b>${w.robot.name}</b><small>视野 ${w.wins[0].n}×${w.wins[0].n}${w.robot.arm ? ' · 伸缩臂' : ''}</small></div></div>
+  return `<div class="vhead"><svg class="vlook" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg><div><b>${w.robot.name}</b><small>视野 ${w.wins[0].n}×${w.wins[0].n}${w.robot.arm ? ` · ${w.robot.armName}` : ''}</small></div></div>
     <div class="vnote">${w.note} · 点格子选输入</div>
     <div class="vwins">${wins}</div>${arm}
     ${facts ? `<div class="vfacts"><span class="vsub">本格信息</span>${facts}</div>` : ''}`;
+}
+
+/**
+ * A sweeping arm: each sweep is one input, the whole strip of cells it passes over (dimmed where the filter drops a
+ * cell). The player lights a sweep by tapping its strip; a level may let the player pick the arm's filter.
+ */
+function sweepHTML(arm, ui, lit, tag) {
+  const strip = sw => (sw.cells.length ? sw.cells.map(x => `<span class="vcell sm${x.out ? ' v-out' : ''}${x.state ? ` v-${x.state}` : ''}">${x.label !== undefined ? `<span class="vc">${x.label}</span>` : ''}<span class="vv">${x.value}</span></span>`).join('') : '<em class="vnone">一格也没有</em>');
+  const sweeps = arm.sweeps.map(sw => {
+    const can = ui.avail.includes(sw.tap), on = can && lit.includes(sw.tap), body = `<span class="vsl">${sw.label}</span><span class="vstrip">${strip(sw)}</span>${on ? tag(sw.tap) : ''}`;
+    return can ? `<button class="vsweep${on ? ' on' : ''}" type="button" data-act="lit" data-t="${sw.tap}" aria-pressed="${on}" aria-label="${on ? '取消输入' : '点亮输入'} ${ui.taps[sw.tap].label}">${body}</button>` : `<span class="vsweep">${body}</span>`;
+  }).join('');
+  const filters = arm.filters ? `<div class="vfilts" role="radiogroup" aria-label="扫描臂的筛选"><span class="vsub">筛选</span>${arm.filters.map(f => `<button class="vfilt" type="button" role="radio" aria-checked="${arm.filter === f.v}" data-act="filter" data-v="${f.v}">${f.l}</button>`).join('')}</div>` : '';
+  return `<div class="varm sweeps"><span class="vsub">扫描臂 · ${arm.label}</span>${sweeps}${filters}</div>`;
 }
 
 /**
@@ -185,7 +196,7 @@ export function drawWires(board, circ, ui, probe, rubber) {
     if (!a || !b) return '';
     const v = probe ? probe[w.from] : undefined, focus = (ui.pick && (w.from === ui.pick || w.to === ui.pick)) || ui.wire === w.to;
     const live = v !== undefined && v !== null && v !== false, dead = v === null;
-    const cls = ['kw', `is-${portType(circ, ui.taps, w.from)}`, live ? 'is-live' : dead ? 'is-dead' : '', ui.wire === w.to ? 'is-selected' : focus ? 'is-hot' : '', (ui.pick || ui.wire) && !focus ? 'is-dim' : ''].filter(Boolean).join(' ');
+    const cls = ['kw', `is-${srcType(circ, { taps: ui.taps, outs: ui.outs }, w.from)}`, live ? 'is-live' : dead ? 'is-dead' : '', ui.wire === w.to ? 'is-selected' : focus ? 'is-hot' : '', (ui.pick || ui.wire) && !focus ? 'is-dim' : ''].filter(Boolean).join(' ');
     const d = curve(a, b);
     return `<g class="${cls}" style="--kw:${sourceColor(ui, w.from)}"><path class="kw-halo" d="${d}"/><path class="kw-line" d="${d}"/>${live ? `<path class="kw-flow" d="${d}"/>` : ''}<path class="kw-hit" data-act="wire" data-w="${w.to}" d="${d}"><title>点一下选中这根线</title></path></g>`;
   });

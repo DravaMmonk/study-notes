@@ -2,7 +2,7 @@
 
 export const graduate = [
   {
-    id: 'disguise', ch: 10, title: '认出伪装', short: '题目不会写着「动态规划」', mode: 'match',
+    id: 'disguise', ch: 18, title: '认出伪装', short: '题目不会写着「动态规划」', mode: 'match',
     intro: [
       { t: '最后一关没有棋盘。下面每个小故事里，都藏着一个你已经会解的问题。' },
       { t: '真实的问题从来不会写着「动态规划」。它们会伪装成铺地砖、排训练计划、改作业……认出背后的结构，就成功了一大半。' },
