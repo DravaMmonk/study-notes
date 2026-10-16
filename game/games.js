@@ -13,8 +13,8 @@ export const GAMES = [
   },
   {
     id: 'state-graph', href: 'state-graph/', title: '状态之图', en: 'State Graph', topic: '从零开始 · 动态规划',
-    desc: '不需要任何编程或算法基础。从格子和箭头出发，让一个小机器人在棋盘上一格一格地算，拼出数路线、比文字、装背包的电路板。',
-    levels: 27, art: 'grid',
+    desc: '不需要任何编程或算法基础。从格子和箭头出发，让一个小机器人在棋盘上一格一格地算，拼出数路线、比文字、装背包的电路板，再用到博弈、语言、图片和强化学习上。',
+    levels: 56, art: 'grid',
     progress: () => Object.keys(read('state-graph-v2')?.done || {}).length,
   },
 ];
