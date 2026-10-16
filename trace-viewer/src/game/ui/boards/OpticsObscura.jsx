@@ -1,9 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Check, X } from 'lucide-react'
-import { PHONE, useMedia } from '../useMedia.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
 import { useTween } from './optics-motion.js'
 import './optics.css'
-import { L as T, tr } from '../../i18n.js'
+import { L as T, tr } from '../../../../../games/kit/shell/i18n.js'
 
 // 0-5 暗箱: a camera obscura on a table, seen from the side, in millimetres. Drag the pinhole plate
 // and the screen, pick a hole; every ray drawn is the actual construction through the hole's edges.

@@ -1,5 +1,6 @@
-# Publish the games to GitHub Pages at /study-notes/game/: the hub and the shared kit from games/, 状态之图 from
-# games/state-graph/, and Vision Complete built from trace-viewer/ into game/vision-complete/. With destination_dir
+# Publish the games to GitHub Pages at /study-notes/game/: the hub and the shared kit from games/, and both games
+# built from trace-viewer/ on the shared game shell (games/kit/shell): Vision Complete into game/vision-complete/,
+# 状态之图 into game/state-graph/. With destination_dir
 # the action only replaces the game/ folder on gh-pages; the MkDocs hook hooks/games.py assembles the same folder
 # into every notes build, so a notes deploy keeps it.
 name: Deploy games
@@ -36,10 +37,14 @@ jobs:
         working-directory: trace-viewer
       - run: npm run build:game
         working-directory: trace-viewer
+      - run: npm run build:state-graph
+        working-directory: trace-viewer
       - name: Assemble game/
         run: |
           mkdir -p _site
           cp -r games/. _site/
+          rm -rf _site/state-graph
+          cp -r trace-viewer/dist-state-graph _site/state-graph
           cp -r trace-viewer/dist-game _site/vision-complete
       - uses: peaceiris/actions-gh-pages@v4
         with:

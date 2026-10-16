@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NODE_TYPES } from '../engine/nodes.js'
-import { L, keyOf, tr } from '../i18n.js'
+import { L, keyOf, tr } from '../../../../games/kit/shell/i18n.js'
 import ImageView from './ImageView.jsx'
 
 // A probe level: no building. Feed the unknown part test images, watch what comes out, then answer.

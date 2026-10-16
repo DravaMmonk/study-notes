@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { correlate } from '../../engine/image.js'
-import { tr } from '../../i18n.js'
+import { tr } from '../../../../../games/kit/shell/i18n.js'
 import { rangeOf } from '../display.js'
 import { css, mix, tokenRGB } from './views.js'
 

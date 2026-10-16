@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { createFigureHost } from '../../figures/host.js'
-import { useLang } from '../i18n.js'
+import { useLang } from '../../../../games/kit/shell/useLang.js'
 
 // An anatomy-kit figure used as a level's stage: the game passes its state in as props and hears what
 // the player changes inside the drawing through onChange.

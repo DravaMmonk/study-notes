@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { tr } from '../../i18n.js'
+import { tr } from '../../../../../games/kit/shell/i18n.js'
 import { css, mix, tokenRGB } from '../views/views.js'
 import { useTween } from './optics-motion.js'
 

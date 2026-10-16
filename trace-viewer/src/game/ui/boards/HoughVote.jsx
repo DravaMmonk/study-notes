@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, X } from 'lucide-react'
 import { tokenColour, useSolveOnce, useWidth } from './matchDraw.js'
-import { PHONE, useMedia } from '../useMedia.js'
-import { L, keyOf, tr } from '../../i18n.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
+import { L, keyOf, tr } from '../../../../../games/kit/shell/i18n.js'
 import './MatchBoards.css'
 
 // 6-3 投票: edge points vote into a (θ, ρ) accumulator. One dial sets the bin size; the two highest

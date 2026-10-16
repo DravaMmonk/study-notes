@@ -1,5 +1,6 @@
-/* Layout: level map ⇄ level bench. Phones get one column with a dock; from 1100px the level is a workbench
-   (brief | stage | side) after Vision Complete. Colors, themes and wire styles come from ../kit, shared with it. */
+/* 状态之图's content: boards, panels, the dock and keypad, the circuit editor. The map, the rail, the level frame,
+   dialogs and sheets are the shared game shell's (../kit/shell/shell.css), as in Vision Complete; colours, themes
+   and wire styles come from ../kit. */
 :root{
   /* Semantic names for this game, mapped onto the shared palette (../kit/tokens.css), so all three themes apply. */
   --bg:var(--canvas); --panel:var(--paper); --panel-2:color-mix(in srgb,var(--canvas) 65%,var(--rail)); --board:color-mix(in srgb,var(--paper) 50%,var(--canvas));
@@ -15,16 +16,12 @@
   --f-body:var(--sans);
 }
 *,*::before,*::after{box-sizing:border-box}
-html{height:100%;box-sizing:border-box;background:var(--bg)}
-body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--ink);font:15px/1.65 var(--f-body);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--f-body);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation}
 button:disabled{cursor:not-allowed}
 :focus-visible{outline:2.5px solid var(--cyan);outline-offset:2px}
 .gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .eyebrow{font:600 11.5px/1.3 var(--f-mono);letter-spacing:.08em;color:var(--ink-3)}
-#app{height:100%;display:flex;flex-direction:column}
-.screen{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg)}
-.scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 
 /* ---------- board (svg) ---------- */
 .board-svg{display:block}
@@ -88,60 +85,10 @@ button:disabled{cursor:not-allowed}
 @keyframes flow{to{stroke-dashoffset:-14}}
 
 /* ---------- map ---------- */
-.wrap{max-width:1040px;margin:0 auto;padding-block:28px 56px;display:flex;flex-direction:column;gap:28px}
-.hero{display:grid;gap:22px}
-.title{font:500 clamp(54px,17vw,108px)/.95 var(--f-display);letter-spacing:-.02em;margin:10px 0 14px}
-.title em{font-style:normal;color:var(--signal)}
-.lede{max-width:31em;color:var(--ink-2);font-size:16px;margin:0;text-wrap:pretty}
 .hero-fig{margin:0;border-radius:20px;padding:12px;background:var(--board);border:1px solid var(--line);}
 .hero-fig figcaption{font:12px/1.5 var(--f-mono);color:var(--ink-3);margin:6px 4px 2px}
-@media (min-width:860px){.hero{grid-template-columns:1.05fr .95fr;align-items:center}}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap}
-.pill{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel);display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
-.pill b{font:700 12px var(--f-mono);color:var(--signal)}
-.pill.icon{width:44px;padding:0;justify-content:center}
-.pill:active,.lcard:active{transform:scale(.98)}
-.banner{display:grid;gap:4px;padding:16px 18px;border-radius:16px;background:var(--signal);color:var(--signal-ink)}
-.banner b{font:600 20px var(--f-display)}
-.chapter{display:grid;gap:12px}
-.ch-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.ch-head h2{margin:0;font:600 22px/1.3 var(--f-display)}
-.ch-head p{margin:0;color:var(--ink-3);font-size:13.5px}
-.ch-num{font:700 12px var(--f-mono);color:var(--signal);letter-spacing:.06em}
-.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:10px}
-.lcard{position:relative;text-align:left;padding:14px 16px 14px;border-radius:16px;background:var(--panel);border:1px solid var(--line);display:grid;gap:4px;transition:transform .15s,border-color .2s}
-.lcard:hover{border-color:var(--wire)}
-.lcard .no{font:700 12px var(--f-mono);color:var(--ink-3)}
-.lcard .tt{font:600 19px/1.3 var(--f-display)}
-.lcard .ds{font-size:13.5px;color:var(--ink-2);text-wrap:pretty}
-.lcard .st{position:absolute;top:12px;right:12px;font:700 11px var(--f-mono);padding:3px 7px;border-radius:6px}
-.lcard.done .st{background:var(--good-soft);color:var(--good)}
-.lcard.next{border-color:var(--signal);box-shadow:0 0 0 1px var(--signal),0 10px 30px -14px var(--signal)}
-.lcard.next .st{background:var(--signal);color:var(--signal-ink)}
-.lcard.locked{opacity:.45}
-.lcard.locked .st{color:var(--ink-3)}
-.lcard .pt{justify-self:start;margin-top:6px;font:600 11.5px var(--f-mono);padding:5px 8px;border-radius:7px;background:var(--signal-soft);color:var(--signal)}
-.foot{margin:0;font-size:13px;color:var(--ink-3);max-width:40em}
 
 /* ---------- level ---------- */
-.lv-top{gap:6px}
-.iconbtn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
-.iconbtn:hover{background:var(--panel-2)}
-.lv-titles{min-width:0;flex:1}
-.lv-titles h2{margin:1px 0 0;font:600 19px/1.25 var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.introbtn{flex:none;min-height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);font-weight:600;font-size:13.5px;display:inline-flex;align-items:center;gap:6px}
-.lv-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.lv-grid{max-width:760px;margin:0 auto;padding-block:14px 24px;display:grid;gap:14px}
-.brief{display:contents}
-.lv-grid>*,.brief>*{min-width:0}
-.mission{order:0} .bcard{order:1} .panel{order:2} .parts{order:3}
-.bhead,.desk{display:none}
-.mission{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:8px}
-.mission p{margin:0;text-wrap:pretty}
-.mrow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:baseline}
-.mrow .k{font:700 11.5px var(--f-mono);color:var(--ink-3);letter-spacing:.06em;white-space:nowrap}
-.tip{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--cyan-soft);color:var(--ink);font-size:14px}
-.tip b{font:700 11.5px var(--f-mono);color:var(--cyan);white-space:nowrap;margin-top:2px}
 .bcard{background:var(--board);border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px;scroll-margin-top:10px}
 .tests{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px}
 .tests::-webkit-scrollbar{display:none}
@@ -210,17 +157,8 @@ button:disabled{cursor:not-allowed}
 .key.full{grid-column:1/-1;font:700 15px var(--f-body);background:var(--signal-soft);border-color:var(--signal);color:var(--signal)}
 .key.ok{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink);font:800 15px var(--f-body)}
 
-/* ---------- sheet ---------- */
-#sheet{position:fixed;inset:0;z-index:40}
-.scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;transition:opacity .28s}
-.sheet{--off:100%;--dy:0px;--tx:0px;position:absolute;left:0;right:0;bottom:0;max-height:min(92%,820px);display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;box-shadow:0 -16px 50px -20px rgba(0,0,0,.5);transform:translate(var(--tx),calc(var(--off) + var(--dy)));transition:transform .36s cubic-bezier(.2,.85,.25,1);padding-bottom:env(safe-area-inset-bottom,0px)}
-#sheet.open .scrim{opacity:1}
-#sheet.open .sheet{--off:0%}
-.sheet.dragging{transition:none}
-@media (min-width:720px){.sheet{left:50%;right:auto;width:620px;--tx:-50%}}
-.grab{flex:none;height:30px;display:grid;place-items:center;touch-action:none;cursor:grab}
-.grab::before{content:"";width:42px;height:5px;border-radius:3px;background:var(--line)}
-.sheet-body{overflow-y:auto;overscroll-behavior:contain;padding-top:2px;padding-bottom:22px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+/* ---------- inside a sheet a mode opens (js/screen.jsx renders it in the shell's bottom sheet) ---------- */
+.sg-sheet{display:flex;flex-direction:column;gap:16px;padding-bottom:6px}
 .kicker{font:700 12px var(--f-mono);letter-spacing:.08em;color:var(--ink-3)}
 .kicker.good{color:var(--good)} .kicker.bad{color:var(--bad)} .kicker.sig{color:var(--signal)}
 .sh{margin:4px 0 0;font:600 25px/1.3 var(--f-display);text-wrap:balance}
@@ -238,11 +176,11 @@ button:disabled{cursor:not-allowed}
 .btn.pri{background:var(--signal);color:var(--signal-ink)}
 .btn.sec{border:1px solid var(--line)}
 .btn:disabled{opacity:.35}
-.note{border-left:3px solid var(--signal);padding:10px 14px;background:var(--panel-2);border-radius:0 12px 12px 0;display:grid;gap:2px}
-.note span{font:700 11.5px var(--f-mono);letter-spacing:.06em;color:var(--signal)}
-.note p{margin:0;font-weight:600}
-.hint{border-left:3px solid var(--cyan);padding:10px 14px;background:var(--panel-2);border-radius:0 12px 12px 0;margin:0;font-size:14.5px}
-.hint b{font:700 11.5px var(--f-mono);letter-spacing:.06em;color:var(--cyan);display:block;margin-bottom:2px}
+.sg-sheet .note{border-left:3px solid var(--signal);padding:10px 14px;background:var(--panel-2);border-radius:0 12px 12px 0;display:grid;gap:2px}
+.sg-sheet .note span{font:700 11.5px var(--f-mono);letter-spacing:.06em;color:var(--signal)}
+.sg-sheet .note p{margin:0;font-weight:600}
+.sg-sheet .hint{border-left:3px solid var(--cyan);padding:10px 14px;background:var(--panel-2);border-radius:0 12px 12px 0;margin:0;font-size:14.5px}
+.sg-sheet .hint b{font:700 11.5px var(--f-mono);letter-spacing:.06em;color:var(--cyan);display:block;margin-bottom:2px}
 .part{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 12px;align-items:center;padding:14px;border-radius:14px;background:var(--signal-soft);animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
 .part .ic{grid-row:span 3;width:46px;height:46px;border-radius:13px;background:var(--signal);color:var(--signal-ink);display:grid;place-items:center}
 .part small{font:700 11px var(--f-mono);color:var(--signal);letter-spacing:.06em}
@@ -259,15 +197,7 @@ button:disabled{cursor:not-allowed}
 .list{display:grid;gap:10px}
 .nrow{display:grid;gap:4px;padding:12px 14px;border-radius:14px;border:1px solid var(--line)}
 .nrow p{margin:0;font-weight:600}
-.empty{padding:20px;border-radius:14px;border:1px dashed var(--line);color:var(--ink-2);text-align:center;font-size:14px}
-.setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-radius:14px;border:1px solid var(--line)}
-.setrow p{margin:2px 0 0;font-size:13px;color:var(--ink-3)}
-.switch{flex:none;width:52px;height:32px;border-radius:999px;background:var(--line);position:relative;transition:background .2s}
-.switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:var(--ink);transition:transform .2s}
-.switch[aria-checked="true"]{background:var(--signal)}
-.switch[aria-checked="true"]::after{transform:translateX(20px);background:var(--signal-ink)}
-.danger{flex:none;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--bad);color:var(--bad);font-weight:700;font-size:14px}
-.danger.armed{background:var(--bad);color:var(--panel)}
+.sg-sheet .empty{padding:20px;border-radius:14px;border:1px dashed var(--line);color:var(--ink-2);text-align:center;font-size:14px}
 .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:60;max-width:calc(100% - 32px);transform:translate(-50%,calc(-100% - 24px));padding:11px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;box-shadow:0 10px 30px -10px rgba(0,0,0,.7);transition:transform .3s cubic-bezier(.2,.85,.25,1);text-align:center}
 .toast.show{transform:translate(-50%,0)}
 /* ---------- chapter 7–10 ---------- */
@@ -374,7 +304,7 @@ button:disabled{cursor:not-allowed}
 .pickbar{position:fixed;z-index:40;left:12px;right:12px;bottom:calc(186px + env(safe-area-inset-bottom));min-height:46px;padding:6px 4px 6px 14px;display:flex;align-items:center;gap:8px;border-radius:14px;background:var(--ink);color:var(--panel);font:500 13px/1.5 var(--f-body);box-shadow:var(--card-lift)}
 .pickbar span{flex:1;min-width:0}
 .pickbar button{min-width:56px;min-height:38px;border-radius:10px;color:var(--signal);font:600 14px var(--f-body)}
-@media (min-width:1100px){#level.panel-stage .panel>.pickbar{position:sticky;left:auto;right:auto;bottom:24px;width:min(520px,100%);margin:0 auto}}
+@media (min-width:761px){.sg-level.panel-stage .panel>.pickbar{position:sticky;left:auto;right:auto;bottom:24px;width:min(520px,100%);margin:0 auto}}
 .cpcard .chips .tag{height:auto;padding:5px 8px;gap:6px;background:var(--signal-soft);color:var(--signal);font:600 11.5px var(--f-mono)}
 .cpcard .chips .tag svg{width:16px;height:16px}
 .cport{position:relative;display:flex;flex-direction:column;align-items:center;transition:opacity .15s}
@@ -484,7 +414,7 @@ button:disabled{cursor:not-allowed}
 .parts{position:relative;display:grid;gap:6px;padding:8px 10px;border-radius:14px;border:1.5px dashed var(--line);transition:background .15s,border-color .15s;user-select:none;-webkit-user-select:none}
 .parts:empty{display:none}
 /* Phones: the parts list docks at the bottom of the level while you scroll the board, like a tray. */
-@media (max-width:1099px){.parts{position:sticky;bottom:0;z-index:20;border:0;border-radius:16px 16px 0 0;background:var(--panel);box-shadow:0 -1px 0 var(--line),0 -14px 26px -20px rgba(0,0,0,.4);padding:8px 10px 10px}}
+@media (max-width:760px){.parts{position:sticky;bottom:0;z-index:20;border:0;border-radius:16px 16px 0 0;background:var(--panel);box-shadow:0 -1px 0 var(--line),0 -14px 26px -20px rgba(0,0,0,.4);padding:8px 10px 10px}}
 .phead{display:flex;align-items:baseline;gap:8px}
 .phead h3{margin:0;font:600 12.5px var(--f-body);color:var(--ink-2)}
 .phead small{font-size:12px;color:var(--ink-3)}
@@ -526,7 +456,6 @@ button:disabled{cursor:not-allowed}
 .cell.coutf .val{fill:var(--signal)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 /* Page shell: safe-area padding for notched phones and a hard [hidden] rule (screens toggle with the hidden attribute). */
-:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 [hidden]{display:none!important}
 img{max-width:100%}
 /* ---------- pointer devices: hover feedback ---------- */
@@ -545,37 +474,21 @@ img{max-width:100%}
   .dot{transition:background .15s,box-shadow .15s,transform .15s}
 }
 
-/* ---------- desktop workbench (≥1100px): brief | stage | side, after Vision Complete ---------- */
-@media (min-width:1100px){
-  #level{display:grid;grid-template-columns:var(--rail-w,0px) 320px minmax(0,1fr) clamp(360px,28vw,460px);grid-template-rows:56px minmax(0,1fr) auto;grid-template-areas:"top top top top" "rail brief stage side" "rail brief stage dock"}
-  .desk{display:inline-flex}
-  .lv-top{grid-area:top;height:56px;padding:0 12px;gap:4px;background:color-mix(in srgb,var(--panel) 92%,transparent)}
-  .lv-top .iconbtn{width:38px;height:38px;border-radius:9px;color:var(--ink-2)}
-  .lv-top .iconbtn[aria-expanded="true"]{background:var(--panel-2);color:var(--ink)}
-  .lv-titles{display:flex;flex-direction:row-reverse;justify-content:flex-end;align-items:baseline;gap:10px}
-  .lv-titles h2{font-size:17px}
-  .lv-titles .eyebrow{font-size:11px}
-  .introbtn{min-height:34px}
-  .lv-scroll,.lv-grid{display:contents}
-  .brief{grid-area:brief;display:flex;flex-direction:column;gap:22px;overflow-y:auto;padding:22px 20px 28px;background:var(--panel);border-right:1px solid var(--line);scrollbar-width:thin}
-  .bcard,.panel{min-height:0;overflow-y:auto;scrollbar-width:thin}
+/* ---------- desktop workbench (above 760px): the shell's brief | stage | side (games/kit/shell), the same frame as
+   Vision Complete. js/screen.jsx puts the board card or the panel on the stage (panel-stage: circuit levels) and the
+   other one in the side column, with the dock under it. ---------- */
+@media (min-width:761px){
+  .sg-level .stage-pane{overflow-y:auto;scrollbar-width:thin}
+  .sg-side{min-height:0;display:flex;flex-direction:column;border-left:1px solid var(--line);background:var(--panel)}
+  .sg-side>.bcard,.sg-side>.panel{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin}
   .bcard>*,.panel>*{flex-shrink:0}
-  #level.panel-stage .panel,#level:not(.panel-stage) .bcard{grid-area:stage}
-  #level.panel-stage .bcard,#level:not(.panel-stage) .panel{grid-area:side}
-  .dock{grid-area:dock;border-left:1px solid var(--line);padding:12px 16px}
+  .dock{border-top:1px solid var(--line);padding:12px 16px}
   .dock-in{max-width:none}
   .go{flex:0 1 210px;min-width:0;min-height:48px}
   .dmeta{font-size:11.5px}
   .pad{max-width:none}
 
-  /* brief: the level's own page */
-  .mission{background:none;border:0;border-radius:0;padding:0;gap:14px}
-  .bhead{display:grid;gap:4px}
-  .bhead .eyebrow{color:var(--signal)}
-  .bhead h1{margin:0;font:600 26px/1.3 var(--f-display);letter-spacing:-.01em}
-  .mrow{grid-template-columns:1fr;gap:4px}
-  .mrow p{font-size:15px;line-height:1.75}
-  .mission .mrow:first-of-type p{font:600 16px/1.75 var(--f-display);color:var(--ink)}
+  /* the parts list sits in the brief */
   .parts{border:0;padding:0;gap:10px;background:none}
   .phead h3{font:600 10.5px var(--f-mono);letter-spacing:.14em;color:var(--ink-3)}
   .phead small{display:none}
@@ -590,76 +503,44 @@ img{max-width:100%}
   .pnote{display:block;margin:2px 0 0;font-size:11.5px;line-height:1.6;color:var(--ink-3)}
 
   /* the stage: a dotted canvas */
-  .hero-fig,.fig,#level:not(.panel-stage) .bcard{background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px}
-  #level:not(.panel-stage) .bcard{border:0;border-radius:0;padding:22px 28px 28px;gap:14px;align-content:start}
-  #level:not(.panel-stage) .tests{margin:0;padding:0;flex-wrap:wrap}
-  #level:not(.panel-stage) .board{margin:0;padding:0;overflow:visible}
-  #level:not(.panel-stage) .board-svg{max-height:calc(100dvh - 260px)}
-  #level.panel-stage .panel{padding:24px 28px 32px;gap:16px;align-items:center;background:var(--board);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:20px 20px}
-  #level.panel-stage .panel>*{width:100%;max-width:960px}
+  .hero-fig,.fig,.sg-level:not(.panel-stage) .stage-pane{background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px}
+  .sg-level:not(.panel-stage) .stage-pane .bcard{border:0;border-radius:0;padding:22px 28px 28px;gap:14px;align-content:start;background:none}
+  .sg-level:not(.panel-stage) .tests{margin:0;padding:0;flex-wrap:wrap}
+  .sg-level:not(.panel-stage) .board{margin:0;padding:0;overflow:visible}
+  .sg-level:not(.panel-stage) .board-svg{max-height:calc(100dvh - 220px)}
+  .sg-level.panel-stage .stage-pane{background:var(--board);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:20px 20px}
+  .sg-level.panel-stage .stage-pane .panel{padding:24px 28px 32px;gap:16px;align-items:center}
+  .sg-level.panel-stage .panel>*{width:100%;max-width:960px}
   /* the canvas is the circuit board: parts, terminals and wires sit straight on the dotted stage */
-  #level.panel-stage .cpcard{padding:0;gap:14px;background:none;border:0;box-shadow:none}
-  #level.panel-stage .cpcard h3{justify-content:flex-start;min-height:30px}
-  #level.panel-stage .cptitle{display:none}
-  #level.panel-stage .cpcard h3 small{font:600 11px var(--f-mono);letter-spacing:.06em}
-  #level.panel-stage .cboard{background:none;border:0;border-radius:0;overflow:visible;min-height:calc(100dvh - 170px)}
-  #level.panel-stage .cboard{padding:14px 0 0}
-  #level.panel-stage .clayer{max-width:560px;margin:0 auto}
-  #level.panel-stage .ccell{min-height:96px}
-  #level.panel-stage .cmain{grid-template-columns:minmax(0,1fr)}
+  .sg-level.panel-stage .cpcard{padding:0;gap:14px;background:none;border:0;box-shadow:none}
+  .sg-level.panel-stage .cpcard h3{justify-content:flex-start;min-height:30px}
+  .sg-level.panel-stage .cptitle{display:none}
+  .sg-level.panel-stage .cpcard h3 small{font:600 11px var(--f-mono);letter-spacing:.06em}
+  .sg-level.panel-stage .cboard{background:none;border:0;border-radius:0;overflow:visible;min-height:calc(100dvh - 170px);padding:14px 0 0}
+  .sg-level.panel-stage .clayer{max-width:560px;margin:0 auto}
+  .sg-level.panel-stage .ccell{min-height:96px}
+  .sg-level.panel-stage .cmain{grid-template-columns:minmax(0,1fr)}
   #view .cview{max-width:none;background:var(--board);border:0;box-shadow:inset 0 0 0 1px var(--line)}
   .cview{--vc:42px;max-width:none;padding:12px 10px}
   .vwin.n5{--vc:32px}
   .cmain{gap:14px}
 
   /* the side: tests or the rules */
-  #level:not(.panel-stage) .panel{padding:18px 16px;gap:12px;background:var(--panel);border-left:1px solid var(--line)}
-  #level:not(.panel-stage) .panel .pcard{background:var(--board)}
-  #level.panel-stage .bcard{border:0;border-left:1px solid var(--line);border-radius:0;padding:18px 16px;gap:12px;background:var(--panel);background-image:none}
-  #level.panel-stage .tests{margin:0;padding:0;flex-wrap:wrap}
-  #level.panel-stage .board{margin:0;padding:12px;border-radius:14px;background:var(--board);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px;box-shadow:inset 0 0 0 1px var(--line)}
-
-  /* level rail: an overlay, docked from 1500px */
-  .rail{display:none;flex-direction:column;background:var(--panel);border-right:1px solid var(--line)}
-  #level.rail-open .rail{display:flex;position:fixed;z-index:45;top:56px;left:0;bottom:0;width:300px;box-shadow:0 20px 50px -20px rgba(0,0,0,.5);animation:railin .2s ease}
-  #level.rail-open .rail-scrim{display:block;position:fixed;inset:56px 0 0;z-index:44;background:var(--scrim)}
-  @keyframes railin{from{opacity:0;transform:translateX(-12px)}}
-  .rail-head{flex:none;height:46px;padding:0 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
-  .rail-head b{font:600 14px var(--f-display)}
-  .rail-head small{font:600 11px var(--f-mono);color:var(--ink-3)}
-  .rail-list{flex:1;min-height:0;overflow-y:auto;padding:8px 8px 28px;scrollbar-width:thin}
-  .rail-ch+.rail-ch{margin-top:6px}
-  .rail-ch h3{margin:0;padding:8px 8px 4px;display:flex;gap:10px;align-items:baseline;font:600 13.5px var(--f-display)}
-  .rail-ch h3 span{font:600 11px var(--f-mono);color:var(--ink-3)}
-  .rail-ch.here h3 span{color:var(--signal)}
-  .rail-ch ol{list-style:none;margin:0 0 0 16px;padding:0 0 0 10px;border-left:1px solid var(--line);display:grid;gap:1px}
-  .rail-lv{width:100%;min-height:34px;padding:0 8px;display:grid;grid-template-columns:16px 2em minmax(0,1fr) 14px;align-items:center;gap:6px;border-radius:8px;font-size:13px;text-align:left}
-  .rail-lv:hover:not(:disabled){background:var(--panel-2)}
-  .rail-lv:disabled{color:var(--ink-3)}
-  .rail-lv .pad{width:15px;height:15px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1.5px var(--chip-line);color:var(--panel)}
-  .rail-lv .pad svg{width:11px;height:11px}
-  .rail-lv.done .pad{background:var(--good);box-shadow:none}
-  .rail-lv.open .pad{box-shadow:inset 0 0 0 1.5px var(--signal)}
-  .rail-lv.locked .pad{box-shadow:none;color:var(--ink-3)}
-  .rail-lv .no{font:600 11px var(--f-mono);color:var(--ink-3)}
-  .rail-lv .tt{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-  .rail-lv .kind{color:var(--ink-3);display:grid}
-  .rail-lv.here{background:var(--board);box-shadow:var(--card)}
-  .rail-lv.here .no{color:var(--signal)}
-
-  /* sheets become centered dialogs */
-  .sheet{top:50%;bottom:auto;left:50%;right:auto;width:600px;max-height:min(86vh,820px);border-radius:20px;border-bottom:1px solid var(--line);padding:6px 4px 0;opacity:0;transform:translate(-50%,-47%) scale(.98);transition:transform .28s cubic-bezier(.2,.85,.25,1),opacity .2s}
-  #sheet.open .sheet{opacity:1;transform:translate(-50%,-50%)}
-  .grab{display:none}
-  .sheet-body{padding-top:22px}
+  .sg-level:not(.panel-stage) .sg-side .panel{padding:18px 16px;gap:12px}
+  .sg-level:not(.panel-stage) .panel .pcard{background:var(--board)}
+  .sg-level.panel-stage .sg-side .bcard{border:0;border-radius:0;padding:18px 16px;gap:12px;background:var(--panel);background-image:none}
+  .sg-level.panel-stage .tests{margin:0;padding:0;flex-wrap:wrap}
+  .sg-level.panel-stage .board{margin:0;padding:12px;border-radius:14px;background:var(--board);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px;box-shadow:inset 0 0 0 1px var(--line)}
 }
-@media (min-width:1500px){
-  #level.rail-open{--rail-w:248px}
-  #level.rail-open .rail{position:static;grid-area:rail;width:auto;box-shadow:none;animation:none;z-index:auto}
-  #level.rail-open .rail-scrim{display:none}
+
+/* ---------- phone: the shell's one-page level; board, panel, then the parts tray and the dock pinned at the bottom ---------- */
+@media (max-width:760px){
+  .sg-level{display:flex;flex-direction:column;gap:12px;padding-bottom:0}
+  .sg-level>.bcard,.sg-level>.panel{margin:0 12px}
+  .sg-foot{position:sticky;bottom:0;z-index:20;margin-top:auto;display:grid;gap:0;background:var(--panel);box-shadow:0 -1px 0 var(--line),0 -14px 26px -20px rgba(0,0,0,.4)}
+  .sg-foot .parts{position:static;box-shadow:none;border-radius:0}
+  .dock{padding-inline:max(12px,env(safe-area-inset-left,0px));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 }
-.rail,.rail-scrim{display:none}
-@media (min-width:1100px){.lv-top .iconbtn.desk{display:grid}}
 /* Language button (js/i18n.js); English pages hide the Chinese markup until it has been swapped. */
 html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 
@@ -711,7 +592,6 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .askn{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
 .askn span:not(.bignum){font-size:14px;color:var(--ink-2)}
 .bignum.over{color:var(--bad)}
-.setrow.plain{border:0;padding:0}
 .orders{display:flex;gap:22px;flex-wrap:wrap}
 .orders figure{margin:0;display:grid;gap:6px;justify-items:center}
 .orders figcaption{font-size:12.5px;color:var(--ink-2)}

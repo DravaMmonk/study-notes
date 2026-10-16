@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, RotateCcw, X } from 'lucide-react'
 import ImageView from '../ImageView.jsx'
-import { PHONE, useMedia } from '../useMedia.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
 import './depthgen.css'
-import { L, tr } from '../../i18n.js'
+import { L, tr } from '../../../../../games/kit/shell/i18n.js'
 
 // 7-4 只在一条线上找: click a point in the left view, then spend a comparison budget searching the
 // right view. The whole image does not fit the budget, the same row misses (the views are not

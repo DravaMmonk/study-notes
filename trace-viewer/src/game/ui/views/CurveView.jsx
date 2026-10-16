@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { tr } from '../../i18n.js'
+import { tr } from '../../../../../games/kit/shell/i18n.js'
 import { formatNumber } from './views.js'
 
 const signalRange = (...signals) => {

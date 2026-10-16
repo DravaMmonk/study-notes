@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, Check, Timer, X } from 'lucide-react'
-import { tr } from '../../i18n.js'
+import { tr } from '../../../../../games/kit/shell/i18n.js'
 import ImageView from '../ImageView.jsx'
-import { PHONE, useMedia } from '../useMedia.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
 import { rangeOf } from '../display.js'
 import './KernelRacer.css'
 

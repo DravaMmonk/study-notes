@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Check, X } from 'lucide-react'
-import { tr } from '../../i18n.js'
+import { tr } from '../../../../../games/kit/shell/i18n.js'
 import ImageView from '../ImageView.jsx'
 import './SpectrumMatch.css'
 

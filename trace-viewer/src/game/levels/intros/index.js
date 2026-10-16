@@ -1,6 +1,6 @@
 import { NODE_TYPES, defaultParams, inputsOf } from '../../engine/nodes.js'
 import { GLYPHS, patterns } from '../../engine/image.js'
-import { isPair } from '../../i18n.js'
+import { isPair } from '../../../../../games/kit/shell/i18n.js'
 import ch0 from './ch0.js'
 import ch1 from './ch1.js'
 import ch2 from './ch2.js'

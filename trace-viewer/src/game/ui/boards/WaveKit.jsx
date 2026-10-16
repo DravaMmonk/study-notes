@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Check, Circle } from 'lucide-react'
-import { L, tr } from '../../i18n.js'
+import { L, tr } from '../../../../../games/kit/shell/i18n.js'
 
 // Drawing pieces shared by chapter 2's wave boards (WaveTuner, WaveMixer, Equalizer, AliasProbe).
 // Curves are functions of u, the position across one image width (0 … 1), or arrays of samples.

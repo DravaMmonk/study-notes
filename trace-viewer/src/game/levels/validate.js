@@ -3,7 +3,7 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { runLevel } from '../engine/graph.js'
 import { NODE_TYPES } from '../engine/nodes.js'
-import { isPair, keyOf } from '../i18n.js'
+import { isPair, keyOf } from '../../../../games/kit/shell/i18n.js'
 import { CHAPTERS, LEVELS } from './index.js'
 import { INTROS, introProblems } from './intros/index.js'
 

@@ -9,7 +9,8 @@
     "build:game": "vite build --config vite.game.config.js",
     "lint": "eslint .",
     "preview": "vite preview",
-    "levels": "node src/game/levels/validate.js"
+    "levels": "node src/game/levels/validate.js",
+    "build:state-graph": "GAME=state-graph vite build --config vite.game.config.js"
   },
   "dependencies": {
     "dompurify": "^3.4.14",

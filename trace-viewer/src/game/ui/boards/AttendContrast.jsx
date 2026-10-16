@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, RotateCcw, X } from 'lucide-react'
 import ImageView from '../ImageView.jsx'
-import { useMedia } from '../useMedia.js'
-import { tr } from '../../i18n.js'
+import { useMedia } from '../../../../../games/kit/shell/useMedia.js'
+import { tr } from '../../../../../games/kit/shell/i18n.js'
 import './AttendContrast.css'
 
 const QUIZ_SEED = 901

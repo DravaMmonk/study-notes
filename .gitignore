@@ -12,6 +12,7 @@ build/
 develop-eggs/
 dist/
 trace-viewer/dist-game/
+trace-viewer/dist-state-graph/
 downloads/
 eggs/
 .eggs/

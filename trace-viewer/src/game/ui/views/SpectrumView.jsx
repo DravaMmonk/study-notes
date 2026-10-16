@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { magnitudeSpectrum } from '../../engine/fourier.js'
-import { tr } from '../../i18n.js'
+import { tr } from '../../../../../games/kit/shell/i18n.js'
 import { css, mix, tokenRGB } from './views.js'
 
 const CACHE = new WeakMap()

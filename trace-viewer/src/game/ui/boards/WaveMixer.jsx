@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowRight, Check, RotateCcw } from 'lucide-react'
-import { L, tr } from '../../i18n.js'
-import { PHONE, useMedia } from '../useMedia.js'
+import { L, tr } from '../../../../../games/kit/shell/i18n.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
 import { Band, Bars, Plot, Squiggle, Stages } from './WaveKit.jsx'
 import './waves.css'
 

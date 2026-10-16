@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Check } from 'lucide-react'
-import { L, tr } from '../../i18n.js'
-import { PHONE, useMedia } from '../useMedia.js'
+import { L, tr } from '../../../../../games/kit/shell/i18n.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
 import { Bars, Plot } from './WaveKit.jsx'
 import './waves.css'
 

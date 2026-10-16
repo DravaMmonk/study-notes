@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { L, tr } from '../i18n.js'
+import { L, tr } from '../../../../games/kit/shell/i18n.js'
 
 // The controls for a part's settings on the desktop board: a choice, a number, or a 3×3 grid of weights.
 // Number fields keep what is being typed (a lone "-", "0.") until it reads as a number and accept the

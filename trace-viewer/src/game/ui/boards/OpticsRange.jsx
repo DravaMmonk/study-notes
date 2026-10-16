@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, X } from 'lucide-react'
-import { PHONE, useMedia } from '../useMedia.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
 import { useTween } from './optics-motion.js'
 import './optics.css'
-import { L, tr } from '../../i18n.js'
+import { L, tr } from '../../../../../games/kit/shell/i18n.js'
 
 // 7-3 测距: a robot's stereo rig seen from above (sideways distances drawn 4× wider than depth so the
 // baseline is visible; straight lines stay straight, so the triangulation picture is still true).

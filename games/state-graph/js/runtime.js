@@ -1,5 +1,6 @@
 // Shared runtime: the open level session plus the shell functions that game modes call.
-// app.js installs the shell functions at boot, so modes depend on this object instead of on the shell.
+// js/screen.jsx installs the shell functions for the open level, so modes depend on this object instead of on the
+// shared game shell (../../kit/shell).
 
 import { reduced } from './util.js';
 

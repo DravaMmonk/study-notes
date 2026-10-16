@@ -1,8 +1,8 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Check, RotateCcw, X } from 'lucide-react'
 import { pixelUrl, svgPoint, useSolveOnce, useWidth } from './matchDraw.js'
-import { PHONE, useMedia } from '../useMedia.js'
-import { L, tr } from '../../i18n.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
+import { L, tr } from '../../../../../games/kit/shell/i18n.js'
 import './MatchBoards.css'
 
 // 6-5 书封面: pair a point on the cover with the same point in the photo (drag from one to the other,

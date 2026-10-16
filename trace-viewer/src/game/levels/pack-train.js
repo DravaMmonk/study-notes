@@ -4,7 +4,7 @@
 // why training longer can make a model worse (4-10 什么时候停). The circuit levels around them
 // (ch2-7.js, pack-learn.js) then train real kernels.
 
-import { keyOf } from '../i18n.js'
+import { keyOf } from '../../../../games/kit/shell/i18n.js'
 
 // ---------------- 4-1 下山 ----------------
 

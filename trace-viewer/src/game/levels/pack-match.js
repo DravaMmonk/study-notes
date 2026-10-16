@@ -2,7 +2,7 @@
 // Hough voting, RANSAC rounds, and the book-cover homography. All four are boards; the game logic
 // lives here as plain functions (level.model) so `npm run levels` can prove every lesson.
 import { random } from '../engine/image.js'
-import { keyOf } from '../i18n.js'
+import { keyOf } from '../../../../games/kit/shell/i18n.js'
 import { affineFit, homographyDLT, houghAccumulate, houghPeaks, invert3, lineGap, lineThrough, project, rankCandidates, ransacLine } from '../engine/match.js'
 
 const gauss = (next) => {

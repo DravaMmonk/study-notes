@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Delete } from 'lucide-react'
-import { L, tr } from '../../i18n.js'
+import { L, tr } from '../../../../../games/kit/shell/i18n.js'
 
 // Setting editors for the phone. Numbers are typed on the game's own keypad (it has the minus key
 // the phone's numeric keyboard lacks) or nudged by the slider and the step keys; choices are big

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { ArrowRight, Check } from 'lucide-react'
 import { cosine, sampleAt, throughSamples } from '../../engine/waves.js'
-import { L, tr } from '../../i18n.js'
-import { PHONE, useMedia } from '../useMedia.js'
+import { L, tr } from '../../../../../games/kit/shell/i18n.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
 import { Plot, Stages } from './WaveKit.jsx'
 import './waves.css'
 

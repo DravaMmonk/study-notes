@@ -1,5 +1,5 @@
 import { createElement } from 'react'
-import { L, tr } from '../../i18n.js'
+import { L, tr } from '../../../../../games/kit/shell/i18n.js'
 import { IMAGE_VIEWS } from './views.js'
 
 // Pick how 2-D values are drawn (see IMAGE_VIEWS).

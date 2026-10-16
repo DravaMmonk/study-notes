@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Check, RotateCcw, X } from 'lucide-react'
-import { PHONE, useMedia } from '../useMedia.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
 import './depthgen.css'
-import { tr } from '../../i18n.js'
+import { tr } from '../../../../../games/kit/shell/i18n.js'
 
 // 8-3 骗过鉴定员: the player sets how a turn splits between the judge and the generator and
 // plays turns. A greedy generator drives both pens onto the judge's favourite spot (mode

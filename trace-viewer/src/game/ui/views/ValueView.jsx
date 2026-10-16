@@ -4,7 +4,7 @@ import ProfileView from './ProfileView.jsx'
 import SlopeView from './SlopeView.jsx'
 import SpectrumView from './SpectrumView.jsx'
 import TerrainView from './TerrainView.jsx'
-import { tr } from '../../i18n.js'
+import { tr } from '../../../../../games/kit/shell/i18n.js'
 import { formatNumber, kindOf } from './views.js'
 import './views.css'
 

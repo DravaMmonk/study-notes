@@ -1,6 +1,6 @@
 import { ArrowRightFromLine, ArrowRightToLine, AudioWaveform, Box, Calculator, Grid3x3, Minimize2, Network, Search, Sparkles } from 'lucide-react'
 import { NODE_TYPES } from '../engine/nodes.js'
-import { L } from '../i18n.js'
+import { L } from '../../../../games/kit/shell/i18n.js'
 
 // How each part looks on the board and in the parts list: a family (colour and icon) and a one-line
 // description. Families group parts by what they look at, which is the idea the game is teaching.

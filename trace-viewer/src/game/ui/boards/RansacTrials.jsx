@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Check, X } from 'lucide-react'
 import { useSolveOnce } from './matchDraw.js'
-import { PHONE, useMedia } from '../useMedia.js'
-import { L, keyOf, tr } from '../../i18n.js'
+import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
+import { L, keyOf, tr } from '../../../../../games/kit/shell/i18n.js'
 import './MatchBoards.css'
 
 // 6-4 共识: RANSAC for a line. The player sets one inlier threshold δ (it depends on the noise) and a

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Check, Circle, EyeOff, Play, X } from 'lucide-react'
-import { L, keyOf, tr } from '../i18n.js'
+import { L, keyOf, tr } from '../../../../games/kit/shell/i18n.js'
 import ImageView from './ImageView.jsx'
 import { rangeOf } from './display.js'
 import CurveView from './views/CurveView.jsx'

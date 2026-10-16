@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
-import { tr } from '../../i18n.js'
+import { tr } from './i18n.js'
 
 // A bottom sheet: slides up over a dimmed page, closes on the backdrop, on Escape, on the close
 // button, or by dragging its handle down.

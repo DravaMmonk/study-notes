@@ -35,6 +35,7 @@ Every page (the notes site, Fieldnotes, the games hub and both games) is built o
 - `prose.css`: note typography, shared by Fieldnotes and the site · 正文排版
 - `lang.js`, `theme.js`, `bar.js`: language, theme and the top bar's buttons · 语言、主题与顶栏按钮
 - `drag.js`, `wires.js`, `graph.js`, `wires.css`: the games' circuit board · 游戏的电路板
+- `shell/`: the game shell both games run on (React): top bar, level map, level rail, 引入, first-run, passed and failed dialogs, parts box, notebook, settings, saved progress, keys, and the desktop workbench and phone page · 两款游戏共用的游戏外壳
 
 The site maps Material for MkDocs onto these tokens in `docs/stylesheets/extra.css` and `overrides/main.html`.
 
@@ -43,8 +44,9 @@ The site maps Material for MkDocs onto these tokens in `docs/stylesheets/extra.c
 Puzzle games that turn a course into levels, under `games/`, published to `/game/` by `.github/workflows/deploy-games.yml` (and by `hooks/games.py` with every site build).
 
 - `games/index.html`: the games hub; the list is in `games/games.js`. · 游戏导航页，游戏列表在 `games/games.js`。
-- [Vision Complete · 视觉完备](https://dravammonk.github.io/study-notes/game/vision-complete/): computer vision, 58 levels; source in `trace-viewer/src/game/` (React, built into `/game/vision-complete/`).
-- [State Graph · 状态之图](https://dravammonk.github.io/study-notes/game/state-graph/): dynamic programming from zero, 56 levels; source in `games/state-graph/` (ES modules, no build).
+- Both games are content on the shared shell in `games/kit/shell/`: a game is a `defineGame({ … })` with its chapters, levels, intro figures and one screen per kind of level, and differs from the other only there. Both are built from `trace-viewer/` (`npm run build:game`, `npm run build:state-graph`). · 两款游戏只在关卡内容上不同，其余都是共享外壳。
+- [Vision Complete · 视觉完备](https://dravammonk.github.io/study-notes/game/vision-complete/): computer vision, 58 levels; content in `trace-viewer/src/game/` (`game.js`, `screens.jsx`), built into `/game/vision-complete/`.
+- [State Graph · 状态之图](https://dravammonk.github.io/study-notes/game/state-graph/): dynamic programming from zero, 56 levels; content in `games/state-graph/` (`js/game.jsx`; its modes in `js/modes/` play through `js/screen.jsx`), built into `/game/state-graph/`.
 
 ## Local reader · 本地阅读器
 
