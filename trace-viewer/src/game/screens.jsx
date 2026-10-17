@@ -132,7 +132,8 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
 
   const passed = shown?.results.filter((r) => r.pass).length ?? 0
 
-  const parts = <Palette items={level.palette.map((type) => ({ type, label: NODE_TYPES[type].label, desc: describe(type), icon: iconOf(type), family: familyOf(type) }))} onAdd={addNode} />
+  // Only a circuit level has parts to place; a board or probe level has no palette at all.
+  const parts = level.kind === 'graph' && <Palette items={(level.palette ?? []).map((type) => ({ type, label: NODE_TYPES[type].label, desc: describe(type), icon: iconOf(type), family: familyOf(type) }))} onAdd={addNode} />
   const brief = <Brief game={game} level={level} hint={level.hint} phone={phone} />
   const training = level.kind === 'graph' && hasLearnable(board) && (
     <section>
@@ -203,7 +204,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
           {reset}
         </>
       }
-      stage={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={level.palette.length > 0} />}
+      stage={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={(level.palette ?? []).length > 0} />}
       side={testPanel}
     />
   )
