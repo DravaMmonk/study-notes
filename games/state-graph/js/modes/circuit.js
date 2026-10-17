@@ -103,6 +103,14 @@ export function circuitMode(L, saved) {
     w.note = box ? Vw.where(cell) : v.focus !== null && v.focus !== undefined ? tr(`查看${Vw.where(cell)}`, `Inspecting ${Vw.where(cell)}`) : Vw.where(cell);
     w.robot = robot;
     w.probe = box ? box.probe : s.probe;
+    // What each lit input reads on this cell, wired or not; `empty` is a cell not computed yet. A run that stopped on
+    // such a read (`halted`) never computed what came after it.
+    w.inputs = Object.fromEntries(litOf(circ()).filter(id => Vw.taps[id]).map(id => {
+      let empty = false;
+      const v = readTap(Vw, t, cell, id, key => { if (shown.has(key)) return shown.get(key); empty = true; return null; }, o);
+      return [id, { v, empty }];
+    }));
+    w.halted = !!(s && s.empty !== undefined);
     return w;
   }
   const ui = () => ({ taps: V().taps, avail: avail(), lit: litOf(circ()), outs: V().outs, palette: stage().palette, win: win(), sideView: wide() });
@@ -267,6 +275,8 @@ export function circuitMode(L, saved) {
       graph: () => toGraph(circ(), terms()),
       parts: () => partsFor(circ(), terms()),
       probe: () => win().probe,
+      /** What each lit input reads on the robot's cell, and whether the run stopped before computing the rest. */
+      reading: () => { const w = win(); return { inputs: w.inputs, halted: w.halted }; },
       change(next, { keep } = {}) {
         if (busy()) return;
         const c = fromGraph(next, circ());

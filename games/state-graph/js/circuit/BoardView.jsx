@@ -9,6 +9,17 @@ import { def } from './components.js'
 // card shows here is the value its output carries at the robot's cell, and a constant's or a merger's setting.
 
 const valueOf = (probe, id) => (probe && id in probe ? signal(probe[id]) : '')
+// What a card shows: an input, what the robot reads on its cell (未算 for a cell not computed yet when a run stopped
+// on it); anything else, what it computed, or 未算到 when a stopped run never got to it.
+const shownOf = (node, probe, reading) => {
+  if (node.type === 'tap') {
+    const r = reading?.inputs?.[node.tap]
+    if (!r) return { text: valueOf(probe, node.id) }
+    return r.empty && reading.halted ? { text: tr('未算', 'not yet'), cls: 'is-unreached' } : { text: signal(r.v) }
+  }
+  const text = valueOf(probe, node.id)
+  return !text && reading?.halted ? { text: tr('未算到', 'not reached'), cls: 'is-unreached' } : { text }
+}
 const stop = (event) => event.stopPropagation()
 
 /** Desktop: the board on the workbench's stage, with the robot's view (top left) and the parts (top right) floating over it. */
@@ -16,8 +27,9 @@ export function SgCanvas({ board }) {
   const graph = board.graph()
   const parts = board.parts()
   const probe = board.probe()
+  const reading = board.reading?.()
   const body = (node) => {
-    const value = valueOf(probe, node.id)
+    const { text: value, cls } = shownOf(node, probe, reading)
     const swaps = parts.role(node) === 'part' ? board.swaps(node.type) : []
     return (
       <div className="sg-body" title={parts.role(node) === 'part' ? L(def(node.type).desc) : undefined}>
@@ -38,7 +50,7 @@ export function SgCanvas({ board }) {
           </label>
         )}
         {parts.role(node) === 'part' && node.type !== 'const' && swaps.length < 2 && <small className="sg-tag">{L(def(node.type).tag)}</small>}
-        <output className={`sg-val ${value ? 'is-on' : ''}`}>{value || '—'}</output>
+        <output className={`sg-val ${value && !cls ? 'is-on' : ''} ${cls ?? ''}`}>{value || '—'}</output>
       </div>
     )
   }
@@ -101,7 +113,11 @@ export function SgPhone({ board, rootRef, dock }) {
     openSlot: (at) => board.openSlot(at),
     reset: board.reset,
   })
-  const thumb = (node) => <i className={`sg-thumb ${valueOf(probe, node.id) ? 'is-on' : ''}`}>{valueOf(probe, node.id) || '—'}</i>
+  const reading = board.reading?.()
+  const thumb = (node) => {
+    const { text, cls } = shownOf(node, probe, reading)
+    return <i className={`sg-thumb ${text && !cls ? 'is-on' : ''} ${cls ?? ''}`}>{text || '—'}</i>
+  }
   const tileExtra = (node) => (node.type === 'const' ? `= ${node.value ?? 1}` : L(def(node.type).tag))
   return (
     <>

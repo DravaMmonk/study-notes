@@ -520,6 +520,8 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-val, .sg-thumb { min-width: 44px; min-height: 30px; padding: 2px 8px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); background: var(--panel-2); font: 700 15px var(--f-mono); font-style: normal; font-variant-numeric: tabular-nums; }
 .sg-val.is-on, .sg-thumb.is-on { color: var(--ink); background: color-mix(in srgb, var(--fam, var(--accent)) 14%, var(--paper)); }
 .sg-thumb { min-width: 60px; min-height: 40px; font-size: 18px; }
+/* A run that stopped on a cell not computed yet: that input reads 未算, and the cards it never got to 未算到. */
+.sg-val.is-unreached, .sg-thumb.is-unreached { color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, var(--panel-2)); font: 600 12px var(--f-body); letter-spacing: .02em; }
 /* Ports by the signal they carry: a number is round, a yes / no a diamond, a whole segment a bar, either dashed. */
 .port.look-bool, .pb-dot.look-bool i { border-radius: 2px; transform: rotate(45deg) scale(.86); }
 .port.look-list, .pb-dot.look-list i { border-radius: 3px; }
