@@ -141,9 +141,6 @@ function slugify(value, seen) {
   return count ? `${base}-${count + 1}` : base
 }
 
-// The games are published with the notes site; the reader only serves Vision Complete (game.html) itself.
-const publishedSite = 'https://dravammonk.github.io/study-notes/'
-
 // An HTML comment on its own line, <!-- figure: name -->, marks where an interactive figure goes.
 // Obsidian and MkDocs hide the comment; here it becomes an empty slot the app fills.
 const figurePattern = /^[ \t]*<!--\s*figure:\s*([a-z0-9-]+)\s*-->[ \t]*$/gm
@@ -163,10 +160,9 @@ export function renderMarkdown(markdown, sourcePath) {
 
   document.body.querySelectorAll('a').forEach((link) => {
     const href = link.getAttribute('href') ?? ''
+    // The games hub and the games sit at game/… here too (vite.config.js serves them where the site puts them).
     if (/^game\//.test(href)) {
-      const local = href.startsWith('game/vision-complete/')
-      link.setAttribute('href', local ? 'game.html' : `${publishedSite}${href}`)
-      if (!local) { link.target = '_blank'; link.rel = 'noreferrer' }
+      link.setAttribute('href', `/${href}`)
       return
     }
     if (/^https?:/.test(href)) {

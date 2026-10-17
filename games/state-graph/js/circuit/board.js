@@ -8,6 +8,7 @@
 
 import { connect as linkPorts, litOf, placement as slotsOf } from './editor.js';
 import { def, srcType } from './components.js';
+import { lookIcon } from './looks.js';
 
 const HUES = 6; // colours are theme tokens: --w0…--w5 for lit inputs, --n0…--n5 for components
 const isTerm = (n) => n.type === 'tap' || n.type === 'out';
@@ -88,7 +89,8 @@ export function partsFor(circ, u) {
     label: (node) => (node.type === 'tap' ? u.taps[node.tap].label : node.type === 'out' ? u.outs.find((o) => o[0] === node.out)?.[1] : def(node.type).name),
     portLabel: (node, port) => (isTerm(node) ? '' : def(node.type).labels?.[+port] ?? ''),
     family: () => 'sg',
-    icon: (node) => String(node.type === 'tap' ? u.taps[node.tap].short : node.type === 'out' ? '→' : def(node.type).bp ? '◆' : def(node.type).icon),
+    // Inputs and outputs are named by a short mark; a part shows its look (circuit/looks.js).
+    icon: (node) => (node.type === 'tap' ? String(u.taps[node.tap].short) : node.type === 'out' ? '→' : lookIcon(node.type)),
     cardStyle: (node) => ({ '--fam': colour(node) }),
     wireStyle: (wire, graph) => ({ '--fam': colour(byId(graph, wire.from)) }),
     portClass: (node, port) => `look-${look(node, port)}`,

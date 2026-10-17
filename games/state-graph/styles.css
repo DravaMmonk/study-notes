@@ -98,7 +98,8 @@ button:disabled{cursor:not-allowed}
 .sd.pass{background:var(--good)} .sd.fail{background:var(--bad)} .sd.run{background:var(--signal)}
 .board{overflow-x:auto;margin:0 -12px;padding:0 12px}
 .board:empty{display:none}
-.bnote{margin:0;font-size:13px;color:var(--ink-2);text-wrap:pretty;min-height:1.2em}
+.bnote{margin:0;font-size:13px;color:var(--ink-2);text-wrap:pretty}
+.bnote:empty{display:none}
 .panel{display:flex;flex-direction:column;gap:12px}
 .pcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:10px}
 .pcard h3{margin:0;font:600 16px var(--f-display);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -340,6 +341,15 @@ button:disabled{cursor:not-allowed}
 .bot-lamp2{fill:var(--cyan)}
 .bot-arm{fill:none;stroke:var(--bot-ant);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .bot-claw{fill:none;stroke:var(--signal);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* The parts' looks (js/circuit/looks.js), drawn from the robots' pieces plus a sign and a barrier. */
+.bot-mark{fill:none;stroke:var(--bot-line);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.bot-bar{fill:none;stroke:var(--bot-ant);stroke-width:3.2;stroke-linecap:round}
+.bot-bar.is-stop{stroke:var(--bad);stroke-dasharray:3.4 2.4;stroke-linecap:butt}
+svg.plook{display:block;flex:none;overflow:visible}
+.pal-ic svg.plook{width:32px;height:32px}
+/* In the kit's part chips the look stands on its own, without the tinted square behind a letter. */
+.family-chip:has(> svg.plook){background:none;box-shadow:none;overflow:visible}
+.pb-glyph:has(> svg.plook){margin-right:4px;vertical-align:-4px}
 .robot{overflow:visible;filter:var(--drop)}
 .cell.self rect{stroke:var(--bad);stroke-width:3}
 .cell.typed .val{fill:var(--signal)}
@@ -410,13 +420,20 @@ img{max-width:100%}
   .sg-level:not(.panel-stage) .panel .pcard{background:var(--board)}
   .sg-level.panel-stage .sg-side .bcard{border:0;border-radius:0;padding:18px 16px;gap:12px;background:var(--panel);background-image:none}
   .sg-level.panel-stage .tests{margin:0;padding:0;flex-wrap:wrap}
-  .sg-level.panel-stage .board{margin:0;padding:12px;border-radius:14px;background:var(--board);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px;box-shadow:inset 0 0 0 1px var(--line)}
+  .sg-level.panel-stage .board{margin:0;padding:4px 0;background:none;box-shadow:none}
 }
 
 /* ---------- phone: the shell's one-page level; board, panel, then the parts tray and the dock pinned at the bottom ---------- */
 @media (max-width:760px){
   .sg-level{display:flex;flex-direction:column;gap:12px;padding-bottom:0}
   .sg-level>.bcard,.sg-level>.panel{margin:0 12px}
+  /* No boxes on a phone page: the test board, the level's cards and the robot's view sit straight on the page,
+     one after another, a hairline between them. */
+  .sg-level .bcard{padding:12px 0 0;border:0;border-radius:0;background:none}
+  .sg-level .pcard{padding:0;border:0;border-radius:0;background:none}
+  .sg-level .panel:has(.pcard),.sg-level.is-circuit>.cview{border-top:1px solid var(--hairline)}
+  .sg-level.is-circuit>.sg-slots{margin:0 12px;padding-inline:0;border-top:1px solid var(--hairline)}
+  .sg-level .panel:has(.pcard){padding-top:16px}
   .sg-foot{position:sticky;bottom:0;z-index:20;margin-top:auto;display:grid;gap:0;background:var(--panel);box-shadow:0 -1px 0 var(--line),0 -14px 26px -20px rgba(0,0,0,.4)}
   .dock{padding-inline:max(12px,env(safe-area-inset-left,0px));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 }
@@ -489,9 +506,14 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-boardpanel { display: flex; flex-direction: column; gap: 16px; }
 .sg-boardpanel > #panel, .sg-boardpanel > #panelAfter { display: flex; flex-direction: column; gap: 16px; }
 .sg-boardpanel > #panel:empty, .sg-boardpanel > #panelAfter:empty { display: none; }
-.sg-canvas { position: relative; flex: 1; min-height: max(460px, calc(100dvh - 300px)); border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
-.sg-canvas .board { position: absolute; inset: 0; height: auto; }
-.sg-level.panel-stage .stage-pane .sg-boardpanel { padding: 20px 24px 24px; min-height: 100%; }
+.sg-canvas { position: relative; flex: 1; min-height: 420px; overflow: hidden; }
+/* The editor's root is also a `.board`: keep this game's test-board rules (a sideways scroll, a bleed) off it. Clipped, not
+   hidden, so focusing a part in a floating window can never scroll the board under it. */
+.sg-canvas .kit-board { position: absolute; inset: 0; height: auto; margin: 0; padding: 0; overflow: clip; }
+/* The whole middle column is the board: no frame around it. A level's own choices (memory, scan order, the direction
+   switches) are in the brief (js/screen.jsx). */
+.sg-level.panel-stage .stage-pane { overflow: hidden; background: var(--canvas); background-image: none; }
+.sg-level.panel-stage .stage-pane .sg-boardpanel { height: 100%; padding: 0; gap: 0; }
 .sg-level.panel-stage .stage-pane .sg-boardpanel > * { width: 100%; max-width: none; }
 .sg-body { margin: 6px 10px 0; display: grid; gap: 4px; }
 .sg-body .param { margin: 0; }
@@ -503,6 +525,36 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .port.look-bool, .pb-dot.look-bool i { border-radius: 2px; transform: rotate(45deg) scale(.86); }
 .port.look-list, .pb-dot.look-list i { border-radius: 3px; }
 .port.look-any, .pb-dot.look-any i { outline: 1.5px dashed var(--fam, var(--ink)); outline-offset: 1px; }
-.sg-level.is-circuit .cview { margin: 0 12px; }
-.sg-slots { padding: 8px 12px 16px; background-image: radial-gradient(var(--hairline) 1px, transparent 1px); background-size: 18px 18px; }
+/* Phone: the robot's view runs the width of the page, like the test board above it. */
+.sg-level.is-circuit .cview { margin: 0 12px; max-width: none; padding: 16px 0 0; border-radius: 0; background: none; border: 0; }
+.sg-level.is-circuit .cview { --vc: 52px; }
+.sg-level.is-circuit .cview .vwin.n5 { --vc: clamp(34px, calc((100vw - 90px) / 5.6), 52px); gap: 4px; }
+.sg-level.is-circuit .cview .n5 .vcell { font-size: 12px; }
+.sg-slots { min-width: 0; padding: 8px 12px 16px; overflow-x: clip; }
 .sg-level.is-circuit .pb-banner, .sg-level.is-circuit .pb-toast { bottom: calc(150px + env(safe-area-inset-bottom)); }
+/* The robot's view in its floating window over the board (js/circuit/BoardView.jsx). */
+/* A circuit level's choices in the brief: plain sections under the task, no card around them. */
+.sg-extras, .sg-extras > div { display: grid; gap: 22px; }
+.sg-extras > div:empty, .sg-extras:has(> div:empty + div:empty) { display: none; }
+.sg-extras .pcard { padding: 16px 0 0; gap: 10px; border: 0; border-top: 1px solid var(--hairline); border-radius: 0; background: none; }
+.sg-extras .pcard h3 { flex-direction: column; align-items: flex-start; gap: 2px; font-size: 15px; }
+.sg-extras .pcard p { font-size: 13px; line-height: 1.6; }
+.sg-extras .chips { display: grid; gap: 6px; }
+.sg-extras .chips.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sg-extras .memk { min-height: 38px; justify-content: flex-start; }
+.sg-extras .dialopts { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+.float-window.is-view { width: auto; min-width: 212px; max-width: 340px; }
+.float-window .cview { margin: 0; padding: 2px; max-width: none; background: none; border: 0; box-shadow: none; gap: 6px; --vc: 32px; }
+.float-window .cview .vwin.n5 { --vc: 26px; }
+.float-window .cview .vnote { font-size: 11px; }
+/* Circuit levels: a narrower brief and test column, so the board in the middle has the room. */
+@media (min-width: 761px) {
+  .level.has-side.sg-level.panel-stage { grid-template-columns: 260px minmax(0, 1fr) 320px; }
+  .level-shell.has-rail .level.has-side.sg-level.panel-stage { grid-template-columns: 240px minmax(0, 1fr) 300px; }
+}
+/* The side column's dock: the count on its own line, the buttons under it. */
+@media (min-width: 761px) {
+  .sg-side .dock-in { flex-wrap: wrap; gap: 8px 10px; }
+  .sg-side .dmeta { flex: 1 0 100%; }
+  .sg-side .go { flex: 1 1 auto; }
+}

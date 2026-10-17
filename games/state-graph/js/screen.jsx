@@ -5,7 +5,7 @@ import { buzz, reduced, ICON } from './util.js'
 import { sceneSVG } from './svg.js'
 import { rt, Anim } from './runtime.js'
 import { MODES } from './modes/index.js'
-import { SgCanvas, SgPalette, SgPhone } from './circuit/BoardView.jsx'
+import { SgCanvas, SgPhone } from './circuit/BoardView.jsx'
 
 // A State Graph level on the shared game shell (games/kit/shell). Each level is played by a mode controller
 // (js/modes/*: wire, trace, fill, circuit, …) that draws HTML and talks to the page only through `rt`
@@ -72,7 +72,8 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       const sig = a && a.dataset && el.contains(a) && (a.dataset.act || a.dataset.test) ? focusSig(a) : null
       renderTests()
       // On a desktop the robot's window sits in the side column, under the tests.
-      q('#view').innerHTML = ctl.sideView && !phone ? '<aside class="cview" id="cview"></aside>' : ''
+      // Circuit levels float the robot's window over the board; other modes with one keep it in the side column.
+      q('#view').innerHTML = ctl.sideView && !phone && !ctl.board ? '<aside class="cview" id="cview"></aside>' : ''
       renderBoard()
       q('#panel').innerHTML = ctl.panel()
       const after = q('#panelAfter')
@@ -222,11 +223,19 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       game={game}
       level={level}
       text={null}
-      rows={[[{ zh: '目标', en: 'Goal' }, L.mission.goal], [{ zh: '怎么玩', en: 'How to play' }, L.mission.how]]}
+      rows={[[{ zh: '目标', en: 'Goal' }, L.mission.goal], [{ zh: '怎么玩', en: 'How to play' }, L.mission.how], ...(ctl.legend ? [[{ zh: '读图', en: 'Reading the board' }, ctl.legend()]] : [])]}
       tip={tip?.text}
       phone={phone}
     >
-      {!phone && (ctl.board ? <SgPalette board={ctl.board} /> : <section className="parts" id="parts" data-trash />)}
+      {!phone && !ctl.board && <section className="parts" id="parts" data-trash />}
+      {/* A circuit level's own choices (what the state remembers, the scan order, the rewrite directions) sit in the
+          brief on a desktop, so the whole middle is the board. */}
+      {!phone && ctl.board && (
+        <div className="sg-extras">
+          <div id="panel" />
+          <div id="panelAfter" />
+        </div>
+      )}
     </Brief>
   )
   // The mode's regions. Each is painted by the mode (innerHTML), never by React, so they have no React children.
@@ -240,14 +249,15 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
     </section>
   )
   const dock = <footer className="dock" id="dock" />
-  // Circuit levels play on the shared circuit editor (./circuit/BoardView.jsx): the mode's cards (memory, scan order)
-  // above it, its direction switches under it.
+  // Circuit levels play on the shared circuit editor (./circuit/BoardView.jsx). On a phone the mode's cards (memory,
+  // scan order) sit above it and its direction switches under it; on a desktop they are in the brief.
   const panel = ctl.board ? (
-    <div className="panel sg-boardpanel">
-      <div id="panel" />
-      {!phone && <SgCanvas board={ctl.board} />}
-      <div id="panelAfter" />
-    </div>
+    phone ? (
+      <div className="panel sg-boardpanel">
+        <div id="panel" />
+        <div id="panelAfter" />
+      </div>
+    ) : <div className="panel sg-boardpanel"><SgCanvas board={ctl.board} /></div>
   ) : <div className="panel" id="panel" />
   const modeSheet = sheet && (
     <Sheet onClose={() => setSheet(null)}>

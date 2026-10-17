@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { CanvasEditor, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../kit/circuit/index.js'
+import { CanvasEditor, FloatWindow, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../kit/circuit/index.js'
 import { L, tr } from '../../../kit/shell/i18n.js'
 import { signal } from '../util.js'
 import { def } from './components.js'
@@ -11,7 +11,7 @@ import { def } from './components.js'
 const valueOf = (probe, id) => (probe && id in probe ? signal(probe[id]) : '')
 const stop = (event) => event.stopPropagation()
 
-/** Desktop: the board on the workbench's stage. */
+/** Desktop: the board on the workbench's stage, with the robot's view (top left) and the parts (top right) floating over it. */
 export function SgCanvas({ board }) {
   const graph = board.graph()
   const parts = board.parts()
@@ -57,26 +57,30 @@ export function SgCanvas({ board }) {
         wireState={wireState}
         width={176}
         height={120}
-        emptyNote={{ zh: '在机器人的视野里点亮格子，它们会变成左边的输入；再从左边选元件放上来，从卡片右侧的圆点拖线连接。', en: "Light cells in the robot's view and they become inputs on the left; then pick components on the left and drag wires from the dot on the right of a card." }}
+        overlay={
+          <>
+            <FloatWindow id="state-graph.robot" title={{ zh: '机器人视野', en: "Robot's view" }} at={{ left: 12, top: 12 }} className="is-view">
+              {/* Painted by the circuit mode (mounted): the robot's window, where cells are lit as inputs. */}
+              <div className="cview" id="cview" />
+            </FloatWindow>
+            <FloatWindow id="state-graph.palette" title={{ zh: '元件', en: 'Parts' }} at={{ right: 12, top: 12 }}>
+              <SgParts board={board} />
+            </FloatWindow>
+          </>
+        }
       />
     </div>
   )
 }
 
-/** Desktop: the brief's parts list. Clicking a part puts it in the first free spot. */
-export function SgPalette({ board }) {
+/** Desktop: the parts, one line each with what they do in a tooltip. Clicking one puts it in the first free spot. */
+function SgParts({ board }) {
   const add = (kind) => {
     const graph = board.graph()
     const at = placement(graph, board.parts()).free[0]
     board.change(board.create(graph, kind, at).graph)
   }
-  return (
-    <section>
-      <h3 className="panel-label">{tr('元件', 'Components')}</h3>
-      <Palette items={board.palette().map((p) => ({ ...p, desc: p.desc, style: { '--fam': 'var(--accent)' } }))} onAdd={add} />
-      <p className="panel-note">{tr('从卡片右侧的圆点拖线到下一张卡片。选中卡片或连线后按 Delete 删除；按住 ⌘/Ctrl 滚动可缩放。', 'Drag a wire from the dot on the right of a card to the next card. Select a card or wire and press Delete to remove it; hold ⌘/Ctrl and scroll to zoom.')}</p>
-    </section>
-  )
+  return <Palette compact items={board.palette().map((p) => ({ ...p, label: p.name, style: { '--fam': 'var(--accent)' } }))} onAdd={add} />
 }
 
 /** Phone: the board as a grid of slots, with the parts tray and the level's dock pinned under it. */
@@ -105,7 +109,8 @@ export function SgPhone({ board, rootRef, dock }) {
         <SlotBoard graph={graph} parts={parts} nameOf={editing.nameOf} thumb={thumb} tileExtra={tileExtra} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} />
       </div>
       <div className="sg-foot">
-        <Tray items={board.palette().map((p) => ({ ...p, family: 'sg' }))} onPick={editing.placeFirstFree} />
+        {/* On a phone a part goes by its name alone; what it does is in its sheet. */}
+        <Tray items={board.palette().map((p) => ({ ...p, label: p.name, family: 'sg' }))} onPick={editing.placeFirstFree} />
         {dock}
       </div>
       <Notice editing={editing} />

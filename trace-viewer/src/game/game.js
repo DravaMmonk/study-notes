@@ -1,13 +1,16 @@
+import { createElement } from 'react'
 import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../../games/kit/shell/index.js'
 import { NODE_TYPES } from './engine/nodes.js'
+import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import { CHAPTERS, LEVELS } from './levels/index.js'
 import { INTROS } from './levels/intros/index.js'
 import { PLANNED } from './levels/planned.js'
 import LevelScreen from './screens.jsx'
+import PartDemo from './ui/PartDemo.jsx'
 import Hero from './ui/Hero.jsx'
 import IntroFigure from './ui/IntroFigure.jsx'
-import { familyOf, iconOf } from './ui/catalog.js'
+import { descriptionOf, familyOf, iconOf } from './ui/catalog.js'
 
 // Vision Complete as content on the shared game shell (games/kit/shell): its chapters and levels, the figures in
 // its 引入, its parts, and the screens that play its three kinds of level.
@@ -16,6 +19,10 @@ import { familyOf, iconOf } from './ui/catalog.js'
 const PART_OF_FLAG = Object.fromEntries(Object.entries(NODE_TYPES).filter(([, spec]) => spec.unlock).map(([type, spec]) => [spec.unlock, type]))
 PART_OF_FLAG.shift = 'shift'
 PART_OF_FLAG.invert = 'invert'
+// What a setting (not a part of its own) does, for the parts box.
+const OPTION_DESCRIPTIONS = {
+  'edge-pad': { zh: '元件的「边界」设置多了「复制边缘」：图外缺的值，用离它最近的边上像素代替，不再补 0，图边就不会冒出一道假的黑框。', en: 'A component’s “Border” setting gains “Replicate edge”: a value missing beyond the picture takes the nearest pixel on the edge instead of 0, so no false black frame appears round the picture.' },
+}
 const OPTION_NAMES = {
   'edge-pad': { zh: '补边方式：复制边缘', en: 'Padding: replicate edge' },
   shift: { zh: '平移', en: 'Shift' },
@@ -23,10 +30,12 @@ const OPTION_NAMES = {
 }
 const unlockOf = (flag) => {
   const type = PART_OF_FLAG[flag]
-  if (type && NODE_TYPES[type]) return { key: flag, label: NODE_TYPES[type].label, name: NODE_TYPES[type].label, desc: NODE_TYPES[type].description, family: familyOf(type), icon: iconOf(type) }
-  return { key: flag, label: OPTION_NAMES[flag] ?? flag, name: OPTION_NAMES[flag] ?? flag }
+  if (type && NODE_TYPES[type]) return { key: flag, label: NODE_TYPES[type].label, name: NODE_TYPES[type].label, desc: descriptionOf(type), family: familyOf(type), icon: iconOf(type) }
+  return { key: flag, label: OPTION_NAMES[flag] ?? flag, name: OPTION_NAMES[flag] ?? flag, desc: OPTION_DESCRIPTIONS[flag] }
 }
 const ALL_FLAGS = [...new Set(LEVELS.flatMap((level) => level.unlocks ?? []))]
+// A part on a bench in the parts box shows every setting, whatever the player has unlocked so far.
+const ALL_FLAG_SET = new Set(ALL_FLAGS)
 
 // Saves before the shell: versions 1–6 renamed level ids as chapters were rebuilt (null drops a level's state);
 // version 7 is the shell's shape (boards → data, seenIntro → seenPower).
@@ -54,6 +63,7 @@ function migrate(saved) {
 
 export default defineGame({
   id: 'vision-complete',
+  glossary: { groups: GLOSSARY_GROUPS, entries: GLOSSARY },
   title: { zh: '视觉完备', en: 'Vision Complete' },
   kicker: { zh: 'COMP90086 · 计算机视觉', en: 'COMP90086 · Computer Vision' },
   lede: { zh: '没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。', en: 'No lectures: just parts, tests and a set of inputs and outputs. Start from “move the picture one pixel”, build blur, edges, corners and disparity yourself, and finally teach the machine to see.' },
@@ -79,7 +89,7 @@ export default defineGame({
     probe: { Screen: LevelScreen, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
   },
   unlocked: (level) => (level.unlocks ?? []).map(unlockOf),
-  parts: { all: ALL_FLAGS.map(unlockOf), earned: (progress) => progress.flags },
+  parts: { all: ALL_FLAGS.map(unlockOf), earned: (progress) => progress.flags, demo: (part, { phone }) => createElement(PartDemo, { key: part.key, flag: part.key, type: PART_OF_FLAG[part.key], flags: ALL_FLAG_SET, phone }) },
   // A better circuit costs less, or as much with fewer parts.
   better: (score, best) => !best || score.cost < best.cost || (score.cost === best.cost && score.nodes < best.nodes),
   bestLabel: (best) => `${best.nodes} · ${best.cost}`,

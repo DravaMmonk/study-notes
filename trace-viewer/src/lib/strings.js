@@ -50,8 +50,6 @@ const STRINGS = {
   deleteAnnotation: ['删除批注', 'Delete annotation'],
   annotationOn: ['关于“{quote}”的批注', 'Annotation on {quote}'],
   commentOn: ['关于“{quote}”的评论', 'Comment on {quote}'],
-  switchLang: ['Switch to English', '切换到中文'],
-  switchTheme: ['换成{theme}', 'Switch to {theme}'],
   chooseImage: ['请选择图片文件', 'Choose an image file'],
   imageTooLarge: ['图片需小于 1 MB', 'Images must be smaller than 1 MB'],
   imageUnreadable: ['图片读取失败', 'Image could not be read'],

@@ -4,8 +4,8 @@
    cards show. */
 
 /* ---- desktop board ---- */
-.board { position: relative; height: 100%; min-height: 0; overflow: hidden; background: var(--canvas); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
-.board:active { cursor: grabbing; }
+.kit-board { position: relative; height: 100%; min-height: 0; overflow: clip; background: var(--canvas); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.kit-board:active { cursor: grabbing; }
 .board-grid { position: absolute; inset: 0; background-image: radial-gradient(circle, color-mix(in srgb, var(--rule) 70%, transparent) 1px, transparent 1.3px); }
 .board-layer { position: absolute; inset: 0; }
 .board-wires { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; }
@@ -38,8 +38,12 @@
 .board-zoom button:hover { color: var(--ink); background: var(--hover); }
 .board-zoom output { min-width: 44px; }
 .board-delete { position: absolute; z-index: 6; left: 50%; bottom: 16px; min-height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 18px; color: var(--paper); background: var(--fail); box-shadow: 0 10px 22px -12px rgba(0, 0, 0, .5); font-size: 12.5px; transform: translateX(-50%); cursor: pointer; animation: rise-in 180ms ease; }
-.board-zoom { top: 12px; right: 12px; bottom: auto; }
-.board-zoom output, .board-zoom button:not(:last-child) { display: none; }
+
+/* A board on a phone: only the fit button stays, top right (phones pinch to zoom). */
+@media (max-width: 760px) {
+  .board-zoom { top: 12px; right: 12px; bottom: auto; }
+  .board-zoom output, .board-zoom button:not(:last-child) { display: none; }
+}
 
 /* ---- desktop parts list (Palette) ---- */
 .palette { display: grid; gap: 6px; }
@@ -57,14 +61,18 @@
 .pb-banner { position: fixed; z-index: 30; left: 12px; right: 12px; bottom: calc(132px + env(safe-area-inset-bottom)); min-height: 44px; padding: 6px 4px 6px 14px; display: flex; align-items: center; gap: 6px; border-radius: 14px; color: var(--paper); background: var(--ink); box-shadow: 0 12px 24px -14px rgba(0, 0, 0, .6); font-size: 13px; line-height: 1.5; animation: rise-in 180ms ease; }
 .pb-banner span { flex: 1; min-width: 0; }
 .pb-banner button { min-width: 52px; min-height: 36px; border: 0; border-radius: 10px; color: var(--accent); background: transparent; font: inherit; font-weight: 600; }
-.pb-board { position: relative; display: grid; gap: 54px; padding: 4px 0; }
-.pb-wires { position: absolute; z-index: 1; top: 0; left: 0; overflow: visible; pointer-events: none; }
+.pb-board { position: relative; min-width: 0; max-width: 100%; display: grid; gap: 54px; padding: 4px 0; }
+/* Wires run over the blocks, lifted off the board by a soft shadow; the dots and their tags sit on top of them. */
+.pb-wires { position: absolute; z-index: 3; top: 0; left: 0; overflow: visible; pointer-events: none; filter: drop-shadow(0 3px 2.5px rgba(0, 0, 0, .22)) drop-shadow(0 1px .5px rgba(0, 0, 0, .14)); }
 .pb-casing { fill: none; stroke: var(--paper); stroke-width: 6; stroke-linecap: round; opacity: .85; }
 .pb-wire { fill: none; stroke: color-mix(in srgb, var(--fam, var(--ink)) 75%, var(--rule)); stroke-width: 2.6; stroke-linecap: round; }
 .pb-wire.is-live { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 6 5; }
-.pb-terms { position: relative; display: flex; justify-content: center; gap: 10px; }
-.pb-term { position: relative; flex: 0 1 160px; min-width: 0; padding: 10px 12px 18px; display: grid; justify-items: center; gap: 4px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule), var(--card); }
-.pb-term.is-output { padding: 20px 12px 10px; }
+/* Sources and sinks: one row of up to four, then more rows (SlotBoard sets --cols), the last one centred, never wider
+   than the screen. */
+.pb-terms { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 22px 8px; }
+.pb-terms > .pb-term { flex: 0 0 calc((100% - (var(--cols, 1) - 1) * 8px) / var(--cols, 1)); max-width: 160px; }
+.pb-term { position: relative; min-width: 0; padding: 10px 8px 18px; display: grid; justify-items: center; gap: 4px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule), var(--card); }
+.pb-term.is-output { padding: 20px 8px 10px; }
 .pb-term.is-output.is-pass { box-shadow: inset 0 0 0 2px var(--status), var(--card); }
 .pb-term.is-output.is-fail { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fail) 55%, var(--rule)), var(--card); }
 .pb-term.is-output.is-pass .pb-name svg { color: var(--status); }
@@ -82,7 +90,8 @@
 .pb-tile.lift { z-index: 20; pointer-events: none; box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent), 0 18px 36px -14px rgba(0, 0, 0, .55); }
 .pb-part.ghost { position: fixed; z-index: 80; top: 0; left: 0; pointer-events: none; opacity: .94; box-shadow: inset 0 0 0 1.5px var(--accent), 0 14px 28px -12px rgba(0, 0, 0, .5); }
 .pb-part.armed { box-shadow: inset 0 0 0 2px var(--accent); }
-.pb-thumb { line-height: 0; }
+.pb-thumb { max-width: 100%; line-height: 0; }
+.pb-thumb canvas, .pb-thumb img { max-width: 100%; height: auto; }
 .pb-thumb .image-view, .pb-thumb canvas, .pb-thumb svg { border-radius: 6px; }
 .pb-thumb .number-view { min-height: 44px; padding: 0 8px; }
 .pb-error, .pb-empty { display: grid; place-items: center; border-radius: 6px; font-style: normal; }
@@ -96,13 +105,21 @@
 .pb-ins { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-evenly; transform: translateY(-50%); }
 .pb-in { position: relative; display: grid; justify-items: center; }
 .pb-in em { position: absolute; top: -13px; color: var(--muted); font-family: var(--mono); font-size: 10px; font-style: normal; }
-.pb-src { position: absolute; z-index: 3; left: 27px; top: 50%; transform: translateY(-50%); max-width: 72px; padding: 1px 6px; overflow: hidden; border-radius: 8px; color: var(--paper); background: color-mix(in srgb, var(--fam, var(--ink)) 80%, var(--ink)); font-size: 12.5px; font-weight: 600; line-height: 1.45; white-space: nowrap; text-overflow: ellipsis; pointer-events: none; }
+.pb-src { position: absolute; z-index: 5; left: 27px; top: 50%; transform: translateY(-50%); max-width: 72px; padding: 1px 6px; overflow: hidden; border-radius: 8px; color: var(--paper); background: color-mix(in srgb, var(--fam, var(--ink)) 80%, var(--ink)); font-size: 12.5px; font-weight: 600; line-height: 1.45; white-space: nowrap; text-overflow: ellipsis; pointer-events: none; }
+/* A part with two or more inputs has no room for each source's name beside its dot: the name goes under it. */
+.pb-ins.is-many .pb-src { left: 50%; top: calc(100% - 4px); max-width: calc(100% + 18px); padding: 0 5px; font-size: 10.5px; transform: translateX(-50%); }
+.pb-ins.is-many .pb-in { flex: 1 1 0; min-width: 0; }
+.pb-tile:has(> .pb-ins.is-many .pb-src) { padding-top: 34px; }
+/* The wire display switch (SlotBoard), kept in reach at the top right while the board scrolls. */
+.pb-wiremode { position: sticky; z-index: 7; top: var(--pb-sticky-top, 8px); justify-self: end; height: 32px; margin-bottom: -46px; padding: 0 11px 0 9px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--paper) 92%, transparent); box-shadow: 0 0 0 1px var(--rule), 0 8px 18px -12px rgba(0, 0, 0, .5); backdrop-filter: blur(8px); font: inherit; font-size: 12px; font-weight: 600; }
+.pb-wiremode:active { transform: scale(.97); }
+.pb-board[data-wires='none'] .pb-wiremode, .pb-board[data-wires='parts'] .pb-wiremode { color: var(--accent-ink); box-shadow: 0 0 0 1.5px var(--accent), 0 8px 18px -12px rgba(0, 0, 0, .5); }
 .pb-out { position: absolute; bottom: 0; left: 50%; transform: translate(-50%, 50%); }
-.pb-dot { position: relative; z-index: 2; width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; touch-action: none; cursor: pointer; }
+.pb-dot { position: relative; z-index: 4; width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; touch-action: none; cursor: pointer; }
 .pb-dot i { width: 16px; height: 16px; border-radius: 50%; background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); transition: transform 140ms ease, box-shadow 140ms ease; }
-.pb-dot.is-out i { background: var(--ink); }
-.pb-dot.is-open i { box-shadow: inset 0 0 0 2px var(--fail); background: color-mix(in srgb, var(--fail) 14%, var(--paper)); }
-.pb-dot.is-wired i { background: color-mix(in srgb, var(--ink) 20%, var(--paper)); }
+/* A dot is hollow until a wire is on it, then solid; an input still waiting for one is ringed in red. */
+.pb-dot.is-open i { box-shadow: inset 0 0 0 2px var(--fail); }
+.pb-dot.is-wired i { background: var(--ink); }
 .pb-dot.is-picked i { transform: scale(1.35); background: var(--accent); box-shadow: inset 0 0 0 2px var(--accent-ink), 0 0 0 5px color-mix(in srgb, var(--accent) 30%, transparent); }
 .pb-dot.is-target i { transform: scale(1.2); box-shadow: inset 0 0 0 2.5px var(--accent-ink), 0 0 0 5px color-mix(in srgb, var(--accent) 28%, transparent); animation: pb-pulse 1.2s ease-in-out infinite; }
 .pb-dot.is-dim { opacity: .25; }
@@ -118,8 +135,6 @@
 .pb-part .family-chip { width: 22px; height: 22px; border-radius: 7px; }
 .pb-part:active { transform: scale(.97); }
 .pb-toast { bottom: calc(132px + env(safe-area-inset-bottom)); }
-.pb-tile, .pb-banner { animation: none; }
-.pb-dot i { transition: none; animation: none; }
 
 .node.is-source, .node.is-sink { background: var(--surface); }
 .pb-glyph { margin-right: 3px; color: var(--fam, var(--muted)); font-style: normal; font-weight: 600; }
@@ -132,3 +147,77 @@
 
 .glyph-text { font: 600 11px/1 var(--mono); }
 .pb-glyph { display: inline-grid; vertical-align: -1px; }
+
+/* ---- floating windows over the desktop board (FloatWindow) and the compact parts list ---- */
+.float-window { position: absolute; z-index: 8; width: 212px; max-height: calc(100% - 24px); display: flex; flex-direction: column; border-radius: 12px; background: color-mix(in srgb, var(--paper) 94%, transparent); box-shadow: 0 0 0 1px var(--rule), 0 14px 32px -18px rgba(0, 0, 0, .45); backdrop-filter: blur(10px); }
+.float-head { height: 32px; flex: none; padding: 0 4px 0 10px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--hairline); color: var(--muted); font: var(--fs-label)/1 var(--mono); letter-spacing: .08em; cursor: grab; user-select: none; touch-action: none; }
+.float-head:active { cursor: grabbing; }
+.float-head span { flex: 1; }
+.float-head button { width: 26px; height: 26px; display: grid; place-items: center; border: 0; border-radius: 7px; color: var(--muted); background: transparent; cursor: pointer; }
+.float-head button:hover { color: var(--ink); background: var(--hover); }
+.float-window.is-folded .float-head { border-bottom: 0; }
+.float-body { min-height: 0; padding: 6px; }
+.palette.is-compact { gap: 2px; }
+.palette.is-compact .palette-item { position: relative; min-height: 32px; padding: 3px 8px 3px 5px; grid-template-columns: 22px minmax(0, 1fr) 12px; gap: 7px; background: transparent; box-shadow: none; }
+.palette.is-compact .family-chip { width: 20px; height: 20px; }
+.palette.is-compact .palette-text { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.palette.is-compact .palette-text span { white-space: nowrap; }
+.palette.is-compact .palette-text small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.palette.is-compact .palette-item:hover { background: var(--hover); box-shadow: none; transform: none; }
+.palette.is-compact .palette-text span { font-size: 13px; }
+.palette.is-compact .palette-text small { font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
+.palette-tip { display: none; position: absolute; z-index: 20; left: calc(100% + 12px); top: 0; width: 220px; padding: 9px 11px; border-radius: 10px; color: var(--body); background: var(--paper); box-shadow: 0 0 0 1px var(--rule), var(--lift); font-size: 12.5px; line-height: 1.55; white-space: normal; text-align: left; pointer-events: none; }
+.palette-item[data-tip='left'] .palette-tip { left: auto; right: calc(100% + 12px); }
+.palette.is-compact .palette-item:hover .palette-tip, .palette.is-compact .palette-item:focus-visible .palette-tip { display: block; }
+
+/* ---- a part on a small bench (DemoBench.jsx), in the parts box ---- */
+.demo-bench { max-width: 100%; margin: 4px 0 22px; overflow: clip; border-radius: 14px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.demo-bar { padding: 8px 8px 8px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
+.demo-bar .panel-label { margin: 0; }
+.demo-tests { display: flex; flex-wrap: wrap; gap: 4px; }
+.demo-test { min-height: 28px; padding: 0 10px; border: 0; border-radius: 999px; color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1px var(--rule); font: 600 11.5px var(--mono); cursor: pointer; }
+.demo-test[aria-selected='true'] { color: var(--paper); background: var(--ink); box-shadow: none; }
+.demo-state { flex: 1; min-width: 0; color: var(--muted); font-size: 12px; text-align: right; }
+.demo-bench.is-stale .demo-state { color: var(--accent-ink); }
+.demo-reset { width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 9px; color: var(--muted); background: transparent; cursor: pointer; }
+.demo-reset:hover { color: var(--ink); background: var(--hover); }
+.demo-run { min-height: 32px; padding: 0 14px 0 11px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 9px; color: var(--paper); background: var(--ink); font: 600 13px var(--sans); cursor: pointer; }
+.demo-bench.is-stale .demo-run { background: var(--accent); color: var(--accent-contrast, var(--ink)); }
+.demo-run:active { transform: scale(.97); }
+.demo-board { position: relative; }
+.demo-board:not(.is-auto) > * { height: 100%; }
+.demo-board.is-auto { padding: 14px 12px 18px; }
+.demo-bench.is-stale .demo-board :is(output, canvas) { opacity: .4; transition: opacity 160ms ease; }
+/* A bench's circuit is fixed: cards move, but nothing is added or taken away. */
+.demo-board .node-delete, .demo-board .pb-wiremode { display: none; }
+.demo-bench .demo-note { max-width: none; margin: 0; font-family: var(--sans); padding: 10px 14px; border-top: 1px solid var(--hairline); color: var(--muted); font-size: 12.5px; line-height: 1.55; }
+/* The part a bench is about stands out from the cards that feed it. */
+.node.is-focus { box-shadow: 0 0 0 2px var(--accent), var(--lift, 0 8px 22px -14px rgba(0, 0, 0, .4)); }
+/* Typing an input on a bench card: a number with − and +, or nothing (—); yes or no; a run of numbers. */
+.demo-num, .demo-yn { display: flex; align-items: center; gap: 3px; }
+.demo-num button, .demo-yn button { min-width: 26px; height: 26px; padding: 0 6px; border: 0; border-radius: 7px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: 600 13px var(--mono); cursor: pointer; }
+.demo-num button.is-on, .demo-yn button[aria-pressed='true'] { color: var(--paper); background: var(--ink); box-shadow: none; }
+.demo-num output { flex: 1; min-width: 34px; text-align: center; font: 700 15px var(--mono); font-variant-numeric: tabular-nums; }
+.demo-yn button { flex: 1; }
+.demo-list { width: 100%; height: 28px; padding: 0 8px; border: 0; border-radius: 7px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: 600 12.5px var(--mono); }
+.parts-article .demo-bench { max-width: none; }
+@media (max-width: 760px) {
+  .demo-bar { padding-left: 12px; }
+  .demo-bar .panel-label { flex-basis: 100%; }
+  .demo-state { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: left; }
+}
+/* A bench on a phone: the phone board, tap a block for its controls in the panel underneath. */
+.pb-cell.is-blank { min-height: 0; }
+.pb-tile.is-selected, .pb-term.is-selected { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--ink); }
+.pb-tile.is-focus:not(.is-selected) { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent); }
+.demo-panel { padding: 12px 14px 14px; display: grid; gap: 10px; border-top: 1px solid var(--hairline); background: var(--paper); }
+.demo-panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.demo-panel-head b { font-size: 15px; }
+.demo-panel-head small { color: var(--muted); font-size: 12px; }
+.demo-panel .panel-note { margin: 0; }
+.demo-panel .demo-num output { font-size: 18px; }
+.demo-panel .demo-num button, .demo-panel .demo-yn button { min-width: 40px; height: 40px; font-size: 15px; }
+.demo-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+.demo-choices button { min-height: 38px; padding: 0 14px; border: 0; border-radius: 10px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: 600 14px var(--sans); }
+.demo-choices button[aria-pressed='true'] { color: var(--paper); background: var(--ink); box-shadow: none; }
+.wiki.is-phone .demo-panel { position: sticky; z-index: 6; bottom: 0; max-height: 44dvh; overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 -12px 24px -16px rgba(0, 0, 0, .35); }

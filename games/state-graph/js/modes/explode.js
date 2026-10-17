@@ -20,7 +20,9 @@ export function explodeMode(L, saved) {
         <section class="fast"><h4>${tr('填表法', 'Filling the table')}</h4><span class="k">${tr('计算次数', 'computations')}</span><span class="bignum">${fmt(table)}</span><div class="board">${sceneSVG({ cells: strip, edges: [] }, { pad: 6, maxScale: 1 })}</div>${st.n > 9 ? `<span class="k">${tr(`……一直到第 ${st.n} 级，每级一次`, `…all the way to step ${st.n}, once per step`)}</span>` : ''}</section>
       </div>`;
     },
-    note: () => (st.n <= 7 ? tr('同一种颜色、同一个数字，代表同一级台阶被问了好几遍。', 'The same color and the same number mean the same step was asked about again and again.') : tr(`台阶数 ${st.n}：问路法要问 ${fmt(askCalls(st.n))} 次。`, `${st.n} steps: asking takes ${fmt(askCalls(st.n))} questions.`)),
+    note: () => (st.n <= 7 ? '' : tr(`台阶数 ${st.n}：问路法要问 ${fmt(askCalls(st.n))} 次。`, `${st.n} steps: asking takes ${fmt(askCalls(st.n))} questions.`)),
+    /** How to read the board, in the brief. */
+    legend: () => tr('同一种颜色、同一个数字，代表同一级台阶被问了好几遍。', 'The same color and the same number mean the same step was asked about again and again.'),
     panel() {
       const q = L.question;
       return `<div class="pcard"><h3>${tr('台阶数', 'Steps')}<small>n = ${st.n}</small></h3>

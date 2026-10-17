@@ -5,7 +5,7 @@
        <a class="kit-brand" href="…/"><i class="kit-chip"></i><span>学习笔记</span></a>
        <nav class="kit-nav"><a href="…/" aria-current="page">笔记</a><a href="…/game/">游戏</a></nav>
        <span class="kit-crumbs">COMP90086<i>/</i>滤波</span>
-       <div class="kit-actions"><button class="kit-btn" data-lang-toggle>EN</button><button class="kit-btn" data-theme-toggle>浅色</button></div>
+       <div class="kit-actions"></div>   (menu.js mountBarMenus fills it with the language and theme menus)
      </header>
    Page head: .kit-hero > .kit-kicker + h1.kit-title + .kit-lede.  Cards: .kit-cards > a.kit-card > .kit-card-body. */
 
@@ -48,7 +48,28 @@
 .kit-btn.is-label { padding: 0 10px 0 8px; color: var(--muted); font: var(--fs-label)/1 var(--mono); letter-spacing: .04em; }
 .kit-btn.is-label:hover, .kit-btn.is-label.is-on { color: var(--ink); }
 .kit-btn.is-solid { background: var(--hover); }
-.kit-btn[data-lang-toggle] { font: 600 11px/1 var(--mono); letter-spacing: .06em; }
+
+/* ---- the language and theme menus (menu.js): an icon button, then a small menu of choices ---- */
+.kit-menu { position: relative; }
+.kit-bar-menus { display: flex; align-items: center; gap: 2px; }
+.kit-icon-btn { width: 34px; padding: 0; color: var(--muted); }
+.kit-icon-btn:hover, .kit-icon-btn[aria-expanded='true'] { color: var(--ink); background: var(--hover); }
+.kit-ico { display: block; flex: none; }
+.kit-pop { position: absolute; z-index: 80; top: calc(100% + 6px); right: 0; min-width: 188px; padding: 6px; display: grid; gap: 1px; border-radius: 12px; background: var(--paper); box-shadow: 0 0 0 1px var(--rule), 0 16px 36px -14px rgba(0, 0, 0, .4); animation: kit-pop-in 140ms ease; transform-origin: top right; }
+.kit-pop[hidden] { display: none; }
+.kit-pop-label { padding: 6px 10px 6px; color: var(--muted); font: 10px/1 var(--mono); letter-spacing: .14em; }
+.kit-pop-item { min-height: 38px; padding: 0 10px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 8px; color: var(--ink); background: transparent; font: 500 14px/1.2 var(--sans); text-align: left; cursor: pointer; }
+.kit-pop-item span { flex: 1; }
+.kit-pop-item small { color: var(--muted); font-size: 11.5px; }
+.kit-pop-item .kit-ico { color: var(--accent-ink, var(--accent)); visibility: hidden; }
+.kit-pop-item[aria-checked='true'] { font-weight: 600; }
+.kit-pop-item[aria-checked='true'] .kit-ico { visibility: visible; }
+.kit-pop-item:hover, .kit-pop-item:focus-visible { background: var(--hover); outline: none; }
+.kit-swatch { flex: none; position: relative; width: 22px; height: 22px; border-radius: 7px; background: var(--sw-bg); box-shadow: inset 0 0 0 1px rgba(127, 127, 127, .35); overflow: hidden; }
+.kit-swatch::before { content: ''; position: absolute; left: 5px; right: 5px; top: 7px; height: 2px; border-radius: 1px; background: var(--sw-ink); box-shadow: 0 4px 0 var(--sw-ink); opacity: .8; }
+.kit-swatch::after { content: ''; position: absolute; right: 4px; bottom: 4px; width: 5px; height: 5px; border-radius: 50%; background: var(--sw-accent); }
+@keyframes kit-pop-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { .kit-pop { animation: none; } }
 
 /* ---- page head ---- */
 .kit-hero { padding: 56px 0 34px; max-width: 40em; }

@@ -14,7 +14,7 @@ import { IMAGE_VIEWS, KIND_NAMES, kindOf, nodeView } from './views/views.js'
 
 const NODE_W = 140
 
-export default function Editor({ graph, onChange, run, testIndex, flags, inputLabels, outputLabels, views, ioKinds, scan, onScan, theme, hasPalette }) {
+export default function Editor({ graph, onChange, run, testIndex, flags, inputLabels, outputLabels, views, ioKinds, scan, onScan, theme, hasPalette, focus }) {
   const [peek, setPeek] = useState(null)
   const [menu, setMenu] = useState(null) // id of the card whose view menu is open
   const values = run?.results[testIndex]?.values
@@ -103,7 +103,8 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
   }
   const cardClass = (node) => {
     const check = checkOf(node)
-    return `node-${node.type} ${menu === node.id ? 'has-menu' : ''} ${check && check.pass !== null ? (check.pass ? 'is-pass' : 'is-fail') : ''}`
+    // `focus`: the part a bench in the parts box is about (PartDemo.jsx).
+    return `node-${node.type} ${menu === node.id ? 'has-menu' : ''} ${check && check.pass !== null ? (check.pass ? 'is-pass' : 'is-fail') : ''} ${focus === node.type ? 'is-focus' : ''}`
   }
 
   return (

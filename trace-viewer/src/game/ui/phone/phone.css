@@ -110,7 +110,7 @@
 .pb-test .hidden-tag { margin-left: 2px; }
 .pb-test.is-on { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
 
-.pb-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 12px 12px 72px; display: grid; align-content: start; gap: 12px; background-image: radial-gradient(var(--hairline) 1px, transparent 1px); background-size: 18px 18px; }
+.pb-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 12px 12px 72px; display: grid; align-content: start; gap: 12px; overflow-x: clip; }
 .pb-brief { border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .pb-brief-toggle { width: 100%; min-height: 40px; padding: 0 12px 0 14px; display: flex; align-items: center; justify-content: space-between; border: 0; color: var(--muted); background: transparent; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; }
 .pb-brief-toggle svg { transition: transform 180ms ease; }
@@ -169,3 +169,12 @@
 .pb-verdict { position: absolute; top: 8px; right: 10px; display: grid; }
 .pb-term.is-pass .pb-verdict { color: var(--status); }
 .pb-term.is-fail .pb-verdict { color: var(--fail); }
+
+/* The same editors in a bench's panel in the parts box (ui/PartDemo.jsx): the slider and the value, without the
+   keypad, and choices in a row, so the board above stays in view. */
+.demo-panel .ph-keypad { display: none; }
+.demo-panel .ph-keypad-value { min-height: 0; padding: 2px 4px; font-size: 18px; }
+.demo-panel .ph-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+.demo-panel .ph-choices button { flex: 1 1 auto; min-height: 38px; }
+.demo-param { display: grid; gap: 4px; }
+.demo-param .panel-label { margin: 0; }

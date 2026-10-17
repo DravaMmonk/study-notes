@@ -67,10 +67,7 @@
   }
 
   // ---- theme: the kit's three themes; Material's own scheme follows light or dark ----
-  const THEMES = [['paper', '浅色', 'Light'], ['night', '深色', 'Dark'], ['blueprint', '蓝图', 'Blueprint']];
-  const themeName = (id) => { const t = THEMES.find(([k]) => k === id) || THEMES[0]; return tr(t[1], t[2]); };
   const currentTheme = () => document.documentElement.dataset.theme || 'paper';
-  const nextTheme = (id) => THEMES[(THEMES.findIndex(([k]) => k === id) + 1) % THEMES.length][0];
   function applyTheme(id) {
     document.documentElement.dataset.theme = id;
     document.body.setAttribute('data-md-color-scheme', id === 'paper' ? 'default' : 'slate');
@@ -91,31 +88,16 @@
 
     const actions = document.createElement('div');
     actions.className = 'kit-actions';
-    const langButton = document.createElement('button');
-    langButton.type = 'button';
-    langButton.className = 'kit-btn';
-    langButton.dataset.langToggle = '';
-    langButton.textContent = lang === 'zh' ? 'EN' : '中';
-    langButton.title = lang === 'zh' ? 'Switch to English' : '切换到中文';
-    langButton.setAttribute('aria-label', langButton.title);
-    langButton.addEventListener('click', () => {
-      const next = lang === 'zh' ? 'en' : 'zh';
-      try { localStorage.setItem(LANG_KEY, next); } catch (e) { /* the switch still happens for this page */ }
-      if (here && here[next]) location.href = absolute(here[next].url) + location.hash;
-      else location.reload();
-    });
-    const themeButton = document.createElement('button');
-    themeButton.type = 'button';
-    themeButton.className = 'kit-btn';
-    const paintTheme = () => {
-      const t = currentTheme();
-      themeButton.textContent = themeName(t);
-      themeButton.title = tr(`换成${themeName(nextTheme(t))}`, `Switch to ${themeName(nextTheme(t))}`);
-      themeButton.setAttribute('aria-label', themeButton.title);
-    };
-    themeButton.addEventListener('click', () => { applyTheme(nextTheme(currentTheme())); paintTheme(); });
-    paintTheme();
-    actions.append(langButton, themeButton);
+    // The kit's language and theme menus (games/kit/menu.js, published at game/kit/), as on every other page. A
+    // language is a different page here, so picking one goes to this page's translation.
+    import(root() + 'game/kit/menu.js').then(({ mountBarMenus }) => mountBarMenus(actions, {
+      onLang: (next) => {
+        try { localStorage.setItem(LANG_KEY, next); } catch (e) { /* the switch still happens for this page */ }
+        if (here && here[next]) location.href = absolute(here[next].url) + location.hash;
+        else location.reload();
+      },
+      onTheme: applyTheme,
+    })).catch(() => { /* without the kit the page still reads; it just has no menus */ });
 
     const searchLabel = inner.querySelector('label[for="__search"]');
     (searchLabel || inner.lastElementChild).before(nav);

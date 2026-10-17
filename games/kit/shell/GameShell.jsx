@@ -1,22 +1,25 @@
-import { createElement, useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, BookOpen, PanelLeft } from 'lucide-react'
-import { applyTheme, nextTheme, themeLabel } from '../theme.js'
-import { applyLang, currentLang, otherLang } from '../lang.js'
+import { createElement, useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowLeft, BookMarked, BookOpen, PanelLeft } from 'lucide-react'
+import { applyTheme } from '../theme.js'
+import { currentLang } from '../lang.js'
+import { mountBarMenus } from '../menu.js'
 import { L, tr } from './i18n.js'
 import { preference } from './progress.js'
 import { PHONE, useMedia } from './useMedia.js'
-import { Dialog, FailDialog, NotesSheet, PartsSheet, SolvedDialog } from './Dialogs.jsx'
+import { Dialog, FailDialog, SolvedDialog } from './Dialogs.jsx'
+import Encyclopedia, { useWiki } from './Encyclopedia.jsx'
+import PartsBook, { useParts } from './PartsBook.jsx'
 import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelRail from './LevelRail.jsx'
 
-// Built on its own (npm run build:game, build:state-graph) a game sits in game/<id>/ under the notes site and the
-// games hub; inside Fieldnotes (npm run dev) the notes are the reader at ./ and there is no hub.
-const SITE = import.meta.env.MODE === 'game' ? { notes: '../../', games: '../' } : { notes: './', games: null }
+// Every game sits at game/<id>/index.html, under the games hub (game/index.html) and the notes (index.html): on the
+// published site, and on the dev server too (trace-viewer/vite.config.js), where the notes are Fieldnotes.
+const SITE = { notes: '../../index.html', games: '../index.html' }
 
 /**
  * The game shell shared by every game: the top bar, the level map, the level rail, a level's 引入, the first-run
- * dialog, the passed and failed dialogs, the parts box and notebook, settings and saved progress. A game (see
+ * dialog, the passed and failed dialogs, the parts box and encyclopedia, settings and saved progress. A game (see
  * defineGame) brings only its content: chapters, levels, intro figures and, for each kind of level, the screen
  * that plays it. A level screen gets
  *
@@ -44,7 +47,7 @@ export default function GameShell({ game }) {
   const [won, setWon] = useState(null) // the level just passed
   const [failure, setFailure] = useState(null) // { info, fails } of the last run that missed
   const [fails, setFails] = useState(0) // misses on the current level this visit
-  const [sheet, setSheet] = useState(null) // 'parts' | 'notes'
+  const [sheet, setSheet] = useState(null) // 'parts' | 'wiki'
 
   // The level list beside a level: docked on wide screens (remembered), a drawer on narrow ones.
   const narrow = useMedia('(max-width: 1180px)')
@@ -62,6 +65,13 @@ export default function GameShell({ game }) {
 
   useEffect(() => game.store.save(progress), [game, progress])
   useEffect(() => applyTheme(theme), [theme])
+  // The kit's language and theme menus (menu.js), the same as on every other page; a theme picked there comes back
+  // here so the level screens redraw in it.
+  const actions = useRef(null)
+  useEffect(() => {
+    const menus = mountBarMenus(actions.current, { onTheme: setTheme })
+    return () => menus.destroy()
+  }, [])
   useEffect(() => {
     document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
     document.title = tr(`${game.title.zh} — ${game.title.en}`, `${game.title.en} — ${game.title.zh}`)
@@ -88,6 +98,8 @@ export default function GameShell({ game }) {
 
   const level = levelId ? game.byId[levelId] : null
   const chapter = level ? game.chapters.find((c) => c.id === level.chapter) : null
+  const wiki = useWiki(game, progress, solved, level)
+  const box = useParts(game, progress)
 
   // What a level screen can do to the shell.
   const save = (data) => setProgress((p) => ({ ...p, data: { ...p.data, [level.id]: data } }))
@@ -130,13 +142,13 @@ export default function GameShell({ game }) {
             <button className={`kit-btn is-label bar-button rail-toggle ${showRail ? 'is-on' : ''}`} onClick={toggleRail} aria-pressed={showRail} aria-label={tr('关卡列表', 'Level list')}><PanelLeft size={16} /><span>{tr('关卡', 'Levels')}</span></button>
           </>
         ) : (
-          <a className="kit-btn is-label bar-button" href={SITE.games ?? SITE.notes} aria-label={SITE.games ? tr('回到游戏列表', 'Back to the games') : tr('回到笔记', 'Back to the notes')}><ArrowLeft size={16} /><span>{SITE.games ? tr('游戏', 'Games') : tr('笔记', 'Notes')}</span></a>
+          <a className="kit-btn is-label bar-button" href={SITE.games} aria-label={tr('回到游戏列表', 'Back to the games')}><ArrowLeft size={16} /><span>{tr('游戏', 'Games')}</span></a>
         )}
         <span className="kit-brand game-brand"><i className="kit-chip" aria-hidden="true" /><span>{L(game.title)}</span></span>
         {!level && !phone && (
           <nav className="kit-nav" aria-label={tr('站点', 'Site')}>
             <a href={SITE.notes}>{tr('笔记', 'Notes')}</a>
-            {SITE.games && <a href={SITE.games} aria-current="page">{tr('游戏', 'Games')}</a>}
+            <a href={SITE.games} aria-current="page">{tr('游戏', 'Games')}</a>
           </nav>
         )}
         {level && (
@@ -147,12 +159,13 @@ export default function GameShell({ game }) {
           </span>
         )}
         {intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => setIntroFor(level.id)} aria-label={tr('引入', 'Intro')}><BookOpen size={16} /><span>{tr('引入', 'Intro')}</span></button>}
-        <div className="kit-actions">
-          <LangToggle lang={lang} />
-          <button className="kit-btn" onClick={() => setTheme(nextTheme(theme))} title={tr(`换成${themeLabel(nextTheme(theme))}`, `Switch to ${themeLabel(nextTheme(theme))}`)} aria-label={tr(`换成${themeLabel(nextTheme(theme))}`, `Switch to ${themeLabel(nextTheme(theme))}`)}>
-            {themeLabel(theme)}
+        {level && game.glossary && (
+          <button className="kit-btn is-label bar-button notes-button wiki-button" onClick={() => setSheet('wiki')} aria-label={tr(`百科${wiki.unread.length ? `（${wiki.unread.length} 条未读）` : ''}`, `Encyclopedia${wiki.unread.length ? ` (${wiki.unread.length} unread)` : ''}`)}>
+            <BookMarked size={16} /><span>{tr('百科', 'Encyclopedia')}</span>{wiki.unread.length > 0 && <i className="wiki-dot" />}
           </button>
-        </div>
+        )}
+        {/* Filled by menu.js: React leaves it empty. */}
+        <div className="kit-actions" ref={actions} />
       </header>
 
       {!level && (
@@ -164,7 +177,9 @@ export default function GameShell({ game }) {
           onOpen={open}
           onReset={() => setProgress(game.store.blank())}
           onParts={game.parts && (() => setSheet('parts'))}
-          onNotes={() => setSheet('notes')}
+          partsNew={box.unread.length}
+          onWiki={game.glossary && (() => setSheet('wiki'))}
+          unread={wiki.unread.length}
           theme={theme}
         />
       )}
@@ -206,8 +221,8 @@ export default function GameShell({ game }) {
         <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} next={next} onNext={() => open(next.id)} />
       )}
       {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
-      {sheet === 'parts' && <PartsSheet game={game} progress={progress} onClose={() => setSheet(null)} />}
-      {sheet === 'notes' && <NotesSheet game={game} solved={solved} onClose={() => setSheet(null)} />}
+      {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} onClose={() => setSheet(null)} />}
+      {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} onClose={() => setSheet(null)} />}
       {game.power && !progress.seenPower && (
         <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始', 'Start'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />
       )}
@@ -216,12 +231,3 @@ export default function GameShell({ game }) {
 }
 
 // Switches the reading language for this game and every other page. It shows the language it switches to.
-function LangToggle({ lang }) {
-  const next = otherLang(lang)
-  const name = next === 'en' ? 'Switch to English' : '切换到中文'
-  return (
-    <button className="kit-btn" data-lang-toggle onClick={() => applyLang(next)} aria-label={name} title={name} lang={next === 'en' ? 'en' : 'zh-CN'}>
-      {next === 'en' ? 'EN' : '中'}
-    </button>
-  )
-}

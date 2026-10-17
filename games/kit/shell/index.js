@@ -18,9 +18,11 @@ export { PHONE, useMedia } from './useMedia.js'
  *   power         a first-run dialog { title, lines }
  *   intro(level)  a level's 引入 pages [{ t, fig? }]; IntroFigure draws a page's fig ({ fig, level, theme })
  *   progress      { version, migrate(saved), legacy() } for saves from older versions or keys
- *   parts         the parts box { all: [{ key, name, desc?, icon?, family? }], earned(progress) → [key] }
+ *   parts         the parts box { all: [{ key, name, desc?, icon?, family? }], earned(progress) → [key],
+ *                 demo?(part, { phone }) → the part on a bench to try (React; games/kit/circuit DemoBench) }
  *   unlocked(level)  what passing a level unlocks [{ label, icon?, family? }] for the passed dialog
- *   note(level)   the level's line in the notebook (default: level.note ?? level.after)
+ *   note(level)   the level's key idea, shown when it is passed (default: level.note ?? level.after)
+ *   glossary      the encyclopedia: { groups: [{ id, title }], entries: [{ id, group, title, body, at?, see? }] }
  *   html          true when level text (brief, rows, intro, dialogs) is the game's own HTML markup
  *   levelLabel(level), isOpen(level, solved, all), better(score, best), bestLabel(best), planned
  */
@@ -49,6 +51,8 @@ export function defineGame(def) {
       return levels.slice(index.get(level.id) + 1).find(open) ?? levels.find(open) ?? null
     },
   }
+  // With every level unlocked, the parts box is full too (the encyclopedia opens every entry the same way).
+  if (def.parts) game.parts = { ...def.parts, earned: (progress) => (progress.all ? def.parts.all.map((part) => part.key) : def.parts.earned(progress)) }
   game.store = createProgress({ id: def.id, ...(def.progress ?? {}) })
   return game
 }

@@ -8,25 +8,37 @@
 // the same board (when every test passes; `carry` keeps the circuit). A stage may give the player a scan-order dial,
 // a filter for the sweeping arm, or scan in rounds until the table settles.
 
-import { $, buzz, toast, signal, ICON, wide } from '../util.js';
+import { $, buzz, toast, signal, wide } from '../util.js';
 import { rt, Anim } from '../runtime.js';
 import { WORLDS, runCircuit, readTap, windowOf, visibleTaps, MAX_ROUNDS } from '../circuit/worlds.js';
 import { ROBOTS } from '../circuit/robots.js';
 import { def, blank, evaluate, clone } from '../circuit/components.js';
 import { viewHTML, removeNode, placeNode, toggleLit, litOf } from '../circuit/editor.js';
 import { toGraph, fromGraph, create, partsFor } from '../circuit/board.js';
+import { lookIcon, lookSVG } from '../circuit/looks.js';
 import { PARTS } from '../levels/parts.js';
 import { tr, lazy } from '../i18n.js';
 import { KEY_COLORS } from '../circuit/worlds/maze.js';
 
 const MERGES = ['msum', 'mmin', 'mmax'];
+/** A level's parts as the player picks them: its mergers are one entry (the first of them), whose model is then chosen
+ *  on the card. */
+const shelf = palette => palette.filter(k => !MERGES.includes(k) || k === palette.find(m => MERGES.includes(m)));
+/** How that one merger entry reads, when the level has more than one model of it. */
+const mergerEntry = models => ({
+  label: lazy(() => def(models[0]).name),
+  tag: lazy(() => models.map(k => def(k).tag).join(' / ')),
+  icon: lookIcon('merger'),
+  look: 'merger',
+  desc: lazy(() => tr(`把接进来的几个数汇成一个。放上后在卡片上选型号：${models.map(k => def(k).tag).join('、')}；换型号时连线不变。`, `Merges the numbers wired into it into one. Pick its model on the card once placed: ${models.map(k => def(k).tag).join(', ')}; the wires stay when you swap.`)),
+});
 
 /** What the state remembers: one switch per key color; the table has a layer for every set of remembered keys. */
 function memoryCard(s, mem, t) {
   const n = 2 ** mem.length;
   return `<div class="pcard memo"><h3>${tr('状态记住什么', 'What the state remembers')}<small>${tr(`${n} 层 · 每层 ${t.R * t.C} 格 · 一共 ${n * t.R * t.C} 格`, `${n} layer${n === 1 ? '' : 's'} · ${t.R * t.C} cells each · ${n * t.R * t.C} cells in all`)}</small></h3>
     <div class="chips">${s.memory.map(c => `<button class="chip memk k-${c}" type="button" role="switch" aria-checked="${mem.includes(c)}" data-act="mem" data-v="${c}"><span class="box"></span>${tr(`记住${KEY_COLORS[c].n}钥匙`, `Remember the ${KEY_COLORS[c].n} key`)}</button>`).join('')}</div>
-    <p>${tr('每多记一把钥匙，表就多一倍的层：每一层是「手里正好有这几把钥匙」的路线。', 'Every extra key remembered doubles the layers of the table: each layer holds the routes “carrying exactly these keys”.')}</p></div>`;
+    </div>`;
 }
 
 /** A small picture of a scan order: the cells of a little table numbered in the order the robot visits them. */
@@ -107,9 +119,9 @@ export function circuitMode(L, saved) {
     const n = circ().nodes.find(x => x.id === id), d = def(n.kind);
     const vals = n.kind === 'const' ? `<div class="chips" role="radiogroup" aria-label="${tr('数值', 'Value')}">${(stage().consts || [0, 1, 2, 3, 4, 5]).map(v => `<button class="chip" type="button" role="radio" aria-checked="${n.value === v}" data-act="val" data-v="${v}">${v}</button>`).join('')}</div>` : '';
     // A merge can change its model in place: the wires stay, only the way it merges changes.
-    const swaps = MERGES.includes(n.kind) ? MERGES.filter(k => k !== n.kind && stage().palette.includes(k)) : [];
-    const swap = swaps.length ? `<div class="optlabel">${tr('换个型号（连线不变）', 'Swap the model (wires stay put)')}</div><div class="chips">${swaps.map(k => `<button class="chip" type="button" data-act="swap" data-k="${k}">${def(k).tag}</button>`).join('')}</div>` : '';
-    rt.openSheet(`<div><div class="kicker sig">${d.bp ? tr('零件', 'Part') : tr('元件', 'Component')}</div><h3 class="sh" id="sheetTitle">${d.name}${d.tag && n.kind !== 'const' ? ` · ${d.tag}` : ''}</h3></div>
+    const swaps = MERGES.includes(n.kind) ? MERGES.filter(k => k === n.kind || stage().palette.includes(k)) : [];
+    const swap = swaps.length > 1 ? `<div class="optlabel">${tr('型号（换型号时连线不变）', 'Model (the wires stay when you swap)')}</div><div class="chips" role="radiogroup" aria-label="${tr('型号', 'Model')}">${swaps.map(k => `<button class="chip" type="button" role="radio" aria-checked="${k === n.kind}" data-act="swap" data-k="${k}">${def(k).tag}</button>`).join('')}</div>` : '';
+    rt.openSheet(`<div><div class="kicker sig">${d.bp ? tr('零件', 'Part') : tr('元件', 'Component')}</div><h3 class="sh" id="sheetTitle">${d.name}</h3></div>
       <div class="prose"><p>${d.desc}</p></div>${vals}${swap}
       <div class="acts"><button class="btn sec" type="button" data-act="del">${tr('拿掉这个元件', 'Remove this component')}</button><button class="btn pri" type="button" data-close data-primary>${tr('好', 'OK')}</button></div>`, {
       val: el => { setCirc({ ...circ(), nodes: circ().nodes.map(x => (x.id === id ? { ...x, value: +el.dataset.v } : x)) }); rt.closeSheet(); rt.refresh(); },
@@ -119,15 +131,17 @@ export function circuitMode(L, saved) {
   }
 
   /** The rewrite-direction switches of the knapsack levels, under the board. */
-  const dirsCard = () => (L.dirs ? `<div class="pcard"><h3>${tr('改写方向', 'Rewrite direction')}<small>${tr('机器上的两个开关', 'two switches on the machine')}</small></h3>${['01', 'inf'].map(kind => `<div class="dirrow"><div class="optlabel">${kind === '01' ? tr('每件最多拿一次时', 'When each item can be taken at most once') : tr('每件可以拿很多次时', 'When each item can be taken many times')}</div>
+  const dirsCard = () => (L.dirs ? `<div class="pcard"><h3>${tr('改写方向', 'Rewrite direction')}</h3>${['01', 'inf'].map(kind => `<div class="dirrow"><div class="optlabel">${kind === '01' ? tr('每件最多拿一次时', 'When each item can be taken at most once') : tr('每件可以拿很多次时', 'When each item can be taken many times')}</div>
         <div class="chips two" role="radiogroup" aria-label="${tr('改写方向', 'Rewrite direction')}">${[['asc', tr('从左往右 →', 'left to right →')], ['desc', tr('← 从右往左', '← right to left')]].map(([v, l]) => `<button class="chip" type="button" role="radio" aria-checked="${st.dirs[kind] === v}" data-act="dir" data-k="${kind}" data-v="${v}">${l}</button>`).join('')}</div></div>`).join('')}</div>` : '');
 
   /** Pick a part for an empty slot: the level's parts, each with what it does. */
   function openSlot(at) {
     const fresh = stage().fresh || [];
-    const rows = stage().palette.map(kind => {
-      const d = def(kind);
-      return `<button class="pal" type="button" data-act="put" data-k="${kind}"><span class="pal-ic${d.bp ? ' bp' : ''}">${d.bp ? ICON.part : d.icon}</span><span class="pal-tx"><b>${d.name}${d.tag && kind !== 'const' ? ` · ${d.tag}` : ''}${fresh.includes(kind) ? `<em>${tr('新', 'new')}</em>` : ''}</b><small>${d.desc}</small></span></button>`;
+    const models = stage().palette.filter(k => MERGES.includes(k));
+    const rows = shelf(stage().palette).map(kind => {
+      const d = def(kind), one = MERGES.includes(kind) && models.length > 1 ? mergerEntry(models) : null;
+      const isNew = one ? models.some(k => fresh.includes(k)) : fresh.includes(kind);
+      return `<button class="pal" type="button" data-act="put" data-k="${kind}"><span class="pal-ic">${lookSVG(one ? one.look : kind)}</span><span class="pal-tx"><b>${one ? one.label : d.name}${isNew ? `<em>${tr('新', 'new')}</em>` : ''}</b><small>${one ? one.desc : d.desc}</small></span></button>`;
     }).join('');
     rt.openSheet(`<div><div class="kicker sig">${tr('元件', 'Components')}</div><h3 class="sh" id="sheetTitle">${tr(`放进第 ${at + 1} 格`, `Put in slot ${at + 1}`)}</h3></div>
       <div class="list">${rows}</div>
@@ -227,16 +241,16 @@ export function circuitMode(L, saved) {
       return { ...V().scene(t, v, { ...opt(), ...(v && v.end && v.pass && L.trace ? L.trace(t) : {}), bench: v ? null : sandbox() }), look: robot.look };
     },
     boardOpt: () => L.boardOpt || { minScale: 0.7, maxScale: 1.25 },
+    /** Under the test board: what the last run found. How the board works is in the encyclopedia. */
     note() {
       const v = st.view, Vw = V();
-      if (!v) return tr(`测试棋盘：点一个格子可以填数，或者让机器人站过去，红框里马上显示电路板的答案。点「运行测试」会清空棋盘，机器人从头按「${Vw.orderText(opt())}」的顺序走。`, `Test board: click a cell to type a number into it, or to send the robot there; the red frame shows the circuit board’s answer straight away. “Run tests” clears the board and the robot walks it from the beginning, ${Vw.orderText(opt())}.`);
+      if (!v) return '';
       const s = shownStep();
-      if (!v.end) return s ? tr(`${s.round ? `第 ${s.round} 轮 · ` : ''}正在算${Vw.where(s.cell)}${s.round ? '。黄框是这一轮里变了的格子。' : ''}`, `${s.round ? `Round ${s.round} · ` : ''}Computing ${Vw.where(s.cell)}${s.round ? '. Yellow frames mark the cells this round has changed.' : ''}`) : '';
-      if (v.focus !== null && v.focus !== undefined) return tr(`${Vw.where(s.cell)}：视野和电路板上的数，是机器人在这一格看到和算出的值。再点一次取消。`, `${Vw.where(s.cell)}: the numbers in the view and on the circuit board are what the robot saw and computed on this cell. Click again to leave.`);
-      const more = Vw.inspect === false ? '' : tr('点棋盘上算过的格子，可以查看机器在那一格算出的值。', ' Click any computed cell on the board to see what the machine computed there.');
-      if (v.halt) return tr(`机器在${Vw.where(s.cell)}出了错。${more}`, `The machine went wrong at ${Vw.where(s.cell)}.${more}`);
+      if (!v.end) return s ? tr(`${s.round ? `第 ${s.round} 轮 · ` : ''}正在算${Vw.where(s.cell)}`, `${s.round ? `Round ${s.round} · ` : ''}Computing ${Vw.where(s.cell)}`) : '';
+      if (v.focus !== null && v.focus !== undefined) return tr(`正在看${Vw.where(s.cell)}，再点一次取消。`, `Looking at ${Vw.where(s.cell)}. Click again to leave.`);
+      if (v.halt) return tr(`机器在${Vw.where(s.cell)}出了错。`, `The machine went wrong at ${Vw.where(s.cell)}.`);
       const rounds = v.res.rounds ? tr(`扫了 ${v.res.rounds} 轮，最后一轮一格也没变。`, `Scanned ${v.res.rounds} round${v.res.rounds === 1 ? '' : 's'}; the last round changed nothing. `) : '';
-      return `${rounds}${v.pass ? tr(`答案 ${signal(v.res.value)}，正确。`, `Answer ${signal(v.res.value)}: correct.`) : tr(`机器算出 ${signal(v.res.value)}，应该是 ${signal(expected()[st.ti])}。`, `The machine computed ${signal(v.res.value)}; it should be ${signal(expected()[st.ti])}.`)}${more}`;
+      return `${rounds}${v.pass ? tr(`答案 ${signal(v.res.value)}，正确。`, `Answer ${signal(v.res.value)}: correct.`) : tr(`机器算出 ${signal(v.res.value)}，应该是 ${signal(expected()[st.ti])}。`, `The machine computed ${signal(v.res.value)}; it should be ${signal(expected()[st.ti])}.`)}`;
     },
     after: () => `${st.view && st.view.end && !busy() ? `<button class="sec-btn backbench" type="button" data-act="sandbox">${tr('回到棋盘测试', 'Back to the test board')}</button>` : ''}${L.after ? L.after(tests()[st.ti], st.view, st) : ''}`,
     tip() {
@@ -262,7 +276,16 @@ export function circuitMode(L, saved) {
       },
       create,
       reset() { setCirc(blank()); rt.refresh(); },
-      palette: () => stage().palette.map(kind => { const d = def(kind); return { type: kind, label: d.tag && kind !== 'const' && !d.bp ? lazy(() => `${d.name} · ${d.tag}`) : d.name, desc: d.desc, icon: d.bp ? '◆' : d.icon, tag: kind === 'const' ? tr('一个数', 'a number') : d.tag, fresh: (stage().fresh || []).includes(kind) }; }),
+      palette: () => {
+        const all = stage().palette, fresh = stage().fresh || [], models = all.filter(k => MERGES.includes(k));
+        return shelf(all).map(kind => {
+          const d = def(kind);
+          const item = { type: kind, name: d.name, label: d.tag && kind !== 'const' && !d.bp ? lazy(() => `${d.name} · ${d.tag}`) : d.name, desc: d.desc, icon: lookIcon(kind), tag: kind === 'const' ? tr('一个数', 'a number') : d.tag, fresh: fresh.includes(kind) };
+          if (!MERGES.includes(kind) || models.length < 2) return item;
+          const m = mergerEntry(models);
+          return { ...item, ...m, name: m.label, fresh: models.some(k => fresh.includes(k)) };
+        });
+      },
       consts: () => stage().consts || [0, 1, 2, 3, 4, 5],
       /** The models a merger can swap to in place (its wires stay). */
       swaps: kind => (MERGES.includes(kind) ? MERGES.filter(k => k === kind || stage().palette.includes(k)) : []),
@@ -280,12 +303,11 @@ export function circuitMode(L, saved) {
       return true;
     },
     panel() {
-      const uses = L.uses ? `<div class="chips">${L.uses.map(k => `<span class="tag">${ICON.part}${tr('零件', 'Part')} · ${PARTS[k].name}</span>`).join('')}</div>` : '';
       const s = stage(), flash = st.flashAt && Date.now() - st.flashAt < 1800;
-      const dial = s.dial ? `<div class="pcard dial${flash ? ' flash' : ''}"><h3>${tr('扫描顺序', 'Scan order')}<small>${tr('机器人按这个顺序走过整张表', 'the robot walks the whole table in this order')}</small></h3>
+      const dial = s.dial ? `<div class="pcard dial${flash ? ' flash' : ''}"><h3>${tr('扫描顺序', 'Scan order')}</h3>
         <div class="dialopts" role="radiogroup" aria-label="${tr('扫描顺序', 'Scan order')}">${s.dial.map(id => { const d = V().dial[id]; return `<button class="dialopt" type="button" role="radio" aria-checked="${st.scan[st.stage] === id}" data-act="scan" data-v="${id}">${orderFig(d.fig)}<span>${d.l}</span></button>`; }).join('')}</div></div>` : '';
       const mem = s.memory ? memoryCard(s, st.mem[st.stage], tests()[st.ti]) : '';
-      return `${mem}${dial}${uses}`;
+      return `${mem}${dial}`;
     },
     /** Under the board: the rewrite-direction switches. */
     panelAfter: () => dirsCard(),

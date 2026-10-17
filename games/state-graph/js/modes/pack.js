@@ -38,7 +38,6 @@ export function packMode(L, saved) {
         <div class="items">${t.items.map((it, k) => `<button class="itm" type="button" aria-pressed="${bag.includes(k)}" data-act="item" data-k="${k}" style="--c:var(--t${k % 6})"><span class="itm-top"><b>${it.n}</b><span class="v">${tr('价值', 'value')} ${it.v}</span></span><span class="kg" aria-label="${it.w} ${tr('千克', 'kg')}">${'<i></i>'.repeat(it.w)}<em>${it.w} kg</em></span></button>`).join('')}</div>
       </div>`;
     },
-    note: () => tr('点物品放进或拿出背包。', 'Click an item to put it in or take it out of the backpack.'),
     panel() {
       const n = L.tests[st.ti].items.length;
       return `<div class="pcard"><h3>${tr('自动装包', 'Auto-pack')}</h3><p>${tr('两种常见的捷径：按某种顺序挨个看，装得下就装。', 'Two popular shortcuts: go through the items in some order and pack each one that still fits.')}</p>

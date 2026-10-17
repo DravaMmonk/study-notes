@@ -19,7 +19,8 @@ import {
 import './App.css'
 import 'katex/dist/katex.min.css'
 import { applyLang, currentLang, otherLang } from '../../games/kit/lang.js'
-import { THEMES, nextTheme, themeLabel } from '../../games/kit/theme.js'
+import { THEMES } from '../../games/kit/theme.js'
+import { mountBarMenus } from '../../games/kit/menu.js'
 import sections from '../../docs/.sections.json'
 import AnnotationEntry from './components/AnnotationEntry'
 import { createFigureHost } from './figures/host'
@@ -263,12 +264,22 @@ function App() {
     }
   }
 
-  const switchLanguage = () => {
-    const next = otherLang(lang)
+  const switchLanguage = (next = otherLang(lang)) => {
+    if (next === lang) return
     applyLang(next)
     setLang(next)
     navigateToDocument(activeDocument, '', next)
   }
+  // The bar's menus are mounted once; they reach the latest switch through a ref.
+  const switchRef = useRef(switchLanguage)
+  useEffect(() => {
+    switchRef.current = switchLanguage
+  })
+  const barMenusRef = useRef(null)
+  useEffect(() => {
+    const menus = mountBarMenus(barMenusRef.current, { onLang: (next) => switchRef.current(next), onTheme: setTheme })
+    return () => menus.destroy()
+  }, [])
 
   const handleArticleMouseUp = (event) => {
     if (event.target.closest('.figure-host')) return
@@ -452,17 +463,13 @@ function App() {
           <Breadcrumbs document={activeDocument} lang={lang} />
           {!phone && (
             <nav className="kit-nav" aria-label={t('site')}>
-              <a href="./" aria-current="page">{t('notes')}</a>
-              <a href="game.html">{t('games')}</a>
+              <a href="index.html" aria-current="page">{t('notes')}</a>
+              <a href="game/index.html">{t('games')}</a>
             </nav>
           )}
           <div className="kit-actions topbar-actions">
-            <button className="kit-btn" data-lang-toggle onClick={switchLanguage} title={t('switchLang')} aria-label={t('switchLang')} lang={lang === 'zh' ? 'en' : 'zh-CN'}>
-              {lang === 'zh' ? 'EN' : '中'}
-            </button>
-            <button className="kit-btn" onClick={() => setTheme(nextTheme(theme))} title={t('switchTheme', { theme: themeLabel(nextTheme(theme)) })} aria-label={t('switchTheme', { theme: themeLabel(nextTheme(theme)) })}>
-              {themeLabel(theme)}
-            </button>
+            {/* The kit's language and theme menus (games/kit/menu.js), mounted into an element React leaves empty. */}
+            <span className="kit-bar-menus" ref={barMenusRef} />
             <span className="annotation-count" title={t('annotationCount')}><Highlighter size={15} /> {annotations.length}</span>
             <button
               className="kit-btn"

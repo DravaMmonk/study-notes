@@ -26,7 +26,8 @@ export function backMode(L) {
       for (let k = st.path.length - 1; k > 0; k--) edges.push(E(st.path[k], st.path[k - 1], 'good'));
       return { cells, edges };
     },
-    note: () => tr('格子中间是机器算出的最少体力，左上角小字是这一格自己的体力。', 'The big number in each cell is the least energy the machine computed; the small number in the corner is the cell’s own energy.'),
+    /** How to read the board, in the brief. */
+    legend: () => tr('格子中间是机器算出的最少体力，左上角小字是这一格自己的体力。', 'The big number in each cell is the least energy the machine computed; the small number in the corner is the cell’s own energy.'),
     onCell(id) {
       const now = st.path[st.path.length - 1];
       if (now === '0,0') return;

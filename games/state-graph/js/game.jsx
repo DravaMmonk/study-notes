@@ -1,12 +1,14 @@
 import { Cable, Grid3x3 } from 'lucide-react'
 import { defineGame } from '../../kit/shell/index.js'
 import { CHAPTERS, LEVELS, PARTS } from './levels/index.js'
+import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import ModeScreen from './screen.jsx'
 import Hero from './hero.jsx'
 import { sceneSVG } from './svg.js'
+import PartDemo from './circuit/PartDemo.jsx'
 
 // 状态之图 as content on the shared game shell (games/kit/shell): its chapters and levels, the pictures in its
-// 引入, its parts and notebook, and the screen that plays every level through its mode (js/modes).
+// 引入, its parts and encyclopedia, and the screen that plays every level through its mode (js/modes).
 
 const levels = LEVELS.map((L, index) => ({
   id: L.id,
@@ -39,6 +41,7 @@ function IntroFigure({ fig }) {
 
 export default defineGame({
   id: 'state-graph',
+  glossary: { groups: GLOSSARY_GROUPS, entries: GLOSSARY },
   title: { zh: '状态之图', en: 'State Graph' },
   kicker: { zh: '从零开始的动态规划解谜', en: 'Dynamic programming puzzles, from scratch' },
   lede: { zh: '不需要任何编程或算法基础。你只会拿到两种零件：格子和箭头。56 关里，你会用元件亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。', en: 'No programming or algorithms background needed. You get just two kinds of pieces: cells and arrows. Over 56 levels you wire up, part by part, the circuit boards that count routes, compare words and pack a backpack, and find out why they are so fast.' },
@@ -55,5 +58,10 @@ export default defineGame({
     board: { Screen: ModeScreen, icon: Grid3x3, label: { zh: '棋盘', en: 'Board' } },
   },
   unlocked: (level) => level.unlocks.map((k) => ({ label: PARTS[k].name })),
-  parts: { all: Object.entries(PARTS).map(([key, part]) => ({ key, name: part.name, desc: part.desc })), earned: (progress) => progress.flags },
+  parts: {
+    all: Object.entries(PARTS).map(([key, part]) => ({ key, name: part.name, desc: part.desc })),
+    earned: (progress) => progress.flags,
+    // The part on a bench: its level's board, with inputs, constants and models to change and a Run button.
+    demo: (part, { phone }) => <PartDemo key={part.key} partKey={part.key} phone={phone} />,
+  },
 })
