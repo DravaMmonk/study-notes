@@ -9,7 +9,10 @@
 /* The dotted grid is the desktop build canvas's alone: a bench in the parts box shows its circuit on a plain board. */
 .board-grid { position: absolute; inset: 0; background-image: radial-gradient(circle, color-mix(in srgb, var(--rule) 70%, transparent) 1px, transparent 1.3px); }
 .demo-board .board-grid { background-image: none; }
-.board-layer { position: absolute; inset: 0; }
+/* The card layer is as big as the board and moves and scales with the view: it must never take a press itself, or
+   wherever it lands the background stops panning. Only its cards (and the wires' hit strokes) do. */
+.board-layer { position: absolute; inset: 0; pointer-events: none; }
+.board-layer .node { pointer-events: auto; }
 .board-wires { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; }
 .board-empty { position: absolute; z-index: 1; top: 50%; left: 50%; width: min(320px, 80%); margin: 0; padding: 16px 18px; color: var(--muted); border-radius: 14px; background: color-mix(in srgb, var(--paper) 80%, transparent); box-shadow: 0 0 0 1px var(--hairline); font-size: 13px; line-height: 1.6; text-align: center; transform: translate(-50%, 40px); pointer-events: none; }
 .kw { --kw: color-mix(in srgb, var(--fam, var(--muted)) 55%, var(--rule)); --kw-halo: var(--canvas); }
