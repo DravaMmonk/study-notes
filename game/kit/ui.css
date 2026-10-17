@@ -3,7 +3,6 @@
    Top bar (one per page, the same everywhere):
      <header class="kit-bar">
        <a class="kit-brand" href="…/"><i class="kit-chip"></i><span>学习笔记</span></a>
-       <nav class="kit-nav"><a href="…/" aria-current="page">笔记</a><a href="…/game/">游戏</a></nav>
        <span class="kit-crumbs">COMP90086<i>/</i>滤波</span>
        <div class="kit-actions"></div>   (menu.js mountBarMenus fills it with the language and theme menus)
      </header>
@@ -22,10 +21,6 @@
 }
 .kit-brand { flex: none; display: inline-flex; align-items: center; gap: 9px; color: var(--ink); text-decoration: none; font: 500 var(--fs-label)/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; }
 .kit-chip { flex: none; width: 14px; height: 14px; border-radius: 3px; background: linear-gradient(135deg, var(--ink) 0 50%, var(--accent) 50% 100%); box-shadow: 0 0 0 1px var(--rule); }
-.kit-nav { flex: none; display: flex; align-items: center; gap: 2px; padding-left: 12px; border-left: 1px solid var(--hairline); }
-.kit-nav a { padding: 7px 10px; border-radius: var(--r-sm); color: var(--muted); text-decoration: none; font: var(--fs-label)/1 var(--mono); letter-spacing: .08em; }
-.kit-nav a:hover { color: var(--ink); background: var(--hover); }
-.kit-nav a[aria-current] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--accent); border-radius: var(--r-sm) var(--r-sm) 0 0; }
 .kit-crumbs { min-width: 0; flex: 1; overflow: hidden; color: var(--faint); font: 10.5px/1 var(--mono); letter-spacing: .04em; white-space: nowrap; text-overflow: ellipsis; }
 .kit-crumbs i { padding: 0 7px; color: var(--rule); font-style: normal; }
 .kit-crumbs > :last-child { color: var(--muted); }
@@ -42,7 +37,7 @@
   cursor: pointer; transition: background 140ms ease, color 140ms ease;
 }
 .kit-btn:hover { background: var(--hover); }
-.kit-btn:focus-visible, .kit-nav a:focus-visible, .kit-brand:focus-visible, .kit-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.kit-btn:focus-visible, .kit-brand:focus-visible, .kit-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .kit-btn.is-quiet { color: var(--muted); }
 /* A back link or a labelled tool in the bar: small mono text, optionally after an icon. */
 .kit-btn.is-label { padding: 0 10px 0 8px; color: var(--muted); font: var(--fs-label)/1 var(--mono); letter-spacing: .04em; }
@@ -108,7 +103,6 @@
 @media (max-width: 640px) {
   .kit-bar { gap: 10px; }
   .kit-brand span, .kit-crumbs { display: none; }
-  .kit-nav { padding-left: 8px; }
   .kit-hero { padding: 32px 0 22px; }
   .kit-lede { font-size: 16px; }
 }

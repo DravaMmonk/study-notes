@@ -79,13 +79,6 @@
   function buildHeader() {
     const inner = document.querySelector('.md-header__inner');
     if (!inner) return;
-    const nav = document.createElement('nav');
-    nav.className = 'kit-nav';
-    nav.setAttribute('aria-label', tr('站点', 'Site'));
-    const home = root() + (lang === 'zh' ? 'index.zh.html' : 'index.html');
-    nav.innerHTML = `<a href="${home}" aria-current="page">${tr('笔记', 'Notes')}</a>`
-      + `<a href="${root()}game/index.html">${tr('游戏', 'Games')}</a>`;
-
     const actions = document.createElement('div');
     actions.className = 'kit-actions';
     // The kit's language and theme menus (games/kit/menu.js, published at game/kit/), as on every other page. A
@@ -99,8 +92,6 @@
       onTheme: applyTheme,
     })).catch(() => { /* without the kit the page still reads; it just has no menus */ });
 
-    const searchLabel = inner.querySelector('label[for="__search"]');
-    (searchLabel || inner.lastElementChild).before(nav);
     inner.append(actions);
   }
 
