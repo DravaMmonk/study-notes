@@ -1,6 +1,5 @@
 import { Suspense, createElement, useMemo, useState } from 'react'
-import { RotateCcw } from 'lucide-react'
-import { Brief, PhonePage, PinnedPlay, Workbench } from '../../../games/kit/shell/index.js'
+import { Brief, PhonePage, PinnedPlay, RunDock, Workbench } from '../../../games/kit/shell/index.js'
 import { Palette, freeSpot } from '../../../games/kit/circuit/index.js'
 import { L, tr } from '../../../games/kit/shell/i18n.js'
 import { hasLearnable, runLevel, trainStep } from './engine/graph.js'
@@ -55,6 +54,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   // The circuit's results update live, but whether it passes is only shown, and the level only completed, once
   // the player runs the tests; any change to the circuit makes it untested again.
   const [tested, setTested] = useState(false)
+  const [armed, setArmed] = useState(false) // 清空 pressed once, waiting for the second press
   const [losses, setLosses] = useState([])
   // The fixed cards are named and drawn by what they carry: a picture, a waveform or a number.
   const ioKinds = level.kind === 'graph' ? Object.fromEntries([...Object.entries(level.tests[0].inputs), ...Object.entries(level.tests[0].expected)].map(([name, value]) => [name, kindOf(value)])) : {}
@@ -131,6 +131,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   }
 
   const passed = shown?.results.filter((r) => r.pass).length ?? 0
+  const all = playLevel.tests?.length ?? 0
 
   // Only a circuit level has parts to place; a board or probe level has no palette at all.
   const parts = level.kind === 'graph' && <Palette items={(level.palette ?? []).map((type) => ({ type, label: NODE_TYPES[type].label, desc: describe(type), icon: iconOf(type), family: familyOf(type) }))} onAdd={addNode} />
@@ -158,7 +159,17 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
       {progress.best[level.id] && <p className="panel-note">{tr(`最佳：${progress.best[level.id].nodes} 个节点 · 计算量 ${progress.best[level.id].cost}`, `Best: ${progress.best[level.id].nodes} parts · cost ${progress.best[level.id].cost}`)}</p>}
     </section>
   )
-  const reset = <button className="reset-button" onClick={() => { change(startBoard(level)); setLosses([]) }}><RotateCcw size={13} /> {tr('清空电路', 'Clear circuit')}</button>
+  // Clearing the circuit asks twice, as everywhere in the kit's run bar.
+  const clearCircuit = () => {
+    if (!armed) {
+      setArmed(true)
+      window.setTimeout(() => setArmed(false), 2600)
+      return
+    }
+    setArmed(false)
+    change(startBoard(level))
+    setLosses([])
+  }
   const play = level.kind === 'board' ? (
     <Suspense fallback={<div className="board-loading">{tr('载入中…', 'Loading…')}</div>}>
       <BoardLevel level={level} onSolve={() => solve(null)} theme={theme} />
@@ -166,7 +177,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   ) : (
     <ProbeLevel level={level} onSolve={() => solve(null)} theme={theme} />
   )
-  const testPanel = graphLevel && <TestPanel level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} run={shown} onTest={runTests} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} theme={theme} scan={scan} onScan={setScan} inView={roleView('input')} outView={roleView('output')} onView={showRole} />
+  const testPanel = graphLevel && <TestPanel level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} run={shown} testIndex={testIndex} onSelect={setTestIndex} inputLabels={inputLabels} theme={theme} scan={scan} onScan={setScan} inView={roleView('input')} outView={roleView('output')} onView={showRole} />
   // On a phone everything is one scrolling page: the task, the tests pinned under it, then the
   // circuit as a list of steps (or the board level itself).
   if (phone) {
@@ -201,11 +212,25 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
           </section>
           {training}
           {score}
-          {reset}
         </>
       }
       stage={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} inputLabels={inputLabels} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={(level.palette ?? []).length > 0} />}
-      side={testPanel}
+      side={
+        <aside className="vc-side">
+          {testPanel}
+          <footer className="run-foot">
+            <RunDock
+              meta={shown?.untested
+                ? tr(`${all} 个测试${hiddenCount ? ` + ${hiddenCount} 个隐藏` : ''} · ${run?.score.nodes ?? 0} 个元件`, `${all} tests${hiddenCount ? ` + ${hiddenCount} hidden` : ''} · ${run?.score.nodes ?? 0} parts`)
+                : hiddenMiss
+                  ? tr(`隐藏测试 ${hiddenMiss.failed} 个没过`, `${hiddenMiss.failed} hidden ${hiddenMiss.failed === 1 ? 'test fails' : 'tests fail'}`)
+                  : tr(`${passed}/${all} 个通过 · ${run?.score.nodes ?? 0} 个元件`, `${passed}/${all} passed · ${run?.score.nodes ?? 0} parts`)}
+              secondary={board.nodes.some((n) => !NODE_TYPES[n.type].fixed) ? { label: armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), armed, onClick: clearCircuit } : null}
+              go={{ label: shown?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(shown?.pass && !hiddenMiss), onClick: runTests }}
+            />
+          </footer>
+        </aside>
+      }
     />
   )
 }

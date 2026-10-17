@@ -249,6 +249,8 @@ export function circuitMode(L, saved) {
       return { ...V().scene(t, v, { ...opt(), ...(v && v.end && v.pass && L.trace ? L.trace(t) : {}), bench: v ? null : sandbox() }), look: robot.look };
     },
     boardOpt: () => L.boardOpt || { minScale: 0.7, maxScale: 1.25 },
+    /** The hints behind the brief's 提示 button: this stage's, in order. */
+    hints: () => stage().hints || L.hints || null,
     /** Under the test board: what the last run found. How the board works is in the encyclopedia. */
     note() {
       const v = st.view, Vw = V();

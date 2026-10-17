@@ -1,9 +1,10 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, Check, ChevronDown, ChevronRight, Circle, Play, Trash2, Undo2, X } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronDown, ChevronRight, Circle, Trash2, Undo2, X } from 'lucide-react'
 import { wouldCycle } from '../../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../../engine/nodes.js'
 import { L, keyOf, tr } from '../../../../../games/kit/shell/i18n.js'
 import { Notice, SlotBoard, Tray, connect, feeding, useSlotEditing } from '../../../../../games/kit/circuit/index.js'
+import { RunDock, TaskCard } from '../../../../../games/kit/shell/index.js'
 import { describe, familyOf, iconOf } from '../catalog.js'
 import { PORT_LABELS, partsFor } from '../parts.js'
 import ValueView from '../views/ValueView.jsx'
@@ -22,7 +23,6 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 // and its sheets for a block, a source, a setting and the tests.
 export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph, onChange, onReset, run, onTest, testIndex, onTestIndex, flags, inputLabels, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
   const [sheet, setSheet] = useState(null)
-  const [briefOpen, setBriefOpen] = useState(true)
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
   const checks = run?.results[testIndex]?.checks
@@ -121,13 +121,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
       </nav>
 
       <div className="pb-scroll" ref={scroller}>
-        <section className={`pb-brief ${briefOpen ? 'is-open' : ''}`}>
-          <button className="pb-brief-toggle" onClick={() => setBriefOpen(!briefOpen)} aria-expanded={briefOpen}>
-            <span>{tr('任务', 'Task')}</span>
-            <ChevronDown size={16} />
-          </button>
-          {briefOpen && <div className="pb-brief-body">{brief}</div>}
-        </section>
+        <TaskCard>{brief}</TaskCard>
         {!steps.length && level.palette.length > 0 && <p className="pb-howto is-first">{sources.length === 1 ? tr('从下面的托盘点一个元件，它会放进空格并自动接好。之后点两个圆点就能连线。', 'Tap a part in the tray below: it drops into a free slot and is wired in for you. After that, tap two dots to connect them.') : tr('从下面的托盘点一个元件放进空格，再点两个圆点把它接上：一头点块底下的输出口，一头点块顶上的输入口。', 'Tap a part in the tray below to drop it into a free slot, then tap two dots to wire it: one output under a block, one input on top of a block.')}</p>}
         <SlotBoard
           graph={graph}
@@ -151,13 +145,14 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
 
       <Tray items={level.palette.map((type) => ({ type, label: NODE_TYPES[type].label, icon: iconOf(type), family: familyOf(type) }))} onPick={editing.placeFirstFree} />
 
-      <footer className="pb-bar">
-        <button className="pb-icon" onClick={editing.undo} disabled={!editing.canUndo} aria-label={tr('撤销', 'Undo')}><Undo2 size={18} /></button>
-        <button className="pb-meta" onClick={() => setSheet({ kind: 'tests' })}>{run?.untested ? tr(`${all} 组测试${hiddenCount ? ` + ${hiddenCount} 组隐藏` : ''} · 还没测`, `${all} tests${hiddenCount ? ` + ${hiddenCount} hidden` : ''} · not run yet`) : hiddenMiss ? tr(`隐藏测试 ${hiddenMiss.failed} 组没过`, `${hiddenMiss.failed} hidden ${hiddenMiss.failed === 1 ? 'test fails' : 'tests fail'}`) : tr(`${passed}/${all} 组通过`, `${passed}/${all} passed`)}<small>{tr('测试详情 ›', 'Test details ›')}</small></button>
-        {steps.length > 0 && <button className={`pb-clear ${editing.armed ? 'is-armed' : ''}`} onClick={editing.clear}>{editing.armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear')}</button>}
-        <button className={`pb-go ${run?.pass && !hiddenMiss ? 'is-pass' : ''}`} onClick={test}>
-          {run?.pass && !hiddenMiss ? <Check size={17} /> : <Play size={15} />}{run?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests')}
-        </button>
+      {/* The kit's run bar (RunDock), as in every level: undo, where the tests stand (tap for details), clear, Run. */}
+      <footer className="run-foot">
+        <RunDock
+          lead={<button className="pb-icon" onClick={editing.undo} disabled={!editing.canUndo} aria-label={tr('撤销', 'Undo')}><Undo2 size={18} /></button>}
+          meta={<button type="button" onClick={() => setSheet({ kind: 'tests' })}>{run?.untested ? tr(`${all} 个测试 · 还没测`, `${all} tests · not run yet`) : hiddenMiss ? tr(`隐藏测试 ${hiddenMiss.failed} 个没过`, `${hiddenMiss.failed} hidden ${hiddenMiss.failed === 1 ? 'test fails' : 'tests fail'}`) : tr(`${passed}/${all} 个通过`, `${passed}/${all} passed`)}<small>{tr('测试详情 ›', 'Test details ›')}</small></button>}
+          secondary={steps.length > 0 ? { label: editing.armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), armed: editing.armed, onClick: editing.clear } : null}
+          go={{ label: run?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(run?.pass && !hiddenMiss), onClick: test }}
+        />
       </footer>
 
       <Notice editing={editing} />

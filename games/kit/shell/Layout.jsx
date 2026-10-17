@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Lightbulb } from 'lucide-react'
-import { L, getLang, tr } from './i18n.js'
+import { ChevronDown, Lightbulb } from 'lucide-react'
+import { L, tr } from './i18n.js'
 
 // The level screen's frame, the same in every game. On a desktop it is a workbench: the brief on the left, the
 // stage (the board, a bench, a circuit) in the middle and, when the level has one, a side column (tests, a panel,
@@ -24,46 +24,56 @@ export function Workbench({ brief, stage, side, scroll, className = '', rootRef 
   )
 }
 
-/** Phone page: the brief, then the play area. */
+/** Phone page: the brief, in its foldable 任务 card, then the play area. */
 export function PhonePage({ brief, children, className = '', rootRef }) {
   return (
     <div ref={rootRef} className={`level-phone ${className}`}>
-      <section className="pl-brief">{brief}</section>
+      <section className="pl-brief"><TaskCard>{brief}</TaskCard></section>
       {children}
     </div>
   )
 }
 
+/** The task on a phone, the same in every game: a card headed 任务 that folds away to leave room for the level. */
+export function TaskCard({ children }) {
+  const [open, setOpen] = useState(true)
+  return (
+    <section className={`task-card ${open ? 'is-open' : ''}`}>
+      <button type="button" className="task-toggle" onClick={() => setOpen(!open)} aria-expanded={open}>
+        <span>{tr('任务', 'Task')}</span>
+        <ChevronDown size={16} />
+      </button>
+      {open && <div className="task-body">{children}</div>}
+    </section>
+  )
+}
+
 /**
- * A level's brief: its label and title, the task (one text, or labelled rows), an optional tip, the hint behind a
- * button, then whatever the level adds below (parts, score…). On a phone long task text starts folded.
+ * A level's brief, the same in every game: its label and title, the task (one text, or several paragraphs), an
+ * optional tip, the hints behind a 提示 button (several are shown one at a time), then whatever the level adds below
+ * (parts, score…). On a phone the page wraps it in the 任务 card (PhonePage) and the top bar carries the title.
  */
-export function Brief({ game, level, text, rows, tip, hint, phone, children }) {
-  const [showHint, setShowHint] = useState(false)
-  const [open, setOpen] = useState(false)
+export function Brief({ game, level, text, tip, hint, children }) {
+  const [shown, setShown] = useState(0) // how many hints are open
   const body = text ?? level.brief
-  // About three lines on a phone (66 Chinese characters, about 150 English ones).
-  const long = body && String(L(body)).length > (getLang() === 'en' ? 150 : 66)
-  const clamped = phone && !open && long
+  const paragraphs = (Array.isArray(body) ? body : [body]).filter(Boolean)
+  const hints = (Array.isArray(hint) ? hint : [hint]).filter(Boolean)
+  const more = shown < hints.length
   return (
     <>
       <header className="brief-head">
         <span className="brief-id">{game.levelLabel(level)}</span>
         <h1>{L(level.title)}</h1>
       </header>
-      {body && <Text game={game} className={`brief-text ${clamped ? 'is-clamped' : ''}`} onClick={() => phone && setOpen(true)} text={body} />}
-      {clamped && <button className="brief-more" onClick={() => setOpen(true)}>{tr('展开说明', 'Show more')}</button>}
-      {rows?.map(([label, value]) => (
-        <div key={String(L(label))} className="brief-row">
-          <span className="panel-label">{L(label)}</span>
-          <Text game={game} text={value} />
-        </div>
-      ))}
+      {paragraphs.map((p, k) => <Text key={k} game={game} className="brief-text" text={p} />)}
       {tip && <Text game={game} className="brief-tip" text={tip} />}
-      {hint && (
+      {hints.length > 0 && (
         <div className="hint-block">
-          <button className="hint-toggle" onClick={() => setShowHint((v) => !v)} aria-expanded={showHint}><Lightbulb size={14} /> {showHint ? tr('收起提示', 'Hide hint') : tr('提示', 'Hint')}</button>
-          {showHint && <Text game={game} className="hint" text={hint} />}
+          {hints.slice(0, shown).map((h, k) => <Text key={k} game={game} className="hint" text={h} />)}
+          <button className="hint-toggle" onClick={() => setShown(more ? shown + 1 : 0)} aria-expanded={shown > 0}>
+            <Lightbulb size={14} />
+            {more ? (shown ? tr(`再给一个提示（${shown + 1}/${hints.length}）`, `Another hint (${shown + 1}/${hints.length})`) : tr('提示', 'Hint')) : tr('收起提示', 'Hide hints')}
+          </button>
         </div>
       )}
       {children}

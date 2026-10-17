@@ -136,14 +136,6 @@ button:disabled{cursor:not-allowed}
 .duo .slow .bignum{color:var(--bad)} .duo .fast .bignum{color:var(--good)}
 .toolarge{padding:18px 12px;border-radius:12px;border:1px dashed var(--line);color:var(--ink-3);font-size:13.5px;text-align:center}
 
-.dock{background:var(--panel);border-top:1px solid var(--line);padding-block:10px}
-.dock-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:12px}
-.dmeta{font:600 12.5px/1.4 var(--f-mono);color:var(--ink-3);min-width:0;flex:1}
-.dmeta b{color:var(--ink)}
-.go{flex:none;min-height:52px;min-width:min(180px,48vw);padding:0 22px;border-radius:15px;background:var(--signal);color:var(--signal-ink);display:inline-flex;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:16px;transition:transform .12s,background .2s}
-.go:active{transform:scale(.97)}
-.go.busy{background:var(--panel-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
-.go.pulse{animation:pulse 1.2s ease-out 3}
 @keyframes pulse{0%{box-shadow:0 0 0 0 var(--signal)}70%,100%{box-shadow:0 0 0 12px transparent}}
 .sec-btn{flex:none;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);font-weight:600;font-size:14px}
 .pad{max-width:520px;margin:0 auto;width:100%;display:grid;gap:8px}
@@ -382,7 +374,6 @@ img{max-width:100%}
   .cell.tap:hover rect{stroke:var(--ink-3)}
   .vcell.can:hover{border-color:var(--cyan);opacity:1}
   .vfact:hover{border-color:var(--cyan)}
-  .go:hover{filter:brightness(1.05)}
 }
 
 /* ---------- desktop workbench (above 760px): the shell's brief | stage | side (games/kit/shell), the same frame as
@@ -393,9 +384,6 @@ img{max-width:100%}
   .sg-side{min-height:0;display:flex;flex-direction:column;border-left:1px solid var(--line);background:var(--panel)}
   .sg-side>.bcard,.sg-side>.panel{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin}
   .bcard>*,.panel>*{flex-shrink:0}
-  .dock{border-top:1px solid var(--line);padding:12px 16px}
-  .dock-in{max-width:none}
-  .go{flex:0 1 210px;min-width:0;min-height:48px}
   .dmeta{font-size:11.5px}
   .pad{max-width:none}
 
@@ -434,7 +422,6 @@ img{max-width:100%}
   .sg-level.is-circuit>.sg-slots{margin:0 12px;padding-inline:0;border-top:1px solid var(--hairline)}
   .sg-level .panel:has(.pcard){padding-top:16px}
   .sg-foot{position:sticky;bottom:0;z-index:20;margin-top:auto;display:grid;gap:0;background:var(--panel);box-shadow:0 -1px 0 var(--line),0 -14px 26px -20px rgba(0,0,0,.4)}
-  .dock{padding-inline:max(12px,env(safe-area-inset-left,0px));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 }
 /* Language button (js/i18n.js); English pages hide the Chinese markup until it has been swapped. */
 html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
@@ -552,12 +539,6 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 @media (min-width: 761px) {
   .level.has-side.sg-level.panel-stage { grid-template-columns: 260px minmax(0, 1fr) 320px; }
   .level-shell.has-rail .level.has-side.sg-level.panel-stage { grid-template-columns: 240px minmax(0, 1fr) 300px; }
-}
-/* The side column's dock: the count on its own line, the buttons under it. */
-@media (min-width: 761px) {
-  .sg-side .dock-in { flex-wrap: wrap; gap: 8px 10px; }
-  .sg-side .dmeta { flex: 1 0 100%; }
-  .sg-side .go { flex: 1 1 auto; }
 }
 /* A part's bench in the parts box (js/circuit/PartDemo.jsx): the test board and the robot's view side by side, the
    circuit under them, as in a level. */

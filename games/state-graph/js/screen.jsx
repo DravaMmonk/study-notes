@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Brief, PhonePage, Sheet, Workbench, tr } from '../../kit/shell/index.js'
+import { Brief, PhonePage, RunDock, Sheet, Workbench, tr } from '../../kit/shell/index.js'
 import { enableDrag } from '../../kit/drag.js'
-import { buzz, reduced, ICON } from './util.js'
+import { buzz, reduced } from './util.js'
 import { sceneSVG } from './svg.js'
 import { rt, Anim } from './runtime.js'
 import { MODES } from './modes/index.js'
@@ -53,20 +53,8 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       box.innerHTML = ctl.tests ? ctl.tests().map((t, k) => `<button class="tchip" type="button" role="tab" aria-selected="${k === ctl.st.ti}" data-test="${k}"><span class="sd ${t.status || ''}"></span>${t.label}</button>`).join('') : ''
       box.hidden = !ctl.tests
     }
-    const renderDock = () => {
-      const d = ctl.dock()
-      if (d.pad) {
-        const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
-        const extra = ctl.padExtra ? ctl.padExtra() : null
-        q('#dock').innerHTML = `<div class="pad"><div class="pad-top"><span><b>${ctl.padTitle()}</b></span><div class="pad-val" aria-live="polite">${ctl.st.input || '_'}</div></div>
-          <div class="keys">${keys.map((k) => `<button class="key" type="button" data-key="${k}">${k}</button>`).join('')}
-          <button class="key wide" type="button" data-key="del">${tr('删除', 'Delete')}</button><button class="key" type="button" data-key="close" aria-label="${tr('收起键盘', 'Hide keypad')}">${tr('收起', 'Hide')}</button><button class="key wide ok" type="button" data-key="ok">${tr('确定', 'OK')}</button>${extra ? `<button class="key full" type="button" data-key="${extra.key}">${extra.label}</button>` : ''}</div></div>`
-        return
-      }
-      q('#dock').innerHTML = `<div class="dock-in"><div class="dmeta">${d.meta || ''}</div>
-        ${d.sec ? `<button class="sec-btn" type="button" data-act="${d.secAct}">${d.sec}</button>` : ''}
-        ${d.go ? `<button class="go${d.busy ? ' busy' : ''}${L.coach && L.coach(ctl.st).run ? ' pulse' : ''}" type="button" data-act="${d.act}">${d.busy ? ICON.skip : d.goIcon || ICON.play}<span>${d.go}</span></button>` : ''}</div>`
-    }
+    // The dock is drawn by React from ctl.dock() (below); a change in it only needs a repaint.
+    const renderDock = () => setTick((t) => t + 1)
     const refresh = () => {
       const a = document.activeElement
       const sig = a && a.dataset && el.contains(a) && (a.dataset.act || a.dataset.test) ? focusSig(a) : null
@@ -222,10 +210,9 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
     <Brief
       game={game}
       level={level}
-      text={null}
-      rows={[[{ zh: '目标', en: 'Goal' }, L.mission.goal], [{ zh: '怎么玩', en: 'How to play' }, L.mission.how], ...(ctl.legend ? [[{ zh: '读图', en: 'Reading the board' }, ctl.legend()]] : [])]}
+      text={[L.mission.goal, L.mission.how, ctl.legend?.()]}
       tip={tip?.text}
-      phone={phone}
+      hint={ctl.hints ? ctl.hints() : L.hints ?? (L.hint ? [L.hint()] : null)}
     >
       {!phone && !ctl.board && <section className="parts" id="parts" data-trash />}
       {/* A circuit level's own choices (what the state remembers, the scan order, the rewrite directions) sit in the
@@ -248,7 +235,22 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       <div id="after" />
     </section>
   )
-  const dock = <footer className="dock" id="dock" />
+  // The run bar, the kit's (RunDock), from what the mode says it holds; or, while a number is typed, the keypad.
+  const d = ctl.dock()
+  const html = (markup) => <span dangerouslySetInnerHTML={{ __html: markup || '' }} />
+  const dock = (
+    <footer className="dock run-foot" id="dock">
+      {d.pad ? (
+        <div dangerouslySetInnerHTML={{ __html: padHTML(ctl) }} />
+      ) : (
+        <RunDock
+          meta={html(d.meta)}
+          secondary={d.sec ? { label: html(d.sec), armed: Boolean(ctl.st?.armed), attrs: { 'data-act': d.secAct } } : null}
+          go={d.go ? { label: d.go, busy: Boolean(d.busy), pulse: Boolean(L.coach && L.coach(ctl.st).run), icon: !d.busy && d.goIcon ? <i className="run-icon" dangerouslySetInnerHTML={{ __html: d.goIcon }} /> : undefined, attrs: { 'data-act': d.act } } : null}
+        />
+      )}
+    </footer>
+  )
   // Circuit levels play on the shared circuit editor (./circuit/BoardView.jsx). On a phone the mode's cards (memory,
   // scan order) sit above it and its direction switches under it; on a desktop they are in the brief.
   const panel = ctl.board ? (
@@ -321,4 +323,13 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       {modeSheet}
     </>
   )
+}
+
+/** The number keypad a mode opens in the dock while a cell is being typed into. */
+function padHTML(ctl) {
+  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+  const extra = ctl.padExtra ? ctl.padExtra() : null
+  return `<div class="pad"><div class="pad-top"><span><b>${ctl.padTitle()}</b></span><div class="pad-val" aria-live="polite">${ctl.st.input || '_'}</div></div>
+    <div class="keys">${keys.map((k) => `<button class="key" type="button" data-key="${k}">${k}</button>`).join('')}
+    <button class="key wide" type="button" data-key="del">${tr('删除', 'Delete')}</button><button class="key" type="button" data-key="close" aria-label="${tr('收起键盘', 'Hide keypad')}">${tr('收起', 'Hide')}</button><button class="key wide ok" type="button" data-key="ok">${tr('确定', 'OK')}</button>${extra ? `<button class="key full" type="button" data-key="${extra.key}">${extra.label}</button>` : ''}</div></div>`
 }

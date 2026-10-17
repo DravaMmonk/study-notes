@@ -36,7 +36,7 @@ Every page (the notes site, Fieldnotes, the games hub and both games) is built o
 - `lang.js`, `theme.js`, `menu.js`, `bar.js`: language, theme, the top bar's language and theme menus (an icon, then a small menu of choices) and the bar on plain pages · 语言、主题与顶栏按钮
 - `circuit/`: the circuit editor both games use (React): the desktop board (drag cards, pull wires from output dots, Delete, ⌘/Ctrl-scroll zoom, fit) and the phone board (slots, tap-tap or drag wiring, tray, undo), on one circuit model, plus the bench the parts box tries each part on; a game brings what its cards show · 两款游戏共用的电路编辑器
 - `drag.js`, `wires.js`, `graph.js`, `wires.css`: the editor's gestures, wire geometry, loop check and wire styles · 拖拽、连线几何、成环检测与连线样式
-- `shell/`: the game shell both games run on (React): top bar, level map, level rail, 引入, first-run, passed and failed dialogs, parts box, encyclopedia (百科: how to play and the subject's terms, opening as the levels are reached), settings, saved progress, keys, and the desktop workbench and phone page · 两款游戏共用的游戏外壳
+- `shell/`: the game shell both games run on (React): top bar, level map, level rail, 引入, first-run, passed and failed dialogs, parts box, encyclopedia (百科: how to play and the subject's terms, opening as the levels are reached), settings, saved progress, keys, the brief (task, tip, hints one at a time; a folding 任务 card on a phone), the run bar (count, clear, Run) and the desktop workbench and phone page · 两款游戏共用的游戏外壳
 
 The site maps Material for MkDocs onto these tokens in `docs/stylesheets/extra.css` and `overrides/main.html`.
 
