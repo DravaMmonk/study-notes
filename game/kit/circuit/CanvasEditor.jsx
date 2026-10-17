@@ -29,6 +29,8 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * @param head(node) extra marks in a card's header (a pass/fail badge…)
  * @param caption(node) a fixed card's line under its title (what it carries)
  * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, width, height (for fitting), emptyNote, overlay
+ * Windows floating over the board (FloatWindow, in `overlay`) are kept clear when fitting: the circuit goes between
+ * them or below them, wherever it shows larger.
  */
 export default function CanvasEditor({ graph, onChange, parts, body, head, caption, cardClass, wireState, width = 140, height = 230, emptyNote, overlay }) {
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
@@ -49,7 +51,19 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     return [node.x + sx, node.y + sy + portY(index)]
   }
 
-  // Fit the whole circuit into the board.
+  // The part of the board the floating windows leave free: the band between the windows on the left and those on the
+  // right, or the strip below them all. With no windows, the whole board.
+  const rooms = (box) => {
+    const wins = [...surface.current.querySelectorAll('.float-window')].map((el) => el.getBoundingClientRect())
+    if (!wins.length) return [{ left: 0, right: 0, top: 0 }]
+    const middle = box.left + box.width / 2
+    const left = Math.max(0, ...wins.filter((b) => b.left + b.width / 2 < middle).map((b) => b.right - box.left))
+    const right = Math.max(0, ...wins.filter((b) => b.left + b.width / 2 >= middle).map((b) => box.right - b.left))
+    const top = Math.max(0, ...wins.map((b) => b.bottom - box.top))
+    return [{ left, right, top: 0 }, { left: 0, right: 0, top }]
+  }
+  // Fit the whole circuit into the board, in whichever free part shows it larger (below the windows, on a tie: a
+  // circuit too big for either then runs on down the board instead of under a window).
   const fit = () => {
     const box = surface.current?.getBoundingClientRect()
     if (!box || !box.width || !graph.nodes.length) return
@@ -57,8 +71,14 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const ys = graph.nodes.flatMap((n) => [n.y, n.y + height])
     const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
     const pad = 36
-    const zoom = clampZoom(Math.min(1.1, (box.width - pad * 2) / (x1 - x0), (box.height - pad * 2) / (y1 - y0)))
-    setView({ zoom, x: (box.width - (x1 - x0) * zoom) / 2 - x0 * zoom, y: pad - y0 * zoom })
+    const best = rooms(box)
+      .map(({ left, right, top }) => {
+        const [w, h] = [box.width - left - right, box.height - top]
+        const zoom = clampZoom(Math.min(1.1, (w - pad * 2) / (x1 - x0), (h - pad * 2) / (y1 - y0)))
+        return { zoom, x: left + (w - (x1 - x0) * zoom) / 2 - x0 * zoom, y: top + pad - y0 * zoom }
+      })
+      .reduce((a, b) => (b.zoom >= a.zoom ? b : a))
+    setView(best)
   }
   // Fit once the board first has a real size.
   const fitted = useRef(false)
@@ -87,10 +107,13 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const added = graph.nodes.filter((n) => !before.has(n.id))
     const box = surface.current?.getBoundingClientRect()
     if (!added.length || !box) return
+    // Outside, or under a floating window.
+    const wins = [...surface.current.querySelectorAll('.float-window')].map((el) => el.getBoundingClientRect())
     const outside = added.some((n) => {
       const x = n.x * view.zoom + view.x
       const y = n.y * view.zoom + view.y
-      return x < 0 || y < 0 || x + width * view.zoom > box.width || y + 60 * view.zoom > box.height
+      const [cx, cy] = [box.left + x + (width * view.zoom) / 2, box.top + y + (30 * view.zoom)]
+      return x < 0 || y < 0 || x + width * view.zoom > box.width || y + 60 * view.zoom > box.height || wins.some((b) => cx > b.left && cx < b.right && cy > b.top && cy < b.bottom)
     })
     if (outside) fitRef.current()
   })
@@ -236,7 +259,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const canDelete = Boolean(selected?.wire) || Boolean(selectedNode && parts.role(selectedNode) === 'part')
 
   return (
-    <div className="board" ref={surface} onPointerDown={beginPan}>
+    <div className="board kit-board" ref={surface} onPointerDown={beginPan}>
       <div className="board-grid" style={{ backgroundPosition: `${view.x}px ${view.y}px`, backgroundSize: `${20 * view.zoom}px ${20 * view.zoom}px` }} />
       {!placed && emptyNote && <p className="board-empty">{L(emptyNote)}</p>}
       <div className="board-layer" ref={layer} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>

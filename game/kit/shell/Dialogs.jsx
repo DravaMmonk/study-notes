@@ -1,6 +1,5 @@
 import { createElement, useEffect } from 'react'
 import { L, keyOf, tr } from './i18n.js'
-import Sheet from './Sheet.jsx'
 
 // Escape closes the dialog or sheet on top. Every overlay of the shell uses it, so the key does the same thing in
 // every game.
@@ -40,7 +39,7 @@ export function Dialog({ title, lines, actions, intro, onClose }) {
   )
 }
 
-/** A level passed: what it taught, what it unlocked, the notebook line, and the way on. */
+/** A level passed: what it taught, what it unlocked, its key idea, and the way on. */
 export function SolvedDialog({ game, level, onStay, onExit, next, onNext }) {
   useEscape(onStay)
   const unlocked = game.unlocked(level)
@@ -52,7 +51,7 @@ export function SolvedDialog({ game, level, onStay, onExit, next, onNext }) {
         <h2>{tr('通过', 'Passed')} · {game.levelLabel(level)} {L(level.title)}</h2>
         {level.afterTitle && <h3 className="dialog-title" dangerouslySetInnerHTML={{ __html: String(L(level.afterTitle)) }} />}
         <Paragraphs text={level.after} />
-        {note && note !== level.after && <p className="dialog-note"><span className="panel-label">{tr('记进笔记本', 'Into the notebook')}</span><span dangerouslySetInnerHTML={{ __html: String(L(note)) }} /></p>}
+        {note && note !== level.after && <p className="dialog-note"><span className="panel-label">{tr('要点', 'Key idea')}</span><span dangerouslySetInnerHTML={{ __html: String(L(note)) }} /></p>}
         {unlocked.length > 0 && (
           <div className="unlocked">
             <span className="panel-label">{tr('解锁', 'Unlocked')}</span>
@@ -100,38 +99,3 @@ export function FailDialog({ fail, fails, onClose }) {
   )
 }
 
-/** The parts box: every part the game has, the ones earned so far lit. */
-export function PartsSheet({ game, progress, onClose }) {
-  const earned = new Set(game.parts.earned(progress))
-  return (
-    <Sheet title={tr('零件箱', 'Parts')} onClose={onClose}>
-      <ul className="collection">
-        {game.parts.all.map((part) => (
-          <li key={part.key} className={earned.has(part.key) ? '' : 'is-off'} data-family={part.family}>
-            {part.icon && <i className="family-chip">{createElement(part.icon, { size: 14, strokeWidth: 1.7 })}</i>}
-            <span><b>{L(part.name)}</b>{part.desc && <small>{earned.has(part.key) ? L(part.desc) : tr('还没拿到', 'Not earned yet')}</small>}</span>
-          </li>
-        ))}
-      </ul>
-    </Sheet>
-  )
-}
-
-/** The notebook: one line from every level passed, in order. */
-export function NotesSheet({ game, solved, onClose }) {
-  const levels = game.levels.filter((level) => solved.has(level.id) && game.note(level))
-  return (
-    <Sheet title={tr('笔记本', 'Notebook')} onClose={onClose}>
-      {levels.length ? (
-        <ol className="collection is-notes">
-          {levels.map((level) => (
-            <li key={level.id}>
-              <span className="map-level-id">{game.levelLabel(level)}</span>
-              <span><b>{L(level.title)}</b><small dangerouslySetInnerHTML={{ __html: String(L(game.note(level))) }} /></span>
-            </li>
-          ))}
-        </ol>
-      ) : <p className="panel-note">{tr('通过一关，它的要点就会记在这里。', 'Pass a level and its key idea is written down here.')}</p>}
-    </Sheet>
-  )
-}
