@@ -132,9 +132,6 @@
 .panel-label, .panel-head > span:first-child { margin: 0 0 10px; display: block; color: var(--muted); font-family: var(--mono); font-size: 10px; font-weight: 400; letter-spacing: .14em; }
 .panel-note { margin: 10px 0 0; color: var(--faint); font-size: 11.5px; line-height: 1.55; }
 
-.brief-row { display: grid; gap: 2px; margin-top: -8px; }
-.brief-row .panel-label { margin: 0; }
-.brief-row p { margin: 0; color: var(--heading); font-family: var(--serif); font-size: 16px; line-height: 1.65; }
 .brief-tip { margin: -6px 0 0; padding: 10px 12px; border-radius: 10px; color: var(--body); background: color-mix(in srgb, var(--accent) 8%, var(--paper)); font-size: 13px; line-height: 1.6; }
 .family-chip { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border-radius: 6px; color: var(--fam, var(--muted)); background: color-mix(in srgb, var(--fam, var(--muted)) 14%, transparent); font-style: normal; }
 
@@ -224,18 +221,21 @@
 
 /* ---- Phone: one scrolling page per level (task, pinned tests, the circuit as a list of steps) ---- */
 .level-phone { height: calc(100dvh - var(--bar-h)); overflow-y: auto; overscroll-behavior: contain; background: var(--canvas); padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
-.pl-brief { padding: 14px 16px 12px; display: grid; gap: 8px; background: var(--paper); border-bottom: 1px solid var(--hairline); }
-.pl-brief .brief-head h1 { font-size: 22px; }
-.pl-brief .brief-text { margin: 0; font-size: 15.5px; line-height: 1.65; }
-.pl-brief .brief-text.is-clamped { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.pl-brief .hint-block { margin: 0; }
-.brief-more { justify-self: start; padding: 2px 0; border: 0; color: var(--accent-ink); background: none; font-size: 13px; cursor: pointer; }
+.pl-brief { padding: 12px 12px 0; }
+/* The task card (Layout.jsx TaskCard), the same in every game on a phone: 任务, folding away to the level. */
+.task-card { border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.task-toggle { width: 100%; min-height: 40px; padding: 0 12px 0 14px; display: flex; align-items: center; justify-content: space-between; border: 0; color: var(--muted); background: transparent; font: 400 11px var(--mono); letter-spacing: .14em; cursor: pointer; }
+.task-toggle svg { transition: transform 180ms ease; }
+.task-card.is-open .task-toggle svg { transform: rotate(180deg); }
+.task-body { padding: 0 14px 12px; display: grid; gap: 10px; }
+.task-body .brief-head { display: none; }
+.task-body .brief-text { margin: 0; font-size: 15px; line-height: 1.7; }
+.task-body .brief-tip, .task-body .hint-block { margin: 0; }
 /* Board levels on a phone: the main visual stays pinned at the top while the controls below
    scroll, so every change is seen as it is made (only when it fits; see PinnedPlay). */
 .pl-play.is-pinned .bk > .bk-split > :first-child { position: sticky; top: 0; z-index: 4; box-shadow: 0 0 0 1px var(--hairline), 0 14px 26px -18px rgba(30, 26, 18, .55); }
 
 /* The bar above already names the level. */
-.pl-brief .brief-head { display: none; }
 
 /* A level's 引入: a bottom sheet on a phone, a card in the middle on a desktop. */
 .intro-scrim { position: fixed; z-index: 70; inset: 0; display: grid; place-items: center; padding: 24px; background: var(--scrim); animation: fade-in 160ms ease; }
@@ -330,3 +330,34 @@
   .wiki-article p { font-size: 16.5px; }
 }
 @media (prefers-reduced-motion: reduce) { .wiki, .wiki-article { animation: none; } }
+
+/* ---- the run bar (RunDock.jsx), after 状态之图's dock: where the level stands, a quiet second action, Run ---- */
+.run-dock { display: flex; align-items: center; gap: 10px 12px; }
+.run-meta { flex: 1; min-width: 0; color: var(--muted); font: 600 12.5px/1.4 var(--mono); }
+.run-meta b { color: var(--ink); }
+.run-meta button { padding: 0; border: 0; color: inherit; background: none; font: inherit; text-align: left; cursor: pointer; }
+.run-meta small { display: block; color: var(--muted); font-size: 11px; font-weight: 500; }
+.run-sec { flex: none; min-height: 44px; padding: 0 14px; border: 0; border-radius: 12px; color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--rule); font: 600 14px var(--sans); cursor: pointer; }
+.run-sec:hover { background: var(--hover); }
+.run-sec.is-armed { color: var(--paper); background: var(--fail); box-shadow: none; }
+.run-sec:disabled { opacity: .4; cursor: default; }
+.run-go { flex: 0 1 210px; min-width: min(160px, 46vw); min-height: 52px; padding: 0 22px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 0; border-radius: 15px; color: #2a1d05; background: var(--accent); font: 800 16px var(--sans); cursor: pointer; transition: transform 120ms ease, background 200ms ease, filter 160ms ease; }
+.run-go:hover { filter: brightness(1.05); }
+.run-go:active { transform: scale(.97); }
+.run-go.is-busy { color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); }
+.run-go.is-pass { color: var(--paper); background: var(--status); }
+.run-go.is-pulse { animation: run-pulse 1.2s ease-out 3; }
+@keyframes run-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+@media (prefers-reduced-motion: reduce) { .run-go { transition: none; } .run-go.is-pulse { animation: none; } }
+/* Where it sits: the bottom of a level's side column on a desktop, the bottom of the page on a phone. */
+.run-foot { flex: none; padding: 12px 16px; border-top: 1px solid var(--hairline); background: var(--paper); }
+@media (max-width: 760px) {
+  .run-foot { padding: 10px max(12px, env(safe-area-inset-left, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .run-go { flex: 1 1 auto; }
+}
+/* In a desktop level's side column the count gets its own line and the buttons share the next. */
+@media (min-width: 761px) {
+  .run-foot .run-dock { flex-wrap: wrap; }
+  .run-foot .run-meta { flex: 1 0 100%; }
+  .run-foot .run-go { flex: 1 1 auto; }
+}
