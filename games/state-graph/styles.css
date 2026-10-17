@@ -401,13 +401,12 @@ img{max-width:100%}
 
   /* the parts list sits in the brief */
 
-  /* the stage: a dotted canvas */
-  .hero-fig,.fig,.sg-level:not(.panel-stage) .stage-pane{background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:18px 18px}
+  /* the stage: plain; only the circuit board of a circuit level (the kit's editor) is dotted */
   .sg-level:not(.panel-stage) .stage-pane .bcard{border:0;border-radius:0;padding:22px 28px 28px;gap:14px;align-content:start;background:none}
   .sg-level:not(.panel-stage) .tests{margin:0;padding:0;flex-wrap:wrap}
   .sg-level:not(.panel-stage) .board{margin:0;padding:0;overflow:visible}
   .sg-level:not(.panel-stage) .board-svg{max-height:calc(100dvh - 220px)}
-  .sg-level.panel-stage .stage-pane{background:var(--board);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:20px 20px}
+  .sg-level.panel-stage .stage-pane{background:var(--board)}
   .sg-level.panel-stage .stage-pane .panel{padding:24px 28px 32px;gap:16px;align-items:center}
   .sg-level.panel-stage .panel>*{width:100%;max-width:960px}
   /* the canvas is the circuit board: parts, terminals and wires sit straight on the dotted stage */
