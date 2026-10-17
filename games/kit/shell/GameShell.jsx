@@ -13,9 +13,9 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelRail from './LevelRail.jsx'
 
-// Every game sits at game/<id>/index.html, under the games hub (game/index.html) and the notes (index.html): on the
-// published site, and on the dev server too (trace-viewer/vite.config.js), where the notes are Fieldnotes.
-const SITE = { notes: '../../index.html', games: '../index.html' }
+// Every game sits at game/<id>/index.html, under the games hub (game/index.html): on the published site, and on the
+// dev server too (trace-viewer/vite.config.js).
+const SITE = { games: '../index.html' }
 
 /**
  * The game shell shared by every game: the top bar, the level map, the level rail, a level's 引入, the first-run
@@ -145,12 +145,6 @@ export default function GameShell({ game }) {
           <a className="kit-btn is-label bar-button" href={SITE.games} aria-label={tr('回到游戏列表', 'Back to the games')}><ArrowLeft size={16} /><span>{tr('游戏', 'Games')}</span></a>
         )}
         <span className="kit-brand game-brand"><i className="kit-chip" aria-hidden="true" /><span>{L(game.title)}</span></span>
-        {!level && !phone && (
-          <nav className="kit-nav" aria-label={tr('站点', 'Site')}>
-            <a href={SITE.notes}>{tr('笔记', 'Notes')}</a>
-            <a href={SITE.games} aria-current="page">{tr('游戏', 'Games')}</a>
-          </nav>
-        )}
         {level && (
           <span className="game-level-title">
             <b>{game.levelLabel(level)}</b>

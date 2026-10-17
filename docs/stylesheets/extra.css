@@ -59,10 +59,8 @@ body { color: var(--ink); background: var(--paper); -webkit-font-smoothing: anti
 .md-header__title { margin-left: .4rem; height: var(--bar-h); line-height: var(--bar-h); }
 .md-header__topic:first-child { font-family: var(--mono); font-size: var(--fs-label); font-weight: 500; letter-spacing: .2em; text-transform: uppercase; }
 .md-header__topic + .md-header__topic { font-family: var(--serif); font-size: var(--fs-small); font-weight: 500; letter-spacing: 0; }
-.md-header .kit-nav { margin: 0 .4rem; }
 .md-header .kit-actions { margin-left: .2rem; }
 .md-header .kit-btn { color: var(--ink); }
-@media (max-width: 600px) { .md-header .kit-nav { display: none; } }
 
 /* Search, in the bar's quiet style. */
 .md-search__form { height: 32px; border-radius: var(--r-md); background: var(--hover); box-shadow: none; }

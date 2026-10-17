@@ -24,7 +24,6 @@ import { mountBarMenus } from '../../games/kit/menu.js'
 import sections from '../../docs/.sections.json'
 import AnnotationEntry from './components/AnnotationEntry'
 import { createFigureHost } from './figures/host'
-import { PHONE, useMedia } from '../../games/kit/shell/useMedia'
 import { annotationAtPoint } from './lib/highlightGeometry'
 import { buildDocumentTree, libraryDocuments, noteDocuments, renderMarkdown, versionOf } from './lib/content'
 import { translate } from './lib/strings'
@@ -81,7 +80,6 @@ function App() {
   const [theme, setTheme] = useState(initialTheme)
   const [barHidden, setBarHidden] = useState(false)
   const [lightbox, setLightbox] = useState(null)
-  const phone = useMedia(PHONE)
   const lastScroll = useRef(0)
   const shownPath = useRef(null)
   const figureHosts = useRef(new Map())
@@ -461,12 +459,6 @@ function App() {
             {sidebarOpen ? <PanelLeftClose size={19} /> : <PanelLeftOpen size={19} />}
           </button>
           <Breadcrumbs document={activeDocument} lang={lang} />
-          {!phone && (
-            <nav className="kit-nav" aria-label={t('site')}>
-              <a href="index.html" aria-current="page">{t('notes')}</a>
-              <a href="game/index.html">{t('games')}</a>
-            </nav>
-          )}
           <div className="kit-actions topbar-actions">
             {/* The kit's language and theme menus (games/kit/menu.js), mounted into an element React leaves empty. */}
             <span className="kit-bar-menus" ref={barMenusRef} />
