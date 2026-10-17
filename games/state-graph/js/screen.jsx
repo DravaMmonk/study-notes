@@ -119,6 +119,8 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
   // Clicks, keys, drags and resizes go to the mode, the same way on every screen.
   useEffect(() => {
     const el = root.current
+    // A layout switch runs this effect's cleanup after the layout effect above has set the session; set it again.
+    rt.cur = cur.current
     const onAct = (event) => {
       const a = event.target.closest('[data-act]')
       if (a && ctl.act && !a.disabled && el.contains(a)) ctl.act(a.dataset.act, a)
@@ -195,7 +197,9 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       if (cur.current.running) Anim.skip()
       if (rt.cur === cur.current) rt.cur = null
     }
-  }, [ctl])
+    // `phone` too: switching between the desktop and phone layouts swaps the root element, and listeners left on the
+    // old one would miss every click on the new page.
+  }, [ctl, phone])
 
   // A sheet the mode opened redraws itself in the other language when the player switches while it is open.
   useEffect(() => {

@@ -24,7 +24,18 @@ function home(kind, k, slot) {
 /** The engine's circuit as the editor's graph. `u` = { taps, avail, outs } of the world the board runs in. */
 export function toGraph(circ, u) {
   const lit = litOf(circ), xy = circ.xy || {}, { cell } = slotsOf(circ);
-  const at = (id, kind, k, slot) => xy[id] || home(kind, k, slot);
+  // A card with a saved place keeps it. A new one goes to its home spot, or, if a card already sits there (inputs
+  // are listed in the view's order, so lighting an earlier cell shifts the homes of the later ones), on down that
+  // column to the first free spot: cards never land on top of each other.
+  const taken = Object.values(xy);
+  const clash = ([x, y]) => taken.some(([a, b]) => Math.abs(a - x) < 170 && Math.abs(b - y) < 100);
+  const at = (id, kind, k, slot) => {
+    if (xy[id]) return xy[id];
+    let [x, y] = home(kind, k, slot);
+    for (let tries = 0; tries < 60 && clash([x, y]); tries++) y += kind === 'tap' ? 120 : kind === 'out' ? 140 : 170;
+    taken.push([x, y]);
+    return [x, y];
+  };
   const taps = u.avail.filter((t) => lit.includes(t));
   return {
     nodes: [

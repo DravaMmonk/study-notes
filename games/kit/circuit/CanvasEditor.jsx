@@ -148,8 +148,9 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     })
 
   // Background: one pointer pans, two pointers pinch-zoom around their midpoint.
+  // Any press on the background pans: not one on a card, a wire, a control or a window floating over the board.
   const beginPan = (event) => {
-    if (event.target !== event.currentTarget && !event.target.classList.contains('board-grid')) return
+    if (event.button > 0 || event.target.closest('.node, .kw, button, input, select, label, .float-window, .board-zoom, .board-views')) return
     setSelected(null)
     const box = surface.current.getBoundingClientRect()
     pointers.current.set(event.pointerId, [event.clientX, event.clientY])

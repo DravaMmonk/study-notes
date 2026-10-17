@@ -304,7 +304,9 @@ button:disabled{cursor:not-allowed}
 .vcell .tag{position:absolute;right:-6px;top:-7px;transform:scale(.8);z-index:2}
 .n5 .vcell .tag{transform:scale(.68);right:-7px;top:-8px}
 .vcell .vl{position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);font:600 9px var(--f-body);color:var(--ink-3);white-space:nowrap}
-.vbot{position:absolute;width:20px;height:20px;right:-9px;bottom:-10px;filter:var(--drop);z-index:3}
+/* The robot and a lit cell's tag hang over the neighbouring cells' corners: clicks go through them to the cell under. */
+.vbot{position:absolute;width:20px;height:20px;right:-9px;bottom:-10px;filter:var(--drop);z-index:3;pointer-events:none}
+.vcell .tag,.vcell .vl{pointer-events:none}
 .n5 .vbot{width:16px;height:16px;right:-7px;bottom:-8px}
 .varm{display:grid;gap:3px;justify-items:center;padding-bottom:12px}
 .varm-row{display:flex;gap:6px}
