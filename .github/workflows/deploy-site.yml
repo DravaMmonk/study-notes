@@ -1,0 +1,49 @@
+# Publish the whole site to GitHub Pages at /study-notes/ on every push to main: the notes (MkDocs, from docs/) and,
+# under game/, the games hub and shared kit from games/ with both games built from trace-viewer/ on the shared game
+# shell (Vision Complete into game/vision-complete/, 状态之图 into game/state-graph/). The games are built first;
+# the MkDocs hook hooks/games.py then copies them into the site, so one build holds everything.
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-site
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: trace-viewer/package-lock.json
+      - run: npm ci
+        working-directory: trace-viewer
+      - run: npm run levels
+        working-directory: trace-viewer
+      - run: npm run build:game
+        working-directory: trace-viewer
+      - run: npm run build:state-graph
+        working-directory: trace-viewer
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-docs.txt
+      - run: pip install -r requirements-docs.txt
+      - run: mkdocs build
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: site
+          commit_message: 'deploy: site'

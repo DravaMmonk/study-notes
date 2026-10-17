@@ -42,7 +42,7 @@ The site maps Material for MkDocs onto these tokens in `docs/stylesheets/extra.c
 
 ## Games · 游戏
 
-Puzzle games that turn a course into levels, under `games/`, published to `/game/` by `.github/workflows/deploy-games.yml` (and by `hooks/games.py` with every site build).
+Puzzle games that turn a course into levels, under `games/`, published to `/game/` with the notes: every push to `main` runs `.github/workflows/deploy-site.yml`, which builds both games and then the MkDocs site, whose hook `hooks/games.py` copies them in.
 
 - `games/index.html`: the games hub; the list is in `games/games.js`. · 游戏导航页，游戏列表在 `games/games.js`。
 - Both games are content on the shared shell (`games/kit/shell/`) and circuit editor (`games/kit/circuit/`): a game is a `defineGame({ … })` with its chapters, levels, intro figures and one screen per kind of level, plus a `parts` description of its circuit nodes and a `glossary` for the encyclopedia, and differs from the other only there. Both are built from `trace-viewer/` (`npm run build:game`, `npm run build:state-graph`). · 两款游戏只在关卡内容上不同，其余都是共享外壳。

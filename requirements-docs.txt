@@ -1,0 +1,6 @@
+# The notes site's build (MkDocs), pinned to the versions it is built and checked with.
+mkdocs==1.6.1
+mkdocs-material==9.7.0
+mkdocs-awesome-pages-plugin==2.10.1
+mkdocs-obsidian-support-plugin==1.4.1
+pymdown-extensions==10.17.1
