@@ -14,7 +14,7 @@ import { IMAGE_VIEWS, KIND_NAMES, kindOf, nodeView } from './views/views.js'
 
 const NODE_W = 140
 
-export default function Editor({ graph, onChange, run, testIndex, flags, inputLabels, outputLabels, views, ioKinds, scan, onScan, theme, hasPalette, focus }) {
+export default function Editor({ graph, onChange, run, testIndex, flags, inputLabels, outputLabels, views, ioKinds, scan, onScan, theme, hasPalette, focus, refit }) {
   const [peek, setPeek] = useState(null)
   const [menu, setMenu] = useState(null) // id of the card whose view menu is open
   const values = run?.results[testIndex]?.values
@@ -116,6 +116,7 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
       head={head}
       caption={caption}
       cardClass={cardClass}
+      refit={refit}
       wireState={(wire) => (values?.get(wire.from) ? 'live' : 'dead')}
       width={NODE_W}
       emptyNote={hasPalette && { zh: '从左边选一个元件放上来，再从卡片右侧的圆点拖线连接。', en: 'Pick a part on the left to place it, then drag a wire from the dot on the right of a card.' }}

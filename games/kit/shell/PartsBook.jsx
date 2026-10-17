@@ -3,7 +3,7 @@ import { L, tr } from './i18n.js'
 import Library, { store, useSeen } from './Library.jsx'
 
 // The parts box (零件箱), laid out like the encyclopedia: every part the game has, by the chapter that earns it, each
-// with what it does, a bench to try it on, and what its level taught. A game's `parts` brings
+// with what it does and a bench to try it on. A game's `parts` brings
 // { all: [{ key, name, desc?, icon?, family? }], earned(progress) → [key], demo?(part, { phone }) → React node }: the
 // demo is a small circuit with the part at its centre that the player can change and run (games/kit/circuit
 // DemoBench), on the desktop board or, on a phone, the phone one. The
@@ -55,7 +55,6 @@ export default function PartsBook({ game, box, phone, onClose }) {
   const article = (key, back) => {
     const part = all.find((p) => p.key === key)
     const level = levelOf(game, key)
-    const note = level && game.note(level)
     const demo = game.parts.demo?.(part, { phone })
     return (
       <article className="wiki-article parts-article" key={key} data-family={part.family}>
@@ -64,12 +63,6 @@ export default function PartsBook({ game, box, phone, onClose }) {
         <h2>{chip(part, 18)}{L(part.name)}</h2>
         {part.desc && <p dangerouslySetInnerHTML={{ __html: String(L(part.desc)) }} />}
         {demo}
-        {note && note !== part.desc && (
-          <section className="wiki-see">
-            <span className="panel-label">{tr('这一关学到的', 'What its level taught')}</span>
-            <p dangerouslySetInnerHTML={{ __html: String(L(note)) }} />
-          </section>
-        )}
       </article>
     )
   }

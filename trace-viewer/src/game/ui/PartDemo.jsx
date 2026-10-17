@@ -32,14 +32,14 @@ const REWRITE = {
 }
 const INPUT_LABELS = { left: { zh: '左图', en: 'Left image' }, right: { zh: '右图', en: 'Right image' }, scene: { zh: '现场', en: 'Scene' }, empty: { zh: '空场', en: 'Empty scene' } }
 
-function benchFor(flag, type) {
+function benchFor(flag, type, sample = false) {
   // A setting rather than a part is tried on the part it belongs to.
   const nodeType = flag === 'edge-pad' ? 'shift' : type
   const spec = NODE_TYPES[nodeType]
   if (!spec) return null
   const own = LEVELS.find((l) => (l.unlocks ?? []).includes(flag))
   const level = SOLUTION_OF[flag] ? LEVELS.find((l) => l.id === SOLUTION_OF[flag]) : own
-  const source = level?.kind === 'graph' && level.tests?.length ? level : LEVELS.find((l) => l.id === SAMPLE)
+  const source = !sample && level?.kind === 'graph' && level.tests?.length ? level : LEVELS.find((l) => l.id === SAMPLE)
   const tests = source.tests.slice(0, 3).map((t) => ({ label: t.label, inputs: t.inputs, expected: {} }))
   const names = Object.keys(tests[0]?.inputs ?? {})
   const ports = spec.inputs ?? []
@@ -63,6 +63,10 @@ function benchFor(flag, type) {
   const outputs = graph.nodes.filter((n) => n.type === 'output').map((n) => n.params.name)
   const bench = { kind: 'graph', inputs: names, outputs, tests, check: source.check, views: source.views, inputLabels: source.inputLabels ?? (names.length > 1 ? INPUT_LABELS : {}), outputLabels: source.outputLabels ?? {} }
   const first = runLevel(bench, graph).results[0]
+  // A part its level's own tests do not suit (the spectrum, met on a 1-D signal, is a 2-D part) is tried on the
+  // sample pictures instead.
+  const broken = !first || first.errors.size > 0 || Object.values(first.outputs).some((img) => !img || Array.from(img.data).some(Number.isNaN))
+  if (broken && !sample && source.id !== SAMPLE && !SOLUTION_OF[flag]) return benchFor(flag, type, true)
   const ioKinds = Object.fromEntries([...Object.entries(tests[0]?.inputs ?? {}), ...outputs.map((name) => [name, first?.outputs[name]])].map(([name, value]) => [name, kindOf(value)]))
   return { bench, graph, nodeType, ioKinds, views: { in: viewFor(source, 'in'), out: viewFor(source, 'out'), mid: viewFor(source, 'mid') } }
 }
@@ -106,7 +110,7 @@ export default function PartDemo({ flag, type, flags, phone }) {
   if (!phone) {
     return (
       <DemoBench {...common} note={{ zh: '换一张测试图、改改卡片上的设置，再点运行，看看每张卡片输出什么。', en: 'Pick another test picture or change a setting on a card, then run it and see what every card puts out.' }}>
-        <Editor graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} inputLabels={made.bench.inputLabels} outputLabels={made.bench.outputLabels} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} />
+        <Editor graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} inputLabels={made.bench.inputLabels} outputLabels={made.bench.outputLabels} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
       </DemoBench>
     )
   }

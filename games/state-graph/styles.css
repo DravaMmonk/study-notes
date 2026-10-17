@@ -558,3 +558,19 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
   .sg-side .dmeta { flex: 1 0 100%; }
   .sg-side .go { flex: 1 1 auto; }
 }
+/* A part's bench in the parts box (js/circuit/PartDemo.jsx): the test board and the robot's view side by side, the
+   circuit under them, as in a level. */
+.sg-bench-scene { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; align-items: start; margin-bottom: 12px; }
+.sg-bench-board { min-width: 0; padding: 10px; border-radius: 12px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.sg-bench-board .board-svg { display: block; margin: 0 auto; max-height: 320px; }
+.sg-bench-board [data-cell] { cursor: pointer; }
+.sg-bench-view .cview { --vc: 30px; max-width: none; margin: 0; padding: 10px 8px; border: 0; border-radius: 12px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.sg-bench-view .cview .vwin.n5 { --vc: 24px; }
+.sg-bench-view .cview button { pointer-events: none; }
+.sg-bench-canvas { position: relative; overflow: clip; border-radius: 12px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.sg-bench-canvas .kit-board { position: absolute; inset: 0; height: auto; margin: 0; padding: 0; overflow: clip; }
+@media (max-width: 760px) {
+  .sg-bench-scene { grid-template-columns: minmax(0, 1fr); }
+  .sg-bench-view .cview { --vc: 38px; }
+  .sg-bench-view .cview .vwin.n5 { --vc: 30px; }
+}

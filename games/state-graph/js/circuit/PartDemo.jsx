@@ -2,23 +2,26 @@ import { useMemo, useState } from 'react'
 import { CanvasEditor, DemoBench, SlotBoard } from '../../../kit/circuit/index.js'
 import { L, tr } from '../../../kit/shell/i18n.js'
 import { LEVELS } from '../levels/index.js'
-import { WORLDS } from './worlds.js'
-import { runCircuit } from './world.js'
-import { BLUEPRINTS, def, evaluate } from './components.js'
-import { litOf } from './editor.js'
-import { toGraph, partsFor } from './board.js'
+import { sceneSVG } from '../svg.js'
 import { signal } from '../util.js'
+import { WORLDS } from './worlds.js'
+import { ROBOTS } from './robots.js'
+import { readTap, runCircuit, visibleTaps, windowOf } from './world.js'
+import { BLUEPRINTS, def, evaluate } from './components.js'
+import { litOf, viewHTML } from './editor.js'
+import { toGraph, partsFor } from './board.js'
 
-// A part on a bench in the parts box (games/kit/shell/PartsBook.jsx): the board its level is solved with, on the
-// shared circuit editor, with the part's own components picked out. Its inputs are cells of a real run of that
-// board (one test per cell); the player changes them, a constant, or a merger's model, and runs the board to see
-// what each card and the answer come to. On a phone it is the phone board: tap a block, change it underneath.
+// A part on a bench in the parts box (games/kit/shell/PartsBook.jsx), the way its level is played: a test board, the
+// robot's view and the board the level is solved with, the part's own components picked out. The test board starts
+// filled the way that board fills it; click a cell to put the robot there. An input card reads the board, so changing
+// it changes the cell it reads; constants and a merger's model change on their cards. Run computes the robot's cell
+// and writes the answer into its red frame. On a phone the circuit is the phone board: tap a block, change it below.
 
 // Parts that are an idea rather than a board show the board of the level that puts the idea to work.
 const BORROW = { back: 'cheapest', memo: 'stairs', topdown: 'stairs', seam: 'seam' }
 const MERGES = ['msum', 'mmin', 'mmax']
 
-/** The bench for a part: its level, board, world and a few cells of a real run. Null when there is none. */
+/** The bench for a part: its level, world, robot, circuit and, per test, the table that circuit fills. */
 function benchFor(key) {
   const own = LEVELS.find((L) => L.unlock === key)
   const L = BORROW[key] ? LEVELS.find((x) => x.id === BORROW[key]) : own
@@ -26,28 +29,33 @@ function benchFor(key) {
   const s = L.stages ? L.stages.at(-1) : L
   if (!s.solution) return null
   const V = WORLDS[s.world]
+  const robot = ROBOTS[L.robot] || ROBOTS.scout
   const o = { ...s, dirs: L.solutionDirs || {}, ...(s.dial ? { scan: s.solutionScan } : {}), filter: s.solutionFilter || 'all', remember: s.solutionMem || [] }
-  const t = (s.tests || L.tests)[0]
-  const lit = litOf(s.solution)
-  let res
-  try {
-    res = runCircuit(V, t, s.solution, o)
-  } catch {
-    return null
+  const tests = (s.tests || L.tests).slice(0, 3)
+  const runs = []
+  for (const t of tests) {
+    try {
+      const res = runCircuit(V, t, s.solution, o)
+      // The robot starts two thirds of the way through the scan, where its inputs are already worked out.
+      const steps = res.steps.filter((step) => step.writes)
+      runs.push({ t, table: res.table, start: steps[Math.floor((steps.length * 2) / 3)]?.cell ?? V.sample(t, o) })
+    } catch {
+      // A test the reference cannot run is left off the bench.
+    }
   }
-  // Three cells where every input reads something: early, middle and the last.
-  const full = res.steps.filter((step) => step.probe && lit.every((id) => step.probe[`tap:${id}`] !== undefined) && lit.some((id) => step.probe[`tap:${id}`] !== null))
-  const pick = full.length ? [...new Set([Math.floor(full.length / 3), Math.floor((2 * full.length) / 3), full.length - 1])].map((k) => full[k]) : []
-  const samples = pick.map((step) => Object.fromEntries(lit.map((id) => [id, step.probe[`tap:${id}`] ?? null])))
+  if (!runs.length) return null
+  const lit = litOf(s.solution)
   // A board that became a component of its own is tried as that one component, fed by the same inputs.
   const bp = BLUEPRINTS[`bp:${L.id}`]
-  const circuit = bp && bp.tapIds.every((id) => lit.includes(id))
+  const packaged = bp && bp.tapIds.every((id) => lit.includes(id))
+  const circuit = packaged
     ? { nodes: [{ id: 'p', kind: `bp:${L.id}` }], wires: [...bp.tapIds.map((id, k) => ({ from: `tap:${id}`, to: `p:${k}` })), { from: 'p', to: `out:${bp.out}` }] }
     : s.solution
-  const focus = new Set([...(bp ? [`bp:${L.id}`] : s.fresh || L.fresh || []), ...(key === 'skeleton' ? MERGES : [])])
-  const used = circuit === s.solution ? lit : bp.tapIds
+  const used = packaged ? bp.tapIds : lit
+  const focus = new Set([...(packaged ? [`bp:${L.id}`] : s.fresh || L.fresh || []), ...(key === 'skeleton' ? MERGES : [])])
+  const avail = [...visibleTaps(V, robot.vision), ...(robot.arm && !s.noArm ? V.armTaps : []), ...(s.facts || [])]
   const { tallest, ...xy } = columns(circuit, used, V)
-  return { L, s, V, circuit, lit: used, samples: samples.length ? samples : [Object.fromEntries(used.map((id) => [id, null]))], focus, xy, height: Math.round(Math.min(480, Math.max(300, tallest * 0.62 + 40))) }
+  return { L, s, V, o, robot, runs, circuit, lit: used, avail, focus, xy, height: Math.round(Math.min(440, Math.max(260, tallest * 0.6 + 40))) }
 }
 
 /** Where the cards start: in columns by how far they are from the inputs, so the board reads left to right. */
@@ -98,7 +106,7 @@ function InputControl({ type, value, onChange }) {
     const parse = (raw) => raw.split(/[\s,，]+/).filter(Boolean).map((x) => (x === '—' || x === '-' ? null : /^(y|是)$/i.test(x) ? true : /^(n|否)$/i.test(x) ? false : Number(x))).filter((x) => x === null || typeof x === 'boolean' || Number.isFinite(x))
     return <input className="demo-list" defaultValue={text} onPointerDown={stop} onBlur={(event) => onChange(parse(event.target.value))} onKeyDown={(event) => event.key === 'Enter' && event.currentTarget.blur()} aria-label={tr('一段数，用空格隔开', 'A run of numbers, separated by spaces')} />
   }
-  const step = (d) => onChange(value === null ? 0 : Math.round((value + d) * 100) / 100)
+  const step = (d) => onChange(value === null || typeof value !== 'number' ? 0 : Math.round((value + d) * 100) / 100)
   return (
     <span className="demo-num" onPointerDown={stop}>
       <button type="button" onClick={() => step(-1)} aria-label={tr('减 1', 'Minus 1')}>−</button>
@@ -111,8 +119,11 @@ function InputControl({ type, value, onChange }) {
 
 export default function PartDemo({ partKey, phone }) {
   const bench = useMemo(() => benchFor(partKey), [partKey])
-  const [test, setTest] = useState(0)
-  const [inputs, setInputs] = useState(() => bench?.samples[0] ?? {})
+  const [ti, setTi] = useState(0)
+  const [cell, setCell] = useState(() => bench?.runs[0].start)
+  const [table, setTable] = useState(() => new Map(bench?.runs[0].table ?? []))
+  const [typed, setTyped] = useState(() => new Set())
+  const [overrides, setOverrides] = useState({}) // inputs that read no board cell (facts, an arm's run)
   const [circ, setCirc] = useState(() => bench?.circuit)
   const [xy, setXy] = useState(() => bench?.xy ?? {})
   const [probe, setProbe] = useState(null)
@@ -120,88 +131,152 @@ export default function PartDemo({ partKey, phone }) {
   const [sel, setSel] = useState(null) // the block tapped on a phone
   if (!bench) return null
 
-  const u = { taps: bench.V.taps, avail: bench.lit, outs: bench.V.outs }
-  const graph = toGraph({ ...circ, lit: bench.lit, xy }, u)
-  const parts = partsFor({ ...circ, lit: bench.lit }, u)
-  // After a run, any change leaves its results on the cards, faded, until the next run.
+  const { V, o, robot, s } = bench
+  const t = bench.runs[ti].t
+  const keys = V.keys(t, cell)
+  const answerKeys = Object.values(keys)
+  // The board as the robot finds it: the run's table, with the robot's own cell empty until this bench runs it.
+  const shown = new Map(table)
+  if (!probe) answerKeys.forEach((key) => shown.delete(key))
+  const reads = new Set(), empty = new Set()
+  const get = (key) => {
+    reads.add(key)
+    if (shown.has(key)) return shown.get(key)
+    empty.add(key)
+    return null
+  }
+  const input = (id) => (id in overrides ? overrides[id] : readTap(V, t, cell, id, get, o))
+  const inputs = Object.fromEntries(bench.lit.map((id) => [id, input(id)]))
+  const keyOf = (id) => {
+    const m = V.taps[id]
+    if (!m.off) return null
+    const [layer, dr, dc] = m.off, [r, col] = V.here(t, cell)[layer]
+    return V.keyAt(t, layer, r + dr, col + dc, cell)
+  }
+
   const changed = () => probe && setStale(true)
-  const run = () => {
-    const out = {}
-    evaluate(circ, (id) => inputs[id] ?? null, bench.V.outs.map((x) => x[0]), out)
-    setProbe(out)
-    setStale(false)
-  }
-  const pickTest = (k) => {
-    setTest(k)
-    setInputs(bench.samples[k])
+  const setInput = (id, v) => {
+    const key = keyOf(id)
+    if (key !== null) {
+      setTable((tb) => new Map(tb).set(key, v))
+      setTyped((ty) => new Set(ty).add(key))
+    } else setOverrides((ov) => ({ ...ov, [id]: v }))
     changed()
-  }
-  const reset = () => {
-    setInputs(bench.samples[test])
-    setCirc(bench.circuit)
-    setXy(bench.xy)
-    setProbe(null)
-    setStale(false)
-  }
-  // Cards may be moved about, but the circuit itself stays as it is.
-  const onChange = (next) => {
-    const same = next.nodes.length === graph.nodes.length && JSON.stringify(next.wires) === JSON.stringify(graph.wires)
-    if (same) setXy(Object.fromEntries(next.nodes.map((n) => [n.id, [Math.round(n.x), Math.round(n.y)]])))
   }
   const setNode = (id, patch) => {
     setCirc((c) => ({ ...c, nodes: c.nodes.map((n) => (n.id === id ? { ...n, ...patch } : n)) }))
     changed()
   }
-  const valueOf = (id) => (probe && id in probe ? signal(probe[id]) : '')
-  const stop = (event) => event.stopPropagation()
+  const run = () => {
+    const out = {}
+    const { out: answer } = evaluate(circ, (id) => inputs[id] ?? null, V.outs.map((x) => x[0]), out)
+    setTable((tb) => {
+      const next = new Map(tb)
+      Object.entries(keys).forEach(([id, key]) => next.set(key, answer[id]))
+      return next
+    })
+    setProbe(out)
+    setStale(false)
+  }
+  const moveTo = (next) => {
+    setCell(next)
+    setOverrides({})
+    setProbe(null)
+    setStale(false)
+  }
+  const pickTest = (k) => {
+    setTi(k)
+    setSel(null)
+    setTable(new Map(bench.runs[k].table))
+    setTyped(new Set())
+    setCell(bench.runs[k].start)
+    setOverrides({})
+    setProbe(null)
+    setStale(false)
+  }
+  const reset = () => {
+    pickTest(ti)
+    setCirc(bench.circuit)
+    setXy(bench.xy)
+  }
 
-  const body = (node) => {
-    if (node.type === 'tap') {
-      const type = bench.V.taps[node.tap].type
-      return <div className="sg-body"><InputControl type={type} value={inputs[node.tap] ?? null} onChange={(v) => { setInputs((i) => ({ ...i, [node.tap]: v })); changed() }} /></div>
-    }
-    const value = valueOf(node.id)
-    const swaps = MERGES.includes(node.type) ? MERGES : []
-    return (
-      <div className="sg-body" title={node.type !== 'out' ? L(def(node.type).desc) : undefined}>
-        {node.type === 'const' && (
-          <label className="param" onPointerDown={stop}>
-            <span>{tr('数值', 'Value')}</span>
-            <select value={node.value ?? 1} onChange={(e) => setNode(node.id, { value: +e.target.value })}>
-              {(bench.s.consts || [0, 1, 2, 3, 4, 5]).map((v) => <option key={v} value={v}>{v}</option>)}
-            </select>
-          </label>
-        )}
-        {swaps.length > 0 && (
-          <label className="param" onPointerDown={stop}>
-            <span>{tr('型号', 'Model')}</span>
-            <select value={node.type} onChange={(e) => setNode(node.id, { kind: e.target.value })}>
-              {swaps.map((k) => <option key={k} value={k}>{L(def(k).tag)}</option>)}
-            </select>
-          </label>
-        )}
-        <output className={`sg-val ${value ? 'is-on' : ''}`}>{value || '—'}</output>
-      </div>
-    )
+  // The test board and the robot's window, drawn by the level's own world.
+  const boardHTML = sceneSVG({ ...V.scene(t, null, { ...o, bench: { cell, at: answerKeys, shown, reads, empty, typed, sel: null } }), look: robot.look }, { label: tr('测试棋盘', 'Test board'), ...(bench.L.boardOpt || { minScale: 0.5, maxScale: 1.1 }) })
+  const mark = (x) => ({ ...x, value: x.key !== null && shown.has(x.key) ? signal(shown.get(x.key)) : '', state: empty.has(x.key) ? 'empty' : reads.has(x.key) ? 'read' : '' })
+  const w = windowOf(V, t, cell, robot.vision, o)
+  w.wins = w.wins.map((x) => ({ ...x, cells: x.cells.map(mark) }))
+  if (w.arm && w.arm.cells) w.arm.cells = w.arm.cells.map(mark)
+  if (w.arm && w.arm.sweeps) w.arm.sweeps = w.arm.sweeps.map((x) => ({ ...x, cells: x.cells.map(mark) }))
+  if (w.arm && (s.noArm || !robot.arm)) w.arm = null
+  if (w.arm) w.arm.filter = o.filter
+  w.facts = (s.facts || []).map((id) => ({ id, value: signal(input(id)) }))
+  w.note = V.where(cell)
+  w.robot = robot
+  w.probe = probe ?? {}
+  const viewMarkup = viewHTML({ ...circ, lit: bench.lit }, { taps: V.taps, avail: bench.avail, lit: bench.lit, outs: V.outs, palette: s.palette, win: w, sideView: false })
+  const onBoard = (event) => {
+    const hit = event.target.closest('[data-cell]')
+    if (!hit) return
+    const next = V.cellOf(t, hit.dataset.cell, o)
+    if (next !== null && next !== undefined) moveTo(next)
   }
-  const wireState = (wire) => {
-    if (!probe || !(wire.from in probe)) return null
-    const v = probe[wire.from]
-    return v === null || v === false ? 'dead' : 'live'
-  }
-  const tests = bench.samples.map((_, k) => ({ label: { zh: `格子 ${k + 1}`, en: `Cell ${k + 1}` } }))
-  const common = {
-    tests,
-    test,
-    onTest: pickTest,
-    onRun: run,
-    onReset: reset,
-    state: stale ? 'stale' : probe ? 'ran' : 'idle',
-  }
+  const scene = (
+    <div className="sg-bench-scene">
+      <div className="sg-bench-board" onClick={onBoard} dangerouslySetInnerHTML={{ __html: boardHTML }} />
+      <div className="sg-bench-view"><div className="cview" dangerouslySetInnerHTML={{ __html: viewMarkup }} /></div>
+    </div>
+  )
+
+  const u = { taps: V.taps, avail: bench.lit, outs: V.outs }
+  const graph = toGraph({ ...circ, lit: bench.lit, xy }, u)
+  const parts = partsFor({ ...circ, lit: bench.lit }, u)
+  const valueOf = (id) => (probe && id in probe ? signal(probe[id]) : '')
+  const tests = bench.runs.map((r, k) => ({ label: (bench.L.testLabel || V.label)?.(r.t) ?? { zh: `测试 ${k + 1}`, en: `Test ${k + 1}` } }))
+  const common = { tests, test: ti, onTest: pickTest, onRun: run, onReset: reset, state: stale ? 'stale' : probe ? 'ran' : 'idle' }
+  const note = { zh: '点测试棋盘上的格子，让机器人站过去；输入卡片读的就是棋盘上的格子，改它就是改那一格。改好点运行，答案会写进红框。', en: 'Click a cell on the test board to send the robot there; an input card reads a cell of the board, so changing it changes that cell. Then run, and the answer goes into the red frame.' }
+
   if (!phone) {
+    const stop = (event) => event.stopPropagation()
+    const body = (node) => {
+      if (node.type === 'tap') return <div className="sg-body"><InputControl key={`${node.tap}-${ti}-${cell}`} type={V.taps[node.tap].type} value={inputs[node.tap] ?? null} onChange={(v) => setInput(node.tap, v)} /></div>
+      const value = valueOf(node.id)
+      return (
+        <div className="sg-body" title={node.type !== 'out' ? L(def(node.type).desc) : undefined}>
+          {node.type === 'const' && (
+            <label className="param" onPointerDown={stop}>
+              <span>{tr('数值', 'Value')}</span>
+              <select value={node.value ?? 1} onChange={(e) => setNode(node.id, { value: +e.target.value })}>
+                {(s.consts || [0, 1, 2, 3, 4, 5]).map((v) => <option key={v} value={v}>{v}</option>)}
+              </select>
+            </label>
+          )}
+          {MERGES.includes(node.type) && (
+            <label className="param" onPointerDown={stop}>
+              <span>{tr('型号', 'Model')}</span>
+              <select value={node.type} onChange={(e) => setNode(node.id, { kind: e.target.value })}>
+                {MERGES.map((k) => <option key={k} value={k}>{L(def(k).tag)}</option>)}
+              </select>
+            </label>
+          )}
+          <output className={`sg-val ${value ? 'is-on' : ''}`}>{value || '—'}</output>
+        </div>
+      )
+    }
+    // Cards may be moved about, but the circuit itself stays as it is.
+    const onChange = (next) => {
+      if (next.nodes.length === graph.nodes.length && JSON.stringify(next.wires) === JSON.stringify(graph.wires)) setXy(Object.fromEntries(next.nodes.map((n) => [n.id, [Math.round(n.x), Math.round(n.y)]])))
+    }
+    const wireState = (wire) => {
+      if (!probe || !(wire.from in probe)) return null
+      const v = probe[wire.from]
+      return v === null || v === false ? 'dead' : 'live'
+    }
     return (
-      <DemoBench {...common} height={bench.height} note={{ zh: '每个「格子」是这块电路板真跑一遍时，机器人在某一格看到的输入。改改输入、常数或汇合器的型号，再点运行，看每张卡片和答案怎么变。', en: 'Each “cell” is what the robot saw on one cell when this board really ran. Change an input, a constant or a merger’s model, then run, and watch every card and the answer change.' }}>
-        <CanvasEditor graph={graph} onChange={onChange} parts={parts} body={body} wireState={wireState} cardClass={(node) => (bench.focus.has(node.type) ? 'is-focus' : '')} width={176} height={120} />
+      <DemoBench {...common} height="auto" note={note}>
+        {scene}
+        <div className="sg-bench-canvas" style={{ height: bench.height }}>
+          <CanvasEditor graph={graph} onChange={onChange} parts={parts} body={body} wireState={wireState} cardClass={(node) => (bench.focus.has(node.type) ? 'is-focus' : '')} width={176} height={120} refit />
+        </div>
       </DemoBench>
     )
   }
@@ -218,12 +293,12 @@ export default function PartDemo({ partKey, phone }) {
     <div className="demo-choices">{options.map(([v, label]) => <button key={String(v)} type="button" aria-pressed={v === value} onClick={() => pick(v)}>{label}</button>)}</div>
   )
   const panel = !node ? (
-    <p className="panel-note">{tr('点一块，在这里改它：输入的数、常数，或汇合器的型号。改好点运行。', 'Tap a block to change it here: an input, a constant or a merger’s model. Then run.')}</p>
+    <p className="panel-note">{tr('点一块，在这里改它：输入、常数，或汇合器的型号。点棋盘上的格子换机器人的位置。', 'Tap a block to change it here: an input, a constant or a merger’s model. Tap a cell on the board to move the robot.')}</p>
   ) : (
     <>
       <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'tap' ? tr('输入', 'Input') : node.type === 'out' ? tr('答案', 'Answer') : L(def(node.type).tag ?? '')}</small></div>
-      {node.type === 'tap' && <InputControl key={`${sel}-${test}`} type={bench.V.taps[node.tap].type} value={inputs[node.tap] ?? null} onChange={(v) => { setInputs((i) => ({ ...i, [node.tap]: v })); changed() }} />}
-      {node.type === 'const' && choices((bench.s.consts || [0, 1, 2, 3, 4, 5]).map((v) => [v, String(v)]), node.value ?? 1, (v) => setNode(node.id, { value: v }))}
+      {node.type === 'tap' && <InputControl key={`${sel}-${ti}-${cell}`} type={V.taps[node.tap].type} value={inputs[node.tap] ?? null} onChange={(v) => setInput(node.tap, v)} />}
+      {node.type === 'const' && choices((s.consts || [0, 1, 2, 3, 4, 5]).map((v) => [v, String(v)]), node.value ?? 1, (v) => setNode(node.id, { value: v }))}
       {MERGES.includes(node.type) && choices(MERGES.map((k) => [k, L(def(k).tag)]), node.type, (k) => setNode(node.id, { kind: k }))}
       {node.type !== 'tap' && node.type !== 'out' && <p className="panel-note">{L(def(node.type).desc)}</p>}
       {node.type !== 'tap' && <p className="panel-note">{probe ? tr(`上次运行：${valueOf(node.id) || '—'}`, `Last run: ${valueOf(node.id) || '—'}`) : tr('还没运行。', 'Not run yet.')}</p>}
@@ -231,6 +306,7 @@ export default function PartDemo({ partKey, phone }) {
   )
   return (
     <DemoBench {...common} height="auto" panel={panel}>
+      {scene}
       <SlotBoard
         graph={graph}
         parts={parts}

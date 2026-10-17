@@ -30,9 +30,10 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * @param caption(node) a fixed card's line under its title (what it carries)
  * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, width, height (for fitting), emptyNote, overlay
  * Windows floating over the board (FloatWindow, in `overlay`) are kept clear when fitting: the circuit goes between
- * them or below them, wherever it shows larger.
+ * them or below them, wherever it shows larger. With `refit` the circuit is fitted again whenever the board changes
+ * size (a bench in the parts box, whose panel can open narrow and then grow).
  */
-export default function CanvasEditor({ graph, onChange, parts, body, head, caption, cardClass, wireState, width = 140, height = 230, emptyNote, overlay }) {
+export default function CanvasEditor({ graph, onChange, parts, body, head, caption, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, refit = false }) {
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
@@ -83,12 +84,14 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   // Fit once the board first has a real size.
   const fitted = useRef(false)
   const fitRef = useRef(fit)
+  const refitRef = useRef(refit)
   useLayoutEffect(() => {
     fitRef.current = fit
+    refitRef.current = refit
   })
   useEffect(() => {
     const observer = new ResizeObserver(([entry]) => {
-      if (fitted.current || !entry.contentRect.width) return
+      if ((fitted.current && !refitRef.current) || !entry.contentRect.width) return
       fitted.current = true
       fitRef.current()
     })
