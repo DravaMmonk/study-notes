@@ -61,7 +61,7 @@ export const align = world(alignDef);
  */
 export const local = world({
   ...alignDef,
-  sensors: { ...alignDef.sensors, score: num(T('本格得分', 'cell score'), T('分', 'pts'), 'eq') },
+  sensors: { ...alignDef.sensors, score: num(T('本格得分', 'cell score'), T('分', 'pts'), 'star') },
   facts: ['same', 'score'],
   sense: (t, { i, j }, id) => { const same = !!(i && j && t.left[i - 1] === t.top[j - 1]); return id === 'same' ? same : same ? 2 : -1; },
   answerKeys: t => { const k = []; for (let i = 1; i <= t.left.length; i++) for (let j = 1; j <= t.top.length; j++) k.push(`${i},${j}`); return k; },

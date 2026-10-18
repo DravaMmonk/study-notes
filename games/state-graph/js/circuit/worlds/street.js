@@ -22,7 +22,7 @@ function robPlan(a) {
 const street = (rows, sensors, more = {}) => {
   const unit = more.unit || (j => tr(`${j}号`, `#${j}`)), long = j => (isEn() ? (more.long || (k => `house ${k}`))(j) : unit(j)), noun = more.noun || T('钱', 'money');
   const mid = Math.floor((rows.length - 1) / 2), V = world({
-    sensors: { ...sensors, money: num(...(more.money || [T('这家的钱', "this house's money"), T('钱', '$'), 'coin'])), ...(more.armSensor ? { seg: seg(...more.armSensor) } : {}) },
+    sensors: { ...sensors, money: num(...(more.money || [T('这家的钱', "this house's money"), T('钱', '$'), 'house'])), ...(more.armSensor ? { seg: seg(...more.armSensor) } : {}) },
     facts: ['money'],
     armSensors: more.armSensor ? ['seg'] : undefined,
     arm: more.arm,
@@ -79,7 +79,7 @@ export const prefix = street([['cell', T('到这家一共', 'total so far'), 0]]
  * Column 0 is a post shorter than all, holding 0, so a run can start anywhere. The arm sweeps every earlier cell.
  */
 export const heights = street([['cell', T('最长连几根', 'longest run'), 0]], { prev: cell(PREV, T('左格', 'prev'), [0, 0, -1]) }, {
-  money: [T('这一根的高度', "this post's height"), T('高', 'ht'), 'ground'], noun: T('高度', 'height'), top: T('每根的高度', 'height'),
+  money: [T('这一根的高度', "this post's height"), T('高', 'ht'), 'post'], noun: T('高度', 'height'), top: T('每根的高度', 'height'),
   unit: j => tr(`${j}号`, `#${j}`), long: j => `post ${j}`, label: t => tr(`${t.a.length} 根柱子`, `${t.a.length} posts`),
   armSensor: [T('前面每一格', 'every earlier cell'), T('扫', 'scan')],
   arm(t, { i }, o) {

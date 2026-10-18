@@ -11,7 +11,8 @@
 //   portLabel(node, port) → text   family(node) → string   icon(node) → Component
 //   refuse(graph, from, to, port) → null, or a { zh, en } reason the wire is not allowed
 //   removable?(node) → whether the player may take it off the board (default: a part)
-//   outputs?(node) → [{ key, label, short? }] a node with several outputs, or null for one
+//   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
+//                                          goes by its glyph (SVG markup) when it has one, else by its short name
 //   outputLayout?(node) → { row, wide } how those outputs sit on the desktop card (CanvasEditor)
 import { wouldCycle } from '../graph.js'
 
@@ -111,7 +112,7 @@ export function placement(graph, parts) {
     used.add(at)
   }
   const even = (n) => n + (n % 2)
-  const size = Math.max(4, even(Math.max(-1, ...used) + 1) + 2)
+  const size = even(Math.max(-1, ...used) + 1) + 2
   return { cell, size, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
 }
 

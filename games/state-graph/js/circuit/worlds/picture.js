@@ -34,7 +34,7 @@ export const shade = v => `color-mix(in srgb, var(--ink) ${Math.round(8 + v * 9)
 
 export const pic = world({
   ...gridDef,
-  sensors: { ul: gridDef.sensors.ul, up: gridDef.sensors.up, ur: gridDef.sensors.ur, left: gridDef.sensors.left, right: gridDef.sensors.right, dl: gridDef.sensors.dl, down: gridDef.sensors.down, dr: gridDef.sensors.dr, energy: num(T('本格能量', 'pixel energy'), T('能', 'E'), 'bolt'), top: yes(T('是顶行', 'is top row'), T('顶', 'top'), 'flag') },
+  sensors: { ul: gridDef.sensors.ul, up: gridDef.sensors.up, ur: gridDef.sensors.ur, left: gridDef.sensors.left, right: gridDef.sensors.right, dl: gridDef.sensors.dl, down: gridDef.sensors.down, dr: gridDef.sensors.dr, energy: num(T('本格能量', 'pixel energy'), T('能', 'E'), 'pixel'), top: yes(T('是顶行', 'is top row'), T('顶', 'top'), 'toprow') },
   facts: ['energy', 'top'],
   mark: (t, key) => { const [r, c] = key.split(',').map(Number); return { corner: energyOf(t)[r][c] }; },
   sense: (t, { r, c }, id) => (id === 'top' ? r === 0 : energyOf(t)[r][c]),

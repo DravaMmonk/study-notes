@@ -9,7 +9,7 @@ import { T } from '../i18n.js';
 export const ERAS = [
   {
     id: 'paper', machine: null,
-    foundation: ['light', 'merge', 'relay', 'trace', 'lastStep', 'city'],
+    foundation: ['trace', 'lastStep', 'city'],
     chapter: { title: T('格子与箭头', 'Cells and arrows'), desc: T('用小问题的答案，拼出大问题的答案。', 'Build the answer to a big problem out of the answers to small ones.') },
   },
   {
@@ -91,7 +91,7 @@ export const LABELS = new Map(ERAS.flatMap((era, e) => [
 ]));
 
 /** Levels the new tree leaves out: written, but not played. */
-export const RETIRED = ['swap', 'back', 'why', 'askall', 'memo2', 'selforder'];
+export const RETIRED = ['light', 'merge', 'relay', 'swap', 'back', 'why', 'askall', 'memo2', 'selforder'];
 
 /** The map's chapters, in play order: each era's foundation, its practice, then its topics; a challenge joins its
  *  anchor's chapter. */

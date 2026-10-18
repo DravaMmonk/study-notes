@@ -34,6 +34,10 @@
 /* One of a card's several outputs: its name (and what it carries) at the right edge, the dot past it. */
 .node-port-out { position: absolute; z-index: 1; right: 0; height: 20px; max-width: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding-right: 14px; font-family: var(--mono); font-size: 10px; color: var(--muted); white-space: nowrap; }
 .node-port-out .node-out-name { max-width: 34px; overflow: hidden; text-overflow: ellipsis; }
+/* An output that goes by its symbol (parts.outputs glyph). */
+.node-out-name.is-glyph, .pb-o em.is-glyph { display: inline-flex; line-height: 0; }
+.node-out-name.is-glyph svg { width: 24px; height: 16px; }
+.pb-o em.is-glyph svg { width: 27px; height: 18px; }
 .node-port-out.is-wide { left: 10px; justify-content: stretch; }
 .node-port-out.is-wide > :first-child { flex: 1; min-width: 0; }
 .port:hover { transform: scale(1.25); background: var(--accent); }

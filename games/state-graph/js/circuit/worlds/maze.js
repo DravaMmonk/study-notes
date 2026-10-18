@@ -152,7 +152,7 @@ const fromLayer = (rem, set, k) => keyLayers(rem).findIndex(s => s.length === se
 export const keysMaze = world({
   sensors: {
     up: cell(...DIR.up, [-1, 0]), left: cell(...DIR.left, [0, -1]),
-    start: yes(T('是起点', 'is start'), T('起', 'start'), 'flag'), gain: yes(T('捡到钥匙', 'picks up key'), T('捡', 'pick'), 'key'), lose: yes(T('路线被带走', 'routes move on'), T('走', 'gone'), 'key'), shut: yes(T('门关着', 'door shut'), T('关', 'shut'), 'door'),
+    start: yes(T('是起点', 'is start'), T('起', 'start'), 'flag'), gain: yes(T('捡到钥匙', 'picks up key'), T('捡', 'pick'), 'keyget'), lose: yes(T('路线被带走', 'routes move on'), T('走', 'gone'), 'carry'), shut: yes(T('门关着', 'door shut'), T('关', 'shut'), 'door'),
     upPrev: cell(T('那层·上面', 'that layer·up'), T('那↑', 'that↑')), leftPrev: cell(T('那层·左边', 'that layer·left'), T('那←', 'that←')),
   },
   facts: ['start', 'gain', 'lose', 'shut'],

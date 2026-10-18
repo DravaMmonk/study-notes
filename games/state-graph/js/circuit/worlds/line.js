@@ -52,13 +52,13 @@ export const strip = line({
 
 /** A pile of n stones; cell i holds whether the player to move, with i stones left, wins. */
 export const pile = line({
-  cellType: 'bool', noun: i => tr(`剩 ${i} 颗`, `${i} left`), out: T('轮到的人赢吗', 'does the mover win'), ground: [T('一颗不剩', 'none left'), T('空', '0'), 'ground'], label: t => tr(`${t.n} 颗石子`, `${t.n} stones`), orderText: T('从一颗不剩开始，一颗一颗往上', 'from none left, one stone at a time upward'),
+  cellType: 'bool', noun: i => tr(`剩 ${i} 颗`, `${i} left`), out: T('轮到的人赢吗', 'does the mover win'), ground: [T('一颗不剩', 'none left'), T('空', '0'), 'empty'], label: t => tr(`${t.n} 颗石子`, `${t.n} stones`), orderText: T('从一颗不剩开始，一颗一颗往上', 'from none left, one stone at a time upward'),
   near: { m2: [T('拿走 2 颗后', 'after taking 2'), '−2'], m1: [T('拿走 1 颗后', 'after taking 1'), '−1'], p1: [T('多 1 颗', 'one more'), '+1'] },
 });
 
 /** Paying i yuan: the arm steps back by every coin at once. */
 export const coins = line({
-  noun: i => tr(`${i} 元`, `${i} yuan`), out: THIS_CELL, ground: [T('是 0 元', 'is 0 yuan'), T('零', '0'), 'coin'], label: t => tr(`${t.n} 元 · 硬币 ${t.coins.join('、')}`, `${t.n} yuan · coins ${t.coins.join(', ')}`), orderText: T('从 0 元往上', 'from 0 yuan upward'),
+  noun: i => tr(`${i} 元`, `${i} yuan`), out: THIS_CELL, ground: [T('是 0 元', 'is 0 yuan'), T('零', '0'), 'zero'], label: t => tr(`${t.n} 元 · 硬币 ${t.coins.join('、')}`, `${t.n} yuan · coins ${t.coins.join(', ')}`), orderText: T('从 0 元往上', 'from 0 yuan upward'),
   near: { m2: [T('少 2 元', '2 yuan less'), '−2'], m1: [T('少 1 元', '1 yuan less'), '−1'], p1: [T('多 1 元', '1 yuan more'), '+1'] },
   armSensor: [T('退一枚硬币之后', 'one coin back'), T('退', 'back')],
   arm: (t, { i }) => ({ label: tr('每种硬币各退一枚', 'one coin of each kind back'), sweeps: [{ sensor: 'seg', label: tr('付掉一枚硬币之前', 'before paying one coin'), cells: t.coins.map(c => ({ key: i - c >= 0 ? String(i - c) : null, label: `−${c}` })) }] }),

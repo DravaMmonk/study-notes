@@ -6,6 +6,9 @@ import ModeScreen from './screen.jsx'
 import Hero from './hero.jsx'
 import { sceneSVG } from './svg.js'
 import PartDemo from './circuit/PartDemo.jsx'
+import { lookIcon } from './circuit/looks.js'
+import { ROBOTS } from './circuit/robots.js'
+import { ERAS } from './levels/eras.js'
 
 // 状态之图 as content on the shared game shell (games/kit/shell): its chapters and levels, the pictures in its
 // 引入, its parts and encyclopedia, and the screen that plays every level through its mode (js/modes).
@@ -41,12 +44,23 @@ function IntroFigure({ fig }) {
   return <div className="fig" dangerouslySetInnerHTML={{ __html: sceneSVG(fig, { pad: 12, maxScale: 1.3 }) }} />
 }
 
+// The components box by robot: a robot can use every part earned in its era and the eras before it (parts carry over,
+// games/DESIGN.md 2.1). It joins the box once the first level of its era is passed.
+const eraOf = new Map(ERAS.flatMap((era, e) => [...era.foundation, ...(era.practice ?? []), ...(era.topics ?? []).flatMap((t) => t.levels), ...(era.challenges ?? []).map((c) => c.level)].map((id) => [id, e])))
+const robotFilters = (progress) => ERAS.flatMap((era, e) => {
+  if (!era.machine) return []
+  const first = era.foundation[0]
+  const keys = new Set(LEVELS.filter((L) => L.unlock && eraOf.get(L.id) <= e).map((L) => L.unlock))
+  const robot = ROBOTS[era.machine]
+  return [{ key: era.machine, name: robot.name, icon: robot.look, keys, lock: progress.all || progress.solved.includes(first) ? null : LABELS.get(first) }]
+})
+
 export default defineGame({
   id: 'state-graph',
   glossary: { groups: GLOSSARY_GROUPS, entries: GLOSSARY },
   title: { zh: '状态之图', en: 'State Graph' },
   kicker: { zh: '从零开始的动态规划解谜', en: 'Dynamic programming puzzles, from scratch' },
-  lede: { zh: `不需要任何编程或算法基础。你只会拿到两种零件：格子和箭头。${LEVELS.length} 关里，你会用元件亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。`, en: `No programming or algorithms background needed. You get just two kinds of pieces: cells and arrows. Over ${LEVELS.length} levels you wire up, part by part, the circuit boards that count routes, compare words and pack a backpack, and find out why they are so fast.` },
+  lede: { zh: `不需要任何编程或算法基础。从手数路线开始，${LEVELS.length} 关里，你会用元件亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。`, en: `No programming or algorithms background needed. Starting from counting routes by hand, over ${LEVELS.length} levels you wire up, part by part, the circuit boards that count routes, compare words and pack a backpack, and find out why they are so fast.` },
   Hero,
   html: true,
   chapters: CHAPTERS.map((chapter, id) => ({ id, number: id + 1, title: chapter.name, question: chapter.desc })),
@@ -63,9 +77,10 @@ export default defineGame({
   unlocked: (level) => level.unlocks.map((k) => ({ label: PARTS[k].name })),
   parts: {
     // Only parts a level that is played unlocks (a retired level's card would never be earned).
-    all: Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, name: part.name, desc: part.desc })),
+    all: Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, name: part.name, desc: part.desc, icon: lookIcon(key) })),
     earned: (progress) => progress.flags,
     // The part on a bench: its level's board, with inputs, constants and models to change and a Run button.
     demo: (part, { phone }) => <PartDemo key={part.key} partKey={part.key} phone={phone} />,
+    filters: robotFilters,
   },
 })

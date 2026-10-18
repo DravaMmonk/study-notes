@@ -102,7 +102,7 @@ export const piles = world({
  */
 export const tri = world({
   ...gridDef,
-  sensors: { up: cell(...DIR.up, [-1, 0]), ul: cell(...DIR.ul, [-1, -1]), start: yes(T('是顶上那块', 'is the top brick'), T('顶', 'top'), 'flag') },
+  sensors: { up: cell(...DIR.up, [-1, 0]), ul: cell(...DIR.ul, [-1, -1]), start: yes(T('是顶上那块', 'is the top brick'), T('顶', 'top'), 'apex') },
   facts: ['start'],
   keyAt: (t, r, c) => (r >= 0 && r < t.R && c >= 0 && c <= r ? `${r},${c}` : null),
   mark: () => ({ corner: '' }),
@@ -133,7 +133,7 @@ export const tri = world({
  */
 export const lawn = world({
   ...gridDef,
-  sensors: { ul: cell(...DIR.ul, [-1, -1]), up: cell(...DIR.up, [-1, 0]), left: cell(...DIR.left, [0, -1]), open: yes(T('是空地', 'is open ground'), T('空', 'open'), 'ground') },
+  sensors: { ul: cell(...DIR.ul, [-1, -1]), up: cell(...DIR.up, [-1, 0]), left: cell(...DIR.left, [0, -1]), open: yes(T('是空地', 'is open ground'), T('空', 'open'), 'grass') },
   facts: ['open'],
   keyAt: (t, r, c) => (r >= 0 && r <= t.R && c >= 0 && c <= t.C ? `${r},${c}` : null),
   mark: (t, key) => { const [r, c] = key.split(',').map(Number); return { corner: '', cls: (t.trees || []).some(p => p[0] === r && p[1] === c) ? 'rock' : '' }; },

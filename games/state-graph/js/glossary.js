@@ -139,7 +139,7 @@ export const GLOSSARY = [
 
   /* ---------- 基本概念 ---------- */
   {
-    id: 'dag', group: 'basics', title: { zh: '依赖图', en: 'Dependency graph' }, at: 'relay',
+    id: 'dag', group: 'basics', title: { zh: '依赖图', en: 'Dependency graph' }, at: 'lastStep',
     body: [
       { zh: '把每个格子看成一个小问题，把箭头看成「这个问题要用到那个答案」，就得到一张<b>依赖图</b>。箭头起点的格子，总要比终点的格子先算。', en: 'Think of each cell as a small question and each arrow as “this question needs that answer”, and you have a <b>dependency graph</b>. The cell an arrow starts from must always be worked out before the cell it ends at.' },
       { zh: '这张图不能有圈：A 等着 B，B 又等着 A，谁也算不出来。箭头有方向、又绕不成圈的图，叫<b>有向无环图</b>（DAG）。', en: 'The graph must have no loops: if A waits for B while B waits for A, neither can ever be worked out. A graph whose arrows have a direction and never loop round is called a <b>directed acyclic graph</b> (DAG).' },

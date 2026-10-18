@@ -18,8 +18,8 @@ export const aTag = g => `${/^[aeiou]/.test(String(TAG[g].n)) ? 'an' : 'a'} ${TA
 export const tags = world({
   sensors: {
     ...Object.fromEntries(TAGS.map(g => [`p${g}`, cell(lazy(() => tr(`前词是${TAG[g].n}`, `previous word as ${aTag(g)}`)), lazy(() => tr(`前${TAG[g].s}`, `prev ${TAG[g].s}`)))])),
-    ...Object.fromEntries(TAGS.map(g => [`t${g}`, num(lazy(() => tr(`跟在${TAG[g].n}后`, `after ${aTag(g)}`)), lazy(() => tr(`跟${TAG[g].s}`, `${TAG[g].s}→`)), 'bolt')])),
-    emit: num(T('这个词这么标', 'this word, this tag'), T('标', 'tag'), 'gem'),
+    ...Object.fromEntries(TAGS.map(g => [`t${g}`, num(lazy(() => tr(`跟在${TAG[g].n}后`, `after ${aTag(g)}`)), lazy(() => tr(`跟${TAG[g].s}`, `${TAG[g].s}→`)), `after${g}`)])),
+    emit: num(T('这个词这么标', 'this word, this tag'), T('标', 'tag'), 'tag'),
   },
   facts: ['tN', 'tV', 'tA', 'emit'],
   armSensors: TAGS.map(g => `p${g}`),

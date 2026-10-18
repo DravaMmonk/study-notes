@@ -2,8 +2,12 @@
    map, the rail, the workbench and brief, dialogs, the 引入 sheet, bottom sheets and the phone page. A game's own
    stylesheet adds only what its levels draw. */
 .game { min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--bar-h) minmax(0, 1fr); color: var(--ink); background: var(--canvas); font-family: var(--sans); }
-.game.is-playing { height: 100dvh; overflow: hidden; }
+/* A level fills the window exactly: pinned to it rather than sized in vh, which iOS Safari can leave stale after a
+   zoom or the keyboard (the page then ends short of the screen). The panels below fill what is left under the bar. */
+.game.is-playing { position: fixed; inset: 0; overflow: hidden; }
 .game :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* iOS Safari zooms into a field whose text is under 16px when it is tapped, and the page can stay zoomed. */
+@media (pointer: coarse) { input, select, textarea { font-size: max(16px, 1em); } }
 
 /* ---- top bar: the kit's .kit-bar (games/kit/ui.css); only the level title is the game's own ---- */
 .game-brand { white-space: nowrap; }
@@ -82,7 +86,7 @@
 .level-shell { position: relative; min-width: 0; min-height: 0; display: flex; }
 .level-shell > .level, .level-shell > .level-phone { flex: 1; min-width: 0; }
 .level-shell.has-rail .level { grid-template-columns: 264px minmax(0, 1fr) 360px; }
-.level-rail { flex: none; width: 236px; height: calc(100dvh - var(--bar-h)); display: flex; flex-direction: column; border-right: 1px solid var(--hairline); background: var(--canvas); animation: rail-in 200ms ease; }
+.level-rail { flex: none; width: 236px; min-height: 0; display: flex; flex-direction: column; border-right: 1px solid var(--hairline); background: var(--canvas); animation: rail-in 200ms ease; }
 .level-rail.is-overlay { position: fixed; z-index: 46; top: var(--bar-h); left: 0; bottom: 0; height: auto; width: min(300px, 86vw); background: var(--paper); box-shadow: 0 20px 50px -20px rgba(0, 0, 0, .5); }
 @keyframes rail-in { from { opacity: 0; transform: translateX(-12px); } }
 .rail-scrim { position: fixed; z-index: 45; inset: var(--bar-h) 0 0; background: var(--scrim); animation: fade-in 160ms ease; }
@@ -115,7 +119,7 @@
 .rail-kind { color: var(--faint); }
 .rail-toggle.is-on { color: var(--ink); background: var(--hover); }
 /* Workbench: brief | stage | side (side optional). */
-.level { height: calc(100dvh - var(--bar-h)); min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
+.level { min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
 .level.has-side { grid-template-columns: 280px minmax(0, 1fr) 400px; }
 .level-shell.has-rail .level { grid-template-columns: 280px minmax(0, 1fr); }
 .level-shell.has-rail .level.has-side { grid-template-columns: 264px minmax(0, 1fr) 360px; }
@@ -224,7 +228,7 @@
 }
 
 /* ---- Phone: one scrolling page per level (task, pinned tests, the circuit as a list of steps) ---- */
-.level-phone { height: calc(100dvh - var(--bar-h)); overflow-y: auto; overscroll-behavior: contain; background: var(--canvas); padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+.level-phone { min-height: 0; overflow-y: auto; overscroll-behavior: contain; background: var(--canvas); padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
 .pl-brief { padding: 12px 12px 0; }
 /* The task card (Layout.jsx TaskCard), the same in every game on a phone: 任务, folding away to the level. */
 .task-card { border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }

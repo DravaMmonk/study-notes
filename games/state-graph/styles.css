@@ -570,15 +570,22 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-cardview { --vc: 34px; width: 100%; display: grid; justify-items: center; gap: 6px; line-height: 1.25; }
 .sg-cardview .varm-row { gap: 22px; }
 .sg-slots .pb-terms.is-sources > .pb-term:has(.sg-cardview) { display: flex; flex-direction: column; align-items: center; }
-.sg-slots .pb-term:has(.sg-cardview) > .pb-thumb { width: 100%; }
+/* What a card reads takes the card's spare height, so its name sits at the bottom, level with its neighbour's. */
+.sg-slots .pb-term:has(.sg-cardview) > .pb-thumb { width: 100%; flex: 1 0 auto; }
 /* The card's dots stay on its bottom edge when its neighbour is taller. */
 .sg-slots .pb-term:has(.sg-cardview) > .pb-out.is-many { margin-top: auto; }
 .sg-cardview .vpart { width: 100%; }
 .sg-cardview .vwins { display: flex; justify-content: center; }
-.sg-cardview .vwin { --vc: 42px; }
-.sg-cardview .vwin.n5 { --vc: 26px; }
-.sg-cardview .vfacts { display: grid; gap: 4px; justify-items: stretch; }
-.sg-cardview .vfact { min-height: 26px; padding: 2px 8px; gap: 5px; font-size: 12px; border-width: 1.2px; border-radius: 8px; }
+/* The window fills its card's width (the card is a size container): 3×3 up to 56px a cell, 5×5 edge to edge. */
+.sg-cardview[data-cardview=view] { container-type: inline-size; }
+.sg-cardview .vwin { --vc: min(56px, calc((100cqi - 6px) / 3)); }
+.sg-cardview .vwin.n5 { --vc: calc((100cqi - 8px) / 5); }
+/* The facts fill the height the row gives their card (its neighbour's, or room for three) and scroll past it: they
+   never make the row taller. */
+.sg-slots .pb-term:has([data-cardview=facts]) > .pb-thumb { flex: 1 1 0; min-height: 118px; contain: size; }
+.sg-cardview[data-cardview=facts] { height: 100%; }
+.sg-cardview .vfacts { display: grid; gap: 5px; justify-items: stretch; align-content: start; height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 1px; }
+.sg-cardview .vfact { min-height: 34px; padding: 6px 8px; gap: 5px; font-size: 12px; border-width: 1.2px; border-radius: 8px; }
 .sg-cardview .vfact .vv { font-size: 12px; }
 .sg-cardview .vfact .tag { display: none; }
 .sg-cardview .vsub { font-size: 10px; }
@@ -649,7 +656,7 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .rgrid{--rs:18px;display:grid;grid-template-columns:repeat(var(--rn),var(--rs));grid-auto-rows:var(--rs);gap:4px;justify-content:center;padding:4px 0}
 .rgrid[style*="--rn: 5"],.rgrid[style*="--rn:5"]{--rs:14px;gap:3px}
 .rcell{width:var(--rs);height:var(--rs);padding:0;border:1.5px solid var(--ink-3);border-radius:4px;background:color-mix(in srgb,var(--ink) 10%,transparent);cursor:pointer}
-.rcell:hover:not(:disabled){border-color:var(--cyan)}
+@media (hover: hover){.rcell:hover:not(:disabled){border-color:var(--cyan)}}
 .rcell.on{border:2px solid var(--cyan);background:color-mix(in srgb,var(--cyan) 45%,transparent)}
 .rcell.self{border-color:var(--bad)}
 .rcell:disabled{cursor:default;border-style:dashed;background:transparent;opacity:.55}
@@ -658,7 +665,7 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 /* What 视野's arm reaches, under its box: tick the ones it reads (each an output). */
 .fpicks{display:flex;flex-direction:column;align-items:flex-start;gap:3px;max-width:150px}
 .fpick{padding:2px 7px;border-radius:7px;border:1px dashed var(--ink-3);background:none;color:var(--ink-2);font:600 10.5px/1.25 var(--f-body);text-align:left;cursor:pointer}
-.fpick:hover{border-color:var(--cyan)}
+@media (hover: hover){.fpick:hover{border-color:var(--cyan)}}
 .fpick.on{border:1.5px solid var(--cyan);background:color-mix(in srgb,var(--cyan) 18%,transparent);color:var(--ink)}
 /* A reader's card: what it reads on the left, its outputs (at most three) down the right edge beside it. */
 .sg-body.is-reader{align-items:stretch}
@@ -686,5 +693,6 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 button.vcell, button.vfact, button.vsweep { font: inherit; color: inherit; cursor: pointer; }
 button.vcell { padding: 0; }
 button.vfact { background: none; text-align: left; }
-button.vcell.can:hover, button.vfact:hover, button.vsweep:hover { border-color: var(--cyan); }
+/* Only a real pointer hovers: on a touch screen a tapped cell would keep the hover frame after it is let go. */
+@media (hover: hover) { button.vcell.can:hover, button.vfact:hover, button.vsweep:hover { border-color: var(--cyan); } }
 button.vcell:focus-visible, button.vfact:focus-visible, button.vsweep:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }

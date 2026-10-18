@@ -10,6 +10,7 @@
 import { connect as linkPorts, litOf, placement as slotsOf } from './editor.js';
 import { def, isInput, srcType, picksOf, splitSrc } from './components.js';
 import { lookIcon } from './looks.js';
+import { ICONS } from './glyphs.js';
 
 const HUES = 6; // colours are theme tokens: --w0…--w5 for readers and sensors, --n0…--n5 for components
 const isTerm = (n) => n.type === 'tap' || n.type === 'out';
@@ -57,10 +58,11 @@ function pickedSrc(circ, from) {
   return n && isInput(n.kind) && picksOf(n).length ? `${from}#${picksOf(n)[0]}` : from;
 }
 
-/** A reader's outputs, one per sensor it reads, by the sensor's name. */
+/** A reader's outputs, one per sensor it reads, by the sensor's name; a fact goes by its symbol (glyphs.js). */
 export function outputsOf(node, sensors) {
   if (!isInput(node.type)) return null;
-  return picksOf({ kind: node.type, value: node.value }).map((p) => ({ key: p, label: sensors[p]?.label ?? p, short: String(sensors[p]?.short ?? p) }));
+  const glyph = (m) => (m?.family === 'here' && ICONS[m.icon] ? `<svg class="glyph" viewBox="0 0 48 32" aria-hidden="true">${ICONS[m.icon]}</svg>` : undefined);
+  return picksOf({ kind: node.type, value: node.value }).map((p) => ({ key: p, label: sensors[p]?.label ?? p, short: String(sensors[p]?.short ?? p), glyph: glyph(sensors[p]) }));
 }
 
 /** The editor's graph back as the engine's circuit; sensors wired straight in (a bench's) stay as they were. */
