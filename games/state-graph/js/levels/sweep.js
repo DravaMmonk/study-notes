@@ -5,7 +5,6 @@ import { circ, usesSensor } from '../circuit/components.js';
 import { T, tr } from '../i18n.js';
 
 const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
-const YESNO = ['many', 'not', 'pass', 'block', 'const'];
 const row = (n, val = () => '', cls = () => '') => Array.from({ length: n }, (_, i) => ({ id: `r${i}`, x: i * 60, y: 0, w: 50, h: 50, corner: i, value: val(i), cls: cls(i) }));
 const letters = s => [...s].map((ch, k) => ({ id: `c${k}`, x: k * 46, y: 0, w: 38, h: 38, value: ch, cls: 'tile' }));
 
@@ -77,21 +76,21 @@ export const sweep = [
     debrief: { title: T('硬币问题', 'The coin problem'), body: [T('扫描臂按每种硬币各退一步，因为最后一枚可能是任何一种。求最少几枚，取较小再 + 1；数付法，就加起来。', 'The sweep arm steps back by each kind of coin, because the last coin can be any kind. For the fewest coins, take the min and + 1; to count the ways to pay, add them up.'), T('看看第二个问题的答案：1 + 2 和 2 + 1 被算成了两种。表只记「凑到了几元」，不记用过哪些硬币，所以<b>先付哪一枚</b>就算不同的付法。只想数组合的话，得一种硬币一种硬币地加进来，就像「背包表」那一关。', 'Look at the answers to the second question: 1 + 2 and 2 + 1 were counted as two ways. The table records only “how much has been made”, not which coins were used, so <b>the order you pay in</b> makes a different way. To count combinations only, you would have to bring the coins in one kind at a time, like the “Knapsack table” level.')], note: T('凑零钱：最后一枚可能是任何一种硬币，来路就是每种硬币各退一步。', 'Making change: the last coin can be any kind, so the ways in are one step back by each kind of coin.') },
   },
   {
-    id: 'wordbreak', ch: 11, title: T('切单词', 'Breaking words'), short: T('挑出刚好是一个词的', 'Keep only the pieces that are words'), mode: 'circuit', robot: 'broom',
+    id: 'wordbreak', ch: 11, title: T('最少切几块', 'The fewest pieces'), short: T('每一块都得是词', 'Every piece must be a word'), mode: 'circuit', robot: 'broom',
     intro: [
-      { t: T('一串字母没有空格，比如 catsanddog。它能不能切成词典里的词？', 'A string of letters with no spaces, such as catsanddog. Can it be split into dictionary words?'), fig: { cells: letters('catsanddog'), edges: [] } },
-      { t: T('格子 i 记：<b>前 i 个字母能不能切开</b>。第 0 格是开头，一个字母都没有，当然能。', 'Cell i records: <b>can the first i letters be split into words?</b> Cell 0 is the start, with no letters at all, so of course it can.') },
-      { t: T('只看最后一个词：它从前面某个位置开始，到这里结束。只要那个位置<b>能切开</b>，而且那一截<b>刚好是一个词</b>，这里就能切开。', 'Look only at the last word: it starts at some earlier position and ends here. If that position <b>can be split</b>, and the piece from there <b>is exactly a word</b>, then this position can be split.') },
-      { t: T('扫描臂会扫过前面每个位置，视野里标出每一截是什么。它的筛选只留下「从那里到这里刚好是一个词」的位置。', 'The sweep arm sweeps every earlier position, and the view labels what each piece is. Its filter keeps only the positions where “the piece from there to here is exactly a word”.') },
+      { t: T('一串字母没有空格，比如 catsanddog。把它切成词典里的词，<b>最少切成几块</b>？', 'A string of letters with no spaces, such as catsanddog. Cut it into dictionary words: <b>how few pieces will do</b>?'), fig: { cells: letters('catsanddog'), edges: [] } },
+      { t: T('格子 i 记：<b>前 i 个字母最少切成几块</b>。第 0 格是开头，一个字母都没有，0 块。', 'Cell i records: <b>the fewest pieces the first i letters can be cut into</b>. Cell 0 is the start, with no letters at all: 0 pieces.') },
+      { t: T('只看最后一块：它从前面某个切点开始，到这里结束。扫描臂扫过前面每个切点，一次送来<b>两段</b>：切点那里的格子，和从那里到这里那一块的代价。这一关，那一块是词就算 1，不是词就是「—」。', 'Look only at the last piece: it starts at some earlier cut and ends here. The sweep arm sweeps every earlier cut and brings <b>two runs</b> at once: the cell at each cut, and what the piece from there to here costs. In this level a piece that is a word costs 1, and one that isn’t is “—”.') },
     ],
-    mission: { goal: T('判断每串字母能不能切成词典里的词。', 'Decide whether each string of letters can be split into dictionary words.'), how: T('这一关会检查整行。词典写在测试旁边；扫描臂只送来刚好是一个词的那几截，别的是暗的。', 'This level checks the whole row. The dictionary is shown next to the tests; the sweep arm only brings in the pieces that are exactly a word, and dims the rest.') },
-    world: 'words', facts: ['ground'], palette: YESNO, checkAll: true, solutionFilter: 'word',
-    tests: [{ s: 'catsanddog', dict: ['cat', 'cats', 'and', 'sand', 'dog'] }, { s: 'penpineapple', dict: ['pen', 'pine', 'apple', 'pineapple'] }, { s: 'catsandog', dict: ['cat', 'cats', 'and', 'sand', 'dog'] }],
+    mission: { goal: T('算出每串字母最少切成几块词典里的词。', 'Work out the fewest dictionary words each string can be cut into.'), how: T('词典写在测试旁边。', 'The dictionary is shown next to the tests.') },
+    world: 'pieces', facts: ['ground'], palette: KIT,
+    tests: [{ s: 'catsanddog', dict: ['cat', 'cats', 'and', 'sand', 'dog'] }, { s: 'penpineapple', dict: ['pen', 'pine', 'apple', 'pineapple'] }, { s: 'wordbreaking', dict: ['word', 'break', 'breaking', 'wordbreak', 'king', 'in', 'g'] }],
     testLabel: t => t.s,
-    after: t => `<div class="afterbox"><span class="eyebrow">${tr('词典', 'Dictionary')}</span><div class="diff">${t.dict.map(w => `<span class="dt">${w}</span>`).join('')}</div></div>`,
-    solution: circ([['m', 'many']], ['tap:seg>m:0', 'tap:ground>m:1', 'm>out:cell']),
-    hints: [T('扫描臂留下的位置，从那里到这里刚好是个词：点扫描臂读它。', 'Every position the sweep arm keeps is one where the piece from there to here is exactly a word: click the sweep arm to read it.'), T('留下的位置里只要有一个能切开，这里就能切开：接「任一是」。开头本身能切开，「是开头」也接进去。', 'If any of the positions left can be split, so can this one: wire them into “any yes”. The start itself can be split, so wire “is start” in too.')],
+    after: t => `<div class="afterbox"><span class="eyebrow">${tr('词典', 'Dictionary')}</span><div class="diff">${(Array.isArray(t.dict) ? t.dict : Object.keys(t.dict)).map(w => `<span class="dt">${w}${Array.isArray(t.dict) ? '' : ` · ${t.dict[w]}`}</span>`).join('')}</div></div>`,
+    solution: circ([['a', 'add'], ['m', 'mmin'], ['z', 'const', 0], ['g', 'pass']], ['tap:seg>a:0', 'tap:cost>a:1', 'a>m:0', 'tap:ground>g:0', 'z>g:1', 'g>m:1', 'm>out:cell']),
+    hints: [T('每个切点：那里最少几块 + 这一块。加法器会把两段一项一项相加。', 'At every cut: the fewest pieces up to there + this piece. An Adder adds two runs up item by item.'), T('在所有切点里取较小。开头是 0 块：「是开头」放过一个 0。', 'Take the smallest over all the cuts. The start is 0 pieces: let a 0 through with “is start”.')],
+    diagnose: c => (!usesSensor(c, 'cost') ? tr('扫描臂的第二段是每一块的代价：不是词的那一块是「—」，加法器会把它跳过。', 'The arm’s second run is each piece’s cost: a piece that isn’t a word is “—”, and the Adder drops it.') : null),
     unlock: 'wordbreak',
-    debrief: { title: T('切词', 'Word breaking'), body: [T('搜索引擎遇到 bestbuy、输入法遇到一串没打空格的拼音，都要先切词。', 'A search engine that meets bestbuy, or a Chinese input method given a run of pinyin with no spaces, has to break it into words first.'), T('这一章的来路越来越自由：一整段、一个筛选条件、数量随数据变化。<b>只要来路都在前面、都已经算好，表就照样能填。</b>', 'In this chapter the ways in grew ever freer: a whole run, a filter, a number that changes with the data. <b>As long as every way in lies earlier and is already computed, the table can still be filled.</b>')], note: T('切词：前面某个位置能切开，那一截又刚好是个词，这里就能切开。', 'Word breaking: if some earlier position can be split and the piece from there is exactly a word, this position can be split.') },
+    debrief: { title: T('切词', 'Word breaking'), body: [T('搜索引擎遇到 bestbuy、输入法遇到一串没打空格的拼音，都要先切词。', 'A search engine that meets bestbuy, or a Chinese input method given a run of pinyin with no spaces, has to break it into words first.'), T('每个切点都试一遍，取最省的那个：来路的数量随数据变化，表照样能填。', 'Try every cut and keep the cheapest: the number of ways in changes with the data, and the table fills all the same.')] },
   },
 ];

@@ -128,7 +128,7 @@ export const machines = [
       { t: T('把每一级台阶当成一个格子，排成一行。第 0 级是地面。', 'Treat each step as a cell and lay them out in a row. Step 0 is the ground.'), fig: { cells: Array.from({ length: 6 }, (_, i) => ({ id: `s${i}`, x: i * 60, y: 0, w: 50, h: 50, value: '', corner: i })), edges: [] } },
       { t: T('站到第 5 级的最后一步，要么是<b>从第 4 级迈 1 级</b>上来，要么是<b>从第 3 级迈 2 级</b>上来。', 'The last stride onto step 5 is either <b>1 step up from step 4</b>, or <b>2 steps up from step 3</b>.'), fig: { cells: Array.from({ length: 6 }, (_, i) => ({ id: `s${i}`, x: i * 60, y: 0, w: 50, h: 50, value: i === 5 ? '?' : '', corner: i, cls: i === 5 ? 'sel' : i >= 3 ? 'lit' : '' })), edges: [E('s4', 's5', 'hot'), E('s3', 's5', 'hot', -46)] } },
       { t: T('机器人这次在台阶这一排上走，从地面（第 0 级）开始，一级一级往右。可是前 2 级离它有两格远，<b>3×3 的视野看不到</b>。所以这一关，你的机器人升级成了 5×5 视野的「远望」。「本格信息」里的「是地面」只在第 0 级是「是」。', 'This time the robot walks along the row of steps, starting from the ground (step 0) and moving right one step at a time. But the step 2 below is two cells away, <b>out of reach of a 3×3 view</b>. So for this level your robot is upgraded to Farsight, with a 5×5 view. In the This cell panel, “is ground” is “yes” only on step 0.') },
-      { t: T('拼一块电路板吧。上一关你发现：零件只认结构，不认名字。爬楼梯的结构，你是不是在哪儿见过？', 'Build a board. Last level you found that parts care about structure, not names. Have you seen the structure of stair climbing somewhere before?') },
+      { t: T('拼一块电路板吧。小方那几关你已经发现：零件只认结构，不认名字。爬楼梯的结构，你是不是在哪儿见过？', 'Build a board. With Boxy you found that parts care about structure, not names. Have you seen the structure of stair climbing somewhere before?') },
     ],
     mission: { goal: T('每次只能迈 1 级或 2 级台阶，从地面（第 0 级）出发。算出爬到第 4、6、9 级各有几种走法。', 'Each stride goes up 1 or 2 steps, starting from the ground (step 0). Work out how many ways there are to reach steps 4, 6 and 9.'), how: T('机器人从第 0 级（地面）往上，一级一级地走。站在地面上，算 1 种走法。视野里，红框左边一格是前 1 级，左边两格是前 2 级。', 'The robot goes up from step 0 (the ground), one step at a time. Standing on the ground counts as 1 way. In the view, one cell left of the red frame is 1 step down, and two cells left is 2 steps down.') },
     world: 'strip', facts: ['ground'], palette: ['msum', 'const', 'pass', 'block', 'bp:stamp'],
@@ -139,7 +139,7 @@ export const machines = [
       T('地面要算 1 种走法：「是地面」接放行闸的条件口，常数 1 接数口。', 'The ground counts as 1 way: wire “is ground” into a Pass gate’s condition port and a Constant 1 into its number port.'),
       T('也可以直接用路线计数器：前 1 级接它的「上」，前 2 级接「左」，是地面接「起」。', 'You can also use the Route Counter directly: 1 step down into its “up”, 2 steps down into “left”, and is ground into “start”.'),
     ],
-    unlock: 'stairs',
+    unlock: 'stairs', blueprint: { ports: ['m1', 'm2', 'ground'], f: ([m1, m2, ground]) => partFn('msum')([m1, m2, ground ? 1 : null]) },
     debrief: { title: T('5 种、13 种、55 种', '5, 13 and 55 ways'), body: [T('如果你把路线计数器拿来用了，你会发现：<b>它根本不知道自己在数楼梯</b>，可它算对了。', 'If you used the Route Counter, you’ll have noticed: <b>it has no idea it is counting stairs</b>, and yet it got them right.'), T('城市路口和楼梯，表面上毫无关系，但它们的结构一样：每个格子的答案，都来自几个更早的格子，再加上一个起点。看出这种结构，是学会动态规划最关键的一步。', 'City crossings and staircases look completely unrelated, but they share a structure: every cell’s answer comes from a few earlier cells, plus a starting point. Learning to see that structure is the most important step in learning dynamic programming.')], note: T('爬楼梯：第 i 级 = 第 i − 1 级 + 第 i − 2 级，地面算 1 种。', 'Climbing stairs: step i = step i − 1 + step i − 2, with the ground counting as 1 way.') },
   },
   {

@@ -243,7 +243,8 @@ export function circuitMode(L, saved, { flags } = {}) {
   function win() {
     const { t, Vw, o, s, box, cell, shown } = here();
     const reads = s ? new Set(s.reads) : box.reads, isEmpty = key => (s ? s.empty === key : box.empty.has(key));
-    const mark = x => ({ ...x, value: x.key !== null && shown.has(x.key) ? signal(shown.get(x.key)) : '', state: isEmpty(x.key) ? 'empty' : reads.has(x.key) ? 'read' : '' });
+    // A swept cell shows what the table holds there, or (v) a value of its own, such as the cost of a piece.
+    const mark = x => ({ ...x, value: x.v !== undefined ? signal(x.v) : x.key !== null && shown.has(x.key) ? signal(shown.get(x.key)) : '', state: isEmpty(x.key) ? 'empty' : reads.has(x.key) ? 'read' : '' });
     const w = windowOf(Vw, t, cell, robot.vision, o);
     w.wins = w.wins.map(x => ({ ...x, cells: x.cells.map(mark) }));
     if (w.arm && w.arm.cells) w.arm.cells = w.arm.cells.map(mark);

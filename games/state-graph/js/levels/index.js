@@ -21,9 +21,14 @@ import { language } from './language.js';
 import { seams } from './seams.js';
 import { graduate } from './graduate.js';
 import { boxy } from './boxy.js';
+import { farsight } from './farsight.js';
+import { longarm } from './longarm.js';
+import { broom } from './broom.js';
+import { layercake } from './layercake.js';
+import { loopLevels } from './loop.js';
 import { tr, lazy } from '../i18n.js';
 import { layout } from '../../../kit/course.js';
-import { ERAS, SECTIONS, RETIRED, LABELS } from './eras.js';
+import { ERAS, CHAPTERS, RETIRED, LABELS } from './eras.js';
 
 export { PARTS } from './parts.js';
 /**
@@ -32,13 +37,13 @@ export { PARTS } from './parts.js';
  */
 const PLAN = layout(ERAS);
 // A level the new tree (CURRICULUM.md) leaves out stays written but is not played (RETIRED).
-const ALL = [...basics, ...machines, ...boxy, ...state, ...strings, ...knapsack, ...skeleton, ...sweep, ...orders, ...states, ...topdown, ...rounds, ...language, ...seams, ...graduate].filter(L => !RETIRED.includes(L.id));
+const ALL = [...basics, ...machines, ...boxy, ...farsight, ...longarm, ...broom, ...layercake, ...loopLevels, ...state, ...strings, ...knapsack, ...skeleton, ...sweep, ...orders, ...states, ...topdown, ...rounds, ...language, ...seams, ...graduate].filter(L => !RETIRED.includes(L.id));
 const byId = new Map(ALL.map(L => [L.id, L]));
 export const LEVELS = [...PLAN.order.map(id => byId.get(id)), ...ALL.filter(L => !PLAN.place.has(L.id))];
-LEVELS.forEach(L => { L.ch = Math.max(0, SECTIONS.findIndex(s => s.levels.includes(L.id))); });
+LEVELS.forEach(L => { L.ch = Math.max(0, CHAPTERS.findIndex(s => s.levels.includes(L.id))); });
 export const REQUIRES = PLAN.requires;
 export const PLACE = PLAN.place;
-export const CHAPTERS = SECTIONS;
+export { CHAPTERS };
 export { LABELS };
 
 /** A circuit level's board becomes a component for later levels: a black box (L.blueprint.f) on the level's ports. */

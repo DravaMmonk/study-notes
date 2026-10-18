@@ -14,7 +14,7 @@ const rim = (R, C) => [...Array.from({ length: C }, (_, c) => [R - 1, c]), ...Ar
 
 export const rounds = [
   {
-    id: 'loop', ch: 15, title: T('绕一圈', 'Going round'), short: T('一轮一轮地扫', 'Scan round after round'), mode: 'circuit', robot: 'scout',
+    id: 'loop', ch: 15, title: T('绕一圈', 'Going round'), short: T('一轮一轮地扫', 'Scan round after round'), mode: 'circuit', robot: 'loop',
     intro: [
       { t: T('前面所有的表都有一个默契：<b>箭头不会绕回来</b>。机器人按顺序扫一遍，读到的格子总是已经算好了。', 'Every table so far has shared one unspoken rule: <b>the arrows never loop back</b>. The robot scans once in order, and every cell it reads is already computed.') },
       { t: T('这座城市不一样：可以往<b>上下左右</b>四个方向走，每进入一个路口都要花它角上的体力。最省力的路线，可能要先往右，再往下，再<b>往左</b>绕回来。', 'This city is different: you can move in all four directions, <b>up, down, left and right</b>, and entering each crossing costs the energy in its corner. The cheapest route may go right, then down, then <b>left</b> to loop back.') },
@@ -29,15 +29,15 @@ export const rounds = [
     debrief: { title: T('扫到不再变', 'Scan until it settles'), body: [T('路线会绕回来时，没有哪个顺序能保证「读到的都已经算好」。办法是<b>一遍一遍地扫</b>：每扫一轮，答案离真相就近一步；哪一轮一格都没变，就是真相了。', 'When routes can loop back, no order can promise that “everything read is already computed”. The way out is to <b>scan again and again</b>: every round brings the answers a step closer to the truth, and once a round changes nothing, you have it.'), T('这叫 <b>Bellman-Ford</b> 算法。网络里的路由器彼此交换「到各处有多远」，就是用这种一轮一轮「放松」的办法找最短路。', 'This is the <b>Bellman-Ford</b> algorithm. Routers on a network tell each other “how far it is to everywhere”, and find shortest paths with exactly this round-by-round “relaxing”.')], note: T('有环时扫一遍不够：一轮一轮地扫，直到表不再变。', 'With loops, one scan isn’t enough: scan round after round until the table stops changing.') },
   },
   {
-    id: 'value', ch: 15, title: T('格子世界', 'Grid world'), short: T('站在这里有多好', 'How good is it to stand here'), mode: 'circuit', robot: 'scout',
+    id: 'value', ch: 15, title: T('格子世界', 'Grid world'), short: T('站在这里有多好', 'How good is it to stand here'), mode: 'circuit', robot: 'loop',
     intro: [
       { t: T('一张地图上有<b>宝藏</b>（价值 10）、<b>陷阱</b>（价值 −10）和墙。机器人想知道：站在每一格上，<b>有多好</b>？', 'A map has <b>treasure</b> (value 10), <b>traps</b> (value −10) and walls. The robot wants to know: on each cell, <b>how good is it to stand there</b>?') },
       { t: T('离宝藏越近越好。规定：每一格的价值 = 四个邻居里最大的那个，<b>打个九折</b>（× 0.9）。宝藏旁边是 9，再远一步是 8.1，再远是 7.29……', 'The closer to the treasure, the better. The rule: each cell’s value = the largest of its four neighbours, <b>discounted by 10%</b> (× 0.9). Next to the treasure it is 9, one step further 8.1, then 7.29…'), fig: row([10, 9, 8.1, 7.29, 6.56]) },
-      { t: T('新元件<b>乘法器</b>：输出 a × b。这一关的常数可以设成 0.9。', 'A new component, the <b>Multiplier</b>: it outputs a × b. In this level a Constant can be set to 0.9.'), fig: circuitFig({ taps: [['m', T('最大的邻居 · 9', 'best neighbour · 9')]], parts: [['k', T('常数', 'Constant'), '= 0.9', 0], ['x', T('乘法器', 'Multiplier'), 'a × b', 1]], outs: [['o', T('本格 · 8.1', 'this cell · 8.1')]], wires: [['m', 'x'], ['k', 'x'], ['x', 'o']] }) },
+      { t: T('打折要用<b>乘法器</b>（「安全过河」那一关见过）。这一关的常数可以设成 0.9。', 'The discount takes a <b>Multiplier</b> (you met it in “A safe crossing”). In this level a Constant can be set to 0.9.'), fig: circuitFig({ taps: [['m', T('最大的邻居 · 9', 'best neighbour · 9')]], parts: [['k', T('常数', 'Constant'), '= 0.9', 0], ['x', T('乘法器', 'Multiplier'), 'a × b', 1]], outs: [['o', T('本格 · 8.1', 'this cell · 8.1')]], wires: [['m', 'x'], ['k', 'x'], ['x', 'o']] }) },
       { t: T('一开始每一格都是 0。机器人会一轮一轮地扫，直到整张表不再变。', 'Every cell starts at 0. The robot scans round after round until the whole table stops changing.') },
     ],
     mission: { goal: T('每一格的价值 = 四个邻居里最大的价值 × 0.9。宝藏是 10，陷阱是 −10，墙不能走。算出每一格的价值。', 'Each cell’s value = the largest value among its four neighbours × 0.9. Treasure is 10, traps are −10, and walls can’t be entered. Work out the value of every cell.'), how: T('这一关会检查整张表。常数放上电路板后，点它可以改成 0.9。', 'This level checks the whole table. Once a Constant is on the board, click it to change it to 0.9.') },
-    world: 'vgrid', facts: [], palette: [...KIT, 'mul'], fresh: ['mul'], consts: [0, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
+    world: 'vgrid', facts: [], palette: [...KIT, 'mul'], consts: [0, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
     tests: [
       { R: 5, C: 6, gold: [0, 5], traps: [[1, 4], [3, 2]], walls: [[1, 1], [2, 1], [2, 3], [2, 4], [4, 4]] },
       { R: 4, C: 5, gold: [3, 4], traps: [[2, 3]], walls: [[1, 1], [1, 2], [3, 2]] },
@@ -62,7 +62,7 @@ export const rounds = [
     debrief: { title: T('价值表就是导航', 'The value table is a satnav'), body: [T('每一格只看自己的邻居，却拼出了一张完整的导航图：从任何一格出发，顺着箭头走，都会绕开墙和陷阱，走到宝藏。', 'Each cell looks only at its own neighbours, yet together they make a complete navigation map: start anywhere, follow the arrows, and you will skirt the walls and traps and reach the treasure.'), T('在强化学习里，这些箭头叫<b>策略</b>：到了一个状态，该做什么动作。<b>先估价值，再顺着价值走</b>，策略就自己长出来了。', 'In reinforcement learning these arrows are called a <b>policy</b>: in a given state, which action to take. <b>Estimate the values first, then follow them</b>, and the policy grows by itself.')], note: T('策略 = 每一格都走向价值最大的邻居。', 'Policy = from every cell, head for the neighbour with the largest value.') },
   },
   {
-    id: 'slip', ch: 15, title: T('会打滑的地板', 'A slippery floor'), short: T('按可能性加权', 'Weight by likelihood'), mode: 'circuit', robot: 'scout',
+    id: 'slip', ch: 15, title: T('会打滑的地板', 'A slippery floor'), short: T('按可能性加权', 'Weight by likelihood'), mode: 'circuit', robot: 'loop',
     intro: [
       { t: T('冰面会打滑。这一关机器人只往<b>右</b>或往<b>下</b>走，可每走一步，都有 <b>20%</b> 的可能滑向另一个方向：想往右，可能滑到下面；想往下，可能滑到右边。', 'Ice is slippery. In this level the robot moves only <b>right</b> or <b>down</b>, but every step has a <b>20%</b> chance of sliding the other way: aiming right, it may slide down; aiming down, it may slide right.') },
       { t: T('地图最下一行和最右一列是<b>悬崖</b>（−10），宝藏就在悬崖边上。', 'The bottom row and right-hand column of the map are <b>cliffs</b> (−10), and the treasure sits right at the cliff edge.') },
@@ -70,7 +70,7 @@ export const rounds = [
       { t: T('电路会比较大。小窍门：一个常数可以同时接给好几个乘法器。', 'The circuit will be fairly big. A tip: one Constant can be wired into several Multipliers at once.') },
     ],
     mission: { goal: T('只往右或往下走，每一步有 20% 的可能滑向另一个方向。每一格的价值 = 0.9 × 两个动作里较好的那个；往右 = 0.8 × 右边 + 0.2 × 下面，往下 = 0.8 × 下面 + 0.2 × 右边。', 'Move only right or down; every step has a 20% chance of sliding the other way. Each cell’s value = 0.9 × the better of the two actions; going right = 0.8 × right + 0.2 × down, going down = 0.8 × down + 0.2 × right.'), how: T('这一关会检查整张表。通过后，每一格会长出最好动作的箭头。', 'This level checks the whole table. Once you pass, each cell grows an arrow for its best action.') },
-    world: 'vgrid', facts: [], palette: [...KIT, 'mul'], consts: [0, 0.1, 0.2, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
+    world: 'vgrid', facts: ['slip', 'grip'], palette: [...KIT, 'mul'], consts: [0, 0.1, 0.2, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
     // A challenge: the naive board is the one from 格子世界, which takes the best move as if nothing slipped.
     naive: circ([['a', 'mmax'], ['b', 'mmax'], ['k', 'const', 0.9], ['x', 'mul']], ['tap:up>a:0', 'tap:down>a:1', 'tap:left>a:2', 'a>b:0', 'tap:right>b:1', 'b>x:0', 'k>x:1', 'x>out:cell']),
     tests: [

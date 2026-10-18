@@ -34,7 +34,7 @@ export const ROBOTS = {
   },
   reach: {
     name: T('长臂', 'Longarm'), vision: 2, arm: true, armName: T('伸缩臂', 'telescopic arm'),
-    desc: T('视野 5×5，还多了一条伸缩臂：能往左伸出「这件物品的重量」那么多格，读到视野外面的格子。', "Vision 5×5, plus a telescopic arm: it reaches left by as many cells as “this item's weight” and reads cells outside its view."),
+    desc: T('视野 5×5，还多了一条伸缩臂：能往回伸出这一格写着的那么多格，读到视野外面的格子。', 'Vision 5×5, plus a telescopic arm: it reaches back by as many cells as this cell says, and reads cells outside its view.'),
     look: look(`<path class="bot-ant" d="M20 2.5V7"/><circle class="bot-lamp" cx="20" cy="2.6" r="2.2"/>
       <rect class="bot-head" x="10" y="7" width="20" height="15" rx="5"/>
       <circle class="bot-eye" cx="16" cy="14.5" r="2.3"/><circle class="bot-eye" cx="24" cy="14.5" r="2.3"/>
@@ -50,9 +50,17 @@ export const ROBOTS = {
       <path class="bot-arm" d="M8.5 19H2.5"/><path class="bot-claw" d="M1.5 15V23M4 15V23"/>
       <rect class="bot-base" x="10" y="23.5" width="16" height="5.5" rx="2.7"/>`),
   },
+  loop: {
+    name: T('回环', 'Loop'), vision: 1,
+    desc: T('视野 3×3，会一轮一轮地扫：读到还没算的格子先用上一轮的值，扫到整张表不再变才停下。', 'Vision 3×3, and it scans in rounds: a cell not worked out yet reads its value from the last round, and it stops once a whole round changes nothing.'),
+    look: look(`<path class="bot-ant" d="M11.5 6.6a4.6 4.6 0 1 1 9 0"/><path class="bot-ant" d="M20.5 6.6l2.2-2.4M20.5 6.6l-3-.2"/>
+      <rect class="bot-head" x="5" y="7" width="22" height="16" rx="8"/>
+      <circle class="bot-eye" cx="11.5" cy="15" r="2.4"/><circle class="bot-eye" cx="20.5" cy="15" r="2.4"/>
+      <rect class="bot-base" x="8" y="24" width="16" height="5" rx="2.5"/>`),
+  },
   stack: {
     name: T('千层', 'Layercake'), vision: 1, arm: true, armName: T('探针', 'probe'),
-    desc: T('能同时站在很多层上：表有几层，它就在每一层的同一格上各算一次。每一层都有 3×3 的视野；在捡钥匙的格子上，探针还能探到「少一把这种钥匙的那一层」的上面和左边。', 'It stands on many layers at once: however many layers the table has, it works once on the same cell of each. Every layer has a 3×3 view; on a cell where a key is picked up, its probe also reaches up and left on “the layer with one key fewer”.'),
+    desc: T('能同时站在很多层上：表有几层，它就在每一层的同一格上各算一次。每一层都有 3×3 的视野；探针还能探到另一层的格子，比如少一把钥匙的那一层、股票买卖时走过来的那一层。', 'It stands on many layers at once: however many layers the table has, it works once on the same cell of each. Every layer has a 3×3 view, and its probe reaches cells on another layer, such as the layer with one key fewer, or the one a trade steps over from.'),
     look: look(`<path class="bot-ant" d="M16 1.5V5"/><circle class="bot-lamp" cx="16" cy="2" r="1.9"/>
       <rect class="bot-head" x="5" y="5" width="22" height="8" rx="3"/><rect class="bot-head" x="5" y="13.5" width="22" height="8" rx="3"/>
       <circle class="bot-eye" cx="12" cy="9" r="1.7"/><circle class="bot-eye" cx="20" cy="9" r="1.7"/>

@@ -525,6 +525,8 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .cell.trap rect,.cell.cliff rect{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.8}
 .cell.trap .lb,.cell.trap .val,.cell.cliff .lb,.cell.cliff .val{fill:var(--bad)}
 .vcell.v-gold{border-color:var(--signal)} .vcell.v-trap,.vcell.v-cliff{border-color:var(--bad)}
+/* An icy floor cell (有冰有地): a cold tint; its chance to slip sits in the corner. */
+.cell.ice rect{fill:color-mix(in srgb,var(--cyan) 14%,var(--panel));stroke:color-mix(in srgb,var(--cyan) 55%,var(--line))} .vcell.v-ice{background:color-mix(in srgb,var(--cyan) 14%,var(--chip))}
 .vcell .vv.long{font-size:8px;letter-spacing:-.02em}
 .n5 .vcell .vv.long{font-size:7px}
 .cell.px rect{stroke:none}

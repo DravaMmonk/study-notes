@@ -27,6 +27,19 @@ export const ICONS = {
   zero: '<circle class="g-mark-o" cx="24" cy="16" r="10.5"/><text class="g-tx" x="24" y="20.5">0</text>',
   // 不能连着偷: the money in this house.
   house: '<path class="g-ink" d="M12 16L24 6L36 16M15.5 13.5V27H32.5V13.5"/><circle class="g-mark" cx="24" cy="20.5" r="4.2"/>',
+  // 青蛙过河: the bank, water beside it.
+  bank: '<path class="g-mark" d="M6 27V17C11 15 16 14 21 15V27Z"/><path class="g-ink" d="M25 18C28 16 30 20 33 18S38 16 41 18M25 24C28 22 30 26 33 24S38 22 41 24"/>',
+  // 安全过河: a stone that holds, with a tick.
+  hold: '<ellipse class="g-cell" cx="20" cy="21" rx="13" ry="7"/><path class="g-mark-o" d="M28 12L32.5 16.5L41 7"/>',
+  // 最大的一段: a day's gain or loss.
+  gain: '<path class="g-mark" d="M14 16L20 6L26 16Z"/><path class="g-ink" d="M22 18L28 28L34 18Z"/><path class="g-ink" d="M8 17H40" stroke-dasharray="2 3"/>',
+  // 环形街道: the first and the last house.
+  firsthouse: '<path class="g-ink" d="M8 16L17 8L26 16M10.5 14V26H23.5V14"/><text class="g-tx" x="36" y="21">1</text>',
+  lasthouse: '<path class="g-ink" d="M8 16L17 8L26 16M10.5 14V26H23.5V14"/><text class="g-tx" x="36" y="21">n</text>',
+  // 有冰有地: ice to slip on.
+  ice: '<path class="g-cell" d="M6 26H42"/><path class="g-mark-o" d="M24 5V23M16.2 9.5L31.8 18.5M16.2 18.5L31.8 9.5M21 6.5L24 9L27 6.5M21 21.5L24 19L27 21.5"/>',
+  // 有坏台阶的楼梯: a step with a crack in it.
+  brokenstep: '<path class="g-ink" d="M8 27H40M11 27V20H22V13H33V6H40"/><path class="g-mark-o" d="M24 12L21.5 16.5L25 18.5L22.5 23"/>',
   // 越来越高: this post's height.
   post: '<rect class="g-mark" x="16" y="9" width="8" height="18" rx="1.2"/><path class="g-ink" d="M11 27H37M32 26V7M28.5 10.5L32 7L35.5 10.5"/>',
   // 钥匙: a key picked up here.

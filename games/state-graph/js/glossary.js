@@ -120,7 +120,7 @@ export const GLOSSARY = [
     see: ['arms', 'manyWays'],
   },
   {
-    id: 'dial', group: 'play', title: { zh: '扫描顺序', en: 'Scan order' }, at: 'dial',
+    id: 'dial', group: 'play', title: { zh: '扫描顺序', en: 'Scan order' }, at: 'order',
     body: [
       { zh: '机器人按一定的<b>扫描顺序</b>走过表格：逐行从左上开始、逐行从右下开始、按长度从短到长……关卡的介绍里会讲它怎么走。', en: 'The robot walks the table in a <b>scan order</b>: row by row from the top left, row by row from the bottom right, by length from shortest to longest… Each level’s introduction tells you how it walks.' },
       { zh: '顺序要跟着电路走：<b>被读的格子，必须排在读它的格子前面</b>。电路读右边和下面，就得从右下开始；读更短的段，就得按长度从短到长。合法的顺序常常不止一种。', en: 'The order has to follow the circuit: <b>a cell that is read must come before the cell that reads it</b>. A circuit that reads right and down has to start from the bottom right; one that reads shorter stretches has to go by length, shortest first. There is often more than one valid order.' },

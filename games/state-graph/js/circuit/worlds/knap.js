@@ -32,7 +32,8 @@ const knap = world({
     const k = w - t.items[i - 1].w, key = y => (k >= 0 ? `${y},${k}` : null);
     return { label: tr(`往左 ${t.items[i - 1].w} 格`, `${t.items[i - 1].w} left`), cells: [{ sensor: 'upk', key: key(i - 1), label: tr('上行', 'above') }, { sensor: 'rowk', key: key(i), label: tr('本行', 'this row') }] };
   },
-  base: t => Array.from({ length: t.W + 1 }, (_, w) => [`0,${w}`, 0]),
+  // Counting the ways to pay (t.ways): paying 0 is one way, with no coins at all.
+  base: t => Array.from({ length: t.W + 1 }, (_, w) => [`0,${w}`, t.ways && !w ? 1 : 0]),
   order(t) {
     const cells = [];
     t.items.forEach((_, k) => { for (let w = 0; w <= t.W; w++) cells.push({ i: k + 1, w, id: `${k + 1},${w}` }); });
@@ -43,16 +44,17 @@ const knap = world({
   answerKey: t => `${t.items.length},${t.W}`,
   answer: (t, table) => table.get(knap.answerKey(t)),
   name: key => { const [i, w] = key.split(','); return tr(`第 ${i} 行、容量 ${w}`, `row ${i}, capacity ${w}`); },
-  label: t => tr(`${t.W} kg · ${t.items.length} 件`, `${t.W} kg · ${t.items.length} items`),
+  label: t => (t.ways ? tr(`${t.W} 元 · 硬币 ${t.items.map(it => it.w).join('、')}`, `${t.W} yuan · coins ${t.items.map(it => it.w).join(', ')}`) : tr(`${t.W} kg · ${t.items.length} 件`, `${t.W} kg · ${t.items.length} items`)),
   orderText: () => tr('逐行，从左往右', 'row by row, left to right'),
   sample: t => ({ i: 1, w: t.W, id: `1,${t.W}` }),
   /** o.path: cells of the traced packing. */
   scene(t, view, o = {}) {
     const g = look(view, [knap.answerKey(t)], knap.base(t), o.bench), sp = 50, sz = 44, cells = [], path = new Set(o.path || []);
-    const texts = [{ x: -sz / 2 - 10, y: -sp + 19, t: W.capacity, anchor: 'end' }];
+    const texts = [{ x: -sz / 2 - 10, y: -sp + 19, t: t.ways ? tr('金额', 'amount') : W.capacity, anchor: 'end' }];
     for (let w = 0; w <= t.W; w++) cells.push({ id: `ax${w}`, x: w * sp, y: -sp + 14, w: sz, h: 26, value: w, cls: 'axis' });
     // An item that can be taken many times is marked ×n.
-    [tr('不放东西', 'nothing'), ...t.items.map(it => `${it.n} ${it.w}kg · ${it.v}${it.many ? ' ×n' : ''}`)].forEach((lb, i) => {
+    // A coin row (t.ways) is named by the coin.
+    [tr(t.ways ? '不用硬币' : '不放东西', t.ways ? 'no coins' : 'nothing'), ...t.items.map(it => (t.ways ? tr(`${it.w} 元硬币`, `${it.w}-yuan coin`) : `${it.n} ${it.w}kg · ${it.v}${it.many ? ' ×n' : ''}`))].forEach((lb, i) => {
       texts.push({ x: -sz / 2 - 10, y: i * sp + 5, t: lb, anchor: 'end', cls: g.act && g.act.cell.i === i ? 'hd' : '' });
       for (let w = 0; w <= t.W; w++) {
         const id = `${i},${w}`;

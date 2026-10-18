@@ -33,13 +33,14 @@ export const litOf = circ => [...new Set([...(circ.lit || []), ...circ.wires.fil
 
 /**
  * Component slots on a two-column board: every component keeps its saved slot (circ.at) while that slot is free;
- * the rest take the first free slots in the order they were added. The board always ends with an empty row.
+ * the rest take the first free slots in the order they were added. The board always ends with an empty row. The
+ * input cards take no slot: they stand above the board (as kit/circuit/model.js placement has it).
  */
 export function placement(circ) {
-  const cell = {}, used = new Set(), at = circ.at || {};
-  circ.nodes.forEach(n => { const a = at[n.id]; if (Number.isInteger(a) && a >= 0 && !used.has(a)) { cell[n.id] = a; used.add(a); } });
-  circ.nodes.forEach(n => { if (cell[n.id] === undefined) { let a = 0; while (used.has(a)) a++; cell[n.id] = a; used.add(a); } });
-  const even = v => v + (v % 2), size = Math.max(4, even(Math.max(-1, ...used) + 1) + 2);
+  const cell = {}, used = new Set(), at = circ.at || {}, parts = circ.nodes.filter(n => !isInput(n.kind));
+  parts.forEach(n => { const a = at[n.id]; if (Number.isInteger(a) && a >= 0 && !used.has(a)) { cell[n.id] = a; used.add(a); } });
+  parts.forEach(n => { if (cell[n.id] === undefined) { let a = 0; while (used.has(a)) a++; cell[n.id] = a; used.add(a); } });
+  const even = v => v + (v % 2), size = even(Math.max(-1, ...used) + 1) + 2;
   return { cell, size, free: Array.from({ length: size }, (_, a) => a).filter(a => !used.has(a)) };
 }
 
