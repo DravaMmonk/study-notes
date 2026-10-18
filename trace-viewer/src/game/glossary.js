@@ -20,7 +20,7 @@ export const GLOSSARY = [
     title: { zh: '游戏怎么玩', en: 'How the game works' },
     body: [
       { zh: '视觉完备把一门计算机视觉课做成了一串关卡。没有讲课：每关给你一组输入和期望的输出，你用元件搭出能把前者变成后者的东西，测试全部通过就算过关。', en: 'Vision Complete turns a computer vision course into a series of levels. There are no lectures: each level gives you some inputs and the outputs it expects, you build something from parts that turns one into the other, and when every test passes, the level is done.' },
-      { zh: '开场时你是刚上电的探测器 V-0：传感器把世界变成一格格数字，可你还读不懂它们。从「把图挪一格」开始，模糊、边缘、角点、视差都由你亲手搭出来，最后让机器自己学会看。', en: 'You start as Probe V-0, just powered on: your sensor turns the world into a grid of numbers that you cannot read yet. Starting from “move the picture one pixel”, you build blur, edges, corners and disparity by hand, and finally get the machine to learn to see for itself.' },
+      { zh: '开场时你是刚上电的探测器 V-0：传感器把世界变成一格格数字，可你还读不懂它们。你要做的，是一步步学会读懂这些数字。', en: 'You start as Probe V-0, just powered on: your sensor turns the world into a grid of numbers that you cannot read yet. Your job is to learn, step by step, to read them.' },
       { zh: '进度存在这台设备的浏览器里：关掉页面再回来，通过的关和搭好的电路都还在。', en: 'Your progress is kept in this browser on this device: close the page and come back, and the levels you passed and the circuits you built are still there.' },
     ],
     see: ['map', 'circuit', 'bench'],
@@ -111,7 +111,6 @@ export const GLOSSARY = [
     at: '0-2',
     body: [
       { zh: '不是每关都要搭电路。<b>机关台</b>是一张可以动手的图：拖动、拧旋钮、推推杆，图马上跟着变，台上实时标出目标有没有达到。', en: 'Not every level is a circuit. A <b>bench</b> is a figure you can work with your hands: drag things, turn knobs, push sliders, and the figure changes at once, showing live whether the goals are met.' },
-      { zh: '很多机关台分成几步，完成一步才能进入下一步，全部完成就过关。也有限时的速判：一轮轮快速作答，答对够多就过关，可以先关掉计时练习。', en: 'Many benches come in steps: finish one to move on to the next, and finishing them all passes the level. Some are timed sprints: answer round after round quickly and pass with enough right answers; you can switch the timer off to practise first.' },
       { zh: '还有一种台上只放一个黑箱：挑测试图喂进去，比较进去和出来的样子，再回答它做了什么。先实验、再下结论，是摸清陌生工具最可靠的办法。', en: 'One kind of bench holds just a black box: pick test pictures to feed in, compare what goes in with what comes out, then say what it did. Experimenting before concluding is the most reliable way to get to know an unfamiliar tool.' },
     ],
     see: ['game', 'intro'],
@@ -119,12 +118,12 @@ export const GLOSSARY = [
   {
     id: 'unlock',
     group: 'play',
-    title: { zh: '零件箱与解锁', en: 'The parts box and unlocking' },
+    title: { zh: '元件箱与解锁', en: 'The components box and unlocking' },
     at: '0-2',
     body: [
-      { zh: '过关常会解锁新元件，通过窗口里会列出来。弄清楚的黑箱会变成你的「平移」，亲手搭出的三点平均、3×3 平均也会变成现成的元件；之后的关卡直接用它们，不必再关心里面怎么搭。', en: 'Passing a level often unlocks a new part, listed in the passed window. A black box you have figured out becomes your “Shift”, and the three-point and 3×3 averages you build by hand become ready-made parts; later levels use them directly, without your having to think about what is inside.' },
-      { zh: '解锁的也可能是一个设置选项：亲手拼出「复制边缘」之后，带「边界」设置的元件就多了这个选项。', en: 'An unlock can also be an option in a setting: once you have built “Replicate edge” by hand, parts with a “Border” setting gain it as an option.' },
-      { zh: '每关的元件栏只摆出这一关给的元件。地图上的「零件箱」列出游戏里所有元件，已拿到的点亮并附说明。有的关要你亲手搭出某样东西，这时现成的那个会暂时收起来。', en: 'Each level’s parts list holds only the parts that level offers. The “Parts” box on the map lists every part in the game, with the ones you have earned lit up and described. When a level asks you to build something by hand, the ready-made version is put away for that level.' },
+      { zh: '过关常会解锁新元件，通过窗口里会列出来。弄清楚的黑箱会变成你的「平移」；亲手搭出的东西，也常会变成现成的元件，之后直接拿来用，不必再关心里面怎么搭。', en: 'Passing a level often unlocks a new part, listed in the passed window. A black box you have figured out becomes your “Shift”, and what you build by hand often becomes a ready-made part too, used directly from then on without your having to think about what is inside.' },
+      { zh: '解锁的也可能是某个设置里的一个新选项。', en: 'An unlock can also be a new option in a setting.' },
+      { zh: '每关的元件栏只摆出这一关给的元件。地图上的「元件箱」列出游戏里所有元件，已拿到的点亮并附说明。有的关要你亲手搭出某样东西，这时现成的那个会暂时收起来。', en: 'Each level’s parts list holds only the parts that level offers. The “Parts” box on the map lists every part in the game, with the ones you have earned lit up and described. When a level asks you to build something by hand, the ready-made version is put away for that level.' },
     ],
     see: ['circuit', 'padding'],
   },
@@ -173,7 +172,7 @@ export const GLOSSARY = [
     at: '0-1',
     body: [
       { zh: '在计算机里，一张图像是一张数字表：画面切成许多小方格，叫<b>像素</b>，每格记一个亮度。这个游戏里 0 是黑，1 是白，中间是深浅不同的灰。', en: 'Inside a computer, an image is a table of numbers: the picture is cut into many small squares called <b>pixels</b>, and each records a brightness. In this game 0 is black, 1 is white, and the values in between are shades of grey.' },
-      { zh: '彩色图每格有三个数，分别是红、绿、蓝有多亮。计算机视觉的每个方法，说到底都是对这些数做运算，从中算出哪里有边、有什么东西、离多远。', en: 'A colour image has three numbers per cell, for how bright its red, green and blue are. Every method in computer vision comes down to arithmetic on these numbers, to work out where the edges are, what is there and how far away it is.' },
+      { zh: '计算机视觉的每个方法，说到底都是对这些数做运算。', en: 'Every method in computer vision comes down to arithmetic on these numbers.' },
     ],
     see: ['perpixel', 'colour', 'views'],
   },
@@ -184,7 +183,7 @@ export const GLOSSARY = [
     at: '0-3',
     body: [
       { zh: '输出的每一格只由输入里同一位置的那一格算出来，各算各的，这叫<b>逐像素运算</b>。乘一个系数让整张图按比例变亮或变暗，加一个常数让每格一起升高或降低，两张图也可以逐格相加、相减、相乘。', en: 'When each output cell is worked out only from the input cell in the same position, each on its own, it is a <b>per-pixel operation</b>. Multiplying by a factor brightens or darkens the whole image in proportion, adding a constant raises or lowers every cell together, and two images can be added, subtracted or multiplied cell by cell.' },
-      { zh: '逐像素运算能改变亮度，却永远不知道邻居是谁，所以分不出一个点是在边上还是在平地上。要看形状，得让一格去看它周围的格子。', en: 'A per-pixel operation can change brightness, but it never knows who its neighbours are, so it cannot tell whether a point sits on an edge or on flat ground. To see shape, a cell has to look at the cells around it.' },
+      { zh: '逐像素运算能改变亮度，却永远不知道邻居是谁。', en: 'A per-pixel operation can change brightness, but it never knows who its neighbours are.' },
     ],
     see: ['pixel', 'filter', 'bgsub'],
   },
@@ -207,7 +206,7 @@ export const GLOSSARY = [
     at: '1-1',
     body: [
       { zh: '暗箱壁上开一个小孔，景物发出的光只能穿过这一点，在对面的屏上成一个倒立的像。这就是针孔相机，相机最早的样子。', en: 'Make a small hole in the wall of a dark box, and light from the scene can only pass through that one point, forming an upside-down image on the screen opposite. This is the pinhole camera, the earliest form of the camera.' },
-      { zh: '像的大小只看比例：x = −f·X/Z，X 是物体的高度，Z 是物体到孔的距离，f 是孔到屏的距离，负号表示像是倒的。东西离得越远，像越小，这就是<b>透视投影</b>，后面算深度还会用到它。', en: 'The size of the image depends only on a ratio: x = −f·X/Z, where X is the object’s height, Z its distance from the hole and f the distance from the hole to the screen; the minus sign means the image is upside down. The further away something is, the smaller its image: this is <b>perspective projection</b>, and it comes back later when working out depth.' },
+      { zh: '像的大小只看比例：x = −f·X/Z，X 是物体的高度，Z 是物体到孔的距离，f 是孔到屏的距离，负号表示像是倒的。东西离得越远，像越小，这就是<b>透视投影</b>。', en: 'The size of the image depends only on a ratio: x = −f·X/Z, where X is the object’s height, Z its distance from the hole and f the distance from the hole to the screen; the minus sign means the image is upside down. The further away something is, the smaller its image: this is <b>perspective projection</b>.' },
       { zh: '孔开大，像更亮，可同一点的光会在屏上铺成一个斑，像也更糊。镜头就是为了打破这个两难：开大孔收进更多光，再把光重新聚回一点。', en: 'A bigger hole makes the image brighter, but light from one point spreads into a spot on the screen, so the image also gets blurrier. A lens exists to break this trade-off: open a big hole to let in more light, then bring the light back together to a point.' },
     ],
     see: ['depth'],
@@ -218,8 +217,8 @@ export const GLOSSARY = [
     title: { zh: '滤波', en: 'Filtering' },
     at: '1-1',
     body: [
-      { zh: '算一格输出时，不只看输入里同一位置的那一格，而是取它和周围邻居的加权和，这就是<b>滤波</b>。权重全是正数、加起来为 1，就是某种平均，图会变模糊；权重有正有负，就是在量变化。', en: 'When an output cell is computed not just from the input cell in the same place but as a weighted sum of it and its neighbours, that is <b>filtering</b>. If the weights are all positive and add up to 1, it is a kind of average and the image gets blurrier; if some are positive and some negative, it measures change.' },
-      { zh: '平均会把孤零零的亮点摊开，把忽亮忽暗的毛刺抹平，所以常用来压噪声。同一组权重在每个位置都一样用，图案挪到哪里，结果就跟着挪到哪里。', en: 'Averaging spreads a lone bright dot out and smooths away flickering specks, which is why it is often used against noise. The same weights are used at every position, so wherever a pattern moves, its result moves with it.' },
+      { zh: '算一格输出时，不只看输入里同一位置的那一格，而是取它和周围邻居的加权和，这就是<b>滤波</b>。权重全是正数、加起来为 1，就是某种平均，图会变模糊。', en: 'When an output cell is computed not just from the input cell in the same place but as a weighted sum of it and its neighbours, that is <b>filtering</b>. If the weights are all positive and add up to 1, it is a kind of average and the image gets blurrier.' },
+      { zh: '平均会把孤零零的亮点摊开，把忽亮忽暗的毛刺抹平。同一组权重在每个位置都一样用，图案挪到哪里，结果就跟着挪到哪里。', en: 'Averaging spreads a lone bright dot out and smooths away flickering specks. The same weights are used at every position, so wherever a pattern moves, its result moves with it.' },
     ],
     see: ['kernel', 'separable', 'gaussian'],
   },
@@ -253,7 +252,6 @@ export const GLOSSARY = [
     body: [
       { zh: '<b>边缘</b>是亮度在很短距离内突然变化的地方：物体和背景的分界、文字的笔画。最简单的量法是相邻像素的差，平坦处差为 0，台阶处差最大。', en: 'An <b>edge</b> is where the brightness changes suddenly over a short distance: where an object meets the background, the strokes of letters. The simplest way to measure it is the difference between neighbouring pixels: 0 on flat ground, largest at a step.' },
       { zh: '相邻差就是离散的<b>导数</b>。它有正负：从暗到亮为正，从亮到暗为负，符号说明边朝哪边。结果里有负数，用地形画法看最清楚：边上是一道山脊或一条沟。', en: 'The neighbour difference is a discrete <b>derivative</b>. It has a sign: positive from dark to bright, negative from bright to dark, so the sign tells you which way the edge faces. Since the result can be negative, terrain view shows it best: an edge becomes a ridge or a trench.' },
-      { zh: '找边缘是视觉里最基础的一步，后面的角点、直线和物体识别都建立在它上面。', en: 'Finding edges is the most basic step in vision; the corners, lines and object recognition that come later are all built on it.' },
     ],
     see: ['sobel', 'gradient', 'views'],
   },
@@ -264,7 +262,7 @@ export const GLOSSARY = [
     at: '1-6',
     body: [
       { zh: '平均、差分这些运算其实是同一种：每格输出是它周围一小块的加权和。把权重排成一个小方阵，就是<b>核</b>。换一组权重，就换一种效果。', en: 'Averaging and differencing are really the same operation: each output cell is a weighted sum of the small block around it. Lay the weights out in a small square and you have a <b>kernel</b>. Change the weights and you change the effect.' },
-      { zh: '把核压过整张图，每到一处算一次加权和，就得到滤波的结果。只有正中间是 1 的核原样输出；修图软件里的很多滤镜、相机里的锐化，背后常常就是一个核。', en: 'Pass the kernel over the whole image, computing a weighted sum at each spot, and you have the filtered result. A kernel with just a 1 in the centre leaves the image unchanged; behind many photo-editor filters and in-camera sharpening there is often just a kernel.' },
+      { zh: '把核压过整张图，每到一处算一次加权和，就得到滤波的结果。只有正中间是 1 的核原样输出；修图软件里的很多滤镜，背后常常就是一个核。', en: 'Pass the kernel over the whole image, computing a weighted sum at each spot, and you have the filtered result. A kernel with just a 1 in the centre leaves the image unchanged; behind many photo-editor filters there is often just a kernel.' },
     ],
     see: ['filter', 'convolution', 'kernelread'],
   },
@@ -276,7 +274,7 @@ export const GLOSSARY = [
     body: [
       { zh: '真实照片都带着<b>噪声</b>：光线暗时，每格的数会随机偏高或偏低一点。相邻差对这些小抖动非常敏感，平坦处也会冒出许多假边。', en: 'Real photos always carry <b>noise</b>: in dim light, each cell’s number comes out randomly a little too high or too low. Neighbour differences are very sensitive to this jitter, so false edges pop up even on flat ground.' },
       { zh: '办法是先平滑、再求导：噪声被压下去，真正的边留下来。<b>Sobel 算子</b>把这两步做进一个 3×3 核：一个方向求导，另一个方向按 1、2、1 平滑。', en: 'The fix is to smooth first and then differentiate: the noise is pushed down and the real edge stays. The <b>Sobel operator</b> puts both steps into one 3×3 kernel: it differentiates in one direction and smooths with weights 1, 2, 1 in the other.' },
-      { zh: 'Sobel x 量左右方向的变化，Sobel y 量上下方向的变化，两者合起来就是梯度。', en: 'Sobel x measures change from left to right and Sobel y from top to bottom; together they give the gradient.' },
+      { zh: 'Sobel x 量左右方向的变化，Sobel y 量上下方向的变化。', en: 'Sobel x measures change from left to right and Sobel y from top to bottom.' },
     ],
     see: ['edge', 'gradient', 'kernel'],
   },
@@ -288,7 +286,7 @@ export const GLOSSARY = [
     body: [
       { zh: '把只有一个亮点的图交给一个核，输出就是核自己的样子，这叫<b>冲激响应</b>。所以看一个亮点被处理成什么样，就能读出用了什么核。', en: 'Give a kernel an image with a single bright dot and the output is the kernel itself: this is the <b>impulse response</b>. So seeing what a bright dot turns into tells you which kernel was used.' },
       { zh: '不过核有两种读法。<b>互相关</b>把核直接盖在图上，对应位置相乘再相加；<b>卷积</b>先把核旋转 180° 再盖上去。亮点经过卷积，得到正着的核；经过互相关，得到转了 180° 的核。', en: 'But there are two ways to read a kernel. <b>Cross-correlation</b> lays the kernel straight over the image, multiplying matching positions and adding; <b>convolution</b> first rotates the kernel by 180°. A bright dot put through a convolution comes out as the kernel the right way up; through a cross-correlation, as the kernel turned by 180°.' },
-      { zh: '这个游戏里的核元件做的都是互相关，深度学习框架里所谓的「卷积层」其实也是互相关。对称的核转 180° 不变，两种读法就没有区别。', en: 'The kernel parts in this game all do cross-correlation, and so do the “convolution layers” of deep learning frameworks. A symmetric kernel is unchanged by a 180° turn, so for it the two readings are the same.' },
+      { zh: '这个游戏里的核元件做的都是互相关。对称的核转 180° 不变，两种读法就没有区别。', en: 'The kernel parts in this game all do cross-correlation. A symmetric kernel is unchanged by a 180° turn, so for it the two readings are the same.' },
     ],
     see: ['kernel', 'kernelread', 'convthm'],
   },
@@ -310,7 +308,7 @@ export const GLOSSARY = [
     title: { zh: '锐化与细节', en: 'Sharpening and detail' },
     at: '1-R',
     body: [
-      { zh: '原图减去模糊图，剩下的是模糊抹掉的那部分：边缘、细纹这些变化很快的东西，也就是细节，用频率的说法叫<b>高频</b>。', en: 'The original minus a blurred copy leaves exactly what the blur wiped out: edges, fine texture and other things that change quickly. That is the detail, called the <b>high frequencies</b> in the language of frequency.' },
+      { zh: '原图减去模糊图，剩下的是模糊抹掉的那部分：边缘、细纹这些变化很快的东西，也就是细节。', en: 'The original minus a blurred copy leaves exactly what the blur wiped out: edges, fine texture and other things that change quickly. That is the detail.' },
       { zh: '把细节按一定比例加回原图，边缘两侧的明暗差被拉大，图就显得更锐利，这就是<b>锐化</b>。修图软件里的 USM 锐化（unsharp mask）就是这个做法，源自暗房时代把模糊底片和原底片叠印的技巧。', en: 'Add the detail back to the original in some proportion and the contrast on either side of each edge is stretched, so the image looks sharper: this is <b>sharpening</b>. The USM (unsharp mask) sharpening in photo editors works this way, and comes from a darkroom trick of printing a blurred negative together with the original.' },
       { zh: '加得太多，边缘旁会出现一道明显的亮边和暗边。锐化并不能找回丢失的信息，只是让已有的变化更显眼。', en: 'Add too much and an obvious bright and dark halo appears beside each edge. Sharpening cannot recover lost information; it only makes the changes already there stand out.' },
     ],
@@ -408,7 +406,7 @@ export const GLOSSARY = [
     body: [
       { zh: '相机和扫描仪只在一些位置记下亮度，用这些点代表连续的景物，这叫<b>采样</b>。采 M 个点，只能分辨 M/2 以下的频率，这个上限叫<b>奈奎斯特频率</b>。', en: 'A camera or scanner records brightness only at certain positions and lets those points stand for the continuous scene: this is <b>sampling</b>. With M samples you can only tell apart frequencies below M/2, a limit called the <b>Nyquist frequency</b>.' },
       { zh: '更快的波不会消失，而是折回来冒充一道慢波：频率 k 看起来和 M − k 一模一样。这叫<b>混叠</b>，采完以后两者再也分不开。视频里飞转的车轮像在倒转、拍屏幕时浮出的波纹（莫尔纹），都是混叠。', en: 'Faster waves do not vanish: they fold back and pose as a slower wave, so frequency k looks exactly like M − k. This is <b>aliasing</b>, and once sampled the two can never be separated. A spinning wheel that seems to turn backwards on video, and the ripples (moiré) that float over a photo of a screen, are both aliasing.' },
-      { zh: '所以<b>抗混叠</b>必须在采样之前：先低通去掉高于奈奎斯特频率的部分，再采样。缩小图片、拍照，以及神经网络里步幅大于 1 的卷积，都会碰到同一个问题。', en: 'So <b>anti-aliasing</b> has to happen before sampling: low-pass away everything above the Nyquist frequency first, then sample. Shrinking pictures, taking photos and strided convolutions in neural networks all face the same problem.' },
+      { zh: '所以<b>抗混叠</b>必须在采样之前：先低通去掉高于奈奎斯特频率的部分，再采样。拍照、扫描都会碰到同一个问题。', en: 'So <b>anti-aliasing</b> has to happen before sampling: low-pass away everything above the Nyquist frequency first, then sample. Taking photos and scanning both face the same problem.' },
     ],
     see: ['lowpass', 'convlayer', 'pooling'],
   },
@@ -470,7 +468,7 @@ export const GLOSSARY = [
     body: [
       { zh: '照片里，表面本来的颜色和照到的光乘在一起：照片 = 颜色 × 光照。白墙在阴影里是灰的，深色地砖在太阳底下也可能很亮。', en: 'In a photo, a surface’s own colour and the light falling on it are multiplied together: photo = colour × lighting. A white wall in shadow looks grey, and dark floor tiles can look bright in sunshine.' },
       { zh: '所以照片里的边缘只说明「这里亮度变了」，变的可能是颜色，也可能只是光：一面纯色墙上的影子，也有一条很硬的边。把照片拆成颜色和光照两部分，叫本征图像分解。', en: 'So an edge in a photo only says “the brightness changes here”; what changed may be the colour, or just the light. A shadow on a plain wall has a hard edge too. Splitting a photo into its colour and its lighting is called intrinsic image decomposition.' },
-      { zh: '真实相机不会附送光照图，单看亮度也猜不准光照，所以边缘检测要设法不被光照带偏。', en: 'A real camera does not come with a lighting map, and brightness alone cannot pin the lighting down, so edge detection has to find ways not to be misled by lighting.' },
+      { zh: '真实相机不会附送光照图，单看亮度也猜不准光照。', en: 'A real camera does not come with a lighting map, and brightness alone cannot pin the lighting down.' },
     ],
     see: ['lambert', 'invariance', 'edge'],
   },
@@ -494,7 +492,6 @@ export const GLOSSARY = [
     body: [
       { zh: '同一个场景换了灯，像素数值会差很远，该给的答案却一样。设计特征时先问：哪些变化不应该改变答案？让答案不随这些变化而变，叫<b>不变性</b>。', en: 'Light the same scene differently and the pixel values can differ a lot, yet the right answer stays the same. When designing a feature, first ask: which changes should not change the answer? Making the answer immune to those changes is called <b>invariance</b>.' },
       { zh: '灯光变化大致有两种。整体加亮（每个像素 + b，偏置）只把地形整体抬高，坡度不变，所以梯度对它不变；灯变强或变暗（每个像素 × a，增益）把所有坡度都乘上 a，固定的门槛就会失灵。', en: 'Lighting changes come roughly in two kinds. Brightening everything (+ b on every pixel, an offset) just lifts the whole landscape and leaves the slopes as they were, so the gradient is unchanged by it. A stronger or dimmer lamp (× a on every pixel, a gain) multiplies every slope by a, so a fixed threshold stops working.' },
-      { zh: '对付增益，可以拿同一张图里的某个量当尺子，只看相对大小，倍数就约掉了。图边也要留意：补 0 会造出一条随灯光变化的假边。', en: 'To deal with a gain, use some quantity from the same image as a ruler and look only at relative sizes, so the factor cancels out. Mind the border too: padding with 0 creates a false edge that changes with the lighting.' },
     ],
     see: ['gradient', 'padding', 'ratio'],
   },
@@ -661,7 +658,6 @@ export const GLOSSARY = [
     body: [
       { zh: '找到关键点后要配对：拿左图一个点周围的一小块，到右图里找最像的一块。像不像用距离 d 量，越小越像；最近的叫第一名（距离 d₁），其次是第二名（d₂）。', en: 'Once key points are found they need pairing: take the small patch round a point in the left image and look for the most similar patch in the right one. Similarity is measured as a distance d, smaller meaning more alike; the closest is first place (distance d₁) and the next is second place (d₂).' },
       { zh: '重复的图案（比如一格格的栅栏）会让第一名和第二名几乎一样近，这种匹配再「像」也不可信，只看距离挡不住它。<b>距离比检验</b> d₁ / d₂ < r 只收下第一名明显领先的匹配，常取 r = 0.8。', en: 'A repeating pattern (a fence of identical tiles, say) makes first and second place almost equally close; however “alike” such a match is, it cannot be trusted, and a distance threshold alone cannot stop it. The <b>ratio test</b> d₁ / d₂ < r accepts only matches whose first place is clearly ahead; r = 0.8 is a common choice.' },
-      { zh: '剩下的错配，还要看它们在几何上是否一致，再筛一遍。', en: 'The mismatches that remain are filtered out again by checking whether they agree geometrically.' },
     ],
     see: ['corner', 'ransac', 'homography'],
   },
@@ -673,7 +669,7 @@ export const GLOSSARY = [
     body: [
       { zh: '边缘检测给的是一堆零散的点。<b>Hough 变换</b>让每个点为所有穿过它的直线投票：直线用方向 θ 和离中心的距离 ρ 两个数记下，ρ = x·cos θ + y·sin θ。真有的那条线会收到很多票。', en: 'Edge detection gives a scatter of points. The <b>Hough transform</b> has each point vote for every line through it: a line is recorded by two numbers, its direction θ and its distance ρ from the centre, with ρ = x·cos θ + y·sin θ. A line that is really there collects many votes.' },
       { zh: '票落进 (θ, ρ) 平面上的格子（分箱），这张格子图叫累加器，找线就变成了找峰。分箱太细，噪声把一条线的票拆成许多小峰；太粗，相近的两条线合成一个峰。', en: 'The votes fall into cells (bins) on the (θ, ρ) plane, a grid called the accumulator, so finding a line becomes finding a peak. With bins too fine, noise splits one line’s votes into many small peaks; too coarse, and two nearby lines merge into one peak.' },
-      { zh: '参数一多，格子数按乘方增长：直线只有 2 个参数，单应变换有 8 个，每维 10 格就是 10⁸ 格，这时要换别的办法。', en: 'With more parameters the number of cells grows as a power: a line has only 2 parameters, but a homography has 8, and 10 cells per dimension makes 10⁸ cells, so another approach is needed.' },
+      { zh: '参数一多，格子数按乘方增长：直线只有 2 个参数；要是有 8 个参数，每维 10 格就是 10⁸ 格。', en: 'With more parameters the number of cells grows as a power: a line has only 2 parameters, but with 8 parameters, 10 cells per dimension makes 10⁸ cells.' },
     ],
     see: ['ransac', 'homography', 'edge'],
   },
@@ -747,7 +743,7 @@ export const GLOSSARY = [
     body: [
       { zh: '<b>编码器</b>把整张图压成几个数 z，<b>解码器</b>再从 z 画回一张图，训练目标就是输入自己，所以不需要标签。这样的一对叫<b>自编码器</b>。', en: 'An <b>encoder</b> squeezes a whole image into a few numbers z, and a <b>decoder</b> draws an image back from z; the training target is the input itself, so no labels are needed. Such a pair is called an <b>autoencoder</b>.' },
       { zh: '中间最窄的那层叫<b>瓶颈</b>。它至少要有图像真正变化的那么多个数：一族图只在左右、上下两个方向变，就至少要两个数，一个数只能让它沿一条线变化。', en: 'The narrowest layer in the middle is the <b>bottleneck</b>. It needs at least as many numbers as the ways the images really vary: a family of images that varies only left–right and up–down needs at least two numbers, since one number can only move along a single line.' },
-      { zh: '压缩、去噪和后面的生成模型，都从这一步开始。', en: 'Compression, denoising and the generative models that follow all start from this step.' },
+      { zh: '压缩、去噪都从这一步开始。', en: 'Compression and denoising both start from this step.' },
     ],
     see: ['reparam', 'cnn'],
   },
@@ -771,7 +767,7 @@ export const GLOSSARY = [
     body: [
       { zh: '<b>生成对抗网络</b>（GAN）让两个模型对练：生成器画假样本，鉴定员（判别器）判断真假。鉴定员越会认，生成器就得画得越像。', en: 'A <b>generative adversarial network</b> (GAN) sets two models against each other: the generator draws fake samples and the judge (the discriminator) tells real from fake. The better the judge gets, the more convincing the generator has to be.' },
       { zh: '理想的结局是生成器画出的分布和真实数据一样，鉴定员只能瞎猜，准确率回到 50%。', en: 'Ideally the generator ends up drawing the same distribution as the real data, so the judge can only guess and its accuracy is back to 50%.' },
-      { zh: '常见的失败是<b>模式坍塌</b>：真实数据有好几堆，生成器却把所有样本都画到鉴定员最相信的一处，只覆盖其中一堆。对抗训练要两边配合得当才稳定。', en: 'A common failure is <b>mode collapse</b>: the real data has several clusters, but the generator puts every sample where the judge is most convinced, covering only one of them. Adversarial training is only stable when the two sides are well matched.' },
+      { zh: '常见的失败是<b>模式坍塌</b>：真实数据有好几堆，生成器画出的样本却只覆盖其中一堆。', en: 'A common failure is <b>mode collapse</b>: the real data has several clusters, but the generator’s samples cover only one of them.' },
     ],
     see: ['reparam', 'contrastive'],
   },

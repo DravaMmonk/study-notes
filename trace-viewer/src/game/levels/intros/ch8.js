@@ -15,8 +15,8 @@ export default {
     },
     {
       t: {
-        zh: '两个元件的权重都靠训练：按下训练，机器自己一点点调。编码器可以选压成 1、2 或 3 个数。压缩、去噪，还有后面的生成模型，都从这一步开始。',
-        en: 'Both parts get their weights from training: press Train and the machine adjusts them bit by bit on its own. You can choose whether the encoder squeezes to 1, 2 or 3 numbers. Compression, denoising and the generative models to come all start from this step.',
+        zh: '两个元件的权重都靠训练：按下训练，机器自己一点点调。编码器可以选压成 1、2 或 3 个数。压缩、去噪都从这一步开始。',
+        en: 'Both parts get their weights from training: press Train and the machine adjusts them bit by bit on its own. You can choose whether the encoder squeezes to 1, 2 or 3 numbers. Compression and denoising both start from this step.',
       },
     },
     {

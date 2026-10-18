@@ -19,7 +19,7 @@ export function matchMode(L, saved) {
       }).join('')}</div>`;
     },
     note: () => '',
-    panel: () => `<div class="pcard"><h3>${tr('零件箱速查', 'Parts at a glance')}</h3><div class="list">${L.refs.map(([n, d]) => `<div class="ref"><b>${n}</b><span>${d}</span></div>`).join('')}</div></div>`,
+    panel: () => `<div class="pcard"><h3>${tr('元件箱速查', 'Parts at a glance')}</h3><div class="list">${L.refs.map(([n, d]) => `<div class="ref"><b>${n}</b><span>${d}</span></div>`).join('')}</div></div>`,
     dock: () => ({ meta: tr(`已选 <b>${picked()}</b> / ${L.stories.length}`, `Answered <b>${picked()}</b> / ${L.stories.length}`), go: tr('检查', 'Check'), act: 'check', goIcon: ICON.check }),
     act(name, el) {
       if (name === 'pick') { st.ans[el.dataset.s] = el.dataset.o; delete st.marks[el.dataset.s]; rt.persist(); buzz(5); rt.refresh(); return; }

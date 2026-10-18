@@ -14,8 +14,8 @@ export const GLOSSARY = [
   {
     id: 'map', group: 'play', title: { zh: '关卡地图', en: 'Level map' },
     body: [
-      { zh: '关卡按章节排在地图上，每一章回答一个问题，从「格子与箭头」一直走到「毕业」。通过一关，下一关就会打开。', en: 'The levels sit on the map in chapters, and each chapter answers one question, all the way from “Cells and arrows” to “Graduation”. Pass a level and the next one opens.' },
-      { zh: '不想按顺序玩，可以打开「全部解锁」：任意一关都能直接玩，进度照常记录。地图上还有「零件箱」和这本「百科」。', en: 'If you would rather not go in order, turn on “Unlock all”: any level can be played straight away, and your progress is still recorded. The map also has your Parts and this Encyclopedia.' },
+      { zh: '关卡按章节排在地图上，每一章回答一个问题。通过一关，下一关就会打开。', en: 'The levels sit on the map in chapters, and each chapter answers one question. Pass a level and the next one opens.' },
+      { zh: '不想按顺序玩，可以打开「全部解锁」：任意一关都能直接玩，进度照常记录。地图上还有「元件箱」和这本「百科」。', en: 'If you would rather not go in order, turn on “Unlock all”: any level can be played straight away, and your progress is still recorded. The map also has your Parts and this Encyclopedia.' },
     ],
     see: ['brief', 'part'],
   },
@@ -43,7 +43,7 @@ export const GLOSSARY = [
     body: [
       { zh: '在电路板关卡里，计算交给一个<b>机器人</b>。它一格一格地走过整张表，在每一格上运行同一块电路板，把结果写进脚下这一格。', en: 'In circuit-board levels the computing is done by a <b>robot</b>. It walks the whole table cell by cell, runs the same circuit board on every cell, and writes the result into the cell it stands on.' },
       { zh: '<b>机器人视野</b>中间的红框，是它脚下的格子。电路板要读视野里的一格，就在视野里点它，电路板左边的「视野」卡片上就多一个读它的输出口；被读的格子在视野里带蓝框。表外面的格子显示「界外」，送来的是「—」。', en: 'The red frame in the middle of the <b>robot’s view</b> is the cell it stands on. For the circuit board to read a cell in view, click it in the view: the “View” card on the left of the circuit board gains an output that reads it, and a cell being read has a blue frame in the view. Cells beyond the table show “out”, and what they send is “—”.' },
-      { zh: '视野下面的<b>本格信息</b>，是关于这一格的事实，比如「是起点」。点一条，「本格信息」卡片上就多一个读它的输出口。', en: 'The <b>This cell</b> panel under the view lists facts about the cell, such as “is start”. Click one, and the “This cell” card gains an output that reads it.' },
+      { zh: '视野下面的<b>本格信息</b>，是关于这一格的事实。点一条，「本格信息」卡片上就多一个读它的输出口。', en: 'The <b>This cell</b> panel under the view lists facts about the cell. Click one, and the “This cell” card gains an output that reads it.' },
     ],
     see: ['board', 'testBoard', 'models'],
   },
@@ -70,18 +70,17 @@ export const GLOSSARY = [
     id: 'component', group: 'play', title: { zh: '元件', en: 'Components' }, at: 'confluence',
     body: [
       { zh: '<b>元件</b>是电路板上的小机器：从输入圆点收信号，从输出圆点送出结果。在电脑上，点「元件」窗里的一项就放上电路板；在手机上，点托盘里的一项，或按住拖到空格上，拖回托盘就拿掉了。点放好的元件，可以改它的设置。', en: '<b>Components</b> are little machines on the circuit board: they take signals at their input dots and send a result from their output dot. On a computer, click one in the Parts window to put it on the board; on a phone, tap one in the tray or hold and drag it onto a slot, and drag it back to the tray to remove it. Click a placed component to change its settings.' },
-      { zh: '信号有三种：一个数；「是 / 否」，画成菱形圆点和虚线；还有「—」，意思是「这里没有路」或「什么也没有」。没接线的输入口，读到的是「—」或「否」。', en: 'Signals come in three kinds: a number; “yes / no”, drawn with diamond dots and dashed wires; and “—”, which means “there is no road here”, or simply nothing. An input with no wire reads “—” or “no”.' },
-      { zh: '<b>汇合器</b>把接进来的几个数汇成一个，操作有「加起来」「取较小」「取较大」，在卡片上换操作时连线不变；它们都会跳过「—」，全是「—」时才输出「—」。「任一是」是专管「是 / 否」的汇合器：只要有一个「是」就输出「是」，「—」不算「是」。', en: 'A <b>Merger</b> merges the numbers wired into it into one. Its operations are “sum”, “min” and “max”, and swapping the operation on its card keeps the wires; they all skip “—”, and only output “—” when every input is “—”. “Any yes” is the Merger for “yes / no” signals: one “yes” is enough for it to output “yes”, and a “—” does not count as “yes”.' },
-      { zh: '<b>加法器</b>和<b>乘法器</b>算 a + b、a × b，只要一边是「—」，结果就是「—」。<b>常数</b>一直输出同一个数。<b>放行闸</b>在条件是「是」时把信号放过去，否则输出「—」；<b>拦截闸</b>正好相反；<b>取反</b>把「是」和「否」对调。', en: 'The <b>Adder</b> and the <b>Multiplier</b> work out a + b and a × b; if either side is “—”, so is the result. A <b>Constant</b> always outputs the same number. A <b>Pass gate</b> lets a signal through when its condition is “yes” and outputs “—” otherwise; a <b>Block gate</b> does the opposite; <b>Not</b> swaps “yes” and “no”.' },
+      { zh: '信号可以是一个数，也可以是「—」，意思是「这里没有路」或「什么也没有」。没接线的输入口，读到的是「—」。', en: 'A signal can be a number, or “—”, which means “there is no road here”, or simply nothing. An input with no wire reads “—”.' },
+      { zh: '<b>汇合器</b>把接进来的几个数加起来；它会跳过「—」，全是「—」时才输出「—」。', en: 'A <b>Merger</b> adds up the numbers wired into it; it skips “—”, and only outputs “—” when every input is “—”.' },
     ],
     see: ['board', 'part', 'countOpt'],
   },
   {
-    id: 'part', group: 'play', title: { zh: '零件与零件箱', en: 'Parts and the parts box' }, at: 'stamp',
+    id: 'part', group: 'play', title: { zh: '零件与元件箱', en: 'Parts and the components box' }, at: 'stamp',
     body: [
-      { zh: '有的关通过以后，你拼好的电路板会变成一个<b>零件</b>：后面关卡的托盘里多了一个新元件，放上去、接好线就能用，里面不用再拼一遍。', en: 'After some levels, the circuit board you built becomes a <b>part</b>: a new component in the tray of later levels. Put it on the board and wire it up, and it works without being built again.' },
+      { zh: '有的关通过以后，你拼好的电路板会变成一个<b>零件</b>：托盘里多了一个新元件，放上去、接好线就能用，里面不用再拼一遍。', en: 'After some levels, the circuit board you built becomes a <b>part</b>: a new component in the tray. Put it on the board and wire it up, and it works without being built again.' },
       { zh: '零件口上的名字，只是它当初的用法。零件只认结构，不认名字：你把什么接给它，它就算什么。', en: 'The names on a part’s inputs only say how it was first used. A part cares about structure, not names: whatever you wire into it is what it works on.' },
-      { zh: '地图上的<b>零件箱</b>收着你一路拿到的东西：能放上电路板的零件，还有每一章留下的想法，比如「回溯」和「记忆」。', en: 'Your <b>Parts</b>, on the map, keep everything you have collected along the way: parts that go on a circuit board, and the ideas each chapter leaves behind, such as “Backtracking” and “Memoisation”.' },
+      { zh: '地图上的<b>元件箱</b>收着你一路拿到的零件。', en: 'Your <b>Parts</b>, on the map, keep every part you have collected along the way.' },
     ],
     see: ['component', 'board', 'stairs'],
   },
@@ -90,7 +89,6 @@ export const GLOSSARY = [
     body: [
       { zh: '每一关用哪个型号的机器人，是关卡定的。第一次遇到新型号时，引入会先介绍它。', en: 'Each level decides which robot model it uses. The first time a new model turns up, the Intro introduces it.' },
       { zh: '型号之间最大的不同是<b>视野</b>。「小方」看得见身边一圈，3×3；「远望」看得见两圈，5×5。电路板只能读视野里的格子，所以要读得更远，就得换型号。', en: 'The biggest difference between models is their <b>vision</b>. Boxy sees the ring of cells around it, 3×3; Farsight sees two rings, 5×5. A circuit board can only read cells in view, so reading further takes a different model.' },
-      { zh: '后面还会遇到带手臂的型号，能读到视野外面的格子；也有能同时站在好几层上的型号，在每一层上各算一次。', en: 'Later you will meet models with arms, which can read cells outside their view, and models that stand on several layers at once and work once on each.' },
     ],
     see: ['robot', 'arms'],
   },
@@ -115,15 +113,14 @@ export const GLOSSARY = [
     body: [
       { zh: '「扫帚」有一条<b>扫描臂</b>：一次扫过一整段格子，把整段的数一起送进电路板，段里有几格都行。', en: 'Broom has a <b>sweep arm</b>: it sweeps a whole run of cells in one go and feeds every number in the run into the circuit board, however many cells the run has.' },
       { zh: '一整段的线会画得更粗。汇合器、加法器和乘法器都能直接吃下一整段，段里的每个数都参与；闸门却不接一整段。', en: 'A wire carrying a whole segment is drawn thicker. Mergers, Adders and Multipliers take a whole segment directly, and every number in it takes part; gates do not take segments.' },
-      { zh: '有的关里，扫描臂带着<b>筛选</b>：只让符合条件的格子留在段里，筛掉的格子在视野里是暗的。', en: 'In some levels the sweep arm has a <b>filter</b>: only the cells that meet a condition stay in the segment, and the ones it drops are dimmed in the view.' },
     ],
     see: ['arms', 'manyWays'],
   },
   {
     id: 'dial', group: 'play', title: { zh: '扫描顺序', en: 'Scan order' }, at: 'order',
     body: [
-      { zh: '机器人按一定的<b>扫描顺序</b>走过表格：逐行从左上开始、逐行从右下开始、按长度从短到长……关卡的介绍里会讲它怎么走。', en: 'The robot walks the table in a <b>scan order</b>: row by row from the top left, row by row from the bottom right, by length from shortest to longest… Each level’s introduction tells you how it walks.' },
-      { zh: '顺序要跟着电路走：<b>被读的格子，必须排在读它的格子前面</b>。电路读右边和下面，就得从右下开始；读更短的段，就得按长度从短到长。合法的顺序常常不止一种。', en: 'The order has to follow the circuit: <b>a cell that is read must come before the cell that reads it</b>. A circuit that reads right and down has to start from the bottom right; one that reads shorter stretches has to go by length, shortest first. There is often more than one valid order.' },
+      { zh: '机器人按一定的<b>扫描顺序</b>走过表格：逐行从左上开始、逐行从右下开始……关卡的介绍里会讲它怎么走。', en: 'The robot walks the table in a <b>scan order</b>: row by row from the top left, row by row from the bottom right… Each level’s introduction tells you how it walks.' },
+      { zh: '顺序要跟着电路走：<b>被读的格子，必须排在读它的格子前面</b>。电路读右边和下面，就得从右下开始。', en: 'The order has to follow the circuit: <b>a cell that is read must come before the cell that reads it</b>. A circuit that reads right and down has to start from the bottom right.' },
     ],
     see: ['topo', 'testBoard'],
   },
@@ -143,7 +140,7 @@ export const GLOSSARY = [
     body: [
       { zh: '把每个格子看成一个小问题，把箭头看成「这个问题要用到那个答案」，就得到一张<b>依赖图</b>。箭头起点的格子，总要比终点的格子先算。', en: 'Think of each cell as a small question and each arrow as “this question needs that answer”, and you have a <b>dependency graph</b>. The cell an arrow starts from must always be worked out before the cell it ends at.' },
       { zh: '这张图不能有圈：A 等着 B，B 又等着 A，谁也算不出来。箭头有方向、又绕不成圈的图，叫<b>有向无环图</b>（DAG）。', en: 'The graph must have no loops: if A waits for B while B waits for A, neither can ever be worked out. A graph whose arrows have a direction and never loop round is called a <b>directed acyclic graph</b> (DAG).' },
-      { zh: '后面的每一张表，背后都是这样一张图：每一格是一个状态，箭头从它要读的格子指过来。游戏名里的「状态之图」，说的就是它。', en: 'Behind every table that follows is a graph like this: each cell is a state, and arrows point into it from the cells it reads. That is the “state graph” in the game’s name.' },
+      { zh: '一张表的背后，也是这样一张图：每一格是一个状态，箭头从它要读的格子指过来。游戏名里的「状态之图」，说的就是它。', en: 'Behind a table there is a graph like this too: each cell is a state, and arrows point into it from the cells it reads. That is the “state graph” in the game’s name.' },
     ],
     see: ['dp', 'topo', 'state'],
   },
@@ -220,8 +217,8 @@ export const GLOSSARY = [
   {
     id: 'layers', group: 'basics', title: { zh: '分层（扩展状态）', en: 'Layers (extending the state)' }, at: 'robber',
     body: [
-      { zh: '状态少记了一件事，就让它多记一件：把表复制成几层，每层代表一种情况，比如「这家偷了」和「这家没偷」，或者「有钥匙」和「没钥匙」。这叫给状态<b>加一维</b>。', en: 'If the state forgets something, make it remember one more thing: copy the table into several layers, one per situation, such as “robbed this house” and “left it alone”, or “has the key” and “has no key”. This is called <b>adding a dimension</b> to the state.' },
-      { zh: '然后规定层与层之间怎么走：在哪里，路线从一层搬到另一层；在哪一层，哪些格子走不通。「几种情况，加上它们之间怎么切换」，这种结构叫<b>状态机</b>。', en: 'Then lay down how to move between layers: where a route moves over from one layer to another, and which cells are blocked on which layer. A set of situations plus the rules for switching between them is called a <b>state machine</b>.' },
+      { zh: '状态少记了一件事，就让它多记一件：把表复制成几层，每层代表一种情况。这叫给状态<b>加一维</b>。', en: 'If the state forgets something, make it remember one more thing: copy the table into several layers, one per situation. This is called <b>adding a dimension</b> to the state.' },
+      { zh: '然后规定层与层之间怎么走。「几种情况，加上它们之间怎么切换」，这种结构叫<b>状态机</b>。', en: 'Then lay down how to move between layers. A set of situations plus the rules for switching between them is called a <b>state machine</b>.' },
     ],
     see: ['state', 'stateSize', 'memory'],
   },
@@ -257,7 +254,6 @@ export const GLOSSARY = [
     body: [
       { zh: '机器按某个<b>计算顺序</b>一格一格地算。一格要读的格子必须先算好，所以合法的顺序只有一条要求：<b>每一格都排在它要读的格子之后</b>。满足这个要求的顺序，叫<b>拓扑序</b>。', en: 'The machine works through the cells in some <b>computing order</b>. The cells a cell reads must be ready first, so a legal order has just one requirement: <b>every cell comes after the cells it reads</b>. An order that meets it is called a <b>topological order</b>.' },
       { zh: '顺序和电路是一对：电路决定每一格读谁，也就决定了哪些顺序合法；换一个顺序，电路能读的格子也跟着变。', en: 'The order and the circuit go together: the circuit decides which cells each cell reads, and so which orders are legal; change the order, and the cells the circuit can read change with it.' },
-      { zh: '合法的顺序常常不止一种，比如逐行、逐列、按长度，它们算出的答案一样。顺序不是答案的一部分，只是「先算谁」的安排。', en: 'There is often more than one legal order, such as row by row, column by column or by length, and they all give the same answers. The order is not part of the answer; it only arranges who goes first.' },
     ],
     see: ['dag', 'dial', 'topdown'],
   },
@@ -300,7 +296,6 @@ export const GLOSSARY = [
     id: 'lcs', group: 'classic', title: { zh: '最长公共子序列', en: 'Longest common subsequence' }, at: 'link',
     body: [
       { zh: '两串字里，<b>按顺序</b>都出现过的一串字，叫它们的<b>公共子序列</b>，中间可以跳过一些字。最长的那一串，就是<b>最长公共子序列</b>。', en: 'A string of letters that appears <b>in order</b> in both of two strings, with letters skipped in between allowed, is a <b>common subsequence</b>. The longest one is the <b>longest common subsequence</b>.' },
-      { zh: '把一个词写在上面、一个写在左边，就得到一张<b>对齐表</b>：每一格记着两个词各取前几个字时的答案，只需要看两个最后的字是相同还是不同。', en: 'Write one word along the top and the other down the left, and you have an <b>alignment table</b>: each cell holds the answer for the first so many letters of each word, and only needs to look at whether the two last letters match.' },
       { zh: '比较两份文件改了哪里、比对两段 DNA 有多像、判断两份作业是不是抄的，用的都是它。', en: 'Finding what changed between two files, comparing how alike two stretches of DNA are, telling whether one piece of homework was copied from another: they all use it.' },
     ],
     see: ['edit', 'local', 'stateSize'],
@@ -352,7 +347,7 @@ export const GLOSSARY = [
     id: 'manyWays', group: 'classic', title: { zh: '不定长的来路', en: 'Ways in of any number' }, at: 'prefix',
     body: [
       { zh: '有的表，一格的来路是固定的几格；可有的问题，来路是<b>前面一整段</b>，有几格还要看数据。', en: 'In some tables a cell has a fixed few ways in; in other problems the ways in are <b>a whole run of earlier cells</b>, and how many depends on the data.' },
-      { zh: '最简单的例子是<b>前缀和</b>：从头到这里一共有多少。可以每一格都从头扫一遍；也可以想一想，左边一格已经存着什么。能用上一格存好的答案，就别重扫。', en: 'The simplest example is the <b>prefix sum</b>: how much there is in all from the start up to here. You could sweep from the start on every cell, or you could ask what the cell to the left already holds. If an answer is already stored, do not sweep again.' },
+      { zh: '最简单的例子是<b>前缀和</b>：从头到这里一共有多少。', en: 'The simplest example is the <b>prefix sum</b>: how much there is in all from the start up to here.' },
       { zh: '只要来路都在前面、都已经算好，来路再多、再不固定，表也照样能填。', en: 'As long as the ways in are all earlier and already computed, the table can be filled however many there are and however they vary.' },
     ],
     see: ['sweep', 'lis', 'coin', 'wordBreak'],
@@ -386,8 +381,8 @@ export const GLOSSARY = [
     id: 'interval', group: 'classic', title: { zh: '区间动态规划', en: 'Interval DP' }, at: 'palin',
     body: [
       { zh: '有的问题，子问题是原来那一串里的<b>一段</b>：从第 i 个到第 j 个。把这些段排成一张<b>区间表</b>，格子 (i, j) 记着这一段的答案，只用到一半，因为一段的开头总在结尾前面。', en: 'In some problems the subproblems are <b>stretches</b> of the original string: from item i to item j. Lay them out as an <b>interval table</b>, where cell (i, j) holds that stretch’s answer; only half the table is used, since a stretch always starts before it ends.' },
-      { zh: '每一段都靠<b>更短的段</b>算出来：去掉一端、去掉两端，或者在某个<b>切分点</b>分成左右两段。所以只要短的段先算好，表就能填。', en: 'Every stretch is worked out from <b>shorter stretches</b>: drop one end, drop both, or cut it at some <b>split point</b> into a left part and a right part. So as long as shorter stretches are done first, the table can be filled.' },
-      { zh: '最长回文子序列、合并石子、给一串算式加括号、矩阵连乘的最佳顺序，都是区间表。', en: 'The longest palindromic subsequence, merging stones, bracketing a long sum, the best order to multiply a chain of matrices: they are all interval tables.' },
+      { zh: '每一段都靠<b>更短的段</b>算出来：去掉一端，或者去掉两端。所以只要短的段先算好，表就能填。', en: 'Every stretch is worked out from <b>shorter stretches</b>: drop one end, or drop both. So as long as shorter stretches are done first, the table can be filled.' },
+      { zh: '最长回文子序列、矩阵连乘的最佳顺序，都是区间表。', en: 'The longest palindromic subsequence and the best order to multiply a chain of matrices: they are both interval tables.' },
     ],
     see: ['topo', 'parse'],
   },

@@ -21,7 +21,6 @@ const zip = op => ([a, b]) => {
   return Array.from({ length: n }, (_, k) => one(Array.isArray(a) ? a[k] : a, Array.isArray(b) ? b[k] : b));
 };
 const SKIP = ['「—」不参与；全是「—」时，输出「—」。', '“—” is left out; if every input is “—”, the output is “—”.'];
-const SEG = ['也能接扫描臂送来的一整段，段里的每个数都参与。', 'It also takes a whole segment from a sweep arm, and every number in the segment takes part.'];
 const MERGER = T('汇合器', 'Merger');
 
 export const COMPONENTS = {
@@ -40,7 +39,6 @@ export const COMPONENTS = {
   clt: { name: T('比较器', 'Comparator'), tag: 'a < b', icon: '<', ins: ['num', 'num'], labels: ['a', 'b'], out: 'bool', f: ([a, b]) => (a === null || b === null ? null : a < b), desc: T('a 比 b 小时输出「是」，否则输出「否」。有一边是「—」时，输出「—」。', 'Outputs “yes” when a is less than b, “no” otherwise. If either side is “—”, the output is “—”.') },
   block: { name: T('拦截闸', 'Block gate'), tag: T('是 → 拦下', 'yes → block'), icon: T('拦', 'stop'), ins: ['bool', 'any'], labels: [T('条件', 'if'), T('数', 'num')], out: { copy: 1 }, f: ([c, v]) => (c ? null : v), desc: T('条件是「是」时，输出「—」；否则把另一个口收到的信号原样放过去。', 'When the condition is “yes”, outputs “—”; otherwise lets whatever signal reaches the other input through unchanged.') },
 };
-['add', 'mul', 'msum', 'mmin', 'mmax'].forEach(k => { const d = COMPONENTS[k].desc; COMPONENTS[k].desc = T(d.zh + SEG[0], `${d.en} ${SEG[1]}`); });
 
 /**
  * Boards the player built, now components, keyed 'bp:<levelId>'. Solving the level unlocks one as a black box: `f`, a
@@ -107,7 +105,7 @@ const READ = ([port], n, ctx, pick) => {
 };
 const LAYERED = T('多层视野读取器', 'Layered view reader');
 Object.assign(COMPONENTS, {
-  see: { name: T('视野', 'View'), tag: T('视野', 'view'), ins: [], out: 'input', f: READ, desc: T('机器人看得见的格子，和它的手臂够得到的格子。点一格，就多一个读那一格的输出口；再点一次，输出口就去掉。', 'The cells the robot sees, and the cells its arm reaches. Click a cell to add an output that reads it; click it again to remove that output.') },
+  see: { name: T('视野', 'View'), tag: T('视野', 'view'), ins: [], out: 'input', f: READ, desc: T('机器人看得见的格子。点一格，就多一个读那一格的输出口；再点一次，输出口就去掉。', 'The cells the robot sees. Click a cell to add an output that reads it; click it again to remove that output.') },
   seem: {
     name: LAYERED, tag: T('视野', 'view'), ins: [], out: 'input',
     f: READ,
@@ -118,8 +116,8 @@ Object.assign(COMPONENTS, {
     f: READ,
     desc: T('读某一层上机器人身边的格子，层号从左边的口接进来（从 0 数起）。点哪几格（最多 3 格），就读哪几格，每一格有自己的输出口。没有那一层，或那一格在棋盘外，就是「—」。', 'Reads cells around the robot on the layer whose number is wired into its port (counting from 0). Click up to three cells to read, and each gets an output of its own. If there is no such layer, or the cell is off the board, it is “—”.'),
   },
-  fact: { name: T('本格信息', 'This cell'), tag: T('本格', 'this cell'), ins: [], out: 'input', f: READ, desc: T('机器人脚下这一格的信息，比如「是起点」「是石头」。每选一条，就多一个读它的输出口。', 'Facts about the cell under the robot, such as “is start” or “is rock”. Each one you pick adds an output that reads it.') },
-  arm: { name: T('臂读取器', 'Arm reader'), tag: T('臂', 'arm'), ins: [], out: 'input', f: READ, desc: T('读机器人的手臂送来的数据：扫描臂扫过的一整排（一个数组），或伸缩臂够到的格子。放上后在卡片上选读哪一个。', 'Reads what the robot’s arm brings in: the whole row a sweep arm passes over (an array), or the cell a telescopic arm reaches. Once it is on the board, choose on the card which one it reads.') },
+  fact: { name: T('本格信息', 'This cell'), tag: T('本格', 'this cell'), ins: [], out: 'input', f: READ, desc: T('机器人脚下这一格的信息。每选一条，就多一个读它的输出口。', 'Facts about the cell under the robot. Each one you pick adds an output that reads it.') },
+  arm: { name: T('臂读取器', 'Arm reader'), tag: T('臂', 'arm'), ins: [], out: 'input', f: READ, desc: T('读机器人的手臂送来的数据。放上后在卡片上选读哪一个。', 'Reads what the robot’s arm brings in. Once it is on the board, choose on the card which one it reads.') },
   // A kind check: is this reading (a key's colour, say) of the kind set on the card? 「—」 (no key at all) is not.
   is: { name: T('类别判断器', 'Kind check'), tag: T('是这一类吗', 'is it this kind'), icon: '∈', ins: ['cat'], out: 'bool', f: ([v], n) => !!v && v.cat === n.value, desc: T('收到的类别（比如钥匙的颜色）是卡片上选的那一类，就输出「是」；不是，或收到「—」，输出「否」。', 'Outputs “yes” when the kind it receives (a key’s colour, say) is the one chosen on its card; otherwise, or for a “—”, “no”.') },
   // The divider: a ÷ b rounded down, or what is left over. Its models swap like a merger's (the wires stay).

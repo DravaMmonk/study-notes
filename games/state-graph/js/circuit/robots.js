@@ -60,7 +60,7 @@ export const ROBOTS = {
   },
   stack: {
     name: T('千层', 'Layercake'), vision: 1, arm: true, armName: T('探针', 'probe'),
-    desc: T('能同时站在很多层上：表有几层，它就在每一层的同一格上各算一次。每一层都有 3×3 的视野；探针还能探到另一层的格子，比如少一把钥匙的那一层、股票买卖时走过来的那一层。', 'It stands on many layers at once: however many layers the table has, it works once on the same cell of each. Every layer has a 3×3 view, and its probe reaches cells on another layer, such as the layer with one key fewer, or the one a trade steps over from.'),
+    desc: T('能同时站在很多层上：表有几层，它就在每一层的同一格上各算一次。每一层都有 3×3 的视野；探针还能探到另一层的格子。', 'It stands on many layers at once: however many layers the table has, it works once on the same cell of each. Every layer has a 3×3 view, and its probe reaches cells on another layer.'),
     look: look(`<path class="bot-ant" d="M16 1.5V5"/><circle class="bot-lamp" cx="16" cy="2" r="1.9"/>
       <rect class="bot-head" x="5" y="5" width="22" height="8" rx="3"/><rect class="bot-head" x="5" y="13.5" width="22" height="8" rx="3"/>
       <circle class="bot-eye" cx="12" cy="9" r="1.7"/><circle class="bot-eye" cx="20" cy="9" r="1.7"/>

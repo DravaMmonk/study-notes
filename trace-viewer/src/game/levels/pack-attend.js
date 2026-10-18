@@ -166,8 +166,8 @@ const level52 = {
     en: 'In reading order (left to right, then top to bottom), if the bright patch comes before the dark one, output 1 over the whole image; otherwise output 0.',
   },
   hint: {
-    zh: 'Q、K 决定看谁，V 决定带回什么。让一个头只看亮块、另一个只看暗块（先反相），都从带位置的图里取 V，再相减。',
-    en: 'Q and K decide whom to look at; V decides what comes back. Let one head look only at the bright patch and another only at the dark one (invert first), take V from the position-coded image for both, then subtract.',
+    zh: 'Q、K 决定看谁，V 决定带回什么。要让结果知道亮块和暗块各在哪儿，位置该从哪一路进来？',
+    en: 'Q and K decide whom to look at; V decides what comes back. For the result to know where the bright and dark patches sit, which input should carry the position?',
   },
   after: {
     zh: '没有位置时，把两个图块对调，注意力的输出也只是跟着对调：它看到的是一袋图块，不是一串。加上位置编码 z̃ᵢ = zᵢ + pᵢ，每个图块带着自己的地址，顺序才进得了计算。ViT 在进入第一层之前就把位置加到每个图块上。',

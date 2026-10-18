@@ -566,7 +566,7 @@ export const levels = [
     inputs: ['eps'],
     inputLabels: { eps: { zh: '噪声 ε', en: 'Noise ε' } },
     brief: { zh: '老师用每组的噪声 ε 画出了右边的斑点（z 从 N(μ, σ²) 中采样）。学出 μ 和 σ，用同样的 ε 画出同样的图。', en: 'The teacher drew the blob on the right from each set\'s noise ε (z sampled from N(μ, σ²)). Learn μ and σ, and draw the same image from the same ε.' },
-    hint: { zh: '采样器每算一次都换一个随机数，训练看到的只是噪声。能不能让随机只从 ε 进来？', en: 'The sampler draws a new random number every time it runs, so all training sees is noise. Can you make the randomness come in only through ε?' },
+    hint: { zh: '采样器每算一次都换一个随机数，训练看到的只是噪声。老师用的那组 ε 就在输入里。', en: 'The sampler draws a new random number every time it runs, so all training sees is noise. The teacher\'s ε is right there in the input.' },
     after: { zh: '采样这一步没法求导：每次重抽，训练分不清结果变好是因为改了 μ、σ 还是运气。把它写成 z = μ + σ·ε，随机全部来自输入 ε，z 对 μ、σ 就只是乘和加，梯度清清楚楚。这叫重参数化，VAE 的编码器就是这样训练的。', en: 'You cannot differentiate through the sampling step: with a fresh draw each time, training cannot tell whether a better result came from changing μ and σ or from luck. Write it as z = μ + σ·ε instead: all the randomness comes from the input ε, z is just a multiply and an add of μ and σ, and the gradient is perfectly clear. This is called reparameterization, and it is how a VAE\'s encoder is trained.' },
     requires: ['8-1'],
     unlocks: ['dg-reparam'],

@@ -14,7 +14,7 @@ export const layercake = [
     intro: [
       { t: T('你知道一只股票接下来每天的价格。只能<b>买一次、卖一次</b>，先买后卖，最多能赚多少？', 'You know a stock’s price on each of the coming days. You may <b>buy once and sell once</b>, buying first. How much can you make at most?') },
       { t: T('每天结束时，你处在三种状态之一：还没买、手里有股、卖掉了。每种状态一层，一天一列。', 'At the end of each day you are in one of three states: not bought yet, holding, or sold. Each state is a layer, with a column for each day.') },
-      { t: T('每一层都跑同一块电路板：要么<b>维持原样</b>（左边一格，前一天的同一层），要么<b>从来处那层走过来</b>：探针读来处那层的前一天，再加上这一步的进账。买入要付今天的价，卖出能得今天的价。', 'Every layer runs the same board: either <b>stay as you were</b> (the cell to the left, the same layer the day before), or <b>step over from the layer you come from</b>: the probe reads that layer the day before, and you add what the step brings in. Buying pays today’s price, selling earns it.') },
+      { t: T('每一层都跑同一块电路板。左边一格是前一天的同一层；探针读<b>来处那层</b>的前一天。从来处走到这一层的进账写在「本格信息」里：买入要付今天的价，卖出能得今天的价。', 'Every layer runs the same board. The cell to the left is the same layer the day before; the probe reads <b>the layer you come from</b>, the day before. What stepping over from there brings in is in the This cell panel: buying pays today’s price, selling earns it.') },
     ],
     mission: { goal: T('算出最多能赚多少钱。一次也不买也行，那就是 0。', 'Work out the most money you can make. Not trading at all is allowed, which makes 0.'), how: T('答案是最后一天「还没买」和「卖掉了」两层里较大的那个。', 'The answer is the larger of the “not bought yet” and “sold” layers on the last day.') },
     world: 'stock', facts: ['gain'], palette: KIT,
@@ -37,7 +37,7 @@ export const layercake = [
     world: 'stock', facts: ['gain'], palette: KIT,
     tests: [{ p: [1, 2, 3, 0, 2], cool: true }, { p: [1, 2, 4, 1, 7, 8, 3], cool: true }, { p: [6, 1, 6, 4, 3, 0, 2], cool: true }],
     solution: TRADER,
-    hints: [T('和上一关一样：维持原样，或者从来处走过来，取较大。', 'As last level: stay as you were, or step over from where you come from, and take the larger.')],
+    hints: [T('先试试上一关的电路板。', 'Try last level’s board first.')],
     debrief: { title: T('同一块电路板', 'The same board'), body: [T('电路板一点没变，变的只是层和层怎么接：「刚卖掉」走回「空手」，那一步就是歇着的那一天。', 'The board didn’t change at all; only how the layers connect did. Stepping from “just sold” back to “empty-handed” is the day of rest.'), T('上一关是这一关剪掉一根箭头：卖掉了，就回不去了。', 'Last level is this one with an arrow cut: once sold, there is no going back.')] },
   },
   {
@@ -63,7 +63,7 @@ export const layercake = [
       'na>out:no1', 'aa>out:yes1', 'nb>out:no2', 'ab>out:yes2', 'b>out:best',
     ]),
     hints: [
-      T('首尾不能都偷，所以每种偷法至少放过其中一家：要么第一家没偷，要么最后一家没偷。', 'The ends can’t both be robbed, so every plan leaves at least one of them alone: either the first house or the last.'),
+      T('首尾不能都偷。想一想：每种偷法里，第一家和最后一家至少有一家是什么样？', 'The ends can’t both be robbed. Think: in every plan, what must be true of at least one of the first and last houses?'),
       T('让甲记「第一家不偷」的直街，乙记「最后一家不偷」的直街：拦截闸在那一家拦下「偷了」。', 'Let A run the straight street where the first house is left alone, and B the one where the last is: a Block gate stops “robbed” on that house.'),
     ],
     debrief: { title: T('拆成两种情况', 'Split into two cases'), body: [T('一圈拆不开，就分情况：第一家不偷，剩下的是一条直街；最后一家不偷，也是一条直街。两种情况取较大。', 'A ring won’t straighten out, so split it into cases: leave the first house alone and the rest is a straight street; leave the last alone and so is that. Take the better of the two.')] },

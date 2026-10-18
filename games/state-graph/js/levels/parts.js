@@ -25,7 +25,7 @@ export const CHAPTERS = [
 ];
 
 export const PARTS = {
-  counter: { name: T('路线计数器', 'Route Counter'), desc: T('电路零件：上面 + 左边汇合加起来，起点放行 1。能数出任意大小棋盘城市的路线数，可以直接放上后面的电路板。', 'A circuit part: merge up + left by adding them, and let a 1 through at the start. It counts the routes in a grid city of any size, and goes straight onto later circuit boards.') },
+  counter: { name: T('路线计数器', 'Route Counter'), desc: T('电路零件：上面 + 左边汇合加起来，起点放行 1。能数出任意大小棋盘城市的路线数，可以直接放上电路板。', 'A circuit part: merge up + left by adding them, and let a 1 through at the start. It counts the routes in a grid city of any size, and goes straight onto a circuit board.') },
   rock: { name: T('拦截闸', 'Block Gate'), desc: T('条件是「是」时输出「—」。拦在石头格上，经过它的路线就全被掐断。', 'Outputs “—” when its condition is “yes”. Put it on the rock cells and every route through them is cut off.') },
   stairs: { name: T('台阶计数器', 'Stair Counter'), desc: T('电路：前 1 级 + 前 2 级，地面放行 1。它和路线计数器是同一个结构。', 'A circuit: 1 step down + 2 steps down, with a 1 let through at ground level. It has the same structure as the Route Counter.') },
   order: { name: T('填表顺序', 'Fill Order'), desc: T('每个格子都要排在它要读的格子之后。顺序反过来，电路读的方向也得跟着反过来。', 'Every cell must come after the cells it reads. Reverse the order, and the directions the circuit reads must reverse too.') },

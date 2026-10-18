@@ -18,7 +18,7 @@ export const farsight = [
     tests: [{ n: 6, broken: [3] }, { n: 8, broken: [2, 5] }, { n: 10, broken: [4, 7] }],
     solution: circ([['c', 'bp:stairs'], ['b', 'block']], ['tap:m1>c:0', 'tap:m2>c:1', 'tap:ground>c:2', 'tap:broken>b:0', 'c>b:1', 'b>out:cell']),
     hints: [
-      T('零件箱里的「台阶计数器」已经会数走法了。', 'The “Stair Counter” in your parts box already counts the ways.'),
+      T('元件箱里的「台阶计数器」已经会数走法了。', 'The “Stair Counter” in your components box already counts the ways.'),
       T('坏台阶上要掐断：拦截闸在条件是「是」时输出「—」。', 'Cut off the broken steps: a Block gate outputs “—” when its condition is “yes”.'),
     ],
     diagnose: c => (!usesSensor(c, 'broken') ? tr('有的台阶坏了，踩不得。读一读「是坏台阶」。', 'Some steps are broken and can’t be stepped on. Read “is broken”.') : null),
@@ -35,7 +35,7 @@ export const farsight = [
     tests: [{ s: 'CHARACTER' }, { s: 'AGBDBA' }, { s: 'BBABCBCAB' }],
     solution: circ([['a', 'add'], ['k', 'const', 2], ['g', 'pass'], ['m', 'mmax']], ['tap:dl>a:0', 'k>a:1', 'tap:same>g:0', 'a>g:1', 'tap:down>m:0', 'tap:left>m:1', 'g>m:2', 'm>out:cell']),
     hints: [
-      T('两头的字母相同：两头都挑上，中间那一段再挑。那就是左下一格 + 2。', 'If the two end letters match, pick them both and pick from the run between them: the cell down-left + 2.'),
+      T('两头的字母相同时，两头都能挑上。剩下要挑的是哪一段，在哪一格？', 'If the two end letters match, both can be picked. Which run is left to pick from, and which cell holds it?'),
       T('两头不同：至少有一头用不上。扔掉左头是下面一格，扔掉右头是左边一格，取较大。', 'If they differ, at least one end goes unused. Dropping the left end is the cell below, dropping the right end the cell to the left: take the larger.'),
     ],
     diagnose: c => (!usesSensor(c, 'dl') && usesSensor(c, 'same') ? tr('两头都挑上时，剩下的是去掉两头之后的那一段：左下那一格。', 'When both ends are picked, what is left is the run without both ends: the cell down-left.') : null),
@@ -56,7 +56,7 @@ export const farsight = [
     // The naive board answers "can you get here", which is yes everywhere.
     naive: circ([['m', 'many']], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>m:2', 'm>out:cell']),
     hints: [
-      T('奇 + 奇 = 偶，奇 + 偶 = 奇：上面和左边<b>正好一个</b>是奇数，这里才是奇数。', 'Odd + odd = even, odd + even = odd: a crossing is odd only when <b>exactly one</b> of up and left is odd.'),
+      T('奇 + 奇 = 偶，奇 + 偶 = 奇：上面和左边怎样搭配时，这里才是奇数？', 'Odd + odd = even, odd + even = odd: which mix of up and left makes a crossing odd?'),
       T('城外送来的是「—」，可在这里它应该算偶数（0 条路线）。只接一个输入的「任一是」，会把「—」变成「否」。', 'Outside the city you get “—”, but here it should count as even (0 routes). An any-yes with a single input turns “—” into “no”.'),
     ],
     debrief: { title: T('你拼出了「异或」', 'You built XOR'), body: [T('「正好一个是」叫异或。你只用任一是、取反和放行闸，就把它拼了出来。', '“Exactly one is yes” is called XOR, and you built it from any-yes, Not and Pass gates alone.'), T('表的一格不必存完整的数，只要存问题需要的那一点。奇偶只要 1 位就够了。', 'A cell need not hold the whole number, only the part the question needs. Odd or even takes a single bit.')] },
@@ -64,7 +64,7 @@ export const farsight = [
   {
     id: 'replace', ch: 3, title: T('改一个字母', 'Change a letter'), short: T('只许替换', 'Replacements only'), mode: 'circuit', robot: 'ranger',
     intro: [
-      { t: T('拼写纠错从这里开始：输错一个词时，看它离正确的词有多远。先只许一种改法：<b>把一个字母换成另一个</b>，每换一个算 1 步。两个词一样长。', 'Spelling correction starts here: when a word is mistyped, see how far it is from the right one. For now only one kind of change is allowed: <b>swap one letter for another</b>, 1 step each. The two words are the same length.') },
+      { t: T('拼写纠错：输错一个词时，看它离正确的词有多远。这一关只许一种改法：<b>把一个字母换成另一个</b>，每换一个算 1 步。两个词一样长。', 'Spelling correction: when a word is mistyped, see how far it is from the right one. In this level only one kind of change is allowed: <b>swap one letter for another</b>, 1 step each. The two words are the same length.') },
       { t: T('表还是对齐表：上面一个词，左边一个词。只换字母时，左边第 i 个字母只会对上上面第 i 个，所以答案沿着对角线走过来。', 'The table is still the alignment table: one word along the top, one down the left. With swaps only, letter i on the left only ever lines up with letter i on top, so the answer comes down the diagonal.') },
     ],
     mission: { goal: T('算出把左边的词改成上面的词，最少要换几个字母。', 'Work out the fewest letters to swap to turn the word on the left into the word on top.'), how: T('左上那一格是「前面的字母都改好了」。', 'The cell up-left means “all the letters before are already fixed”.') },
@@ -76,6 +76,6 @@ export const farsight = [
       T('起点是两个空词，0 步。', 'The start is two empty words: 0 steps.'),
     ],
     diagnose: c => (usesSensor(c, 'up') || usesSensor(c, 'left') ? tr('这一关只许换字母，用不上上面和左边：只看左上。', 'This level only allows swaps, so up and left are no use: look only at up-left.') : null),
-    debrief: { title: T('沿着对角线', 'Down the diagonal'), body: [T('只看左上：前面都改好了，这一个字母要么不动，要么换掉。', 'Up-left only: everything before is fixed, and this letter either stays or is swapped.'), T('下一关还许插入和删除，那时上面和左边也会用上。', 'Next level also allows inserting and deleting, and then up and left come into play too.')] },
+    debrief: { title: T('沿着对角线', 'Down the diagonal'), body: [T('只看左上：前面都改好了，这一个字母要么不动，要么换掉。', 'Up-left only: everything before is fixed, and this letter either stays or is swapped.')] },
   },
 ];

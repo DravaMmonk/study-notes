@@ -33,7 +33,7 @@ export const sweep = [
       },
     ],
     unlock: 'sweep',
-    debrief: { title: T('能用上一格，就别重扫', 'If the last cell will do, don’t sweep again'), body: [T('两种做法答案一样。可扫描臂在第 n 家要读 n 格，100 户人家一共要读 5050 格；用左边一格，每家只读 1 格，一共 100 格。', 'Both ways give the same answers. But the sweep arm reads n cells at house n, so 100 houses take 5,050 reads in all; using the cell on the left, each house reads just 1 cell, 100 in all.'), T('<b>能用上一格存好的答案，就别从头再扫一遍</b>：这是动态规划的老规矩。', '<b>If the previous cell has already stored the answer, don’t sweep again from the start</b>: that is an old rule of dynamic programming.'), T('可有的问题，左边一格<b>不够用</b>：答案要从一整段里挑。下一关就是。', 'But for some problems, the cell on the left <b>isn’t enough</b>: the answer has to be picked from a whole run. The next level is one of those.')], note: T('前缀和：到这一家一共 = 到上一家一共 + 这家。能用上一格，就别重扫。', 'Prefix sums: total up to this house = total up to the previous one + this house. If the last cell will do, don’t sweep again.') },
+    debrief: { title: T('能用上一格，就别重扫', 'If the last cell will do, don’t sweep again'), body: [T('两种做法答案一样。可扫描臂在第 n 家要读 n 格，100 户人家一共要读 5050 格；用左边一格，每家只读 1 格，一共 100 格。', 'Both ways give the same answers. But the sweep arm reads n cells at house n, so 100 houses take 5,050 reads in all; using the cell on the left, each house reads just 1 cell, 100 in all.'), T('<b>能用上一格存好的答案，就别从头再扫一遍</b>：这是动态规划的老规矩。', '<b>If the previous cell has already stored the answer, don’t sweep again from the start</b>: that is an old rule of dynamic programming.')], note: T('前缀和：到这一家一共 = 到上一家一共 + 这家。能用上一格，就别重扫。', 'Prefix sums: total up to this house = total up to the previous one + this house. If the last cell will do, don’t sweep again.') },
   },
   {
     id: 'rising', ch: 11, title: T('越来越高', 'Ever taller'), short: T('在一整段里挑', 'Pick from a whole run'), mode: 'circuit', robot: 'broom',
@@ -54,7 +54,7 @@ export const sweep = [
     id: 'change', ch: 11, title: T('凑零钱', 'Making change'), short: T('每种硬币各退一步', 'Step back by each kind of coin'), mode: 'circuit', robot: 'broom',
     intro: [
       { t: T('用 1 元、2 元、5 元的硬币凑出 7 元，<b>最少要几枚</b>？又有<b>几种付法</b>？', 'With 1, 2 and 5 yuan coins, how do you make 7 yuan with <b>the fewest coins</b>? And <b>how many ways</b> are there to pay it?'), fig: { cells: row(8, i => (i === 0 ? 0 : i === 7 ? '?' : ''), i => (i === 7 ? 'sel' : i === 0 ? 'lit' : '')), edges: [] } },
-      { t: T('格子 i 记着凑出 i 元的答案。只看<b>最后一枚</b>硬币：它可能是 1 元、2 元或 5 元，付它之前，分别凑到了 i − 1、i − 2、i − 5 元。', 'Cell i holds the answer for making i yuan. Look only at <b>the last coin</b>: it may be 1, 2 or 5 yuan, so before paying it you had made i − 1, i − 2 or i − 5 yuan.') },
+      { t: T('格子 i 记着凑出 i 元的答案。', 'Cell i holds the answer for making i yuan.') },
       { t: T('这一关的扫描臂按<b>每种硬币各退一枚</b>来扫：有几种硬币，就送来几格。退到 0 元以下的是「界外」。', 'This level’s sweep arm sweeps by <b>stepping back one coin of each kind</b>: as many kinds of coin, as many cells it sends. Stepping back below 0 yuan lands “out”.') },
     ],
     mission: { goal: T('用给定的几种硬币凑钱。先算最少要几枚硬币，再算一共有几种付法（先付哪一枚算不同的付法）。凑不出来就是「—」。', 'Make each amount from the given coins. First work out the fewest coins needed, then how many ways there are to pay (paying the coins in a different order counts as a different way). An amount that can’t be made is “—”.'), how: T('这一关有两个阶段，电路板会留到第二阶段。', 'This level has two stages, and the circuit board carries over to the second.') },
@@ -70,7 +70,7 @@ export const sweep = [
       {
         world: 'coins', facts: ['ground'], palette: KIT, carry: true, ask: T('一共有几种付法？先付哪一枚，算不同的付法。', 'How many ways are there to pay? Paying the coins in a different order counts as a different way.'),
         solution: circ([['m', 'msum'], ['k', 'const', 1], ['g', 'pass']], ['tap:seg>m:0', 'tap:ground>g:0', 'k>g:1', 'g>m:1', 'm>out:cell']),
-        hints: [T('最后一枚是哪一种都行，每种都算：把每种硬币退一枚之前的付法数加起来。', 'The last coin can be any kind, and each kind counts: add up the ways to pay from before each kind of coin.'), T('0 元算一种付法（什么也不付）：「是 0 元」放行一个 1。这次不用 + 1 了。', '0 yuan counts as one way to pay (paying nothing): let a 1 through on “is 0 yuan”. No + 1 this time.')],
+        hints: [T('最后一枚是哪一种都行，每种都算。', 'The last coin can be any kind, and each kind counts.'), T('0 元算一种付法（什么也不付）：「是 0 元」放行一个 1。这次不用 + 1 了。', '0 yuan counts as one way to pay (paying nothing): let a 1 through on “is 0 yuan”. No + 1 this time.')],
       },
     ],
     debrief: { title: T('硬币问题', 'The coin problem'), body: [T('扫描臂按每种硬币各退一步，因为最后一枚可能是任何一种。求最少几枚，取较小再 + 1；数付法，就加起来。', 'The sweep arm steps back by each kind of coin, because the last coin can be any kind. For the fewest coins, take the min and + 1; to count the ways to pay, add them up.'), T('看看第二个问题的答案：1 + 2 和 2 + 1 被算成了两种。表只记「凑到了几元」，不记用过哪些硬币，所以<b>先付哪一枚</b>就算不同的付法。只想数组合的话，得一种硬币一种硬币地加进来，就像「背包表」那一关。', 'Look at the answers to the second question: 1 + 2 and 2 + 1 were counted as two ways. The table records only “how much has been made”, not which coins were used, so <b>the order you pay in</b> makes a different way. To count combinations only, you would have to bring the coins in one kind at a time, like the “Knapsack table” level.')], note: T('凑零钱：最后一枚可能是任何一种硬币，来路就是每种硬币各退一步。', 'Making change: the last coin can be any kind, so the ways in are one step back by each kind of coin.') },

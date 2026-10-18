@@ -447,12 +447,12 @@ export const levels = [
       en: 'Each keypoint in the left image takes the candidate in the right image whose 5×5 window is most alike (smallest distance d = √SSD). Set a rule for which matches to accept: in all three sets, no accepted match may be wrong, and every distinctive point must be found.',
     },
     hint: {
-      zh: '点开一个连错的点，比较它的第一名 d₁ 和第二名 d₂。重复的纹理里，最像的不一定是对的。',
-      en: 'Open a point that is matched wrongly and compare its first place d₁ with its second place d₂. In repeated texture, the most alike is not always the right one.',
+      zh: '点开一个连错的点，看看排在它前面的几个候选。重复的纹理里，最像的不一定是对的。',
+      en: 'Open a point that is matched wrongly and look at its top few candidates. In repeated texture, the most alike is not always the right one.',
     },
     after: {
-      zh: '栅栏一格格完全一样，第一名和第二名几乎一样近：这种匹配再“像”也不可信，而且 d₁ 本身可以很小，所以只看距离挡不住它。距离比检验 d₁ / d₂ < r 只接受第一名明显领先的匹配，整体变亮也不影响比值。课上取 r = 0.8；剩下的错误要靠几何一致性再筛。',
-      en: 'Every tile of the fence is identical, so the first and second places are almost equally close: however "alike" such a match is, it cannot be trusted, and d₁ itself can be very small, so a distance threshold alone cannot stop it. The ratio test d₁ / d₂ < r only accepts a match whose first place is clearly ahead, and a brighter image does not change the ratio. The lecture uses r = 0.8; the mistakes that remain are filtered out by geometric consistency.',
+      zh: '栅栏一格格完全一样，第一名和第二名几乎一样近：这种匹配再“像”也不可信，而且 d₁ 本身可以很小，所以只看距离挡不住它。距离比检验 d₁ / d₂ < r 只接受第一名明显领先的匹配，整体变亮也不影响比值。课上取 r = 0.8。',
+      en: 'Every tile of the fence is identical, so the first and second places are almost equally close: however "alike" such a match is, it cannot be trusted, and d₁ itself can be very small, so a distance threshold alone cannot stop it. The ratio test d₁ / d₂ < r only accepts a match whose first place is clearly ahead, and a brighter image does not change the ratio. The lecture uses r = 0.8.',
     },
     requires: ['6-1'],
     unlocks: [],
@@ -474,8 +474,8 @@ export const levels = [
       en: "With cells too fine, one line's noisy votes do not land in the same cell; too coarse, and two nearby lines squeeze into one peak.",
     },
     after: {
-      zh: 'Hough 把“找一条线”变成“在累加器里找峰”。分箱太细，噪声把一条线的票拆成许多小峰；太粗，相近的两条线合成一个峰。合适的分箱取决于噪声和线的间距。直线只有 2 个参数；单应变换有 8 个，每维 10 格就是 10⁸ 格，所以下一关换一种办法。',
-      en: 'Hough turns "find a line" into "find a peak in the accumulator". With bins too fine, noise splits one line\'s votes into many small peaks; too coarse, and two nearby lines merge into one peak. The right bin size depends on the noise and on how far apart the lines are. A line has only 2 parameters; a homography has 8, and 10 cells per dimension makes 10⁸ cells, so the next level takes another approach.',
+      zh: 'Hough 把“找一条线”变成“在累加器里找峰”。分箱太细，噪声把一条线的票拆成许多小峰；太粗，相近的两条线合成一个峰。合适的分箱取决于噪声和线的间距。',
+      en: 'Hough turns "find a line" into "find a peak in the accumulator". With bins too fine, noise splits one line\'s votes into many small peaks; too coarse, and two nearby lines merge into one peak. The right bin size depends on the noise and on how far apart the lines are.',
     },
     requires: ['6-2'],
     unlocks: [],
@@ -516,8 +516,8 @@ export const levels = [
       en: 'Drag from a point on the cover to the same point in the photo to make a pair of corresponding points. The cover is pasted back onto the photo; you pass when the mean error is under 1.5 pixels.',
     },
     hint: {
-      zh: '3 对点只能定出仿射变换，平行线永远平行。斜着拍的书，远的一边更短。',
-      en: 'Three pairs only fix an affine transform, where parallel lines always stay parallel. In a book photographed at an angle, the far edge is shorter.',
+      zh: '贴回去的封面哪里对不上？斜着拍的书，远的一边更短。',
+      en: 'Where does the pasted cover fail to line up? In a book photographed at an angle, the far edge is shorter.',
     },
     after: {
       zh: '单应矩阵 H 有 8 个自由度，每对点给 2 个方程，所以至少要 4 对点，游戏用 DLT 从你的点对解出了 H。3 对点只能定出仿射（6 个自由度），它保持平行，贴不上透视下的书。实际流水线里，这些点对来自距离比检验后的候选，再由 RANSAC 反复抽 4 对、数内点选出来。',

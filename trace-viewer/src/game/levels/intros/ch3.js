@@ -81,8 +81,8 @@ export default {
     },
     {
       t: {
-        zh: '后面找物体，靠的是照片里明暗突变的地方。阴影也会造出明暗突变。要想的问题：照片里一条明暗分界线，一定是物体的边吗？手机扫描文件时去掉纸上的阴影，碰到的就是这件事。',
-        en: 'Finding objects later on relies on places where brightness jumps. Shadows make brightness jumps too. Something to think about: is a line between light and dark in a photo always the edge of an object? A phone app removing the shadow from a scanned page runs into exactly this.',
+        zh: '找物体，常靠照片里明暗突变的地方。阴影也会造出明暗突变。要想的问题：照片里一条明暗分界线，一定是物体的边吗？手机扫描文件时去掉纸上的阴影，碰到的就是这件事。',
+        en: 'Finding objects often relies on places where brightness jumps. Shadows make brightness jumps too. Something to think about: is a line between light and dark in a photo always the edge of an object? A phone app removing the shadow from a scanned page runs into exactly this.',
       },
     },
     {
@@ -96,8 +96,8 @@ export default {
   '3-5': [
     {
       t: {
-        zh: '前四关讲明暗从哪来，从这一关起开始找边。边就是明暗变化很快的地方。要找它，先得说清「这里变得有多快」，往哪个方向变。',
-        en: 'The first four levels were about where light and dark come from. From this level on, you look for edges. An edge is where brightness changes quickly. To find one, you first need to say how fast it changes here, and in which direction.',
+        zh: '前四关讲明暗从哪来，这一关转向边。边就是明暗变化很快的地方。要找它，先得说清「这里变得有多快」，往哪个方向变。',
+        en: 'The first four levels were about where light and dark come from. This level turns to edges. An edge is where brightness changes quickly. To find one, you first need to say how fast it changes here, and in which direction.',
       },
     },
     {
@@ -122,8 +122,8 @@ export default {
   '3-6': [
     {
       t: {
-        zh: '上一关你在一个点上量了坡度。真要找边，得在每个像素都量，再画成一张图：越陡越亮。这张图叫边缘强度图，后面找角点、找直线，几乎都从它开始。',
-        en: 'In the last level you measured the slope at one point. To really find edges you measure it at every pixel and draw the result as an image: the steeper, the brighter. This is the edge strength map, and almost everything later, finding corners or finding lines, starts from it.',
+        zh: '上一关你在一个点上量了坡度。真要找边，得在每个像素都量，再画成一张图：越陡越亮。这张图叫边缘强度图。',
+        en: 'In the last level you measured the slope at one point. To really find edges you measure it at every pixel and draw the result as an image: the steeper, the brighter. This is the edge strength map.',
       },
     },
     {

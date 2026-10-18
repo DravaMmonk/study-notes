@@ -21,7 +21,7 @@ export const loopLevels = [
     solution: circ([['m', 'mmax'], ['k', 'const', 0.9], ['x', 'mul']], ['tap:right>m:0', 'tap:down>m:1', 'm>x:0', 'k>x:1', 'x>out:cell']),
     hints: [T('只能往右或往下：右边、下面接进「取较大」，再乘 0.9。', 'Right or down only: wire right and down into a max, then multiply by 0.9.')],
     diagnose: c => (usesSensor(c, 'up') || usesSensor(c, 'left') ? tr('这张地图上只能往右或往下走：上面和左边走不过去。', 'On this map you only move right or down: up and left can’t be reached.') : null),
-    debrief: { title: T('格子世界的简化版', 'The grid world, simplified'), body: [T('只有两个方向，每一格都只看右边和下面。接下来的两关，地板会打滑：同一个动作，可能落到不同的格子。', 'With two directions, every cell looks only right and down. In the next two levels the floor is slippery: the same move may land on different cells.')] },
+    debrief: { title: T('格子世界的简化版', 'The grid world, simplified'), body: [T('只有两个方向，每一格都只看右边和下面。', 'With two directions, every cell looks only right and down.')] },
   },
   {
     id: 'ice', ch: 15, title: T('有冰有地', 'Ice and ground'), short: T('每一格滑得不一样', 'Every cell slips its own way'), mode: 'circuit', robot: 'loop',

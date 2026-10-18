@@ -8,7 +8,7 @@ const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 
 export const boxy = [
   {
-    id: 'maxcoins', ch: 5, title: T('最值钱的路', 'The richest route'), short: T('挑金币多的那边', 'The side with more gold'), mode: 'circuit', robot: 'scout',
+    id: 'maxcoins', ch: 5, title: T('最值钱的路', 'The richest route'), short: T('一路捡金币', 'Gold along the way'), mode: 'circuit', robot: 'scout',
     intro: [
       { t: T('每个路口上放着一些金币，就是格子左上角的数字。只能往右或往下走，经过的路口，金币都归你，起点和终点也算。', 'Every crossing holds some gold coins: the number in each cell’s top-left corner. You may only go right or down, and you keep the coins at every crossing you pass through, start and end included.') },
     ],
@@ -21,7 +21,7 @@ export const boxy = [
     ],
     solution: circ([['m', 'mmax'], ['k', 'const', 0], ['g', 'pass'], ['a', 'add']], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>g:0', 'k>g:1', 'g>m:2', 'm>a:0', 'tap:coin>a:1', 'a>out:cell']),
     hints: [
-      T('只能走一条路：两边比一比，留下金币更多的那边。', 'You walk one route only: compare the two sides and keep the richer one.'),
+      T('只能走一条路：到这个路口，两边你会选哪一边？', 'You walk one route only: at this crossing, which side would you pick?'),
       T('起点没有来路，取较大只能得到「—」。在起点往汇合器里送一个 0。', 'The start has no way in, so the max gives “—”. At the start, feed a 0 into the merger.'),
     ],
     diagnose: c => (hasKind(c, 'mmin') && !hasKind(c, 'mmax') ? tr('这次要的是金币最多：用「取较大」。', 'This time you want the most gold: use “max”.') : null),
@@ -45,7 +45,7 @@ export const boxy = [
     debrief: { title: T('杨辉三角', 'Pascal’s triangle'), body: [T('每块砖的数 = 正上方 + 左上方。这就是杨辉三角，也是「从 n 个里选 k 个」的方法数。', 'Each brick’s number = right above + up-left. This is Pascal’s triangle, and also the number of ways to choose k things out of n.'), T('表不一定是方的：只要每格知道自己的来路，什么形状都能填。', 'A table need not be square: any shape can be filled, as long as each cell knows its ways in.')] },
   },
   {
-    id: 'pits', ch: 5, title: T('有坑也有价', 'Pits and prices'), short: T('两个零件一起用', 'Two parts together'), mode: 'circuit', robot: 'scout',
+    id: 'pits', ch: 5, title: T('有坑也有价', 'Pits and prices'), short: T('又要体力，又有坑', 'Energy costs and pits'), mode: 'circuit', robot: 'scout',
     intro: [
       { t: T('这座城市的路口既要花体力，有的还塌成了坑，根本过不去。', 'In this city every crossing costs energy, and some have caved in and can’t be passed at all.') },
     ],
@@ -58,7 +58,7 @@ export const boxy = [
     ],
     solution: circ([['c', 'bp:cheapest'], ['b', 'block']], ['tap:up>c:0', 'tap:left>c:1', 'tap:start>c:2', 'tap:cost>c:3', 'tap:rock>b:0', 'c>b:1', 'b>out:cell']),
     hints: [
-      T('零件箱里的「最省力格」已经会算体力了。', 'The “Cheapest cell” in your parts box already works out the energy.'),
+      T('体力和坑，这两件事你以前分别处理过吗？', 'Energy and pits: have you handled each of them before?'),
       T('坑上要掐断：拦截闸在条件是「是」时输出「—」。', 'Cut off the pits: a Block gate outputs “—” when its condition is “yes”.'),
     ],
     diagnose: c => (!usesSensor(c, 'rock') ? tr('有的路口是坑，过不去。读一读「是石头」。', 'Some crossings are pits and can’t be passed. Read “is rock”.') : null),
@@ -83,6 +83,7 @@ export const boxy = [
     // A challenge: the naive board grows the square from the larger of up and left, as if one side were enough.
     naive: circ([['m', 'mmax'], ['k', 'const', 1], ['a', 'add'], ['g', 'pass'], ['z', 'const', 0], ['s', 'msum']], ['tap:up>m:0', 'tap:left>m:1', 'm>a:0', 'k>a:1', 'tap:open>g:0', 'a>g:1', 'g>s:0', 'z>s:1', 's>out:cell']),
     hints: [
+      T('答案是整张表里最大的数。每一格里的数，该描述一个什么样的正方形？', 'The answer is the largest number in the table. What square should the number in each cell describe?'),
       T('让每一格只回答一个问题：以它为右下角的正方形，最大能有多大？', 'Let each cell answer one question only: how big can a square be whose bottom-right corner it is?'),
     ],
     debrief: { title: T('一格存什么', 'What a cell holds'), body: [T('一格存的是「以我为右下角的最大正方形边长」。它比上面、左边、左上三格里最小的那个多 1：任何一边短了，正方形都撑不大。', 'A cell holds “the side of the biggest square whose bottom-right corner I am”. It is one more than the smallest of the cells above, to the left and up-left: if any of them is short, the square can’t grow.'), T('树下面是 0：「加起来」汇合器把「—」跳过，只剩常数 0。', 'Under a tree it is 0: the “sum” merger skips the “—” and only the Constant 0 is left.'), T('难的不是接线，是想清楚一格该存什么。', 'The hard part was not the wiring but deciding what a cell should hold.')] },

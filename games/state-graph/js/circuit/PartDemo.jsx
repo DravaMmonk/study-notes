@@ -11,7 +11,7 @@ import { BLUEPRINTS, def, evaluate } from './components.js'
 import { litOf, viewHTML } from './editor.js'
 import { toGraph, partsFor } from './board.js'
 
-// A part on a bench in the parts box (games/kit/shell/PartsBook.jsx), the way its level is played: a test board, the
+// A part on a bench in the components box (games/kit/shell/PartsBook.jsx), the way its level is played: a test board, the
 // robot's view and the board the level is solved with, the part's own components picked out. The test board starts
 // filled the way that board fills it; click a cell to put the robot there. An input card reads the board, so changing
 // it changes the cell it reads; constants and a merger's model change on their cards. Run computes the robot's cell

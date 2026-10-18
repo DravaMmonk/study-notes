@@ -19,8 +19,8 @@ export const strings = [
     ],
     mission: { goal: T('两道题里，都连出最多的线。只能连相同的字，每个字最多连一根线，线不能交叉。', 'In both puzzles, draw as many lines as possible. Only link equal letters, each letter takes at most one line, and lines can’t cross.'), how: T('先点一个字，再点另一行里相同的字，就连上一根线。点一个已经连线的字，可以拆掉它的线。', 'Click a letter, then the same letter in the other row, to draw a line. Click a letter that already has a line to remove it.') },
     tests: [{ a: 'CABD', b: 'ABCD' }, { a: 'ABCBDAB', b: 'BDCABA' }],
-    hints: [T('先别连 C。C 在上面排第一，在下面排第三，连了它，A 和 B 就都连不上了。试试 A、B、D。', 'Leave C alone for now. C is first on top but third below, so linking it blocks both A and B. Try A, B, D.'), T('目标是 4 根。B、C、B、A 是一种连法，B、D、A、B 是另一种。', 'The target is 4 lines. B, C, B, A is one way; B, D, A, B is another.')],
-    debrief: { title: T('最长公共子序列', 'Longest common subsequence'), body: [T('你连出的线，从左往右读，就是两串字共有的一串，叫作<b>公共子序列</b>。最多能连几根，就是<b>最长公共子序列</b>的长度。', 'Read from left to right, the lines you drew spell out a sequence both strings share: a <b>common subsequence</b>. The most lines you can draw is the length of the <b>longest common subsequence</b>.'), T('它的用途很多：比较两份文件改了哪里、比对两段 DNA 有多像、判断两份作业是不是抄的。', 'It has many uses: finding what changed between two versions of a file, measuring how alike two stretches of DNA are, telling whether one homework was copied from another.'), T('四五个字还能试出来，可两段 DNA 动辄上万个字母，不可能一根根地试。下一关，把它交给表格。', 'With four or five letters you can find it by trial, but stretches of DNA run to tens of thousands of letters, far too many to try line by line. Next level, we hand it to a table.')], note: T('公共子序列：两串字里，按顺序都出现的一串。连线不能交叉。', 'Common subsequence: letters that appear in order in both strings. The lines can’t cross.') },
+    hints: [T('先别连 C。C 在上面排第一，在下面排第三，连了它，A 和 B 就都连不上了。', 'Leave C alone for now. C is first on top but third below, so linking it blocks both A and B.'), T('目标是 4 根。B、C、B、A 是一种连法，B、D、A、B 是另一种。', 'The target is 4 lines. B, C, B, A is one way; B, D, A, B is another.')],
+    debrief: { title: T('最长公共子序列', 'Longest common subsequence'), body: [T('你连出的线，从左往右读，就是两串字共有的一串，叫作<b>公共子序列</b>。最多能连几根，就是<b>最长公共子序列</b>的长度。', 'Read from left to right, the lines you drew spell out a sequence both strings share: a <b>common subsequence</b>. The most lines you can draw is the length of the <b>longest common subsequence</b>.'), T('它的用途很多：比较两份文件改了哪里、比对两段 DNA 有多像、判断两份作业是不是抄的。', 'It has many uses: finding what changed between two versions of a file, measuring how alike two stretches of DNA are, telling whether one homework was copied from another.')], note: T('公共子序列：两串字里，按顺序都出现的一串。连线不能交叉。', 'Common subsequence: letters that appear in order in both strings. The lines can’t cross.') },
   },
   {
     id: 'lcs', ch: 8, title: T('对齐表', 'Alignment table'), short: T('让表格替你连线', 'Let the table draw the lines'), mode: 'circuit', robot: 'ranger',
@@ -37,7 +37,7 @@ export const strings = [
     tests: [{ top: 'CABD', left: 'ABCD' }, { top: 'ABCBDAB', left: 'BDCABA' }, { top: 'GATTACA', left: 'CATTAG' }],
     solution: circ([['k', 'const', 1], ['a', 'add'], ['g', 'pass'], ['m', 'mmax']], ['tap:ul>a:0', 'k>a:1', 'tap:same>g:0', 'a>g:1', 'tap:up>m:0', 'tap:left>m:1', 'g>m:2', 'm>out:cell']),
     hints: [
-      T('两个字相同时才能连线：这时从左上来，再 + 1。用放行闸，条件接「两字相同」。', 'Only matching letters can be linked: then you come from the up-left and add 1. Use a Pass gate with “letters match” as its condition.'),
+      T('两个字相同时，这两个字可以连成一根线。连上以后剩下的字，对应问号的哪个邻居？只在相同时走这条路：用放行闸，条件接「两字相同」。', 'When the letters match, those two can be linked by a line. Once they are, which neighbour of the question mark matches the letters that remain? Take that way only when they match: use a Pass gate with “letters match” as its condition.'),
       T('两个字不同时，至少有一个连不上：要么丢掉这一行的字（看上面），要么丢掉这一列的字（看左边）。', 'When the letters differ, at least one of them gets no line: either drop this row’s letter (look up) or drop this column’s letter (look left).'),
       T('要连得最多：把上面、左边和放行闸都接进「取较大」汇合器。', 'To get the most lines: wire up, left and the Pass gate all into a “max” Merger.'),
     ],
@@ -75,7 +75,7 @@ export const strings = [
       'tap:same>g1:0', 'tap:ul>g1:1', 'tap:start>g0:0', 'z>g0:1', 'a>m:0', 'g1>m:1', 'g0>m:2', 'm>out:cell',
     ]),
     hints: [
-      T('删掉一个字（从上面来）、插入一个字（从左边来）、换掉一个字（从左上来），都要多花 1 步：把三个邻居接进「取较小」，再用加法器 + 1。', 'Deleting a letter (from above), inserting one (from the left) and replacing one (from the up-left) each cost 1 more step: wire all three neighbors into a “min” Merger, then add 1 with an Adder.'),
+      T('删掉一个字（从上面来）、插入一个字（从左边来）、换掉一个字（从左上来），都要多花 1 步。要步数最少，这三条来路该怎么合起来？', 'Deleting a letter (from above), inserting one (from the left) and replacing one (from the up-left) each cost 1 more step. To get the fewest steps, how should these three ways in be combined?'),
       T('两个字相同时，可以直接保留：从左上来，不花步数。用放行闸，条件接「两字相同」，数接「左上」。', 'When the two letters match you can just keep it: come from the up-left at no cost. Use a Pass gate with “letters match” as its condition and “up-left” as its number.'),
       T('起点（两边都是空词）是 0 步：「是起点」放行一个 0。最后把这三路都接进另一个「取较小」汇合器。', 'The start (both words empty) is 0 steps: let a 0 through on “is start”. Finally, wire all three paths into another “min” Merger.'),
     ],

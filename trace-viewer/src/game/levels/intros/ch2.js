@@ -97,8 +97,8 @@ export default {
     },
     {
       t: {
-        zh: '为什么要换这种看法？有些事在原图里不显眼，在频谱里一眼就能看出：图里有没有细节，纹理朝哪个方向。后面的去噪、缩小图片，都要先读懂频谱。',
-        en: 'Why look at it this way? Some things that are hard to spot in the image jump out in the spectrum: whether the image has fine detail, and which way its textures run. Denoising and shrinking images, coming up next, both start with reading the spectrum.',
+        zh: '为什么要换这种看法？有些事在原图里不显眼，在频谱里一眼就能看出：图里有没有细节，纹理朝哪个方向。',
+        en: 'Why look at it this way? Some things that are hard to spot in the image jump out in the spectrum: whether the image has fine detail, and which way its textures run.',
       },
     },
     {

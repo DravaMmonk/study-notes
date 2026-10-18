@@ -1,7 +1,7 @@
 // 第 1 章各关的引入。格式见 ./index.js。
 export default {
   '1-1': [
-    { t: { zh: '到目前为止，输出的每一格只看输入里同一位置的那一格。这一章换个思路：算一格时，也看看它周围的邻居。很多有用的效果都从这里开始。', en: 'So far, each output cell has looked only at the cell in the same position in the input. This chapter changes that: when computing a cell, also look at the neighbours around it. Many useful effects start here.' } },
+    { t: { zh: '到目前为止，输出的每一格只看输入里同一位置的那一格。这一章换个思路：算一格时，也看看它周围的邻居。', en: 'So far, each output cell has looked only at the cell in the same position in the input. This chapter changes that: when computing a cell, also look at the neighbours around it.' } },
     { t: { zh: '最简单的例子是取平均。把一格换成它和邻居的平均，孤零零的亮点会被摊开，忽亮忽暗的毛刺会被抹平。手机夜景模式压噪点，用的就是同类的办法。', en: 'The simplest example is averaging. Replace a cell with the average of itself and its neighbours, and a lone bright dot gets spread out while flickering specks get smoothed away. A phone\'s night mode uses the same kind of trick to suppress noise.' } },
     { t: { zh: '这一关你要做的：每一格换成它自己和左右两个邻居的平均。看看下面的期望：方块左右两条边多出一圈灰，上下两条边却没变。', en: 'Your task in this level: replace each cell with the average of itself and its left and right neighbours. Look at the expected output below: the square\'s left and right edges gain a band of grey, but its top and bottom edges do not change.' }, fig: { test: 0, caption: { zh: '第一组测试：方块', en: 'Set 1: square' } } },
   ],
@@ -17,7 +17,7 @@ export default {
   ],
   '1-4': [
     { t: { zh: '看一幅画，最先注意到的是轮廓：物体和背景的分界、衣服的褶、文字的笔画。在数字图里，这些地方的共同点是：亮度在很短的距离内突然变了。这就是<b>边缘</b>。', en: 'When you look at a picture, the first thing you notice is outlines: where an object meets the background, the folds in clothing, the strokes of letters. In a digital image, what these places have in common is that the brightness changes suddenly over a very short distance. That is an <b>edge</b>.' } },
-    { t: { zh: '找边缘是视觉里最基础的一步。扫描软件靠它找纸张的四边，车道保持系统靠它找车道线，后面的角点、轮廓和物体识别也都建立在它上面。', en: 'Finding edges is the most basic step in vision. Scanning apps use it to find the four sides of a sheet of paper, lane-keeping systems use it to find lane markings, and the corners, contours and object recognition that come later are all built on it.' } },
+    { t: { zh: '找边缘是视觉里最基础的一步。扫描软件靠它找纸张的四边，车道保持系统靠它找车道线。', en: 'Finding edges is the most basic step in vision. Scanning apps use it to find the four sides of a sheet of paper, and lane-keeping systems use it to find lane markings.' } },
     { t: { zh: '这一关你要做的：每一格输出「右边邻居 − 自己」。结果可以是负数，看灰度不直观，用地形画法看起伏更清楚。', en: 'Your task in this level: for every cell, output "right neighbour − self". The result can be negative, which is hard to read in greyscale; terrain view shows the rises and falls more clearly.' }, fig: { test: 0, view: 'terrain', caption: { zh: '第一组测试：台阶，用地形画法看', en: 'Set 1: a step, in terrain view' } } },
   ],
   '1-5': [

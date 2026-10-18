@@ -28,7 +28,7 @@ export const states = [
       { R: 4, C: 4, keys: { red: [0, 1], blue: [2, 0] }, doors: [{ at: [2, 2], color: 'red' }, { at: [1, 3], color: 'blue' }, { at: [3, 1], color: 'blue' }] },
     ],
     solution: KEY_BOARD,
-    hints: [T('和「钥匙与门」的电路板一样：多一把钥匙，只是多了几层。', 'The same board as in “Keys and doors”: one more key only means more layers.')],
+    hints: [T('先试试「钥匙与门」的电路板。', 'Try the board from “Keys and doors” first.')],
     debrief: { title: T('状态决定了表的形状', 'The state shapes the table'), body: [T('两把钥匙，四种可能：都没有、只有红、只有蓝、都有。每种可能一层，表就有了 4 层，电路板却一点没变。', 'Two keys, four possibilities: none, only red, only blue, both. One layer for each, so the table has 4 layers, yet the circuit board didn’t change at all.')] },
   },
   {
@@ -48,7 +48,7 @@ export const states = [
   {
     id: 'enough', ch: 13, title: T('记得够不够', 'Just enough?'), short: T('只记会影响未来的事', 'Remember only what affects the future'), mode: 'circuit', robot: 'stack',
     intro: [
-      { t: T('还是三把钥匙。可这座迷宫里，<b>有的钥匙根本不影响结果</b>：这一关的状态只记红钥匙，表只有 2 层。', 'Three keys again. But in this maze <b>some keys make no difference at all</b>: this level’s state remembers only the red key, so the table has just 2 layers.') },
+      { t: T('还是三把钥匙。可这一关的状态<b>只记红钥匙</b>，表只有 2 层。', 'Three keys again. But this level’s state <b>remembers only the red key</b>, so the table has just 2 layers.') },
     ],
     mission: { goal: T('算出合法路线的条数，看看只记一把钥匙够不够。', 'Work out the number of valid routes, and see whether remembering one key is enough.'), how: T('每一格把两层都算一遍。', 'Every cell works out both layers.') },
     world: 'keys', facts: FACTS, palette: ['bp:stamp', ...KIT], solutionMem: ['red'], noTrace: true,

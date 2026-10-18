@@ -78,7 +78,7 @@ export const language = [
       sent([T('研究', 'study'), T('生命', 'life'), T('起源', 'roots')], [{ N: 2, V: 1 }, { N: 0 }, { N: 0, V: 4 }], COST),
     ],
     solution: circ([['a', 'add'], ['b', 'add'], ['c', 'add'], ['m', 'mmin'], ['e', 'add']], ['tap:pN>a:0', 'tap:tN>a:1', 'tap:pV>b:0', 'tap:tV>b:1', 'tap:pA>c:0', 'tap:tA>c:1', 'a>m:0', 'b>m:1', 'c>m:2', 'm>e:0', 'tap:emit>e:1', 'e>out:cell']),
-    hints: [T('上一个词是名词的话：「前词是名词」那一格 + 「跟在名词后」的代价。动词、形容词也各算一遍。', 'If the previous word is a noun: the “previous word as a noun” cell + the “after a noun” cost. Do the same for verb and adjective.'), T('三种可能取较小，再加上「这个词这么标」的代价。', 'Take the min of the three, then add the “this word, this tag” cost.')],
+    hints: [T('上一个词是名词的话：到它为止最少的代价在「前词是名词」那一格。从它接到这个词，还要加上哪一项代价？', 'If the previous word is a noun, the least cost up to it is in the “previous word as a noun” cell. Going on from there to this word, which cost do you add?'), T('三种可能取较小，再加上「这个词这么标」的代价。', 'Take the min of the three, then add the “this word, this tag” cost.')],
     trace(t) { const b = bestTags(t); return { path: b.tags.map((g, k) => `${TAGS.indexOf(g)},${k + 1}`) }; },
     after(t, view) {
       if (!passed(view)) return '';
@@ -104,7 +104,7 @@ export const language = [
       sent([IMPORT, TV, QUALITY, GOOD], [{ N: 0.2, V: 0.3 }, { N: 0.4 }, { N: 0.3 }, { A: 0.5, V: 0.1 }], PROB),
     ],
     solution: circ([['a', 'mul'], ['b', 'mul'], ['c', 'mul'], ['s', 'msum'], ['e', 'mul']], ['tap:pN>a:0', 'tap:tN>a:1', 'tap:pV>b:0', 'tap:tV>b:1', 'tap:pA>c:0', 'tap:tA>c:1', 'a>s:0', 'b>s:1', 'c>s:2', 's>e:0', 'tap:emit>e:1', 'e>out:cell']),
-    hints: [T('上一个词是名词的可能：「前词是名词」 × 「跟在名词后」的可能性。三种都算。', 'The chance that the previous word is a noun: “previous word as a noun” × the “after a noun” probability. Work out all three.'), T('三种加起来，再乘上「这个词这么标」的可能性。', 'Add the three together, then multiply by the “this word, this tag” probability.')],
+    hints: [T('从上一关的电路出发：哪个元件把一条标法上的各项合起来，哪个元件在几种可能里挑？', 'Start from last level’s circuit: which component joins the parts of one tagging, and which one chooses among the possibilities?'), T('三种加起来，再乘上「这个词这么标」的可能性。', 'Add the three together, then multiply by the “this word, this tag” probability.')],
     diagnose: c => (c.nodes.some(n => n.kind === 'mmin' || n.kind === 'mmax') ? tr('这次不挑最好的一条：所有标法都算数，用「加起来」。', 'This time you don’t pick the best one: every tagging counts, so use “sum”.') : null),
     boardOpt: { minScale: 0.62, maxScale: 1.15 },
     debrief: { title: T('前向算法', 'The forward algorithm'), body: [T('同一张表，同一副骨架：维特比是「取较小、加」，这里是「加起来、乘」。前者找最好的一条，后者把所有的都算上。', 'Same table, same skeleton: Viterbi is “min and add”, this is “sum and multiply”. The first finds the best tagging; the second counts them all.'), T('这叫<b>前向算法</b>。语音识别要比较「这段声音更像哪句话」，就是用它算每句话的可能性。', 'This is the <b>forward algorithm</b>. When speech recognition compares “which sentence does this sound most resemble”, this is how it works out the probability of each sentence.')], note: T('前向算法：把维特比的「取较小、加」换成「加起来、乘」。', 'Forward algorithm: Viterbi’s “min and add” becomes “sum and multiply”.') },
@@ -113,7 +113,7 @@ export const language = [
     id: 'spell', ch: 16, title: T('你是想打这个词吗', 'Did you mean…?'), short: T('编辑距离，用在纠错上', 'Edit distance, put to work on typos'), mode: 'circuit', robot: 'ranger', uses: ['cost'],
     intro: [
       { t: T('你打出了 ACROS。词典里有几个候选词，哪个离它<b>最近</b>？', 'You typed ACROS. The dictionary has a few candidate words: which one is <b>closest</b> to it?') },
-      { t: T('「最近」就是改动最少：第 9 章的<b>编辑距离</b>。你在那一关拼出的电路板，已经变成了零件箱里的「编辑距离器」。', '“Closest” means fewest changes: the <b>edit distance</b> from chapter 9. The circuit board you built in that level is now the “Edit Distance Meter” in your Parts.') },
+      { t: T('「最近」就是改动最少：第 9 章的<b>编辑距离</b>。你在那一关拼出的电路板，已经变成了元件箱里的「编辑距离器」。', '“Closest” means fewest changes: the <b>edit distance</b> from chapter 9. The circuit board you built in that level is now the “Edit Distance Meter” in your Parts.') },
       { t: T('每个测试是一个候选词。三个测试都通过后，看看哪个候选词的步数最少。', 'Each test is one candidate word. Once all three tests pass, see which candidate needs the fewest steps.') },
     ],
     mission: { goal: T('算出打错的词 ACROS 和每个候选词之间的编辑距离（删、插、换各算 1 步）。', 'Work out the edit distance between the typo ACROS and each candidate word (delete, insert and replace each count as 1 step).'), how: T('「编辑距离器」在托盘里，接好它的五个输入就行。', 'The “Edit Distance Meter” is in the tray: just wire up its five inputs.') },
@@ -141,7 +141,7 @@ export const language = [
     world: 'interval', facts: [], palette: [...KIT, 'mul'], diag: 1,
     tests: [{ words: [T('咬死了', 'old'), T('猎人的', 'men and'), T('狗', 'women')] }, { words: [T('我', 'I'), T('看见', 'saw'), T('他', 'him'), T('笑', 'laugh')] }, { words: [T('白', 'big'), T('天', 'white'), T('鹅', 'swans'), T('飞', 'flew'), T('过', 'by')] }],
     solution: circ([['x', 'mul'], ['s', 'msum']], ['tap:segL>x:0', 'tap:segR>x:1', 'x>s:0', 's>out:cell']),
-    hints: [T('每个切分点：左段的方式数 × 右段的方式数。把「左段们」和「右段们」接进同一个乘法器。', 'At each split point: the left part’s number of ways × the right part’s. Wire “left parts” and “right parts” into the same Multiplier.'), T('所有切分点的结果都算数：接进「加起来」。', 'Every split point’s result counts: wire them into “sum”.')],
+    hints: [T('先只看一个切分点：左边的每一种方式，都能和右边的每一种搭配。这样一共有几种？', 'Look at a single split point first: every way on the left can go with every way on the right. How many is that in all?'), T('所有切分点的结果都算数：接进「加起来」。', 'Every split point’s result counts: wire them into “sum”.')],
     boardOpt: { minScale: 0.6, maxScale: 1.15 },
     debrief: { title: T('句法分析', 'Parsing'), body: [T('3 个词 2 种，4 个词 5 种，5 个词 14 种：这串数叫<b>卡特兰数</b>，词一多就飞快地变大。所以电脑分析句子时，不会把每一棵树都列出来，而是用这张区间表一格一格地算。', '3 words, 2 ways; 4 words, 5; 5 words, 14: these are the <b>Catalan numbers</b>, and they grow very fast as words are added. That is why a computer analysing a sentence doesn’t list every tree, but works through this interval table cell by cell.'), T('真正的句法分析（叫 <b>CKY 算法</b>）还会查语法规则：哪两段能合并、合成什么。表的形状一模一样。', 'Real parsing (the <b>CKY algorithm</b>) also checks grammar rules: which two stretches can merge, and into what. The table has exactly the same shape.')], note: T('句法树：每个切分点「左 × 右」，再加起来。', 'Parse trees: “left × right” at each split point, then add them up.') },
   },
@@ -159,7 +159,7 @@ export const language = [
     naive: circ([['a', 'add'], ['b', 'add'], ['c', 'add'], ['k', 'const', -1], ['m', 'mmax']], ['tap:ul>a:0', 'tap:score>a:1', 'tap:up>b:0', 'k>b:1', 'tap:left>c:0', 'k>c:1', 'a>m:0', 'b>m:1', 'c>m:2', 'm>out:cell']),
     tests: [{ top: 'AGTACGCA', left: 'TATGC' }, { top: 'GGTTGACTA', left: 'TGTTACGG' }],
     solution: circ([['a', 'add'], ['b', 'add'], ['c', 'add'], ['k', 'const', -1], ['m', 'mmax'], ['z', 'const', 0], ['n', 'mmax']], ['tap:ul>a:0', 'tap:score>a:1', 'tap:up>b:0', 'k>b:1', 'tap:left>c:0', 'k>c:1', 'a>m:0', 'b>m:1', 'c>m:2', 'm>n:0', 'z>n:1', 'n>out:cell']),
-    hints: [T('三条来路：左上 + 本格得分；上面 − 1；左边 − 1。取较大。', 'Three ways in: up-left + cell score; up − 1; left − 1. Take the max.'), T('低于 0 就截成 0：再接一个「取较大」，另一个口接常数 0。', 'Below 0 is cut to 0: add another “max”, with a Constant 0 in its other input.')],
+    hints: [T('三条来路各要加上哪一步的分数？想找最像的一段，该怎么把它们合起来？', 'Which step’s score does each of the three ways in add? To find the most alike stretch, how should they be combined?'), T('低于 0 就截成 0：再接一个「取较大」，另一个口接常数 0。', 'Below 0 is cut to 0: add another “max”, with a Constant 0 in its other input.')],
     diagnose: c => (!c.nodes.some(n => n.kind === 'const' && n.value === 0) && usesSensor(c, 'score') ? tr('分数会变成负的。负分不如重新开始：再取一次较大，和常数 0 比一比。', 'Scores can go negative, and a negative score is worse than starting again: take the max once more, against a Constant 0.') : null),
     trace: t => localTrace(t),
     after(t, view) {
