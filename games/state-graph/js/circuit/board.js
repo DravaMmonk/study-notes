@@ -8,7 +8,7 @@
 // positions) and `at` (phone slots) are layout only and never reach the engine.
 
 import { connect as linkPorts, litOf, placement as slotsOf } from './editor.js';
-import { def, isInput, srcType, picksOf, splitSrc } from './components.js';
+import { def, hasValue, valueDefault, isInput, srcType, picksOf, splitSrc } from './components.js';
 import { lookIcon } from './looks.js';
 import { ICONS } from './glyphs.js';
 
@@ -70,7 +70,7 @@ export function fromGraph(graph, circ) {
   const parts = graph.nodes.filter((n) => !isTerm(n));
   return {
     ...circ,
-    nodes: parts.map((n) => ({ id: n.id, kind: n.type, ...(n.type === 'const' ? { value: n.value ?? 1 } : n.value !== undefined ? { value: n.value } : {}) })),
+    nodes: parts.map((n) => ({ id: n.id, kind: n.type, ...(hasValue(n.type) ? { value: n.value ?? valueDefault(n.type) } : n.value !== undefined ? { value: n.value } : {}) })),
     wires: graph.wires.map((w) => ({ from: w.from, to: sinkOf(w.to, w.port) })),
     at: Object.fromEntries(parts.filter((n) => Number.isInteger(n.slot)).map((n) => [n.id, n.slot])),
     xy: Object.fromEntries(graph.nodes.map((n) => [n.id, [Math.round(n.x), Math.round(n.y)]])),
@@ -86,7 +86,7 @@ export function create(graph, kind, at, value) {
   const input = isInput(kind);
   let [x, y] = home(input ? 'tap' : 'part', 0, at);
   for (let tries = 0; tries < 30 && taken(x, y); tries++) y += input ? 120 : 150;
-  return { graph: { ...graph, nodes: [...graph.nodes, { id, type: kind, x, y, slot: at, ...(kind === 'const' ? { value: 1 } : input ? { value } : {}) }] }, id };
+  return { graph: { ...graph, nodes: [...graph.nodes, { id, type: kind, x, y, slot: at, ...(hasValue(kind) ? { value: valueDefault(kind) } : input ? { value } : {}) }] }, id };
 }
 
 /**

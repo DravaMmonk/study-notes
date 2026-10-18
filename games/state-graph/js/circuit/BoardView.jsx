@@ -3,7 +3,7 @@ import { Plus, X } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../kit/circuit/index.js'
 import { L, tr } from '../../../kit/shell/i18n.js'
 import { signal } from '../util.js'
-import { def, isInput, isViewReader, picksOf } from './components.js'
+import { def, hasValue, valueDefault, isInput, isViewReader, picksOf } from './components.js'
 
 // 状态之图's circuit board on the shared circuit editor (../../../kit/circuit), the one Vision Complete uses: the same
 // cards, dots, wires, keys and gestures. `board` is the circuit mode's bridge (modes/circuit.js `ctl.board`); what a
@@ -79,10 +79,10 @@ export function SgCanvas({ board, overlay }) {
     const swaps = parts.role(node) === 'part' ? board.swaps(node.type) : []
     return (
       <div className={`sg-body ${isInput(node.type) ? 'is-reader' : ''}`} title={parts.role(node) === 'part' ? L(def(node.type).desc) : undefined}>
-        {node.type === 'const' && (
+        {hasValue(node.type) && (
           <label className="param" onPointerDown={stop}>
             <span>{tr('数值', 'Value')}</span>
-            <select value={node.value ?? 1} onChange={(e) => board.setValue(node.id, +e.target.value)}>
+            <select value={node.value ?? valueDefault(node.type)} onChange={(e) => board.setValue(node.id, +e.target.value)}>
               {board.consts().map((v) => <option key={v} value={v}>{v}</option>)}
             </select>
           </label>
@@ -130,7 +130,7 @@ export function SgCanvas({ board, overlay }) {
             </select>
           </label>
         )}
-        {parts.role(node) === 'part' && node.type !== 'const' && !isInput(node.type) && swaps.length < 2 && <small className="sg-tag">{L(def(node.type).tag)}</small>}
+        {parts.role(node) === 'part' && !hasValue(node.type) && !isInput(node.type) && swaps.length < 2 && <small className="sg-tag">{L(def(node.type).tag)}</small>}
         {/* A reader shows what it reads beside each of its outputs. */}
         {!isInput(node.type) && <output className={`sg-val ${value && !cls ? 'is-on' : ''} ${cls ?? ''}`}>{value || '—'}</output>}
       </div>
@@ -201,7 +201,7 @@ export function SgPhone({ board, rootRef, dock }) {
     return <i className={`sg-thumb ${text && !cls ? 'is-on' : ''} ${cls ?? ''}`}>{text || '—'}</i>
   }
   // A tile says what it holds: a constant its number, any other part its model. (An input card names each output over its dot.)
-  const tileExtra = (node) => (node.type === 'const' ? `= ${node.value ?? 1}` : isInput(node.type) ? null : L(def(node.type).tag))
+  const tileExtra = (node) => (hasValue(node.type) ? `= ${node.value ?? valueDefault(node.type)}` : isInput(node.type) ? null : L(def(node.type).tag))
   return (
     <>
       <div className="sg-slots" ref={scroller}>

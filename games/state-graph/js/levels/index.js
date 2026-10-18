@@ -46,13 +46,20 @@ export const PLACE = PLAN.place;
 export { CHAPTERS };
 export { LABELS };
 
-/** A circuit level's board becomes a component for later levels: a black box (L.blueprint.f) on the level's ports. */
+/**
+ * A circuit level's board becomes a component for later levels: a black box (L.blueprint.f) on the level's ports. A port
+ * is the sensor the level's board reads there, or, for a part meant for any table, { label, short, type, sensor }: a
+ * name of its own, and the sensor its level wires there (the check in validate.js). blueprint.value: the part carries a
+ * number set on its card, starting at this one; f(ins, value) receives it.
+ */
+const PORT_TYPE = { num: 'num', bool: 'bool', nums: 'num*', bools: 'bool*', cat: 'cat' };
 function registerBlueprint(L) {
-  const last = (L.stages || [L]).at(-1), V = WORLDS[last.world], ports = L.blueprint.ports;
+  const last = (L.stages || [L]).at(-1), V = WORLDS[last.world];
+  const ports = L.blueprint.ports.map(p => (typeof p === 'string' ? { label: V.sensors[p].label, short: V.sensors[p].short, type: V.sensors[p].type, sensor: p } : p));
   BLUEPRINTS[`bp:${L.id}`] = {
-    name: PARTS[L.unlock].name, look: L.unlock,
-    desc: lazy(() => tr(`你在第 ${LABELS.get(L.id)} 关拼出的电路板，现在是一个元件。顶上的输入：${ports.map(id => V.sensors[id].label).join('、')}。`, `The circuit board you built in level ${LABELS.get(L.id)}, now a component. Inputs on top: ${ports.map(id => V.sensors[id].label).join(', ')}.`)),
-    ins: ports.map(id => ({ num: 'num', bool: 'bool', nums: 'num*', bools: 'bool*', cat: 'cat' })[V.sensors[id].type]), labels: ports.map(id => V.sensors[id].short), sensors: ports,
+    name: PARTS[L.unlock].name, look: L.unlock, value: L.blueprint.value,
+    desc: lazy(() => tr(`你在第 ${LABELS.get(L.id)} 关拼出的电路板，现在是一个元件。顶上的输入：${ports.map(p => p.label).join('、')}。`, `The circuit board you built in level ${LABELS.get(L.id)}, now a component. Inputs on top: ${ports.map(p => p.label).join(', ')}.`)),
+    ins: ports.map(p => PORT_TYPE[p.type] || p.type), labels: ports.map(p => p.short), sensors: ports.map(p => p.sensor ?? null),
     out: V.outs[0][0], outType: V.outs[0][3], f: L.blueprint.f,
   };
 }
@@ -90,3 +97,23 @@ LEVELS.forEach((L, i) => {
     if (L.blueprint) registerBlueprint(L);
   }
 });
+
+/**
+ * The common parts (a blueprint marked `common`: combinations of parts that come up again and again) join the palette
+ * of every level after the one that builds them, wherever the board works with numbers (a palette with a Merger): what
+ * you built stays in your parts box.
+ */
+const before = new Map();
+const ancestors = id => {
+  if (before.has(id)) return before.get(id);
+  const set = new Set();
+  before.set(id, set);
+  for (const r of PLAN.requires.get(id) || []) { set.add(r); ancestors(r).forEach(x => set.add(x)); }
+  return set;
+};
+const COMMON = LEVELS.filter(L => L.blueprint && L.blueprint.common).map(L => L.id);
+LEVELS.filter(L => L.mode === 'circuit').forEach(L => (L.stages || [L]).forEach(s => {
+  if (!s.palette || !s.palette.some(k => ['msum', 'mmin', 'mmax'].includes(k))) return;
+  const add = COMMON.filter(id => ancestors(L.id).has(id) && !s.palette.includes(`bp:${id}`)).map(id => `bp:${id}`);
+  if (add.length) s.palette = [...s.palette, ...add];
+}));

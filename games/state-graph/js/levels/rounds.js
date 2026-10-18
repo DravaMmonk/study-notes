@@ -1,7 +1,8 @@
 // Chapter 16: scan until nothing changes — routes that loop back, the value of standing on a cell, a policy, slipping.
 
 import { circuitFig } from '../svg.js';
-import { circ, hasKind } from '../circuit/components.js';
+import { circ, hasKind, partFn } from '../circuit/components.js';
+import { WAY } from './ports.js';
 import { T, tr } from '../i18n.js';
 
 const TREASURE = T('宝藏', 'treasure');
@@ -45,7 +46,8 @@ export const rounds = [
     solution: circ([['a', 'mmax'], ['b', 'mmax'], ['k', 'const', 0.9], ['x', 'mul']], ['tap:up>a:0', 'tap:down>a:1', 'tap:left>a:2', 'a>b:0', 'tap:right>b:1', 'b>x:0', 'k>x:1', 'x>out:cell']),
     hints: [T('四个邻居都接进「取较大」：一个汇合器只有三个口，就用两个串起来。', 'Wire all four neighbours into “max”: a Merger has only three inputs, so chain two of them.'), T('最大的那个再乘 0.9：乘法器一边接最大值，一边接常数 0.9。', 'Then multiply the largest by 0.9: wire the max into one side of a Multiplier and a Constant 0.9 into the other.')],
     diagnose: c => (!hasKind(c, 'mul') ? tr('每远一步要打个九折：用乘法器把最大的邻居乘上 0.9。', 'Each step further away is discounted by 10%: use a Multiplier to multiply the best neighbour by 0.9.') : null),
-    unlock: 'value',
+    // The best of up to four ways in, discounted by the number set on its card.
+    unlock: 'value', blueprint: { ports: [WAY(0, 'up'), WAY(1, 'down'), WAY(2, 'left'), WAY(3, 'right')], value: 0.9, common: true, f: (ins, k) => partFn('mul')([partFn('mmax')(ins), k]) },
     boardOpt: { minScale: 0.62, maxScale: 1.15 },
     debrief: { title: T('价值迭代', 'Value iteration'), body: [T('每一格的数，就是从这里走到宝藏有多好：每远一步，打一次九折。陷阱是 −10，没有谁会往那里走，所以它也带不坏邻居。', 'Each cell’s number says how good it is to head for the treasure from there: every step further away knocks off another 10%. Traps are −10, and nobody walks into one, so they can’t drag their neighbours down either.'), T('这是<b>强化学习</b>最早的一块基石，叫<b>价值迭代</b>。下棋的程序、学走路的机器人，都要先学会估计「站在这里有多好」。用的还是老一套：看邻居，取最好，记下来。', 'This is one of the first cornerstones of <b>reinforcement learning</b>, called <b>value iteration</b>. Programs that play board games and robots learning to walk all have to learn to estimate “how good is it to stand here” first. The method is the same old one: look at the neighbours, take the best, write it down.')], note: T('价值迭代：每格 = 邻居里最好的 × 折扣，扫到不再变。', 'Value iteration: each cell = the best neighbour × a discount, scanned until nothing changes.') },
   },

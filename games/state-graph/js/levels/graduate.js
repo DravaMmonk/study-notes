@@ -2,7 +2,7 @@
 
 import { T } from '../i18n.js';
 
-const COUNTER = T('路线计数器', 'Route Counter'), STAIRS = T('台阶计数器', 'Stair Counter'), LAYER = T('分层', 'Layers'), ALIGN = T('对齐表', 'Alignment Table'), PACK = T('背包表', 'Knapsack Table');
+const COUNTER = T('路线计数器', 'Route Counter'), STAIRS = T('爬楼梯那样的一行', 'A row, as in climbing stairs'), LAYER = T('分层', 'Layers'), ALIGN = T('对齐表', 'Alignment Table'), PACK = T('背包表', 'Knapsack Table');
 const JUDGE = T('输赢判定器', 'Win/Lose Judge'), WORDBREAK = T('切词', 'Word Breaker'), VALUE = T('价值迭代', 'Value Iteration');
 
 export const graduate = [

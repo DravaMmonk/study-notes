@@ -56,7 +56,7 @@ export const broom = [
     world: 'gains', facts: ['money'], palette: KIT,
     tests: [{ a: [-2, 1, -3, 4, -1, 2, 1, -5, 4] }, { a: [3, -4, 5, -1, 2, -6, 3] }, { a: [-1, 2, 3, -7, 4, 1, -2, 5] }],
     // A cell holds the best run that ends today: today alone, or today added to the best run that ended yesterday.
-    solution: circ([['a', 'add'], ['m', 'mmax']], ['tap:prev>a:0', 'tap:money>a:1', 'a>m:0', 'tap:money>m:1', 'm>out:cell']),
+    solution: circ([['c', 'bp:knaptable']], ['tap:money>c:0', 'tap:prev>c:1', 'tap:money>c:2', 'c>out:cell']),
     // The naive board adds up every day so far: the best total that starts on day 1.
     naive: circ([['m', 'msum']], ['tap:seg>m:0', 'm>out:cell']),
     hints: [T('一格不一定要存「到今天为止最好的一段」。它还能存什么？', 'A cell need not hold “the best run up to today”. What else could it hold?'), T('以今天结尾的最好一段，要么只有今天，要么是昨天结尾的最好一段再加上今天。', 'The best run ending today is either today alone, or the best run ending yesterday with today added.')],

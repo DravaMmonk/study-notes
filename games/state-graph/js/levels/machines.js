@@ -3,6 +3,7 @@
 
 import { N, E, W, gridScene, treeScene, circuitFig } from '../svg.js';
 import { circ, usesSensor, hasKind, isInput, partFn } from '../circuit/components.js';
+import { port, WAY, START } from './ports.js';
 import { windowFig } from './figs.js';
 import { L12_COSTS } from './data.js';
 import { T, tr } from '../i18n.js';
@@ -60,6 +61,8 @@ export const machines = [
     guide: (c, lit) => (!lit.includes('start') ? tr('第 1 步：在本格信息里点「是起点」。', 'Step 1: click “is start” under This cell.') : !c.nodes.some(n => !isInput(n.kind)) ? tr('第 2 步：把托盘里的「常数」和「放行闸」拖到电路板上。', 'Step 2: drag a “Constant” and a “Pass gate” from the tray onto the board.') : null),
     tests: [{ R: 3, C: 4 }, { R: 2, C: 5 }],
     solution: circ([['k', 'const', 1], ['g', 'pass']], ['tap:start>g:0', 'k>g:1', 'g>out:cell']),
+    // The most common pair of parts in the game: a number, let through only where a condition holds.
+    unlock: 'startval', blueprint: { ports: [port(T('条件', 'condition'), T('若', 'if'), 'bool', 'start')], value: 1, common: true, f: ([c], k) => (c ? k : null) },
     hints: [T('常数一直输出 1；放行闸只在「是起点」为「是」时把它放过去。', 'The Constant always outputs 1; the Pass gate lets it through only when “is start” is “yes”.'), T('「是起点」接放行闸的「条件」口，常数接「数」口，放行闸接「本格」。', 'Wire “is start” into the Pass gate’s “if” port, the Constant into its “num” port, and the Pass gate into “this cell”.')],
     diagnose: c => (c.wires.some(w => w.to === 'out:cell' && c.nodes.some(n => n.id === w.from && n.kind === 'const')) ? tr('常数直接接到「本格」，每一格都会写 1。要用放行闸，只在起点放行。', 'With the Constant wired straight to “this cell”, every cell gets a 1. Use a Pass gate so it only goes through at the start.') : null),
     debrief: { title: T('机器人认得起点了', 'The robot knows the start'), body: [T('放行闸像一道门：条件是「是」时才开。机器人走到起点，门开了，1 写了进去；走到别的格子，门关着，什么也不写。', 'A Pass gate is like a door that opens only when its condition is “yes”. When the robot reaches the start, the door opens and a 1 is written; on any other cell the door stays shut and nothing is written.')], note: T('放行闸：条件是「是」才把数放过去，否则输出「—」。', 'Pass gate: lets the number through only when the condition is “yes”; otherwise outputs “—”.') },
@@ -74,14 +77,14 @@ export const machines = [
     mission: { goal: T('只能往右或往下走，起点不再预先写好。拼一块电路板：起点写 1，其余每个路口 = 上面 + 左边，让机器人在三座城市里都算对路线数。', 'Only right or down, and the start is no longer filled in. Build one board: 1 on the start, and up + left on every other crossing, so the robot counts the routes correctly in all three cities.'), how: T('在输入窗口里点要读的格子和信息，再放元件、连线，然后点「运行测试」。没通过时，机器人会停在出错的格子，视野和电路板上的数，是它在这一格看到和算出的值。', 'Click the cells and facts you need in the inputs window, then place components, wire them, and click “Run tests”. If a test fails, the robot stops on the cell where it went wrong, and the numbers in the view and on the board are what it saw and computed there.') },
     world: 'grid', facts: ['start'], palette: ['msum', 'const', 'pass'], fresh: ['msum', 'const', 'pass'],
     tests: [{ R: 3, C: 4 }, { R: 4, C: 4 }, { R: 5, C: 6 }],
-    solution: circ([['m', 'msum'], ['k', 'const', 1], ['g', 'pass']], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>g:0', 'k>g:1', 'g>m:2', 'm>out:cell']),
+    solution: circ([['m', 'msum'], ['g', 'bp:origin', 1]], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>g:0', 'g>m:2', 'm>out:cell']),
     hints: [
       T('每个路口 = 上面 + 左边：在视野里点这两格，把它们接进同一个汇合器，再把汇合器接到「本格」。', 'Each crossing = up + left: click those two cells in the view, wire them into the same Merger, and wire the Merger to “this cell”.'),
       T('起点要输出 1：把本格信息的「是起点」接到放行闸的「条件」口；常数 1 接「数」口，再把放行闸也接进汇合器。', 'The start must output 1: wire This cell’s “is start” to a Pass gate’s “if” port; wire a Constant 1 into its “num” port, then wire the Pass gate into the Merger too.'),
     ],
     diagnose: c => (['right', 'down', 'ur', 'dl', 'dr'].some(id => usesSensor(c, id)) ? tr('机器人从左上往右下走，到一个格子时，它右边和下面的格子还空着，不能读。', 'The robot walks from the top left to the bottom right, so when it reaches a cell, the cells to its right and below are still empty and can’t be read.') : null),
     // As a part: up + left, and 1 on the start.
-    unlock: 'counter', blueprint: { ports: ['up', 'left', 'start'], f: ([up, left, start]) => partFn('msum')([up, left, start ? 1 : null]) },
+    unlock: 'counter', blueprint: { ports: [WAY(0, 'up'), WAY(1, 'left'), START('start')], common: true, f: ([a, b, start]) => partFn('msum')([a, b, start ? 1 : null]) },
     debrief: { title: T('你拼出了第一台机器', 'Your first machine'), body: [T('它在 3×4、4×4、5×6 三座城市里都算对了。换成 100×100 的城市，同一块电路板也一样能算。', 'It got all three cities right: 3×4, 4×4 and 5×6. Give it a 100×100 city and the same board works just as well.'), T('每个格子的答案，都用前面格子的答案算出来，再记在表里。<strong>这种方法有一个正式的名字：动态规划</strong>。', 'Every cell’s answer is computed from the answers of earlier cells and then recorded in the table. <strong>This method has a proper name: dynamic programming</strong>.'), T('这块电路板存进了元件箱，名叫「路线计数器」。', 'This board has gone into your Parts as the “Route Counter”.')], note: T('把规则拼成电路，机器就能填满任意大的表。这就是动态规划。', 'Wire the rule into a circuit and the machine can fill a table of any size. That is dynamic programming.') },
   },
   {
@@ -139,7 +142,6 @@ export const machines = [
       T('地面要算 1 种走法：「是地面」接放行闸的条件口，常数 1 接数口。', 'The ground counts as 1 way: wire “is ground” into a Pass gate’s condition port and a Constant 1 into its number port.'),
       T('也可以直接用路线计数器：前 1 级接它的「上」，前 2 级接「左」，是地面接「起」。', 'You can also use the Route Counter directly: 1 step down into its “up”, 2 steps down into “left”, and is ground into “start”.'),
     ],
-    unlock: 'stairs', blueprint: { ports: ['m1', 'm2', 'ground'], f: ([m1, m2, ground]) => partFn('msum')([m1, m2, ground ? 1 : null]) },
     debrief: { title: T('5 种、13 种、55 种', '5, 13 and 55 ways'), body: [T('如果你把路线计数器拿来用了，你会发现：<b>它根本不知道自己在数楼梯</b>，可它算对了。', 'If you used the Route Counter, you’ll have noticed: <b>it has no idea it is counting stairs</b>, and yet it got them right.'), T('城市路口和楼梯，表面上毫无关系，但它们的结构一样：每个格子的答案，都来自几个更早的格子，再加上一个起点。看出这种结构，是学会动态规划最关键的一步。', 'City crossings and staircases look completely unrelated, but they share a structure: every cell’s answer comes from a few earlier cells, plus a starting point. Learning to see that structure is the most important step in learning dynamic programming.')], note: T('爬楼梯：第 i 级 = 第 i − 1 级 + 第 i − 2 级，地面算 1 种。', 'Climbing stairs: step i = step i − 1 + step i − 2, with the ground counting as 1 way.') },
   },
   {
@@ -175,7 +177,7 @@ export const machines = [
     mission: { goal: T('只能往右或往下走，每经过一个路口（包括起点和终点）都要花掉它左上角写的体力。算出从左上到右下最少要花多少体力。', 'Only right or down, and every crossing you pass through (start and end included) costs the energy written in its top-left corner. Work out the least energy needed to get from the top left to the bottom right.'), how: T('格子左上角的小数字是这一格的体力，在输入窗口里点「本格体力」就能读它。这一关解锁了「取较小」汇合器和加法器。', 'The small number in a cell’s top-left corner is its energy; click “cell energy” in the inputs window to read it. This level unlocks the “min” Merger and the Adder.') },
     world: 'grid', facts: ['start', 'cost'], palette: [...KIT, 'bp:stamp'], fresh: ['mmin', 'add'],
     tests: [{ R: 3, C: 3, costs: [[1, 3, 1], [1, 5, 1], [4, 2, 1]] }, { R: 2, C: 3, costs: [[1, 2, 3], [4, 5, 6]] }, { R: 4, C: 4, costs: L12_COSTS }],
-    solution: circ([['m', 'mmin'], ['k', 'const', 0], ['g', 'pass'], ['a', 'add']], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>g:0', 'k>g:1', 'g>m:2', 'm>a:0', 'tap:cost>a:1', 'a>out:cell']),
+    solution: circ([['m', 'mmin'], ['g', 'bp:origin', 0], ['a', 'add']], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>g:0', 'g>m:2', 'm>a:0', 'tap:cost>a:1', 'a>out:cell']),
     hints: [
       T('只能走一条路：到这个路口，两边的花费都要算进去吗？', 'You walk only one route: do both sides’ costs really count towards this crossing?'),
       T('穿过这个路口本身也要花体力：取较小之后，用加法器加上「本格体力」。', 'Passing through this crossing costs energy too: after the min, use an Adder to add “cell energy”.'),
@@ -183,7 +185,8 @@ export const machines = [
     ],
     diagnose: c => (!hasKind(c, 'mmin') ? tr('只能走一条路，两边的花费不能加起来。用「取较小」汇合器。', 'You walk only one route, so the costs of the two sides can’t be added together. Use the “min” Merger.') : null),
     // As a part: the cheaper of up and left (0 at the start), plus this crossing's energy.
-    unlock: 'min', blueprint: { ports: ['up', 'left', 'start', 'cost'], f: ([up, left, start, cost]) => partFn('add')([partFn('mmin')([up, left, start ? 0 : null]), cost]) },
+    // A third way in sits last, so boards built before it had one keep their wiring.
+    unlock: 'min', blueprint: { ports: [WAY(0, 'up'), WAY(1, 'left'), START('start'), port(T('本格代价', 'this cell’s cost'), T('价', 'cost'), 'num', 'cost'), WAY(2)], common: true, f: ([a, b, start, cost, c]) => partFn('add')([partFn('mmin')([a, b, c, start ? 0 : null]), cost]) },
     debrief: { title: T('从数路线到找最优', 'From counting to optimizing'), body: [T('电路的骨架没变，只是把「加起来」的汇合器换成了「取较小」，再加上本格的体力。机器就从「数有几条路」变成了「找最好的那条路」。', 'The circuit’s skeleton didn’t change: you just swapped the “sum” Merger for a “min” one and added the cell’s energy. And the machine went from “count how many routes there are” to “find the best route”.'), T('<b>动态规划既能计数，也能求最优。</b>它们共用同一个骨架：只看最后一步，用前面格子的答案算出这一格。', '<b>Dynamic programming can count, and it can optimize.</b> Both share the same skeleton: look only at the last step, and compute this cell from the answers of earlier cells.')], note: T('求最优时，用「取较小」代替「加起来」。', 'To optimize, use “min” in place of “sum”.') },
   },
   {

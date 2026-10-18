@@ -9,16 +9,16 @@ const YESNO = ['many', 'not', 'pass', 'block', 'const'];
 
 export const farsight = [
   {
-    id: 'brokenstairs', ch: 3, title: T('有坏台阶的楼梯', 'Broken stairs'), short: T('台阶计数器加一道闸', 'The stair counter behind a gate'), mode: 'circuit', robot: 'ranger',
+    id: 'brokenstairs', ch: 3, title: T('有坏台阶的楼梯', 'Broken stairs'), short: T('路线计数器加一道闸', 'The route counter behind a gate'), mode: 'circuit', robot: 'ranger',
     intro: [
       { t: T('这段楼梯有几级坏了，<b>踩不得</b>，画成石头的样子。每次还是迈 1 级或 2 级。', 'A few steps on this staircase are broken and <b>can’t be stepped on</b>; they are drawn like rocks. Each stride still goes up 1 or 2 steps.') },
     ],
     mission: { goal: T('每次迈 1 级或 2 级，不能踩在坏台阶上。算出爬到最上面一级有几种走法。', 'Each stride goes up 1 or 2 steps, never onto a broken step. Work out how many ways there are to reach the top step.'), how: T('从地面一级一级往上算。', 'Work up from the ground, one step at a time.') },
-    world: 'strip', facts: ['ground', 'broken'], palette: ['bp:stairs', ...KIT],
+    world: 'strip', facts: ['ground', 'broken'], palette: KIT,
     tests: [{ n: 6, broken: [3] }, { n: 8, broken: [2, 5] }, { n: 10, broken: [4, 7] }],
-    solution: circ([['c', 'bp:stairs'], ['b', 'block']], ['tap:m1>c:0', 'tap:m2>c:1', 'tap:ground>c:2', 'tap:broken>b:0', 'c>b:1', 'b>out:cell']),
+    solution: circ([['c', 'bp:stamp'], ['b', 'block']], ['tap:m1>c:0', 'tap:m2>c:1', 'tap:ground>c:2', 'tap:broken>b:0', 'c>b:1', 'b>out:cell']),
     hints: [
-      T('元件箱里的「台阶计数器」已经会数走法了。', 'The “Stair Counter” in your components box already counts the ways.'),
+      T('元件箱里的「路线计数器」也会数走法：前 1 级、前 2 级就是它的两条来路，是地面就是它的起点。', 'The “Route Counter” in your components box counts ways too: 1 step down and 2 steps down are its two ways in, and the ground is its start.'),
       T('坏台阶上要掐断：拦截闸在条件是「是」时输出「—」。', 'Cut off the broken steps: a Block gate outputs “—” when its condition is “yes”.'),
     ],
     diagnose: c => (!usesSensor(c, 'broken') ? tr('有的台阶坏了，踩不得。读一读「是坏台阶」。', 'Some steps are broken and can’t be stepped on. Read “is broken”.') : null),

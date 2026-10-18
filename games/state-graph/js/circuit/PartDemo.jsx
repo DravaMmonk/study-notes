@@ -7,7 +7,7 @@ import { signal } from '../util.js'
 import { WORLDS } from './worlds.js'
 import { ROBOTS } from './robots.js'
 import { runCircuit, sensorsOf, visibleSensors, windowOf } from './world.js'
-import { BLUEPRINTS, def, evaluate } from './components.js'
+import { BLUEPRINTS, def, evaluate, hasValue, valueDefault } from './components.js'
 import { litOf, viewHTML } from './editor.js'
 import { toGraph, partsFor } from './board.js'
 
@@ -241,10 +241,10 @@ export default function PartDemo({ partKey, phone }) {
       const value = valueOf(node.id)
       return (
         <div className="sg-body" title={node.type !== 'out' ? L(def(node.type).desc) : undefined}>
-          {node.type === 'const' && (
+          {hasValue(node.type) && (
             <label className="param" onPointerDown={stop}>
               <span>{tr('数值', 'Value')}</span>
-              <select value={node.value ?? 1} onChange={(e) => setNode(node.id, { value: +e.target.value })}>
+              <select value={node.value ?? valueDefault(node.type)} onChange={(e) => setNode(node.id, { value: +e.target.value })}>
                 {(s.consts || [0, 1, 2, 3, 4, 5]).map((v) => <option key={v} value={v}>{v}</option>)}
               </select>
             </label>
@@ -286,7 +286,7 @@ export default function PartDemo({ partKey, phone }) {
     const v = node.type === 'tap' ? signal(inputs[node.tap] ?? null) : valueOf(node.id)
     return <i className={`sg-thumb ${v && v !== '—' ? 'is-on' : ''}`}>{v || '—'}</i>
   }
-  const tileExtra = (node) => (node.type === 'const' ? `= ${node.value ?? 1}` : L(def(node.type).tag ?? ''))
+  const tileExtra = (node) => (hasValue(node.type) ? `= ${node.value ?? valueDefault(node.type)}` : L(def(node.type).tag ?? ''))
   const node = graph.nodes.find((n) => n.id === sel)
   const choices = (options, value, pick) => (
     <div className="demo-choices">{options.map(([v, label]) => <button key={String(v)} type="button" aria-pressed={v === value} onClick={() => pick(v)}>{label}</button>)}</div>
@@ -297,7 +297,7 @@ export default function PartDemo({ partKey, phone }) {
     <>
       <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'tap' ? tr('输入', 'Input') : node.type === 'out' ? tr('答案', 'Answer') : L(def(node.type).tag ?? '')}</small></div>
       {node.type === 'tap' && <InputControl key={`${sel}-${ti}-${cell}`} type={V.sensors[node.tap].type} value={inputs[node.tap] ?? null} onChange={(v) => setInput(node.tap, v)} />}
-      {node.type === 'const' && choices((s.consts || [0, 1, 2, 3, 4, 5]).map((v) => [v, String(v)]), node.value ?? 1, (v) => setNode(node.id, { value: v }))}
+      {hasValue(node.type) && choices((s.consts || [0, 1, 2, 3, 4, 5]).map((v) => [v, String(v)]), node.value ?? valueDefault(node.type), (v) => setNode(node.id, { value: v }))}
       {MERGES.includes(node.type) && choices(MERGES.map((k) => [k, L(def(k).tag)]), node.type, (k) => setNode(node.id, { kind: k }))}
       {node.type !== 'tap' && node.type !== 'out' && <p className="panel-note">{L(def(node.type).desc)}</p>}
       {node.type !== 'tap' && <p className="panel-note">{probe ? tr(`上次运行：${valueOf(node.id) || '—'}`, `Last run: ${valueOf(node.id) || '—'}`) : tr('还没运行。', 'Not run yet.')}</p>}

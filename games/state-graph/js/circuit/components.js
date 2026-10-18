@@ -130,9 +130,15 @@ export function def(kind) {
   const b = BLUEPRINTS[kind];
   return {
     name: b.name, tag: tr('零件', 'part'), ins: b.ins, labels: b.labels, desc: b.desc, bp: true, out: b.outType,
-    f: ins => b.f(ins),
+    // A part with a number of its own (b.value, its default) is set on its card, like a Constant.
+    f: (ins, n) => b.f(ins, n?.value ?? b.value),
   };
 }
+
+/** Whether a part carries a number set on its card: a Constant, or a built part with a setting. */
+export const hasValue = kind => kind === 'const' || BLUEPRINTS[kind]?.value !== undefined;
+/** The number such a part starts with when it is placed. */
+export const valueDefault = kind => (kind === 'const' ? 1 : BLUEPRINTS[kind]?.value);
 
 /** What an unconnected input of this port type reads. */
 const idle = type => (type.startsWith('bool') ? false : null);

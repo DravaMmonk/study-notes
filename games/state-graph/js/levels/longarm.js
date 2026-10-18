@@ -33,7 +33,7 @@ export const longarm = [
     mission: { goal: T('算出青蛙从岸边跳到最后一块石头，一共有几种跳法。', 'Work out how many different ways the frog can get from the bank to the last stone.'), how: T('岸边算 1 种：已经站在那里了。', 'The bank counts as 1 way: the frog is already there.') },
     world: 'river', facts: ['bank'], palette: KIT,
     tests: [{ k: [0, null, 2, 3, 2, 4, 3] }, { k: [0, null, 2, 2, 3, null, 4, 2] }, { k: [0, null, 2, 3, 4, 2, 5, 3, 2] }],
-    solution: circ([['m', 'msum'], ['k', 'const', 1], ['g', 'pass']], ['tap:m1>m:0', 'tap:back>m:1', 'tap:bank>g:0', 'k>g:1', 'g>m:2', 'm>out:cell']),
+    solution: circ([['c', 'bp:stamp']], ['tap:m1>c:0', 'tap:back>c:1', 'tap:bank>c:2', 'c>out:cell']),
     hints: [
       T('最后一跳从哪来？前一块，或者伸缩臂够到的那块。两种都算上：加起来。', 'Where does the last jump come from? The stone before, or the one the arm reaches. Count both: add them up.'),
       T('岸边算 1 种：放行闸放过一个 1。', 'The bank counts as 1 way: let a 1 through a Pass gate.'),

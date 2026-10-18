@@ -6,7 +6,7 @@ import { T, tr } from '../i18n.js';
 
 const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 // Every layer: stay as you were, or step over from the layer you come from and book what the step brings in.
-const TRADER = circ([['a', 'add'], ['m', 'mmax']], ['tap:leftPrev>a:0', 'tap:gain>a:1', 'tap:left>m:0', 'a>m:1', 'm>out:cell']);
+const TRADER = circ([['c', 'bp:knaptable']], ['tap:left>c:0', 'tap:leftPrev>c:1', 'tap:gain>c:2', 'c>out:cell']);
 
 export const layercake = [
   {

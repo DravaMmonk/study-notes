@@ -31,7 +31,7 @@ for (const L of LEVELS.filter(x => x.mode === 'circuit')) {
   // tests and writes the same table, cell by cell.
   if (L.blueprint) {
     const s = (L.stages || [L]).at(-1), V = WORLDS[s.world], bp = BLUEPRINTS[`bp:${L.id}`], o = optionsOf(L, s), want = s.expected || L.expected;
-    const box = { nodes: [{ id: 'p', kind: `bp:${L.id}` }], wires: [...bp.sensors.map((id, k) => ({ from: `tap:${id}`, to: `p:${k}` })), { from: 'p', to: `out:${bp.out}` }] };
+    const box = { nodes: [{ id: 'p', kind: `bp:${L.id}`, ...(bp.value !== undefined ? { value: L.blueprint.check ?? bp.value } : {}) }], wires: [...bp.sensors.map((id, k) => (id ? { from: `tap:${id}`, to: `p:${k}` } : null)).filter(Boolean), { from: 'p', to: `out:${bp.out}` }] };
     (s.tests || L.tests).forEach((t, i) => {
       runs++;
       const a = run(V, t, box, o), b = run(V, t, s.solution, o);

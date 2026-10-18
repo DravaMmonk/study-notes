@@ -1,7 +1,8 @@
 // Chapter 9: greedy fails, the knapsack table works, and one in-place row works if it scans the right way.
 
 import { E, knapFig } from '../svg.js';
-import { circ, usesSensor } from '../circuit/components.js';
+import { circ, usesSensor, partFn } from '../circuit/components.js';
+import { port } from './ports.js';
 import { knapTrace } from '../algo.js';
 import { PACK_A, PACK_B, PACK_C } from './data.js';
 import { T, tr } from '../i18n.js';
@@ -45,7 +46,8 @@ export const knapsack = [
       return `<div class="afterbox"><span class="eyebrow">${tr('倒推出的装法', 'The packing, traced back')}</span><div class="diff">${chosen.map(it => `<span class="dt ins">${it.n}<small>${it.w} kg · ${it.v}</small></span>`).join('')}</div><p class="cap">${tr(`一共 ${chosen.reduce((s, it) => s + it.w, 0)} kg，价值 <b>${chosen.reduce((s, it) => s + it.v, 0)}</b>。`, `${chosen.reduce((s, it) => s + it.w, 0)} kg in all, value <b>${chosen.reduce((s, it) => s + it.v, 0)}</b>.`)}</p></div>`;
     },
     boardOpt: { minScale: 0.68, maxScale: 1.15 },
-    unlock: 'pack',
+    // Keep, or swap for another plus a gain: the shape of every "take it or not" choice.
+    unlock: 'choose', blueprint: { ports: [port(T('不换', 'keep'), 'a', 'num', 'up'), port(T('换来', 'swap for'), 'b', 'num', 'upk'), port(T('加上', 'plus'), '+', 'num', 'value')], common: true, f: ([a, b, c]) => partFn('mmax')([a, partFn('add')([b, c])]) },
     debrief: { title: T('0/1 背包', '0/1 knapsack'), body: [T('每件物品只有两种命运：不拿（看正上方），或者拿（去上一行腾出它的重量，再加上它的价值），两者取较大。', 'Each item has only two fates: left out (look right above), or taken (make room for its weight on the row above, then add its value). Take the larger of the two.'), T('来路必须从<b>上一行</b>出发。上一行还没考虑过这件物品，从那里拿，才能保证它只被拿一次。', 'The way in must start from <b>the row above</b>. The row above hasn’t considered this item yet, so taking it from there guarantees it is taken only once.'), T('这个问题叫 <b>0/1 背包</b>。选课、做预算、装货柜、给服务器分配任务，背后都是它。', 'This problem is called the <b>0/1 knapsack</b>. Choosing courses, budgeting, loading shipping containers and assigning jobs to servers all come down to it.')], note: T('0/1 背包：不拿看正上方；拿就从上一行腾出重量，再加价值。', '0/1 knapsack: leave it out, look right above; take it, make room for its weight on the row above and add its value.') },
   },
   // The knapsack series (长臂's topic): each kind as many times as you like, then a backpack that mixes both kinds. The
@@ -64,7 +66,7 @@ export const knapsack = [
       { W: 10, items: [{ n: T('腊肉', 'bacon'), w: 6, v: 13, many: true }, { n: T('面粉', 'flour'), w: 5, v: 10, many: true }, { n: T('盐', 'salt'), w: 1, v: 1, many: true }] },
       { W: 9, items: [{ n: T('面粉', 'flour'), w: 5, v: 9, many: true }, { n: T('大米', 'rice'), w: 3, v: 5, many: true }, { n: T('白糖', 'sugar'), w: 2, v: 3, many: true }] },
     ],
-    solution: circ([['a', 'add'], ['m', 'mmax']], ['tap:rowk>a:0', 'tap:value>a:1', 'tap:up>m:0', 'a>m:1', 'm>out:cell']),
+    solution: circ([['c', 'bp:knaptable']], ['tap:up>c:0', 'tap:rowk>c:1', 'tap:value>c:2', 'c>out:cell']),
     hints: [
       T('这一种一件也不拿：答案还是正上方。', 'Taking none of this kind: the answer is still right above.'),
       T('拿了一件，还能再拿：要找的是「已经考虑过这一种」的那一格。上一行还没考虑过它，本行已经考虑过了。', 'After taking one, you may take another: you want the cell that has “already considered this kind”. The row above hasn’t considered it yet; this row has.'),
@@ -87,7 +89,7 @@ export const knapsack = [
       { W: 8, items: [{ n: T('木柴', 'firewood'), w: 4, v: 4, many: true }, { n: T('绳子', 'rope'), w: 2, v: 4, many: true }, { n: T('药箱', 'medical kit'), w: 3, v: 13 }] },
     ],
     // Make room on this row for a kind that can be taken many times, on the row above for one taken at most once.
-    solution: circ([['a', 'pass'], ['b', 'block'], ['s', 'mmax'], ['p', 'add'], ['m', 'mmax']], ['tap:many>a:0', 'tap:rowk>a:1', 'tap:many>b:0', 'tap:upk>b:1', 'a>s:0', 'b>s:1', 's>p:0', 'tap:value>p:1', 'tap:up>m:0', 'p>m:1', 'm>out:cell']),
+    solution: circ([['p', 'pass'], ['b', 'block'], ['s', 'msum'], ['c', 'bp:knaptable']], ['tap:many>p:0', 'tap:rowk>p:1', 'tap:many>b:0', 'tap:upk>b:1', 'p>s:0', 'b>s:1', 'tap:up>c:0', 's>c:1', 'tap:value>c:2', 'c>out:cell']),
     hints: [
       T('两种东西的拿法只差一处：腾地方的那一格，在上一行，还是在本行。', 'The two kinds of thing differ in one place only: whether the cell that makes room is on the row above or on this row.'),
       T('让「这件能拿多次」来挑那一格：一个闸门放行本行那格，另一个闸门放行上一行那格。', 'Let “can take many” pick that cell: one gate lets this row’s cell through, another lets the row above’s through.'),

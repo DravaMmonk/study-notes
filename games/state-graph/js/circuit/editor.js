@@ -4,7 +4,7 @@
 // Port ids: sources are '<nodeId>', a reader's '<nodeId>#<sensor>' or a sensor wired straight in, 'tap:<id>'; sinks
 // are '<nodeId>:<k>' or 'out:<id>'.
 
-import { typeError, picksOf, splitSrc, isInput, layerOf } from './components.js';
+import { typeError, picksOf, splitSrc, isInput, layerOf, hasValue, valueDefault } from './components.js';
 import { wouldCycle } from '../../../kit/graph.js';
 import { ICONS } from './glyphs.js';
 import { tr } from '../i18n.js';
@@ -47,7 +47,7 @@ export function placement(circ) {
 export function placeNode(circ, kind, at, value) {
   // Presets may name their components freely ('m', 'b1'…); new ones are n1, n2… after the highest n-number.
   const id = `n${Math.max(0, ...circ.nodes.map(n => /^n(\d+)$/.exec(n.id)).filter(Boolean).map(m => +m[1])) + 1}`;
-  return { ...circ, nodes: [...circ.nodes, { id, kind, ...(kind === 'const' ? { value: 1 } : value !== undefined ? { value } : {}) }], at: { ...placement(circ).cell, [id]: at } };
+  return { ...circ, nodes: [...circ.nodes, { id, kind, ...(hasValue(kind) ? { value: valueDefault(kind) } : value !== undefined ? { value } : {}) }], at: { ...placement(circ).cell, [id]: at } };
 }
 
 export function removeNode(circ, id) {

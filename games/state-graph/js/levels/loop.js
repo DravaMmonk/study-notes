@@ -18,7 +18,7 @@ export const loopLevels = [
     mission: { goal: T('算出每一格的价值：往右、往下两格里较好的那个 × 0.9。', 'Work out the value of every cell: the better of right and down × 0.9.'), how: T('机器人一轮一轮地扫，直到表不再变。答案看起点那一格。', 'The robot scans in rounds until the table stops changing. The answer is the start cell.') },
     world: 'vgrid', facts: [], palette: [...KIT, 'mul'], consts: [0, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
     tests: [{ R: 5, C: 6, gold: [3, 4], cliffs: [...rim(5, 6), [1, 2]], rd: true }, { R: 4, C: 5, gold: [2, 3], cliffs: rim(4, 5), rd: true }],
-    solution: circ([['m', 'mmax'], ['k', 'const', 0.9], ['x', 'mul']], ['tap:right>m:0', 'tap:down>m:1', 'm>x:0', 'k>x:1', 'x>out:cell']),
+    solution: circ([['d', 'bp:value', 0.9]], ['tap:right>d:0', 'tap:down>d:1', 'd>out:cell']),
     hints: [T('只能往右或往下：右边、下面接进「取较大」，再乘 0.9。', 'Right or down only: wire right and down into a max, then multiply by 0.9.')],
     diagnose: c => (usesSensor(c, 'up') || usesSensor(c, 'left') ? tr('这张地图上只能往右或往下走：上面和左边走不过去。', 'On this map you only move right or down: up and left can’t be reached.') : null),
     debrief: { title: T('格子世界的简化版', 'The grid world, simplified'), body: [T('只有两个方向，每一格都只看右边和下面。', 'With two directions, every cell looks only right and down.')] },
@@ -37,10 +37,10 @@ export const loopLevels = [
     ],
     // The topic's board: each move weighted by this cell's own chances. On firm ground (V1) it is right-or-down; with
     // one chance everywhere (V2) it is the slippery floor.
-    solution: circ([['a', 'mul'], ['b', 'mul'], ['c', 'mul'], ['d', 'mul'], ['p', 'add'], ['q', 'add'], ['m', 'mmax'], ['k', 'const', 0.9], ['x', 'mul']], [
+    solution: circ([['a', 'mul'], ['b', 'mul'], ['c', 'mul'], ['d', 'mul'], ['p', 'add'], ['q', 'add'], ['x', 'bp:value', 0.9]], [
       'tap:grip>a:0', 'tap:right>a:1', 'tap:slip>b:0', 'tap:down>b:1', 'a>p:0', 'b>p:1',
       'tap:grip>c:0', 'tap:down>c:1', 'tap:slip>d:0', 'tap:right>d:1', 'c>q:0', 'd>q:1',
-      'p>m:0', 'q>m:1', 'm>x:0', 'k>x:1', 'x>out:cell',
+      'p>x:0', 'q>x:1', 'x>out:cell',
     ]),
     hints: [
       T('和「会打滑的地板」一样，只是 0.8 和 0.2 换成了本格的「站稳的可能」和「打滑的可能」。', 'As on the slippery floor, with 0.8 and 0.2 swapped for this cell’s “chance to hold” and “chance to slip”.'),

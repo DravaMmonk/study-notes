@@ -12,7 +12,7 @@ import { $, buzz, toast, signal, wide } from '../util.js';
 import { rt, Anim } from '../runtime.js';
 import { WORLDS, runCircuit, windowOf, visibleSensors, sensorsOf, MAX_ROUNDS } from '../circuit/worlds.js';
 import { ROBOTS } from '../circuit/robots.js';
-import { def, blank, evaluate, clone, modelsOf, isInput, isViewReader, familyOf, layerOf as readerLayer, picksOf, withPicks, splitSrc, srcType, sinkType, fits, CARDS, cardOf } from '../circuit/components.js';
+import { def, hasValue, blank, evaluate, clone, modelsOf, isInput, isViewReader, familyOf, layerOf as readerLayer, picksOf, withPicks, splitSrc, srcType, sinkType, fits, CARDS, cardOf } from '../circuit/components.js';
 import { viewHTML, removeNode, placeNode, readsOf } from '../circuit/editor.js';
 import { toGraph, fromGraph, create, partsFor } from '../circuit/board.js';
 import { placement } from '../../../kit/circuit/model.js';
@@ -270,7 +270,7 @@ export function circuitMode(L, saved, { flags } = {}) {
 
   function openNode(id) {
     const n = circ().nodes.find(x => x.id === id), d = def(n.kind);
-    const vals = n.kind === 'const' ? `<div class="chips" role="radiogroup" aria-label="${tr('数值', 'Value')}">${(stage().consts || [0, 1, 2, 3, 4, 5]).map(v => `<button class="chip" type="button" role="radio" aria-checked="${n.value === v}" data-act="val" data-v="${v}">${v}</button>`).join('')}</div>` : '';
+    const vals = hasValue(n.kind) ? `<div class="chips" role="radiogroup" aria-label="${tr('数值', 'Value')}">${(stage().consts || [0, 1, 2, 3, 4, 5]).map(v => `<button class="chip" type="button" role="radio" aria-checked="${n.value === v}" data-act="val" data-v="${v}">${v}</button>`).join('')}</div>` : '';
     // A kind check is set to one kind (of the sensor wired into it).
     const kinds = n.kind === 'is' ? `<div class="optlabel">${tr('是哪一类', 'Which kind')}</div><div class="chips" role="radiogroup">${kindsOf(id).map(([v, l]) => `<button class="chip" type="button" role="radio" aria-checked="${n.value === v}" data-act="kind" data-v="${v}">${l}</button>`).join('')}</div>` : '';
     // An input part is set on its card: a view reader by a square of its box (and, layered, a layer), a cell or arm

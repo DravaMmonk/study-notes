@@ -36,7 +36,7 @@ export const boxy = [
     mission: { goal: T('走到最后一层的指定那块砖，一共有几条路？', 'How many ways are there down to the given brick of the last row?'), how: T('一层一层、从左往右算。', 'Row by row, left to right.') },
     world: 'tri', facts: ['start'], palette: ['msum', 'const', 'pass'],
     tests: [{ R: 5, k: 2 }, { R: 7, k: 3 }, { R: 6, k: 1 }],
-    solution: circ([['m', 'msum'], ['k', 'const', 1], ['g', 'pass']], ['tap:up>m:0', 'tap:ul>m:1', 'tap:start>g:0', 'k>g:1', 'g>m:2', 'm>out:cell']),
+    solution: circ([['c', 'bp:stamp']], ['tap:up>c:0', 'tap:ul>c:1', 'tap:start>c:2', 'c>out:cell']),
     hints: [
       T('只看最后一步：走到这块砖之前，你在哪一块上？', 'Look only at the last step: before reaching this brick, which brick were you on?'),
       T('三角形左边缘和右边缘的砖，只有一块砖能走过来，另一边是「—」。', 'Bricks on the triangle’s left and right edges can be reached from one brick only; the other side is “—”.'),

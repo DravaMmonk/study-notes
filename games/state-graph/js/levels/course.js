@@ -14,7 +14,7 @@ import { optionsOf, run } from './reference.js';
  * and pass gate together, the block gate, the adder, not, the comparator, the divider, the multiplier). What the
  * player builds are boards, packaged as parts once solved (a level's `blueprint`).
  */
-export const PRIMITIVES = ['msum', 'mmin', 'mmax', 'many', 'const', 'pass', 'block', 'add', 'not', 'ceq', 'cgt', 'clt', 'idiv', 'imod', 'mul'];
+export const PRIMITIVES = ['msum', 'mmin', 'mmax', 'many', 'const', 'pass', 'block', 'add', 'not', 'mul'];
 
 const byId = new Map(LEVELS.map(L => [L.id, L]));
 /** Worlds that are one family (circuit/worlds/): the same board, read or scanned another way. */
