@@ -30,6 +30,18 @@ button:disabled{cursor:not-allowed}
 .cell .val{fill:var(--ink);font:700 21px var(--f-mono);dominant-baseline:central}
 .cell .lb{fill:var(--ink-2);font:600 12.5px var(--f-body)}
 .cell .cn{fill:var(--ink-3);font:600 11px var(--f-mono);text-anchor:start}
+/* A cell's mark (svg.js MARKS): a small line icon in its top-left corner, in the cell's colour. */
+.cell .mk{color:var(--ink-3);fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.cell .mk .mk-fill{fill:currentColor;stroke:none}
+.cell .mk-start{color:var(--ink-2)}
+.cell .mk-end{color:var(--good)}
+.cell.key .mk{color:var(--signal)}
+.cell.door .mk{color:var(--t3)}
+.cell.kred .mk{color:var(--w1)}
+.cell.kblue .mk{color:var(--w0)}
+.cell.kgreen .mk{color:var(--w3)}
+.cell .mk-gold{color:var(--signal)}
+.cell .mk-trap,.cell .mk-cliff{color:var(--bad)}
 .cell .sb{fill:var(--cyan);font:700 11px var(--f-body)}
 .cell.tap{cursor:pointer}
 .cell.lit rect{fill:var(--chip-lit);stroke:var(--wire)}
@@ -272,20 +284,36 @@ button:disabled{cursor:not-allowed}
 .cview{--vc:32px;display:grid;gap:7px;justify-items:center;align-content:start;padding:8px 6px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);max-width:150px}
 .vpart{width:100%;display:grid;gap:7px;justify-items:center;align-content:start}
 @media (min-width:420px){.cview{--vc:38px;max-width:200px}}
-.vhead{display:flex;align-items:center;gap:6px}
-.vhead b{display:block;font:600 13px/1.2 var(--f-display)}
-.vhead small{display:block;font:600 10px/1.3 var(--f-mono);color:var(--ink-3)}
-.vlook{width:30px;height:30px;flex:none;overflow:visible}
-.vnote{font:600 10px/1.35 var(--f-mono);color:var(--ink-3);text-align:center}
 .vblock{display:grid;gap:3px;justify-items:center}
 .vsub{font:600 10px var(--f-body);color:var(--ink-3);text-align:center}
 .vwin{display:grid;gap:3px;grid-template-columns:repeat(3,var(--vc));grid-auto-rows:var(--vc)}
+/* 千层's view of the other layers: a small 3×3 for each, in a row that wraps. */
+/* The table's layer count, for a level whose layers the player stacks. */
+.layerset{display:flex;align-items:center;gap:10px}
+/* A layer heading on the test board that is a tick box: the ticked layer's end cell is the answer. */
+.tx-tick{cursor:pointer}
+.tx-tick .tick-hit{fill:transparent}
+.tx-tick:hover .tick-hit,.tx-tick:focus-visible .tick-hit{fill:var(--hover)}
+.tx-tick:focus-visible{outline:none}
+.tx-tick .tick-box{fill:none;stroke:var(--ink-3);stroke-width:1.6}
+.tx-tick.on .tick-box{fill:var(--accent);stroke:var(--accent)}
+.tx-tick .tick-mark{fill:none;stroke:var(--paper);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tx-tick.on .tx{fill:var(--ink)}
+.layerset .chip{min-width:40px;min-height:36px;padding:0;font-size:18px}
+.layerset b{min-width:4em;text-align:center;font:700 15px var(--f-mono)}
 .vwin.n5{--vc:22px;gap:2px;grid-template-columns:repeat(5,var(--vc))}
 @media (min-width:420px){.vwin.n5{--vc:27px}}
 .vcell{position:relative;width:var(--vc);height:var(--vc);border-radius:6px;background:var(--chip);border:1.5px solid var(--chip-line);display:grid;place-items:center;font:700 12px var(--f-mono);color:var(--ink);opacity:.55}
 .n5 .vcell{border-radius:5px;font-size:10px;border-width:1.2px}
 .vcell .vv{font-variant-numeric:tabular-nums}
 .vcell .vc{position:absolute;left:2px;top:0;font:600 8px var(--f-mono);color:var(--ink-3)}
+/* A special cell's icon (svg.js MARKS) in the view's cells, as on the test board. */
+.vcell .mk-ico{position:absolute;left:3px;top:3px;width:clamp(8px,calc(var(--vc,32px) * .28),12px);height:auto;color:var(--ink-3);fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.vcell .mk-ico .mk-fill{fill:currentColor;stroke:none}
+.vcell .mk-end{color:var(--good)}
+.vcell.v-key .mk-ico{color:var(--signal)} .vcell.v-door .mk-ico{color:var(--t3)}
+.vcell.v-kred .mk-ico{color:var(--w1)} .vcell.v-kblue .mk-ico{color:var(--w0)} .vcell.v-kgreen .mk-ico{color:var(--w3)}
+.vcell .mk-gold{color:var(--signal)} .vcell .mk-trap,.vcell .mk-cliff{color:var(--bad)}
 .n5 .vcell .vc{display:none}
 .vcell.v-rock{background:repeating-linear-gradient(45deg,var(--chip) 0 4px,var(--wire) 4px 6px)}
 .vcell.v-house{background:var(--panel);border-color:var(--line)}
@@ -311,7 +339,7 @@ button:disabled{cursor:not-allowed}
 .n5 .vbot{width:16px;height:16px;right:-7px;bottom:-8px}
 .varm{display:grid;gap:3px;justify-items:center;padding-bottom:12px}
 .varm-row{display:flex;gap:6px}
-.vfacts{display:grid;gap:6px;width:100%}
+.vfacts{display:grid;gap:4px;width:100%}
 .vfact{position:relative;display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:4px;padding:4px 6px;border-radius:9px;border:1.5px dashed var(--wire);font:600 11px/1.2 var(--f-body);text-align:left}
 /* The window on the left, the cell's facts on the right: tall, narrow buttons, easy to tap. */
 .vtop{width:100%;display:grid;gap:14px;justify-items:center;align-items:start}
@@ -319,8 +347,13 @@ button:disabled{cursor:not-allowed}
 .vtop.has-facts .vfacts{min-width:0;align-content:start;justify-items:stretch;max-width:170px}
 .vtop.has-facts .vfact{min-width:0}
 .vtop.has-facts .vwins{flex-direction:column;align-items:center}
-.vtop .vfact{min-height:48px;padding:8px 10px;gap:6px;font-size:12.5px;line-height:1.3}
+.vtop .vfact{min-height:30px;padding:3px 10px;gap:6px;font-size:12.5px;line-height:1.3}
 .vtop .vfact .vv{font-size:12px}
+.vfacts-only{width:100%;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.vfacts-only .vfact{min-height:30px;padding:3px 10px;gap:6px;font-size:12.5px;line-height:1.3;color:inherit;background:none;cursor:pointer}
+.vfacts-only .vfact .vv{font-size:12px}
+.vfacts-only .vfact:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.cview:empty{display:none}
 .vfact .glyph{width:20px;height:14px}
 .vfact .vv{font:700 10.5px var(--f-mono);color:var(--signal)}
 .vfact.on{border:2px solid var(--cyan);background:var(--cyan-soft)}
@@ -388,8 +421,8 @@ img{max-width:100%}
 }
 
 /* ---------- desktop workbench (above 760px): the shell's brief | stage | side (games/kit/shell), the same frame as
-   Vision Complete. js/screen.jsx puts the board card or the panel on the stage (panel-stage: circuit levels) and the
-   other one in the side column, with the dock under it. ---------- */
+   Vision Complete. js/screen.jsx puts the board card on the stage and the panel in the side column, with the dock
+   under it; circuit levels use the kit's circuit layout instead (below). ---------- */
 @media (min-width:761px){
   .sg-level .stage-pane{overflow-y:auto;scrollbar-width:thin}
   .sg-side{min-height:0;display:flex;flex-direction:column;border-left:1px solid var(--line);background:var(--panel)}
@@ -404,9 +437,6 @@ img{max-width:100%}
   .sg-level:not(.panel-stage) .tests{margin:0;padding:0;flex-wrap:wrap}
   .sg-level:not(.panel-stage) .board{margin:0;padding:0;overflow:visible}
   .sg-level:not(.panel-stage) .board-svg{max-height:calc(100dvh - 220px)}
-  .sg-level.panel-stage .stage-pane{background:var(--board)}
-  .sg-level.panel-stage .stage-pane .panel{padding:24px 28px 32px;gap:16px;align-items:center}
-  .sg-level.panel-stage .panel>*{width:100%;max-width:960px}
   /* the canvas is the circuit board: parts, terminals and wires sit straight on the dotted stage */
   #view .cview{max-width:none;background:var(--board);border:0;box-shadow:inset 0 0 0 1px var(--line)}
   .cview{--vc:42px;max-width:none;padding:12px 10px}
@@ -415,9 +445,6 @@ img{max-width:100%}
   /* the side: tests or the rules */
   .sg-level:not(.panel-stage) .sg-side .panel{padding:18px 16px;gap:12px}
   .sg-level:not(.panel-stage) .panel .pcard{background:var(--board)}
-  .sg-level.panel-stage .sg-side .bcard{border:0;border-radius:0;padding:18px 16px;gap:12px;background:var(--panel);background-image:none}
-  .sg-level.panel-stage .tests{margin:0;padding:0;flex-wrap:wrap}
-  .sg-level.panel-stage .board{margin:0;padding:4px 0;background:none;box-shadow:none}
 }
 
 /* ---------- phone: the shell's one-page level; board, panel, then the parts tray and the dock pinned at the bottom ---------- */
@@ -467,6 +494,14 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .vfilts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .vfilt{min-height:30px;padding:0 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel);font:600 12px var(--f-body)}
 .vfilt[aria-checked="true"]{background:var(--cyan);color:var(--cyan-ink);border-color:var(--cyan)}
+/* A setting the level fixes (what the state remembers, the scan order, the arm's filter, the rewrite direction):
+   shown like the chosen option of a control, but it is not one. */
+.chip.is-fixed{min-height:36px;cursor:default;font-weight:600}
+.chip.is-fixed.is-on{background:var(--cyan-soft);border-color:var(--cyan);color:var(--ink)}
+.chip.is-fixed:not(.is-on){opacity:.6;border-style:dashed}
+.chip.is-fixed.is-on .box{opacity:1;background:var(--cyan);border-color:var(--cyan)}
+.dialopts.is-fixed{grid-template-columns:minmax(0,180px)}
+.vfilt.is-fixed{display:inline-flex;align-items:center;cursor:default}
 .cell.kred rect{stroke:var(--w1)} .cell.kred .lb{fill:var(--w1)}
 .cell.kblue rect{stroke:var(--w0)} .cell.kblue .lb{fill:var(--w0)}
 .cell.kgreen rect{stroke:var(--w3)} .cell.kgreen .lb{fill:var(--w3)}
@@ -508,15 +543,15 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-canvas .kit-board { position: absolute; inset: 0; height: auto; margin: 0; padding: 0; overflow: clip; }
 /* The whole middle column is the board: no frame around it. A level's own choices (memory, scan order, the direction
    switches) are in the brief (js/screen.jsx). */
-.sg-level.panel-stage .stage-pane { overflow: hidden; background: var(--canvas); background-image: none; }
-.sg-level.panel-stage .stage-pane .sg-boardpanel { height: 100%; padding: 0; gap: 0; }
-.sg-level.panel-stage .stage-pane .sg-boardpanel > * { width: 100%; max-width: none; }
 .sg-body { margin: 6px 10px 0; display: grid; gap: 4px; }
 .sg-body .param { margin: 0; }
 .sg-tag { color: var(--muted); font: 600 11px var(--f-mono); }
 .sg-val, .sg-thumb { min-width: 44px; min-height: 30px; padding: 2px 8px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); background: var(--panel-2); font: 700 15px var(--f-mono); font-style: normal; font-variant-numeric: tabular-nums; }
 .sg-val.is-on, .sg-thumb.is-on { color: var(--ink); background: color-mix(in srgb, var(--fam, var(--accent)) 14%, var(--paper)); }
 .sg-thumb { min-width: 60px; min-height: 40px; font-size: 18px; }
+.sg-thumb.is-hint { min-height: 28px; padding: 4px 10px; color: var(--ink-3); font: 600 11.5px var(--f-body); }
+.pb-thumb:empty { display: none; }
+.pb-o .sg-oval { min-width: 26px; font-size: 12px; }
 /* A run that stopped on a cell not computed yet: that input reads 未算, and the cards it never got to 未算到. */
 .sg-val.is-unreached, .sg-thumb.is-unreached { color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, var(--panel-2)); font: 600 12px var(--f-body); letter-spacing: .02em; }
 /* Ports by the signal they carry: a number is round, a yes / no a diamond, a whole segment a bar, either dashed. */
@@ -529,6 +564,24 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-level.is-circuit .cview .vwin.n5 { --vc: clamp(34px, calc((100vw - 90px) / 5.6), 52px); gap: 4px; }
 .sg-level.is-circuit .cview .n5 .vcell { font-size: 12px; }
 .sg-slots { min-width: 0; padding: 8px 12px 16px; overflow-x: clip; }
+/* An input card on a phone holds what it reads (js/circuit/BoardView.jsx): the robot's window or the cell's facts, each
+   tapped to add or remove its output. The two cards share a row, each as wide as half of it. */
+.sg-slots .pb-terms.is-sources > .pb-term { max-width: none; }
+.sg-cardview { --vc: 34px; width: 100%; display: grid; justify-items: center; gap: 6px; line-height: 1.25; }
+.sg-cardview .varm-row { gap: 22px; }
+.sg-slots .pb-terms.is-sources > .pb-term:has(.sg-cardview) { display: flex; flex-direction: column; align-items: center; }
+.sg-slots .pb-term:has(.sg-cardview) > .pb-thumb { width: 100%; }
+/* The card's dots stay on its bottom edge when its neighbour is taller. */
+.sg-slots .pb-term:has(.sg-cardview) > .pb-out.is-many { margin-top: auto; }
+.sg-cardview .vpart { width: 100%; }
+.sg-cardview .vwins { display: flex; justify-content: center; }
+.sg-cardview .vwin { --vc: 42px; }
+.sg-cardview .vwin.n5 { --vc: 26px; }
+.sg-cardview .vfacts { display: grid; gap: 4px; justify-items: stretch; }
+.sg-cardview .vfact { min-height: 26px; padding: 2px 8px; gap: 5px; font-size: 12px; border-width: 1.2px; border-radius: 8px; }
+.sg-cardview .vfact .vv { font-size: 12px; }
+.sg-cardview .vfact .tag { display: none; }
+.sg-cardview .vsub { font-size: 10px; }
 .sg-level.is-circuit .pb-banner, .sg-level.is-circuit .pb-toast { bottom: calc(150px + env(safe-area-inset-bottom)); }
 /* A circuit level's choices in the brief: plain sections under the task, no card around them. */
 .sg-extras, .sg-extras > div { display: grid; gap: 22px; }
@@ -540,51 +593,34 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-extras .chips.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sg-extras .memk { min-height: 38px; justify-content: flex-start; }
 .sg-extras .dialopts { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-/* Circuit levels on a desktop. A circuit grows sideways, inputs on the left to the answer on the right, so the board
-   takes the whole width beside the task: the parts are one row of icons over it (what each does in a tooltip), and
-   the world the circuit runs in (tests, the test board at a size it can be read, the robot's view, the run bar) is a
-   strip under it, which the line along its top drags taller or shorter (js/screen.jsx, WorldHandle). */
+/* Circuit levels on a desktop sit on the kit's circuit layout (games/kit/shell/CircuitLayout.jsx). This game's part of
+   it: the robot's view in a window floating over the board, its window and the cell's facts side by side and the arm
+   under them; the test board in the strip's outputs pane, which js/screen.jsx (fitBoard) sizes to the pane. */
 @media (min-width: 761px) {
-  .level.has-side.sg-level.panel-stage, .level-shell.has-rail .level.has-side.sg-level.panel-stage {
-    --world-h: clamp(220px, 37dvh, 400px);
-    grid-template-columns: 280px minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) var(--world-h);
-  }
-  .sg-level.panel-stage > .brief { grid-row: 1 / -1; }
-  .sg-level.panel-stage > .stage-pane { grid-column: 2; grid-row: 1; }
-  .sg-level.panel-stage > .sg-side { position: relative; grid-column: 2; grid-row: 2; min-height: 0; flex-direction: row; border-left: 0; border-top: 1px solid var(--line); }
-  .sg-resize { position: absolute; z-index: 5; left: 0; right: 0; top: -5px; height: 10px; cursor: row-resize; touch-action: none; }
-  .sg-resize::after { content: ''; position: absolute; left: 50%; top: 3px; width: 44px; height: 4px; margin-left: -22px; border-radius: 2px; background: var(--rule); transition: background 160ms ease; }
-  .sg-resize:hover::after, .sg-resize:focus-visible::after { background: var(--accent); }
-  .sg-resize:focus-visible { outline: none; }
-  /* The strip: the tests and the board on the left; the robot's view and the run bar under it on the right. */
-  .sg-level.panel-stage .sg-side > .bcard { flex: 1; min-width: 0; padding: 14px 20px 16px; gap: 10px; align-content: start; overflow: auto; }
-  .sg-level.panel-stage .sg-side > .bcard > .bnote:empty, .sg-level.panel-stage .sg-side > .bcard > #after:empty { display: none; }
-  .sg-level.panel-stage .sg-side .board { overflow: visible; }
-  .sg-level.panel-stage .sg-side .board-svg { display: block; margin: 0 !important; }
-  .sg-world-side { flex: none; width: max-content; min-width: 320px; max-width: 58%; min-height: 0; display: flex; flex-direction: column; border-left: 1px solid var(--hairline); background: var(--paper); }
-  .sg-world-side > #view { flex: 1; min-height: 0; padding: 12px 14px 0; overflow: auto; scrollbar-width: thin; }
-  .sg-world-side > #view:empty { display: none; }
-  .sg-world-side > #view:empty + .run-foot { flex: 1; justify-content: flex-end; }
-  /* The robot's window on the left; what it carries besides (the arm, the switches, the cell's facts) beside it, so
-     the view fits the strip's height. */
-  .sg-world-side .cview { --vc: 38px; grid-template-columns: auto; grid-auto-flow: column; column-gap: 20px; align-items: start; padding: 12px 14px; }
-  .sg-world-side .cview .vtop { width: auto; }
-  .sg-world-side .cview .vhead { white-space: nowrap; }
-  .sg-world-side .cview .vwins, .sg-world-side .cview .vtop.has-facts .vwins { flex-direction: row; flex-wrap: nowrap; }
-  .sg-world-side .cview .vextra { width: 250px; }
-  .sg-world-side .cview .vtop.has-facts .vfacts { width: 150px; }
-  .sg-world-side .cview .vwin.n5 { --vc: 30px; }
-  .sg-world-side > .run-foot { padding: 12px 14px; }
-  /* The board under the parts row. */
-  .sg-toolbar { flex: none; padding: 8px 12px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
-  .sg-toolbar .palette.is-compact { display: flex; flex-wrap: wrap; gap: 4px; }
-  .sg-toolbar .palette.is-compact .palette-item { width: auto; min-height: 34px; padding: 3px 12px 3px 5px; grid-template-columns: 22px auto; border-radius: 9px; box-shadow: inset 0 0 0 1px var(--line); }
-  .sg-toolbar .palette.is-compact .palette-item:hover { background: var(--hover); box-shadow: inset 0 0 0 1px var(--rule); }
-  .sg-toolbar .palette-text small, .sg-toolbar .palette-add { display: none; }
-  .sg-toolbar .palette-tip { left: 0; top: calc(100% + 6px); }
-  .sg-toolbar .palette-item[data-tip='left'] .palette-tip { left: auto; right: 0; }
-  .sg-level.panel-stage .sg-canvas { min-height: 0; }
+  /* What the robot reads, in the strip's inputs pane: its window, the cell's facts under it as thin rows (no heading:
+     the pane says what they are), then the arm. */
+  .kc-inputs #view:empty::before { content: '—'; color: var(--faint); }
+  .kc-inputs #view .cview { --vc: 50px; max-width: none; margin: 0; padding: 0; gap: 10px; border: 0; border-radius: 0; background: none; box-shadow: none; }
+  /* One column as wide as the window, centred: the facts take the window's width, so the two read as one block. */
+  .kc-inputs .cview .vtop.has-facts { grid-template-columns: minmax(0, max-content); justify-content: center; justify-items: stretch; gap: 10px; }
+  .kc-inputs .cview .vtop.has-facts .vwins { align-items: center; }
+  .kc-inputs .cview .vfacts > .vsub { display: none; }
+  .kc-inputs .cview .vfacts-only { width: 200px; }
+  .kc-inputs .cview .vtop.has-facts .vfacts { max-width: none; gap: 4px; }
+  .kc-inputs .cview .vtop .vfact { min-height: 22px; padding: 1px 8px; border-width: 1.2px; border-radius: 7px; font-size: 12px; }
+  .kc-inputs .cview .vtop .vfact.on { border-width: 1.6px; }
+  .kc-inputs .cview .vextra { max-width: 340px; }
+  .kc-inputs .cview .vwin.n5 { --vc: 34px; }
+  .kc-outputs .bcard { padding: 0; gap: 8px; align-content: start; border: 0; border-radius: 0; background: none; box-shadow: none; }
+  .kc-outputs .bcard > #after:empty { display: none; }
+  .kc-outputs .board { margin: 0; padding: 0; overflow: visible; background: none; box-shadow: none; }
+  .kc-outputs .board-svg { display: block; margin: 0 !important; }
+  .kc-outputs .kc-pane-head .bnote { margin: 0; }
+  .kc-outputs .bhint { margin: 0; color: var(--ink-3); font-size: 12px; line-height: 1.5; }
+  .kc-tests .tests { margin: 0; padding: 0; flex-wrap: nowrap; }
+  .kc-tests .tchip { flex: none; }
+  .kc-canvas .sg-canvas { position: absolute; inset: 0; min-height: 0; }
+  .sg-level.kit-circuit .stage-pane { overflow: hidden; }
 }
 /* A part's bench in the parts box (js/circuit/PartDemo.jsx): the test board and the robot's view side by side, the
    circuit under them, as in a level. */
@@ -607,3 +643,48 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
   .sg-level.is-circuit .cview .vtop.has-facts .vwin { --vc: clamp(40px, calc((100vw - 230px) / 3.3), 52px); }
   .sg-level.is-circuit .cview .vtop.has-facts .vwin.n5 { --vc: clamp(28px, calc((100vw - 250px) / 5.4), 44px); }
 }
+
+/* 视野's box (js/circuit/BoardView.jsx, the phone's part sheet): blank squares for the cells the robot sees; the ones
+   being read are lit, the robot's own square is framed red, and one the card cannot read is dashed. */
+.rgrid{--rs:18px;display:grid;grid-template-columns:repeat(var(--rn),var(--rs));grid-auto-rows:var(--rs);gap:4px;justify-content:center;padding:4px 0}
+.rgrid[style*="--rn: 5"],.rgrid[style*="--rn:5"]{--rs:14px;gap:3px}
+.rcell{width:var(--rs);height:var(--rs);padding:0;border:1.5px solid var(--ink-3);border-radius:4px;background:color-mix(in srgb,var(--ink) 10%,transparent);cursor:pointer}
+.rcell:hover:not(:disabled){border-color:var(--cyan)}
+.rcell.on{border:2px solid var(--cyan);background:color-mix(in srgb,var(--cyan) 45%,transparent)}
+.rcell.self{border-color:var(--bad)}
+.rcell:disabled{cursor:default;border-style:dashed;background:transparent;opacity:.55}
+.rcell.self:disabled{border-style:solid;opacity:.8}
+.sg-sheet .rgrid{--rs:34px;justify-content:start}
+/* What 视野's arm reaches, under its box: tick the ones it reads (each an output). */
+.fpicks{display:flex;flex-direction:column;align-items:flex-start;gap:3px;max-width:150px}
+.fpick{padding:2px 7px;border-radius:7px;border:1px dashed var(--ink-3);background:none;color:var(--ink-2);font:600 10.5px/1.25 var(--f-body);text-align:left;cursor:pointer}
+.fpick:hover{border-color:var(--cyan)}
+.fpick.on{border:1.5px solid var(--cyan);background:color-mix(in srgb,var(--cyan) 18%,transparent);color:var(--ink)}
+/* A reader's card: what it reads on the left, its outputs (at most three) down the right edge beside it. */
+.sg-body.is-reader{align-items:stretch}
+.sg-body.is-reader .rd-pick{min-height:64px;margin-right:76px;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.sg-body.is-reader .rd-pick:empty{min-height:20px}
+.sg-body.is-reader .rgrid{justify-content:start;padding:0}
+/* A cell reader on the desktop: its output rows (a fact to choose, its value, ×) sit over this space; then + one more. */
+.sg-body.is-reader .rd-pick.is-fact{min-height:0;margin-right:0;display:block}
+.frows{padding-top:calc(var(--n) * 28px - 4px)}
+.frows .fport-add{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:6px;border:1px dashed var(--ink-3);background:none;color:var(--ink-2);font:600 11px var(--f-body);cursor:pointer}
+.frows .fport-add:hover{border-color:var(--cyan);color:var(--ink)}
+.fport{display:flex;align-items:center;gap:4px;min-width:0}
+.fport select{flex:1;min-width:0;height:22px;padding:0 4px;border-radius:6px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font:600 11px var(--f-body)}
+.fport-del{flex:none;width:18px;height:18px;padding:0;display:grid;place-items:center;border:0;border-radius:4px;background:none;color:var(--ink-3);cursor:pointer}
+.fport-del:hover{color:var(--bad);background:var(--panel-2)}
+/* What each of a reader's outputs carries, beside its dot. */
+.sg-oval{min-width:22px;padding:1px 5px;border-radius:5px;background:var(--panel-2);color:var(--ink);font:700 10.5px var(--f-mono);text-align:center;font-variant-numeric:tabular-nums}
+
+/* The level's robot, under the task: its look, name and abilities, what it does, and its settings. */
+.robotcard{display:grid;gap:10px}
+.robotcard .rc-set{display:grid;gap:6px}
+.robotcard .rc-set small{color:var(--ink-3);font-size:11.5px;line-height:1.5}
+
+/* What the robot reads, as buttons in the inputs window: a click adds or removes that output on 视野 or 本格信息. */
+button.vcell, button.vfact, button.vsweep { font: inherit; color: inherit; cursor: pointer; }
+button.vcell { padding: 0; }
+button.vfact { background: none; text-align: left; }
+button.vcell.can:hover, button.vfact:hover, button.vsweep:hover { border-color: var(--cyan); }
+button.vcell:focus-visible, button.vfact:focus-visible, button.vsweep:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }

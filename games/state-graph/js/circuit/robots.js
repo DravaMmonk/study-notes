@@ -51,8 +51,8 @@ export const ROBOTS = {
       <rect class="bot-base" x="10" y="23.5" width="16" height="5.5" rx="2.7"/>`),
   },
   stack: {
-    name: T('千层', 'Layercake'), vision: 1, arm: true, armName: T('旁边那层', 'the layer next door'),
-    desc: T('能同时站在很多层上：表有几层，它就在每一层的同一格上各算一次。每一层都有 3×3 的视野，还看得见「少一把钥匙的那一层」。', 'It stands on many layers at once: however many layers the table has, it works once on the same cell of each. Every layer gets 3×3 vision, and it can also see “the layer with one key fewer”.'),
+    name: T('千层', 'Layercake'), vision: 1, arm: true, armName: T('探针', 'probe'),
+    desc: T('能同时站在很多层上：表有几层，它就在每一层的同一格上各算一次。每一层都有 3×3 的视野；在捡钥匙的格子上，探针还能探到「少一把这种钥匙的那一层」的上面和左边。', 'It stands on many layers at once: however many layers the table has, it works once on the same cell of each. Every layer has a 3×3 view; on a cell where a key is picked up, its probe also reaches up and left on “the layer with one key fewer”.'),
     look: look(`<path class="bot-ant" d="M16 1.5V5"/><circle class="bot-lamp" cx="16" cy="2" r="1.9"/>
       <rect class="bot-head" x="5" y="5" width="22" height="8" rx="3"/><rect class="bot-head" x="5" y="13.5" width="22" height="8" rx="3"/>
       <circle class="bot-eye" cx="12" cy="9" r="1.7"/><circle class="bot-eye" cx="20" cy="9" r="1.7"/>

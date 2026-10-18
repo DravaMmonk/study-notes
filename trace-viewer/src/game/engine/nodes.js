@@ -30,6 +30,7 @@ export const NODE_TYPES = {
     params: [{ key: 'dir', label: { zh: '方向', en: 'Direction' }, kind: 'select', options: Object.keys(DIRS).map((d) => [d, d]), default: '→' }, borderParam],
     eval: ({ in: a }, p) => shift(a, ...DIRS[p.dir ?? '→'], borderOf(p)),
     cost: 0,
+    unlock: 'shift',
   },
   add: { label: { zh: '相加', en: 'Add' }, inputs: ['a', 'b'], eval: ({ a, b }) => zip(a, b, (x, y) => x + y), cost: 1 },
   sub: { label: { zh: '相减 a−b', en: 'Subtract a−b' }, inputs: ['a', 'b'], eval: ({ a, b }) => zip(a, b, (x, y) => x - y), cost: 1 },

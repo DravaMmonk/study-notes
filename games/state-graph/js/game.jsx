@@ -1,6 +1,6 @@
 import { Cable, Grid3x3 } from 'lucide-react'
 import { defineGame } from '../../kit/shell/index.js'
-import { CHAPTERS, LEVELS, PARTS } from './levels/index.js'
+import { CHAPTERS, LABELS, LEVELS, PARTS, REQUIRES } from './levels/index.js'
 import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import ModeScreen from './screen.jsx'
 import Hero from './hero.jsx'
@@ -15,6 +15,8 @@ const levels = LEVELS.map((L, index) => ({
   index,
   source: L,
   chapter: L.ch,
+  // Opens once these are solved: the era's foundation in order, then its topics side by side (levels/eras.js).
+  requires: REQUIRES.get(L.id) ?? [],
   title: L.title,
   kind: L.mode === 'circuit' ? 'circuit' : 'board',
   unlocks: L.unlock ? [L.unlock] : [],
@@ -44,13 +46,14 @@ export default defineGame({
   glossary: { groups: GLOSSARY_GROUPS, entries: GLOSSARY },
   title: { zh: '状态之图', en: 'State Graph' },
   kicker: { zh: '从零开始的动态规划解谜', en: 'Dynamic programming puzzles, from scratch' },
-  lede: { zh: '不需要任何编程或算法基础。你只会拿到两种零件：格子和箭头。56 关里，你会用元件亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。', en: 'No programming or algorithms background needed. You get just two kinds of pieces: cells and arrows. Over 56 levels you wire up, part by part, the circuit boards that count routes, compare words and pack a backpack, and find out why they are so fast.' },
+  lede: { zh: `不需要任何编程或算法基础。你只会拿到两种零件：格子和箭头。${LEVELS.length} 关里，你会用元件亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。`, en: `No programming or algorithms background needed. You get just two kinds of pieces: cells and arrows. Over ${LEVELS.length} levels you wire up, part by part, the circuit boards that count routes, compare words and pack a backpack, and find out why they are so fast.` },
   Hero,
   html: true,
   chapters: CHAPTERS.map((chapter, id) => ({ id, number: id + 1, title: chapter.name, question: chapter.desc })),
   levels,
   progress: { version: 1, legacy },
-  levelLabel: (level) => String(level.index + 1),
+  // Numbered as in CURRICULUM.md: 1-4 on an era's main path, S2 in a topic, C1 for a challenge.
+  levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
   intro: (level) => level.source.intro,
   IntroFigure,
   kinds: {
@@ -59,7 +62,8 @@ export default defineGame({
   },
   unlocked: (level) => level.unlocks.map((k) => ({ label: PARTS[k].name })),
   parts: {
-    all: Object.entries(PARTS).map(([key, part]) => ({ key, name: part.name, desc: part.desc })),
+    // Only parts a level that is played unlocks (a retired level's card would never be earned).
+    all: Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, name: part.name, desc: part.desc })),
     earned: (progress) => progress.flags,
     // The part on a bench: its level's board, with inputs, constants and models to change and a Run button.
     demo: (part, { phone }) => <PartDemo key={part.key} partKey={part.key} phone={phone} />,

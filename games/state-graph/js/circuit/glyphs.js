@@ -13,5 +13,7 @@ export const ICONS = {
   bolt: '<path class="g-mark" d="M27 4L17 18H24L21.5 28L32 13H25Z"/>',
   eq: '<rect class="g-cell" x="5" y="7" width="14" height="18" rx="2.5"/><rect class="g-cell" x="29" y="7" width="14" height="18" rx="2.5"/><text class="g-tx" x="12" y="20">A</text><text class="g-tx" x="36" y="20">A</text><path class="g-mark-o" d="M21 13.5H27M21 18.5H27"/>',
   get coin() { return `<circle class="g-mark" cx="24" cy="16" r="11"/><text class="g-tx g-dark" x="24" y="20.5">${tr('¥', '$')}</text>`; },
+  layers: '<path class="g-ink" d="M24 5L37 11L24 17L11 11Z"/><path class="g-mark" d="M11 16L24 22L37 16M11 21L24 27L37 21"/>',
   gem: '<path class="g-mark" d="M16 11L20 6H28L32 11L24 27Z"/><path class="g-gem" d="M16 11H32M20 6L24 27L28 6"/>',
+  many: '<path class="g-mark-o" d="M24 16C21 10 13 10 13 16C13 22 21 22 24 16C27 10 35 10 35 16C35 22 27 22 24 16Z"/>',
 };

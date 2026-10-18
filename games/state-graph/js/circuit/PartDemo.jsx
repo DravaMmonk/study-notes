@@ -6,7 +6,7 @@ import { sceneSVG } from '../svg.js'
 import { signal } from '../util.js'
 import { WORLDS } from './worlds.js'
 import { ROBOTS } from './robots.js'
-import { readTap, runCircuit, visibleTaps, windowOf } from './world.js'
+import { runCircuit, sensorsOf, visibleSensors, windowOf } from './world.js'
 import { BLUEPRINTS, def, evaluate } from './components.js'
 import { litOf, viewHTML } from './editor.js'
 import { toGraph, partsFor } from './board.js'
@@ -30,7 +30,7 @@ function benchFor(key) {
   if (!s.solution) return null
   const V = WORLDS[s.world]
   const robot = ROBOTS[L.robot] || ROBOTS.scout
-  const o = { ...s, dirs: L.solutionDirs || {}, ...(s.dial ? { scan: s.solutionScan } : {}), filter: s.solutionFilter || 'all', remember: s.solutionMem || [] }
+  const o = { ...s, dirs: L.solutionDirs || {}, ...(s.dial ? { scan: s.solutionScan } : {}), filter: s.solutionFilter || 'all', remember: s.solutionMem || [], layers: s.solution && s.solution.layers, answerLayers: s.solution && s.solution.answerLayers, maxLayers: s.maxLayers }
   const tests = (s.tests || L.tests).slice(0, 3)
   const runs = []
   for (const t of tests) {
@@ -47,13 +47,13 @@ function benchFor(key) {
   const lit = litOf(s.solution)
   // A board that became a component of its own is tried as that one component, fed by the same inputs.
   const bp = BLUEPRINTS[`bp:${L.id}`]
-  const packaged = bp && bp.tapIds.every((id) => lit.includes(id))
+  const packaged = bp && bp.sensors.every((id) => lit.includes(id))
   const circuit = packaged
-    ? { nodes: [{ id: 'p', kind: `bp:${L.id}` }], wires: [...bp.tapIds.map((id, k) => ({ from: `tap:${id}`, to: `p:${k}` })), { from: 'p', to: `out:${bp.out}` }] }
+    ? { nodes: [{ id: 'p', kind: `bp:${L.id}` }], wires: [...bp.sensors.map((id, k) => ({ from: `tap:${id}`, to: `p:${k}` })), { from: 'p', to: `out:${bp.out}` }] }
     : s.solution
-  const used = packaged ? bp.tapIds : lit
+  const used = packaged ? bp.sensors : lit
   const focus = new Set([...(packaged ? [`bp:${L.id}`] : s.fresh || L.fresh || []), ...(key === 'skeleton' ? MERGES : [])])
-  const avail = [...visibleTaps(V, robot.vision), ...(robot.arm && !s.noArm ? V.armTaps : []), ...(s.facts || [])]
+  const avail = [...visibleSensors(V, robot.vision), ...(robot.arm && !s.noArm ? sensorsOf(V, 'arm') : []), ...(s.facts || [])]
   const { tallest, ...xy } = columns(circuit, used, V)
   return { L, s, V, o, robot, runs, circuit, lit: used, avail, focus, xy, height: Math.round(Math.min(440, Math.max(260, tallest * 0.6 + 40))) }
 }
@@ -145,13 +145,13 @@ export default function PartDemo({ partKey, phone }) {
     empty.add(key)
     return null
   }
-  const input = (id) => (id in overrides ? overrides[id] : readTap(V, t, cell, id, get, o))
+  const input = (id) => (id in overrides ? overrides[id] : V.read(t, cell, id, get, o))
   const inputs = Object.fromEntries(bench.lit.map((id) => [id, input(id)]))
   const keyOf = (id) => {
-    const m = V.taps[id]
-    if (!m.off) return null
-    const [layer, dr, dc] = m.off, [r, col] = V.here(t, cell)[layer]
-    return V.keyAt(t, layer, r + dr, col + dc, cell)
+    const m = V.sensors[id]
+    if (m.family !== 'view') return null
+    const [r, col] = V.here(t, cell)
+    return V.keyAt(t, r + m.at[0], col + m.at[1], cell)
   }
 
   const changed = () => probe && setStale(true)
@@ -210,10 +210,9 @@ export default function PartDemo({ partKey, phone }) {
   if (w.arm && (s.noArm || !robot.arm)) w.arm = null
   if (w.arm) w.arm.filter = o.filter
   w.facts = (s.facts || []).map((id) => ({ id, value: signal(input(id)) }))
-  w.note = V.where(cell)
   w.robot = robot
   w.probe = probe ?? {}
-  const viewMarkup = viewHTML({ ...circ, lit: bench.lit }, { taps: V.taps, avail: bench.avail, lit: bench.lit, outs: V.outs, palette: s.palette, win: w, sideView: false })
+  const viewMarkup = viewHTML({ ...circ, lit: bench.lit }, { sensors: V.sensors, avail: bench.avail, lit: bench.lit, outs: V.outs, palette: s.palette, win: w, sideView: false })
   const onBoard = (event) => {
     const hit = event.target.closest('[data-cell]')
     if (!hit) return
@@ -227,7 +226,7 @@ export default function PartDemo({ partKey, phone }) {
     </div>
   )
 
-  const u = { taps: V.taps, avail: bench.lit, outs: V.outs }
+  const u = { sensors: V.sensors, avail: bench.lit, outs: V.outs }
   const graph = toGraph({ ...circ, lit: bench.lit, xy }, u)
   const parts = partsFor({ ...circ, lit: bench.lit }, u)
   const valueOf = (id) => (probe && id in probe ? signal(probe[id]) : '')
@@ -238,7 +237,7 @@ export default function PartDemo({ partKey, phone }) {
   if (!phone) {
     const stop = (event) => event.stopPropagation()
     const body = (node) => {
-      if (node.type === 'tap') return <div className="sg-body"><InputControl key={`${node.tap}-${ti}-${cell}`} type={V.taps[node.tap].type} value={inputs[node.tap] ?? null} onChange={(v) => setInput(node.tap, v)} /></div>
+      if (node.type === 'tap') return <div className="sg-body"><InputControl key={`${node.tap}-${ti}-${cell}`} type={V.sensors[node.tap].type} value={inputs[node.tap] ?? null} onChange={(v) => setInput(node.tap, v)} /></div>
       const value = valueOf(node.id)
       return (
         <div className="sg-body" title={node.type !== 'out' ? L(def(node.type).desc) : undefined}>
@@ -297,7 +296,7 @@ export default function PartDemo({ partKey, phone }) {
   ) : (
     <>
       <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'tap' ? tr('输入', 'Input') : node.type === 'out' ? tr('答案', 'Answer') : L(def(node.type).tag ?? '')}</small></div>
-      {node.type === 'tap' && <InputControl key={`${sel}-${ti}-${cell}`} type={V.taps[node.tap].type} value={inputs[node.tap] ?? null} onChange={(v) => setInput(node.tap, v)} />}
+      {node.type === 'tap' && <InputControl key={`${sel}-${ti}-${cell}`} type={V.sensors[node.tap].type} value={inputs[node.tap] ?? null} onChange={(v) => setInput(node.tap, v)} />}
       {node.type === 'const' && choices((s.consts || [0, 1, 2, 3, 4, 5]).map((v) => [v, String(v)]), node.value ?? 1, (v) => setNode(node.id, { value: v }))}
       {MERGES.includes(node.type) && choices(MERGES.map((k) => [k, L(def(k).tag)]), node.type, (k) => setNode(node.id, { kind: k }))}
       {node.type !== 'tap' && node.type !== 'out' && <p className="panel-note">{L(def(node.type).desc)}</p>}

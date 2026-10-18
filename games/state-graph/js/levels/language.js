@@ -1,7 +1,7 @@
 // Chapter 17: language and sequences — tagging words (cheapest, then summed probabilities), spelling, counting parse
 // trees on the interval table, and the most alike stretch of two strings.
 
-import { circ, usesTap } from '../circuit/components.js';
+import { circ, usesSensor } from '../circuit/components.js';
 import { editTable } from '../algo.js';
 import { TAGS, TAG } from '../circuit/worlds/tags.js';
 import { T, tr } from '../i18n.js';
@@ -155,10 +155,12 @@ export const language = [
     ],
     mission: { goal: T('找出两串字母里最相似的一段：字相同 +2，不同 −1，空位 −1，低于 0 就截成 0。答案是表里最大的分数。', 'Find the most similar stretch of two strings: a match +2, a mismatch −1, a gap −1, and anything below 0 is cut to 0. The answer is the largest score in the table.'), how: T('常数可以设成负数。通过后，看看表倒推出的那一段。', 'Constants can be set to negative numbers. Once you pass, see the stretch traced back from the table.') },
     world: 'local', border0: true, facts: ['score'], palette: KIT, consts: [-2, -1, 0, 1, 2],
+    // A challenge: the naive board scores the whole of both strings, never starting again from 0.
+    naive: circ([['a', 'add'], ['b', 'add'], ['c', 'add'], ['k', 'const', -1], ['m', 'mmax']], ['tap:ul>a:0', 'tap:score>a:1', 'tap:up>b:0', 'k>b:1', 'tap:left>c:0', 'k>c:1', 'a>m:0', 'b>m:1', 'c>m:2', 'm>out:cell']),
     tests: [{ top: 'AGTACGCA', left: 'TATGC' }, { top: 'GGTTGACTA', left: 'TGTTACGG' }],
     solution: circ([['a', 'add'], ['b', 'add'], ['c', 'add'], ['k', 'const', -1], ['m', 'mmax'], ['z', 'const', 0], ['n', 'mmax']], ['tap:ul>a:0', 'tap:score>a:1', 'tap:up>b:0', 'k>b:1', 'tap:left>c:0', 'k>c:1', 'a>m:0', 'b>m:1', 'c>m:2', 'm>n:0', 'z>n:1', 'n>out:cell']),
     hints: [T('三条来路：左上 + 本格得分；上面 − 1；左边 − 1。取较大。', 'Three ways in: up-left + cell score; up − 1; left − 1. Take the max.'), T('低于 0 就截成 0：再接一个「取较大」，另一个口接常数 0。', 'Below 0 is cut to 0: add another “max”, with a Constant 0 in its other input.')],
-    diagnose: c => (!c.nodes.some(n => n.kind === 'const' && n.value === 0) && usesTap(c, 'score') ? tr('分数会变成负的。负分不如重新开始：再取一次较大，和常数 0 比一比。', 'Scores can go negative, and a negative score is worse than starting again: take the max once more, against a Constant 0.') : null),
+    diagnose: c => (!c.nodes.some(n => n.kind === 'const' && n.value === 0) && usesSensor(c, 'score') ? tr('分数会变成负的。负分不如重新开始：再取一次较大，和常数 0 比一比。', 'Scores can go negative, and a negative score is worse than starting again: take the max once more, against a Constant 0.') : null),
     trace: t => localTrace(t),
     after(t, view) {
       if (!passed(view)) return '';

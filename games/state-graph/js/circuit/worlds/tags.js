@@ -16,18 +16,18 @@ export const aTag = g => `${/^[aeiou]/.test(String(TAG[g].n)) ? 'an' : 'a'} ${TA
  * The robot reaches back to the three cells of the previous word with its arm.
  */
 export const tags = world({
-  taps: {
+  sensors: {
     ...Object.fromEntries(TAGS.map(g => [`p${g}`, cell(lazy(() => tr(`前词是${TAG[g].n}`, `previous word as ${aTag(g)}`)), lazy(() => tr(`前${TAG[g].s}`, `prev ${TAG[g].s}`)))])),
     ...Object.fromEntries(TAGS.map(g => [`t${g}`, num(lazy(() => tr(`跟在${TAG[g].n}后`, `after ${aTag(g)}`)), lazy(() => tr(`跟${TAG[g].s}`, `${TAG[g].s}→`)), 'bolt')])),
     emit: num(T('这个词这么标', 'this word, this tag'), T('标', 'tag'), 'gem'),
   },
   facts: ['tN', 'tV', 'tA', 'emit'],
-  armTaps: TAGS.map(g => `p${g}`),
+  armSensors: TAGS.map(g => `p${g}`),
   outs: [['cell', THIS_CELL, [0, 0, 0]]],
-  here: (t, { r, c }) => [[r, c]],
-  keyAt: (t, L, r, c) => (r >= 0 && r < TAGS.length && c >= 0 && c <= t.words.length && (c || !r) ? `${r},${c}` : null),
+  here: (t, { r, c }) => [r, c],
+  keyAt: (t, r, c) => (r >= 0 && r < TAGS.length && c >= 0 && c <= t.words.length && (c || !r) ? `${r},${c}` : null),
   mark: () => ({}),
-  fact(t, { r, c }, id, get) {
+  sense(t, { r, c }, id, get) {
     const tag = TAGS[r];
     if (id === 'emit') return t.emit[c - 1][tag] ?? null;
     // The first word comes straight from the start: only the first slot reaches back, with the start's cost.

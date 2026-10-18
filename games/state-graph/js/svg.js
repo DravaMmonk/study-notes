@@ -41,9 +41,30 @@ function edgeSVG(A, B, e, twin, uid) {
   return `<path class="edge ${e.cls}" d="${d}"${MARKED.has(e.cls) ? ` marker-end="url(#${uid}-${e.cls})"` : ''}/>`;
 }
 
+/**
+ * The marks a board cell can carry, each an icon drawn small in its top-left corner, so a cell's value stays centred
+ * and lines up with its neighbours'. Drawn on a 12 × 12 grid in the cell's colour (a key or door takes its key's).
+ */
+const MARKS = {
+  start: '<path d="M3 11.5V1.5"/><path d="M3 2h6.5L8 4.5 9.5 7H3"/>',
+  end: '<circle cx="6" cy="6" r="4.6"/><circle cx="6" cy="6" r="1.6" class="mk-fill"/>',
+  key: '<circle cx="3.6" cy="6" r="2.4"/><path d="M6 6h5.2M9.4 6v2.2M11.2 6v1.6"/>',
+  door: '<path d="M2.5 11.2V1.2h7v10"/><path d="M1 11.2h10"/><circle cx="7.6" cy="6.6" r=".7" class="mk-fill"/>',
+  gold: '<path d="M1.5 4.6 3.6 1.8h4.8l2.1 2.8L6 10.6z"/><path d="M1.5 4.6h9"/>',
+  trap: '<path d="M.8 10.5 2.6 4l1.8 6.5L6.2 4 8 10.5 9.8 4l1.8 6.5"/>',
+  cliff: '<path d="M1 3.2h5.2v8.3"/><path d="M6.2 11.5H11"/><path d="M8.6 3v4.2M7.4 6l1.2 1.4L9.8 6"/>',
+};
+/** Older figures still say 起 / 终 in a cell's corner: those become the start and end marks. */
+const markOf = c => c.mark || (c.corner !== undefined && c.corner !== null && c.corner !== '' ? (String(c.corner) === String(W.start) ? 'start' : String(c.corner) === String(W.end) ? 'end' : null) : null);
+/** A mark as a small inline icon for HTML (the robot's view): `<svg class="mk-ico">` on the same 12 × 12 grid. */
+export const markIcon = kind => (MARKS[kind] ? `<svg class="mk mk-${kind} mk-ico" viewBox="0 0 12 12" aria-hidden="true">${MARKS[kind]}</svg>` : '');
+export { markOf };
+export const markSVG = (kind, x, y, size = 11) => (MARKS[kind] ? `<g class="mk mk-${kind}" transform="translate(${f1(x)} ${f1(y)}) scale(${f1(size / 12)})" aria-hidden="true">${MARKS[kind]}</g>` : '');
+
 function cellSVG(c, uid) {
   const hw = c.w / 2, hh = c.h / 2, cls = c.cls || '', rock = cls.includes('rock');
   const tap = c.tap ? ` data-cell="${c.id}" role="button" tabindex="0" aria-label="${c.aria || c.label || c.id}"` : '';
+  const mark = markOf(c), corner = mark && !c.mark ? '' : c.corner;
   const valY = c.icon ? hh - 13 : c.label ? (c.sub ? 3 : 8) : 0, txt = fmt(c.value), len = [...txt].length;
   // Long numbers (7.29, 1,024) shrink to fit their cell instead of spilling over its edge.
   const fit = len > 3 && /^[-−\d.,%]+$/.test(txt) ? ` style="font-size:${f1(Math.min(21, (c.w - 8) / (len * 0.62)))}px"` : '';
@@ -51,7 +72,8 @@ function cellSVG(c, uid) {
     <rect x="${-hw}" y="${-hh}" width="${c.w}" height="${c.h}" rx="${c.rx ?? 12}"${rock ? ` style="fill:url(#${uid}-hatch)"` : c.fill ? ` style="fill:${c.fill}"` : ''}/>
     ${c.icon ? `<svg class="glyph" x="-25" y="${-hh + 5}" width="50" height="33" viewBox="0 0 48 32">${c.icon}</svg>` : ''}
     ${c.label ? `<text class="lb" y="${-hh + 17}">${c.label}</text>` : ''}
-    ${c.corner !== undefined && c.corner !== null && c.corner !== '' ? `<text class="cn" x="${-hw + 6}" y="${-hh + 14}">${c.corner}</text>` : ''}
+    ${corner !== undefined && corner !== null && corner !== '' ? `<text class="cn" x="${-hw + (mark ? 18 : 6)}" y="${-hh + 14}">${corner}</text>` : ''}
+    ${mark ? markSVG(mark, -hw + 4, -hh + 4, Math.min(14, c.w * 0.3)) : ''}
     <text class="val" y="${valY}"${fit}>${txt}</text>
     ${c.bar !== undefined ? `<rect class="bar" x="${-hw + 5}" y="${hh - 8}" width="${f1(Math.max(0, Math.min(1, c.bar)) * (c.w - 10))}" height="3.5" rx="1.75"/>` : ''}
     ${c.sub ? `<text class="sb" y="${hh - 10}">${c.sub}</text>` : ''}
@@ -65,7 +87,7 @@ export function sceneSVG(scene, opt = {}) {
   for (const c of cells) { x0 = Math.min(x0, c.x - c.w / 2); x1 = Math.max(x1, c.x + c.w / 2); y0 = Math.min(y0, c.y - c.h / 2); y1 = Math.max(y1, c.y + c.h / 2); }
   for (const e of edges) if (e.bend) { const my = (by[e.a].y + by[e.b].y) / 2 + e.bend * 0.55; y0 = Math.min(y0, my - 4); y1 = Math.max(y1, my + 4); }
   for (const t of scene.texts || []) {
-    const w = textW(t.t), a = t.anchor || 'middle', lx = a === 'end' ? t.x - w : a === 'start' ? t.x : t.x - w / 2;
+    const w = t.tick ? 13 : textW(t.t), a = t.tick ? 'start' : t.anchor || 'middle', lx = a === 'end' ? t.x - w : a === 'start' ? t.x : t.x - w / 2;
     x0 = Math.min(x0, lx); x1 = Math.max(x1, lx + w); y0 = Math.min(y0, t.y - 14); y1 = Math.max(y1, t.y + 5);
   }
   for (const p of scene.paths || []) if (p.box) { x0 = Math.min(x0, p.box[0]); y0 = Math.min(y0, p.box[1]); x1 = Math.max(x1, p.box[2]); y1 = Math.max(y1, p.box[3]); }
@@ -75,7 +97,10 @@ export function sceneSVG(scene, opt = {}) {
   // labels), so the board does not rescale, and seem to flash, when the robot reaches the top row or right column.
   if ('robot' in scene) for (const c of cells) if (!/\baxis\b/.test(c.cls || '')) { y0 = Math.min(y0, c.y - c.h / 2 - 20); x1 = Math.max(x1, c.x + c.w / 2 + 8); }
   const pathSVG = (scene.paths || []).map(p => `<path class="edge ${p.cls}" d="${p.d}"${MARKED.has(p.cls) ? ` marker-end="url(#${uid}-${p.cls})"` : ''}/>`).join('');
-  const textSVG = (scene.texts || []).map(t => `<text class="tx ${t.cls || ''}" x="${t.x}" y="${t.y}" text-anchor="${t.anchor || 'middle'}">${t.t}</text>`).join('');
+  // A tick box the player sets (t.tick, t.act / t.v, ticked when t.on), drawn on a heading's line: which layers count.
+  const textSVG = (scene.texts || []).map(t => (t.tick
+    ? `<g class="tx-tick${t.on ? ' on' : ''}" data-act="${t.act}" data-v="${t.v}" role="checkbox" aria-checked="${!!t.on}" tabindex="0" aria-label="${t.aria || ''}"><rect class="tick-hit" x="${f1(t.x - 6)}" y="${f1(t.y - 17)}" width="25" height="25" rx="6"/><rect class="tick-box" x="${t.x}" y="${f1(t.y - 11)}" width="13" height="13" rx="3.5"/>${t.on ? `<path class="tick-mark" d="M${f1(t.x + 3)} ${f1(t.y - 4.5)}l2.6 2.6 4.6-5.4"/>` : ''}</g>`
+    : `<text class="tx ${t.cls || ''}" x="${t.x}" y="${t.y}" text-anchor="${t.anchor || 'middle'}">${t.t}</text>`)).join('');
   const pairs = new Set(edges.map(e => `${e.a}>${e.b}`));
   const vw = x1 - x0 + 2 * pad, vh = y1 - y0 + 2 * pad;
   const mk = (n, col) => `<marker id="${uid}-${n}" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0 0.5L10 5L0 9.5z" style="fill:${col}"/></marker>`;

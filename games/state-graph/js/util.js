@@ -24,7 +24,8 @@ export function fmt(v) {
   return v == null ? '' : String(v);
 }
 /** Signal formatting for circuit values: null is "no route", booleans are yes/no, a segment lists its first few values. */
-export const signal = v => (Array.isArray(v) ? `[${v.slice(0, 4).map(signal).join(' ')}${v.length > 4 ? ' …' : ''}]` : v === null ? '—' : v === true ? tr('是', 'yes') : v === false ? tr('否', 'no') : fmt(v));
+/** A signal as the player reads it; a kind ({ cat, label }, a key's colour say) by its name. */
+export const signal = v => (Array.isArray(v) ? `[${v.slice(0, 4).map(signal).join(' ')}${v.length > 4 ? ' …' : ''}]` : v === null || v === undefined ? '—' : typeof v === 'object' && 'cat' in v ? String(v.label) : v === true ? tr('是', 'yes') : v === false ? tr('否', 'no') : fmt(v));
 
 export const ICON = {
   part: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" fill="currentColor"/><path d="M10.5 7h4.5a2 2 0 0 1 2 2v4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',

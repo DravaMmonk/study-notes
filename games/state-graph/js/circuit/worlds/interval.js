@@ -19,19 +19,19 @@ const span = (i, j) => (i === j ? tr(`第 ${i + 1} 个`, `item ${i + 1}`) : tr(`
 const short = (i, j) => (i === j ? `${i + 1}` : `${i + 1}–${j + 1}`);
 
 export const interval = world({
-  taps: {
+  sensors: {
     left: cell(...DIR.left, [0, 0, -1]), down: cell(...DIR.down, [0, 1, 0]), dl: cell(...DIR.dl, [0, 1, -1]),
     same: yes(T('两端相同', 'ends match'), T('同', '='), 'eq'), weight: num(T('这段总重', 'run weight'), T('重', 'wt'), 'gem'),
     segL: seg(T('左段们', 'left parts'), T('左', 'L')), segR: seg(T('右段们', 'right parts'), T('右', 'R')),
   },
   facts: ['same', 'weight'],
-  armTaps: ['segL', 'segR'],
+  armSensors: ['segL', 'segR'],
   outs: [['cell', THIS_CELL, [0, 0, 0]]],
   dial: Object.fromEntries(Object.entries(ORDERS).map(([id, o]) => [id, { l: o.l, fig: { R: 4, C: 4, list: o.list(4) } }])),
-  here: (t, { i, j }) => [[i, j]],
-  keyAt: (t, L, i, j) => (i >= 0 && j >= 0 && i < items(t).length && j < items(t).length && i <= j + 1 ? `${i},${j}` : null),
+  here: (t, { i, j }) => [i, j],
+  keyAt: (t, i, j) => (i >= 0 && j >= 0 && i < items(t).length && j < items(t).length && i <= j + 1 ? `${i},${j}` : null),
   mark: (t, key) => { const [i, j] = key.split(',').map(Number); return i > j ? { cls: 'void', corner: '' } : t.s && t.s[i] === t.s[j] && i < j ? { corner: '=', cls: 'eq' } : {}; },
-  fact(t, { i, j }, id, get) {
+  sense(t, { i, j }, id, get) {
     const ks = Array.from({ length: j - i }, (_, d) => i + d);
     switch (id) {
       case 'same': return items(t)[i] === items(t)[j];
@@ -47,8 +47,8 @@ export const interval = world({
     return {
       label: tr(`按切分点，一共 ${ks.length} 个`, `${ks.length} split point${ks.length === 1 ? '' : 's'}`),
       sweeps: [
-        { tap: 'segL', label: tr('左段', 'left part'), cells: ks.map(k => ({ key: `${i},${k}`, label: short(i, k) })) },
-        { tap: 'segR', label: tr('右段', 'right part'), cells: ks.map(k => ({ key: `${k + 1},${j}`, label: short(k + 1, j) })) },
+        { sensor: 'segL', label: tr('左段', 'left part'), cells: ks.map(k => ({ key: `${i},${k}`, label: short(i, k) })) },
+        { sensor: 'segR', label: tr('右段', 'right part'), cells: ks.map(k => ({ key: `${k + 1},${j}`, label: short(k + 1, j) })) },
       ],
     };
   },

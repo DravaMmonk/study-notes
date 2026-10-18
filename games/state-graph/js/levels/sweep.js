@@ -1,7 +1,7 @@
 // Chapter 12: a cell's sources can be a whole segment — the broom robot's arm sweeps it, a filter picks from it.
 
 import { houseRow } from '../svg.js';
-import { circ, usesTap } from '../circuit/components.js';
+import { circ, usesSensor } from '../circuit/components.js';
 import { T, tr } from '../i18n.js';
 
 const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
@@ -24,13 +24,13 @@ export const sweep = [
       {
         world: 'prefix', facts: ['money'], palette: KIT, checkAll: true, ask: T('用扫描臂把 1 号到这一家的钱一次扫进来，加起来。', 'Use the sweep arm to bring in the money from house 1 to this one in one go, and add it up.'),
         solution: circ([['m', 'msum']], ['tap:seg>m:0', 'm>out:cell']),
-        hints: [T('在视野下面的「扫描臂」那里点一下整条格子，把它点亮成输入。', 'Under the view, at “Sweep arm”, click the whole strip of cells to light it up as an input.'), T('把这一整段接进「加起来」汇合器，再接到本格。', 'Wire the whole run into a “sum” Merger, then wire that to this cell.')],
+        hints: [T('在视野下面点「扫描臂」，读它扫过的那一整段。', 'Click the “Sweep arm” under the view to read the whole run it passes over.'), T('把这一整段接进「加起来」汇合器，再接到本格。', 'Wire the whole run into a “sum” Merger, then wire that to this cell.')],
         done: { head: T('扫出来了', 'Swept'), body: [T('可是扫描臂每到一家，都要从 1 号重新扫一遍：第 100 家要读 100 格。', 'But at every house, the sweep arm sweeps again from house 1: house 100 means reading 100 cells.'), T('<b>左边那一格，不是已经存着「到上一家一共多少」了吗？</b>下一阶段，扫描臂收起来了。', '<b>Doesn’t the cell on the left already hold “the total up to the previous house”?</b> In the next stage, the sweep arm is folded away.')] },
       },
       {
         world: 'prefix', facts: ['money'], palette: KIT, checkAll: true, noArm: true, ask: T('扫描臂收起来了：只用左边一格和这家的钱。', 'The sweep arm is folded away: use only the cell on the left and this house’s money.'),
         solution: circ([['a', 'add']], ['tap:prev>a:0', 'tap:money>a:1', 'a>out:cell']),
-        hints: [T('到这一家一共的钱 = 到上一家一共的钱 + 这家的钱。', 'Total up to this house = total up to the previous house + this house’s money.'), T('点亮「上一格」和「这家的钱」，接进加法器。', 'Light up “previous” and “this house’s money”, and wire them into an Adder.')],
+        hints: [T('到这一家一共的钱 = 到上一家一共的钱 + 这家的钱。', 'Total up to this house = total up to the previous house + this house’s money.'), T('读「上一格」和「这家的钱」，接进加法器。', 'Read “previous” and “this house’s money”, and wire them into an Adder.')],
       },
     ],
     unlock: 'sweep',
@@ -42,14 +42,13 @@ export const sweep = [
       { t: T('一排高矮不一的柱子。从左往右挑出几根，要求<b>一根比一根高</b>，中间可以跳过。最多能挑几根？', 'A row of posts of different heights. Pick some from left to right so that <b>each is taller than the one before</b>; you may skip posts in between. What is the most you can pick?'), fig: { cells: houseRow([3, 1, 4, 1, 5, 9, 2, 6], j => ([1, 2, 4, 5].includes(j) ? 'hot' : '')), edges: [] } },
       { t: T('每一格记：<b>以这一根结尾</b>，最多能连几根。整排的答案，就是这一行里最大的那个。', 'Each cell records: <b>ending with this post</b>, the longest run you can make. The answer for the whole row is the largest cell in the row.') },
       { t: T('只看最后一根：它前面接的是哪一根？可以是前面<b>任何一根</b>，只要比它矮。前面有几根，来路就可能有几条。这正是扫描臂的活儿：它把前面每一格（每一根柱子下面记着的答案）一起送进来。', 'Look only at the last post: which post comes before it? It can be <b>any earlier post</b>, as long as it is shorter. However many posts come before, that is how many ways in there may be. That is exactly the sweep arm’s job: it brings in every earlier cell (the answer recorded under each post) at once.') },
-      { t: T('最左边那个「起」格，当它是一根比谁都矮的柱子，存着 0：接在它后面，就表示这一根是第一根。扫描臂有一个<b>筛选开关</b>，就在视野里。', 'Treat the “S” cell on the far left as a post shorter than all the others, holding 0: coming after it means this post is the first. The sweep arm has a <b>filter switch</b>, right there in the view.') },
+      { t: T('最左边那个「起」格，当它是一根比谁都矮的柱子，存着 0：接在它后面，就表示这一根是第一根。这台机器的扫描臂带着<b>筛选</b>：只留比这一根矮的柱子，筛掉的格子在视野里是暗的。', 'Treat the “S” cell on the far left as a post shorter than all the others, holding 0: coming after it means this post is the first. This machine’s sweep arm has a <b>filter</b>: it keeps only the posts shorter than this one, and the cells it drops are dimmed in the view.') },
     ],
-    mission: { goal: T('从左往右挑柱子，要一根比一根高（可以跳过）。算出每根柱子作为最后一根时最多能连几根，整排的答案是其中最大的。', 'Pick posts from left to right, each taller than the last (skipping is allowed). For each post, work out the longest run that ends with it; the answer for the row is the largest of these.'), how: T('这一关会检查整行。扫描臂的筛选开关在视野里的扫描臂下面。', 'This level checks the whole row. The sweep arm’s filter switch is under the arm in the view.') },
+    mission: { goal: T('从左往右挑柱子，要一根比一根高（可以跳过）。算出每根柱子作为最后一根时最多能连几根，整排的答案是其中最大的。', 'Pick posts from left to right, each taller than the last (skipping is allowed). For each post, work out the longest run that ends with it; the answer for the row is the largest of these.'), how: T('这一关会检查整行。扫描臂只送来比这一根矮的柱子，被筛掉的格子是暗的。', 'This level checks the whole row. The sweep arm only brings in posts shorter than this one; the cells it filters out are dimmed.') },
     world: 'heights', facts: ['money'], palette: KIT, checkAll: true, solutionFilter: 'lower',
     tests: [{ a: [3, 1, 4, 1, 5, 9, 2, 6] }, { a: [5, 4, 3, 2, 1] }, { a: [2, 6, 3, 4, 1, 7, 5] }],
     solution: circ([['m', 'mmax'], ['k', 'const', 1], ['a', 'add']], ['tap:seg>m:0', 'm>a:0', 'k>a:1', 'a>out:cell']),
-    hints: [T('这一根前面可以接任何一根，只要比它矮：把扫描臂点亮，再打开筛选「只留比这根矮的」。', 'This post can follow any post shorter than it: light up the sweep arm, then switch the filter to “only posts shorter than this one”.'), T('在留下的格子里挑最大的，再算上这一根自己：取较大，然后 + 1。', 'Pick the largest of the cells that remain, then count this post itself: max, then + 1.')],
-    diagnose: (c, st) => (usesTap(c, 'seg') && st.filter[st.stage] !== 'lower' ? tr('扫描臂现在把前面每一格都扫进来了。接在一根比它高（或一样高）的柱子后面，就不是一根比一根高了：打开筛选。', 'Right now the sweep arm brings in every earlier cell. Following a post that is taller (or just as tall) breaks the “each taller than the last” rule: switch the filter on.') : null),
+    hints: [T('这一根前面可以接任何一根，只要比它矮：点扫描臂，它只会送来比这一根矮的柱子。', 'This post can follow any post shorter than it: click the sweep arm, and it brings in only the posts shorter than this one.'), T('在留下的格子里挑最大的，再算上这一根自己：取较大，然后 + 1。', 'Pick the largest of the cells that remain, then count this post itself: max, then + 1.')],
     debrief: { title: T('最长上升子序列', 'Longest increasing subsequence'), body: [T('这一格的来路不再是固定的一两格，而是<b>前面所有符合条件的格子</b>，有几条要看数据。', 'This cell’s ways in are no longer one or two fixed cells, but <b>every earlier cell that meets the condition</b>, and how many there are depends on the data.'), T('这个问题叫<b>最长上升子序列</b>：从一串股价里最多挑出几天、一天比一天高，一堆版本最多能排出多长的升级路线，用的都是它。', 'This problem is called the <b>longest increasing subsequence</b>: the most days you can pick from a run of share prices with each day higher than the last, or the longest upgrade path through a pile of versions, both come down to it.')], note: T('来路可以是一整段：在所有比我矮的格子里取最大，再 + 1。', 'The way in can be a whole run: take the max over the cells of every shorter post, then + 1.') },
   },
   {
@@ -66,7 +65,7 @@ export const sweep = [
       {
         world: 'coins', facts: ['ground'], palette: KIT, ask: T('最少要几枚硬币？', 'What is the fewest coins needed?'),
         solution: circ([['a', 'add'], ['k', 'const', 1], ['m', 'mmin'], ['z', 'const', 0], ['g', 'pass']], ['tap:seg>a:0', 'k>a:1', 'a>m:0', 'tap:ground>g:0', 'z>g:1', 'g>m:1', 'm>out:cell']),
-        hints: [T('最后一枚可能是任何一种硬币：点亮扫描臂，它送来付这一枚之前（每种硬币各退一枚之后）的格子。', 'The last coin can be any kind: light up the sweep arm, which sends the cells from before paying it (one coin of each kind stepped back).'), T('加法器能给一整段的每个数都 + 1（算上最后这一枚），再接「取较小」。', 'An Adder can + 1 to every number in a whole run (counting this last coin), then wire it into “min”.'), T('0 元不需要硬币：「是 0 元」放行一个 0。', '0 yuan needs no coins: let a 0 through on “is 0 yuan”.')],
+        hints: [T('最后一枚可能是任何一种硬币：点扫描臂，它送来付这一枚之前（每种硬币各退一枚之后）的格子。', 'The last coin can be any kind: click the sweep arm, which sends the cells from before paying it (one coin of each kind stepped back).'), T('加法器能给一整段的每个数都 + 1（算上最后这一枚），再接「取较小」。', 'An Adder can + 1 to every number in a whole run (counting this last coin), then wire it into “min”.'), T('0 元不需要硬币：「是 0 元」放行一个 0。', '0 yuan needs no coins: let a 0 through on “is 0 yuan”.')],
         done: { head: T('最少几枚算好了', 'Fewest coins done'), body: [T('同一张表，换个问题：一共有几种付法？想想要换哪个元件。', 'Same table, a different question: how many ways are there to pay? Think about which component to swap.')] },
       },
       {
@@ -83,16 +82,15 @@ export const sweep = [
       { t: T('一串字母没有空格，比如 catsanddog。它能不能切成词典里的词？', 'A string of letters with no spaces, such as catsanddog. Can it be split into dictionary words?'), fig: { cells: letters('catsanddog'), edges: [] } },
       { t: T('格子 i 记：<b>前 i 个字母能不能切开</b>。第 0 格是开头，一个字母都没有，当然能。', 'Cell i records: <b>can the first i letters be split into words?</b> Cell 0 is the start, with no letters at all, so of course it can.') },
       { t: T('只看最后一个词：它从前面某个位置开始，到这里结束。只要那个位置<b>能切开</b>，而且那一截<b>刚好是一个词</b>，这里就能切开。', 'Look only at the last word: it starts at some earlier position and ends here. If that position <b>can be split</b>, and the piece from there <b>is exactly a word</b>, then this position can be split.') },
-      { t: T('扫描臂会扫过前面每个位置，视野里标出每一截是什么。用筛选只留下刚好是词的那些。', 'The sweep arm sweeps every earlier position, and the view labels what each piece is. Use the filter to keep only the pieces that are words.') },
+      { t: T('扫描臂会扫过前面每个位置，视野里标出每一截是什么。它的筛选只留下「从那里到这里刚好是一个词」的位置。', 'The sweep arm sweeps every earlier position, and the view labels what each piece is. Its filter keeps only the positions where “the piece from there to here is exactly a word”.') },
     ],
-    mission: { goal: T('判断每串字母能不能切成词典里的词。', 'Decide whether each string of letters can be split into dictionary words.'), how: T('这一关会检查整行。词典写在测试旁边；扫描臂的筛选开关在视野里。', 'This level checks the whole row. The dictionary is shown next to the tests; the sweep arm’s filter switch is in the view.') },
+    mission: { goal: T('判断每串字母能不能切成词典里的词。', 'Decide whether each string of letters can be split into dictionary words.'), how: T('这一关会检查整行。词典写在测试旁边；扫描臂只送来刚好是一个词的那几截，别的是暗的。', 'This level checks the whole row. The dictionary is shown next to the tests; the sweep arm only brings in the pieces that are exactly a word, and dims the rest.') },
     world: 'words', facts: ['ground'], palette: YESNO, checkAll: true, solutionFilter: 'word',
     tests: [{ s: 'catsanddog', dict: ['cat', 'cats', 'and', 'sand', 'dog'] }, { s: 'penpineapple', dict: ['pen', 'pine', 'apple', 'pineapple'] }, { s: 'catsandog', dict: ['cat', 'cats', 'and', 'sand', 'dog'] }],
     testLabel: t => t.s,
     after: t => `<div class="afterbox"><span class="eyebrow">${tr('词典', 'Dictionary')}</span><div class="diff">${t.dict.map(w => `<span class="dt">${w}</span>`).join('')}</div></div>`,
     solution: circ([['m', 'many']], ['tap:seg>m:0', 'tap:ground>m:1', 'm>out:cell']),
-    hints: [T('打开扫描臂的筛选「只留刚好是一个词的」：留下的位置，从那里到这里刚好是个词。', 'Switch the sweep arm’s filter to “only the ones that are exactly a word”: for each position left, the piece from there to here is exactly a word.'), T('留下的位置里只要有一个能切开，这里就能切开：接「任一是」。开头本身能切开，「是开头」也接进去。', 'If any of the positions left can be split, so can this one: wire them into “any yes”. The start itself can be split, so wire “is start” in too.')],
-    diagnose: (c, st) => (usesTap(c, 'seg') && st.filter[st.stage] !== 'word' ? tr('扫描臂把前面每个位置都扫进来了，可只有「从那里到这里刚好是一个词」的位置才算数：打开筛选。', 'The sweep arm brings in every earlier position, but only positions where “the piece from there to here is exactly a word” count: switch the filter on.') : null),
+    hints: [T('扫描臂留下的位置，从那里到这里刚好是个词：点扫描臂读它。', 'Every position the sweep arm keeps is one where the piece from there to here is exactly a word: click the sweep arm to read it.'), T('留下的位置里只要有一个能切开，这里就能切开：接「任一是」。开头本身能切开，「是开头」也接进去。', 'If any of the positions left can be split, so can this one: wire them into “any yes”. The start itself can be split, so wire “is start” in too.')],
     unlock: 'wordbreak',
     debrief: { title: T('切词', 'Word breaking'), body: [T('搜索引擎遇到 bestbuy、输入法遇到一串没打空格的拼音，都要先切词。', 'A search engine that meets bestbuy, or a Chinese input method given a run of pinyin with no spaces, has to break it into words first.'), T('这一章的来路越来越自由：一整段、一个筛选条件、数量随数据变化。<b>只要来路都在前面、都已经算好，表就照样能填。</b>', 'In this chapter the ways in grew ever freer: a whole run, a filter, a number that changes with the data. <b>As long as every way in lies earlier and is already computed, the table can still be filled.</b>')], note: T('切词：前面某个位置能切开，那一截又刚好是个词，这里就能切开。', 'Word breaking: if some earlier position can be split and the piece from there is exactly a word, this position can be split.') },
   },

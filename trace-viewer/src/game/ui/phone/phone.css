@@ -118,10 +118,6 @@
 .pb-compare figcaption { color: var(--muted); font-family: var(--mono); font-size: 10px; line-height: 1.4; }
 
 
-.pb-icon { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border: 0; border-radius: 13px; color: var(--ink); background: var(--canvas); }
-.pb-icon:disabled { opacity: .35; }
-.pb-icon:active { transform: scale(.96); }
-
 /* Sheets for one block and for the tests. */
 .pc-inspect { display: grid; gap: 14px; }
 .pc-inspect-head { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 10px; }

@@ -42,15 +42,15 @@ export const GLOSSARY = [
     id: 'robot', group: 'play', title: { zh: '机器人与视野', en: 'The robot and its view' }, at: 'copy',
     body: [
       { zh: '在电路板关卡里，计算交给一个<b>机器人</b>。它一格一格地走过整张表，在每一格上运行同一块电路板，把结果写进脚下这一格。', en: 'In circuit-board levels the computing is done by a <b>robot</b>. It walks the whole table cell by cell, runs the same circuit board on every cell, and writes the result into the cell it stands on.' },
-      { zh: '<b>机器人视野</b>中间的红框，是它脚下的格子。点视野里的格子，它会亮起蓝框，成为电路板上的一个输入；再点一次就取消。表外面的格子显示「界外」，送来的是「—」。', en: 'The red frame in the middle of the <b>robot’s view</b> is the cell it stands on. Click a cell in the view and it lights up with a blue frame, becoming an input on the circuit board; click it again to take it away. Cells beyond the table show “out”, and what they send is “—”.' },
-      { zh: '视野下面的<b>本格信息</b>，是关于这一格的事实，比如「是起点」。它们也能点亮成输入。', en: 'The <b>This cell</b> panel under the view lists facts about the cell, such as “is start”. These can be lit up as inputs too.' },
+      { zh: '<b>机器人视野</b>中间的红框，是它脚下的格子。电路板要读视野里的一格，就在视野里点它，电路板左边的「视野」卡片上就多一个读它的输出口；被读的格子在视野里带蓝框。表外面的格子显示「界外」，送来的是「—」。', en: 'The red frame in the middle of the <b>robot’s view</b> is the cell it stands on. For the circuit board to read a cell in view, click it in the view: the “View” card on the left of the circuit board gains an output that reads it, and a cell being read has a blue frame in the view. Cells beyond the table show “out”, and what they send is “—”.' },
+      { zh: '视野下面的<b>本格信息</b>，是关于这一格的事实，比如「是起点」。点一条，「本格信息」卡片上就多一个读它的输出口。', en: 'The <b>This cell</b> panel under the view lists facts about the cell, such as “is start”. Click one, and the “This cell” card gains an output that reads it.' },
     ],
     see: ['board', 'testBoard', 'models'],
   },
   {
     id: 'board', group: 'play', title: { zh: '电路板', en: 'Circuit board' }, at: 'copy',
     body: [
-      { zh: '<b>电路板</b>写的是一格的规则：只写一次，机器人在每一格上都照着它算。你点亮的格子是它的输入，红框的「本格」是它的输出，中间放元件。', en: 'A <b>circuit board</b> is the rule for one cell: you write it once, and the robot follows it on every cell. The cells you light up are its inputs, the red-framed “this cell” is its output, and components go in between.' },
+      { zh: '<b>电路板</b>写的是一格的规则：只写一次，机器人在每一格上都照着它算。「视野」和「本格信息」两张卡片是它的输入，红框的「本格」是它的输出，中间放元件。', en: 'A <b>circuit board</b> is the rule for one cell: you write it once, and the robot follows it on every cell. The “View” and “This cell” cards are its inputs, the red-framed “this cell” is its output, and components go in between.' },
       { zh: '线总是从一个<b>输出圆点</b>接到一个<b>输入圆点</b>：从圆点拖过去，或者先点一个圆点、再点另一个。一个输入口只接一根线，新接的会替换旧的；一个输出可以接给好几个口。', en: 'A wire always runs from an <b>output dot</b> to an <b>input dot</b>: drag from one dot to the other, or click one dot and then the other. An input takes one wire, so a new one replaces the old; an output can feed several inputs.' },
       { zh: '接不上的线会被拒绝，并告诉你原因，比如信号对不上，或者线会绕成一个圈。在电脑上，点选一张卡片或一根线，按 Delete 就能删掉；拖动空白处可以挪动电路板。', en: 'A wire that cannot go in is refused, with the reason: the signals do not match, say, or the wire would make a loop. On a computer, click a card or a wire to select it and press Delete to remove it; drag the empty background to move the board around.' },
       { zh: '在手机上，电路板有一个接线显示按钮，可以在「全部接线」「隐藏输入接线」「隐藏接线」之间切换，线多的时候看得清楚些。', en: 'On a phone, the board has a wire display button that switches between “All wires”, “No input wires” and “No wires”, so a busy board is easier to read.' },
@@ -98,15 +98,15 @@ export const GLOSSARY = [
     id: 'arms', group: 'play', title: { zh: '伸缩臂', en: 'Telescopic arm' }, at: 'knaptable',
     body: [
       { zh: '「长臂」有一条<b>伸缩臂</b>：它伸多远，由这一格的数据决定，比如往左伸出「这件物品的重量」那么多格，读到视野外面的格子。', en: 'Longarm has a <b>telescopic arm</b>: how far it reaches depends on the cell’s own data, such as reaching left by as many cells as “this item’s weight”, so it can read cells outside its view.' },
-      { zh: '视野下面有伸缩臂一栏，它够得着的格子都在那里，点亮哪一格，电路板上就多一个输入。', en: 'Under the view is the arm’s own row, showing the cells it can reach; light one up and it becomes another input on the circuit board.' },
+      { zh: '视野下面有伸缩臂一栏，它够得着的格子都在那里；点一格，「视野」卡片上就多一个读它的输出口。', en: 'Under the view is the arm’s own row, showing the cells it can reach; click one, and the “View” card gains an output that reads it.' },
     ],
     see: ['models', 'sweep'],
   },
   {
     id: 'dirs', group: 'play', title: { zh: '改写方向', en: 'Rewrite direction' }, at: 'roll',
     body: [
-      { zh: '只留一行、原地改写的关里，机器上有两个<b>改写方向</b>开关：一个管「每件最多拿一次」，一个管「每件可以拿很多次」，各自选「从左往右」或「从右往左」。', en: 'In levels that keep a single row and rewrite it in place, the machine has two <b>rewrite direction</b> switches: one for “each item at most once” and one for “each item many times”, each set to “left to right” or “right to left”.' },
-      { zh: '运行时，黄色是正在改写的格子；红色表示这一格读到了这一轮刚改过的值。哪种背包配哪个方向，留给你想清楚。', en: 'During a run, yellow marks the cell being rewritten, and red means a cell read a value that was rewritten earlier in the same pass. Which direction suits which backpack is for you to work out.' },
+      { zh: '只留一行、原地改写的关里，机器按一个<b>改写方向</b>改写这一行：每件最多拿一次时从右往左，每件可以拿很多次时从左往右。', en: 'In levels that keep a single row and rewrite it in place, the machine rewrites that row in one <b>rewrite direction</b>: right to left when each item can be taken at most once, left to right when each can be taken many times.' },
+      { zh: '运行时，黄色是正在改写的格子；红色表示这一格读到了这一轮刚改过的值。方向不同，读到的就是旧值还是新值：含义也就不同。', en: 'During a run, yellow marks the cell being rewritten, and red means a cell read a value that was rewritten earlier in the same pass. The direction decides whether a cell reads an old value or a new one, and so what the row means.' },
     ],
     see: ['rolling'],
   },
@@ -115,24 +115,24 @@ export const GLOSSARY = [
     body: [
       { zh: '「扫帚」有一条<b>扫描臂</b>：一次扫过一整段格子，把整段的数一起送进电路板，段里有几格都行。', en: 'Broom has a <b>sweep arm</b>: it sweeps a whole run of cells in one go and feeds every number in the run into the circuit board, however many cells the run has.' },
       { zh: '一整段的线会画得更粗。汇合器、加法器和乘法器都能直接吃下一整段，段里的每个数都参与；闸门却不接一整段。', en: 'A wire carrying a whole segment is drawn thicker. Mergers, Adders and Multipliers take a whole segment directly, and every number in it takes part; gates do not take segments.' },
-      { zh: '有的关里，视野中的扫描臂下面还有一个<b>筛选</b>开关，只让符合条件的格子留在段里。', en: 'In some levels there is also a <b>Filter</b> switch under the sweep arm in the view, which keeps only the cells that meet a condition in the segment.' },
+      { zh: '有的关里，扫描臂带着<b>筛选</b>：只让符合条件的格子留在段里，筛掉的格子在视野里是暗的。', en: 'In some levels the sweep arm has a <b>filter</b>: only the cells that meet a condition stay in the segment, and the ones it drops are dimmed in the view.' },
     ],
     see: ['arms', 'manyWays'],
   },
   {
     id: 'dial', group: 'play', title: { zh: '扫描顺序', en: 'Scan order' }, at: 'dial',
     body: [
-      { zh: '有的关里，机器人怎么走由你来拨。<b>扫描顺序</b>拨盘上，每个选项的小图里，数字是机器人走过格子的先后。', en: 'In some levels you set the way the robot walks. On the <b>Scan order</b> dial, the numbers in each option’s little picture are the order the robot visits the cells in.' },
-      { zh: '机器人读到还空着的格子，就会停下来，拨盘也会闪一下：这个顺序里，有一格在它要读的格子算好之前就被算了。', en: 'If the robot reads a cell that is still empty, it stops and the dial flashes: in that order, some cell came up before a cell it reads had been computed.' },
+      { zh: '机器人按一定的<b>扫描顺序</b>走过表格：逐行从左上开始、逐行从右下开始、按长度从短到长……关卡的介绍里会讲它怎么走。', en: 'The robot walks the table in a <b>scan order</b>: row by row from the top left, row by row from the bottom right, by length from shortest to longest… Each level’s introduction tells you how it walks.' },
+      { zh: '顺序要跟着电路走：<b>被读的格子，必须排在读它的格子前面</b>。电路读右边和下面，就得从右下开始；读更短的段，就得按长度从短到长。合法的顺序常常不止一种。', en: 'The order has to follow the circuit: <b>a cell that is read must come before the cell that reads it</b>. A circuit that reads right and down has to start from the bottom right; one that reads shorter stretches has to go by length, shortest first. There is often more than one valid order.' },
     ],
     see: ['topo', 'testBoard'],
   },
   {
     id: 'memory', group: 'play', title: { zh: '状态记住什么', en: 'What the state remembers' }, at: 'twokeys',
     body: [
-      { zh: '有的关里，表要叠几层由你来定。卡片「<b>状态记住什么</b>」上，每个开关是一件可以记住的事，比如一把钥匙；每打开一个，层数就翻一倍，卡片上写着一共有多少格。', en: 'In some levels you decide how many layers the table has. On the “<b>What the state remembers</b>” card, each switch is one thing the state can remember, such as a key; each one you turn on doubles the layers, and the card shows how many cells there are in all.' },
+      { zh: '有的关里，表叠成好几层：状态除了「在哪一格」，还记着别的事，比如手里有哪几把钥匙。每多记一件，层数就翻一倍。', en: 'In some levels the table is stacked in several layers: besides “which cell”, the state remembers other things too, such as which keys are in hand. Every extra thing remembered doubles the layers.' },
       { zh: '机器人「千层」在每一层的同一格上各算一次，所有的层共用同一块电路板；本格信息会告诉它这一层的情况。', en: 'Layercake works once on the same cell of every layer, and every layer shares the same circuit board; the This cell panel tells it how things stand on that layer.' },
-      { zh: '记少了，机器会给你看一条它算错的路线；有的关还会嫌你记多了，要你用最少的层再通过一次。', en: 'Remember too little and the machine shows you a route it got wrong; some levels also object when you remember too much, and ask you to pass again with the fewest layers.' },
+      { zh: '记得太少，答案会错；记得太多，表会爆炸。好的状态<b>刚好够用</b>：只记会影响未来的事。', en: 'Remember too little and the answers go wrong; remember too much and the table explodes. A good state is <b>just enough</b>: it remembers only what affects the future.' },
     ],
     see: ['layers', 'stateSize'],
   },
@@ -184,7 +184,7 @@ export const GLOSSARY = [
     see: ['backtrack', 'recurrence'],
   },
   {
-    id: 'backtrack', group: 'basics', title: { zh: '回溯', en: 'Backtracking' }, at: 'back',
+    id: 'backtrack', group: 'basics', title: { zh: '回溯', en: 'Backtracking' }, at: 'seam',
     body: [
       { zh: '表告诉你最好的结果是多少，却没直接说该怎么走。不过每一格的数，都是从某一条来路算出来的：<b>表里也存下了每一步的选择</b>。', en: 'The table tells you what the best result is, but not straight out how to get it. Yet every cell’s number came from one of its ways in: <b>the table has also kept every choice</b>.' },
       { zh: '从终点出发，问「这一格的数是从哪条来路来的」，退到那一格，再问同样的问题，一直退回起点，就还原出了整条路线。这个倒推的过程叫<b>回溯</b>。', en: 'Start at the end and ask “which way in did this cell’s number come from?”, step back to that cell, and ask again, all the way back to the start: you have recovered the whole route. Working backwards like this is called <b>backtracking</b>.' },
@@ -262,7 +262,7 @@ export const GLOSSARY = [
     see: ['dag', 'dial', 'topdown'],
   },
   {
-    id: 'topdown', group: 'order', title: { zh: '自底向上与自顶向下', en: 'Bottom-up and top-down' }, at: 'askall',
+    id: 'topdown', group: 'order', title: { zh: '自底向上与自顶向下', en: 'Bottom-up and top-down' }, at: 'city',
     body: [
       { zh: '先排好顺序，从小问题一格一格填到大问题，叫<b>自底向上</b>。到这里为止的表，都是这么填的。', en: 'Settling an order first and filling in cell by cell, from small problems up to the big one, is called <b>bottom-up</b>. Every table up to this point was filled in that way.' },
       { zh: '反过来，从要问的那个大问题出发，需要谁就去问谁，叫<b>自顶向下</b>，写成程序就是<b>递归</b>。它不用事先排顺序；可如果不记下问过的答案，同一个问题会被问上很多遍。', en: 'The other way round, starting from the big question and asking whichever cells it needs, is called <b>top-down</b>; in a program it is <b>recursion</b>. It needs no order worked out in advance, but unless the answers are written down, the same question gets asked many times.' },
@@ -270,7 +270,7 @@ export const GLOSSARY = [
     see: ['memo', 'overlap', 'topo'],
   },
   {
-    id: 'memo', group: 'order', title: { zh: '记忆化（备忘递归）', en: 'Memoisation' }, at: 'memo2',
+    id: 'memo', group: 'order', title: { zh: '记忆化（备忘递归）', en: 'Memoisation' }, at: 'city',
     body: [
       { zh: '自顶向下地问，再把每个问出的答案<b>记下来</b>，下次被问到时直接拿：这叫<b>记忆化</b>，也叫备忘递归。这样，每一格只真正算一次。', en: 'Ask top-down, but <b>write down</b> every answer you get and look it up the next time it is asked: this is called <b>memoisation</b>, or memoised recursion. That way each cell is really worked out only once.' },
       { zh: '自底向上和备忘递归，走的是同一张依赖图，只是走法不同：一个先排好顺序再填，一个边问边算。', en: 'Bottom-up filling and memoised recursion walk the same dependency graph, just in different ways: one settles the order and then fills in, the other works things out as it asks.' },

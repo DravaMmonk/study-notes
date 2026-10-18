@@ -2,7 +2,7 @@
 // Without memory the questions form a tree and repeat; with 「记下来」 every cell is asked once and the tree folds into
 // the table. On the interval table the memoized recursion is replayed step by step, numbering cells as they finish.
 //
-// L.ask = { kind: 'grid', R, C, memo?: true (the level offers the switch) } or { kind: 'interval', w: [stone weights] }
+// L.ask = { kind: 'grid', R, C, memo?: true (the machine writes answers down) } or { kind: 'interval', w: [stone weights] }
 
 import { buzz, fmt, reduced, ICON } from '../util.js';
 import { E } from '../svg.js';
@@ -34,7 +34,7 @@ function problem(a) {
 
 export function askMode(L, saved) {
   const a = L.ask, P = problem(a);
-  const st = { memo: false, nodes: [], asked: 0, events: null, step: 0, answered: false, auto: false };
+  const st = { memo: !!a.memo, nodes: [], asked: 0, events: null, step: 0, answered: false, auto: false };
 
   /* ---------- grid: a tree (or, remembering, a graph) of questions the player opens ---------- */
 
@@ -192,7 +192,6 @@ export function askMode(L, saved) {
       }
       const over = st.asked > P.size;
       return `<div class="pcard"><h3>${tr('提问次数', 'Questions asked')}</h3><div class="askn"><span class="bignum${over ? ' over' : ''}">${fmt(st.asked)}</span><span>${tr(`表一共 <b>${P.size}</b> 格`, `The table has <b>${P.size}</b> cells`)}</span></div>${over ? `<p class="msg bad">${tr('问的次数已经超过表的格数了：好多问题你已经问过了。', 'You have now asked more questions than the table has cells: many of them you had asked before.')}</p>` : ''}</div>
-        ${a.memo ? `<div class="pcard"><div class="setrow plain"><div><b>${tr('记下来', 'Write it down')}</b><p>${tr('问过的格子把答案记在表里，再被问到就不再往下问。切换会从头问起。', 'A cell that has been asked writes its answer into the table, and asking it again goes no further. Switching starts the asking over.')}</p></div><button class="switch" type="button" role="switch" aria-checked="${st.memo}" aria-label="${tr('记下来', 'Write it down')}" data-act="memo"></button></div></div>` : ''}
         <div class="pcard"><h3>${tr('提问', 'Asking')}</h3><p>${st.memo ? tr('点棋盘上带问号的格子，一个一个问；问累了，就让机器一口气问完。', 'Click the cells on the board with question marks to ask them one by one; when you have had enough, let the machine ask the rest in one go.') : tr('点棋盘上带问号的圆圈，一个一个问；问累了，就让机器一口气问完。', 'Click the circles on the board with question marks to ask them one by one; when you have had enough, let the machine ask the rest in one go.')}</p><div class="chips"><button class="chip" type="button" data-act="all"${pending().length ? '' : ' disabled'}>${ICON.play} ${tr('一口气问完', 'Ask them all')}</button><button class="chip ghost" type="button" data-act="again">${tr('从头再问', 'Start over')}</button></div></div>`;
     },
     dock() {
@@ -211,7 +210,6 @@ export function askMode(L, saved) {
       if (rt.cur.running) return;
       if (name === 'step') play(false);
       if (name === 'again') { restart(); rt.refresh(); }
-      if (name === 'memo') { st.memo = !st.memo; restart(); buzz(6); rt.refresh(); }
       if (name === 'answer' && !st.done) {
         if (+el.dataset.k === L.question.a) { st.done = true; el.classList.add('right'); buzz(15); setTimeout(rt.pass, reduced() ? 0 : 500); }
         else { el.classList.remove('wrong'); void el.offsetWidth; el.classList.add('wrong'); buzz(20); }

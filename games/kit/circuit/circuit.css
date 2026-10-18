@@ -31,6 +31,11 @@
 .port.is-wired { background: var(--fam, var(--ink)); }
 .port-in { left: -18px; top: 4px; }
 .port-out { right: -6px; top: 4px; cursor: crosshair; }
+/* One of a card's several outputs: its name (and what it carries) at the right edge, the dot past it. */
+.node-port-out { position: absolute; z-index: 1; right: 0; height: 20px; max-width: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding-right: 14px; font-family: var(--mono); font-size: 10px; color: var(--muted); white-space: nowrap; }
+.node-port-out .node-out-name { max-width: 34px; overflow: hidden; text-overflow: ellipsis; }
+.node-port-out.is-wide { left: 10px; justify-content: stretch; }
+.node-port-out.is-wide > :first-child { flex: 1; min-width: 0; }
 .port:hover { transform: scale(1.25); background: var(--accent); }
 .param { margin: 5px 10px 0; display: flex; align-items: center; justify-content: space-between; gap: 6px; color: var(--muted); font-size: 11px; }
 .param select, .param input { width: 76px; min-width: 0; height: 24px; padding: 0 6px; border: 0; border-radius: 6px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--mono); font-size: 11px; }
@@ -40,14 +45,16 @@
 .board-zoom { position: absolute; z-index: 5; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 1px; padding: 2px; border-radius: 10px; background: color-mix(in srgb, var(--paper) 88%, transparent); box-shadow: 0 0 0 1px var(--hairline), 0 6px 18px -12px rgba(0, 0, 0, .4); backdrop-filter: blur(10px); }
 .board-zoom button, .board-zoom output { min-width: 30px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 8px; color: var(--muted); background: transparent; font-family: var(--mono); font-size: 11px; }
 .board-zoom button { cursor: pointer; }
-.board-zoom button:hover { color: var(--ink); background: var(--hover); }
+.board-zoom button:hover:not(:disabled) { color: var(--ink); background: var(--hover); }
+.board-zoom button:disabled { opacity: .35; cursor: default; }
+.board-zoom-rule { width: 1px; height: 16px; margin: 0 3px; background: var(--hairline); }
 .board-zoom output { min-width: 44px; }
 .board-delete { position: absolute; z-index: 6; left: 50%; bottom: 16px; min-height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 18px; color: var(--paper); background: var(--fail); box-shadow: 0 10px 22px -12px rgba(0, 0, 0, .5); font-size: 12.5px; transform: translateX(-50%); cursor: pointer; animation: rise-in 180ms ease; }
 
 /* A board on a phone: only the fit button stays, top right (phones pinch to zoom). */
 @media (max-width: 760px) {
   .board-zoom { top: 12px; right: 12px; bottom: auto; }
-  .board-zoom output, .board-zoom button:not(:last-child) { display: none; }
+  .board-zoom output, .board-zoom-rule, .board-zoom button:not(:last-child) { display: none; }
 }
 
 /* ---- desktop parts list (Palette) ---- */
@@ -76,8 +83,21 @@
    than the screen. */
 .pb-terms { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 22px 8px; }
 .pb-terms > .pb-term { flex: 0 0 calc((100% - (var(--cols, 1) - 1) * 8px) / var(--cols, 1)); max-width: 160px; }
+/* An input block keeps room for its name and its dots: narrower than this, the row wraps. */
+.pb-terms.is-sources > .pb-term { min-width: 128px; }
 .pb-term { position: relative; min-width: 0; padding: 10px 8px 18px; display: grid; justify-items: center; gap: 4px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule), var(--card); }
 .pb-term.is-output { padding: 20px 8px 10px; }
+/* The circuit's ends on a phone, as on the desktop canvas: an opaque card tinted with its own colour and ringed in it,
+   a bar along the edge the signal leaves or enters by (an input's bottom, an output's top), and a tag. Inputs keep
+   their own colour; every output wears the accent. */
+.pb-term[data-io] { --io: var(--fam, var(--accent)); background: color-mix(in srgb, var(--io) 12%, var(--paper)); outline: 1.5px solid color-mix(in srgb, var(--io) 55%, transparent); outline-offset: -1.5px; }
+.pb-term.is-output[data-io] { --io: var(--accent); }
+.pb-term[data-io]::before { content: ''; position: absolute; left: 0; right: 0; height: 5px; background: var(--io); pointer-events: none; }
+.pb-term[data-io]:not(.is-output)::before { bottom: 0; border-radius: 0 0 14px 14px; }
+.pb-term.is-output[data-io]::before { top: 0; border-radius: 14px 14px 0 0; }
+.pb-term[data-io]::after { content: attr(data-io); position: absolute; padding: 1px 7px; border-radius: 6px; color: var(--paper); background: var(--io); font: 600 10px/1.5 var(--mono); letter-spacing: .06em; pointer-events: none; }
+.pb-term[data-io]:not(.is-output)::after { top: -9px; left: 12px; }
+.pb-term.is-output[data-io]::after { bottom: -9px; right: 12px; }
 .pb-term.is-output.is-pass { box-shadow: inset 0 0 0 2px var(--status), var(--card); }
 .pb-term.is-output.is-fail { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fail) 55%, var(--rule)), var(--card); }
 .pb-term.is-output.is-pass .pb-name svg { color: var(--status); }
@@ -116,10 +136,25 @@
 .pb-ins.is-many .pb-in { flex: 1 1 0; min-width: 0; }
 .pb-tile:has(> .pb-ins.is-many .pb-src) { padding-top: 34px; }
 /* The wire display switch (SlotBoard), kept in reach at the top right while the board scrolls. */
-.pb-wiremode { position: sticky; z-index: 7; top: var(--pb-sticky-top, 8px); justify-self: end; height: 32px; margin-bottom: -46px; padding: 0 11px 0 9px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--paper) 92%, transparent); box-shadow: 0 0 0 1px var(--rule), 0 8px 18px -12px rgba(0, 0, 0, .5); backdrop-filter: blur(8px); font: inherit; font-size: 12px; font-weight: 600; }
-.pb-wiremode:active { transform: scale(.97); }
+.pb-tools { position: sticky; z-index: 7; top: var(--pb-sticky-top, 8px); justify-self: end; margin-bottom: -46px; display: flex; gap: 6px; }
+.pb-wiremode, .pb-steps { height: 32px; display: inline-flex; align-items: center; border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--paper) 92%, transparent); box-shadow: 0 0 0 1px var(--rule), 0 8px 18px -12px rgba(0, 0, 0, .5); backdrop-filter: blur(8px); }
+.pb-wiremode { padding: 0 11px 0 9px; gap: 6px; border: 0; font: inherit; font-size: 12px; font-weight: 600; }
+.pb-steps button { width: 38px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 999px; color: inherit; background: transparent; }
+.pb-steps button:disabled { opacity: .3; }
+.pb-wiremode:active, .pb-steps button:not(:disabled):active { transform: scale(.97); }
 .pb-board[data-wires='none'] .pb-wiremode, .pb-board[data-wires='parts'] .pb-wiremode { color: var(--accent-ink); box-shadow: 0 0 0 1.5px var(--accent), 0 8px 18px -12px rgba(0, 0, 0, .5); }
 .pb-out { position: absolute; bottom: 0; left: 50%; transform: translate(-50%, 50%); }
+.pb-out.is-many { display: flex; gap: 2px; }
+.pb-o { position: relative; display: grid; justify-items: center; }
+.pb-o em { position: absolute; bottom: calc(100% - 6px); font: 600 9px/1 var(--mono); font-style: normal; color: var(--muted); white-space: nowrap; }
+/* Outputs that say what they carry (outNote): name, value, dot in a column, inside the block, the dots on its edge. */
+.pb-out.is-many:has(.has-note) { position: static; transform: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 2px; margin: 2px -4px -36px; }
+.pb-o.has-note { min-width: 36px; }
+.pb-o.has-note em { position: static; margin-bottom: 3px; font-size: 11px; }
+.pb-o.has-note > :not(em):not(.pb-dot) { margin-bottom: -4px; }
+/* A source with many outputs takes a row of its own, under the wire display switch. */
+.pb-terms > .pb-term.is-wide { flex-basis: 100%; max-width: none; }
+.pb-terms.is-sources:has(> .is-wide) { padding-top: 42px; }
 .pb-dot { position: relative; z-index: 4; width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; touch-action: none; cursor: pointer; }
 .pb-dot i { width: 16px; height: 16px; border-radius: 50%; background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); transition: transform 140ms ease, box-shadow 140ms ease; }
 /* A dot is hollow until a wire is on it, then solid; an input still waiting for one is ringed in red. */
@@ -205,7 +240,7 @@
 .demo-board.is-auto { padding: 14px 12px 18px; }
 .demo-bench.is-stale .demo-board :is(output, canvas) { opacity: .4; transition: opacity 160ms ease; }
 /* A bench's circuit is fixed: cards move, but nothing is added or taken away. */
-.demo-board .node-delete, .demo-board .pb-wiremode { display: none; }
+.demo-board .node-delete, .demo-board .pb-tools { display: none; }
 .demo-bench .demo-note { max-width: none; margin: 0; font-family: var(--sans); padding: 10px 14px; border-top: 1px solid var(--hairline); color: var(--muted); font-size: 12.5px; line-height: 1.55; }
 /* The part a bench is about stands out from the cards that feed it. */
 .node.is-focus { box-shadow: 0 0 0 2px var(--accent), var(--lift, 0 8px 22px -14px rgba(0, 0, 0, .4)); }

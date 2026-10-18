@@ -1,15 +1,17 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Maximize, Minus, Plus, Trash2, X } from 'lucide-react'
+import { Maximize, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
 import { enableDrag } from '../drag.js'
 import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
-import { baseRefusal, connect, inPort, outPort, parsePort, removeNode, removeWire } from './model.js'
+import { baseRefusal, connect, inPort, outPort, outputsOf, parsePort, removeNode, removeWire, srcKey, srcNode, srcOf } from './model.js'
+import { useHistory } from './useHistory.js'
 
 // The desktop circuit board, the same in every game: parts are cards, wires run from a card's output (a dot on its
 // right) to another card's input (a dot on its left). Drag a card by its header to move it; drag from an output dot
 // to an input dot, or onto a card, to wire it; click a card or a wire to select it and press Delete (or the × on a
-// card) to remove it. Drag the background to pan, pinch or ⌘/Ctrl-scroll to zoom, and the corner buttons zoom or fit.
+// card) to remove it. Drag the background to pan, pinch or ⌘/Ctrl-scroll to zoom, and the corner buttons zoom or fit;
+// every edit can be undone and redone there too, or with ⌘/Ctrl-Z, ⇧⌘/Ctrl-Z and Ctrl-Y.
 //
 // The game says what its cards are (`parts`, see model.js) and what a card shows under its ports (`body`); the
 // board does the rest. Moving cards goes through the kit's drag.js: cards are [data-piece] with their header as the
@@ -28,14 +30,20 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * @param body(node) what a card shows under its ports (settings, its value…)
  * @param head(node) extra marks in a card's header (a pass/fail badge…)
  * @param caption(node) a fixed card's line under its title (what it carries)
+ * @param outNote(node, key) beside each of a card's several outputs (parts.outputs), after its name: what it carries.
+ *   Those outputs sit on the card's right edge over its body, which keeps that edge free (.node.has-outs)
  * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, width, height (for fitting), emptyNote, overlay
  * Windows floating over the board (FloatWindow, in `overlay`) are kept clear when fitting: the circuit goes between
  * them or below them, wherever it shows larger. With `refit` the circuit is fitted again whenever the board changes
  * size (a bench in the parts box, whose panel can open narrow and then grow). `minFit` is the smallest zoom a fit may
- * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away.
+ * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away. `scope` names the
+ * board for undo (a level's stage): a new one starts the history over.
  */
-export default function CanvasEditor({ graph, onChange, parts, body, head, caption, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, refit = false, minFit = 0 }) {
+export default function CanvasEditor({ graph, onChange, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, refit = false, minFit = 0, scope }) {
+  const history = useHistory(graph, onChange, scope)
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
+  // A part can be taken off the board; so can a source the game lets the player place (parts.removable).
+  const removable = (node) => (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
   const [shift, setShift] = useState(null)
@@ -43,12 +51,17 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const layer = useRef(null)
   const pointers = useRef(new Map())
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
+  // A card with several outputs may space them out (`row`) and give each row the whole width (`wide`), its content
+  // all the game's (outNote): a setting per output, say.
+  const outLayout = (node) => ({ row: ROW, wide: false, ...parts.outputLayout?.(node) })
+  const outY = (node, index) => HEADER + 10 + index * outLayout(node).row
   const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
 
-  // `shift` is how far a card being dragged has moved, so its wires follow it before the move is committed.
-  const portAt = (node, port, moving) => {
+  // `shift` is how far a card being dragged has moved, so its wires follow it before the move is committed. An output
+  // is the card's only one, or (`key`) one of its several, each on its own row.
+  const portAt = (node, port, moving, key = null) => {
     const [sx, sy] = moving?.id === node.id ? [moving.dx, moving.dy] : [0, 0]
-    if (port === null) return [node.x + sx + width, node.y + sy + portY(0)]
+    if (port === null) return [node.x + sx + width, node.y + sy + outY(node, Math.max(0, outputsOf(parts, node).findIndex((o) => o.key === key)))]
     const index = Math.max(0, parts.inputs(node).indexOf(port))
     return [node.x + sx, node.y + sy + portY(index)]
   }
@@ -76,12 +89,14 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const best = rooms(box)
       .map(({ left, right, top }) => {
         const [w, h] = [box.width - left - right, box.height - top]
-        const zoom = clampZoom(Math.max(minFit, Math.min(1.1, (w - pad * 2) / (x1 - x0), (h - pad * 2) / (y1 - y0))))
+        // Which room shows it larger is judged before the floor (minFit), which would make them tie.
+        const raw = Math.min(1.1, (w - pad * 2) / (x1 - x0), (h - pad * 2) / (y1 - y0))
+        const zoom = clampZoom(Math.max(minFit, raw))
         const spare = w - (x1 - x0) * zoom
-        return { zoom, x: left + (spare > pad * 2 ? spare / 2 : pad) - x0 * zoom, y: top + pad - y0 * zoom }
+        return { raw, zoom, x: left + (spare > pad * 2 ? spare / 2 : pad) - x0 * zoom, y: top + pad - y0 * zoom }
       })
-      .reduce((a, b) => (b.zoom >= a.zoom ? b : a))
-    setView(best)
+      .reduce((a, b) => (b.raw >= a.raw ? b : a))
+    setView({ x: best.x, y: best.y, zoom: best.zoom })
   }
   // Fit once the board first has a real size.
   const fitted = useRef(false)
@@ -126,13 +141,22 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const removeSelected = () => {
     if (!selected) return
     if (selected.wire) onChange(removeWire(graph, selected.wire))
-    else if (selected.node && parts.role(byId.get(selected.node) ?? {}) === 'part') onChange(removeNode(graph, selected.node))
+    else if (selected.node && removable(byId.get(selected.node) ?? {})) onChange(removeNode(graph, selected.node))
     setSelected(null)
   }
-  // Delete or Backspace removes the selection; Escape drops it.
+  // Delete or Backspace removes the selection; Escape drops it. ⌘/Ctrl-Z undoes, ⇧⌘/Ctrl-Z or Ctrl-Y redoes, unless
+  // a dialog over another board has the keys.
   useEffect(() => {
     const onKey = (event) => {
-      if (!selected || /input|select|textarea/i.test(document.activeElement?.tagName)) return
+      if (/input|select|textarea/i.test(document.activeElement?.tagName)) return
+      const dialog = [...document.querySelectorAll('[role="dialog"]')].at(-1)
+      if (dialog && !dialog.contains(surface.current)) return
+      const key = event.key.toLowerCase()
+      if ((event.metaKey || event.ctrlKey) && (key === 'z' || (key === 'y' && event.ctrlKey))) {
+        event.preventDefault()
+        return key === 'y' || event.shiftKey ? history.redo() : history.undo()
+      }
+      if (!selected) return
       if (event.key === 'Escape') return setSelected(null)
       if (event.key !== 'Delete' && event.key !== 'Backspace') return
       event.preventDefault()
@@ -262,7 +286,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     return [box.width / 2, box.height / 2]
   }
   const selectedNode = selected?.node ? byId.get(selected.node) : null
-  const canDelete = Boolean(selected?.wire) || Boolean(selectedNode && parts.role(selectedNode) === 'part')
+  const canDelete = Boolean(selected?.wire) || Boolean(selectedNode && removable(selectedNode))
 
   return (
     <div className="board kit-board" ref={surface} onPointerDown={beginPan}>
@@ -271,10 +295,10 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
       <div className="board-layer" ref={layer} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
         <svg className="board-wires" width="4000" height="3000">
           {graph.wires.map((wire) => {
-            const from = byId.get(wire.from)
+            const from = byId.get(srcNode(wire.from))
             const to = byId.get(wire.to)
             if (!from || !to) return null
-            const d = curve(portAt(from, null, shift), portAt(to, wire.port, shift))
+            const d = curve(portAt(from, null, shift, srcKey(wire.from)), portAt(to, wire.port, shift))
             const active = selected?.wire?.to === wire.to && selected?.wire?.port === wire.port
             const state = wireState?.(wire)
             return (
@@ -295,11 +319,13 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
               </g>
             )
           })}
-          {drag && byId.get(drag.from) && <path className="kw-draft" d={curve(portAt(byId.get(drag.from), null), [drag.x, drag.y])} />}
+          {drag && byId.get(srcNode(drag.from)) && <path className="kw-draft" d={curve(portAt(byId.get(srcNode(drag.from)), null, null, srcKey(drag.from)), [drag.x, drag.y])} />}
         </svg>
         {graph.nodes.map((node) => {
           const role = parts.role(node)
           const ports = parts.inputs(node)
+          const outs = parts.outputs?.(node) ?? null
+          const lay = outLayout(node)
           const icon = parts.icon?.(node)
           return (
             <div
@@ -308,20 +334,22 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
               data-piece={node.id}
               data-family={parts.family(node)}
               data-io={role === 'source' ? tr('输入', 'IN') : role === 'sink' ? tr('输出', 'OUT') : undefined}
-              className={`node is-${role} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
+              className={`node is-${role} ${outs ? 'has-outs' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
               style={{ left: node.x, top: node.y, width, ...parts.cardStyle?.(node) }}
             >
               <div className="node-head" data-drag onPointerDown={() => setSelected({ node: node.id })}>
                 {icon && <i className="family-chip"><Glyph icon={icon} size={12} /></i>}
                 <span className="node-title">{L(parts.label(node))}</span>
                 {head?.(node)}
-                {role === 'part' && (
+                {removable(node) && (
                   <button className="node-delete" aria-label={tr('删除卡片', 'Delete card')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, node.id))}>
                     <X size={12} />
                   </button>
                 )}
               </div>
-              <div className="node-ports" style={{ minHeight: Math.max(1, ports.length) * ROW }}>
+              {/* Several outputs run down the card's right edge beside its body (the game leaves that edge free), so
+                  they never make the card longer. */}
+              <div className="node-ports" style={{ minHeight: (outs ? ports.length : Math.max(1, ports.length)) * ROW }}>
                 {caption && role !== 'part' && <span className={`node-carries ${role === 'source' ? 'is-input' : ''}`}>{L(caption(node))}</span>}
                 {ports.map((port, index) => (
                   <span key={port} className="node-port-label" style={{ top: index * ROW }}>
@@ -329,7 +357,17 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
                     {L(parts.portLabel?.(node, port)) ?? ''}
                   </span>
                 ))}
-                {role !== 'sink' && <i className={`port port-out ${graph.wires.some((w) => w.from === node.id) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`} data-p={outPort(node.id)} title={tr('拖到另一张卡片的输入', 'Drag to an input of another card')} />}
+                {role !== 'sink' && !outs && <i className={`port port-out ${graph.wires.some((w) => w.from === node.id) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`} data-p={outPort(node.id)} title={tr('拖到另一张卡片的输入', 'Drag to an input of another card')} />}
+                {role !== 'sink' && outs?.map((o, index) => {
+                  const src = srcOf(node, o.key)
+                  return (
+                    <span key={o.key} className={`node-port-out ${lay.wide ? 'is-wide' : ''}`} style={{ top: index * lay.row }}>
+                      {!lay.wide && <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>}
+                      {outNote?.(node, o.key)}
+                      <i className={`port port-out ${graph.wires.some((w) => w.from === src) ? 'is-wired' : ''} ${parts.portClass?.(node, null, o.key) ?? ''}`} data-p={outPort(src)} title={tr('拖到另一张卡片的输入', 'Drag to an input of another card')} />
+                    </span>
+                  )
+                })}
               </div>
               {body?.(node)}
             </div>
@@ -344,6 +382,9 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
       )}
       {overlay}
       <div className="board-zoom" onPointerDown={(e) => e.stopPropagation()}>
+        <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销（⌘/Ctrl+Z）', 'Undo (⌘/Ctrl+Z)')}><Undo2 size={14} /></button>
+        <button onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做（⇧⌘/Ctrl+Z）', 'Redo (⇧⌘/Ctrl+Z)')}><Redo2 size={14} /></button>
+        <i className="board-zoom-rule" aria-hidden="true" />
         <button onClick={() => zoomAt(0.85, ...centre())} aria-label={tr('缩小', 'Zoom out')}><Minus size={14} /></button>
         <output>{Math.round(view.zoom * 100)}%</output>
         <button onClick={() => zoomAt(1 / 0.85, ...centre())} aria-label={tr('放大', 'Zoom in')}><Plus size={14} /></button>

@@ -20,19 +20,35 @@ import { rounds } from './rounds.js';
 import { language } from './language.js';
 import { seams } from './seams.js';
 import { graduate } from './graduate.js';
+import { boxy } from './boxy.js';
 import { tr, lazy } from '../i18n.js';
+import { layout } from '../../../kit/course.js';
+import { ERAS, SECTIONS, RETIRED, LABELS } from './eras.js';
 
-export { CHAPTERS, PARTS } from './parts.js';
-export const LEVELS = [...basics, ...machines, ...state, ...strings, ...knapsack, ...skeleton, ...sweep, ...orders, ...states, ...topdown, ...rounds, ...language, ...seams, ...graduate];
+export { PARTS } from './parts.js';
+/**
+ * The levels in play order, era by era (eras.js): each era's foundation, then its topics. A level's chapter on the map
+ * is its foundation or topic, and it opens once everything it requires is solved (REQUIRES).
+ */
+const PLAN = layout(ERAS);
+// A level the new tree (CURRICULUM.md) leaves out stays written but is not played (RETIRED).
+const ALL = [...basics, ...machines, ...boxy, ...state, ...strings, ...knapsack, ...skeleton, ...sweep, ...orders, ...states, ...topdown, ...rounds, ...language, ...seams, ...graduate].filter(L => !RETIRED.includes(L.id));
+const byId = new Map(ALL.map(L => [L.id, L]));
+export const LEVELS = [...PLAN.order.map(id => byId.get(id)), ...ALL.filter(L => !PLAN.place.has(L.id))];
+LEVELS.forEach(L => { L.ch = Math.max(0, SECTIONS.findIndex(s => s.levels.includes(L.id))); });
+export const REQUIRES = PLAN.requires;
+export const PLACE = PLAN.place;
+export const CHAPTERS = SECTIONS;
+export { LABELS };
 
-/** A circuit level's board becomes a component for later levels (it runs the reference board). */
-function registerBlueprint(L, i) {
-  const last = (L.stages || [L]).at(-1), V = WORLDS[last.world], ports = L.blueprint;
+/** A circuit level's board becomes a component for later levels: a black box (L.blueprint.f) on the level's ports. */
+function registerBlueprint(L) {
+  const last = (L.stages || [L]).at(-1), V = WORLDS[last.world], ports = L.blueprint.ports;
   BLUEPRINTS[`bp:${L.id}`] = {
     name: PARTS[L.unlock].name,
-    desc: lazy(() => tr(`你在第 ${i + 1} 关拼出的电路板，现在是一个元件。顶上的输入：${ports.map(id => V.taps[id].label).join('、')}。`, `The circuit board you built in level ${i + 1}, now a component. Inputs on top: ${ports.map(id => V.taps[id].label).join(', ')}.`)),
-    ins: ports.map(id => ({ num: 'num', bool: 'bool', nums: 'num*', bools: 'bool*' })[V.taps[id].type]), labels: ports.map(id => V.taps[id].short), tapIds: ports,
-    out: V.outs[0][0], outType: V.outs[0][3], circuit: last.solution,
+    desc: lazy(() => tr(`你在第 ${LABELS.get(L.id)} 关拼出的电路板，现在是一个元件。顶上的输入：${ports.map(id => V.sensors[id].label).join('、')}。`, `The circuit board you built in level ${LABELS.get(L.id)}, now a component. Inputs on top: ${ports.map(id => V.sensors[id].label).join(', ')}.`)),
+    ins: ports.map(id => ({ num: 'num', bool: 'bool', nums: 'num*', bools: 'bool*', cat: 'cat' })[V.sensors[id].type]), labels: ports.map(id => V.sensors[id].short), sensors: ports,
+    out: V.outs[0][0], outType: V.outs[0][3], f: L.blueprint.f,
   };
 }
 
@@ -62,10 +78,10 @@ LEVELS.forEach((L, i) => {
     // Answers come from the reference board of each stage, run the way the reference is meant to run.
     (L.stages || [L]).forEach(s => {
       if (!s.solution) return;
-      const o = { ...s, dirs: L.solutionDirs || {}, ...(s.dial ? { scan: s.solutionScan } : {}), filter: s.solutionFilter || 'all', remember: s.solutionMem || [] };
+      const o = { ...s, dirs: L.solutionDirs || {}, ...(s.dial ? { scan: s.solutionScan } : {}), filter: s.solutionFilter || 'all', remember: s.solutionMem || [], layers: s.solution && s.solution.layers, answerLayers: s.solution && s.solution.answerLayers, maxLayers: s.maxLayers };
       s.expected = (s.tests || L.tests).map(t => runCircuit(WORLDS[s.world], t, s.solution, o).value);
     });
     L.expected = (L.stages || [L]).at(-1).expected;
-    if (L.blueprint) registerBlueprint(L, i);
+    if (L.blueprint) registerBlueprint(L);
   }
 });

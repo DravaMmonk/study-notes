@@ -1,29 +1,75 @@
-import { useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
+import { Plus, X } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../kit/circuit/index.js'
 import { L, tr } from '../../../kit/shell/i18n.js'
 import { signal } from '../util.js'
-import { def } from './components.js'
+import { def, isInput, isViewReader, picksOf } from './components.js'
 
 // 状态之图's circuit board on the shared circuit editor (../../../kit/circuit), the one Vision Complete uses: the same
 // cards, dots, wires, keys and gestures. `board` is the circuit mode's bridge (modes/circuit.js `ctl.board`); what a
 // card shows here is the value its output carries at the robot's cell, and a constant's or a merger's setting.
 
 const valueOf = (probe, id) => (probe && id in probe ? signal(probe[id]) : '')
-// What a card shows: an input, what the robot reads on its cell (未算 for a cell not computed yet when a run stopped
-// on it); anything else, what it computed, or 未算到 when a stopped run never got to it.
+// What a part's card shows: what it computed, or 未算到 when a stopped run never got to it. (A reader shows what it
+// reads beside each of its outputs.)
 const shownOf = (node, probe, reading) => {
-  if (node.type === 'tap') {
-    const r = reading?.inputs?.[node.tap]
-    if (!r) return { text: valueOf(probe, node.id) }
-    return r.empty && reading.halted ? { text: tr('未算', 'not yet'), cls: 'is-unreached' } : { text: signal(r.v) }
-  }
   const text = valueOf(probe, node.id)
   return !text && reading?.halted ? { text: tr('未算到', 'not reached'), cls: 'is-unreached' } : { text }
 }
 const stop = (event) => event.stopPropagation()
 
+/** 视野's box: a blank square for each cell the robot sees (its own framed); the ones it reads are lit, each an output
+ *  of its own. Click a square to read it too, or to stop reading it. */
+function ReaderBox({ grid, onPick }) {
+  return (
+    <div className="rgrid" style={{ '--rn': grid.n }} onPointerDown={stop} role="group" aria-label={tr('读哪几格', 'Which cells')}>
+      {grid.cells.map((x) => (
+        <button key={`${x.dr},${x.dc}`} type="button" className={`rcell ${x.on ? 'on' : ''} ${x.self ? 'self' : ''}`} disabled={!x.ok} aria-pressed={x.on} aria-label={`${x.dr},${x.dc}`} onClick={() => onPick(x.dr, x.dc)} />
+      ))}
+    </div>
+  )
+}
+
+/** What 视野's arm reaches (a telescopic arm's cells, a sweep): each picked one is an output of its own. */
+function ArmPicks({ items, onPick }) {
+  return (
+    <div className="fpicks" onPointerDown={stop} role="group" aria-label={tr('手臂够到的', 'What the arm reaches')}>
+      {items.map((a) => (
+        <button key={a.key} type="button" className={`fpick ${a.on ? 'on' : ''}`} aria-pressed={a.on} title={L(a.label)} onClick={() => onPick(a.key)}>{L(a.label)}</button>
+      ))}
+    </div>
+  )
+}
+
+/** One output of 本格信息 on the desktop: which fact it reads (one it does not read on another output), what that is
+ *  now, and × to take the output off. */
+function FactPort({ node, pick, board }) {
+  const picks = picksOf({ kind: node.type, value: node.value })
+  const options = board.inputOptions('fact').filter(([v]) => v === pick || !picks.includes(v))
+  return (
+    <span className="fport" onPointerDown={stop}>
+      <select value={pick} onChange={(e) => board.setPick(node.id, pick, e.target.value)} aria-label={tr('这个输出口读哪一条', 'Which fact this output reads')}>
+        {options.map(([v, l]) => <option key={v} value={v}>{L(l)}</option>)}
+      </select>
+      <b className="sg-oval">{board.outValue(node, pick) || '—'}</b>
+      {<button type="button" className="fport-del" onClick={() => board.togglePick(node.id, pick)} aria-label={tr('去掉这个输出口', 'Remove this output')}><X size={11} /></button>}
+    </span>
+  )
+}
+
+/** Under a cell reader's output rows (which sit over this space): a button for one more output, up to the most. */
+function FactRows({ node, board }) {
+  const picks = picksOf({ kind: node.type, value: node.value })
+  const more = picks.length < board.inputOptions('fact').length
+  return (
+    <div className="frows" style={{ '--n': picks.length }}>
+      {more && <button type="button" className="fport-add" onPointerDown={stop} onClick={() => board.addPick(node.id)}><Plus size={12} />{tr('加一个输出口', 'Add an output')}</button>}
+    </div>
+  )
+}
+
 /** Desktop: the board on the workbench's stage, the whole middle column; the parts are in the brief, the view beside the test board. */
-export function SgCanvas({ board }) {
+export function SgCanvas({ board, overlay }) {
   const graph = board.graph()
   const parts = board.parts()
   const probe = board.probe()
@@ -32,12 +78,47 @@ export function SgCanvas({ board }) {
     const { text: value, cls } = shownOf(node, probe, reading)
     const swaps = parts.role(node) === 'part' ? board.swaps(node.type) : []
     return (
-      <div className="sg-body" title={parts.role(node) === 'part' ? L(def(node.type).desc) : undefined}>
+      <div className={`sg-body ${isInput(node.type) ? 'is-reader' : ''}`} title={parts.role(node) === 'part' ? L(def(node.type).desc) : undefined}>
         {node.type === 'const' && (
           <label className="param" onPointerDown={stop}>
             <span>{tr('数值', 'Value')}</span>
             <select value={node.value ?? 1} onChange={(e) => board.setValue(node.id, +e.target.value)}>
               {board.consts().map((v) => <option key={v} value={v}>{v}</option>)}
+            </select>
+          </label>
+        )}
+        {node.type === 'is' && (
+          <label className="param" onPointerDown={stop}>
+            <span>{tr('哪一类', 'Kind')}</span>
+            <select value={node.value ?? ''} onChange={(e) => board.setValue(node.id, e.target.value)}>
+              <option value="" disabled>—</option>
+              {board.kinds(node.id).map(([v, l]) => <option key={v} value={v}>{L(l)}</option>)}
+            </select>
+          </label>
+        )}
+        {/* An input part is set on its card: what it reads on the left (the robot's view, the cell's facts), its
+            outputs beside that on the right edge, then for a layered view reader which layer. */}
+        {isInput(node.type) && (
+          // The outputs run down the card's right edge beside the box: the box keeps room for all of them.
+          <div className={`rd-pick is-${node.type}`} style={node.type === 'see' ? { minHeight: Math.max(64, picksOf({ kind: node.type, value: node.value }).length * 20 - 6) } : undefined}>
+            {isViewReader(node.type) && <ReaderBox grid={board.gridOf(node)} onPick={(dr, dc) => board.setPos(node.id, dr, dc)} />}
+            {node.type === 'see' && board.armOf(node).length > 0 && <ArmPicks items={board.armOf(node)} onPick={(key) => board.togglePick(node.id, key)} />}
+            {node.type === 'fact' && <FactRows node={node} board={board} />}
+          </div>
+        )}
+        {board.layerChoices(node.type).length > 0 && (
+          <label className="param" onPointerDown={stop}>
+            <span>{tr('层', 'Layer')}</span>
+            <select value={board.layerOf(node)} onChange={(e) => board.setLayer(node.id, e.target.value)}>
+              {board.layerChoices(node.type).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+            </select>
+          </label>
+        )}
+        {node.type === 'arm' && (
+          <label className="param" onPointerDown={stop}>
+            <span>{tr('读', 'Reads')}</span>
+            <select value={node.value ?? ''} onChange={(e) => board.setValue(node.id, e.target.value)}>
+              {board.inputOptions(node.type).map(([v, l]) => <option key={v} value={v}>{L(l)}</option>)}
             </select>
           </label>
         )}
@@ -49,8 +130,9 @@ export function SgCanvas({ board }) {
             </select>
           </label>
         )}
-        {parts.role(node) === 'part' && node.type !== 'const' && swaps.length < 2 && <small className="sg-tag">{L(def(node.type).tag)}</small>}
-        <output className={`sg-val ${value && !cls ? 'is-on' : ''} ${cls ?? ''}`}>{value || '—'}</output>
+        {parts.role(node) === 'part' && node.type !== 'const' && !isInput(node.type) && swaps.length < 2 && <small className="sg-tag">{L(def(node.type).tag)}</small>}
+        {/* A reader shows what it reads beside each of its outputs. */}
+        {!isInput(node.type) && <output className={`sg-val ${value && !cls ? 'is-on' : ''} ${cls ?? ''}`}>{value || '—'}</output>}
       </div>
     )
   }
@@ -66,10 +148,13 @@ export function SgCanvas({ board }) {
         onChange={board.change}
         parts={parts}
         body={body}
+        outNote={(node, key) => (node.type === 'fact' ? <FactPort node={node} pick={key} board={board} /> : <b className="sg-oval">{board.outValue(node, key) || '—'}</b>)}
         wireState={wireState}
         width={176}
         height={120}
         minFit={0.62}
+        overlay={overlay}
+        scope={board.stage()}
       />
     </div>
   )
@@ -88,6 +173,8 @@ export function SgParts({ board }) {
 /** Phone: the board as a grid of slots, with the parts tray and the level's dock pinned under it. */
 export function SgPhone({ board, rootRef, dock }) {
   const scroller = useRef(null)
+  // The input cards' contents are the mode's markup: paint them after every render (a card may be new).
+  useLayoutEffect(() => board.paintView?.())
   const graph = board.graph()
   const parts = board.parts()
   const probe = board.probe()
@@ -102,17 +189,23 @@ export function SgPhone({ board, rootRef, dock }) {
     openNode: (id) => board.openNode(id),
     openSlot: (at) => board.openSlot(at),
     reset: board.reset,
+    scope: board.stage(),
   })
   const reading = board.reading?.()
   const thumb = (node) => {
+    // An input card holds what it reads (the robot's window, the cell's facts), painted by the mode: tap one to add or
+    // remove its output, which then sits over its own dot with what it carries (outNote). A tap anywhere else on the
+    // card opens its sheet.
+    if (isInput(node.type)) return <div className="sg-cardview" data-cardview={node.type === 'fact' ? 'facts' : 'view'} onClick={(event) => event.target.closest('[data-act]') && event.stopPropagation()} />
     const { text, cls } = shownOf(node, probe, reading)
     return <i className={`sg-thumb ${text && !cls ? 'is-on' : ''} ${cls ?? ''}`}>{text || '—'}</i>
   }
-  const tileExtra = (node) => (node.type === 'const' ? `= ${node.value ?? 1}` : L(def(node.type).tag))
+  // A tile says what it holds: a constant its number, any other part its model. (An input card names each output over its dot.)
+  const tileExtra = (node) => (node.type === 'const' ? `= ${node.value ?? 1}` : isInput(node.type) ? null : L(def(node.type).tag))
   return (
     <>
       <div className="sg-slots" ref={scroller}>
-        <SlotBoard graph={graph} parts={parts} nameOf={editing.nameOf} thumb={thumb} tileExtra={tileExtra} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} />
+        <SlotBoard graph={graph} parts={parts} nameOf={editing.nameOf} thumb={thumb} tileExtra={tileExtra} outNote={(node, key) => (isInput(node.type) ? <b className="sg-oval">{board.outValue(node, key) || '—'}</b> : null)} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
       </div>
       <div className="sg-foot">
         {/* On a phone a part goes by its name alone; what it does is in its sheet. */}

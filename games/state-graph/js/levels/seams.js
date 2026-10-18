@@ -1,7 +1,7 @@
 // Chapter 18: the seam in a picture — the cheapest top-to-bottom path through a picture's energy, found with the same
 // table as the cheapest route, then cut out so the picture narrows without squashing what stands out in it.
 
-import { circ, usesTap } from '../circuit/components.js';
+import { circ, usesSensor } from '../circuit/components.js';
 import { seamPath, shade } from '../circuit/worlds/picture.js';
 import { T, tr } from '../i18n.js';
 
@@ -24,7 +24,41 @@ const thumb = (img, path = []) => {
 const BIG = picture(22, 9, [['T', 3, 2], ['O', 13, 2]]);
 const P1 = picture(9, 6, [['T', 2, 0]], 3), P2 = picture(10, 7, [['O', 4, 1]], 11);
 
+const energies = e => ({ energy: e, R: e.length, C: e[0].length });
+
 export const seams = [
+  // The seam series (小方's topic, CURRICULUM.md): a picture one pixel wide, then a narrow one where a seam may slant,
+  // then a real picture. The finale's board solves both: off the picture, up-left and up-right are “—”.
+  {
+    id: 'seamline', ch: 17, title: T('一根柱子', 'A single column'), short: T('能量一路加下来', 'Energy, added all the way down'), mode: 'circuit', robot: 'scout',
+    intro: [
+      { t: T('一张图只有 1 像素宽。每个像素有一个<b>能量</b>，写在格子左上角：越显眼的像素能量越高。', 'A picture just 1 pixel wide. Every pixel has an <b>energy</b>, written in its cell’s top-left corner: the more it stands out, the higher its energy.') },
+      { t: T('一条<b>缝</b>从顶走到底，每行经过一个像素。缝的能量是它经过的像素的能量之和。', 'A <b>seam</b> runs from the top to the bottom, through one pixel in each row. A seam’s energy is the total energy of the pixels it passes through.') },
+    ],
+    mission: { goal: T('这条缝从顶走到底，能量一共是多少？每格存「从顶走到这里的能量」。', 'What is the total energy of the seam from top to bottom? Each cell holds “the energy from the top down to here”.'), how: T('逐行，从顶行往下算。', 'Row by row, from the top down.') },
+    world: 'pic', facts: ['energy', 'top'], palette: ['msum', 'mmin', 'add', 'const', 'pass'], checkAll: true,
+    tests: [energies([[3], [1], [4], [1], [5]]), energies([[2], [7], [1], [8]]), energies([[6], [0], [2], [9], [1], [3]])],
+    solution: circ([['m', 'msum'], ['z', 'const', 0], ['g', 'pass'], ['a', 'add']], ['tap:up>m:0', 'tap:top>g:0', 'z>g:1', 'g>m:1', 'm>a:0', 'tap:energy>a:1', 'a>out:cell']),
+    hints: [T('到这一格的能量 = 到上一格的能量 + 这一格自己的能量。', 'The energy down to this cell = the energy down to the cell above + this cell’s own.'), T('顶行上面什么也没有：在顶行送一个 0 进去。', 'Above the top row there is nothing: feed a 0 in on the top row.')],
+    debrief: { title: T('一路加下来', 'Added all the way down'), body: [T('一根柱子只有一条缝，表只是把能量一格格加下来。下一关，图变宽，缝可以拐弯了。', 'A single column has only one seam, and the table just adds the energy down cell by cell. Next, the picture widens and the seam can bend.')] },
+  },
+  {
+    id: 'seamslant', ch: 17, title: T('可以斜着走', 'It may slant'), short: T('三条来路', 'Three ways in'), mode: 'circuit', robot: 'scout',
+    intro: [
+      { t: T('现在图有好几列。缝从顶行<b>任意一个</b>像素出发，每一步走到正下方、左下方或右下方的像素，一直走到底行。', 'Now the picture has several columns. A seam starts at <b>any</b> pixel of the top row, and each step goes to the pixel right below, below-left or below-right, all the way to the bottom row.') },
+    ],
+    mission: { goal: T('能量最低的那条缝，能量是多少？答案是底行里最小的数。', 'What is the energy of the lowest-energy seam? The answer is the smallest number in the bottom row.'), how: T('逐行，从顶行往下算。', 'Row by row, from the top down.') },
+    world: 'pic', facts: ['energy', 'top'], palette: KIT, checkAll: true,
+    tests: [
+      energies([[3, 1, 4], [1, 5, 9], [2, 6, 5], [3, 5, 8]]),
+      energies([[9, 1, 9, 9], [9, 9, 1, 9], [1, 9, 9, 9], [9, 1, 9, 2]]),
+      energies([[2, 8, 3, 7, 1], [6, 4, 9, 2, 5], [1, 7, 3, 8, 6], [5, 2, 6, 1, 9]]),
+    ],
+    solution: circ([['m', 'mmin'], ['z', 'const', 0], ['g', 'pass'], ['n', 'mmin'], ['a', 'add']], ['tap:ul>m:0', 'tap:up>m:1', 'tap:ur>m:2', 'm>n:0', 'tap:top>g:0', 'z>g:1', 'g>n:1', 'n>a:0', 'tap:energy>a:1', 'a>out:cell']),
+    hints: [T('到这一格之前，缝在上一行的哪几个像素上？', 'Before reaching this cell, which pixels of the row above could the seam be on?'), T('挑能量最低的那一个，再加上这一格自己的能量。', 'Pick the lowest of them, then add this cell’s own energy.')],
+    diagnose: c => (!usesSensor(c, 'ul') || !usesSensor(c, 'ur') ? tr('缝每一步可以往左下、正下、右下走：上一行的左上、正上、右上都是来路。', 'Each step of a seam may go below-left, straight down or below-right: up-left, up and up-right on the row above are all ways in.') : null),
+    debrief: { title: T('三条来路', 'Three ways in'), body: [T('和「最省力」是同一副骨架：取较小，再加上本格。只是来路从两条变成了上一行的三条，起点从一格变成了整个顶行。', 'The same skeleton as “Least effort”: take the min, then add this cell. Only the ways in grew from two to three on the row above, and the start from one cell to the whole top row.')] },
+  },
   {
     id: 'seam', ch: 17, title: T('最不起眼的一条缝', 'The least noticeable seam'), short: T('图片上的最省路线', 'The cheapest route through a picture'), mode: 'circuit', robot: 'scout',
     intro: [
@@ -38,7 +72,7 @@ export const seams = [
     tests: [test(P1), test(P2)],
     solution: circ([['m', 'mmin'], ['z', 'const', 0], ['g', 'pass'], ['n', 'mmin'], ['a', 'add']], ['tap:ul>m:0', 'tap:up>m:1', 'tap:ur>m:2', 'm>n:0', 'tap:top>g:0', 'z>g:1', 'g>n:1', 'n>a:0', 'tap:energy>a:1', 'a>out:cell']),
     hints: [T('三条来路：左上、正上、右上，取较小。', 'Three ways in: up-left, up and up-right. Take the min.'), T('再加上这个像素自己的能量。顶行上面什么都没有：用放行闸在顶行送一个 0 进去（和「最省力」的起点一样）。', 'Then add this pixel’s own energy. There is nothing above the top row: use a Pass gate to let a 0 in on the top row (just like the start in “Least effort”).')],
-    diagnose: c => (usesTap(c, 'up') && !usesTap(c, 'ul') && !usesTap(c, 'ur') ? tr('只看正上方，缝就只能是一根笔直的竖线，剪掉时会从字母中间切过去。缝每一步可以往左下或右下斜一格：左上、右上也是来路。', 'Looking only straight up, a seam can only be a dead-straight vertical line, and cutting it out would slice through the middle of a letter. At each step a seam may slant one cell down-left or down-right, so up-left and up-right are ways in too.') : null),
+    diagnose: c => (usesSensor(c, 'up') && !usesSensor(c, 'ul') && !usesSensor(c, 'ur') ? tr('只看正上方，缝就只能是一根笔直的竖线，剪掉时会从字母中间切过去。缝每一步可以往左下或右下斜一格：左上、右上也是来路。', 'Looking only straight up, a seam can only be a dead-straight vertical line, and cutting it out would slice through the middle of a letter. At each step a seam may slant one cell down-left or down-right, so up-left and up-right are ways in too.') : null),
     trace: t => ({ path: seamPath(t.img).map(p => p.join()) }),
     boardOpt: { minScale: 0.5, maxScale: 1.05 },
     debrief: { title: T('缝也是一条最省的路线', 'A seam is a cheapest route too'), body: [T('每一格 = 本格能量 + 上面三格里最小的。和第 6 章的最省力一样，只是来路换了方向。', 'Each cell = its own energy + the smallest of the three cells above. Just like “Least effort” in chapter 6, only with the ways in turned round.'), T('缝沿着背景走，绕开了字母的边缘：边缘的能量太高，经过它太「贵」。下一关，把这条缝剪掉。', 'The seam runs through the background and skirts the letters’ edges: their energy is too high, so crossing them is too “expensive”. Next level, you cut the seam out.')], note: T('缝：每一格 = 本格能量 + 左上、正上、右上三格里最小的。', 'Seam: each cell = its own energy + the smallest of up-left, up and up-right.') },

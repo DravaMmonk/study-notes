@@ -1,5 +1,5 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, Check, ChevronDown, ChevronRight, Circle, Trash2, Undo2, X } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronDown, ChevronRight, Circle, Trash2, X } from 'lucide-react'
 import { wouldCycle } from '../../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../../engine/nodes.js'
 import { L, keyOf, tr } from '../../../../../games/kit/shell/i18n.js'
@@ -21,7 +21,7 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 // Vision Complete's phone circuit screen: the shared phone board (games/kit/circuit: SlotBoard, useSlotEditing,
 // Tray, Notice, the same editing as 状态之图) with this game's tests along the top, its task, its blocks' pictures,
 // and its sheets for a block, a source, a setting and the tests.
-export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph, onChange, onReset, run, onTest, testIndex, onTestIndex, flags, inputLabels, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
+export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph, onChange, onReset, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
   const [sheet, setSheet] = useState(null)
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
@@ -29,7 +29,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
   const passed = run?.results.filter((r) => r.pass).length ?? 0
   const all = level.tests.length
   const byId = (id) => graph.nodes.find((n) => n.id === id)
-  const parts = useMemo(() => partsFor({ inputLabels, outputLabels, sources: graph.nodes.filter((n) => n.type === 'input').length }), [inputLabels, outputLabels, graph.nodes])
+  const parts = useMemo(() => partsFor({ sensors, outputLabels }), [sensors, outputLabels])
   const root = useRef(null)
   const scroller = useRef(null)
   const editing = useSlotEditing({
@@ -139,18 +139,18 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
           onPort={editing.onPort}
           onNode={editing.onNode}
           onSlot={editing.onSlot}
+          history={editing.history}
         />
         {steps.length > 0 && <p className="pb-howto">{tr('点两个圆点连线，或从一个圆点拖到另一个；点已接好的输入口就拆掉。按住一块可以挪格子，拖回下面的托盘就是拿掉。', 'Tap two dots to connect them, or drag from one dot to another; tap a wired input to unplug it. Hold a block to move it to another slot; drag it back onto the tray to remove it.')}</p>}
       </div>
 
       <Tray items={level.palette.map((type) => ({ type, label: NODE_TYPES[type].label, icon: iconOf(type), family: familyOf(type) }))} onPick={editing.placeFirstFree} />
 
-      {/* The kit's run bar (RunDock), as in every level: undo, where the tests stand (tap for details), clear, Run. */}
+      {/* The kit's run bar (RunDock), as in every level: where the tests stand (tap for details), clear, Run. */}
       <footer className="run-foot">
         <RunDock
-          lead={<button className="pb-icon" onClick={editing.undo} disabled={!editing.canUndo} aria-label={tr('撤销', 'Undo')}><Undo2 size={18} /></button>}
           meta={<button type="button" onClick={() => setSheet({ kind: 'tests' })}>{run?.untested ? tr(`${all} 个测试 · 还没测`, `${all} tests · not run yet`) : hiddenMiss ? tr(`隐藏测试 ${hiddenMiss.failed} 个没过`, `${hiddenMiss.failed} hidden ${hiddenMiss.failed === 1 ? 'test fails' : 'tests fail'}`) : tr(`${passed}/${all} 个通过`, `${passed}/${all} passed`)}<small>{tr('测试详情 ›', 'Test details ›')}</small></button>}
-          secondary={steps.length > 0 ? { label: editing.armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), armed: editing.armed, onClick: editing.clear } : null}
+          secondary={steps.length > 0 ? { label: editing.armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), icon: <Trash2 size={16} />, armed: editing.armed, onClick: editing.clear } : null}
           go={{ label: run?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(run?.pass && !hiddenMiss), onClick: test }}
         />
       </footer>
@@ -181,7 +181,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
               scan={scan}
               onScan={onScan}
               onSource={(port) => setSheet({ kind: 'source', node: node.id, port })}
-              onParam={(key) => setSheet({ kind: 'param', node: node.id, key, before: graph })}
+              onParam={(key) => setSheet({ kind: 'param', node: node.id, key })}
               onView={(v) => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, view: v } : n)) }, { keep: true })}
               onDelete={NODE_TYPES[node.type].fixed ? null : () => remove(node.id)}
             />
@@ -207,12 +207,8 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
       {sheet?.kind === 'param' && (() => {
         const target = byId(sheet.node)
         const param = NODE_TYPES[target.type].params.find((p) => p.key === sheet.key)
-        // A whole session in the sheet is one undo step: the graph from when it opened.
         const change = (v) => onChange(setParam(graph, target.id, param.key, v))
-        const close = () => {
-          if (graph !== sheet.before) editing.remember(sheet.before)
-          setSheet({ kind: 'part', node: target.id })
-        }
+        const close = () => setSheet({ kind: 'part', node: target.id })
         return (
           <Sheet title={`${nameOf(target)} · ${L(param.label)}`} onClose={close} footer={<div className="ph-live"><span>{tr('这一步现在的结果', 'What this step makes now')}</span>{thumb(target, 96)}</div>}>
             {param.kind === 'select' ? <ChoiceEditor param={param} value={target.params[param.key]} onChange={change} /> : param.kind === 'kernel' ? <KernelEditor param={param} value={target.params[param.key]} onChange={change} /> : <NumberEditor param={param} value={target.params[param.key]} onChange={change} />}

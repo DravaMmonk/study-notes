@@ -13,102 +13,131 @@ import { kindOf, rowOf } from './views/views.js'
 // Numbers are compared on a scale, waveforms as one plot with the allowed band, 2-D values side by
 // side in the same view as their cards on the board (switching here switches the cards too), with
 // a pixel map of the misses. In the profile view the two rows are laid over each other.
-export default function TestPanel({ level, run, onTest, hiddenCount = 0, hiddenMiss, testIndex, onSelect, inputLabels, inView, outView, onView, scan, onScan, theme }) {
-  const [probe, setProbe] = useState(null)
+// `part` splits it for a desktop circuit (games/kit/shell/CircuitLayout.jsx): 'tests' is the chips in the strip's
+// header, 'inputs' what the circuit is fed, 'outputs' what came out against what was expected (the
+// strip); the page reads the pixel under the pointer out through probe / onProbe (ProbeReadout).
+export default function TestPanel({ level, run, onTest, hiddenCount = 0, hiddenMiss, testIndex, onSelect, sensors, inView, outView, onView, scan, onScan, theme, part, probe: sharedProbe, onProbe }) {
+  const [ownProbe, setOwnProbe] = useState(null)
+  const probe = onProbe ? sharedProbe : ownProbe
+  const setProbe = onProbe ?? setOwnProbe
   const test = level.tests[testIndex]
   const result = run?.results[testIndex]
   const passed = run?.results.filter((r) => r.pass).length ?? 0
   const all = level.tests.length
   const inputsAreImages = Object.values(test.inputs).some((img) => kindOf(img) === 'image')
 
+  const head = (
+    <header className="panel-head">
+      <span>{tr('测试', 'Tests')}</span>
+      {run?.untested ? (
+        <span className="tests-meter is-untested">{tr('还没测试', 'Not tested yet')}</span>
+      ) : (
+        <span className={`tests-meter ${run?.pass ? 'is-pass' : ''}`} aria-label={tr(`${passed} / ${all} 通过`, `${passed} / ${all} passed`)}>
+          {level.tests.map((t, index) => <i key={keyOf(t.label)} className={run?.results[index]?.pass ? 'is-on' : ''} />)}
+          <b>{passed}/{all}</b>
+        </span>
+      )}
+    </header>
+  )
+  const runButton = onTest && <button className={`run-tests ${run?.pass && !hiddenMiss ? 'is-pass' : ''}`} onClick={onTest}>{run?.pass && !hiddenMiss ? <Check size={15} /> : <Play size={14} />}{run?.pass && !hiddenMiss ? tr('全部通过 · 再测一次', 'All passed · run again') : tr('运行测试', 'Run tests')}</button>
+  const hiddenNote = hiddenMiss ? (
+    <p className="hidden-note is-fail"><X size={13} />{tr(`下面的测试都通过了，但 ${hiddenMiss.total} 组隐藏测试里有 ${hiddenMiss.failed} 组没过：电路可能只对这几张图凑巧成立。`, `Every test below passes, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.`)}</p>
+  ) : hiddenCount > 0 ? (
+    <p className="hidden-note"><EyeOff size={13} />{tr(`另有 ${hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。`, `${hiddenCount} more hidden ${hiddenCount === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)}</p>
+  ) : null
+  const list = (
+    <ol className="test-list">
+      {level.tests.map((t, index) => {
+        const ok = run?.results[index]?.pass
+        return (
+          <li key={keyOf(t.label)}>
+            <button className={`test-row ${index === testIndex ? 'is-active' : ''} ${ok === null ? '' : ok ? 'is-pass' : 'is-fail'}`} onClick={() => onSelect(index)} aria-pressed={index === testIndex}>
+              {ok === null ? <Circle size={11} /> : ok ? <Check size={13} /> : <X size={13} />}
+              <span>{L(t.label)}</span>
+              {t.hidden && <em className="hidden-tag">{tr('隐藏', 'hidden')}</em>}
+            </button>
+          </li>
+        )
+      })}
+    </ol>
+  )
+  const inputs = (
+    <div className="test-block">
+      <div className="test-block-head">
+        <span className="test-block-label">{tr('输入', 'Input')}</span>
+        {inputsAreImages && <ViewSwitch value={inView} onChange={(v) => onView('input', v)} compact />}
+      </div>
+      <div className={`test-images is-inputs ${inputsAreImages ? '' : 'is-wide'}`}>
+        {Object.entries(test.inputs).map(([name, img]) => (
+          <figure key={name}>
+            <ValueView img={img} view={inView} size={kindOf(img) === 'image' ? 132 : 280} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} grid />
+            <figcaption>{L(sensors?.[name]?.label) ?? tr('输入', 'Input')}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  )
+  const outputs = Object.entries(test.expected).map(([name, expected]) => {
+    const actual = result?.outputs[name]
+    const check = result?.checks.find((c) => c.name === name)
+    const tolerance = (test.check ?? level.check)?.tolerance ?? 0.02
+    const kind = kindOf(expected)
+    const fits = actual?.w === expected.w && actual?.h === expected.h
+    return (
+      <div key={name} className={`test-block ${check?.pass === null ? '' : check?.pass ? 'is-pass' : 'is-fail'}`}>
+        <div className="test-block-head">
+          <span className="test-block-label">{tr('输出', 'Output')}</span>
+          {kind === 'image' && <ViewSwitch value={outView} onChange={(v) => onView('output', v)} compact />}
+        </div>
+        {kind === 'number' ? (
+          <NumberCompare expected={expected.data[0]} actual={fits ? actual.data[0] : NaN} tolerance={tolerance} pass={check?.pass} />
+        ) : kind === 'signal' ? (
+          <figure className="test-curve">
+            <CurveView img={fits ? actual : null} expected={expected} tolerance={tolerance} width={280} height={120} onHover={setProbe} />
+            <figcaption><i className="is-expected" />{tr('期望', 'expected')} <i className="is-band" />{tr('允许范围', 'allowed band')} <i />{tr('你的输出', 'your output')}</figcaption>
+          </figure>
+        ) : (
+          <OutputImages expected={expected} actual={actual} fits={fits} view={outView} tolerance={tolerance} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} />
+        )}
+        {check?.pass === null ? (
+          <p className="test-verdict">{tr('点「运行测试」看这组是否通过', 'Press Run tests to see whether this one passes')}</p>
+        ) : (
+          <p className={`test-verdict ${check?.pass ? 'is-pass' : 'is-fail'}`}>
+            {check?.pass ? <Check size={14} /> : <X size={14} />}
+            {check?.pass ? tr('这组通过', 'Passed') : L(check?.reason) || tr('未通过', 'Not passed')}
+          </p>
+        )}
+      </div>
+    )
+  })
+  const probeLine = (inputsAreImages || Object.values(test.expected).some((img) => kindOf(img) === 'image')) && (
+    <p className="pixel-probe">
+      {probe ? <>{probe.frequency ? tr('频率 ', 'frequency ') : ''}({probe.x}, {probe.y}) <b>{probe.value.toFixed(3)}</b>{probe.expected !== undefined ? <> · {tr('期望', 'expected')} <b>{probe.expected.toFixed(3)}</b></> : null}</> : tr('把指针停在图上，看每一格的数值', 'Hover over a picture to read each cell')}
+    </p>
+  )
+
+  if (part === 'tests') return list
+  if (part === 'inputs') return <section className="tests is-part is-inputs-part" key={testIndex}>{inputs}</section>
+  if (part === 'outputs') return <section className="tests is-part is-outputs-part test-detail" key={testIndex}>{outputs}</section>
   return (
     <aside className="tests" data-pane="tests">
-      <header className="panel-head">
-        <span>{tr('测试', 'Tests')}</span>
-        {run?.untested ? (
-          <span className="tests-meter is-untested">{tr('还没测试', 'Not tested yet')}</span>
-        ) : (
-          <span className={`tests-meter ${run?.pass ? 'is-pass' : ''}`} aria-label={tr(`${passed} / ${all} 通过`, `${passed} / ${all} passed`)}>
-            {level.tests.map((t, index) => <i key={keyOf(t.label)} className={run?.results[index]?.pass ? 'is-on' : ''} />)}
-            <b>{passed}/{all}</b>
-          </span>
-        )}
-      </header>
-      {onTest && <button className={`run-tests ${run?.pass && !hiddenMiss ? 'is-pass' : ''}`} onClick={onTest}>{run?.pass && !hiddenMiss ? <Check size={15} /> : <Play size={14} />}{run?.pass && !hiddenMiss ? tr('全部通过 · 再测一次', 'All passed · run again') : tr('运行测试', 'Run tests')}</button>}
-      {hiddenMiss ? (
-        <p className="hidden-note is-fail"><X size={13} />{tr(`下面的测试都通过了，但 ${hiddenMiss.total} 组隐藏测试里有 ${hiddenMiss.failed} 组没过：电路可能只对这几张图凑巧成立。`, `Every test below passes, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.`)}</p>
-      ) : hiddenCount > 0 ? (
-        <p className="hidden-note"><EyeOff size={13} />{tr(`另有 ${hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。`, `${hiddenCount} more hidden ${hiddenCount === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)}</p>
-      ) : null}
-      <ol className="test-list">
-        {level.tests.map((t, index) => {
-          const ok = run?.results[index]?.pass
-          return (
-            <li key={keyOf(t.label)}>
-              <button className={`test-row ${index === testIndex ? 'is-active' : ''} ${ok === null ? '' : ok ? 'is-pass' : 'is-fail'}`} onClick={() => onSelect(index)} aria-pressed={index === testIndex}>
-                {ok === null ? <Circle size={11} /> : ok ? <Check size={13} /> : <X size={13} />}
-                <span>{L(t.label)}</span>
-                {t.hidden && <em className="hidden-tag">{tr('隐藏', 'hidden')}</em>}
-              </button>
-            </li>
-          )
-        })}
-      </ol>
-
+      {head}
+      {runButton}
+      {hiddenNote}
+      {list}
       <section className="test-detail" key={testIndex}>
-        <div className="test-block">
-          <div className="test-block-head">
-            <span className="test-block-label">{tr('输入', 'Input')}</span>
-            {inputsAreImages && <ViewSwitch value={inView} onChange={(v) => onView('input', v)} compact />}
-          </div>
-          <div className={`test-images is-inputs ${inputsAreImages ? '' : 'is-wide'}`}>
-            {Object.entries(test.inputs).map(([name, img]) => (
-              <figure key={name}>
-                <ValueView img={img} view={inView} size={kindOf(img) === 'image' ? 132 : 280} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} grid />
-                <figcaption>{L(inputLabels?.[name]) ?? tr('输入', 'Input')}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-        {Object.entries(test.expected).map(([name, expected]) => {
-          const actual = result?.outputs[name]
-          const check = result?.checks.find((c) => c.name === name)
-          const tolerance = (test.check ?? level.check)?.tolerance ?? 0.02
-          const kind = kindOf(expected)
-          const fits = actual?.w === expected.w && actual?.h === expected.h
-          return (
-            <div key={name} className={`test-block ${check?.pass === null ? '' : check?.pass ? 'is-pass' : 'is-fail'}`}>
-              <div className="test-block-head">
-                <span className="test-block-label">{tr('输出', 'Output')}</span>
-                {kind === 'image' && <ViewSwitch value={outView} onChange={(v) => onView('output', v)} compact />}
-              </div>
-              {kind === 'number' ? (
-                <NumberCompare expected={expected.data[0]} actual={fits ? actual.data[0] : NaN} tolerance={tolerance} pass={check?.pass} />
-              ) : kind === 'signal' ? (
-                <figure className="test-curve">
-                  <CurveView img={fits ? actual : null} expected={expected} tolerance={tolerance} width={280} height={120} onHover={setProbe} />
-                  <figcaption><i className="is-expected" />{tr('期望', 'expected')} <i className="is-band" />{tr('允许范围', 'allowed band')} <i />{tr('你的输出', 'your output')}</figcaption>
-                </figure>
-              ) : (
-                <OutputImages expected={expected} actual={actual} fits={fits} view={outView} tolerance={tolerance} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} />
-              )}
-              {check?.pass === null ? (
-                <p className="test-verdict">{tr('点「运行测试」看这组是否通过', 'Press Run tests to see whether this one passes')}</p>
-              ) : (
-                <p className={`test-verdict ${check?.pass ? 'is-pass' : 'is-fail'}`}>
-                  {check?.pass ? <Check size={14} /> : <X size={14} />}
-                  {check?.pass ? tr('这组通过', 'Passed') : L(check?.reason) || tr('未通过', 'Not passed')}
-                </p>
-              )}
-            </div>
-          )
-        })}
-        {(inputsAreImages || Object.values(test.expected).some((img) => kindOf(img) === 'image')) && <p className="pixel-probe">
-          {probe ? <>{probe.frequency ? tr('频率 ', 'frequency ') : ''}({probe.x}, {probe.y}) <b>{probe.value.toFixed(3)}</b>{probe.expected !== undefined ? <> · {tr('期望', 'expected')} <b>{probe.expected.toFixed(3)}</b></> : null}</> : tr('把指针停在图上，看每一格的数值', 'Hover over a picture to read each cell')}
-        </p>}
+        {inputs}
+        {outputs}
+        {probeLine}
       </section>
     </aside>
   )
+}
+
+/** The cell under the pointer, for the head of a desktop circuit's outputs pane. */
+export function ProbeReadout({ probe }) {
+  if (!probe) return <span>{tr('指针停在图上看数值', 'Hover a picture to read it')}</span>
+  return <span>{probe.frequency ? tr('频率 ', 'frequency ') : ''}({probe.x}, {probe.y}) {probe.value.toFixed(3)}{probe.expected !== undefined ? ` · ${tr('期望', 'expected')} ${probe.expected.toFixed(3)}` : ''}</span>
 }
 
 function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover, scan, onScan }) {

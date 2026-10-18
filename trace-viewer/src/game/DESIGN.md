@@ -2,6 +2,8 @@
 
 一套网页端解谜／通关游戏，把 COMP90086 的学习路线做成关卡。目标是：**不靠讲解文字和图片，只靠游戏机制本身**，让玩家亲手体会计算机视觉怎样运作，以及做视觉需要的思维方式。
 
+所有类图灵完备游戏共同遵守的结构、规则和自动检查，见 [`games/DESIGN.md`](../../../games/DESIGN.md)；本文档只记录视觉完备自己的内容。
+
 ## 1. 研究：《图灵完备》的关卡设计在做什么
 
 资料来源：官方战役关卡数据的镜像仓库（[michalusio/tc_campaign](https://github.com/michalusio/tc_campaign)，每关含 `meta.txt` 说明、`test.si` 测试脚本），社区 wiki，以及 Ohio Northern University 的 ASEE 2024 论文（McKanna & Hassan）。从关卡数据里能直接读出以下设计手法：

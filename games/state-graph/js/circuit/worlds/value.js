@@ -18,6 +18,8 @@ export function tileAt(t, r, c) {
 }
 const FIXED = { gold: 10, trap: -10, cliff: -10, wall: null };
 const LABEL = { gold: T('宝藏', 'treasure'), trap: T('陷阱', 'trap'), cliff: T('悬崖', 'cliff'), wall: '' };
+/** The icon a special tile carries in its corner (svg.js MARKS); its name stays for screen readers. */
+const MARK_OF = { gold: 'gold', trap: 'trap', cliff: 'cliff' };
 
 /**
  * The robot's best move from every floor cell once the values have settled: to the best neighbour, or, on a slippery
@@ -40,11 +42,11 @@ export function policy(t, table, o = {}) {
 
 export const vgrid = world({
   ...gridDef,
-  taps: { ul: gridDef.taps.ul, up: gridDef.taps.up, ur: gridDef.taps.ur, left: gridDef.taps.left, right: gridDef.taps.right, dl: gridDef.taps.dl, down: gridDef.taps.down, dr: gridDef.taps.dr },
+  sensors: { ul: gridDef.sensors.ul, up: gridDef.sensors.up, ur: gridDef.sensors.ur, left: gridDef.sensors.left, right: gridDef.sensors.right, dl: gridDef.sensors.dl, down: gridDef.sensors.down, dr: gridDef.sensors.dr },
   facts: [],
   mark(t, key) {
     const [r, c] = key.split(',').map(Number), k = tileAt(t, r, c);
-    return { cls: k === 'floor' ? '' : k === 'wall' ? 'rock' : k, label: LABEL[k] || '', corner: r + c === 0 ? W.start : '' };
+    return { cls: k === 'floor' ? '' : k === 'wall' ? 'rock' : k, label: LABEL[k] || '', mark: MARK_OF[k] || (r + c === 0 ? 'start' : null), corner: '' };
   },
   /** Fixed tiles hold their value from the start; every floor cell starts at 0. */
   base: t => { const b = []; for (let r = 0; r < t.R; r++) for (let c = 0; c < t.C; c++) { const k = tileAt(t, r, c); b.push([`${r},${c}`, k === 'floor' ? 0 : FIXED[k]]); } return b; },
@@ -57,7 +59,7 @@ export const vgrid = world({
     const g = look(view, [this.answerKey(t, o)], this.base(t, o), o.bench), cells = [];
     for (let r = 0; r < t.R; r++) for (let c = 0; c < t.C; c++) {
       const id = `${r},${c}`, m = this.mark(t, id), fixed = tileAt(t, r, c) !== 'floor';
-      cells.push({ id, x: c * 64, y: r * 64, w: 56, h: 56, value: tileAt(t, r, c) === 'wall' ? '' : g.val(id), label: m.label, corner: m.corner, cls: `${m.cls} ${fixed ? '' : g.cls(id)}`, tap: !fixed && g.tap(id), aria: rcName(id) });
+      cells.push({ id, x: c * 64, y: r * 64, w: 56, h: 56, value: tileAt(t, r, c) === 'wall' ? '' : g.val(id), mark: m.mark, corner: m.corner, cls: `${m.cls} ${fixed ? '' : g.cls(id)}`, tap: !fixed && g.tap(id), aria: m.label ? `${rcName(id)} · ${m.label}` : rcName(id) });
     }
     const edges = g.arrows();
     // Once the values have settled, every floor cell grows an arrow toward its best move.

@@ -16,22 +16,22 @@ function robPlan(a) {
 /**
  * rows: [[outId, label, value before house 1]]; the robot stands on the middle row of its column.
  * The houses' numbers are drawn on the board's top row but are read only as the fact 「这家的钱」 (or its own name), or by
- * a sweeping arm. more = { money: [label, short, icon], noun, top, unit(j), long(j), arm, armTaps, segment, answer, answerKeys, label }.
+ * a sweeping arm. more = { money: [label, short, icon], noun, top, unit(j), long(j), arm, armSensor, segment, answer, answerKeys, label }.
  * unit(j) is the short tag on the board (「3号」); long(j) names it in English sentences (house 3); noun is what a house holds.
  */
-const street = (rows, taps, more = {}) => {
+const street = (rows, sensors, more = {}) => {
   const unit = more.unit || (j => tr(`${j}号`, `#${j}`)), long = j => (isEn() ? (more.long || (k => `house ${k}`))(j) : unit(j)), noun = more.noun || T('钱', 'money');
   const mid = Math.floor((rows.length - 1) / 2), V = world({
-    taps: { ...taps, money: num(...(more.money || [T('这家的钱', "this house's money"), T('钱', '$'), 'coin'])), ...(more.armTaps ? { seg: seg(...more.armTaps) } : {}) },
+    sensors: { ...sensors, money: num(...(more.money || [T('这家的钱', "this house's money"), T('钱', '$'), 'coin'])), ...(more.armSensor ? { seg: seg(...more.armSensor) } : {}) },
     facts: ['money'],
-    armTaps: more.armTaps ? ['seg'] : undefined,
+    armSensors: more.armSensor ? ['seg'] : undefined,
     arm: more.arm,
     shown: (L, dr) => dr === -1 - mid,
     outs: rows.map(([id, label], r) => [id, label, [0, r - mid, 0]]),
-    here: (t, { i }) => [[1 + mid, i]],
-    keyAt: (t, L, r, c) => (r === 0 ? (c >= 1 && c <= t.a.length ? `h:${c}` : null) : r <= rows.length && c >= 0 && c <= t.a.length ? `${r - 1}:${c}` : null),
+    here: (t, { i }) => [1 + mid, i],
+    keyAt: (t, r, c) => (r === 0 ? (c >= 1 && c <= t.a.length ? `h:${c}` : null) : r <= rows.length && c >= 0 && c <= t.a.length ? `${r - 1}:${c}` : null),
     mark: (t, key) => (key.startsWith('h:') ? { cls: 'house', corner: unit(key.slice(2)) } : {}),
-    fact: (t, x, id, get, o) => (id === 'money' ? t.a[x.i - 1] : more.segment(t, x, get, o)),
+    sense: (t, x, id, get, o) => (id === 'money' ? t.a[x.i - 1] : more.segment(t, x, get, o)),
     base: t => [...rows.map(([, , v], r) => [`${r}:0`, v]), ...t.a.map((x, j) => [`h:${j + 1}`, x])],
     order: t => t.a.map((_, k) => ({ i: k + 1 })),
     keys: (t, { i }) => Object.fromEntries(rows.map(([id], r) => [id, `${r}:${i}`])),
@@ -69,8 +69,8 @@ export const rob2 = street([['no', T('这家没偷', 'skipped'), 0], ['yes', T('
 
 /** Running totals: cell i is the money of houses 1 … i. The arm sweeps the houses themselves. */
 export const prefix = street([['cell', T('到这家一共', 'total so far'), 0]], { prev: cell(PREV, T('左格', 'prev'), [0, 0, -1]) }, {
-  armTaps: [T('这家和前面每家的钱', 'money of this house and every one before'), T('扫', 'scan')],
-  arm: (t, { i }) => ({ label: tr('扫过前面每一家', 'sweeps every house so far'), sweeps: [{ tap: 'seg', label: tr('1 号到这一家', 'house 1 to this one'), cells: Array.from({ length: i }, (_, j) => ({ key: `h:${j + 1}`, label: tr(`${j + 1}号`, `#${j + 1}`) })) }] }),
+  armSensor: [T('这家和前面每家的钱', 'money of this house and every one before'), T('扫', 'scan')],
+  arm: (t, { i }) => ({ label: tr('扫过前面每一家', 'sweeps every house so far'), sweeps: [{ sensor: 'seg', label: tr('1 号到这一家', 'house 1 to this one'), cells: Array.from({ length: i }, (_, j) => ({ key: `h:${j + 1}`, label: tr(`${j + 1}号`, `#${j + 1}`) })) }] }),
   segment: (t, { i }, get) => Array.from({ length: i }, (_, j) => get(`h:${j + 1}`)),
 });
 
@@ -81,10 +81,10 @@ export const prefix = street([['cell', T('到这家一共', 'total so far'), 0]]
 export const heights = street([['cell', T('最长连几根', 'longest run'), 0]], { prev: cell(PREV, T('左格', 'prev'), [0, 0, -1]) }, {
   money: [T('这一根的高度', "this post's height"), T('高', 'ht'), 'ground'], noun: T('高度', 'height'), top: T('每根的高度', 'height'),
   unit: j => tr(`${j}号`, `#${j}`), long: j => `post ${j}`, label: t => tr(`${t.a.length} 根柱子`, `${t.a.length} posts`),
-  armTaps: [T('前面每一格', 'every earlier cell'), T('扫', 'scan')],
+  armSensor: [T('前面每一格', 'every earlier cell'), T('扫', 'scan')],
   arm(t, { i }, o) {
-    const cells = Array.from({ length: i }, (_, j) => ({ key: `0:${j}`, label: j ? tr(`${j}号`, `#${j}`) : tr('起', 'S'), out: o.filter === 'lower' && j > 0 && !(t.a[j - 1] < t.a[i - 1]) }));
-    return { label: tr('扫过前面每一格', 'sweeps every earlier cell'), sweeps: [{ tap: 'seg', label: tr('起点到上一格', 'from the start to the previous cell'), cells }], filters: [{ v: 'all', l: tr('全部', 'all') }, { v: 'lower', l: tr('只留比这根矮的', 'only posts shorter than this one') }] };
+    const cells = Array.from({ length: i }, (_, j) => ({ key: `0:${j}`, label: j ? tr(`${j}号`, `#${j}`) : undefined, mark: j ? undefined : 'start', out: o.filter === 'lower' && j > 0 && !(t.a[j - 1] < t.a[i - 1]) }));
+    return { label: tr('扫过前面每一格', 'sweeps every earlier cell'), sweeps: [{ sensor: 'seg', label: tr('起点到上一格', 'from the start to the previous cell'), cells }], filters: [{ v: 'all', l: tr('全部', 'all') }, { v: 'lower', l: tr('只留比这根矮的', 'only posts shorter than this one') }] };
   },
   segment: (t, { i }, get, o) => Array.from({ length: i }, (_, j) => j).filter(j => o.filter !== 'lower' || j === 0 || t.a[j - 1] < t.a[i - 1]).map(j => get(`0:${j}`)),
   answerKeys: t => t.a.map((_, j) => `0:${j + 1}`),

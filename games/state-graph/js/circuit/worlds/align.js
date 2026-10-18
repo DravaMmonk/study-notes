@@ -8,16 +8,16 @@ import { world, look, cell, yes, num, DIR, THIS_CELL } from '../world.js';
 /* ---------- alignment table: one word on top, one on the left ---------- */
 
 const alignDef = {
-  taps: {
+  sensors: {
     ul: cell(...DIR.ul, [0, -1, -1]), up: cell(...DIR.up, [0, -1, 0]), left: cell(...DIR.left, [0, 0, -1]),
     same: yes(T('两字相同', 'letters match'), T('同', '='), 'eq'), start: yes(T('是起点', 'is start'), T('起', 'start'), 'flag'),
   },
   facts: ['same', 'start'],
   outs: [['cell', THIS_CELL, [0, 0, 0]]],
-  here: (t, { i, j }) => [[i, j]],
-  keyAt: (t, L, i, j) => (i >= 0 && i <= t.left.length && j >= 0 && j <= t.top.length ? `${i},${j}` : null),
+  here: (t, { i, j }) => [i, j],
+  keyAt: (t, i, j) => (i >= 0 && i <= t.left.length && j >= 0 && j <= t.top.length ? `${i},${j}` : null),
   mark(t, key) { const [i, j] = key.split(',').map(Number); return i && j && t.left[i - 1] === t.top[j - 1] ? { corner: '=', cls: 'eq' } : {}; },
-  fact: (t, { i, j }, id) => (id === 'same' ? !!(i && j && t.left[i - 1] === t.top[j - 1]) : !i && !j),
+  sense: (t, { i, j }, id) => (id === 'same' ? !!(i && j && t.left[i - 1] === t.top[j - 1]) : !i && !j),
   base: (t, o) => {
     if (!o.border0) return [];
     const b = [];
@@ -61,9 +61,9 @@ export const align = world(alignDef);
  */
 export const local = world({
   ...alignDef,
-  taps: { ...alignDef.taps, score: num(T('本格得分', 'cell score'), T('分', 'pts'), 'eq') },
+  sensors: { ...alignDef.sensors, score: num(T('本格得分', 'cell score'), T('分', 'pts'), 'eq') },
   facts: ['same', 'score'],
-  fact: (t, { i, j }, id) => { const same = !!(i && j && t.left[i - 1] === t.top[j - 1]); return id === 'same' ? same : same ? 2 : -1; },
+  sense: (t, { i, j }, id) => { const same = !!(i && j && t.left[i - 1] === t.top[j - 1]); return id === 'same' ? same : same ? 2 : -1; },
   answerKeys: t => { const k = []; for (let i = 1; i <= t.left.length; i++) for (let j = 1; j <= t.top.length; j++) k.push(`${i},${j}`); return k; },
   answer(t, table) { return Math.max(...this.answerKeys(t).map(k => table.get(k) ?? -Infinity)); },
 });

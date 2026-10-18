@@ -1,7 +1,7 @@
 // Chapter 9: greedy fails, the knapsack table works, and one in-place row works if it scans the right way.
 
 import { E, knapFig } from '../svg.js';
-import { circ, usesTap } from '../circuit/components.js';
+import { circ, usesSensor } from '../circuit/components.js';
 import { knapTrace } from '../algo.js';
 import { PACK_A, PACK_B, PACK_C } from './data.js';
 import { T, tr } from '../i18n.js';
@@ -27,7 +27,7 @@ export const knapsack = [
       { t: T('第 0 行是「一件都还没考虑」，所以全是 0，机器已经替你填好了。', 'Row 0 means “no items considered yet”, so it is all 0s, and the machine has already filled it in.'), fig: knapFig({ show: i => i === 0, cls: i => (i === 0 ? 'lit' : '') }) },
       { t: T('只看最后一件：第 i 件物品，要么<b>不拿</b>，要么<b>拿</b>。不拿的话，答案和正上方那一格一样。', 'Look only at the last item: item i is either <b>left out</b> or <b>taken</b>. If it is left out, the answer is the same as the cell right above.'), fig: knapFig({ show: (i, w) => i < 2 || w < 3, cls: (i, w) => (i === 2 && w === 3 ? 'sel' : i === 1 && w === 3 ? 'lit' : ''), edges: [['1,3', '2,3', 'hot']] }) },
       { t: T('拿的话呢？背包得先给它腾出空间。想一想：腾出空间<b>之前</b>，背包是表里的哪一格？拿上它以后又多了什么？最后，拿和不拿，你要的是哪一个？', 'And if it is taken? The backpack first has to make room for it. Think: <b>before</b> making room, which cell of the table is the backpack? What do you gain by taking the item? And in the end, between taking and leaving it, which do you want?'), fig: knapFig({ show: (i, w) => i < 2 || w < 3, cls: (i, w) => (i === 2 && w === 3 ? 'sel' : '') }) },
-      { t: T('这一关的机器人「长臂」站在 (第 i 行, 容量 w) 上。正上方的格子在视野里就能看到；可往左「重量」格可能很远，视野装不下。这就要用它的<b>伸缩臂</b>：视野下面的「伸缩臂」会伸到往左「这件物品的重量」格，上一行、本行各读一格，你可以点亮它要读的格子。「本格信息」里是这件物品的「物品价值」。', 'This level’s robot, Longarm, stands on (row i, capacity w). The cell right above is in its view, but the cell as many columns to the left as the item weighs may be far away, out of view. That is what its <b>telescopic arm</b> is for: the “Arm” under the view reaches left by “this item’s weight” cells and reads one cell on the row above and one on this row, and you can light up the cell you want it to read. The This cell panel holds this item’s “item value”.') },
+      { t: T('这一关的机器人「长臂」站在 (第 i 行, 容量 w) 上。正上方的格子在视野里就能看到；可往左「重量」格可能很远，视野装不下。这就要用它的<b>伸缩臂</b>：视野下面的「伸缩臂」会伸到往左「这件物品的重量」格，上一行、本行各读一格；点它够到的格子，「视野」卡片上就多一个输出口。「本格信息」里是这件物品的「物品价值」。', 'This level’s robot, Longarm, stands on (row i, capacity w). The cell right above is in its view, but the cell as many columns to the left as the item weighs may be far away, out of view. That is what its <b>telescopic arm</b> is for: the “Arm” under the view reaches left by “this item’s weight” cells and reads one cell on the row above and one on this row; click a cell it reaches, and the “View” card gains an output for it. The This cell panel holds this item’s “item value”.') },
     ],
     mission: { goal: T('总重量不能超过容量，每件物品最多拿一次。拼出背包表的电路，算出每个背包最多能装多少价值。', 'The total weight can’t exceed the capacity, and each item can be taken at most once. Build the knapsack table’s circuit and work out the most value each backpack can hold.'), how: T('前两个测试，就是你上一关亲手装过的背包。通过后，绿色格子是倒推出的装法。', 'The first two tests are the backpacks you packed by hand last level. Once you pass, the green cells show the packing traced back from the table.') },
     world: 'knap', facts: ['value'], palette: KIT,
@@ -37,7 +37,7 @@ export const knapsack = [
       T('每件物品都可以不拿：不拿的话，答案就是「正上方」。', 'Any item can be left out: then the answer is just “right above”.'),
       T('拿这件物品：先在上一行腾出它的重量，再加上它的价值。两种选择接进「取较大」汇合器。', 'Taking this item: make room for its weight on the row above, then add its value. Wire both choices into a “max” Merger.'),
     ],
-    diagnose: c => (usesTap(c, 'rowk') ? tr('同一行的格子已经考虑过这件物品了，从那里再拿，就把它拿了两次。要拿这件，得从上一行腾地方。', 'Cells on the same row have already considered this item, so taking it again from there takes it twice. To take this item, make room on the row above.') : null),
+    diagnose: c => (usesSensor(c, 'rowk') ? tr('同一行的格子已经考虑过这件物品了，从那里再拿，就把它拿了两次。要拿这件，得从上一行腾地方。', 'Cells on the same row have already considered this item, so taking it again from there takes it twice. To take this item, make room on the row above.') : null),
     trace: t => ({ path: knapTrace(t).cells }),
     after(t, view) {
       if (!view || !view.end || !view.pass) return '';
@@ -48,16 +48,66 @@ export const knapsack = [
     unlock: 'pack',
     debrief: { title: T('0/1 背包', '0/1 knapsack'), body: [T('每件物品只有两种命运：不拿（看正上方），或者拿（去上一行腾出它的重量，再加上它的价值），两者取较大。', 'Each item has only two fates: left out (look right above), or taken (make room for its weight on the row above, then add its value). Take the larger of the two.'), T('来路必须从<b>上一行</b>出发。上一行还没考虑过这件物品，从那里拿，才能保证它只被拿一次。', 'The way in must start from <b>the row above</b>. The row above hasn’t considered this item yet, so taking it from there guarantees it is taken only once.'), T('这个问题叫 <b>0/1 背包</b>。选课、做预算、装货柜、给服务器分配任务，背后都是它。', 'This problem is called the <b>0/1 knapsack</b>. Choosing courses, budgeting, loading shipping containers and assigning jobs to servers all come down to it.')], note: T('0/1 背包：不拿看正上方；拿就从上一行腾出重量，再加价值。', '0/1 knapsack: leave it out, look right above; take it, make room for its weight on the row above and add its value.') },
   },
+  // The knapsack series (长臂's topic): each kind as many times as you like, then a backpack that mixes both kinds. The
+  // finale's board solves the earlier level too: an item that is not marked `many` is taken at most once.
+  {
+    id: 'knapmany', ch: 9, title: T('每件可以拿多次', 'As many as you like'), short: T('同一种还能再拿', 'The same kind, again'), mode: 'circuit', robot: 'reach',
+    intro: [
+      { t: T('这一回在商店里装包：每种东西都有很多件，<b>同一种可以拿好几件</b>。总重量还是不能超过背包的容量。', 'This time you pack in a shop: there is plenty of every kind of thing, and <b>you can take several of the same kind</b>. The total weight still can’t exceed the backpack’s capacity.') },
+      { t: T('表还是那张背包表：格子 (第 i 行, 容量 w) 记着<b>只从前 i 种东西里挑、容量是 w 时，最多能装多少价值</b>。和「背包表」那一关比，只有一处不同：拿了一件之后，还可以再拿同一种。', 'The table is the same knapsack table: cell (row i, capacity w) records <b>the most value you can pack choosing only from the first i kinds, with capacity w</b>. Only one thing differs from the Knapsack table level: after taking one, you can take the same kind again.'), fig: knapFig() },
+      { t: T('伸缩臂照样伸到往左「这种东西的重量」格，上一行、本行各够到一格。', 'The telescopic arm still reaches as many columns to the left as this kind weighs, one cell on the row above and one on this row.') },
+    ],
+    mission: { goal: T('每种东西可以拿任意多件，总重量不能超过容量。拼出电路板，算出每个背包最多能装多少价值。', 'Each kind can be taken as many times as you like, and the total weight can’t exceed the capacity. Build the circuit board and work out the most value each backpack can hold.'), how: T('还是逐行、从左往右算。', 'Still row by row, left to right.') },
+    world: 'knap', facts: ['value'], palette: KIT,
+    tests: [
+      { W: 7, items: [{ n: T('苹果', 'apples'), w: 2, v: 3, many: true }, { n: T('西瓜', 'melons'), w: 3, v: 5, many: true }] },
+      { W: 10, items: [{ n: T('腊肉', 'bacon'), w: 6, v: 13, many: true }, { n: T('面粉', 'flour'), w: 5, v: 10, many: true }, { n: T('盐', 'salt'), w: 1, v: 1, many: true }] },
+      { W: 9, items: [{ n: T('面粉', 'flour'), w: 5, v: 9, many: true }, { n: T('大米', 'rice'), w: 3, v: 5, many: true }, { n: T('白糖', 'sugar'), w: 2, v: 3, many: true }] },
+    ],
+    solution: circ([['a', 'add'], ['m', 'mmax']], ['tap:rowk>a:0', 'tap:value>a:1', 'tap:up>m:0', 'a>m:1', 'm>out:cell']),
+    hints: [
+      T('这一种一件也不拿：答案还是正上方。', 'Taking none of this kind: the answer is still right above.'),
+      T('拿了一件，还能再拿：要找的是「已经考虑过这一种」的那一格。上一行还没考虑过它，本行已经考虑过了。', 'After taking one, you may take another: you want the cell that has “already considered this kind”. The row above hasn’t considered it yet; this row has.'),
+    ],
+    diagnose: c => (usesSensor(c, 'upk') && !usesSensor(c, 'rowk') ? tr('从上一行腾地方，每种东西就只拿了一件。这一关，同一种可以拿好几件。', 'Making room on the row above takes each kind only once. In this level, you can take several of the same kind.') : null),
+    boardOpt: { minScale: 0.68, maxScale: 1.15 },
+    debrief: { title: T('完全背包', 'Unbounded knapsack'), body: [T('从<b>本行</b>腾地方：本行已经考虑过这一种东西，在那里再拿一件，就是又多拿了一件。', 'Make room on <b>this row</b>: this row has already considered this kind, so taking one more from there is simply one more of it.'), T('和 0/1 背包只差一处：腾地方的那一格，从上一行换成了本行。这个问题叫<b>完全背包</b>（每种物品数量不限）。', 'It differs from the 0/1 knapsack in one place only: the cell that makes room moves from the row above to this row. This problem is called the <b>unbounded knapsack</b> (unlimited copies of each item).')] },
+  },
+  {
+    id: 'knapmix', ch: 9, title: T('混合背包', 'A mixed backpack'), short: T('有的只有一件', 'Some come only once'), mode: 'circuit', robot: 'reach',
+    intro: [
+      { t: T('出门之前去商店补货。<b>有的东西只有一件</b>，比如帐篷、相机；<b>有的要多少有多少</b>，比如矿泉水、饼干。物品栏里标着 ×n 的，可以拿很多件。', 'Before setting off, you stock up at a shop. <b>Some things come only once</b>, like the tent or the camera; <b>some come in any number</b>, like water or biscuits. Items marked ×n can be taken many times.') },
+      { t: T('本格信息里多了一条「这件能拿多次」。', 'The cell facts now include “can take many”.') },
+    ],
+    mission: { goal: T('每件东西要么最多拿一件，要么可以拿很多件，总重量不能超过容量。算出每个背包最多能装多少价值。', 'Each thing can be taken either at most once or as many times as you like, and the total weight can’t exceed the capacity. Work out the most value each backpack can hold.'), how: T('物品栏里标 ×n 的可以拿很多件。', 'Items marked ×n can be taken many times.') },
+    world: 'knap', facts: ['value', 'many'], palette: KIT,
+    tests: [
+      { W: 11, items: [{ n: T('帐篷', 'tent'), w: 5, v: 12 }, { n: T('矿泉水', 'water'), w: 4, v: 9, many: true }, { n: T('相机', 'camera'), w: 3, v: 7 }, { n: T('饼干', 'biscuits'), w: 2, v: 3, many: true }] },
+      { W: 8, items: [{ n: T('指南针', 'compass'), w: 3, v: 10 }, { n: T('罐头', 'cans'), w: 4, v: 9, many: true }, { n: T('能量棒', 'energy bars'), w: 1, v: 3, many: true }] },
+      { W: 8, items: [{ n: T('木柴', 'firewood'), w: 4, v: 4, many: true }, { n: T('绳子', 'rope'), w: 2, v: 4, many: true }, { n: T('药箱', 'medical kit'), w: 3, v: 13 }] },
+    ],
+    // Make room on this row for a kind that can be taken many times, on the row above for one taken at most once.
+    solution: circ([['a', 'pass'], ['b', 'block'], ['s', 'mmax'], ['p', 'add'], ['m', 'mmax']], ['tap:many>a:0', 'tap:rowk>a:1', 'tap:many>b:0', 'tap:upk>b:1', 'a>s:0', 'b>s:1', 's>p:0', 'tap:value>p:1', 'tap:up>m:0', 'p>m:1', 'm>out:cell']),
+    hints: [
+      T('两种东西的拿法只差一处：腾地方的那一格，在上一行，还是在本行。', 'The two kinds of thing differ in one place only: whether the cell that makes room is on the row above or on this row.'),
+      T('让「这件能拿多次」来挑那一格：一个闸门放行本行那格，另一个闸门放行上一行那格。', 'Let “can take many” pick that cell: one gate lets this row’s cell through, another lets the row above’s through.'),
+    ],
+    diagnose: c => (!usesSensor(c, 'many') ? tr('这一关有的东西只能拿一件，有的可以拿很多件。读一读「这件能拿多次」。', 'In this level some things can be taken only once and some many times. Read “can take many”.') : null),
+    boardOpt: { minScale: 0.68, maxScale: 1.15 },
+    debrief: { title: T('混合背包', 'Mixed knapsack'), body: [T('每一行只看这一种东西：最多拿一件，就从上一行腾地方；能拿很多件，就从本行腾地方。', 'Each row looks at one kind only: if it can be taken at most once, make room on the row above; if many times, make room on this row.'), T('前面两种背包都是它的特例：全都最多拿一件，就是 0/1 背包；全都能拿很多件，就是完全背包。这块电路板，也能直接解前一关。', 'The two earlier backpacks are special cases of it: everything at most once is the 0/1 knapsack, everything many times is the unbounded knapsack. This circuit board solves the previous level as it is.')] },
+  },
   {
     id: 'roll', ch: 9, title: T('压成一行', 'Squash it into one row'), short: T('改写的方向决定含义', 'The rewrite direction is the meaning'), mode: 'circuit', robot: 'reach', uses: ['pack'],
     intro: [
       { t: T('仔细看背包表：每一行只用到<b>上一行</b>。那何必留着整张表？只留一行，每处理一件物品，就在这一行上原地改写。', 'Look closely at the knapsack table: each row only uses <b>the row above</b>. So why keep the whole table? Keep just one row, and rewrite it in place for each item.'), fig: knapFig({ cls: i => (i === 0 ? 'dimc' : 'lit'), edges: [['1,3', '2,3', 'dim'], ['1,2', '2,3', 'dim']] }) },
       { t: T('原地改写有个风险：改 dp[w] 时要读 dp[w − 重量]。如果那一格<b>这一轮已经改过</b>，读到的就是「已经拿过这件物品」的值。', 'Rewriting in place carries a risk: rewriting dp[w] reads dp[w − weight]. If that cell <b>has already been rewritten this round</b>, what you read is a value where the item “has already been taken”.'), fig: { cells: [0, 1, 2, 3, 4].map(w => ({ id: `d${w}`, x: w * 56, y: 0, w: 46, h: 46, value: [0, 2, 4, '?', ''][w], corner: w, cls: w === 3 ? 'hot' : w === 1 ? 'bad' : w < 3 ? 'lit' : '' })), edges: [E('d1', 'd3', 'bad', -36)] } },
-      { t: T('这一关有两种背包：<b>每件最多拿一次</b>的，和<b>每件可以拿很多次</b>的（比如商店里每种东西都有很多件）。电路板不难：新的 dp[w] = 取较大（旧的 dp[w]，dp[w − 重量] + 价值）。视野里的红框 dp[w] 既是写入新值的地方，也可以点亮它，读出改写前的旧值；dp[w − 重量] 交给伸缩臂去读。', 'This level has two kinds of backpack: one where <b>each item can be taken at most once</b>, and one where <b>each item can be taken many times</b> (like a shop with plenty of everything). The board isn’t hard: new dp[w] = max(old dp[w], dp[w − weight] + value). The red frame dp[w] in the view is where the new value is written, and you can also light it up to read the old value before it is rewritten; dp[w − weight] is read by the arm.') },
-      { t: T('真正的难点是机器上的两个<b>方向开关</b>：处理一件物品时，从左往右改写，还是从右往左？给两种背包各拨一个方向。', 'The real puzzle is the machine’s two <b>direction switches</b>: when handling an item, do you rewrite from left to right, or from right to left? Set a direction for each kind of backpack.') },
+      { t: T('这一关有两种背包：<b>每件最多拿一次</b>的，和<b>每件可以拿很多次</b>的（比如商店里每种东西都有很多件）。电路板不难：新的 dp[w] = 取较大（旧的 dp[w]，dp[w − 重量] + 价值）。视野里的红框 dp[w] 是写入新值的地方，在视野里点它，读到的是改写前的旧值；dp[w − 重量] 由伸缩臂够到。', 'This level has two kinds of backpack: one where <b>each item can be taken at most once</b>, and one where <b>each item can be taken many times</b> (like a shop with plenty of everything). The board isn’t hard: new dp[w] = max(old dp[w], dp[w − weight] + value). The red frame dp[w] in the view is where the new value is written, and clicking it in the view reads the old value before it is rewritten; dp[w − weight] is what the telescopic arm reaches.') },
+      { t: T('真正的门道在机器的<b>改写方向</b>：每件最多拿一次时，它<b>从右往左</b>改写；每件可以拿很多次时，它<b>从左往右</b>改写。同一块电路板，为什么换个方向，答案就不一样？', 'The real trick is the machine’s <b>rewrite direction</b>: when each item can be taken at most once, it rewrites <b>right to left</b>; when each item can be taken many times, it rewrites <b>left to right</b>. Why does the same circuit board give different answers when only the direction changes?') },
     ],
-    mission: { goal: T('一种背包每件最多拿一次，另一种每件可以拿很多次，总重量都不能超过容量。拼好电路，再为两种背包各拨一个方向，让四个测试都算对。', 'In one kind of backpack each item can be taken at most once; in the other, many times. Either way, the total weight can’t exceed the capacity. Build the circuit, then set a direction for each kind so that all four tests come out right.'), how: T('方向开关在电路板下面。黄色是正在改写的格子；红色表示读到了这一轮刚改过的值。', 'The direction switches are under the circuit board. Yellow is the cell being rewritten; red means a value rewritten earlier this round was read.') },
+    mission: { goal: T('一种背包每件最多拿一次，另一种每件可以拿很多次，总重量都不能超过容量。拼好电路，让四个测试都算对。', 'In one kind of backpack each item can be taken at most once; in the other, many times. Either way, the total weight can’t exceed the capacity. Build the circuit so that all four tests come out right.'), how: T('黄色是正在改写的格子；红色表示读到了这一轮刚改过的值。', 'Yellow is the cell being rewritten; red means a value rewritten earlier this round was read.') },
     world: 'roll', facts: ['value'], palette: KIT, noTrace: true,
+    // A challenge: the naive board only ever takes the item, forgetting that leaving it out may be better.
+    naive: circ([['a', 'add']], ['tap:src>a:0', 'tap:value>a:1', 'a>out:cell']),
     dirs: { '01': 'asc', inf: 'desc' }, solutionDirs: { '01': 'desc', inf: 'asc' },
     tests: [
       { kind: '01', W: 6, items: [{ n: T('罐头', 'can'), w: 1, v: 1 }, { n: T('雨衣', 'raincoat'), w: 3, v: 4 }, { n: T('毯子', 'blanket'), w: 4, v: 5 }] },
@@ -67,9 +117,7 @@ export const knapsack = [
     ],
     solution: circ([['a', 'add'], ['m', 'mmax']], ['tap:src>a:0', 'tap:value>a:1', 'tap:old>m:0', 'a>m:1', 'm>out:cell']),
     diagnose(c, st) {
-      if (!['old', 'src', 'value'].every(id => usesTap(c, id))) return tr('电路板：新的 dp[w] = 取较大（旧的 dp[w]，dp[w − 重量] + 价值）。三个输入都要点亮。', 'The circuit board: new dp[w] = max(old dp[w], dp[w − weight] + value). All three inputs need to be lit.');
-      if (st.dirs['01'] !== 'desc') return tr('每件最多拿一次：改 dp[w] 时，要让 dp[w − 重量] 读到的还是旧值。dp[w − 重量] 在 dp[w] 的哪一边？', 'At most once each: when rewriting dp[w], dp[w − weight] must still hold its old value. Which side of dp[w] is dp[w − weight] on?');
-      if (st.dirs.inf !== 'asc') return tr('每件可以拿很多次：读到「已经拿过这件」的新值，正是我们想要的。', 'Many times each: reading a new value where the item “has already been taken” is exactly what we want.');
+      if (!['old', 'src', 'value'].every(id => usesSensor(c, id))) return tr('电路板：新的 dp[w] = 取较大（旧的 dp[w]，dp[w − 重量] + 价值）。三样都要读进来：旧的 dp[w]、dp[w − 重量] 和物品价值。', 'The circuit board: new dp[w] = max(old dp[w], dp[w − weight] + value). All three need reading in: the old dp[w], dp[w − weight] and the item value.');
       return null;
     },
     explain(t, res, st) {

@@ -71,6 +71,8 @@ export const rounds = [
     ],
     mission: { goal: T('只往右或往下走，每一步有 20% 的可能滑向另一个方向。每一格的价值 = 0.9 × 两个动作里较好的那个；往右 = 0.8 × 右边 + 0.2 × 下面，往下 = 0.8 × 下面 + 0.2 × 右边。', 'Move only right or down; every step has a 20% chance of sliding the other way. Each cell’s value = 0.9 × the better of the two actions; going right = 0.8 × right + 0.2 × down, going down = 0.8 × down + 0.2 × right.'), how: T('这一关会检查整张表。通过后，每一格会长出最好动作的箭头。', 'This level checks the whole table. Once you pass, each cell grows an arrow for its best action.') },
     world: 'vgrid', facts: [], palette: [...KIT, 'mul'], consts: [0, 0.1, 0.2, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
+    // A challenge: the naive board is the one from 格子世界, which takes the best move as if nothing slipped.
+    naive: circ([['a', 'mmax'], ['b', 'mmax'], ['k', 'const', 0.9], ['x', 'mul']], ['tap:up>a:0', 'tap:down>a:1', 'tap:left>a:2', 'a>b:0', 'tap:right>b:1', 'b>x:0', 'k>x:1', 'x>out:cell']),
     tests: [
       { R: 5, C: 6, gold: [3, 4], cliffs: [...rim(5, 6), [1, 2]], slip: 0.2 },
       { R: 4, C: 5, gold: [2, 3], cliffs: rim(4, 5), slip: 0.2 },

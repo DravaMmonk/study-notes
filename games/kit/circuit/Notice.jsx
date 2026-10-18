@@ -15,7 +15,7 @@ export default function Notice({ editing }) {
   return (
     <div className="ph-toast pb-toast" role="status">
       <span>{L(editing.toast)}</span>
-      {editing.canUndo && <button onClick={editing.undo}>{tr('撤销', 'Undo')}</button>}
+      {editing.history.canUndo && <button onClick={editing.history.undo}>{tr('撤销', 'Undo')}</button>}
     </div>
   )
 }

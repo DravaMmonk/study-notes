@@ -3,29 +3,34 @@
 import { E, W } from '../../svg.js';
 import { T, tr } from '../../i18n.js';
 import { signal } from '../../util.js';
-import { world, look, cell, num, THIS_CELL } from '../world.js';
+import { world, look, cell, num, yes, THIS_CELL } from '../world.js';
 
 const VALUE = T('物品价值', 'item value');
 
 /* ---------- knapsack table: rows are items, columns are capacities ---------- */
 
 const knap = world({
-  taps: { up: cell(T('正上方', 'right above'), T('上', 'up'), [0, -1, 0]), upk: num(T('上一行·左移重量', 'row above · back by weight'), T('上移', 'U−w')), rowk: num(T('同一行·左移重量', 'this row · back by weight'), T('本移', 'R−w')), value: num(VALUE, T('价', 'val'), 'gem') },
+  sensors: {
+    up: cell(T('正上方', 'right above'), '↑', [0, -1, 0]), upk: num(T('上一行·左移重量', 'row above · back by weight'), T('上移', 'U−w')), rowk: num(T('同一行·左移重量', 'this row · back by weight'), T('本移', 'R−w')), value: num(VALUE, T('价', 'val'), 'gem'),
+    // Whether this row's item can be taken as many times as you like (an item marked `many`), or at most once.
+    many: yes(T('这件能拿多次', 'can take many'), T('多', 'many'), 'many'),
+  },
   facts: ['value'],
-  armTaps: ['upk', 'rowk'],
+  armSensors: ['upk', 'rowk'],
   outs: [['cell', THIS_CELL, [0, 0, 0]]],
-  here: (t, { i, w }) => [[i, w]],
-  keyAt: (t, L, i, w) => (i >= 0 && i <= t.items.length && w >= 0 && w <= t.W ? `${i},${w}` : null),
+  here: (t, { i, w }) => [i, w],
+  keyAt: (t, i, w) => (i >= 0 && i <= t.items.length && w >= 0 && w <= t.W ? `${i},${w}` : null),
   mark: (t, key) => ({ corner: key.split(',')[1] }),
-  fact(t, { i, w }, id, get) {
+  sense(t, { i, w }, id, get) {
     const wt = t.items[i - 1].w;
     if (id === 'value') return t.items[i - 1].v;
+    if (id === 'many') return Boolean(t.items[i - 1].many);
     return w >= wt ? get(`${id === 'upk' ? i - 1 : i},${w - wt}`) : null;
   },
   /** The arm reaches back by this item's weight, on the row above and on this row. */
   arm(t, { i, w }) {
     const k = w - t.items[i - 1].w, key = y => (k >= 0 ? `${y},${k}` : null);
-    return { label: tr(`往左 ${t.items[i - 1].w} 格`, `${t.items[i - 1].w} left`), cells: [{ tap: 'upk', key: key(i - 1), label: tr('上行', 'above') }, { tap: 'rowk', key: key(i), label: tr('本行', 'this row') }] };
+    return { label: tr(`往左 ${t.items[i - 1].w} 格`, `${t.items[i - 1].w} left`), cells: [{ sensor: 'upk', key: key(i - 1), label: tr('上行', 'above') }, { sensor: 'rowk', key: key(i), label: tr('本行', 'this row') }] };
   },
   base: t => Array.from({ length: t.W + 1 }, (_, w) => [`0,${w}`, 0]),
   order(t) {
@@ -46,7 +51,8 @@ const knap = world({
     const g = look(view, [knap.answerKey(t)], knap.base(t), o.bench), sp = 50, sz = 44, cells = [], path = new Set(o.path || []);
     const texts = [{ x: -sz / 2 - 10, y: -sp + 19, t: W.capacity, anchor: 'end' }];
     for (let w = 0; w <= t.W; w++) cells.push({ id: `ax${w}`, x: w * sp, y: -sp + 14, w: sz, h: 26, value: w, cls: 'axis' });
-    [tr('不放东西', 'nothing'), ...t.items.map(it => `${it.n} ${it.w}kg · ${it.v}`)].forEach((lb, i) => {
+    // An item that can be taken many times is marked ×n.
+    [tr('不放东西', 'nothing'), ...t.items.map(it => `${it.n} ${it.w}kg · ${it.v}${it.many ? ' ×n' : ''}`)].forEach((lb, i) => {
       texts.push({ x: -sz / 2 - 10, y: i * sp + 5, t: lb, anchor: 'end', cls: g.act && g.act.cell.i === i ? 'hd' : '' });
       for (let w = 0; w <= t.W; w++) {
         const id = `${i},${w}`;
@@ -60,15 +66,15 @@ const knap = world({
 /* ---------- rolling array: one row rewritten in place, item by item ---------- */
 
 const roll = world({
-  taps: { old: cell(T('旧的 dp[w]', 'old dp[w]'), T('旧', 'old'), [0, 0, 0]), src: num(T('dp[w − 重量]', 'dp[w − weight]'), T('移', '−w')), value: num(VALUE, T('价', 'val'), 'gem') },
+  sensors: { old: cell(T('旧的 dp[w]', 'old dp[w]'), T('旧', 'old'), [0, 0, 0]), src: num(T('dp[w − 重量]', 'dp[w − weight]'), T('移', '−w')), value: num(VALUE, T('价', 'val'), 'gem') },
   facts: ['value'],
-  armTaps: ['src'],
+  armSensors: ['src'],
   outs: [['cell', T('新的 dp[w]', 'new dp[w]'), [0, 0, 0]]],
-  here: (t, { w }) => [[0, w]],
-  keyAt: (t, L, r, c) => (r === 0 && c >= 0 && c <= t.W ? String(c) : null),
+  here: (t, { w }) => [0, w],
+  keyAt: (t, r, c) => (r === 0 && c >= 0 && c <= t.W ? String(c) : null),
   mark: (t, key) => ({ corner: key }),
-  fact: (t, x, id, get) => (id === 'src' ? get(String(x.src)) : t.items[x.item].v),
-  arm: (t, { item, src }) => ({ label: tr(`往左 ${t.items[item].w} 格`, `${t.items[item].w} left`), cells: [{ tap: 'src', key: src >= 0 ? String(src) : null, label: 'dp' }] }),
+  sense: (t, x, id, get) => (id === 'src' ? get(String(x.src)) : t.items[x.item].v),
+  arm: (t, { item, src }) => ({ label: tr(`往左 ${t.items[item].w} 格`, `${t.items[item].w} left`), cells: [{ sensor: 'src', key: src >= 0 ? String(src) : null, label: 'dp' }] }),
   base: t => Array.from({ length: t.W + 1 }, (_, w) => [String(w), 0]),
   order(t, o) {
     const cells = [];

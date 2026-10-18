@@ -6,23 +6,23 @@ import { world, look, cell, yes, seg, THIS_CELL } from '../world.js';
 
 /**
  * A one-row world. spec = { noun(i), out, ground: [label, short, icon], near: { m1, m2, p1 } labels, label(t),
- * orderText?, cellType?, top?(t) letters drawn over the row, arm?, armTaps?, fact? (for the arm's segment) }.
+ * orderText?, cellType?, top?(t) letters drawn over the row, arm?, armSensor? (the arm's segment sensor), segment? }.
  */
 function line(spec) {
   const at = String, size = t => (spec.size ? spec.size(t) : t.n);
   const V = world({
     cellType: spec.cellType,
-    taps: {
+    sensors: {
       m2: cell(...spec.near.m2, [0, 0, -2]), m1: cell(...spec.near.m1, [0, 0, -1]), p1: cell(...spec.near.p1, [0, 0, 1]),
-      ground: yes(...spec.ground), ...(spec.armTaps ? { seg: seg(...spec.armTaps) } : {}),
+      ground: yes(...spec.ground), ...(spec.armSensor ? { seg: seg(...spec.armSensor) } : {}),
     },
     facts: ['ground'],
-    armTaps: spec.armTaps ? ['seg'] : undefined,
+    armSensors: spec.armSensor ? ['seg'] : undefined,
     outs: [['cell', spec.out, [0, 0, 0]]],
-    here: (t, { i }) => [[0, i]],
-    keyAt: (t, L, r, c) => (r === 0 && c >= 0 && c <= size(t) ? at(c) : null),
+    here: (t, { i }) => [0, i],
+    keyAt: (t, r, c) => (r === 0 && c >= 0 && c <= size(t) ? at(c) : null),
     mark: (t, key) => ({ corner: key }),
-    fact: (t, x, id, get, o) => (id === 'ground' ? x.i === 0 : spec.segment(t, x, get, o)),
+    sense: (t, x, id, get, o) => (id === 'ground' ? x.i === 0 : spec.segment(t, x, get, o)),
     arm: spec.arm,
     order: t => Array.from({ length: size(t) + 1 }, (_, i) => ({ i, id: at(i) })),
     keys: (t, x) => ({ cell: x.id }),
@@ -60,8 +60,8 @@ export const pile = line({
 export const coins = line({
   noun: i => tr(`${i} 元`, `${i} yuan`), out: THIS_CELL, ground: [T('是 0 元', 'is 0 yuan'), T('零', '0'), 'coin'], label: t => tr(`${t.n} 元 · 硬币 ${t.coins.join('、')}`, `${t.n} yuan · coins ${t.coins.join(', ')}`), orderText: T('从 0 元往上', 'from 0 yuan upward'),
   near: { m2: [T('少 2 元', '2 yuan less'), '−2'], m1: [T('少 1 元', '1 yuan less'), '−1'], p1: [T('多 1 元', '1 yuan more'), '+1'] },
-  armTaps: [T('退一枚硬币之后', 'one coin back'), T('退', 'back')],
-  arm: (t, { i }) => ({ label: tr('每种硬币各退一枚', 'one coin of each kind back'), sweeps: [{ tap: 'seg', label: tr('付掉一枚硬币之前', 'before paying one coin'), cells: t.coins.map(c => ({ key: i - c >= 0 ? String(i - c) : null, label: `−${c}` })) }] }),
+  armSensor: [T('退一枚硬币之后', 'one coin back'), T('退', 'back')],
+  arm: (t, { i }) => ({ label: tr('每种硬币各退一枚', 'one coin of each kind back'), sweeps: [{ sensor: 'seg', label: tr('付掉一枚硬币之前', 'before paying one coin'), cells: t.coins.map(c => ({ key: i - c >= 0 ? String(i - c) : null, label: `−${c}` })) }] }),
   segment: (t, { i }, get) => t.coins.map(c => (i - c >= 0 ? get(String(i - c)) : null)),
 });
 
@@ -69,10 +69,10 @@ export const coins = line({
 export const words = line({
   cellType: 'bool', size: t => t.s.length, noun: i => tr(`前 ${i} 个字母`, `first ${i} letter${i === 1 ? '' : 's'}`), out: T('切得开吗', 'can it split'), ground: [T('是开头', 'is start'), T('头', 'start'), 'flag'], label: t => t.s, orderText: T('从开头往右', 'from the start rightward'), top: t => t.s,
   near: { m2: [T('少 2 个字母', '2 letters fewer'), '−2'], m1: [T('少 1 个字母', '1 letter fewer'), '−1'], p1: [T('多 1 个字母', '1 letter more'), '+1'] },
-  armTaps: [T('前面每个位置', 'every earlier position'), T('扫', 'scan'), 'bools'],
+  armSensor: [T('前面每个位置', 'every earlier position'), T('扫', 'scan'), 'bools'],
   arm(t, { i }, o) {
     const cells = Array.from({ length: i }, (_, j) => { const w = t.s.slice(j, i); return { key: String(j), label: w, out: o.filter === 'word' && !t.dict.includes(w) }; });
-    return { label: tr('扫过前面每个位置', 'sweeps every earlier position'), sweeps: [{ tap: 'seg', label: tr('从那个位置到这里', 'from there to here'), cells }], filters: [{ v: 'all', l: tr('全部', 'all') }, { v: 'word', l: tr('只留刚好是一个词的', 'only the ones that are exactly a word') }] };
+    return { label: tr('扫过前面每个位置', 'sweeps every earlier position'), sweeps: [{ sensor: 'seg', label: tr('从那个位置到这里', 'from there to here'), cells }], filters: [{ v: 'all', l: tr('全部', 'all') }, { v: 'word', l: tr('只留刚好是一个词的', 'only the ones that are exactly a word') }] };
   },
   segment: (t, { i }, get, o) => Array.from({ length: i }, (_, j) => j).filter(j => o.filter !== 'word' || t.dict.includes(t.s.slice(j, i))).map(j => get(String(j))),
 });

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Pause, Play, StepForward } from 'lucide-react'
-import { Brief, PhonePage, RunDock, Sheet, Workbench, tr } from '../../kit/shell/index.js'
+import { Pause, Play, StepForward, Trash2 } from 'lucide-react'
+import { Brief, CircuitLayout, PhonePage, RunDock, Sheet, TestStatus, Workbench, tr } from '../../kit/shell/index.js'
 import { enableDrag } from '../../kit/drag.js'
 import { buzz, reduced } from './util.js'
 import { sceneSVG } from './svg.js'
@@ -19,7 +19,7 @@ const FOCUS_KEYS = ['act', 'c', 'j', 'k', 'r', 'g', 's', 'o', 'p', 'n', 't', 'v'
 const focusSig = (el) => FOCUS_KEYS.map((k) => el.dataset[k] || '').join('|')
 const overlayOpen = () => Boolean(document.querySelector('.dialog-scrim, .ph-scrim, .intro-scrim'))
 
-export default function ModeScreen({ game, level, saved, save, solve, fail, phone }) {
+export default function ModeScreen({ game, level, saved, save, solve, fail, flags, phone }) {
   const L = level.source
   const root = useRef(null)
   const [sheet, setSheet] = useState(null) // { html, acts, redraw } of a sheet the mode opened
@@ -36,7 +36,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
   if (!cur.current) {
     cur.current = { L, i: level.index, fails: 0, running: false, ctl: null }
     rt.cur = cur.current
-    cur.current.ctl = MODES[L.mode](L, saved)
+    cur.current.ctl = MODES[L.mode](L, saved, { flags })
   }
   const ctl = cur.current.ctl
   // The shell's callbacks change identity on every render of the shell; the modes always reach the latest ones.
@@ -50,10 +50,16 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
     rt.cur = cur.current
 
     const renderBoard = () => {
+      // The board gets the width it has (the outputs pane on a desktop circuit level, the page on a phone), so a board
+      // of several layers lays them side by side before it wraps.
+      const pane = !phone && ctl.panelStage ? el.querySelector('.kc-outputs > .kc-pane-body') : q('.sg-board')
+      const pad = pane ? getComputedStyle(pane) : null
+      rt.boardWidth = pane ? pane.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight) : 0
       if (ctl.custom) q('.sg-board').innerHTML = ctl.custom()
       else q('.sg-board').innerHTML = sceneSVG(ctl.scene(), { label: tr('棋盘', 'Board'), ...(ctl.boardOpt ? ctl.boardOpt() : { maxScale: 1.25 }) })
       q('.bnote').textContent = ctl.note ? ctl.note() : ''
       q('#after').innerHTML = ctl.after ? ctl.after() : ''
+      if (!phone && ctl.panelStage) fitBoard(el)
     }
     const renderTests = () => {
       const box = q('#tests')
@@ -67,7 +73,8 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       const sig = a && a.dataset && el.contains(a) && (a.dataset.act || a.dataset.test) ? focusSig(a) : null
       renderTests()
       // On a desktop the robot's window sits beside the test board it stands on.
-      q('#view').innerHTML = ctl.sideView && !phone ? '<aside class="cview" id="cview"></aside>' : ''
+      const view = q('#view')
+      if (view) view.innerHTML = ctl.sideView && !phone ? '<aside class="cview" id="cview"></aside>' : ''
       renderBoard()
       q('#panel').innerHTML = ctl.panel()
       const after = q('#panelAfter')
@@ -197,6 +204,10 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
     const panel = el.querySelector('#panel')
     const resize = new ResizeObserver(() => ctl.mounted?.())
     resize.observe(panel)
+    // On a desktop circuit level the test board follows the strip it sits in as that is dragged taller or shorter.
+    const strip = !phone && ctl.panelStage ? el.querySelector('.kc-outputs > .kc-pane-body') : null
+    const refit = new ResizeObserver(() => rt.renderBoard())
+    if (strip) refit.observe(strip)
     return () => {
       el.removeEventListener('click', onClick)
       el.removeEventListener('keydown', onBoardKey)
@@ -205,6 +216,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       window.removeEventListener('langchange', onLang)
       if (typeof undrag === 'function') undrag()
       resize.disconnect()
+      refit.disconnect()
       if (cur.current.running) Anim.skip()
       if (rt.cur === cur.current) rt.cur = null
     }
@@ -230,8 +242,8 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       hint={ctl.hints ? ctl.hints() : L.hints ?? (L.hint ? [L.hint()] : null)}
     >
       {!phone && !ctl.board && <section className="parts" id="parts" data-trash />}
-      {/* A circuit level on a desktop: under the task, the level's own choices (what the state remembers, the scan
-          order, the rewrite directions). The parts are a row over the board. */}
+      {/* A circuit level on a desktop: under the task, the robot this level gives you (ctl.panel). The parts are a row
+          over the board. */}
       {!phone && ctl.board && (
         <div className="sg-extras">
           <div id="panel" />
@@ -241,7 +253,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
     </Brief>
   )
   // The mode's regions. Each is painted by the mode (innerHTML), never by React, so they have no React children.
-  // On a desktop circuit level the robot's window is not in the card but beside it, over the run bar (below).
+  // On a desktop circuit level the cell's facts are not in the card: they are the strip's inputs pane (below).
   const viewApart = !phone && Boolean(ctl.panelStage)
   const bcard = (
     <section className="bcard" aria-label={tr('棋盘', 'Board')}>
@@ -263,7 +275,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
         <RunDock
           meta={d.meta ? html(d.meta) : null}
           controls={(d.ctrl ?? []).map((c) => ({ key: c.act, label: c.label, icon: CTRL_ICON[c.icon], attrs: { 'data-act': c.act } }))}
-          secondary={d.sec ? { label: html(d.sec), armed: Boolean(ctl.st?.armed), attrs: { 'data-act': d.secAct } } : null}
+          secondary={d.sec ? { label: html(d.sec), icon: d.secAct === 'clear' ? <Trash2 size={16} /> : undefined, armed: Boolean(ctl.st?.armed), attrs: { 'data-act': d.secAct } } : null}
           go={d.go ? { label: d.go, busy: Boolean(d.busy), pulse: Boolean(L.coach && L.coach(ctl.st).run), icon: !d.busy && d.goIcon ? <i className="run-icon" dangerouslySetInnerHTML={{ __html: d.goIcon }} /> : undefined, attrs: { 'data-act': d.act } } : null}
         />
       )}
@@ -277,12 +289,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
         <div id="panel" />
         <div id="panelAfter" />
       </div>
-    ) : (
-      <div className="panel sg-boardpanel">
-        <div className="sg-toolbar" aria-label={tr('元件', 'Parts')}><SgParts board={ctl.board} /></div>
-        <SgCanvas board={ctl.board} />
-      </div>
-    )
+    ) : null
   ) : <div className="panel" id="panel" />
   const modeSheet = sheet && (
     <Sheet onClose={() => setSheet(null)}>
@@ -306,7 +313,6 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       <PhonePage rootRef={root} brief={brief} className="sg-level is-circuit">
         {bcard}
         {panel}
-        <aside className="cview" id="cview" />
         <SgPhone board={ctl.board} rootRef={root} dock={dock} />
         <div className="toast" id="toast" role="status" />
         {modeSheet}
@@ -327,30 +333,50 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
       </PhonePage>
     )
   }
-  const stageFirst = ctl.panelStage
+  // A circuit level on a desktop: the kit's circuit layout, as in every game. What the robot reads (a click adds or
+  // removes that output on 视野 or 本格信息) is the strip's left side; the tests and the test board its right.
+  if (ctl.panelStage) {
+    const states = (ctl.tests ? ctl.tests() : []).map((t) => (['pass', 'fail', 'run'].includes(t.status) ? t.status : null))
+    return (
+      <>
+        <CircuitLayout
+          rootRef={root}
+          className="sg-level panel-stage"
+          brief={brief}
+          parts={<SgParts board={ctl.board} />}
+          canvas={<SgCanvas board={ctl.board} />}
+          inputs={ctl.hasInputs && ctl.hasInputs() ? <div id="view" /> : null}
+          inputsTitle={tr('输入 · 点一下就接上', 'Inputs · click to wire in')}
+          tests={<div className="tests" id="tests" role="tablist" aria-label={tr('测试', 'Tests')} />}
+          status={<TestStatus states={states} />}
+          outputs={
+            <section className="bcard" aria-label={tr('棋盘', 'Board')}>
+              {ctl.boardHint && ctl.boardHint() && <p className="bhint">{ctl.boardHint()}</p>}
+              <div className="board sg-board" />
+              <div id="after" />
+            </section>
+          }
+          outputsTitle={tr('输出 · 测试棋盘', 'Outputs · test board')}
+          outputsAside={<p className="bnote" />}
+          actions={dock}
+        />
+        <div className="toast" id="toast" role="status" />
+        {modeSheet}
+      </>
+    )
+  }
   return (
     <>
       <Workbench
         rootRef={root}
-        className={`sg-level ${stageFirst ? 'panel-stage' : ''}`}
+        className="sg-level"
         brief={brief}
-        stage={stageFirst ? panel : bcard}
+        stage={bcard}
         side={
-          stageFirst ? (
-            <aside className="sg-side">
-              <WorldHandle rootRef={root} />
-              {bcard}
-              <div className="sg-world-side">
-                <div id="view" />
-                {dock}
-              </div>
-            </aside>
-          ) : (
-            <aside className="sg-side">
-              {panel}
-              {dock}
-            </aside>
-          )
+          <aside className="sg-side">
+            {panel}
+            {dock}
+          </aside>
         }
       />
       <div className="toast" id="toast" role="status" />
@@ -360,46 +386,34 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
 }
 
 /**
- * On a circuit level the test board and the robot's view are a strip under the board; the line along its top drags
- * it taller or shorter (remembered), so a big board can be read and a big circuit can be built.
+ * The test board in the strip under a circuit: as large as fits the strip (width and height) up to the board's own
+ * largest size, but never under its smallest readable one; a board too big for the strip at that size scrolls in it.
+ * Its smallest and largest sizes are the ones sceneSVG wrote (min-width / max-width, from the mode's boardOpt).
  */
-const WORLD_KEY = 'sg-world-h'
-function WorldHandle({ rootRef }) {
-  useLayoutEffect(() => {
-    let h = null
-    try { h = Number(localStorage.getItem(WORLD_KEY)) || null } catch { /* storage may be off */ }
-    if (h) rootRef.current?.style.setProperty('--world-h', `${h}px`)
-  }, [rootRef])
-  const size = (h) => {
-    const el = rootRef.current
-    if (!el) return null
-    const top = el.getBoundingClientRect().top
-    const next = Math.round(Math.min(Math.max(h, 150), (window.innerHeight - top) * 0.78))
-    el.style.setProperty('--world-h', `${next}px`)
-    return next
+const READABLE = 34
+function fitBoard(root) {
+  const body = root.querySelector('.kc-outputs > .kc-pane-body')
+  const card = body?.querySelector('.bcard')
+  const svg = card?.querySelector('.sg-board > .board-svg')
+  if (!svg || !body.clientWidth) return
+  if (!svg.dataset.min) {
+    svg.dataset.min = parseFloat(svg.style.minWidth) || 0
+    svg.dataset.max = parseFloat(svg.style.maxWidth) || Infinity
   }
-  const down = (event) => {
-    event.preventDefault()
-    const bottom = rootRef.current.getBoundingClientRect().bottom
-    let last = null
-    const move = (e) => { last = size(bottom - e.clientY) }
-    const up = () => {
-      window.removeEventListener('pointermove', move)
-      window.removeEventListener('pointerup', up)
-      try { if (last) localStorage.setItem(WORLD_KEY, String(last)) } catch { /* storage may be off */ }
-    }
-    window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
-  }
-  const key = (event) => {
-    const now = rootRef.current.querySelector('.sg-side').getBoundingClientRect().height
-    const step = event.key === 'ArrowUp' ? 40 : event.key === 'ArrowDown' ? -40 : 0
-    if (!step) return
-    event.preventDefault()
-    const next = size(now + step)
-    try { if (next) localStorage.setItem(WORLD_KEY, String(next)) } catch { /* storage may be off */ }
-  }
-  return <div className="sg-resize" role="separator" aria-orientation="horizontal" aria-label={tr('拖动调整棋盘区高度', 'Drag to resize the board area')} tabIndex={0} onPointerDown={down} onKeyDown={key} />
+  const [, , vw, vh] = svg.getAttribute('viewBox').split(' ').map(Number)
+  const gap = parseFloat(getComputedStyle(card).rowGap) || 0
+  const pad = getComputedStyle(body)
+  const shown = [...card.children].filter((c) => !c.classList.contains('sg-board') && c.offsetHeight)
+  const others = shown.reduce((h, c) => h + c.offsetHeight + gap, 0)
+  const w = body.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight)
+  const h = body.clientHeight - parseFloat(pad.paddingTop) - parseFloat(pad.paddingBottom) - others - 4
+  // Cells stay at least READABLE px across, however many there are (a board of many layers runs wider and scrolls).
+  const sizes = [...svg.querySelectorAll('g.cell:not(.axis) > rect')].map((r) => +r.getAttribute('width')).sort((a, b) => a - b)
+  const cell = sizes[Math.floor(sizes.length / 2)] || 0
+  const floor = cell ? (vw * READABLE) / cell : +svg.dataset.min
+  const fits = Math.min(w, (h / vh) * vw)
+  const width = Math.max(floor, Math.min(+svg.dataset.max, fits))
+  Object.assign(svg.style, { width: `${Math.round(width)}px`, minWidth: '0', maxWidth: 'none' })
 }
 
 const CTRL_ICON = { step: <StepForward size={16} />, pause: <Pause size={16} />, play: <Play size={16} /> }

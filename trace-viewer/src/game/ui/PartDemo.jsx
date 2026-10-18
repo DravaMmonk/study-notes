@@ -7,6 +7,7 @@ import { LEVELS } from '../levels/index.js'
 import Editor from './Editor.jsx'
 import { describe } from './catalog.js'
 import { partsFor } from './parts.js'
+import { levelSensors } from './sensors.js'
 import { ChoiceEditor, KernelEditor, NumberEditor } from './phone/Editors.jsx'
 import { setParam } from './phone/ops.js'
 import { ParamChip } from './phone/parts.jsx'
@@ -30,7 +31,6 @@ const REWRITE = {
     wires: [...g.wires.filter((w) => !['x', 'a'].includes(w.to) && !['x', 'a'].includes(w.from)), { from: 'm', to: 'r', port: 'μ' }, { from: 's', to: 'r', port: 'σ' }, { from: 'eps', to: 'r', port: 'ε' }, { from: 'r', to: 'd', port: 'in' }],
   }),
 }
-const INPUT_LABELS = { left: { zh: '左图', en: 'Left image' }, right: { zh: '右图', en: 'Right image' }, scene: { zh: '现场', en: 'Scene' }, empty: { zh: '空场', en: 'Empty scene' } }
 
 function benchFor(flag, type, sample = false) {
   // A setting rather than a part is tried on the part it belongs to.
@@ -61,14 +61,14 @@ function benchFor(flag, type, sample = false) {
     }
   }
   const outputs = graph.nodes.filter((n) => n.type === 'output').map((n) => n.params.name)
-  const bench = { kind: 'graph', inputs: names, outputs, tests, check: source.check, views: source.views, inputLabels: source.inputLabels ?? (names.length > 1 ? INPUT_LABELS : {}), outputLabels: source.outputLabels ?? {} }
+  const bench = { kind: 'graph', inputs: names, outputs, tests, check: source.check, views: source.views, inputLabels: source.inputLabels, outputLabels: source.outputLabels ?? {} }
   const first = runLevel(bench, graph).results[0]
   // A part its level's own tests do not suit (the spectrum, met on a 1-D signal, is a 2-D part) is tried on the
   // sample pictures instead.
   const broken = !first || first.errors.size > 0 || Object.values(first.outputs).some((img) => !img || Array.from(img.data).some(Number.isNaN))
   if (broken && !sample && source.id !== SAMPLE && !SOLUTION_OF[flag]) return benchFor(flag, type, true)
   const ioKinds = Object.fromEntries([...Object.entries(tests[0]?.inputs ?? {}), ...outputs.map((name) => [name, first?.outputs[name]])].map(([name, value]) => [name, kindOf(value)]))
-  return { bench, graph, nodeType, ioKinds, views: { in: viewFor(source, 'in'), out: viewFor(source, 'out'), mid: viewFor(source, 'mid') } }
+  return { bench, graph, nodeType, ioKinds, sensors: levelSensors(bench), views: { in: viewFor(source, 'in'), out: viewFor(source, 'out'), mid: viewFor(source, 'mid') } }
 }
 
 export default function PartDemo({ flag, type, flags, phone }) {
@@ -79,7 +79,7 @@ export default function PartDemo({ flag, type, flags, phone }) {
   const [stale, setStale] = useState(false)
   const [scan, setScan] = useState(0.5)
   const [sel, setSel] = useState(null) // the block tapped on a phone
-  const parts = useMemo(() => made && partsFor({ inputLabels: made.bench.inputLabels, outputLabels: made.bench.outputLabels, sources: made.graph.nodes.filter((n) => n.type === 'input').length }), [made])
+  const parts = useMemo(() => made && partsFor({ sensors: made.sensors, outputLabels: made.bench.outputLabels }), [made])
   if (!made) return null
 
   // Cards move freely and settings change; the circuit itself stays as it is.
@@ -110,7 +110,7 @@ export default function PartDemo({ flag, type, flags, phone }) {
   if (!phone) {
     return (
       <DemoBench {...common} note={{ zh: '换一张测试图、改改卡片上的设置，再点运行，看看每张卡片输出什么。', en: 'Pick another test picture or change a setting on a card, then run it and see what every card puts out.' }}>
-        <Editor graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} inputLabels={made.bench.inputLabels} outputLabels={made.bench.outputLabels} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
+        <Editor graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} sensors={made.sensors} outputLabels={made.bench.outputLabels} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
       </DemoBench>
     )
   }

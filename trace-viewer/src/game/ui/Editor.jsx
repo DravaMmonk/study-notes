@@ -1,6 +1,6 @@
 import { createElement, useEffect, useMemo, useState } from 'react'
 import { Check, RotateCcw } from 'lucide-react'
-import { CanvasEditor } from '../../../../games/kit/circuit/index.js'
+import { CanvasEditor, sensorCaption } from '../../../../games/kit/circuit/index.js'
 import { L, tr } from '../../../../games/kit/shell/i18n.js'
 import { NODE_TYPES } from '../engine/nodes.js'
 import ParamControl from './ParamControl.jsx'
@@ -14,13 +14,12 @@ import { IMAGE_VIEWS, KIND_NAMES, kindOf, nodeView } from './views/views.js'
 
 const NODE_W = 140
 
-export default function Editor({ graph, onChange, run, testIndex, flags, inputLabels, outputLabels, views, ioKinds, scan, onScan, theme, hasPalette, focus, refit }) {
+export default function Editor({ graph, onChange, run, testIndex, flags, sensors, outputLabels, views, ioKinds, scan, onScan, theme, hasPalette, focus, refit }) {
   const [peek, setPeek] = useState(null)
   const [menu, setMenu] = useState(null) // id of the card whose view menu is open
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
-  const sources = graph.nodes.filter((n) => n.type === 'input').length
-  const parts = useMemo(() => partsFor({ inputLabels, outputLabels, sources }), [inputLabels, outputLabels, sources])
+  const parts = useMemo(() => partsFor({ sensors, outputLabels }), [sensors, outputLabels])
 
   // Choosing a view changes nothing in the circuit: it is saved, but tests do not re-run.
   const viewOf = (node) => nodeView(node, views)
@@ -97,9 +96,9 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
   }
   // The input and output cards say under their title what they carry, so a long label never pushes the badge off.
   const caption = (node) => {
+    if (node.type === 'input') { const s = sensors?.[node.params.name]; return sensorCaption(s, KIND_NAMES[s?.type]) }
     const kind = L(KIND_NAMES[ioKinds?.[node.params.name]])
-    const custom = node.type === 'input' ? inputLabels?.[node.params.name] : outputLabels?.[node.params.name]
-    return [custom ? (node.type === 'input' ? tr('输入', 'input') : tr('输出', 'output')) : null, kind].filter(Boolean).join(' · ')
+    return [outputLabels?.[node.params.name] ? tr('输出', 'output') : null, kind].filter(Boolean).join(' · ')
   }
   const cardClass = (node) => {
     const check = checkOf(node)
@@ -119,7 +118,7 @@ export default function Editor({ graph, onChange, run, testIndex, flags, inputLa
       refit={refit}
       wireState={(wire) => (values?.get(wire.from) ? 'live' : 'dead')}
       width={NODE_W}
-      emptyNote={hasPalette && { zh: '从左边选一个元件放上来，再从卡片右侧的圆点拖线连接。', en: 'Pick a part on the left to place it, then drag a wire from the dot on the right of a card.' }}
+      emptyNote={hasPalette && { zh: '从上面一排元件里选一个放上来，再从卡片右侧的圆点拖线连接。', en: 'Pick a part from the row above to place it, then drag a wire from the dot on the right of a card.' }}
       overlay={imageCards.length > 0 && (
         <div className="board-views" role="group" aria-label={tr('所有图像卡片的显示方式', 'Display of every image card')} onPointerDown={(e) => e.stopPropagation()}>
           <span className="board-views-label">{tr('全部画成', 'Draw all as')}</span>

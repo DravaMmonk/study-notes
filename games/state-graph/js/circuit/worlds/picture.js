@@ -28,23 +28,25 @@ export function seamPath(img) {
   }
   return path;
 }
+/** A test's energies: given outright (t.energy, for a small picture of plain numbers), or worked out from its pixels. */
+const energyOf = t => t.energy || energy(t.img);
 export const shade = v => `color-mix(in srgb, var(--ink) ${Math.round(8 + v * 9)}%, var(--chip))`;
 
 export const pic = world({
   ...gridDef,
-  taps: { ul: gridDef.taps.ul, up: gridDef.taps.up, ur: gridDef.taps.ur, left: gridDef.taps.left, right: gridDef.taps.right, dl: gridDef.taps.dl, down: gridDef.taps.down, dr: gridDef.taps.dr, energy: num(T('本格能量', 'pixel energy'), T('能', 'E'), 'bolt'), top: yes(T('是顶行', 'is top row'), T('顶', 'top'), 'flag') },
+  sensors: { ul: gridDef.sensors.ul, up: gridDef.sensors.up, ur: gridDef.sensors.ur, left: gridDef.sensors.left, right: gridDef.sensors.right, dl: gridDef.sensors.dl, down: gridDef.sensors.down, dr: gridDef.sensors.dr, energy: num(T('本格能量', 'pixel energy'), T('能', 'E'), 'bolt'), top: yes(T('是顶行', 'is top row'), T('顶', 'top'), 'flag') },
   facts: ['energy', 'top'],
-  mark: (t, key) => { const [r, c] = key.split(',').map(Number); return { corner: energy(t.img)[r][c] }; },
-  fact: (t, { r, c }, id) => (id === 'top' ? r === 0 : energy(t.img)[r][c]),
-  answerKeys: t => t.img[0].map((_, c) => `${t.R - 1},${c}`),
+  mark: (t, key) => { const [r, c] = key.split(',').map(Number); return { corner: energyOf(t)[r][c] }; },
+  sense: (t, { r, c }, id) => (id === 'top' ? r === 0 : energyOf(t)[r][c]),
+  answerKeys: t => Array.from({ length: t.C }, (_, c) => `${t.R - 1},${c}`),
   answer(t, table) { return Math.min(...this.answerKeys(t).map(k => table.get(k) ?? Infinity)); },
-  label: t => tr(`${t.C}×${t.R} 像素`, `${t.C}×${t.R} pixels`),
+  label: t => tr(`${t.C}×${t.R} 像素`, `${t.C}×${t.R} pixel${t.C * t.R > 1 ? 's' : ''}`),
   orderText: () => tr('逐行，从顶行往下', 'row by row, from the top row down'),
   scene(t, view, o) {
     const g = look(view, [], [], o.bench), sp = 46, sz = 40, px = 13, cells = [], path = new Set(o.path || []);
-    // The picture itself, small, to the left of its table.
+    // The picture itself, small, to the left of its table (a test of plain energies has none).
     const x0 = -(t.C * px) - 40;
-    t.img.forEach((row, r) => row.forEach((v, c) => cells.push({ id: `p${r},${c}`, x: x0 + c * px, y: r * px, w: px, h: px, rx: 1, value: '', fill: shade(v), cls: path.has(`${r},${c}`) ? 'cut' : 'px' })));
+    (t.img || []).forEach((row, r) => row.forEach((v, c) => cells.push({ id: `p${r},${c}`, x: x0 + c * px, y: r * px, w: px, h: px, rx: 1, value: '', fill: shade(v), cls: path.has(`${r},${c}`) ? 'cut' : 'px' })));
     for (let r = 0; r < t.R; r++) for (let c = 0; c < t.C; c++) {
       const id = `${r},${c}`;
       cells.push({ id, x: c * sp, y: r * sp, w: sz, h: sz, rx: 8, value: g.val(id), corner: this.mark(t, id).corner, cls: [g.cls(id), path.has(id) ? 'path' : ''].filter(Boolean).join(' '), tap: g.tap(id), aria: rcName(id) });

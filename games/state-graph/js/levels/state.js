@@ -3,6 +3,7 @@
 import { N, E, W, gridScene, houseRow, layerFig } from '../svg.js';
 import { circ } from '../circuit/components.js';
 import { STREET, KEY_MAPS } from './data.js';
+import { KEY_BOARD } from './states.js';
 import { T, tr, lazy } from '../i18n.js';
 
 const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
@@ -67,27 +68,23 @@ export const state = [
     debrief: { title: T('你找到了一个反例', 'You found a counterexample'), body: [T('两条路线停在同一格，只记位置的计数器会把它们存进同一个格子。可一条带着钥匙、一条空着手，下一步一个能过门、一个过不去。', 'The two routes stop on the same cell, so a counter that remembers only position stores them in the same cell. Yet one carries the key and the other is empty-handed: on the next step, one can go through the door and the other can’t.'), T('<b>状态相同、未来不同</b>，这就是状态设计有漏洞的铁证。', '<b>Same state, different futures</b>: that is hard proof the state design has a hole in it.'), T('修好它的办法你已经知道了：让状态多记一件事。下一关，把迷宫叠成两层。', 'You already know how to fix it: make the state remember one more thing. Next level, the maze gets stacked into two layers.')], note: T('反例：两段历史落进同一个状态，未来却不一样。', 'Counterexample: two histories that land in the same state but have different futures.') },
   },
   {
-    id: 'keydoor', ch: 7, title: T('钥匙与门', 'Keys and doors'), short: T('把棋盘叠成两层', 'Stack the board in two layers'), mode: 'circuit', robot: 'twin', uses: ['counter', 'layer'],
+    id: 'keydoor', ch: 7, title: T('钥匙与门', 'Keys and doors'), short: T('把表叠成两层', 'Stack the table in two layers'), mode: 'circuit', robot: 'stack', uses: ['counter'],
     intro: [
-      { t: T('要修好计数器，就让状态多记一件事：<b>有没有钥匙</b>。办法是把棋盘复制一份，叠成两层。', 'To fix the counter, make the state remember one more thing: <b>whether you have the key</b>. The way to do it is to copy the board and stack the copies in two layers.'), fig: layerFig() },
-      { t: T('上层装着「没钥匙」的路线，下层装着「有钥匙」的路线。所有路线都从<b>上层的起点</b>出发。', 'The upper layer holds the routes “without the key”, the lower layer the routes “with the key”. Every route starts from <b>the start on the upper layer</b>.') },
-      { t: T('走到钥匙格的那一刻，路线就从上层<b>搬到</b>下层，之后一直待在下层。', 'The moment a route reaches the key cell, it <b>moves</b> from the upper layer to the lower one, and stays on the lower layer from then on.'), fig: layerFig({ xfer: true }) },
-      { t: T('机器人同时站在两层的同一格上。视野里上面一块是上层，下面一块是下层，两层各有一个红框，所以电路板有两个输出：「上层」和「下层」。「本格信息」里还有「是起点」「是钥匙格」「是门」。', 'The robot stands on the same cell of both layers at once. In the view, the top block is the upper layer and the bottom block the lower layer, each with its own red frame, so the board has two outputs: “Upper” and “Lower”. The This cell panel also offers “is start”, “is key” and “is door”.') },
-      { t: T('你要想清楚三件事：两层的门分别怎么处理？钥匙格上，上层的路线要去哪？下层怎么接住它们？两个路线计数器，加上几道闸门和一个汇合器，就够了。', 'You need to think through three things: how does each layer handle doors? On the key cell, where do the upper layer’s routes go? And how does the lower layer catch them? Two Route Counters, a few gates and one Merger are all it takes.') },
+      { t: T('要修好计数器，状态得多记一件事：<b>有没有钥匙</b>。一张表里每格只能存一个数，装不下两种路线。', 'To fix the counter, the state has to remember one more thing: <b>whether you have the key</b>. Each cell of one table can hold only one number, which can’t keep two kinds of route apart.') },
+      { t: T('这一关的机器人「千层」把表<b>叠成两层</b>：「无钥匙」一层装还没拿钥匙的路线，「红」一层装拿过钥匙的路线。它在每一格上，把两层各算一次。', 'This level’s robot, Layercake, stacks the table <b>in two layers</b>: the “no keys” layer holds the routes that haven’t got the key yet, the “red” layer those that have. On every cell it works out both layers.') },
+      { t: T('本格信息告诉电路：这一层在这一格上会发生什么。<b>门关着</b>：这里是门，这一层却没有钥匙。<b>路线被带走</b>：这里有钥匙，走到这里的路线会捡起它，搬去另一层。<b>捡到钥匙</b>：这里有钥匙，这一层正接住捡起它的路线。', 'The cell facts tell the circuit what happens on this layer at this cell. <b>Door shut</b>: there is a door here, but this layer has no key. <b>Routes move on</b>: there is a key here, and routes reaching it pick it up and move to the other layer. <b>Picks up key</b>: there is a key here, and this layer takes in the routes that pick it up.') },
+      { t: T('在捡钥匙的格子上，千层的<b>探针</b>能探到另一层的上面和左边：那些路线就是从那里搬来的。', 'On the cell with the key, Layercake’s <b>probe</b> reaches up and left on the other layer: that is where those routes come from.') },
     ],
-    mission: { goal: T('只能往右或往下走，穿过门之前必须拿过钥匙。让两层电路算对每张地图上的合法路线数。', 'Only right or down, and you must have picked up the key before passing through a door. Have the two-layer circuit count the valid routes on every map correctly.'), how: T('合法路线只能往右或往下走，穿过门之前必须拿过钥匙。终点的答案 = 上层终点 + 下层终点。', 'A valid route only goes right or down, and must have picked up the key before passing through a door. The answer at the end = the upper layer’s end + the lower layer’s end.') },
-    world: 'key', facts: ['start', 'key', 'door'], palette: ['bp:stamp', ...KIT],
+    mission: { goal: T('只能往右或往下走，穿过门之前必须拿过钥匙。算出每张地图上的合法路线数：两层终点的数加起来。', 'Only right or down, and you must have picked up the key before going through a door. Work out the number of valid routes on each map: the end cells of both layers, added up.'), how: T('每一格把两层都算一遍。', 'Every cell works out both layers.') },
+    world: 'keys', facts: ['start', 'gain', 'lose', 'shut'], palette: ['bp:stamp', ...KIT], solutionMem: ['red'], noTrace: true,
     tests: KEY_MAPS,
-    solution: circ([['c1', 'bp:stamp'], ['t', 'block'], ['u', 'block'], ['c2', 'bp:stamp'], ['g', 'pass'], ['m', 'msum']], [
-      'tap:tu>c1:0', 'tap:tl>c1:1', 'tap:start>c1:2', 'tap:door>t:0', 'c1>t:1', 'tap:key>u:0', 't>u:1', 'u>out:top',
-      'tap:bu>c2:0', 'tap:bl>c2:1', 'tap:key>g:0', 't>g:1', 'c2>m:0', 'g>m:1', 'm>out:bot',
-    ]),
+    solution: KEY_BOARD,
     hints: [
-      T('上层的路线都没有钥匙，走不进门：上层的路线计数器后面接一道拦截闸，条件接「是门」。', 'None of the upper layer’s routes have the key, so they can’t enter a door: put a Block gate after the upper Route Counter, with “is door” as its condition.'),
-      T('走到钥匙格，路线就离开了上层：上层在钥匙格要输出「—」。再加一道拦截闸，条件接「是钥匙格」。', 'On reaching the key cell, a route leaves the upper layer: the upper layer must output “—” on the key cell. Add another Block gate with “is key” as its condition.'),
-      T('下层要在钥匙格接住上层搬来的路线：用放行闸（条件接「是钥匙格」）把上层这一格的数，和下层自己的路线计数器一起接进汇合器。下层的门照常通过。', 'The lower layer has to catch the routes moving down on the key cell: use a Pass gate (condition “is key”) to send the upper layer’s number for this cell into a Merger, together with the lower layer’s own Route Counter. Doors on the lower layer let routes through as usual.'),
+      T('先用路线计数器数路线，再把不该留在这一层的路线拦下：门关着，或者路线被带走。', 'Count the routes with the Route Counter first, then block the ones that can’t stay on this layer: the door is shut, or the routes move on.'),
+      T('捡到钥匙的格子上，还要接住从另一层搬来的路线：探针探到的上面和左边，加起来。', 'On the cell where the key is picked up, also take in the routes moving over from the other layer: up and left as the probe reaches them, added up.'),
     ],
     boardOpt: { minScale: 0.62, maxScale: 1.15 },
-    debrief: { title: T('两层棋盘，各管各的', 'Two layers, each minding its own'), body: [T('上层只装「没钥匙」的路线，所以门要拦下；下层只装「有钥匙」的路线，门可以照常通过。', 'The upper layer holds only routes “without the key”, so doors must stop them; the lower layer holds only routes “with the key”, so doors let them through as usual.'), T('钥匙格是两层之间唯一的通道，路线在这里从上层搬到下层。到了终点，两层的路线都合法，所以相加。', 'The key cell is the only passage between the layers: that is where routes move from the upper layer to the lower. At the end, the routes on both layers are valid, so they are added together.'), T('这是给状态加一维的标准做法：<b>把表复制几份，每份代表一种情况，再规定它们之间怎么转移</b>。程序员把这种结构叫作「状态机」。', 'This is the standard way to add a dimension to the state: <b>make several copies of the table, one for each case, and lay down how to move between them</b>. Programmers call this structure a “state machine”.')], note: T('加一维 = 把表复制几层，每层一种情况，再规定层与层之间怎么转移。', 'Adding a dimension = copying the table into layers, one per case, and setting the rules for moving between layers.') },
+    debrief: { title: T('两层，各管各的', 'Two layers, each minding its own'), body: [T('「无钥匙」一层的路线碰到门就停；走到钥匙格，就整批搬去「红」那一层。「红」那一层在钥匙格上把它们接住，从此门都开着。', 'Routes on the “no keys” layer stop at a door; reaching the key cell, they move as a batch to the “red” layer. The “red” layer takes them in at the key cell, and from then on every door is open.'), T('状态从「在哪一格」变成了「在哪一格、有没有钥匙」：多记一件事，表就多一层。', 'The state went from “which cell” to “which cell, and whether you have the key”: one more thing to remember, one more layer.')] },
   },
+
 ];
