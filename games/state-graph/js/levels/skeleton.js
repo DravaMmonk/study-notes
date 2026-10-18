@@ -20,9 +20,9 @@ export const skeleton = [
     intro: [
       { t: T('新的一章，先做一件你会的事：数路线。不过这一关有<b>三个阶段</b>，三个阶段用的是同一张地图。', 'A new chapter, starting with something you already know how to do: counting routes. But this level has <b>three stages</b>, and all three use the same map.'), fig: gridScene(3, 4, { cell: (r, c) => ({ corner: MAP_A[r][c] }) }) },
       { t: T('数完路线，同一张地图会接着问：每个路口角上的数如果是<b>金币</b>，最多能捡到几枚？如果是<b>体力</b>，最少要花多少？', 'Once the routes are counted, the same map asks more: if the number in the corner of each crossing is <b>coins</b>, how many can you pick up at most? If it is <b>energy</b>, what is the least you must spend?') },
-      { t: T('电路板会从一个阶段留到下一个阶段。想一想，三个问题之间到底差在哪？你也许只需要换掉一个元件。<b>点电路板上的汇合器，可以直接换型号，连线不用重接。</b>', 'The circuit board carries over from one stage to the next. Think: what really differs between the three questions? You may only need to swap one component. <b>Click a Merger on the board to change its model in place, without rewiring.</b>') },
+      { t: T('电路板会从一个阶段留到下一个阶段。想一想，三个问题之间到底差在哪？你也许只需要换掉一个元件。<b>点电路板上的汇合器，可以直接换操作，连线不用重接。</b>', 'The circuit board carries over from one stage to the next. Think: what really differs between the three questions? You may only need to swap one component. <b>Click a Merger on the board to change its operation in place, without rewiring.</b>') },
     ],
-    mission: { goal: T('只能往右或往下走。同一张地图，回答三个问题：有几条路线；最多能捡到几枚金币；最少要花多少体力。', 'Only right or down. Answer three questions about the same map: how many routes there are; the most coins you can pick up; the least energy you must spend.'), how: T('每通过一个阶段，电路板会留到下一阶段。点汇合器可以换型号（加起来 / 取较大 / 取较小），连线不变。', 'Each time you pass a stage, the board carries over to the next. Click a Merger to change its model (sum / max / min); the wires stay as they are.') },
+    mission: { goal: T('只能往右或往下走。同一张地图，回答三个问题：有几条路线；最多能捡到几枚金币；最少要花多少体力。', 'Only right or down. Answer three questions about the same map: how many routes there are; the most coins you can pick up; the least energy you must spend.'), how: T('每通过一个阶段，电路板会留到下一阶段。点汇合器可以换操作（加起来 / 取较大 / 取较小），连线不变。', 'Each time you pass a stage, the board carries over to the next. Click a Merger to change its operation (sum / max / min); the wires stay as they are.') },
     tests: [{ R: 3, C: 4 }, { R: 4, C: 4 }],
     stages: [
       {

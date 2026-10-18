@@ -251,7 +251,7 @@ export default function PartDemo({ partKey, phone }) {
           )}
           {MERGES.includes(node.type) && (
             <label className="param" onPointerDown={stop}>
-              <span>{tr('型号', 'Model')}</span>
+              <span>{tr('操作', 'Operation')}</span>
               <select value={node.type} onChange={(e) => setNode(node.id, { kind: e.target.value })}>
                 {MERGES.map((k) => <option key={k} value={k}>{L(def(k).tag)}</option>)}
               </select>
@@ -292,7 +292,7 @@ export default function PartDemo({ partKey, phone }) {
     <div className="demo-choices">{options.map(([v, label]) => <button key={String(v)} type="button" aria-pressed={v === value} onClick={() => pick(v)}>{label}</button>)}</div>
   )
   const panel = !node ? (
-    <p className="panel-note">{tr('点一块，在这里改它：输入、常数，或汇合器的型号。点棋盘上的格子换机器人的位置。', 'Tap a block to change it here: an input, a constant or a merger’s model. Tap a cell on the board to move the robot.')}</p>
+    <p className="panel-note">{tr('点一块，在这里改它：输入、常数，或汇合器的操作。点棋盘上的格子换机器人的位置。', 'Tap a block to change it here: an input, a constant or a merger’s operation. Tap a cell on the board to move the robot.')}</p>
   ) : (
     <>
       <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'tap' ? tr('输入', 'Input') : node.type === 'out' ? tr('答案', 'Answer') : L(def(node.type).tag ?? '')}</small></div>

@@ -124,7 +124,7 @@ export function SgCanvas({ board, overlay }) {
         )}
         {swaps.length > 1 && (
           <label className="param" onPointerDown={stop}>
-            <span>{tr('型号', 'Model')}</span>
+            <span>{tr('操作', 'Operation')}</span>
             <select value={node.type} onChange={(e) => board.swap(node.id, e.target.value)}>
               {swaps.map((k) => <option key={k} value={k}>{L(def(k).tag)}</option>)}
             </select>

@@ -71,7 +71,7 @@ export const GLOSSARY = [
     body: [
       { zh: '<b>元件</b>是电路板上的小机器：从输入圆点收信号，从输出圆点送出结果。在电脑上，点「元件」窗里的一项就放上电路板；在手机上，点托盘里的一项，或按住拖到空格上，拖回托盘就拿掉了。点放好的元件，可以改它的设置。', en: '<b>Components</b> are little machines on the circuit board: they take signals at their input dots and send a result from their output dot. On a computer, click one in the Parts window to put it on the board; on a phone, tap one in the tray or hold and drag it onto a slot, and drag it back to the tray to remove it. Click a placed component to change its settings.' },
       { zh: '信号有三种：一个数；「是 / 否」，画成菱形圆点和虚线；还有「—」，意思是「这里没有路」或「什么也没有」。没接线的输入口，读到的是「—」或「否」。', en: 'Signals come in three kinds: a number; “yes / no”, drawn with diamond dots and dashed wires; and “—”, which means “there is no road here”, or simply nothing. An input with no wire reads “—” or “no”.' },
-      { zh: '<b>汇合器</b>把接进来的几个数汇成一个，型号有「加起来」「取较小」「取较大」，在卡片上换型号时连线不变；它们都会跳过「—」，全是「—」时才输出「—」。「任一是」是专管「是 / 否」的汇合器：只要有一个「是」就输出「是」，「—」不算「是」。', en: 'A <b>Merger</b> merges the numbers wired into it into one. Its models are “sum”, “min” and “max”, and swapping the model on its card keeps the wires; they all skip “—”, and only output “—” when every input is “—”. “Any yes” is the Merger for “yes / no” signals: one “yes” is enough for it to output “yes”, and a “—” does not count as “yes”.' },
+      { zh: '<b>汇合器</b>把接进来的几个数汇成一个，操作有「加起来」「取较小」「取较大」，在卡片上换操作时连线不变；它们都会跳过「—」，全是「—」时才输出「—」。「任一是」是专管「是 / 否」的汇合器：只要有一个「是」就输出「是」，「—」不算「是」。', en: 'A <b>Merger</b> merges the numbers wired into it into one. Its operations are “sum”, “min” and “max”, and swapping the operation on its card keeps the wires; they all skip “—”, and only output “—” when every input is “—”. “Any yes” is the Merger for “yes / no” signals: one “yes” is enough for it to output “yes”, and a “—” does not count as “yes”.' },
       { zh: '<b>加法器</b>和<b>乘法器</b>算 a + b、a × b，只要一边是「—」，结果就是「—」。<b>常数</b>一直输出同一个数。<b>放行闸</b>在条件是「是」时把信号放过去，否则输出「—」；<b>拦截闸</b>正好相反；<b>取反</b>把「是」和「否」对调。', en: 'The <b>Adder</b> and the <b>Multiplier</b> work out a + b and a × b; if either side is “—”, so is the result. A <b>Constant</b> always outputs the same number. A <b>Pass gate</b> lets a signal through when its condition is “yes” and outputs “—” otherwise; a <b>Block gate</b> does the opposite; <b>Not</b> swaps “yes” and “no”.' },
     ],
     see: ['board', 'part', 'countOpt'],
@@ -178,7 +178,7 @@ export const GLOSSARY = [
     id: 'countOpt', group: 'basics', title: { zh: '计数与求最优', en: 'Counting and optimising' }, at: 'cheapest',
     body: [
       { zh: '同一副骨架能回答不同的问题。问<b>有几种</b>，就把所有来路加起来；问<b>最好是多少</b>，就在来路里挑最好的一个，再算上这一格自己的代价。', en: 'The same skeleton answers different questions. To ask <b>how many</b>, add up all the ways in; to ask <b>what is best</b>, pick the best of the ways in, then count in this cell’s own cost.' },
-      { zh: '在电路板上，这往往只差一个汇合器的型号：「加起来」数个数，「取较小」找最少，「取较大」找最多。', en: 'On the circuit board, the difference is often just the Merger’s model: “sum” counts, “min” finds the fewest, “max” finds the most.' },
+      { zh: '在电路板上，这往往只差一个汇合器的操作：「加起来」数个数，「取较小」找最少，「取较大」找最多。', en: 'On the circuit board, the difference is often just the Merger’s operation: “sum” counts, “min” finds the fewest, “max” finds the most.' },
       { zh: '求最优之所以能这样拆，是因为最好的路线上，每一段也都是到那一段终点最好的走法。这叫<b>最优子结构</b>。', en: 'Optimising can be broken down like this because every stretch of a best route is itself the best way to reach the end of that stretch. This is called <b>optimal substructure</b>.' },
     ],
     see: ['backtrack', 'recurrence'],

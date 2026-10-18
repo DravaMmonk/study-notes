@@ -70,7 +70,7 @@ const mergerEntry = models => ({
   tag: lazy(() => models.map(k => def(k).tag).join(' / ')),
   icon: lookIcon('merger'),
   look: 'merger',
-  desc: lazy(() => tr(`把接进来的几个数汇成一个。放上后在卡片上选型号：${models.map(k => def(k).tag).join('、')}；换型号时连线不变。`, `Merges the numbers wired into it into one. Pick its model on the card once placed: ${models.map(k => def(k).tag).join(', ')}; the wires stay when you swap.`)),
+  desc: lazy(() => tr(`把接进来的几个数汇成一个。放上后在卡片上选操作：${models.map(k => def(k).tag).join('、')}；换操作时连线不变。`, `Merges the numbers wired into it into one. Pick its operation on the card once placed: ${models.map(k => def(k).tag).join(', ')}; the wires stay when you swap.`)),
 });
 
 export function circuitMode(L, saved, { flags } = {}) {
@@ -283,7 +283,7 @@ export function circuitMode(L, saved, { flags } = {}) {
     const fixed = id in CARDS;
     // A merge can change its model in place: the wires stay, only the way it merges changes.
     const swaps = swapsOf(n.kind, offeredParts());
-    const swap = swaps.length > 1 ? `<div class="optlabel">${tr('型号（换型号时连线不变）', 'Model (the wires stay when you swap)')}</div><div class="chips" role="radiogroup" aria-label="${tr('型号', 'Model')}">${swaps.map(k => `<button class="chip" type="button" role="radio" aria-checked="${k === n.kind}" data-act="swap" data-k="${k}">${def(k).tag}</button>`).join('')}</div>` : '';
+    const swap = swaps.length > 1 ? `<div class="optlabel">${tr('操作（换操作时连线不变）', 'Operation (the wires stay when you swap)')}</div><div class="chips" role="radiogroup" aria-label="${tr('操作', 'Operation')}">${swaps.map(k => `<button class="chip" type="button" role="radio" aria-checked="${k === n.kind}" data-act="swap" data-k="${k}">${def(k).tag}</button>`).join('')}</div>` : '';
     rt.openSheet(`<div><div class="kicker sig">${d.bp ? tr('零件', 'Part') : tr('元件', 'Component')}</div><h3 class="sh" id="sheetTitle">${d.name}</h3></div>
       <div class="prose"><p>${d.desc}</p></div>${mode}${box}${pick}${vals}${kinds}${swap}
       <div class="acts">${fixed ? '' : `<button class="btn sec" type="button" data-act="del">${tr('拿掉这个元件', 'Remove this component')}</button>`}<button class="btn pri" type="button" data-close data-primary>${tr('好', 'OK')}</button></div>`, {
