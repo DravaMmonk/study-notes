@@ -307,6 +307,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
               data-node={node.id}
               data-piece={node.id}
               data-family={parts.family(node)}
+              data-io={role === 'source' ? tr('输入', 'IN') : role === 'sink' ? tr('输出', 'OUT') : undefined}
               className={`node is-${role} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
               style={{ left: node.x, top: node.y, width, ...parts.cardStyle?.(node) }}
             >
