@@ -4,7 +4,9 @@ import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw } fro
 import { L, tr } from './i18n.js'
 
 // The level map: a hero (the game's kicker, title, lede and illustration), progress, the unlock-all switch and a
-// "continue" button, then each chapter as a trace on a circuit board, its levels as pads along it.
+// "continue" button, then each chapter as a trace on a circuit board, its levels as pads along it. A chapter may
+// split its levels into groups (`groups`: [[level id]], say a robot's foundation, practice and each topic), drawn in
+// order with a dashed line between them; `kicker` replaces its 第 N 章 line.
 export default function LevelMap({ game, progress, solved, onAll, onOpen, onReset, onParts, partsNew = 0, onWiki, unread = 0, theme }) {
   const levels = game.levels
   const done = levels.filter((level) => solved.has(level.id)).length
@@ -43,19 +45,21 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, onRese
       <div className="map-chapters">
         {game.chapters.map((chapter) => {
           const inChapter = levels.filter((level) => level.chapter === chapter.id)
+          const byId = new Map(inChapter.map((level) => [level.id, level]))
+          const groups = chapter.groups ? chapter.groups.map((ids) => ids.map((id) => byId.get(id)).filter(Boolean)).filter((g) => g.length) : [inChapter]
           const planned = game.planned?.[chapter.id] ?? []
           if (!inChapter.length && !planned.length) return null
           const finished = inChapter.filter((level) => solved.has(level.id)).length
           return (
             <section key={chapter.id} className={`map-chapter ${finished === inChapter.length && inChapter.length ? 'is-complete' : ''}`}>
               <header>
-                <span className="chapter-index">{tr(`第 ${chapter.number ?? chapter.id} 章`, `Chapter ${chapter.number ?? chapter.id}`)}{chapter.label ? <> · {L(chapter.label)}</> : null}</span>
+                <span className="chapter-index">{chapter.kicker ? L(chapter.kicker) : tr(`第 ${chapter.number ?? chapter.id} 章`, `Chapter ${chapter.number ?? chapter.id}`)}{chapter.label ? <> · {L(chapter.label)}</> : null}</span>
                 <h2>{L(chapter.title)}</h2>
                 {chapter.question && <p>{L(chapter.question)}</p>}
                 <span className="chapter-meter"><i style={{ width: `${inChapter.length ? (finished / inChapter.length) * 100 : 0}%` }} /></span>
               </header>
               <ol className="map-trace">
-                {inChapter.map((level) => {
+                {groups.flatMap((group, g) => [...(g ? [<li key={`gap-${g}`} className="map-gap" aria-hidden="true" />] : []), ...group.map((level) => {
                   const open = game.isOpen(level, solved, progress.all)
                   const won = solved.has(level.id)
                   const state = won ? 'is-solved' : open ? 'is-open' : 'is-locked'
@@ -72,7 +76,7 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, onRese
                       </button>
                     </li>
                   )
-                })}
+                })])}
                 {planned.map(([id, title]) => (
                   <li key={id} className="is-planned">
                     <span className="map-level is-planned" title={tr('已设计，待开放', 'Designed, not open yet')}>

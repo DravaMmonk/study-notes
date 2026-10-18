@@ -56,6 +56,8 @@
 /* The trace: a vertical line through each level's pad. */
 .map-trace { position: relative; margin: 0; padding: 4px 0 0; list-style: none; display: grid; gap: 4px; }
 .map-trace::before { content: ''; position: absolute; top: 18px; bottom: 18px; left: 11px; width: 2px; border-radius: 2px; background: var(--hairline); }
+/* Between a chapter's groups (a robot's foundation, practice, each topic): a dashed line, nothing more. */
+.map-gap { height: 0; margin: 5px 0 5px 26px; border-top: 1.5px dashed color-mix(in srgb, var(--ink) 22%, transparent); }
 .map-level { position: relative; width: 100%; min-height: 40px; padding: 6px 8px 6px 0; display: grid; grid-template-columns: 24px 34px minmax(0, 1fr) auto; grid-template-areas: 'pad id title kind' 'pad . best best'; align-items: center; column-gap: 6px; border: 0; border-radius: 10px; color: var(--ink); background: transparent; text-align: left; cursor: pointer; transition: background 160ms ease, transform 160ms ease; }
 .map-level:hover:not(:disabled) { background: var(--hover); }
 .map-pad { grid-area: pad; z-index: 1; width: 16px; height: 16px; margin-left: 4px; display: grid; place-items: center; border-radius: 50%; color: var(--paper); background: var(--paper); box-shadow: 0 0 0 2px var(--rule); }
