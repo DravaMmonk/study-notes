@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { CanvasEditor, FloatWindow, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../kit/circuit/index.js'
+import { CanvasEditor, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../kit/circuit/index.js'
 import { L, tr } from '../../../kit/shell/i18n.js'
 import { signal } from '../util.js'
 import { def } from './components.js'
@@ -22,7 +22,7 @@ const shownOf = (node, probe, reading) => {
 }
 const stop = (event) => event.stopPropagation()
 
-/** Desktop: the board on the workbench's stage, with the robot's view (top left) and the parts (top right) floating over it. */
+/** Desktop: the board on the workbench's stage, the whole middle column; the parts are in the brief, the view beside the test board. */
 export function SgCanvas({ board }) {
   const graph = board.graph()
   const parts = board.parts()
@@ -69,30 +69,20 @@ export function SgCanvas({ board }) {
         wireState={wireState}
         width={176}
         height={120}
-        overlay={
-          <>
-            <FloatWindow id="state-graph.robot" title={{ zh: '机器人视野', en: "Robot's view" }} at={{ left: 12, top: 12 }} className="is-view">
-              {/* Painted by the circuit mode (mounted): the robot's window, where cells are lit as inputs. */}
-              <div className="cview" id="cview" />
-            </FloatWindow>
-            <FloatWindow id="state-graph.palette" title={{ zh: '元件', en: 'Parts' }} at={{ right: 12, top: 12 }}>
-              <SgParts board={board} />
-            </FloatWindow>
-          </>
-        }
+        minFit={0.62}
       />
     </div>
   )
 }
 
-/** Desktop: the parts, one line each with what they do in a tooltip. Clicking one puts it in the first free spot. */
-function SgParts({ board }) {
+/** Desktop: the level's parts, in the brief as in every game, each with what it does. Clicking one puts it in the first free spot. */
+export function SgParts({ board }) {
   const add = (kind) => {
     const graph = board.graph()
     const at = placement(graph, board.parts()).free[0]
     board.change(board.create(graph, kind, at).graph)
   }
-  return <Palette compact items={board.palette().map((p) => ({ ...p, label: p.name, style: { '--fam': 'var(--accent)' } }))} onAdd={add} />
+  return <Palette items={board.palette().map((p) => ({ ...p, label: p.name, desc: p.desc, style: { '--fam': 'var(--accent)' } }))} onAdd={add} compact />
 }
 
 /** Phone: the board as a grid of slots, with the parts tray and the level's dock pinned under it. */

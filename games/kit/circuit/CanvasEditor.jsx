@@ -31,9 +31,10 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, width, height (for fitting), emptyNote, overlay
  * Windows floating over the board (FloatWindow, in `overlay`) are kept clear when fitting: the circuit goes between
  * them or below them, wherever it shows larger. With `refit` the circuit is fitted again whenever the board changes
- * size (a bench in the parts box, whose panel can open narrow and then grow).
+ * size (a bench in the parts box, whose panel can open narrow and then grow). `minFit` is the smallest zoom a fit may
+ * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away.
  */
-export default function CanvasEditor({ graph, onChange, parts, body, head, caption, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, refit = false }) {
+export default function CanvasEditor({ graph, onChange, parts, body, head, caption, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, refit = false, minFit = 0 }) {
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
@@ -75,8 +76,9 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const best = rooms(box)
       .map(({ left, right, top }) => {
         const [w, h] = [box.width - left - right, box.height - top]
-        const zoom = clampZoom(Math.min(1.1, (w - pad * 2) / (x1 - x0), (h - pad * 2) / (y1 - y0)))
-        return { zoom, x: left + (w - (x1 - x0) * zoom) / 2 - x0 * zoom, y: top + pad - y0 * zoom }
+        const zoom = clampZoom(Math.max(minFit, Math.min(1.1, (w - pad * 2) / (x1 - x0), (h - pad * 2) / (y1 - y0))))
+        const spare = w - (x1 - x0) * zoom
+        return { zoom, x: left + (spare > pad * 2 ? spare / 2 : pad) - x0 * zoom, y: top + pad - y0 * zoom }
       })
       .reduce((a, b) => (b.zoom >= a.zoom ? b : a))
     setView(best)

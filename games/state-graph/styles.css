@@ -270,6 +270,7 @@ button:disabled{cursor:not-allowed}
 .tag{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 4px;border-radius:5px;background:var(--c);color:var(--tag-ink);font:700 10px/1 var(--f-body);white-space:nowrap}
 .cl{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 4px}
 .cview{--vc:32px;display:grid;gap:7px;justify-items:center;align-content:start;padding:8px 6px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);max-width:150px}
+.vpart{width:100%;display:grid;gap:7px;justify-items:center;align-content:start}
 @media (min-width:420px){.cview{--vc:38px;max-width:200px}}
 .vhead{display:flex;align-items:center;gap:6px}
 .vhead b{display:block;font:600 13px/1.2 var(--f-display)}
@@ -389,7 +390,6 @@ img{max-width:100%}
   .dmeta{font-size:11.5px}
   .pad{max-width:none}
 
-  /* the parts list sits in the brief */
 
   /* the stage: plain; only the circuit board of a circuit level (the kit's editor) is dotted */
   .sg-level:not(.panel-stage) .stage-pane .bcard{border:0;border-radius:0;padding:22px 28px 28px;gap:14px;align-content:start;background:none}
@@ -522,7 +522,6 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-level.is-circuit .cview .n5 .vcell { font-size: 12px; }
 .sg-slots { min-width: 0; padding: 8px 12px 16px; overflow-x: clip; }
 .sg-level.is-circuit .pb-banner, .sg-level.is-circuit .pb-toast { bottom: calc(150px + env(safe-area-inset-bottom)); }
-/* The robot's view in its floating window over the board (js/circuit/BoardView.jsx). */
 /* A circuit level's choices in the brief: plain sections under the task, no card around them. */
 .sg-extras, .sg-extras > div { display: grid; gap: 22px; }
 .sg-extras > div:empty, .sg-extras:has(> div:empty + div:empty) { display: none; }
@@ -533,14 +532,50 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-extras .chips.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sg-extras .memk { min-height: 38px; justify-content: flex-start; }
 .sg-extras .dialopts { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-.float-window.is-view { width: auto; min-width: 212px; max-width: 340px; }
-.float-window .cview { margin: 0; padding: 2px; max-width: none; background: none; border: 0; box-shadow: none; gap: 6px; --vc: 32px; }
-.float-window .cview .vwin.n5 { --vc: 26px; }
-.float-window .cview .vnote { font-size: 11px; }
-/* Circuit levels: a narrower brief and test column, so the board in the middle has the room. */
+/* Circuit levels on a desktop. A circuit grows sideways, inputs on the left to the answer on the right, so the board
+   takes the whole width beside the task: the parts are one row of icons over it (what each does in a tooltip), and
+   the world the circuit runs in (tests, the test board at a size it can be read, the robot's view, the run bar) is a
+   strip under it, which the line along its top drags taller or shorter (js/screen.jsx, WorldHandle). */
 @media (min-width: 761px) {
-  .level.has-side.sg-level.panel-stage { grid-template-columns: 260px minmax(0, 1fr) 320px; }
-  .level-shell.has-rail .level.has-side.sg-level.panel-stage { grid-template-columns: 240px minmax(0, 1fr) 300px; }
+  .level.has-side.sg-level.panel-stage, .level-shell.has-rail .level.has-side.sg-level.panel-stage {
+    --world-h: clamp(220px, 37dvh, 400px);
+    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) var(--world-h);
+  }
+  .sg-level.panel-stage > .brief { grid-row: 1 / -1; }
+  .sg-level.panel-stage > .stage-pane { grid-column: 2; grid-row: 1; }
+  .sg-level.panel-stage > .sg-side { position: relative; grid-column: 2; grid-row: 2; min-height: 0; flex-direction: row; border-left: 0; border-top: 1px solid var(--line); }
+  .sg-resize { position: absolute; z-index: 5; left: 0; right: 0; top: -5px; height: 10px; cursor: row-resize; touch-action: none; }
+  .sg-resize::after { content: ''; position: absolute; left: 50%; top: 3px; width: 44px; height: 4px; margin-left: -22px; border-radius: 2px; background: var(--rule); transition: background 160ms ease; }
+  .sg-resize:hover::after, .sg-resize:focus-visible::after { background: var(--accent); }
+  .sg-resize:focus-visible { outline: none; }
+  /* The strip: the tests and the board on the left; the robot's view and the run bar under it on the right. */
+  .sg-level.panel-stage .sg-side > .bcard { flex: 1; min-width: 0; padding: 14px 20px 16px; gap: 10px; align-content: start; overflow: auto; }
+  .sg-level.panel-stage .sg-side > .bcard > .bnote:empty, .sg-level.panel-stage .sg-side > .bcard > #after:empty { display: none; }
+  .sg-level.panel-stage .sg-side .board { overflow: visible; }
+  .sg-level.panel-stage .sg-side .board-svg { display: block; margin: 0 !important; }
+  .sg-world-side { flex: none; width: max-content; min-width: 320px; max-width: 58%; min-height: 0; display: flex; flex-direction: column; border-left: 1px solid var(--hairline); background: var(--paper); }
+  .sg-world-side > #view { flex: 1; min-height: 0; padding: 12px 14px 0; overflow: auto; scrollbar-width: thin; }
+  .sg-world-side > #view:empty { display: none; }
+  .sg-world-side > #view:empty + .run-foot { flex: 1; justify-content: flex-end; }
+  /* The robot's window on the left; what it carries besides (the arm, the switches, the cell's facts) beside it, so
+     the view fits the strip's height. */
+  .sg-world-side .cview { --vc: 38px; grid-template-columns: auto; grid-auto-flow: column; column-gap: 20px; align-items: start; padding: 12px 14px; }
+  .sg-world-side .cview .vmain { width: auto; }
+  .sg-world-side .cview .vhead { white-space: nowrap; }
+  .sg-world-side .cview .vwins { flex-wrap: nowrap; }
+  .sg-world-side .cview .vextra { width: 250px; }
+  .sg-world-side .cview .vwin.n5 { --vc: 30px; }
+  .sg-world-side > .run-foot { padding: 12px 14px; }
+  /* The board under the parts row. */
+  .sg-toolbar { flex: none; padding: 8px 12px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
+  .sg-toolbar .palette.is-compact { display: flex; flex-wrap: wrap; gap: 4px; }
+  .sg-toolbar .palette.is-compact .palette-item { width: auto; min-height: 34px; padding: 3px 12px 3px 5px; grid-template-columns: 22px auto; border-radius: 9px; box-shadow: inset 0 0 0 1px var(--line); }
+  .sg-toolbar .palette.is-compact .palette-item:hover { background: var(--hover); box-shadow: inset 0 0 0 1px var(--rule); }
+  .sg-toolbar .palette-text small, .sg-toolbar .palette-add { display: none; }
+  .sg-toolbar .palette-tip { left: 0; top: calc(100% + 6px); }
+  .sg-toolbar .palette-item[data-tip='left'] .palette-tip { left: auto; right: 0; }
+  .sg-level.panel-stage .sg-canvas { min-height: 0; }
 }
 /* A part's bench in the parts box (js/circuit/PartDemo.jsx): the test board and the robot's view side by side, the
    circuit under them, as in a level. */
