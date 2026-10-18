@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
-import { baseRefusal, byId, connect, ends, feeding, inPort, layout, moveToSlot, outPort, parsePort, placement, removeNode } from './model.js'
+import { baseRefusal, byId, connect, ends, feeding, inPort, layout, moveToSlot, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
 import { drawWires } from './SlotBoard.jsx'
+import { useHistory } from './useHistory.js'
 
 const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳'
@@ -11,7 +12,7 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  * How the phone board is edited, the same in every game. Wires go dot to dot: tap one dot, then another (or the
  * block itself), or drag between them; tapping a wired input unplugs it. Parts come from the tray: tap to drop into
  * the next free slot, or hold and drag into a slot; holding a placed part moves it, and dragging it back onto the
- * tray removes it. Every change can be undone; clearing asks twice.
+ * tray removes it. Every change can be undone and redone (useHistory); clearing asks twice.
  *
  * @param graph, onChange(graph), parts            the circuit and the game's description of its nodes (model.js)
  * @param create(graph, type, at) → { graph, id }  add a part of `type` in slot `at` (the game makes its nodes)
@@ -21,11 +22,12 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  * @param reset()                                  start the circuit over
  * @param root, scroller                           refs to the element that holds the board and tray, and to the board's
  *                                                 scrolling pane (drags start inside `root` and scroll `scroller`)
- * @returns state and handlers for SlotBoard, Tray and Notice
+ * @param scope                                    names the board for undo (a level's stage)
+ * @returns state and handlers for SlotBoard (`history`: its undo and redo), Tray and Notice
  */
-export function useSlotEditing({ graph, onChange, parts, create, label, openNode, openSlot, autoWire = false, reset, root, scroller }) {
+export function useSlotEditing({ graph, onChange, parts, create, label, openNode, openSlot, autoWire = false, reset, root, scroller, scope }) {
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
-  const [history, setHistory] = useState([])
+  const history = useHistory(graph, onChange, scope)
   const [toast, setToast] = useState(null) // a { zh, en } pair, read in the current language when shown
   const [armed, setArmed] = useState(false)
   const { sources, steps, sinks } = layout(graph, parts)
@@ -39,15 +41,12 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     return `${NUMBERS[index] ?? `#${index + 1}`} ${L(label(node))}`
   }
   const edit = (next, note) => {
-    setHistory((h) => [...h.slice(-49), graph])
     onChange(next)
     setToast(note ?? null)
   }
-  const undo = () => {
-    if (!history.length) return
+  const step = (go) => () => {
     buzz()
-    onChange(history.at(-1))
-    setHistory((h) => h.slice(0, -1))
+    go()
     setToast(null)
     setPicking(null)
   }
@@ -101,7 +100,8 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
   // free input that takes it.
   const wireToCard = (p, id) => {
     const node = byId(graph, id)
-    if (parsePort(p).side === 'in') return parts.role(node) !== 'sink' && wire(p, outPort(id))
+    // An input dropped on a block with several outputs takes its first.
+    if (parsePort(p).side === 'in') return parts.role(node) !== 'sink' && wire(p, outPort(srcOf(node, outputsOf(parts, node)[0].key)))
     const ports = parts.inputs(node)
     const open = ports.find((port) => !feeding(graph, id, port) && !refusal(p, inPort(id, port))) ?? ports.find((port) => !refusal(p, inPort(id, port)))
     if (!open) {
@@ -128,13 +128,16 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
   // at once; after that, wiring is the player's.
   const place = (type, at) => {
     let { graph: next, id } = create(graph, type, at)
-    let note = { zh: `放进了第 ${at + 1} 格 · 从圆点拉线接上`, en: `Placed in slot ${at + 1} · wire it up from the dots` }
+    // An input part goes up with the inputs, not into a slot.
+    let note = parts.role(byId(next, id) ?? {}) === 'source'
+      ? { zh: '放在了最上面的输入区 · 从圆点拉线接上', en: 'Placed with the inputs at the top · wire it up from the dots' }
+      : { zh: `放进了第 ${at + 1} 格 · 从圆点拉线接上`, en: `Placed in slot ${at + 1} · wire it up from the dots` }
     const sink = sinks[0]
     const [sinkPort] = sink ? parts.inputs(sink) : []
     if (autoWire && !steps.length && sources.length === 1 && sink && !feeding(next, sink.id, sinkPort)) {
       const node = byId(next, id)
       const [first] = parts.inputs(node)
-      if (first) next = connect(next, id, first, sources[0].id)
+      if (first) next = connect(next, id, first, srcOf(sources[0], outputsOf(parts, sources[0])[0].key))
       next = connect(next, sink.id, sinkPort, id)
       note = { zh: `接好了：${nameOf(sources[0])} → ${L(label(node))} → ${nameOf(sink)}`, en: `Wired up: ${nameOf(sources[0])} → ${L(label(node))} → ${nameOf(sink)}` }
     }
@@ -153,7 +156,6 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
       return
     }
     setArmed(false)
-    setHistory((h) => [...h.slice(-49), graph])
     reset()
     setToast({ zh: '清空了电路', en: 'Circuit cleared' })
   }
@@ -198,7 +200,7 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
   // While a dot is picked, the banner says what to tap next.
   const pickNote = picking && (() => {
     const p = parsePort(picking)
-    const node = byId(graph, p.id)
+    const node = byId(graph, srcNode(p.id))
     const many = parts.inputs(node).length > 1
     return p.side === 'out'
       ? tr(`「${nameOf(node)}」接到哪？点一个输入口（块顶上的圆点），或点那一块`, `Where does "${nameOf(node)}" go? Tap an input (a dot on top of a block), or the block itself`)
@@ -207,9 +209,8 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
 
   return {
     picking, unpick: () => setPicking(null), canLand, onPort, onNode, onSlot, nameOf,
-    place, placeFirstFree, remove, edit, undo, canUndo: history.length > 0, clear, armed, toast, say: setToast, pickNote,
-    // Make a whole session (a settings sheet, say) one undo step: remember the circuit from before it.
-    remember: (before) => setHistory((h) => [...h.slice(-49), before]),
+    place, placeFirstFree, remove, edit, clear, armed, toast, say: setToast, pickNote,
+    history: { ...history, undo: step(history.undo), redo: step(history.redo) },
     sources, steps, sinks,
   }
 }

@@ -1,8 +1,8 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import { EyeOff, Plus, Spline, Waypoints } from 'lucide-react'
+import { EyeOff, Plus, Redo2, Spline, Undo2, Waypoints } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
-import { feeding, inPort, layout, outPort, parsePort, placement } from './model.js'
+import { feeding, inPort, layout, outPort, parsePort, placement, srcNode, srcOf } from './model.js'
 
 // The phone circuit board, the same in every game: the sources on top, parts in a two-column grid of slots that
 // keep their place, the sinks at the bottom. A block's inputs are dots on its top edge and its output a dot on its
@@ -17,9 +17,9 @@ export function drawWires(el, graph, parts, live) {
   const svg = el.querySelector('.pb-wires')
   if (!svg) return
   const mode = el.dataset.wires ?? 'all'
-  const picked = el.dataset.picked ? parsePort(el.dataset.picked).id : null
+  const picked = el.dataset.picked ? srcNode(parsePort(el.dataset.picked).id) : null
   const isSource = (id) => parts.role(graph.nodes.find((n) => n.id === id) ?? {}) === 'source'
-  const shown = (w) => mode === 'all' || w.from === picked || w.to === picked || (mode === 'parts' && !isSource(w.from))
+  const shown = (w) => mode === 'all' || srcNode(w.from) === picked || w.to === picked || (mode === 'parts' && !isSource(srcNode(w.from)))
   const origin = el.getBoundingClientRect()
   const at = (p) => {
     const dot = el.querySelector(`[data-p="${CSS.escape(p)}"]`)
@@ -55,7 +55,7 @@ export function drawWires(el, graph, parts, live) {
     const b = at(inPort(w.to, w.port))
     if (!a || !b) continue
     const d = curve(a, b)
-    markup += `<path class="pb-casing" d="${d}"/><path class="pb-wire" data-family="${family(w.from)}" style="${style(w)}" d="${d}"/>`
+    markup += `<path class="pb-casing" d="${d}"/><path class="pb-wire" data-family="${family(srcNode(w.from))}" style="${style(w)}" d="${d}"/>`
   }
   if (live) {
     const a = at(live.from)
@@ -94,8 +94,14 @@ const readMode = () => {
  * @param fixed                            a circuit that is only looked at and tried (a bench in the parts box): just its
  *                                         own blocks, no empty slots to fill
  * @param nodeClass(node)                  extra classes for a block (the selected one, the one a bench is about)
+ * @param outNote(node, key)               over each of a block's several outputs (parts.outputs), under its name: what
+ *                                         it carries
+ * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
  */
-export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass }) {
+/** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
+const WIDE = 8
+
+export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history }) {
   const board = useRef(null)
   const [wires, setWires] = useState(readMode)
   const mode = WIRE_MODES.find((m) => m.id === wires)
@@ -132,7 +138,28 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
     if (p === picking) return `${extra} is-picked`
     return `${extra} ${canLand(p) ? 'is-target' : 'is-dim'}`
   }
-  const used = (node) => graph.wires.some((w) => w.from === node.id)
+  const used = (src) => graph.wires.some((w) => w.from === src)
+  // A block's output dot, or (parts.outputs) a row of them, each under its short name and what it carries (outNote).
+  // They wrap onto more rows inside the block; more than WIDE of them and the block takes a row of its own.
+  const outDots = (node) => {
+    const outs = parts.outputs?.(node)
+    if (!outs) return <span className="pb-out">{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), `is-out ${used(node.id) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`)}</span>
+    return (
+      <span className="pb-out is-many">
+        {outs.map((o) => {
+          const src = srcOf(node, o.key)
+          const note = outNote?.(node, o.key)
+          return (
+            <span key={o.key} className={`pb-o ${note ? 'has-note' : ''}`}>
+              {(outs.length > 1 || note) && <em>{L(o.short ?? o.label)}</em>}
+              {note}
+              {dot(outPort(src), tr(`${nameOf(node)} 的输出 ${L(o.label)}`, `${nameOf(node)} output ${L(o.label)}`), `is-out ${used(src) ? 'is-wired' : ''} ${parts.portClass?.(node, null, o.key) ?? ''}`)}
+            </span>
+          )
+        })}
+      </span>
+    )
+  }
   const dot = (p, label, extra = '') => (
     <button
       key={p}
@@ -172,17 +199,28 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
 
   return (
     <div className="pb-board" ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
-      <button type="button" className="pb-wiremode" onClick={cycle} aria-label={tr(`接线显示：${L(mode.label)}，点一下换成「${L(next.label)}」`, `Wires: ${L(mode.label)}; tap for "${L(next.label)}"`)}>
-        <mode.Icon size={15} aria-hidden="true" />
-        <span>{L(mode.label)}</span>
-      </button>
+      <div className="pb-tools">
+        {history && (
+          <span className="pb-steps">
+            <button type="button" onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销', 'Undo')}><Undo2 size={16} /></button>
+            <button type="button" onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做', 'Redo')}><Redo2 size={16} /></button>
+          </span>
+        )}
+        <button type="button" className="pb-wiremode" onClick={cycle} aria-label={tr(`接线显示：${L(mode.label)}，点一下换成「${L(next.label)}」`, `Wires: ${L(mode.label)}; tap for "${L(next.label)}"`)}>
+          <mode.Icon size={15} aria-hidden="true" />
+          <span>{L(mode.label)}</span>
+        </button>
+      </div>
       <svg className="pb-wires" aria-hidden="true" />
       <div className="pb-terms is-sources" style={cols(sources.length)}>
         {sources.map((node) => (
-          <div key={node.id} className={`pb-term ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+          <div key={node.id} className={`pb-term ${(parts.outputs?.(node)?.length ?? 0) > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+            {/* A source may take an input too (a reader told which layer to read). */}
+            {parts.inputs(node).length > 0 && <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>}
             <span className="pb-thumb">{thumb(node, 64)}</span>
             <span className="pb-name">{nameOf(node)}</span>
-            <span className="pb-out">{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), `is-out ${used(node) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`)}</span>
+            {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
+            {outDots(node)}
           </div>
         ))}
       </div>
@@ -206,7 +244,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
                 <span className="pb-thumb">{thumb(node, 84)}</span>
                 <span className="pb-name">{icon(node)}{nameOf(node)}</span>
                 {extra && <span className="pb-param">{extra}</span>}
-                <span className="pb-out">{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), `is-out ${used(node) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`)}</span>
+                {outDots(node)}
               </div>
             </div>
           )
@@ -215,7 +253,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
 
       <div className="pb-terms is-outputs" style={cols(sinks.length)}>
         {sinks.map((node) => (
-          <div key={node.id} className={`pb-term is-output ${sinkClass?.(node) ?? ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+          <div key={node.id} className={`pb-term is-output ${sinkClass?.(node) ?? ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-io={tr('输出', 'OUT')} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
             {sinkBody ? sinkBody(node) : <span className="pb-thumb">{thumb(node, 64)}</span>}
             <span className="pb-name">{nameOf(node)}</span>

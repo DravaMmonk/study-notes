@@ -2,23 +2,35 @@
 //
 //   { nodes: [{ id, type, x, y, slot?, … }], wires: [{ from, to, port }] }
 //
-// A node has inputs (named ports) and at most one output, which may feed any number of inputs; an input takes one
-// wire. `x, y` place a card on the desktop board, `slot` a block on the phone's grid; neither changes what the
+// A node has inputs (named ports) and one output, which may feed any number of inputs; an input takes one wire. A
+// node may have several outputs instead (`parts.outputs`): a wire from one of them starts at `<node>#<key>`. `x, y` place a card on the desktop board, `slot` a block on the phone's grid; neither changes what the
 // circuit computes. Anything else on a node (params, a value, a view) belongs to the game.
 //
 // A game describes its nodes with a `parts` object (see CanvasEditor / useSlotEditing):
 //   inputs(node) → [port]       role(node) → 'source' | 'sink' | 'part'      label(node) → text
 //   portLabel(node, port) → text   family(node) → string   icon(node) → Component
 //   refuse(graph, from, to, port) → null, or a { zh, en } reason the wire is not allowed
+//   removable?(node) → whether the player may take it off the board (default: a part)
+//   outputs?(node) → [{ key, label, short? }] a node with several outputs, or null for one
+//   outputLayout?(node) → { row, wide } how those outputs sit on the desktop card (CanvasEditor)
 import { wouldCycle } from '../graph.js'
 
 // Port ids, the same on the desktop board and the phone: an output is `o|<node>`, an input `i|<node>|<port>`.
+// `id` of an output is a wire's source: a node's id, or `<node>#<key>` for one of several outputs.
 export const outPort = (id) => `o|${id}`
 export const inPort = (id, port) => `i|${id}|${port}`
 export const parsePort = (p) => {
   const [side, id, port] = p.split('|')
   return side === 'o' ? { side: 'out', id } : { side: 'in', id, port }
 }
+
+/** The node a wire's source belongs to, and which of its outputs it is (null for a node's only output). */
+export const srcNode = (src) => String(src).split('#')[0]
+export const srcKey = (src) => (String(src).includes('#') ? String(src).slice(String(src).indexOf('#') + 1) : null)
+/** The source of a node's output `key` (its only output when `key` is null). */
+export const srcOf = (node, key) => (key === null || key === undefined ? node.id : `${node.id}#${key}`)
+/** A node's outputs: [{ key, label, short? }], or one unnamed output. */
+export const outputsOf = (parts, node) => parts.outputs?.(node) ?? [{ key: null, label: '' }]
 
 /** The wire two ports make, in either order, or null when both are outputs or both inputs. */
 export function ends(a, b) {
@@ -37,29 +49,29 @@ export function connect(graph, id, port, from) {
   return { ...graph, wires: from ? [...wires, { from, to: id, port }] : wires }
 }
 
-export const removeNode = (graph, id) => ({ ...graph, nodes: graph.nodes.filter((n) => n.id !== id), wires: graph.wires.filter((w) => w.from !== id && w.to !== id) })
+export const removeNode = (graph, id) => ({ ...graph, nodes: graph.nodes.filter((n) => n.id !== id), wires: graph.wires.filter((w) => srcNode(w.from) !== id && w.to !== id) })
 export const removeWire = (graph, wire) => ({ ...graph, wires: graph.wires.filter((w) => !(w.to === wire.to && w.port === wire.port)) })
 export const moveNode = (graph, id, x, y) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, x, y } : n)) })
 
 /** The reasons every game shares for refusing a wire; a game's `refuse` adds its own (types, say) after these. */
 export function baseRefusal(graph, from, to) {
-  if (from === to) return { zh: '一块不能读它自己。', en: 'A block cannot read itself.' }
-  const edges = graph.wires.map((w) => [w.from, w.to])
-  if (wouldCycle(edges, from, to)) return { zh: '这样会绕成一个圈：这一块要等自己算完，才能算自己。', en: 'That would make a loop: this block would have to wait for itself to finish.' }
+  if (srcNode(from) === to) return { zh: '一块不能读它自己。', en: 'A block cannot read itself.' }
+  const edges = graph.wires.map((w) => [srcNode(w.from), w.to])
+  if (wouldCycle(edges, srcNode(from), to)) return { zh: '这样会绕成一个圈：这一块要等自己算完，才能算自己。', en: 'That would make a loop: this block would have to wait for itself to finish.' }
   return null
 }
 
 /** Nodes in data-flow order (each after everything it reads); nodes caught in a loop come last. */
 export function order(graph) {
   const ins = new Map(graph.nodes.map((n) => [n.id, 0]))
-  for (const w of graph.wires) if (ins.has(w.to) && ins.has(w.from)) ins.set(w.to, ins.get(w.to) + 1)
+  for (const w of graph.wires) if (ins.has(w.to) && ins.has(srcNode(w.from))) ins.set(w.to, ins.get(w.to) + 1)
   const queue = graph.nodes.filter((n) => !ins.get(n.id)).map((n) => n.id)
   const out = []
   while (queue.length) {
     const id = queue.shift()
     out.push(id)
     for (const w of graph.wires) {
-      if (w.from !== id || !ins.has(w.to)) continue
+      if (srcNode(w.from) !== id || !ins.has(w.to)) continue
       ins.set(w.to, ins.get(w.to) - 1)
       if (!ins.get(w.to)) queue.push(w.to)
     }
