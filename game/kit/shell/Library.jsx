@@ -4,10 +4,11 @@ import { L, tr } from './i18n.js'
 import { useEscape } from './Dialogs.jsx'
 
 // A book of entries, after the encyclopedia in Turing Complete: entries by group on the left, the open entry on the
-// right; on a phone, the list and then one entry at a time. The encyclopedia and the parts box are both one.
+// right; on a phone, the list and then one entry at a time. The encyclopedia and the components box are both one.
 //
-// groups: [{ id, title, items: [{ id, title, open, unread?, lock? }] }]   lock: what opens it (a level label)
+// groups: [{ id, title?, items: [{ id, title, open, unread?, lock? }] }]   lock: what opens it (a level label)
 // article(id, back): the open entry (back is the phone's way to the list, or null)
+// filters: optional controls shown under the search box (the components box's robot filter)
 
 const read = (key, fallback) => {
   try {
@@ -39,7 +40,7 @@ export function useSeen(key) {
   return { seen, markSeen }
 }
 
-export default function Library({ title, subtitle, label, groups, current, onPick, article, phone, onClose, searchLabel }) {
+export default function Library({ title, subtitle, label, groups, current, onPick, article, phone, onClose, searchLabel, filters }) {
   const [query, setQuery] = useState('')
   const [reading, setReading] = useState(!phone && current !== null)
   useEscape(onClose)
@@ -60,9 +61,10 @@ export default function Library({ title, subtitle, label, groups, current, onPic
         <Search size={14} aria-hidden="true" />
         <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={searchLabel} aria-label={searchLabel} />
       </label>
+      {filters}
       {shown.map((group) => (
         <section key={group.id} className="wiki-group">
-          <h3 className="panel-label">{L(group.title)}</h3>
+          {group.title && <h3 className="panel-label">{L(group.title)}</h3>}
           <ul>
             {group.items.map((item) => (
               <li key={item.id}>

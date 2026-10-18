@@ -362,7 +362,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
                   const src = srcOf(node, o.key)
                   return (
                     <span key={o.key} className={`node-port-out ${lay.wide ? 'is-wide' : ''}`} style={{ top: index * lay.row }}>
-                      {!lay.wide && <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>}
+                      {!lay.wide && (o.glyph ? <span className="node-out-name is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>)}
                       {outNote?.(node, o.key)}
                       <i className={`port port-out ${graph.wires.some((w) => w.from === src) ? 'is-wired' : ''} ${parts.portClass?.(node, null, o.key) ?? ''}`} data-p={outPort(src)} title={tr('拖到另一张卡片的输入', 'Drag to an input of another card')} />
                     </span>
