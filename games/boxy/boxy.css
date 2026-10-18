@@ -1,0 +1,43 @@
+
+/* The kit's inks, taken from the site's theme (kit/tokens.css), so the figure sits on paper, night and blueprint. */
+.iso.bx{
+  --bx-dark:var(--ink);
+  --anatomy-paper:var(--paper);--anatomy-face:var(--paper);--anatomy-top:var(--paper);
+  --anatomy-shade-0:color-mix(in srgb,var(--paper) 80%,var(--bx-dark));--anatomy-shade-1:color-mix(in srgb,var(--paper) 86%,var(--bx-dark));
+  --anatomy-shade-2:color-mix(in srgb,var(--paper) 91%,var(--bx-dark));--anatomy-shade-3:color-mix(in srgb,var(--paper) 96%,var(--bx-dark));
+  --anatomy-lit-top:var(--paper);--anatomy-lit-shade:color-mix(in srgb,var(--paper) 93%,var(--bx-dark));
+  --anatomy-hi:var(--ink);--anatomy-mid:color-mix(in srgb,var(--ink) 58%,var(--paper));
+  --anatomy-lo:color-mix(in srgb,var(--ink) 34%,var(--paper));--anatomy-faint:color-mix(in srgb,var(--ink) 17%,var(--paper));
+  --anatomy-lit:var(--ink);--anatomy-dot:var(--ink);--anatomy-red:var(--fail);
+  --anatomy-halo:color-mix(in srgb,var(--ink) 55%,transparent);--anatomy-halo-opacity:.35;
+}
+.iso.bx[data-theme="dark"]{
+  --bx-dark:#000;
+  --anatomy-top:color-mix(in srgb,var(--paper) 88%,var(--ink));--anatomy-lit-top:color-mix(in srgb,var(--paper) 82%,var(--ink));
+  --anatomy-shade-0:color-mix(in srgb,var(--paper) 62%,#000);--anatomy-shade-1:color-mix(in srgb,var(--paper) 74%,#000);
+  --anatomy-shade-2:color-mix(in srgb,var(--paper) 86%,#000);--anatomy-shade-3:var(--paper);
+  --anatomy-halo:#000;--anatomy-halo-opacity:.7;
+}
+.bx-stage{touch-action:pan-y}
+.bx .iso-face-text{font-weight:600}
+.bx-self{fill:none;stroke:var(--fail);stroke-width:1.4}
+.bx-read{fill:none;stroke:color-mix(in srgb,var(--accent) calc(35% + var(--on,0) * 65%),transparent);stroke-width:calc(.9px + var(--on,0) * 1px)}
+/* The lamp's own ramp, so the ball's smooth tone sheets fill and stroke in red. */
+.iso.bx .bx-lamp{
+  --anatomy-paper:color-mix(in srgb,var(--fail) 70%,#fff);--anatomy-top:color-mix(in srgb,var(--fail) 70%,#fff);
+  --anatomy-shade-3:color-mix(in srgb,var(--fail) 85%,#fff);--anatomy-shade-2:var(--fail);
+  --anatomy-shade-1:color-mix(in srgb,var(--fail) 86%,#000);--anatomy-shade-0:color-mix(in srgb,var(--fail) 72%,#000);
+  --anatomy-hi:color-mix(in srgb,var(--fail) 55%,#000);--anatomy-faint:color-mix(in srgb,var(--fail) 80%,#000);
+}
+.bx-lamp{transition:filter .25s}
+.bx[data-sum] .bx-lamp{filter:brightness(1.35) drop-shadow(0 0 3px var(--fail))}
+/* On dark pages Boxy's head stays light, as its icon does in the games (--bot-body). */
+.iso.bx[data-theme="dark"] .iso-live{
+  --bx-body:color-mix(in srgb,var(--ink) 90%,var(--paper));
+  --anatomy-paper:var(--bx-body);--anatomy-face:var(--bx-body);--anatomy-top:var(--bx-body);
+  --anatomy-shade-3:color-mix(in srgb,var(--bx-body) 94%,#000);--anatomy-shade-2:color-mix(in srgb,var(--bx-body) 86%,#000);
+  --anatomy-shade-1:color-mix(in srgb,var(--bx-body) 76%,#000);--anatomy-shade-0:color-mix(in srgb,var(--bx-body) 64%,#000);
+  --anatomy-hi:var(--paper);--anatomy-mid:color-mix(in srgb,var(--paper) 62%,var(--bx-body));
+  --anatomy-lo:color-mix(in srgb,var(--paper) 42%,var(--bx-body));--anatomy-faint:color-mix(in srgb,var(--paper) 24%,var(--bx-body));
+  --anatomy-dot:var(--paper);
+}
