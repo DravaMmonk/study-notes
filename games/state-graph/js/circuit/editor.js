@@ -86,12 +86,12 @@ export function viewHTML(circ, ui) {
     const m = ui.taps[f.id], on = lit.includes(f.id);
     return `<button class="vfact${on ? ' on' : ''}" type="button" data-act="lit" data-t="${f.id}" aria-pressed="${on}">${iconSVG(m.icon)}<span>${m.label}</span><span class="vv">${f.value}</span>${on ? tag(f.id) : ''}</button>`;
   }).join('');
-  // Two parts: the robot and its window, then what it carries besides (the arm, the cell's facts). They stack on a
-  // phone; on a desktop they sit side by side in the strip under the board.
-  const extra = `${arm}${facts ? `<div class="vfacts"><span class="vsub">${tr('本格信息', 'This cell')}</span>${facts}</div>` : ''}`;
-  return `<div class="vpart vmain"><div class="vhead"><svg class="vlook" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg><div><b>${w.robot.name}</b><small>${tr('视野', 'Vision')} ${w.wins[0].n}×${w.wins[0].n}${w.robot.arm ? ` · ${w.robot.armName}` : ''}</small></div></div>
+  // The robot's window and the cell's facts side by side (both are tapped to light inputs), then the arm under them on
+  // a phone and beside them in the strip under the board on a desktop.
+  const factsHTML = facts ? `<div class="vpart vfacts"><span class="vsub">${tr('本格信息', 'This cell')}</span>${facts}</div>` : '';
+  return `<div class="vtop${facts ? ' has-facts' : ''}"><div class="vpart vmain"><div class="vhead"><svg class="vlook" viewBox="0 0 32 32" aria-hidden="true">${w.robot.look}</svg><div><b>${w.robot.name}</b><small>${tr('视野', 'Vision')} ${w.wins[0].n}×${w.wins[0].n}${w.robot.arm ? ` · ${w.robot.armName}` : ''}</small></div></div>
     <div class="vnote">${w.note}</div>
-    <div class="vwins">${wins}</div></div>${extra ? `<div class="vpart vextra">${extra}</div>` : ''}`;
+    <div class="vwins">${wins}</div></div>${factsHTML}</div>${arm ? `<div class="vpart vextra">${arm}</div>` : ''}`;
 }
 
 /**

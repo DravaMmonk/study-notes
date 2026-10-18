@@ -328,7 +328,26 @@ export function circuitMode(L, saved) {
       const view = $('#cview');
       if (view) view.innerHTML = viewHTML(circ(), ui());
     },
-    dock: () => (st.sel ? { pad: true } : { meta: `${stages.length > 1 ? tr(`阶段 ${st.stage + 1}/${stages.length} · `, `Stage ${st.stage + 1}/${stages.length} · `) : ''}${tr(`${tests().length} 个测试 · ${circ().nodes.length} 个元件`, `${tests().length} tests · ${circ().nodes.length} component${circ().nodes.length === 1 ? '' : 's'}`)}`, sec: circ().nodes.length && !busy() ? (st.armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear')) : '', secAct: 'clear', go: busy() ? tr('跳过动画', 'Skip animation') : tr('运行测试', 'Run tests'), act: 'run', busy: busy() }),
+    // The run bar: before a run, clear, 单步 (a run held on its first step) and Run; during one, pause or go on, a
+    // step while paused, and skip to the end.
+    dock() {
+      if (st.sel) return { pad: true };
+      const meta = stages.length > 1 ? tr(`阶段 ${st.stage + 1}/${stages.length}`, `Stage ${st.stage + 1}/${stages.length}`) : '';
+      if (busy()) {
+        const ctrl = Anim.paused
+          ? [{ act: 'step', icon: 'step', label: tr('下一步', 'Next step') }, { act: 'resume', icon: 'play', label: tr('继续', 'Continue') }]
+          : [{ act: 'pause', icon: 'pause', label: tr('暂停', 'Pause') }];
+        return { meta, ctrl, go: tr('跳过动画', 'Skip animation'), act: 'run', busy: true };
+      }
+      return {
+        meta,
+        ctrl: [{ act: 'stepstart', icon: 'step', label: tr('单步', 'Step') }],
+        sec: circ().nodes.length ? (st.armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear')) : '',
+        secAct: 'clear',
+        go: tr('运行测试', 'Run tests'),
+        act: 'run',
+      };
+    },
     padTitle: () => tr(`${V().name(st.sel)}：填一个数（不填 = 清空这一格）`, `${V().name(st.sel)}: type a number (leave blank to clear the cell)`),
     /** An extra pad key that moves the robot onto the selected cell, when it can stand there. */
     padExtra() {
@@ -349,6 +368,10 @@ export function circuitMode(L, saved) {
     },
     act(name, el) {
       if (name === 'run') { if (busy()) Anim.skip(); else ctl.run(); return; }
+      if (name === 'pause') { if (busy()) Anim.pause(); return; }
+      if (name === 'resume') { if (busy()) Anim.resume(); return; }
+      if (name === 'step') { if (busy()) Anim.step(); return; }
+      if (name === 'stepstart') { if (!busy()) ctl.run({ step: true }); return; }
       if (busy()) return;
       if (name === 'lit') { setCirc(toggleLit(circ(), el.dataset.t)); buzz(6); rt.refresh(); }
       if (name === 'sandbox') { st.view = null; rt.refresh(); }
@@ -374,7 +397,8 @@ export function circuitMode(L, saved) {
       buzz(6);
       rt.refresh();
     },
-    async run() {
+    /** Run every test; `step` starts the run paused, so the player steps through it. */
+    async run({ step = false } = {}) {
       const c = circ(), Vw = V(), o = opt(), s = stage();
       const miss = Vw.outs.find(([id]) => !c.wires.some(w => w.to === `out:${id}`));
       if (miss) { toast(tr(`输出口「${miss[1]}」还没接线`, `The output “${miss[1]}” is not wired yet`)); buzz(20); return; }
@@ -384,7 +408,7 @@ export function circuitMode(L, saved) {
       st.sel = null;
       st.typed = {};
       st.robot = null;
-      rt.startRun();
+      rt.startRun({ paused: step });
       st.status = tests().map(() => null);
       for (let k = 0; k < tests().length; k++) {
         const t = tests()[k], res = runCircuit(Vw, t, c, o), want = expected()[k];
@@ -396,9 +420,11 @@ export function circuitMode(L, saved) {
         st.status[k] = 'run';
         st.view = { res, k: 0, pass: ok, end: false, halt: !!(res.error && !res.error.diverge) || (!!mm && mm.key === undefined), focus: null, badKey: mm ? mm.key : undefined };
         rt.refresh();
-        // Long runs (many rounds) show several steps per frame, so a run never takes much more than two seconds.
+        // Long runs (many rounds) show several steps per frame, so a run never takes much more than two seconds; a
+        // paused run goes one step at a time.
         const per = Math.max(22, Math.min(220, 1700 / stop)), stride = Math.max(1, Math.ceil(stop / 90));
-        for (let j = Math.min(stride, stop); ; j = Math.min(j + stride, stop)) {
+        const by = () => (Anim.paused ? 1 : stride);
+        for (let j = Math.min(by(), stop); ; j = Math.min(j + by(), stop)) {
           st.view.k = j;
           rt.renderBoard();
           ctl.mounted();

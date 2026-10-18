@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Pause, Play, StepForward } from 'lucide-react'
 import { Brief, PhonePage, RunDock, Sheet, Workbench, tr } from '../../kit/shell/index.js'
 import { enableDrag } from '../../kit/drag.js'
 import { buzz, reduced } from './util.js'
@@ -23,6 +24,12 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
   const root = useRef(null)
   const [sheet, setSheet] = useState(null) // { html, acts, redraw } of a sheet the mode opened
   const [, setTick] = useState(0) // the brief's tip follows the mode, so a refresh re-renders it
+  // A run paused, stepped or let go on redraws the run bar's controls.
+  useEffect(() => {
+    const redraw = () => setTick((t) => t + 1)
+    Anim.listeners.add(redraw)
+    return () => Anim.listeners.delete(redraw)
+  }, [])
 
   // One controller per visit, created before the first paint. `rt.cur` is the session the modes read.
   const cur = useRef(null)
@@ -100,11 +107,16 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
           cta: x.cta && { label: x.cta.label, fn: () => { x.cta.fn(); refresh() } },
         })
       },
-      startRun() {
+      startRun({ paused = false } = {}) {
         cur.current.running = true
-        Anim.begin()
+        Anim.begin(paused)
         renderDock()
-        if (phone) q('.bcard').scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' })
+        // On a phone the run jumps straight to the test board, wherever the player was on the page (the page itself
+        // is the scroller, so set it rather than ask for a smooth scroll that a redraw can cut short).
+        if (phone) {
+          const card = q('.bcard')
+          el.scrollTop += card.getBoundingClientRect().top - el.getBoundingClientRect().top - 8
+        }
       },
       endRun() {
         cur.current.running = false
@@ -249,7 +261,8 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, phon
         <div dangerouslySetInnerHTML={{ __html: padHTML(ctl) }} />
       ) : (
         <RunDock
-          meta={html(d.meta)}
+          meta={d.meta ? html(d.meta) : null}
+          controls={(d.ctrl ?? []).map((c) => ({ key: c.act, label: c.label, icon: CTRL_ICON[c.icon], attrs: { 'data-act': c.act } }))}
           secondary={d.sec ? { label: html(d.sec), armed: Boolean(ctl.st?.armed), attrs: { 'data-act': d.secAct } } : null}
           go={d.go ? { label: d.go, busy: Boolean(d.busy), pulse: Boolean(L.coach && L.coach(ctl.st).run), icon: !d.busy && d.goIcon ? <i className="run-icon" dangerouslySetInnerHTML={{ __html: d.goIcon }} /> : undefined, attrs: { 'data-act': d.act } } : null}
         />
@@ -388,6 +401,8 @@ function WorldHandle({ rootRef }) {
   }
   return <div className="sg-resize" role="separator" aria-orientation="horizontal" aria-label={tr('拖动调整棋盘区高度', 'Drag to resize the board area')} tabIndex={0} onPointerDown={down} onKeyDown={key} />
 }
+
+const CTRL_ICON = { step: <StepForward size={16} />, pause: <Pause size={16} />, play: <Play size={16} /> }
 
 /** The number keypad a mode opens in the dock while a cell is being typed into. */
 function padHTML(ctl) {

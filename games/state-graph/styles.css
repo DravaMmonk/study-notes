@@ -311,8 +311,16 @@ button:disabled{cursor:not-allowed}
 .n5 .vbot{width:16px;height:16px;right:-7px;bottom:-8px}
 .varm{display:grid;gap:3px;justify-items:center;padding-bottom:12px}
 .varm-row{display:flex;gap:6px}
-.vfacts{display:grid;gap:5px;width:100%}
+.vfacts{display:grid;gap:6px;width:100%}
 .vfact{position:relative;display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:4px;padding:4px 6px;border-radius:9px;border:1.5px dashed var(--wire);font:600 11px/1.2 var(--f-body);text-align:left}
+/* The window on the left, the cell's facts on the right: tall, narrow buttons, easy to tap. */
+.vtop{width:100%;display:grid;gap:14px;justify-items:center;align-items:start}
+.vtop.has-facts{grid-template-columns:auto minmax(0,1fr)}
+.vtop.has-facts .vfacts{min-width:0;align-content:start;justify-items:stretch;max-width:170px}
+.vtop.has-facts .vfact{min-width:0}
+.vtop.has-facts .vwins{flex-direction:column;align-items:center}
+.vtop .vfact{min-height:48px;padding:8px 10px;gap:6px;font-size:12.5px;line-height:1.3}
+.vtop .vfact .vv{font-size:12px}
 .vfact .glyph{width:20px;height:14px}
 .vfact .vv{font:700 10.5px var(--f-mono);color:var(--signal)}
 .vfact.on{border:2px solid var(--cyan);background:var(--cyan-soft)}
@@ -561,10 +569,11 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
   /* The robot's window on the left; what it carries besides (the arm, the switches, the cell's facts) beside it, so
      the view fits the strip's height. */
   .sg-world-side .cview { --vc: 38px; grid-template-columns: auto; grid-auto-flow: column; column-gap: 20px; align-items: start; padding: 12px 14px; }
-  .sg-world-side .cview .vmain { width: auto; }
+  .sg-world-side .cview .vtop { width: auto; }
   .sg-world-side .cview .vhead { white-space: nowrap; }
-  .sg-world-side .cview .vwins { flex-wrap: nowrap; }
+  .sg-world-side .cview .vwins, .sg-world-side .cview .vtop.has-facts .vwins { flex-direction: row; flex-wrap: nowrap; }
   .sg-world-side .cview .vextra { width: 250px; }
+  .sg-world-side .cview .vtop.has-facts .vfacts { width: 150px; }
   .sg-world-side .cview .vwin.n5 { --vc: 30px; }
   .sg-world-side > .run-foot { padding: 12px 14px; }
   /* The board under the parts row. */
@@ -592,4 +601,9 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
   .sg-bench-scene { grid-template-columns: minmax(0, 1fr); }
   .sg-bench-view .cview { --vc: 38px; }
   .sg-bench-view .cview .vwin.n5 { --vc: 30px; }
+}
+/* Phone: with the cell's facts beside it, the robot's window gives up some width. */
+@media (max-width: 760px) {
+  .sg-level.is-circuit .cview .vtop.has-facts .vwin { --vc: clamp(40px, calc((100vw - 230px) / 3.3), 52px); }
+  .sg-level.is-circuit .cview .vtop.has-facts .vwin.n5 { --vc: clamp(28px, calc((100vw - 250px) / 5.4), 44px); }
 }
