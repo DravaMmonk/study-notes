@@ -314,10 +314,18 @@
 .wiki-chip.is-locked { color: var(--faint); cursor: default; }
 .wiki-empty { padding: 30px 40px; }
 .wiki-back { margin: -6px 0 14px -8px; }
-/* The parts box (PartsBook.jsx) on the same layout: a part's chip beside its name; its bench is games/kit/circuit DemoBench. */
+/* The components box (PartsBook.jsx) on the same layout: a part's chip beside its name; its bench is games/kit/circuit DemoBench. */
 .wiki-item .family-chip { flex: none; width: 20px; height: 20px; }
 .parts-article h2 { display: flex; align-items: center; gap: 12px; }
 .parts-article h2 .family-chip { width: 34px; height: 34px; border-radius: 10px; }
+.parts-filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 4px 14px; }
+.parts-filter { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px 0 7px; border: 0; border-radius: 999px; color: var(--ink-2, var(--ink)); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); font: inherit; font-size: 12.5px; cursor: pointer; }
+.parts-filter svg { flex: none; }
+.parts-filter-icon { width: 20px; height: 20px; }
+.parts-filter[aria-pressed='true'] { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--paper)); }
+.parts-filter:disabled { color: var(--faint, var(--muted)); cursor: default; box-shadow: inset 0 0 0 1px var(--hairline); background: none; }
+.parts-filter small { font: 11px var(--mono); color: var(--faint, var(--muted)); }
+.parts-filter:not(:disabled):hover { box-shadow: inset 0 0 0 1px var(--ink); }
 /* A dot on the buttons that open it while there are entries not read yet. */
 .wiki-button { position: relative; }
 .wiki-button .wiki-dot { position: absolute; top: 6px; right: 5px; box-shadow: 0 0 0 2px var(--paper); }

@@ -30,7 +30,7 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, onRese
             </button>
           )}
           <div className="map-tools">
-            {onParts && <button className="kit-btn is-label wiki-button" onClick={onParts}><Package size={15} /><span>{tr('零件箱', 'Parts')}</span><b>{partsNew > 0 ? tr(`${partsNew} 个新`, `${partsNew} new`) : `${game.parts.earned(progress).length}/${game.parts.all.length}`}</b></button>}
+            {onParts && <button className="kit-btn is-label wiki-button" onClick={onParts}><Package size={15} /><span>{tr('元件箱', 'Components')}</span><b>{partsNew > 0 ? tr(`${partsNew} 个新`, `${partsNew} new`) : `${game.parts.earned(progress).length}/${game.parts.all.length}`}</b></button>}
             {onWiki && <button className="kit-btn is-label wiki-button" onClick={onWiki}><BookMarked size={15} /><span>{tr('百科', 'Encyclopedia')}</span>{unread > 0 && <b>{tr(`${unread} 条新`, `${unread} new`)}</b>}</button>}
             <button className={`kit-btn is-label map-reset ${progress.all ? 'is-all' : ''}`} onClick={() => setProgressOpen(true)} aria-haspopup="dialog">
               <RotateCcw size={14} /><span>{tr('清空进度', 'Clear progress')}</span>{progress.all && <b>{tr('已全部解锁', 'All unlocked')}</b>}
@@ -105,10 +105,10 @@ function ProgressDialog({ progress, onAll, onReset, onClose }) {
           <input type="checkbox" checked={Boolean(progress.all)} onChange={(event) => onAll(event.target.checked)} />
           <span className="map-all-switch" aria-hidden="true"><i /></span>
           {progress.all ? <LockOpen size={14} /> : <Lock size={14} />}
-          <span>{tr('全部解锁', 'Unlock all')}<small>{progress.all ? tr('任意一关都能直接玩，零件箱和百科也全部打开；进度照常记录', 'Any level can be played, and the parts box and encyclopedia are open in full; progress is still recorded') : tr('打开后不用按顺序，任意一关都能直接玩，零件箱和百科也全部打开', 'Turn on to play any level in any order, with the parts box and encyclopedia open in full')}</small></span>
+          <span>{tr('全部解锁', 'Unlock all')}<small>{progress.all ? tr('任意一关都能直接玩，元件箱和百科也全部打开；进度照常记录', 'Any level can be played, and the components box and encyclopedia are open in full; progress is still recorded') : tr('打开后不用按顺序，任意一关都能直接玩，元件箱和百科也全部打开', 'Turn on to play any level in any order, with the components box and encyclopedia open in full')}</small></span>
         </label>
         <div className="progress-clear">
-          <p>{tr('清空后，通过的关卡、搭好的电路、拿到的零件都会从这台设备上删掉，不能恢复。', 'Clearing removes the levels passed, the circuits built and the parts earned from this device, for good.')}</p>
+          <p>{tr('清空后，通过的关卡、搭好的电路、拿到的元件都会从这台设备上删掉，不能恢复。', 'Clearing removes the levels passed, the circuits built and the components earned from this device, for good.')}</p>
           <button
             type="button"
             className={`progress-clear-btn ${armed ? 'is-armed' : ''}`}

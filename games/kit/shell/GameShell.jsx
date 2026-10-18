@@ -19,7 +19,7 @@ const SITE = { games: '../index.html' }
 
 /**
  * The game shell shared by every game: the top bar, the level map, the level rail, a level's 引入, the first-run
- * dialog, the passed and failed dialogs, the parts box and encyclopedia, settings and saved progress. A game (see
+ * dialog, the passed and failed dialogs, the components box and encyclopedia, settings and saved progress. A game (see
  * defineGame) brings only its content: chapters, levels, intro figures and, for each kind of level, the screen
  * that plays it. A level screen gets
  *

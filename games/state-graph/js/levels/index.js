@@ -45,7 +45,7 @@ export { LABELS };
 function registerBlueprint(L) {
   const last = (L.stages || [L]).at(-1), V = WORLDS[last.world], ports = L.blueprint.ports;
   BLUEPRINTS[`bp:${L.id}`] = {
-    name: PARTS[L.unlock].name,
+    name: PARTS[L.unlock].name, look: L.unlock,
     desc: lazy(() => tr(`你在第 ${LABELS.get(L.id)} 关拼出的电路板，现在是一个元件。顶上的输入：${ports.map(id => V.sensors[id].label).join('、')}。`, `The circuit board you built in level ${LABELS.get(L.id)}, now a component. Inputs on top: ${ports.map(id => V.sensors[id].label).join(', ')}.`)),
     ins: ports.map(id => ({ num: 'num', bool: 'bool', nums: 'num*', bools: 'bool*', cat: 'cat' })[V.sensors[id].type]), labels: ports.map(id => V.sensors[id].short), sensors: ports,
     out: V.outs[0][0], outType: V.outs[0][3], f: L.blueprint.f,
