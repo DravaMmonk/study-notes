@@ -1,7 +1,7 @@
 /* The shared game shell (GameShell and friends), on the kit's tokens: the page, the top bar's level title, the level
    map, the rail, the workbench and brief, dialogs, the 引入 sheet, bottom sheets and the phone page. A game's own
    stylesheet adds only what its levels draw. */
-.game { min-height: 100dvh; display: grid; grid-template-rows: var(--bar-h) minmax(0, 1fr); color: var(--ink); background: var(--canvas); font-family: var(--sans); }
+.game { min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--bar-h) minmax(0, 1fr); color: var(--ink); background: var(--canvas); font-family: var(--sans); }
 .game.is-playing { height: 100dvh; overflow: hidden; }
 .game :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -136,7 +136,7 @@
 .family-chip { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border-radius: 6px; color: var(--fam, var(--muted)); background: color-mix(in srgb, var(--fam, var(--muted)) 14%, transparent); font-style: normal; }
 
 .dialog-scrim { position: fixed; z-index: 70; inset: 0; display: grid; place-items: center; padding: 20px; background: var(--scrim); animation: fade-in 200ms ease; }
-.dialog { width: min(500px, 100%); padding: 28px 28px 22px; border-radius: 18px; background: var(--paper); box-shadow: var(--lift), 0 0 0 1px var(--rule); animation: dialog-in 280ms cubic-bezier(.2, .8, .2, 1); }
+.dialog { width: min(500px, 100%); max-height: calc(100dvh - 40px); overflow-y: auto; overscroll-behavior: contain; padding: 28px 28px 22px; border-radius: 18px; background: var(--paper); box-shadow: var(--lift), 0 0 0 1px var(--rule); animation: dialog-in 280ms cubic-bezier(.2, .8, .2, 1); }
 .dialog h2 { margin: 0 0 14px; color: var(--muted); font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: .16em; }
 .dialog p { margin: 0 0 10px; color: var(--body); font-family: var(--serif); font-size: 17px; line-height: 1.75; }
 .dialog.is-intro p { animation: rise-in 420ms ease both; animation-delay: calc(var(--line) * 260ms + 120ms); }
@@ -150,6 +150,8 @@
 .unlocked-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .unlocked-part { min-height: 32px; padding: 4px 10px 4px 5px; display: inline-flex; align-items: center; gap: 7px; border-radius: 9px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; animation: rise-in 300ms 500ms ease both; }
 .dialog-actions { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+/* A long dialog scrolls; its buttons stay in reach at the bottom. */
+.dialog-actions { position: sticky; bottom: -22px; margin-bottom: -22px; padding: 12px 0 22px; background: linear-gradient(transparent, var(--paper) 12px); }
 .dialog-actions button.is-primary { color: var(--paper); background: var(--ink); box-shadow: none; }
 .board-loading { padding: 40px; color: var(--muted); }
 
@@ -209,7 +211,9 @@
   .map-level { min-height: 46px; }
 
   .dialog-scrim { align-items: end; padding: 0; }
-  .dialog { width: 100%; padding: 22px 20px calc(18px + env(safe-area-inset-bottom)); border-radius: 20px 20px 0 0; animation: sheet-in 280ms cubic-bezier(.2, .8, .2, 1); }
+  .dialog { width: 100%; max-height: calc(100dvh - env(safe-area-inset-top) - 16px); padding: 22px 20px calc(18px + env(safe-area-inset-bottom)); border-radius: 20px 20px 0 0; animation: sheet-in 280ms cubic-bezier(.2, .8, .2, 1); }
+  .dialog p { font-size: 16px; line-height: 1.65; }
+  .dialog-actions { bottom: calc(-18px - env(safe-area-inset-bottom)); margin-bottom: calc(-18px - env(safe-area-inset-bottom)); padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
   .dialog-actions { flex-direction: column-reverse; }
   .dialog-actions button { width: 100%; min-height: 44px; }
 }
@@ -341,6 +345,8 @@
 .run-sec:hover { background: var(--hover); }
 .run-sec.is-armed { color: var(--paper); background: var(--fail); box-shadow: none; }
 .run-sec:disabled { opacity: .4; cursor: default; }
+.run-ctl { flex: none; min-height: 44px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 12px; color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--rule); font: 600 13.5px var(--sans); cursor: pointer; }
+.run-ctl:hover { background: var(--hover); }
 .run-go { flex: 0 1 210px; min-width: min(160px, 46vw); min-height: 52px; padding: 0 22px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 0; border-radius: 15px; color: #2a1d05; background: var(--accent); font: 800 16px var(--sans); cursor: pointer; transition: transform 120ms ease, background 200ms ease, filter 160ms ease; }
 .run-go:hover { filter: brightness(1.05); }
 .run-go:active { transform: scale(.97); }
@@ -359,5 +365,8 @@
 @media (min-width: 761px) {
   .run-foot .run-dock { flex-wrap: wrap; }
   .run-foot .run-meta { flex: 1 0 100%; }
+  .run-foot .run-meta:empty { display: none; }
+  .run-ctl { padding: 0 10px; }
+  .run-foot .run-dock:has(.run-ctl) .run-go { min-width: 0; padding: 0 14px; }
   .run-foot .run-go { flex: 1 1 auto; }
 }

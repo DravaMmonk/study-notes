@@ -7,14 +7,18 @@ import { Check, Play, SkipForward } from 'lucide-react'
 //
 // meta: a line on where the level stands (a node)   lead: anything before it (an undo button)
 // secondary: { label, armed?, onClick?, attrs? }     go: { label, busy?, pass?, pulse?, icon?, onClick?, attrs? }
+// controls: [{ key, label, icon, onClick?, attrs? }] small buttons before them (step through a run, pause, go on)
 // attrs are spread onto the button, so a page that handles clicks itself (data-act=…) can keep doing so.
 
-export default function RunDock({ meta, lead, secondary, go, className = '' }) {
+export default function RunDock({ meta, lead, secondary, controls = [], go, className = '' }) {
   const icon = go?.icon ?? (go?.busy ? <SkipForward size={17} /> : go?.pass ? <Check size={18} /> : <Play size={16} />)
   return (
     <div className={`run-dock ${className}`}>
       {lead}
       <div className="run-meta">{meta}</div>
+      {controls.map((c) => (
+        <button key={c.key} type="button" className="run-ctl" onClick={c.onClick} aria-label={c.label} title={c.label} {...c.attrs}>{c.icon}<span>{c.label}</span></button>
+      ))}
       {secondary && (
         <button type="button" className={`run-sec ${secondary.armed ? 'is-armed' : ''}`} onClick={secondary.onClick} {...secondary.attrs}>{secondary.label}</button>
       )}
