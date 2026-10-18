@@ -141,7 +141,18 @@
 .pb-part:active { transform: scale(.97); }
 .pb-toast { bottom: calc(132px + env(safe-area-inset-bottom)); }
 
-.node.is-source, .node.is-sink { background: var(--surface); }
+/* The circuit's ends, set apart from its parts in every theme: an opaque card tinted with its own colour and ringed
+   in it, a bar down the side the signal enters or leaves by (left for an input, right for an output), and a tag.
+   Inputs keep their own colour (the one they wear in the robot's view); every output wears the accent. */
+.node.is-source, .node.is-sink { --io: var(--fam, var(--accent)); background: color-mix(in srgb, var(--io) 12%, var(--paper)); outline: 1.5px solid color-mix(in srgb, var(--io) 55%, transparent); outline-offset: -1.5px; }
+.node.is-source { border-radius: 5px 12px 12px 5px; }
+.node.is-sink { --io: var(--accent); border-radius: 12px 5px 5px 12px; }
+.node.is-source::before, .node.is-sink::before { top: 0; bottom: 0; width: 5px; height: auto; opacity: 1; background: var(--io); }
+.node.is-source::before { left: 0; right: auto; border-radius: 5px 0 0 5px; }
+.node.is-sink::before { left: auto; right: 0; border-radius: 0 5px 5px 0; }
+.node[data-io]::after { content: attr(data-io); position: absolute; top: -12px; padding: 1px 7px; border-radius: 6px; color: var(--paper); background: var(--io); font: 600 10px/1.5 var(--mono); letter-spacing: .06em; pointer-events: none; }
+.node.is-source::after { left: 12px; }
+.node.is-sink::after { right: 12px; }
 .pb-glyph { margin-right: 3px; color: var(--fam, var(--muted)); font-style: normal; font-weight: 600; }
 .pb-new { margin-left: 4px; padding: 1px 5px; border-radius: 5px; color: var(--paper); background: var(--accent); font: 600 9.5px var(--mono); font-style: normal; }
 .pb-part .family-chip { font-style: normal; font-weight: 600; }
