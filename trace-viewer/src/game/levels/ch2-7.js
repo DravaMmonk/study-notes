@@ -55,7 +55,7 @@ export const chapter3 = [
     chapter: 3,
     title: { zh: '梯度大小', en: 'Gradient magnitude' },
     brief: { zh: '上一关你在一个点上量出 gx、gy，拼成箭头。现在要在每个像素上都量，并输出箭头有多长：√(gx² + gy²)。不管边是横的、竖的还是斜的，越陡的地方越亮。', en: 'Last level you measured gx and gy at one point and combined them into an arrow. Now measure them at every pixel and output how long the arrow is: √(gx² + gy²). Whether an edge is horizontal, vertical or diagonal, the steeper it is, the brighter.' },
-    hint: { zh: 'Sobel x 在每个像素量 gx，Sobel y 量 gy（第 1 章搭过）。箭头长度怎么从两个分量算出来？想想勾股定理。', en: 'Sobel x measures gx at every pixel and Sobel y measures gy (you built them in chapter 1). How do you get the arrow\'s length from its two components? Think of Pythagoras.' },
+    hint: { zh: 'Sobel x 在每个像素量 gx，Sobel y 量 gy。箭头长度怎么从两个分量算出来？想想勾股定理。', en: 'Sobel x measures gx at every pixel and Sobel y measures gy. How do you get the arrow\'s length from its two components? Think of Pythagoras.' },
     after: { zh: '两个方向的坡度合成一个长度，边缘强度就和边的方向无关了：横边、竖边、斜边一样亮。方向本身是 atan2(gy, gx)。切到「地形」视图看：输出在每条边上隆起一道山脊。', en: 'Combining the slopes in two directions into one length makes edge strength independent of edge direction: horizontal, vertical and diagonal edges are equally bright. The direction itself is atan2(gy, gx). Switch to the "Terrain" view: the output rises into a ridge along every edge.' },
     requires: ['3-5'],
     unlocks: ['gradmag'],

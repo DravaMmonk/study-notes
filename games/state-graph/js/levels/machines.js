@@ -47,7 +47,7 @@ export const machines = [
     tests: [{ R: 3, C: 4, given: { '0,0': 1 } }, { R: 4, C: 5, given: { '0,0': 1 } }],
     solution: circ([['m', 'msum']], ['tap:up>m:0', 'tap:left>m:1', 'm>out:cell']),
     hints: [T('每个路口 = 上面 + 左边：两个输入都接进同一个汇合器，汇合器再接到「本格」。', 'Each crossing = up + left: wire both inputs into the same Merger, and the Merger into “this cell”.')],
-    debrief: { title: T('城市交给了机器人', 'The robot runs the city'), body: [T('第 6 关你亲手填了 12 个路口；现在你只接了三根线，机器人就把整座城市填满了。', 'In level 6 you filled in 12 crossings by hand; now you drew three wires and the robot filled in the whole city.'), T('不过，起点那个 1 是我们替它写好的。', 'But the 1 at the start was written in for it.')], note: T('汇合器把几根线送来的数加起来，「—」不参与。', 'A Merger adds up the numbers its wires bring; “—” is left out.') },
+    debrief: { title: T('城市交给了机器人', 'The robot runs the city'), body: [T('之前你亲手填了 12 个路口；现在你只接了三根线，机器人就把整座城市填满了。', 'Before, you filled in 12 crossings by hand; now you drew three wires and the robot filled in the whole city.'), T('不过，起点那个 1 是我们替它写好的。', 'But the 1 at the start was written in for it.')], note: T('汇合器把几根线送来的数加起来，「—」不参与。', 'A Merger adds up the numbers its wires bring; “—” is left out.') },
   },
   {
     id: 'origin', ch: 2, title: T('认出起点', 'Spot the start'), short: T('常数和放行闸', 'Constants and pass gates'), mode: 'circuit', robot: 'scout',

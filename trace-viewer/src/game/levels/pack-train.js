@@ -42,7 +42,7 @@ const DESCENT_STAGES = [
   },
   {
     title: { zh: '两个旋钮', en: 'Two knobs' },
-    note: { zh: '现在两个旋钮都能动：模型变成 输出 = w × 输入 + b，小球可以在整片地形上走。金色箭头是梯度，指向上坡最陡的方向，和第 3 章一样；每一步都朝它的反方向走。这片山谷又窄又长，试试不同的学习率，看小球怎么走。100 步之内走到误差 0.001 以下。拖动地形可以换个角度看。', en: 'Now both knobs move: the model becomes output = w × input + b, and the ball can roam the whole landscape. The gold arrow is the gradient, pointing up the steepest slope, as in chapter 3; every step goes the opposite way. This valley is long and narrow: try different learning rates and watch how the ball moves. Get the error below 0.001 within 100 steps. Drag the landscape to see it from another angle.' },
+    note: { zh: '现在两个旋钮都能动：模型变成 输出 = w × 输入 + b，小球可以在整片地形上走。金色箭头是梯度，指向上坡最陡的方向；每一步都朝它的反方向走。这片山谷又窄又长，试试不同的学习率，看小球怎么走。100 步之内走到误差 0.001 以下。拖动地形可以换个角度看。', en: 'Now both knobs move: the model becomes output = w × input + b, and the ball can roam the whole landscape. The gold arrow is the gradient, pointing up the steepest slope; every step goes the opposite way. This valley is long and narrow: try different learning rates and watch how the ball moves. Get the error below 0.001 within 100 steps. Drag the landscape to see it from another angle.' },
     rule: 'two',
     mode: 'step2',
     start: { w: -0.5, b: 1.2 },

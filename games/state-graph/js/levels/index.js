@@ -58,7 +58,7 @@ function registerBlueprint(L) {
   const ports = L.blueprint.ports.map(p => (typeof p === 'string' ? { label: V.sensors[p].label, short: V.sensors[p].short, type: V.sensors[p].type, sensor: p } : p));
   BLUEPRINTS[`bp:${L.id}`] = {
     name: PARTS[L.unlock].name, look: L.unlock, value: L.blueprint.value,
-    desc: lazy(() => tr(`你在第 ${LABELS.get(L.id)} 关拼出的电路板，现在是一个元件。顶上的输入：${ports.map(p => p.label).join('、')}。`, `The circuit board you built in level ${LABELS.get(L.id)}, now a component. Inputs on top: ${ports.map(p => p.label).join(', ')}.`)),
+    desc: lazy(() => tr(`你拼出的电路板，现在是一个元件。顶上的输入：${ports.map(p => p.label).join('、')}。`, `The circuit board you built, now a component. Inputs on top: ${ports.map(p => p.label).join(', ')}.`)),
     ins: ports.map(p => PORT_TYPE[p.type] || p.type), labels: ports.map(p => p.short), sensors: ports.map(p => p.sensor ?? null),
     out: V.outs[0][0], outType: V.outs[0][3], f: L.blueprint.f,
   };

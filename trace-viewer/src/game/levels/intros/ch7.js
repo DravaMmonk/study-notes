@@ -58,8 +58,8 @@ export default {
   '7-3': [
     {
       t: {
-        zh: '知道了视差，还要换成米。距离、视差、镜头焦距 f、两台相机的间距 b（叫基线）之间有一个固定的关系，它和第 0 章的小孔成像是同一个道理。',
-        en: 'Once you know the disparity, you still need to turn it into metres. Distance, disparity, the lens focal length f and the spacing b between the two cameras (called the baseline) are tied by a fixed relationship, and it follows from the same idea as the pinhole camera in Chapter 0.',
+        zh: '知道了视差，还要换成米。距离、视差、镜头焦距 f、两台相机的间距 b（叫基线）之间有一个固定的关系，它和小孔成像是同一个道理。',
+        en: 'Once you know the disparity, you still need to turn it into metres. Distance, disparity, the lens focal length f and the spacing b between the two cameras (called the baseline) are tied by a fixed relationship, and it follows from the same idea as the pinhole camera.',
       },
     },
     {

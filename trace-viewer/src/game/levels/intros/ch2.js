@@ -3,8 +3,8 @@ export default {
   '2-1': [
     {
       t: {
-        zh: '第 1 章一直在看邻居：一个像素和旁边的像素差多少。这一章换个角度，把一张图看成许多道<b>波</b>叠在一起。先从最简单的一道波开始。',
-        en: 'Chapter 1 kept looking at neighbours: how much a pixel differs from the pixels next to it. This chapter takes a different view and sees an image as many <b>waves</b> stacked together. Let\'s start with the simplest: a single wave.',
+        zh: '前面一直在看邻居：一个像素和旁边的像素差多少。这一章换个角度，把一张图看成许多道<b>波</b>叠在一起。先从最简单的一道波开始。',
+        en: 'So far you have kept looking at neighbours: how much a pixel differs from the pixels next to it. This chapter takes a different view and sees an image as many <b>waves</b> stacked together. Let\'s start with the simplest: a single wave.',
       },
     },
     {
@@ -117,8 +117,8 @@ export default {
     },
     {
       t: {
-        zh: '第 1 章的 3×3 平均、高斯，是在空间里让每个像素和邻居混一混。这一关从频率那边下手：留下哪些、压掉哪些，结果也会是某种模糊。这两种做法是什么关系？',
-        en: 'The 3×3 average and the Gaussian from chapter 1 work in space, mixing each pixel with its neighbours. This level works from the frequency side: choose which frequencies to keep and which to suppress, and the result is also a kind of blur. How are the two approaches related?',
+        zh: '之前的 3×3 平均、高斯，是在空间里让每个像素和邻居混一混。这一关从频率那边下手：留下哪些、压掉哪些，结果也会是某种模糊。这两种做法是什么关系？',
+        en: 'The 3×3 average and the Gaussian you built work in space, mixing each pixel with its neighbours. This level works from the frequency side: choose which frequencies to keep and which to suppress, and the result is also a kind of blur. How are the two approaches related?',
       },
     },
     {

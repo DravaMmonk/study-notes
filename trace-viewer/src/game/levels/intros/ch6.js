@@ -15,8 +15,8 @@ export default {
     },
     {
       t: {
-        zh: 'Sobel x、Sobel y 你在第 1 章见过，分别量左右和上下方向的变化。新给的元件「相乘」把两张图逐格相乘。',
-        en: 'You met Sobel x and Sobel y in Chapter 1: they measure change left-to-right and top-to-bottom. The new "Multiply" part multiplies two images pixel by pixel.',
+        zh: 'Sobel x、Sobel y 你见过，分别量左右和上下方向的变化。新给的元件「相乘」把两张图逐格相乘。',
+        en: 'You have met Sobel x and Sobel y: they measure change left-to-right and top-to-bottom. The new "Multiply" part multiplies two images pixel by pixel.',
       },
       fig: { test: 2, caption: { zh: '直边那组：期望处处是 0', en: 'The straight-edge set: expect 0 everywhere' } },
     },
