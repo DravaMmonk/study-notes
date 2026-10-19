@@ -43,13 +43,13 @@ export function attentionWeights(q, keys, s = 1) {
   return e.map((x) => x / total)
 }
 
-// Scaled dot-product attention over patch tokens. q_i = s·(patch i of Q), k_j = patch j of K,
+// Scaled dot-product attention over P×P patch tokens. q_i = s·(patch i of Q), k_j = patch j of K,
 // v_j = patch j of V; output patch i = Σ_j softmax_j(q_i·k_j / √d) v_j. K defaults to Q and V to K,
 // so wiring one image into Q is plain self-attention.
-export function attention(Q, K = Q, V = K, s = 1) {
-  const q = tokens(Q)
-  const k = tokens(K).list
-  const v = tokens(V).list
+export function attention(Q, K = Q, V = K, s = 1, P = PATCH) {
+  const q = tokens(Q, P)
+  const k = tokens(K, P).list
+  const v = tokens(V, P).list
   const out = q.list.map((query) => {
     const weights = attentionWeights(query, k, s)
     const mixed = new Float64Array(query.length)
@@ -58,7 +58,7 @@ export function attention(Q, K = Q, V = K, s = 1) {
     })
     return mixed
   })
-  return untokens(out, q.cols, q.rows)
+  return untokens(out, q.cols, q.rows, P)
 }
 
 // Position encoding: token number i (reading order) gets g·i added to every one of its pixels, z̃_i = z_i + p_i.

@@ -1,78 +1,28 @@
 // 第 3 章各关的引入。格式见 ./index.js。
 export default {
   '3-1': [
-    {
-      t: {
-        zh: '照片里每个像素只是一个亮度数。可这个数从哪来？同一面白墙，正对窗户和侧对窗户，拍出来就不一样亮。这一章先回到拍照的那一刻，看光怎样变成明暗。',
-        en: 'Each pixel in a photo is just a brightness number. But where does that number come from? The same white wall looks brighter facing the window than turned away from it. This chapter goes back to the moment the photo is taken, to see how light turns into light and dark.',
-      },
-    },
-    {
-      t: {
-        zh: '光从灯出发，落到表面上，再弹进相机。表面会弹回多少光，叫<b>反射率</b>：白漆接近 1，黑漆接近 0。手机修图里的「补光」、游戏里的光照，算的都是这一路。',
-        en: 'Light leaves the lamp, lands on a surface and bounces into the camera. How much light a surface sends back is its <b>reflectance</b>: close to 1 for white paint, close to 0 for black. The "fill light" in a photo-editing app and the lighting in a video game both compute this path.',
-      },
-    },
-    {
-      t: {
-        zh: '要想的问题：灯没变弱，也没被挡住，只是换了个角度照过来，表面为什么会变暗？反过来，照片里一块地方暗，你能说出是哪个原因吗？',
-        en: 'Something to think about: the lamp is no weaker and nothing blocks it, it just shines from a different angle. Why does the surface get darker? And the other way round: when a patch of a photo is dark, can you tell which cause it was?',
-      },
-    },
-    {
-      t: {
-        zh: '这一关你要做的：机关台上有一块瓷砖、一盏能绕着它转的灯，还有一张侧视图。用灯的角度、灯的强度、漆的反射率三个旋钮，弄清它们怎样一起决定亮度。',
-        en: 'Your task: the bench has a tile, a lamp that swings around it, and a side view. Use three knobs — lamp angle, lamp strength and paint reflectance — to work out how they decide the brightness together.',
-      },
-    },
+    { t: { zh: '照片里每个像素只是一个亮度数。可这个数从哪来？同一面白墙，正对窗户和侧对窗户，拍出来就不一样亮。这一章先回到拍照的那一刻，看光怎样变成明暗。', en: 'Each pixel in a photo is just a brightness. But where does that number come from? The same white wall photographs brighter facing the window than turned away from it. This chapter goes back to the moment a photo is taken, to see how light becomes light and shade.' } },
+    { t: { zh: '表面朝哪个方向，用一根从表面正中竖起的小杆来表示，叫<b>法线</b>：它的长度是 1，有 x、y、z 三个分量。表面会弹回多少光，叫<b>反射率</b>：白漆接近 1，黑漆接近 0。', en: 'Which way a surface faces is shown by a little rod standing straight up from it, called the <b>normal</b>: it has length 1 and three components, x, y and z. How much light a surface bounces back is its <b>reflectance</b>: close to 1 for white paint, close to 0 for black.' } },
+    { t: { zh: '哑光的表面正对着灯时最亮，越斜越暗。要想的问题：灯没变弱，也没被挡住，只是斜着照过来，表面为什么会变暗？', en: 'A matte surface is brightest when it faces the lamp, and darker the more it turns away. Something to think about: the lamp is no weaker and nothing blocks it; it just shines at a slant. Why does the surface get darker?' } },
+    { t: { zh: '这一关你要做的：输入是每一点的法线和反射率，灯的方向在说明里。画出相机拍到的样子。', en: 'Your task in this level: the inputs are each point\'s normal and reflectance, and the lamp direction is in the brief. Draw what the camera sees.' }, fig: { test: 0, caption: { zh: '第一组测试：一个白球', en: 'Set 1: a white ball' } } },
   ],
   '3-2': [
-    {
-      t: {
-        zh: '上一关的亮度只是一个数。彩色照片每个像素有三个数：R、G、B，红、绿、蓝各有多少。可现实里的光不止三种，而是像彩虹那样一整条，从紫到红连成一片。',
-        en: 'In the last level brightness was a single number. A colour photo has three numbers per pixel: R, G and B, how much red, green and blue. But real light comes in more than three kinds: it is a whole band like a rainbow, running continuously from violet to red.',
-      },
-    },
-    {
-      t: {
-        zh: '这一整条叫<b>光谱</b>：每种波长的光各有多少。波长短的看起来偏紫，长的偏红。相机和人眼一样，只有三种感光元件，各自对一段波长敏感。',
-        en: 'That whole band is the <b>spectrum</b>: how much light there is at each wavelength. Short wavelengths look violet, long ones look red. A camera, like the human eye, has only three kinds of light sensor, each sensitive to one stretch of wavelengths.',
-      },
-    },
-    {
-      t: {
-        zh: '找红灯、分开天空和草地，都要用到颜色。要想的问题：一整条光谱只记成三个数，一定会丢掉一些东西。丢掉的是什么？什么时候会因此看走眼？',
-        en: 'Spotting a red light or telling sky from grass both rely on colour. Something to think about: recording a whole spectrum as just three numbers must lose something. What is lost? When does that make you see things wrong?',
-      },
-    },
-    {
-      t: {
-        zh: '这一关你要做的：机关台上每根推杆是一种波长的光有多少，下面三条曲线是三种感光元件的灵敏度，旁边是相机读到的三个数。用推杆调配光谱，对上目标颜色。',
-        en: 'Your task: on the bench each slider is how much light there is at one wavelength. The three curves below are the sensitivities of the three sensors, and beside them are the three numbers the camera reads. Mix a spectrum with the sliders to match the target colour.',
-      },
-    },
+    { t: { zh: '摄影棚里很少只用一盏灯：主灯之外，还会在另一侧放一盏弱一些的补光，让暗面不至于漆黑。', en: 'Studios rarely use a single lamp: besides the key light, a weaker fill light goes on the other side so the dark side is not pitch black.' } },
+    { t: { zh: '上一关的电路现在是「朗伯着色」元件：给它法线和反射率，设好灯的方向，它就画出这盏灯下的样子。', en: 'Last level\'s circuit is now the "Lambert shading" part: give it the normals and the reflectance, set the lamp direction, and it draws the surface under that lamp.' } },
+    { t: { zh: '这一关你要做的：主灯不变，再加一盏从左边低处照来的补光，强度是主灯的一半。要想的问题：背对补光的那一面，补光给它的亮度是多少？', en: 'Your task in this level: keep the key light and add a fill light low on the left at half its strength. Something to think about: on the side facing away from the fill light, how much brightness does the fill light give?' }, fig: { test: 0, caption: { zh: '第一组测试：一个高鼓包', en: 'Set 1: a tall bump' } } },
   ],
   '3-3': [
-    {
-      t: {
-        zh: '3-1 是从表面算亮度：知道灯、漆和朝向，就知道多亮。这一关反过来：只看到照片里有多亮，能不能推出表面朝哪个方向？',
-        en: 'In 3-1 you went from surface to brightness: know the lamp, the paint and which way the surface faces, and you know how bright it is. This level goes the other way: seeing only how bright it is in the photo, can you work out which way the surface faces?',
-      },
-    },
-    {
-      t: {
-        zh: '人看一张照片，单凭明暗就觉得鼻梁是凸的、眼窝是凹的。机器要是也能做到，一张照片就能变成立体模型。表面的朝向，可以想成从表面正中竖起的一根小杆，杆指向哪，表面就朝哪。',
-        en: 'Looking at a photo, people judge from shading alone that the bridge of the nose sticks out and the eye sockets sink in. If a machine could do the same, one photo could become a 3D model. Think of a surface\'s orientation as a little stick standing up from its centre: wherever the stick points, the surface faces.',
-      },
-    },
-    {
-      t: {
-        zh: '这一关你要做的：机关台上的「朝向盘」是从正上方看所有朝向，中心脸朝天，越往外越歪。表面是白的，灯也已知。要回答的问题：照片里的这一个亮度，能确定唯一的朝向吗？',
-        en: 'Your task: the "orientation disc" on the bench shows every orientation seen from directly above. The centre faces straight up, and the further out, the more it tilts. The surface is white and the lamp is known. The question to answer: does this one brightness in the photo pin down a single orientation?',
-      },
-    },
+    { t: { zh: '彩色照片每个像素有三个数：R、G、B。可现实里的光不止三种，而是像彩虹那样一整条，从紫到红连成一片，叫<b>光谱</b>。', en: 'Each pixel of a colour photo has three numbers: R, G and B. But real light is not three kinds; it is a whole band like a rainbow, from violet to red, called a <b>spectrum</b>.' } },
+    { t: { zh: '相机和人眼一样，只有三种感光元件，各自对一段波长敏感。每种元件对每个波长有多敏感，画出来是一条灵敏度曲线。', en: 'A camera, like the human eye, has only three kinds of sensor, each sensitive to a range of wavelengths. How sensitive each is at each wavelength, drawn out, is its sensitivity curve.' }, fig: { test: 0, caption: { zh: '第一组测试：日光的光谱和三条灵敏度曲线', en: 'Set 1: the daylight spectrum and the three sensitivity curves' } } },
+    { t: { zh: '这一关的输入都是波形：一条光谱和三条灵敏度曲线，每条 10 个点，从紫到红。新元件「求平均」把一行数平均成一个数。', en: 'This level\'s inputs are all waveforms: a spectrum and three sensitivity curves, 10 points each, from violet to red. The new part "Average" averages a row of numbers into one number.' } },
+    { t: { zh: '这一关你要做的：输出相机读到的 R、G、B 三个数。要想的问题：一整条光谱只记成三个数，丢掉了什么？', en: 'Your task in this level: output the three numbers the camera reads, R, G and B. Something to think about: when a whole spectrum is kept as three numbers, what is thrown away?' } },
   ],
   '3-4': [
+    { t: { zh: '布是什么颜色，要看它把每个波长的光反射回来多少，这也是一条曲线。照到布上的光 × 布的反射，才是进到相机里的光谱。', en: 'What colour a cloth is depends on how much light it reflects at each wavelength, which is another curve. The light falling on the cloth × the cloth\'s reflectance is the spectrum that enters the camera.' } },
+    { t: { zh: '上一关的电路现在是「感光」元件：选 R、G 或 B，它就按那条灵敏度曲线读一条光谱。', en: 'Last level\'s circuit is now the "Sensor" part: choose R, G or B and it reads a spectrum with that sensitivity curve.' } },
+    { t: { zh: '这一关有两块布，在日光下相机读到的 R、G、B 一模一样。这一关你要做的：在各种灯下，输出相机读到的布 A 减去布 B。要想的问题：两块布的光谱明明不同，为什么日光下分不出来？', en: 'This level has two cloths whose R, G and B readings are exactly the same in daylight. Your task in this level: under various lamps, output what the camera reads for cloth A minus cloth B. Something to think about: the two cloths\' spectra are plainly different, so why can daylight not tell them apart?' }, fig: { test: 1, caption: { zh: '第二组测试：暖白灯下的两块布', en: 'Set 2: the two cloths under a warm white lamp' } } },
+  ],
+  '3-5': [
     {
       t: {
         zh: '前几关看的都是一块表面。真实照片里，表面本来的颜色和照到的光混在一起：白墙在阴影里是灰的，深色地砖在太阳底下也可能很亮。',
@@ -93,115 +43,40 @@ export default {
       fig: { test: 0, caption: { zh: '第一组测试：照片、光照 → 期望', en: 'Set 1: photo, lighting → expected' } },
     },
   ],
-  '3-5': [
-    {
-      t: {
-        zh: '前四关讲明暗从哪来，这一关转向边。边就是明暗变化很快的地方。要找它，先得说清「这里变得有多快」，往哪个方向变。',
-        en: 'The first four levels were about where light and dark come from. This level turns to edges. An edge is where brightness changes quickly. To find one, you first need to say how fast it changes here, and in which direction.',
-      },
-    },
-    {
-      t: {
-        zh: '坡度就是每走一格，亮度变多少。往右走和往下走，坡度可以不一样：一面斜坡可能往右越来越亮，往下越来越暗。两个坡度合起来，才说得清这一点陡不陡、朝哪边陡。',
-        en: 'The slope is how much the brightness changes per pixel you move. Moving right and moving down can give different slopes: a ramp might get brighter to the right and darker going down. Only the two slopes together tell you how steep a point is and which way it is steep.',
-      },
-    },
-    {
-      t: {
-        zh: '要想的问题：站在一座小山的山坡上，箭头会指向哪？站在一条边上，箭头和这条边是什么关系？先在心里猜一猜，再去量。',
-        en: 'Something to think about: standing on the side of a small hill, where does the arrow point? Standing on an edge, how does the arrow relate to the edge? Make a guess first, then measure.',
-      },
-    },
-    {
-      t: {
-        zh: '这一关你要做的：机关台上有一张图和一个十字，下面是穿过十字的横、竖两条剖面，也就是把那一行、那一列的亮度画成曲线。用两个旋钮量出十字处往右和往下的坡度。',
-        en: 'Your task: the bench has an image with a crosshair, and below it two cross-sections through the crosshair, horizontal and vertical — the brightness along that row and that column drawn as curves. Use the two knobs to measure the slope to the right and the slope downwards at the crosshair.',
-      },
-    },
-  ],
   '3-6': [
-    {
-      t: {
-        zh: '上一关你在一个点上量了坡度。真要找边，得在每个像素都量，再画成一张图：越陡越亮。这张图叫边缘强度图。',
-        en: 'In the last level you measured the slope at one point. To really find edges you measure it at every pixel and draw the result as an image: the steeper, the brighter. This is the edge strength map.',
-      },
-    },
-    {
-      t: {
-        zh: '难处在方向。物体的边有横有竖有斜，只量一个方向的坡度会漏掉另一些边。一个好的边缘强度，不该因为边转了个方向就变弱。',
-        en: 'The hard part is direction. Object edges can be horizontal, vertical or diagonal, and measuring the slope in only one direction misses some of them. A good edge strength should not get weaker just because the edge turns.',
-      },
-      fig: {
-        part: 'sobelx',
-        input: 'disk',
-        caption: { zh: 'Sobel x 处理圆盘：左右两侧反应强，上下几乎没有', en: 'Sobel x on a disk: strong response on the left and right, almost none at the top and bottom' },
-      },
-    },
-    {
-      t: {
-        zh: '这一关你要做的：输入一张图，输出每个像素的坡度有多大。测试里有方块、圆盘、字母 X 和一个角，边朝着各个方向。新元件「平方」把每个像素的数乘以它自己。',
-        en: 'Your task: take an image and output how big the slope is at each pixel. The tests include a square, a disk, the letter X and a corner, with edges facing every direction. The new "Square" part multiplies each pixel\'s value by itself.',
-      },
-      fig: { test: 0, caption: { zh: '第一组测试：方块 → 期望', en: 'Set 1: square → expected' } },
-    },
+    { t: { zh: '找红灯、分开天空和草地，都要靠颜色。可一个红苹果在阴影里，R 很小；一张白纸在阳光下，R 却很大。', en: 'Finding red lights, telling sky from grass: these rely on colour. Yet a red apple in the shade has a small R, while a sheet of white paper in the sun has a big one.' } },
+    { t: { zh: '这一关的输入是同一个场景的 R、G、B 三张图，光照有明有暗。', en: 'This level\'s inputs are the R, G and B images of one scene, with light and shade across it.' }, fig: { test: 0, caption: { zh: '第一组测试：窗边的苹果', en: 'Set 1: apples by a window' } } },
+    { t: { zh: '这一关你要做的：标出红色的东西，亮处的、阴影里的都要；白纸、黄花不算。要想的问题：光照变强变弱，R、G、B 三个数之间有什么不变？', en: 'Your task in this level: mark the red things, in light and in shade alike; white paper and yellow flowers do not count. Something to think about: as the light gets stronger or weaker, what stays the same among R, G and B?' } },
   ],
   '3-7': [
-    {
-      t: {
-        zh: '上一关的边缘强度图离「边」还差一步：定一个门槛，坡度超过它的像素才算边。门槛太低，表面的细纹也算进来；太高，真正的边又会漏掉。',
-        en: 'The edge strength map from the last level is one step short of edges: set a threshold, and only pixels whose slope exceeds it count as edges. Too low, and fine surface texture gets counted; too high, and real edges get missed.',
-      },
-      fig: {
-        part: 'gradmag',
-        input: 'glyph:F',
-        caption: { zh: '梯度幅值处理字母 F：每条边都亮起来', en: 'Gradient magnitude on the letter F: every edge lights up' },
-      },
-    },
-    {
-      t: {
-        zh: '麻烦在灯光。车上的摄像头中午和傍晚都要认出同一条路沿，不可能每换一次光就重调一次门槛。同一个场景换了灯，坡度会跟着变吗？',
-        en: 'The trouble is lighting. A car\'s camera has to pick out the same kerb at noon and at dusk; it cannot retune the threshold every time the light changes. When the same scene gets different lighting, do the slopes change with it?',
-      },
-    },
-    {
-      t: {
-        zh: '灯光变化大致有两种：每个像素都加上同一个数（整体加亮），或每个像素都乘上同一个数（灯变强或变暗）。要想的问题：把图像当成地形，这两种变化各自对坡度做了什么？',
-        en: 'Lighting changes come in roughly two kinds: adding the same number to every pixel (brightening everything), or multiplying every pixel by the same number (the lamp getting stronger or weaker). Something to think about: treating the image as a landscape, what does each of these do to the slopes?',
-      },
-    },
-    {
-      t: {
-        zh: '这一关你要做的：机关台上是同一个字母 F 在四种灯光下的照片，表面带一点细纹。你来定门槛，看一个门槛能不能让每张照片都只标出 F 的轮廓。',
-        en: 'Your task: the bench shows photos of the same letter F under four kinds of lighting, with a little fine texture on the surface. You set the threshold, and see whether one threshold can mark only the outline of the F in every photo.',
-      },
-    },
+    { t: { zh: '前几关讲明暗从哪来，这一关转向<b>边</b>：明暗变化很快的地方。要找它，先得说清每一点「变得有多快」。', en: 'The last few levels were about where light and shade come from. This one turns to <b>edges</b>: places where brightness changes fast. To find them, first say how fast the brightness changes at each point.' } },
+    { t: { zh: '坡度有两个分量：往右走亮度变多少（gx），往下走变多少（gy），两个合起来是一个箭头，叫<b>梯度</b>。Sobel x 在每个像素量 gx，Sobel y 量 gy。', en: 'A slope has two components: how much the brightness changes going right (gx), and going down (gy). Together they make an arrow called the <b>gradient</b>. Sobel x measures gx at every pixel, and Sobel y measures gy.' }, fig: { part: 'sobelx', params: {}, input: 'disk', caption: { zh: 'Sobel x 处理圆盘：左右两侧反应强，上下几乎没有', en: 'Sobel x on a disc: strong on the left and right, almost nothing at the top and bottom' } } },
+    { t: { zh: '难处在方向。物体的边有横有竖有斜，只量一个方向的坡度会漏掉另一些边。一个好的边缘强度，不该因为边转了个方向就变弱。', en: 'The difficulty is direction. Object edges run horizontally, vertically and diagonally; measuring the slope in one direction only misses some of them. A good edge strength should not get weaker just because an edge turns.' } },
+    { t: { zh: '新画法「坡度」：画出等高线，再在各处画一个箭头，指向变亮最快的方向。', en: 'A new way of drawing, "Slope": contour lines, with an arrow at each place pointing where the picture brightens fastest.' } },
+    { t: { zh: '这一关你要做的：在每个像素输出梯度箭头有多长。测试里有方块、圆盘、字母 X 和一个角，边朝着各个方向。', en: 'Your task in this level: at every pixel, output how long the gradient arrow is. The tests have a square, a disc, a letter X and a corner, with edges facing every way.' }, fig: { test: 0, caption: { zh: '第一组测试：方块 → 期望', en: 'Set 1: square → expected' } } },
   ],
   '3-8': [
-    {
-      t: {
-        zh: '上一关在机关台上手动调门槛。这一关要把它做成电路：照片在什么灯光下拍的，没人告诉电路，它也要每次标出同一组边。',
-        en: 'In the last level you tuned the threshold by hand on the bench. This level turns it into a circuit: nobody tells the circuit what lighting the photo was taken in, and it still has to mark the same edges every time.',
-      },
-    },
-    {
-      t: {
-        zh: '真正的识别系统天天碰到这件事：同一张脸在室内和室外，同一块路牌在晴天和阴天，像素数值差得很远，该给的答案却一样。',
-        en: 'Real recognition systems face this every day: the same face indoors and outdoors, the same road sign on a sunny day and a cloudy one. The pixel values are far apart, but the answer should be the same.',
-      },
-      fig: { test: 1, caption: { zh: '同一个 F，灯暗了，期望的边不变', en: 'The same F with a dimmer lamp: the expected edges stay the same' } },
-    },
-    {
-      t: {
-        zh: '这一关新出现的元件是「全图最大值」：找出输入里最大的那个数，输出一张处处都是这个数的图。',
-        en: 'The new part in this level is "Global max": it finds the largest value in the input and outputs an image with that value everywhere.',
-      },
-    },
-    {
-      t: {
-        zh: '这一关你要做的：输入是同一个物体在不同灯光下的照片，有的整体变亮，有的变暗。输出它的边：是边的像素为 1，其余为 0，四组测试的期望完全一样。',
-        en: 'Your task: the input is a photo of the same object under different lighting, some brighter overall, some darker. Output its edges: 1 for edge pixels, 0 everywhere else. The expected output is exactly the same in all four test sets.',
-      },
-      fig: { test: 0, caption: { zh: '第一组测试：原来的灯光 → 期望', en: 'Set 1: the original lighting → expected' } },
-    },
+    { t: { zh: '找边还差一步：定一个门槛，梯度超过它的像素才算边。门槛太低，表面的细纹也算进来；太高，真正的边又会漏掉。', en: 'Finding edges needs one more step: a threshold, so that only pixels whose gradient exceeds it count as edges. Too low, and fine texture counts too; too high, and real edges are missed.' } },
+    { t: { zh: '麻烦在灯光。车上的摄像头中午和傍晚都要认出同一条路沿，不可能每换一次光就重调一次门槛。同一张脸在室内和室外，像素数值差得很远，该给的答案却一样。', en: 'The trouble is lighting. A car\'s camera must recognise the same kerb at noon and at dusk; it cannot retune the threshold every time the light changes. The same face indoors and outdoors gives very different pixel values, yet the answer should be the same.' }, fig: { test: 1, caption: { zh: '同一个 F，灯暗了，期望的边不变', en: 'The same F with a dimmer lamp: the expected edges stay the same' } } },
+    { t: { zh: '这一关新出现的元件是「全图最大值」：找出输入里最大的那个数，输出一张处处都是这个数的图。', en: 'New in this level is the part "Global max": it finds the largest number in its input and outputs a picture filled with that number everywhere.' } },
+    { t: { zh: '这一关你要做的：输入是同一个物体在不同灯光下的照片，有的整体变亮，有的变暗。输出它的边，四组测试的期望完全一样。', en: 'Your task in this level: the inputs are photos of the same object under different lighting, some brighter overall, some dimmer. Output its edges; all four tests expect exactly the same answer.' }, fig: { test: 0, caption: { zh: '第一组测试：原来的灯光 → 期望', en: 'Set 1: the original lighting → expected' } } },
+  ],
+  '3-9': [
+    { t: { zh: '这是一道挑战关，可以跳过。它不需要新元件。', en: 'This is a challenge level, and you can skip it. It needs no new parts.' } },
+    { t: { zh: '在偏黄的灯下拍照，白纸会发黄，整张照片都带着灯的颜色。人眼会自动纠正，相机得靠「白平衡」。', en: 'Photographed under a yellowish lamp, white paper looks yellow and the whole picture takes on the lamp\'s colour. Your eyes correct for it automatically; a camera needs "white balance".' }, fig: { test: 0, caption: { zh: '第一组测试：黄灯下的书桌', en: 'Set 1: a desk under a yellow lamp' } } },
+    { t: { zh: '这一关你要做的：每张照片里都有一块白纸，它在 R、G、B 里都是最亮的。让白纸变回纯白，其余颜色跟着还原。', en: 'Your task in this level: every photo has a patch of white paper, the brightest thing in each of R, G and B. Make the paper pure white again and let every other colour be restored with it.' } },
+  ],
+  '3-10': [
+    { t: { zh: '产线上的金属板刷了漆，要检查有没有磕出的凹坑和划痕。坑和划痕改变的是表面的朝向，可漆色深浅不一，单看一张照片里的明暗，分不清是漆还是坑。这一章最后三关，就来搭这台检测仪。', en: 'Painted metal sheets on a line must be checked for dents and scratches. These change which way the surface faces, but the paint is uneven, so the shading in a single photo cannot tell paint from dent. The last three levels of this chapter build this inspection machine.' } },
+    { t: { zh: '每块板在三盏灯下各拍一张：右灯、下灯和正面灯，方向都在说明里。三张照片里，漆色是一样的，变的只是灯。', en: 'Each sheet is photographed under three lamps: from the right, from below and from the front, with their directions in the brief. The paint is the same in all three photos; only the lamp changes.' }, fig: { test: 0, caption: { zh: '第一组测试：一个鼓包，三张照片', en: 'Set 1: a bump, three photos' } } },
+    { t: { zh: '这一关你要做的：标出表面朝右倾斜的地方。要想的问题：一张照片里的暗，可能是什么造成的？两张照片之间的什么关系，和漆色无关？', en: 'Your task in this level: mark where the surface leans to the right. Something to think about: what could make a spot dark in one photo? What relation between two photos has nothing to do with the paint?' } },
+  ],
+  '3-11': [
+    { t: { zh: '上一关只问了朝右还是朝左。三盏灯其实能告诉你更多：每一点的漆色和朝向，都能解出来。', en: 'The last level only asked left or right. Three lamps can tell you more: the paint and the facing at every point can both be solved.' } },
+    { t: { zh: '这一关你要做的：同样的三张照片，输出漆色本身，也就是每一点的反射率，和表面朝哪边无关。', en: 'Your task in this level: from the same three photos, output the paint itself, the reflectance at every point, whichever way the surface faces.' }, fig: { test: 0, caption: { zh: '第一组测试：鼓包上的漆', en: 'Set 1: the paint on a bump' } } },
+  ],
+  '3-12': [
+    { t: { zh: '检测仪的最后一关。金属板本该是平的，允许它轻微弯曲；磕出的坑和划痕会让表面明显倾斜。', en: 'The inspection machine\'s final level. A sheet should be flat, though a slight bend is allowed; dents and scratches make the surface tilt clearly.' } },
+    { t: { zh: '这一关你要做的：标出坡度超过 0.3 的地方，漆色深浅不能误报。', en: 'Your task in this level: mark where the slope is above 0.3; uneven paint must not raise an alarm.' }, fig: { test: 2, caption: { zh: '第三组测试：一个坑和一道划痕', en: 'Set 3: a dent and a scratch' } } },
   ],
 }

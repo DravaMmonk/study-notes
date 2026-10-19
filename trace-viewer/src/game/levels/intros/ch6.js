@@ -15,8 +15,8 @@ export default {
     },
     {
       t: {
-        zh: 'Sobel x、Sobel y 你见过，分别量左右和上下方向的变化。新给的元件「相乘」把两张图逐格相乘。',
-        en: 'You have met Sobel x and Sobel y: they measure change left-to-right and top-to-bottom. The new "Multiply" part multiplies two images pixel by pixel.',
+        zh: 'Sobel x、Sobel y 你见过，分别量左右和上下方向的变化。「四则运算」选 ×，就把两张图逐格相乘。',
+        en: 'You have met Sobel x and Sobel y: they measure change left-to-right and top-to-bottom. Set Arithmetic to × and it multiplies two images pixel by pixel.',
       },
       fig: { test: 2, caption: { zh: '直边那组：期望处处是 0', en: 'The straight-edge set: expect 0 everywhere' } },
     },
@@ -31,6 +31,42 @@ export default {
   '6-2': [
     {
       t: {
+        zh: '响应图一过门槛，留下的是一片一片：一个角附近有好几格都很强。可一个角只该是一个点。',
+        en: 'Above a threshold a response map leaves patches: several cells near one corner are all strong. But a corner should be a single point.',
+      },
+    },
+    {
+      t: {
+        zh: '一片里真正的位置是它的峰顶：比四周都高的那一格。',
+        en: 'The true position in a patch is its top: the cell higher than everything around it.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：一张响应图上有几个鼓包，只在峰顶输出 1。',
+        en: 'Your task in this level: a response map has a few bumps; output 1 only at their tops.',
+      },
+      fig: { test: 0, view: 'terrain', caption: { zh: '第一组：三个鼓包', en: 'Set 1: three bumps' } },
+    },
+  ],
+  '6-3': [
+    {
+      t: {
+        zh: '上一关搭的「找峰」现在是现成的元件。',
+        en: 'The "Peak finder" you built last level is now a ready-made part.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：每个角只输出一个点。',
+        en: 'Your task in this level: output a single point per corner.',
+      },
+      fig: { test: 1, caption: { zh: '字母 L', en: 'Letter L' } },
+    },
+  ],
+  '6-4': [
+    {
+      t: {
         zh: '找到好认的点之后，下一步是配对：左图的这个点，是右图的哪一个？最直接的办法是比外观，拿它周围的一小块，到右图里找最像的一块。',
         en: 'Once you have points that are easy to recognise, the next step is pairing them up: which point in the right image is this point from the left image? The most direct way is to compare how they look: take a small patch around it and search the right image for the most similar patch.',
       },
@@ -43,18 +79,40 @@ export default {
     },
     {
       t: {
-        zh: '台上三组图里有独一无二的记号，也有一段一格格重复的栅栏，有一组右图还整体亮了些。点左图的一个关键点，就能看到它和右图每个候选的距离。',
-        en: 'The three sets on the bench contain one-of-a-kind marks and also a stretch of fence that repeats pixel after pixel; in one set the whole right image is a bit brighter. Click a keypoint in the left image to see its distance to every candidate in the right image.',
+        zh: '这一关把比较的结果直接交给你：每一格是一个关键点，三张图是它到三个候选的距离。最近的不一定可信：要是第二近的几乎一样近，这一对就可能是重复花纹配错了。',
+        en: 'This level hands you the comparisons directly: each cell is a keypoint, and the three maps are its distances to three candidates. The nearest is not always to be trusted: if the second nearest is almost as near, the pair may be a mistake caused by repeated texture.',
       },
     },
     {
       t: {
-        zh: '这一关你要定一条接受规则：哪些匹配收下，哪些不收。收下的不能有错，独特的点都要找回。想一想：什么样的匹配，换成你自己也会拿不准？',
-        en: 'In this level you set an acceptance rule: which matches to keep and which to reject. Every match you keep must be right, and every distinctive point must be found. Think: what kind of match would leave even you unsure?',
+        zh: '这一关你要做的：按说明里的规则，输出每个关键点配上的候选编号，不可信的输出 0。',
+        en: 'Your task in this level: following the rule in the brief, output the number of the candidate each keypoint matches, and 0 when the match cannot be trusted.',
       },
+      fig: { test: 0, caption: { zh: '第一组', en: 'Set 1' } },
     },
   ],
-  '6-3': [
+  '6-5': [
+    {
+      t: {
+        zh: '上一关搭的「匹配器」现在是现成的元件：接上三个距离，它给出配上的候选编号。',
+        en: 'The "Matcher" you built last level is now a ready-made part: give it three distances and it returns the number of the matching candidate.',
+      },
+    },
+    {
+      t: {
+        zh: '两张照片常常不是同时拍的，光线变了，同一处在右图里整体亮一截。',
+        en: 'Two photos are often not taken at the same moment: the light changes, and the same place is brighter all over in the right one.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：找出哪个候选窗口和关键点的窗口是同一处，输出它的编号。',
+        en: 'Your task in this level: find which candidate window shows the same place as the keypoint window, and output its number.',
+      },
+      fig: { test: 0, caption: { zh: '第一组', en: 'Set 1' } },
+    },
+  ],
+  '6-6': [
     {
       t: {
         zh: '很多时候要找的是一条线：车道线、纸张的边、楼房的轮廓。边缘检测给的只是一堆零散的点，还夹着噪声和不相干的点。怎样从中认出直线？',
@@ -80,7 +138,22 @@ export default {
       },
     },
   ],
-  '6-4': [
+  '6-7': [
+    {
+      t: {
+        zh: '投票台通关后，「Hough 累加器」是现成的元件：亮点进去，出来一张 (θ, ρ) 的票数图。',
+        en: 'Now that the voting bench is done, "Hough accumulator" is a ready-made part: bright points go in, and a map of votes over (θ, ρ) comes out.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：路面上有两条车道线和几个亮点，在累加器里只标出这两条线。',
+        en: 'Your task in this level: the road has two lane lines and a few bright specks; mark only these two lines in the accumulator.',
+      },
+      fig: { test: 0, caption: { zh: '第一组：两条车道', en: 'Set 1: two lanes' } },
+    },
+  ],
+  '6-8': [
     {
       t: {
         zh: '配对、找线时总会混进错的点，叫外点；对的点叫内点。用一条线去贴合所有点，几个离得远的外点就能把线拽歪。全景拼接、车道识别都要先对付它们。',
@@ -110,7 +183,37 @@ export default {
       },
     },
   ],
-  '6-5': [
+  '6-9': [
+    {
+      t: {
+        zh: '共识台通关后，「RANSAC 找直线」是现成的元件：轮数 k 和 δ 都能调。',
+        en: 'Now that the consensus bench is done, "RANSAC line" is a ready-made part, with the rounds k and δ to set.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：边缘图里有一条直线和一堆杂点，把这条线画出来。',
+        en: 'Your task in this level: an edge map holds one straight line and a heap of specks; draw the line.',
+      },
+      fig: { test: 1, caption: { zh: '杂点更多的那组', en: 'The set with more specks' } },
+    },
+  ],
+  '6-10': [
+    {
+      t: {
+        zh: '一个点光知道「在哪」还不够，还要记下它周围长什么样，才认得出。SIFT 的办法是数一数周围的边都朝哪个方向。',
+        en: 'Knowing where a point is is not enough to recognise it; you also need to record what its surroundings look like. SIFT does it by counting which way the edges around it face.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：把每一格的梯度幅值分到上下左右四个方向，输出四个方向各自的平均。',
+        en: 'Your task in this level: share each cell\'s gradient magnitude out to the four directions up, down, left and right, and output the average for each.',
+      },
+      fig: { test: 0, caption: { zh: '第一组：竖边', en: 'Set 1: a vertical edge' } },
+    },
+  ],
+  '6-11': [
     {
       t: {
         zh: '用手机对着一本书拍，App 能认出是哪本书，还能把封面图贴回照片里，增强现实（AR）常这样做。难处在于书是斜着拍的，在照片里不再方方正正。',
@@ -134,6 +237,42 @@ export default {
         zh: '这一关要把封面贴准，平均误差小于 1.5 像素。动手前先看看照片里书的形状：和封面原来的长方形比，变了哪些？',
         en: 'In this level you must paste the cover accurately, with an average error under 1.5 pixels. Before you start, look at the shape of the book in the photo: compared with the cover\'s original rectangle, what has changed?',
       },
+    },
+  ],
+  '6-12': [
+    {
+      t: {
+        zh: '四个角那一关通关后，「求单应」是现成的元件：点对进去，出来 H 的 9 个数。这一关先不用它，H 直接给你。',
+        en: 'Now that the four-corners bench is done, "Solve homography" is a ready-made part: pairs go in and the 9 numbers of H come out. This level does not need it yet: H is given.',
+      },
+    },
+    {
+      t: {
+        zh: '新元件「单应变形」按 H 把一张图搬到另一张图上。',
+        en: 'The new part "Homography warp" carries a picture onto another by H.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：把清楚的封面贴到照片里书的位置上。',
+        en: 'Your task in this level: paste the crisp cover over the book in the photo.',
+      },
+      fig: { test: 0, caption: { zh: '第一组', en: 'Set 1' } },
+    },
+  ],
+  '6-13': [
+    {
+      t: {
+        zh: '真实的点对来自匹配器，桌面的花纹一格格重复，难免配错几对。',
+        en: 'Real pairs come from the matcher, and with a desk pattern that repeats tile after tile, a few are bound to be wrong.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：用这些点对把封面贴回照片。',
+        en: 'Your task in this level: paste the cover back onto the photo using these pairs.',
+      },
+      fig: { test: 0, caption: { zh: '第一组：两对错配', en: 'Set 1: two wrong matches' } },
     },
   ],
 }

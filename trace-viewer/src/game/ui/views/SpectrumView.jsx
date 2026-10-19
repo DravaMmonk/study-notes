@@ -55,5 +55,5 @@ export default function SpectrumView({ img, size = 112, theme, onHover }) {
     const y = Math.floor(((event.clientY - box.top) / box.height) * spectrum.h)
     if (x >= 0 && y >= 0 && x < spectrum.w && y < spectrum.h) onHover({ x: x - spectrum.w / 2, y: y - spectrum.h / 2, value: spectrum.data[y * spectrum.w + x], frequency: true })
   }
-  return <canvas ref={canvas} className="spectrum-view" style={{ width: size, height: size * (spectrum.h / spectrum.w) }} onPointerMove={hover} onPointerLeave={() => onHover?.(null)} aria-label={tr('频谱：中心是平均亮度，越往外频率越高', 'Spectrum: the centre is the mean brightness; frequency rises outwards')} />
+  return <canvas ref={canvas} className="spectrum-view" style={{ width: size, height: size * (spectrum.h / spectrum.w) }} onPointerMove={hover} onPointerDown={hover} onPointerLeave={() => onHover?.(null)} aria-label={tr('频谱：中心是平均亮度，越往外频率越高', 'Spectrum: the centre is the mean brightness; frequency rises outwards')} />
 }

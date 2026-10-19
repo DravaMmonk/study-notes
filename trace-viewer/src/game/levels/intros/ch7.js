@@ -15,8 +15,8 @@ export default {
     },
     {
       t: {
-        zh: '新给的两个元件：「平方」把每格的数平方；「取最小者编号」接四张图，逐格看哪一张最小，输出它的编号 0–3。',
-        en: 'Two new parts: "Square" squares every pixel; "Index of minimum" takes four images, checks pixel by pixel which one is smallest, and outputs its index, 0–3.',
+        zh: '新原件「取最小者编号」接四张图，逐格看哪一张最小，输出它的编号 0–3。',
+        en: 'The new primitive "Index of minimum" takes four pictures and, cell by cell, outputs the number 0–3 of the one that is smallest.',
       },
     },
     {
@@ -70,18 +70,64 @@ export default {
     },
     {
       t: {
-        zh: '台上是俯视图：一对相机，前面三个障碍物。你能选镜头 f 和基线 b。每个障碍物旁的竖条是视差差 1 像素时深度的范围，色块是要求的精度。',
-        en: 'The bench shows a top-down view: a pair of cameras with three obstacles in front. You can choose the lens f and the baseline b. The bar beside each obstacle is the range of depths covered by a 1-pixel change in disparity, and the coloured block is the accuracy required.',
+        zh: '这一关你要做的：把视差图换成距离图，公式在说明里。',
+        en: 'Your task in this level: turn the disparity map into a distance map; the formula is in the brief.',
+      },
+      fig: { test: 0, view: 'terrain', caption: { zh: '第一组：一个箱子', en: 'Set 1: a box' } },
+    },
+  ],
+  '7-4': [
+    {
+      t: {
+        zh: '换一台双目相机，镜头和两台相机的间距都变了。',
+        en: 'Switch to a different stereo camera: both the lens and the distance between the two cameras change.',
       },
     },
     {
       t: {
-        zh: '这一关要选出 f 和 b，让三个障碍物都配得上，又测得够准。先想想：基线加宽，对近处和远处的障碍物各有什么影响？',
-        en: 'In this level you choose f and b so that all three obstacles can be matched and measured accurately enough. Think first: what does widening the baseline do to near obstacles, and what does it do to far ones?',
+        zh: '这一关你要做的：每组测试给出焦距 f 和基线 b，把视差图换成距离图。',
+        en: 'Your task in this level: each test gives the focal length f and the baseline b; turn the disparity map into a distance map.',
       },
+      fig: { test: 0, view: 'terrain', caption: { zh: '第一组：长焦', en: 'Set 1: a longer lens' } },
     },
   ],
-  '7-4': [
+  '7-5': [
+    {
+      t: {
+        zh: '接下来几关，一个点、一条线都写成三个数，放在一行里：点 (x, y) 写成 (x, y, 1)，线 ax + by + c = 0 写成 (a, b, c)。这叫齐次坐标。',
+        en: 'In the next few levels a point and a line are both written as three numbers in a row: the point (x, y) as (x, y, 1), and the line ax + by + c = 0 as (a, b, c). These are called homogeneous coordinates.',
+      },
+    },
+    {
+      t: {
+        zh: '叉积把两组三个数变成新的三个数，和原来两个都垂直。',
+        en: 'The cross product turns two sets of three numbers into a new three, perpendicular to both.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：按说明里的公式算出 a × b。',
+        en: 'Your task in this level: work out a × b by the formula in the brief.',
+      },
+      fig: { test: 1, caption: { zh: '第二组：两个点', en: 'Set 2: two points' } },
+    },
+  ],
+  '7-6': [
+    {
+      t: {
+        zh: '上一关搭的「叉积」现在是现成的元件。',
+        en: 'The "Cross product" you built last level is now a ready-made part.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：每条线给出它上面的两个点，输出两条线的交点。',
+        en: 'Your task in this level: each line is given by two points on it; output where the two lines meet.',
+      },
+      fig: { test: 0, caption: { zh: '第一组：十字', en: 'Set 1: a cross' } },
+    },
+  ],
+  '7-7': [
     {
       t: {
         zh: '前几关的两台相机摆得很正，同一点总在同一行，只要左右找。真实的相机很难摆得这么正，稍微一转，同一点就跑到了别的行。',
@@ -90,21 +136,90 @@ export default {
     },
     {
       t: {
-        zh: '那就整张右图逐点比？一张照片有几十万个点，每个点都这样找，太慢了。这一关给每个点的比较次数设了上限。',
-        en: 'So compare against every point in the whole right image? A photo has hundreds of thousands of points, and searching like that for each one is far too slow. This level caps the number of comparisons per point.',
+        zh: '好在两台相机的相对位置可以事先标定，记成一个 3×3 的矩阵 F，叫基础矩阵。有了它，左图的一个点在右图里不是哪里都可能出现。',
+        en: 'Fortunately the relative position of the two cameras can be calibrated in advance and recorded as a 3×3 matrix F, the fundamental matrix. With it, a point in the left image cannot turn up just anywhere in the right one.',
       },
     },
     {
       t: {
-        zh: '好在两台相机的相对位置可以事先标定，记成一个 3×3 的矩阵 F，叫基础矩阵，台上已经给出。台上还有几种找法，每种要花的比较次数不同。',
-        en: 'Luckily, the relative position of the two cameras can be calibrated in advance and stored as a 3×3 matrix F, called the fundamental matrix; the bench already gives it to you. The bench also offers several ways to search, each costing a different number of comparisons.',
+        zh: '这一关你要做的：算出左图一个点在右图对应的那条线 F·p，F 按列给出。',
+        en: 'Your task in this level: work out the line F·p in the right image that corresponds to a point in the left image; F is given column by column.',
+      },
+      fig: { test: 0, caption: { zh: '第一组：点 (2, 3)', en: 'Set 1: point (2, 3)' } },
+    },
+  ],
+  '7-8': [
+    {
+      t: {
+        zh: '上一关搭的「极线」现在是现成的元件。',
+        en: 'The "Epipolar line" you built last level is now a ready-made part.',
       },
     },
     {
       t: {
-        zh: '这一关要在右图找到 3 个点。想一想：左图的一个点，到了右图可能出现在哪些地方？真的是哪里都有可能吗？',
-        en: 'In this level you must find 3 points in the right image. Think: where in the right image could a point from the left image turn up? Could it really be anywhere?',
+        zh: '这一关你要做的：判断右图的点 q 能不能和左图的点 p 对应。',
+        en: 'Your task in this level: decide whether the right point q can correspond to the left point p.',
       },
+      fig: { test: 0, caption: { zh: '第一组：在线上', en: 'Set 1: on the line' } },
+    },
+  ],
+  '7-9': [
+    {
+      t: {
+        zh: '左图里不同的点，在右图里有不同的极线。把它们都画出来，会发现一件事：它们都交于同一点。',
+        en: 'Different points in the left image have different epipolar lines in the right image. Draw them all and you notice something: they all pass through one point.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：只用 F 算出这一点，写成 (x, y, 1)。',
+        en: 'Your task in this level: work this point out from F alone, written as (x, y, 1).',
+      },
+    },
+  ],
+  '7-10': [
+    {
+      t: {
+        zh: '扫地机器人装了一对双目相机，要在撞上之前停下来。先要知道前面每个地方有多远。',
+        en: 'A robot vacuum has a pair of stereo cameras and must stop before it bumps into things. First it needs to know how far away everything in front is.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：输出地面以上每个像素的距离。',
+        en: 'Your task in this level: output the distance of every pixel above the floor.',
+      },
+      fig: { test: 0, view: 'terrain', caption: { zh: '第一组：一个箱子', en: 'Set 1: a box' } },
+    },
+  ],
+  '7-11': [
+    {
+      t: {
+        zh: '地板没有纹理，算出来的距离在那几行乱跳。机器人只关心地面以上、离得很近的东西。',
+        en: 'The floor has no texture, so the distances worked out on those rows jump about. The robot only cares about things above the floor that are very close.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：标出地面以上、近到要停下的像素。',
+        en: 'Your task in this level: mark the pixels above the floor that are close enough to stop for.',
+      },
+      fig: { test: 0, view: 'terrain', caption: { zh: '第一组：一个箱子', en: 'Set 1: a box' } },
+    },
+  ],
+  '7-12': [
+    {
+      t: {
+        zh: '把前面几关接起来：从两台相机的画面，一路算到要停下的区域。',
+        en: 'Join the last few levels up: from the two cameras\' pictures all the way to the region to stop for.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：标出要停下的区域。',
+        en: 'Your task in this level: mark the region to stop for.',
+      },
+      fig: { test: 0, caption: { zh: '第一组：一个箱子', en: 'Set 1: a box' } },
     },
   ],
 }

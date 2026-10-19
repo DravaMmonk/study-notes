@@ -33,7 +33,7 @@ export default function CurveView({ img, expected, tolerance, width = 112, heigh
     const u = (((event.clientX - box.left) / box.width) * width - pad) / (width - 2 * pad)
     const j = Math.min(n - 1, Math.max(0, Math.floor(u * n)))
     setAt(j)
-    onHover?.({ x: j, y: 0, value: (img ?? expected).data[j], expected: img && expected ? expected.data[j] : undefined })
+    onHover?.({ x: j, y: 0, w: n, h: 1, value: (img ?? expected).data[j], expected: img && expected ? expected.data[j] : undefined })
   }
   const leave = (event) => {
     if (event.pointerType !== 'mouse') return

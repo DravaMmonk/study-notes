@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { Choice } from '../../../../games/kit/circuit/index.js'
 import { L, tr } from '../../../../games/kit/shell/i18n.js'
 
-// The controls for a part's settings on the desktop board: a choice, a number, or a 3×3 grid of weights.
+// The controls for a part's settings on the desktop board: a choice (a menu, or buttons), a number, or a 3×3 grid of
+// weights.
 // Number fields keep what is being typed (a lone "-", "0.") until it reads as a number and accept the
 // full-width and typographic minus signs that Chinese keyboards produce, so a minus is simply typed.
 // (Phones edit numbers on their own keypad, which has a ± key.)
@@ -41,7 +43,8 @@ export function NumberInput({ value, onChange, label, className, onFocus }) {
   )
 }
 
-export default function ParamControl({ param, value, onChange, roomy }) {
+export default function ParamControl({ param, value, onChange, roomy, style }) {
+  if (param.kind === 'select' && param.buttons) return <Choice options={param.options} value={value ?? param.default} onChange={onChange} label={param.label} layout={param.buttons} style={style} />
   if (param.kind === 'select') {
     return (
       <label className={`param ${roomy ? 'is-roomy' : ''}`}>

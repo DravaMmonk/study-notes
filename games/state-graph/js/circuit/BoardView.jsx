@@ -1,13 +1,14 @@
 import { useLayoutEffect, useRef } from 'react'
 import { Plus, X } from 'lucide-react'
-import { CanvasEditor, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../kit/circuit/index.js'
+import { CanvasEditor, Choice, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../kit/circuit/index.js'
 import { L, tr } from '../../../kit/shell/i18n.js'
 import { signal } from '../util.js'
 import { def, hasValue, valueDefault, isInput, isViewReader, picksOf } from './components.js'
 
 // 状态之图's circuit board on the shared circuit editor (../../../kit/circuit), the one Vision Complete uses: the same
 // cards, dots, wires, keys and gestures. `board` is the circuit mode's bridge (modes/circuit.js `ctl.board`); what a
-// card shows here is the value its output carries at the robot's cell, and a constant's or a merger's setting.
+// card shows here is the value its output carries at the robot's cell, and a constant's or a merger's setting, chosen
+// with buttons (the kit's Choice) as on the phone's sheet.
 
 const valueOf = (probe, id) => (probe && id in probe ? signal(probe[id]) : '')
 // What a part's card shows: what it computed, or 未算到 when a stopped run never got to it. (A reader shows what it
@@ -80,21 +81,16 @@ export function SgCanvas({ board, overlay }) {
     return (
       <div className={`sg-body ${isInput(node.type) ? 'is-reader' : ''}`} title={parts.role(node) === 'part' ? L(def(node.type).desc) : undefined}>
         {hasValue(node.type) && (
-          <label className="param" onPointerDown={stop}>
+          <div className="param is-choice">
             <span>{tr('数值', 'Value')}</span>
-            <select value={node.value ?? valueDefault(node.type)} onChange={(e) => board.setValue(node.id, +e.target.value)}>
-              {board.consts().map((v) => <option key={v} value={v}>{v}</option>)}
-            </select>
-          </label>
+            <Choice options={board.consts().map((v) => [v, String(v)])} value={node.value ?? valueDefault(node.type)} onChange={(v) => board.setValue(node.id, v)} label={tr('数值', 'Value')} />
+          </div>
         )}
         {node.type === 'is' && (
-          <label className="param" onPointerDown={stop}>
+          <div className="param is-choice">
             <span>{tr('哪一类', 'Kind')}</span>
-            <select value={node.value ?? ''} onChange={(e) => board.setValue(node.id, e.target.value)}>
-              <option value="" disabled>—</option>
-              {board.kinds(node.id).map(([v, l]) => <option key={v} value={v}>{L(l)}</option>)}
-            </select>
-          </label>
+            <Choice options={board.kinds(node.id)} value={node.value ?? ''} onChange={(v) => board.setValue(node.id, v)} label={tr('哪一类', 'Kind')} />
+          </div>
         )}
         {/* An input part is set on its card: what it reads on the left (the robot's view, the cell's facts), its
             outputs beside that on the right edge, then for a layered view reader which layer. */}
@@ -107,28 +103,22 @@ export function SgCanvas({ board, overlay }) {
           </div>
         )}
         {board.layerChoices(node.type).length > 0 && (
-          <label className="param" onPointerDown={stop}>
+          <div className="param is-choice">
             <span>{tr('层', 'Layer')}</span>
-            <select value={board.layerOf(node)} onChange={(e) => board.setLayer(node.id, e.target.value)}>
-              {board.layerChoices(node.type).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-            </select>
-          </label>
+            <Choice options={board.layerChoices(node.type)} value={board.layerOf(node)} onChange={(k) => board.setLayer(node.id, k)} label={tr('层', 'Layer')} />
+          </div>
         )}
         {node.type === 'arm' && (
-          <label className="param" onPointerDown={stop}>
+          <div className="param is-choice">
             <span>{tr('读', 'Reads')}</span>
-            <select value={node.value ?? ''} onChange={(e) => board.setValue(node.id, e.target.value)}>
-              {board.inputOptions(node.type).map(([v, l]) => <option key={v} value={v}>{L(l)}</option>)}
-            </select>
-          </label>
+            <Choice options={board.inputOptions(node.type)} value={node.value ?? ''} onChange={(v) => board.setValue(node.id, v)} label={tr('读', 'Reads')} />
+          </div>
         )}
         {swaps.length > 1 && (
-          <label className="param" onPointerDown={stop}>
+          <div className="param is-choice">
             <span>{tr('操作', 'Operation')}</span>
-            <select value={node.type} onChange={(e) => board.swap(node.id, e.target.value)}>
-              {swaps.map((k) => <option key={k} value={k}>{L(def(k).tag)}</option>)}
-            </select>
-          </label>
+            <Choice options={swaps.map((k) => [k, def(k).tag])} value={node.type} onChange={(k) => board.swap(node.id, k)} label={tr('操作', 'Operation')} />
+          </div>
         )}
         {parts.role(node) === 'part' && !hasValue(node.type) && !isInput(node.type) && swaps.length < 2 && <small className="sg-tag">{L(def(node.type).tag)}</small>}
         {/* A reader shows what it reads beside each of its outputs. */}

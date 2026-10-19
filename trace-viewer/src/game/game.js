@@ -6,6 +6,7 @@ import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import { CHAPTERS, LEVELS } from './levels/index.js'
 import { INTROS } from './levels/intros/index.js'
 import { PLANNED } from './levels/planned.js'
+import { RENAMED } from './levels/route.js'
 import LevelScreen from './screens.jsx'
 import PartDemo from './ui/PartDemo.jsx'
 import Hero from './ui/Hero.jsx'
@@ -21,10 +22,12 @@ PART_OF_FLAG.shift = 'shift'
 PART_OF_FLAG.invert = 'invert'
 // What a setting (not a part of its own) does, for the parts box.
 const OPTION_DESCRIPTIONS = {
-  'edge-pad': { zh: '元件的「边界」设置多了「复制边缘」：图外缺的值，用离它最近的边上像素代替，不再补 0，图边就不会冒出一道假的黑框。', en: 'A component’s “Border” setting gains “Replicate edge”: a value missing beyond the picture takes the nearest pixel on the edge instead of 0, so no false black frame appears round the picture.' },
+  'edge-pad': { zh: '平移元件的「边界」设置多了「复制边缘」：图外缺的值，用离它最近的边上像素代替，不再补 0，图边就不会冒出一道假的黑框。', en: 'The Shift part’s “Border” setting gains “Replicate edge”: a value missing beyond the picture takes the nearest pixel on the edge instead of 0, so no false black frame appears round the picture.' },
+  'edge-filter': { zh: '3×3 平均、高斯、Sobel 这些滤波元件的「边界」设置多了「复制边缘」，边上一圈不会因为补 0 而发黑。', en: 'The “Border” setting on filters such as the 3×3 average, the Gaussian and Sobel gains “Replicate edge”, so the border no longer darkens from padding with 0.' },
 }
 const OPTION_NAMES = {
-  'edge-pad': { zh: '补边方式：复制边缘', en: 'Padding: replicate edge' },
+  'edge-pad': { zh: '平移补边：复制边缘', en: 'Shift padding: replicate edge' },
+  'edge-filter': { zh: '滤波补边：复制边缘', en: 'Filter padding: replicate edge' },
   shift: { zh: '平移', en: 'Shift' },
   invert: { zh: '反相', en: 'Invert' },
 }
@@ -46,6 +49,15 @@ const RENUMBERED = {
   5: { '4-1': '4-2', '4-2': '4-4', '4-3': '4-6', '4-4': '4-7', '4-5': '4-8', '4-6': '4-9', '4-7': '4-11' },
   6: { '1-7': '1-8', '1-8': '1-9' },
 }
+const VERSION = 13
+// Version 9 dropped 1-7 (the vertical difference now comes with 1-6) and moved the later chapter-1 levels up one.
+const SHIFTED = { '1-7': null, ...Object.fromEntries(Array.from({ length: 11 }, (_, i) => [`1-${i + 8}`, `1-${i + 7}`])) }
+// Version 11 rebuilt chapter 5 as a loop: attention is built from two patches first.
+const CH5 = { '5-1': '5-2', '5-2': '5-5', '5-3': '5-7' }
+// Version 12 rebuilt chapters 6–8 as loops; benches that became circuits drop their state.
+const CH6_8 = { '6-2': null, '6-3': '6-6', '6-4': '6-8', '6-5': '6-11', '7-3': null, '7-4': null, '8-2': '8-4', '8-3': '8-6' }
+// Version 13 dropped 1-16 (the scanner finale covers it); the scanner moved up to 1-16.
+const SCANNER = { '1-16': null, '1-17': '1-16' }
 function migrate(saved) {
   let out = saved
   for (let version = (saved.version ?? 1) + 1; version <= 6; version++) {
@@ -58,7 +70,22 @@ function migrate(saved) {
     const { boards, seenIntro, ...rest } = out
     out = { ...rest, data: boards ?? {}, seenPower: Boolean(seenIntro) }
   }
+  // Version 8 rebuilt chapters as loops and renumbered their levels.
+  if ((saved.version ?? 1) < 8) out = renamed(out, (id) => (id in RENAMED ? RENAMED[id] : id))
+  if ((saved.version ?? 1) < 9) {
+    out = renamed(out, (id) => (id in SHIFTED ? SHIFTED[id] : id))
+    if (out.solved.includes('1-6') && !(out.flags ?? []).includes('diffy')) out = { ...out, flags: [...(out.flags ?? []), 'diffy'] }
+  }
+  // Version 10 split replicate edge: Shift gets it from 1-11, the filters from 1-12, which used to unlock nothing.
+  if ((saved.version ?? 1) < 10 && out.solved.includes('1-12') && !(out.flags ?? []).includes('edge-filter')) out = { ...out, flags: [...(out.flags ?? []), 'edge-filter'] }
+  if ((saved.version ?? 1) < 11) out = renamed(out, (id) => (id in CH5 ? CH5[id] : id))
+  if ((saved.version ?? 1) < 12) out = renamed(out, (id) => (id in CH6_8 ? CH6_8[id] : id))
+  if ((saved.version ?? 1) < 13) out = renamed(out, (id) => (id in SCANNER ? SCANNER[id] : id))
   return out
+}
+function renamed(progress, to) {
+  const rename = (record) => Object.fromEntries(Object.entries(record ?? {}).map(([id, value]) => [to(id), value]).filter(([id]) => id !== null))
+  return { ...progress, solved: (progress.solved ?? []).map(to).filter((id) => id !== null), data: rename(progress.data), best: rename(progress.best), introSeen: rename(progress.introSeen) }
 }
 
 export default defineGame({
@@ -80,7 +107,7 @@ export default defineGame({
   chapters: CHAPTERS.map((chapter) => ({ ...chapter, label: chapter.lecture })),
   levels: LEVELS,
   planned: PLANNED,
-  progress: { version: 7, migrate },
+  progress: { version: VERSION, migrate },
   intro: (level) => INTROS[level.id],
   IntroFigure,
   kinds: {

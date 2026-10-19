@@ -10,6 +10,8 @@ import ch5 from './ch5.js'
 import ch6 from './ch6.js'
 import ch7 from './ch7.js'
 import ch8 from './ch8.js'
+import ch9 from './ch9.js'
+import ch10 from './ch10.js'
 
 // 每一关的「引入」：玩之前读的几页，交代这一关在讲什么、为什么要做、有什么新东西，但不给答案。
 //
@@ -23,7 +25,7 @@ import ch8 from './ch8.js'
 //                                          inputs: ['square', 'disk']。图案见 source() 下面。
 //   { figure: 'conv-press' }               src/figures/ 里的一张插图（笔记里用的那种实物模型）
 // 任何配图都可以加 caption: { zh, en } 作为图注；test 和 part 还可以加 view: 'terrain' 等画法。
-export const INTROS = { ...ch0, ...ch1, ...ch2, ...ch3, ...ch4, ...ch5, ...ch6, ...ch7, ...ch8 }
+export const INTROS = { ...ch0, ...ch1, ...ch2, ...ch3, ...ch4, ...ch5, ...ch6, ...ch7, ...ch8, ...ch9, ...ch10 }
 
 // The pictures an intro can show without a test: a pattern by name ('square'), with its arguments
 // (['square', 4, 4, 8]), a letter ('glyph:L'), or a level's own first test input ('test').

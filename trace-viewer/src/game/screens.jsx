@@ -3,18 +3,19 @@ import { Trash2 } from 'lucide-react'
 import { Brief, CircuitLayout, PhonePage, PinnedPlay, RunDock, TestStatus, Workbench } from '../../../games/kit/shell/index.js'
 import { Palette, freeSpot } from '../../../games/kit/circuit/index.js'
 import { L, tr } from '../../../games/kit/shell/i18n.js'
-import { hasLearnable, runLevel, trainStep } from './engine/graph.js'
+import { checkingTests, hasLearnable, lossOn, runLevel, trainStep } from './engine/graph.js'
 import { NODE_TYPES, defaultParams } from './engine/nodes.js'
 import { startBoard, withHidden } from './levels/util.js'
 import Editor from './ui/Editor.jsx'
 import ProbeLevel from './ui/ProbeLevel.jsx'
 import PhoneCircuit from './ui/phone/PhoneCircuit.jsx'
-import TestPanel, { ProbeReadout } from './ui/TestPanel.jsx'
+import TestPanel from './ui/TestPanel.jsx'
 import { boardFor } from './ui/boards/index.js'
 import { describe, familyOf, iconOf } from './ui/catalog.js'
 import { kindOf, nodeView, viewFor } from './ui/views/views.js'
 import { levelSensors } from './ui/sensors.js'
 import { usableIn } from './levels/course.js'
+import { syncOwn } from './levels/index.js'
 
 // Vision Complete's level screens on the shared game shell (games/kit/shell): a circuit to build (graph), a bench
 // (board) and the one probe level. The shell owns the bar, the map, the rail, the dialogs and the saved progress;
@@ -29,14 +30,19 @@ const untested = (run) => ({
 })
 
 export default function LevelScreen({ game, level, saved, save, solved, solve, flags, progress, theme, phone }) {
+  // The circuits the player has packed into parts are theirs as they last passed (engine/own.js).
+  syncOwn(progress)
   // The board and its test results change together: tests re-run whenever the wiring or a parameter
   // changes, but not while a card is only being dragged around.
   const [{ board, run }, setState] = useState(() => {
     // A saved circuit whose inputs and outputs no longer match the level (it was saved for a level
-    // that has since moved) would leave the player with the wrong cards; start fresh instead.
-    const names = (type) => (saved?.nodes ?? []).filter((n) => n.type === type).map((n) => n.params.name).sort().join()
-    const fits = saved && names('input') === [...level.inputs].sort().join() && names('output') === [...level.outputs].sort().join()
-    const initial = fits ? saved : startBoard(level)
+    // that has since moved), or that uses a part the game no longer has, starts fresh instead.
+    const names = (board, type) => board.nodes.filter((n) => n.type === type).map((n) => n.params.name).sort().join()
+    const fits = (board) => board?.nodes && names(board, 'input') === [...level.inputs].sort().join() && names(board, 'output') === [...level.outputs].sort().join() && board.nodes.every((n) => NODE_TYPES[n.type])
+    // A new series level starts from the player's solved circuit for the level before it, if this level offers its parts.
+    const carried = level.carry && progress.solved.includes(level.carry) && progress.data[level.carry]
+    const offers = (board) => board.nodes.every((n) => n.type === 'input' || n.type === 'output' || level.palette.includes(n.type))
+    const initial = fits(saved) ? saved : fits(carried) && offers(carried) ? carried : startBoard(level)
     return { board: initial, run: level.kind === 'graph' ? runLevel(solved ? withHidden(level) : level, initial) : null }
   })
   // A circuit level's hidden tests are checked by every run but shown only once the level is solved; from then on
@@ -52,12 +58,14 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   // the player runs the tests; any change to the circuit makes it untested again.
   const [tested, setTested] = useState(false)
   const [armed, setArmed] = useState(false) // 清空 pressed once, waiting for the second press
-  const [losses, setLosses] = useState([])
+  const [losses, setLosses] = useState([]) // [{ train, check }] per training step
+  // Levels about the learning rate offer a few to choose from and take each step as it comes, without halving it.
+  const [rate, setRate] = useState(level.trainRates?.[1] ?? level.trainRate ?? 1)
   // The fixed cards are named and drawn by what they carry: a picture, a waveform or a number.
   const ioKinds = level.kind === 'graph' ? Object.fromEntries([...Object.entries(level.tests[0].inputs), ...Object.entries(level.tests[0].expected)].map(([name, value]) => [name, kindOf(value)])) : {}
   const sensors = useMemo(() => (level.kind === 'graph' ? levelSensors(level) : {}), [level])
   const outputLabels = level.outputLabels ?? {}
-  const views = { in: viewFor(level, 'in'), out: viewFor(level, 'out'), mid: viewFor(level, 'mid') }
+  const views = { in: viewFor(level, 'in'), out: viewFor(level, 'out'), mid: viewFor(level, 'mid'), shows: level.shows, fresh: level.freshViews }
   // The row every profile view traces, as a fraction of the height, shared by cards and tests.
   const [scan, setScan] = useState(0.5)
   const [probe, setProbe] = useState(null) // the cell under the pointer in the test strip, read out under its outputs
@@ -88,6 +96,8 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
     setHiddenMiss(run.pass && hiddenFailed ? { failed: hiddenFailed, total: hiddenCount } : null)
     // Every pass opens the shell's passed dialog, not only the first (it also records a better score).
     if (pass) {
+      // A level that packs its circuit keeps the one that passed, so editing it later cannot break the part.
+      if (level.packs) change({ ...board, passed: { nodes: board.nodes, wires: board.wires } }, { keep: true })
       solve(run.score)
       // Now solved: the hidden tests join the list, with this circuit's results on them.
       if (hiddenRun) setState((s) => ({ ...s, run: runLevel(withHidden(level), s.board) }))
@@ -102,7 +112,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   // The test panel draws inputs and outputs the way their cards on the board do; switching either
   // place switches both.
   const roleView = (type) => nodeView(board.nodes.find((n) => n.type === type) ?? { type }, views)
-  const showRole = (type, shown) => change({ ...board, nodes: board.nodes.map((n) => (n.type === type ? { ...n, view: shown } : n)) }, { keep: true })
+  const showRole = (types, shown) => change({ ...board, nodes: board.nodes.map((n) => (types.includes(n.type) ? { ...n, view: shown } : n)) }, { keep: true })
 
   const addNode = (type) => {
     const count = board.nodes.length
@@ -119,10 +129,11 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   const train = (steps) => {
     let next = board
     const history = []
+    const checking = checkingTests(level)
     for (let i = 0; i < steps; i++) {
-      const result = trainStep(level, next, level.trainRate ?? 1)
+      const result = trainStep(level, next, rate, { backtrack: !level.trainRates })
       next = result.graph
-      history.push(result.loss)
+      history.push({ train: result.loss, check: checking.length ? lossOn(checking, next) : null })
     }
     setLosses((l) => [...l, ...history].slice(-80))
     change(next)
@@ -131,12 +142,20 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   const passed = shown?.results.filter((r) => r.pass).length ?? 0
 
   // Only a circuit level has parts to place; a board or probe level has no palette at all.
-  const compactParts = level.kind === 'graph' && <Palette compact items={palette.map((type) => ({ type, label: NODE_TYPES[type].label, desc: describe(type), icon: iconOf(type), family: familyOf(type) }))} onAdd={addNode} />
+  const compactParts = level.kind === 'graph' && <Palette compact items={palette.map((type) => ({ type, label: NODE_TYPES[type].label, desc: describe(type), icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) }))} onAdd={addNode} />
   const brief = <Brief game={game} level={level} hint={level.hint} phone={phone} />
   const training = level.kind === 'graph' && hasLearnable(board) && (
     <section>
       <h3 className="panel-label">{tr('训练', 'Training')}</h3>
       <div className="train-buttons">
+        {level.trainRates && (
+          <label className="train-rate">
+            <span>{tr('学习率', 'Learning rate')}</span>
+            <select value={rate} onChange={(event) => setRate(Number(event.target.value))}>
+              {level.trainRates.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </label>
+        )}
         <button onClick={() => train(1)}>{tr('训练 1 步', 'Train 1 step')}</button>
         <button onClick={() => train(10)}>{tr('训练 10 步', 'Train 10 steps')}</button>
       </div>
@@ -150,6 +169,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
       <div className="stat-row">
         <div className="stat"><b>{run?.score.nodes ?? 0}</b><span>{tr('节点', 'Parts')}</span></div>
         <div className="stat"><b>{run?.score.cost ?? 0}</b><span>{tr('计算量', 'Cost')}</span></div>
+        {run?.score.learned > 0 && <div className="stat"><b>{run.score.learned}</b><span>{tr('参数', 'Parameters')}</span></div>}
         <div className={`stat ${shown?.pass ? 'is-pass' : ''}`}><b>{shown?.untested ? '—' : passed}/{playLevel.tests.length}</b><span>{shown?.untested ? tr('还没测试', 'Not tested') : tr('测试', 'Tests')}</span></div>
       </div>
       {run?.constraint && <p className="constraint">{L(run.constraint)}</p>}
@@ -197,7 +217,8 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   if (!graphLevel) return <Workbench className={`level-${level.kind}`} brief={brief} stage={play} scroll />
 
   // A circuit level on a desktop: the kit's circuit layout, as in every game. The parts are a row over the board; the
-  // strip under it has the tests, the test's inputs, what came out against what was expected, and the run bar.
+  // strip under it has the tests, one row with the test's inputs and what came out against what was expected, and the
+  // run bar.
   const half = { level: playLevel, hiddenCount, hiddenMiss, run: shown, testIndex, onSelect: setTestIndex, sensors, theme, scan, onScan: setScan, inView: roleView('input'), outView: roleView('output'), onView: showRole, probe, onProbe: setProbe }
   const states = playLevel.tests.map((t, k) => (shown?.untested || !shown ? null : shown.results[k]?.pass ? 'pass' : 'fail'))
   const hidden = { count: hiddenCount, failed: hiddenMiss?.failed, note: hiddenMiss ? { zh: `下面的测试都通过了，但 ${hiddenMiss.total} 组隐藏测试里有 ${hiddenMiss.failed} 组没过：电路可能只对这几张图凑巧成立。`, en: `Every test passes, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.` } : { zh: `另有 ${hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。`, en: `${hiddenCount} more hidden tests are checked with every run and shown once you pass.` } }
@@ -211,13 +232,18 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
           {score}
         </>
       }
-      inputs={<TestPanel {...half} part="inputs" />}
       parts={palette.length > 0 && compactParts}
       canvas={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} />}
       tests={<TestPanel {...half} part="tests" />}
       status={<TestStatus states={states} hidden={hidden} />}
-      outputs={<TestPanel {...half} part="outputs" />}
-      outputsAside={<ProbeReadout probe={probe} />}
+      outputs={<TestPanel {...half} part="row" />}
+      outputsTitle={<TestPanel {...half} part="readout" />}
+      outputsAside={
+        <div className="strip-aside">
+          <TestPanel {...half} part="verdict" />
+          <TestPanel {...half} part="views" />
+        </div>
+      }
       actions={
         <footer className="run-foot">
           <RunDock
@@ -239,16 +265,24 @@ function BoardLevel({ level, onSolve, theme }) {
 
 function LossCurve({ losses }) {
   if (!losses.length) return <p className="panel-note">{tr('还没训练。每一步，所有可学习的权重都朝让误差变小的方向挪一点。', 'Not trained yet. Each step nudges every learnable weight in the direction that makes the error smaller.')}</p>
-  const max = Math.max(...losses)
-  const min = Math.min(...losses)
-  const points = losses.map((v, i) => `${(i / Math.max(1, losses.length - 1)) * 200},${56 - ((Math.log(v + 1e-9) - Math.log(min + 1e-9)) / Math.max(1e-9, Math.log(max + 1e-9) - Math.log(min + 1e-9))) * 52}`)
+  // Both curves share one log scale: the error on the training tests and, when the level keeps new samples back, on those.
+  const all = losses.flatMap((l) => [l.train, l.check]).filter((v) => v !== null && Number.isFinite(v))
+  const lo = Math.log(Math.min(...all) + 1e-9)
+  const hi = Math.log(Math.max(...all) + 1e-9)
+  const line = (key) => losses.map((l, i) => `${(i / Math.max(1, losses.length - 1)) * 200},${56 - ((Math.log(Math.min(l[key], 1e9) + 1e-9) - lo) / Math.max(1e-9, hi - lo)) * 52}`)
+  const checked = losses.at(-1).check !== null
   return (
     <figure className="loss">
       <svg viewBox="0 0 200 60" preserveAspectRatio="none" role="img" aria-label={tr('损失曲线', 'Loss curve')}>
-        <polyline className="loss-area" points={`0,60 ${points.join(' ')} 200,60`} />
-        <polyline points={points.join(' ')} />
+        <polyline className="loss-area" points={`0,60 ${line('train').join(' ')} 200,60`} />
+        <polyline points={line('train').join(' ')} />
+        {checked && <polyline className="loss-check" points={line('check').join(' ')} />}
       </svg>
-      <figcaption>{tr('损失', 'Loss')} {losses.at(-1).toExponential(1)}<span>{tr('对数刻度', 'log scale')}</span></figcaption>
+      <figcaption>
+        {tr('训练误差', 'Training loss')} {losses.at(-1).train.toExponential(1)}
+        {checked && <> · {tr('新样本误差', 'New-sample loss')} {losses.at(-1).check.toExponential(1)}</>}
+        <span>{tr('对数刻度', 'log scale')}</span>
+      </figcaption>
     </figure>
   )
 }

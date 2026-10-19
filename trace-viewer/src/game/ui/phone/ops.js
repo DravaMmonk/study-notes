@@ -1,5 +1,5 @@
 import { placeNear } from '../../../../../games/kit/circuit/index.js'
-import { defaultParams, inputsOf } from '../../engine/nodes.js'
+import { defaultParams, inputsOf, snapSetting } from '../../engine/nodes.js'
 
 // How Vision Complete makes parts on the phone. Editing the circuit (wires, slots, moving, removing) is the shared
 // circuit editor's (games/kit/circuit); these only create Vision Complete's nodes, with their default settings and
@@ -37,4 +37,4 @@ export function placeAt(graph, type, at) {
   return { graph: { ...graph, nodes: [...graph.nodes, { id, type, x, y, slot: at, params: defaultParams(type) }] }, id }
 }
 
-export const setParam = (graph, id, key, value) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
+export const setParam = (graph, id, key, value) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, [key]: snapSetting(n.type, key, value) } } : n)) })

@@ -30,6 +30,36 @@ export default {
   '8-2': [
     {
       t: {
+        zh: '上一关训练好的一对编码器、解码器，现在是现成的元件：编码器把一个斑点变成两个数，解码器把两个数画成斑点。',
+        en: 'The encoder and decoder you trained last level are now ready-made parts: the encoder turns a blob into two numbers, and the decoder draws two numbers as a blob.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：画出从斑点 a 往斑点 b 走了 t 的那个斑点。',
+        en: 'Your task in this level: draw the blob that is t of the way from blob a to blob b.',
+      },
+      fig: { test: 0, caption: { zh: '第一组：一半', en: 'Set 1: halfway' } },
+    },
+  ],
+  '8-3': [
+    {
+      t: {
+        zh: '拍出来的照片总带着噪点。一张图压成两个数，再画回来，噪点会怎样？',
+        en: 'Photos always come with grain. Squeeze a picture into two numbers and draw it back: what happens to the grain?',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：输入的斑点带着噪声，输出干净的斑点。',
+        en: 'Your task in this level: the blobs come in noisy; output clean blobs.',
+      },
+      fig: { test: 0, caption: { zh: '第一组', en: 'Set 1' } },
+    },
+  ],
+  '8-4': [
+    {
+      t: {
         zh: '上一关的解码器能把两个数画成斑点。要是这两个数随机抽，就能画出没见过的斑点，这就是生成。随机不是乱来：数从正态分布里抽，大多落在中心 μ 附近，σ 越大越散。',
         en: 'The decoder from the last level can turn two numbers into a blob. If those two numbers are drawn at random, it can draw blobs it has never seen: that is generation. Random does not mean anything goes: the numbers are drawn from a normal distribution, so most land near the centre μ, and the larger σ is, the more they spread out.',
       },
@@ -54,7 +84,22 @@ export default {
       fig: { test: 0, caption: { zh: '一组噪声 ε → 老师用它画出的斑点', en: 'A set of noise ε → the blob the teacher drew with it' } },
     },
   ],
-  '8-3': [
+  '8-5': [
+    {
+      t: {
+        zh: '上一关的「重参数化」现在是现成的元件：μ、σ、ε 进去，出来 μ + σ·ε。',
+        en: 'Last level\'s "Reparameterization" is now a ready-made part: μ, σ and ε go in, μ + σ·ε comes out.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：用输入的 μ、σ 和噪声 ε 抽一个 z，画出它的斑点。',
+        en: 'Your task in this level: draw a z from the μ, σ and noise ε in the input, and draw its blob.',
+      },
+      fig: { test: 0, caption: { zh: '第一次抽', en: 'The first draw' } },
+    },
+  ],
+  '8-6': [
     {
       t: {
         zh: '另一种生成办法是让两个模型对练：生成器画假样本，鉴定员判断真假。鉴定员越会认，生成器就得画得越像。这叫生成对抗网络（GAN），网上那些「不存在的人脸」就是这样画的。',
@@ -78,6 +123,93 @@ export default {
         zh: '这一关要让两堆都画到，鉴定员只能瞎猜，准确率回到一半。动手前想想：两边谁练得多、谁走得快，会带来什么不同？',
         en: 'In this level both clusters must be drawn, leaving the judge only able to guess, with its accuracy back at one half. Before you start, think: what difference does it make which side trains more, and which moves faster?',
       },
+    },
+  ],
+  '8-7': [
+    {
+      t: {
+        zh: '现在最好的图像生成模型叫扩散模型。它的训练从反方向开始：先把一张图一点点加噪，直到只剩噪声。',
+        en: 'The best image generators today are called diffusion models. Their training starts the other way round: noise is added to a picture little by little until only noise is left.',
+      },
+    },
+    {
+      t: {
+        zh: '加到哪一步，用一个数 ᾱ 表示图还剩多少：1 是原图，0 是纯噪声。',
+        en: 'How far it has gone is given by one number, ᾱ, how much of the picture is left: 1 is the original, 0 is pure noise.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：按说明里的公式，一步算出加到第 t 步的图。',
+        en: 'Your task in this level: by the formula in the brief, work out in one step the picture after noise is added up to step t.',
+      },
+      fig: { test: 1, caption: { zh: '第二组：一半', en: 'Set 2: half and half' } },
+    },
+  ],
+  '8-8': [
+    {
+      t: {
+        zh: '上一关搭的「加噪」现在是现成的元件。',
+        en: 'The "Add noise" you built last level is now a ready-made part.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：加两次噪，输出加完两次的图。',
+        en: 'Your task in this level: add noise twice and output the picture after both.',
+      },
+      fig: { test: 0, caption: { zh: '第一组：两小步', en: 'Set 1: two small steps' } },
+    },
+  ],
+  '8-9': [
+    {
+      t: {
+        zh: '生成器画出来的东西是随机的。要让它按要求画，得多告诉它一点什么。',
+        en: 'What a generator draws is random. To make it draw what is asked for, it has to be told something more.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：c = 0 时在左边那一带画斑点，c = 1 时在右边。',
+        en: 'Your task in this level: when c = 0, draw the blob in the region on the left; when c = 1, on the right.',
+      },
+      fig: { test: 0, caption: { zh: '第一组：左边', en: 'Set 1: left' } },
+    },
+  ],
+  '8-10': [
+    {
+      t: {
+        zh: '加噪是往前走。生成一张图要往回走：从噪声里把图找回来。',
+        en: 'Adding noise goes forwards. Generating a picture goes backwards: finding the picture again in the noise.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：知道当初加的是哪份噪声，把原图还原出来。',
+        en: 'Your task in this level: knowing which noise was added, get the original picture back.',
+      },
+      fig: { test: 1, caption: { zh: '第二组：一半', en: 'Set 2: half and half' } },
+    },
+  ],
+  '8-11': [
+    {
+      t: {
+        zh: '上一关搭的「还原」现在是现成的元件。可真要用的时候，没人告诉你噪声是什么。',
+        en: 'The "Restore" you built last level is now a ready-made part. But when it is actually needed, nobody tells you what the noise was.',
+      },
+    },
+    {
+      t: {
+        zh: '「可学习 3×3 核」可以训练：按训练，它自己调权重。',
+        en: 'The "Learnable 3×3 kernel" can be trained: press Train and it adjusts its own weights.',
+      },
+    },
+    {
+      t: {
+        zh: '这一关你要做的：修好一张满是噪点的旧照片，再标出字的笔画。',
+        en: 'Your task in this level: mend an old photo full of grain, then mark the strokes of the letter.',
+      },
+      fig: { test: 0, caption: { zh: '第一组：字母 T', en: 'Set 1: letter T' } },
     },
   ],
 }

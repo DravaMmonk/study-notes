@@ -1,18 +1,19 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, Check, ChevronDown, ChevronRight, Circle, Trash2, X } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronRight, Circle, Trash2, X } from 'lucide-react'
 import { wouldCycle } from '../../engine/graph.js'
-import { NODE_TYPES, inputsOf } from '../../engine/nodes.js'
+import { NODE_TYPES, inputsOf, settingsOf } from '../../engine/nodes.js'
 import { L, keyOf, tr } from '../../../../../games/kit/shell/i18n.js'
 import { Notice, SlotBoard, Tray, connect, feeding, useSlotEditing } from '../../../../../games/kit/circuit/index.js'
 import { RunDock, TaskCard } from '../../../../../games/kit/shell/index.js'
 import { describe, familyOf, iconOf } from '../catalog.js'
 import { PORT_LABELS, partsFor } from '../parts.js'
+import ImageView from '../ImageView.jsx'
 import ValueView from '../views/ValueView.jsx'
 import ViewSwitch from '../views/ViewSwitch.jsx'
 import { KIND_NAMES, kindOf, nodeView } from '../views/views.js'
-import { ChoiceEditor, KernelEditor, NumberEditor } from './Editors.jsx'
+import { InlineParam, KernelEditor, NumberEditor } from './Editors.jsx'
 import { placeAt, setParam } from './ops.js'
-import { AddSheet, ParamChip, SourceSheet, TestCarousel } from './parts.jsx'
+import { AddSheet, ParamChip, SourceSheet } from './parts.jsx'
 import Sheet from '../../../../../games/kit/shell/Sheet.jsx'
 import './phone.css'
 
@@ -21,12 +22,15 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 // Vision Complete's phone circuit screen: the shared phone board (games/kit/circuit: SlotBoard, useSlotEditing,
 // Tray, Notice, the same editing as 状态之图) with this game's tests along the top, its task, its blocks' pictures,
 // and its sheets for a block, a source, a setting and the tests.
+// An output and its expected value can only be compared cell by cell when they are the same size.
+const fits = (img, expected) => img.w === expected.w && img.h === expected.h
+
 export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph, onChange, onReset, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
   const [sheet, setSheet] = useState(null)
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
   const checks = run?.results[testIndex]?.checks
-  const passed = run?.results.filter((r) => r.pass).length ?? 0
+  const tolerance = (level.tests[testIndex]?.check ?? level.check)?.tolerance ?? 0.02
   const all = level.tests.length
   const byId = (id) => graph.nodes.find((n) => n.id === id)
   const parts = useMemo(() => partsFor({ sensors, outputLabels }), [sensors, outputLabels])
@@ -42,7 +46,6 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
     label: parts.label,
     openNode: (id) => setSheet({ kind: 'part', node: id }),
     openSlot: (at) => level.palette.length && setSheet({ kind: 'add', at }),
-    autoWire: true,
     reset: onReset,
   })
   const { nameOf, sources, steps } = editing
@@ -77,7 +80,11 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
       <>
         <span className="pb-compare">
           <figure>{want && <ValueView img={want} view={view} size={big} theme={theme} />}<figcaption>{tr('期望', 'Expected')}</figcaption></figure>
-          <figure>{got ? <ValueView img={got} view={view} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{tr('你的', 'Yours')}</figcaption></figure>
+          {kindOf(want) === 'image' ? (
+            <figure>{got && fits(got, want) ? <ImageView img={got} against={want} tolerance={tolerance} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{tr('误差', 'Error')}</figcaption></figure>
+          ) : (
+            <figure>{got ? <ValueView img={got} view={view} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{tr('你的', 'Yours')}</figcaption></figure>
+          )}
         </span>
         {check && check.pass !== null && <span className="pb-verdict">{check.pass ? <Check size={13} /> : <X size={13} />}</span>}
       </>
@@ -122,7 +129,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
 
       <div className="pb-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        {!steps.length && level.palette.length > 0 && <p className="pb-howto is-first">{sources.length === 1 ? tr('从下面的托盘点一个元件，它会放进空格并自动接好。之后点两个圆点就能连线。', 'Tap a part in the tray below: it drops into a free slot and is wired in for you. After that, tap two dots to connect them.') : tr('从下面的托盘点一个元件放进空格，再点两个圆点把它接上：一头点块底下的输出口，一头点块顶上的输入口。', 'Tap a part in the tray below to drop it into a free slot, then tap two dots to wire it: one output under a block, one input on top of a block.')}</p>}
+        {!steps.length && level.palette.length > 0 && <p className="pb-howto is-first">{tr('从下面的托盘点一个元件放进空格，再点两个圆点把它接上：一头点块底下的输出口，一头点块顶上的输入口。', 'Tap a part in the tray below to drop it into a free slot, then tap two dots to wire it: one output under a block, one input on top of a block.')}</p>}
         <SlotBoard
           graph={graph}
           parts={parts}
@@ -142,14 +149,27 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
           history={editing.history}
         />
         {steps.length > 0 && <p className="pb-howto">{tr('点两个圆点连线，或从一个圆点拖到另一个；点已接好的输入口就拆掉。按住一块可以挪格子，拖回下面的托盘就是拿掉。', 'Tap two dots to connect them, or drag from one dot to another; tap a wired input to unplug it. Hold a block to move it to another slot; drag it back onto the tray to remove it.')}</p>}
+        {/* Under the board: what the hidden tests say, training, this test's details, and the score last. */}
+        <div className="pb-below">
+          {hiddenMiss ? (
+            <p className="hidden-note is-fail">{tr(`这些测试都通过了，但 ${hiddenMiss.total} 组隐藏测试里有 ${hiddenMiss.failed} 组没过：电路可能只对这几张图凑巧成立。`, `These tests all pass, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.`)}</p>
+          ) : hiddenCount > 0 ? (
+            <p className="hidden-note">{tr(`另有 ${hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。`, `${hiddenCount} more hidden ${hiddenCount === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)}</p>
+          ) : null}
+          {training}
+          <details className="pb-details">
+            <summary>{tr('这组测试的详情', 'Details of this test')}</summary>
+            {testDetails}
+          </details>
+          {footer}
+        </div>
       </div>
 
-      <Tray items={level.palette.map((type) => ({ type, label: NODE_TYPES[type].label, icon: iconOf(type), family: familyOf(type) }))} onPick={editing.placeFirstFree} />
+      <Tray items={level.palette.map((type) => ({ type, label: NODE_TYPES[type].label, icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) }))} onPick={editing.placeFirstFree} />
 
-      {/* The kit's run bar (RunDock), as in every level: where the tests stand (tap for details), clear, Run. */}
+      {/* The kit's run bar (RunDock), as in every level: clear, and Run. */}
       <footer className="run-foot">
         <RunDock
-          meta={<button type="button" onClick={() => setSheet({ kind: 'tests' })}>{run?.untested ? tr(`${all} 个测试 · 还没测`, `${all} tests · not run yet`) : hiddenMiss ? tr(`隐藏测试 ${hiddenMiss.failed} 个没过`, `${hiddenMiss.failed} hidden ${hiddenMiss.failed === 1 ? 'test fails' : 'tests fail'}`) : tr(`${passed}/${all} 个通过`, `${passed}/${all} passed`)}<small>{tr('测试详情 ›', 'Test details ›')}</small></button>}
           secondary={steps.length > 0 ? { label: editing.armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), icon: <Trash2 size={16} />, armed: editing.armed, onClick: editing.clear } : null}
           go={{ label: run?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(run?.pass && !hiddenMiss), onClick: test }}
         />
@@ -176,12 +196,14 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
               error={errors?.get(node.id)}
               check={node.type === 'output' ? checks?.find((c) => c.name === node.params.name) : null}
               expected={node.type === 'output' ? level.tests[testIndex].expected[node.params.name] : null}
+              tolerance={tolerance}
               views={views}
               theme={theme}
               scan={scan}
               onScan={onScan}
               onSource={(port) => setSheet({ kind: 'source', node: node.id, port })}
-              onParam={(key) => setSheet({ kind: 'param', node: node.id, key })}
+              onParam={(key, cell) => setSheet({ kind: 'param', node: node.id, key, cell })}
+              onSetParam={(key, v) => onChange(setParam(graph, node.id, key, v))}
               onView={(v) => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, view: v } : n)) }, { keep: true })}
               onDelete={NODE_TYPES[node.type].fixed ? null : () => remove(node.id)}
             />
@@ -211,37 +233,18 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
         const close = () => setSheet({ kind: 'part', node: target.id })
         return (
           <Sheet title={`${nameOf(target)} · ${L(param.label)}`} onClose={close} footer={<div className="ph-live"><span>{tr('这一步现在的结果', 'What this step makes now')}</span>{thumb(target, 96)}</div>}>
-            {param.kind === 'select' ? <ChoiceEditor param={param} value={target.params[param.key]} onChange={change} /> : param.kind === 'kernel' ? <KernelEditor param={param} value={target.params[param.key]} onChange={change} /> : <NumberEditor param={param} value={target.params[param.key]} onChange={change} />}
+            {param.kind === 'kernel' ? <KernelEditor param={param} value={target.params[param.key]} onChange={change} start={sheet.cell ?? 4} /> : <NumberEditor param={param} value={target.params[param.key]} onChange={change} />}
           </Sheet>
         )
       })()}
-      {sheet?.kind === 'tests' && (
-        <Sheet title={tr(`测试 ${passed} / ${all}`, `Tests ${passed} / ${all}`)} onClose={() => setSheet(null)}>
-          <div className="pb-test-sheet">
-            {hiddenMiss ? (
-              <p className="hidden-note is-fail">{tr(`这些测试都通过了，但 ${hiddenMiss.total} 组隐藏测试里有 ${hiddenMiss.failed} 组没过：电路可能只对这几张图凑巧成立。`, `These tests all pass, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.`)}</p>
-            ) : hiddenCount > 0 ? (
-              <p className="hidden-note">{tr(`另有 ${hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。`, `${hiddenCount} more hidden ${hiddenCount === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)}</p>
-            ) : null}
-            <TestCarousel level={level} run={run} testIndex={testIndex} onTestIndex={onTestIndex} theme={theme} views={views} graph={graph} />
-            {training}
-            <details className="pb-details">
-              <summary>{tr('这组测试的详情', 'Details of this test')}</summary>
-              {testDetails}
-            </details>
-            {footer}
-          </div>
-        </Sheet>
-      )}
     </div>
   )
 }
 
 // One block in a sheet: where its inputs come from, its settings, and what it makes on this test.
-function PartPanel({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, error, check, expected, views, theme, scan, onScan, onSource, onParam, onView, onDelete }) {
-  const spec = NODE_TYPES[node.type]
+function PartPanel({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, error, check, expected, tolerance, views, theme, scan, onScan, onSource, onParam, onSetParam, onView, onDelete }) {
   const ports = node.type === 'input' ? [] : inputsOf(node.type)
-  const params = (spec.params ?? []).filter((p) => !p.unlock || flags.has(p.unlock))
+  const params = settingsOf(node.type, flags)
   const shown = nodeView(node, views)
   return (
     <div className="pc-inspect" data-family={familyOf(node.type)}>
@@ -254,13 +257,13 @@ function PartPanel({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, er
       {params.length > 0 && (
         <div className="pc-section">
           <span className="pc-label">{tr('设置', 'Settings')}</span>
-          <div className="ph-chips">
-            {params.map((param) => (
-              <button key={param.key} className="ph-pill is-param" onClick={() => onParam(param.key)}>
-                <ParamChip param={param} value={node.params[param.key]} />
-              </button>
-            ))}
-          </div>
+          {/* Every setting is set right here; only typing a number opens a sheet of its own (the keypad). */}
+          {params.map((param) => (
+            <div key={param.key} className="pc-param">
+              {params.length > 1 && <span className="pc-param-name">{L(param.label)}</span>}
+              <InlineParam param={param} value={node.params[param.key] ?? param.default} onChange={(v) => onSetParam(param.key, v)} onKeypad={(cell) => onParam(param.key, cell)} />
+            </div>
+          ))}
         </div>
       )}
 
@@ -271,12 +274,16 @@ function PartPanel({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, er
         ) : node.type === 'output' && expected ? (
           <div className="pc-compare">
             <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 140 : 150} theme={theme} /><figcaption>{tr('期望', 'Expected')}</figcaption></figure>
-            <figure><ValueView img={value} view={shown} size={kindOf(expected) === 'image' ? 140 : 150} theme={theme} label={tr('未连接', 'Not connected')} /><figcaption>{tr('你的', 'Yours')}</figcaption></figure>
+            {kindOf(expected) === 'image' ? (
+              <figure><ImageView img={value && fits(value, expected) ? value : null} against={expected} tolerance={tolerance} size={140} theme={theme} label={value ? tr('尺寸不对', 'Wrong size') : tr('未连接', 'Not connected')} /><figcaption>{tr('误差', 'Error')}</figcaption></figure>
+            ) : (
+              <figure><ValueView img={value} view={shown} size={150} theme={theme} label={tr('未连接', 'Not connected')} /><figcaption>{tr('你的', 'Yours')}</figcaption></figure>
+            )}
           </div>
         ) : (
           <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 200 : 300} theme={theme} label={tr('还没有结果', 'No result yet')} grid scan={scan} onScan={onScan} />
         )}
-        {kindOf(value ?? expected) === 'image' && <ViewSwitch value={shown} onChange={onView} compact />}
+        {kindOf(value ?? expected) === 'image' && <ViewSwitch value={shown} onChange={onView} shows={views?.shows} fresh={views?.fresh} compact />}
       </div>
 
       {ports.length > 0 && (

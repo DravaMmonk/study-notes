@@ -46,7 +46,7 @@ export default function ImageView({ img, range, size = 112, against, tolerance =
     const x = Math.floor(((event.clientX - box.left) / box.width) * img.w)
     const y = Math.floor(((event.clientY - box.top) / box.height) * img.h)
     if (x < 0 || y < 0 || x >= img.w || y >= img.h) return
-    onHover({ x, y, value: img.data[y * img.w + x], expected: against?.data[y * img.w + x] })
+    onHover({ x, y, w: img.w, h: img.h, value: img.data[y * img.w + x], expected: against?.data[y * img.w + x] })
   }
 
   const canvasEl = (
@@ -55,6 +55,7 @@ export default function ImageView({ img, range, size = 112, against, tolerance =
       className="image-view"
       style={{ width: size, height: size * (img.h / img.w) }}
       onPointerMove={hover}
+      onPointerDown={hover}
       onPointerLeave={() => onHover?.(null)}
       aria-label={label}
     />

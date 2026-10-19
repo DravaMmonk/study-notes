@@ -1,4 +1,4 @@
-import { defaultParams } from '../engine/nodes.js'
+import { defaultParams, snapSetting } from '../engine/nodes.js'
 
 // Build a graph from a compact description, for reference solutions and starting boards:
 // build({ a: ['shift', { dir: '→' }], s: 'add' }, ['in>a', 'a>s.a', 'in>s.b', 's>out'])
@@ -9,7 +9,9 @@ export function build(nodes, wires, { inputs = ['in'], outputs = ['out'] } = {})
   outputs.forEach((name, index) => graph.nodes.push({ id: name, type: 'output', x: 560, y: 60 + index * 220, params: { name } }))
   Object.entries(nodes).forEach(([id, spec], index) => {
     const [type, params = {}] = Array.isArray(spec) ? spec : [spec]
-    graph.nodes.push({ id, type, x: 200 + (index % 4) * 140, y: 60 + Math.floor(index / 4) * 150, params: { ...defaultParams(type), ...params } })
+    // Reference values sit on the same grid the player's controls snap to.
+    const snapped = Object.fromEntries(Object.entries(params).map(([key, value]) => [key, snapSetting(type, key, value)]))
+    graph.nodes.push({ id, type, x: 200 + (index % 4) * 140, y: 60 + Math.floor(index / 4) * 150, params: { ...defaultParams(type), ...snapped } })
   })
   for (const text of wires) {
     const [from, target] = text.split('>')

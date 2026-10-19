@@ -4,9 +4,14 @@
 import { defineCourse, usable } from '../../../../games/kit/course.js'
 import { NODE_TYPES } from '../engine/nodes.js'
 import { LEVELS } from './index.js'
+import { ERAS } from './route.js'
 
-/** The parts the course starts from: the first circuit level's arithmetic. */
-export const PRIMITIVES = ['scale', 'offset', 'add', 'sub']
+/** The parts no circuit can build: arithmetic, a few functions, averaging, the trip to the frequency domain and the
+ *  learnable numbers. Each is new where it is first offered. */
+export const PRIMITIVES = ['const', 'add', 'sub', 'mul', 'arith', 'merge', 'sqrt', 'cos', 'exp', 'fqMean', 'globalMax', 'fqApply', 'lrnConst', 'learn3', 'lrnConv', 'warp', 'zeroUp', 'argmin4', 'dg_encode', 'dg_decode', 'dg_mu', 'dg_sigma', 'dg_sample']
+// Parts that are one idea: the four kinds of arithmetic and the constant, and the learnable kernel with or without a
+// random start.
+const CONCEPT = { const: 'arithmetic', add: 'arithmetic', sub: 'arithmetic', mul: 'arithmetic', arith: 'arithmetic', lrnConv: 'learn3', dg_encode: 'autoencoder', dg_decode: 'autoencoder', dg_encoder: 'autoencoder', dg_decoder: 'autoencoder', dg_mu: 'latent', dg_sigma: 'latent', dg_sample: 'latent' }
 
 const byId = new Map(LEVELS.map((l) => [l.id, l]))
 /** The parts that need one of these flags. */
@@ -14,6 +19,9 @@ const partsFor = (flags) => Object.keys(NODE_TYPES).filter((t) => flags.includes
 
 export const course = defineCourse({
   levels: LEVELS.map((l) => ({ id: l.id, unlocks: l.unlocks ?? [] })),
+  eras: ERAS,
+  concept: (p) => CONCEPT[p] ?? p,
+  naive: (l) => Boolean(byId.get(l.id).naive),
   primitives: PRIMITIVES,
   palette: (l) => byId.get(l.id).palette ?? [],
   needs: (p) => NODE_TYPES[p]?.unlock ?? null,

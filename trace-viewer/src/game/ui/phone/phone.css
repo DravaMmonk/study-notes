@@ -3,24 +3,6 @@
 
 
 /* Tests: swipe through cards; the dots show which pass. */
-.ph-tests { padding: 4px 0 6px; }
-.ph-tests-strip { padding: 0 12px; display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 12px; scrollbar-width: none; overscroll-behavior-x: contain; }
-.ph-tests-strip::-webkit-scrollbar { display: none; }
-.ph-test { flex: none; width: min(84vw, 320px); padding: 8px 10px; display: grid; gap: 6px; scroll-snap-align: start; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); transition: box-shadow 180ms ease, opacity 180ms ease; opacity: .72; }
-.ph-test.is-active { opacity: 1; box-shadow: inset 0 0 0 1.5px var(--ink), 0 8px 20px -14px rgba(0, 0, 0, .5); }
-.ph-test header { display: flex; align-items: center; gap: 5px; font-size: 13px; }
-.ph-test header small { margin-left: auto; color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
-.ph-test.is-pass header svg { color: var(--status); }
-.ph-test.is-fail header svg { color: var(--fail); }
-.ph-test-row { display: flex; align-items: center; gap: 8px; }
-.ph-test-row figure { margin: 0; display: grid; justify-items: center; gap: 2px; }
-.ph-test-row figure.is-wide { flex: 1; min-width: 0; }
-.ph-test-row figcaption { color: var(--muted); font-family: var(--mono); font-size: 9.5px; }
-.ph-test-numbers { grid-auto-flow: column; justify-content: start !important; gap: 14px !important; }
-.ph-test-numbers span { display: grid; color: var(--muted); font-size: 10px; }
-.ph-test-numbers b { color: var(--ink); font-family: var(--mono); font-size: 18px; font-weight: 500; }
-.ph-test-numbers b.is-pass { color: var(--status); }
-.ph-test-numbers b.is-fail { color: var(--fail); }
 .ph-dots { margin-top: 6px; display: flex; justify-content: center; gap: 5px; }
 .ph-dots i { width: 6px; height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--fail) 55%, var(--canvas)); transition: width 200ms ease; }
 .ph-dots i.is-pass { background: var(--status); }
@@ -83,9 +65,18 @@
 .ph-key.is-fn { color: var(--muted); font-size: 15px; }
 .ph-key.is-sign { color: var(--accent-ink); font-size: 22px; font-weight: 600; }
 .ph-key:active { background: var(--hover); transform: scale(.96); }
-.ph-choices { display: grid; gap: 8px; }
-.ph-choices button { min-height: 52px; padding: 0 16px; border: 0; border-radius: 14px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 17px; text-align: left; }
-.ph-choices button.is-on { box-shadow: inset 0 0 0 2px var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--paper)); }
+/* Set right in a block's sheet, under 设置: buttons (the kit's Choice), a slider with step keys, a kernel's cells,
+   learned weights. */
+.pc-param { display: grid; gap: 6px; }
+.pc-param-name { color: var(--muted); font-size: 12.5px; }
+.ph-inline-number { display: flex; align-items: center; gap: 8px; }
+.ph-inline-number .ph-slider { flex: 1; min-width: 0; }
+.ph-inline-number > span { flex: 1; color: var(--muted); font-size: 13px; }
+.ph-step { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border: 0; border-radius: 12px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.ph-step:active { transform: scale(.96); }
+.ph-step-value { min-width: 66px; height: 44px; padding: 0 10px; flex: none; border: 0; border-radius: 12px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--rule); font-family: var(--mono); font-size: 16px; font-variant-numeric: tabular-nums; }
+.ph-kernel.is-compact button { min-height: 44px; font-size: 15px; }
+.pc-param .ph-kernel.is-learned span { min-height: 36px; font-size: 13px; }
 .ph-kernel-edit { display: grid; gap: 14px; }
 .ph-kernel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .ph-kernel button, .ph-kernel span { min-height: 56px; display: grid; place-items: center; border: 0; border-radius: 12px; color: var(--ink); background: color-mix(in srgb, var(--accent) calc(max(var(--w), 0) * 40%), color-mix(in srgb, var(--fam-size) calc(max(calc(var(--w) * -1), 0) * 40%), var(--canvas))); font-family: var(--mono); font-size: 17px; }
@@ -138,9 +129,8 @@
 .pc-compare { display: flex; gap: 14px; }
 .pc-compare figure { margin: 0; display: grid; justify-items: center; gap: 4px; }
 .pc-compare figcaption { color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
-.pb-test-sheet { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-.pb-test-sheet .ph-tests-strip { padding: 0; scroll-padding: 0; }
-.pb-test-sheet .train-buttons button { min-height: 44px; flex: 1; }
+.pb-below { margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.pb-below .train-buttons button { min-height: 44px; flex: 1; }
 .pb-details summary { min-height: 40px; display: flex; align-items: center; color: var(--muted); font-size: 13px; cursor: pointer; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -155,7 +145,5 @@
    keypad, and choices in a row, so the board above stays in view. */
 .demo-panel .ph-keypad { display: none; }
 .demo-panel .ph-keypad-value { min-height: 0; padding: 2px 4px; font-size: 18px; }
-.demo-panel .ph-choices { display: flex; flex-wrap: wrap; gap: 6px; }
-.demo-panel .ph-choices button { flex: 1 1 auto; min-height: 38px; }
 .demo-param { display: grid; gap: 4px; }
 .demo-param .panel-label { margin: 0; }

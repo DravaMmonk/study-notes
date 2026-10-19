@@ -47,6 +47,9 @@
 .loss svg { width: 100%; height: 64px; overflow: visible; }
 .loss polyline { fill: none; stroke: var(--fam-learned); stroke-width: 1.6px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
 .loss .loss-area { fill: color-mix(in srgb, var(--fam-learned) 12%, transparent); stroke: none; }
+.loss .loss-check { stroke: var(--fam-global); stroke-dasharray: 4 3; }
+.train-rate { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+.train-rate select { min-height: 36px; border-radius: 10px; border: 0; box-shadow: inset 0 0 0 1px var(--rule); background: var(--canvas); color: var(--ink); padding: 0 8px; }
 .loss figcaption { margin-top: 4px; display: flex; justify-content: space-between; color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
 .loss figcaption span { color: var(--faint); }
 
@@ -84,7 +87,8 @@
 .board-views button:hover { color: var(--ink); background: var(--hover); }
 .board-views button[aria-pressed='true'] { color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--rule); }
 .board-views-reset { margin-left: 2px; }
-.node-peek { margin: 4px 11px 0; color: var(--muted); font-family: var(--mono); font-size: 10px; font-variant-numeric: tabular-nums; }
+/* The value under the pointer, on the preview's corner, so the card never changes height. */
+.node-peek { position: absolute; z-index: 2; left: 4px; bottom: 4px; padding: 2px 6px; border-radius: 6px; color: var(--ink); background: color-mix(in srgb, var(--paper) 86%, transparent); box-shadow: 0 0 0 1px var(--rule); font-family: var(--mono); font-size: 10px; font-variant-numeric: tabular-nums; pointer-events: none; backdrop-filter: blur(6px); }
 .node-error { padding: 16px 0; color: var(--faint); font-size: 11px; }
 
 
@@ -94,27 +98,26 @@
 .image-empty { display: grid; place-items: center; color: var(--faint); border-radius: 4px; font-size: 11px; box-shadow: inset 0 0 0 1px var(--line); background: repeating-linear-gradient(135deg, transparent 0 6px, var(--hairline) 6px 7px); }
 
 /* ---- tests ---- */
-/* A circuit level on a desktop (the kit's CircuitLayout): in the strip, the test chips in its header, the test's input
-   pictures in its inputs pane, and what came out against what was expected in its outputs pane, a block per output
-   side by side. */
+/* A circuit level on a desktop (the kit's CircuitLayout): in the strip, the test chips in its header, then one pane
+   whose head has the verdict, the readout and the view switch, and whose body is one row: the inputs, then expected /
+   yours / error for each output. */
 @media (min-width: 761px) {
-  .kc-pane .tests.is-part { min-height: 0; padding: 0; overflow: visible; border: 0; background: none; }
-  .is-inputs-part .test-block { padding: 0; background: none; }
-  .is-inputs-part .test-block-head { justify-content: flex-end; margin: -32px 0 8px; }
-  .is-inputs-part .test-block-head .test-block-label { display: none; }
-  .is-inputs-part .test-images.is-inputs { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 116px; }
-  .is-inputs-part .test-images.is-wide { grid-auto-columns: 260px; }
   .kc-tests .test-list { margin: 0; flex-wrap: nowrap; }
   .kc-tests .test-list li { flex: none; }
-  .test-detail.is-outputs-part { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(330px, 440px); justify-content: start; gap: 18px; animation: none; }
-  /* A block: its verdict and its view switch on one line, then expected / yours / error. */
-  .is-outputs-part .test-block { padding: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 10px; background: none; box-shadow: none; }
-  .is-outputs-part .test-block > .test-block-head { grid-column: 2; grid-row: 1; margin: 0; gap: 8px; }
-  .is-outputs-part .test-block > :not(.test-block-head, .test-verdict) { grid-column: 1 / -1; grid-row: 2; }
-  .is-outputs-part .test-block > .test-verdict { grid-column: 1; grid-row: 1; margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; }
-  .is-outputs-part .test-block:only-child .test-block-label { display: none; }
-  .is-outputs-part .test-images { grid-template-columns: repeat(3, minmax(0, 116px)); }
+  .kc-outputs .kc-pane-head .test-verdict { margin: 0; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; }
+  .kc-outputs .kc-pane-head > .strip-aside { flex: none; display: flex; align-items: center; gap: 12px; overflow: visible; }
+  .kc-outputs .kc-pane-head > span:first-child { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .test-strip { display: grid; grid-auto-flow: column; grid-auto-columns: max-content; justify-content: start; align-items: start; gap: 12px; }
+  .test-strip > * { width: 116px; }
+  .test-strip > .is-wide, .test-strip > .test-curve { width: 260px; }
 }
+.test-strip figure { margin: 0; }
+.test-strip .value-view { display: block; width: 100%; place-items: normal; }
+.test-strip .image-grid { display: block; }
+.test-strip .image-view, .test-strip .image-empty, .test-strip .profile-view, .test-strip .spectrum-view, .test-strip .slope-view { width: 100% !important; height: auto !important; aspect-ratio: 1; }
+.test-strip .curve-wrap, .test-strip .terrain-view, .test-strip .number-view { width: 100% !important; height: auto !important; }
+.test-strip figcaption { margin-top: 5px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
+.test-images > .test-curve { grid-column: 1 / -1; }
 .tests { min-height: 0; padding: 18px 18px 24px; overflow-y: auto; border-left: 1px solid var(--hairline); background: var(--paper); scrollbar-width: thin; }
 .panel-head { display: flex; align-items: center; justify-content: space-between; }
 .panel-head > span:first-child { margin: 0; }

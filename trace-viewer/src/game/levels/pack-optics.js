@@ -4,12 +4,6 @@
 // Every board's maths lives here as pure functions (attached to the level as `model`), so the
 // boards only draw and the validator can prove each goal is reachable and each naive setting fails.
 
-const range = (from, to, step) => {
-  const out = []
-  for (let i = 0; from + i * step <= to + 1e-9; i++) out.push(Math.round((from + i * step) * 1000) / 1000)
-  return out
-}
-
 // ---------------- 0-5 · 暗箱 ----------------
 // Side view of a table, in millimetres. The arrow stands on the optical axis at the left end
 // (X tall); the pinhole plate is Z from it, the screen f behind the plate. Similar triangles give
@@ -67,7 +61,7 @@ const obscura = (() => {
   }
 
   return {
-    id: '0-5',
+    id: '0-8',
     kind: 'board',
     board: 'OpticsObscura',
     chapter: 0,
@@ -88,62 +82,5 @@ const obscura = (() => {
 // searches 64 px of disparity (numDisparities), and a one-pixel disparity error moves the depth
 // between f·b/(d+1) and f·b/(d−1) — about z²/(f·b) either way.
 
-const ranging = (() => {
-  const FOCALS = [400, 800, 1200] // px
-  const BASELINES = range(0.02, 0.3, 0.01) // m
-  const D_MAX = 64 // px, the disparity search range
-  const WIDTH = 640 // px
-  const TARGETS = [
-    { key: 'box', label: { zh: '箱子', en: 'Box' }, X: -0.3, z: 1.5, tol: 0.1 },
-    { key: 'door', label: { zh: '门框', en: 'Door frame' }, X: 0.45, z: 3, tol: 0.25 },
-    { key: 'wall', label: { zh: '墙', en: 'Wall' }, X: 0, z: 6, tol: 0.5 },
-  ]
-  const START = { f: 800, b: 0.06 }
-
-  const measure = (target, { f, b }) => {
-    const xl = (f * (target.X + b / 2)) / target.z
-    const xr = (f * (target.X - b / 2)) / target.z
-    const d = xl - xr
-    const inView = Math.abs(xl) <= WIDTH / 2 && Math.abs(xr) <= WIDTH / 2
-    const inRange = d <= D_MAX
-    const near = (f * b) / (d + 1)
-    const far = d > 1 ? (f * b) / (d - 1) : Infinity
-    const spread = (target.z * target.z) / (f * b)
-    const precise = far - target.z <= target.tol && target.z - near <= target.tol
-    const why = !inView ? { zh: '出画', en: 'out of frame' } : !inRange ? { zh: '超出搜索', en: 'beyond search' } : !precise ? { zh: '误差太大', en: 'error too large' } : ''
-    return { xl, xr, d, inView, inRange, near, far, spread, precise, ok: inView && inRange && precise, why }
-  }
-  const solved = (rig) => TARGETS.every((t) => measure(t, rig).ok)
-
-  const verify = () => {
-    if (solved(START)) return 'the starting rig already passes'
-    const good = FOCALS.flatMap((f) => BASELINES.map((b) => ({ f, b }))).filter(solved)
-    if (!good.length) return 'no lens and baseline pass'
-    // Wider is not simply better: the widest baseline must fail (the box leaves the search range).
-    for (const f of FOCALS) if (solved({ f, b: BASELINES.at(-1) })) return `the widest baseline passes at f=${f}`
-    if (measure(TARGETS[0], { f: 800, b: BASELINES.at(-1) }).inRange) return 'the near box stays matchable with the widest baseline'
-    // Both ends bind: the far wall alone would take any wide baseline, the near box alone any narrow one.
-    if (measure(TARGETS[2], START).ok) return 'the far wall is already precise at the start'
-    // Only f·b matters: every lens has a passing baseline.
-    for (const f of FOCALS) if (!good.some((g) => g.f === f)) return `no baseline works with f=${f}`
-    return ''
-  }
-
-  return {
-    id: '7-3',
-    kind: 'board',
-    board: 'OpticsRange',
-    chapter: 7,
-    title: { zh: '测距', en: 'Ranging' },
-    brief: { zh: '给机器人的双目相机选镜头和基线，让三个障碍物都配得上，而且测得够准。', en: "Choose a lens and a baseline for the robot's stereo camera so all three obstacles can be matched, and measured precisely enough." },
-    hint: { zh: 'z = f·b/d。先看每个障碍物为什么没过，再把基线往两头都试试。', en: 'z = f·b/d. First see why each obstacle fails, then try the baseline at both ends.' },
-    after: { zh: '深度误差 |Δz| ≈ z²/(f·b)·|Δd|：同样差一个像素，远两倍的东西误差大四倍。加宽基线或换长焦能让远处更准，却让近处的视差变大、超出搜索范围（两图外观也差得更多）。要紧的只是 f·b 的乘积，所以要在「近处配得上」和「远处够准」之间取一段。', en: 'Depth error |Δz| ≈ z²/(f·b)·|Δd|: for the same one-pixel slip, something twice as far has four times the error. A wider baseline or a longer lens makes far things more precise, but makes the disparity of near things bigger and pushes it past the search range (and the two images look more different too). Only the product f·b matters, so you pick a range between "near things still match" and "far things are precise enough".' },
-    requires: ['7-2'],
-    unlocks: [],
-    model: { FOCALS, BASELINES, D_MAX, WIDTH, TARGETS, START, measure, solved },
-    verify,
-  }
-})()
-
 export const nodes = {}
-export const levels = [obscura, ranging]
+export const levels = [obscura]

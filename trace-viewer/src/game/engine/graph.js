@@ -1,5 +1,5 @@
 import { wouldCycle as cycles } from '../../../../games/kit/graph.js'
-import { compare } from './image.js'
+import { compare, image } from './image.js'
 import { NODE_TYPES, inputsOf } from './nodes.js'
 
 // A graph is { nodes: [{ id, type, x, y, params }], wires: [{ from, to, port }] } where `from` and
@@ -24,8 +24,9 @@ export function order(graph) {
   return result
 }
 
-// Run the graph on one test's inputs. Returns every node's output image (or an error string).
-export function evaluate(graph, inputs) {
+// Run the graph on one test's inputs. Returns every node's output image (or an error string). `variant` picks one
+// of the copies a training-only part (an augmentation) makes of its input; without it those parts pass it through.
+export function evaluate(graph, inputs, variant = null) {
   const byId = new Map(graph.nodes.map((node) => [node.id, node]))
   const values = new Map()
   const errors = new Map()
@@ -47,6 +48,8 @@ export function evaluate(graph, inputs) {
       }
       ins[port] = value
     }
+    // A part whose inputs are all optional still needs one of them.
+    if (!missing && !Object.keys(ins).length && inputsOf(node.type).length) missing = inputsOf(node.type)[0]
     if (node.type === 'output') {
       if (ins.in) values.set(id, ins.in)
       continue
@@ -55,13 +58,16 @@ export function evaluate(graph, inputs) {
       errors.set(id, { zh: '缺少输入', en: 'Missing input' })
       continue
     }
-    const sizes = Object.values(ins).map((img) => `${img.w}×${img.h}`)
-    if (new Set(sizes).size > 1) {
+    // A single number (1×1) meets a bigger input by filling its whole size; any other mismatch is an error, except for
+    // a part whose inputs are different things by nature (`anySize`: a picture, a matrix and a canvas).
+    const big = spec.anySize ? [] : Object.values(ins).filter((img) => img.w * img.h > 1)
+    if (new Set(big.map((img) => `${img.w}×${img.h}`)).size > 1) {
       errors.set(id, { zh: '输入尺寸不同', en: 'Inputs differ in size' })
       continue
     }
+    if (big.length) for (const [port, img] of Object.entries(ins)) if (img.w * img.h === 1) ins[port] = image(big[0].w, big[0].h, img.data[0])
     try {
-      values.set(id, spec.eval(ins, node.params ?? {}))
+      values.set(id, spec.eval(ins, node.params ?? {}, variant))
     } catch {
       errors.set(id, { zh: '无法计算', en: 'Cannot compute' })
     }
@@ -75,9 +81,23 @@ export function outputImages(graph, values) {
 
 export const placedNodes = (graph) => graph.nodes.filter((node) => !NODE_TYPES[node.type].fixed)
 
-export function score(graph) {
+// A part's cost is its arithmetic per output pixel (some parts' cost depends on their settings). A part working on a
+// smaller picture than the level's input costs proportionally less, so shrinking first and then filtering is cheaper.
+const costOf = (node) => {
+  const cost = NODE_TYPES[node.type].cost ?? 0
+  return typeof cost === 'function' ? cost(node.params ?? {}) : cost
+}
+export function score(graph, values) {
   const placed = placedNodes(graph)
-  return { nodes: placed.length, cost: placed.reduce((sum, node) => sum + (NODE_TYPES[node.type].cost ?? 0), 0) }
+  const pixels = (id) => {
+    const img = values?.get(id)
+    return img ? img.w * img.h : 0
+  }
+  const full = Math.max(1, ...graph.nodes.filter((node) => node.type === 'input').map((node) => pixels(node.id)))
+  const share = (node) => (pixels(node.id) > 1 ? Math.min(1, pixels(node.id) / full) : 1)
+  const cost = placed.reduce((sum, node) => sum + costOf(node) * share(node), 0)
+  const learned = placed.reduce((sum, node) => sum + (NODE_TYPES[node.type].params ?? []).filter((param) => param.learnable).reduce((n, param) => n + (node.params?.[param.key]?.length ?? 0), 0), 0)
+  return { nodes: placed.length, cost: Math.round(cost * 10) / 10, learned }
 }
 
 // Run every test of a level against a graph.
@@ -88,29 +108,41 @@ export function runLevel(level, graph) {
     const checks = Object.entries(test.expected).map(([name, expected]) => ({ name, ...compare(outputs[name], expected, test.check ?? level.check) }))
     return { values, errors, outputs, checks, pass: checks.every((c) => c.pass) }
   })
-  const s = score(graph)
+  const s = score(graph, results[0]?.values)
   const constraint = level.constraint?.(s, graph) ?? ''
   return { results, score: s, constraint, pass: results.every((r) => r.pass) && !constraint }
 }
 
-// Finite-difference gradient descent on every learnable parameter, scored by mean squared error.
-// If a step makes the loss worse, the step size halves and the step is retried.
-export function trainStep(level, graph, rate = 4) {
-  const loss = (g) => {
-    let sum = 0
-    let count = 0
-    for (const test of level.tests) {
-      const { values } = evaluate(g, test.inputs)
-      const outputs = outputImages(g, values)
+// The mean squared error of a graph over some tests. A training-only part (one with `variants`) makes that many
+// copies of every test, and the error counts them all.
+export function lossOn(tests, graph) {
+  const copies = Math.max(1, ...graph.nodes.map((node) => NODE_TYPES[node.type].variants ?? 1))
+  let sum = 0
+  let count = 0
+  for (const test of tests) {
+    for (let v = 0; v < copies; v++) {
+      const { values } = evaluate(graph, test.inputs, copies > 1 ? v : null)
+      const outputs = outputImages(graph, values)
       for (const [name, expected] of Object.entries(test.expected)) {
         const actual = outputs[name]
-        if (!actual || actual.w !== expected.w) return Infinity
+        if (!actual || actual.w !== expected.w || actual.h !== expected.h) return Infinity
         for (let i = 0; i < expected.data.length; i++) sum += (actual.data[i] - expected.data[i]) ** 2
         count += expected.data.length
       }
     }
-    return sum / Math.max(1, count)
   }
+  return sum / Math.max(1, count)
+}
+// Tests a level trains on, and the new samples it keeps back to check that the training generalises.
+export const trainingTests = (level) => level.tests.filter((test) => test.train !== false)
+export const checkingTests = (level) => level.tests.filter((test) => test.train === false)
+
+// Finite-difference gradient descent on every learnable parameter, scored by mean squared error over the training
+// tests. Normally a step that makes the loss worse is halved and retried; with `backtrack: false` the step is taken
+// as it is, so a learning rate that is too large overshoots.
+export function trainStep(level, graph, rate = 4, { backtrack = true } = {}) {
+  const tests = trainingTests(level)
+  const loss = (g) => lossOn(tests, g)
   const base = loss(graph)
   const gradients = []
   for (const node of graph.nodes) {
@@ -123,10 +155,18 @@ export function trainStep(level, graph, rate = 4) {
       })
     }
   }
-  let step = rate
-  for (let attempt = 0; attempt < 8; attempt++, step /= 2) {
+  const stepBy = (step) => {
     const next = structuredClone(graph)
     for (const { id, key, i, g } of gradients) next.nodes.find((n) => n.id === id).params[key][i] -= step * g
+    return next
+  }
+  if (!backtrack) {
+    const next = stepBy(rate)
+    return { graph: next, loss: loss(next), rate }
+  }
+  let step = rate
+  for (let attempt = 0; attempt < 8; attempt++, step /= 2) {
+    const next = stepBy(step)
     const after = loss(next)
     if (after <= base) return { graph: next, loss: after, rate: step }
   }

@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react'
-import { DemoBench, SlotBoard } from '../../../../games/kit/circuit/index.js'
+import { Choice, DemoBench, SlotBoard } from '../../../../games/kit/circuit/index.js'
 import { L, tr } from '../../../../games/kit/shell/i18n.js'
 import { runLevel } from '../engine/graph.js'
-import { NODE_TYPES, defaultParams } from '../engine/nodes.js'
+import { NODE_TYPES, defaultParams, settingsOf } from '../engine/nodes.js'
 import { LEVELS } from '../levels/index.js'
 import Editor from './Editor.jsx'
 import { describe } from './catalog.js'
 import { partsFor } from './parts.js'
 import { levelSensors } from './sensors.js'
-import { ChoiceEditor, KernelEditor, NumberEditor } from './phone/Editors.jsx'
+import { KernelEditor, NumberEditor } from './phone/Editors.jsx'
 import { setParam } from './phone/ops.js'
 import { ParamChip } from './phone/parts.jsx'
 import ValueView from './views/ValueView.jsx'
@@ -34,7 +34,7 @@ const REWRITE = {
 
 function benchFor(flag, type, sample = false) {
   // A setting rather than a part is tried on the part it belongs to.
-  const nodeType = flag === 'edge-pad' ? 'shift' : type
+  const nodeType = flag === 'edge-pad' ? 'shift' : flag === 'edge-filter' ? 'box3' : type
   const spec = NODE_TYPES[nodeType]
   if (!spec) return null
   const own = LEVELS.find((l) => (l.unlocks ?? []).includes(flag))
@@ -43,7 +43,7 @@ function benchFor(flag, type, sample = false) {
   const tests = source.tests.slice(0, 3).map((t) => ({ label: t.label, inputs: t.inputs, expected: {} }))
   const names = Object.keys(tests[0]?.inputs ?? {})
   const ports = spec.inputs ?? []
-  const params = { ...defaultParams(nodeType), ...(flag === 'edge-pad' ? { border: 'edge' } : {}) }
+  const params = { ...defaultParams(nodeType), ...(flag === 'edge-pad' || flag === 'edge-filter' ? { border: 'edge' } : {}) }
 
   // The part on its own, fed straight from the inputs; when its ports do not line up with them, its level's own
   // circuit, which has the part in it.
@@ -132,7 +132,7 @@ export default function PartDemo({ flag, type, flags, phone }) {
     return param ? <ParamChip param={param} value={node.params?.[param.key]} /> : null
   }
   const node = graph.nodes.find((n) => n.id === sel)
-  const params = node ? (NODE_TYPES[node.type].params ?? []).filter((p) => !p.unlock || flags.has(p.unlock)) : []
+  const params = node ? settingsOf(node.type, flags) : []
   const change = (key, v) => onChange(setParam(graph, node.id, key, v))
   const panel = !node ? (
     <p className="panel-note">{tr('点一块，在这里改它的设置；改好点运行，看每一块输出什么。', 'Tap a block to change its settings here; then run, and see what every block puts out.')}</p>
@@ -142,7 +142,7 @@ export default function PartDemo({ flag, type, flags, phone }) {
       {params.map((param) => (
         <div key={param.key} className="demo-param">
           <span className="panel-label">{L(param.label)}</span>
-          {param.kind === 'select' ? <ChoiceEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} /> : param.kind === 'kernel' ? <KernelEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} /> : <NumberEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} />}
+          {param.kind === 'select' ? <Choice options={param.options} value={node.params[param.key] ?? param.default} onChange={(v) => change(param.key, v)} label={param.label} layout={param.buttons ?? 'row'} roomy /> : param.kind === 'kernel' ? <KernelEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} /> : <NumberEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} />}
         </div>
       ))}
       {node.type !== 'input' && node.type !== 'output' && !params.length && <p className="panel-note">{tr('这一块没有设置。', 'This block has no settings.')}</p>}

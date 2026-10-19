@@ -52,7 +52,7 @@ const robotFilters = (progress) => ERAS.flatMap((era, e) => {
   const first = era.foundation[0]
   const keys = new Set(LEVELS.filter((L) => L.unlock && eraOf.get(L.id) <= e).map((L) => L.unlock))
   const robot = ROBOTS[era.machine]
-  return [{ key: era.machine, name: robot.name, icon: robot.look, keys, lock: progress.all || progress.solved.includes(first) ? null : LEVELS.find((L) => L.id === first).title }]
+  return [{ key: era.machine, name: robot.name, icon: robot.look, keys, lock: progress.all || progress.solved.includes(first) ? null : LABELS.get(first) }]
 })
 
 export default defineGame({

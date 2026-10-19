@@ -19,9 +19,14 @@ export const IMAGE_VIEWS = {
 export const viewFor = (level, role) => level.views?.[role] ?? (role === 'mid' ? level.views?.out : null) ?? 'pixels'
 
 // How one card draws a 2-D value: its own choice if the player made one, else the level's default
-// for its role (inputs, outputs, everything in between).
+// for its role (inputs, outputs, everything in between); pixels when that view has not come in yet (`views.shows`).
 export const roleOf = (node) => (node.type === 'input' ? 'in' : node.type === 'output' ? 'out' : 'mid')
-export const nodeView = (node, views) => node.view ?? views?.[roleOf(node)] ?? 'pixels'
+export const nodeView = (node, views) => {
+  const view = node.view ?? views?.[roleOf(node)] ?? 'pixels'
+  return !views?.shows || views.shows.includes(view) ? view : 'pixels'
+}
+/** The views a level offers (all of them without a list), in the usual order. */
+export const viewsIn = (shows) => Object.entries(IMAGE_VIEWS).filter(([key]) => !shows || shows.includes(key))
 
 // What the fixed cards carry, for their titles.
 export const KIND_NAMES = { image: { zh: '图像', en: 'image' }, signal: { zh: '波形', en: 'waveform' }, number: { zh: '数值', en: 'number' } }

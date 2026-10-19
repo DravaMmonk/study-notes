@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Delete } from 'lucide-react'
+import { Delete, Minus, Plus } from 'lucide-react'
+import { Choice } from '../../../../../games/kit/circuit/index.js'
 import { L, tr } from '../../../../../games/kit/shell/i18n.js'
 
-// Setting editors for the phone. Numbers are typed on the game's own keypad (it has the minus key
-// the phone's numeric keyboard lacks) or nudged by the slider and the step keys; choices are big
-// buttons; a 3×3 kernel is nine big cells sharing one keypad.
+// Setting editors for the phone. A block's sheet sets everything in place (InlineParam): choices are buttons, a number
+// has a slider and step keys, a kernel's cells are stepped one at a time, and learned weights are shown. Typing an
+// exact number opens the game's own keypad (it has the minus key the phone's numeric keyboard lacks) in a sheet of
+// its own.
 
 const show = (v) => String(Number(Number(v ?? 0).toFixed(4)))
 const decimals = (step) => (String(step).split('.')[1] ?? '').length
@@ -48,8 +50,8 @@ export function Keypad({ value, onChange, step = 0.1, min, max }) {
 }
 
 export function NumberEditor({ param, value, onChange }) {
-  const has = Number.isFinite(param.min) && Number.isFinite(param.max)
   const step = param.step ?? 0.1
+  const has = Number.isFinite(param.min) && Number.isFinite(param.max) && (param.max - param.min) / step <= 2000
   const [key, setKey] = useState(0)
   const slide = (v) => {
     onChange(v)
@@ -65,18 +67,8 @@ export function NumberEditor({ param, value, onChange }) {
   )
 }
 
-export function ChoiceEditor({ param, value, onChange }) {
-  return (
-    <div className="ph-choices" role="radiogroup" aria-label={L(param.label)}>
-      {param.options.map(([v, text]) => (
-        <button key={v} role="radio" aria-checked={value === v} className={value === v ? 'is-on' : ''} onClick={() => { buzz(); onChange(v) }}>{L(text)}</button>
-      ))}
-    </div>
-  )
-}
-
-export function KernelEditor({ param, value, onChange }) {
-  const [cell, setCell] = useState(4)
+export function KernelEditor({ param, value, onChange, start = 4 }) {
+  const [cell, setCell] = useState(start)
   if (param.learnable) {
     return (
       <div className="ph-kernel is-learned">
@@ -95,6 +87,56 @@ export function KernelEditor({ param, value, onChange }) {
         ))}
       </div>
       <Keypad key={cell} value={value[cell]} step={0.05} onChange={(v) => onChange(value.map((x, j) => (j === cell ? v : x)))} />
+    </div>
+  )
+}
+
+// A step key and the value between them, which opens the keypad.
+function Stepper({ value, step, min, max, label, onChange, onKeypad }) {
+  const nudge = (sign) => {
+    buzz()
+    const next = Number(((value ?? 0) + sign * step).toFixed(decimals(step) + 1))
+    onChange(Math.min(max ?? Infinity, Math.max(min ?? -Infinity, next)))
+  }
+  return (
+    <>
+      <button className="ph-step" onClick={() => nudge(-1)} aria-label={tr(`减 ${step}`, `Minus ${step}`)}><Minus size={18} /></button>
+      <button className="ph-step-value" onClick={onKeypad} aria-label={tr(`${label}：${show(value)}，点一下用键盘输入`, `${label}: ${show(value)}, tap to type`)}>{show(value)}</button>
+      <button className="ph-step" onClick={() => nudge(1)} aria-label={tr(`加 ${step}`, `Plus ${step}`)}><Plus size={18} /></button>
+    </>
+  )
+}
+
+/** A setting set right in a block's sheet. `onKeypad(cell)` opens the keypad for a number (or a kernel's cell). */
+export function InlineParam({ param, value, onChange, onKeypad }) {
+  const [cell, setCell] = useState(4)
+  const label = L(param.label)
+  if (param.kind === 'select') return <Choice options={param.options} value={value} onChange={(v) => { buzz(); onChange(v) }} label={param.label} layout={param.buttons ?? 'row'} roomy />
+  if (param.kind === 'kernel' && param.learnable) return <KernelEditor param={param} value={value} />
+  if (param.kind === 'kernel') {
+    return (
+      <div className="ph-kernel-edit">
+        <div className="ph-kernel is-compact" role="group" aria-label={tr('3×3 权重', '3×3 weights')}>
+          {value.map((w, i) => (
+            <button key={i} className={i === cell ? 'is-on' : ''} style={{ '--w': Math.max(-1, Math.min(1, w)) }} onClick={() => { buzz(); setCell(i) }} aria-label={tr(`第 ${Math.floor(i / 3) + 1} 行第 ${(i % 3) + 1} 列，${show(w)}`, `Row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}: ${show(w)}`)}>
+              {show(w)}
+            </button>
+          ))}
+        </div>
+        <div className="ph-inline-number">
+          <span>{tr(`第 ${Math.floor(cell / 3) + 1} 行第 ${(cell % 3) + 1} 列`, `Row ${Math.floor(cell / 3) + 1}, col ${(cell % 3) + 1}`)}</span>
+          <Stepper value={value[cell]} step={0.05} label={label} onChange={(v) => onChange(value.map((x, j) => (j === cell ? v : x)))} onKeypad={() => onKeypad(cell)} />
+        </div>
+      </div>
+    )
+  }
+  const step = param.step ?? 0.1
+  // A slider only where it has a sensible number of stops; a wide range (a constant) is typed or nudged.
+  const has = Number.isFinite(param.min) && Number.isFinite(param.max) && (param.max - param.min) / step <= 2000
+  return (
+    <div className="ph-inline-number">
+      {has && <input className="bk-range ph-slider" type="range" min={param.min} max={param.max} step={step} value={value ?? 0} style={{ '--fill': `${(((value ?? 0) - param.min) / (param.max - param.min)) * 100}%` }} onChange={(event) => onChange(Number(event.target.value))} aria-label={label} />}
+      <Stepper value={value} step={step} min={param.min} max={param.max} label={label} onChange={onChange} onKeypad={() => onKeypad(null)} />
     </div>
   )
 }

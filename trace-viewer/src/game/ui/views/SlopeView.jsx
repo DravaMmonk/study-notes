@@ -116,7 +116,7 @@ export default function SlopeView({ img, range, size = 112, theme, onHover }) {
     const box = event.currentTarget.getBoundingClientRect()
     const x = Math.floor(((event.clientX - box.left) / box.width) * img.w)
     const y = Math.floor(((event.clientY - box.top) / box.height) * img.h)
-    if (x >= 0 && y >= 0 && x < img.w && y < img.h) onHover({ x, y, value: img.data[y * img.w + x] })
+    if (x >= 0 && y >= 0 && x < img.w && y < img.h) onHover({ x, y, w: img.w, h: img.h, value: img.data[y * img.w + x] })
   }
-  return <canvas ref={canvas} className="slope-view" style={{ width: size, height: size * (img.h / img.w) }} onPointerMove={hover} onPointerLeave={() => onHover?.(null)} aria-label={tr('坡度图：箭头指向变亮最快的方向，越长越陡', 'Slope map: arrows point where it brightens fastest; longer is steeper')} />
+  return <canvas ref={canvas} className="slope-view" style={{ width: size, height: size * (img.h / img.w) }} onPointerMove={hover} onPointerDown={hover} onPointerLeave={() => onHover?.(null)} aria-label={tr('坡度图：箭头指向变亮最快的方向，越长越陡', 'Slope map: arrows point where it brightens fastest; longer is steeper')} />
 }

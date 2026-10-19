@@ -89,12 +89,19 @@ export function maskSpectrum(spectrum, H) {
   const im = Float64Array.from(spectrum.im)
   for (let v = 0; v < h; v++) {
     for (let u = 0; u < w; u++) {
-      const g = H(radiusOf(u, v, w, h))
+      const g = H(radiusOf(u, v, w, h), u, v)
       re[v * w + u] *= g
       im[v * w + u] *= g
     }
   }
   return { w, h, re, im }
+}
+
+// Filter an image by a gain picture laid out like the spectrum view: the gain for frequency (u, v) sits at pixel
+// ((u + w/2) mod w, (v + h/2) mod h), so the centre is (0, 0). A gain symmetric about the centre keeps the image real.
+export function applyGain(img, gain) {
+  const { w, h } = img
+  return idft2(maskSpectrum(dft2(img), (r, u, v) => gain.data[((v + h / 2) % h) * w + ((u + w / 2) % w)]))
 }
 
 // Filter an image by multiplying its spectrum with a low-pass mask and transforming back.

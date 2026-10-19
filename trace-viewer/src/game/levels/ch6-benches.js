@@ -1,9 +1,10 @@
-// Chapter 6 · 认出同一个点, levels 6-2 … 6-5 (lectures 11–12): appearance matching with the ratio test,
-// Hough voting, RANSAC rounds, and the book-cover homography. All four are boards; the game logic
-// lives here as plain functions (level.model) so `npm run levels` can prove every lesson.
+// The three benches of chapter 6 · 认出同一个点 (lectures 11–12): Hough voting, RANSAC rounds, and the four corners
+// that pin down a homography. What cannot be wired from parts is played on a bench, and each bench then unlocks a
+// part the circuits use (levels/ch6.js). The game logic lives here as plain functions (level.model) so
+// `npm run levels` can prove every lesson.
 import { random } from '../engine/image.js'
 import { keyOf } from '../../../../games/kit/shell/i18n.js'
-import { affineFit, homographyDLT, houghAccumulate, houghPeaks, invert3, lineGap, lineThrough, project, rankCandidates, ransacLine } from '../engine/match.js'
+import { affineFit, homographyDLT, houghAccumulate, houghPeaks, invert3, lineGap, lineThrough, project, ransacLine } from '../engine/match.js'
 
 const gauss = (next) => {
   let s = 0
@@ -12,112 +13,7 @@ const gauss = (next) => {
 }
 
 // =====================================================================================
-// 6-2 找对应: windows compared by SSD; repeated texture makes the nearest one untrustworthy.
-// =====================================================================================
-
-const MW = 40 // image width
-const MH = 28 // image height
-const MR = 2 // window radius: 5×5 windows
-const TILE = 6 // the fence repeats every 6 px
-
-// A small world: a soft background, a few one-of-a-kind marks and a fence of identical tiles.
-// Both photos are crops of it; the right one is moved by (tx, ty), noisier, maybe brighter.
-function matchWorld(seed, marks, fence) {
-  const W = MW + 16
-  const H = MH + 8
-  const next = random(seed)
-  const data = new Float32Array(W * H)
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) data[y * W + x] = 0.42 + 0.1 * Math.sin(x / 7 + seed) + 0.08 * Math.cos(y / 5) + (next() - 0.5) * 0.06
-  for (const [mx, my] of marks) {
-    for (let v = -MR; v <= MR; v++) for (let u = -MR; u <= MR; u++) data[(my + v) * W + mx + u] = 0.08 + 0.84 * next()
-  }
-  // Fence tile, 6 wide × 5 tall: two dark posts and a bright bolt; every tile is identical.
-  const [fx, fy, count] = fence
-  const tile = [
-    [0.15, 0.15, 0.7, 0.75, 0.7, 0.3],
-    [0.15, 0.15, 0.75, 0.95, 0.75, 0.3],
-    [0.15, 0.15, 0.3, 0.75, 0.3, 0.3],
-    [0.15, 0.15, 0.75, 0.95, 0.75, 0.3],
-    [0.15, 0.15, 0.7, 0.75, 0.7, 0.3],
-  ]
-  for (let i = 0; i < count; i++) for (let v = 0; v < 5; v++) for (let u = 0; u < TILE; u++) data[(fy - 2 + v) * W + fx + i * TILE + u] = tile[v][u]
-  const bolts = Array.from({ length: count }, (_, i) => [fx + i * TILE + 3, fy])
-  return { W, H, data, bolts }
-}
-
-function crop(world, ox, oy, seed, noise, gain = 1, offset = 0) {
-  const next = random(seed)
-  const data = new Float32Array(MW * MH)
-  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) data[y * MW + x] = world.data[(y + oy) * world.W + x + ox] * gain + offset + gauss(next) * noise
-  return { w: MW, h: MH, data }
-}
-
-const inside = ([x, y]) => x >= MR && y >= MR && x < MW - MR && y < MH - MR
-
-function matchPair({ label, seed, marks, fence, shift: [tx, ty], noise, gain, offset, fenceKeys }) {
-  const world = matchWorld(seed, marks, fence)
-  const a = crop(world, 4, 4, seed + 1, 0.03)
-  const b = crop(world, 4 + tx, 4 + ty, seed + 2, noise, gain, offset)
-  const toA = ([x, y]) => [x - 4, y - 4]
-  const toB = ([x, y]) => [x - 4 - tx, y - 4 - ty]
-  // Candidates in B: every mark and fence bolt that the right photo sees.
-  const worldCandidates = [...marks, ...world.bolts].filter((p) => inside(toB(p)))
-  const candidates = worldCandidates.map(toB)
-  const keyWorld = [...marks, ...fenceKeys.map((i) => world.bolts[i])].filter((p) => inside(toA(p)))
-  const keypoints = keyWorld.map((p) => ({ at: toA(p), truth: worldCandidates.findIndex((q) => q[0] === p[0] && q[1] === p[1]), fence: !marks.includes(p) }))
-  return { label, a, b, candidates, keypoints }
-}
-
-const MATCH_PAIRS = [
-  matchPair({ label: { zh: '第 1 组', en: 'Set 1' }, seed: 26, marks: [[9, 8], [22, 10], [33, 7], [44, 12], [14, 27], [40, 28]], fence: [8, 19, 7], shift: [3, 1], noise: 0.03, fenceKeys: [0, 1, 3, 5] }),
-  matchPair({ label: { zh: '第 2 组', en: 'Set 2' }, seed: 36, marks: [[12, 9], [27, 6], [38, 11], [47, 8], [20, 28], [35, 29]], fence: [5, 20, 8], shift: [-2, 2], noise: 0.06, fenceKeys: [0, 2, 4, 6, 7] }),
-  matchPair({ label: { zh: '第 3 组', en: 'Set 3' }, seed: 3, marks: [[10, 10], [24, 7], [36, 9], [45, 27], [15, 28], [30, 29]], fence: [12, 19, 6], shift: [4, -1], noise: 0.03, gain: 1.15, offset: 0.06, fenceKeys: [0, 2, 3, 5] }),
-]
-
-// For every keypoint of A: the candidates of B ranked by distance, d₁, d₂ and whether the nearest is right.
-function matchRows(pair) {
-  return pair.keypoints.map((kp) => {
-    const ranking = rankCandidates(pair.a, kp.at, pair.b, pair.candidates, MR)
-    const [first, second] = ranking
-    return { ...kp, ranking, best: first.index, d1: first.d, d2: second?.d ?? Infinity, ratio: first.d / (second?.d ?? Infinity), right: first.index === kp.truth }
-  })
-}
-
-const MATCH_ROWS = MATCH_PAIRS.map(matchRows)
-
-const MATCH_NEED = (rows) => rows.filter((r) => !r.fence && r.truth >= 0).length
-
-// rule: { mode: 'all' | 'dist' | 'ratio', t, r }
-function acceptMatch(row, rule) {
-  if (rule.mode === 'dist') return row.d1 < rule.t
-  if (rule.mode === 'ratio') return row.ratio < rule.r
-  return true
-}
-
-function judgeMatches(rows, rule) {
-  const accepted = rows.filter((row) => acceptMatch(row, rule))
-  const correct = accepted.filter((row) => row.right).length
-  const wrong = accepted.length - correct
-  const need = MATCH_NEED(rows)
-  return { accepted: accepted.length, correct, wrong, need, pass: wrong === 0 && correct >= need }
-}
-
-const judgeAllMatches = (rule) => MATCH_ROWS.map((rows) => judgeMatches(rows, rule))
-
-function verifyMatch() {
-  const passes = (rule) => judgeAllMatches(rule).every((j) => j.pass)
-  if (passes({ mode: 'all' })) return 'plain nearest neighbour passes'
-  for (let t = 0; t <= 4; t += 0.01) if (passes({ mode: 'dist', t })) return `absolute threshold d1 < ${t.toFixed(2)} passes`
-  if (!passes({ mode: 'ratio', r: 0.8 })) return 'ratio test r = 0.8 fails'
-  if (passes({ mode: 'ratio', r: 0.99 })) return 'ratio 0.99 (no real test) passes'
-  if (passes({ mode: 'ratio', r: 0.15 })) return 'ratio 0.15 (rejects everything) passes'
-  // Every pair must show the trap: nearest-neighbour accepts at least one wrong fence match.
-  for (const [i, rows] of MATCH_ROWS.entries()) if (!judgeMatches(rows, { mode: 'all' }).wrong) return `pair ${i + 1} has no wrong nearest match`
-  return ''
-}
-
-// =====================================================================================
-// 6-3 投票: Hough accumulator; the bin size decides whether votes split or lines merge.
+// 6-6 投票: Hough accumulator; the bin size decides whether votes split or lines merge.
 // =====================================================================================
 
 const HOUGH_RHO_MAX = 34
@@ -206,7 +102,7 @@ function verifyHough() {
 }
 
 // =====================================================================================
-// 6-4 共识: RANSAC rounds k and inlier threshold δ, judged over 200 seeded trials.
+// 6-8 共识: RANSAC rounds k and inlier threshold δ, judged over 200 seeded trials.
 // =====================================================================================
 
 const RANSAC_N = 80
@@ -274,7 +170,7 @@ function verifyRansac() {
 }
 
 // =====================================================================================
-// 6-5 书封面: pairs of points → homography by DLT; three pairs only give an affine map.
+// 6-11 四个角: pairs of points → homography by DLT; three pairs only give an affine map.
 // =====================================================================================
 
 const COVER = { w: 60, h: 84 }
@@ -435,32 +331,9 @@ function renderCover(target) {
 
 // =====================================================================================
 
-export const levels = [
-  {
-    id: '6-2',
-    kind: 'board',
-    board: 'MatchRatio',
-    chapter: 6,
-    title: { zh: '找对应', en: 'Find correspondences' },
-    brief: {
-      zh: '左图每个关键点，取右图里 5×5 窗口最像的候选（距离 d = √SSD 最小）。定一条接受规则：三组图里接受的匹配不能有错，独特的点都要找回。',
-      en: 'Each keypoint in the left image takes the candidate in the right image whose 5×5 window is most alike (smallest distance d = √SSD). Set a rule for which matches to accept: in all three sets, no accepted match may be wrong, and every distinctive point must be found.',
-    },
-    hint: {
-      zh: '点开一个连错的点，看看排在它前面的几个候选。重复的纹理里，最像的不一定是对的。',
-      en: 'Open a point that is matched wrongly and look at its top few candidates. In repeated texture, the most alike is not always the right one.',
-    },
-    after: {
-      zh: '栅栏一格格完全一样，第一名和第二名几乎一样近：这种匹配再“像”也不可信，而且 d₁ 本身可以很小，所以只看距离挡不住它。距离比检验 d₁ / d₂ < r 只接受第一名明显领先的匹配，整体变亮也不影响比值。课上取 r = 0.8。',
-      en: 'Every tile of the fence is identical, so the first and second places are almost equally close: however "alike" such a match is, it cannot be trusted, and d₁ itself can be very small, so a distance threshold alone cannot stop it. The ratio test d₁ / d₂ < r only accepts a match whose first place is clearly ahead, and a brighter image does not change the ratio. The lecture uses r = 0.8.',
-    },
-    requires: ['6-1'],
-    unlocks: [],
-    model: { pairs: MATCH_PAIRS, rows: MATCH_ROWS, judge: judgeMatches, accept: acceptMatch, W: MW, H: MH, R: MR },
-    verify: verifyMatch,
-  },
-  {
-    id: '6-3',
+export const benches = {
+  hough: {
+    id: '6-6',
     kind: 'board',
     board: 'HoughVote',
     chapter: 6,
@@ -477,13 +350,12 @@ export const levels = [
       zh: 'Hough 把“找一条线”变成“在累加器里找峰”。分箱太细，噪声把一条线的票拆成许多小峰；太粗，相近的两条线合成一个峰。合适的分箱取决于噪声和线的间距。',
       en: 'Hough turns "find a line" into "find a peak in the accumulator". With bins too fine, noise splits one line\'s votes into many small peaks; too coarse, and two nearby lines merge into one peak. The right bin size depends on the noise and on how far apart the lines are.',
     },
-    requires: ['6-2'],
-    unlocks: [],
+    unlocks: ['hough'],
     model: { scenes: HOUGH_SCENES, steps: HOUGH_STEPS, run: houghRun, rhoMax: HOUGH_RHO_MAX, tol: HOUGH_TOL },
     verify: verifyHough,
   },
-  {
-    id: '6-4',
+  ransac: {
+    id: '6-8',
     kind: 'board',
     board: 'RansacTrials',
     chapter: 6,
@@ -500,17 +372,16 @@ export const levels = [
       zh: '一轮两点都是内点的概率是 p²，k 轮全落空的概率是 (1 − p²)ᵏ。要成功率达到 P，就要 k ≥ log(1 − P) / log(1 − pⁿ)：p = 0.5、n = 2、P = 0.99 时是 17 轮，内点只剩 30% 时要 49 轮。轮数由内点比例决定，δ 由噪声决定，两者不能互相代替。',
       en: 'The chance that both points of a round are inliers is p², and the chance that all k rounds miss is (1 − p²)ᵏ. To reach a success rate P you need k ≥ log(1 − P) / log(1 − pⁿ): with p = 0.5, n = 2 and P = 0.99 that is 17 rounds, and with only 30% inliers it takes 49. The number of rounds is set by the inlier ratio and δ by the noise; neither can stand in for the other.',
     },
-    requires: ['6-3'],
-    unlocks: [],
+    unlocks: ['ransac'],
     model: { stages: RANSAC_STAGES, trials: RANSAC_TRIALS, rate: ransacRate, trial: ransacTrial, rounds: ransacRounds, tol: RANSAC_TOL, n: RANSAC_N },
     verify: verifyRansac,
   },
-  {
-    id: '6-5',
+  corners: {
+    id: '6-11',
     kind: 'board',
     board: 'BookCover',
     chapter: 6,
-    title: { zh: '书封面', en: 'Book cover' },
+    title: { zh: '四个角', en: 'Four corners' },
     brief: {
       zh: '从封面上的点拖到照片里同一个点，连出对应点对。把封面贴回照片，平均误差小于 1.5 像素即通过。',
       en: 'Drag from a point on the cover to the same point in the photo to make a pair of corresponding points. The cover is pasted back onto the photo; you pass when the mean error is under 1.5 pixels.',
@@ -523,9 +394,8 @@ export const levels = [
       zh: '单应矩阵 H 有 8 个自由度，每对点给 2 个方程，所以至少要 4 对点，游戏用 DLT 从你的点对解出了 H。3 对点只能定出仿射（6 个自由度），它保持平行，贴不上透视下的书。实际流水线里，这些点对来自距离比检验后的候选，再由 RANSAC 反复抽 4 对、数内点选出来。',
       en: 'The homography H has 8 degrees of freedom and each pair of points gives 2 equations, so it needs at least 4 pairs; the game solved H from your pairs with DLT. Three pairs only fix an affine map (6 degrees of freedom), which keeps lines parallel and cannot fit a book seen in perspective. In a real pipeline the pairs come from candidates that passed the ratio test, and RANSAC picks them by repeatedly drawing 4 pairs and counting inliers.',
     },
-    requires: ['6-4'],
-    unlocks: [],
+    unlocks: ['homography'],
     model: { COVER, PHOTO, coverPoints: COVER_POINTS, photoPoints: PHOTO_POINTS, fit: fitCover, tol: COVER_TOL, renderPhoto, renderCover, project, trueQuad: COVER_QUAD },
     verify: verifyCover,
   },
-]
+}

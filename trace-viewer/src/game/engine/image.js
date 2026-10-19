@@ -33,9 +33,13 @@ export function shift(img, dx, dy, border = 'zero') {
     let sx = x - dx
     let sy = y - dy
     if (sx < 0 || sy < 0 || sx >= img.w || sy >= img.h) {
-      if (border !== 'edge') return 0
-      sx = Math.min(img.w - 1, Math.max(0, sx))
-      sy = Math.min(img.h - 1, Math.max(0, sy))
+      if (border === 'wrap') {
+        sx = ((sx % img.w) + img.w) % img.w
+        sy = ((sy % img.h) + img.h) % img.h
+      } else if (border === 'edge') {
+        sx = Math.min(img.w - 1, Math.max(0, sx))
+        sy = Math.min(img.h - 1, Math.max(0, sy))
+      } else return 0
     }
     return img.data[sy * img.w + sx]
   })

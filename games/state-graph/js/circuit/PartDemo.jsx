@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { CanvasEditor, DemoBench, SlotBoard } from '../../../kit/circuit/index.js'
+import { CanvasEditor, Choice, DemoBench, SlotBoard } from '../../../kit/circuit/index.js'
 import { L, tr } from '../../../kit/shell/i18n.js'
 import { LEVELS } from '../levels/index.js'
 import { sceneSVG } from '../svg.js'
@@ -235,27 +235,22 @@ export default function PartDemo({ partKey, phone }) {
   const note = { zh: '点测试棋盘上的格子，让机器人站过去；输入卡片读的就是棋盘上的格子，改它就是改那一格。改好点运行，答案会写进红框。', en: 'Click a cell on the test board to send the robot there; an input card reads a cell of the board, so changing it changes that cell. Then run, and the answer goes into the red frame.' }
 
   if (!phone) {
-    const stop = (event) => event.stopPropagation()
     const body = (node) => {
       if (node.type === 'tap') return <div className="sg-body"><InputControl key={`${node.tap}-${ti}-${cell}`} type={V.sensors[node.tap].type} value={inputs[node.tap] ?? null} onChange={(v) => setInput(node.tap, v)} /></div>
       const value = valueOf(node.id)
       return (
         <div className="sg-body" title={node.type !== 'out' ? L(def(node.type).desc) : undefined}>
           {hasValue(node.type) && (
-            <label className="param" onPointerDown={stop}>
+            <div className="param is-choice">
               <span>{tr('数值', 'Value')}</span>
-              <select value={node.value ?? valueDefault(node.type)} onChange={(e) => setNode(node.id, { value: +e.target.value })}>
-                {(s.consts || [0, 1, 2, 3, 4, 5]).map((v) => <option key={v} value={v}>{v}</option>)}
-              </select>
-            </label>
+              <Choice options={(s.consts || [0, 1, 2, 3, 4, 5]).map((v) => [v, String(v)])} value={node.value ?? valueDefault(node.type)} onChange={(v) => setNode(node.id, { value: v })} label={tr('数值', 'Value')} />
+            </div>
           )}
           {MERGES.includes(node.type) && (
-            <label className="param" onPointerDown={stop}>
+            <div className="param is-choice">
               <span>{tr('操作', 'Operation')}</span>
-              <select value={node.type} onChange={(e) => setNode(node.id, { kind: e.target.value })}>
-                {MERGES.map((k) => <option key={k} value={k}>{L(def(k).tag)}</option>)}
-              </select>
-            </label>
+              <Choice options={MERGES.map((k) => [k, def(k).tag])} value={node.type} onChange={(k) => setNode(node.id, { kind: k })} label={tr('操作', 'Operation')} />
+            </div>
           )}
           <output className={`sg-val ${value ? 'is-on' : ''}`}>{value || '—'}</output>
         </div>
@@ -286,19 +281,17 @@ export default function PartDemo({ partKey, phone }) {
     const v = node.type === 'tap' ? signal(inputs[node.tap] ?? null) : valueOf(node.id)
     return <i className={`sg-thumb ${v && v !== '—' ? 'is-on' : ''}`}>{v || '—'}</i>
   }
-  const tileExtra = (node) => (hasValue(node.type) ? `= ${node.value ?? valueDefault(node.type)}` : L(def(node.type).tag ?? ''))
+  // Sensor taps and outputs are cards, not parts: they have no definition to read a tag from.
+  const tileExtra = (node) => (node.type === 'tap' || node.type === 'out' ? '' : hasValue(node.type) ? `= ${node.value ?? valueDefault(node.type)}` : L(def(node.type).tag ?? ''))
   const node = graph.nodes.find((n) => n.id === sel)
-  const choices = (options, value, pick) => (
-    <div className="demo-choices">{options.map(([v, label]) => <button key={String(v)} type="button" aria-pressed={v === value} onClick={() => pick(v)}>{label}</button>)}</div>
-  )
   const panel = !node ? (
     <p className="panel-note">{tr('点一块，在这里改它：输入、常数，或汇合器的操作。点棋盘上的格子换机器人的位置。', 'Tap a block to change it here: an input, a constant or a merger’s operation. Tap a cell on the board to move the robot.')}</p>
   ) : (
     <>
       <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'tap' ? tr('输入', 'Input') : node.type === 'out' ? tr('答案', 'Answer') : L(def(node.type).tag ?? '')}</small></div>
       {node.type === 'tap' && <InputControl key={`${sel}-${ti}-${cell}`} type={V.sensors[node.tap].type} value={inputs[node.tap] ?? null} onChange={(v) => setInput(node.tap, v)} />}
-      {hasValue(node.type) && choices((s.consts || [0, 1, 2, 3, 4, 5]).map((v) => [v, String(v)]), node.value ?? valueDefault(node.type), (v) => setNode(node.id, { value: v }))}
-      {MERGES.includes(node.type) && choices(MERGES.map((k) => [k, L(def(k).tag)]), node.type, (k) => setNode(node.id, { kind: k }))}
+      {hasValue(node.type) && <Choice options={(s.consts || [0, 1, 2, 3, 4, 5]).map((v) => [v, String(v)])} value={node.value ?? valueDefault(node.type)} onChange={(v) => setNode(node.id, { value: v })} label={tr('数值', 'Value')} roomy />}
+      {MERGES.includes(node.type) && <Choice options={MERGES.map((k) => [k, def(k).tag])} value={node.type} onChange={(k) => setNode(node.id, { kind: k })} label={tr('操作', 'Operation')} roomy />}
       {node.type !== 'tap' && node.type !== 'out' && <p className="panel-note">{L(def(node.type).desc)}</p>}
       {node.type !== 'tap' && <p className="panel-note">{probe ? tr(`上次运行：${valueOf(node.id) || '—'}`, `Last run: ${valueOf(node.id) || '—'}`) : tr('还没运行。', 'Not run yet.')}</p>}
     </>

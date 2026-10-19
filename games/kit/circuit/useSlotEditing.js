@@ -18,14 +18,13 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  * @param create(graph, type, at) → { graph, id }  add a part of `type` in slot `at` (the game makes its nodes)
  * @param label(node)                              a block's own name (without its number)
  * @param openNode(id), openSlot(at)               the game's sheets for a block and an empty slot
- * @param autoWire                                 wire the very first part between the only source and the sink
  * @param reset()                                  start the circuit over
  * @param root, scroller                           refs to the element that holds the board and tray, and to the board's
  *                                                 scrolling pane (drags start inside `root` and scroll `scroller`)
  * @param scope                                    names the board for undo (a level's stage)
  * @returns state and handlers for SlotBoard (`history`: its undo and redo), Tray and Notice
  */
-export function useSlotEditing({ graph, onChange, parts, create, label, openNode, openSlot, autoWire = false, reset, root, scroller, scope }) {
+export function useSlotEditing({ graph, onChange, parts, create, label, openNode, openSlot, reset, root, scroller, scope }) {
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
   const history = useHistory(graph, onChange, scope)
   const [toast, setToast] = useState(null) // a { zh, en } pair, read in the current language when shown
@@ -124,23 +123,13 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     openSlot?.(at)
   }
 
-  // Placing parts. The very first part of a one-source level can be wired in for you, so the board shows something
-  // at once; after that, wiring is the player's.
+  // Placing parts. Wiring is always the player's.
   const place = (type, at) => {
-    let { graph: next, id } = create(graph, type, at)
+    const { graph: next, id } = create(graph, type, at)
     // An input part goes up with the inputs, not into a slot.
-    let note = parts.role(byId(next, id) ?? {}) === 'source'
+    const note = parts.role(byId(next, id) ?? {}) === 'source'
       ? { zh: '放在了最上面的输入区 · 从圆点拉线接上', en: 'Placed with the inputs at the top · wire it up from the dots' }
       : { zh: `放进了第 ${at + 1} 格 · 从圆点拉线接上`, en: `Placed in slot ${at + 1} · wire it up from the dots` }
-    const sink = sinks[0]
-    const [sinkPort] = sink ? parts.inputs(sink) : []
-    if (autoWire && !steps.length && sources.length === 1 && sink && !feeding(next, sink.id, sinkPort)) {
-      const node = byId(next, id)
-      const [first] = parts.inputs(node)
-      if (first) next = connect(next, id, first, srcOf(sources[0], outputsOf(parts, sources[0])[0].key))
-      next = connect(next, sink.id, sinkPort, id)
-      note = { zh: `接好了：${nameOf(sources[0])} → ${L(label(node))} → ${nameOf(sink)}`, en: `Wired up: ${nameOf(sources[0])} → ${L(label(node))} → ${nameOf(sink)}` }
-    }
     buzz()
     edit(next, note)
   }
