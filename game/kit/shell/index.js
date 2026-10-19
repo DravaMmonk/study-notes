@@ -13,8 +13,9 @@ export { PHONE, useMedia } from './useMedia.js'
 
 /**
  * Describe a game for GameShell. Required: id, title, kicker, lede ({ zh, en } pairs), chapters
- * ([{ id, title, label?, question?, number? }]), levels ([{ id, chapter, title, kind, requires?, unlocks?, brief?,
- * hint?, after?, note? … }], in play order) and kinds ({ [kind]: { Screen, icon?, label? } }). Optional:
+ * ([{ id, title, track, label?, question?, number?, kicker? }], track: the chapter's level tree from kit/course.js
+ * layout), levels ([{ id, chapter, title, kind, requires?, unlocks?, brief?, hint?, after?, note? … }], in play order)
+ * and kinds ({ [kind]: { Screen, icon?, label? } }). Optional:
  *
  *   Hero          the map's illustration ({ theme })
  *   power         a first-run dialog { title, lines }
@@ -27,7 +28,7 @@ export { PHONE, useMedia } from './useMedia.js'
  *   note(level)   the level's key idea, shown when it is passed (default: level.note ?? level.after)
  *   glossary      the encyclopedia: { groups: [{ id, title }], entries: [{ id, group, title, body, at?, see? }] }
  *   html          true when level text (brief, rows, intro, dialogs) is the game's own HTML markup
- *   levelLabel(level), isOpen(level, solved, all), better(score, best), bestLabel(best), planned
+ *   levelLabel(level), isOpen(level, solved, all), better(score, best), bestLabel(best)
  */
 export function defineGame(def) {
   const levels = def.levels
