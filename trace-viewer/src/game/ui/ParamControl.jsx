@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Choice } from '../../../../games/kit/circuit/index.js'
 import { L, tr } from '../../../../games/kit/shell/i18n.js'
+import { parsePi, piText, timesPi } from '../engine/pi.js'
 
 // The controls for a part's settings on the desktop board: a choice (a menu, or buttons), a number, or a 3×3 grid of
 // weights.
@@ -12,10 +13,11 @@ const stop = (event) => event.stopPropagation()
 const parse = (text) => {
   const clean = text.trim().replace(/[−－–—]/g, '-').replace(/。/g, '.')
   if (clean === '' || clean === '-' || clean === '.' || clean === '-.') return null
+  if (/π|pi/i.test(clean)) return parsePi(clean)
   const n = Number(clean)
   return Number.isFinite(n) ? n : null
 }
-const show = (v) => String(Number(Number(v).toFixed(4)))
+const show = (v) => piText(Number(v)) ?? String(Number(Number(v).toFixed(4)))
 
 export function NumberInput({ value, onChange, label, className, onFocus }) {
   const [draft, setDraft] = useState(null)
@@ -79,6 +81,7 @@ export default function ParamControl({ param, value, onChange, roomy, style }) {
       <span>{L(param.label)}</span>
       <span className="param-number">
         <NumberInput value={value ?? 0} onChange={onChange} label={L(param.label)} />
+        {param.pi && <button type="button" className="param-pi" onPointerDown={stop} onClick={() => onChange(timesPi(value ?? 0))} title={tr('乘以 π（是 0 时设成 π）', 'Times π (π when it is 0)')}>π</button>}
       </span>
     </label>
   )

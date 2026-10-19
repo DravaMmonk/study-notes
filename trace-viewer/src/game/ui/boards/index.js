@@ -7,6 +7,7 @@ export const BOARDS = {
   GanDuel: lazy(() => import('./GanDuel.jsx')),
   OpticsObscura: lazy(() => import('./OpticsObscura.jsx')),
   AliasProbe: lazy(() => import('./AliasProbe.jsx')),
+  WaveBench: lazy(() => import('./WaveBench.jsx')),
   KernelRacer: lazy(() => import('./KernelRacer.jsx')),
   EarlyStop: lazy(() => import('./EarlyStop.jsx')),
   AttendContrast: lazy(() => import('./AttendContrast.jsx')),

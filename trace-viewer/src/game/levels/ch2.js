@@ -77,30 +77,79 @@ const checker = (cell, lo, hi) => fromFn(N, N, (x, y) => ((Math.floor(x / cell) 
 const grating = (fx, fy, amp = 0.4) => fromFn(N, N, (x, y) => 0.5 + amp * Math.cos((2 * Math.PI * (fx * x + fy * y)) / N))
 const plus = (a, b) => zip(a, b, (p, q) => p + q)
 
-// ---------------- 2-1 搭一道波, 2-2 叠加 ----------------
+// ---------------- 2-1 一道波 (bench) ----------------
 
-const positions = fromFn(N, 1, (x) => x)
-const num = (v) => image(1, 1, v)
-const waveOf = ({ k, A, phi, c }) => fromFn(N, 1, (x) => c + A * Math.cos((TAU * k * x) / N + phi))
-const waveTest = (w) => test({ zh: `k = ${w.k}`, en: `k = ${w.k}` }, { x: positions, k: num(w.k), A: num(w.A), phi: num(w.phi), c: num(w.c) }, { out: waveOf(w) })
-const wg = (nodes, wires) => build(nodes, wires, { inputs: ['x', 'k', 'A', 'phi', 'c'] })
-
-const makeWave = {
-  id: '2-1',
-  chapter: 2,
-  title: { zh: '搭一道波', en: 'Build a wave' },
-  inputs: ['x', 'k', 'A', 'phi', 'c'],
-  inputLabels: { x: { zh: '位置 x', en: 'Position x' }, k: { zh: '频率 k', en: 'Frequency k' }, A: { zh: '振幅 A', en: 'Amplitude A' }, phi: { zh: '相位 φ', en: 'Phase φ' }, c: { zh: '平均亮度 c', en: 'Average c' } },
-  brief: { zh: '「位置 x」是一行 32 个点，从 0 数到 31；另外四个输入各是一个数。输出这道波：c + A·cos(2π·k·x / 32 + φ)。φ 用弧度。', en: '"Position x" is a row of 32 points counting from 0 to 31; each of the other four inputs is a single number. Output the wave c + A·cos(2π·k·x / 32 + φ), with φ in radians.' },
-  hint: { zh: '一个数和一整行相乘或相加时，这个数会用在每一个点上。从最里面的 k·x 开始搭。', en: 'When a single number is multiplied with or added to a whole row, it applies to every point. Start building from the innermost k·x.' },
-  after: { zh: '四个数决定一道波：k 是整行走几个周期（越大条纹越密），A 是明暗差多大，c 是平均亮度，φ 是整体往哪边挪。你搭的电路成了「波」元件：设好 k，它就给出一道整行走 k 个周期的标准波。', en: 'Four numbers settle a wave: k is how many cycles it makes across the row (the bigger, the denser the stripes), A is how far light and dark differ, c is the average brightness, and φ is how far the whole wave is shifted. Your circuit is now the "Wave" part: set k and it gives a standard wave of k cycles across the row.' },
-  unlocks: ['wave'],
-  palette: ['arith', 'merge', 'const', 'cos'],
-  tests: [{ k: 3, A: 0.4, phi: 0, c: 0.5 }, { k: 5, A: 0.25, phi: 1.5708, c: 0.45 }, { k: 1, A: 0.3, phi: 3.1416, c: 0.55 }, { k: 8, A: 0.2, phi: 0.7854, c: 0.5 }].map(waveTest),
-  hidden: [{ k: 2, A: 0.45, phi: 4.7124, c: 0.5 }, { k: 6, A: 0.15, phi: 2, c: 0.35 }].map(waveTest),
-  solution: wg({ m: ['arith', { op: 'mul' }], s: ['arith', { op: 'mul' }], sN: ['const', { c: 6.28 }], d: ['arith', { op: 'div' }], dN: ['const', { c: N }], p: ['arith', { op: 'add' }], w: 'cos', a: ['arith', { op: 'mul' }], o: ['arith', { op: 'add' }] }, ['x>m.a', 'k>m.b', 'm>s.a', 'sN>s.b', 's>d.a', 'dN>d.b', 'd>p.a', 'phi>p.b', 'p>w', 'w>a.a', 'A>a.b', 'a>o.a', 'c>o.b', 'o>out']),
-  naive: wg({ m: ['arith', { op: 'mul' }], s: ['arith', { op: 'mul' }], sN: ['const', { c: 6.28 }], d: ['arith', { op: 'div' }], dN: ['const', { c: N }], w: 'cos', a: ['arith', { op: 'mul' }], o: ['arith', { op: 'add' }] }, ['x>m.a', 'k>m.b', 'm>s.a', 'sN>s.b', 's>d.a', 'dN>d.b', 'd>w', 'w>a.a', 'A>a.b', 'a>o.a', 'c>o.b', 'o>out']),
+// One knob per number of the wave; φ moves in quarters of π so the slider stops on exact values.
+const WAVE_KNOBS = {
+  c: { min: 0, max: 1, step: 0.05, label: { zh: '平均亮度 c', en: 'Average c' } },
+  A: { min: 0, max: 0.5, step: 0.05, label: { zh: '振幅 A', en: 'Amplitude A' } },
+  k: { min: 0, max: 12, step: 1, label: { zh: '频率 k', en: 'Frequency k' } },
+  phi: { min: -4, max: 4, step: 1, label: { zh: '相位 φ', en: 'Phase φ' } },
 }
+const benchAt = (p, x) => p.c + p.A * Math.cos((TAU * p.k * x) / N + (p.phi * Math.PI) / 4)
+const benchRow = (p) => Array.from({ length: N }, (_, x) => benchAt(p, x))
+const sameWave = (a, b) => benchRow(a).every((v, x) => Math.abs(v - benchAt(b, x)) < 1e-6)
+const WAVE_STAGES = [
+  {
+    knobs: ['c'], start: { c: 0.3, A: 0.25, k: 2, phi: 0 }, target: { c: 0.65, A: 0.25, k: 2, phi: 0 },
+    title: { zh: '平均亮度 c', en: 'Average c' },
+    note: { zh: '这一步只能转 c。把你的波（实线）调到和目标（虚线）重合，同时看下面两行像素怎么变。', en: 'Only c turns in this step. Lay your wave (solid) on the target (dashed), and watch how the two rows of pixels below change.' },
+    win: { zh: 'c 把整道波上下平移：整行一起变亮或变暗，明暗差不变。', en: 'c moves the whole wave up or down: the row gets lighter or darker all at once, and the contrast stays the same.' },
+  },
+  {
+    knobs: ['A'], start: { c: 0.5, A: 0.05, k: 2, phi: 0 }, target: { c: 0.5, A: 0.35, k: 2, phi: 0 },
+    title: { zh: '振幅 A', en: 'Amplitude A' },
+    note: { zh: '这一步只能转 A。', en: 'Only A turns in this step.' },
+    win: { zh: 'A 是起伏的高度：A 越大，亮处越亮、暗处越暗，条纹越分明；A = 0 时只剩一片灰。', en: 'A is the height of the swing: the bigger A, the lighter the light parts and the darker the dark ones, and the clearer the stripes. At A = 0 only a flat grey is left.' },
+  },
+  {
+    knobs: ['k'], start: { c: 0.5, A: 0.3, k: 1, phi: 0 }, target: { c: 0.5, A: 0.3, k: 5, phi: 0 },
+    title: { zh: '频率 k', en: 'Frequency k' },
+    note: { zh: '这一步只能转 k。', en: 'Only k turns in this step.' },
+    win: { zh: 'k 是这一行里走了几个完整的周期：k = 5 就是五道亮条。k 越大，条纹越密。', en: 'k is how many whole cycles the row goes through: k = 5 makes five bright stripes. The bigger k, the denser the stripes.' },
+  },
+  {
+    knobs: ['phi'], start: { c: 0.5, A: 0.3, k: 1, phi: 0 }, target: { c: 0.5, A: 0.3, k: 1, phi: 2 },
+    title: { zh: '相位 φ', en: 'Phase φ' },
+    note: { zh: '这一步只能转 φ。', en: 'Only φ turns in this step.' },
+    win: { zh: 'φ 把整道波左右挪动：条纹换了位置，疏密和明暗都不变。挪满 2π 又回到原样。', en: 'φ slides the whole wave sideways: the stripes move, while their density and contrast stay the same. A shift of 2π brings it back to where it was.' },
+  },
+  {
+    knobs: ['c', 'A', 'k', 'phi'], start: { c: 0.5, A: 0.1, k: 1, phi: 0 }, target: { c: 0.4, A: 0.3, k: 3, phi: -1 },
+    title: { zh: '四个一起', en: 'All four' },
+    note: { zh: '四个旋钮都开放了。先看两条线差在哪，再转对应的那个。', en: 'All four knobs are open. First see where the two lines differ, then turn the knob that matches.' },
+    win: { zh: '四个数刚好定下一道波：c + A·cos(2π·k·x/32 + φ)。', en: 'Four numbers settle a wave exactly: c + A·cos(2π·k·x/32 + φ).' },
+  },
+]
+
+const waveBench = {
+  id: '2-1',
+  kind: 'board',
+  board: 'WaveBench',
+  chapter: 2,
+  title: { zh: '一道波', en: 'One wave' },
+  brief: { zh: '一道波由四个数决定：c、A、k、φ。每一步只开放一个旋钮，把你的波调到和目标重合；最后一步四个一起。', en: 'A wave is set by four numbers: c, A, k and φ. Each step opens one knob: lay your wave on the target. In the last step all four are open.' },
+  hint: { zh: '先比较两条线差在哪：是整体高低、起伏大小、起伏的次数，还是起伏的位置？', en: 'Compare the two lines first: do they differ in overall height, in the size of the swing, in how many swings there are, or in where the swings sit?' },
+  after: { zh: 'c 定中线，也就是平均亮度；A 定起伏的高度，也就是明暗差；k 定一行里有几个周期，也就是条纹的疏密；φ 定条纹往哪边挪。写成式子就是 c + A·cos(2π·k·x/32 + φ)。从现在起，「波」元件归你了：设好 k，它就给出一道整行走 k 个周期的波。cos 元件也一起归你：它把每个数换成它的余弦。', en: 'c sets the middle line, the average brightness; A sets the height of the swing, the contrast; k sets how many cycles fit in the row, the density of the stripes; and φ sets which way the stripes are shifted. As a formula: c + A·cos(2π·k·x/32 + φ). From now on the "Wave" part is yours: set k and it gives a wave of k cycles across the row. So is the cos part, which replaces each number with its cosine.' },
+  unlocks: ['wave'],
+  wave: { N, knobs: WAVE_KNOBS, stages: WAVE_STAGES, at: benchAt, row: benchRow, same: sameWave },
+  verify() {
+    for (const [i, s] of WAVE_STAGES.entries()) {
+      if (sameWave(s.start, s.target)) return `第 ${i + 1} 步一开始就算完成`
+      for (const [knob, { min, max, step }] of Object.entries(WAVE_KNOBS)) {
+        for (const v of [s.start[knob], s.target[knob]]) {
+          if (v < min || v > max || Math.abs(min + Math.round((v - min) / step) * step - v) > 1e-9) return `第 ${i + 1} 步的 ${knob} = ${v} 不在刻度上`
+        }
+        if (!s.knobs.includes(knob) && s.start[knob] !== s.target[knob]) return `第 ${i + 1} 步的 ${knob} 不能转，却和目标不同`
+      }
+    }
+    return ''
+  },
+}
+
+// ---------------- 2-2 叠加 ----------------
+
+const num = (v) => image(1, 1, v)
 
 // The closest a sum of waves up to frequency 8 gets to a square wave: odd sines with amplitudes 4/(πk).
 const SQUARE_K = [1, 3, 5, 7]
@@ -622,4 +671,4 @@ const thumbnails = {
   alsoFails: [chain([['downsample', {}], ['downsample', {}], ['downsample', {}]])],
 }
 
-export const levels = [makeWave, superpose, probeLevel, focus, roads, lowpassLevel, descreenLevel, hybridLevel, aliasLevel, once, half, quarter, steps, thumbnails]
+export const levels = [waveBench, superpose, probeLevel, focus, roads, lowpassLevel, descreenLevel, hybridLevel, aliasLevel, once, half, quarter, steps, thumbnails]

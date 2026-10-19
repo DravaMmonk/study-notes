@@ -1,4 +1,5 @@
 import { correlate, downsample, fromFn, gaussianKernel, image, map, maxPool, shift, zip } from './image.js'
+import { piText } from './pi.js'
 
 // Every node the player can place. A node reads images on its input ports and writes one image on
 // `out`. `cost` is arithmetic operations per output pixel, the game's efficiency score.
@@ -71,7 +72,7 @@ export const NODE_TYPES = {
   const: {
     label: { zh: '常数', en: 'Constant' },
     inputs: [],
-    params: [{ key: 'c', label: '=', kind: 'number', min: -100, max: 100, step: 0.01, default: 1 }],
+    params: [{ key: 'c', label: '=', kind: 'number', min: -100, max: 100, step: 0.01, default: 1, pi: true }],
     eval: (_, p) => image(1, 1, p.c ?? 1),
     cost: 0,
   },
@@ -84,7 +85,8 @@ export const NODE_TYPES = {
     unlock: 'threshold',
   },
   invert: { label: { zh: '反相', en: 'Invert' }, inputs: ['in'], eval: ({ in: a }) => map(a, (v) => 1 - v), cost: 1, unlock: 'invert' },
-  cos: { label: 'cos', inputs: ['in'], eval: ({ in: a }) => map(a, Math.cos), cost: 1 },
+  // Comes with the Wave part, from the bench where the player tunes a cosine wave (2-1).
+  cos: { label: 'cos', inputs: ['in'], eval: ({ in: a }) => map(a, Math.cos), cost: 1, unlock: 'wave' },
   exp: { label: 'exp', inputs: ['in'], eval: ({ in: a }) => map(a, Math.exp), cost: 1 },
   square: { label: { zh: '平方', en: 'Square' }, inputs: ['in'], eval: ({ in: a }) => map(a, (v) => v * v), cost: 1, unlock: 'square' },
   sqrt: { label: { zh: '开方', en: 'Square root' }, inputs: ['in'], eval: ({ in: a }) => map(a, (v) => Math.sqrt(Math.max(0, v))), cost: 1, unlock: 'square' },
@@ -228,6 +230,8 @@ export function snapSetting(type, key, value) {
   const param = (NODE_TYPES[type]?.params ?? []).find((p) => p.key === key)
   if (!param || typeof value === 'object' && !Array.isArray(value)) return value
   if (param.kind === 'number') {
+    // A setting that takes π (the Constant) keeps an exact multiple of π as it is.
+    if (param.pi && piText(value)) return value
     const step = param.step ?? 0.1
     const v = Math.min(param.max ?? Infinity, Math.max(param.min ?? -Infinity, Math.round(value / step) * step))
     return Number(v.toFixed(decimalsOf(step)))

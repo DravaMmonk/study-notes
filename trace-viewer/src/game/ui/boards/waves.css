@@ -95,3 +95,9 @@
   .wv-formula { font-size: 12px; }
 }
 .wv-legend i.is-point { width: 9px; height: 9px; border: 0; border-radius: 50%; background: var(--accent); }
+
+/* 2-1 一道波: the target and your wave drawn as one row of pixels each, under the plot. */
+.wv-strips { margin: 10px 2px 0; display: grid; gap: 6px; }
+.wv-strip { margin: 0; display: grid; grid-template-columns: 3.2em minmax(0, 1fr); align-items: center; gap: 8px; }
+.wv-strip svg { order: 2; width: 100%; height: 22px; border-radius: 4px; box-shadow: 0 0 0 1px var(--rule); }
+.wv-strip figcaption { order: 1; color: var(--muted); font-size: 12px; }

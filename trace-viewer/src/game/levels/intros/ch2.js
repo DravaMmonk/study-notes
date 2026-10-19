@@ -3,13 +3,12 @@ export default {
   '2-1': [
     { t: { zh: '前面一直在看邻居：一个像素和旁边的像素差多少。这一章换个角度，把一张图看成许多道波叠在一起。先从最简单的一道波开始。', en: 'So far we have looked at neighbours: how much a pixel differs from the ones beside it. This chapter takes another view and sees a picture as many waves added together. It starts with the simplest thing: one wave.' } },
     { t: { zh: '一道波就是明暗规律起伏的条纹，像斑马线，像百叶窗透进来的光。一行里出现几次「暗—亮—暗」，就说它走了几个周期；周期越多，条纹越密，频率越高。', en: 'A wave is stripes of light and dark that rise and fall regularly, like a zebra crossing or light through a blind. The number of times "dark—light—dark" appears along a row is the number of cycles; the more cycles, the denser the stripes and the higher the frequency.' } },
-    { t: { zh: '新元件「cos」把每个数换成它的余弦：输入从 0 走到 2π，输出就从 1 落到 −1 再回到 1，正好一个周期。', en: 'The new part "cos" replaces each number with its cosine: as the input goes from 0 to 2π, the output falls from 1 to −1 and back to 1, exactly one cycle.' } },
-    { t: { zh: '这一关你要做的：按说明里的式子，用位置 x 和四个数搭出一道波。要想的问题：k、A、φ、c 各管波的哪一个样子？', en: 'Your task in this level: build a wave from position x and the four numbers, following the formula in the brief. Something to think about: which feature of the wave does each of k, A, φ and c control?' }, fig: { test: 0, caption: { zh: '第一组：k = 3 的波', en: 'Set 1: a wave with k = 3' } } },
+    { t: { zh: '这一关你要做的：在操作台上转动旋钮，让你的波和目标重合。每一步只开放一个旋钮。要想的问题：每个旋钮改变了波的什么？', en: 'Your task in this level: turn the knobs on the bench until your wave lies on the target. Each step opens one knob. Something to think about: what does each knob change about the wave?' } },
   ],
   '2-2': [
     { t: { zh: '上一关的条纹都是一道干净的波。可真实的图里有方块、字母、边缘，没有一样长得像波。把几道不同频率的波加在一起，能拼出什么样的形状？', en: 'Last level\'s stripes were a single clean wave. But real pictures have squares, letters and edges, and none of them looks like a wave. What shapes can you make by adding waves of different frequencies together?' } },
     { t: { zh: '声音里也有同样的事：钢琴和小提琴弹同一个音，听起来却不同，因为里面混着的高低不同的波，比例不一样。', en: 'Sound works the same way: a piano and a violin playing the same note sound different, because the waves of different pitch mixed in them come in different proportions.' } },
-    { t: { zh: '上一关搭的电路现在是「波」元件，形状可以选 cos 或 sin。', en: 'Last level\'s circuit is now the "Wave" part, with a cos or sin shape to choose.' }, fig: { part: 'fqWave', params: { k: 2, form: 'sin' }, inputs: [], caption: { zh: '「波」元件：k = 2 的 sin', en: 'The "Wave" part: sin with k = 2' } } },
+    { t: { zh: '上一关调出来的波，现在是「波」元件，形状可以选 cos 或 sin。', en: 'The wave you tuned last level is now the "Wave" part, with a cos or sin shape to choose.' }, fig: { part: 'fqWave', params: { k: 2, form: 'sin' }, inputs: [], caption: { zh: '「波」元件：k = 2 的 sin', en: 'The "Wave" part: sin with k = 2' } } },
     { t: { zh: '这一关你要做的：用频率不超过 8 的正弦波，叠出期望里那条接近方波的曲线。要想的问题：光滑的波能拼出一道陡边吗？', en: 'Your task in this level: stack sine waves of frequency 8 or less into the nearly square curve in the expected output. Something to think about: can smooth waves make a steep edge?' }, fig: { test: 0, caption: { zh: '第一组：a = 0.3 的目标曲线', en: 'Set 1: the target curve for a = 0.3' } } },
   ],
   '2-3': [

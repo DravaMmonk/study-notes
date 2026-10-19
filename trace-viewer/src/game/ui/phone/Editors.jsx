@@ -2,17 +2,18 @@ import { useState } from 'react'
 import { Delete, Minus, Plus } from 'lucide-react'
 import { Choice } from '../../../../../games/kit/circuit/index.js'
 import { L, tr } from '../../../../../games/kit/shell/i18n.js'
+import { piText, timesPi } from '../../engine/pi.js'
 
 // Setting editors for the phone. A block's sheet sets everything in place (InlineParam): choices are buttons, a number
 // has a slider and step keys, a kernel's cells are stepped one at a time, and learned weights are shown. Typing an
 // exact number opens the game's own keypad (it has the minus key the phone's numeric keyboard lacks) in a sheet of
 // its own.
 
-const show = (v) => String(Number(Number(v ?? 0).toFixed(4)))
+const show = (v) => piText(Number(v ?? 0)) ?? String(Number(Number(v ?? 0).toFixed(4)))
 const decimals = (step) => (String(step).split('.')[1] ?? '').length
 const buzz = () => navigator.vibrate?.(6)
 
-export function Keypad({ value, onChange, step = 0.1, min, max }) {
+export function Keypad({ value, onChange, step = 0.1, min, max, pi = false }) {
   const [draft, setDraft] = useState(show(value))
   // Like a calculator, the first digit typed replaces the value shown; later ones extend it.
   const [fresh, setFresh] = useState(true)
@@ -29,18 +30,25 @@ export function Keypad({ value, onChange, step = 0.1, min, max }) {
     if (key === '±') return commit(draft.startsWith('-') ? draft.slice(1) : `-${draft}`)
     if (key === 'back') return commit(draft.length > 1 && draft !== '-0' ? draft.slice(0, -1).replace(/^-$/, '-0') : '0')
     if (key === 'clear') return commit('0')
+    if (key === 'π') {
+      // π turns what is there into that many π; the next digit starts afresh.
+      const v = timesPi(Number(draft) || (piText(value ?? 0) ? value : 0))
+      onChange(v)
+      setDraft(show(v))
+      return setFresh(true)
+    }
     const next = Number(((Number(draft) || 0) + (key === '+' ? step : -step)).toFixed(decimals(step) + 1))
     const bounded = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, next))
     return commit(show(bounded))
   }
-  const keys = ['7', '8', '9', 'back', '4', '5', '6', '±', '1', '2', '3', '.', 'clear', '0', '-', '+']
+  const keys = ['7', '8', '9', 'back', '4', '5', '6', '±', '1', '2', '3', '.', 'clear', '0', '-', '+', ...(pi ? ['π'] : [])]
   const label = { back: <Delete size={20} />, clear: tr('清零', 'Clear'), '-': `−${step}`, '+': `＋${step}`, '±': '±' }
   return (
     <div className="ph-keypad-wrap">
       <output className="ph-keypad-value" aria-live="polite">{draft}</output>
       <div className="ph-keypad" role="group" aria-label={tr('数字键盘', 'Number keypad')}>
         {keys.map((key) => (
-          <button key={key} className={`ph-key ${/\d/.test(key) ? '' : 'is-fn'} ${key === '±' ? 'is-sign' : ''}`} onClick={() => press(key)} aria-label={key === 'back' ? tr('删除一位', 'Delete a digit') : key === 'clear' ? tr('清零', 'Clear') : key === '±' ? tr('正负号', 'Change sign') : key === '-' ? tr(`减 ${step}`, `Minus ${step}`) : key === '+' ? tr(`加 ${step}`, `Plus ${step}`) : key}>
+          <button key={key} className={`ph-key ${/\d/.test(key) ? '' : 'is-fn'} ${key === '±' ? 'is-sign' : ''} ${key === 'π' ? 'is-pi' : ''}`} onClick={() => press(key)} aria-label={key === 'back' ? tr('删除一位', 'Delete a digit') : key === 'clear' ? tr('清零', 'Clear') : key === '±' ? tr('正负号', 'Change sign') : key === '-' ? tr(`减 ${step}`, `Minus ${step}`) : key === '+' ? tr(`加 ${step}`, `Plus ${step}`) : key}>
             {label[key] ?? key}
           </button>
         ))}
@@ -62,7 +70,7 @@ export function NumberEditor({ param, value, onChange }) {
       {has && (
         <input className="bk-range ph-slider" type="range" min={param.min} max={param.max} step={step} value={value ?? 0} style={{ '--fill': `${(((value ?? 0) - param.min) / (param.max - param.min)) * 100}%` }} onChange={(event) => slide(Number(event.target.value))} aria-label={L(param.label)} />
       )}
-      <Keypad key={key} value={value} onChange={onChange} step={step} min={param.min} max={param.max} />
+      <Keypad key={key} value={value} onChange={onChange} step={step} min={param.min} max={param.max} pi={param.pi} />
     </div>
   )
 }

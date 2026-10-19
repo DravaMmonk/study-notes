@@ -1,4 +1,5 @@
 import { Grid3x3, Mountain, Navigation, Orbit, ScanLine } from 'lucide-react'
+import { piText } from '../../engine/pi.js'
 
 // Every value in a circuit is a grid of numbers. How it is drawn depends on its shape: a single
 // number is a readout, a single row is a waveform, and a 2-D grid can be drawn five ways: as pixels,
@@ -47,7 +48,7 @@ export function tokenRGB(name, fallback) {
 export const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t)
 export const css = (rgb, alpha = 1) => `rgba(${rgb.map((v) => Math.round(Math.max(0, Math.min(255, v)))).join(',')},${alpha})`
 
-export const formatNumber = (v) => (!Number.isFinite(v) ? '—' : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(3))
+export const formatNumber = (v) => piText(v) ?? (!Number.isFinite(v) ? '—' : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(3))
 
 // One row of an image as a signal (w × 1).
 export const rowOf = (img, y) => ({ w: img.w, h: 1, data: img.data.slice(y * img.w, (y + 1) * img.w) })

@@ -63,6 +63,7 @@
 .ph-keypad { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .ph-key { min-height: 52px; border: 0; border-radius: 14px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 -1px 0 var(--rule); font-family: var(--mono); font-size: 22px; }
 .ph-key.is-fn { color: var(--muted); font-size: 15px; }
+.ph-key.is-pi { grid-column: 1 / -1; color: var(--ink); font-size: 20px; }
 .ph-key.is-sign { color: var(--accent-ink); font-size: 22px; font-weight: 600; }
 .ph-key:active { background: var(--hover); transform: scale(.96); }
 /* Set right in a block's sheet, under 设置: buttons (the kit's Choice), a slider with step keys, a kernel's cells,
@@ -104,7 +105,7 @@
 .pb-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 12px 12px 72px; display: grid; align-content: start; gap: 12px; overflow-x: clip; }
 .pb-howto { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
 
-.pb-compare { display: flex; gap: 10px; }
+.pb-compare { max-width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; }
 .pb-compare figure { margin: 0; display: grid; justify-items: center; gap: 2px; line-height: 0; }
 .pb-compare figcaption { color: var(--muted); font-family: var(--mono); font-size: 10px; line-height: 1.4; }
 
