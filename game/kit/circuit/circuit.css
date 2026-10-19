@@ -114,6 +114,8 @@
    than the screen. */
 .pb-terms { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 22px 8px; }
 .pb-terms > .pb-term { flex: 0 0 calc((100% - (var(--cols, 1) - 1) * 8px) / var(--cols, 1)); max-width: 160px; }
+/* An output shows what is expected beside what came out, so it may take the room two pictures need. */
+.pb-terms.is-outputs > .pb-term { max-width: 320px; }
 /* An input block keeps room for its name and its dots: narrower than this, the row wraps. */
 .pb-terms.is-sources > .pb-term { min-width: 128px; }
 .pb-term { position: relative; min-width: 0; padding: 10px 8px 18px; display: grid; justify-items: center; gap: 4px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule), var(--card); }
@@ -167,7 +169,10 @@
 .pb-ins.is-many .pb-in { flex: 1 1 0; min-width: 0; }
 .pb-tile:has(> .pb-ins.is-many .pb-src) { padding-top: 34px; }
 /* The wire display switch (SlotBoard), kept in reach at the top right while the board scrolls. */
-.pb-tools { position: sticky; z-index: 7; top: var(--pb-sticky-top, 8px); justify-self: end; margin-bottom: -46px; display: flex; gap: 6px; }
+/* The tools ride along as a strip with the board's own ground under them, so the cards scroll beneath it instead of
+   showing through a floating pill. */
+.pb-tools { position: sticky; z-index: 7; top: var(--pb-sticky-top, 8px); justify-self: stretch; margin: -6px 0 -52px; padding: 6px 0 12px; display: flex; justify-content: flex-end; gap: 6px; background: linear-gradient(var(--canvas) 78%, transparent); pointer-events: none; }
+.pb-tools > * { pointer-events: auto; }
 .pb-wiremode, .pb-steps { height: 32px; display: inline-flex; align-items: center; border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--paper) 92%, transparent); box-shadow: 0 0 0 1px var(--rule), 0 8px 18px -12px rgba(0, 0, 0, .5); backdrop-filter: blur(8px); }
 .pb-wiremode { padding: 0 11px 0 9px; gap: 6px; border: 0; font: inherit; font-size: 12px; font-weight: 600; }
 .pb-steps button { width: 38px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 999px; color: inherit; background: transparent; }
