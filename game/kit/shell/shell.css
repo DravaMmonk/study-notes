@@ -44,7 +44,7 @@
 .map-hero-art { min-height: 260px; }
 
 /* Each chapter: a centered heading under a diamond, then its level tree, centered. */
-.map-chapters { --map-gutter: 40px; max-width: 980px; margin: 0 auto; padding: 16px var(--map-gutter) 40px; display: grid; gap: 44px; }
+.map-chapters { --map-gutter: 40px; max-width: 1120px; margin: 0 auto; padding: 16px var(--map-gutter) 40px; display: grid; gap: 44px; }
 .map-chapter { min-width: 0; }
 .map-chapter > header { display: grid; justify-items: center; padding-bottom: 14px; text-align: center; }
 .map-chapter > header::before { content: ''; width: 12px; height: 12px; margin: 2px 0 12px; border-radius: 3px; background: var(--canvas); box-shadow: 0 0 0 2px var(--rule); transform: rotate(45deg); }
