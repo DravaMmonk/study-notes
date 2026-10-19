@@ -5,7 +5,6 @@ import { NODE_TYPES } from './engine/nodes.js'
 import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import { CHAPTERS, LEVELS } from './levels/index.js'
 import { INTROS } from './levels/intros/index.js'
-import { PLANNED } from './levels/planned.js'
 import { RENAMED } from './levels/route.js'
 import LevelScreen from './screens.jsx'
 import PartDemo from './ui/PartDemo.jsx'
@@ -113,7 +112,6 @@ export default defineGame({
   },
   chapters: CHAPTERS.map((chapter) => ({ ...chapter, label: chapter.lecture })),
   levels: LEVELS,
-  planned: PLANNED,
   progress: { version: VERSION, migrate },
   intro: (level) => INTROS[level.id],
   IntroFigure,

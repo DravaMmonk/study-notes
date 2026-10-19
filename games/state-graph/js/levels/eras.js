@@ -2,8 +2,8 @@
 // do and unlocks its parts, practice problems in order of difficulty, and its topic series (one per robot for now),
 // growing from a small version of its finale; beside it, challenges that push what the robot can already do. The play
 // order, the map's chapters and what each level requires all come from here (../../../kit/course.js layout). On the
-// map each era is one chapter, named after its robot (its `chapter.desc` the question it answers); inside it the
-// foundation, the practice, each topic and the challenges are groups split by dashed lines.
+// map each era is one chapter, named after its robot (its `chapter.desc` the question it answers), drawn as its level
+// tree.
 import { T, tr, lazy } from '../i18n.js';
 import { ROBOTS } from '../circuit/robots.js';
 import { eraLevels, pathLevels } from '../../../kit/course.js';
@@ -98,12 +98,11 @@ export const LABELS = new Map(ERAS.flatMap((era, e) => [
 export const RETIRED = ['light', 'merge', 'relay', 'dial', 'disguise', 'swap', 'back', 'why', 'askall', 'memo2', 'selforder'];
 
 /** The map's chapters, one per era in play order: named after the era's robot (or the era's own title where there is
- *  none), its levels in groups: the foundation, the practice, each topic, then the challenges. */
+ *  none), and its levels. */
 export const CHAPTERS = ERAS.map((era, e) => ({
   era: era.id,
   kicker: lazy(() => tr(`第 ${e} 代`, `Era ${e}`)),
   name: era.machine ? ROBOTS[era.machine].name : era.chapter.title,
   desc: era.chapter.desc,
-  groups: [pathLevels(era.foundation), pathLevels(era.practice ?? []), ...(era.topics ?? []).map(t => t.levels), (era.challenges ?? []).map(c => c.level)].filter(g => g.length),
   levels: eraLevels(era),
 }));

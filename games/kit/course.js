@@ -52,7 +52,8 @@ export const eraLevels = (era) => [...pathLevels([...era.foundation, ...(era.pra
  * end. A topic opens after its `after` level (by default the end of the main path) and any topic it requires, and runs
  * in order to its finale; a challenge opens after its `after` level.
  * A track lists an era's main path for the map: { level, branches } or { parallel: [{ id, title, levels }], branches },
- * where `branches` are the optional topics and challenges hanging there ({ kind, id, title, levels }).
+ * where `branches` are the optional topics and challenges hanging there ({ kind, id, title, levels, after }, after: the
+ * levels they follow).
  */
 export function layout(eras) {
   const place = new Map(), requires = new Map(), tracks = new Map()
@@ -94,13 +95,13 @@ export function layout(eras) {
         place.set(id, { era: era.id, role: last ? 'finale' : k ? 'step' : 'intro', topic: topic.id, after: after.at(-1) })
         requires.set(id, k ? [topic.levels[k - 1]] : [...after, ...finales])
       })
-      hang(topic.after ?? ends.at(-1), { kind: 'topic', id: topic.id, title: topic.title, levels: topic.levels })
+      hang(after.at(-1), { kind: 'topic', id: topic.id, title: topic.title, levels: topic.levels, after })
     }
     for (const c of era.challenges ?? []) {
       const after = c.after ? [c.after] : ends
       place.set(c.level, { era: era.id, role: 'challenge', after: after.at(-1) })
       requires.set(c.level, [...after])
-      hang(c.after ?? ends.at(-1), { kind: 'challenge', id: c.level, levels: [c.level] })
+      hang(after.at(-1), { kind: 'challenge', id: c.level, levels: [c.level], after })
     }
     tracks.set(era.id, track)
     before = ends

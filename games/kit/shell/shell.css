@@ -43,12 +43,13 @@
 .map-continue:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -14px rgba(0, 0, 0, .7); }
 .map-hero-art { min-height: 260px; }
 
-/* One line down the page: each chapter is a diamond on it, each level a pad. */
-.map-chapters { --map-gutter: 40px; position: relative; max-width: 760px; margin: 0 auto; padding: 16px var(--map-gutter) 40px; display: grid; gap: 30px; }
-.map-chapters::before { content: ''; position: absolute; top: 26px; bottom: 60px; left: calc(var(--map-gutter) + 11px); width: 2px; border-radius: 2px; background: var(--hairline); }
+/* One line down the page through the main paths: each chapter is a diamond on it. The line runs through the pads of the
+   trees' first column (LevelMap's PAD, 20px into a node). */
+.map-chapters { --map-gutter: 40px; position: relative; max-width: 840px; margin: 0 auto; padding: 16px var(--map-gutter) 40px; display: grid; gap: 30px; }
+.map-chapters::before { content: ''; position: absolute; top: 26px; bottom: 60px; left: calc(var(--map-gutter) + 19px); width: 2px; border-radius: 2px; background: var(--hairline); }
 .map-chapter { position: relative; }
-.map-chapter > header { position: relative; padding: 0 0 10px 34px; }
-.map-chapter > header::before { content: ''; position: absolute; z-index: 1; top: 3px; left: 5px; width: 14px; height: 14px; border-radius: 3px; background: var(--canvas); box-shadow: 0 0 0 2px var(--rule); transform: rotate(45deg); }
+.map-chapter > header { position: relative; padding: 0 0 10px 44px; }
+.map-chapter > header::before { content: ''; position: absolute; z-index: 1; top: 3px; left: 13px; width: 14px; height: 14px; border-radius: 3px; background: var(--canvas); box-shadow: 0 0 0 2px var(--rule); transform: rotate(45deg); }
 .map-chapter.is-complete > header::before { background: var(--status); box-shadow: 0 0 0 2px var(--status); }
 .chapter-index { color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .1em; }
 .map-chapter h2 { margin: 6px 0 2px; font-family: var(--serif); font-size: 24px; font-weight: 500; }
@@ -57,39 +58,34 @@
 .chapter-meter i { display: block; height: 100%; background: var(--status); transition: width 600ms cubic-bezier(.2, .8, .2, 1); }
 .map-chapter.is-complete h2::after { content: ' ✓'; color: var(--status); font-size: 16px; }
 
-/* The trace: a vertical line through each level's pad. */
-.map-trace { position: relative; margin: 0; padding: 4px 0 0; list-style: none; display: grid; gap: 4px; }
-/* Between a chapter's groups (a robot's foundation, practice, each topic): a dashed line, nothing more. */
-.map-gap { height: 0; margin: 5px 0 5px 26px; border-top: 1.5px dashed color-mix(in srgb, var(--ink) 22%, transparent); }
-.map-fork { margin: 8px 0 10px; }
-.map-fork-head, .map-fork-join { display: block; padding-left: 34px; color: var(--muted); font-size: 11.5px; }
-.map-fork-join { margin-top: 2px; }
-.map-fork-join.is-done { color: var(--status); }
-.map-fork-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px 16px; }
-.map-fork-branch h3 { margin: 6px 0 2px 34px; display: flex; align-items: baseline; gap: 8px; font-size: 13.5px; font-weight: 600; }
-.map-fork-branch h3 small { color: var(--muted); font-family: var(--mono); font-size: 10.5px; font-weight: 400; }
-/* The first branch runs on the path's own line; the others draw theirs. */
-.map-fork-branch:not(:first-child) > .map-trace::before { content: ''; position: absolute; top: 6px; bottom: 18px; left: 11px; width: 2px; border-radius: 2px; background: var(--hairline); }
-/* An optional topic or challenge: a dashed spur from the path to a dashed trace of its own, to the right. */
-.map-side { position: relative; margin: 2px 0 8px 34px; }
-.map-side::before { content: ''; position: absolute; top: 11px; left: -22px; width: 35px; border-top: 2px dashed var(--rule); }
-.map-side-head { min-height: 22px; padding-left: 26px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; color: var(--muted); font-size: 11.5px; }
-.map-side-head b { color: var(--ink); font-weight: 600; }
-.map-side-head em { padding: 0 6px; border-radius: 6px; color: var(--accent-ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); font-style: normal; font-size: 10.5px; }
-.map-side > .map-trace::before { content: ''; position: absolute; top: -11px; bottom: 18px; left: 11px; border-left: 2px dashed var(--rule); }
-.map-level { position: relative; width: 100%; min-height: 40px; padding: 6px 8px 6px 0; display: grid; grid-template-columns: 24px 34px minmax(0, 1fr) auto; grid-template-areas: 'pad id title kind' 'pad . best best'; align-items: center; column-gap: 6px; border: 0; border-radius: 10px; color: var(--ink); background: transparent; text-align: left; cursor: pointer; transition: background 160ms ease, transform 160ms ease; }
-.map-level:hover:not(:disabled) { background: var(--hover); }
-.map-pad { grid-area: pad; z-index: 1; width: 16px; height: 16px; margin-left: 4px; display: grid; place-items: center; border-radius: 50%; color: var(--paper); background: var(--paper); box-shadow: 0 0 0 2px var(--rule); }
-.map-level.is-open .map-pad { box-shadow: 0 0 0 2px var(--accent), 0 0 0 5px color-mix(in srgb, var(--accent) 18%, transparent); }
-.map-level.is-next .map-pad { animation: pad-pulse 2.4s ease-in-out infinite; }
-.map-level.is-solved .map-pad { background: var(--status); box-shadow: 0 0 0 2px var(--status); }
-.map-level.is-locked { color: var(--faint); cursor: default; }
-.map-level.is-locked .map-pad { color: var(--faint); background: var(--canvas); box-shadow: 0 0 0 1px var(--rule); }
-.map-level.is-planned { color: var(--faint); cursor: default; }
-.map-level-id { grid-area: id; color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
-.map-level-title { grid-area: title; overflow: hidden; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; }
-.map-level-kind { grid-area: kind; color: var(--faint); display: grid; }
-.map-level-best { grid-area: best; color: var(--faint); font-family: var(--mono); font-size: 10px; }
+/* A chapter's level tree, as in Turing Complete: level buttons placed by LevelMap, wires drawn under them. */
+.map-tree-scroll { margin-top: 8px; overflow-x: auto; overscroll-behavior-x: contain; }
+.map-tree { position: relative; }
+.map-wires { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
+.map-wires path { fill: none; stroke: var(--rule); stroke-width: 2; stroke-linecap: round; }
+.map-wires path.is-optional { stroke-dasharray: 5 5; }
+.map-wires path.is-lit { stroke: var(--status); }
+.map-head { position: absolute; height: 22px; display: flex; align-items: center; gap: 6px; overflow: hidden; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+.map-head b { flex: none; color: var(--ink); font-weight: 600; }
+.map-head span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.map-head em { flex: none; padding: 0 6px; border-radius: 6px; color: var(--accent-ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); font-style: normal; font-size: 10.5px; }
+.map-head small { flex: none; font-family: var(--mono); font-size: 10.5px; }
+.map-node { position: absolute; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 11px; border: 1px solid var(--rule); border-radius: 10px; color: var(--ink); background: var(--card); text-align: left; cursor: pointer; transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
+.map-node:hover:not(:disabled) { transform: translateY(-1px); border-color: color-mix(in srgb, var(--ink) 45%, var(--rule)); box-shadow: 0 8px 18px -12px rgba(0, 0, 0, .5); }
+.map-node:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.map-node.is-optional { border-style: dashed; }
+.map-node.is-solved { border-color: color-mix(in srgb, var(--status) 55%, var(--rule)); }
+.map-node.is-open { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
+.map-node.is-locked { color: var(--faint); background: var(--canvas); cursor: default; }
+.map-pad { flex: none; width: 16px; height: 16px; display: grid; place-items: center; border-radius: 50%; color: var(--paper); background: var(--paper); box-shadow: 0 0 0 2px var(--rule); }
+.map-node.is-open .map-pad { box-shadow: 0 0 0 2px var(--accent); }
+.map-node.is-next .map-pad { animation: pad-pulse 2.4s ease-in-out infinite; }
+.map-node.is-solved .map-pad { background: var(--status); box-shadow: 0 0 0 2px var(--status); }
+.map-node.is-locked .map-pad { color: var(--faint); background: var(--canvas); box-shadow: 0 0 0 1px var(--rule); }
+.map-node-id { flex: none; color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+.map-node-title { flex: 1; min-width: 0; overflow: hidden; font-size: 13.5px; white-space: nowrap; text-overflow: ellipsis; }
+.map-node-kind { flex: none; color: var(--faint); display: grid; }
+.map-node-best { flex: none; color: var(--faint); font-family: var(--mono); font-size: 10px; }
 @keyframes pad-pulse { 50% { box-shadow: 0 0 0 2px var(--accent), 0 0 0 8px color-mix(in srgb, var(--accent) 6%, transparent); } }
 /* Parts box, encyclopedia and the progress dialog's button, under the map's continue button. */
 .map-tools { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 4px; margin-left: -8px; }
@@ -235,7 +231,6 @@
   .map-continue { width: 100%; justify-content: space-between; }
   .map-hero-art { min-height: 0; margin: 0 -8px; }
   .map-chapters { --map-gutter: 12px; padding-top: 4px; padding-bottom: 28px; gap: 24px; }
-  .map-level { min-height: 46px; }
 
   .dialog-scrim { align-items: end; padding: 0; }
   .dialog { width: 100%; max-height: calc(100dvh - env(safe-area-inset-top) - 16px); padding: 22px 20px calc(18px + env(safe-area-inset-bottom)); border-radius: 20px 20px 0 0; animation: sheet-in 280ms cubic-bezier(.2, .8, .2, 1); }

@@ -64,7 +64,7 @@ export default defineGame({
   lede: { zh: `不需要任何编程或算法基础。从手数路线开始，${LEVELS.length} 关里，你会用元件亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。`, en: `No programming or algorithms background needed. Starting from counting routes by hand, over ${LEVELS.length} levels you wire up, part by part, the circuit boards that count routes, compare words and pack a backpack, and find out why they are so fast.` },
   Hero,
   html: true,
-  chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, groups: chapter.groups, track: TRACKS.get(chapter.era) })),
+  chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, track: TRACKS.get(chapter.era) })),
   levels,
   progress: { version: 1, legacy },
   // Numbered as in CURRICULUM.md: 1-4 on an era's main path, S2 in a topic, C1 for a challenge.
