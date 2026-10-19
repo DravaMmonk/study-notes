@@ -29,7 +29,7 @@ export default {
   ],
   '0-6': [
     { t: { zh: '很多问题要的答案只有「是」或「否」：这一格是不是路面？这里有没有人？深浅不一的灰，得变成 0 和 1。', en: 'Many questions want a yes or a no: is this cell road? Is anyone here? Shades of grey have to become 0s and 1s.' } },
-    { t: { zh: '台上又是一个黑箱，它只会输出 0 和 1。喂它不同的测试图，看哪些格子变成了 1，哪些变成了 0。', en: 'There is another black box on the bench, and it only ever outputs 0 or 1. Feed it different test pictures and see which cells become 1 and which become 0.' } },
+    { t: { zh: '台上是一个黑箱，它只会输出 0 和 1。喂它不同的测试图，看哪些格子变成了 1，哪些变成了 0。', en: 'There is a black box on the bench, and it only ever outputs 0 or 1. Feed it different test pictures and see which cells become 1 and which become 0.' } },
     { t: { zh: '要想的问题：哪张测试图最容易读出它的规则？点一下格子（电脑上把鼠标停在上面），可以读出它原来的亮度。这个元件过关后也归你。', en: 'Something to think about: which test picture reveals its rule most easily? Tap a cell (or point at it on a computer) to read its original brightness. Once you pass, this part is yours too.' } },
   ],
   '0-7': [

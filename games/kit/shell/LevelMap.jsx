@@ -11,53 +11,104 @@ import { PHONE, useMedia } from './useMedia.js'
 // of the level they follow.
 
 // Tree geometry in px: node size and the gaps between columns and rows.
-const SIZE = { desk: { w: 224, h: 44, col: 28, gap: 22 }, phone: { w: 114, h: 56, col: 12, gap: 16 } }
+const SIZE = { desk: { w: 224, h: 52, col: 28, gap: 22 }, phone: { w: 114, h: 62, col: 12, gap: 16 } }
 const R = 8
 
-// Places a track on a grid: the main path down column 0, a parallel set's branches side by side around it, and each
-// optional branch, one row below its anchor, down the nearest column (right first, then left) that is free for the
-// branch's whole length. Columns can be halves, so two nodes clash when they are less than one column apart.
+// Places a track as columns ("tracks"), each a run of rows on one lane: a main-path level, a parallel branch (kept to
+// the set's full depth, so a shorter branch keeps its room until the join), or an optional branch. A branch stays in
+// one column. An optional branch starts one row below its anchor, lower if a row there already holds three, on the
+// free lane nearest its anchor (on a tie, the anchor's side, or from the middle the side with fewer optional branches
+// so far). Lanes only order things left to right; center() sets the columns.
+const MAX_ROW = 3
 function plot(track) {
-  const at = new Map(), edges = [], busy = []
-  const free = (col, rows) => !busy.some((b) => rows.includes(b.row) && Math.abs(b.col - col) < 1)
-  const chain = (levels, col, row, from, kind) => levels.forEach((id, k) => {
-    at.set(id, { col, row: row + k })
-    busy.push({ col, row: row + k })
-    for (const f of k ? [levels[k - 1]] : from) edges.push({ from: f, to: id, kind: k ? null : kind })
-  })
+  const at = new Map(), edges = [], tracks = []
+  const overlaps = (t, rows) => t.rows.some((r) => rows.includes(r))
+  const free = (lane, rows) => !tracks.some((t) => Math.abs(t.lane - lane) < 1 && overlaps(t, rows))
+  const room = (rows) => rows.every((r) => tracks.filter((t) => t.rows.includes(r)).length < MAX_ROW)
+  const lay = (levels, lane, row, from, kind, depth = levels.length) => {
+    const t = { lane, rows: Array.from({ length: depth }, (_, k) => row + k), band: kind === 'optional' || kind === 'parallel' }
+    tracks.push(t)
+    levels.forEach((id, k) => {
+      at.set(id, { t, row: row + k })
+      for (const f of k ? [levels[k - 1]] : from) edges.push({ from: f, to: id, kind: k ? null : kind })
+    })
+  }
   let row = 0
   let prev = []
   for (const entry of track) {
     if (entry.level) {
-      chain([entry.level], 0, row, prev, prev.length > 1 ? 'join' : null)
+      lay([entry.level], 0, row, prev, prev.length > 1 ? 'join' : null)
       prev = [entry.level]
       row += 1
       continue
     }
     const { parallel } = entry
     const depth = Math.max(...parallel.map((b) => b.levels.length))
-    parallel.forEach((branch, k) => {
-      const col = k - (parallel.length - 1) / 2
-      chain(branch.levels, col, row, prev)
-      for (let d = branch.levels.length; d < depth; d++) busy.push({ col, row: row + d })
-    })
+    parallel.forEach((branch, k) => lay(branch.levels, k - (parallel.length - 1) / 2, row, prev, 'parallel', depth))
     prev = parallel.map((b) => b.levels.at(-1))
     row += depth
   }
+  let tilt = 0 // optional branches placed right minus left, to balance the tree
   for (const branch of track.flatMap((entry) => entry.branches)) {
     const from = branch.after.filter((id) => at.has(id))
-    const anchor = from.map((id) => at.get(id)).reduce((a, b) => (b.row > a.row ? b : a), { col: 0, row: -1 })
-    const rows = branch.levels.map((_, k) => anchor.row + 1 + k)
-    let d = 1
-    while (!free(anchor.col + d, rows)) d = d > 0 ? -d : 1 - d
-    chain(branch.levels, anchor.col + d, rows[0], from, 'optional')
+    const anchor = from.map((id) => at.get(id)).reduce((a, b) => (b.row > a.row ? b : a))
+    let start = anchor.row + 1
+    const rows = () => branch.levels.map((_, k) => start + k)
+    while (!room(rows())) start += 1
+    const nearest = (step) => {
+      let lane = anchor.t.lane + step
+      while (!free(lane, rows())) lane += step
+      return lane
+    }
+    const right = nearest(1), left = nearest(-1)
+    const lean = Math.sign(anchor.t.lane) || Math.sign(-tilt) || 1
+    const dr = right - anchor.t.lane, dl = anchor.t.lane - left
+    const lane = dl < dr || (dl === dr && lean < 0) ? left : right
+    tilt += Math.sign(lane)
+    lay(branch.levels, lane, start, from, 'optional')
   }
-  return { at, edges }
+  return { at, edges, tracks }
+}
+
+// Sets the columns. Rows that a parallel set or an optional branch spans form one band. In a band the tracks keep their
+// lanes' left-to-right order, each one column right of every overlapping track to its left; then each moves as near the
+// middle as its overlapping neighbours allow, so side-by-side levels stand centered and a lone level sits in the middle.
+function center({ at, edges, tracks }) {
+  const spans = tracks.filter((t) => t.band).map((t) => [t.rows[0], t.rows.at(-1)]).sort((a, b) => a[0] - b[0])
+  const band = []
+  let open = null
+  for (const [from, to] of spans) {
+    if (open && from <= open.to) open.to = Math.max(open.to, to)
+    else open = { from, to }
+    for (let r = open.from; r <= open.to; r++) band[r] = open.from
+  }
+  const groups = new Map()
+  for (const t of tracks) {
+    const key = band[t.rows[0]] ?? `row ${t.rows[0]}`
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key).push(t)
+  }
+  const meets = (a, b) => a.rows.some((r) => b.rows.includes(r))
+  for (const group of groups.values()) {
+    group.sort((a, b) => a.lane - b.lane)
+    group.forEach((t, i) => { t.x = Math.max(0, ...group.slice(0, i).filter((u) => meets(t, u)).map((u) => u.x + 1)) })
+    const middle = Math.max(...group.map((t) => t.x)) / 2
+    group.forEach((t) => { t.x -= middle })
+    for (let pass = 0; pass < 3; pass++) {
+      for (const t of group) {
+        const near = group.filter((u) => u !== t && meets(t, u))
+        const lo = Math.max(-Infinity, ...near.filter((u) => u.lane < t.lane).map((u) => u.x + 1))
+        const hi = Math.min(Infinity, ...near.filter((u) => u.lane > t.lane).map((u) => u.x - 1))
+        t.x = Math.min(Math.max(0, lo), hi)
+      }
+    }
+  }
+  return { at: new Map([...at].map(([id, p]) => [id, { col: p.t.x, row: p.row }])), edges }
 }
 
 function Tree({ track, byId, node, phone, solved }) {
   const { w, h, col, gap } = phone ? SIZE.phone : SIZE.desk
-  const { at, edges } = useMemo(() => plot(track), [track])
+  const { at, edges } = useMemo(() => center(plot(track)), [track])
   const scroll = useRef(null)
   const spots = [...at.values()]
   const rows = Math.max(...spots.map((p) => p.row)) + 1
@@ -74,11 +125,12 @@ function Tree({ track, byId, node, phone, solved }) {
     el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
   }, [width])
   // A wire leaves the bottom middle of one node and enters the top middle of the next; between columns it turns in the
-  // gap, next to the source when it branches out and next to the target when branches join.
+  // gap, next to the source when it branches out, and next to the target when branches join or it spans several rows
+  // (its own lane is clear below the source).
   const wire = (a, b, kind) => {
     const x1 = x(a.col) + w / 2, y1 = y(a.row) + h, x2 = x(b.col) + w / 2, y2 = y(b.row)
     if (x1 === x2) return `M${x1} ${y1}V${y2}`
-    const yb = kind === 'join' ? y2 - gap / 2 : y1 + gap / 2
+    const yb = kind === 'join' || b.row - a.row > 1 ? y2 - gap / 2 : y1 + gap / 2
     const s = Math.sign(x2 - x1)
     return `M${x1} ${y1}V${yb - R}Q${x1} ${yb} ${x1 + s * R} ${yb}H${x2 - s * R}Q${x2} ${yb} ${x2} ${yb + R}V${y2}`
   }

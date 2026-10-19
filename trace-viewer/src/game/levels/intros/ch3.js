@@ -14,7 +14,7 @@ export default {
   '3-3': [
     { t: { zh: '彩色照片每个像素有三个数：R、G、B。可现实里的光不止三种，而是像彩虹那样一整条，从紫到红连成一片，叫<b>光谱</b>。', en: 'Each pixel of a colour photo has three numbers: R, G and B. But real light is not three kinds; it is a whole band like a rainbow, from violet to red, called a <b>spectrum</b>.' } },
     { t: { zh: '相机和人眼一样，只有三种感光元件，各自对一段波长敏感。每种元件对每个波长有多敏感，画出来是一条灵敏度曲线。', en: 'A camera, like the human eye, has only three kinds of sensor, each sensitive to a range of wavelengths. How sensitive each is at each wavelength, drawn out, is its sensitivity curve.' }, fig: { test: 0, caption: { zh: '第一组测试：日光的光谱和三条灵敏度曲线', en: 'Set 1: the daylight spectrum and the three sensitivity curves' } } },
-    { t: { zh: '这一关的输入都是波形：一条光谱和三条灵敏度曲线，每条 10 个点，从紫到红。新元件「求平均」把一行数平均成一个数。', en: 'This level\'s inputs are all waveforms: a spectrum and three sensitivity curves, 10 points each, from violet to red. The new part "Average" averages a row of numbers into one number.' } },
+    { t: { zh: '这一关的输入都是波形：一条光谱和三条灵敏度曲线，每条 10 个点，从紫到红。「求平均」把一行数平均成一个数。', en: 'This level\'s inputs are all waveforms: a spectrum and three sensitivity curves, 10 points each, from violet to red. "Average" turns a row of numbers into one number.' } },
     { t: { zh: '这一关你要做的：输出相机读到的 R、G、B 三个数。要想的问题：一整条光谱只记成三个数，丢掉了什么？', en: 'Your task in this level: output the three numbers the camera reads, R, G and B. Something to think about: when a whole spectrum is kept as three numbers, what is thrown away?' } },
   ],
   '3-4': [

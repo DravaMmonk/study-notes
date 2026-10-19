@@ -67,8 +67,8 @@ export default {
   '6-4': [
     {
       t: {
-        zh: '找到好认的点之后，下一步是配对：左图的这个点，是右图的哪一个？最直接的办法是比外观，拿它周围的一小块，到右图里找最像的一块。',
-        en: 'Once you have points that are easy to recognise, the next step is pairing them up: which point in the right image is this point from the left image? The most direct way is to compare how they look: take a small patch around it and search the right image for the most similar patch.',
+        zh: '两张图里各有一些好认的点，还要把它们配成对：左图的这个点，是右图的哪一个？最直接的办法是比外观，拿它周围的一小块，到右图里找最像的一块。',
+        en: 'Each image has some points that are easy to recognise, and they still have to be paired up: which point in the right image is this point from the left image? The most direct way is to compare how they look: take a small patch around it and search the right image for the most similar patch.',
       },
     },
     {

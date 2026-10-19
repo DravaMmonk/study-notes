@@ -40,37 +40,41 @@ const ALL = PACKS.flatMap((pack) => pack.levels)
 const byIdAll = Object.fromEntries(ALL.map((level) => [level.id, level]))
 const { requires } = PLAN
 
-// A palette lists the parts new to the player first (first offered in this level, marked 新), then the constant and the
-// four kinds of arithmetic, then the rest as the level gives them.
+// Everything a level comes after: what it requires, and what those require in turn.
+const ancestors = new Map()
+const before = (id) => {
+  if (!ancestors.has(id)) ancestors.set(id, new Set((requires.get(id) ?? []).flatMap((r) => [r, ...before(r)])))
+  return ancestors.get(id)
+}
+
+// A palette lists the parts new to the player first (offered by no level this one comes after, marked 新), then the
+// constant and the four kinds of arithmetic, then the rest as the level gives them.
 const ARITHMETIC = ['const', 'add', 'sub', 'mul', 'arith', 'merge']
-const offered = new Set()
-const ordered = (palette = []) => {
-  const fresh = palette.filter((type) => !offered.has(type))
-  const rest = palette.filter((type) => offered.has(type))
-  palette.forEach((type) => offered.add(type))
+const ordered = (id, palette = []) => {
+  const seen = new Set([...before(id)].flatMap((a) => byIdAll[a]?.palette ?? []))
+  const fresh = palette.filter((type) => !seen.has(type))
+  const rest = palette.filter((type) => seen.has(type))
   const arithmeticFirst = (list) => [...ARITHMETIC.filter((type) => list.includes(type)), ...list.filter((type) => !ARITHMETIC.includes(type))]
   return { palette: [...arithmeticFirst(fresh), ...arithmeticFirst(rest)], fresh }
 }
 
-// A series level after the first starts from the player's own circuit for the level before it (screens.jsx), when
-// that level is a circuit too: a topic, or a branch on the main path.
-const SERIES = ERAS.flatMap((era) => [...(era.topics ?? []).map((t) => t.levels), ...[...era.foundation, ...(era.practice ?? [])].filter((item) => typeof item !== 'string').flatMap((item) => item.parallel.map((b) => b.levels))])
-const carry = new Map(SERIES.flatMap((ids) => ids.slice(1).map((id, i) => [id, ids[i]])).filter(([, from]) => byIdAll[from]?.kind !== 'board'))
+// A topic level after the first starts from the player's own circuit for the level before it (screens.jsx), when that
+// level is a circuit too.
+const carry = new Map(ERAS.flatMap((era) => (era.topics ?? []).flatMap((t) => t.levels.slice(1).map((id, i) => [id, t.levels[i]]))).filter(([, from]) => byIdAll[from]?.kind !== 'board'))
 
 // Pictures start out drawn as pixels; every other way of drawing them (ui/views/views.js) comes in with a level, as
 // parts do, and stays from then on.
 const VIEW_INTRO = { profile: '1-1', terrain: '1-4', spectrum: '2-6', slope: '3-7' }
-const ROUTE = PLAN.order
 const viewsAt = (id) => ({
-  shows: ['pixels', ...Object.keys(VIEW_INTRO).filter((view) => ROUTE.indexOf(VIEW_INTRO[view]) <= ROUTE.indexOf(id))],
+  shows: ['pixels', ...Object.keys(VIEW_INTRO).filter((view) => VIEW_INTRO[view] === id || before(id).has(VIEW_INTRO[view]))],
   freshViews: Object.keys(VIEW_INTRO).filter((view) => VIEW_INTRO[view] === id),
 })
 
 // Play order and what each level requires come from the route, not from the level files.
-export const LEVELS = ROUTE.map((id) => {
+export const LEVELS = PLAN.order.map((id) => {
   const level = byIdAll[id]
   if (!level) throw new Error(`route names a level that does not exist: ${id}`)
-  return { kind: 'graph', inputs: ['in'], outputs: ['out'], grants: [], check: { tolerance: 0.02 }, ...level, ...ordered(level.palette), ...viewsAt(id), unlocks: [...(level.unlocks ?? []), ...(level.packs ? [`own-${id}`] : [])], requires: requires.get(id) ?? [], carry: carry.get(id) }
+  return { kind: 'graph', inputs: ['in'], outputs: ['out'], grants: [], check: { tolerance: 0.02 }, ...level, ...ordered(id, level.palette), ...viewsAt(id), unlocks: [...(level.unlocks ?? []), ...(level.packs ? [`own-${id}`] : [])], requires: requires.get(id) ?? [], carry: carry.get(id) }
 })
 for (const level of ALL) if (!LEVELS.some((l) => l.id === level.id)) throw new Error(`level ${level.id} is not on the route`)
 
