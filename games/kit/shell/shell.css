@@ -43,33 +43,26 @@
 .map-continue:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -14px rgba(0, 0, 0, .7); }
 .map-hero-art { min-height: 260px; }
 
-/* One line down the page through the main paths: each chapter is a diamond on it. The line runs through the pads of the
-   trees' first column (LevelMap's PAD, 20px into a node). */
-.map-chapters { --map-gutter: 40px; position: relative; max-width: 840px; margin: 0 auto; padding: 16px var(--map-gutter) 40px; display: grid; gap: 30px; }
-.map-chapters::before { content: ''; position: absolute; top: 26px; bottom: 60px; left: calc(var(--map-gutter) + 19px); width: 2px; border-radius: 2px; background: var(--hairline); }
-.map-chapter { position: relative; }
-.map-chapter > header { position: relative; padding: 0 0 10px 44px; }
-.map-chapter > header::before { content: ''; position: absolute; z-index: 1; top: 3px; left: 13px; width: 14px; height: 14px; border-radius: 3px; background: var(--canvas); box-shadow: 0 0 0 2px var(--rule); transform: rotate(45deg); }
+/* Each chapter: a centered heading under a diamond, then its level tree, centered. */
+.map-chapters { --map-gutter: 40px; max-width: 980px; margin: 0 auto; padding: 16px var(--map-gutter) 40px; display: grid; gap: 44px; }
+.map-chapter { min-width: 0; }
+.map-chapter > header { display: grid; justify-items: center; padding-bottom: 14px; text-align: center; }
+.map-chapter > header::before { content: ''; width: 12px; height: 12px; margin: 2px 0 12px; border-radius: 3px; background: var(--canvas); box-shadow: 0 0 0 2px var(--rule); transform: rotate(45deg); }
 .map-chapter.is-complete > header::before { background: var(--status); box-shadow: 0 0 0 2px var(--status); }
 .chapter-index { color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .1em; }
 .map-chapter h2 { margin: 6px 0 2px; font-family: var(--serif); font-size: 24px; font-weight: 500; }
 .map-chapter header p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
-.chapter-meter { max-width: 240px; margin-top: 10px; display: block; height: 3px; overflow: hidden; border-radius: 3px; background: var(--hairline); }
+.chapter-meter { width: 100%; max-width: 240px; margin-top: 10px; display: block; height: 3px; overflow: hidden; border-radius: 3px; background: var(--hairline); }
 .chapter-meter i { display: block; height: 100%; background: var(--status); transition: width 600ms cubic-bezier(.2, .8, .2, 1); }
 .map-chapter.is-complete h2::after { content: ' ✓'; color: var(--status); font-size: 16px; }
 
 /* A chapter's level tree, as in Turing Complete: level buttons placed by LevelMap, wires drawn under them. */
 .map-tree-scroll { margin-top: 8px; overflow-x: auto; overscroll-behavior-x: contain; }
-.map-tree { position: relative; }
+.map-tree { position: relative; margin: 0 auto; }
 .map-wires { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
 .map-wires path { fill: none; stroke: var(--rule); stroke-width: 2; stroke-linecap: round; }
 .map-wires path.is-optional { stroke-dasharray: 5 5; }
 .map-wires path.is-lit { stroke: var(--status); }
-.map-head { position: absolute; height: 22px; display: flex; align-items: center; gap: 6px; overflow: hidden; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
-.map-head b { flex: none; color: var(--ink); font-weight: 600; }
-.map-head span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.map-head em { flex: none; padding: 0 6px; border-radius: 6px; color: var(--accent-ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); font-style: normal; font-size: 10.5px; }
-.map-head small { flex: none; font-family: var(--mono); font-size: 10.5px; }
 .map-node { position: absolute; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 11px; border: 1px solid var(--rule); border-radius: 10px; color: var(--ink); background: var(--card); text-align: left; cursor: pointer; transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
 .map-node:hover:not(:disabled) { transform: translateY(-1px); border-color: color-mix(in srgb, var(--ink) 45%, var(--rule)); box-shadow: 0 8px 18px -12px rgba(0, 0, 0, .5); }
 .map-node:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -230,7 +223,13 @@
   .map-lede { font-size: 16px; }
   .map-continue { width: 100%; justify-content: space-between; }
   .map-hero-art { min-height: 0; margin: 0 -8px; }
-  .map-chapters { --map-gutter: 12px; padding-top: 4px; padding-bottom: 28px; gap: 24px; }
+  .map-chapters { --map-gutter: 12px; padding-top: 4px; padding-bottom: 28px; gap: 32px; }
+  /* Phone nodes are narrow enough for three columns: the label above a title of up to two lines. */
+  .map-node { display: grid; grid-template-columns: 14px minmax(0, 1fr); column-gap: 7px; align-content: center; padding: 0 8px; }
+  .map-node .map-pad { grid-row: span 2; width: 14px; height: 14px; }
+  .map-node-id { font-size: 9.5px; line-height: 1.2; }
+  .map-node-title { display: -webkit-box; font-size: 12.5px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .map-node-best { display: none; }
 
   .dialog-scrim { align-items: end; padding: 0; }
   .dialog { width: 100%; max-height: calc(100dvh - env(safe-area-inset-top) - 16px); padding: 22px 20px calc(18px + env(safe-area-inset-bottom)); border-radius: 20px 20px 0 0; animation: sheet-in 280ms cubic-bezier(.2, .8, .2, 1); }
