@@ -49,7 +49,7 @@ export default function Encyclopedia({ game, wiki, level, phone, onClose }) {
   const list = groups.map((group) => ({
     id: group.id,
     title: group.title,
-    items: entries.filter((e) => e.group === group.id).map((e) => ({ id: e.id, title: e.title, open: isOpen(e), unread: !seen.has(e.id), lock: e.at && game.byId[e.at] ? game.levelLabel(game.byId[e.at]) : null })),
+    items: entries.filter((e) => e.group === group.id).map((e) => ({ id: e.id, title: e.title, open: isOpen(e), unread: !seen.has(e.id), lock: e.at && game.byId[e.at] ? L(game.byId[e.at].title) : null })),
   }))
 
   const article = (id, back) => {
