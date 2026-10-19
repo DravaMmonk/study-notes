@@ -73,11 +73,18 @@ export function TestStatus({ states, hidden }) {
 
 const WORLD_KEY = 'kit.world-h'
 
+// The strip fits what it holds until the player drags its edge; that height is kept (for every level and game), and a
+// double click on the edge goes back to fitting.
+const setHeight = (el, h) => {
+  el.style.setProperty('--world-h', `${h}px`)
+  el.style.setProperty('--world-max', 'none')
+}
+
 function WorldHandle({ rootRef }) {
   useLayoutEffect(() => {
     let h = null
     try { h = Number(localStorage.getItem(WORLD_KEY)) || null } catch { /* storage may be off */ }
-    if (h) rootRef.current?.style.setProperty('--world-h', `${h}px`)
+    if (h && rootRef.current) setHeight(rootRef.current, h)
   }, [rootRef])
   const size = (h) => {
     const el = rootRef.current
@@ -85,7 +92,7 @@ function WorldHandle({ rootRef }) {
     const top = el.getBoundingClientRect().top
     const least = parseFloat(getComputedStyle(el).getPropertyValue('--world-min')) || 270
     const next = Math.round(Math.min(Math.max(h, least), (window.innerHeight - top) * 0.78))
-    el.style.setProperty('--world-h', `${next}px`)
+    setHeight(el, next)
     return next
   }
   const keep = (h) => {
@@ -104,11 +111,16 @@ function WorldHandle({ rootRef }) {
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
   }
+  const fit = () => {
+    rootRef.current?.style.removeProperty('--world-h')
+    rootRef.current?.style.removeProperty('--world-max')
+    try { localStorage.removeItem(WORLD_KEY) } catch { /* storage may be off */ }
+  }
   const key = (event) => {
     const step = event.key === 'ArrowUp' ? 40 : event.key === 'ArrowDown' ? -40 : 0
     if (!step) return
     event.preventDefault()
     keep(size(rootRef.current.querySelector('.kc-world').getBoundingClientRect().height + step))
   }
-  return <div className="kc-resize" role="separator" aria-orientation="horizontal" aria-label={tr('拖动调整测试区高度', 'Drag to resize the test area')} tabIndex={0} onPointerDown={down} onKeyDown={key} />
+  return <div className="kc-resize" role="separator" aria-orientation="horizontal" aria-label={tr('拖动调整测试区高度，双击恢复自动高度', 'Drag to resize the test area; double-click to fit it again')} title={tr('拖动调整高度 · 双击恢复自动', 'Drag to resize · double-click to fit')} tabIndex={0} onPointerDown={down} onDoubleClick={fit} onKeyDown={key} />
 }

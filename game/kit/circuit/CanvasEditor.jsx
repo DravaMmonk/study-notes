@@ -4,13 +4,13 @@ import { enableDrag } from '../drag.js'
 import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
-import { baseRefusal, connect, inPort, outPort, outputsOf, parsePort, removeNode, removeWire, srcKey, srcNode, srcOf } from './model.js'
+import { baseRefusal, connect, ends, inPort, outPort, outputsOf, parsePort, removeNode, removeWire, srcKey, srcNode, srcOf } from './model.js'
 import { useHistory } from './useHistory.js'
 
 // The desktop circuit board, the same in every game: parts are cards, wires run from a card's output (a dot on its
 // right) to another card's input (a dot on its left). Drag a card by its header to move it; drag from an output dot
-// to an input dot, or onto a card, to wire it; click a card or a wire to select it and press Delete (or the × on a
-// card) to remove it. Drag the background to pan, pinch or ⌘/Ctrl-scroll to zoom, and the corner buttons zoom or fit;
+// to an input dot, or onto a card, to wire it, or click one dot and then another (or the card), as on the phone;
+// click a card or a wire to select it and press Delete (or the × on a card) to remove it. Drag the background to pan, pinch or ⌘/Ctrl-scroll to zoom, and the corner buttons zoom or fit;
 // every edit can be undone and redone there too, or with ⌘/Ctrl-Z, ⇧⌘/Ctrl-Z and Ctrl-Y.
 //
 // The game says what its cards are (`parts`, see model.js) and what a card shows under its ports (`body`); the
@@ -19,7 +19,9 @@ import { useHistory } from './useHistory.js'
 
 const HEADER = 30
 const ROW = 20
-const portY = (index) => HEADER + 10 + index * ROW
+// A port's row starts below the header and the ports' top margin (.node-ports), and its dot sits in the row's middle.
+const PORTS = HEADER + 6
+const portY = (index) => PORTS + 10 + index * ROW
 const clampZoom = (z) => Math.min(1.5, Math.max(0.35, Math.round(z * 100) / 100))
 const curve = (a, b) => kitCurve(a, b, 'x', 48)
 
@@ -46,6 +48,8 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const removable = (node) => (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
+  const [picking, setPicking] = useState(null) // a dot clicked, waiting for the dot (or card) its wire goes to
+  const [pointer, setPointer] = useState(null) // where the pointer is on the board while a dot is picked
   const [shift, setShift] = useState(null)
   const surface = useRef(null)
   const layer = useRef(null)
@@ -54,7 +58,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   // A card with several outputs may space them out (`row`) and give each row the whole width (`wide`), its content
   // all the game's (outNote): a setting per output, say.
   const outLayout = (node) => ({ row: ROW, wide: false, ...parts.outputLayout?.(node) })
-  const outY = (node, index) => HEADER + 10 + index * outLayout(node).row
+  const outY = (node, index) => PORTS + 10 + index * outLayout(node).row
   const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
 
   // `shift` is how far a card being dragged has moved, so its wires follow it before the move is committed. An output
@@ -156,6 +160,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
         event.preventDefault()
         return key === 'y' || event.shiftKey ? history.redo() : history.undo()
       }
+      if (event.key === 'Escape' && picking) return setPicking(null)
       if (!selected) return
       if (event.key === 'Escape') return setSelected(null)
       if (event.key !== 'Delete' && event.key !== 'Backspace') return
@@ -178,6 +183,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const beginPan = (event) => {
     if (event.button > 0 || event.target.closest('.node, .kw, button, input, select, label, .float-window, .board-zoom, .board-views')) return
     setSelected(null)
+    setPicking(null)
     const box = surface.current.getBoundingClientRect()
     pointers.current.set(event.pointerId, [event.clientX, event.clientY])
     const snapshot = () => {
@@ -238,20 +244,45 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   }, [])
 
   const refusal = (from, to, port) => baseRefusal(graph, from, to) ?? parts.refuse?.(graph, from, to, port) ?? null
+  // A card's first free input that takes a wire from `from` (or any that takes it).
+  const inputFor = (from, to) => {
+    const ports = parts.inputs(byId.get(to) ?? {})
+    return ports.find((p) => !graph.wires.some((w) => w.to === to && w.port === p) && !refusal(from, to, p)) ?? ports.find((p) => !refusal(from, to, p))
+  }
   // Dropping a wire on an input uses that input; dropping it on a card uses the card's first free input that takes it.
   const connectTo = (from, over) => {
     let to = null
     let port = null
     const target = over?.dataset.p && parsePort(over.dataset.p)
     if (target?.side === 'in') [to, port] = [target.id, target.port]
-    else if (over?.dataset.piece) {
-      to = over.dataset.piece
-      const ports = parts.inputs(byId.get(to) ?? {})
-      port = ports.find((p) => !graph.wires.some((w) => w.to === to && w.port === p) && !refusal(from, to, p)) ?? ports.find((p) => !refusal(from, to, p))
-    }
+    else if (over?.dataset.piece) [to, port] = [over.dataset.piece, inputFor(from, over.dataset.piece)]
     if (!to || !port || !byId.has(to) || refusal(from, to, port)) return
     onChange(connect(graph, to, port, from))
   }
+  // Click to wire: the wire two dots make, if it is allowed; then clicking the first dot again drops it, and a dot on
+  // the same side picks that one instead.
+  const wireOf = (a, b) => {
+    const e = ends(a, b)
+    return e && byId.has(e.to) && byId.has(srcNode(e.from)) && !refusal(e.from, e.to, e.port) ? e : null
+  }
+  const clickPort = (p) => {
+    if (!picking || picking === p) return setPicking(picking === p ? null : p)
+    const e = wireOf(picking, p)
+    if (e) {
+      onChange(connect(graph, e.to, e.port, e.from))
+      setPicking(null)
+    } else if (parsePort(picking).side === parsePort(p).side) setPicking(p)
+  }
+  // With a dot picked, clicking a card wires it there: an output to the card's first free input, an input from the
+  // card's (first) output.
+  const clickCard = (id) => {
+    const node = byId.get(id)
+    const p = parsePort(picking)
+    const port = p.side === 'out' ? inputFor(p.id, id) : null
+    const other = p.side === 'out' ? (port ? inPort(id, port) : null) : parts.role(node) !== 'sink' ? outPort(srcOf(node, outputsOf(parts, node)[0].key)) : null
+    if (other && wireOf(picking, other)) clickPort(other)
+  }
+  const portClass = (p) => (!picking ? '' : p === picking ? 'is-picked' : wireOf(picking, p) ? 'is-target' : '')
 
   // Wires are pulled from outputs; a drag that starts on an input does nothing.
   const handlers = useRef(null)
@@ -259,6 +290,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     handlers.current = {
       start(g) {
         if (g.kind === 'piece') setSelected({ node: g.id })
+        if (g.kind === 'port') setPicking(null)
       },
       move(g) {
         if (g.kind === 'piece') setShift({ id: g.id, dx: g.dx, dy: g.dy })
@@ -289,7 +321,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const canDelete = Boolean(selected?.wire) || Boolean(selectedNode && removable(selectedNode))
 
   return (
-    <div className="board kit-board" ref={surface} onPointerDown={beginPan}>
+    <div className={`board kit-board ${picking ? 'is-picking' : ''}`} ref={surface} onPointerDown={beginPan} onPointerMove={picking ? (e) => setPointer(pointIn(layer.current, e.clientX, e.clientY)) : undefined}>
       <div className="board-grid" style={{ backgroundPosition: `${view.x}px ${view.y}px`, backgroundSize: `${20 * view.zoom}px ${20 * view.zoom}px` }} />
       {!placed && emptyNote && <p className="board-empty">{L(emptyNote)}</p>}
       <div className="board-layer" ref={layer} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
@@ -320,6 +352,12 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
             )
           })}
           {drag && byId.get(srcNode(drag.from)) && <path className="kw-draft" d={curve(portAt(byId.get(srcNode(drag.from)), null, null, srcKey(drag.from)), [drag.x, drag.y])} />}
+          {picking && pointer && (() => {
+            const p = parsePort(picking)
+            const node = byId.get(p.side === 'out' ? srcNode(p.id) : p.id)
+            if (!node) return null
+            return <path className="kw-draft" d={p.side === 'out' ? curve(portAt(node, null, null, srcKey(p.id)), pointer) : curve(pointer, portAt(node, p.port))} />
+          })()}
         </svg>
         {graph.nodes.map((node) => {
           const role = parts.role(node)
@@ -335,6 +373,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
               data-family={parts.family(node)}
               data-io={role === 'source' ? tr('输入', 'IN') : role === 'sink' ? tr('输出', 'OUT') : undefined}
               className={`node is-${role} ${outs ? 'has-outs' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
+              onClick={picking ? (e) => !e.target.closest('[data-p], button, input, select, label') && clickCard(node.id) : undefined}
               style={{ left: node.x, top: node.y, width, ...parts.cardStyle?.(node) }}
             >
               <div className="node-head" data-drag onPointerDown={() => setSelected({ node: node.id })}>
@@ -353,18 +392,18 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
                 {caption && role !== 'part' && <span className={`node-carries ${role === 'source' ? 'is-input' : ''}`}>{L(caption(node))}</span>}
                 {ports.map((port, index) => (
                   <span key={port} className="node-port-label" style={{ top: index * ROW }}>
-                    <i className={`port port-in ${graph.wires.some((w) => w.to === node.id && w.port === port) ? 'is-wired' : ''} ${parts.portClass?.(node, port) ?? ''}`} data-p={inPort(node.id, port)} />
+                    <i className={`port port-in ${graph.wires.some((w) => w.to === node.id && w.port === port) ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${parts.portClass?.(node, port) ?? ''}`} data-p={inPort(node.id, port)} onClick={() => clickPort(inPort(node.id, port))} />
                     {L(parts.portLabel?.(node, port)) ?? ''}
                   </span>
                 ))}
-                {role !== 'sink' && !outs && <i className={`port port-out ${graph.wires.some((w) => w.from === node.id) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`} data-p={outPort(node.id)} title={tr('拖到另一张卡片的输入', 'Drag to an input of another card')} />}
+                {role !== 'sink' && !outs && <i className={`port port-out ${graph.wires.some((w) => w.from === node.id) ? 'is-wired' : ''} ${portClass(outPort(node.id))} ${parts.portClass?.(node, null) ?? ''}`} data-p={outPort(node.id)} title={tr('点一下，再点另一张卡片的输入；也可以拖过去', 'Click, then click an input of another card; or drag there')} onClick={() => clickPort(outPort(node.id))} />}
                 {role !== 'sink' && outs?.map((o, index) => {
                   const src = srcOf(node, o.key)
                   return (
                     <span key={o.key} className={`node-port-out ${lay.wide ? 'is-wide' : ''}`} style={{ top: index * lay.row }}>
                       {!lay.wide && (o.glyph ? <span className="node-out-name is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>)}
                       {outNote?.(node, o.key)}
-                      <i className={`port port-out ${graph.wires.some((w) => w.from === src) ? 'is-wired' : ''} ${parts.portClass?.(node, null, o.key) ?? ''}`} data-p={outPort(src)} title={tr('拖到另一张卡片的输入', 'Drag to an input of another card')} />
+                      <i className={`port port-out ${graph.wires.some((w) => w.from === src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${parts.portClass?.(node, null, o.key) ?? ''}`} data-p={outPort(src)} title={tr('点一下，再点另一张卡片的输入；也可以拖过去', 'Click, then click an input of another card; or drag there')} onClick={() => clickPort(outPort(src))} />
                     </span>
                   )
                 })}

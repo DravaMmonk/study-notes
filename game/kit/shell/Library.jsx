@@ -6,7 +6,7 @@ import { useEscape } from './Dialogs.jsx'
 // A book of entries, after the encyclopedia in Turing Complete: entries by group on the left, the open entry on the
 // right; on a phone, the list and then one entry at a time. The encyclopedia and the components box are both one.
 //
-// groups: [{ id, title?, items: [{ id, title, open, unread?, lock? }] }]   lock: what opens it (a level's title)
+// groups: [{ id, title?, items: [{ id, title, open, unread?, lock? }] }]   lock: what opens it (a level label)
 // article(id, back): the open entry (back is the phone's way to the list, or null)
 // filters: optional controls shown under the search box (the components box's robot filter)
 
@@ -75,7 +75,7 @@ export default function Library({ title, subtitle, label, groups, current, onPic
                     {item.unread && <i className="wiki-dot" aria-label={tr('未读', 'Unread')} />}
                   </button>
                 ) : (
-                  <span className="wiki-item is-locked" title={item.lock ? tr(`玩到「${item.lock}」时解锁`, `Opens at “${item.lock}”`) : undefined}>
+                  <span className="wiki-item is-locked" title={item.lock ? tr(`玩到第 ${item.lock} 关时解锁`, `Opens at level ${item.lock}`) : undefined}>
                     <Lock size={12} aria-hidden="true" />
                     <span>{tr('？？？', '???')}</span>
                     {item.lock && <small>{item.lock}</small>}

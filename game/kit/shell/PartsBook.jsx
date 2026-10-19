@@ -9,7 +9,7 @@ import Library, { store, useSeen } from './Library.jsx'
 //   filters?(progress) → [{ key, name, icon?, lock?, keys }] }: the demo is a small circuit with the part at its
 // centre that the player can change and run (games/kit/circuit DemoBench), on the desktop board or, on a phone, the
 // phone one. A filter narrows the box to `keys` (a Set), such as the parts one robot can use; `icon` is SVG markup
-// for a 32 × 32 box, and `lock` the title of the level that opens it (null once open). The level that earns a part is the
+// for a 32 × 32 box, and `lock` the label of the level that opens it (null once open). The level that earns a part is the
 // one whose `unlocks` lists its key.
 
 /** Which parts are earned and which are new, for the components box and its button. */
@@ -56,7 +56,7 @@ export default function PartsBook({ game, box, phone, onClose }) {
     id: 'parts',
     items: game.chapters.flatMap((chapter) => all.filter((part) => levelOf(game, part.key)?.chapter === chapter.id)).map((part) => {
       const level = levelOf(game, part.key)
-      return { id: part.key, title: part.name, lead: chip(part, 13), open: earned.has(part.key), unread: !seen.has(part.key), lock: level ? L(level.title) : null }
+      return { id: part.key, title: part.name, lead: chip(part, 13), open: earned.has(part.key), unread: !seen.has(part.key), lock: level ? game.levelLabel(level) : null }
     }),
   }].filter((group) => group.items.length)
 
@@ -67,7 +67,7 @@ export default function PartsBook({ game, box, phone, onClose }) {
     return (
       <article className="wiki-article parts-article" key={key} data-family={part.family}>
         {back}
-        {level && <span className="panel-label">{tr(`来自「${L(level.title)}」`, `From “${L(level.title)}”`)}</span>}
+        {level && <span className="panel-label">{tr(`第 ${game.levelLabel(level)} 关 · ${L(level.title)}`, `Level ${game.levelLabel(level)} · ${L(level.title)}`)}</span>}
         <h2>{chip(part, 18)}{L(part.name)}</h2>
         {part.desc && <p dangerouslySetInnerHTML={{ __html: String(L(part.desc)) }} />}
         {demo}
@@ -96,10 +96,10 @@ export default function PartsBook({ game, box, phone, onClose }) {
 function Filters({ filters, current, onPick }) {
   const chip = (key, name, icon, lock) => (
     <button key={key ?? 'all'} type="button" className="parts-filter" aria-pressed={current === key} disabled={Boolean(lock)} onClick={() => onPick(key)}
-      title={lock ? tr(`玩到「${L(lock)}」时解锁`, `Opens at “${L(lock)}”`) : undefined}>
+      title={lock ? tr(`玩到第 ${lock} 关时解锁`, `Opens at level ${lock}`) : undefined}>
       {lock ? <Lock size={12} aria-hidden="true" /> : icon && <svg className="parts-filter-icon" viewBox="0 0 32 32" aria-hidden="true" dangerouslySetInnerHTML={{ __html: icon }} />}
       <span>{lock ? tr('？？？', '???') : L(name)}</span>
-      {lock && <small>{L(lock)}</small>}
+      {lock && <small>{lock}</small>}
     </button>
   )
   return (
