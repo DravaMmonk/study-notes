@@ -4,6 +4,19 @@ import { L, tr } from './i18n.js'
 
 // The level list beside a level: every chapter, the current one open, each level with its state.
 // Picking a level switches to it directly, without going back to the map.
+// A chapter's levels in the rail: in its track's order (games/kit/course.js layout), each branch under a small heading
+// and indented; without a track, in play order.
+function rows(chapter, levels) {
+  const byId = new Map(levels.map((level) => [level.id, level]))
+  if (!chapter.track) return levels.map((level) => ({ level }))
+  const titleOf = (branch) => L(branch.title ?? byId.get(branch.levels.at(-1))?.title)
+  const list = (ids) => ids.filter((id) => byId.has(id)).map((id) => ({ level: byId.get(id), branch: true }))
+  return chapter.track.flatMap((entry) => [
+    ...(entry.level ? (byId.has(entry.level) ? [{ level: byId.get(entry.level) }] : []) : entry.parallel.flatMap((b) => [{ head: entry.parallel.length > 1 ? tr(`并行 · ${titleOf(b)}`, `Parallel · ${titleOf(b)}`) : titleOf(b), key: `p-${b.id}`, kind: 'parallel' }, ...list(b.levels)])),
+    ...entry.branches.flatMap((b) => [{ head: b.kind === 'topic' ? tr(`专题 · ${titleOf(b)} · 可选`, `Topic · ${titleOf(b)} · optional`) : tr('挑战 · 可选', 'Challenge · optional'), key: `s-${b.id}`, kind: b.kind }, ...list(b.levels)]),
+  ])
+}
+
 export default function LevelRail({ game, current, solved, all, onOpen, onClose, overlay }) {
   const LEVELS = game.levels
   const chapterOf = LEVELS.find((level) => level.id === current)?.chapter
@@ -51,7 +64,9 @@ export default function LevelRail({ game, current, solved, all, onOpen, onClose,
               </button>
               {expanded && (
                 <ol>
-                  {levels.map((level) => {
+                  {rows(chapter, levels).map((entry) => {
+                    if (entry.head) return <li key={entry.key} className={`rail-branch-head is-${entry.kind}`}>{entry.head}</li>
+                    const level = entry.level
                     const open = game.isOpen(level, solved, all)
                     const kind = game.kinds[level.kind]
                     const won = solved.has(level.id)
@@ -59,7 +74,7 @@ export default function LevelRail({ game, current, solved, all, onOpen, onClose,
                     return (
                       <li key={level.id}>
                         <button
-                          className={`rail-level ${won ? 'is-solved' : open ? 'is-open' : 'is-locked'} ${here ? 'is-here' : ''}`}
+                          className={`rail-level ${won ? 'is-solved' : open ? 'is-open' : 'is-locked'} ${here ? 'is-here' : ''} ${entry.branch ? 'is-branch' : ''}`}
                           disabled={!open && !won}
                           aria-current={here ? 'page' : undefined}
                           title={open || won ? `${game.levelLabel(level)} ${L(level.title)}` : `${game.levelLabel(level)} ${L(level.title)}${tr('：先通过 ', ': first pass ')}${game.missing(level, solved).map(game.levelLabel).join(tr('、', ', '))}`}

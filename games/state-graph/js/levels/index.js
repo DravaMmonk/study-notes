@@ -43,6 +43,8 @@ export const LEVELS = [...PLAN.order.map(id => byId.get(id)), ...ALL.filter(L =>
 LEVELS.forEach(L => { L.ch = Math.max(0, CHAPTERS.findIndex(s => s.levels.includes(L.id))); });
 export const REQUIRES = PLAN.requires;
 export const PLACE = PLAN.place;
+/** Each era's track for the map: the main path, its parallel branches and the optional branches hanging off it. */
+export const TRACKS = PLAN.tracks;
 export { CHAPTERS };
 export { LABELS };
 

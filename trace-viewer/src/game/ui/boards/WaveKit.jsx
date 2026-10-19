@@ -135,3 +135,19 @@ export function Stages({ stages, current, passed, reached, onPick }) {
     </ol>
   )
 }
+
+// One row of the image as pixels, darkest at 0 and lightest at 1.
+export function Strip({ label, values }) {
+  const n = values.length
+  return (
+    <figure className="wv-strip">
+      <svg viewBox={`0 0 ${n} 1`} preserveAspectRatio="none" aria-hidden="true">
+        {values.map((value, x) => {
+          const g = Math.round(255 * Math.min(1, Math.max(0, value)))
+          return <rect key={x} x={x} y={0} width={1.02} height={1} fill={`rgb(${g},${g},${g})`} />
+        })}
+      </svg>
+      <figcaption>{label}</figcaption>
+    </figure>
+  )
+}

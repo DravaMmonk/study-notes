@@ -3,20 +3,23 @@
 // built-in implementation, for speed) that the validator checks against that level's tests, so the box is exactly
 // what the player built. The design behind these rules is games/DESIGN.md.
 //
-// A course is a run of eras, one per machine (a robot, a camera…). An era's main path runs in order:
-//   foundation  teaches the machine's outside abilities, each level unlocking one part
-//   practice    problems on what the machine can do, in order of difficulty
-//   topics      the era's topic series (one to begin with, side by side if there are more): each opens on a small
-//               version of its finale (or one of its core mechanisms alone) and adds one mechanism a level until the
-//               finale, the topic's big puzzle
-// and beside it
-//   challenges  optional: the machine's limits, with nothing new; nothing needs them
-// The next era opens at the end of this one's main path (its last finale, or the end of its practice).
+// A course is a run of eras, one per machine (a robot, a camera…). Its levels make a tree:
+//   main path   the foundation (the machine's outside abilities, each level unlocking one part), then the practice
+//               (problems in order of difficulty). Both run in order, and the next era opens at its end.
+//               An item of the main path is a level id, or a set of branches the player takes in any order, every
+//               one of them before the path goes on: { parallel: [{ id, title?, levels: [level id] }] }. A branch of
+//               one is a titled stretch of the path: a series the levels after it need.
+//   topics      optional series: each opens on a small version of its finale (or one of its core mechanisms alone)
+//               and adds one mechanism a level until the finale. It hangs after the level it needs (`after`, by
+//               default the end of the main path) and nothing on the main path waits for it.
+//   challenges  optional: the machine's limits, with nothing new; each hangs after a level (`after`, by default the
+//               end of the main path) and nothing needs them.
+// A branch hangs as early as what it needs allows: once the parts and ideas it uses are in hand.
 //
-// eras: [{ id, title?, machine?, foundation: [level id], practice?: [level id], topics?: [{ id, title?, levels: [level id],
-//          requires? }], challenges?: [{ level, after? }] }]
-// layout(eras) gives the play order, each level's place ({ era, role, topic }) and what it requires; the shell opens
-// a level once everything it requires is solved.
+// eras: [{ id, title?, machine?, foundation: [item], practice?: [item], topics?: [{ id, title?, levels: [level id],
+//          after?, requires? }], challenges?: [{ level, after? }] }]
+// layout(eras) gives the play order, each level's place ({ era, role, topic | branch }), what it requires and each
+// era's track for the map; the shell opens a level once everything it requires is solved.
 //
 // defineCourse({
 //   levels      [{ id, unlocks: [flag] }]  in play order (layout(eras).order when the course has eras)
@@ -38,39 +41,73 @@
 /** Roles of a level within its era. A topic of one level is just its finale. */
 export const ROLES = ['foundation', 'practice', 'intro', 'step', 'finale', 'challenge']
 
+/** The level ids of a main path's items, branches flattened in order. */
+export const pathLevels = (items) => items.flatMap((item) => (typeof item === 'string' ? [item] : item.parallel.flatMap((b) => b.levels)))
+/** Every level of an era: its main path, then its topics and challenges. */
+export const eraLevels = (era) => [...pathLevels([...era.foundation, ...(era.practice ?? [])]), ...(era.topics ?? []).flatMap((t) => t.levels), ...(era.challenges ?? []).map((c) => c.level)]
+
 /**
- * Play order, places and requirements from a course's eras. An era's foundation and practice run in order after the
- * end of the previous era; each topic opens at the end of the practice (and once any topic it requires is finished)
- * and runs in order to its finale; a challenge opens after the level it hangs on (by default the end of the practice).
+ * Play order, places, requirements and tracks from a course's eras. The main path runs in order from the end of the
+ * previous era's; a parallel set's branches each start where the path stands and the path goes on once all of them
+ * end. A topic opens after its `after` level (by default the end of the main path) and any topic it requires, and runs
+ * in order to its finale; a challenge opens after its `after` level.
+ * A track lists an era's main path for the map: { level, branches } or { parallel: [{ id, title, levels }], branches },
+ * where `branches` are the optional topics and challenges hanging there ({ kind, id, title, levels }).
  */
 export function layout(eras) {
-  const order = [], place = new Map(), requires = new Map()
-  let before = null // where the previous era ended
+  const place = new Map(), requires = new Map(), tracks = new Map()
+  let before = [] // where the previous era's main path ended
   for (const era of eras) {
-    const main = [...era.foundation.map((id) => [id, 'foundation']), ...(era.practice ?? []).map((id) => [id, 'practice'])]
-    main.forEach(([id, role], k) => {
-      order.push(id)
-      place.set(id, { era: era.id, role })
-      requires.set(id, k ? [main[k - 1][0]] : before ? [before] : [])
-    })
-    const base = main.at(-1)?.[0] ?? before
+    const track = []
+    const at = new Map() // a main-path level → its track item
+    let ends = before
+    for (const [items, role] of [[era.foundation, 'foundation'], [era.practice ?? [], 'practice']]) {
+      for (const item of items) {
+        if (typeof item === 'string') {
+          place.set(item, { era: era.id, role })
+          requires.set(item, [...ends])
+          const entry = { level: item, branches: [] }
+          track.push(entry)
+          at.set(item, entry)
+          ends = [item]
+          continue
+        }
+        const entry = { parallel: item.parallel.map((b) => ({ id: b.id, title: b.title, levels: b.levels })), branches: [] }
+        for (const b of item.parallel) {
+          b.levels.forEach((id, k) => {
+            place.set(id, { era: era.id, role, branch: b.id })
+            requires.set(id, k ? [b.levels[k - 1]] : [...ends])
+            at.set(id, entry)
+          })
+        }
+        track.push(entry)
+        ends = item.parallel.map((b) => b.levels.at(-1))
+      }
+    }
+    // An optional branch hangs on the track where its `after` level is (the end of the main path by default).
+    const hang = (after, branch) => (at.get(after) ?? track.at(-1) ?? track[0])?.branches.push(branch)
     for (const topic of era.topics ?? []) {
       const finales = (topic.requires ?? []).map((t) => era.topics.find((x) => x.id === t)?.levels.at(-1)).filter(Boolean)
+      const after = topic.after ? [topic.after] : ends
       topic.levels.forEach((id, k) => {
-        order.push(id)
         const last = k === topic.levels.length - 1
-        place.set(id, { era: era.id, role: last ? 'finale' : k ? 'step' : 'intro', topic: topic.id })
-        requires.set(id, k ? [topic.levels[k - 1]] : [...(base ? [base] : []), ...finales])
+        place.set(id, { era: era.id, role: last ? 'finale' : k ? 'step' : 'intro', topic: topic.id, after: after.at(-1) })
+        requires.set(id, k ? [topic.levels[k - 1]] : [...after, ...finales])
       })
+      hang(topic.after ?? ends.at(-1), { kind: 'topic', id: topic.id, title: topic.title, levels: topic.levels })
     }
     for (const c of era.challenges ?? []) {
-      order.push(c.level)
-      place.set(c.level, { era: era.id, role: 'challenge', after: c.after ?? base })
-      requires.set(c.level, c.after ?? base ? [c.after ?? base] : [])
+      const after = c.after ? [c.after] : ends
+      place.set(c.level, { era: era.id, role: 'challenge', after: after.at(-1) })
+      requires.set(c.level, [...after])
+      hang(c.after ?? ends.at(-1), { kind: 'challenge', id: c.level, levels: [c.level] })
     }
-    before = (era.topics ?? []).at(-1)?.levels.at(-1) ?? base
+    tracks.set(era.id, track)
+    before = ends
   }
-  return { order, place, requires }
+  // Play order: each era's track, every branch right after the place it hangs from.
+  const order = [...tracks.values()].flatMap((track) => track.flatMap((entry) => [...(entry.level ? [entry.level] : entry.parallel.flatMap((b) => b.levels)), ...entry.branches.flatMap((b) => b.levels)]))
+  return { order, place, requires, tracks }
 }
 
 export function defineCourse({ levels, eras = null, primitives, palette, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true }) {
@@ -130,7 +167,10 @@ export function audit(course) {
       if (granted.has(p)) say('granted', level.id, p, 'handed out by the level, not built by the player')
       else if (!by) { if (!unbuilt.has(p)) say('not-built', level.id, p, 'no level builds it and it is not a primitive'); unbuilt.add(p) }
       else if (by === level.id) say('own-level', level.id, p, 'offered in the very level that builds it')
-      else if (!course.before(by, level.id)) say('built-later', level.id, p, `offered where ${by}, the level that builds it, need not be solved yet`)
+      else if (!course.before(by, level.id)) {
+        const optional = ['intro', 'step', 'finale', 'challenge'].includes(plan?.place.get(by)?.role)
+        say(optional ? 'optional-needed' : 'built-later', level.id, p, optional ? `needs ${by}, which sits on an optional branch it does not require` : `offered where ${by}, the level that builds it, need not be solved yet`)
+      }
     }
     if (role === 'challenge' && fresh.size) say('challenge-new', level.id, [...fresh].join(' '), 'a challenge brings nothing new')
     else if (fresh.size > 1) say('many-new', level.id, [...fresh].join(' '), `${fresh.size} new parts in one level (one new idea per level)`)
@@ -165,7 +205,7 @@ export function audit(course) {
     }
   }
   // Every machine's era ends in a topic series.
-  for (const era of course.eras) if (era.machine && !(era.topics ?? []).length) say('no-topic', era.foundation[0] ?? era.id, era.machine, `era ${era.id} has no topic series yet`)
+  for (const era of course.eras) if (era.machine && !(era.topics ?? []).length) say('no-topic', pathLevels(era.foundation)[0] ?? era.id, era.machine, `era ${era.id} has no topic series yet`)
   // A topic stays in one world.
   for (const era of course.eras) {
     for (const topic of era.topics ?? []) {

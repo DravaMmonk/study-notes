@@ -345,7 +345,7 @@ export const GLOSSARY = [
     id: 'superpose',
     group: 'freq',
     title: { zh: '波的叠加', en: 'Adding waves' },
-    at: '2-3',
+    at: '2-5',
     body: [
       { zh: '任何一条亮度曲线都能拆成一组正弦波：每个频率一个振幅，再加一个相位。这组振幅，就是这条曲线的<b>频谱</b>。', en: 'Any brightness curve can be taken apart into a set of sine waves: one amplitude for each frequency, plus a phase. That set of amplitudes is the curve’s <b>spectrum</b>.' },
       { zh: '边越陡，需要的高频越多。方波只用到奇数频率，振幅按 1、1/3、1/5、1/7 递减；少了高频，陡边旁就会冒出一圈小波纹。', en: 'The steeper an edge, the more high frequencies it needs. A square wave uses only odd frequencies, with amplitudes falling as 1, 1/3, 1/5, 1/7; leave out the high ones and small ripples appear beside the steep edges.' },
@@ -357,7 +357,7 @@ export const GLOSSARY = [
     id: 'fourier',
     group: 'freq',
     title: { zh: '傅里叶变换', en: 'The Fourier transform' },
-    at: '2-4',
+    at: '2-6',
     body: [
       { zh: '拿到一条叠好的曲线，怎样知道某个频率的波有多强？把信号和这个频率的 cos、sin 逐点相乘再求平均，得到两个读数 a、b。别的频率的波相乘后平均下来是 0，只有同频率的留得下来。', en: 'Given a curve that is already added up, how do you tell how strong the wave at one frequency is? Multiply the signal point by point by the cos and the sin of that frequency and take the averages, giving two readings a and b. Waves at other frequencies average out to 0; only the one at that frequency remains.' },
       { zh: '振幅是 2·√(a² + b²)，和波错开多少无关；相位是 atan2(b, a)。只用 cos 的话，错开 90° 的波会被量成 0。', en: 'The amplitude is 2·√(a² + b²), however far the wave is shifted, and the phase is atan2(b, a). With cos alone, a wave shifted by 90° would measure as 0.' },
@@ -369,7 +369,7 @@ export const GLOSSARY = [
     id: 'spectrum',
     group: 'freq',
     title: { zh: '频谱与直流分量', en: 'Spectra and the DC component' },
-    at: '2-4',
+    at: '2-6',
     body: [
       { zh: '二维图像的频谱也是一张图：每一格 (kx, ky) 代表一道波，越亮说明图里这道波越强。正中心是频率 (0, 0)，也就是平均亮度，叫<b>直流分量</b>。', en: 'The spectrum of a 2-D image is itself an image: each cell (kx, ky) stands for one wave, and the brighter it is, the stronger that wave is in the picture. The very centre is frequency (0, 0), the average brightness, called the <b>DC component</b>.' },
       { zh: '离中心越远，代表变化越快：条纹越密，亮点离中心越远；条纹转 90°，亮点也跟着转 90°，总是排在和条纹垂直的方向上。一组条纹在频谱上是关于中心对称的一对亮点。', en: 'Further from the centre means faster change: the denser the stripes, the further their dots sit from the centre. Turn the stripes by 90° and the dots turn by 90° too, always lined up perpendicular to the stripes. One set of stripes shows up as a pair of dots placed symmetrically about the centre.' },
@@ -381,7 +381,7 @@ export const GLOSSARY = [
     id: 'convthm',
     group: 'freq',
     title: { zh: '卷积定理与振铃', en: 'The convolution theorem and ringing' },
-    at: '2-6',
+    at: '2-8',
     body: [
       { zh: '在空间里用一个核做卷积，等于在频域里把每个频率乘上一个增益，这个增益就是核的频谱。这叫<b>卷积定理</b>：空间里卷积，等于频域里相乘。', en: 'Convolving with a kernel in space is the same as multiplying each frequency by a gain in the frequency domain, where the gain is the kernel’s spectrum. This is the <b>convolution theorem</b>: convolution in space is multiplication in frequency.' },
       { zh: '一刀切的增益（某个频率以下全留、以上全去）变回空间，是一个两侧带负瓣的核，边缘两侧会冒出一圈圈亮暗波纹，这叫<b>振铃</b>。高斯形状的增益变回空间还是高斯，没有负瓣，也就没有振铃。', en: 'A hard cut-off gain (keep everything below some frequency, remove everything above) turns back into a kernel with negative lobes on both sides, so rings of light and dark ripple out beside edges: this is <b>ringing</b>. A Gaussian-shaped gain turns back into a Gaussian, with no negative lobes and so no ringing.' },
@@ -393,7 +393,7 @@ export const GLOSSARY = [
     id: 'lowpass',
     group: 'freq',
     title: { zh: '低通滤波', en: 'Low-pass filtering' },
-    at: '2-6',
+    at: '2-8',
     body: [
       { zh: '留下低频、去掉高频的滤波叫<b>低通</b>。低频是大块缓慢的明暗，高频是细纹、边缘和噪点，所以低通的效果就是模糊和去噪。', en: 'A filter that keeps the low frequencies and removes the high ones is called a <b>low-pass</b> filter. Low frequencies are broad, slow changes in brightness and high ones are fine texture, edges and noise, so a low-pass filter blurs and removes noise.' },
       { zh: '它可以在空间里用模糊核做，也可以在频域里做：变换到频谱，乘一个以中心为圆心的掩膜，再变换回来。掩膜的半径决定留下多少频率，半径越小，图越糊。', en: 'It can be done in space with a blur kernel, or in the frequency domain: transform to the spectrum, multiply by a mask centred on the middle, and transform back. The mask’s radius decides how many frequencies are kept: the smaller the radius, the blurrier the image.' },
@@ -404,7 +404,7 @@ export const GLOSSARY = [
     id: 'sampling',
     group: 'freq',
     title: { zh: '采样与混叠', en: 'Sampling and aliasing' },
-    at: '2-11',
+    at: '2-13',
     body: [
       { zh: '相机和扫描仪只在一些位置记下亮度，用这些点代表连续的景物，这叫<b>采样</b>。采 M 个点，只能分辨 M/2 以下的频率，这个上限叫<b>奈奎斯特频率</b>。', en: 'A camera or scanner records brightness only at certain positions and lets those points stand for the continuous scene: this is <b>sampling</b>. With M samples you can only tell apart frequencies below M/2, a limit called the <b>Nyquist frequency</b>.' },
       { zh: '更快的波不会消失，而是折回来冒充一道慢波：频率 k 看起来和 M − k 一模一样。这叫<b>混叠</b>，采完以后两者再也分不开。视频里飞转的车轮像在倒转、拍屏幕时浮出的波纹（莫尔纹），都是混叠。', en: 'Faster waves do not vanish: they fold back and pose as a slower wave, so frequency k looks exactly like M − k. This is <b>aliasing</b>, and once sampled the two can never be separated. A spinning wheel that seems to turn backwards on video, and the ripples (moiré) that float over a photo of a screen, are both aliasing.' },
@@ -416,7 +416,7 @@ export const GLOSSARY = [
     id: 'hybrid',
     group: 'freq',
     title: { zh: '高通与混合图像', en: 'High-pass and hybrid images' },
-    at: '2-9',
+    at: '2-11',
     body: [
       { zh: '<b>高通</b>只留下细节：高通 = 原图 − 低通，在频域里就是把掩膜 H 换成 1 − H。', en: 'A <b>high-pass</b> filter keeps only the detail: high-pass = image − low-pass, which in the frequency domain means replacing the mask H with 1 − H.' },
       { zh: '一张图的大块明暗取自 A（低频），细节取自 B（高频），就是<b>混合图像</b>。近看时细节最抢眼，看到的是 B；离远了或眯起眼，细节分辨不出来，只剩下 A。', en: 'Take an image’s broad light and dark from A (its low frequencies) and its detail from B (its high frequencies), and you have a <b>hybrid image</b>. Up close the detail stands out and you see B; from a distance, or with narrowed eyes, the detail can no longer be made out and only A is left.' },

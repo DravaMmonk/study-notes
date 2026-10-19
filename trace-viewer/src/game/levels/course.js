@@ -8,7 +8,7 @@ import { ERAS } from './route.js'
 
 /** The parts no circuit can build: arithmetic, a few functions, averaging, the trip to the frequency domain and the
  *  learnable numbers. Each is new where it is first offered. */
-export const PRIMITIVES = ['const', 'add', 'sub', 'mul', 'arith', 'merge', 'sqrt', 'exp', 'fqMean', 'globalMax', 'fqApply', 'lrnConst', 'learn3', 'lrnConv', 'warp', 'zeroUp', 'argmin4', 'dg_encode', 'dg_decode', 'dg_mu', 'dg_sigma', 'dg_sample']
+export const PRIMITIVES = ['const', 'add', 'sub', 'mul', 'arith', 'merge', 'sqrt', 'exp', 'globalMax', 'fqApply', 'lrnConst', 'learn3', 'lrnConv', 'warp', 'zeroUp', 'argmin4', 'dg_encode', 'dg_decode', 'dg_mu', 'dg_sigma', 'dg_sample']
 // Parts that are one idea: the four kinds of arithmetic and the constant, and the learnable kernel with or without a
 // random start.
 const CONCEPT = { const: 'arithmetic', add: 'arithmetic', sub: 'arithmetic', mul: 'arithmetic', arith: 'arithmetic', lrnConv: 'learn3', dg_encode: 'autoencoder', dg_decode: 'autoencoder', dg_encoder: 'autoencoder', dg_decoder: 'autoencoder', dg_mu: 'latent', dg_sigma: 'latent', dg_sample: 'latent' }

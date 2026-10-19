@@ -3,7 +3,7 @@ import { ArrowRight, Check } from 'lucide-react'
 import { L, tr } from '../../../../../games/kit/shell/i18n.js'
 import { PHONE, useMedia } from '../../../../../games/kit/shell/useMedia.js'
 import { piText } from '../../engine/pi.js'
-import { Plot, Stages } from './WaveKit.jsx'
+import { Plot, Stages, Strip } from './WaveKit.jsx'
 import './waves.css'
 
 // 2-1 一道波: a wave c + A·cos(2π·k·x/N + φ) with one knob per number. Each step opens one knob and asks the player to
@@ -87,21 +87,5 @@ export default function WaveBench({ level, onSolve }) {
         </div>
       </div>
     </div>
-  )
-}
-
-// One row of the image as pixels, darkest at 0 and lightest at 1.
-function Strip({ label, values }) {
-  const n = values.length
-  return (
-    <figure className="wv-strip">
-      <svg viewBox={`0 0 ${n} 1`} preserveAspectRatio="none" aria-hidden="true">
-        {values.map((value, x) => {
-          const g = Math.round(255 * Math.min(1, Math.max(0, value)))
-          return <rect key={x} x={x} y={0} width={1.02} height={1} fill={`rgb(${g},${g},${g})`} />
-        })}
-      </svg>
-      <figcaption>{label}</figcaption>
-    </figure>
   )
 }

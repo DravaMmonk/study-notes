@@ -4,14 +4,68 @@ import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw } fro
 import { L, tr } from './i18n.js'
 
 // The level map: a hero (the game's kicker, title, lede and illustration), progress, the unlock-all switch and a
-// "continue" button, then each chapter as a trace on a circuit board, its levels as pads along it. A chapter may
-// split its levels into groups (`groups`: [[level id]], say a robot's foundation, practice and each topic), drawn in
-// order with a dashed line between them; `kicker` replaces its 第 N 章 line.
+// "continue" button, then each chapter as a trace on a circuit board, its levels as pads along it. A chapter's `track`
+// (games/kit/course.js layout) draws its tree: the main path as one line, a set of required branches side by side
+// that join again, and optional topics and challenges hanging off the level they follow. Without a track, `groups`
+// ([[level id]]) are drawn in order with a dashed line between them; `kicker` replaces its 第 N 章 line.
 export default function LevelMap({ game, progress, solved, onAll, onOpen, onReset, onParts, partsNew = 0, onWiki, unread = 0, theme }) {
   const levels = game.levels
   const done = levels.filter((level) => solved.has(level.id)).length
   const next = levels.find((level) => !solved.has(level.id) && game.isOpen(level, solved, progress.all))
   const [progressOpen, setProgressOpen] = useState(false)
+
+  // One level's pad on a trace.
+  const row = (level) => {
+    if (!level) return null
+    const open = game.isOpen(level, solved, progress.all)
+    const won = solved.has(level.id)
+    const state = won ? 'is-solved' : open ? 'is-open' : 'is-locked'
+    const kind = game.kinds[level.kind]
+    const best = won && progress.best[level.id] && game.bestLabel?.(progress.best[level.id])
+    return (
+      <li key={level.id} className={state}>
+        <button className={`map-level ${state} ${next?.id === level.id ? 'is-next' : ''}`} disabled={!open} onClick={() => onOpen(level.id)}>
+          <span className="map-pad" aria-hidden="true">{won ? <Check size={12} strokeWidth={2.4} /> : open ? null : <Lock size={10} />}</span>
+          <span className="map-level-id">{game.levelLabel(level)}</span>
+          <span className="map-level-title">{L(level.title)}</span>
+          {kind?.icon && <span className="map-level-kind" title={L(kind.label)}>{createElement(kind.icon, { size: 13 })}</span>}
+          {best && <span className="map-level-best">{best}</span>}
+        </button>
+      </li>
+    )
+  }
+  const titleOf = (branch, byId) => branch.title ?? byId.get(branch.levels.at(-1))?.title
+  const doneIn = (ids) => ids.filter((id) => solved.has(id)).length
+  // A set of branches on the main path: each its own trace, side by side; the path goes on once every one is passed.
+  const fork = (entry, e, byId) => {
+    const many = entry.parallel.length > 1
+    const left = entry.parallel.filter((b) => doneIn(b.levels) < b.levels.length).length
+    return (
+      <li key={`fork-${e}`} className={`map-fork ${many ? 'is-many' : ''}`}>
+        <span className="map-fork-head">{many ? tr(`分成 ${entry.parallel.length} 路 · 先后随意，全部通过后继续`, `${entry.parallel.length} branches · any order, all before going on`) : tr('系列', 'Series')}</span>
+        <div className="map-fork-cols">
+          {entry.parallel.map((b) => (
+            <section key={b.id} className="map-fork-branch">
+              <h3>{L(titleOf(b, byId))}<small>{doneIn(b.levels)}/{b.levels.length}</small></h3>
+              <ol className="map-trace">{b.levels.map((id) => row(byId.get(id)))}</ol>
+            </section>
+          ))}
+        </div>
+        {many && <span className={`map-fork-join ${left ? '' : 'is-done'}`}>{left ? tr(`还差 ${left} 路`, `${left} to go`) : tr('全部通过，继续', 'All passed, on we go')}</span>}
+      </li>
+    )
+  }
+  // An optional branch hanging off the path: a topic series or a challenge, played whenever the player likes.
+  const side = (branch, byId) => (
+    <li key={`side-${branch.id}`} className={`map-side is-${branch.kind}`}>
+      <span className="map-side-head">
+        <b>{branch.kind === 'topic' ? tr('专题', 'Topic') : tr('挑战', 'Challenge')}</b>
+        {branch.kind === 'topic' && <span>{L(titleOf(branch, byId))}</span>}
+        <em>{tr('可选', 'Optional')}</em>
+      </span>
+      <ol className="map-trace">{branch.levels.map((id) => row(byId.get(id)))}</ol>
+    </li>
+  )
 
   return (
     <main className="level-map">
@@ -59,24 +113,12 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, onRese
                 <span className="chapter-meter"><i style={{ width: `${inChapter.length ? (finished / inChapter.length) * 100 : 0}%` }} /></span>
               </header>
               <ol className="map-trace">
-                {groups.flatMap((group, g) => [...(g ? [<li key={`gap-${g}`} className="map-gap" aria-hidden="true" />] : []), ...group.map((level) => {
-                  const open = game.isOpen(level, solved, progress.all)
-                  const won = solved.has(level.id)
-                  const state = won ? 'is-solved' : open ? 'is-open' : 'is-locked'
-                  const kind = game.kinds[level.kind]
-                  const best = won && progress.best[level.id] && game.bestLabel?.(progress.best[level.id])
-                  return (
-                    <li key={level.id} className={state}>
-                      <button className={`map-level ${state} ${next?.id === level.id ? 'is-next' : ''}`} disabled={!open} onClick={() => onOpen(level.id)}>
-                        <span className="map-pad" aria-hidden="true">{won ? <Check size={12} strokeWidth={2.4} /> : open ? null : <Lock size={10} />}</span>
-                        <span className="map-level-id">{game.levelLabel(level)}</span>
-                        <span className="map-level-title">{L(level.title)}</span>
-                        {kind?.icon && <span className="map-level-kind" title={L(kind.label)}>{createElement(kind.icon, { size: 13 })}</span>}
-                        {best && <span className="map-level-best">{best}</span>}
-                      </button>
-                    </li>
-                  )
-                })])}
+                {chapter.track
+                  ? chapter.track.flatMap((entry, e) => [
+                      entry.level ? row(byId.get(entry.level)) : fork(entry, e, byId),
+                      ...entry.branches.map((branch) => side(branch, byId)),
+                    ])
+                  : groups.flatMap((group, g) => [...(g ? [<li key={`gap-${g}`} className="map-gap" aria-hidden="true" />] : []), ...group.map(row)])}
                 {planned.map(([id, title]) => (
                   <li key={id} className="is-planned">
                     <span className="map-level is-planned" title={tr('已设计，待开放', 'Designed, not open yet')}>

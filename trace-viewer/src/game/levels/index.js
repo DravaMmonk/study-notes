@@ -13,11 +13,14 @@ import * as ch5 from './ch5.js'
 import * as ch8 from './ch8.js'
 import * as ch9 from './ch9.js'
 import * as ch10 from './ch10.js'
-import { ERAS, chapterGroups, chapterOrder } from './route.js'
+import { ERAS } from './route.js'
 
 // Level modules. Each exports `levels` (an array) and optionally `nodes` (new node types merged into NODE_TYPES).
 const PACKS = [ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7, ch8, ch9, ch10, optics]
 for (const pack of PACKS) Object.assign(NODE_TYPES, pack.nodes ?? {})
+
+// The course's tree (games/kit/course.js layout): play order, what each level requires, each chapter's track.
+const PLAN = layout(ERAS)
 
 export const CHAPTERS = [
   { id: 0, title: { zh: '睁眼', en: 'Opening Eyes' }, lecture: { zh: '第 1–2 讲', en: 'Lectures 1–2' }, question: { zh: '图像是什么', en: 'What is an image?' } },
@@ -31,11 +34,11 @@ export const CHAPTERS = [
   { id: 8, title: { zh: '画出没见过的图', en: 'Drawing the Unseen' }, lecture: { zh: '第 15–17 讲', en: 'Lectures 15–17' }, question: { zh: '从随机数生成图像', en: 'Making images from random numbers' } },
   { id: 9, title: { zh: '每个像素是什么', en: 'What Every Pixel Is' }, lecture: { zh: '第 19–20 讲', en: 'Lectures 19–20' }, question: { zh: '给每个像素一个答案', en: 'An answer for every pixel' } },
   { id: 10, title: { zh: '框出来', en: 'Boxing Things In' }, lecture: { zh: '第 21–22 讲', en: 'Lectures 21–22' }, question: { zh: '东西在哪、有多大', en: 'Where things are, and how big' } },
-].map((chapter) => ({ ...chapter, groups: chapterGroups(ERAS.find((era) => era.id === chapter.id)) }))
+].map((chapter) => ({ ...chapter, track: PLAN.tracks.get(chapter.id) }))
 
 const ALL = PACKS.flatMap((pack) => pack.levels)
 const byIdAll = Object.fromEntries(ALL.map((level) => [level.id, level]))
-const { requires } = layout(ERAS)
+const { requires } = PLAN
 
 // A palette lists the parts new to the player first (first offered in this level, marked 新), then the constant and the
 // four kinds of arithmetic, then the rest as the level gives them.
@@ -49,13 +52,15 @@ const ordered = (palette = []) => {
   return { palette: [...arithmeticFirst(fresh), ...arithmeticFirst(rest)], fresh }
 }
 
-// A series level after the first starts from the player's own circuit for the level before it (screens.jsx).
-const carry = new Map(ERAS.flatMap((era) => (era.topics ?? []).flatMap((t) => t.levels.slice(1).map((id, i) => [id, t.levels[i]]))))
+// A series level after the first starts from the player's own circuit for the level before it (screens.jsx), when
+// that level is a circuit too: a topic, or a branch on the main path.
+const SERIES = ERAS.flatMap((era) => [...(era.topics ?? []).map((t) => t.levels), ...[...era.foundation, ...(era.practice ?? [])].filter((item) => typeof item !== 'string').flatMap((item) => item.parallel.map((b) => b.levels))])
+const carry = new Map(SERIES.flatMap((ids) => ids.slice(1).map((id, i) => [id, ids[i]])).filter(([, from]) => byIdAll[from]?.kind !== 'board'))
 
 // Pictures start out drawn as pixels; every other way of drawing them (ui/views/views.js) comes in with a level, as
 // parts do, and stays from then on.
-const VIEW_INTRO = { profile: '1-1', terrain: '1-4', spectrum: '2-4', slope: '3-7' }
-const ROUTE = ERAS.flatMap(chapterOrder)
+const VIEW_INTRO = { profile: '1-1', terrain: '1-4', spectrum: '2-6', slope: '3-7' }
+const ROUTE = PLAN.order
 const viewsAt = (id) => ({
   shows: ['pixels', ...Object.keys(VIEW_INTRO).filter((view) => ROUTE.indexOf(VIEW_INTRO[view]) <= ROUTE.indexOf(id))],
   freshViews: Object.keys(VIEW_INTRO).filter((view) => VIEW_INTRO[view] === id),

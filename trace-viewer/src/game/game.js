@@ -49,7 +49,7 @@ const RENUMBERED = {
   5: { '4-1': '4-2', '4-2': '4-4', '4-3': '4-6', '4-4': '4-7', '4-5': '4-8', '4-6': '4-9', '4-7': '4-11' },
   6: { '1-7': '1-8', '1-8': '1-9' },
 }
-const VERSION = 13
+const VERSION = 14
 // Version 9 dropped 1-7 (the vertical difference now comes with 1-6) and moved the later chapter-1 levels up one.
 const SHIFTED = { '1-7': null, ...Object.fromEntries(Array.from({ length: 11 }, (_, i) => [`1-${i + 8}`, `1-${i + 7}`])) }
 // Version 11 rebuilt chapter 5 as a loop: attention is built from two patches first.
@@ -81,6 +81,13 @@ function migrate(saved) {
   if ((saved.version ?? 1) < 11) out = renamed(out, (id) => (id in CH5 ? CH5[id] : id))
   if ((saved.version ?? 1) < 12) out = renamed(out, (id) => (id in CH6_8 ? CH6_8[id] : id))
   if ((saved.version ?? 1) < 13) out = renamed(out, (id) => (id in SCANNER ? SCANNER[id] : id))
+  // Version 14 turned 2-2 into the stacking bench, which hands out the Average part, and opened the probe series with
+  // two benches before the probe (2-3 → 2-5, and the rest of chapter 2 two on); whoever built the probe has met them.
+  if ((saved.version ?? 1) < 14) {
+    if (out.solved.includes('2-2') && !(out.flags ?? []).includes('mean')) out = { ...out, flags: [...(out.flags ?? []), 'mean'] }
+    out = renamed(out, (id) => (/^2-\d+$/.test(id) && Number(id.slice(2)) >= 3 ? `2-${Number(id.slice(2)) + 2}` : id))
+    if (out.solved.includes('2-5')) out = { ...out, solved: [...new Set([...out.solved, '2-3', '2-4'])] }
+  }
   return out
 }
 function renamed(progress, to) {

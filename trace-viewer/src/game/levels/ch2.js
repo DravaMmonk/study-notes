@@ -147,50 +147,167 @@ const waveBench = {
   },
 }
 
-// ---------------- 2-2 叠加 ----------------
+// ---------------- 2-2 叠加 (bench) ----------------
 
-const num = (v) => image(1, 1, v)
-
-// The closest a sum of waves up to frequency 8 gets to a square wave: odd sines with amplitudes 4/(πk).
-const SQUARE_K = [1, 3, 5, 7]
-const squareish = (a) => fromFn(N, 1, (x) => 0.5 + a * (4 / Math.PI) * SQUARE_K.reduce((s, k) => s + Math.sin((TAU * k * x) / N) / k, 0))
-const sumTest = (a) => test({ zh: `a = ${a}`, en: `a = ${a}` }, { in: num(a) }, { out: squareish(a) })
-const sines = (ks) => {
-  const nodes = {}
-  const wires = []
-  ks.forEach((k, i) => {
-    nodes[`w${k}`] = ['fqWave', { k, form: 'sin' }]
-    nodes[`k${k}`] = ['arith', { op: 'mul' }]
-    nodes[`n${k}`] = ['const', { c: 4 / (Math.PI * k) }]
-    wires.push(`w${k}>k${k}.a`, `n${k}>k${k}.b`)
-    if (i) {
-      nodes[`s${k}`] = ['arith', { op: 'add' }]
-      wires.push(`${i === 1 ? `k${ks[0]}` : `s${ks[i - 1]}`}>s${k}.a`, `k${k}>s${k}.b`)
-    }
-  })
-  const last = ks.length > 1 ? `s${ks.at(-1)}` : `k${ks[0]}`
-  return build({ ...nodes, m: ['arith', { op: 'mul' }], o: ['arith', { op: 'add' }], oN: ['const', { c: 0.5 }] }, [...wires, `${last}>m.a`, 'in>m.b', 'm>o.a', 'o>out', 'oN>o.b'])
-}
+// One amplitude knob per frequency 1 … 8; sine waves added up on a middle line of 0.5.
+const SUM_KS = [1, 2, 3, 4, 5, 6, 7, 8]
+const SUM_STEP = 0.01
+const SUM_TOLERANCE = 0.03
+const sumAt = (amps, x) => 0.5 + amps.reduce((s, a, i) => s + a * Math.sin((TAU * SUM_KS[i] * x) / N), 0)
+const sumRow = (amps) => Array.from({ length: N }, (_, x) => sumAt(amps, x))
+const sumGap = (amps, target) => Math.max(...sumRow(amps).map((v, x) => Math.abs(v - sumAt(target, x))))
+// The closest these waves come to a square wave: odd frequencies only, amplitudes 4/(πk) times the height.
+const SQUARE_HEIGHT = 0.3
+const squareAmps = SUM_KS.map((k) => (k % 2 ? (SQUARE_HEIGHT * 4) / (Math.PI * k) : 0))
+const SUM_STAGES = [
+  {
+    target: SUM_KS.map((k) => ({ 1: 0.3, 3: 0.1 })[k] ?? 0),
+    title: { zh: '两道波', en: 'Two waves' },
+    note: { zh: '目标是几道波加起来的。调各个频率的振幅，把你的曲线叠到目标上。', en: 'The target is a few waves added up. Set the amplitude of each frequency to stack your curve onto the target.' },
+    win: { zh: '这条曲线就是两道波逐点相加：频率 1 给出一个大起伏，频率 3 在上面添了三个小起伏。看下面的平均：叠了波，整行的平均还是 0.5。', en: 'This curve is just two waves added point by point: frequency 1 gives one big swing, and frequency 3 adds three small ones on top. Look at the average below: with the waves stacked on, the row still averages 0.5.' },
+  },
+  {
+    target: squareAmps,
+    title: { zh: '一道陡边', en: 'A steep edge' },
+    note: { zh: '这次的目标是这些波能叠出的最像方波的样子：一半亮、一半暗，中间是陡边。先只调频率 1，看还差哪些起伏，再一道道补上去。', en: 'This time the target is the nearest these waves come to a square wave: half light, half dark, with a steep edge between. Set frequency 1 first, see which wiggles are still missing, then add waves one at a time.' },
+    win: { zh: '只用到了奇数频率，而且频率越高振幅越小。高频把边拉陡；只到频率 7，陡边旁边还留着一点小波纹。', en: 'Only odd frequencies were needed, and the higher the frequency, the smaller its amplitude. The high frequencies make the edge steep; stopping at 7 still leaves a little ripple beside it.' },
+  },
+]
 
 const superpose = {
   id: '2-2',
+  kind: 'board',
+  board: 'SumBench',
   chapter: 2,
   title: { zh: '叠加', en: 'Adding waves' },
-  inputLabels: { in: { zh: '高度 a', en: 'Height a' } },
-  brief: { zh: '输入是一个数 a。用几道频率不超过 8 的正弦波叠出期望里那条曲线：它是这些波能拼出的最像方波的样子，平均亮度 0.5，起伏的大小和 a 成正比。', en: 'The input is one number, a. Stack up sine waves of frequency 8 or less to make the curve in the expected output: the closest thing to a square wave these waves can make, with average brightness 0.5 and swings in proportion to a.' },
-  hint: { zh: '先只放一道频率 1 的波，看误差曲线还剩哪些起伏，再一道道补上去。', en: 'Start with a single wave of frequency 1, see which wiggles are left in the error curve, then add waves one at a time.' },
-  after: { zh: '方波只用到奇数频率，振幅按 1、1/3、1/5、1/7 递减。边越陡，需要的高频越多；只到频率 7 的话，陡边旁边总留着一圈小波纹。反过来看：模糊就是把高频调小。任何一条曲线都能这样拆成一组波，这就是傅里叶级数。', en: 'A square wave uses only odd frequencies, with amplitudes falling as 1, 1/3, 1/5, 1/7. The steeper an edge, the more high frequencies it needs; stop at frequency 7 and a ripple always remains beside the steep edge. Seen the other way round, blurring is turning the high frequencies down. Any curve can be split into waves like this: that is the Fourier series.' },
-  unlocks: [],
-  palette: ['fqWave', 'fqMean', 'arith', 'merge', 'const'],
-  check: { tolerance: 0.03 },
-  tests: [0.3, 0.4, 0.2].map(sumTest),
-  hidden: [0.35, 0.25].map(sumTest),
-  solution: sines(SQUARE_K),
-  naive: sines([1]),
-  alsoFails: [sines([1, 3])],
+  brief: { zh: '频率 1 到 8 各有一道正弦波，每道一个振幅旋钮，加起来再放在 0.5 的中线上。先叠出两道波，再叠出一道接近方波的曲线。', en: 'There is a sine wave for each frequency from 1 to 8, each with an amplitude knob; they are added up on a middle line of 0.5. Stack up two waves first, then a curve close to a square wave.' },
+  hint: { zh: '先只调频率 1，看误差还剩哪些起伏，再一道道补上去。', en: 'Set frequency 1 first, see which wiggles are left over, then add waves one at a time.' },
+  after: { zh: '方波只用到奇数频率，振幅按 1、1/3、1/5、1/7 递减。边越陡，需要的高频越多；只到频率 7 的话，陡边旁边总留着一圈小波纹。任何一条曲线都能这样拆成一组波，这就是傅里叶级数。每道正弦波正负抵消，平均是 0，所以不管怎么叠，整行的平均都是中线。从现在起，「求平均」元件归你了：它把一行数平均成一个数。', en: 'A square wave uses only odd frequencies, with amplitudes falling as 1, 1/3, 1/5, 1/7. The steeper an edge, the more high frequencies it needs; stop at frequency 7 and a ripple always remains beside the steep edge. Any curve can be split into waves like this: that is the Fourier series. Each sine wave cancels itself out and averages 0, so however they are stacked, the row averages to the middle line. From now on the Average part is yours: it averages a row of numbers into one.' },
+  unlocks: ['mean'],
+  sum: { N, ks: SUM_KS, step: SUM_STEP, max: 0.5, tolerance: SUM_TOLERANCE, stages: SUM_STAGES, at: sumAt, row: sumRow, gap: sumGap },
+  verify() {
+    for (const [i, s] of SUM_STAGES.entries()) {
+      if (sumGap(SUM_KS.map(() => 0), s.target) <= SUM_TOLERANCE) return `第 ${i + 1} 步一开始就算完成`
+      const nearest = s.target.map((a) => Math.round(a / SUM_STEP) * SUM_STEP)
+      if (sumGap(nearest, s.target) > SUM_TOLERANCE) return `第 ${i + 1} 步在刻度上调不到`
+      if (s.target.some((a) => a > 0.5)) return `第 ${i + 1} 步的振幅超出旋钮范围`
+    }
+    // Leaving out the high odd waves must not pass: the steep edge is the point.
+    if (sumGap(squareAmps.map((a, i) => (i < 3 ? a : 0)), squareAmps) <= SUM_TOLERANCE) return '只用频率 1 和 3 就叠出了方波'
+    return ''
+  },
 }
 
-// ---------------- 2-3 频率探针 ----------------
+// ---------------- 2-3 乘了再平均, 2-4 错开的波 (the probe series' benches) ----------------
+
+// A probe is a wave multiplied with the row point by point and averaged; read on 32 points, as the circuits do.
+const rowAverage = (f) => Array.from({ length: N }, (_, x) => f(x / N)).reduce((s, v) => s + v, 0) / N
+const cosAt = (k, A = 1, shift = 0) => (u) => A * Math.cos(TAU * k * u - (shift * Math.PI) / 180)
+const sinAt = (k) => (u) => Math.sin(TAU * k * u)
+const probeReading = (input, probe) => rowAverage((u) => input(u) * probe(u))
+const PROBE_KNOBS = {
+  j: { min: 1, max: 8, step: 1, label: { zh: '探针频率', en: 'Probe frequency' } },
+  m: { min: 0.5, max: 4, step: 0.5, label: { zh: '读数乘以', en: 'Reading times' } },
+  shift: { min: 0, max: 345, step: 15, label: { zh: '输入错开', en: 'Input shifted by' }, unit: '°' },
+}
+const COS_PROBE = (k) => ({ name: { zh: `cos 探针 · 频率 ${k}`, en: `cos probe · frequency ${k}` }, f: cosAt(k) })
+const SIN_PROBE = { name: { zh: 'sin 探针 · 频率 3', en: 'sin probe · frequency 3' }, f: sinAt(3) }
+const shifted = (shift) => (u) => 0.5 + cosAt(3, 0.3, shift)(u)
+const PROBE_MIX = (u) => 0.5 + cosAt(2, 0.2)(u) + cosAt(5, 0.3)(u) + cosAt(7, 0.1)(u)
+const COMBINE = {
+  cos: { name: { zh: '只看 a', en: 'Only a' }, f: (a) => a },
+  sin: { name: { zh: '只看 b', en: 'Only b' }, f: (a, b) => b },
+  sum: { name: 'a + b', f: (a, b) => a + b },
+  mag: { name: '√(a² + b²)', f: (a, b) => Math.hypot(a, b) },
+}
+const probeModel = (stages) => ({
+  knobs: PROBE_KNOBS,
+  stages,
+  combine: COMBINE,
+  reading: probeReading,
+  input: (s, v) => (s.input ?? shifted(v.shift)),
+  probes: (s, v) => (s.kind === 'combine' ? [COS_PROBE(3), SIN_PROBE] : [COS_PROBE(v.j ?? 3)]),
+  readingsAt: (s, shift) => [2 * probeReading(shifted(shift), cosAt(3)), 2 * probeReading(shifted(shift), sinAt(3))],
+  solved: (s, v) => {
+    if (s.kind === 'find') return Math.abs(probeReading(s.input, cosAt(v.j))) > 0.05
+    if (s.kind === 'read') return v.j === s.k && Math.abs(probeReading(s.input, cosAt(v.j)) * v.m - s.amplitude) < 0.005
+    if (s.kind === 'blind') return Math.abs(2 * probeReading(shifted(v.shift), cosAt(3))) < 0.005
+    return v.pick === 'mag'
+  },
+})
+// Every step must start unsolved and be solved by exactly the answers it means.
+const probeVerify = (model) => () => {
+  const grid = (key) => { const { min, max, step } = PROBE_KNOBS[key]; return Array.from({ length: Math.round((max - min) / step) + 1 }, (_, i) => min + i * step) }
+  for (const [i, s] of model.stages.entries()) {
+    if (model.solved(s, s.start)) return `第 ${i + 1} 步一开始就算完成`
+    const answers = s.kind === 'find' ? grid('j').filter((j) => model.solved(s, { j })) : s.kind === 'read' ? grid('j').flatMap((j) => grid('m').filter((m) => model.solved(s, { j, m })).map((m) => `${j}×${m}`)) : s.kind === 'blind' ? grid('shift').filter((shift) => model.solved(s, { shift })) : Object.keys(COMBINE).filter((pick) => model.solved(s, { pick }))
+    if (answers.join() !== s.answers) return `第 ${i + 1} 步的答案是 ${answers.join('、')}，不是 ${s.answers}`
+  }
+  return ''
+}
+
+const MULTIPLY = probeModel([
+  {
+    kind: 'find', knobs: ['j'], start: { j: 1 }, input: (u) => 0.5 + cosAt(5, 0.3)(u), answers: '5',
+    title: { zh: '找频率', en: 'Find the frequency' },
+    note: { zh: '输入是一道频率不知道的波。转动探针的频率，看下面两条曲线逐点相乘的结果和它的平均。', en: 'The input is a wave of unknown frequency. Turn the probe\'s frequency and watch the two curves multiplied point by point below, and the product\'s average.' },
+    status: { zh: '平均还是 0。', en: 'The average is still 0.' },
+    win: { zh: '只有探针和输入的频率相同，乘积才整体偏到一边，平均不为 0；频率对不上时正负抵消，平均是 0。', en: 'Only when the probe has the input\'s frequency does the product lean to one side, so its average is not 0; when they differ, plus and minus cancel and the average is 0.' },
+  },
+  {
+    kind: 'read', knobs: ['j', 'm'], start: { j: 1, m: 1 }, input: PROBE_MIX, k: 5, amplitude: 0.3, answers: '5×2',
+    title: { zh: '读振幅', en: 'Read the amplitude' },
+    note: { zh: '输入是几道波混在一起，其中频率 5 那道的振幅是 0.30。用探针读出它：读数是乘积的平均再乘一个数。', en: 'The input is several waves mixed together; the one at frequency 5 has amplitude 0.30. Read it with the probe: the reading is the product\'s average times a number.' },
+    status: { zh: '读数还不是 0.30。', en: 'The reading is not 0.30 yet.' },
+    win: { zh: '别的频率在平均里都抵消了，只剩频率 5 那道波振幅的一半：cos 自己乘自己，平均是 ½，所以要乘 2。', en: 'The other frequencies all cancel in the average, leaving half the amplitude of the frequency-5 wave: a cos times itself averages ½, so the reading takes a factor of 2.' },
+  },
+])
+const SHIFT = probeModel([
+  {
+    kind: 'blind', knobs: ['shift'], start: { shift: 0 }, answers: '90,270',
+    title: { zh: '看不见的波', en: 'The wave it cannot see' },
+    note: { zh: '输入是一道频率 3、振幅 0.30 的波，探针也是频率 3。转动输入错开的角度，看探针的读数（平均 × 2）怎么变，让它读出 0。', en: 'The input is a wave of frequency 3 and amplitude 0.30, and the probe is frequency 3 too. Turn how far the input is shifted, watch how the probe\'s reading (average × 2) changes, and make it read 0.' },
+    status: { zh: '探针还量得到一部分。', en: 'The probe still measures part of it.' },
+    win: { zh: '错开四分之一个周期，cos 探针就读出 0：它只量得到和自己对齐的那部分。', en: 'Shifted by a quarter of a cycle, the cos probe reads 0: it only measures the part lined up with itself.' },
+  },
+  {
+    kind: 'combine', knobs: ['shift'], start: { shift: 120 }, checks: [0, 120, 250], answers: 'mag',
+    title: { zh: '两个探针', en: 'Two probes' },
+    note: { zh: '现在 sin 探针也打开了，台上同时显示两个读数：cos 的 a 和 sin 的 b。哪种合起来的读法，不管错开多少，都等于这道波的振幅 0.30？', en: 'Now the sin probe is on too, and the bench shows both readings: a from cos and b from sin. Which way of combining them equals the wave\'s amplitude, 0.30, however far it is shifted?' },
+    status: { zh: '选一种读法，看看不同角度下它是多少。', en: 'Pick a combination and see what it gives at different angles.' },
+    win: { zh: 'cos 和 sin 各量到一部分：a = A·cos φ，b = A·sin φ。√(a² + b²) 正好是 A，和错开多少无关。', en: 'cos and sin each measure a part: a = A·cos φ and b = A·sin φ. √(a² + b²) is exactly A, however far the wave is shifted.' },
+  },
+])
+
+const multiplyBench = {
+  id: '2-3',
+  kind: 'board',
+  board: 'ProbeBench',
+  chapter: 2,
+  title: { zh: '乘了再平均', en: 'Multiply, then average' },
+  brief: { zh: '输入是一条曲线，探针是一道你选频率的波。两条曲线逐点相乘，台上画出乘积和它的平均。先找出让平均不为 0 的探针，再从一条混合的曲线里读出一道波的振幅。', en: 'The input is a curve and the probe is a wave whose frequency you choose. The two are multiplied point by point, and the bench draws the product and its average. First find the probe whose average is not 0, then read one wave\'s amplitude out of a mixed curve.' },
+  hint: { zh: '乘积整体偏在 0 的上面还是下面？什么时候正负刚好抵消？', en: 'Does the product sit above or below 0 overall? When do plus and minus cancel exactly?' },
+  after: { zh: '探针波和曲线逐点相乘再平均，别的频率互相抵消，只留下同一频率那道波振幅的一半，乘 2 就是它的振幅。换一个探针频率，就量另一道波。', en: 'Multiply a probe wave with the curve point by point and average: the other frequencies cancel, leaving half the amplitude of the wave at the probe\'s frequency, and twice that is its amplitude. Change the probe\'s frequency to measure another wave.' },
+  unlocks: [],
+  probe: MULTIPLY,
+  verify: probeVerify(MULTIPLY),
+}
+
+const shiftBench = {
+  id: '2-4',
+  kind: 'board',
+  board: 'ProbeBench',
+  chapter: 2,
+  title: { zh: '错开的波', en: 'A shifted wave' },
+  brief: { zh: '输入是一道频率 3 的波，可以左右错开，探针也是频率 3。先看错开以后探针还量不量得准，再找出一种不怕错开的读法。', en: 'The input is a wave of frequency 3 that can be shifted sideways, and the probe is frequency 3 too. First see whether the probe still measures it once shifted, then find a way of reading that does not mind the shift.' },
+  hint: { zh: 'cos 探针量的是和它对齐的那部分。错开四分之一个周期，还剩多少对齐？', en: 'The cos probe measures the part lined up with it. Shifted by a quarter of a cycle, how much is still lined up?' },
+  after: { zh: '一个频率要用两个探针去量：cos 量对齐的部分，sin 量错开四分之一周期的部分，√(a² + b²) 合起来就是振幅，不管波错开多少。', en: 'One frequency takes two probes: cos measures the part lined up with it, sin the part a quarter of a cycle off, and √(a² + b²) puts them together into the amplitude, however far the wave is shifted.' },
+  unlocks: [],
+  probe: SHIFT,
+  verify: probeVerify(SHIFT),
+}
+
+// ---------------- 2-5 频率探针 ----------------
 
 // Signals are rows of 32 samples; the answer is a single number.
 const wave = (k, A, phase = 0) => fromFn(N, 1, (x) => A * Math.cos((TAU * k * x) / N + (phase * Math.PI) / 180))
@@ -217,7 +334,7 @@ const fullProbe = (k) => probe(
 )
 
 const probeLevel = {
-  id: '2-3',
+  id: '2-5',
   chapter: 2,
   title: { zh: '频率探针', en: 'Frequency probe' },
   brief: { zh: '输入是一条 32 个点的波形，由几道波和一个平均亮度叠成。读出其中频率 k = 3 那道波的振幅 A，输出一个数。有一条波形里根本没有 k = 3。', en: 'The input is a waveform of 32 points, made of a few waves plus an average brightness. Read off the amplitude A of the wave with frequency k = 3, and output that one number. One of the waveforms has no k = 3 at all.' },
@@ -243,7 +360,7 @@ const probeLevel = {
   ],
 }
 
-// ---------------- 2-4 对焦了吗 ----------------
+// ---------------- 2-6 对焦了吗 ----------------
 
 // Distance of every cell of a spectrum picture from its centre, frequency (0, 0).
 const radius = fromFn(N, N, (x, y) => Math.hypot(x - N / 2, y - N / 2))
@@ -257,7 +374,7 @@ const sharpness = (img) => {
 const rg = (nodes, wires) => build(nodes, wires, { inputs: ['in', 'r'] })
 
 const focus = {
-  id: '2-4',
+  id: '2-6',
   chapter: 2,
   ...RADIUS,
   title: { zh: '对焦了吗', en: 'In focus?' },
@@ -281,7 +398,7 @@ const focus = {
   naive: rg({ s: 'fqSpectrum', a: 'fqMean' }, ['in>s', 's>a', 'a>out']),
 }
 
-// ---------------- 2-5 两条路 ----------------
+// ---------------- 2-7 两条路 ----------------
 
 // Two roads to the same blur: a spatial Gaussian of σ = 1, or its gain in the frequency domain. The target is the
 // frequency-domain one (the picture wraps round at its edges). A hard-edged gain rings; a smooth fall from 1 to 0 of
@@ -310,7 +427,7 @@ const hannGain = (R) => ({
 const filtered = (gain) => rg({ ...gain.nodes, f: 'fqApply' }, [...gain.wires, 'in>f.in', `${gain.out}>f.gain`, 'f>out'])
 
 const roads = {
-  id: '2-5',
+  id: '2-7',
   chapter: 2,
   ...RADIUS,
   title: { zh: '两条路', en: 'Two roads' },
@@ -327,7 +444,7 @@ const roads = {
   alsoFails: [filtered(diskGain(4)), filtered(diskGain(8)), filtered(hannGain(8))],
 }
 
-// ---------------- 2-6 低通 ----------------
+// ---------------- 2-8 低通 ----------------
 
 // Fine-grained noise: random values with everything below 10 cycles per image removed, std 0.07.
 const fineNoise = (seed, std = 0.07) => {
@@ -354,7 +471,7 @@ const LOWPASS_HIDDEN = [
 const filter = (shape, R) => build({ f: ['fqLowpass', { shape, R }] }, ['in>f', 'f>out'])
 
 const lowpassLevel = {
-  id: '2-6',
+  id: '2-8',
   chapter: 2,
   title: { zh: '低通', en: 'Low-pass' },
   brief: { zh: '照片里混进了细密的噪点。用「频域低通」去掉它们，输出要和期望一样干净、柔和。', en: 'Fine noise has crept into the photos. Remove it with "Frequency low-pass": the output must be as clean and soft as the expected image.' },
@@ -372,7 +489,7 @@ const lowpassLevel = {
   alsoFails: [filter('disk', 4), filter('disk', 5), filter('disk', 10), filter('disk', 14), filter('gauss', 4), filter('gauss', 6.5), build({}, ['in>out'])],
 }
 
-// ---------------- 2-7 去网纹 ----------------
+// ---------------- 2-9 去网纹 ----------------
 
 // A photo of a printed picture picks up a regular screen: one stripe pattern, a pair of bright dots in the spectrum.
 // The target removes every spectrum cell beyond radius 3 brighter than 0.6, the dots, and keeps the rest.
@@ -389,7 +506,7 @@ const screenTest = ([label, img, fx, fy]) => {
 }
 
 const descreenLevel = {
-  id: '2-7',
+  id: '2-9',
   chapter: 2,
   ...RADIUS,
   title: { zh: '去网纹', en: 'Remove the screen' },
@@ -413,7 +530,7 @@ const descreenLevel = {
   alsoFails: [rg({ f: ['fqLowpass', { shape: 'gauss', R: 4 }] }, ['in>f', 'f>out'])],
 }
 
-// ---------------- 2-8 混合图像 ----------------
+// ---------------- 2-10 混合图像 ----------------
 
 const HYBRID_R = 3
 const hybrid = (a, b) => plus(lowpass(a, 'gauss', HYBRID_R), highpass(b, 'gauss', HYBRID_R))
@@ -433,7 +550,7 @@ const hybridGraph = (nodes, wires) => build(nodes, wires, { inputs: ['a', 'b'] }
 const gaussLow = (R = HYBRID_R) => ['fqLowpass', { shape: 'gauss', R }]
 
 const hybridLevel = {
-  id: '2-8',
+  id: '2-10',
   chapter: 2,
   title: { zh: '混合图像', en: 'Hybrid images' },
   inputs: ['a', 'b'],
@@ -460,7 +577,7 @@ const hybridLevel = {
   ],
 }
 
-// ---------------- 2-9 采样 ----------------
+// ---------------- 2-11 采样 ----------------
 
 const ALIAS_FINE = 256
 const aliasWave = { c: 0.5, A: 0.4 }
@@ -511,7 +628,7 @@ const aliasSolved = (stage, v) => {
 }
 
 const aliasLevel = {
-  id: '2-9',
+  id: '2-11',
   kind: 'board',
   board: 'AliasProbe',
   chapter: 2,
@@ -538,12 +655,12 @@ const aliasLevel = {
   },
 }
 
-// ---------------- 2-10 一次就够 (challenge) ----------------
+// ---------------- 2-12 一次就够 (challenge) ----------------
 
 const TRANSFORMS = new Set(['fqLowpass', 'fqApply'])
 const once = {
   ...hybridLevel,
-  id: '2-10',
+  id: '2-12',
   title: { zh: '一次就够', en: 'Once is enough' },
   brief: { zh: '还是混合图像：A 的低频 + B 的高频，两处都用半径 3 的高斯掩膜。这次频域的元件（频域低通、频域相乘）一共只准用一个。', en: 'A hybrid image again: the low frequencies of A + the high frequencies of B, both with a Gaussian mask of radius 3. This time you may use only one frequency-domain part (Frequency low-pass or Multiply in frequency) in all.' },
   hint: { zh: '把混合图像写成式子看看。', en: 'Write the hybrid image out as a formula.' },
@@ -557,12 +674,12 @@ const once = {
   alsoFails: [],
 }
 
-// ---------------- 2-11 … 2-14 缩略图服务 (series) ----------------
+// ---------------- 2-13 … 2-16 缩略图服务 (series) ----------------
 
 const prefiltered = (img) => downsample(correlate(img, gaussianKernel(1), 'edge'), 2)
 
 const half = {
-  id: '2-11',
+  id: '2-13',
   chapter: 2,
   title: { zh: '缩小一半', en: 'Half the size' },
   brief: { zh: '把 32×32 的图缩成 16×16，看起来要和原图一样（只是变小）。', en: 'Shrink a 32×32 image to 16×16. It should look like the original, only smaller.' },
@@ -620,7 +737,7 @@ const costCap = (cap) => (score) => (score.cost > cap ? { zh: `计算量 ${score
 const THUMB_PALETTE = ['downsample', 'gauss', 'box3', 'fqLowpass']
 
 const quarter = {
-  id: '2-12',
+  id: '2-14',
   chapter: 2,
   title: { zh: '缩小四倍', en: 'A quarter of the size' },
   brief: { zh: '把 32×32 缩成 8×8，看起来要和原图一样，只是小了。', en: 'Shrink 32×32 to 8×8. It should look like the original, only smaller.' },
@@ -637,7 +754,7 @@ const quarter = {
 }
 
 const steps = {
-  id: '2-13',
+  id: '2-15',
   chapter: 2,
   title: { zh: '分两次缩', en: 'Shrink in two steps' },
   brief: { zh: '还是 32×32 缩成 8×8，但计算量不能超过 18。在小图上做事比在大图上便宜：图只有四分之一大时，同样的元件只花四分之一。', en: 'Again shrink 32×32 to 8×8, but the cost must not exceed 18. Working on a small picture is cheaper than on a big one: on a picture a quarter of the size, the same part costs a quarter as much.' },
@@ -654,7 +771,7 @@ const steps = {
 }
 
 const thumbnails = {
-  id: '2-14',
+  id: '2-16',
   chapter: 2,
   title: { zh: '缩略图服务', en: 'Thumbnail service' },
   brief: { zh: '相册要给每张照片做 4×4 的小图标：从 32×32 缩成 4×4，斑马板、布纹、文字都不能出莫尔纹，计算量不能超过 19。', en: 'The photo album wants a 4×4 icon for every photo: shrink 32×32 to 4×4 with no moiré on zone plates, fabric or text, and a cost of no more than 19.' },
@@ -671,4 +788,4 @@ const thumbnails = {
   alsoFails: [chain([['downsample', {}], ['downsample', {}], ['downsample', {}]])],
 }
 
-export const levels = [waveBench, superpose, probeLevel, focus, roads, lowpassLevel, descreenLevel, hybridLevel, aliasLevel, once, half, quarter, steps, thumbnails]
+export const levels = [waveBench, superpose, multiplyBench, shiftBench, probeLevel, focus, roads, lowpassLevel, descreenLevel, hybridLevel, aliasLevel, once, half, quarter, steps, thumbnails]

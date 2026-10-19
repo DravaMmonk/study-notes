@@ -104,6 +104,8 @@ export const NODE_TYPES = {
     inputs: ['in'],
     eval: ({ in: a }) => image(1, 1, a.data.reduce((sum, v) => sum + v, 0) / a.data.length),
     cost: 1,
+    // From the stacking bench (2-2), where the row's average stays on the middle line however the waves are stacked.
+    unlock: 'mean',
   },
   globalMax: {
     label: { zh: '全图最大值', en: 'Global max' },

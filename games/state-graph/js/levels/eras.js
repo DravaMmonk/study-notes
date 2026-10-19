@@ -6,6 +6,7 @@
 // foundation, the practice, each topic and the challenges are groups split by dashed lines.
 import { T, tr, lazy } from '../i18n.js';
 import { ROBOTS } from '../circuit/robots.js';
+import { eraLevels, pathLevels } from '../../../kit/course.js';
 
 export const ERAS = [
   {
@@ -88,7 +89,7 @@ export const ERAS = [
  * into the practice), in a topic the topic's letter and its place ('S2'), and C1, C2… for an era's challenges.
  */
 export const LABELS = new Map(ERAS.flatMap((era, e) => [
-  ...[...era.foundation, ...(era.practice ?? [])].map((id, k) => [id, `${e}-${k + 1}`]),
+  ...pathLevels([...era.foundation, ...(era.practice ?? [])]).map((id, k) => [id, `${e}-${k + 1}`]),
   ...(era.topics ?? []).flatMap(t => t.levels.map((id, k) => [id, `${t.code}${k + 1}`])),
   ...(era.challenges ?? []).map((c, k) => [c.level, `C${k + 1}`]),
 ]));
@@ -103,6 +104,6 @@ export const CHAPTERS = ERAS.map((era, e) => ({
   kicker: lazy(() => tr(`第 ${e} 代`, `Era ${e}`)),
   name: era.machine ? ROBOTS[era.machine].name : era.chapter.title,
   desc: era.chapter.desc,
-  groups: [era.foundation, era.practice ?? [], ...(era.topics ?? []).map(t => t.levels), (era.challenges ?? []).map(c => c.level)].filter(g => g.length),
-  levels: [...era.foundation, ...(era.practice ?? []), ...(era.topics ?? []).flatMap(t => t.levels), ...(era.challenges ?? []).map(c => c.level)],
+  groups: [pathLevels(era.foundation), pathLevels(era.practice ?? []), ...(era.topics ?? []).map(t => t.levels), (era.challenges ?? []).map(c => c.level)].filter(g => g.length),
+  levels: eraLevels(era),
 }));

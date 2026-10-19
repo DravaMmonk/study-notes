@@ -1,6 +1,7 @@
 import { Cable, Grid3x3 } from 'lucide-react'
 import { defineGame } from '../../kit/shell/index.js'
-import { CHAPTERS, LABELS, LEVELS, PARTS, REQUIRES } from './levels/index.js'
+import { eraLevels, pathLevels } from '../../kit/course.js'
+import { CHAPTERS, LABELS, LEVELS, PARTS, REQUIRES, TRACKS } from './levels/index.js'
 import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import ModeScreen from './screen.jsx'
 import Hero from './hero.jsx'
@@ -46,10 +47,10 @@ function IntroFigure({ fig }) {
 
 // The components box by robot: a robot can use every part earned in its era and the eras before it (parts carry over,
 // games/DESIGN.md 2.1). It joins the box once the first level of its era is passed.
-const eraOf = new Map(ERAS.flatMap((era, e) => [...era.foundation, ...(era.practice ?? []), ...(era.topics ?? []).flatMap((t) => t.levels), ...(era.challenges ?? []).map((c) => c.level)].map((id) => [id, e])))
+const eraOf = new Map(ERAS.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
 const robotFilters = (progress) => ERAS.flatMap((era, e) => {
   if (!era.machine) return []
-  const first = era.foundation[0]
+  const first = pathLevels(era.foundation)[0]
   const keys = new Set(LEVELS.filter((L) => L.unlock && eraOf.get(L.id) <= e).map((L) => L.unlock))
   const robot = ROBOTS[era.machine]
   return [{ key: era.machine, name: robot.name, icon: robot.look, keys, lock: progress.all || progress.solved.includes(first) ? null : LABELS.get(first) }]
@@ -63,7 +64,7 @@ export default defineGame({
   lede: { zh: `不需要任何编程或算法基础。从手数路线开始，${LEVELS.length} 关里，你会用元件亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。`, en: `No programming or algorithms background needed. Starting from counting routes by hand, over ${LEVELS.length} levels you wire up, part by part, the circuit boards that count routes, compare words and pack a backpack, and find out why they are so fast.` },
   Hero,
   html: true,
-  chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, groups: chapter.groups })),
+  chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, groups: chapter.groups, track: TRACKS.get(chapter.era) })),
   levels,
   progress: { version: 1, legacy },
   // Numbered as in CURRICULUM.md: 1-4 on an era's main path, S2 in a topic, C1 for a challenge.
