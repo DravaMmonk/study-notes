@@ -7,6 +7,7 @@ import { LEVELS } from './index.js';
 import { ERAS } from './eras.js';
 import { WORLDS } from '../circuit/worlds.js';
 import { optionsOf, run } from './reference.js';
+import { ROBOTS } from '../circuit/robots.js';
 
 /**
  * The parts the course starts from. Dynamic programming is about tables, states and orders, not arithmetic, so the
@@ -19,6 +20,35 @@ export const PRIMITIVES = ['msum', 'mmin', 'mmax', 'many', 'const', 'pass', 'blo
 const byId = new Map(LEVELS.map(L => [L.id, L]));
 /** Worlds that are one family (circuit/worlds/): the same board, read or scanned another way. */
 const FAMILY = { grid: 'grid', gridYes: 'grid', vgrid: 'grid', pic: 'grid', align: 'align', local: 'align', strip: 'line', pile: 'line', coins: 'line', words: 'line', rob1: 'street', rob2: 'street', prefix: 'street', heights: 'street', knap: 'knap', roll: 'knap' };
+/**
+ * What a level's board relies on (robots.js lists what each robot can do): read from its reference boards, every stage.
+ * view and far: cells it reads one or two rings away; facts / heads: its cell's facts, or ones that compare a table's
+ * two sequences; arm / sweep / probe: what its arm brings in; cells: several cells written a step; layers, rounds; order:
+ * a scan other than row by row from the top left (backwards, by length).
+ */
+const ROW_WORLDS = new Set(['interval']);
+export function usesOf(L) {
+  if (L.mode !== 'circuit') return [];
+  const out = new Set();
+  for (const s of L.stages || [L]) {
+    const V = WORLDS[s.world], board = s.solution || L.solution;
+    for (const w of board ? board.wires : []) {
+      if (!w.from.startsWith('tap:')) continue;
+      const m = V.sensors[w.from.slice(4)];
+      if (!m) continue;
+      if (m.family === 'view') out.add(Math.max(Math.abs(m.at[0]), Math.abs(m.at[1])) > 1 ? 'far' : 'view');
+      else if (m.family === 'here') out.add(m.heads ? 'heads' : 'facts');
+      else out.add(m.type === 'nums' || m.type === 'bools' ? 'sweep' : s.world === 'keys' || s.world === 'stock' ? 'probe' : 'arm');
+    }
+    if (V.outs.length > 1) out.add('cells');
+    if (V.layers || s.world === 'keys' || s.world === 'stock') out.add('layers');
+    if (s.rounds || L.rounds) out.add('rounds');
+    const scan = s.scan || L.scan;
+    if ((scan && scan !== 'rowTL') || ROW_WORLDS.has(s.world)) out.add('order');
+  }
+  return [...out];
+}
+
 export const course = defineCourse({
   levels: LEVELS.map(L => ({ id: L.id, unlocks: L.unlock ? [L.unlock] : [] })),
   eras: ERAS,
@@ -31,6 +61,8 @@ export const course = defineCourse({
   concept: p => (p === 'const' ? 'pass' : p === 'many' ? 'msum' : (modelsOf(p) || [p])[0]),
   // A circuit level is played by its robot, in the world of its last stage (a topic keeps to one family of worlds).
   machine: l => byId.get(l.id).robot ?? null,
+  uses: l => usesOf(byId.get(l.id)),
+  can: m => ROBOTS[m]?.can ?? null,
   world: l => { const L = byId.get(l.id); return L.mode === 'circuit' ? FAMILY[(L.stages || [L]).at(-1).world] ?? (L.stages || [L]).at(-1).world : null; },
   naive: l => Boolean(byId.get(l.id).naive),
 });

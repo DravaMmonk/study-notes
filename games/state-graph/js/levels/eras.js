@@ -26,9 +26,11 @@ export const ERAS = [
   },
   {
     id: 'ranger', machine: 'ranger',
-    foundation: ['stairs', 'order', 'nim', 'palin'],
-    chapter: { title: T('看得更远', 'Seeing further'), desc: T('视野从 3×3 变成 5×5：一格能用上两步之外的格子。', 'The view grows from 3×3 to 5×5: a cell can use cells two steps away.') },
-    practice: ['brokenstairs', 'link', 'lcs', 'lps'],
+    // One new thing a level: two rings of view, scanning backwards, a game of yes / no, the two words a table compares
+    // (连线不交叉 is the alignment table by hand), scanning by length.
+    foundation: ['stairs', 'order', 'nim', 'link', 'lcs', 'palin'],
+    chapter: { title: T('看得更远', 'Seeing further'), desc: T('看得更远：两步之外的格子；看得更全：表头上的两个词；还能换个方向扫。', 'It sees further, two cells away; it sees more, the two words a table compares; and it can scan the other way round.') },
+    practice: ['brokenstairs', 'lps'],
     practiceChapter: { title: T('远望的问题', 'Problems for Farsight'), desc: T('一个词放上面，一个词放左边；输赢也能填表。', 'One word along the top, the other down the left; winning fits in a table too.') },
     topics: [
       { id: 'edit', code: 'E', levels: ['replace', 'edit', 'spell'], title: T('拼写纠错', 'Spelling correction'), desc: T('输错一个词，找出词典里最接近的那个。', 'A word is mistyped: find the closest one in the dictionary.') },
@@ -79,11 +81,6 @@ export const ERAS = [
       { id: 'value', code: 'V', levels: ['treasure', 'slip', 'ice'], title: T('格子世界', 'The grid world'), desc: T('机器人在格子里找宝藏，越远的宝藏越不值钱。', 'The robot hunts for treasure on a grid, and the further it is, the less it is worth.') },
     ],
   },
-  {
-    id: 'graduate', machine: null,
-    foundation: ['disguise'],
-    chapter: { title: T('毕业', 'Graduation'), desc: T('认出伪装起来的老朋友。', 'Recognise old friends in disguise.') },
-  },
 ];
 
 /**
@@ -97,13 +94,13 @@ export const LABELS = new Map(ERAS.flatMap((era, e) => [
 ]));
 
 /** Levels the new tree leaves out: written, but not played. */
-export const RETIRED = ['light', 'merge', 'relay', 'dial', 'swap', 'back', 'why', 'askall', 'memo2', 'selforder'];
+export const RETIRED = ['light', 'merge', 'relay', 'dial', 'disguise', 'swap', 'back', 'why', 'askall', 'memo2', 'selforder'];
 
 /** The map's chapters, one per era in play order: named after the era's robot (or the era's own title where there is
  *  none), its levels in groups: the foundation, the practice, each topic, then the challenges. */
 export const CHAPTERS = ERAS.map((era, e) => ({
   era: era.id,
-  kicker: era.id === 'graduate' ? T('最后', 'Last') : lazy(() => tr(`第 ${e} 代`, `Era ${e}`)),
+  kicker: lazy(() => tr(`第 ${e} 代`, `Era ${e}`)),
   name: era.machine ? ROBOTS[era.machine].name : era.chapter.title,
   desc: era.chapter.desc,
   groups: [era.foundation, era.practice ?? [], ...(era.topics ?? []).map(t => t.levels), (era.challenges ?? []).map(c => c.level)].filter(g => g.length),

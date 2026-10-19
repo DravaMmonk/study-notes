@@ -16,6 +16,8 @@ const RULES = {
   unplaced: 'in no era',
   'no-topic': 'a machine whose era has no topic series yet',
   machine: 'played on a machine of a later era',
+  'machine-role': 'a foundation, practice, finale or challenge level played on an older machine',
+  mechanism: 'played on a machine that cannot do what its board uses',
   'topic-world': 'a topic that spans several worlds',
   'challenge-new': 'a challenge that brings something new',
   'challenge-required': 'a level that requires a challenge',

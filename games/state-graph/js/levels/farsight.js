@@ -42,7 +42,7 @@ export const farsight = [
     debrief: { title: T('又是同一副骨架', 'The same skeleton again'), body: [T('这块电路板和「对齐表」几乎一样：一个取较大，加上一个「相同时 + 几」的放行闸。', 'This board is nearly the one from the “Alignment table”: a max, plus a Pass gate that adds something when the letters match.'), T('对齐表比的是两个词，这里比的是一个词的两头。表换了形状，骨架没换。', 'The alignment table compares two words; here you compare the two ends of one word. The table changed shape; the skeleton did not.')] },
   },
   {
-    id: 'parity', ch: 3, title: T('奇还是偶', 'Odd or even'), short: T('只用「是」和「否」数数', 'Counting with only yes and no'), mode: 'circuit', robot: 'scout',
+    id: 'parity', ch: 3, title: T('奇还是偶', 'Odd or even'), short: T('只用「是」和「否」数数', 'Counting with only yes and no'), mode: 'circuit', robot: 'ranger',
     intro: [
       { t: T('回到棋盘城市：只能往右或往下走。这次不问有几条路线，只问<b>路线数是奇数还是偶数</b>。表里只存「是 / 否」：「是」表示奇数。', 'Back to the grid city: only right or down. This time the question is not how many routes there are, but <b>whether the number is odd or even</b>. The table holds only yes / no: “yes” means odd.') },
       { t: T('你手里只有「是 / 否」的元件：任一是、取反、放行闸、拦截闸。', 'You only have the yes / no parts: any-yes, Not, the Pass gate and the Block gate.') },

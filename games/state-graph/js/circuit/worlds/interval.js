@@ -21,7 +21,7 @@ const short = (i, j) => (i === j ? `${i + 1}` : `${i + 1}–${j + 1}`);
 export const interval = world({
   sensors: {
     left: cell(...DIR.left, [0, 0, -1]), down: cell(...DIR.down, [0, 1, 0]), dl: cell(...DIR.dl, [0, 1, -1]),
-    same: yes(T('两端相同', 'ends match'), T('同', '='), 'ends'), weight: num(T('这段总重', 'run weight'), T('重', 'wt'), 'weight'),
+    same: { ...yes(T('两端相同', 'ends match'), T('同', '='), 'ends'), heads: true }, weight: num(T('这段总重', 'run weight'), T('重', 'wt'), 'weight'),
     segL: seg(T('左段们', 'left parts'), T('左', 'L')), segR: seg(T('右段们', 'right parts'), T('右', 'R')),
   },
   facts: ['same', 'weight'],

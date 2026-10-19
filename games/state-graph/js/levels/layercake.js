@@ -41,31 +41,26 @@ export const layercake = [
     debrief: { title: T('同一块电路板', 'The same board'), body: [T('电路板一点没变，变的只是层和层怎么接：「刚卖掉」走回「空手」，那一步就是歇着的那一天。', 'The board didn’t change at all; only how the layers connect did. Stepping from “just sold” back to “empty-handed” is the day of rest.'), T('上一关是这一关剪掉一根箭头：卖掉了，就回不去了。', 'Last level is this one with an arrow cut: once sold, there is no going back.')] },
   },
   {
-    id: 'ring', ch: 13, title: T('环形街道', 'A ring of houses'), short: T('首尾也挨着', 'The ends are neighbours too'), mode: 'circuit', robot: 'ranger',
+    id: 'ring', ch: 13, title: T('环形街道', 'A ring of houses'), short: T('首尾也挨着', 'The ends are neighbours too'), mode: 'circuit', robot: 'stack',
     intro: [
       { t: T('这条街首尾相连，围成一圈：<b>第一家和最后一家也是邻居</b>，不能都偷。', 'This street runs round in a ring: <b>the first and the last house are neighbours too</b>, and can’t both be robbed.') },
-      { t: T('表比「不能连着偷」多了两行：甲、乙两套「没偷 / 偷了」，它们各记什么由你决定。本格信息里多了「是第一家」「是最后一家」。', 'The table has two more rows than in “No two in a row”: two pairs of “skipped / robbed”, A and B, and what each records is up to you. The cell’s facts now include “is the first house” and “is the last house”.') },
+      { t: T('表有两层，甲和乙，每层都是「不能连着偷」那样的两行：这家没偷、这家偷了。两层各记什么由你决定；本格信息里有「是第一家」「是最后一家」和「是甲层」。', 'The table has two layers, A and B, each the two rows of “No two in a row”: this house skipped, this house robbed. What each layer records is up to you; the cell’s facts include “is the first house”, “is the last house” and “is layer A”.') },
     ],
-    mission: { goal: T('不能偷相邻的两家，第一家和最后一家也算相邻。算出最多能偷多少钱。', 'No two neighbouring houses, and the first and the last count as neighbours. Work out the most money you can steal.'), how: T('答案是最下面一行的最后一格。', 'The answer is the last cell of the bottom row.') },
-    world: 'ring', facts: ['money', 'first', 'last'], palette: KIT,
+    mission: { goal: T('不能偷相邻的两家，第一家和最后一家也算相邻。算出最多能偷多少钱。', 'No two neighbouring houses, and the first and the last count as neighbours. Work out the most money you can steal.'), how: T('答案是两层最后一列里最大的那一格。', 'The answer is the largest cell in the last column of either layer.') },
+    world: 'ring', facts: ['money', 'first', 'last', 'sideA'], palette: [...KIT, 'many'],
     tests: [{ a: [2, 3, 2] }, { a: [5, 1, 1, 5] }, { a: [4, 10, 3, 1, 8, 6] }, { a: [6, 2, 3, 7, 1, 5] }],
     // 甲 never robs the first house, 乙 never robs the last: between them they cover every plan, and neither robs both.
-    solution: circ([['na', 'mmax'], ['aa', 'add'], ['ka', 'block'], ['nb', 'mmax'], ['ab', 'add'], ['kb', 'block'], ['b1', 'mmax'], ['b', 'mmax']], [
-      'tap:n1>na:0', 'tap:r1>na:1', 'tap:n1>aa:0', 'tap:money>aa:1', 'tap:first>ka:0', 'aa>ka:1',
-      'tap:n2>nb:0', 'tap:r2>nb:1', 'tap:n2>ab:0', 'tap:money>ab:1', 'tap:last>kb:0', 'ab>kb:1',
-      'na>b1:0', 'ka>b1:1', 'nb>b1:2', 'b1>b:0', 'kb>b:1',
-      'na>out:no1', 'ka>out:yes1', 'nb>out:no2', 'kb>out:yes2', 'b>out:best',
+    solution: circ([['n', 'mmax'], ['a', 'add'], ['f', 'pass'], ['l', 'block'], ['x', 'many'], ['k', 'block']], [
+      'tap:pn>n:0', 'tap:pr>n:1', 'tap:pn>a:0', 'tap:money>a:1',
+      'tap:sideA>f:0', 'tap:first>f:1', 'tap:sideA>l:0', 'tap:last>l:1', 'f>x:0', 'l>x:1', 'x>k:0', 'a>k:1',
+      'n>out:no', 'k>out:yes',
     ]),
-    // The naive board treats the ring as a straight street: both copies the same, nobody kept away.
-    naive: circ([['na', 'mmax'], ['aa', 'add'], ['nb', 'mmax'], ['ab', 'add'], ['b1', 'mmax'], ['b', 'mmax']], [
-      'tap:n1>na:0', 'tap:r1>na:1', 'tap:n1>aa:0', 'tap:money>aa:1', 'tap:n2>nb:0', 'tap:r2>nb:1', 'tap:n2>ab:0', 'tap:money>ab:1',
-      'na>b1:0', 'aa>b1:1', 'nb>b1:2', 'b1>b:0', 'ab>b:1',
-      'na>out:no1', 'aa>out:yes1', 'nb>out:no2', 'ab>out:yes2', 'b>out:best',
-    ]),
+    // The naive board is the straight street's on both layers: nobody kept away from the ends.
+    naive: circ([['n', 'mmax'], ['a', 'add']], ['tap:pn>n:0', 'tap:pr>n:1', 'tap:pn>a:0', 'tap:money>a:1', 'n>out:no', 'a>out:yes']),
     hints: [
-      T('首尾不能都偷。想一想：每种偷法里，第一家和最后一家至少有一家是什么样？', 'The ends can’t both be robbed. Think: in every plan, what must be true of at least one of the first and last houses?'),
-      T('让甲记「第一家不偷」的直街，乙记「最后一家不偷」的直街：拦截闸在那一家拦下「偷了」。', 'Let A run the straight street where the first house is left alone, and B the one where the last is: a Block gate stops “robbed” on that house.'),
+      T('首尾不能都偷，所以每种偷法至少放过其中一家。那两层可以各管一种情况吗？', 'The ends can’t both be robbed, so every plan leaves at least one of them alone. Could each layer take one of those cases?'),
+      T('哪一层、哪一家的「偷了」要拦下？「是甲层」可以当放行闸和拦截闸的条件。', 'On which layer is “robbed” stopped, and at which house? “Is layer A” can be a gate’s condition.'),
     ],
-    debrief: { title: T('拆成两种情况', 'Split into two cases'), body: [T('一圈拆不开，就分情况：第一家不偷，剩下的是一条直街；最后一家不偷，也是一条直街。两种情况取较大。', 'A ring won’t straighten out, so split it into cases: leave the first house alone and the rest is a straight street; leave the last alone and so is that. Take the better of the two.')] },
+    debrief: { title: T('拆成两种情况', 'Split into two cases'), body: [T('一圈拆不开，就分情况：甲层第一家不偷，剩下的是一条直街；乙层最后一家不偷，也是一条直街。两层取较大。', 'A ring won’t straighten out, so split it into cases: on layer A the first house is left alone and the rest is a straight street; on layer B the last is. Take the better of the two layers.'), T('分情况也是多记一件事：这一件事，就是「我在哪种情况里」。', 'Splitting into cases is remembering one more thing too: which case you are in.')] },
   },
 ];

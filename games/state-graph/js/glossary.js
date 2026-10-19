@@ -240,7 +240,7 @@ export const GLOSSARY = [
     see: ['layers', 'memory', 'speed'],
   },
   {
-    id: 'recognise', group: 'basics', title: { zh: '认出动态规划', en: 'Recognising dynamic programming' }, at: 'disguise',
+    id: 'recognise', group: 'basics', title: { zh: '认出动态规划', en: 'Recognising dynamic programming' }, at: 'ice',
     body: [
       { zh: '真实的问题不会写着「动态规划」。遇到一个新问题，可以先问三句：<b>最后一步有几种可能？小问题的答案能不能拼出大问题？状态要记住什么？</b>', en: 'Real problems never say “dynamic programming” on them. Faced with a new one, start with three questions: <b>how many possibilities are there for the last step? Can the answers to small problems build the big one? What must the state remember?</b>' },
       { zh: '也有的问题根本用不着它：如果没有可以拆开、再拼回去的小问题，简单地从头看到尾就够了。', en: 'Some problems do not need it at all: if there are no smaller problems to break off and build back up, simply looking through from start to finish is enough.' },

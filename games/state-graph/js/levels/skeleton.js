@@ -78,7 +78,7 @@ export const skeleton = [
     debrief: { title: T('输赢也能填表', 'Winning and losing fill a table too'), body: [T('一颗不剩那一格，你什么都不用接：一步也走不了，「任一是」什么也收不到，输出「否」。<b>无路可走的人就输了</b>。', 'For the “none left” cell you don’t need to wire anything: there is no move to make, “any yes” receives nothing, and it outputs “no”. <b>A player with no move left loses</b>.'), T('看看这一行：否、是、是、否、是、是……每逢 3 的倍数就输。你没有算任何除法，规律是表自己长出来的。', 'Look at the row: no, yes, yes, no, yes, yes… every multiple of 3 loses. You never did any division: the pattern grew out of the table by itself.')], note: T('轮流走的游戏：只要有一步能让对手落进「输」，这一格就「赢」。', 'In a game of taking turns: if any move drops the opponent into a “lose”, this cell is a “win”.') },
   },
   {
-    id: 'piles', ch: 10, title: T('两堆石子', 'Two piles'), short: T('输赢的花纹', 'A pattern of wins and losses'), mode: 'circuit', robot: 'scout',
+    id: 'piles', ch: 10, title: T('两堆石子', 'Two piles'), short: T('输赢的花纹', 'A pattern of wins and losses'), mode: 'circuit', robot: 'ranger',
     intro: [
       { t: T('这次有两堆石子：A 堆和 B 堆。每次可以从一堆里拿 1 颗，或者<b>两堆各拿 1 颗</b>。拿走最后一颗的人赢。', 'This time there are two piles of stones: pile A and pile B. On each move you can take 1 stone from one pile, or <b>1 from each pile</b>. Whoever takes the last stone wins.') },
       { t: T('「还剩多少」这回要用两个数来记，表就变成了一张棋盘：第 a 行第 b 列，是「A 堆剩 a 颗、B 堆剩 b 颗」的局面。', 'This time “how many are left” takes two numbers, so the table becomes a board: row a, column b is the position “a left in pile A, b left in pile B”.'), fig: gridScene(3, 3, { arrows: false, cell: (r, c) => (r === 2 && c === 2 ? { value: '?', cls: 'sel' } : r === 0 && c === 0 ? yn(false) : {}) }) },

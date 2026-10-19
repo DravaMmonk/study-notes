@@ -3,7 +3,8 @@
 
 import { grid, gridYes, piles, tri, lawn } from './worlds/grid.js';
 import { strip, pile, coins, words, pieces } from './worlds/line.js';
-import { rob1, rob2, ring, prefix, heights, gains } from './worlds/street.js';
+import { rob1, rob2, prefix, heights, gains } from './worlds/street.js';
+import { ring } from './worlds/ring.js';
 import { layerMaze, keysMaze } from './worlds/maze.js';
 import { river } from './worlds/river.js';
 import { stock } from './worlds/stock.js';

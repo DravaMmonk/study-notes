@@ -1,7 +1,7 @@
 // A street of houses: the houses' numbers on top, the table in rows under them.
 
 import { T, tr, isEn } from '../../i18n.js';
-import { world, look, cell, num, yes, seg } from '../world.js';
+import { world, look, cell, num, seg } from '../world.js';
 
 /* ---------- street of houses: the houses on top, then one row, or three rows once the state remembers "robbed or not" ---------- */
 
@@ -22,7 +22,7 @@ function robPlan(a) {
 const street = (rows, sensors, more = {}) => {
   const unit = more.unit || (j => tr(`${j}号`, `#${j}`)), long = j => (isEn() ? (more.long || (k => `house ${k}`))(j) : unit(j)), noun = more.noun || T('钱', 'money');
   const mid = Math.floor((rows.length - 1) / 2), V = world({
-    sensors: { ...sensors, money: num(...(more.money || [T('这家的钱', "this house's money"), T('钱', '$'), 'house'])), ...(more.armSensor ? { seg: seg(...more.armSensor) } : {}), ...(more.ends ? { first: yes(T('是第一家', 'is the first house'), T('首', 'first'), 'firsthouse'), last: yes(T('是最后一家', 'is the last house'), T('尾', 'last'), 'lasthouse') } : {}) },
+    sensors: { ...sensors, money: num(...(more.money || [T('这家的钱', "this house's money"), T('钱', '$'), 'house'])), ...(more.armSensor ? { seg: seg(...more.armSensor) } : {}) },
     facts: ['money'],
     armSensors: more.armSensor ? ['seg'] : undefined,
     arm: more.arm,
@@ -31,7 +31,7 @@ const street = (rows, sensors, more = {}) => {
     here: (t, { i }) => [1 + mid, i],
     keyAt: (t, r, c) => (r === 0 ? (c >= 1 && c <= t.a.length ? `h:${c}` : null) : r <= rows.length && c >= 0 && c <= t.a.length ? `${r - 1}:${c}` : null),
     mark: (t, key) => (key.startsWith('h:') ? { cls: 'house', corner: unit(key.slice(2)) } : {}),
-    sense: (t, x, id, get, o) => (id === 'money' ? t.a[x.i - 1] : id === 'first' ? x.i === 1 : id === 'last' ? x.i === t.a.length : more.segment(t, x, get, o)),
+    sense: (t, x, id, get, o) => (id === 'money' ? t.a[x.i - 1] : more.segment(t, x, get, o)),
     base: t => [...rows.map(([, , v], r) => [`${r}:0`, v]), ...t.a.map((x, j) => [`h:${j + 1}`, x])],
     order: t => t.a.map((_, k) => ({ i: k + 1 })),
     keys: (t, { i }) => Object.fromEntries(rows.map(([id], r) => [id, `${r}:${i}`])),
@@ -44,7 +44,7 @@ const street = (rows, sensors, more = {}) => {
     sample: t => ({ i: Math.min(2, t.a.length) }),
     scene(t, view, o = {}) {
       const g = look(view, V.answerKeys(t), V.base(t), o.bench), n = t.a.length, sp = 60, sz = 50, y0 = 92;
-      const plan = view && view.end && view.pass && rows.length > 1 && !more.noPlan ? robPlan(t.a) : [];
+      const plan = view && view.end && view.pass && rows.length > 1 ? robPlan(t.a) : [];
       const cells = t.a.map((x, j) => ({ id: `h:${j + 1}`, x: (j + 1) * sp, y: 0, w: sz, h: 58, label: unit(j + 1), value: x, cls: `house${plan.includes(j + 1) ? ' hot' : g.reads.has(`h:${j + 1}`) ? ' pred' : ''}` }));
       const texts = [{ x: -sz / 2 - 10, y: 5, t: more.top || tr('每家的钱', 'money'), anchor: 'end' }];
       rows.forEach(([, label], r) => {
@@ -106,11 +106,3 @@ export const gains = street([['cell', T('以这天结尾最多', 'best ending to
   answer: (t, table) => Math.max(...t.a.map((_, j) => table.get(`0:${j + 1}`) ?? -Infinity)),
 });
 
-/**
- * A ring of houses: the first and the last are neighbours. Two copies of the robber's rows, 甲 and 乙, for the player to
- * give a meaning (the facts tell the first and the last house apart); the answer is the bottom row's last cell.
- */
-export const ring = street([['no1', T('甲·没偷', 'A·skipped'), 0], ['yes1', T('甲·偷了', 'A·robbed'), null], ['no2', T('乙·没偷', 'B·skipped'), 0], ['yes2', T('乙·偷了', 'B·robbed'), null], ['best', BEST, 0]], {
-  n1: cell(T('上家·甲·没偷', 'prev·A·skipped'), T('甲没', 'A·skip'), [0, -2, -1]), r1: cell(T('上家·甲·偷了', 'prev·A·robbed'), T('甲偷', 'A·rob'), [0, -1, -1]),
-  n2: cell(T('上家·乙·没偷', 'prev·B·skipped'), T('乙没', 'B·skip'), [0, 0, -1]), r2: cell(T('上家·乙·偷了', 'prev·B·robbed'), T('乙偷', 'B·rob'), [0, 1, -1]),
-}, { ends: true, noPlan: true, label: t => tr(`${t.a.length} 户人家围成一圈`, `${t.a.length} houses in a ring`) });

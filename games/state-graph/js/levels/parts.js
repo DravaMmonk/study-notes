@@ -1,28 +1,6 @@
-// Chapters and the parts a player collects; a part is the idea (or circuit) a level leaves behind.
+// The parts a player collects: a part is the idea (or circuit) a level leaves behind.
 
 import { T } from '../i18n.js';
-
-export const CHAPTERS = [
-  { name: T('格子与箭头', 'Cells and arrows'), desc: T('这台机器只有两种零件。', 'This machine has only two kinds of pieces.') },
-  { name: T('数路线', 'Counting routes'), desc: T('用小问题的答案，拼出大问题的答案。', 'Build the answer to a big problem out of the answers to small ones.') },
-  { name: T('造一台机器', 'Build a machine'), desc: T('机器人在每一格上，运行同一块电路板。', 'On every cell, the robot runs the same circuit board.') },
-  { name: T('零件可以复用', 'Parts can be reused'), desc: T('拼好的电路板会变成元件，换个问题照样能用。', 'A finished board becomes a component, and it still works on a different problem.') },
-  { name: T('先后顺序', 'Order matters'), desc: T('格子要等它需要的格子先算好。', 'A cell has to wait until the cells it needs are computed.') },
-  { name: T('最好的选择', 'The best choice'), desc: T('从数路线，到找最好的那条路。', 'From counting routes to finding the best one.') },
-  { name: T('为什么这么快', 'Why it is so fast'), desc: T('记下来，不重复。', 'Write it down, never repeat it.') },
-  { name: T('状态不够用', 'When the state falls short'), desc: T('一个数记不住的时候，就多记一件事。', 'When one number can’t remember enough, remember one more thing.') },
-  { name: T('两串文字', 'Two strings'), desc: T('一个词放上面，一个词放左边。', 'One word along the top, the other down the left.') },
-  { name: T('装背包', 'Packing a backpack'), desc: T('容量有限时，拿还是不拿。', 'With limited room: take it, or leave it?') },
-  { name: T('同一副骨架', 'The same skeleton'), desc: T('换一个汇合器，同一张表回答另一个问题；输赢也能填表。', 'Swap the merger and the same table answers another question; even winning and losing fit in a table.') },
-  { name: T('一格多来路', 'Many ways in'), desc: T('一格的来路可以是一整段格子，数量还不固定。', 'A cell’s ways in can be a whole run of cells, and how many is not fixed.') },
-  { name: T('先算谁', 'Who goes first'), desc: T('扫描顺序不止一种：被读的格子先算好就行。', 'More than one scan order works: it just has to compute every cell before it is read.') },
-  { name: T('设计状态', 'Designing the state'), desc: T('该记住什么，这次由你决定。', 'This time, you decide what to remember.') },
-  { name: T('从上往下', 'From the top down'), desc: T('不排顺序，直接问：需要谁就去问谁。', 'No ordering: just ask whichever cell you need.') },
-  { name: T('扫到不再变', 'Scan until it settles'), desc: T('箭头绕成了圈，就一遍一遍地扫。', 'When the arrows loop round, scan again and again.') },
-  { name: T('语言与序列', 'Language and sequences'), desc: T('同一副骨架，用在词和句子上。', 'The same skeleton, on words and sentences.') },
-  { name: T('图里的缝', 'Seams in a picture'), desc: T('在一张图里，找一条最不起眼的缝。', 'Find the least noticeable seam in a picture.') },
-  { name: T('毕业', 'Graduation'), desc: T('认出伪装起来的老朋友。', 'Recognise old friends in disguise.') },
-];
 
 export const PARTS = {
   startval: { name: T('起点值', 'Start Value'), desc: T('电路零件：条件是「是」时，给出卡片上的数；否则「—」。几乎每张表都要在起点放一个数。', 'A circuit part: when its condition is “yes”, it gives the number set on its card; otherwise “—”. Almost every table needs a number put at its start.') },

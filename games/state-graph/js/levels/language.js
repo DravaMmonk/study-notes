@@ -146,7 +146,7 @@ export const language = [
     debrief: { title: T('句法分析', 'Parsing'), body: [T('3 个词 2 种，4 个词 5 种，5 个词 14 种：这串数叫<b>卡特兰数</b>，词一多就飞快地变大。所以电脑分析句子时，不会把每一棵树都列出来，而是用这张区间表一格一格地算。', '3 words, 2 ways; 4 words, 5; 5 words, 14: these are the <b>Catalan numbers</b>, and they grow very fast as words are added. That is why a computer analysing a sentence doesn’t list every tree, but works through this interval table cell by cell.'), T('真正的句法分析（叫 <b>CKY 算法</b>）还会查语法规则：哪两段能合并、合成什么。表的形状一模一样。', 'Real parsing (the <b>CKY algorithm</b>) also checks grammar rules: which two stretches can merge, and into what. The table has exactly the same shape.')], note: T('句法树：每个切分点「左 × 右」，再加起来。', 'Parse trees: “left × right” at each split point, then add them up.') },
   },
   {
-    id: 'localalign', ch: 16, title: T('找最像的一段', 'Find the most alike stretch'), short: T('低于 0 就重新开始', 'Below 0, start again'), mode: 'circuit', robot: 'scout',
+    id: 'localalign', ch: 16, title: T('找最像的一段', 'Find the most alike stretch'), short: T('低于 0 就重新开始', 'Below 0, start again'), mode: 'circuit', robot: 'ranger',
     intro: [
       { t: T('两段长长的 DNA，整体并不像，可中间可能藏着一小段<b>非常像</b>的片段。怎么把它找出来？', 'Two long stretches of DNA may not look alike overall, yet hide a short piece in the middle that is <b>very alike</b>. How do you find it?') },
       { t: T('还是对齐表，第 0 行第 0 列都是 0。给每一步打分：字相同的一对 <b>+2</b>，不同的一对 <b>−1</b>，空一个位置（从上面或左边来）<b>−1</b>。「本格信息」里的「本格得分」，就是这一格这一对的 +2 或 −1。', 'An alignment table again, with row 0 and column 0 all 0. Each step scores: a matching pair <b>+2</b>, a mismatched pair <b>−1</b>, and a gap (coming from up or left) <b>−1</b>. The “cell score” in the This cell panel is this cell’s pair: +2 or −1.') },

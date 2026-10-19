@@ -28,6 +28,8 @@
 //   granted(level) → [part]                parts a level hands out without their builder being solved
 //   concept(part) → key                    parts that are one new idea together (a merger's models), by default itself
 //   machine(level) → machine | null        the machine a level is played on, checked against its era's
+//   uses(level) → [mechanism]              what a level's board relies on (its view, an arm, a scan order…)
+//   can(machine) → [mechanism] | null      what a machine can do: a level needs a machine that can do all it uses
 //   world(level) → key | null              what a level's world is, the same across a topic
 //   naive(level) → bool                    whether a challenge comes with a naive answer that fails
 // })
@@ -71,7 +73,7 @@ export function layout(eras) {
   return { order, place, requires }
 }
 
-export function defineCourse({ levels, eras = null, primitives, palette, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, world = () => null, naive = () => true }) {
+export function defineCourse({ levels, eras = null, primitives, palette, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -89,7 +91,7 @@ export function defineCourse({ levels, eras = null, primitives, palette, needs, 
     else levels.slice(0, index.get(id)).forEach((l) => set.add(l.id))
     return set
   }
-  return { levels, eras, plan, primitives: new Set(primitives), palette, needs, builds, granted, concept, machine, world, naive, index, builder, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), palette, needs, builds, granted, concept, machine, uses, can, world, naive, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -147,9 +149,15 @@ export function audit(course) {
   for (const level of levels) {
     const at = plan.place.get(level.id)
     if (!at) continue
-    // A level is played on its era's machine, or an older one: never on one from a later era.
-    const m = course.machine(level), k = machines.indexOf(m)
+    // A level is played on its era's machine, or an older one: never on one from a later era. Only a topic's opening
+    // and middle levels may borrow an older one; the foundation, the practice, a topic's finale and the challenges
+    // show what this era's machine can do.
+    const m = course.machine(level), k = machines.indexOf(m), own = course.eras.find((e) => e.id === at.era).machine
     if (m && (k < 0 || k > eraOf.get(at.era))) say('machine', level.id, m, `played on ${m}, not a machine of era ${at.era} or before`)
+    else if (m && own && m !== own && !['intro', 'step'].includes(at.role)) say('machine-role', level.id, m, `a ${at.role} level of era ${at.era} is played on ${own}, not ${m}`)
+    // The machine can do everything the level's board relies on.
+    const can = m ? course.can(m) : null
+    if (can) { const missing = course.uses(level).filter((x) => !can.includes(x)); if (missing.length) say('mechanism', level.id, missing.join(' '), `${m} cannot do what the board uses`) }
     // Nothing needs a challenge.
     if (at.role === 'challenge') {
       for (const other of levels) if ((plan.requires.get(other.id) ?? []).includes(level.id)) say('challenge-required', other.id, level.id, 'requires a challenge')

@@ -5,9 +5,19 @@ import { T } from '../i18n.js';
 
 const look = body => `<g class="bot">${body}</g>`;
 
+/**
+ * What a robot can do (`can`), checked by the course audit against the mechanisms each level's board uses
+ * (levels/course.js usesOf): view (its 3×3 view), facts (its cell's facts), far (two rings of view), order (scanning in
+ * another order: backwards, by length), heads (reading the two sequences a table compares: 两字相同), arm (the
+ * telescopic arm), sweep (the sweep arm), cells (writing several cells a step), layers and probe (a table in layers, and
+ * reading another layer), rounds (scanning until nothing changes). Later robots keep what came before, except a longer
+ * view or a different arm, which are a body's own.
+ */
+const BASE = ['view', 'facts'], FARSIGHT = [...BASE, 'order', 'heads'];
+
 export const ROBOTS = {
   scout: {
-    name: T('小方', 'Boxy'), vision: 1,
+    name: T('小方', 'Boxy'), vision: 1, can: BASE,
     desc: T('视野 3×3：看得见身边一圈的 8 个格子。', 'Vision 3×3: it sees the ring of 8 cells around it.'),
     look: look(`<path class="bot-ant" d="M16 2.5V7"/><circle class="bot-lamp" cx="16" cy="2.6" r="2.2"/>
       <rect class="bot-head" x="5" y="7" width="22" height="16" rx="5"/>
@@ -15,8 +25,8 @@ export const ROBOTS = {
       <rect class="bot-base" x="8" y="24" width="16" height="5" rx="2.5"/>`),
   },
   ranger: {
-    name: T('远望', 'Farsight'), vision: 2,
-    desc: T('视野升级到 5×5：看得见身边两圈、24 个格子。', 'Vision upgraded to 5×5: it sees two rings around it, 24 cells.'),
+    name: T('远望', 'Farsight'), vision: 2, can: [...FARSIGHT, 'far'],
+    desc: T('视野升级到 5×5，看得见身边两圈、24 个格子；还看得见表头上的两个词，也会换方向扫：倒着扫、按长度扫。', 'Vision upgraded to 5×5, two rings around it, 24 cells; it also sees the two words along a table’s edges, and it can scan another way: backwards, or by length.'),
     look: look(`<path class="bot-ant" d="M10 7L7 2M22 7L25 2"/><circle class="bot-lamp" cx="7" cy="2.4" r="1.8"/><circle class="bot-lamp" cx="25" cy="2.4" r="1.8"/>
       <rect class="bot-head" x="4" y="6" width="24" height="17" rx="4"/>
       <rect class="bot-visor" x="6.5" y="11" width="19" height="6.5" rx="3.2"/>
@@ -33,7 +43,7 @@ export const ROBOTS = {
       <rect class="bot-base" x="6" y="22" width="20" height="7" rx="3"/>`),
   },
   reach: {
-    name: T('长臂', 'Longarm'), vision: 2, arm: true, armName: T('伸缩臂', 'telescopic arm'),
+    name: T('长臂', 'Longarm'), vision: 2, can: [...FARSIGHT, 'far', 'arm'], arm: true, armName: T('伸缩臂', 'telescopic arm'),
     desc: T('视野 5×5，还多了一条伸缩臂：能往回伸出这一格写着的那么多格，读到视野外面的格子。', 'Vision 5×5, plus a telescopic arm: it reaches back by as many cells as this cell says, and reads cells outside its view.'),
     look: look(`<path class="bot-ant" d="M20 2.5V7"/><circle class="bot-lamp" cx="20" cy="2.6" r="2.2"/>
       <rect class="bot-head" x="10" y="7" width="20" height="15" rx="5"/>
@@ -42,7 +52,7 @@ export const ROBOTS = {
       <rect class="bot-base" x="12" y="23.5" width="16" height="5.5" rx="2.7"/>`),
   },
   broom: {
-    name: T('扫帚', 'Broom'), vision: 1, arm: true, armName: T('扫描臂', 'sweep arm'),
+    name: T('扫帚', 'Broom'), vision: 1, can: [...FARSIGHT, 'sweep'], arm: true, armName: T('扫描臂', 'sweep arm'),
     desc: T('视野 3×3，还带一条扫描臂：一次扫过一整段格子，把整段的数一起送进电路板，段里有几格都行。', 'Vision 3×3, plus a sweep arm: it sweeps a whole run of cells in one go and feeds every number in the run into the circuit board, however many cells the run has.'),
     look: look(`<path class="bot-ant" d="M16 2.5V7"/><circle class="bot-lamp" cx="16" cy="2.6" r="2.2"/>
       <rect class="bot-head" x="8" y="7" width="20" height="15" rx="5"/>
@@ -51,7 +61,7 @@ export const ROBOTS = {
       <rect class="bot-base" x="10" y="23.5" width="16" height="5.5" rx="2.7"/>`),
   },
   loop: {
-    name: T('回环', 'Loop'), vision: 1,
+    name: T('回环', 'Loop'), vision: 1, can: [...FARSIGHT, 'cells', 'layers', 'probe', 'rounds'],
     desc: T('视野 3×3，会一轮一轮地扫：读到还没算的格子先用上一轮的值，扫到整张表不再变才停下。', 'Vision 3×3, and it scans in rounds: a cell not worked out yet reads its value from the last round, and it stops once a whole round changes nothing.'),
     look: look(`<path class="bot-ant" d="M11.5 6.6a4.6 4.6 0 1 1 9 0"/><path class="bot-ant" d="M20.5 6.6l2.2-2.4M20.5 6.6l-3-.2"/>
       <rect class="bot-head" x="5" y="7" width="22" height="16" rx="8"/>
@@ -59,7 +69,7 @@ export const ROBOTS = {
       <rect class="bot-base" x="8" y="24" width="16" height="5" rx="2.5"/>`),
   },
   stack: {
-    name: T('千层', 'Layercake'), vision: 1, arm: true, armName: T('探针', 'probe'),
+    name: T('千层', 'Layercake'), vision: 1, can: [...FARSIGHT, 'cells', 'layers', 'probe'], arm: true, armName: T('探针', 'probe'),
     desc: T('能同时站在很多层上：表有几层，它就在每一层的同一格上各算一次。每一层都有 3×3 的视野；探针还能探到另一层的格子。', 'It stands on many layers at once: however many layers the table has, it works once on the same cell of each. Every layer has a 3×3 view, and its probe reaches cells on another layer.'),
     look: look(`<path class="bot-ant" d="M16 1.5V5"/><circle class="bot-lamp" cx="16" cy="2" r="1.9"/>
       <rect class="bot-head" x="5" y="5" width="22" height="8" rx="3"/><rect class="bot-head" x="5" y="13.5" width="22" height="8" rx="3"/>
