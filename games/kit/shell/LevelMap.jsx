@@ -175,14 +175,14 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
 }
 
 /**
- * What passing a level unlocks, on the wire just under it: the parts (or options) it gives, locked until the level is
- * passed. Once unlocked a part stays usable in every level after it (../course.js offer).
+ * What passing a level unlocks, on the wire just under it: the parts (or options) it gives, named once the level is
+ * passed and ？？？ until then. Once unlocked a part stays usable in every level after it (../course.js offer).
  */
 function UnlockChip({ items, open, style }) {
   if (!items.length) return null
-  const names = items.map((item) => L(item.label))
+  const names = items.map((item) => (open ? L(item.label) : '？？？'))
   return (
-    <span className={`map-unlock ${open ? 'is-open' : 'is-locked'}`} style={style} title={open ? tr(`已解锁：${names.join('、')}`, `Unlocked: ${names.join(', ')}`) : tr(`通过上一关解锁：${names.join('、')}`, `Pass the level above to unlock: ${names.join(', ')}`)}>
+    <span className={`map-unlock ${open ? 'is-open' : 'is-locked'}`} style={style} title={open ? tr(`已解锁：${names.join('、')}`, `Unlocked: ${names.join(', ')}`) : tr('通过上面这一关就能解锁', 'Pass the level above to unlock it')}>
       {open ? <Package size={11} /> : <Lock size={10} />}
       <span>{names[0]}</span>
       {names.length > 1 && <b>+{names.length - 1}</b>}
