@@ -1,15 +1,18 @@
 // A syntax game on the shared shell (../../shell): its spec becomes the shell's game description, with the syntax
-// domain's level screen (a sentence on the circuit editor, checked against a meaning graph) and its map art.
+// domain's level screen (a sentence built on the kit's strip of slots, checked against a meaning graph) and its map
+// art.
 //
-//   engine/grammar.js   categories, frames, roles, agreement, case: the rules a wire must keep
+//   engine/grammar.js   slots in reading order, frames, roles, agreement, case: the rules a word must keep
 //   engine/lexicon.js   a game's words, read for the grammar
-//   engine/sentence.js  a board read as a clause, said as a sentence, checked against a level's meaning
-//   engine/parts.js     the parts as the circuit editor reads them
+//   engine/sentence.js  a clause said as a sentence and checked against a level's meaning
+//   engine/parts.js     how a word looks: its family and features line
 //   engine/course.js    a spec read into levels, play order and the course the audit checks
 //   ui/                 the level screen (desktop and phone), the meaning graph, the sentence, the map's picture
 //   art.js              the same picture for the games hub (a plain module, no React)
 //   validate.js         every level's reference answer and traps (npm run check)
+//   syntax.test.js      the grammar, the sentence and the meaning check (npm test)
 import { BookOpenText } from 'lucide-react'
+import '../../strip/strip.css'
 import './ui/syntax.css'
 import { defineGame } from '../../shell/index.js'
 import { tr } from '../../shell/i18n.js'

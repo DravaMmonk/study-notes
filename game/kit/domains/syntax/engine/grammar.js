@@ -1,40 +1,35 @@
-// The grammar every syntax game plays on: what kinds of phrase there are, which port takes which, and the rules a
-// wire must keep (category, case, agreement, one place per phrase). A game brings only its words (a lexicon, see
+// The grammar every syntax game plays on: the places a clause has, in the order they are said, what each takes, and
+// the rules a word must keep to go there (kind, case, agreement). A game brings only its words (a lexicon, see
 // lexicon.js); the rules here are the same for every level and every game.
 //
-// A sentence is a small tree, built as a circuit (games/kit/circuit/model.js) whose data flows up toward its root:
+// A clause is a row of slots in reading order, grouped the way the sentence is built:
 //
-//   noun phrase ──▶ SUBJ ┐
-//                        INFL (tense, aspect, agreement) ──▶ S  句子 (the sink)
-//   noun phrases ──▶ verb ──▶ VP ┘
+//   [ SUBJ ] [ INFL  V  objects… ]
+//   subject   predicate: the head that sets the time, the verb, and the places its frame opens
 //
-// A verb heads the verb phrase: its frame says which object ports it opens and which role each fills. An INFL part
-// heads the clause: it takes the subject and the verb phrase, decides the auxiliaries and the verb's form, and must
-// agree with its subject.
+// The verb's frame says which object slots follow it and which role each fills. The INFL part decides the
+// auxiliaries and the verb's form, and must agree with the subject.
 
-/** What a phrase is, by the part that makes it: a noun phrase, a verb phrase or a clause. */
-export const CATEGORY = { np: 'np', verb: 'vp', infl: 's' }
+/** The kind of word each slot takes. */
+export const SLOT_KIND = { SUBJ: 'np', INFL: 'infl', V: 'verb', OBJ: 'np', IOBJ: 'np', TO: 'np' }
 
-/** The category each port takes. */
-export const PORT_TAKES = { SUBJ: 'np', OBJ: 'np', IOBJ: 'np', TO: 'np', VP: 'vp', S: 's' }
-
-export const PORT_LABEL = {
+export const SLOT_LABEL = {
   SUBJ: { zh: '主语', en: 'subject' },
-  VP: { zh: '谓语', en: 'predicate' },
+  INFL: { zh: '时体', en: 'tense' },
+  V: { zh: '动词', en: 'verb' },
   OBJ: { zh: '宾语', en: 'object' },
   IOBJ: { zh: '间接宾语', en: 'indirect object' },
-  TO: { zh: 'to +', en: 'to +' },
-  S: { zh: '小句', en: 'clause' },
+  TO: { zh: 'to 的宾语', en: 'object of to' },
 }
 
-export const CATEGORY_NAME = {
+export const KIND_NAME = {
   np: { zh: '名词短语', en: 'a noun phrase' },
-  vp: { zh: '动词短语', en: 'a verb phrase' },
-  s: { zh: '小句', en: 'a clause' },
+  verb: { zh: '动词', en: 'a verb' },
+  infl: { zh: '时体', en: 'a tense' },
 }
 
 /**
- * A verb's frame: the object ports it opens, in the order they are said, each with the role it fills. The subject's
+ * A verb's frame: the object slots it opens, in the order they are said, each with the role it fills. The subject's
  * role is the verb's own (`subject`, AGENT unless the lexicon says otherwise).
  */
 export const FRAMES = {
@@ -85,52 +80,63 @@ export function shortFeatures(np) {
   return { zh: `${np.person}${np.number === 'sg' ? '单' : '复'}${kase ? ` · ${kase[0]}` : ''}`, en: `${np.person}${np.number}${kase ? ` · ${kase[1]}` : ''}` }
 }
 
+/** The slots a clause has, in reading order: subject, tense, verb, then the places the verb's frame opens. */
+export const slotsOf = (lex, clause) => ['SUBJ', 'INFL', 'V', ...(clause.V ? lex.part(clause.V).ports.map(([slot]) => slot) : [])]
+
 const pair = (zh, en) => ({ zh, en })
 const quote = (text) => `“${text}”`
 
 /**
- * Why a wire from `from` into port `port` of node `to` is not allowed, or null. `lex` is the game's lexicon
- * (lexicon.js); the reasons name the features that clash, so a refused wire teaches the rule it broke.
+ * Why the word `type` cannot go into `slot` of `clause` (the clause as it stands, a slot's old word aside), or null.
+ * The reasons name the features that clash, so a refusal teaches the rule it enforces.
  */
-export function refuse(lex, graph, from, to, port) {
-  const source = graph.nodes.find((n) => n.id === from)
-  const target = graph.nodes.find((n) => n.id === to)
-  if (!source || !target) return null
-  const part = lex.part(source.type)
+export function refuse(lex, clause, slot, type) {
+  const part = lex.part(type)
   if (!part) return null
-  const takes = PORT_TAKES[port]
-  const is = CATEGORY[part.kind]
-  if (takes !== is) {
+  const takes = SLOT_KIND[slot]
+  if (takes !== part.kind) {
     return pair(
-      `${PORT_LABEL[port].zh}口要接${CATEGORY_NAME[takes].zh}，${quote(part.text)}是${CATEGORY_NAME[is].zh}。`,
-      `The ${PORT_LABEL[port].en} port takes ${CATEGORY_NAME[takes].en}; ${quote(part.text)} is ${CATEGORY_NAME[is].en}.`,
+      `${SLOT_LABEL[slot].zh}的位置只放${KIND_NAME[takes].zh}，${quote(part.text)}是${KIND_NAME[part.kind].zh}。`,
+      `The ${SLOT_LABEL[slot].en} slot takes ${KIND_NAME[takes].en}; ${quote(part.text)} is ${KIND_NAME[part.kind].en}.`,
     )
   }
-  // A phrase has one place in the sentence: a tree, not a web.
-  const elsewhere = graph.wires.find((w) => w.from === from && !(w.to === to && w.port === port))
-  if (elsewhere) {
-    return pair(
-      `一个短语在句子里只能占一个位置：${quote(part.text)}已经接在别处了。`,
-      `A phrase has only one place in a sentence: ${quote(part.text)} is already wired elsewhere.`,
-    )
+  if (!slotsOf(lex, clause).includes(slot)) return pair('这个动词后面没有这个位置。', 'This verb opens no such place.')
+  if (part.kind === 'np') {
+    if (slot === 'SUBJ' && part.case === 'acc') return pair(`格不对：主语要主格，${quote(part.text)}是宾格。`, `Wrong case: a subject is nominative, and ${quote(part.text)} is accusative.`)
+    if (slot !== 'SUBJ' && part.case === 'nom') return pair(`格不对：${SLOT_LABEL[slot].zh}要宾格，${quote(part.text)}是主格。`, `Wrong case: an ${SLOT_LABEL[slot].en} is accusative, and ${quote(part.text)} is nominative.`)
+    if (slot === 'SUBJ' && clause.INFL) return disagree(lex.part(clause.INFL), part)
   }
-  if (part.kind !== 'np') return null
-  if (port === 'SUBJ' && part.case === 'acc') {
-    return pair(`格不对：主语要主格，${quote(part.text)}是宾格。`, `Wrong case: a subject is nominative, and ${quote(part.text)} is accusative.`)
-  }
-  if (port !== 'SUBJ' && part.case === 'nom') {
-    return pair(`格不对：${PORT_LABEL[port].zh}要宾格，${quote(part.text)}是主格。`, `Wrong case: an ${PORT_LABEL[port].en} is accusative, and ${quote(part.text)} is nominative.`)
-  }
-  if (port === 'SUBJ') {
-    const head = lex.part(target.type)
-    const agree = AGREEMENT[head?.agree]
-    if (agree && !agree.test(part)) {
-      const f = features(part)
-      return pair(
-        `主谓不一致：${quote(head.text)}要${agree.name.zh}，${quote(part.text)}是${f.zh}。`,
-        `Subject and verb disagree: ${quote(head.text)} needs ${agree.name.en}, and ${quote(part.text)} is ${f.en}.`,
-      )
-    }
-  }
+  if (part.kind === 'infl' && clause.SUBJ) return disagree(part, lex.part(clause.SUBJ))
   return null
+}
+
+function disagree(head, subject) {
+  const agree = AGREEMENT[head.agree]
+  if (agree.test(subject)) return null
+  const f = features(subject)
+  return pair(
+    `主谓不一致：${quote(head.text)}要${agree.name.zh}，${quote(subject.text)}是${f.zh}。`,
+    `Subject and verb disagree: ${quote(head.text)} needs ${agree.name.en}, and ${quote(subject.text)} is ${f.en}.`,
+  )
+}
+
+/**
+ * Put `type` into `slot`: { clause } with it there, or { why } when the grammar refuses. A new verb keeps only the
+ * objects its own frame has places for; the rest come out.
+ */
+export function place(lex, clause, slot, type) {
+  const rest = { ...clause, [slot]: undefined }
+  const why = refuse(lex, rest, slot, type)
+  if (why) return { why }
+  const next = { ...rest, [slot]: type }
+  if (slot === 'V') {
+    const keep = new Set(slotsOf(lex, next))
+    for (const s of ['OBJ', 'IOBJ', 'TO']) if (!keep.has(s)) delete next[s]
+  }
+  return { clause: next }
+}
+
+/** Every word of a clause the grammar would refuse where it stands: [{ slot, why }]. */
+export function refusals(lex, clause) {
+  return slotsOf(lex, clause).filter((s) => clause[s]).map((s) => ({ slot: s, why: refuse(lex, { ...clause, [s]: undefined }, s, clause[s]) })).filter((r) => r.why)
 }

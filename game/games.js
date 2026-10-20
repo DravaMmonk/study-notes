@@ -40,13 +40,13 @@ export const GAMES = [
     progress: () => (read('qed.v1')?.solved || []).length,
   },
   {
-    id: 'syntax-graph', href: 'syntax-graph/index.html', title: '句法之图', en: 'Syntax Graph', topic: { zh: '英语语法 · 学术与商务写作', en: 'English grammar · academic and business writing' },
+    id: 'syntax-graph', href: 'syntax-graph/index.html', title: '句法之图', en: 'Syntax Graph', topic: { zh: '英语语法 · 计算机学术写作', en: 'English grammar · academic writing in computer science' },
     desc: {
-      zh: '读一张语义图，用名词短语、动词和时态元件接出一句英语。接错的线会被语法拒绝，说错的意思会在语义图上标红。从最短的一句话起步，一路写到母语者也会写错的句子。',
-      en: 'Read a meaning graph and wire noun phrases, verbs and tense parts into an English sentence. A wrong wire is refused by the grammar; a wrong meaning is marked red on the graph. Start from the shortest sentence and work up to the ones native speakers get wrong.',
+      zh: '读一张语义图，把名词短语、时体和动词按语序放进一句论文里的英语。放错位置会被语法拒绝，说错意思会在语义图上标红。从最短的一句起步，一路写到母语作者也会写错的句子。',
+      en: 'Read a meaning graph and put noun phrases, tenses and verbs in order into a sentence from a paper. A word in the wrong place is refused by the grammar; a wrong meaning is marked red on the graph. Start from the shortest sentence and work up to the ones native authors get wrong.',
     },
     levels: 13, art: 'tree', dev: true,
-    page: { icon: 'M32 14v14M32 28 17 48M32 28l15 20', description: '句法之图 Syntax Graph：把英语句子当电路来搭的语法解谜游戏。English grammar puzzles, wired like circuits.' },
+    page: { icon: 'M32 14v14M32 28 17 48M32 28l15 20', description: '句法之图 Syntax Graph：计算机学术英语的语法解谜游戏。Grammar puzzles for academic writing in computer science.' },
     progress: () => (read('syntax-graph.v1')?.solved || []).length,
   },
 ];

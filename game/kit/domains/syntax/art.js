@@ -1,29 +1,33 @@
-// The syntax domain's picture, on the games hub's card and the level map's hero: one sentence of the first era as the
-// tree the player wires, the clause's head at the top, its subject and verb phrase under it, and the sentence it says
-// along the bottom. Plain SVG on the kit's tokens (games/kit/tokens.css), so it follows the page's theme.
+// The syntax domain's picture, on the games hub's card and the level map's hero: one sentence of the first era as
+// the player builds it, a row of places in reading order (subject, then the predicate's tense, verb and object)
+// with the brackets that group them underneath. Plain SVG on the kit's tokens (games/kit/tokens.css), so it follows
+// the page's theme.
 
-const BOXES = [
-  { x: 300, y: 104, w: 132, text: 'has + -en', tag: 'INFL', color: 'var(--w2)' },
-  { x: 150, y: 178, w: 150, text: 'the committee', tag: 'SUBJ', color: 'var(--w0)' },
-  { x: 440, y: 178, w: 116, text: 'approve', tag: 'VP', color: 'var(--w4)' },
-  { x: 440, y: 240, w: 128, text: 'the budget', tag: 'OBJ', color: 'var(--w5)' },
+const SLOTS = [
+  { x: 22, w: 150, text: 'The committee', tag: 'subject', color: 'var(--w0)' },
+  { x: 184, w: 64, text: 'has', tag: 'tense', color: 'var(--w2)' },
+  { x: 260, w: 116, text: 'accepted', tag: 'verb', color: 'var(--w4)' },
+  { x: 388, w: 120, text: 'the paper', tag: 'object', color: 'var(--w5)' },
 ]
-const EDGES = [[300, 50, 300, 88], [300, 120, 150, 162], [300, 120, 440, 162], [440, 194, 440, 224]]
+const BRACKETS = [
+  { x1: 22, x2: 172, y: 150, text: 'subject' },
+  { x1: 184, x2: 508, y: 150, text: 'predicate' },
+  { x1: 22, x2: 508, y: 196, text: 'clause' },
+]
 
 export function treeSVG() {
-  const box = (b) => `
-    <g>
-      <rect x="${b.x - b.w / 2}" y="${b.y - 16}" width="${b.w}" height="32" rx="9" fill="var(--paper)" stroke="${b.color}" stroke-width="2"/>
-      <text x="${b.x}" y="${b.y + 6}" text-anchor="middle" font-family="var(--serif)" font-size="17" fill="var(--ink)">${b.text}</text>
-      <text x="${b.x - b.w / 2 + 2}" y="${b.y - 22}" font-family="var(--mono)" font-size="10" letter-spacing="1.4" fill="${b.color}">${b.tag}</text>
-    </g>`
+  const slot = (s) => `
+    <rect x="${s.x}" y="70" width="${s.w}" height="48" rx="11" fill="var(--paper)" stroke="${s.color}" stroke-width="2"/>
+    <rect x="${s.x + 1}" y="113" width="${s.w - 2}" height="4" rx="2" fill="${s.color}"/>
+    <text x="${s.x + s.w / 2}" y="101" text-anchor="middle" font-family="var(--serif)" font-size="19" fill="var(--ink)">${s.text}</text>`
+  const bracket = (b) => `
+    <path d="M${b.x1 + 4},${b.y - 10} V${b.y - 4} Q${b.x1 + 4},${b.y} ${b.x1 + 9},${b.y} H${b.x2 - 9} Q${b.x2 - 4},${b.y} ${b.x2 - 4},${b.y - 4} V${b.y - 10}" fill="none" stroke="var(--rule)" stroke-width="1.6"/>
+    <text x="${(b.x1 + b.x2) / 2}" y="${b.y + 18}" text-anchor="middle" font-family="var(--mono)" font-size="11" letter-spacing="1.5" fill="var(--muted)">${b.text.toUpperCase()}</text>`
   return `
-    <svg class="figure-host" viewBox="0 0 600 300" role="img" aria-label="The committee has approved the budget.">
-      ${EDGES.map(([x1, y1, x2, y2]) => `<path d="M${x1},${y1} C${x1},${(y1 + y2) / 2} ${x2},${(y1 + y2) / 2} ${x2},${y2}" fill="none" stroke="var(--rule)" stroke-width="2"/>`).join('')}
-      <circle cx="300" cy="40" r="11" fill="var(--ink)"/>
-      <text x="300" y="44.5" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="var(--paper)">S</text>
-      ${BOXES.map(box).join('')}
-      <text x="300" y="286" text-anchor="middle" font-family="var(--serif)" font-size="19" font-style="italic" fill="var(--muted)">The committee has approved the budget.</text>
+    <svg class="figure-host" viewBox="0 0 530 260" role="img" aria-label="The committee has accepted the paper.">
+      ${SLOTS.map(slot).join('')}
+      ${BRACKETS.map(bracket).join('')}
+      <text x="265" y="246" text-anchor="middle" font-family="var(--serif)" font-size="16" font-style="italic" fill="var(--muted)">The committee has accepted the paper.</text>
     </svg>`
 }
 

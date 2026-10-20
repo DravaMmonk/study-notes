@@ -1,5 +1,5 @@
 // A course of syntax levels, from a game's spec (《句法之图》): its lexicon read for the grammar, the play order and
-// level tree from its eras (../../../course.js layout), each level with its palette as board types, its era and what
+// level tree from its eras (../../../course.js layout), each level with its palette as word types, its era and what
 // it requires, and the course the shared audit checks (npm run check).
 //
 // syntaxCourse({ lexicon, eras, levels })
@@ -9,10 +9,11 @@
 //              traps?, target?, debrief: { title, body, note } }], in any order
 //     meaning  { pred, tense, aspect, gloss, roles: { ROLE: { ent, number, label, note? } } }: what the sentence must
 //              say. `label` and `note` are what the player reads; `ent` and `number` are what the check compares.
-//     preset   a part of the answer already on the board, fixed (sentence.js board)
+//     preset   part of the answer already in its slots, fixed (same shape as the answer)
 //     refer    what each pronoun names here ({ she: 'reviewer' }): the context the sentence is said in
-//     answer   the reference sentence as a clause; traps: [{ answer, fails: 'wire' | 'pred' | 'time' | 'role' |
-//              'star' }], sentences a player is likely to try that the level must turn down (validate.js runs both)
+//     answer   the reference sentence as a clause of lexicon keys ({ SUBJ, INFL, V, OBJ?, IOBJ?, TO? })
+//     traps    [{ answer, fails: 'grammar' | 'pred' | 'time' | 'role' | 'star' }]: sentences a player is likely to
+//              try, which the level must turn down where it says (validate.js runs them and the answer)
 // Returns { lex, LEVELS, CHAPTERS, course, concept }.
 
 import { defineCourse, eraLevels, layout } from '../../../course.js'
