@@ -87,6 +87,12 @@
 .map-tree.is-compact .map-node-title { display: -webkit-box; font-size: 12.5px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .map-tree.is-compact .map-node-best { display: none; }
 .map-node.is-here { box-shadow: 0 0 0 2px var(--ink); }
+.map-unlock { position: absolute; z-index: 2; transform: translate(-50%, -50%); height: 20px; padding: 0 8px; display: inline-flex; align-items: center; gap: 4px; overflow: hidden; border-radius: 10px; font-size: 11px; line-height: 1; white-space: nowrap; pointer-events: auto; }
+.map-unlock span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.map-unlock b { flex: none; font-family: var(--mono); font-size: 10px; font-weight: 600; }
+.map-unlock.is-open { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 16%, var(--paper)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }
+.map-unlock.is-locked { color: var(--faint); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); }
+.map-unlock svg { flex: none; }
 @keyframes pad-pulse { 50% { box-shadow: 0 0 0 2px var(--accent), 0 0 0 8px color-mix(in srgb, var(--accent) 6%, transparent); } }
 /* Parts box, encyclopedia and the progress dialog's button, under the map's continue button. */
 .map-tools { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 4px; margin-left: -8px; }

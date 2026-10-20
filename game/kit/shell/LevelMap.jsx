@@ -11,7 +11,8 @@ import { PHONE, useMedia } from './useMedia.js'
 // of the level they follow.
 
 // Tree geometry in px: node size and the gaps between columns and rows; compact for a phone or the level drawer.
-const SIZE = { full: { w: 224, h: 52, col: 28, gap: 22 }, compact: { w: 114, h: 62, col: 12, gap: 16 } }
+// The gap under a level holds what passing it unlocks (UnlockChip).
+const SIZE = { full: { w: 224, h: 52, col: 28, gap: 34 }, compact: { w: 114, h: 62, col: 12, gap: 30 } }
 const R = 8
 
 // Places a track as columns ("tracks"), each a run of rows on one lane: a main-path level, a parallel branch (kept to
@@ -165,8 +166,25 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
           {edges.map((e) => <path key={`${e.from}-${e.to}`} className={`${optional.has(e.to) ? 'is-optional' : ''} ${solved.has(e.from) ? 'is-lit' : ''}`} d={wire(at.get(e.from), at.get(e.to), e.kind)} />)}
         </svg>
         {[...at].map(([id, p]) => node(byId.get(id), { left: x(p.col), top: y(p.row), width: w, height: h }, optional.has(id)))}
+        {[...at].map(([id, p]) => byId.get(id) && <UnlockChip key={`u-${id}`} items={game.unlocked(byId.get(id))} open={all || solved.has(id)} style={{ left: x(p.col) + w / 2, top: y(p.row) + h + gap / 2, maxWidth: w + col }} />)}
       </div>
     </div>
+  )
+}
+
+/**
+ * What passing a level unlocks, on the wire just under it: the parts (or options) it gives, locked until the level is
+ * passed. Once unlocked a part stays usable in every level after it (../course.js offer).
+ */
+function UnlockChip({ items, open, style }) {
+  if (!items.length) return null
+  const names = items.map((item) => L(item.label))
+  return (
+    <span className={`map-unlock ${open ? 'is-open' : 'is-locked'}`} style={style} title={open ? tr(`已解锁：${names.join('、')}`, `Unlocked: ${names.join(', ')}`) : tr(`通过上一关解锁：${names.join('、')}`, `Pass the level above to unlock: ${names.join(', ')}`)}>
+      {open ? <Package size={11} /> : <Lock size={10} />}
+      <span>{names[0]}</span>
+      {names.length > 1 && <b>+{names.length - 1}</b>}
+    </span>
   )
 }
 

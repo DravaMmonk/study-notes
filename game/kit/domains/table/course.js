@@ -2,7 +2,7 @@
 // each level's number, chapter and derived answers (from its reference boards, run the way they are meant to run),
 // the boards its levels package as parts, and the course audit's view of it: what each level's board relies on, and
 // whether each topic is one problem growing.
-import { defineCourse, eraLevels, layout, pathLevels, usable } from '../../course.js';
+import { defineCourse, eraLevels, layout, offer, pathLevels, usable } from '../../course.js';
 import { BLUEPRINTS, modelsOf } from './circuit/components.js';
 import { ROBOTS } from './circuit/robots.js';
 import { WORLDS, runCircuit } from './circuit/worlds.js';
@@ -51,7 +51,7 @@ export function usesOf(L) {
  *   parts       { key: { name, desc } } what solving a level leaves the player (its `unlock`)
  *   primitives  the parts the course starts from
  * }
- * Returns { LEVELS, REQUIRES, PLACE, TRACKS, CHAPTERS, LABELS, PARTS, course, usableIn(L, flags), topicProblems() }.
+ * Returns { LEVELS, REQUIRES, PLACE, TRACKS, CHAPTERS, LABELS, PARTS, course, usableIn(L, flags), offerIn(L, flags), topicProblems() }.
  */
 export function tableCourse({ eras, levels, retired = [], parts, primitives }) {
   const PARTS = parts;
@@ -171,10 +171,15 @@ export function tableCourse({ eras, levels, retired = [], parts, primitives }) {
     can: m => ROBOTS[m]?.can ?? null,
     world: l => { const L = byId.get(l.id); return L.mode === 'circuit' ? FAMILY[(L.stages || [L]).at(-1).world] ?? (L.stages || [L]).at(-1).world : null; },
     naive: l => Boolean(byId.get(l.id).naive),
+    // What a level's reference boards use, and what its spec folds away anyway (../../course.js offer).
+    needed: l => { const sols = (byId.get(l.id).stages || [byId.get(l.id)]).map(s => s.solution).filter(Boolean); return sols.length ? sols.flatMap(s => s.nodes.map(n => n.kind)) : null; },
+    folds: l => byId.get(l.id).fold || [],
   });
 
   /** The parts level L can really offer a player holding `flags` (the shell's: unlocks of solved levels, and grants). */
   const usableIn = (L, flags) => new Set(usable(course, { id: L.id }, flags));
+  /** Everything the player has for level L: what it shows, and what it folds away ({ shown, folded }). */
+  const offerIn = (L, flags) => offer(course, { id: L.id }, flags);
 
   /**
    * A topic grows from a small version of its finale: the finale's reference board, run on each earlier circuit level of
@@ -205,5 +210,5 @@ export function tableCourse({ eras, levels, retired = [], parts, primitives }) {
     return out;
   }
 
-  return { LEVELS, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, course, usableIn, topicProblems };
+  return { LEVELS, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, course, usableIn, offerIn, topicProblems };
 }

@@ -35,8 +35,13 @@
 //   can(machine) → [mechanism] | null      what a machine can do: a level needs a machine that can do all it uses
 //   world(level) → key | null              what a level's world is, the same across a topic
 //   naive(level) → bool                    whether a challenge comes with a naive answer that fails
+//   replaces(part) → [part]                the parts it supersedes: an upgrade, or a merger of several into one
+//   carries(part, level) → bool            whether an earlier part is carried into this level (default: always)
+//   needed(level) → [part] | null          the parts its reference answer uses (null: no reference to go by)
+//   folds(level) → [part]                  parts the level's spec folds away anyway
 // })
-// usable(course, level, flags) is what a level's palette really holds; audit(course) lists every broken rule.
+// usable(course, level, flags) is what a level's palette really holds; offer(course, level, flags) splits everything
+// the player has into what the level shows and what it folds away; audit(course) lists every broken rule.
 
 /** What each rule of the audit means, for reports (../engine/check.js). */
 export const RULE_TEXT = {
@@ -131,7 +136,7 @@ export function layout(eras) {
   return { order, place, requires, tracks }
 }
 
-export function defineCourse({ levels, eras = null, primitives, palette, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true }) {
+export function defineCourse({ levels, eras = null, primitives, palette, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], carries = () => true, needed = () => null, folds = () => [] }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -149,7 +154,7 @@ export function defineCourse({ levels, eras = null, primitives, palette, needs, 
     else levels.slice(0, index.get(id)).forEach((l) => set.add(l.id))
     return set
   }
-  return { levels, eras, plan, primitives: new Set(primitives), palette, needs, builds, granted, concept, machine, uses, can, world, naive, index, builder, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), palette, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -164,6 +169,34 @@ export function usable(course, level, flags) {
     if (!need || !by || by === level.id) return true
     return flags.has(need)
   })
+}
+
+/**
+ * Everything a player holding `flags` can place in a level, by the rule every course follows: a part, once unlocked,
+ * stays usable in every level after it (every level this one comes after on the tree), unless a part met since
+ * replaces it (an upgrade, or a merger). So that a level with many parts does not leave the player lost, it shows only
+ * what its puzzle is about: the parts new here, and the ideas its reference answer uses (`needed`, by concept, carried
+ * parts too). The rest is folded away, still usable: parts carried from earlier levels, parts of its palette the answer does not need,
+ * and parts its spec folds (`folds`). Returns { shown, folded }.
+ */
+export function offer(course, level, flags) {
+  const own = usable(course, level, flags)
+  const earlier = course.levels.filter((l) => course.before(l.id, level.id))
+  const seen = new Set(earlier.flatMap((l) => course.palette(l)))
+  const have = new Set(earlier.flatMap((l) => [...usable(course, l, flags), ...course.builds(l).filter((p) => flags.has(course.needs(p)))]))
+  const gone = new Set([...own, ...have].flatMap((p) => course.replaces(p)))
+  const carried = [...have].filter((p) => !own.includes(p) && !gone.has(p) && course.carries(p, level))
+  // The answer goes by its parts (not a board's own fixed cards), and only when the player holds them all: a reference
+  // built from parts the player cannot have yet says nothing about what to show.
+  const isPart = (p) => course.primitives.has(p) || Boolean(course.needs(p)) || course.levels.some((l) => course.palette(l).includes(p))
+  const held = new Set([...own, ...have].map(course.concept))
+  const parts = course.needed(level)?.filter(isPart)
+  const ideas = parts && parts.every((p) => held.has(course.concept(p))) ? new Set(parts.map(course.concept)) : null
+  const fold = new Set(course.folds(level))
+  const hidden = (p) => fold.has(p) || Boolean(ideas && seen.has(p) && !ideas.has(course.concept(p)))
+  // A carried part the answer uses is shown with the level's own.
+  const wanted = (p) => !fold.has(p) && Boolean(ideas?.has(course.concept(p)))
+  return { shown: [...own.filter((p) => !hidden(p)), ...carried.filter(wanted)], folded: [...own.filter(hidden), ...carried.filter((p) => !wanted(p))] }
 }
 
 /** Every broken rule, as { rule, level, part, text }, in play order. */

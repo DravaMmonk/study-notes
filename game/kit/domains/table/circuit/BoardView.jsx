@@ -101,7 +101,8 @@ export function SgParts({ board }) {
     const at = placement(graph, board.parts()).free[0]
     board.change(board.create(graph, kind, at).graph)
   }
-  return <Palette items={board.palette().map((p) => ({ ...p, label: p.name, desc: p.desc, style: { '--fam': 'var(--accent)' } }))} onAdd={add} compact />
+  const item = (p) => ({ ...p, label: p.name, desc: p.desc, style: { '--fam': 'var(--accent)' } })
+  return <Palette items={board.palette().map(item)} folded={board.folded().map(item)} onAdd={add} compact />
 }
 
 /** Phone: the board as a grid of slots, with the parts tray and the level's dock pinned under it. */
@@ -143,7 +144,7 @@ export function SgPhone({ board, rootRef, dock }) {
       </div>
       <div className="sg-foot">
         {/* On a phone a part goes by its name alone; what it does is in its sheet. */}
-        <Tray items={board.palette().map((p) => ({ ...p, label: p.name, family: 'sg' }))} onPick={editing.placeFirstFree} />
+        <Tray items={board.palette().map((p) => ({ ...p, label: p.name, family: 'sg' }))} folded={board.folded().map((p) => ({ ...p, label: p.name, family: 'sg' }))} onPick={editing.placeFirstFree} />
         {dock}
       </div>
       <Notice editing={editing} />

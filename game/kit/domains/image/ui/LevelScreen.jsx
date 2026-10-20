@@ -46,9 +46,11 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   // A circuit level's hidden tests are checked by every run but shown only once the level is solved; from then on
   // they sit in the test list like the others. Training only ever sees the visible tests.
   const revealed = solved
-  // A part is in the palette once the level that builds it is solved (levels/course.js).
-  const palette = useMemo(() => (level.kind === 'graph' ? game.image.usableIn(level, flags) : level.palette ?? []), [game, level, flags])
-  const playLevel = useMemo(() => ({ ...(revealed ? withHidden(level) : level), palette }), [revealed, level, palette])
+  // A part is in the palette once the level that builds it is solved, and stays in every level after it; what this
+  // level's puzzle does not need is folded away (../../../course.js offer). `palette` is everything placeable.
+  const { shown: ownParts, folded } = useMemo(() => (level.kind === 'graph' ? game.image.offerIn(level, flags) : { shown: level.palette ?? [], folded: [] }), [game, level, flags])
+  const palette = useMemo(() => [...ownParts, ...folded], [ownParts, folded])
+  const playLevel = useMemo(() => ({ ...(revealed ? withHidden(level) : level), palette, folded }), [revealed, level, palette, folded])
   const hiddenCount = revealed ? 0 : level.hidden?.length ?? 0
   const [hiddenMiss, setHiddenMiss] = useState(null) // { failed, total } after a run whose visible tests passed
   const [testIndex, setTestIndex] = useState(0)
@@ -140,7 +142,8 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   const passed = shown?.results.filter((r) => r.pass).length ?? 0
 
   // Only a circuit level has parts to place; a board or probe level has no palette at all.
-  const compactParts = level.kind === 'graph' && <Palette compact items={palette.map((type) => ({ type, label: NODE_TYPES[type].label, desc: describe(type), icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) }))} onAdd={addNode} />
+  const itemOf = (type) => ({ type, label: NODE_TYPES[type].label, desc: describe(type), icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) })
+  const compactParts = level.kind === 'graph' && <Palette compact items={ownParts.map(itemOf)} folded={folded.map(itemOf)} onAdd={addNode} />
   const brief = <Brief game={game} level={level} hint={level.hint} phone={phone} />
   const training = level.kind === 'graph' && hasLearnable(board) && (
     <section>

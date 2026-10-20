@@ -84,11 +84,16 @@ export function circuitMode(L, saved, { flags, game } = {}) {
     typed: {}, robot: null, sel: null, input: '',
   };
   const robot = ROBOTS[L.robot];
-  // A part is in the palette once the level that builds it is solved (../course.js); a bench has no flags.
+  // A part is in the palette once the level that builds it is solved, and stays in every level after it; what the
+  // level's puzzle does not need is folded away (../../../course.js offer). A bench has no flags, and folds nothing.
   const allowed = flags ? game.table.usableIn(L, flags) : null;
+  const offer = flags ? game.table.offerIn(L, flags) : null, shownSet = offer && new Set(offer.shown);
   const stage = () => stages[st.stage], V = () => WORLDS[stage().world], circ = () => st.circs[st.stage];
   /** The level's components this player can use: built (or primitive), in the stage's order. */
   const offeredParts = () => stage().palette.filter(k => !allowed || allowed.has(k));
+  /** Of those, the ones the stage shows; and the folded ones: the rest, and the parts carried from earlier levels. */
+  const shownParts = () => offeredParts().filter(k => !shownSet || shownSet.has(k));
+  const foldedParts = () => (offer ? [...offeredParts().filter(k => !shownSet.has(k)), ...offer.folded.filter(k => !stage().palette.includes(k))] : []);
   const tests = () => stage().tests || L.tests, expected = () => stage().expected || L.expected;
   const opt = () => ({ ...stage(), dirs: st.dirs, ...(stage().dial ? { scan: st.scan[st.stage] } : {}), filter: st.filter[st.stage], remember: stage().solutionMem || [], layers: circ().layers || 1, maxLayers: stage().maxLayers || 8, answerLayers: circ().answerLayers || [0], boardWidth: rt.boardWidth || 0 });
   const io = () => ({ sensors: V().sensors, outs: V().outs });
@@ -140,7 +145,20 @@ export function circuitMode(L, saved, { flags, game } = {}) {
   st.circs = st.circs.map((c, k) => toCards(c, stages[k]));
   const fresh = () => toCards(blank(), stage());
   /** Every part the player can place: the level's components (the input cards are always there). */
-  const paletteAll = () => offeredParts();
+  const paletteAll = () => shownParts();
+  /** Palette entries for some parts: a merger's models as one entry (when there are several), each with what it does. */
+  const itemsOf = all => {
+    const fresh = stage().fresh || [], models = all.filter(k => MERGES.includes(k));
+    return shelf(all).map(kind => {
+      const d = def(kind);
+      // A part that shares its name with a family shown as one entry (「任一是」 beside the mergers) says its model.
+      const twin = !modelsOf(kind) && all.some(k => k !== kind && modelsOf(k) && def(k).name === d.name);
+      const item = { type: kind, name: twin ? lazy(() => `${d.name} · ${d.tag}`) : d.name, label: d.tag && kind !== 'const' && !d.bp ? lazy(() => `${d.name} · ${d.tag}`) : d.name, desc: d.desc, icon: lookIcon(kind), tag: kind === 'const' ? tr('一个数', 'a number') : d.tag, fresh: fresh.includes(kind) };
+      if (!MERGES.includes(kind) || models.length < 2) return item;
+      const m = mergerEntry(models);
+      return { ...item, ...m, name: m.label, fresh: models.some(k => fresh.includes(k)) };
+    });
+  };
   /** What a reader can read: [sensor, label]. */
   const inputOptions = kind => offered(kind).map(id => [id, V().sensors[id].label]);
   /** A new reader reads something sensible: the cell above, the first fact, the first arm reading. */
@@ -448,18 +466,8 @@ export function circuitMode(L, saved, { flags, game } = {}) {
       layerOf: node => layerOf(asNode(node)),
       setLayer(id, choice) { if (busy()) return; setLayer(id, choice); buzz(6); rt.refresh(); },
       reset() { setCirc(fresh()); rt.refresh(); },
-      palette: () => {
-        const all = paletteAll(), fresh = stage().fresh || [], models = all.filter(k => MERGES.includes(k));
-        return shelf(all).map(kind => {
-          const d = def(kind);
-          // A part that shares its name with a family shown as one entry (「任一是」 beside the mergers) says its model.
-          const twin = !modelsOf(kind) && all.some(k => k !== kind && modelsOf(k) && def(k).name === d.name);
-          const item = { type: kind, name: twin ? lazy(() => `${d.name} · ${d.tag}`) : d.name, label: d.tag && kind !== 'const' && !d.bp ? lazy(() => `${d.name} · ${d.tag}`) : d.name, desc: d.desc, icon: lookIcon(kind), tag: kind === 'const' ? tr('一个数', 'a number') : d.tag, fresh: fresh.includes(kind) };
-          if (!MERGES.includes(kind) || models.length < 2) return item;
-          const m = mergerEntry(models);
-          return { ...item, ...m, name: m.label, fresh: models.some(k => fresh.includes(k)) };
-        });
-      },
+      palette: () => itemsOf(paletteAll()),
+      folded: () => itemsOf(foldedParts()),
       consts: () => stage().consts || [0, 1, 2, 3, 4, 5],
       /** The models a merger can swap to in place (its wires stay). */
       swaps: kind => swapsOf(kind, offeredParts()),
