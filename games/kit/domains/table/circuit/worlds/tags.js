@@ -67,3 +67,24 @@ export const tags = world({
     return { cells, edges, texts, robot: g.robot };
   },
 });
+
+const TAG_START = T('句首', 'start');
+/** The tagging table for intro pages: tags down the side, the start column and the words across, costs in the corners. */
+export function tagFig(t, val = () => '', cls = () => '') {
+  const sp = 64, cells = [], texts = [];
+  [TAG_START, ...t.words].forEach((w, c) => cells.push({ id: `w${c}`, x: c * sp, y: -sp + 14, w: 56, h: 30, value: w, cls: `axis${c ? '' : ' axis0'}${String(w).length > 3 ? ' word' : ''}` }));
+  TAGS.forEach((g, r) => {
+    texts.push({ x: -38, y: r * sp + 5, t: TAG[g].n, anchor: 'end', cls: 'hd' });
+    for (let c = r ? 1 : 0; c <= t.words.length; c++) { const e = c ? t.emit[c - 1][g] : undefined; cells.push({ id: `${r},${c}`, x: c * sp, y: r * sp, w: 56, h: 56, value: c ? val(r, c) : 0, corner: c ? (e === undefined ? '×' : e) : '', cls: [c ? cls(r, c) : 'lit', c && e === undefined ? 'dimc' : ''].filter(Boolean).join(' ') }); }
+  });
+  return { cells, edges: [], texts };
+}
+/** Every way to tag a sentence, with its total cost: the cheapest one is what the table finds. */
+export function bestTags(t) {
+  let best = null;
+  (function go(k, prev, acc, cost) {
+    if (k === t.words.length) { if (!best || cost < best.cost) best = { tags: acc, cost }; return; }
+    TAGS.forEach(g => { const e = t.emit[k][g]; if (e === undefined) return; go(k + 1, g, [...acc, g], cost + e + (k ? t.trans[prev][g] : t.start[g])); });
+  })(0, null, [], 0);
+  return best;
+}

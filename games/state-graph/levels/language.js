@@ -2,8 +2,8 @@
 // trees on the interval table, and the most alike stretch of two strings.
 
 import { circ, usesSensor } from '../../kit/domains/table/circuit/components.js';
-import { editTable } from '../../kit/domains/table/algo.js';
-import { TAGS, TAG } from '../../kit/domains/table/circuit/worlds/tags.js';
+import { editTable, localTrace } from '../../kit/domains/table/algo.js';
+import { bestTags, TAG, tagFig, TAGS } from '../../kit/domains/table/circuit/worlds/tags.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
 const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
@@ -16,49 +16,12 @@ const PROB = {
   trans: { N: { N: 0.2, V: 0.6, A: 0.2 }, V: { N: 0.7, V: 0.1, A: 0.2 }, A: { N: 0.8, V: 0.1, A: 0.1 } },
 };
 const sent = (words, emit, model) => ({ words, emit, ...model });
-const START = T('句首', 'start');
 /** The words of the example sentences, glossed for English: the tagging data belongs to the position, not the word. */
 const HE = T('他', 'he'), STUDY = T('研究', 'studies'), HISTORY = T('历史', 'history');
 const IMPORT = T('进口', 'imports'), TV = T('彩电', 'TV'), QUALITY = T('质量', 'quality'), GOOD = T('好', 'fine');
 
-/** The tagging table for intro pages: tags down the side, the start column and the words across, costs in the corners. */
-function tagFig(t, val = () => '', cls = () => '') {
-  const sp = 64, cells = [], texts = [];
-  [START, ...t.words].forEach((w, c) => cells.push({ id: `w${c}`, x: c * sp, y: -sp + 14, w: 56, h: 30, value: w, cls: `axis${c ? '' : ' axis0'}${String(w).length > 3 ? ' word' : ''}` }));
-  TAGS.forEach((g, r) => {
-    texts.push({ x: -38, y: r * sp + 5, t: TAG[g].n, anchor: 'end', cls: 'hd' });
-    for (let c = r ? 1 : 0; c <= t.words.length; c++) { const e = c ? t.emit[c - 1][g] : undefined; cells.push({ id: `${r},${c}`, x: c * sp, y: r * sp, w: 56, h: 56, value: c ? val(r, c) : 0, corner: c ? (e === undefined ? '×' : e) : '', cls: [c ? cls(r, c) : 'lit', c && e === undefined ? 'dimc' : ''].filter(Boolean).join(' ') }); }
-  });
-  return { cells, edges: [], texts };
-}
 const S1 = sent([HE, STUDY, HISTORY], [{ N: 0 }, { N: 2, V: 1 }, { N: 0 }], COST);
 
-/** Every way to tag a sentence, with its total cost: the cheapest one is what the table finds. */
-function bestTags(t) {
-  let best = null;
-  (function go(k, prev, acc, cost) {
-    if (k === t.words.length) { if (!best || cost < best.cost) best = { tags: acc, cost }; return; }
-    TAGS.forEach(g => { const e = t.emit[k][g]; if (e === undefined) return; go(k + 1, g, [...acc, g], cost + e + (k ? t.trans[prev][g] : t.start[g])); });
-  })(0, null, [], 0);
-  return best;
-}
-/** The cells a local alignment walks back through, from the best cell to where the score started from 0. */
-function localTrace(t) {
-  const L = t.left, Tp = t.top, f = Array.from({ length: L.length + 1 }, () => Array(Tp.length + 1).fill(0)), sc = (i, j) => (L[i - 1] === Tp[j - 1] ? 2 : -1);
-  let bi = 0, bj = 0;
-  for (let i = 1; i <= L.length; i++) for (let j = 1; j <= Tp.length; j++) {
-    f[i][j] = Math.max(f[i - 1][j - 1] + sc(i, j), f[i - 1][j] - 1, f[i][j - 1] - 1, 0);
-    if (f[i][j] > f[bi][bj]) { bi = i; bj = j; }
-  }
-  const cells = [`${bi},${bj}`], okTop = new Set(), okLeft = new Set();
-  for (let i = bi, j = bj; f[i][j] > 0;) {
-    if (f[i][j] === f[i - 1][j - 1] + sc(i, j)) { if (sc(i, j) > 0) { okTop.add(j - 1); okLeft.add(i - 1); } i--; j--; }
-    else if (f[i][j] === f[i - 1][j] - 1) i--;
-    else j--;
-    cells.push(`${i},${j}`);
-  }
-  return { path: cells, okTop, okLeft };
-}
 const passed = view => !!view && view.end && view.pass;
 
 export const language = [

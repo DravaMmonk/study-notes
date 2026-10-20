@@ -1,18 +1,11 @@
 // Chapter 13: who goes first — the player sets the scan order, on a grid and on the interval table.
 
-import { E, gridScene } from '../../kit/domains/table/svg.js';
+import { gridScene, triFig } from '../../kit/domains/table/svg.js';
 import { circ, partFn } from '../../kit/domains/table/circuit/components.js';
 import { T } from '../../kit/domains/table/i18n.js';
 
 const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 
-/** An interval table for intro pages: items across the top, the upper triangle below. */
-function triFig(items, val = () => '', cls = () => '', edges = []) {
-  const sp = 54, sz = 46, n = items.length, cells = [];
-  items.forEach((x, k) => cells.push({ id: `t${k}`, x: k * sp, y: -sp + 12, w: sz, h: 30, value: x, cls: 'axis' }));
-  for (let i = 0; i < n; i++) for (let j = i; j < n; j++) cells.push({ id: `${i},${j}`, x: j * sp, y: i * sp, w: sz, h: sz, value: val(i, j), cls: cls(i, j) });
-  return { cells, edges: edges.map(([a, b, c]) => E(a, b, c)) };
-}
 const PALIN = circ([['a', 'add'], ['k', 'const', 2], ['g', 'pass'], ['m', 'mmax']], ['tap:dl>a:0', 'k>a:1', 'tap:same>g:0', 'a>g:1', 'tap:left>m:0', 'tap:down>m:1', 'g>m:2', 'm>out:cell']);
 const MERGE = circ([['a', 'add'], ['m', 'mmin'], ['b', 'add']], ['tap:segL>a:0', 'tap:segR>a:1', 'a>m:0', 'm>b:0', 'tap:weight>b:1', 'b>out:cell']);
 const ORDER_HINTS = [T('放一块「区间合并器」，把扫描臂的左段们、右段们和本格信息的这段总重，接到它的三个口上。', 'Put down an “Interval Merger”, and wire the sweep arm’s left parts and right parts and This cell’s run weight to its three ports.'), T('每一格读的是同一行左边的格子，和同一列下面的格子：按长度扫，或者逐行从下往上扫，这些格子都已经先算好了。', 'Each cell reads the cells to its left on the same row and the cells below it in the same column: scanning by length, or row by row from the bottom up, those cells have always been computed first.')];

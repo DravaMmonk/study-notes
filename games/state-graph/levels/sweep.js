@@ -1,13 +1,10 @@
 // Chapter 12: a cell's sources can be a whole segment — the broom robot's arm sweeps it, a filter picks from it.
 
-import { houseRow } from '../../kit/domains/table/svg.js';
+import { houseRow, lettersFig, rowFig } from '../../kit/domains/table/svg.js';
 import { circ, usesSensor } from '../../kit/domains/table/circuit/components.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
 const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
-const row = (n, val = () => '', cls = () => '') => Array.from({ length: n }, (_, i) => ({ id: `r${i}`, x: i * 60, y: 0, w: 50, h: 50, corner: i, value: val(i), cls: cls(i) }));
-const letters = s => [...s].map((ch, k) => ({ id: `c${k}`, x: k * 46, y: 0, w: 38, h: 38, value: ch, cls: 'tile' }));
-
 export const sweep = [
   {
     id: 'prefix', ch: 11, title: T('前面所有的', 'Everything before'), short: T('扫描臂一次读一整段', 'A sweep arm reads a whole run at once'), mode: 'circuit', robot: 'broom',
@@ -53,7 +50,7 @@ export const sweep = [
   {
     id: 'change', ch: 11, title: T('凑零钱', 'Making change'), short: T('每种硬币各退一步', 'Step back by each kind of coin'), mode: 'circuit', robot: 'broom',
     intro: [
-      { t: T('用 1 元、2 元、5 元的硬币凑出 7 元，<b>最少要几枚</b>？又有<b>几种付法</b>？', 'With 1, 2 and 5 yuan coins, how do you make 7 yuan with <b>the fewest coins</b>? And <b>how many ways</b> are there to pay it?'), fig: { cells: row(8, i => (i === 0 ? 0 : i === 7 ? '?' : ''), i => (i === 7 ? 'sel' : i === 0 ? 'lit' : '')), edges: [] } },
+      { t: T('用 1 元、2 元、5 元的硬币凑出 7 元，<b>最少要几枚</b>？又有<b>几种付法</b>？', 'With 1, 2 and 5 yuan coins, how do you make 7 yuan with <b>the fewest coins</b>? And <b>how many ways</b> are there to pay it?'), fig: { cells: rowFig(8, i => (i === 0 ? 0 : i === 7 ? '?' : ''), i => (i === 7 ? 'sel' : i === 0 ? 'lit' : '')), edges: [] } },
       { t: T('格子 i 记着凑出 i 元的答案。', 'Cell i holds the answer for making i yuan.') },
       { t: T('这一关的扫描臂按<b>每种硬币各退一枚</b>来扫：有几种硬币，就送来几格。退到 0 元以下的是「界外」。', 'This level’s sweep arm sweeps by <b>stepping back one coin of each kind</b>: as many kinds of coin, as many cells it sends. Stepping back below 0 yuan lands “out”.') },
     ],
@@ -78,7 +75,7 @@ export const sweep = [
   {
     id: 'wordbreak', ch: 11, title: T('最少切几块', 'The fewest pieces'), short: T('每一块都得是词', 'Every piece must be a word'), mode: 'circuit', robot: 'broom',
     intro: [
-      { t: T('一串字母没有空格，比如 catsanddog。把它切成词典里的词，<b>最少切成几块</b>？', 'A string of letters with no spaces, such as catsanddog. Cut it into dictionary words: <b>how few pieces will do</b>?'), fig: { cells: letters('catsanddog'), edges: [] } },
+      { t: T('一串字母没有空格，比如 catsanddog。把它切成词典里的词，<b>最少切成几块</b>？', 'A string of letters with no spaces, such as catsanddog. Cut it into dictionary words: <b>how few pieces will do</b>?'), fig: { cells: lettersFig('catsanddog'), edges: [] } },
       { t: T('格子 i 记：<b>前 i 个字母最少切成几块</b>。第 0 格是开头，一个字母都没有，0 块。', 'Cell i records: <b>the fewest pieces the first i letters can be cut into</b>. Cell 0 is the start, with no letters at all: 0 pieces.') },
       { t: T('只看最后一块：它从前面某个切点开始，到这里结束。扫描臂扫过前面每个切点，一次送来<b>两段</b>：切点那里的格子，和从那里到这里那一块的代价。这一关，那一块是词就算 1，不是词就是「—」。', 'Look only at the last piece: it starts at some earlier cut and ends here. The sweep arm sweeps every earlier cut and brings <b>two runs</b> at once: the cell at each cut, and what the piece from there to here costs. In this level a piece that is a word costs 1, and one that isn’t is “—”.') },
     ],

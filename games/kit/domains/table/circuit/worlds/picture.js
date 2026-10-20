@@ -54,3 +54,19 @@ export const pic = world({
     return { cells, edges: g.arrows(), robot: g.robot };
   },
 });
+
+const GLYPHS = { T: ['#####', '..#..', '..#..', '..#..', '..#..'], L: ['#....', '#....', '#....', '#....', '#####'], O: ['.###.', '#...#', '#...#', '#...#', '.###.'], X: ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'] };
+/** A grey picture: a faintly grainy background (1–2) with bright letters (8) drawn on it. */
+export function picture(w, h, letters, seed = 7) {
+  let s = seed;
+  const grain = () => { s = (s * 1103515245 + 12345) % 2147483648; return s % 5 === 0 ? 2 : 1; };
+  const img = Array.from({ length: h }, () => Array.from({ length: w }, grain));
+  letters.forEach(([ch, x0, y0]) => GLYPHS[ch].forEach((row, y) => [...row].forEach((p, x) => { if (p === '#') img[y0 + y][x0 + x] = 8; })));
+  return img;
+}
+
+/** A picture as pixels, with a seam's cells marked. */
+export const pictureFig = (img, path = []) => {
+  const on = new Set(path.map(p => p.join())), px = 14;
+  return { cells: img.flatMap((row, r) => row.map((v, c) => ({ id: `${r},${c}`, x: c * px, y: r * px, w: px, h: px, rx: 1, value: '', fill: shade(v), cls: on.has(`${r},${c}`) ? 'cut' : 'px' }))), edges: [] };
+};

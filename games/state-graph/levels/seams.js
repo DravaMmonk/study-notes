@@ -2,25 +2,12 @@
 // table as the cheapest route, then cut out so the picture narrows without squashing what stands out in it.
 
 import { circ, usesSensor } from '../../kit/domains/table/circuit/components.js';
-import { seamPath, shade } from '../../kit/domains/table/circuit/worlds/picture.js';
+import { picture, pictureFig, seamPath } from '../../kit/domains/table/circuit/worlds/picture.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
 const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 /** Letters from Vision Complete's test images (its engine/image.js GLYPHS), five pixels square. */
-const GLYPHS = { T: ['#####', '..#..', '..#..', '..#..', '..#..'], L: ['#....', '#....', '#....', '#....', '#####'], O: ['.###.', '#...#', '#...#', '#...#', '.###.'], X: ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'] };
-/** A grey picture: a faintly grainy background (1–2) with bright letters (8) drawn on it. */
-function picture(w, h, letters, seed = 7) {
-  let s = seed;
-  const grain = () => { s = (s * 1103515245 + 12345) % 2147483648; return s % 5 === 0 ? 2 : 1; };
-  const img = Array.from({ length: h }, () => Array.from({ length: w }, grain));
-  letters.forEach(([ch, x0, y0]) => GLYPHS[ch].forEach((row, y) => [...row].forEach((p, x) => { if (p === '#') img[y0 + y][x0 + x] = 8; })));
-  return img;
-}
 const test = img => ({ img, R: img.length, C: img[0].length });
-const thumb = (img, path = []) => {
-  const on = new Set(path.map(p => p.join())), px = 14;
-  return { cells: img.flatMap((row, r) => row.map((v, c) => ({ id: `${r},${c}`, x: c * px, y: r * px, w: px, h: px, rx: 1, value: '', fill: shade(v), cls: on.has(`${r},${c}`) ? 'cut' : 'px' }))), edges: [] };
-};
 const BIG = picture(22, 9, [['T', 3, 2], ['O', 13, 2]]);
 const P1 = picture(9, 6, [['T', 2, 0]], 3), P2 = picture(10, 7, [['O', 4, 1]], 11);
 
@@ -62,9 +49,9 @@ export const seams = [
   {
     id: 'seam', ch: 17, title: T('最不起眼的一条缝', 'The least noticeable seam'), short: T('图片上的最省路线', 'The cheapest route through a picture'), mode: 'circuit', robot: 'scout',
     intro: [
-      { t: T('现在换成真正的<b>图片</b>。图片也是一张表，每一格是一个像素。这一章的图片来自《视觉完备》的测试图库：灰色的背景上，写着几个亮的字母。', 'Now for real <b>pictures</b>. A picture is a table too, with one pixel per cell. This chapter’s pictures come from Vision Complete’s test images: a few bright letters on a grey background.'), fig: thumb(BIG) },
+      { t: T('现在换成真正的<b>图片</b>。图片也是一张表，每一格是一个像素。这一章的图片来自《视觉完备》的测试图库：灰色的背景上，写着几个亮的字母。', 'Now for real <b>pictures</b>. A picture is a table too, with one pixel per cell. This chapter’s pictures come from Vision Complete’s test images: a few bright letters on a grey background.'), fig: pictureFig(BIG) },
       { t: T('想把图片变窄一点，又不想把字母挤变形。办法是找一条从顶行到底行的<b>缝</b>：每行一个像素，每一步走到正下、左下或右下。拿掉这条缝，图片就窄了一列。', 'You want to make the picture a little narrower without squashing the letters. The trick is to find a <b>seam</b> from the top row to the bottom row: one pixel per row, each step going straight down, down-left or down-right. Take that seam out and the picture is one column narrower.') },
-      { t: T('拿掉哪条缝最不显眼？看<b>能量</b>：一个像素和左右、上下的邻居差得越多，能量越高（字母的边缘），平平的背景能量很低。《视觉完备》里算过的边缘，就是这里的能量。缝上的能量加起来越小越好。', 'Which seam is least noticeable to remove? Look at the <b>energy</b>: the more a pixel differs from its neighbours left and right, above and below, the higher its energy (the edges of letters), while flat background has very little. The edges you computed in Vision Complete are the energy here. The lower a seam’s total energy, the better.'), fig: thumb(BIG, seamPath(BIG)) },
+      { t: T('拿掉哪条缝最不显眼？看<b>能量</b>：一个像素和左右、上下的邻居差得越多，能量越高（字母的边缘），平平的背景能量很低。《视觉完备》里算过的边缘，就是这里的能量。缝上的能量加起来越小越好。', 'Which seam is least noticeable to remove? Look at the <b>energy</b>: the more a pixel differs from its neighbours left and right, above and below, the higher its energy (the edges of letters), while flat background has very little. The edges you computed in Vision Complete are the energy here. The lower a seam’s total energy, the better.'), fig: pictureFig(BIG, seamPath(BIG)) },
       { t: T('这不就是「最省力」那一关吗？只是走法换成了从上往下，来路换成了<b>左上、正上、右上</b>三格。表里每一格记「从顶行到这里，最省的缝要花多少能量」；最底一行里最小的那一格，就是整条缝的能量。格子角上的小数字是这个像素自己的能量。', 'Isn’t this just the “Least effort” level? Only now you walk from top to bottom, and the ways in are the three cells <b>up-left, up and up-right</b>. Each cell of the table records “the least energy a seam from the top row to here can cost”; the smallest cell in the bottom row is the energy of the whole seam. The small number in a cell’s corner is that pixel’s own energy.') },
     ],
     mission: { goal: T('算出每张图片里能量最小的缝：从顶行到底行，每行一个像素，每一步走到正下、左下或右下；缝的能量是一路上像素能量之和。', 'Find the lowest-energy seam in each picture: from the top row to the bottom row, one pixel per row, each step going straight down, down-left or down-right; a seam’s energy is the sum of the pixel energies along it.'), how: T('这一关会检查整张表。通过后，左边的小图上会标出这条缝。', 'This level checks the whole table. Once you pass, the seam is marked on the small picture to the left.') },

@@ -194,3 +194,17 @@ export function circuitFig(spec) {
   place(spec.outs, rowH * (partRows + 1), ([id, l, icon], x, y) => ({ id, x, y, w: 100, h: icon ? 72 : 40, value: l, icon, cls: 'coutf' }));
   return { cells, edges: spec.wires.map(([a, b, kind]) => E(a, b, kind === 'bool' ? 'sel' : kind === 'off' ? 'dim' : 'hot')) };
 }
+
+/* ---------- intro figures of particular tables ---------- */
+
+/** An interval table for intro pages: items across the top, the upper triangle below. */
+export function triFig(items, val = () => '', cls = () => '', edges = []) {
+  const sp = 54, sz = 46, n = items.length, cells = [];
+  items.forEach((x, k) => cells.push({ id: `t${k}`, x: k * sp, y: -sp + 12, w: sz, h: 30, value: x, cls: 'axis' }));
+  for (let i = 0; i < n; i++) for (let j = i; j < n; j++) cells.push({ id: `${i},${j}`, x: j * sp, y: i * sp, w: sz, h: sz, value: val(i, j), cls: cls(i, j) });
+  return { cells, edges: edges.map(([a, b, c]) => E(a, b, c)) };
+}
+
+/** A row of cells numbered in their corners, and a word as letter tiles. */
+export const rowFig = (n, val = () => '', cls = () => '') => Array.from({ length: n }, (_, i) => ({ id: `r${i}`, x: i * 60, y: 0, w: 50, h: 50, corner: i, value: val(i), cls: cls(i) }));
+export const lettersFig = s => [...s].map((ch, k) => ({ id: `c${k}`, x: k * 46, y: 0, w: 38, h: 38, value: ch, cls: 'tile' }));

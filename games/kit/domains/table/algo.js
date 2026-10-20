@@ -138,3 +138,21 @@ export function editTrace(left, top, f) {
 }
 
 export const rcName = id => { const [r, c] = id.split(',').map(Number); return tr(`第 ${r + 1} 行第 ${c + 1} 列`, `row ${r + 1}, column ${c + 1}`); };
+
+/** The cells a local alignment walks back through, from the best cell to where the score started from 0. */
+export function localTrace(t) {
+  const L = t.left, Tp = t.top, f = Array.from({ length: L.length + 1 }, () => Array(Tp.length + 1).fill(0)), sc = (i, j) => (L[i - 1] === Tp[j - 1] ? 2 : -1);
+  let bi = 0, bj = 0;
+  for (let i = 1; i <= L.length; i++) for (let j = 1; j <= Tp.length; j++) {
+    f[i][j] = Math.max(f[i - 1][j - 1] + sc(i, j), f[i - 1][j] - 1, f[i][j - 1] - 1, 0);
+    if (f[i][j] > f[bi][bj]) { bi = i; bj = j; }
+  }
+  const cells = [`${bi},${bj}`], okTop = new Set(), okLeft = new Set();
+  for (let i = bi, j = bj; f[i][j] > 0;) {
+    if (f[i][j] === f[i - 1][j - 1] + sc(i, j)) { if (sc(i, j) > 0) { okTop.add(j - 1); okLeft.add(i - 1); } i--; j--; }
+    else if (f[i][j] === f[i - 1][j] - 1) i--;
+    else j--;
+    cells.push(`${i},${j}`);
+  }
+  return { path: cells, okTop, okLeft };
+}
