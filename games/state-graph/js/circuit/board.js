@@ -16,13 +16,16 @@ const HUES = 6; // colours are theme tokens: --w0…--w5 for readers and sensors
 const isTerm = (n) => n.type === 'tap' || n.type === 'out';
 const sinkOf = (to, port) => (to.startsWith('out:') ? to : `${to}:${port}`);
 
+/** A desktop card's width: an input card holds what it reads (the robot's window, the cell's facts), wider than a part. */
+export const CARD_W = 176;
+const INPUT_W = 230;
 /** Where a card sits on the desktop board when the player has not moved it: inputs left, outputs right. */
 function home(kind, k, slot) {
   if (kind === 'tap') return [20, 30 + k * 120];
   // The input cards are tall (视野 holds the robot's view): one under the other, well apart.
-  if (kind === 'card') return [20, 30 + k * 280];
-  if (kind === 'out') return [700, 60 + k * 140];
-  return [250 + (slot % 2) * 200, 30 + Math.floor(slot / 2) * 170];
+  if (kind === 'card') return [20, 30 + k * 300];
+  if (kind === 'out') return [740, 60 + k * 140];
+  return [290 + (slot % 2) * 210, 30 + Math.floor(slot / 2) * 170];
 }
 
 /** The engine's circuit as the editor's graph. `u` = { sensors, avail, outs } of the world the board runs in. */
@@ -36,7 +39,7 @@ export function toGraph(circ, u) {
   const at = (id, kind, k, slot) => {
     if (xy[id]) return xy[id];
     let [x, y] = home(kind, k, slot);
-    for (let tries = 0; tries < 60 && clash([x, y]); tries++) y += kind === 'tap' ? 120 : kind === 'card' ? 280 : kind === 'out' ? 140 : 170;
+    for (let tries = 0; tries < 60 && clash([x, y]); tries++) y += kind === 'tap' ? 120 : kind === 'card' ? 300 : kind === 'out' ? 140 : 170;
     taken.push([x, y]);
     return [x, y];
   };
@@ -128,9 +131,9 @@ export function partsFor(circ, u) {
     // Each thing a reader reads is an output of its own.
     outputs: (node) => outputsOf(node, u.sensors),
     // On the desktop a cell reader's outputs are rows of their own, each with the fact it reads to choose.
-    outputLayout: (node) => (node.type === 'fact' ? { row: 28, wide: true } : null),
     icon: (node) => (node.type === 'tap' ? String(u.sensors[node.tap].short) : node.type === 'out' ? '→' : lookIcon(node.type)),
     cardStyle: (node) => ({ '--fam': colour(node) }),
+    cardWidth: (node) => (isInput(node.type) ? INPUT_W : CARD_W),
     wireStyle: (wire, graph) => ({ '--fam': colour(byId(graph, splitSrc(wire.from)[0])) }),
     portClass: (node, port, key) => `look-${look(node, port, key ?? null)}`,
     refuse: (graph, from, to, port) => {

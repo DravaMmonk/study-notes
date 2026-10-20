@@ -171,20 +171,6 @@ export function circuitMode(L, saved, { flags } = {}) {
     const next = picks.includes(pick) ? picks.filter(p => p !== pick) : [...picks, pick].sort((a, b) => order.indexOf(a) - order.indexOf(b));
     setCirc({ ...c, nodes: c.nodes.map(x => (x.id === id ? withPicks(x, next) : x)), wires: c.wires.filter(w => { const [f, p] = splitSrc(w.from); return f !== id || next.includes(p); }) });
   };
-  /** One of a reader's outputs reads another sensor: its wires follow, unless the new sensor's signal does not fit them. */
-  const setPick = (id, from, to) => {
-    const c = circ(), n = c.nodes.find(x => x.id === id), picks = picksOf(n);
-    if (!picks.includes(from) || picks.includes(to)) return;
-    const nodes = c.nodes.map(x => (x.id === id ? withPicks(x, picks.map(p => (p === from ? to : p))) : x));
-    const moved = c.wires.map(w => (w.from === `${id}#${from}` ? { ...w, from: `${id}#${to}` } : w)), next = { ...c, nodes, wires: moved };
-    const fit = w => w.from !== `${id}#${to}` || fits(sinkType(next, io(), w.to), srcType(next, io(), w.from));
-    setCirc({ ...next, wires: moved.filter(fit) });
-  };
-  /** One more output on a reader, reading the first sensor it does not read yet. */
-  const addPick = id => {
-    const n = circ().nodes.find(x => x.id === id), free = offered(n.kind).find(f => !picksOf(n).includes(f));
-    if (free) togglePick(id, free);
-  };
   /** A sensor picked anywhere (the view, the inputs window, a card): its card gains or loses that output. */
   const pickSensor = id => { const card = cardOf(V().sensors[id]?.family); if (card) togglePick(card, id); };
   /** What 视野's arm reaches, as picks on its card: [{ key, label, on, v }]. */
@@ -460,8 +446,6 @@ export function circuitMode(L, saved, { flags } = {}) {
       sensors: () => V().sensors,
       kinds: id => kindsOf(id),
       // The editor's nodes carry `type`; the engine's helpers read `kind`.
-      gridOf: node => gridOf(asNode(node)),
-      setPos(id, dr, dc) { if (busy()) return; setPos(id, dr, dc); buzz(6); rt.refresh(); },
       layerChoices: kind => (kind === 'seem' || kind === 'seel' ? layerChoices() : []),
       layerOf: node => layerOf(asNode(node)),
       setLayer(id, choice) { if (busy()) return; setLayer(id, choice); buzz(6); rt.refresh(); },
@@ -482,10 +466,6 @@ export function circuitMode(L, saved, { flags } = {}) {
       /** The models a merger can swap to in place (its wires stay). */
       swaps: kind => swapsOf(kind, offeredParts()),
       setValue(id, v) { if (busy()) return; setValue(id, v); buzz(6); rt.refresh(); },
-      togglePick(id, pick) { if (busy()) return; togglePick(id, pick); buzz(6); rt.refresh(); },
-      setPick(id, from, to) { if (busy()) return; setPick(id, from, to); buzz(6); rt.refresh(); },
-      addPick(id) { if (busy()) return; addPick(id); buzz(6); rt.refresh(); },
-      armOf: node => armOf(asNode(node)),
       /** Repaint what the robot reads (into the phone's input cards, once React has drawn them). */
       paintView: () => ctl.mounted(),
       /** What one of a reader's outputs carries now, wired or not. */
@@ -513,14 +493,11 @@ export function circuitMode(L, saved, { flags } = {}) {
     },
     /** A line over the test board: how the answer is read off a table the player stacks. */
     boardHint: () => (V().layered ? tr('勾选层号右边的方框：勾上的层，终点的数加起来就是答案。', 'Tick the box at the right of a layer’s number: the end cells of the ticked layers add up to the answer.') : ''),
-    /** Whether the board has input cards: the inputs pane shows what they read. */
-    hasInputs: () => circ().nodes.some(n => isInput(n.kind)),
-    /** What the robot reads (its view, its arm, its cell's facts), in the strip's inputs pane on a desktop and above
-     *  the board on a phone; clicking one adds or removes its output on the input card. */
+    /** What the robot reads (its view, its arm, its cell's facts), on each input card ([data-cardview]) and, where a
+     *  level has one, in the window beside the board (#cview); clicking one adds or removes its output on the card. */
     mounted() {
       const view = $('#cview');
       if (view) view.innerHTML = viewHTML(circ(), ui());
-      // On a phone each input card holds its own share of it ([data-cardview], js/circuit/BoardView.jsx).
       for (const box of document.querySelectorAll('[data-cardview]')) box.innerHTML = viewHTML(circ(), ui(), box.dataset.cardview);
     },
     // The run bar: 单步 is always there (before a run it starts one held on its first step; during one it stops the
@@ -625,6 +602,7 @@ export function circuitMode(L, saved, { flags } = {}) {
           st.view.k = j;
           rt.renderBoard();
           ctl.mounted();
+          rt.repaint();
           await Anim.wait(per);
           if (j === stop) break;
         }

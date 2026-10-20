@@ -602,32 +602,25 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-extras .chips.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sg-extras .memk { min-height: 38px; justify-content: flex-start; }
 .sg-extras .dialopts { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-/* Circuit levels on a desktop sit on the kit's circuit layout (games/kit/shell/CircuitLayout.jsx). This game's part of
-   it: the robot's view in a window floating over the board, its window and the cell's facts side by side and the arm
-   under them; the test board in the strip's outputs pane, which js/screen.jsx (fitBoard) sizes to the pane. */
+/* Circuit levels on a desktop sit on the kit's circuit layout (games/kit/shell/CircuitLayout.jsx): what the robot reads
+   on its input cards on the board, the test board in the strip under it, centred and sized to its pane by js/screen.jsx
+   (fitBoard). */
 @media (min-width: 761px) {
-  /* What the robot reads, in the strip's inputs pane: its window, the cell's facts under it as thin rows (no heading:
-     the pane says what they are), then the arm. */
-  .kc-inputs #view:empty::before { content: '—'; color: var(--faint); }
-  .kc-inputs #view .cview { --vc: 50px; max-width: none; margin: 0; padding: 0; gap: 10px; border: 0; border-radius: 0; background: none; box-shadow: none; }
-  /* One column as wide as the window, centred: the facts take the window's width, so the two read as one block. */
-  .kc-inputs .cview .vtop.has-facts { grid-template-columns: minmax(0, max-content); justify-content: center; justify-items: stretch; gap: 10px; }
-  .kc-inputs .cview .vtop.has-facts .vwins { align-items: center; }
-  .kc-inputs .cview .vfacts > .vsub { display: none; }
-  .kc-inputs .cview .vfacts-only { width: 200px; }
-  .kc-inputs .cview .vtop.has-facts .vfacts { max-width: none; gap: 4px; }
-  .kc-inputs .cview .vtop .vfact { min-height: 22px; padding: 1px 8px; border-width: 1.2px; border-radius: 7px; font-size: 12px; }
-  .kc-inputs .cview .vtop .vfact.on { border-width: 1.6px; }
-  .kc-inputs .cview .vextra { max-width: 340px; }
-  .kc-inputs .cview .vwin.n5 { --vc: 34px; }
-  .kc-outputs .bcard { padding: 0; gap: 8px; align-content: start; border: 0; border-radius: 0; background: none; box-shadow: none; }
+  .kc-outputs > .kc-pane-body { display: flex; flex-direction: column; }
+  .kc-outputs .bcard { margin: auto 0; padding: 0; gap: 8px; justify-items: center; align-content: center; border: 0; border-radius: 0; background: none; box-shadow: none; }
   .kc-outputs .bcard > #after:empty { display: none; }
   .kc-outputs .board { margin: 0; padding: 0; overflow: visible; background: none; box-shadow: none; }
-  .kc-outputs .board-svg { display: block; margin: 0 !important; }
-  .kc-outputs .kc-pane-head .bnote { margin: 0; }
+  .kc-outputs .board-svg { display: block; margin: 0 auto !important; }
   .kc-outputs .bhint { margin: 0; color: var(--ink-3); font-size: 12px; line-height: 1.5; }
-  .kc-tests .tests { margin: 0; padding: 0; flex-wrap: nowrap; }
-  .kc-tests .tchip { flex: none; }
+  .kc-outputs .kc-pane-head .bnote { margin: 0; }
+  /* The tests, as Vision Complete's: quiet pills, the one shown outlined; a ring that fills when it passes or fails. */
+  .kc-tests .tests { margin: 0; padding: 0; flex-wrap: nowrap; gap: 6px; }
+  .kc-tests .tchip { flex: none; min-height: 30px; padding: 0 10px 0 8px; gap: 6px; border: 0; border-radius: 15px; color: var(--ink); background: var(--canvas); font: 400 12px var(--sans); cursor: pointer; }
+  .kc-tests .tchip[aria-selected="true"] { background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .kc-tests .tchip .sd { width: 9px; height: 9px; background: none; box-shadow: inset 0 0 0 1.5px currentColor; }
+  .kc-tests .tchip .sd.pass { background: var(--status); box-shadow: none; }
+  .kc-tests .tchip .sd.fail { background: var(--fail); box-shadow: none; }
+  .kc-tests .tchip .sd.run { background: var(--signal); box-shadow: none; }
   .kc-canvas .sg-canvas { position: absolute; inset: 0; min-height: 0; }
   .sg-level.kit-circuit .stage-pane { overflow: hidden; }
 }
@@ -664,25 +657,17 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .rcell:disabled{cursor:default;border-style:dashed;background:transparent;opacity:.55}
 .rcell.self:disabled{border-style:solid;opacity:.8}
 .sg-sheet .rgrid{--rs:34px;justify-content:start}
-/* What 视野's arm reaches, under its box: tick the ones it reads (each an output). */
-.fpicks{display:flex;flex-direction:column;align-items:flex-start;gap:3px;max-width:150px}
-.fpick{padding:2px 7px;border-radius:7px;border:1px dashed var(--ink-3);background:none;color:var(--ink-2);font:600 10.5px/1.25 var(--f-body);text-align:left;cursor:pointer}
-@media (hover: hover){.fpick:hover{border-color:var(--cyan)}}
-.fpick.on{border:1.5px solid var(--cyan);background:color-mix(in srgb,var(--cyan) 18%,transparent);color:var(--ink)}
-/* A reader's card: what it reads on the left, its outputs (at most three) down the right edge beside it. */
+/* An input card on the desktop board holds what it reads, as on a phone (js/circuit/BoardView.jsx): the robot's window
+   and arm, or the cell's facts, each clicked to add or remove its output; the outputs run down the card's right edge. */
 .sg-body.is-reader{align-items:stretch}
-.sg-body.is-reader .rd-pick{min-height:64px;margin-right:76px;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
-.sg-body.is-reader .rd-pick:empty{min-height:20px}
-.sg-body.is-reader .rgrid{justify-content:start;padding:0}
-/* A cell reader on the desktop: its output rows (a fact to choose, its value, ×) sit over this space; then + one more. */
-.sg-body.is-reader .rd-pick.is-fact{min-height:0;margin-right:0;display:block}
-.frows{padding-top:calc(var(--n) * 28px - 4px)}
-.frows .fport-add{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:6px;border:1px dashed var(--ink-3);background:none;color:var(--ink-2);font:600 11px var(--f-body);cursor:pointer}
-.frows .fport-add:hover{border-color:var(--cyan);color:var(--ink)}
-.fport{display:flex;align-items:center;gap:4px;min-width:0}
-.fport select{flex:1;min-width:0;height:22px;padding:0 4px;border-radius:6px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font:600 11px var(--f-body)}
-.fport-del{flex:none;width:18px;height:18px;padding:0;display:grid;place-items:center;border:0;border-radius:4px;background:none;color:var(--ink-3);cursor:pointer}
-.fport-del:hover{color:var(--bad);background:var(--panel-2)}
+.sg-body.is-reader .sg-cardview{width:auto;margin-right:74px;justify-items:start;container-type:normal}
+.sg-body.is-reader .sg-cardview .vwin{--vc:30px}
+.sg-body.is-reader .sg-cardview .vwin.n5{--vc:24px}
+.sg-body.is-reader .sg-cardview .vcell{font-size:11px}
+.sg-body.is-reader .sg-cardview .vwins{justify-content:flex-start}
+.sg-body.is-reader [data-cardview=facts]{height:auto}
+.sg-body.is-reader .sg-cardview .vfacts{height:auto;overflow:visible}
+.sg-body.is-reader .sg-cardview .vfact{min-height:26px;padding:3px 8px}
 /* What each of a reader's outputs carries, beside its dot. */
 .sg-oval{min-width:22px;padding:1px 5px;border-radius:5px;background:var(--panel-2);color:var(--ink);font:700 10.5px var(--f-mono);text-align:center;font-variant-numeric:tabular-nums}
 

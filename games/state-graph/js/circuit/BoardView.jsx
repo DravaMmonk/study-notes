@@ -1,14 +1,14 @@
 import { useLayoutEffect, useRef } from 'react'
-import { Plus, X } from 'lucide-react'
 import { CanvasEditor, Choice, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../kit/circuit/index.js'
 import { L, tr } from '../../../kit/shell/i18n.js'
 import { signal } from '../util.js'
-import { def, hasValue, valueDefault, isInput, isViewReader, picksOf } from './components.js'
+import { def, hasValue, valueDefault, isInput } from './components.js'
+import { CARD_W } from './board.js'
 
 // 状态之图's circuit board on the shared circuit editor (../../../kit/circuit), the one Vision Complete uses: the same
 // cards, dots, wires, keys and gestures. `board` is the circuit mode's bridge (modes/circuit.js `ctl.board`); what a
-// card shows here is the value its output carries at the robot's cell, and a constant's or a merger's setting, chosen
-// with buttons (the kit's Choice) as on the phone's sheet.
+// card shows here is the value its output carries at the robot's cell, an input card what it reads (as on a phone),
+// and a constant's or a merger's setting, chosen with buttons (the kit's Choice) as on the phone's sheet.
 
 const valueOf = (probe, id) => (probe && id in probe ? signal(probe[id]) : '')
 // What a part's card shows: what it computed, or 未算到 when a stopped run never got to it. (A reader shows what it
@@ -18,56 +18,6 @@ const shownOf = (node, probe, reading) => {
   return !text && reading?.halted ? { text: tr('未算到', 'not reached'), cls: 'is-unreached' } : { text }
 }
 const stop = (event) => event.stopPropagation()
-
-/** 视野's box: a blank square for each cell the robot sees (its own framed); the ones it reads are lit, each an output
- *  of its own. Click a square to read it too, or to stop reading it. */
-function ReaderBox({ grid, onPick }) {
-  return (
-    <div className="rgrid" style={{ '--rn': grid.n }} onPointerDown={stop} role="group" aria-label={tr('读哪几格', 'Which cells')}>
-      {grid.cells.map((x) => (
-        <button key={`${x.dr},${x.dc}`} type="button" className={`rcell ${x.on ? 'on' : ''} ${x.self ? 'self' : ''}`} disabled={!x.ok} aria-pressed={x.on} aria-label={`${x.dr},${x.dc}`} onClick={() => onPick(x.dr, x.dc)} />
-      ))}
-    </div>
-  )
-}
-
-/** What 视野's arm reaches (a telescopic arm's cells, a sweep): each picked one is an output of its own. */
-function ArmPicks({ items, onPick }) {
-  return (
-    <div className="fpicks" onPointerDown={stop} role="group" aria-label={tr('手臂够到的', 'What the arm reaches')}>
-      {items.map((a) => (
-        <button key={a.key} type="button" className={`fpick ${a.on ? 'on' : ''}`} aria-pressed={a.on} title={L(a.label)} onClick={() => onPick(a.key)}>{L(a.label)}</button>
-      ))}
-    </div>
-  )
-}
-
-/** One output of 本格信息 on the desktop: which fact it reads (one it does not read on another output), what that is
- *  now, and × to take the output off. */
-function FactPort({ node, pick, board }) {
-  const picks = picksOf({ kind: node.type, value: node.value })
-  const options = board.inputOptions('fact').filter(([v]) => v === pick || !picks.includes(v))
-  return (
-    <span className="fport" onPointerDown={stop}>
-      <select value={pick} onChange={(e) => board.setPick(node.id, pick, e.target.value)} aria-label={tr('这个输出口读哪一条', 'Which fact this output reads')}>
-        {options.map(([v, l]) => <option key={v} value={v}>{L(l)}</option>)}
-      </select>
-      <b className="sg-oval">{board.outValue(node, pick) || '—'}</b>
-      {<button type="button" className="fport-del" onClick={() => board.togglePick(node.id, pick)} aria-label={tr('去掉这个输出口', 'Remove this output')}><X size={11} /></button>}
-    </span>
-  )
-}
-
-/** Under a cell reader's output rows (which sit over this space): a button for one more output, up to the most. */
-function FactRows({ node, board }) {
-  const picks = picksOf({ kind: node.type, value: node.value })
-  const more = picks.length < board.inputOptions('fact').length
-  return (
-    <div className="frows" style={{ '--n': picks.length }}>
-      {more && <button type="button" className="fport-add" onPointerDown={stop} onClick={() => board.addPick(node.id)}><Plus size={12} />{tr('加一个输出口', 'Add an output')}</button>}
-    </div>
-  )
-}
 
 /** Desktop: the board on the workbench's stage, the whole middle column; the parts are in the brief, the view beside the test board. */
 export function SgCanvas({ board, overlay }) {
@@ -92,16 +42,10 @@ export function SgCanvas({ board, overlay }) {
             <Choice options={board.kinds(node.id)} value={node.value ?? ''} onChange={(v) => board.setValue(node.id, v)} label={tr('哪一类', 'Kind')} />
           </div>
         )}
-        {/* An input part is set on its card: what it reads on the left (the robot's view, the cell's facts), its
-            outputs beside that on the right edge, then for a layered view reader which layer. */}
-        {isInput(node.type) && (
-          // The outputs run down the card's right edge beside the box: the box keeps room for all of them.
-          <div className={`rd-pick is-${node.type}`} style={node.type === 'see' ? { minHeight: Math.max(64, picksOf({ kind: node.type, value: node.value }).length * 20 - 6) } : undefined}>
-            {isViewReader(node.type) && <ReaderBox grid={board.gridOf(node)} onPick={(dr, dc) => board.setPos(node.id, dr, dc)} />}
-            {node.type === 'see' && board.armOf(node).length > 0 && <ArmPicks items={board.armOf(node)} onPick={(key) => board.togglePick(node.id, key)} />}
-            {node.type === 'fact' && <FactRows node={node} board={board} />}
-          </div>
-        )}
+        {/* An input card holds what it reads, as on a phone: the robot's window and arm, or the cell's facts, painted by
+            the mode ([data-cardview]); click one to add or remove its output, which runs down the card's right edge
+            with what it carries. */}
+        {isInput(node.type) && <div className="sg-cardview" data-cardview={node.type === 'fact' ? 'facts' : 'view'} onPointerDown={stop} />}
         {board.layerChoices(node.type).length > 0 && (
           <div className="param is-choice">
             <span>{tr('层', 'Layer')}</span>
@@ -138,10 +82,10 @@ export function SgCanvas({ board, overlay }) {
         onChange={board.change}
         parts={parts}
         body={body}
-        outNote={(node, key) => (node.type === 'fact' ? <FactPort node={node} pick={key} board={board} /> : <b className="sg-oval">{board.outValue(node, key) || '—'}</b>)}
+        outNote={(node, key) => <b className="sg-oval">{board.outValue(node, key) || '—'}</b>}
         wireState={wireState}
-        width={176}
-        height={120}
+        width={CARD_W}
+        height={170}
         minFit={0.62}
         overlay={overlay}
         scope={board.stage()}

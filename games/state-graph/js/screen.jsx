@@ -50,9 +50,9 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
     rt.cur = cur.current
 
     const renderBoard = () => {
-      // The board gets the width it has (the outputs pane on a desktop circuit level, the page on a phone), so a board
+      // The board gets the width it has (the strip's pane on a desktop circuit level, the page on a phone), so a board
       // of several layers lays them side by side before it wraps.
-      const pane = !phone && ctl.panelStage ? el.querySelector('.kc-outputs > .kc-pane-body') : q('.sg-board')
+      const pane = !phone && ctl.panelStage ? q('.kc-outputs > .kc-pane-body') : q('.sg-board')
       const pad = pane ? getComputedStyle(pane) : null
       rt.boardWidth = pane ? pane.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight) : 0
       if (ctl.custom) q('.sg-board').innerHTML = ctl.custom()
@@ -92,6 +92,8 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
     Object.assign(rt, {
       refresh,
       renderBoard,
+      // Redraw what React draws (the circuit's cards and their values, the dock) without rebuilding the rest.
+      repaint: renderDock,
       refreshKeepRange() {
         renderBoard()
         q('#panel .pcard h3 small').textContent = `n = ${ctl.st.n}`
@@ -333,8 +335,8 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
       </PhonePage>
     )
   }
-  // A circuit level on a desktop: the kit's circuit layout, as in every game. What the robot reads (a click adds or
-  // removes that output on 视野 or 本格信息) is the strip's left side; the tests and the test board its right.
+  // A circuit level on a desktop: the kit's circuit layout, as in every game. What the robot reads is on its input
+  // cards on the board (a click adds or removes that output); the strip under it holds the tests and the test board.
   if (ctl.panelStage) {
     const states = (ctl.tests ? ctl.tests() : []).map((t) => (['pass', 'fail', 'run'].includes(t.status) ? t.status : null))
     return (
@@ -345,8 +347,6 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
           brief={brief}
           parts={<SgParts board={ctl.board} />}
           canvas={<SgCanvas board={ctl.board} />}
-          inputs={ctl.hasInputs && ctl.hasInputs() ? <div id="view" /> : null}
-          inputsTitle={tr('输入 · 点一下就接上', 'Inputs · click to wire in')}
           tests={<div className="tests" id="tests" role="tablist" aria-label={tr('测试', 'Tests')} />}
           status={<TestStatus states={states} />}
           outputs={
@@ -356,7 +356,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
               <div id="after" />
             </section>
           }
-          outputsTitle={tr('输出 · 测试棋盘', 'Outputs · test board')}
+          outputsTitle={tr('测试棋盘', 'Test board')}
           outputsAside={<p className="bnote" />}
           actions={dock}
         />
@@ -386,11 +386,13 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
 }
 
 /**
- * The test board in the strip under a circuit: as large as fits the strip (width and height) up to the board's own
- * largest size, but never under its smallest readable one; a board too big for the strip at that size scrolls in it.
+ * The test board in the strip's pane under a circuit: as large as fits the pane (width and height) up to the board's own
+ * largest size and cells of LARGEST px, but never under its smallest readable one; a board too big for the pane at that
+ * size scrolls in it.
  * Its smallest and largest sizes are the ones sceneSVG wrote (min-width / max-width, from the mode's boardOpt).
  */
-const READABLE = 34
+const READABLE = 26
+const LARGEST = 34
 function fitBoard(root) {
   const body = root.querySelector('.kc-outputs > .kc-pane-body')
   const card = body?.querySelector('.bcard')
@@ -403,16 +405,19 @@ function fitBoard(root) {
   const [, , vw, vh] = svg.getAttribute('viewBox').split(' ').map(Number)
   const gap = parseFloat(getComputedStyle(card).rowGap) || 0
   const pad = getComputedStyle(body)
+  const padY = parseFloat(pad.paddingTop) + parseFloat(pad.paddingBottom)
   const shown = [...card.children].filter((c) => !c.classList.contains('sg-board') && c.offsetHeight)
   const others = shown.reduce((h, c) => h + c.offsetHeight + gap, 0)
-  const w = body.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight)
-  const h = body.clientHeight - parseFloat(pad.paddingTop) - parseFloat(pad.paddingBottom) - others - 4
   // Cells stay at least READABLE px across, however many there are (a board of many layers runs wider and scrolls).
   const sizes = [...svg.querySelectorAll('g.cell:not(.axis) > rect')].map((r) => +r.getAttribute('width')).sort((a, b) => a - b)
   const cell = sizes[Math.floor(sizes.length / 2)] || 0
   const floor = cell ? (vw * READABLE) / cell : +svg.dataset.min
-  const fits = Math.min(w, (h / vh) * vw)
-  const width = Math.max(floor, Math.min(+svg.dataset.max, fits))
+  // The pane asks for the board's height at that size, so the strip grows to show a tall board whole.
+  body.style.minHeight = `${Math.ceil((floor * vh) / vw + others + padY + 4)}px`
+  const w = body.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight)
+  const fits = Math.min(w, ((body.clientHeight - padY - others - 4) / vh) * vw)
+  const most = cell ? Math.min(+svg.dataset.max, (vw * LARGEST) / cell) : +svg.dataset.max
+  const width = Math.max(floor, Math.min(most, fits))
   Object.assign(svg.style, { width: `${Math.round(width)}px`, minWidth: '0', maxWidth: 'none' })
 }
 
