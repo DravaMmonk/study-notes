@@ -23,7 +23,7 @@ export class PartError extends Error {
   }
 }
 
-/** Stops a whole evaluation; its `payload` is for whoever runs the circuit. */
+/** Stops a whole evaluation; its `payload` is for whoever runs the circuit, `values` what was computed by then. */
 export class Halt extends Error {
   constructor(payload) {
     super('halt')
@@ -106,7 +106,11 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
       const ready = prepare ? prepare(ins, node, part) : ins
       values.set(doneKey, part.eval(ready, node, ctx, key ?? undefined))
     } catch (error) {
-      if (error instanceof Halt) throw error
+      if (error instanceof Halt) {
+        // What was computed before the halt, for whoever shows the stopped step.
+        error.values ??= values
+        throw error
+      }
       errors.set(id, error instanceof PartError ? error.label : BROKEN)
     }
   }

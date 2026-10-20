@@ -8,6 +8,8 @@
 // Unconnected inputs read as null (number ports) or false (condition ports).
 
 import { OPS } from '../util.js';
+import { Halt, evaluate as kitEvaluate } from '../../../engine/circuit.js';
+import { sink } from '../../../engine/boards.js';
 import { T, tr } from '../i18n.js';
 
 /** Floating-point noise off (0.9 × 8.1 = 7.29, not 7.290000000000001), so tables compare exactly. */
@@ -143,25 +145,67 @@ export const valueDefault = kind => (kind === 'const' ? 1 : BLUEPRINTS[kind]?.va
 /** What an unconnected input of this port type reads. */
 const idle = type => (type.startsWith('bool') ? false : null);
 
-/** Evaluate every output once. `sense(id, layer)` reads a sensor (layer 'self' or a number); it is called lazily, only
- *  for what is wired. A wire straight from a sensor ('tap:<id>', saved before readers) reads it on the robot's layer. */
-export function evaluate(circ, sense, outs, probe = {}) {
-  const by = new Map(circ.nodes.map(n => [n.id, n])), into = new Map(circ.wires.map(w => [w.to, w.from])), memo = new Map(), ctx = { sense };
-  // A reader's output reads its own sensor ('n3#up'); any other node has one output.
-  const src = id => {
-    if (memo.has(id)) return memo.get(id);
-    let v;
-    if (id.startsWith('tap:')) v = sense(id.slice(4), 'self');
-    else {
-      const [nid, pick] = splitSrc(id), n = by.get(nid), d = def(n.kind);
-      v = d.f(d.ins.map((type, k) => { const f = into.get(`${nid}:${k}`); return f ? src(f) : idle(type); }), n, ctx, pick ?? undefined);
-    }
-    memo.set(id, v);
-    probe[id] = v;
-    return v;
+// The circuit as the shared engine reads it (../../../engine/circuit.js). The engine keeps its own circuit (a
+// component's inputs by number, sinks 'out:<id>', sensors wired straight in as 'tap:<id>'); this is that circuit in
+// the engine's shape, built once per circuit: a component's ports are '0', '1', …, an unconnected one reads its idle
+// signal, a reader's outputs are its picks, and each world output is a sink.
+const asEngine = new WeakMap();
+function engineCircuit(circ, outs) {
+  const key = outs.join();
+  const known = asEngine.get(circ);
+  if (known && known.key === key) return known.graph;
+  const taps = [...new Set(circ.wires.filter(w => w.from.startsWith('tap:')).map(w => w.from))];
+  const graph = {
+    nodes: [
+      ...circ.nodes.map(n => ({ id: n.id, type: n.kind, src: n })),
+      ...taps.map(id => ({ id, type: 'tap:' })),
+      ...outs.map(o => ({ id: `out:${o}`, type: 'out:' })),
+    ],
+    wires: circ.wires.map(w => {
+      if (w.to.startsWith('out:')) return { from: w.from, to: w.to, port: 'in' };
+      const [to, port] = w.to.split(':');
+      return { from: w.from, to, port };
+    }),
   };
+  asEngine.set(circ, { key, graph });
+  return graph;
+}
+const enginePart = new Map();
+const TAP = { inputs: [], eval: (_, node, ctx) => ctx.sense(node.id.slice(4), 'self') };
+const OUT = sink();
+function partOf(type) {
+  if (type === 'tap:') return TAP;
+  if (type === 'out:') return OUT;
+  const d = def(type);
+  if (!enginePart.has(type) || enginePart.get(type).d !== d) {
+    enginePart.set(type, {
+      d,
+      inputs: d.ins.map((_, k) => String(k)),
+      idle: port => idle(d.ins[+port]),
+      eval: (ins, node, ctx, pick) => d.f(d.ins.map((_, k) => ins[k]), node.src, ctx, pick),
+    });
+  }
+  return enginePart.get(type);
+}
+
+/** Evaluate every output once. `sense(id, layer)` reads a sensor (layer 'self' or a number); it is called lazily, only
+ *  for what is wired. A wire straight from a sensor ('tap:<id>', saved before readers) reads it on the robot's layer.
+ *  probe collects every signal computed, by source, and each output as 'out:<id>'. A Halt from a sensor (a robot
+ *  reading a cell not computed yet) stops it; a part that cannot compute is an error. */
+export function evaluate(circ, sense, outs, probe = {}) {
+  const record = values => { for (const [src, v] of values) if (!src.startsWith('out:')) probe[src] = v; };
+  let run;
+  try {
+    run = kitEvaluate(engineCircuit(circ, outs), { parts: partOf, ctx: { sense }, targets: outs.map(o => `out:${o}`) });
+  } catch (e) {
+    if (e instanceof Halt) record(e.values);
+    throw e;
+  }
+  const { values, errors } = run;
+  record(values);
   const out = {};
-  for (const o of outs) { const f = into.get(`out:${o}`); out[o] = f ? src(f) : null; probe[`out:${o}`] = out[o]; }
+  for (const o of outs) { out[o] = values.get(`out:${o}`) ?? null; probe[`out:${o}`] = out[o]; }
+  if (errors.size) throw new Error(`a part cannot compute: ${[...errors.keys()].join(', ')}`);
   return { out, probe };
 }
 

@@ -35,6 +35,8 @@ import { E } from '../svg.js';
 import { T } from '../i18n.js';
 import { signal } from '../util.js';
 import { evaluate } from './components.js';
+import { Halt } from '../../../engine/circuit.js';
+import { MAX_ROUNDS, walk } from '../../../engine/machine.js';
 import { sensor } from '../../../circuit/sensors.js';
 
 /** A board cell near the robot (off = [dr, dc]), a number or yes / no about its own cell, a whole segment, a category. */
@@ -115,38 +117,32 @@ export function windowOf(V, t, c, vision, o = {}) {
   return { wins: [{ label: V.winLabel ? V.winLabel(t, c) : '', n, cells }], arm: V.arm ? V.arm(t, c, o) : null };
 }
 
-/** How many times a scan may repeat before the table counts as never settling. */
-export const MAX_ROUNDS = 50;
+export { MAX_ROUNDS };
 
 /**
- * Run a circuit over one test. Stops at the first read of a cell that is not computed yet.
- * With o.rounds the robot scans the table again and again until a whole round changes nothing; a cell not computed
- * yet then reads as 「—」 (or as its starting value), and each step records its round and whether it changed the cell.
+ * Run a circuit over one test: the shared engine's walk (../../../engine/machine.js) over the world's cells, the
+ * circuit run on each. Stops at the first read of a cell that is not computed yet. With o.rounds the robot scans the
+ * table again and again until a whole round changes nothing; a cell not computed yet then reads as 「—」 (or as its
+ * starting value), and each step records its round and whether it changed the cell.
  */
 export function runCircuit(V, t, circ, o = {}) {
-  const base = V.base ? V.base(t, o) : [], table = new Map(base), steps = [], outs = V.outs.map(x => x[0]);
-  for (let round = 1; round <= (o.rounds ? MAX_ROUNDS : 1); round++) {
-    let moved = false;
-    for (const c of V.order(t, o)) {
-      const keys = V.keys(t, c), at = Object.values(keys), reads = [], probe = {};
-      const get = key => { reads.push(key); if (table.has(key)) return table.get(key); if (o.rounds) return null; throw { empty: key }; };
+  const outs = V.outs.map(x => x[0]);
+  return walk({
+    order: V.order(t, o),
+    keys: c => V.keys(t, c),
+    base: V.base ? V.base(t, o) : [],
+    rounds: !!o.rounds,
+    answer: (table, steps) => V.answer(t, table, o, steps),
+    step: (c, get) => {
+      const probe = {};
       try {
-        const { out } = evaluate(circ, (id, layer) => V.read(t, c, id, get, o, layer), outs, probe);
-        const writes = Object.entries(keys).map(([id, key]) => [key, out[id]]);
-        const changed = writes.some(([key, v]) => !table.has(key) || table.get(key) !== v);
-        writes.forEach(([key, v]) => table.set(key, v));
-        moved = moved || changed;
-        steps.push({ cell: c, at, reads, probe, writes, round, changed, out });
+        return evaluate(circ, (id, layer) => V.read(t, c, id, get, o, layer), outs, probe);
       } catch (e) {
-        if (!e || e.empty === undefined) throw e;
-        steps.push({ cell: c, at, reads, probe, empty: e.empty, round });
-        return { error: { cell: c, key: e.empty }, steps, base, table };
+        if (e instanceof Halt) e.probe = probe;
+        throw e;
       }
-    }
-    if (o.rounds && !moved) return { value: V.answer(t, table, o, steps), steps, base, table, rounds: round };
-  }
-  if (o.rounds) return { error: { diverge: true }, value: V.answer(t, table, o, steps), steps, base, table, rounds: MAX_ROUNDS };
-  return { value: V.answer(t, table, o, steps), steps, base, table };
+    },
+  });
 }
 
 /* ---------- board marking shared by every world ---------- */
