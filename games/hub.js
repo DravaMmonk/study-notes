@@ -25,7 +25,7 @@ function render() {
     return `<a class="kit-card game" href="${g.href}">
       <div class="art" data-art="${g.art}"></div>
       <div class="kit-card-body">
-        <span class="kit-card-topic">${pick(g.topic)}</span>
+        <span class="kit-card-topic">${pick(g.topic)}${g.dev ? `<em class="dev-tag">${tr('开发中', 'In development')}</em>` : ''}</span>
         <h2 class="kit-card-title">${en ? g.en : g.title}<small lang="${en ? 'zh-CN' : 'en'}">${en ? g.title : g.en}</small></h2>
         <p class="kit-card-desc">${pick(g.desc)}</p>
         <div class="meter" aria-label="${tr(`已通过 ${done} / ${g.levels} 关`, `${done} of ${g.levels} levels cleared`)}"><i style="width:${(done / g.levels) * 100}%"></i></div>

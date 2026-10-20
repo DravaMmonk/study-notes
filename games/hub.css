@@ -6,6 +6,7 @@ main{max-width:1100px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)
 .art{aspect-ratio:2/1;display:grid;place-items:center;border-bottom:1px solid var(--hairline);background:var(--canvas)}
 .art>.bx{width:94%}
 .art>.figure-host{width:80%}
+.dev-tag{margin-left:8px;padding:1px 7px;border-radius:9px;color:var(--paper);background:var(--accent-ink);font-style:normal;letter-spacing:.04em}
 .qed-art{width:78%}
 .qed-art path{fill:none;stroke:color-mix(in srgb,var(--w0) 70%,var(--rule));stroke-width:2.4}
 .qed-art path.is-done{stroke:var(--accent)}

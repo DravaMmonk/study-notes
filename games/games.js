@@ -3,6 +3,7 @@
 // how many levels are done; a game without a save reads as 0.
 // `title` is the Chinese name and `en` the English one; topic and desc are { zh, en } pairs (hub.js picks one).
 // `page` is the game's own page (games/kit/app): the path drawn on its tab icon and its description for search engines.
+// `dev` marks a game still in development: its card says so.
 
 const read = key => { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } };
 
@@ -34,7 +35,7 @@ export const GAMES = [
       zh: '不需要任何逻辑学基础。从真值表开始，把推理规则当成元件，一块一块搭出证明；造出假设框，再去岛上分辨骑士和无赖。',
       en: 'No logic background needed. Starting from truth tables, wire up proofs with rules of inference as parts; get an assumption box, then sort the knights from the knaves on an island.',
     },
-    levels: 25, art: 'proof',
+    levels: 25, art: 'proof', dev: true,
     page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 Q.E.D.：把形式化证明做成一套解谜关卡。Formal proof as a set of puzzle levels.' },
     progress: () => (read('qed.v1')?.solved || []).length,
   },
