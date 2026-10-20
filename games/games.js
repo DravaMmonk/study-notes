@@ -28,4 +28,14 @@ export const GAMES = [
     // Saved by the shared game shell under <id>.v1; saves from before it under state-graph-v2.
     progress: () => (read('state-graph.v1')?.solved || Object.keys(read('state-graph-v2')?.done || {})).length,
   },
+  {
+    id: 'qed', href: 'qed/index.html', title: '证明完毕', en: 'Q.E.D.', topic: { zh: '从零开始 · 形式化证明', en: 'From scratch · Formal proof' },
+    desc: {
+      zh: '不需要任何逻辑学基础。从真值表开始，把推理规则当成元件，一块一块搭出证明；造出假设框，再去岛上分辨骑士和无赖。',
+      en: 'No logic background needed. Starting from truth tables, wire up proofs with rules of inference as parts; get an assumption box, then sort the knights from the knaves on an island.',
+    },
+    levels: 25, art: 'proof',
+    page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 Q.E.D.：把形式化证明做成一套解谜关卡。Formal proof as a set of puzzle levels.' },
+    progress: () => (read('qed.v1')?.solved || []).length,
+  },
 ];
