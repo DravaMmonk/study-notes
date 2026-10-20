@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { ChevronRight, Trash2 } from 'lucide-react'
-import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus } from '../../../shell/index.js'
+import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { BoardTrail, CanvasEditor, Notice, Palette, SlotBoard, Tray, boardAt, freeSpot, outputsOf, srcOf, upTo, useSlotEditing, withBoardAt } from '../../../circuit/index.js'
@@ -8,7 +8,7 @@ import { MISSING } from '../../../engine/circuit.js'
 import { runLevel, withHidden } from '../../../engine/tests.js'
 import { fitBoard, startProof } from '../build.js'
 import { parse, replaceAtoms, show } from '../formula.js'
-import { fill, say, subformulas } from '../notation.js'
+import { say, subformulas } from '../notation.js'
 import { LOGIC_TESTS, runAt, seenAt } from '../proof.js'
 import { descOf, iconOf, nameOf, partsFor, settingsOf, familyOf } from './catalog.js'
 import FormulaField from './FormulaField.jsx'
@@ -73,21 +73,18 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
 
   const consts = level.consts ?? []
   const goal = parse(test.goal, { consts })
-  const given = Object.fromEntries(Object.entries(test.premises ?? {}).map(([name, t]) => [name, parse(t, { consts })]))
-  const premises = Object.values(given)
+  const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))
   // Formulas in everyday sentences (notation.js). A card holds the schema's letters and shows them as this test's
   // sentences, so its choices are the schema's own sentences, renamed whenever the test changes.
   const text = (f) => L(say(f, level.notation))
   const schema = [...Object.values(level.schema.premises ?? {}), level.schema.goal].map((t) => parse(t, { consts }))
   const choices = subformulas(schema).map((f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) }))
-  // The level's words, with {A} for a letter's sentence, {p} for a premise and {goal} filled in from this test.
-  const filled = (t) => fill(t, { ...test.subst, ...given, goal }, level.notation)
   const result = verdict?.results[tests.indexOf(test)]
   const states = tests.map((_, k) => (verdict ? (verdict.results[k].pass ? 'pass' : 'fail') : null))
   const hiddenFailed = verdict && hiddenCount ? verdict.results.slice(level.tests.length).filter((r) => !r.pass).length : 0
   const best = progress.best?.[level.id]
   const brief = (
-    <Brief game={game} level={entry} text={filled(level.brief)} hint={(level.hint ?? []).map(filled)} phone={phone}>
+    <Brief game={game} level={entry} hint={level.hint} phone={phone}>
       <section className="lg-score">
         <div className="stat-row">
           <div className="stat"><b>{LOGIC_TESTS.score(level, circuit).steps}</b><span>{tr('步数', 'Steps')}</span></div>
@@ -117,7 +114,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
   )
   const shared = { parts, lemmas, board, view, goal, result, open, setParam, text, choices }
 
-  if (phone) return <PhoneProof {...shared} testChips={<TestChips tests={tests} states={states} current={test} onPick={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} trail={trailOf} boxNote={boxNote} dock={dock} change={change} addNode={addNode} reset={reset} scope={scope} />
+  if (phone) return <PhoneProof {...shared} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} trail={trailOf} boxNote={boxNote} dock={dock} change={change} addNode={addNode} reset={reset} scope={scope} />
 
   return (
     <CircuitLayout
@@ -145,7 +142,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
           </div>
         </div>
       }
-      tests={<TestChips tests={tests} states={states} current={test} onPick={setTestIndex} />}
+      tests={<TestTabs tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />}
       status={<TestStatus states={states} hidden={{ count: hiddenCount, failed: hiddenFailed, note: HIDDEN_NOTE(hiddenCount) }} />}
       outputsTitle={tr('这组测试', 'This test')}
       outputs={
@@ -160,21 +157,6 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
 }
 
 const HIDDEN_NOTE = (count) => ({ zh: `另有 ${count} 组隐藏测试，检查时一起检查，通关后公开。`, en: `${count} more hidden tests are checked with every check and shown once you pass.` })
-
-/** The test cases as chips: each its sentences, marked once checked; picking one shows the proof on its sentences. */
-function TestChips({ tests, states, current, onPick }) {
-  return (
-    <span className="lg-tests">
-      {tests.map((t, k) => (
-        <button key={k} type="button" className={`lg-test ${t === current ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} aria-pressed={t === current} onClick={() => onPick(k)}>
-          <i aria-hidden="true" />
-          {L(t.label)}
-          {t.hidden && <em>{tr('隐藏', 'hidden')}</em>}
-        </button>
-      ))}
-    </span>
-  )
-}
 
 /** A judgment: the formula proved, and the hypotheses it still rests on, written by `text`. */
 function Formula({ j, text, small = false, bare = false }) {
@@ -227,7 +209,7 @@ function CardBody({ node, parts, view, goal, open, setParam, text, choices }) {
 }
 
 // The proof on a phone: the shared slot board, with the trail over it, a sheet per block and the run bar.
-function PhoneProof({ parts, lemmas, board, view, goal, result, open, setParam, text, choices, brief, items, foldedItems, trail, boxNote, dock, change, addNode, reset, scope, testChips }) {
+function PhoneProof({ parts, lemmas, board, view, goal, result, open, setParam, text, choices, brief, items, foldedItems, trail, boxNote, dock, change, addNode, reset, scope, testTabs }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -260,7 +242,7 @@ function PhoneProof({ parts, lemmas, board, view, goal, result, open, setParam, 
   )
   return (
     <div className="level-phone is-split lg-phone" ref={root}>
-      <nav className="lg-tests is-phone" aria-label={tr('测试', 'Tests')}>{testChips}</nav>
+      {testTabs}
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
         {trail}

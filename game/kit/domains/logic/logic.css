@@ -50,16 +50,6 @@
 /* ---- the strip and the brief ---- */
 .lg-strip { display: grid; gap: 6px; }
 .lg-sequent { margin: 0; font-size: 13px; color: var(--muted); }
-/* The test cases: chips with a dot that turns green or red once checked. */
-.lg-tests { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
-.lg-tests::-webkit-scrollbar { display: none; }
-.lg-test { flex: none; min-height: 30px; padding: 0 12px 0 10px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 15px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; }
-.lg-test i { width: 7px; height: 7px; border-radius: 50%; background: var(--rule); }
-.lg-test.is-pass i { background: var(--status); }
-.lg-test.is-fail i { background: var(--fail); }
-.lg-test.is-on { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
-.lg-test em { color: var(--faint); font-style: normal; font-size: 11px; }
-.lg-tests.is-phone { padding: 8px 12px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
 .lg-sequent b { margin: 0 4px; color: var(--ink); }
 .lg-verdict { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .lg-verdict.is-pass { color: var(--status); }

@@ -1,5 +1,6 @@
-// What the logic domain's parts are called and how they look on a board (《证明完毕》): each rule's name, what it does,
-// its ports and the settings on its card, and the editor's description of a node (../../../circuit/model.js parts).
+// What the logic domain's parts are called and how they look on a board (《证明完毕》): each rule's name, what it does
+// (a description may use letters for any sentence; the board itself never shows one), its ports and the settings on
+// its card, and the editor's description of a node (../../../circuit/model.js parts).
 import { ArrowRightFromLine, Box, Flag, GitFork, Puzzle, Sigma, Split } from 'lucide-react'
 import { L } from '../../../shell/i18n.js'
 import { CARRY, RULES, rulesOf } from '../proof.js'
@@ -8,17 +9,17 @@ const T = (zh, en) => ({ zh, en })
 
 /** Every rule: name, what it does, port labels, setting labels and the boards a box opens. */
 export const RULE_TEXT = {
-  mp: { name: T('分离', 'Detach'), desc: T('接进一句「如果…，那么…」和它的前一半，得到后一半。', 'Wire in an “if …, then …” and its “if” part; out comes the “then” part.'), ports: { imp: T('如果…那么…', 'if … then …'), a: T('前一半', 'its “if” part') } },
-  axK: { name: T('公理 K', 'Axiom K'), desc: T('已经成立的事，加上什么条件都还成立：给出「如果 第一句，那么（如果 第二句，那么 第一句）」。两句话在卡片上选。', 'What holds still holds under any condition: gives “if the first, then (if the second, then the first)”. Choose both sentences on the card.'), params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
-  axS: { name: T('公理 S', 'Axiom S'), desc: T('在一个条件下也能分离：给出「如果（第一句下，第二句推出第三句），那么（如果第一句下有第二句，那么第一句下有第三句）」。三句话在卡片上选。', 'Detach works under a condition too: gives “if (under the first, the second gives the third), then (if under the first there is the second, then under the first there is the third)”. Choose all three on the card.'), params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
-  impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设一句话、证出另一句，框外得到「如果 假设，那么 证出的话」。', 'Assume a sentence inside the box and prove another; outside you get “if the assumption, then what was proved”.'), params: { A: T('假设', 'Assume') }, boards: { body: T('框里', 'Inside') } },
-  andI: { name: T('拼成 ∧', 'Join ∧'), desc: T('由两句话得到「这句 ∧ 那句」。', 'From two sentences, “this ∧ that”.'), ports: { a: T('左边', 'left'), b: T('右边', 'right') } },
-  andE: { name: T('拆开 ∧', 'Split ∧'), desc: T('由「这句 ∧ 那句」拆出这句，也拆出那句。', 'From “this ∧ that”, this, and also that.'), ports: { ab: T('…∧…', '… ∧ …') }, outs: { left: [T('左边', 'left'), T('左', 'L')], right: [T('右边', 'right'), T('右', 'R')] } },
-  orI: { name: T('引入 ∨', 'Bring in ∨'), desc: T('由一句话得到「它 ∨ 另一句」，另一句和它放左边还是右边在卡片上选。', 'From a sentence, “it ∨ another”; choose the other and which side it goes on, on the card.'), ports: { a: T('一句', 'a sentence') }, params: { other: T('另一边', 'Other side') } },
-  orE: { name: T('分情况', 'Case by case'), desc: T('接进一句「…∨…」：假设左边证出某句话，假设右边也证出同一句，就得到它。', 'Wire in an “… ∨ …”: if assuming the left proves a sentence and assuming the right proves the same one, you get it.'), ports: { ab: T('…∨…', '… ∨ …') }, boards: { left: T('情况一', 'Case one'), right: T('情况二', 'Case two') } },
+  mp: { name: T('分离', 'Detach'), desc: T('由 A → B 和 A 得到 B：接进一句「如果…，那么…」和它的前一半，得到后一半。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part.'), ports: { imp: T('如果…那么…', 'if … then …'), a: T('前一半', 'its “if” part') } },
+  axK: { name: T('公理 K', 'Axiom K'), desc: T('A → (B → A)：已经成立的事，加上什么条件都还成立。第一句 A、第二句 B 在卡片上选。', 'A → (B → A): what holds still holds under any condition. Choose the first sentence A and the second B on the card.'), params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
+  axS: { name: T('公理 S', 'Axiom S'), desc: T('(A → (B → C)) → ((A → B) → (A → C))：在条件 A 下也能分离。三句 A、B、C 在卡片上选。', '(A → (B → C)) → ((A → B) → (A → C)): Detach works under a condition A too. Choose A, B and C on the card.'), params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
+  impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A、证出 B，框外得到 A → B。', 'Assume A inside the box and prove B; outside you get A → B.'), params: { A: T('假设', 'Assume') }, boards: { body: T('框里', 'Inside') } },
+  andI: { name: T('拼成 ∧', 'Join ∧'), desc: T('由 A 和 B 得到 A ∧ B。', 'From A and B, A ∧ B.'), ports: { a: T('左边', 'left'), b: T('右边', 'right') } },
+  andE: { name: T('拆开 ∧', 'Split ∧'), desc: T('由 A ∧ B 得到 A，也得到 B。', 'From A ∧ B, A, and also B.'), ports: { ab: T('…∧…', '… ∧ …') }, outs: { left: [T('左边', 'left'), T('左', 'L')], right: [T('右边', 'right'), T('右', 'R')] } },
+  orI: { name: T('引入 ∨', 'Bring in ∨'), desc: T('由 A 得到 A ∨ B（或 B ∨ A），另一边 B 和放在哪边在卡片上选。', 'From A, A ∨ B (or B ∨ A); choose B and its side on the card.'), ports: { a: T('一句', 'a sentence') }, params: { other: T('另一边', 'Other side') } },
+  orE: { name: T('分情况', 'Case by case'), desc: T('接进 A ∨ B：假设 A 证出 C，假设 B 也证出 C，就得到 C。', 'Wire in A ∨ B: if assuming A proves C and assuming B proves C, then C.'), ports: { ab: T('…∨…', '… ∨ …') }, boards: { left: T('情况一', 'Case one'), right: T('情况二', 'Case two') } },
   botE: { name: T('矛盾推出一切', 'From contradiction'), desc: T('由矛盾 ⊥ 得到卡片上选的任何一句。', 'From the contradiction ⊥, whatever is chosen on the card.'), ports: { bot: '⊥' }, params: { C: T('得出', 'Conclude') } },
-  raa: { name: T('反证法', 'By contradiction'), desc: T('由「并非并非 某句」得到那句。', 'From “not not a sentence”, the sentence.'), ports: { nna: T('¬¬…', '¬¬…') } },
-  iffE: { name: T('拆开 ↔', 'Split ↔'), desc: T('由「这句 ↔ 那句」得到两个方向的 →。', 'From “this ↔ that”, the → each way.'), ports: { iff: T('…↔…', '… ↔ …') }, outs: { ltr: [T('从左到右', 'left to right'), '→'], rtl: [T('从右到左', 'right to left'), '←'] } },
+  raa: { name: T('反证法', 'By contradiction'), desc: T('由 ¬¬A 得到 A。', 'From ¬¬A, A.'), ports: { nna: T('¬¬…', '¬¬…') } },
+  iffE: { name: T('拆开 ↔', 'Split ↔'), desc: T('由 A ↔ B 得到 A → B，也得到 B → A。', 'From A ↔ B, A → B, and also B → A.'), ports: { iff: T('…↔…', '… ↔ …') }, outs: { ltr: [T('从左到右', 'left to right'), '→'], rtl: [T('从右到左', 'right to left'), '←'] } },
   allI: { name: T('任取', 'For any'), desc: T('框里对一个新变量 x 证出 P(x)，框外得 ∀x. P(x)。', 'Prove P(x) inside the box for a new variable x; outside you get ∀x. P(x).'), params: { x: T('变量', 'Variable') }, boards: { body: T('框里', 'Inside') } },
   allE: { name: T('代入', 'Instantiate'), desc: T('由 ∀x. P(x) 得 P(t)。', 'From ∀x. P(x), P(t).'), ports: { all: '∀x. P(x)' }, params: { t: T('项', 'Term') } },
   exI: { name: T('举例', 'Example'), desc: T('由 P(t) 得 ∃x. P(x)。', 'From P(t), ∃x. P(x).'), ports: { a: 'P(t)' }, params: { target: T('要得出', 'Conclude'), t: T('项', 'Term') } },

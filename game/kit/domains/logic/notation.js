@@ -42,17 +42,6 @@ export function render(f, notation, lang, outer = -1) {
 /** A formula as a { zh, en } pair, in `notation` (plain letters and symbols without one). */
 export const say = (f, notation) => (notation ? { zh: render(f, notation, 'zh'), en: render(f, notation, 'en') } : { zh: show(f), en: show(f) })
 
-/**
- * A level's text with its formulas filled in: each {name} becomes formulas[name] in the notation, in each language
- * (a brief that says 「已知{p}」 reads 「已知「下雨 → 地湿」」 on one test case and 「已知「闹钟响了 → 我起床了」」 on another).
- */
-export function fill(text, formulas, notation) {
-  if (!text) return text
-  const pair = typeof text === 'string' ? { zh: text, en: text } : text
-  const one = (s, lang) => s.replace(/\{(\w+)\}/g, (m, name) => (formulas[name] ? render(formulas[name], notation, lang) : m))
-  return { zh: one(pair.zh, 'zh'), en: one(pair.en, 'en') }
-}
-
 /** Every formula inside some formulas (themselves included), each once, in the order they appear. */
 export function subformulas(formulas) {
   const out = new Map()

@@ -19,13 +19,6 @@ export function validate({ levels }) {
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l])
     if (missing.length) out.push({ fail: true, text: `${level.id}: no words for ${missing.join(', ')}` })
     if (level.kind === 'proof' && !level.cases) out.push({ fail: true, text: `${level.id}: a proof level needs test cases` })
-    // Every {name} in its words is something a test fills in: a letter, a premise, or the goal.
-    if (level.kind === 'proof' && level.cases) {
-      const known = new Set([...Object.keys(level.cases[0]), ...Object.keys(level.schema.premises ?? {}), 'goal'])
-      const words = JSON.stringify([level.brief, level.hint, level.intro, level.after])
-      const unknown = [...new Set([...words.matchAll(/\{(\w+)\}/g)].map((m) => m[1]))].filter((name) => !known.has(name))
-      if (unknown.length) out.push({ fail: true, text: `${level.id}: its words name ${unknown.map((n) => `{${n}}`).join(' ')}, which no test fills in` })
-    }
   }
   for (const level of levels.filter((l) => l.kind === 'truth')) {
     const formulas = level.formulas.map((t) => parse(t))

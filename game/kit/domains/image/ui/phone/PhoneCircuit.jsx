@@ -1,10 +1,10 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, Check, ChevronRight, Circle, Trash2, X } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronRight, Trash2, X } from 'lucide-react'
 import { wouldCycle } from '../../engine/graph.js'
 import { NODE_TYPES, inputsOf, settingsOf } from '../../engine/nodes.js'
-import { L, keyOf, tr } from '../../../../shell/i18n.js'
+import { L, tr } from '../../../../shell/i18n.js'
 import { Notice, SlotBoard, Tray, connect, feeding, useSlotEditing } from '../../../../circuit/index.js'
-import { RunDock, TaskCard } from '../../../../shell/index.js'
+import { RunDock, TaskCard, TestTabs } from '../../../../shell/index.js'
 import { describe, familyOf, iconOf } from '../catalog.js'
 import { PORT_LABELS, partsFor } from '../parts.js'
 import ImageView from '../ImageView.jsx'
@@ -116,17 +116,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
 
   return (
     <div className="pb" ref={root}>
-      <nav className="pb-tests" aria-label={tr('测试', 'Tests')}>
-        {level.tests.map((test, index) => {
-          const pass = run?.results[index]?.pass
-          return (
-            <button key={keyOf(test.label)} className={`pb-test ${index === testIndex ? 'is-on' : ''} ${pass === null ? '' : pass ? 'is-pass' : 'is-fail'}`} onClick={() => onTestIndex(index)} aria-pressed={index === testIndex}>
-              {pass === null ? <Circle size={10} /> : pass ? <Check size={12} /> : <X size={12} />}{L(test.label)}
-              {test.hidden && <em className="hidden-tag">{tr('隐藏', 'hidden')}</em>}
-            </button>
-          )
-        })}
-      </nav>
+      <TestTabs phone tests={level.tests} states={level.tests.map((_, index) => { const ok = run?.results[index]?.pass; return ok === true ? 'pass' : ok === false ? 'fail' : null })} index={testIndex} onSelect={onTestIndex} />
 
       <div className="pb-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
