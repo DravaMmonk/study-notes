@@ -20,6 +20,7 @@ lib/
 !trace-viewer/src/lib/**
 lib64/
 parts/
+!games/kit/domains/image/engine/parts/
 sdist/
 var/
 wheels/
