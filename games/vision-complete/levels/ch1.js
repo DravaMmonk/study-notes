@@ -1,4 +1,5 @@
-import { GLYPHS, addNoise, correlate, flipKernel, fromFn, gaussianKernel, map, patterns as P, random, shift, zip } from '../../kit/domains/image/engine/image.js'
+import { GLYPHS, addNoise, correlate, flipKernel, fromFn, gaussianKernel, map, patterns as P, shift, zip } from '../../kit/domains/image/engine/image.js'
+import { maxAbsDiff, racerRounds } from '../../kit/domains/image/benches/racer.js'
 import { build, test } from '../../kit/domains/image/build.js'
 
 // Chapter 1 · 邻居 (lecture 3): an output pixel from its neighbours. Steps: averages (and their separable and
@@ -21,7 +22,6 @@ const scenes = () => [
   [{ zh: '棋盘', en: 'Checkerboard' }, P.checker()],
   [{ zh: '亮点', en: 'Bright dot' }, P.impulse(7, 7)],
 ]
-const maxAbsDiff = (a, b) => a.data.reduce((worst, v, i) => Math.max(worst, Math.abs(v - b.data[i])), 0)
 const each = (cases, out) => cases.map(([label, img]) => test(label, { in: img }, { out: out(img) }))
 
 const hblur = {
@@ -423,33 +423,7 @@ const RACER_INPUTS = [
 export const RACER = { rounds: 10, pass: 8, minGap: 0.15 }
 export const racerTime = (round) => Math.max(2.5, 8 - 0.6 * round) // seconds allowed for round 0, 1, …
 
-// Ten rounds from a seed: an input, the output of one kernel, and four kernel cards in shuffled order.
-// A round is kept only if every wrong card would have produced a clearly different output.
-export function racerRounds(seed) {
-  const next = random(seed * 7919 + 13)
-  const pick = (n) => Math.floor(next() * n)
-  const rounds = []
-  let previous = null
-  while (rounds.length < RACER.rounds) {
-    const inputIndex = pick(RACER_INPUTS.length)
-    const answer = pick(RACER_KERNELS.length)
-    if (answer === previous) continue
-    const others = RACER_KERNELS.map((_, i) => i).filter((i) => i !== answer)
-    const choices = [answer]
-    while (choices.length < 4) choices.push(others.splice(pick(others.length), 1)[0])
-    for (let i = choices.length - 1; i > 0; i--) {
-      const j = pick(i + 1)
-      ;[choices[i], choices[j]] = [choices[j], choices[i]]
-    }
-    const input = RACER_INPUTS[inputIndex]
-    const output = correlate(input, RACER_KERNELS[answer].w)
-    const gap = Math.min(...choices.filter((c) => c !== answer).map((c) => maxAbsDiff(correlate(input, RACER_KERNELS[c].w), output)))
-    if (gap < RACER.minGap) continue
-    previous = answer
-    rounds.push({ inputIndex, input, output, choices, answer: choices.indexOf(answer) })
-  }
-  return rounds
-}
+const rounds = (seed) => racerRounds({ kernels: RACER_KERNELS, inputs: RACER_INPUTS, racer: RACER }, seed)
 
 const racerLevel = {
   id: '1-10',
@@ -462,13 +436,13 @@ const racerLevel = {
   after: { zh: '你已经能从结果反推核：全正且和为 1 是平滑，越集中越接近原图；和为 0 的核只对变化有反应，是求导；中心大、四周为负是锐化；只有一个 1 是平移，挪的方向和 1 的位置相反。', en: 'You can now work back from a result to its kernel. All positive and summing to 1 is smoothing, and the more concentrated, the closer to the original. A kernel that sums to 0 responds only to change: a derivative. A large centre with negative neighbours is sharpening. A single 1 is a shift, moving the opposite way from where the 1 sits.' },
   unlocks: [],
   kernels: RACER_KERNELS,
-  rounds: racerRounds,
+  rounds,
   racer: RACER,
   timeFor: racerTime,
   verify() {
     for (let seed = 1; seed <= 40; seed++) {
-      const a = racerRounds(seed)
-      const b = racerRounds(seed)
+      const a = rounds(seed)
+      const b = rounds(seed)
       if (JSON.stringify(a.map((r) => [r.inputIndex, r.choices, r.answer])) !== JSON.stringify(b.map((r) => [r.inputIndex, r.choices, r.answer]))) return `种子 ${seed} 不确定`
       for (const [index, round] of a.entries()) {
         const outputs = round.choices.map((c) => correlate(round.input, RACER_KERNELS[c].w))

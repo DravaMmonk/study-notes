@@ -1,16 +1,12 @@
 // The three benches of chapter 6 · 认出同一个点 (lectures 11–12): Hough voting, RANSAC rounds, and the four corners
 // that pin down a homography. What cannot be wired from parts is played on a bench, and each bench then unlocks a
-// part the circuits use (levels/ch6.js). The game logic lives here as plain functions (level.model) so
-// `npm run levels` can prove every lesson.
-import { random } from '../../kit/domains/image/engine/image.js'
+// part the circuits use (levels/ch6.js). The benches' workings are in kit/domains/image/benches; here are their
+// scenes and stages, and verify(), which proves each lesson holds (`npm run check`).
 import { keyOf } from '../../kit/shell/i18n.js'
-import { affineFit, homographyDLT, houghAccumulate, houghPeaks, invert3, lineGap, lineThrough, project, ransacLine } from '../../kit/domains/image/engine/match.js'
-
-const gauss = (next) => {
-  let s = 0
-  for (let i = 0; i < 6; i++) s += next()
-  return (s - 3) * Math.SQRT2
-}
+import { affineFit, homographyDLT, project } from '../../kit/domains/image/engine/match.js'
+import { coverBench } from '../../kit/domains/image/benches/cover.js'
+import { houghBench, houghScene } from '../../kit/domains/image/benches/hough.js'
+import { ransacBench, ransacRounds } from '../../kit/domains/image/benches/ransac.js'
 
 // =====================================================================================
 // 6-6 投票: Hough accumulator; the bin size decides whether votes split or lines merge.
@@ -20,84 +16,30 @@ const HOUGH_RHO_MAX = 34
 // The bin-size dial: one step sets both Δθ (degrees) and Δρ (pixels).
 const HOUGH_STEPS = [[1, 0.25], [1.5, 0.5], [2, 0.75], [3, 1], [4.5, 1.5], [6, 2], [9, 3], [12, 4], [18, 6]]
 const HOUGH_TOL = { theta: 4, rho: 1.5 }
-
-function houghScene(seed, lines, outliers, sigma = 0.7) {
-  const next = random(seed)
-  const points = []
-  for (const { theta, rho, n, from = -22, to = 22 } of lines) {
-    const t = (theta * Math.PI) / 180
-    const nx = Math.cos(t)
-    const ny = Math.sin(t)
-    for (let i = 0; i < n; i++) {
-      const s = from + ((to - from) * (i + next())) / n
-      const e = gauss(next) * sigma
-      const x = nx * (rho + e) - ny * s
-      const y = ny * (rho + e) + nx * s
-      if (Math.abs(x) <= 24 && Math.abs(y) <= 24) points.push([x, y])
-    }
-  }
-  for (let i = 0; i < outliers; i++) points.push([(next() - 0.5) * 48, (next() - 0.5) * 48])
-  return points
-}
-
-const HOUGH_SCENES = [
-  { label: { zh: '两条轨道', en: 'Two rails' }, lines: [{ theta: 60, rho: -2, n: 32 }, { theta: 63, rho: 3, n: 24 }], points: houghScene(6, [{ theta: 60, rho: -2, n: 32 }, { theta: 63, rho: 3, n: 24 }], 16) },
-  { label: { zh: '一长一短', en: 'One long, one short' }, lines: [{ theta: 150, rho: 9, n: 34 }, { theta: 100, rho: -15, n: 20, from: -14, to: 14 }], points: houghScene(22, [{ theta: 150, rho: 9, n: 34 }, { theta: 100, rho: -15, n: 20, from: -14, to: 14 }], 16) },
-  { label: { zh: '挨得很近', en: 'Close together' }, lines: [{ theta: 15, rho: 4, n: 30 }, { theta: 10, rho: 13, n: 22 }], points: houghScene(4, [{ theta: 15, rho: 4, n: 30 }, { theta: 10, rho: 13, n: 22 }], 18) },
-]
-
-// The peak's line is the vote-weighted centre of its 3×3 cells (a common sub-bin refinement).
-function refinePeak(acc, peak) {
-  const { votes, nT, nR, dTheta, dRho, rhoMax } = acc
-  let sw = 0
-  let st = 0
-  let sr = 0
-  for (let dr = -1; dr <= 1; dr++) {
-    for (let dt = -1; dt <= 1; dt++) {
-      const r = peak.r + dr
-      const t = peak.t + dt
-      if (r < 0 || r >= nR || t < 0 || t >= nT) continue
-      const v = votes[r * nT + t]
-      sw += v
-      st += v * (t + 0.5) * dTheta
-      sr += v * ((r + 0.5) * dRho - rhoMax)
-    }
-  }
-  return { ...peak, theta: st / sw, rho: sr / sw }
-}
-
-function houghRun(scene, step) {
-  const [dTheta, dRho] = HOUGH_STEPS[step]
-  const acc = houghAccumulate(scene.points, dTheta, dRho, HOUGH_RHO_MAX)
-  const peaks = houghPeaks(acc, 3).map((p) => refinePeak(acc, p))
-  const top = peaks.slice(0, 2)
-  const used = new Set()
-  const found = scene.lines.map((line) => {
-    const index = top.findIndex((p, i) => {
-      if (used.has(i)) return false
-      const gap = lineGap(p, line)
-      return gap.dTheta <= HOUGH_TOL.theta && gap.dRho <= HOUGH_TOL.rho
-    })
-    if (index >= 0) used.add(index)
-    return index
-  })
-  return { acc, peaks, found, pass: found.every((i) => i >= 0) }
-}
-
-const houghPassesAll = (step) => HOUGH_SCENES.every((scene) => houghRun(scene, step).pass)
+const scene = (label, seed, lines, outliers) => ({ label, lines, points: houghScene(seed, lines, outliers) })
+const HOUGH = houghBench({
+  scenes: [
+    scene({ zh: '两条轨道', en: 'Two rails' }, 6, [{ theta: 60, rho: -2, n: 32 }, { theta: 63, rho: 3, n: 24 }], 16),
+    scene({ zh: '一长一短', en: 'One long, one short' }, 22, [{ theta: 150, rho: 9, n: 34 }, { theta: 100, rho: -15, n: 20, from: -14, to: 14 }], 16),
+    scene({ zh: '挨得很近', en: 'Close together' }, 4, [{ theta: 15, rho: 4, n: 30 }, { theta: 10, rho: 13, n: 22 }], 18),
+  ],
+  steps: HOUGH_STEPS,
+  rhoMax: HOUGH_RHO_MAX,
+  tol: HOUGH_TOL,
+})
 
 function verifyHough() {
-  const pattern = HOUGH_STEPS.map((_, step) => houghPassesAll(step))
+  const pattern = HOUGH_STEPS.map((_, step) => HOUGH.passesAll(step))
   if (!pattern.some(Boolean)) return 'no bin size passes every scene'
   if (pattern[0] || pattern[1]) return 'the finest bins pass'
   if (pattern.at(-1) || pattern.at(-2)) return 'the coarsest bins pass'
   // Coarse bins must fail because the two rails fall into one cell or neighbouring cells: one peak.
   const [dTheta, dRho] = HOUGH_STEPS.at(-1)
-  const [a, b] = HOUGH_SCENES[0].lines
+  const [a, b] = HOUGH.scenes[0].lines
   const cell = (line) => [Math.floor(line.theta / dTheta), Math.floor((line.rho + HOUGH_RHO_MAX) / dRho)]
   const [ca, cb] = [cell(a), cell(b)]
   if (Math.abs(ca[0] - cb[0]) > 1 || Math.abs(ca[1] - cb[1]) > 1) return 'coarse bins still separate the two rails'
-  if (houghRun(HOUGH_SCENES[0], HOUGH_STEPS.length - 1).found.filter((i) => i >= 0).length > 1) return 'coarse bins find both rails'
+  if (HOUGH.run(HOUGH.scenes[0], HOUGH_STEPS.length - 1).found.filter((i) => i >= 0).length > 1) return 'coarse bins find both rails'
   return ''
 }
 
@@ -105,62 +47,24 @@ function verifyHough() {
 // 6-8 共识: RANSAC rounds k and inlier threshold δ, judged over 200 seeded trials.
 // =====================================================================================
 
-const RANSAC_N = 80
-const RANSAC_SIGMA = 0.5
-const RANSAC_TRIALS = 200
-const RANSAC_TOL = { theta: 5, rho: 2 }
 const RANSAC_STAGES = [
   { label: { zh: '外点 25%', en: 'Outliers 25%' }, outliers: 0.25, budget: 10 },
   { label: { zh: '外点 50%', en: 'Outliers 50%' }, outliers: 0.5, budget: 25 },
   { label: { zh: '外点 70%', en: 'Outliers 70%' }, outliers: 0.7, budget: 66 },
 ]
-
-function ransacData(stage, trial) {
-  const next = random(trial * 7919 + Math.round(stage.outliers * 1000))
-  const angle = next() * Math.PI
-  const dx = Math.cos(angle)
-  const dy = Math.sin(angle)
-  const off = (next() - 0.5) * 10
-  const inliers = Math.round(RANSAC_N * (1 - stage.outliers))
-  const points = []
-  const truth = lineThrough([-dy * off, dx * off], [-dy * off + dx, dx * off + dy])
-  for (let i = 0; i < inliers; i++) {
-    const s = (next() - 0.5) * 34
-    const e = gauss(next) * RANSAC_SIGMA
-    points.push([-dy * off + dx * s - dy * e, dx * off + dy * s + dx * e])
-  }
-  while (points.length < RANSAC_N) points.push([(next() - 0.5) * 44, (next() - 0.5) * 44])
-  return { points, truth, inliers }
-}
-
-function ransacTrial(stage, trial, k, delta) {
-  const data = ransacData(stage, trial)
-  const result = ransacLine(data.points, k, delta, random(1000 + trial))
-  const gap = result && lineGap(result.line, data.truth)
-  return { ...data, result, ok: Boolean(gap && gap.dTheta <= RANSAC_TOL.theta && gap.dRho <= RANSAC_TOL.rho) }
-}
-
-function ransacRate(stage, k, delta) {
-  const outcomes = []
-  for (let t = 0; t < RANSAC_TRIALS; t++) outcomes.push(ransacTrial(stage, t + 1, k, delta).ok)
-  const wins = outcomes.filter(Boolean).length
-  return { outcomes, wins, rate: wins / RANSAC_TRIALS, pass: wins >= 0.99 * RANSAC_TRIALS && k <= stage.budget }
-}
-
-// k ≥ log(1 − P) / log(1 − pⁿ), the lecture's formula, for showing after the level.
-const ransacRounds = (p, n = 2, P = 0.99) => Math.ceil(Math.log(1 - P) / Math.log(1 - p ** n))
+const RANSAC = ransacBench({ stages: RANSAC_STAGES, n: 80, sigma: 0.5, trials: 200, tol: { theta: 5, rho: 2 } })
 
 const RANSAC_SOLUTION = { delta: 1, k: [10, 25, 66] }
 
 function verifyRansac() {
-  const passAll = (delta, ks) => RANSAC_STAGES.every((stage, i) => ransacRate(stage, ks[i], delta).pass)
+  const passAll = (delta, ks) => RANSAC_STAGES.every((stage, i) => RANSAC.rate(stage, ks[i], delta).pass)
   if (!passAll(RANSAC_SOLUTION.delta, RANSAC_SOLUTION.k)) return `reference δ=${RANSAC_SOLUTION.delta}, k=${RANSAC_SOLUTION.k} fails`
   for (const [i, stage] of RANSAC_STAGES.entries()) {
     const theory = ransacRounds(1 - stage.outliers)
     if (theory > stage.budget) return `${keyOf(stage.label)}: formula needs ${theory} rounds, budget ${stage.budget}`
     // Far fewer rounds than the formula asks for must fail.
-    if (ransacRate(stage, Math.ceil(theory / 3), RANSAC_SOLUTION.delta).pass) return `${keyOf(stage.label)}: k = ${Math.ceil(theory / 3)} already passes`
-    if (i && ransacRate(stage, RANSAC_STAGES[0].budget, RANSAC_SOLUTION.delta).pass) return `${keyOf(stage.label)}: the first stage's k passes, k needs no thought`
+    if (RANSAC.rate(stage, Math.ceil(theory / 3), RANSAC_SOLUTION.delta).pass) return `${keyOf(stage.label)}: k = ${Math.ceil(theory / 3)} already passes`
+    if (i && RANSAC.rate(stage, RANSAC_STAGES[0].budget, RANSAC_SOLUTION.delta).pass) return `${keyOf(stage.label)}: the first stage's k passes, k needs no thought`
   }
   // δ too large lets outliers in; δ too small loses inliers; neither is rescued by the budget.
   if (passAll(6, RANSAC_STAGES.map((s) => s.budget))) return 'δ = 6 passes'
@@ -173,163 +77,47 @@ function verifyRansac() {
 // 6-11 四个角: pairs of points → homography by DLT; three pairs only give an affine map.
 // =====================================================================================
 
-const COVER = { w: 60, h: 84 }
-const PHOTO = { w: 200, h: 150 }
-const TITLE = [8, 10, 52, 30]
-const LOGO = [22, 50, 38, 66]
-const rectCorners = ([x0, y0, x1, y1]) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
-
-// The true pose: the cover's corners land on a trapezoid, the far (top) edge clearly shorter.
-const COVER_QUAD = [[78, 24], [140, 30], [166, 128], [48, 120]]
-const TRUE_H = homographyDLT(rectCorners([0, 0, COVER.w, COVER.h]).map((from, i) => ({ from, to: COVER_QUAD[i] })))
-
-const COVER_POINTS = [...rectCorners([0, 0, COVER.w, COVER.h]), ...rectCorners(TITLE), ...rectCorners(LOGO)]
-// The photo's sticky note and paper are drawn from these outlines.
-const CLUTTER_SHAPES = {
-  note: [[14, 14], [34, 12], [36, 32], [16, 34]],
-  paper: [[176, 70], [206, 64], [210, 160], [186, 148]],
-}
-
-const PHOTO_POINTS = (() => {
-  const next = random(65)
-  const cover = COVER_POINTS.map(([x, y]) => {
-    const [u, v] = project(TRUE_H, x, y)
-    return { at: [u + (next() - 0.5) * 0.4, v + (next() - 0.5) * 0.4], truth: true }
-  })
-  // Corners of other things on the desk: a sticky note and a sheet of paper.
-  const clutter = [...CLUTTER_SHAPES.note, CLUTTER_SHAPES.paper[0], CLUTTER_SHAPES.paper[3]].map((at) => ({ at, truth: false }))
-  // Shuffle so the list order gives nothing away.
-  return [...cover, ...clutter].map((p, i) => ({ ...p, cover: p.truth ? i : -1, key: (i * 7) % 18 })).sort((a, b) => a.key - b.key)
-})()
-
-const GRID = (() => {
-  const points = []
-  for (let i = 0; i <= 6; i++) for (let j = 0; j <= 8; j++) points.push([(i / 6) * COVER.w, (j / 8) * COVER.h])
-  return points
-})()
-
-// Mean distance (photo px) between where a model and the true pose put the cover's grid points.
-function overlayError(M) {
-  if (!M) return Infinity
-  let sum = 0
-  for (const [x, y] of GRID) {
-    const [u, v] = project(M, x, y)
-    const [tu, tv] = project(TRUE_H, x, y)
-    const d = Math.hypot(u - tu, v - tv)
-    if (!Number.isFinite(d)) return Infinity
-    sum += d
-  }
-  return sum / GRID.length
-}
-
-// pairs: [{ cover: index into COVER_POINTS, photo: index into PHOTO_POINTS }]
-function fitCover(pairs) {
-  const data = pairs.map((p) => ({ from: COVER_POINTS[p.cover], to: PHOTO_POINTS[p.photo].at }))
-  if (data.length < 3) return { model: null, kind: '', error: Infinity }
-  if (data.length === 3) {
-    const A = affineFit(data)
-    return { model: A, kind: 'affine', error: overlayError(A) }
-  }
-  const H = homographyDLT(data)
-  return { model: H, kind: 'homography', error: overlayError(H) }
-}
-
-const COVER_TOL = 1.5
-
-const photoIndexOf = (coverIndex) => PHOTO_POINTS.findIndex((p) => p.cover === coverIndex)
+// The true pose puts the cover's corners on a trapezoid, the far (top) edge clearly shorter; the desk has a sticky
+// note and a sheet of paper whose corners are decoys.
+const CORNERS = coverBench({
+  cover: { w: 60, h: 84 },
+  photo: { w: 200, h: 150 },
+  title: [8, 10, 52, 30],
+  logo: [22, 50, 38, 66],
+  quad: [[78, 24], [140, 30], [166, 128], [48, 120]],
+  clutter: { note: [[14, 14], [34, 12], [36, 32], [16, 34]], paper: [[176, 70], [206, 64], [210, 160], [186, 148]] },
+  seed: 65,
+  tol: 1.5,
+})
 
 function verifyCover() {
-  if (!TRUE_H) return 'no true pose'
+  const { trueH, coverPoints, photoPoints, fit, overlayError, photoIndexOf, tol } = CORNERS
+  if (!trueH) return 'no true pose'
   // The DLT must recover a known homography exactly from 4 noise-free pairs.
-  const exact = homographyDLT(COVER_POINTS.slice(0, 4).map((from) => ({ from, to: project(TRUE_H, ...from) })))
+  const exact = homographyDLT(coverPoints.slice(0, 4).map((from) => ({ from, to: project(trueH, ...from) })))
   if (!(overlayError(exact) < 1e-6)) return 'DLT does not recover the true H'
-  const goal = fitCover([0, 1, 2, 3].map((c) => ({ cover: c, photo: photoIndexOf(c) })))
-  if (!(goal.error < COVER_TOL)) return `4 corner pairs give error ${goal.error.toFixed(2)}`
-  const other = fitCover([4, 5, 10, 11].map((c) => ({ cover: c, photo: photoIndexOf(c) })))
-  if (!(other.error < COVER_TOL)) return `title + logo pairs give error ${other.error.toFixed(2)}`
+  const goal = fit([0, 1, 2, 3].map((c) => ({ cover: c, photo: photoIndexOf(c) })))
+  if (!(goal.error < tol)) return `4 corner pairs give error ${goal.error.toFixed(2)}`
+  const other = fit([4, 5, 10, 11].map((c) => ({ cover: c, photo: photoIndexOf(c) })))
+  if (!(other.error < tol)) return `title + logo pairs give error ${other.error.toFixed(2)}`
   // No three correct pairs, and not even the best affine fit to all twelve, can reach the goal.
   let bestAffine = Infinity
   for (let i = 0; i < 12; i++) {
     for (let j = i + 1; j < 12; j++) {
       for (let k = j + 1; k < 12; k++) {
-        const fit = fitCover([i, j, k].map((c) => ({ cover: c, photo: photoIndexOf(c) })))
-        if (fit.model) bestAffine = Math.min(bestAffine, fit.error)
+        const three = fit([i, j, k].map((c) => ({ cover: c, photo: photoIndexOf(c) })))
+        if (three.model) bestAffine = Math.min(bestAffine, three.error)
       }
     }
   }
-  if (bestAffine < 3 * COVER_TOL) return `three pairs reach error ${bestAffine.toFixed(2)}`
-  const lsq = affineFit(COVER_POINTS.map((from, c) => ({ from, to: PHOTO_POINTS[photoIndexOf(c)].at })))
-  if (overlayError(lsq) < 3 * COVER_TOL) return 'least-squares affine fits'
+  if (bestAffine < 3 * tol) return `three pairs reach error ${bestAffine.toFixed(2)}`
+  const lsq = affineFit(coverPoints.map((from, c) => ({ from, to: photoPoints[photoIndexOf(c)].at })))
+  if (overlayError(lsq) < 3 * tol) return 'least-squares affine fits'
   // One wrong pair (title corner matched to the cover corner) must fail.
-  const wrong = fitCover([0, 1, 2, 7].map((c, i) => ({ cover: i === 3 ? 3 : c, photo: photoIndexOf(c) })))
-  if (wrong.error < COVER_TOL) return 'a wrong pair passes'
+  const wrong = fit([0, 1, 2, 7].map((c, i) => ({ cover: i === 3 ? 3 : c, photo: photoIndexOf(c) })))
+  if (wrong.error < tol) return 'a wrong pair passes'
   return ''
 }
-
-// Cover artwork in cover units → [r, g, b]. Fixed colours: it is a photograph, not UI.
-function coverColour(x, y) {
-  const [tx0, ty0, tx1, ty1] = TITLE
-  const [lx0, ly0, lx1, ly1] = LOGO
-  if (x >= tx0 && x < tx1 && y >= ty0 && y < ty1) {
-    const line = (y > 14 && y < 17 && x > 12 && x < 48) || (y > 21 && y < 24 && x > 12 && x < 40)
-    return line ? [44, 52, 70] : [236, 226, 198]
-  }
-  if (x >= lx0 && x < lx1 && y >= ly0 && y < ly1) return (x - lx0 + y - ly0) % 8 < 4 ? [214, 146, 44] : [232, 176, 80]
-  if (y > 72 && y < 77 && x > 12 && x < 48) return [196, 200, 214]
-  return [36, 66, 104]
-}
-
-function deskColour(u, v) {
-  const grain = 0.5 + 0.5 * Math.sin(v * 0.35 + Math.sin(u * 0.05) * 3)
-  let c = [178 + grain * 16, 160 + grain * 14, 132 + grain * 10]
-  const inPoly = (poly) => {
-    let hit = false
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-      const [xi, yi] = poly[i]
-      const [xj, yj] = poly[j]
-      if (yi > v !== yj > v && u < ((xj - xi) * (v - yi)) / (yj - yi) + xi) hit = !hit
-    }
-    return hit
-  }
-  if (inPoly(CLUTTER_SHAPES.paper)) c = [238, 236, 228]
-  if (inPoly(CLUTTER_SHAPES.note)) c = [236, 206, 96]
-  return c
-}
-
-// Render the photo (desk + cover under the true pose) and, for a model, the cover warped by it.
-function renderPhoto(target, M = TRUE_H, { desk = true } = {}) {
-  const inverse = M && invert3(M)
-  for (let v = 0; v < PHOTO.h; v++) {
-    for (let u = 0; u < PHOTO.w; u++) {
-      const i = (v * PHOTO.w + u) * 4
-      let colour = desk ? deskColour(u + 0.5, v + 0.5) : null
-      if (inverse) {
-        const [x, y] = project(inverse, u + 0.5, v + 0.5)
-        if (x >= 0 && y >= 0 && x < COVER.w && y < COVER.h) colour = coverColour(x, y)
-      }
-      if (colour) {
-        target[i] = colour[0]
-        target[i + 1] = colour[1]
-        target[i + 2] = colour[2]
-        target[i + 3] = 255
-      } else {
-        target[i + 3] = 0
-      }
-    }
-  }
-}
-
-function renderCover(target) {
-  for (let y = 0; y < COVER.h; y++) {
-    for (let x = 0; x < COVER.w; x++) {
-      const i = (y * COVER.w + x) * 4
-      const c = coverColour(x + 0.5, y + 0.5)
-      target.set([c[0], c[1], c[2], 255], i)
-    }
-  }
-}
-
-// =====================================================================================
 
 export const benches = {
   hough: {
@@ -351,7 +139,7 @@ export const benches = {
       en: 'Hough turns "find a line" into "find a peak in the accumulator". With bins too fine, noise splits one line\'s votes into many small peaks; too coarse, and two nearby lines merge into one peak. The right bin size depends on the noise and on how far apart the lines are.',
     },
     unlocks: ['hough'],
-    model: { scenes: HOUGH_SCENES, steps: HOUGH_STEPS, run: houghRun, rhoMax: HOUGH_RHO_MAX, tol: HOUGH_TOL },
+    model: HOUGH,
     verify: verifyHough,
   },
   ransac: {
@@ -373,7 +161,7 @@ export const benches = {
       en: 'The chance that both points of a round are inliers is p², and the chance that all k rounds miss is (1 − p²)ᵏ. To reach a success rate P you need k ≥ log(1 − P) / log(1 − pⁿ): with p = 0.5, n = 2 and P = 0.99 that is 17 rounds, and with only 30% inliers it takes 49. The number of rounds is set by the inlier ratio and δ by the noise; neither can stand in for the other.',
     },
     unlocks: ['ransac'],
-    model: { stages: RANSAC_STAGES, trials: RANSAC_TRIALS, rate: ransacRate, trial: ransacTrial, rounds: ransacRounds, tol: RANSAC_TOL, n: RANSAC_N },
+    model: RANSAC,
     verify: verifyRansac,
   },
   corners: {
@@ -395,7 +183,7 @@ export const benches = {
       en: 'The homography H has 8 degrees of freedom and each pair of points gives 2 equations, so it needs at least 4 pairs; the game solved H from your pairs with DLT. Three pairs only fix an affine map (6 degrees of freedom), which keeps lines parallel and cannot fit a book seen in perspective. In a real pipeline the pairs come from candidates that passed the ratio test, and RANSAC picks them by repeatedly drawing 4 pairs and counting inliers.',
     },
     unlocks: ['homography'],
-    model: { COVER, PHOTO, coverPoints: COVER_POINTS, photoPoints: PHOTO_POINTS, fit: fitCover, tol: COVER_TOL, renderPhoto, renderCover, project, trueQuad: COVER_QUAD },
+    model: CORNERS,
     verify: verifyCover,
   },
 }

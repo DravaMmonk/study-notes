@@ -1,6 +1,7 @@
 import { GLYPHS, addNoise, correlate, downsample, fromFn, image, map, maxPool, patterns as P, random, shift, zip } from '../../kit/domains/image/engine/image.js'
 import { order } from '../../kit/domains/image/engine/graph.js'
 import { CONV_INIT } from '../../kit/domains/image/engine/parts/learning.js'
+import { stopBench } from '../../kit/domains/image/benches/fitting.js'
 import { build, test } from '../../kit/domains/image/build.js'
 
 // Chapter 4 · 学会看 (lectures 6–8): let the machine set the numbers. Steps: one knob and two (gradient descent,
@@ -782,71 +783,9 @@ const sorter = {
 
 // ---------------- 4-17 什么时候停 (bench) ----------------
 
-// Ten noisy samples of a smooth curve, fitted by a degree-9 polynomial. Trained by gradient descent
-// the fit first follows the curve, then starts bending through the noise: the error on the training
-// samples keeps falling while the error on new samples (validation) turns and rises.
-const STOP_D = 10
-const STOP = (() => {
-  let seed = 7
-  const next = () => {
-    seed = (seed * 16807) % 2147483647
-    return seed / 2147483647
-  }
-  const truth = (x) => Math.sin(2.2 * x)
-  const tx = Array.from({ length: 10 }, (_, i) => -1 + (2 * i + next()) / 10)
-  const ty = tx.map((x) => truth(x) + (next() - 0.5) * 0.6)
-  const vx = Array.from({ length: 40 }, (_, i) => -0.98 + (1.96 * i) / 39)
-  const vy = vx.map(truth)
-  return { truth, tx, ty, vx, vy }
-})()
-const features = (x) => Array.from({ length: STOP_D }, (_, k) => x ** k)
-const predict = (w, x) => features(x).reduce((sum, f, k) => sum + f * w[k], 0)
-const mse = (w, xs, ys) => xs.reduce((sum, x, i) => sum + (predict(w, x) - ys[i]) ** 2, 0) / xs.length
-// Checkpoints of gradient-descent training, log-spaced from step 0 to 40 000, computed on first use.
+// Ten noisy samples of sin(2.2x), fitted by a degree-9 polynomial (kit/domains/image/benches/fitting.js). Training
+// checkpoints are log-spaced from step 0 to 40 000.
 const CHECKPOINTS = [0, ...Array.from({ length: 48 }, (_, i) => Math.round(10 ** (0.5 + (i * 4.1) / 47)))]
-let trainingRun = null
-const training = () => {
-  if (trainingRun) return trainingRun
-  let w = Array(STOP_D).fill(0)
-  const out = []
-  let step = 0
-  for (const target of CHECKPOINTS) {
-    for (; step < target; step++) {
-      const g = Array(STOP_D).fill(0)
-      STOP.tx.forEach((x, i) => {
-        const e = predict(w, x) - STOP.ty[i]
-        features(x).forEach((f, k) => (g[k] += (2 * e * f) / STOP.tx.length))
-      })
-      w = w.map((v, k) => v - 0.5 * g[k])
-    }
-    out.push({ step: target, w, train: mse(w, STOP.tx, STOP.ty), valid: mse(w, STOP.vx, STOP.vy) })
-  }
-  trainingRun = out
-  return out
-}
-// Training run to the end with a penalty λ·Σw² (all but the constant): the ridge solution.
-const solve = (A, b) => {
-  const n = b.length
-  const M = A.map((row, i) => [...row, b[i]])
-  for (let c = 0; c < n; c++) {
-    let p = c
-    for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r
-    ;[M[c], M[p]] = [M[p], M[c]]
-    for (let r = 0; r < n; r++) {
-      if (r === c) continue
-      const f = M[r][c] / M[c][c]
-      for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]
-    }
-  }
-  return M.map((row, i) => row[n] / row[i])
-}
-const regularised = (lambda) => {
-  const n = STOP.tx.length
-  const A = Array.from({ length: STOP_D }, (_, i) => Array.from({ length: STOP_D }, (_, j) => STOP.tx.reduce((sum, x) => sum + x ** (i + j), 0) / n + (i === j && i > 0 ? lambda : 0)))
-  const b = Array.from({ length: STOP_D }, (_, i) => STOP.tx.reduce((sum, x, k) => sum + x ** i * STOP.ty[k], 0) / n)
-  const w = solve(A, b)
-  return { w, train: mse(w, STOP.tx, STOP.ty), valid: mse(w, STOP.vx, STOP.vy) }
-}
 const LAMBDAS = Array.from({ length: 25 }, (_, i) => 10 ** (-6 + i * 0.25))
 const STOP_SLACK = 1.2 // within 20 % of the best validation error counts as stopping at the bottom
 const STOP_STAGES = [
@@ -861,15 +800,7 @@ const STOP_STAGES = [
     control: 'lambda',
   },
 ]
-const stopPasses = (stage, s) => {
-  if (stage.control === 'step') {
-    const run = training()
-    const best = Math.min(...run.map((r) => r.valid))
-    return run[s.step].valid <= best * STOP_SLACK
-  }
-  const best = Math.min(...LAMBDAS.map((l) => regularised(l).valid))
-  return regularised(LAMBDAS[s.lambda]).valid <= best * STOP_SLACK
-}
+const STOP = stopBench({ degree: 10, seed: 7, truth: (x) => Math.sin(2.2 * x), train: 10, noise: 0.6, valid: 40, checkpoints: CHECKPOINTS, rate: 0.5, lambdas: LAMBDAS, slack: STOP_SLACK, stages: STOP_STAGES })
 
 const stopLevel = {
   id: '4-17',
@@ -881,15 +812,15 @@ const stopLevel = {
   hint: { zh: '盯住两条误差线：训练误差一直往下走，新样本的误差先下降、后上升。上升的时候，模型在学什么？', en: 'Keep your eye on the two error lines: the training error keeps going down, while the error on new samples first falls, then rises. While it rises, what is the model learning?' },
   after: { zh: '训练误差一直降，新样本（验证集）的误差却先降后升：后半段模型在背噪声，这叫过拟合。办法一是提前停止，在验证误差最低时停下；办法二是正则化，给大权重加代价（L2），让模型不愿意为了几个点把曲线拧得很弯。λ 太小拦不住过拟合，太大又让模型连真规律都学不会（欠拟合）。真正训练网络时，留一部分数据只用来验证，就是为了看到这条先降后升的线。', en: 'The training error keeps falling, but the error on new samples (the validation set) falls and then rises: in the second half the model is memorising noise. This is called overfitting. One fix is early stopping: stop where the validation error is lowest. The other is regularisation: put a cost on large weights (L2), so the model will not bend the curve sharply just to hit a few points. Too small a λ cannot hold off overfitting; too large and the model cannot learn even the true rule (underfitting). When training real networks, part of the data is kept back for validation only, precisely so you can see this falls-then-rises line.' },
   unlocks: [],
-  stop: { data: STOP, predict, training, checkpoints: CHECKPOINTS, regularised, lambdas: LAMBDAS, stages: STOP_STAGES, passes: stopPasses, start: { step: 0, lambda: 0 } },
+  stop: STOP,
   verify() {
-    const run = training()
+    const run = STOP.training()
     const valid = run.map((r) => r.valid)
     const bottom = valid.indexOf(Math.min(...valid))
     if (bottom === 0 || bottom === run.length - 1) return '验证误差没有先降后升'
     if (run.at(-1).train >= run[bottom].train) return '训练误差没有一直下降'
-    if (stopPasses(STOP_STAGES[0], { step: 0 }) || stopPasses(STOP_STAGES[0], { step: run.length - 1 })) return '一开始或训练到底也能过'
-    const good = LAMBDAS.map((_, i) => i).filter((i) => stopPasses(STOP_STAGES[1], { lambda: i }))
+    if (STOP.passes(STOP_STAGES[0], { step: 0 }) || STOP.passes(STOP_STAGES[0], { step: run.length - 1 })) return '一开始或训练到底也能过'
+    const good = LAMBDAS.map((_, i) => i).filter((i) => STOP.passes(STOP_STAGES[1], { lambda: i }))
     if (!good.length || good.includes(0) || good.includes(LAMBDAS.length - 1)) return 'λ 的两端也能过，或者都不能过'
     return ''
   },

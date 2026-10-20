@@ -1,6 +1,7 @@
 import { GLYPHS, addNoise, correlate, downsample, fromFn, gaussianKernel, image, map, patterns as P, random, zip } from '../../kit/domains/image/engine/image.js'
 import { applyGain, highpass, lowpass, magnitudeSpectrum } from '../../kit/domains/image/engine/fourier.js'
-import { aliasOf, cosine, maxDiff, sampleAt, throughSamples } from '../../kit/domains/image/engine/waves.js'
+import { cosine } from '../../kit/domains/image/engine/waves.js'
+import { aliasBench, cosAt, probeBench, sumBench, waveBench } from '../../kit/domains/image/benches/waves.js'
 import { build, test } from '../../kit/domains/image/build.js'
 
 // Chapter 2 · 频率 (lecture 4 and assignment 1): an image as a sum of waves. Steps: build a wave and add waves into a
@@ -35,9 +36,6 @@ const WAVE_KNOBS = {
   k: { min: 0, max: 12, step: 1, label: { zh: '频率 k', en: 'Frequency k' } },
   phi: { min: -4, max: 4, step: 1, label: { zh: '相位 φ', en: 'Phase φ' } },
 }
-const benchAt = (p, x) => p.c + p.A * Math.cos((TAU * p.k * x) / N + (p.phi * Math.PI) / 4)
-const benchRow = (p) => Array.from({ length: N }, (_, x) => benchAt(p, x))
-const sameWave = (a, b) => benchRow(a).every((v, x) => Math.abs(v - benchAt(b, x)) < 1e-6)
 const WAVE_STAGES = [
   {
     knobs: ['c'], start: { c: 0.3, A: 0.25, k: 2, phi: 0 }, target: { c: 0.65, A: 0.25, k: 2, phi: 0 },
@@ -71,7 +69,9 @@ const WAVE_STAGES = [
   },
 ]
 
-const waveBench = {
+const WAVE = waveBench({ N, knobs: WAVE_KNOBS, stages: WAVE_STAGES })
+
+const waveLevel = {
   id: '2-1',
   kind: 'board',
   board: 'WaveBench',
@@ -81,10 +81,10 @@ const waveBench = {
   hint: { zh: '先比较两条线差在哪：是整体高低、起伏大小、起伏的次数，还是起伏的位置？', en: 'Compare the two lines first: do they differ in overall height, in the size of the swing, in how many swings there are, or in where the swings sit?' },
   after: { zh: 'c 定中线，也就是平均亮度；A 定起伏的高度，也就是明暗差；k 定一行里有几个周期，也就是条纹的疏密；φ 定条纹往哪边挪。写成式子就是 c + A·cos(2π·k·x/32 + φ)。从现在起，「波」元件归你了：设好 k，它就给出一道整行走 k 个周期的波。cos 元件也一起归你：它把每个数换成它的余弦。', en: 'c sets the middle line, the average brightness; A sets the height of the swing, the contrast; k sets how many cycles fit in the row, the density of the stripes; and φ sets which way the stripes are shifted. As a formula: c + A·cos(2π·k·x/32 + φ). From now on the "Wave" part is yours: set k and it gives a wave of k cycles across the row. So is the cos part, which replaces each number with its cosine.' },
   unlocks: ['wave'],
-  wave: { N, knobs: WAVE_KNOBS, stages: WAVE_STAGES, at: benchAt, row: benchRow, same: sameWave },
+  wave: WAVE,
   verify() {
     for (const [i, s] of WAVE_STAGES.entries()) {
-      if (sameWave(s.start, s.target)) return `第 ${i + 1} 步一开始就算完成`
+      if (WAVE.same(s.start, s.target)) return `第 ${i + 1} 步一开始就算完成`
       for (const [knob, { min, max, step }] of Object.entries(WAVE_KNOBS)) {
         for (const v of [s.start[knob], s.target[knob]]) {
           if (v < min || v > max || Math.abs(min + Math.round((v - min) / step) * step - v) > 1e-9) return `第 ${i + 1} 步的 ${knob} = ${v} 不在刻度上`
@@ -102,9 +102,6 @@ const waveBench = {
 const SUM_KS = [1, 2, 3, 4, 5, 6, 7, 8]
 const SUM_STEP = 0.01
 const SUM_TOLERANCE = 0.03
-const sumAt = (amps, x) => 0.5 + amps.reduce((s, a, i) => s + a * Math.sin((TAU * SUM_KS[i] * x) / N), 0)
-const sumRow = (amps) => Array.from({ length: N }, (_, x) => sumAt(amps, x))
-const sumGap = (amps, target) => Math.max(...sumRow(amps).map((v, x) => Math.abs(v - sumAt(target, x))))
 // The closest these waves come to a square wave: odd frequencies only, amplitudes 4/(πk) times the height.
 const SQUARE_HEIGHT = 0.3
 const squareAmps = SUM_KS.map((k) => (k % 2 ? (SQUARE_HEIGHT * 4) / (Math.PI * k) : 0))
@@ -123,6 +120,9 @@ const SUM_STAGES = [
   },
 ]
 
+const SUM = sumBench({ N, ks: SUM_KS, step: SUM_STEP, max: 0.5, tolerance: SUM_TOLERANCE, stages: SUM_STAGES })
+const sumGap = SUM.gap
+
 const superpose = {
   id: '2-2',
   kind: 'board',
@@ -133,7 +133,7 @@ const superpose = {
   hint: { zh: '先只调频率 1，看误差还剩哪些起伏，再一道道补上去。', en: 'Set frequency 1 first, see which wiggles are left over, then add waves one at a time.' },
   after: { zh: '方波只用到奇数频率，振幅按 1、1/3、1/5、1/7 递减。边越陡，需要的高频越多；只到频率 7 的话，陡边旁边总留着一圈小波纹。任何一条曲线都能这样拆成一组波，这就是傅里叶级数。每道正弦波正负抵消，平均是 0，所以不管怎么叠，整行的平均都是中线。从现在起，「求平均」元件归你了：它把一行数平均成一个数。', en: 'A square wave uses only odd frequencies, with amplitudes falling as 1, 1/3, 1/5, 1/7. The steeper an edge, the more high frequencies it needs; stop at frequency 7 and a ripple always remains beside the steep edge. Any curve can be split into waves like this: that is the Fourier series. Each sine wave cancels itself out and averages 0, so however they are stacked, the row averages to the middle line. From now on the Average part is yours: it averages a row of numbers into one.' },
   unlocks: ['mean'],
-  sum: { N, ks: SUM_KS, step: SUM_STEP, max: 0.5, tolerance: SUM_TOLERANCE, stages: SUM_STAGES, at: sumAt, row: sumRow, gap: sumGap },
+  sum: SUM,
   verify() {
     for (const [i, s] of SUM_STAGES.entries()) {
       if (sumGap(SUM_KS.map(() => 0), s.target) <= SUM_TOLERANCE) return `第 ${i + 1} 步一开始就算完成`
@@ -149,19 +149,11 @@ const superpose = {
 
 // ---------------- 2-3 乘了再平均, 2-4 错开的波 (the probe series' benches) ----------------
 
-// A probe is a wave multiplied with the row point by point and averaged; read on 32 points, as the circuits do.
-const rowAverage = (f) => Array.from({ length: N }, (_, x) => f(x / N)).reduce((s, v) => s + v, 0) / N
-const cosAt = (k, A = 1, shift = 0) => (u) => A * Math.cos(TAU * k * u - (shift * Math.PI) / 180)
-const sinAt = (k) => (u) => Math.sin(TAU * k * u)
-const probeReading = (input, probe) => rowAverage((u) => input(u) * probe(u))
 const PROBE_KNOBS = {
   j: { min: 1, max: 8, step: 1, label: { zh: '探针频率', en: 'Probe frequency' } },
   m: { min: 0.5, max: 4, step: 0.5, label: { zh: '读数乘以', en: 'Reading times' } },
   shift: { min: 0, max: 345, step: 15, label: { zh: '输入错开', en: 'Input shifted by' }, unit: '°' },
 }
-const COS_PROBE = (k) => ({ name: { zh: `cos 探针 · 频率 ${k}`, en: `cos probe · frequency ${k}` }, f: cosAt(k) })
-const SIN_PROBE = { name: { zh: 'sin 探针 · 频率 3', en: 'sin probe · frequency 3' }, f: sinAt(3) }
-const shifted = (shift) => (u) => 0.5 + cosAt(3, 0.3, shift)(u)
 const PROBE_MIX = (u) => 0.5 + cosAt(2, 0.2)(u) + cosAt(5, 0.3)(u) + cosAt(7, 0.1)(u)
 const COMBINE = {
   cos: { name: { zh: '只看 a', en: 'Only a' }, f: (a) => a },
@@ -169,27 +161,12 @@ const COMBINE = {
   sum: { name: 'a + b', f: (a, b) => a + b },
   mag: { name: '√(a² + b²)', f: (a, b) => Math.hypot(a, b) },
 }
-const probeModel = (stages) => ({
-  knobs: PROBE_KNOBS,
-  stages,
-  combine: COMBINE,
-  reading: probeReading,
-  input: (s, v) => (s.input ?? shifted(v.shift)),
-  probes: (s, v) => (s.kind === 'combine' ? [COS_PROBE(3), SIN_PROBE] : [COS_PROBE(v.j ?? 3)]),
-  readingsAt: (s, shift) => [2 * probeReading(shifted(shift), cosAt(3)), 2 * probeReading(shifted(shift), sinAt(3))],
-  solved: (s, v) => {
-    if (s.kind === 'find') return Math.abs(probeReading(s.input, cosAt(v.j))) > 0.05
-    if (s.kind === 'read') return v.j === s.k && Math.abs(probeReading(s.input, cosAt(v.j)) * v.m - s.amplitude) < 0.005
-    if (s.kind === 'blind') return Math.abs(2 * probeReading(shifted(v.shift), cosAt(3))) < 0.005
-    return v.pick === 'mag'
-  },
-})
+const probeModel = (stages) => probeBench({ N, knobs: PROBE_KNOBS, stages, wave: { k: 3, A: 0.3 }, combine: COMBINE })
 // Every step must start unsolved and be solved by exactly the answers it means.
 const probeVerify = (model) => () => {
-  const grid = (key) => { const { min, max, step } = PROBE_KNOBS[key]; return Array.from({ length: Math.round((max - min) / step) + 1 }, (_, i) => min + i * step) }
   for (const [i, s] of model.stages.entries()) {
     if (model.solved(s, s.start)) return `第 ${i + 1} 步一开始就算完成`
-    const answers = s.kind === 'find' ? grid('j').filter((j) => model.solved(s, { j })) : s.kind === 'read' ? grid('j').flatMap((j) => grid('m').filter((m) => model.solved(s, { j, m })).map((m) => `${j}×${m}`)) : s.kind === 'blind' ? grid('shift').filter((shift) => model.solved(s, { shift })) : Object.keys(COMBINE).filter((pick) => model.solved(s, { pick }))
+    const answers = model.answers(s)
     if (answers.join() !== s.answers) return `第 ${i + 1} 步的答案是 ${answers.join('、')}，不是 ${s.answers}`
   }
   return ''
@@ -561,20 +538,7 @@ const ALIAS_STAGES = [
   },
 ]
 const ALIAS_RANGES = { k: [0, 24], M: [4, 24], K: [0, 16] }
-const signalOf = (parts, keep = Infinity) => (u) => parts.filter((p) => p.k <= keep).reduce((s, p) => s + cosine({ ...p, c: 0 })(u), 0.5)
-// Can the wave be read back from M samples? The smoothest curve through them must be the wave.
-const faithful = (w, M) => {
-  const back = throughSamples(sampleAt(cosine(w), M))
-  return maxDiff(sampleAt(back, ALIAS_FINE), sampleAt(cosine(w), ALIAS_FINE)) < 1e-6
-}
-// What each stage counts as solved, given its one control's value.
-const aliasSolved = (stage, v) => {
-  if (stage.control === 'k') return v !== stage.reference.k && maxDiff(sampleAt(cosine({ ...stage.reference, k: v }), stage.samples), sampleAt(cosine(stage.reference), stage.samples)) < 1e-6
-  if (stage.control === 'M') return faithful(stage.wave, v) && !faithful(stage.wave, v - 1)
-  const truth = sampleAt(signalOf(stage.parts, stage.samples / 2), stage.samples)
-  const got = sampleAt(signalOf(stage.parts, v), stage.samples)
-  return maxDiff(got, truth) < 1e-6 && v >= Math.max(...stage.parts.filter((p) => 2 * p.k <= stage.samples).map((p) => p.k))
-}
+const ALIAS = aliasBench({ fine: ALIAS_FINE, stages: ALIAS_STAGES, ranges: ALIAS_RANGES })
 
 const aliasLevel = {
   id: '2-11',
@@ -586,12 +550,12 @@ const aliasLevel = {
   hint: { zh: '点之间发生了什么，采样后谁也不知道。一个周期里至少要有几个点，才认得出这道波？', en: 'Once sampled, nobody knows what happened between the points. How many points per cycle, at least, does it take to recognise the wave?' },
   after: { zh: '采 M 个点，只能分辨 M/2 以下的频率（奈奎斯特频率）。更快的波不会消失，而是折回来，冒充成一道慢波（k 冒充成 M − k），这就是混叠，采完以后无法再分开。所以要在采样之前把高于 M/2 的频率去掉，也就是先低通、再采样。', en: 'With M samples you can only tell apart frequencies below M/2 (the Nyquist frequency). Faster waves do not vanish: they fold back and pose as a slower wave (k poses as M − k). This is aliasing, and once sampled the two can no longer be separated. So frequencies above M/2 must be removed before sampling: low-pass first, then sample.' },
   unlocks: ['downsample'],
-  alias: { stages: ALIAS_STAGES, ranges: ALIAS_RANGES, fine: ALIAS_FINE, signalOf, solved: aliasSolved, aliasOf, faithful },
+  alias: ALIAS,
   verify() {
     const answers = ALIAS_STAGES.map((stage) => {
       const [lo, hi] = ALIAS_RANGES[stage.control]
-      if (aliasSolved(stage, stage.start)) return null
-      return Array.from({ length: hi - lo + 1 }, (_, i) => lo + i).filter((v) => aliasSolved(stage, v))
+      if (ALIAS.solved(stage, stage.start)) return null
+      return Array.from({ length: hi - lo + 1 }, (_, i) => lo + i).filter((v) => ALIAS.solved(stage, v))
     })
     if (answers.some((a) => a === null)) return '有一步一开始就算完成'
     const [impostors, fewest, keep] = answers
@@ -599,7 +563,7 @@ const aliasLevel = {
     if (fewest.join() !== '11') return `最少点数的答案是 ${fewest.join('、')}`
     if (keep.join() !== '7,8') return `先滤再采的答案是 ${keep.join('、')}`
     // With no filter, the k = 9 and 12 waves land on 7 and 4.
-    if (aliasOf(9, 16) !== 7 || aliasOf(12, 16) !== 4) return '折回的频率不对'
+    if (ALIAS.aliasOf(9, 16) !== 7 || ALIAS.aliasOf(12, 16) !== 4) return '折回的频率不对'
     return ''
   },
 }
@@ -737,4 +701,4 @@ const thumbnails = {
   alsoFails: [chain([['downsample', {}], ['downsample', {}], ['downsample', {}]])],
 }
 
-export const levels = [waveBench, superpose, multiplyBench, shiftBench, probeLevel, focus, roads, lowpassLevel, descreenLevel, hybridLevel, aliasLevel, once, half, quarter, steps, thumbnails]
+export const levels = [waveLevel, superpose, multiplyBench, shiftBench, probeLevel, focus, roads, lowpassLevel, descreenLevel, hybridLevel, aliasLevel, once, half, quarter, steps, thumbnails]
