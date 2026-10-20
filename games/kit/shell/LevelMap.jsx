@@ -17,8 +17,9 @@ const R = 8
 // Places a track as columns ("tracks"), each a run of rows on one lane: a main-path level, a parallel branch (kept to
 // the set's full depth, so a shorter branch keeps its room until the join), or an optional branch. A branch stays in
 // one column. An optional branch starts one row below its anchor, lower if a row there already holds three, on the
-// free lane nearest its anchor (on a tie, the anchor's side, or from the middle the side with fewer optional branches
-// so far). Lanes only order things left to right; center() sets the columns.
+// free lane nearest its anchor on the side with fewer levels in those rows (on a tie, the nearer side, then the anchor's
+// side, then the side with fewer optional branches so far). Lanes only order things left to right;
+// center() sets the columns.
 const MAX_ROW = 3
 function plot(track) {
   const at = new Map(), edges = [], tracks = []
@@ -61,9 +62,11 @@ function plot(track) {
       return lane
     }
     const right = nearest(1), left = nearest(-1)
-    const lean = Math.sign(anchor.t.lane) || Math.sign(-tilt) || 1
+    const beside = tracks.filter((t) => overlaps(t, rows()))
+    const weight = beside.filter((t) => t.lane > 0).length - beside.filter((t) => t.lane < 0).length
     const dr = right - anchor.t.lane, dl = anchor.t.lane - left
-    const lane = dl < dr || (dl === dr && lean < 0) ? left : right
+    const lean = Math.sign(weight) || Math.sign(dr - dl) || -Math.sign(anchor.t.lane) || Math.sign(tilt)
+    const lane = lean > 0 ? left : right
     tilt += Math.sign(lane)
     lay(branch.levels, lane, start, from, 'optional')
   }

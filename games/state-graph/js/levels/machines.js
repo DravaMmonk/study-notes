@@ -175,7 +175,7 @@ export const machines = [
       { t: T('别忘了起点：起点的上面和左边都是「—」，可经过起点，也要花它自己的体力。', 'Don’t forget the start: up and left are both “—” there, but passing through the start still costs its own energy.') },
     ],
     mission: { goal: T('只能往右或往下走，每经过一个路口（包括起点和终点）都要花掉它左上角写的体力。算出从左上到右下最少要花多少体力。', 'Only right or down, and every crossing you pass through (start and end included) costs the energy written in its top-left corner. Work out the least energy needed to get from the top left to the bottom right.'), how: T('格子左上角的小数字是这一格的体力，在输入窗口里点「本格体力」就能读它。这一关解锁了「取较小」汇合器和加法器。', 'The small number in a cell’s top-left corner is its energy; click “cell energy” in the inputs window to read it. This level unlocks the “min” Merger and the Adder.') },
-    world: 'grid', facts: ['start', 'cost'], palette: [...KIT, 'bp:stamp'], fresh: ['mmin', 'add'],
+    world: 'grid', facts: ['start', 'cost'], palette: ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'bp:stamp'], fresh: ['mmin', 'add'],
     tests: [{ R: 3, C: 3, costs: [[1, 3, 1], [1, 5, 1], [4, 2, 1]] }, { R: 2, C: 3, costs: [[1, 2, 3], [4, 5, 6]] }, { R: 4, C: 4, costs: L12_COSTS }],
     solution: circ([['m', 'mmin'], ['g', 'bp:origin', 0], ['a', 'add']], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>g:0', 'g>m:2', 'm>a:0', 'tap:cost>a:1', 'a>out:cell']),
     hints: [

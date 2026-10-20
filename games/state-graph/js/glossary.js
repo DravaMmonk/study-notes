@@ -14,7 +14,7 @@ export const GLOSSARY = [
   {
     id: 'map', group: 'play', title: { zh: '关卡地图', en: 'Level map' },
     body: [
-      { zh: '关卡按章节排在地图上，每一章回答一个问题。通过一关，下一关就会打开。', en: 'The levels sit on the map in chapters, and each chapter answers one question. Pass a level and the next one opens.' },
+      { zh: '关卡按章节排在地图上，每一章回答一个问题。通过一关，接在它后面的关卡就会打开；分成几路时，先走哪一路都行，几路都通过才继续。', en: 'The levels sit on the map in chapters, and each chapter answers one question. Pass a level and the levels after it open; where the path splits, take the branches in any order, and pass them all to go on.' },
       { zh: '不想按顺序玩，可以打开「全部解锁」：任意一关都能直接玩，进度照常记录。地图上还有「元件箱」和这本「百科」。', en: 'If you would rather not go in order, turn on “Unlock all”: any level can be played straight away, and your progress is still recorded. The map also has your Parts and this Encyclopedia.' },
     ],
     see: ['brief', 'part'],

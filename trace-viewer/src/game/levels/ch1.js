@@ -176,7 +176,7 @@ const weighted = {
   title: { zh: '拼出加权和', en: 'Build a weighted sum' },
   brief: { zh: '有人用一种邻居加权和处理了这些图。用平移、常数和四则运算，搭出同样的处理。', en: 'Someone processed these images with a weighted sum of neighbours. Build the same processing out of shifts, constants, multiplications and additions.' },
   hint: { zh: '先看亮点那一组：一个亮点变成了几个点？各在哪里，各有多亮？', en: 'Look at the bright dot first: how many dots did one dot turn into? Where is each, and how bright?' },
-  after: { zh: '亮点被处理成什么样，就是这种处理的「印章」：每个输入像素都盖一个，挪到对应位置、乘上权重再相加。把权重排成 3×3 的小方阵，就是核。从现在起你有了「3×3 核」元件，九个权重一次填好。它读权重的方式，下一关就会碰到。', en: 'Whatever a bright dot is turned into is the "stamp" of the processing: every input pixel presses one, moved to its place, multiplied by its weight and added up. Arrange the weights in a small 3×3 grid and you have a kernel. From now on you have the "3×3 kernel" part, with all nine weights set at once. You will meet how it reads its weights in the next level.' },
+  after: { zh: '亮点被处理成什么样，就是这种处理的「印章」：每个输入像素都盖一个，挪到对应位置、乘上权重再相加。把权重排成 3×3 的小方阵，就是核。从现在起你有了「3×3 核」元件，九个权重一次填好。', en: 'Whatever a bright dot is turned into is the "stamp" of the processing: every input pixel presses one, moved to its place, multiplied by its weight and added up. Arrange the weights in a small 3×3 grid and you have a kernel. From now on you have the "3×3 kernel" part, with all nine weights set at once.' },
   unlocks: ['kernel3'],
   palette: ['shift', 'arith', 'merge', 'const'],
   tests: each([[{ zh: '亮点', en: 'Bright dot' }, P.impulse(7, 7)], [{ zh: '方块', en: 'Square' }, P.square()], [{ zh: '字母 F', en: 'Letter F' }, P.glyph(GLYPHS.F)]], (img) => convolve(img, STAMP)),
