@@ -48,6 +48,8 @@ export function drawWires(el, graph, parts, live) {
   const family = (id) => parts.family(graph.nodes.find((n) => n.id === id) ?? {})
   // A game may colour a wire itself (by its source, say) instead of by family.
   const style = (w) => Object.entries(parts.wireStyle?.(w, graph) ?? {}).map(([k, v]) => `${k}:${v}`).join(';')
+  // A game whose wires carry different kinds of thing (data, handles, order) names each wire's kind.
+  const kind = (w) => (parts.wireKind ? ` kind-${parts.wireKind(w, graph)}` : '')
   let markup = ''
   for (const w of graph.wires) {
     if (!shown(w)) continue
@@ -55,7 +57,7 @@ export function drawWires(el, graph, parts, live) {
     const b = at(inPort(w.to, w.port))
     if (!a || !b) continue
     const d = curve(a, b)
-    markup += `<path class="pb-casing" d="${d}"/><path class="pb-wire" data-family="${family(srcNode(w.from))}" style="${style(w)}" d="${d}"/>`
+    markup += `<path class="pb-casing" d="${d}"/><path class="pb-wire${kind(w)}" data-family="${family(srcNode(w.from))}" style="${style(w)}" d="${d}"/>`
   }
   if (live) {
     const a = at(live.from)

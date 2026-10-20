@@ -19,3 +19,9 @@
 @keyframes kw-flow { to { stroke-dashoffset: -22.1; } }
 @media (hover: hover) and (pointer: fine) { .kw:hover .kw-line { stroke-width: 3.8px; } }
 @media (prefers-reduced-motion: reduce) { .kw-flow { display: none; } }
+
+/* Wire kinds (parts.wireKind): what a wire carries, when a game's wires carry more than one kind of thing. Data is the
+   plain line; a handle (a file descriptor, a process) is doubled in weight; order (this happens before that) is a
+   row of dots. */
+.kw.kind-handle .kw-line, .pb-wire.kind-handle { stroke-width: 4.2px; }
+.kw.kind-order .kw-line, .pb-wire.kind-order { stroke-dasharray: 1 6; stroke-width: 3px; }

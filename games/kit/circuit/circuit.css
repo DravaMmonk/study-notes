@@ -305,3 +305,10 @@
 .demo-panel .choice.is-roomy button { min-height: 38px; }
 .wiki.is-phone .demo-panel { position: sticky; z-index: 6; bottom: 0; max-height: 44dvh; overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 -12px 24px -16px rgba(0, 0, 0, .35); }
 .wiki-article .demo-panel p { max-width: none; margin: 0; color: var(--muted); font: 13px/1.55 var(--sans); }
+
+/* The breadcrumb over a board inside a board (BoardTrail.jsx). */
+.board-trail { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; font: 500 13px/1.4 var(--font-ui, inherit); color: var(--muted); padding: 6px 2px; }
+.board-trail button { border: 0; background: none; padding: 2px 4px; border-radius: 4px; color: var(--accent); cursor: pointer; }
+.board-trail button:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.board-trail b { color: var(--ink); font-weight: 600; padding: 2px 4px; }
+.board-trail-step { display: inline-flex; align-items: center; gap: 2px; }

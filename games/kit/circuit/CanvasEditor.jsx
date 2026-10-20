@@ -335,7 +335,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
             return (
               <g
                 key={`${wire.to}.${wire.port}`}
-                className={`kw ${active ? 'is-selected' : ''} ${state === 'live' ? 'is-live' : state === 'dead' ? 'is-dead' : ''} ${parts.wireClass?.(wire) ?? ''}`}
+                className={`kw ${active ? 'is-selected' : ''} ${state === 'live' ? 'is-live' : state === 'dead' ? 'is-dead' : ''} ${parts.wireClass?.(wire) ?? ''} ${parts.wireKind ? `kind-${parts.wireKind(wire, graph)}` : ''}`}
                 data-family={parts.family(from)}
                 style={parts.wireStyle?.(wire, graph)}
                 onPointerDown={(e) => {
