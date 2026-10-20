@@ -128,7 +128,6 @@ export default function GameShell({ game }) {
     for (const flag of level.withhold ?? []) set.delete(flag)
     return set
   }, [game, progress.flags, progress.all, level])
-  const next = level && game.nextAfter(level, new Set([...solved, level.id]), progress.all)
   const intro = level && game.intro(level)?.length > 0
   const kind = level && game.kinds[level.kind]
 
@@ -212,7 +211,7 @@ export default function GameShell({ game }) {
         />
       )}
       {won && level && won === level.id && (
-        <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} next={next} onNext={() => open(next.id)} />
+        <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} />
       )}
       {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
       {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} onClose={() => setSheet(null)} />}

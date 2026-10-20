@@ -39,8 +39,8 @@ export function Dialog({ title, lines, actions, intro, onClose }) {
   )
 }
 
-/** A level passed: what it taught, what it unlocked, its key idea, and the way on. */
-export function SolvedDialog({ game, level, onStay, onExit, next, onNext }) {
+/** A level passed: what it taught, what it unlocked, its key idea, and the way back to the map. */
+export function SolvedDialog({ game, level, onStay, onExit }) {
   useEscape(onStay)
   const unlocked = game.unlocked(level)
   const note = game.note(level)
@@ -67,9 +67,7 @@ export function SolvedDialog({ game, level, onStay, onExit, next, onNext }) {
         )}
         <div className="dialog-actions">
           <button onClick={onStay}>{tr('留在这里', 'Stay here')}</button>
-          <button onClick={onExit}>{tr('回地图', 'Back to map')}</button>
-          {next && <button className="is-primary" onClick={onNext} autoFocus>{tr('下一关', 'Next level')} · {L(next.title)}</button>}
-          {!next && <button className="is-primary" onClick={onExit} autoFocus>{tr('完成', 'Done')}</button>}
+          <button className="is-primary" onClick={onExit} autoFocus>{tr('返回关卡导航', 'Back to the level map')}</button>
         </div>
       </div>
     </div>

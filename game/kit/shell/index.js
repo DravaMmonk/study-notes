@@ -37,6 +37,12 @@ export function defineGame(def) {
   // Without `requires`, a level opens once the one before it is passed.
   const requiresOf = (level) => level.requires ?? (index.get(level.id) > 0 ? [levels[index.get(level.id) - 1].id] : [])
   const isOpen = def.isOpen ?? ((level, solved, all = false) => all || requiresOf(level).every((id) => solved.has(id)))
+  // Every level `level` comes after: what it requires, and what those require in turn.
+  const before = new Map()
+  const ancestors = (level) => {
+    if (!before.has(level.id)) before.set(level.id, new Set(requiresOf(level).filter((id) => byId[id]).flatMap((id) => [id, ...ancestors(byId[id])])))
+    return before.get(level.id)
+  }
   const game = {
     levelLabel: (level) => level.id,
     intro: () => null,
@@ -47,13 +53,8 @@ export function defineGame(def) {
     byId,
     isOpen,
     missing: (level, solved) => requiresOf(level).filter((id) => !solved.has(id)).map((id) => byId[id]),
-    // Everything a player playing in order has unlocked by the time they reach `level`.
-    unlocksBefore: (level) => levels.slice(0, Math.max(0, index.get(level.id))).flatMap((l) => l.unlocks ?? []),
-    // The way on after passing `level`: the first open, unpassed level after it, else the first anywhere.
-    nextAfter: (level, solved, all) => {
-      const open = (l) => l.id !== level.id && !solved.has(l.id) && isOpen(l, solved, all)
-      return levels.slice(index.get(level.id) + 1).find(open) ?? levels.find(open) ?? null
-    },
+    // Everything a player has unlocked by the time `level` opens: the unlocks of every level it comes after.
+    unlocksBefore: (level) => [...ancestors(level)].flatMap((id) => byId[id].unlocks ?? []),
   }
   // With every level unlocked, the components box is full too (the encyclopedia opens every entry the same way).
   if (def.parts) game.parts = { ...def.parts, earned: (progress) => (progress.all ? def.parts.all.map((part) => part.key) : def.parts.earned(progress)) }
