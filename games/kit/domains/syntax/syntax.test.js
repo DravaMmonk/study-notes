@@ -1,25 +1,26 @@
-// node --test games/kit/domains/syntax — the grammar's refusals, a board read as a sentence, and the meaning check,
+// node --test games/kit/domains/syntax — the grammar's refusals, a clause said as a sentence, and the meaning check,
 // on a small lexicon of its own (a game's lexicon is only data).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { refuse } from './engine/grammar.js'
+import { place, refuse, refusals, slotsOf } from './engine/grammar.js'
 import { defineLexicon } from './engine/lexicon.js'
-import { board, check } from './engine/sentence.js'
+import { check, surface, toClause } from './engine/sentence.js'
 import { fate } from './validate.js'
 
 const T = (zh, en) => ({ zh, en })
 const lex = defineLexicon({
   nouns: {
-    board: { text: 'the board', ent: 'board', number: 'sg' },
-    boards: { text: 'the boards', ent: 'board', number: 'pl' },
-    plan: { text: 'the plan', ent: 'plan', number: 'sg' },
-    client: { text: 'the client', ent: 'client', number: 'sg' },
+    model: { text: 'the model', ent: 'model', number: 'sg' },
+    models: { text: 'the models', ent: 'model', number: 'pl' },
+    paper: { text: 'the paper', ent: 'paper', number: 'sg' },
+    authors: { text: 'the authors', ent: 'author', number: 'pl' },
     she: { text: 'she', number: 'sg', person: 3, case: 'nom' },
     her: { text: 'her', number: 'sg', person: 3, case: 'acc' },
     i: { text: 'I', number: 'sg', person: 1, case: 'nom' },
   },
   verbs: {
-    approve: { forms: { base: 'approve', s: 'approves', past: 'approved', pp: 'approved', ing: 'approving' }, frame: 'transitive', sense: T('批准', 'approve') },
+    converge: { forms: { base: 'converge', s: 'converges', past: 'converged', pp: 'converged', ing: 'converging' }, frame: 'intransitive', subject: 'THEME', sense: T('收敛', 'converge') },
+    accept: { forms: { base: 'accept', s: 'accepts', past: 'accepted', pp: 'accepted', ing: 'accepting' }, frame: 'transitive', sense: T('接收', 'accept') },
     send: { forms: { base: 'send', s: 'sends', past: 'sent', pp: 'sent', ing: 'sending' }, frame: 'ditransitive', sense: T('发送', 'send') },
     'send-to': { forms: { base: 'send', s: 'sends', past: 'sent', pp: 'sent', ing: 'sending' }, frame: 'dative', lemma: 'send', sense: T('发送', 'send') },
   },
@@ -31,60 +32,69 @@ const lex = defineLexicon({
     ed: { label: '-ed', tense: 'past', aspect: 'simple', agree: 'any', aux: [], verb: 'past' },
   },
 })
-const approvePlan = { meaning: { pred: 'approve', tense: 'present', aspect: 'perfect', roles: { AGENT: { ent: 'board', number: 'sg' }, THEME: { ent: 'plan', number: 'sg' } } } }
-const refusedWire = (answer) => {
-  const graph = board(lex, answer)
-  return graph.wires.map((w) => refuse(lex, graph, w.from, w.to, w.port)).find(Boolean) ?? null
-}
+const accepted = { meaning: { pred: 'accept', tense: 'present', aspect: 'perfect', roles: { AGENT: { ent: 'model', number: 'sg' }, THEME: { ent: 'paper', number: 'sg' } } } }
+const sent = { meaning: { pred: 'send', tense: 'past', aspect: 'simple', roles: { AGENT: { ent: 'model', number: 'sg' }, RECIPIENT: { ent: 'author', number: 'pl' }, THEME: { ent: 'paper', number: 'sg' } } }, target: 7 }
 
 test('the lexicon reads, and a bad entry is reported', () => {
   assert.deepEqual(lex.problems, [])
   assert.equal(defineLexicon({ verbs: { x: { forms: { base: 'x' }, frame: 'nonsense', sense: T('x', 'x') } } }).problems.length, 1)
 })
 
-test('a clause is said in order, with the forms its head asks for', () => {
-  const run = check(lex, approvePlan, board(lex, { infl: 'has', subj: 'board', verb: 'approve', OBJ: 'plan' }))
-  assert.equal(run.sentence, 'The board has approved the plan.')
-  assert.equal(run.words, 6)
-  assert.ok(run.pass)
-  const dative = check(lex, { meaning: { pred: 'send', tense: 'past', aspect: 'simple', roles: { AGENT: { ent: 'board', number: 'sg' }, THEME: { ent: 'plan', number: 'sg' }, RECIPIENT: { ent: 'client', number: 'sg' } } }, target: 6 },
-    board(lex, { infl: 'ed', subj: 'board', verb: 'send-to', OBJ: 'plan', TO: 'client' }))
-  assert.equal(dative.sentence, 'The board sent the plan to the client.')
-  assert.ok(dative.pass && !dative.star)
+test('slots run in reading order, and the verb opens the places its frame needs', () => {
+  assert.deepEqual(slotsOf(lex, {}), ['SUBJ', 'INFL', 'V'])
+  assert.deepEqual(slotsOf(lex, toClause({ V: 'send' })), ['SUBJ', 'INFL', 'V', 'IOBJ', 'OBJ'])
+  assert.deepEqual(slotsOf(lex, toClause({ V: 'send-to' })), ['SUBJ', 'INFL', 'V', 'OBJ', 'TO'])
+  // A new verb keeps only the objects its frame has places for.
+  const { clause } = place(lex, toClause({ V: 'send', IOBJ: 'authors', OBJ: 'paper' }), 'V', 'verb:accept')
+  assert.deepEqual(clause, toClause({ V: 'accept', OBJ: 'paper' }))
 })
 
-test('agreement, case, category and one place per phrase are refused, each with its reason', () => {
-  assert.match(refusedWire({ infl: 'have', subj: 'board', verb: 'approve' }).en, /disagree/)
-  assert.equal(refusedWire({ infl: 'has', subj: 'boards', verb: 'approve' }) !== null, true)
-  assert.equal(refusedWire({ infl: 'am', subj: 'i', verb: 'approve' }), null)
-  assert.equal(refusedWire({ infl: 'am', subj: 'she', verb: 'approve' }) !== null, true)
-  assert.match(refusedWire({ infl: 'ed', subj: 'her', verb: 'approve' }).en, /case/)
-  assert.match(refusedWire({ infl: 'ed', subj: 'board', verb: 'approve', OBJ: 'she' }).en, /case/)
-  // A verb into a subject port, and one phrase into two ports.
-  const graph = board(lex, { infl: 'ed', subj: 'board', verb: 'approve', OBJ: 'plan' })
-  assert.match(refuse(lex, graph, 'verb-approve', 'infl-ed', 'SUBJ').en, /noun phrase/)
-  assert.match(refuse(lex, graph, 'np-plan', 'infl-ed', 'SUBJ').en, /one place/)
+test('a clause is said in order, with the forms its tense asks for', () => {
+  const run = check(lex, accepted, toClause({ SUBJ: 'model', INFL: 'has', V: 'accept', OBJ: 'paper' }))
+  assert.equal(run.sentence, 'The model has accepted the paper.')
+  assert.equal(run.words, 6)
+  assert.ok(run.pass)
+  assert.deepEqual(surface(lex, toClause({ INFL: 'ed' }), 'INFL'), { text: '-ed', dim: true })
+  assert.deepEqual(surface(lex, toClause({ V: 'accept' }), 'V'), { text: 'accept' })
+  const dative = check(lex, sent, toClause({ SUBJ: 'model', INFL: 'ed', V: 'send-to', OBJ: 'paper', TO: 'authors' }))
+  assert.equal(dative.sentence, 'The model sent the paper to the authors.')
+  assert.ok(dative.pass && !dative.star)
+  assert.ok(check(lex, sent, toClause({ SUBJ: 'model', INFL: 'ed', V: 'send', IOBJ: 'authors', OBJ: 'paper' })).star)
+})
+
+test('kind, case and agreement are refused, each with its reason', () => {
+  assert.match(refuse(lex, toClause({ INFL: 'have' }), 'SUBJ', 'np:model').en, /disagree/)
+  assert.match(refuse(lex, toClause({ SUBJ: 'models' }), 'INFL', 'infl:has').en, /disagree/)
+  assert.equal(refuse(lex, toClause({ INFL: 'am' }), 'SUBJ', 'np:i'), null)
+  assert.ok(refuse(lex, toClause({ INFL: 'am' }), 'SUBJ', 'np:she'))
+  assert.match(refuse(lex, {}, 'SUBJ', 'np:her').en, /case/)
+  assert.match(refuse(lex, toClause({ V: 'accept' }), 'OBJ', 'np:she').en, /case/)
+  assert.match(refuse(lex, {}, 'SUBJ', 'verb:accept').en, /noun phrase/)
+  assert.match(refuse(lex, toClause({ V: 'converge' }), 'OBJ', 'np:paper').en, /no such place/)
+  assert.equal(refusals(lex, toClause({ SUBJ: 'models', INFL: 'has', V: 'accept' })).length, 2)
 })
 
 test('the meaning check tells the wrong thing, the wrong number, the wrong time and the wrong verb apart', () => {
-  assert.equal(fate(lex, approvePlan, { infl: 'has', subj: 'board', verb: 'approve', OBJ: 'plan' }), 'pass')
-  assert.equal(fate(lex, approvePlan, { infl: 'ed', subj: 'board', verb: 'approve', OBJ: 'plan' }), 'time')
-  assert.equal(fate(lex, approvePlan, { infl: 'has', subj: 'plan', verb: 'approve', OBJ: 'board' }), 'role')
-  assert.equal(fate(lex, approvePlan, { infl: 'have', subj: 'boards', verb: 'approve', OBJ: 'plan' }), 'role')
-  assert.equal(fate(lex, approvePlan, { infl: 'has', subj: 'board', verb: 'send-to', OBJ: 'plan', TO: 'client' }), 'pred')
-  const run = check(lex, approvePlan, board(lex, { infl: 'have', subj: 'boards', verb: 'approve', OBJ: 'plan' }))
+  assert.equal(fate(lex, accepted, { SUBJ: 'model', INFL: 'has', V: 'accept', OBJ: 'paper' }), 'pass')
+  assert.equal(fate(lex, accepted, { SUBJ: 'model', INFL: 'ed', V: 'accept', OBJ: 'paper' }), 'time')
+  assert.equal(fate(lex, accepted, { SUBJ: 'paper', INFL: 'has', V: 'accept', OBJ: 'model' }), 'role')
+  assert.equal(fate(lex, accepted, { SUBJ: 'models', INFL: 'have', V: 'accept', OBJ: 'paper' }), 'role')
+  assert.equal(fate(lex, accepted, { SUBJ: 'model', INFL: 'has', V: 'converge' }), 'pred')
+  assert.equal(fate(lex, accepted, { SUBJ: 'models', INFL: 'has', V: 'accept', OBJ: 'paper' }), 'grammar')
+  const run = check(lex, accepted, toClause({ SUBJ: 'models', INFL: 'have', V: 'accept', OBJ: 'paper' }))
   assert.match(run.roles.AGENT.why.en, /Wrong number/)
+  assert.equal(run.roles.AGENT.slot, 'SUBJ')
 })
 
 test('a pronoun names what the level says it names', () => {
-  const level = { ...approvePlan, meaning: { ...approvePlan.meaning, tense: 'past', aspect: 'simple' }, refer: { she: 'board' } }
-  assert.equal(fate(lex, level, { infl: 'ed', subj: 'she', verb: 'approve', OBJ: 'plan' }), 'pass')
-  assert.equal(fate(lex, { ...level, refer: {} }, { infl: 'ed', subj: 'she', verb: 'approve', OBJ: 'plan' }), 'role')
+  const level = { ...accepted, meaning: { ...accepted.meaning, tense: 'past', aspect: 'simple' }, refer: { she: 'model' } }
+  assert.equal(fate(lex, level, { SUBJ: 'she', INFL: 'ed', V: 'accept', OBJ: 'paper' }), 'pass')
+  assert.equal(fate(lex, { ...level, refer: {} }, { SUBJ: 'she', INFL: 'ed', V: 'accept', OBJ: 'paper' }), 'role')
 })
 
-test('an unfinished board names its open ports', () => {
-  const run = check(lex, approvePlan, board(lex, { infl: 'has', verb: 'approve' }))
+test('an unfinished clause names its empty slots', () => {
+  const run = check(lex, accepted, toClause({ INFL: 'has', V: 'accept' }))
   assert.equal(run.complete, false)
-  assert.deepEqual(run.open.map((o) => o.port).sort(), ['OBJ', 'SUBJ'])
-  assert.deepEqual(run.groups.filter((g) => g.gap).map((g) => g.port), ['SUBJ', 'OBJ'])
+  assert.deepEqual(run.open, ['SUBJ', 'OBJ'])
+  assert.deepEqual(run.groups.filter((g) => g.gap).map((g) => g.slot), ['SUBJ', 'OBJ'])
 })

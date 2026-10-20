@@ -1,32 +1,39 @@
-// 句法之图's words. Only data: what each word is to the grammar (games/kit/domains/syntax/engine/lexicon.js says
-// the shape). The grammar itself (frames, agreement, case) is the syntax domain's, the same for every level.
+// 句法之图's words: the vocabulary of a computer science paper and its review. Only data: what each word is to the
+// grammar (games/kit/domains/syntax/engine/lexicon.js says the shape). The grammar itself (frames, agreement, case) is
+// the syntax domain's, the same for every level.
 
 const np = (text, ent, number, sense) => ({ text, ent, number, sense })
 const pron = (text, number, person, kase) => ({ text, number, person, case: kase })
 const verb = (base, s, past, pp, ing, frame, sense, more = {}) => ({ forms: { base, s, past, pp, ing }, frame, sense, ...more })
 
 export const nouns = {
-  proposal: np('the proposal', 'proposal', 'sg', { zh: '提案', en: 'proposal' }),
-  proposals: np('the proposals', 'proposal', 'pl', { zh: '提案', en: 'proposals' }),
-  chair: np('the chair', 'chair', 'sg', { zh: '主席', en: 'chair' }),
-  chairs: np('the chairs', 'chair', 'pl', { zh: '主席', en: 'chairs' }),
-  committee: np('the committee', 'committee', 'sg', { zh: '委员会', en: 'committee' }),
-  committees: np('the committees', 'committee', 'pl', { zh: '委员会', en: 'committees' }),
-  budget: np('the budget', 'budget', 'sg', { zh: '预算', en: 'budget' }),
-  budgets: np('the budgets', 'budget', 'pl', { zh: '预算', en: 'budgets' }),
-  auditor: np('the auditor', 'auditor', 'sg', { zh: '审计师', en: 'auditor' }),
-  auditors: np('the auditors', 'auditor', 'pl', { zh: '审计师', en: 'auditors' }),
-  claim: np('the claim', 'claim', 'sg', { zh: '索赔申请', en: 'claim' }),
-  claims: np('the claims', 'claim', 'pl', { zh: '索赔申请', en: 'claims' }),
-  firm: np('the firm', 'firm', 'sg', { zh: '公司', en: 'firm' }),
-  client: np('the client', 'client', 'sg', { zh: '客户', en: 'client' }),
-  clients: np('the clients', 'client', 'pl', { zh: '客户', en: 'clients' }),
-  invoice: np('the invoice', 'invoice', 'sg', { zh: '发票', en: 'invoice' }),
-  invoices: np('the invoices', 'invoice', 'pl', { zh: '发票', en: 'invoices' }),
-  reminder: np('a reminder', 'reminder', 'sg', { zh: '催款提醒', en: 'reminder' }),
-  reminders: np('reminders', 'reminder', 'pl', { zh: '催款提醒', en: 'reminders' }),
-  notice: np('a final notice', 'notice', 'sg', { zh: '最后通知', en: 'final notice' }),
-  notices: np('final notices', 'notice', 'pl', { zh: '最后通知', en: 'final notices' }),
+  model: np('the model', 'model', 'sg', { zh: '模型', en: 'model' }),
+  models: np('the models', 'model', 'pl', { zh: '模型', en: 'models' }),
+  experiment: np('the experiment', 'experiment', 'sg', { zh: '实验', en: 'experiment' }),
+  experiments: np('the experiments', 'experiment', 'pl', { zh: '实验', en: 'experiments' }),
+  algorithm: np('the algorithm', 'algorithm', 'sg', { zh: '算法', en: 'algorithm' }),
+  algorithms: np('the algorithms', 'algorithm', 'pl', { zh: '算法', en: 'algorithms' }),
+  method: np('the method', 'method', 'sg', { zh: '方法', en: 'method' }),
+  baseline: np('the baseline', 'baseline', 'sg', { zh: '基线', en: 'baseline' }),
+  baselines: np('the baselines', 'baseline', 'pl', { zh: '基线', en: 'baselines' }),
+  committee: np('the committee', 'committee', 'sg', { zh: '程序委员会', en: 'programme committee' }),
+  committees: np('the committees', 'committee', 'pl', { zh: '程序委员会', en: 'committees' }),
+  paper: np('the paper', 'paper', 'sg', { zh: '论文', en: 'paper' }),
+  papers: np('the papers', 'paper', 'pl', { zh: '论文', en: 'papers' }),
+  author: np('the author', 'author', 'sg', { zh: '作者', en: 'author' }),
+  authors: np('the authors', 'author', 'pl', { zh: '作者', en: 'authors' }),
+  reviewer: np('the reviewer', 'reviewer', 'sg', { zh: '审稿人', en: 'reviewer' }),
+  reviewers: np('the reviewers', 'reviewer', 'pl', { zh: '审稿人', en: 'reviewers' }),
+  proof: np('the proof', 'proof', 'sg', { zh: '证明', en: 'proof' }),
+  proofs: np('the proofs', 'proof', 'pl', { zh: '证明', en: 'proofs' }),
+  extension: np('an extension', 'extension', 'sg', { zh: '延期', en: 'extension' }),
+  extensions: np('extensions', 'extension', 'pl', { zh: '延期', en: 'extensions' }),
+  code: np('the code', 'code', 'sg', { zh: '代码', en: 'code' }),
+  editor: np('the editor', 'editor', 'sg', { zh: '编辑', en: 'editor' }),
+  rebuttal: np('a rebuttal', 'rebuttal', 'sg', { zh: '答辩意见', en: 'rebuttal' }),
+  rebuttals: np('rebuttals', 'rebuttal', 'pl', { zh: '答辩意见', en: 'rebuttals' }),
+  version: np('the final version', 'version', 'sg', { zh: '终稿', en: 'final version' }),
+  versions: np('the final versions', 'version', 'pl', { zh: '终稿', en: 'final versions' }),
   // Pronouns name whatever the level's context makes them name (a level's `refer`).
   i: pron('I', 'sg', 1, 'nom'),
   me: pron('me', 'sg', 1, 'acc'),
@@ -40,14 +47,19 @@ export const nouns = {
 }
 
 export const verbs = {
+  converge: verb('converge', 'converges', 'converged', 'converged', 'converging', 'intransitive', { zh: '收敛', en: 'converge' }, { subject: 'THEME' }),
   fail: verb('fail', 'fails', 'failed', 'failed', 'failing', 'intransitive', { zh: '失败', en: 'fail' }, { subject: 'THEME' }),
-  resign: verb('resign', 'resigns', 'resigned', 'resigned', 'resigning', 'intransitive', { zh: '辞职', en: 'resign' }),
-  meet: verb('meet', 'meets', 'met', 'met', 'meeting', 'intransitive', { zh: '开会', en: 'meet' }),
-  approve: verb('approve', 'approves', 'approved', 'approved', 'approving', 'transitive', { zh: '批准', en: 'approve' }),
-  reject: verb('reject', 'rejects', 'rejected', 'rejected', 'rejecting', 'transitive', { zh: '驳回', en: 'reject' }),
-  review: verb('review', 'reviews', 'reviewed', 'reviewed', 'reviewing', 'transitive', { zh: '审阅', en: 'review' }),
+  terminate: verb('terminate', 'terminates', 'terminated', 'terminated', 'terminating', 'intransitive', { zh: '终止', en: 'terminate' }, { subject: 'THEME' }),
+  outperform: verb('outperform', 'outperforms', 'outperformed', 'outperformed', 'outperforming', 'transitive', { zh: '优于', en: 'outperform' }),
+  accept: verb('accept', 'accepts', 'accepted', 'accepted', 'accepting', 'transitive', { zh: '录用', en: 'accept' }),
+  reject: verb('reject', 'rejects', 'rejected', 'rejected', 'rejecting', 'transitive', { zh: '拒稿', en: 'reject' }),
+  evaluate: verb('evaluate', 'evaluates', 'evaluated', 'evaluated', 'evaluating', 'transitive', { zh: '评估', en: 'evaluate' }),
   submit: verb('submit', 'submits', 'submitted', 'submitted', 'submitting', 'transitive', { zh: '提交', en: 'submit' }),
-  receive: verb('receive', 'receives', 'received', 'received', 'receiving', 'transitive', { zh: '收到', en: 'receive' }),
+  check: verb('check', 'checks', 'checked', 'checked', 'checking', 'transitive', { zh: '核查', en: 'check' }),
+  withdraw: verb('withdraw', 'withdraws', 'withdrew', 'withdrawn', 'withdrawing', 'transitive', { zh: '撤稿', en: 'withdraw' }),
+  read: verb('read', 'reads', 'read', 'read', 'reading', 'transitive', { zh: '读', en: 'read' }),
+  grant: verb('grant', 'grants', 'granted', 'granted', 'granting', 'ditransitive', { zh: '给予', en: 'grant' }),
+  'grant-to': verb('grant', 'grants', 'granted', 'granted', 'granting', 'dative', { zh: '给予', en: 'grant' }, { lemma: 'grant' }),
   send: verb('send', 'sends', 'sent', 'sent', 'sending', 'ditransitive', { zh: '发送', en: 'send' }),
   'send-to': verb('send', 'sends', 'sent', 'sent', 'sending', 'dative', { zh: '发送', en: 'send' }, { lemma: 'send' }),
 }

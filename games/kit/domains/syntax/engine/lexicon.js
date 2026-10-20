@@ -9,12 +9,9 @@
 //   inflections  { key: { label, tense, aspect, agree, aux: [word], verb: 'base' | 's' | 'past' | 'pp' | 'ing' } }
 //                the head of a clause: the auxiliaries it says, the verb form it asks for, and whom it agrees with
 //
-// A part's type on the board is `<kind>:<key>` (np:budget, verb:approve, infl:has); the sentence (the sink) is
-// `sentence`.
+// A word's type in a clause is `<kind>:<key>` (np:paper, verb:accept, infl:has).
 
 import { AGREEMENT, ASPECT_NAME, FRAMES, TENSE_NAME } from './grammar.js'
-
-export const SINK = 'sentence'
 
 export function defineLexicon({ nouns = {}, verbs = {}, inflections = {} }) {
   const parts = new Map()
@@ -35,10 +32,9 @@ export function defineLexicon({ nouns = {}, verbs = {}, inflections = {} }) {
   }
   return {
     problems,
-    /** The part a board type stands for, or null (the sentence, or an unknown type). */
+    /** The word a type stands for, or null. */
     part: (type) => parts.get(type) ?? null,
-    has: (type) => type === SINK || parts.has(type),
-    /** The board type of a lexicon key of one kind: type('np', 'budget') → 'np:budget'. */
+    /** The type of a lexicon key of one kind: type('np', 'paper') → 'np:paper'. */
     type: (kind, key) => `${kind}:${key}`,
     types: () => [...parts.keys()],
   }
