@@ -1,0 +1,150 @@
+/* The phone circuit screen (ui/phone): the circuit map above, the dock below, sheets for every
+   choice. Targets are at least 44 px. */
+
+
+/* Tests: swipe through cards; the dots show which pass. */
+.ph-dots { margin-top: 6px; display: flex; justify-content: center; gap: 5px; }
+.ph-dots i { width: 6px; height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--fail) 55%, var(--canvas)); transition: width 200ms ease; }
+.ph-dots i.is-pass { background: var(--status); }
+.ph-dots i.is-active { width: 16px; }
+
+.ph-node { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 10px; color: var(--paper); background: var(--fam, var(--ink)); }
+.ph-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ph-pill { min-height: 32px; max-width: 100%; padding: 0 11px; display: inline-flex; align-items: center; gap: 5px; border: 0; border-radius: 16px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: inherit; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ph-pill:active { transform: scale(.97); }
+.ph-pill i { color: var(--muted); font-family: var(--mono); font-size: 11px; font-style: normal; }
+.ph-thumb-error { display: grid; place-items: center; border-radius: 8px; color: var(--fail); background: color-mix(in srgb, var(--fail) 10%, var(--paper)); font-family: var(--mono); font-size: 18px; }
+.ph-error { margin: 0; color: var(--fail); font-size: 13px; }
+.ph-mini-kernel { display: inline-grid; grid-template-columns: repeat(3, 7px); gap: 1px; }
+.ph-mini-kernel i { width: 7px; height: 7px; border-radius: 1.5px; background: color-mix(in srgb, var(--accent) calc(max(var(--w), 0) * 100%), color-mix(in srgb, var(--fam-size) calc(max(calc(var(--w) * -1), 0) * 100%), var(--line))); }
+
+
+
+
+
+/* Sheets. */
+.ph-scrim { position: fixed; z-index: 50; inset: 0; display: flex; align-items: flex-end; background: var(--scrim); animation: fade-in 160ms ease; }
+.ph-sheet { width: 100%; max-height: 88dvh; display: flex; flex-direction: column; border-radius: 22px 22px 0 0; background: var(--paper); box-shadow: 0 -12px 30px -12px rgba(0, 0, 0, .35); animation: sheet-in 260ms cubic-bezier(.2, .8, .2, 1); transition: transform 120ms ease; }
+.ph-handle { padding: 10px 0 4px; display: grid; place-items: center; touch-action: none; cursor: grab; }
+.ph-handle i { width: 40px; height: 5px; border-radius: 3px; background: var(--rule); }
+.ph-sheet-head { padding: 0 8px 6px 18px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ph-sheet-head h2 { margin: 0; font-family: var(--serif); font-size: 18px; font-weight: 500; }
+.ph-icon { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 12px; color: var(--muted); background: transparent; }
+.ph-sheet-body { padding: 4px 16px 16px; overflow-y: auto; overscroll-behavior: contain; }
+.ph-sheet-foot { padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--hairline); }
+.ph-live { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12.5px; }
+
+/* Add sheet: parts by family, each with its preview. */
+.ph-group + .ph-group { margin-top: 14px; }
+.ph-group h3 { margin: 0 0 8px; color: var(--muted); font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: .12em; }
+.ph-parts { display: grid; gap: 8px; }
+.ph-part { min-height: 76px; padding: 8px 12px 8px 8px; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; border: 0; border-radius: 14px; color: var(--ink); background: var(--canvas); box-shadow: inset 3px 0 0 var(--fam, var(--rule)), inset 0 0 0 1px var(--hairline); font: inherit; text-align: left; }
+.ph-part:active { transform: scale(.98); background: var(--hover); }
+.ph-part-preview { line-height: 0; }
+.ph-part-preview .image-view, .ph-part-preview canvas { border-radius: 8px; }
+.ph-part-need { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 8px; color: var(--muted); background: var(--paper); box-shadow: inset 0 0 0 1px dashed var(--rule); font-size: 11px; line-height: 1.3; text-align: center; outline: 1.5px dashed var(--rule); outline-offset: -4px; }
+.ph-part-text { display: grid; gap: 3px; }
+.ph-part-text b { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 500; }
+.ph-part-text .family-chip { width: 20px; height: 20px; border-radius: 6px; }
+.ph-part-text small { color: var(--muted); font-size: 12px; line-height: 1.45; }
+
+/* Source sheet. */
+.ph-sources { display: grid; gap: 8px; }
+.ph-source { min-height: 68px; padding: 6px 12px 6px 6px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; border: 0; border-radius: 14px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 15px; text-align: left; }
+.ph-source.is-on { box-shadow: inset 0 0 0 2px var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--paper)); }
+.ph-source.is-clear { grid-template-columns: 56px minmax(0, 1fr); color: var(--fail); }
+.ph-source.is-clear svg { justify-self: center; }
+
+/* Editors. */
+.ph-number { display: grid; gap: 14px; }
+.ph-slider { height: 40px; }
+.ph-keypad-wrap { display: grid; gap: 10px; }
+.ph-keypad-value { min-height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: flex-end; border-radius: 14px; background: var(--canvas); font-family: var(--mono); font-size: 30px; font-variant-numeric: tabular-nums; }
+.ph-keypad { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.ph-key { min-height: 52px; border: 0; border-radius: 14px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 -1px 0 var(--rule); font-family: var(--mono); font-size: 22px; }
+.ph-key.is-fn { color: var(--muted); font-size: 15px; }
+.ph-key.is-pi { grid-column: 1 / -1; color: var(--ink); font-size: 20px; }
+.ph-key.is-sign { color: var(--accent-ink); font-size: 22px; font-weight: 600; }
+.ph-key:active { background: var(--hover); transform: scale(.96); }
+/* Set right in a block's sheet, under 设置: buttons (the kit's Choice), a slider with step keys, a kernel's cells,
+   learned weights. */
+.pc-param { display: grid; gap: 6px; }
+.pc-param-name { color: var(--muted); font-size: 12.5px; }
+.ph-inline-number { display: flex; align-items: center; gap: 8px; }
+.ph-inline-number .ph-slider { flex: 1; min-width: 0; }
+.ph-inline-number > span { flex: 1; color: var(--muted); font-size: 13px; }
+.ph-step { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border: 0; border-radius: 12px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.ph-step:active { transform: scale(.96); }
+.ph-step-value { min-width: 66px; height: 44px; padding: 0 10px; flex: none; border: 0; border-radius: 12px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--rule); font-family: var(--mono); font-size: 16px; font-variant-numeric: tabular-nums; }
+.ph-kernel.is-compact button { min-height: 44px; font-size: 15px; }
+.pc-param .ph-kernel.is-learned span { min-height: 36px; font-size: 13px; }
+.ph-kernel-edit { display: grid; gap: 14px; }
+.ph-kernel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.ph-kernel button, .ph-kernel span { min-height: 56px; display: grid; place-items: center; border: 0; border-radius: 12px; color: var(--ink); background: color-mix(in srgb, var(--accent) calc(max(var(--w), 0) * 40%), color-mix(in srgb, var(--fam-size) calc(max(calc(var(--w) * -1), 0) * 40%), var(--canvas))); font-family: var(--mono); font-size: 17px; }
+.ph-kernel button.is-on { box-shadow: inset 0 0 0 2.5px var(--ink); }
+.ph-kernel.is-learned p { grid-column: 1 / -1; margin: 4px 0 0; color: var(--muted); font-size: 12.5px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-sheet, .ph-scrim, .ph-toast { animation: none; }
+  .ph-sheet, .ph-dots i { transition: none; }
+}
+
+/* ---- The board screen: tests on top, the board in the middle, the tray and the bar below ---- */
+.level-phone.is-split { overflow: hidden; padding-bottom: 0; }
+.pb { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; background: var(--canvas); }
+.pb.dragging { user-select: none; -webkit-user-select: none; }
+
+.pb-tests { padding: 8px 12px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--hairline); background: var(--paper); }
+.pb-tests::-webkit-scrollbar { display: none; }
+.pb-test { flex: none; min-height: 34px; padding: 0 12px; display: inline-flex; align-items: center; gap: 4px; border: 0; border-radius: 17px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; white-space: nowrap; }
+.pb-test.is-pass svg { color: var(--status); }
+.pb-test.is-fail svg { color: var(--fail); }
+.pb-test .hidden-tag { margin-left: 2px; }
+.pb-test.is-on { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+.pb-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 12px 12px 72px; display: grid; align-content: start; gap: 12px; overflow-x: clip; }
+.pb-howto { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+.pb-compare { max-width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; }
+.pb-compare figure { margin: 0; display: grid; justify-items: center; gap: 2px; line-height: 0; }
+.pb-compare figcaption { color: var(--muted); font-family: var(--mono); font-size: 10px; line-height: 1.4; }
+
+
+/* Sheets for one block and for the tests. */
+.pc-inspect { display: grid; gap: 14px; }
+.pc-inspect-head { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.pc-inspect-head small { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.pc-icon { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 13px; color: var(--muted); background: transparent; }
+.pc-icon.is-danger { color: var(--fail); }
+.pc-section { display: grid; gap: 8px; }
+.pc-label { color: var(--muted); font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; }
+.pc-ports { display: grid; gap: 6px; }
+.pc-port { min-height: 52px; padding: 6px 12px 6px 8px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 12px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 14px; text-align: left; }
+.pc-port span { flex: 1; }
+.pc-port svg:last-child { color: var(--muted); }
+.pc-port i { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 6px; color: var(--accent-ink); background: var(--paper); font-family: var(--mono); font-size: 12px; font-style: normal; }
+.pc-port .image-view, .pc-port canvas { border-radius: 5px; }
+.pc-port.is-empty { color: var(--fail); background: color-mix(in srgb, var(--fail) 7%, var(--paper)); box-shadow: inset 0 0 0 1.5px var(--fail); }
+.pc-result { justify-items: center; }
+.pc-result .pc-label { justify-self: start; }
+.pc-compare { display: flex; gap: 14px; }
+.pc-compare figure { margin: 0; display: grid; justify-items: center; gap: 4px; }
+.pc-compare figcaption { color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+.pb-below { margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.pb-below .train-buttons button { min-height: 44px; flex: 1; }
+.pb-details summary { min-height: 40px; display: flex; align-items: center; color: var(--muted); font-size: 13px; cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+}
+
+/* A sink's pass/fail mark on the shared phone board. */
+.pb-verdict { position: absolute; top: 8px; right: 10px; display: grid; }
+.pb-term.is-pass .pb-verdict { color: var(--status); }
+.pb-term.is-fail .pb-verdict { color: var(--fail); }
+
+/* The same editors in a bench's panel in the parts box (ui/PartDemo.jsx): the slider and the value, without the
+   keypad, and choices in a row, so the board above stays in view. */
+.demo-panel .ph-keypad { display: none; }
+.demo-panel .ph-keypad-value { min-height: 0; padding: 2px 4px; font-size: 18px; }
+.demo-param { display: grid; gap: 4px; }
+.demo-param .panel-label { margin: 0; }

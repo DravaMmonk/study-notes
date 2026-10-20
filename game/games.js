@@ -2,6 +2,8 @@
 // progress() reads the game's own save in this browser (all games share the site's origin) and returns
 // how many levels are done; a game without a save reads as 0.
 // `title` is the Chinese name and `en` the English one; topic and desc are { zh, en } pairs (hub.js picks one).
+// `page` is the game's own page (games/kit/app): the path drawn on its tab icon and its description for search engines.
+// `dev` marks a game still in development: its card says so.
 
 const read = key => { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } };
 
@@ -13,6 +15,7 @@ export const GAMES = [
       en: 'No lectures, just components, tests and a set of inputs and outputs. Start from “shift the image by one pixel”, build blur, edges, corners and disparity yourself, and end up teaching the machine to see.',
     },
     levels: 58, art: 'pipeline',
+    page: { icon: 'M14 20h10v10H14zM40 34h10v10H40zM24 25h16v14', description: '视觉完备 Vision Complete：把计算机视觉课程做成一套解谜关卡。A computer vision course turned into a set of puzzle levels.' },
     progress: () => (read('vision-complete.v1')?.solved || []).length,
   },
   {
@@ -22,7 +25,18 @@ export const GAMES = [
       en: 'No programming or algorithms background needed. Starting from cells and arrows, a little robot works across a board cell by cell while you wire up the circuit boards that count routes, compare words and pack a backpack, then carry them over to games, language, pictures and reinforcement learning.',
     },
     levels: 69, art: 'grid',
+    page: { icon: 'M14 14h10v10H14zM40 40h10v10H40zM24 19h21v21', description: '状态之图 State Graph：零基础动态规划解谜游戏。Dynamic programming puzzles for complete beginners.' },
     // Saved by the shared game shell under <id>.v1; saves from before it under state-graph-v2.
     progress: () => (read('state-graph.v1')?.solved || Object.keys(read('state-graph-v2')?.done || {})).length,
+  },
+  {
+    id: 'qed', href: 'qed/index.html', title: '证明完毕', en: 'Q.E.D.', topic: { zh: '从零开始 · 形式化证明', en: 'From scratch · Formal proof' },
+    desc: {
+      zh: '不需要任何逻辑学基础。从真值表开始，把推理规则当成元件，一块一块搭出证明；造出假设框，再去岛上分辨骑士和无赖。',
+      en: 'No logic background needed. Starting from truth tables, wire up proofs with rules of inference as parts; get an assumption box, then sort the knights from the knaves on an island.',
+    },
+    levels: 25, art: 'proof', dev: true,
+    page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 Q.E.D.：把形式化证明做成一套解谜关卡。Formal proof as a set of puzzle levels.' },
+    progress: () => (read('qed.v1')?.solved || []).length,
   },
 ];

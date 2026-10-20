@@ -1,0 +1,13 @@
+{
+  "fork-shares-offset": { "about": "A child forked after open shares the file offset: its write and the parent's follow each other.", "expect": { "file": "child\nparent\n" } },
+  "dup-shares-offset": { "about": "dup gives a second fd on the same open file description, with one offset.", "expect": { "file": "abcd" } },
+  "unlink-while-open": { "about": "A file unlinked while open can still be read through the open fd; the name is gone.", "expect": { "read": "hello", "stat": "ENOENT" } },
+  "hard-link": { "about": "A hard link is a second name for one inode: writes show through both, and it survives unlinking the first.", "expect": { "links": 2, "through": "data", "after": "data" } },
+  "rename-replaces": { "about": "rename moves a name onto another, replacing what was there.", "expect": { "b": "new", "a": "ENOENT" } },
+  "pipe-eof-after-close": { "about": "A pipe's reader sees end of file once every write end is closed.", "expect": { "child": "hi", "stuck": false } },
+  "pipe-open-write-end": { "about": "A parent that keeps its own copy of the write end open leaves the reader waiting for ever.", "expect": { "stuck": true } },
+  "redirect-then-dup": { "about": "> f 2>&1: both outputs go to the file.", "expect": { "file": "out\nerr\n", "terminal": "" } },
+  "dup-then-redirect": { "about": "2>&1 > f: stderr goes where stdout was, the terminal; only stdout goes to the file.", "expect": { "file": "out\n", "terminal": "err\n" } },
+  "sigpipe": { "about": "Writing to a pipe whose read end is closed kills the writer with SIGPIPE.", "expect": { "killedBySigpipe": true } },
+  "wait-status": { "about": "wait gives the parent its child's exit status.", "expect": { "status": 3 } }
+}

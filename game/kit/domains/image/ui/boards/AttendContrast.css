@@ -1,0 +1,55 @@
+/* 5-3 拉近与推开: the embedding circle is the stage; goals, loss switches and the choice matrix sit beside it.
+   Layout, panels, goals, buttons and checks come from kit.css; only the drawing and the matrix live here. */
+.contrast-split { grid-template-columns: minmax(0, 1fr) minmax(340px, 430px); }
+
+.contrast-stage { display: grid; gap: 6px; }
+.contrast-stage-head { position: absolute; z-index: 1; top: 14px; left: 14px; right: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.contrast-stage-head .bk-label { margin: 0; }
+.contrast-step { min-width: 6.5em; justify-content: center; font-variant-numeric: tabular-nums; }
+.contrast-plane { display: block; width: 100%; max-width: 620px; height: auto; aspect-ratio: 1; justify-self: center; }
+.plane-axis { stroke: var(--hairline); stroke-width: 0.006; }
+.plane-circle { fill: none; stroke: var(--rule); stroke-width: 0.008; }
+.plane-pair { stroke: var(--accent); stroke-width: 0.014; stroke-linecap: round; }
+.plane-dot { fill: var(--ink); stroke: var(--ink); stroke-width: 0.012; }
+.plane-dot.is-second { fill: var(--paper); }
+.plane-label { fill: var(--muted); font-family: var(--mono); font-size: 0.095px; text-anchor: middle; }
+.contrast-verdict { justify-content: center; text-align: center; color: var(--muted); }
+.contrast-legend { margin-top: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px; }
+
+.contrast-controls { display: grid; gap: 8px; }
+.contrast-formula { margin: 0; color: var(--ink); font-family: var(--serif); font-size: 16px; line-height: 1.5; }
+.contrast-formula span { transition: color 220ms ease; }
+.contrast-formula .is-off { color: var(--faint); text-decoration: line-through; text-decoration-color: var(--rule); }
+.contrast-checks { gap: 4px 18px; }
+.contrast-checks input:disabled { cursor: default; }
+.contrast-reset { color: var(--muted); background: transparent; box-shadow: none; }
+.contrast-curve { margin: 0; }
+.contrast-curve svg { display: block; width: 100%; height: 52px; overflow: visible; }
+.contrast-curve polyline { fill: none; stroke: var(--accent); stroke-width: 1.6px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.contrast-curve figcaption { margin-top: 4px; }
+.contrast-curve-empty b, .contrast-curve figcaption b { color: var(--ink); font-family: var(--mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+.contrast-curve-empty { min-height: 52px; margin: 0; padding: 16px 10px; text-align: center; border-radius: 10px; background: var(--canvas); }
+
+.contrast-matrix { margin: 0; min-width: 0; }
+.contrast-matrix table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 2px; font-family: var(--mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+.contrast-matrix thead th:first-child { width: 52px; }
+.contrast-matrix th { padding: 0 0 2px; color: var(--muted); font-size: 10px; font-weight: 400; white-space: nowrap; }
+.contrast-matrix th[scope='row'] { padding: 0 2px 0 0; text-align: left; }
+.contrast-matrix th[scope='row'] .image-view { display: inline-block; margin-right: 5px; vertical-align: middle; }
+.contrast-matrix td { height: 26px; padding: 0; color: var(--ink); text-align: center; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--hairline); transition: background 320ms ease; }
+.contrast-matrix td.is-self { background: repeating-linear-gradient(45deg, var(--hairline) 0 2px, transparent 2px 5px); }
+.contrast-matrix td.is-partner { box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+@media (max-width: 1100px) {
+  .contrast-split { grid-template-columns: 1fr; }
+  .contrast-split > .bk-stack { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+}
+@media (max-width: 760px) {
+  .contrast-split > .bk-stack { grid-template-columns: 1fr; }
+  .contrast-matrix thead th:first-child { width: 26px; }
+  .contrast-matrix th[scope='row'] .image-view { display: none; }
+  .contrast-matrix td { height: 28px; font-size: 10.5px; }
+  .contrast-legend { font-size: 10px; }
+  .contrast-stage-head { top: 10px; left: 10px; right: 10px; }
+  .contrast-split > .bk-stack > .bk-panel:first-child > .bk-label { display: none; }
+}

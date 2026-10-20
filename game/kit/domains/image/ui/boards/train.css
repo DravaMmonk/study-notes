@@ -1,0 +1,4 @@
+/* The overfitting bench (EarlyStop). Layout and controls come from the board kit; plots and the stage list from
+   waves.css. */
+
+.es-now line { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 3; opacity: .6; }

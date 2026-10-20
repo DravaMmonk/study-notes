@@ -1,0 +1,49 @@
+// Shared DOM, formatting and feedback helpers.
+
+import { T, tr } from './i18n.js';
+
+export const $ = (s, r = document) => r.querySelector(s);
+export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+/** The desktop workbench layout (see styles.css). */
+export const wide = () => !matchMedia('(max-width: 760px)').matches;
+export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+export const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* no haptics */ } };
+export const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+export const OPS = { sum: a => a.reduce((s, x) => s + x, 0), min: a => Math.min(...a), max: a => Math.max(...a) };
+export const opLabel = { sum: T('加起来', 'sum'), min: T('取较小', 'min'), max: T('取较大', 'max') };
+
+/** Number formatting for board cells; null renders empty. Fractions keep two decimals, or two significant digits below 1. */
+export function fmt(v) {
+  if (v === Infinity) return '∞';
+  if (v === -Infinity) return '✗';
+  if (typeof v === 'number') {
+    if (Number.isInteger(v)) return v.toLocaleString('en-US');
+    return String(Math.abs(v) >= 1 ? Math.round(v * 100) / 100 : Number(v.toPrecision(2)));
+  }
+  return v == null ? '' : String(v);
+}
+/** Signal formatting for circuit values: null is "no route", booleans are yes/no, a segment lists its first few values. */
+/** A signal as the player reads it; a kind ({ cat, label }, a key's colour say) by its name. */
+export const signal = v => (Array.isArray(v) ? `[${v.slice(0, 4).map(signal).join(' ')}${v.length > 4 ? ' …' : ''}]` : v === null || v === undefined ? '—' : typeof v === 'object' && 'cat' in v ? String(v.label) : v === true ? tr('是', 'yes') : v === false ? tr('否', 'no') : fmt(v));
+
+export const ICON = {
+  part: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" fill="currentColor"/><path d="M10.5 7h4.5a2 2 0 0 1 2 2v4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  play: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg>',
+  skip: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 5v14l9-7zM13 5v14l9-7z" fill="currentColor"/></svg>',
+  check: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M19.5 14.6A7.6 7.6 0 0 1 9.4 4.5 7.6 7.6 0 1 0 19.5 14.6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  ruler: '<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4 16.5L16.5 4l3.5 3.5L7.5 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 12.5l2 2M10.5 10l1.5 1.5M13 7.5l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  wire: '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><circle cx="6" cy="5" r="2.4" fill="currentColor"/><circle cx="18" cy="19" r="2.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 7.5c0 7 12 2 12 9" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+};
+
+let toastTimer = 0;
+export function toast(msg) {
+  const t = $('#toast');
+  t.textContent = String(msg);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
