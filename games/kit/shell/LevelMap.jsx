@@ -124,7 +124,9 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
   const x = (c) => (c + half) * (w + col)
   const y = (r) => r * (h + gap)
   const width = x(half) + w
-  const height = y(rows) - gap
+  // The tree is as tall as its levels, plus the gap under the last row when a level there unlocks something.
+  const chipBelow = [...at].some(([id, p]) => p.row === rows - 1 && byId.get(id) && game.unlocked(byId.get(id)).length)
+  const height = y(rows) - (chipBelow ? 0 : gap)
   const optional = new Set()
   for (const e of edges) if (e.kind === 'optional' || optional.has(e.from)) optional.add(e.to)
   // Start a tree wider than the screen on its main path.
