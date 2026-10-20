@@ -11,15 +11,15 @@
 /* ---- cards ---- */
 .lg-card { padding: 4px 10px 0; display: grid; gap: 6px; }
 .lg-formula { min-width: 0; display: grid; gap: 2px; }
-.lg-formula b { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
-.lg-formula small { color: var(--muted); font-family: var(--mono); font-size: 10px; line-height: 1.4; overflow-wrap: anywhere; }
+.lg-formula b { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+.lg-formula small { color: var(--muted); font-family: var(--sans); font-size: 10px; line-height: 1.4; overflow-wrap: anywhere; }
 .lg-formula.is-small b { font-size: 11px; font-weight: 500; }
 .lg-out { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 6px; }
 .lg-out em { color: var(--muted); font: normal 10px var(--mono); }
 .lg-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
 .lg-error.is-missing { color: var(--faint); }
 .lg-want { color: var(--muted); font-size: 11.5px; }
-.lg-want b { color: var(--ink); font-family: var(--mono); }
+.lg-want b { color: var(--ink); }
 .lg-node.is-pass { box-shadow: 0 0 0 2px var(--status), var(--card); }
 .lg-node.is-fail { box-shadow: 0 0 0 2px var(--fail), var(--card); }
 .node-verdict { margin-left: auto; font-style: normal; font-size: 11px; color: var(--muted); }
@@ -27,8 +27,8 @@
 .lg-field { display: grid; gap: 4px; }
 .lg-field label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; }
 .lg-field label > span { color: var(--muted); font-size: 11px; }
-.lg-field input { min-width: 0; height: 26px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12.5px var(--mono); }
-.lg-field input:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
+.lg-field input, .lg-field select { min-width: 0; height: 26px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12.5px var(--mono); }
+.lg-field input:focus, .lg-field select:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
 .lg-keys { display: flex; flex-wrap: wrap; gap: 6px; }
 .lg-keys button { min-width: 40px; height: 40px; border: 0; border-radius: 10px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: 17px var(--mono); }
 
@@ -50,8 +50,8 @@
 .lg-box-note { margin: 0; color: var(--body); font-size: 12.5px; }
 
 /* ---- the strip and the brief ---- */
-.lg-sequent { font-family: var(--mono); font-size: 13px; color: var(--ink); }
-.lg-sequent b { margin: 0 6px; color: var(--accent-ink); }
+.lg-sequent { font-size: 13px; color: var(--muted); }
+.lg-sequent b { margin: 0 4px; color: var(--ink); }
 .lg-verdict { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .lg-verdict.is-pass { color: var(--status); }
 .lg-verdict.is-fail { color: var(--fail); }
@@ -70,7 +70,7 @@
 .lg-sink { display: grid; justify-items: center; gap: 2px; text-align: center; }
 .lg-sheet { display: grid; gap: 14px; }
 .lg-sheet .lg-card { padding: 0; gap: 12px; }
-.lg-sheet .lg-field input { height: 40px; font-size: 16px; }
+.lg-sheet .lg-field input, .lg-sheet .lg-field select { height: 40px; font-size: 16px; }
 .lg-sheet .lg-open { height: 44px; font-size: 14px; }
 .lg-desc { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; }
 .lg-remove { height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 12px; color: var(--fail); background: var(--canvas); font: inherit; }
@@ -80,7 +80,7 @@
 
 /* ---- truth tables ---- */
 .lg-truth { max-width: 720px; margin: 0 auto; padding: 28px 24px 40px; display: grid; gap: 18px; }
-.lg-table { border-collapse: separate; border-spacing: 0; font-family: var(--mono); font-size: 14px; background: var(--paper); border-radius: var(--r-md); box-shadow: var(--card); overflow: hidden; }
+.lg-table { border-collapse: separate; border-spacing: 0; font-size: 14px; background: var(--paper); border-radius: var(--r-md); box-shadow: var(--card); overflow: hidden; }
 .lg-table th, .lg-table td { min-width: 44px; height: 40px; padding: 0 12px; text-align: center; border-bottom: 1px solid var(--hairline); }
 .lg-table th { color: var(--muted); font-weight: 500; background: var(--canvas); }
 .lg-table th.is-formula, .lg-table td.is-formula { border-left: 1px solid var(--line); min-width: 120px; }
@@ -94,7 +94,7 @@
 .lg-claim { padding: 12px 14px; display: grid; gap: 10px; border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--card); }
 .lg-claim.is-wrong { box-shadow: 0 0 0 2px var(--fail), var(--card); }
 .lg-claim header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.lg-claim header b { margin-right: auto; font: 600 16px var(--mono); color: var(--ink); }
+.lg-claim header b { margin-right: auto; font-size: 16px; font-weight: 600; color: var(--ink); }
 .lg-claim summary { color: var(--muted); font-size: 12.5px; cursor: pointer; }
 .lg-claim details .lg-table { margin-top: 10px; box-shadow: none; outline: 1px solid var(--hairline); }
 .lg-mark-pick { display: flex; gap: 6px; }
@@ -116,3 +116,4 @@
   .lg-table { width: 100%; }
   .lg-table th, .lg-table td { min-width: 0; padding: 0 6px; }
 }
+.lg-field select { font-family: var(--sans); }

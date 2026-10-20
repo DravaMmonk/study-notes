@@ -8,6 +8,7 @@ import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
 import { fitBoard, startProof } from '../build.js'
 import { parse, show } from '../formula.js'
+import { say, subformulas } from '../notation.js'
 import { LOGIC_TESTS, runAt, seenAt } from '../proof.js'
 import { descOf, iconOf, nameOf, partsFor, settingsOf, familyOf } from './catalog.js'
 import FormulaField from './FormulaField.jsx'
@@ -60,7 +61,13 @@ export default function ProofScreen({ game, level: entry, saved, save, solve, fl
   }
   const setParam = (id, key, value) => change({ ...board, nodes: board.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
 
-  const goal = parse(level.tests[0].goal, { consts: level.consts ?? [] })
+  const consts = level.consts ?? []
+  const goal = parse(level.tests[0].goal, { consts })
+  const premises = Object.values(level.tests[0].premises ?? {}).map((t) => parse(t, { consts }))
+  // Formulas as the level writes them (notation.js); a level in everyday words picks a card's formula from its own
+  // sentences instead of typing it.
+  const text = (f) => L(say(f, level.notation))
+  const choices = level.notation.words ? subformulas([...premises, goal]).map((f) => ({ value: show(f), label: text(f) })) : null
   const best = progress.best?.[level.id]
   const brief = (
     <Brief game={game} level={entry} hint={level.hint} phone={phone}>
@@ -79,7 +86,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solve, fl
   // Inside a box, what it opens and where its result goes.
   const boxNote = path.length > 0 && (
     <p className="lg-box-note">
-      {view.scopeError ? L(view.scopeError) : view.bind.assume ? tr(`框里假设 ${show(view.bind.assume.formula)}。证出的东西接到「结论」。`, `This box assumes ${show(view.bind.assume.formula)}. Wire what you prove to “Conclusion”.`) : tr('证出的东西接到「结论」。', 'Wire what you prove to “Conclusion”.')}
+      {view.scopeError ? L(view.scopeError) : view.bind.assume ? tr(`框里假设「${text(view.bind.assume.formula)}」。证出的东西接到「结论」。`, `This box assumes “${text(view.bind.assume.formula)}”. Wire what you prove to “Conclusion”.`) : tr('证出的东西接到「结论」。', 'Wire what you prove to “Conclusion”.')}
     </p>
   )
   const run = verdict ? { pass: verdict.pass } : null
@@ -89,11 +96,10 @@ export default function ProofScreen({ game, level: entry, saved, save, solve, fl
       go={{ label: run?.pass ? tr('证明完毕', 'Q.E.D.') : tr('检查证明', 'Check proof'), pass: Boolean(run?.pass), onClick: check }}
     />
   )
-  const shared = { parts, lemmas, board, view, goal, verdict, open, setParam }
+  const shared = { parts, lemmas, board, view, goal, verdict, open, setParam, text, choices }
 
   if (phone) return <PhoneProof {...shared} brief={brief} items={items} trail={trailOf} boxNote={boxNote} dock={dock} change={change} addNode={addNode} reset={reset} scope={scope} />
 
-  const premises = Object.values(level.tests[0].premises ?? {})
   return (
     <CircuitLayout
       className="lg-level"
@@ -120,7 +126,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solve, fl
           </div>
         </div>
       }
-      tests={<span className="lg-sequent">{premises.length ? premises.join(', ') : tr('无前提', 'no premises')} <b>⊢</b> {show(goal)}</span>}
+      tests={<span className="lg-sequent">{premises.length > 0 && <>{tr('已知', 'Given')} <b>{premises.map(text).join(tr('；', '; '))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b></span>}
       status={<TestStatus states={[verdict ? (verdict.pass ? 'pass' : 'fail') : null]} />}
       outputsTitle={tr('证明', 'Proof')}
       outputs={<p className={`lg-verdict ${verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : ''}`}>{verdict ? (verdict.pass ? tr('目标证出来了，没有留下开着的假设。', 'The goal is proved, with no hypothesis left open.') : L(verdict.reason)) : tr('检查时看两件事：目标收到的是不是要证的命题，还有没有没关上的假设。', 'Checking looks at two things: whether the goal receives the proposition to prove, and whether any hypothesis is left open.')}</p>}
@@ -129,20 +135,20 @@ export default function ProofScreen({ game, level: entry, saved, save, solve, fl
   )
 }
 
-/** A judgment: the formula proved, and the hypotheses it still rests on. */
-function Formula({ j, small = false, bare = false }) {
+/** A judgment: the formula proved, and the hypotheses it still rests on, written by `text`. */
+function Formula({ j, text, small = false, bare = false }) {
   if (!j) return null
   const hyps = [...j.hyps.values()]
   return (
     <span className={`lg-formula ${small ? 'is-small' : ''}`}>
-      <b>{show(j.formula)}</b>
-      {!small && !bare && hyps.length > 0 && <small>{tr('依赖', 'from')} {hyps.map(show).join(tr('，', ', '))}</small>}
+      <b>{text(j.formula)}</b>
+      {!small && !bare && hyps.length > 0 && <small>{tr('依赖', 'from')} {hyps.map(text).join(tr('；', '; '))}</small>}
     </span>
   )
 }
 
 // Under a card's ports: its settings, the boards it opens, and what it proves (or why it cannot yet).
-function CardBody({ node, parts, view, goal, open, setParam, keys = false }) {
+function CardBody({ node, parts, view, goal, open, setParam, text, choices, keys = false }) {
   const value = view.values.get(node.id)
   const error = view.errors.get(node.id)
   const role = parts.role(node)
@@ -151,8 +157,8 @@ function CardBody({ node, parts, view, goal, open, setParam, keys = false }) {
   const problem = error && <span className={`lg-error ${error === MISSING ? 'is-missing' : ''}`}>{error === MISSING ? tr('等接线', 'Waiting for wires') : L(error)}</span>
   return (
     <div className="lg-card">
-      {node.type === 'goal' && <span className="lg-want">{tr('要证', 'Prove')} <b>{show(goal)}</b></span>}
-      {settingsOf(parts.rules, node.type).map((s) => <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} keys={keys} />)}
+      {node.type === 'goal' && <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b></span>}
+      {settingsOf(parts.rules, node.type).map((s) => <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={choices} keys={keys} />)}
       {node.type === 'orI' && (
         <div className="lg-side" role="group" aria-label={tr('另一边放在', 'Other side goes')} onPointerDown={(e) => e.stopPropagation()}>
           <span>{tr('另一边放', 'Other side')}</span>
@@ -171,16 +177,16 @@ function CardBody({ node, parts, view, goal, open, setParam, keys = false }) {
           </button>
         )
       })}
-      {role === 'source' && <Formula j={value} bare />}
+      {role === 'source' && <Formula j={value} text={text} bare />}
       {role !== 'source' && (problem || (multi ? multi.map((o) => (
-        <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Formula j={view.values.get(srcOf(node, o.key))} /></span>
-      )) : <Formula j={value} />))}
+        <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Formula j={view.values.get(srcOf(node, o.key))} text={text} /></span>
+      )) : <Formula j={value} text={text} />))}
     </div>
   )
 }
 
 // The proof on a phone: the shared slot board, with the trail over it, a sheet per block and the run bar.
-function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam, brief, items, trail, boxNote, dock, change, addNode, reset, scope }) {
+function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam, text, choices, brief, items, trail, boxNote, dock, change, addNode, reset, scope }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -201,14 +207,14 @@ function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam,
   const thumb = (n) => {
     const error = view.errors.get(n.id)
     const outs = outputsOf(parts, n)
-    if (outs.length > 1) return <span className="lg-chips">{outs.map((o) => <Formula key={o.key} j={view.values.get(srcOf(n, o.key))} small />)}</span>
+    if (outs.length > 1) return <span className="lg-chips">{outs.map((o) => <Formula key={o.key} j={view.values.get(srcOf(n, o.key))} text={text} small />)}</span>
     if (error) return <i className={`lg-mark ${error === MISSING ? '' : 'is-error'}`}>{error === MISSING ? tr('待接线', 'unwired') : '!'}</i>
-    return <Formula j={view.values.get(n.id)} small />
+    return <Formula j={view.values.get(n.id)} text={text} small />
   }
   const sinkBody = (n) => (
     <span className="lg-sink">
-      {n.type === 'goal' && <span className="lg-want">{tr('要证', 'Prove')} <b>{show(goal)}</b></span>}
-      <Formula j={view.values.get(n.id)} small />
+      {n.type === 'goal' && <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b></span>}
+      <Formula j={view.values.get(n.id)} text={text} small />
     </span>
   )
   return (
@@ -227,7 +233,7 @@ function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam,
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(lemmas, node.type))}</p>}
-            <CardBody node={node} parts={parts} view={view} goal={goal} open={(id, name) => { setSheet(null); open(id, name) }} setParam={setParam} keys />
+            <CardBody node={node} parts={parts} view={view} goal={goal} text={text} choices={choices} open={(id, name) => { setSheet(null); open(id, name) }} setParam={setParam} keys />
             {parts.role(node) === 'part' && <button type="button" className="lg-remove" onClick={() => { editing.remove(node.id); setSheet(null) }}><Trash2 size={15} />{tr('拿掉这一块', 'Remove this block')}</button>}
           </div>
         </Sheet>

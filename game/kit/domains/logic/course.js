@@ -7,7 +7,8 @@ import { defineCourse, eraLevels, layout, pathLevels, usable } from '../../cours
  * spec: {
  *   eras        the course's eras, one proof machine each (games/DESIGN.md 2), each with its map chapter
  *               { title, desc }; a topic has a `code` for its numbers
- *   levels      every level, in any order
+ *   levels      every level, in any order; a level may give its letters everyday sentences (`words`) and introduce
+ *               connective symbols (`symbols`), see notation.js
  *   lemmas      { type: { name, desc, statement, premises?, metas } } the parts the player proves
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
@@ -18,10 +19,14 @@ export function logicCourse({ eras, levels, lemmas = {}, primitives, concept = {
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
+  // A level writes formulas in its own words (notation.js) and with every symbol introduced by then: the symbols of
+  // the levels before it in play order, and its own.
+  let known = []
   const LEVELS = plan.order.map((id) => {
     const level = given.get(id)
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
-    return { palette: [], ...level, chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas }
+    known = [...known, ...(level.symbols ?? [])]
+    return { palette: [], ...level, chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, notation: { words: level.words ?? null, symbols: known } }
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))

@@ -12,11 +12,29 @@
 import { BROKEN, PartError } from '../../engine/circuit.js'
 import { runBoard, runInner, sink, source } from '../../engine/boards.js'
 import { BOT, all, and, bin, eq, freeVars, imp, or, parse, same, show, subst, tvar } from './formula.js'
+import { say } from './notation.js'
 
 /** A judgment: `formula` from `hyps`. */
 export const proved = (formula, hyps = new Map()) => ({ formula, hyps })
 const union = (...js) => new Map(js.flatMap((j) => [...j.hyps]))
-const need = (what, got) => new PartError({ zh: `这里要 ${what}，接进来的是 ${got}`, en: `This needs ${what}; it got ${got}` })
+// What a port needed (a formula, or a SHAPE) and the formula that reached it, written in the level's notation.
+const need = (ctx, what, got) => {
+  const [w, g] = [what.op ? say(what, ctx.notation) : what, say(got, ctx.notation)]
+  return new PartError({ zh: `这里要 ${w.zh}，接进来的是 ${g.zh}`, en: `This needs ${w.en}; it got ${g.en}` })
+}
+const T = (zh, en) => ({ zh, en })
+const SHAPE = {
+  imp: T('一句「如果…那么…」', 'an “if … then …”'),
+  and: T('一句「…并且…」', 'an “… and …”'),
+  or: T('一句「…或者…」', 'an “… or …”'),
+  bot: T('矛盾 ⊥', 'a contradiction ⊥'),
+  nn: T('一句「并非并非…」', 'a “not not …”'),
+  iff: T('一句「…当且仅当…」', 'an “… if and only if …”'),
+  all: T('一句「对所有 x…」', 'a “for all x …”'),
+  ex: T('一句「存在 x…」', 'a “there is an x …”'),
+  eq: T('一个等式 s = t', 'an equation s = t'),
+}
+const sayIn = (ctx, f) => say(f, ctx.notation)
 const fail = (zh, en) => new PartError({ zh, en })
 // A formula typed on a card; the level's constants come through ctx.consts.
 const param = (node, key, ctx = {}) => {
@@ -68,10 +86,10 @@ export const RULES = {
   // ---- Hilbert: modus ponens and the axioms K, S (instances set on the card) ----
   mp: {
     inputs: ['imp', 'a'],
-    eval: ({ imp: i, a }) => {
+    eval: ({ imp: i, a }, _n, ctx) => {
       const f = asImp(i.formula)
-      if (f.op !== '→') throw need('A → B', show(i.formula))
-      if (!same(f.a, a.formula)) throw need(show(f.a), show(a.formula))
+      if (f.op !== '→') throw need(ctx, SHAPE.imp, i.formula)
+      if (!same(f.a, a.formula)) throw need(ctx, f.a, a.formula)
       return proved(f.b, union(i, a))
     },
   },
@@ -93,8 +111,8 @@ export const RULES = {
   andE: {
     inputs: ['ab'],
     outputs: () => ['left', 'right'],
-    eval: ({ ab }, _n, _c, key) => {
-      if (ab.formula.op !== '∧') throw need('A ∧ B', show(ab.formula))
+    eval: ({ ab }, _n, ctx, key) => {
+      if (ab.formula.op !== '∧') throw need(ctx, SHAPE.and, ab.formula)
       return proved(key === 'right' ? ab.formula.b : ab.formula.a, ab.hyps)
     },
   },
@@ -109,16 +127,16 @@ export const RULES = {
   orE: {
     ...box(['ab']),
     boards: () => [{ name: 'left', assumes: true }, { name: 'right', assumes: true }],
-    scope: (node, ins, board) => {
+    scope: (node, ins, board, ctx) => {
       const { ab } = ins
-      if (!ab) throw fail('先接一个 A ∨ B', 'Wire in an A ∨ B first')
-      if (ab.formula.op !== '∨') throw need('A ∨ B', show(ab.formula))
+      if (!ab) throw fail('先接进一句「…或者…」', 'Wire in an “… or …” first')
+      if (ab.formula.op !== '∨') throw need(ctx, SHAPE.or, ab.formula)
       return opening(node, board, board === 'left' ? ab.formula.a : ab.formula.b, ins)
     },
     eval(ins, node, ctx) {
       const l = inside(this, ctx, node, ins, 'left')
       const r = inside(this, ctx, node, ins, 'right')
-      if (!same(l.formula, r.formula)) throw fail(`两种情况证出的不一样：${show(l.formula)}，${show(r.formula)}`, `The two cases prove different things: ${show(l.formula)}, ${show(r.formula)}`)
+      if (!same(l.formula, r.formula)) { const [a, b] = [sayIn(ctx, l.formula), sayIn(ctx, r.formula)]; throw fail(`两种情况证出的不一样：${a.zh}；${b.zh}`, `The two cases prove different things: ${a.en}; ${b.en}`) }
       return proved(l.formula, new Map([...ins.ab.hyps, ...without(l.hyps, hypId(node, 'left')), ...without(r.hyps, hypId(node, 'right'))]))
     },
   },
@@ -126,17 +144,17 @@ export const RULES = {
     inputs: ['bot'],
     params: ['C'],
     eval: ({ bot }, node, ctx) => {
-      if (bot.formula.op !== '⊥') throw need('⊥', show(bot.formula))
+      if (bot.formula.op !== '⊥') throw need(ctx, SHAPE.bot, bot.formula)
       return proved(param(node, 'C', ctx), bot.hyps)
     },
   },
   // Classical: from ¬¬A, A.
   raa: {
     inputs: ['nna'],
-    eval: ({ nna }) => {
+    eval: ({ nna }, _n, ctx) => {
       const f = asImp(nna.formula)
       const inner = f.op === '→' && same(f.b, BOT) ? asImp(f.a) : null
-      if (!inner || inner.op !== '→' || !same(inner.b, BOT)) throw need('¬¬A', show(nna.formula))
+      if (!inner || inner.op !== '→' || !same(inner.b, BOT)) throw need(ctx, SHAPE.nn, nna.formula)
       return proved(inner.a, nna.hyps)
     },
   },
@@ -144,9 +162,9 @@ export const RULES = {
   iffE: {
     inputs: ['iff'],
     outputs: () => ['ltr', 'rtl'],
-    eval: ({ iff }, _n, _c, key) => {
+    eval: ({ iff }, _n, ctx, key) => {
       const f = iff.formula
-      if (f.op !== '↔') throw need('A ↔ B', show(f))
+      if (f.op !== '↔') throw need(ctx, SHAPE.iff, f)
       return proved(key === 'rtl' ? imp(f.b, f.a) : imp(f.a, f.b), iff.hyps)
     },
   },
@@ -161,7 +179,7 @@ export const RULES = {
       const x = node.params?.x
       if (!x) throw fail('先给新变量起个名字', 'Name the new variable first')
       const body = inside(this, ctx, node, ins, 'body')
-      for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 出现在还开着的假设 ${show(h)} 里，不能对它说「任取」`, `${x} occurs in the open hypothesis ${show(h)}, so it is not arbitrary`)
+      for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里，不能对它说「任取」`, `${x} occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not arbitrary`)
       return proved(all(x, body.formula), body.hyps)
     },
   },
@@ -169,7 +187,7 @@ export const RULES = {
     inputs: ['all'],
     params: ['t'],
     eval: ({ all: a }, node, ctx) => {
-      if (a.formula.op !== '∀') throw need('∀x. P(x)', show(a.formula))
+      if (a.formula.op !== '∀') throw need(ctx, SHAPE.all, a.formula)
       return proved(subst(a.formula.body, a.formula.v, termOf(node, ctx)), a.hyps)
     },
   },
@@ -178,9 +196,9 @@ export const RULES = {
     params: ['target', 't'],
     eval: ({ a }, node, ctx) => {
       const target = param(node, 'target', ctx)
-      if (target.op !== '∃') throw need('∃x. P(x)', show(target))
+      if (target.op !== '∃') throw need(ctx, SHAPE.ex, target)
       const instance = subst(target.body, target.v, termOf(node, ctx))
-      if (!same(instance, a.formula)) throw need(show(instance), show(a.formula))
+      if (!same(instance, a.formula)) throw need(ctx, instance, a.formula)
       return proved(target, a.hyps)
     },
   },
@@ -188,10 +206,10 @@ export const RULES = {
     ...box(['ex']),
     params: ['x'],
     boards: () => [{ name: 'body', assumes: true }],
-    scope: (node, ins, board) => {
+    scope: (node, ins, board, ctx) => {
       const e = ins.ex
-      if (!e) throw fail('先接一个 ∃x. P(x)', 'Wire in an ∃x. P(x) first')
-      if (e.formula.op !== '∃') throw need('∃x. P(x)', show(e.formula))
+      if (!e) throw fail('先接进一句「存在 x…」', 'Wire in a “there is an x …” first')
+      if (e.formula.op !== '∃') throw need(ctx, SHAPE.ex, e.formula)
       const y = node.params?.x
       if (!y) throw fail('先给见证起个名字', 'Name the witness first')
       return opening(node, board, subst(e.formula.body, e.formula.v, tvar(y)), ins)
@@ -201,7 +219,7 @@ export const RULES = {
       const body = inside(this, ctx, node, ins, 'body')
       if (freeVars(body.formula).has(y)) throw fail(`结论里不能有见证 ${y}`, `The conclusion may not mention the witness ${y}`)
       const open = without(body.hyps, hypId(node, 'body'))
-      for (const h of open.values()) if (freeVars(h).has(y)) throw fail(`${y} 出现在还开着的假设 ${show(h)} 里`, `${y} occurs in the open hypothesis ${show(h)}`)
+      for (const h of open.values()) if (freeVars(h).has(y)) throw fail(`${y} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里`, `${y} occurs in the open hypothesis ${sayIn(ctx, h).en}`)
       return proved(body.formula, new Map([...ins.ex.hyps, ...open]))
     },
   },
@@ -212,11 +230,11 @@ export const RULES = {
     params: ['pattern'],
     eval: ({ eq: e, p }, node, ctx) => {
       const f = e.formula
-      if (f.op !== 'atom' || f.pred !== '=') throw need('s = t', show(f))
+      if (f.op !== 'atom' || f.pred !== '=') throw need(ctx, SHAPE.eq, f)
       const [s, t] = f.args
       const x = node.params?.x ?? 'x'
       const pattern = param(node, 'pattern', ctx)
-      if (!same(subst(pattern, x, s), p.formula)) throw need(show(subst(pattern, x, s)), show(p.formula))
+      if (!same(subst(pattern, x, s), p.formula)) throw need(ctx, subst(pattern, x, s), p.formula)
       return proved(subst(pattern, x, t), union(e, p))
     },
   },
@@ -272,7 +290,7 @@ export function lemma({ statement, premises = [], metas }) {
       const bind = {}
       schemas.forEach((s, k) => {
         const j = ins[`p${k}`]
-        if (!match(s, j.formula, bind)) throw need(show(instantiate(s, Object.fromEntries(Object.entries(bind)))).replace(/undefined/g, '…'), show(j.formula))
+        if (!match(s, j.formula, bind)) { const want = show(instantiate(s, { ...bind })).replace(/undefined/g, '…'); throw need(ctx, T(want, want), j.formula) }
       })
       for (const m of open) bind[m] = param(node, m, ctx)
       return proved(instantiate(conclusion, bind), union(...schemas.map((_, k) => ins[`p${k}`])))
@@ -280,12 +298,15 @@ export function lemma({ statement, premises = [], metas }) {
   }
 }
 
-/** Does a judgment prove `goal` from the `premises` alone (by hypothesis id)? '' or what is wrong, as { zh, en }. */
-export function closes(judgment, goal, premiseIds) {
+/**
+ * Does a judgment prove `goal` from the `premises` alone (by hypothesis id)? '' or what is wrong, as { zh, en }, in
+ * the level's notation.
+ */
+export function closes(judgment, goal, premiseIds, notation = null) {
   if (!judgment) return { zh: '没有证到终点', en: 'Nothing reaches the goal' }
-  if (!same(judgment.formula, goal)) return { zh: `证出的是 ${show(judgment.formula)}，要的是 ${show(goal)}`, en: `It proves ${show(judgment.formula)}; the goal is ${show(goal)}` }
-  const open = [...judgment.hyps].filter(([id]) => !premiseIds.includes(id))
-  if (open.length) return { zh: `还开着假设 ${open.map(([, f]) => show(f)).join('、')}`, en: `Hypotheses still open: ${open.map(([, f]) => show(f)).join(', ')}` }
+  if (!same(judgment.formula, goal)) { const [got, want] = [say(judgment.formula, notation), say(goal, notation)]; return { zh: `证出的是「${got.zh}」，要的是「${want.zh}」`, en: `It proves “${got.en}”; the goal is “${want.en}”` } }
+  const open = [...judgment.hyps].filter(([id]) => !premiseIds.includes(id)).map(([, f]) => say(f, notation))
+  if (open.length) return { zh: `还开着假设「${open.map((f) => f.zh).join('」「')}」`, en: `Hypotheses still open: ${open.map((f) => `“${f.en}”`).join(', ')}` }
   return ''
 }
 
@@ -307,12 +328,12 @@ export function premisesOf(test, consts = []) {
 export const LOGIC_TESTS = {
   runTest: (level, circuit, test) => {
     const consts = level.consts ?? []
-    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts } })
+    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation } })
     return { ...run, outputs: { goal: run.outputs.goal } }
   },
   check: (level, test, outputs) => {
     const goal = parse(test.goal, { consts: level.consts ?? [] })
-    const problem = closes(outputs.goal, goal, Object.keys(test.premises ?? {}))
+    const problem = closes(outputs.goal, goal, Object.keys(test.premises ?? {}), level.notation)
     return [{ name: 'goal', pass: !problem, reason: problem }]
   },
   // A shorter proof is a better one.
@@ -333,7 +354,7 @@ const EMPTY = { nodes: [], wires: [] }
 export function runAt(level, circuit, path, test = level.tests[0]) {
   const consts = level.consts ?? []
   const parts = rulesOf(level.lemmas)
-  const ctx = { consts }
+  const ctx = { consts, notation: level.notation }
   let bind = premisesOf(test, consts)
   let board = circuit
   let run = runBoard(board, { parts, bind, ctx })

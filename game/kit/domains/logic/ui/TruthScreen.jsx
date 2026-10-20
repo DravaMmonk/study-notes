@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
-import { tr } from '../../../shell/i18n.js'
-import { parse, show } from '../formula.js'
+import { L, tr } from '../../../shell/i18n.js'
+import { atom, parse } from '../formula.js'
+import { say } from '../notation.js'
 import { lettersOf, rowsOf, tautology, valueOn } from '../truth.js'
 
 // A truth-table level (《证明完毕》 era 0), by its `ask`:
@@ -13,6 +14,7 @@ const TF = (v) => (v ? tr('真', 'T') : tr('假', 'F'))
 export default function TruthScreen({ game, level: entry, saved, save, solve, phone }) {
   const level = entry.source
   const formulas = level.formulas.map((t) => parse(t))
+  const text = (f) => L(say(f, level.notation))
   const [state, setState] = useState(() => ({ fill: {}, marks: {}, tried: {}, ...saved }))
   const [checked, setChecked] = useState(null) // { pass, wrong: Set } after a check
   const update = (patch) => {
@@ -44,7 +46,7 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, ph
     const letters = lettersOf([f])
     return (
       <table className="lg-table">
-        <thead><tr>{letters.map((l) => <th key={l}>{l}</th>)}<th className="is-formula">{show(f)}</th></tr></thead>
+        <thead><tr>{letters.map((l) => <th key={l}>{text(atom(l))}</th>)}<th className="is-formula">{text(f)}</th></tr></thead>
         <tbody>
           {rowsOf(letters).map((row, k) => {
             const tried = state.tried[`${fi}:${k}`]
@@ -77,7 +79,7 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, ph
       {level.ask === 'valid' && formulas.map((f, k) => (
         <section key={k} className={`lg-claim ${checked?.wrong.has(k) ? 'is-wrong' : ''}`}>
           <header>
-            <b>{show(f)}</b>
+            <b>{text(f)}</b>
             <span className="lg-mark-pick" role="group">
               {[[true, tr('永远成立', 'Always true')], [false, tr('不总成立', 'Not always')]].map(([v, label]) => (
                 <button key={label} type="button" aria-pressed={state.marks[k] === v} onClick={() => update({ marks: { ...state.marks, [k]: v } })}>{label}</button>
