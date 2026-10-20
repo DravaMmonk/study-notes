@@ -19,16 +19,17 @@ export const GLOSSARY = [
   {
     id: 'board', group: 'play', title: T('证明电路板', 'The proof board'), at: 'copy',
     body: [
-      T('左边的卡片是<b>前提</b>，右边的是<b>目标</b>。一根线代表「这个命题已经证出来了」：一块元件是一条推理规则，输入是它要的前提，输出是它推出的结论。', 'The cards on the left are the <b>premises</b>, the one on the right the <b>goal</b>. A wire means “this proposition has been proved”: a part is a rule of inference, its inputs the premises it needs, its output the conclusion it draws.'),
+      T('左边的卡片是<b>已知</b>，右边的是<b>目标</b>。一根线代表「这件事已经证出来了」：一块元件是一条推理规则，输入是它要的东西，输出是它推出的结论。', 'The cards on the left are what is <b>given</b>, the one on the right the <b>goal</b>. A wire means “this has been proved”: a part is a rule of inference, its inputs what it needs, its output the conclusion it draws.'),
       T('卡片上写着它此刻证出的命题。接错了，卡片会说它要什么、接进来的是什么。证完了点「检查证明」。', 'A card shows what it proves right now. Wire it wrong and the card says what it wanted and what it got. When you are done, press “Check proof”.'),
-      T('卡片上要填一句话时，讲具体事情的关从这一关出现过的句子里选；用字母的关直接打，->、&、|、~、<-> 会换成 →、∧、∨、¬、↔。', 'Where a card needs a sentence, levels about everyday things let you pick from the sentences in the level; levels in letters let you type it, and ->, &, |, ~ and <-> become →, ∧, ∨, ¬ and ↔.'),
+      T('卡片上要填一句话时，从这一关出现过的句子里选。', 'Where a card needs a sentence, pick it from the sentences in the level.'),
+      T('每关有几组<b>测试</b>，每组讲一件不同的事；同一块电路要在每一组上都证得出，还有几组隐藏测试，过关后公开。换一组测试，卡片上的句子跟着换名字，电路不用动：证明只看形状，不看讲的是什么。', 'Each level has a few <b>tests</b>, each about something different; one circuit must prove them all, and a few hidden tests are shown once you pass. Switch tests and the sentences on the cards are renamed while the circuit stays: a proof looks at shape, not at what it is about.'),
     ],
     see: ['box', 'lemma'],
   },
   {
     id: 'truth', group: 'logic', title: T('真值表', 'Truth tables'), at: 'table',
     body: [
-      T('一个只由字母和连接词组成的命题，是真是假只取决于每个字母是真是假。把所有情况列成一行一行，就是它的<b>真值表</b>：n 个字母有 2ⁿ 行。', 'A proposition made only of letters and connectives is true or false depending only on whether each letter is. Listing every case, one per row, gives its <b>truth table</b>: n letters make 2ⁿ rows.'),
+      T('一句由几件小事和「如果…那么…」「并且」这些连接词拼成的话，是真是假只取决于每件小事是真是假。把所有情况列成一行一行，就是它的<b>真值表</b>：n 件小事有 2ⁿ 行。', 'A sentence built from a few small facts and connectives like “if … then …” and “and” is true or false depending only on whether each small fact is. Listing every case, one per row, gives its <b>truth table</b>: n facts make 2ⁿ rows.'),
       T('每一行都真的命题叫<b>永真式</b>。要说明一个命题不是永真式，找出一行反例就够了。', 'A proposition true on every row is a <b>tautology</b>. To show a proposition is not one, a single counterexample row is enough.'),
     ],
     see: ['proof'],
@@ -44,19 +45,19 @@ export const GLOSSARY = [
   {
     id: 'hilbert', group: 'logic', title: T('公理与分离', 'Axioms and Detach'), at: 'k',
     body: [
-      T('初号是一个<b>希尔伯特系统</b>：只有一条规则「分离」（由 X → Y 和 X 得 Y），加上两条公理模式 K：X → (Y → X) 和 S：(X → (Y → Z)) → ((X → Y) → (X → Z))。', 'Mark I is a <b>Hilbert system</b>: one rule, Detach (from X → Y and X, Y), and two axiom schemas, K: X → (Y → X), and S: (X → (Y → Z)) → ((X → Y) → (X → Z)).'),
-      T('公理模式里的 X、Y、Z 可以换成任何一句话，每换一次就是一条公理。', 'The X, Y and Z of a schema can be any sentences; each choice is one axiom.'),
+      T('初号是一个<b>希尔伯特系统</b>：只有一条规则「分离」（由「如果…那么…」和它的前一半得到后一半），加上两条公理 K 和 S。K 说已经成立的事加上任何条件都还成立；S 说在一个条件下也能做分离。', 'Mark I is a <b>Hilbert system</b>: one rule, Detach (from an “if … then …” and its “if” part, the “then” part), and two axioms, K and S. K says what holds still holds under any condition; S says Detach works under a condition too.'),
+      T('公理卡片上的几句话可以选成任何句子，每选一次就是一条公理。', 'The sentences on an axiom’s card can be any sentences; each choice is one axiom.'),
     ],
     see: ['deduction'],
   },
   {
     id: 'lemma', group: 'logic', title: T('引理', 'Lemmas'), at: 'chain',
-    body: [T('证过一次的命题可以当规则一直用下去，这叫<b>引理</b>。你证出的 A → A 成了元件「恒等」，「下雨 → 地湿、地湿 → 路滑，所以下雨 → 路滑」成了对任何句子都能用的元件「串联」。', 'A statement proved once can be used as a rule from then on: a <b>lemma</b>. Your A → A became the part Identity, and “rain wets the ground, a wet ground makes the road slippery, so rain makes the road slippery” became Chain, which works for any sentences.')],
+    body: [T('证过一次的事可以当规则一直用下去，这叫<b>引理</b>。它在每一组测试上都成立，所以对任何句子都能用：「两段首尾相接的如果…那么…」成了元件「串联」，「如果它，那么它」成了元件「恒等」。', 'Something proved once can be used as a rule from then on: a <b>lemma</b>. It held on every test, so it works for any sentences: “two if … then …s joined end to end” became the part Chain, and “if it, then it” became Identity.')],
     see: ['board'],
   },
   {
     id: 'deduction', group: 'logic', title: T('演绎定理', 'The deduction theorem'), at: 'dt-mp',
-    body: [T('在假设 A 下能推出 C，就能不带假设证出 A → C。证法是逐步改写：假设本身换成恒等，和 A 无关的步用 K 包一层，分离用 S。', 'If C follows under the hypothesis A, then A → C can be proved with no hypothesis. The proof rewrites step by step: the hypothesis itself becomes Identity, a step unrelated to A is wrapped in K, and Detach goes through S.')],
+    body: [T('在一个假设下能推出某件事，就能不带假设证出「如果 假设，那么 那件事」。证法是逐步改写：假设本身换成恒等，和假设无关的步用 K 包一层，分离用 S。', 'If something follows under an assumption, then “if the assumption, then that” can be proved with no assumption. The proof rewrites step by step: the assumption itself becomes Identity, a step unrelated to it is wrapped in K, and Detach goes through S.')],
     see: ['box', 'hilbert'],
   },
   {
@@ -75,7 +76,7 @@ export const GLOSSARY = [
   },
   {
     id: 'classical', group: 'logic', title: T('经典与直觉主义', 'Classical and intuitionistic'), at: 'notnotlem',
-    body: [T('没有反证法时，A ∨ ¬A 证不出来，虽然它每一行都真；¬¬(A ∨ ¬A) 却证得出。这样的逻辑叫<b>直觉主义逻辑</b>：每个「或」都要说出是哪一边。加上反证法（由 ¬¬A 得 A），就是<b>经典逻辑</b>，真值表上永真的命题都证得出。', 'Without proof by contradiction, A ∨ ¬A cannot be proved, though it is true on every row; ¬¬(A ∨ ¬A) can. Such logic is <b>intuitionistic</b>: every “or” must say which side. Add proof by contradiction (from ¬¬A, A) and it is <b>classical</b> logic, in which every tautology can be proved.')],
+    body: [T('没有反证法时，「下雨 ∨ ¬下雨」证不出来，虽然它每一行都真；「¬¬(下雨 ∨ ¬下雨)」却证得出。这样的逻辑叫<b>直觉主义逻辑</b>：每个「或」都要说出是哪一边。加上反证法（由「并非并非 某句」得到那句），就是<b>经典逻辑</b>，真值表上永真的话都证得出。', 'Without proof by contradiction, “it rains ∨ ¬it rains” cannot be proved, though it is true on every row; “¬¬(it rains ∨ ¬it rains)” can. Such logic is <b>intuitionistic</b>: every “or” must say which side. Add proof by contradiction (from “not not a sentence”, the sentence) and it is <b>classical</b> logic, in which every tautology can be proved.')],
     see: ['truth'],
   },
 ]

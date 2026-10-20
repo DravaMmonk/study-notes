@@ -1,6 +1,4 @@
 // 第 0 代 · 纸笔：还没有证明机。一句话对不对，一行一行地验：这就是真值表。符号从这里开始，一次一个。
-import { WORDS } from './words.js'
-
 const T = (zh, en) => ({ zh, en })
 
 export const era0 = [
@@ -9,7 +7,6 @@ export const era0 = [
     kind: 'truth',
     title: T('一句承诺', 'A promise'),
     ask: 'fill',
-    words: WORDS,
     formulas: ['Rain → Wet'],
     brief: T('天气预报说：「如果下雨，那么地湿。」四种天气里，这句话各是说对了（真）还是说错了（假）？点格子填出来。', 'The forecast says: “If it rains, then the ground is wet.” In each of the four kinds of weather, did it speak true or false? Click the cells to fill them in.'),
     hint: [
@@ -28,7 +25,6 @@ export const era0 = [
     kind: 'truth',
     title: T('永远成立', 'Always true'),
     ask: 'valid',
-    words: WORDS,
     symbols: ['→'],
     formulas: ['Rain → Rain', 'Rain → Wet', 'Rain ∧ Wind → Rain', 'Rain → (Wind → Rain)', 'Rain ∧ Wind → Wet'],
     brief: T('下面五句话，哪些不管天气怎样都成立？逐句标出来。拿不准，就展开它的表一行一行试。', 'Which of these five hold whatever the weather? Mark each one. If unsure, open its table and try it row by row.'),
@@ -48,7 +44,6 @@ export const era0 = [
     kind: 'truth',
     title: T('地湿了，就下过雨？', 'Wet, so it rained?'),
     ask: 'counter',
-    words: WORDS,
     formulas: ['(Rain → Wet) → (Wet → Rain)'],
     brief: T('找出一行，让「(下雨 → 地湿) → (地湿 → 下雨)」是假的。', 'Find a row that makes “(it rains → the ground is wet) → (the ground is wet → it rains)” false.'),
     hint: [

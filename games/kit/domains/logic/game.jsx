@@ -8,6 +8,8 @@ import Hero from './ui/Hero.jsx'
 import ProofScreen from './ui/ProofScreen.jsx'
 import TruthScreen from './ui/TruthScreen.jsx'
 import { iconOf } from './ui/catalog.js'
+import { parse } from './formula.js'
+import { fill } from './notation.js'
 
 /** spec: { id, title, kicker, lede: (count) → { zh, en }, logic (logicCourse's result), glossary } */
 export function defineLogicGame(spec) {
@@ -15,7 +17,15 @@ export function defineLogicGame(spec) {
   const lemmas = LEVELS[0]?.lemmas ?? {}
   // A part is new where it is first offered in play order.
   const offered = new Set()
+  // A proof level's words outside its screen (the intro, the point it makes once passed) read on its first test case.
+  const firstCase = (L) => {
+    const t = L.tests?.[0]
+    if (!t?.subst) return (text) => text
+    const given = Object.fromEntries(Object.entries(t.premises ?? {}).map(([name, f]) => [name, parse(f)]))
+    return (text) => fill(text, { ...t.subst, ...given, goal: parse(t.goal) }, L.notation)
+  }
   const levels = LEVELS.map((L, index) => {
+    const filled = firstCase(L)
     const fresh = L.palette.filter((p) => !offered.has(p))
     L.palette.forEach((p) => offered.add(p))
     return {
@@ -28,8 +38,8 @@ export function defineLogicGame(spec) {
       title: L.title,
       kind: L.kind,
       unlocks: L.unlocks,
-      brief: L.brief,
-      after: L.after,
+      brief: filled(L.brief),
+      after: filled(L.after),
     }
   })
   const game = defineGame({
@@ -44,7 +54,7 @@ export function defineLogicGame(spec) {
     levels,
     progress: { version: 1 },
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
-    intro: (level) => level.source.intro,
+    intro: (level) => level.source.intro?.map((page) => ({ ...page, t: firstCase(level.source)(page.t) })),
     kinds: {
       proof: { Screen: ProofScreen, icon: Workflow, label: { zh: '证明', en: 'Proof' } },
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },

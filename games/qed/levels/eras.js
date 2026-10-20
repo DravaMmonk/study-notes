@@ -11,10 +11,10 @@ export const ERAS = [
   },
   {
     id: 'mk1', machine: 'mk1',
-    foundation: ['copy', 'mp', 'k', 's', 'chain', 'short', 'self', 'identity'],
+    foundation: ['copy', 'mp', 'k', 's', 'chain', 'short', 'self'],
     practice: ['long'],
-    topics: [{ id: 'deduction', code: 'D', after: 'identity', levels: ['dt-mp', 'dt-whole'], title: T('演绎定理', 'The deduction theorem') }],
-    challenges: [{ level: 'twice', after: 'identity' }],
+    topics: [{ id: 'deduction', code: 'D', after: 'self', levels: ['dt-mp', 'dt-whole'], title: T('演绎定理', 'The deduction theorem') }],
+    challenges: [{ level: 'twice', after: 'self' }],
     chapter: { title: T('初号', 'Mark I'), question: T('只靠一条规则和两条公理，能证出什么？', 'What can one rule and two axioms prove?') },
   },
   {

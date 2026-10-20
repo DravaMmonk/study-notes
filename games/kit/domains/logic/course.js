@@ -2,6 +2,8 @@
 // (../../course.js layout), each level's number and the parts it can really offer, and the lemmas its levels build
 // (proof.js lemma): a level with `builds: '<type>'` makes the lemma spec.lemmas[type] a part once solved.
 import { defineCourse, eraLevels, layout, offer, pathLevels, usable } from '../../course.js'
+import { parse, replaceAtoms, show } from './formula.js'
+import { say } from './notation.js'
 
 // Every rule a proof uses, in the boxes too.
 const rulesIn = (circuit) => circuit.nodes.flatMap((n) => [n.type, ...Object.values(n.boards ?? {}).flatMap(rulesIn)])
@@ -10,8 +12,13 @@ const rulesIn = (circuit) => circuit.nodes.flatMap((n) => [n.type, ...Object.val
  * spec: {
  *   eras        the course's eras, one proof machine each (games/DESIGN.md 2), each with its map chapter
  *               { title, desc }; a topic has a `code` for its numbers
- *   levels      every level, in any order; a level may give its letters everyday sentences (`words`) and introduce
- *               connective symbols (`symbols`), see notation.js
+ *   levels      every level, in any order; a level may introduce connective symbols (`symbols`), see notation.js
+ *   words       { letter: { zh, en } } the everyday sentence each letter reads as, in every level
+ *
+ * A proof level is a schema: its test (`tests: [{ premises, goal }]`) is written in letters, and each test case
+ * (`cases`, and `hiddenCases` for its hidden tests) fills the letters in with sentences ({ A: 'Rain', B: 'Wet' }, a
+ * compound sentence too: { A: 'Rain ∧ Wind' }). Every case becomes a test of its own, with the case as `subst` and its
+ * sentences as its label, so one proof is checked on all of them and the player never meets a bare letter.
  *   lemmas      { type: { name, desc, statement, premises?, metas } } the parts the player proves
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
@@ -19,7 +26,19 @@ const rulesIn = (circuit) => circuit.nodes.flatMap((n) => [n.type, ...Object.val
  * A level may fold away parts of its palette (`fold`); see ../../course.js offer.
  * Returns { LEVELS, CHAPTERS, LABELS, course, usableIn(level, flags), offerIn(level, flags) }.
  */
-export function logicCourse({ eras, levels, lemmas = {}, primitives, concept = {} }) {
+// A proof level's tests from its schema and cases (see logicCourse), and the schema kept for the cards' choices.
+function expand(level, notation) {
+  const schema = level.tests[0]
+  const test = (c) => {
+    const subst = Object.fromEntries(Object.entries(c).map(([letter, text]) => [letter, parse(text)]))
+    const fill = (text) => show(replaceAtoms(parse(text), subst))
+    const parts = Object.values(subst).map((f) => say(f, notation))
+    return { premises: Object.fromEntries(Object.entries(schema.premises ?? {}).map(([name, text]) => [name, fill(text)])), goal: fill(schema.goal), subst, label: { zh: parts.map((p) => p.zh).join(' · '), en: parts.map((p) => p.en).join(' · ') } }
+  }
+  return { schema, tests: level.cases.map(test), hidden: (level.hiddenCases ?? []).map(test) }
+}
+
+export function logicCourse({ eras, levels, words = null, lemmas = {}, primitives, concept = {} }) {
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
@@ -30,7 +49,8 @@ export function logicCourse({ eras, levels, lemmas = {}, primitives, concept = {
     const level = given.get(id)
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
     known = [...known, ...(level.symbols ?? [])]
-    return { palette: [], ...level, chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, notation: { words: level.words ?? null, symbols: known } }
+    const notation = { words: level.words ?? words, symbols: known }
+    return { palette: [], ...level, ...(level.cases ? expand(level, notation) : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, notation }
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))

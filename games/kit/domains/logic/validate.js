@@ -2,9 +2,9 @@
 // its goal and its naive one does not; every goal the reference proves has no countermodel on small domains (a level
 // whose goal is false would be caught), and a level that asks for a countermodel (`unprovable`) has one. A truth-table
 // level's formulas parse and its task can be done: a `counter` formula has a false row, a `valid` level mixes both.
-// A level in everyday words has one for every letter.
+// Every letter a level shows has its everyday sentence, and every proof level comes as test cases (course.js).
 import { keyOf } from '../../shell/i18n.js'
-import { runLevel } from '../../engine/tests.js'
+import { runLevel, withHidden } from '../../engine/tests.js'
 import { parse } from './formula.js'
 import { countermodel } from './models.js'
 import { LOGIC_TESTS } from './proof.js'
@@ -14,10 +14,18 @@ import { lettersOf, tautology } from './truth.js'
 export function validate({ levels }) {
   const out = []
   // A level in everyday words has a sentence for every letter it uses.
-  for (const level of levels.filter((l) => l.words)) {
-    const texts = level.kind === 'truth' ? level.formulas : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
-    const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.words[l])
+  for (const level of levels.filter((l) => l.notation?.words)) {
+    const texts = level.kind === 'truth' ? level.formulas : withHidden(level).tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l])
     if (missing.length) out.push({ fail: true, text: `${level.id}: no words for ${missing.join(', ')}` })
+    if (level.kind === 'proof' && !level.cases) out.push({ fail: true, text: `${level.id}: a proof level needs test cases` })
+    // Every {name} in its words is something a test fills in: a letter, a premise, or the goal.
+    if (level.kind === 'proof' && level.cases) {
+      const known = new Set([...Object.keys(level.cases[0]), ...Object.keys(level.schema.premises ?? {}), 'goal'])
+      const words = JSON.stringify([level.brief, level.hint, level.intro, level.after])
+      const unknown = [...new Set([...words.matchAll(/\{(\w+)\}/g)].map((m) => m[1]))].filter((name) => !known.has(name))
+      if (unknown.length) out.push({ fail: true, text: `${level.id}: its words name ${unknown.map((n) => `{${n}}`).join(' ')}, which no test fills in` })
+    }
   }
   for (const level of levels.filter((l) => l.kind === 'truth')) {
     const formulas = level.formulas.map((t) => parse(t))
@@ -25,7 +33,7 @@ export function validate({ levels }) {
     const mixed = level.ask !== 'valid' || (formulas.some(tautology) && formulas.some((f) => !tautology(f)))
     out.push({ fail: bad.length > 0 || !mixed, text: `${level.id} ${keyOf(level.title)}: (truth ${level.ask}) ${bad.length ? 'a formula has no false row' : mixed ? 'ok' : 'every formula gives the same answer'}` })
   }
-  for (const level of levels.filter((l) => l.kind === 'proof')) {
+  for (const level of levels.filter((l) => l.kind === 'proof').map(withHidden)) {
     const consts = level.consts ?? []
     for (const test of level.tests) {
       const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))

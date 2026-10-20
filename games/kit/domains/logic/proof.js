@@ -11,7 +11,7 @@
 // what reached it.
 import { BROKEN, PartError } from '../../engine/circuit.js'
 import { runBoard, runInner, sink, source } from '../../engine/boards.js'
-import { BOT, all, and, bin, eq, freeVars, imp, or, parse, same, show, subst, tvar } from './formula.js'
+import { BOT, all, and, bin, eq, freeVars, imp, or, parse, replaceAtoms, same, show, subst, tvar } from './formula.js'
 import { say } from './notation.js'
 
 /** A judgment: `formula` from `hyps`. */
@@ -32,19 +32,17 @@ const SHAPE = {
   iff: T('一句「…当且仅当…」', 'an “… if and only if …”'),
   all: T('一句「对所有 x…」', 'a “for all x …”'),
   ex: T('一句「存在 x…」', 'a “there is an x …”'),
-  eq: T('一个等式 s = t', 'an equation s = t'),
+  eq: T('一个等式', 'an equation'),
+  fits: T('一句这块元件接得上的话', 'a sentence this part accepts'),
 }
 const sayIn = (ctx, f) => say(f, ctx.notation)
 const fail = (zh, en) => new PartError({ zh, en })
-// A formula typed on a card; the level's constants come through ctx.consts.
+// A formula chosen on a card. Cards hold the level's schema (its letters), and a test case fills the letters in
+// (ctx.subst: A := it rains), so one proof runs on every case; the level's constants come through ctx.consts.
 const param = (node, key, ctx = {}) => {
   const text = node.params?.[key]
-  if (typeof text !== 'string' || !text.trim()) throw fail(`先填 ${key}`, `Fill in ${key} first`)
-  try {
-    return parse(text, { consts: ctx.consts ?? [] })
-  } catch {
-    throw fail(`${key} 写得不对：${text}`, `${key} does not parse: ${text}`)
-  }
+  if (typeof text !== 'string' || !text.trim()) throw fail('先在卡片上选好句子', 'Choose the sentences on the card first')
+  return replaceAtoms(parse(text, { consts: ctx.consts ?? [] }), ctx.subst ?? {})
 }
 // The term a card names (params.t).
 function termOf(node, ctx = {}) {
@@ -290,7 +288,7 @@ export function lemma({ statement, premises = [], metas }) {
       const bind = {}
       schemas.forEach((s, k) => {
         const j = ins[`p${k}`]
-        if (!match(s, j.formula, bind)) { const want = show(instantiate(s, { ...bind })).replace(/undefined/g, '…'); throw need(ctx, T(want, want), j.formula) }
+        if (!match(s, j.formula, bind)) throw need(ctx, SHAPE.fits, j.formula)
       })
       for (const m of open) bind[m] = param(node, m, ctx)
       return proved(instantiate(conclusion, bind), union(...schemas.map((_, k) => ins[`p${k}`])))
@@ -328,7 +326,7 @@ export function premisesOf(test, consts = []) {
 export const LOGIC_TESTS = {
   runTest: (level, circuit, test) => {
     const consts = level.consts ?? []
-    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation } })
+    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst } })
     return { ...run, outputs: { goal: run.outputs.goal } }
   },
   check: (level, test, outputs) => {
@@ -354,7 +352,7 @@ const EMPTY = { nodes: [], wires: [] }
 export function runAt(level, circuit, path, test = level.tests[0]) {
   const consts = level.consts ?? []
   const parts = rulesOf(level.lemmas)
-  const ctx = { consts, notation: level.notation }
+  const ctx = { consts, notation: level.notation, subst: test.subst }
   let bind = premisesOf(test, consts)
   let board = circuit
   let run = runBoard(board, { parts, bind, ctx })
