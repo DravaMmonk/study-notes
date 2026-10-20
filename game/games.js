@@ -39,4 +39,14 @@ export const GAMES = [
     page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 Q.E.D.：把形式化证明做成一套解谜关卡。Formal proof as a set of puzzle levels.' },
     progress: () => (read('qed.v1')?.solved || []).length,
   },
+  {
+    id: 'syntax-graph', href: 'syntax-graph/index.html', title: '句法之图', en: 'Syntax Graph', topic: { zh: '英语语法 · 学术与商务写作', en: 'English grammar · academic and business writing' },
+    desc: {
+      zh: '读一张语义图，用名词短语、动词和时态元件接出一句英语。接错的线会被语法拒绝，说错的意思会在语义图上标红。从最短的一句话起步，一路写到母语者也会写错的句子。',
+      en: 'Read a meaning graph and wire noun phrases, verbs and tense parts into an English sentence. A wrong wire is refused by the grammar; a wrong meaning is marked red on the graph. Start from the shortest sentence and work up to the ones native speakers get wrong.',
+    },
+    levels: 13, art: 'tree', dev: true,
+    page: { icon: 'M32 14v14M32 28 17 48M32 28l15 20', description: '句法之图 Syntax Graph：把英语句子当电路来搭的语法解谜游戏。English grammar puzzles, wired like circuits.' },
+    progress: () => (read('syntax-graph.v1')?.solved || []).length,
+  },
 ];

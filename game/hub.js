@@ -6,6 +6,7 @@ import { currentLang, tr } from './kit/lang.js';
 import { wireBar } from './kit/bar.js';
 import { mountBoxy } from './boxy/boxy.js';
 import { mountPress } from './press/press.js';
+import { mountSyntax } from './kit/domains/syntax/art.js';
 
 // Card art: each game's illustration, mounted live into its card. Two are built into plain modules for this page:
 // State Graph's robot Boxy (boxy/build.mjs) and Vision Complete's filter press (press/build.mjs). Q.E.D.'s is a still
@@ -15,7 +16,8 @@ const mountProof = (el) => {
   el.innerHTML = `<svg class="qed-art" viewBox="0 0 320 170" aria-hidden="true"><path d="M86 42C120 42 120 82 150 82M86 122C120 122 120 98 150 98"/><path class="is-done" d="M226 90H262"/>${card(10, 25, 76, 'A → B')}${card(10, 105, 76, 'A')}${card(150, 73, 76, 'MP', 'is-rule')}${card(262, 73, 48, '∎', 'is-goal')}</svg>`;
   return () => { el.innerHTML = ''; };
 };
-const ART = { grid: mountBoxy, pipeline: mountPress, proof: mountProof };
+// Syntax Graph's is its domain's sentence tree (kit/domains/syntax/art.js).
+const ART = { grid: mountBoxy, pipeline: mountPress, proof: mountProof, tree: mountSyntax };
 let unmount = [];
 
 function render() {
@@ -38,7 +40,7 @@ function render() {
 
 function paintPage() {
   document.title = tr('游戏 — 学习笔记', 'Games — Study Notes');
-  document.querySelector('meta[name="description"]').content = tr('把课程做成解谜关卡的学习游戏：视觉完备（计算机视觉）、状态之图（动态规划）、证明完毕（形式化证明）。', 'Courses turned into puzzle games: Vision Complete (computer vision), State Graph (dynamic programming) and Q.E.D. (formal proof).');
+  document.querySelector('meta[name="description"]').content = tr('把课程做成解谜关卡的学习游戏：视觉完备（计算机视觉）、状态之图（动态规划）、证明完毕（形式化证明）、句法之图（英语语法）。', 'Courses turned into puzzle games: Vision Complete (computer vision), State Graph (dynamic programming), Q.E.D. (formal proof) and Syntax Graph (English grammar).');
 }
 
 wireBar({ onLang: () => { paintPage(); render(); } });

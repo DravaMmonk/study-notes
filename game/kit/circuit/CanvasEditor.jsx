@@ -11,7 +11,8 @@ import { useHistory } from './useHistory.js'
 // right) to another card's input (a dot on its left). Drag a card by its header to move it; drag from an output dot
 // to an input dot, or onto a card, to wire it, or click one dot and then another (or the card), as on the phone;
 // click a card or a wire to select it and press Delete (or the × on a card) to remove it. Drag the background to pan, pinch or ⌘/Ctrl-scroll to zoom, and the corner buttons zoom or fit;
-// every edit can be undone and redone there too, or with ⌘/Ctrl-Z, ⇧⌘/Ctrl-Z and Ctrl-Y.
+// every edit can be undone and redone there too, or with ⌘/Ctrl-Z, ⇧⌘/Ctrl-Z and Ctrl-Y. A wire the game refuses
+// (parts.refuse) is not made, and its reason shows at the top of the board for a moment.
 //
 // The game says what its cards are (`parts`, see model.js) and what a card shows under its ports (`body`); the
 // board does the rest. Moving cards goes through the kit's drag.js: cards are [data-piece] with their header as the
@@ -52,6 +53,13 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const [picking, setPicking] = useState(null) // a dot clicked, waiting for the dot (or card) its wire goes to
   const [pointer, setPointer] = useState(null) // where the pointer is on the board while a dot is picked
   const [shift, setShift] = useState(null)
+  // Why the last wire tried was refused (parts.refuse), shown on the board for a moment, as the phone board does.
+  const [refused, setRefused] = useState(null)
+  useEffect(() => {
+    if (!refused) return undefined
+    const timer = setTimeout(() => setRefused(null), 4200)
+    return () => clearTimeout(timer)
+  }, [refused])
   const surface = useRef(null)
   const layer = useRef(null)
   const pointers = useRef(new Map())
@@ -254,8 +262,11 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     let port = null
     const target = over?.dataset.p && parsePort(over.dataset.p)
     if (target?.side === 'in') [to, port] = [target.id, target.port]
-    else if (over?.dataset.piece) [to, port] = [over.dataset.piece, inputFor(from, over.dataset.piece)]
-    if (!to || !port || !byId.has(to) || refusal(from, to, port)) return
+    else if (over?.dataset.piece) [to, port] = [over.dataset.piece, inputFor(from, over.dataset.piece) ?? parts.inputs(byId.get(over.dataset.piece) ?? {})[0]]
+    if (!to || !port || !byId.has(to)) return
+    const why = refusal(from, to, port)
+    if (why) return setRefused(why)
+    setRefused(null)
     onChange(connect(graph, to, port, from))
   }
   // Click to wire: the wire two dots make, if it is allowed; then clicking the first dot again drops it, and a dot on
@@ -264,13 +275,20 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const e = ends(a, b)
     return e && byId.has(e.to) && byId.has(srcNode(e.from)) && !refusal(e.from, e.to, e.port) ? e : null
   }
+  // A wire refused between two dots on opposite sides says why.
+  const refusalOf = (a, b) => {
+    const e = ends(a, b)
+    return e && byId.has(e.to) && byId.has(srcNode(e.from)) ? refusal(e.from, e.to, e.port) : null
+  }
   const clickPort = (p) => {
     if (!picking || picking === p) return setPicking(picking === p ? null : p)
     const e = wireOf(picking, p)
     if (e) {
+      setRefused(null)
       onChange(connect(graph, e.to, e.port, e.from))
       setPicking(null)
     } else if (parsePort(picking).side === parsePort(p).side) setPicking(p)
+    else setRefused(refusalOf(picking, p))
   }
   // With a dot picked, clicking a card wires it there: an output to the card's first free input, an input from the
   // card's (first) output.
@@ -280,6 +298,10 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const port = p.side === 'out' ? inputFor(p.id, id) : null
     const other = p.side === 'out' ? (port ? inPort(id, port) : null) : parts.role(node) !== 'sink' ? outPort(srcOf(node, outputsOf(parts, node)[0].key)) : null
     if (other && wireOf(picking, other)) clickPort(other)
+    else if (p.side === 'out') {
+      const first = parts.inputs(node)[0]
+      if (first) setRefused(refusalOf(picking, inPort(id, first)))
+    }
   }
   const portClass = (p) => (!picking ? '' : p === picking ? 'is-picked' : wireOf(picking, p) ? 'is-target' : '')
 
@@ -417,6 +439,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
           <Trash2 size={14} /> {selected.wire ? tr('删除连线', 'Delete wire') : tr('删除卡片', 'Delete card')}
         </button>
       )}
+      {refused && <p className="board-refusal" role="status">{L(refused)}</p>}
       {overlay}
       <div className="board-zoom" onPointerDown={(e) => e.stopPropagation()}>
         <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销（⌘/Ctrl+Z）', 'Undo (⌘/Ctrl+Z)')}><Undo2 size={14} /></button>

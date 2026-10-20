@@ -78,6 +78,7 @@
 .board-zoom button:disabled { opacity: .35; cursor: default; }
 .board-zoom-rule { width: 1px; height: 16px; margin: 0 3px; background: var(--hairline); }
 .board-zoom output { min-width: 44px; }
+.board-refusal { position: absolute; z-index: 6; left: 50%; top: 12px; max-width: min(520px, calc(100% - 32px)); margin: 0; padding: 8px 14px; border-radius: 12px; color: var(--paper); background: color-mix(in srgb, var(--fail) 88%, var(--ink)); box-shadow: 0 10px 22px -12px rgba(0, 0, 0, .5); font-size: 13px; line-height: 1.45; transform: translateX(-50%); pointer-events: none; animation: rise-in 180ms ease; }
 .board-delete { position: absolute; z-index: 6; left: 50%; bottom: 16px; min-height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 18px; color: var(--paper); background: var(--fail); box-shadow: 0 10px 22px -12px rgba(0, 0, 0, .5); font-size: 12.5px; transform: translateX(-50%); cursor: pointer; animation: rise-in 180ms ease; }
 
 /* A board on a phone: only the fit button stays, top right (phones pinch to zoom). */

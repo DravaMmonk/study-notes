@@ -1,0 +1,36 @@
+<!doctype html>
+<!-- Every game's page: games/kit/app fills in the game (its id from the build or the address). -->
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='6' fill='%23282824'/%3E%3Cpath d='M32 14v14M32 28 17 48M32 28l15 20' fill='none' stroke='%23fbfaf6' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <meta name="description" content="句法之图 Syntax Graph：把英语句子当电路来搭的语法解谜游戏。English grammar puzzles, wired like circuits." />
+    <title>句法之图 — Syntax Graph</title>
+    <script>
+      try {
+        const saved = localStorage.getItem('fieldnotes.theme')
+        document.documentElement.dataset.theme = ['paper', 'night', 'blueprint'].includes(saved) ? saved : matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'paper'
+      } catch {
+        document.documentElement.dataset.theme = 'paper'
+      }
+      // The reading language, shared with every page (games/kit/lang.js): the stored choice, else the browser's.
+      {
+        let lang = 'zh'
+        try {
+          const saved = localStorage.getItem('fieldnotes.lang')
+          lang = saved === 'zh' || saved === 'en' ? saved : /^zh\b/i.test(navigator.language || '') ? 'zh' : 'en'
+        } catch {
+          lang = /^zh\b/i.test(navigator.language || '') ? 'zh' : 'en'
+        }
+        document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
+        if (lang === 'en') document.title = 'Syntax Graph — 句法之图'
+      }
+    </script>
+    <script type="module" crossorigin src="./assets/game-D9DmT3Sm.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/game-grLDdKmz.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
