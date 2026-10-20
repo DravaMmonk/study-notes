@@ -1,11 +1,11 @@
-// 第 1 代 · 初号：只有一条规则「分离」和两条公理 K、S。什么都能证，但很费劲。前半段讲下雨和地湿，到「自己推出自己」
-// 换成字母 A、B、C：那一关要证的是对任何一句话都成立的事。
+// 第 1 代 · 初号：只有一条规则「分离」和两条公理 K、S。什么都能证，但很费劲。K、S 一关一个，先各自单独用，再一起用
+// （接起来），再在没有前提时倒着想（下雨推出下雨）；最后把「下雨」换成字母 A，证一次对任何一句话都成立的 A → A。
 import { proof } from '../../kit/domains/logic/build.js'
 import { WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
 const HILBERT = ['mp', 'axK', 'axS']
-// A → A from K and S (1-4).
+// X → X from K and S (下雨推出下雨, then 自己推出自己).
 const identity = (A) => proof({
   s: ['axS', { A, B: `${A} → ${A}`, C: A }],
   k1: ['axK', { A, B: `${A} → ${A}` }],
@@ -70,24 +70,24 @@ export const era1 = [
     after: T('K 说的是：已经成立的事，加上什么条件都还成立。初号一共只有两条公理，下一关见第二条。', 'K says: what already holds still holds under any extra condition. Mark I has just two axioms; the next level brings the second.'),
   },
   {
-    id: 'identity',
+    id: 's',
     kind: 'proof',
-    title: T('自己推出自己', 'Itself from itself'),
-    tests: [{ goal: 'A → A' }],
+    title: T('在条件下分离', 'Detach under a condition'),
+    words: WORDS,
+    tests: [{ premises: { p: 'Rain → (Wind → Wet)', q: 'Rain → Wind' }, goal: 'Rain → Wet' }],
     palette: HILBERT,
-    builds: 'id',
-    brief: T('没有任何前提，证出 A → A。', 'With no premise at all, prove A → A.'),
+    brief: T('已知「下雨 → (刮风 → 地湿)」和「下雨 → 刮风」，证出「下雨 → 地湿」。', 'Given “it rains → (it is windy → the ground is wet)” and “it rains → it is windy”, prove “it rains → the ground is wet”.'),
     hint: [
-      T('S 的结论形如 (X → Y) → (X → Z)。Y、Z 填什么，能让它最后剩下 A → A？', 'S concludes something shaped like (X → Y) → (X → Z). What Y and Z leave A → A at the end?'),
-      T('试试 S 的 X 填 A，Y 填 A → A，Z 填 A；再用两次 K 喂给它。', 'Try X = A, Y = A → A, Z = A on S; then feed it with K twice.'),
+      T('S 的卡片上，X 选「下雨」，Y 选「刮风」，Z 选「地湿」。', 'On S’s card, choose “it rains” for X, “it is windy” for Y and “the ground is wet” for Z.'),
+      T('S 先和「下雨 → (刮风 → 地湿)」分离一次，得到的结果再和「下雨 → 刮风」分离一次。', 'Detach S with “it rains → (it is windy → the ground is wet)” first, then Detach the result with “it rains → it is windy”.'),
     ],
     intro: [
-      { t: T('0-2 关里，「下雨 → 下雨」不管天气都对；换成任何一句话也一样。要说的既然是「任何一句话」，就不再写下雨刮风，而用字母：<b>A、B、C 代表随便哪一句话</b>。', 'In level 0-2, “it rains → it rains” held whatever the weather, and it would with any sentence at all. Since this is about “any sentence”, the rain goes and letters come in: <b>A, B, C stand for any sentence you like</b>.') },
-      { t: T('那就来证 A → A。看着最简单，可初号手里只有分离、K，和第二条公理 <b>S</b>：(X → (Y → Z)) → ((X → Y) → (X → Z))。S 说的是：在条件 X 之下，也能做分离。', 'So prove A → A. It looks the simplest of all, but Mark I has only Detach, K, and its second axiom <b>S</b>: (X → (Y → Z)) → ((X → Y) → (X → Z)). S says: Detach works under a condition X too.') },
-      { t: T('这一关没有前提，只能从公理出发，用分离一步步凑出 A → A。公式直接在卡片上打，-> 会变成 →。', 'There is no premise: start from the axioms and Detach your way to A → A. Type formulas on the cards; -> turns into →.') },
+      { t: T('已知：下雨的时候，只要刮风，地就湿。又知道：下雨的时候，一定刮风。那么下雨的时候，地就湿。这其实是在「下雨」这个条件下做了一次分离。', 'You know: when it rains, if it is windy, the ground gets wet. You also know: when it rains, it is windy. So when it rains, the ground is wet. That is a Detach done under the condition “it rains”.') },
+      { t: T('可分离只能用在不带条件的句子上。初号的第二条公理 <b>S</b> 专管这件事：(X → (Y → Z)) → ((X → Y) → (X → Z))。读法是：如果在 X 下，Y 能推出 Z，那么在 X 下有了 Y，就有 Z。', 'But Detach only works on sentences with no condition. Mark I’s second axiom, <b>S</b>, is for exactly this: (X → (Y → Z)) → ((X → Y) → (X → Z)). Read it as: if under X, Y gives Z, then under X, having Y gives Z.') },
+      { t: T('S 看着长，用法却是固定的：卡片上选好 X、Y、Z，再把它和两个前提各分离一次。', 'S looks long, but it is always used the same way: choose X, Y and Z on its card, then Detach it with each premise in turn.') },
     ],
-    solution: identity('A'),
-    after: T('一句一眼就对的话，要 5 步。这就是初号：规则少，什么都能证，但很费劲。好在证过一次就不必再证：你的证明现在是一块元件<b>恒等</b>，卡片上填好 A，它直接给出 A → A。', 'An obvious statement took 5 steps. That is Mark I: few rules, everything provable, all of it hard work. But a proof done once need not be done again: yours is now a part, <b>Identity</b>. Fill in A on its card and it gives A → A at once.'),
+    solution: proof({ s: ['axS', { A: 'Rain', B: 'Wind', C: 'Wet' }], m1: ['mp'], m2: ['mp'] }, ['s>m1.imp', 'p>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
+    after: T('S 把「在条件下分离」变成了两次普通的分离。K 给一句话加上条件，S 在条件下做分离：初号的全部本事就是这两条公理加上分离。下一关把它们一起用。', 'S turns “Detach under a condition” into two ordinary Detaches. K puts a condition on a sentence, S detaches under a condition: that, plus Detach, is everything Mark I can do. Next level uses both together.'),
   },
   {
     id: 'chain',
@@ -104,7 +104,7 @@ export const era1 = [
     ],
     intro: [
       { t: T('回到下雨天：下雨地就湿，地湿路就滑，所以下雨路就滑。两段「如果…那么…」首尾相接，凭直觉一步就到。', 'Back to the rain: rain makes the ground wet, a wet ground makes the road slippery, so rain makes the road slippery. Two “if … then …”s joined end to end: one step, by instinct.') },
-      { t: T('可初号没有「首尾相接」这条规则，只有分离、K、S。办法是先让「地湿 → 路滑」也带上条件「下雨」，再用 S 在这个条件下做分离。', 'But Mark I has no “join end to end” rule, only Detach, K and S. The way through: first put “the ground is wet → the road is slippery” under the condition “it rains”, then let S Detach under that condition.') },
+      { t: T('可初号没有「首尾相接」这条规则。上一关，S 在条件「下雨」下做了分离，那时两个前提都带着「下雨 →」。这一关「地湿 → 路滑」没带条件：先用 K 给它加上「下雨 →」，再交给 S。', 'But Mark I has no “join end to end” rule. Last level, S detached under the condition “it rains”, and both premises carried “it rains →”. Here “the ground is wet → the road is slippery” carries no condition: first let K put “it rains →” on it, then hand it to S.') },
       { t: T('证出来以后，这块电路会变成元件<b>串联</b>：以后接进任何「X → Y」和「Y → Z」，它都直接给出「X → Z」。', 'Once proved, this circuit becomes the part <b>Chain</b>: wire in any “X → Y” and “Y → Z” and it gives “X → Z” at once.') },
     ],
     solution: proof({
@@ -115,6 +115,47 @@ export const era1 = [
       m3: ['mp'],
     }, ['k>m1.imp', 'q>m1.a', 's>m2.imp', 'm1>m2.a', 'm2>m3.imp', 'p>m3.a', 'm3>goal'], { premises: ['p', 'q'] }),
     after: T('又是 5 步。现在你有了<b>串联</b>。证过一次、之后当规则用的命题，叫<b>引理</b>。', 'Five steps again. Now you have <b>Chain</b>. A statement proved once and used as a rule from then on is a <b>lemma</b>.'),
+  },
+  {
+    id: 'self',
+    kind: 'proof',
+    title: T('下雨推出下雨', 'Rain from rain'),
+    words: WORDS,
+    tests: [{ goal: 'Rain → Rain' }],
+    palette: HILBERT,
+    brief: T('没有任何前提，证出「下雨 → 下雨」。', 'With no premise at all, prove “it rains → it rains”.'),
+    hint: [
+      T('S 的 X、Z 都选「下雨」，它的结论就是「(下雨 → (Y → 下雨)) → ((下雨 → Y) → (下雨 → 下雨))」。只要喂给它「下雨 → (Y → 下雨)」和「下雨 → Y」。', 'With X and Z both “it rains”, S concludes “(it rains → (Y → it rains)) → ((it rains → Y) → (it rains → it rains))”. All it needs is “it rains → (Y → it rains)” and “it rains → Y”.'),
+      T('「下雨 → (Y → 下雨)」不管 Y 是什么，K 都给得出。难的是「下雨 → Y」：Y 选什么，它也能用 K 造出来？试试 Y = 下雨 → 下雨。', 'K gives “it rains → (Y → it rains)” whatever Y is. The hard one is “it rains → Y”: which Y can K make that from too? Try Y = it rains → it rains.'),
+      T('一块 K（X 下雨，Y 下雨 → 下雨）配 S 做第一次分离；另一块 K（X 下雨，Y 下雨）做第二次分离。', 'One K (X it rains, Y it rains → it rains) for the first Detach with S; another K (X it rains, Y it rains) for the second.'),
+    ],
+    intro: [
+      { t: T('0-2 关里，「下雨 → 下雨」每一行都真。可真值表说它对，不等于初号证得出它。这一关一个前提都没有，只能从两条公理出发。', 'In level 0-2, “it rains → it rains” was true on every row. But a truth table saying so is not the same as Mark I proving it. This level has no premise at all: only the two axioms to start from.') },
+      { t: T('没有前提时，从目标<b>倒着想</b>。最后一步一定是分离，它给出的是「如果…那么…」的后一半。所以要找一句以「→ (下雨 → 下雨)」结尾的话。', 'With no premise, think <b>backwards</b> from the goal. The last step must be a Detach, which gives the back half of an “if … then …”. So look for a sentence that ends in “→ (it rains → it rains)”.') },
+      { t: T('S 的结论后半是「X → Z」：X、Z 都选下雨就对上了。剩下的事，就是 S 要什么，就造什么喂给它。', 'S ends in “X → Z”: with X and Z both “it rains”, that fits. What is left is to make whatever S asks for and feed it in.') },
+    ],
+    solution: identity('Rain'),
+    after: T('一句一眼就对的话，要 5 步。规则少的系统就是这样：什么都能证，但很费劲。注意，这 5 步里的「下雨」换成任何一句话，证明照样成立。', 'An obvious statement took 5 steps. That is what a system with few rules is like: everything provable, all of it hard work. Notice that every “it rains” in those 5 steps could be any sentence, and the proof would still work.'),
+  },
+  {
+    id: 'identity',
+    kind: 'proof',
+    title: T('自己推出自己', 'Itself from itself'),
+    tests: [{ goal: 'A → A' }],
+    palette: HILBERT,
+    builds: 'id',
+    brief: T('没有任何前提，证出 A → A。', 'With no premise at all, prove A → A.'),
+    hint: [
+      T('搭法和上一关一模一样，只是把每个「下雨」换成 A。', 'Build it exactly as last level, with every “it rains” replaced by A.'),
+      T('S：X 填 A，Y 填 A -> A，Z 填 A。两块 K：一块 X = A、Y = A -> A，一块 X = A、Y = A。', 'S: X = A, Y = A -> A, Z = A. Two Ks: one with X = A, Y = A -> A, the other with X = A, Y = A.'),
+    ],
+    intro: [
+      { t: T('上一关的 5 步里，把「下雨」换成「刮风」「地湿」或者随便哪一句话，证明一步都不用改。既然要说的是「任何一句话」，就不再写具体的天气，改用字母：<b>A、B、C 代表随便哪一句话</b>。', 'In last level’s 5 steps, swap “it rains” for “it is windy”, “the ground is wet” or any sentence at all, and not one step changes. Since the point is “any sentence”, the weather goes and letters come in: <b>A, B, C stand for any sentence you like</b>.') },
+      { t: T('所以这一关证 A → A，搭法和上一关一样。不同的是卡片上没有句子可选了，要自己打：打 A；打 A -> A，会变成 A → A。', 'So prove A → A, built just as last level. The difference is that there are no sentences to pick on the cards: type them. Type A; type A -> A and it becomes A → A.') },
+      { t: T('证完以后，它会变成一块元件<b>恒等</b>：卡片上填好任何一句话，它直接给出「那句话 → 那句话」。以后再也不用搭这 5 步。', 'Once proved, it becomes a part, <b>Identity</b>: fill in any sentence on its card and it gives “that sentence → that sentence” at once. Those 5 steps never need building again.') },
+    ],
+    solution: identity('A'),
+    after: T('一个证明、对所有句子都成立：这就是用字母的好处。你的证明现在是元件<b>恒等</b>。从这里起，很多关都用字母来写。', 'One proof, valid for every sentence: that is what letters are for. Your proof is now the part <b>Identity</b>. From here on, many levels are written in letters.'),
   },
   {
     id: 'long',
@@ -160,7 +201,7 @@ export const era1 = [
     intro: [
       { t: T('回头看「接起来」：人会说「假设下雨，那地就湿，那路就滑」。初号没有「假设」，只好让每一步都背着「下雨 →」，再用 K 和 S 一步步接。每次都这样手工搬运，太累了。', 'Look back at “Join them”: a person says “suppose it rains; then the ground is wet; then the road is slippery”. Mark I has no “suppose”, so every step has to carry “it rains →”, joined by hand with K and S. Doing that every time is exhausting.') },
       { t: T('这个专题要找一个固定的套路：任何一个在<b>假设 A</b> 下推出 C 的证明，都能一步一步改写成一个不用假设、证出 A → C 的证明。', 'This topic looks for a fixed recipe: any proof that reaches C <b>assuming A</b> can be rewritten, step by step, into a proof of A → C with no assumption.') },
-      { t: T('先看一种步：分离。设想在假设 A 下已经有了 B 和 B → C，分离得 C。改写以后，B 和 B → C 都背着「A →」，结论要的是 A → C。', 'Start with one kind of step: Detach. Under the assumption A you already have B and B → C, and Detach gives C. Rewritten, B and B → C both carry “A →”, and the conclusion must be A → C.') },
+      { t: T('先看一种步：分离。设想在假设 A 下已经有了 B 和 B → C，分离得 C。改写以后，B 和 B → C 都背着「A →」，结论要的是 A → C。这正是「在条件下分离」那一关，只是换成了字母。', 'Start with one kind of step: Detach. Under the assumption A you already have B and B → C, and Detach gives C. Rewritten, B and B → C both carry “A →”, and the conclusion must be A → C. It is “Detach under a condition” again, in letters.') },
     ],
     solution: proof({ s: ['axS', { A: 'A', B: 'B', C: 'C' }], m1: ['mp'], m2: ['mp'] }, ['s>m1.imp', 'q>m1.a', 'm1>m2.imp', 'p>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
     after: T('假设下的一次分离，改写成 S 加两次分离。下一关看整个证明。', 'One Detach under the hypothesis becomes S and two Detaches. Next, a whole proof.'),

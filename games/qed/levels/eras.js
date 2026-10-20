@@ -11,9 +11,9 @@ export const ERAS = [
   },
   {
     id: 'mk1', machine: 'mk1',
-    foundation: ['copy', 'mp', 'k', 'identity', 'chain'],
+    foundation: ['copy', 'mp', 'k', 's', 'chain', 'self', 'identity'],
     practice: ['long'],
-    topics: [{ id: 'deduction', code: 'D', after: 'chain', levels: ['dt-mp', 'dt-whole'], title: T('演绎定理', 'The deduction theorem') }],
+    topics: [{ id: 'deduction', code: 'D', after: 'identity', levels: ['dt-mp', 'dt-whole'], title: T('演绎定理', 'The deduction theorem') }],
     challenges: [{ level: 'twice', after: 'identity' }],
     chapter: { title: T('初号', 'Mark I'), question: T('只靠一条规则和两条公理，能证出什么？', 'What can one rule and two axioms prove?') },
   },

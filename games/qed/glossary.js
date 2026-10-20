@@ -50,7 +50,7 @@ export const GLOSSARY = [
     see: ['deduction'],
   },
   {
-    id: 'lemma', group: 'logic', title: T('引理', 'Lemmas'), at: 'identity',
+    id: 'lemma', group: 'logic', title: T('引理', 'Lemmas'), at: 'chain',
     body: [T('证过一次的命题可以当规则一直用下去，这叫<b>引理</b>。你证出的 A → A 成了元件「恒等」，「下雨 → 地湿、地湿 → 路滑，所以下雨 → 路滑」成了对任何句子都能用的元件「串联」。', 'A statement proved once can be used as a rule from then on: a <b>lemma</b>. Your A → A became the part Identity, and “rain wets the ground, a wet ground makes the road slippery, so rain makes the road slippery” became Chain, which works for any sentences.')],
     see: ['board'],
   },
