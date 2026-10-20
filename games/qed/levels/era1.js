@@ -1,7 +1,7 @@
 // 第 1 代 · 初号：只有一条规则「分离」和两条公理 K、S。什么都能证，但很费劲。K、S 一关一个，先各自单独用，再一起用
 // （接起来）；然后沿着「在条件下分离」一步步走到「如果 某句，那么 它自己」：先少一个前提，再一个前提也没有。
-// 每关是一个模式（字母只在这里出现）加几组测试案例：同一个证明要在每一组句子上都成立，还有隐藏的几组。文字里的
-// {A}、{p}、{goal} 显示成当前案例的句子。
+// 每关是一个模式（字母只在这里出现）加几组测试案例：同一个证明要在每一组句子上都成立，还有隐藏的几组。任务、引入和
+// 点题的文字都拿第一组（下雨）作例子。
 import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -25,12 +25,12 @@ export const era1 = [
     hiddenCases: [{ A: 'Alarm' }],
     palette: [],
     solution: proof({}, ['p>goal'], { premises: ['p'] }),
-    brief: T('已知「{p}」，证出「{goal}」。', 'Given “{p}”, prove “{goal}”.'),
+    brief: T('已知「下雨」，证出「下雨」。', 'Given “it rains”, prove “it rains”.'),
     hint: [T('从「已知」卡片右边的圆点，连到「目标」卡片左边的圆点。', 'Wire the dot on the right of the “Given” card to the dot on the left of the “Goal” card.')],
     intro: [
       { t: T('真值表一行一行地验，行数一多就验不完。证明换一个思路：从已经知道的事出发，一步一步推出想要的结论。每一步都按规则走，只看句子的形状，不看天气。', 'A truth table checks row by row, and with many rows it never ends. Proof works the other way: start from what you know and reach the conclusion step by step. Each step follows a rule that looks only at the shape of sentences, never at the weather.') },
       { t: T('这是证明机<b>初号</b>。左边的卡片是<b>已知</b>，右边是<b>目标</b>。板上的一根线，意思是「这件事已经证出来了」。', 'This is the proof machine <b>Mark I</b>. The cards on the left are what is <b>given</b>, the one on the right is the <b>goal</b>. A wire on the board means “this has been proved”.') },
-      { t: T('板子下面是几组<b>测试</b>，每组讲一件不同的事：这一组讲「{A}」，另一组讲别的。同一块电路要在每一组上都证得出；还有几组隐藏测试，过关后才公开。', 'Under the board are a few <b>tests</b>, each about something different: this one about “{A}”, another about something else. One circuit must prove every one of them; a few hidden tests are checked too, and shown once you pass.') },
+      { t: T('板子下面是几组<b>测试</b>，每组讲一件不同的事：这一组讲「下雨」，另一组讲别的。同一块电路要在每一组上都证得出；还有几组隐藏测试，过关后才公开。', 'Under the board are a few <b>tests</b>, each about something different: this one about “it rains”, another about something else. One circuit must prove every one of them; a few hidden tests are checked too, and shown once you pass.') },
     ],
     after: T('已知的事本身就是一个证明，不管它讲的是什么。接下来，每一块元件都是一条<b>推理规则</b>：输入口接它需要的东西，输出口给出它推出的结论。', 'What is given is already a proof, whatever it is about. From now on each part is a <b>rule of inference</b>: its inputs take what it needs, its output gives what it concludes.'),
   },
@@ -42,10 +42,10 @@ export const era1 = [
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Alarm', B: 'Up' }],
     hiddenCases: [{ A: 'Exam', B: 'Study' }, { A: 'Rain ∧ Wind', B: 'Wet' }],
     palette: ['mp'],
-    brief: T('已知「{p}」和「{q}」，证出「{goal}」。', 'Given “{p}” and “{q}”, prove “{goal}”.'),
+    brief: T('已知「下雨 → 地湿」和「下雨」，证出「地湿」。', 'Given “it rains → the ground is wet” and “it rains”, prove “the ground is wet”.'),
     hint: [T('分离的「如果…那么…」口接哪张已知？「前一半」口接哪张？', 'Which given goes into Detach’s “if … then …” input, and which into its “if” part?')],
     intro: [
-      { t: T('已知「{p}」，又知道「{A}」。不用想也知道：{B}。证明机要把这一步变成一条规则，才能照着做。', 'You know “{p}”, and you know “{A}”. Without thinking: {B}. The proof machine needs this step as a rule it can follow.') },
+      { t: T('已知「下雨 → 地湿」，又知道「下雨」。不用想也知道：地湿。证明机要把这一步变成一条规则，才能照着做。', 'You know “it rains → the ground is wet”, and you know “it rains”. Without thinking: the ground is wet. The proof machine needs this step as a rule it can follow.') },
       { t: T('<b>分离</b>：一个输入口接「如果…，那么…」，另一个接它的前一半，输出口给出后一半。这是初号唯一的推理规则。', '<b>Detach</b>: one input takes an “if …, then …”, the other its “if” part, and out comes the “then” part. It is Mark I’s only rule of inference.') },
       { t: T('从上面的元件栏放一块分离，把两张已知接进去，再接到目标。接错了，卡片会说它要什么、接进来的是什么。换一组测试看看：电路不用动，句子全换了。', 'Place a Detach from the row of parts above, wire both givens in, then wire it to the goal. Wire it wrong and the card says what it wanted and what it got. Switch tests: the circuit stays, every sentence changes.') },
     ],
@@ -60,15 +60,15 @@ export const era1 = [
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Coffee', B: 'Late' }],
     hiddenCases: [{ A: 'Sat', B: 'Rain' }],
     palette: ['mp', 'axK'],
-    brief: T('已知「{p}」，证出「{goal}」。', 'Given “{p}”, prove “{goal}”.'),
+    brief: T('已知「下雨」，证出「刮风 → 下雨」。', 'Given “it rains”, prove “it is windy → it rains”.'),
     hint: [
-      T('K 的卡片上，第一句选「{A}」，第二句选「{B}」。', 'On K’s card, choose “{A}” as the first sentence and “{B}” as the second.'),
+      T('K 的卡片上，第一句选「下雨」，第二句选「刮风」。', 'On K’s card, choose “it rains” as the first sentence and “it is windy” as the second.'),
       T('然后把 K 接到分离的「如果…那么…」口，已知接「前一半」口。', 'Then wire K into Detach’s “if … then …” input and the given into its “if” part.'),
     ],
     intro: [
-      { t: T('已知「{A}」。那「如果{B}，那么{A}」对不对？对：不管{B}没有，{A}都是真的。0-2 关里你见过这个形状：「下雨 → (刮风 → 下雨)」每一行都真。', 'You know “{A}”. Is “if {B}, then {A}” true? Yes: whether or not {B}, {A} holds. You met this shape in level 0-2: “it rains → (it is windy → it rains)” is true on every row.') },
+      { t: T('已知「下雨」。那「如果刮风，那么下雨」对不对？对：不管刮风没有，下雨都是真的。0-2 关里你见过这个形状：「下雨 → (刮风 → 下雨)」每一行都真。', 'You know “it rains”. Is “if it is windy, then it rains” true? Yes: whether or not it is windy, it rains holds. You met this shape in level 0-2: “it rains → (it is windy → it rains)” is true on every row.') },
       { t: T('初号把这个形状做成了<b>公理 K</b>。公理是不用证的出发点：K 没有输入口，卡片上选好「第一句」和「第二句」，它就给出「如果 第一句，那么（如果 第二句，那么 第一句）」。选哪两句都成立。', 'Mark I makes that shape <b>axiom K</b>. An axiom is a starting point that needs no proof: K has no inputs. Choose its first and second sentence on the card and it gives “if the first, then (if the second, then the first)”, whichever two you choose.') },
-      { t: T('用 K 得到「如果{A}，那么（如果{B}，那么{A}）」，再用分离把已知的「{A}」接上。', 'Use K to get “if {A}, then (if {B}, then {A})”, then Detach it with the “{A}” you are given.') },
+      { t: T('用 K 得到「如果下雨，那么（如果刮风，那么下雨）」，再用分离把已知的「下雨」接上。', 'Use K to get “if it rains, then (if it is windy, then it rains)”, then Detach it with the “it rains” you are given.') },
     ],
     solution: proof({ k: ['axK', { A: 'A', B: 'B' }], m: ['mp'] }, ['k>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
     after: T('K 说的是：已经成立的事，加上什么条件都还成立。换一组测试，卡片上的句子跟着换了名字，电路一点没变。初号一共只有两条公理，下一关见第二条。', 'K says: what already holds still holds under any extra condition. Switch tests and the sentences on the card are renamed, while the circuit stays the same. Mark I has just two axioms; the next level brings the second.'),
@@ -81,13 +81,13 @@ export const era1 = [
     cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
     hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
     palette: HILBERT,
-    brief: T('已知「{p}」和「{q}」，证出「{goal}」。', 'Given “{p}” and “{q}”, prove “{goal}”.'),
+    brief: T('已知「下雨 → (刮风 → 地湿)」和「下雨 → 刮风」，证出「下雨 → 地湿」。', 'Given “it rains → (it is windy → the ground is wet)” and “it rains → it is windy”, prove “it rains → the ground is wet”.'),
     hint: [
-      T('S 的卡片上，第一句选「{A}」，第二句选「{B}」，第三句选「{C}」。', 'On S’s card, choose “{A}”, “{B}” and “{C}” as the first, second and third sentence.'),
-      T('S 先和「{p}」分离一次，得到的结果再和「{q}」分离一次。', 'Detach S with “{p}” first, then Detach the result with “{q}”.'),
+      T('S 的卡片上，第一句选「下雨」，第二句选「刮风」，第三句选「地湿」。', 'On S’s card, choose “it rains”, “it is windy” and “the ground is wet” as the first, second and third sentence.'),
+      T('S 先和「下雨 → (刮风 → 地湿)」分离一次，得到的结果再和「下雨 → 刮风」分离一次。', 'Detach S with “it rains → (it is windy → the ground is wet)” first, then Detach the result with “it rains → it is windy”.'),
     ],
     intro: [
-      { t: T('已知：{A}的时候，只要{B}，就{C}。又知道：{A}的时候，一定{B}。那么{A}的时候，就{C}。这其实是在「{A}」这个条件下做了一次分离。', 'You know: when {A}, if {B}, then {C}. You also know: when {A}, {B}. So when {A}, {C}. That is a Detach done under the condition “{A}”.') },
+      { t: T('已知：下雨的时候，只要刮风，就地湿。又知道：下雨的时候，一定刮风。那么下雨的时候，就地湿。这其实是在「下雨」这个条件下做了一次分离。', 'You know: when it rains, if it is windy, then the ground is wet. You also know: when it rains, it is windy. So when it rains, the ground is wet. That is a Detach done under the condition “it rains”.') },
       { t: T('可分离只能用在不带条件的句子上。初号的第二条公理 <b>S</b> 专管这件事。卡片上选好三句话，它给出：「如果（第一句下，第二句推出第三句），那么（如果第一句下有第二句，那么第一句下有第三句）」。', 'But Detach only works on sentences with no condition. Mark I’s second axiom, <b>S</b>, is for exactly this. Choose three sentences on its card and it gives: “if (under the first, the second gives the third), then (if under the first there is the second, then under the first there is the third)”.') },
       { t: T('S 看着长，用法却是固定的：选好三句话，再把它和两张已知各分离一次。', 'S looks long, but it is always used the same way: choose the three sentences, then Detach it with each given in turn.') },
     ],
@@ -103,14 +103,14 @@ export const era1 = [
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
     palette: HILBERT,
     builds: 'chain',
-    brief: T('已知「{p}」和「{q}」，证出「{goal}」。', 'Given “{p}” and “{q}”, prove “{goal}”.'),
+    brief: T('已知「下雨 → 地湿」和「地湿 → 路滑」，证出「下雨 → 路滑」。', 'Given “it rains → the ground is wet” and “the ground is wet → the road is slippery”, prove “it rains → the road is slippery”.'),
     hint: [
-      T('K 能把「{q}」变成「如果{A}，那么（{q}）」：第一句选「{q}」，第二句选「{A}」。', 'K can turn “{q}” into “if {A}, then ({q})”: first sentence “{q}”, second “{A}”.'),
-      T('S 的三句选「{A}」「{B}」「{C}」，它会把上一步变成「如果（{p}），那么（{goal}）」，再分离两次。', 'With “{A}”, “{B}”, “{C}” on S, it turns that into “if ({p}), then ({goal})”; then Detach twice.'),
+      T('K 能把「地湿 → 路滑」变成「如果下雨，那么（地湿 → 路滑）」：第一句选「地湿 → 路滑」，第二句选「下雨」。', 'K can turn “the ground is wet → the road is slippery” into “if it rains, then (the ground is wet → the road is slippery)”: first sentence “the ground is wet → the road is slippery”, second “it rains”.'),
+      T('S 的三句选「下雨」「地湿」「路滑」，它会把上一步变成「如果（下雨 → 地湿），那么（下雨 → 路滑）」，再分离两次。', 'With “it rains”, “the ground is wet”, “the road is slippery” on S, it turns that into “if (it rains → the ground is wet), then (it rains → the road is slippery)”; then Detach twice.'),
     ],
     intro: [
-      { t: T('{A}，就{B}；{B}，就{C}。所以{A}，就{C}。两段「如果…那么…」首尾相接，凭直觉一步就到。', '{A} gives {B}; {B} gives {C}. So {A} gives {C}. Two “if … then …”s joined end to end: one step, by instinct.') },
-      { t: T('可初号没有「首尾相接」这条规则。上一关，S 在一个条件下做了分离，那时两张已知都带着那个条件。这一关「{q}」没带条件：先用 K 给它加上「如果{A}」，再交给 S。', 'But Mark I has no “join end to end” rule. Last level, S detached under a condition, and both givens carried it. Here “{q}” carries none: first let K put “if {A}” on it, then hand it to S.') },
+      { t: T('下雨，就地湿；地湿，就路滑。所以下雨，就路滑。两段「如果…那么…」首尾相接，凭直觉一步就到。', 'it rains gives the ground is wet; the ground is wet gives the road is slippery. So it rains gives the road is slippery. Two “if … then …”s joined end to end: one step, by instinct.') },
+      { t: T('可初号没有「首尾相接」这条规则。上一关，S 在一个条件下做了分离，那时两张已知都带着那个条件。这一关「地湿 → 路滑」没带条件：先用 K 给它加上「如果下雨」，再交给 S。', 'But Mark I has no “join end to end” rule. Last level, S detached under a condition, and both givens carried it. Here “the ground is wet → the road is slippery” carries none: first let K put “if it rains” on it, then hand it to S.') },
       { t: T('证出来以后，这块电路会变成元件<b>串联</b>：以后接进任何两段首尾相接的「如果…那么…」，它都直接给出从头到尾的那一段。', 'Once proved, this circuit becomes the part <b>Chain</b>: wire in any two “if … then …”s that meet end to end and it gives the one from start to finish at once.') },
     ],
     solution: proof({
@@ -130,14 +130,14 @@ export const era1 = [
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Exam', B: 'Study' }],
     hiddenCases: [{ A: 'Alarm', B: 'Up' }],
     palette: HILBERT,
-    brief: T('已知「{p}」，证出「{goal}」。', 'Given “{p}”, prove “{goal}”.'),
+    brief: T('已知「下雨 → 刮风」，证出「下雨 → 下雨」。', 'Given “it rains → it is windy”, prove “it rains → it rains”.'),
     hint: [
-      T('S 的三句选「{A}」「{B}」「{A}」，和「在条件下分离」那关只差第三句。', 'Choose “{A}”, “{B}”, “{A}” on S: only the third differs from “Detach under a condition”.'),
-      T('缺的那句「如果{A}，那么（如果{B}，那么{A}）」用 K 造：第一句选「{A}」，第二句选「{B}」。它接到 S 之后的第一次分离。', 'Make the missing “if {A}, then (if {B}, then {A})” with K: first “{A}”, second “{B}”. It goes into the first Detach after S.'),
+      T('S 的三句选「下雨」「刮风」「下雨」，和「在条件下分离」那关只差第三句。', 'Choose “it rains”, “it is windy”, “it rains” on S: only the third differs from “Detach under a condition”.'),
+      T('缺的那句「如果下雨，那么（如果刮风，那么下雨）」用 K 造：第一句选「下雨」，第二句选「刮风」。它接到 S 之后的第一次分离。', 'Make the missing “if it rains, then (if it is windy, then it rains)” with K: first “it rains”, second “it is windy”. It goes into the first Detach after S.'),
     ],
     intro: [
-      { t: T('回想「在条件下分离」：有了「如果{A}，那么（如果{B}，那么某件事）」和「如果{A}，那么{B}」，S 加两次分离，就得到「如果{A}，那么那件事」。', 'Recall “Detach under a condition”: from “if {A}, then (if {B}, then something)” and “if {A}, then {B}”, S and two Detaches gave “if {A}, then that thing”.') },
-      { t: T('这一关要的是「{goal}」：把「那件事」换成「{A}」就是了。于是 S 要的两句变成「如果{A}，那么（如果{B}，那么{A}）」和「{p}」。第二句已经给了。', 'This level wants “{goal}”: the same with “that thing” being “{A}”. So the two sentences S needs become “if {A}, then (if {B}, then {A})” and “{p}”. The second one is given.') },
+      { t: T('回想「在条件下分离」：有了「如果下雨，那么（如果刮风，那么某件事）」和「如果下雨，那么刮风」，S 加两次分离，就得到「如果下雨，那么那件事」。', 'Recall “Detach under a condition”: from “if it rains, then (if it is windy, then something)” and “if it rains, then it is windy”, S and two Detaches gave “if it rains, then that thing”.') },
+      { t: T('这一关要的是「下雨 → 下雨」：把「那件事」换成「下雨」就是了。于是 S 要的两句变成「如果下雨，那么（如果刮风，那么下雨）」和「下雨 → 刮风」。第二句已经给了。', 'This level wants “it rains → it rains”: the same with “that thing” being “it rains”. So the two sentences S needs become “if it rains, then (if it is windy, then it rains)” and “it rains → it is windy”. The second one is given.') },
       { t: T('第一句没给，可它的形状眼熟：这正是 1-3 关的公理 K。', 'The first is not given, but its shape is familiar: it is axiom K, from level 1-3.') },
     ],
     solution: proof({ s: ['axS', { A: 'A', B: 'B', C: 'A' }], k: ['axK', { A: 'A', B: 'B' }], m1: ['mp'], m2: ['mp'] }, ['s>m1.imp', 'k>m1.a', 'm1>m2.imp', 'p>m2.a', 'm2>goal'], { premises: ['p'] }),
@@ -152,15 +152,15 @@ export const era1 = [
     hiddenCases: [{ A: 'Rain → Wet' }],
     palette: HILBERT,
     builds: 'id',
-    brief: T('没有任何已知，证出「{goal}」。', 'With nothing given, prove “{goal}”.'),
+    brief: T('没有任何已知，证出「下雨 → 下雨」。', 'With nothing given, prove “it rains → it rains”.'),
     hint: [
-      T('照上一关搭：S 的第一句、第三句选「{A}」。上一关第二句是那句已知里的事，这关第二句选「{goal}」。', 'Build it like last level: S’s first and third sentence are “{A}”. Last level the second came from the given; here choose “{goal}”.'),
-      T('一块 K（第一句「{A}」，第二句「{goal}」）接 S 之后的第一次分离；另一块 K（两句都选「{A}」）接第二次分离。', 'One K (first “{A}”, second “{goal}”) into the first Detach after S; another K (both “{A}”) into the second.'),
+      T('照上一关搭：S 的第一句、第三句选「下雨」。上一关第二句是那句已知里的事，这关第二句选「下雨 → 下雨」。', 'Build it like last level: S’s first and third sentence are “it rains”. Last level the second came from the given; here choose “it rains → it rains”.'),
+      T('一块 K（第一句「下雨」，第二句「下雨 → 下雨」）接 S 之后的第一次分离；另一块 K（两句都选「下雨」）接第二次分离。', 'One K (first “it rains”, second “it rains → it rains”) into the first Detach after S; another K (both “it rains”) into the second.'),
     ],
     intro: [
       { t: T('上一关，S 要的两句里，一句是已知，另一句用 K 造。这一关什么都没给，两句都得用 K 造。', 'Last level, of the two sentences S needed, one was given and the other made by K. This level gives nothing: both must be made by K.') },
-      { t: T('照上一关的样子搭：S 的第一句、第三句选「{A}」，第二句待定。S 要「如果{A}，那么（如果 第二句，那么{A}）」，不管第二句是什么，K 都造得出；还要「如果{A}，那么 第二句」，上一关它是给的，这次得自己造。', 'Build it as last level: S with “{A}” as first and third sentence, the second to be decided. S wants “if {A}, then (if the second, then {A})”, which K makes whatever the second is; and “if {A}, then the second”, given last time, made by you this time.') },
-      { t: T('K 造出的句子都长这样：「如果{A}，那么（如果…，那么{A}）」。所以只要第二句本身也长成「如果…，那么{A}」，K 就也能造出「如果{A}，那么 第二句」。选项里正好有一句这样的：{goal}。', 'Every sentence K makes looks like “if {A}, then (if …, then {A})”. So if the second sentence itself looks like “if …, then {A}”, K can make “if {A}, then the second” too. One of the choices is just that: {goal}.') },
+      { t: T('照上一关的样子搭：S 的第一句、第三句选「下雨」，第二句待定。S 要「如果下雨，那么（如果 第二句，那么下雨）」，不管第二句是什么，K 都造得出；还要「如果下雨，那么 第二句」，上一关它是给的，这次得自己造。', 'Build it as last level: S with “it rains” as first and third sentence, the second to be decided. S wants “if it rains, then (if the second, then it rains)”, which K makes whatever the second is; and “if it rains, then the second”, given last time, made by you this time.') },
+      { t: T('K 造出的句子都长这样：「如果下雨，那么（如果…，那么下雨）」。所以只要第二句本身也长成「如果…，那么下雨」，K 就也能造出「如果下雨，那么 第二句」。选项里正好有一句这样的：下雨 → 下雨。', 'Every sentence K makes looks like “if it rains, then (if …, then it rains)”. So if the second sentence itself looks like “if …, then it rains”, K can make “if it rains, then the second” too. One of the choices is just that: it rains → it rains.') },
     ],
     solution: identity,
     after: T('一句一眼就对的话，要 5 步。规则少的系统就是这样：什么都能证，但很费劲。这块电路在每一组测试上都成立，所以它现在是一块元件<b>恒等</b>：卡片上选一句话，直接给出「如果它，那么它」。', 'An obvious statement took 5 steps. That is a system with few rules: everything provable, all of it hard work. This circuit held on every test, so it is now a part, <b>Identity</b>: choose a sentence on its card and it gives “if it, then it” at once.'),
@@ -173,10 +173,10 @@ export const era1 = [
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip', D: 'Fall' }, { A: 'Alarm', B: 'Up', C: 'Coffee', D: 'Awake' }],
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass', D: 'Happy' }],
     palette: [...HILBERT, 'id', 'chain'],
-    brief: T('已知「{p}」「{q}」「{r}」，证出「{goal}」。', 'Given “{p}”, “{q}” and “{r}”, prove “{goal}”.'),
+    brief: T('已知「下雨 → 地湿」「地湿 → 路滑」「路滑 → 有人摔跤」，证出「下雨 → 有人摔跤」。', 'Given “it rains → the ground is wet”, “the ground is wet → the road is slippery” and “the road is slippery → someone falls”, prove “it rains → someone falls”.'),
     hint: [T('你已经有串联了，用两次。', 'You already have Chain. Use it twice.')],
     intro: [
-      { t: T('{A}、{B}、{C}、{D}，一环扣一环。只用分离和公理，这要十几步。', '{A}, {B}, {C}, {D}: link after link. With Detach and the axioms alone, that takes over a dozen steps.') },
+      { t: T('下雨、地湿、路滑、有人摔跤，一环扣一环。只用分离和公理，这要十几步。', 'it rains, the ground is wet, the road is slippery, someone falls: link after link. With Detach and the axioms alone, that takes over a dozen steps.') },
       { t: T('可你已经证过「接起来」了。证过的引理就是元件，拿来就用。', 'But you have already proved how to join them. A proved lemma is a part, ready to use.') },
     ],
     solution: proof({ c1: ['chain'], c2: ['chain'] }, ['p>c1.p0', 'q>c1.p1', 'c1>c2.p0', 'r>c2.p1', 'c2>goal'], { premises: ['p', 'q', 'r'] }),
@@ -190,15 +190,15 @@ export const era1 = [
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Hungry', B: 'Eat' }],
     hiddenCases: [{ A: 'Alarm', B: 'Up' }],
     palette: [...HILBERT, 'id'],
-    brief: T('已知「{p}」，证出「{goal}」。', 'Given “{p}”, prove “{goal}”.'),
-    hint: [T('S 的三句选「{A}」「{A}」「{B}」，它能把已知变成「如果（如果{A}，那么{A}），那么（{goal}）」。剩下的交给恒等。', 'With “{A}”, “{A}”, “{B}” on S, it turns the given into “if (if {A}, then {A}), then ({goal})”. Identity does the rest.')],
+    brief: T('已知「下雨 → (下雨 → 地湿)」，证出「下雨 → 地湿」。', 'Given “it rains → (it rains → the ground is wet)”, prove “it rains → the ground is wet”.'),
+    hint: [T('S 的三句选「下雨」「下雨」「地湿」，它能把已知变成「如果（如果下雨，那么下雨），那么（下雨 → 地湿）」。剩下的交给恒等。', 'With “it rains”, “it rains”, “the ground is wet” on S, it turns the given into “if (if it rains, then it rains), then (it rains → the ground is wet)”. Identity does the rest.')],
     intro: [
-      { t: T('「{p}」：条件「{A}」说了两遍。直觉上，说一遍就够了。', '“{p}”: the condition “{A}” is stated twice. Surely once is enough.') },
+      { t: T('「下雨 → (下雨 → 地湿)」：条件「下雨」说了两遍。直觉上，说一遍就够了。', '“it rains → (it rains → the ground is wet)”: the condition “it rains” is stated twice. Surely once is enough.') },
       { t: T('能不能用分离把这句已知接到它自己身上？试试看，再想想 S 和恒等。', 'Can Detach feed the given into itself? Try it, then think about S and Identity.') },
     ],
     solution: proof({ s: ['axS', { A: 'A', B: 'A', C: 'B' }], m1: ['mp'], i: ['id', { A: 'A' }], m2: ['mp'] }, ['s>m1.imp', 'p>m1.a', 'm1>m2.imp', 'i>m2.a', 'm2>goal'], { premises: ['p'] }),
     naive: proof({ m: ['mp'] }, ['p>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
-    after: T('已知接到自己身上不行：分离的「前一半」要的是「{A}」，接进来的却是整句已知。S 把两个「{A}」合成一个，剩下的「如果{A}，那么{A}」交给恒等。', 'Feeding the given into itself fails: Detach’s “if” part wants “{A}”, and gets the whole given. S merges the two “{A}”s into one, and Identity supplies the “if {A}, then {A}” left over.'),
+    after: T('已知接到自己身上不行：分离的「前一半」要的是「下雨」，接进来的却是整句已知。S 把两个「下雨」合成一个，剩下的「如果下雨，那么下雨」交给恒等。', 'Feeding the given into itself fails: Detach’s “if” part wants “it rains”, and gets the whole given. S merges the two “it rains”s into one, and Identity supplies the “if it rains, then it rains” left over.'),
   },
   // The deduction theorem (a topic): a proof made under an assumption becomes a proof without it, step by step.
   {
@@ -209,12 +209,12 @@ export const era1 = [
     cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
     hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
     palette: [...HILBERT, 'id', 'chain'],
-    brief: T('在假设「{A}」下，有「{B}」，也有「如果{B}，那么{C}」，分离就得「{C}」。把这一步改写成不用假设的证明：由「{p}」和「{q}」证出「{goal}」。', 'Assuming “{A}”, there is “{B}” and “if {B}, then {C}”, so Detach gives “{C}”. Rewrite that step without the assumption: from “{p}” and “{q}”, prove “{goal}”.'),
-    hint: [T('在「{A}」之下做一次分离，从外面看就是用一次 S。', 'A Detach under “{A}”, seen from outside, is one use of S.')],
+    brief: T('在假设「下雨」下，有「刮风」，也有「如果刮风，那么地湿」，分离就得「地湿」。把这一步改写成不用假设的证明：由「下雨 → 刮风」和「下雨 → (刮风 → 地湿)」证出「下雨 → 地湿」。', 'Assuming “it rains”, there is “it is windy” and “if it is windy, then the ground is wet”, so Detach gives “the ground is wet”. Rewrite that step without the assumption: from “it rains → it is windy” and “it rains → (it is windy → the ground is wet)”, prove “it rains → the ground is wet”.'),
+    hint: [T('在「下雨」之下做一次分离，从外面看就是用一次 S。', 'A Detach under “it rains”, seen from outside, is one use of S.')],
     intro: [
-      { t: T('回头看「接起来」：人会说「假设{A}，那就……那就……」。初号没有「假设」，只好让每一步都背着「如果{A}」，再用 K 和 S 一步步接。每次都这样手工搬运，太累了。', 'Look back at “Join them”: a person says “suppose {A}; then …; then …”. Mark I has no “suppose”, so every step has to carry “if {A}”, joined by hand with K and S. Doing that every time is exhausting.') },
-      { t: T('这个专题要找一个固定的套路：任何一个在<b>假设「{A}」</b>下推出「{C}」的证明，都能一步一步改写成一个不用假设、证出「{goal}」的证明。', 'This topic looks for a fixed recipe: any proof that reaches “{C}” <b>assuming “{A}”</b> can be rewritten, step by step, into a proof of “{goal}” with no assumption.') },
-      { t: T('先看一种步：分离。改写以后，它用到的两句都背着「如果{A}」。这正是「在条件下分离」那一关。', 'Start with one kind of step: Detach. Rewritten, both sentences it uses carry “if {A}”. It is “Detach under a condition” again.') },
+      { t: T('回头看「接起来」：人会说「假设下雨，那就……那就……」。初号没有「假设」，只好让每一步都背着「如果下雨」，再用 K 和 S 一步步接。每次都这样手工搬运，太累了。', 'Look back at “Join them”: a person says “suppose it rains; then …; then …”. Mark I has no “suppose”, so every step has to carry “if it rains”, joined by hand with K and S. Doing that every time is exhausting.') },
+      { t: T('这个专题要找一个固定的套路：任何一个在<b>假设「下雨」</b>下推出「地湿」的证明，都能一步一步改写成一个不用假设、证出「下雨 → 地湿」的证明。', 'This topic looks for a fixed recipe: any proof that reaches “the ground is wet” <b>assuming “it rains”</b> can be rewritten, step by step, into a proof of “it rains → the ground is wet” with no assumption.') },
+      { t: T('先看一种步：分离。改写以后，它用到的两句都背着「如果下雨」。这正是「在条件下分离」那一关。', 'Start with one kind of step: Detach. Rewritten, both sentences it uses carry “if it rains”. It is “Detach under a condition” again.') },
     ],
     solution: proof({ s: ['axS', { A: 'A', B: 'B', C: 'C' }], m1: ['mp'], m2: ['mp'] }, ['s>m1.imp', 'q>m1.a', 'm1>m2.imp', 'p>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
     after: T('假设下的一次分离，改写成 S 加两次分离。下一关看整个证明。', 'One Detach under the assumption becomes S and two Detaches. Next, a whole proof.'),
@@ -227,14 +227,14 @@ export const era1 = [
     cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
     hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
     palette: [...HILBERT, 'id', 'chain'],
-    brief: T('在假设「{A}」下：「{p}」配上「{A}」得「如果{B}，那么{C}」；「{B}」是已知的；再分离得「{C}」。把这整个证明改写成「{goal}」的证明。', 'Assuming “{A}”: “{p}” with “{A}” gives “if {B}, then {C}”; “{B}” is given; Detach again gives “{C}”. Rewrite this whole proof into a proof of “{goal}”.'),
+    brief: T('在假设「下雨」下：「下雨 → (刮风 → 地湿)」配上「下雨」得「如果刮风，那么地湿」；「刮风」是已知的；再分离得「地湿」。把这整个证明改写成「下雨 → 地湿」的证明。', 'Assuming “it rains”: “it rains → (it is windy → the ground is wet)” with “it rains” gives “if it is windy, then the ground is wet”; “it is windy” is given; Detach again gives “the ground is wet”. Rewrite this whole proof into a proof of “it rains → the ground is wet”.'),
     hint: [
-      T('「{B}」和假设无关。和假设无关的东西，怎样背上「如果{A}」？想想 K。', '“{B}” has nothing to do with the assumption. How does something unrelated get an “if {A}” in front? Think of K.'),
+      T('「刮风」和假设无关。和假设无关的东西，怎样背上「如果下雨」？想想 K。', '“it is windy” has nothing to do with the assumption. How does something unrelated get an “if it rains” in front? Think of K.'),
       T('然后就是上一关的分离改写。', 'Then it is last level’s Detach rewrite.'),
     ],
     intro: [
-      { t: T('一个证明里不只有分离，还有和假设无关的已知事实，比如这里的「{B}」。', 'A proof has more than Detaches: it also uses known facts that have nothing to do with the assumption, like “{B}” here.') },
-      { t: T('改写时，每一步都要背上「如果{A}」。和假设无关的步怎么背？分离步用上一关的办法。', 'When rewriting, every step must carry “if {A}”. How does a step unrelated to the assumption carry it? The Detach steps go the way of last level.') },
+      { t: T('一个证明里不只有分离，还有和假设无关的已知事实，比如这里的「刮风」。', 'A proof has more than Detaches: it also uses known facts that have nothing to do with the assumption, like “it is windy” here.') },
+      { t: T('改写时，每一步都要背上「如果下雨」。和假设无关的步怎么背？分离步用上一关的办法。', 'When rewriting, every step must carry “if it rains”. How does a step unrelated to the assumption carry it? The Detach steps go the way of last level.') },
     ],
     solution: proof({ k: ['axK', { A: 'B', B: 'A' }], m0: ['mp'], s: ['axS', { A: 'A', B: 'B', C: 'C' }], m1: ['mp'], m2: ['mp'] }, ['k>m0.imp', 'q>m0.a', 's>m1.imp', 'p>m1.a', 'm1>m2.imp', 'm0>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
     after: T('每一种步都有固定的改写：假设本身换成恒等，和它无关的步用 K 包一层，分离用 S。所以，能在一个假设下推出某件事，就一定能证出「如果 假设，那么 那件事」：这就是<b>演绎定理</b>。下一台证明机把它做成了身体的一部分。', 'Each kind of step has a fixed rewrite: the assumption itself becomes Identity, an unrelated step is wrapped in K, Detach goes through S. So whatever follows from an assumption gives a proof of “if the assumption, then that”: the <b>deduction theorem</b>. The next proof machine has it built in.'),

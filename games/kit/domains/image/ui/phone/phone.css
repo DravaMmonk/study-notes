@@ -94,13 +94,6 @@
 .pb { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; background: var(--canvas); }
 .pb.dragging { user-select: none; -webkit-user-select: none; }
 
-.pb-tests { padding: 8px 12px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--hairline); background: var(--paper); }
-.pb-tests::-webkit-scrollbar { display: none; }
-.pb-test { flex: none; min-height: 34px; padding: 0 12px; display: inline-flex; align-items: center; gap: 4px; border: 0; border-radius: 17px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; white-space: nowrap; }
-.pb-test.is-pass svg { color: var(--status); }
-.pb-test.is-fail svg { color: var(--fail); }
-.pb-test .hidden-tag { margin-left: 2px; }
-.pb-test.is-on { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
 
 .pb-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 12px 12px 72px; display: grid; align-content: start; gap: 12px; overflow-x: clip; }
 .pb-howto { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }

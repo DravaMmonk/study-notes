@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react'
-import { Check, Circle, EyeOff, Play, X } from 'lucide-react'
+import { Check, EyeOff, Play, X } from 'lucide-react'
 import { L, keyOf, tr } from '../../../shell/i18n.js'
+import TestTabs from '../../../shell/TestTabs.jsx'
 import ImageView from './ImageView.jsx'
 import { rangeOf } from './display.js'
 import CurveView from './views/CurveView.jsx'
@@ -48,22 +49,8 @@ export default function TestPanel({ level, run, onTest, hiddenCount = 0, hiddenM
   ) : hiddenCount > 0 ? (
     <p className="hidden-note"><EyeOff size={13} />{tr(`另有 ${hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。`, `${hiddenCount} more hidden ${hiddenCount === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)}</p>
   ) : null
-  const list = (
-    <ol className="test-list">
-      {level.tests.map((t, index) => {
-        const ok = run?.results[index]?.pass
-        return (
-          <li key={keyOf(t.label)}>
-            <button className={`test-row ${index === testIndex ? 'is-active' : ''} ${ok === null ? '' : ok ? 'is-pass' : 'is-fail'}`} onClick={() => onSelect(index)} aria-pressed={index === testIndex}>
-              {ok === null ? <Circle size={11} /> : ok ? <Check size={13} /> : <X size={13} />}
-              <span>{L(t.label)}</span>
-              {t.hidden && <em className="hidden-tag">{tr('隐藏', 'hidden')}</em>}
-            </button>
-          </li>
-        )
-      })}
-    </ol>
-  )
+  const states = level.tests.map((_, index) => { const ok = run?.results[index]?.pass; return ok === true ? 'pass' : ok === false ? 'fail' : null })
+  const list = <TestTabs tests={level.tests} states={states} index={testIndex} onSelect={onSelect} />
   const inputFigures = Object.entries(test.inputs).map(([name, img]) => (
     <figure key={name} className={kindOf(img) === 'signal' ? 'is-wide' : ''}>
       <ValueView img={img} view={inView} size={kindOf(img) === 'image' ? 132 : 280} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} grid />
