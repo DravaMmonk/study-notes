@@ -1,15 +1,23 @@
 // The logic domain's checks for `npm run check` (../../engine/check.js): every proof level's reference proof closes
 // its goal and its naive one does not; every goal the reference proves has no countermodel on small domains (a level
-// whose goal is false would be caught), and a level that asks for a countermodel (`unprovable`) has one.
+// whose goal is false would be caught), and a level that asks for a countermodel (`unprovable`) has one. A truth-table
+// level's formulas parse and its task can be done: a `counter` formula has a false row, a `valid` level mixes both.
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
 import { parse } from './formula.js'
 import { countermodel } from './models.js'
 import { LOGIC_TESTS } from './proof.js'
+import { tautology } from './truth.js'
 
 /** spec: { levels }. Returns [{ text, fail? }]. */
 export function validate({ levels }) {
   const out = []
+  for (const level of levels.filter((l) => l.kind === 'truth')) {
+    const formulas = level.formulas.map((t) => parse(t))
+    const bad = level.ask === 'counter' ? formulas.filter((f) => tautology(f)) : []
+    const mixed = level.ask !== 'valid' || (formulas.some(tautology) && formulas.some((f) => !tautology(f)))
+    out.push({ fail: bad.length > 0 || !mixed, text: `${level.id} ${keyOf(level.title)}: (truth ${level.ask}) ${bad.length ? 'a formula has no false row' : mixed ? 'ok' : 'every formula gives the same answer'}` })
+  }
   for (const level of levels.filter((l) => l.kind === 'proof')) {
     const consts = level.consts ?? []
     for (const test of level.tests) {

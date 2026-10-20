@@ -1,4 +1,4 @@
-// Countermodels (《证明完备》): when a goal does not follow, a small world where the premises hold and the goal fails.
+// Countermodels (《证明完毕》): when a goal does not follow, a small world where the premises hold and the goal fails.
 // Propositional formulas are checked over every row of their truth table; first-order ones over every structure on a
 // domain of 1, 2 or 3 elements, as long as there are not too many of them to try. A countermodel proves the goal
 // unprovable (the rules are sound); finding none on small domains proves nothing, and `searched` says how far it went.

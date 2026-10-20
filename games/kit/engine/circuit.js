@@ -6,7 +6,8 @@
 //
 //   inputs        [port] or (node) → [port]
 //   outputs?      (node) → [key] | null: a node with several outputs, each a value of its own ('<node>#<key>')
-//   optional?     [port] that may stay unconnected
+//   optional?     [port] that may stay unconnected (one of them must be wired, unless the part runs `bare`)
+//   bare?         true for a part that also runs with none of its optional ports wired
 //   idle?         (port, node) → what an unconnected port reads; without it an unconnected port is missing
 //   sink?         true for a circuit's output: its value is what reaches its 'in' port, and a missing one is no error
 //   eval(ins, node, ctx, key) → value     ins: { port: value } of the connected ports (and idle ones)
@@ -93,7 +94,7 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
       else if (!part.optional?.includes(port)) missing = true
     }
     // A part whose inputs are all optional still needs one of them.
-    if (!missing && ports.length && part.optional && ports.every((p) => part.optional.includes(p)) && !connected) missing = true
+    if (!missing && !part.bare && ports.length && part.optional && ports.every((p) => part.optional.includes(p)) && !connected) missing = true
     if (part.sink) {
       if (ins.in !== undefined) values.set(id, ins.in)
       return

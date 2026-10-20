@@ -76,7 +76,7 @@ test('→ introduction closes its assumption; an open one fails', () => {
 test('∨ elimination needs both cases to agree', () => {
   const level = { tests: [{ premises: { p: 'A ∨ B' }, goal: 'B ∨ A' }] }
   const caseBody = (side) => ({
-    nodes: [{ id: 'a', type: 'assume', params: { name: 'assume' } }, { id: 'o', type: 'out', params: { name: 'out' } }, { id: 'i', type: 'orI', params: side === 'left' ? { other: 'B', side: 'right' } : { other: 'A', side: 'left' } }],
+    nodes: [{ id: 'a', type: 'assume', params: { name: 'assume' } }, { id: 'o', type: 'out', params: { name: 'out' } }, { id: 'i', type: 'orI', params: side === 'left' ? { other: 'B', side: 'left' } : { other: 'A', side: 'right' } }],
     wires: [{ from: 'a', to: 'i', port: 'a' }, { from: 'i', to: 'o', port: 'in' }],
   })
   const c = proof({ e: ['orE', {}, { left: caseBody('left'), right: caseBody('right') }] }, ['p>e.ab', 'e>goal'], ends(['p']))
@@ -90,6 +90,16 @@ test('∀ introduction refuses a variable an open hypothesis mentions', () => {
   const r = run(level, c)
   assert.equal(r.pass, false)
   assert.match(r.results[0].errors.get('g').en, /not arbitrary/)
+})
+
+test('a lemma with premises: what is wired in fixes its letters, the card the rest', () => {
+  const lemmas = { chain: { statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'] }, id: { statement: 'A → A', metas: ['A'] } }
+  const level = { lemmas, tests: [{ premises: { p: 'P → Q', q: 'Q → R' }, goal: 'P → R' }] }
+  assert.equal(run(level, proof({ c: ['chain'] }, ['p>c.p0', 'q>c.p1', 'c>goal'], ends(['p', 'q']))).pass, true)
+  const wrong = run(level, proof({ c: ['chain'] }, ['q>c.p0', 'p>c.p1', 'c>goal'], ends(['p', 'q'])))
+  assert.equal(wrong.pass, false)
+  const one = { lemmas, tests: [{ goal: 'P ∧ Q → P ∧ Q' }] }
+  assert.equal(run(one, proof({ i: ['id', { A: 'P ∧ Q' }] }, ['i>goal'], ends())).pass, true)
 })
 
 test('countermodels: Peirce has none classically, (A → B) → A has one, the quantifier swap has one', () => {

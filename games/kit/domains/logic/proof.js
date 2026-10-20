@@ -1,13 +1,15 @@
-// Proofs as circuits (《证明完备》). A wire carries a proved judgment:
+// Proofs as circuits (《证明完毕》). A wire carries a proved judgment:
 //
 //   { formula, hyps: Map(hypothesis id → formula) }   the formula, proved from the hypotheses still open
 //
 // A part is an inference rule: its inputs are premises, its output the conclusion. A rule that opens an assumption is
-// a part with a board inside (../../engine/boards.js): the board's source `assume` gives the assumption, its sink
-// `out` what was proved under it, and the part's conclusion closes the assumption. A proof is a circuit whose sources
-// are the level's premises and whose sink `goal` must be the goal, with no hypotheses open but the premises.
-// A rule that does not fit throws a PartError saying what it needed and what reached it.
-import { PartError } from '../../engine/circuit.js'
+// a part with boards inside (../../engine/boards.js). Its `scope(node, ins, board, ctx)` says what a board inside may
+// use besides what the board around it may: the assumption it opens (as `assume`, and under its hypothesis id for
+// boxes further in). The board's sink `out` is what was proved there, and the part's conclusion closes the
+// assumption. A proof is a circuit whose sources are the level's premises and whose sink `goal` must be the goal,
+// with no hypotheses open but the premises. A rule that does not fit throws a PartError saying what it needed and
+// what reached it.
+import { BROKEN, PartError } from '../../engine/circuit.js'
 import { runBoard, runInner, sink, source } from '../../engine/boards.js'
 import { BOT, all, and, bin, eq, freeVars, imp, or, parse, same, show, subst, tvar } from './formula.js'
 
@@ -26,19 +28,34 @@ const param = (node, key, ctx = {}) => {
     throw fail(`${key} 写得不对：${text}`, `${key} does not parse: ${text}`)
   }
 }
+// The term a card names (params.t).
+function termOf(node, ctx = {}) {
+  const text = node.params?.t
+  if (!text) throw fail('先填一个项', 'Fill in a term first')
+  return parse(`${text} = ${text}`, { consts: ctx.consts ?? [] }).args[0]
+}
 // ¬A is A → ⊥ to the rules.
 const asImp = (f) => (f.op === '¬' ? imp(f.a, BOT) : f)
-
-/** Open an assumption inside `node`'s board `name` and run it: [what the board proved, the hypothesis id]. */
-function underAssumption(ctx, node, name, formula, extra = {}) {
-  const id = `${node.id}/${name}`
-  const assumption = proved(formula, new Map([[id, formula]]))
-  // Inside, the assumption is `assume`; boxes further in reach it by its id, as they reach the premises by name.
-  const { outputs } = runInner(ctx, node, name, { assume: assumption, [id]: assumption, ...extra })
-  if (!outputs.out) throw fail('框里还没证出结论', 'The box has not proved anything yet')
-  return [outputs.out, id]
-}
 const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
+
+/** The hypothesis id of the assumption a box's board opens. */
+export const hypId = (node, board) => `${node.id}/${board}`
+// What a box brings in from outside: anything proved there, wired into its ports in1 … in3, seen inside by those
+// names (premises and the assumptions of the boxes around it are seen anyway).
+export const CARRY = ['in1', 'in2', 'in3']
+const carried = (ins) => Object.fromEntries(CARRY.filter((k) => ins[k]).map((k) => [k, ins[k]]))
+const box = (inputs = []) => ({ inputs: [...inputs, ...CARRY], optional: CARRY, bare: true })
+// What a board inside sees when it opens `formula`: `assume`, and the same under its id.
+const opening = (node, board, formula, ins = {}) => {
+  const j = proved(formula, new Map([[hypId(node, board), formula]]))
+  return { ...carried(ins), assume: j, [hypId(node, board)]: j }
+}
+// Run a box's board with its scope; what it proved, or a PartError when nothing reached its `out`.
+function inside(part, ctx, node, ins, board) {
+  const { outputs } = runInner(ctx, node, board, part.scope(node, ins, board, ctx))
+  if (!outputs.out) throw fail('框里还没证出结论', 'The box has not proved anything yet')
+  return outputs.out
+}
 
 export const RULES = {
   // The proof's own ends: a premise, and the goal.
@@ -58,17 +75,18 @@ export const RULES = {
       return proved(f.b, union(i, a))
     },
   },
-  axK: { inputs: [], eval: (_, node, ctx) => { const [A, B] = [param(node, 'A', ctx), param(node, 'B', ctx)]; return proved(imp(A, imp(B, A))) } },
-  axS: { inputs: [], eval: (_, node, ctx) => { const [A, B, C] = [param(node, 'A', ctx), param(node, 'B', ctx), param(node, 'C', ctx)]; return proved(imp(imp(A, imp(B, C)), imp(imp(A, B), imp(A, C)))) } },
+  axK: { inputs: [], params: ['A', 'B'], eval: (_, node, ctx) => { const [A, B] = [param(node, 'A', ctx), param(node, 'B', ctx)]; return proved(imp(A, imp(B, A))) } },
+  axS: { inputs: [], params: ['A', 'B', 'C'], eval: (_, node, ctx) => { const [A, B, C] = [param(node, 'A', ctx), param(node, 'B', ctx), param(node, 'C', ctx)]; return proved(imp(imp(A, imp(B, C)), imp(imp(A, B), imp(A, C)))) } },
 
   // ---- natural deduction ----
   impI: {
-    inputs: [],
-    boards: () => [{ name: 'body', sources: ['assume'], sinks: ['out'] }],
-    eval: (_, node, ctx) => {
-      const A = param(node, 'A', ctx)
-      const [body, id] = underAssumption(ctx, node, 'body', A)
-      return proved(imp(A, body.formula), without(body.hyps, id))
+    ...box(),
+    params: ['A'],
+    boards: () => [{ name: 'body', assumes: true }],
+    scope: (node, ins, board, ctx) => opening(node, board, param(node, 'A', ctx), ins),
+    eval(ins, node, ctx) {
+      const body = inside(this, ctx, node, ins, 'body')
+      return proved(imp(param(node, 'A', ctx), body.formula), without(body.hyps, hypId(node, 'body')))
     },
   },
   andI: { inputs: ['a', 'b'], eval: ({ a, b }) => proved(and(a.formula, b.formula), union(a, b)) },
@@ -82,24 +100,31 @@ export const RULES = {
   },
   orI: {
     inputs: ['a'],
+    params: ['other'],
     eval: ({ a }, node, ctx) => {
       const other = param(node, 'other', ctx)
-      return proved(node.params?.side === 'right' ? or(other, a.formula) : or(a.formula, other), a.hyps)
+      return proved(node.params?.side === 'left' ? or(other, a.formula) : or(a.formula, other), a.hyps)
     },
   },
   orE: {
-    inputs: ['ab'],
-    boards: () => [{ name: 'left', sources: ['assume'], sinks: ['out'] }, { name: 'right', sources: ['assume'], sinks: ['out'] }],
-    eval: ({ ab }, node, ctx) => {
+    ...box(['ab']),
+    boards: () => [{ name: 'left', assumes: true }, { name: 'right', assumes: true }],
+    scope: (node, ins, board) => {
+      const { ab } = ins
+      if (!ab) throw fail('先接一个 A ∨ B', 'Wire in an A ∨ B first')
       if (ab.formula.op !== '∨') throw need('A ∨ B', show(ab.formula))
-      const [l, li] = underAssumption(ctx, node, 'left', ab.formula.a)
-      const [r, ri] = underAssumption(ctx, node, 'right', ab.formula.b)
+      return opening(node, board, board === 'left' ? ab.formula.a : ab.formula.b, ins)
+    },
+    eval(ins, node, ctx) {
+      const l = inside(this, ctx, node, ins, 'left')
+      const r = inside(this, ctx, node, ins, 'right')
       if (!same(l.formula, r.formula)) throw fail(`两种情况证出的不一样：${show(l.formula)}，${show(r.formula)}`, `The two cases prove different things: ${show(l.formula)}, ${show(r.formula)}`)
-      return proved(l.formula, new Map([...ab.hyps, ...without(l.hyps, li), ...without(r.hyps, ri)]))
+      return proved(l.formula, new Map([...ins.ab.hyps, ...without(l.hyps, hypId(node, 'left')), ...without(r.hyps, hypId(node, 'right'))]))
     },
   },
   botE: {
     inputs: ['bot'],
+    params: ['C'],
     eval: ({ bot }, node, ctx) => {
       if (bot.formula.op !== '⊥') throw need('⊥', show(bot.formula))
       return proved(param(node, 'C', ctx), bot.hyps)
@@ -115,23 +140,34 @@ export const RULES = {
       return proved(inner.a, nna.hyps)
     },
   },
+  // A ↔ B gives A → B and B → A.
+  iffE: {
+    inputs: ['iff'],
+    outputs: () => ['ltr', 'rtl'],
+    eval: ({ iff }, _n, _c, key) => {
+      const f = iff.formula
+      if (f.op !== '↔') throw need('A ↔ B', show(f))
+      return proved(key === 'rtl' ? imp(f.b, f.a) : imp(f.a, f.b), iff.hyps)
+    },
+  },
 
   // ---- quantifiers and equality ----
   allI: {
-    inputs: [],
-    boards: () => [{ name: 'body', sources: [], sinks: ['out'] }],
-    eval: (_, node, ctx) => {
+    ...box(),
+    params: ['x'],
+    boards: () => [{ name: 'body', assumes: false }],
+    scope: (node, ins) => carried(ins),
+    eval(ins, node, ctx) {
       const x = node.params?.x
       if (!x) throw fail('先给新变量起个名字', 'Name the new variable first')
-      const { outputs } = runInner(ctx, node, 'body', {})
-      const body = outputs.out
-      if (!body) throw fail('框里还没证出结论', 'The box has not proved anything yet')
+      const body = inside(this, ctx, node, ins, 'body')
       for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 出现在还开着的假设 ${show(h)} 里，不能对它说「任取」`, `${x} occurs in the open hypothesis ${show(h)}, so it is not arbitrary`)
       return proved(all(x, body.formula), body.hyps)
     },
   },
   allE: {
     inputs: ['all'],
+    params: ['t'],
     eval: ({ all: a }, node, ctx) => {
       if (a.formula.op !== '∀') throw need('∀x. P(x)', show(a.formula))
       return proved(subst(a.formula.body, a.formula.v, termOf(node, ctx)), a.hyps)
@@ -139,6 +175,7 @@ export const RULES = {
   },
   exI: {
     inputs: ['a'],
+    params: ['target', 't'],
     eval: ({ a }, node, ctx) => {
       const target = param(node, 'target', ctx)
       if (target.op !== '∃') throw need('∃x. P(x)', show(target))
@@ -148,23 +185,31 @@ export const RULES = {
     },
   },
   exE: {
-    inputs: ['ex'],
-    boards: () => [{ name: 'body', sources: ['assume'], sinks: ['out'] }],
-    eval: ({ ex: e }, node, ctx) => {
+    ...box(['ex']),
+    params: ['x'],
+    boards: () => [{ name: 'body', assumes: true }],
+    scope: (node, ins, board) => {
+      const e = ins.ex
+      if (!e) throw fail('先接一个 ∃x. P(x)', 'Wire in an ∃x. P(x) first')
       if (e.formula.op !== '∃') throw need('∃x. P(x)', show(e.formula))
       const y = node.params?.x
       if (!y) throw fail('先给见证起个名字', 'Name the witness first')
-      const [body, id] = underAssumption(ctx, node, 'body', subst(e.formula.body, e.formula.v, tvar(y)))
+      return opening(node, board, subst(e.formula.body, e.formula.v, tvar(y)), ins)
+    },
+    eval(ins, node, ctx) {
+      const y = node.params.x
+      const body = inside(this, ctx, node, ins, 'body')
       if (freeVars(body.formula).has(y)) throw fail(`结论里不能有见证 ${y}`, `The conclusion may not mention the witness ${y}`)
-      const open = without(body.hyps, id)
+      const open = without(body.hyps, hypId(node, 'body'))
       for (const h of open.values()) if (freeVars(h).has(y)) throw fail(`${y} 出现在还开着的假设 ${show(h)} 里`, `${y} occurs in the open hypothesis ${show(h)}`)
-      return proved(body.formula, new Map([...e.hyps, ...open]))
+      return proved(body.formula, new Map([...ins.ex.hyps, ...open]))
     },
   },
-  refl: { inputs: [], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t)) } },
+  refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t)) } },
   // From s = t and a proof of φ, φ with s replaced by t wherever the card's pattern puts x.
   rewrite: {
     inputs: ['eq', 'p'],
+    params: ['pattern'],
     eval: ({ eq: e, p }, node, ctx) => {
       const f = e.formula
       if (f.op !== 'atom' || f.pred !== '=') throw need('s = t', show(f))
@@ -177,27 +222,62 @@ export const RULES = {
   },
 }
 
-// The term a card names (params.t).
-function termOf(node, ctx = {}) {
-  const text = node.params?.t
-  if (!text) throw fail('先填一个项', 'Fill in a term first')
-  return parse(`${text} = ${text}`, { consts: ctx.consts ?? [] }).args[0]
+/* ---------- lemmas: rules the player proved ---------- */
+
+// Match a schema (with schematic letters) against a formula, extending `bind`; false when they do not fit.
+function match(schema, f, bind) {
+  if (schema.op === 'meta') {
+    if (bind[schema.name]) return same(bind[schema.name], f)
+    bind[schema.name] = f
+    return true
+  }
+  const g = schema.op === '¬' && f.op === '→' && same(f.b, BOT) ? { op: '→', a: schema.a, b: BOT } : schema
+  if (g.op !== f.op) return false
+  if (g.op === 'atom') return same(g, f)
+  if (g.op === '⊥') return true
+  if (g.op === '¬') return match(g.a, f.a, bind)
+  if (g.op === '∀' || g.op === '∃') return same(g, f)
+  return match(g.a, f.a, bind) && match(g.b, f.b, bind)
+}
+function instantiate(f, bind) {
+  if (f.op === 'meta') return bind[f.name]
+  if (f.op === '¬') return { op: '¬', a: instantiate(f.a, bind) }
+  if (f.op === '∀' || f.op === '∃') return { ...f, body: instantiate(f.body, bind) }
+  if (f.a) return bin(f.op, instantiate(f.a, bind), instantiate(f.b, bind))
+  return f
+}
+const metasIn = (f, out = new Set()) => {
+  if (f.op === 'meta') out.add(f.name)
+  else if (f.op === '¬') metasIn(f.a, out)
+  else if (f.body) metasIn(f.body, out)
+  else if (f.a) { metasIn(f.a, out); metasIn(f.b, out) }
+  return out
 }
 
 /**
- * A lemma the player proved, as a rule: its statement with schematic letters, instantiated on its card
- * (params: { A: '…', B: '…' }). It is sound because the level that built it checked the proof.
+ * A lemma the player proved, as a rule: from `premises` (schemas, one input each) to `statement`, with schematic
+ * letters `metas`. The letters the premises fix come from what is wired in; the others are set on the card. It is
+ * sound because the level that built it checked the proof.
  */
-export function lemma({ statement, metas }) {
-  const schema = parse(statement, { metas })
-  const instantiate = (f, node, ctx) => {
-    if (f.op === 'meta') return param(node, f.name, ctx)
-    if (f.op === '¬') return { op: '¬', a: instantiate(f.a, node, ctx) }
-    if (f.op === '∀' || f.op === '∃') return { ...f, body: instantiate(f.body, node, ctx) }
-    if (f.a) return bin(f.op, instantiate(f.a, node, ctx), instantiate(f.b, node, ctx))
-    return f
+export function lemma({ statement, premises = [], metas }) {
+  const conclusion = parse(statement, { metas })
+  const schemas = premises.map((p) => parse(p, { metas }))
+  const fixed = new Set(schemas.flatMap((s) => [...metasIn(s)]))
+  const open = [...metasIn(conclusion)].filter((m) => !fixed.has(m))
+  return {
+    inputs: schemas.map((_, k) => `p${k}`),
+    params: open,
+    lemma: { statement, premises },
+    eval: (ins, node, ctx) => {
+      const bind = {}
+      schemas.forEach((s, k) => {
+        const j = ins[`p${k}`]
+        if (!match(s, j.formula, bind)) throw need(show(instantiate(s, Object.fromEntries(Object.entries(bind)))).replace(/undefined/g, '…'), show(j.formula))
+      })
+      for (const m of open) bind[m] = param(node, m, ctx)
+      return proved(instantiate(conclusion, bind), union(...schemas.map((_, k) => ins[`p${k}`])))
+    },
   }
-  return { inputs: [], eval: (_, node, ctx) => proved(instantiate(schema, node, ctx)) }
 }
 
 /** Does a judgment prove `goal` from the `premises` alone (by hypothesis id)? '' or what is wrong, as { zh, en }. */
@@ -209,18 +289,25 @@ export function closes(judgment, goal, premiseIds) {
   return ''
 }
 
+/** The rules a level can use: every rule, and its lemmas ({ type: { statement, premises, metas } }). */
+export const rulesOf = (lemmas = {}) => ({ ...RULES, ...Object.fromEntries(Object.entries(lemmas).map(([type, l]) => [type, lemma(l)])) })
+
+/** A test's premises as judgments, each its own hypothesis (named by the premise). */
+export function premisesOf(test, consts = []) {
+  return Object.fromEntries(Object.entries(test.premises ?? {}).map(([name, text]) => {
+    const f = parse(text, { consts })
+    return [name, proved(f, new Map([[name, f]]))]
+  }))
+}
+
 /**
  * How a proof level runs and is judged, for the shared engine (../../engine/tests.js). A test is
- * { premises: { name: formula text }, goal: formula text }; the level may name its constants (consts).
+ * { premises: { name: formula text }, goal: formula text }; the level may name its constants (consts) and its lemmas.
  */
 export const LOGIC_TESTS = {
   runTest: (level, circuit, test) => {
     const consts = level.consts ?? []
-    const bind = Object.fromEntries(Object.entries(test.premises ?? {}).map(([name, text]) => {
-      const f = parse(text, { consts })
-      return [name, proved(f, new Map([[name, f]]))]
-    }))
-    const run = runBoard(circuit, { parts: RULES_OF(level), bind, ctx: { consts } })
+    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts } })
     return { ...run, outputs: { goal: run.outputs.goal } }
   },
   check: (level, test, outputs) => {
@@ -229,8 +316,60 @@ export const LOGIC_TESTS = {
     return [{ name: 'goal', pass: !problem, reason: problem }]
   },
   // A shorter proof is a better one.
-  score: (level, circuit) => ({ steps: circuit.nodes.filter((n) => !['premise', 'goal', 'assume', 'out'].includes(n.type)).length }),
+  score: (level, circuit) => ({ steps: countSteps(circuit) }),
+}
+const FIXED = new Set(['premise', 'goal', 'assume', 'out'])
+const countSteps = (circuit) => circuit.nodes.reduce((n, node) => n + (FIXED.has(node.type) ? 0 : 1 + Object.values(node.boards ?? {}).reduce((m, b) => m + countSteps(b), 0)), 0)
+
+/* ---------- a board inside a proof, for the editor ---------- */
+
+const EMPTY = { nodes: [], wires: [] }
+
+/**
+ * The board at `path` (../../circuit/nested.js) run as the proof runs it, on the level's first test: { values, errors,
+ * bind } with what its sources read, or { scopeError } when the box around it cannot open yet (分情况 with no A ∨ B
+ * wired in).
+ */
+export function runAt(level, circuit, path, test = level.tests[0]) {
+  const consts = level.consts ?? []
+  const parts = rulesOf(level.lemmas)
+  const ctx = { consts }
+  let bind = premisesOf(test, consts)
+  let board = circuit
+  let run = runBoard(board, { parts, bind, ctx })
+  for (const { node: id, board: name } of path) {
+    const node = board.nodes.find((n) => n.id === id)
+    const ins = Object.fromEntries(board.wires.filter((w) => w.to === id && run.values.get(w.from) !== undefined).map((w) => [w.port, run.values.get(w.from)]))
+    try {
+      bind = { ...bind, ...parts[node.type].scope(node, ins, name, ctx) }
+    } catch (e) {
+      return { values: new Map(), errors: new Map(), bind, scopeError: e.label ?? BROKEN }
+    }
+    board = node.boards?.[name] ?? EMPTY
+    run = runBoard(board, { parts, bind, ctx })
+  }
+  return { ...run, bind }
 }
 
-/** The rules a level can use: every rule, and its lemmas ({ type: { statement, metas } }) as rules of their own. */
-const RULES_OF = (level) => (level.lemmas ? { ...RULES, ...Object.fromEntries(Object.entries(level.lemmas).map(([type, l]) => [type, lemma(l)])) } : RULES)
+/**
+ * What the board at `path` reads from outside, as its fixed source cards: the premises, the assumptions of the boxes
+ * around it (by hypothesis id), and what its own box brings in (in1 … in3, those wired); `assumes` when its box opens
+ * an assumption of its own (the card `assume`).
+ */
+export function seenAt(level, circuit, path) {
+  const parts = rulesOf(level.lemmas)
+  const names = Object.keys(level.tests[0].premises ?? {})
+  let board = circuit
+  let assumes = false
+  path.forEach(({ node: id, board: name }, k) => {
+    const node = board.nodes.find((n) => n.id === id)
+    const spec = parts[node.type].boards(node).find((b) => b.name === name)
+    if (k < path.length - 1) { if (spec.assumes) names.push(hypId(node, name)) }
+    else {
+      names.push(...CARRY.filter((p) => board.wires.some((w) => w.to === id && w.port === p)))
+      assumes = spec.assumes
+    }
+    board = node.boards?.[name] ?? EMPTY
+  })
+  return { names, assumes }
+}

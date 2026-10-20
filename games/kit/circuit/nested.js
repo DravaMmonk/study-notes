@@ -33,14 +33,18 @@ export function withBoardAt(circuit, path, inner) {
 /** The path cut back to its first `depth` steps (0: the top board), for a breadcrumb's links. */
 export const upTo = (path, depth) => path.slice(0, depth)
 
-/** Each step of a path as { label, depth }: the part's label (labelOf(node)) and the board's name when it has several. */
+/**
+ * Each step of a path as { label, depth }: the part's label (labelOf(node)) and, when it has several boards, the
+ * board's (its `label` from boardsOf(node), else its name).
+ */
 export function trail(circuit, path, labelOf, boardsOf = () => []) {
   const out = []
   let board = circuit
   path.forEach(({ node, board: name }, k) => {
     const n = board.nodes.find((x) => x.id === node)
-    const many = boardsOf(n).length > 1
-    out.push({ label: many ? `${labelOf(n)} · ${name}` : labelOf(n), depth: k + 1 })
+    const boards = boardsOf(n)
+    const label = boards.find((b) => b.name === name)?.label ?? name
+    out.push({ label: boards.length > 1 ? `${labelOf(n)} · ${label}` : labelOf(n), depth: k + 1 })
     board = n?.boards?.[name] ?? EMPTY
   })
   return out

@@ -1,4 +1,4 @@
-// Formulas and terms of the logic domain (《证明完备》), as plain trees:
+// Formulas and terms of the logic domain (《证明完毕》), as plain trees:
 //
 //   formula  { op: 'atom', pred, args: [term] }   P, Q(x), R(x, f(y)); a proposition letter is an atom with no args
 //            { op: '⊥' }
@@ -166,14 +166,17 @@ const sameTerm = (s, t, env) => {
   if (s.t === 'var') return (env.get(s.name) ?? s.name) === t.name
   return s.f === t.f && s.args.length === t.args.length && s.args.every((a, k) => sameTerm(a, t.args[k], env))
 }
-/** Are two formulas the same, up to the names of bound variables? */
-export function same(f, g, env = new Map()) {
+// ¬A means A → ⊥: the two are one formula to every comparison.
+const unneg = (f) => (f.op === '¬' ? bin('→', f.a, BOT) : f)
+/** Are two formulas the same, up to the names of bound variables (and ¬A being A → ⊥)? */
+export function same(f0, g0, env = new Map()) {
+  const f = unneg(f0)
+  const g = unneg(g0)
   if (f.op !== g.op) return false
   switch (f.op) {
     case 'atom': return f.pred === g.pred && f.args.length === g.args.length && f.args.every((t, k) => sameTerm(t, g.args[k], env))
     case 'meta': return f.name === g.name
     case '⊥': return true
-    case '¬': return same(f.a, g.a, env)
     case '∀': case '∃': return same(f.body, g.body, new Map([...env, [f.v, g.v]]))
     default: return same(f.a, g.a, env) && same(f.b, g.b, env)
   }
