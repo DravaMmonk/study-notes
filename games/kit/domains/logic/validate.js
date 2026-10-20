@@ -2,16 +2,23 @@
 // its goal and its naive one does not; every goal the reference proves has no countermodel on small domains (a level
 // whose goal is false would be caught), and a level that asks for a countermodel (`unprovable`) has one. A truth-table
 // level's formulas parse and its task can be done: a `counter` formula has a false row, a `valid` level mixes both.
+// A level in everyday words has one for every letter.
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
 import { parse } from './formula.js'
 import { countermodel } from './models.js'
 import { LOGIC_TESTS } from './proof.js'
-import { tautology } from './truth.js'
+import { lettersOf, tautology } from './truth.js'
 
 /** spec: { levels }. Returns [{ text, fail? }]. */
 export function validate({ levels }) {
   const out = []
+  // A level in everyday words has a sentence for every letter it uses.
+  for (const level of levels.filter((l) => l.words)) {
+    const texts = level.kind === 'truth' ? level.formulas : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.words[l])
+    if (missing.length) out.push({ fail: true, text: `${level.id}: no words for ${missing.join(', ')}` })
+  }
   for (const level of levels.filter((l) => l.kind === 'truth')) {
     const formulas = level.formulas.map((t) => parse(t))
     const bad = level.ask === 'counter' ? formulas.filter((f) => tautology(f)) : []

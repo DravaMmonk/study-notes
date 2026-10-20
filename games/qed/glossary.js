@@ -21,7 +21,7 @@ export const GLOSSARY = [
     body: [
       T('左边的卡片是<b>前提</b>，右边的是<b>目标</b>。一根线代表「这个命题已经证出来了」：一块元件是一条推理规则，输入是它要的前提，输出是它推出的结论。', 'The cards on the left are the <b>premises</b>, the one on the right the <b>goal</b>. A wire means “this proposition has been proved”: a part is a rule of inference, its inputs the premises it needs, its output the conclusion it draws.'),
       T('卡片上写着它此刻证出的命题。接错了，卡片会说它要什么、接进来的是什么。证完了点「检查证明」。', 'A card shows what it proves right now. Wire it wrong and the card says what it wanted and what it got. When you are done, press “Check proof”.'),
-      T('填公式时可以直接打 ->、&、|、~、<->，会换成 →、∧、∨、¬、↔；也可以点符号键。', 'When typing a formula you can use ->, &, |, ~ and <->, which become →, ∧, ∨, ¬ and ↔; or tap the symbol keys.'),
+      T('卡片上要填一句话时，讲具体事情的关从这一关出现过的句子里选；用字母的关直接打，->、&、|、~、<-> 会换成 →、∧、∨、¬、↔。', 'Where a card needs a sentence, levels about everyday things let you pick from the sentences in the level; levels in letters let you type it, and ->, &, |, ~ and <-> become →, ∧, ∨, ¬ and ↔.'),
     ],
     see: ['box', 'lemma'],
   },
@@ -44,14 +44,14 @@ export const GLOSSARY = [
   {
     id: 'hilbert', group: 'logic', title: T('公理与分离', 'Axioms and Detach'), at: 'k',
     body: [
-      T('初号是一个<b>希尔伯特系统</b>：只有一条规则——分离（由 A → B 和 A 得 B），加上两条公理模式 K：A → (B → A) 和 S：(A → (B → C)) → ((A → B) → (A → C))。', 'Mark I is a <b>Hilbert system</b>: one rule, Detach (from A → B and A, B), and two axiom schemas, K: A → (B → A), and S: (A → (B → C)) → ((A → B) → (A → C)).'),
-      T('公理模式里的 A、B、C 可以换成任何命题，每换一次就是一条公理。', 'The A, B and C of a schema can be any propositions; each choice is one axiom.'),
+      T('初号是一个<b>希尔伯特系统</b>：只有一条规则「分离」（由 X → Y 和 X 得 Y），加上两条公理模式 K：X → (Y → X) 和 S：(X → (Y → Z)) → ((X → Y) → (X → Z))。', 'Mark I is a <b>Hilbert system</b>: one rule, Detach (from X → Y and X, Y), and two axiom schemas, K: X → (Y → X), and S: (X → (Y → Z)) → ((X → Y) → (X → Z)).'),
+      T('公理模式里的 X、Y、Z 可以换成任何一句话，每换一次就是一条公理。', 'The X, Y and Z of a schema can be any sentences; each choice is one axiom.'),
     ],
     see: ['deduction'],
   },
   {
     id: 'lemma', group: 'logic', title: T('引理', 'Lemmas'), at: 'identity',
-    body: [T('证过一次的命题可以当规则一直用下去，这叫<b>引理</b>。你证出的 A → A 成了元件「恒等」，A → B、B → C 推出 A → C 成了元件「串联」。', 'A statement proved once can be used as a rule from then on: a <b>lemma</b>. Your A → A became the part Identity, and A → C from A → B and B → C became the part Chain.')],
+    body: [T('证过一次的命题可以当规则一直用下去，这叫<b>引理</b>。你证出的 A → A 成了元件「恒等」，「下雨 → 地湿、地湿 → 路滑，所以下雨 → 路滑」成了对任何句子都能用的元件「串联」。', 'A statement proved once can be used as a rule from then on: a <b>lemma</b>. Your A → A became the part Identity, and “rain wets the ground, a wet ground makes the road slippery, so rain makes the road slippery” became Chain, which works for any sentences.')],
     see: ['board'],
   },
   {
