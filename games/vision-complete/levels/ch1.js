@@ -32,7 +32,7 @@ const hblur = {
   hint: { zh: '你需要「往左挪一格」的图、「往右挪一格」的图和原图。', en: 'You need the image shifted one pixel left, the image shifted one pixel right, and the original.' },
   after: { zh: '输出不再只看自己，而是看邻居的加权和。这就是滤波。', en: 'The output no longer looks only at its own pixel, but at a weighted sum of its neighbours. This is filtering.' },
   unlocks: ['blur3h'],
-  palette: ['shift', 'arith', 'merge', 'const'],
+  adds: ['arith', 'merge'],
   tests: each(scenes(), (img) => correlate(img, H3)),
   hidden: each([[{ zh: '挪开的字母 F', en: 'Shifted letter F' }, P.glyph(GLYPHS.F, 0.1, 0.9, 5, 2)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(11)]], (img) => correlate(img, H3)),
   solution: build({ l: ['shift', { dir: '←' }], r: ['shift', { dir: '→' }], a: ['arith', { op: 'add' }], b: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 1 / 3 }] }, ['in>l', 'in>r', 'l>a.a', 'r>a.b', 'a>b.a', 'in>b.b', 'b>k.a', 'k>out', 'kN>k.b']),
@@ -45,7 +45,6 @@ const vblur = {
   brief: { zh: '每个像素换成它和上下两个邻居的平均。', en: 'Replace each pixel with the average of itself and its neighbours above and below.' },
   after: { zh: '同一个想法换一个方向。横着平均抹平左右的毛刺，竖着平均抹平上下的。', en: 'The same idea in another direction. Averaging across smooths out spikes from side to side; averaging down smooths them from top to bottom.' },
   unlocks: [],
-  palette: ['shift', 'arith', 'merge', 'const', 'blur3h'],
   tests: each(scenes().slice(0, 4), (img) => correlate(img, V3)),
   hidden: each([[{ zh: '横条', en: 'Horizontal bar' }, P.stepY(9)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(12)]], (img) => correlate(img, V3)),
   solution: build({ u: ['shift', { dir: '↑' }], d: ['shift', { dir: '↓' }], a: ['arith', { op: 'add' }], b: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 1 / 3 }] }, ['in>u', 'in>d', 'u>a.a', 'd>a.b', 'a>b.a', 'in>b.b', 'b>k.a', 'k>out', 'kN>k.b']),
@@ -60,7 +59,6 @@ const boxBlur = {
   hint: { zh: '九个格子挨个加要 8 次加法。3×3 的方块，能不能拆成几步更小的平均？', en: 'Adding up nine cells one by one takes 8 additions. Can the 3×3 block be split into a few smaller averages?' },
   after: { zh: '先横后竖，九次乘加变成六次。核能拆成一行乘一列时就能这样省，这叫可分离滤波；核越大省得越多。', en: 'Horizontal first, then vertical: nine multiply-adds become six. You can save like this whenever a kernel splits into a row times a column. This is separable filtering; the bigger the kernel, the more you save.' },
   unlocks: ['box3'],
-  palette: ['shift', 'arith', 'merge', 'const', 'blur3h'],
   constraint: (score) => (score.cost > 6 ? { zh: `计算量 ${score.cost}，超过 6`, en: `Cost ${score.cost}, over 6` } : ''),
   tests: each(scenes(), (img) => box(img)),
   hidden: each([[{ zh: '挪开的字母 L', en: 'Shifted letter L' }, P.glyph(GLYPHS.L, 0.1, 0.9, 2, 5)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(13)]], (img) => box(img)),
@@ -101,7 +99,6 @@ const rounder = {
   hint: { zh: '一次平均太“方”。多来几次会怎样？', en: 'One average is too "square". What happens if you do it a few more times?' },
   after: { zh: '平均一次是方的，平均三次几乎就是高斯了。平滑叠平滑会越来越像高斯，所以高斯在视觉里无处不在。', en: 'Averaging once gives a square; averaging three times is almost a Gaussian. Smoothing on top of smoothing looks more and more like a Gaussian, which is why Gaussians are everywhere in vision.' },
   unlocks: ['gauss'],
-  palette: ['box3', 'arith', 'merge', 'const'],
   check: { tolerance: 0.025 },
   tests: each([[{ zh: '亮点', en: 'Bright dot' }, P.impulse(7, 7)], [{ zh: '方块', en: 'Square' }, P.square(5, 5, 6)], [{ zh: '圆盘', en: 'Disc' }, P.disk(7.5, 7.5, 3.5)]], (img) => correlate(img, GAUSS_TARGET)),
   hidden: each([[{ zh: '偏一边的亮点', en: 'Off-centre bright dot' }, P.impulse(4, 10)], [{ zh: '偏一边的圆盘', en: 'Off-centre disc' }, P.disk(9.5, 6.5, 3)], [{ zh: '字母 T', en: 'Letter T' }, P.glyph(GLYPHS.T)]], (img) => correlate(img, GAUSS_TARGET)),
@@ -122,7 +119,6 @@ const sharpen = {
   brief: { zh: '让细节更清楚：输出 = 原图 + 1.5 ×（原图 − 模糊图）。模糊用 σ = 1 的高斯。', en: 'Make the details clearer: output = original + 1.5 × (original − blurred). Blur with a Gaussian of σ = 1.' },
   after: { zh: '原图减去模糊图，剩下的正是细节（高频）。把细节加回去，图就变“锐”了。', en: 'The original minus the blurred image leaves exactly the detail (the high frequencies). Add the detail back and the image becomes "sharper".' },
   unlocks: ['sharpen'],
-  palette: ['gauss', 'arith', 'merge', 'const'],
   tests: each(scenes().slice(0, 4), sharpened),
   hidden: each([[{ zh: '挪开的字母 L', en: 'Shifted letter L' }, P.glyph(GLYPHS.L, 0.1, 0.9, 5, 4)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(21)]], sharpened),
   solution: build({ g: ['gauss', { sigma: 1 }], d: ['arith', { op: 'sub' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 1.5 }], a: ['arith', { op: 'add' }] }, ['in>g', 'in>d.a', 'g>d.b', 'd>k.a', 'in>a.a', 'k>a.b', 'a>out', 'kN>k.b']),
@@ -137,7 +133,6 @@ const step = {
   brief: { zh: '在亮度突然变化的地方输出变化量：输出 = 右边邻居 − 自己。', en: 'Where the brightness suddenly changes, output the amount of change: output = right neighbour − self.' },
   after: { zh: '边缘就是相邻像素的差。平坦处差为 0，台阶处差最大。「右边邻居 − 自己」只看得见竖着的边；同样的道理，「下边邻居 − 自己」看得见横着的边。两个现在都是现成的元件：真实的边朝哪个方向都有，两个方向都得量。', en: 'An edge is the difference between neighbouring pixels. On flat ground the difference is 0; at a step it is largest. "Right neighbour − self" only sees vertical edges; in the same way, "neighbour below − self" sees horizontal ones. Both are now ready-made parts: real edges run every way, so both directions have to be measured.' },
   unlocks: ['diffx', 'diffy'],
-  palette: ['shift', 'arith', 'merge', 'const'],
   tests: each([[{ zh: '台阶', en: 'Step' }, P.stepX(8)], [{ zh: '方块', en: 'Square' }, P.square()], [{ zh: '斜坡', en: 'Ramp' }, P.rampX()], [{ zh: '字母 L', en: 'Letter L' }, P.glyph(GLYPHS.L)]], diffx),
   hidden: each([[{ zh: '亮到暗的台阶', en: 'Bright-to-dark step' }, P.stepX(5, 0.85, 0.15)], [{ zh: '挪开的字母 F', en: 'Shifted letter F' }, P.glyph(GLYPHS.F, 0.1, 0.9, 6, 4)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(17)]], diffx),
   solution: build({ l: ['shift', { dir: '←' }], d: ['arith', { op: 'sub' }] }, ['in>l', 'l>d.a', 'in>d.b', 'd>out']),
@@ -155,7 +150,6 @@ const noisyEdge = {
   hint: { zh: '差分会把噪声一起放大。在求差之前，能不能先让噪声安静下来？', en: 'Taking a difference amplifies the noise too. Before you take the difference, can you quieten the noise first?' },
   after: { zh: '先平滑、再求导，噪声被压下去，真正的边留下来。这正是 Sobel 算子：一个方向求导，另一个方向平滑。', en: 'Smooth first, then differentiate: the noise is pushed down and the real edge stays. This is exactly the Sobel operator: differentiate in one direction, smooth in the other.' },
   unlocks: ['sobel'],
-  palette: ['box3', 'diffx', 'diffy', 'threshold', 'arith', 'merge', 'const'],
   check: { tolerance: 0.5, mismatches: 4 },
   tests: [[5, 1], [8, 2], [11, 3], [7, 4]].map(([edge, seed]) =>
     test({ zh: `台阶 x=${edge}`, en: `Step x=${edge}` }, { in: addNoise(P.stepX(edge, 0.15, 0.85), seed, 0.22) }, { out: edgeTarget(P.stepX(edge, 0.15, 0.85)) }),
@@ -178,7 +172,6 @@ const weighted = {
   hint: { zh: '先看亮点那一组：一个亮点变成了几个点？各在哪里，各有多亮？', en: 'Look at the bright dot first: how many dots did one dot turn into? Where is each, and how bright?' },
   after: { zh: '亮点被处理成什么样，就是这种处理的「印章」：每个输入像素都盖一个，挪到对应位置、乘上权重再相加。把权重排成 3×3 的小方阵，就是核。从现在起你有了「3×3 核」元件，九个权重一次填好。', en: 'Whatever a bright dot is turned into is the "stamp" of the processing: every input pixel presses one, moved to its place, multiplied by its weight and added up. Arrange the weights in a small 3×3 grid and you have a kernel. From now on you have the "3×3 kernel" part, with all nine weights set at once.' },
   unlocks: ['kernel3'],
-  palette: ['shift', 'arith', 'merge', 'const'],
   tests: each([[{ zh: '亮点', en: 'Bright dot' }, P.impulse(7, 7)], [{ zh: '方块', en: 'Square' }, P.square()], [{ zh: '字母 F', en: 'Letter F' }, P.glyph(GLYPHS.F)]], (img) => convolve(img, STAMP)),
   hidden: each([[{ zh: '挪开的字母 T', en: 'Shifted letter T' }, P.glyph(GLYPHS.T, 0.1, 0.9, 5, 4)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(22)]], (img) => convolve(img, STAMP)),
   solution: build({ u: ['shift', { dir: '↑' }], r: ['shift', { dir: '→' }], rd: ['shift', { dir: '↓' }], a: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 0.5 }] }, ['in>u', 'in>r', 'r>rd', 'u>a.a', 'rd>a.b', 'a>k.a', 'k>out', 'kN>k.b']),
@@ -195,7 +188,6 @@ const guess = {
   hint: { zh: '亮点会变成核的样子。可你的元件是怎样读核的？把你填的核喂一个亮点，看看出来的是什么。', en: 'A bright dot turns into the shape of the kernel. But how does your part read its kernel? Feed a bright dot to the kernel you entered and see what comes out.' },
   after: { zh: '亮点的输出就是核本身（冲激响应）。但它是“卷积”的结果，而你的元件做的是“互相关”：要把核旋转 180° 才对得上。', en: 'The output for a bright dot is the kernel itself (the impulse response). But that is the result of a "convolution", while your part does "cross-correlation": you have to rotate the kernel by 180° to make them match.' },
   unlocks: [],
-  palette: ['kernel3'],
   tests: each([[{ zh: '亮点', en: 'Bright dot' }, P.impulse(7, 7)], [{ zh: '方块', en: 'Square' }, P.square()], [{ zh: '字母 F', en: 'Letter F' }, P.glyph(GLYPHS.F)]], (img) => convolve(img, MYSTERY)),
   hidden: each([[{ zh: '挪开的字母 L', en: 'Shifted letter L' }, P.glyph(GLYPHS.L, 0.1, 0.9, 4, 2)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(23)]], (img) => convolve(img, MYSTERY)),
   solution: build({ k: ['kernel3', { w: flipKernel(MYSTERY) }] }, ['in>k', 'k>out']),
@@ -212,7 +204,6 @@ const pad = {
   unlocks: ['edge-pad'],
   // The border setting is what this level builds by hand, so it stays out of reach here even for a player who has it.
   withhold: ['edge-pad'],
-  palette: ['shift', 'arith', 'merge', 'const'],
   tests: each([[{ zh: '亮条贴左边', en: 'Bright bar on the left edge' }, P.stepX(4, 0.85, 0.2)], [{ zh: '字母 F 贴左边', en: 'Letter F on the left edge' }, P.glyph(GLYPHS.F, 0.15, 0.9, 0, 3)], [{ zh: '方块贴左边', en: 'Square on the left edge' }, P.square(0, 4, 6, 0.1, 0.9)], [{ zh: '斜坡', en: 'Ramp' }, fromFn(16, 16, (x, y) => 0.1 + 0.05 * y)]], (img) => shift(img, 1, 0, 'edge')),
   hidden: each([[{ zh: '随机纹理', en: 'Random texture' }, P.noise(31)], [{ zh: '亮底暗块', en: 'Dark block on bright background' }, P.square(0, 9, 5, 0.85, 0.25)]], (img) => shift(img, 1, 0, 'edge')),
   solution: build({ r: ['shift', { dir: '→' }], l: ['shift', { dir: '←' }], b: ['shift', { dir: '→' }], d: ['arith', { op: 'sub' }], a: ['arith', { op: 'add' }] }, ['in>r', 'in>l', 'l>b', 'in>d.a', 'b>d.b', 'r>a.a', 'd>a.b', 'a>out']),
@@ -230,7 +221,6 @@ const frame = {
   unlocks: ['edge-filter'],
   // The filters' border setting is what this level builds by hand, so it stays out of reach here even for a player who has it.
   withhold: ['edge-filter'],
-  palette: ['box3', 'shift', 'arith', 'merge', 'const'],
   tests: each([[{ zh: '亮底方块', en: 'Square on bright background' }, P.square(5, 5, 6, 0.85, 0.3)], [{ zh: '亮底圆', en: 'Circle on bright background' }, P.disk(7.5, 7.5, 4, 0.9, 0.2)], [{ zh: '亮底字母', en: 'Letter on bright background' }, P.glyph(GLYPHS.T, 0.9, 0.2)]], (img) => box(img, 'edge')),
   hidden: each([[{ zh: '贴边的暗方块', en: 'Dark square on the edge' }, P.square(0, 10, 5, 0.8, 0.3)], [{ zh: '亮底字母 X', en: 'Letter X on bright background' }, P.glyph(GLYPHS.X, 0.75, 0.15, 6, 4)], [{ zh: '亮底竖条', en: 'Vertical bar on bright background' }, P.stepX(13, 0.9, 0.35)]], (img) => box(img, 'edge')),
   solution: build(
@@ -276,7 +266,6 @@ const box5 = (() => {
     hint: { zh: '先横后竖还不够省。数一数电路里有几次加法；平移不花计算量。', en: 'Splitting into across and down is not cheap enough. Count the additions in your circuit; shifting costs nothing.' },
     after: { zh: '两格的和挪两格再加一次，就是四格的和；再补一格就是五格。已经算过的部分和，挪一挪就能再用，平移不花计算量。这个「倍增」的想法以后还会出现：要的范围越大，省得越多。', en: 'The sum of two cells, shifted two along and added again, is the sum of four; one more cell makes five. A partial sum already worked out can be shifted and reused, and shifting costs nothing. This doubling idea will come up again: the bigger the reach, the more it saves.' },
     unlocks: [],
-    palette: ['shift', 'arith', 'merge', 'const', 'blur3h', 'box3'],
     constraint: (score) => (score.cost > 8 ? { zh: `计算量 ${score.cost}，超过 8`, en: `Cost ${score.cost}, over 8` } : ''),
     tests: each([[{ zh: '方块', en: 'Square' }, P.square(4, 4, 8, 0, 0.9)], [{ zh: '亮点', en: 'Bright dot' }, P.impulse(7, 7)], [{ zh: '字母 T', en: 'Letter T' }, P.glyph(GLYPHS.T, 0, 0.9, 5, 5, 1)]], (img) => correlate(img, BOX5)),
     hidden: each([[{ zh: '圆盘', en: 'Disc' }, P.disk(7.5, 7.5, 3.5, 0, 0.9)], [{ zh: '随机纹理', en: 'Random texture' }, margined(P.noise(24))]], (img) => correlate(img, BOX5)),
@@ -309,7 +298,6 @@ const edges = (img) => map(sobel2(img, 'edge'), (v) => (v > EDGE_T ? 1 : 0))
 const paperEdges = (img) => map(sobel2(correlate(img, gaussianKernel(BLUR), 'edge'), 'edge'), (v) => (v > BLUR_T ? 1 : 0))
 const denoised = (img) => correlate(img, gaussianKernel(1), 'edge')
 
-const SCAN_PALETTE = ['gauss', 'box3', 'sharpen', 'sobelx', 'sobely', 'diffx', 'diffy', 'arith', 'merge', 'const', 'threshold']
 const sobelGraph = (border, t, blur) => build(
   { ...(blur ? { g: ['gauss', { sigma: blur, border: 'edge' }] } : {}), x: ['sobelx', { border }], y: ['sobely', { border }], xx: ['arith', { op: 'mul' }], yy: ['arith', { op: 'mul' }], a: ['arith', { op: 'add' }], t: ['threshold', { t }] },
   [...(blur ? ['in>g', 'g>x', 'g>y'] : ['in>x', 'in>y']), 'x>xx.a', 'x>xx.b', 'y>yy.a', 'y>yy.b', 'xx>a.a', 'yy>a.b', 'a>t', 't>out'],
@@ -323,7 +311,6 @@ const clean = {
   hint: { zh: '期望图并不比原件更清楚，只是没有颗粒。图边上的纸不能变黑。', en: 'The expected image is no sharper than the original, it just has no grain. Paper at the image border must not turn dark.' },
   after: { zh: '一点模糊换来安静的图，后面的步骤才不会被颗粒骗。图边要复制边缘，不然纸贴着边时会多出一圈暗框。', en: 'A little blur buys a quiet image, so the later steps are not fooled by grain. The border must replicate the edge, or paper touching it gains a dark frame.' },
   unlocks: [],
-  palette: SCAN_PALETTE,
   check: { tolerance: 0.1, mismatches: 8 },
   tests: [
     [{ zh: '一张纸', en: 'A sheet' }, { x0: 3, y0: 4, x1: 19, y1: 21, lines: [[6, 8, 10], [6, 11, 8], [6, 14, 11]], noise: 0.2, seed: 2 }],
@@ -353,7 +340,6 @@ const border = {
   hint: { zh: '纸一直铺到图边时，Sobel 在图外看到的是什么？', en: 'When paper runs right up to the image border, what does Sobel see beyond it?' },
   after: { zh: '补 0 让图外变成黑桌面，纸在图边就「断」了，冒出一条假边。复制边缘让纸自然延伸出去，只有真的纸边才亮。', en: 'Padding with 0 turns the outside into a black desk, so the paper "ends" at the image border and a fake edge appears. Replicating the edge lets the paper carry on outward, so only real paper edges light up.' },
   unlocks: [],
-  palette: SCAN_PALETTE,
   check: { tolerance: 0.02, mismatches: 2 },
   tests: [
     [{ zh: '整张纸', en: 'A whole sheet' }, { x0: 4, y0: 4, x1: 19, y1: 19 }],
@@ -378,7 +364,6 @@ const scanner = {
   hint: { zh: '前两关各解决了一件事，这次纸上还有字。字的笔画只有一格粗，纸边却是一大片亮挨着一大片暗。', en: 'Each of the last two levels solved one thing, and this time there is text on the paper too. Text strokes are one pixel thick, while a paper edge is a large bright area beside a large dark one.' },
   after: { zh: '大一点的高斯模糊把噪点和细笔画都糊成一片浅灰，几乎没有坡度；纸边是大块明暗的交界，糊了还是一道坡。看多粗的东西，就先模糊到多粗：这个「尺度」的想法后面会一再出现。扫描 App 找纸张四边，第一步就是这样一条流水线：模糊掉噪声和字，在不制造假边的前提下求梯度，再取阈值。找到的边，后面再拟合成四条直线，就能把斜拍的纸拉正。', en: 'A larger Gaussian blur turns the grain and the thin strokes into a faint grey with almost no slope, while a paper edge, where large areas of light and dark meet, is still a slope after blurring. To look for things of a certain size, blur to that size first: this idea of "scale" will keep coming back. A scanning app finding the four sides of a page starts with exactly this pipeline: blur away the noise and the text, take gradients without inventing edges at the border, then threshold. The edges found are later fitted with four straight lines, so a page photographed at an angle can be straightened.' },
   unlocks: [],
-  palette: SCAN_PALETTE,
   check: { tolerance: 0.02, mismatches: 8 },
   tests: [
     [{ zh: '一页字', en: 'A page of text' }, { x0: 4, y0: 4, x1: 19, y1: 19, lines: textLines, noise: 0.15, seed: 7 }],

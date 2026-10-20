@@ -5,7 +5,7 @@ import Library, { store, useSeen } from './Library.jsx'
 
 // The components box (元件箱), laid out like the encyclopedia: every part the game has, in the order it is earned,
 // each with what it does and a bench to try it on. A game's `parts` brings
-// { all: [{ key, name, desc?, icon?, family? }], earned(progress) → [key], demo?(part, { phone }) → React node,
+// { all: [{ key, name, desc?, icon?, family? }], demo?(part, { phone }) → React node,
 //   filters?(progress) → [{ key, name, icon?, lock?, keys }] }: the demo is a small circuit with the part at its
 // centre that the player can change and run (games/kit/circuit DemoBench), on the desktop board or, on a phone, the
 // phone one. A filter narrows the box to `keys` (a Set), such as the parts one robot can use; `icon` is SVG markup

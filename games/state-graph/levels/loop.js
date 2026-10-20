@@ -4,7 +4,6 @@
 import { circ, hasKind, usesSensor } from '../../kit/domains/table/circuit/components.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 /** A map's bottom row and right column: the cliffs along its edge. */
 const rim = (R, C) => [...Array.from({ length: C }, (_, c) => [R - 1, c]), ...Array.from({ length: R - 1 }, (_, r) => [r, C - 1])];
 
@@ -16,7 +15,7 @@ export const loopLevels = [
       { t: T('每一格的价值 = 往右、往下两格里较好的那个，<b>打个九折</b>。', 'Each cell’s value = the better of the cells to the right and below, <b>discounted to 90%</b>.') },
     ],
     mission: { goal: T('算出每一格的价值：往右、往下两格里较好的那个 × 0.9。', 'Work out the value of every cell: the better of right and down × 0.9.'), how: T('机器人一轮一轮地扫，直到表不再变。答案看起点那一格。', 'The robot scans in rounds until the table stops changing. The answer is the start cell.') },
-    world: 'vgrid', facts: [], palette: [...KIT, 'mul'], consts: [0, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
+    world: 'vgrid', facts: [], consts: [0, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
     tests: [{ R: 5, C: 6, gold: [3, 4], cliffs: [...rim(5, 6), [1, 2]], rd: true }, { R: 4, C: 5, gold: [2, 3], cliffs: rim(4, 5), rd: true }],
     solution: circ([['d', 'bp:value', 0.9]], ['tap:right>d:0', 'tap:down>d:1', 'd>out:cell']),
     hints: [T('只能往右或往下：右边、下面接进「取较大」，再乘 0.9。', 'Right or down only: wire right and down into a max, then multiply by 0.9.')],
@@ -30,7 +29,7 @@ export const loopLevels = [
       { t: T('本格信息里有<b>打滑的可能</b>和<b>站稳的可能</b>（两个加起来是 1）。往右 = 站稳 × 右边 + 打滑 × 下面；往下反过来。', 'This cell’s facts include its <b>chance to slip</b> and its <b>chance to hold</b> (they add up to 1). Going right = hold × right + slip × down; going down is the other way round.') },
     ],
     mission: { goal: T('算出每一格的价值：两个动作里较好的那个 × 0.9，每个动作按这一格的打滑可能加权。', 'Work out every cell’s value: the better of the two moves × 0.9, each move weighted by this cell’s chance to slip.'), how: T('打滑的可能因格子而异：读本格信息，别用常数。', 'The chance to slip changes from cell to cell: read it from the cell’s facts, not from a Constant.') },
-    world: 'vgrid', facts: ['slip', 'grip'], palette: [...KIT, 'mul'], consts: [0, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
+    world: 'vgrid', facts: ['slip', 'grip'], consts: [0, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
     tests: [
       { R: 5, C: 6, gold: [3, 4], cliffs: rim(5, 6), ice: [[0, 2, 0.3], [1, 1, 0.4], [2, 4, 0.3], [3, 3, 0.2], [3, 2, 0.5]] },
       { R: 5, C: 5, gold: [2, 3], cliffs: [...rim(5, 5), [1, 3]], ice: [[0, 1, 0.2], [1, 1, 0.4], [1, 2, 0.4], [2, 2, 0.3], [3, 1, 0.5]] },

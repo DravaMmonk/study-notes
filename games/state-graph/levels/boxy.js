@@ -4,7 +4,6 @@
 import { circ, hasKind, usesSensor } from '../../kit/domains/table/circuit/components.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 
 export const boxy = [
   {
@@ -13,7 +12,7 @@ export const boxy = [
       { t: T('每个路口上放着一些金币，就是格子左上角的数字。只能往右或往下走，经过的路口，金币都归你，起点和终点也算。', 'Every crossing holds some gold coins: the number in each cell’s top-left corner. You may only go right or down, and you keep the coins at every crossing you pass through, start and end included.') },
     ],
     mission: { goal: T('从左上走到右下，最多能捡到多少金币？', 'Going from the top left to the bottom right, how many coins can you collect at most?'), how: T('还是逐行、从左上开始算。', 'Still row by row, from the top left.') },
-    world: 'grid', facts: ['start', 'coin'], palette: KIT,
+    world: 'grid', facts: ['start', 'coin'],
     tests: [
       { R: 3, C: 3, coins: [[1, 3, 1], [1, 5, 1], [4, 2, 1]] },
       { R: 3, C: 4, coins: [[2, 0, 0, 5], [0, 9, 0, 0], [3, 0, 1, 2]] },
@@ -34,7 +33,7 @@ export const boxy = [
       { t: T('表的形状也变成了三角形：每一层只有那么几格。', 'The table becomes a triangle too: each row has only so many cells.') },
     ],
     mission: { goal: T('走到最后一层的指定那块砖，一共有几条路？', 'How many ways are there down to the given brick of the last row?'), how: T('一层一层、从左往右算。', 'Row by row, left to right.') },
-    world: 'tri', facts: ['start'], palette: ['msum', 'const', 'pass'],
+    world: 'tri', facts: ['start'],
     tests: [{ R: 5, k: 2 }, { R: 7, k: 3 }, { R: 6, k: 1 }],
     solution: circ([['c', 'bp:stamp']], ['tap:up>c:0', 'tap:ul>c:1', 'tap:start>c:2', 'c>out:cell']),
     hints: [
@@ -50,7 +49,7 @@ export const boxy = [
       { t: T('这座城市的路口既要花体力，有的还塌成了坑，根本过不去。', 'In this city every crossing costs energy, and some have caved in and can’t be passed at all.') },
     ],
     mission: { goal: T('只能往右或往下走，绕开所有的坑。从左上走到右下，最少要花多少体力？', 'Only right or down, avoiding every pit. Going from the top left to the bottom right, what is the least energy you can spend?'), how: T('坑画成石头的样子。', 'Pits are drawn like rocks.') },
-    world: 'grid', facts: ['start', 'cost', 'rock'], palette: [...KIT, 'bp:cheapest'],
+    world: 'grid', facts: ['start', 'cost', 'rock'],
     tests: [
       { R: 3, C: 3, costs: [[1, 1, 4], [5, 2, 1], [3, 1, 1]], rocks: [[1, 1]] },
       { R: 3, C: 4, costs: [[2, 1, 1, 3], [1, 6, 2, 1], [4, 1, 2, 1]], rocks: [[0, 2], [2, 1]] },
@@ -71,7 +70,7 @@ export const boxy = [
       { t: T('地的上边和左边围着一圈 0，表示地外。答案是正方形的边长。', 'The field is ringed above and to the left by 0s, meaning outside the field. The answer is the square’s side.') },
     ],
     mission: { goal: T('算出最大的正方形草坪的边长。', 'Work out the side of the biggest square lawn.'), how: T('答案是整张表里最大的数。', 'The answer is the largest number anywhere in the table.') },
-    world: 'lawn', facts: ['open'], palette: KIT,
+    world: 'lawn', facts: ['open'],
     tests: [
       { R: 4, C: 4, trees: [[1, 3], [4, 1]] },
       { R: 4, C: 5, trees: [[2, 2], [1, 5], [4, 4]] },

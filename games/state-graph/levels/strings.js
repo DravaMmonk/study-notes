@@ -5,7 +5,6 @@ import { circ, partFn } from '../../kit/domains/table/circuit/components.js';
 import { lcsTable, lcsTrace, editTable, editTrace } from '../../kit/domains/table/algo.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 const passed = view => !!view && view.end && view.pass;
 
 export const strings = [
@@ -33,7 +32,7 @@ export const strings = [
       { t: T('机器人在对齐表上一格一格地走，视野里看得见它左上、上面、左边的格子（标着 = 的格子，这一行和这一列的字相同）。「本格信息」里的「两字相同」告诉你，红框这一行和这一列的字是不是一样。想清楚两种情况各该读哪一格，再拼电路板。', 'The robot walks the alignment table cell by cell, and its view shows the cells up-left, up and left of it (a cell marked = is one where the row’s letter and the column’s letter match). In the This cell panel, “letters match” tells you whether the red frame’s row letter and column letter are the same. Work out which cell each case should read, then build the board.') },
     ],
     mission: { goal: T('拼出对齐表的电路，算出两个词最长的公共子序列有几个字（两个词里按顺序都出现的一串字）。', 'Build the alignment table’s circuit and work out the length of the longest common subsequence of two words (letters that appear in order in both).'), how: T('前两个测试，就是你上一关亲手连过的两道题。通过后，看看表格里藏着的连线。', 'The first two tests are the two puzzles you solved by hand last level. Once you pass, look at the lines hidden in the table.') },
-    world: 'align', border0: true, facts: ['same'], palette: KIT,
+    world: 'align', border0: true, facts: ['same'], 
     tests: [{ top: 'CABD', left: 'ABCD' }, { top: 'ABCBDAB', left: 'BDCABA' }, { top: 'GATTACA', left: 'CATTAG' }],
     solution: circ([['k', 'const', 1], ['a', 'add'], ['g', 'pass'], ['m', 'mmax']], ['tap:ul>a:0', 'k>a:1', 'tap:same>g:0', 'a>g:1', 'tap:up>m:0', 'tap:left>m:1', 'g>m:2', 'm>out:cell']),
     hints: [
@@ -67,7 +66,7 @@ export const strings = [
       { t: T('这一次，第 0 行和第 0 列<b>没有现成的数</b>，也要由电路来算。想一想：把原词的前 3 个字改成空词，要几步？两边都是空词时呢？', 'This time, row 0 and column 0 <b>have no ready-made numbers</b>; the circuit has to compute them too. Think: how many steps turn the first 3 letters of the original into an empty word? And when both words are empty?') },
     ],
     mission: { goal: T('每一步只能删掉、插入或替换一个字。拼出改错字的电路，算出把一个词改成另一个词的最少步数。', 'Each step deletes, inserts or replaces one letter. Build the typo-fixing circuit and work out the fewest steps that turn one word into another.'), how: T('这块电路板要用到好几个元件。通过后，看看表格倒推出的具体改法。', 'This board needs quite a few components. Once you pass, look at the exact edits the table traces back.') },
-    world: 'align', border0: false, facts: ['same', 'start'], palette: KIT,
+    world: 'align', border0: false, facts: ['same', 'start'], 
     tests: [{ left: 'CAT', top: 'CUT' }, { left: 'HORSE', top: 'ROS' }, { left: 'KITTEN', top: 'SITTING' }],
     testLabel: t => `${t.left} → ${t.top}`,
     solution: circ([['k', 'const', 1], ['n', 'mmin'], ['a', 'add'], ['z', 'const', 0], ['g0', 'pass'], ['g1', 'pass'], ['m', 'mmin']], [

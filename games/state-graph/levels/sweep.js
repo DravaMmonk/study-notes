@@ -4,7 +4,6 @@ import { houseRow, lettersFig, rowFig } from '../../kit/domains/table/svg.js';
 import { circ, usesSensor } from '../../kit/domains/table/circuit/components.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 export const sweep = [
   {
     id: 'prefix', ch: 11, title: T('前面所有的', 'Everything before'), short: T('扫描臂一次读一整段', 'A sweep arm reads a whole run at once'), mode: 'circuit', robot: 'broom',
@@ -18,13 +17,13 @@ export const sweep = [
     testLabel: t => tr(`${t.a.length} 户人家`, `${t.a.length} houses`),
     stages: [
       {
-        world: 'prefix', facts: ['money'], palette: KIT, checkAll: true, ask: T('用扫描臂把 1 号到这一家的钱一次扫进来，加起来。', 'Use the sweep arm to bring in the money from house 1 to this one in one go, and add it up.'),
+        world: 'prefix', facts: ['money'], checkAll: true, ask: T('用扫描臂把 1 号到这一家的钱一次扫进来，加起来。', 'Use the sweep arm to bring in the money from house 1 to this one in one go, and add it up.'),
         solution: circ([['m', 'msum']], ['tap:seg>m:0', 'm>out:cell']),
         hints: [T('在视野下面点「扫描臂」，读它扫过的那一整段。', 'Click the “Sweep arm” under the view to read the whole run it passes over.'), T('把这一整段接进「加起来」汇合器，再接到本格。', 'Wire the whole run into a “sum” Merger, then wire that to this cell.')],
         done: { head: T('扫出来了', 'Swept'), body: [T('可是扫描臂每到一家，都要从 1 号重新扫一遍：第 100 家要读 100 格。', 'But at every house, the sweep arm sweeps again from house 1: house 100 means reading 100 cells.'), T('<b>左边那一格，不是已经存着「到上一家一共多少」了吗？</b>下一阶段，扫描臂收起来了。', '<b>Doesn’t the cell on the left already hold “the total up to the previous house”?</b> In the next stage, the sweep arm is folded away.')] },
       },
       {
-        world: 'prefix', facts: ['money'], palette: KIT, checkAll: true, noArm: true, ask: T('扫描臂收起来了：只用左边一格和这家的钱。', 'The sweep arm is folded away: use only the cell on the left and this house’s money.'),
+        world: 'prefix', facts: ['money'], checkAll: true, noArm: true, ask: T('扫描臂收起来了：只用左边一格和这家的钱。', 'The sweep arm is folded away: use only the cell on the left and this house’s money.'),
         solution: circ([['a', 'add']], ['tap:prev>a:0', 'tap:money>a:1', 'a>out:cell']),
         hints: [T('到这一家一共的钱 = 到上一家一共的钱 + 这家的钱。', 'Total up to this house = total up to the previous house + this house’s money.'), T('读「上一格」和「这家的钱」，接进加法器。', 'Read “previous” and “this house’s money”, and wire them into an Adder.')],
       },
@@ -41,7 +40,7 @@ export const sweep = [
       { t: T('最左边那个「起」格，当它是一根比谁都矮的柱子，存着 0：接在它后面，就表示这一根是第一根。这台机器的扫描臂带着<b>筛选</b>：只留比这一根矮的柱子，筛掉的格子在视野里是暗的。', 'Treat the “S” cell on the far left as a post shorter than all the others, holding 0: coming after it means this post is the first. This machine’s sweep arm has a <b>filter</b>: it keeps only the posts shorter than this one, and the cells it drops are dimmed in the view.') },
     ],
     mission: { goal: T('从左往右挑柱子，要一根比一根高（可以跳过）。算出每根柱子作为最后一根时最多能连几根，整排的答案是其中最大的。', 'Pick posts from left to right, each taller than the last (skipping is allowed). For each post, work out the longest run that ends with it; the answer for the row is the largest of these.'), how: T('这一关会检查整行。扫描臂只送来比这一根矮的柱子，被筛掉的格子是暗的。', 'This level checks the whole row. The sweep arm only brings in posts shorter than this one; the cells it filters out are dimmed.') },
-    world: 'heights', facts: ['money'], palette: KIT, checkAll: true, solutionFilter: 'lower',
+    world: 'heights', facts: ['money'], checkAll: true, solutionFilter: 'lower',
     tests: [{ a: [3, 1, 4, 1, 5, 9, 2, 6] }, { a: [5, 4, 3, 2, 1] }, { a: [2, 6, 3, 4, 1, 7, 5] }],
     solution: circ([['m', 'mmax'], ['k', 'const', 1], ['a', 'add']], ['tap:seg>m:0', 'm>a:0', 'k>a:1', 'a>out:cell']),
     hints: [T('这一根前面可以接任何一根，只要比它矮：点扫描臂，它只会送来比这一根矮的柱子。', 'This post can follow any post shorter than it: click the sweep arm, and it brings in only the posts shorter than this one.'), T('在留下的格子里挑最大的，再算上这一根自己：取较大，然后 + 1。', 'Pick the largest of the cells that remain, then count this post itself: max, then + 1.')],
@@ -59,13 +58,13 @@ export const sweep = [
     testLabel: t => tr(`${t.n} 元 · ${t.coins.join('、')} 元硬币`, `${t.n} yuan · ${t.coins.join(', ')} yuan coins`),
     stages: [
       {
-        world: 'coins', facts: ['ground'], palette: KIT, ask: T('最少要几枚硬币？', 'What is the fewest coins needed?'),
+        world: 'coins', facts: ['ground'], ask: T('最少要几枚硬币？', 'What is the fewest coins needed?'),
         solution: circ([['a', 'add'], ['k', 'const', 1], ['m', 'mmin'], ['z', 'const', 0], ['g', 'pass']], ['tap:seg>a:0', 'k>a:1', 'a>m:0', 'tap:ground>g:0', 'z>g:1', 'g>m:1', 'm>out:cell']),
         hints: [T('最后一枚可能是任何一种硬币：点扫描臂，它送来付这一枚之前（每种硬币各退一枚之后）的格子。', 'The last coin can be any kind: click the sweep arm, which sends the cells from before paying it (one coin of each kind stepped back).'), T('加法器能给一整段的每个数都 + 1（算上最后这一枚），再接「取较小」。', 'An Adder can + 1 to every number in a whole run (counting this last coin), then wire it into “min”.'), T('0 元不需要硬币：「是 0 元」放行一个 0。', '0 yuan needs no coins: let a 0 through on “is 0 yuan”.')],
         done: { head: T('最少几枚算好了', 'Fewest coins done'), body: [T('同一张表，换个问题：一共有几种付法？想想要换哪个元件。', 'Same table, a different question: how many ways are there to pay? Think about which component to swap.')] },
       },
       {
-        world: 'coins', facts: ['ground'], palette: KIT, carry: true, ask: T('一共有几种付法？先付哪一枚，算不同的付法。', 'How many ways are there to pay? Paying the coins in a different order counts as a different way.'),
+        world: 'coins', facts: ['ground'], carry: true, ask: T('一共有几种付法？先付哪一枚，算不同的付法。', 'How many ways are there to pay? Paying the coins in a different order counts as a different way.'),
         solution: circ([['m', 'msum'], ['k', 'const', 1], ['g', 'pass']], ['tap:seg>m:0', 'tap:ground>g:0', 'k>g:1', 'g>m:1', 'm>out:cell']),
         hints: [T('最后一枚是哪一种都行，每种都算。', 'The last coin can be any kind, and each kind counts.'), T('0 元算一种付法（什么也不付）：「是 0 元」放行一个 1。这次不用 + 1 了。', '0 yuan counts as one way to pay (paying nothing): let a 1 through on “is 0 yuan”. No + 1 this time.')],
       },
@@ -80,7 +79,7 @@ export const sweep = [
       { t: T('只看最后一块：它从前面某个切点开始，到这里结束。扫描臂扫过前面每个切点，一次送来<b>两段</b>：切点那里的格子，和从那里到这里那一块的代价。这一关，那一块是词就算 1，不是词就是「—」。', 'Look only at the last piece: it starts at some earlier cut and ends here. The sweep arm sweeps every earlier cut and brings <b>two runs</b> at once: the cell at each cut, and what the piece from there to here costs. In this level a piece that is a word costs 1, and one that isn’t is “—”.') },
     ],
     mission: { goal: T('算出每串字母最少切成几块词典里的词。', 'Work out the fewest dictionary words each string can be cut into.'), how: T('词典写在测试旁边。', 'The dictionary is shown next to the tests.') },
-    world: 'pieces', facts: ['ground'], palette: KIT,
+    world: 'pieces', facts: ['ground'], 
     tests: [{ s: 'catsanddog', dict: ['cat', 'cats', 'and', 'sand', 'dog'] }, { s: 'penpineapple', dict: ['pen', 'pine', 'apple', 'pineapple'] }, { s: 'wordbreaking', dict: ['word', 'break', 'breaking', 'wordbreak', 'king', 'in', 'g'] }],
     testLabel: t => t.s,
     after: t => `<div class="afterbox"><span class="eyebrow">${tr('词典', 'Dictionary')}</span><div class="diff">${(Array.isArray(t.dict) ? t.dict : Object.keys(t.dict)).map(w => `<span class="dt">${w}${Array.isArray(t.dict) ? '' : ` · ${t.dict[w]}`}</span>`).join('')}</div></div>`,

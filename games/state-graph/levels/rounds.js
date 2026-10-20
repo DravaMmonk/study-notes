@@ -6,7 +6,6 @@ import { WAY } from '../../kit/domains/table/ports.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
 const TREASURE = T('宝藏', 'treasure');
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 const SNAKE = [[1, 1, 1, 1, 1], [9, 9, 9, 9, 1], [1, 1, 1, 1, 1], [1, 9, 9, 9, 9], [1, 1, 1, 1, 1]];
 const SNAKE2 = [[1, 1, 1], [9, 9, 1], [1, 1, 1], [1, 9, 9], [1, 1, 1]];
 const row = vals => ({ cells: vals.map((v, i) => ({ id: `v${i}`, x: i * 62, y: 0, w: 54, h: 54, value: v, label: i ? '' : TREASURE, cls: i ? 'lit' : 'gold' })), edges: [] });
@@ -23,7 +22,7 @@ export const rounds = [
       { t: T('运行时，黄框是这一轮里变了的格子。看看一共要扫几轮。', 'While it runs, yellow frames mark the cells this round has changed. See how many rounds it takes.') },
     ],
     mission: { goal: T('可以往上下左右走，每进入一个路口都要花它角上的体力（起点也算）。算出从左上到右下最少要花多少体力。', 'You can move up, down, left or right, and entering each crossing costs the energy in its corner (the start counts too). Work out the least energy it takes to get from the top left to the bottom right.'), how: T('机器人会一轮一轮地扫，直到表不再变。这一关会检查整张表。', 'The robot scans round after round until the table stops changing. This level checks the whole table.') },
-    world: 'grid', facts: ['start', 'cost'], palette: KIT, rounds: true,
+    world: 'grid', facts: ['start', 'cost'], rounds: true,
     tests: [{ R: 5, C: 5, costs: SNAKE }, { R: 5, C: 3, costs: SNAKE2 }],
     solution: circ([['a', 'mmin'], ['b', 'mmin'], ['z', 'const', 0], ['g', 'pass'], ['p', 'add']], ['tap:up>a:0', 'tap:down>a:1', 'tap:left>a:2', 'a>b:0', 'tap:right>b:1', 'tap:start>g:0', 'z>g:1', 'g>b:2', 'b>p:0', 'tap:cost>p:1', 'p>out:cell']),
     hints: [T('四个方向都可能是来路：上、下、左、右都接进「取较小」。一个汇合器只有三个口，就用两个串起来。', 'Any of the four directions can be a way in: wire up, down, left and right into “min”. A Merger has only three inputs, so chain two of them.'), T('最后加上本格体力。起点的邻居一开始都是「—」，用放行闸在起点送一个 0 进去。', 'Finally add the cell energy. The start’s neighbours all begin as “—”, so use a Pass gate to let a 0 in at the start.')],
@@ -38,7 +37,7 @@ export const rounds = [
       { t: T('一开始每一格都是 0。机器人会一轮一轮地扫，直到整张表不再变。', 'Every cell starts at 0. The robot scans round after round until the whole table stops changing.') },
     ],
     mission: { goal: T('每一格的价值 = 四个邻居里最大的价值 × 0.9。宝藏是 10，陷阱是 −10，墙不能走。算出每一格的价值。', 'Each cell’s value = the largest value among its four neighbours × 0.9. Treasure is 10, traps are −10, and walls can’t be entered. Work out the value of every cell.'), how: T('这一关会检查整张表。常数放上电路板后，点它可以改成 0.9。', 'This level checks the whole table. Once a Constant is on the board, click it to change it to 0.9.') },
-    world: 'vgrid', facts: [], palette: [...KIT, 'mul'], consts: [0, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
+    world: 'vgrid', facts: [], consts: [0, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
     tests: [
       { R: 5, C: 6, gold: [0, 5], traps: [[1, 4], [3, 2]], walls: [[1, 1], [2, 1], [2, 3], [2, 4], [4, 4]] },
       { R: 4, C: 5, gold: [3, 4], traps: [[2, 3]], walls: [[1, 1], [1, 2], [3, 2]] },
@@ -47,7 +46,7 @@ export const rounds = [
     hints: [T('四个邻居都接进「取较大」：一个汇合器只有三个口，就用两个串起来。', 'Wire all four neighbours into “max”: a Merger has only three inputs, so chain two of them.'), T('最大的那个再乘 0.9：乘法器一边接最大值，一边接常数 0.9。', 'Then multiply the largest by 0.9: wire the max into one side of a Multiplier and a Constant 0.9 into the other.')],
     diagnose: c => (!hasKind(c, 'mul') ? tr('每远一步要打个九折：用乘法器把最大的邻居乘上 0.9。', 'Each step further away is discounted by 10%: use a Multiplier to multiply the best neighbour by 0.9.') : null),
     // The best of up to four ways in, discounted by the number set on its card.
-    unlock: 'value', blueprint: { ports: [WAY(0, 'up'), WAY(1, 'down'), WAY(2, 'left'), WAY(3, 'right')], value: 0.9, common: true, f: (ins, k) => partFn('mul')([partFn('mmax')(ins), k]) },
+    unlock: 'value', blueprint: { ports: [WAY(0, 'up'), WAY(1, 'down'), WAY(2, 'left'), WAY(3, 'right')], value: 0.9, f: (ins, k) => partFn('mul')([partFn('mmax')(ins), k]) },
     boardOpt: { minScale: 0.62, maxScale: 1.15 },
     debrief: { title: T('价值迭代', 'Value iteration'), body: [T('每一格的数，就是从这里走到宝藏有多好：每远一步，打一次九折。陷阱是 −10，没有谁会往那里走，所以它也带不坏邻居。', 'Each cell’s number says how good it is to head for the treasure from there: every step further away knocks off another 10%. Traps are −10, and nobody walks into one, so they can’t drag their neighbours down either.'), T('这是<b>强化学习</b>最早的一块基石，叫<b>价值迭代</b>。下棋的程序、学走路的机器人，都要先学会估计「站在这里有多好」。用的还是老一套：看邻居，取最好，记下来。', 'This is one of the first cornerstones of <b>reinforcement learning</b>, called <b>value iteration</b>. Programs that play board games and robots learning to walk all have to learn to estimate “how good is it to stand here” first. The method is the same old one: look at the neighbours, take the best, write it down.')], note: T('价值迭代：每格 = 邻居里最好的 × 折扣，扫到不再变。', 'Value iteration: each cell = the best neighbour × a discount, scanned until nothing changes.') },
   },
@@ -72,7 +71,7 @@ export const rounds = [
       { t: T('电路会比较大。小窍门：一个常数可以同时接给好几个乘法器。', 'The circuit will be fairly big. A tip: one Constant can be wired into several Multipliers at once.') },
     ],
     mission: { goal: T('只往右或往下走，每一步有 20% 的可能滑向另一个方向。每一格的价值 = 0.9 × 两个动作里较好的那个；往右 = 0.8 × 右边 + 0.2 × 下面，往下 = 0.8 × 下面 + 0.2 × 右边。', 'Move only right or down; every step has a 20% chance of sliding the other way. Each cell’s value = 0.9 × the better of the two actions; going right = 0.8 × right + 0.2 × down, going down = 0.8 × down + 0.2 × right.'), how: T('这一关会检查整张表。通过后，每一格会长出最好动作的箭头。', 'This level checks the whole table. Once you pass, each cell grows an arrow for its best action.') },
-    world: 'vgrid', facts: ['slip', 'grip'], palette: [...KIT, 'mul'], consts: [0, 0.1, 0.2, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
+    world: 'vgrid', facts: ['slip', 'grip'], consts: [0, 0.1, 0.2, 0.5, 0.8, 0.9, 1], rounds: true, arrows: true,
     // A challenge: the naive board is the one from 格子世界, which takes the best move as if nothing slipped.
     naive: circ([['a', 'mmax'], ['b', 'mmax'], ['k', 'const', 0.9], ['x', 'mul']], ['tap:up>a:0', 'tap:down>a:1', 'tap:left>a:2', 'a>b:0', 'tap:right>b:1', 'b>x:0', 'k>x:1', 'x>out:cell']),
     tests: [

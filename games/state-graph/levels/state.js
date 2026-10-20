@@ -6,7 +6,6 @@ import { STREET, KEY_MAPS } from './data.js';
 import { KEY_BOARD } from './states.js';
 import { T, tr, lazy } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 
 function robConflict(a) {
   const tile = (j, on, ask) => `<span class="hs${on ? ' on' : ''}${ask ? ' ask' : ''}">${a[j]}<small>${tr(`${j + 1}号`, `#${j + 1}`)}</small></span>`;
@@ -30,7 +29,7 @@ export const state = [
     tests: [{ a: STREET }, { a: [5, 1, 1, 5] }, { a: [4, 10, 3, 1, 8, 6] }],
     stages: [
       {
-        world: 'rob1', facts: ['money'], palette: KIT, fresh: ['mmax'],
+        world: 'rob1', facts: ['money'], fresh: ['mmax'],
         onFail: ({ L, k, res, advance }) => ({
           head: lazy(() => tr('一个数记不住全部', 'One number can’t remember it all')),
           body: lazy(() => tr(`第 ${k + 1} 条街最多能偷 <b>${L.expected[k]}</b>，机器算出了 <b>${res.value ?? '—'}</b>。可这次的问题不在电路：只要每家只有一个格子，怎么拼都会出错。看这个反例：`, `On street ${k + 1} the most that can be stolen is <b>${L.expected[k]}</b>, but the machine computed <b>${res.value ?? '—'}</b>. This time the problem isn’t your circuit: as long as each house has only one cell, any wiring will go wrong. Look at this counterexample:`)),
@@ -40,7 +39,7 @@ export const state = [
         }),
       },
       {
-        world: 'rob2', facts: ['money'], palette: KIT,
+        world: 'rob2', facts: ['money'], 
         unlockToast: T('解锁了「分层」：现在每家有三个格子', 'Unlocked “Layers”: each house now has three cells'),
         tip: T('现在每家有三个格子，机器人站在中间那一格上。视野里一列红框从上到下是「这家没偷」「这家偷了」「最多偷到」；左边一列是上一家的三格。第 0 家还没开始：没偷 = 0，偷了 = —（不可能）。', 'Each house now has three cells, and the robot stands on the middle one. In the view, the column of red frames is, from top to bottom, “skipped”, “robbed” and “most so far”; the column to the left is the previous house’s three cells. House 0 is before anything starts: skipped = 0, robbed = — (impossible).'),
         solution: circ([['n', 'mmax'], ['a', 'add'], ['b', 'mmax']], ['tap:pn>n:0', 'tap:pr>n:1', 'tap:pn>a:0', 'tap:money>a:1', 'n>b:0', 'a>b:1', 'n>out:no', 'a>out:yes', 'b>out:best']),
@@ -76,7 +75,7 @@ export const state = [
       { t: T('在捡钥匙的格子上，千层的<b>探针</b>能探到另一层的上面和左边：那些路线就是从那里搬来的。', 'On the cell with the key, Layercake’s <b>probe</b> reaches up and left on the other layer: that is where those routes come from.') },
     ],
     mission: { goal: T('只能往右或往下走，穿过门之前必须拿过钥匙。算出每张地图上的合法路线数：两层终点的数加起来。', 'Only right or down, and you must have picked up the key before going through a door. Work out the number of valid routes on each map: the end cells of both layers, added up.'), how: T('每一格把两层都算一遍。', 'Every cell works out both layers.') },
-    world: 'keys', facts: ['start', 'gain', 'lose', 'shut'], palette: ['bp:stamp', ...KIT], solutionMem: ['red'], noTrace: true,
+    world: 'keys', facts: ['start', 'gain', 'lose', 'shut'], solutionMem: ['red'], noTrace: true,
     tests: KEY_MAPS,
     solution: KEY_BOARD,
     hints: [

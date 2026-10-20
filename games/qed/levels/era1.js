@@ -5,7 +5,6 @@
 import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
-const HILBERT = ['mp', 'axK', 'axS']
 // A → A from K and S (一个前提也没有).
 const identity = proof({
   s: ['axS', { A: 'A', B: 'A → A', C: 'A' }],
@@ -23,7 +22,6 @@ export const era1 = [
     tests: [{ premises: { p: 'A' }, goal: 'A' }],
     cases: [{ A: 'Rain' }, { A: 'Bus' }],
     hiddenCases: [{ A: 'Alarm' }],
-    palette: [],
     solution: proof({}, ['p>goal'], { premises: ['p'] }),
     brief: T('已知「下雨」，证出「下雨」。', 'Given “it rains”, prove “it rains”.'),
     hint: [T('从「已知」卡片右边的圆点，连到「目标」卡片左边的圆点。', 'Wire the dot on the right of the “Given” card to the dot on the left of the “Goal” card.')],
@@ -41,7 +39,7 @@ export const era1 = [
     tests: [{ premises: { p: 'A → B', q: 'A' }, goal: 'B' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Alarm', B: 'Up' }],
     hiddenCases: [{ A: 'Exam', B: 'Study' }, { A: 'Rain ∧ Wind', B: 'Wet' }],
-    palette: ['mp'],
+    adds: ['mp'],
     brief: T('已知「下雨 → 地湿」和「下雨」，证出「地湿」。', 'Given “it rains → the ground is wet” and “it rains”, prove “the ground is wet”.'),
     hint: [T('分离的「如果…那么…」口接哪张已知？「前一半」口接哪张？', 'Which given goes into Detach’s “if … then …” input, and which into its “if” part?')],
     intro: [
@@ -59,7 +57,7 @@ export const era1 = [
     tests: [{ premises: { p: 'A' }, goal: 'B → A' }],
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Coffee', B: 'Late' }],
     hiddenCases: [{ A: 'Sat', B: 'Rain' }],
-    palette: ['mp', 'axK'],
+    adds: ['axK'],
     brief: T('已知「下雨」，证出「刮风 → 下雨」。', 'Given “it rains”, prove “it is windy → it rains”.'),
     hint: [
       T('K 的卡片上，第一句选「下雨」，第二句选「刮风」。', 'On K’s card, choose “it rains” as the first sentence and “it is windy” as the second.'),
@@ -80,7 +78,7 @@ export const era1 = [
     tests: [{ premises: { p: 'A → (B → C)', q: 'A → B' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
     hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
-    palette: HILBERT,
+    adds: ['axS'],
     brief: T('已知「下雨 → (刮风 → 地湿)」和「下雨 → 刮风」，证出「下雨 → 地湿」。', 'Given “it rains → (it is windy → the ground is wet)” and “it rains → it is windy”, prove “it rains → the ground is wet”.'),
     hint: [
       T('S 的卡片上，第一句选「下雨」，第二句选「刮风」，第三句选「地湿」。', 'On S’s card, choose “it rains”, “it is windy” and “the ground is wet” as the first, second and third sentence.'),
@@ -101,7 +99,6 @@ export const era1 = [
     tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
-    palette: HILBERT,
     builds: 'chain',
     brief: T('已知「下雨 → 地湿」和「地湿 → 路滑」，证出「下雨 → 路滑」。', 'Given “it rains → the ground is wet” and “the ground is wet → the road is slippery”, prove “it rains → the road is slippery”.'),
     hint: [
@@ -129,7 +126,6 @@ export const era1 = [
     tests: [{ premises: { p: 'A → B' }, goal: 'A → A' }],
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Exam', B: 'Study' }],
     hiddenCases: [{ A: 'Alarm', B: 'Up' }],
-    palette: HILBERT,
     brief: T('已知「下雨 → 刮风」，证出「下雨 → 下雨」。', 'Given “it rains → it is windy”, prove “it rains → it rains”.'),
     hint: [
       T('S 的三句选「下雨」「刮风」「下雨」，和「在条件下分离」那关只差第三句。', 'Choose “it rains”, “it is windy”, “it rains” on S: only the third differs from “Detach under a condition”.'),
@@ -150,7 +146,6 @@ export const era1 = [
     tests: [{ goal: 'A → A' }],
     cases: [{ A: 'Rain' }, { A: 'Sat' }],
     hiddenCases: [{ A: 'Rain → Wet' }],
-    palette: HILBERT,
     builds: 'id',
     brief: T('没有任何已知，证出「下雨 → 下雨」。', 'With nothing given, prove “it rains → it rains”.'),
     hint: [
@@ -172,7 +167,6 @@ export const era1 = [
     tests: [{ premises: { p: 'A → B', q: 'B → C', r: 'C → D' }, goal: 'A → D' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip', D: 'Fall' }, { A: 'Alarm', B: 'Up', C: 'Coffee', D: 'Awake' }],
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass', D: 'Happy' }],
-    palette: [...HILBERT, 'id', 'chain'],
     brief: T('已知「下雨 → 地湿」「地湿 → 路滑」「路滑 → 有人摔跤」，证出「下雨 → 有人摔跤」。', 'Given “it rains → the ground is wet”, “the ground is wet → the road is slippery” and “the road is slippery → someone falls”, prove “it rains → someone falls”.'),
     hint: [T('你已经有串联了，用两次。', 'You already have Chain. Use it twice.')],
     intro: [
@@ -189,7 +183,6 @@ export const era1 = [
     tests: [{ premises: { p: 'A → (A → B)' }, goal: 'A → B' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Hungry', B: 'Eat' }],
     hiddenCases: [{ A: 'Alarm', B: 'Up' }],
-    palette: [...HILBERT, 'id'],
     brief: T('已知「下雨 → (下雨 → 地湿)」，证出「下雨 → 地湿」。', 'Given “it rains → (it rains → the ground is wet)”, prove “it rains → the ground is wet”.'),
     hint: [T('S 的三句选「下雨」「下雨」「地湿」，它能把已知变成「如果（如果下雨，那么下雨），那么（下雨 → 地湿）」。剩下的交给恒等。', 'With “it rains”, “it rains”, “the ground is wet” on S, it turns the given into “if (if it rains, then it rains), then (it rains → the ground is wet)”. Identity does the rest.')],
     intro: [
@@ -208,7 +201,6 @@ export const era1 = [
     tests: [{ premises: { p: 'A → B', q: 'A → (B → C)' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
     hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
-    palette: [...HILBERT, 'id', 'chain'],
     brief: T('在假设「下雨」下，有「刮风」，也有「如果刮风，那么地湿」，分离就得「地湿」。把这一步改写成不用假设的证明：由「下雨 → 刮风」和「下雨 → (刮风 → 地湿)」证出「下雨 → 地湿」。', 'Assuming “it rains”, there is “it is windy” and “if it is windy, then the ground is wet”, so Detach gives “the ground is wet”. Rewrite that step without the assumption: from “it rains → it is windy” and “it rains → (it is windy → the ground is wet)”, prove “it rains → the ground is wet”.'),
     hint: [T('在「下雨」之下做一次分离，从外面看就是用一次 S。', 'A Detach under “it rains”, seen from outside, is one use of S.')],
     intro: [
@@ -226,7 +218,6 @@ export const era1 = [
     tests: [{ premises: { p: 'A → (B → C)', q: 'B' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
     hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
-    palette: [...HILBERT, 'id', 'chain'],
     brief: T('在假设「下雨」下：「下雨 → (刮风 → 地湿)」配上「下雨」得「如果刮风，那么地湿」；「刮风」是已知的；再分离得「地湿」。把这整个证明改写成「下雨 → 地湿」的证明。', 'Assuming “it rains”: “it rains → (it is windy → the ground is wet)” with “it rains” gives “if it is windy, then the ground is wet”; “it is windy” is given; Detach again gives “the ground is wet”. Rewrite this whole proof into a proof of “it rains → the ground is wet”.'),
     hint: [
       T('「刮风」和假设无关。和假设无关的东西，怎样背上「如果下雨」？想想 K。', '“it is windy” has nothing to do with the assumption. How does something unrelated get an “if it rains” in front? Think of K.'),

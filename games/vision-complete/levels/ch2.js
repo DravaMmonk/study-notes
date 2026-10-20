@@ -267,7 +267,7 @@ const probeLevel = {
   hint: { zh: '你能自己造一道 k = 3 的波。怎样把它和输入放在一起算，才能让 k = 3 的部分留下、别的频率互相抵消？可藏着的波要是错开了位置呢？', en: 'You can make a k = 3 wave yourself. How can you combine it with the input so the k = 3 part stays and the other frequencies cancel out? But what if the hidden wave is shifted?' },
   after: { zh: '这就是傅里叶变换：拿每个频率的 cos 和 sin 去和信号逐点相乘、求平均。两个读数 a、b 合起来，振幅是 2·√(a² + b²)，和波错开多少无关；错开多少（相位）是 atan2(b, a)。只用 cos 的探针会把错开 90° 的波量成 0。图像也一样，只是波有两个方向：「频谱」元件对每一个 (kx, ky) 都做一次你刚搭的探针，把测到的振幅画在 (kx, ky) 那一格，中心是 (0, 0)，也就是平均亮度。', en: 'This is the Fourier transform: multiply the signal per-pixel by the cos and the sin of each frequency, and average. Together the two readings a and b give the amplitude 2·√(a² + b²), however far the wave is shifted; how far it is shifted (the phase) is atan2(b, a). A probe with only cos measures a wave shifted by 90° as 0. Images work the same way, except that waves have two directions: the "Spectrum" part runs the probe you just built once for every (kx, ky) and draws the amplitude it measures in cell (kx, ky). The centre is (0, 0), the average brightness.' },
   unlocks: ['spectrum'],
-  palette: ['fqWave', 'arith', 'merge', 'fqMean', 'sqrt', 'const'],
+  adds: ['sqrt'],
   check: { tolerance: 0.01 },
   tests: PROBE_SCENES.map(([label, parts, A]) => test({ zh: `波形 ${label}`, en: `Waveform ${label}` }, { in: sum(...parts) }, { out: image(1, 1, A) })),
   hidden: PROBE_HIDDEN.map(([label, parts, A]) => test({ zh: `波形 ${label}`, en: `Waveform ${label}` }, { in: sum(...parts) }, { out: image(1, 1, A) })),
@@ -308,7 +308,6 @@ const focus = {
   hint: { zh: '先做一张只在半径 6 以外为 1 的图，用它把频谱的内圈遮住。', en: 'First make a picture that is 1 only beyond radius 6, and use it to mask out the inner part of the spectrum.' },
   after: { zh: '离焦就是模糊，模糊压低了高频。所以频谱外圈越亮，照片越清楚。手机相机对焦时，一边挪镜头一边算这样的分数，停在分数最高的位置。', en: 'Out of focus means blurred, and blurring turns the high frequencies down. So the brighter the outer part of the spectrum, the sharper the photo. A phone camera computes a score like this while it moves the lens, and stops where the score is highest.' },
   unlocks: [],
-  palette: ['fqSpectrum', 'threshold', 'arith', 'merge', 'fqMean', 'const', 'invert'],
   check: { tolerance: 0.005 },
   tests: [
     [{ zh: '字母 T · 清楚', en: 'Letter T · sharp' }, glyph(GLYPHS.T, 0.2, 0.8), 0],
@@ -361,7 +360,7 @@ const roads = {
   hint: { zh: '低频留下、高频压掉。一刀切的增益会在边旁边留下一圈圈波纹，看误差图。', en: 'Keep the low frequencies, press down the high ones. A gain that cuts off sharply leaves rings beside the edges: look at the error map.' },
   after: { zh: '空间里的模糊，等于频域里给每个频率乘一个增益，这叫卷积定理。一刀切的增益变回空间，是一个两侧带负瓣的核，边上冒出一圈圈波纹（振铃）；平滑下降的增益几乎没有。你搭的东西成了「频域低通」元件：形状选硬圆盘或高斯，半径 R 可调。高斯增益变回空间还是高斯，期望里的模糊就是它。', en: 'A blur in space equals multiplying every frequency by a gain in the frequency domain: the convolution theorem. A sharp cut-off gain, turned back into space, is a kernel with negative side lobes, so rings appear beside edges (ringing); a gain that falls smoothly has hardly any. What you built is now the "Frequency low-pass" part: choose a hard disc or a Gaussian shape, with an adjustable radius R. A Gaussian gain turned back into space is still a Gaussian, and that is the blur the expected output used.' },
   unlocks: ['freq-filter'],
-  palette: ['fqApply', 'fqSpectrum', 'cos', 'threshold', 'arith', 'merge', 'const', 'invert'],
+  adds: ['fqApply'],
   check: { tolerance: 0.03, mismatches: 8 },
   tests: ROADS.map(roadTest),
   hidden: ROADS_HIDDEN.map(roadTest),
@@ -404,7 +403,6 @@ const lowpassLevel = {
   hint: { zh: '离频谱中心 R 以内的频率留下，以外压掉。两种掩膜形状，哪种不起波纹？盯住误差图里边缘两侧出现的东西。', en: 'Frequencies within R of the spectrum\'s centre stay, and the rest are pressed down. Of the two mask shapes, which makes no ripples? Watch what appears on both sides of the edges in the error map.' },
   after: { zh: '和「两条路」里一样：硬圆盘一刀切，等于用一个带负瓣的核做卷积，边缘两侧冒出一圈圈亮暗波纹（振铃）；高斯掩膜平滑过渡，对应的核还是高斯，没有波纹。期望图其实是 σ = 1 的空间高斯模糊，对应的掩膜宽度 R = N/(2πσ) = 32/(2π) ≈ 5。空间里卷积，等于频域里相乘，这就是卷积定理。', en: 'Just as in "Two roads": a hard disk cuts sharply, which is the same as a convolution with a kernel that has negative lobes, so rings of light and dark ripple out on both sides of an edge (ringing). A Gaussian mask falls off smoothly; its kernel is still a Gaussian, with no ripples. The expected image is in fact a spatial Gaussian blur with σ = 1, which matches a mask width of R = N/(2πσ) = 32/(2π) ≈ 5. Convolution in space equals multiplication in the frequency domain: this is the convolution theorem.' },
   unlocks: [],
-  palette: ['fqLowpass', 'fqSpectrum', 'arith', 'merge', 'const'],
   check: { tolerance: 0.03, mismatches: 8 },
   tests: LOWPASS_SCENES.map(([label, img], index) => test(label, { in: plus(img, fineNoise(index + 31)) }, { out: softened(img) })),
   hidden: LOWPASS_HIDDEN.map(([label, img], index) => test(label, { in: plus(img, fineNoise(index + 41)) }, { out: softened(img) })),
@@ -440,7 +438,6 @@ const descreenLevel = {
   hint: { zh: '网纹在哪，得从这张照片自己的频谱里找。找到的地方增益为 0，其余为 1。', en: 'Where the screen is has to be found from this photo\'s own spectrum. Make the gain 0 where you find it and 1 everywhere else.' },
   after: { zh: '一组规则的条纹，在频谱里只占一对点；照片本身的内容散在各处。把那对点挖掉，条纹就没了，照片几乎不受影响。修图软件的「去网纹」、去掉扫描件上的摩尔纹，都是这个办法。', en: 'A regular stripe pattern takes up just one pair of dots in the spectrum, while the photo\'s own content is spread all over. Dig out that pair and the stripes are gone, with the photo hardly touched. "Descreen" in photo editors, and removing moiré from scans, work this way.' },
   unlocks: [],
-  palette: ['fqApply', 'fqSpectrum', 'fqLowpass', 'threshold', 'arith', 'merge', 'const', 'invert'],
   check: { tolerance: 0.02, mismatches: 4 },
   tests: [
     [{ zh: '竖网纹', en: 'Vertical screen' }, disk(15.5, 15.5, 9, 0.25, 0.75), 6, 0],
@@ -485,7 +482,6 @@ const hybridLevel = {
   hint: { zh: '你只有低通。原图里去掉低频，还剩下什么？', en: 'You only have a low-pass. Take the low frequencies out of an image: what is left?' },
   after: { zh: '高通 = 原图 − 低通，也就是掩膜 1 − H。A 只留下大轮廓，B 只留下边缘和细纹，叠在一起：近看细节占上风，远看或眯起眼时细节消失，只剩 A。滤波是线性的，所以 低通(A − B) + B 也是同一个结果，只用一次变换。', en: 'High-pass = image − low-pass, that is, the mask 1 − H. A keeps only its broad outline and B only its edges and fine texture. Added together, the detail wins up close; from afar, or with squinted eyes, the detail disappears and only A is left. Filtering is linear, so low-pass(A − B) + B gives the same result with a single transform.' },
   unlocks: [],
-  palette: ['fqLowpass', 'fqSpectrum', 'arith', 'merge', 'const'],
   check: { tolerance: 0.02 },
   tests: HYBRID_PAIRS.map(([label, a, b]) => test(label, { a, b }, { out: hybrid(a, b) })),
   hidden: HYBRID_HIDDEN.map(([label, a, b]) => test(label, { a, b }, { out: hybrid(a, b) })),
@@ -599,7 +595,6 @@ const half = {
   hint: { zh: '隔点取样把每行 32 个点变成 16 个。采样台上看过：16 个点能分辨到哪个频率？更快的纹会怎样？在扔掉点之前，先做点什么。', en: 'Downsampling turns the 32 pixels in each row into 16. As the sampling bench showed: up to what frequency can 16 samples tell apart? What happens to faster stripes? Do something before you throw pixels away.' },
   after: { zh: '直接隔点取样，频率高于 8 的细纹会折回来，冒充成原图里没有的粗纹（莫尔纹），这就是混叠。先用高斯模糊把这些频率压下去，再取样：抗混叠必须发生在采样之前。拍照、缩略图都会遇到同一个问题。', en: 'Downsample directly and fine stripes above frequency 8 fold back, posing as coarse stripes the original never had (moiré). That is aliasing. Suppress those frequencies with a Gaussian blur first, then sample: anti-aliasing must happen before sampling. Cameras and thumbnails both face the same problem.' },
   unlocks: [],
-  palette: ['downsample', 'gauss', 'box3'],
   check: { tolerance: 0.12, mismatches: 6 },
   tests: [
     [{ zh: '斑马板', en: 'Zone plate' }, P.zonePlate(32, 32, 0.06)],
@@ -647,7 +642,6 @@ const chain = (stages) => {
 const blurThenDrop = (sigma, drops) => chain([['gauss', { sigma, border: 'edge' }], ...Array.from({ length: drops }, () => ['downsample', {}])])
 const pyramidGraph = (levels) => chain(Array.from({ length: levels }, () => [['gauss', { sigma: 1, border: 'edge' }], ['downsample', {}]]).flat())
 const costCap = (cap) => (score) => (score.cost > cap ? { zh: `计算量 ${score.cost}，超过 ${cap}`, en: `Cost ${score.cost}, over ${cap}` } : '')
-const THUMB_PALETTE = ['downsample', 'gauss', 'box3', 'fqLowpass']
 
 const quarter = {
   id: '2-14',
@@ -657,7 +651,6 @@ const quarter = {
   hint: { zh: '缩小一半时先模糊了一下。缩小四倍，要糊多少？', en: 'Halving the size needed a blur first. How much blur for a quarter?' },
   after: { zh: '缩得越狠，能留下的频率越低，采样前就要糊得越厉害：缩小 4 倍，σ 大约要翻一倍。', en: 'The more you shrink, the lower the frequencies that can survive, so the harder you must blur before sampling: shrinking 4 times needs about twice the σ.' },
   unlocks: [],
-  palette: THUMB_PALETTE,
   check: { tolerance: 0.1, mismatches: 3 },
   tests: [[{ zh: '斑马板', en: 'Zone plate' }, zone(0.06)], [{ zh: '布纹', en: 'Fabric' }, fabric(3, 30)], [{ zh: '字母 F', en: 'Letter F' }, bigText]].map(([label, img]) => test(label, { in: img }, { out: shrinkTo(img, 2, 2) })),
   hidden: [[{ zh: '偏心斑马板', en: 'Off-centre zone plate' }, zone(0.05, 10, 20)], [{ zh: '细布纹', en: 'Fine fabric' }, fabric(2.5, 75)]].map(([label, img]) => test(label, { in: img }, { out: shrinkTo(img, 2, 2) })),
@@ -674,7 +667,6 @@ const steps = {
   hint: { zh: '大的模糊很贵。缩小一半以后，图上的一格相当于原来的两格。', en: 'A big blur is expensive. After halving, one pixel of the picture stands for two of the original.' },
   after: { zh: '小模糊、减半，再小模糊、减半：每一层都只做便宜的事，越往下越便宜。这样一层层缩小的图叫图像金字塔，缩略图、多尺度的特征检测都靠它。', en: 'A small blur and a halving, then a small blur and a halving again: each level does only cheap work, and each is cheaper than the last. A picture shrunk level by level like this is an image pyramid; thumbnails and multi-scale feature detection rely on it.' },
   unlocks: [],
-  palette: THUMB_PALETTE,
   constraint: costCap(18),
   check: { tolerance: 0.1, mismatches: 3 },
   tests: [[{ zh: '斑马板', en: 'Zone plate' }, zone(0.06)], [{ zh: '布纹', en: 'Fabric' }, fabric(3, 30)], [{ zh: '字母 F', en: 'Letter F' }, bigText]].map(([label, img]) => test(label, { in: img }, { out: pyramid(img, 2) })),
@@ -691,7 +683,6 @@ const thumbnails = {
   hint: { zh: '前三关各管一件事：先模糊再取样、糊多少、在小图上做事更便宜。', en: 'Each of the last three levels settled one thing: blur before sampling, how much to blur, and working on small pictures being cheaper.' },
   after: { zh: '缩略图服务每天要处理成千上万张照片：先低通再采样防止混叠，一层层缩小省下计算量。作业 1 比较直接卷积、可分离卷积和 FFT 的速度，比的也是同一笔账。', en: 'A thumbnail service handles thousands of photos a day: low-pass before sampling against aliasing, and shrinking level by level to save work. Assignment 1, comparing the speed of direct convolution, separable convolution and the FFT, does the same accounting.' },
   unlocks: [],
-  palette: THUMB_PALETTE,
   constraint: costCap(19),
   check: { tolerance: 0.1, mismatches: 1 },
   tests: [[{ zh: '斑马板', en: 'Zone plate' }, zone(0.08)], [{ zh: '布纹', en: 'Fabric' }, fabric(2.5, 20)], [{ zh: '字母 F', en: 'Letter F' }, bigText], [{ zh: '细条纹', en: 'Fine stripes' }, P.stripes(2.5, 0.1, 0.9, 32, 32)]].map(([label, img]) => test(label, { in: img }, { out: pyramid(img, 3) })),

@@ -65,7 +65,7 @@ export function defineImageGame(spec) {
       probe: { Screen: LevelScreen, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
     },
     unlocked: (level) => (level.unlocks ?? []).map(unlockOf),
-    parts: { all: allFlags.map(unlockOf), earned: (progress) => progress.flags, demo: (part, { phone }) => createElement(PartDemo, { key: part.key, flag: part.key, type: PART_OF_FLAG[part.key], flags: allFlagSet, phone, levels: spec.levels, box: spec.box }) },
+    parts: { all: allFlags.map(unlockOf), demo: (part, { phone }) => createElement(PartDemo, { key: part.key, flag: part.key, type: PART_OF_FLAG[part.key], flags: allFlagSet, phone, levels: spec.levels, box: spec.box }) },
     // A better circuit costs less, or as much with fewer parts.
     better: (score, best) => !best || score.cost < best.cost || (score.cost === best.cost && score.nodes < best.nodes),
     bestLabel: (best) => `${best.nodes} · ${best.cost}`,

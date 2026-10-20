@@ -5,7 +5,6 @@ import { circ, usesSensor } from '../../kit/domains/table/circuit/components.js'
 import { picture, pictureFig, seamPath } from '../../kit/domains/table/circuit/worlds/picture.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 /** Letters from Vision Complete's test images (its engine/image.js GLYPHS), five pixels square. */
 const test = img => ({ img, R: img.length, C: img[0].length });
 const BIG = picture(22, 9, [['T', 3, 2], ['O', 13, 2]]);
@@ -23,7 +22,7 @@ export const seams = [
       { t: T('一条<b>缝</b>从顶走到底，每行经过一个像素。缝的能量是它经过的像素的能量之和。', 'A <b>seam</b> runs from the top to the bottom, through one pixel in each row. A seam’s energy is the total energy of the pixels it passes through.') },
     ],
     mission: { goal: T('这条缝从顶走到底，能量一共是多少？每格存「从顶走到这里的能量」。', 'What is the total energy of the seam from top to bottom? Each cell holds “the energy from the top down to here”.'), how: T('逐行，从顶行往下算。', 'Row by row, from the top down.') },
-    world: 'pic', facts: ['energy', 'top'], palette: ['msum', 'mmin', 'add', 'const', 'pass'], checkAll: true,
+    world: 'pic', facts: ['energy', 'top'], checkAll: true,
     tests: [energies([[3], [1], [4], [1], [5]]), energies([[2], [7], [1], [8]]), energies([[6], [0], [2], [9], [1], [3]])],
     solution: circ([['m', 'msum'], ['z', 'const', 0], ['g', 'pass'], ['a', 'add']], ['tap:up>m:0', 'tap:top>g:0', 'z>g:1', 'g>m:1', 'm>a:0', 'tap:energy>a:1', 'a>out:cell']),
     hints: [T('到这一格的能量 = 到上一格的能量 + 这一格自己的能量。', 'The energy down to this cell = the energy down to the cell above + this cell’s own.'), T('顶行上面什么也没有：在顶行送一个 0 进去。', 'Above the top row there is nothing: feed a 0 in on the top row.')],
@@ -35,7 +34,7 @@ export const seams = [
       { t: T('现在图有好几列。缝从顶行<b>任意一个</b>像素出发，每一步走到正下方、左下方或右下方的像素，一直走到底行。', 'Now the picture has several columns. A seam starts at <b>any</b> pixel of the top row, and each step goes to the pixel right below, below-left or below-right, all the way to the bottom row.') },
     ],
     mission: { goal: T('能量最低的那条缝，能量是多少？答案是底行里最小的数。', 'What is the energy of the lowest-energy seam? The answer is the smallest number in the bottom row.'), how: T('逐行，从顶行往下算。', 'Row by row, from the top down.') },
-    world: 'pic', facts: ['energy', 'top'], palette: KIT, checkAll: true,
+    world: 'pic', facts: ['energy', 'top'], adds: ['block'], checkAll: true,
     tests: [
       energies([[3, 1, 4], [1, 5, 9], [2, 6, 5], [3, 5, 8]]),
       energies([[9, 1, 9, 9], [9, 9, 1, 9], [1, 9, 9, 9], [9, 1, 9, 2]]),
@@ -55,7 +54,7 @@ export const seams = [
       { t: T('这不就是「最省力」那一关吗？只是走法换成了从上往下，来路换成了<b>左上、正上、右上</b>三格。表里每一格记「从顶行到这里，最省的缝要花多少能量」；最底一行里最小的那一格，就是整条缝的能量。格子角上的小数字是这个像素自己的能量。', 'Isn’t this just the “Least effort” level? Only now you walk from top to bottom, and the ways in are the three cells <b>up-left, up and up-right</b>. Each cell of the table records “the least energy a seam from the top row to here can cost”; the smallest cell in the bottom row is the energy of the whole seam. The small number in a cell’s corner is that pixel’s own energy.') },
     ],
     mission: { goal: T('算出每张图片里能量最小的缝：从顶行到底行，每行一个像素，每一步走到正下、左下或右下；缝的能量是一路上像素能量之和。', 'Find the lowest-energy seam in each picture: from the top row to the bottom row, one pixel per row, each step going straight down, down-left or down-right; a seam’s energy is the sum of the pixel energies along it.'), how: T('这一关会检查整张表。通过后，左边的小图上会标出这条缝。', 'This level checks the whole table. Once you pass, the seam is marked on the small picture to the left.') },
-    world: 'pic', facts: ['energy', 'top'], palette: KIT, checkAll: true,
+    world: 'pic', facts: ['energy', 'top'], checkAll: true,
     tests: [test(P1), test(P2)],
     solution: circ([['c', 'bp:cheapest']], ['tap:ul>c:0', 'tap:up>c:1', 'tap:top>c:2', 'tap:energy>c:3', 'tap:ur>c:4', 'c>out:cell']),
     hints: [T('三条来路：左上、正上、右上，取较小。', 'Three ways in: up-left, up and up-right. Take the min.'), T('再加上这个像素自己的能量。顶行上面什么都没有：用放行闸在顶行送一个 0 进去（和「最省力」的起点一样）。', 'Then add this pixel’s own energy. There is nothing above the top row: use a Pass gate to let a 0 in on the top row (just like the start in “Least effort”).')],

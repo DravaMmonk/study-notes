@@ -4,7 +4,6 @@ import { gridScene, triFig } from '../../kit/domains/table/svg.js';
 import { circ, partFn } from '../../kit/domains/table/circuit/components.js';
 import { T } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 
 const PALIN = circ([['a', 'add'], ['k', 'const', 2], ['g', 'pass'], ['m', 'mmax']], ['tap:dl>a:0', 'k>a:1', 'tap:same>g:0', 'a>g:1', 'tap:left>m:0', 'tap:down>m:1', 'g>m:2', 'm>out:cell']);
 const MERGE = circ([['a', 'add'], ['m', 'mmin'], ['b', 'add']], ['tap:segL>a:0', 'tap:segR>a:1', 'a>m:0', 'm>b:0', 'tap:weight>b:1', 'b>out:cell']);
@@ -19,7 +18,7 @@ export const orders = [
       { t: T('为什么要倒着扫？每一格读它的右边和下面，那两格必须先算好。从右下开始，机器人读到的格子总是已经算完的。', 'Why scan backwards? Each cell reads the cells to its right and below, so those two must be computed first. Starting from the bottom right, every cell the robot reads has already been worked out.') },
     ],
     mission: { goal: T('数出从每一格到终点有几条路线：右边 + 下面，终点算 1，石头格拦下。机器人逐行从右下开始扫，答案在起点。', 'Count how many routes lead from each cell to the end: right + down, the end counts 1, and rock cells are blocked. The robot scans row by row from the bottom right, and the answer is at the start.'), how: T('拼好电路板，点「运行测试」。看机器人怎么走：它读到的右边和下面，是不是总已经算好？', 'Build the circuit board and click “Run tests”. Watch how the robot walks: are the cells to the right and below always computed by the time it reads them?') },
-    world: 'grid', facts: ['end', 'rock'], palette: KIT, answerAt: 'start',
+    world: 'grid', facts: ['end', 'rock'], answerAt: 'start',
     dial: ['rowTL', 'colL', 'colR', 'rowBR'], solutionScan: 'rowBR',
     tests: [{ R: 4, C: 5, rocks: [[1, 2]] }, { R: 4, C: 4, rocks: [[2, 1], [1, 3]] }],
     solution: circ([['m', 'msum'], ['k', 'const', 1], ['g', 'pass'], ['b', 'block']], ['tap:right>m:0', 'tap:down>m:1', 'tap:end>g:0', 'k>g:1', 'g>m:2', 'tap:rock>b:0', 'm>b:1', 'b>out:cell']),
@@ -36,7 +35,7 @@ export const orders = [
       { t: T('这台机器人<b>按长度</b>扫：先算所有最短的段，再算长一点的，一条斜线一条斜线地往右上角推。', 'This robot scans <b>by length</b>: first every shortest stretch, then the longer ones, one diagonal at a time towards the top-right corner.') },
     ],
     mission: { goal: T('算出每个词里最长的回文子序列：删掉一些字母后，正着读和倒着读都一样的最长字串。', 'Find the longest palindromic subsequence in each word: the longest string, left after deleting some letters, that reads the same forwards and backwards.'), how: T('拼好电路，点「运行测试」。机器人按长度扫：长的段读到的，总是已经算好的短段。', 'Build the circuit and click “Run tests”. The robot scans by length, so a long stretch only ever reads shorter stretches that are already computed.') },
-    world: 'interval', facts: ['same'], palette: KIT, empty0: true, diag: 1,
+    world: 'interval', facts: ['same'], empty0: true, diag: 1,
     dial: ['rowTL', 'colL', 'rowBR', 'len'], solutionScan: 'len',
     tests: [{ s: 'ABCA' }, { s: 'CHARACTER' }, { s: 'BBABCBCAB' }],
     solution: PALIN,
@@ -54,7 +53,7 @@ export const orders = [
       { t: T('扫帚的扫描臂这次按切分点工作：每个切分点送来一对格子，排成「左段们」和「右段们」两整段。加法器能把两整段<b>一对一对</b>地相加。', 'This time Broom’s sweep arm works by split point: each split point sends a pair of cells, lined up as two whole runs, “left parts” and “right parts”. An Adder can add two whole runs together <b>pair by pair</b>.') },
     ],
     mission: { goal: T('每次只能合并相邻的两堆，花费是两堆重量之和。算出把一排石堆合成一堆的最少花费。', 'Each move merges two neighbouring piles, costing their combined weight. Work out the least it costs to merge a row of piles into one.'), how: T('扫描臂送来每个切分点的左段和右段。机器人按长度从短到长扫，拼好电路就能运行。', 'The sweep arm sends the left part and right part for every split point. The robot scans by length, shortest first, so once the circuit is built you can run it.') },
-    world: 'interval', facts: ['weight'], palette: KIT, diag: 0,
+    world: 'interval', facts: ['weight'], diag: 0,
     dial: ['rowTL', 'rowBR', 'len'], solutionScan: 'len',
     tests: [{ w: [3, 1, 2] }, { w: [4, 1, 1, 4] }, { w: [2, 3, 1, 5, 2] }],
     solution: MERGE,
@@ -75,14 +74,14 @@ export const orders = [
     tests: [{ w: [5, 2, 4, 1, 3] }, { w: [1, 9, 1, 9, 1, 9] }],
     stages: [
       {
-        world: 'interval', facts: ['weight'], palette: ['bp:stones', ...KIT], diag: 0, ask: T('拼好电路板，按长度扫，让测试通过。', 'Build the circuit board and pass the tests, scanning by length.'),
+        world: 'interval', facts: ['weight'], diag: 0, ask: T('拼好电路板，按长度扫，让测试通过。', 'Build the circuit board and pass the tests, scanning by length.'),
         dial: ['rowTL', 'colL', 'colLB', 'rowBR', 'len'], solutionScan: 'len',
         solution: circ([['c', 'bp:stones']], ['tap:segL>c:0', 'tap:segR>c:1', 'tap:weight>c:2', 'c>out:cell']),
         hints: ORDER_HINTS,
         done: { head: T('一种顺序通过了', 'One order passed'), body: [T('电路板会留着。机器人换成逐行从下往上扫，再跑一次。', 'The board stays. The robot switches to row by row from the bottom up; run it again.')] },
       },
       {
-        world: 'interval', facts: ['weight'], palette: ['bp:stones', ...KIT], diag: 0, carry: true, ask: T('电路板不变，机器人换成逐行从下往上扫。再通过一次。', 'Same board; the robot now scans row by row from the bottom up. Pass again.'),
+        world: 'interval', facts: ['weight'], diag: 0, carry: true, ask: T('电路板不变，机器人换成逐行从下往上扫。再通过一次。', 'Same board; the robot now scans row by row from the bottom up. Pass again.'),
         hints: ORDER_HINTS,
         dial: ['rowTL', 'colL', 'colLB', 'rowBR', 'len'], solutionScan: 'rowBR',
         solution: circ([['c', 'bp:stones']], ['tap:segL>c:0', 'tap:segR>c:1', 'tap:weight>c:2', 'c>out:cell']),

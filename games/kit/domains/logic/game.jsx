@@ -13,25 +13,20 @@ import { iconOf } from './ui/catalog.js'
 export function defineLogicGame(spec) {
   const { LEVELS, CHAPTERS, LABELS } = spec.logic
   const lemmas = LEVELS[0]?.lemmas ?? {}
-  // A part is new where it is first offered in play order.
-  const offered = new Set()
-  const levels = LEVELS.map((L, index) => {
-    const fresh = L.palette.filter((p) => !offered.has(p))
-    L.palette.forEach((p) => offered.add(p))
-    return {
-      id: L.id,
-      index,
-      source: L,
-      fresh,
-      chapter: L.chapter,
-      requires: L.requires,
-      title: L.title,
-      kind: L.kind,
-      unlocks: L.unlocks,
-      brief: L.brief,
-      after: L.after,
-    }
-  })
+  // A part is new in the level that brings it in (`adds`); everything else carries (../../course.js reach).
+  const levels = LEVELS.map((L, index) => ({
+    id: L.id,
+    index,
+    source: L,
+    fresh: L.adds,
+    chapter: L.chapter,
+    requires: L.requires,
+    title: L.title,
+    kind: L.kind,
+    unlocks: L.unlocks,
+    brief: L.brief,
+    after: L.after,
+  }))
   const game = defineGame({
     id: spec.id,
     glossary: spec.glossary,
@@ -52,7 +47,6 @@ export function defineLogicGame(spec) {
     unlocked: (level) => level.unlocks.map((flag) => ({ label: lemmas[flag.slice('lemma:'.length)].name })),
     parts: {
       all: Object.entries(lemmas).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, icon: iconOf(lemmas, type) })),
-      earned: (progress) => progress.flags,
     },
     // Fewer steps is a better proof.
     better: (score, best) => Boolean(score) && (!best || score.steps < best.steps),

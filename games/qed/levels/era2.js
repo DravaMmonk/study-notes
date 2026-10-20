@@ -3,7 +3,6 @@
 import { box, proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
-const MARK2 = ['impI', 'mp', 'andI', 'andE', 'orI', 'orE', 'botE']
 
 // 交换律: A ∧ B → B ∧ A, one box around the swap.
 const swapBox = box({ e: ['andE'], i: ['andI'] }, ['assume>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>out'])
@@ -40,7 +39,7 @@ export const era2 = [
     tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
-    palette: ['impI', 'mp'],
+    adds: ['impI'],
     brief: T('已知「下雨 → 地湿」和「地湿 → 路滑」，用假设框证出「下雨 → 路滑」。', 'Given “it rains → the ground is wet” and “the ground is wet → the road is slippery”, prove “it rains → the road is slippery” with an assumption box.'),
     hint: [
       T('框的「假设」选「下雨」，再打开框。', 'Set the box’s assumption to “it rains”, then open the box.'),
@@ -62,7 +61,7 @@ export const era2 = [
     tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }],
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
     hiddenCases: [{ A: 'Sat', B: 'Coffee' }],
-    palette: ['impI', 'mp', 'andI', 'andE'],
+    adds: ['andI', 'andE'],
     brief: T('已知「下雨 ∧ 刮风」，证出「刮风 ∧ 下雨」。', 'Given “it rains ∧ it is windy”, prove “it is windy ∧ it rains”.'),
     hint: [T('先拆开，再按新的顺序拼起来。', 'Take it apart, then put it back together in the new order.')],
     intro: [
@@ -81,7 +80,7 @@ export const era2 = [
     tests: [{ premises: { p: 'A' }, goal: 'B ∨ A' }],
     cases: [{ A: 'Sat', B: 'Sun' }, { A: 'Bus', B: 'Bike' }],
     hiddenCases: [{ A: 'Rain', B: 'Wind' }],
-    palette: ['impI', 'mp', 'andI', 'andE', 'orI'],
+    adds: ['orI'],
     brief: T('已知「今天是周六」，证出「今天是周日 ∨ 今天是周六」。', 'Given “today is Saturday”, prove “today is Sunday ∨ today is Saturday”.'),
     hint: [T('卡片上选另一边是「今天是周日」，再选它放在左边。', 'On the card, choose “today is Sunday” as the other side and put it on the left.')],
     intro: [
@@ -98,7 +97,7 @@ export const era2 = [
     tests: [{ premises: { p: 'A ∨ B', q: 'A → C', r: 'B → C' }, goal: 'C' }],
     cases: [{ A: 'Bus', B: 'Bike', C: 'OnTime' }, { A: 'Sat', B: 'Sun', C: 'Rest' }],
     hiddenCases: [{ A: 'Coffee', B: 'Tea', C: 'Awake' }],
-    palette: ['impI', 'mp', 'andI', 'andE', 'orI', 'orE'],
+    adds: ['orE'],
     brief: T('已知「我坐公交 ∨ 我骑车」「我坐公交 → 我准时到」「我骑车 → 我准时到」，证出「我准时到」。', 'Given “I take the bus ∨ I cycle”, “I take the bus → I arrive on time” and “I cycle → I arrive on time”, prove “I arrive on time”.'),
     hint: [
       T('把「我坐公交 ∨ 我骑车」接进分情况。', 'Wire “I take the bus ∨ I cycle” into Case by case.'),
@@ -125,7 +124,7 @@ export const era2 = [
     tests: [{ premises: { p: 'A', q: '¬A' }, goal: 'B' }],
     cases: [{ A: 'Locked', B: 'Moon' }, { A: 'Rain', B: 'Pigs' }],
     hiddenCases: [{ A: 'Bus', B: 'Moon' }],
-    palette: MARK2,
+    adds: ['botE'],
     brief: T('一个证人说「门锁着」，又说「¬门锁着」。由这两句证出「月亮是奶酪做的」。', 'A witness says “the door is locked”, and also “¬the door is locked”. From the two, prove “the moon is made of cheese”.'),
     hint: [
       T('在二号眼里，「¬门锁着」就是「门锁着 → ⊥」。它能接分离的哪个口？', 'To Mark II, “¬the door is locked” is “the door is locked → ⊥”. Which input of Detach can it go into?'),
@@ -146,7 +145,6 @@ export const era2 = [
     tests: [{ goal: 'A ∧ B → B ∧ A' }],
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
     hiddenCases: [{ A: 'Sat', B: 'Coffee' }],
-    palette: MARK2,
     brief: T('没有任何已知，证出「下雨 ∧ 刮风 → 刮风 ∧ 下雨」。', 'With nothing given, prove “it rains ∧ it is windy → it is windy ∧ it rains”.'),
     hint: [T('「两个都要」那关的证明，可以整个搬进一个框里：框的假设选「下雨 ∧ 刮风」。', 'The proof from “Both of them” can move into a box whole: assume “it rains ∧ it is windy”.')],
     intro: [
@@ -163,7 +161,6 @@ export const era2 = [
     tests: [{ goal: '(A → B) → (¬B → ¬A)' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Exam', B: 'Study' }],
     hiddenCases: [{ A: 'Alarm', B: 'Up' }],
-    palette: MARK2,
     brief: T('证出「(下雨 → 地湿) → (¬地湿 → ¬下雨)」。', 'Prove “(it rains → the ground is wet) → (¬the ground is wet → ¬it rains)”.'),
     hint: [
       T('三个 →，三个框，一个套一个。', 'Three →s, three boxes, one inside another.'),
@@ -184,7 +181,6 @@ export const era2 = [
     tests: [{ goal: '¬(A ∨ B) → ¬A ∧ ¬B' }],
     cases: [{ A: 'Sat', B: 'Sun' }, { A: 'Rain', B: 'Wind' }],
     hiddenCases: [{ A: 'Bus', B: 'Bike' }],
-    palette: MARK2,
     brief: T('证出「¬(今天是周六 ∨ 今天是周日) → ¬今天是周六 ∧ ¬今天是周日」。', 'Prove “¬(today is Saturday ∨ today is Sunday) → ¬today is Saturday ∧ ¬today is Sunday”.'),
     hint: [T('「¬今天是周六」怎么来？假设「今天是周六」，看它怎样和「¬(今天是周六 ∨ 今天是周日)」撞出矛盾。「¬今天是周日」同理。', 'Where does “¬today is Saturday” come from? Assume “today is Saturday” and see how it clashes with “¬(today is Saturday ∨ today is Sunday)”. “¬today is Sunday” the same way.')],
     intro: [
@@ -201,7 +197,6 @@ export const era2 = [
     tests: [{ goal: '¬¬(A ∨ ¬A)' }],
     cases: [{ A: 'Rain' }, { A: 'Exam' }],
     hiddenCases: [{ A: 'Sat' }],
-    palette: MARK2,
     brief: T('证出「¬¬(下雨 ∨ ¬下雨)」。', 'Prove “¬¬(it rains ∨ ¬it rains)”.'),
     hint: [
       T('直接证「下雨 ∨ ¬下雨」是不行的：你不知道该选哪一边。', 'Proving “it rains ∨ ¬it rains” directly will not work: you do not know which side to choose.'),
@@ -230,7 +225,7 @@ export const era2 = [
     tests: [{ premises: { p: '¬¬A' }, goal: 'A' }],
     cases: [{ A: 'Locked' }, { A: 'Rain' }],
     hiddenCases: [{ A: 'Late' }],
-    palette: [...MARK2, 'raa'],
+    adds: ['raa'],
     brief: T('已知「¬¬门锁着」，证出「门锁着」。', 'Given “¬¬the door is locked”, prove “the door is locked”.'),
     hint: [T('新元件正是做这件事的。', 'The new part does exactly this.')],
     intro: [
@@ -250,7 +245,7 @@ export const era2 = [
     tests: [{ premises: { p: 'A ↔ ¬A' }, goal: '⊥' }],
     cases: [{ A: 'KA' }, { A: 'KC' }],
     hiddenCases: [{ A: 'KB' }],
-    palette: [...MARK2, 'raa', 'iffE'],
+    adds: ['iffE'],
     brief: T('一个岛民说：「我是无赖。」证明这话不可能有人说：由「a 是骑士 ↔ ¬a 是骑士」证出矛盾 ⊥。', 'An islander says: “I am a knave.” Prove nobody can say that: from “a is a knight ↔ ¬a is a knight”, prove the contradiction ⊥.'),
     hint: [
       T('先证「¬a 是骑士」：假设「a 是骑士」，会怎样？', 'Prove “¬a is a knight” first: what happens if you assume “a is a knight”?'),
@@ -271,7 +266,6 @@ export const era2 = [
     tests: [{ premises: { p: 'A ↔ ¬A ∧ ¬B' }, goal: '¬A ∧ B' }],
     cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
     hiddenCases: [{ A: 'KB', B: 'KA' }],
-    palette: [...MARK2, 'raa', 'iffE'],
     brief: T('第一个岛民说：「我们俩都是无赖。」证出「¬a 是骑士 ∧ b 是骑士」。', 'The first islander says: “We are both knaves.” Prove “¬a is a knight ∧ b is a knight”.'),
     hint: [
       T('「¬a 是骑士」和上一关一样来。', '“¬a is a knight” comes the way it did last level.'),
@@ -294,7 +288,6 @@ export const era2 = [
     tests: [{ premises: { p: 'A ↔ ¬A ∨ B' }, goal: 'A ∧ B' }],
     cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
     hiddenCases: [{ A: 'KD', B: 'KC' }],
-    palette: [...MARK2, 'raa', 'iffE'],
     brief: T('第一个岛民说：「我是无赖，或者另一个人是骑士。」两个人各是什么？证出「a 是骑士 ∧ b 是骑士」。', 'The first islander says: “I am a knave, or the other one is a knight.” What is each of them? Prove “a is a knight ∧ b is a knight”.'),
     hint: [
       T('先证「a 是骑士」：假设「¬a 是骑士」，他的话就成了真话。', 'Prove “a is a knight” first: assume “¬a is a knight”, and his statement comes true.'),

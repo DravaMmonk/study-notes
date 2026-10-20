@@ -5,7 +5,6 @@
 import { circ, usesSensor, hasKind } from '../../kit/domains/table/circuit/components.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 
 export const longarm = [
   {
@@ -15,7 +14,7 @@ export const longarm = [
       { t: T('往回数的那块可能很远，5×5 的视野装不下。这一代的机器人「长臂」有一条<b>伸缩臂</b>：站在每块石头上，它会伸到往回数第 k 块。伸缩臂够到的那一格在视野下面，点它，视野卡片上就多一个输出口。', 'The stone k back can be far away, out of a 5×5 view. This era’s robot, Longarm, has a <b>telescopic arm</b>: on each stone it reaches the stone k back. What the arm reaches sits under the view; click it and the View card gets an output for it.') },
     ],
     mission: { goal: T('算出青蛙跳到最后一块石头，<b>一共要跳几次</b>。', 'Work out <b>how many jumps</b> the frog needs to reach the last stone.'), how: T('从岸边往前，一块一块算。岸边还没跳，是 0 次。', 'Work forward from the bank, stone by stone. On the bank the frog hasn’t jumped yet: 0 jumps.') },
-    world: 'river', facts: ['bank'], palette: KIT,
+    world: 'river', facts: ['bank'],
     tests: [{ k: [0, 1, 2, 1, 3, 2, 4] }, { k: [0, 1, 1, 2, 2, 3, 1, 4] }, { k: [0, 1, 2, 3, 1, 4, 2, 3, 5] }],
     solution: circ([['a', 'add'], ['k', 'const', 1], ['z', 'const', 0], ['g', 'pass'], ['m', 'msum']], ['tap:back>a:0', 'k>a:1', 'tap:bank>g:0', 'z>g:1', 'a>m:0', 'g>m:1', 'm>out:cell']),
     hints: [
@@ -31,7 +30,7 @@ export const longarm = [
       { t: T('这条河里的青蛙更灵活：<b>可以从前一块石头跳过来，也可以从「↶ k」那块跳过来</b>。没写 ↶ 的石头，只能从前一块来。', 'The frog in this river is more agile: <b>it can jump on from the stone before, or from the stone marked “↶ k”</b>. A stone with no ↶ can only be reached from the one before.') },
     ],
     mission: { goal: T('算出青蛙从岸边跳到最后一块石头，一共有几种跳法。', 'Work out how many different ways the frog can get from the bank to the last stone.'), how: T('岸边算 1 种：已经站在那里了。', 'The bank counts as 1 way: the frog is already there.') },
-    world: 'river', facts: ['bank'], palette: KIT,
+    world: 'river', facts: ['bank'],
     tests: [{ k: [0, null, 2, 3, 2, 4, 3] }, { k: [0, null, 2, 2, 3, null, 4, 2] }, { k: [0, null, 2, 3, 4, 2, 5, 3, 2] }],
     solution: circ([['c', 'bp:stamp']], ['tap:m1>c:0', 'tap:back>c:1', 'tap:bank>c:2', 'c>out:cell']),
     hints: [
@@ -48,7 +47,7 @@ export const longarm = [
       { t: T('新元件<b>乘法器</b>：输出 a × b。', 'A new part, the <b>Multiplier</b>: it outputs a × b.') },
     ],
     mission: { goal: T('找出最稳的跳法：青蛙安全跳到最后一块石头的可能，最大是多少？', 'Find the steadiest way across: what is the best chance the frog has of reaching the last stone safely?'), how: T('跳法和上一关一样：从前一块，或从 ↶ 那块。岸边稳稳的，可能是 1。', 'Jumps work as last level: from the stone before, or from the ↶ stone. The bank is solid: its chance is 1.') },
-    world: 'river', facts: ['bank', 'hold'], palette: [...KIT, 'mul'], fresh: ['mul'],
+    world: 'river', facts: ['bank', 'hold'], adds: ['mul'], fresh: ['mul'],
     tests: [
       { k: [0, null, 2, 3, 2, 4, 3], p: [1, 0.9, 0.5, 0.8, 0.9, 0.6, 0.9] },
       { k: [0, null, 2, 2, 3, null, 4, 2], p: [1, 0.8, 0.9, 0.5, 0.9, 0.7, 0.9, 0.8] },
@@ -69,7 +68,7 @@ export const longarm = [
       { t: T('表是背包表的样子：行是硬币，列是金额。第 0 行「不用硬币」只凑得出 0 元，算 1 种，已经填好了。', 'The table looks like the knapsack table: rows are coins, columns are amounts. Row 0, “no coins”, only makes 0 yuan, which counts as 1 way; it is filled in already.') },
     ],
     mission: { goal: T('算出凑出这个金额，一共有几种凑法。', 'Work out how many ways there are to make the amount.'), how: T('逐行，从左往右。', 'Row by row, left to right.') },
-    world: 'knap', facts: [], palette: KIT,
+    world: 'knap', facts: [],
     tests: [
       { W: 5, ways: true, items: [{ w: 1 }, { w: 2 }, { w: 5 }] },
       { W: 10, ways: true, items: [{ w: 2 }, { w: 3 }, { w: 5 }] },

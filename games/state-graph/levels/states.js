@@ -5,7 +5,6 @@
 import { circ } from '../../kit/domains/table/circuit/components.js';
 import { T } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 const FACTS = ['start', 'gain', 'lose', 'shut'];
 /** One board for every layer and every maze: count the routes here, stop them at a shut door and where they move on
  *  with a key, and where a key is picked up, take in the routes from the layer without it (up and left there). */
@@ -22,7 +21,7 @@ export const states = [
       { t: T('一条路线手里的钥匙有四种可能：都没有、只有红、只有蓝、都有。表就叠成 4 层，每层装着「手里正好有这几把钥匙」的路线。', 'A route can be holding its keys in four ways: none, only red, only blue, or both. So the table is stacked 4 layers deep, each holding the routes “carrying exactly these keys”.') },
     ],
     mission: { goal: T('只能往右或往下走。算出合法路线的条数：四层终点的数加起来。', 'Only right or down. Work out the number of valid routes: the end cells of the four layers, added up.'), how: T('每一格把四层都算一遍。', 'Every cell works out all four layers.') },
-    world: 'keys', facts: FACTS, palette: ['bp:stamp', ...KIT], solutionMem: ['red', 'blue'], noTrace: true,
+    world: 'keys', facts: FACTS, solutionMem: ['red', 'blue'], noTrace: true,
     tests: [
       { R: 3, C: 4, keys: { red: [1, 0], blue: [0, 2] }, doors: [{ at: [1, 3], color: 'blue' }, { at: [2, 2], color: 'red' }] },
       { R: 4, C: 4, keys: { red: [0, 1], blue: [2, 0] }, doors: [{ at: [2, 2], color: 'red' }, { at: [1, 3], color: 'blue' }, { at: [3, 1], color: 'blue' }] },
@@ -37,7 +36,7 @@ export const states = [
       { t: T('三把钥匙、三种颜色的门。状态三把都记着：一共几层？', 'Three keys and doors of three colours. The state remembers all three keys: how many layers in all?') },
     ],
     mission: { goal: T('算出合法路线的条数：所有层终点的数加起来。', 'Work out the number of valid routes: the end cells of every layer, added up.'), how: T('每一格把每一层都算一遍。', 'Every cell works out every layer.') },
-    world: 'keys', facts: FACTS, palette: ['bp:stamp', ...KIT], solutionMem: ['red', 'blue', 'green'], noTrace: true,
+    world: 'keys', facts: FACTS, solutionMem: ['red', 'blue', 'green'], noTrace: true,
     tests: [
       { R: 4, C: 5, keys: { red: [1, 0], blue: [0, 2], green: [2, 1] }, doors: [{ at: [1, 3], color: 'red' }, { at: [2, 3], color: 'blue' }, { at: [3, 2], color: 'green' }] },
       { R: 4, C: 5, keys: { red: [0, 1], blue: [2, 0], green: [1, 2] }, doors: [{ at: [3, 1], color: 'red' }, { at: [1, 4], color: 'green' }, { at: [2, 3], color: 'blue' }, { at: [3, 3], color: 'green' }] },
@@ -51,7 +50,7 @@ export const states = [
       { t: T('还是三把钥匙。可这一关的状态<b>只记红钥匙</b>，表只有 2 层。', 'Three keys again. But this level’s state <b>remembers only the red key</b>, so the table has just 2 layers.') },
     ],
     mission: { goal: T('算出合法路线的条数，看看只记一把钥匙够不够。', 'Work out the number of valid routes, and see whether remembering one key is enough.'), how: T('每一格把两层都算一遍。', 'Every cell works out both layers.') },
-    world: 'keys', facts: FACTS, palette: ['bp:stamp', ...KIT], solutionMem: ['red'], noTrace: true,
+    world: 'keys', facts: FACTS, solutionMem: ['red'], noTrace: true,
     tests: [
       { R: 4, C: 5, keys: { red: [2, 0], blue: [0, 1], green: [1, 3] }, doors: [{ at: [2, 2], color: 'red' }, { at: [0, 2], color: 'blue' }] },
       { R: 5, C: 5, keys: { red: [1, 1], blue: [0, 2], green: [3, 0] }, doors: [{ at: [3, 3], color: 'red' }, { at: [0, 3], color: 'blue' }, { at: [2, 4], color: 'red' }] },

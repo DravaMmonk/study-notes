@@ -7,7 +7,6 @@ import { knapTrace } from '../../kit/domains/table/algo.js';
 import { PACK_A, PACK_B, PACK_C } from './data.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 
 export const knapsack = [
   {
@@ -31,7 +30,7 @@ export const knapsack = [
       { t: T('这一关的机器人「长臂」站在 (第 i 行, 容量 w) 上。正上方的格子在视野里就能看到；可往左「重量」格可能很远，视野装不下。又要用到青蛙过河时的<b>伸缩臂</b>：这次它伸到往左「这件物品的重量」格，上一行、本行各读一格；点它够到的格子，「视野」卡片上就多一个输出口。「本格信息」里是这件物品的「物品价值」。', 'This level’s robot, Longarm, stands on (row i, capacity w). The cell right above is in its view, but the cell as many columns to the left as the item weighs may be far away, out of view. The <b>telescopic arm</b> from the frog’s river comes in again: this time it reaches left by “this item’s weight” cells and reads one cell on the row above and one on this row; click a cell it reaches, and the “View” card gains an output for it. The This cell panel holds this item’s “item value”.') },
     ],
     mission: { goal: T('总重量不能超过容量，每件物品最多拿一次。拼出背包表的电路，算出每个背包最多能装多少价值。', 'The total weight can’t exceed the capacity, and each item can be taken at most once. Build the knapsack table’s circuit and work out the most value each backpack can hold.'), how: T('前两个测试，就是你上一关亲手装过的背包。通过后，绿色格子是倒推出的装法。', 'The first two tests are the backpacks you packed by hand last level. Once you pass, the green cells show the packing traced back from the table.') },
-    world: 'knap', facts: ['value'], palette: KIT,
+    world: 'knap', facts: ['value'],
     tests: [PACK_A, PACK_B, PACK_C],
     solution: circ([['a', 'add'], ['m', 'mmax']], ['tap:upk>a:0', 'tap:value>a:1', 'tap:up>m:0', 'a>m:1', 'm>out:cell']),
     hints: [
@@ -47,7 +46,7 @@ export const knapsack = [
     },
     boardOpt: { minScale: 0.68, maxScale: 1.15 },
     // Keep, or swap for another plus a gain: the shape of every "take it or not" choice.
-    unlock: 'choose', blueprint: { ports: [port(T('不换', 'keep'), 'a', 'num', 'up'), port(T('换来', 'swap for'), 'b', 'num', 'upk'), port(T('加上', 'plus'), '+', 'num', 'value')], common: true, f: ([a, b, c]) => partFn('mmax')([a, partFn('add')([b, c])]) },
+    unlock: 'choose', blueprint: { ports: [port(T('不换', 'keep'), 'a', 'num', 'up'), port(T('换来', 'swap for'), 'b', 'num', 'upk'), port(T('加上', 'plus'), '+', 'num', 'value')], f: ([a, b, c]) => partFn('mmax')([a, partFn('add')([b, c])]) },
     debrief: { title: T('0/1 背包', '0/1 knapsack'), body: [T('每件物品只有两种命运：不拿（看正上方），或者拿（去上一行腾出它的重量，再加上它的价值），两者取较大。', 'Each item has only two fates: left out (look right above), or taken (make room for its weight on the row above, then add its value). Take the larger of the two.'), T('来路必须从<b>上一行</b>出发。上一行还没考虑过这件物品，从那里拿，才能保证它只被拿一次。', 'The way in must start from <b>the row above</b>. The row above hasn’t considered this item yet, so taking it from there guarantees it is taken only once.'), T('这个问题叫 <b>0/1 背包</b>。选课、做预算、装货柜、给服务器分配任务，背后都是它。', 'This problem is called the <b>0/1 knapsack</b>. Choosing courses, budgeting, loading shipping containers and assigning jobs to servers all come down to it.')], note: T('0/1 背包：不拿看正上方；拿就从上一行腾出重量，再加价值。', '0/1 knapsack: leave it out, look right above; take it, make room for its weight on the row above and add its value.') },
   },
   // The knapsack series (长臂's topic): each kind as many times as you like, then a backpack that mixes both kinds. The
@@ -60,7 +59,7 @@ export const knapsack = [
       { t: T('伸缩臂照样伸到往左「这种东西的重量」格，上一行、本行各够到一格。', 'The telescopic arm still reaches as many columns to the left as this kind weighs, one cell on the row above and one on this row.') },
     ],
     mission: { goal: T('每种东西可以拿任意多件，总重量不能超过容量。拼出电路板，算出每个背包最多能装多少价值。', 'Each kind can be taken as many times as you like, and the total weight can’t exceed the capacity. Build the circuit board and work out the most value each backpack can hold.'), how: T('还是逐行、从左往右算。', 'Still row by row, left to right.') },
-    world: 'knap', facts: ['value'], palette: KIT,
+    world: 'knap', facts: ['value'],
     tests: [
       { W: 7, items: [{ n: T('苹果', 'apples'), w: 2, v: 3, many: true }, { n: T('西瓜', 'melons'), w: 3, v: 5, many: true }] },
       { W: 10, items: [{ n: T('腊肉', 'bacon'), w: 6, v: 13, many: true }, { n: T('面粉', 'flour'), w: 5, v: 10, many: true }, { n: T('盐', 'salt'), w: 1, v: 1, many: true }] },
@@ -82,7 +81,7 @@ export const knapsack = [
       { t: T('本格信息里多了一条「这件能拿多次」。', 'The cell facts now include “can take many”.') },
     ],
     mission: { goal: T('每件东西要么最多拿一件，要么可以拿很多件，总重量不能超过容量。算出每个背包最多能装多少价值。', 'Each thing can be taken either at most once or as many times as you like, and the total weight can’t exceed the capacity. Work out the most value each backpack can hold.'), how: T('物品栏里标 ×n 的可以拿很多件。', 'Items marked ×n can be taken many times.') },
-    world: 'knap', facts: ['value', 'many'], palette: KIT,
+    world: 'knap', facts: ['value', 'many'],
     tests: [
       { W: 11, items: [{ n: T('帐篷', 'tent'), w: 5, v: 12 }, { n: T('矿泉水', 'water'), w: 4, v: 9, many: true }, { n: T('相机', 'camera'), w: 3, v: 7 }, { n: T('饼干', 'biscuits'), w: 2, v: 3, many: true }] },
       { W: 8, items: [{ n: T('指南针', 'compass'), w: 3, v: 10 }, { n: T('罐头', 'cans'), w: 4, v: 9, many: true }, { n: T('能量棒', 'energy bars'), w: 1, v: 3, many: true }] },
@@ -107,7 +106,7 @@ export const knapsack = [
       { t: T('真正的门道在机器的<b>改写方向</b>：每件最多拿一次时，它<b>从右往左</b>改写；每件可以拿很多次时，它<b>从左往右</b>改写。同一块电路板，为什么换个方向，答案就不一样？', 'The real trick is the machine’s <b>rewrite direction</b>: when each item can be taken at most once, it rewrites <b>right to left</b>; when each item can be taken many times, it rewrites <b>left to right</b>. Why does the same circuit board give different answers when only the direction changes?') },
     ],
     mission: { goal: T('一种背包每件最多拿一次，另一种每件可以拿很多次，总重量都不能超过容量。拼好电路，让四个测试都算对。', 'In one kind of backpack each item can be taken at most once; in the other, many times. Either way, the total weight can’t exceed the capacity. Build the circuit so that all four tests come out right.'), how: T('黄色是正在改写的格子；红色表示读到了这一轮刚改过的值。', 'Yellow is the cell being rewritten; red means a value rewritten earlier this round was read.') },
-    world: 'roll', facts: ['value'], palette: KIT, noTrace: true,
+    world: 'roll', facts: ['value'], noTrace: true,
     // A challenge: the naive board only ever takes the item, forgetting that leaving it out may be better.
     naive: circ([['a', 'add']], ['tap:src>a:0', 'tap:value>a:1', 'a>out:cell']),
     dirs: { '01': 'asc', inf: 'desc' }, solutionDirs: { '01': 'desc', inf: 'asc' },

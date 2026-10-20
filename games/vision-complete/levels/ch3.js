@@ -72,7 +72,6 @@ const ball = {
   hint: { zh: '两个单位长度的方向，夹角的 cos 等于它们的分量两两相乘再相加。', en: 'For two directions of unit length, the cos of the angle between them is their components multiplied pairwise and added.' },
   after: { zh: '这就是朗伯模型：哑光表面的亮度 = 灯 × 反射率 × cos θ。正对着灯最亮，越斜越暗，因为同一束光铺到了更大的面积上。你搭的电路成了「朗伯着色」元件，灯的方向可调；背光的地方，它输出 0。', en: 'This is the Lambertian model: the brightness of a matte surface = lamp × reflectance × cos θ. Facing the lamp is brightest, and the more it turns away the darker it gets, because the same beam spreads over a larger area. Your circuit is now the "Lambert shading" part, with an adjustable lamp direction; where the surface faces away, it outputs 0.' },
   unlocks: ['lambert'],
-  palette: ['arith', 'merge', 'const'],
   tests: [
     [{ zh: '白球', en: 'White ball' }, 'dome', 'white'],
     [{ zh: '两个鼓包', en: 'Two bumps' }, 'bumps', 'stripes'],
@@ -97,7 +96,6 @@ const fill = {
   hint: { zh: '两盏灯照亮同一块表面，各自贡献的亮度会怎样合在一起？背对补光的地方呢？', en: 'Two lamps light the same surface: how do the brightnesses they each give combine? And where the surface faces away from the fill light?' },
   after: { zh: '光是相加的：两盏灯照出的亮度，等于各自照出的亮度之和。背对补光的那一面得不到补光，亮度不会变成负数，所以要在 0 截住。摄影棚里的主光加补光、游戏里的多光源，都是这样一盏一盏加起来的。', en: 'Light adds up: the brightness under two lamps is the sum of what each gives on its own. The side facing away from the fill light gets none of it, and brightness cannot be negative, so it is cut off at 0. A key light plus a fill light in a studio, or many lights in a game, are added up lamp by lamp just like this.' },
   unlocks: [],
-  palette: ['shade', 'arith', 'merge', 'const'],
   tests: [
     [{ zh: '高鼓包', en: 'A tall bump' }, 'steep', 'white'],
     [{ zh: '一对鼓包', en: 'A pair of bumps' }, 'pair', 'stripes'],
@@ -146,7 +144,6 @@ const camera = {
   brief: { zh: '「光谱」是从紫（400 nm）到红（700 nm）的 10 个波段各有多少光。相机有三种感光元件，各有一条灵敏度曲线。每种的读数 = 光谱乘上它的灵敏度曲线，再求平均。输出 R、G、B 三个读数。', en: 'The "Spectrum" is how much light there is in each of 10 bands from violet (400 nm) to red (700 nm). The camera has three kinds of sensor, each with a sensitivity curve. Each sensor reads the spectrum times its sensitivity curve, averaged. Output the three readings, R, G and B.' },
   after: { zh: '一整条光谱，被三种感光元件压成三个数，这就是相机（和人眼）看到的颜色。你搭的电路成了「感光」元件：选 R、G 或 B，它就按那条曲线读数。', en: 'A whole spectrum, squeezed by three kinds of sensor into three numbers: that is the colour a camera (and an eye) sees. Your circuit is now the "Sensor" part: choose R, G or B and it reads with that curve.' },
   unlocks: ['sense'],
-  palette: ['arith', 'merge', 'fqMean', 'const'],
   check: { tolerance: 0.01 },
   tests: [[{ zh: '日光', en: 'Daylight' }, 'daylight'], [{ zh: '苹果', en: 'An apple' }, 'apple'], [{ zh: '树叶', en: 'A leaf' }, 'leaf'], [{ zh: '天空', en: 'The sky' }, 'sky']].map(([label, key]) => spectrumTest(label, key)),
   hidden: [[{ zh: '钠灯', en: 'A sodium lamp' }, 'sodium'], [{ zh: '紫色', en: 'Purple' }, 'violet']].map(([label, key]) => spectrumTest(label, key)),
@@ -210,7 +207,6 @@ const metamers = {
   hint: { zh: '日光那一组的答案全是 0。两块布的光谱明明不一样，相机为什么分不出来？', en: 'The daylight test expects all zeros. The two cloths\' spectra are plainly different, so why can the camera not tell them apart?' },
   after: { zh: '两块布在日光下读数一样，换一盏灯就不一样了：它们的光谱不同，只是差别正好落在三种感光都看不见的地方。这叫同色异谱。买衣服时在店里灯下配好的颜色，到了太阳底下对不上，就是这个原因。感光是线性的，所以「先相减再读数」和「分别读数再相减」一样。', en: 'The two cloths read the same in daylight and differently under another lamp: their spectra differ, but only where none of the three sensors can see. This is metamerism. It is why colours that match under the shop\'s lights can clash in the sun. Sensing is linear, so "subtract, then read" is the same as "read each, then subtract".' },
   unlocks: [],
-  palette: ['sense', 'arith', 'merge', 'const', 'fqMean'],
   check: { tolerance: 0.01 },
   tests: [
     [{ zh: '赭色 · 日光', en: 'Ochre · daylight' }, 'ochre', 'daylight'],
@@ -275,7 +271,6 @@ const shadow = {
   hint: { zh: '照片 = 颜色 × 光照。已知其中两个，怎样求第三个？减法行不行，看看阴影里的格子。', en: 'Photo = colour × lighting. If you know two of them, how do you find the third? To see whether subtracting works, look at the squares in the shadow.' },
   after: { zh: '颜色 = 照片 ÷ 光照。注意第四张：一面纯色的墙，照片里却有一条很硬的边，那是阴影的边，不是物体的边。照片里的边缘只说明「这里亮度变了」，变的可能是颜色，也可能只是光。', en: 'Colour = photo ÷ lighting. Look at the fourth scene: a plain wall, yet the photo has a hard edge in it. That is the edge of a shadow, not of an object. An edge in a photo only says "the brightness changes here"; what changed may be the colour, or just the light.' },
   unlocks: [],
-  palette: ['arith', 'merge', 'const'],
   tests: SHADOW_SCENES.map(([label, colour, lit]) => test(label, { photo: photo(colour, lit), light: lit }, { out: colour })),
   hidden: SHADOW_HIDDEN.map(([label, colour, lit]) => test(label, { photo: photo(colour, lit), light: lit }, { out: colour })),
   solution: shadowGraph({ d: ['arith', { op: 'div' }] }, ['photo>d.a', 'light>d.b', 'd>out']),
@@ -322,7 +317,6 @@ const onlyRed = {
   hint: { zh: '阴影里的红苹果，R 并不大；阳光下的白纸，R 却很大。光照把三个数一起放大缩小，什么量不受它影响？', en: 'A red apple in the shade has a small R; white paper in the sun has a big one. Lighting scales all three numbers together, so what stays the same?' },
   after: { zh: '光照让 R、G、B 一起变大变小，三者的比例却不变。r = R ÷ (R + G + B) 只看颜色、不看明暗，是一种色度。HSV、Lab 这些颜色空间也是同一个想法：把「什么颜色」和「多亮」分开放。', en: 'Lighting scales R, G and B together, but their proportions stay the same. r = R ÷ (R + G + B) sees the colour and not the brightness: it is a chromaticity. Colour spaces such as HSV and Lab follow the same idea: they keep "which colour" apart from "how bright".' },
   unlocks: [],
-  palette: ['arith', 'merge', 'const', 'threshold'],
   tests: [
     [{ zh: '苹果', en: 'Apples' }, 'apples', 'window'],
     [{ zh: '旗子', en: 'Flags' }, 'flags', 'shade'],
@@ -352,7 +346,6 @@ const gradient = {
   hint: { zh: '箭头的长度怎么从两个分量算出来？想想勾股定理。', en: 'How do you get the arrow\'s length from its two components? Think of Pythagoras.' },
   after: { zh: '两个方向的坡度合成一个长度，边缘强度就和边的方向无关了：横边、竖边、斜边一样亮。方向本身是 atan2(gy, gx)，箭头总指向变亮最快的方向，在边上和边垂直。切到「坡度」画法看输入：箭头就画在每个像素上。', en: 'Combining the slopes in two directions into one length makes edge strength independent of edge direction: horizontal, vertical and diagonal edges are equally bright. The direction itself is atan2(gy, gx); the arrow always points where the brightness rises fastest, and on an edge it is perpendicular to the edge. Draw the input in the "Slope" view: the arrows are drawn at every pixel.' },
   unlocks: ['gradmag'],
-  palette: ['sobelx', 'sobely', 'arith', 'merge', 'sqrt', 'const'],
   tests: [[{ zh: '方块', en: 'Square' }, P.square()], [{ zh: '圆盘', en: 'Disc' }, P.disk()], [{ zh: '字母 X', en: 'Letter X' }, P.glyph(GLYPHS.X)], [{ zh: '角', en: 'Corner' }, P.corner()]].map(([label, img]) => test(label, { in: img }, { out: gradmag(img) })),
   hidden: [[{ zh: '低对比圆盘', en: 'Low-contrast disc' }, P.disk(9, 6, 4, 0.4, 0.65)], [{ zh: '挪开的字母 T', en: 'Shifted letter T' }, P.glyph(GLYPHS.T, 0.2, 0.75, 5, 4)], [{ zh: '斜坡', en: 'Ramp' }, fromFn(S, S, (x, y) => 0.1 + 0.03 * x + 0.02 * y)]].map(([label, img]) => test(label, { in: img }, { out: gradmag(img) })),
   solution: build({ x: 'sobelx', y: 'sobely', xx: ['arith', { op: 'mul' }], yy: ['arith', { op: 'mul' }], a: ['arith', { op: 'add' }], r: 'sqrt' }, ['in>x', 'in>y', 'x>xx.a', 'x>xx.b', 'y>yy.a', 'y>yy.b', 'xx>a.a', 'yy>a.b', 'a>r', 'r>out']),
@@ -375,7 +368,7 @@ const dimLight = {
   hint: { zh: '不知道灯暗了多少，能不能在图里找一把跟着灯光一起变长变短的尺子？', en: 'You don\'t know how much the light dimmed. Can you find a ruler inside the image that grows and shrinks with the light?' },
   after: { zh: '求坡度去掉了整体加亮（偏置），除以最陡的坡度去掉了整体倍数（增益）。设计特征时先问：哪些变化不应该改变答案？这叫不变性。注意图外补的数：补 0 会在图边造出一条随灯光变化的假边，所以要复制边缘。', en: 'Taking slopes removes an overall brightening (the offset); dividing by the steepest slope removes an overall scaling (the gain). When you design a feature, first ask: which changes should not change the answer? This is called invariance. Mind the padding outside the image: padding with 0 creates a fake edge at the border that changes with the lighting, so replicate the edge instead.' },
   unlocks: [],
-  palette: ['gradmag', 'globalMax', 'arith', 'merge', 'threshold', 'const'],
+  adds: ['globalMax'],
   tests: [[1, 0], [0.45, 0.05], [1.6, -0.1], [0.7, 0.3]].map(([gain, offset]) => {
     const subject = P.glyph(GLYPHS.F, 0.15, 0.55)
     const extra = offset ? ` ${offset > 0 ? '+' : ''}${offset}` : ''
@@ -419,7 +412,6 @@ const balance = {
   hint: { zh: '白纸本来应该是什么颜色？', en: 'What colour should the white paper really be?' },
   after: { zh: '每个通道除以白纸在这个通道的读数，灯的颜色就抵消了。相机的「白平衡」做的就是这件事：找一个应该是白色的东西，按它把三个通道拉齐。照片里最亮的东西当白色，叫「白块假设」；照片里没有白东西时，它就会出错。', en: 'Divide each channel by the white paper\'s reading in that channel, and the colour of the lamp cancels out. A camera\'s "white balance" does exactly this: find something that ought to be white and even up the three channels by it. Taking the brightest thing as white is called the "white patch" assumption; it fails when nothing in the photo is white.' },
   unlocks: [],
-  palette: ['globalMax', 'arith', 'merge', 'const'],
   tests: [
     [{ zh: '书桌', en: 'A desk' }, 'desk', 1],
     [{ zh: '集市', en: 'A market' }, 'market', 0.8],
@@ -485,7 +477,6 @@ const leaning = {
   hint: { zh: '一张照片里暗，可能是漆深，也可能是朝向。三张照片里，什么是一样的？', en: 'Dark in one photo may mean dark paint or a turned-away surface. What is the same in all three photos?' },
   after: { zh: '一张照片只给出一个亮度，它同时取决于漆色和朝向，分不开。换一盏灯再拍一张，漆色在两张里一样，比一比就消掉了，剩下的只和朝向有关。这就是光度立体：用几盏已知的灯，从明暗里解出表面的朝向。', en: 'One photo gives one brightness, which depends on both the paint and the facing, and the two cannot be told apart. Take another photo under another lamp: the paint is the same in both, so comparing them cancels it, and what is left depends only on the facing. This is photometric stereo: with a few known lamps, the facing of a surface is solved from its shading.' },
   unlocks: [],
-  palette: ['arith', 'merge', 'const', 'threshold', 'sqrt'],
   check: { tolerance: 0.02, mismatches: 2 },
   tests: [
     [{ zh: '一个鼓包', en: 'A bump' }, dome(7.5, 7.5, 6, 2.5), 3],
@@ -514,7 +505,6 @@ const albedo = {
   hint: { zh: '正面灯的照片是反射率 × nz。另两张各多了一个分量。', en: 'The front lamp\'s photo is reflectance × nz. The other two each bring in one more component.' },
   after: { zh: '三张照片按固定的系数相减，得到反射率乘上法线的三个分量 ρ·(nx, ny, nz)。法线长度是 1，所以这个向量的长度就是反射率 ρ，方向就是法线。三盏灯，三个方程，三个未知数（加上 ρ 一共四个数，靠「长度为 1」补上最后一个）。', en: 'Subtracting the three photos with fixed weights gives the reflectance times each component of the normal: ρ·(nx, ny, nz). A normal has length 1, so the length of this vector is the reflectance ρ and its direction is the normal. Three lamps, three equations, three unknowns (with ρ there are four numbers, and "length 1" supplies the last one).' },
   unlocks: [],
-  palette: ['arith', 'merge', 'const', 'threshold', 'sqrt'],
   tests: [
     [{ zh: '一个鼓包', en: 'A bump' }, dome(7.5, 7.5, 6, 2.5), 8],
     [{ zh: '斜着的板', en: 'A sloping sheet' }, sum(tilt(0.2, -0.25), dome(11, 5, 3, 1)), 9],
@@ -548,7 +538,6 @@ const dents = {
   hint: { zh: '上两关各求出了一部分。坡度只和朝向有关。', en: 'The last two levels each worked out part of it. The slope depends only on the facing.' },
   after: { zh: '凹坑检测台用的就是光度立体：几盏灯轮流打光，解出每一点的朝向，坑和划痕在朝向图里一目了然，漆色深浅完全不影响。手机拍证件、工厂查钢板表面，都有这样的做法。', en: 'This dent detector is photometric stereo at work: a few lamps light the part in turn, the facing at every point is solved, and dents and scratches stand out in the map of facings, whatever the paint does. Document scanning on phones and steel-sheet inspection in factories use the same approach.' },
   unlocks: [],
-  palette: ['arith', 'merge', 'const', 'threshold', 'sqrt', 'gradmag'],
   check: { tolerance: 0.02, mismatches: 3 },
   tests: [
     [{ zh: '一个坑', en: 'One dent' }, sum(SHEET_BEND, bowl(7, 8, 4, 1.6)), 13],

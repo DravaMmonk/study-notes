@@ -4,8 +4,6 @@ import { gridScene, circuitFig } from '../../kit/domains/table/svg.js';
 import { circ, hasKind } from '../../kit/domains/table/circuit/components.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
-const YESNO = ['many', 'not', 'pass', 'block', 'const'];
 const MAP_A = [[1, 3, 1, 2], [2, 5, 1, 4], [4, 2, 6, 1]];
 const MAP_B = [[2, 1, 4, 1], [3, 6, 1, 2], [1, 2, 5, 3], [4, 1, 2, 1]];
 const COUNT = circ([['m', 'msum'], ['k', 'const', 1], ['g', 'pass']], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>g:0', 'k>g:1', 'g>m:2', 'm>out:cell']);
@@ -26,18 +24,18 @@ export const skeleton = [
     tests: [{ R: 3, C: 4 }, { R: 4, C: 4 }],
     stages: [
       {
-        world: 'grid', facts: ['start'], palette: ['msum', 'const', 'pass'], ask: T('先数路线：从起点到终点一共有几条？', 'Count the routes first: how many lead from the start to the end?'), solution: COUNT,
+        world: 'grid', facts: ['start'], ask: T('先数路线：从起点到终点一共有几条？', 'Count the routes first: how many lead from the start to the end?'), solution: COUNT,
         hints: [T('每个路口 = 上面 + 左边，起点放行 1。', 'Each crossing = up + left, with a 1 let through at the start.')],
         done: { head: T('路线数好了', 'Routes counted'), body: [T('同一张地图，下一个问题：路口角上的数是金币，最多能捡到几枚？', 'Same map, next question: the numbers in the corners are coins. How many can you pick up at most?'), T('电路板会留着。想想要换掉哪个元件，又要多接什么。', 'The board stays. Think about which component to swap, and what else to wire in.')] },
       },
       {
-        world: 'grid', facts: ['start', 'coin'], palette: KIT, carry: true, tests: [{ R: 3, C: 4, coins: MAP_A }, { R: 4, C: 4, coins: MAP_B }],
+        world: 'grid', facts: ['start', 'coin'], carry: true, tests: [{ R: 3, C: 4, coins: MAP_A }, { R: 4, C: 4, coins: MAP_B }],
         ask: T('角上的数是金币（起点和终点也算），最多能捡到几枚？', 'The numbers in the corners are coins (the start and end count too). How many can you pick up at most?'), solution: best('mmax', 'coin'),
         hints: [T('只走一条路，两边挑金币多的那边：把汇合器换成「取较大」。', 'You walk only one route, so of the two sides pick the one with more coins: change the Merger to “max”.'), T('经过这个路口，还要捡起它自己的金币：取较大之后，用加法器加上「本格金币」。', 'Passing through this crossing, you also pick up its own coins: after the max, use an Adder to add “cell coins”.'), T('起点的上面和左边都是「—」：放行闸在起点送进去的数要改成 0（点常数可以改）。', 'Up and left of the start are both “—”: the number the Pass gate lets in at the start must become 0 (click the Constant to change it).')],
         done: { head: T('金币也算好了', 'Coins done too'), body: [T('你只换了汇合器，再加上本格的金币。', 'All you did was swap the Merger and add the cell’s own coins.'), T('最后一个问题：角上的数换成体力，最少要花多少？', 'Last question: the numbers in the corners are now energy. What is the least you must spend?')] },
       },
       {
-        world: 'grid', facts: ['start', 'cost'], palette: KIT, carry: true, tests: [{ R: 3, C: 4, costs: MAP_A }, { R: 4, C: 4, costs: MAP_B }],
+        world: 'grid', facts: ['start', 'cost'], carry: true, tests: [{ R: 3, C: 4, costs: MAP_A }, { R: 4, C: 4, costs: MAP_B }],
         ask: T('角上的数换成体力（起点和终点也算），最少要花多少？', 'The numbers in the corners are now energy (the start and end count too). What is the least you must spend?'), solution: best('mmin', 'cost'),
         hints: [T('这次挑花费少的那边：汇合器换成「取较小」。', 'This time pick the cheaper side: change the Merger to “min”.'), T('加法器那一路，从「本格金币」换成「本格体力」。', 'On the Adder’s side, switch “cell coins” for “cell energy”.')],
       },
@@ -54,7 +52,7 @@ export const skeleton = [
       { t: T('起点本身当然能到。石头格呢？拦截闸现在也能拦「是 / 否」：被拦下的格子写「—」，「任一是」不会把它当成「是」。', 'The start can of course be reached. What about rock cells? The Block gate can now block “yes / no” too: a blocked cell gets “—”, and “any yes” won’t count it as a “yes”.') },
     ],
     mission: { goal: T('只能往右或往下走，不能经过石头。每个格子写上「是」或「否」：从起点能不能走到这里（石头格写「—」）。', 'Only right or down, and never through a rock. Write “yes” or “no” in every cell: can you get here from the start? (Rock cells get “—”.)'), how: T('这一关会检查整张表。读上面、左边和「是起点」，用「任一是」汇合器合起来，别忘了石头。', 'This level checks the whole table. Read up, left and “is start”, merge them with an “any yes” Merger, and don’t forget the rocks.') },
-    world: 'gridYes', facts: ['start', 'rock'], palette: YESNO, fresh: ['many'], checkAll: true,
+    world: 'gridYes', facts: ['start', 'rock'], adds: ['many', 'not'], fresh: ['many'], checkAll: true,
     tests: [{ R: 4, C: 5, rocks: [[0, 3], [1, 1], [2, 3]] }, { R: 4, C: 4, rocks: [[0, 2], [1, 1], [2, 0]] }, { R: 5, C: 5, rocks: [[1, 2], [2, 1], [3, 3], [4, 2]] }],
     testLabel: t => tr(`${t.R}×${t.C} · ${t.rocks.length} 块石头`, `${t.R}×${t.C} · ${t.rocks.length} rocks`),
     solution: circ([['m', 'many'], ['b', 'block']], ['tap:up>m:0', 'tap:left>m:1', 'tap:start>m:2', 'tap:rock>b:0', 'm>b:1', 'b>out:cell']),
@@ -70,7 +68,7 @@ export const skeleton = [
       { t: T('新元件「<b>取反</b>」：「是」变「否」，「否」变「是」。格子里记的是「轮到的人能不能赢」。你拿完以后，轮到的是谁？', 'A new component, “<b>Not</b>”: “yes” becomes “no”, and “no” becomes “yes”. Each cell records “can the player to move win”. After you take your stones, whose move is it?'), fig: circuitFig({ taps: [['a', T('对手 · 否', 'opponent · no'), 'bool']], parts: [['n', T('取反', 'Not'), T('是 ↔ 否', 'yes ↔ no')]], outs: [['o', T('你 · 是', 'you · yes')]], wires: [['a', 'n', 'bool'], ['n', 'o', 'bool']] }) },
     ],
     mission: { goal: T('每次拿 1 颗或 2 颗，拿走最后一颗的人赢。算出石子还剩几颗时，轮到的人能不能赢。', 'Take 1 or 2 stones each time; whoever takes the last stone wins. For each number of stones left, work out whether the player to move can win.'), how: T('这一关会检查整行。在视野里点「拿走 1 颗后」和「拿走 2 颗后」，拼出电路。', 'This level checks the whole row. Click “after taking 1” and “after taking 2” in the view, and build the circuit.') },
-    world: 'pile', facts: ['ground'], palette: YESNO, fresh: ['not'], checkAll: true,
+    world: 'pile', facts: ['ground'], fresh: ['not'], checkAll: true,
     tests: [{ n: 5 }, { n: 9 }, { n: 10 }],
     solution: circ([['a', 'not'], ['b', 'not'], ['m', 'many']], ['tap:m1>a:0', 'tap:m2>b:0', 'a>m:0', 'b>m:1', 'm>out:cell']),
     hints: [T('你拿完之后，轮到谁走？对手那一格是「是」，对你来说意味着什么？', 'After your move, whose turn is it? If the opponent’s cell is “yes”, what does that mean for you?'), T('两种拿法，只要有一种让对手输，你就赢：两个取反都接进「任一是」。', 'Of the two ways to take, if either leaves the opponent losing, you win: wire both Nots into “any yes”.')],
@@ -85,7 +83,7 @@ export const skeleton = [
       { t: T('三种拿法，对手分别落到「A 堆少 1 颗」（上面）、「B 堆少 1 颗」（左边）和「两堆各少 1 颗」（左上）那一格。规则和「拿石子」那一关一样。拼好之后，看看整张棋盘上长出了什么花纹。', 'The three moves land your opponent on the cells “one fewer in A” (up), “one fewer in B” (left) and “one fewer in each” (up-left). The rule is the same as in “Take the stones”. Once it is built, see what pattern grows across the whole board.') },
     ],
     mission: { goal: T('每次从一堆里拿 1 颗，或者两堆各拿 1 颗，拿走最后一颗的人赢。算出每种局面下，轮到的人能不能赢。', 'Each move takes 1 stone from one pile, or 1 from each; whoever takes the last stone wins. For every position, work out whether the player to move can win.'), how: T('这一关会检查整张棋盘。通过后，看看「是」和「否」排成了什么样子。', 'This level checks the whole board. Once you pass, see how the “yes” and “no” cells are arranged.') },
-    world: 'piles', facts: [], palette: YESNO, checkAll: true,
+    world: 'piles', facts: [], checkAll: true,
     tests: [{ R: 4, C: 5 }, { R: 5, C: 5 }, { R: 6, C: 7 }],
     solution: circ([['a', 'not'], ['b', 'not'], ['c', 'not'], ['m', 'many']], ['tap:up>a:0', 'tap:left>b:0', 'tap:ul>c:0', 'a>m:0', 'b>m:1', 'c>m:2', 'm>out:cell']),
     hints: [T('三种拿法：「A 堆少 1 颗」「B 堆少 1 颗」「两堆各少 1 颗」，三格都要读。', 'Three moves: “one fewer in A”, “one fewer in B” and “one fewer in each”. All three cells need reading.'), T('每种拿法都取反，再一起接进「任一是」。', 'Put a Not on each move, then wire them all into “any yes”.')],

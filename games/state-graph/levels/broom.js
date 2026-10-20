@@ -5,7 +5,6 @@
 import { circ, usesSensor } from '../../kit/domains/table/circuit/components.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 const dictBox = t => `<div class="afterbox"><span class="eyebrow">${tr('词典 · 代价', 'Dictionary · cost')}</span><div class="diff">${Object.entries(t.dict).map(([w, c]) => `<span class="dt">${w} · ${c}</span>`).join('')}${t.letter !== undefined ? `<span class="dt">${tr(`单个字母 · ${t.letter}`, `a single letter · ${t.letter}`)}</span>` : ''}</div></div>`;
 // The topic's board: at every cut, the table there + the piece's cost; the cheapest of them, and 0 at the start.
 const CUTTER = circ([['a', 'add'], ['m', 'mmin'], ['z', 'const', 0], ['g', 'pass']], ['tap:seg>a:0', 'tap:cost>a:1', 'a>m:0', 'tap:ground>g:0', 'z>g:1', 'g>m:1', 'm>out:cell']);
@@ -18,7 +17,7 @@ export const broom = [
       { t: T('块数最少的切法，不一定最省。', 'The way with the fewest pieces is not always the cheapest.') },
     ],
     mission: { goal: T('算出每串字母最省的切法要花多少代价。', 'Work out what the cheapest way to cut each string costs.'), how: T('词典和代价写在测试旁边。', 'The dictionary and its costs are shown next to the tests.') },
-    world: 'pieces', facts: ['ground'], palette: KIT,
+    world: 'pieces', facts: ['ground'],
     tests: [
       { s: 'pineapplepen', dict: { pine: 2, apple: 1, pineapple: 4, pen: 1 } },
       { s: 'catsanddog', dict: { cat: 1, cats: 3, and: 1, sand: 2, dog: 1 } },
@@ -36,7 +35,7 @@ export const broom = [
       { t: T('这样每一句都切得开，而认识的词总是更省。', 'That way every sentence can be cut, and known words are always cheaper.') },
     ],
     mission: { goal: T('算出每句话最省的切法要花多少代价。', 'Work out what the cheapest cut of each sentence costs.'), how: T('单个字母的代价写在词典最后。', 'What a single letter costs is shown at the end of the dictionary.') },
-    world: 'pieces', facts: ['ground'], palette: KIT,
+    world: 'pieces', facts: ['ground'],
     tests: [
       { s: 'mycatzedsleeps', dict: { my: 1, cat: 1, cats: 2, sleep: 1, sleeps: 1, eps: 2 }, letter: 5 },
       { s: 'thedogranhome', dict: { the: 1, dog: 1, ran: 1, home: 1, ho: 2, me: 1 }, letter: 4 },
@@ -53,7 +52,7 @@ export const broom = [
       { t: T('一个小摊每天的收支：赚了是正，赔了是负。<b>连续的哪几天</b>加起来最多？', 'A market stall’s daily takings: a profit is positive, a loss negative. Which <b>run of consecutive days</b> adds up to the most?') },
     ],
     mission: { goal: T('算出连续若干天的收支加起来，最多是多少。', 'Work out the largest total of any run of consecutive days.'), how: T('答案是表里最大的那一格。', 'The answer is the largest cell in the table.') },
-    world: 'gains', facts: ['money'], palette: KIT,
+    world: 'gains', facts: ['money'],
     tests: [{ a: [-2, 1, -3, 4, -1, 2, 1, -5, 4] }, { a: [3, -4, 5, -1, 2, -6, 3] }, { a: [-1, 2, 3, -7, 4, 1, -2, 5] }],
     // A cell holds the best run that ends today: today alone, or today added to the best run that ended yesterday.
     solution: circ([['c', 'bp:knaptable']], ['tap:money>c:0', 'tap:prev>c:1', 'tap:money>c:2', 'c>out:cell']),

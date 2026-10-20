@@ -6,7 +6,6 @@ import { editTable, localTrace } from '../../kit/domains/table/algo.js';
 import { bestTags, TAG, tagFig, TAGS } from '../../kit/domains/table/circuit/worlds/tags.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 const COST = {
   start: { N: 0, V: 2, A: 2 },
   trans: { N: { N: 3, V: 0, A: 2 }, V: { N: 0, V: 3, A: 2 }, A: { N: 0, V: 2, A: 3 } },
@@ -34,7 +33,7 @@ export const language = [
       { t: T('只看最后一步：上一个词可能是三种词性里的任何一种。每种可能，要用到表里的哪一格、本格信息里的哪一项？三种可能里，你要的是哪一个？机器人用伸缩臂读上一个词的三格；第一个词前面只有句首，伸缩臂只读到句首那一格，「跟在名词后」那一项就是从句首开始的代价。', 'Look only at the last step: the previous word could be any of the three parts of speech. For each possibility, which cell of the table and which fact in the This cell panel do you need? Of the three, which one do you want? The robot reads the previous word’s three cells with its telescopic arm; before the first word there is only “start”, so the arm reads just that cell, and the “after a noun” fact is then the cost of starting the sentence.') },
     ],
     mission: { goal: T('算出给整句话标词性的最小总代价：每个词当这种词性的代价，加上相邻两个词性接在一起的代价。', 'Work out the smallest total cost of tagging the whole sentence: the cost of each word taking its part of speech, plus the cost of each pair of neighbouring parts of speech.'), how: T('本格信息里有「跟在名词 / 动词 / 形容词后」的代价，和「这个词这么标」的代价。通过后，看看表倒推出的标法。', 'The This cell panel has the costs “after a noun / verb / adjective” and “this word, this tag”. Once you pass, see the tagging traced back from the table.') },
-    world: 'tags', facts: ['tN', 'tV', 'tA', 'emit'], palette: KIT,
+    world: 'tags', facts: ['tN', 'tV', 'tA', 'emit'],
     tests: [
       S1,
       sent([IMPORT, TV, QUALITY, GOOD], [{ N: 1, V: 1 }, { N: 0 }, { N: 0 }, { A: 0, V: 3 }], COST),
@@ -61,7 +60,7 @@ export const language = [
       { t: T('格子底下的小条，是这一格在这一列里占多大：条越长，这个词越可能是这种词性。', 'The little bar under a cell shows its share of its column: the longer the bar, the more likely this word is to be this part of speech.') },
     ],
     mission: { goal: T('算出这句话出现的可能性：所有标法的可能性之和。每条标法的可能性，是一路上「跟在谁后面」和「这个词这么标」的可能性乘起来。', 'Work out how likely the sentence is: the sum of the probabilities of every tagging. Each tagging’s probability is the “after …” and “this word, this tag” probabilities along the way, multiplied together.'), how: T('电路的骨架和上一关一样，想想哪些元件要换。', 'The circuit’s skeleton is the same as last level’s: think about which components need swapping.') },
-    world: 'tags', facts: ['tN', 'tV', 'tA', 'emit'], palette: [...KIT, 'mul'], prob: true,
+    world: 'tags', facts: ['tN', 'tV', 'tA', 'emit'], adds: ['mul'], prob: true,
     tests: [
       sent([HE, STUDY, HISTORY], [{ N: 0.5 }, { N: 0.2, V: 0.4 }, { N: 0.3 }], PROB),
       sent([IMPORT, TV, QUALITY, GOOD], [{ N: 0.2, V: 0.3 }, { N: 0.4 }, { N: 0.3 }, { A: 0.5, V: 0.1 }], PROB),
@@ -80,7 +79,7 @@ export const language = [
       { t: T('每个测试是一个候选词。三个测试都通过后，看看哪个候选词的步数最少。', 'Each test is one candidate word. Once all three tests pass, see which candidate needs the fewest steps.') },
     ],
     mission: { goal: T('算出打错的词 ACROS 和每个候选词之间的编辑距离（删、插、换各算 1 步）。', 'Work out the edit distance between the typo ACROS and each candidate word (delete, insert and replace each count as 1 step).'), how: T('「编辑距离器」在托盘里，接好它的五个输入就行。', 'The “Edit Distance Meter” is in the tray: just wire up its five inputs.') },
-    world: 'align', border0: false, facts: ['same', 'start'], palette: ['bp:edit', ...KIT],
+    world: 'align', border0: false, facts: ['same', 'start'],
     tests: [{ left: 'ACROS', top: 'ACROSS' }, { left: 'ACROS', top: 'CROSS' }, { left: 'ACROS', top: 'MACRO' }],
     testLabel: t => `${t.left} → ${t.top}`,
     solution: circ([['e', 'bp:edit']], ['tap:ul>e:0', 'tap:up>e:1', 'tap:left>e:2', 'tap:same>e:3', 'tap:start>e:4', 'e>out:cell']),
@@ -101,7 +100,7 @@ export const language = [
       { t: T('合并石子时，每个切分点是「左 + 右」，再挑最省的。这里呢？扫帚的扫描臂照样按切分点送来左段们和右段们，乘法器也能一对一对地乘。', 'When merging stones, each split point was “left + right”, and you picked the cheapest. What about here? Broom’s sweep arm sends the left parts and right parts by split point as before, and a Multiplier can multiply them pair by pair too.') },
     ],
     mission: { goal: T('一串词两两合并成短语，直到合成一整句。算出一共有几种不同的合并方式（几棵句法树）。', 'A run of words is merged two at a time into phrases until it becomes one whole sentence. Work out how many different ways of merging there are (how many parse trees).'), how: T('扫描臂送来每个切分点的左段和右段。', 'The sweep arm sends the left part and right part for every split point.') },
-    world: 'interval', facts: [], palette: [...KIT, 'mul'], diag: 1,
+    world: 'interval', facts: [], diag: 1,
     tests: [{ words: [T('咬死了', 'old'), T('猎人的', 'men and'), T('狗', 'women')] }, { words: [T('我', 'I'), T('看见', 'saw'), T('他', 'him'), T('笑', 'laugh')] }, { words: [T('白', 'big'), T('天', 'white'), T('鹅', 'swans'), T('飞', 'flew'), T('过', 'by')] }],
     solution: circ([['x', 'mul'], ['s', 'msum']], ['tap:segL>x:0', 'tap:segR>x:1', 'x>s:0', 's>out:cell']),
     hints: [T('先只看一个切分点：左边的每一种方式，都能和右边的每一种搭配。这样一共有几种？', 'Look at a single split point first: every way on the left can go with every way on the right. How many is that in all?'), T('所有切分点的结果都算数：接进「加起来」。', 'Every split point’s result counts: wire them into “sum”.')],
@@ -117,7 +116,7 @@ export const language = [
       { t: T('最像的一段不一定在右下角，它可能出现在<b>表里任何地方</b>：答案是整张表里最大的那一格。', 'The most alike stretch isn’t necessarily in the bottom-right corner: it could be <b>anywhere in the table</b>, so the answer is the largest cell in the whole table.') },
     ],
     mission: { goal: T('找出两串字母里最相似的一段：字相同 +2，不同 −1，空位 −1，低于 0 就截成 0。答案是表里最大的分数。', 'Find the most similar stretch of two strings: a match +2, a mismatch −1, a gap −1, and anything below 0 is cut to 0. The answer is the largest score in the table.'), how: T('常数可以设成负数。通过后，看看表倒推出的那一段。', 'Constants can be set to negative numbers. Once you pass, see the stretch traced back from the table.') },
-    world: 'local', border0: true, facts: ['score'], palette: KIT, consts: [-2, -1, 0, 1, 2],
+    world: 'local', border0: true, facts: ['score'], consts: [-2, -1, 0, 1, 2],
     // A challenge: the naive board scores the whole of both strings, never starting again from 0.
     naive: circ([['a', 'add'], ['b', 'add'], ['c', 'add'], ['k', 'const', -1], ['m', 'mmax']], ['tap:ul>a:0', 'tap:score>a:1', 'tap:up>b:0', 'k>b:1', 'tap:left>c:0', 'k>c:1', 'a>m:0', 'b>m:1', 'c>m:2', 'm>out:cell']),
     tests: [{ top: 'AGTACGCA', left: 'TATGC' }, { top: 'GGTTGACTA', left: 'TGTTACGG' }],

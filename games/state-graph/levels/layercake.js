@@ -4,7 +4,6 @@
 import { circ, usesSensor } from '../../kit/domains/table/circuit/components.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
 // Every layer: stay as you were, or step over from the layer you come from and book what the step brings in.
 const TRADER = circ([['c', 'bp:knaptable']], ['tap:left>c:0', 'tap:leftPrev>c:1', 'tap:gain>c:2', 'c>out:cell']);
 
@@ -17,7 +16,7 @@ export const layercake = [
       { t: T('每一层都跑同一块电路板。左边一格是前一天的同一层；探针读<b>来处那层</b>的前一天。从来处走到这一层的进账写在「本格信息」里：买入要付今天的价，卖出能得今天的价。', 'Every layer runs the same board. The cell to the left is the same layer the day before; the probe reads <b>the layer you come from</b>, the day before. What stepping over from there brings in is in the This cell panel: buying pays today’s price, selling earns it.') },
     ],
     mission: { goal: T('算出最多能赚多少钱。一次也不买也行，那就是 0。', 'Work out the most money you can make. Not trading at all is allowed, which makes 0.'), how: T('答案是最后一天「还没买」和「卖掉了」两层里较大的那个。', 'The answer is the larger of the “not bought yet” and “sold” layers on the last day.') },
-    world: 'stock', facts: ['gain'], palette: KIT,
+    world: 'stock', facts: ['gain'],
     tests: [{ p: [7, 1, 5, 3, 6, 4] }, { p: [7, 6, 4, 3, 1] }, { p: [3, 2, 6, 5, 0, 3] }],
     solution: TRADER,
     hints: [
@@ -34,7 +33,7 @@ export const layercake = [
       { t: T('状态还是三种：空手、手里有股、刚卖掉。「刚卖掉」过一天就回到「空手」，这一步的进账是 0。', 'There are still three states: empty-handed, holding, just sold. “Just sold” turns back into “empty-handed” a day later, and that step brings in 0.') },
     ],
     mission: { goal: T('算出最多能赚多少钱。', 'Work out the most money you can make.'), how: T('层和层怎么接，世界已经接好了。你的电路板要改吗？', 'How the layers connect is set by the world. Does your board need to change?') },
-    world: 'stock', facts: ['gain'], palette: KIT,
+    world: 'stock', facts: ['gain'],
     tests: [{ p: [1, 2, 3, 0, 2], cool: true }, { p: [1, 2, 4, 1, 7, 8, 3], cool: true }, { p: [6, 1, 6, 4, 3, 0, 2], cool: true }],
     solution: TRADER,
     hints: [T('先试试上一关的电路板。', 'Try last level’s board first.')],
@@ -47,7 +46,7 @@ export const layercake = [
       { t: T('表有两层，甲和乙，每层都是「不能连着偷」那样的两行：这家没偷、这家偷了。两层各记什么由你决定；本格信息里有「是第一家」「是最后一家」和「是甲层」。', 'The table has two layers, A and B, each the two rows of “No two in a row”: this house skipped, this house robbed. What each layer records is up to you; the cell’s facts include “is the first house”, “is the last house” and “is layer A”.') },
     ],
     mission: { goal: T('不能偷相邻的两家，第一家和最后一家也算相邻。算出最多能偷多少钱。', 'No two neighbouring houses, and the first and the last count as neighbours. Work out the most money you can steal.'), how: T('答案是两层最后一列里最大的那一格。', 'The answer is the largest cell in the last column of either layer.') },
-    world: 'ring', facts: ['money', 'first', 'last', 'sideA'], palette: [...KIT, 'many'],
+    world: 'ring', facts: ['money', 'first', 'last', 'sideA'],
     tests: [{ a: [2, 3, 2] }, { a: [5, 1, 1, 5] }, { a: [4, 10, 3, 1, 8, 6] }, { a: [6, 2, 3, 7, 1, 5] }],
     // 甲 never robs the first house, 乙 never robs the last: between them they cover every plan, and neither robs both.
     solution: circ([['n', 'mmax'], ['a', 'add'], ['f', 'pass'], ['l', 'block'], ['x', 'many'], ['k', 'block']], [

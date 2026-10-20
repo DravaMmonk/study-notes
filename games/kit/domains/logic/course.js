@@ -23,7 +23,8 @@ const rulesIn = (circuit) => circuit.nodes.flatMap((n) => [n.type, ...Object.val
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
  * }
- * A level may fold away parts of its palette (`fold`); see ../../course.js offer.
+ * A level names only the parts it brings in (`adds`): every part met or built before it carries into it, and what it
+ * folds away (`fold`); see ../../course.js reach and offer.
  * Returns { LEVELS, CHAPTERS, LABELS, course, usableIn(level, flags), offerIn(level, flags) }.
  */
 // A proof level's tests from its schema and cases (see logicCourse), and the schema kept for the cards' choices.
@@ -50,7 +51,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, primitive
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
     known = [...known, ...(level.symbols ?? [])]
     const notation = { words: level.words ?? words, symbols: known }
-    return { palette: [], ...level, ...(level.cases ? expand(level, notation) : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, notation }
+    return { adds: [], ...level, ...(level.cases ? expand(level, notation) : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, notation }
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))
@@ -67,7 +68,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, primitive
     eras,
     primitives,
     concept: (p) => concept[p] ?? p,
-    palette: (l) => byId.get(l.id).palette,
+    adds: (l) => byId.get(l.id).adds,
     needs: (p) => (lemmas[p] ? `lemma:${p}` : null),
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,

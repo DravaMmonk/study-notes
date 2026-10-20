@@ -89,11 +89,11 @@ export function circuitMode(L, saved, { flags, game } = {}) {
   const allowed = flags ? game.table.usableIn(L, flags) : null;
   const offer = flags ? game.table.offerIn(L, flags) : null, shownSet = offer && new Set(offer.shown);
   const stage = () => stages[st.stage], V = () => WORLDS[stage().world], circ = () => st.circs[st.stage];
-  /** The level's components this player can use: built (or primitive), in the stage's order. */
+  /** The components this player can use on this stage (its palette holds the carried ones too), in its order. */
   const offeredParts = () => stage().palette.filter(k => !allowed || allowed.has(k));
-  /** Of those, the ones the stage shows; and the folded ones: the rest, and the parts carried from earlier levels. */
+  /** Of those, the ones the stage shows, and the folded rest. */
   const shownParts = () => offeredParts().filter(k => !shownSet || shownSet.has(k));
-  const foldedParts = () => (offer ? [...offeredParts().filter(k => !shownSet.has(k)), ...offer.folded.filter(k => !stage().palette.includes(k))] : []);
+  const foldedParts = () => (shownSet ? offeredParts().filter(k => !shownSet.has(k)) : []);
   const tests = () => stage().tests || L.tests, expected = () => stage().expected || L.expected;
   const opt = () => ({ ...stage(), dirs: st.dirs, ...(stage().dial ? { scan: st.scan[st.stage] } : {}), filter: st.filter[st.stage], remember: stage().solutionMem || [], layers: circ().layers || 1, maxLayers: stage().maxLayers || 8, answerLayers: circ().answerLayers || [0], boardWidth: rt.boardWidth || 0 });
   const io = () => ({ sensors: V().sensors, outs: V().outs });

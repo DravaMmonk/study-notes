@@ -4,8 +4,6 @@
 import { circ, usesSensor } from '../../kit/domains/table/circuit/components.js';
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
-const KIT = ['msum', 'mmin', 'mmax', 'add', 'const', 'pass', 'block'];
-const YESNO = ['many', 'not', 'pass', 'block', 'const'];
 
 export const farsight = [
   {
@@ -14,7 +12,7 @@ export const farsight = [
       { t: T('这段楼梯有几级坏了，<b>踩不得</b>，画成石头的样子。每次还是迈 1 级或 2 级。', 'A few steps on this staircase are broken and <b>can’t be stepped on</b>; they are drawn like rocks. Each stride still goes up 1 or 2 steps.') },
     ],
     mission: { goal: T('每次迈 1 级或 2 级，不能踩在坏台阶上。算出爬到最上面一级有几种走法。', 'Each stride goes up 1 or 2 steps, never onto a broken step. Work out how many ways there are to reach the top step.'), how: T('从地面一级一级往上算。', 'Work up from the ground, one step at a time.') },
-    world: 'strip', facts: ['ground', 'broken'], palette: KIT,
+    world: 'strip', facts: ['ground', 'broken'],
     tests: [{ n: 6, broken: [3] }, { n: 8, broken: [2, 5] }, { n: 10, broken: [4, 7] }],
     solution: circ([['c', 'bp:stamp'], ['b', 'block']], ['tap:m1>c:0', 'tap:m2>c:1', 'tap:ground>c:2', 'tap:broken>b:0', 'c>b:1', 'b>out:cell']),
     hints: [
@@ -31,7 +29,7 @@ export const farsight = [
       { t: T('表和「回文」那一关一样：第 i 到第 j 个字母这一段占一格，存「这一段里最多能挑几个」。一个字母自己就是回文，对角线已经填好 1。', 'The table is the one from the “Palindromes” level: the run from letter i to letter j has a cell, holding “the most letters you can pick from this run”. A single letter is a palindrome on its own, so the diagonal is already filled with 1.') },
     ],
     mission: { goal: T('算出整串字母里，最长的回文子序列有几个字母。', 'Work out how many letters the longest palindrome you can pick from the whole string has.'), how: T('按长度从短到长扫。', 'Scan by length, shortest first.') },
-    world: 'interval', facts: ['same'], palette: KIT, empty0: true, diag: 1,
+    world: 'interval', facts: ['same'], empty0: true, diag: 1,
     tests: [{ s: 'CHARACTER' }, { s: 'AGBDBA' }, { s: 'BBABCBCAB' }],
     solution: circ([['a', 'add'], ['k', 'const', 2], ['g', 'pass'], ['m', 'mmax']], ['tap:dl>a:0', 'k>a:1', 'tap:same>g:0', 'a>g:1', 'tap:down>m:0', 'tap:left>m:1', 'g>m:2', 'm>out:cell']),
     hints: [
@@ -48,7 +46,7 @@ export const farsight = [
       { t: T('你手里只有「是 / 否」的元件：任一是、取反、放行闸、拦截闸。', 'You only have the yes / no parts: any-yes, Not, the Pass gate and the Block gate.') },
     ],
     mission: { goal: T('让每个路口存「到这里的路线数是不是奇数」。起点算 1 条，是奇数。', 'Make every crossing hold “is the number of routes to here odd?”. The start counts as 1 route, which is odd.'), how: T('这一关检查每一格。', 'This level checks every cell.') },
-    world: 'gridYes', facts: ['start'], palette: YESNO, checkAll: true,
+    world: 'gridYes', facts: ['start'], checkAll: true,
     tests: [{ R: 4, C: 5 }, { R: 5, C: 6 }, { R: 6, C: 6 }],
     // Odd + odd is even, odd + even is odd: the XOR of up and left. A one-input any-yes turns a 「—」 from outside the
     // city into 「否」 (no route is an even count), and two Pass gates with Not build the XOR from it.
@@ -68,7 +66,7 @@ export const farsight = [
       { t: T('表还是对齐表：上面一个词，左边一个词。只换字母时，左边第 i 个字母只会对上上面第 i 个，所以答案沿着对角线走过来。', 'The table is still the alignment table: one word along the top, one down the left. With swaps only, letter i on the left only ever lines up with letter i on top, so the answer comes down the diagonal.') },
     ],
     mission: { goal: T('算出把左边的词改成上面的词，最少要换几个字母。', 'Work out the fewest letters to swap to turn the word on the left into the word on top.'), how: T('左上那一格是「前面的字母都改好了」。', 'The cell up-left means “all the letters before are already fixed”.') },
-    world: 'align', border0: false, facts: ['same', 'start'], palette: KIT,
+    world: 'align', border0: false, facts: ['same', 'start'],
     tests: [{ left: 'CAT', top: 'CUT' }, { left: 'GLOVE', top: 'GRAVE' }, { left: 'PAPER', top: 'TAPES' }],
     solution: circ([['k', 'const', 1], ['a', 'add'], ['g', 'pass'], ['z', 'const', 0], ['h', 'pass'], ['m', 'mmin']], ['tap:ul>a:0', 'k>a:1', 'tap:same>g:0', 'tap:ul>g:1', 'tap:start>h:0', 'z>h:1', 'a>m:0', 'g>m:1', 'h>m:2', 'm>out:cell']),
     hints: [
