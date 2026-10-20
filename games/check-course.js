@@ -3,7 +3,7 @@
 // primitive or was built by a level that must be solved first, every built part is used again, one new part per
 // level; and, for a course in eras, every level in an era, played on that era's machine, a topic in one world.
 import { audit } from './kit/course.js'
-import { course as graph, PRIMITIVES as GRAPH_START, topicProblems } from './state-graph/js/levels/course.js'
+import { course as graph, PRIMITIVES as GRAPH_START, topicProblems } from './state-graph/levels/course.js'
 
 const RULES = {
   'not-built': 'offered, but no level builds it and it is not a primitive',

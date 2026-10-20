@@ -1,0 +1,33 @@
+// The parts a player collects: a part is the idea (or circuit) a level leaves behind.
+
+import { T } from '../../kit/domains/table/i18n.js';
+
+export const PARTS = {
+  startval: { name: T('起点值', 'Start Value'), desc: T('电路零件：条件是「是」时，给出卡片上的数；否则「—」。几乎每张表都要在起点放一个数。', 'A circuit part: when its condition is “yes”, it gives the number set on its card; otherwise “—”. Almost every table needs a number put at its start.') },
+  counter: { name: T('路线计数器', 'Route Counter'), desc: T('电路零件：两条来路加起来，起点放 1。只要来路是「两个格子加起来」，数路线、爬楼梯、青蛙跳都能直接用。', 'A circuit part: two ways in added up, with 1 at the start. Wherever the ways in add up, it counts routes, stairs and frog jumps alike.') },
+  rock: { name: T('拦截闸', 'Block Gate'), desc: T('条件是「是」时输出「—」。拦在石头格上，经过它的路线就全被掐断。', 'Outputs “—” when its condition is “yes”. Put it on the rock cells and every route through them is cut off.') },
+  order: { name: T('填表顺序', 'Fill Order'), desc: T('每个格子都要排在它要读的格子之后。顺序反过来，电路读的方向也得跟着反过来。', 'Every cell must come after the cells it reads. Reverse the order, and the directions the circuit reads must reverse too.') },
+  min: { name: T('最省格', 'Cheapest Cell'), desc: T('电路零件：最多三条来路取较小，起点放 0，再加上本格的代价。最省力的路、图里的缝都能直接用。', 'A circuit part: the smallest of up to three ways in, 0 at the start, plus this cell’s cost. It serves the cheapest route and the seam in a picture alike.') },
+  back: { name: T('回溯', 'Backtracking'), desc: T('从终点倒推每一步是从哪来的，还原出具体路线。', 'Work back from the end, asking where each step came from, to recover the actual route.') },
+  memo: { name: T('记忆', 'Memoisation'), desc: T('算过的答案记在表里，绝不重复计算。', 'Keep every answer you have computed in a table, and never compute it twice.') },
+  layer: { name: T('分层', 'Layers'), desc: T('把表复制成几层，让状态多记一件会影响未来的事。', 'Copy the table into several layers, so the state remembers one more thing that affects the future.') },
+  align: { name: T('对齐表', 'Alignment Table'), desc: T('一个词放上面，一个词放左边。字相同，左上 + 1；否则取上面和左边中较大的。', 'One word along the top, the other down the left. If the letters match, up-left + 1; otherwise the larger of up and left.') },
+  cost: { name: T('编辑距离器', 'Edit Distance Meter'), desc: T('电路零件：删、插、换各 + 1，字相同可以免费保留，取较小。算出把一个词改成另一个词最少要几步。', 'A circuit part: delete, insert and replace each + 1, a matching letter is kept for free, and take the min. It works out the fewest steps that turn one word into another.') },
+  pack: { name: T('背包表', 'Knapsack Table'), desc: T('行是物品，列是容量。拿一件物品，就从上一行腾出它的重量。', 'Rows are items, columns are capacities. To take an item, make room for its weight in the row above.') },
+  choose: { name: T('择优器', 'Best Choice'), desc: T('电路零件：取较大（不换，换来 + 加上）。拿还是不拿、买还是不买、接着算还是重新开始，都是这个形状。', 'A circuit part: the larger of keep, and swap-for plus a gain. Take it or not, trade or not, carry on or start afresh: all have this shape.') },
+  roll: { name: T('滚动数组', 'Rolling Array'), desc: T('只留一行原地改写。改写的方向，决定每件物品能用几次。', 'Keep just one row and rewrite it in place. The direction you rewrite in decides how many times each item can be used.') },
+  skeleton: { name: T('同一副骨架', 'Same Skeleton'), desc: T('同一张表、同一块电路板，换一个汇合器就换一个问题：加起来数个数，取较大找最多，取较小找最少。', 'The same table and the same circuit board: swap the merger and you swap the question. Sum to count, max to find the most, min to find the fewest.') },
+  judge: { name: T('输赢判定器', 'Win/Lose Judge'), desc: T('电路：读三个对手局面，只要有一个对手会输，这一格就赢。轮流走棋的游戏，都能这样填表。', 'A circuit: it reads the three positions the opponent could face, and if the opponent loses in any of them, this cell wins. Any game of taking turns can fill its table this way.') },
+  sweep: { name: T('扫描臂', 'Sweep Arm'), desc: T('一次读一整段格子。可每格都从头扫一遍很慢：能用上一格存好的答案，就别重扫。', 'Reads a whole run of cells at once. But sweeping from the start on every cell is slow: if the previous cell has already stored the answer, use it instead of sweeping again.') },
+  wordbreak: { name: T('切词', 'Word Breaker'), desc: T('前面某个位置能切开，而且那一截刚好是个词，这里就能切开。', 'If some earlier position can be split and the piece from there to here is exactly a word, this position can be split too.') },
+  interval: { name: T('区间合并器', 'Interval Merger'), desc: T('电路零件：在每个切分点把左段和右段的代价加起来，挑最省的，再加整段的代价。', 'A circuit part: at every split point, add the cost of the left part and the right part, pick the cheapest, then add the cost of the whole run.') },
+  anyorder: { name: T('多种顺序', 'Many Orders'), desc: T('只要每个格子都排在它要读的格子之后，什么顺序都行。', 'Any order works, as long as every cell comes after the cells it reads.') },
+  multikey: { name: T('多钥匙计数器', 'Multi-key Counter'), desc: T('一块电路板管所有层。捡到钥匙，路线从少一把钥匙的那层搬上来；门关着，就拦下。', 'One circuit board runs every layer. When a key is picked up, routes move over from the layer with one key fewer; when a door is shut, they are blocked.') },
+  state: { name: T('刚好够用的状态', 'Just Enough State'), desc: T('记得太少，答案会错；记得太多，表会爆。只记会影响未来的事。', 'Remember too little and the answer is wrong; remember too much and the table explodes. Remember only what affects the future.') },
+  topdown: { name: T('备忘递归', 'Memoised Recursion'), desc: T('从要问的那一格出发，需要谁就问谁；问过的记下来。顺序会自己冒出来。', 'Start from the cell you want, ask whichever cells it needs, and write down every answer. The order emerges by itself.') },
+  value: { name: T('打折器', 'Discounter'), desc: T('电路零件：最多四条来路里取最大，再乘上卡片上的折扣（比如 0.9）。一遍遍扫到不再变，每一格就是离宝藏有多近。', 'A circuit part: the largest of up to four ways in, times the discount set on its card (0.9, say). Scan again and again until nothing changes, and each cell tells you how close it is to the treasure.') },
+  expect: { name: T('期望', 'Expectation'), desc: T('结果不确定时，把每种结果按可能性加权，再比较。', 'When the outcome is uncertain, weight each outcome by how likely it is, then compare.') },
+  viterbi: { name: T('维特比', 'Viterbi'), desc: T('每一列每一种标签，记下到这里最省的解释：上一列各行加上转移代价，取较小。', 'For every tag in every column, keep the cheapest explanation up to here: each row of the previous column plus its transition cost, then the min.') },
+  local: { name: T('局部对齐', 'Local Alignment'), desc: T('低于 0 就截成 0：重新开始，比背着负分走下去强。答案在表里最大的那一格。', 'Anything below 0 is cut to 0: starting afresh beats carrying a negative score along. The answer is the largest cell in the table.') },
+  seam: { name: T('剪缝', 'Seam Carving'), desc: T('每一格 = 本格能量 + 上面三格里最小的。从最底一行最小的格子倒推，剪掉这条缝。', 'Each cell = its own energy + the smallest of the three cells above it. Trace back from the smallest cell in the bottom row, and cut that seam out.') },
+};
