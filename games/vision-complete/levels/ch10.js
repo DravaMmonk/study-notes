@@ -2,8 +2,6 @@
 // from an anchor, and how a detector is a template slid over the picture with peaks kept. The series counts the
 // X-marked boxes on a shelf, small and large, among O-marked ones.
 import { correlate, fromFn, gaussianKernel, image, random, zip } from '../../kit/domains/image/engine/image.js'
-import { NODE_TYPES } from '../../kit/domains/image/engine/nodes.js'
-import { ownPart } from '../../kit/domains/image/engine/own.js'
 import { build, test } from '../../kit/domains/image/build.js'
 
 const row = (values) => ({ w: values.length, h: 1, data: Float32Array.from(values) })
@@ -49,7 +47,6 @@ const overlap = {
   solution: build({ i: ['arith', { op: 'mul' }], mi: 'fqMean', ma: 'fqMean', mb: 'fqMean', s: ['arith', { op: 'add' }], u: ['arith', { op: 'sub' }], q: ['arith', { op: 'div' }] }, ['a>i.a', 'b>i.b', 'i>mi', 'a>ma', 'b>mb', 'ma>s.a', 'mb>s.b', 's>u.a', 'mi>u.b', 'mi>q.a', 'u>q.b', 'q>out'], { inputs: ['a', 'b'] }),
   naive: build({ i: ['arith', { op: 'mul' }], mi: 'fqMean', ma: 'fqMean', q: ['arith', { op: 'div' }] }, ['a>i.a', 'b>i.b', 'i>mi', 'a>ma', 'mi>q.a', 'ma>q.b', 'q>out'], { inputs: ['a', 'b'] }),
 }
-Object.assign(NODE_TYPES, { 'own-10-1': ownPart(overlap) })
 
 const GOOD = 0.5
 const goodTests = (cases) => cases.map(([label, a, b]) => test(label, { a: boxMask(a), b: boxMask(b) }, { ok: num(iou(boxMask(a), boxMask(b)) > GOOD ? 1 : 0) }))
@@ -132,7 +129,6 @@ const ranking = {
   solution: apGraph(),
   naive: apGraph(false),
 }
-Object.assign(NODE_TYPES, { 'own-10-3': ownPart(ranking) })
 
 const mapTests = (cases) => cases.map(([label, [f1, g1], [f2, g2]]) => test(label, { f1: row(f1), g1: num(g1), f2: row(f2), g2: num(g2), k: RANKS }, { out: num((ap(f1, g1) + ap(f2, g2)) / 2) }))
 const meanAp = {

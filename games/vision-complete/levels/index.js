@@ -15,9 +15,8 @@ import * as ch9 from './ch9.js'
 import * as ch10 from './ch10.js'
 import { ERAS } from './route.js'
 
-// Level modules. Each exports `levels` (an array) and optionally `nodes` (new node types merged into NODE_TYPES).
+// Level modules, each exporting `levels` (an array).
 const PACKS = [ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7, ch8, ch9, ch10, optics]
-for (const pack of PACKS) Object.assign(NODE_TYPES, pack.nodes ?? {})
 
 // The course's tree (games/kit/course.js layout): play order, what each level requires, each chapter's track.
 const PLAN = layout(ERAS)

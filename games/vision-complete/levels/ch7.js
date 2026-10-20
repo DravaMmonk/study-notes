@@ -3,8 +3,6 @@
 // wrap-round shift), where two lines meet, the epipolar line and the epipole. The series is a robot vacuum that
 // must stop in front of obstacles.
 import { addNoise, fromFn, image, map, random, zip } from '../../kit/domains/image/engine/image.js'
-import { NODE_TYPES } from '../../kit/domains/image/engine/nodes.js'
-import { ownPart } from '../../kit/domains/image/engine/own.js'
 import { build, test } from '../../kit/domains/image/build.js'
 
 // ---------------- stereo scenes ----------------
@@ -197,7 +195,6 @@ const crossLevel = {
   solution: crossGraph(),
   naive: crossGraph(false),
 }
-Object.assign(NODE_TYPES, { 'own-7-5': ownPart(crossLevel) })
 
 const point = (x, y) => vec(x, y, 1)
 const MEETS = [
@@ -257,7 +254,6 @@ const epipolar = {
   solution: build({ a: ['arith', { op: 'mul' }], b: ['arith', { op: 'mul' }], s: 'merge' }, ['c1>a.a', 'px>a.b', 'c2>b.a', 'py>b.b', 'a>s.a', 'b>s.b', 'c3>s.c', 's>out'], { inputs: EPI_INPUTS }),
   naive: build({ a: ['arith', { op: 'mul' }], b: ['arith', { op: 'mul' }], s: 'merge' }, ['c1>a.a', 'px>a.b', 'c2>b.a', 'py>b.b', 'a>s.a', 'b>s.b', 's>out'], { inputs: EPI_INPUTS }),
 }
-Object.assign(NODE_TYPES, { 'own-7-7': ownPart(epipolar) })
 
 const ON_LINE = 0.05
 const onTests = (cases) =>

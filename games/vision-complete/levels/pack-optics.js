@@ -82,5 +82,4 @@ const obscura = (() => {
 // searches 64 px of disparity (numDisparities), and a one-pixel disparity error moves the depth
 // between f·b/(d+1) and f·b/(d−1) — about z²/(f·b) either way.
 
-export const nodes = {}
 export const levels = [obscura]

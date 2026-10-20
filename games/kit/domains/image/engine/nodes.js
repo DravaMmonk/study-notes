@@ -1,5 +1,12 @@
 import { correlate, downsample, fromFn, gaussianKernel, image, map, maxPool, shift, zip } from './image.js'
 import { piText } from './pi.js'
+import { FREQUENCY } from './parts/frequency.js'
+import { GENERATIVE } from './parts/generative.js'
+import { GLOBAL } from './parts/global.js'
+import { LEARNING } from './parts/learning.js'
+import { LIGHT } from './parts/light.js'
+import { MATCHING } from './parts/matching.js'
+import { SEGMENT } from './parts/segment.js'
 
 // Every node the player can place. A node reads images on its input ports and writes one image on
 // `out`. `cost` is arithmetic operations per output pixel, the game's efficiency score.
@@ -37,6 +44,8 @@ export const NODE_TYPES = {
 
   // ---- primitives (chapter 0) ----
   mystery: { label: '？？？', inputs: ['in'], eval: ({ in: a }) => shift(a, 1, 0), cost: 0 },
+  // The probe level's second black box: a threshold whose t the player reads off.
+  mysteryGate: { label: '？？？', inputs: ['in'], eval: ({ in: a }) => map(a, (v) => (v > 0.6 ? 1 : 0)), cost: 0 },
   shift: {
     label: { zh: '平移', en: 'Shift' },
     inputs: ['in'],
@@ -198,6 +207,9 @@ export const NODE_TYPES = {
   },
 }
 
+// The parts each chapter brings, written with the maths they need (parts/).
+Object.assign(NODE_TYPES, FREQUENCY, LIGHT, LEARNING, GLOBAL, MATCHING, GENERATIVE, SEGMENT)
+
 export function harrisResponse(a, k = 0.05) {
   const gx = correlate(a, SOBEL_X)
   const gy = correlate(a, SOBEL_Y)
@@ -249,5 +261,5 @@ export const settingsOf = (type, flags) =>
     .map((p) => (p.options?.some((o) => o[2]) ? { ...p, options: p.options.filter((o) => !o[2] || flags.has(o[2])) } : p))
 
 export function defaultParams(type) {
-  return Object.fromEntries((NODE_TYPES[type].params ?? []).map((param) => [param.key, Array.isArray(param.default) ? [...param.default] : param.default]))
+  return Object.fromEntries((NODE_TYPES[type]?.params ?? []).map((param) => [param.key, Array.isArray(param.default) ? [...param.default] : param.default]))
 }

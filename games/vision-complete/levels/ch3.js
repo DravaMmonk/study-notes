@@ -1,5 +1,6 @@
 import { GLYPHS, correlate, fromFn, image, map, patterns as P, random, zip } from '../../kit/domains/image/engine/image.js'
 import { NODE_TYPES } from '../../kit/domains/image/engine/nodes.js'
+import { BANDS, CURVES } from '../../kit/domains/image/engine/parts/light.js'
 import { build, test } from '../../kit/domains/image/build.js'
 
 // Chapter 3 · 光与边 (lecture 5): where the numbers in a photo come from. Steps: shade a surface from its normals
@@ -30,34 +31,6 @@ const sum = (...fields) => (x, y) => fields.reduce((s, f) => s + f(x, y), 0)
 const ridge = (y0, w, a) => (x, y) => (Math.abs(y - y0) < w ? a * (1 - ((y - y0) / w) ** 2) ** 2 : 0)
 const tilt = (ax, ay) => (x, y) => ax * (x - 7.5) + ay * (y - 7.5)
 
-// ---------------- new parts ----------------
-
-const lightParam = (key, label, value) => ({ key, label, kind: 'number', min: -1, max: 1, step: 0.05, default: value })
-
-export const nodes = {
-  shade: {
-    label: { zh: '朗伯着色', en: 'Lambert shading' },
-    description: { zh: '反射率 × (法线 · 灯的方向)，背光的地方是 0', en: 'Reflectance × (normal · lamp direction), 0 where the surface faces away' },
-    inputs: ['nx', 'ny', 'nz', 'albedo'],
-    params: [lightParam('lx', { zh: '灯 x', en: 'Lamp x' }, 0), lightParam('ly', { zh: '灯 y', en: 'Lamp y' }, 0), lightParam('lz', { zh: '灯 z', en: 'Lamp z' }, 1)],
-    eval: ({ nx, ny, nz, albedo }, p) => fromFn(nx.w, nx.h, (x, y) => {
-      const i = y * nx.w + x
-      return albedo.data[i] * Math.max(0, nx.data[i] * (p.lx ?? 0) + ny.data[i] * (p.ly ?? 0) + nz.data[i] * (p.lz ?? 1))
-    }),
-    cost: 6,
-    unlock: 'lambert',
-  },
-  sense: {
-    label: { zh: '感光', en: 'Sensor' },
-    description: { zh: '一种感光元件对一条光谱的读数：光谱乘上它的灵敏度曲线，再求平均', en: 'What one kind of sensor reads from a spectrum: the spectrum times its sensitivity curve, averaged' },
-    inputs: ['in'],
-    params: [{ key: 'channel', label: { zh: '感光', en: 'Sensor' }, kind: 'select', options: [['R', 'R'], ['G', 'G'], ['B', 'B']], default: 'R' }],
-    eval: ({ in: a }, p) => image(1, 1, a.data.reduce((s, v, b) => s + v * CURVES[p.channel ?? 'R'][b], 0) / a.data.length),
-    cost: 20,
-    unlock: 'sense',
-  },
-}
-Object.assign(NODE_TYPES, nodes)
 
 // ---------------- 3-1 画一个球, 3-2 补一盏灯 ----------------
 
@@ -147,14 +120,6 @@ const fill = {
 // Light from 400 to 700 nm in ten bands 30 nm wide, as a waveform of 10 samples. A camera has three kinds of sensor,
 // each with its own sensitivity curve; a reading is the average of spectrum × curve, scaled so an even, full
 // spectrum reads 1.
-const BANDS = Array.from({ length: 10 }, (_, i) => 415 + 30 * i)
-const SENSORS = { R: [590, 35], G: [540, 38], B: [450, 28] }
-const sensitivity = (channel, nm) => Math.exp(-((nm - SENSORS[channel][0]) ** 2) / (2 * SENSORS[channel][1] ** 2))
-const CURVES = Object.fromEntries(Object.keys(SENSORS).map((c) => {
-  const raw = BANDS.map((nm) => sensitivity(c, nm))
-  const total = raw.reduce((a, b) => a + b, 0)
-  return [c, raw.map((v) => (v * BANDS.length) / total)]
-}))
 const row = (values) => fromFn(values.length, 1, (x) => values[x])
 const read = (spectrum, channel) => NODE_TYPES.sense.eval({ in: spectrum }, { channel })
 const reading = (spectrum) => ({ ro: read(spectrum, 'R'), go: read(spectrum, 'G'), bo: read(spectrum, 'B') })

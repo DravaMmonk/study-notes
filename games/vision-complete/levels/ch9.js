@@ -2,26 +2,11 @@
 // convolution), putting pooled values back where they came from, and a step of k-means packed into a part. The series
 // segments cells under a microscope: a coarse path that ignores noise, a skip path that keeps thin borders.
 import { correlate, fromFn, image, maxPool, random } from '../../kit/domains/image/engine/image.js'
-import { NODE_TYPES } from '../../kit/domains/image/engine/nodes.js'
-import { ownPart } from '../../kit/domains/image/engine/own.js'
+import { NEAREST, zeroUp } from '../../kit/domains/image/engine/parts/segment.js'
 import { build, test } from '../../kit/domains/image/build.js'
 
-const zeroUp = (a) => fromFn(a.w * 2, a.h * 2, (x, y) => (x % 2 || y % 2 ? 0 : a.data[(y / 2) * a.w + x / 2]))
-const NEAREST = [1, 1, 0, 1, 1, 0, 0, 0, 0]
 const BILINEAR = [0.25, 0.5, 0.25, 0.5, 1, 0.5, 0.25, 0.5, 0.25]
 
-export const nodes = {
-  tconv: {
-    label: { zh: '转置卷积（步幅 2）', en: 'Transposed convolution (stride 2)' },
-    description: { zh: '补零放大一倍，再用 3×3 的核走一遍：你在「放大一倍」里搭的', en: 'Zero-upsamples to twice the size, then runs a 3×3 kernel over it: what you built in "Twice the size"' },
-    inputs: ['in'],
-    params: [{ key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', default: NEAREST }],
-    eval: ({ in: a }, p) => correlate(zeroUp(a), p.w ?? NEAREST),
-    cost: 9,
-    unlock: 'tconv',
-  },
-}
-Object.assign(NODE_TYPES, nodes)
 
 // ---------------- 9-1 放大一倍 · 9-2 双线性放大 ----------------
 
@@ -100,7 +85,6 @@ const putBack = {
   solution: unpoolGraph(),
   naive: build({ u: 'tconv' }, ['small>u', 'u>out'], { inputs: ['small', 'big'] }),
 }
-Object.assign(NODE_TYPES, { 'own-9-3': ownPart(putBack) })
 
 const dots = (list) => fromFn(16, 16, (x, y) => list.find(([px, py]) => px === x && py === y)?.[2] ?? 0)
 const DOTS = [
@@ -183,7 +167,6 @@ const oneStep = {
   solution: stepGraph(),
   naive: build({ k: ['const', { c: 0.5 }], s: 'fqMean', a: ['arith', { op: 'add' }], h: ['arith', { op: 'mul' }] }, ['img>s', 's>a.a', 'm>a.b', 'a>h.a', 'k>h.b', 'h>out'], { inputs: ['img', 'm'] }),
 }
-Object.assign(NODE_TYPES, { 'own-9-5': ownPart(oneStep) })
 
 const segment = (img, m0, steps = 3) => {
   let m = m0

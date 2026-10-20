@@ -1,5 +1,4 @@
 import { GLYPHS, fromFn, map, patterns as P, shift } from '../../kit/domains/image/engine/image.js'
-import { NODE_TYPES } from '../../kit/domains/image/engine/nodes.js'
 import { build, test } from '../../kit/domains/image/build.js'
 
 // Chapter 0 · 睁眼 (lectures 1–2): an image is a grid of numbers. Steps: wire a camera to a screen, find out what the
@@ -17,11 +16,6 @@ const scenes = () => [
 const box = (x0, y0, w, h) => (x, y) => x >= x0 && x < x0 + w && y >= y0 && y < y0 + h
 const maskOf = (inside) => fromFn(16, 16, (x, y) => (inside(x, y) ? 1 : 0))
 
-export const nodes = {
-  // The probe level's second black box: a threshold whose t the player reads off.
-  mysteryGate: { label: '？？？', inputs: ['in'], eval: ({ in: a }) => map(a, (v) => (v > 0.6 ? 1 : 0)), cost: 0 },
-}
-Object.assign(NODE_TYPES, nodes)
 
 const open = {
   id: '0-1',
