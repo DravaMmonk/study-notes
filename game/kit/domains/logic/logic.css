@@ -62,12 +62,13 @@
 
 /* ---- phone ---- */
 .lg-phone { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto auto; }
-.lg-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; align-content: start; gap: 12px; }
+.lg-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; align-content: start; gap: 12px; }
 .lg-phone .lg-box-note { padding: 8px 10px; border-radius: var(--r-md); background: var(--paper); outline: 1px solid var(--hairline); }
 .lg-chips { display: grid; gap: 2px; }
 .lg-mark { color: var(--faint); font-style: normal; font-size: 11px; }
-.lg-mark.is-error { color: var(--fail); font-size: 18px; font-weight: 700; }
-.lg-sink { display: grid; justify-items: center; gap: 2px; text-align: center; }
+.lg-sink { display: grid; gap: 2px; }
+.lg-phone .pb-thumb .lg-formula b { font-size: 14px; font-weight: 600; }
+.lg-phone .pb-thumb .lg-chips { gap: 4px; }
 .lg-sheet { display: grid; gap: 14px; }
 .lg-sheet .lg-card { padding: 0; gap: 12px; }
 .lg-sheet .lg-field input, .lg-sheet .lg-field select { height: 40px; font-size: 16px; }

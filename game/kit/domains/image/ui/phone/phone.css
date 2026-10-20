@@ -102,7 +102,7 @@
 .pb-test .hidden-tag { margin-left: 2px; }
 .pb-test.is-on { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
 
-.pb-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 12px 12px 72px; display: grid; align-content: start; gap: 12px; overflow-x: clip; }
+.pb-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 12px 12px 72px; display: grid; align-content: start; gap: 12px; overflow-x: clip; }
 .pb-howto { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
 
 .pb-compare { max-width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; }
