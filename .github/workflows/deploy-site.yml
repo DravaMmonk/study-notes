@@ -30,6 +30,8 @@ jobs:
         working-directory: trace-viewer
       - run: npm test
         working-directory: trace-viewer
+      - run: npm run conform
+        working-directory: trace-viewer
       - run: npm run check
         working-directory: trace-viewer
       - run: npm run build:games
