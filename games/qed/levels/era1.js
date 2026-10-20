@@ -1,5 +1,6 @@
 // 第 1 代 · 初号：只有一条规则「分离」和两条公理 K、S。什么都能证，但很费劲。K、S 一关一个，先各自单独用，再一起用
-// （接起来），再在没有前提时倒着想（下雨推出下雨）；最后把「下雨」换成字母 A，证一次对任何一句话都成立的 A → A。
+// （接起来）；然后沿着「在条件下分离」一步步走到 下雨 → 下雨：先少一个前提，再一个前提也没有；最后把「下雨」换成字母 A，
+// 证一次对任何一句话都成立的 A → A。
 import { proof } from '../../kit/domains/logic/build.js'
 import { WORDS } from './words.js'
 
@@ -117,22 +118,41 @@ export const era1 = [
     after: T('又是 5 步。现在你有了<b>串联</b>。证过一次、之后当规则用的命题，叫<b>引理</b>。', 'Five steps again. Now you have <b>Chain</b>. A statement proved once and used as a rule from then on is a <b>lemma</b>.'),
   },
   {
+    id: 'short',
+    kind: 'proof',
+    title: T('少一个前提', 'One premise short'),
+    words: WORDS,
+    tests: [{ premises: { p: 'Rain → Wind' }, goal: 'Rain → Rain' }],
+    palette: HILBERT,
+    brief: T('已知「下雨 → 刮风」，证出「下雨 → 下雨」。', 'Given “it rains → it is windy”, prove “it rains → it rains”.'),
+    hint: [
+      T('S 的 X、Y、Z 选下雨、刮风、下雨，和「在条件下分离」那关只差 Z。', 'Choose rain, wind, rain for S’s X, Y, Z: only Z differs from “Detach under a condition”.'),
+      T('缺的那句「下雨 → (刮风 → 下雨)」用 K 造：X 选下雨，Y 选刮风。它接到 S 之后的第一次分离。', 'Make the missing “it rains → (it is windy → it rains)” with K: X it rains, Y it is windy. It goes into the first Detach after S.'),
+    ],
+    intro: [
+      { t: T('回想「在条件下分离」：有了「下雨 → (刮风 → 地湿)」和「下雨 → 刮风」，S 加两次分离，就得到「下雨 → 地湿」。', 'Recall “Detach under a condition”: from “it rains → (it is windy → the ground is wet)” and “it rains → it is windy”, S and two Detaches gave “it rains → the ground is wet”.') },
+      { t: T('这一关要的是「下雨 → 下雨」：把那里的「地湿」换成「下雨」就是了。于是 S 要的两句变成「下雨 → (刮风 → 下雨)」和「下雨 → 刮风」。第二句已经给了。', 'This level wants “it rains → it rains”: the same thing with “the ground is wet” swapped for “it rains”. So the two sentences S needs become “it rains → (it is windy → it rains)” and “it rains → it is windy”. The second one is given.') },
+      { t: T('第一句没给，可它的形状眼熟：X → (Y → X)。这正是 1-3 关的公理 K。', 'The first is not given, but its shape is familiar: X → (Y → X). That is axiom K, from level 1-3.') },
+    ],
+    solution: proof({ s: ['axS', { A: 'Rain', B: 'Wind', C: 'Rain' }], k: ['axK', { A: 'Rain', B: 'Wind' }], m1: ['mp'], m2: ['mp'] }, ['s>m1.imp', 'k>m1.a', 'm1>m2.imp', 'p>m2.a', 'm2>goal'], { premises: ['p'] }),
+    after: T('S 要的两句，一句是给的，一句用 K 造。下一关，连「下雨 → 刮风」也不给了。', 'Of the two sentences S needs, one was given and one made by K. Next level, even “it rains → it is windy” is gone.'),
+  },
+  {
     id: 'self',
     kind: 'proof',
-    title: T('下雨推出下雨', 'Rain from rain'),
+    title: T('一个前提也没有', 'No premise at all'),
     words: WORDS,
     tests: [{ goal: 'Rain → Rain' }],
     palette: HILBERT,
     brief: T('没有任何前提，证出「下雨 → 下雨」。', 'With no premise at all, prove “it rains → it rains”.'),
     hint: [
-      T('S 的 X、Z 都选「下雨」，它的结论就是「(下雨 → (Y → 下雨)) → ((下雨 → Y) → (下雨 → 下雨))」。只要喂给它「下雨 → (Y → 下雨)」和「下雨 → Y」。', 'With X and Z both “it rains”, S concludes “(it rains → (Y → it rains)) → ((it rains → Y) → (it rains → it rains))”. All it needs is “it rains → (Y → it rains)” and “it rains → Y”.'),
-      T('「下雨 → (Y → 下雨)」不管 Y 是什么，K 都给得出。难的是「下雨 → Y」：Y 选什么，它也能用 K 造出来？试试 Y = 下雨 → 下雨。', 'K gives “it rains → (Y → it rains)” whatever Y is. The hard one is “it rains → Y”: which Y can K make that from too? Try Y = it rains → it rains.'),
-      T('一块 K（X 下雨，Y 下雨 → 下雨）配 S 做第一次分离；另一块 K（X 下雨，Y 下雨）做第二次分离。', 'One K (X it rains, Y it rains → it rains) for the first Detach with S; another K (X it rains, Y it rains) for the second.'),
+      T('照上一关搭：S 的 X、Z 选「下雨」。上一关 Y 是刮风，这关 Y 选「下雨 → 下雨」。', 'Build it like last level: S’s X and Z are “it rains”. Last level Y was the wind; here choose Y = “it rains → it rains”.'),
+      T('一块 K（X 下雨，Y 下雨 → 下雨）接 S 之后的第一次分离；另一块 K（X 下雨，Y 下雨）给出「下雨 → (下雨 → 下雨)」，接第二次分离。', 'One K (X it rains, Y it rains → it rains) into the first Detach after S; another K (X it rains, Y it rains) gives “it rains → (it rains → it rains)” for the second.'),
     ],
     intro: [
-      { t: T('0-2 关里，「下雨 → 下雨」每一行都真。可真值表说它对，不等于初号证得出它。这一关一个前提都没有，只能从两条公理出发。', 'In level 0-2, “it rains → it rains” was true on every row. But a truth table saying so is not the same as Mark I proving it. This level has no premise at all: only the two axioms to start from.') },
-      { t: T('没有前提时，从目标<b>倒着想</b>。最后一步一定是分离，它给出的是「如果…那么…」的后一半。所以要找一句以「→ (下雨 → 下雨)」结尾的话。', 'With no premise, think <b>backwards</b> from the goal. The last step must be a Detach, which gives the back half of an “if … then …”. So look for a sentence that ends in “→ (it rains → it rains)”.') },
-      { t: T('S 的结论后半是「X → Z」：X、Z 都选下雨就对上了。剩下的事，就是 S 要什么，就造什么喂给它。', 'S ends in “X → Z”: with X and Z both “it rains”, that fits. What is left is to make whatever S asks for and feed it in.') },
+      { t: T('上一关，S 要的两句里，「下雨 → 刮风」是给的，另一句用 K 造。这一关什么前提都没有，两句都得用 K 造。', 'Last level, of the two sentences S needed, “it rains → it is windy” was given and the other made by K. This level has no premise at all: both must be made by K.') },
+      { t: T('照上一关的样子搭：S 的 X、Z 选下雨，Y 待定。S 要「下雨 → (Y → 下雨)」，这句不管 Y 是什么，K 都造得出；还要「下雨 → Y」，上一关它是给的，这次得自己造。', 'Build it as last level: S with X and Z “it rains”, Y to be decided. S wants “it rains → (Y → it rains)”, which K makes whatever Y is; and “it rains → Y”, given last time, made by you this time.') },
+      { t: T('K 造出的句子都长这样：「下雨 → (… → 下雨)」。所以只要 Y 本身也长成「… → 下雨」，「下雨 → Y」就也能用 K 造。选项里正好有一句这样的：下雨 → 下雨。', 'Every sentence K makes looks like “it rains → (… → it rains)”. So if Y itself looks like “… → it rains”, K can make “it rains → Y” too. One of the choices is just that: it rains → it rains.') },
     ],
     solution: identity('Rain'),
     after: T('一句一眼就对的话，要 5 步。规则少的系统就是这样：什么都能证，但很费劲。注意，这 5 步里的「下雨」换成任何一句话，证明照样成立。', 'An obvious statement took 5 steps. That is what a system with few rules is like: everything provable, all of it hard work. Notice that every “it rains” in those 5 steps could be any sentence, and the proof would still work.'),

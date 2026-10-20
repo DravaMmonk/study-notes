@@ -11,7 +11,7 @@ export const ERAS = [
   },
   {
     id: 'mk1', machine: 'mk1',
-    foundation: ['copy', 'mp', 'k', 's', 'chain', 'self', 'identity'],
+    foundation: ['copy', 'mp', 'k', 's', 'chain', 'short', 'self', 'identity'],
     practice: ['long'],
     topics: [{ id: 'deduction', code: 'D', after: 'identity', levels: ['dt-mp', 'dt-whole'], title: T('演绎定理', 'The deduction theorem') }],
     challenges: [{ level: 'twice', after: 'identity' }],
