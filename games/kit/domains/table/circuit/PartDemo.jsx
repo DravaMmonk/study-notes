@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CanvasEditor, Choice, DemoBench, SlotBoard } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { LEVELS } from '../../../../state-graph/levels/index.js'
 import { sceneSVG } from '../svg.js'
 import { signal } from '../util.js'
 import { WORLDS } from './worlds.js'
@@ -17,14 +16,14 @@ import { toGraph, partsFor } from './board.js'
 // it changes the cell it reads; constants and a merger's model change on their cards. Run computes the robot's cell
 // and writes the answer into its red frame. On a phone the circuit is the phone board: tap a block, change it below.
 
-// Parts that are an idea rather than a board show the board of the level that puts the idea to work.
-const BORROW = { back: 'cheapest', memo: 'stairs', topdown: 'stairs', seam: 'seam' }
 const MERGES = ['msum', 'mmin', 'mmax']
 
 /** The bench for a part: its level, world, robot, circuit and, per test, the table that circuit fills. */
-function benchFor(key) {
-  const own = LEVELS.find((L) => L.unlock === key)
-  const L = BORROW[key] ? LEVELS.find((x) => x.id === BORROW[key]) : own
+// borrow: { part: level id } parts that are an idea rather than a board show the board of the level that puts the idea
+// to work (the game's spec).
+function benchFor(levels, borrow, key) {
+  const own = levels.find((L) => L.unlock === key)
+  const L = borrow[key] ? levels.find((x) => x.id === borrow[key]) : own
   if (!L || L.mode !== 'circuit') return null
   const s = L.stages ? L.stages.at(-1) : L
   if (!s.solution) return null
@@ -117,8 +116,8 @@ function InputControl({ type, value, onChange }) {
   )
 }
 
-export default function PartDemo({ partKey, phone }) {
-  const bench = useMemo(() => benchFor(partKey), [partKey])
+export default function PartDemo({ partKey, phone, levels, borrow }) {
+  const bench = useMemo(() => benchFor(levels, borrow, partKey), [levels, borrow, partKey])
   const [ti, setTi] = useState(0)
   const [cell, setCell] = useState(() => bench?.runs[0].start)
   const [table, setTable] = useState(() => new Map(bench?.runs[0].table ?? []))

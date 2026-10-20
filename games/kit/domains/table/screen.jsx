@@ -36,7 +36,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
   if (!cur.current) {
     cur.current = { L, i: level.index, fails: 0, running: false, ctl: null }
     rt.cur = cur.current
-    cur.current.ctl = MODES[L.mode](L, saved, { flags })
+    cur.current.ctl = MODES[L.mode](L, saved, { flags, game })
   }
   const ctl = cur.current.ctl
   // The shell's callbacks change identity on every render of the shell; the modes always reach the latest ones.

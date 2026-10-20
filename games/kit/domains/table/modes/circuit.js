@@ -17,8 +17,6 @@ import { viewHTML, removeNode, placeNode, readsOf } from '../circuit/editor.js';
 import { toGraph, fromGraph, create, partsFor } from '../circuit/board.js';
 import { placement } from '../../../circuit/model.js';
 import { lookIcon, lookSVG } from '../circuit/looks.js';
-import { PARTS } from '../../../../state-graph/levels/parts.js';
-import { usableIn } from '../../../../state-graph/levels/course.js';
 import { tr, lazy } from '../i18n.js';
 
 const MERGES = ['msum', 'mmin', 'mmax'];
@@ -73,7 +71,7 @@ const mergerEntry = models => ({
   desc: lazy(() => tr(`把接进来的几个数汇成一个。放上后在卡片上选操作：${models.map(k => def(k).tag).join('、')}；换操作时连线不变。`, `Merges the numbers wired into it into one. Pick its operation on the card once placed: ${models.map(k => def(k).tag).join(', ')}; the wires stay when you swap.`)),
 });
 
-export function circuitMode(L, saved, { flags } = {}) {
+export function circuitMode(L, saved, { flags, game } = {}) {
   const stages = L.stages || [L];
   const st = {
     stage: saved && saved.stage ? saved.stage : 0,
@@ -86,8 +84,8 @@ export function circuitMode(L, saved, { flags } = {}) {
     typed: {}, robot: null, sel: null, input: '',
   };
   const robot = ROBOTS[L.robot];
-  // A part is in the palette once the level that builds it is solved (../levels/course.js); a bench has no flags.
-  const allowed = flags ? usableIn(L, flags) : null;
+  // A part is in the palette once the level that builds it is solved (../course.js); a bench has no flags.
+  const allowed = flags ? game.table.usableIn(L, flags) : null;
   const stage = () => stages[st.stage], V = () => WORLDS[stage().world], circ = () => st.circs[st.stage];
   /** The level's components this player can use: built (or primitive), in the stage's order. */
   const offeredParts = () => stage().palette.filter(k => !allowed || allowed.has(k));

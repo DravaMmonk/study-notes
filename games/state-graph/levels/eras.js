@@ -4,9 +4,7 @@
 // order, the map's chapters and what each level requires all come from here (../../../kit/course.js layout). On the
 // map each era is one chapter, named after its robot (its `chapter.desc` the question it answers), drawn as its level
 // tree.
-import { T, tr, lazy } from '../../kit/domains/table/i18n.js';
-import { ROBOTS } from '../../kit/domains/table/circuit/robots.js';
-import { eraLevels, pathLevels } from '../../kit/course.js';
+import { T } from '../../kit/domains/table/i18n.js';
 
 // A named series on the main path, as one branch of a `parallel` set: sets of series that need nothing from each
 // other are played in any order, all of them before the path goes on.
@@ -81,25 +79,5 @@ export const ERAS = [
   },
 ];
 
-/**
- * A level's number, as in CURRICULUM.md: on an era's main path the era and its place ('1-4'; the foundation runs on
- * into the practice), in a topic the topic's letter and its place ('S2'), and C1, C2… for an era's challenges.
- */
-export const LABELS = new Map(ERAS.flatMap((era, e) => [
-  ...pathLevels([...era.foundation, ...(era.practice ?? [])]).map((id, k) => [id, `${e}-${k + 1}`]),
-  ...(era.topics ?? []).flatMap(t => t.levels.map((id, k) => [id, `${t.code}${k + 1}`])),
-  ...(era.challenges ?? []).map((c, k) => [c.level, `C${k + 1}`]),
-]));
-
 /** Levels the new tree leaves out: written, but not played. */
 export const RETIRED = ['light', 'merge', 'relay', 'dial', 'disguise', 'swap', 'back', 'why', 'askall', 'memo2', 'selforder'];
-
-/** The map's chapters, one per era in play order: named after the era's robot (or the era's own title where there is
- *  none), and its levels. */
-export const CHAPTERS = ERAS.map((era, e) => ({
-  era: era.id,
-  kicker: lazy(() => tr(`第 ${e} 代`, `Era ${e}`)),
-  name: era.machine ? ROBOTS[era.machine].name : era.chapter.title,
-  desc: era.chapter.desc,
-  levels: eraLevels(era),
-}));
