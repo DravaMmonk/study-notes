@@ -1,11 +1,12 @@
 <!doctype html>
+<!-- Every game's page: games/kit/app fills in the game (its id from the build or the address). -->
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='6' fill='%23282824'/%3E%3Cpath d='M14 20h10v10H14zM40 34h10v10H40zM24 25h16v14' fill='none' stroke='%23fbfaf6' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E" />
-    <meta name="description" content="视觉完备 Vision Complete：把计算机视觉课程做成一套解谜关卡。A computer vision course turned into a set of puzzle levels." />
-    <title>视觉完备 — Vision Complete</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='6' fill='%23282824'/%3E%3Cpath d='%GAME_ICON%' fill='none' stroke='%23fbfaf6' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <meta name="description" content="%GAME_DESCRIPTION%" />
+    <title>%GAME_TITLE% — %GAME_EN%</title>
     <script>
       try {
         const saved = localStorage.getItem('fieldnotes.theme')
@@ -23,12 +24,12 @@
           lang = /^zh\b/i.test(navigator.language || '') ? 'zh' : 'en'
         }
         document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
-        if (lang === 'en') document.title = 'Vision Complete — 视觉完备'
+        if (lang === 'en') document.title = '%GAME_EN% — %GAME_TITLE%'
       }
     </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="../games/vision-complete/main.jsx"></script>
+    <script type="module" src="/src/game.js"></script>
   </body>
 </html>

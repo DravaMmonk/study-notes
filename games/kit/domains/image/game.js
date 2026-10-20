@@ -1,6 +1,9 @@
 // An image game on the shared shell (../../shell): its spec becomes the shell's game description, with the image
 // domain's level screens (circuits, benches, the probe), its parts box and its intro figures.
 import { createElement } from 'react'
+import '../../../../trace-viewer/src/index.css'
+import './image.css'
+import './ui/boards/kit.css'
 import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { migrations } from '../../shell/saves.js'

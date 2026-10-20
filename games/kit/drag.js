@@ -1,5 +1,5 @@
-// Circuit kit: pointer dragging for a component board, shared by 状态之图 (games/state-graph/) and Vision Complete
-// (trace-viewer/src/game/). Framework-free; each app marks its DOM with data attributes and supplies handlers.
+// Circuit kit: pointer dragging for a component board, shared by every game's circuit editor (games/kit/circuit).
+// Framework-free; each app marks its DOM with data attributes and supplies handlers.
 //
 // Markup contract
 //   [data-piece="id"]  an element that can be moved; [data-drag] on it (or inside it) is the handle to grab it by

@@ -28,11 +28,11 @@ jobs:
           cache-dependency-path: trace-viewer/package-lock.json
       - run: npm ci
         working-directory: trace-viewer
-      - run: npm run levels
+      - run: npm run test:engine
         working-directory: trace-viewer
-      - run: npm run build:game
+      - run: npm run check
         working-directory: trace-viewer
-      - run: npm run build:state-graph
+      - run: npm run build:games
         working-directory: trace-viewer
       - uses: actions/setup-python@v5
         with:

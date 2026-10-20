@@ -11,8 +11,7 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-trace-viewer/dist-game/
-trace-viewer/dist-state-graph/
+trace-viewer/dist-games/
 downloads/
 eggs/
 .eggs/

@@ -1,6 +1,7 @@
 // A table game on the shared shell (../../shell): its spec becomes the shell's game description, with the table
 // domain's screen (every level played through its mode), its parts box by robot and its intro pictures.
 import { Cable, Grid3x3 } from 'lucide-react'
+import './table.css'
 import { defineGame } from '../../shell/index.js'
 import { eraLevels, pathLevels } from '../../course.js'
 import ModeScreen from './screen.jsx'

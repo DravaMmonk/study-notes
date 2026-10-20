@@ -31,7 +31,10 @@ Every page (the notes site, Fieldnotes, the games hub and both games) is built o
 - `circuit/`: the circuit editor both games use (React): the desktop board (drag cards, pull wires from output dots, Delete, ⌘/Ctrl-scroll zoom, fit) and the phone board (slots, tap-tap or drag wiring, tray, undo), on one circuit model, plus the bench the components box tries each part on; a game brings what its cards show
 - `drag.js`, `wires.js`, `graph.js`, `wires.css`: the editor's gestures, wire geometry, loop check and wire styles
 - `shell/`: the game shell both games run on (React): top bar, level map, level rail, intro pages, first-run, passed and failed dialogs, components box, encyclopedia (how to play and the subject's terms, opening as the levels are reached), settings, saved progress, keys, the brief (task, tip, hints one at a time; a folding task card on a phone), the run bar (count, clear, Run) and the desktop workbench and phone page
-- `course.js`: the course rules both games follow (eras, level roles, which levels open which, and the audit `node games/check-course.js` runs)
+- `course.js`: the course rules every game follows (eras, level roles, which levels open which, and the course audit)
+- `engine/`: what every game runs on, whatever its subject: evaluating a circuit, boards inside boards and packed circuits, a machine walking a table, running a level's tests, and `npm run check` (every game's audit and reference answers)
+- `domains/`: one folder per subject — its values, parts, worlds, views, level screens and checks: `image/` (Vision Complete), `table/` (State Graph)
+- `app/`: every game's page and build
 
 The site maps Material for MkDocs onto these tokens in `docs/stylesheets/extra.css` and `overrides/main.html`.
 
@@ -40,9 +43,9 @@ The site maps Material for MkDocs onto these tokens in `docs/stylesheets/extra.c
 Puzzle games that turn a course into levels, under `games/`, published to `/game/` with the notes: every push to `main` runs `.github/workflows/deploy-site.yml`, which builds both games and then the MkDocs site, whose hook `hooks/games.py` copies them in.
 
 - `games/index.html`: the games hub; the list is in `games/games.js`.
-- Both games are content on the shared shell (`games/kit/shell/`) and circuit editor (`games/kit/circuit/`): a game is a `defineGame({ … })` with its chapters, levels, intro figures and one screen per kind of level, plus a `parts` description of its circuit nodes and a `glossary` for the encyclopedia, and differs from the other only there. Both are built from `trace-viewer/` (`npm run build:game`, `npm run build:state-graph`). How the games are designed is in [`games/DESIGN.md`](games/DESIGN.md).
-- [Vision Complete](https://dravammonk.github.io/study-notes/game/vision-complete/index.html): computer vision, 58 levels; content in `trace-viewer/src/game/` (`game.js`, `screens.jsx`), built into `/game/vision-complete/`.
-- [State Graph](https://dravammonk.github.io/study-notes/game/state-graph/index.html): dynamic programming from zero, 69 levels across seven robots; content in `games/state-graph/` (`js/game.jsx`; its modes in `js/modes/` play through `js/screen.jsx`; the level tree in `CURRICULUM.md`), built into `/game/state-graph/`.
+- A game's folder holds only its spec: its course, levels, tests, reference answers, intros and encyclopedia (`spec.js`, and `game.js` handing it to its domain). Everything that runs is in `games/kit/`. `npm run check` checks every game and `npm run build:games` builds them all, from `trace-viewer/` (`GAME=<id> npm run build:game` builds one). How the games are designed is in [`games/DESIGN.md`](games/DESIGN.md).
+- [Vision Complete](https://dravammonk.github.io/study-notes/game/vision-complete/index.html): computer vision, 58 levels; spec in `games/vision-complete/` on the image domain, built into `/game/vision-complete/`.
+- [State Graph](https://dravammonk.github.io/study-notes/game/state-graph/index.html): dynamic programming from zero, 69 levels across seven robots; spec in `games/state-graph/` (the level tree in `CURRICULUM.md`) on the table domain, built into `/game/state-graph/`.
 
 ## Local reader
 

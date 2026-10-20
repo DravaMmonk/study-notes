@@ -9,8 +9,9 @@
     "build:game": "vite build --config vite.game.config.js",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build:state-graph": "GAME=state-graph vite build --config vite.game.config.js",
-    "check": "node ../games/kit/engine/check.js"
+    "check": "node ../games/kit/engine/check.js",
+    "build:games": "node ../games/kit/app/build.mjs",
+    "test:engine": "node --test ../games/kit/engine/*.test.js"
   },
   "dependencies": {
     "dompurify": "^3.4.14",

@@ -6,7 +6,7 @@
 // number, a name like 'Sobel') reads the same in both languages. L(text) picks the side for the current
 // language. UI chrome written in a component uses tr('中文', 'English') in place.
 //
-// This module has no React, so level data and `npm run levels` can use it too; useLang.js is the React hook.
+// This module has no React, so level data and `npm run check` can use it too; useLang.js is the React hook.
 // GameShell keeps the language in React state and re-renders on `langchange`, so anything that calls L or tr
 // during render follows the switch. A value stored in state or memoised must store the pair, not its resolved
 // string, so it still follows.
@@ -16,7 +16,7 @@ let lang = 'zh'
 try {
   lang = currentLang()
 } catch {
-  // No browser (npm run levels): Chinese, the language the levels were written in.
+  // No browser (npm run check): Chinese, the language the levels were written in.
 }
 if (typeof window !== 'undefined') window.addEventListener('langchange', (event) => { lang = event.detail === 'en' ? 'en' : 'zh' })
 
