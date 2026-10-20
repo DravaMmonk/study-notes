@@ -9,7 +9,7 @@
     "build:game": "vite build --config vite.game.config.js",
     "lint": "eslint .",
     "preview": "vite preview",
-    "levels": "node src/game/levels/validate.js",
+    "levels": "node ../games/kit/domains/image/validate.js",
     "levels:state-graph": "node ../games/state-graph/js/levels/validate.js",
     "course": "node ../games/check-course.js",
     "build:state-graph": "GAME=state-graph vite build --config vite.game.config.js"
