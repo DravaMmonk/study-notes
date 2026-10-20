@@ -29,4 +29,4 @@ export const test = (label, inputs, expected, check) => ({ label, inputs, expect
 
 // A level's tests with its hidden ones after them, each marked hidden: what the player sees once the level
 // is solved, and what a run must pass before that.
-export const withHidden = (level) => (level.hidden?.length ? { ...level, tests: [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] } : level)
+export { withHidden } from '../../engine/tests.js'

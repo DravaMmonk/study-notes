@@ -1,4 +1,7 @@
 import { wouldCycle as cycles } from '../../../graph.js'
+import { PartError } from '../../../engine/circuit.js'
+import { runBoard, sink, source } from '../../../engine/boards.js'
+import { runLevel as runTests } from '../../../engine/tests.js'
 import { compare, image } from './image.js'
 import { NODE_TYPES, inputsOf } from './nodes.js'
 
@@ -24,55 +27,39 @@ export function order(graph) {
   return result
 }
 
-// Run the graph on one test's inputs. Returns every node's output image (or an error string). `variant` picks one
-// of the copies a training-only part (an augmentation) makes of its input; without it those parts pass it through.
-export function evaluate(graph, inputs, variant = null) {
-  const byId = new Map(graph.nodes.map((node) => [node.id, node]))
-  const values = new Map()
-  const errors = new Map()
-  for (const id of order(graph)) {
-    const node = byId.get(id)
-    const spec = NODE_TYPES[node.type]
-    if (node.type === 'input') {
-      values.set(id, inputs[node.params.name])
-      continue
-    }
-    const ins = {}
-    let missing = null
-    for (const port of inputsOf(node.type)) {
-      const wire = graph.wires.find((w) => w.to === id && w.port === port)
-      const value = wire ? values.get(wire.from) : undefined
-      if (!value) {
-        if (!spec.optional?.includes(port)) missing = port
-        continue
-      }
-      ins[port] = value
-    }
-    // A part whose inputs are all optional still needs one of them.
-    if (!missing && !Object.keys(ins).length && inputsOf(node.type).length) missing = inputsOf(node.type)[0]
-    if (node.type === 'output') {
-      if (ins.in) values.set(id, ins.in)
-      continue
-    }
-    if (missing) {
-      errors.set(id, { zh: '缺少输入', en: 'Missing input' })
-      continue
-    }
-    // A single number (1×1) meets a bigger input by filling its whole size; any other mismatch is an error, except for
-    // a part whose inputs are different things by nature (`anySize`: a picture, a matrix and a canvas).
-    const big = spec.anySize ? [] : Object.values(ins).filter((img) => img.w * img.h > 1)
-    if (new Set(big.map((img) => `${img.w}×${img.h}`)).size > 1) {
-      errors.set(id, { zh: '输入尺寸不同', en: 'Inputs differ in size' })
-      continue
-    }
-    if (big.length) for (const [port, img] of Object.entries(ins)) if (img.w * img.h === 1) ins[port] = image(big[0].w, big[0].h, img.data[0])
-    try {
-      values.set(id, spec.eval(ins, node.params ?? {}, variant))
-    } catch {
-      errors.set(id, { zh: '无法计算', en: 'Cannot compute' })
-    }
+// The parts as the shared engine (../../../engine/circuit.js) reads them. A part here is written as
+// eval(ins, params, variant); an `input` gives the test's picture of its name and an `output` is what reaches it.
+// A part made by the shared engine itself (a packed circuit) is used as it is.
+const wrapped = new WeakMap()
+export function partOf(type) {
+  const spec = NODE_TYPES[type]
+  if (!spec) return null
+  if (spec.kit) return spec
+  if (!wrapped.has(spec)) {
+    wrapped.set(spec, type === 'input'
+      ? source({ spec })
+      : type === 'output'
+        ? sink({ spec })
+        : { spec, inputs: spec.inputs, optional: spec.optional, eval: (ins, node, ctx) => spec.eval(ins, node.params ?? {}, ctx.variant ?? null) })
   }
-  return { values, errors }
+  return wrapped.get(spec)
+}
+
+// A single number (1×1) meets a bigger input by filling its whole size; any other mismatch is an error, except for a
+// part whose inputs are different things by nature (`anySize`: a picture, a matrix and a canvas).
+export function prepare(ins, node, part) {
+  const big = part.anySize || part.spec?.anySize ? [] : Object.values(ins).filter((img) => img.w * img.h > 1)
+  if (new Set(big.map((img) => `${img.w}×${img.h}`)).size > 1) throw new PartError({ zh: '输入尺寸不同', en: 'Inputs differ in size' })
+  if (!big.length) return ins
+  const out = { ...ins }
+  for (const [port, img] of Object.entries(ins)) if (img.w * img.h === 1) out[port] = image(big[0].w, big[0].h, img.data[0])
+  return out
+}
+
+// Run the graph on one test's inputs. Returns every node's output image (or an error). `variant` picks one of the
+// copies a training-only part (an augmentation) makes of its input; without it those parts pass it through.
+export function evaluate(graph, inputs, variant = null) {
+  return runBoard(graph, { parts: partOf, prepare, bind: inputs, ctx: { variant } })
 }
 
 export function outputImages(graph, values) {
@@ -100,18 +87,18 @@ export function score(graph, values) {
   return { nodes: placed.length, cost: Math.round(cost * 10) / 10, learned }
 }
 
-// Run every test of a level against a graph.
-export function runLevel(level, graph) {
-  const results = level.tests.map((test) => {
+// How a test runs and is judged, for the shared engine's level runs (../../../engine/tests.js).
+export const IMAGE_TESTS = {
+  runTest: (level, graph, test) => {
     const { values, errors } = evaluate(graph, test.inputs)
-    const outputs = outputImages(graph, values)
-    const checks = Object.entries(test.expected).map(([name, expected]) => ({ name, ...compare(outputs[name], expected, test.check ?? level.check) }))
-    return { values, errors, outputs, checks, pass: checks.every((c) => c.pass) }
-  })
-  const s = score(graph, results[0]?.values)
-  const constraint = level.constraint?.(s, graph) ?? ''
-  return { results, score: s, constraint, pass: results.every((r) => r.pass) && !constraint }
+    return { values, errors, outputs: outputImages(graph, values) }
+  },
+  check: (level, test, outputs) => Object.entries(test.expected).map(([name, expected]) => ({ name, ...compare(outputs[name], expected, test.check ?? level.check) })),
+  score: (level, graph, results) => score(graph, results[0]?.values),
 }
+
+// Run every test of a level against a graph.
+export const runLevel = (level, graph) => runTests(IMAGE_TESTS, level, graph)
 
 // The mean squared error of a graph over some tests. A training-only part (one with `variants`) makes that many
 // copies of every test, and the error counts them all.
