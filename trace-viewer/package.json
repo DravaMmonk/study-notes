@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "check": "node ../games/kit/engine/check.js",
     "build:games": "node ../games/kit/app/build.mjs",
-    "test:engine": "node --test ../games/kit/engine/*.test.js"
+    "test": "node --test ../games/kit/engine/*.test.js ../games/kit/domains/*/*.test.js"
   },
   "dependencies": {
     "dompurify": "^3.4.14",

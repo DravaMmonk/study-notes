@@ -1,0 +1,195 @@
+// Formulas and terms of the logic domain (《证明完备》), as plain trees:
+//
+//   formula  { op: 'atom', pred, args: [term] }   P, Q(x), R(x, f(y)); a proposition letter is an atom with no args
+//            { op: '⊥' }
+//            { op: '¬', a }                        ¬A, shown as itself but meaning A → ⊥ to the rules
+//            { op: '∧' | '∨' | '→' | '↔', a, b }
+//            { op: '∀' | '∃', v, body }            v: a variable's name
+//            { op: 'meta', name }                  a schematic letter in a rule or lemma (A, B, C…), bound by unify
+//   term     { t: 'var', name } | { t: 'fn', f, args: [term] }   a constant is a function with no args
+//            { t: '=', … } does not exist: equality is the atom '='(s, t), shown s = t
+//
+// parse() reads the notation the game shows (and ASCII: -> & | ~ forall exists false, <->); show() writes it back.
+
+const BIN = { '→': 1, '↔': 0, '∨': 2, '∧': 3 }
+const ASCII = [['<->', '↔'], ['->', '→'], ['&', '∧'], ['|', '∨'], ['~', '¬'], ['!', '¬'], ['forall', '∀'], ['exists', '∃'], ['false', '⊥'], ['_|_', '⊥']]
+
+export const atom = (pred, args = []) => ({ op: 'atom', pred, args })
+export const not = (a) => ({ op: '¬', a })
+export const bin = (op, a, b) => ({ op, a, b })
+export const imp = (a, b) => bin('→', a, b)
+export const and = (a, b) => bin('∧', a, b)
+export const or = (a, b) => bin('∨', a, b)
+export const iff = (a, b) => bin('↔', a, b)
+export const all = (v, body) => ({ op: '∀', v, body })
+export const ex = (v, body) => ({ op: '∃', v, body })
+export const meta = (name) => ({ op: 'meta', name })
+export const BOT = { op: '⊥' }
+export const tvar = (name) => ({ t: 'var', name })
+export const fn = (f, args = []) => ({ t: 'fn', f, args })
+export const eq = (s, t) => atom('=', [s, t])
+
+/** Read a formula. Upper-case names are atoms (or, in `metas`, schematic letters); a lower-case name is a function
+ *  when it takes arguments, a constant when it is in `consts`, and otherwise a variable. */
+export function parse(text, { metas = [], consts = [] } = {}) {
+  let src = text
+  for (const [a, b] of ASCII) src = src.split(a).join(b)
+  const tokens = src.match(/[A-Za-z][A-Za-z0-9_']*|[()∀∃¬∧∨→↔⊥,.=]|\S/g) ?? []
+  let i = 0
+  const peek = () => tokens[i]
+  const eat = (t) => {
+    if (tokens[i] !== t) throw new Error(`expected ${t} at ${tokens[i] ?? 'the end'} in ${text}`)
+    i++
+  }
+  const term = () => {
+    const name = tokens[i++]
+    if (!name || !/^[a-z]/.test(name)) throw new Error(`expected a term at ${name ?? 'the end'} in ${text}`)
+    if (peek() === '(') {
+      eat('(')
+      const args = [term()]
+      while (peek() === ',') { eat(','); args.push(term()) }
+      eat(')')
+      return fn(name, args)
+    }
+    return consts.includes(name) ? fn(name) : tvar(name)
+  }
+  const unary = () => {
+    const t = peek()
+    if (t === '¬') { i++; return not(unary()) }
+    if (t === '⊥') { i++; return BOT }
+    if (t === '∀' || t === '∃') {
+      i++
+      const v = tokens[i++]
+      if (peek() === '.') i++
+      return { op: t, v, body: formula(0) }
+    }
+    if (t === '(') { i++; const f = formula(0); eat(')'); return f }
+    if (t && /^[A-Z]/.test(t)) {
+      i++
+      if (metas.includes(t)) return meta(t)
+      if (peek() === '(') {
+        eat('(')
+        const args = [term()]
+        while (peek() === ',') { eat(','); args.push(term()) }
+        eat(')')
+        return atom(t, args)
+      }
+      return atom(t)
+    }
+    if (t && /^[a-z]/.test(t)) {
+      const s = term()
+      eat('=')
+      return eq(s, term())
+    }
+    throw new Error(`unexpected ${t ?? 'end'} in ${text}`)
+  }
+  // Precedence climbing; → is right-associative, the others left.
+  function formula(min) {
+    let left = unary()
+    while (peek() in BIN && BIN[peek()] >= min) {
+      const op = tokens[i++]
+      const right = formula(op === '→' ? BIN[op] : BIN[op] + 1)
+      left = bin(op, left, right)
+    }
+    return left
+  }
+  const f = formula(0)
+  if (i < tokens.length) throw new Error(`unexpected ${tokens[i]} in ${text}`)
+  return f
+}
+
+export const showTerm = (t) => (t.t === 'var' || !t.args.length ? (t.name ?? t.f) : `${t.f}(${t.args.map(showTerm).join(', ')})`)
+
+/** Write a formula with as few brackets as the precedence allows. */
+export function show(f, outer = -1) {
+  const wrap = (s, level) => (level < outer ? `(${s})` : s)
+  switch (f.op) {
+    case 'atom': return f.pred === '=' ? `${showTerm(f.args[0])} = ${showTerm(f.args[1])}` : f.args.length ? `${f.pred}(${f.args.map(showTerm).join(', ')})` : f.pred
+    case 'meta': return f.name
+    case '⊥': return '⊥'
+    case '¬': return `¬${show(f.a, 9)}`
+    case '∀': case '∃': return wrap(`${f.op}${f.v}. ${show(f.body, -1)}`, -1)
+    default: {
+      const p = BIN[f.op]
+      return wrap(`${show(f.a, f.op === '→' ? p + 1 : p)} ${f.op} ${show(f.b, f.op === '→' ? p : p + 1)}`, p)
+    }
+  }
+}
+
+/* ---------- variables and substitution ---------- */
+
+const termVars = (t, out) => {
+  if (t.t === 'var') out.add(t.name)
+  else t.args.forEach((a) => termVars(a, out))
+  return out
+}
+/** The variables free in a formula. */
+export function freeVars(f, out = new Set()) {
+  switch (f.op) {
+    case 'atom': f.args.forEach((t) => termVars(t, out)); break
+    case '¬': freeVars(f.a, out); break
+    case '∀': case '∃': { const inner = freeVars(f.body); inner.delete(f.v); inner.forEach((v) => out.add(v)); break }
+    case '∧': case '∨': case '→': case '↔': freeVars(f.a, out); freeVars(f.b, out); break
+  }
+  return out
+}
+
+const substTerm = (t, v, by) => (t.t === 'var' ? (t.name === v ? by : t) : fn(t.f, t.args.map((a) => substTerm(a, v, by))))
+const fresh = (base, taken) => {
+  let k = 1
+  while (taken.has(`${base}${k}`)) k++
+  return `${base}${k}`
+}
+/** f[v := by], renaming bound variables so nothing in `by` is captured. */
+export function subst(f, v, by) {
+  switch (f.op) {
+    case 'atom': return atom(f.pred, f.args.map((t) => substTerm(t, v, by)))
+    case '¬': return not(subst(f.a, v, by))
+    case '∀': case '∃': {
+      if (f.v === v) return f
+      const inBy = termVars(by, new Set())
+      if (inBy.has(f.v) && freeVars(f.body).has(v)) {
+        const w = fresh(f.v, new Set([...inBy, ...freeVars(f.body)]))
+        return { op: f.op, v: w, body: subst(subst(f.body, f.v, tvar(w)), v, by) }
+      }
+      return { op: f.op, v: f.v, body: subst(f.body, v, by) }
+    }
+    case '∧': case '∨': case '→': case '↔': return bin(f.op, subst(f.a, v, by), subst(f.b, v, by))
+    default: return f
+  }
+}
+
+/* ---------- equality up to renaming bound variables ---------- */
+
+const sameTerm = (s, t, env) => {
+  if (s.t !== t.t) return false
+  if (s.t === 'var') return (env.get(s.name) ?? s.name) === t.name
+  return s.f === t.f && s.args.length === t.args.length && s.args.every((a, k) => sameTerm(a, t.args[k], env))
+}
+/** Are two formulas the same, up to the names of bound variables? */
+export function same(f, g, env = new Map()) {
+  if (f.op !== g.op) return false
+  switch (f.op) {
+    case 'atom': return f.pred === g.pred && f.args.length === g.args.length && f.args.every((t, k) => sameTerm(t, g.args[k], env))
+    case 'meta': return f.name === g.name
+    case '⊥': return true
+    case '¬': return same(f.a, g.a, env)
+    case '∀': case '∃': return same(f.body, g.body, new Map([...env, [f.v, g.v]]))
+    default: return same(f.a, g.a, env) && same(f.b, g.b, env)
+  }
+}
+
+/** The proposition letters and predicates (with their arities) and the functions a set of formulas uses. */
+export function signature(formulas) {
+  const preds = new Map()
+  const fns = new Map()
+  const term = (t) => { if (t.t === 'fn') { fns.set(t.f, t.args.length); t.args.forEach(term) } }
+  const walk = (f) => {
+    if (f.op === 'atom') { if (f.pred !== '=') preds.set(f.pred, f.args.length); f.args.forEach(term) }
+    else if (f.op === '¬') walk(f.a)
+    else if (f.op === '∀' || f.op === '∃') walk(f.body)
+    else if (f.a) { walk(f.a); walk(f.b) }
+  }
+  formulas.forEach(walk)
+  return { preds, fns }
+}

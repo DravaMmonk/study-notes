@@ -31,10 +31,14 @@ export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, 
 
 const EMPTY = { nodes: [], wires: [] }
 
-/** Run the board `name` inside `node` from within its part's eval, its sources bound to `bind`. */
+/**
+ * Run the board `name` inside `node` from within its part's eval, its sources bound to `bind`. A board inside sees
+ * what the board around it was bound to as well (a box in a proof can use the premises and the assumptions of the
+ * boxes around it); `bind` shadows those names.
+ */
 export function runInner(ctx, node, name, bind) {
   const { parts, prepare } = ctx.engine
-  return runBoard(node.boards?.[name] ?? EMPTY, { parts, prepare, ctx, bind })
+  return runBoard(node.boards?.[name] ?? EMPTY, { parts, prepare, ctx, bind: { ...ctx.bind, ...bind } })
 }
 
 /** The boards a node holds: those its part names (part.boards(node) → [{ name, … }]), each as saved or empty. */

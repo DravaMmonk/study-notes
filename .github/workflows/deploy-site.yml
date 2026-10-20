@@ -28,7 +28,7 @@ jobs:
           cache-dependency-path: trace-viewer/package-lock.json
       - run: npm ci
         working-directory: trace-viewer
-      - run: npm run test:engine
+      - run: npm test
         working-directory: trace-viewer
       - run: npm run check
         working-directory: trace-viewer
