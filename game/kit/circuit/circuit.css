@@ -316,10 +316,10 @@
 .board-trail b { color: var(--ink); font-weight: 600; padding: 2px 4px; }
 .board-trail-step { display: inline-flex; align-items: center; gap: 2px; }
 
-/* A board of text (a proof's formulas, a sentence's words): one block to a row, full width and thin, each block's name
-   over what it holds, so long values read on one or two lines instead of piling up at the top of a tall tile. */
+/* A board of text (a proof's formulas, a sentence's words): the same two columns of slots, but thin blocks with each
+   block's name over what it holds, so long values wrap below it instead of piling up at the top of a tall tile. */
 .pb-board.is-dense { gap: 44px; }
-.is-dense .pb-grid { grid-template-columns: minmax(0, 1fr); gap: 44px; }
+.is-dense .pb-grid { gap: 44px 10px; }
 .is-dense .pb-cell { min-height: 58px; }
 .is-dense .pb-tile, .is-dense .pb-term { padding: 12px 14px 14px; gap: 2px; justify-items: stretch; text-align: left; }
 .is-dense .pb-term:not(.is-output) { padding-bottom: 16px; }

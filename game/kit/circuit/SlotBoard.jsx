@@ -99,7 +99,7 @@ const readMode = () => {
  * @param outNote(node, key)               over each of a block's several outputs (parts.outputs), under its name: what
  *                                         it carries
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
- * @param dense                            a board of text: one thin, full-width block to a row, its name over its value
+ * @param dense                            a board of text: thin blocks, each one's name over its value
  */
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
