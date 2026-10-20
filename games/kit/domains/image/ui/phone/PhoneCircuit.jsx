@@ -94,6 +94,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
     const param = (NODE_TYPES[node.type].params ?? [])[0]
     return param ? <ParamChip param={param} value={node.params[param.key]} /> : null
   }
+  const trayItem = (type) => ({ type, label: NODE_TYPES[type].label, icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) })
   const remove = (id) => {
     editing.remove(id)
     setSheet(null)
@@ -165,7 +166,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
         </div>
       </div>
 
-      <Tray items={level.palette.map((type) => ({ type, label: NODE_TYPES[type].label, icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) }))} onPick={editing.placeFirstFree} />
+      <Tray items={level.palette.filter((type) => !level.folded?.includes(type)).map(trayItem)} folded={(level.folded ?? []).map(trayItem)} onPick={editing.placeFirstFree} />
 
       {/* The kit's run bar (RunDock), as in every level: clear, and Run. */}
       <footer className="run-foot">

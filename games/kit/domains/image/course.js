@@ -1,7 +1,7 @@
 // A course of image levels, from a game's spec: the play order and the tree from its eras (../../course.js layout),
 // each level with the image domain's defaults, its palette in the order the player meets parts, the ways of drawing
 // a picture it has met so far, and the packed parts its solved circuits become (engine/own.js).
-import { defineCourse, layout, usable } from '../../course.js'
+import { defineCourse, layout, offer, usable } from '../../course.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { OWN, ownPart } from './engine/own.js'
 
@@ -17,10 +17,12 @@ const ARITHMETIC = ['const', 'add', 'sub', 'mul', 'arith', 'merge']
  *   views       { view: level id } the level each way of drawing a picture comes with (pixels is there from the start)
  *   primitives  the parts no circuit builds
  *   concept     { part: idea } parts that are one new idea together
+ *   replaces    { part: [part] } the parts a part supersedes once met (the four kinds of arithmetic, merged into one)
  * }
- * Returns { CHAPTERS, LEVELS, levelById, course, usableIn(level, flags), syncOwn(progress) }.
+ * A level may fold away parts of its palette (`fold`); see ../../course.js offer.
+ * Returns { CHAPTERS, LEVELS, levelById, course, usableIn(level, flags), offerIn(level, flags), syncOwn(progress) }.
  */
-export function imageCourse({ eras, chapters, levels, views = {}, primitives, concept = {} }) {
+export function imageCourse({ eras, chapters, levels, views = {}, primitives, concept = {}, replaces = {} }) {
   const plan = layout(eras)
   const byIdAll = Object.fromEntries(levels.map((level) => [level.id, level]))
   const { requires } = plan
@@ -81,9 +83,16 @@ export function imageCourse({ eras, chapters, levels, views = {}, primitives, co
     needs: (p) => NODE_TYPES[p]?.unlock ?? null,
     builds: (l) => partsFor(l.unlocks),
     granted: (l) => partsFor(levelById[l.id].grants ?? []),
+    replaces: (p) => replaces[p] ?? [],
+    // The probe level's black boxes stay in their level.
+    carries: (p) => !p.startsWith('mystery'),
+    needed: (l) => levelById[l.id].solution?.nodes.map((n) => n.type) ?? null,
+    folds: (l) => levelById[l.id].fold ?? [],
   })
   /** The parts a level can really offer a player holding `flags` (the shell's: unlocks of solved levels, and grants). */
   const usableIn = (level, flags) => usable(course, { id: level.id }, flags)
+  /** Everything the player has for a level: what it shows, and what it folds away ({ shown, folded }). */
+  const offerIn = (level, flags) => offer(course, { id: level.id }, flags)
 
-  return { CHAPTERS, LEVELS, levelById, course, usableIn, syncOwn }
+  return { CHAPTERS, LEVELS, levelById, course, usableIn, offerIn, syncOwn }
 }

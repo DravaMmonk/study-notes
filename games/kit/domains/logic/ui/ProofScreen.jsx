@@ -29,7 +29,8 @@ export default function ProofScreen({ game, level: entry, saved, save, solve, fl
   const [circuit, setCircuit] = useState(() => (saved?.nodes && names(saved) === premiseNames(level) && saved.nodes.every((n) => parts.rules[n.type]) ? saved : startProof(level)))
   const [path, setPath] = useState([])
   const [verdict, setVerdict] = useState(null) // { pass, reason } after the proof was checked; any change clears it
-  const palette = useMemo(() => game.logic.usableIn(level, flags), [game, level, flags])
+  // What the player has here: what this level shows, and what it folds away (../../../course.js offer).
+  const { shown: palette, folded } = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
   const seen = path.length ? seenAt(level, circuit, path) : null
   const board = path.length ? fitBoard(boardAt(circuit, path), seen) : circuit
   const view = useMemo(() => runAt(level, circuit, path), [level, circuit, path])
@@ -79,7 +80,9 @@ export default function ProofScreen({ game, level: entry, saved, save, solve, fl
       </section>
     </Brief>
   )
-  const items = palette.map((type) => ({ type, label: nameOf(lemmas, type), desc: descOf(lemmas, type), icon: iconOf(lemmas, type), family: familyOf(lemmas, type), fresh: entry.fresh?.includes(type) }))
+  const itemOf = (type) => ({ type, label: nameOf(lemmas, type), desc: descOf(lemmas, type), icon: iconOf(lemmas, type), family: familyOf(lemmas, type), fresh: entry.fresh?.includes(type) })
+  const items = palette.map(itemOf)
+  const foldedItems = folded.map(itemOf)
   const trailOf = (
     <BoardTrail circuit={circuit} path={path} labelOf={(n) => L(parts.label(n))} boardsOf={(n) => parts.boards(n)} onGo={(depth) => setPath(upTo(path, depth))} />
   )
@@ -98,13 +101,13 @@ export default function ProofScreen({ game, level: entry, saved, save, solve, fl
   )
   const shared = { parts, lemmas, board, view, goal, verdict, open, setParam, text, choices }
 
-  if (phone) return <PhoneProof {...shared} brief={brief} items={items} trail={trailOf} boxNote={boxNote} dock={dock} change={change} addNode={addNode} reset={reset} scope={scope} />
+  if (phone) return <PhoneProof {...shared} brief={brief} items={items} foldedItems={foldedItems} trail={trailOf} boxNote={boxNote} dock={dock} change={change} addNode={addNode} reset={reset} scope={scope} />
 
   return (
     <CircuitLayout
       className="lg-level"
       brief={brief}
-      parts={items.length > 0 && <Palette compact items={items} onAdd={(type) => { const [x, y] = freeSpot(board, { w: 170, h: 150, x0: 240, dx: 200 }); change(addNode(type, { x, y }).graph) }} />}
+      parts={items.length + foldedItems.length > 0 && <Palette compact items={items} folded={foldedItems} onAdd={(type) => { const [x, y] = freeSpot(board, { w: 170, h: 150, x0: 240, dx: 200 }); change(addNode(type, { x, y }).graph) }} />}
       canvas={
         <div className="lg-stage">
           {path.length > 0 && <div className="lg-trail">{trailOf}{boxNote}</div>}
@@ -186,7 +189,7 @@ function CardBody({ node, parts, view, goal, open, setParam, text, choices, keys
 }
 
 // The proof on a phone: the shared slot board, with the trail over it, a sheet per block and the run bar.
-function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam, text, choices, brief, items, trail, boxNote, dock, change, addNode, reset, scope }) {
+function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam, text, choices, brief, items, foldedItems, trail, boxNote, dock, change, addNode, reset, scope }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -197,7 +200,7 @@ function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam,
     create: (_, type, at) => addNode(type, { slot: at }),
     label: parts.label,
     openNode: (id) => setSheet({ node: id }),
-    openSlot: (at) => items.length && setSheet({ slot: at }),
+    openSlot: (at) => items.length + foldedItems.length > 0 && setSheet({ slot: at }),
     reset,
     root,
     scroller,
@@ -226,7 +229,7 @@ function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam,
         <SlotBoard dense graph={board} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={(n) => (n.type === 'goal' && verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : '')} tileExtra={(n) => parts.boards(n).length > 0 && tr('点开选假设、进框', 'tap to set it and go in')} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
         {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdict.pass ? tr('目标证出来了，没有留下开着的假设。', 'The goal is proved, with no hypothesis left open.') : L(verdict.reason)}</p>}
       </div>
-      <Tray items={items} onPick={editing.placeFirstFree} />
+      <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
       <footer className="run-foot">{dock}</footer>
       <Notice editing={editing} />
       {node && (
@@ -241,7 +244,7 @@ function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam,
       {sheet?.slot !== undefined && (
         <Sheet title={tr(`放进第 ${sheet.slot + 1} 格`, `Place in slot ${sheet.slot + 1}`)} onClose={() => setSheet(null)}>
           <div className="lg-add">
-            {items.map((item) => (
+            {[...items, ...foldedItems].map((item) => (
               <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot); setSheet(null) }}>
                 <b>{L(item.label)}</b>
                 <small>{L(item.desc)}</small>

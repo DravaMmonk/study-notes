@@ -43,6 +43,9 @@ const VIEWS = { profile: '1-1', terrain: '1-4', spectrum: '2-6', slope: '3-7' }
 
 const PACKS = [ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7, ch8, ch9, ch10, optics]
 
-export const IMAGE = imageCourse({ eras: ERAS, chapters: CHAPTERS, levels: PACKS.flatMap((pack) => pack.levels), views: VIEWS, primitives: PRIMITIVES, concept: CONCEPT })
+// From chapter 1 the four kinds of arithmetic are one part: once met, it takes the place of Add, Subtract and Multiply.
+const REPLACES = { arith: ['add', 'sub', 'mul'] }
+
+export const IMAGE = imageCourse({ eras: ERAS, chapters: CHAPTERS, levels: PACKS.flatMap((pack) => pack.levels), views: VIEWS, primitives: PRIMITIVES, concept: CONCEPT, replaces: REPLACES })
 export const { LEVELS, levelById, course } = IMAGE
 export { PRIMITIVES }

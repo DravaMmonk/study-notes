@@ -328,3 +328,13 @@
 .is-dense .pb-name { order: -1; -webkit-line-clamp: 1; color: var(--muted); font-size: 11.5px; text-align: left; }
 .is-dense .pb-thumb { line-height: 1.45; }
 .is-dense .pb-param { order: 2; }
+
+/* Parts folded away (../course.js offer): a 「更多」 button at the end of the palette or the tray, and the parts it opens
+   drawn quieter than the level's own. */
+.palette-more { min-height: 34px; padding: 0 8px 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 0; border-radius: 9px; color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1px var(--line); font: inherit; font-size: 12.5px; cursor: pointer; }
+.palette-more:hover { color: var(--ink); background: var(--hover); }
+.palette-more svg { transition: transform 160ms ease; }
+.palette-more.is-open svg, .pb-more.is-open svg { transform: rotate(180deg); }
+.palette-item.is-folded, .pb-part.is-folded { opacity: .72; border-style: dashed; }
+.palette-item.is-folded { box-shadow: inset 0 0 0 1px var(--line); background: transparent; }
+.pb-more { color: var(--muted); }
