@@ -25,7 +25,7 @@
 //   levels      [{ id, unlocks: [flag] }]  in play order (layout(eras).order when the course has eras)
 //   eras?                                  the course's eras, for the era rules of the audit
 //   primitives  [part]                     available from the start
-//   palette(level) → [part]                what a level offers
+//   adds(level) → [part]                   the parts a level brings in (everything else carries, see reach)
 //   needs(part) → flag | null              the flag solving its builder level sets (null: built nowhere)
 //   builds(level) → [part]                 the parts solving the level unlocks
 //   granted(level) → [part]                parts a level hands out without their builder being solved
@@ -40,17 +40,18 @@
 //   needed(level) → [part] | null          the parts its reference answer uses (null: no reference to go by)
 //   folds(level) → [part]                  parts the level's spec folds away anyway
 // })
-// usable(course, level, flags) is what a level's palette really holds; offer(course, level, flags) splits everything
-// the player has into what the level shows and what it folds away; audit(course) lists every broken rule.
+// reach(course, level) is every part a level can hold; usable(course, level, flags) what it holds for a player;
+// offer(course, level, flags) splits that into what the level shows and what it folds away; audit(course) lists every
+// broken rule.
 
 /** What each rule of the audit means, for reports (../engine/check.js). */
 export const RULE_TEXT = {
   'not-built': 'offered, but no level builds it and it is not a primitive',
   'own-level': 'offered in the very level that builds it',
   'built-later': 'offered before the level that builds it',
+  carried: 'named in a level that holds it anyway (an unlocked part carries into every level after it)',
   granted: 'handed out by a level (grants)',
   'many-new': 'more than one new part in one level',
-  unused: 'built, but never offered again',
   unplaced: 'in no era',
   'no-topic': 'a machine whose era has no topic series yet',
   machine: 'played on a machine of a later era',
@@ -136,7 +137,7 @@ export function layout(eras) {
   return { order, place, requires, tracks }
 }
 
-export function defineCourse({ levels, eras = null, primitives, palette, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], carries = () => true, needed = () => null, folds = () => [] }) {
+export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], carries = () => true, needed = () => null, folds = () => [] }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -154,16 +155,32 @@ export function defineCourse({ levels, eras = null, primitives, palette, needs, 
     else levels.slice(0, index.get(id)).forEach((l) => set.add(l.id))
     return set
   }
-  return { levels, eras, plan, primitives: new Set(primitives), palette, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, index, builder, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
- * The parts a level's palette really holds for a player with `flags` (the unlocks of the levels solved, plus a level's
- * grants): a primitive, a part its builder level has unlocked, and, until the content is fixed, a part no level builds
- * or the level being played builds itself (audit reports both).
+ * Every part a level can ever hold, by the rule every course follows: a part, once met, stays usable in every level
+ * after it on the tree (every level this one comes after), unless a part met since replaces it (an upgrade, or a
+ * merger) or the course keeps it in its own level (`carries`). So a level's spec names only the parts it brings in
+ * (`adds`); a part the player builds needs no naming at all. In order: the level's own parts, then the carried ones in
+ * the order they were met.
+ */
+export function reach(course, level) {
+  const own = course.adds(level)
+  const earlier = course.levels.filter((l) => course.before(l.id, level.id))
+  const met = earlier.flatMap((l) => [...course.adds(l), ...course.builds(l)])
+  const gone = new Set([...own, ...met].flatMap((p) => course.replaces(p)))
+  const carried = met.filter((p) => !own.includes(p) && !gone.has(p) && course.carries(p, level))
+  return [...new Set([...own, ...carried])]
+}
+
+/**
+ * The parts a level really holds for a player with `flags` (the unlocks of the levels solved, plus a level's grants):
+ * of everything it can reach, a primitive, and a built part once its builder level is solved (until the content is
+ * fixed, a part no level builds, or one the level builds itself: audit reports both).
  */
 export function usable(course, level, flags) {
-  return course.palette(level).filter((p) => {
+  return reach(course, level).filter((p) => {
     if (course.primitives.has(p)) return true
     const need = course.needs(p), by = course.builder(p)
     if (!need || !by || by === level.id) return true
@@ -172,31 +189,24 @@ export function usable(course, level, flags) {
 }
 
 /**
- * Everything a player holding `flags` can place in a level, by the rule every course follows: a part, once unlocked,
- * stays usable in every level after it (every level this one comes after on the tree), unless a part met since
- * replaces it (an upgrade, or a merger). So that a level with many parts does not leave the player lost, it shows only
- * what its puzzle is about: the parts new here, and the ideas its reference answer uses (`needed`, by concept, carried
- * parts too). The rest is folded away, still usable: parts carried from earlier levels, parts of its palette the answer does not need,
- * and parts its spec folds (`folds`). Returns { shown, folded }.
+ * What a level shows of the parts it holds, so that a level with many parts does not leave the player lost: the parts
+ * new here, the parts the levels just before it have built, and the ideas its reference answer uses (`needed`, by
+ * concept; with no reference to go by, every part). Everything else carried from earlier levels is folded away, still
+ * usable, and so is every part the level's spec folds (`folds`). Returns { shown, folded }.
  */
 export function offer(course, level, flags) {
-  const own = usable(course, level, flags)
-  const earlier = course.levels.filter((l) => course.before(l.id, level.id))
-  const seen = new Set(earlier.flatMap((l) => course.palette(l)))
-  const have = new Set(earlier.flatMap((l) => [...usable(course, l, flags), ...course.builds(l).filter((p) => flags.has(course.needs(p)))]))
-  const gone = new Set([...own, ...have].flatMap((p) => course.replaces(p)))
-  const carried = [...have].filter((p) => !own.includes(p) && !gone.has(p) && course.carries(p, level))
+  const all = usable(course, level, flags)
+  const own = new Set(course.adds(level))
   // The answer goes by its parts (not a board's own fixed cards), and only when the player holds them all: a reference
   // built from parts the player cannot have yet says nothing about what to show.
-  const isPart = (p) => course.primitives.has(p) || Boolean(course.needs(p)) || course.levels.some((l) => course.palette(l).includes(p))
-  const held = new Set([...own, ...have].map(course.concept))
+  const isPart = (p) => course.primitives.has(p) || Boolean(course.needs(p)) || course.levels.some((l) => course.adds(l).includes(p))
+  const held = new Set(all.map(course.concept))
   const parts = course.needed(level)?.filter(isPart)
   const ideas = parts && parts.every((p) => held.has(course.concept(p))) ? new Set(parts.map(course.concept)) : null
+  const just = new Set((course.plan?.requires.get(level.id) ?? []).flatMap((id) => course.builds(course.levels[course.index.get(id)])))
   const fold = new Set(course.folds(level))
-  const hidden = (p) => fold.has(p) || Boolean(ideas && seen.has(p) && !ideas.has(course.concept(p)))
-  // A carried part the answer uses is shown with the level's own.
-  const wanted = (p) => !fold.has(p) && Boolean(ideas?.has(course.concept(p)))
-  return { shown: [...own.filter((p) => !hidden(p)), ...carried.filter(wanted)], folded: [...own.filter(hidden), ...carried.filter((p) => !wanted(p))] }
+  const shows = (p) => !fold.has(p) && (own.has(p) || just.has(p) || !ideas || ideas.has(course.concept(p)))
+  return { shown: all.filter(shows), folded: all.filter((p) => !shows(p)) }
 }
 
 /** Every broken rule, as { rule, level, part, text }, in play order. */
@@ -205,33 +215,30 @@ export function audit(course) {
   const say = (rule, level, part, text) => out.push({ rule, level, part, text })
   const plan = course.plan
   const levels = course.levels
-  // The ideas a level has met: every concept offered on the way to it. A primitive is new where it is first offered; a
-  // part the player built is not new where it is first offered after its builder level.
-  const met = (id) => new Set(levels.filter((l) => course.before(l.id, id)).flatMap((l) => course.palette(l).map(course.concept)))
+  // The ideas a level has met: every part brought in or built on the way to it. A part built by the player is never
+  // new where it is first used.
+  const met = (id) => new Set(levels.filter((l) => course.before(l.id, id)).flatMap((l) => [...course.adds(l), ...course.builds(l)].map(course.concept)))
   const unbuilt = new Set()
   for (const level of levels) {
     const granted = new Set(course.granted(level))
     const seen = met(level.id)
-    const built = (p) => course.builder(p) && course.before(course.builder(p), level.id)
-    const fresh = new Set(course.palette(level).filter((p) => !built(p)).map(course.concept).filter((c) => !seen.has(c)))
+    const earlier = levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.adds(l))
+    const fresh = new Set(course.adds(level).filter((p) => !course.builder(p)).map(course.concept).filter((c) => !seen.has(c)))
     const role = plan?.place.get(level.id)?.role
-    for (const p of course.palette(level)) {
-      if (course.primitives.has(p)) continue
+    for (const p of course.adds(level)) {
       const by = course.builder(p)
+      if (course.primitives.has(p)) { if (earlier.includes(p) && course.carries(p, level)) say('carried', level.id, p, 'brought in again, though an earlier level already did'); continue }
       if (granted.has(p)) say('granted', level.id, p, 'handed out by the level, not built by the player')
       else if (!by) { if (!unbuilt.has(p)) say('not-built', level.id, p, 'no level builds it and it is not a primitive'); unbuilt.add(p) }
       else if (by === level.id) say('own-level', level.id, p, 'offered in the very level that builds it')
-      else if (!course.before(by, level.id)) {
+      else if (course.before(by, level.id) && course.carries(p, level)) say('carried', level.id, p, `named, though it carries here from ${by} anyway`)
+      else {
         const optional = ['intro', 'step', 'finale', 'challenge'].includes(plan?.place.get(by)?.role)
         say(optional ? 'optional-needed' : 'built-later', level.id, p, optional ? `needs ${by}, which sits on an optional branch it does not require` : `offered where ${by}, the level that builds it, need not be solved yet`)
       }
     }
     if (role === 'challenge' && fresh.size) say('challenge-new', level.id, [...fresh].join(' '), 'a challenge brings nothing new')
     else if (fresh.size > 1) say('many-new', level.id, [...fresh].join(' '), `${fresh.size} new parts in one level (one new idea per level)`)
-  }
-  // Every part a level builds must be used later on.
-  for (const level of levels) {
-    for (const p of course.builds(level)) if (!levels.some((l) => course.before(level.id, l.id) && course.palette(l).includes(p))) say('unused', level.id, p, 'built here but never offered again')
   }
   if (!plan) return out
 

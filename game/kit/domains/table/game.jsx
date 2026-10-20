@@ -84,7 +84,6 @@ export function defineTableGame(spec) {
     parts: {
       // Only parts a level that is played unlocks (a retired level's card would never be earned).
       all: Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, name: part.name, desc: part.desc, icon: lookIcon(key) })),
-      earned: (progress) => progress.flags,
       // The part on a bench: its level's board, with inputs, constants and models to change and a Run button.
       demo: (part, { phone }) => <PartDemo key={part.key} partKey={part.key} phone={phone} levels={LEVELS} borrow={spec.borrow ?? {}} />,
       filters: robotFilters,

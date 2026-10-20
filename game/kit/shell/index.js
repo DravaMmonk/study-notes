@@ -22,7 +22,7 @@ export { PHONE, useMedia } from './useMedia.js'
  *   power         a first-run dialog { title, lines }
  *   intro(level)  a level's 引入 pages [{ t, fig? }]; IntroFigure draws a page's fig ({ fig, level, theme })
  *   progress      { version, migrate(saved), legacy() } for saves from older versions or keys
- *   parts         the components box (元件箱) { all: [{ key, name, desc?, icon?, family? }], earned(progress) → [key],
+ *   parts         the components box (元件箱) { all: [{ key, name, desc?, icon?, family? }] (a key is the flag earning it),
  *                 demo?(part, { phone }) → the part on a bench to try (React; games/kit/circuit DemoBench),
  *                 filters?(progress) → [{ key, name, icon?, lock?, keys }] to narrow the box, such as by robot }
  *   unlocked(level)  what passing a level unlocks [{ label, icon?, family? }] for the passed dialog
@@ -56,9 +56,12 @@ export function defineGame(def) {
     missing: (level, solved) => requiresOf(level).filter((id) => !solved.has(id)).map((id) => byId[id]),
     // Everything a player has unlocked by the time `level` opens: the unlocks of every level it comes after.
     unlocksBefore: (level) => [...ancestors(level)].flatMap((id) => byId[id].unlocks ?? []),
+    // What a player has unlocked: every solved level's unlocks (so a level that has since come to unlock something gives
+    // it to whoever solved it already), and the flags the save holds.
+    flagsOf: (progress) => [...new Set([...progress.flags, ...progress.solved.flatMap((id) => byId[id]?.unlocks ?? [])])],
   }
   // With every level unlocked, the components box is full too (the encyclopedia opens every entry the same way).
-  if (def.parts) game.parts = { ...def.parts, earned: (progress) => (progress.all ? def.parts.all.map((part) => part.key) : def.parts.earned(progress)) }
+  if (def.parts) game.parts = { ...def.parts, earned: (progress) => (progress.all ? def.parts.all.map((part) => part.key) : game.flagsOf(progress)) }
   game.store = createProgress({ id: def.id, ...(def.progress ?? {}) })
   return game
 }

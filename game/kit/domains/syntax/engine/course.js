@@ -53,7 +53,9 @@ export function syntaxCourse({ lexicon, eras, levels }) {
     eras,
     // Every word is a primitive: what a player builds in a syntax game is the sentence, not the words.
     primitives: lex.types(),
-    palette: (level) => palettes.get(level.id) ?? [],
+    adds: (level) => palettes.get(level.id) ?? [],
+    // A level's words belong to its sentence and never carry into the next one.
+    carries: () => false,
     needs: () => null,
     builds: () => [],
     concept,

@@ -114,10 +114,10 @@ export default function GameShell({ game }) {
   // A level may withhold a flag the player already has, when its puzzle is to build that very thing by hand.
   const flags = useMemo(() => {
     if (!level) return new Set()
-    const set = new Set([...progress.flags, ...(level.grants ?? []), ...(progress.all ? game.unlocksBefore(level) : [])])
+    const set = new Set([...game.flagsOf(progress), ...(level.grants ?? []), ...(progress.all ? game.unlocksBefore(level) : [])])
     for (const flag of level.withhold ?? []) set.delete(flag)
     return set
-  }, [game, progress.flags, progress.all, level])
+  }, [game, progress, level])
   const intro = level && game.intro(level)?.length > 0
   const kind = level && game.kinds[level.kind]
 

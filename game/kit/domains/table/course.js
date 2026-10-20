@@ -2,7 +2,7 @@
 // each level's number, chapter and derived answers (from its reference boards, run the way they are meant to run),
 // the boards its levels package as parts, and the course audit's view of it: what each level's board relies on, and
 // whether each topic is one problem growing.
-import { defineCourse, eraLevels, layout, offer, pathLevels, usable } from '../../course.js';
+import { defineCourse, eraLevels, layout, offer, pathLevels, reach, usable } from '../../course.js';
 import { BLUEPRINTS, modelsOf } from './circuit/components.js';
 import { ROBOTS } from './circuit/robots.js';
 import { WORLDS, runCircuit } from './circuit/worlds.js';
@@ -135,31 +135,11 @@ export function tableCourse({ eras, levels, retired = [], parts, primitives }) {
     }
   });
 
-  /**
-   * The common parts (a blueprint marked `common`: combinations of parts that come up again and again) join the palette
-   * of every level after the one that builds them, wherever the board works with numbers (a palette with a Merger): what
-   * you built stays in your parts box.
-   */
-  const before = new Map();
-  const ancestors = id => {
-    if (before.has(id)) return before.get(id);
-    const set = new Set();
-    before.set(id, set);
-    for (const r of plan.requires.get(id) || []) { set.add(r); ancestors(r).forEach(x => set.add(x)); }
-    return set;
-  };
-  const COMMON = LEVELS.filter(L => L.blueprint && L.blueprint.common).map(L => L.id);
-  LEVELS.filter(L => L.mode === 'circuit').forEach(L => (L.stages || [L]).forEach(s => {
-    if (!s.palette || !s.palette.some(k => ['msum', 'mmin', 'mmax'].includes(k))) return;
-    const add = COMMON.filter(id => ancestors(L.id).has(id) && !s.palette.includes(`bp:${id}`)).map(id => `bp:${id}`);
-    if (add.length) s.palette = [...s.palette, ...add];
-  }));
-
   const course = defineCourse({
     levels: LEVELS.map(L => ({ id: L.id, unlocks: L.unlock ? [L.unlock] : [] })),
     eras,
     primitives,
-    palette: l => [...new Set((byId.get(l.id).stages || [byId.get(l.id)]).flatMap(s => s.palette || []))],
+    adds: l => [...new Set((byId.get(l.id).stages || [byId.get(l.id)]).flatMap(s => s.adds || []))],
     needs: p => (p.startsWith('bp:') ? byId.get(p.slice(3))?.unlock ?? null : null),
     builds: l => (byId.get(l.id).blueprint ? [`bp:${l.id}`] : []),
     // A merger's (or a comparator's) models are one part with a setting, 「任一是」 too (the merger for yes / no); a constant
@@ -174,6 +154,16 @@ export function tableCourse({ eras, levels, retired = [], parts, primitives }) {
     // What a level's reference boards use, and what its spec folds away anyway (../../course.js offer).
     needed: l => { const sols = (byId.get(l.id).stages || [byId.get(l.id)]).map(s => s.solution).filter(Boolean); return sols.length ? sols.flatMap(s => s.nodes.map(n => n.kind)) : null; },
     folds: l => byId.get(l.id).fold || [],
+  });
+
+  /**
+   * A stage's palette is everything it can hold (../../course.js reach): the parts its level brings in up to this stage,
+   * then the ones carried from earlier levels.
+   */
+  LEVELS.filter(L => L.mode === 'circuit').forEach(L => {
+    const own = course.adds(L), carried = reach(course, L).filter(k => !own.includes(k));
+    let had = [];
+    (L.stages || [L]).forEach(s => { had = [...new Set([...had, ...(s.adds || [])])]; s.palette = [...had, ...carried]; });
   });
 
   /** The parts level L can really offer a player holding `flags` (the shell's: unlocks of solved levels, and grants). */

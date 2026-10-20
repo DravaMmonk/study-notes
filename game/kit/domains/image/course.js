@@ -1,12 +1,12 @@
 // A course of image levels, from a game's spec: the play order and the tree from its eras (../../course.js layout),
 // each level with the image domain's defaults, its palette in the order the player meets parts, the ways of drawing
 // a picture it has met so far, and the packed parts its solved circuits become (engine/own.js).
-import { defineCourse, layout, offer, usable } from '../../course.js'
+import { defineCourse, layout, offer, reach, usable } from '../../course.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { OWN, ownPart } from './engine/own.js'
 
-// A palette lists the parts new to the player first (offered by no level this one comes after, marked 新), then the
-// constant and the four kinds of arithmetic, then the rest as the level gives them.
+// A palette lists the parts the level brings in first (marked 新), then the ones carried from earlier levels; each group
+// puts the constant and the four kinds of arithmetic first, then the rest in the order they were met.
 const ARITHMETIC = ['const', 'add', 'sub', 'mul', 'arith', 'merge']
 
 /**
@@ -19,7 +19,8 @@ const ARITHMETIC = ['const', 'add', 'sub', 'mul', 'arith', 'merge']
  *   concept     { part: idea } parts that are one new idea together
  *   replaces    { part: [part] } the parts a part supersedes once met (the four kinds of arithmetic, merged into one)
  * }
- * A level may fold away parts of its palette (`fold`); see ../../course.js offer.
+ * A level names only the parts it brings in (`adds`): every part met or built before it carries into it, and what it
+ * folds away (`fold`); see ../../course.js reach and offer.
  * Returns { CHAPTERS, LEVELS, levelById, course, usableIn(level, flags), offerIn(level, flags), syncOwn(progress) }.
  */
 export function imageCourse({ eras, chapters, levels, views = {}, primitives, concept = {}, replaces = {} }) {
@@ -33,13 +34,6 @@ export function imageCourse({ eras, chapters, levels, views = {}, primitives, co
     if (!ancestors.has(id)) ancestors.set(id, new Set((requires.get(id) ?? []).flatMap((r) => [r, ...before(r)])))
     return ancestors.get(id)
   }
-  const ordered = (id, palette = []) => {
-    const seen = new Set([...before(id)].flatMap((a) => byIdAll[a]?.palette ?? []))
-    const fresh = palette.filter((type) => !seen.has(type))
-    const rest = palette.filter((type) => seen.has(type))
-    const arithmeticFirst = (list) => [...ARITHMETIC.filter((type) => list.includes(type)), ...list.filter((type) => !ARITHMETIC.includes(type))]
-    return { palette: [...arithmeticFirst(fresh), ...arithmeticFirst(rest)], fresh }
-  }
   // A topic level after the first starts from the player's own circuit for the level before it, when that level is a
   // circuit too.
   const carry = new Map(eras.flatMap((era) => (era.topics ?? []).flatMap((t) => t.levels.slice(1).map((id, i) => [id, t.levels[i]]))).filter(([, from]) => byIdAll[from]?.kind !== 'board'))
@@ -49,10 +43,11 @@ export function imageCourse({ eras, chapters, levels, views = {}, primitives, co
     freshViews: Object.keys(views).filter((view) => views[view] === id),
   })
 
+  const unlocksOf = (level) => [...(level.unlocks ?? []), ...(level.packs ? [`own-${level.id}`] : [])]
   const LEVELS = plan.order.map((id) => {
     const level = byIdAll[id]
     if (!level) throw new Error(`route names a level that does not exist: ${id}`)
-    return { kind: 'graph', inputs: ['in'], outputs: ['out'], grants: [], check: { tolerance: 0.02 }, ...level, ...ordered(id, level.palette), ...viewsAt(id), unlocks: [...(level.unlocks ?? []), ...(level.packs ? [`own-${id}`] : [])], requires: requires.get(id) ?? [], carry: carry.get(id) }
+    return { kind: 'graph', inputs: ['in'], outputs: ['out'], grants: [], adds: [], check: { tolerance: 0.02 }, ...level, ...viewsAt(id), unlocks: unlocksOf(level), requires: requires.get(id) ?? [], carry: carry.get(id) }
   })
   for (const level of levels) if (!LEVELS.some((l) => l.id === level.id)) throw new Error(`level ${level.id} is not on the route`)
   const levelById = Object.fromEntries(LEVELS.map((level) => [level.id, level]))
@@ -79,7 +74,7 @@ export function imageCourse({ eras, chapters, levels, views = {}, primitives, co
     concept: (p) => concept[p] ?? p,
     naive: (l) => Boolean(levelById[l.id].naive),
     primitives,
-    palette: (l) => levelById[l.id].palette ?? [],
+    adds: (l) => levelById[l.id].adds,
     needs: (p) => NODE_TYPES[p]?.unlock ?? null,
     builds: (l) => partsFor(l.unlocks),
     granted: (l) => partsFor(levelById[l.id].grants ?? []),
@@ -89,6 +84,14 @@ export function imageCourse({ eras, chapters, levels, views = {}, primitives, co
     needed: (l) => levelById[l.id].solution?.nodes.map((n) => n.type) ?? null,
     folds: (l) => levelById[l.id].fold ?? [],
   })
+  // A circuit level's palette is everything it can hold (../../course.js reach): the parts it brings in, then the
+  // carried ones; a board or probe level has only what it brings in.
+  const arithmeticFirst = (list) => [...ARITHMETIC.filter((type) => list.includes(type)), ...list.filter((type) => !ARITHMETIC.includes(type))]
+  for (const level of LEVELS) {
+    const carried = level.kind === 'graph' ? reach(course, level).filter((type) => !level.adds.includes(type)) : []
+    level.fresh = level.adds
+    level.palette = [...arithmeticFirst(level.adds), ...arithmeticFirst(carried)]
+  }
   /** The parts a level can really offer a player holding `flags` (the shell's: unlocks of solved levels, and grants). */
   const usableIn = (level, flags) => usable(course, { id: level.id }, flags)
   /** Everything the player has for a level: what it shows, and what it folds away ({ shown, folded }). */
