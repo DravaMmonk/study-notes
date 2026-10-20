@@ -14,8 +14,6 @@ import { boardFor } from './boards/index.js'
 import { describe, familyOf, iconOf } from './catalog.js'
 import { kindOf, nodeView, viewFor } from './views/views.js'
 import { levelSensors } from './sensors.js'
-import { usableIn } from '../../../../vision-complete/levels/course.js'
-import { syncOwn } from '../../../../vision-complete/levels/index.js'
 
 // Vision Complete's level screens on the shared game shell (games/kit/shell): a circuit to build (graph), a bench
 // (board) and the one probe level. The shell owns the bar, the map, the rail, the dialogs and the saved progress;
@@ -31,7 +29,7 @@ const untested = (run) => ({
 
 export default function LevelScreen({ game, level, saved, save, solved, solve, flags, progress, theme, phone }) {
   // The circuits the player has packed into parts are theirs as they last passed (engine/own.js).
-  syncOwn(progress)
+  game.image.syncOwn(progress)
   // The board and its test results change together: tests re-run whenever the wiring or a parameter
   // changes, but not while a card is only being dragged around.
   const [{ board, run }, setState] = useState(() => {
@@ -49,7 +47,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   // they sit in the test list like the others. Training only ever sees the visible tests.
   const revealed = solved
   // A part is in the palette once the level that builds it is solved (levels/course.js).
-  const palette = useMemo(() => (level.kind === 'graph' ? usableIn(level, flags) : level.palette ?? []), [level, flags])
+  const palette = useMemo(() => (level.kind === 'graph' ? game.image.usableIn(level, flags) : level.palette ?? []), [game, level, flags])
   const playLevel = useMemo(() => ({ ...(revealed ? withHidden(level) : level), palette }), [revealed, level, palette])
   const hiddenCount = revealed ? 0 : level.hidden?.length ?? 0
   const [hiddenMiss, setHiddenMiss] = useState(null) // { failed, total } after a run whose visible tests passed

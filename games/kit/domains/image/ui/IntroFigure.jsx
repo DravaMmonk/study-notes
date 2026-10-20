@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { NODE_TYPES } from '../engine/nodes.js'
-import { partFigure } from '../../../../vision-complete/levels/intros/index.js'
+import { partFigure } from '../intros.js'
 import { L, tr } from '../../../shell/i18n.js'
 import FigureStage from './FigureStage.jsx'
 import ValueView from './views/ValueView.jsx'

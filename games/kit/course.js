@@ -38,6 +38,26 @@
 // })
 // usable(course, level, flags) is what a level's palette really holds; audit(course) lists every broken rule.
 
+/** What each rule of the audit means, for reports (../engine/check.js). */
+export const RULE_TEXT = {
+  'not-built': 'offered, but no level builds it and it is not a primitive',
+  'own-level': 'offered in the very level that builds it',
+  'built-later': 'offered before the level that builds it',
+  granted: 'handed out by a level (grants)',
+  'many-new': 'more than one new part in one level',
+  unused: 'built, but never offered again',
+  unplaced: 'in no era',
+  'no-topic': 'a machine whose era has no topic series yet',
+  machine: 'played on a machine of a later era',
+  'machine-role': 'a foundation, practice, finale or challenge level played on an older machine',
+  mechanism: 'played on a machine that cannot do what its board uses',
+  'topic-world': 'a topic that spans several worlds',
+  'challenge-new': 'a challenge that brings something new',
+  'challenge-required': 'a level that requires a challenge',
+  'challenge-naive': 'a challenge without a failing naive answer',
+  'topic-finale': 'a topic level its finale’s board does not solve (the topic is not one problem growing)',
+}
+
 /** Roles of a level within its era. A topic of one level is just its finale. */
 export const ROLES = ['foundation', 'practice', 'intro', 'step', 'finale', 'challenge']
 

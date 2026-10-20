@@ -3,7 +3,6 @@ import { Choice, DemoBench, SlotBoard } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { runLevel } from '../engine/graph.js'
 import { NODE_TYPES, defaultParams, settingsOf } from '../engine/nodes.js'
-import { LEVELS } from '../../../../vision-complete/levels/index.js'
 import Editor from './Editor.jsx'
 import { describe } from './catalog.js'
 import { partsFor } from './parts.js'
@@ -20,26 +19,17 @@ import './phone/phone.css'
 // sample ones); the player changes a setting, runs it, and sees what each card makes of the picture. On a phone it
 // is the phone board: tap a block, change its settings underneath.
 
-const SAMPLE = '1-1' // the pictures a part from a level without tests is tried on
-// Parts tried inside a level's own circuit, because what feeds them is more than its inputs.
-const SOLUTION_OF = { 'dg-decoder': '8-2', 'dg-reparam': '8-2' }
-// …and where that circuit spells the part out from smaller ones, the part itself takes their place.
-const REWRITE = {
-  // μ + σ·ε, written there as a multiply and an add, becomes one 重参数化 card.
-  'dg-reparam': (g) => ({
-    nodes: [...g.nodes.filter((n) => n.id !== 'x' && n.id !== 'a'), { id: 'r', type: 'dg_reparam', params: {}, x: g.nodes.find((n) => n.id === 'x').x, y: g.nodes.find((n) => n.id === 'x').y }],
-    wires: [...g.wires.filter((w) => !['x', 'a'].includes(w.to) && !['x', 'a'].includes(w.from)), { from: 'm', to: 'r', port: 'μ' }, { from: 's', to: 'r', port: 'σ' }, { from: 'eps', to: 'r', port: 'ε' }, { from: 'r', to: 'd', port: 'in' }],
-  }),
-}
-
-function benchFor(flag, type, sample = false) {
+// box: { sample, inSolution, rewrite } from the game's spec: the level whose pictures a part from a level without tests
+// is tried on, parts tried inside a level's own circuit (what feeds them is more than its inputs), and how such a
+// circuit, where it spells the part out from smaller ones, is rewritten to hold the part itself.
+function benchFor(levels, box, flag, type, sample = false) {
   // A setting rather than a part is tried on the part it belongs to.
   const nodeType = flag === 'edge-pad' ? 'shift' : flag === 'edge-filter' ? 'box3' : type
   const spec = NODE_TYPES[nodeType]
   if (!spec) return null
-  const own = LEVELS.find((l) => (l.unlocks ?? []).includes(flag))
-  const level = SOLUTION_OF[flag] ? LEVELS.find((l) => l.id === SOLUTION_OF[flag]) : own
-  const source = !sample && level?.kind === 'graph' && level.tests?.length ? level : LEVELS.find((l) => l.id === SAMPLE)
+  const own = levels.find((l) => (l.unlocks ?? []).includes(flag))
+  const level = box.inSolution[flag] ? levels.find((l) => l.id === box.inSolution[flag]) : own
+  const source = !sample && level?.kind === 'graph' && level.tests?.length ? level : levels.find((l) => l.id === box.sample)
   const tests = source.tests.slice(0, 3).map((t) => ({ label: t.label, inputs: t.inputs, expected: {} }))
   const names = Object.keys(tests[0]?.inputs ?? {})
   const ports = spec.inputs ?? []
@@ -49,9 +39,9 @@ function benchFor(flag, type, sample = false) {
   // circuit, which has the part in it.
   const inSolution = source.solution?.nodes.some((n) => n.type === nodeType)
   let graph
-  if (SOLUTION_OF[flag] || (ports.length !== names.length && names.length > 0 && inSolution)) {
+  if (box.inSolution[flag] || (ports.length !== names.length && names.length > 0 && inSolution)) {
     graph = structuredClone(source.solution)
-    if (REWRITE[flag]) graph = REWRITE[flag](graph)
+    if (box.rewrite[flag]) graph = box.rewrite[flag](graph)
   } else {
     const inputs = names.map((name, k) => ({ id: `in-${name}`, type: 'input', params: { name }, x: 40, y: 40 + k * 200 }))
     const feed = (port, k) => inputs[ports.length === names.length ? k : 0]
@@ -66,13 +56,13 @@ function benchFor(flag, type, sample = false) {
   // A part its level's own tests do not suit (the spectrum, met on a 1-D signal, is a 2-D part) is tried on the
   // sample pictures instead.
   const broken = !first || first.errors.size > 0 || Object.values(first.outputs).some((img) => !img || Array.from(img.data).some(Number.isNaN))
-  if (broken && !sample && source.id !== SAMPLE && !SOLUTION_OF[flag]) return benchFor(flag, type, true)
+  if (broken && !sample && source.id !== box.sample && !box.inSolution[flag]) return benchFor(levels, box, flag, type, true)
   const ioKinds = Object.fromEntries([...Object.entries(tests[0]?.inputs ?? {}), ...outputs.map((name) => [name, first?.outputs[name]])].map(([name, value]) => [name, kindOf(value)]))
   return { bench, graph, nodeType, ioKinds, sensors: levelSensors(bench), views: { in: viewFor(source, 'in'), out: viewFor(source, 'out'), mid: viewFor(source, 'mid') } }
 }
 
-export default function PartDemo({ flag, type, flags, phone }) {
-  const made = useMemo(() => benchFor(flag, type), [flag, type])
+export default function PartDemo({ flag, type, flags, phone, levels, box }) {
+  const made = useMemo(() => benchFor(levels, box, flag, type), [levels, box, flag, type])
   const [graph, setGraph] = useState(() => made?.graph)
   const [test, setTest] = useState(0)
   const [run, setRun] = useState(null)
