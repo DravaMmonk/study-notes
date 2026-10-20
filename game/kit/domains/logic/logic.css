@@ -27,10 +27,8 @@
 .lg-field { display: grid; gap: 4px; }
 .lg-field label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; }
 .lg-field label > span { color: var(--muted); font-size: 11px; }
-.lg-field input, .lg-field select { min-width: 0; height: 26px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12.5px var(--mono); }
-.lg-field input:focus, .lg-field select:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
-.lg-keys { display: flex; flex-wrap: wrap; gap: 6px; }
-.lg-keys button { min-width: 40px; height: 40px; border: 0; border-radius: 10px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: 17px var(--mono); }
+.lg-field select { min-width: 0; height: 26px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12.5px var(--mono); }
+.lg-field select:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
 
 .lg-side { display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; }
 .lg-side span { margin-right: auto; }
@@ -50,7 +48,18 @@
 .lg-box-note { margin: 0; color: var(--body); font-size: 12.5px; }
 
 /* ---- the strip and the brief ---- */
-.lg-sequent { font-size: 13px; color: var(--muted); }
+.lg-strip { display: grid; gap: 6px; }
+.lg-sequent { margin: 0; font-size: 13px; color: var(--muted); }
+/* The test cases: chips with a dot that turns green or red once checked. */
+.lg-tests { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.lg-tests::-webkit-scrollbar { display: none; }
+.lg-test { flex: none; min-height: 30px; padding: 0 12px 0 10px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 15px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer; }
+.lg-test i { width: 7px; height: 7px; border-radius: 50%; background: var(--rule); }
+.lg-test.is-pass i { background: var(--status); }
+.lg-test.is-fail i { background: var(--fail); }
+.lg-test.is-on { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.lg-test em { color: var(--faint); font-style: normal; font-size: 11px; }
+.lg-tests.is-phone { padding: 8px 12px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
 .lg-sequent b { margin: 0 4px; color: var(--ink); }
 .lg-verdict { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .lg-verdict.is-pass { color: var(--status); }
@@ -61,7 +70,7 @@
 .lg-score .stat span { color: var(--muted); font-size: 11px; }
 
 /* ---- phone ---- */
-.lg-phone { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto auto; }
+.lg-phone { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; }
 .lg-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; align-content: start; gap: 12px; }
 .lg-phone .lg-box-note { padding: 8px 10px; border-radius: var(--r-md); background: var(--paper); outline: 1px solid var(--hairline); }
 .lg-chips { display: grid; gap: 2px; }
@@ -71,7 +80,7 @@
 .lg-phone .pb-thumb .lg-chips { gap: 4px; }
 .lg-sheet { display: grid; gap: 14px; }
 .lg-sheet .lg-card { padding: 0; gap: 12px; }
-.lg-sheet .lg-field input, .lg-sheet .lg-field select { height: 40px; font-size: 16px; }
+.lg-sheet .lg-field select { height: 40px; font-size: 16px; }
 .lg-sheet .lg-open { height: 44px; font-size: 14px; }
 .lg-desc { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; }
 .lg-remove { height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 12px; color: var(--fail); background: var(--canvas); font: inherit; }

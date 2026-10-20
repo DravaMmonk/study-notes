@@ -118,6 +118,15 @@ export function show(f, outer = -1) {
 
 /* ---------- variables and substitution ---------- */
 
+/** f with each proposition letter in `map` replaced by its formula (a level's test case: A := it rains). */
+export function replaceAtoms(f, map) {
+  if (f.op === 'atom') return !f.args.length && map[f.pred] ? map[f.pred] : f
+  if (f.op === '¬') return not(replaceAtoms(f.a, map))
+  if (f.op === '∀' || f.op === '∃') return { ...f, body: replaceAtoms(f.body, map) }
+  if (f.a) return bin(f.op, replaceAtoms(f.a, map), replaceAtoms(f.b, map))
+  return f
+}
+
 const termVars = (t, out) => {
   if (t.t === 'var') out.add(t.name)
   else t.args.forEach((a) => termVars(a, out))
