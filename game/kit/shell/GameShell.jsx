@@ -4,21 +4,20 @@ import { applyTheme } from '../theme.js'
 import { currentLang } from '../lang.js'
 import { mountBarMenus } from '../menu.js'
 import { L, tr } from './i18n.js'
-import { preference } from './progress.js'
 import { PHONE, useMedia } from './useMedia.js'
 import { Dialog, FailDialog, SolvedDialog } from './Dialogs.jsx'
 import Encyclopedia, { useWiki } from './Encyclopedia.jsx'
 import PartsBook, { useParts } from './PartsBook.jsx'
 import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
-import LevelRail from './LevelRail.jsx'
+import LevelDrawer from './LevelDrawer.jsx'
 
 // Every game sits at game/<id>/index.html, under the games hub (game/index.html): on the published site, and on the
 // dev server too (trace-viewer/vite.config.js).
 const SITE = { games: '../index.html' }
 
 /**
- * The game shell shared by every game: the top bar, the level map, the level rail, a level's 引入, the first-run
+ * The game shell shared by every game: the top bar, the level map, the level drawer, a level's 引入, the first-run
  * dialog, the passed and failed dialogs, the components box and encyclopedia, settings and saved progress. A game (see
  * defineGame) brings only its content: chapters, levels, intro figures and, for each kind of level, the screen
  * that plays it. A level screen gets
@@ -49,19 +48,8 @@ export default function GameShell({ game }) {
   const [fails, setFails] = useState(0) // misses on the current level this visit
   const [sheet, setSheet] = useState(null) // 'parts' | 'wiki'
 
-  // The level list beside a level: docked on wide screens (remembered), a drawer on narrow ones.
-  const narrow = useMedia('(max-width: 1180px)')
-  const railPref = useMemo(() => preference(`${game.id}.rail`, () => window.innerWidth >= 1360), [game.id])
-  const [rail, setRail] = useState(() => railPref.read())
+  // The level drawer, pulled out from the left over a level.
   const [drawer, setDrawer] = useState(false)
-  const showRail = narrow ? drawer : rail
-  const toggleRail = () => {
-    if (narrow) setDrawer((v) => !v)
-    else {
-      setRail(!rail)
-      railPref.write(!rail)
-    }
-  }
 
   useEffect(() => game.store.save(progress), [game, progress])
   useEffect(() => applyTheme(theme), [theme])
@@ -76,13 +64,13 @@ export default function GameShell({ game }) {
     document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
     document.title = tr(`${game.title.zh} — ${game.title.en}`, `${game.title.en} — ${game.title.zh}`)
   }, [game, lang])
-  // Escape closes the rail when it is a drawer; dialogs and sheets close themselves (Dialogs.jsx useEscape).
+  // Escape closes the level drawer; dialogs and sheets close themselves (Dialogs.jsx useEscape).
   useEffect(() => {
-    if (!(narrow && drawer)) return undefined
+    if (!drawer) return undefined
     const onKey = (event) => event.key === 'Escape' && setDrawer(false)
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [narrow, drawer])
+  }, [drawer])
 
   const [left, setLeft] = useState(null) // the level last left for the map, which the map opens at
   const open = (id) => {
@@ -140,7 +128,7 @@ export default function GameShell({ game }) {
         {level ? (
           <>
             <button className="kit-btn is-label bar-button" onClick={() => open(null)} aria-label={tr('回到关卡地图', 'Back to the level map')}><ArrowLeft size={16} /><span>{tr('地图', 'Map')}</span></button>
-            <button className={`kit-btn is-label bar-button rail-toggle ${showRail ? 'is-on' : ''}`} onClick={toggleRail} aria-pressed={showRail} aria-label={tr('关卡列表', 'Level list')}><PanelLeft size={16} /><span>{tr('关卡', 'Levels')}</span></button>
+            <button className={`kit-btn is-label bar-button drawer-toggle ${drawer ? 'is-on' : ''}`} onClick={() => setDrawer(!drawer)} aria-pressed={drawer} aria-label={tr('关卡', 'Levels')}><PanelLeft size={16} /><span>{tr('关卡', 'Levels')}</span></button>
           </>
         ) : (
           <a className="kit-btn is-label bar-button" href={SITE.games} aria-label={tr('回到游戏列表', 'Back to the games')}><ArrowLeft size={16} /><span>{tr('游戏', 'Games')}</span></a>
@@ -180,16 +168,15 @@ export default function GameShell({ game }) {
         />
       )}
       {level && (
-        <div className={`level-shell ${showRail && !narrow ? 'has-rail' : ''}`}>
-          {showRail && narrow && <div className="rail-scrim" onClick={() => setDrawer(false)} />}
-          {showRail && (
-            <LevelRail
+        <div className="level-shell">
+          {drawer && <div className="drawer-scrim" onClick={() => setDrawer(false)} />}
+          {drawer && (
+            <LevelDrawer
               game={game}
               current={level.id}
               solved={solved}
               all={progress.all}
-              overlay={narrow}
-              onClose={toggleRail}
+              onClose={() => setDrawer(false)}
               onOpen={(id) => {
                 open(id)
                 setDrawer(false)

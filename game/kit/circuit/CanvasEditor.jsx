@@ -34,7 +34,8 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * @param caption(node) a fixed card's line under its title (what it carries)
  * @param outNote(node, key) beside each of a card's several outputs (parts.outputs), after its name: what it carries.
  *   Those outputs sit on the card's right edge over its body, which keeps that edge free (.node.has-outs)
- * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, width, height (for fitting), emptyNote, overlay
+ * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, width (a card's, unless parts.cardWidth(node) gives
+ *   its own), height (for fitting), emptyNote, overlay
  * Windows floating over the board (FloatWindow, in `overlay`) are kept clear when fitting: the circuit goes between
  * them or below them, wherever it shows larger. With `refit` the circuit is fitted again whenever the board changes
  * size (a bench in the parts box, whose panel can open narrow and then grow). `minFit` is the smallest zoom a fit may
@@ -55,17 +56,15 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const layer = useRef(null)
   const pointers = useRef(new Map())
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  // A card with several outputs may space them out (`row`) and give each row the whole width (`wide`), its content
-  // all the game's (outNote): a setting per output, say.
-  const outLayout = (node) => ({ row: ROW, wide: false, ...parts.outputLayout?.(node) })
-  const outY = (node, index) => PORTS + 10 + index * outLayout(node).row
+  const outY = (node, index) => PORTS + 10 + index * ROW
+  const widthOf = (node) => parts.cardWidth?.(node) ?? width
   const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
 
   // `shift` is how far a card being dragged has moved, so its wires follow it before the move is committed. An output
   // is the card's only one, or (`key`) one of its several, each on its own row.
   const portAt = (node, port, moving, key = null) => {
     const [sx, sy] = moving?.id === node.id ? [moving.dx, moving.dy] : [0, 0]
-    if (port === null) return [node.x + sx + width, node.y + sy + outY(node, Math.max(0, outputsOf(parts, node).findIndex((o) => o.key === key)))]
+    if (port === null) return [node.x + sx + widthOf(node), node.y + sy + outY(node, Math.max(0, outputsOf(parts, node).findIndex((o) => o.key === key)))]
     const index = Math.max(0, parts.inputs(node).indexOf(port))
     return [node.x + sx, node.y + sy + portY(index)]
   }
@@ -86,7 +85,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const fit = () => {
     const box = surface.current?.getBoundingClientRect()
     if (!box || !box.width || !graph.nodes.length) return
-    const xs = graph.nodes.flatMap((n) => [n.x, n.x + width])
+    const xs = graph.nodes.flatMap((n) => [n.x, n.x + widthOf(n)])
     const ys = graph.nodes.flatMap((n) => [n.y, n.y + height])
     const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
     const pad = 36
@@ -363,7 +362,6 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
           const role = parts.role(node)
           const ports = parts.inputs(node)
           const outs = parts.outputs?.(node) ?? null
-          const lay = outLayout(node)
           const icon = parts.icon?.(node)
           return (
             <div
@@ -374,7 +372,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
               data-io={role === 'source' ? tr('输入', 'IN') : role === 'sink' ? tr('输出', 'OUT') : undefined}
               className={`node is-${role} ${outs ? 'has-outs' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
               onClick={picking ? (e) => !e.target.closest('[data-p], button, input, select, label') && clickCard(node.id) : undefined}
-              style={{ left: node.x, top: node.y, width, ...parts.cardStyle?.(node) }}
+              style={{ left: node.x, top: node.y, width: widthOf(node), ...parts.cardStyle?.(node) }}
             >
               <div className="node-head" data-drag onPointerDown={() => setSelected({ node: node.id })}>
                 {icon && <i className="family-chip"><Glyph icon={icon} size={12} /></i>}
@@ -400,8 +398,8 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
                 {role !== 'sink' && outs?.map((o, index) => {
                   const src = srcOf(node, o.key)
                   return (
-                    <span key={o.key} className={`node-port-out ${lay.wide ? 'is-wide' : ''}`} style={{ top: index * lay.row }}>
-                      {!lay.wide && (o.glyph ? <span className="node-out-name is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>)}
+                    <span key={o.key} className="node-port-out" style={{ top: index * ROW }}>
+                      {o.glyph ? <span className="node-out-name is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>}
                       {outNote?.(node, o.key)}
                       <i className={`port port-out ${graph.wires.some((w) => w.from === src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${parts.portClass?.(node, null, o.key) ?? ''}`} data-p={outPort(src)} title={tr('点一下，再点另一张卡片的输入；也可以拖过去', 'Click, then click an input of another card; or drag there')} onClick={() => clickPort(outPort(src))} />
                     </span>

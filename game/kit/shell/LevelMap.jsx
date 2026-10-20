@@ -10,8 +10,8 @@ import { PHONE, useMedia } from './useMedia.js'
 // branches stands side by side and joins again, and optional topics and challenges (dashed) branch off to either side
 // of the level they follow.
 
-// Tree geometry in px: node size and the gaps between columns and rows.
-const SIZE = { desk: { w: 224, h: 52, col: 28, gap: 22 }, phone: { w: 114, h: 62, col: 12, gap: 16 } }
+// Tree geometry in px: node size and the gaps between columns and rows; compact for a phone or the level drawer.
+const SIZE = { full: { w: 224, h: 52, col: 28, gap: 22 }, compact: { w: 114, h: 62, col: 12, gap: 16 } }
 const R = 8
 
 // Places a track as columns ("tracks"), each a run of rows on one lane: a main-path level, a parallel branch (kept to
@@ -109,8 +109,12 @@ function center({ at, edges, tracks }) {
   return { at: new Map([...at].map(([id, p]) => [id, { col: p.t.x, row: p.row }])), edges }
 }
 
-function Tree({ track, byId, node, phone, solved }) {
-  const { w, h, col, gap } = phone ? SIZE.phone : SIZE.desk
+/**
+ * A chapter's level tree, on the map and in the level drawer: a button for each level (byId: the chapter's levels)
+ * joined by wires. current: the level being played (marked); next: the one to play next (its pad pulses).
+ */
+export function LevelTree({ game, track, byId, solved, all, best = () => null, current, next, compact, onOpen }) {
+  const { w, h, col, gap } = compact ? SIZE.compact : SIZE.full
   const { at, edges } = useMemo(() => center(plot(track)), [track])
   const scroll = useRef(null)
   const spots = [...at.values()]
@@ -137,9 +141,26 @@ function Tree({ track, byId, node, phone, solved }) {
     const s = Math.sign(x2 - x1)
     return `M${x1} ${y1}V${yb - R}Q${x1} ${yb} ${x1 + s * R} ${yb}H${x2 - s * R}Q${x2} ${yb} ${x2} ${yb + R}V${y2}`
   }
+  const node = (level, style, optional) => {
+    if (!level) return null
+    const open = game.isOpen(level, solved, all)
+    const won = solved.has(level.id)
+    const state = won ? 'is-solved' : open ? 'is-open' : 'is-locked'
+    const kind = game.kinds[level.kind]
+    const score = won && best(level.id) && game.bestLabel?.(best(level.id))
+    const here = level.id === current
+    return (
+      <button key={level.id} data-level={level.id} style={style} title={L(level.title)} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''}`} disabled={!open} onClick={() => onOpen(level.id)}>
+        <span className="map-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={9} />}</span>
+        <span className="map-node-id">{game.levelLabel(level)}</span>
+        <span className="map-node-title">{L(level.title)}</span>
+        {score ? <span className="map-node-best">{score}</span> : kind?.icon && !compact && <span className="map-node-kind" aria-label={L(kind.label)}>{createElement(kind.icon, { size: 13 })}</span>}
+      </button>
+    )
+  }
   return (
     <div className="map-tree-scroll" ref={scroll}>
-      <div className="map-tree" style={{ width, height }}>
+      <div className={`map-tree ${compact ? 'is-compact' : ''}`} style={{ width, height }}>
         <svg className="map-wires" width={width} height={height} aria-hidden="true">
           {edges.map((e) => <path key={`${e.from}-${e.to}`} className={`${optional.has(e.to) ? 'is-optional' : ''} ${solved.has(e.from) ? 'is-lit' : ''}`} d={wire(at.get(e.from), at.get(e.to), e.kind)} />)}
         </svg>
@@ -176,23 +197,6 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
     }
   }, [focus])
 
-  // One level's button on the tree.
-  const node = (level, style, optional) => {
-    if (!level) return null
-    const open = game.isOpen(level, solved, progress.all)
-    const won = solved.has(level.id)
-    const state = won ? 'is-solved' : open ? 'is-open' : 'is-locked'
-    const kind = game.kinds[level.kind]
-    const best = won && progress.best[level.id] && game.bestLabel?.(progress.best[level.id])
-    return (
-      <button key={level.id} data-level={level.id} style={style} title={L(level.title)} className={`map-node ${state} ${optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''}`} disabled={!open} onClick={() => onOpen(level.id)}>
-        <span className="map-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={9} />}</span>
-        <span className="map-node-id">{game.levelLabel(level)}</span>
-        <span className="map-node-title">{L(level.title)}</span>
-        {best ? <span className="map-node-best">{best}</span> : kind?.icon && !phone && <span className="map-node-kind" aria-label={L(kind.label)}>{createElement(kind.icon, { size: 13 })}</span>}
-      </button>
-    )
-  }
   return (
     <main className="level-map" ref={root}>
       <header className="map-hero">
@@ -236,7 +240,7 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
                 {chapter.question && <p>{L(chapter.question)}</p>}
                 <span className="chapter-meter"><i style={{ width: `${(finished / inChapter.length) * 100}%` }} /></span>
               </header>
-              <Tree track={chapter.track} byId={byId} node={node} phone={phone} solved={solved} />
+              <LevelTree game={game} track={chapter.track} byId={byId} solved={solved} all={progress.all} best={(id) => progress.best[id]} next={next} compact={phone} onOpen={onOpen} />
             </section>
           )
         })}

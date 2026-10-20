@@ -11,9 +11,9 @@
 //   portLabel(node, port) → text   family(node) → string   icon(node) → Component
 //   refuse(graph, from, to, port) → null, or a { zh, en } reason the wire is not allowed
 //   removable?(node) → whether the player may take it off the board (default: a part)
+//   cardWidth?(node) → px a desktop card is wide, when not the board's width (CanvasEditor)
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
-//   outputLayout?(node) → { row, wide } how those outputs sit on the desktop card (CanvasEditor)
 import { wouldCycle } from '../graph.js'
 
 // Port ids, the same on the desktop board and the phone: an output is `o|<node>`, an input `i|<node>|<port>`.

@@ -31,24 +31,3 @@ export function createProgress({ id, version = 1, migrate = (saved) => saved, le
     blank: () => ({ ...blank(version), seenPower: true }),
   }
 }
-
-/** Remember a small per-game preference (the rail, for one). */
-export function preference(key, fallback) {
-  return {
-    read() {
-      try {
-        const saved = window.localStorage.getItem(key)
-        return saved === null ? fallback() : saved === '1'
-      } catch {
-        return fallback()
-      }
-    },
-    write(on) {
-      try {
-        window.localStorage.setItem(key, on ? '1' : '0')
-      } catch {
-        // The choice still holds for this visit.
-      }
-    },
-  }
-}

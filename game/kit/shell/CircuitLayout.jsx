@@ -8,24 +8,17 @@ import { L, tr } from './i18n.js'
  *   left bar   the task and the level's own choices
  *   middle     the parts as one row of icons (what each does in a tooltip) over the circuit board, full width; a game
  *              may float a window over the board (the robot's view) through its canvas
- *   strip      a header with the tests and how they stand; then, left to right, what the circuit is fed (inputs),
- *              what it gives (outputs: the test board, the outputs against what was expected), and the actions in a
- *              narrow column at the end (单步 and 清空 over Run)
+ *   strip      a header with the tests and how they stand; then one pane with the test's inputs and what the circuit
+ *              gives against what was expected, and the actions in a narrow column at the end (单步 and 清空 over Run)
  *
  * The line along the strip's top drags it taller or shorter, and the height is remembered for every game.
  *
- * brief, parts, canvas, tests (the chips), status (TestStatus), inputs (+ inputsTitle), outputs (+ outputsTitle,
- * outputsAside: a note at the pane head's end), actions (the run bar: a footer.run-foot)
+ * brief, parts, canvas, tests (the chips), status (TestStatus), outputs (+ outputsTitle, outputsAside: a note at
+ * the pane head's end), actions (the run bar: a footer.run-foot)
  */
-export default function CircuitLayout({ rootRef: given, className = '', brief, inputs, inputsTitle, parts, canvas, tests, status, outputs, outputsTitle, outputsAside, actions }) {
+export default function CircuitLayout({ rootRef: given, className = '', brief, parts, canvas, tests, status, outputs, outputsTitle, outputsAside, actions }) {
   const own = useRef(null)
   const rootRef = given ?? own
-  const pane = (kind, title, aside, body) => (
-    <section className={`kc-pane kc-${kind}`} aria-label={kind === 'inputs' ? tr('输入', 'Inputs') : tr('输出', 'Outputs')}>
-      <header className="kc-pane-head"><span>{title}</span>{aside}</header>
-      <div className="kc-pane-body">{body}</div>
-    </section>
-  )
   return (
     <div ref={rootRef} className={`level kit-circuit ${className}`}>
       <aside className="brief">{brief}</aside>
@@ -40,8 +33,10 @@ export default function CircuitLayout({ rootRef: given, className = '', brief, i
           {status}
         </header>
         <div className="kc-strip-body">
-          {inputs && pane('inputs', inputsTitle ?? tr('输入', 'Inputs'), null, inputs)}
-          {pane('outputs', outputsTitle ?? tr('输出', 'Outputs'), outputsAside, outputs)}
+          <section className="kc-pane kc-outputs" aria-label={tr('输入和输出', 'Inputs and outputs')}>
+            <header className="kc-pane-head"><span>{outputsTitle ?? tr('输出', 'Outputs')}</span>{outputsAside}</header>
+            <div className="kc-pane-body">{outputs}</div>
+          </section>
           <div className="kc-actions">{actions}</div>
         </div>
       </section>
