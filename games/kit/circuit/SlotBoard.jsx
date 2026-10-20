@@ -99,11 +99,12 @@ const readMode = () => {
  * @param outNote(node, key)               over each of a block's several outputs (parts.outputs), under its name: what
  *                                         it carries
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
+ * @param dense                            a board of text: one thin, full-width block to a row, its name over its value
  */
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history }) {
+export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, dense = false }) {
   const board = useRef(null)
   const [wires, setWires] = useState(readMode)
   const mode = WIRE_MODES.find((m) => m.id === wires)
@@ -200,7 +201,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   }
 
   return (
-    <div className="pb-board" ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
+    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
       <div className="pb-tools">
         {history && (
           <span className="pb-steps">

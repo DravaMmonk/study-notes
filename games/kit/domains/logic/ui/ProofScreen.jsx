@@ -208,7 +208,7 @@ function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam,
     const error = view.errors.get(n.id)
     const outs = outputsOf(parts, n)
     if (outs.length > 1) return <span className="lg-chips">{outs.map((o) => <Formula key={o.key} j={view.values.get(srcOf(n, o.key))} text={text} small />)}</span>
-    if (error) return <i className={`lg-mark ${error === MISSING ? '' : 'is-error'}`}>{error === MISSING ? tr('待接线', 'unwired') : '!'}</i>
+    if (error) return error === MISSING ? <i className="lg-mark">{tr('待接线', 'unwired')}</i> : <span className="lg-error">{L(error)}</span>
     return <Formula j={view.values.get(n.id)} text={text} small />
   }
   const sinkBody = (n) => (
@@ -223,7 +223,7 @@ function PhoneProof({ parts, lemmas, board, view, goal, verdict, open, setParam,
         <TaskCard>{brief}</TaskCard>
         {trail}
         {boxNote}
-        <SlotBoard graph={board} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={(n) => (n.type === 'goal' && verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : '')} tileExtra={(n) => parts.boards(n).length > 0 && tr('点开填写、进框', 'tap to fill in and open')} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
+        <SlotBoard dense graph={board} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={(n) => (n.type === 'goal' && verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : '')} tileExtra={(n) => parts.boards(n).length > 0 && tr('点开选假设、进框', 'tap to set it and go in')} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
         {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdict.pass ? tr('目标证出来了，没有留下开着的假设。', 'The goal is proved, with no hypothesis left open.') : L(verdict.reason)}</p>}
       </div>
       <Tray items={items} onPick={editing.placeFirstFree} />

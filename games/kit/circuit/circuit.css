@@ -170,7 +170,9 @@
 /* The wire display switch (SlotBoard), kept in reach at the top right while the board scrolls. */
 /* The tools ride along as a strip with the board's own ground under them, so the cards scroll beneath it instead of
    showing through a floating pill. */
-.pb-tools { position: sticky; z-index: 7; top: var(--pb-sticky-top, 8px); justify-self: stretch; margin: -6px 0 -52px; padding: 6px 0 12px; display: flex; justify-content: flex-end; gap: 6px; background: linear-gradient(var(--canvas) 78%, transparent); pointer-events: none; }
+/* Stuck to the top of the board's scroller; a scroller with top padding sets --pb-sticky-top to minus that padding, since
+   sticky offsets count from inside it. */
+.pb-tools { position: sticky; z-index: 7; top: var(--pb-sticky-top, 0px); justify-self: stretch; margin: -14px 0 -52px; padding: 14px 0 12px; display: flex; justify-content: flex-end; gap: 6px; background: linear-gradient(var(--canvas) 78%, transparent); pointer-events: none; }
 .pb-tools > * { pointer-events: auto; }
 .pb-wiremode, .pb-steps { height: 32px; display: inline-flex; align-items: center; border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--paper) 92%, transparent); box-shadow: 0 0 0 1px var(--rule), 0 8px 18px -12px rgba(0, 0, 0, .5); backdrop-filter: blur(8px); }
 .pb-wiremode { padding: 0 11px 0 9px; gap: 6px; border: 0; font: inherit; font-size: 12px; font-weight: 600; }
@@ -313,3 +315,16 @@
 .board-trail button:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .board-trail b { color: var(--ink); font-weight: 600; padding: 2px 4px; }
 .board-trail-step { display: inline-flex; align-items: center; gap: 2px; }
+
+/* A board of text (a proof's formulas, a sentence's words): one block to a row, full width and thin, each block's name
+   over what it holds, so long values read on one or two lines instead of piling up at the top of a tall tile. */
+.pb-board.is-dense { gap: 44px; }
+.is-dense .pb-grid { grid-template-columns: minmax(0, 1fr); gap: 44px; }
+.is-dense .pb-cell { min-height: 58px; }
+.is-dense .pb-tile, .is-dense .pb-term { padding: 12px 14px 14px; gap: 2px; justify-items: stretch; text-align: left; }
+.is-dense .pb-term:not(.is-output) { padding-bottom: 16px; }
+.is-dense .pb-term.is-output { padding-top: 16px; }
+.is-dense .pb-terms > .pb-term { flex: 1 1 calc(50% - 4px); min-width: 0; max-width: none; }
+.is-dense .pb-name { order: -1; -webkit-line-clamp: 1; color: var(--muted); font-size: 11.5px; text-align: left; }
+.is-dense .pb-thumb { line-height: 1.45; }
+.is-dense .pb-param { order: 2; }
