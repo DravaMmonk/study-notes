@@ -149,12 +149,32 @@ function Tree({ track, byId, node, phone, solved }) {
   )
 }
 
-export default function LevelMap({ game, progress, solved, onAll, onOpen, onReset, onParts, partsNew = 0, onWiki, unread = 0, theme }) {
+export default function LevelMap({ game, progress, solved, onAll, onOpen, focus, onReset, onParts, partsNew = 0, onWiki, unread = 0, theme }) {
   const levels = game.levels
   const done = levels.filter((level) => solved.has(level.id)).length
   const next = levels.find((level) => !solved.has(level.id) && game.isOpen(level, solved, progress.all))
   const [progressOpen, setProgressOpen] = useState(false)
   const phone = useMedia(PHONE)
+  const root = useRef(null)
+  // Back from a level, the map opens on that level's node, and keeps it there while the page above settles (the hero's
+  // illustration loads late) until the player scrolls.
+  useLayoutEffect(() => {
+    const el = root.current.querySelector(`[data-level="${focus}"]`)
+    if (!el) return undefined
+    const keep = () => el.scrollIntoView({ block: 'center', inline: 'center' })
+    keep()
+    const resize = new ResizeObserver(keep)
+    resize.observe(root.current)
+    const stop = () => resize.disconnect()
+    const events = ['wheel', 'touchstart', 'keydown', 'pointerdown']
+    events.forEach((type) => window.addEventListener(type, stop, { once: true, passive: true }))
+    const timer = window.setTimeout(stop, 2000)
+    return () => {
+      stop()
+      window.clearTimeout(timer)
+      events.forEach((type) => window.removeEventListener(type, stop))
+    }
+  }, [focus])
 
   // One level's button on the tree.
   const node = (level, style, optional) => {
@@ -165,7 +185,7 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, onRese
     const kind = game.kinds[level.kind]
     const best = won && progress.best[level.id] && game.bestLabel?.(progress.best[level.id])
     return (
-      <button key={level.id} style={style} title={L(level.title)} className={`map-node ${state} ${optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''}`} disabled={!open} onClick={() => onOpen(level.id)}>
+      <button key={level.id} data-level={level.id} style={style} title={L(level.title)} className={`map-node ${state} ${optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''}`} disabled={!open} onClick={() => onOpen(level.id)}>
         <span className="map-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={9} />}</span>
         <span className="map-node-id">{game.levelLabel(level)}</span>
         <span className="map-node-title">{L(level.title)}</span>
@@ -174,7 +194,7 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, onRese
     )
   }
   return (
-    <main className="level-map">
+    <main className="level-map" ref={root}>
       <header className="map-hero">
         <div className="map-hero-text">
           <p className="map-kicker">{L(game.kicker)}</p>

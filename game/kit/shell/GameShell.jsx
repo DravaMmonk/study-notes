@@ -84,7 +84,9 @@ export default function GameShell({ game }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [narrow, drawer])
 
+  const [left, setLeft] = useState(null) // the level last left for the map, which the map opens at
   const open = (id) => {
+    if (!id) setLeft(levelId)
     setLevelId(id)
     setWon(null)
     setFailure(null)
@@ -93,7 +95,7 @@ export default function GameShell({ game }) {
     if (id) url.searchParams.set('level', id)
     else url.searchParams.delete('level')
     window.history.replaceState({}, '', url)
-    window.scrollTo({ top: 0 })
+    if (id || !levelId) window.scrollTo({ top: 0 })
   }
 
   const level = levelId ? game.byId[levelId] : null
@@ -168,6 +170,7 @@ export default function GameShell({ game }) {
           solved={solved}
           onAll={(all) => setProgress((p) => ({ ...p, all }))}
           onOpen={open}
+          focus={left}
           onReset={() => setProgress(game.store.blank())}
           onParts={game.parts && (() => setSheet('parts'))}
           partsNew={box.unread.length}
