@@ -90,11 +90,24 @@ export const era1 = [
     ],
     intro: [
       { t: T('已知：下雨的时候，只要刮风，就地湿。又知道：下雨的时候，一定刮风。那么下雨的时候，就地湿。这其实是在「下雨」这个条件下做了一次分离。', 'You know: when it rains, if it is windy, then the ground is wet. You also know: when it rains, it is windy. So when it rains, the ground is wet. That is a Detach done under the condition “it rains”.') },
-      { t: T('可分离只能用在不带条件的句子上。初号的第二条公理 <b>S</b> 专管这件事。卡片上选好三句话，它给出：「如果（第一句下，第二句推出第三句），那么（如果第一句下有第二句，那么第一句下有第三句）」。', 'But Detach only works on sentences with no condition. Mark I’s second axiom, <b>S</b>, is for exactly this. Choose three sentences on its card and it gives: “if (under the first, the second gives the third), then (if under the first there is the second, then under the first there is the third)”.') },
+      { t: T('可分离只能用在不带条件的句子上。初号的另一条公理 <b>S</b> 专管这件事。卡片上选好三句话，它给出：「如果（第一句下，第二句推出第三句），那么（如果第一句下有第二句，那么第一句下有第三句）」。', 'But Detach only works on sentences with no condition. Mark I’s other axiom, <b>S</b>, is for exactly this. Choose three sentences on its card and it gives: “if (under the first, the second gives the third), then (if under the first there is the second, then under the first there is the third)”.') },
       { t: T('S 看着长，用法却是固定的：选好三句话，再把它和两张已知各分离一次。', 'S looks long, but it is always used the same way: choose the three sentences, then Detach it with each given in turn.') },
     ],
     solution: proof({ s: ['axS', { A: 'A', B: 'B', C: 'C' }], m1: ['mp'], m2: ['mp'] }, ['s>m1.imp', 'p>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
-    after: T('S 把「在条件下分离」变成了两次普通的分离。K 给一句话加上条件，S 在条件下做分离：初号的全部本事就是这两条公理加上分离。', 'S turns “Detach under a condition” into two ordinary Detaches. K puts a condition on a sentence, S detaches under a condition: that, plus Detach, is everything Mark I can do.'),
+    after: T('S 把「在条件下分离」变成了两次普通的分离：选好三句，分离两次，用法总是这样。', 'S turns “Detach under a condition” into two ordinary Detaches: choose the three sentences and Detach twice, every time.'),
+  },
+  {
+    id: 's2',
+    kind: 'proof',
+    title: T('第三句也可以长', 'A longer third sentence'),
+    tests: [{ premises: { p: 'A → (B → (C → D))', q: 'A → B' }, goal: 'A → (C → D)' }],
+    cases: [{ A: 'Sat', B: 'Rain', C: 'Hungry', D: 'Eat' }, { A: 'Exam', B: 'Study', C: 'Coffee', D: 'Awake' }],
+    hiddenCases: [{ A: 'Alarm', B: 'Up', C: 'Bus', D: 'OnTime' }],
+    brief: T('已知「今天是周六 → (下雨 → (我饿了 → 我去吃饭))」和「今天是周六 → 下雨」，证出「今天是周六 → (我饿了 → 我去吃饭)」。', 'Given “today is Saturday → (it rains → (I am hungry → I go and eat))” and “today is Saturday → it rains”, prove “today is Saturday → (I am hungry → I go and eat)”.'),
+    hint: [T('S 的第三句不一定是一个词：这里它是「我饿了 → 我去吃饭」。', 'S’s third sentence need not be one word: here it is “I am hungry → I go and eat”.')],
+    intro: [{ t: T('S 的三句可以是任何句子，也可以是本身带着「如果…那么…」的句子。', 'S’s three sentences can be any sentences, including ones that are themselves “if … then …”.') }],
+    solution: proof({ s: ['axS', { A: 'A', B: 'B', C: 'C → D' }], m1: ['mp'], m2: ['mp'] }, ['s>m1.imp', 'p>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
+    after: T('还是 S 加两次分离，只是第三句长了。看清楚每句话的「如果」和「那么」各是哪一块，公理就套得上。', 'Still S and two Detaches, with a longer third sentence. See which piece is each sentence’s “if” and which its “then”, and the axiom fits.'),
   },
   {
     id: 'chain',
@@ -111,7 +124,7 @@ export const era1 = [
     ],
     intro: [
       { t: T('下雨，就地湿；地湿，就路滑。所以下雨，就路滑。两段「如果…那么…」首尾相接，凭直觉一步就到。', 'it rains gives the ground is wet; the ground is wet gives the road is slippery. So it rains gives the road is slippery. Two “if … then …”s joined end to end: one step, by instinct.') },
-      { t: T('可初号没有「首尾相接」这条规则。上一关，S 在一个条件下做了分离，那时两张已知都带着那个条件。这一关「地湿 → 路滑」没带条件：先用 K 给它加上「如果下雨」，再交给 S。', 'But Mark I has no “join end to end” rule. Last level, S detached under a condition, and both givens carried it. Here “the ground is wet → the road is slippery” carries none: first let K put “if it rains” on it, then hand it to S.') },
+      { t: T('可初号没有「首尾相接」这条规则。「在条件下分离」那关，S 在一个条件下做了分离，那时两张已知都带着那个条件。这一关「地湿 → 路滑」没带条件：先用 K 给它加上「如果下雨」，再交给 S。', 'But Mark I has no “join end to end” rule. In “Detach under a condition”, S detached under a condition, and both givens carried it. Here “the ground is wet → the road is slippery” carries none: first let K put “if it rains” on it, then hand it to S.') },
       { t: T('证出来以后，这块电路会变成元件<b>串联</b>：以后接进任何两段首尾相接的「如果…那么…」，它都直接给出从头到尾的那一段。', 'Once proved, this circuit becomes the part <b>Chain</b>: wire in any two “if … then …”s that meet end to end and it gives the one from start to finish at once.') },
     ],
     solution: proof({
