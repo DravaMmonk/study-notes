@@ -1,0 +1,39 @@
+/* The anatomy kit's inks taken from the site's theme (kit/tokens.css), for the games' illustrations built with the
+   kit (games/detach, games/stick): put class="iso an" on the figure's wrapper and data-theme="dark" or "light" on it
+   (each figure's live code follows the page). Boxy (games/boxy) carries its own copy with the robot's colours. */
+.iso.an{
+  --an-dark:var(--ink);
+  --anatomy-paper:var(--paper);--anatomy-face:var(--paper);--anatomy-top:var(--paper);
+  --anatomy-shade-0:color-mix(in srgb,var(--paper) 80%,var(--an-dark));--anatomy-shade-1:color-mix(in srgb,var(--paper) 86%,var(--an-dark));
+  --anatomy-shade-2:color-mix(in srgb,var(--paper) 91%,var(--an-dark));--anatomy-shade-3:color-mix(in srgb,var(--paper) 96%,var(--an-dark));
+  --anatomy-lit-top:var(--paper);--anatomy-lit-shade:color-mix(in srgb,var(--paper) 93%,var(--an-dark));
+  --anatomy-hi:var(--ink);--anatomy-mid:color-mix(in srgb,var(--ink) 58%,var(--paper));
+  --anatomy-lo:color-mix(in srgb,var(--ink) 34%,var(--paper));--anatomy-faint:color-mix(in srgb,var(--ink) 17%,var(--paper));
+  --anatomy-lit:var(--ink);--anatomy-dot:var(--ink);--anatomy-red:var(--fail);
+  --anatomy-halo:color-mix(in srgb,var(--ink) 55%,transparent);--anatomy-halo-opacity:.35;
+}
+.iso.an[data-theme="dark"]{
+  --an-dark:#000;
+  --anatomy-top:color-mix(in srgb,var(--paper) 88%,var(--ink));--anatomy-lit-top:color-mix(in srgb,var(--paper) 82%,var(--ink));
+  --anatomy-shade-0:color-mix(in srgb,var(--paper) 62%,#000);--anatomy-shade-1:color-mix(in srgb,var(--paper) 74%,#000);
+  --anatomy-shade-2:color-mix(in srgb,var(--paper) 86%,#000);--anatomy-shade-3:var(--paper);
+  --anatomy-halo:#000;--anatomy-halo-opacity:.7;
+}
+.an .iso-face-text{font-weight:600}
+/* A part lit in a colour of its own: give it --an-glow and it gets the kit's ramp in that colour (a lamp). */
+.iso.an .an-glow{
+  --anatomy-paper:color-mix(in srgb,var(--an-glow) 70%,#fff);--anatomy-top:color-mix(in srgb,var(--an-glow) 70%,#fff);
+  --anatomy-shade-3:color-mix(in srgb,var(--an-glow) 85%,#fff);--anatomy-shade-2:var(--an-glow);
+  --anatomy-shade-1:color-mix(in srgb,var(--an-glow) 86%,#000);--anatomy-shade-0:color-mix(in srgb,var(--an-glow) 72%,#000);
+  --anatomy-hi:color-mix(in srgb,var(--an-glow) 55%,#000);--anatomy-faint:color-mix(in srgb,var(--an-glow) 80%,#000);
+}
+/* A part that stays light on dark pages, as Boxy's head does (a card, a type sort): wrap it in class="an-body". */
+.iso.an[data-theme="dark"] .an-body{
+  --an-body:color-mix(in srgb,var(--ink) 90%,var(--paper));
+  --anatomy-paper:var(--an-body);--anatomy-face:var(--an-body);--anatomy-top:var(--an-body);
+  --anatomy-shade-3:color-mix(in srgb,var(--an-body) 94%,#000);--anatomy-shade-2:color-mix(in srgb,var(--an-body) 86%,#000);
+  --anatomy-shade-1:color-mix(in srgb,var(--an-body) 76%,#000);--anatomy-shade-0:color-mix(in srgb,var(--an-body) 64%,#000);
+  --anatomy-hi:var(--paper);--anatomy-mid:color-mix(in srgb,var(--paper) 62%,var(--an-body));
+  --anatomy-lo:color-mix(in srgb,var(--paper) 42%,var(--an-body));--anatomy-faint:color-mix(in srgb,var(--paper) 24%,var(--an-body));
+  --anatomy-dot:var(--paper);
+}

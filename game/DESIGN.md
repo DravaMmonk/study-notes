@@ -265,6 +265,8 @@ games/kit/
 │   └── unix/    模拟内核与字节流（《一切皆文件》，只有引擎部分）
 └── app/       每款游戏的页面入口和构建
 games/<游戏>/   只有规格：spec.js（课程的全部内容）和 game.js（交给领域，三行）
+games/<插图>/   每款游戏的标题图（boxy、press、detach、stick）：用 anatomy 技能的等距套件画的一台机器，build.mjs 生成一个模块，
+                同时挂在游戏列表的卡片和关卡地图上；配色取自 kit/tokens.css（kit/anatomy.css）
 ```
 
 **`kit/engine`（与领域无关）：**
