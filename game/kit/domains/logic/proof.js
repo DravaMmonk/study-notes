@@ -297,6 +297,20 @@ export function lemma({ statement, premises = [], metas }) {
 }
 
 /**
+ * Does one use of a lemma, wired straight from `givens` (formulas), give `goal`? A level that a lemma it carries
+ * proves in one step teaches nothing new: `npm run check` reports it.
+ */
+export function lemmaGives({ statement, premises = [], metas }, givens, goal) {
+  const schemas = premises.map((p) => parse(p, { metas }))
+  const fit = (k, bind) => k === schemas.length || givens.some((g) => {
+    const next = { ...bind }
+    return match(schemas[k], g, next) && fit(k + 1, next)
+  })
+  const bind = {}
+  return match(parse(statement, { metas }), goal, bind) && fit(0, bind)
+}
+
+/**
  * Does a judgment prove `goal` from the `premises` alone (by hypothesis id)? '' or what is wrong, as { zh, en }, in
  * the level's notation.
  */

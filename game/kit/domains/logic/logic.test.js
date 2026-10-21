@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { runLevel } from '../../engine/tests.js'
 import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
-import { LOGIC_TESTS } from './proof.js'
+import { LOGIC_TESTS, lemmaGives } from './proof.js'
 import { validate } from './validate.js'
 
 // A proof from a compact description: nodes { id: [type, params, boards] }, wires 'from>to.port' (port 'in' for sinks).
@@ -118,4 +118,10 @@ test('the domain check runs reference and naive proofs', () => {
     { id: 'no', kind: 'proof', title: 'no', unprovable: true, tests: [{ goal: '(A → B) → A' }] },
   ] })
   assert.deepEqual(lines.filter((l) => l.fail), [])
+})
+
+test('a lemma gives a goal in one step only when the givens fit its premises', () => {
+  const chain = { statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'] }
+  assert.equal(lemmaGives(chain, [parse('Q → R'), parse('P → Q')], parse('P → R')), true)
+  assert.equal(lemmaGives(chain, [parse('P → (Q → R)'), parse('Q')], parse('P → R')), false)
 })
