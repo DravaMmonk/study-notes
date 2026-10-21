@@ -49,8 +49,43 @@ problems in 《证明完毕》, see `games/DESIGN.md` §11):
   late reference answer built only from primitives means the chain is broken.
 - **Across eras.** A new machine either carries the previous era's built parts or has the player rebuild them
   (an upgrade) with its new abilities; earlier work is never simply dropped.
+- **Discovery, not transcription.** No level hands over a formula to wire up; a quantity with several parameters
+  is a bench that opens one knob per step. A hard mechanism gets its own intro levels as a named series (§2.2).
+- **Order by dependency.** Parallel sets and optional branches follow the part and concept dependencies (§2).
+  Anything that asks "what has the player seen" (new-part marks, view unlocks, unlock-all flags, copy such as
+  "上一关") uses the level's prerequisites, never the flat play order.
+- **Renumbering needs a save migration** (§2): renamed ids, flags now set by another level, new intro levels
+  marked passed when a later one is.
 - The usual pitfalls in §8: one new idea per level, no orphan levels, intro text that does not give the answer,
   topics that are one problem growing, challenges that are hard by insight rather than by tedium.
+
+## Copy checklist
+
+The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and part description against them:
+
+- No spoiler of a core idea of the topic (a recurrence, why a merge operation is right); say what a part does,
+  never why it solves the level. Mechanical levels may hand-hold.
+- No forward references: nothing about later levels; a pass text only sums up this level.
+- No level numbers in level copy; refer to earlier things by name. Level numbers belong on the map, in the
+  components box and in the encyclopedia.
+- After any reordering, every "上一关", "又是", "新元件" must hold on every prerequisite path.
+
+## Interface checklist
+
+Shared conventions are in `games/DESIGN.md` §2.5 (the map's level tree) and §6 (interface conventions): level tree
+with centred rows and one column per series; a left drawer of level trees inside a level; the pass dialog returns to
+the map and the map lands on that level; input cards hold what they read and are clicked to wire; the test board
+sits in the strip at a modest size; card values repaint on every step of a run; no newer JS APIs that break older
+iOS Safari.
+
+## Verification
+
+Before calling a change done (`games/DESIGN.md` §7, steps 8–10):
+
+1. `npm run check` and `npm test` in `trace-viewer/` are clean; build the touched games.
+2. Look in a browser on desktop and phone at a few typical levels per game (layers, sweeps, intervals, big tables),
+   not only the one you changed. To watch a run, write the reference solution into the save, then step and run.
+3. Report what was checked and what was not.
 
 ## Interaction
 
