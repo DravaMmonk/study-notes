@@ -17,10 +17,12 @@ const R = 8
 
 // Places a track as columns ("tracks"), each a run of rows on one lane: a main-path level, a parallel branch (kept to
 // the set's full depth, so a shorter branch keeps its room until the join), or an optional branch. A branch stays in
-// one column. An optional branch starts one row below its anchor, lower if a row there already holds three, on the
-// free lane nearest its anchor on the side with fewer levels in those rows (on a tie, the nearer side, then the anchor's
-// side, then the side with fewer optional branches so far). Lanes only order things left to right;
-// center() sets the columns.
+// one column. The tree is never more than three columns wide, so no row holds more than three levels: an optional
+// branch starts one row below its anchor, or lower, at the first rows where it fits beside what is there without
+// widening the tree past three; it need not stick out as a column of its own. It goes on the free lane nearest its
+// anchor on the side with fewer levels in those rows (on a tie, the nearer side, then the anchor's side, then the side
+// with fewer optional branches so far), or the other side when that one is too wide. Lanes only order things left to
+// right; center() sets the columns.
 const MAX_ROW = 3
 function plot(track) {
   const at = new Map(), edges = [], tracks = []
@@ -56,22 +58,36 @@ function plot(track) {
     const anchor = from.map((id) => at.get(id)).reduce((a, b) => (b.row > a.row ? b : a))
     let start = anchor.row + 1
     const rows = () => branch.levels.map((_, k) => start + k)
-    while (!room(rows())) start += 1
     const nearest = (step) => {
       let lane = anchor.t.lane + step
       while (!free(lane, rows())) lane += step
       return lane
     }
-    const right = nearest(1), left = nearest(-1)
-    const beside = tracks.filter((t) => overlaps(t, rows()))
-    const weight = beside.filter((t) => t.lane > 0).length - beside.filter((t) => t.lane < 0).length
-    const dr = right - anchor.t.lane, dl = anchor.t.lane - left
-    const lean = Math.sign(weight) || Math.sign(dr - dl) || -Math.sign(anchor.t.lane) || Math.sign(tilt)
-    const lane = lean > 0 ? left : right
+    // The lane it would take at `start`, preferred side first, then the other; null when neither keeps three columns.
+    const pick = () => {
+      if (!room(rows())) return null
+      const right = nearest(1), left = nearest(-1)
+      const beside = tracks.filter((t) => overlaps(t, rows()))
+      const weight = beside.filter((t) => t.lane > 0).length - beside.filter((t) => t.lane < 0).length
+      const dr = right - anchor.t.lane, dl = anchor.t.lane - left
+      const lean = Math.sign(weight) || Math.sign(dr - dl) || -Math.sign(anchor.t.lane) || Math.sign(tilt)
+      return (lean > 0 ? [left, right] : [right, left]).find((lane) => columns([...tracks, { lane, rows: rows(), band: true }]) <= MAX_ROW) ?? null
+    }
+    let lane = pick()
+    while (lane === null) {
+      start += 1
+      lane = pick()
+    }
     tilt += Math.sign(lane)
     lay(branch.levels, lane, start, from, 'optional')
   }
   return { at, edges, tracks }
+}
+
+// How many columns the tracks take once centered (on copies, the tracks untouched).
+const columns = (tracks) => {
+  const placed = center({ at: new Map(), edges: [], tracks: tracks.map((t) => ({ ...t })) }).tracks
+  return Math.max(...placed.map((t) => t.x)) - Math.min(...placed.map((t) => t.x)) + 1
 }
 
 // Sets the columns. Rows that a parallel set or an optional branch spans form one band. In a band the tracks keep their
@@ -107,7 +123,7 @@ function center({ at, edges, tracks }) {
       }
     }
   }
-  return { at: new Map([...at].map(([id, p]) => [id, { col: p.t.x, row: p.row }])), edges }
+  return { at: new Map([...at].map(([id, p]) => [id, { col: p.t.x, row: p.row }])), edges, tracks }
 }
 
 /**
