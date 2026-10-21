@@ -41,7 +41,7 @@ export const era1 = [
     hiddenCases: [{ A: 'Exam', B: 'Study' }, { A: 'Rain ∧ Wind', B: 'Wet' }],
     adds: ['mp'],
     brief: T('已知「下雨 → 地湿」和「下雨」，证出「地湿」。', 'Given “it rains → the ground is wet” and “it rains”, prove “the ground is wet”.'),
-    hint: [T('分离的「如果…那么…」口接哪张已知？「前一半」口接哪张？', 'Which given goes into Detach’s “if … then …” input, and which into its “if” part?')],
+    hint: [T('分离的「A → B」口接哪张已知？「A」口接哪张？', 'Which given goes into Detach’s “A → B” input, and which into its “A” one?')],
     intro: [
       { t: T('已知「下雨 → 地湿」，又知道「下雨」。不用想也知道：地湿。证明机要把这一步变成一条规则，才能照着做。', 'You know “it rains → the ground is wet”, and you know “it rains”. Without thinking: the ground is wet. The proof machine needs this step as a rule it can follow.') },
       { t: T('<b>分离</b>：一个输入口接「如果…，那么…」，另一个接它的前一半，输出口给出后一半。这是初号唯一的推理规则。', '<b>Detach</b>: one input takes an “if …, then …”, the other its “if” part, and out comes the “then” part. It is Mark I’s only rule of inference.') },
@@ -61,7 +61,7 @@ export const era1 = [
     brief: T('已知「下雨」，证出「刮风 → 下雨」。', 'Given “it rains”, prove “it is windy → it rains”.'),
     hint: [
       T('K 的卡片上，第一句选「下雨」，第二句选「刮风」。', 'On K’s card, choose “it rains” as the first sentence and “it is windy” as the second.'),
-      T('然后把 K 接到分离的「如果…那么…」口，已知接「前一半」口。', 'Then wire K into Detach’s “if … then …” input and the given into its “if” part.'),
+      T('然后把 K 接到分离的「A → B」口，已知接「A」口。', 'Then wire K into Detach’s “A → B” input and the given into its “A” one.'),
     ],
     intro: [
       { t: T('已知「下雨」。那「如果刮风，那么下雨」对不对？对：不管刮风没有，下雨都是真的。0-2 关里你见过这个形状：「下雨 → (刮风 → 下雨)」每一行都真。', 'You know “it rains”. Is “if it is windy, then it rains” true? Yes: whether or not it is windy, it rains holds. You met this shape in level 0-2: “it rains → (it is windy → it rains)” is true on every row.') },
@@ -191,7 +191,7 @@ export const era1 = [
     ],
     solution: proof({ s: ['axS', { A: 'A', B: 'A', C: 'B' }], m1: ['mp'], i: ['id', { A: 'A' }], m2: ['mp'] }, ['s>m1.imp', 'p>m1.a', 'm1>m2.imp', 'i>m2.a', 'm2>goal'], { premises: ['p'] }),
     naive: proof({ m: ['mp'] }, ['p>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
-    after: T('已知接到自己身上不行：分离的「前一半」要的是「下雨」，接进来的却是整句已知。S 把两个「下雨」合成一个，剩下的「如果下雨，那么下雨」交给恒等。', 'Feeding the given into itself fails: Detach’s “if” part wants “it rains”, and gets the whole given. S merges the two “it rains”s into one, and Identity supplies the “if it rains, then it rains” left over.'),
+    after: T('已知接到自己身上不行：分离的「A」口要的是「下雨」，接进来的却是整句已知。S 把两个「下雨」合成一个，剩下的「如果下雨，那么下雨」交给恒等。', 'Feeding the given into itself fails: Detach’s “A” input wants “it rains”, and gets the whole given. S merges the two “it rains”s into one, and Identity supplies the “if it rains, then it rains” left over.'),
   },
   // The deduction theorem (a topic): a proof made under an assumption becomes a proof without it, step by step.
   {

@@ -248,7 +248,7 @@ export const era2 = [
     brief: T('一个岛民说：「我是无赖。」证明这话不可能有人说：由「a 是骑士 ↔ ¬a 是骑士」证出矛盾 ⊥。', 'An islander says: “I am a knave.” Prove nobody can say that: from “a is a knight ↔ ¬a is a knight”, prove the contradiction ⊥.'),
     hint: [
       T('先证「¬a 是骑士」：假设「a 是骑士」，会怎样？', 'Prove “¬a is a knight” first: what happens if you assume “a is a knight”?'),
-      T('「拆开 ↔」放在框外，它给出的「从左到右」可以直接接进框里。', 'Put Split ↔ outside the box: the “left to right” it gives can be wired straight into the box.'),
+      T('「拆开 ↔」放在框外，它给出的「A → B」可以直接接进框里。', 'Put Split ↔ outside the box: the “A → B” it gives can be wired straight into the box.'),
     ],
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，永远说真话；要么是<b>无赖</b>，永远说假话。', 'Everyone on the island is a <b>knight</b>, who always tells the truth, or a <b>knave</b>, who always lies.') },
