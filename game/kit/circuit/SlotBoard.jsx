@@ -101,11 +101,12 @@ const readMode = () => {
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
  * @param dense                            a board of text: thin blocks, each one's name over its value
  * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is;
- *        resultNote(node, region)         and what reaches the dot its result goes into
+ *        resultNote(node, region)         and beside the dot its result goes into, what the frame gives (a frame's
+ *                                         block shows nothing else of it)
  *
  * A frame is a block a row wide: its own inputs on top, its output under it, and between them each region, a grid
  * of its own (model.js placement) between two dashed lines: on the top one the dot of the value the region opens (as
- * on the desktop board), on the bottom one the dot its result goes into, each with what it carries. Parts are placed in it, and dragged in and out of it, as on the
+ * on the desktop board), on the bottom one the dot its result goes into, with what the frame gives. Parts are placed in it, and dragged in and out of it, as on the
  * board.
  */
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
@@ -255,7 +256,6 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
           <div className="pb-frame-head" data-drag={fixed ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
-            <span className="pb-thumb">{thumb(node, 84)}</span>
             {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
           </div>
           {regionsOf(node).map((r) => (
@@ -268,7 +268,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
                 {r.opens && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
               </header>
               {grid(`${node.id}/${r.name}`)}
-              {/* Along the region's bottom edge: the dot its result goes into, and what reaches it. */}
+              {/* Along the region's bottom edge: the dot its result goes into, and what the frame gives. */}
               <footer className="pb-closes">
                 <span className="pb-ins">
                   <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)} 的${L(parts.portLabel?.(node, r.name) ?? '')}`, `${nameOf(node)} ${L(parts.portLabel?.(node, r.name) ?? '')}`), `is-in ${feeding(graph, node.id, r.name) ? 'is-wired' : 'is-open'}`)}</span>
