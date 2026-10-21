@@ -45,12 +45,13 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * Windows floating over the board (FloatWindow, in `overlay`) are kept clear when fitting: the circuit goes between
  * them or below them, wherever it shows larger. With `refit` the circuit is fitted again whenever the board changes
  * size (a bench in the parts box, whose panel can open narrow and then grow). `regionNote(node, region)` is what a
- * region's left edge says beside its dot (the assumption it makes); `onTarget(region | null)` hears where a new card
+ * region's left edge says beside its dot (the assumption it makes), `resultNote(node, region)` what its right edge
+ * says beside the dot its result goes into (what the frame gives); `onTarget(region | null)` hears where a new card
  * should go. `minFit` is the smallest zoom a fit may
  * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away. `scope` names the
  * board for undo (a level's stage): a new one starts the history over.
  */
-export default function CanvasEditor({ graph, onChange, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, refit = false, minFit = 0, scope, regionNote, onTarget }) {
+export default function CanvasEditor({ graph, onChange, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget }) {
   const history = useHistory(graph, onChange, scope)
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   // A part can be taken off the board; so can a source the game lets the player place (parts.removable).
@@ -457,7 +458,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
                     {r.opens && outDot(srcOf(node, r.name), 'frame-open')}
                     <span className="frame-region-name">{L(r.label)}</span>
                     {regionNote?.(node, r.name)}
-                    <span className="frame-region-result">{L(parts.portLabel?.(node, r.name)) ?? ''}{inDot(r.name, 'frame-close')}</span>
+                    <span className="frame-region-result">{L(parts.portLabel?.(node, r.name)) ?? ''}{resultNote?.(node, r.name)}{inDot(r.name, 'frame-close')}</span>
                   </header>
                   <div className="frame-field" data-region={key} style={{ width: w, height: h }}>
                     {inside.map(card)}

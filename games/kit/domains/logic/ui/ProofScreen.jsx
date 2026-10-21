@@ -3,7 +3,7 @@ import { Trash2 } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, SlotBoard, Tray, feeding, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel, withHidden } from '../../../engine/tests.js'
 import { startProof } from '../build.js'
@@ -108,10 +108,11 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
     const j = view.values.get(srcOf(node, region))
     return j ? <Formula j={j} text={text} small /> : <i className="lg-mark">{tr('还没有假设', 'nothing assumed yet')}</i>
   }
-  // What a region proves: what reaches the dot its result goes into.
-  const resultNote = (node, region) => {
-    const j = view.values.get(feeding(circuit, node.id, region))
-    return j ? <Formula j={j} text={text} small /> : <i className="lg-mark">{tr('还没有接上', 'nothing wired in yet')}</i>
+  // By a region's result: what the box gives (or why it gives nothing yet). The box's card shows nothing else of it.
+  const resultNote = (node) => {
+    const [j, error] = [view.values.get(node.id), view.errors.get(node.id)]
+    if (j) return <Formula j={j} text={text} small />
+    return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('还没有接上', 'nothing wired in yet')}</i>
   }
   const run = verdict ? { pass: verdict.pass } : null
   const dock = (
@@ -145,6 +146,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
               cardClass={(node) => `lg-node ${node.type === 'goal' && result ? (result.pass ? 'is-pass' : 'is-fail') : ''}`}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
               regionNote={regionNote}
+              resultNote={resultNote}
               onTarget={setTarget}
               emptyNote={items.length > 0 && { zh: '从上面一排元件里选一条规则放上来，再从卡片右侧的圆点连到另一张卡片左侧的圆点。', en: 'Pick a rule from the row above, then wire a dot on the right of a card to a dot on the left of another.' }}
             />
@@ -179,7 +181,8 @@ function Formula({ j, text, small = false, bare = false }) {
   )
 }
 
-// Under a card's ports: its settings, and what it proves (or why it cannot yet); a folded box, how much it holds.
+// Under a card's ports: its settings, and what it proves (or why it cannot yet); a box shows that by its regions'
+// results instead, and folded, how much it holds.
 function CardBody({ node, parts, circuit, view, goal, setParam, text, choices }) {
   const value = view.values.get(node.id)
   const error = view.errors.get(node.id)
@@ -203,7 +206,7 @@ function CardBody({ node, parts, circuit, view, goal, setParam, text, choices })
       )}
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
       {role === 'source' && <Formula j={value} text={text} bare />}
-      {role !== 'source' && (problem || (multi ? multi.map((o) => (
+      {role !== 'source' && (!regions.size || node.fold) && (problem || (multi ? multi.map((o) => (
         <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Formula j={view.values.get(srcOf(node, o.key))} text={text} /></span>
       )) : <Formula j={value} text={text} />))}
     </div>
