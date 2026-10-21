@@ -3,7 +3,7 @@ import { Trash2 } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, SlotBoard, Tray, feeding, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel, withHidden } from '../../../engine/tests.js'
 import { startProof } from '../build.js'
@@ -108,6 +108,11 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
     const j = view.values.get(srcOf(node, region))
     return j ? <Formula j={j} text={text} small /> : <i className="lg-mark">{tr('还没有假设', 'nothing assumed yet')}</i>
   }
+  // What a region proves: what reaches the dot its result goes into.
+  const resultNote = (node, region) => {
+    const j = view.values.get(feeding(circuit, node.id, region))
+    return j ? <Formula j={j} text={text} small /> : <i className="lg-mark">{tr('还没有接上', 'nothing wired in yet')}</i>
+  }
   const run = verdict ? { pass: verdict.pass } : null
   const dock = (
     <RunDock
@@ -117,7 +122,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
   )
   const shared = { parts, lemmas, circuit, view, goal, result, setParam, text, choices }
 
-  if (phone) return <PhoneProof {...shared} regionNote={regionNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
+  if (phone) return <PhoneProof {...shared} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -207,7 +212,7 @@ function CardBody({ node, parts, circuit, view, goal, setParam, text, choices })
 
 // The proof on a phone: the shared slot board, where a box is a block with its regions' grids inside it, a sheet per
 // block and the run bar.
-function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text, choices, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote }) {
+function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text, choices, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -247,7 +252,7 @@ function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text
       {testTabs}
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={(n) => (n.type === 'goal' && result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={(n) => (n.type === 'goal' && result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
         {result && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{result.pass ? tr('目标证出来了，没有留下开着的假设。', 'The goal is proved, with no hypothesis left open.') : L(result.reason)}</p>}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />

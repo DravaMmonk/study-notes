@@ -107,8 +107,8 @@ export function layout(graph, parts) {
 // with at least one empty row, so there is room to drop a new part.
 //
 // A frame's regions (frames.js) are grids of their own, inside the frame's block: `region` names one, and a part's
-// slot counts in the grid of the region it sits in. A region shows at least two rows; the value it opens is a dot over
-// its grid, not a cell. A frame takes a whole row of the grid it sits in.
+// slot counts in the grid of the region it sits in, which also ends with an empty row; the value it opens is a dot
+// over its grid, not a cell. A frame takes a whole row of the grid it sits in.
 export function placement(graph, parts, region = null) {
   const { steps } = layout(graph, parts)
   const here = steps.filter((n) => (n.in ?? null) === region)
@@ -130,7 +130,7 @@ export function placement(graph, parts, region = null) {
     take(node, at)
   }
   const even = (n) => n + (n % 2)
-  const size = Math.max(region ? 4 : 0, even(Math.max(-1, ...used) + 1) + 2)
+  const size = even(Math.max(-1, ...used) + 1) + 2
   return { cell, size, wide: new Set(here.filter(wide).map((n) => n.id)), free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
 }
 

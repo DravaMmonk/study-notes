@@ -100,17 +100,18 @@ const readMode = () => {
  *                                         it carries
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
  * @param dense                            a board of text: thin blocks, each one's name over its value
- * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is
+ * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is;
+ *        resultNote(node, region)         and what reaches the dot its result goes into
  *
  * A frame is a block a row wide: its own inputs on top, its output under it, and between them each region, a grid
- * of its own (model.js placement) with the value the region opens as a dot along its top edge, as on the desktop
- * board, and the dot its result goes into under it. Parts are placed in it, and dragged in and out of it, as on the
+ * of its own (model.js placement) between two dashed lines: on the top one the dot of the value the region opens (as
+ * on the desktop board), on the bottom one the dot its result goes into, each with what it carries. Parts are placed in it, and dragged in and out of it, as on the
  * board.
  */
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, dense = false, regionNote }) {
+export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, dense = false, regionNote, resultNote }) {
   const board = useRef(null)
   const [wires, setWires] = useState(readMode)
   const mode = WIRE_MODES.find((m) => m.id === wires)
@@ -267,9 +268,13 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
                 {r.opens && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
               </header>
               {grid(`${node.id}/${r.name}`)}
+              {/* Along the region's bottom edge: the dot its result goes into, and what reaches it. */}
               <footer className="pb-closes">
-                <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)} 的${L(parts.portLabel?.(node, r.name) ?? '')}`, `${nameOf(node)} ${L(parts.portLabel?.(node, r.name) ?? '')}`), `is-in ${feeding(graph, node.id, r.name) ? 'is-wired' : 'is-open'}`)}</span>
+                <span className="pb-ins">
+                  <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)} 的${L(parts.portLabel?.(node, r.name) ?? '')}`, `${nameOf(node)} ${L(parts.portLabel?.(node, r.name) ?? '')}`), `is-in ${feeding(graph, node.id, r.name) ? 'is-wired' : 'is-open'}`)}</span>
+                </span>
                 <em>{L(parts.portLabel?.(node, r.name) ?? '')}</em>
+                {resultNote?.(node, r.name)}
               </footer>
             </section>
           ))}

@@ -45,6 +45,8 @@ test('on a phone a box takes a whole row, and its region a grid of its own', () 
   const inside = placement(board, parts, 'f/body')
   assert.deepEqual([...inside.cell], [['m', 0]])
   assert.deepEqual([inside.size, inside.free], [4, [1, 2, 3]])
+  // An empty region is one row.
+  assert.equal(placement({ ...board, nodes: board.nodes.filter((n) => n.id !== 'm') }, parts, 'f/body').size, 2)
 })
 
 test('a block dragged into a region slot moves into the box', () => {
