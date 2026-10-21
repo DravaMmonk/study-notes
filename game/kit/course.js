@@ -16,8 +16,10 @@
 //               end of the main path) and nothing needs them.
 // A branch hangs as early as what it needs allows: once the parts and ideas it uses are in hand.
 //
-// eras: [{ id, title?, machine?, foundation: [item], practice?: [item], topics?: [{ id, title?, levels: [level id],
-//          after?, requires? }], challenges?: [{ level, after? }] }]
+// eras: [{ id, title?, machine?, keeps?: [part], foundation: [item], practice?: [item], topics?: [{ id, title?,
+//          levels: [level id], after?, requires? }], challenges?: [{ level, after? }] }]
+// Parts go with the machine: an era with `keeps` takes from the eras before it only the parts it names, and starts
+// the rest of its kit afresh (see reach).
 // layout(eras) gives the play order, each level's place ({ era, role, topic | branch }), what it requires and each
 // era's track for the map; the shell opens a level once everything it requires is solved.
 //
@@ -155,20 +157,24 @@ export function defineCourse({ levels, eras = null, primitives, adds, needs, bui
     else levels.slice(0, index.get(id)).forEach((l) => set.add(l.id))
     return set
   }
-  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, index, builder, before: (a, b) => up(b).has(a) }
+  // A part met at one level reaches another across every era between them: each era on the way that `keeps` a list
+  // lets through only the parts on it.
+  const eraOf = (id) => (plan ? eras.findIndex((e) => e.id === plan.place.get(id)?.era) : 0)
+  const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => !e.keeps || e.keeps.includes(part)) ?? true
+  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, index, builder, crosses, before: (a, b) => up(b).has(a) }
 }
 
 /**
  * Every part a level can ever hold, by the rule every course follows: a part, once met, stays usable in every level
  * after it on the tree (every level this one comes after), unless a part met since replaces it (an upgrade, or a
- * merger) or the course keeps it in its own level (`carries`). So a level's spec names only the parts it brings in
+ * merger), a later machine leaves it behind (an era's `keeps`) or the course keeps it in its own level (`carries`). So a level's spec names only the parts it brings in
  * (`adds`); a part the player builds needs no naming at all. In order: the level's own parts, then the carried ones in
  * the order they were met.
  */
 export function reach(course, level) {
   const own = course.adds(level)
   const earlier = course.levels.filter((l) => course.before(l.id, level.id))
-  const met = earlier.flatMap((l) => [...course.adds(l), ...course.builds(l)])
+  const met = earlier.flatMap((l) => [...course.adds(l), ...course.builds(l)].filter((p) => course.crosses(p, l.id, level.id)))
   const gone = new Set([...own, ...met].flatMap((p) => course.replaces(p)))
   const carried = met.filter((p) => !own.includes(p) && !gone.has(p) && course.carries(p, level))
   return [...new Set([...own, ...carried])]
@@ -222,7 +228,7 @@ export function audit(course) {
   for (const level of levels) {
     const granted = new Set(course.granted(level))
     const seen = met(level.id)
-    const earlier = levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.adds(l))
+    const earlier = levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.adds(l).filter((p) => course.crosses(p, l.id, level.id)))
     const fresh = new Set(course.adds(level).filter((p) => !course.builder(p)).map(course.concept).filter((c) => !seen.has(c)))
     const role = plan?.place.get(level.id)?.role
     for (const p of course.adds(level)) {
@@ -231,7 +237,7 @@ export function audit(course) {
       if (granted.has(p)) say('granted', level.id, p, 'handed out by the level, not built by the player')
       else if (!by) { if (!unbuilt.has(p)) say('not-built', level.id, p, 'no level builds it and it is not a primitive'); unbuilt.add(p) }
       else if (by === level.id) say('own-level', level.id, p, 'offered in the very level that builds it')
-      else if (course.before(by, level.id) && course.carries(p, level)) say('carried', level.id, p, `named, though it carries here from ${by} anyway`)
+      else if (course.before(by, level.id) && course.crosses(p, by, level.id) && course.carries(p, level)) say('carried', level.id, p, `named, though it carries here from ${by} anyway`)
       else {
         const optional = ['intro', 'step', 'finale', 'challenge'].includes(plan?.place.get(by)?.role)
         say(optional ? 'optional-needed' : 'built-later', level.id, p, optional ? `needs ${by}, which sits on an optional branch it does not require` : `offered where ${by}, the level that builds it, need not be solved yet`)
