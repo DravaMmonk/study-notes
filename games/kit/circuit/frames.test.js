@@ -2,10 +2,10 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { moveInto, scopeOf } from './frames.js'
-import { baseRefusal, removeNode } from './model.js'
+import { baseRefusal, moveToSlot, placement, removeNode } from './model.js'
 
 // A box `f` with one region that opens a value, and a card `m` inside it; `p` and `g` on the board.
-const parts = { frames: (node) => (node.type === 'box' ? [{ name: 'body', opens: true }] : []) }
+const parts = { role: (n) => (n.id === 'p' ? 'source' : 'part'), frames: (node) => (node.type === 'box' ? [{ name: 'body', opens: true }] : []) }
 const board = {
   nodes: [{ id: 'p' }, { id: 'f', type: 'box' }, { id: 'm', in: 'f/body' }, { id: 'g' }],
   wires: [{ from: 'f#body', to: 'm', port: 'a' }, { from: 'm', to: 'f', port: 'body' }, { from: 'f', to: 'g', port: 'in' }],
@@ -36,4 +36,22 @@ test('taking a box off takes what is inside it too', () => {
   const left = removeNode(board, 'f')
   assert.deepEqual(left.nodes.map((n) => n.id), ['p', 'g'])
   assert.deepEqual(left.wires, [])
+})
+
+test('on a phone a box takes a whole row, and its region a grid of its own', () => {
+  const top = placement(board, parts)
+  assert.deepEqual([...top.cell], [['f', 0], ['g', 2]])
+  assert.deepEqual(top.free, [3, 4, 5])
+  const inside = placement(board, parts, 'f/body')
+  assert.deepEqual([...inside.cell], [['m', 0]])
+  assert.deepEqual([inside.size, inside.free], [4, [1, 2, 3]])
+  // An empty region is one row.
+  assert.equal(placement({ ...board, nodes: board.nodes.filter((n) => n.id !== 'm') }, parts, 'f/body').size, 2)
+})
+
+test('a block dragged into a region slot moves into the box', () => {
+  const moved = moveToSlot(board, parts, 'g', 1, 'f/body')
+  const g = moved.nodes.find((n) => n.id === 'g')
+  assert.deepEqual([g.in, g.slot], ['f/body', 1])
+  assert.deepEqual(moved.wires, board.wires)
 })

@@ -17,7 +17,7 @@
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
 import { wouldCycle } from '../graph.js'
-import { frameEdges, scopeRefusal, within } from './frames.js'
+import { frameEdges, moveInto, scopeRefusal, within } from './frames.js'
 
 // Port ids, the same on the desktop board and the phone: an output is `o|<node>`, an input `i|<node>|<port>`.
 // `id` of an output is a wire's source: a node's id, or `<node>#<key>` for one of several outputs.
@@ -105,31 +105,46 @@ export function layout(graph, parts) {
 // Phone slots: each part sits in a numbered cell of a two-column grid and stays there. A part keeps its saved
 // `slot` when it is free; parts without one take the first free cells in data-flow order. The grid always ends
 // with at least one empty row, so there is room to drop a new part.
-export function placement(graph, parts) {
+//
+// A frame's regions (frames.js) are grids of their own, inside the frame's block: `region` names one, and a part's
+// slot counts in the grid of the region it sits in, which also ends with an empty row; the value it opens is a dot
+// over its grid, not a cell. A frame takes a whole row of the grid it sits in.
+export function placement(graph, parts, region = null) {
   const { steps } = layout(graph, parts)
-  const cell = new Map()
+  const here = steps.filter((n) => (n.in ?? null) === region)
+  const wide = (n) => (parts.frames?.(n) ?? []).length > 0
+  // Cells taken: each part's (a frame's whole row).
   const used = new Set()
-  for (const node of steps) {
-    if (Number.isInteger(node.slot) && node.slot >= 0 && !used.has(node.slot)) {
-      cell.set(node.id, node.slot)
-      used.add(node.slot)
-    }
+  const cell = new Map()
+  const fits = (n, at) => !used.has(at) && (!wide(n) || (at % 2 === 0 && !used.has(at + 1)))
+  const take = (n, at) => {
+    cell.set(n.id, at)
+    used.add(at)
+    if (wide(n)) used.add(at + 1)
   }
-  for (const node of steps) {
+  for (const node of here) if (Number.isInteger(node.slot) && node.slot >= 0 && fits(node, node.slot)) take(node, node.slot)
+  for (const node of here) {
     if (cell.has(node.id)) continue
     let at = 0
-    while (used.has(at)) at += 1
-    cell.set(node.id, at)
-    used.add(at)
+    while (!fits(node, at)) at += 1
+    take(node, at)
   }
   const even = (n) => n + (n % 2)
   const size = even(Math.max(-1, ...used) + 1) + 2
-  return { cell, size, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
+  return { cell, size, wide: new Set(here.filter(wide).map((n) => n.id)), free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
 }
 
-/** Move a part to slot `at`; a part already there swaps into the moved part's old slot. */
-export function moveToSlot(graph, parts, id, at) {
-  const { cell } = placement(graph, parts)
+/**
+ * Move a part to slot `at` of `region` (null: the board itself); a part already there swaps into the moved part's
+ * old slot. Into another region it goes as frames.js moveInto has it, at a free spot there on the desktop board.
+ */
+export function moveToSlot(graph, parts, id, at, region = null) {
+  const node = byId(graph, id)
+  if ((node?.in ?? null) !== region) {
+    const moved = moveInto(graph, parts, id, region, ...spotIn(graph, region))
+    return moved === graph ? graph : { ...moved, nodes: moved.nodes.map((n) => (n.id === id ? { ...n, slot: at } : n)) }
+  }
+  const { cell } = placement(graph, parts, region)
   const from = cell.get(id)
   const other = [...cell].find(([, slot]) => slot === at)?.[0]
   return {
@@ -160,3 +175,8 @@ export function freeSpot(graph, { w = 140, h = 170, cols = 3, rows = 5, x0 = 200
   const n = graph.nodes.length
   return [x0 + 20 + (n % 4) * 30, y0 + 20 + (n % 6) * 30]
 }
+
+/** Room on the desktop board for a new card: on the board itself, or in a frame's region from its corner. */
+export const spotIn = (graph, region = null) => (region
+  ? freeSpot({ nodes: graph.nodes.filter((n) => n.in === region) }, { w: 170, h: 150, x0: 44, y0: 20, dx: 190, cols: 2 })
+  : freeSpot({ nodes: graph.nodes.filter((n) => !n.in) }, { w: 170, h: 150, x0: 240, dx: 200 }))

@@ -3,7 +3,7 @@ import { Trash2 } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, SlotBoard, Tray, freeSpot, moveInto, outputsOf, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, SlotBoard, Tray, feeding, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel, withHidden } from '../../../engine/tests.js'
 import { startProof } from '../build.js'
@@ -30,10 +30,6 @@ const fits = (circuit, parts) => {
   return circuit.nodes.every((n) => parts.rules[n.type] && (!n.in || region(n.in)))
     && circuit.wires.every((w) => byId.has(w.to) && parts.inputs(byId.get(w.to)).includes(w.port))
 }
-// Where a new card goes: free room on the board, or in a box's region from its corner.
-const spotIn = (circuit, region) => (region
-  ? freeSpot({ nodes: circuit.nodes.filter((n) => n.in === region) }, { w: 170, h: 150, x0: 44, y0: 20, dx: 190, cols: 2 })
-  : freeSpot({ nodes: circuit.nodes.filter((n) => !n.in) }, { w: 170, h: 150, x0: 240, dx: 200 }))
 
 export default function ProofScreen({ game, level: entry, saved, save, solved, solve, flags, progress, phone }) {
   const level = entry.source
@@ -107,10 +103,15 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
   const itemOf = (type) => ({ type, label: nameOf(lemmas, type), desc: descOf(lemmas, type), icon: iconOf(lemmas, type), family: familyOf(lemmas, type), fresh: entry.fresh?.includes(type) })
   const items = palette.map(itemOf)
   const foldedItems = folded.map(itemOf)
-  // At a region's left edge, the assumption it makes (or why it cannot make one yet).
+  // What a region assumes (or that it cannot assume anything yet): at its left edge, or first in its grid on a phone.
   const regionNote = (node, region) => {
     const j = view.values.get(srcOf(node, region))
     return j ? <Formula j={j} text={text} small /> : <i className="lg-mark">{tr('还没有假设', 'nothing assumed yet')}</i>
+  }
+  // What a region proves: what reaches the dot its result goes into.
+  const resultNote = (node, region) => {
+    const j = view.values.get(feeding(circuit, node.id, region))
+    return j ? <Formula j={j} text={text} small /> : <i className="lg-mark">{tr('还没有接上', 'nothing wired in yet')}</i>
   }
   const run = verdict ? { pass: verdict.pass } : null
   const dock = (
@@ -121,7 +122,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
   )
   const shared = { parts, lemmas, circuit, view, goal, result, setParam, text, choices }
 
-  if (phone) return <PhoneProof {...shared} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
+  if (phone) return <PhoneProof {...shared} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -209,37 +210,33 @@ function CardBody({ node, parts, circuit, view, goal, setParam, text, choices })
   )
 }
 
-// The proof on a phone: the shared slot board, a sheet per block and the run bar. A block in a box says so, and its
-// sheet moves it into a box's region or back onto the board.
-function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text, choices, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs }) {
-  const [sheet, setSheet] = useState(null) // { node } or { slot }
+// The proof on a phone: the shared slot board, where a box is a block with its regions' grids inside it, a sheet per
+// block and the run bar.
+function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text, choices, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
+  const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
   const scroller = useRef(null)
   const editing = useSlotEditing({
     graph: circuit,
     onChange: change,
     parts,
-    create: (_, type, at) => addNode(type, { slot: at }),
+    create: (_, type, at, region) => {
+      const [x, y] = spotIn(circuit, region)
+      return addNode(type, { slot: at, x, y, ...(region ? { in: region } : {}) })
+    },
     label: parts.label,
     openNode: (id) => setSheet({ node: id }),
-    openSlot: (at) => items.length + foldedItems.length > 0 && setSheet({ slot: at }),
+    openSlot: (at, region) => items.length + foldedItems.length > 0 && setSheet({ slot: at, region }),
     reset,
     root,
     scroller,
     scope,
   })
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
-  // Every region on the board, named by its box and itself.
-  const regionName = (key) => {
-    const [id, name] = key.split('/')
-    const box = circuit.nodes.find((n) => n.id === id)
-    const r = parts.frames(box).find((x) => x.name === name)
-    return parts.frames(box).length > 1 ? `${editing.nameOf(box)} · ${L(r.label)}` : editing.nameOf(box)
-  }
-  const regions = circuit.nodes.flatMap((n) => parts.frames(n).map((r) => `${n.id}/${r.name}`))
+  // A box shows what it gives outside; the assumptions show in its regions.
   const thumb = (n) => {
     const error = view.errors.get(n.id)
-    const outs = outputsOf(parts, n)
+    const outs = parts.frames(n).length ? [] : outputsOf(parts, n)
     if (outs.length > 1) return <span className="lg-chips">{outs.map((o) => <Formula key={o.key} j={view.values.get(srcOf(n, o.key))} text={text} small />)}</span>
     if (error) return error === MISSING ? <i className="lg-mark">{tr('待接线', 'unwired')}</i> : <span className="lg-error">{L(error)}</span>
     return <Formula j={view.values.get(n.id)} text={text} small />
@@ -250,16 +247,12 @@ function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text
       <Formula j={view.values.get(n.id)} text={text} small />
     </span>
   )
-  const moveTo = (region) => {
-    const [x, y] = spotIn(circuit, region)
-    change(moveInto(circuit, parts, node.id, region, x, y))
-  }
   return (
     <div className="level-phone is-split lg-phone" ref={root}>
       {testTabs}
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={(n) => (n.type === 'goal' && result ? (result.pass ? 'is-pass' : 'is-fail') : '')} tileExtra={(n) => n.in && tr(`在「${regionName(n.in)}」里`, `in “${regionName(n.in)}”`)} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={(n) => (n.type === 'goal' && result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
         {result && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{result.pass ? tr('目标证出来了，没有留下开着的假设。', 'The goal is proved, with no hypothesis left open.') : L(result.reason)}</p>}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
@@ -270,14 +263,6 @@ function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(lemmas, node.type))}</p>}
             <CardBody node={node} parts={parts} circuit={circuit} view={view} goal={goal} text={text} choices={choices} setParam={setParam} />
-            {parts.role(node) === 'part' && regions.length > 0 && (
-              <div className="lg-place" role="group" aria-label={tr('放在哪里', 'Where it sits')}>
-                <span>{tr('放在', 'Sits')}</span>
-                {[null, ...regions.filter((r) => { const id = r.split('/')[0]; return id !== node.id && !within(circuit, node.id).has(id) })].map((r) => (
-                  <button key={r ?? ''} type="button" aria-pressed={(node.in ?? null) === r} onClick={() => moveTo(r)}>{r ? regionName(r) : tr('整块板', 'The board')}</button>
-                ))}
-              </div>
-            )}
             {parts.role(node) === 'part' && <button type="button" className="lg-remove" onClick={() => { editing.remove(node.id); setSheet(null) }}><Trash2 size={15} />{tr('拿掉这一块', 'Remove this block')}</button>}
           </div>
         </Sheet>
@@ -286,7 +271,7 @@ function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text
         <Sheet title={tr(`放进第 ${sheet.slot + 1} 格`, `Place in slot ${sheet.slot + 1}`)} onClose={() => setSheet(null)}>
           <div className="lg-add">
             {[...items, ...foldedItems].map((item) => (
-              <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot); setSheet(null) }}>
+              <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot, sheet.region); setSheet(null) }}>
                 <b>{L(item.label)}</b>
                 <small>{L(item.desc)}</small>
               </button>
