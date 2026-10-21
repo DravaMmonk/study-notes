@@ -8,7 +8,7 @@ const T = (zh, en) => ({ zh, en })
 
 /** Every rule: name, what it does, port labels, setting labels and the regions of a box (`frames`). */
 export const RULE_TEXT = {
-  mp: { name: T('分离', 'Detach'), desc: T('由 A → B 和 A 得到 B：接进一句「如果…，那么…」和它的前一半，得到后一半。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part.'), ports: { imp: T('如果…那么…', 'if … then …'), a: T('前一半', 'its “if” part') } },
+  mp: { name: T('分离', 'Detach'), desc: T('由 A → B 和 A 得到 B：接进一句「如果…，那么…」和它的前一半，得到后一半。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part.'), ports: { imp: '…→…', a: T('左边', 'left') } },
   axK: { name: T('公理 K', 'Axiom K'), desc: T('A → (B → A)：已经成立的事，加上什么条件都还成立。第一句 A、第二句 B 在卡片上选。', 'A → (B → A): what holds still holds under any condition. Choose the first sentence A and the second B on the card.'), params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
   axS: { name: T('公理 S', 'Axiom S'), desc: T('(A → (B → C)) → ((A → B) → (A → C))：在条件 A 下也能分离。三句 A、B、C 在卡片上选。', '(A → (B → C)) → ((A → B) → (A → C)): Detach works under a condition A too. Choose A, B and C on the card.'), params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
   impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A、证出 B，框外得到 A → B。', 'Assume A inside the box and prove B; outside you get A → B.'), params: { A: T('假设', 'Assume') }, frames: { body: T('框里', 'Inside') } },
