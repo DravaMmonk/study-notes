@@ -100,11 +100,16 @@ const readMode = () => {
  *                                         it carries
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
  * @param dense                            a board of text: thin blocks, each one's name over its value
+ * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is
+ *
+ * A frame is a block a row wide: its own inputs on top, its output under it, and between them each region, a grid
+ * of its own (model.js placement) that starts with the value the region opens and ends with the dot its result goes
+ * into. Parts are placed in it, and dragged in and out of it, as on the board.
  */
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, dense = false }) {
+export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, dense = false, regionNote }) {
   const board = useRef(null)
   const [wires, setWires] = useState(readMode)
   const mode = WIRE_MODES.find((m) => m.id === wires)
@@ -118,12 +123,10 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
     }
   }
   const { sources, sinks } = layout(graph, parts)
-  const placed = placement(graph, parts)
-  const { cell } = placed
-  const size = fixed ? Math.max(2, ...[...cell.values()].map((at) => at + 1 + ((at + 1) % 2))) : placed.size
   // Up to four sources (or sinks) to a row, the rows as even as they can be: five go 3 + 2, eight 4 + 4.
   const cols = (n) => ({ '--cols': n <= 4 ? n : Math.ceil(n / Math.ceil(n / 4)) })
-  const bySlot = new Map([...cell].map(([id, at]) => [at, graph.nodes.find((n) => n.id === id)]))
+  const regionsOf = (node) => parts.frames?.(node) ?? []
+  const own = (node) => new Set(regionsOf(node).map((r) => r.name))
 
   // Wires are drawn after layout from where the dots really are, and again while a wire is dragged.
   useLayoutEffect(() => {
@@ -145,7 +148,9 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   // A block's output dot, or (parts.outputs) a row of them, each under its short name and what it carries (outNote).
   // They wrap onto more rows inside the block; more than WIDE of them and the block takes a row of its own.
   const outDots = (node) => {
-    const outs = parts.outputs?.(node)
+    // A frame's regions give their values inside it; its own output is the one under the block.
+    const listed = parts.outputs?.(node)?.filter((o) => !own(node).has(o.key)) ?? null
+    const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
     if (!outs) return <span className="pb-out">{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), `is-out ${used(node.id) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`)}</span>
     return (
       <span className="pb-out is-many">
@@ -179,7 +184,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
     </button>
   )
   const inputs = (node) => {
-    const ports = parts.inputs(node)
+    const ports = parts.inputs(node).filter((p) => !own(node).has(p))
     return ports.map((port) => {
       const from = graph.nodes.find((n) => n.id === feeding(graph, node.id, port))
       const tag = ports.length > 1 ? L(parts.portLabel?.(node, port) ?? port) : ''
@@ -198,6 +203,88 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   const icon = (node) => {
     const i = parts.icon?.(node)
     return i ? <i className="pb-glyph"><Glyph icon={i} size={12} strokeWidth={2} /></i> : null
+  }
+
+  // A grid of slots: the board's, or a region's inside a frame (`region`), which starts with the value it opens.
+  function grid(region) {
+    const placed = placement(graph, parts, region)
+    const { cell, lead, wide } = placed
+    const cells = fixed ? Math.max(2, ...[...cell.values()].map((at) => at + 1 + ((at + 1) % 2))) : placed.cells
+    const bySlot = new Map([...cell].map(([id, at]) => [at + lead, graph.nodes.find((n) => n.id === id)]))
+    const [frameId, name] = region ? region.split('/') : []
+    const out = []
+    for (let c = 0; c < cells; c++) {
+      if (c < lead) {
+        const frame = graph.nodes.find((n) => n.id === frameId)
+        out.push(
+          <div key="opens" className="pb-cell">
+            <div className="pb-term pb-opens" data-family={parts.family(frame)}>
+              <span className="pb-thumb">{regionNote?.(frame, name)}</span>
+              <span className="pb-name">{L(parts.outputs?.(frame)?.find((o) => o.key === name)?.label ?? '')}</span>
+              <span className="pb-out">{dot(outPort(srcOf(frame, name)), tr(`${nameOf(frame)} 的假设`, `${nameOf(frame)}: assumption`), `is-out ${used(srcOf(frame, name)) ? 'is-wired' : ''}`)}</span>
+            </div>
+          </div>,
+        )
+        continue
+      }
+      const at = c - lead
+      const node = bySlot.get(c)
+      if (node && wide.has(node.id)) {
+        out.push(frameBlock(node, at, region))
+        c += 1
+        continue
+      }
+      if (!node && fixed) { out.push(<div key={`slot-${c}`} className="pb-cell is-blank" />); continue }
+      if (!node) {
+        out.push(
+          <div key={`slot-${c}`} className="pb-cell" data-slot={at} data-region={region ?? ''}>
+            <button type="button" className="pb-slot" onClick={() => onSlot(at, region)} aria-label={tr(`在第 ${at + 1} 格放一个元件`, `Place a part in slot ${at + 1}`)}><Plus size={20} /></button>
+          </div>,
+        )
+        continue
+      }
+      const extra = tileExtra?.(node)
+      out.push(
+        <div key={node.id} className="pb-cell" data-slot={at} data-region={region ?? ''}>
+          <div className={`pb-tile ${nodeClass?.(node) ?? ''}`} data-piece={node.id} data-drag={fixed ? undefined : true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
+            <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
+            <span className="pb-thumb">{thumb(node, 84)}</span>
+            <span className="pb-name">{icon(node)}{nameOf(node)}</span>
+            {extra && <span className="pb-param">{extra}</span>}
+            {outDots(node)}
+          </div>
+        </div>,
+      )
+    }
+    return <div className={`pb-grid ${region ? 'is-region' : ''}`}>{out}</div>
+  }
+
+  // A frame: its head (held to drag it), each region's grid with the dot its result goes into, then its output.
+  function frameBlock(node, at, region) {
+    const ports = inputs(node)
+    return (
+      <div key={node.id} className="pb-cell is-wide" data-slot={at} data-region={region ?? ''}>
+        <div className={`pb-frame ${nodeClass?.(node) ?? ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
+          {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
+          <div className="pb-frame-head" data-drag={fixed ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
+            <span className="pb-name">{icon(node)}{nameOf(node)}</span>
+            <span className="pb-thumb">{thumb(node, 84)}</span>
+            {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
+          </div>
+          {regionsOf(node).map((r) => (
+            <section key={r.name} className="pb-region">
+              {regionsOf(node).length > 1 && <header className="pb-region-name">{L(r.label)}</header>}
+              {grid(`${node.id}/${r.name}`)}
+              <footer className="pb-closes">
+                <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)} 的${L(parts.portLabel?.(node, r.name) ?? '')}`, `${nameOf(node)} ${L(parts.portLabel?.(node, r.name) ?? '')}`), `is-in ${feeding(graph, node.id, r.name) ? 'is-wired' : 'is-open'}`)}</span>
+                <em>{L(parts.portLabel?.(node, r.name) ?? '')}</em>
+              </footer>
+            </section>
+          ))}
+          {outDots(node)}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -228,31 +315,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
         ))}
       </div>
 
-      <div className="pb-grid">
-        {Array.from({ length: size }, (_, at) => {
-          const node = bySlot.get(at)
-          if (!node && fixed) return <div key={`slot-${at}`} className="pb-cell is-blank" />
-          if (!node) {
-            return (
-              <div key={`slot-${at}`} className="pb-cell" data-slot={at}>
-                <button type="button" className="pb-slot" onClick={() => onSlot(at)} aria-label={tr(`在第 ${at + 1} 格放一个元件`, `Place a part in slot ${at + 1}`)}><Plus size={20} /></button>
-              </div>
-            )
-          }
-          const extra = tileExtra?.(node)
-          return (
-            <div key={node.id} className="pb-cell" data-slot={at}>
-              <div className={`pb-tile ${nodeClass?.(node) ?? ''}`} data-piece={node.id} data-drag={fixed ? undefined : true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
-                <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
-                <span className="pb-thumb">{thumb(node, 84)}</span>
-                <span className="pb-name">{icon(node)}{nameOf(node)}</span>
-                {extra && <span className="pb-param">{extra}</span>}
-                {outDots(node)}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      {grid(null)}
 
       <div className="pb-terms is-outputs" style={cols(sinks.length)}>
         {sinks.map((node) => (

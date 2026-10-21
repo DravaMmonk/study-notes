@@ -328,6 +328,20 @@
 /* The floor cards stand on: it takes presses (to pan, or to choose it), and cards on it are placed from its corner. */
 .frame-field { position: relative; pointer-events: auto; cursor: grab; }
 
+/* A frame on the phone board (SlotBoard frameBlock): a block a row wide, its head held to drag it, its regions
+   grids of their own between its inputs on top and its output underneath. */
+.pb-cell.is-wide { grid-column: 1 / -1; min-height: 0; }
+.pb-frame { position: relative; padding: 14px 10px 24px; display: grid; gap: 12px; border-radius: 18px; background: color-mix(in srgb, var(--fam, var(--accent)) 5%, var(--paper)); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), inset 0 0 0 1.5px color-mix(in srgb, var(--fam, var(--accent)) 30%, transparent), var(--card); -webkit-touch-callout: none; }
+.pb-frame.lift { z-index: 20; pointer-events: none; }
+.pb-frame-head { display: grid; justify-items: center; gap: 4px; padding: 4px 0 0; cursor: grab; touch-action: none; user-select: none; }
+.pb-region { display: grid; gap: 30px; padding: 42px 8px 6px; border-radius: 14px; background: color-mix(in srgb, var(--paper) 60%, transparent); outline: 1.5px dashed color-mix(in srgb, var(--fam, var(--accent)) 40%, var(--rule)); outline-offset: -1px; }
+.pb-region-name { margin: -18px 0 -18px; color: var(--muted); font-size: 12px; font-weight: 600; text-align: center; }
+.pb-grid.is-region { gap: 46px 8px; }
+.pb-grid.is-region .pb-cell { min-height: 120px; }
+.pb-opens { height: 100%; align-content: start; border-radius: 16px; }
+.pb-closes { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0; color: var(--muted); font: 10.5px var(--mono); }
+.pb-closes em { font-style: normal; }
+
 /* A board of text (a proof's formulas, a sentence's words): the same two columns of slots, but thin blocks with each
    block's name over what it holds, so long values wrap below it instead of piling up at the top of a tall tile. */
 .pb-board.is-dense { gap: 44px; }

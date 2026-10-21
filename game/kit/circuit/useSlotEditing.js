@@ -12,12 +12,14 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  * How the phone board is edited, the same in every game. Wires go dot to dot: tap one dot, then another (or the
  * block itself), or drag between them; tapping a wired input unplugs it. Parts come from the tray: tap to drop into
  * the next free slot, or hold and drag into a slot; holding a placed part moves it, and dragging it back onto the
- * tray removes it. Every change can be undone and redone (useHistory); clearing asks twice.
+ * tray removes it. A frame's regions are grids of their own (model.js placement): a slot there is the same, and a
+ * part dragged into one moves into the frame, or out of it onto the board. Every change can be undone and redone (useHistory); clearing asks twice.
  *
  * @param graph, onChange(graph), parts            the circuit and the game's description of its nodes (model.js)
- * @param create(graph, type, at) → { graph, id }  add a part of `type` in slot `at` (the game makes its nodes)
+ * @param create(graph, type, at, region) → { graph, id }  add a part of `type` in slot `at` of `region` (null: the
+ *                                                 board itself; the game makes its nodes)
  * @param label(node)                              a block's own name (without its number)
- * @param openNode(id), openSlot(at)               the game's sheets for a block and an empty slot
+ * @param openNode(id), openSlot(at, region)       the game's sheets for a block and an empty slot
  * @param reset()                                  start the circuit over
  * @param root, scroller                           refs to the element that holds the board and tray, and to the board's
  *                                                 scrolling pane (drags start inside `root` and scroll `scroller`)
@@ -30,8 +32,16 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
   const [toast, setToast] = useState(null) // a { zh, en } pair, read in the current language when shown
   const [armed, setArmed] = useState(false)
   const { sources, steps, sinks } = layout(graph, parts)
-  const slots = placement(graph, parts).cell
-  const ordered = [...slots.keys()].sort((a, b) => slots.get(a) - slots.get(b))
+  // Parts are numbered in reading order: the board's slots, and a frame's regions right after the frame.
+  const ordered = []
+  const walk = (region) => {
+    const { cell } = placement(graph, parts, region)
+    for (const id of [...cell.keys()].sort((a, b) => cell.get(a) - cell.get(b))) {
+      ordered.push(id)
+      for (const r of parts.frames?.(byId(graph, id)) ?? []) walk(`${id}/${r.name}`)
+    }
+  }
+  walk(null)
 
   const nameOf = (node) => {
     if (!node) return ''
@@ -118,14 +128,14 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     buzz(4)
     openNode(id)
   }
-  const onSlot = (at) => {
+  const onSlot = (at, region = null) => {
     setPicking(null)
-    openSlot?.(at)
+    openSlot?.(at, region)
   }
 
   // Placing parts. Wiring is always the player's.
-  const place = (type, at) => {
-    const { graph: next, id } = create(graph, type, at)
+  const place = (type, at, region = null) => {
+    const { graph: next, id } = create(graph, type, at, region)
     // An input part goes up with the inputs, not into a slot.
     const note = parts.role(byId(next, id) ?? {}) === 'source'
       ? { zh: '放在了最上面的输入区 · 从圆点拉线接上', en: 'Placed with the inputs at the top · wire it up from the dots' }
@@ -167,16 +177,17 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
         const now = latest.current
         const over = g.over
         const slot = over?.dataset.slot !== undefined && over ? Number(over.dataset.slot) : null
+        const region = over?.dataset.region || null
         if (g.kind === 'port' && over) {
           if (over.dataset.p && over.dataset.p !== g.id) now.wire(g.id, over.dataset.p)
           else if (over.dataset.piece) now.wireToCard(g.id, over.dataset.piece)
         }
         if (g.kind === 'tray' && slot !== null) {
-          if (placement(now.graph, now.parts).free.includes(slot)) now.place(g.id, slot)
+          if (placement(now.graph, now.parts, region).free.includes(slot)) now.place(g.id, slot, region)
           else now.say({ zh: '这一格已经有元件了', en: 'That slot already has a part' })
         }
         if (g.kind === 'piece' && over) {
-          if (slot !== null) now.edit(moveToSlot(now.graph, now.parts, g.id, slot))
+          if (slot !== null) now.edit(moveToSlot(now.graph, now.parts, g.id, slot, region))
           else now.remove(g.id)
         }
         if (board()) drawWires(board(), now.graph, now.parts)
