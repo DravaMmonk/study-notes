@@ -107,38 +107,31 @@ export function layout(graph, parts) {
 // with at least one empty row, so there is room to drop a new part.
 //
 // A frame's regions (frames.js) are grids of their own, inside the frame's block: `region` names one, and a part's
-// slot counts in the grid of the region it sits in. A region that opens a value starts with it (the assumption), in a
-// cell no part takes, and a region shows at least two rows. A frame takes a whole row of the grid it sits in.
+// slot counts in the grid of the region it sits in. A region shows at least two rows; the value it opens is a dot over
+// its grid, not a cell. A frame takes a whole row of the grid it sits in.
 export function placement(graph, parts, region = null) {
   const { steps } = layout(graph, parts)
   const here = steps.filter((n) => (n.in ?? null) === region)
   const wide = (n) => (parts.frames?.(n) ?? []).length > 0
-  const lead = region ? leadOf(graph, parts, region) : 0
-  // Grid cells taken: the lead ones, then each part's (a frame's whole row).
-  const used = new Set(Array.from({ length: lead }, (_, c) => c))
+  // Cells taken: each part's (a frame's whole row).
+  const used = new Set()
   const cell = new Map()
-  const fits = (n, c) => c >= lead && !used.has(c) && (!wide(n) || (c % 2 === 0 && !used.has(c + 1)))
-  const take = (n, c) => {
-    cell.set(n.id, c - lead)
-    used.add(c)
-    if (wide(n)) used.add(c + 1)
+  const fits = (n, at) => !used.has(at) && (!wide(n) || (at % 2 === 0 && !used.has(at + 1)))
+  const take = (n, at) => {
+    cell.set(n.id, at)
+    used.add(at)
+    if (wide(n)) used.add(at + 1)
   }
-  for (const node of here) if (Number.isInteger(node.slot) && node.slot >= 0 && fits(node, node.slot + lead)) take(node, node.slot + lead)
+  for (const node of here) if (Number.isInteger(node.slot) && node.slot >= 0 && fits(node, node.slot)) take(node, node.slot)
   for (const node of here) {
     if (cell.has(node.id)) continue
-    let c = lead
-    while (!fits(node, c)) c += 1
-    take(node, c)
+    let at = 0
+    while (!fits(node, at)) at += 1
+    take(node, at)
   }
   const even = (n) => n + (n % 2)
-  const cells = Math.max(region ? 4 : 0, even(Math.max(-1, ...used) + 1) + 2)
-  return { cell, lead, cells, size: cells - lead, wide: new Set(here.filter(wide).map((n) => n.id)), free: Array.from({ length: cells - lead }, (_, at) => at).filter((at) => !used.has(at + lead)) }
-}
-/** How many cells a region keeps before its parts: one for the value it opens, if it opens one. */
-const leadOf = (graph, parts, region) => {
-  const [id, name] = region.split('/')
-  const frame = byId(graph, id)
-  return frame && (parts.frames?.(frame) ?? []).some((r) => r.name === name && r.opens) ? 1 : 0
+  const size = Math.max(region ? 4 : 0, even(Math.max(-1, ...used) + 1) + 2)
+  return { cell, size, wide: new Set(here.filter(wide).map((n) => n.id)), free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
 }
 
 /**

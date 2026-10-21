@@ -38,13 +38,13 @@ test('taking a box off takes what is inside it too', () => {
   assert.deepEqual(left.wires, [])
 })
 
-test('on a phone a box takes a whole row, and its region a grid of its own after the assumption', () => {
+test('on a phone a box takes a whole row, and its region a grid of its own', () => {
   const top = placement(board, parts)
   assert.deepEqual([...top.cell], [['f', 0], ['g', 2]])
   assert.deepEqual(top.free, [3, 4, 5])
   const inside = placement(board, parts, 'f/body')
   assert.deepEqual([...inside.cell], [['m', 0]])
-  assert.deepEqual([inside.lead, inside.cells, inside.free], [1, 4, [1, 2]])
+  assert.deepEqual([inside.size, inside.free], [4, [1, 2, 3]])
 })
 
 test('a block dragged into a region slot moves into the box', () => {

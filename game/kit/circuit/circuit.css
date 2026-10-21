@@ -337,9 +337,10 @@
 .pb-frame-head { min-height: 26px; padding: 2px 6px 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 2px 8px; cursor: grab; touch-action: none; user-select: none; }
 .pb-frame-head .pb-name, .pb-frame-head .pb-thumb { order: 0; }
 /* A region keeps just room over its first row for the inputs' labels; its cells are the board's own size. */
-.pb-region { display: grid; gap: 0; padding: 30px 4px 0; border-radius: 10px; outline: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 35%, var(--rule)); outline-offset: -1px; }
-.pb-region-name { margin: -24px 0 6px; color: var(--muted); font-size: 11.5px; font-weight: 600; text-align: center; }
-.pb-opens { align-content: start; }
+.pb-region { display: grid; gap: 30px; padding: 0 4px; border-radius: 10px; outline: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 35%, var(--rule)); outline-offset: -1px; }
+.pb-region-head { position: relative; min-height: 30px; padding: 4px 8px 12px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 2px 8px; border-bottom: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); color: var(--muted); font-size: 11.5px; }
+.pb-region-head b { color: var(--ink); font-weight: 600; }
+.pb-region-head em { font-style: normal; }
 .pb-closes { position: relative; height: 26px; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 2px; color: var(--muted); font: 10.5px var(--mono); }
 .pb-closes .pb-dot { width: 26px; height: 26px; }
 .pb-closes em { font-style: normal; }

@@ -37,7 +37,7 @@
 /* A folded box: how much it holds. */
 .lg-held { color: var(--muted); font-size: 11.5px; }
 /* What a box region assumes: at its left edge, or first in its grid on a phone. */
-.frame-region-head .lg-formula b, .pb-opens .lg-formula b { color: var(--ink); font-weight: 600; }
+.frame-region-head .lg-formula b, .pb-region-head .lg-formula b { color: var(--ink); font-weight: 600; }
 
 /* ---- the board ---- */
 .lg-stage { display: flex; flex-direction: column; }
