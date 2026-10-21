@@ -1,0 +1,194 @@
+{
+  "recovered_on": "2026-10-21",
+  "timezone": "Australia/Melbourne",
+  "subject": "COMP30026",
+  "term": "25S2",
+  "canvas_course": "https://canvas.lms.unimelb.edu.au/courses/215477",
+  "scope": "Downloaded source materials; notes not imported or expanded.",
+  "files": [
+    {
+      "file": "lecture/01.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24266779",
+      "sha256": "8b80351cfcc84d31b2fd95cf06d2f7f032e46391c180fa37f5ea13ee98319035",
+      "bytes": 450044,
+      "pages": 41,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 1 Introduction"
+    },
+    {
+      "file": "lecture/02.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24268564",
+      "sha256": "d1e87c773d6f02ce4f5be9a755cf3ec87bb91d1df27f72e45123ac5c2fd9ecfb",
+      "bytes": 491226,
+      "pages": 41,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 2 Propositional Logic"
+    },
+    {
+      "file": "lecture/03.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24403590",
+      "sha256": "b613ad4ee3ddb6cdd0c63a6115e15189e187f7eef2253dab8060f53a9386526f",
+      "bytes": 374870,
+      "pages": 50,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 3 Consequence and Satisfaction"
+    },
+    {
+      "file": "lecture/04.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24321059",
+      "sha256": "e93dcac1b5bde6d2477e14c2991e0e3380f4a0081bf11b330d80816d51e49475",
+      "bytes": 420644,
+      "pages": 61,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 4 Resolution"
+    },
+    {
+      "file": "lecture/05.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24376166",
+      "sha256": "09d91ba2aa1244080beaf3c7a81429848cef5339215b8c61ab2f92ee324988de",
+      "bytes": 430922,
+      "pages": 69,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 5 Recap and Predicate Logic"
+    },
+    {
+      "file": "lecture/06.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24376194",
+      "sha256": "02cbbc2b881137a08aa97bf462891fb199ffc4a9ce854c1d1ea7705c889b1d2f",
+      "bytes": 388161,
+      "pages": 55,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 6 Predicate Logic: Semantics"
+    },
+    {
+      "file": "lecture/07.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24436414",
+      "sha256": "6b258b5f4156356c0f07d649873924f0e2d91f32ccceb1511e6ee9f899561afd",
+      "bytes": 357357,
+      "pages": 37,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 7 Predicate Logic: Semantics"
+    },
+    {
+      "file": "lecture/08.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24441561",
+      "sha256": "aafc29e1defd3034da1f262b1a4c6489139b4c273f0f8423cb1b658d457c408c",
+      "bytes": 304806,
+      "pages": 21,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 8 Predicate Logic: Clausal Form"
+    },
+    {
+      "file": "lecture/09.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24535414",
+      "sha256": "67539efabea65ff1bff8d41203a69dc8cc9c35caf63c9887b3e70b12f4f385e4",
+      "bytes": 369449,
+      "pages": 44,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 9 Predicate Logic: Unification and Resolution"
+    },
+    {
+      "file": "lecture/10.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24550546",
+      "sha256": "0542bc4e9977fe625188fca4cae2b50f2cf834c508abddb992f09f480b7e2b61",
+      "bytes": 166199,
+      "pages": 31,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 10 Predicate Logic and Automated Reasoning"
+    },
+    {
+      "file": "lecture/13.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24683709",
+      "sha256": "cf241fe265e11e2cf9873fd1594f6d9747be6d98bbfab02c51a1ae48212121e9",
+      "bytes": 320446,
+      "pages": 25,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 13 NFA Determinisation and Minimisation"
+    },
+    {
+      "file": "lecture/14.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24840376",
+      "sha256": "a6a9dc8939fdb363778abf60d815197db287deb79ea933bb7f9ca59b9a9e2d67",
+      "bytes": 167490,
+      "pages": 29,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 14 Regular Expressions"
+    },
+    {
+      "file": "lecture/16.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/25005055",
+      "sha256": "eecf2336b94c1d3538b1c6507c11f9db03c73ee3d74959f0e3f7a903fc57f321",
+      "bytes": 295139,
+      "pages": 31,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Lecture 18 Pushdown Automata"
+    },
+    {
+      "file": "lecture/Lecture 19 Part 2 - Turing machines prelecture.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/25104011",
+      "sha256": "f1e5f3661ae7571fba05c09a947d8881cd4b5bc091c548bf1c520cb684451cff",
+      "bytes": 740794,
+      "pages": 15,
+      "first_page_excerpt": "COMP30026 Models of Computation Lecture 19: Introduction to Turing Machines Cezary Kaliszyk and William Umboh Semester 2, 2025 Adapted from Michael Sipser’s slides"
+    },
+    {
+      "file": "lecture/Lecture 24.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/25253712",
+      "sha256": "995dafb6ddea0b28641975a3390d489b3888bd8b49d23dd4d92ef12030568f2c",
+      "bytes": 4955412,
+      "pages": 17,
+      "first_page_excerpt": "COMP30026 Models of Computation Lecture 24: Review Cezary Kaliszyk and William Umboh Semester 2, 2025"
+    },
+    {
+      "file": "lecture/w10l1part1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/25195562",
+      "sha256": "b3dad9bca35fe07735de3186d5b7e9d29de3373e362c8c22dcb7e3ab7468e539",
+      "bytes": 626009,
+      "pages": 4,
+      "first_page_excerpt": "Announcements - · · High Office Framework for Automata Level Hours Today · Wrap up · Intro to CFL TM The 1-2 pm . Melbourne Connect 2207"
+    },
+    {
+      "file": "lecture/w11l1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/25178539",
+      "sha256": "3d0f3c56d6bd2d2e0f791193a4e142dd847915ffba89b12ad2c291675958407c",
+      "bytes": 2700862,
+      "pages": 17,
+      "first_page_excerpt": "Today Limits Languages of Computation not : => not TM . recognisable decidable Acceptance undecidable"
+    },
+    {
+      "file": "lecture/w11l2.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/25183900",
+      "sha256": "03c1db8d126ec1d2231c8576f73b107c95a2e3ba6f48f18ab06d47a62807109b",
+      "bytes": 2309393,
+      "pages": 11,
+      "first_page_excerpt": ""
+    },
+    {
+      "file": "lecture/w12l1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/25244885",
+      "sha256": "01b850fbbe1d3bcf047e42f4b1e7e959f79088441f66c422fe7bf917a1ca9d5d",
+      "bytes": 2852569,
+      "pages": 15,
+      "first_page_excerpt": "Today \"impossible\" problems Identifying - 2 Unrecognizable Undecidable , methods diagonalization (self-reference) * reductions ↑ closure properties . Announcement - Final t Solutions off for released A2 after is Thursday 8 pm cutoff"
+    },
+    {
+      "file": "lecture/w6l1-slides.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24980236",
+      "sha256": "28eaa5df8eb4d82c185156dd0cfe94b61dee335f320746bb0353ad5e725e452a",
+      "bytes": 838224,
+      "pages": 14,
+      "first_page_excerpt": "COMP30026 Models of Computation Cezary Kaliszyk and William Umboh Introduction to Finite Automata"
+    },
+    {
+      "file": "lecture/w6l2-slides.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24980242",
+      "sha256": "695ac65d1255e209b58221287b912cf7eb3fb850ec9266aaefc07f10373b91fc",
+      "bytes": 2382564,
+      "pages": 15,
+      "first_page_excerpt": "Announcements - ① A 1 ② Mid-Sem The due Due 8 ph Sep 4 Ed) Feedback (see Sep on ③ Appendix (Set 10 . notation ) Today - ① Finish Intro to FA 1. 5 (1 - ② Operations Languages (4 2) ③ Non-determinism (4 3) on . - . - 4 1 . . 7) -"
+    },
+    {
+      "file": "lecture/w8l1-slides.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24980246",
+      "sha256": "63bbcd2029ac86e41457b4d7ea12a001dde14cfe6ec7c14742655bcd931d645c",
+      "bytes": 3164922,
+      "pages": 11,
+      "first_page_excerpt": "Today Proving nonregularity ① Fooling sets formalises \"memorylessness\" via ② Closure properties . Leverage language the fact is that nonregular some . other"
+    },
+    {
+      "file": "lecture/w8l2-slides.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/24980249",
+      "sha256": "348289a9a6b5a9f2e423d730376262d44b95533a200dccdea94c8d98aa49b2c8",
+      "bytes": 2206620,
+      "pages": 11,
+      "first_page_excerpt": "② Jeff Erickson ."
+    }
+  ]
+}

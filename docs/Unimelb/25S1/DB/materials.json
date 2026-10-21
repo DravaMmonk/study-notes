@@ -1,0 +1,370 @@
+{
+  "recovered_on": "2026-10-21",
+  "timezone": "Australia/Melbourne",
+  "subject": "INFO90002",
+  "term": "25S1",
+  "canvas_course": "https://canvas.lms.unimelb.edu.au/courses/211571",
+  "scope": "Downloaded source materials; notes not imported or expanded.",
+  "files": [
+    {
+      "file": "lecture/INFO90002_Week1-1_AdminIntro.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/22436015",
+      "sha256": "11e03ca9fdbbdc2dc69c91f1d96d39f908717e0e3127fab7b207f31ac979be0b",
+      "bytes": 1360301,
+      "pages": 21,
+      "first_page_excerpt": "Introduction to INFO90002 Database Systems & Information Modelling INFO90002 Week 1 – Overview of the subject Dr Tanya Linden 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week1-2_DatabasesIntro.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855424",
+      "sha256": "d1144206bd4a01bda2f748a01ec38bb40b4c792bdcd771c2fb8a8533408fea4d",
+      "bytes": 3840889,
+      "pages": 48,
+      "first_page_excerpt": "Warning This material has been reproduced and communicated to you by or on behalf of the University of Melbourne pursuant to Part VB of the Copyright Act 1968 (the Act). The material in this communication may be subject to copyright under the Act. Any further copying or communication of this material by you may be the subject of copyright protection under the Act. Do not remove this notice"
+    },
+    {
+      "file": "lecture/INFO90002_Week10-1_JSON_NoSQL.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23417225",
+      "sha256": "01ecb306256a583fdc90b4b50fc3087b6b7f29404a53ded9f421e4adf0cac1ef",
+      "bytes": 3084774,
+      "pages": 36,
+      "first_page_excerpt": "NoSQL databases Database Systems & Information Modelling INFO90002 Week 10 – Non-relational databases Dr Tanya Linden Dr Greg Wadley Dr Renata Borovica-Gajic David Eccles 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week10-2_DbSecurity.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23307784",
+      "sha256": "a54a55aaeb95043fd62caf00576648e08407707867f1be9c2ccf18ada9fcb3ab",
+      "bytes": 2666015,
+      "pages": 33,
+      "first_page_excerpt": "Database Security and Backups Database Systems & Information Modelling INFO90002 Week 10 – Database security Dr Tanya Linden David Eccles 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week11-1_WebApps.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23385964",
+      "sha256": "50b27162904e3a1cfbbc5737ac36292f1830538adc11562ad88703a63f321f9c",
+      "bytes": 3744637,
+      "pages": 47,
+      "first_page_excerpt": "Applications. Web Applications and Databases Database Systems & Information Modelling INFO90002 Week 11 – Web Applications Dr Tanya Linden Dr Greg Wadley David Eccles 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week2-1_DataModelIntro.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/22459299",
+      "sha256": "8427d8cafb317b8bdbb4edbccb79b15f2b03769bc4b76d2f229dad69a23ed2b9",
+      "bytes": 2798743,
+      "pages": 40,
+      "first_page_excerpt": "Introduction to Data Modelling Database Systems & Information Modelling INFO90002 Week 2 – Data Modelling Dr Tanya Linden"
+    },
+    {
+      "file": "lecture/INFO90002_Week3-1_Keys_Logical&Physical.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/22714598",
+      "sha256": "50819e8f4240978235a87cfa1b03ac0e16d7d02d2223b949a150f0dae9d0bf1b",
+      "bytes": 2503309,
+      "pages": 38,
+      "first_page_excerpt": "Logical & Physical Modelling Database Systems & Information Modelling INFO90002. Week 3 – Data Modelling Dr Tanya Linden Dr Renata Borovica-Gajic David Eccles 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week3-2_ToyLibraryExplanation.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855427",
+      "sha256": "038134928fa63205b3e9dc8451f0d9ff87ec8edb42e989ccfebede8bace70a1e",
+      "bytes": 638492,
+      "pages": 7,
+      "first_page_excerpt": "Toy Library case study Additional explanation Week 2 – Data modelling Tanya Linden 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week4-1_Physical&DataTypes.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/22554261",
+      "sha256": "71ad8044d84dae2eb65e911b7bcda73f956a5409c0b36e5ccfa9db11ddd4a1e6",
+      "bytes": 995587,
+      "pages": 17,
+      "first_page_excerpt": "Physical Modelling. MySQL Data Types Database Systems & Information Modelling INFO90002 Week 4 – Physical Modelling Dr Tanya Linden David Eccles"
+    },
+    {
+      "file": "lecture/INFO90002_Week4-2_Normalisation.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855431",
+      "sha256": "5a9b1161aa5b1a6c74bebca8e177cf8eede8c599d18214c8e5854acddecc3609",
+      "bytes": 2257238,
+      "pages": 31,
+      "first_page_excerpt": "Normalisation Database Systems & Information Modelling INFO90002 Week 4 – Three normal forms Dr Tanya Linden Dr Simon D’Alfonso 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week5-1_SQL1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23522788",
+      "sha256": "4fa3cdf89030c4d65ee546e153fde62d1075bee0fb3857a1cc07f6479e9fde22",
+      "bytes": 2649515,
+      "pages": 33,
+      "first_page_excerpt": "SQL Part 1 Database Systems & Information Modelling INFO90002. Week 4 - SQL Dr Tanya Linden Dr Renata Borovica-Gajic David Eccles 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week5-2_SQL2.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23424679",
+      "sha256": "93b625b3cc9e879b43795cb69e1e141a31b87a3ab5828bdeb7bb4dea7baed2b2",
+      "bytes": 2420300,
+      "pages": 33,
+      "first_page_excerpt": "SQL Part 2 Database Systems & Information Modelling INFO90002. Week 5 - SQL Dr Tanya Linden Dr Renata Borovica-Gajic David Eccles 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week5-3_SQL3.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23667339",
+      "sha256": "071730f7038a16b3831e67ae575296c4b5550ce4b0626cb0690f2417c5319abd",
+      "bytes": 2114539,
+      "pages": 28,
+      "first_page_excerpt": "SQL Part 3 Database Systems & Information Modelling INFO90002. Week 5 - SQL Dr Tanya Linden Dr Renata Borovica-Gajic David Eccles 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week7-1_Transactions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855448",
+      "sha256": "341e7bcd183a64cc7680b05135e12aa92efd6ade2503f6da3da7517a88407d03",
+      "bytes": 2994870,
+      "pages": 50,
+      "first_page_excerpt": "Transactions and Concurrency Database Systems & Information Modelling INFO90002 Week 7 – Database transactions Dr Tanya Linden Dr Simon D’Alfonso David Eccles 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week8-1_DBA.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/22905368",
+      "sha256": "95b82c3f0baec09031ac6a53f3af6a16b82d8ed87bc79ff08b1264b27a3a79f9",
+      "bytes": 3153516,
+      "pages": 50,
+      "first_page_excerpt": "Database Architecture and Administration Database Systems & Information Modelling INFO90002 Week 8 – DBA Dr Tanya Linden David Eccles 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week8-2_DistributedDBs.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23211502",
+      "sha256": "119064e311073fadf69ce55f15623ddd6b6fea8970fc0f522fbba5b322c922ad",
+      "bytes": 2719580,
+      "pages": 33,
+      "first_page_excerpt": "Distributed Databases Database Systems & Information Modelling INFO90002 Week 8-9 – Distributed Databases Dr Tanya Linden David Eccles 1"
+    },
+    {
+      "file": "lecture/INFO90002_Week9-1_DW.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855420",
+      "sha256": "aac3767eaea771c63f31f4ca27d5bca9106e0cbc23bd5a169c48fb307f8094ba",
+      "bytes": 2660995,
+      "pages": 37,
+      "first_page_excerpt": "Data Warehousing Database Systems & Information Modelling INFO90002 Week 9 – DW Dr Tanya Linden Dr Renata Borovica-Gajic David Eccles 1"
+    },
+    {
+      "file": "lecture/Library_BookVsCopies.jpg",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855401",
+      "sha256": "9058d782a1d4a03e1f75317b542ba111dd6cc2891815a6fcccc93944d87ea3b0",
+      "bytes": 3408586
+    },
+    {
+      "file": "lecture/Week2_Slides30-31_SelectedSolns.jpg",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855391",
+      "sha256": "e80353dfb91d1b58e572d74b23d2bc42756d01eb31e1863e5e27709038fc8cba",
+      "bytes": 3522783
+    },
+    {
+      "file": "lecture/Week2_slide20_solution.jpg",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855390",
+      "sha256": "e982914fe7941efe884a4bdd7bc0a889216d80466c3d5efb38c61573aa331bab",
+      "bytes": 3164198
+    },
+    {
+      "file": "lecture/Week4-1_Exercise_SubjectEnrol.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855438",
+      "sha256": "a1e5055c6079752c64981e52ee85cba0fb8f50897b8b1e1ce28229720b8b28d8",
+      "bytes": 155499,
+      "pages": 1,
+      "first_page_excerpt": "Exercise Student enrols into a subject. The result of enrolment is a mark and a grade. Student may fail the subject and needs to enrol again. A Subject is a combination of constant (static) data and variable data. Constant / Static attributes do not change from semester to semester (Subject code, title, overview, objectives, …) Variable attributes change/could change from one semester to another ("
+    },
+    {
+      "file": "lecture/lecture_queries.sql",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855433",
+      "sha256": "1576fb8b7b45bfdf4758d2017ffe7b717771dfc547e50db0641cd564b33e78f5",
+      "bytes": 2337
+    },
+    {
+      "file": "tutorial/Week10_Tute_DW.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855435",
+      "sha256": "eac89c333f68cc89e80608294b2e229ddbd1db1c74768a9adda6352639733300",
+      "bytes": 720535,
+      "pages": 3,
+      "first_page_excerpt": "INFO90002 Tutorial – Week 10 Data Warehouse Objectives: I. II. III. Understand the fundamentals of dimensional modelling – 20 mins Design a dimensional model using Kimball’s four-step design process – 25 mins Discuss the impact of grain on fact tables – 10 mins Key Concepts: • • • • • Data warehouse Business events Dimensions, dimension tables and hierarchies Facts, fact tables and granularity Dim"
+    },
+    {
+      "file": "tutorial/Week10_Tute_DW_Solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855426",
+      "sha256": "6db77762270d07fe0c186d52d51aec8ff96bb8916fd90a4f0df331b91575ee33",
+      "bytes": 1246848,
+      "pages": 7,
+      "first_page_excerpt": "INFO90002 Tutorial – Week 10 SOLUTIONS Objectives: I. II. III. Understand the fundamentals of dimensional modelling – 20 mins Design a dimensional model using Kimball’s four-step design process – 25 mins Discuss the impact of grain on fact tables – 10 mins Key Concepts: NOTE for students: This is a brief summary of some of the concepts taught in the lecture. The lectures contain detailed content r"
+    },
+    {
+      "file": "tutorial/Week11_Tute_NoSQLBooster.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23533345",
+      "sha256": "359faff7577f42bc951a53b4e4c0dd9a39b2a90321ee0e10f7b17f7f42f73788",
+      "bytes": 1817953,
+      "pages": 12,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 11 Objectives: • • • • Explore NoSQL database (MongoDB) Install and use a browser for MongoDB - NoSQLBooster Get understanding of JSON Revise theoretical concepts of NoSQL Databases A. Download & Install 1. Go to: https://nosqlbooster.com/downloads (whatever is the latest version, currently version 10.0.x). 2. Download the version relevant for your OS, run it to install ("
+    },
+    {
+      "file": "tutorial/Week11_Tute_NoSQLBooster_SOLUTIONS.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23533343",
+      "sha256": "7c0e3cbb87caa658871c3ea3f9838a781e3ae1ac3ff30f9a6c1e3aa884d3cf31",
+      "bytes": 887906,
+      "pages": 9,
+      "first_page_excerpt": "INFO90002 Tutorial – Week 11 SOLUTIONS Objectives: • • • • Explore NoSQL database (MongoDB) Install and use a browser for MongoDB - NoSQLBooster Get understanding of JSON Revise theoretical concepts of NoSQL Databases A. Download & Install B. Connect to MongoDB C. Explore MongoDB sample data using NoSQLbooster 3. The browser will show a default SQL query. What is the default SQL query? SELECT * FR"
+    },
+    {
+      "file": "tutorial/Week12_Tute_ExamRevision.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855462",
+      "sha256": "f8281d9abfb93770f8c733d38520f56faa418b7bb3ffcb72b01ce670974cf6fd",
+      "bytes": 260554,
+      "pages": 3,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 12 Exam Revision Questions Note: points allocation may not match points allocation for a similar question in the exam. Question 1 Normalisation 1A. The table shown below is part of an office inventory database. Identify the design problems and draw a revised table structure in 3rd Normal Form (3NF) that corrects those problems. For each step explicitly identify and discus"
+    },
+    {
+      "file": "tutorial/Week12_Tute_ExamRevision_SOLUTIONS.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855413",
+      "sha256": "3fef0716a23137c7e2422b7da5ccf91f1db47dc1e5404aeb82efd7b3e4dc6370",
+      "bytes": 370317,
+      "pages": 6,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 12 Exam Revision Questions Note: points allocation may not match points allocation for a similar question in the exam. Question 1 Normalisation 1A. The table shown below is part of an office inventory database. Identify the design problems and draw a revised table structure in 3rd Normal Form (3NF) that corrects those problems. For each step explicitly identify and discus"
+    },
+    {
+      "file": "tutorial/Week1_TuteDemo_MySQLinstallation_LMS.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855436",
+      "sha256": "cef6142cc91d69a89ef973936fb5945bf2e12b8762199b2baec2f0c8507927bb",
+      "bytes": 3068608,
+      "pages": 37,
+      "first_page_excerpt": "Tutorial Week 1 INFO90002 1"
+    },
+    {
+      "file": "tutorial/Week2_Tute_Modelling with MySQL Workbench.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855429",
+      "sha256": "384ce3a2f65ca1d877902d4a3537adb16a35aeec1f2ab9d40998ad62fbc3a435",
+      "bytes": 835719,
+      "pages": 14,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 2 Modelling with MySQL Workbench Objectives: In this tutorial session you will familiarise yourself with the MySQL Workbench database modelling tool. This is the tool you will use to complete modelling tasks and to complete Assignment 1. In this lab you will: • • • • • Launch the MySQL Workbench modelling tool Create a simple ER model using MySQL Workbench Define relation"
+    },
+    {
+      "file": "tutorial/Week3_Tute_Logical and Physical Modelling.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855437",
+      "sha256": "2a298f91dc113931c7f64836fec9a3d4ded15242d11fe88e4eddef6fbb5b1731",
+      "bytes": 191621,
+      "pages": 2,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 3 Objectives: This tutorial will cover: I. II. III. IV. Entity-Relationship (ER) modelling review Case study – Use a case study to design a conceptual model Convert the conceptual model to a logical relations model Introduce the notion of physical model – complete as homework Exercises: 1. ER Review – selected concepts NOTE for students: This is a brief summary of selecte"
+    },
+    {
+      "file": "tutorial/Week4_Tute_Normalisation.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23771842",
+      "sha256": "a1895d4b7d539decea286cf51d333847401fa14c50ec33d6c040abc0fbe481a1",
+      "bytes": 293777,
+      "pages": 3,
+      "first_page_excerpt": "INFO90002 INFO90002 Tutorial Week 4 Objectives: This tutorial will cover: I. II. III. Review of Normalisation concepts – 15 mins Normalisation exercises – 35 mins Optional extra exercises (homework) - approximately 50 minutes Key Concepts: NOTE for students: This is a brief summary of some of the concepts taught in the lecture on 'Normalisation'. The lectures contain detailed content related to th"
+    },
+    {
+      "file": "tutorial/Week4_Tute_Normalisation_Solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/23771841",
+      "sha256": "a56e2269ba3adcdae9451c846c10c82ae5245b8e9d51d1e88ddea8b4f12843b7",
+      "bytes": 442345,
+      "pages": 9,
+      "first_page_excerpt": "INFO90002 INFO90002 Week 4 Solutions Objectives: This tutorial will cover: I. II. Review of Normalisation concepts – 15 mins Normalisation exercises – 35 mins Key Concepts: NOTE for students: This is a brief summary of some of the concepts taught in lecture 6 'Normalisation'. The lectures contain detailed content related to these and many more concepts. These notes should be considered quick revis"
+    },
+    {
+      "file": "tutorial/Week5_Tute_SQLintro.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855463",
+      "sha256": "50f3db7c7e29b6e8432856e0f96b8154393940fa4ef1273906fd281cda8c4fa8",
+      "bytes": 570682,
+      "pages": 13,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 5 Objectives • • • • • • • Learn how to type SQL SELECT commands Learn how to FILTER by row and column. Learn to use maths conditions Learn how to use ORDER BY, LIMIT Learn how to use FUNCTIONS (max, min, sum, avg) Learn how to use GROUP BY Learn hot to add your student ID to the result set 1. Using MySQL Workbench, connect to your database to the MySQL Server 2. Download"
+    },
+    {
+      "file": "tutorial/Week5_Tute_SQLintro_SOLUTIONS.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855464",
+      "sha256": "526428bce7b9dd57b318f29c68136b7d3fd1e68115edfcb04cdccb7acca6684d",
+      "bytes": 569363,
+      "pages": 14,
+      "first_page_excerpt": "INFO90002 Tutorial Week 5 SOLUTIONS Objectives • • • • • • Learn how to type SQL SELECT commands Learn how to FILTER by row and column. Learn to use maths conditions Learn how to use ORDER BY, LIMIT Learn how to use FUNCTIONS (max, min, sum, avg) Learn how to use GROUP BY 1) Using MySQL Workbench, connect to your database to the MySQL Server 2) Download the labs2018v6.sql script from the LMS (labs"
+    },
+    {
+      "file": "tutorial/Week6Tute_SQL_Advanced.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855466",
+      "sha256": "a7d3620fe95d7aa3623dc2f923c948a13a56971be6952b6d5cf93b7255fa8842",
+      "bytes": 517954,
+      "pages": 11,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 6 Objectives • • • • • Learn how to use the following SQL keywords: FORMAT, ROUND Learn how to join two tables together with INNER JOIN and NATURAL JOIN Learn how to write sub queries Learn to use maths operators Learn how to use SQL keywords: HAVING, UNION Remember that on the engineering server table names are case sensitive! Formatting & Rounding FORMAT(X,D) and ROUND("
+    },
+    {
+      "file": "tutorial/Week6Tute_SQL_Advanced_SOLUTIONS.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855465",
+      "sha256": "fc4fdc6ea2b6b9a3a948bc7c44dec00b00fd92ac0350de8888aedb4d2672ac12",
+      "bytes": 538656,
+      "pages": 13,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 6 SOLUTIONS Objectives • • • • • Learn how to use the following SQL keywords: FORMAT, ROUND Learn how to join two tables together with INNER JOIN and NATURAL JOIN Learn how to write sub queries Learn to use maths operators Learn how to use SQL keywords: HAVING, UNION Remember that on the engineering server table names are case sensitive! Formatting & Rounding FORMAT(X,D) "
+    },
+    {
+      "file": "tutorial/Week7Tute_SQL_Advanced2.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855469",
+      "sha256": "bdeafa1f1ed46ed450029cc445df55b68f0bfc33804a4148e4e9be6102eec9db",
+      "bytes": 411918,
+      "pages": 9,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 7 Objectives • • Learn SQL By Example Discover MySQL functions (HOMEWORK) Connect to your MySQL database on the engineering server 1) TASK Type the query to list the id and name of all green items of type C 2) TASK Type the query to find the items delivered by at least two suppliers 3) TASK Find the name of the highest-paid employee in the Marketing department 4) TASK Fin"
+    },
+    {
+      "file": "tutorial/Week7Tute_SQL_Advanced2_SOLUTIONS.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855468",
+      "sha256": "1e9c58fa9338f18771c9bc5c9a823fafe5685caaec2548f1c3e99fffc660c50b",
+      "bytes": 447728,
+      "pages": 13,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 7 Solutions Objectives • • Learn SQL By Example Discover MySQL functions (HOMEWORK) Connect to your MySQL database on the engineering server 1) TASK Type the query to list the id and name of all green items of type C SELECT ItemID, Name FROM item WHERE Type = 'C' And Colour = 'Green'; 2) TASK Type the query to find the items delivered by at least two suppliers SELECT item"
+    },
+    {
+      "file": "tutorial/Week8Tute_SQL_Advanced3.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/22893231",
+      "sha256": "240e2806097e1cb63766788ea2135aabbddc7683897808b99f175e246fee1908",
+      "bytes": 532173,
+      "pages": 11,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 8 Objectives: • • • • OUTER JOIN UNARY JOINS VIEWS RELATIONAL DIVIDES 1) Find the number of units sold of each item SELECT item.Name, sum(saleitem.Quantity) as UnitsSold FROM saleitem si INNER JOIN item i ON si.itemID = i.itemID GROUP BY item.Name ORDER BY item.Name; However, this query does not return the fact that the Horse Saddle has not been sold! OUTER JOINS To retri"
+    },
+    {
+      "file": "tutorial/Week8Tute_SQL_Advanced3_Solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/22893230",
+      "sha256": "59b31429da99d7c612eadaeef804b9958dd0a5570e01e8d12d35b7582443b62a",
+      "bytes": 565071,
+      "pages": 13,
+      "first_page_excerpt": "INFO90002 Tutorial - Week 8 Solutions Objectives: • • • • OUTER JOIN UNARY JOINS VIEWS RELATIONAL DIVIDES 1) Find the number of units sold of each item SELECT i.Name, SUM(si.Quantity) as UnitsSold FROM saleitem si INNER JOIN item i ON si.itemID = i.itemID GROUP BY i.Name ORDER BY i.Name; However, this query does not return the fact that the Horse Saddle has not been sold! OUTER JOINS To retrieve a"
+    },
+    {
+      "file": "tutorial/Week9Tute_SQL_DDL.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855472",
+      "sha256": "7ad277fdd3efeba9c5d3ee3446b7cf2ef9fec18a1c0ef2e27e91c92220e9b707",
+      "bytes": 486585,
+      "pages": 8,
+      "first_page_excerpt": "INFO90002 Week 9 - Tutorial Objectives: In this week's lab you will learn to: • CREATE tables using SQL Data Definition Language (DDL) • INSERT UPDATE and DELETE using SQL Data Manipulation Language (DML) • CREATE foreign key constraints • Test constraint behaviour when deleting and updating rows • Test how REFERENTIAL INTEGRITY and FOREIGN KEYS work • DROP tables using SQL DDL 1. PREREQUISITE: Pl"
+    },
+    {
+      "file": "tutorial/Week9Tute_SQL_DDL_Solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855294",
+      "sha256": "64b3d3ee8e4d63149efe588943c46f9bf2115c85d8ef4aebbe8da769ce65a6f9",
+      "bytes": 515916,
+      "pages": 9,
+      "first_page_excerpt": "INFO90002 Week 9 - Tutorial SOLUTIONS Objectives: In this week's lab you will learn to: • CREATE tables using SQL Data Definition Language (DDL) • INSERT UPDATE and DELETE using SQL Data Manipulation Language (DML) • CREATE foreign key constraints • Test constraint behaviour when deleting and updating rows • Test how REFERENTIAL INTEGRITY and FOREIGN KEYS work • DROP tables using SQL DDL 1. PREREQ"
+    },
+    {
+      "file": "tutorial/labs2018byodv6.sql",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855442",
+      "sha256": "91017cf1324706965f5f1276e2b03512dfddf2c106cdf6b6811107a73264c9ae",
+      "bytes": 23486
+    },
+    {
+      "file": "tutorial/labs2018engv6.sql",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855443",
+      "sha256": "61de482938518efdebe2c7aa1d73a5956c93c6a8800042a5f2cfc6bee6e7d612",
+      "bytes": 23494
+    },
+    {
+      "file": "tutorial/scott.sql",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855474",
+      "sha256": "8109050ca9b7175ac1542c91e29b9ee11cc906cdd77c7b9519c4ad3d787d85c4",
+      "bytes": 3210
+    },
+    {
+      "file": "tutorial/scott_byod.sql",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855473",
+      "sha256": "0151ddcd03ea75dbadff31d284f49b2f1ea1be9768eed39b73478db5ac0ca8b8",
+      "bytes": 3201
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "recovered_on": "2026-10-21",
+  "timezone": "Australia/Melbourne",
+  "subject": "COMP90041",
+  "term": "25S1",
+  "canvas_course": "https://canvas.lms.unimelb.edu.au/courses/211892",
+  "scope": "Downloaded source materials; notes not imported or expanded.",
+  "files": [
+    {
+      "file": "lecture/Garage UML.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/23242852",
+      "sha256": "1d72a367d10d50f579420b8014db9db3b1cf06b60c28388da2be747b9b8b99ad",
+      "bytes": 18360,
+      "pages": 1,
+      "first_page_excerpt": "Garage - parkedVehicleMap : HashMap<String, Vehicle> - toRepairVehicleMap : HashMap<String, Vehicle> GarageDemo tests ► 1 1 vehicles + park(Vehicle) : void + checkOut(Vehicle) : void + repair(Vehicle&Repairble, Vehicle) : void + repairCheckout(Vehicle) : void + paymentAndCheckout(Vehicle) : void + getParkedVehicles : List<Vehicle> + getRepairedVehicles : List<Vehicle> 1 1 repairs ► parks ► 0..* 0."
+    },
+    {
+      "file": "lecture/UML_Garage_Problem.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/23242853",
+      "sha256": "f258048f482c7711919a22983f26fd46e7e34276b8d3cabf7ea88e871f2132ec",
+      "bytes": 634571,
+      "pages": 2,
+      "first_page_excerpt": "Inheritance, Interfaces, Generics Practice Let's Drive some Vehicles Let's drive some vehicles. This practice challenge covers the Learning Outcomes Interfaces Inheritance Generics Collections This practice challenge assumes you are already proﬁcient with classes, enums, packages etc. Entities There is a garage in the suburbs of Melbourne that acts as two things Auto repair shop for repairing cert"
+    },
+    {
+      "file": "lecture/W12_PollEvQuestions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/23541519",
+      "sha256": "18b8ba67e2a41789f1b549263f1c76f34b274e4e9ff2f3f9d352344992156e68",
+      "bytes": 1058405,
+      "pages": 13,
+      "first_page_excerpt": ""
+    },
+    {
+      "file": "lecture/Week11_FileHandling_n_AdvancedTopics.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/23426848",
+      "sha256": "527c9eae1531e70e180b2b6fa3c7dadbabf4d0b60836ad0e30001fd4343ccbd0",
+      "bytes": 535841,
+      "pages": 25,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 11 - File Handling & Advanced Topics Trina Dey"
+    },
+    {
+      "file": "lecture/Week12_Revision.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/23476051",
+      "sha256": "fd7e70a747e9dffafee690ecc39c7b09e03a1984e9b4c10107cc1b8ffa226c85",
+      "bytes": 429978,
+      "pages": 15,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 12 - Revision Trina Dey"
+    },
+    {
+      "file": "lecture/Week_10_Generics_and_Collections.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/23332938",
+      "sha256": "9c9518caa3f638aa350b02b40afbbe72a1c0eef45d2ef4ef395158203a6790ce",
+      "bytes": 797626,
+      "pages": 36,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 10 - Generics and Collections Framework Trina Dey"
+    },
+    {
+      "file": "lecture/Week_1_Introduction_to_Programming.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/22440387",
+      "sha256": "029ce7bbfb42f882d7c88b0608a3a4055a0cb6e434ab778cf0c146379a0646eb",
+      "bytes": 1418937,
+      "pages": 50,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Week 1 Amani Abusafia Trina Dey"
+    },
+    {
+      "file": "lecture/Week_2_Basic Operations and Control Flows.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/22469622",
+      "sha256": "2aa72abb795c648629635edd025d5261e618762e8c8b388cfcad9d7509e36041",
+      "bytes": 1233070,
+      "pages": 67,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 2 - Basic Operations and Control Flows Amani Abusafia Trina Dey"
+    },
+    {
+      "file": "lecture/Week_3_Classes and Methods - I.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/22522890",
+      "sha256": "364b9547e0b815c6939c8aa86fb7b2a599e387e0db519021f5997dfbacd4176b",
+      "bytes": 683243,
+      "pages": 41,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 3 - Classes and Methods - I Amani Abusafia"
+    },
+    {
+      "file": "lecture/Week_4_Classes and Methods - II.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/22578682",
+      "sha256": "9d56e74e79ce2bb2ef98cbb7d5a62a92e19a0201c7728b71959a47f90d1f7153",
+      "bytes": 862386,
+      "pages": 45,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 4 - Classes and Methods - I Amani Abusafia"
+    },
+    {
+      "file": "lecture/Week_5_Arrays.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/22667672",
+      "sha256": "dfb09e9e77358cf113a876e8e0a70af69e5944dd2cfdd5f9f6f222a98a48a314",
+      "bytes": 742968,
+      "pages": 54,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 5 - Arrays Amani Abusafia"
+    },
+    {
+      "file": "lecture/Week_6_Arrays II.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/22756131",
+      "sha256": "890a42e21db77802041e996f766a9e1180acede68129f3cf17d251c12a0cce81",
+      "bytes": 681205,
+      "pages": 26,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 6 – Arrays II Amani Abusafia"
+    },
+    {
+      "file": "lecture/Week_7_OOP.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/22822218",
+      "sha256": "f5cf58b2a88d8169e89697671637a3e448b149c40e8a510ba1fe3d8bcecd6d3e",
+      "bytes": 1590446,
+      "pages": 61,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 7 - Object Oriented Programming Trina Dey"
+    },
+    {
+      "file": "lecture/Week_8_Interfaces.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/22903888",
+      "sha256": "de5d38eac09129ba4c4791adce8b54ba6f4bcc583155e71e00ece3732cca72a1",
+      "bytes": 1065169,
+      "pages": 42,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 8 - Modularity & Interfaces Trina Dey"
+    },
+    {
+      "file": "lecture/Week_9_Exceptions_and_Files.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211892/files/23242842",
+      "sha256": "88b122d4a44d758ef4312325626c587f2888bcafce038806cc9e694f4e0a88dc",
+      "bytes": 784494,
+      "pages": 39,
+      "first_page_excerpt": "COMP90041 Programming and Software Development Lecture 9 - Exceptions and File Handling Trina Dey"
+    }
+  ]
+}

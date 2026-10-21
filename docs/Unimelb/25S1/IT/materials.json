@@ -1,0 +1,218 @@
+{
+  "recovered_on": "2026-10-21",
+  "timezone": "Australia/Melbourne",
+  "subject": "COMP90007",
+  "term": "25S1",
+  "canvas_course": "https://canvas.lms.unimelb.edu.au/courses/210316",
+  "scope": "Downloaded source materials; notes not imported or expanded.",
+  "files": [
+    {
+      "file": "lecture/W3-L2-example_solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22547663",
+      "sha256": "9250abe9e9b25e4a3695f61b8192816b66aff67aaecfbd6210b6d871eec3a002",
+      "bytes": 122241,
+      "pages": 3,
+      "first_page_excerpt": "Example 1: Lets Consider Nyquist first If a binary signal is sent over a 3-kHz channel, what is the maximum data rate? Ans: Nyquist limit is: 2B log2V = 2 x 3000 x log22 = 6 kbps. 45"
+    },
+    {
+      "file": "lecture/Week1-Lecture1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22394818",
+      "sha256": "cc2f329c36644031feac0929275a87d4e501aafdd8d404b2aa0dca42452f2e64",
+      "bytes": 1593570,
+      "pages": 17,
+      "first_page_excerpt": "COMP90007 Internet Technologies Ling Luo Semester 1, 2025 © University of Melbourne 2025"
+    },
+    {
+      "file": "lecture/Week1-Lecture2.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22419936",
+      "sha256": "0e47cc8a299ac5b1fe46b68ead5ff9be14bd8dab77d17eca2737582999128faa",
+      "bytes": 1335359,
+      "pages": 24,
+      "first_page_excerpt": "Introduction to Networking COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week10-Application Layer-Lecture1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/23270001",
+      "sha256": "181984c0f4146cafa173253c132553fe61f0e456bfc9d071b694b46a623ca2a1",
+      "bytes": 600822,
+      "pages": 21,
+      "first_page_excerpt": "Application Layer (1) COMP90007 Internet Technologies Lecturer: Maria Rodriguez Read Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week10-Application Layer-Lectures2and3.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/23316191",
+      "sha256": "cb4320010d63216fc5a04dce9afa65f329442e0af689519f6507ad021052ed07",
+      "bytes": 1740151,
+      "pages": 42,
+      "first_page_excerpt": "Application Layer (2) COMP90007 Internet Technologies Lecturer: Maria Rodriguez Read Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week11-Application Layer-Lecture1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/23339619",
+      "sha256": "467384875550d1af015aa07c8d47f4172a9d0ebc2443b0733b699c873617ec44",
+      "bytes": 489200,
+      "pages": 16,
+      "first_page_excerpt": "Application Layer (3) COMP90007 Internet Technologies Lecturer: Maria Rodriguez Read Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week11-Lectures2&3.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/23396512",
+      "sha256": "a0548048686d2dcdea165546b2e1ba59b84b2e9f958b8a240338ad1f499f56c6",
+      "bytes": 798937,
+      "pages": 36,
+      "first_page_excerpt": "Network Security (1) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week12-Lecture1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/23437831",
+      "sha256": "1cd28ff270432bec4e87980c14d4b11923b13eb9303c50d62c19fe711a7cb92a",
+      "bytes": 691048,
+      "pages": 23,
+      "first_page_excerpt": "Network Security (2) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week12-Review-1-sample-solution.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/23539614",
+      "sha256": "e3be62b99f1a8e420f3fedfa1b73127ef8d1154fd0625f246d3e34ede14323fb",
+      "bytes": 119013,
+      "pages": 2,
+      "first_page_excerpt": "Sample Question 1 [Practice Exam Q16] An encrypted file needs to be accessed in non-sequential order. Which cipher mode is best suited to encrypting this file, and briefly explain why. Answer: Counter mode is the best option, since each block can be encrypted or decrypted based on its location in the files using a counter. Other techniques such as Cipher Feedback Mode requires 8 preceding blocks o"
+    },
+    {
+      "file": "lecture/Week12-Review-Lecture3.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/23487030",
+      "sha256": "0f0f769499acdfc59d921fb6950ea312ce3ecc71bc7432048b0f3d174cca837d",
+      "bytes": 1047254,
+      "pages": 30,
+      "first_page_excerpt": "Review (2) Answer to Sample Questions COMP90007 Internet Technologies Lecturer: Maria Rodriguez Read Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week12-Review-handout.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/23487194",
+      "sha256": "0a4c20207864655bd2bab4fbb638817c37151c9272c0cbb66f165b93ac1b4fba",
+      "bytes": 1383942,
+      "pages": 37,
+      "first_page_excerpt": "Review COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week2-Lecture2.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22456063",
+      "sha256": "855f82a4fb71a9de9b6fcaf0301f089ad7e50a2b7e31e474aa257807db10da82",
+      "bytes": 1021950,
+      "pages": 18,
+      "first_page_excerpt": "Introduction to Networking (2) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week2-Lecture3.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22470857",
+      "sha256": "b1b8ff7e8e357e82127f6dd6804c031bf545b507c5fb86abed690d740eea104d",
+      "bytes": 741030,
+      "pages": 22,
+      "first_page_excerpt": "Physical Layer (1) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week3-data-link-1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22503295",
+      "sha256": "0ea279d4f24316c2f6e19435cfff74af98331d12f7870bd07ee643812699216d",
+      "bytes": 430406,
+      "pages": 23,
+      "first_page_excerpt": "Data Link Layer (1) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week3-physical-layer-2.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22483906",
+      "sha256": "bf793239aca88a90fbbfd90d12a6e124a309f12e5e1f821e0e3fad71f4e2b984",
+      "bytes": 625070,
+      "pages": 31,
+      "first_page_excerpt": "Physical Layer (2) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week4-Lecture1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22524381",
+      "sha256": "8ca5193a3045618bb0dbe71bc7a56ed558841d343930f547e96441ca78bf21aa",
+      "bytes": 308930,
+      "pages": 11,
+      "first_page_excerpt": "Data Link Layer (2) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week4-Lectures23-MAC.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22559224",
+      "sha256": "23223b1d9a2b531f4eb7f1bd4ed922c9e106e8e7b07c16c00ab6e597aab84a71",
+      "bytes": 243368,
+      "pages": 10,
+      "first_page_excerpt": "MAC Sub-Layer (1) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025"
+    },
+    {
+      "file": "lecture/Week4-Lectures23-data-link.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22559221",
+      "sha256": "9ae556d5af935dd2078d3d44a2e5b995f5502e72a97c0591762ccaa156060c51",
+      "bytes": 458140,
+      "pages": 19,
+      "first_page_excerpt": "Data Link Layer (3) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/Week5-Lecture1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22590099",
+      "sha256": "2a8d46eb3c5d018f943af21392123775cca02023d0b4ae419ff18115f559a1d5",
+      "bytes": 450408,
+      "pages": 16,
+      "first_page_excerpt": "MAC Sub-Layer (2) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025"
+    },
+    {
+      "file": "lecture/Week5-Lecture2.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22637856",
+      "sha256": "c8f5e06ff1a2dd96bc210bf33e4adbd90b9fc33be99b0a0291939f25c99774bf",
+      "bytes": 338222,
+      "pages": 15,
+      "first_page_excerpt": "MAC Sub-Layer (3) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025"
+    },
+    {
+      "file": "lecture/Week5-Lecture3.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22637858",
+      "sha256": "f32e5d0b363facbe5dfaeb3650806e5afa22c1c42297cfa1d378348fa57b5817",
+      "bytes": 445755,
+      "pages": 15,
+      "first_page_excerpt": "Network Layer (1) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025"
+    },
+    {
+      "file": "lecture/Week6-IP.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22719129",
+      "sha256": "23780b658738620182511231f88e7809a0095d77df91cb43ecaf7d87538739de",
+      "bytes": 647648,
+      "pages": 21,
+      "first_page_excerpt": "Network Layer (3) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025"
+    },
+    {
+      "file": "lecture/Week6-Lecture1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22675208",
+      "sha256": "90c9d1336b9abae36c82082ded73bef4609720bda748d96d3e887bc2de7ad900",
+      "bytes": 460165,
+      "pages": 11,
+      "first_page_excerpt": "Network Layer (2) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025"
+    },
+    {
+      "file": "lecture/Week6-routing.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22719132",
+      "sha256": "6896308f976b8e6da74a980b3732814fbe8e7e715535a1c2c2a1255fa4a9ba8d",
+      "bytes": 641583,
+      "pages": 22,
+      "first_page_excerpt": "Network Layer (4) COMP90007 Internet Technologies Lecturer: Ling Luo Semester 1, 2025 © University of Melbourne 2025"
+    },
+    {
+      "file": "lecture/Week9-Transport Layer-Lectures2and3.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/23250034",
+      "sha256": "dfbf9ae9be353dc731cbfb82e2ae423d302214411537387726f4419da4c0acf9",
+      "bytes": 619348,
+      "pages": 17,
+      "first_page_excerpt": "Transport Layer (3) COMP90007 Internet Technologies Lecturer: Maria Rodriguez Read Semester 1, 2025 © University of Melbourne 2025 1"
+    },
+    {
+      "file": "lecture/example_solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210316/files/22483854",
+      "sha256": "45a6577f546a042d33c7c5439ec29bad05063df79aff98a42bf6465f22ff1281",
+      "bytes": 112468,
+      "pages": 2,
+      "first_page_excerpt": "Example-1 ◼ A home computer is connected to an ISP server through 56 Kbps modem. Given a frame size of 5600 bits, compute P-Delay and T-Delay for the link. Assume speed of signal = 2/3 C and length of the link is 5 km. T-delay = 5600 (bits)/ 56 000 (bps) = 100 m sec ◼ P-delay = 5 (km)/200000 (km/s) = 0.025 m sec ◼ Latency = 100.025 m sec ◼ 8"
+    }
+  ]
+}

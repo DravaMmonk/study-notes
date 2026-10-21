@@ -1,0 +1,42 @@
+{
+  "recovered_on": "2026-10-21",
+  "timezone": "Australia/Melbourne",
+  "subject": "COMP90054",
+  "term": "25S2",
+  "canvas_course": "https://canvas.lms.unimelb.edu.au/courses/213743",
+  "scope": "Downloaded source materials; notes not imported or expanded.",
+  "files": [
+    {
+      "file": "lecture/pre-handout-1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24499995",
+      "sha256": "f91c82cc1f9e47b0c0b52f1a74cd5396cde1c70b8380dc0b9d436b6cb212a8e6",
+      "bytes": 1685041,
+      "pages": 45,
+      "first_page_excerpt": "Motivation Delete Relaxation Additive and Max Relaxed Plans Conclusion COMP90054 — AI Planning for Autonomy 5. Delete Relaxation Heuristics It’s a Long Way to the Goal, But How Long Exactly? Part I: Acting As If the World Can Only Get Better Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 5: Delete Relaxation Heuristics 1/50"
+    },
+    {
+      "file": "lecture/pre-handout-6.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24194242",
+      "sha256": "6a042495c076248382d487548032403dc72e0a875cd865fb7b5f049bcd7c9c41",
+      "bytes": 410900,
+      "pages": 44,
+      "first_page_excerpt": "Basics Blind Systematic Search Heuristic Functions Informed Systematic Search Local Search Conclusion COMP90054 — AI Planning for Autonomy 2. Search Algorithms Basic Stuff You’re Gonna Need to Search for a Solution Where To Search Next? Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 2: Search Algorithms 1/50"
+    },
+    {
+      "file": "lecture/pre-handout-7.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24194112",
+      "sha256": "6a042495c076248382d487548032403dc72e0a875cd865fb7b5f049bcd7c9c41",
+      "bytes": 410900,
+      "pages": 44,
+      "first_page_excerpt": "Basics Blind Systematic Search Heuristic Functions Informed Systematic Search Local Search Conclusion COMP90054 — AI Planning for Autonomy 2. Search Algorithms Basic Stuff You’re Gonna Need to Search for a Solution Where To Search Next? Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 2: Search Algorithms 1/50"
+    },
+    {
+      "file": "lecture/slides-2.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24296966",
+      "sha256": "35de4bf1f40d7ee03f234766a618638e6dd6b940de1731c159b34dfc4a95b56f",
+      "bytes": 2942857,
+      "pages": 40,
+      "first_page_excerpt": "AI Planning for Autonomy 1. Short Introduction to Automated (AI) Planning Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky AI Planning for Autonomy"
+    }
+  ]
+}

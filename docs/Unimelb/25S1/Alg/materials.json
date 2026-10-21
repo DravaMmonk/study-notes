@@ -1,0 +1,506 @@
+{
+  "recovered_on": "2026-10-21",
+  "timezone": "Australia/Melbourne",
+  "subject": "COMP90038",
+  "term": "25S1",
+  "canvas_course": "https://canvas.lms.unimelb.edu.au/courses/210686",
+  "scope": "Downloaded source materials; notes not imported or expanded.",
+  "files": [
+    {
+      "file": "lecture/examples of hashing.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22347356",
+      "sha256": "cab530548f8691572a8be6214254f90012e9886117f13646043aa9e018e2ab72",
+      "bytes": 68206,
+      "pages": 1,
+      "first_page_excerpt": "Insert keys one by one: 19,392,179,359,663,262,639,321,97,468,814 h(k) = k mod 23 k 19 392 179 359 663 262 639 321 97 468 814 h(k) 19 1 18 14 19 9 18 22 5 8 9 Separate Chaining Insert 19, 392, 179, 359 without collision: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 392 14 15 16 17 359 18 19 179 19 20 21 22 20 21 22 20 21 22 20 21 22 663 There is a collision when inserting 663: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 3"
+    },
+    {
+      "file": "lecture/lec01-intro-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22361297",
+      "sha256": "d63cfafb7b0199b5838ee6fdca8f5a957e09844979581cb92a9afe30bed72f67",
+      "bytes": 133717,
+      "pages": 29,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Introduction and Welcome Junhao Gan Week 1 Lecture 1 Semester 1, 2025 1/29 Algorithms and Complexity (Sem 1, 2025) Introduction and Welcome © University of Melbourne 1 / 29"
+    },
+    {
+      "file": "lecture/lec02-algorithm-pre-class.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22361299",
+      "sha256": "31a5eedd5d0bb471885f0accea9f02ac255a34bc83b81b247d0172baf1f9c839",
+      "bytes": 64091,
+      "pages": 17,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Algorithms and Data Structures Junhao Gan Week 1 Lecture 2 Semester 1, 2025 1/17 Algorithms and Complexity (Sem 1, 2025) Algorithms and Data Structures © University of Melbourne 1 / 17"
+    },
+    {
+      "file": "lecture/lec03-computational-model-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22489204",
+      "sha256": "d2563e64aa516699aedd62b94f9b90eebf9b445454fd25e7f69e7bebd3e1878a",
+      "bytes": 150863,
+      "pages": 18,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Computational Models and Asymptotic Notation Junhao Gan Week 2 Lecture 3 Semester 1, 2025 1/1 Algorithms and Complexity (Sem 1, 2025) Comp. Models & Asym. Notation © University of Melbourne 1/1"
+    },
+    {
+      "file": "lecture/lec03-computational-model-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22422949",
+      "sha256": "e100a37c8bd5e8f09e51402af47efd151c39cb12ac3a5caa5435e0561683e331",
+      "bytes": 150680,
+      "pages": 18,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Computational Models and Asymptotic Notation Junhao Gan Week 2 Lecture 3 Semester 1, 2025 1/1 Algorithms and Complexity (Sem 1, 2025) Comp. Models & Asym. Notation © University of Melbourne 1/1"
+    },
+    {
+      "file": "lecture/lec04-analysis-of-algorithms-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22489197",
+      "sha256": "967809bba94cf856bccbc5d5c5bdffd1f88ebd2eea4e8d726243ce23549f84e6",
+      "bytes": 173243,
+      "pages": 17,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Analysis of Algorithms Junhao Gan Week 2 Lecture 4 Semester 1, 2025 1/17 Algorithms and Complexity (Sem 1, 2025) Analysis of Algorithms © University of Melbourne 1 / 17"
+    },
+    {
+      "file": "lecture/lec04-analysis-of-algorithms-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22422954",
+      "sha256": "681c41a85e7f71aaf65a148867571388e846a0595c9b4a3878a97a66faf88e39",
+      "bytes": 172557,
+      "pages": 17,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Analysis of Algorithms Junhao Gan Week 2 Lecture 4 Semester 1, 2025 1/17 Algorithms and Complexity (Sem 1, 2025) Analysis of Algorithms © University of Melbourne 1 / 17"
+    },
+    {
+      "file": "lecture/lec05-brute-force-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22558080",
+      "sha256": "98a41cedf1e367833993b6fb7308148b52d52b0eba4f551a75489316e7505da4",
+      "bytes": 106539,
+      "pages": 25,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Brute Force Methods Junhao Gan Week 3 Lecture 5 Semester 1, 2025 1/25 Algorithms and Complexity (Sem 1, 2025) Brute Force Methods © University of Melbourne 1 / 25"
+    },
+    {
+      "file": "lecture/lec05-brute-force-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22498738",
+      "sha256": "04b0fb20a4a29a48d61c5ead56a0fe7217ad8033711ca3de6b6ab32f577934f3",
+      "bytes": 106539,
+      "pages": 25,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Brute Force Methods Junhao Gan Week 3 Lecture 5 Semester 1, 2025 1/25 Algorithms and Complexity (Sem 1, 2025) Brute Force Methods © University of Melbourne 1 / 25"
+    },
+    {
+      "file": "lecture/lec06-recursion-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22558086",
+      "sha256": "3bdf06a65697613232c62a1b9e975cebcab89ddf5a9ad20d5e6a4f1b29799fc3",
+      "bytes": 90068,
+      "pages": 19,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Recursion Junhao Gan Week 3 Lecture 6 Semester 1, 2025 1/19 Algorithms and Complexity (Sem 1, 2025) Recursion © University of Melbourne 1 / 19"
+    },
+    {
+      "file": "lecture/lec06-recursion-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22498794",
+      "sha256": "127f161341677d0577eb207bdfe2aefa84440d715140132be268a65a5ced47f4",
+      "bytes": 90068,
+      "pages": 19,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Recursion Junhao Gan Week 3 Lecture 6 Semester 1, 2025 1/19 Algorithms and Complexity (Sem 1, 2025) Recursion © University of Melbourne 1 / 19"
+    },
+    {
+      "file": "lecture/lec07-graph-concepts-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22642627",
+      "sha256": "3d5d87e3d35aa18db072f13282e26c9714fe85be83651e2ff52d77535cef7a76",
+      "bytes": 124534,
+      "pages": 27,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Graphs and Graph Concepts Junhao Gan Week 4 Lecture 7 Semester 1, 2025 1/27 Algorithms and Complexity (Sem 1, 2025) Graphs and Graph Concepts © University of Melbourne 1 / 27"
+    },
+    {
+      "file": "lecture/lec07-graph-concepts-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22558103",
+      "sha256": "42e1f138a3616a101bb4cec66da50193257d2efc81141cdf876c30806bb96d0c",
+      "bytes": 124534,
+      "pages": 27,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Graphs and Graph Concepts Junhao Gan Week 4 Lecture 7 Semester 1, 2025 1/27 Algorithms and Complexity (Sem 1, 2025) Graphs and Graph Concepts © University of Melbourne 1 / 27"
+    },
+    {
+      "file": "lecture/lec08-graph-traversal-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22658631",
+      "sha256": "c1a6db7693e7300e77a0bd805c253eeeab91b5edb8411369ec3c274b5c6f95b7",
+      "bytes": 119689,
+      "pages": 22,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Graph Traversal Junhao Gan Week 4 Lecture 8 Semester 1, 2025 1/22 Algorithms and Complexity (Sem 1, 2025) Graph Traversal © University of Melbourne 1 / 22"
+    },
+    {
+      "file": "lecture/lec08-graph-traversal-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22558106",
+      "sha256": "d82247ff0960da5b852b657ac603b13dacda005fcc37969528dc2ef5d0378dd3",
+      "bytes": 119862,
+      "pages": 22,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Graph Traversal Junhao Gan Week 4 Lecture 8 Semester 1, 2025 1/22 Algorithms and Complexity (Sem 1, 2025) Graph Traversal © University of Melbourne 1 / 22"
+    },
+    {
+      "file": "lecture/lec09-decrease-and-conquer-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22642606",
+      "sha256": "e6ab3343e89aad1b3dac206cf01fe3b91a58cf3f8c0e1993f7e2c6cced7d6c72",
+      "bytes": 69213,
+      "pages": 11,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Decrease-and-Conquer-by-a-Constant Junhao Gan Week 5 Lecture 9 Semester 1, 2025 1/11 Algorithms and Complexity (Sem 1, 2025) Decrease-and-Conquer © University of Melbourne 1 / 11"
+    },
+    {
+      "file": "lecture/lec10-decrease-and-conquer-2-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22642612",
+      "sha256": "6c5963dbb51996e46e1c6887008f82897d31c86910810866bb2e9ba98f569eae",
+      "bytes": 96647,
+      "pages": 19,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Decrease-and-Conquer-by-a-Factor Junhao Gan Week 5 Lecture 10 Semester 1, 2025 1/19 Algorithms and Complexity (Sem 1, 2025) Decrease-and-Conquer © University of Melbourne 1 / 19"
+    },
+    {
+      "file": "lecture/lec11-sorting-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22796827",
+      "sha256": "b91ac5f616c8bd9e9eb83c8b1f1a7e6473f890a13fcbeca91da9516c1f595f43",
+      "bytes": 171515,
+      "pages": 37,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Sorting with Divide-and-Conquer Junhao Gan Week 6 Lecture 11 Semester 1, 2025 1/37 Algorithms and Complexity (Sem 1, 2025) Sorting with Divide-and-Conquer © University of Melbourne 1 / 37"
+    },
+    {
+      "file": "lecture/lec11-sorting-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22719152",
+      "sha256": "7d5612abb2b4c2b84c197a52fdd333844573deaf226a2495681cb7f4e66573bb",
+      "bytes": 171320,
+      "pages": 37,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Sorting with Divide-and-Conquer Junhao Gan Week 6 Lecture 11 Semester 1, 2025 1/37 Algorithms and Complexity (Sem 1, 2025) Sorting with Divide-and-Conquer © University of Melbourne 1 / 37"
+    },
+    {
+      "file": "lecture/lec12-tree-traversal-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22796792",
+      "sha256": "479e1ee8cca986018c8cd191820950c81a5d8090c4924853b5362b8dfb99462b",
+      "bytes": 115675,
+      "pages": 25,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity More Divide-and-Conquer Algorithms Junhao Gan Week 6 Lecture 12 Semester 1, 2025 1/25 Algorithms and Complexity (Sem 1, 2025) More Divide-and-Conquer © University of Melbourne 1 / 25"
+    },
+    {
+      "file": "lecture/lec12-tree-traversal-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22719154",
+      "sha256": "25510efd9683cc4ff6fd681add4f21611ffe64a89d97f6f8300031362b04c9c6",
+      "bytes": 115680,
+      "pages": 25,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity More Divide-and-Conquer Algorithms Junhao Gan Week 6 Lecture 12 Semester 1, 2025 1/25 Algorithms and Complexity (Sem 1, 2025) More Divide-and-Conquer © University of Melbourne 1 / 25"
+    },
+    {
+      "file": "lecture/lec13-heap-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22981541",
+      "sha256": "ddf1cd1871f024d5910b61fbc2d0ba7d27a7938f684ead34f6812922a9062800",
+      "bytes": 106046,
+      "pages": 20,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Priority Queues, Heaps and Heapsort Junhao Gan Week 7 Lecture 13 Semester 1, 2025 1/20 Algorithms and Complexity (Sem 1, 2025) Priority Queues, Heaps and Heapsort © University of Melbourne 1 / 20"
+    },
+    {
+      "file": "lecture/lec13-heap-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22806840",
+      "sha256": "2e3bda53f26c6857baeb4bb21f0065e13eb110fe23f31adcbeca83f00c4e4b2f",
+      "bytes": 104112,
+      "pages": 19,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Priority Queues, Heaps and Heapsort Junhao Gan Week 7 Lecture 13 Semester 1, 2025 1/19 Algorithms and Complexity (Sem 1, 2025) Priority Queues, Heaps and Heapsort © University of Melbourne 1 / 19"
+    },
+    {
+      "file": "lecture/lec14-transform-and-conquer-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23167721",
+      "sha256": "c973d9fdc4cc5900ad9823f2559b70d78f4457e74e8955d4ea0903ec949e2268",
+      "bytes": 84621,
+      "pages": 19,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Transform-and-Conquer Junhao Gan Week 7 Lecture 14 Semester 1, 2025 1/19 Algorithms and Complexity (Sem 1, 2025) Transform-and-Conquer © University of Melbourne 1 / 19"
+    },
+    {
+      "file": "lecture/lec14-transform-and-conquer-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22806846",
+      "sha256": "73709a360a20a768ecea44024dbf456ba065f855cfa864d13852cd36ee56553b",
+      "bytes": 83347,
+      "pages": 19,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Transform-and-Conquer Junhao Gan Week 7 Lecture 14 Semester 1, 2025 1/19 Algorithms and Complexity (Sem 1, 2025) Transform-and-Conquer © University of Melbourne 1 / 19"
+    },
+    {
+      "file": "lecture/lec15-bst-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23167215",
+      "sha256": "9ae26a088f7b34ff1286d0fed39047426075dc26b3a9a765e83314d2a514f65f",
+      "bytes": 114168,
+      "pages": 25,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Balanced Trees Junhao Gan Week 8 Lecture 15 Semester 1, 2025 1/25 Algorithms and Complexity (Sem 1, 2025) Balanced Trees © University of Melbourne 1 / 25"
+    },
+    {
+      "file": "lecture/lec15-bst-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22981533",
+      "sha256": "517dccca6bd633527282fc1d4cb85616403ffb1a1cc37e5ca4e154478443bed6",
+      "bytes": 112239,
+      "pages": 24,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Balanced Trees Junhao Gan Week 8 Lecture 15 Semester 1, 2025 1/24 Algorithms and Complexity (Sem 1, 2025) Balanced Trees © University of Melbourne 1 / 24"
+    },
+    {
+      "file": "lecture/lec16-string-search-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23269991",
+      "sha256": "ac1283176463d2f36b63fabce974693b9cc279eb05c709e1d844ebbbce5790cd",
+      "bytes": 76786,
+      "pages": 18,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Time/Space Tradeoffs—String Search Revisited Junhao Gan Week 9 Lecture 16 Semester 1, 2025 1/18 Algorithms and Complexity (Sem 1, 2025) Time/Space Tradeoffs © University of Melbourne 1 / 18"
+    },
+    {
+      "file": "lecture/lec16-string-search-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23231986",
+      "sha256": "536f98612d58bbdb7d42a30ed5a29e0de507e27ad6f12a05889779aa41b0cfbd",
+      "bytes": 76786,
+      "pages": 18,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Time/Space Tradeoffs—String Search Revisited Junhao Gan Week 9 Lecture 16 Semester 1, 2025 1/18 Algorithms and Complexity (Sem 1, 2025) Time/Space Tradeoffs © University of Melbourne 1 / 18"
+    },
+    {
+      "file": "lecture/lec17-hash-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23269989",
+      "sha256": "fe8f10e5093811caccce3757152c03778e0e1778f656df94c95a8cbd6141aecd",
+      "bytes": 131062,
+      "pages": 33,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Hashing Junhao Gan Week 9 Lecture 17 Semester 1, 2025 1/33 Algorithms and Complexity (Sem 1, 2025) Hashing © University of Melbourne 1 / 33"
+    },
+    {
+      "file": "lecture/lec17-hash-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23231988",
+      "sha256": "3054e5adcab8488189be2ae18556007f63c69767dbfb1bc581168920db5ba184",
+      "bytes": 131060,
+      "pages": 33,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Hashing Junhao Gan Week 9 Lecture 17 Semester 1, 2025 1/33 Algorithms and Complexity (Sem 1, 2025) Hashing © University of Melbourne 1 / 33"
+    },
+    {
+      "file": "lecture/lec18-dynamic-programming-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23416167",
+      "sha256": "fd972b1b40897086586d88b5e92efc740414bc344c667f2c02c1d3779b13e29b",
+      "bytes": 81973,
+      "pages": 18,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Dynamic Programming Junhao Gan Week 10 Lecture 18 Semester 1, 2025 1/18 Algorithms and Complexity (Sem 1, 2025) Dynamic Programming © University of Melbourne 1 / 18"
+    },
+    {
+      "file": "lecture/lec18-dynamic-programming-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23316347",
+      "sha256": "e8e63c0551059f1cfbbe166c50fbb602bf2c6d2a179f101a788cbe23a74ce607",
+      "bytes": 82001,
+      "pages": 18,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Dynamic Programming Junhao Gan Week 10 Lecture 18 Semester 1, 2025 1/18 Algorithms and Complexity (Sem 1, 2025) Dynamic Programming © University of Melbourne 1 / 18"
+    },
+    {
+      "file": "lecture/lec19-transitive-closure-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23513975",
+      "sha256": "53f27c822589d9ab4d72f166b31d23413568d844b7ae5b9952fa22fc38ab54de",
+      "bytes": 127775,
+      "pages": 30,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Dynamic Programming: Warshall and Floyd Junhao Gan Week 10 Lecture 19 Semester 1, 2025 1/30 Algorithms and Complexity (Sem 1, 2025) Warshall and Floyd’s algorithms © University of Melbourne 1 / 30"
+    },
+    {
+      "file": "lecture/lec19-transitive-closure-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23316349",
+      "sha256": "a657ff7701f62d2452d6a6a235810a3ff722a4461bb13f7dfbd5d0b21525666b",
+      "bytes": 127775,
+      "pages": 30,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Dynamic Programming: Warshall and Floyd Junhao Gan Week 10 Lecture 19 Semester 1, 2025 1/30 Algorithms and Complexity (Sem 1, 2025) Warshall and Floyd’s algorithms © University of Melbourne 1 / 30"
+    },
+    {
+      "file": "lecture/lec20-prim-dijkstra-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23571811",
+      "sha256": "d959a711225d048750dcd94be296484f90055d2b096a8d0ee3344ce986df2547",
+      "bytes": 130435,
+      "pages": 25,
+      "first_page_excerpt": "Student Experience Survey The End of Subject Survey (ESS) for this subject is now open till June 8, 2025. It is much appreciated if you could spend some time to take the survey. Any comments and suggestions are welcome and will be very helpful and valuable for me to improve the teaching of this subject. 1/25 Algorithms and Complexity (Sem 1, 2025) Prim and Dijkstra © University of Melbourne 1 / 25"
+    },
+    {
+      "file": "lecture/lec20-prim-dijkstra-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23416153",
+      "sha256": "c779db5a5fe6466b04d8064bc64b78c66c09ef7e206771995a2187add28877a5",
+      "bytes": 127799,
+      "pages": 24,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Greedy Algorithms: Prim and Dijkstra Junhao Gan Week 11 Lecture 20 Semester 1, 2025 1/24 Algorithms and Complexity (Sem 1, 2025) Prim and Dijkstra © University of Melbourne 1 / 24"
+    },
+    {
+      "file": "lecture/lec21-huffman-afterclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23571814",
+      "sha256": "687edfc1d221e03ceb071cf617087cf70c9713edae3ef633abe087da11f39951",
+      "bytes": 77842,
+      "pages": 16,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Huffman Encoding for Data Compression Junhao Gan Week 12 Lecture 21 Semester 1, 2025 1/16 Algorithms and Complexity (Sem 1, 2025) Huffman Encoding © University of Melbourne 1 / 16"
+    },
+    {
+      "file": "lecture/lec21-huffman-preclass.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23513964",
+      "sha256": "5676f7da05dc73d3a0b1451e8325b101e90219292f317e826ce9b3a8509306c4",
+      "bytes": 77842,
+      "pages": 16,
+      "first_page_excerpt": "COMP90038 Algorithms and Complexity Huffman Encoding for Data Compression Junhao Gan Week 12 Lecture 21 Semester 1, 2025 1/16 Algorithms and Complexity (Sem 1, 2025) Huffman Encoding © University of Melbourne 1 / 16"
+    },
+    {
+      "file": "lecture/lec22-review.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23513965",
+      "sha256": "6ab5aa75ccb7d91dbed4e24262f209f1394b126e348f826920af24fc87f002f7",
+      "bytes": 47573,
+      "pages": 10,
+      "first_page_excerpt": "Student Experience Survey The Student Experience Survey for this subject is open and will be closed on June 8, 2025. Please spend some time to take the survey. Any comments and suggestions are welcome and will be helpful for us to improve the teaching of this subject in the future. 1/10 Algorithms and Complexity (Sem 1, 2025) Review © University of Melbourne 1 / 10"
+    },
+    {
+      "file": "tutorial/jh-week02-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22361357",
+      "sha256": "fee3c460e564946d8a9b28514bd7b6ff3bab9b8588d98af55af2d5fe88cf544e",
+      "bytes": 41422,
+      "pages": 2,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 2 (2025 Semester 1) The number of ∗ indicates the difficulty of a problem: (∗) means a bit challenging and (∗∗) means very challenging. Plan Introduce yourself to those of your classmates sitting closest to you and tell them a bit about yourself. We have a population with very different backgrounds, diffe"
+    },
+    {
+      "file": "tutorial/jh-week02-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22361358",
+      "sha256": "e1b4e0406d57f38fd8c7b974a2aba1ed0c1f788a7c59c58bf107f83baeb4635b",
+      "bytes": 60823,
+      "pages": 5,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 2 (2025 Semester 1) The number of ∗ indicates the difficulty of a problem: (∗) means a bit challenging and (∗∗) means very challenging. Plan Introduce yourself to those of your classmates sitting closest to you and tell them a bit about yourself. We have a population with very different backgrounds, diffe"
+    },
+    {
+      "file": "tutorial/jh-week03-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22456159",
+      "sha256": "db419410752ac87ae7d204b7efb4cde33c556d243614d613dc8634d86bd1c17e",
+      "bytes": 40710,
+      "pages": 2,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 3 (2025 Semester 1) The number of ∗ indicates the difficulty of a problem: (∗) means a bit challenging and (∗∗) means very challenging. Problem 1. Show that loga n ∈ O(log2 n) holds for all constant a > 1. Problem 2. Prove that nǫ ∈ Ω(ln n) holds for all constant ǫ > 0. Problem 3. As we will see later in "
+    },
+    {
+      "file": "tutorial/jh-week03-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22456161",
+      "sha256": "a8a3f87af8c2aaff7fff7dd3c2fc4a7a52ffb52017af9e81ce311eba6075d5c6",
+      "bytes": 59053,
+      "pages": 4,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 3 (2025 Semester 1) The number of ∗ indicates the difficulty of a problem: (∗) means a bit challenging and (∗∗) means very challenging. Problem 1. Show that loga n ∈ O(log2 n) holds for all constant a > 1. Solution. According to the definition of big-O notation, we need to find two positive constants c1 a"
+    },
+    {
+      "file": "tutorial/jh-week04-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22498807",
+      "sha256": "4a59a8df45dbc1a56cc923252956733c250405aaf4054fefe01bd20422cfb44e",
+      "bytes": 41211,
+      "pages": 2,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 4 (2025 Semester 1) Problem 1. For each of the following pairs f , g, determine whether f (n) ∈ O(g(n)), or g(n) ∈ O(f (n)), or both: √ (a) f (n) = (n2 + 1 − n2 )/2 and g(n) = 2n (b) f (n) = n2 + n n and g(n) = n2 + n √ √ (d) f (n) = n + log n and g(n) = n (c) f (n) = n log n and g(n) = n4 n (e) f (n) = 4"
+    },
+    {
+      "file": "tutorial/jh-week04-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22498808",
+      "sha256": "04e709ac811ed4c00f7e6a41090e27e6657758b356babc2e7f121437b1da21c9",
+      "bytes": 48927,
+      "pages": 4,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 4 (2025 Semester 1) Problem 1. For each of the following pairs f , g, determine whether f (n) ∈ O(g(n)), or g(n) ∈ O(f (n)), or both: (a) f (n) = (n2 + 1 − n2 )/2 and g(n) = 2n √ (c) f (n) = n log n and g(n) = n4 n √ (b) f (n) = n2 + n n and g(n) = n2 + n √ (d) f (n) = n + log n and g(n) = n (e) f (n) = 4"
+    },
+    {
+      "file": "tutorial/jh-week05-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22558132",
+      "sha256": "88e21f7d209083835156432563c695c6e531005a71e571a82bb0991d672963dc",
+      "bytes": 28915,
+      "pages": 1,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 5 (2025 Semester 1) Problem 1. Draw the undirected graph whose adjacency matrix is a b c d e a 0 1 1 0 0 b 1 0 1 0 0 c 1 1 0 1 1 d 0 0 1 0 1 e 0 0 1 1 0 Starting at node a, traverse the graph by depth-first search, resolving ties by taking nodes in alphabetical order. Problem 2. Consider this graph: f d g"
+    },
+    {
+      "file": "tutorial/jh-week05-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22558133",
+      "sha256": "4b45e30087d2afccab809119ec1d669b72919f4141acdc33a1edb294077c47ab",
+      "bytes": 52204,
+      "pages": 4,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 5 (2025 Semester 1) Problem 1. Draw the undirected graph whose adjacency matrix is a 0 1 1 0 0 a b c d e b 1 0 1 0 0 c 1 1 0 1 1 d 0 0 1 0 1 e 0 0 1 1 0 Starting at node a, traverse the graph by depth-first search, resolving ties by taking nodes in alphabetical order. a d Solution. Here is the graph: c e "
+    },
+    {
+      "file": "tutorial/jh-week06-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22642677",
+      "sha256": "566df0f23cb65bad4ab065f0c18053060cf97d6abffbac32cb195f42494c782d",
+      "bytes": 37163,
+      "pages": 2,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 6 (2025 Semester 1) Problem 1. Prove that the topological sorting algorithm by DFS introduced in class is correct. Hint: To show the correctness of our DFS-based topological sorting algorithm, it suffices to prove the following claim: Claim 1. In DFS traversal on a DAG, all the nodes that are reachable fr"
+    },
+    {
+      "file": "tutorial/jh-week06-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22642678",
+      "sha256": "e2246982e7fa6c6645b194eb3b3c93b2f4eb5f95bddf541a35596cb6695c024d",
+      "bytes": 62487,
+      "pages": 5,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 6 (2025 Semester 1) Problem 1. Prove that the topological sorting algorithm by DFS introduced in class is correct. Hint: To show the correctness of our DFS-based topological sorting algorithm, it suffices to prove the following claim: Claim 1. In DFS traversal on a DAG, all the nodes that are reachable fr"
+    },
+    {
+      "file": "tutorial/jh-week07-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22719174",
+      "sha256": "49033345db52baadca395428b644c09184912fda7e0029c4e805e5810918967f",
+      "bytes": 29539,
+      "pages": 1,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 7 (2025 Semester 1) Problem 1. Trace how QuickSelect finds the median of 39, 23, 12, 77, 48, 61, 55. Problem 2. We can use QuickSelect to find the smallest element of an unsorted array. How does it compare to the more obvious way of solving the problem, namely scanning through the array and maintaining a "
+    },
+    {
+      "file": "tutorial/jh-week07-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22719175",
+      "sha256": "d105ce896a6220ce26810fafc815cb36d36be87975bdf40645d2a48e53336d71",
+      "bytes": 48360,
+      "pages": 3,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 7 (2025 Semester 1) Problem 1. Trace how QuickSelect finds the median of 39, 23, 12, 77, 48, 61, 55. Solution. We are after the median, and for an array of length 7, that means the fourth smallest element. Hence the algorithm’s k is 4. QuickSelect will keep probing until it manages to place the pivot in p"
+    },
+    {
+      "file": "tutorial/jh-week08-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22806888",
+      "sha256": "6ce8e0607cdcf5d686007bd84c481742afe7dc838cdf75abdbfa2ec9508b3e8e",
+      "bytes": 29617,
+      "pages": 1,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 8 (2025 Semester 1) Problem 1. A tromino is an L-shaped tile made up of three 1 × 1 squares (green/hatched in the diagram below). You are given a 2n × 2n chessboard with one missing square (red/grey in the diagram below). The task is to cover the remaining squares with trominos, without any overlap. Desig"
+    },
+    {
+      "file": "tutorial/jh-week08-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22806889",
+      "sha256": "db13d77ce4d7be422099997c5b66f32554431d1fa737a3035b5229ded8de8b96",
+      "bytes": 43351,
+      "pages": 3,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 8 (2025 Semester 1) Problem 1. A tromino is an L-shaped tile made up of three 1 × 1 squares (green/hatched in the diagram below). You are given a 2n × 2n chessboard with one missing square (red/grey in the diagram below). The task is to cover the remaining squares with trominos, without any overlap. Desig"
+    },
+    {
+      "file": "tutorial/jh-week09-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22981558",
+      "sha256": "aa8ea2971c3880ae8671a002b14115c562a56f15dfbde7b19d55d02c2697503c",
+      "bytes": 25986,
+      "pages": 1,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 9 (2025 Semester 1) Problem 1. Given a list of n distinct integers and a sequence of n boxes with fixed inequality signs between them, design an algorithm to place the numbers into the boxes while satisfying each inequality. For example, given 4, 6, 3, 1, 8 and the boxes < > < < , we can place the numbers"
+    },
+    {
+      "file": "tutorial/jh-week09-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22981559",
+      "sha256": "6351e17df3dfe2359cb5d5b2dfff3c89b1aec461a5ddd42a044c7dc6108269ba",
+      "bytes": 32151,
+      "pages": 2,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 9 (2025 Semester 1) Problem 1. Given a list of n distinct integers and a sequence of n boxes with fixed inequality signs between them, design an algorithm to place the numbers into the boxes while satisfying each < > < < , we can place inequality. For example, given 4, 6, 3, 1, 8 and the boxes the numbers"
+    },
+    {
+      "file": "tutorial/jh-week10-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23232078",
+      "sha256": "806d1bbf1100097d87c20375fb89bb9cd5cde8b8f06a1636686b48385b01b956",
+      "bytes": 21370,
+      "pages": 1,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 10 (2025 Semester 1) Problem 1. Use Horspool’s algorithm to search for the pattern GORE in the string ALGORITHM. Problem 2. How many character comparisons does it take Horspool’s algorithm to decide that CAB is not found in ABRACADABRA? How many to find that DRAC is not there? Problem 3. How many characte"
+    },
+    {
+      "file": "tutorial/jh-week10-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23232079",
+      "sha256": "8b2b110ae3c10f205f750f8ff09dca5ebe8b2875ce8de67c6a988dda02523983",
+      "bytes": 29894,
+      "pages": 2,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 10 (2025 Semester 1) Problem 1. Use Horspool’s algorithm to search for the pattern GORE in the string ALGORITHM. Solution. For that pattern, we calculate the shifts: S[G] = 3, S[O] = 2, S[R] = 1, S[x] = 4 for all other letters x. So the first shift (when the string’s O fails to match E) is 2 positions, br"
+    },
+    {
+      "file": "tutorial/jh-week11-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23316354",
+      "sha256": "fe7dc4adcb614d2321387e98e872e9fe3cd7467956062165b1738d1cef9715a3",
+      "bytes": 30762,
+      "pages": 1,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 11 (2025 Semester 1) Problem 1. Use the dynamic-programming algorithm developed in Lecture 18 to solve this instance of the coin-row problem: 20, 50, 20, 5, 10, 20, 5. Problem 2. In Week 12, we will meet the concept of problem reduction. This question prepares you for that. First, when we talk about the l"
+    },
+    {
+      "file": "tutorial/jh-week11-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23316355",
+      "sha256": "47fb019466b11756c94823d5f52e1717a4b7f644359336c08df7ab6e85937723",
+      "bytes": 46905,
+      "pages": 3,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 11 (2025 Semester 1) Problem 1. Use the dynamic-programming algorithm developed in Lecture 18 to solve this instance of the coin-row problem: 20, 50, 20, 5, 10, 20, 5. Solution. We build the table S of optimal values as follows: i: 0 1 2 3 4 5 6 7 C[i] : − 20 50 20 5 10 20 5 S[i] : 0 20 50 50 55 60 75 75 "
+    },
+    {
+      "file": "tutorial/jh-week12-questions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23416325",
+      "sha256": "bc85471547a10c2f08d39e737a4cbd09fcfd33edb93cec1de12ff2a4494b3c7d",
+      "bytes": 43425,
+      "pages": 2,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 12 (2025 Semester 1) Plan Sadly this is the last tutorial session; but at least there is still a final exam to look forward to. : ) Problem 1. Floyd’s algorithm sometimes works even if we allow negative weights in a dag. 4 3 a a b b -3 -4 For example, for the left graph above, it will produce these succes"
+    },
+    {
+      "file": "tutorial/jh-week12-solutions.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23416326",
+      "sha256": "dae1404a17ef43fd40b9ce04bef00dc220e7d5d68d1d2eff2e975e88fc00c815",
+      "bytes": 52479,
+      "pages": 4,
+      "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 12 (2025 Semester 1) Plan Sadly this is the last tutorial session; but at least there is still a final exam to look forward to. : ) Problem 1. Floyd’s algorithm sometimes works even if we allow negative weights in a dag. 4 3 a a b b -3 -4 For example, for the left graph above, it will produce these succes"
+    }
+  ]
+}

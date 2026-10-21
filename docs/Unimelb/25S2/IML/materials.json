@@ -1,0 +1,192 @@
+{
+  "recovered_on": "2026-10-21",
+  "timezone": "Australia/Melbourne",
+  "subject": "COMP90049",
+  "term": "25S2",
+  "canvas_course": "https://canvas.lms.unimelb.edu.au/courses/213823",
+  "scope": "Downloaded source materials; notes not imported or expanded.",
+  "files": [
+    {
+      "file": "lecture/01-introduction.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24282280",
+      "sha256": "7123fd60315cbe849561c3d1f8f56fa459f32eed2a7d9aad79bbc9e95d59766f",
+      "bytes": 1514366,
+      "pages": 46,
+      "first_page_excerpt": "Lecture 1: Introduction and Maths Review COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Copyright @ University of Melbourne 2025. All rights reserved. No part of the publication may be rep roduced in any form by print, photoprint, microfilm or any other means without written per mission from the author. Acknowledgement: Jean Honorio, Lea Frermann, Lida Rashidi 1"
+    },
+    {
+      "file": "lecture/02-mlconcepts.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24272796",
+      "sha256": "beadfefb97fe844178a47bc94e30c3a2a1775f47ee5a0dfbb68a11ae8930cc3c",
+      "bytes": 1064665,
+      "pages": 55,
+      "first_page_excerpt": "Lecture 2: Machine Learning Concepts COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Copyright @ University of Melbourne 2025. All rights reserved. No part of the publication may be rep roduced in any form by print, photoprint, microfilm or any other means without written per mission from the author. Acknowledgement: Lea Frermann, Jean Honorio, Lida Rashidi, Kris Ehinger"
+    },
+    {
+      "file": "lecture/03-knn.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24311587",
+      "sha256": "4afa4c19952ce74df5e89cef0ced852c3ee19e411e72cbc5937f84f33af7f0d6",
+      "bytes": 819639,
+      "pages": 47,
+      "first_page_excerpt": "Lecture 3: K-Nearest Neighbors COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Copyright @ University of Melbou rne 202 2. All righ ts reserved. No par t of the publication may be reproduced in any form by prin t, pho top rint, microfilm or any other means without written permission from the author. Acknowledgement: Lea Frermann, Kris Ehinger 1"
+    },
+    {
+      "file": "lecture/04-probability theory and modelling.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24339112",
+      "sha256": "a61e550f628924cf3f166727258e80eb8fde7831a1b42027b2852c6daf820cef",
+      "bytes": 1225707,
+      "pages": 51,
+      "first_page_excerpt": "Lecture 4: Probability Theory and Probabilistic Modeling COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Copyright @ Unive rsity of Melbour ne 2022. All rights reserved. No part of the publication may be rep roduced in any form by prin t, pho top rint, microfilm or any other means without written per mission from the author. Acknowledgement: Kris Ehinger 1"
+    },
+    {
+      "file": "lecture/05-decisiontrees.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24393282",
+      "sha256": "4feb5d3d8a25cd14960773dc4cbf70bd2a99b07512ee5472b3a12b362a70c6ad",
+      "bytes": 2018355,
+      "pages": 116,
+      "first_page_excerpt": "Lecture 5: Decision Trees COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Copyright @ University of Melbou rne 2025. All righ ts reserved. No par t of the publication may be reproduced in any form by prin t, pho top rint, microfilm or any other means without written permission from the author. Acknowledgement: Lea Frermann, Lida Rashidi, Kris Ehinger 1"
+    },
+    {
+      "file": "lecture/06-naivebayes.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24405827",
+      "sha256": "952855f30e4652fc8ca52eae314c48da030cd14d49f884eadedc49459bb2258c",
+      "bytes": 990883,
+      "pages": 52,
+      "first_page_excerpt": "Lecture 6: Naïve Bayes COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Copyright @ University of Melbou rne 2025. All righ ts reserved. No par t of the publication may be reproduced in any form by prin t, photoprint, microfilm or any other means without written permission from the author. Acknowledgement: Lea Frermann, Lida Rashidi, Kris Ehinger 1"
+    },
+    {
+      "file": "lecture/07-linearregression.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24436301",
+      "sha256": "34514307c0c949c089d12a83d8b95107015330d673328ca2cba2a4e901aa982f",
+      "bytes": 1144830,
+      "pages": 40,
+      "first_page_excerpt": "Lecture 7: Linear Regression and Optimisation COMP90049 Introduction to Machine Learning Semester 2, 2025 Lea Frermann, CIS Copyright @ University of Melbourne 2025. All rights reserved. No part of the publication may be reproduced in any form by print, photoprint, microfilm or any other means without written permission from the author. Acknowledgement: Lida Rashidi, Kris Ehinger 1"
+    },
+    {
+      "file": "lecture/08-logisticregression.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24486825",
+      "sha256": "f5c533eff55cfa9b28b2e11ec4cbf120a9543080edf5e2e91a2851d35cb401a4",
+      "bytes": 1071910,
+      "pages": 48,
+      "first_page_excerpt": "Lecture 8: Iterative Optimization & Logistic Regression COMP90049 Introduction to Machine Learning Semester 2, 2025 Lea Frermann, CIS Copyright @ Unive rsity of Melbour ne 2025. All rights reserved. No part of the publication may be rep roduced in any form by prin t, pho top rint, microfilm or any other means without written per mission from the author. 1"
+    },
+    {
+      "file": "lecture/08-logisticregression.pptx",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24486824",
+      "sha256": "e6da9a5b6a47cf86a469b466f157d96d332c11d054385012f6e084bb441b598a",
+      "bytes": 4930367
+    },
+    {
+      "file": "lecture/09-svm-1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24550912",
+      "sha256": "59311ae479cd0adb7353f59a742eab6c05978f7166584b13f8433ebe020d102d",
+      "bytes": 1147639,
+      "pages": 45,
+      "first_page_excerpt": "Lecture 9: Support Vector Machines COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Acknowledgement: Jean Honorio, based on slides by Tommi Jaakkola, MIT CSAIL 1"
+    },
+    {
+      "file": "lecture/10-svm-2.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24577974",
+      "sha256": "7b844d6d4d6479fa1269b6412f8f3cd529a29f3b15d668920a22b958d3454120",
+      "bytes": 949716,
+      "pages": 38,
+      "first_page_excerpt": "Lecture 10: Support Vector Machines – Extensions and Applications COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Acknowledgement: Jean Honorio based on slides by Tommi Jaakkola, MIT CSAIL 1"
+    },
+    {
+      "file": "lecture/11-evaluation-1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24608849",
+      "sha256": "c2956bdbca920fba3ff76a76e6bdda77ccc54f5204cd723e3a3ac5630ba496c4",
+      "bytes": 1102990,
+      "pages": 61,
+      "first_page_excerpt": "Lecture 11: Evaluation COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Copyright @ University of Melbourne 2025. All rights reserved. No part of the publication may be reproduced in any form by print, photoprint, microfilm or any other means without written permission from the author. Acknowledgement: Jean Honorio, Lea Frermann, Lida Rashidi, Kris Ehinger 1"
+    },
+    {
+      "file": "lecture/12-evaluation-2.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24642152",
+      "sha256": "6250b583a1f27319dbdd0c74d2e8d877918cb7b51ad93d1637a4ed6e0aca2e66",
+      "bytes": 1576152,
+      "pages": 47,
+      "first_page_excerpt": "Lecture 12: Evaluation (Part 2) COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Copyright @ University of Melbou rne 2025. All righ ts reserved. No par t of the publication may be rep roduced in any form by prin t, pho top rint, microfilm or any other means without written per mission from the author. Acknowledgement: Jean Honorio , Lea Frermann, Lida Rashidi, Kris Ehing"
+    },
+    {
+      "file": "lecture/13-featureselection.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24842006",
+      "sha256": "a832f8e79c4f1cfba844bec2fbeaf9c2e029463e6714b68f1a440c6ab5b648f7",
+      "bytes": 881435,
+      "pages": 44,
+      "first_page_excerpt": "Lecture 13: Feature Selection COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Acknowledgement: Jean Honorio, based by Isabelle Guyon, Paris-Sud University slides 1"
+    },
+    {
+      "file": "lecture/14-perceptron.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24869870",
+      "sha256": "0c4dbc896f56a568f91206edc8509ea1ac1f2bcd9d1c1239ee0089436053184b",
+      "bytes": 755695,
+      "pages": 51,
+      "first_page_excerpt": "Lecture 14: The Perceptron COMP90049 Introduction to Machine Learning Semester 2, 2025 Ting Dang, CIS Copyright @ Unive rsity of Melbour ne 2025. All rights reserved. No part of the publication may be rep roduced in any form by prin t, pho top rint, microfilm or any other means without written per mission from the author. Acknowledgement: Jean Honorio 1"
+    },
+    {
+      "file": "lecture/15_Neural_Networks.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24937507",
+      "sha256": "9c6cd1aa854090229649aba18659c6ed4fa310447b1cd7899cf005765c97c263",
+      "bytes": 1546802,
+      "pages": 47,
+      "first_page_excerpt": "Lecture 16: Neural Networks COMP90049 Introduction to Machine Learning Semester 2, 2025 Yulia Otmakhova, CIS Acknowledgments: Lea Frermann Copyright @ University of Melbourne 2025. All rights reserved. No part of the publication may be reproduced in any form by print, photoprint, microfilm or any other means without written permission from the author. 1"
+    },
+    {
+      "file": "lecture/16-backprop.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/24958953",
+      "sha256": "4281ea0ff9f45d5091c7b6617280efc2d460eaf80bdb9818e9909124da91623f",
+      "bytes": 1210578,
+      "pages": 43,
+      "first_page_excerpt": "Lecture 16: Activation functions and Backpropagation COMP90049 Introduction to Machine Learning Semester 2, 2025 Yulia Otmakhova, CIS Copyri ght @ University of Melbourne 2025. Al l ri ghts reserved. No part of the publication may be reproduced in any form by pri nt, photo print , microfilm or any other means without wri tten permission fro m the author. Acknowledgement: based on slides by Lea Fre"
+    },
+    {
+      "file": "lecture/17-academic_writing.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/25006962",
+      "sha256": "f7d000aa6a418e00be35059ea039bcd5bd83e25d025b04374c0d80ad1a1be95a",
+      "bytes": 1665041,
+      "pages": 45,
+      "first_page_excerpt": "COMP90049 Introduction to Machine Learning Academic Skills Report writing Dr Jade Sleeman Academic Skills Learning Strategist"
+    },
+    {
+      "file": "lecture/18-unsupervised.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/25034955",
+      "sha256": "97c6f3a08d3e75210f918f475d1c0aadda0a8a29a23e00afe7ea74ab8b1b5535",
+      "bytes": 2617695,
+      "pages": 98,
+      "first_page_excerpt": "Lecture 19: Unsupervised Learning COMP90049 Introduction to Machine Learning Semester 2, 2025 Yulia Otmakhova, CIS Copyright @ University of Melbou rne 2024. All righ ts reserved. No par t of the publication may be rep roduced in any form by prin t, pho top rint, microfilm or any other means without written per mission from the author. 1"
+    },
+    {
+      "file": "lecture/19-semisupervised.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/25138146",
+      "sha256": "4f68239bfa1ae03c734beb58664a7a883bd5314fc64a063e50f4e98e40da780c",
+      "bytes": 1382236,
+      "pages": 55,
+      "first_page_excerpt": "Lecture 19: Semi-Supervised and Active Learning COMP90049 Semester 2, 2025 Yulia Otmakhova, CIS Copyright @ University of Melbou rne 2025. All righ ts reserved. No par t of the publication may be rep roduced in any form by prin t, pho top rint, microfilm or any other means without written per mission from the author."
+    },
+    {
+      "file": "lecture/20-ensembles.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/25138139",
+      "sha256": "33629bdbf1b231cc484ef1c5f7ada181545bfd9c47d3a4e6003ae2b6fe7201fd",
+      "bytes": 1138197,
+      "pages": 48,
+      "first_page_excerpt": "Lecture 20: Ensemble Learning COMP90049 Semester 2, 2025 Yulia Otmakhova, CIS Copyright @ University of Melbou rne 2025. All righ ts reserved. No par t of the publication may be rep roduced in any form by prin t, pho top rint, microfilm or any other means without written per mission from the author. Acknowledgement: Le a Fre rma nn, Hasti S ama di, Jeremy Nich olso n, Tim Bald win & Kar in Verspoo"
+    },
+    {
+      "file": "lecture/21-bias-fairness.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/25185345",
+      "sha256": "f4a1edf8063426663ebc4141a7a6376523f6ea47d13246904d06dad487a70e18",
+      "bytes": 1504689,
+      "pages": 50,
+      "first_page_excerpt": "Lecture 21: Measuring and Mitigating Algorithmic Bias COMP90049 Introduction to Machine Learning Semester 2, 2025 Yulia Otmakhova Copyright @ University of Melbou rne 2025. All righ ts reserved. No par t of the publication may be rep roduced in any form by prin t, pho top rint, microfilm or any other means without written per mission from the author. Acknowledgement: Lea Frermann 1"
+    },
+    {
+      "file": "lecture/22-anomalydetection.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213823/files/25203351",
+      "sha256": "17f382b5aa8783fa3b304ad7ba31363bb66437a59fbd413d393e4ae9c2ad6474",
+      "bytes": 1145948,
+      "pages": 53,
+      "first_page_excerpt": "Lecture 22: Anomaly Detection COMP90049 Semester 2, 2025 Yulia Otmakhova, CIS Copyright @ University of Melbou rne 2025. All righ ts reserved. No par t of the publication may be rep roduced in any form by prin t, pho top rint, microfilm or any other means without written per mission from the author."
+    }
+  ]
+}
