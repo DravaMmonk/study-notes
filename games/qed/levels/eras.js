@@ -1,6 +1,7 @@
 // 《证明完毕》's course by era (games/DESIGN.md): one proof machine per era. Era 0 has none: a proposition is checked
 // by its truth table. Mark I proves everything from Detach and two axioms, slowly; its topic rewrites a proof under a
 // hypothesis into one without it (the deduction theorem), which Mark II then has built in as the assumption box.
+// Parts go with the machine: Mark II keeps only Detach, and leaves K, S and the lemmas built from them behind.
 const T = (zh, en) => ({ zh, en })
 
 export const ERAS = [
@@ -18,7 +19,7 @@ export const ERAS = [
     chapter: { title: T('初号', 'Mark I'), question: T('只靠一条规则和两条公理，能证出什么？', 'What can one rule and two axioms prove?') },
   },
   {
-    id: 'mk2', machine: 'mk2',
+    id: 'mk2', machine: 'mk2', keeps: ['mp'],
     foundation: ['box', 'and', 'or', 'cases', 'bot'],
     practice: ['swap', 'contra', 'demorgan', 'raa'],
     topics: [{ id: 'knights', code: 'K', after: 'raa', levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
