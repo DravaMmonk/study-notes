@@ -2,16 +2,18 @@
 // its goal and its naive one does not; every goal the reference proves has no countermodel on small domains (a level
 // whose goal is false would be caught), and a level that asks for a countermodel (`unprovable`) has one. A truth-table
 // level's formulas parse and its task can be done: a `counter` formula has a false row, a `valid` level mixes both.
-// Every letter a level shows has its everyday sentence, and every proof level comes as test cases (course.js).
+// Every letter a level shows has its everyday sentence, and every proof level comes as test cases (course.js). No proof
+// level is one use of a lemma it carries away from done.
+import { reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel, withHidden } from '../../engine/tests.js'
 import { parse } from './formula.js'
 import { countermodel } from './models.js'
-import { LOGIC_TESTS } from './proof.js'
+import { LOGIC_TESTS, lemmaGives } from './proof.js'
 import { lettersOf, tautology } from './truth.js'
 
-/** spec: { levels }. Returns [{ text, fail? }]. */
-export function validate({ levels }) {
+/** spec: { levels, course }. Returns [{ text, fail? }]. */
+export function validate({ levels, course }) {
   const out = []
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words)) {
@@ -35,6 +37,11 @@ export function validate({ levels }) {
       if (!level.unprovable && m) out.push({ fail: true, text: `${level.id}: ${test.goal} has a countermodel, so no proof can exist` })
     }
     if (level.unprovable) { out.push({ text: `${level.id} ${keyOf(level.title)}: countermodel found` }); continue }
+    const carried = level.lemmas ? reach(course, { id: level.id }).filter((p) => level.lemmas[p] && course.builder(p) !== level.id) : []
+    for (const p of carried) {
+      const gives = (t) => lemmaGives(level.lemmas[p], Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }))
+      if (level.tests.every(gives)) out.push({ fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
+    }
     const good = runLevel(LOGIC_TESTS, level, level.solution)
     out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: solution ${good.pass ? 'PASS' : `FAIL ${good.results.map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} steps]` })
     if (level.naive) {
