@@ -56,6 +56,11 @@ problems in 《证明完毕》, see `games/DESIGN.md` §11):
   "上一关") uses the level's prerequisites, never the flat play order.
 - **Renumbering needs a save migration** (§2): renamed ids, flags now set by another level, new intro levels
   marked passed when a later one is.
+- **Level tree shape.** The map tree is at most three columns wide, at most three levels per row. A parallel set
+  (`branches`) has at most three branches; split more into two sets in sequence. An optional branch does not get
+  its own outward column: `LevelMap.jsx` drops it into the first free rows inside the existing columns below its
+  anchor. Check the map in a browser after reordering; if a branch lands far below its anchor, pick another
+  anchor (`after`) that has the same prerequisites.
 - The usual pitfalls in §8: one new idea per level, no orphan levels, intro text that does not give the answer,
   topics that are one problem growing, challenges that are hard by insight rather than by tedium.
 
