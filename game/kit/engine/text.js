@@ -4,7 +4,7 @@
 import { isPair } from '../shell/i18n.js'
 
 const HAN = /\p{Script=Han}/u
-const SKIP = new Set(['solution', 'naive', 'alsoFails', 'boards'])
+const SKIP = new Set(['solution', 'naive', 'alsoFails'])
 
 /** Problems with the text inside `value`, each as '<path> …'. */
 export function untranslated(value, path, out = [], visited = new Set()) {

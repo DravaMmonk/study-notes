@@ -309,12 +309,24 @@
 .wiki.is-phone .demo-panel { position: sticky; z-index: 6; bottom: 0; max-height: 44dvh; overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 -12px 24px -16px rgba(0, 0, 0, .35); }
 .wiki-article .demo-panel p { max-width: none; margin: 0; color: var(--muted); font: 13px/1.55 var(--sans); }
 
-/* The breadcrumb over a board inside a board (BoardTrail.jsx). */
-.board-trail { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; font: 500 13px/1.4 var(--font-ui, inherit); color: var(--muted); padding: 6px 2px; }
-.board-trail button { border: 0; background: none; padding: 2px 4px; border-radius: 4px; color: var(--accent); cursor: pointer; }
-.board-trail button:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
-.board-trail b { color: var(--ink); font-weight: 600; padding: 2px 4px; }
-.board-trail-step { display: inline-flex; align-items: center; gap: 2px; }
+/* A frame (frames.js): a card with regions under its body, where cards sit. Its backdrop is drawn under the wires
+   (z-index -1 in the board's layer), so the wires inside it show; its own head and ports sit on top. */
+.node.is-frame { background: none; box-shadow: none; animation: none; padding-bottom: 8px; }
+.frame-back { position: absolute; z-index: -1; inset: 0; border-radius: 12px; background: color-mix(in srgb, var(--fam, var(--accent)) 5%, var(--paper)); box-shadow: var(--card), inset 0 0 0 1.5px color-mix(in srgb, var(--fam, var(--accent)) 35%, transparent); transition: box-shadow 180ms ease; }
+.node.is-frame.is-selected > .frame-back { box-shadow: var(--card-lift), inset 0 0 0 1.5px color-mix(in srgb, var(--fam, var(--accent)) 60%, transparent); }
+.frame-fold { width: 20px; height: 20px; margin-right: -3px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 5px; color: var(--muted); background: none; cursor: pointer; }
+.frame-fold:hover { color: var(--ink); background: var(--hover); }
+.frame-regions { margin: 8px 10px 0; display: grid; gap: 8px; }
+.frame-region { border-radius: 10px; outline: 1.5px dashed color-mix(in srgb, var(--fam, var(--accent)) 40%, var(--rule)); outline-offset: -1px; transition: outline-color 160ms ease, background 160ms ease; }
+.frame-region.is-target { outline-style: solid; outline-color: color-mix(in srgb, var(--accent) 70%, transparent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.frame-region-head { position: relative; min-height: 28px; padding: 4px 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; border-bottom: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); font-size: 11.5px; color: var(--muted); }
+.frame-region-name { font-weight: 600; color: var(--body, var(--ink)); }
+.frame-region-result { margin-left: auto; font-family: var(--mono); font-size: 10px; }
+.frame-region-head .port { top: 50%; margin-top: -6px; }
+.frame-region-head .port.frame-open { left: 6px; right: auto; }
+.frame-region-head .port.frame-close { right: 6px; left: auto; }
+/* The floor cards stand on: it takes presses (to pan, or to choose it), and cards on it are placed from its corner. */
+.frame-field { position: relative; pointer-events: auto; cursor: grab; }
 
 /* A board of text (a proof's formulas, a sentence's words): the same two columns of slots, but thin blocks with each
    block's name over what it holds, so long values wrap below it instead of piling up at the top of a tall tile. */

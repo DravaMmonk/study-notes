@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { Halt, MISSING, PartError, evaluate } from './circuit.js'
-import { packed, runBoard, runInner, sink, source } from './boards.js'
+import { packed, runBoard, sink, source } from './boards.js'
 import { walk } from './machine.js'
 import { runLevel, withHidden } from './tests.js'
 
@@ -15,8 +15,8 @@ const PARTS = {
   half: { inputs: ['in'], eval: ({ in: x }) => { if (x % 2) throw new PartError({ zh: '奇数', en: 'odd' }); return x / 2 } },
   split: { inputs: ['in'], outputs: () => ['lo', 'hi'], eval: ({ in: x }, _n, _c, key) => (key === 'lo' ? x % 10 : Math.floor(x / 10)) },
   gate: { inputs: ['c', 'v'], idle: (port) => (port === 'c' ? false : null), eval: ({ c, v }) => (c ? v : null) },
-  // A part with a board inside: it runs `body` with x bound and doubles what comes out.
-  twice: { inputs: ['in'], boards: () => [{ name: 'body' }], eval: ({ in: x }, node, ctx) => 2 * runInner(ctx, node, 'body', { x }).outputs.y },
+  // A part that hands out a value of its own (`k`, from `in` alone) and reads back what was made of it (`back`).
+  loan: { inputs: ['in', 'back'], outputs: () => [null, 'k'], reads: (_n, key) => (key ? ['in'] : undefined), eval: ({ in: x, back }, _n, _c, key) => (key ? x * 10 : back + 1) },
 }
 const io = (nodes, wires) => ({ nodes: [{ id: 'in', type: 'input', params: { name: 'in' } }, { id: 'out', type: 'output', params: { name: 'out' } }, ...nodes], wires })
 const w = (text) => text.split(' ').map((s) => { const [from, to] = s.split('>'); const [id, port = 'in'] = to.split('.'); return { from, to: id, port } })
@@ -66,10 +66,9 @@ test('targets: only what they need is computed, and a halt stops it all', () => 
   assert.throws(() => evaluate(c, { parts }), Halt)
 })
 
-test('a board inside a part', () => {
-  const body = { nodes: [{ id: 'x', type: 'input', params: { name: 'x' } }, { id: 'y', type: 'output', params: { name: 'y' } }, { id: 'n', type: 'neg' }], wires: w('x>n n>y') }
-  const c = io([{ id: 't', type: 'twice', boards: { body } }], w('in>t t>out'))
-  assert.equal(runBoard(c, { parts: PARTS, bind: { in: 3 } }).outputs.out, -6)
+test('an output that reads only some ports can feed the node it comes from', () => {
+  const c = io([{ id: 'l', type: 'loan' }, { id: 'n', type: 'neg' }], w('in>l l#k>n n>l.back l>out'))
+  assert.equal(runBoard(c, { parts: PARTS, bind: { in: 3 } }).outputs.out, -29)
 })
 
 test('a packed circuit is a part', () => {

@@ -1,7 +1,6 @@
-// Boards inside boards. A circuit's own inputs and outputs are nodes named by `params.name`: a source gives what is
-// bound to its name, a sink is what the circuit gives under its name. The same circuit then serves as a level's board
-// (bound to a test's inputs), as a board inside a part (node.boards[name], bound by the part: a proof's assumption
-// box, the two lanes after a fork) and as a packed part (a solved circuit used again as one part).
+// A circuit's own inputs and outputs are nodes named by `params.name`: a source gives what is bound to its name, a
+// sink is what the circuit gives under its name. The same circuit then serves as a level's board (bound to a test's
+// inputs) and as a packed part (a solved circuit used again as one part).
 import { BROKEN, PartError, evaluate } from './circuit.js'
 
 export const nameOf = (node) => node.params?.name
@@ -21,28 +20,13 @@ export function outputsOf(circuit, parts, values) {
 
 /**
  * Evaluate a circuit with its sources bound. Returns { values, errors, outputs }, outputs by sink name.
- * Every part's ctx carries `engine` ({ parts, prepare }) so a part can run the boards inside it (runInner).
+ * Every part's ctx carries `engine` ({ parts, prepare }) so a packed part can run its circuit.
  */
 export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, targets = null }) {
   const engine = { parts, prepare }
   const { values, errors } = evaluate(circuit, { parts, prepare, targets, ctx: { ...ctx, bind, engine } })
   return { values, errors, outputs: outputsOf(circuit, parts, values) }
 }
-
-const EMPTY = { nodes: [], wires: [] }
-
-/**
- * Run the board `name` inside `node` from within its part's eval, its sources bound to `bind`. A board inside sees
- * what the board around it was bound to as well (a box in a proof can use the premises and the assumptions of the
- * boxes around it); `bind` shadows those names.
- */
-export function runInner(ctx, node, name, bind) {
-  const { parts, prepare } = ctx.engine
-  return runBoard(node.boards?.[name] ?? EMPTY, { parts, prepare, ctx, bind: { ...ctx.bind, ...bind } })
-}
-
-/** The boards a node holds: those its part names (part.boards(node) → [{ name, … }]), each as saved or empty. */
-export const boardsOf = (part, node) => (part.boards?.(node) ?? []).map((spec) => ({ ...spec, circuit: node.boards?.[spec.name] ?? EMPTY }))
 
 /**
  * A solved circuit as one part: its sources are the part's inputs, `output` the sink it gives. `circuit` is the

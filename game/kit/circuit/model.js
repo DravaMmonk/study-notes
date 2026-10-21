@@ -4,7 +4,8 @@
 //
 // A node has inputs (named ports) and one output, which may feed any number of inputs; an input takes one wire. A
 // node may have several outputs instead (`parts.outputs`): a wire from one of them starts at `<node>#<key>`. `x, y` place a card on the desktop board, `slot` a block on the phone's grid; neither changes what the
-// circuit computes. Anything else on a node (params, a value, a view) belongs to the game.
+// circuit computes. A node may sit inside a frame (`in`, `fold`: frames.js). Anything else on a node (params, a
+// value, a view) belongs to the game.
 //
 // A game describes its nodes with a `parts` object (see CanvasEditor / useSlotEditing):
 //   inputs(node) → [port]       role(node) → 'source' | 'sink' | 'part'      label(node) → text
@@ -12,9 +13,11 @@
 //   refuse(graph, from, to, port) → null, or a { zh, en } reason the wire is not allowed
 //   removable?(node) → whether the player may take it off the board (default: a part)
 //   cardWidth?(node) → px a desktop card is wide, when not the board's width (CanvasEditor)
+//   frames?(node) → [{ name, label, opens }] the regions of a frame (frames.js)
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
 import { wouldCycle } from '../graph.js'
+import { frameEdges, scopeRefusal, within } from './frames.js'
 
 // Port ids, the same on the desktop board and the phone: an output is `o|<node>`, an input `i|<node>|<port>`.
 // `id` of an output is a wire's source: a node's id, or `<node>#<key>` for one of several outputs.
@@ -50,16 +53,24 @@ export function connect(graph, id, port, from) {
   return { ...graph, wires: from ? [...wires, { from, to: id, port }] : wires }
 }
 
-export const removeNode = (graph, id) => ({ ...graph, nodes: graph.nodes.filter((n) => n.id !== id), wires: graph.wires.filter((w) => srcNode(w.from) !== id && w.to !== id) })
+/** The board without node `id`, and without whatever sits inside it (a frame's cards, frames.js), with their wires. */
+export function removeNode(graph, id) {
+  const gone = new Set([id, ...within(graph, id)])
+  return { ...graph, nodes: graph.nodes.filter((n) => !gone.has(n.id)), wires: graph.wires.filter((w) => !gone.has(srcNode(w.from)) && !gone.has(w.to)) }
+}
 export const removeWire = (graph, wire) => ({ ...graph, wires: graph.wires.filter((w) => !(w.to === wire.to && w.port === wire.port)) })
 export const moveNode = (graph, id, x, y) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, x, y } : n)) })
 
-/** The reasons every game shares for refusing a wire; a game's `refuse` adds its own (types, say) after these. */
-export function baseRefusal(graph, from, to) {
-  if (srcNode(from) === to) return { zh: '一块不能读它自己。', en: 'A block cannot read itself.' }
-  const edges = graph.wires.map((w) => [srcNode(w.from), w.to])
-  if (wouldCycle(edges, srcNode(from), to)) return { zh: '这样会绕成一个圈：这一块要等自己算完，才能算自己。', en: 'That would make a loop: this block would have to wait for itself to finish.' }
-  return null
+/**
+ * The reasons every game shares for refusing a wire; a game's `refuse` adds its own (types, say) after these. On a
+ * board with frames (`parts.frames`, frames.js) a wire also has to run inward, and a region's own output stands
+ * apart from its frame, so a frame may read back what was made from it.
+ */
+export function baseRefusal(graph, from, to, port, parts = {}) {
+  const { edges, from: start } = parts.frames ? frameEdges(graph, parts) : { edges: graph.wires.map((w) => [srcNode(w.from), w.to]), from: srcNode }
+  if (start(from) === to) return { zh: '一块不能读它自己。', en: 'A block cannot read itself.' }
+  if (wouldCycle(edges, start(from), to)) return { zh: '这样会绕成一个圈：这一块要等自己算完，才能算自己。', en: 'That would make a loop: this block would have to wait for itself to finish.' }
+  return parts.frames ? scopeRefusal(graph, parts, from, to, port) : null
 }
 
 /** Nodes in data-flow order (each after everything it reads); nodes caught in a loop come last. */
