@@ -31,7 +31,6 @@ const SHAPE = {
   or: T('一句「…或者…」', 'an “… or …”'),
   bot: T('矛盾 ⊥', 'a contradiction ⊥'),
   nn: T('一句「并非并非…」', 'a “not not …”'),
-  iff: T('一句「…当且仅当…」', 'an “… if and only if …”'),
   all: T('一句「对所有 x…」', 'a “for all x …”'),
   ex: T('一句「存在 x…」', 'a “there is an x …”'),
   eq: T('一个等式', 'an equation'),
@@ -52,8 +51,9 @@ function termOf(node, ctx = {}) {
   if (!text) throw fail('先填一个项', 'Fill in a term first')
   return parse(`${text} = ${text}`, { consts: ctx.consts ?? [] }).args[0]
 }
-// ¬A is A → ⊥ to the rules.
+// ¬A is A → ⊥ to the rules, and A ↔ B is (A → B) ∧ (B → A).
 const asImp = (f) => (f.op === '¬' ? imp(f.a, BOT) : f)
+const asAnd = (f) => (f.op === '↔' ? and(imp(f.a, f.b), imp(f.b, f.a)) : f)
 const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
 
 /** The hypothesis id of the assumption a box's region opens. */
@@ -95,12 +95,14 @@ export const RULES = {
     },
   },
   andI: { inputs: ['a', 'b'], eval: ({ a, b }) => proved(and(a.formula, b.formula), union(a, b)) },
+  // A ↔ B is (A → B) ∧ (B → A) to the rules, so splitting it gives its two directions.
   andE: {
     inputs: ['ab'],
     outputs: () => ['left', 'right'],
     eval: ({ ab }, _n, ctx, key) => {
-      if (ab.formula.op !== '∧') throw need(ctx, SHAPE.and, ab.formula)
-      return proved(key === 'right' ? ab.formula.b : ab.formula.a, ab.hyps)
+      const f = asAnd(ab.formula)
+      if (f.op !== '∧') throw need(ctx, SHAPE.and, ab.formula)
+      return proved(key === 'right' ? f.b : f.a, ab.hyps)
     },
   },
   orI: {
@@ -136,16 +138,6 @@ export const RULES = {
       const inner = f.op === '→' && same(f.b, BOT) ? asImp(f.a) : null
       if (!inner || inner.op !== '→' || !same(inner.b, BOT)) throw need(ctx, SHAPE.nn, nna.formula)
       return proved(inner.a, nna.hyps)
-    },
-  },
-  // A ↔ B gives A → B and B → A.
-  iffE: {
-    inputs: ['iff'],
-    outputs: () => ['ltr', 'rtl'],
-    eval: ({ iff }, _n, ctx, key) => {
-      const f = iff.formula
-      if (f.op !== '↔') throw need(ctx, SHAPE.iff, f)
-      return proved(key === 'rtl' ? imp(f.b, f.a) : imp(f.a, f.b), iff.hyps)
     },
   },
 
@@ -213,12 +205,14 @@ export const RULES = {
 /* ---------- lemmas: rules the player proved ---------- */
 
 // Match a schema (with schematic letters) against a formula, extending `bind`; false when they do not fit.
-function match(schema, f, bind) {
+function match(schema, f0, bind) {
   if (schema.op === 'meta') {
-    if (bind[schema.name]) return same(bind[schema.name], f)
-    bind[schema.name] = f
+    if (bind[schema.name]) return same(bind[schema.name], f0)
+    bind[schema.name] = f0
     return true
   }
+  // ¬A is A → ⊥ and A ↔ B is (A → B) ∧ (B → A) here too, whichever side writes it which way.
+  const f = schema.op === '→' ? asImp(f0) : schema.op === '∧' ? asAnd(f0) : f0
   const g = schema.op === '¬' && f.op === '→' && same(f.b, BOT) ? { op: '→', a: schema.a, b: BOT } : schema
   if (g.op !== f.op) return false
   if (g.op === 'atom') return same(g, f)

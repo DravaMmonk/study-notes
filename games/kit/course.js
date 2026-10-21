@@ -41,6 +41,8 @@
 //   carries(part, level) → bool            whether an earlier part is carried into this level (default: always)
 //   needed(level) → [part] | null          the parts its reference answer uses (null: no reference to go by)
 //   folds(level) → [part]                  parts the level's spec folds away anyway
+//   abstraction                            also audit the abstraction chain (bare-intro, unused); a course turns it on
+//                                          once its curriculum keeps it
 // })
 // reach(course, level) is every part a level can hold; usable(course, level, flags) what it holds for a player;
 // offer(course, level, flags) splits that into what the level shows and what it folds away; audit(course) lists every
@@ -64,6 +66,8 @@ export const RULE_TEXT = {
   'challenge-required': 'a level that requires a challenge',
   'challenge-naive': 'a challenge without a failing naive answer',
   'topic-finale': 'a topic level its finale’s board does not solve (the topic is not one problem growing)',
+  'bare-intro': 'a new primitive whose first level is just that part, wired to the goal',
+  unused: 'a built part that no later reference answer uses',
 }
 
 /** Roles of a level within its era. A topic of one level is just its finale. */
@@ -139,7 +143,7 @@ export function layout(eras) {
   return { order, place, requires, tracks }
 }
 
-export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], carries = () => true, needed = () => null, folds = () => [] }) {
+export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], carries = () => true, needed = () => null, folds = () => [], abstraction = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -161,7 +165,7 @@ export function defineCourse({ levels, eras = null, primitives, adds, needs, bui
   // lets through only the parts on it.
   const eraOf = (id) => (plan ? eras.findIndex((e) => e.id === plan.place.get(id)?.era) : 0)
   const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => !e.keeps || e.keeps.includes(part)) ?? true
-  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, index, builder, crosses, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -242,6 +246,13 @@ export function audit(course) {
         const optional = ['intro', 'step', 'finale', 'challenge'].includes(plan?.place.get(by)?.role)
         say(optional ? 'optional-needed' : 'built-later', level.id, p, optional ? `needs ${by}, which sits on an optional branch it does not require` : `offered where ${by}, the level that builds it, need not be solved yet`)
       }
+    }
+    // A new primitive has a lead-in: its first level asks for more than placing it and wiring it to the goal.
+    // And a part a level builds is used by a later level's reference answer. Both for courses that keep the chain.
+    if (course.abstraction) {
+      const used = course.needed(level)?.filter((p) => course.primitives.has(p) || course.needs(p))
+      for (const p of fresh) if (used?.length === 1 && course.concept(used[0]) === p) say('bare-intro', level.id, p, 'its first level is that part alone, wired to the goal')
+      for (const b of course.builds(level)) if (!levels.some((l) => course.before(level.id, l.id) && course.needed(l)?.includes(b))) say('unused', level.id, b, 'built here, and no later reference answer uses it')
     }
     if (role === 'challenge' && fresh.size) say('challenge-new', level.id, [...fresh].join(' '), 'a challenge brings nothing new')
     else if (fresh.size > 1) say('many-new', level.id, [...fresh].join(' '), `${fresh.size} new parts in one level (one new idea per level)`)

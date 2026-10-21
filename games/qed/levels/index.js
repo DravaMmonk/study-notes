@@ -15,8 +15,6 @@ export const LEMMAS = {
   chain: { name: T('串联', 'Chain'), desc: T('接进 A → B 和 B → C，直接给出 A → C。', 'Wire in A → B and B → C; it gives A → C at once.'), statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'], ports: ['A → B', 'B → C'] },
   swap: { name: T('交换', 'Swap'), desc: T('接进 A → (B → C)，给出 B → (A → C)：两个条件换个顺序。', 'Wire in A → (B → C); it gives B → (A → C): the two conditions swapped.'), statement: 'B → (A → C)', premises: ['A → (B → C)'], metas: ['A', 'B', 'C'], ports: ['A → (B → C)'] },
   merge: { name: T('合并', 'Merge'), desc: T('接进 A → (A → B)，给出 A → B：说了两遍的条件并成一遍。', 'Wire in A → (A → B); it gives A → B: a condition stated twice, stated once.'), statement: 'A → B', premises: ['A → (A → B)'], metas: ['A', 'B'], ports: ['A → (A → B)'] },
-  mt: { name: T('否定后件', 'Modus tollens'), desc: T('接进 A → B 和 ¬B，给出 ¬A：后果没发生，起因也就没发生。', 'Wire in A → B and ¬B; it gives ¬A: no effect, no cause.'), statement: '¬A', premises: ['A → B', '¬B'], metas: ['A', 'B'], ports: ['A → B', '¬B'] },
-  dni: { name: T('双重否定', 'Double negation'), desc: T('接进 A，给出 ¬¬A。', 'Wire in A; it gives ¬¬A.'), statement: '¬¬A', premises: ['A'], metas: ['A'], ports: ['A'] },
   dm: { name: T('德摩根', 'De Morgan'), desc: T('接进 ¬(A ∨ B)，给出 ¬A ∧ ¬B：两个都不成立。', 'Wire in ¬(A ∨ B); it gives ¬A ∧ ¬B: neither holds.'), statement: '¬A ∧ ¬B', premises: ['¬(A ∨ B)'], metas: ['A', 'B'], ports: ['¬(A ∨ B)'] },
   nnlem: { name: T('排中不可否定', 'Undeniable middle'), desc: T('卡片上选一句 A，直接给出 ¬¬(A ∨ ¬A)。', 'Choose a sentence A on the card; it gives ¬¬(A ∨ ¬A) at once.'), statement: '¬¬(A ∨ ¬A)', metas: ['A'], ports: [] },
   lem: { name: T('排中律', 'Excluded middle'), desc: T('卡片上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the card; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
@@ -27,7 +25,7 @@ export const LOGIC = logicCourse({
   levels: [...era0, ...era1, ...era2],
   words: WORDS,
   lemmas: LEMMAS,
-  primitives: ['mp', 'axK', 'axS', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'iffE'],
+  primitives: ['mp', 'axK', 'axS', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa'],
   // Joining and splitting ∧ come together, as one idea.
   concept: { andI: 'and', andE: 'and' },
 })
