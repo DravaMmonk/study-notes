@@ -1,6 +1,6 @@
 // A syntax game on the shared shell (../../shell): its spec becomes the shell's game description, with the syntax
 // domain's level screen (a sentence built on the kit's strip of slots, checked against a meaning graph) and its map
-// art.
+// art (the composing stick, games/stick).
 //
 //   engine/grammar.js   slots in reading order, frames, roles, agreement, case: the rules a word must keep
 //   engine/lexicon.js   a game's words, read for the grammar
@@ -8,7 +8,6 @@
 //   engine/parts.js     how a word looks: its family and features line
 //   engine/course.js    a spec read into levels, play order and the course the audit checks
 //   ui/                 the level screen (desktop and phone), the meaning graph, the sentence, the map's picture
-//   art.js              the same picture for the games hub (a plain module, no React)
 //   validate.js         every level's reference answer and traps (npm run check)
 //   syntax.test.js      the grammar, the sentence and the meaning check (npm test)
 import { BookOpenText } from 'lucide-react'

@@ -72,9 +72,8 @@ engine/lexicon.js   读入一个游戏的词库
 engine/sentence.js  小句 → 句子与语义 → 与语义图比对
 engine/parts.js     词的家族（颜色）和特征说明
 engine/course.js    规格 → 关卡、游玩顺序、课程审计（syntaxCourse）
-ui/                 关卡页（词序条、词块、语义图、句子）、地图插图
+ui/                 关卡页（词序条、词块、语义图、句子）、地图插图（排字手托，games/stick）
 game.jsx            defineSyntaxGame：规格 → 外壳要的游戏描述
-art.js              游戏列表卡片上的插图
 validate.js         npm run check：每关的参考答案和陷阱
 syntax.test.js      npm test：放词规则、读句子、语义比对
 ```

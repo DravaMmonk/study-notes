@@ -1,0 +1,6 @@
+/* Syntax Graph's composing stick on top of the shared inks (kit/anatomy.css): each place and each sort carries its word
+   class's hue (--hue, the game's wire colours); a refused place flashes the failure colour, and the brackets light in
+   the accent once the line is closed. */
+.sx-mark{fill:color-mix(in srgb,var(--fail) calc(var(--no,0) * 100%),var(--hue))}
+.sx-band{fill:none;stroke:var(--hue);stroke-width:1.8px}
+.sx-bracket{fill:none;stroke:color-mix(in srgb,var(--accent) calc(var(--done,0) * 100%),var(--anatomy-lo));stroke-width:calc(.8px + var(--done,0) * .6px)}

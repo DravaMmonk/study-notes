@@ -1,0 +1,7 @@
+<!doctype html>
+<!-- A standalone page for checking one of the games' anatomy figures (build.mjs --page=…): the hub card's frame and
+     the site's two main themes, without the rest of the hub. -->
+<html lang="en" data-theme="%THEME%"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Figure</title>
+<style>%TOKENS%
+body{margin:0;background:var(--canvas)}.art{width:min(900px,100%);margin:40px auto;aspect-ratio:2/1;display:grid;place-items:center}.art>*{width:94%}</style></head>
+<body><div class="art" id="art"></div><script type="module">import { %MOUNT% } from '%MODULE%'; %MOUNT%(document.getElementById('art'));</script></body></html>

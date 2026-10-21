@@ -1,6 +1,9 @@
-import { treeSVG } from '../art.js'
+import { useEffect, useRef } from 'react'
+import { mountStick } from '../../../../stick/stick.js'
 
-// The level map's picture: the sentence tree the first era builds (art.js, shared with the games hub's card).
+// The map's illustration: the composing stick (games/stick, a figure from the anatomy kit) setting one sentence.
 export default function Hero() {
-  return <div className="sx-hero" dangerouslySetInnerHTML={{ __html: treeSVG() }} />
+  const box = useRef(null)
+  useEffect(() => mountStick(box.current), [])
+  return <figure className="hero-fig"><div ref={box} /></figure>
 }

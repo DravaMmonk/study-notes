@@ -60,8 +60,6 @@
 .sx-stage > .run-foot { padding: 12px 0 0; border-top: 1px solid var(--hairline); background: none; }
 
 /* ---- the map's picture ---- */
-.sx-hero { width: min(100%, 560px); }
-.sx-hero svg { display: block; width: 100%; height: auto; }
 
 /* ---- the phone ---- */
 .level-phone.sx-level .sx-stage { padding: 12px 12px 0; }

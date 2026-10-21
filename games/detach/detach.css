@@ -1,0 +1,8 @@
+/* Q.E.D.'s press on top of the shared inks (kit/anatomy.css): the premises and their traces light in the accent while a
+   proof runs through them, and the goal's lamp and target light when it lands. */
+.dt-trace{fill:none;stroke:color-mix(in srgb,var(--accent) calc(var(--on,0) * 100%),var(--anatomy-faint));stroke-width:calc(.7px + var(--on,0) * .5px)}
+.dt-premise{fill:none;stroke:color-mix(in srgb,var(--accent) calc(var(--on,0) * 100%),var(--anatomy-faint));stroke-width:calc(.8px + var(--on,0) * .6px)}
+.dt-target{fill:none;stroke:color-mix(in srgb,var(--accent) calc(var(--done,0) * 100%),var(--anatomy-faint));stroke-width:calc(.8px + var(--done,0) * .7px)}
+.dt-pulse{fill:var(--accent);opacity:0;filter:drop-shadow(0 0 2.5px var(--accent))}
+.iso.an .dt-lamp{--an-glow:color-mix(in srgb,var(--accent) calc(var(--done,0) * 100%),var(--anatomy-mid))}
+.dt-lamp{filter:drop-shadow(0 0 calc(var(--done,0) * 4px) var(--accent))}
