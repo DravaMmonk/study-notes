@@ -6,7 +6,7 @@ import { parse, replaceAtoms, show } from './formula.js'
 import { say } from './notation.js'
 
 // Every rule a proof uses, in the boxes too.
-const rulesIn = (circuit) => circuit.nodes.flatMap((n) => [n.type, ...Object.values(n.boards ?? {}).flatMap(rulesIn)])
+const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
 
 /**
  * spec: {

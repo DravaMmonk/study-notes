@@ -1,35 +1,39 @@
 // 第 2 代 · 二号：假设框。演绎定理成了身体的一部分：在框里假设一句话、证出另一句，框外就得到「如果…，那么…」。
 // 每个连接词一关一个，符号到那一关才出现；骑士与无赖的专题讲岛上的人。每关是一个模式加几组测试案例（era1.js）。
-import { box, proof } from '../../kit/domains/logic/build.js'
+import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
 
-// 交换律: A ∧ B → B ∧ A, one box around the swap.
-const swapBox = box({ e: ['andE'], i: ['andI'] }, ['assume>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>out'])
+// 交换律: A ∧ B → B ∧ A, the swap inside one box.
+const swap = proof({ f: ['impI', { A: 'A ∧ B' }], e: ['andE', {}, 'f'], i: ['andI', {}, 'f'] }, ['f#body>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>f.body', 'f>goal'])
 // 逆否: (A → B) → (¬B → ¬A), three boxes deep.
 const contra = proof({
-  f: ['impI', { A: 'A → B' }, {
-    body: box({
-      g: ['impI', { A: '¬B' }, {
-        body: box({
-          h: ['impI', { A: 'A' }, { body: box({ m1: ['mp'], m2: ['mp'] }, ['f/body>m1.imp', 'assume>m1.a', 'g/body>m2.imp', 'm1>m2.a', 'm2>out'], { sees: ['f/body', 'g/body'] }) }],
-        }, ['h>out'], { sees: ['f/body'] }),
-      }],
-    }, ['g>out']),
-  }],
-}, ['f>goal'])
-// 德摩根: ¬(A ∨ B) → ¬A ∧ ¬B.
-const notEither = (side, other) => ['impI', { A: side }, { body: box({ i: ['orI', { other, side: side === 'A' ? 'right' : 'left' }], m: ['mp'] }, ['assume>i.a', 'f/body>m.imp', 'i>m.a', 'm>out'], { sees: ['f/body'] }) }]
+  f: ['impI', { A: 'A → B' }],
+  g: ['impI', { A: '¬B' }, 'f'],
+  h: ['impI', { A: 'A' }, 'g'],
+  m1: ['mp', {}, 'h'],
+  m2: ['mp', {}, 'h'],
+}, ['f#body>m1.imp', 'h#body>m1.a', 'g#body>m2.imp', 'm1>m2.a', 'm2>h.body', 'h>g.body', 'g>f.body', 'f>goal'])
+// 德摩根: ¬(A ∨ B) → ¬A ∧ ¬B, one box for each side inside the outer one.
 const deMorgan = proof({
-  f: ['impI', { A: '¬(A ∨ B)' }, { body: box({ na: notEither('A', 'B'), nb: notEither('B', 'A'), c: ['andI'] }, ['na>c.a', 'nb>c.b', 'c>out']) }],
-}, ['f>goal'])
+  f: ['impI', { A: '¬(A ∨ B)' }],
+  na: ['impI', { A: 'A' }, 'f'],
+  i: ['orI', { other: 'B', side: 'right' }, 'na'],
+  m: ['mp', {}, 'na'],
+  nb: ['impI', { A: 'B' }, 'f'],
+  i2: ['orI', { other: 'A', side: 'left' }, 'nb'],
+  m2: ['mp', {}, 'nb'],
+  c: ['andI', {}, 'f'],
+}, ['na#body>i.a', 'f#body>m.imp', 'i>m.a', 'm>na.body', 'nb#body>i2.a', 'f#body>m2.imp', 'i2>m2.a', 'm2>nb.body', 'na>c.a', 'nb>c.b', 'c>f.body', 'f>goal'])
 // Knights and knaves, one islander: A ↔ ¬A gives ⊥. From the left: A gives ¬A, so not A; from the right, then, A.
 const k1 = proof({
   e: ['iffE'],
-  n: ['impI', { A: 'A' }, { body: box({ m1: ['mp'], m2: ['mp'] }, ['in1>m1.imp', 'assume>m1.a', 'm1>m2.imp', 'assume>m2.a', 'm2>out'], { sees: ['in1'] }) }],
+  n: ['impI', { A: 'A' }],
+  m1: ['mp', {}, 'n'],
+  m2: ['mp', {}, 'n'],
   m3: ['mp'],
   m4: ['mp'],
-}, ['p>e.iff', 'e#ltr>n.in1', 'e#rtl>m3.imp', 'n>m3.a', 'n>m4.imp', 'm3>m4.a', 'm4>goal'], { premises: ['p'] })
+}, ['p>e.iff', 'e#ltr>m1.imp', 'n#body>m1.a', 'm1>m2.imp', 'n#body>m2.a', 'm2>n.body', 'e#rtl>m3.imp', 'n>m3.a', 'n>m4.imp', 'm3>m4.a', 'm4>goal'], { premises: ['p'] })
 
 export const era2 = [
   {
@@ -42,16 +46,16 @@ export const era2 = [
     adds: ['impI'],
     brief: T('已知「今天是周六 → (下雨 → 我休息)」和「下雨」，用假设框证出「今天是周六 → 我休息」。', 'Given “today is Saturday → (it rains → I rest)” and “it rains”, prove “today is Saturday → I rest” with an assumption box.'),
     hint: [
-      T('框的「假设」选「今天是周六」，再打开框。', 'Set the box’s assumption to “today is Saturday”, then open the box.'),
-      T('框里：第一张已知配上「假设」，分离得「下雨 → 我休息」；再配上「下雨」分离，得「我休息」，接到「结论」。回到外面，把框接到目标。', 'Inside: the first given with “Assume” gives “it rains → I rest” by Detach; Detach again with “it rains” gives “I rest”: wire it to “Conclusion”. Back outside, wire the box to the goal.'),
+      T('框卡片上的「假设」选「今天是周六」。', 'On the box card, set “Assume” to “today is Saturday”.'),
+      T('点一下框里的空白，再放两块分离，它们就落在框里。第一张已知配上框左上角的「假设」，分离得「下雨 → 我休息」；再配上「下雨」分离，得「我休息」，接到框右上角的「结论」。最后把框的输出接到目标。', 'Click the empty space inside the box, then place two Detaches: they land in it. The first given with “Assume” at the box’s top left gives “it rains → I rest” by Detach; Detach again with “it rains” gives “I rest”: wire it to “Conclusion” at the box’s top right. Last, wire the box’s output to the goal.'),
     ],
     intro: [
       { t: T('周六的话，下雨我就在家休息。今天下雨了。人会这样想：「<b>假设</b>今天是周六。那下雨我就休息；可现在确实在下雨，所以我休息。所以，如果今天是周六，那么我休息。」', 'On a Saturday, if it rains I rest at home. It is raining. A person thinks: “<b>Suppose</b> today is Saturday. Then if it rains I rest; and it is raining, so I rest. So if today is Saturday, then I rest.”') },
       { t: T('「假设」不是说今天真是周六，而是先当它成立，看能推出什么；推完了，把它放回句子前面：「如果今天是周六，那么我休息」。这就是演绎定理。', '“Suppose” does not claim that today is Saturday: it takes it as holding for a while to see what follows, and once done, puts it back in front: “if today is Saturday, then I rest”. That is the deduction theorem.') },
-      { t: T('证明机<b>二号</b>就会这样想。它多了<b>假设框</b>：在框卡片上选要假设的话，点「打开框」走进去，里面多一张「假设」卡片；在框里证出的东西接到「结论」，回到外面，框就给出「如果 假设，那么 结论」。框里看得见外面的已知，用法和外面一样。', 'The proof machine <b>Mark II</b> thinks that way. It has an <b>assumption box</b>: choose on the box card what to assume and press “Open box” to step inside. There you find an extra “Assume” card; wire what you prove to “Conclusion”, and back outside the box gives “if the assumption, then the conclusion”. Inside the box the givens are visible and work just as they do outside.') },
+      { t: T('证明机<b>二号</b>就会这样想。它多了<b>假设框</b>：在框卡片上选要假设的话，框左上角就给出它（「假设」）；在框里摆元件，证出的东西接到框右上角的「结论」，框外就给出「如果 假设，那么 结论」。要往框里放元件，先点一下框里，或者把板上的卡片直接拖进去。框里看得见外面的一切，用法和外面一样。', 'The proof machine <b>Mark II</b> thinks that way. It has an <b>assumption box</b>: choose on the box card what to assume, and the box’s top left gives it (“Assume”); lay out parts inside the box and wire what you prove to “Conclusion” at its top right, and outside the box gives “if the assumption, then the conclusion”. To put a part in the box, click inside it first, or drag a card from the board into it. From inside the box everything outside is visible and works just as it does outside.') },
       { t: T('初号证这题，要用 K 包一层、S 合起来，5 步。二号只带着分离过来，K、S 和用它们证出的串联、恒等都留在了初号：有了假设框，用不着它们了。', 'Mark I proves this with K to wrap and S to combine: 5 steps. Mark II brings only Detach along; K, S and Chain and Identity, proved from them, stay with Mark I: with the assumption box, they are no longer needed.') },
     ],
-    solution: proof({ f: ['impI', { A: 'A' }, { body: box({ m1: ['mp'], m2: ['mp'] }, ['p>m1.imp', 'assume>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>out'], { sees: ['p', 'q'] }) }] }, ['f>goal'], { premises: ['p', 'q'] }),
+    solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
     after: T('一个框、两次分离，和脑子里的推理一模一样。框里的假设只在框里有效：框一关，它就成了结论里「如果」后面那半句，不再算已知。以后要证「如果…那么…」，先试试假设前半句，看能不能推出后半句。', 'One box and two Detaches, exactly as you would reason it out. The assumption only holds inside the box: once the box closes it becomes the “if” half of the conclusion, and no longer counts as given. From now on, to prove an “if … then …”, try assuming the first half and see whether the second follows.'),
   },
   {
@@ -107,14 +111,9 @@ export const era2 = [
     intro: [
       { t: T('要么我坐公交，要么我骑车，还不知道是哪个。我坐公交的话，我准时到；我骑车的话，也我准时到。所以不管怎样，我准时到。', 'Either I take the bus or I cycle, and you do not know which. If I take the bus, I arrive on time; if I cycle, I arrive on time too. So either way, I arrive on time.') },
       { t: T('<b>分情况</b>是一块有两个框的元件。接进一句「… ∨ …」：「情况一」假设左边，「情况二」假设右边。两个框证出同一句话，外面就得到它。', '<b>Case by case</b> is a part with two boxes. Wire in an “… ∨ …”: case one assumes its left, case two its right. When both boxes prove the same sentence, outside you get it.') },
-      { t: T('分别打开两个框，各证一遍。', 'Open each box and prove it in each.') },
+      { t: T('两个框都在卡片下面，各证一遍。', 'Both boxes sit under the card: prove it in each.') },
     ],
-    solution: proof({
-      e: ['orE', {}, {
-        left: box({ m: ['mp'] }, ['q>m.imp', 'assume>m.a', 'm>out'], { sees: ['q'] }),
-        right: box({ m: ['mp'] }, ['r>m.imp', 'assume>m.a', 'm>out'], { sees: ['r'] }),
-      }],
-    }, ['p>e.ab', 'e>goal'], { premises: ['p', 'q', 'r'] }),
+    solution: proof({ e: ['orE'], m: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>e.left', 'r>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q', 'r'] }),
     after: T('不知道是哪一种，就每一种都证一遍。这就是用掉 ∨ 的规则：证明里的「分类讨论」。', 'Not knowing which, prove it for each. That is the rule that uses up an ∨: the “case analysis” of every proof.'),
   },
   {
@@ -152,7 +151,7 @@ export const era2 = [
       { t: T('「两个都要」证的是：已知「下雨 ∧ 刮风」，就有「刮风 ∧ 下雨」。', '“Both of them” showed that from “it rains ∧ it is windy” you get “it is windy ∧ it rains”.') },
       { t: T('这一次连已知都没有，要证的「下雨 ∧ 刮风 → 刮风 ∧ 下雨」是一句永远成立的话。目标是一句「如果…那么…」，那就开一个框。', 'This time nothing is given: “it rains ∧ it is windy → it is windy ∧ it rains” is a sentence that always holds. The goal is an “if … then …”, so open a box.') },
     ],
-    solution: proof({ f: ['impI', { A: 'A ∧ B' }, { body: swapBox }] }, ['f>goal']),
+    solution: swap,
     after: T('有已知的证明，放进框里，就成了什么都不需要的<b>定理</b>：真值表上的永真式，在这里是证出来的。', 'A proof from givens, put in a box, becomes a <b>theorem</b> that needs nothing: a tautology from the truth tables, now proved.'),
   },
   {
@@ -208,15 +207,14 @@ export const era2 = [
       { t: T('退一步：证明「否认它会导致矛盾」，也就是「¬¬(下雨 ∨ ¬下雨)」。', 'Step back and prove that denying it leads to a contradiction: “¬¬(it rains ∨ ¬it rains)”.') },
     ],
     solution: proof({
-      f: ['impI', { A: '¬(A ∨ ¬A)' }, {
-        body: box({
-          na: ['impI', { A: 'A' }, { body: box({ i: ['orI', { other: '¬A', side: 'right' }], m: ['mp'] }, ['assume>i.a', 'f/body>m.imp', 'i>m.a', 'm>out'], { sees: ['f/body'] }) }],
-          i2: ['orI', { other: 'A', side: 'left' }],
-          m2: ['mp'],
-        }, ['na>i2.a', 'assume>m2.imp', 'i2>m2.a', 'm2>out']),
-      }],
-    }, ['f>goal']),
-    naive: proof({ f: ['impI', { A: '¬(A ∨ ¬A)' }, { body: box({ i: ['orI', { other: '¬A', side: 'right' }] }, ['assume>i.a', 'i>out']) }] }, ['f>goal']),
+      f: ['impI', { A: '¬(A ∨ ¬A)' }],
+      na: ['impI', { A: 'A' }, 'f'],
+      i: ['orI', { other: '¬A', side: 'right' }, 'na'],
+      m: ['mp', {}, 'na'],
+      i2: ['orI', { other: 'A', side: 'left' }, 'f'],
+      m2: ['mp', {}, 'f'],
+    }, ['na#body>i.a', 'f#body>m.imp', 'i>m.a', 'm>na.body', 'na>i2.a', 'f#body>m2.imp', 'i2>m2.a', 'm2>f.body', 'f>goal']),
+    naive: proof({ f: ['impI', { A: '¬(A ∨ ¬A)' }], i: ['orI', { other: '¬A', side: 'right' }, 'f'] }, ['f#body>i.a', 'i>f.body', 'f>goal']),
     after: T('假设「¬(下雨 ∨ ¬下雨)」：先由它得出「¬下雨」，再由「¬下雨」得出「下雨 ∨ ¬下雨」，和它自己矛盾。二号证不出「下雨 ∨ ¬下雨」，却证得出「否认它会矛盾」：真值表上永真的话，二号不一定证得出。', 'Assume “¬(it rains ∨ ¬it rains)”: it gives “¬it rains”, and “¬it rains” gives “it rains ∨ ¬it rains”, which contradicts it. Mark II cannot prove “it rains ∨ ¬it rains”, but it can prove that denying it is a contradiction: not everything true on every row is provable on Mark II.'),
   },
   {
@@ -250,12 +248,12 @@ export const era2 = [
     brief: T('一个岛民说：「我是无赖。」证明这话不可能有人说：由「a 是骑士 ↔ ¬a 是骑士」证出矛盾 ⊥。', 'An islander says: “I am a knave.” Prove nobody can say that: from “a is a knight ↔ ¬a is a knight”, prove the contradiction ⊥.'),
     hint: [
       T('先证「¬a 是骑士」：假设「a 是骑士」，会怎样？', 'Prove “¬a is a knight” first: what happens if you assume “a is a knight”?'),
-      T('框里要用「拆开 ↔」给出的「从左到右」，就从框卡片的「带进 1」口接进去。', 'To use the “left to right” that Split ↔ gives inside the box, wire it into the box card’s “in 1” port.'),
+      T('「拆开 ↔」放在框外，它给出的「从左到右」可以直接接进框里。', 'Put Split ↔ outside the box: the “left to right” it gives can be wired straight into the box.'),
     ],
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，永远说真话；要么是<b>无赖</b>，永远说假话。', 'Everyone on the island is a <b>knight</b>, who always tells the truth, or a <b>knave</b>, who always lies.') },
       { t: T('一个岛民说了一句话，就有：「他是骑士」<b>当且仅当</b>他说的是真的。「…当且仅当…」写成 <b>↔</b>，意思是两个方向的 → 都成立。<b>拆开 ↔</b> 给出这两个 →。', 'If an islander says something, then “he is a knight” <b>if and only if</b> what he says is true. “… if and only if …” is written <b>↔</b>: the → holds both ways. <b>Split ↔</b> gives the two →s.') },
-      { t: T('框里看得见已知和外面框的假设，可看不见外面板上别的卡片证出的东西。要用它们，从框卡片的<b>带进</b>口（带进 1、2、3）接进去，框里就多一张同名卡片。', 'Inside a box you see the givens and the outer boxes’ assumptions, but not what other cards on the outer board prove. To use those, wire them into the box card’s <b>in</b> ports (in 1, 2, 3); a card of the same name appears inside.') },
+      { t: T('框里看得见外面的一切：已知、外面框的假设，还有板上别的卡片证出的东西，都能直接接进来。反过来不行：框里证出的东西只能从「结论」带出去。', 'From inside a box everything outside is visible: the givens, the outer boxes’ assumptions and what other cards on the board prove can all be wired straight in. Not the other way: what is proved inside leaves only through “Conclusion”.') },
     ],
     solution: k1,
     after: T('谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。', 'Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true.'),
@@ -275,11 +273,17 @@ export const era2 = [
     intro: [{ t: T('第二个岛民什么也没说。可第一个人的话里提到了他，就够推出他是什么人了。', 'The second islander says nothing. But the first one’s statement mentions him, and that is enough to work out what he is.') }],
     solution: proof({
       e: ['iffE'],
-      na: ['impI', { A: 'A' }, { body: box({ m1: ['mp'], s: ['andE'], m2: ['mp'] }, ['in1>m1.imp', 'assume>m1.a', 'm1>s.ab', 's#left>m2.imp', 'assume>m2.a', 'm2>out'], { sees: ['in1'] }) }],
-      nnb: ['impI', { A: '¬B' }, { body: box({ c: ['andI'], m3: ['mp'], m4: ['mp'] }, ['in1>c.a', 'assume>c.b', 'in2>m3.imp', 'c>m3.a', 'in1>m4.imp', 'm3>m4.a', 'm4>out'], { sees: ['in1', 'in2'] }) }],
+      na: ['impI', { A: 'A' }],
+      m1: ['mp', {}, 'na'],
+      s: ['andE', {}, 'na'],
+      m2: ['mp', {}, 'na'],
+      nnb: ['impI', { A: '¬B' }],
+      c: ['andI', {}, 'nnb'],
+      m3: ['mp', {}, 'nnb'],
+      m4: ['mp', {}, 'nnb'],
       b: ['raa'],
       both: ['andI'],
-    }, ['p>e.iff', 'e#ltr>na.in1', 'na>nnb.in1', 'e#rtl>nnb.in2', 'nnb>b.nna', 'na>both.a', 'b>both.b', 'both>goal'], { premises: ['p'] }),
+    }, ['p>e.iff', 'e#ltr>m1.imp', 'na#body>m1.a', 'm1>s.ab', 's#left>m2.imp', 'na#body>m2.a', 'm2>na.body', 'na>c.a', 'nnb#body>c.b', 'e#rtl>m3.imp', 'c>m3.a', 'na>m4.imp', 'm3>m4.a', 'm4>nnb.body', 'nnb>b.nna', 'na>both.a', 'b>both.b', 'both>goal'], { premises: ['p'] }),
     after: T('第一个人不能是骑士（那他就说了假话），所以是无赖；无赖的话是假的，所以「两个都是无赖」不成立：第二个人是骑士。', 'The first cannot be a knight (he would have said something false), so he is a knave; a knave’s words are false, so “both are knaves” fails: the second is a knight.'),
   },
   {
@@ -297,15 +301,17 @@ export const era2 = [
     intro: [{ t: T('这一次，先自己想清楚答案，再把它证出来。', 'This time, work out the answer yourself first, then prove it.') }],
     solution: proof({
       e: ['iffE'],
-      nna: ['impI', { A: '¬A' }, { body: box({ i: ['orI', { other: 'B', side: 'right' }], m1: ['mp'], m2: ['mp'] }, ['assume>i.a', 'in1>m1.imp', 'i>m1.a', 'assume>m2.imp', 'm1>m2.a', 'm2>out'], { sees: ['in1'] }) }],
+      nna: ['impI', { A: '¬A' }],
+      i: ['orI', { other: 'B', side: 'right' }, 'nna'],
+      m1: ['mp', {}, 'nna'],
+      m2: ['mp', {}, 'nna'],
       a: ['raa'],
       says: ['mp'],
-      c: ['orE', {}, {
-        left: box({ m: ['mp'], f: ['botE', { C: 'B' }] }, ['assume>m.imp', 'in1>m.a', 'm>f.bot', 'f>out'], { sees: ['in1'] }),
-        right: box({}, ['assume>out']),
-      }],
+      c: ['orE'],
+      m: ['mp', {}, 'c/left'],
+      no: ['botE', { C: 'B' }, 'c/left'],
       both: ['andI'],
-    }, ['p>e.iff', 'e#rtl>nna.in1', 'nna>a.nna', 'a>c.in1', 'e#ltr>says.imp', 'a>says.a', 'says>c.ab', 'a>both.a', 'c>both.b', 'both>goal'], { premises: ['p'] }),
+    }, ['p>e.iff', 'nna#body>i.a', 'e#rtl>m1.imp', 'i>m1.a', 'nna#body>m2.imp', 'm1>m2.a', 'm2>nna.body', 'nna>a.nna', 'e#ltr>says.imp', 'a>says.a', 'says>c.ab', 'c#left>m.imp', 'a>m.a', 'm>no.bot', 'no>c.left', 'c#right>c.right', 'a>both.a', 'c>both.b', 'both>goal'], { premises: ['p'] }),
     after: T('两个都是骑士。如果第一个人是无赖，他的话就成了真话，无赖说不出真话；所以他是骑士，他的话是真的，而「我是无赖」那一半是假的，只能是另一个人是骑士。', 'Both are knights. If the first were a knave his statement would be true, and a knave cannot say something true; so he is a knight, his statement is true, and since “I am a knave” is false, the other must be a knight.'),
   },
 ]

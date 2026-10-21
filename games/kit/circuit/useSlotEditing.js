@@ -64,7 +64,7 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
   const refusal = (a, b) => {
     const e = ends(a, b)
     if (!e) return { zh: '两头都是输出口（或都是输入口）：一头接输出，一头接输入。', en: 'Both ends are outputs (or both inputs): connect an output to an input.' }
-    return baseRefusal(graph, e.from, e.to) ?? parts.refuse?.(graph, e.from, e.to, e.port) ?? null
+    return baseRefusal(graph, e.from, e.to, e.port, parts) ?? parts.refuse?.(graph, e.from, e.to, e.port) ?? null
   }
   const canLand = (p) => Boolean(picking) && !refusal(picking, p)
   const wire = (a, b) => {

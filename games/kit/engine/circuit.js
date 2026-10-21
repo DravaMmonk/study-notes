@@ -5,7 +5,10 @@
 // What a node does comes from its domain's part registry (../domains/*/parts.js), keyed by type:
 //
 //   inputs        [port] or (node) → [port]
-//   outputs?      (node) → [key] | null: a node with several outputs, each a value of its own ('<node>#<key>')
+//   outputs?      (node) → [key] | null: a node with several outputs, each a value of its own ('<node>#<key>'; the
+//                 key null is the node's plain output '<node>')
+//   reads?        (node, key) → [port] | undefined: the ports one of its outputs reads, when not all of them (a proof's
+//                 box gives its assumption from its card alone, and its conclusion from what is proved inside it)
 //   optional?     [port] that may stay unconnected (one of them must be wired, unless the part runs `bare`)
 //   bare?         true for a part that also runs with none of its optional ports wired
 //   idle?         (port, node) → what an unconnected port reads; without it an unconnected port is missing
@@ -61,6 +64,8 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
   const values = new Map()
   const errors = new Map()
   const done = new Set()
+  // A node's first error is the one it shows.
+  const fault = (id, message) => { if (!errors.has(id)) errors.set(id, message) }
 
   // The value of a source, or undefined when its node cannot give one.
   const pull = (src) => {
@@ -80,8 +85,9 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
       errors.set(id, BROKEN)
       return
     }
-    if (errors.has(id)) return
-    const ports = portsOf(part, node)
+    // A node that failed gives nothing more, unless its outputs read ports of their own.
+    if (errors.has(id) && !part.reads) return
+    const ports = part.reads?.(node, key) ?? portsOf(part, node)
     const ins = {}
     let missing = false
     let connected = 0
@@ -100,7 +106,7 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
       return
     }
     if (missing) {
-      errors.set(id, MISSING)
+      fault(id, MISSING)
       return
     }
     try {
@@ -112,7 +118,7 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
         error.values ??= values
         throw error
       }
-      errors.set(id, error instanceof PartError ? error.label : BROKEN)
+      fault(id, error instanceof PartError ? error.label : BROKEN)
     }
   }
 

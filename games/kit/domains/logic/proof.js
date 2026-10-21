@@ -3,14 +3,16 @@
 //   { formula, hyps: Map(hypothesis id → formula) }   the formula, proved from the hypotheses still open
 //
 // A part is an inference rule: its inputs are premises, its output the conclusion. A rule that opens an assumption is
-// a part with boards inside (../../engine/boards.js). Its `scope(node, ins, board, ctx)` says what a board inside may
-// use besides what the board around it may: the assumption it opens (as `assume`, and under its hypothesis id for
-// boxes further in). The board's sink `out` is what was proved there, and the part's conclusion closes the
-// assumption. A proof is a circuit whose sources are the level's premises and whose sink `goal` must be the goal,
-// with no hypotheses open but the premises. A rule that does not fit throws a PartError saying what it needed and
-// what reached it.
-import { BROKEN, PartError } from '../../engine/circuit.js'
-import { runBoard, runInner, sink, source } from '../../engine/boards.js'
+// a frame (../../circuit/frames.js) with a region for each assumption: the region's output `<box>#<region>` gives the
+// assumption, as a judgment resting on its own hypothesis (hypId), and what the cards inside prove comes back
+// through the box's input of the same name; the box's conclusion closes the hypothesis. Each of those outputs reads
+// only the box's other inputs (../../engine/circuit.js `reads`), so a box can read back what was made from it. A
+// proof is a circuit whose sources are the level's premises and whose sink `goal` must be the goal, with no
+// hypotheses open but the premises: which region a card sits in is how the editor keeps it tidy, while the hypotheses
+// on every judgment are what make a proof sound. A rule that does not fit throws a PartError saying what it needed
+// and what reached it.
+import { PartError } from '../../engine/circuit.js'
+import { runBoard, sink, source } from '../../engine/boards.js'
 import { BOT, all, and, bin, eq, freeVars, imp, or, parse, replaceAtoms, same, show, subst, tvar } from './formula.js'
 import { say } from './notation.js'
 
@@ -54,32 +56,21 @@ function termOf(node, ctx = {}) {
 const asImp = (f) => (f.op === '¬' ? imp(f.a, BOT) : f)
 const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
 
-/** The hypothesis id of the assumption a box's board opens. */
-export const hypId = (node, board) => `${node.id}/${board}`
-// What a box brings in from outside: anything proved there, wired into its ports in1 … in3, seen inside by those
-// names (premises and the assumptions of the boxes around it are seen anyway).
-export const CARRY = ['in1', 'in2', 'in3']
-const carried = (ins) => Object.fromEntries(CARRY.filter((k) => ins[k]).map((k) => [k, ins[k]]))
-const box = (inputs = []) => ({ inputs: [...inputs, ...CARRY], optional: CARRY, bare: true })
-// What a board inside sees when it opens `formula`: `assume`, and the same under its id.
-const opening = (node, board, formula, ins = {}) => {
-  const j = proved(formula, new Map([[hypId(node, board), formula]]))
-  return { ...carried(ins), assume: j, [hypId(node, board)]: j }
-}
-// Run a box's board with its scope; what it proved, or a PartError when nothing reached its `out`.
-function inside(part, ctx, node, ins, board) {
-  const { outputs } = runInner(ctx, node, board, part.scope(node, ins, board, ctx))
-  if (!outputs.out) throw fail('框里还没证出结论', 'The box has not proved anything yet')
-  return outputs.out
-}
-
+/** The hypothesis id of the assumption a box's region opens. */
+export const hypId = (node, region) => `${node.id}/${region}`
+const assumed = (node, region, formula) => proved(formula, new Map([[hypId(node, region), formula]]))
+// A box's regions, its inputs (its own, then one per region: what was proved there) and its outputs (its conclusion,
+// then each region's assumption, which reads the box's own inputs alone).
+const box = (own, regions) => ({
+  inputs: [...own, ...regions.map((r) => r.name)],
+  frames: () => regions,
+  outputs: () => [null, ...regions.filter((r) => r.opens).map((r) => r.name)],
+  reads: (_node, key) => (key ? own : undefined),
+})
 export const RULES = {
   // The proof's own ends: a premise, and the goal.
   premise: source(),
   goal: sink(),
-  // Inside a box: the assumption it opens, and what it proves.
-  assume: source(),
-  out: sink(),
 
   // ---- Hilbert: modus ponens and the axioms K, S (instances set on the card) ----
   mp: {
@@ -96,13 +87,11 @@ export const RULES = {
 
   // ---- natural deduction ----
   impI: {
-    ...box(),
+    ...box([], [{ name: 'body', opens: true }]),
     params: ['A'],
-    boards: () => [{ name: 'body', assumes: true }],
-    scope: (node, ins, board, ctx) => opening(node, board, param(node, 'A', ctx), ins),
-    eval(ins, node, ctx) {
-      const body = inside(this, ctx, node, ins, 'body')
-      return proved(imp(param(node, 'A', ctx), body.formula), without(body.hyps, hypId(node, 'body')))
+    eval: ({ body }, node, ctx, key) => {
+      const A = param(node, 'A', ctx)
+      return key ? assumed(node, key, A) : proved(imp(A, body.formula), without(body.hyps, hypId(node, 'body')))
     },
   },
   andI: { inputs: ['a', 'b'], eval: ({ a, b }) => proved(and(a.formula, b.formula), union(a, b)) },
@@ -123,19 +112,12 @@ export const RULES = {
     },
   },
   orE: {
-    ...box(['ab']),
-    boards: () => [{ name: 'left', assumes: true }, { name: 'right', assumes: true }],
-    scope: (node, ins, board, ctx) => {
-      const { ab } = ins
-      if (!ab) throw fail('先接进一句「…或者…」', 'Wire in an “… or …” first')
+    ...box(['ab'], [{ name: 'left', opens: true }, { name: 'right', opens: true }]),
+    eval: ({ ab, left: l, right: r }, node, ctx, key) => {
       if (ab.formula.op !== '∨') throw need(ctx, SHAPE.or, ab.formula)
-      return opening(node, board, board === 'left' ? ab.formula.a : ab.formula.b, ins)
-    },
-    eval(ins, node, ctx) {
-      const l = inside(this, ctx, node, ins, 'left')
-      const r = inside(this, ctx, node, ins, 'right')
+      if (key) return assumed(node, key, key === 'left' ? ab.formula.a : ab.formula.b)
       if (!same(l.formula, r.formula)) { const [a, b] = [sayIn(ctx, l.formula), sayIn(ctx, r.formula)]; throw fail(`两种情况证出的不一样：${a.zh}；${b.zh}`, `The two cases prove different things: ${a.en}; ${b.en}`) }
-      return proved(l.formula, new Map([...ins.ab.hyps, ...without(l.hyps, hypId(node, 'left')), ...without(r.hyps, hypId(node, 'right'))]))
+      return proved(l.formula, new Map([...ab.hyps, ...without(l.hyps, hypId(node, 'left')), ...without(r.hyps, hypId(node, 'right'))]))
     },
   },
   botE: {
@@ -169,14 +151,11 @@ export const RULES = {
 
   // ---- quantifiers and equality ----
   allI: {
-    ...box(),
+    ...box([], [{ name: 'body', opens: false }]),
     params: ['x'],
-    boards: () => [{ name: 'body', assumes: false }],
-    scope: (node, ins) => carried(ins),
-    eval(ins, node, ctx) {
+    eval: ({ body }, node, ctx) => {
       const x = node.params?.x
       if (!x) throw fail('先给新变量起个名字', 'Name the new variable first')
-      const body = inside(this, ctx, node, ins, 'body')
       for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里，不能对它说「任取」`, `${x} occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not arbitrary`)
       return proved(all(x, body.formula), body.hyps)
     },
@@ -201,24 +180,17 @@ export const RULES = {
     },
   },
   exE: {
-    ...box(['ex']),
+    ...box(['ex'], [{ name: 'body', opens: true }]),
     params: ['x'],
-    boards: () => [{ name: 'body', assumes: true }],
-    scope: (node, ins, board, ctx) => {
-      const e = ins.ex
-      if (!e) throw fail('先接进一句「存在 x…」', 'Wire in a “there is an x …” first')
+    eval: ({ ex: e, body }, node, ctx, key) => {
       if (e.formula.op !== '∃') throw need(ctx, SHAPE.ex, e.formula)
       const y = node.params?.x
       if (!y) throw fail('先给见证起个名字', 'Name the witness first')
-      return opening(node, board, subst(e.formula.body, e.formula.v, tvar(y)), ins)
-    },
-    eval(ins, node, ctx) {
-      const y = node.params.x
-      const body = inside(this, ctx, node, ins, 'body')
+      if (key) return assumed(node, key, subst(e.formula.body, e.formula.v, tvar(y)))
       if (freeVars(body.formula).has(y)) throw fail(`结论里不能有见证 ${y}`, `The conclusion may not mention the witness ${y}`)
       const open = without(body.hyps, hypId(node, 'body'))
       for (const h of open.values()) if (freeVars(h).has(y)) throw fail(`${y} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里`, `${y} occurs in the open hypothesis ${sayIn(ctx, h).en}`)
-      return proved(body.formula, new Map([...ins.ex.hyps, ...open]))
+      return proved(body.formula, new Map([...e.hyps, ...open]))
     },
   },
   refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t)) } },
@@ -351,58 +323,4 @@ export const LOGIC_TESTS = {
   // A shorter proof is a better one.
   score: (level, circuit) => ({ steps: countSteps(circuit) }),
 }
-const FIXED = new Set(['premise', 'goal', 'assume', 'out'])
-const countSteps = (circuit) => circuit.nodes.reduce((n, node) => n + (FIXED.has(node.type) ? 0 : 1 + Object.values(node.boards ?? {}).reduce((m, b) => m + countSteps(b), 0)), 0)
-
-/* ---------- a board inside a proof, for the editor ---------- */
-
-const EMPTY = { nodes: [], wires: [] }
-
-/**
- * The board at `path` (../../circuit/nested.js) run as the proof runs it, on the level's first test: { values, errors,
- * bind } with what its sources read, or { scopeError } when the box around it cannot open yet (分情况 with no A ∨ B
- * wired in).
- */
-export function runAt(level, circuit, path, test = level.tests[0]) {
-  const consts = level.consts ?? []
-  const parts = rulesOf(level.lemmas)
-  const ctx = { consts, notation: level.notation, subst: test.subst }
-  let bind = premisesOf(test, consts)
-  let board = circuit
-  let run = runBoard(board, { parts, bind, ctx })
-  for (const { node: id, board: name } of path) {
-    const node = board.nodes.find((n) => n.id === id)
-    const ins = Object.fromEntries(board.wires.filter((w) => w.to === id && run.values.get(w.from) !== undefined).map((w) => [w.port, run.values.get(w.from)]))
-    try {
-      bind = { ...bind, ...parts[node.type].scope(node, ins, name, ctx) }
-    } catch (e) {
-      return { values: new Map(), errors: new Map(), bind, scopeError: e.label ?? BROKEN }
-    }
-    board = node.boards?.[name] ?? EMPTY
-    run = runBoard(board, { parts, bind, ctx })
-  }
-  return { ...run, bind }
-}
-
-/**
- * What the board at `path` reads from outside, as its fixed source cards: the premises, the assumptions of the boxes
- * around it (by hypothesis id), and what its own box brings in (in1 … in3, those wired); `assumes` when its box opens
- * an assumption of its own (the card `assume`).
- */
-export function seenAt(level, circuit, path) {
-  const parts = rulesOf(level.lemmas)
-  const names = Object.keys(level.tests[0].premises ?? {})
-  let board = circuit
-  let assumes = false
-  path.forEach(({ node: id, board: name }, k) => {
-    const node = board.nodes.find((n) => n.id === id)
-    const spec = parts[node.type].boards(node).find((b) => b.name === name)
-    if (k < path.length - 1) { if (spec.assumes) names.push(hypId(node, name)) }
-    else {
-      names.push(...CARRY.filter((p) => board.wires.some((w) => w.to === id && w.port === p)))
-      assumes = spec.assumes
-    }
-    board = node.boards?.[name] ?? EMPTY
-  })
-  return { names, assumes }
-}
+const countSteps = (circuit) => circuit.nodes.filter((node) => node.type !== 'premise' && node.type !== 'goal').length

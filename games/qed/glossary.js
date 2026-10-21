@@ -63,8 +63,8 @@ export const GLOSSARY = [
   {
     id: 'box', group: 'play', title: T('假设框', 'Assumption boxes'), at: 'box',
     body: [
-      T('二号的假设框是一块里面还有电路板的元件。在框卡片上填要假设的命题，点「打开」进到框里：那里多一张「假设」卡片，框里证出的东西接到「结论」上，框外就得到「假设 → 结论」。', 'Mark II’s assumption box is a part with a circuit board inside. Fill in what to assume on the box card and press “Open” to go inside: there is an extra “assume” card, whatever you prove goes to “conclusion”, and outside you get “assumption → conclusion”.'),
-      T('框里看得见前提和外面各个框的假设；外面证出的别的东西，从框卡片的「带进」口接进去。框上面的路径可以点回外面。', 'Inside a box you can see the premises and the assumptions of the boxes around it; anything else proved outside comes in through the box card’s “bring in” ports. The path above the board takes you back out.'),
+      T('二号的假设框是板上的一个框，框里就能摆元件。在框卡片上填要假设的命题，框左上角的「假设」就给出它；框里证出的东西接到框右上角的「结论」，框外就得到「假设 → 结论」。', 'Mark II’s assumption box is a frame on the board, and parts sit right inside it. Fill in what to assume on the box card, and “Assume” at the box’s top left gives it; wire what you prove inside to “Conclusion” at its top right, and outside you get “assumption → conclusion”.'),
+      T('点一下框里的空白，新放的元件就落在框里；板上的卡片也可以拖进框里，或拖出来。框里看得见外面的一切，框里证出的东西却只能从「结论」带出去。框卡片左上角的箭头把框折叠起来。', 'Click the empty space inside a box and new parts land in it; cards on the board can be dragged into a box, or out of one. From inside a box everything outside is visible, but what is proved inside leaves only through “Conclusion”. The arrow at the top left of the box card folds it away.'),
       T('框一关，它的假设就不再算数：卡片下面列着它还依赖的假设，证到目标时一个都不能剩（前提除外）。', 'Once the box closes, its assumption no longer counts: under each card are the hypotheses it still depends on, and none may be left at the goal (the premises aside).'),
     ],
     see: ['deduction', 'natural'],
