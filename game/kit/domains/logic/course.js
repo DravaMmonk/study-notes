@@ -75,6 +75,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, primitive
     naive: (l) => Boolean(byId.get(l.id).naive),
     needed: (l) => (byId.get(l.id).solution ? rulesIn(byId.get(l.id).solution) : null),
     folds: (l) => byId.get(l.id).fold ?? [],
+    abstraction: true,
   })
   const usableIn = (level, flags) => usable(course, { id: level.id }, flags)
   const offerIn = (level, flags) => offer(course, { id: level.id }, flags)
