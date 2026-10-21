@@ -1,0 +1,4 @@
+interface:
+  display_name: "Turing-Complete Learning Games"
+  short_description: "Curriculum and level design for the games in study-notes"
+  default_prompt: "Use $turing-complete-games to design or review a learning game's curriculum in study-notes."
