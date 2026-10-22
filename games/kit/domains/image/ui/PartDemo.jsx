@@ -22,12 +22,13 @@ import './phone/phone.css'
 // box: { sample, inSolution, rewrite } from the game's spec: the level whose pictures a part from a level without tests
 // is tried on, parts tried inside a level's own circuit (what feeds them is more than its inputs), and how such a
 // circuit, where it spells the part out from smaller ones, is rewritten to hold the part itself.
-function benchFor(levels, box, flag, type, sample = false) {
+// home: for a primitive, the level that brings it in, tried like the level that unlocks a part.
+function benchFor(levels, box, flag, type, home, sample = false) {
   // A setting rather than a part is tried on the part it belongs to.
   const nodeType = flag === 'edge-pad' ? 'shift' : flag === 'edge-filter' ? 'box3' : type
   const spec = NODE_TYPES[nodeType]
   if (!spec) return null
-  const own = levels.find((l) => (l.unlocks ?? []).includes(flag))
+  const own = levels.find((l) => (l.unlocks ?? []).includes(flag) || l.id === home)
   const level = box.inSolution[flag] ? levels.find((l) => l.id === box.inSolution[flag]) : own
   const source = !sample && level?.kind === 'graph' && level.tests?.length ? level : levels.find((l) => l.id === box.sample)
   const tests = source.tests.slice(0, 3).map((t) => ({ label: t.label, inputs: t.inputs, expected: {} }))
@@ -56,13 +57,13 @@ function benchFor(levels, box, flag, type, sample = false) {
   // A part its level's own tests do not suit (the spectrum, met on a 1-D signal, is a 2-D part) is tried on the
   // sample pictures instead.
   const broken = !first || first.errors.size > 0 || Object.values(first.outputs).some((img) => !img || Array.from(img.data).some(Number.isNaN))
-  if (broken && !sample && source.id !== box.sample && !box.inSolution[flag]) return benchFor(levels, box, flag, type, true)
+  if (broken && !sample && source.id !== box.sample && !box.inSolution[flag]) return benchFor(levels, box, flag, type, home, true)
   const ioKinds = Object.fromEntries([...Object.entries(tests[0]?.inputs ?? {}), ...outputs.map((name) => [name, first?.outputs[name]])].map(([name, value]) => [name, kindOf(value)]))
   return { bench, graph, nodeType, ioKinds, sensors: levelSensors(bench), views: { in: viewFor(source, 'in'), out: viewFor(source, 'out'), mid: viewFor(source, 'mid') } }
 }
 
-export default function PartDemo({ flag, type, flags, phone, levels, box }) {
-  const made = useMemo(() => benchFor(levels, box, flag, type), [levels, box, flag, type])
+export default function PartDemo({ flag, type, home, flags, phone, levels, box }) {
+  const made = useMemo(() => benchFor(levels, box, flag, type, home), [levels, box, flag, type, home])
   const [graph, setGraph] = useState(() => made?.graph)
   const [test, setTest] = useState(0)
   const [run, setRun] = useState(null)

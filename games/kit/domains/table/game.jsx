@@ -4,12 +4,14 @@ import { Cable, Grid3x3 } from 'lucide-react'
 import './table.css'
 import { defineGame } from '../../shell/index.js'
 import { migrations } from '../../shell/saves.js'
-import { eraLevels, pathLevels } from '../../course.js'
+import { eraLevels, introductions, isCore, pathLevels } from '../../course.js'
 import ModeScreen from './screen.jsx'
 import Hero from './hero.jsx'
 import { sceneSVG } from './svg.js'
 import PartDemo from './circuit/PartDemo.jsx'
 import { lookIcon } from './circuit/looks.js'
+import { COMPONENTS, modelsOf } from './circuit/components.js'
+import { T, lazy, tr } from './i18n.js'
 import { ROBOTS } from './circuit/robots.js'
 
 function IntroFigure({ fig }) {
@@ -22,7 +24,7 @@ function IntroFigure({ fig }) {
  * whose board a part that is an idea is tried on }
  */
 export function defineTableGame(spec) {
-  const { LEVELS, REQUIRES, TRACKS, CHAPTERS, LABELS, PARTS } = spec.table
+  const { LEVELS, REQUIRES, TRACKS, CHAPTERS, LABELS, PARTS, course } = spec.table
   const ERAS = spec.eras
   const levels = LEVELS.map((L, index) => ({
     id: L.id,
@@ -52,13 +54,25 @@ export function defineTableGame(spec) {
     }
   }
 
+  // The primitives in the components box, one card each (a merger's models are one card), from the level that brings
+  // the card in. A card named like another says which one it is.
+  const cardOf = (k) => modelsOf(k)?.[0] ?? k
+  const cards = [...introductions(course, cardOf)]
+  const nameOf = (k) => {
+    const c = COMPONENTS[k]
+    const twin = !modelsOf(k) && cards.some(([o]) => o !== k && String(COMPONENTS[o].name) === String(c.name))
+    return twin ? T(`${c.name.zh} · ${c.tag.zh}`, `${c.name.en} · ${c.tag.en}`) : c.name
+  }
+  const descOf = (k) => (modelsOf(k) ? lazy(() => modelsOf(k).map((m) => tr(`「${COMPONENTS[m].tag}」${COMPONENTS[m].desc}`, `<i>${COMPONENTS[m].tag}</i>: ${COMPONENTS[m].desc}`)).join('<br>')) : COMPONENTS[k].desc)
+  const primitives = cards.map(([k, at]) => ({ key: `part:${k}`, name: nameOf(k), desc: descOf(k), icon: lookIcon(k), at }))
+
   // The components box by robot: a robot can use every part earned in its era and the eras before it (parts carry over,
   // games/DESIGN.md 2.1). It joins the box once the first level of its era is passed.
   const eraOf = new Map(ERAS.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
   const robotFilters = (progress) => ERAS.flatMap((era, e) => {
     if (!era.machine) return []
     const first = pathLevels(era.foundation)[0]
-    const keys = new Set(LEVELS.filter((L) => L.unlock && eraOf.get(L.id) <= e).map((L) => L.unlock))
+    const keys = new Set([...LEVELS.filter((L) => L.unlock && eraOf.get(L.id) <= e).map((L) => L.unlock), ...primitives.filter((p) => p.at.some((id) => eraOf.get(id) <= e)).map((p) => p.key)])
     const robot = ROBOTS[era.machine]
     return [{ key: era.machine, name: robot.name, icon: robot.look, keys, lock: progress.all || progress.solved.includes(first) ? null : LABELS.get(first) }]
   })
@@ -83,11 +97,13 @@ export function defineTableGame(spec) {
       board: { Screen: ModeScreen, icon: Grid3x3, label: { zh: '棋盘', en: 'Board' } },
     },
     unlocked: (level) => level.unlocks.map((k) => ({ label: PARTS[k].name })),
+    core: (level) => isCore(course, level),
     parts: {
-      // Only parts a level that is played unlocks (a retired level's card would never be earned).
-      all: Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, name: part.name, desc: part.desc, icon: lookIcon(key) })),
-      // The part on a bench: its level's board, with inputs, constants and models to change and a Run button.
-      demo: (part, { phone }) => <PartDemo key={part.key} partKey={part.key} phone={phone} levels={LEVELS} borrow={spec.borrow ?? {}} />,
+      // The primitives, and the parts a level that is played unlocks (a retired level's card would never be earned).
+      all: [...primitives, ...Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, name: part.name, desc: part.desc, icon: lookIcon(key) }))],
+      // The part on a bench: its level's board (a primitive's, the level that brings it in), with inputs, constants and
+      // models to change and a Run button.
+      demo: (part, { phone }) => <PartDemo key={part.key} partKey={part.key} phone={phone} levels={LEVELS} borrow={part.at ? { [part.key]: part.at[0] } : spec.borrow ?? {}} />,
       filters: robotFilters,
     },
   })

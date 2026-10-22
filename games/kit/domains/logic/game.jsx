@@ -3,13 +3,15 @@
 import { Cpu, Grid2x2Check, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
+import { introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import { migrations } from '../../shell/saves.js'
 import GatesScreen from './ui/GatesScreen.jsx'
 import Hero from './ui/Hero.jsx'
 import ProofScreen from './ui/ProofScreen.jsx'
 import TruthScreen from './ui/TruthScreen.jsx'
-import { iconOf } from './ui/catalog.js'
+import { descOf, iconOf, nameOf } from './ui/catalog.js'
+import { PRIMITIVE_GATES } from './gates.js'
 
 /**
  * spec: { id, title, kicker, lede: (count) → { zh, en }, logic (logicCourse's result), glossary, saves: migration steps
@@ -21,6 +23,11 @@ export function defineLogicGame(spec) {
   const gates = LEVELS[0]?.gates ?? {}
   // A built part is a proved lemma or a gate built on a truth circuit.
   const built = { ...gates, ...lemmas }
+  // The rules and gates the course starts from, each from the levels that bring it in.
+  const primitives = [...introductions(spec.logic.course)].map(([type, at]) => {
+    const gate = PRIMITIVE_GATES[type]
+    return { key: `part:${type}`, name: gate?.name ?? nameOf(lemmas, type), desc: gate?.desc ?? descOf(lemmas, type), icon: gate ? Cpu : iconOf(lemmas, type), at }
+  })
   // A part is new in the level that brings it in (`adds`); everything else carries (../../course.js reach).
   const levels = LEVELS.map((L, index) => ({
     id: L.id,
@@ -54,8 +61,10 @@ export function defineLogicGame(spec) {
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
     },
     unlocked: (level) => level.unlocks.map((flag) => ({ label: built[flag.slice('lemma:'.length)].name })),
+    core: (level) => isCore(spec.logic.course, level),
     parts: {
       all: [
+        ...primitives,
         ...Object.entries(gates).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: Cpu })),
         ...Object.entries(lemmas).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, icon: iconOf(lemmas, type) })),
       ],
