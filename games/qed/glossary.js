@@ -55,7 +55,7 @@ export const GLOSSARY = [
     id: 'hilbert', group: 'logic', title: T('公理与分离', 'Axioms and Detach'), at: 'k',
     body: [
       T('证明核的两块基础元件是分离和假设框。只有公理的证明器叫<b>希尔伯特系统</b>：一条规则「分离」，加上两条公理 K 和 S。K 说已经成立的事加上任何条件都还成立；S 说在一个条件下也能做分离。', 'The kernel’s two parts are Detach and the assumption box. A prover with only axioms is a <b>Hilbert system</b>: one rule, Detach, and two axioms, K and S. K says what holds still holds under any condition; S says Detach works under a condition too.'),
-      T('在这台证明器里，K 和 S 是用框证出来的元件；挑战关拿掉框，只用它们和分离证明。它们卡片上的几句话可以选成任何句子。', 'In this prover K and S are parts proved with boxes; the challenges take the box away and prove with them and Detach alone. The sentences on their cards can be any sentences.'),
+      T('在这台证明器里，K 和 S 是用框证出来的元件；专题「拆掉框」拿掉框，只用它们和分离证明。它们卡片上的几句话可以选成任何句子。', 'In this prover K and S are parts proved with boxes; the topic Without the box takes the box away and proves with them and Detach alone. The sentences on their cards can be any sentences.'),
     ],
     see: ['deduction'],
   },
