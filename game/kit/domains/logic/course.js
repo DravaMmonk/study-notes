@@ -68,7 +68,11 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
   // for the era's challenges.
   const LABELS = new Map(eras.flatMap((era, e) => [
     ...numbered([...era.foundation, ...(era.practice ?? [])], plan.requires, (id) => ease(given.get(id))).map((id, k) => [id, `${e}-${k + 1}`]),
-    ...(era.topics ?? []).flatMap((t) => t.levels.map((id, k) => [id, `${t.code}${k + 1}`])),
+    // Topics sharing a code number on from each other (a topic split into branches: X1, X2, then X3 … on both).
+    ...(era.topics ?? []).flatMap((t, i, all) => {
+      const before = all.slice(0, i).filter((u) => u.code === t.code)
+      return t.levels.map((id, k) => [id, `${t.code}${before.reduce((n, u) => n + u.levels.length, 0) + k + 1}`])
+    }),
     ...(era.challenges ?? []).map((c, k) => [c.level, `C${e}.${k + 1}`]),
   ]))
   const CHAPTERS = eras.map((era) => ({ ...era.chapter, track: plan.tracks.get(era.id) }))
