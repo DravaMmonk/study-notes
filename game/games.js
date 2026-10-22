@@ -3,7 +3,8 @@
 // how many levels are done; a game without a save reads as 0.
 // `title` is the Chinese name and `en` the English one; topic and desc are { zh, en } pairs (hub.js picks one).
 // `page` is the game's own page (games/kit/app): the path drawn on its tab icon and its description for search engines.
-// `dev` marks a game still in development: its card says so.
+// `dev` marks a game still in development: its card says so. `hidden` keeps a page off the hub (a trial reached by
+// its address alone); it is still built and published like any game.
 
 const read = key => { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } };
 
@@ -38,6 +39,16 @@ export const GAMES = [
     levels: 27, art: 'detach', dev: true,
     page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 Q.E.D.：把形式化证明做成一套解谜关卡。Formal proof as a set of puzzle levels.' },
     progress: () => (read('qed.v1')?.solved || []).length,
+  },
+  {
+    id: 'qed-lab', href: 'qed-lab/index.html', title: '证明完毕 · 试做', en: 'Q.E.D. · Trial', topic: { zh: '试做 · 形式化证明', en: 'Trial · Formal proof' },
+    desc: {
+      zh: '从套用和假设框两块元件搭起证明器，证出公理 K 和 S，再对着真值表亲手设计「与」「或」「假」的规则。',
+      en: 'Build a prover from two parts, Apply and the assumption box, prove the axioms K and S, then design the rules of “and”, “or” and “false” yourself against their truth tables.',
+    },
+    levels: 24, art: 'detach', dev: true, hidden: true,
+    page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 试做：从两块元件搭起证明器。Q.E.D. trial: a prover built from two parts.' },
+    progress: () => (read('qed-lab.v1')?.solved || []).length,
   },
   {
     id: 'syntax-graph', href: 'syntax-graph/index.html', title: '句法之图', en: 'Syntax Graph', topic: { zh: '英语语法 · 计算机学术写作', en: 'English grammar · academic writing in computer science' },

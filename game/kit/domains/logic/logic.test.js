@@ -8,6 +8,7 @@ import { countermodel, countermodelSearch, holds } from './models.js'
 import { proof } from './build.js'
 import { LOGIC_TESTS, lemmaGives } from './proof.js'
 import { validate } from './validate.js'
+import { checkDesign } from './rules.js'
 
 const run = (level, circuit) => runLevel(LOGIC_TESTS, level, circuit)
 
@@ -115,4 +116,30 @@ test('a lemma gives a goal in one step only when the givens fit its premises', (
   const chain = { statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'] }
   assert.equal(lemmaGives(chain, [parse('Q → R'), parse('P → Q')], parse('P → R')), true)
   assert.equal(lemmaGives(chain, [parse('P → (Q → R)'), parse('Q')], parse('P → R')), false)
+})
+
+test('a designed rule is checked against its truth table and its ways of being made', () => {
+  const kinds = (conn, mode, design) => checkDesign({ conn, mode }, design).problems.map((p) => p.kind)
+  assert.deepEqual(kinds('and', 'intro', [['a', 'b']]), [])
+  assert.deepEqual(kinds('and', 'intro', [['a']]), ['unsound'])
+  assert.deepEqual(kinds('or', 'intro', [['a', 'b']]), ['uncovered', 'uncovered'])
+  assert.deepEqual(kinds('or', 'intro', [['a'], ['b'], ['a', 'b']]), ['wasted'])
+  assert.deepEqual(kinds('bot', 'intro', []), [])
+  assert.deepEqual(kinds('bot', 'intro', [[]]), ['unsound'])
+  assert.deepEqual(kinds('and', 'elim', [['a']]), ['weak'])
+  assert.deepEqual(kinds('or', 'elim', [['a', 'b']]), ['unsound', 'unsound'])
+  assert.deepEqual(kinds('or', 'elim', [['a'], ['b']]), [])
+  assert.deepEqual(kinds('bot', 'elim', [[]]), ['stray'])
+})
+
+test('a declared connective gives a box that assumes both sides, and closes them', () => {
+  const level = { tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }] }
+  const good = proof({ c: ['andCases'], i: ['andIn0', {}, 'c'] }, ['p>c.major', 'c#c0.b>i.a', 'c#c0.a>i.b', 'i>c.c0', 'c>goal'], { premises: ['p'] })
+  assert.ok(run(level, good).pass)
+  // A side taken outside its box is still open there.
+  const leak = proof({ c: ['andCases'], i: ['andIn0'] }, ['p>c.major', 'c#c0.b>i.a', 'c#c0.a>i.b', 'i>goal'], { premises: ['p'] })
+  assert.ok(!run(level, leak).pass)
+  // From ⊥, anything, with no box at all.
+  const bot = { tests: [{ premises: { p: 'A', q: '¬A' }, goal: 'B' }] }
+  assert.ok(run(bot, proof({ m: ['app'], b: ['botCases', { C: 'B' }] }, ['q>m.imp', 'p>m.a', 'm>b.major', 'b>goal'], { premises: ['p', 'q'] })).pass)
 })

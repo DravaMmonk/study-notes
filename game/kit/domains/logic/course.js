@@ -25,6 +25,7 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
  * }
+ * A level may also hold back parts it would carry (`without: [part]`): a proof that must do without the box.
  * A level names only the parts it brings in (`adds`): every part met or built before it in its era carries into it,
  * and across eras what each era keeps (../../course.js); and what it
  * folds away (`fold`); see ../../course.js reach and offer.
@@ -81,7 +82,12 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     folds: (l) => byId.get(l.id).fold ?? [],
     abstraction: true,
   })
-  const usableIn = (level, flags) => usable(course, { id: level.id }, flags)
-  const offerIn = (level, flags) => offer(course, { id: level.id }, flags)
+  // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
+  const held = (level) => byId.get(level.id)?.without ?? []
+  const usableIn = (level, flags) => usable(course, { id: level.id }, flags).filter((p) => !held(level).includes(p))
+  const offerIn = (level, flags) => {
+    const { shown, folded, ...rest } = offer(course, { id: level.id }, flags)
+    return { ...rest, shown: shown.filter((p) => !held(level).includes(p)), folded: folded.filter((p) => !held(level).includes(p)) }
+  }
   return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn }
 }

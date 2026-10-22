@@ -98,6 +98,29 @@
 .lg-mark-pick button[aria-pressed='true'] { color: var(--paper); background: var(--ink); box-shadow: none; }
 .lg-truth .run-foot { position: sticky; bottom: 0; }
 
+/* ---- designing a connective's rules (RuleScreen) ---- */
+.lg-rule { max-width: 760px; margin: 0 auto; padding: 28px 24px 40px; display: grid; gap: 16px; }
+.lg-rule-ways { padding: 10px 14px; border-radius: var(--r-md); background: var(--canvas); font-size: 13.5px; }
+.lg-rule-ways h3 { margin: 0 0 4px; font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.lg-rule-ways ul { margin: 0; padding-left: 18px; }
+.lg-rule-ways p { margin: 0; }
+.lg-rule-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.lg-rule-list li { padding: 10px 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border-radius: var(--r-md); background: var(--paper); box-shadow: var(--card); font-size: 14px; }
+.lg-rule-list li.is-wrong { box-shadow: 0 0 0 2px var(--fail), var(--card); }
+.lg-rule-list li > b { min-width: 52px; color: var(--ink); font-weight: 600; }
+.lg-rule-word { color: var(--muted); }
+.lg-rule-side { height: 32px; padding: 0 12px; border: 0; border-radius: 16px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; cursor: pointer; }
+.lg-rule-side[aria-pressed='true'] { color: var(--paper); background: var(--ink); box-shadow: none; }
+.lg-rule-remove { margin-left: auto; width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 14px; color: var(--muted); background: transparent; cursor: pointer; }
+.lg-rule-add { justify-self: start; height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 18px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13.5px; cursor: pointer; }
+.lg-rule-note { margin: 0; color: var(--muted); font-size: 13px; }
+.lg-rule-table { justify-self: start; }
+.lg-rule-problems { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.lg-rule .run-foot { position: sticky; bottom: 0; }
+@media (max-width: 760px) {
+  .lg-rule { padding: 4px 12px 24px; }
+}
+
 /* ---- map art ---- */
 
 @media (max-width: 760px) {
