@@ -60,6 +60,12 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const [drag, setDrag] = useState(null)
   const [picking, setPicking] = useState(null) // a dot clicked, waiting for the dot (or card) its wire goes to
   const [pointer, setPointer] = useState(null) // where the pointer is on the board while a dot is picked
+  // A new pick (or none) starts without a pointer, so the draft wire waits for the pointer to move instead of reaching
+  // for where the last pick's pointer was.
+  const pick = (dot) => {
+    setPicking(dot)
+    setPointer(null)
+  }
   // Where the dots and cards are drawn (in the layer's own pixels), measured after each render: { ports, sizes }.
   const [geo, setGeo] = useState({ ports: {}, sizes: {} })
   const geoRef = useRef(geo)
@@ -193,7 +199,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
         event.preventDefault()
         return key === 'y' || event.shiftKey ? history.redo() : history.undo()
       }
-      if (event.key === 'Escape' && picking) return setPicking(null)
+      if (event.key === 'Escape' && picking) return pick(null)
       if (!selected) return
       if (event.key === 'Escape') return setSelected(null)
       if (event.key !== 'Delete' && event.key !== 'Backspace') return
@@ -219,7 +225,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const field = event.target.closest('.frame-field')
     if (event.button > 0 || (card && !card.contains(field)) || event.target.closest('.kw, button, input, select, label, .float-window, .board-zoom, .board-views')) return
     setSelected(null)
-    setPicking(null)
+    pick(null)
     setTarget(field?.dataset.region ?? null)
     const box = surface.current.getBoundingClientRect()
     pointers.current.set(event.pointerId, [event.clientX, event.clientY])
@@ -311,13 +317,13 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     return e && byId.has(e.to) && byId.has(srcNode(e.from)) ? refusal(e.from, e.to, e.port) : null
   }
   const clickPort = (p) => {
-    if (!picking || picking === p) return setPicking(picking === p ? null : p)
+    if (!picking || picking === p) return pick(picking === p ? null : p)
     const e = wireOf(picking, p)
     if (e) {
       setRefused(null)
       onChange(connect(graph, e.to, e.port, e.from))
-      setPicking(null)
-    } else if (parsePort(picking).side === parsePort(p).side) setPicking(p)
+      pick(null)
+    } else if (parsePort(picking).side === parsePort(p).side) pick(p)
     else setRefused(refusalOf(picking, p))
   }
   // With a dot picked, clicking a card wires it there: an output to the card's first free input, an input from the
@@ -363,7 +369,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     handlers.current = {
       start(g) {
         if (g.kind === 'piece') choose(byId.get(g.id))
-        if (g.kind === 'port') setPicking(null)
+        if (g.kind === 'port') pick(null)
       },
       move(g) {
         if (g.kind === 'piece') redraw()
