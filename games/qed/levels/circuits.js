@@ -140,11 +140,12 @@ export const circuits = [
     ],
     hint: [
       T('「不都是」和「都不是」不一样：前者只要有一个不是就成立。', '“Not both” is not “neither”: the first holds as soon as one of them is not a knight.'),
-      T('「都是」是「a 是骑士」与「b 是骑士」；「不都是」是在它整句外面加一个非。', '“Both” is “a is a knight” and “b is a knight”; “not both” puts a Not round the whole of it.'),
+      T('「不都是」就是「至少有一个不是」。可以照字面译成：非（a 是骑士 与 b 是骑士）；也可以译成：（非 a 是骑士）或（非 b 是骑士）。', '“Not both” means “at least one is not”. It can be translated word for word: not (a is a knight and b is a knight); or as: (not a is a knight) or (not b is a knight).'),
     ],
     solution: board('¬(KA ∧ KB)', { a: 'gAnd', n: 'gNot' }, ['KA>a.a', 'KB>a.b', 'a>n.a', 'n>out']),
+    // The other translation, (not a) or (not b), passes too: the level checks the column, not the wiring.
     naive: board('¬(KA ∧ KB)', { na: 'gNot', nb: 'gNot', a: 'gAnd' }, ['KA>na.a', 'KB>nb.a', 'na>a.a', 'nb>a.b', 'a>out']),
-    after: T('「a 和 b 不都是骑士」翻译成：非（a 是骑士 与 b 是骑士）。三行为真，只有两人都是骑士那一行为假。要是译成「（非 a 是骑士）与（非 b 是骑士）」，说的就成了「两个都不是骑士」，只有一行为真。', '“a and b are not both knights” translates to: not (a is a knight and b is a knight). Three rows are true; only the row where both are knights is false. Translated as “(not a is a knight) and (not b is a knight)”, it would say “neither is a knight”, true on one row only.'),
+    after: T('「a 和 b 不都是骑士」有两种译法：照字面是「非（a 是骑士 与 b 是骑士）」，换个说法是「（非 a 是骑士）或（非 b 是骑士）」。两块电路每一行都一样：三行为真，只有两人都是骑士那一行为假。要是译成「（非 a 是骑士）与（非 b 是骑士）」，说的就成了「两个都不是骑士」，只有一行为真。', '“a and b are not both knights” has two translations: word for word, “not (a is a knight and b is a knight)”; said another way, “(not a is a knight) or (not b is a knight)”. The two boards agree on every row: three rows true, only the row where both are knights false. Translated as “(not a is a knight) and (not b is a knight)”, it would say “neither is a knight”, true on one row only.'),
   },
   {
     id: 'e-one',
