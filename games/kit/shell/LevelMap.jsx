@@ -11,10 +11,12 @@ import { PHONE, useMedia } from './useMedia.js'
 // of the level they follow.
 
 // Tree geometry in px: node size and the gaps between columns and rows; compact for a phone or the level drawer.
-// The gap under a level holds the parts it brings in and what passing it unlocks (UnlockChip). A level that is not a
+// The gap under a row holds the parts its levels bring in and what passing them unlocks (UnlockChip); a row with no
+// chip under it has the gap without the chip's height, so its wires are as long as the two halves of a wire round a chip. A level that is not a
 // milestone (game.core) is drawn smaller, `minor`, centred in its cell, so the grid is the same either way.
 const SIZE = { full: { w: 224, h: 52, col: 28, gap: 34, minor: { w: 180, h: 40 } }, compact: { w: 114, h: 62, col: 12, gap: 30, minor: { w: 100, h: 50 } } }
 const R = 8
+const CHIP = 20
 
 // Places a track as columns ("tracks"), each a run of rows on one lane: a main-path level, a parallel branch (kept to
 // the set's full depth, so a shorter branch keeps its room until the join), or an optional branch. A branch stays in
@@ -139,13 +141,15 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
   const rows = Math.max(...spots.map((p) => p.row)) + 1
   const half = Math.max(...spots.map((p) => Math.abs(p.col)))
   const x = (c) => (c + half) * (w + col)
-  const y = (r) => r * (h + gap)
   const width = x(half) + w
-  // The tree is as tall as its levels, plus the gap under the last row when a level there unlocks something.
   // What sits on the wire under a level: the primitives it brings in (once it opens) and what passing it unlocks.
   const chipOf = (level) => [...game.introduced(level).map((part) => ({ label: part.name, fresh: true, open: all || game.isOpen(level, solved) })), ...game.unlocked(level).map((part) => ({ label: part.label, open: all || solved.has(level.id) }))]
-  const chipBelow = [...at].some(([id, p]) => p.row === rows - 1 && byId.get(id) && chipOf(byId.get(id)).length)
-  const height = y(rows) - (chipBelow ? 0 : gap)
+  // The gap under each row, and each row's top.
+  const below = Array.from({ length: rows }, (_, r) => ([...at].some(([id, p]) => p.row === r && byId.get(id) && chipOf(byId.get(id)).length) ? gap : gap - CHIP))
+  const tops = below.reduce((acc, g) => [...acc, acc.at(-1) + h + g], [0])
+  const y = (r) => tops[r]
+  // The tree is as tall as its levels, plus the gap under the last row when a level there has a chip.
+  const height = y(rows) - (below[rows - 1] === gap ? 0 : below[rows - 1])
   const optional = new Set()
   for (const e of edges) if (e.kind === 'optional' || optional.has(e.from)) optional.add(e.to)
   // Start a tree wider than the screen on its main path.
@@ -162,9 +166,9 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
     const a = at.get(from), b = at.get(to)
     const x1 = x(a.col) + w / 2, y1 = y(a.row) + (h + box(from).h) / 2, x2 = x(b.col) + w / 2, y2 = y(b.row) + (h - box(to).h) / 2
     if (x1 === x2) return `M${x1} ${y1}V${y2}`
-    const yb = kind === 'join' || b.row - a.row > 1 ? y(b.row) - gap / 2 : y(a.row) + h + gap / 2
-    const s = Math.sign(x2 - x1)
-    return `M${x1} ${y1}V${yb - R}Q${x1} ${yb} ${x1 + s * R} ${yb}H${x2 - s * R}Q${x2} ${yb} ${x2} ${yb + R}V${y2}`
+    const yb = kind === 'join' || b.row - a.row > 1 ? y(b.row) - below[b.row - 1] / 2 : y(a.row) + h + below[a.row] / 2
+    const s = Math.sign(x2 - x1), r = Math.min(R, yb - y1, y2 - yb)
+    return `M${x1} ${y1}V${yb - r}Q${x1} ${yb} ${x1 + s * r} ${yb}H${x2 - s * r}Q${x2} ${yb} ${x2} ${yb + r}V${y2}`
   }
   const node = (level, p, optional) => {
     if (!level) return null
