@@ -53,7 +53,9 @@ export default {
   // Version 12 dropped 一长串 and 先换，再套用.
   { version: 12, ops: [{ rename: { long: null, swapUse: null } }] },
   // Version 13 dropped 接反了.
-  { version: 13, ops: [{ rename: { wrongChain: null } }] }],
+  { version: 13, ops: [{ rename: { wrongChain: null } }] },
+  // Version 14 brought Identity back, built in its own level before Merge: whoever had passed Merge has it.
+  { version: 14, ops: [{ solve: ['twice', ['ident']] }, { grant: ['twice', 'lemma:id'] }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
