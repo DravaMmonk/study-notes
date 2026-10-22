@@ -73,7 +73,7 @@ The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and pa
   never why it solves the level. Mechanical levels may hand-hold.
 - No forward references: nothing about later levels; a pass text only sums up this level.
 - References to another level are links, `<level-ref to="id"></level-ref>` on both the zh and en side (shown as the
-  level's title with a link icon; clicking asks, then goes there). Never 「its title」, "上一关", "前两关", "the last
+  level's number and title with a link icon, read live, so renumbering needs no copy change; clicking asks, then goes there). Never 「its title」, "上一关", "前两关", "the last
   level" or a number; `npm run check` reports them. A title that is also a part's name goes in the spec's `quotes`.
 - No level numbers in level copy; refer to earlier things by name. Level numbers belong on the map, in the
   components box and in the encyclopedia.
