@@ -2,8 +2,6 @@
 // and its ports, written with letters for any sentence (a part is a pattern), the settings on its
 // card and a box's regions, and the editor's description of a node (../../../circuit/model.js parts, frames.js).
 import { ArrowRightFromLine, Box, Flag, GitFork, Puzzle, Sigma, Split } from 'lucide-react'
-import { openings } from '../../../circuit/frames.js'
-import { CONNECTIVES, SIDES, casesOf, introOf } from '../declare.js'
 import { RULES, rulesOf } from '../proof.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -27,34 +25,6 @@ export const RULE_TEXT = {
   refl: { name: T('自反', 'Reflexivity'), desc: T('t = t。', 't = t.'), params: { t: T('项', 'Term') } },
   rewrite: { name: T('等量代换', 'Rewrite'), desc: T('由 s = t 和 φ(s) 得 φ(t)。', 'From s = t and φ(s), φ(t).'), ports: { eq: 's = t', p: 'φ(s)' }, params: { pattern: T('样式', 'Pattern') } },
   app: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B：把一句「如果…，那么…」套用到它的前一半上，得到后一半。', 'From A → B and A, B: apply an “if …, then …” to its “if” part; out comes the “then” part.'), ports: { imp: 'A → B', a: 'A' } },
-  ...declaredText(),
-}
-
-// The rules a declared connective gives (declare.js): each way to make it, and using it up by cases.
-function declaredText() {
-  const out = {}
-  for (const [id, conn] of Object.entries(CONNECTIVES)) {
-    const whole = conn.sides.length ? `A ${conn.op} B` : conn.op
-    const letter = { a: 'A', b: 'B' }
-    conn.ctors.forEach((fields, k) => {
-      const needs = fields.map((s) => letter[s]).join('、')
-      out[introOf(id, k)] = {
-        name: T(conn.ctors.length > 1 ? `造出 ${conn.op}（${SIDES[fields[0]].zh}）` : `造出 ${conn.op}`, conn.ctors.length > 1 ? `Make ${conn.op} (${SIDES[fields[0]].en})` : `Make ${conn.op}`),
-        desc: T(`由 ${needs} 得到 ${whole}${fields.length < conn.sides.length ? '，另一边在卡片上选' : ''}。`, `From ${fields.map((s) => letter[s]).join(' and ')}, ${whole}${fields.length < conn.sides.length ? '; choose the other side on the card' : ''}.`),
-        ports: Object.fromEntries(fields.map((s) => [s, letter[s]])),
-        params: Object.fromEntries(conn.sides.filter((s) => !fields.includes(s)).map((s) => [s, T(`${SIDES[s].zh}`, SIDES[s].en)])),
-      }
-    })
-    out[casesOf(id)] = conn.ctors.length
-      ? {
-        name: T(`用掉 ${conn.op}`, `Use up ${conn.op}`),
-        desc: T(`接进 ${whole}：${conn.ctors.length > 1 ? '每种造法一个框' : '一个框'}，框里假设造它时用的${conn.ctors.length > 1 ? '那一边' : '两边'}；每个框都证出 C，就得到 C。`, `Wire in ${whole}: ${conn.ctors.length > 1 ? 'a box for each way it is made' : 'one box'}, assuming what making it took; when every box proves C, you get C.`),
-        ports: { major: whole },
-        frames: Object.fromEntries(conn.ctors.map((fields, k) => [`c${k}`, conn.ctors.length > 1 ? T(`${SIDES[fields[0]].zh}的情况`, `The ${SIDES[fields[0]].en} case`) : T('框里', 'Inside')])),
-      }
-      : { name: T(`用掉 ${conn.op}`, `Use up ${conn.op}`), desc: T(`由 ${whole} 得到卡片上选的任何一句：它没有造法，也就没有要讨论的情况。`, `From ${whole}, whatever is chosen on the card: it has no way to be made, so there is no case to prove.`), ports: { major: whole }, params: { C: T('得出', 'Conclude') } }
-  }
-  return out
 }
 
 const FIXED = { premise: 'source', goal: 'sink' }
@@ -69,7 +39,7 @@ export const settingsOf = (parts, type) => (parts[type]?.params ?? []).map((key)
 /** A rule's or lemma's name and what it does. */
 export const nameOf = (lemmas, type) => lemmas[type]?.name ?? RULE_TEXT[type]?.name ?? type
 export const descOf = (lemmas, type) => lemmas[type]?.desc ?? RULE_TEXT[type]?.desc
-export const familyOf = (lemmas, type) => (lemmas[type] ? 'lemma' : RULES[type]?.frames?.().length ? 'box' : type === 'axK' || type === 'axS' ? 'axiom' : 'rule')
+export const familyOf = (lemmas, type) => (lemmas[type] ? 'lemma' : RULES[type]?.frames ? 'box' : type === 'axK' || type === 'axS' ? 'axiom' : 'rule')
 const ICONS = { lemma: Puzzle, box: Box, axiom: Sigma, rule: GitFork }
 export const iconOf = (lemmas, type) => ICONS[familyOf(lemmas, type)] ?? Split
 
@@ -96,8 +66,8 @@ export function partsFor(lemmas = {}, premises = []) {
     outputs: (node) => {
       const outs = RULE_TEXT[node.type]?.outs
       if (outs) return Object.entries(outs).map(([key, [label, short]]) => ({ key, label, short }))
-      const opens = (parts[node.type]?.frames?.(node) ?? []).flatMap(openings)
-      return opens.length ? [{ key: null, label: GIVES, short: GIVES }, ...opens.map((key) => ({ key, label: OPENS, short: OPENS }))] : null
+      const opens = (parts[node.type]?.frames?.(node) ?? []).filter((r) => r.opens)
+      return opens.length ? [{ key: null, label: GIVES, short: GIVES }, ...opens.map((r) => ({ key: r.name, label: OPENS, short: OPENS }))] : null
     },
     cardWidth: (node) => (parts[node.type]?.frames ? 240 : FIXED[node.type] ? 170 : 160),
     frames: (node) => (parts[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: RULE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),

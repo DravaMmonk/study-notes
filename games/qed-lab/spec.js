@@ -9,7 +9,7 @@ export default {
   domain: 'logic',
   title: { zh: '证明完毕 · 试做', en: 'Q.E.D. · Trial' },
   kicker: { zh: '试做 · 从两块元件搭起证明器', en: 'Trial · A prover from two parts' },
-  lede: { zh: '证明器的地基只有两块元件：套用和假设框。你先用它们证出公理 K 和 S，再给证明器加上「与」「或」「假」：每个连接词的规则都由你对着它的真值表设计出来。', en: 'The prover’s foundation is two parts: Apply and the assumption box. With them you first prove the axioms K and S, then add “and”, “or” and “false” to the prover, designing each connective’s rules yourself against its truth table.' },
+  lede: { zh: '证明器的地基只有两块元件：套用和假设框。你用它们证出公理 K 和 S，再拿掉框，看只靠公理的证明器有多费劲，以及为什么框能换成公理。', en: 'The prover’s foundation is two parts: Apply and the assumption box. With them you prove the axioms K and S, then take the box away to see how hard a prover with only axioms works, and why a box can always be traded for them.' },
   eras: ERAS,
   logic: LOGIC,
   levels: LOGIC.LEVELS,

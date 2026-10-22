@@ -103,12 +103,11 @@ export const ground = [
     tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
-    builds: 'chain',
     brief: T('已知「下雨 → 地湿」和「地湿 → 路滑」，证出「下雨 → 路滑」。', 'Given “it rains → the ground is wet” and “the ground is wet → the road is slippery”, prove “it rains → the road is slippery”.'),
     hint: [T('目标是一句「如果下雨，那么…」：假设「下雨」，看能套用出什么。', 'The goal is “if it rains, then …”: assume “it rains” and see what Apply gets you.')],
     intro: [{ t: T('两段「如果…那么…」首尾相接。要证一句「如果…那么…」，先假设它的前一半。', 'Two “if … then …”s meet end to end. To prove an “if … then …”, assume its first half.') }],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['app', {}, 'f'], m2: ['app', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
-    after: T('3 步。这块电路是元件<b>串联</b>：接进两段，直接给出接好的一段。', 'Three steps. This circuit becomes the part <b>Chain</b>: two pieces in, the joined one out.'),
+    after: T('3 步：要证「如果…那么…」，就假设它的前一半。下一个专题会拿掉框，看同一件事要费多少力气。', 'Three steps: to prove an “if … then …”, assume its first half. The topic that follows takes the box away to see what the same thing costs.'),
   },
 
   // ---- the topic: without the box ----
@@ -159,7 +158,7 @@ export const ground = [
     tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
-    without: ['impI', 'chain'],
+    without: ['impI'],
     brief: T('不用假设框，证出<level-ref to="chain"></level-ref>的「下雨 → 路滑」。', 'Without the assumption box, prove the “it rains → the road is slippery” of <level-ref to="chain"></level-ref>.'),
     hint: [
       T('框里的第二次套用是在条件「下雨」下做的：这正是 S 的事。S 的三句选「下雨」「地湿」「路滑」。', 'The box’s second Apply happens under the condition “it rains”: that is S’s job. Choose “it rains”, “the ground is wet”, “the road is slippery” on S.'),

@@ -3,7 +3,6 @@ import { EyeOff, Plus, Redo2, Spline, Undo2, Waypoints } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { feeding, inPort, layout, outPort, parsePort, placement, srcNode, srcOf } from './model.js'
-import { openings } from './frames.js'
 
 // The phone circuit board, the same in every game: the sources on top, parts in a two-column grid of slots that
 // keep their place, the sinks at the bottom. A block's inputs are dots on its top edge and its output a dot on its
@@ -130,7 +129,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   // Up to four sources (or sinks) to a row, the rows as even as they can be: five go 3 + 2, eight 4 + 4.
   const cols = (n) => ({ '--cols': n <= 4 ? n : Math.ceil(n / Math.ceil(n / 4)) })
   const regionsOf = (node) => parts.frames?.(node) ?? []
-  const own = (node) => new Set(regionsOf(node).flatMap((r) => [r.name, ...openings(r)]))
+  const own = (node) => new Set(regionsOf(node).map((r) => r.name))
 
   // Wires are drawn after layout from where the dots really are, and again while a wire is dragged.
   useLayoutEffect(() => {
@@ -264,21 +263,9 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
               {/* Along the region's top edge: its name, and the value it opens with the dot that gives it. */}
               <header className="pb-region-head">
                 {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
-                {r.opens === true && <em>{L(parts.outputs?.(node)?.find((o) => o.key === r.name)?.label ?? '')}</em>}
-                {r.opens === true && regionNote?.(node, r.name)}
-                {r.opens === true && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
-                {/* A region that opens several values: each with its note over its own dot, side by side. */}
-                {Array.isArray(r.opens) && (
-                  <span className="pb-out is-many">
-                    {openings(r).map((key) => (
-                      <span key={key} className="pb-o has-note">
-                        <em>{L(parts.outputs?.(node)?.find((o) => o.key === key)?.label ?? '')}</em>
-                        {regionNote?.(node, key)}
-                        {dot(outPort(srcOf(node, key)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, key)) ? 'is-wired' : ''}`)}
-                      </span>
-                    ))}
-                  </span>
-                )}
+                {r.opens && <em>{L(parts.outputs?.(node)?.find((o) => o.key === r.name)?.label ?? '')}</em>}
+                {r.opens && regionNote?.(node, r.name)}
+                {r.opens && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
               </header>
               {grid(`${node.id}/${r.name}`)}
               {/* Along the region's bottom edge: the dot its result goes into, and what the frame gives. */}

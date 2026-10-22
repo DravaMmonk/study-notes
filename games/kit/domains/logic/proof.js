@@ -11,21 +11,55 @@
 // hypotheses open but the premises: which region a card sits in is how the editor keeps it tidy, while the hypotheses
 // on every judgment are what make a proof sound. A rule that does not fit throws a PartError saying what it needed
 // and what reached it.
+import { PartError } from '../../engine/circuit.js'
 import { framePart } from '../../circuit/frames.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
-import { BOT, all, and, bin, eq, freeVars, imp, or, parse, same, subst, tvar } from './formula.js'
+import { BOT, all, and, bin, eq, freeVars, imp, or, parse, replaceAtoms, same, show, subst, tvar } from './formula.js'
 import { say } from './notation.js'
-import { DECLARED } from './declare.js'
-import { SHAPE, asAnd, asImp, assumed, fail, hypId, need, param, proved, sayIn, union, without } from './judgment.js'
 
-export { hypId, proved }
-
+/** A judgment: `formula` from `hyps`. */
+export const proved = (formula, hyps = new Map()) => ({ formula, hyps })
+const union = (...js) => new Map(js.flatMap((j) => [...j.hyps]))
+// What a port needed (a formula, or a SHAPE) and the formula that reached it, written in the level's notation.
+const need = (ctx, what, got) => {
+  const [w, g] = [what.op ? say(what, ctx.notation) : what, say(got, ctx.notation)]
+  return new PartError({ zh: `这里要 ${w.zh}，接进来的是 ${g.zh}`, en: `This needs ${w.en}; it got ${g.en}` })
+}
+const T = (zh, en) => ({ zh, en })
+const SHAPE = {
+  imp: T('一句「如果…那么…」', 'an “if … then …”'),
+  and: T('一句「…并且…」', 'an “… and …”'),
+  or: T('一句「…或者…」', 'an “… or …”'),
+  bot: T('矛盾 ⊥', 'a contradiction ⊥'),
+  nn: T('一句「并非并非…」', 'a “not not …”'),
+  all: T('一句「对所有 x…」', 'a “for all x …”'),
+  ex: T('一句「存在 x…」', 'a “there is an x …”'),
+  eq: T('一个等式', 'an equation'),
+  fits: T('一句这块元件接得上的话', 'a sentence this part accepts'),
+}
+const sayIn = (ctx, f) => say(f, ctx.notation)
+const fail = (zh, en) => new PartError({ zh, en })
+// A formula chosen on a card. Cards hold the level's schema (its letters), and a test case fills the letters in
+// (ctx.subst: A := it rains), so one proof runs on every case; the level's constants come through ctx.consts.
+const param = (node, key, ctx = {}) => {
+  const text = node.params?.[key]
+  if (typeof text !== 'string' || !text.trim()) throw fail('先在卡片上选好句子', 'Choose the sentences on the card first')
+  return replaceAtoms(parse(text, { consts: ctx.consts ?? [] }), ctx.subst ?? {})
+}
 // The term a card names (params.t).
 function termOf(node, ctx = {}) {
   const text = node.params?.t
   if (!text) throw fail('先填一个项', 'Fill in a term first')
   return parse(`${text} = ${text}`, { consts: ctx.consts ?? [] }).args[0]
 }
+// ¬A is A → ⊥ to the rules, and A ↔ B is (A → B) ∧ (B → A).
+const asImp = (f) => (f.op === '¬' ? imp(f.a, BOT) : f)
+const asAnd = (f) => (f.op === '↔' ? and(imp(f.a, f.b), imp(f.b, f.a)) : f)
+const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
+
+/** The hypothesis id of the assumption a box's region opens. */
+export const hypId = (node, region) => `${node.id}/${region}`
+const assumed = (node, region, formula) => proved(formula, new Map([[hypId(node, region), formula]]))
 export const RULES = {
   // The proof's own ends: a premise, and the goal.
   premise: source(),
@@ -159,11 +193,8 @@ export const RULES = {
       return proved(subst(pattern, x, t), union(e, p))
     },
   },
-
-  // ---- connectives declared by their constructors (declare.js) ----
-  ...DECLARED,
 }
-// Apply: Detach as a prover built on boxes calls it, where it is applying a proved “if … then …” to its “if” part.
+// Apply: Detach as a prover built on boxes calls it, applying a proved “if … then …” to its “if” part.
 RULES.app = RULES.mp
 
 /* ---------- lemmas: rules the player proved ---------- */
