@@ -12,7 +12,7 @@ const T = { pulse: [0.6, 2.4], down: [2.4, 2.75], up: [2.95, 3.5], slide: [3.6, 
 const EXAMPLES = [
   { imp: 'A → B', ant: 'A', out: 'B' },
   { imp: 'B → C', ant: 'B', out: 'C' },
-  { imp: '¬A → B', ant: '¬A', out: 'B' },
+  { imp: '¬A→B', ant: '¬A', out: 'B' },
   { imp: 'A → ⊥', ant: 'A', out: '⊥' },
   { imp: 'P → Q', ant: 'P', out: 'Q' },
 ];
