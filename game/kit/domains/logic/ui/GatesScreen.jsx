@@ -1,5 +1,5 @@
-import { useMemo, useRef, useState } from 'react'
-import { ArrowRightFromLine, CircleDot, Cpu, ToggleLeft, Trash2 } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowRightFromLine, CircleDot, Cpu, StepForward, ToggleLeft, Trash2 } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
@@ -11,9 +11,10 @@ import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, star
 
 // A truth-circuit level (《证明完毕》, gates.js) on the shared circuit editor: a card for each letter on the left, the
 // sentence's output on the right, gates as parts. The tests are the rows of the sentence's truth table: picking one
-// shows on every card what the board computes on that row, and checking runs them all, as a machine filling in the
-// whole table. A `blind` level does not show the wanted column: its sentence is a puzzle said in words.
+// shows on every card what the board computes on that row. Running goes down the table one row at a time, as a machine
+// filling it in: each row's card values and result show in turn, and the run stops on the first row it gets wrong. A `blind` level does not show the wanted column: its sentence is a puzzle said in words.
 
+const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const TF = (v) => (v === undefined ? '—' : v ? tr('真', 'T') : tr('假', 'F'))
 const T = (zh, en) => ({ zh, en })
 const SOURCE = T('输入', 'Input')
@@ -43,7 +44,11 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
   const word = (letter) => say(parse(letter), level.notation)
   const parts = useMemo(() => gatePartsFor(level.gates, word), [level])
   const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved, level, parts) ? saved : startGates(level)))
-  const [verdict, setVerdict] = useState(null) // checkGates' result, until the board changes
+  // A run down the table: checkGates' result, how many rows it has shown so far, and where it stops (the first wrong
+  // row, or the last row). The board changing ends it.
+  const [run, setRun] = useState(null) // { ...checkGates, stopAt, shown, playing }
+  const timer = useRef(null)
+  useEffect(() => () => clearInterval(timer.current), [])
   const [rowIndex, setRowIndex] = useState(0)
   const { letters, rows } = useMemo(() => rowsFor(level), [level])
   const row = rows[Math.min(rowIndex, rows.length - 1)]
@@ -51,18 +56,41 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
   const { shown: palette, folded } = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
   const sentence = L(say(parse(level.target), level.notation))
 
+  const stop = () => { clearInterval(timer.current); timer.current = null }
   const change = (next) => {
+    stop()
     setCircuit(next)
     save(next)
-    setVerdict(null)
+    setRun(null)
   }
   const reset = () => change(startGates(level))
-  const check = () => {
-    const run = checkGates(level, circuit)
-    setVerdict(run)
-    if (run.pass) solve({ steps: run.gates })
-    else if (!run.overBudget) setRowIndex(run.results.findIndex((r) => !r.pass))
-    return run.pass
+  // A new run, or the one under way when it has rows left to show.
+  const current = () => {
+    if (run && run.shown < run.stopAt + 1) return run
+    const checked = checkGates(level, circuit)
+    const wrong = checked.results.findIndex((r) => !r.pass)
+    return { ...checked, stopAt: wrong < 0 ? rows.length - 1 : wrong, shown: 0 }
+  }
+  // Show rows up to `upTo` (clamped to where the run stops); the last one shown is the row on the board.
+  const reveal = (r, upTo) => {
+    const shown = Math.min(upTo, r.stopAt + 1)
+    const next = { ...r, shown, playing: r.playing && shown < r.stopAt + 1 }
+    setRun(next)
+    setRowIndex(shown - 1)
+    if (shown === r.stopAt + 1) {
+      stop()
+      if (next.pass) solve({ steps: next.gates })
+    }
+    return next
+  }
+  const stepRow = () => { stop(); reveal({ ...current(), playing: false }, current().shown + 1) }
+  const play = () => {
+    if (run?.playing) { reveal(run, run.stopAt + 1); return }
+    let r = { ...current(), playing: true }
+    if (reduced()) { reveal(r, r.stopAt + 1); return }
+    r = reveal(r, r.shown + 1)
+    stop()
+    timer.current = setInterval(() => { r = reveal(r, r.shown + 1) }, 420)
   }
   const addNode = (type, extra = {}) => {
     const taken = new Set(circuit.nodes.map((n) => n.id))
@@ -77,13 +105,16 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
   }
 
   const rowLabel = (r) => letters.map((l) => `${L(word(l))} ${L(TF(r[l]))}`).join(' · ')
-  const states = rows.map((_, k) => (verdict ? (verdict.results[k].pass ? 'pass' : 'fail') : null))
+  const states = rows.map((_, k) => (run && k < run.shown ? (run.results[k].pass ? 'pass' : 'fail') : null))
+  const done = run && run.shown === run.stopAt + 1 && !run.playing
+  const verdict = done ? run : null
   const valueOf = (node) => (node.type === 'out' ? view.value : view.values.get(node.id))
   const errorOf = (node) => view.errors.get(node.id)
   const verdictText = !verdict ? null
     : verdict.pass ? tr('每一行都对：这块电路算出了这句话的整张真值表。', 'Every row is right: this board computes the sentence’s whole truth table.')
     : verdict.overBudget ? tr(`每一行都对，但用了 ${verdict.gates} 个门，这一关最多 ${level.budget} 个。`, `Every row is right, but it takes ${verdict.gates} gates; this level allows ${level.budget}.`)
-    : tr(`有 ${verdict.results.filter((r) => !r.pass).length} 行算错了，已经停在第一行算错的地方。`, `${verdict.results.filter((r) => !r.pass).length} rows are wrong; the board now shows the first of them.`)
+    : verdict.stopAt < rows.length - 1 || !verdict.results[verdict.stopAt].pass ? tr('这一行算错了，机器停在了这里：板上每张卡片显示的是它在这一行算出的值。', 'This row is wrong, and the machine stopped here: every card on the board shows what it computed on this row.')
+    : null
 
   const itemOf = (type) => ({ type, label: parts.rules[type].name, desc: parts.rules[type].desc, icon: parts.icon({ type }), family: parts.family({ type }), fresh: entry.fresh?.includes(type) })
   const items = palette.filter((t) => parts.rules[t]).map(itemOf)
@@ -110,7 +141,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
             <tr key={k} className={`${k === rows.indexOf(row) ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => setRowIndex(k)}>
               {letters.map((l) => <td key={l}>{L(TF(r.row[l]))}</td>)}
               {!level.blind && <td>{L(TF(r.want))}</td>}
-              <td>{verdict ? L(TF(verdict.results[k].got)) : k === rows.indexOf(row) ? L(TF(view.value)) : ''}</td>
+              <td>{run && k < run.shown ? L(TF(run.results[k].got)) : !run && k === rows.indexOf(row) ? L(TF(view.value)) : ''}</td>
             </tr>
           ))}
         </tbody>
@@ -121,7 +152,8 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
   const dock = (
     <RunDock
       secondary={circuit.nodes.some((n) => parts.role(n) === 'part') ? { label: tr('清空', 'Clear'), icon: <Trash2 size={16} />, onClick: reset } : null}
-      go={{ label: verdict?.pass ? tr('整张表都对', 'Whole table right') : tr('算整张表', 'Run every row'), pass: Boolean(verdict?.pass), onClick: check }}
+      controls={[{ key: 'step', label: tr('单步', 'Step'), icon: <StepForward size={16} />, onClick: stepRow }]}
+      go={{ label: verdict?.pass ? tr('整张表都对', 'Whole table right') : run?.playing ? tr('跳到结果', 'Skip to the end') : tr('一行一行算', 'Run row by row'), busy: Boolean(run?.playing), pass: Boolean(verdict?.pass), onClick: play }}
     />
   )
   const body = (node) => <div className="lg-card"><CardValue value={valueOf(node)} error={errorOf(node)} /></div>
