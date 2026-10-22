@@ -42,8 +42,6 @@ export const ERAS = [
     ],
     // Chain and Merge together, harder each time, then a false lookalike of Chain.
     practice: ['mergeUse', 'mergeLong', 'mergeBoth', 'wrongChain'],
-    // The deduction theorem needs only K and S: it opens once both axiom branches are done.
-    topics: [{ id: 'deduction', code: 'D', after: ['kmp', 's2'], levels: ['dt-mp', 'dt-whole'], title: T('演绎定理', 'The deduction theorem') }],
     challenges: [{ level: 'hs', after: 'swap' }],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠一条规则和两条公理，能证出什么？', 'What can one rule and two axioms prove?') },
   },

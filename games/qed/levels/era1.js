@@ -399,36 +399,4 @@ export const era1 = [
     after: T('4 步：K、S 各一块，串联、交换各一块。元件不光能接已知，也能接公理。', 'Four steps: K and S, then Chain and Swap. Parts take axioms as well as givens.'),
   },
   // The deduction theorem (a topic): a proof made under an assumption becomes a proof without it, step by step.
-  {
-    id: 'dt-mp',
-    kind: 'proof',
-    title: T('假设下的一步', 'One step under an assumption'),
-    tests: [{ premises: { p: 'A → B', q: 'A → (B → C)' }, goal: 'A → C' }],
-    cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
-    brief: T('把引入里那段假设「下雨」下的推理改写成不用假设的证明：由「下雨 → 刮风」和「下雨 → (刮风 → 地湿)」证出「下雨 → 地湿」。', 'Rewrite the reasoning under the assumption “it rains” from the introduction into a proof with no assumption: from “it rains → it is windy” and “it rains → (it is windy → the ground is wet)”, prove “it rains → the ground is wet”.'),
-    hint: [T('改写后，这一步要用的两句都背着同一个条件「下雨」。', 'Rewritten, both sentences this step uses carry the same condition, “it rains”.')],
-    intro: [
-      { t: T('人推理时常说「假设下雨，那么……那么……」。<b>假设</b>和「如果…那么…」不是一回事：假设是推理时暂时当作成立的出发点，后面每一句都在它之下推出；「下雨 → 地湿」则是一句话，可以接进规则。', 'People reason “suppose it rains; then …; then …”. An <b>assumption</b> is not an “if … then …”: it is a starting point taken as true for the moment, and every later line is derived under it; “it rains → the ground is wet” is a sentence that can go into a rule.') },
-      { t: T('证明核没有「假设」，只有句子。这个专题要找一个固定的改写办法：一段在假设下的推理，每一句都换成「下雨 → 那一句」，变成不用假设的证明。', 'The kernel has no assumptions, only sentences. This topic looks for a fixed way to rewrite: a stretch of reasoning under an assumption, every line turned into “it rains → that line”, becomes a proof with no assumption.') },
-      { t: T('先改写一步。左边是假设下的推理，右边是改写后要的句子：<table class="lg-dt"><tr><th>在假设「下雨」下</th><th>这一句怎么来</th><th>改写后要的句子</th></tr><tr><td>刮风</td><td>推出来的</td><td>下雨 → 刮风（已知）</td></tr><tr><td>刮风 → 地湿</td><td>推出来的</td><td>下雨 → (刮风 → 地湿)（已知）</td></tr><tr><td>地湿</td><td>上面两句分离</td><td><b>下雨 → 地湿</b>（要证）</td></tr></table>', 'Rewrite one step first. On the left, the reasoning under the assumption; on the right, the sentences the rewrite needs: <table class="lg-dt"><tr><th>Assuming “it rains”</th><th>Where it comes from</th><th>What the rewrite needs</th></tr><tr><td>it is windy</td><td>derived</td><td>it rains → it is windy (given)</td></tr><tr><td>it is windy → the ground is wet</td><td>derived</td><td>it rains → (it is windy → the ground is wet) (given)</td></tr><tr><td>the ground is wet</td><td>the two above, Detached</td><td><b>it rains → the ground is wet</b> (to prove)</td></tr></table>') },
-    ],
-    solution: proof({ s: ['axS', { A: 'A', B: 'B', C: 'C' }], m1: ['mp'], m2: ['mp'] }, ['s>m1.imp', 'q>m1.a', 'm1>m2.imp', 'p>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
-    after: T('假设下的一次分离，改写成 S 加两次分离。', 'One Detach under the assumption becomes S and two Detaches.'),
-  },
-  {
-    id: 'dt-whole',
-    kind: 'proof',
-    title: T('改写整个证明', 'Rewrite a whole proof'),
-    tests: [{ premises: { p: 'A → (B → C)', q: 'B' }, goal: 'A → C' }],
-    cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
-    brief: T('把引入里那段假设「下雨」下的推理整个改写：由「下雨 → (刮风 → 地湿)」和「刮风」证出「下雨 → 地湿」。', 'Rewrite the whole stretch of reasoning under the assumption “it rains” from the introduction: from “it rains → (it is windy → the ground is wet)” and “it is windy”, prove “it rains → the ground is wet”.'),
-    hint: [T('「刮风」不靠假设也成立，可改写后它也得背上「如果下雨」。', '“it is windy” holds without the assumption, yet in the rewrite it too must carry “if it rains”.')],
-    intro: [
-      { t: T('一段推理里，不只有推出来的句子，还有和假设无关的已知，比如这里的「刮风」：<table class="lg-dt"><tr><th>在假设「下雨」下</th><th>这一句怎么来</th><th>改写后要的句子</th></tr><tr><td>刮风 → 地湿</td><td>已知「下雨 → (刮风 → 地湿)」和假设分离</td><td>下雨 → (刮风 → 地湿)（已知）</td></tr><tr><td>刮风</td><td>已知，和假设无关</td><td>下雨 → 刮风</td></tr><tr><td>地湿</td><td>上面两句分离</td><td><b>下雨 → 地湿</b>（要证）</td></tr></table>', 'A stretch of reasoning has more than derived lines: it also uses givens unrelated to the assumption, like “it is windy” here: <table class="lg-dt"><tr><th>Assuming “it rains”</th><th>Where it comes from</th><th>What the rewrite needs</th></tr><tr><td>it is windy → the ground is wet</td><td>the given “it rains → (it is windy → the ground is wet)” and the assumption, Detached</td><td>it rains → (it is windy → the ground is wet) (given)</td></tr><tr><td>it is windy</td><td>given, unrelated to the assumption</td><td>it rains → it is windy</td></tr><tr><td>the ground is wet</td><td>the two above, Detached</td><td><b>it rains → the ground is wet</b> (to prove)</td></tr></table>') },
-    ],
-    solution: proof({ k: ['axK', { A: 'B', B: 'A' }], m0: ['mp'], s: ['axS', { A: 'A', B: 'B', C: 'C' }], m1: ['mp'], m2: ['mp'] }, ['k>m0.imp', 'q>m0.a', 's>m1.imp', 'p>m1.a', 'm1>m2.imp', 'm0>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
-    after: T('每一种步都有固定的改写：和假设无关的步用 K 包一层，分离用 S；假设本身改写成「下雨 → 下雨」，这句不用任何已知也证得出来。所以，能在一个假设下推出某件事，就一定能证出「如果 假设，那么 那件事」：这就是<b>演绎定理</b>。', 'Each kind of step has a fixed rewrite: an unrelated step is wrapped in K, Detach goes through S; the assumption itself becomes “it rains → it rains”, which can be proved from nothing at all. So whatever follows from an assumption gives a proof of “if the assumption, then that”: the <b>deduction theorem</b>.'),
-  },
 ]

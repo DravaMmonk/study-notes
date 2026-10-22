@@ -31,7 +31,9 @@ export default {
   // Version 5 made “Both ways round” build the Same truth gate.
   { version: 5, ops: [{ grant: ['g-iff', 'lemma:gIff'] }] },
   // Version 6 added practice with Merge and with Chain and Merge before the levels that now follow them.
-  { version: 6, ops: [{ solve: ['mergeUse', ['thrice']] }, { solve: ['wrongChain', ['mergeLong', 'mergeBoth']] }] }],
+  { version: 6, ops: [{ solve: ['mergeUse', ['thrice']] }, { solve: ['wrongChain', ['mergeLong', 'mergeBoth']] }] },
+  // Version 7 dropped the deduction-theorem topic: the assumption box introduces assumptions instead.
+  { version: 7, ops: [{ rename: { 'dt-mp': null, 'dt-whole': null } }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['分离'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
