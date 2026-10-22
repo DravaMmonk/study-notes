@@ -1,8 +1,8 @@
-// 《证明完毕》's course by era (games/DESIGN.md): one proof machine per era. Era 0 has none: a proposition is checked
-// by its truth table. Mark I proves everything from Detach and two axioms, slowly; its topic rewrites a proof under a
-// hypothesis into one without it (the deduction theorem), which Mark II then has built in as the assumption box.
-// Parts go with the machine: Mark II keeps only Detach, leaves K, S and the lemmas built from them behind, and
-// rebuilds the ones it needs with its boxes.
+// 《证明完毕》's course: one machine, the prover the player builds, module by module (one chapter each). Chapter 0 has
+// no machine: a sentence is checked by its truth table by hand. Truth circuits compute a sentence's value on every
+// row; the kernel proves from Detach and two axioms alone; its topic rewrites a proof under a hypothesis into one
+// without it (the deduction theorem), which the assumption box then makes a single part, taking the place of K and S.
+// Everything built earlier stays in the prover.
 const T = (zh, en) => ({ zh, en })
 
 // A named stretch of the main path (one branch of a `parallel` set): each new rule, then practice with it. Branches
@@ -18,7 +18,18 @@ export const ERAS = [
     chapter: { title: T('纸笔', 'Pen and paper'), question: T('一句话什么时候永远成立？', 'When does a statement always hold?') },
   },
   {
-    id: 'mk1', machine: 'mk1',
+    id: 'circuits', machine: 'prover',
+    foundation: [
+      series('gates', '门', 'Gates', ['g-not', 'g-and', 'g-tree']),
+      series('build', '造门', 'Building gates', ['g-or', 'g-imp']),
+    ],
+    practice: [series('kinds', '三种句子', 'Three kinds of sentence', ['g-always', 'g-never', 'g-iff'])],
+    topics: [{ id: 'islanders', code: 'E', after: 'g-iff', levels: ['e-one', 'e-two', 'e-three'], title: T('把谜题接成电路', 'A puzzle as a circuit') }],
+    challenges: [{ level: 'g-xor', after: 'g-or' }],
+    chapter: { title: T('真值电路', 'Truth circuits'), question: T('一句话在每一种情况下是真是假，能交给电路去算吗？', 'Can a circuit work out whether a sentence is true in every case?') },
+  },
+  {
+    id: 'kernel', machine: 'prover',
     foundation: [
       series('detach', '分离', 'Detach', ['copy', 'mp', 'pick', 'nested', 'cond']),
       // K and S need nothing from each other; what joins them waits for both.
@@ -31,14 +42,13 @@ export const ERAS = [
     ],
     topics: [{ id: 'deduction', code: 'D', after: 'self', levels: ['dt-mp', 'dt-whole'], title: T('演绎定理', 'The deduction theorem') }],
     challenges: [{ level: 'hs', after: 'swap' }],
-    chapter: { title: T('初号', 'Mark I'), question: T('只靠一条规则和两条公理，能证出什么？', 'What can one rule and two axioms prove?') },
+    chapter: { title: T('证明核', 'The kernel'), question: T('只靠一条规则和两条公理，能证出什么？', 'What can one rule and two axioms prove?') },
   },
   {
-    id: 'mk2', machine: 'mk2', keeps: ['mp'],
+    id: 'boxes', machine: 'prover',
     foundation: [
       'box',
-      // Rebuilding Mark I's parts and proving its axioms both need only the box.
-      branches(['rebuild', '重造元件', 'Rebuilding parts', ['chain2', 'swap2', 'merge2']], ['axioms', '公理成了定理', 'Axioms as theorems', ['nest', 'sbox']]),
+      series('axioms', '公理成了定理', 'Axioms as theorems', ['nest', 'sbox']),
       'chainUse',
       // And, or and not each need only the box; the mixed problems wait for all three.
       branches(
@@ -51,6 +61,6 @@ export const ERAS = [
     ],
     topics: [{ id: 'knights', code: 'K', after: 'lemCases', levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
     challenges: [{ level: 'peirce', after: 'lemCases' }],
-    chapter: { title: T('二号', 'Mark II'), question: T('先假设，再证明：框里的推理怎样变成框外的定理？', 'Assume, then prove: how does reasoning inside a box become a theorem outside it?') },
+    chapter: { title: T('假设框', 'Assumption boxes'), question: T('先假设，再证明：框里的推理怎样变成框外的定理？', 'Assume, then prove: how does reasoning inside a box become a theorem outside it?') },
   },
 ]

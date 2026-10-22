@@ -1,7 +1,10 @@
-// 第 2 代 · 二号：假设框。演绎定理成了身体的一部分：在框里假设一句话、证出另一句，框外就得到「如果…，那么…」。
-// 每个机制自成一节：先引入，再从不同角度练几道，最后组合起来；每节造出几块元件（串联、交换用框重造一遍，再加上否定
-// 后件、双重否定、德摩根、排中律），后面的题靠它们才好做。反证法在「排中律不可否定」之后出现：二号离它只差一步。
-// 骑士与无赖的专题讲岛上的人。每关是一个模式加几组测试案例（era1.js）。
+// Chapter 3 · Assumption boxes: the prover gains the box, the deduction theorem built in: assume a sentence inside a
+// box, prove another, and outside it you get "if …, then …". The box takes the place of axioms K and S (they leave the
+// tray; 'nest' and 'sbox' prove them as theorems), while Detach and the lemmas built in the kernel chapter (Identity,
+// Chain, Swap, Merge) stay. Each mechanism is its own section: introduced, practised from a few angles, then combined;
+// sections build parts of their own (modus tollens, double negation, De Morgan, excluded middle) that later levels
+// lean on. Proof by contradiction comes after "undeniable middle", when the prover is one step from it.
+// The knights-and-knaves topic is about the islanders. Each level is a pattern plus test cases (see era1.js).
 import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -40,25 +43,11 @@ export const era2 = [
     intro: [
       { t: T('周六的话，下雨我就在家休息。今天下雨了。人会这样想：「<b>假设</b>今天是周六。那下雨我就休息；可现在确实在下雨，所以我休息。所以，如果今天是周六，那么我休息。」', 'On a Saturday, if it rains I rest at home. It is raining. A person thinks: “<b>Suppose</b> today is Saturday. Then if it rains I rest; and it is raining, so I rest. So if today is Saturday, then I rest.”') },
       { t: T('「假设」不是说今天真是周六，而是先当它成立，看能推出什么；推完了，把它放回句子前面：「如果今天是周六，那么我休息」。这就是演绎定理。', '“Suppose” does not claim that today is Saturday: it takes it as holding for a while to see what follows, and once done, puts it back in front: “if today is Saturday, then I rest”. That is the deduction theorem.') },
-      { t: T('证明机<b>二号</b>就会这样想。它多了<b>假设框</b>：在框卡片上选要假设的话，框左上角就给出它（「假设」）；在框里摆元件，证出的东西接到框右上角的「结论」，框外就给出「如果 假设，那么 结论」。要往框里放元件，先点一下框里，或者把板上的卡片直接拖进去。框里看得见外面的一切，用法和外面一样。', 'The proof machine <b>Mark II</b> thinks that way. It has an <b>assumption box</b>: choose on the box card what to assume, and the box’s top left gives it (“Assume”); lay out parts inside the box and wire what you prove to “Conclusion” at its top right, and outside the box gives “if the assumption, then the conclusion”. To put a part in the box, click inside it first, or drag a card from the board into it. From inside the box everything outside is visible and works just as it does outside.') },
-      { t: T('初号证这题，要用 K 包一层、S 合起来，5 步。二号只带着分离过来，K、S 和用它们证出的元件都留在了初号：有了假设框，需要的元件可以重新造，又快又省。', 'Mark I proves this with K to wrap and S to combine: 5 steps. Mark II brings only Detach along; K, S and the parts proved from them stay with Mark I: with the assumption box, the parts you need can be rebuilt, faster and cheaper.') },
+      { t: T('证明器装上了<b>假设框</b>，就能这样想：在框卡片上选要假设的话，框左上角就给出它（「假设」）；在框里摆元件，证出的东西接到框右上角的「结论」，框外就给出「如果 假设，那么 结论」。要往框里放元件，先点一下框里，或者把板上的卡片直接拖进去。框里看得见外面的一切，用法和外面一样。', 'Now that the prover has an <b>assumption box</b>, it can think that way: choose on the box card what to assume, and the box’s top left gives it (“Assume”); lay out parts inside the box and wire what you prove to “Conclusion” at its top right, and outside the box gives “if the assumption, then the conclusion”. To put a part in the box, click inside it first, or drag a card from the board into it. From inside the box everything outside is visible and works just as it does outside.') },
+      { t: T('只用证明核，这题要用 K 包一层、S 合起来，5 步。假设框接替了 K 和 S：它们离开元件栏；分离，还有你造的恒等、串联、交换、合并，都留下。', 'With the kernel alone this takes K to wrap and S to combine: 5 steps. The assumption box takes the place of K and S: they leave the row of parts, while Detach and the parts you built, Identity, Chain, Swap and Merge, stay.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
     after: T('一个框、两次分离，和脑子里的推理一模一样。框里的假设只在框里有效：框一关，它就成了结论里「如果」后面那半句，不再算已知。以后要证「如果…那么…」，先试试假设前半句，看能不能推出后半句。', 'One box and two Detaches, exactly as you would reason it out. The assumption only holds inside the box: once the box closes it becomes the “if” half of the conclusion, and no longer counts as given. From now on, to prove an “if … then …”, try assuming the first half and see whether the second follows.'),
-  },
-  {
-    id: 'chain2',
-    kind: 'proof',
-    title: T('再接一次', 'Join them again'),
-    tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }],
-    cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
-    hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
-    builds: 'chain',
-    brief: T('已知「下雨 → 地湿」和「地湿 → 路滑」，证出「下雨 → 路滑」。', 'Given “it rains → the ground is wet” and “the ground is wet → the road is slippery”, prove “it rains → the road is slippery”.'),
-    hint: [T('假设「下雨」，框里分离两次。', 'Assume “it rains” and Detach twice inside the box.')],
-    intro: [{ t: T('还记得初号的「接起来」吗？K、S 摆来摆去，用了 5 步。二号有了假设框，同一题就是「假设下雨，那就地湿，那就路滑」。证出来，<b>串联</b>又回到了你手里。', 'Remember Mark I’s “Join them”? Five steps of placing K and S. With the assumption box it is just “suppose it rains; then wet; then slippery”. Prove it, and <b>Chain</b> is yours again.') }],
-    solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
-    after: T('3 步，比初号少 2 步，想起来也直接得多。机体升级以后，重新造一遍旧元件，往往便宜得多。', 'Three steps, two fewer than Mark I, and much more direct to think of. After an upgrade, rebuilding an old part is often far cheaper.'),
   },
   {
     id: 'nest',
@@ -69,37 +58,9 @@ export const era2 = [
     hiddenCases: [{ A: 'Sat', B: 'Rain' }],
     brief: T('没有任何已知，证出「下雨 → (刮风 → 下雨)」。', 'With nothing given, prove “it rains → (it is windy → it rains)”.'),
     hint: [T('两个 →，两个框：外面的框假设「下雨」，里面的框假设「刮风」。里面的框要的结论，外面的框已经假设了。', 'Two →s, two boxes: the outer one assumes “it rains”, the inner one “it is windy”. What the inner box must conclude, the outer box has already assumed.')],
-    intro: [{ t: T('这是初号的公理 K。初号只能拿它当出发点；二号可以证出它。框里可以再放框，里面的框看得见外面框的假设。', 'This is Mark I’s axiom K. Mark I could only start from it; Mark II can prove it. A box can sit inside a box, and the inner one sees the outer one’s assumption.') }],
+    intro: [{ t: T('这是证明核的公理 K。证明核只能拿它当出发点；装上假设框以后，它可以证出来。框里可以再放框，里面的框看得见外面框的假设。', 'This is the kernel’s axiom K. The kernel could only start from it; now that the prover has boxes, it can be proved. A box can sit inside a box, and the inner one sees the outer one’s assumption.') }],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'] }, ['f#body>g.body', 'g>f.body', 'f>goal']),
-    after: T('2 步，一步规则都没用：初号的公理在二号这里是定理。「刮风」的假设一直没用上，可框照样关得上。', 'Two steps and no rule at all: Mark I’s axiom is Mark II’s theorem. The “it is windy” assumption was never used, and the box closes all the same.'),
-  },
-  {
-    id: 'swap2',
-    kind: 'proof',
-    title: T('再换一次', 'Swap them again'),
-    tests: [{ premises: { p: 'A → (B → C)' }, goal: 'B → (A → C)' }],
-    cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
-    builds: 'swap',
-    brief: T('已知「今天是周六 → (下雨 → 我休息)」，证出「下雨 → (今天是周六 → 我休息)」。', 'Given “today is Saturday → (it rains → I rest)”, prove “it rains → (today is Saturday → I rest)”.'),
-    hint: [T('外面的框假设「下雨」，里面的框假设「今天是周六」。最里面有了两句假设，已知分离两次就行。', 'The outer box assumes “it rains”, the inner one “today is Saturday”. With both assumptions inside, Detach the given twice.')],
-    intro: [{ t: T('初号造<b>交换</b>要 S、K 加串联。二号把两个条件都假设下来，按需要的顺序用掉。', 'Mark I built <b>Swap</b> from S, K and Chain. Mark II assumes both conditions and uses them in whatever order it needs.') }],
-    solution: proof({ f: ['impI', { A: 'B' }], g: ['impI', { A: 'A' }, 'f'], m1: ['mp', {}, 'g'], m2: ['mp', {}, 'g'] }, ['p>m1.imp', 'g#body>m1.a', 'm1>m2.imp', 'f#body>m2.a', 'm2>g.body', 'g>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('<b>交换</b>也回来了。框的顺序，就是结论里条件的顺序。', '<b>Swap</b> is back too. The order of the boxes is the order of the conditions in the conclusion.'),
-  },
-  {
-    id: 'merge2',
-    kind: 'proof',
-    title: T('再并一次', 'Merge them again'),
-    tests: [{ premises: { p: 'A → (A → B)' }, goal: 'A → B' }],
-    cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Hungry', B: 'Eat' }],
-    hiddenCases: [{ A: 'Alarm', B: 'Up' }],
-    builds: 'merge',
-    brief: T('已知「下雨 → (下雨 → 地湿)」，证出「下雨 → 地湿」。', 'Given “it rains → (it rains → the ground is wet)”, prove “it rains → the ground is wet”.'),
-    hint: [T('一个框就够：框里的「下雨」可以接两次。', 'One box is enough: the “it rains” inside it can be wired in twice.')],
-    intro: [{ t: T('初号造<b>合并</b>要 S、恒等和两次分离，还得想清楚已知为什么不能接到自己身上。二号只要假设一次。', 'Mark I built <b>Merge</b> from S, Identity and two Detaches, after working out why the given cannot feed itself. Mark II assumes once.') }],
-    solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>m2.imp', 'f#body>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('<b>合并</b>也回来了。同一句假设接了两次：用几次都行。', '<b>Merge</b> is back too. The one assumption was wired in twice: use it as often as you need.'),
+    after: T('2 步，一步规则都没用：证明核的公理，现在是定理。「刮风」的假设一直没用上，可框照样关得上。', 'Two steps and no rule at all: the kernel’s axiom is now a theorem. The “it is windy” assumption was never used, and the box closes all the same.'),
   },
   {
     id: 'sbox',
@@ -108,14 +69,14 @@ export const era2 = [
     tests: [{ goal: '(A → (B → C)) → ((A → B) → (A → C))' }],
     cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
     hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
-    brief: T('没有任何已知，证出初号的公理 S：「(下雨 → (刮风 → 地湿)) → ((下雨 → 刮风) → (下雨 → 地湿))」。', 'With nothing given, prove Mark I’s axiom S: “(it rains → (it is windy → the ground is wet)) → ((it rains → it is windy) → (it rains → the ground is wet))”.'),
+    brief: T('没有任何已知，证出证明核的公理 S：「(下雨 → (刮风 → 地湿)) → ((下雨 → 刮风) → (下雨 → 地湿))」。', 'With nothing given, prove the kernel’s axiom S: “(it rains → (it is windy → the ground is wet)) → ((it rains → it is windy) → (it rains → the ground is wet))”.'),
     hint: [
       T('数一数最外层的 →：三个框，一个套一个，依次假设三个「如果」的部分。', 'Count the outermost →s: three boxes, one inside the next, assuming the three “if” parts in turn.'),
       T('最里面有了「下雨」，两句外层假设各分离一次，再把结果互相分离。', 'With “it rains” innermost, Detach each outer assumption once, then Detach the results together.'),
     ],
-    intro: [{ t: T('S 是初号最难懂的公理。在二号这里，它只是三个假设叠在一起。', 'S was Mark I’s hardest axiom. On Mark II it is just three assumptions stacked up.') }],
+    intro: [{ t: T('S 是证明核最难懂的公理。有了假设框，它只是三个假设叠在一起。', 'S was the kernel’s hardest axiom. With boxes it is just three assumptions stacked up.') }],
     solution: proof({ f: ['impI', { A: 'A → (B → C)' }], g: ['impI', { A: 'A → B' }, 'f'], h: ['impI', { A: 'A' }, 'g'], m1: ['mp', {}, 'h'], m2: ['mp', {}, 'h'], m3: ['mp', {}, 'h'] }, ['f#body>m1.imp', 'h#body>m1.a', 'g#body>m2.imp', 'h#body>m2.a', 'm1>m3.imp', 'm2>m3.a', 'm3>h.body', 'h>g.body', 'g>f.body', 'f>goal']),
-    after: T('6 步，S 就是「在条件下分离」，读出来就是证明。初号的两条公理，二号都证出来了。', 'Six steps: S is “Detach under a condition”, and reading it aloud is the proof. Both of Mark I’s axioms are now Mark II theorems.'),
+    after: T('6 步，S 就是「在条件下分离」，读出来就是证明。证明核的两条公理，现在都是定理了。', 'Six steps: S is “Detach under a condition”, and reading it aloud is the proof. Both of the kernel’s axioms are now theorems.'),
   },
   {
     id: 'chainUse',
@@ -126,9 +87,9 @@ export const era2 = [
     hiddenCases: [{ A: 'Coffee', B: 'Awake', C: 'Exam', D: 'Pass' }],
     brief: T('已知「闹钟响了 → 我起床了」和「我起床了 → (明天考试 → 我准时到)」，证出「明天考试 → (闹钟响了 → 我准时到)」。', 'Given “the alarm rings → I get up” and “I get up → (there is an exam tomorrow → I arrive on time)”, prove “there is an exam tomorrow → (the alarm rings → I arrive on time)”.'),
     hint: [T('两张已知首尾相接。接起来以后，条件的顺序和目标比一比。', 'The two givens meet end to end. Once joined, compare the order of the conditions with the goal’s.')],
-    intro: [{ t: T('两块重造的元件都在手里。这一题用框也做得出，用元件更快。', 'Both rebuilt parts are in hand. Boxes would do this too; the parts are quicker.') }],
+    intro: [{ t: T('你用证明核造的串联和交换还在手里。这一题用框也做得出，用元件更快。', 'The Chain and Swap you built with the kernel are still in hand. Boxes would do this too; the parts are quicker.') }],
     solution: proof({ c: ['chain'], w: ['swap'] }, ['p>c.p0', 'q>c.p1', 'c>w.p0', 'w>goal'], { premises: ['p', 'q'] }),
-    after: T('2 步，两块都是用框重造的元件。用框从头做，要两个框、两次分离，还得想好框的顺序。', 'Two steps, both parts rebuilt with boxes. From scratch it takes two boxes, two Detaches and some thought about their order.'),
+    after: T('2 步，两块都是你用证明核造的元件。用框从头做，要两个框、两次分离，还得想好框的顺序。', 'Two steps, both parts you built with the kernel. From scratch it takes two boxes, two Detaches and some thought about their order.'),
   },
 
   {
@@ -144,7 +105,7 @@ export const era2 = [
     hint: [T('先拆开，再按新的顺序拼起来。', 'Take it apart, then put it back together in the new order.')],
     intro: [
       { t: T('「永远成立」里见过「并且」：两件事都发生，整句才真。从这一关起，「…并且…」写成 <b>∧</b>，比如「下雨 ∧ 刮风」。', 'You met “and” in “Always true”: the whole is true only when both happen. From this level on, “… and …” is written <b>∧</b>, as in “it rains ∧ it is windy”.') },
-      { t: T('二号的规则成对出现：一条造出它，一条用掉它。<b>拼成 ∧</b>：有了左边，又有了右边，就有「左边 ∧ 右边」。<b>拆开 ∧</b>：从一句「… ∧ …」拆出左边，也拆出右边，它有两个输出口。', 'Mark II’s rules come in pairs: one makes a connective, one uses it up. <b>Join ∧</b>: from a left and a right, “left ∧ right”. <b>Split ∧</b>: from an “… ∧ …”, its left, and also its right; it has two outputs.') },
+      { t: T('这一章的规则成对出现：一条造出它，一条用掉它。<b>拼成 ∧</b>：有了左边，又有了右边，就有「左边 ∧ 右边」。<b>拆开 ∧</b>：从一句「… ∧ …」拆出左边，也拆出右边，它有两个输出口。', 'This chapter’s rules come in pairs: one makes a connective, one uses it up. <b>Join ∧</b>: from a left and a right, “left ∧ right”. <b>Split ∧</b>: from an “… ∧ …”, its left, and also its right; it has two outputs.') },
       { t: T('这一关不用框。', 'No box needed this time.') },
     ],
     solution: proof({ e: ['andE'], i: ['andI'] }, ['p>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>goal'], { premises: ['p'] }),
@@ -297,12 +258,12 @@ export const era2 = [
     adds: ['botE'],
     brief: T('一个证人说「门锁着」，又说「¬门锁着」。由这两句证出「月亮是奶酪做的」。', 'A witness says “the door is locked”, and also “¬the door is locked”. From the two, prove “the moon is made of cheese”.'),
     hint: [
-      T('在二号眼里，「¬门锁着」就是「门锁着 → ⊥」。它能接分离的哪个口？', 'To Mark II, “¬the door is locked” is “the door is locked → ⊥”. Which input of Detach can it go into?'),
+      T('在证明器眼里，「¬门锁着」就是「门锁着 → ⊥」。它能接分离的哪个口？', 'To the prover, “¬the door is locked” is “the door is locked → ⊥”. Which input of Detach can it go into?'),
       T('得到 ⊥ 以后，用「矛盾推出一切」，卡片上选「月亮是奶酪做的」。', 'Once you have ⊥, use “From contradiction” and choose “the moon is made of cheese” on its card.'),
     ],
     intro: [
       { t: T('一个证人先说「门锁着」，又说「并非门锁着」。两句不可能都对。', 'A witness says “the door is locked”, then “not the door is locked”. Both cannot be true.') },
-      { t: T('<b>⊥</b> 代表矛盾：一句永远是假的话。「并非…」写成 <b>¬</b>，二号把「¬门锁着」当成「门锁着 → ⊥」：「门锁着一成立就矛盾」。所以它配上「门锁着」，用分离就得到 ⊥。', '<b>⊥</b> stands for contradiction: a statement that is always false. “Not …” is written <b>¬</b>, and Mark II reads “¬the door is locked” as “the door is locked → ⊥”: “if the door is locked held, that would be a contradiction”. So with “the door is locked” it gives ⊥ by Detach.') },
+      { t: T('<b>⊥</b> 代表矛盾：一句永远是假的话。「并非…」写成 <b>¬</b>，证明器把「¬门锁着」当成「门锁着 → ⊥」：「门锁着一成立就矛盾」。所以它配上「门锁着」，用分离就得到 ⊥。', '<b>⊥</b> stands for contradiction: a statement that is always false. “Not …” is written <b>¬</b>, and the prover reads “¬the door is locked” as “the door is locked → ⊥”: “if the door is locked held, that would be a contradiction”. So with “the door is locked” it gives ⊥ by Detach.') },
       { t: T('<b>矛盾推出一切</b>：有了 ⊥，卡片上选什么，就能证出什么。', '<b>From contradiction, anything</b>: from ⊥, prove whatever is chosen on the card.') },
     ],
     solution: proof({ m: ['mp'], b: ['botE', { C: 'B' }] }, ['q>m.imp', 'p>m.a', 'm>b.bot', 'b>goal'], { premises: ['p', 'q'] }),
@@ -317,7 +278,7 @@ export const era2 = [
     hiddenCases: [{ A: 'Alarm', B: 'Up' }],
     brief: T('已知「下雨 → 地湿」和「下雨 → ¬地湿」，证出「¬下雨」。', 'Given “it rains → the ground is wet” and “it rains → ¬the ground is wet”, prove “¬it rains”.'),
     hint: [T('「¬下雨」就是「下雨 → ⊥」：假设「下雨」，在框里推出 ⊥。', '“¬it rains” is “it rains → ⊥”: assume “it rains” and reach ⊥ inside the box.')],
-    intro: [{ t: T('下雨就地湿，下雨又就不地湿，那就不可能在下雨。二号把「¬下雨」读成「下雨 → ⊥」：要证它，开一个框假设「下雨」，推出矛盾。', 'If rain means wet and also means not wet, it cannot be raining. Mark II reads “¬it rains” as “it rains → ⊥”: to prove it, open a box assuming “it rains” and reach a contradiction.') }],
+    intro: [{ t: T('下雨就地湿，下雨又就不地湿，那就不可能在下雨。证明器把「¬下雨」读成「下雨 → ⊥」：要证它，开一个框假设「下雨」，推出矛盾。', 'If rain means wet and also means not wet, it cannot be raining. The prover reads “¬it rains” as “it rains → ⊥”: to prove it, open a box assuming “it rains” and reach a contradiction.') }],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], m3: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'f#body>m2.a', 'm2>m3.imp', 'm1>m3.a', 'm3>f.body', 'f>goal'], { premises: ['p', 'q'] }),
     after: T('「假设它，推出矛盾，所以它不成立」：这是证明里最常用的招数之一。', '“Assume it, reach a contradiction, so it fails”: one of the most used moves in proofs.'),
   },
@@ -330,7 +291,7 @@ export const era2 = [
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
     brief: T('已知「下雨 → 地湿」「地湿 → 路滑」「¬路滑」，证出「¬下雨」。', 'Given “it rains → the ground is wet”, “the ground is wet → the road is slippery” and “¬the road is slippery”, prove “¬it rains”.'),
     hint: [T('「¬路滑」就是「路滑 → ⊥」，「¬下雨」就是「下雨 → ⊥」。三段首尾相接。', '“¬the road is slippery” is “slippery → ⊥”, and “¬it rains” is “it rains → ⊥”. Three pieces meet end to end.')],
-    intro: [{ t: T('下雨就地湿，地湿就路滑，可路不滑，所以没下雨。不用开框：想想「¬」在二号眼里是什么。', 'Rain wets the ground, a wet ground is slippery, the road is not, so it did not rain. No box needed: think about what “¬” is to Mark II.') }],
+    intro: [{ t: T('下雨就地湿，地湿就路滑，可路不滑，所以没下雨。不用开框：想想「¬」在证明器眼里是什么。', 'Rain wets the ground, a wet ground is slippery, the road is not, so it did not rain. No box needed: think about what “¬” is to the prover.') }],
     solution: proof({ c1: ['chain'], c2: ['chain'] }, ['p>c1.p0', 'q>c1.p1', 'c1>c2.p0', 'r>c2.p1', 'c2>goal'], { premises: ['p', 'q', 'r'] }),
     after: T('2 步，两次串联。「¬」就是「→ ⊥」，所以「没有结果，就没有起因」（否定后件）根本不用新元件：把「⊥」当成链条的最后一环，串联就够了。', 'Two steps, Chain twice. “¬” is “→ ⊥”, so “no effect, no cause” (modus tollens) needs no new part: with “⊥” as the last link, Chain does it.'),
   },
@@ -345,7 +306,7 @@ export const era2 = [
     hint: [T('「¬¬下雨」是「¬下雨 → ⊥」。假设「¬下雨」，它和已知撞出矛盾。', '“¬¬it rains” is “¬it rains → ⊥”. Assume “¬it rains”; it clashes with the given.')],
     intro: [{ t: T('在下雨，那「没下雨」就不可能成立。', 'It is raining, so “it is not raining” cannot hold.') }],
     solution: proof({ f: ['impI', { A: '¬A' }], m: ['mp', {}, 'f'] }, ['f#body>m.imp', 'p>m.a', 'm>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('2 步。注意方向：由「下雨」得到「¬¬下雨」很容易；反过来，由「¬¬下雨」得到「下雨」，二号做不到。', 'Two steps. Mind the direction: from “it rains” to “¬¬it rains” is easy; the other way, from “¬¬it rains” to “it rains”, Mark II cannot do.'),
+    after: T('2 步。注意方向：由「下雨」得到「¬¬下雨」很容易；反过来，由「¬¬下雨」得到「下雨」，证明器做不到。', 'Two steps. Mind the direction: from “it rains” to “¬¬it rains” is easy; the other way, from “¬¬it rains” to “it rains”, the prover cannot do.'),
   },
   {
     id: 'contra',
@@ -381,7 +342,7 @@ export const era2 = [
       { t: T('要拼出「¬今天是周六 ∧ ¬今天是周日」，就各开一个框去证「¬今天是周六」和「¬今天是周日」。证出来以后，这块电路是元件<b>德摩根</b>。', 'To build “¬today is Saturday ∧ ¬today is Sunday”, open a box each for “¬today is Saturday” and “¬today is Sunday”. Once proved, this circuit becomes the part <b>De Morgan</b>.') },
     ],
     solution: deMorgan,
-    after: T('现在你有了<b>德摩根</b>。这个方向不用任何花招。反过来的另一条德摩根律，从「并非（两个都）」到「这个不，或者那个不」，二号证不出来：要证一个 ∨，就得说出是哪一边不成立，而已知没说。', 'Now you have <b>De Morgan</b>. This direction takes no tricks. The other De Morgan law, from “not both” to “not this, or not that”, cannot be proved on Mark II: proving an ∨ means saying which side fails, and nothing given says.'),
+    after: T('现在你有了<b>德摩根</b>。这个方向不用任何花招。反过来的另一条德摩根律，从「并非（两个都）」到「这个不，或者那个不」，证明器证不出来：要证一个 ∨，就得说出是哪一边不成立，而已知没说。', 'Now you have <b>De Morgan</b>. This direction takes no tricks. The other De Morgan law, from “not both” to “not this, or not that”, cannot be proved by the prover: proving an ∨ means saying which side fails, and nothing given says.'),
   },
   {
     id: 'dmUse',
@@ -402,7 +363,7 @@ export const era2 = [
     title: T('否定前件', 'Denying the antecedent'),
     ask: 'counter',
     formulas: ['(Rain → Wet) → (¬Rain → ¬Wet)'],
-    brief: T('逆否成立。那「(下雨 → 地湿) → (¬下雨 → ¬地湿)」呢？二号证得出吗？找出让它为假的一行。', 'The contrapositive holds. What about “(it rains → the ground is wet) → (¬it rains → ¬the ground is wet)”? Can Mark II prove it? Find a row that makes it false.'),
+    brief: T('逆否成立。那「(下雨 → 地湿) → (¬下雨 → ¬地湿)」呢？证明器证得出吗？找出让它为假的一行。', 'The contrapositive holds. What about “(it rains → the ground is wet) → (¬it rains → ¬the ground is wet)”? Can the prover prove it? Find a row that makes it false.'),
     hint: [T('没下雨，地却湿了，可能吗？', 'Could it not rain, and the ground still be wet?')],
     intro: [{ t: T('「下雨就地湿，所以没下雨就不湿。」和逆否只差在 ¬ 放在了哪一边。动手证之前，先找反例。', '“Rain makes it wet, so no rain means dry.” It differs from the contrapositive only in which side the ¬s went. Before proving, look for a counterexample.') }],
     after: T('没下雨，地却湿了：「下雨 → 地湿」没错，「没下雨就不湿」错了。逆否把两边都否定、还换了位置；只否定不换位，就推不出来。', 'No rain, wet ground: “it rains → the ground is wet” holds, “no rain means dry” fails. The contrapositive negates both sides and swaps them; negating without swapping proves nothing.'),
@@ -421,7 +382,7 @@ export const era2 = [
       T('假设「¬(下雨 ∨ ¬下雨)」，然后把这个假设用两次。', 'Assume “¬(it rains ∨ ¬it rains)”, and then use that assumption twice.'),
     ],
     intro: [
-      { t: T('「下雨 ∨ ¬下雨」：要么下雨，要么没有。真值表上它每一行都真。可二号证 ∨ 只有一条路：先证出其中一边。「下雨」和「¬下雨」，你一个也证不出。', '“it rains ∨ ¬it rains”: either it rains or not. It is true on every row of its table. But Mark II proves an ∨ only one way: by proving one side first, and you can prove neither “it rains” nor “¬it rains”.') },
+      { t: T('「下雨 ∨ ¬下雨」：要么下雨，要么没有。真值表上它每一行都真。可证明器证 ∨ 只有一条路：先证出其中一边。「下雨」和「¬下雨」，你一个也证不出。', '“it rains ∨ ¬it rains”: either it rains or not. It is true on every row of its table. But the prover proves an ∨ only one way: by proving one side first, and you can prove neither “it rains” nor “¬it rains”.') },
       { t: T('退一步：证明「否认它会导致矛盾」，也就是「¬¬(下雨 ∨ ¬下雨)」。', 'Step back and prove that denying it leads to a contradiction: “¬¬(it rains ∨ ¬it rains)”.') },
     ],
     solution: proof({
@@ -433,7 +394,7 @@ export const era2 = [
       m2: ['mp', {}, 'f'],
     }, ['na#body>i.a', 'f#body>m.imp', 'i>m.a', 'm>na.body', 'na>i2.a', 'f#body>m2.imp', 'i2>m2.a', 'm2>f.body', 'f>goal']),
     naive: proof({ f: ['impI', { A: '¬(A ∨ ¬A)' }], i: ['orI', { other: '¬A', side: 'right' }, 'f'] }, ['f#body>i.a', 'i>f.body', 'f>goal']),
-    after: T('假设「¬(下雨 ∨ ¬下雨)」：先由它得出「¬下雨」，再由「¬下雨」得出「下雨 ∨ ¬下雨」，和它自己矛盾。二号证不出「下雨 ∨ ¬下雨」，却证得出「否认它会矛盾」：真值表上永真的话，二号不一定证得出。', 'Assume “¬(it rains ∨ ¬it rains)”: it gives “¬it rains”, and “¬it rains” gives “it rains ∨ ¬it rains”, which contradicts it. Mark II cannot prove “it rains ∨ ¬it rains”, but it can prove that denying it is a contradiction: not everything true on every row is provable on Mark II.'),
+    after: T('假设「¬(下雨 ∨ ¬下雨)」：先由它得出「¬下雨」，再由「¬下雨」得出「下雨 ∨ ¬下雨」，和它自己矛盾。证明器证不出「下雨 ∨ ¬下雨」，却证得出「否认它会矛盾」：真值表上永真的话，证明器不一定证得出。', 'Assume “¬(it rains ∨ ¬it rains)”: it gives “¬it rains”, and “¬it rains” gives “it rains ∨ ¬it rains”, which contradicts it. The prover cannot prove “it rains ∨ ¬it rains”, but it can prove that denying it is a contradiction: not everything true on every row is provable by the prover.'),
   },
   {
     id: 'raa',
@@ -448,8 +409,8 @@ export const era2 = [
     hint: [T('上一关造的「排中不可否定」给出「¬¬(下雨 ∨ ¬下雨)」。还差的那一步，就是新规则做的事。', 'Undeniable middle, built last level, gives “¬¬(it rains ∨ ¬it rains)”. The step still missing is what the new rule does.')],
     intro: [
       { t: T('这一节你一直在做同一件事：假设一句话，推出矛盾，于是证出「¬那句话」。上一关更进一步：假设「¬(下雨 ∨ ¬下雨)」推出矛盾，证出「¬¬(下雨 ∨ ¬下雨)」。', 'All this section you have done one thing: assume a sentence, reach a contradiction, and so prove “¬that sentence”. The last level went further: assuming “¬(it rains ∨ ¬it rains)” led to a contradiction, proving “¬¬(it rains ∨ ¬it rains)”.') },
-      { t: T('可「下雨 ∨ ¬下雨」本身，二号到现在都证不出来：它的 ∨ 只有一条路，先证出其中一边。真值表说它每一行都真，二号却差最后一步：去掉两个 ¬。', 'But “it rains ∨ ¬it rains” itself Mark II still cannot prove: its ∨ has one way in, proving one side first. The truth table says it holds on every row, and Mark II is one step short: dropping the two ¬s.') },
-      { t: T('数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」二号加上一条新规则<b>反证法</b>：由「并非并非 某句」得到那句。', 'Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” Mark II gains a new rule, <b>by contradiction</b>: from “not not a sentence”, the sentence.') },
+      { t: T('可「下雨 ∨ ¬下雨」本身，证明器到现在都证不出来：它的 ∨ 只有一条路，先证出其中一边。真值表说它每一行都真，证明器却差最后一步：去掉两个 ¬。', 'But “it rains ∨ ¬it rains” itself the prover still cannot prove: its ∨ has one way in, proving one side first. The truth table says it holds on every row, and the prover is one step short: dropping the two ¬s.') },
+      { t: T('数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」证明器加上一条新规则<b>反证法</b>：由「并非并非 某句」得到那句。', 'Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” The prover gains a new rule, <b>by contradiction</b>: from “not not a sentence”, the sentence.') },
     ],
     solution: proof({ n: ['nnlem', { A: 'A' }], r: ['raa'] }, ['n>r.nna', 'r>goal']),
     after: T('这一章一开头就证不出的那句话，现在两块元件就够了，这块电路是元件<b>排中律</b>：任何一句话，要么成立，要么不成立。不用反证法的逻辑叫<b>直觉主义逻辑</b>：每个「或」都要说出是哪一边。加上反证法就是<b>经典逻辑</b>：真值表上每一行都真的话，都证得出来。', 'The sentence you could not prove all chapter now takes two parts, and this circuit is the part <b>Excluded middle</b>: any sentence holds or it does not. Logic without proof by contradiction is called <b>intuitionistic</b>: every “or” must say which side. Add it and you have <b>classical</b> logic, where everything true on every row can be proved.'),
@@ -493,7 +454,7 @@ export const era2 = [
       T('框里对「下雨 ∨ ¬下雨」分情况。下雨的那一边，什么都不用做。', 'Inside the box, take cases on “it rains ∨ ¬it rains”. On the raining side there is nothing to do.'),
       T('不下雨的那一边：「¬下雨」能给出「下雨 → 地湿」（假设下雨，就矛盾了，矛盾推出一切）。', 'On the other side: “¬it rains” gives “it rains → the ground is wet” (assume it rains: contradiction, and from that anything).'),
     ],
-    intro: [{ t: T('一句只有 → 的话，二号没有反证法时证不出来，有了就证得出。它看着古怪，真值表上每一行却都真。', 'A sentence with nothing but →, unprovable on Mark II without proof by contradiction and provable with it. It looks strange, yet it is true on every row.') }],
+    intro: [{ t: T('一句只有 → 的话，证明器没有反证法时证不出来，有了就证得出。它看着古怪，真值表上每一行却都真。', 'A sentence with nothing but →, unprovable by the prover without proof by contradiction and provable with it. It looks strange, yet it is true on every row.') }],
     solution: proof({ f: ['impI', { A: '(A → B) → A' }], l: ['lem', { A: 'A' }, 'f'], e: ['orE', {}, 'f'], g: ['impI', { A: 'A' }, 'e/right'], m: ['mp', {}, 'g'], b: ['botE', { C: 'B' }, 'g'], m2: ['mp', {}, 'e/right'] }, ['l>e.ab', 'e#left>e.left', 'e#right>m.imp', 'g#body>m.a', 'm>b.bot', 'b>g.body', 'f#body>m2.imp', 'g>m2.a', 'm2>e.right', 'e>f.body', 'f>goal']),
     naive: proof({ f: ['impI', { A: '(A → B) → A' }] }, ['f#body>f.body', 'f>goal']),
     after: T('排中律、分情况、矛盾推出一切，三样一起用。古典逻辑里最出名的怪句子之一，就这样证完了。', 'Excluded middle, cases and ex falso together. One of classical logic’s most famous odd sentences, proved.'),
@@ -513,7 +474,7 @@ export const era2 = [
     ],
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，永远说真话；要么是<b>无赖</b>，永远说假话。', 'Everyone on the island is a <b>knight</b>, who always tells the truth, or a <b>knave</b>, who always lies.') },
-      { t: T('一个岛民说了一句话，就有：「他是骑士」<b>当且仅当</b>他说的是真的。「…当且仅当…」写成 <b>↔</b>：两个方向的 → 都成立，也就是「(甲 → 乙) ∧ (乙 → 甲)」。二号把它当成一句 ∧。', 'If an islander says something, then “he is a knight” <b>if and only if</b> what he says is true. “… if and only if …” is written <b>↔</b>: the → holds both ways, that is “(X → Y) ∧ (Y → X)”. Mark II reads it as an ∧.') },
+      { t: T('一个岛民说了一句话，就有：「他是骑士」<b>当且仅当</b>他说的是真的。「…当且仅当…」写成 <b>↔</b>：两个方向的 → 都成立，也就是「(甲 → 乙) ∧ (乙 → 甲)」。证明器把它当成一句 ∧。', 'If an islander says something, then “he is a knight” <b>if and only if</b> what he says is true. “… if and only if …” is written <b>↔</b>: the → holds both ways, that is “(X → Y) ∧ (Y → X)”. The prover reads it as an ∧.') },
     ],
     solution: k1,
     after: T('4 步：拆开、合并、两次分离。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。', 'Four steps: split, merge, two Detaches. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true.'),

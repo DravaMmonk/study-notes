@@ -3,6 +3,7 @@
 import { logicCourse } from '../../kit/domains/logic/course.js'
 import { ERAS } from './eras.js'
 import { era0 } from './era0.js'
+import { circuits, GATES } from './circuits.js'
 import { era1 } from './era1.js'
 import { era2 } from './era2.js'
 import { WORDS } from './words.js'
@@ -22,10 +23,13 @@ export const LEMMAS = {
 
 export const LOGIC = logicCourse({
   eras: ERAS,
-  levels: [...era0, ...era1, ...era2],
+  levels: [...era0, ...circuits, ...era1, ...era2],
   words: WORDS,
   lemmas: LEMMAS,
-  primitives: ['mp', 'axK', 'axS', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa'],
+  gates: GATES,
+  primitives: ['gNot', 'gAnd', 'mp', 'axK', 'axS', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa'],
   // Joining and splitting ∧ come together, as one idea.
   concept: { andI: 'and', andE: 'and' },
+  // The assumption box takes the place of the axioms: what they say is now proved with it.
+  replaces: { impI: ['axK', 'axS'] },
 })

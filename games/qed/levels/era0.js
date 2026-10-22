@@ -55,6 +55,6 @@ export const era0 = [
       { t: T('要说明一句话<b>不是</b>永远成立，不必把整张表填完：找到一行让它为假，就够了。这一行叫<b>反例</b>。', 'To show a sentence does <b>not</b> always hold, you need not fill the whole table: one row that makes it false is enough. That row is a <b>counterexample</b>.') },
       { t: T('点「试一试」，看这句话在那一行是真是假。找出让它为假的那一行。', 'Press “Try” to see whether the sentence is true or false on that row. Find the row that makes it false.') },
     ],
-    after: T('没下雨，地却湿了（洒水车刚开过去）：「下雨 → 地湿」还是对的，「地湿 → 下雨」却错了，整句为假。一行反例就推翻了它。可要确信一句话<b>永远</b>成立，就得把每一行都验过：事情一多，表有 2ⁿ 行；说到「所有的数」，表根本列不完。所以要换一种办法：<b>证明</b>。', 'No rain, yet the ground is wet (a street sweeper just went by): “it rains → the ground is wet” still holds, but “the ground is wet → it rains” fails, so the whole is false. One row brought it down. But to be sure a sentence <b>always</b> holds, every row must be checked: with more sentences a table has 2ⁿ rows, and for “every number” no table could ever be finished. So we need another way: <b>proof</b>.'),
+    after: T('没下雨，地却湿了（洒水车刚开过去）：「下雨 → 地湿」还是对的，「地湿 → 下雨」却错了，整句为假。一行反例就推翻了它。可要确信一句话<b>永远</b>成立，就得把每一行都验过：事情一多，表有 2ⁿ 行；说到「所有的数」，表根本列不完。', 'No rain, yet the ground is wet (a street sweeper just went by): “it rains → the ground is wet” still holds, but “the ground is wet → it rains” fails, so the whole is false. One row brought it down. But to be sure a sentence <b>always</b> holds, every row must be checked: with more sentences a table has 2ⁿ rows, and for “every number” no table could ever be finished.'),
   },
 ]

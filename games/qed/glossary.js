@@ -11,7 +11,7 @@ export const GLOSSARY = [
   {
     id: 'map', group: 'play', title: T('关卡地图', 'Level map'),
     body: [
-      T('关卡按证明机排成三章：纸笔、初号、二号。通过一关，接在它后面的关卡就会打开；岔出去的专题和挑战可以晚些再玩。', 'The levels sit in three chapters, one per proof machine: pen and paper, Mark I, Mark II. Pass a level and the levels after it open; the topics and challenges branching off can wait.'),
+      T('关卡排成四章：纸笔、真值电路、证明核、假设框。后三章是你一章一章装进同一台证明器的模块，前面装上的都留着。通过一关，接在它后面的关卡就会打开；岔出去的专题和挑战可以晚些再玩。', 'The levels sit in four chapters: pen and paper, truth circuits, the kernel, assumption boxes. The last three are modules you install, one chapter at a time, into the one prover you build, and what is installed stays. Pass a level and the levels after it open; the topics and challenges branching off can wait.'),
       T('不想按顺序玩，可以打开「全部解锁」。', 'If you would rather not go in order, turn on “Unlock all”.'),
     ],
     see: ['board'],
@@ -35,6 +35,15 @@ export const GLOSSARY = [
     see: ['proof'],
   },
   {
+    id: 'circuit', group: 'play', title: T('真值电路', 'Truth circuits'), at: 'g-not',
+    body: [
+      T('左边每件小事一张卡片：这一行它发生了就送出真，没发生就送出假。右边是「这句话」：接到它的线送来什么，这一行这句话就是什么。中间放门，用线接起来。', 'Each small fact has a card on the left: on a row where it happens it sends out true, otherwise false. On the right is “the sentence”: whatever reaches it is the sentence’s value on that row. Gates go in between, wired together.'),
+      T('下面的真值表里点一行，板上每张卡片就显示它在那一行的值。点「算整张表」，机器把电路在每一行各跑一遍，算错的行会标出来。', 'Click a row of the truth table below and every card shows its value on that row. Press “Run every row” and the machine runs the board on every row, marking the rows it gets wrong.'),
+      T('有的关不给出要的那一列：要算的句子只用话说出来，把它接成电路就是这一关的题。', 'Some levels do not show the wanted column: the sentence is only said in words, and wiring it is the puzzle.'),
+    ],
+    see: ['truth'],
+  },
+  {
     id: 'proof', group: 'logic', title: T('证明', 'Proof'), at: 'copy',
     body: [
       T('证明是一串步骤，每一步都由规则从前面的步骤得来。它不看真假，只看形状：规则对得上就行。', 'A proof is a chain of steps, each drawn by a rule from the steps before. It does not look at truth, only at shape: the rule has to fit.'),
@@ -45,7 +54,7 @@ export const GLOSSARY = [
   {
     id: 'hilbert', group: 'logic', title: T('公理与分离', 'Axioms and Detach'), at: 'k',
     body: [
-      T('初号是一个<b>希尔伯特系统</b>：只有一条规则「分离」（由「如果…那么…」和它的前一半得到后一半），加上两条公理 K 和 S。K 说已经成立的事加上任何条件都还成立；S 说在一个条件下也能做分离。', 'Mark I is a <b>Hilbert system</b>: one rule, Detach (from an “if … then …” and its “if” part, the “then” part), and two axioms, K and S. K says what holds still holds under any condition; S says Detach works under a condition too.'),
+      T('证明核是一个<b>希尔伯特系统</b>：只有一条规则「分离」（由「如果…那么…」和它的前一半得到后一半），加上两条公理 K 和 S。K 说已经成立的事加上任何条件都还成立；S 说在一个条件下也能做分离。', 'The kernel is a <b>Hilbert system</b>: one rule, Detach (from an “if … then …” and its “if” part, the “then” part), and two axioms, K and S. K says what holds still holds under any condition; S says Detach works under a condition too.'),
       T('公理卡片上的几句话可以选成任何句子，每选一次就是一条公理。', 'The sentences on an axiom’s card can be any sentences; each choice is one axiom.'),
     ],
     see: ['deduction'],
@@ -63,7 +72,7 @@ export const GLOSSARY = [
   {
     id: 'box', group: 'play', title: T('假设框', 'Assumption boxes'), at: 'box',
     body: [
-      T('二号的假设框是板上的一个框，框里就能摆元件。在框卡片上填要假设的命题，框左上角的「假设」就给出它；框里证出的东西接到框右上角的「结论」，框外就得到「假设 → 结论」。', 'Mark II’s assumption box is a frame on the board, and parts sit right inside it. Fill in what to assume on the box card, and “Assume” at the box’s top left gives it; wire what you prove inside to “Conclusion” at its top right, and outside you get “assumption → conclusion”.'),
+      T('假设框是板上的一个框，框里就能摆元件。在框卡片上填要假设的命题，框左上角的「假设」就给出它；框里证出的东西接到框右上角的「结论」，框外就得到「假设 → 结论」。', 'An assumption box is a frame on the board, and parts sit right inside it. Fill in what to assume on the box card, and “Assume” at the box’s top left gives it; wire what you prove inside to “Conclusion” at its top right, and outside you get “assumption → conclusion”.'),
       T('点一下框里的空白，新放的元件就落在框里；板上的卡片也可以拖进框里，或拖出来。框里看得见外面的一切，框里证出的东西却只能从「结论」带出去。框卡片左上角的箭头把框折叠起来。', 'Click the empty space inside a box and new parts land in it; cards on the board can be dragged into a box, or out of one. From inside a box everything outside is visible, but what is proved inside leaves only through “Conclusion”. The arrow at the top left of the box card folds it away.'),
       T('框一关，它的假设就不再算数：卡片下面列着它还依赖的假设，证到目标时一个都不能剩（前提除外）。', 'Once the box closes, its assumption no longer counts: under each card are the hypotheses it still depends on, and none may be left at the goal (the premises aside).'),
     ],
@@ -71,7 +80,7 @@ export const GLOSSARY = [
   },
   {
     id: 'natural', group: 'logic', title: T('自然演绎', 'Natural deduction'), at: 'and',
-    body: [T('二号的规则成对出现：每个连接词一条<b>引入</b>规则（怎样证出它），一条<b>消去</b>规则（怎样用它）。∧ 是拼起来和拆开，∨ 是二选一和分情况，→ 是假设框和分离，⊥ 是「矛盾推出一切」。', 'Mark II’s rules come in pairs: for each connective a rule that <b>brings it in</b> (how to prove it) and one that <b>uses it up</b>. ∧ is joining and splitting, ∨ choosing a side and splitting into cases, → the assumption box and Detach, and ⊥ “from contradiction, anything”.')],
+    body: [T('装上假设框以后，证明器的规则成对出现：每个连接词一条<b>引入</b>规则（怎样证出它），一条<b>消去</b>规则（怎样用它）。∧ 是拼起来和拆开，∨ 是二选一和分情况，→ 是假设框和分离，⊥ 是「矛盾推出一切」。', 'Once the prover has boxes, its rules come in pairs: for each connective a rule that <b>brings it in</b> (how to prove it) and one that <b>uses it up</b>. ∧ is joining and splitting, ∨ choosing a side and splitting into cases, → the assumption box and Detach, and ⊥ “from contradiction, anything”.')],
     see: ['classical'],
   },
   {

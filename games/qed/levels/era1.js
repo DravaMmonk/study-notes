@@ -1,8 +1,9 @@
-// 第 1 代 · 初号：只有一条规则「分离」和两条公理 K、S。什么都能证，但很费劲。每个新东西之后跟几道小练习，从不同的
-// 角度用它（两步、挑已知、把推出的「如果…那么…」再拿去用）；然后用 K、S 造出元件串联、恒等、交换、合并，后面的题
-// 靠它们才好做。
-// 每关是一个模式（字母只在这里出现）加几组测试案例：同一个证明要在每一组句子上都成立，还有隐藏的几组。任务、引入和
-// 点题的文字都拿第一组（下雨）作例子。
+// Chapter 2 · The kernel: the prover's first proving module. Theorems come only from one rule, Detach, and two axioms,
+// K and S. It can prove everything, laboriously. Each new thing is followed by a few short exercises using it from
+// different angles (two steps, picking givens, reusing a derived "if … then …"); then K and S build the parts Chain,
+// Identity, Swap and Merge, which stay in the prover and make later levels manageable.
+// Each level is a pattern (letters appear only here) plus test cases: one proof must hold on every set of sentences,
+// plus a few hidden ones. Brief, intro and pass texts use the first case (rain) as their example.
 import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -27,8 +28,8 @@ export const era1 = [
     brief: T('已知「下雨」，证出「下雨」。', 'Given “it rains”, prove “it rains”.'),
     hint: [T('从「已知」卡片右边的圆点，连到「目标」卡片左边的圆点。', 'Wire the dot on the right of the “Given” card to the dot on the left of the “Goal” card.')],
     intro: [
-      { t: T('真值表一行一行地验，行数一多就验不完。证明换一个思路：从已经知道的事出发，一步一步推出想要的结论。每一步都按规则走，只看句子的形状，不看天气。', 'A truth table checks row by row, and with many rows it never ends. Proof works the other way: start from what you know and reach the conclusion step by step. Each step follows a rule that looks only at the shape of sentences, never at the weather.') },
-      { t: T('这是证明机<b>初号</b>。左边的卡片是<b>已知</b>，右边是<b>目标</b>。板上的一根线，意思是「这件事已经证出来了」。', 'This is the proof machine <b>Mark I</b>. The cards on the left are what is <b>given</b>, the one on the right is the <b>goal</b>. A wire on the board means “this has been proved”.') },
+      { t: T('上一章的真值电路把一句话一行一行地验，行数一多就验不完。证明器的下一个模块<b>证明核</b>换一个思路：不看真假，只靠规则，从已经知道的事出发，一步一步推出想要的结论。每一步都只看句子的形状，不看天气。', 'The truth circuits of the last chapter check a sentence row by row, and with many rows it never ends. The prover’s next module, <b>the kernel</b>, works the other way: not by truth but by rules alone, it starts from what you know and reaches the conclusion step by step. Each step looks only at the shape of sentences, never at the weather.') },
+      { t: T('板上左边的卡片是<b>已知</b>，右边是<b>目标</b>。板上的一根线，意思是「这件事已经证出来了」。', 'On the board, the cards on the left are what is <b>given</b>, the one on the right is the <b>goal</b>. A wire on the board means “this has been proved”.') },
       { t: T('板子下面是几组<b>测试</b>，每组讲一件不同的事：这一组讲「下雨」，另一组讲别的。同一块电路要在每一组上都证得出；还有几组隐藏测试，过关后才公开。', 'Under the board are a few <b>tests</b>, each about something different: this one about “it rains”, another about something else. One circuit must prove every one of them; a few hidden tests are checked too, and shown once you pass.') },
     ],
     after: T('已知的事本身就是一个证明，不管它讲的是什么。板上的每一块元件都是一条<b>推理规则</b>：输入口接它需要的东西，输出口给出它推出的结论。', 'What is given is already a proof, whatever it is about. Each part on the board is a <b>rule of inference</b>: its inputs take what it needs, its output gives what it concludes.'),
@@ -47,8 +48,8 @@ export const era1 = [
       T('第一块分离给出「地湿」。它和已知一样，能接进第二块分离。', 'The first Detach gives “the ground is wet”. Like a given, it can go into a second Detach.'),
     ],
     intro: [
-      { t: T('下雨就地湿，地湿就路滑；现在下雨了。不用想也知道：路滑。可这里有两步，每一步都是同一个动作：有了「如果…那么…」和它的前一半，就有后一半。证明机要把这个动作变成一条规则，才能照着做。', 'Rain makes the ground wet, a wet ground makes the road slippery, and it is raining. Without thinking: the road is slippery. That took two steps, each the same move: from an “if … then …” and its “if” part, its “then” part. The proof machine needs that move as a rule it can follow.') },
-      { t: T('<b>分离</b>：一个输入口接「如果…，那么…」，另一个接它的前一半，输出口给出后一半。这是初号唯一的推理规则。', '<b>Detach</b>: one input takes an “if …, then …”, the other its “if” part, and out comes the “then” part. It is Mark I’s only rule of inference.') },
+      { t: T('下雨就地湿，地湿就路滑；现在下雨了。不用想也知道：路滑。可这里有两步，每一步都是同一个动作：有了「如果…那么…」和它的前一半，就有后一半。证明核要把这个动作变成一条规则，才能照着做。', 'Rain makes the ground wet, a wet ground makes the road slippery, and it is raining. Without thinking: the road is slippery. That took two steps, each the same move: from an “if … then …” and its “if” part, its “then” part. The kernel needs that move as a rule it can follow.') },
+      { t: T('<b>分离</b>：一个输入口接「如果…，那么…」，另一个接它的前一半，输出口给出后一半。这是证明核唯一的推理规则。', '<b>Detach</b>: one input takes an “if …, then …”, the other its “if” part, and out comes the “then” part. It is the kernel’s only rule of inference.') },
       { t: T('从上面的元件栏放分离，把已知接进去，最后接到目标。接错了，卡片会说它要什么、接进来的是什么。换一组测试看看：电路不用动，句子全换了。', 'Place Detaches from the row of parts above, wire the givens in, and finally wire to the goal. Wire it wrong and the card says what it wanted and what it got. Switch tests: the circuit stays, every sentence changes.') },
     ],
     solution: proof({ m1: ['mp'], m2: ['mp'] }, ['p>m1.imp', 'r>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p', 'q', 'r'] }),
@@ -69,11 +70,11 @@ export const era1 = [
     ],
     intro: [
       { t: T('已知「下雨」。那「如果刮风，那么下雨」对不对？对：不管刮风没有，下雨都是真的。「永远成立」里你见过这个形状：「下雨 → (刮风 → 下雨)」每一行都真。', 'You know “it rains”. Is “if it is windy, then it rains” true? Yes: whether or not it is windy, it rains holds. You met this shape in “Always true”: “it rains → (it is windy → it rains)” is true on every row.') },
-      { t: T('初号把这个形状做成了<b>公理 K</b>。公理是不用证的出发点：K 没有输入口，卡片上选好「第一句」和「第二句」，它就给出「如果 第一句，那么（如果 第二句，那么 第一句）」。选哪两句都成立。', 'Mark I makes that shape <b>axiom K</b>. An axiom is a starting point that needs no proof: K has no inputs. Choose its first and second sentence on the card and it gives “if the first, then (if the second, then the first)”, whichever two you choose.') },
+      { t: T('证明核把这个形状做成了<b>公理 K</b>。公理是不用证的出发点：K 没有输入口，卡片上选好「第一句」和「第二句」，它就给出「如果 第一句，那么（如果 第二句，那么 第一句）」。选哪两句都成立。', 'The kernel makes that shape <b>axiom K</b>. An axiom is a starting point that needs no proof: K has no inputs. Choose its first and second sentence on the card and it gives “if the first, then (if the second, then the first)”, whichever two you choose.') },
       { t: T('用 K 得到「如果下雨，那么（如果刮风，那么下雨）」，再用分离把已知的「下雨」接上。', 'Use K to get “if it rains, then (if it is windy, then it rains)”, then Detach it with the “it rains” you are given.') },
     ],
     solution: proof({ k: ['axK', { A: 'A', B: 'B' }], m: ['mp'] }, ['k>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
-    after: T('K 说的是：已经成立的事，加上什么条件都还成立。换一组测试，卡片上的句子跟着换了名字，电路一点没变。初号一共只有两条公理，K 是其中一条。', 'K says: what already holds still holds under any extra condition. Switch tests and the sentences on the card are renamed, while the circuit stays the same. Mark I has just two axioms, and K is one of them.'),
+    after: T('K 说的是：已经成立的事，加上什么条件都还成立。换一组测试，卡片上的句子跟着换了名字，电路一点没变。证明核一共只有两条公理，K 是其中一条。', 'K says: what already holds still holds under any extra condition. Switch tests and the sentences on the card are renamed, while the circuit stays the same. The kernel has just two axioms, and K is one of them.'),
   },
   {
     id: 's',
@@ -90,7 +91,7 @@ export const era1 = [
     ],
     intro: [
       { t: T('已知：下雨的时候，只要刮风，就地湿。又知道：下雨的时候，一定刮风。那么下雨的时候，就地湿。这其实是在「下雨」这个条件下做了一次分离。', 'You know: when it rains, if it is windy, then the ground is wet. You also know: when it rains, it is windy. So when it rains, the ground is wet. That is a Detach done under the condition “it rains”.') },
-      { t: T('可分离只能用在不带条件的句子上。初号的另一条公理 <b>S</b> 专管这件事。卡片上选好三句话，它给出：「如果（第一句下，第二句推出第三句），那么（如果第一句下有第二句，那么第一句下有第三句）」。', 'But Detach only works on sentences with no condition. Mark I’s other axiom, <b>S</b>, is for exactly this. Choose three sentences on its card and it gives: “if (under the first, the second gives the third), then (if under the first there is the second, then under the first there is the third)”.') },
+      { t: T('可分离只能用在不带条件的句子上。证明核的另一条公理 <b>S</b> 专管这件事。卡片上选好三句话，它给出：「如果（第一句下，第二句推出第三句），那么（如果第一句下有第二句，那么第一句下有第三句）」。', 'But Detach only works on sentences with no condition. The kernel’s other axiom, <b>S</b>, is for exactly this. Choose three sentences on its card and it gives: “if (under the first, the second gives the third), then (if under the first there is the second, then under the first there is the third)”.') },
       { t: T('S 看着长，用法却是固定的：选好三句话，再把它和两张已知各分离一次。', 'S looks long, but it is always used the same way: choose the three sentences, then Detach it with each given in turn.') },
     ],
     solution: proof({ s: ['axS', { A: 'A', B: 'B', C: 'C' }], m1: ['mp'], m2: ['mp'] }, ['s>m1.imp', 'p>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
@@ -124,7 +125,7 @@ export const era1 = [
     ],
     intro: [
       { t: T('下雨，就地湿；地湿，就路滑。所以下雨，就路滑。两段「如果…那么…」首尾相接，凭直觉一步就到。', 'it rains gives the ground is wet; the ground is wet gives the road is slippery. So it rains gives the road is slippery. Two “if … then …”s joined end to end: one step, by instinct.') },
-      { t: T('可初号没有「首尾相接」这条规则。「在条件下分离」那关，S 在一个条件下做了分离，那时两张已知都带着那个条件。这一关「地湿 → 路滑」没带条件：先用 K 给它加上「如果下雨」，再交给 S。', 'But Mark I has no “join end to end” rule. In “Detach under a condition”, S detached under a condition, and both givens carried it. Here “the ground is wet → the road is slippery” carries none: first let K put “if it rains” on it, then hand it to S.') },
+      { t: T('可证明核没有「首尾相接」这条规则。「在条件下分离」那关，S 在一个条件下做了分离，那时两张已知都带着那个条件。这一关「地湿 → 路滑」没带条件：先用 K 给它加上「如果下雨」，再交给 S。', 'But the kernel has no “join end to end” rule. In “Detach under a condition”, S detached under a condition, and both givens carried it. Here “the ground is wet → the road is slippery” carries none: first let K put “if it rains” on it, then hand it to S.') },
       { t: T('证出来以后，这块电路会变成元件<b>串联</b>：以后接进任何两段首尾相接的「如果…那么…」，它都直接给出从头到尾的那一段。', 'Once proved, this circuit becomes the part <b>Chain</b>: wire in any two “if … then …”s that meet end to end and it gives the one from start to finish at once.') },
     ],
     solution: proof({
@@ -294,7 +295,7 @@ export const era1 = [
       T('K 能给出「下雨 → (周六 → 下雨)」。两段首尾相接：用串联。', 'K gives “it rains → (Saturday → it rains)”. Two pieces meeting end to end: use Chain.'),
     ],
     intro: [
-      { t: T('「周六的话，下雨我就休息」和「下雨的话，周六我就休息」说的是一回事。两个条件谁先谁后不要紧，可初号得证出来才认。', '“On a Saturday, if it rains I rest” and “if it rains, on a Saturday I rest” say the same thing. The order of two conditions does not matter, but Mark I only believes what it can prove.') },
+      { t: T('「周六的话，下雨我就休息」和「下雨的话，周六我就休息」说的是一回事。两个条件谁先谁后不要紧，可证明核得证出来才认。', '“On a Saturday, if it rains I rest” and “if it rains, on a Saturday I rest” say the same thing. The order of two conditions does not matter, but the kernel only believes what it can prove.') },
       { t: T('用得上的有 S、K，还有你造的串联。证出来以后，这块电路是元件<b>交换</b>。', 'You have S, K and the Chain you built. Once proved, this circuit becomes the part <b>Swap</b>.') },
     ],
     solution: proof({ s: ['axS', { A: 'A', B: 'B', C: 'C' }], m1: ['mp'], k: ['axK', { A: 'B', B: 'A' }], c: ['chain'] }, ['s>m1.imp', 'p>m1.a', 'k>c.p0', 'm1>c.p1', 'c>goal'], { premises: ['p'] }),
@@ -324,7 +325,7 @@ export const era1 = [
     hint: [T('串联以后，「闹钟响了」说了两遍。', 'After Chain, “the alarm rings” is said twice.')],
     intro: [{ t: T('两张已知首尾相接，可接起来以后，条件多出来一遍。你手里正好有专门处理这件事的元件。', 'The two givens meet end to end, but joined, a condition appears twice. You hold a part made for exactly that.') }],
     solution: proof({ c: ['chain'], g: ['merge'] }, ['p>c.p0', 'q>c.p1', 'c>g.p0', 'g>goal'], { premises: ['p', 'q'] }),
-    after: T('2 步，两块都是你自己造的元件。初号的本事没变，可你的元件库让它快了很多。', 'Two steps, both parts of your own making. Mark I can do no more than before, but your library makes it far faster.'),
+    after: T('2 步，两块都是你自己造的元件。证明核的本事没变，可你的元件库让它快了很多。', 'Two steps, both parts of your own making. The kernel can do no more than before, but your library makes it far faster.'),
   },
   {
     id: 'wrongChain',
@@ -332,7 +333,7 @@ export const era1 = [
     title: T('接反了', 'Joined the wrong way'),
     ask: 'counter',
     formulas: ['(Rain → Wet) → ((Rain → Slip) → (Wet → Slip))'],
-    brief: T('「(下雨 → 地湿) → ((下雨 → 路滑) → (地湿 → 路滑))」看着像串联。初号证得出它吗？找出让它为假的一行。', '“(it rains → the ground is wet) → ((it rains → the road is slippery) → (the ground is wet → the road is slippery))” looks like Chain. Can Mark I prove it? Find a row that makes it false.'),
+    brief: T('「(下雨 → 地湿) → ((下雨 → 路滑) → (地湿 → 路滑))」看着像串联。证明核证得出它吗？找出让它为假的一行。', '“(it rains → the ground is wet) → ((it rains → the road is slippery) → (the ground is wet → the road is slippery))” looks like Chain. Can the kernel prove it? Find a row that makes it false.'),
     hint: [
       T('最外面要假，「地湿 → 路滑」得是假的：地湿了，路却不滑。', 'For the whole to be false, “the ground is wet → the road is slippery” must be false: wet ground, yet no slippery road.'),
       T('前两句还得是真的。没下雨的时候，它们都说不上错。', 'The first two must still be true. When it does not rain, neither of them is wrong.'),
@@ -369,7 +370,7 @@ export const era1 = [
     brief: T('在假设「下雨」下，有「刮风」，也有「如果刮风，那么地湿」，分离就得「地湿」。把这一步改写成不用假设的证明：由「下雨 → 刮风」和「下雨 → (刮风 → 地湿)」证出「下雨 → 地湿」。', 'Assuming “it rains”, there is “it is windy” and “if it is windy, then the ground is wet”, so Detach gives “the ground is wet”. Rewrite that step without the assumption: from “it rains → it is windy” and “it rains → (it is windy → the ground is wet)”, prove “it rains → the ground is wet”.'),
     hint: [T('在「下雨」之下做一次分离，从外面看就是用一次 S。', 'A Detach under “it rains”, seen from outside, is one use of S.')],
     intro: [
-      { t: T('回头看「接起来」：人会说「假设下雨，那就……那就……」。初号没有「假设」，只好让每一步都背着「如果下雨」，再用 K 和 S 一步步接。每次都这样手工搬运，太累了。', 'Look back at “Join them”: a person says “suppose it rains; then …; then …”. Mark I has no “suppose”, so every step has to carry “if it rains”, joined by hand with K and S. Doing that every time is exhausting.') },
+      { t: T('回头看「接起来」：人会说「假设下雨，那就……那就……」。证明核没有「假设」，只好让每一步都背着「如果下雨」，再用 K 和 S 一步步接。每次都这样手工搬运，太累了。', 'Look back at “Join them”: a person says “suppose it rains; then …; then …”. The kernel has no “suppose”, so every step has to carry “if it rains”, joined by hand with K and S. Doing that every time is exhausting.') },
       { t: T('这个专题要找一个固定的套路：任何一个在<b>假设「下雨」</b>下推出「地湿」的证明，都能一步一步改写成一个不用假设、证出「下雨 → 地湿」的证明。', 'This topic looks for a fixed recipe: any proof that reaches “the ground is wet” <b>assuming “it rains”</b> can be rewritten, step by step, into a proof of “it rains → the ground is wet” with no assumption.') },
       { t: T('先看一种步：分离。改写以后，它用到的两句都背着「如果下雨」。这正是「在条件下分离」那一关。', 'Start with one kind of step: Detach. Rewritten, both sentences it uses carry “if it rains”. It is “Detach under a condition” again.') },
     ],
@@ -393,6 +394,6 @@ export const era1 = [
       { t: T('改写时，每一步都要背上「如果下雨」。和假设无关的步怎么背？分离步用上一关的办法。', 'When rewriting, every step must carry “if it rains”. How does a step unrelated to the assumption carry it? The Detach steps go the way of last level.') },
     ],
     solution: proof({ k: ['axK', { A: 'B', B: 'A' }], m0: ['mp'], s: ['axS', { A: 'A', B: 'B', C: 'C' }], m1: ['mp'], m2: ['mp'] }, ['k>m0.imp', 'q>m0.a', 's>m1.imp', 'p>m1.a', 'm1>m2.imp', 'm0>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
-    after: T('每一种步都有固定的改写：假设本身换成恒等，和它无关的步用 K 包一层，分离用 S。所以，能在一个假设下推出某件事，就一定能证出「如果 假设，那么 那件事」：这就是<b>演绎定理</b>。下一台证明机把它做成了身体的一部分。', 'Each kind of step has a fixed rewrite: the assumption itself becomes Identity, an unrelated step is wrapped in K, Detach goes through S. So whatever follows from an assumption gives a proof of “if the assumption, then that”: the <b>deduction theorem</b>. The next proof machine has it built in.'),
+    after: T('每一种步都有固定的改写：假设本身换成恒等，和它无关的步用 K 包一层，分离用 S。所以，能在一个假设下推出某件事，就一定能证出「如果 假设，那么 那件事」：这就是<b>演绎定理</b>。', 'Each kind of step has a fixed rewrite: the assumption itself becomes Identity, an unrelated step is wrapped in K, Detach goes through S. So whatever follows from an assumption gives a proof of “if the assumption, then that”: the <b>deduction theorem</b>.'),
   },
 ]
