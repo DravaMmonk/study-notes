@@ -1,6 +1,6 @@
 import { createElement, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useEscape } from './Dialogs.jsx'
-import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, Plus, RotateCcw } from 'lucide-react'
+import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 
@@ -212,7 +212,7 @@ function UnlockChip({ items, style }) {
   const title = [fresh.length && tr(`这一关新带来：${fresh.join('、')}`, `New in this level: ${fresh.join(', ')}`), built.length && tr(`已解锁：${built.join('、')}`, `Unlocked: ${built.join(', ')}`), items.some((item) => !item.open) && tr('打开或通过这一关就能看到', 'Open or pass this level to see it')].filter(Boolean).join('\n')
   return (
     <span className={`map-unlock ${first.open ? 'is-open' : 'is-locked'} ${first.fresh ? 'is-fresh' : ''}`} style={style} title={title}>
-      {!first.open ? <Lock size={10} /> : first.fresh ? <Plus size={11} /> : <Package size={11} />}
+      {first.open ? <Package size={11} /> : <Lock size={10} />}
       <span>{names[0]}</span>
       {names.length > 1 && <b>+{names.length - 1}</b>}
     </span>
