@@ -36,7 +36,8 @@ export const ERAS = [
       series('detach', '分离', 'Detach', ['copy', 'mp', 'pick', 'nested', 'cond']),
       // K and S need nothing from each other; what joins them waits for both.
       branches(['k', '公理 K', 'Axiom K', ['k', 'k2', 'kmp']], ['s', '公理 S', 'Axiom S', ['s', 's2']]),
-      series('ks', 'K 和 S 一起', 'K and S together', ['chain', 'short', 'self']),
+      // Chain and Identity both need only K and S, not each other.
+      branches(['chain', '串联', 'Chain', ['chain']], ['identity', '恒等', 'Identity', ['short', 'self']]),
     ],
     practice: [
       branches(['swap', '交换', 'Swap', ['long', 'swap', 'swapUse']], ['merge', '合并', 'Merge', ['twice', 'mergeUse']]),
