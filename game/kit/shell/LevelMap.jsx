@@ -10,13 +10,12 @@ import { PHONE, useMedia } from './useMedia.js'
 // branches stands side by side and joins again, and optional topics and challenges (dashed) branch off to either side
 // of the level they follow.
 
-// Tree geometry in px: node size and the gaps between columns and rows; compact for a phone or the level drawer.
-// The gap under a row holds the parts its levels bring in and what passing them unlocks (UnlockChip); a row with no
-// chip under it has the gap without the chip's height, so its wires are as long as the two halves of a wire round a chip. A level that is not a
-// milestone (game.core) is drawn smaller, `minor`, centred in its cell, so the grid is the same either way.
-const SIZE = { full: { w: 224, h: 52, col: 28, gap: 34, minor: { w: 180, h: 40 } }, compact: { w: 114, h: 62, col: 12, gap: 30, minor: { w: 100, h: 50 } } }
+// Tree geometry in px: node size, the gap between columns, and the gap under a level: `gap` when a chip sits on its
+// wire (the parts it brings in and what passing it unlocks, UnlockChip), `plain` when none does. A level that is not a
+// milestone (game.core) is drawn smaller, `minor`, centred on its column.
+const SIZE = { full: { w: 224, h: 52, col: 28, gap: 34, plain: 16, minor: { w: 180, h: 40 } }, compact: { w: 114, h: 62, col: 12, gap: 30, plain: 12, minor: { w: 100, h: 50 } } }
 const R = 8
-const CHIP = 20
+const CLEAR = 6 // how far a wire's turn keeps from a level it passes
 
 // Places a track as columns ("tracks"), each a run of rows on one lane: a main-path level, a parallel branch (kept to
 // the set's full depth, so a shorter branch keeps its room until the join), or an optional branch. A branch stays in
@@ -130,26 +129,77 @@ function center({ at, edges, tracks }) {
 }
 
 /**
+ * Heights on the tree. Rows order the levels, but each level goes only as low as it has to: below the levels its wires
+ * come from and the level above it in its column, each with its own gap under it, and clear of the turns of wires
+ * that cross its column. So a column with no chips stays tight however many chips the next column has.
+ * at: id → { col, row }; edges: [{ from, to, kind }]; box(id) → { w, h }; below(id) → the gap under it;
+ * x(col) → the column's left edge. Returns { top: id → px, turn: edge → px (where it runs across), height }.
+ */
+function stack({ at, edges, box, below, x, w, join }) {
+  const top = new Map(), turn = new Map()
+  const bottom = (id) => top.get(id) + box(id).h
+  const centre = (id) => x(at.get(id).col) + w / 2
+  const crosses = (id, e) => {
+    const [l, r] = [centre(id) - box(id).w / 2, centre(id) + box(id).w / 2]
+    const [a, b] = [centre(e.from), centre(e.to)].sort((p, q) => p - q)
+    return e.from !== id && e.to !== id && r > a && l < b
+  }
+  const turns = (e) => centre(e.from) !== centre(e.to)
+  // A wire that joins branches, or skips rows, turns just above its target; any other just below its source.
+  const late = (e) => e.kind === 'join' || at.get(e.to).row - at.get(e.from).row > 1
+  const into = (id) => edges.filter((e) => e.to === id)
+  const rows = [...new Set([...at.values()].map((p) => p.row))].sort((a, b) => a - b)
+  for (const row of rows) {
+    // Levels whose wires turn just above them go first, so the others in the row keep clear of those turns.
+    const ids = [...at.keys()].filter((id) => at.get(id).row === row).sort((a, b) => Number(into(b).some(late)) - Number(into(a).some(late)))
+    // Early turns into this row: below their source's gap, and below any level they run across.
+    for (const e of edges.filter((e) => ids.includes(e.to) && turns(e) && !late(e) && top.has(e.from))) {
+      let ty = bottom(e.from) + below(e.from) / 2
+      // A level it crosses with a chip under it: the turn runs through that chip's middle, as its own wires do.
+      for (const o of top.keys()) if (crosses(o, e)) ty = Math.max(ty, bottom(o) + (below.chip(o) ? below(o) / 2 : CLEAR))
+      turn.set(e, ty)
+    }
+    for (const id of ids) {
+      const p = at.get(id)
+      let y = 0
+      for (const e of into(id).filter((e) => top.has(e.from))) {
+        y = Math.max(y, bottom(e.from) + below(e.from))
+        if (turn.has(e)) y = Math.max(y, turn.get(e) + join)
+      }
+      // The level above it in its column, and every turn already placed that runs across it.
+      for (const [o, t] of top) if (Math.abs(at.get(o).col - p.col) < 1) y = Math.max(y, t + box(o).h + below(o))
+      for (const [e, ty] of turn) if (crosses(id, e)) y = Math.max(y, ty + CLEAR)
+      // Its own late turns run above it, clear of the levels they cross.
+      const mine = into(id).filter((e) => turns(e) && late(e))
+      for (const e of mine) for (const o of top.keys()) if (crosses(o, e)) y = Math.max(y, bottom(o) + (below.chip(o) ? below(o) : CLEAR) + join)
+      top.set(id, y)
+      for (const e of mine) turn.set(e, y - join)
+    }
+  }
+  const ids = [...at.keys()]
+  const height = Math.max(...ids.map((id) => bottom(id) + (below.chip(id) ? below(id) : 0)))
+  return { top, turn, height }
+}
+
+/**
  * A chapter's level tree, on the map and in the level drawer: a button for each level (byId: the chapter's levels)
  * joined by wires. current: the level being played (marked); next: the one to play next (its pad pulses).
  */
 export function LevelTree({ game, track, byId, solved, all, best = () => null, current, next, compact, onOpen }) {
-  const { w, h, col, gap, minor } = compact ? SIZE.compact : SIZE.full
+  const { w, h, col, gap, plain, minor } = compact ? SIZE.compact : SIZE.full
   const { at, edges } = useMemo(() => center(plot(track)), [track])
   const scroll = useRef(null)
   const spots = [...at.values()]
-  const rows = Math.max(...spots.map((p) => p.row)) + 1
   const half = Math.max(...spots.map((p) => Math.abs(p.col)))
   const x = (c) => (c + half) * (w + col)
   const width = x(half) + w
   // What sits on the wire under a level: the primitives it brings in (once it opens) and what passing it unlocks.
   const chipOf = (level) => [...game.introduced(level).map((part) => ({ label: part.name, fresh: true, open: all || game.isOpen(level, solved) })), ...game.unlocked(level).map((part) => ({ label: part.label, open: all || solved.has(level.id) }))]
-  // The gap under each row, and each row's top.
-  const below = Array.from({ length: rows }, (_, r) => ([...at].some(([id, p]) => p.row === r && byId.get(id) && chipOf(byId.get(id)).length) ? gap : gap - CHIP))
-  const tops = below.reduce((acc, g) => [...acc, acc.at(-1) + h + g], [0])
-  const y = (r) => tops[r]
-  // The tree is as tall as its levels, plus the gap under the last row when a level there has a chip.
-  const height = y(rows) - (below[rows - 1] === gap ? 0 : below[rows - 1])
+  // A level's own box: full size, or smaller; and the gap under it.
+  const box = (id) => (byId.get(id) && !game.core(byId.get(id)) ? minor : { w, h })
+  const chip = (id) => Boolean(byId.get(id) && chipOf(byId.get(id)).length)
+  const below = Object.assign((id) => (chip(id) ? gap : plain), { chip })
+  const { top, turn, height } = stack({ at, edges, box, below, x, w, join: plain / 2 })
   const optional = new Set()
   for (const e of edges) if (e.kind === 'optional' || optional.has(e.from)) optional.add(e.to)
   // Start a tree wider than the screen on its main path.
@@ -157,23 +207,19 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
     const el = scroll.current
     el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
   }, [width])
-  // A level's own box in its cell: full size, or smaller and centred.
-  const box = (id) => (byId.get(id) && !game.core(byId.get(id)) ? minor : { w, h })
-  // A wire leaves the bottom middle of one node and enters the top middle of the next; between columns it turns in the
-  // gap, next to the source when it branches out, and next to the target when branches join or it spans several rows
-  // (its own lane is clear below the source).
-  const wire = (from, to, kind) => {
-    const a = at.get(from), b = at.get(to)
-    const x1 = x(a.col) + w / 2, y1 = y(a.row) + (h + box(from).h) / 2, x2 = x(b.col) + w / 2, y2 = y(b.row) + (h - box(to).h) / 2
+  // A wire leaves the bottom middle of one node and enters the top middle of the next, turning where stack() says.
+  const wire = (e) => {
+    const a = at.get(e.from), b = at.get(e.to)
+    const x1 = x(a.col) + w / 2, y1 = top.get(e.from) + box(e.from).h, x2 = x(b.col) + w / 2, y2 = top.get(e.to)
     if (x1 === x2) return `M${x1} ${y1}V${y2}`
-    const yb = kind === 'join' || b.row - a.row > 1 ? y(b.row) - below[b.row - 1] / 2 : y(a.row) + h + below[a.row] / 2
-    const s = Math.sign(x2 - x1), r = Math.min(R, yb - y1, y2 - yb)
+    const yb = turn.get(e)
+    const s = Math.sign(x2 - x1), r = Math.max(0, Math.min(R, yb - y1, y2 - yb))
     return `M${x1} ${y1}V${yb - r}Q${x1} ${yb} ${x1 + s * r} ${yb}H${x2 - s * r}Q${x2} ${yb} ${x2} ${yb + r}V${y2}`
   }
   const node = (level, p, optional) => {
     if (!level) return null
     const size = box(level.id)
-    const style = { left: x(p.col) + (w - size.w) / 2, top: y(p.row) + (h - size.h) / 2, width: size.w, height: size.h }
+    const style = { left: x(p.col) + (w - size.w) / 2, top: top.get(level.id), width: size.w, height: size.h }
     const open = game.isOpen(level, solved, all)
     const won = solved.has(level.id)
     const state = won ? 'is-solved' : open ? 'is-open' : 'is-locked'
@@ -193,10 +239,10 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
     <div className="map-tree-scroll" ref={scroll}>
       <div className={`map-tree ${compact ? 'is-compact' : ''}`} style={{ width, height }}>
         <svg className="map-wires" width={width} height={height} aria-hidden="true">
-          {edges.map((e) => <path key={`${e.from}-${e.to}`} className={`${optional.has(e.to) ? 'is-optional' : ''} ${solved.has(e.from) ? 'is-lit' : ''}`} d={wire(e.from, e.to, e.kind)} />)}
+          {edges.map((e) => <path key={`${e.from}-${e.to}`} className={`${optional.has(e.to) ? 'is-optional' : ''} ${solved.has(e.from) ? 'is-lit' : ''}`} d={wire(e)} />)}
         </svg>
         {[...at].map(([id, p]) => node(byId.get(id), p, optional.has(id)))}
-        {[...at].map(([id, p]) => byId.get(id) && <UnlockChip key={`u-${id}`} items={chipOf(byId.get(id))} style={{ left: x(p.col) + w / 2, top: y(p.row) + h + gap / 2, maxWidth: w + col }} />)}
+        {[...at].map(([id, p]) => byId.get(id) && <UnlockChip key={`u-${id}`} items={chipOf(byId.get(id))} style={{ left: x(p.col) + w / 2, top: top.get(id) + box(id).h + gap / 2, maxWidth: w + col }} />)}
       </div>
     </div>
   )
