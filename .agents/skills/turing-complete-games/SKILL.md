@@ -108,4 +108,8 @@ The shared editors are in `games/kit/circuit/`:
 - Both edit the same graph; illegal wires are refused at connection time with a reason
   (`parts.refuse`); wire colour follows its source.
 
+- Frames (`kit/circuit/frames.js`, first used by 《证明完毕》's assumption box) are shared: a domain makes a frame
+  part with `framePart(own, regions)` and evaluates each region's value by `key`; the editors, scoping and save
+  checks (`regionsFit`) come from the kit. Dragging a card over a region it can go into lights that region up.
+
 Keep a change to either editor working for every game that uses the kit.

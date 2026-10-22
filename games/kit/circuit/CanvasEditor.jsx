@@ -58,6 +58,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const removable = (node) => (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
+  const [dropInto, setDropInto] = useState(null) // the region a dragged card would go into, lit while it hovers
   const [picking, setPicking] = useState(null) // a dot clicked, waiting for the dot (or card) its wire goes to
   const [pointer, setPointer] = useState(null) // where the pointer is on the board while a dot is picked
   // A new pick (or none) starts without a pointer, so the draft wire waits for the pointer to move instead of reaching
@@ -347,11 +348,13 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const first = regionsOf(node)[0]
     setTarget(first && !node.fold ? `${node.id}/${first.name}` : node.in ?? null)
   }
-  // A card dropped lands where it was let go: in the region under the pointer (not one of its own), or on the board.
+  // The region under a dragged card's pointer that it can go into (not one of its own), or null for the board.
+  const fieldAt = (g) => document.elementsFromPoint(g.x, g.y).find((el) => el.classList?.contains('frame-field') && !g.el.contains(el)) ?? null
+  // A card dropped lands where it was let go: in the region under the pointer, or on the board.
   const place = (g) => {
     const root = layer.current
     const node = byId.get(g.id)
-    const field = document.elementsFromPoint(g.x, g.y).find((el) => el.classList?.contains('frame-field') && !g.el.contains(el))
+    const field = fieldAt(g)
     const box = g.el.getBoundingClientRect()
     const [x0, y0] = pointIn(root, box.left, box.top)
     const [ox, oy] = field ? pointIn(root, field.getBoundingClientRect().left, field.getBoundingClientRect().top) : [0, 0]
@@ -372,7 +375,12 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
         if (g.kind === 'port') pick(null)
       },
       move(g) {
-        if (g.kind === 'piece') redraw()
+        if (g.kind === 'piece') {
+          redraw()
+          // A region the card would go into, if dropped here, lights up.
+          const region = fieldAt(g)?.dataset.region ?? null
+          setDropInto(region && region !== (byId.get(g.id).in ?? null) ? region : null)
+        }
         if (g.kind === 'port' && parsePort(g.id).side === 'out') {
           const [x, y] = pointIn(layer.current, g.x, g.y)
           setDrag({ from: parsePort(g.id).id, x, y })
@@ -380,11 +388,13 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
       },
       drop(g) {
         setDrag(null)
+        setDropInto(null)
         if (g.kind === 'piece') place(g)
         if (g.kind === 'port' && parsePort(g.id).side === 'out') connectTo(parsePort(g.id).id, g.over)
       },
       end() {
         setDrag(null)
+        setDropInto(null)
         redraw()
       },
     }
@@ -459,7 +469,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
               const w = Math.max(REGION.w, ...inside.map((n) => n.x + sizeOf(n)[0] + REGION.pad))
               const h = Math.max(REGION.h, ...inside.map((n) => n.y + sizeOf(n)[1] + REGION.pad))
               return (
-                <section key={r.name} className={`frame-region ${target === key ? 'is-target' : ''}`}>
+                <section key={r.name} className={`frame-region ${target === key ? 'is-target' : ''} ${dropInto === key ? 'is-drop' : ''}`}>
                   <header className="frame-region-head">
                     {r.opens && outDot(srcOf(node, r.name), 'frame-open')}
                     <span className="frame-region-name">{L(r.label)}</span>
