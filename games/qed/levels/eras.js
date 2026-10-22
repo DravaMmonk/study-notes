@@ -38,17 +38,17 @@ export const ERAS = [
       // prover then uses both parts together.
       branches(['apply', '套用', 'Apply', ['mp', 'pick', 'nested', 'cond']], ['assume', '假设框', 'Assumption box', ['assume', 'k2']]),
       'box',
-      // K and S, each proved with boxes and built as a part, need nothing from each other; what joins them waits for both.
-      branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
-      // Chain and Merge, each built with a box, need nothing from each other. Chain is practised and grows into Swap
-      // on its own line; Merge is practised on the other.
+      // Chain, Swap and Merge, each built with boxes alone, on two lines that need nothing from each other; then the
+      // three together, harder each time.
       branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
+      'mergeUse', 'mergeLong', 'mergeBoth',
+      // K and S, each proved with boxes and built as a part, need nothing from each other.
+      branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
     ],
-    // Chain and Merge together, harder each time.
-    practice: ['mergeUse', 'mergeLong', 'mergeBoth'],
     // Without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time, once K and S
-    // are both in hand; it ends on compiling a box away (the deduction theorem).
-    topics: [{ id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k', 'x-s', 'x-self', 'x-chain'], title: T('拆掉框', 'Without the box') }],
+    // are both in hand: a condition, Apply under a condition, identity, then Chain, Swap and Merge rebuilt without
+    // the box (Chain compiling a box away, the deduction theorem).
+    topics: [{ id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k', 'x-s', 'x-self', 'x-chain', 'x-swap', 'x-merge'], title: T('拆掉框', 'Without the box') }],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠套用和假设框，能证出什么？', 'What can Apply and the assumption box prove?') },
   },
   {
