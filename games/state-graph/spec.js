@@ -26,7 +26,7 @@ export default {
   domain: 'table',
   title: { zh: '状态之图', en: 'State Graph' },
   kicker: { zh: '从零开始的动态规划解谜', en: 'Dynamic programming puzzles, from scratch' },
-  lede: (count) => ({ zh: `不需要任何编程或算法基础。从手数路线开始，${count} 关里，你会用元件亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。`, en: `No programming or algorithms background needed. Starting from counting routes by hand, over ${count} levels you wire up, part by part, the circuit boards that count routes, compare words and pack a backpack, and find out why they are so fast.`  }),
+  lede: { zh: '不需要任何编程或算法基础。从手数路线开始，学会把一个大问题拆成一张表，一格一格地填出来；最后能亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。', en: 'No programming or algorithms background needed. Starting from counting routes by hand, you learn to break a big problem into a table and fill it in cell by cell; in the end you wire up the circuit boards that count routes, compare words and pack a backpack, and see why they are so fast.' },
   eras: ERAS,
   table: TABLE,
   levels: LEVELS,
