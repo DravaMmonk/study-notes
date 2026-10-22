@@ -45,8 +45,9 @@
 //                                          once its curriculum keeps it
 // })
 // reach(course, level) is every part a level can hold; usable(course, level, flags) what it holds for a player;
-// offer(course, level, flags) splits that into what the level shows and what it folds away; audit(course) lists every
-// broken rule.
+// offer(course, level, flags) splits that into what the level shows and what it folds away; fresh(course, level) the
+// ideas new in a level; introductions(course) where each primitive comes in; isCore(course, level) whether a level is
+// a milestone the map draws full size; audit(course) lists every broken rule.
 
 /** What each rule of the audit means, for reports (../engine/check.js). */
 export const RULE_TEXT = {
@@ -220,21 +221,62 @@ export function offer(course, level, flags) {
   return { shown: all.filter(shows), folded: all.filter((p) => !shows(p)) }
 }
 
+/**
+ * The ideas a level meets first: of the parts it brings in (not built ones), the concepts that no level before it on
+ * the tree brought in or built. These are what its tray marks 新.
+ */
+export function fresh(course, level) {
+  const seen = new Set(course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => [...course.adds(l), ...course.builds(l)].map(course.concept)))
+  return new Set(course.adds(level).filter((p) => !course.builder(p)).map(course.concept).filter((c) => !seen.has(c)))
+}
+
+/**
+ * Where the primitives come in, for the components box and the map: for each key (keyOf(part), how the box lists
+ * parts; one entry a part by default), the levels on the tree that bring in a part with that key while no level before
+ * them has. A part that stays in its own level (`carries`) is no component to keep and is left out. In play order.
+ */
+export function introductions(course, keyOf = (p) => p) {
+  const out = new Map()
+  const placed = (l) => !course.plan || course.plan.place.has(l.id)
+  const keys = (l) => course.adds(l).filter((p) => course.primitives.has(p) && course.carries(p, l)).map(keyOf)
+  for (const level of course.levels.filter(placed)) {
+    const seen = new Set(course.levels.filter((l) => placed(l) && course.before(l.id, level.id)).flatMap(keys))
+    for (const k of keys(level)) {
+      if (seen.has(k)) continue
+      if (!out.has(k)) out.set(k, [])
+      if (!out.get(k).includes(level.id)) out.get(k).push(level.id)
+    }
+  }
+  return out
+}
+
+/**
+ * Whether a level is a milestone of the tree, drawn full size on the map; the others are drawn smaller. A milestone
+ * brings something in: the first level on a machine, a level that meets a new idea or unlocks a part, a challenge,
+ * or a topic's finale. A topic's opening and middle levels, and the practice after a mechanism, are not.
+ */
+export function isCore(course, level) {
+  const at = course.plan?.place.get(level.id)
+  if (!at) return true
+  if (at.role === 'finale' || at.role === 'challenge') return true
+  if (at.role === 'intro' || at.role === 'step') return false
+  const own = course.levels[course.index.get(level.id)]
+  const era = course.eras.find((e) => e.id === at.era)
+  return pathLevels(era.foundation)[0] === level.id || (own.unlocks ?? []).length > 0 || fresh(course, own).size > 0
+}
+
 /** Every broken rule, as { rule, level, part, text }, in play order. */
 export function audit(course) {
   const out = []
   const say = (rule, level, part, text) => out.push({ rule, level, part, text })
   const plan = course.plan
   const levels = course.levels
-  // The ideas a level has met: every part brought in or built on the way to it. A part built by the player is never
-  // new where it is first used.
-  const met = (id) => new Set(levels.filter((l) => course.before(l.id, id)).flatMap((l) => [...course.adds(l), ...course.builds(l)].map(course.concept)))
   const unbuilt = new Set()
   for (const level of levels) {
     const granted = new Set(course.granted(level))
-    const seen = met(level.id)
     const earlier = levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.adds(l).filter((p) => course.crosses(p, l.id, level.id)))
-    const fresh = new Set(course.adds(level).filter((p) => !course.builder(p)).map(course.concept).filter((c) => !seen.has(c)))
+    // The ideas new here; a part built by the player is never new where it is first used.
+    const ideas = fresh(course, level)
     const role = plan?.place.get(level.id)?.role
     for (const p of course.adds(level)) {
       const by = course.builder(p)
@@ -252,11 +294,11 @@ export function audit(course) {
     // And a part a level builds is used by a later level's reference answer. Both for courses that keep the chain.
     if (course.abstraction) {
       const used = course.needed(level)?.filter((p) => course.primitives.has(p) || course.needs(p))
-      for (const p of fresh) if (used?.length === 1 && course.concept(used[0]) === p) say('bare-intro', level.id, p, 'its first level is that part alone, wired to the goal')
+      for (const p of ideas) if (used?.length === 1 && course.concept(used[0]) === p) say('bare-intro', level.id, p, 'its first level is that part alone, wired to the goal')
       for (const b of course.builds(level)) if (!levels.some((l) => course.before(level.id, l.id) && course.needed(l)?.includes(b))) say('unused', level.id, b, 'built here, and no later reference answer uses it')
     }
-    if (role === 'challenge' && fresh.size) say('challenge-new', level.id, [...fresh].join(' '), 'a challenge brings nothing new')
-    else if (fresh.size > 1) say('many-new', level.id, [...fresh].join(' '), `${fresh.size} new parts in one level (one new idea per level)`)
+    if (role === 'challenge' && ideas.size) say('challenge-new', level.id, [...ideas].join(' '), 'a challenge brings nothing new')
+    else if (ideas.size > 1) say('many-new', level.id, [...ideas].join(' '), `${ideas.size} new parts in one level (one new idea per level)`)
   }
   if (!plan) return out
 

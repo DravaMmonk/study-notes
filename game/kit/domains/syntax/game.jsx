@@ -14,6 +14,7 @@ import { BookOpenText } from 'lucide-react'
 import '../../strip/strip.css'
 import './ui/syntax.css'
 import { defineGame } from '../../shell/index.js'
+import { isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import Hero from './ui/Hero.jsx'
 import Screen from './ui/Screen.jsx'
@@ -30,6 +31,7 @@ export function defineSyntaxGame(spec) {
     html: true,
     glossary: spec.glossary,
     chapters: CHAPTERS,
+    core: (level) => isCore(spec.syntax.course, level),
     levels: LEVELS.map((L, index) => ({
       id: L.id,
       index,

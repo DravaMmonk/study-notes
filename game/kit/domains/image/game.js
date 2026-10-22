@@ -6,6 +6,7 @@ import './image.css'
 import './ui/boards/kit.css'
 import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
+import { introductions, isCore } from '../../course.js'
 import { migrations } from '../../shell/saves.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import LevelScreen from './ui/LevelScreen.jsx'
@@ -44,6 +45,9 @@ export function defineImageGame(spec) {
     return { key: flag, label: OPTION_NAMES[flag] ?? flag, name: OPTION_NAMES[flag] ?? flag, desc: OPTION_DESCRIPTIONS[flag] }
   }
   const allFlags = [...new Set(spec.levels.flatMap((level) => level.unlocks ?? []))]
+  const { course } = spec.image
+  // The primitives, each from the levels that bring it in.
+  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, label: NODE_TYPES[type].label, name: NODE_TYPES[type].label, desc: descriptionOf(type), family: familyOf(type), icon: iconOf(type), at }))
   // A part on a bench in the parts box shows every setting, whatever the player has unlocked so far.
   const allFlagSet = new Set(allFlags)
   const game = defineGame({
@@ -65,7 +69,8 @@ export function defineImageGame(spec) {
       probe: { Screen: LevelScreen, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
     },
     unlocked: (level) => (level.unlocks ?? []).map(unlockOf),
-    parts: { all: allFlags.map(unlockOf), demo: (part, { phone }) => createElement(PartDemo, { key: part.key, flag: part.key, type: PART_OF_FLAG[part.key], flags: allFlagSet, phone, levels: spec.levels, box: spec.box }) },
+    core: (level) => isCore(course, level),
+    parts: { all: [...primitives, ...allFlags.map(unlockOf)], demo: (part, { phone }) => createElement(PartDemo, { key: part.key, flag: part.key, type: part.type ?? PART_OF_FLAG[part.key], home: part.at?.[0], flags: allFlagSet, phone, levels: spec.levels, box: spec.box }) },
     // A better circuit costs less, or as much with fewer parts.
     better: (score, best) => !best || score.cost < best.cost || (score.cost === best.cost && score.nodes < best.nodes),
     bestLabel: (best) => `${best.nodes} · ${best.cost}`,

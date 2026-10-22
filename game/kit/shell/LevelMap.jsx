@@ -1,6 +1,6 @@
 import { createElement, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useEscape } from './Dialogs.jsx'
-import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw } from 'lucide-react'
+import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, Plus, RotateCcw } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 
@@ -11,8 +11,9 @@ import { PHONE, useMedia } from './useMedia.js'
 // of the level they follow.
 
 // Tree geometry in px: node size and the gaps between columns and rows; compact for a phone or the level drawer.
-// The gap under a level holds what passing it unlocks (UnlockChip).
-const SIZE = { full: { w: 224, h: 52, col: 28, gap: 34 }, compact: { w: 114, h: 62, col: 12, gap: 30 } }
+// The gap under a level holds the parts it brings in and what passing it unlocks (UnlockChip). A level that is not a
+// milestone (game.core) is drawn smaller, `minor`, centred in its cell, so the grid is the same either way.
+const SIZE = { full: { w: 224, h: 52, col: 28, gap: 34, minor: { w: 180, h: 40 } }, compact: { w: 114, h: 62, col: 12, gap: 30, minor: { w: 100, h: 50 } } }
 const R = 8
 
 // Places a track as columns ("tracks"), each a run of rows on one lane: a main-path level, a parallel branch (kept to
@@ -131,7 +132,7 @@ function center({ at, edges, tracks }) {
  * joined by wires. current: the level being played (marked); next: the one to play next (its pad pulses).
  */
 export function LevelTree({ game, track, byId, solved, all, best = () => null, current, next, compact, onOpen }) {
-  const { w, h, col, gap } = compact ? SIZE.compact : SIZE.full
+  const { w, h, col, gap, minor } = compact ? SIZE.compact : SIZE.full
   const { at, edges } = useMemo(() => center(plot(track)), [track])
   const scroll = useRef(null)
   const spots = [...at.values()]
@@ -141,7 +142,9 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
   const y = (r) => r * (h + gap)
   const width = x(half) + w
   // The tree is as tall as its levels, plus the gap under the last row when a level there unlocks something.
-  const chipBelow = [...at].some(([id, p]) => p.row === rows - 1 && byId.get(id) && game.unlocked(byId.get(id)).length)
+  // What sits on the wire under a level: the primitives it brings in (once it opens) and what passing it unlocks.
+  const chipOf = (level) => [...game.introduced(level).map((part) => ({ label: part.name, fresh: true, open: all || game.isOpen(level, solved) })), ...game.unlocked(level).map((part) => ({ label: part.label, open: all || solved.has(level.id) }))]
+  const chipBelow = [...at].some(([id, p]) => p.row === rows - 1 && byId.get(id) && chipOf(byId.get(id)).length)
   const height = y(rows) - (chipBelow ? 0 : gap)
   const optional = new Set()
   for (const e of edges) if (e.kind === 'optional' || optional.has(e.from)) optional.add(e.to)
@@ -150,18 +153,23 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
     const el = scroll.current
     el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
   }, [width])
+  // A level's own box in its cell: full size, or smaller and centred.
+  const box = (id) => (byId.get(id) && !game.core(byId.get(id)) ? minor : { w, h })
   // A wire leaves the bottom middle of one node and enters the top middle of the next; between columns it turns in the
   // gap, next to the source when it branches out, and next to the target when branches join or it spans several rows
   // (its own lane is clear below the source).
-  const wire = (a, b, kind) => {
-    const x1 = x(a.col) + w / 2, y1 = y(a.row) + h, x2 = x(b.col) + w / 2, y2 = y(b.row)
+  const wire = (from, to, kind) => {
+    const a = at.get(from), b = at.get(to)
+    const x1 = x(a.col) + w / 2, y1 = y(a.row) + (h + box(from).h) / 2, x2 = x(b.col) + w / 2, y2 = y(b.row) + (h - box(to).h) / 2
     if (x1 === x2) return `M${x1} ${y1}V${y2}`
-    const yb = kind === 'join' || b.row - a.row > 1 ? y2 - gap / 2 : y1 + gap / 2
+    const yb = kind === 'join' || b.row - a.row > 1 ? y(b.row) - gap / 2 : y(a.row) + h + gap / 2
     const s = Math.sign(x2 - x1)
     return `M${x1} ${y1}V${yb - R}Q${x1} ${yb} ${x1 + s * R} ${yb}H${x2 - s * R}Q${x2} ${yb} ${x2} ${yb + R}V${y2}`
   }
-  const node = (level, style, optional) => {
+  const node = (level, p, optional) => {
     if (!level) return null
+    const size = box(level.id)
+    const style = { left: x(p.col) + (w - size.w) / 2, top: y(p.row) + (h - size.h) / 2, width: size.w, height: size.h }
     const open = game.isOpen(level, solved, all)
     const won = solved.has(level.id)
     const state = won ? 'is-solved' : open ? 'is-open' : 'is-locked'
@@ -169,7 +177,7 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
     const score = won && best(level.id) && game.bestLabel?.(best(level.id))
     const here = level.id === current
     return (
-      <button key={level.id} data-level={level.id} style={style} title={L(level.title)} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''}`} disabled={!open} onClick={() => onOpen(level.id)}>
+      <button key={level.id} data-level={level.id} style={style} title={L(level.title)} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${game.core(level) ? '' : 'is-minor'} ${optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''}`} disabled={!open} onClick={() => onOpen(level.id)}>
         <span className="map-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={9} />}</span>
         <span className="map-node-id">{game.levelLabel(level)}</span>
         <span className="map-node-title">{L(level.title)}</span>
@@ -181,25 +189,30 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
     <div className="map-tree-scroll" ref={scroll}>
       <div className={`map-tree ${compact ? 'is-compact' : ''}`} style={{ width, height }}>
         <svg className="map-wires" width={width} height={height} aria-hidden="true">
-          {edges.map((e) => <path key={`${e.from}-${e.to}`} className={`${optional.has(e.to) ? 'is-optional' : ''} ${solved.has(e.from) ? 'is-lit' : ''}`} d={wire(at.get(e.from), at.get(e.to), e.kind)} />)}
+          {edges.map((e) => <path key={`${e.from}-${e.to}`} className={`${optional.has(e.to) ? 'is-optional' : ''} ${solved.has(e.from) ? 'is-lit' : ''}`} d={wire(e.from, e.to, e.kind)} />)}
         </svg>
-        {[...at].map(([id, p]) => node(byId.get(id), { left: x(p.col), top: y(p.row), width: w, height: h }, optional.has(id)))}
-        {[...at].map(([id, p]) => byId.get(id) && <UnlockChip key={`u-${id}`} items={game.unlocked(byId.get(id))} open={all || solved.has(id)} style={{ left: x(p.col) + w / 2, top: y(p.row) + h + gap / 2, maxWidth: w + col }} />)}
+        {[...at].map(([id, p]) => node(byId.get(id), p, optional.has(id)))}
+        {[...at].map(([id, p]) => byId.get(id) && <UnlockChip key={`u-${id}`} items={chipOf(byId.get(id))} style={{ left: x(p.col) + w / 2, top: y(p.row) + h + gap / 2, maxWidth: w + col }} />)}
       </div>
     </div>
   )
 }
 
 /**
- * What passing a level unlocks, on the wire just under it: the parts (or options) it gives, named once the level is
- * passed and ？？？ until then. Once unlocked a part stays usable in every level after it (../course.js offer).
+ * What a level brings, on the wire just under it: the primitives it brings in (fresh, named once the level opens) and
+ * the parts (or options) passing it gives (named once it is passed), ？？？ until then. Once there, a part stays usable
+ * in every level after it (../course.js offer).
  */
-function UnlockChip({ items, open, style }) {
+function UnlockChip({ items, style }) {
   if (!items.length) return null
-  const names = items.map((item) => (open ? L(item.label) : '？？？'))
+  const names = items.map((item) => (item.open ? L(item.label) : '？？？'))
+  const [first] = items
+  const fresh = items.filter((item) => item.fresh && item.open).map((item) => L(item.label))
+  const built = items.filter((item) => !item.fresh && item.open).map((item) => L(item.label))
+  const title = [fresh.length && tr(`这一关新带来：${fresh.join('、')}`, `New in this level: ${fresh.join(', ')}`), built.length && tr(`已解锁：${built.join('、')}`, `Unlocked: ${built.join(', ')}`), items.some((item) => !item.open) && tr('打开或通过这一关就能看到', 'Open or pass this level to see it')].filter(Boolean).join('\n')
   return (
-    <span className={`map-unlock ${open ? 'is-open' : 'is-locked'}`} style={style} title={open ? tr(`已解锁：${names.join('、')}`, `Unlocked: ${names.join(', ')}`) : tr('通过上面这一关就能解锁', 'Pass the level above to unlock it')}>
-      {open ? <Package size={11} /> : <Lock size={10} />}
+    <span className={`map-unlock ${first.open ? 'is-open' : 'is-locked'} ${first.fresh ? 'is-fresh' : ''}`} style={style} title={title}>
+      {!first.open ? <Lock size={10} /> : first.fresh ? <Plus size={11} /> : <Package size={11} />}
       <span>{names[0]}</span>
       {names.length > 1 && <b>+{names.length - 1}</b>}
     </span>

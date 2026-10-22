@@ -10,7 +10,7 @@ import Library, { store, useSeen } from './Library.jsx'
 // centre that the player can change and run (games/kit/circuit DemoBench), on the desktop board or, on a phone, the
 // phone one. A filter narrows the box to `keys` (a Set), such as the parts one robot can use; `icon` is SVG markup
 // for a 32 × 32 box, and `lock` the label of the level that opens it (null once open). The level that earns a part is the
-// one whose `unlocks` lists its key.
+// one whose `unlocks` lists its key, or for a primitive the first level that brings it in (`at`).
 
 /** Which parts are earned and which are new, for the components box and its button. */
 export function useParts(game, progress) {
@@ -22,7 +22,7 @@ export function useParts(game, progress) {
   return { all, earned, seen, markSeen, unread, filters }
 }
 
-const levelOf = (game, key) => game.levels.find((level) => level.unlocks?.includes(key))
+const levelOf = (game, part) => game.levels.find((level) => level.unlocks?.includes(part.key) || part.at?.includes(level.id))
 
 export default function PartsBook({ game, box, phone, onClose }) {
   const { all: every, earned, seen, markSeen, filters } = box
@@ -52,17 +52,18 @@ export default function PartsBook({ game, box, phone, onClose }) {
 
   const chip = (part, size) => part.icon && <i className="family-chip" data-family={part.family}>{createElement(part.icon, { size, strokeWidth: 1.7 })}</i>
   // One list in the order the parts are earned, without chapter headings.
+  const order = (part) => game.levels.indexOf(levelOf(game, part))
   const groups = [{
     id: 'parts',
-    items: game.chapters.flatMap((chapter) => all.filter((part) => levelOf(game, part.key)?.chapter === chapter.id)).map((part) => {
-      const level = levelOf(game, part.key)
+    items: game.chapters.flatMap((chapter) => all.filter((part) => levelOf(game, part)?.chapter === chapter.id).sort((a, b) => order(a) - order(b))).map((part) => {
+      const level = levelOf(game, part)
       return { id: part.key, title: part.name, lead: chip(part, 13), open: earned.has(part.key), unread: !seen.has(part.key), lock: level ? game.levelLabel(level) : null }
     }),
   }].filter((group) => group.items.length)
 
   const article = (key, back) => {
     const part = all.find((p) => p.key === key)
-    const level = levelOf(game, key)
+    const level = levelOf(game, part)
     const demo = game.parts.demo?.(part, { phone })
     return (
       <article className="wiki-article parts-article" key={key} data-family={part.family}>

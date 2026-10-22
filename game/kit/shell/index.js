@@ -22,10 +22,12 @@ export { PHONE, useMedia } from './useMedia.js'
  *   power         a first-run dialog { title, lines }
  *   intro(level)  a level's 引入 pages [{ t, fig? }]; IntroFigure draws a page's fig ({ fig, level, theme })
  *   progress      { version, migrate(saved), legacy() } for saves from older versions or keys
- *   parts         the components box (元件箱) { all: [{ key, name, desc?, icon?, family? }] (a key is the flag earning it),
+ *   parts         the components box (元件箱) { all: [{ key, name, desc?, icon?, family?, at? }] (a built part's key is
+ *                 the flag earning it; a primitive has `at`, the levels that bring it in, and is earned once one is open),
  *                 demo?(part, { phone }) → the part on a bench to try (React; games/kit/circuit DemoBench),
  *                 filters?(progress) → [{ key, name, icon?, lock?, keys }] to narrow the box, such as by robot }
  *   unlocked(level)  what passing a level unlocks [{ label, icon?, family? }] for the passed dialog
+ *   core(level)   whether the map draws a level full size (a milestone: ../course.js isCore) or smaller
  *   note(level)   the level's key idea, shown when it is passed (default: level.note ?? level.after)
  *   glossary      the encyclopedia: { groups: [{ id, title }], entries: [{ id, group, title, body, at?, see? }] }
  *   html          true when level text (brief, rows, intro, dialogs) is the game's own HTML markup
@@ -48,6 +50,7 @@ export function defineGame(def) {
     levelLabel: (level) => level.id,
     intro: () => null,
     unlocked: () => [],
+    core: () => true,
     note: (level) => level.note ?? level.after,
     better: (score, best) => !best,
     ...def,
@@ -60,8 +63,21 @@ export function defineGame(def) {
     // it to whoever solved it already), and the flags the save holds.
     flagsOf: (progress) => [...new Set([...progress.flags, ...progress.solved.flatMap((id) => byId[id]?.unlocks ?? [])])],
   }
-  // With every level unlocked, the components box is full too (the encyclopedia opens every entry the same way).
-  if (def.parts) game.parts = { ...def.parts, earned: (progress) => (progress.all ? def.parts.all.map((part) => part.key) : game.flagsOf(progress)) }
+  // The primitives a level brings in, for the map.
+  game.introduced = (level) => (def.parts?.all ?? []).filter((part) => part.at?.includes(level.id))
+  // A built part is earned by solving its level; a primitive once a level that brings it in opens. With every level
+  // unlocked, the components box is full too (the encyclopedia opens every entry the same way).
+  if (def.parts) {
+    game.parts = {
+      ...def.parts,
+      earned: (progress) => {
+        if (progress.all) return def.parts.all.map((part) => part.key)
+        const solved = new Set(progress.solved)
+        const met = def.parts.all.filter((part) => part.at?.some((id) => byId[id] && isOpen(byId[id], solved)))
+        return [...game.flagsOf(progress), ...met.map((part) => part.key)]
+      },
+    }
+  }
   game.store = createProgress({ id: def.id, ...(def.progress ?? {}) })
   return game
 }
