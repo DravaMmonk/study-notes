@@ -1,12 +1,21 @@
 // Live part of the figure (appended to detach.js by build.mjs, after MARKUP, CSS, AXES, STROKE, SLIDE and ROUTES).
 // One proof per loop, on a fixed timeline in seconds: pulses run from both premises to the die, the ram comes down
-// and stamps B, the card rides into the goal and the lamp lights; then the card fades and a blank one takes its
-// place. Offscreen the loop stops; under reduced motion the figure rests on the proved state.
+// and stamps the conclusion, the card rides into the goal and the lamp lights; then the card fades, the premises
+// change to the next example and a blank card takes its place. Offscreen the loop stops; under reduced motion the
+// figure rests on the first example, proved.
 
 const ease = (x) => x * x * (3 - 2 * x);
 const span = (t, a, b) => ease(Math.min(1, Math.max(0, (t - a) / (b - a))));
 const PERIOD = 9;
 const T = { pulse: [0.6, 2.4], down: [2.4, 2.75], up: [2.95, 3.5], slide: [3.6, 4.9], fade: [7.6, 8.1], blank: [8.3, 8.8] };
+// Instances of Detach, one a loop: from imp and ant the press stamps out (short enough for a card).
+const EXAMPLES = [
+  { imp: 'A → B', ant: 'A', out: 'B' },
+  { imp: 'B → C', ant: 'B', out: 'C' },
+  { imp: '¬A → B', ant: '¬A', out: 'B' },
+  { imp: 'A → ⊥', ant: 'A', out: '⊥' },
+  { imp: 'P → Q', ant: 'P', out: 'Q' },
+];
 
 // A point a share u of the way along a screen polyline.
 function along(points, u) {
@@ -35,6 +44,8 @@ export function mountDetach(host) {
   const ram = root.querySelector('[data-part="ram"]');
   const proof = root.querySelector('[data-part="proof"]');
   const stamp = root.querySelector('[data-part="stamp"]');
+  const texts = { imp: root.querySelector('[data-text="imp"] text'), ant: root.querySelector('[data-text="ant"] text'), out: stamp.querySelector('text') };
+  const show = (el, text) => { if (el.textContent !== text) el.textContent = text; };
   const pulses = [...root.querySelectorAll('[data-pulse]')].map((el) => [el, ROUTES[el.dataset.pulse]]);
   const still = matchMedia('(prefers-reduced-motion: reduce)');
   const theme = () => { root.dataset.theme = document.documentElement.dataset.theme === 'paper' ? 'light' : 'dark'; };
@@ -42,7 +53,15 @@ export function mountDetach(host) {
   const themes = new MutationObserver(theme);
   themes.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-  function draw(t) {
+  // t: seconds into loop n. The premises fade out with the proved card and come back as the next example.
+  function draw(t, n = 0) {
+    const next = t >= (T.fade[1] + T.blank[0]) / 2 ? n + 1 : n;
+    show(texts.imp, EXAMPLES[next % EXAMPLES.length].imp);
+    show(texts.ant, EXAMPLES[next % EXAMPLES.length].ant);
+    show(texts.out, EXAMPLES[n % EXAMPLES.length].out);
+    const premises = (1 - span(t, T.fade[0], T.fade[1]) + span(t, T.blank[0], T.blank[1])).toFixed(3);
+    texts.imp.style.opacity = premises;
+    texts.ant.style.opacity = premises;
     const run = (t - T.pulse[0]) / (T.pulse[1] - T.pulse[0]);
     for (const [el, route] of pulses) {
       const [x, y] = along(route, ease(Math.min(1, Math.max(0, run))));
@@ -66,7 +85,8 @@ export function mountDetach(host) {
   let start = 0;
   const tick = (now) => {
     if (!start) start = now;
-    draw(((now - start) / 1000) % PERIOD);
+    const seconds = (now - start) / 1000;
+    draw(seconds % PERIOD, Math.floor(seconds / PERIOD));
     frame = visible && !still.matches ? requestAnimationFrame(tick) : 0;
   };
   const run = () => {
