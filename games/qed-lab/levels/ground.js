@@ -30,11 +30,13 @@ export const ground = [
     tests: [{ premises: { p: 'A → B', q: 'B → C', r: 'A' }, goal: 'C' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
+    symbols: ['→'],
     adds: ['app'],
     brief: T('已知「下雨 → 地湿」「地湿 → 路滑」「下雨」，证出「路滑」。', 'Given “it rains → the ground is wet”, “the ground is wet → the road is slippery” and “it rains”, prove “the road is slippery”.'),
     hint: [T('第一块套用给出「地湿」，它能接进第二块套用。', 'The first Apply gives “the ground is wet”, which can go into a second Apply.')],
     intro: [
       { t: T('地基的第一块元件是<b>套用</b>：一个输入口接一句「如果…，那么…」，另一个接它的前一半，输出它的后一半。一句「如果…那么…」就像一台机器，套用就是把前一半喂给它。', 'The foundation’s first part is <b>Apply</b>: one input takes an “if …, then …”, the other its “if” part, and out comes its “then” part. An “if … then …” is like a machine, and Apply feeds it its “if” part.') },
+      { t: T('「如果…，那么…」写成 <b>→</b>：「下雨 → 地湿」就是「如果下雨，那么地湿」。', '“If …, then …” is written <b>→</b>: “it rains → the ground is wet” is “if it rains, then the ground is wet”.') },
     ],
     solution: proof({ m1: ['app'], m2: ['app'] }, ['p>m1.imp', 'r>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p', 'q', 'r'] }),
     after: T('套用只认形状，不管讲的是什么。推出来的「地湿」又当了下一步的输入。', 'Apply looks only at shape, never at what it is about. The “the ground is wet” it proved became the next step’s input.'),
