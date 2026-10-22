@@ -42,7 +42,7 @@ export const ERAS = [
       branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
       // Chain and Merge, each built with a box, need nothing from each other. Chain is practised and grows into Swap
       // on its own line; Merge is practised on the other.
-      branches(['chain', '串联', 'Chain', ['chain', 'long', 'swap', 'swapUse']], ['merge', '合并', 'Merge', ['twice']]),
+      branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
     ],
     // Chain and Merge together, harder each time, then a false lookalike of Chain.
     practice: ['mergeUse', 'mergeLong', 'mergeBoth', 'wrongChain'],

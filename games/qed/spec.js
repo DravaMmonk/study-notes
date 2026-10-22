@@ -49,7 +49,9 @@ export default {
   { version: 10, ops: [{ rename: { kmp: null } }] },
   // Version 11 gathered the levels a box or K and S both solve into the topic without the box (第三句也可以长 is now
   // its second level), and dropped 啰嗦的规定 and 串联本身, which the box makes too easy.
-  { version: 11, ops: [{ rename: { s2: 'x-s', thrice: null, hs: null } }] }],
+  { version: 11, ops: [{ rename: { s2: 'x-s', thrice: null, hs: null } }] },
+  // Version 12 dropped 一长串 and 先换，再套用.
+  { version: 12, ops: [{ rename: { long: null, swapUse: null } }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
