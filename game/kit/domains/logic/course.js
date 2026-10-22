@@ -20,6 +20,8 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
  * compound sentence too: { A: 'Rain ∧ Wind' }). Every case becomes a test of its own, with the case as `subst` and its
  * sentences as its label, so one proof is checked on all of them and the player never meets a bare letter.
  *   lemmas      { type: { name, desc, statement, premises?, metas } } the parts the player proves
+ *   gates       { type: { name, desc, ports, f } } the gates the player builds on a truth circuit (gates.js)
+ *   replaces    { part: [part] } a part that takes the place of others: from its level on, those leave the tray
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
  * }
@@ -39,7 +41,7 @@ function expand(level, notation) {
   return { schema, tests: level.cases.map(test), hidden: (level.hiddenCases ?? []).map(test) }
 }
 
-export function logicCourse({ eras, levels, words = null, lemmas = {}, primitives, concept = {} }) {
+export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {}, primitives, concept = {}, replaces = {} }) {
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
@@ -51,7 +53,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, primitive
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
     known = [...known, ...(level.symbols ?? [])]
     const notation = { words: level.words ?? words, symbols: known }
-    return { adds: [], ...level, ...(level.cases ? expand(level, notation) : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, notation }
+    return { adds: [], ...level, ...(level.cases ? expand(level, notation) : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, notation }
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))
@@ -69,7 +71,8 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, primitive
     primitives,
     concept: (p) => concept[p] ?? p,
     adds: (l) => byId.get(l.id).adds,
-    needs: (p) => (lemmas[p] ? `lemma:${p}` : null),
+    needs: (p) => (lemmas[p] || gates[p] ? `lemma:${p}` : null),
+    replaces: (p) => replaces[p] ?? [],
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
     naive: (l) => Boolean(byId.get(l.id).naive),

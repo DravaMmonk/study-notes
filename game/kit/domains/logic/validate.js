@@ -3,7 +3,8 @@
 // whose goal is false would be caught), and a level that asks for a countermodel (`unprovable`) has one. A truth-table
 // level's formulas parse and its task can be done: a `counter` formula has a false row, a `valid` level mixes both.
 // Every letter a level shows has its everyday sentence, and every proof level comes as test cases (course.js). No proof
-// level is one use of a lemma it carries away from done.
+// level is one use of a lemma it carries away from done. A truth circuit's reference board gives its sentence on every
+// row, its naive one does not (or breaks its gate budget), and a gate it builds computes exactly that sentence.
 import { reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel, withHidden } from '../../engine/tests.js'
@@ -11,13 +12,14 @@ import { parse } from './formula.js'
 import { countermodel } from './models.js'
 import { LOGIC_TESTS, lemmaGives } from './proof.js'
 import { lettersOf, tautology } from './truth.js'
+import { checkGates, gatesOf, rowsFor } from './gates.js'
 
 /** spec: { levels, course }. Returns [{ text, fail? }]. */
 export function validate({ levels, course }) {
   const out = []
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words)) {
-    const texts = level.kind === 'truth' ? level.formulas : withHidden(level).tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : withHidden(level).tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l])
     if (missing.length) out.push({ fail: true, text: `${level.id}: no words for ${missing.join(', ')}` })
     if (level.kind === 'proof' && !level.cases) out.push({ fail: true, text: `${level.id}: a proof level needs test cases` })
@@ -27,6 +29,19 @@ export function validate({ levels, course }) {
     const bad = level.ask === 'counter' ? formulas.filter((f) => tautology(f)) : []
     const mixed = level.ask !== 'valid' || (formulas.some(tautology) && formulas.some((f) => !tautology(f)))
     out.push({ fail: bad.length > 0 || !mixed, text: `${level.id} ${keyOf(level.title)}: (truth ${level.ask}) ${bad.length ? 'a formula has no false row' : mixed ? 'ok' : 'every formula gives the same answer'}` })
+  }
+  for (const level of levels.filter((l) => l.kind === 'gates')) {
+    const good = checkGates(level, level.solution)
+    out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: circuit ${good.pass ? 'PASS' : 'FAIL'} [${good.gates} gates]` })
+    if (level.naive) {
+      const bad = checkGates(level, level.naive)
+      out.push({ fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
+    }
+    if (level.builds) {
+      const gate = gatesOf(level.gates)[level.builds]
+      const wrong = !gate ? ['no such gate'] : rowsFor(level).rows.filter(({ row, want }) => gate.f(rowsFor(level).letters.map((l) => row[l])) !== want)
+      if (wrong.length) out.push({ fail: true, text: `${level.id}: the gate ${level.builds} does not compute its sentence` })
+    }
   }
   for (const level of levels.filter((l) => l.kind === 'proof').map(withHidden)) {
     const consts = level.consts ?? []
