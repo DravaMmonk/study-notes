@@ -1,6 +1,6 @@
 // A logic game on the shared shell (../../shell): its spec becomes the shell's game description, with the logic
 // domain's screens (a proof on the circuit editor, a truth table), its parts box of proved lemmas and its map art.
-import { Cpu, Grid2x2Check, Workflow } from 'lucide-react'
+import { Cpu, Grid2x2Check, PencilRuler, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
@@ -9,6 +9,7 @@ import { migrations } from '../../shell/saves.js'
 import GatesScreen from './ui/GatesScreen.jsx'
 import Hero from './ui/Hero.jsx'
 import ProofScreen from './ui/ProofScreen.jsx'
+import RuleScreen from './ui/RuleScreen.jsx'
 import TruthScreen from './ui/TruthScreen.jsx'
 import { descOf, iconOf, nameOf } from './ui/catalog.js'
 import { PRIMITIVE_GATES } from './gates.js'
@@ -59,6 +60,7 @@ export function defineLogicGame(spec) {
       proof: { Screen: ProofScreen, icon: Workflow, label: { zh: '证明', en: 'Proof' } },
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
+      rule: { Screen: RuleScreen, icon: PencilRuler, label: { zh: '设计规则', en: 'Rule design' } },
     },
     unlocked: (level) => level.unlocks.map((flag) => ({ label: built[flag.slice('lemma:'.length)].name })),
     core: (level) => isCore(spec.logic.course, level),

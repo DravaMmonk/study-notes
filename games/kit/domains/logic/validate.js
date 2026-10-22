@@ -4,7 +4,9 @@
 // level's formulas parse and its task can be done: a `counter` formula has a false row, a `valid` level mixes both.
 // Every letter a level shows has its everyday sentence, and every proof level comes as test cases (course.js). No proof
 // level is one use of a lemma it carries away from done. A truth circuit's reference board gives its sentence on every
-// row, its naive one does not (or breaks its gate budget), and a gate it builds computes exactly that sentence.
+// row, its naive one does not (or breaks its gate budget), and a gate it builds computes exactly that sentence. A
+// rule-design level's answer passes its checks and its naive design does not; a proof that holds parts back
+// (`without`) does not use them.
 import { reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel, withHidden } from '../../engine/tests.js'
@@ -13,12 +15,13 @@ import { countermodel } from './models.js'
 import { LOGIC_TESTS, lemmaGives } from './proof.js'
 import { lettersOf, tautology } from './truth.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
+import { checkDesign } from './rules.js'
 
 /** spec: { levels, course }. Returns [{ text, fail? }]. */
 export function validate({ levels, course }) {
   const out = []
   // A level in everyday words has a sentence for every letter it uses.
-  for (const level of levels.filter((l) => l.notation?.words)) {
+  for (const level of levels.filter((l) => l.notation?.words && l.kind !== 'rule')) {
     const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : withHidden(level).tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l])
     if (missing.length) out.push({ fail: true, text: `${level.id}: no words for ${missing.join(', ')}` })
@@ -43,6 +46,14 @@ export function validate({ levels, course }) {
       if (wrong.length) out.push({ fail: true, text: `${level.id}: the gate ${level.builds} does not compute its sentence` })
     }
   }
+  for (const level of levels.filter((l) => l.kind === 'rule')) {
+    const good = checkDesign(level, level.answer)
+    out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: rules ${good.pass ? 'PASS' : `FAIL ${good.problems.map((p) => p.kind).join(', ')}`}` })
+    if (level.naive) {
+      const bad = checkDesign(level, level.naive)
+      out.push({ fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : `fails (${bad.problems.map((p) => p.kind).join(', ')})`}` })
+    }
+  }
   for (const level of levels.filter((l) => l.kind === 'proof').map(withHidden)) {
     const consts = level.consts ?? []
     for (const test of level.tests) {
@@ -57,6 +68,8 @@ export function validate({ levels, course }) {
       const gives = (t) => lemmaGives(level.lemmas[p], Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }))
       if (level.tests.every(gives)) out.push({ fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
     }
+    const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
+    if (banned.length) out.push({ fail: true, text: `${level.id}: the solution uses ${banned.join(', ')}, which the level holds back` })
     const good = runLevel(LOGIC_TESTS, level, level.solution)
     out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: solution ${good.pass ? 'PASS' : `FAIL ${good.results.map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} steps]` })
     if (level.naive) {

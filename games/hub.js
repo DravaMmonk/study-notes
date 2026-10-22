@@ -17,7 +17,7 @@ let unmount = [];
 
 function render() {
   const en = currentLang() === 'en', pick = x => (typeof x === 'string' ? x : en ? x.en : x.zh);
-  document.querySelector('#games').innerHTML = GAMES.map(g => {
+  document.querySelector('#games').innerHTML = GAMES.filter(g => !g.hidden).map(g => {
     const done = Math.min(g.progress(), g.levels), started = done > 0;
     return `<a class="kit-card game" href="${g.href}">
       <div class="art" data-art="${g.art}"></div>
