@@ -126,8 +126,7 @@ export const era1 = [
     ],
     intro: [
       { t: T('下雨，就地湿；地湿，就路滑。所以下雨，就路滑。两段「如果…那么…」首尾相接，凭直觉一步就到。', 'it rains gives the ground is wet; the ground is wet gives the road is slippery. So it rains gives the road is slippery. Two “if … then …”s joined end to end: one step, by instinct.') },
-      { t: T('可证明核没有「首尾相接」这条规则。在<level-ref to="s"></level-ref>里，S 在一个条件下做了分离，那时两张已知都带着那个条件。这一关「地湿 → 路滑」没带条件：先用 K 给它加上「如果下雨」，再交给 S。', 'But the kernel has no “join end to end” rule. In <level-ref to="s"></level-ref>, S detached under a condition, and both givens carried it. Here “the ground is wet → the road is slippery” carries none: first let K put “if it rains” on it, then hand it to S.') },
-      { t: T('证出来以后，这块电路会变成元件<b>串联</b>：以后接进任何两段首尾相接的「如果…那么…」，它都直接给出从头到尾的那一段。', 'Once proved, this circuit becomes the part <b>Chain</b>: wire in any two “if … then …”s that meet end to end and it gives the one from start to finish at once.') },
+      { t: T('可证明核没有「首尾相接」这条规则。能借的是<level-ref to="s"></level-ref>：S 在条件「下雨」下做分离，前提是两句都带着这个条件。「下雨 → 地湿」本来就带着；「地湿 → 路滑」没带，得先给它加上，而给一句话加条件，正是<level-ref to="k"></level-ref>里 K 做的事。', 'But the kernel has no “join end to end” rule. What you can borrow is <level-ref to="s"></level-ref>: S detaches under the condition “it rains”, provided both sentences carry it. “it rains → the ground is wet” already does; “the ground is wet → the road is slippery” does not, and has to get it first, which is what K did in <level-ref to="k"></level-ref>: put a condition on a sentence.') },
     ],
     solution: proof({
       k: ['axK', { A: 'B → C', B: 'A' }],
@@ -136,7 +135,7 @@ export const era1 = [
       m2: ['mp'],
       m3: ['mp'],
     }, ['k>m1.imp', 'q>m1.a', 's>m2.imp', 'm1>m2.a', 'm2>m3.imp', 'p>m3.a', 'm3>goal'], { premises: ['p', 'q'] }),
-    after: T('5 步。现在你有了<b>串联</b>。证过一次、之后当规则用的事，叫<b>引理</b>：它在每一组测试上都成立，所以对任何句子都能用。', 'Five steps. Now you have <b>Chain</b>. Something proved once and used as a rule from then on is a <b>lemma</b>: it held on every test, so it works for any sentences.'),
+    after: T('5 步：K 给第二句加上条件，S 在条件下分离。证过一次、之后当规则用的事叫<b>引理</b>：它在每一组测试上都成立，所以对任何句子都能用。', 'Five steps: K puts the condition on the second sentence, S detaches under it. Something proved once and used as a rule from then on is a <b>lemma</b>: it held on every test, so it works for any sentences.'),
   },
   {
     id: 'short',
@@ -177,7 +176,7 @@ export const era1 = [
       { t: T('K 造出的句子都长这样：「如果下雨，那么（如果…，那么下雨）」。所以只要第二句本身也长成「如果…，那么下雨」，K 就也能造出「如果下雨，那么 第二句」。选项里正好有一句这样的：下雨 → 下雨。', 'Every sentence K makes looks like “if it rains, then (if …, then it rains)”. So if the second sentence itself looks like “if …, then it rains”, K can make “if it rains, then the second” too. One of the choices is just that: it rains → it rains.') },
     ],
     solution: identity,
-    after: T('一句一眼就对的话，要 5 步。规则少的系统就是这样：什么都能证，但很费劲。这块电路在每一组测试上都成立，所以它现在是一块元件<b>恒等</b>：卡片上选一句话，直接给出「如果它，那么它」。', 'An obvious statement took 5 steps. That is a system with few rules: everything provable, all of it hard work. This circuit held on every test, so it is now a part, <b>Identity</b>: choose a sentence on its card and it gives “if it, then it” at once.'),
+    after: T('一句一眼就对的话，要 5 步：S 要的两句都用 K 造，关键是把第二句选成「下雨 → 下雨」。规则少的系统就是这样：什么都能证，但很费劲。', 'An obvious statement took 5 steps: both sentences S needs are made by K, and the key is choosing “it rains → it rains” as the second. That is a system with few rules: everything provable, all of it hard work.'),
   },
   {
     id: 'long',
@@ -190,10 +189,10 @@ export const era1 = [
     hint: [T('你已经有串联了，用两次。', 'You already have Chain. Use it twice.')],
     intro: [
       { t: T('下雨、地湿、路滑、有人摔跤，一环扣一环。只用分离和公理，这要十几步。', 'it rains, the ground is wet, the road is slippery, someone falls: link after link. With Detach and the axioms alone, that takes over a dozen steps.') },
-      { t: T('可你已经证过<level-ref to="chain"></level-ref>了。证过的引理就是元件，拿来就用。', 'But you have already proved <level-ref to="chain"></level-ref>. A proved lemma is a part, ready to use.') },
+      { t: T('<level-ref to="chain"></level-ref>一次接两段。三段的话，先接哪两段？接出来的那一段，还能再接吗？', '<level-ref to="chain"></level-ref> joins two pieces at a time. With three, which two first? Can the joined piece be joined again?') },
     ],
     solution: proof({ c1: ['chain'], c2: ['chain'] }, ['p>c1.p0', 'q>c1.p1', 'c1>c2.p0', 'r>c2.p1', 'c2>goal'], { premises: ['p', 'q', 'r'] }),
-    after: T('两次串联，2 步。数学家写证明也是这样：先证几条引理，再把它们拼起来。', 'Chain twice: 2 steps. Mathematicians write proofs the same way: prove some lemmas first, then put them together.'),
+    after: T('两次串联，2 步：先接前两段，接出的那段再和第三段接。', 'Chain twice, 2 steps: join the first two, then join the result with the third.'),
   },
   {
     id: 'twice',
@@ -206,12 +205,12 @@ export const era1 = [
     hint: [T('S 的三句选「下雨」「下雨」「地湿」，它能把已知变成「如果（如果下雨，那么下雨），那么（下雨 → 地湿）」。剩下的交给恒等。', 'With “it rains”, “it rains”, “the ground is wet” on S, it turns the given into “if (if it rains, then it rains), then (it rains → the ground is wet)”. Identity does the rest.')],
     intro: [
       { t: T('「下雨 → (下雨 → 地湿)」：条件「下雨」说了两遍。直觉上，说一遍就够了。', '“it rains → (it rains → the ground is wet)”: the condition “it rains” is stated twice. Surely once is enough.') },
-      { t: T('能不能用分离把这句已知接到它自己身上？试试看，再想想 S 和恒等。', 'Can Detach feed the given into itself? Try it, then think about S and Identity.') },
+      { t: T('能不能用分离把这句已知接到它自己身上？试试看。不行的话，回想<level-ref to="short"></level-ref>：S 在条件下分离时，第二个前提要的是「如果下雨，那么…」；这一关，那个「…」可以是「下雨」本身。', 'Can Detach feed the given into itself? Try it. If not, recall <level-ref to="short"></level-ref>: when S detaches under a condition, its second premise wants “if it rains, then …”; here that “…” can be “it rains” itself.') },
     ],
     builds: 'merge',
     solution: proof({ s: ['axS', { A: 'A', B: 'A', C: 'B' }], m1: ['mp'], i: ['id', { A: 'A' }], m2: ['mp'] }, ['s>m1.imp', 'p>m1.a', 'm1>m2.imp', 'i>m2.a', 'm2>goal'], { premises: ['p'] }),
     naive: proof({ m: ['mp'] }, ['p>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
-    after: T('已知接到自己身上不行：分离的「A」口要的是「下雨」，接进来的却是整句已知。S 把两个「下雨」合成一个，剩下的「如果下雨，那么下雨」交给恒等。这块电路现在是元件<b>合并</b>：条件说了两遍的，它直接并成一遍。', 'Feeding the given into itself fails: Detach’s “A” input wants “it rains”, and gets the whole given. S merges the two “it rains”s into one, and Identity supplies the “if it rains, then it rains” left over. This circuit is now the part <b>Merge</b>: a condition stated twice, it states once.'),
+    after: T('已知接到自己身上不行：分离的「A」口要的是「下雨」，接进来的却是整句已知。S 把两个「下雨」合成一个，剩下的「如果下雨，那么下雨」交给恒等。', 'Feeding the given into itself fails: Detach’s “A” input wants “it rains”, and gets the whole given. S merges the two “it rains”s into one, and Identity supplies the “if it rains, then it rains” left over.'),
   },
   // ---- practice with Detach alone ----
 
@@ -297,10 +296,10 @@ export const era1 = [
     ],
     intro: [
       { t: T('「周六的话，下雨我就休息」和「下雨的话，周六我就休息」说的是一回事。两个条件谁先谁后不要紧，可证明核得证出来才认。', '“On a Saturday, if it rains I rest” and “if it rains, on a Saturday I rest” say the same thing. The order of two conditions does not matter, but the kernel only believes what it can prove.') },
-      { t: T('用得上的有 S、K，还有你造的串联。证出来以后，这块电路是元件<b>交换</b>。', 'You have S, K and the Chain you built. Once proved, this circuit becomes the part <b>Swap</b>.') },
+      { t: T('先看已知交给 S 能变成什么，再看它离目标还差哪一段。差的那一段长得像 K 造出来的句子；两段首尾相接，就是串联的事。', 'First see what S makes of the given, then what is still missing on the way to the goal. The missing piece looks like a sentence K makes; and two pieces meeting end to end are Chain’s business.') },
     ],
     solution: proof({ s: ['axS', { A: 'A', B: 'B', C: 'C' }], m1: ['mp'], k: ['axK', { A: 'B', B: 'A' }], c: ['chain'] }, ['s>m1.imp', 'p>m1.a', 'k>c.p0', 'm1>c.p1', 'c>goal'], { premises: ['p'] }),
-    after: T('4 步，其中一步是串联。没有串联，这里要多 4 步。现在你有了<b>交换</b>。', 'Four steps, one of them Chain; without it, four more. Now you have <b>Swap</b>.'),
+    after: T('4 步：S 把外层的条件分到两边，K 补上缺的一段，串联接起来。其中一步是串联；没有它，要多 4 步。', 'Four steps: S spreads the outer condition over both sides, K supplies the missing piece, Chain joins them. One step is Chain; without it, four more.'),
   },
   {
     id: 'swapUse',
@@ -326,7 +325,7 @@ export const era1 = [
     hint: [T('串联以后，「闹钟响了」说了两遍。', 'After Chain, “the alarm rings” is said twice.')],
     intro: [{ t: T('两张已知首尾相接，可接起来以后，条件多出来一遍。你手里正好有专门处理这件事的元件。', 'The two givens meet end to end, but joined, a condition appears twice. You hold a part made for exactly that.') }],
     solution: proof({ c: ['chain'], g: ['merge'] }, ['p>c.p0', 'q>c.p1', 'c>g.p0', 'g>goal'], { premises: ['p', 'q'] }),
-    after: T('2 步，两块都是你自己造的元件。证明核的本事没变，可你的元件库让它快了很多。', 'Two steps, both parts of your own making. The kernel can do no more than before, but your library makes it far faster.'),
+    after: T('2 步：先串联，接出的句子里条件说了两遍，再合并。', 'Two steps: Chain first, which leaves a condition stated twice, then Merge.'),
   },
   {
     id: 'wrongChain',
