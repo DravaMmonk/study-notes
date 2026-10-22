@@ -25,8 +25,8 @@ export const broom = [
     ],
     testLabel: t => t.s, after: dictBox,
     solution: CUTTER,
-    hints: [T('和上一关比，变的只有每一块的代价。', 'Compared with last level, only each piece’s cost has changed.')],
-    debrief: { title: T('代价换了，电路没换', 'New costs, the same circuit'), body: [T('上一关每一块都算 1，所以数的是块数。代价一换，同一块电路板就去找最省的切法。', 'Last level every piece cost 1, so it counted pieces. Change the costs, and the same board finds the cheapest cut.')] },
+    hints: [T('和<level-ref to="wordbreak"></level-ref>比，变的只有每一块的代价。', 'Compared with <level-ref to="wordbreak"></level-ref>, only each piece’s cost has changed.')],
+    debrief: { title: T('代价换了，电路没换', 'New costs, the same circuit'), body: [T('在<level-ref to="wordbreak"></level-ref>里，每一块都算 1，所以数的是块数。代价一换，同一块电路板就去找最省的切法。', 'In <level-ref to="wordbreak"></level-ref> every piece cost 1, so it counted pieces. Change the costs, and the same board finds the cheapest cut.')] },
   },
   {
     id: 'segment', ch: 11, title: T('分词', 'Word segmentation'), short: T('不认识的词也得切开', 'Even unknown words get cut'), mode: 'circuit', robot: 'broom',
@@ -44,7 +44,7 @@ export const broom = [
     testLabel: t => t.s, after: dictBox,
     solution: CUTTER,
     hints: [T('单个字母也是一块，代价在词典里写着。', 'A single letter is just another piece, with its cost in the dictionary.')],
-    debrief: { title: T('分词', 'Word segmentation'), body: [T('中文没有空格，输入法和搜索引擎都要先分词，用的就是这块电路板：每个切点试一遍，加上这一块的代价，取最省的。', 'Chinese has no spaces, so input methods and search engines segment words first, with this very board: try every cut, add the piece’s cost, keep the cheapest.'), T('「最少几块」「有的词更贵」都是它的特例：代价全是 1，或者没有单字母兜底。', '“The fewest pieces” and “Some words cost more” are its special cases: every cost 1, or no single letters to fall back on.')] },
+    debrief: { title: T('分词', 'Word segmentation'), body: [T('中文没有空格，输入法和搜索引擎都要先分词，用的就是这块电路板：每个切点试一遍，加上这一块的代价，取最省的。', 'Chinese has no spaces, so input methods and search engines segment words first, with this very board: try every cut, add the piece’s cost, keep the cheapest.'), T('「最少几块」<level-ref to="wordcost"></level-ref>都是它的特例：代价全是 1，或者没有单字母兜底。', '“The fewest pieces” and <level-ref to="wordcost"></level-ref> are its special cases: every cost 1, or no single letters to fall back on.')] },
   },
   {
     id: 'maxsub', ch: 11, title: T('最大的一段', 'The best stretch'), short: T('一格存什么？', 'What should a cell hold?'), mode: 'circuit', robot: 'broom',

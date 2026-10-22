@@ -36,14 +36,14 @@ export const layercake = [
     world: 'stock', facts: ['gain'],
     tests: [{ p: [1, 2, 3, 0, 2], cool: true }, { p: [1, 2, 4, 1, 7, 8, 3], cool: true }, { p: [6, 1, 6, 4, 3, 0, 2], cool: true }],
     solution: TRADER,
-    hints: [T('先试试上一关的电路板。', 'Try last level’s board first.')],
-    debrief: { title: T('同一块电路板', 'The same board'), body: [T('电路板一点没变，变的只是层和层怎么接：「刚卖掉」走回「空手」，那一步就是歇着的那一天。', 'The board didn’t change at all; only how the layers connect did. Stepping from “just sold” back to “empty-handed” is the day of rest.'), T('上一关是这一关剪掉一根箭头：卖掉了，就回不去了。', 'Last level is this one with an arrow cut: once sold, there is no going back.')] },
+    hints: [T('先试试<level-ref to="stock1"></level-ref>的电路板。', 'Try <level-ref to="stock1"></level-ref>’s board first.')],
+    debrief: { title: T('同一块电路板', 'The same board'), body: [T('电路板一点没变，变的只是层和层怎么接：「刚卖掉」走回「空手」，那一步就是歇着的那一天。', 'The board didn’t change at all; only how the layers connect did. Stepping from “just sold” back to “empty-handed” is the day of rest.'), T('<level-ref to="stock1"></level-ref>是这一关剪掉一根箭头：卖掉了，就回不去了。', '<level-ref to="stock1"></level-ref> is this one with an arrow cut: once sold, there is no going back.')] },
   },
   {
     id: 'ring', ch: 13, title: T('环形街道', 'A ring of houses'), short: T('首尾也挨着', 'The ends are neighbours too'), mode: 'circuit', robot: 'stack',
     intro: [
       { t: T('这条街首尾相连，围成一圈：<b>第一家和最后一家也是邻居</b>，不能都偷。', 'This street runs round in a ring: <b>the first and the last house are neighbours too</b>, and can’t both be robbed.') },
-      { t: T('表有两层，甲和乙，每层都是「不能连着偷」那样的两行：这家没偷、这家偷了。两层各记什么由你决定；本格信息里有「是第一家」「是最后一家」和「是甲层」。', 'The table has two layers, A and B, each the two rows of “No two in a row”: this house skipped, this house robbed. What each layer records is up to you; the cell’s facts include “is the first house”, “is the last house” and “is layer A”.') },
+      { t: T('表有两层，甲和乙，每层都是<level-ref to="robber"></level-ref>那样的两行：这家没偷、这家偷了。两层各记什么由你决定；本格信息里有「是第一家」「是最后一家」和「是甲层」。', 'The table has two layers, A and B, each the two rows of <level-ref to="robber"></level-ref>: this house skipped, this house robbed. What each layer records is up to you; the cell’s facts include “is the first house”, “is the last house” and “is layer A”.') },
     ],
     mission: { goal: T('不能偷相邻的两家，第一家和最后一家也算相邻。算出最多能偷多少钱。', 'No two neighbouring houses, and the first and the last count as neighbours. Work out the most money you can steal.'), how: T('答案是两层最后一列里最大的那一格。', 'The answer is the largest cell in the last column of either layer.') },
     world: 'ring', facts: ['money', 'first', 'last', 'sideA'],

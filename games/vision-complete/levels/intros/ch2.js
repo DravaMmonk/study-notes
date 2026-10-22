@@ -6,21 +6,21 @@ export default {
     { t: { zh: '这一关你要做的：在操作台上转动旋钮，让你的波和目标重合。每一步只开放一个旋钮。要想的问题：每个旋钮改变了波的什么？', en: 'Your task in this level: turn the knobs on the bench until your wave lies on the target. Each step opens one knob. Something to think about: what does each knob change about the wave?' } },
   ],
   '2-2': [
-    { t: { zh: '上一关的条纹都是一道干净的波。可真实的图里有方块、字母、边缘，没有一样长得像波。把几道不同频率的波加在一起，能拼出什么样的形状？', en: 'Last level\'s stripes were a single clean wave. But real pictures have squares, letters and edges, and none of them looks like a wave. What shapes can you make by adding waves of different frequencies together?' } },
+    { t: { zh: '<level-ref to="2-1"></level-ref>的条纹都是一道干净的波。可真实的图里有方块、字母、边缘，没有一样长得像波。把几道不同频率的波加在一起，能拼出什么样的形状？', en: '<level-ref to="2-1"></level-ref>\'s stripes were a single clean wave. But real pictures have squares, letters and edges, and none of them looks like a wave. What shapes can you make by adding waves of different frequencies together?' } },
     { t: { zh: '声音里也有同样的事：钢琴和小提琴弹同一个音，听起来却不同，因为里面混着的高低不同的波，比例不一样。', en: 'Sound works the same way: a piano and a violin playing the same note sound different, because the waves of different pitch mixed in them come in different proportions.' } },
     { t: { zh: '台上频率 1 到 8 各有一道正弦波，就是「波」元件选 sin 时的样子。每道波只有一个旋钮：它的振幅。', en: 'The bench has a sine wave for each frequency from 1 to 8, just like the "Wave" part set to sin. Each wave has one knob: its amplitude.' }, fig: { part: 'fqWave', params: { k: 2, form: 'sin' }, inputs: [], caption: { zh: '「波」元件：k = 2 的 sin', en: 'The "Wave" part: sin with k = 2' } } },
     { t: { zh: '这一关你要做的：调各个频率的振幅，先叠出由两道波组成的目标，再叠出一条接近方波的曲线。要想的问题：光滑的波能拼出一道陡边吗？', en: 'Your task in this level: set the amplitude of each frequency, first to stack up a target made of two waves, then a curve close to a square wave. Something to think about: can smooth waves make a steep edge?' } },
   ],
   '2-3': [
-    { t: { zh: '上一关的波是你自己叠的，当然知道每道波有多强。反过来，拿到一条已经叠好的曲线，怎么知道里面有多少 k = 3 的波？调音器认出你弹的是哪个音，做的就是这类事。', en: 'Last level you stacked the waves yourself, so you knew how strong each one was. The other way round: given a curve already stacked, how do you find how much k = 3 wave is in it? A tuner recognising which note you play does this kind of thing.' } },
+    { t: { zh: '<level-ref to="2-2"></level-ref>的波是你自己叠的，当然知道每道波有多强。反过来，拿到一条已经叠好的曲线，怎么知道里面有多少 k = 3 的波？调音器认出你弹的是哪个音，做的就是这类事。', en: 'In <level-ref to="2-2"></level-ref> you stacked the waves yourself, so you knew how strong each one was. The other way round: given a curve already stacked, how do you find how much k = 3 wave is in it? A tuner recognising which note you play does this kind of thing.' } },
     { t: { zh: '这一关你要做的：在台上转动探针的频率，先找出让乘积的平均不为 0 的那一个，再读出混合曲线里一道波的振幅。要想的问题：乘积什么时候会整体偏到一边？', en: 'Your task in this level: turn the probe\'s frequency on the bench, first to find the one whose product does not average to 0, then to read one wave\'s amplitude out of a mixed curve. Something to think about: when does the product lean to one side overall?' } },
   ],
   '2-4': [
-    { t: { zh: '上一关的输入都和探针对得整整齐齐。可真实的曲线里，一道波不一定从最亮处开始，它可能左右错开。', en: 'Last level\'s inputs all lined up neatly with the probe. In a real curve, though, a wave need not start at its brightest: it may be shifted sideways.' } },
+    { t: { zh: '<level-ref to="2-3"></level-ref>的输入都和探针对得整整齐齐。可真实的曲线里，一道波不一定从最亮处开始，它可能左右错开。', en: '<level-ref to="2-3"></level-ref>\'s inputs all lined up neatly with the probe. In a real curve, though, a wave need not start at its brightest: it may be shifted sideways.' } },
     { t: { zh: '这一关你要做的：把输入错开，看探针还量不量得准；再找出一种不管错开多少都读得准的读法。', en: 'Your task in this level: shift the input and see whether the probe still measures it, then find a way of reading that is right however far the wave is shifted.' } },
   ],
   '2-5': [
-    { t: { zh: '前两关在台上看过探针怎么工作。这一关要把它搭成电路：输入一条混着几道波、有的还错开的曲线，读出频率 3 那道波的振幅。', en: 'The last two levels showed on the bench how a probe works. This level builds it as a circuit: the input is a curve of several waves mixed, some of them shifted, and you read off the amplitude of the frequency-3 wave.' } },
+    { t: { zh: '<level-ref to="2-3"></level-ref>和<level-ref to="2-4"></level-ref>在台上看过探针怎么工作。这一关要把它搭成电路：输入一条混着几道波、有的还错开的曲线，读出频率 3 那道波的振幅。', en: '<level-ref to="2-3"></level-ref> and <level-ref to="2-4"></level-ref> showed on the bench how a probe works. This level builds it as a circuit: the input is a curve of several waves mixed, some of them shifted, and you read off the amplitude of the frequency-3 wave.' } },
     { t: { zh: '这一关的电路不处理图像，处理的是一行 32 个点的波形，输出一个数。「求平均」把一行数变成一个数。', en: 'This level\'s circuit does not process an image but a waveform of 32 points, and outputs a single number. "Average" turns a row of numbers into one number.' } },
     {
       t: {
@@ -31,7 +31,7 @@ export default {
     },
   ],
   '2-6': [
-    { t: { zh: '上一关的探针量一行里的一个频率。图像是二维的，波可以横着、竖着、斜着走。对每一种方向和疏密都做一次探针，读数排成一张图，就是<b>频谱</b>：正中心是平均亮度，越往外的格子代表变化越快的波。', en: 'Last level\'s probe measured one frequency in a row. Images are 2-D, so waves run across, down or at a slant. Run the probe for every direction and density and lay the readings out as a picture, and you have the <b>spectrum</b>: the centre is the average brightness, and cells further out stand for faster-changing waves.' }, fig: { part: 'fqSpectrum', input: 'test', caption: { zh: '第一组测试照片的频谱', en: 'The spectrum of the first test photo' } } },
+    { t: { zh: '<level-ref to="2-5"></level-ref>的探针量一行里的一个频率。图像是二维的，波可以横着、竖着、斜着走。对每一种方向和疏密都做一次探针，读数排成一张图，就是<b>频谱</b>：正中心是平均亮度，越往外的格子代表变化越快的波。', en: '<level-ref to="2-5"></level-ref>\'s probe measured one frequency in a row. Images are 2-D, so waves run across, down or at a slant. Run the probe for every direction and density and lay the readings out as a picture, and you have the <b>spectrum</b>: the centre is the average brightness, and cells further out stand for faster-changing waves.' }, fig: { part: 'fqSpectrum', input: 'test', caption: { zh: '第一组测试照片的频谱', en: 'The spectrum of the first test photo' } } },
     { t: { zh: '相机自动对焦时，要一边挪镜头一边判断：现在这张清楚吗？', en: 'When a camera focuses itself, it moves the lens and keeps asking: is this shot sharp now?' } },
     { t: { zh: '新画法「频谱」：画出每个频率的波有多强，中心是频率 (0, 0)，越往外频率越高。', en: 'A new way of drawing, "Spectrum": how strong the wave at each frequency is, with frequency (0, 0) at the centre and higher frequencies further out.' } },
     { t: { zh: '这一关你要做的：按说明里的规则，给每张照片算一个清晰度分。「频率半径」是一张和频谱一样大的图，每格写着它离中心多远。要想的问题：糊掉的照片，频谱哪里变暗了？', en: 'Your task in this level: score each photo for sharpness by the rule in the brief. "Frequency radius" is a picture the size of the spectrum, each cell holding its distance from the centre. Something to think about: where does the spectrum of a blurred photo get darker?' } },
@@ -50,7 +50,7 @@ export default {
       },
       fig: { part: 'fqSpectrum', input: 'test', caption: { zh: '第一组测试输入的频谱', en: 'Spectrum of the first test input' } },
     },
-    { t: { zh: '上一关搭的东西现在是「频域低通」元件：以中心为圆心留下一块频率。它有两个设置：掩膜形状（硬圆盘或高斯）和半径 R。「频谱」元件可以看任何结果的频谱。', en: 'What you built last level is now the "Frequency low-pass" part: it keeps a disc of frequencies around the centre. It has two settings: the mask shape (hard disc or Gaussian) and the radius R. The "Spectrum" part shows the spectrum of any result.' } },
+    { t: { zh: '<level-ref to="2-7"></level-ref>搭的东西现在是「频域低通」元件：以中心为圆心留下一块频率。它有两个设置：掩膜形状（硬圆盘或高斯）和半径 R。「频谱」元件可以看任何结果的频谱。', en: 'What you built in <level-ref to="2-7"></level-ref> is now the "Frequency low-pass" part: it keeps a disc of frequencies around the centre. It has two settings: the mask shape (hard disc or Gaussian) and the radius R. The "Spectrum" part shows the spectrum of any result.' } },
     {
       t: {
         zh: '这一关你要做的：去掉照片里的噪点，输出要和期望一样干净、柔和。四组测试是方块、圆盘、字母和横条，误差图会告诉你差在哪里。',
@@ -79,8 +79,8 @@ export default {
     },
     {
       t: {
-        zh: '这一关有两个输入 A 和 B。输出要 A 的大轮廓（低频）加上 B 的细节（高频）。A 那一半，前面几关已经做过；B 那一半怎么拿到，是这一关要想的。',
-        en: 'This level has two inputs, A and B. The output should be A\'s broad outline (low frequencies) plus B\'s detail (high frequencies). You have already done A\'s half in earlier levels; how to get B\'s half is the puzzle here.',
+        zh: '这一关有两个输入 A 和 B。输出要 A 的大轮廓（低频）加上 B 的细节（高频）。A 那一半你已经会做；B 那一半怎么拿到，是这一关要想的。',
+        en: 'This level has two inputs, A and B. The output should be A\'s broad outline (low frequencies) plus B\'s detail (high frequencies). You already know how to get A\'s half; how to get B\'s half is the puzzle here.',
       },
     },
     {

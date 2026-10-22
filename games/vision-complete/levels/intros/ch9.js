@@ -25,8 +25,8 @@ export default {
   '9-2': [
     {
       t: {
-        zh: '上一关搭的「转置卷积」现在是现成的元件，核可以自己填。',
-        en: 'The "Transposed convolution" you built last level is now a ready-made part, with a kernel you fill in yourself.',
+        zh: '<level-ref to="9-1"></level-ref>搭的「转置卷积」现在是现成的元件，核可以自己填。',
+        en: 'The "Transposed convolution" you built in <level-ref to="9-1"></level-ref> is now a ready-made part, with a kernel you fill in yourself.',
       },
     },
     {
@@ -55,8 +55,8 @@ export default {
   '9-4': [
     {
       t: {
-        zh: '上一关搭的「反池化」现在是现成的元件。',
-        en: 'The "Unpool" you built last level is now a ready-made part.',
+        zh: '<level-ref to="9-3"></level-ref>搭的「反池化」现在是现成的元件。',
+        en: 'The "Unpool" you built in <level-ref to="9-3"></level-ref> is now a ready-made part.',
       },
     },
     {
@@ -91,8 +91,8 @@ export default {
   '9-6': [
     {
       t: {
-        zh: '上一关搭的「k 均值一步」现在是现成的元件。',
-        en: 'The "One k-means step" you built last level is now a ready-made part.',
+        zh: '<level-ref to="9-5"></level-ref>搭的「k 均值一步」现在是现成的元件。',
+        en: 'The "One k-means step" you built in <level-ref to="9-5"></level-ref> is now a ready-made part.',
       },
     },
     {

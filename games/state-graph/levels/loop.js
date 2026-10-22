@@ -42,9 +42,9 @@ export const loopLevels = [
       'p>x:0', 'q>x:1', 'x>out:cell',
     ]),
     hints: [
-      T('和「会打滑的地板」一样，只是 0.8 和 0.2 换成了本格的「站稳的可能」和「打滑的可能」。', 'As on the slippery floor, with 0.8 and 0.2 swapped for this cell’s “chance to hold” and “chance to slip”.'),
+      T('和<level-ref to="slip"></level-ref>一样，只是 0.8 和 0.2 换成了本格的「站稳的可能」和「打滑的可能」。', 'As in <level-ref to="slip"></level-ref>, with 0.8 and 0.2 swapped for this cell’s “chance to hold” and “chance to slip”.'),
     ],
     diagnose: c => (!usesSensor(c, 'slip') || !usesSensor(c, 'grip') ? tr('每一格滑得不一样：打滑和站稳的可能都要从本格信息里读。', 'Every cell slips its own way: read both chances from the cell’s facts.') : !hasKind(c, 'mul') ? tr('按可能性加权要用乘法器。', 'Weighting by chance takes Multipliers.') : null),
-    debrief: { title: T('一块板，三张地图', 'One board, three maps'), body: [T('这块电路板读本格的可能。地上都是 0，它就是「往右往下找宝藏」；处处一样，它就是「会打滑的地板」。', 'This board reads each cell’s own chances. With 0 everywhere it is “Treasure, right or down”; with the same chance everywhere it is the slippery floor.'), T('现实里的强化学习也是这样：环境的不确定性因状态而异，价值就按每个状态自己的可能性加权。', 'Real reinforcement learning works the same way: the uncertainty differs from state to state, and each value is weighted by that state’s own chances.')] },
+    debrief: { title: T('一块板，三张地图', 'One board, three maps'), body: [T('这块电路板读本格的可能。地上都是 0，它就是<level-ref to="treasure"></level-ref>；处处一样，它就是<level-ref to="slip"></level-ref>。', 'This board reads each cell’s own chances. With 0 everywhere it is <level-ref to="treasure"></level-ref>; with the same chance everywhere it is <level-ref to="slip"></level-ref>.'), T('现实里的强化学习也是这样：环境的不确定性因状态而异，价值就按每个状态自己的可能性加权。', 'Real reinforcement learning works the same way: the uncertainty differs from state to state, and each value is weighted by that state’s own chances.')] },
   },
 ];

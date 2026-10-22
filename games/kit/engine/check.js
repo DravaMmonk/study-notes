@@ -4,12 +4,13 @@
 // its domain's own checks (../domains/<domain>/validate.js: reference answers pass, naive ones fail, …).
 //
 // A game is checked through its spec, games/<id>/spec.js, which runs under node:
-//   export default { id, domain, title, course, levels, texts?, audit?() → [{ rule, level, part, text? }] }
-// `texts` are the objects whose strings a player reads (levels are always included); `audit` adds the game's own
-// course problems to the shared audit's.
+//   export default { id, domain, title, course, levels, texts?, quotes?, audit?() → [{ rule, level, part, text? }] }
+// `texts` are the objects whose strings a player reads (levels are always included); `quotes` the level titles that
+// are also names of parts or ideas, which a text may quote (any other reference to a level is a link, ../shell/levelRef.js);
+// `audit` adds the game's own course problems to the shared audit's.
 import { GAMES } from '../../games.js'
 import { RULE_TEXT, audit } from '../course.js'
-import { untranslated } from './text.js'
+import { levelRefProblems, untranslated } from './text.js'
 
 const asked = process.argv.slice(2)
 const ids = asked.length ? asked : GAMES.map((game) => game.id)
@@ -38,6 +39,7 @@ for (const id of ids) {
   }
 
   for (const [name, value] of Object.entries({ levels: spec.levels, ...(spec.texts ?? {}) })) for (const problem of untranslated(value, name)) fail(`text ${problem}`)
+  for (const [name, value] of Object.entries({ levels: spec.levels, ...(spec.texts ?? {}) })) for (const problem of levelRefProblems(value, name, spec.levels, spec.quotes)) fail(`text ${problem}`)
 
   for (const line of await validate(spec)) {
     if (line.fail) fail(line.text)

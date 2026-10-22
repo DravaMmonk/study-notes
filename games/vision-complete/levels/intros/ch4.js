@@ -7,21 +7,21 @@ export default {
     { t: { zh: '这一关你要做的：每组测试是一个样本，让机器自己找出那个数。要想的问题：每一步该迈多大？迈得太小、太大，各会怎样？', en: 'Your task in this level: each test is one sample; let the machine find the number itself. Something to think about: how big should each step be? What happens if the steps are too small, or too big?' }, fig: { test: 0, caption: { zh: '第一个样本：x = 0.2', en: 'The first sample: x = 0.2' } } },
   ],
   '4-2': [
-    { t: { zh: '上一关只有一个旋钮。这一关的规律多了一项：输出 = w × 输入 + b，两个旋钮要一起调。', en: 'Last level had a single knob. This level\'s rule has one more term: output = w × input + b, and the two knobs must be tuned together.' } },
+    { t: { zh: '<level-ref to="4-1"></level-ref>只有一个旋钮。这一关的规律多了一项：输出 = w × 输入 + b，两个旋钮要一起调。', en: '<level-ref to="4-1"></level-ref> had a single knob. This level\'s rule has one more term: output = w × input + b, and the two knobs must be tuned together.' } },
     { t: { zh: 'w 和 b 各用一个「可学习常数」。', en: 'Use one "Learnable constant" for w and another for b.' } },
     { t: { zh: '这一关你要做的：让机器自己找到 w 和 b。要想的问题：两个旋钮时，「往下坡走」指的是往哪个方向走？', en: 'Your task in this level: let the machine find w and b itself. Something to think about: with two knobs, which direction does "walking downhill" mean?' }, fig: { test: 0, caption: { zh: '第一个样本：x = 0.2', en: 'The first sample: x = 0.2' } } },
   ],
   '4-3': [
     {
       t: {
-        zh: '「猜核」里，你看着输入和输出，一格格拧出了一个 3×3 核。那个核的数字很整齐，猜得出来。要是九个数乱七八糟、毫无规律呢？',
-        en: 'In "Guess the kernel" you looked at the input and output and worked out a 3×3 kernel cell by cell. Its numbers were tidy enough to guess. What if the nine numbers are a jumble with no pattern at all?',
+        zh: '<level-ref to="1-9"></level-ref>里，你看着输入和输出，一格格拧出了一个 3×3 核。那个核的数字很整齐，猜得出来。要是九个数乱七八糟、毫无规律呢？',
+        en: 'In <level-ref to="1-9"></level-ref> you looked at the input and output and worked out a 3×3 kernel cell by cell. Its numbers were tidy enough to guess. What if the nine numbers are a jumble with no pattern at all?',
       },
     },
     {
       t: {
-        zh: '新元件「可学习 3×3 核」：和 3×3 核一样拿九个权重去压图，只是权重不用你填，它会照着测试的期望自己调。上一关只有一两个旋钮，这次是九个。',
-        en: 'The new part is the "Learnable 3×3 kernel": like the 3×3 kernel, it presses nine weights over the image, but you do not fill in the weights; it tunes them itself to match the tests\' expected outputs. Last level had one or two knobs; this time there are nine.',
+        zh: '新元件「可学习 3×3 核」：和 3×3 核一样拿九个权重去压图，只是权重不用你填，它会照着测试的期望自己调。<level-ref to="4-2"></level-ref>只有一两个旋钮，这次是九个。',
+        en: 'The new part is the "Learnable 3×3 kernel": like the 3×3 kernel, it presses nine weights over the image, but you do not fill in the weights; it tunes them itself to match the tests\' expected outputs. <level-ref to="4-2"></level-ref> had one or two knobs; this time there are nine.',
       },
     },
     {
@@ -44,8 +44,8 @@ export default {
     { t: { zh: '这一关你要做的：按说明搭出神经元，训练它分开 X 和 O。要想的问题：只靠这三个可学习的数，它能分开哪些点，又分不开哪些？', en: 'Your task in this level: build the neuron as the brief describes and train it to separate X from O. Something to think about: with only these three learnable numbers, which points can it separate, and which can it not?' } },
   ],
   '4-6': [
-    { t: { zh: '上一关的 X 和 O 在平面上各占一边。这一关换了规则：X 是「只有一种笔画」，O 是「两种都有，或者都没有」。', en: 'Last level\'s X and O each sat on one side of the plane. This level changes the rule: X means "only one kind of stroke", O means "both kinds, or neither".' } },
-    { t: { zh: '上一关搭的 1 / (1 + e^(−z)) 现在是现成的「Sigmoid」元件。', en: 'The 1 / (1 + e^(−z)) you built last level is now the ready-made "Sigmoid" part.' } },
+    { t: { zh: '<level-ref to="4-5"></level-ref>的 X 和 O 在平面上各占一边。这一关换了规则：X 是「只有一种笔画」，O 是「两种都有，或者都没有」。', en: '<level-ref to="4-5"></level-ref>\'s X and O each sat on one side of the plane. This level changes the rule: X means "only one kind of stroke", O means "both kinds, or neither".' } },
+    { t: { zh: '<level-ref to="4-5"></level-ref>搭的 1 / (1 + e^(−z)) 现在是现成的「Sigmoid」元件。', en: 'The 1 / (1 + e^(−z)) you built in <level-ref to="4-5"></level-ref> is now the ready-made "Sigmoid" part.' } },
     { t: { zh: '这一关你要做的：X 输出大于 0.6，O 小于 0.4。要想的问题：一个神经元是一条分界线，这些点能被一条直线分开吗？', en: 'Your task in this level: above 0.6 for X, below 0.4 for O. Something to think about: one neuron is one dividing line; can these points be split by a straight line?' } },
   ],
   '4-7': [
@@ -70,7 +70,7 @@ export default {
     },
   ],
   '4-8': [
-    { t: { zh: '上一关搭出的「负数变 0、正数不变」现在是现成的元件 ReLU。', en: 'The "negatives become 0, positives stay" you built last level is now the ready-made part ReLU.' } },
+    { t: { zh: '<level-ref to="4-7"></level-ref>搭出的「负数变 0、正数不变」现在是现成的元件 ReLU。', en: 'The "negatives become 0, positives stay" you built in <level-ref to="4-7"></level-ref> is now the ready-made part ReLU.' } },
     { t: { zh: '这一关你要做的：两张图逐格比较，每格输出较大的那个。要想的问题：a 比 b 大多少？这个差什么时候是正的？', en: 'Your task in this level: compare two pictures cell by cell and output the larger value in each. Something to think about: how much bigger is a than b? When is that difference positive?' }, fig: { test: 0, caption: { zh: '第一组：方块和圆盘', en: 'Set 1: a square and a disc' } } },
   ],
   '4-9': [
@@ -114,7 +114,7 @@ export default {
       },
       fig: { test: 0, caption: { zh: '第一组：特征点在原位', en: 'Set 1: the feature points in their original place' } },
     },
-    { t: { zh: '有时特征点会整体偏一格。这一关的要求是：偏了一格，缩小后的结果也要和原位时完全一样。上一关的「取较大」现在是现成的元件。', en: 'Sometimes all the feature points are off by one pixel. This level\'s requirement: off by one pixel, the shrunk result must be exactly the same as in place. Last level\'s "Larger" is now a ready-made part.' }, fig: { test: 1, caption: { zh: '另一组：整体偏到右下，期望不变', en: 'Another set: everything shifted down and to the right, same expected output' } } },
+    { t: { zh: '有时特征点会整体偏一格。这一关的要求是：偏了一格，缩小后的结果也要和原位时完全一样。<level-ref to="4-10"></level-ref>的「取较大」现在是现成的元件。', en: 'Sometimes all the feature points are off by one pixel. This level\'s requirement: off by one pixel, the shrunk result must be exactly the same as in place. <level-ref to="4-10"></level-ref>\'s "Larger" is now a ready-made part.' }, fig: { test: 1, caption: { zh: '另一组：整体偏到右下，期望不变', en: 'Another set: everything shifted down and to the right, same expected output' } } },
   ],
   '4-12': [
     {
@@ -125,8 +125,8 @@ export default {
     },
     {
       t: {
-        zh: '「一个神经元」里的神经元拿到的是现成的两个数：斜笔画多少、弯笔画多少。这一关没人替你算，网络只拿到像素，字母还会挪位置、变深浅、带噪点。',
-        en: 'The neuron in "One neuron" was handed two ready-made numbers: how many diagonal strokes, how many curved strokes. This time nobody computes them for you. The network gets only pixels, and the letters move around, get lighter or darker, and carry noise.',
+        zh: '<level-ref to="4-5"></level-ref>里的神经元拿到的是现成的两个数：斜笔画多少、弯笔画多少。这一关没人替你算，网络只拿到像素，字母还会挪位置、变深浅、带噪点。',
+        en: 'The neuron in <level-ref to="4-5"></level-ref> was handed two ready-made numbers: how many diagonal strokes, how many curved strokes. This time nobody computes them for you. The network gets only pixels, and the letters move around, get lighter or darker, and carry noise.',
       },
       fig: { test: 2, caption: { zh: '一组测试：挪了位置、带噪点的 O', en: 'One test set: an O that has moved and has noise' } },
     },
@@ -161,7 +161,7 @@ export default {
     },
   ],
   '4-14': [
-    { t: { zh: '上一关一个核横跨三个通道，学会了看颜色的对比。这一关在街景里找红灯：红灯又亮又红，可街上还有暗处的红车、白色的路灯和绿灯。', en: 'Last level one kernel spanned three channels and learned to see colour contrast. This level looks for red lights in street scenes: a red light is bright and red, but the street also has red cars in the shade, white street lamps and green lights.' } },
+    { t: { zh: '在<level-ref to="4-13"></level-ref>里，一个核横跨三个通道，学会了看颜色的对比。这一关在街景里找红灯：红灯又亮又红，可街上还有暗处的红车、白色的路灯和绿灯。', en: 'In <level-ref to="4-13"></level-ref> one kernel spanned three channels and learned to see colour contrast. This level looks for red lights in street scenes: a red light is bright and red, but the street also has red cars in the shade, white street lamps and green lights.' } },
     { t: { zh: '这一关你要做的：只标出红灯。要想的问题：「亮」和「红」，各要看哪几个通道？', en: 'Your task in this level: mark only the red lights. Something to think about: which channels does "bright" need, and which does "red"?' }, fig: { test: 0, caption: { zh: '第一组：路口', en: 'Set 1: a crossing' } } },
   ],
   '4-15': [
@@ -205,7 +205,7 @@ export default {
     },
   ],
   '4-18': [
-    { t: { zh: '这一章最后三关，要搭一台零件分拣机：传送带上有 X、O、+ 三种零件，相机拍一张，机器说是哪一种。上一关看到，模型要在新样本上也准才算数。', en: 'The last three levels of this chapter build a parts sorter: X, O and + parts ride the belt, the camera takes a picture and the machine says which kind it is. The last level showed that a model only counts if it is right on new samples too.' } },
+    { t: { zh: '这一章最后三关，要搭一台零件分拣机：传送带上有 X、O、+ 三种零件，相机拍一张，机器说是哪一种。<level-ref to="4-17"></level-ref>看到，模型要在新样本上也准才算数。', en: 'The last three levels of this chapter build a parts sorter: X, O and + parts ride the belt, the camera takes a picture and the machine says which kind it is. <level-ref to="4-17"></level-ref> showed that a model only counts if it is right on new samples too.' } },
     { t: { zh: '三选一时，网络先给每一类打一个分。可分数可正可负，加起来也不是 1，不能直接当成「有多大把握」。', en: 'Choosing one of three, the network first gives each class a score. But scores can be positive or negative and do not add up to 1, so they cannot be read as "how sure" directly.' } },
     { t: { zh: '这一关你要做的：把三个分变成三个概率，规则在说明里。要想的问题：负的分该怎么办？', en: 'Your task in this level: turn the three scores into three probabilities, by the rule in the brief. Something to think about: what should happen to a negative score?' }, fig: { test: 0, caption: { zh: '第一组：分数 (2, 0, −1)', en: 'Set 1: scores (2, 0, −1)' } } },
   ],

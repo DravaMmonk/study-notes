@@ -8,11 +8,11 @@ export default {
     { t: { zh: '这一关你要做的：每一格换成它自己和左右两个邻居的平均。看看下面的期望：方块左右两条边多出一圈灰，上下两条边却没变。', en: 'Your task in this level: replace each cell with the average of itself and its left and right neighbours. Look at the expected output below: the square\'s left and right edges gain a band of grey, but its top and bottom edges do not change.' }, fig: { test: 0, caption: { zh: '第一组测试：方块', en: 'Set 1: square' } } },
   ],
   '1-2': [
-    { t: { zh: '上一关的三点平均只看左右。噪点和毛刺可不只在横着的方向上。', en: 'The three-point average from the last level only looks left and right. Noise and specks are not only spread out sideways.' } },
+    { t: { zh: '<level-ref to="1-1"></level-ref>的三点平均只看左右。噪点和毛刺可不只在横着的方向上。', en: 'The three-point average from <level-ref to="1-1"></level-ref> only looks left and right. Noise and specks are not only spread out sideways.' } },
     { t: { zh: '这一关你要做的：每一格换成它自己和上下两个邻居的平均。', en: 'Your task in this level: replace each cell with the average of itself and its neighbours above and below.' }, fig: { test: 0, caption: { zh: '第一组测试：方块的上下两条边多出一圈灰', en: 'Set 1: the square\'s top and bottom edges gain a grey band' } } },
   ],
   '1-3': [
-    { t: { zh: '前两关只看左右或上下，这一关看一整圈：每格换成它周围 3×3 九个格子的平均。横竖一视同仁，叫方块模糊。你搭的横向三点平均，现在成了现成的元件。', en: 'The last two levels looked only left and right, or up and down; this one looks all the way round: each cell becomes the average of the nine cells in the 3×3 block around it. Horizontal and vertical are treated alike, and this is called a box blur. The horizontal three-point average you built is now a ready-made part.' } },
+    { t: { zh: '<level-ref to="1-1"></level-ref>和<level-ref to="1-2"></level-ref>只看左右或上下，这一关看一整圈：每格换成它周围 3×3 九个格子的平均。横竖一视同仁，叫方块模糊。你搭的横向三点平均，现在成了现成的元件。', en: '<level-ref to="1-1"></level-ref> and <level-ref to="1-2"></level-ref> looked only left and right, or up and down; this one looks all the way round: each cell becomes the average of the nine cells in the 3×3 block around it. Horizontal and vertical are treated alike, and this is called a box blur. The horizontal three-point average you built is now a ready-made part.' } },
     { t: { zh: '这一关多了一项限制：<b>计算量</b>，数的是每算出一个输出格子要做几次乘法和加法。一张手机照片有上千万个像素，视频每秒几十张，每格省一次，总数就省下很多。', en: 'This level adds a limit: the <b>cost</b>, which counts how many multiplications and additions it takes to compute one output cell. A phone photo has over ten million pixels and video runs at dozens of frames a second, so saving one operation per cell adds up to a lot.' } },
     { t: { zh: '这一关你要做的：做出 3×3 平均，计算量不超过 6。最直接的搭法会超标，你得找一种更省的算法。', en: 'Your task in this level: make a 3×3 average with a cost of no more than 6. The most direct circuit goes over the limit, so you need to find a cheaper method.' }, fig: { test: 4, caption: { zh: '一个亮点，期望是被摊成 3×3 的一小块', en: 'A bright dot: the expected output spreads it into a small 3×3 block' } } },
   ],
@@ -24,7 +24,7 @@ export default {
   ],
   '1-5': [
     { t: { zh: '暗房时代的摄影师有个怪招：把一张故意洗模糊的底片和原底片叠在一起印，照片反而更清楚。修图软件里的「USM 锐化」（unsharp mask）就源自这个做法。', en: 'Darkroom photographers had an odd trick: print the original negative stacked with a deliberately blurred copy, and the photo comes out clearer. The "USM sharpening" (unsharp mask) in photo editors comes from this technique.' } },
-    { t: { zh: '「高斯模糊」是你在「更圆的模糊」里得到的元件，σ 控制模糊得多宽。', en: '"Gaussian blur" is the part you earned in "A rounder blur". σ controls how wide the blur is.' }, fig: { part: 'gauss', params: { sigma: 1 }, input: 'square', caption: { zh: '高斯模糊，σ = 1', en: 'Gaussian blur, σ = 1' } } },
+    { t: { zh: '「高斯模糊」是你在<level-ref to="1-4"></level-ref>里得到的元件，σ 控制模糊得多宽。', en: '"Gaussian blur" is the part you earned in <level-ref to="1-4"></level-ref>. σ controls how wide the blur is.' }, fig: { part: 'gauss', params: { sigma: 1 }, input: 'square', caption: { zh: '高斯模糊，σ = 1', en: 'Gaussian blur, σ = 1' } } },
     { t: { zh: '要想的问题：「原图 − 模糊图」这张差图里，留下的是什么？为什么把它加回原图，图就显得更锐利？', en: 'Something to think about: what is left in the difference image "original − blurred"? Why does adding it back to the original make the image look sharper?' } },
     { t: { zh: '这一关你要做的：按公式搭出锐化。用地形画法看期望，每道台阶的边上都多出了一道凸起和一道凹陷。', en: 'Your task in this level: build the sharpening from the formula. In terrain view, the expected output has an extra ridge and an extra dip beside every step.' }, fig: { test: 0, view: 'terrain', caption: { zh: '第一组测试：方块，用地形画法看', en: 'Set 1: square, in terrain view' } } },
   ],
@@ -35,7 +35,7 @@ export default {
   ],
   '1-7': [
     { t: { zh: '真实的照片都带着<b>噪声</b>：光线暗时，传感器收到的光少，每格的数会随机地偏高或偏低一点。把夜里拍的照片放大，看到的颗粒就是它。', en: 'Real photos always carry <b>noise</b>: in dim light the sensor receives little light, and each cell\'s number comes out randomly a little too high or too low. Zoom into a photo taken at night and the grain you see is noise.' } },
-    { t: { zh: '上一关的边缘检测在干净的图上很准。这一关的图里，每一格都在微微抖动，台阶两边本该平坦的地方也到处是小起伏。', en: 'The edge detection from the last level was accurate on clean images. In this level every cell jitters slightly, and the areas on either side of the step that should be flat are full of small bumps.' } },
+    { t: { zh: '<level-ref to="1-6"></level-ref>的边缘检测在干净的图上很准。这一关的图里，每一格都在微微抖动，台阶两边本该平坦的地方也到处是小起伏。', en: 'The edge detection from <level-ref to="1-6"></level-ref> was accurate on clean images. In this level every cell jitters slightly, and the areas on either side of the step that should be flat are full of small bumps.' } },
     { t: { zh: '要想的问题：一个真正的台阶，和噪声造成的抖动，区别在哪里？你搭的「右边邻居 − 自己」和「下边邻居 − 自己」现在是现成的元件「横向差分」「纵向差分」。', en: 'Something to think about: how does a real step differ from the jitter caused by noise? The "right neighbour − self" and "neighbour below − self" you built are now ready-made parts: "Horizontal difference" and "Vertical difference".' } },
     { t: { zh: '这一关你要做的：只在真正的台阶处输出 1，其余输出 0。每组测试的台阶位置不同，都是左暗右亮。', en: 'Your task in this level: output 1 only at the real step and 0 everywhere else. Each test has its step in a different place, always dark on the left and bright on the right.' }, fig: { test: 0, caption: { zh: '第一组测试：带噪声的台阶', en: 'Set 1: a noisy step' } } },
   ],
@@ -45,7 +45,7 @@ export default {
     { t: { zh: '这一关你要做的：用平移、常数和四则运算，搭出同样的处理。要想的问题：一个亮点经过处理，变成了什么？', en: 'Your task in this level: build the same processing out of shifts, constants, multiplications and additions. Something to think about: what does a single bright dot turn into?' } },
   ],
   '1-9': [
-    { t: { zh: '上一关得到的「3×3 核」：九个权重由你来填。默认只有正中间是 1，输出和输入一模一样。', en: 'The "3×3 kernel" you earned in the last level: you fill in the nine weights. By default only the centre is 1, so the output is identical to the input.' }, fig: { part: 'kernel3', input: 'glyph:F', caption: { zh: '默认的核：原样输出', en: 'The default kernel: output unchanged' } } },
+    { t: { zh: '<level-ref to="1-8"></level-ref>得到的「3×3 核」：九个权重由你来填。默认只有正中间是 1，输出和输入一模一样。', en: 'The "3×3 kernel" you earned in <level-ref to="1-8"></level-ref>: you fill in the nine weights. By default only the centre is 1, so the output is identical to the input.' }, fig: { part: 'kernel3', input: 'glyph:F', caption: { zh: '默认的核：原样输出', en: 'The default kernel: output unchanged' } } },
     { t: { zh: '修图软件的滤镜、相机里的锐化，背后常常就是一个核。这一关反过来：别人用一个核处理了几张图，你只看得到输入和输出，要把那个核找出来。', en: 'Behind photo-editor filters and in-camera sharpening there is often just a kernel. This level turns that around: someone has processed a few images with a kernel, and from only the inputs and outputs you must find that kernel.' } },
     { t: { zh: '这一关你要做的：把你的核拧成和它一样，让三组测试全部通过。', en: 'Your task in this level: dial your kernel in until it matches, so that all three tests pass.' }, fig: { test: 2, caption: { zh: '第三组测试：字母 F', en: 'Set 3: letter F' } } },
   ],

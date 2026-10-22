@@ -75,5 +75,7 @@ export default {
   glossary: { groups: GLOSSARY_GROUPS, entries: GLOSSARY },
   saves: SAVES,
   box: BOX,
+  // Level titles that are also the names of parts or ideas: a text may quote them as such.
+  quotes: ['取较大', '采样', '异或'],
   texts: { chapters: IMAGE.CHAPTERS, intros: INTROS, glossary: GLOSSARY },
 }

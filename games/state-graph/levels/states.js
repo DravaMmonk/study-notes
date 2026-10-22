@@ -27,7 +27,7 @@ export const states = [
       { R: 4, C: 4, keys: { red: [0, 1], blue: [2, 0] }, doors: [{ at: [2, 2], color: 'red' }, { at: [1, 3], color: 'blue' }, { at: [3, 1], color: 'blue' }] },
     ],
     solution: KEY_BOARD,
-    hints: [T('先试试「钥匙与门」的电路板。', 'Try the board from “Keys and doors” first.')],
+    hints: [T('先试试<level-ref to="keydoor"></level-ref>的电路板。', 'Try the board from <level-ref to="keydoor"></level-ref> first.')],
     debrief: { title: T('状态决定了表的形状', 'The state shapes the table'), body: [T('两把钥匙，四种可能：都没有、只有红、只有蓝、都有。每种可能一层，表就有了 4 层，电路板却一点没变。', 'Two keys, four possibilities: none, only red, only blue, both. One layer for each, so the table has 4 layers, yet the circuit board didn’t change at all.')] },
   },
   {

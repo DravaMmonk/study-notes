@@ -1,6 +1,7 @@
-import { Fragment, createElement, useEffect, useState } from 'react'
+import { createElement, useEffect, useState } from 'react'
 import { ArrowRight, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
+import { Plain } from './Layout.jsx'
 
 // A level's 引入: a few pages to read before playing, each with an optional picture the game draws (its
 // IntroFigure). It opens by itself the first time a level is entered and again from the bar. On a phone it is a
@@ -45,7 +46,7 @@ export default function IntroSheet({ game, level, theme, onClose }) {
   )
 }
 
-// Text with <b>…</b> for emphasis and nothing else.
+// Text with <b>…</b> for emphasis and references to other levels, nothing else.
 function Rich({ text }) {
-  return text.split(/(<b>.*?<\/b>)/).map((part, i) => (part.startsWith('<b>') ? <b key={i}>{part.slice(3, -4)}</b> : <Fragment key={i}>{part}</Fragment>))
+  return text.split(/(<b>.*?<\/b>)/).map((part, i) => (part.startsWith('<b>') ? <b key={i}>{part.slice(3, -4)}</b> : <Plain key={i} text={part} />))
 }

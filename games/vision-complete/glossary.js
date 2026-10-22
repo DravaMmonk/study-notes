@@ -32,7 +32,7 @@ export const GLOSSARY = [
     title: { zh: '关卡地图与章节', en: 'The level map and chapters' },
     body: [
       { zh: '地图上每一章是一条走线，关卡是线上的焊点，旁边的小图标说明这一关是搭电路还是机关台。每章对应课上的一两讲，标题下写着这一章要回答的问题。', en: 'On the map each chapter is a trace and its levels are pads along it; a small icon beside each says whether it is a circuit or a bench. Each chapter follows one or two lectures of the course, and under its title is the question the chapter sets out to answer.' },
-      { zh: '一关的前置关卡都通过后，它才会打开；通过的打勾，没打开的带锁。「继续」直接带你去下一个还没通过的关卡。打开「全部解锁」，任意一关都能不按顺序直接玩，进度照常记录。', en: 'A level opens once the levels before it are passed; passed levels are ticked and closed ones show a padlock. “Continue” takes you straight to the next level you have not passed. Turn on “Unlock all” to play any level in any order; progress is still recorded.' },
+      { zh: '一关的前置关卡都通过后，它才会打开；通过的打勾，没打开的带锁。「继续」直接带你去下一个还没通过的关卡。打开「全部解锁」，任意一关都能不按顺序直接玩，进度照常记录。', en: 'A level opens once the levels before it are passed; passed levels are ticked and closed ones show a padlock. “Continue” takes you straight to the first level you have not passed yet. Turn on “Unlock all” to play any level in any order; progress is still recorded.' },
       { zh: '在关卡里，顶栏的「关卡」按钮打开一份关卡列表，可以直接换关，不必回地图。', en: 'Inside a level, the “Levels” button in the top bar opens a list of levels, so you can switch levels without going back to the map.' },
     ],
     see: ['game', 'unlock', 'intro'],

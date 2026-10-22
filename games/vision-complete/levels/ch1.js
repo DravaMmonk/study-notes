@@ -361,7 +361,7 @@ const scanner = {
   chapter: 1,
   title: { zh: '扫描仪', en: 'Scanner' },
   brief: { zh: '真实的扫描件：有噪声，有字，纸常常超出扫描范围。输出纸张的边，和期望一样。', en: 'Real scans: noisy, with text, and the paper often runs off the edge. Output the paper\'s edges, as in the expected image.' },
-  hint: { zh: '前两关各解决了一件事，这次纸上还有字。字的笔画只有一格粗，纸边却是一大片亮挨着一大片暗。', en: 'Each of the last two levels solved one thing, and this time there is text on the paper too. Text strokes are one pixel thick, while a paper edge is a large bright area beside a large dark one.' },
+  hint: { zh: '<level-ref to="1-14"></level-ref>和<level-ref to="1-15"></level-ref>各解决了一件事，这次纸上还有字。字的笔画只有一格粗，纸边却是一大片亮挨着一大片暗。', en: '<level-ref to="1-14"></level-ref> and <level-ref to="1-15"></level-ref> each solved one thing, and this time there is text on the paper too. Text strokes are one pixel thick, while a paper edge is a large bright area beside a large dark one.' },
   after: { zh: '大一点的高斯模糊把噪点和细笔画都糊成一片浅灰，几乎没有坡度；纸边是大块明暗的交界，糊了还是一道坡。看多粗的东西，就先模糊到多粗：这个「尺度」的想法后面会一再出现。扫描 App 找纸张四边，第一步就是这样一条流水线：模糊掉噪声和字，在不制造假边的前提下求梯度，再取阈值。找到的边，后面再拟合成四条直线，就能把斜拍的纸拉正。', en: 'A larger Gaussian blur turns the grain and the thin strokes into a faint grey with almost no slope, while a paper edge, where large areas of light and dark meet, is still a slope after blurring. To look for things of a certain size, blur to that size first: this idea of "scale" will keep coming back. A scanning app finding the four sides of a page starts with exactly this pipeline: blur away the noise and the text, take gradients without inventing edges at the border, then threshold. The edges found are later fitted with four straight lines, so a page photographed at an angle can be straightened.' },
   unlocks: [],
   check: { tolerance: 0.02, mismatches: 8 },

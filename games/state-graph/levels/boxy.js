@@ -24,7 +24,7 @@ export const boxy = [
       T('起点没有来路，取较大只能得到「—」。在起点往汇合器里送一个 0。', 'The start has no way in, so the max gives “—”. At the start, feed a 0 into the merger.'),
     ],
     diagnose: c => (hasKind(c, 'mmin') && !hasKind(c, 'mmax') ? tr('这次要的是金币最多：用「取较大」。', 'This time you want the most gold: use “max”.') : null),
-    debrief: { title: T('同一副骨架', 'The same skeleton'), body: [T('和「最省力」的电路板一模一样，只是汇合器换成了「取较大」，体力换成了金币。', 'It is the very same board as in “Least effort”, with the merger swapped to “max” and energy swapped for gold.')] },
+    debrief: { title: T('同一副骨架', 'The same skeleton'), body: [T('和<level-ref to="cheapest"></level-ref>的电路板一模一样，只是汇合器换成了「取较大」，体力换成了金币。', 'It is the very same board as in <level-ref to="cheapest"></level-ref>, with the merger swapped to “max” and energy swapped for gold.')] },
   },
   {
     id: 'pascal', ch: 5, title: T('杨辉三角', 'Pascal’s triangle'), short: T('表换了形状', 'A table of another shape'), mode: 'circuit', robot: 'scout',

@@ -53,8 +53,8 @@ problems in 《证明完毕》, see `games/DESIGN.md` §11):
 - **Discovery, not transcription.** No level hands over a formula to wire up; a quantity with several parameters
   is a bench that opens one knob per step. A hard mechanism gets its own intro levels as a named series (§2.2).
 - **Order by dependency.** Parallel sets and optional branches follow the part and concept dependencies (§2).
-  Anything that asks "what has the player seen" (new-part marks, view unlocks, unlock-all flags, copy such as
-  "上一关") uses the level's prerequisites, never the flat play order.
+  Anything that asks "what has the player seen" (new-part marks, view unlocks, unlock-all flags, linked levels in
+  copy) uses the level's prerequisites, never the flat play order.
 - **Renumbering needs a save migration** (§2): renamed ids, flags now set by another level, new intro levels
   marked passed when a later one is.
 - **Level tree shape.** The map tree is at most three columns wide, at most three levels per row. A parallel set
@@ -72,9 +72,13 @@ The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and pa
 - No spoiler of a core idea of the topic (a recurrence, why a merge operation is right); say what a part does,
   never why it solves the level. Mechanical levels may hand-hold.
 - No forward references: nothing about later levels; a pass text only sums up this level.
+- References to another level are links, `<level-ref to="id"></level-ref>` on both the zh and en side (shown as the
+  level's title with a link icon; clicking asks, then goes there). Never 「its title」, "上一关", "前两关", "the last
+  level" or a number; `npm run check` reports them. A title that is also a part's name goes in the spec's `quotes`.
 - No level numbers in level copy; refer to earlier things by name. Level numbers belong on the map, in the
   components box and in the encyclopedia.
-- After any reordering, every "上一关", "又是", "新元件" must hold on every prerequisite path.
+- After any reordering, every linked level must still be a prerequisite, and every "又是", "新元件" must hold on every
+  prerequisite path.
 
 ## Interface checklist
 

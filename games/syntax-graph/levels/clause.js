@@ -282,7 +282,7 @@ export const levels = [
     ],
     debrief: {
       title: T('We sent the editor a rebuttal.', 'We sent the editor a rebuttal.'),
-      body: [T('<i>a rebuttal</i> 用不定冠词：编辑之前没见过这一份。下一关的终稿则是双方都知道的那一份，所以是 <i>the final version</i>。', '<i>a rebuttal</i> takes the indefinite article: the editor has not seen this one before. The final version in the next level is the one both sides know, so it is <i>the final version</i>.')],
+      body: [T('<i>a rebuttal</i> 用不定冠词：编辑之前没见过这一份。双方都已经知道的那一份（比如说好的终稿）才用 <i>the</i>。', '<i>a rebuttal</i> takes the indefinite article: the editor has not seen this one before. One both sides already know, such as the agreed final version, takes <i>the</i>.')],
       note: T('第一次提到的东西用 a，双方都知道的用 the。', 'Something new to the reader takes a; something both sides know takes the.'),
     },
   },

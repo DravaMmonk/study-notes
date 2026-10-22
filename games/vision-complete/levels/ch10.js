@@ -58,7 +58,7 @@ const goodBox = {
   inputLabels: { a: { zh: '检测出的框', en: 'Detected box' }, b: { zh: '标注的框', en: 'Labelled box' } },
   outputLabels: { ok: { zh: '算找对', en: 'Counts as right' } },
   brief: { zh: `检测出的框和标注的框 IoU 大于 ${GOOD} 时输出 1，否则 0。`, en: `Output 1 when the IoU of the detected box and the labelled box is above ${GOOD}, otherwise 0.` },
-  hint: { zh: '上一关的「IoU」接一个门槛。', en: 'Last level\'s "IoU", then a threshold.' },
+  hint: { zh: '<level-ref to="10-1"></level-ref>的「IoU」接一个门槛。', en: '<level-ref to="10-1"></level-ref>\'s "IoU", then a threshold.' },
   after: { zh: `${GOOD} 是 PASCAL VOC 的标准；COCO 把 0.5 到 0.95 的十个门槛都算一遍再平均，框要画得更准才拿得到分。`, en: `${GOOD} is the PASCAL VOC standard; COCO computes ten thresholds from 0.5 to 0.95 and averages them, so boxes have to be drawn more precisely to score.` },
   unlocks: [],
   tests: goodTests([...PAIRS, [{ zh: '差不多', en: 'Nearly the same' }, [2, 2, 12, 12], [3, 3, 13, 13]]]),

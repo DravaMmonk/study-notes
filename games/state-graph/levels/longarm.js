@@ -46,7 +46,7 @@ export const longarm = [
       { t: T('石头有的稳、有的滑。每块石头下面写着青蛙在上面站稳的可能，0.9 就是十次里有九次站得稳。一条路线要每一块都站稳，<b>可能性要连乘</b>：0.9 × 0.5 = 0.45。', 'Some stones are steady and some are slippery. Under each stone is the chance the frog keeps its footing, 0.9 meaning nine times out of ten. A route needs every stone to hold, so <b>the chances multiply</b>: 0.9 × 0.5 = 0.45.') },
       { t: T('新元件<b>乘法器</b>：输出 a × b。', 'A new part, the <b>Multiplier</b>: it outputs a × b.') },
     ],
-    mission: { goal: T('找出最稳的跳法：青蛙安全跳到最后一块石头的可能，最大是多少？', 'Find the steadiest way across: what is the best chance the frog has of reaching the last stone safely?'), how: T('跳法和上一关一样：从前一块，或从 ↶ 那块。岸边稳稳的，可能是 1。', 'Jumps work as last level: from the stone before, or from the ↶ stone. The bank is solid: its chance is 1.') },
+    mission: { goal: T('找出最稳的跳法：青蛙安全跳到最后一块石头的可能，最大是多少？', 'Find the steadiest way across: what is the best chance the frog has of reaching the last stone safely?'), how: T('跳法和<level-ref to="frogfar"></level-ref>一样：从前一块，或从 ↶ 那块。岸边稳稳的，可能是 1。', 'Jumps work as <level-ref to="frogfar"></level-ref>: from the stone before, or from the ↶ stone. The bank is solid: its chance is 1.') },
     world: 'river', facts: ['bank', 'hold'], adds: ['mul'], fresh: ['mul'],
     tests: [
       { k: [0, null, 2, 3, 2, 4, 3], p: [1, 0.9, 0.5, 0.8, 0.9, 0.6, 0.9] },
@@ -59,7 +59,7 @@ export const longarm = [
       T('两个来处，挑更稳的：取较大。', 'Of the two places it can come from, pick the steadier: take the max.'),
     ],
     diagnose: c => (!hasKind(c, 'mul') ? tr('可能性要乘起来：用乘法器。', 'Chances multiply: use the Multiplier.') : null),
-    debrief: { title: T('乘起来，取较大', 'Multiply, then take the max'), body: [T('「最省力」是加起来再取较小，这里是乘起来再取较大。换了运算，骨架还是那一副。', '“Least effort” added and took the min; here you multiply and take the max. The operations changed; the skeleton did not.')] },
+    debrief: { title: T('乘起来，取较大', 'Multiply, then take the max'), body: [T('<level-ref to="cheapest"></level-ref>是加起来再取较小，这里是乘起来再取较大。换了运算，骨架还是那一副。', '<level-ref to="cheapest"></level-ref> added and took the min; here you multiply and take the max. The operations changed; the skeleton did not.')] },
   },
   {
     id: 'coinways', ch: 7, title: T('凑零钱有几种', 'How many ways to pay'), short: T('数组合，不数排列', 'Count combinations, not orders'), mode: 'circuit', robot: 'reach',

@@ -52,8 +52,8 @@ export default {
   '6-3': [
     {
       t: {
-        zh: '上一关搭的「找峰」现在是现成的元件。',
-        en: 'The "Peak finder" you built last level is now a ready-made part.',
+        zh: '<level-ref to="6-2"></level-ref>搭的「找峰」现在是现成的元件。',
+        en: 'The "Peak finder" you built in <level-ref to="6-2"></level-ref> is now a ready-made part.',
       },
     },
     {
@@ -94,8 +94,8 @@ export default {
   '6-5': [
     {
       t: {
-        zh: '上一关搭的「匹配器」现在是现成的元件：接上三个距离，它给出配上的候选编号。',
-        en: 'The "Matcher" you built last level is now a ready-made part: give it three distances and it returns the number of the matching candidate.',
+        zh: '<level-ref to="6-4"></level-ref>搭的「匹配器」现在是现成的元件：接上三个距离，它给出配上的候选编号。',
+        en: 'The "Matcher" you built in <level-ref to="6-4"></level-ref> is now a ready-made part: give it three distances and it returns the number of the matching candidate.',
       },
     },
     {
@@ -242,8 +242,8 @@ export default {
   '6-12': [
     {
       t: {
-        zh: '四个角那一关通关后，「求单应」是现成的元件：点对进去，出来 H 的 9 个数。这一关先不用它，H 直接给你。',
-        en: 'Now that the four-corners bench is done, "Solve homography" is a ready-made part: pairs go in and the 9 numbers of H come out. This level does not need it yet: H is given.',
+        zh: '<level-ref to="6-11"></level-ref>通关后，「求单应」是现成的元件：点对进去，出来 H 的 9 个数。这一关先不用它，H 直接给你。',
+        en: 'Now that <level-ref to="6-11"></level-ref> is done, "Solve homography" is a ready-made part: pairs go in and the 9 numbers of H come out. This level does not need it yet: H is given.',
       },
     },
     {

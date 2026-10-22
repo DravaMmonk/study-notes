@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, createElement, useEffect, useRef, useState } from 'react'
 import { ChevronDown, Lightbulb } from 'lucide-react'
 import { L, tr } from './i18n.js'
+import { levelRefParts } from './levelRef.js'
 
 // The level screen's frame, the same in every game. On a desktop it is a workbench: the brief on the left, the
 // stage (the board, a bench, a circuit) in the middle and, when the level has one, a side column (tests, a panel,
@@ -9,7 +10,12 @@ import { L, tr } from './i18n.js'
 /** A level's text: plain, or the game's own markup when the game says its text is HTML (defineGame `html`). */
 export function Text({ game, as: Tag = 'p', className, text, onClick }) {
   const value = String(L(text) ?? '')
-  return game?.html ? <Tag className={className} onClick={onClick} dangerouslySetInnerHTML={{ __html: value }} /> : <Tag className={className} onClick={onClick}>{value}</Tag>
+  return game?.html ? <Tag className={className} onClick={onClick} dangerouslySetInnerHTML={{ __html: value }} /> : <Tag className={className} onClick={onClick}><Plain text={value} /></Tag>
+}
+
+/** Plain text, with its references to other levels (levelRef.js) as links. */
+export function Plain({ text }) {
+  return levelRefParts(text).map((part, i) => (typeof part === 'string' ? <Fragment key={i}>{part}</Fragment> : createElement('level-ref', { key: i, to: part.ref })))
 }
 
 /** Desktop workbench: brief | stage | side. The side (optional) is the level's own column element; `scroll` makes

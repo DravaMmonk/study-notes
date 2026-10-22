@@ -30,8 +30,8 @@ export default {
   '5-2': [
     {
       t: {
-        zh: '上一关搭的提问，现在是现成的元件「注意力」：它把 16×16 的图切成 16 个 4×4 的图块，每块都向所有图块提问。参数「q 放大」把分数一起放大：放得越大，越只看最像的几块。',
-        en: 'The asking you built last level is now a ready-made part, "Attention": it cuts the 16×16 image into 16 patches of 4×4, and every patch asks every patch. The "q scale" parameter scales up all the scores: the larger it is, the more each patch looks only at the few most alike.',
+        zh: '<level-ref to="5-1"></level-ref>搭的提问，现在是现成的元件「注意力」：它把 16×16 的图切成 16 个 4×4 的图块，每块都向所有图块提问。参数「q 放大」把分数一起放大：放得越大，越只看最像的几块。',
+        en: 'The asking you built in <level-ref to="5-1"></level-ref> is now a ready-made part, "Attention": it cuts the 16×16 image into 16 patches of 4×4, and every patch asks every patch. The "q scale" parameter scales up all the scores: the larger it is, the more each patch looks only at the few most alike.',
       },
     },
     {
@@ -87,8 +87,8 @@ export default {
     },
     {
       t: {
-        zh: '上一关的注意力按「长得像不像」分配权重，它清楚每个图块是什么样子。可它知道这块排在第几吗？先想一想：把两个图块对调，注意力的输出会怎样？',
-        en: 'The attention from the last level shares out its weights by how alike patches look, so it knows what each patch looks like. But does it know where a patch comes in the order? Think first: if you swap two patches, what happens to the attention output?',
+        zh: '<level-ref to="5-1"></level-ref>的注意力按「长得像不像」分配权重，它清楚每个图块是什么样子。可它知道这块排在第几吗？先想一想：把两个图块对调，注意力的输出会怎样？',
+        en: 'The attention from <level-ref to="5-1"></level-ref> shares out its weights by how alike patches look, so it knows what each patch looks like. But does it know where a patch comes in the order? Think first: if you swap two patches, what happens to the attention output?',
       },
     },
     {
@@ -152,8 +152,8 @@ export default {
   '5-8': [
     {
       t: {
-        zh: '上一关训练的编码器，现在是现成的元件「对比编码器」：它把一张图变成一组特征，同一张图的各种变形得到的特征很接近。',
-        en: 'The encoder you trained last level is now a ready-made part, "Contrastive encoder": it turns a picture into a set of features, and different versions of the same picture get features close to each other.',
+        zh: '<level-ref to="5-7"></level-ref>训练的编码器，现在是现成的元件「对比编码器」：它把一张图变成一组特征，同一张图的各种变形得到的特征很接近。',
+        en: 'The encoder you trained in <level-ref to="5-7"></level-ref> is now a ready-made part, "Contrastive encoder": it turns a picture into a set of features, and different versions of the same picture get features close to each other.',
       },
     },
     {

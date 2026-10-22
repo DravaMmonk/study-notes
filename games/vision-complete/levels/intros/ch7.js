@@ -30,8 +30,8 @@ export default {
   '7-2': [
     {
       t: {
-        zh: '上一关搭的匹配，现在打包成了元件「视差搜索」。它只有一个参数：窗口，也就是比较时围着每格取多大一块，两张图按整块来比。',
-        en: 'The matching you built in the last level is now packed into the "Disparity search" part. It has a single parameter: the window, which is how big a patch to take around each pixel when comparing; the two images are compared patch by patch.',
+        zh: '<level-ref to="7-1"></level-ref>搭的匹配，现在打包成了元件「视差搜索」。它只有一个参数：窗口，也就是比较时围着每格取多大一块，两张图按整块来比。',
+        en: 'The matching you built in <level-ref to="7-1"></level-ref> is now packed into the "Disparity search" part. It has a single parameter: the window, which is how big a patch to take around each pixel when comparing; the two images are compared patch by patch.',
       },
     },
     {
@@ -115,8 +115,8 @@ export default {
   '7-6': [
     {
       t: {
-        zh: '上一关搭的「叉积」现在是现成的元件。',
-        en: 'The "Cross product" you built last level is now a ready-made part.',
+        zh: '<level-ref to="7-5"></level-ref>搭的「叉积」现在是现成的元件。',
+        en: 'The "Cross product" you built in <level-ref to="7-5"></level-ref> is now a ready-made part.',
       },
     },
     {
@@ -130,8 +130,8 @@ export default {
   '7-7': [
     {
       t: {
-        zh: '前几关的两台相机摆得很正，同一点总在同一行，只要左右找。真实的相机很难摆得这么正，稍微一转，同一点就跑到了别的行。',
-        en: 'In the last few levels the two cameras were set up perfectly straight, so the same point was always on the same row and you only had to search left and right. Real cameras are hard to align that well; turn one slightly and the same point moves to a different row.',
+        zh: '到这里为止，两台相机都摆得很正，同一点总在同一行，只要左右找。真实的相机很难摆得这么正，稍微一转，同一点就跑到了别的行。',
+        en: 'So far the two cameras have been set up perfectly straight, so the same point was always on the same row and you only had to search left and right. Real cameras are hard to align that well; turn one slightly and the same point moves to a different row.',
       },
     },
     {
@@ -151,8 +151,8 @@ export default {
   '7-8': [
     {
       t: {
-        zh: '上一关搭的「极线」现在是现成的元件。',
-        en: 'The "Epipolar line" you built last level is now a ready-made part.',
+        zh: '<level-ref to="7-7"></level-ref>搭的「极线」现在是现成的元件。',
+        en: 'The "Epipolar line" you built in <level-ref to="7-7"></level-ref> is now a ready-made part.',
       },
     },
     {

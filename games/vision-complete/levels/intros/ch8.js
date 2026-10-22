@@ -30,8 +30,8 @@ export default {
   '8-2': [
     {
       t: {
-        zh: '上一关训练好的一对编码器、解码器，现在是现成的元件：编码器把一个斑点变成两个数，解码器把两个数画成斑点。',
-        en: 'The encoder and decoder you trained last level are now ready-made parts: the encoder turns a blob into two numbers, and the decoder draws two numbers as a blob.',
+        zh: '<level-ref to="8-1"></level-ref>训练好的一对编码器、解码器，现在是现成的元件：编码器把一个斑点变成两个数，解码器把两个数画成斑点。',
+        en: 'The encoder and decoder you trained in <level-ref to="8-1"></level-ref> are now ready-made parts: the encoder turns a blob into two numbers, and the decoder draws two numbers as a blob.',
       },
     },
     {
@@ -60,8 +60,8 @@ export default {
   '8-4': [
     {
       t: {
-        zh: '上一关的解码器能把两个数画成斑点。要是这两个数随机抽，就能画出没见过的斑点，这就是生成。随机不是乱来：数从正态分布里抽，大多落在中心 μ 附近，σ 越大越散。',
-        en: 'The decoder from the last level can turn two numbers into a blob. If those two numbers are drawn at random, it can draw blobs it has never seen: that is generation. Random does not mean anything goes: the numbers are drawn from a normal distribution, so most land near the centre μ, and the larger σ is, the more they spread out.',
+        zh: '<level-ref to="8-1"></level-ref>的解码器能把两个数画成斑点。要是这两个数随机抽，就能画出没见过的斑点，这就是生成。随机不是乱来：数从正态分布里抽，大多落在中心 μ 附近，σ 越大越散。',
+        en: 'The decoder from <level-ref to="8-1"></level-ref> can turn two numbers into a blob. If those two numbers are drawn at random, it can draw blobs it has never seen: that is generation. Random does not mean anything goes: the numbers are drawn from a normal distribution, so most land near the centre μ, and the larger σ is, the more they spread out.',
       },
     },
     {
@@ -87,8 +87,8 @@ export default {
   '8-5': [
     {
       t: {
-        zh: '上一关的「重参数化」现在是现成的元件：μ、σ、ε 进去，出来 μ + σ·ε。',
-        en: 'Last level\'s "Reparameterization" is now a ready-made part: μ, σ and ε go in, μ + σ·ε comes out.',
+        zh: '<level-ref to="8-4"></level-ref>的「重参数化」现在是现成的元件：μ、σ、ε 进去，出来 μ + σ·ε。',
+        en: '<level-ref to="8-4"></level-ref>\'s "Reparameterization" is now a ready-made part: μ, σ and ε go in, μ + σ·ε comes out.',
       },
     },
     {
@@ -149,8 +149,8 @@ export default {
   '8-8': [
     {
       t: {
-        zh: '上一关搭的「加噪」现在是现成的元件。',
-        en: 'The "Add noise" you built last level is now a ready-made part.',
+        zh: '<level-ref to="8-7"></level-ref>搭的「加噪」现在是现成的元件。',
+        en: 'The "Add noise" you built in <level-ref to="8-7"></level-ref> is now a ready-made part.',
       },
     },
     {
@@ -194,8 +194,8 @@ export default {
   '8-11': [
     {
       t: {
-        zh: '上一关搭的「还原」现在是现成的元件。可真要用的时候，没人告诉你噪声是什么。',
-        en: 'The "Restore" you built last level is now a ready-made part. But when it is actually needed, nobody tells you what the noise was.',
+        zh: '<level-ref to="8-10"></level-ref>搭的「还原」现在是现成的元件。可真要用的时候，没人告诉你噪声是什么。',
+        en: 'The "Restore" you built in <level-ref to="8-10"></level-ref> is now a ready-made part. But when it is actually needed, nobody tells you what the noise was.',
       },
     },
     {

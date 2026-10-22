@@ -11,6 +11,7 @@ import PartsBook, { useParts } from './PartsBook.jsx'
 import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
+import { setLevelRefs } from './levelRef.js'
 
 // Every game sits at game/<id>/index.html, under the games hub (game/index.html): on the published site, and on the
 // dev server too (trace-viewer/vite.config.js).
@@ -118,6 +119,18 @@ export default function GameShell({ game }) {
     for (const flag of level.withhold ?? []) set.delete(flag)
     return set
   }, [game, progress, level])
+  // A reference to another level in any text (levelRef.js) shows that level's title, and asks before going there.
+  const [goTo, setGoTo] = useState(null)
+  useEffect(() => setLevelRefs({ title: (id) => (game.byId[id] ? L(game.byId[id].title) : null), open: (id) => game.byId[id] && setGoTo(id) }), [game, lang])
+  const target = goTo && game.byId[goTo]
+  const go = () => {
+    setGoTo(null)
+    setSheet(null)
+    setIntroFor(null)
+    setDrawer(false)
+    open(target.id)
+  }
+
   const intro = level && game.intro(level)?.length > 0
   const kind = level && game.kinds[level.kind]
 
@@ -206,6 +219,9 @@ export default function GameShell({ game }) {
       {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
       {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} onClose={() => setSheet(null)} />}
       {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} onClose={() => setSheet(null)} />}
+      {target && (game.isOpen(target, solved, progress.all)
+        ? <Dialog title={tr(`前往「${L(target.title)}」？`, `Go to “${L(target.title)}”?`)} lines={[target.id === level?.id ? tr('你就在这一关。', 'You are on this level.') : tr('这一关的电路和进度都会保存，随时可以回来。', 'This level’s board and progress are kept; you can come back any time.')]} actions={target.id === level?.id ? [[tr('好', 'OK'), () => setGoTo(null)]] : [[tr('取消', 'Cancel'), () => setGoTo(null)], [tr('前往', 'Go'), go]]} onClose={() => setGoTo(null)} />
+        : <Dialog title={tr(`「${L(target.title)}」还没解锁`, `“${L(target.title)}” is still locked`)} lines={[tr('先通过它前面的关卡。', 'Pass the levels before it first.')]} actions={[[tr('好', 'OK'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
       {game.power && !progress.seenPower && (
         <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始', 'Start'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />
       )}

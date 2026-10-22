@@ -34,6 +34,7 @@ export default {
   // The table's own rules for the course audit: carried boards, and each topic's finale solving its earlier levels.
   audit: TABLE.problems,
   glossary: { groups: GLOSSARY_GROUPS, entries: GLOSSARY },
+  texts: { glossary: GLOSSARY },
   // Saves from before the shared shell.
   legacyKey: 'state-graph-v2',
   saves: SAVES,

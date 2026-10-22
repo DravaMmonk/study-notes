@@ -18,8 +18,8 @@ export default {
   '10-2': [
     {
       t: {
-        zh: '上一关搭的「IoU」现在是现成的元件。',
-        en: 'The "IoU" you built last level is now a ready-made part.',
+        zh: '<level-ref to="10-1"></level-ref>搭的「IoU」现在是现成的元件。',
+        en: 'The "IoU" you built in <level-ref to="10-1"></level-ref> is now a ready-made part.',
       },
     },
     {
@@ -54,8 +54,8 @@ export default {
   '10-4': [
     {
       t: {
-        zh: '上一关搭的「AP 计」现在是现成的元件。',
-        en: 'The "AP meter" you built last level is now a ready-made part.',
+        zh: '<level-ref to="10-3"></level-ref>搭的「AP 计」现在是现成的元件。',
+        en: 'The "AP meter" you built in <level-ref to="10-3"></level-ref> is now a ready-made part.',
       },
     },
     {

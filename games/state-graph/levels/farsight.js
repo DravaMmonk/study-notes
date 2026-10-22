@@ -20,13 +20,13 @@ export const farsight = [
       T('坏台阶上要掐断：拦截闸在条件是「是」时输出「—」。', 'Cut off the broken steps: a Block gate outputs “—” when its condition is “yes”.'),
     ],
     diagnose: c => (!usesSensor(c, 'broken') ? tr('有的台阶坏了，踩不得。读一读「是坏台阶」。', 'Some steps are broken and can’t be stepped on. Read “is broken”.') : null),
-    debrief: { title: T('和落石一样', 'Just like the rockfall'), body: [T('坏台阶上是「—」。上面的台阶加起来时跳过它，经过它的走法自然就不算了。', 'A broken step holds “—”. The steps above skip it when they add up, so the ways through it simply drop out.'), T('「落石」那一关在棋盘城市里做过同一件事：零件只认结构，不认是路口还是台阶。', 'The “Rockfall” level did the same thing in the grid city: parts care about structure, not whether they count crossings or steps.')] },
+    debrief: { title: T('和落石一样', 'Just like the rockfall'), body: [T('坏台阶上是「—」。上面的台阶加起来时跳过它，经过它的走法自然就不算了。', 'A broken step holds “—”. The steps above skip it when they add up, so the ways through it simply drop out.'), T('<level-ref to="rocks"></level-ref>在棋盘城市里做过同一件事：零件只认结构，不认是路口还是台阶。', '<level-ref to="rocks"></level-ref> did the same thing in the grid city: parts care about structure, not whether they count crossings or steps.')] },
   },
   {
     id: 'lps', ch: 3, title: T('最长回文子序列', 'The longest palindrome inside'), short: T('跳着挑也算', 'Skipping letters is allowed'), mode: 'circuit', robot: 'ranger',
     intro: [
       { t: T('从一串字母里挑出一些，顺序不变，可以跳着挑，让挑出来的字母<b>正着读、反着读都一样</b>。最多能挑几个？比如 CHARACTER 里能挑出 CARAC，一共 5 个。', 'Pick some letters out of a string, keeping their order but skipping any you like, so that what you picked <b>reads the same forwards and backwards</b>. How many can you pick at most? From CHARACTER, say, you can pick CARAC: 5 letters.') },
-      { t: T('表和「回文」那一关一样：第 i 到第 j 个字母这一段占一格，存「这一段里最多能挑几个」。一个字母自己就是回文，对角线已经填好 1。', 'The table is the one from the “Palindromes” level: the run from letter i to letter j has a cell, holding “the most letters you can pick from this run”. A single letter is a palindrome on its own, so the diagonal is already filled with 1.') },
+      { t: T('表和<level-ref to="palin"></level-ref>一样：第 i 到第 j 个字母这一段占一格，存「这一段里最多能挑几个」。一个字母自己就是回文，对角线已经填好 1。', 'The table is the one from <level-ref to="palin"></level-ref>: the run from letter i to letter j has a cell, holding “the most letters you can pick from this run”. A single letter is a palindrome on its own, so the diagonal is already filled with 1.') },
     ],
     mission: { goal: T('算出整串字母里，最长的回文子序列有几个字母。', 'Work out how many letters the longest palindrome you can pick from the whole string has.'), how: T('按长度从短到长扫。', 'Scan by length, shortest first.') },
     world: 'interval', facts: ['same'], empty0: true, diag: 1,
@@ -37,7 +37,7 @@ export const farsight = [
       T('两头不同：至少有一头用不上。扔掉左头是下面一格，扔掉右头是左边一格，取较大。', 'If they differ, at least one end goes unused. Dropping the left end is the cell below, dropping the right end the cell to the left: take the larger.'),
     ],
     diagnose: c => (!usesSensor(c, 'dl') && usesSensor(c, 'same') ? tr('两头都挑上时，剩下的是去掉两头之后的那一段：左下那一格。', 'When both ends are picked, what is left is the run without both ends: the cell down-left.') : null),
-    debrief: { title: T('又是同一副骨架', 'The same skeleton again'), body: [T('这块电路板和「对齐表」几乎一样：一个取较大，加上一个「相同时 + 几」的放行闸。', 'This board is nearly the one from the “Alignment table”: a max, plus a Pass gate that adds something when the letters match.'), T('对齐表比的是两个词，这里比的是一个词的两头。表换了形状，骨架没换。', 'The alignment table compares two words; here you compare the two ends of one word. The table changed shape; the skeleton did not.')] },
+    debrief: { title: T('又是同一副骨架', 'The same skeleton again'), body: [T('这块电路板和<level-ref to="lcs"></level-ref>几乎一样：一个取较大，加上一个「相同时 + 几」的放行闸。', 'This board is nearly the one from <level-ref to="lcs"></level-ref>: a max, plus a Pass gate that adds something when the letters match.'), T('对齐表比的是两个词，这里比的是一个词的两头。表换了形状，骨架没换。', 'The alignment table compares two words; here you compare the two ends of one word. The table changed shape; the skeleton did not.')] },
   },
   {
     id: 'parity', ch: 3, title: T('奇还是偶', 'Odd or even'), short: T('只用「是」和「否」数数', 'Counting with only yes and no'), mode: 'circuit', robot: 'ranger',

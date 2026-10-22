@@ -21,7 +21,7 @@ export const basics = [
     coach: st => st.edges.length ? { text: tr('箭头连好了。点下方的「运行」，看看数会不会流过去。', 'The arrow is in place. Click “Run” below and watch whether the number flows across.'), run: true }
       : st.sel === 'S' ? { text: tr('第 2 步：再点一下右边的「目标」格子，连出一根箭头。', 'Step 2: now click the “Target” cell on the right to draw an arrow.'), cell: 'T' }
       : { text: tr('第 1 步：点一下左边的「源」格子。', 'Step 1: click the “Source” cell on the left.'), cell: 'S' },
-    debrief: { title: T('数送到了', 'Delivered'), body: [T('运行时，机器顺着箭头，把源格子里的 1 送进了目标格子。', 'When it ran, the machine followed the arrow and carried the 1 from the source cell into the target cell.'), T('目标格子里是几，<b>完全由指向它的箭头决定</b>。下一关看看，两根箭头同时指向一个格子会发生什么。', 'What the target cell holds is <b>decided entirely by the arrows pointing into it</b>. Next level: what happens when two arrows point into the same cell?')], note: T('箭头把数从起点格子送进终点格子。', 'An arrow carries a number from the cell it starts at into the cell it ends at.') },
+    debrief: { title: T('数送到了', 'Delivered'), body: [T('运行时，机器顺着箭头，把源格子里的 1 送进了目标格子。', 'When it ran, the machine followed the arrow and carried the 1 from the source cell into the target cell.'), T('目标格子里是几，<b>完全由指向它的箭头决定</b>。', 'What the target cell holds is <b>decided entirely by the arrows pointing into it</b>.')], note: T('箭头把数从起点格子送进终点格子。', 'An arrow carries a number from the cell it starts at into the cell it ends at.') },
   },
   {
     id: 'merge', ch: 0, title: T('汇合', 'Merge'), short: T('好几根箭头指向同一个格子', 'Several arrows into one cell'), mode: 'wire',
@@ -78,7 +78,7 @@ export const basics = [
     intro: [
       { t: T('城市的街道是棋盘格。所有街道都是单行道，<b>只能往右或往下走</b>。', 'This city’s streets form a grid. Every street is one-way: <b>you can only go right or down</b>.'), fig: gridScene(2, 3, { arrows: true, cell: (r, c) => (r === 0 && c === 0 ? { value: 1, cls: 'src' } : {}) }) },
       { t: T('除了最上面一行和最左边一列，每个路口都有两根箭头指过来：<b>一根来自上面，一根来自左边</b>。', 'Apart from the top row and the left column, every crossing has two arrows coming in: <b>one from above and one from the left</b>.'), fig: gridScene(2, 3, { cell: (r, c) => (r === 1 && c === 1 ? { value: '?', cls: 'sel' } : {}), edge: (a, b) => (b === '1,1' ? 'hot' : 'dim') }) },
-      { t: T('用上一关的方法，把每个路口的路线数填出来。左上角的起点已经填好了 1。', 'Use the method from the last level to fill in the number of routes to every crossing. The start in the top-left corner already holds 1.') },
+      { t: T('用<level-ref to="lastStep"></level-ref>的方法，把每个路口的路线数填出来。左上角的起点已经填好了 1。', 'Use the method from <level-ref to="lastStep"></level-ref> to fill in the number of routes to every crossing. The start in the top-left corner already holds 1.') },
     ],
     mission: { goal: T('填出每个路口的路线数。街道只能往右或往下走，左上角的起点算 1 条，右下角就是路线总数。', 'Fill in the number of routes to every crossing. Streets only go right or down; the start in the top-left corner counts as 1, and the bottom-right corner gives the total.'), how: T('点一个路口，用数字键盘填数。', 'Click a crossing and type its number on the keypad.') },
     grid: { R: 3, C: 4 },

@@ -138,7 +138,7 @@ export const circuits = [
     intro: [
       { t: T('岛上有两个人，a 和 b，每人要么是骑士，要么不是。「a 是骑士」「b 是骑士」是两件小事，它们各是真是假，组成真值表的四行。', 'Two people live on an island, a and b, and each is a knight or is not. “a is a knight” and “b is a knight” are two small facts; whether each is true makes the four rows of the truth table.') },
       { t: T('日常的话要先翻译成逻辑的话，才能接成电路。大致的对照是：「并且」「和」「都」是<b>与</b>；「或者」「至少有一个」是<b>或</b>；「不」「不是」是<b>非</b>。', 'An everyday sentence must be translated into logic before it can be wired. Roughly: “and”, “both” are <b>and</b>; “or”, “at least one” are <b>or</b>; “not”, “it is not the case” are <b>not</b>.') },
-      { t: T('翻译时最要紧的是看清每个词管到哪里，就像「非」管到哪里那一关。这一关不给出目标真值那一列。', 'What matters most is how far each word reaches, as in the level on how far Not reaches. This level does not show the target value column.') },
+      { t: T('翻译时最要紧的是看清每个词管到哪里，就像<level-ref to="g-tree"></level-ref>。这一关不给出目标真值那一列。', 'What matters most is how far each word reaches, as in <level-ref to="g-tree"></level-ref>. This level does not show the target value column.') },
     ],
     hint: [
       T('「不都是」和「都不是」不一样：前者只要有一个不是就成立。', '“Not both” is not “neither”: the first holds as soon as one of them is not a knight.'),
@@ -159,7 +159,7 @@ export const circuits = [
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，只说真话；要么是<b>无赖</b>，只说假话。', 'Everyone on the island is a <b>knight</b>, who only tells the truth, or a <b>knave</b>, who only lies.') },
       { t: T('「a 说 X」说的是：a 是骑士，X 就是真的；a 不是骑士，X 就是假的。也就是「a 是骑士」和 X <b>同真同假</b>。', '“a says X” means: if a is a knight, X is true; if a is not a knight, X is false. That is, “a is a knight” and X are <b>true together and false together</b>.') },
-      { t: T('「同真同假」正好是你在「两个方向都对」那一关造出的元件。', '“True together, false together” is just the part you built in the level “Both ways round”.') },
+      { t: T('「同真同假」正好是你在<level-ref to="g-iff"></level-ref>造出的元件。', '“True together, false together” is just the part you built in <level-ref to="g-iff"></level-ref>.') },
     ],
     hint: [
       T('X 在这里是「b 是骑士」：「a 是骑士」和「b 是骑士」同真同假。', 'X here is “b is a knight”: “a is a knight” and “b is a knight” are true together and false together.'),
@@ -176,7 +176,7 @@ export const circuits = [
     blind: true,
     brief: T('a 说：「我们俩里至少有一个是无赖。」把这件事翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'a says: “At least one of us two is a knave.” Translate this into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
     intro: [
-      { t: T('这一关有一个新说法要翻译：「a 是无赖」就是：非（a 是骑士）。「a 说」照「a 说的话」那一关来译。', 'One new phrase to translate here: “a is a knave” is: not (a is a knight). Translate “a says” as in the level “What a says”.') },
+      { t: T('这一关有一个新说法要翻译：「a 是无赖」就是：非（a 是骑士）。「a 说」照<level-ref to="e-says"></level-ref>来译。', 'One new phrase to translate here: “a is a knave” is: not (a is a knight). Translate “a says” as in <level-ref to="e-says"></level-ref>.') },
     ],
     hint: [
       T('先翻译 a 的话：「至少有一个是无赖」是「（非 a 是骑士）或（非 b 是骑士）」。', 'Translate what a says first: “at least one is a knave” is “(not a is a knight) or (not b is a knight)”.'),
@@ -223,7 +223,7 @@ export const circuits = [
       'KA>e1.a', 'nb>e1.b', 'KB>e2.a', 'nc>e2.b', 'na>c.a', 'nb>c.b', 'KC>e3.a', 'c>e3.b',
       'e1>b12.a', 'e2>b12.b', 'b12>all.a', 'e3>all.b', 'all>out',
     ]),
-    after: T('c 的话译成「（非 a 是骑士）与（非 b 是骑士）」，正是「翻译成与或非」那一关里的陷阱：「都不是」。八行里只有一行为真：a 是无赖，b 是骑士，c 是无赖。电路得把八行都跑一遍；人数每多一个，行数就翻一倍。', 'What c says translates to “(not a is a knight) and (not b is a knight)”, exactly the trap of the translation level: “neither”. Of the eight rows only one is true: a is a knave, b a knight, c a knave. The board had to run all eight; each extra islander doubles the rows.'),
+    after: T('c 的话译成「（非 a 是骑士）与（非 b 是骑士）」，正是<level-ref to="e-words"></level-ref>里的陷阱：「都不是」。八行里只有一行为真：a 是无赖，b 是骑士，c 是无赖。电路得把八行都跑一遍；人数每多一个，行数就翻一倍。', 'What c says translates to “(not a is a knight) and (not b is a knight)”, exactly the trap in <level-ref to="e-words"></level-ref>: “neither”. Of the eight rows only one is true: a is a knave, b a knight, c a knave. The board had to run all eight; each extra islander doubles the rows.'),
   },
   {
     id: 'g-xor',

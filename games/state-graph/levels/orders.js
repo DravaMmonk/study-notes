@@ -66,7 +66,7 @@ export const orders = [
   {
     id: 'twoorders', ch: 12, title: T('顺序不止一种', 'More than one order'), short: T('同一块电路板，换个顺序', 'Same board, another order'), mode: 'circuit', robot: 'broom', uses: ['interval'],
     intro: [
-      { t: T('上一关机器人按长度扫。换一个顺序，还能算对吗？', 'Last level the robot scanned by length. Would another order work too?') },
+      { t: T('在<level-ref to="stones"></level-ref>里，机器人按长度扫。换一个顺序，还能算对吗？', 'In <level-ref to="stones"></level-ref> the robot scanned by length. Would another order work too?') },
       { t: T('这一关有两个阶段，用的是同一块电路板：阶段 1 机器人按长度扫；阶段 2 换成<b>逐行，从下往上</b>。两种顺序下都要算对。', 'This level has two stages on the same circuit board: in stage 1 the robot scans by length; in stage 2 it switches to <b>row by row, from the bottom up</b>. Both orders have to come out right.') },
       { t: T('「区间合并器」已经在元件箱里，可以直接放上电路板。每一格要读它左边一整排、下面一整列：两种顺序都能让它们先算好吗？', 'The “Interval Merger” is already in your Parts, ready to go on the board. Each cell reads the whole row to its left and the whole column below it: do both orders get those computed first?') },
     ],
