@@ -347,6 +347,8 @@ const oldPhoto = {
   hint: { zh: '噪声每一格都不一样，字的笔画却连成一片。一格和它的邻居差得多，多半是噪声。', en: 'The noise differs from cell to cell, but the strokes of a letter join up. A cell very different from its neighbours is probably noise.' },
   after: { zh: '你训练的 3×3 核学会了「和邻居差得多的是噪声」，还原以后笔画就清楚了。扩散模型的去噪网络大得多，从纯噪声出发一步步猜噪声、去掉一点，最后画出一张没见过的图：每一步做的都是这一关的事。', en: 'The 3×3 kernel you trained learnt that "what differs a lot from its neighbours is noise", and after restoring, the strokes are clear. A diffusion model\'s denoising network is far bigger: starting from pure noise it guesses the noise and removes a little, step after step, until a picture never seen before appears. Every step does what this level does.' },
   unlocks: [],
+  // The learnable kernel stayed behind in chapter 6; it comes back here, as the noise guesser.
+  adds: ['learn3'],
   // The restored photo is judged loosely (a 3×3 guess leaves some grain); the strokes are judged on the same few cells.
   check: { tolerance: 0.35, mismatches: 25 },
   trainRate: 2,

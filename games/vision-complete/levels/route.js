@@ -4,8 +4,23 @@
 // A named series on the main path, as one branch of a `parallel` set.
 const series = (id, zh, en, levels) => ({ id, title: { zh, en }, levels })
 
-// Every chapter works on the same image pipeline (its filters, arithmetic and thresholds are what later chapters
-// are built from), so each one keeps 'all'.
+// The image pipeline every chapter stands on: the filters, arithmetic, frequency and light parts of chapters 0–3, and
+// the fixed (not learnt) pieces of chapter 4's networks. A chapter that changes topic keeps these and leaves the rest
+// of what the chapters just before it built behind.
+const BASE = [
+  'shift', 'const', 'invert', 'threshold', 'arith', 'merge',
+  'blur3h', 'box3', 'gauss', 'sharpen', 'diffx', 'diffy', 'sobelx', 'sobely', 'kernel3',
+  'cos', 'fqWave', 'fqMean', 'sqrt', 'fqSpectrum', 'fqApply', 'fqLowpass', 'downsample',
+  'shade', 'sense', 'gradmag', 'globalMax',
+  'exp', 'relu', 'max', 'maxpool',
+]
+// Non-maximum suppression (built in chapter 6) is used again in chapter 10, so every chapter on the way keeps it.
+const NMS = 'own-6-2'
+
+// Chapters 1–5 grow one machine: the pipeline, then a network that learns its kernels, then one that sees the whole
+// image at once. Chapter 6 turns to geometry and leaves the learnt layers and attention behind; chapter 7 carries on
+// with geometry. Chapter 8 makes images from latent numbers, and chapter 9 goes back to labelling pixels without its
+// parts; chapter 10 carries on from chapter 9.
 export const ERAS = [
   {
     id: 0,
@@ -60,7 +75,7 @@ export const ERAS = [
     topics: [{ id: 'dedup', levels: ['5-7', '5-8', '5-9'], after: '5-1' }],
   },
   {
-    id: 6, keeps: 'all',
+    id: 6, keeps: BASE,
     foundation: [
       { parallel: [series('corners', '角点', 'Corners', ['6-1', '6-2', '6-3']), series('match', '匹配', 'Matching', ['6-4', '6-5'])] },
       { parallel: [series('vote', '投票', 'Voting', ['6-6', '6-7']), series('consensus', '共识', 'Consensus', ['6-8'])] },
@@ -76,7 +91,7 @@ export const ERAS = [
     topics: [{ id: 'avoid', levels: ['7-10', '7-11', '7-12'], after: '7-3' }],
   },
   {
-    id: 8, keeps: 'all',
+    id: 8, keeps: [...BASE, NMS],
     foundation: [
       '8-1',
       { parallel: [series('autoencoder', '自编码器', 'Autoencoders', ['8-2', '8-3']), series('sample', '抽样', 'Sampling', ['8-4', '8-5'])] },
@@ -86,7 +101,7 @@ export const ERAS = [
     topics: [{ id: 'restore', levels: ['8-10', '8-11'] }],
   },
   {
-    id: 9, keeps: 'all',
+    id: 9, keeps: [...BASE, NMS],
     foundation: [{ parallel: [series('upsample', '放大', 'Upsampling', ['9-1', '9-2', '9-3', '9-4']), series('cluster', '分类', 'Grouping', ['9-5', '9-6'])] }],
     topics: [{ id: 'cells', levels: ['9-7', '9-8', '9-9'] }],
   },
