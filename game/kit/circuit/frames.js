@@ -8,6 +8,34 @@
 // assumption it makes), and what is made inside a region comes back out through the frame's input named after it.
 // So a value is seen where it is made and in every region inside that: a wire may run inward, never outward.
 
+// Any game can use frames: a domain makes a frame part with framePart (its eval gets the region's name as `key` for
+// what that region opens, and null for the frame's own result), the editors (CanvasEditor, SlotBoard) draw and edit
+// the regions, model.js keeps wires in scope, and engine/circuit.js reads each output from the ports it says
+// (`reads`). Labels for the regions come from the game's parts description (parts.frames(node) → [{ …, label }]).
+
+/**
+ * A frame part for a domain's registry (../engine/circuit.js): its `own` inputs, then one input per region (what was
+ * made inside it, closing the region); its outputs are its result, then the value each opening region gives, which
+ * reads the frame's own inputs alone, so a frame can read back what was made from it.
+ * regions: [{ name, opens }]; the part's eval(inputs, node, ctx, key) gets key = a region's name for that value.
+ */
+export const framePart = (own, regions) => ({
+  inputs: [...own, ...regions.map((r) => r.name)],
+  frames: () => regions,
+  outputs: () => [null, ...regions.filter((r) => r.opens).map((r) => r.name)],
+  reads: (_node, key) => (key ? own : undefined),
+})
+
+/** Whether every card that sits in a region sits in one its frame still has (a saved board still fits the game). */
+export function regionsFit(graph, parts) {
+  const byId = new Map(graph.nodes.map((n) => [n.id, n]))
+  return graph.nodes.every((n) => {
+    if (!n.in) return true
+    const [id, name] = n.in.split('/')
+    return byId.has(id) && regionsOf(parts, byId.get(id)).some((r) => r.name === name)
+  })
+}
+
 const nodeOf = (src) => String(src).split('#')[0]
 const keyOf = (src) => (String(src).includes('#') ? String(src).slice(String(src).indexOf('#') + 1) : null)
 const T = (zh, en) => ({ zh, en })

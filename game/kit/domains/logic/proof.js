@@ -3,7 +3,7 @@
 //   { formula, hyps: Map(hypothesis id → formula) }   the formula, proved from the hypotheses still open
 //
 // A part is an inference rule: its inputs are premises, its output the conclusion. A rule that opens an assumption is
-// a frame (../../circuit/frames.js) with a region for each assumption: the region's output `<box>#<region>` gives the
+// a frame (../../circuit/frames.js framePart) with a region for each assumption: the region's output `<box>#<region>` gives the
 // assumption, as a judgment resting on its own hypothesis (hypId), and what the cards inside prove comes back
 // through the box's input of the same name; the box's conclusion closes the hypothesis. Each of those outputs reads
 // only the box's other inputs (../../engine/circuit.js `reads`), so a box can read back what was made from it. A
@@ -12,6 +12,7 @@
 // on every judgment are what make a proof sound. A rule that does not fit throws a PartError saying what it needed
 // and what reached it.
 import { PartError } from '../../engine/circuit.js'
+import { framePart } from '../../circuit/frames.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
 import { BOT, all, and, bin, eq, freeVars, imp, or, parse, replaceAtoms, same, show, subst, tvar } from './formula.js'
 import { say } from './notation.js'
@@ -59,14 +60,6 @@ const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
 /** The hypothesis id of the assumption a box's region opens. */
 export const hypId = (node, region) => `${node.id}/${region}`
 const assumed = (node, region, formula) => proved(formula, new Map([[hypId(node, region), formula]]))
-// A box's regions, its inputs (its own, then one per region: what was proved there) and its outputs (its conclusion,
-// then each region's assumption, which reads the box's own inputs alone).
-const box = (own, regions) => ({
-  inputs: [...own, ...regions.map((r) => r.name)],
-  frames: () => regions,
-  outputs: () => [null, ...regions.filter((r) => r.opens).map((r) => r.name)],
-  reads: (_node, key) => (key ? own : undefined),
-})
 export const RULES = {
   // The proof's own ends: a premise, and the goal.
   premise: source(),
@@ -87,7 +80,7 @@ export const RULES = {
 
   // ---- natural deduction ----
   impI: {
-    ...box([], [{ name: 'body', opens: true }]),
+    ...framePart([], [{ name: 'body', opens: true }]),
     params: ['A'],
     eval: ({ body }, node, ctx, key) => {
       const A = param(node, 'A', ctx)
@@ -114,7 +107,7 @@ export const RULES = {
     },
   },
   orE: {
-    ...box(['ab'], [{ name: 'left', opens: true }, { name: 'right', opens: true }]),
+    ...framePart(['ab'], [{ name: 'left', opens: true }, { name: 'right', opens: true }]),
     eval: ({ ab, left: l, right: r }, node, ctx, key) => {
       if (ab.formula.op !== '∨') throw need(ctx, SHAPE.or, ab.formula)
       if (key) return assumed(node, key, key === 'left' ? ab.formula.a : ab.formula.b)
@@ -143,7 +136,7 @@ export const RULES = {
 
   // ---- quantifiers and equality ----
   allI: {
-    ...box([], [{ name: 'body', opens: false }]),
+    ...framePart([], [{ name: 'body', opens: false }]),
     params: ['x'],
     eval: ({ body }, node, ctx) => {
       const x = node.params?.x
@@ -172,7 +165,7 @@ export const RULES = {
     },
   },
   exE: {
-    ...box(['ex'], [{ name: 'body', opens: true }]),
+    ...framePart(['ex'], [{ name: 'body', opens: true }]),
     params: ['x'],
     eval: ({ ex: e, body }, node, ctx, key) => {
       if (e.formula.op !== '∃') throw need(ctx, SHAPE.ex, e.formula)

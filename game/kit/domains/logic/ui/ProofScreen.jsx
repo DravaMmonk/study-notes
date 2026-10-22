@@ -3,7 +3,7 @@ import { Trash2 } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, SlotBoard, Tray, outputsOf, regionsFit, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel, withHidden } from '../../../engine/tests.js'
 import { startProof } from '../build.js'
@@ -26,8 +26,7 @@ const names = (circuit) => circuit.nodes.filter((n) => n.type === 'premise').map
 // region of a box that is there.
 const fits = (circuit, parts) => {
   const byId = new Map(circuit.nodes.map((n) => [n.id, n]))
-  const region = (key) => { const [id, name] = key.split('/'); return byId.has(id) && parts.frames(byId.get(id)).some((r) => r.name === name) }
-  return circuit.nodes.every((n) => parts.rules[n.type] && (!n.in || region(n.in)))
+  return circuit.nodes.every((n) => parts.rules[n.type]) && regionsFit(circuit, parts)
     && circuit.wires.every((w) => byId.has(w.to) && parts.inputs(byId.get(w.to)).includes(w.port))
 }
 

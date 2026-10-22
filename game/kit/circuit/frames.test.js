@@ -1,7 +1,7 @@
 // node --test games/kit/circuit — frames: which wires a box lets through, moving cards in and out, taking one off.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { moveInto, scopeOf } from './frames.js'
+import { framePart, moveInto, regionsFit, scopeOf } from './frames.js'
 import { baseRefusal, moveToSlot, placement, removeNode } from './model.js'
 
 // A box `f` with one region that opens a value, and a card `m` inside it; `p` and `g` on the board.
@@ -54,4 +54,18 @@ test('a block dragged into a region slot moves into the box', () => {
   const g = moved.nodes.find((n) => n.id === 'g')
   assert.deepEqual([g.in, g.slot], ['f/body', 1])
   assert.deepEqual(moved.wires, board.wires)
+})
+
+test('a frame part has its own inputs, one per region, and outputs for the regions that open', () => {
+  const part = framePart(['ab'], [{ name: 'left', opens: true }, { name: 'right', opens: false }])
+  assert.deepEqual(part.inputs, ['ab', 'left', 'right'])
+  assert.deepEqual(part.outputs(), [null, 'left'])
+  assert.deepEqual(part.reads({}, 'left'), ['ab'])
+  assert.equal(part.reads({}, null), undefined)
+})
+
+test('a saved board fits while every card sits in a region its frame has', () => {
+  assert.equal(regionsFit(board, parts), true)
+  assert.equal(regionsFit({ ...board, nodes: [...board.nodes, { id: 'x', in: 'f/gone' }] }, parts), false)
+  assert.equal(regionsFit({ ...board, nodes: [...board.nodes, { id: 'y', in: 'missing/body' }] }, parts), false)
 })
