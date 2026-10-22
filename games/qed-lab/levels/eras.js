@@ -9,9 +9,13 @@ export const ERAS = [
   {
     id: 'ground', machine: 'prover',
     foundation: [
-      series('base', '地基', 'Foundation', ['copy', 'apply', 'box']),
+      series('base', '地基', 'Foundation', ['copy', 'apply']),
+      // The rules of ∧ and ∨ that need no box: the gates' truth tables as rules.
+      series('gates', '与和或', 'And and or', ['and', 'or']),
+      'box',
       series('axioms', '公理成了元件', 'Axioms as parts', ['k', 's']),
       'chain',
+      'cases',
     ],
     topics: [{ id: 'nobox', code: 'X', after: 'chain', levels: ['x-k', 'x-self', 'x-chain'], title: T('拆掉框', 'Without the box') }],
     chapter: { title: T('地基', 'The foundation'), question: T('只靠套用和假设框，能搭出什么？', 'What can be built from Apply and the assumption box alone?') },
