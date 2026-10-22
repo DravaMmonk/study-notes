@@ -19,7 +19,7 @@ function IntroFigure({ fig }) {
 }
 
 /**
- * spec: { id, title, kicker, lede: (count) → { zh, en }, eras, table (tableCourse's result), glossary, legacyKey? where
+ * spec: { id, title, kicker, lede: { zh, en } (what the game teaches and what the player ends up building, not how many levels), eras, table (tableCourse's result), glossary, legacyKey? where
  * saves from before the shell live, saves: migration steps (../../shell/saves.js), borrow: { part: level id } the level
  * whose board a part that is an idea is tried on }
  */
@@ -82,7 +82,7 @@ export function defineTableGame(spec) {
     glossary: spec.glossary,
     title: spec.title,
     kicker: spec.kicker,
-    lede: spec.lede(LEVELS.length),
+    lede: spec.lede,
     Hero,
     html: true,
     chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, track: TRACKS.get(chapter.era) })),

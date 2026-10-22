@@ -14,7 +14,7 @@ import { descOf, iconOf, nameOf } from './ui/catalog.js'
 import { PRIMITIVE_GATES } from './gates.js'
 
 /**
- * spec: { id, title, kicker, lede: (count) → { zh, en }, logic (logicCourse's result), glossary, saves: migration steps
+ * spec: { id, title, kicker, lede: { zh, en } (what the game teaches and what the player ends up building, not how many levels), logic (logicCourse's result), glossary, saves: migration steps
  * (../../shell/saves.js) }
  */
 export function defineLogicGame(spec) {
@@ -47,7 +47,7 @@ export function defineLogicGame(spec) {
     glossary: spec.glossary,
     title: spec.title,
     kicker: spec.kicker,
-    lede: spec.lede(LEVELS.length),
+    lede: spec.lede,
     Hero,
     html: true,
     chapters: CHAPTERS.map((chapter, id) => ({ id, title: chapter.title, question: chapter.question, track: chapter.track })),
