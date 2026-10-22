@@ -483,3 +483,10 @@
 .pb-test.is-fail svg { color: var(--fail); }
 .pb-test .hidden-tag { margin-left: 2px; }
 .pb-test.is-on { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+/* A reference to another level inside a text (levelRef.js): a link chip, the level's title after a link icon. */
+level-ref { display: inline; }
+.level-ref { display: inline-flex; align-items: center; gap: 3px; margin: 0 2px; padding: 0 6px; border: 0; border-radius: 6px; color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 13%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); font: inherit; line-height: 1.45; vertical-align: baseline; white-space: nowrap; cursor: pointer; }
+.level-ref:hover { background: color-mix(in srgb, var(--accent) 24%, transparent); }
+.level-ref:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.level-ref svg { flex: none; }
