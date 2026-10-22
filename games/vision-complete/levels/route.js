@@ -4,6 +4,8 @@
 // A named series on the main path, as one branch of a `parallel` set.
 const series = (id, zh, en, levels) => ({ id, title: { zh, en }, levels })
 
+// Every chapter works on the same image pipeline (its filters, arithmetic and thresholds are what later chapters
+// are built from), so each one keeps 'all'.
 export const ERAS = [
   {
     id: 0,
@@ -12,7 +14,7 @@ export const ERAS = [
     topics: [{ id: 'inspection', levels: ['0-10', '0-11', '0-12'], after: '0-7' }],
   },
   {
-    id: 1,
+    id: 1, keeps: 'all',
     foundation: [
       '1-1', '1-2', '1-3', '1-4',
       { parallel: [series('sharpen', '锐化', 'Sharpening', ['1-5']), series('edges', '找边', 'Finding edges', ['1-6', '1-7'])] },
@@ -22,7 +24,7 @@ export const ERAS = [
     topics: [{ id: 'scanner', levels: ['1-14', '1-15', '1-16'] }],
   },
   {
-    id: 2,
+    id: 2, keeps: 'all',
     foundation: [
       '2-1', '2-2',
       { parallel: [series('probe', '频率探针', 'Frequency probe', ['2-3', '2-4', '2-5'])] },
@@ -33,7 +35,7 @@ export const ERAS = [
     topics: [{ id: 'thumbnails', levels: ['2-13', '2-14', '2-15', '2-16'] }],
   },
   {
-    id: 3,
+    id: 3, keeps: 'all',
     foundation: [
       { parallel: [series('light', '光照', 'Lighting', ['3-1', '3-2']), series('camera', '相机', 'The camera', ['3-3', '3-4'])] },
       { parallel: [series('colour', '只看颜色', 'Colour alone', ['3-5', '3-6']), series('slope', '只看坡度', 'Slope alone', ['3-7', '3-8'])] },
@@ -42,7 +44,7 @@ export const ERAS = [
     topics: [{ id: 'photometric', levels: ['3-10', '3-11', '3-12'], after: '3-7' }],
   },
   {
-    id: 4,
+    id: 4, keeps: 'all',
     foundation: [
       '4-1', '4-2', '4-3', '4-4',
       { parallel: [series('neuron', '神经元', 'The neuron', ['4-5', '4-6']), series('pool', '非线性和池化', 'Nonlinearity and pooling', ['4-7', '4-8', '4-10', '4-11']), series('conv', '卷积层', 'Convolution layers', ['4-9', '4-13', '4-14'])] },
@@ -52,13 +54,13 @@ export const ERAS = [
     topics: [{ id: 'sorter', levels: ['4-17', '4-18', '4-19'] }],
   },
   {
-    id: 5,
+    id: 5, keeps: 'all',
     foundation: ['5-1', { parallel: [series('mend', '补全', 'Mending', ['5-2', '5-3', '5-4']), series('order', '位置', 'Position', ['5-5'])] }],
     challenges: [{ level: '5-6' }],
     topics: [{ id: 'dedup', levels: ['5-7', '5-8', '5-9'], after: '5-1' }],
   },
   {
-    id: 6,
+    id: 6, keeps: 'all',
     foundation: [
       { parallel: [series('corners', '角点', 'Corners', ['6-1', '6-2', '6-3']), series('match', '匹配', 'Matching', ['6-4', '6-5'])] },
       { parallel: [series('vote', '投票', 'Voting', ['6-6', '6-7']), series('consensus', '共识', 'Consensus', ['6-8'])] },
@@ -68,13 +70,13 @@ export const ERAS = [
     topics: [{ id: 'cover', levels: ['6-11', '6-12', '6-13'], after: '6-8' }],
   },
   {
-    id: 7,
+    id: 7, keeps: 'all',
     foundation: [{ parallel: [series('disparity', '视差', 'Disparity', ['7-1', '7-2', '7-3', '7-4']), series('lines', '点和线', 'Points and lines', ['7-5', '7-6'])] }, '7-7', '7-8'],
     challenges: [{ level: '7-9', after: '7-7' }],
     topics: [{ id: 'avoid', levels: ['7-10', '7-11', '7-12'], after: '7-3' }],
   },
   {
-    id: 8,
+    id: 8, keeps: 'all',
     foundation: [
       '8-1',
       { parallel: [series('autoencoder', '自编码器', 'Autoencoders', ['8-2', '8-3']), series('sample', '抽样', 'Sampling', ['8-4', '8-5'])] },
@@ -84,12 +86,12 @@ export const ERAS = [
     topics: [{ id: 'restore', levels: ['8-10', '8-11'] }],
   },
   {
-    id: 9,
+    id: 9, keeps: 'all',
     foundation: [{ parallel: [series('upsample', '放大', 'Upsampling', ['9-1', '9-2', '9-3', '9-4']), series('cluster', '分类', 'Grouping', ['9-5', '9-6'])] }],
     topics: [{ id: 'cells', levels: ['9-7', '9-8', '9-9'] }],
   },
   {
-    id: 10,
+    id: 10, keeps: 'all',
     foundation: [
       { parallel: [series('iou', '重叠', 'Overlap', ['10-1', '10-2']), series('ap', '排名', 'Ranking', ['10-3', '10-4'])] },
       { parallel: [series('anchors', '锚框', 'Anchor boxes', ['10-5', '10-6']), series('window', '滑窗', 'Sliding window', ['10-7'])] },

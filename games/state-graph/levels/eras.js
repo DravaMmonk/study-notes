@@ -10,6 +10,8 @@ import { T } from '../../kit/domains/table/i18n.js';
 // other are played in any order, all of them before the path goes on.
 const series = (id, zh, en, levels) => ({ id, title: T(zh, en), levels });
 
+// Every robot is the one before it upgraded (the same table-filling machine, with more reach), so each era keeps 'all':
+// the boards built on older robots carry on.
 export const ERAS = [
   {
     id: 'paper', machine: null,
@@ -17,7 +19,7 @@ export const ERAS = [
     chapter: { title: T('纸笔', 'Pen and paper'), desc: T('用小问题的答案，拼出大问题的答案。', 'Build the answer to a big problem out of the answers to small ones.') },
   },
   {
-    id: 'scout', machine: 'scout',
+    id: 'scout', machine: 'scout', keeps: 'all',
     foundation: ['copy', 'confluence', 'stamp', { parallel: [series('rocks', '石头', 'Rocks', ['rocks', 'reach']), series('cost', '花费', 'Costs', ['cheapest', 'slantcost'])] }],
     chapter: { title: T('造一台机器', 'Build a machine'), desc: T('机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。', 'On every cell the robot runs the same circuit board, and a finished board becomes a component.') },
     practice: [{ parallel: [series('shape', '换形状', 'New shapes', ['slant', 'pascal']), series('coins', '金币', 'Coins', ['maxcoins'])] }, 'pits'],
@@ -27,7 +29,7 @@ export const ERAS = [
     challenges: [{ level: 'lawn', after: 'pascal' }],
   },
   {
-    id: 'ranger', machine: 'ranger',
+    id: 'ranger', machine: 'ranger', keeps: 'all',
     // One new thing a level: two rings of view, scanning backwards, a game of yes / no, the two words a table compares
     // (连线不交叉 is the alignment table by hand), scanning by length.
     foundation: ['stairs', { parallel: [series('back', '倒着扫', 'Scanning backwards', ['order']), series('win', '输赢', 'Winning', ['nim'])] }, 'link', 'lcs', 'palin'],
@@ -39,7 +41,7 @@ export const ERAS = [
     challenges: [{ level: 'parity', after: 'nim' }, { level: 'localalign', after: 'lcs' }, { level: 'piles', after: 'nim' }],
   },
   {
-    id: 'reach', machine: 'reach',
+    id: 'reach', machine: 'reach', keeps: 'all',
     foundation: ['frog', { parallel: [series('jump', '跳法', 'Ways to jump', ['frogfar', 'safefrog']), series('sentence', '句子', 'Sentences', ['tagging', 'forward'])] }],
     chapter: { title: T('伸长手臂', 'A longer arm'), desc: T('伸缩臂能够到任意远的一格。', 'A telescopic arm reaches a cell however far away.') },
     topics: [
@@ -49,7 +51,7 @@ export const ERAS = [
     challenges: [{ level: 'coinways', after: 'knapmany' }, { level: 'roll', after: 'knapmix' }],
   },
   {
-    id: 'broom', machine: 'broom',
+    id: 'broom', machine: 'broom', keeps: 'all',
     foundation: ['prefix', 'rising'],
     chapter: { title: T('一格多来路', 'Many ways in'), desc: T('扫描臂扫过一整段格子，来路的数量不再固定。', 'The sweep arm passes over a whole run of cells, so the number of ways in is no longer fixed.') },
     practice: [{ parallel: [series('interval', '区间', 'Intervals', ['stones', 'twoorders', 'parse']), series('change', '零钱', 'Change', ['change'])] }],
@@ -59,7 +61,7 @@ export const ERAS = [
     challenges: [{ level: 'maxsub', after: 'prefix' }],
   },
   {
-    id: 'stack', machine: 'stack',
+    id: 'stack', machine: 'stack', keeps: 'all',
     foundation: ['robber', 'breach', 'keydoor'],
     chapter: { title: T('状态不够用', 'When the state falls short'), desc: T('一个数记不住的时候，就多记一件事。', 'When one number can’t remember enough, remember one more thing.') },
     practice: ['stock1', 'cooldown'],
@@ -69,7 +71,7 @@ export const ERAS = [
     ],
   },
   {
-    id: 'settle', machine: 'loop',
+    id: 'settle', machine: 'loop', keeps: 'all',
     foundation: ['loop'],
     chapter: { title: T('扫到不再变', 'Scan until it settles'), desc: T('箭头绕成了圈，就一遍一遍地扫。', 'When the arrows loop round, scan again and again.') },
     practice: ['value', 'arrows'],

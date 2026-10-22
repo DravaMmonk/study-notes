@@ -47,8 +47,9 @@ problems in 《证明完毕》, see `games/DESIGN.md` §11):
 - **Abstraction keeps rising.** Draw the part dependency graph (§7 step 4). Every built part is used by later
   reference answers, in places where not having it would be long. Later levels lean on higher-level parts; a
   late reference answer built only from primitives means the chain is broken.
-- **Across eras.** A new machine either carries the previous era's built parts or has the player rebuild them
-  (an upgrade) with its new abilities; earlier work is never simply dropped.
+- **Across eras.** Within an era every part met stays usable. Every era after the first declares `keeps`: `'all'`
+  when it continues the previous machine (extends or upgrades it), so earlier work is never dropped; a list (possibly
+  `[]`) when it changes topic, leaving the rest behind. Ask: is the new machine a continuation of the last one?
 - **Discovery, not transcription.** No level hands over a formula to wire up; a quantity with several parameters
   is a bench that opens one knob per step. A hard mechanism gets its own intro levels as a named series (§2.2).
 - **Order by dependency.** Parallel sets and optional branches follow the part and concept dependencies (§2).

@@ -16,10 +16,11 @@
 //               end of the main path) and nothing needs them.
 // A branch hangs as early as what it needs allows: once the parts and ideas it uses are in hand.
 //
-// eras: [{ id, title?, machine?, keeps?: [part], foundation: [item], practice?: [item], topics?: [{ id, title?,
+// eras: [{ id, title?, machine?, keeps?: 'all' | [part], foundation: [item], practice?: [item], topics?: [{ id, title?,
 //          levels: [level id], after?, requires? }], challenges?: [{ level, after? }] }]
-// Parts go with the machine: an era with `keeps` takes from the eras before it only the parts it names, and starts
-// the rest of its kit afresh (see reach).
+// Within an era every part, once met, is in every later level of it. Between eras it is the era's call, and every era
+// after the first must make it (audit `era-keeps`): keeps: 'all' when it carries on from the eras before it (the same
+// machine extended or upgraded), keeps: [part…] when it changes topic and takes only those parts across ([] for none).
 // layout(eras) gives the play order, each level's place ({ era, role, topic | branch }), what it requires and each
 // era's track for the map; the shell opens a level once everything it requires is solved.
 //
@@ -59,6 +60,7 @@ export const RULE_TEXT = {
   'many-new': 'more than one new part in one level',
   unplaced: 'in no era',
   'no-topic': 'a machine whose era has no topic series yet',
+  'era-keeps': 'an era after the first that does not say which parts it takes from the eras before it (keeps)',
   machine: 'played on a machine of a later era',
   'machine-role': 'a foundation, practice, finale or challenge level played on an older machine',
   mechanism: 'played on a machine that cannot do what its board uses',
@@ -163,10 +165,10 @@ export function defineCourse({ levels, eras = null, primitives, adds, needs, bui
     else levels.slice(0, index.get(id)).forEach((l) => set.add(l.id))
     return set
   }
-  // A part met at one level reaches another across every era between them: each era on the way that `keeps` a list
-  // lets through only the parts on it.
+  // A part met at one level reaches another across every era between them: each era on the way that keeps a list
+  // lets through only the parts on it; one that keeps 'all' lets everything through.
   const eraOf = (id) => (plan ? eras.findIndex((e) => e.id === plan.place.get(id)?.era) : 0)
-  const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => !e.keeps || e.keeps.includes(part)) ?? true
+  const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => e.keeps === 'all' || e.keeps?.includes(part)) ?? true
   return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
 }
 
@@ -325,6 +327,8 @@ export function audit(course) {
       if (!course.naive(level)) say('challenge-naive', level.id, '', 'a challenge needs a naive answer that fails')
     }
   }
+  // Every era after the first says what it takes from the ones before: everything, or a list.
+  course.eras?.slice(1).forEach((era) => { if (era.keeps !== 'all' && !Array.isArray(era.keeps)) say('era-keeps', pathLevels(era.foundation)[0] ?? era.id, String(era.id), `era ${era.id} has no keeps`) })
   // Every machine's era ends in a topic series.
   for (const era of course.eras) if (era.machine && !(era.topics ?? []).length) say('no-topic', pathLevels(era.foundation)[0] ?? era.id, era.machine, `era ${era.id} has no topic series yet`)
   // A topic stays in one world.

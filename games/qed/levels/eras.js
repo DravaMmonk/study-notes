@@ -18,7 +18,7 @@ export const ERAS = [
     chapter: { title: T('纸笔', 'Pen and paper'), question: T('一句话什么时候永远成立？', 'When does a statement always hold?') },
   },
   {
-    id: 'circuits', machine: 'prover',
+    id: 'circuits', machine: 'prover', keeps: 'all',
     foundation: [
       series('gates', '门', 'Gates', ['g-not', 'g-and', 'g-tree']),
       series('build', '造门', 'Building gates', ['g-or', 'g-imp']),
@@ -30,6 +30,8 @@ export const ERAS = [
   },
   {
     id: 'kernel', machine: 'prover',
+    // A new topic: proof by rules, not truth by circuits. The gates stay behind with the truth circuits.
+    keeps: [],
     foundation: [
       series('detach', '分离', 'Detach', ['copy', 'mp', 'pick', 'nested', 'cond']),
       // K and S need nothing from each other; what joins them waits for both.
@@ -46,6 +48,8 @@ export const ERAS = [
   },
   {
     id: 'boxes', machine: 'prover',
+    // The kernel extended: Detach and the lemmas built with the kernel carry on; the box replaces K and S (index.js).
+    keeps: 'all',
     foundation: [
       'box',
       series('axioms', '公理成了定理', 'Axioms as theorems', ['nest', 'sbox']),
