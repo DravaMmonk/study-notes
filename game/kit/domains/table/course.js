@@ -51,7 +51,7 @@ export function usesOf(L) {
  *   parts       { key: { name, desc } } what solving a level leaves the player (its `unlock`)
  *   primitives  the parts the course starts from
  * }
- * Returns { LEVELS, REQUIRES, PLACE, TRACKS, CHAPTERS, LABELS, PARTS, course, usableIn(L, flags), offerIn(L, flags), topicProblems() }.
+ * Returns { LEVELS, REQUIRES, PLACE, TRACKS, CHAPTERS, LABELS, PARTS, course, usableIn(L, flags), offerIn(L, flags), problems() }.
  */
 export function tableCourse({ eras, levels, retired = [], parts, primitives }) {
   const PARTS = parts;
@@ -95,7 +95,7 @@ export function tableCourse({ eras, levels, retired = [], parts, primitives }) {
     const ports = L.blueprint.ports.map(p => (typeof p === 'string' ? { label: V.sensors[p].label, short: V.sensors[p].short, type: V.sensors[p].type, sensor: p } : p));
     BLUEPRINTS[`bp:${L.id}`] = {
       name: PARTS[L.unlock].name, look: L.unlock, value: L.blueprint.value,
-      desc: lazy(() => tr(`你拼出的电路板，现在是一个元件。顶上的输入：${ports.map(p => p.label).join('、')}。`, `The circuit board you built, now a component. Inputs on top: ${ports.map(p => p.label).join(', ')}.`)),
+      desc: PARTS[L.unlock].desc,
       ins: ports.map(p => PORT_TYPE[p.type] || p.type), labels: ports.map(p => p.short), sensors: ports.map(p => p.sensor ?? null),
       out: V.outs[0][0], outType: V.outs[0][3], f: L.blueprint.f,
     };
@@ -172,12 +172,16 @@ export function tableCourse({ eras, levels, retired = [], parts, primitives }) {
   const offerIn = (L, flags) => offer(course, { id: L.id }, flags);
 
   /**
-   * A topic grows from a small version of its finale: the finale's reference board, run on each earlier circuit level of
-   * the topic (same world, same outputs), must pass that level's tests. An earlier level that instead builds one core
-   * mechanism alone passes when the part it builds is on the finale's board. Problems as the course audit reports them.
+   * The table's own rules, as the course audit reports them. A level that starts from an earlier level's board (`carry`)
+   * requires that level, so every player has built it. A topic grows from a small version of its finale: the finale's
+   * reference board, run on each earlier circuit level of the topic (same world, same outputs), must pass that level's
+   * tests. An earlier level that instead builds one core mechanism alone passes when the part it builds is on the
+   * finale's board.
    */
-  function topicProblems() {
+  function problems() {
     const out = [];
+    const before = id => { const seen = new Set(), todo = [...(plan.requires.get(id) ?? [])]; while (todo.length) { const x = todo.pop(); if (!seen.has(x)) { seen.add(x); todo.push(...(plan.requires.get(x) ?? [])); } } return seen; };
+    for (const L of LEVELS.filter(x => x.carry)) if (!before(L.id).has(L.carry)) out.push({ rule: 'carry-unseen', level: L.id, part: L.carry });
     for (const era of eras) {
       for (const topic of era.topics ?? []) {
         // The finale is the topic's last circuit level (a board level may follow it, like cutting the seam out).
@@ -200,5 +204,5 @@ export function tableCourse({ eras, levels, retired = [], parts, primitives }) {
     return out;
   }
 
-  return { LEVELS, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, course, usableIn, offerIn, topicProblems };
+  return { LEVELS, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, course, usableIn, offerIn, problems };
 }

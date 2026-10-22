@@ -19,7 +19,7 @@ const FOCUS_KEYS = ['act', 'c', 'j', 'k', 'r', 'g', 's', 'o', 'p', 'n', 't', 'v'
 const focusSig = (el) => FOCUS_KEYS.map((k) => el.dataset[k] || '').join('|')
 const overlayOpen = () => Boolean(document.querySelector('.dialog-scrim, .ph-scrim, .intro-scrim'))
 
-export default function ModeScreen({ game, level, saved, save, solve, fail, flags, phone }) {
+export default function ModeScreen({ game, level, saved, save, solve, fail, flags, progress, phone }) {
   const L = level.source
   const root = useRef(null)
   const [sheet, setSheet] = useState(null) // { html, acts, redraw } of a sheet the mode opened
@@ -36,7 +36,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
   if (!cur.current) {
     cur.current = { L, i: level.index, fails: 0, running: false, ctl: null }
     rt.cur = cur.current
-    cur.current.ctl = MODES[L.mode](L, saved, { flags, game })
+    cur.current.ctl = MODES[L.mode](L, saved, { flags, game, progress })
   }
   const ctl = cur.current.ctl
   // The shell's callbacks change identity on every render of the shell; the modes always reach the latest ones.

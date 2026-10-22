@@ -3,6 +3,7 @@
 import { Cable, Grid3x3 } from 'lucide-react'
 import './table.css'
 import { defineGame } from '../../shell/index.js'
+import { migrations } from '../../shell/saves.js'
 import { eraLevels, pathLevels } from '../../course.js'
 import ModeScreen from './screen.jsx'
 import Hero from './hero.jsx'
@@ -16,8 +17,9 @@ function IntroFigure({ fig }) {
 }
 
 /**
- * spec: { id, title, kicker, lede: (count) → { zh, en }, eras, table (tableCourse's result), glossary, legacy?() an
- * old save to start from, borrow: { part: level id } the level whose board a part that is an idea is tried on }
+ * spec: { id, title, kicker, lede: (count) → { zh, en }, eras, table (tableCourse's result), glossary, legacyKey? where
+ * saves from before the shell live, saves: migration steps (../../shell/saves.js), borrow: { part: level id } the level
+ * whose board a part that is an idea is tried on }
  */
 export function defineTableGame(spec) {
   const { LEVELS, REQUIRES, TRACKS, CHAPTERS, LABELS, PARTS } = spec.table
@@ -71,7 +73,7 @@ export function defineTableGame(spec) {
     html: true,
     chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, track: TRACKS.get(chapter.era) })),
     levels,
-    progress: { version: 1, legacy },
+    progress: { ...migrations(spec.saves ?? []), legacy },
     // Numbered as in CURRICULUM.md: 1-4 on an era's main path, S2 in a topic, C1 for a challenge.
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
