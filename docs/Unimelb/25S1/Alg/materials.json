@@ -327,6 +327,124 @@
       "first_page_excerpt": "Student Experience Survey The Student Experience Survey for this subject is open and will be closed on June 8, 2025. Please spend some time to take the survey. Any comments and suggestions are welcome and will be helpful for us to improve the teaching of this subject in the future. 1/10 Algorithms and Complexity (Sem 1, 2025) Review © University of Melbourne 1 / 10"
     },
     {
+      "file": "tutorial/Week 10 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23317376",
+      "sha256": "9bffcad5c1082cc97c80802e2a4b6951f9e37881603f7e693838d0860dc3bf68",
+      "bytes": 769264,
+      "pages": 85,
+      "first_page_excerpt": "Algorithms and Complexity Week 10 Tutorial Semester 1, 2025 Tutor: Philip Cervenjak",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 10 tutorial slides",
+      "download_name": "Week 10 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf"
+    },
+    {
+      "file": "tutorial/Week 11 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23477635",
+      "sha256": "2b308b226085e2cc1a2b071a787caedb7cb8d9fde90deab45d86a93776bc4b21",
+      "bytes": 1799822,
+      "pages": 105,
+      "first_page_excerpt": "Algorithms and Complexity Week 11 Tutorial Semester 1, 2025 Tutor: Philip Cervenjak",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 11 tutorial slides",
+      "download_name": "Week 11 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf"
+    },
+    {
+      "file": "tutorial/Week 12 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pptx",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23542117",
+      "sha256": "13eb66ec0f9ac709fa3596d89d277bfdf454e6cc2c6281221ba1d0c3fbbe789f",
+      "bytes": 2264280,
+      "slides": 115,
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "version_note": "Original PowerPoint for Week 12 tutorial. The separate PDF endpoint still failed; this preserves the original slide deck without claiming a PDF was recovered."
+    },
+    {
+      "file": "tutorial/Week 3 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22558718",
+      "sha256": "6ec5293740d69e494e90141781be73f897033362b5bddef7fa186f449bef2d13",
+      "bytes": 454047,
+      "pages": 14,
+      "first_page_excerpt": "Algorithms and Complexity Week 3 Tutorial Semester 1, 2025 Tutor: Philip Cervenjak",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 3 tutorial slides",
+      "download_name": "Week 3 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf"
+    },
+    {
+      "file": "tutorial/Week 4 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22558726",
+      "sha256": "dc9acc247071c7c04fa7bc836a0c315cfce822538312fa5d74fc9ebf84020f76",
+      "bytes": 750602,
+      "pages": 15,
+      "first_page_excerpt": "Algorithms and Complexity Week 4 Tutorial Semester 1, 2025 Tutor: Philip Cervenjak 1",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 4 tutorial slides",
+      "download_name": "Week 4 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf"
+    },
+    {
+      "file": "tutorial/Week 5 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22673000",
+      "sha256": "fb438f41f0d4bbca6ee0f8c0b3ec8fb2cf1ff12bddc7ca49edb3bb00e1fdb042",
+      "bytes": 990754,
+      "pages": 78,
+      "first_page_excerpt": "Algorithms and Complexity Week 5 Tutorial Semester 1, 2025 Tutor: Philip Cervenjak",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 5 tutorial slides",
+      "download_name": "Week 5 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf"
+    },
+    {
+      "file": "tutorial/Week 6 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22725537",
+      "sha256": "4ee61189721033baa31e8b6a2846408bfecf8a962a388f0981febe666dee20be",
+      "bytes": 1127343,
+      "pages": 27,
+      "first_page_excerpt": "Algorithms and Complexity Week 6 Tutorial Semester 1, 2023 Tutor: Philip Cervenjak",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 6 tutorial slides",
+      "download_name": "Week 6 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf"
+    },
+    {
+      "file": "tutorial/Week 7 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22818291",
+      "sha256": "5a140d30638ab313f9d339afb4010cc44b18cc0e09452239b66fcae6c305048d",
+      "bytes": 1031910,
+      "pages": 95,
+      "first_page_excerpt": "Algorithms and Complexity Week 7 Tutorial Semester 1, 2025 Tutor: Philip Cervenjak",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 7 tutorial slides",
+      "download_name": "Week 7 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf"
+    },
+    {
+      "file": "tutorial/Week 8 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22999935",
+      "sha256": "53b963a709a587e01ff718eecf261da7793151516fef1a34fd47ace18628681f",
+      "bytes": 946255,
+      "pages": 60,
+      "first_page_excerpt": "Algorithms and Complexity Week 8 Tutorial Semester 1, 2025 Tutor: Philip Cervenjak",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 8 tutorial slides",
+      "download_name": "Week 8 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf"
+    },
+    {
+      "file": "tutorial/Week 9 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/23272612",
+      "sha256": "1f0742ed2d68989000628c9c75481137f6226e2a9c1ee000bf2b29973fb3cfb3",
+      "bytes": 1281120,
+      "pages": 160,
+      "first_page_excerpt": "Algorithms and Complexity Week 9 Tutorial Semester 1, 2025 Tutor: Philip Cervenjak",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 9 tutorial slides",
+      "download_name": "Week 9 tutorial slides (Sem 1, 2025 - Philip Cervenjak).pdf"
+    },
+    {
       "file": "tutorial/jh-week02-questions.pdf",
       "source": "https://canvas.lms.unimelb.edu.au/courses/210686/files/22361357",
       "sha256": "fee3c460e564946d8a9b28514bd7b6ff3bab9b8588d98af55af2d5fe88cf544e",
@@ -502,5 +620,6 @@
       "pages": 4,
       "first_page_excerpt": "School of Computing and Information Systems COMP90038 Algorithms and Complexity Tutorial Week 12 (2025 Semester 1) Plan Sadly this is the last tutorial session; but at least there is still a final exam to look forward to. : ) Problem 1. Floyd’s algorithm sometimes works even if we allow negative weights in a dag. 4 3 a a b b -3 -4 For example, for the left graph above, it will produce these succes"
     }
-  ]
+  ],
+  "last_updated": "2026-10-22"
 }

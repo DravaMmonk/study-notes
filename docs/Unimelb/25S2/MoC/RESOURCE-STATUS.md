@@ -12,17 +12,17 @@
 | 6 | L11–L12 | 2 份（`w6l1-slides.pdf`、手写 `w6l2-slides.pdf`） | 本地没有 | 本地没有 | LEC11-12 Finite Automata | [06](06-finite-automata.md) |
 | 7 | L13–L14 | 2 份（`13.pdf`、`14.pdf`） | 本地没有 | 本地没有 | LEC13、LEC14 | [07](07-nfa-determinisation-minimisation.md)、[08](08-regular-expressions.md) |
 | 8 | L15–L16 | 2 份（手写 `w8l1-slides.pdf`、`w8l2-slides.pdf`） | 本地没有 | 本地没有 | LEC15-16 Proving Non-regularity | [09](09-non-regularity.md) |
-| 9 | L17–L18 | 1 份（`16.pdf` 实为 L18）；**L17 缺** | 本地没有 | 本地没有 | LEC17-18 Context-free Language & Pushdown Automaton | [10](10-cfl-pda.md) |
-| 10 | L19–L20 | 2 份（手写 `w10l1part1.pdf` 与 `Lecture 19 Part 2` 均属 L19）；**L20 缺** | 本地没有 | 本地没有 | LEC19 Turing Machine、LEC20 Church-Turing Thesis | [10](10-cfl-pda.md)、[11](11-turing-machines.md) |
+| 9 | L17–L18 | 2 份（含新补回的 Sipser PDF；`16.pdf` 实为 L18）；**L17 已补回 MIT OCW PDF，待整合笔记** | 本地没有 | 本地没有 | LEC17-18 Context-free Language & Pushdown Automaton | [10](10-cfl-pda.md) |
+| 10 | L19–L20 | 3 份（L19 两部分和新补回的 L20）；**L20 已补回 Canvas PDF，待整合笔记** | 本地没有 | 本地没有 | LEC19 Turing Machine、LEC20 Church-Turing Thesis | [10](10-cfl-pda.md)、[11](11-turing-machines.md) |
 | 11 | L21–L22 | 2 份（手写 `w11l1.pdf`、`w11l2.pdf`） | 本地没有 | 本地没有 | LEC21-22 Universality of Turing Machines | [12](12-decidability-universality.md) |
 | 12 | L23–L24 | 2 份（手写 `w12l1.pdf`、`Lecture 24.pdf`） | 本地没有 | 本地没有 | LEC23-24 Identify Unrecognisable Problems、★ Review | [13](13-unrecognisable-reductions.md) |
 
-本地共有 **23 份讲义 PDF**，覆盖 24 讲中的 22 讲；另有 20 条 Apple Notes 已并入笔记（"★3 Languages" 跨第 10、12、13 篇）。13 篇笔记共选用 **242 张**讲义截图，每张旁附说明。
+本地现有 **25 份讲义 PDF**，24 讲均有来源文件（L17 使用所引用的 2020 年课程的 MIT OCW PDF）；另有 20 条 Apple Notes 已并入笔记（"★3 Languages" 跨第 10、12、13 篇）。13 篇笔记共选用 **242 张**讲义截图，每张旁附说明。
 
 ## 尚未完整或需要区分的项目
 
-- **第 17 讲没有本地课件**：课上使用 [Sipser 的 CFG/PDA 幻灯片（外部 PowerPoint）](https://math.mit.edu/~sipser/18404/Lectures%20Fall%202020/Lecture%204%20final.pptx)，没有下载。[第 10 篇](10-cfl-pda.md)第 2 节的文法定义依据学生笔记与第 18 讲开头的复习页，标为覆盖有限。
-- **第 20 讲没有本地课件**：[Canvas 文件](https://canvas.lms.unimelb.edu.au/courses/215477/files/25195591)能列出和预览，但下载多次超时。[第 11 篇](11-turing-machines.md)第 6 节（多带图灵机、非确定图灵机、编码）只依据学生笔记，未能与课件核对。
+- **第 17 讲来源已补回**：`lecture/Sipser-Lecture-4-CFG-PDA.pdf` 是 MIT OCW 保存的 Michael Sipser 2020 年秋季 Lecture 4 PDF，共 13 页。原 PowerPoint 链接返回 404，尚未确认两种格式逐字节一致；第 10 篇仍待用该来源核对和补图。
+- **第 20 讲原件已补回**：`lecture/Lecture 20 - TM Variants and Decidable Languages.pdf` 为 2025 年第 2 学期的 16 页 Canvas 原件，通过 Alternative formats → Download original 下载。第 11 篇第 6 节尚未用它核对。
 - [官方配套讲义与课程安排（网页）](https://williamumboh.com/comp30026-2025/)：模块里的补充讲义链接指向 William Umboh 的课程网站，是网页资源，不是缺失的 PDF 附件；本次没有镜像。
 - 本地没有 Tutorial、Workshop、答案、录播或字幕，所以笔记不含练习对应表，也没有可核对的“老师原话”。
 - 文件名与内容不一致：`16.pdf` 首页是 Lecture 18；`w10l1part1.pdf` 是第 19 讲前半，不是第 17 讲；`05.pdf` 第 1–54 页是复习（归入第 3 篇），第 56–69 页开始谓词逻辑（归入第 4 篇）。
@@ -45,3 +45,7 @@
 - [资料清单与校验值](materials.json)
 
 `lecture/` 保存讲义 PDF，`assets/` 保存选用的截图；二者被 Git 忽略，只存在于本地副本。
+
+### 2026-10-22 补回来源的验证
+
+新增两份 PDF 均通过 `pdfinfo`；首页已渲染并目视核对，来源、SHA-256、字节数与页数已加入 materials.json。上文逐页渲染的验证描述适用于最初的 23 份 PDF；新资料尚未并入笔记的 242 张选图。

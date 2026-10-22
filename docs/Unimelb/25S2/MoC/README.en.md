@@ -22,7 +22,7 @@ Follow the course in file order 01–13 (see "Lectures, PDFs and notes" below fo
 - [Resource completeness](RESOURCE-STATUS.en.md): checked on 2026-10-22; lists, lecture by lecture, the local slides, Apple Notes and the materials not yet obtained.
 - [materials.json](materials.json): each file's Canvas source URL, SHA-256, size, page count and first-page excerpt.
 
-On 21 October 2026, slides were recovered for Lectures 1–16 and 18, Lecture 19 (two parts) and Lectures 21–24; the original file names are retained. Lectures 17 and 20 have no local slides: the grammar part of note 10 and section 6 of note 11 follow the Apple Notes and are marked as limited coverage.
+On 21 October 2026, slides were recovered for Lectures 1–16 and 18, Lecture 19 (two parts) and Lectures 21–24; the original file names are retained. On 22 October 2026, the L20 Canvas original and a MIT OCW PDF of the referenced L17 source were added. The grammar part of note 10 and section 6 of note 11 still follow the Apple Notes and await checking against these new files; their limited-coverage labels now describe note integration.
 
 Slide screenshot numbers always refer to the **PDF page index**, which may differ from the printed footer number: the L01–L14 and L18 decks build each slide up over several animation pages, so screenshots use the most complete build of each slide and page indices run far ahead of the footer numbers; the `w*.pdf` files and pages 2–11 of L24 are handwritten board notes from class, and screenshots likewise use the completed page. A note drawing on one PDF names its files `slide-XX.png`; a note drawing on several uses `slide-<short>-XX.png` (e.g. `slide-l18-21.png`, `slide-w11l2-07.png`), and the image captions carry the same short name.
 
@@ -39,10 +39,10 @@ Slide screenshot numbers always refer to the **PDF page index**, which may diffe
 | L13 | NFA determinisation and minimisation | `lecture/13.pdf` | [07](07-nfa-determinisation-minimisation.en.md) |
 | L14 | Regular expressions | `lecture/14.pdf` | [08](08-regular-expressions.en.md) |
 | L15–L16 | Proving non-regularity | `lecture/w8l1-slides.pdf`, `w8l2-slides.pdf` | [09](09-non-regularity.en.md) |
-| L17 | CFGs and PDAs (Sipser slides) | not available locally | [10](10-cfl-pda.en.md) (from Apple Notes) |
+| L17 | CFGs and PDAs (Sipser slides) | `lecture/Sipser-Lecture-4-CFG-PDA.pdf` (MIT OCW PDF) | [10](10-cfl-pda.en.md) (from Apple Notes) |
 | L18 | Pushdown automata | `lecture/16.pdf` | [10](10-cfl-pda.en.md) |
 | L19 | First half: wrapping up CFLs; second half: introduction to Turing machines | `lecture/w10l1part1.pdf`; `lecture/Lecture 19 Part 2 - Turing machines prelecture.pdf` | [10](10-cfl-pda.en.md), [11](11-turing-machines.en.md) |
-| L20 | The Church–Turing thesis | not available locally | [11](11-turing-machines.en.md) (from Apple Notes, limited coverage) |
+| L20 | The Church–Turing thesis | `lecture/Lecture 20 - TM Variants and Decidable Languages.pdf` | [11](11-turing-machines.en.md) (from Apple Notes, limited coverage) |
 | L21–L22 | Universal Turing machines; diagonalisation; undecidability | `lecture/w11l1.pdf`, `w11l2.pdf` | [12](12-decidability-universality.en.md) |
 | L23 | Reductions; closure; unrecognisable problems | `lecture/w12l1.pdf` | [13](13-unrecognisable-reductions.en.md) |
 | L24 | Wrapping up TMs (Rice's theorem, intractability) and subject review | `lecture/Lecture 24.pdf` | [13](13-unrecognisable-reductions.en.md) |
@@ -99,8 +99,12 @@ Intentionally not imported:
 
 | Local directory | Contents |
 | --- | --- |
-| `lecture/` | 23 lecture PDFs |
+| `lecture/` | 25 lecture PDFs, including the recovered L20 and MIT OCW L17 source |
 | `assets/<note name>/` | PNG renders (110 dpi) of the lecture pages selected for the notes |
 | `materials.json` | Source and checksum records for the materials |
 
 Binary materials (PDFs and renders) are ignored by Git and exist only in this local checkout; the Downloads originals were copied and preserved.
+
+### Source recovery follow-up — 22 October 2026
+
+L20 was recovered as the 16-page, Semester 2 2025 Canvas original through Alternative formats → Download original. L17 is now represented by MIT OCW’s 13-page PDF of Michael Sipser’s Fall 2020 Lecture 4, the same course/year/lecture referenced by the subject website. Exact identity with the unavailable PowerPoint has not been verified. Notes 10 and 11 have not yet been rechecked or illustrated against these additions; their limited-coverage labels describe note integration, not missing source files.

@@ -119,12 +119,34 @@
       "first_page_excerpt": "COMP30026 Models of Computation Lecture 19: Introduction to Turing Machines Cezary Kaliszyk and William Umboh Semester 2, 2025 Adapted from Michael Sipser’s slides"
     },
     {
+      "file": "lecture/Lecture 20 - TM Variants and Decidable Languages.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/25195591",
+      "sha256": "e18c261b9638907e25027c35917edb96c5d82dab998d76583fb2437f254847d6",
+      "bytes": 1064294,
+      "pages": 16,
+      "first_page_excerpt": "COMP30026 Models of Computation Lecture 20: TM Variants and Decidable Languages Cezary Kaliszyk and William Umboh Semester 2, 2025 Adapted from Michael Sipser’s slides",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Lecture 20: TM Variants and Decidable Languages",
+      "download_name": "attachment.pdf"
+    },
+    {
       "file": "lecture/Lecture 24.pdf",
       "source": "https://canvas.lms.unimelb.edu.au/courses/215477/files/25253712",
       "sha256": "995dafb6ddea0b28641975a3390d489b3888bd8b49d23dd4d92ef12030568f2c",
       "bytes": 4955412,
       "pages": 17,
       "first_page_excerpt": "COMP30026 Models of Computation Lecture 24: Review Cezary Kaliszyk and William Umboh Semester 2, 2025"
+    },
+    {
+      "file": "lecture/Sipser-Lecture-4-CFG-PDA.pdf",
+      "source": "https://ocw.mit.edu/courses/18-404j-theory-of-computation-fall-2020/a22fce6f6824c53dbb79a0da786966a6_MIT18_404f20_lec4.pdf",
+      "sha256": "80e820272a6e9942b9d2b40d1d1d129258b129f405dcc90f9fbc915f09ff7fcf",
+      "bytes": 453574,
+      "pages": 13,
+      "first_page_excerpt": "18.404/6.840 Lecture 4 Last time: - Finite automata → regular expressions - Proving languages aren’t regular - Context free grammars Today: (Sipser §2.2) - Context free grammars (CFGs) – definition - Context free languages (CFLs) - Pushdown automata (PDA) - Converting CFGs to PDAs 1",
+      "recovered_on": "2026-10-22",
+      "version_note": "MIT OCW PDF of Michael Sipser, 18.404/6.840 Lecture 4, Fall 2020; same course/year/lecture referenced by MoC L17. Exact identity with the unavailable PPTX has not been verified."
     },
     {
       "file": "lecture/w10l1part1.pdf",
@@ -190,5 +212,6 @@
       "pages": 11,
       "first_page_excerpt": "② Jeff Erickson ."
     }
-  ]
+  ],
+  "last_updated": "2026-10-22"
 }

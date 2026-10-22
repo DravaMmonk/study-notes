@@ -239,6 +239,18 @@
       "first_page_excerpt": "INFO90002 Tutorial - Week 2 Modelling with MySQL Workbench Objectives: In this tutorial session you will familiarise yourself with the MySQL Workbench database modelling tool. This is the tool you will use to complete modelling tasks and to complete Assignment 1. In this lab you will: • • • • • Launch the MySQL Workbench modelling tool Create a simple ER model using MySQL Workbench Define relation"
     },
     {
+      "file": "tutorial/Week3_Tute_Logical and Physical Modelling SOLUTIONS.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855441",
+      "sha256": "fe78ecc559b0b4aab72a5b413f32bdc70e6314ccece2ac2808b169d2d22da977",
+      "bytes": 413592,
+      "pages": 9,
+      "first_page_excerpt": "INFO90002 INFO90002 Tutorial Week 3 Objectives: This tutorial will cover: I. II. III. IV. Entity-Relationship (ER) modelling review Case study – Use a case study to design a conceptual model Convert the conceptual model to a logical relations model Introduce the notion of physical model – complete as homework Exercises: 1. ER Review – selected concepts NOTE for students: This is a brief summary of",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 3 tutorial solution",
+      "download_name": "Week3_Tute_Logical and Physical Modelling SOLUTIONS.pdf"
+    },
+    {
       "file": "tutorial/Week3_Tute_Logical and Physical Modelling.pdf",
       "source": "https://canvas.lms.unimelb.edu.au/courses/211571/files/21855437",
       "sha256": "2a298f91dc113931c7f64836fec9a3d4ded15242d11fe88e4eddef6fbb5b1731",
@@ -366,5 +378,6 @@
       "sha256": "0151ddcd03ea75dbadff31d284f49b2f1ea1be9768eed39b73478db5ac0ca8b8",
       "bytes": 3201
     }
-  ]
+  ],
+  "last_updated": "2026-10-22"
 }

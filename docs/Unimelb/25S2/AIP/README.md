@@ -1,18 +1,21 @@
 # COMP90054 — AI Planning for Autonomy
 
-Semester: **25S2**. [Canvas course](https://canvas.lms.unimelb.edu.au/courses/213743). Sources recovered on **21 October 2026**.
+Semester: **25S2**. [Canvas course](https://canvas.lms.unimelb.edu.au/courses/213743). Sources recovered on **21–22 October 2026**.
 
 ## Recovered source materials
 
-Recovered the introduction slides, two separately published Search pre-handouts, and the Week 5 delete-relaxation handout. Other listed pre-handouts (Weeks 3, 4 and 6) repeatedly timed out when downloaded. Weeks 2 and 3 also link to post-handouts; a direct attempt on the Week 2 link returned ERR_BLOCKED_BY_CLIENT. These are acquisition failures, not evidence that the files are absent. The Week 6 page labels one attachment intro05-pre-handout.pdf; its topic must be checked before any future renaming. Weeks 7–12 link to the official reinforcement-learning website and videos rather than standalone Canvas slide PDFs; these web resources have not been converted to local PDFs.
+Recovered 11 Canvas PDFs, including all seven handout links that failed in the first pass. They were retrieved through **Alternative formats → Download original**. Original filenames are preserved: the Week 2/3 links described as post-handouts download files whose names still say pre-handout, so the manifest retains the Canvas label separately. The Week 6 attachment labelled intro05-pre-handout.pdf is confirmed by its first page as Delete Relaxation Heuristics; the other Week 6 files cover width-based planning and plan/goal recognition.
+
+The official course website also provides PDF links inside its chapter pages. Fourteen PDFs were downloaded into `lecture/official-site-2026-10-22/`. These are **current website supplements, not verified 2025 originals**: for example, mdps.pdf was generated on 25 August 2026. The snapshot includes advanced/current chapters and must not be used to infer the 2025 syllabus or replace its Canvas sources.
 
 | Local directory | Files |
 | --- | ---: |
-| `lecture/` | 4 |
+| `lecture/` (Canvas originals, excluding the subdirectory below) | 11 |
+| `lecture/official-site-2026-10-22/` (current supplements) | 14 |
 
 The original filenames are retained. See [materials.json](materials.json) for each file’s stable source URL, SHA-256, size, PDF page count and first-page excerpt. Binary resources are ignored by Git and are available only in this local checkout. Downloads originals were copied and preserved.
 
-## Scope and remaining sources
+## Scope and source links
 
 This recovery does not import Apple Notes or modify the existing lecture notes. Source availability does not establish that the existing notes cover the same topics or use the same lecture numbering.
 
@@ -25,3 +28,5 @@ This recovery does not import Apple Notes or modify the existing lecture notes. 
 - [Week 6 goal-recognition handout](https://canvas.lms.unimelb.edu.au/courses/213743/files/24194263)
 - [Official RL notes (web)](https://comp90054.github.io/reinforcement-learning/)
 - [Official tutorial notebooks (linked from Canvas)](https://github.com/COMP90054/2025-S2-tutorials)
+
+All previously identified Canvas handout download failures have been resolved. This update archives sources only; it does not rewrite the existing AIP notes or verify them against the newly recovered files.

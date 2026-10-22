@@ -12,17 +12,17 @@ Check date: **2026-10-22**. The slides were recovered from Canvas on 2026-10-21 
 | 6 | L11–L12 | 2 (`w6l1-slides.pdf`, handwritten `w6l2-slides.pdf`) | not held locally | not held locally | LEC11-12 Finite Automata | [06](06-finite-automata.en.md) |
 | 7 | L13–L14 | 2 (`13.pdf`, `14.pdf`) | not held locally | not held locally | LEC13, LEC14 | [07](07-nfa-determinisation-minimisation.en.md), [08](08-regular-expressions.en.md) |
 | 8 | L15–L16 | 2 (handwritten `w8l1-slides.pdf`, `w8l2-slides.pdf`) | not held locally | not held locally | LEC15-16 Proving Non-regularity | [09](09-non-regularity.en.md) |
-| 9 | L17–L18 | 1 (`16.pdf`, actually L18); **L17 missing** | not held locally | not held locally | LEC17-18 Context-free Language & Pushdown Automaton | [10](10-cfl-pda.en.md) |
-| 10 | L19–L20 | 2 (handwritten `w10l1part1.pdf` and `Lecture 19 Part 2`, both L19); **L20 missing** | not held locally | not held locally | LEC19 Turing Machine, LEC20 Church-Turing Thesis | [10](10-cfl-pda.en.md), [11](11-turing-machines.en.md) |
+| 9 | L17–L18 | 2 (including the recovered Sipser PDF; `16.pdf` is L18); **L17 recovered as MIT OCW PDF; note integration pending** | not held locally | not held locally | LEC17-18 Context-free Language & Pushdown Automaton | [10](10-cfl-pda.en.md) |
+| 10 | L19–L20 | 3 (two parts of L19 plus the recovered L20); **L20 Canvas PDF recovered; note integration pending** | not held locally | not held locally | LEC19 Turing Machine, LEC20 Church-Turing Thesis | [10](10-cfl-pda.en.md), [11](11-turing-machines.en.md) |
 | 11 | L21–L22 | 2 (handwritten `w11l1.pdf`, `w11l2.pdf`) | not held locally | not held locally | LEC21-22 Universality of Turing Machines | [12](12-decidability-universality.en.md) |
 | 12 | L23–L24 | 2 (handwritten `w12l1.pdf`, `Lecture 24.pdf`) | not held locally | not held locally | LEC23-24 Identify Unrecognisable Problems, ★ Review | [13](13-unrecognisable-reductions.en.md) |
 
-There are **23 lecture PDFs** stored locally, covering 22 of the 24 lectures; 20 Apple Notes have been merged into the notes ("★3 Languages" spans notes 10, 12 and 13). The 13 notes use **242** selected slide screenshots, each with an explanation alongside.
+There are now **25 lecture PDFs** stored locally, with a source for all 24 lectures (L17 uses a MIT OCW PDF of the referenced Fall 2020 lecture); 20 Apple Notes have been merged into the notes ("★3 Languages" spans notes 10, 12 and 13). The 13 notes use **242** selected slide screenshots, each with an explanation alongside.
 
 ## Items that are incomplete or need to be kept apart
 
-- **Lecture 17 has no local slides**: the lecture used [Sipser's CFG/PDA slides (external PowerPoint)](https://math.mit.edu/~sipser/18404/Lectures%20Fall%202020/Lecture%204%20final.pptx), which were not downloaded. The grammar definitions in section 2 of [note 10](10-cfl-pda.en.md) rely on the student's notes and the review pages at the start of Lecture 18, and are marked as limited coverage.
-- **Lecture 20 has no local slides**: the [Canvas file](https://canvas.lms.unimelb.edu.au/courses/215477/files/25195591) can be listed and previewed, but the download repeatedly timed out. Section 6 of [note 11](11-turing-machines.en.md) (multi-tape TMs, nondeterministic TMs, encodings) relies only on the student's notes and could not be checked against the slides.
+- **Lecture 17 source recovered:** `lecture/Sipser-Lecture-4-CFG-PDA.pdf` is MIT OCW’s 13-page PDF of Michael Sipser’s Fall 2020 Lecture 4. The original PPTX link returns 404. Exact identity with that PPTX is unverified. Note 10 still awaits integration against this source.
+- **Lecture 20 original recovered:** `lecture/Lecture 20 - TM Variants and Decidable Languages.pdf` is the 16-page Semester 2 2025 Canvas file, recovered through Alternative formats → Download original. Note 11 section 6 has not yet been checked against it.
 - [Official companion notes and lecture schedule (web)](https://williamumboh.com/comp30026-2025/): the supplementary lecture-note module items link to William Umboh's course website; they are web resources, not missing PDF attachments, and were not mirrored in this pass.
 - No tutorials, workshops, solutions, recordings or transcripts are held locally, so the notes have no exercise map and no verifiable lecturer quotations.
 - File names that do not match content: the first page of `16.pdf` is Lecture 18; `w10l1part1.pdf` is the first half of Lecture 19, not Lecture 17; pages 1–54 of `05.pdf` are a review (filed under note 3) and predicate logic starts on pages 56–69 (filed under note 4).
@@ -45,3 +45,7 @@ There are **23 lecture PDFs** stored locally, covering 22 of the 24 lectures; 20
 - [Material inventory and checksums](materials.json)
 
 `lecture/` holds the lecture PDFs and `assets/` the selected screenshots; both are ignored by Git and exist only in this local checkout.
+
+### Source-recovery verification — 22 October 2026
+
+The two new PDFs passed `pdfinfo`, their first pages were rendered and inspected, and their hashes, byte counts, page counts and provenance were added to materials.json. The earlier all-page rendering checks above apply to the original 23 PDFs; the new documents have not yet been integrated into the 242 selected note screenshots.

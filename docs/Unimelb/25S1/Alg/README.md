@@ -16,3 +16,7 @@ The original filenames are retained. See [materials.json](materials.json) for ea
 ## Scope and remaining sources
 
 This recovery does not import Apple Notes or modify the existing lecture notes. Source availability does not establish that the existing notes cover the same topics or use the same lecture numbering.
+
+## Source recovery follow-up — 22 October 2026
+
+Nine extra tutorial PDFs for Weeks 3–11 and the original Week 12 PowerPoint were recovered through Alternative formats → Download original. The separate Week 12 PDF endpoint still failed, but its original slide deck is held locally. The inventory now contains 72 files. See materials.json and the repository recovery report for provenance.

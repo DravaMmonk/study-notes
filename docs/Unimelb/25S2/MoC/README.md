@@ -22,7 +22,7 @@
 - [资源完整性](RESOURCE-STATUS.md)：2026-10-22 核对，按讲次列出本地课件、Apple Notes 与尚未取得的资料。
 - [materials.json](materials.json)：每个文件的 Canvas 来源链接、SHA-256、大小、页数和首页摘录。
 
-2026 年 10 月 21 日恢复了第 1–16、18 讲，第 19 讲（两部分）以及第 21–24 讲的课件，原始文件名保持不变。第 17、20 讲没有本地课件：第 10 篇的文法部分和第 11 篇第 6 节依据 Apple Notes，标为覆盖有限。
+2026 年 10 月 21 日恢复了第 1–16、18 讲，第 19 讲（两部分）以及第 21–24 讲的课件，原始文件名保持不变。2026-10-22 已补回第 20 讲的 2025 年 Canvas 原件（16 页），并从 MIT OpenCourseWare 找到第 17 讲所引用的同课程、同年份 Lecture 4 PDF（13 页）；后者与已失效的 PowerPoint 尚未做逐字节比较。第 10 篇的文法部分和第 11 篇第 6 节仍待用新资料重新核对，当前“覆盖有限”指笔记整合状态，而非原文件缺失。
 
 讲义截图编号均指 **PDF 页码**，未必等于页脚印刷编号：L01–L14、L18 的课件是逐步展开的动画页，截图选每张幻灯片展开最完整的一页，页序远大于页脚编号；`w*.pdf` 与 L24 第 2–11 页是课堂手写板书，也选写完整的一页。一篇笔记只用一份 PDF 时文件名为 `slide-XX.png`，用多份 PDF 时为 `slide-<简称>-XX.png`（例如 `slide-l18-21.png`、`slide-w11l2-07.png`），图片说明里也带同样的简称。
 
@@ -39,10 +39,10 @@
 | L13 | NFA 确定化与最小化 | `lecture/13.pdf` | [07](07-nfa-determinisation-minimisation.md) |
 | L14 | 正则表达式 | `lecture/14.pdf` | [08](08-regular-expressions.md) |
 | L15–L16 | 证明不正则 | `lecture/w8l1-slides.pdf`、`w8l2-slides.pdf` | [09](09-non-regularity.md) |
-| L17 | CFG 与 PDA（Sipser 幻灯片） | 本地没有 | [10](10-cfl-pda.md)（依据 Apple Notes） |
+| L17 | CFG 与 PDA（Sipser 幻灯片） | `lecture/Sipser-Lecture-4-CFG-PDA.pdf`（MIT OCW PDF） | [10](10-cfl-pda.md)（依据 Apple Notes） |
 | L18 | 下推自动机 | `lecture/16.pdf` | [10](10-cfl-pda.md) |
 | L19 | 前半：收尾 CFL；后半：图灵机入门 | `lecture/w10l1part1.pdf`；`lecture/Lecture 19 Part 2 - Turing machines prelecture.pdf` | [10](10-cfl-pda.md)、[11](11-turing-machines.md) |
-| L20 | 丘奇–图灵论题 | 本地没有 | [11](11-turing-machines.md)（依据 Apple Notes，覆盖有限） |
+| L20 | 丘奇–图灵论题 | `lecture/Lecture 20 - TM Variants and Decidable Languages.pdf` | [11](11-turing-machines.md)（依据 Apple Notes，覆盖有限） |
 | L21–L22 | 通用图灵机；对角线；不可判定 | `lecture/w11l1.pdf`、`w11l2.pdf` | [12](12-decidability-universality.md) |
 | L23 | 归约；封闭性；不可识别问题 | `lecture/w12l1.pdf` | [13](13-unrecognisable-reductions.md) |
 | L24 | 收尾图灵机（Rice 定理、难解性）与全课复习 | `lecture/Lecture 24.pdf` | [13](13-unrecognisable-reductions.md) |
@@ -99,7 +99,7 @@
 
 | 本地目录 | 内容 |
 | --- | --- |
-| `lecture/` | 23 份讲义 PDF |
+| `lecture/` | 25 份讲义 PDF（含新补回的 L20 和 L17 的 MIT OCW PDF） |
 | `assets/<笔记名>/` | 从讲义 PDF 以 110 dpi 重新渲染、选入笔记的页面 PNG |
 | `materials.json` | 资料来源与校验记录 |
 

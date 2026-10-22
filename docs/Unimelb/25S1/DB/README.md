@@ -18,3 +18,7 @@ The original filenames are retained. See [materials.json](materials.json) for ea
 This recovery does not import Apple Notes or modify the existing lecture notes. Source availability does not establish that the existing notes cover the same topics or use the same lecture numbering.
 
 - [Week 3 tutorial solution](https://canvas.lms.unimelb.edu.au/courses/211571/files/21855441)
+
+## Source recovery follow-up — 22 October 2026
+
+The Week 3 tutorial solution was recovered through Alternative formats → Download original. The previously recorded download gap is resolved; the inventory now contains 48 files. See materials.json for the original file URL and integrity checks.

@@ -7,12 +7,216 @@
   "scope": "Downloaded source materials; notes not imported or expanded.",
   "files": [
     {
+      "file": "lecture/intro02-pre-handout-1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24194156",
+      "sha256": "997f1aeefe2fa0f58b6160413f308ce1f95e2e87dc69e57aeecc955ed6e5c05f",
+      "bytes": 410930,
+      "pages": 44,
+      "first_page_excerpt": "Basics Blind Systematic Search Heuristic Functions Informed Systematic Search Local Search Conclusion COMP90054 — AI Planning for Autonomy 2. Search Algorithms Basic Stuff You’re Gonna Need to Search for a Solution Where To Search Next? Nir Lipovetzky Semester 2, 2020 Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 2: Search Algorithms 1/50",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 2 page attachment labelled post-handout; original filename says pre-handout",
+      "download_name": "intro02-pre-handout-1.pdf"
+    },
+    {
+      "file": "lecture/intro03-pre-handout-1.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24194102",
+      "sha256": "e12208a2b2df3aad8eece7acb2fe9b562183fe22332ee3cf67e3de5c24406e42",
+      "bytes": 544161,
+      "pages": 41,
+      "first_page_excerpt": "Autonomous Behavior Models Languages Complexity Computational Approaches IPC Conclusion COMP90054 — AI Planning for Autonomy 3. Introduction to Planning How to Describe Arbitrary Search Problems Nir Lipovetzky Semester 2, 2020 Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 3: Introduction to Planning 1/48",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 3 page attachment labelled post-handout; original filename says pre-handout",
+      "download_name": "intro03-pre-handout-1.pdf"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/appendix.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/appendix.pdf",
+      "sha256": "da9778085b3df320fda7326cef7b8ba400827445e1de8b7bca06b11862216f36",
+      "bytes": 3526745,
+      "pages": 104,
+      "first_page_excerpt": "Appendix (Additional Examples & Reference Material) 1 / 104",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/appendix.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/approximation.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/approximation.pdf",
+      "sha256": "d0dca82a3bf5283ae6d3aea30a4408948de8289e82371525edc392c8271c5ac3",
+      "bytes": 1988638,
+      "pages": 12,
+      "first_page_excerpt": "09 Value Function Approximation (Deep RL) 1 / 12",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/approximation.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/deep_learning.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/deep_learning.pdf",
+      "sha256": "61c0e5e18e5beeec5f68d3de98e6ffeb5cfea9a866379bfabbff92f09808cae6",
+      "bytes": 7089719,
+      "pages": 31,
+      "first_page_excerpt": "11 Deep Learning & Tree Search AlphaGo, AlphaZero & MuZero (Advanced Topic) 1 / 31",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/deep_learning.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/heuristics.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/heuristics.pdf",
+      "sha256": "a26fe5c84c49a8b22966708ed0ed3c728334a7d2a5b2cdfd7316d0d563648253",
+      "bytes": 5943907,
+      "pages": 30,
+      "first_page_excerpt": "03 Heuristic Search 1 / 30",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/heuristics.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/introduction.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/introduction.pdf",
+      "sha256": "d9eedc978488909bcfe9598c16dd655776ba2c039408511a5cc7647ece88254a",
+      "bytes": 6018563,
+      "pages": 64,
+      "first_page_excerpt": "00 Introduction 1 / 64",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/introduction.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/mcts.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/mcts.pdf",
+      "sha256": "4749bd43b56bb70d7726469bd8e87d9ba62d441473ad363e61e49d24fff87e5c",
+      "bytes": 2022464,
+      "pages": 22,
+      "first_page_excerpt": "06 Model-based RL (Value Iteration & MCTS) 1 / 22",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/mcts.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/mdps.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/mdps.pdf",
+      "sha256": "8548c629a0b8811a55d44659325efa26645b3f880f11ed6c24e7e32e67269aec",
+      "bytes": 4954184,
+      "pages": 41,
+      "first_page_excerpt": "05 Markov Decision Processes (MDPs) 1 / 41",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/mdps.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/model_free_control.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/model_free_control.pdf",
+      "sha256": "ef136611d8eccddeac79034590e11bcbd7f55f7b22c9831117291ae2ac7199db",
+      "bytes": 884203,
+      "pages": 20,
+      "first_page_excerpt": "08 Model-Free Control (SARSA & QLearning) 1 / 20",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/model_free_control.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/model_free_prediction.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/model_free_prediction.pdf",
+      "sha256": "70f7897ee2303fbb64b58e62205426353b71a311d030987749bfc2a2f8b24f6a",
+      "bytes": 899157,
+      "pages": 22,
+      "first_page_excerpt": "07 Model-Free Prediction (Bandit Strategies + MC learning) 1 / 22",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/model_free_prediction.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/modelling.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/modelling.pdf",
+      "sha256": "8c24a283c0b23630344375226d04e1a892d0a15bf1b3d7e5f6f77d46cd63eb4a",
+      "bytes": 841322,
+      "pages": 54,
+      "first_page_excerpt": "01 Modelling: Markov Processes versus Classical Planning, STRIPS & PDDL 1 / 54",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/modelling.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/policy_gradient.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/policy_gradient.pdf",
+      "sha256": "7d2e7acd7a9e8a1c84fa516da681f4194722a506e551c39e05f4bd555f854857",
+      "bytes": 1392528,
+      "pages": 34,
+      "first_page_excerpt": "10 Policy Gradient (Actor Critic) 1 / 34",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/policy_gradient.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/relaxation.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/relaxation.pdf",
+      "sha256": "07dd11336b9cf8c0d33a2c5491d05d0feaf140d2e28f46b4d763952f2c9e9dee",
+      "bytes": 5412179,
+      "pages": 58,
+      "first_page_excerpt": "04 Delete Relaxation 1 / 58",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/relaxation.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/search.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/search.pdf",
+      "sha256": "165794e07ced3bf72d068f56f7cc593cbaef81215f783e390515561bbef43071",
+      "bytes": 1436973,
+      "pages": 79,
+      "first_page_excerpt": "02 Search Algorithms 1 / 79",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/search.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
+      "file": "lecture/official-site-2026-10-22/transformers.pdf",
+      "source": "https://comp90054.github.io/reinforcement-learning/pdfs/transformers.pdf",
+      "sha256": "77330843443ccf7a09feef9125fc9154cc2709b0ff34b6f1cc0b1d664cc950ba",
+      "bytes": 5454519,
+      "pages": 91,
+      "first_page_excerpt": "12 Planning & RL for Transformers (Advanced Topic) 1 / 91",
+      "recovered_on": "2026-10-22",
+      "source_page": "https://comp90054.github.io/reinforcement-learning/transformers.html",
+      "version_note": "Official website snapshot retrieved 2026-10-22; exact agreement with 2025 Canvas edition is unverified.",
+      "category": "current-official-supplement; not verified as 2025 original"
+    },
+    {
       "file": "lecture/pre-handout-1.pdf",
       "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24499995",
       "sha256": "f91c82cc1f9e47b0c0b52f1a74cd5396cde1c70b8380dc0b9d436b6cb212a8e6",
       "bytes": 1685041,
       "pages": 45,
       "first_page_excerpt": "Motivation Delete Relaxation Additive and Max Relaxed Plans Conclusion COMP90054 — AI Planning for Autonomy 5. Delete Relaxation Heuristics It’s a Long Way to the Goal, But How Long Exactly? Part I: Acting As If the World Can Only Get Better Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 5: Delete Relaxation Heuristics 1/50"
+    },
+    {
+      "file": "lecture/pre-handout-199c43de-00e0-44a9-b2e0-a8f173dc6694.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24194220",
+      "sha256": "0433eebe0d72df7db7609178b23cb1ad9de8890418d43088119eb6ed225892c0",
+      "bytes": 647322,
+      "pages": 19,
+      "first_page_excerpt": "Motivation How to Relax Informally How to Relax Formally How to Relax During Search Conclusion COMP90054 — AI Planning for Autonomy 4. Generating Heuristic Functions How to Relax: Formally, and Informally, and During Search Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 4: Generating Heuristic Functions 1/26",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 4 pre-handout",
+      "download_name": "pre-handout-199c43de-00e0-44a9-b2e0-a8f173dc6694.pdf"
     },
     {
       "file": "lecture/pre-handout-6.pdf",
@@ -31,6 +235,54 @@
       "first_page_excerpt": "Basics Blind Systematic Search Heuristic Functions Informed Systematic Search Local Search Conclusion COMP90054 — AI Planning for Autonomy 2. Search Algorithms Basic Stuff You’re Gonna Need to Search for a Solution Where To Search Next? Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 2: Search Algorithms 1/50"
     },
     {
+      "file": "lecture/pre-handout-a7014a87-6609-4776-a26e-7726ca628ddd.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24194105",
+      "sha256": "0aa1f0e580db8a01c15416e7e7f3066b10aced61a6e7fe21302b8c71dd6e4a33",
+      "bytes": 544137,
+      "pages": 41,
+      "first_page_excerpt": "Autonomous Behavior Models Languages Complexity Computational Approaches IPC Conclusion COMP90054 — AI Planning for Autonomy 3. Introduction to Planning How to Describe Arbitrary Search Problems Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 3: Introduction to Planning 1/48",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 3 pre-handout",
+      "download_name": "pre-handout-a7014a87-6609-4776-a26e-7726ca628ddd.pdf"
+    },
+    {
+      "file": "lecture/pre-handout-bc8d5651-c996-4995-977d-98e7cbca4128.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24194263",
+      "sha256": "0c940f35b03ae592f7e870956a3da47e5476aa82918d83d663908ec53328513d",
+      "bytes": 2022062,
+      "pages": 22,
+      "first_page_excerpt": "Folk Psychology Reverse-Engineering Common Sense Model-Based Approach COMP90054 — AI Planning for Autonomy 1. Plan & Goal Recognition Contents of the Lecture Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 1: Plan & Goal Recognition 1/25",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 6 goal-recognition handout",
+      "download_name": "pre-handout-bc8d5651-c996-4995-977d-98e7cbca4128.pdf"
+    },
+    {
+      "file": "lecture/pre-handout-ed7430b8-74c2-41e8-91d6-c5135f157335.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24194264",
+      "sha256": "561fae3d78cfe907d4f7bad2647440d3d41314ee6f7d82522004251d6dfc5053",
+      "bytes": 1615925,
+      "pages": 45,
+      "first_page_excerpt": "Motivation Delete Relaxation Additive and Max Relaxed Plans Conclusion COMP90054 — AI Planning for Autonomy 5. Delete Relaxation Heuristics It’s a Long Way to the Goal, But How Long Exactly? Part I: Acting As If the World Can Only Get Better Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 5: Delete Relaxation Heuristics 1/50",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 6 attachment labelled intro05-pre-handout.pdf",
+      "download_name": "pre-handout-ed7430b8-74c2-41e8-91d6-c5135f157335.pdf"
+    },
+    {
+      "file": "lecture/pre-handout-f060baca-96ac-4be6-9550-e379f7aa09b7.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24194095",
+      "sha256": "d398c7c6a0ac002c4cd258c3f18dce39f5dfeb49b613f59297aea68fe674f325",
+      "bytes": 10768648,
+      "pages": 36,
+      "first_page_excerpt": "Width-Based Search Balancing Exploration and Exploitation Models and Simulators Classical Planning with Simulators Conclusion COMP90054 — AI Planning for Autonomy 5. Width Based Planning Searching for Novelty and How to Plan with Simulators Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky COMP90054 — AI Planning for Autonomy Chapter 5: Width Based Planning 1/41",
+      "recovered_on": "2026-10-22",
+      "acquisition_method": "Canvas Alternative formats > Download original",
+      "canvas_label": "Week 6 width-search handout",
+      "download_name": "pre-handout-f060baca-96ac-4be6-9550-e379f7aa09b7.pdf"
+    },
+    {
       "file": "lecture/slides-2.pdf",
       "source": "https://canvas.lms.unimelb.edu.au/courses/213743/files/24296966",
       "sha256": "35de4bf1f40d7ee03f234766a618638e6dd6b940de1731c159b34dfc4a95b56f",
@@ -38,5 +290,6 @@
       "pages": 40,
       "first_page_excerpt": "AI Planning for Autonomy 1. Short Introduction to Automated (AI) Planning Nir Lipovetzky Copyright, University of Melbourne Nir Lipovetzky AI Planning for Autonomy"
     }
-  ]
+  ],
+  "last_updated": "2026-10-22"
 }
