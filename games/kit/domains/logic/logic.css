@@ -118,3 +118,8 @@
 .lg-rows tbody tr.is-on { background: var(--hover, rgba(0,0,0,.05)); }
 .lg-rows tbody tr.is-pass td:last-child { color: var(--status); }
 .lg-rows tbody tr.is-fail td:last-child { color: var(--fail); }
+
+/* The deduction theorem's intros: a stretch of reasoning under an assumption beside its rewrite. */
+.lg-dt { border-collapse: collapse; margin: 8px 0 2px; font-size: 13px; line-height: 1.45; width: 100%; }
+.lg-dt th, .lg-dt td { padding: 4px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.lg-dt th { color: var(--muted); font-weight: 500; }

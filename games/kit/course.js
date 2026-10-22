@@ -18,6 +18,7 @@
 //
 // eras: [{ id, title?, machine?, keeps?: 'all' | [part], foundation: [item], practice?: [item], topics?: [{ id, title?,
 //          levels: [level id], after?, requires? }], challenges?: [{ level, after? }] }]
+// A branch's `after` is a level, or several when it needs the ends of a parallel set's branches but not the rest.
 // Within an era every part, once met, is in every later level of it. Between eras it is the era's call, and every era
 // after the first must make it (audit `era-keeps`): keeps: 'all' when it carries on from the eras before it (the same
 // machine extended or upgraded), keeps: [part…] when it changes topic and takes only those parts across ([] for none).
@@ -125,7 +126,7 @@ export function layout(eras) {
     const hang = (after, branch) => (at.get(after) ?? track.at(-1) ?? track[0])?.branches.push(branch)
     for (const topic of era.topics ?? []) {
       const finales = (topic.requires ?? []).map((t) => era.topics.find((x) => x.id === t)?.levels.at(-1)).filter(Boolean)
-      const after = topic.after ? [topic.after] : ends
+      const after = topic.after ? [topic.after].flat() : ends
       topic.levels.forEach((id, k) => {
         const last = k === topic.levels.length - 1
         place.set(id, { era: era.id, role: last ? 'finale' : k ? 'step' : 'intro', topic: topic.id, after: after.at(-1) })
@@ -134,7 +135,7 @@ export function layout(eras) {
       hang(after.at(-1), { kind: 'topic', id: topic.id, title: topic.title, levels: topic.levels, after })
     }
     for (const c of era.challenges ?? []) {
-      const after = c.after ? [c.after] : ends
+      const after = c.after ? [c.after].flat() : ends
       place.set(c.level, { era: era.id, role: 'challenge', after: after.at(-1) })
       requires.set(c.level, [...after])
       hang(after.at(-1), { kind: 'challenge', id: c.level, levels: [c.level], after })
