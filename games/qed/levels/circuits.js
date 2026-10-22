@@ -149,6 +149,26 @@ export const circuits = [
     after: T('「a 和 b 不都是骑士」有两种译法：照字面是「非（a 是骑士 与 b 是骑士）」，换个说法是「（非 a 是骑士）或（非 b 是骑士）」。两块电路每一行都一样：三行为真，只有两人都是骑士那一行为假。要是译成「（非 a 是骑士）与（非 b 是骑士）」，说的就成了「两个都不是骑士」，只有一行为真。', '“a and b are not both knights” has two translations: word for word, “not (a is a knight and b is a knight)”; said another way, “(not a is a knight) or (not b is a knight)”. The two boards agree on every row: three rows true, only the row where both are knights false. Translated as “(not a is a knight) and (not b is a knight)”, it would say “neither is a knight”, true on one row only.'),
   },
   {
+    id: 'e-says',
+    kind: 'gates',
+    title: T('a 说的话', 'What a says'),
+    target: 'KA ↔ KB',
+    blind: true,
+    brief: T('a 说：「b 是骑士。」把「a 说」翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'a says: “b is a knight.” Translate “a says” into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
+    intro: [
+      { t: T('岛上的人要么是<b>骑士</b>，只说真话；要么是<b>无赖</b>，只说假话。', 'Everyone on the island is a <b>knight</b>, who only tells the truth, or a <b>knave</b>, who only lies.') },
+      { t: T('「a 说 X」说的是：a 是骑士，X 就是真的；a 不是骑士，X 就是假的。也就是「a 是骑士」和 X <b>同真同假</b>。', '“a says X” means: if a is a knight, X is true; if a is not a knight, X is false. That is, “a is a knight” and X are <b>true together and false together</b>.') },
+      { t: T('「同真同假」怎样译成门？想一想「两个方向都对」那一关。', 'How does “true together, false together” become gates? Think back to the level “Both ways round”.') },
+    ],
+    hint: [
+      T('「a 是骑士，b 就是骑士」是一个方向：如果 a 是骑士，那么 b 是骑士。', '“If a is a knight, b is a knight” is one direction: if a is a knight, then b is a knight.'),
+      T('另一个方向管的是 a 不是骑士的时候：那时 b 也不能是骑士，也就是：如果 b 是骑士，那么 a 是骑士。', 'The other direction covers a not being a knight: then b cannot be one either, that is: if b is a knight, then a is a knight.'),
+    ],
+    solution: board('KA ↔ KB', { i1: 'gImp', i2: 'gImp', a: 'gAnd' }, ['KA>i1.a', 'KB>i1.b', 'KB>i2.a', 'KA>i2.b', 'i1>a.a', 'i2>a.b', 'a>out']),
+    naive: board('KA ↔ KB', { i: 'gImp' }, ['KA>i.a', 'KB>i.b', 'i>out']),
+    after: T('「a 说 X」译成：（如果 a 是骑士，那么 X）与（如果 X，那么 a 是骑士）。只译一个方向，a 是无赖、b 却是骑士的那一行就漏判成了真。真的有两行：两人都是骑士，或者都是无赖。一句话还定不下答案。', '“a says X” translates to: (if a is a knight, then X) and (if X, then a is a knight). Translate only one direction and the row where a is a knave but b a knight is wrongly true. Two rows are true: both knights, or both knaves. One sentence is not enough to settle it.'),
+  },
+  {
     id: 'e-one',
     kind: 'gates',
     title: T('一个人说话', 'One islander speaks'),
@@ -156,8 +176,7 @@ export const circuits = [
     blind: true,
     brief: T('a 说：「我们俩里至少有一个是无赖。」把这件事翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'a says: “At least one of us two is a knave.” Translate this into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
     intro: [
-      { t: T('岛上的人要么是<b>骑士</b>，只说真话；要么是<b>无赖</b>，只说假话。', 'Everyone on the island is a <b>knight</b>, who only tells the truth, or a <b>knave</b>, who only lies.') },
-      { t: T('这一关有两个新说法要翻译。「a 是无赖」就是：非（a 是骑士）。「a 说 X」说的是：a 是骑士，X 就是真的；a 是无赖，X 就是假的。也就是「a 是骑士」和 X <b>同真同假</b>，可以译成：（如果 a 是骑士，那么 X）与（如果 X，那么 a 是骑士）。', 'Two new phrases to translate here. “a is a knave” is: not (a is a knight). “a says X” means: if a is a knight, X is true; if a is a knave, X is false. So “a is a knight” and X are <b>true together and false together</b>, which translates to: (if a is a knight, then X) and (if X, then a is a knight).') },
+      { t: T('这一关有一个新说法要翻译：「a 是无赖」就是：非（a 是骑士）。「a 说」照「a 说的话」那一关来译。', 'One new phrase to translate here: “a is a knave” is: not (a is a knight). Translate “a says” as in the level “What a says”.') },
     ],
     hint: [
       T('先翻译 a 的话：「至少有一个是无赖」是「（非 a 是骑士）或（非 b 是骑士）」。', 'Translate what a says first: “at least one is a knave” is “(not a is a knight) or (not b is a knight)”.'),

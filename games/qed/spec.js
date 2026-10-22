@@ -25,6 +25,8 @@ export default {
     { grant: ['copy', 'lemma:gImp'] },
   ] },
   // Version 3 put a translation level before the islanders' first puzzle.
-  { version: 3, ops: [{ solve: ['e-one', ['e-words']] }] }],
+  { version: 3, ops: [{ solve: ['e-one', ['e-words']] }] },
+  // Version 4 put a level on translating “a says X” before it.
+  { version: 4, ops: [{ solve: ['e-one', ['e-says']] }] }],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }
