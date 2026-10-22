@@ -51,7 +51,7 @@ export const era1 = [
     ],
     intro: [
       { t: T('下雨就地湿，地湿就路滑；现在下雨了。不用想也知道：路滑。可这里有两步，每一步都是同一个动作：有了「如果…那么…」和它的前一半，就有后一半。证明核要把这个动作变成一条规则，才能照着做。', 'Rain makes the ground wet, a wet ground makes the road slippery, and it is raining. Without thinking: the road is slippery. That took two steps, each the same move: from an “if … then …” and its “if” part, its “then” part. The kernel needs that move as a rule it can follow.') },
-      { t: T('<b>分离</b>：一个输入口接「如果…，那么…」，另一个接它的前一半，输出口给出后一半。它用掉一句「如果…那么…」，是证明核的两块基础元件之一；另一块是假设框，它造出一句。', '<b>Detach</b>: one input takes an “if …, then …”, the other its “if” part, and out comes the “then” part. It uses an “if … then …” up, and is one of the kernel’s two parts; the other, the assumption box, makes one.') },
+      { t: T('<b>分离</b>：一个输入口接「如果…，那么…」，另一个接它的前一半，输出口给出后一半。它用掉一句「如果…那么…」，是证明核的基础元件。', '<b>Detach</b>: one input takes an “if …, then …”, the other its “if” part, and out comes the “then” part. It uses an “if … then …” up, and is one of the kernel’s parts.') },
       { t: T('从上面的元件栏放分离，把已知接进去，最后接到目标。接错了，卡片会说它要什么、接进来的是什么。换一组测试看看：电路不用动，句子全换了。', 'Place Detaches from the row of parts above, wire the givens in, and finally wire to the goal. Wire it wrong and the card says what it wanted and what it got. Switch tests: the circuit stays, every sentence changes.') },
     ],
     solution: proof({ m1: ['mp'], m2: ['mp'] }, ['p>m1.imp', 'r>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p', 'q', 'r'] }),
@@ -72,7 +72,7 @@ export const era1 = [
       T('把框左上角「假设」的圆点，连到框右上角「结论」的圆点；再把框的输出接到目标。', 'Wire the “Assume” dot at the box’s top left to the “Conclusion” dot at its top right; then wire the box’s output to the goal.'),
     ],
     intro: [
-      { t: T('分离用掉一句「如果…那么…」。证明核的另一块基础元件<b>假设框</b>造出一句：在框卡片上选要假设的话，框左上角就给出它（「假设」）；在框里证出的东西接到框右上角的「结论」，框外就得到「如果 假设，那么 结论」。', 'Detach uses an “if … then …” up. The kernel’s other part, the <b>assumption box</b>, makes one: choose on the box card what to assume, and its top left gives it (“Assume”); wire what you prove inside to “Conclusion” at its top right, and outside you get “if the assumption, then the conclusion”.') },
+      { t: T('<level-ref to="copy"></level-ref>里，要证的那句话是已知，直接接过去就行。这一关什么都没给，要证的又是一句「如果…那么…」。证明核的基础元件<b>假设框</b>专门造这种句子：在框卡片上选要假设的话，框左上角就给出它（「假设」）；在框里证出的东西接到框右上角的「结论」，框外就得到「如果 假设，那么 结论」。', 'In <level-ref to="copy"></level-ref> the sentence to prove was given, and a wire did it. Here nothing is given, and the sentence to prove is an “if … then …”. The kernel’s part the <b>assumption box</b> makes exactly such sentences: choose on the box card what to assume, and its top left gives it (“Assume”); wire what you prove inside to “Conclusion” at its top right, and outside you get “if the assumption, then the conclusion”.') },
       { t: T('<b>假设</b>不是说它真的成立，而是推理时暂时把它当作出发点；框一关，它就成了结论里「如果」后面那半句。', 'An <b>assumption</b> does not claim it holds: it is a starting point taken for the moment, and once the box closes it becomes the “if” half of the conclusion.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }] }, ['f#body>f.body', 'f>goal']),
@@ -94,7 +94,7 @@ export const era1 = [
       { t: T('框里可以再放框，里面的框看得见外面框的假设。', 'A box can sit inside a box, and the inner one sees the outer one’s assumption.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'] }, ['f#body>g.body', 'g>f.body', 'f>goal']),
-    after: T('2 步，一次分离都没用。「刮风」的假设一直没用上，框照样关得上。证出来以后，这块电路是元件 <b>K</b>：卡片上选两句话，它直接给出「如果 第一句，那么（如果 第二句，那么 第一句）」。只有公理、没有框的证明器，只能把 K 当成不用证的出发点。', 'Two steps, not one Detach. The “it is windy” assumption was never used, and the box closes all the same. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its card and it gives “if the first, then (if the second, then the first)”. A prover with axioms and no box can only take K as a starting point that needs no proof.'),
+    after: T('2 步，两个框，别的元件一块没用。「刮风」的假设一直没用上，框照样关得上。证出来以后，这块电路是元件 <b>K</b>：卡片上选两句话，它直接给出「如果 第一句，那么（如果 第二句，那么 第一句）」。只有公理、没有框的证明器，只能把 K 当成不用证的出发点。', 'Two steps, two boxes and no other part. The “it is windy” assumption was never used, and the box closes all the same. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its card and it gives “if the first, then (if the second, then the first)”. A prover with axioms and no box can only take K as a starting point that needs no proof.'),
   },
   {
     id: 'box',

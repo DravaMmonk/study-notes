@@ -5,7 +5,7 @@
 // Every letter a level shows has its everyday sentence, and every proof level comes as test cases (course.js). No proof
 // level is one use of a lemma it carries away from done. A truth circuit's reference board gives its sentence on every
 // row, its naive one does not (or breaks its gate budget), and a gate it builds computes exactly that sentence. A
-// proof that holds parts back (`without`) does not use them.
+// proof that holds parts back (`without`) does not use them, and no reference answer uses a part its level cannot have.
 import { reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel, withHidden } from '../../engine/tests.js'
@@ -58,6 +58,9 @@ export function validate({ levels, course }) {
       const gives = (t) => lemmaGives(level.lemmas[p], Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }))
       if (level.tests.every(gives)) out.push({ fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
     }
+    const held = course && new Set([...reach(course, { id: level.id }), 'premise', 'goal'])
+    const missing = held ? [...new Set(level.solution.nodes.map((n) => n.type).filter((t) => !held.has(t)))] : []
+    if (missing.length) out.push({ fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
     const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
     if (banned.length) out.push({ fail: true, text: `${level.id}: the solution uses ${banned.join(', ')}, which the level holds back` })
     const good = runLevel(LOGIC_TESTS, level, level.solution)

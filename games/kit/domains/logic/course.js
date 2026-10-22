@@ -1,12 +1,15 @@
 // A course of logic levels, from a game's spec (《证明完毕》): the play order and the tree from its eras
 // (../../course.js layout), each level's number and the parts it can really offer, and the lemmas its levels build
 // (proof.js lemma): a level with `builds: '<type>'` makes the lemma spec.lemmas[type] a part once solved.
-import { defineCourse, eraLevels, layout, offer, pathLevels, usable } from '../../course.js'
+import { defineCourse, eraLevels, layout, numbered, offer, usable } from '../../course.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { say } from './notation.js'
 
 // Every rule a proof uses, in the boxes too.
 const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
+// How hard a level is, for its number: the steps (or gates) of its reference answer; a truth table counts as a short
+// proof.
+const ease = (level) => (level.solution ? level.solution.nodes.filter((n) => !['premise', 'goal', 'letter', 'out'].includes(n.type)).length : 2)
 
 /**
  * spec: {
@@ -60,10 +63,11 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))
-  // A level's number: on an era's main path the era and its place ('1-4'), in a topic its code and place ('D2'), C1 …
+  // A level's number: on an era's main path the era and its place by difficulty ('1-4', numbered), in a topic its
+  // code and place ('D2'), C1 …
   // for the era's challenges.
   const LABELS = new Map(eras.flatMap((era, e) => [
-    ...pathLevels([...era.foundation, ...(era.practice ?? [])]).map((id, k) => [id, `${e}-${k + 1}`]),
+    ...numbered([...era.foundation, ...(era.practice ?? [])], plan.requires, (id) => ease(given.get(id))).map((id, k) => [id, `${e}-${k + 1}`]),
     ...(era.topics ?? []).flatMap((t) => t.levels.map((id, k) => [id, `${t.code}${k + 1}`])),
     ...(era.challenges ?? []).map((c, k) => [c.level, `C${e}.${k + 1}`]),
   ]))

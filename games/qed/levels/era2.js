@@ -147,7 +147,7 @@ export const era2 = [
     hiddenCases: [{ A: 'Sat', B: 'Sun' }],
     brief: T('已知「我坐公交 ∨ 我骑车」，证出「我骑车 ∨ 我坐公交」。', 'Given “I take the bus ∨ I cycle”, prove “I cycle ∨ I take the bus”.'),
     hint: [T('不知道是哪一边，就分情况。每种情况里，用引入 ∨ 换到对的位置。', 'Not knowing which side, split into cases. In each, Bring in ∨ puts it in the right place.')],
-    intro: [{ t: T('∧ 换顺序只要先拆后拼。∨ 拆不开：得分情况。', 'Swapping an ∧ was split, then join. An ∨ will not split: it takes cases.') }],
+    intro: [{ t: T('一句 ∨ 拆不开：不知道是哪一边成立，就得分情况。', 'An ∨ will not split: not knowing which side holds, it takes cases.') }],
     solution: proof({ e: ['orE'], l: ['orI', { other: 'B', side: 'left' }, 'e/left'], r: ['orI', { other: 'A', side: 'right' }, 'e/right'] }, ['p>e.ab', 'e#left>l.a', 'l>e.left', 'e#right>r.a', 'r>e.right', 'e>goal'], { premises: ['p'] }),
     after: T('用掉一个 ∨ 要分情况，造出一个 ∨ 要选一边：两件事在一关里都用上了。', 'Using an ∨ takes cases, making one takes a side: this level did both.'),
   },

@@ -83,6 +83,25 @@ export const ROLES = ['foundation', 'practice', 'intro', 'step', 'finale', 'chal
 
 /** The level ids of a main path's items, branches flattened in order. */
 export const pathLevels = (items) => items.flatMap((item) => (typeof item === 'string' ? [item] : item.parallel.flatMap((b) => b.levels)))
+/**
+ * A main path's levels in the order they are numbered: every level after the levels it requires (`requires`, from
+ * layout), and among the levels open at each point the easiest first (`ease(id)`, smaller is easier), ties in the
+ * order written. Branches of a parallel set interleave by difficulty, and no level is numbered before one it needs.
+ */
+export function numbered(items, requires, ease) {
+  const ids = pathLevels(items)
+  const on = new Set(ids)
+  const done = new Set()
+  const out = []
+  while (out.length < ids.length) {
+    const open = ids.filter((id) => !done.has(id) && (requires.get(id) ?? []).every((r) => !on.has(r) || done.has(r)))
+    const next = open.reduce((best, id) => (ease(id) < ease(best) ? id : best))
+    done.add(next)
+    out.push(next)
+  }
+  return out
+}
+
 /** Every level of an era: its main path, then its topics and challenges. */
 export const eraLevels = (era) => [...pathLevels([...era.foundation, ...(era.practice ?? [])]), ...(era.topics ?? []).flatMap((t) => t.levels), ...(era.challenges ?? []).map((c) => c.level)]
 

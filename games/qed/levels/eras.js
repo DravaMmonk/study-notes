@@ -47,9 +47,9 @@ export const ERAS = [
     // Chain and Merge together, harder each time, then a false lookalike of Chain.
     practice: ['mergeUse', 'mergeLong', 'mergeBoth', 'wrongChain'],
     // Without the box (x-…): K, S and Detach alone, the way a prover with only axioms works, each right after the level
-    // that does the same with a box (Identity, done with a box in 'assume', waits for S in 's'), the last compiling
-    // the box of Chain away.
-    challenges: [{ level: 'hs', after: 'swap' }, { level: 'x-k', after: 'k' }, { level: 'x-self', after: 's' }, { level: 'x-chain', after: 'chain' }],
+    // that does the same with a box, or as soon as the parts it needs are in hand: x-k needs Detach as well as K (so
+    // after 'box', where both lines meet), x-self needs S; the last compiles the box of Chain away.
+    challenges: [{ level: 'hs', after: 'swap' }, { level: 'x-k', after: 'box' }, { level: 'x-self', after: 's' }, { level: 'x-chain', after: 'chain' }],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠分离和假设框，能证出什么？', 'What can Detach and the assumption box prove?') },
   },
   {
