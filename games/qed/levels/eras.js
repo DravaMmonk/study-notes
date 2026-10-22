@@ -36,13 +36,12 @@ export const ERAS = [
       series('detach', '分离', 'Detach', ['copy', 'mp', 'pick', 'nested', 'cond']),
       // K and S need nothing from each other; what joins them waits for both.
       branches(['k', '公理 K', 'Axiom K', ['k', 'k2', 'kmp']], ['s', '公理 S', 'Axiom S', ['s', 's2']]),
-      // Chain and Identity both need only K and S, not each other.
-      branches(['chain', '串联', 'Chain', ['chain']], ['identity', '恒等', 'Identity', ['short', 'self']]),
+      // Chain and Identity both need only K and S, not each other. Chain is practised and grows into Swap on its own
+      // line; Identity grows into Merge on the other.
+      branches(['chain', '串联', 'Chain', ['chain', 'long', 'swap', 'swapUse']], ['identity', '恒等', 'Identity', ['short', 'self', 'twice']]),
     ],
-    practice: [
-      branches(['swap', '交换', 'Swap', ['long', 'swap', 'swapUse']], ['merge', '合并', 'Merge', ['twice', 'mergeUse']]),
-      'wrongChain',
-    ],
+    // Chain and Merge together, then a false lookalike of Chain.
+    practice: ['mergeUse', 'wrongChain'],
     topics: [{ id: 'deduction', code: 'D', after: 'self', levels: ['dt-mp', 'dt-whole'], title: T('演绎定理', 'The deduction theorem') }],
     challenges: [{ level: 'hs', after: 'swap' }],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠一条规则和两条公理，能证出什么？', 'What can one rule and two axioms prove?') },
