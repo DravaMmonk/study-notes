@@ -51,7 +51,9 @@ export default {
   // its second level), and dropped 啰嗦的规定 and 串联本身, which the box makes too easy.
   { version: 11, ops: [{ rename: { s2: 'x-s', thrice: null, hs: null } }] },
   // Version 12 dropped 一长串 and 先换，再套用.
-  { version: 12, ops: [{ rename: { long: null, swapUse: null } }] }],
+  { version: 12, ops: [{ rename: { long: null, swapUse: null } }] },
+  // Version 13 dropped 接反了.
+  { version: 13, ops: [{ rename: { wrongChain: null } }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },

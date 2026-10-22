@@ -288,20 +288,6 @@ export const era1 = [
     solution: proof({ g1: ['merge'], w: ['swap'], c: ['chain'], g2: ['merge'] }, ['p>g1.p0', 'q>w.p0', 'g1>c.p0', 'w>c.p1', 'c>g2.p0', 'g2>goal'], { premises: ['p', 'q'] }),
     after: T('4 步：合并第一句；交换第二句，让它以「地湿」开头；两句首尾相接，串联；接出来又说了两遍「下雨」，再合并。（也可以合并第一句以后，用 S 在条件「下雨」下套用。）', 'Four steps: Merge the first; Swap the second so it starts with “the ground is wet”; now they meet end to end, so Chain; the result says “it rains” twice, so Merge again. (Or, after merging the first, apply under the condition “it rains” with S.)'),
   },
-  {
-    id: 'wrongChain',
-    kind: 'truth',
-    title: T('接反了', 'Joined the wrong way'),
-    ask: 'counter',
-    formulas: ['(Rain → Wet) → ((Rain → Slip) → (Wet → Slip))'],
-    brief: T('「(下雨 → 地湿) → ((下雨 → 路滑) → (地湿 → 路滑))」看着像串联。证明核证得出它吗？找出让它为假的一行。', '“(it rains → the ground is wet) → ((it rains → the road is slippery) → (the ground is wet → the road is slippery))” looks like Chain. Can the kernel prove it? Find a row that makes it false.'),
-    hint: [
-      T('最外面要假，「地湿 → 路滑」得是假的：地湿了，路却不滑。', 'For the whole to be false, “the ground is wet → the road is slippery” must be false: wet ground, yet no slippery road.'),
-      T('前两句还得是真的。没下雨的时候，它们都说不上错。', 'The first two must still be true. When it does not rain, neither of them is wrong.'),
-    ],
-    intro: [{ t: T('三句话、三个「如果…那么…」，摆法和串联只差一点。要证之前，先想想它对不对：一句不是永远成立的话，用什么元件都证不出来，一行反例就够说明。', 'Three sentences, three “if … then …”s, laid out almost like Chain. Before proving it, ask whether it is true: a sentence that does not always hold cannot be proved with any parts, and one row says so.') }],
-    after: T('没下雨、地湿、路不滑（洒水车刚过，路面防滑）：前两句都对，最后一句错。两段要首尾相接，串联才成立；这里「下雨」在两段的开头，接不起来。动手证之前先找反例，能省下很多力气。', 'No rain, wet ground, no slippery road (a sweeper went by, on a non-slip surface): the first two hold, the last fails. Chain needs the two pieces to meet end to end; here “it rains” starts both, and they do not join. Looking for a counterexample before proving saves a lot of work.'),
-  },
   // The topic without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time.
   {
     id: 'x-k',

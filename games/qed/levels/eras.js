@@ -44,8 +44,8 @@ export const ERAS = [
       // on its own line; Merge is practised on the other.
       branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
     ],
-    // Chain and Merge together, harder each time, then a false lookalike of Chain.
-    practice: ['mergeUse', 'mergeLong', 'mergeBoth', 'wrongChain'],
+    // Chain and Merge together, harder each time.
+    practice: ['mergeUse', 'mergeLong', 'mergeBoth'],
     // Without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time, once K and S
     // are both in hand; it ends on compiling a box away (the deduction theorem).
     topics: [{ id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k', 'x-s', 'x-self', 'x-chain'], title: T('拆掉框', 'Without the box') }],
