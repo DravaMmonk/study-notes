@@ -163,7 +163,7 @@ export const GLOSSARY = [
     see: ['base', 'dp', 'board'],
   },
   {
-    id: 'base', group: 'basics', title: { zh: '边界与起点', en: 'Base cases' }, at: 'origin',
+    id: 'base', group: 'basics', title: { zh: '边界与起点', en: 'Base cases' }, at: 'stamp',
     body: [
       { zh: '规则总要从某处开始。像起点这样不用再拆的小问题，答案是直接定下的，叫<b>边界条件</b>：比如站在起点，算 1 条路线。', en: 'A rule has to start somewhere. Small problems that need no further breaking down, like the start, have answers that are simply given; these are the <b>base cases</b>. Standing at the start, for instance, counts as 1 route.' },
       { zh: '表的边上，有的来路落在表外，那里没有路，用「—」表示。规则要能对付这些「—」，边上的格子才不会算错。', en: 'Along the edges of the table, some ways in fall outside it; there is no road there, and that shows as “—”. The rule has to cope with these “—”s, or the edge cells come out wrong.' },

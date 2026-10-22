@@ -5,6 +5,7 @@
 //   { fields: { old field: new field } }     the save's own fields move (a field missing on the save is left alone)
 //   { grant: [level id, flag] }              a flag for whoever solved that level
 //   { solve: [level id, [level id…]] }       levels counted solved for whoever solved that one
+//   { data: (value, level id) → value }      every level's kept state rewritten (a part renamed or gone from boards)
 //
 // migrations(steps) gives the shell's { version, migrate } (progress.js): version is the newest step's.
 
@@ -32,6 +33,7 @@ const OPS = {
     return out
   },
   grant: (save, [level, flag]) => ((save.solved ?? []).includes(level) && !(save.flags ?? []).includes(flag) ? { ...save, flags: [...(save.flags ?? []), flag] } : save),
+  data: (save, f) => (save.data ? { ...save, data: Object.fromEntries(Object.entries(save.data).map(([id, value]) => [id, f(value, id)])) } : save),
   solve: (save, [level, ids]) => ((save.solved ?? []).includes(level) ? { ...save, solved: [...new Set([...save.solved, ...ids])] } : save),
 }
 

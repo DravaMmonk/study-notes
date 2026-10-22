@@ -4,6 +4,23 @@ import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import { ERAS } from './levels/eras.js'
 import { CHAPTERS, LEVELS, TABLE, course } from './levels/index.js'
 
+/**
+ * Boards saved before version 2: 认出起点 (origin) is gone, its Start Value part with it, and the Cheapest Cell is built
+ * by 走不到的路口 (slantcost) instead of 最省力. A Start Value comes off a board with its wires; whoever solved 最省力
+ * has met the adder and built the Cheapest Cell already.
+ */
+const rebuilt = (board) => {
+  const gone = new Set(board.nodes.filter((n) => n.kind === 'bp:origin').map((n) => n.id))
+  return {
+    ...board,
+    nodes: board.nodes.filter((n) => !gone.has(n.id)).map((n) => (n.kind === 'bp:cheapest' ? { ...n, kind: 'bp:slantcost' } : n)),
+    wires: board.wires.filter((w) => !gone.has(w.from.split('#')[0]) && !gone.has(w.to.split(':')[0])),
+  }
+}
+const SAVES = [
+  { version: 2, ops: [{ rename: { origin: null } }, { solve: ['cheapest', ['slantcost']] }, { data: (value) => (value && value.circs ? { ...value, circs: value.circs.map(rebuilt) } : value) }] },
+]
+
 export default {
   id: 'state-graph',
   domain: 'table',
@@ -14,11 +31,12 @@ export default {
   table: TABLE,
   levels: LEVELS,
   course,
-  // The course audit's own rule for this game: each topic's finale board solves the topic's earlier levels.
-  audit: TABLE.topicProblems,
+  // The table's own rules for the course audit: carried boards, and each topic's finale solving its earlier levels.
+  audit: TABLE.problems,
   glossary: { groups: GLOSSARY_GROUPS, entries: GLOSSARY },
   // Saves from before the shared shell.
   legacyKey: 'state-graph-v2',
+  saves: SAVES,
   // Parts that are an idea rather than a board are tried on the board of the level that puts the idea to work.
   borrow: { back: 'cheapest', memo: 'stairs', topdown: 'stairs', seam: 'seam' },
   texts: { chapters: CHAPTERS, glossary: GLOSSARY },

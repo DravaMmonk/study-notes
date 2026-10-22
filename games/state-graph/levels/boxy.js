@@ -55,7 +55,7 @@ export const boxy = [
       { R: 3, C: 4, costs: [[2, 1, 1, 3], [1, 6, 2, 1], [4, 1, 2, 1]], rocks: [[0, 2], [2, 1]] },
       { R: 4, C: 4, costs: [[1, 2, 2, 1], [3, 1, 4, 2], [1, 5, 1, 3], [2, 1, 2, 1]], rocks: [[1, 1], [2, 3]] },
     ],
-    solution: circ([['c', 'bp:cheapest'], ['b', 'block']], ['tap:up>c:0', 'tap:left>c:1', 'tap:start>c:2', 'tap:cost>c:3', 'tap:rock>b:0', 'c>b:1', 'b>out:cell']),
+    solution: circ([['c', 'bp:slantcost'], ['b', 'block']], ['tap:up>c:0', 'tap:left>c:1', 'tap:start>c:2', 'tap:cost>c:3', 'tap:rock>b:0', 'c>b:1', 'b>out:cell']),
     hints: [
       T('体力和坑，这两件事你以前分别处理过吗？', 'Energy and pits: have you handled each of them before?'),
       T('坑上要掐断：拦截闸在条件是「是」时输出「—」。', 'Cut off the pits: a Block gate outputs “—” when its condition is “yes”.'),

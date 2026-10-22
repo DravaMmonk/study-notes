@@ -18,11 +18,11 @@ export const ERAS = [
   },
   {
     id: 'scout', machine: 'scout',
-    foundation: ['copy', 'confluence', 'origin', 'stamp', { parallel: [series('rocks', '石头', 'Rocks', ['rocks', 'reach']), series('cost', '花费', 'Costs', ['cheapest'])] }],
+    foundation: ['copy', 'confluence', 'stamp', { parallel: [series('rocks', '石头', 'Rocks', ['rocks', 'reach']), series('cost', '花费', 'Costs', ['cheapest', 'slantcost'])] }],
     chapter: { title: T('造一台机器', 'Build a machine'), desc: T('机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。', 'On every cell the robot runs the same circuit board, and a finished board becomes a component.') },
     practice: [{ parallel: [series('shape', '换形状', 'New shapes', ['slant', 'pascal']), series('coins', '金币', 'Coins', ['maxcoins'])] }, 'pits'],
     topics: [
-      { id: 'seam', code: 'S', after: 'cheapest', levels: ['seamline', 'seamslant', 'seam', 'carve'], title: T('图里的缝', 'Seams in a picture'), desc: T('在一张图里，找一条最不起眼的缝。', 'Find the least noticeable seam in a picture.') },
+      { id: 'seam', code: 'S', after: 'slantcost', levels: ['seamline', 'seamslant', 'seam', 'carve'], title: T('图里的缝', 'Seams in a picture'), desc: T('在一张图里，找一条最不起眼的缝。', 'Find the least noticeable seam in a picture.') },
     ],
     challenges: [{ level: 'lawn', after: 'pascal' }],
   },

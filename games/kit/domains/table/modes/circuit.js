@@ -5,7 +5,8 @@
 // Before a run the test board is a sandbox: the player types numbers into cells and puts the robot anywhere, and the
 // robot's cell shows the circuit's answer at once. Running clears the board and the robot starts from its usual cell.
 // A level may have several stages: a new world with new inputs (when a run fails on purpose), or a new question on
-// the same board (when every test passes; `carry` keeps the circuit). A stage may give the player a scan-order dial,
+// the same board (when every test passes; `carry` keeps the circuit). A level may also start from the board the player
+// left on an earlier level it requires (the level's `carry`). A stage may give the player a scan-order dial,
 // a filter for the sweeping arm, or scan in rounds until the table settles.
 
 import { $, buzz, toast, signal, wide, paint } from '../util.js';
@@ -71,11 +72,14 @@ const mergerEntry = models => ({
   desc: lazy(() => tr(`把接进来的几个数汇成一个。放上后在卡片上选操作：${models.map(k => def(k).tag).join('、')}；换操作时连线不变。`, `Merges the numbers wired into it into one. Pick its operation on the card once placed: ${models.map(k => def(k).tag).join(', ')}; the wires stay when you swap.`)),
 });
 
-export function circuitMode(L, saved, { flags, game } = {}) {
+export function circuitMode(L, saved, { flags, game, progress } = {}) {
   const stages = L.stages || [L];
+  // A level that grows the board of an earlier one (`carry`: that level's id) starts from the player's last board there.
+  const carried = L.carry && progress && progress.data[L.carry] && progress.data[L.carry].circs;
+  const startOf = (s, k) => (k === 0 && carried ? clone(carried.at(-1)) : s.preset ? clone(s.preset) : blank());
   const st = {
     stage: saved && saved.stage ? saved.stage : 0,
-    circs: stages.map((s, k) => asInputParts((saved && saved.circs && saved.circs[k]) || (s.preset ? clone(s.preset) : blank()), s, WORLDS[s.world])),
+    circs: stages.map((s, k) => asInputParts((saved && saved.circs && saved.circs[k]) || startOf(s, k), s, WORLDS[s.world])),
     // What the machine is set to (scan order, the arm's filter, the rewrite directions) is the level's, never the player's.
     dirs: { ...(L.solutionDirs || L.dirs || {}) },
     scan: stages.map((s) => (s.dial ? s.solutionScan : null)),

@@ -433,7 +433,7 @@ export const era2 = [
       m2: ['mp', {}, 'f'],
     }, ['na#body>i.a', 'f#body>m.imp', 'i>m.a', 'm>na.body', 'na>i2.a', 'f#body>m2.imp', 'i2>m2.a', 'm2>f.body', 'f>goal']),
     naive: proof({ f: ['impI', { A: '¬(A ∨ ¬A)' }], i: ['orI', { other: '¬A', side: 'right' }, 'f'] }, ['f#body>i.a', 'i>f.body', 'f>goal']),
-    after: T('假设「¬(下雨 ∨ ¬下雨)」：先由它得出「¬下雨」，再由「¬下雨」得出「下雨 ∨ ¬下雨」，和它自己矛盾。二号证不出「下雨 ∨ ¬下雨」，却证得出「否认它会矛盾」：真值表上永真的话，二号不一定证得出。这块电路现在是元件<b>排中不可否定</b>。', 'Assume “¬(it rains ∨ ¬it rains)”: it gives “¬it rains”, and “¬it rains” gives “it rains ∨ ¬it rains”, which contradicts it. Mark II cannot prove “it rains ∨ ¬it rains”, but it can prove that denying it is a contradiction: not everything true on every row is provable on Mark II. This circuit is now the part <b>Undeniable middle</b>.'),
+    after: T('假设「¬(下雨 ∨ ¬下雨)」：先由它得出「¬下雨」，再由「¬下雨」得出「下雨 ∨ ¬下雨」，和它自己矛盾。二号证不出「下雨 ∨ ¬下雨」，却证得出「否认它会矛盾」：真值表上永真的话，二号不一定证得出。', 'Assume “¬(it rains ∨ ¬it rains)”: it gives “¬it rains”, and “¬it rains” gives “it rains ∨ ¬it rains”, which contradicts it. Mark II cannot prove “it rains ∨ ¬it rains”, but it can prove that denying it is a contradiction: not everything true on every row is provable on Mark II.'),
   },
   {
     id: 'raa',

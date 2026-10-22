@@ -50,8 +50,6 @@ export const PART_LOOKS = {
   // what the part does.
   counter: box('<path class="bot-mark" d="M19.5 8.8V12.4M17.6 10.8L19.5 12.7L21.4 10.8M8.6 17.6H12.8M10.9 15.7L12.8 17.6L10.9 19.5"/><rect class="bot-eye-l" x="15" y="14.6" width="9" height="6.2" rx="1.4"/><path class="bot-mark" d="M19.5 15.9V19.5M17.7 17.7H21.3" style="stroke-width:1.6"/>'),
   rock: gate('bot-lamp', '<path class="bot-base" d="M17.5 26.5L19 21.6L22.6 20L26.2 21.8L27.6 26.5Z" stroke-linejoin="round"/><path class="bot-bar is-stop" d="M13 17.5H29"/>'),
-  // 起点值: a flag and a number.
-  startval: box('<path class="bot-mark" d="M10 9V21M10 9.5L15.5 11.6L10 13.7"/><rect class="bot-eye-l" x="16.5" y="14.4" width="8" height="6.4" rx="1.4"/>'),
   // 择优器: the larger of two, one with something added.
   choose: box('<path class="bot-mark" d="M8.6 12.6H13.2M8.6 18.6H13.2M10.9 16.3V20.9M9.6 18.6H12.2"/><rect class="bot-eye-l" x="15" y="12.6" width="9" height="7.6" rx="1.4"/><path class="bot-mark" d="M17.4 18L19.5 15.2L21.6 18" style="stroke-width:1.6"/>'),
   min: box('<path class="bot-mark" d="M19.5 8.8V12.4M17.6 10.8L19.5 12.7L21.4 10.8M8.6 17.6H12.8M10.9 15.7L12.8 17.6L10.9 19.5"/><rect class="bot-eye-l" x="15" y="14.6" width="9" height="6.2" rx="1.4"/><path class="bot-mark" d="M17.4 16.4L19.5 18.9L21.6 16.4" style="stroke-width:1.6"/>'),

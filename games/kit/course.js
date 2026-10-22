@@ -66,6 +66,7 @@ export const RULE_TEXT = {
   'challenge-required': 'a level that requires a challenge',
   'challenge-naive': 'a challenge without a failing naive answer',
   'topic-finale': 'a topic level its finale’s board does not solve (the topic is not one problem growing)',
+  'carry-unseen': 'starts from the board of a level that is not among its prerequisites',
   'bare-intro': 'a new primitive whose first level is just that part, wired to the goal',
   unused: 'a built part that no later reference answer uses',
 }
