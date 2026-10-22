@@ -51,7 +51,7 @@ test('a wrong premise is named with what it needed', () => {
 
 test('→ introduction closes its assumption; an open one fails', () => {
   const level = { tests: [{ goal: 'A → B → A' }], lemmas: KS }
-  // The outer box assumes A; inside it, K and Detach give B → A from it.
+  // The outer box assumes A; inside it, K and Apply give B → A from it.
   const good = proof({ i: ['impI', { A: 'A' }], k: ['axK', { A: 'A', B: 'B' }, 'i'], m: ['mp', {}, 'i'] }, ['k>m.imp', 'i#body>m.a', 'm>i.body', 'i>goal'])
   assert.equal(run(level, good).pass, true)
   // The same goal with two boxes, the inner one handing back the outer box's assumption.
