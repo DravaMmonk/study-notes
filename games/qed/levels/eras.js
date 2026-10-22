@@ -46,9 +46,9 @@ export const ERAS = [
       branches(['k', 'K', 'K', ['ident', 'k']], ['s', 'S', 'S', ['s']]),
     ],
     // Without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time, once K and S
-    // are both in hand: a condition, Apply under a condition, then the parts built with boxes rebuilt without one, each
-    // back among the parts once rebuilt (a level's `without`): Chain (compiling a box away, the deduction theorem),
-    // Swap, Identity, Merge.
+    // are both in hand (a level's `without` holds back the box and the parts built with it): a condition, Apply under a
+    // condition, then Chain (compiling a box away, the deduction theorem) and Swap, Identity and Merge, each from K
+    // and S alone.
     // It splits in two after X2: Chain then Swap on one branch, Identity then Merge on the other.
     topics: [
       { id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k', 'x-s'], title: T('拆掉框', 'Without the box') },
