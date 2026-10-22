@@ -81,15 +81,15 @@ export const era2 = [
   {
     id: 'chainUse',
     kind: 'proof',
-    title: T('接起来，再换一换', 'Chain, then swap'),
-    tests: [{ premises: { p: 'A → B', q: 'B → (C → D)' }, goal: 'C → (A → D)' }],
+    title: T('假设一条规则', 'Assume a rule'),
+    tests: [{ premises: { q: 'B → (C → D)' }, goal: '(A → B) → (C → (A → D))' }],
     cases: [{ A: 'Alarm', B: 'Up', C: 'Exam', D: 'OnTime' }, { A: 'Rain', B: 'Wet', C: 'Sat', D: 'Slip' }],
     hiddenCases: [{ A: 'Coffee', B: 'Awake', C: 'Exam', D: 'Pass' }],
-    brief: T('已知「闹钟响了 → 我起床了」和「我起床了 → (明天考试 → 我准时到)」，证出「明天考试 → (闹钟响了 → 我准时到)」。', 'Given “the alarm rings → I get up” and “I get up → (there is an exam tomorrow → I arrive on time)”, prove “there is an exam tomorrow → (the alarm rings → I arrive on time)”.'),
-    hint: [T('两张已知首尾相接。接起来以后，条件的顺序和目标比一比。', 'The two givens meet end to end. Once joined, compare the order of the conditions with the goal’s.')],
-    intro: [{ t: T('你用证明核造的串联和交换还在手里。这一题用框也做得出，用元件更快。', 'The Chain and Swap you built with the kernel are still in hand. Boxes would do this too; the parts are quicker.') }],
-    solution: proof({ c: ['chain'], w: ['swap'] }, ['p>c.p0', 'q>c.p1', 'c>w.p0', 'w>goal'], { premises: ['p', 'q'] }),
-    after: T('2 步，两块都是你用证明核造的元件。用框从头做，要两个框、两次分离，还得想好框的顺序。', 'Two steps, both parts you built with the kernel. From scratch it takes two boxes, two Detaches and some thought about their order.'),
+    brief: T('已知「我起床了 → (明天考试 → 我准时到)」，证出「(闹钟响了 → 我起床了) → (明天考试 → (闹钟响了 → 我准时到))」。', 'Given “I get up → (there is an exam tomorrow → I arrive on time)”, prove “(the alarm rings → I get up) → (there is an exam tomorrow → (the alarm rings → I arrive on time))”.'),
+    hint: [T('框里假设的，可以是一整句「如果…那么…」。', 'What a box assumes can be a whole “if … then …”.')],
+    intro: [{ t: T('目标的前一半「闹钟响了 → 我起床了」不是已知，是一条要先假设的规则。假设它以后，它和框外的已知放在一起，正好是你在证明核里造的元件用得上的样子。', 'The first half of the goal, “the alarm rings → I get up”, is not given: it is a rule to assume first. Once assumed, it and the given outside the box look just like what the parts you built in the kernel take.') }],
+    solution: proof({ f: ['impI', { A: 'A → B' }], c: ['chain', {}, 'f'], w: ['swap', {}, 'f'] }, ['f#body>c.p0', 'q>c.p1', 'c>w.p0', 'w>f.body', 'f>goal'], { premises: ['q'] }),
+    after: T('3 步：框假设「闹钟响了 → 我起床了」，框里串联、交换，框外就得到「如果这条规则成立，那么……」。证明核造的元件在框里照样能用。', 'Three steps: the box assumes “the alarm rings → I get up”, Chain and Swap work inside it, and outside comes “if this rule holds, then …”. The parts built in the kernel work inside a box just as well.'),
   },
 
   {
