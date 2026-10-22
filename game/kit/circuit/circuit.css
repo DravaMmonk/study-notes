@@ -327,9 +327,6 @@
 .frame-region-head .port { top: 50%; margin-top: -6px; }
 .frame-region-head .port.frame-open { left: 6px; right: auto; }
 .frame-region-head .port.frame-close { right: 6px; left: auto; }
-/* A region that opens several values: each dot sits at the start of its own item. */
-.frame-open-item { position: relative; display: inline-flex; align-items: center; padding-left: 16px; }
-.frame-region-head .frame-open-item .port.frame-open { left: 0; }
 /* The floor cards stand on: it takes presses (to pan, or to choose it), and cards on it are placed from its corner. */
 .frame-field { position: relative; pointer-events: auto; cursor: grab; }
 

@@ -43,10 +43,10 @@ export const GAMES = [
   {
     id: 'qed-lab', href: 'qed-lab/index.html', title: '证明完毕 · 试做', en: 'Q.E.D. · Trial', topic: { zh: '试做 · 形式化证明', en: 'Trial · Formal proof' },
     desc: {
-      zh: '从套用和假设框两块元件搭起证明器，证出公理 K 和 S，再对着真值表亲手设计「与」「或」「假」的规则。',
-      en: 'Build a prover from two parts, Apply and the assumption box, prove the axioms K and S, then design the rules of “and”, “or” and “false” yourself against their truth tables.',
+      zh: '从套用和假设框两块元件搭起证明器，用框证出公理 K 和 S，再拿掉框，只靠公理证明。',
+      en: 'Build a prover from two parts, Apply and the assumption box, prove the axioms K and S with boxes, then take the box away and prove with the axioms alone.',
     },
-    levels: 24, art: 'detach', dev: true, hidden: true,
+    levels: 9, art: 'detach', dev: true, hidden: true,
     page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 试做：从两块元件搭起证明器。Q.E.D. trial: a prover built from two parts.' },
     progress: () => (read('qed-lab.v1')?.solved || []).length,
   },

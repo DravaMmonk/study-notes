@@ -5,8 +5,7 @@
 //   node.fold true                    a frame shown folded, its regions hidden
 //
 // A region that `opens` gives a value of its own, read inside it from the frame's output `<frame>#<region>` (the
-// assumption it makes); `opens: [name, …]` gives several, `<frame>#<region>.<name>` each (a case that assumes two
-// things at once). What is made inside a region comes back out through the frame's input named after it.
+// assumption it makes), and what is made inside a region comes back out through the frame's input named after it.
 // So a value is seen where it is made and in every region inside that: a wire may run inward, never outward.
 
 // Any game can use frames: a domain makes a frame part with framePart (its eval gets the region's name as `key` for
@@ -23,14 +22,9 @@
 export const framePart = (own, regions) => ({
   inputs: [...own, ...regions.map((r) => r.name)],
   frames: () => regions,
-  outputs: () => [null, ...regions.flatMap(openings)],
+  outputs: () => [null, ...regions.filter((r) => r.opens).map((r) => r.name)],
   reads: (_node, key) => (key ? own : undefined),
 })
-
-/** The output keys a region gives inside it: its name, one per name it opens, or none. */
-export const openings = (r) => (Array.isArray(r.opens) ? r.opens.map((name) => `${r.name}.${name}`) : r.opens ? [r.name] : [])
-/** The region an output key of a frame belongs to. */
-const regionOfKey = (key) => String(key).split('.')[0]
 
 /** Whether every card that sits in a region sits in one its frame still has (a saved board still fits the game). */
 export function regionsFit(graph, parts) {
@@ -55,14 +49,14 @@ export function scopeOf(graph, id) {
 }
 
 const regionsOf = (parts, node) => (node && parts.frames?.(node)) ?? []
-const opens = (parts, node, key) => regionsOf(parts, node).some((r) => openings(r).includes(key))
+const opens = (parts, node, key) => regionsOf(parts, node).some((r) => r.name === key && r.opens)
 const isRegion = (parts, node, port) => regionsOf(parts, node).some((r) => r.name === port)
 
 /** Where a wire's source is seen from: the regions around its node, and the region it opens, if it is one. */
 const sourceScope = (graph, parts, src) => {
   const id = nodeOf(src)
   const node = graph.nodes.find((n) => n.id === id)
-  return opens(parts, node, keyOf(src)) ? [...scopeOf(graph, id), `${id}/${regionOfKey(keyOf(src))}`] : scopeOf(graph, id)
+  return opens(parts, node, keyOf(src)) ? [...scopeOf(graph, id), `${id}/${keyOf(src)}`] : scopeOf(graph, id)
 }
 /** Where an input reads from: the regions around its node, and the region it closes, for a region's input. */
 const portScope = (graph, parts, to, port) => {
@@ -79,8 +73,8 @@ export function frameEdges(graph, parts) {
   const from = (src) => (opens(parts, byId.get(nodeOf(src)), keyOf(src)) ? String(src) : nodeOf(src))
   const edges = graph.wires.map((w) => [from(w.from), w.to])
   for (const node of graph.nodes) {
-    for (const key of regionsOf(parts, node).flatMap(openings)) {
-      for (const w of graph.wires.filter((x) => x.to === node.id && !isRegion(parts, node, x.port))) edges.push([from(w.from), `${node.id}#${key}`])
+    for (const r of regionsOf(parts, node).filter((x) => x.opens)) {
+      for (const w of graph.wires.filter((x) => x.to === node.id && !isRegion(parts, node, x.port))) edges.push([from(w.from), `${node.id}#${r.name}`])
     }
   }
   return { edges, from }

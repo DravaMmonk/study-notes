@@ -3,7 +3,7 @@ import { Trash2 } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, SlotBoard, Tray, openings, outputsOf, regionsFit, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, SlotBoard, Tray, outputsOf, regionsFit, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel, withHidden } from '../../../engine/tests.js'
 import { startProof } from '../build.js'
@@ -186,7 +186,7 @@ function CardBody({ node, parts, circuit, view, goal, setParam, text, choices })
   const value = view.values.get(node.id)
   const error = view.errors.get(node.id)
   const role = parts.role(node)
-  const regions = new Set(parts.frames(node).flatMap((r) => [r.name, ...openings(r)]))
+  const regions = new Set(parts.frames(node).map((r) => r.name))
   const outs = parts.outputs(node)?.filter((o) => !regions.has(o.key))
   const multi = outs && !(outs.length === 1 && outs[0].key === null) ? outs : null
   const held = regions.size ? within(circuit, node.id).size : 0
