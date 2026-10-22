@@ -200,3 +200,6 @@ docs/**/exam/
 
 # Slide screenshots rendered page-by-page from lecture PDFs
 docs/Unimelb/26S2/CV/assets/
+docs/Unimelb/25S1/*/assets/
+docs/Unimelb/25S2/IML/assets/
+docs/Unimelb/25S2/MoC/assets/
