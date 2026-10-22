@@ -27,6 +27,8 @@ export default {
   // Version 3 put a translation level before the islanders' first puzzle.
   { version: 3, ops: [{ solve: ['e-one', ['e-words']] }] },
   // Version 4 put a level on translating “a says X” before it.
-  { version: 4, ops: [{ solve: ['e-one', ['e-says']] }] }],
+  { version: 4, ops: [{ solve: ['e-one', ['e-says']] }] },
+  // Version 5 made “Both ways round” build the Same truth gate.
+  { version: 5, ops: [{ grant: ['g-iff', 'lemma:gIff'] }] }],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }

@@ -120,10 +120,11 @@ export const circuits = [
     title: T('两个方向都对', 'Both ways round'),
     target: '(Rain → Wet) ∧ (Wet → Rain)',
     hideTarget: true,
+    builds: 'gIff',
     brief: T('接一块电路，算出「（如果下雨，那么地湿）并且（如果地湿，那么下雨）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) and (if the ground is wet, it rains)” is true.'),
     hint: [T('两个「如果…那么…」，方向相反，再用「与」接起来。', 'Two if…thens pointing opposite ways, joined by And.')],
     solution: board('(Rain → Wet) ∧ (Wet → Rain)', { i1: 'gImp', i2: 'gImp', a: 'gAnd' }, ['Rain>i1.a', 'Wet>i1.b', 'Wet>i2.a', 'Rain>i2.b', 'i1>a.a', 'i2>a.b', 'a>out']),
-    after: T('真的两行，正好是「下雨」和「地湿」一样的两行：都发生，或者都没发生。两个方向都对，就是说两件事同真同假。', 'The two true rows are exactly those where “it rains” and “the ground is wet” agree: both happen, or neither does. Both directions holding means the two are true together and false together.'),
+    after: T('真的两行，正好是「下雨」和「地湿」一样的两行：都发生，或者都没发生。两个方向都对，就是说两件事<b>同真同假</b>。', 'The two true rows are exactly those where “it rains” and “the ground is wet” agree: both happen, or neither does. Both directions holding means the two are <b>true together and false together</b>.'),
   },
   // Topic: translate what islanders say into logic (and, or, not; if…then; true together) and wire it; the true row is
 // the answer. The sentence is said in words only.
@@ -158,13 +159,12 @@ export const circuits = [
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，只说真话；要么是<b>无赖</b>，只说假话。', 'Everyone on the island is a <b>knight</b>, who only tells the truth, or a <b>knave</b>, who only lies.') },
       { t: T('「a 说 X」说的是：a 是骑士，X 就是真的；a 不是骑士，X 就是假的。也就是「a 是骑士」和 X <b>同真同假</b>。', '“a says X” means: if a is a knight, X is true; if a is not a knight, X is false. That is, “a is a knight” and X are <b>true together and false together</b>.') },
-      { t: T('「同真同假」怎样译成门？想一想「两个方向都对」那一关。', 'How does “true together, false together” become gates? Think back to the level “Both ways round”.') },
+      { t: T('「同真同假」正好是你在「两个方向都对」那一关造出的元件。', '“True together, false together” is just the part you built in the level “Both ways round”.') },
     ],
     hint: [
-      T('「a 是骑士，b 就是骑士」是一个方向：如果 a 是骑士，那么 b 是骑士。', '“If a is a knight, b is a knight” is one direction: if a is a knight, then b is a knight.'),
-      T('另一个方向管的是 a 不是骑士的时候：那时 b 也不能是骑士，也就是：如果 b 是骑士，那么 a 是骑士。', 'The other direction covers a not being a knight: then b cannot be one either, that is: if b is a knight, then a is a knight.'),
+      T('X 在这里是「b 是骑士」：「a 是骑士」和「b 是骑士」同真同假。', 'X here is “b is a knight”: “a is a knight” and “b is a knight” are true together and false together.'),
     ],
-    solution: board('KA ↔ KB', { i1: 'gImp', i2: 'gImp', a: 'gAnd' }, ['KA>i1.a', 'KB>i1.b', 'KB>i2.a', 'KA>i2.b', 'i1>a.a', 'i2>a.b', 'a>out']),
+    solution: board('KA ↔ KB', { e: 'gIff' }, ['KA>e.a', 'KB>e.b', 'e>out']),
     naive: board('KA ↔ KB', { i: 'gImp' }, ['KA>i.a', 'KB>i.b', 'i>out']),
     after: T('「a 说 X」译成：（如果 a 是骑士，那么 X）与（如果 X，那么 a 是骑士）。只译一个方向，a 是无赖、b 却是骑士的那一行就漏判成了真。真的有两行：两人都是骑士，或者都是无赖。一句话还定不下答案。', '“a says X” translates to: (if a is a knight, then X) and (if X, then a is a knight). Translate only one direction and the row where a is a knave but b a knight is wrongly true. Two rows are true: both knights, or both knaves. One sentence is not enough to settle it.'),
   },
@@ -180,9 +180,9 @@ export const circuits = [
     ],
     hint: [
       T('先翻译 a 的话：「至少有一个是无赖」是「（非 a 是骑士）或（非 b 是骑士）」。', 'Translate what a says first: “at least one is a knave” is “(not a is a knight) or (not b is a knight)”.'),
-      T('再翻译「a 说」：「a 是骑士」和 a 的话同真同假，两个方向的「如果…那么…」用「与」接起来。', 'Then translate “a says”: “a is a knight” and what a says are true together and false together, if…then both ways round, joined by And.'),
+      T('再翻译「a 说」：「a 是骑士」和 a 的话同真同假。', 'Then translate “a says”: “a is a knight” and what a says are true together and false together.'),
     ],
-    solution: board('KA ↔ (¬KA ∨ ¬KB)', { na: 'gNot', nb: 'gNot', s: 'gOr', i1: 'gImp', i2: 'gImp', a: 'gAnd' }, ['KA>na.a', 'KB>nb.a', 'na>s.a', 'nb>s.b', 'KA>i1.a', 's>i1.b', 's>i2.a', 'KA>i2.b', 'i1>a.a', 'i2>a.b', 'a>out']),
+    solution: board('KA ↔ (¬KA ∨ ¬KB)', { na: 'gNot', nb: 'gNot', s: 'gOr', e: 'gIff' }, ['KA>na.a', 'KB>nb.a', 'na>s.a', 'nb>s.b', 'KA>e.a', 's>e.b', 'e>out']),
     after: T('整件事译成：「a 是骑士」与「（非 a 是骑士）或（非 b 是骑士）」同真同假。只有一行为真：a 是骑士，b 是无赖。「同真同假」还有别的译法，比如「（a 是骑士 与 X）或（非 a 是骑士 与 非 X）」，每一行都一样。', 'The whole thing translates to: “a is a knight” and “(not a is a knight) or (not b is a knight)” are true together and false together. Only one row is true: a is a knight and b is a knave. “True together, false together” has other translations too, such as “(a is a knight and X) or (not a is a knight and not X)”, which agree on every row.'),
   },
   {
@@ -196,13 +196,11 @@ export const circuits = [
       { t: T('这一关有两个人说话。「两个人的话都对得上」就是：a 那一句的翻译，<b>与</b> b 那一句的翻译。「我们俩都是骑士」是：a 是骑士 与 b 是骑士。', 'Two people speak this time. “What both say fits” is: the translation of a’s part <b>and</b> the translation of b’s. “We are both knights” is: a is a knight and b is a knight.') },
     ],
     hint: [
-      T('一个人一句：「a 是骑士」和「非 b 是骑士」同真同假；「b 是骑士」和「a 是骑士 与 b 是骑士」同真同假。', 'One sentence per person: “a is a knight” and “not b is a knight”, true together and false together; “b is a knight” and “a is a knight and b is a knight”, likewise.'),
+      T('一个人一句「同真同假」：「a 是骑士」对「非 b 是骑士」；「b 是骑士」对「a 是骑士 与 b 是骑士」。', 'One “true together, false together” per person: “a is a knight” with “not b is a knight”; “b is a knight” with “a is a knight and b is a knight”.'),
       T('两句都要成立：最后用「与」接起来。', 'Both must hold: join them with And at the end.'),
     ],
-    solution: board('(KA ↔ ¬KB) ∧ (KB ↔ KA ∧ KB)', { nb: 'gNot', i1: 'gImp', i2: 'gImp', a1: 'gAnd', ab: 'gAnd', i3: 'gImp', i4: 'gImp', a2: 'gAnd', a3: 'gAnd' }, [
-      'KB>nb.a', 'KA>i1.a', 'nb>i1.b', 'nb>i2.a', 'KA>i2.b', 'i1>a1.a', 'i2>a1.b',
-      'KA>ab.a', 'KB>ab.b', 'KB>i3.a', 'ab>i3.b', 'ab>i4.a', 'KB>i4.b', 'i3>a2.a', 'i4>a2.b',
-      'a1>a3.a', 'a2>a3.b', 'a3>out',
+    solution: board('(KA ↔ ¬KB) ∧ (KB ↔ KA ∧ KB)', { nb: 'gNot', e1: 'gIff', ab: 'gAnd', e2: 'gIff', all: 'gAnd' }, [
+      'KB>nb.a', 'KA>e1.a', 'nb>e1.b', 'KA>ab.a', 'KB>ab.b', 'KB>e2.a', 'ab>e2.b', 'e1>all.a', 'e2>all.b', 'all>out',
     ]),
     after: T('整件事译成：（「a 是骑士」与「非 b 是骑士」同真同假）与（「b 是骑士」与「a 是骑士 与 b 是骑士」同真同假）。还是只有一行：a 是骑士，b 是无赖。b 的话是假的，正合他无赖的身份。', 'The whole thing translates to: (“a is a knight” and “not b is a knight” true together and false together) and (“b is a knight” and “a is a knight and b is a knight” likewise). Again only one row: a is a knight, b is a knave. What b says is false, just as a knave would say.'),
   },
@@ -220,12 +218,10 @@ export const circuits = [
       T('「a 和 b 都是无赖」是「（非 a 是骑士）与（非 b 是骑士）」。', '“a and b are both knaves” is “(not a is a knight) and (not b is a knight)”.'),
       T('三个人，三句「同真同假」，再用「与」把三句接起来。', 'Three people, three “true together, false together” sentences, joined by And.'),
     ],
-    solution: board('(KA ↔ ¬KB) ∧ (KB ↔ ¬KC) ∧ (KC ↔ ¬KA ∧ ¬KB)', { na: 'gNot', nb: 'gNot', nc: 'gNot', i1: 'gImp', i2: 'gImp', a1: 'gAnd', i3: 'gImp', i4: 'gImp', a2: 'gAnd', c: 'gAnd', i5: 'gImp', i6: 'gImp', a3: 'gAnd', b12: 'gAnd', all: 'gAnd' }, [
+    solution: board('(KA ↔ ¬KB) ∧ (KB ↔ ¬KC) ∧ (KC ↔ ¬KA ∧ ¬KB)', { na: 'gNot', nb: 'gNot', nc: 'gNot', e1: 'gIff', e2: 'gIff', c: 'gAnd', e3: 'gIff', b12: 'gAnd', all: 'gAnd' }, [
       'KA>na.a', 'KB>nb.a', 'KC>nc.a',
-      'KA>i1.a', 'nb>i1.b', 'nb>i2.a', 'KA>i2.b', 'i1>a1.a', 'i2>a1.b',
-      'KB>i3.a', 'nc>i3.b', 'nc>i4.a', 'KB>i4.b', 'i3>a2.a', 'i4>a2.b',
-      'na>c.a', 'nb>c.b', 'KC>i5.a', 'c>i5.b', 'c>i6.a', 'KC>i6.b', 'i5>a3.a', 'i6>a3.b',
-      'a1>b12.a', 'a2>b12.b', 'b12>all.a', 'a3>all.b', 'all>out',
+      'KA>e1.a', 'nb>e1.b', 'KB>e2.a', 'nc>e2.b', 'na>c.a', 'nb>c.b', 'KC>e3.a', 'c>e3.b',
+      'e1>b12.a', 'e2>b12.b', 'b12>all.a', 'e3>all.b', 'all>out',
     ]),
     after: T('c 的话译成「（非 a 是骑士）与（非 b 是骑士）」，正是「翻译成与或非」那一关里的陷阱：「都不是」。八行里只有一行为真：a 是无赖，b 是骑士，c 是无赖。电路得把八行都跑一遍；人数每多一个，行数就翻一倍。', 'What c says translates to “(not a is a knight) and (not b is a knight)”, exactly the trap of the translation level: “neither”. Of the eight rows only one is true: a is a knave, b a knight, c a knave. The board had to run all eight; each extra islander doubles the rows.'),
   },
@@ -248,4 +244,5 @@ export const circuits = [
 export const GATES = {
   gOr: { name: T('或', 'Or'), desc: T('两个输入里至少有一个是真，就输出真；都是假，输出假。', 'Outputs true when at least one input is true; false when both are false.'), ports: ['a', 'b'], f: ([a, b]) => a || b },
   gImp: { name: T('如果…那么…', 'If…then…'), desc: T('只在 a 是真、b 是假时输出假；其余都输出真。', 'Outputs false only when a is true and b is false; true otherwise.'), ports: ['a', 'b'], f: ([a, b]) => !a || b },
+  gIff: { name: T('同真同假', 'Same truth'), desc: T('a 和 b 同真或同假时输出真；一真一假时输出假。', 'Outputs true when a and b are both true or both false; false when one is true and the other false.'), ports: ['a', 'b'], f: ([a, b]) => a === b },
 }
