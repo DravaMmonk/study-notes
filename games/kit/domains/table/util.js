@@ -10,6 +10,22 @@ export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matc
 export const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* no haptics */ } };
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+const painted = new WeakMap();
+/**
+ * Set an element's markup, keeping the page still. The input cards are repainted on every render; rewriting their
+ * markup makes Safari pull a pane scrolled to its end up by a few rows, so unchanged markup is left alone and a real
+ * change puts the scrolling pane back where it was.
+ */
+export function paint(el, html) {
+  if (painted.get(el) === html) return;
+  painted.set(el, html);
+  let pane = el.parentElement;
+  while (pane && !(pane.scrollHeight > pane.clientHeight && /auto|scroll/.test(getComputedStyle(pane).overflowY))) pane = pane.parentElement;
+  const top = pane?.scrollTop;
+  el.innerHTML = html;
+  if (pane && pane.scrollTop !== top) pane.scrollTop = top;
+}
+
 export const OPS = { sum: a => a.reduce((s, x) => s + x, 0), min: a => Math.min(...a), max: a => Math.max(...a) };
 export const opLabel = { sum: T('加起来', 'sum'), min: T('取较小', 'min'), max: T('取较大', 'max') };
 
