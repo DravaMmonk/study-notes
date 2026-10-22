@@ -24,7 +24,7 @@ export const ERAS = [
       series('build', '造门', 'Building gates', ['g-or', 'g-imp']),
     ],
     practice: [series('kinds', '三种句子', 'Three kinds of sentence', ['g-always', 'g-never', 'g-iff'])],
-    topics: [{ id: 'islanders', code: 'E', after: 'g-iff', levels: ['e-one', 'e-two', 'e-three'], title: T('把谜题接成电路', 'A puzzle as a circuit') }],
+    topics: [{ id: 'islanders', code: 'E', after: 'g-iff', levels: ['e-words', 'e-one', 'e-two', 'e-three'], title: T('把谜题接成电路', 'A puzzle as a circuit') }],
     challenges: [{ level: 'g-xor', after: 'g-or' }],
     chapter: { title: T('真值电路', 'Truth circuits'), question: T('一句话在每一种情况下是真是假，能交给电路去算吗？', 'Can a circuit work out whether a sentence is true in every case?') },
   },

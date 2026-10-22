@@ -25,14 +25,15 @@ export const era1 = [
     cases: [{ A: 'Rain' }, { A: 'Bus' }],
     hiddenCases: [{ A: 'Alarm' }],
     solution: proof({}, ['p>goal'], { premises: ['p'] }),
-    brief: T('已知「下雨」，证出「下雨」。', 'Given “it rains”, prove “it rains”.'),
+    brief: T('已知「下雨」为真，证出「下雨」为真。', 'Given that “it rains” is true, prove that “it rains” is true.'),
     hint: [T('从「已知」卡片右边的圆点，连到「目标」卡片左边的圆点。', 'Wire the dot on the right of the “Given” card to the dot on the left of the “Goal” card.')],
     intro: [
       { t: T('上一章的真值电路把一句话一行一行地验，行数一多就验不完。证明器的下一个模块<b>证明核</b>换一个思路：不看真假，只靠规则，从已经知道的事出发，一步一步推出想要的结论。每一步都只看句子的形状，不看天气。', 'The truth circuits of the last chapter check a sentence row by row, and with many rows it never ends. The prover’s next module, <b>the kernel</b>, works the other way: not by truth but by rules alone, it starts from what you know and reaches the conclusion step by step. Each step looks only at the shape of sentences, never at the weather.') },
-      { t: T('板上左边的卡片是<b>已知</b>，右边是<b>目标</b>。板上的一根线，意思是「这件事已经证出来了」。', 'On the board, the cards on the left are what is <b>given</b>, the one on the right is the <b>goal</b>. A wire on the board means “this has been proved”.') },
+      { t: T('板上左边的卡片是<b>已知</b>，右边是<b>目标</b>。在真值电路里，「下雨」这张卡片有时送出真、有时送出假；在这里，「已知下雨」说的是：「下雨」为真。证出一句话，说的是：只要已知都为真，它也一定为真。', 'On the board, the cards on the left are what is <b>given</b>, the one on the right is the <b>goal</b>. On a truth circuit the card “it rains” sometimes sent out true and sometimes false; here, “given that it rains” says: “it rains” is true. Proving a sentence says: whenever everything given is true, so is it.') },
+      { t: T('板上的一根线，意思是「这句话已经证明为真」。', 'A wire on the board means “this sentence has been proved true”.') },
       { t: T('板子下面是几组<b>测试</b>，每组讲一件不同的事：这一组讲「下雨」，另一组讲别的。同一块电路要在每一组上都证得出；还有几组隐藏测试，过关后才公开。', 'Under the board are a few <b>tests</b>, each about something different: this one about “it rains”, another about something else. One circuit must prove every one of them; a few hidden tests are checked too, and shown once you pass.') },
     ],
-    after: T('已知的事本身就是一个证明，不管它讲的是什么。板上的每一块元件都是一条<b>推理规则</b>：输入口接它需要的东西，输出口给出它推出的结论。', 'What is given is already a proof, whatever it is about. Each part on the board is a <b>rule of inference</b>: its inputs take what it needs, its output gives what it concludes.'),
+    after: T('已知为真的话，不用再推就为真：已知本身就是一个证明，不管它讲的是什么。板上的每一块元件都是一条<b>推理规则</b>：输入口接它需要的东西，输出口给出它推出的结论。', 'What is given as true needs no further step to be true: a given is already a proof, whatever it is about. Each part on the board is a <b>rule of inference</b>: its inputs take what it needs, its output gives what it concludes.'),
   },
   {
     id: 'mp',

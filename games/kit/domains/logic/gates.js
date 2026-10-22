@@ -2,8 +2,9 @@
 // values of its letters. Its test is every row of the sentence's truth table, the way 《状态之图》's robot runs one board
 // on every cell: the board passes when it gives the sentence's value on every row.
 //
-// A gates level: { kind: 'gates', target: formula text (in WORDS letters), blind?: true (the rows' wanted values are
-// not shown: the target is said in words, and finding it is the puzzle), builds?: gate type, budget?: gates allowed }.
+// A gates level: { kind: 'gates', target: formula text (in WORDS letters), hideTarget?: true (the target value column
+// is not shown, so the table does not give the answer away), blind?: true (the sentence is not shown either: it is
+// said in words only, and putting it into gates is the puzzle), builds?: gate type, budget?: gates allowed }.
 // The gates the course starts from are 'gNot' and 'gAnd'; the others are built (spec.gates, each { name, desc, ports,
 // f }) and run as their own function once built, checked against the level that builds them (validate.js).
 import { runBoard, sink, source } from '../../engine/boards.js'
@@ -14,8 +15,8 @@ const T = (zh, en) => ({ zh, en })
 
 /** The gates the course starts from. */
 export const PRIMITIVE_GATES = {
-  gNot: { name: T('不', 'Not'), desc: T('输入是真，输出假；输入是假，输出真。', 'True in gives false out; false in gives true out.'), ports: ['a'], f: ([a]) => !a },
-  gAnd: { name: T('并且', 'And'), desc: T('两个输入都是真，才输出真；否则输出假。', 'Outputs true only when both inputs are true; otherwise false.'), ports: ['a', 'b'], f: ([a, b]) => a && b },
+  gNot: { name: T('非', 'Not'), desc: T('输入是真，输出假；输入是假，输出真。', 'True in gives false out; false in gives true out.'), ports: ['a'], f: ([a]) => !a },
+  gAnd: { name: T('与', 'And'), desc: T('两个输入都是真，才输出真；否则输出假。', 'Outputs true only when both inputs are true; otherwise false.'), ports: ['a', 'b'], f: ([a, b]) => a && b },
 }
 
 /** Every gate a course knows: the primitive ones and the ones its levels build. */

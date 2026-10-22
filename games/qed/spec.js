@@ -23,6 +23,8 @@ export default {
     { solve: ['copy', ['g-not', 'g-and', 'g-tree', 'g-or', 'g-imp', 'g-always', 'g-never', 'g-iff']] },
     { grant: ['copy', 'lemma:gOr'] },
     { grant: ['copy', 'lemma:gImp'] },
-  ] }],
+  ] },
+  // Version 3 put a translation level before the islanders' first puzzle.
+  { version: 3, ops: [{ solve: ['e-one', ['e-words']] }] }],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }
