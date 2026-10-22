@@ -49,7 +49,12 @@ export const ERAS = [
     // are both in hand: a condition, Apply under a condition, then the parts built with boxes rebuilt without one, each
     // back among the parts once rebuilt (a level's `without`): Chain (compiling a box away, the deduction theorem),
     // Swap, Identity, Merge.
-    topics: [{ id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k', 'x-s', 'x-chain', 'x-swap', 'x-self', 'x-merge'], title: T('拆掉框', 'Without the box') }],
+    // It splits in two after X2: Chain then Swap on one branch, Identity then Merge on the other.
+    topics: [
+      { id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k', 'x-s'], title: T('拆掉框', 'Without the box') },
+      { id: 'nobox-chain', code: 'X', after: 'x-s', levels: ['x-chain', 'x-swap'], title: T('拆掉框：串联与交换', 'Without the box: Chain and Swap') },
+      { id: 'nobox-merge', code: 'X', after: 'x-s', levels: ['x-self', 'x-merge'], title: T('拆掉框：恒等与合并', 'Without the box: Identity and Merge') },
+    ],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠套用和假设框，能证出什么？', 'What can Apply and the assumption box prove?') },
   },
   {

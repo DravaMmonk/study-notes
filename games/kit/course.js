@@ -155,6 +155,9 @@ export function layout(eras) {
         requires.set(id, k ? [topic.levels[k - 1]] : [...after, ...finales])
       })
       hang(after.at(-1), { kind: 'topic', id: topic.id, title: topic.title, levels: topic.levels, after })
+      // A topic may hang after another topic's level (`after: 'x-2'`): it goes on the track where that topic does,
+      // after it, so two topics can branch off from the end of a third.
+      for (const id of topic.levels) if (!at.has(id)) at.set(id, at.get(after.at(-1)) ?? track.at(-1) ?? track[0])
     }
     for (const c of era.challenges ?? []) {
       const after = c.after ? [c.after].flat() : ends
