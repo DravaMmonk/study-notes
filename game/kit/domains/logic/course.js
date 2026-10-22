@@ -4,6 +4,7 @@
 import { defineCourse, eraLevels, layout, offer, pathLevels, usable } from '../../course.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { say } from './notation.js'
+import { isGate } from './gates.js'
 
 // Every rule a proof uses, in the boxes too.
 const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
@@ -73,6 +74,8 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     adds: (l) => byId.get(l.id).adds,
     needs: (p) => (lemmas[p] || gates[p] ? `lemma:${p}` : null),
     replaces: (p) => replaces[p] ?? [],
+    // Gates belong on truth circuits and rules on proof boards: each carries only into levels of its own kind.
+    carries: (p, l) => isGate(p, gates) === (byId.get(l.id).kind === 'gates'),
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
     naive: (l) => Boolean(byId.get(l.id).naive),
