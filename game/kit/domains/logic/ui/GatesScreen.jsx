@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRightFromLine, CircleDot, Cpu, StepForward, ToggleLeft, Trash2 } from 'lucide-react'
-import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs } from '../../../shell/index.js'
+import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
@@ -10,7 +10,8 @@ import { say } from '../notation.js'
 import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
 
 // A truth-circuit level (《证明完毕》, gates.js) on the shared circuit editor: a card for each letter on the left, the
-// sentence's output on the right, gates as parts. The tests are the rows of the sentence's truth table: picking one
+// sentence's output on the right, gates as parts. The tests are the rows of the sentence's truth table, picked in the table itself (no row tabs, whose labels would
+// spell the row out twice): picking one
 // shows on every card what the board computes on that row. Running goes down the table one row at a time, as a machine
 // filling it in: each row's card values and result show in turn, and the run stops on the first row it gets wrong. A `hideTarget`
 // level does not show the target value column; a `blind` one does not show its sentence either: it is a puzzle said in
@@ -107,7 +108,6 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
     change(addNode(type, { x, y }).graph)
   }
 
-  const rowLabel = (r) => letters.map((l) => `${L(word(l))} ${L(TF(r[l]))}`).join(' · ')
   const states = rows.map((_, k) => (run && k < run.shown ? (run.results[k].pass ? 'pass' : 'fail') : null))
   const done = run && run.shown === run.stopAt + 1 && !run.playing
   const verdict = done ? run : null
@@ -161,7 +161,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
   )
   const body = (node) => <div className="lg-card"><CardValue value={valueOf(node)} error={errorOf(node)} /></div>
 
-  if (phone) return <PhoneGates {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, reset, table, body, valueOf, errorOf }} scope={level.id} tabs={<TestTabs phone tests={rows.map((r) => ({ label: rowLabel(r.row) }))} states={states} index={rows.indexOf(row)} onSelect={setRowIndex} />} />
+  if (phone) return <PhoneGates {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, reset, table, body, valueOf, errorOf }} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -187,7 +187,6 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
           </div>
         </div>
       }
-      tests={<TestTabs tests={rows.map((r) => ({ label: rowLabel(r.row) }))} states={states} index={rows.indexOf(row)} onSelect={setRowIndex} />}
       status={<TestStatus states={states} />}
       outputsTitle={tr('真值表', 'Truth table')}
       outputs={table}
@@ -203,7 +202,7 @@ function CardValue({ value, error }) {
 }
 
 // The board on a phone: the shared slot board, the truth table under it, and the run bar.
-function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, addNode, reset, table, body, valueOf, errorOf, scope, tabs }) {
+function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, addNode, reset, table, body, valueOf, errorOf, scope }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -226,7 +225,6 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   return (
     <div className="level-phone is-split lg-phone" ref={root}>
-      {tabs}
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
         <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <CardValue value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
