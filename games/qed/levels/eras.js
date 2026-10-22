@@ -40,10 +40,10 @@ export const ERAS = [
       'box',
       // Chain, Swap and Merge, each built with boxes alone, on two lines that need nothing from each other; then the
       // three together, harder each time.
-      branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['ident', 'twice']]),
+      branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
       'mergeUse', 'mergeLong', 'mergeBoth',
       // K and S, each proved with boxes and built as a part, need nothing from each other.
-      branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
+      branches(['k', 'K', 'K', ['ident', 'k']], ['s', 'S', 'S', ['s']]),
     ],
     // Without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time, once K and S
     // are both in hand: a condition, Apply under a condition, then the parts built with boxes rebuilt without one, each
