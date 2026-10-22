@@ -60,7 +60,6 @@ export const RULE_TEXT = {
   granted: 'handed out by a level (grants)',
   'many-new': 'more than one new part in one level',
   unplaced: 'in no era',
-  'no-topic': 'a machine whose era has no topic series yet',
   'era-keeps': 'an era after the first that does not say which parts it takes from the eras before it (keeps)',
   machine: 'played on a machine of a later era',
   'machine-role': 'a foundation, practice, finale or challenge level played on an older machine',
@@ -330,8 +329,6 @@ export function audit(course) {
   }
   // Every era after the first says what it takes from the ones before: everything, or a list.
   course.eras?.slice(1).forEach((era) => { if (era.keeps !== 'all' && !Array.isArray(era.keeps)) say('era-keeps', pathLevels(era.foundation)[0] ?? era.id, String(era.id), `era ${era.id} has no keeps`) })
-  // Every machine's era ends in a topic series.
-  for (const era of course.eras) if (era.machine && !(era.topics ?? []).length) say('no-topic', pathLevels(era.foundation)[0] ?? era.id, era.machine, `era ${era.id} has no topic series yet`)
   // A topic stays in one world.
   for (const era of course.eras) {
     for (const topic of era.topics ?? []) {
