@@ -8,7 +8,7 @@
 // the same board (when every test passes; `carry` keeps the circuit). A stage may give the player a scan-order dial,
 // a filter for the sweeping arm, or scan in rounds until the table settles.
 
-import { $, buzz, toast, signal, wide } from '../util.js';
+import { $, buzz, toast, signal, wide, paint } from '../util.js';
 import { rt, Anim } from '../runtime.js';
 import { WORLDS, runCircuit, windowOf, visibleSensors, sensorsOf, MAX_ROUNDS } from '../circuit/worlds.js';
 import { ROBOTS } from '../circuit/robots.js';
@@ -503,8 +503,8 @@ export function circuitMode(L, saved, { flags, game } = {}) {
      *  level has one, in the window beside the board (#cview); clicking one adds or removes its output on the card. */
     mounted() {
       const view = $('#cview');
-      if (view) view.innerHTML = viewHTML(circ(), ui());
-      for (const box of document.querySelectorAll('[data-cardview]')) box.innerHTML = viewHTML(circ(), ui(), box.dataset.cardview);
+      if (view) paint(view, viewHTML(circ(), ui()));
+      for (const box of document.querySelectorAll('[data-cardview]')) paint(box, viewHTML(circ(), ui(), box.dataset.cardview));
     },
     // The run bar: 单步 is always there (before a run it starts one held on its first step; during one it stops the
     // run where it is, or moves a stopped run on a step), then clear and Run, or during a run pause / go on and skip.
