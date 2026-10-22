@@ -34,12 +34,12 @@ export const ERAS = [
     keeps: [],
     foundation: [
       'copy',
-      // The kernel's two parts, each on its own line: Detach uses an “if … then …” up, the box makes one. K, proved
-      // with boxes, becomes a part; Suppose then uses both parts together.
-      branches(['detach', '分离', 'Detach', ['mp', 'pick', 'nested', 'cond']], ['assume', '假设框', 'Assumption box', ['assume', 'k']]),
+      // The kernel's two parts, each on its own line: Detach uses an “if … then …” up, the box makes one. Build a
+      // prover then uses both parts together.
+      branches(['detach', '分离', 'Detach', ['mp', 'pick', 'nested', 'cond']], ['assume', '假设框', 'Assumption box', ['assume', 'k2']]),
       'box',
-      // K and S need nothing from each other; what joins them waits for both.
-      branches(['k', 'K', 'K', ['k2', 'kmp']], ['s', 'S', 'S', ['s', 's2']]),
+      // K and S, each proved with boxes and built as a part, need nothing from each other; what joins them waits for both.
+      branches(['k', 'K', 'K', ['k', 'kmp']], ['s', 'S', 'S', ['s', 's2']]),
       // Chain and Merge, each built with a box, need nothing from each other. Chain is practised and grows into Swap
       // on its own line; Merge is practised on the other.
       branches(['chain', '串联', 'Chain', ['chain', 'long', 'swap', 'swapUse']], ['merge', '合并', 'Merge', ['twice', 'thrice']]),
@@ -47,9 +47,9 @@ export const ERAS = [
     // Chain and Merge together, harder each time, then a false lookalike of Chain.
     practice: ['mergeUse', 'mergeLong', 'mergeBoth', 'wrongChain'],
     // Without the box (x-…): K, S and Detach alone, the way a prover with only axioms works, each right after the level
-    // that does the same with a box, or as soon as the parts it needs are in hand: x-k needs Detach as well as K (so
-    // after 'box', where both lines meet), x-self needs S; the last compiles the box of Chain away.
-    challenges: [{ level: 'hs', after: 'swap' }, { level: 'x-k', after: 'box' }, { level: 'x-self', after: 's' }, { level: 'x-chain', after: 'chain' }],
+    // that does the same with a box, or as soon as the parts it needs are in hand: x-k follows K; x-self needs K and S, both
+    // in hand from Chain on; x-chain compiles the box of Chain away.
+    challenges: [{ level: 'hs', after: 'swap' }, { level: 'x-k', after: 'k' }, { level: 'x-self', after: 'chain' }, { level: 'x-chain', after: 'chain' }],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠分离和假设框，能证出什么？', 'What can Detach and the assumption box prove?') },
   },
   {
