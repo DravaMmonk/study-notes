@@ -32,8 +32,15 @@ hide:
 
 <div class="kit-cards">
 <a class="kit-card" href="Unimelb/25S2/AIP/01-Search.md"><div class="kit-card-body"><span class="kit-card-topic">COMP90054 · 2025 S2</span><span class="kit-card-title">AI Planning for Autonomy</span><span class="kit-card-desc">Search, classical planning, relaxation heuristics, exploration, MDPs and reinforcement learning up to policy approximation.</span><span class="kit-card-foot"><span>11 lectures</span><b>Read →</b></span></div></a>
-<a class="kit-card" href="Unimelb/25S2/IML/01-probability.md"><div class="kit-card-body"><span class="kit-card-topic">COMP90049 · 2025 S2</span><span class="kit-card-title">Introduction to Machine Learning</span><span class="kit-card-desc">Probability, k-nearest neighbours, decision trees, naive Bayes, logistic regression and SVMs.</span><span class="kit-card-foot"><span>6 lectures</span><b>Read →</b></span></div></a>
-<a class="kit-card" href="Unimelb/25S2/MoC/01-introduction.md"><div class="kit-card-body"><span class="kit-card-topic">COMP30026 · 2025 S2</span><span class="kit-card-title">Models of Computation</span><span class="kit-card-desc">Notes not written yet.</span><span class="kit-card-foot"><span>In progress</span><b>Open →</b></span></div></a>
+<a class="kit-card" href="Unimelb/25S2/IML/README.md"><div class="kit-card-body"><span class="kit-card-topic">COMP90049 · 2025 S2</span><span class="kit-card-title">Introduction to Machine Learning</span><span class="kit-card-desc">From ML concepts, probability and classic classifiers through optimisation, evaluation, feature selection and neural networks to unsupervised, semi-supervised and ensemble learning, fairness and anomaly detection.</span><span class="kit-card-foot"><span>16 notes</span><b>Read →</b></span></div></a>
+<a class="kit-card" href="Unimelb/25S2/MoC/README.md"><div class="kit-card-body"><span class="kit-card-topic">COMP30026 · 2025 S2</span><span class="kit-card-title">Models of Computation</span><span class="kit-card-desc">Propositional and predicate logic with resolution, finite automata, regular expressions and non-regularity, context-free languages, Turing machines and decidability.</span><span class="kit-card-foot"><span>13 notes</span><b>Read →</b></span></div></a>
+</div>
+
+<h2 class="kit-section">2025 Semester 1</h2>
+
+<div class="kit-cards">
+<a class="kit-card" href="Unimelb/25S1/DB/README.md"><div class="kit-card-body"><span class="kit-card-topic">INFO90002 · 2025 S1</span><span class="kit-card-title">Database Systems & Information Modelling</span><span class="kit-card-desc">ER modelling, logical and physical design, normalisation, SQL, transactions, administration, distributed databases, data warehousing, NoSQL, security and web apps.</span><span class="kit-card-foot"><span>14 notes</span><b>Read →</b></span></div></a>
+<a class="kit-card" href="Unimelb/25S1/IT/README.md"><div class="kit-card-body"><span class="kit-card-topic">COMP90007 · 2025 S1</span><span class="kit-card-title">Internet Technologies</span><span class="kit-card-desc">The network stack bottom-up: physical and data link layers, MAC, IP and routing, TCP/UDP and congestion control, DNS, the web, email and network security.</span><span class="kit-card-foot"><span>14 notes</span><b>Read →</b></span></div></a>
 </div>
 
 <h2 class="kit-section">Games</h2>

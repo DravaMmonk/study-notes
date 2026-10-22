@@ -47,6 +47,26 @@
     "en": "COMP30026 Models of Computation",
     "zh": "COMP30026 计算模型"
   },
+  "Unimelb/25S1": {
+    "en": "2025 Semester 1",
+    "zh": "2025 年第一学期"
+  },
+  "Unimelb/25S1/Alg": {
+    "en": "COMP90038 Algorithms and Complexity",
+    "zh": "COMP90038 算法与复杂度"
+  },
+  "Unimelb/25S1/DB": {
+    "en": "INFO90002 Database Systems & Information Modelling",
+    "zh": "INFO90002 数据库系统与信息建模"
+  },
+  "Unimelb/25S1/IT": {
+    "en": "COMP90007 Internet Technologies",
+    "zh": "COMP90007 互联网技术"
+  },
+  "Unimelb/25S1/Java": {
+    "en": "COMP90041 Programming and Software Development",
+    "zh": "COMP90041 程序设计与软件开发"
+  },
   "Other": {
     "en": "Self-study",
     "zh": "自学"
