@@ -10,6 +10,8 @@ import { LOGIC_TESTS, lemmaGives } from './proof.js'
 import { validate } from './validate.js'
 
 const run = (level, circuit) => runLevel(LOGIC_TESTS, level, circuit)
+// K and S as a course proves them (lemmas of the kernel, no longer axioms).
+const KS = { axK: { statement: 'A → (B → A)', metas: ['A', 'B'] }, axS: { statement: '(A → (B → C)) → ((A → B) → (A → C))', metas: ['A', 'B', 'C'] } }
 
 test('parse and show round-trip with the usual precedence', () => {
   for (const text of ['A → B → C', '(A → B) → C', 'A ∧ B ∨ C', 'A ∧ (B ∨ C)', '¬¬A', '∀x. P(x) → ∃y. Q(x, y)', 'f(a) = b']) {
@@ -26,7 +28,7 @@ test('substitution does not capture', () => {
 })
 
 test('Hilbert: A → A from K and S in five steps', () => {
-  const level = { tests: [{ goal: 'A → A' }] }
+  const level = { tests: [{ goal: 'A → A' }], lemmas: KS }
   const c = proof({
     s: ['axS', { A: 'A', B: 'A → A', C: 'A' }],
     k1: ['axK', { A: 'A', B: 'A → A' }],
@@ -48,7 +50,7 @@ test('a wrong premise is named with what it needed', () => {
 })
 
 test('→ introduction closes its assumption; an open one fails', () => {
-  const level = { tests: [{ goal: 'A → B → A' }] }
+  const level = { tests: [{ goal: 'A → B → A' }], lemmas: KS }
   // The outer box assumes A; inside it, K and Detach give B → A from it.
   const good = proof({ i: ['impI', { A: 'A' }], k: ['axK', { A: 'A', B: 'B' }, 'i'], m: ['mp', {}, 'i'] }, ['k>m.imp', 'i#body>m.a', 'm>i.body', 'i>goal'])
   assert.equal(run(level, good).pass, true)

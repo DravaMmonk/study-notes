@@ -1,8 +1,8 @@
 // 《证明完毕》's course: one machine, the prover the player builds, module by module (one chapter each). Chapter 0 has
 // no machine: a sentence is checked by its truth table by hand. Truth circuits compute a sentence's value on every
-// row; the kernel proves from Detach and two axioms alone; its topic rewrites a proof under a hypothesis into one
-// without it (the deduction theorem), which the assumption box then makes a single part, taking the place of K and S.
-// Everything built earlier stays in the prover.
+// row; the kernel proves from two parts, Detach and the assumption box, and proves K and S with them; its challenges
+// hold the box back and prove with K and S alone. The next chapter adds the other connectives. Everything built
+// earlier stays in the prover.
 const T = (zh, en) => ({ zh, en })
 
 // A named stretch of the main path (one branch of a `parallel` set): each new rule, then practice with it. Branches
@@ -33,26 +33,29 @@ export const ERAS = [
     // A new topic: proof by rules, not truth by circuits. The gates stay behind with the truth circuits.
     keeps: [],
     foundation: [
-      series('detach', '分离', 'Detach', ['copy', 'mp', 'pick', 'nested', 'cond']),
+      'copy',
+      // The kernel's two parts, each on its own line: Detach uses an “if … then …” up, the box makes one. K, proved
+      // with boxes, becomes a part; Suppose then uses both parts together.
+      branches(['detach', '分离', 'Detach', ['mp', 'pick', 'nested', 'cond']], ['assume', '假设框', 'Assumption box', ['assume', 'k']]),
+      'box',
       // K and S need nothing from each other; what joins them waits for both.
-      branches(['k', '公理 K', 'Axiom K', ['k', 'k2', 'kmp']], ['s', '公理 S', 'Axiom S', ['s', 's2']]),
+      branches(['k', 'K', 'K', ['k2', 'kmp']], ['s', 'S', 'S', ['s', 's2']]),
       // Chain and Identity both need only K and S, not each other. Chain is practised and grows into Swap on its own
       // line; Identity grows into Merge on the other.
       branches(['chain', '串联', 'Chain', ['chain', 'long', 'swap', 'swapUse']], ['identity', '恒等', 'Identity', ['short', 'self', 'twice', 'thrice']]),
     ],
     // Chain and Merge together, harder each time, then a false lookalike of Chain.
     practice: ['mergeUse', 'mergeLong', 'mergeBoth', 'wrongChain'],
-    challenges: [{ level: 'hs', after: 'swap' }],
-    chapter: { title: T('证明核', 'The kernel'), question: T('只靠一条规则和两条公理，能证出什么？', 'What can one rule and two axioms prove?') },
+    // Without the box (x-…): K, S and Detach alone, the way a prover with only axioms works, each hanging where what it
+    // needs is in hand, the last compiling the box of Chain away.
+    challenges: [{ level: 'hs', after: 'swap' }, { level: 'x-k', after: 'kmp' }, { level: 'x-self', after: 's2' }, { level: 'x-chain', after: 'chain' }],
+    chapter: { title: T('证明核', 'The kernel'), question: T('只靠分离和假设框，能证出什么？', 'What can Detach and the assumption box prove?') },
   },
   {
     id: 'boxes', machine: 'prover',
-    // The kernel extended: Detach and the lemmas built with the kernel carry on; the box replaces K and S (index.js).
+    // The kernel extended: Detach, the box and the lemmas built with the kernel carry on.
     keeps: 'all',
     foundation: [
-      'box',
-      series('axioms', '公理成了定理', 'Axioms as theorems', ['nest', 'sbox']),
-      'chainUse',
       // And, or and not each need only the box; the mixed problems wait for all three.
       branches(
         ['and', '并且', 'And', ['and', 'andSwap', 'curry', 'uncurry', 'andImp']],
@@ -64,6 +67,6 @@ export const ERAS = [
     ],
     topics: [{ id: 'knights', code: 'K', after: 'lemCases', levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
     challenges: [{ level: 'peirce', after: 'lemCases' }],
-    chapter: { title: T('假设框', 'Assumption boxes'), question: T('先假设，再证明：框里的推理怎样变成框外的定理？', 'Assume, then prove: how does reasoning inside a box become a theorem outside it?') },
+    chapter: { title: T('连接词', 'Connectives'), question: T('有了「与」「或」「非」，证明器还要哪些规则？', 'With “and”, “or” and “not”, what more rules does the prover need?') },
   },
 ]

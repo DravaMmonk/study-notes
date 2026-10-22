@@ -43,6 +43,8 @@
 //   carries(part, level) → bool            whether an earlier part is carried into this level (default: always)
 //   needed(level) → [part] | null          the parts its reference answer uses (null: no reference to go by)
 //   folds(level) → [part]                  parts the level's spec folds away anyway
+//   showcase(level) → bool                 a level that shows a new part's mechanism alone, on purpose (the part
+//                                          wired to the goal by itself): the bare-intro rule lets it be
 //   abstraction                            also audit the abstraction chain (bare-intro, unused); a course turns it on
 //                                          once its curriculum keeps it
 // })
@@ -147,7 +149,7 @@ export function layout(eras) {
   return { order, place, requires, tracks }
 }
 
-export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], carries = () => true, needed = () => null, folds = () => [], abstraction = false }) {
+export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], carries = () => true, needed = () => null, folds = () => [], showcase = () => false, abstraction = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -169,7 +171,7 @@ export function defineCourse({ levels, eras = null, primitives, adds, needs, bui
   // lets through only the parts on it; one that keeps 'all' lets everything through.
   const eraOf = (id) => (plan ? eras.findIndex((e) => e.id === plan.place.get(id)?.era) : 0)
   const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => e.keeps === 'all' || e.keeps?.includes(part)) ?? true
-  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, showcase, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -296,7 +298,7 @@ export function audit(course) {
     // And a part a level builds is used by a later level's reference answer. Both for courses that keep the chain.
     if (course.abstraction) {
       const used = course.needed(level)?.filter((p) => course.primitives.has(p) || course.needs(p))
-      for (const p of ideas) if (used?.length === 1 && course.concept(used[0]) === p) say('bare-intro', level.id, p, 'its first level is that part alone, wired to the goal')
+      for (const p of ideas) if (used?.length === 1 && course.concept(used[0]) === p && !course.showcase(level)) say('bare-intro', level.id, p, 'its first level is that part alone, wired to the goal')
       for (const b of course.builds(level)) if (!levels.some((l) => course.before(level.id, l.id) && course.needed(l)?.includes(b))) say('unused', level.id, b, 'built here, and no later reference answer uses it')
     }
     if (role === 'challenge' && ideas.size) say('challenge-new', level.id, [...ideas].join(' '), 'a challenge brings nothing new')

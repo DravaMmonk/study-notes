@@ -12,6 +12,8 @@ const T = (zh, en) => ({ zh, en })
 
 // The lemmas the player proves; a part is a pattern, so its description and ports use letters.
 export const LEMMAS = {
+  axK: { name: T('K', 'K'), desc: T('卡片上选两句 A、B，直接给出 A → (B → A)：已经成立的事，加上什么条件都还成立。', 'Choose two sentences A and B on the card; it gives A → (B → A) at once: what holds still holds under any condition.'), statement: 'A → (B → A)', metas: ['A', 'B'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
+  axS: { name: T('S', 'S'), desc: T('卡片上选三句 A、B、C，直接给出 (A → (B → C)) → ((A → B) → (A → C))：在条件 A 下也能分离。', 'Choose three sentences A, B and C on the card; it gives (A → (B → C)) → ((A → B) → (A → C)) at once: Detach works under a condition A too.'), statement: '(A → (B → C)) → ((A → B) → (A → C))', metas: ['A', 'B', 'C'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
   id: { name: T('恒等', 'Identity'), desc: T('卡片上选一句 A，直接给出 A → A。', 'Choose a sentence A on the card; it gives A → A at once.'), statement: 'A → A', metas: ['A'], ports: [] },
   chain: { name: T('串联', 'Chain'), desc: T('接进 A → B 和 B → C，直接给出 A → C。', 'Wire in A → B and B → C; it gives A → C at once.'), statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'], ports: ['A → B', 'B → C'] },
   swap: { name: T('交换', 'Swap'), desc: T('接进 A → (B → C)，给出 B → (A → C)：两个条件换个顺序。', 'Wire in A → (B → C); it gives B → (A → C): the two conditions swapped.'), statement: 'B → (A → C)', premises: ['A → (B → C)'], metas: ['A', 'B', 'C'], ports: ['A → (B → C)'] },
@@ -27,9 +29,7 @@ export const LOGIC = logicCourse({
   words: WORDS,
   lemmas: LEMMAS,
   gates: GATES,
-  primitives: ['gNot', 'gAnd', 'mp', 'axK', 'axS', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa'],
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa'],
   // Joining and splitting ∧ come together, as one idea.
   concept: { andI: 'and', andE: 'and' },
-  // The assumption box takes the place of the axioms: what they say is now proved with it.
-  replaces: { impI: ['axK', 'axS'] },
 })

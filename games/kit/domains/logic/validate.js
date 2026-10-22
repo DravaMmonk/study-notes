@@ -53,7 +53,7 @@ export function validate({ levels, course }) {
       if (!level.unprovable && m) out.push({ fail: true, text: `${level.id}: ${test.goal} has a countermodel, so no proof can exist` })
     }
     if (level.unprovable) { out.push({ text: `${level.id} ${keyOf(level.title)}: countermodel found` }); continue }
-    const carried = level.lemmas ? reach(course, { id: level.id }).filter((p) => level.lemmas[p] && course.builder(p) !== level.id) : []
+    const carried = level.lemmas ? reach(course, { id: level.id }).filter((p) => level.lemmas[p] && course.builder(p) !== level.id && !level.without?.includes(p)) : []
     for (const p of carried) {
       const gives = (t) => lemmaGives(level.lemmas[p], Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }))
       if (level.tests.every(gives)) out.push({ fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })

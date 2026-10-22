@@ -11,7 +11,7 @@ export const GLOSSARY = [
   {
     id: 'map', group: 'play', title: T('关卡地图', 'Level map'),
     body: [
-      T('关卡排成四章：纸笔、真值电路、证明核、假设框。后三章是你一章一章装进同一台证明器的模块，前面装上的都留着。通过一关，接在它后面的关卡就会打开；岔出去的专题和挑战可以晚些再玩。', 'The levels sit in four chapters: pen and paper, truth circuits, the kernel, assumption boxes. The last three are modules you install, one chapter at a time, into the one prover you build, and what is installed stays. Pass a level and the levels after it open; the topics and challenges branching off can wait.'),
+      T('关卡排成四章：纸笔、真值电路、证明核、连接词。后三章是你一章一章装进同一台证明器的模块，前面装上的都留着。通过一关，接在它后面的关卡就会打开；岔出去的专题和挑战可以晚些再玩。', 'The levels sit in four chapters: pen and paper, truth circuits, the kernel, connectives. The last three are modules you install, one chapter at a time, into the one prover you build, and what is installed stays. Pass a level and the levels after it open; the topics and challenges branching off can wait.'),
       T('不想按顺序玩，可以打开「全部解锁」。', 'If you would rather not go in order, turn on “Unlock all”.'),
     ],
     see: ['board'],
@@ -54,8 +54,8 @@ export const GLOSSARY = [
   {
     id: 'hilbert', group: 'logic', title: T('公理与分离', 'Axioms and Detach'), at: 'k',
     body: [
-      T('证明核是一个<b>希尔伯特系统</b>：只有一条规则「分离」（由「如果…那么…」和它的前一半得到后一半），加上两条公理 K 和 S。K 说已经成立的事加上任何条件都还成立；S 说在一个条件下也能做分离。', 'The kernel is a <b>Hilbert system</b>: one rule, Detach (from an “if … then …” and its “if” part, the “then” part), and two axioms, K and S. K says what holds still holds under any condition; S says Detach works under a condition too.'),
-      T('公理卡片上的几句话可以选成任何句子，每选一次就是一条公理。', 'The sentences on an axiom’s card can be any sentences; each choice is one axiom.'),
+      T('证明核的两块基础元件是分离和假设框。只有公理的证明器叫<b>希尔伯特系统</b>：一条规则「分离」，加上两条公理 K 和 S。K 说已经成立的事加上任何条件都还成立；S 说在一个条件下也能做分离。', 'The kernel’s two parts are Detach and the assumption box. A prover with only axioms is a <b>Hilbert system</b>: one rule, Detach, and two axioms, K and S. K says what holds still holds under any condition; S says Detach works under a condition too.'),
+      T('在这台证明器里，K 和 S 是用框证出来的元件；挑战关拿掉框，只用它们和分离证明。它们卡片上的几句话可以选成任何句子。', 'In this prover K and S are parts proved with boxes; the challenges take the box away and prove with them and Detach alone. The sentences on their cards can be any sentences.'),
     ],
     see: ['deduction'],
   },
@@ -65,12 +65,12 @@ export const GLOSSARY = [
     see: ['board'],
   },
   {
-    id: 'deduction', group: 'logic', title: T('演绎定理', 'The deduction theorem'), at: 'box',
+    id: 'deduction', group: 'logic', title: T('演绎定理', 'The deduction theorem'), at: 'x-chain',
     body: [T('在一个假设下能推出某件事，就能不带假设证出「如果 假设，那么 那件事」。证法是逐步改写：假设本身换成恒等，和假设无关的步用 K 包一层，分离用 S。', 'If something follows under an assumption, then “if the assumption, then that” can be proved with no assumption. The proof rewrites step by step: the assumption itself becomes Identity, a step unrelated to it is wrapped in K, and Detach goes through S.')],
     see: ['box', 'hilbert'],
   },
   {
-    id: 'box', group: 'play', title: T('假设框', 'Assumption boxes'), at: 'box',
+    id: 'box', group: 'play', title: T('假设框', 'Assumption boxes'), at: 'assume',
     body: [
       T('假设框是板上的一个框，框里就能摆元件。在框卡片上填要假设的命题，框左上角的「假设」就给出它；框里证出的东西接到框右上角的「结论」，框外就得到「假设 → 结论」。', 'An assumption box is a frame on the board, and parts sit right inside it. Fill in what to assume on the box card, and “Assume” at the box’s top left gives it; wire what you prove inside to “Conclusion” at its top right, and outside you get “assumption → conclusion”.'),
       T('点一下框里的空白，新放的元件就落在框里；板上的卡片也可以拖进框里，或拖出来。框里看得见外面的一切，框里证出的东西却只能从「结论」带出去。框卡片左上角的箭头把框折叠起来。', 'Click the empty space inside a box and new parts land in it; cards on the board can be dragged into a box, or out of one. From inside a box everything outside is visible, but what is proved inside leaves only through “Conclusion”. The arrow at the top left of the box card folds it away.'),
@@ -80,7 +80,7 @@ export const GLOSSARY = [
   },
   {
     id: 'natural', group: 'logic', title: T('自然演绎', 'Natural deduction'), at: 'and',
-    body: [T('装上假设框以后，证明器的规则成对出现：每个连接词一条<b>引入</b>规则（怎样证出它），一条<b>消去</b>规则（怎样用它）。∧ 是拼起来和拆开，∨ 是二选一和分情况，→ 是假设框和分离，⊥ 是「矛盾推出一切」。', 'Once the prover has boxes, its rules come in pairs: for each connective a rule that <b>brings it in</b> (how to prove it) and one that <b>uses it up</b>. ∧ is joining and splitting, ∨ choosing a side and splitting into cases, → the assumption box and Detach, and ⊥ “from contradiction, anything”.')],
+    body: [T('到了这一章，证明器的规则成对出现：每个连接词一条<b>引入</b>规则（怎样证出它），一条<b>消去</b>规则（怎样用它）。∧ 是拼起来和拆开，∨ 是二选一和分情况，→ 是假设框和分离，⊥ 是「矛盾推出一切」。', 'By this chapter the prover’s rules come in pairs: for each connective a rule that <b>brings it in</b> (how to prove it) and one that <b>uses it up</b>. ∧ is joining and splitting, ∨ choosing a side and splitting into cases, → the assumption box and Detach, and ⊥ “from contradiction, anything”.')],
     see: ['classical'],
   },
   {

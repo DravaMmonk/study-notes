@@ -1,7 +1,5 @@
-// Chapter 3 · Assumption boxes: the prover gains the box, the deduction theorem built in: assume a sentence inside a
-// box, prove another, and outside it you get "if …, then …". The box takes the place of axioms K and S (they leave the
-// tray; 'nest' and 'sbox' prove them as theorems), while Detach and the lemmas built in the kernel chapter (Identity,
-// Chain, Swap, Merge) stay. Each mechanism is its own section: introduced, practised from a few angles, then combined;
+// Chapter 3 · Connectives: the prover, Detach and the box and the lemmas built in the kernel chapter (Identity, Chain,
+// Swap, Merge) with it, gains ∧, ∨, ⊥ and ¬. Each mechanism is its own section: introduced, practised from a few angles, then combined;
 // sections build parts of their own (modus tollens, double negation, De Morgan, excluded middle) that later levels
 // lean on. Proof by contradiction comes after "undeniable middle", when the prover is one step from it.
 // The knights-and-knaves topic is about the islanders. Each level is a pattern plus test cases (see era1.js).
@@ -27,71 +25,6 @@ const deMorgan = proof({
 const k1 = proof({ e: ['andE'], g: ['merge'], m1: ['mp'], m2: ['mp'] }, ['p>e.ab', 'e#left>g.p0', 'e#right>m1.imp', 'g>m1.a', 'g>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p'] })
 
 export const era2 = [
-  {
-    id: 'box',
-    kind: 'proof',
-    title: T('假设一下', 'Suppose'),
-    tests: [{ premises: { p: 'A → (B → C)', q: 'B' }, goal: 'A → C' }],
-    cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Alarm', B: 'Coffee', C: 'Awake' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
-    adds: ['impI'],
-    brief: T('已知「今天是周六 → (下雨 → 我休息)」和「下雨」，用假设框证出「今天是周六 → 我休息」。', 'Given “today is Saturday → (it rains → I rest)” and “it rains”, prove “today is Saturday → I rest” with an assumption box.'),
-    hint: [
-      T('框卡片上的「假设」选「今天是周六」。', 'On the box card, set “Assume” to “today is Saturday”.'),
-      T('点一下框里的空白，再放两块分离，它们就落在框里。第一张已知配上框左上角的「假设」，分离得「下雨 → 我休息」；再配上「下雨」分离，得「我休息」，接到框右上角的「结论」。最后把框的输出接到目标。', 'Click the empty space inside the box, then place two Detaches: they land in it. The first given with “Assume” at the box’s top left gives “it rains → I rest” by Detach; Detach again with “it rains” gives “I rest”: wire it to “Conclusion” at the box’s top right. Last, wire the box’s output to the goal.'),
-    ],
-    intro: [
-      { t: T('周六的话，下雨我就在家休息。今天下雨了。人会这样想：「<b>假设</b>今天是周六。那下雨我就休息；可现在确实在下雨，所以我休息。所以，如果今天是周六，那么我休息。」', 'On a Saturday, if it rains I rest at home. It is raining. A person thinks: “<b>Suppose</b> today is Saturday. Then if it rains I rest; and it is raining, so I rest. So if today is Saturday, then I rest.”') },
-      { t: T('<b>假设</b>和「如果…那么…」不是一回事。假设不是说今天真是周六，而是推理时暂时把它当作成立的出发点，后面每一句都在它之下推出；「今天是周六 → 我休息」则是一句话，可以接进规则。推完了，把假设放回句子前面，就得到这样一句话：「如果今天是周六，那么我休息」。这就是演绎定理。', 'An <b>assumption</b> is not an “if … then …”. It does not claim that today is Saturday: it is a starting point taken as true for the moment, and every later line is derived under it; “today is Saturday → I rest” is a sentence that can go into a rule. Once done, put the assumption back in front and you get such a sentence: “if today is Saturday, then I rest”. That is the deduction theorem.') },
-      { t: T('证明器装上了<b>假设框</b>，就能这样想：在框卡片上选要假设的话，框左上角就给出它（「假设」）；在框里摆元件，证出的东西接到框右上角的「结论」，框外就给出「如果 假设，那么 结论」。要往框里放元件，先点一下框里，或者把板上的卡片直接拖进去。框里看得见外面的一切，用法和外面一样。', 'Now that the prover has an <b>assumption box</b>, it can think that way: choose on the box card what to assume, and the box’s top left gives it (“Assume”); lay out parts inside the box and wire what you prove to “Conclusion” at its top right, and outside the box gives “if the assumption, then the conclusion”. To put a part in the box, click inside it first, or drag a card from the board into it. From inside the box everything outside is visible and works just as it does outside.') },
-      { t: T('只用证明核，这题要用 K 包一层、S 合起来，5 步。假设框接替了 K 和 S：它们离开元件栏；分离，还有你造的恒等、串联、交换、合并，都留下。', 'With the kernel alone this takes K to wrap and S to combine: 5 steps. The assumption box takes the place of K and S: they leave the row of parts, while Detach and the parts you built, Identity, Chain, Swap and Merge, stay.') },
-    ],
-    solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
-    after: T('一个框、两次分离，和脑子里的推理一模一样。框里的假设只在框里有效：框一关，它就成了结论里「如果」后面那半句，不再算已知。以后要证「如果…那么…」，先试试假设前半句，看能不能推出后半句。', 'One box and two Detaches, exactly as you would reason it out. The assumption only holds inside the box: once the box closes it becomes the “if” half of the conclusion, and no longer counts as given. From now on, to prove an “if … then …”, try assuming the first half and see whether the second follows.'),
-  },
-  {
-    id: 'nest',
-    kind: 'proof',
-    title: T('公理成了定理', 'An axiom becomes a theorem'),
-    tests: [{ goal: 'A → (B → A)' }],
-    cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Coffee', B: 'Late' }],
-    hiddenCases: [{ A: 'Sat', B: 'Rain' }],
-    brief: T('没有任何已知，证出「下雨 → (刮风 → 下雨)」。', 'With nothing given, prove “it rains → (it is windy → it rains)”.'),
-    hint: [T('两个 →，两个框：外面的框假设「下雨」，里面的框假设「刮风」。里面的框要的结论，外面的框已经假设了。', 'Two →s, two boxes: the outer one assumes “it rains”, the inner one “it is windy”. What the inner box must conclude, the outer box has already assumed.')],
-    intro: [{ t: T('这是证明核的公理 K。证明核只能拿它当出发点；装上假设框以后，它可以证出来。框里可以再放框，里面的框看得见外面框的假设。', 'This is the kernel’s axiom K. The kernel could only start from it; now that the prover has boxes, it can be proved. A box can sit inside a box, and the inner one sees the outer one’s assumption.') }],
-    solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'] }, ['f#body>g.body', 'g>f.body', 'f>goal']),
-    after: T('2 步，一步规则都没用：证明核的公理，现在是定理。「刮风」的假设一直没用上，可框照样关得上。', 'Two steps and no rule at all: the kernel’s axiom is now a theorem. The “it is windy” assumption was never used, and the box closes all the same.'),
-  },
-  {
-    id: 'sbox',
-    kind: 'proof',
-    title: T('三层框', 'Three boxes'),
-    tests: [{ goal: '(A → (B → C)) → ((A → B) → (A → C))' }],
-    cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
-    brief: T('没有任何已知，证出证明核的公理 S：「(下雨 → (刮风 → 地湿)) → ((下雨 → 刮风) → (下雨 → 地湿))」。', 'With nothing given, prove the kernel’s axiom S: “(it rains → (it is windy → the ground is wet)) → ((it rains → it is windy) → (it rains → the ground is wet))”.'),
-    hint: [
-      T('数一数最外层的 →：三个框，一个套一个，依次假设三个「如果」的部分。', 'Count the outermost →s: three boxes, one inside the next, assuming the three “if” parts in turn.'),
-      T('最里面有了「下雨」，两句外层假设各分离一次，再把结果互相分离。', 'With “it rains” innermost, Detach each outer assumption once, then Detach the results together.'),
-    ],
-    intro: [{ t: T('S 是证明核最难懂的公理。有了假设框，它只是三个假设叠在一起。', 'S was the kernel’s hardest axiom. With boxes it is just three assumptions stacked up.') }],
-    solution: proof({ f: ['impI', { A: 'A → (B → C)' }], g: ['impI', { A: 'A → B' }, 'f'], h: ['impI', { A: 'A' }, 'g'], m1: ['mp', {}, 'h'], m2: ['mp', {}, 'h'], m3: ['mp', {}, 'h'] }, ['f#body>m1.imp', 'h#body>m1.a', 'g#body>m2.imp', 'h#body>m2.a', 'm1>m3.imp', 'm2>m3.a', 'm3>h.body', 'h>g.body', 'g>f.body', 'f>goal']),
-    after: T('6 步，S 就是<level-ref to="s"></level-ref>，读出来就是证明。证明核的两条公理，现在都是定理了。', 'Six steps: S is <level-ref to="s"></level-ref>, and reading it aloud is the proof. Both of the kernel’s axioms are now theorems.'),
-  },
-  {
-    id: 'chainUse',
-    kind: 'proof',
-    title: T('假设一条规则', 'Assume a rule'),
-    tests: [{ premises: { q: 'B → (C → D)' }, goal: '(A → B) → (C → (A → D))' }],
-    cases: [{ A: 'Alarm', B: 'Up', C: 'Exam', D: 'OnTime' }, { A: 'Rain', B: 'Wet', C: 'Sat', D: 'Slip' }],
-    hiddenCases: [{ A: 'Coffee', B: 'Awake', C: 'Exam', D: 'Pass' }],
-    brief: T('已知「我起床了 → (明天考试 → 我准时到)」，证出「(闹钟响了 → 我起床了) → (明天考试 → (闹钟响了 → 我准时到))」。', 'Given “I get up → (there is an exam tomorrow → I arrive on time)”, prove “(the alarm rings → I get up) → (there is an exam tomorrow → (the alarm rings → I arrive on time))”.'),
-    hint: [T('框里假设的，可以是一整句「如果…那么…」。', 'What a box assumes can be a whole “if … then …”.')],
-    intro: [{ t: T('目标的前一半「闹钟响了 → 我起床了」不是已知，是一条要先假设的规则。假设它以后，它和框外的已知放在一起，正好是你在证明核里造的元件用得上的样子。', 'The first half of the goal, “the alarm rings → I get up”, is not given: it is a rule to assume first. Once assumed, it and the given outside the box look just like what the parts you built in the kernel take.') }],
-    solution: proof({ f: ['impI', { A: 'A → B' }], c: ['chain', {}, 'f'], w: ['swap', {}, 'f'] }, ['f#body>c.p0', 'q>c.p1', 'c>w.p0', 'w>f.body', 'f>goal'], { premises: ['q'] }),
-    after: T('3 步：框假设「闹钟响了 → 我起床了」，框里串联、交换，框外就得到「如果这条规则成立，那么……」。证明核造的元件在框里照样能用。', 'Three steps: the box assumes “the alarm rings → I get up”, Chain and Swap work inside it, and outside comes “if this rule holds, then …”. The parts built in the kernel work inside a box just as well.'),
-  },
-
   {
     id: 'and',
     kind: 'proof',

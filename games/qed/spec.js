@@ -33,7 +33,16 @@ export default {
   // Version 6 added practice with Merge and with Chain and Merge before the levels that now follow them.
   { version: 6, ops: [{ solve: ['mergeUse', ['thrice']] }, { solve: ['wrongChain', ['mergeLong', 'mergeBoth']] }] },
   // Version 7 dropped the deduction-theorem topic: the assumption box introduces assumptions instead.
-  { version: 7, ops: [{ rename: { 'dt-mp': null, 'dt-whole': null } }] }],
+  { version: 7, ops: [{ rename: { 'dt-mp': null, 'dt-whole': null } }] },
+  // Version 8 moved the assumption box into the kernel, beside Detach: K and S are proved with boxes and become parts,
+  // and the levels that proved them in the boxes chapter are gone. Whoever had passed K has passed the box's first
+  // levels and holds the parts K and S stood for.
+  { version: 8, ops: [
+    { solve: ['k', ['assume', 'box']] },
+    { grant: ['k', 'lemma:axK'] },
+    { grant: ['s', 'lemma:axS'] },
+    { rename: { nest: null, sbox: null, chainUse: null } },
+  ] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['分离'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
