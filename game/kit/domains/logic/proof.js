@@ -65,7 +65,7 @@ export const RULES = {
   premise: source(),
   goal: sink(),
 
-  // ---- Hilbert: modus ponens and the axioms K, S (instances set on the card) ----
+  // ---- the rule that uses an “if … then …” up: modus ponens ----
   mp: {
     inputs: ['imp', 'a'],
     eval: ({ imp: i, a }, _n, ctx) => {
@@ -75,8 +75,6 @@ export const RULES = {
       return proved(f.b, union(i, a))
     },
   },
-  axK: { inputs: [], params: ['A', 'B'], eval: (_, node, ctx) => { const [A, B] = [param(node, 'A', ctx), param(node, 'B', ctx)]; return proved(imp(A, imp(B, A))) } },
-  axS: { inputs: [], params: ['A', 'B', 'C'], eval: (_, node, ctx) => { const [A, B, C] = [param(node, 'A', ctx), param(node, 'B', ctx), param(node, 'C', ctx)]; return proved(imp(imp(A, imp(B, C)), imp(imp(A, B), imp(A, C)))) } },
 
   // ---- natural deduction ----
   impI: {

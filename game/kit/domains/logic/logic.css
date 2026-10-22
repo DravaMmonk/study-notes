@@ -3,7 +3,6 @@
 [data-family='given'] { --fam: var(--w0); }
 [data-family='hyp'] { --fam: var(--w4); }
 [data-family='rule'] { --fam: var(--n2); }
-[data-family='axiom'] { --fam: var(--n3); }
 [data-family='box'] { --fam: var(--w1); }
 [data-family='lemma'] { --fam: var(--n1); }
 [data-family='end'] { --fam: var(--accent); }

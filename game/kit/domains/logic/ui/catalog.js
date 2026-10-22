@@ -1,7 +1,7 @@
 // What the logic domain's parts are called and how they look on a board (《证明完毕》): each rule's name, what it does
 // and its ports, written with letters for any sentence (a part is a pattern), the settings on its
 // card and a box's regions, and the editor's description of a node (../../../circuit/model.js parts, frames.js).
-import { ArrowRightFromLine, Box, Flag, GitFork, Puzzle, Sigma, Split } from 'lucide-react'
+import { ArrowRightFromLine, Box, Flag, GitFork, Puzzle, Split } from 'lucide-react'
 import { RULES, rulesOf } from '../proof.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -9,8 +9,6 @@ const T = (zh, en) => ({ zh, en })
 /** Every rule: name, what it does, port labels, setting labels and the regions of a box (`frames`). */
 export const RULE_TEXT = {
   mp: { name: T('分离', 'Detach'), desc: T('由 A → B 和 A 得到 B：接进一句「如果…，那么…」和它的前一半，得到后一半。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part.'), ports: { imp: 'A → B', a: 'A' } },
-  axK: { name: T('公理 K', 'Axiom K'), desc: T('A → (B → A)：已经成立的事，加上什么条件都还成立。第一句 A、第二句 B 在卡片上选。', 'A → (B → A): what holds still holds under any condition. Choose the first sentence A and the second B on the card.'), params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
-  axS: { name: T('公理 S', 'Axiom S'), desc: T('(A → (B → C)) → ((A → B) → (A → C))：在条件 A 下也能分离。三句 A、B、C 在卡片上选。', '(A → (B → C)) → ((A → B) → (A → C)): Detach works under a condition A too. Choose A, B and C on the card.'), params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
   impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A、证出 B，框外得到 A → B。', 'Assume A inside the box and prove B; outside you get A → B.'), params: { A: T('假设', 'Assume') }, frames: { body: T('框里', 'Inside') } },
   andI: { name: T('拼成 ∧', 'Join ∧'), desc: T('由 A 和 B 得到 A ∧ B。', 'From A and B, A ∧ B.'), ports: { a: 'A', b: 'B' } },
   andE: { name: T('拆开 ∧', 'Split ∧'), desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.'), ports: { ab: 'A ∧ B' }, outs: { left: ['A', 'A'], right: ['B', 'B'] } },
@@ -33,14 +31,14 @@ const OPENS = T('假设', 'Assume')
 const CLOSES = T('结论', 'Conclusion')
 const GIVES = T('得出', 'Result')
 
-/** The card's settings: [{ key, label }] (orI's side is a switch of its own). */
-export const settingsOf = (parts, type) => (parts[type]?.params ?? []).map((key) => ({ key, label: RULE_TEXT[type]?.params?.[key] ?? key }))
+/** The card's settings: [{ key, label }] (orI's side is a switch of its own); a lemma may name its own (`params`). */
+export const settingsOf = (parts, type, lemmas = {}) => (parts[type]?.params ?? []).map((key) => ({ key, label: lemmas[type]?.params?.[key] ?? RULE_TEXT[type]?.params?.[key] ?? key }))
 
 /** A rule's or lemma's name and what it does. */
 export const nameOf = (lemmas, type) => lemmas[type]?.name ?? RULE_TEXT[type]?.name ?? type
 export const descOf = (lemmas, type) => lemmas[type]?.desc ?? RULE_TEXT[type]?.desc
-export const familyOf = (lemmas, type) => (lemmas[type] ? 'lemma' : RULES[type]?.frames ? 'box' : type === 'axK' || type === 'axS' ? 'axiom' : 'rule')
-const ICONS = { lemma: Puzzle, box: Box, axiom: Sigma, rule: GitFork }
+export const familyOf = (lemmas, type) => (lemmas[type] ? 'lemma' : RULES[type]?.frames ? 'box' : 'rule')
+const ICONS = { lemma: Puzzle, box: Box, rule: GitFork }
 export const iconOf = (lemmas, type) => ICONS[familyOf(lemmas, type)] ?? Split
 
 /** The editor's description of a proof's nodes (model.js), for a level's lemmas and premise names (in order). */

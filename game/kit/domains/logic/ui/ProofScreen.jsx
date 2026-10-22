@@ -182,7 +182,7 @@ function Formula({ j, text, small = false, bare = false }) {
 
 // Under a card's ports: its settings, and what it proves (or why it cannot yet); a box shows that by its regions'
 // results instead, and folded, how much it holds.
-function CardBody({ node, parts, circuit, view, goal, setParam, text, choices }) {
+function CardBody({ node, parts, lemmas, circuit, view, goal, setParam, text, choices }) {
   const value = view.values.get(node.id)
   const error = view.errors.get(node.id)
   const role = parts.role(node)
@@ -194,7 +194,7 @@ function CardBody({ node, parts, circuit, view, goal, setParam, text, choices })
   return (
     <div className="lg-card">
       {node.type === 'goal' && <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b></span>}
-      {settingsOf(parts.rules, node.type).map((s) => <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={choices} />)}
+      {settingsOf(parts.rules, node.type, lemmas).map((s) => <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={choices} />)}
       {node.type === 'orI' && (
         <div className="lg-side" role="group" aria-label={tr('另一边放在', 'Other side goes')} onPointerDown={(e) => e.stopPropagation()}>
           <span>{tr('另一边放', 'Other side')}</span>
@@ -264,7 +264,7 @@ function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(lemmas, node.type))}</p>}
-            <CardBody node={node} parts={parts} circuit={circuit} view={view} goal={goal} text={text} choices={choices} setParam={setParam} />
+            <CardBody node={node} parts={parts} lemmas={lemmas} circuit={circuit} view={view} goal={goal} text={text} choices={choices} setParam={setParam} />
             {parts.role(node) === 'part' && <button type="button" className="lg-remove" onClick={() => { editing.remove(node.id); setSheet(null) }}><Trash2 size={15} />{tr('拿掉这一块', 'Remove this block')}</button>}
           </div>
         </Sheet>
