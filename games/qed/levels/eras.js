@@ -39,7 +39,7 @@ export const ERAS = [
       branches(['detach', '分离', 'Detach', ['mp', 'pick', 'nested', 'cond']], ['assume', '假设框', 'Assumption box', ['assume', 'k2']]),
       'box',
       // K and S, each proved with boxes and built as a part, need nothing from each other; what joins them waits for both.
-      branches(['k', 'K', 'K', ['k', 'kmp']], ['s', 'S', 'S', ['s', 's2']]),
+      branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s', 's2']]),
       // Chain and Merge, each built with a box, need nothing from each other. Chain is practised and grows into Swap
       // on its own line; Merge is practised on the other.
       branches(['chain', '串联', 'Chain', ['chain', 'long', 'swap', 'swapUse']], ['merge', '合并', 'Merge', ['twice', 'thrice']]),

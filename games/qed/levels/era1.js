@@ -250,7 +250,7 @@ export const era1 = [
     solution: proof({ m1: ['mp'], m2: ['mp'] }, ['q>m1.imp', 'p>m1.a', 'r>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p', 'q', 'r'] }),
     after: T('证出来的「如果…那么…」，既能拿去分离，也能整句当别人的前提。', 'A proved “if … then …” can be detached, or passed whole as a premise.'),
   },
-  // ---- practice with K ----
+  // ---- practice with the box ----
   {
     id: 'k2',
     kind: 'proof',
@@ -269,19 +269,6 @@ export const era1 = [
     ],
     solution: proof({ f: ['impI', { A: 'B' }], g: ['impI', { A: 'C' }, 'f'] }, ['p>g.body', 'g>f.body', 'f>goal'], { premises: ['p'] }),
     after: T('2 步，两个框都没用上自己的假设，照样关得上：一句已经成立的话，加上几个条件都还成立。', 'Two steps; neither box used its own assumption, and both close all the same: what holds still holds under as many conditions as you like.'),
-  },
-  {
-    id: 'kmp',
-    kind: 'proof',
-    title: T('先推出来，再加条件', 'Prove it, then add a condition'),
-    tests: [{ premises: { p: 'A', q: 'A → B' }, goal: 'C → B' }],
-    cases: [{ A: 'Rain', B: 'Wet', C: 'Wind' }, { A: 'Alarm', B: 'Up', C: 'Sat' }],
-    hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Coffee' }],
-    brief: T('已知「下雨」「下雨 → 地湿」，证出「刮风 → 地湿」。', 'Given “it rains” and “it rains → the ground is wet”, prove “it is windy → the ground is wet”.'),
-    hint: [T('目标的后一半「地湿」，已知里没有现成的。先把它推出来。', 'The goal’s “then” part, “the ground is wet”, is not given as such. Prove it first.')],
-    intro: [{ t: T('目标长得像 K 给出的样子：「如果 随便什么，那么 某件事」。可 K 要的「某件事」得先成立。', 'The goal looks like what K gives: “if anything, then something”. But K needs that something to hold first.') }],
-    solution: proof({ m1: ['mp'], k: ['axK', { A: 'B', B: 'C' }], m2: ['mp'] }, ['q>m1.imp', 'p>m1.a', 'k>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
-    after: T('看目标的形状，决定最后一步用什么；再倒推最后一步要什么。', 'The goal’s shape decides the last step; then work back to what that step needs.'),
   },
   // ---- the parts at work ----
   {
