@@ -42,7 +42,11 @@ problems in 《证明完毕》, see `games/DESIGN.md` §11):
   hard, ending in a combination or a false-target level — before the next mechanism appears. The era must not
   read as a list of one theorem or rule per level.
 - **Lead-in.** Every new part or ability has a cause: an earlier level where the player does it by hand or hits
-  the wall it removes. A level whose reference answer is "place the new part, wire it to the goal" is a smell.
+  the wall it removes. A level whose reference answer is "place the new part, wire it to the goal" is a smell. The
+  one exception is a part whose use is itself abstract enough to get wrong from its description (an assumption box:
+  a region, two dots, results leaving only through its conclusion): one level may just show how it is used, marked
+  `showcase: '<what is abstract about it>'`. A part one sentence explains (a block gate: "yes" gives "—", else it
+  passes) gets no level of its own; it first appears inside a real problem.
 - **Motivation on the main path.** A required level's intro must not depend on an optional challenge or topic.
 - **Abstraction keeps rising.** Draw the part dependency graph (§7 step 4). Every built part is used by later
   reference answers, in places where not having it would be long. Later levels lean on higher-level parts; a

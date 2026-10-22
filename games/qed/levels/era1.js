@@ -65,8 +65,7 @@ export const era1 = [
     cases: [{ A: 'Rain' }, { A: 'Sat' }],
     hiddenCases: [{ A: 'Rain → Wet' }],
     adds: ['impI'],
-    // The box's mechanism by itself: assume, and hand the assumption to the conclusion.
-    showcase: true,
+    showcase: 'a box has a region and two dots, and what is made inside leaves only through its conclusion',
     brief: T('没有任何已知，用假设框证出「下雨 → 下雨」。', 'With nothing given, prove “it rains → it rains” with an assumption box.'),
     hint: [
       T('框卡片上的「假设」选「下雨」。', 'On the box card, set “Assume” to “it rains”.'),

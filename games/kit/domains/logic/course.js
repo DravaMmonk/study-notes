@@ -26,7 +26,7 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
  *   concept     { part: idea } parts that are one new idea together
  * }
  * A level may also hold back parts it would carry (`without: [part]`): a proof that must do without the box; and a
- * level that shows a new part's mechanism by itself says so (`showcase: true`).
+ * level that shows a new part's use by itself says why its use is abstract (`showcase: 'reason'`, ../../course.js).
  * A level names only the parts it brings in (`adds`): every part met or built before it in its era carries into it,
  * and across eras what each era keeps (../../course.js); and what it
  * folds away (`fold`); see ../../course.js reach and offer.
@@ -81,7 +81,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     naive: (l) => Boolean(byId.get(l.id).naive),
     needed: (l) => (byId.get(l.id).solution ? rulesIn(byId.get(l.id).solution) : null),
     folds: (l) => byId.get(l.id).fold ?? [],
-    showcase: (l) => Boolean(byId.get(l.id).showcase),
+    showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
   })
   // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
