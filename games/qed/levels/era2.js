@@ -1,4 +1,4 @@
-// Chapter 3 · Connectives: the prover, Detach and the box and the lemmas built in the kernel chapter (Identity, Chain,
+// Chapter 3 · Connectives: the prover, Apply and the box and the lemmas built in the kernel chapter (Identity, Chain,
 // Swap, Merge) with it, gains ∧, ∨, ⊥ and ¬. Each mechanism is its own section: introduced, practised from a few angles, then combined;
 // sections build parts of their own (modus tollens, double negation, De Morgan, excluded middle) that later levels
 // lean on. Proof by contradiction comes after "undeniable middle", when the prover is one step from it.
@@ -81,7 +81,7 @@ export const era2 = [
     cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Alarm', B: 'Coffee', C: 'Awake' }],
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
     brief: T('已知「今天是周六 → (下雨 → 我休息)」，证出「今天是周六 ∧ 下雨 → 我休息」。', 'Given “today is Saturday → (it rains → I rest)”, prove “today is Saturday ∧ it rains → I rest”.'),
-    hint: [T('一个框就够：假设「今天是周六 ∧ 下雨」，拆开以后分离两次。', 'One box will do: assume “today is Saturday ∧ it rains”, split it, then Detach twice.')],
+    hint: [T('一个框就够：假设「今天是周六 ∧ 下雨」，拆开以后套用两次。', 'One box will do: assume “today is Saturday ∧ it rains”, split it, then Apply twice.')],
     intro: [{ t: T('反过来：两个条件合成一个「并且」。这次只要一个框。', 'The other way: two conditions become one “and”. This time one box is enough.') }],
     solution: proof({ f: ['impI', { A: 'A ∧ B' }], e: ['andE', {}, 'f'], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['f#body>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>m2.imp', 'e#right>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p'] }),
     after: T('<level-ref to="curry"></level-ref>拼，这一关拆。两种写法能互相推出，以后哪种顺手用哪种。', '<level-ref to="curry"></level-ref> joined, this one splits. Each form gives the other, so use whichever is handier.'),
@@ -94,7 +94,7 @@ export const era2 = [
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'Awake' }],
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Late' }],
     brief: T('已知「下雨 → 地湿」和「下雨 → 路滑」，证出「下雨 → 地湿 ∧ 路滑」。', 'Given “it rains → the ground is wet” and “it rains → the road is slippery”, prove “it rains → the ground is wet ∧ the road is slippery”.'),
-    hint: [T('框里的同一句假设，可以接进两块分离。', 'The box’s one assumption can go into two Detaches.')],
+    hint: [T('框里的同一句假设，可以接进两块套用。', 'The box’s one assumption can go into two Applies.')],
     intro: [{ t: T('一句假设能用几次？要几次用几次。', 'How many times can an assumption be used? As many as you need.') }],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], c: ['andI', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'f#body>m2.a', 'm1>c.a', 'm2>c.b', 'c>f.body', 'f>goal'], { premises: ['p', 'q'] }),
     after: T('框的「假设」口连了两根线。一根线证出来的东西，分给几块元件都行。', 'The box’s “Assume” dot has two wires. What one wire proves can feed as many parts as you like.'),
@@ -191,12 +191,12 @@ export const era2 = [
     adds: ['botE'],
     brief: T('一个证人说「门锁着」，又说「¬门锁着」。由这两句证出「月亮是奶酪做的」。', 'A witness says “the door is locked”, and also “¬the door is locked”. From the two, prove “the moon is made of cheese”.'),
     hint: [
-      T('在证明器眼里，「¬门锁着」就是「门锁着 → ⊥」。它能接分离的哪个口？', 'To the prover, “¬the door is locked” is “the door is locked → ⊥”. Which input of Detach can it go into?'),
+      T('在证明器眼里，「¬门锁着」就是「门锁着 → ⊥」。它能接套用的哪个口？', 'To the prover, “¬the door is locked” is “the door is locked → ⊥”. Which input of Apply can it go into?'),
       T('得到 ⊥ 以后，用「矛盾推出一切」，卡片上选「月亮是奶酪做的」。', 'Once you have ⊥, use “From contradiction” and choose “the moon is made of cheese” on its card.'),
     ],
     intro: [
       { t: T('一个证人先说「门锁着」，又说「并非门锁着」。两句不可能都对。', 'A witness says “the door is locked”, then “not the door is locked”. Both cannot be true.') },
-      { t: T('<b>⊥</b> 代表矛盾：一句永远是假的话。「并非…」写成 <b>¬</b>，证明器把「¬门锁着」当成「门锁着 → ⊥」：「门锁着一成立就矛盾」。所以它配上「门锁着」，用分离就得到 ⊥。', '<b>⊥</b> stands for contradiction: a statement that is always false. “Not …” is written <b>¬</b>, and the prover reads “¬the door is locked” as “the door is locked → ⊥”: “if the door is locked held, that would be a contradiction”. So with “the door is locked” it gives ⊥ by Detach.') },
+      { t: T('<b>⊥</b> 代表矛盾：一句永远是假的话。「并非…」写成 <b>¬</b>，证明器把「¬门锁着」当成「门锁着 → ⊥」：「门锁着一成立就矛盾」。所以它配上「门锁着」，用套用就得到 ⊥。', '<b>⊥</b> stands for contradiction: a statement that is always false. “Not …” is written <b>¬</b>, and the prover reads “¬the door is locked” as “the door is locked → ⊥”: “if the door is locked held, that would be a contradiction”. So with “the door is locked” it gives ⊥ by Apply.') },
       { t: T('<b>矛盾推出一切</b>：有了 ⊥，卡片上选什么，就能证出什么。', '<b>From contradiction, anything</b>: from ⊥, prove whatever is chosen on the card.') },
     ],
     solution: proof({ m: ['mp'], b: ['botE', { C: 'B' }] }, ['q>m.imp', 'p>m.a', 'm>b.bot', 'b>goal'], { premises: ['p', 'q'] }),
@@ -288,7 +288,7 @@ export const era2 = [
     hint: [T('德摩根拆出「¬我坐公交」，它和第二张已知首尾相接。', 'De Morgan gives “¬I take the bus”, which meets the second given end to end.')],
     intro: [{ t: T('我既没坐公交也没骑车；我要准时到，就得坐公交。那我准时不了。造过的元件，一起上。', 'I took neither the bus nor my bike; to arrive on time I would have taken the bus. So I will not be on time. Put the parts you built together.') }],
     solution: proof({ d: ['dm'], e: ['andE'], t: ['chain'] }, ['p>d.p0', 'd>e.ab', 'q>t.p0', 'e#left>t.p1', 't>goal'], { premises: ['p', 'q'] }),
-    after: T('3 步，两块都是你造的元件。只用框和分离，这要 8 步以上。', 'Three steps, two of them parts you built. With boxes and Detach alone it takes eight or more.'),
+    after: T('3 步，两块都是你造的元件。只用框和套用，这要 8 步以上。', 'Three steps, two of them parts you built. With boxes and Apply alone it takes eight or more.'),
   },
   {
     id: 'denyAnte',
@@ -410,7 +410,7 @@ export const era2 = [
       { t: T('一个岛民说了一句话，就有：「他是骑士」<b>当且仅当</b>他说的是真的。「…当且仅当…」写成 <b>↔</b>：两个方向的 → 都成立，也就是「(甲 → 乙) ∧ (乙 → 甲)」。证明器把它当成一句 ∧。', 'If an islander says something, then “he is a knight” <b>if and only if</b> what he says is true. “… if and only if …” is written <b>↔</b>: the → holds both ways, that is “(X → Y) ∧ (Y → X)”. The prover reads it as an ∧.') },
     ],
     solution: k1,
-    after: T('4 步：拆开、合并、两次分离。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。', 'Four steps: split, merge, two Detaches. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true.'),
+    after: T('4 步：拆开、合并、两次套用。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。', 'Four steps: split, merge, two Applies. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true.'),
   },
   {
     id: 'kk-two',

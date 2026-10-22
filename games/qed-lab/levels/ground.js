@@ -31,14 +31,14 @@ export const ground = [
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
     hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
     symbols: ['→'],
-    adds: ['app'],
+    adds: ['mp'],
     brief: T('已知「下雨 → 地湿」「地湿 → 路滑」「下雨」，证出「路滑」。', 'Given “it rains → the ground is wet”, “the ground is wet → the road is slippery” and “it rains”, prove “the road is slippery”.'),
     hint: [T('第一块套用给出「地湿」，它能接进第二块套用。', 'The first Apply gives “the ground is wet”, which can go into a second Apply.')],
     intro: [
       { t: T('地基的第一块元件是<b>套用</b>：一个输入口接一句「如果…，那么…」，另一个接它的前一半，输出它的后一半。一句「如果…那么…」就像一台机器，套用就是把前一半喂给它。', 'The foundation’s first part is <b>Apply</b>: one input takes an “if …, then …”, the other its “if” part, and out comes its “then” part. An “if … then …” is like a machine, and Apply feeds it its “if” part.') },
       { t: T('「如果…，那么…」写成 <b>→</b>：「下雨 → 地湿」就是「如果下雨，那么地湿」。', '“If …, then …” is written <b>→</b>: “it rains → the ground is wet” is “if it rains, then the ground is wet”.') },
     ],
-    solution: proof({ m1: ['app'], m2: ['app'] }, ['p>m1.imp', 'r>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p', 'q', 'r'] }),
+    solution: proof({ m1: ['mp'], m2: ['mp'] }, ['p>m1.imp', 'r>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p', 'q', 'r'] }),
     after: T('套用只认形状，不管讲的是什么。推出来的「地湿」又当了下一步的输入。', 'Apply looks only at shape, never at what it is about. The “the ground is wet” it proved became the next step’s input.'),
   },
   {
@@ -56,7 +56,7 @@ export const ground = [
       { t: T('真值电路里的「与」门：两边都真，才输出真。证明器里，「…与…」写成 <b>∧</b>，照着这张表有两块元件。', 'The “and” gate of the truth circuits: true only when both sides are true. In the prover “… and …” is written <b>∧</b>, and that table gives it two parts.') },
       { t: T('<b>拼成 ∧</b>：两边都证出来了，就有「左边 ∧ 右边」，正是表里唯一为真的那一行。<b>拆开 ∧</b>：有了「左边 ∧ 右边」，两边就都是真的，它有两个输出口。', '<b>Join ∧</b>: with both sides proved, “left ∧ right”, just the one row of the table where it is true. <b>Split ∧</b>: from “left ∧ right” both sides are true; it has two outputs.') },
     ],
-    solution: proof({ e: ['andE'], m: ['app'], i: ['andI'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>i.a', 'e#right>i.b', 'i>goal'], { premises: ['p', 'q'] }),
+    solution: proof({ e: ['andE'], m: ['mp'], i: ['andI'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>i.a', 'e#right>i.b', 'i>goal'], { premises: ['p', 'q'] }),
     after: T('拆开、套用、拼成，3 步。两块元件都不用开框：它们只是把「与」门的真值表变成了规则。', 'Split, apply, join: three steps. Neither part opens a box: they are the “and” gate’s truth table turned into rules.'),
   },
   {
@@ -74,7 +74,7 @@ export const ground = [
       { t: T('「或」门：两边至少一个真，就输出真。「…或…」写成 <b>∨</b>。', 'The “or” gate: true when at least one side is. “… or …” is written <b>∨</b>.') },
       { t: T('<b>引入 ∨</b>：证出了一边，另一边是什么都行，整句就成立。另一边是哪句、放左边还是右边，在卡片上选。', '<b>Bring in ∨</b>: with one side proved, the whole holds whatever the other side is. Choose the other side, and whether it goes left or right, on the card.') },
     ],
-    solution: proof({ m: ['app'], o: ['orI', { other: 'C', side: 'left' }] }, ['q>m.imp', 'p>m.a', 'm>o.a', 'o>goal'], { premises: ['p', 'q'] }),
+    solution: proof({ m: ['mp'], o: ['orI', { other: 'C', side: 'left' }] }, ['q>m.imp', 'p>m.a', 'm>o.a', 'o>goal'], { premises: ['p', 'q'] }),
     after: T('知道一边，就知道「这边 ∨ 随便哪边」。反过来不行：光有一句 ∨，不知道是哪一边成立，要用掉它，得等到有了框。', 'Knowing one side, you know “this ∨ anything”. Not the other way round: an ∨ alone does not say which side holds, and using one up waits until there are boxes.'),
   },
   {
@@ -95,7 +95,7 @@ export const ground = [
       { t: T('框卡片上选要假设的话，框左上角给出它；在框里证出的东西接到框右上角的「结论」，框外就得到「如果 假设，那么 结论」。点一下框里，新放的元件就落在框里。', 'Choose on the box card what to assume, and its top left gives it; wire what you prove inside to “Conclusion” at its top right, and outside you get “if the assumption, then the conclusion”. Click inside the box and new parts land there.') },
       { t: T('套用用掉一句「如果…那么…」，框造出一句「如果…那么…」：地基就是这一对。', 'Apply uses an “if … then …” up, the box makes one: the foundation is this pair.') },
     ],
-    solution: proof({ f: ['impI', { A: 'A' }], m1: ['app', {}, 'f'], m2: ['app', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
+    solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
     after: T('一个框、两次套用。真实的证明器 Lean 的内核也是从这一对开始的：框是 λ，套用是函数应用。', 'One box and two Applies. The kernel of Lean, a real prover, starts from this pair too: the box is λ, Apply is function application.'),
   },
   {
@@ -129,7 +129,7 @@ export const ground = [
       T('最里面有了「下雨」，把两句外层假设各套用一次，再把结果互相套用。', 'With “it rains” innermost, apply each outer assumption to it once, then apply the results to each other.'),
     ],
     intro: [{ t: T('这句话叫 <b>S</b>，和 K 一起，是只有公理的证明器的全部出发点。它说的是：在同一个条件「下雨」下，也能套用。读出来就是证明：三层假设，三次套用。', 'This sentence is called <b>S</b>; with K it is everything a prover with only axioms starts from. It says: under one condition, “it rains”, Apply still works. Read it aloud and you have the proof: three assumptions, three Applies.') }],
-    solution: proof({ f: ['impI', { A: 'A → (B → C)' }], g: ['impI', { A: 'A → B' }, 'f'], h: ['impI', { A: 'A' }, 'g'], m1: ['app', {}, 'h'], m2: ['app', {}, 'h'], m3: ['app', {}, 'h'] }, ['f#body>m1.imp', 'h#body>m1.a', 'g#body>m2.imp', 'h#body>m2.a', 'm1>m3.imp', 'm2>m3.a', 'm3>h.body', 'h>g.body', 'g>f.body', 'f>goal']),
+    solution: proof({ f: ['impI', { A: 'A → (B → C)' }], g: ['impI', { A: 'A → B' }, 'f'], h: ['impI', { A: 'A' }, 'g'], m1: ['mp', {}, 'h'], m2: ['mp', {}, 'h'], m3: ['mp', {}, 'h'] }, ['f#body>m1.imp', 'h#body>m1.a', 'g#body>m2.imp', 'h#body>m2.a', 'm1>m3.imp', 'm2>m3.a', 'm3>h.body', 'h>g.body', 'g>f.body', 'f>goal']),
     after: T('6 步。现在 K 和 S 都是你证出来的元件，不是规定。', 'Six steps. K and S are now parts you proved, not rules you were handed.'),
   },
   {
@@ -142,7 +142,7 @@ export const ground = [
     brief: T('已知「下雨 → 地湿」和「地湿 → 路滑」，证出「下雨 → 路滑」。', 'Given “it rains → the ground is wet” and “the ground is wet → the road is slippery”, prove “it rains → the road is slippery”.'),
     hint: [T('目标是一句「如果下雨，那么…」：假设「下雨」，看能套用出什么。', 'The goal is “if it rains, then …”: assume “it rains” and see what Apply gets you.')],
     intro: [{ t: T('两段「如果…那么…」首尾相接。要证一句「如果…那么…」，先假设它的前一半。', 'Two “if … then …”s meet end to end. To prove an “if … then …”, assume its first half.') }],
-    solution: proof({ f: ['impI', { A: 'A' }], m1: ['app', {}, 'f'], m2: ['app', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
+    solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
     after: T('3 步：要证「如果…那么…」，就假设它的前一半。下一个专题会拿掉框，看同一件事要费多少力气。', 'Three steps: to prove an “if … then …”, assume its first half. The topic that follows takes the box away to see what the same thing costs.'),
   },
 
@@ -160,7 +160,7 @@ export const ground = [
       { t: T('<level-ref to="or"></level-ref>里说过：光有一句 ∨，不知道是哪一边。现在有了框，就能每一边都假设一次。', '<level-ref to="or"></level-ref> said an ∨ alone does not tell which side holds. With boxes, assume each side in turn.') },
       { t: T('<b>分情况</b>是一块有两个框的元件：接进「左边 ∨ 右边」，「情况一」假设左边，「情况二」假设右边；两个框证出同一句话，外面就得到它。', '<b>Case by case</b> is a part with two boxes: wire in “left ∨ right”; case one assumes the left, case two the right; when both prove the same sentence, outside you get it.') },
     ],
-    solution: proof({ e: ['orE'], m: ['app', {}, 'e/left'], m2: ['app', {}, 'e/right'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>e.left', 'r>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q', 'r'] }),
+    solution: proof({ e: ['orE'], m: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>e.left', 'r>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q', 'r'] }),
     after: T('不知道是哪一种，就每一种都证一遍。∧、∨ 的规则都不是框和套用造出来的：它们和框、套用一样，是证明器的基础元件。', 'Not knowing which, prove it for each. The rules of ∧ and ∨ are not built from the box and Apply: like them, they are the prover’s primitive parts.'),
   },
 
@@ -179,7 +179,7 @@ export const ground = [
       { t: T('这个专题把框拿走，只剩套用和你证出的 K、S。早期的证明器（希尔伯特系统）就是这样：只有一条规则和几条公理。', 'This topic takes the box away, leaving Apply and the K and S you proved. Early provers (Hilbert systems) were like this: one rule and a few axioms.') },
       { t: T('要给一句话加条件，框做不了，就得找一句现成的「如果…那么…」来套用。', 'To put a condition on a sentence without a box, find a ready-made “if … then …” to apply.') },
     ],
-    solution: proof({ k: ['K', { A: 'A', B: 'B' }], m: ['app'] }, ['k>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
+    solution: proof({ k: ['K', { A: 'A', B: 'B' }], m: ['mp'] }, ['k>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
     after: T('有框时一步，没有框要 K 加一次套用。', 'One step with a box; without it, K and an Apply.'),
   },
   {
@@ -199,9 +199,9 @@ export const ground = [
     solution: proof({
       s: ['S', { A: 'A', B: 'A → A', C: 'A' }],
       k1: ['K', { A: 'A', B: 'A → A' }],
-      m1: ['app'],
+      m1: ['mp'],
       k2: ['K', { A: 'A', B: 'A' }],
-      m2: ['app'],
+      m2: ['mp'],
     }, ['s>m1.imp', 'k1>m1.a', 'm1>m2.imp', 'k2>m2.a', 'm2>goal']),
     after: T('一句一眼就对的话，没有框要 5 步。', 'An obvious sentence takes five steps without a box.'),
   },
@@ -223,10 +223,10 @@ export const ground = [
     ],
     solution: proof({
       k: ['K', { A: 'B → C', B: 'A' }],
-      m1: ['app'],
+      m1: ['mp'],
       s: ['S', { A: 'A', B: 'B', C: 'C' }],
-      m2: ['app'],
-      m3: ['app'],
+      m2: ['mp'],
+      m3: ['mp'],
     }, ['k>m1.imp', 'q>m1.a', 's>m2.imp', 'm1>m2.a', 'm2>m3.imp', 'p>m3.a', 'm3>goal'], { premises: ['p', 'q'] }),
     after: T('5 步。这个改写有固定的做法，任何一个框都能这样换成 K、S 和套用（演绎定理）。所以框不增加能证的东西，只是让证明好写得多：这就是证明器把框放进地基、把 K 和 S 降成元件的原因。', 'Five steps. The rewrite follows a fixed recipe, and any box can be traded for K, S and Apply this way (the deduction theorem). So the box adds nothing provable; it only makes proofs far easier to write. That is why the prover puts the box in its foundation and K and S among its parts.'),
   },

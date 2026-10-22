@@ -18,7 +18,7 @@ export const LOGIC = logicCourse({
   levels: ground,
   words: WORDS,
   lemmas: LEMMAS,
-  primitives: ['app', 'andI', 'andE', 'orI', 'impI', 'orE'],
+  primitives: ['mp', 'andI', 'andE', 'orI', 'impI', 'orE'],
   // Joining and splitting ∧ come together, as one idea.
   concept: { andI: 'and', andE: 'and' },
 })

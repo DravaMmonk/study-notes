@@ -52,10 +52,10 @@ export const GLOSSARY = [
     see: ['truth', 'hilbert'],
   },
   {
-    id: 'hilbert', group: 'logic', title: T('公理与分离', 'Axioms and Detach'), at: 'k',
+    id: 'hilbert', group: 'logic', title: T('公理与套用', 'Axioms and Apply'), at: 'k',
     body: [
-      T('证明核的两块基础元件是分离和假设框。只有公理的证明器叫<b>希尔伯特系统</b>：一条规则「分离」，加上两条公理 K 和 S。K 说已经成立的事加上任何条件都还成立；S 说在一个条件下也能做分离。', 'The kernel’s two parts are Detach and the assumption box. A prover with only axioms is a <b>Hilbert system</b>: one rule, Detach, and two axioms, K and S. K says what holds still holds under any condition; S says Detach works under a condition too.'),
-      T('在这台证明器里，K 和 S 是用框证出来的元件；专题「拆掉框」拿掉框，只用它们和分离证明。它们卡片上的几句话可以选成任何句子。', 'In this prover K and S are parts proved with boxes; the topic Without the box takes the box away and proves with them and Detach alone. The sentences on their cards can be any sentences.'),
+      T('证明核的两块基础元件是套用和假设框。只有公理的证明器叫<b>希尔伯特系统</b>：一条规则「套用」，加上两条公理 K 和 S。K 说已经成立的事加上任何条件都还成立；S 说在一个条件下也能做套用。', 'The kernel’s two parts are Apply and the assumption box. A prover with only axioms is a <b>Hilbert system</b>: one rule, Apply, and two axioms, K and S. K says what holds still holds under any condition; S says Apply works under a condition too.'),
+      T('在这台证明器里，K 和 S 是用框证出来的元件；专题「拆掉框」拿掉框，只用它们和套用证明。它们卡片上的几句话可以选成任何句子。', 'In this prover K and S are parts proved with boxes; the topic Without the box takes the box away and proves with them and Apply alone. The sentences on their cards can be any sentences.'),
     ],
     see: ['deduction'],
   },
@@ -66,7 +66,7 @@ export const GLOSSARY = [
   },
   {
     id: 'deduction', group: 'logic', title: T('演绎定理', 'The deduction theorem'), at: 'x-chain',
-    body: [T('在一个假设下能推出某件事，就能不带假设证出「如果 假设，那么 那件事」。证法是逐步改写：假设本身换成用 K、S 拼出的「如果它，那么它」，和假设无关的步用 K 包一层，分离用 S。', 'If something follows under an assumption, then “if the assumption, then that” can be proved with no assumption. The proof rewrites step by step: the assumption itself becomes “if it, then it”, pieced together from K and S, a step unrelated to it is wrapped in K, and Detach goes through S.')],
+    body: [T('在一个假设下能推出某件事，就能不带假设证出「如果 假设，那么 那件事」。证法是逐步改写：假设本身换成用 K、S 拼出的「如果它，那么它」，和假设无关的步用 K 包一层，套用用 S。', 'If something follows under an assumption, then “if the assumption, then that” can be proved with no assumption. The proof rewrites step by step: the assumption itself becomes “if it, then it”, pieced together from K and S, a step unrelated to it is wrapped in K, and Apply goes through S.')],
     see: ['box', 'hilbert'],
   },
   {
@@ -80,7 +80,7 @@ export const GLOSSARY = [
   },
   {
     id: 'natural', group: 'logic', title: T('自然演绎', 'Natural deduction'), at: 'and',
-    body: [T('到了这一章，证明器的规则成对出现：每个连接词一条<b>引入</b>规则（怎样证出它），一条<b>消去</b>规则（怎样用它）。∧ 是拼起来和拆开，∨ 是二选一和分情况，→ 是假设框和分离，⊥ 是「矛盾推出一切」。', 'By this chapter the prover’s rules come in pairs: for each connective a rule that <b>brings it in</b> (how to prove it) and one that <b>uses it up</b>. ∧ is joining and splitting, ∨ choosing a side and splitting into cases, → the assumption box and Detach, and ⊥ “from contradiction, anything”.')],
+    body: [T('到了这一章，证明器的规则成对出现：每个连接词一条<b>引入</b>规则（怎样证出它），一条<b>消去</b>规则（怎样用它）。∧ 是拼起来和拆开，∨ 是二选一和分情况，→ 是假设框和套用，⊥ 是「矛盾推出一切」。', 'By this chapter the prover’s rules come in pairs: for each connective a rule that <b>brings it in</b> (how to prove it) and one that <b>uses it up</b>. ∧ is joining and splitting, ∨ choosing a side and splitting into cases, → the assumption box and Apply, and ⊥ “from contradiction, anything”.')],
     see: ['classical'],
   },
   {

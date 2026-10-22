@@ -1,6 +1,6 @@
 // 《证明完毕》's course: one machine, the prover the player builds, module by module (one chapter each). Chapter 0 has
 // no machine: a sentence is checked by its truth table by hand. Truth circuits compute a sentence's value on every
-// row; the kernel proves from two parts, Detach and the assumption box, and proves K and S with them; its challenges
+// row; the kernel proves from two parts, Apply and the assumption box, and proves K and S with them; its challenges
 // hold the box back and prove with K and S alone. The next chapter adds the other connectives. Everything built
 // earlier stays in the prover.
 const T = (zh, en) => ({ zh, en })
@@ -34,9 +34,9 @@ export const ERAS = [
     keeps: [],
     foundation: [
       'copy',
-      // The kernel's two parts, each on its own line: Detach uses an “if … then …” up, the box makes one. Build a
+      // The kernel's two parts, each on its own line: Apply uses an “if … then …” up, the box makes one. Build a
       // prover then uses both parts together.
-      branches(['detach', '分离', 'Detach', ['mp', 'pick', 'nested', 'cond']], ['assume', '假设框', 'Assumption box', ['assume', 'k2']]),
+      branches(['apply', '套用', 'Apply', ['mp', 'pick', 'nested', 'cond']], ['assume', '假设框', 'Assumption box', ['assume', 'k2']]),
       'box',
       // K and S, each proved with boxes and built as a part, need nothing from each other; what joins them waits for both.
       branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
@@ -46,14 +46,14 @@ export const ERAS = [
     ],
     // Chain and Merge together, harder each time, then a false lookalike of Chain.
     practice: ['mergeUse', 'mergeLong', 'mergeBoth', 'wrongChain'],
-    // Without the box: K, S and Detach alone, the way a prover with only axioms works, harder each time, once K and S
+    // Without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time, once K and S
     // are both in hand; it ends on compiling a box away (the deduction theorem).
     topics: [{ id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k', 'x-s', 'x-self', 'x-chain'], title: T('拆掉框', 'Without the box') }],
-    chapter: { title: T('证明核', 'The kernel'), question: T('只靠分离和假设框，能证出什么？', 'What can Detach and the assumption box prove?') },
+    chapter: { title: T('证明核', 'The kernel'), question: T('只靠套用和假设框，能证出什么？', 'What can Apply and the assumption box prove?') },
   },
   {
     id: 'boxes', machine: 'prover',
-    // The kernel extended: Detach, the box and the lemmas built with the kernel carry on.
+    // The kernel extended: Apply, the box and the lemmas built with the kernel carry on.
     keeps: 'all',
     foundation: [
       // And, or and not each need only the box; the mixed problems wait for all three.

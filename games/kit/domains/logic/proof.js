@@ -192,8 +192,6 @@ export const RULES = {
     },
   },
 }
-// Apply: Detach as a prover built on boxes calls it, applying a proved “if … then …” to its “if” part.
-RULES.app = RULES.mp
 
 /* ---------- lemmas: rules the player proved ---------- */
 

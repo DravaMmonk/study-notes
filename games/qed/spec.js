@@ -34,7 +34,7 @@ export default {
   { version: 6, ops: [{ solve: ['mergeUse', ['thrice']] }, { solve: ['wrongChain', ['mergeLong', 'mergeBoth']] }] },
   // Version 7 dropped the deduction-theorem topic: the assumption box introduces assumptions instead.
   { version: 7, ops: [{ rename: { 'dt-mp': null, 'dt-whole': null } }] },
-  // Version 8 moved the assumption box into the kernel, beside Detach: K and S are proved with boxes and become parts,
+  // Version 8 moved the assumption box into the kernel, beside Apply: K and S are proved with boxes and become parts,
   // and the levels that proved them in the boxes chapter are gone. Whoever had passed K has passed the box's first
   // levels and holds the parts K and S stood for.
   { version: 8, ops: [
@@ -51,6 +51,6 @@ export default {
   // its second level), and dropped 啰嗦的规定 and 串联本身, which the box makes too easy.
   { version: 11, ops: [{ rename: { s2: 'x-s', thrice: null, hs: null } }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
-  quotes: ['分离'],
+  quotes: ['套用'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }
