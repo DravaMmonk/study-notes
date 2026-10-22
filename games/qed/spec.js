@@ -29,7 +29,9 @@ export default {
   // Version 4 put a level on translating “a says X” before it.
   { version: 4, ops: [{ solve: ['e-one', ['e-says']] }] },
   // Version 5 made “Both ways round” build the Same truth gate.
-  { version: 5, ops: [{ grant: ['g-iff', 'lemma:gIff'] }] }],
+  { version: 5, ops: [{ grant: ['g-iff', 'lemma:gIff'] }] },
+  // Version 6 added practice with Merge and with Chain and Merge before the levels that now follow them.
+  { version: 6, ops: [{ solve: ['mergeUse', ['thrice']] }, { solve: ['wrongChain', ['mergeLong', 'mergeBoth']] }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['分离'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },

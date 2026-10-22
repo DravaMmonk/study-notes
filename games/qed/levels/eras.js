@@ -38,10 +38,10 @@ export const ERAS = [
       branches(['k', '公理 K', 'Axiom K', ['k', 'k2', 'kmp']], ['s', '公理 S', 'Axiom S', ['s', 's2']]),
       // Chain and Identity both need only K and S, not each other. Chain is practised and grows into Swap on its own
       // line; Identity grows into Merge on the other.
-      branches(['chain', '串联', 'Chain', ['chain', 'long', 'swap', 'swapUse']], ['identity', '恒等', 'Identity', ['short', 'self', 'twice']]),
+      branches(['chain', '串联', 'Chain', ['chain', 'long', 'swap', 'swapUse']], ['identity', '恒等', 'Identity', ['short', 'self', 'twice', 'thrice']]),
     ],
-    // Chain and Merge together, then a false lookalike of Chain.
-    practice: ['mergeUse', 'wrongChain'],
+    // Chain and Merge together, harder each time, then a false lookalike of Chain.
+    practice: ['mergeUse', 'mergeLong', 'mergeBoth', 'wrongChain'],
     // The deduction theorem needs only K and S: it opens once both axiom branches are done.
     topics: [{ id: 'deduction', code: 'D', after: ['kmp', 's2'], levels: ['dt-mp', 'dt-whole'], title: T('演绎定理', 'The deduction theorem') }],
     challenges: [{ level: 'hs', after: 'swap' }],
