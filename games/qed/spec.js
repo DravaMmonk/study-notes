@@ -42,7 +42,9 @@ export default {
     { grant: ['k', 'lemma:axK'] },
     { grant: ['s', 'lemma:axS'] },
     { rename: { nest: null, sbox: null, chainUse: null } },
-  ] }],
+  ] },
+  // Version 9 dropped the Identity levels, which the box now does in one step.
+  { version: 9, ops: [{ rename: { short: null, self: null } }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['分离'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },

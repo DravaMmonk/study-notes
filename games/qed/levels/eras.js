@@ -40,15 +40,16 @@ export const ERAS = [
       'box',
       // K and S need nothing from each other; what joins them waits for both.
       branches(['k', 'K', 'K', ['k2', 'kmp']], ['s', 'S', 'S', ['s', 's2']]),
-      // Chain and Identity both need only K and S, not each other. Chain is practised and grows into Swap on its own
-      // line; Identity grows into Merge on the other.
-      branches(['chain', '串联', 'Chain', ['chain', 'long', 'swap', 'swapUse']], ['identity', '恒等', 'Identity', ['short', 'self', 'twice', 'thrice']]),
+      // Chain and Merge, each built with a box, need nothing from each other. Chain is practised and grows into Swap
+      // on its own line; Merge is practised on the other.
+      branches(['chain', '串联', 'Chain', ['chain', 'long', 'swap', 'swapUse']], ['merge', '合并', 'Merge', ['twice', 'thrice']]),
     ],
     // Chain and Merge together, harder each time, then a false lookalike of Chain.
     practice: ['mergeUse', 'mergeLong', 'mergeBoth', 'wrongChain'],
-    // Without the box (x-…): K, S and Detach alone, the way a prover with only axioms works, each hanging where what it
-    // needs is in hand, the last compiling the box of Chain away.
-    challenges: [{ level: 'hs', after: 'swap' }, { level: 'x-k', after: 'kmp' }, { level: 'x-self', after: 's2' }, { level: 'x-chain', after: 'chain' }],
+    // Without the box (x-…): K, S and Detach alone, the way a prover with only axioms works, each right after the level
+    // that does the same with a box (Identity, done with a box in 'assume', waits for S in 's'), the last compiling
+    // the box of Chain away.
+    challenges: [{ level: 'hs', after: 'swap' }, { level: 'x-k', after: 'k' }, { level: 'x-self', after: 's' }, { level: 'x-chain', after: 'chain' }],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠分离和假设框，能证出什么？', 'What can Detach and the assumption box prove?') },
   },
   {

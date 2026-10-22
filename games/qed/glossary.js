@@ -61,12 +61,12 @@ export const GLOSSARY = [
   },
   {
     id: 'lemma', group: 'logic', title: T('引理', 'Lemmas'), at: 'chain',
-    body: [T('证过一次的事可以当规则一直用下去，这叫<b>引理</b>。它在每一组测试上都成立，所以对任何句子都能用：「两段首尾相接的如果…那么…」成了元件「串联」，「如果它，那么它」成了元件「恒等」。', 'Something proved once can be used as a rule from then on: a <b>lemma</b>. It held on every test, so it works for any sentences: “two if … then …s joined end to end” became the part Chain, and “if it, then it” became Identity.')],
+    body: [T('证过一次的事可以当规则一直用下去，这叫<b>引理</b>。它在每一组测试上都成立，所以对任何句子都能用：「两段首尾相接的如果…那么…」成了元件「串联」，K 和 S 也是这样成为元件的。', 'Something proved once can be used as a rule from then on: a <b>lemma</b>. It held on every test, so it works for any sentences: “two if … then …s joined end to end” became the part Chain, and K and S became parts the same way.')],
     see: ['board'],
   },
   {
     id: 'deduction', group: 'logic', title: T('演绎定理', 'The deduction theorem'), at: 'x-chain',
-    body: [T('在一个假设下能推出某件事，就能不带假设证出「如果 假设，那么 那件事」。证法是逐步改写：假设本身换成恒等，和假设无关的步用 K 包一层，分离用 S。', 'If something follows under an assumption, then “if the assumption, then that” can be proved with no assumption. The proof rewrites step by step: the assumption itself becomes Identity, a step unrelated to it is wrapped in K, and Detach goes through S.')],
+    body: [T('在一个假设下能推出某件事，就能不带假设证出「如果 假设，那么 那件事」。证法是逐步改写：假设本身换成用 K、S 拼出的「如果它，那么它」，和假设无关的步用 K 包一层，分离用 S。', 'If something follows under an assumption, then “if the assumption, then that” can be proved with no assumption. The proof rewrites step by step: the assumption itself becomes “if it, then it”, pieced together from K and S, a step unrelated to it is wrapped in K, and Detach goes through S.')],
     see: ['box', 'hilbert'],
   },
   {
