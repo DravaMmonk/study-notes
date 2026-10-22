@@ -58,6 +58,11 @@
 
 /* ---- phone ---- */
 .lg-phone { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; }
+/* Each part keeps its row whether or not the level has test tabs above (a truth circuit has none): the scroller takes
+   what is left, the tray and the run bar their own height. */
+.lg-phone > .lg-scroll { grid-row: 2; }
+.lg-phone > .pb-tray { grid-row: 3; }
+.lg-phone > .run-foot { grid-row: 4; }
 .lg-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; align-content: start; gap: 12px; }
 .lg-chips { display: grid; gap: 2px; }
 .lg-mark { color: var(--faint); font-style: normal; font-size: 11px; }
