@@ -38,7 +38,7 @@ export const GLOSSARY = [
     id: 'circuit', group: 'play', title: T('真值电路', 'Truth circuits'), at: 'g-not',
     body: [
       T('左边每件小事一张卡片：这一行它发生了就送出真，没发生就送出假。右边是「这句话」：接到它的线送来什么，这一行这句话就是什么。中间放门，用线接起来。', 'Each small fact has a card on the left: on a row where it happens it sends out true, otherwise false. On the right is “the sentence”: whatever reaches it is the sentence’s value on that row. Gates go in between, wired together.'),
-      T('下面的真值表里点一行，板上每张卡片就显示它在那一行的值。点「算整张表」，机器把电路在每一行各跑一遍，算错的行会标出来。', 'Click a row of the truth table below and every card shows its value on that row. Press “Run every row” and the machine runs the board on every row, marking the rows it gets wrong.'),
+      T('下面的真值表里点一行，板上每张卡片就显示它在那一行的值。点「一行一行算」，机器从第一行起逐行算下去，每算一行，板上的卡片就换成那一行的值；算错的那一行它会停下来。「单步」一次只算一行。', 'Click a row of the truth table below and every card shows its value on that row. Press “Run row by row” and the machine works down the table from the first row; with each row, the cards on the board show that row’s values, and it stops on the first row it gets wrong. “Step” works out one row at a time.'),
       T('有的关不给出要的那一列：要算的句子只用话说出来，把它接成电路就是这一关的题。', 'Some levels do not show the wanted column: the sentence is only said in words, and wiring it is the puzzle.'),
     ],
     see: ['truth'],
