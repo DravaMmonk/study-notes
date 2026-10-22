@@ -12,7 +12,9 @@ import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, star
 // A truth-circuit level (《证明完毕》, gates.js) on the shared circuit editor: a card for each letter on the left, the
 // sentence's output on the right, gates as parts. The tests are the rows of the sentence's truth table: picking one
 // shows on every card what the board computes on that row. Running goes down the table one row at a time, as a machine
-// filling it in: each row's card values and result show in turn, and the run stops on the first row it gets wrong. A `blind` level does not show the wanted column: its sentence is a puzzle said in words.
+// filling it in: each row's card values and result show in turn, and the run stops on the first row it gets wrong. A `hideTarget`
+// level does not show the target value column; a `blind` one does not show its sentence either: it is a puzzle said in
+// words.
 
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const TF = (v) => (v === undefined ? '—' : v ? tr('真', 'T') : tr('假', 'F'))
@@ -55,6 +57,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
   const view = useMemo(() => runRow(level, circuit, row.row), [level, circuit, row])
   const { shown: palette, folded } = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
   const sentence = L(say(parse(level.target), level.notation))
+  const hideTarget = level.blind || level.hideTarget
 
   const stop = () => { clearInterval(timer.current); timer.current = null }
   const change = (next) => {
@@ -134,13 +137,13 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
       {!level.blind && <p className="lg-sequent">{tr('这句话', 'The sentence')} <b>{sentence}</b></p>}
       <table className="lg-rows">
         <thead>
-          <tr>{letters.map((l) => <th key={l}>{L(word(l))}</th>)}{!level.blind && <th>{tr('要的', 'Wanted')}</th>}<th>{tr('电路给的', 'Board gives')}</th></tr>
+          <tr>{letters.map((l) => <th key={l}>{L(word(l))}</th>)}{!hideTarget && <th>{tr('目标真值', 'Target value')}</th>}<th>{tr('电路输出', 'Board output')}</th></tr>
         </thead>
         <tbody>
           {rows.map((r, k) => (
             <tr key={k} className={`${k === rows.indexOf(row) ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => setRowIndex(k)}>
               {letters.map((l) => <td key={l}>{L(TF(r.row[l]))}</td>)}
-              {!level.blind && <td>{L(TF(r.want))}</td>}
+              {!hideTarget && <td>{L(TF(r.want))}</td>}
               <td>{run && k < run.shown ? L(TF(run.results[k].got)) : !run && k === rows.indexOf(row) ? L(TF(view.value)) : ''}</td>
             </tr>
           ))}
