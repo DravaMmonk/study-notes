@@ -310,37 +310,34 @@ export const resolution = [
   },
   {
     id: 'repeat',
-    kind: 'machine',
     title: T('一圈又一圈', 'Round after round'),
-    adds: ['repeat'],
     builds: 'saturate',
-    showcase: T('重复框一个区域、一圈圈跑到停为止，停下的条件看的是整组子句，不看框里哪一张卡片；光看说明容易以为它只跑一次', 'the repeat frame runs its region round after round until it stops, and when it stops depends on the whole clause set, not on any card inside; from its description alone it is easy to think it runs once'),
-    want: 'refuted',
-    tests: [
-      { clauses: ['Bus ∨ Bike', '¬Bus ∨ OnTime', '¬Bike ∨ OnTime', '¬OnTime'] },
-      { clauses: ['Alarm', '¬Alarm ∨ Up', '¬Up ∨ Coffee', '¬Coffee ∨ Awake', '¬Awake'] },
-      { clauses: ['A ∨ B', 'A ∨ ¬B', '¬A ∨ B', '¬A ∨ ¬B'] },
-    ],
-    brief: T('机器板上的线现在传一整组子句。接一台机器，对每一组输入一直归结，直到推出空子句 ⊥。', 'A wire on the machine board now carries a whole clause set. Wire a machine that keeps resolving each input until the empty clause ⊥ appears.'),
-    hint: [
-      T('机器板上的「归结」把一组子句里每一对能消的都消一次。消一次还不够。', 'On the machine board, Resolve cancels every pair in a set once. Once is not enough.'),
-      T('把「归结」放进重复框，框开出的子句接进它，它的结果接回框的「结果」。', 'Put Resolve inside the repeat frame: the clauses the frame opens go into it, and its output back to the frame’s result.'),
-    ],
-    intro: [
-      { t: T('<level-ref to="refute"></level-ref>里，每一步消哪一对是你挑的。机器不会挑，它把每一对都消一次，把新子句加进来，再来一遍。', 'In <level-ref to="refute"></level-ref> you picked the pair to cancel at each step. A machine does not pick: it cancels every pair once, adds the new clauses, and goes again.') },
-      { t: T('新元件<b>重复框</b>：框开出它收到的东西，框里做一圈，结果送回框的「结果」；框再把结果送进去，一圈一圈地做，直到不再变化，或者推出了 ⊥，送出最后一圈。', 'A new part, the <b>repeat frame</b>: it opens with what it receives, one round is done inside, and the result goes back to the frame’s result; the frame feeds it in again, round after round, until nothing changes or ⊥ appears, and gives the last round.') },
-    ],
-    solution: machine({ r: ['repeat'], x: ['res', {}, 'r'] }, ['in>r.in', 'r#body>x.in', 'x>r.body', 'r>out']),
-    naive: machine({ x: ['res'] }, ['in>x.in', 'x>out']),
-    after: T('一直归结到推出 ⊥ 或者推不出新东西，这台机器叫<b>饱和器</b>，它现在是一块元件。它不挑，所以会推出很多用不着的子句；但只要推得出矛盾，它就一定推得出来：归结是<b>反驳完备</b>的。', 'Resolving until ⊥ appears or nothing new does: this machine is the <b>saturator</b>, a part now. It does not pick, so it makes many clauses it does not need; but whenever a contradiction can be reached, it reaches it: resolution is <b>refutation complete</b>.'),
-  },
-  {
-    id: 'satisfiable',
-    title: T('没有 ⊥，也是答案', 'No ⊥ is an answer too'),
+    adds: ['repeat'],
     tasks: [
       {
         kind: 'machine',
-        step: T('饱和', 'Saturate'),
+        step: T('跑到停', 'Until it stops'),
+        proves: true,
+        showcase: T('重复框一个区域、一圈圈跑到停为止，停下的条件看的是整组子句，不看框里哪一张卡片；光看说明容易以为它只跑一次', 'the repeat frame runs its region round after round until it stops, and when it stops depends on the whole clause set, not on any card inside; from its description alone it is easy to think it runs once'),
+        want: 'refuted',
+        tests: [
+          { clauses: ['Bus ∨ Bike', '¬Bus ∨ OnTime', '¬Bike ∨ OnTime', '¬OnTime'] },
+          { clauses: ['Alarm', '¬Alarm ∨ Up', '¬Up ∨ Coffee', '¬Coffee ∨ Awake', '¬Awake'] },
+          { clauses: ['A ∨ B', 'A ∨ ¬B', '¬A ∨ B', '¬A ∨ ¬B'] },
+        ],
+        brief: T('机器板上的线现在传一整组子句。接一台机器，对每一组输入一直归结，直到推出空子句 ⊥。', 'A wire on the machine board now carries a whole clause set. Wire a machine that keeps resolving each input until the empty clause ⊥ appears.'),
+        hint: [
+          T('机器板上的「归结」把一组子句里每一对能消的都消一次。消一次还不够。', 'On the machine board, Resolve cancels every pair in a set once. Once is not enough.'),
+          T('把「归结」放进重复框，框开出的子句接进它，它的结果接回框的「结果」。', 'Put Resolve inside the repeat frame: the clauses the frame opens go into it, and its output back to the frame’s result.'),
+        ],
+        solution: machine({ r: ['repeat'], x: ['res', {}, 'r'] }, ['in>r.in', 'r#body>x.in', 'x>r.body', 'r>out']),
+        naive: machine({ x: ['res'] }, ['in>x.in', 'x>out']),
+        after: T('一直归结到推出 ⊥ 或者推不出新东西，这台机器叫<b>饱和器</b>，下一段任务里它就是一块元件。它不挑，所以会推出很多用不着的子句；但只要推得出矛盾，它就一定推得出来：归结是<b>反驳完备</b>的。', 'Resolving until ⊥ appears or nothing new does: this machine is the <b>saturator</b>, a part from the next task on. It does not pick, so it makes many clauses it does not need; but whenever a contradiction can be reached, it reaches it: resolution is <b>refutation complete</b>.'),
+      },
+      {
+        kind: 'machine',
+        step: T('推不出也停', 'Stopping without ⊥'),
+        parts: ['saturate'],
         want: 'decide',
         tests: [
           { clauses: ['Bus ∨ Bike', '¬Bus ∨ OnTime', '¬OnTime'] },
@@ -348,9 +345,10 @@ export const resolution = [
           { clauses: ['Alarm ∨ Late', '¬Alarm ∨ Up', '¬Up'] },
           { clauses: ['A ∨ B', '¬A ∨ B', '¬B ∨ C'] },
         ],
-        brief: T('接一台机器：推得出 ⊥，就推出来；推不出，就一直归结到再也没有新子句为止。', 'Wire a machine: if ⊥ follows, reach it; if not, resolve until no new clause appears.'),
+        brief: T('上一段接出的机器现在是元件<b>饱和器</b>。这几组子句有的推得出 ⊥，有的推不出。接一台机器：推得出就推出来；推不出，就一直归结到再也没有新子句为止。', 'The machine of the last task is now the part <b>saturator</b>. Some of these clause sets lead to ⊥ and some do not. Wire a machine: if ⊥ follows, reach it; if not, resolve until no new clause appears.'),
         hint: [T('饱和器两样都做：它停下来，要么是推出了 ⊥，要么是再也推不出新东西。', 'The saturator does both: it stops either at ⊥ or when nothing new follows.')],
         solution: machine({ s: ['saturate'] }, ['in>s.in', 's>out']),
+        after: T('饱和器停下来有两种情形：推出了 ⊥，或者再也推不出新东西。后一种也是答案。', 'The saturator stops in two ways: ⊥ appeared, or nothing new can follow. The second is an answer too.'),
       },
       {
         kind: 'truth',
@@ -362,7 +360,10 @@ export const resolution = [
         after: T('没准时到，所以没坐公交，所以骑了车：饱和以后只剩一项的子句，一条条读出来就是那一行。', 'Not on time, so not the bus, so the bike: the one-part clauses left after saturating, read one by one, give the row.'),
       },
     ],
-    intro: [{ t: T('饱和器停下来有两种情形：推出了 ⊥，或者再也推不出新东西。后一种也是答案。', 'The saturator stops in two ways: ⊥ appeared, or nothing new can follow. The second is an answer too.') }],
+    intro: [
+      { t: T('<level-ref to="refute"></level-ref>里，每一步消哪一对是你挑的。机器不会挑，它把每一对都消一次，把新子句加进来，再来一遍。', 'In <level-ref to="refute"></level-ref> you picked the pair to cancel at each step. A machine does not pick: it cancels every pair once, adds the new clauses, and goes again.') },
+      { t: T('新元件<b>重复框</b>：框开出它收到的东西，框里做一圈，结果送回框的「结果」；框再把结果送进去，一圈一圈地做，直到不再变化，或者推出了 ⊥，送出最后一圈。', 'A new part, the <b>repeat frame</b>: it opens with what it receives, one round is done inside, and the result goes back to the frame’s result; the frame feeds it in again, round after round, until nothing changes or ⊥ appears, and gives the last round.') },
+    ],
     after: T('推不出 ⊥ 的子句集，一定能同时为真（<b>可满足</b>）；推出了 ⊥ 的，就怎样都不能同时为真（<b>不可满足</b>）。饱和器回答的就是这个问题，不用把真值表一行行排出来。', 'A clause set that does not lead to ⊥ can be all true at once (<b>satisfiable</b>); one that leads to ⊥ cannot be, however the letters are set (<b>unsatisfiable</b>). The saturator answers that question without laying out the truth table row by row.'),
   },
   {

@@ -84,7 +84,7 @@ export const ERAS = [
       // Rewriting and clauses need nothing from each other; refutation needs both.
       branches(
         ['rewrite', '改写', 'Rewriting', ['law-dneg', 'subst', 'law-imp', 'law-dm', 'nnf', 'law-dist', 'cnf']],
-        ['clauses', '子句与归结', 'Clauses and resolution', ['resolve', 'refute', 'onePair', 'repeat', 'satisfiable']],
+        ['clauses', '子句与归结', 'Clauses and resolution', ['resolve', 'refute', 'onePair', 'repeat']],
       ),
       series('refutation', '反驳', 'Refutation', ['entail', 'valid', 'manyKnown', 'circuit']),
     ],

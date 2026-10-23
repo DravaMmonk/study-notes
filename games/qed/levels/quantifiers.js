@@ -144,7 +144,7 @@ export const quantifiers = [
     answer: { size: 2, preds: { Bird: ['0'], Flies: ['1'] } },
     brief: T('造一个世界，让三句话的真假都正合要求。', 'Build a world where all three sentences come out as asked.'),
     hint: [T('要有一只不会飞的鸟，还要有一样会飞、却不是鸟的东西。', 'You need a bird that does not fly, and something that flies but is not a bird.')],
-    after: T('几句话能同时成立，就是有一个世界让它们都成立：这叫<b>可满足</b>，和<level-ref to="satisfiable"></level-ref>里的子句一样。', 'Several sentences hold together when some world makes them all true: they are <b>satisfiable</b>, just like the clauses in <level-ref to="satisfiable"></level-ref>.'),
+    after: T('几句话能同时成立，就是有一个世界让它们都成立：这叫<b>可满足</b>，和<level-ref to="repeat"></level-ref>里的子句一样。', 'Several sentences hold together when some world makes them all true: they are <b>satisfiable</b>, just like the clauses in <level-ref to="repeat"></level-ref>.'),
   },
   {
     id: 'm-counter',

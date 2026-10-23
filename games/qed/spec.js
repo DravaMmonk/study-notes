@@ -63,7 +63,9 @@ export default {
   // Version 17 dropped the level that read ¬ as “→ ⊥” on its own; 矛盾 says it in its task.
   { version: 17, ops: [{ rename: { notE: null } }] },
   // Version 18: K1 builds the liar, and the De Morgan's laws card got a type of its own.
-  { version: 18, ops: [{ grant: ['kk-one', 'lemma:liar'] }, { grant: ['law-dm', 'lemma:dmLaw'] }] }],
+  { version: 18, ops: [{ grant: ['kk-one', 'lemma:liar'] }, { grant: ['law-dm', 'lemma:dmLaw'] }] },
+  // Version 19 folded 没有 ⊥，也是答案 into 一圈又一圈 as its second and third tasks.
+  { version: 19, ops: [{ rename: { satisfiable: null } }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用', '德摩根', '归结', '取一个', '任取', '拿出那一个'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
