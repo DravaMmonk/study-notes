@@ -14,8 +14,15 @@ const QUANT = {
   '∀': { zh: (v, b) => `对所有 ${v}，${b}`, en: (v, b) => `for every ${v}, ${b}` },
   '∃': { zh: (v, b) => `有一个 ${v}，${b}`, en: (v, b) => `there is some ${v} such that ${b}` },
 }
-// A term in words: a constant by its name, anything else as written.
-const termWords = (t, notation, lang) => (t.t === 'fn' && !t.args.length && notation.words?.[t.f] ? notation.words[t.f][lang] : showTerm(t))
+// A term in words: a name by its words, a function by its template (mul: '{0}·{1}'), a variable as written.
+function termWords(t, notation, lang) {
+  if (t.t !== 'fn') return t.name === 'hole' ? '□' : showTerm(t)
+  const word = notation.words?.[t.f]?.[lang]
+  if (!word) return t.args.length ? `${t.f}(${t.args.map((a) => termWords(a, notation, lang)).join(', ')})` : t.f
+  // An argument that is itself an operation keeps brackets: (a·b)⁻¹.
+  const arg = (a) => (a.t === 'fn' && a.args.length > 1 ? `(${termWords(a, notation, lang)})` : termWords(a, notation, lang))
+  return t.args.length ? word.replace(/\{(\d)\}/g, (_, k) => arg(t.args[Number(k)])) : word
+}
 const WORDS = {
   '→': { zh: (a, b) => `若${a}，则${b}`, en: (a, b) => `if ${a} then ${b}` },
   '∧': { zh: (a, b) => `${a}并且${b}`, en: (a, b) => `${a} and ${b}` },
@@ -34,7 +41,8 @@ export function render(f, notation, lang, outer = -1) {
       const word = notation.words?.[f.pred]?.[lang]
       if (word && f.args.length) return word.replace(/\{(\d)\}/g, (_, k) => termWords(f.args[Number(k)], notation, lang))
       if (f.pred === '=') return `${termWords(f.args[0], notation, lang)} = ${termWords(f.args[1], notation, lang)}`
-      return word && !f.args.length ? word : show(f)
+      // A predicate named on its own (a test case's P := Human) reads with its places left open.
+      return word && !f.args.length ? word.replace(/\{\d\}/g, '…') : show(f)
     }
     case 'meta': return f.name
     case '⊥': return known('⊥') ? '⊥' : lang === 'zh' ? '矛盾' : 'contradiction'
@@ -67,3 +75,54 @@ export function subformulas(formulas) {
   return [...out.values()]
 }
 
+
+const termKey = (t) => showTerm(t)
+// Every term in a formula, outermost first, each occurrence once in order.
+function termsIn(f, out = []) {
+  const walk = (t) => { out.push(t); if (t.t === 'fn') t.args.forEach(walk) }
+  if (f.op === 'atom') f.args.forEach(walk)
+  else if (f.op === '¬') termsIn(f.a, out)
+  else if (f.body) termsIn(f.body, out)
+  else if (f.a) { termsIn(f.a, out); termsIn(f.b, out) }
+  return out
+}
+// f with the occurrences of term `t` that `pick(k)` chooses (k counts them in order) replaced by `by`.
+function replaceTerm(f, t, by, pick) {
+  let k = 0
+  const term = (u) => {
+    if (termKey(u) === termKey(t)) return pick(k++) ? by : u
+    return u.t === 'fn' ? { ...u, args: u.args.map(term) } : u
+  }
+  const walk = (g) => {
+    if (g.op === 'atom') return { ...g, args: g.args.map(term) }
+    if (g.op === '¬') return { ...g, a: walk(g.a) }
+    if (g.body) return { ...g, body: walk(g.body) }
+    if (g.a) return { ...g, a: walk(g.a), b: walk(g.b) }
+    return g
+  }
+  return walk(f)
+}
+
+/**
+ * The patterns a rewrite card offers: each of these sentences with a term's occurrences, all of them or one at a time,
+ * marked by the hole (the variable 'hole', shown □), each once.
+ */
+export function patternsOf(formulas) {
+  const out = new Map()
+  const hole = { t: 'var', name: 'hole' }
+  for (const g of subformulas(formulas)) {
+    const terms = termsIn(g)
+    for (const t of new Map(terms.map((u) => [termKey(u), u])).values()) {
+      const n = terms.filter((u) => termKey(u) === termKey(t)).length
+      const variants = [replaceTerm(g, t, hole, () => true), ...(n > 1 ? Array.from({ length: n }, (_, i) => replaceTerm(g, t, hole, (k) => k === i)) : [])]
+      for (const v of variants) out.set(show(v), v)
+    }
+  }
+  return [...out.values()]
+}
+
+/** The compound terms (a function of something) in a formula, as written. */
+export const compoundTerms = (f) => termsIn(f).filter((t) => t.t === 'fn' && t.args.length).map(termKey)
+
+/** A term as a { zh, en } pair, in a level's notation. */
+export const sayTerm = (t, notation) => ({ zh: termWords(t, notation, 'zh'), en: termWords(t, notation, 'en') })

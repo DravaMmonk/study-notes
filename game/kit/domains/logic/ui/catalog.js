@@ -16,12 +16,12 @@ export const RULE_TEXT = {
   orE: { name: T('分情况', 'Case by case'), desc: T('一块有两个框的元件。输入口接 A ∨ B；「情况一」的框假设 A，「情况二」的框假设 B。两个框都证出同一句 C、接到各自的「结论」，卡片就输出 C：不知道是哪一种，就每一种都证一遍。', 'A part with two boxes. Wire A ∨ B into its input; the box Case one assumes A, the box Case two assumes B. When both prove the same C, wired to their own “Conclusion”, the card gives C: not knowing which case it is, prove it in each.'), ports: { ab: 'A ∨ B' }, frames: { left: T('情况一', 'Case one'), right: T('情况二', 'Case two') } },
   botE: { name: T('矛盾推出一切', 'From contradiction'), desc: T('由矛盾 ⊥ 得到卡片上选的任何一句。', 'From the contradiction ⊥, whatever is chosen on the card.'), ports: { bot: '⊥' }, params: { C: T('得出', 'Conclude') } },
   raa: { name: T('反证法', 'By contradiction'), desc: T('由 ¬¬A 得到 A。', 'From ¬¬A, A.'), ports: { nna: '¬¬A' } },
-  allI: { name: T('任取', 'For any'), desc: T('框里对一个新变量 x 证出 P(x)，框外得 ∀x. P(x)。', 'Prove P(x) inside the box for a new variable x; outside you get ∀x. P(x).'), params: { x: T('变量', 'Variable') }, frames: { body: T('框里', 'Inside') } },
-  allE: { name: T('代入', 'Instantiate'), desc: T('由 ∀x. P(x) 得 P(t)。', 'From ∀x. P(x), P(t).'), ports: { all: '∀x. P(x)' }, params: { t: T('项', 'Term') } },
-  exI: { name: T('举例', 'Example'), desc: T('由 P(t) 得 ∃x. P(x)。', 'From P(t), ∃x. P(x).'), ports: { a: 'P(t)' }, params: { target: T('要得出', 'Conclude'), t: T('项', 'Term') } },
-  exE: { name: T('取一个', 'Take one'), desc: T('接进 ∃x. P(x)；框里假设 P(y) 证出 C，就得 C。', 'Wire in ∃x. P(x); if assuming P(y) proves C inside the box, then C.'), ports: { ex: '∃x. P(x)' }, params: { x: T('见证', 'Witness') }, frames: { body: T('框里', 'Inside') } },
-  refl: { name: T('自反', 'Reflexivity'), desc: T('t = t。', 't = t.'), params: { t: T('项', 'Term') } },
-  rewrite: { name: T('等量代换', 'Rewrite'), desc: T('由 s = t 和 φ(s) 得 φ(t)。', 'From s = t and φ(s), φ(t).'), ports: { eq: 's = t', p: 'φ(s)' }, params: { pattern: T('样式', 'Pattern') } },
+  allI: { name: T('任取', 'For any'), desc: T('一个框：框里的 x 是随便取的一样东西（卡片上给它起名，不能出现在还开着的假设里）。框里证出 P(x)，框外得 ∀x. P(x)。', 'A box: inside it x is any thing at all (named on the card, and in no hypothesis still open). Prove P(x) inside; outside you get ∀x. P(x).'), params: { x: T('变量', 'Variable') }, frames: { body: T('框里', 'Inside') } },
+  allE: { name: T('取一个', 'Take one'), desc: T('接进 ∀x. P(x)，在卡片上选一样东西 t，得到 P(t)。', 'Wire in ∀x. P(x) and choose a thing t on the card; out comes P(t).'), ports: { all: '∀x. P(x)' }, params: { t: T('项', 'Term') } },
+  exI: { name: T('举例', 'Example'), desc: T('接进 P(t)，卡片上选好要得出的 ∃x. P(x) 和例子 t，就得到它。', 'Wire in P(t), choose on the card the ∃x. P(x) to conclude and the example t; out it comes.'), ports: { a: 'P(t)' }, params: { target: T('要得出', 'Conclude'), t: T('项', 'Term') } },
+  exE: { name: T('拿出那一个', 'Take the one there is'), desc: T('接进 ∃x. P(x)：框里那一样东西叫 y（卡片上起名），假设 P(y) 证出 C，框外就得 C。C 里不能有 y。', 'Wire in ∃x. P(x): inside the box that thing is y (named on the card); assuming P(y) proves C, and outside you get C. C may not mention y.'), ports: { ex: '∃x. P(x)' }, params: { x: T('见证', 'Witness') }, frames: { body: T('框里', 'Inside') } },
+  refl: { name: T('自反', 'Reflexivity'), desc: T('卡片上选一样东西 t，直接给出 t = t。', 'Choose a thing t on the card; it gives t = t at once.'), params: { t: T('项', 'Term') } },
+  rewrite: { name: T('等量代换', 'Rewrite'), desc: T('接进 s = t 和一句提到 s 的话；卡片上的样式里 □ 标出要换的地方，那里的 s 换成 t。', 'Wire in s = t and a sentence about s; the card’s pattern marks with □ where s is to be replaced by t.'), ports: { eq: 's = t', p: 'φ(s)' }, params: { pattern: T('样式', 'Pattern') } },
   res: { name: T('归结', 'Resolve'), desc: T('接进两条子句：一条里有 A，另一条里有 ¬A，消掉这一对，剩下的用「或」连起来；什么都不剩就是矛盾 ⊥。一次只消一对。', 'Wire in two clauses, one holding A and the other ¬A: cancel that pair and join what is left with or; nothing left is the contradiction ⊥. One pair at a time.'), ports: { a: 'A ∨ B', b: '¬A ∨ C' } },
 }
 
@@ -47,8 +47,14 @@ const OPENS = T('假设', 'Assume')
 const CLOSES = T('结论', 'Conclusion')
 const GIVES = T('得出', 'Result')
 
-/** The card's settings: [{ key, label }] (orI's side is a switch of its own); a lemma may name its own (`params`). */
-export const settingsOf = (parts, type, lemmas = {}) => (parts[type]?.params ?? []).map((key) => ({ key, label: lemmas[type]?.params?.[key] ?? RULE_TEXT[type]?.params?.[key] ?? key }))
+// What a setting picks, when not a sentence: a term (a name or a variable), a new variable, or a rewrite's pattern.
+const KINDS = { allI: { x: 'var' }, exE: { x: 'var' }, allE: { t: 'term' }, exI: { t: 'term' }, refl: { t: 'term' }, rewrite: { pattern: 'pattern' } }
+
+/**
+ * The card's settings: [{ key, label, kind }] (orI's side is a switch of its own); a lemma may name its own (`params`).
+ * kind: 'formula' (a sentence), 'term', 'var' or 'pattern'.
+ */
+export const settingsOf = (parts, type, lemmas = {}) => (parts[type]?.params ?? []).map((key) => ({ key, label: lemmas[type]?.params?.[key] ?? RULE_TEXT[type]?.params?.[key] ?? key, kind: KINDS[type]?.[key] ?? 'formula' }))
 
 /** A rule's or lemma's name and what it does. */
 export const nameOf = (lemmas, type) => lemmas[type]?.name ?? RULE_TEXT[type]?.name ?? type

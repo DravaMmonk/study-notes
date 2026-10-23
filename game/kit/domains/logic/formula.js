@@ -118,9 +118,17 @@ export function show(f, outer = -1) {
 
 /* ---------- variables and substitution ---------- */
 
-/** f with each proposition letter in `map` replaced by its formula (a level's test case: A := it rains). */
+/**
+ * f with each proposition letter in `map` replaced by its formula (a level's test case: A := it rains), and each
+ * predicate letter mapped to a bare name renamed (P := Human makes P(x) into Human(x)).
+ */
 export function replaceAtoms(f, map) {
-  if (f.op === 'atom') return !f.args.length && map[f.pred] ? map[f.pred] : f
+  if (f.op === 'atom') {
+    const to = map[f.pred]
+    if (!to) return f
+    if (!f.args.length) return to
+    return to.op === 'atom' && !to.args.length ? atom(to.pred, f.args) : f
+  }
   if (f.op === '¬') return not(replaceAtoms(f.a, map))
   if (f.op === '∀' || f.op === '∃') return { ...f, body: replaceAtoms(f.body, map) }
   if (f.a) return bin(f.op, replaceAtoms(f.a, map), replaceAtoms(f.b, map))
@@ -139,6 +147,17 @@ export function freeVars(f, out = new Set()) {
     case '¬': freeVars(f.a, out); break
     case '∀': case '∃': { const inner = freeVars(f.body); inner.delete(f.v); inner.forEach((v) => out.add(v)); break }
     case '∧': case '∨': case '→': case '↔': freeVars(f.a, out); freeVars(f.b, out); break
+  }
+  return out
+}
+
+/** Every variable a formula names, bound or free. */
+export function allVars(f, out = new Set()) {
+  switch (f.op) {
+    case 'atom': f.args.forEach((t) => termVars(t, out)); break
+    case '¬': allVars(f.a, out); break
+    case '∀': case '∃': out.add(f.v); allVars(f.body, out); break
+    case '∧': case '∨': case '→': case '↔': allVars(f.a, out); allVars(f.b, out); break
   }
   return out
 }

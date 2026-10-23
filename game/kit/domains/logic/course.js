@@ -53,7 +53,9 @@ function expand(level, notation) {
     const subst = Object.fromEntries(Object.entries(c).map(([letter, text]) => [letter, parse(text)]))
     const fill = (text) => show(replaceAtoms(parse(text), subst))
     const parts = Object.values(subst).map((f) => say(f, notation))
-    return { premises: Object.fromEntries(Object.entries(schema.premises ?? {}).map(([name, text]) => [name, fill(text)])), goal: fill(schema.goal), subst, label: { zh: parts.map((p) => p.zh).join(' · '), en: parts.map((p) => p.en).join(' · ') } }
+    // A test with nothing to fill in (a level with no letters) is the level's one test.
+    const label = parts.length ? { zh: parts.map((p) => p.zh).join(' · '), en: parts.map((p) => p.en).join(' · ') } : { zh: '这一组', en: 'This one' }
+    return { premises: Object.fromEntries(Object.entries(schema.premises ?? {}).map(([name, text]) => [name, fill(text)])), goal: fill(schema.goal), subst, label }
   }
   // Last of the tests: the schema in its own letters (A := A …), the pattern bare.
   const letters = Object.fromEntries(Object.keys(level.cases[0] ?? {}).map((l) => [l, l]))
