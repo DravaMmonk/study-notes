@@ -184,7 +184,7 @@ export const era2 = [
     tests: [{ premises: { p: 'A', q: '¬A' }, goal: 'B' }],
     cases: [{ A: 'Locked', B: 'Moon' }, { A: 'Rain', B: 'Pigs' }],
     adds: ['botE'],
-    brief: T('一个证人说「门锁着」，又说「¬门锁着」（门没锁，也就是「门锁着 → ⊥」：门锁着就矛盾）。实现一个证明器，可以由这两句证明出「月亮是奶酪做的」。', 'A witness says “the door is locked”, and also “¬the door is locked” (the door is not locked, that is “the door is locked → ⊥”: its being locked is a contradiction). Build a prover that, from the two, proves “the moon is made of cheese”.'),
+    brief: T('一个证人说「门锁着」，又说「¬门锁着」（也就是「门锁着 → ⊥」）。实现一个证明器，可以由这两句证明出「月亮是奶酪做的」。', 'A witness says “the door is locked”, and also “¬the door is locked” (that is “the door is locked → ⊥”). Build a prover that, from the two, proves “the moon is made of cheese”.'),
     hint: [
       T('「¬门锁着」就是「门锁着 → ⊥」：把它接进套用的「A → B」口，「门锁着」接进「A」口，得到 ⊥。', '“¬the door is locked” is “the door is locked → ⊥”: wire it into Apply’s “A → B” input and “the door is locked” into its “A” input, and you get ⊥.'),
       T('得到 ⊥ 以后，用「矛盾推出一切」，卡片上选「月亮是奶酪做的」。', 'Once you have ⊥, use “From contradiction” and choose “the moon is made of cheese” on its card.'),
@@ -215,7 +215,7 @@ export const era2 = [
     title: T('推出矛盾，就不成立', 'A contradiction means no'),
     tests: [{ premises: { p: 'A → B', q: 'A → ¬B' }, goal: '¬A' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Exam', B: 'Study' }],
-    brief: T('实现一个证明器，可以从已知「下雨 → 地湿」和「下雨 → ¬地湿」，证明出「¬下雨」（也就是「下雨 → ⊥」：下雨就矛盾）。', 'Build a prover that, from “it rains → the ground is wet” and “it rains → ¬the ground is wet”, proves “¬it rains” (that is “it rains → ⊥”: its raining is a contradiction).'),
+    brief: T('实现一个证明器，可以从已知「下雨 → 地湿」和「下雨 → ¬地湿」，证明出「¬下雨」（也就是「下雨 → ⊥」）。', 'Build a prover that, from “it rains → the ground is wet” and “it rains → ¬the ground is wet”, proves “¬it rains” (that is “it rains → ⊥”).'),
     hint: [T('「¬下雨」就是「下雨 → ⊥」：假设「下雨」，在框里推出 ⊥。', '“¬it rains” is “it rains → ⊥”: assume “it rains” and reach ⊥ inside the box.')],
     intro: [{ t: T('下雨就地湿，下雨又就不地湿，那就不可能在下雨。证明器把「¬下雨」读成「下雨 → ⊥」：要证它，开一个框假设「下雨」，推出矛盾。', 'If rain means wet and also means not wet, it cannot be raining. The prover reads “¬it rains” as “it rains → ⊥”: to prove it, open a box assuming “it rains” and reach a contradiction.') }],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], m3: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'f#body>m2.a', 'm2>m3.imp', 'm1>m3.a', 'm3>f.body', 'f>goal'], { premises: ['p', 'q'] }),
