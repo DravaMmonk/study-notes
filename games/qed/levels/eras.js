@@ -66,9 +66,9 @@ export const ERAS = [
       branches(
         ['and', '并且', 'And', ['and', 'andSwap', 'curry', 'uncurry', 'andImp']],
         ['or', '或者', 'Or', ['or', 'cases', 'orSwap', 'orImp']],
-        ['not', '矛盾与否定', 'Contradiction and not', ['notE', 'bot', 'notI', 'mt', 'dni', 'contra', 'denyAnte']],
+        ['not', '矛盾与否定', 'Contradiction and not', ['notE', 'bot', 'exFalso', 'notI', 'mt', 'dni', 'contra', 'denyAnte']],
       ),
-      series('mix', '组合', 'Together', ['dist', 'demorgan', 'dmUse']),
+      series('mix', '组合', 'Together', ['dist', 'dsyll', 'demorgan', 'dmUse']),
       series('classical', '反证法', 'By contradiction', ['notnotlem', 'raa', 'byContra', 'lemCases']),
     ],
     topics: [{ id: 'knights', code: 'K', after: 'lemCases', levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
