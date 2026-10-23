@@ -1,4 +1,4 @@
-// Chapter 6 · Quantifier rules: back on the proof board, with ∀ and ∃. Two lines first: for all (take one; for any,
+// Chapter 5 · Quantifier rules: back on the proof board, with ∀ and ∃. Two lines first: for all (take one; for any,
 // a box whose variable is new; renaming; ∀ over ∧; a substitution that would capture) and there is (an example; take
 // the one there is, a box; the one taken stays in its box). Then equality: equals replace equals, both ways round and
 // along a chain. Practice swaps and moves quantifiers. Lewis Carroll's syllogism puzzles are the topic; the drinker
@@ -20,7 +20,7 @@ export const rules = [
     brief: T('实现一个证明器，可以从已知「∀x. x是人 → x会死」和「安是人」，证明出「安会死」。', 'Build a prover that, from “∀x. x is human → x is mortal” and “Ann is human”, proves “Ann is mortal”.'),
     hint: [T('「对所有 x」说的话，对安也成立：在卡片上把 x 换成安。', 'What holds for every x holds for Ann: on the card, put Ann in for x.')],
     intro: [
-      { t: T('<level-ref to="finite"></level-ref>说过：世界可以有无穷多样东西，检查不完。要知道一句话在所有世界里都成立，得回到证明板上，靠规则。', '<level-ref to="finite"></level-ref> said it: a world can hold infinitely many things, too many to check. To know a sentence holds in every world, it is back to the proof board and its rules.') },
+      { t: T('<level-ref to="m-counter"></level-ref>里，一个世界就说明了一句话推不出。可要说一句话在所有世界里都成立，世界有无穷多个、大小不限，一个个检查不完：得回到证明板上，靠规则。', 'In <level-ref to="m-counter"></level-ref> one world was enough to show a sentence does not follow. But to say a sentence holds in every world, there are infinitely many worlds of every size, too many to check one by one: it is back to the proof board and its rules.') },
       { t: T('新元件<b>取一个</b>：接进「∀x. …」，在卡片上选一样东西，就得到把 x 换成它的那句话。', 'A new part, <b>take one</b>: wire in a “∀x. …”, choose a thing on the card, and out comes the sentence with x replaced by it.') },
     ],
     solution: proof({ e: ['allE', { t: 'ann' }], m: ['mp'] }, ['p>e.all', 'e>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] }),

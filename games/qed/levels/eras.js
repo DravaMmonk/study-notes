@@ -77,22 +77,6 @@ export const ERAS = [
     chapter: { title: T('连接词', 'Connectives'), question: T('有了「与」「或」「非」，证明器还要哪些规则？', 'With “and”, “or” and “not”, what more rules does the prover need?') },
   },
   {
-    id: 'resolution', machine: 'prover',
-    // The prover keeps every module; each board shows the parts it runs.
-    keeps: 'all',
-    foundation: [
-      // Rewriting and clauses need nothing from each other; refutation needs both.
-      branches(
-        ['rewrite', '改写', 'Rewriting', ['law-dneg', 'subst', 'law-imp', 'law-dm', 'nnf', 'law-dist', 'cnf']],
-        ['clauses', '子句与归结', 'Clauses and resolution', ['resolve', 'refute', 'onePair', 'repeat']],
-      ),
-      series('refutation', '反驳', 'Refutation', ['entail', 'valid', 'manyKnown', 'circuit']),
-    ],
-    // The islanders again, after the connectives chapter's.
-    topics: [{ id: 'islanders-more', code: 'R', after: ['kk-three', 'entail'], levels: ['r-three', 'r-silent', 'r-ten'], title: T('岛民变多', 'More islanders') }],
-    chapter: { title: T('归结', 'Resolution'), question: T('证明器能不能自己找证明？', 'Can the prover find proofs by itself?') },
-  },
-  {
     id: 'quantifiers', machine: 'prover', keeps: 'all',
     foundation: [
       // Saying first-order sentences and building worlds for them need nothing from each other.
@@ -100,11 +84,10 @@ export const ERAS = [
         ['translate', '翻译', 'Translating', ['fo-atoms', 'fo-all', 'fo-some', 'fo-nested']],
         ['worlds', '造世界', 'Building worlds', ['m-world', 'm-make', 'm-counter', 'm-order']],
       ),
-      'finite',
     ],
     practice: [series('splitting', '量词怎么拆', 'Taking quantifiers apart', ['p-only', 'p-split', 'p-exAnd'])],
-    topics: [{ id: 'family', code: 'F', after: 'finite', levels: ['q-children', 'q-grand', 'q-none', 'q-school'], title: T('查族谱', 'Asking a family tree') }],
-    chapter: { title: T('量词与模型', 'Quantifiers and models'), question: T('「每一个」「有一个」怎么说，什么时候为真？', 'How do you say “every” and “some”, and when are they true?') },
+    topics: [{ id: 'family', code: 'F', after: ['fo-nested', 'm-order'], levels: ['q-children', 'q-grand', 'q-none', 'q-school'], title: T('查族谱', 'Asking a family tree') }],
+    chapter: { title: T('量词的语言与反例', 'Quantifiers and counterexamples'), question: T('「每一个」「有一个」怎么说，证不出时怎样找反例？', 'How do you say “every” and “some”, and find a counterexample when no proof comes?') },
   },
   {
     id: 'qrules', machine: 'prover', keeps: 'all',
@@ -121,52 +104,6 @@ export const ERAS = [
     challenges: [{ level: 'drinker', after: 'q-swap' }],
     chapter: { title: T('量词规则', 'Quantifier rules'), question: T('怎样证明一句话在所有世界里都成立？', 'How do you prove a sentence holds in every world?') },
   },
-  {
-    id: 'unification', machine: 'prover', keeps: 'all',
-    foundation: [
-      // Solving equations and putting formulas into clause form need nothing from each other; resolution needs both.
-      branches(
-        ['unify', '合一', 'Unification', ['u-decompose', 'u-conflict', 'u-swap', 'u-eliminate', 'u-unifier']],
-        ['clauseform', '子句形式', 'Clause form', ['c-prenex', 'c-skolem', 'c-clauseForm']],
-      ),
-      series('foResolution', '一阶归结', 'First-order resolution', ['f-resolve', 'f-factor', 'f-refute']),
-    ],
-    challenges: [{ level: 'u-occurs', after: 'u-eliminate' }],
-    chapter: { title: T('合一', 'Unification'), question: T('子句里有变量时，怎样归结？', 'How do you resolve clauses with variables?') },
-  },
-  {
-    id: 'tactics', machine: 'prover', keeps: 'all',
-    foundation: [
-      series('backward', '倒着证', 'Proving backwards', ['tac-intro', 'tac-steps', 'tac-and', 'tac-elim', 'tac-twoWays']),
-      series('combinators', '组合子', 'Combinators', ['tac-repeat', 'tac-orelse', 'tac-auto']),
-    ],
-    practice: ['tac-lem'],
-    // The family trees again, after chapter 5's queries.
-    topics: [{ id: 'prolog', code: 'P', after: ['q-school', 'tac-intro'], levels: ['p-grand', 'p-anc', 'p-order'], title: T('用规则推族谱', 'Rules over a family tree') }],
-    chapter: { title: T('策略', 'Tactics'), question: T('证明器能不能自己证明？', 'Can the prover prove by itself?') },
-  },
-  {
-    id: 'theory', machine: 'prover', keeps: 'all',
-    foundation: [
-      series('simp', '化简', 'Simplification', ['th-compute', 'th-lists']),
-      // Numbers and lists are inducted on alike; each line's lemmas stand on the ones before.
-      branches(
-        ['natInduction', '数的归纳', 'Induction on numbers', ['th-zero', 'th-succ', 'th-comm', 'th-assoc']],
-        ['listInduction', '列表的归纳', 'Induction on lists', ['th-appNil', 'th-appAssoc', 'th-revApp']],
-      ),
-    ],
-    practice: ['th-len', 'th-revrev'],
-    topics: [{ id: 'sorting', code: 'I', after: 'th-appNil', levels: ['sort-ins', 'sort-run', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') }],
-    challenges: [{ level: 'tail-sum', after: 'th-assoc' }, { level: 'loop', after: 'th-comm' }],
-    chapter: { title: T('理论', 'Theories'), question: T('数和列表的事，怎样让机器来证？', 'How does a machine prove things about numbers and lists?') },
-  },
-  {
-    id: 'graduation', machine: 'prover', keeps: 'all',
-    foundation: [series('automata', '自动机', 'Automata', ['dfa-run', 'dfa-runApp', 'dfa-same'])],
-    practice: ['dfa-product'],
-    // The liar of chapter 3's islanders grows into the diagonal argument: its topic comes first.
-    topics: [{ id: 'undecidable', code: 'U', after: ['kk-one', 'dfa-run'], levels: ['u-barber', 'u-cantor', 'u-ls', 'u-halt'], title: T('不可判定', 'Undecidable') }],
-    challenges: [{ level: 'fooling', after: 'dfa-same' }],
-    chapter: { title: T('毕业', 'Graduation'), question: T('用整台证明器，能证明计算的极限吗？', 'Can the whole prover prove the limits of computation?') },
-  },
+  // Chapter 6 on are being rebuilt around Isabelle's and Lean's mechanisms (games/qed/DESIGN.md §3); their old levels
+  // wait in levels/ (resolution, unification, tactics, theory, graduation) until each is rebuilt.
 ]

@@ -1,12 +1,9 @@
-// Chapter 5 · Quantifiers and models: what first-order sentences say and when they are true, before any proof. Two
-// lines first: translating (names and predicates, every, some, one inside another) and building worlds (true in one,
-// false in another; a world where the given holds and the claim fails; which quantifier comes first). They meet where
-// a small world turns ∀ into ∧ and ∃ into ∨ on a truth circuit. The family topic asks a world questions.
-import { gates } from '../../kit/domains/logic/gates.js'
+// Chapter 4 · The language of quantifiers and counterexamples: what first-order sentences say and when they are true,
+// before any proof. Two lines: translating (names and predicates, every, some, one inside another) and worlds (true in
+// one, false in another; a world where the given holds and the claim fails, which is what nitpick looks for; which
+// quantifier comes first). The family topic asks a world questions.
 
 const T = (zh, en) => ({ zh, en })
-const board = (target, nodes, wires) => gates(nodes, wires, { target })
-const GATES = ['gNot', 'gAnd', 'gOr', 'gImp']
 const consts = ['soc', 'ann', 'bo', 'cy', 'dee', 'en', 'fay']
 
 // Two families, for the queries: who is whose parent, and who goes to school.
@@ -38,7 +35,7 @@ export const quantifiers = [
     brief: T('用下面的词，把每句话写成公式。', 'Write each sentence as a formula with the words below.'),
     hint: [T('「安是博的父母」：谁写在前面，谁写在后面？', '“Ann is a parent of Bo”: who goes first, and who second?')],
     intro: [
-      { t: T('<level-ref to="r-ten"></level-ref>里十个人，要十个字母。要是全城的人都要说到呢？命题逻辑的一个字母只能是一整句话，说不出「每一个人」「有一个人」。', 'In <level-ref to="r-ten"></level-ref> ten people took ten letters. What about everyone in a city? A letter of propositional logic can only be a whole sentence; it cannot say “everyone” or “someone”.') },
+      { t: T('到现在为止，一个字母只能是一整句话：每个人是不是骑士，就要一人一个字母。要是全城的人都要说到呢？命题逻辑说不出「每一个人」「有一个人」。', 'So far a letter can only be a whole sentence: whether each person is a knight takes a letter per person. What about everyone in a city? Propositional logic cannot say “everyone” or “someone”.') },
       { t: T('这一章把一句话拆开：<b>名字</b>指一样东西（苏格拉底、安），<b>谓词</b>说东西的性质或关系（「…是人」「…是…的父母」）。「苏格拉底是人」写成 Human(soc)。', 'This chapter takes a sentence apart: a <b>name</b> stands for a thing (Socrates, Ann), a <b>predicate</b> says what things are or how they relate (“… is human”, “… is a parent of …”). “Socrates is human” is written Human(soc).') },
       { t: T('这一章先不证明，只学这样的话怎么说、在一个世界里是真是假。写好的公式下面会用文字读出来。', 'No proofs yet in this chapter: only how to say such things and when they are true in a world. Each formula you write is read back in words beneath it.') },
     ],
@@ -144,7 +141,7 @@ export const quantifiers = [
     answer: { size: 2, preds: { Bird: ['0'], Flies: ['1'] } },
     brief: T('造一个世界，让三句话的真假都正合要求。', 'Build a world where all three sentences come out as asked.'),
     hint: [T('要有一只不会飞的鸟，还要有一样会飞、却不是鸟的东西。', 'You need a bird that does not fly, and something that flies but is not a bird.')],
-    after: T('几句话能同时成立，就是有一个世界让它们都成立：这叫<b>可满足</b>，和<level-ref to="repeat"></level-ref>里的子句一样。', 'Several sentences hold together when some world makes them all true: they are <b>satisfiable</b>, just like the clauses in <level-ref to="repeat"></level-ref>.'),
+    after: T('几句话能同时成立，就是有一个世界让它们都成立：这叫<b>可满足</b>。', 'Several sentences hold together when some world makes them all true: they are <b>satisfiable</b>.'),
   },
   {
     id: 'm-counter',
@@ -178,35 +175,6 @@ export const quantifiers = [
       T('每样东西各喜欢自己就行。', 'Let each thing like itself.'),
     ],
     after: T('∀x∃y：每个人各有喜欢的，可以各不相同。∃y∀x：有同一样东西，人人都喜欢。前一句推不出后一句；后一句推得出前一句。', '∀x∃y: each has something liked, possibly different. ∃y∀x: one and the same thing is liked by all. The first does not give the second; the second gives the first.'),
-  },
-  {
-    id: 'finite',
-    title: T('两样东西的世界', 'A world of two things'),
-    tasks: [
-      {
-        kind: 'gates',
-        step: T('对所有', 'For all'),
-        target: '(HA → MA) ∧ (HB → MB)',
-        blind: true,
-        parts: GATES,
-        brief: T('世界里只有 a、b 两样东西。接一块电路，算出「人都会死」在每一行是真是假。', 'The world has just two things, a and b. Wire a board that works out, on every row, whether “every human is mortal” is true.'),
-        hint: [T('「人都会死」在这个世界里就是：a 是人就会死，并且 b 是人就会死。', 'In this world, “every human is mortal” is: if a is human a is mortal, and if b is human b is mortal.')],
-        solution: board('(HA → MA) ∧ (HB → MB)', { i1: 'gImp', i2: 'gImp', a: 'gAnd' }, ['HA>i1.a', 'MA>i1.b', 'HB>i2.a', 'MB>i2.b', 'i1>a.a', 'i2>a.b', 'a>out']),
-        after: T('只有两样东西时，「对所有」就是把每一样都说一遍，再用「与」连起来。', 'With two things, “for all” is saying it of each, joined with and.'),
-      },
-      {
-        kind: 'gates',
-        step: T('有一个', 'Some'),
-        target: '(HA ∧ MA) ∨ (HB ∧ MB)',
-        blind: true,
-        parts: GATES,
-        brief: T('还是 a、b 两样东西。接一块电路，算出「有人会死」在每一行是真是假。', 'Still the two things a and b. Wire a board that works out, on every row, whether “some human is mortal” is true.'),
-        hint: [T('有一个，就是 a 是，或者 b 是。', 'Some is: a is, or b is.')],
-        solution: board('(HA ∧ MA) ∨ (HB ∧ MB)', { a1: 'gAnd', a2: 'gAnd', o: 'gOr' }, ['HA>a1.a', 'MA>a1.b', 'HB>a2.a', 'MB>a2.b', 'a1>o.a', 'a2>o.b', 'o>out']),
-      },
-    ],
-    intro: [{ t: T('世界里的东西数得过来时，量词能不能用第 1 章的门算出来？', 'When the things in a world can be counted, can the quantifiers be worked out with the gates of chapter 1?') }],
-    after: T('有限的世界里，∀ 是一长串「与」，∃ 是一长串「或」：真值电路一行行扫，就能判断一句话在这个世界里的真假，这就是<b>模型检查</b>。可世界可以有无穷多样东西，「与」就连不完了：要知道一句话是不是在所有世界里都成立，光检查不够，得靠证明。', 'In a finite world, ∀ is a long chain of ands and ∃ a long chain of ors: running a truth circuit row by row tells whether a sentence holds in that world. That is <b>model checking</b>. But a world can hold infinitely many things, and the ands never end: to know a sentence holds in every world, checking is not enough; it takes a proof.'),
   },
   {
     id: 'p-only',
