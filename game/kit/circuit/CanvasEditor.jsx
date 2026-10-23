@@ -348,8 +348,9 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const first = regionsOf(node)[0]
     setTarget(first && !node.fold ? `${node.id}/${first.name}` : node.in ?? null)
   }
-  // The region under a dragged card's pointer that it can go into (not one of its own), or null for the board.
-  const fieldAt = (g) => document.elementsFromPoint(g.x, g.y).find((el) => el.classList?.contains('frame-field') && !g.el.contains(el)) ?? null
+  // The region under a dragged card's pointer (not one of its own), or null for the board: anywhere inside its outline
+  // counts, its head too, not just the field its cards sit on. Its field is returned, where the card's place counts from.
+  const fieldAt = (g) => document.elementsFromPoint(g.x, g.y).find((el) => el.classList?.contains('frame-region') && !g.el.contains(el))?.querySelector(':scope > .frame-field') ?? null
   // A card dropped lands where it was let go: in the region under the pointer, or on the board.
   const place = (g) => {
     const root = layer.current
@@ -377,9 +378,8 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
       move(g) {
         if (g.kind === 'piece') {
           redraw()
-          // A region the card would go into, if dropped here, lights up.
-          const region = fieldAt(g)?.dataset.region ?? null
-          setDropInto(region && region !== (byId.get(g.id).in ?? null) ? region : null)
+          // The region under the pointer lights up, the one the card is already in too: dropped now, it stays there.
+          setDropInto(fieldAt(g)?.dataset.region ?? null)
         }
         if (g.kind === 'port' && parsePort(g.id).side === 'out') {
           const [x, y] = pointIn(layer.current, g.x, g.y)

@@ -322,7 +322,7 @@
 .frame-regions { margin: 8px 10px 0; display: grid; gap: 8px; }
 .frame-region { border-radius: 10px; outline: 1.5px dashed color-mix(in srgb, var(--fam, var(--accent)) 40%, var(--rule)); outline-offset: -1px; transition: outline-color 160ms ease, background 160ms ease; }
 .frame-region.is-target { outline-style: solid; outline-color: color-mix(in srgb, var(--accent) 70%, transparent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
-/* A dragged card over a region it can go into: the region lights up, its dashed line too. */
+/* The region under a dragged card's pointer: it lights up, its dashed line too. */
 .frame-region.is-drop { outline: 2px dashed var(--accent); outline-offset: -1px; background: color-mix(in srgb, var(--accent) 14%, transparent); }
 .frame-region-head { position: relative; min-height: 28px; padding: 4px 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; border-bottom: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); font-size: 11.5px; color: var(--muted); }
 .frame-region-name { font-weight: 600; color: var(--body, var(--ink)); }
