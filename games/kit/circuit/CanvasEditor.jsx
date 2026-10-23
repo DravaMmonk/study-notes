@@ -39,7 +39,7 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * @param head(node) extra marks in a card's header (a pass/fail badge…)
  * @param caption(node) a fixed card's line under its title (what it carries)
  * @param outNote(node, key) beside each of a card's several outputs (parts.outputs), after its name: what it carries.
- *   Those outputs run down the card's right edge; the body starts a blank row below the lowest port on either side.
+ *   Those outputs run down the card's right edge; the body starts on the row below the lowest port on either side.
  * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, width (a card's, unless parts.cardWidth(node) gives
  *   its own), height (for fitting), emptyNote, overlay
  * Windows floating over the board (FloatWindow, in `overlay`) are kept clear when fitting: the circuit goes between
@@ -441,9 +441,9 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
             </button>
           )}
         </div>
-        {/* Several outputs run down the card's right edge; the body starts a blank row below the lowest port on
+        {/* Several outputs run down the card's right edge; the body starts on the row below the lowest port on
             either side, so nothing it shows runs under an output's name. */}
-        <div className="node-ports" style={{ minHeight: (outs ? Math.max(ports.length, outs.length) + 1 : Math.max(1, ports.length)) * ROW }}>
+        <div className="node-ports" style={{ minHeight: (outs ? Math.max(ports.length, outs.length) : Math.max(1, ports.length)) * ROW }}>
           {caption && role !== 'part' && <span className={`node-carries ${role === 'source' ? 'is-input' : ''}`}>{L(caption(node))}</span>}
           {ports.map((port, index) => (
             <span key={port} className="node-port-label" style={{ top: index * ROW }}>
