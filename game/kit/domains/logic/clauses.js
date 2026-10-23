@@ -119,10 +119,11 @@ export function resolveRound(set) {
 export const sameSet = (a, b) => a.length === b.length && a.every((c, k) => clauseKey(c) === clauseKey(b[k]))
 
 /** Resolution until ⊥ appears or no new clause does. */
-export function saturate(set, limit = 60) {
+export function saturate(set, limit = 60, onRound = null) {
   let cur = clauseSet(set)
   for (let k = 0; k < limit; k++) {
     const next = resolveRound(cur)
+    onRound?.(next, k + 1)
     if (refuted(next) || sameSet(next, cur)) return next
     cur = next
   }

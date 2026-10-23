@@ -38,7 +38,10 @@ const stateIn = (v) => {
   return v
 }
 // A tactic card: one step on the state; a failure is the state with what went wrong (the next ORELSE or REPEAT reads it).
-const tactic = (t) => ({ inputs: ['in'], eval: ({ in: v }, _node, ctx) => { const s = stateIn(v); return s.error ? s : t({ ...s, error: undefined }, ctx) } })
+const tactic = (t) => ({ inputs: ['in'], eval: ({ in: v }, node, ctx) => { const s = stateIn(v); return s.error ? s : t({ ...s, error: undefined }, ctx, node) } })
+// A step inside a part, for a traced run (../../engine/circuit.js): a round of it, or the card it applies (`sub`).
+const inner = (ctx, node, value, extra) => ctx?.trace?.push({ id: node.id, key: null, inner: true, value, ...extra })
+const UNIFY_CARDS = { delete: 'uDelete', decompose: 'uDecompose', conflict: 'uConflict', swap: 'uSwap', check: 'uCheck', eliminate: 'uEliminate' }
 const formulaIn = (v) => {
   if (v.kind !== 'formula') throw fail('这里要一句公式，接进来的是一组子句', 'This needs a formula; it got a clause set')
   return v.f
@@ -99,7 +102,7 @@ const repeat = {
       // The board's own pass was the first round; these are the second on.
       ctx.trace?.push({ id: node.id, key: 'body', value: cur })
       const next = step(cur)
-      ctx.trace?.push({ id: node.id, key: null, round: k + 2, value: next })
+      ctx.trace?.push({ id: node.id, key: null, round: k + 2, value: next, quiet: true })
       // A tactic that fails ends the repeat with the state before it (REPEAT).
       if (next.kind === 'state' && next.error) return cur
       if (key2(next) === key2(cur)) return cur
@@ -139,7 +142,8 @@ export const MACHINE_PARTS = {
   },
   res: { inputs: ['in'], eval: ({ in: v }) => clausesValue(resolveRound(clausesIn(v))) },
   repeat,
-  saturate: { inputs: ['in'], eval: ({ in: v }) => clausesValue(saturate(clausesIn(v))) },
+  // A built part that goes round inside (the saturator, the unifier, auto) shows each of its rounds in a traced run.
+  saturate: { inputs: ['in'], eval: ({ in: v }, node, ctx) => clausesValue(saturate(clausesIn(v), 60, (set, round) => inner(ctx, node, clausesValue(set), { round }))) },
   // Unification (chapter 7): the six rules, and the unifier built from them.
   uDelete: rule('delete'),
   uDecompose: rule('decompose'),
@@ -149,9 +153,9 @@ export const MACHINE_PARTS = {
   uEliminate: rule('eliminate'),
   unifier: {
     inputs: ['in'],
-    eval: ({ in: v }) => {
+    eval: ({ in: v }, node, ctx) => {
       const e = eqsIn(v)
-      const σ = e.fail ? null : mgu(e.eqs)
+      const σ = e.fail ? null : mgu(e.eqs, (state, rule) => inner(ctx, node, eqsValue(state.eqs, state.fail), { sub: UNIFY_CARDS[rule] }))
       return σ ? eqsValue(Object.entries(σ).map(([x, t]) => [{ t: 'var', name: x }, t])) : eqsValue(e.eqs, e.fail ?? { zh: '没有合一子', en: 'No unifier' })
     },
   },
@@ -177,7 +181,7 @@ export const MACHINE_PARTS = {
   assumption: tactic(assumption),
   intro: tactic(intro),
   elim: tactic(elim),
-  auto: tactic(auto),
+  auto: tactic((s, ctx, node) => auto(s, (state, name) => inner(ctx, node, state, { sub: name }))),
   // ORELSE: both regions open with the state; the first region's result unless it failed, else the second's.
   orElse: {
     ...framePart(['in'], [{ name: 'first', opens: true }, { name: 'second', opens: true }]),

@@ -50,7 +50,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const tracedOf = (k) => {
     if (!traces.has(k)) {
       const traced = board.tests.trace(level, circuit, tests[k])
-      traces.set(k, { ...traced, steps: machineSteps(traced, circuit, name) })
+      traces.set(k, { ...traced, steps: machineSteps(traced, circuit, name, (type) => board.nameOf(lemmas, type)) })
     }
     return traces.get(k)
   }
