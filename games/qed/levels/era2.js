@@ -31,14 +31,13 @@ export const era2 = [
     // K and S, built at the end of the last chapter, are not this level's business.
     fold: ['axK', 'axS'],
     title: T('两个都要', 'Both of them'),
-    symbols: ['∧'],
     tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }],
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
     adds: ['andI', 'andE'],
     brief: T('已知「下雨 ∧ 刮风」，证出「刮风 ∧ 下雨」。', 'Given “it rains ∧ it is windy”, prove “it is windy ∧ it rains”.'),
     hint: [T('先拆开，再按新的顺序拼起来。', 'Take it apart, then put it back together in the new order.')],
     intro: [
-      { t: T('<level-ref to="always"></level-ref>里见过「并且」：两件事都发生，整句才真。从这一关起，「…并且…」写成 <b>∧</b>，比如「下雨 ∧ 刮风」。', 'You met “and” in <level-ref to="always"></level-ref>: the whole is true only when both happen. From this level on, “… and …” is written <b>∧</b>, as in “it rains ∧ it is windy”.') },
+      { t: T('<level-ref to="g-and"></level-ref>里的「与 ∧」门：两边都真，才输出真。证明器里的「下雨 ∧ 刮风」也是这个意思：下雨，并且刮风。', 'The “And ∧” gate of <level-ref to="g-and"></level-ref>: true only when both sides are. In the prover “it rains ∧ it is windy” means the same: it rains, and it is windy.') },
       { t: T('这一章的规则成对出现：一条造出它，一条用掉它。<b>拼成 ∧</b>：有了左边，又有了右边，就有「左边 ∧ 右边」。<b>拆开 ∧</b>：从一句「… ∧ …」拆出左边，也拆出右边，它有两个输出口。', 'This chapter’s rules come in pairs: one makes a connective, one uses it up. <b>Join ∧</b>: from a left and a right, “left ∧ right”. <b>Split ∧</b>: from an “… ∧ …”, its left, and also its right; it has two outputs.') },
       { t: T('这一关不用框。', 'No box needed this time.') },
     ],
@@ -102,14 +101,13 @@ export const era2 = [
     // K and S, built at the end of the last chapter, are not this level's business.
     fold: ['axK', 'axS'],
     title: T('二选一', 'One of two'),
-    symbols: ['∨'],
     tests: [{ premises: { p: 'A' }, goal: 'B ∨ (A ∨ B)' }],
     cases: [{ A: 'Sat', B: 'Sun' }, { A: 'Bus', B: 'Bike' }],
     adds: ['orI'],
     brief: T('已知「今天是周六」，证出「今天是周日 ∨ (今天是周六 ∨ 今天是周日)」。', 'Given “today is Saturday”, prove “today is Sunday ∨ (today is Saturday ∨ today is Sunday)”.'),
     hint: [T('从里往外：先引入「今天是周六 ∨ 今天是周日」（另一边放右边），再把它放到一句 ∨ 的右边。', 'From the inside out: first bring in “today is Saturday ∨ today is Sunday” (the other side on the right), then put that on the right of another ∨.')],
     intro: [
-      { t: T('「今天是周末」的意思是：今天是周六，<b>或者</b>今天是周日。至少一个成立就行，两个都成立也算。从这一关起，「…或者…」写成 <b>∨</b>。', '“It is the weekend” means: today is Saturday, <b>or</b> today is Sunday. At least one is enough, and both count too. From this level on, “… or …” is written <b>∨</b>.') },
+      { t: T('「今天是周末」的意思是：今天是周六，<b>或者</b>今天是周日。至少一个成立就行，两个都成立也算：这就是<level-ref to="g-or"></level-ref>里的「或 ∨」门。', '“It is the weekend” means: today is Saturday, <b>or</b> today is Sunday. At least one is enough, and both count too: just the “Or ∨” gate of <level-ref to="g-or"></level-ref>.') },
       { t: T('<b>引入 ∨</b>：有了一句话，「它 ∨ 随便哪句」就成立。在卡片上选另一边是哪句话，再选它放左边还是右边。', '<b>Bring in ∨</b>: from a sentence, “it ∨ any other” holds. On the card, choose the other side and whether it goes left or right.') },
     ],
     solution: proof({ i: ['orI', { other: 'B', side: 'right' }], j: ['orI', { other: 'B', side: 'left' }] }, ['p>i.a', 'i>j.a', 'j>goal'], { premises: ['p'] }),
@@ -182,7 +180,7 @@ export const era2 = [
     // K and S, built at the end of the last chapter, are not this level's business.
     fold: ['axK', 'axS'],
     title: T('矛盾', 'Contradiction'),
-    symbols: ['¬', '⊥'],
+    symbols: ['⊥'],
     tests: [{ premises: { p: 'A', q: '¬A' }, goal: 'B' }],
     cases: [{ A: 'Locked', B: 'Moon' }, { A: 'Rain', B: 'Pigs' }],
     adds: ['botE'],
@@ -193,7 +191,7 @@ export const era2 = [
     ],
     intro: [
       { t: T('一个证人先说「门锁着」，又说「门没锁」。两句不可能都对。', 'A witness says “the door is locked”, then “the door is not locked”. Both cannot be true.') },
-      { t: T('<level-ref to="g-never"></level-ref>里见过<b>矛盾</b>：每一行都假的话。证明器把它写成一个符号 <b>⊥</b>。「并非…」写成 <b>¬</b>，证明器没有专门管 ¬ 的元件，它这样读：<br><b>¬门锁着　就是　门锁着 → ⊥</b><br>「门没锁」和「如果门锁着，那么矛盾」是同一句话，所以「¬门锁着」可以直接接进要「如果…那么…」的口。', 'You met the <b>contradiction</b> in <level-ref to="g-never"></level-ref>: a sentence false on every row. The prover writes it as one symbol, <b>⊥</b>. “Not …” is written <b>¬</b>; the prover has no part for ¬ and reads it like this:<br><b>¬the door is locked　is　the door is locked → ⊥</b><br>“The door is not locked” and “if the door is locked, then a contradiction” are the same sentence, so “¬the door is locked” goes straight into an input that wants an “if … then …”.') },
+      { t: T('<level-ref to="g-never"></level-ref>里见过<b>矛盾</b>：每一行都假的话。证明器把它写成一个符号 <b>⊥</b>。「非」写成 <b>¬</b>（<level-ref to="g-not"></level-ref>里的「非 ¬」门），证明器没有专门管 ¬ 的元件，它这样读：<br><b>¬门锁着　就是　门锁着 → ⊥</b><br>「门没锁」和「如果门锁着，那么矛盾」是同一句话，所以「¬门锁着」可以直接接进要「如果…那么…」的口。', 'You met the <b>contradiction</b> in <level-ref to="g-never"></level-ref>: a sentence false on every row. The prover writes it as one symbol, <b>⊥</b>. “Not” is written <b>¬</b> (the “Not ¬” gate of <level-ref to="g-not"></level-ref>); the prover has no part for ¬ and reads it like this:<br><b>¬the door is locked　is　the door is locked → ⊥</b><br>“The door is not locked” and “if the door is locked, then a contradiction” are the same sentence, so “¬the door is locked” goes straight into an input that wants an “if … then …”.') },
       { t: T('<b>矛盾推出一切</b>：有了 ⊥，卡片上选什么，就能证出什么。', '<b>From contradiction, anything</b>: from ⊥, prove whatever is chosen on the card.') },
     ],
     solution: proof({ m: ['mp'], b: ['botE', { C: 'B' }] }, ['q>m.imp', 'p>m.a', 'm>b.bot', 'b>goal'], { premises: ['p', 'q'] }),

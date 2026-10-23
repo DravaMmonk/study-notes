@@ -12,6 +12,7 @@ export const circuits = [
   {
     id: 'g-not',
     kind: 'gates',
+    symbols: ['¬'],
     title: T('不是不下雨', 'Not not raining'),
     target: '¬¬Rain',
     adds: ['gNot'],
@@ -19,7 +20,7 @@ export const circuits = [
     intro: [
       { t: T('纸笔那一章，你一行一行地手填真值表。这一章把这件事交给机器：你只接一块电路，机器把它在每一行上各跑一遍，整张表就填满了。', 'In the pen-and-paper chapter you filled in truth tables by hand, row by row. Now a machine does it: you wire one board, the machine runs it on every row, and the whole table is filled in.') },
       { t: T('板子左边的卡片是「下雨」：哪一行下雨，它就送出真，否则送出假。右边是「这句话」：接到它的线送来什么，这一行这句话就是什么。', 'The card on the left of the board is “it rains”: on a row where it rains it sends out true, otherwise false. On the right is “the sentence”: whatever reaches it is the sentence’s value on that row.') },
-      { t: T('新元件<b>非</b>：输入是真，输出假；输入是假，输出真。', 'A new part, <b>Not</b>: true in gives false out; false in gives true out.') },
+      { t: T('新元件<b>非</b>，符号写作 <b>¬</b>：输入是真，输出假；输入是假，输出真。「不下雨」就是「¬下雨」。', 'A new part, <b>Not</b>, written <b>¬</b>: true in gives false out; false in gives true out. “It is not raining” is “¬it rains”.') },
       { t: T('下面的真值表里，点一行，板上每张卡片就显示它在那一行的值。', 'Click a row of the truth table below, and every card on the board shows its value on that row.') },
     ],
     hint: [T('「不下雨」是一个「非」接在「下雨」后面。再说一次「不是」呢？', '“It is not raining” is a Not after “it rains”. And saying “not” once more?')],
@@ -29,13 +30,14 @@ export const circuits = [
   {
     id: 'g-and',
     kind: 'gates',
+    symbols: ['∧'],
     title: T('下雨，但没刮风', 'Rain, but no wind'),
     target: 'Rain ∧ ¬Wind',
     adds: ['gAnd'],
     brief: T('接一块电路，算出「下雨，并且不刮风」在每一行是真是假。', 'Wire a board that works out, on every row, whether “it rains and it is not windy” is true.'),
     intro: [
       { t: T('这次有两件事：下没下雨，刮没刮风。一共四行。', 'Two things this time: does it rain, is it windy. Four rows in all.') },
-      { t: T('新元件<b>与</b>：两个输入都是真，才输出真；否则输出假。', 'A new part, <b>And</b>: it outputs true only when both inputs are true; otherwise false.') },
+      { t: T('新元件<b>与</b>，符号写作 <b>∧</b>：两个输入都是真，才输出真；否则输出假。「下雨，并且刮风」就是「下雨 ∧ 刮风」。', 'A new part, <b>And</b>, written <b>∧</b>: it outputs true only when both inputs are true; otherwise false. “It rains and it is windy” is “it rains ∧ it is windy”.') },
     ],
     hint: [T('要的是两件事同时成立：一件是「下雨」，另一件是「不刮风」。', 'Two things must hold at once: one is “it rains”, the other “it is not windy”.')],
     solution: board('Rain ∧ ¬Wind', { n: 'gNot', a: 'gAnd' }, ['Wind>n.a', 'Rain>a.a', 'n>a.b', 'a>out']),
@@ -59,12 +61,13 @@ export const circuits = [
   {
     id: 'g-or',
     kind: 'gates',
+    symbols: ['∨'],
     title: T('下雨或者刮风', 'Rain or wind'),
     target: 'Rain ∨ Wind',
     builds: 'gOr',
     brief: T('只用「与」和「非」，接一块电路，算出「下雨，或者刮风」在每一行是真是假。', 'With only And and Not, wire a board that works out, on every row, whether “it rains or it is windy” is true.'),
     intro: [
-      { t: T('「下雨，或者刮风」：至少有一件发生，它就是真的；两件都发生也算。', '“It rains or it is windy”: it is true when at least one of them happens, both included.') },
+      { t: T('「下雨，或者刮风」：至少有一件发生，它就是真的；两件都发生也算。「或」的符号写作 <b>∨</b>：「下雨 ∨ 刮风」。', '“It rains or it is windy”: it is true when at least one of them happens, both included. “Or” is written <b>∨</b>: “it rains ∨ it is windy”.') },
       { t: T('证明器里还没有「或」这个门。手上只有「与」和「非」。', 'The prover has no Or gate yet. You only have And and Not.') },
     ],
     hint: [
@@ -248,7 +251,7 @@ export const circuits = [
 
 /** The gates the player builds: each runs as its own function once built (checked against its level). */
 export const GATES = {
-  gOr: { name: T('或', 'Or'), desc: T('两个输入里至少有一个是真，就输出真；都是假，输出假。', 'Outputs true when at least one input is true; false when both are false.'), ports: ['a', 'b'], f: ([a, b]) => a || b },
-  gImp: { name: T('如果…那么…', 'If…then…'), desc: T('只在 a 是真、b 是假时输出假；其余都输出真。', 'Outputs false only when a is true and b is false; true otherwise.'), ports: ['a', 'b'], f: ([a, b]) => !a || b },
-  gIff: { name: T('等价', 'Equivalent'), desc: T('a ↔ b：a 和 b 同真或同假时输出真；一真一假时输出假。', 'a ↔ b: outputs true when a and b are both true or both false; false when one is true and the other false.'), ports: ['a', 'b'], f: ([a, b]) => a === b },
+  gOr: { name: T('或 ∨', 'Or ∨'), desc: T('a ∨ b：两个输入里至少有一个是真，就输出真；都是假，输出假。', 'Outputs true when at least one input is true; false when both are false.'), ports: ['a', 'b'], f: ([a, b]) => a || b },
+  gImp: { name: T('如果…那么… →', 'If…then… →'), desc: T('a → b：只在 a 是真、b 是假时输出假；其余都输出真。', 'Outputs false only when a is true and b is false; true otherwise.'), ports: ['a', 'b'], f: ([a, b]) => !a || b },
+  gIff: { name: T('等价 ↔', 'Equivalent ↔'), desc: T('a ↔ b：a 和 b 同真或同假时输出真；一真一假时输出假。', 'a ↔ b: outputs true when a and b are both true or both false; false when one is true and the other false.'), ports: ['a', 'b'], f: ([a, b]) => a === b },
 }
