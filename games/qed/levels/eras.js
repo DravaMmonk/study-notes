@@ -134,4 +134,15 @@ export const ERAS = [
     challenges: [{ level: 'u-occurs', after: 'u-eliminate' }],
     chapter: { title: T('合一', 'Unification'), question: T('子句里有变量时，怎样归结？', 'How do you resolve clauses with variables?') },
   },
+  {
+    id: 'tactics', machine: 'prover', keeps: 'all',
+    foundation: [
+      series('backward', '倒着证', 'Proving backwards', ['tac-intro', 'tac-steps', 'tac-and', 'tac-elim', 'tac-twoWays']),
+      series('combinators', '组合子', 'Combinators', ['tac-repeat', 'tac-orelse', 'tac-auto']),
+    ],
+    practice: ['tac-lem'],
+    // The family trees again, after chapter 5's queries.
+    topics: [{ id: 'prolog', code: 'P', after: ['q-school', 'tac-intro'], levels: ['p-grand', 'p-anc', 'p-order'], title: T('用规则推族谱', 'Rules over a family tree') }],
+    chapter: { title: T('策略', 'Tactics'), question: T('证明器能不能自己证明？', 'Can the prover prove by itself?') },
+  },
 ]

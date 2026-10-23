@@ -103,6 +103,19 @@ const SHOWN = 6
 function MachineValue({ v, text, small = false }) {
   if (!v) return null
   if (v.kind === 'formula') return <span className={`lg-formula ${small ? 'is-small' : ''}`}><b>{text(v.f)}</b></span>
+  if (v.kind === 'state') {
+    if (small) return <span className="lg-clauses is-small">{v.error ? <b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b> : !v.goals.length ? <b className="lg-bot">{tr('证完了', 'Proved')}</b> : <small>{tr(`还有 ${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'} left`)}</small>}</span>
+    return (
+      <span className="lg-clauses">
+        {v.error && <><b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b><small>{L(v.error)}</small></>}
+        {!v.goals.length && <b className="lg-bot">{tr('没有目标了：证完了', 'No goals left: proved')}</b>}
+        {v.goals.slice(0, SHOWN).map((g, k) => (
+          <code key={k}>{g.hyps.length > 0 && <small className="lg-hyps">{g.hyps.map(text).join(tr('；', '; '))} ⊢ </small>}{text(g.goal)}</code>
+        ))}
+        {v.goals.length > 0 && <small>{tr(`${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'}`)}</small>}
+      </span>
+    )
+  }
   if (v.kind === 'eqs') {
     const term = (t) => L(sayTerm(t, null))
     return (
@@ -141,6 +154,7 @@ const WANT = {
   skolem: T('Skolem 化以后的样子', 'the Skolemised form'),
   clauseForm: T('这句话的子句形式', 'this sentence’s clause form'),
   foRefuted: T('推出空子句 ⊥', 'the empty clause ⊥'),
+  proved: T('没有目标了：证完', 'no goals left: proved'),
 }
 const MACHINE_ICONS = { repeat: Repeat, saturate: Sigma }
 const machineName = (type) => MACHINE_TEXT[type]?.name ?? type
@@ -155,7 +169,8 @@ function machinePartsFor(level) {
     portLabel: (node, port) => (MACHINE_TEXT[node.type]?.frames?.[port] ? T('结果', 'Result') : MACHINE_TEXT[node.type]?.ports?.[port] ?? ''),
     family: (node) => (node.type === 'in' ? 'given' : node.type === 'out' ? 'end' : MACHINE_PARTS[node.type]?.frames ? 'box' : 'lemma'),
     icon: (node) => (node.type === 'in' ? ArrowRightFromLine : node.type === 'out' ? Flag : MACHINE_ICONS[node.type] ?? (MACHINE_PARTS[node.type]?.frames ? Box : Sigma)),
-    outputs: (node) => (MACHINE_PARTS[node.type]?.frames ? [{ key: null, label: T('得出', 'Result'), short: T('得出', 'Result') }, { key: 'body', label: T('这一圈', 'This round'), short: T('这一圈', 'This round') }] : null),
+    // A frame gives its result, and inside each region what that region opens with.
+    outputs: (node) => (MACHINE_PARTS[node.type]?.frames ? [{ key: null, label: T('得出', 'Result'), short: T('得出', 'Result') }, ...MACHINE_PARTS[node.type].frames().filter((r) => r.opens).map((r) => ({ key: r.name, label: T('收到', 'Receives'), short: T('收到', 'Receives') }))] : null),
     cardWidth: (node) => (MACHINE_PARTS[node.type]?.frames ? 260 : node.type === 'in' || node.type === 'out' ? 190 : 170),
     frames: (node) => (MACHINE_PARTS[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: MACHINE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),
     rules: Object.fromEntries(Object.entries(MACHINE_PARTS).filter(([type]) => type !== 'in' && type !== 'out')),
@@ -179,7 +194,7 @@ export const MACHINE = {
     const labels = new Map(inputsOfLevel(level).map((i) => [i.name, i.label]))
     const want = L(WANT[test.want ?? level.want])
     const term = (t) => L(sayTerm(t, null))
-    const show = (v) => (v.kind === 'formula' ? text(v.f) : v.kind === 'eqs' ? v.eqs.map(([s, t]) => `${term(s)} = ${term(t)}`).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormulaOf(c))).join(tr('；', '; ')))
+    const show = (v) => (v.kind === 'state' ? v.goals.map((g) => `${g.hyps.length ? `${g.hyps.map(text).join(tr('；', '; '))} ⊢ ` : ''}${text(g.goal)}`).join(tr('；', '; ')) : v.kind === 'formula' ? text(v.f) : v.kind === 'eqs' ? v.eqs.map(([s, t]) => `${term(s)} = ${term(t)}`).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormulaOf(c))).join(tr('；', '; ')))
     return {
       sequent: <>{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,

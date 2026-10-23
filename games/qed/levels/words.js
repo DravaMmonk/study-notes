@@ -62,6 +62,7 @@ export const WORDS = {
   School: T('{0}在上学', '{0} goes to school'),
   Student: T('{0}是学生', '{0} is a student'),
   Anc: T('{0}是{1}的祖先', '{0} is an ancestor of {1}'),
+  Grand: T('{0}是{1}的祖父母', '{0} is a grandparent of {1}'),
   Older: T('{0}比{1}年纪大', '{0} is older than {1}'),
   Less: T('{0}比{1}小', '{0} is less than {1}'),
   Bigger: T('{0}比{1}大', '{0} is bigger than {1}'),

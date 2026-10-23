@@ -12,6 +12,7 @@ import { runLevel } from '../../engine/tests.js'
 import { freeVars, parse } from './formula.js'
 import { countermodel, holds } from './models.js'
 import { builtWorld, extent, structureOf } from './fol.js'
+import { answersFor, factsOf, hornOf } from './tactics.js'
 import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
 import { proof } from './build.js'
 import { portsOf } from '../../engine/circuit.js'
@@ -26,7 +27,7 @@ export function validate({ levels: given, course }) {
   const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words && !l.vocab)) {
-    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs ? [] : t.clauses ?? (t.inputs ? Object.values(t.inputs) : [t.in]))) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses ?? (t.inputs ? Object.values(t.inputs) : [t.in]))) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     // The pattern's own letters stand bare in its last test; a machine's tests may end on bare letters too.
     const bare = new Set(level.kind === 'machine' ? 'ABCDEFGHPQRS'.split('') : Object.keys(level.cases?.[0] ?? {}))
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l] && !bare.has(l))
@@ -48,6 +49,21 @@ export function validate({ levels: given, course }) {
         const free = [...freeVars(f)]
         if (free.length !== 1 || free[0] !== 'x') out.push({ fail: true, text: `${level.id}: a query needs the free variable x alone: ${item.target}` })
         else if (!level.worlds.some((w) => extent(f, structureOf(w, [f])).length)) out.push({ fail: true, text: `${level.id}: ${item.target} picks out nothing in any world` })
+      }
+    }
+    if (level.kind === 'prolog') {
+      const rules = level.items.map((i) => hornOf(parse(i.target, { consts })))
+      if (rules.some((r) => !r)) out.push({ fail: true, text: `${level.id}: a reference rule is not a Horn rule` })
+      else {
+        const answers = level.worlds.flatMap((w) => level.queries.map((q) => answersFor(parse(q, { consts }), [...factsOf(w), ...rules])))
+        const bad = answers.some((a) => a.loop) ? 'loops' : answers.every((a) => !a.length) ? 'answers nothing' : null
+        out.push({ fail: Boolean(bad), text: `${level.id} ${keyOf(level.title)}: rules ${bad ?? 'PASS'}` })
+        for (const world of level.worlds) for (const t of world.things) if (!words[t]) out.push({ fail: true, text: `${level.id}: no words for the thing ${t}` })
+      }
+      if (level.naiveRules) {
+        const naive = level.naiveRules.map((t) => hornOf(parse(t, { consts })))
+        const loops = level.worlds.some((w) => level.queries.some((q) => answersFor(parse(q, { consts }), [...factsOf(w), ...naive]).loop))
+        out.push({ fail: !loops, text: `  naive ${loops ? 'loops' : 'does NOT loop (bad)'}` })
       }
     }
     if (level.kind === 'model') {

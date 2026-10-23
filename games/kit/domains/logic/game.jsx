@@ -1,6 +1,6 @@
 // A logic game on the shared shell (../../shell): its spec becomes the shell's game description, with the logic
 // domain's screens (a proof on the circuit editor, a truth table), its parts box of proved lemmas and its map art.
-import { Boxes, Cog, Cpu, Grid2x2Check, Languages, Search, Workflow } from 'lucide-react'
+import { Boxes, Cog, Cpu, Grid2x2Check, Languages, ScrollText, Search, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
@@ -68,6 +68,7 @@ export function defineLogicGame(spec) {
       translate: { Screen: WriteScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
       query: { Screen: WriteScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: Boxes, label: { zh: '造世界', en: 'Build a world' } },
+      prolog: { Screen: WriteScreen, icon: ScrollText, label: { zh: '写规则', en: 'Write rules' } },
     },
     unlocked: (level) => level.unlocks.map((flag) => ({ label: built[flag.slice('lemma:'.length)].name })),
     core: (level) => isCore(spec.logic.course, level),

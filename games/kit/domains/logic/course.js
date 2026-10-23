@@ -64,11 +64,11 @@ function expand(level, notation) {
 }
 
 // A first-order level's vocabulary (fol.js): the predicates and names its sentences use, and any it adds as decoys.
-const WORLD_KINDS = ['translate', 'query', 'model']
+const WORLD_KINDS = ['translate', 'query', 'model', 'prolog']
 // `names` are every name the level reads (level.consts), so a name typed that the level does not use still parses.
 function vocabOf(level) {
   const names = level.consts ?? []
-  const texts = level.kind === 'model' ? level.want.map((w) => w.f) : [...level.items.map((i) => i.target), ...(level.decoys ?? [])]
+  const texts = level.kind === 'model' ? level.want.map((w) => w.f) : [...level.items.map((i) => i.target), ...(level.decoys ?? []), ...(level.queries ?? [])]
   const v = vocabulary(texts.map((t) => parse(t, { consts: names })))
   return { preds: v.preds, consts: v.consts, names: [...new Set([...names, ...v.consts])] }
 }
@@ -76,6 +76,7 @@ function vocabOf(level) {
 // A machine test's tab: its input, or its claim, in words; a clause set by how many clauses it has.
 function machineLabel(test, notation) {
   if (test.eqs) return { zh: test.eqs.join('；'), en: test.eqs.join('; ') }
+  if (test.goal) return say(parseFo(test.goal), notation)
   if (test.clauses) return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
   return say(parseFo(test.inputs?.goal ?? test.in ?? Object.values(test.inputs)[0]), notation)
 }

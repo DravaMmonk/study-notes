@@ -20,7 +20,7 @@ const FAMILY_TWO = {
   things: ['ann', 'bo', 'cy', 'dee', 'en', 'fay'],
   preds: { Parent: [['bo', 'ann'], ['ann', 'cy'], ['ann', 'dee'], ['cy', 'en'], ['dee', 'fay']], School: ['cy', 'dee', 'en', 'fay'] },
 }
-const families = [FAMILY_ONE, FAMILY_TWO]
+export const families = [FAMILY_ONE, FAMILY_TWO]
 const query = (level) => ({ kind: 'query', consts, worlds: families, ...level })
 
 export const quantifiers = [
