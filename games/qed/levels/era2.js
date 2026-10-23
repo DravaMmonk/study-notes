@@ -217,7 +217,7 @@ export const era2 = [
     title: T('推出矛盾，就不成立', 'A contradiction means no'),
     tests: [{ premises: { p: 'A → B', q: 'A → ¬B' }, goal: '¬A' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Exam', B: 'Study' }],
-    brief: T('已知「下雨 → 地湿」和「下雨 → ¬地湿」，证出「¬下雨」。', 'Given “it rains → the ground is wet” and “it rains → ¬the ground is wet”, prove “¬it rains”.'),
+    brief: T('已知「下雨 → 地湿」和「下雨 → ¬地湿」，证出「¬下雨」（也就是「下雨 → ⊥」：下雨就矛盾）。', 'Given “it rains → the ground is wet” and “it rains → ¬the ground is wet”, prove “¬it rains” (that is “it rains → ⊥”: its raining is a contradiction).'),
     hint: [T('「¬下雨」就是「下雨 → ⊥」：假设「下雨」，在框里推出 ⊥。', '“¬it rains” is “it rains → ⊥”: assume “it rains” and reach ⊥ inside the box.')],
     intro: [{ t: T('下雨就地湿，下雨又就不地湿，那就不可能在下雨。证明器把「¬下雨」读成「下雨 → ⊥」：要证它，开一个框假设「下雨」，推出矛盾。', 'If rain means wet and also means not wet, it cannot be raining. The prover reads “¬it rains” as “it rains → ⊥”: to prove it, open a box assuming “it rains” and reach a contradiction.') }],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], m3: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'f#body>m2.a', 'm2>m3.imp', 'm1>m3.a', 'm3>f.body', 'f>goal'], { premises: ['p', 'q'] }),
