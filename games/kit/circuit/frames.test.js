@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { framePart, moveInto, regionsFit, scopeOf } from './frames.js'
-import { baseRefusal, moveToSlot, placement, removeNode } from './model.js'
+import { baseRefusal, clearSpot, moveToSlot, placement, removeNode } from './model.js'
 
 // A box `f` with one region that opens a value, and a card `m` inside it; `p` and `g` on the board.
 const parts = { role: (n) => (n.id === 'p' ? 'source' : 'part'), frames: (node) => (node.type === 'box' ? [{ name: 'body', opens: true }] : []) }
@@ -68,4 +68,12 @@ test('a saved board fits while every card sits in a region its frame has', () =>
   assert.equal(regionsFit(board, parts), true)
   assert.equal(regionsFit({ ...board, nodes: [...board.nodes, { id: 'x', in: 'f/gone' }] }, parts), false)
   assert.equal(regionsFit({ ...board, nodes: [...board.nodes, { id: 'y', in: 'missing/body' }] }, parts), false)
+})
+
+test('a card added over another moves to the nearest clear spot beside it', () => {
+  const frame = [0, 0, 400, 500]
+  assert.equal(clearSpot([frame], [140, 120], [440, 0]), null)
+  const [x, y] = clearSpot([frame], [140, 120], [200, 40])
+  assert.ok(x >= 416 || y >= 516)
+  assert.equal(clearSpot([], [140, 120], [0, 0]), null)
 })

@@ -20,6 +20,8 @@
 .node { position: absolute; padding-bottom: 10px; border-radius: 12px; background: var(--paper); box-shadow: var(--card); cursor: default; animation: card-in 240ms cubic-bezier(.2, .8, .2, 1); transition: box-shadow 180ms ease; }
 .node::before { content: ''; position: absolute; top: 0; left: 12px; right: 12px; height: 2px; border-radius: 0 0 2px 2px; background: var(--fam, var(--muted)); opacity: .85; }
 .node.is-selected { box-shadow: var(--card-lift); }
+/* A card being dragged rides over every other one. */
+.board-layer .node.lift { z-index: 2; }
 .node-head { height: 30px; padding: 0 6px 0 8px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--hairline); font-size: 12.5px; cursor: grab; touch-action: none; user-select: none; }
 .node-head .family-chip { width: 20px; height: 20px; border-radius: 5px; }
 .node-title { min-width: 0; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }

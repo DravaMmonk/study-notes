@@ -5,7 +5,7 @@ import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { moveInto } from './frames.js'
-import { baseRefusal, connect, ends, inPort, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
+import { baseRefusal, clearSpot, connect, ends, inPort, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
 import { useHistory } from './useHistory.js'
 
 // The desktop circuit board, the same in every game: parts are cards, wires run from a card's output (a dot on its
@@ -88,7 +88,10 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const widthOf = (node) => parts.cardWidth?.(node) ?? width
   const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
   const regionsOf = (node) => parts.frames?.(node) ?? []
-  const top = graph.nodes.filter((n) => !n.in)
+  // Frames are drawn first, under the plain cards: a frame's backdrop sits below the wires (so those inside it show),
+  // so a card drawn before a frame would have the frame's contents over it and its backdrop under it.
+  const layered = (nodes) => [...nodes.filter((n) => regionsOf(n).length), ...nodes.filter((n) => !regionsOf(n).length)]
+  const top = layered(graph.nodes.filter((n) => !n.in))
   // A card's size as drawn, or as it will be before it is.
   const sizeOf = (node) => geo.sizes[node.id] ?? [widthOf(node), height]
   const at = (p) => geo.ports[p] ?? null
@@ -142,6 +145,29 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
       .reduce((a, b) => (b.raw >= a.raw ? b : a))
     setView({ x: best.x, y: best.y, zoom: best.zoom })
   }
+  // A card just added (a new part, a removal undone) that lands over another card where it sits (the board, or a
+  // region) moves to the nearest spot clear of them all, as they are drawn: a frame is far bigger than a card.
+  // Until it has moved, it is not yet seen as added, so the view follows it to where it lands.
+  const seen = useRef(null)
+  const moving = useRef(false)
+  useLayoutEffect(() => {
+    const before = seen.current
+    seen.current = new Set(graph.nodes.map((n) => n.id))
+    moving.current = false
+    const added = before && graph.nodes.filter((n) => !before.has(n.id))
+    if (added?.length !== 1 || graph.nodes.length !== before.size + 1) return
+    const [node] = added
+    const drawn = (n) => {
+      const el = layer.current?.querySelector(`[data-node="${CSS.escape(n.id)}"]`)
+      return el ? [el.offsetWidth, el.offsetHeight] : sizeOf(n)
+    }
+    const beside = graph.nodes.filter((n) => n.id !== node.id && (n.in ?? null) === (node.in ?? null)).map((n) => [n.x, n.y, ...drawn(n)])
+    const spot = clearSpot(beside, drawn(node), [node.x, node.y])
+    if (!spot) return
+    moving.current = true
+    onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, x: spot[0], y: spot[1] } : n)) }, { keep: true })
+  })
+
   // Fit once the board first has a real size.
   const fitted = useRef(false)
   const fitRef = useRef(fit)
@@ -164,6 +190,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   // view, so nothing the player adds is ever off-screen.
   const known = useRef(null)
   useEffect(() => {
+    if (moving.current) return
     const ids = new Set(graph.nodes.map((n) => n.id))
     const before = known.current
     known.current = ids
@@ -477,7 +504,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
                     <span className="frame-region-result">{L(parts.portLabel?.(node, r.name)) ?? ''}{resultNote?.(node, r.name)}{inDot(r.name, 'frame-close')}</span>
                   </header>
                   <div className="frame-field" data-region={key} style={{ width: w, height: h }}>
-                    {inside.map(card)}
+                    {layered(inside).map(card)}
                   </div>
                 </section>
               )
