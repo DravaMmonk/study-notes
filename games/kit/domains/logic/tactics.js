@@ -77,13 +77,15 @@ export function elim(s) {
   return failed(s, T('没有能用掉的已知', 'No hypothesis can be used up'))
 }
 
-/** auto: REPEAT (assumption ORELSE intro ORELSE elim), the player's own, built in. */
-export function auto(s) {
+/** auto: REPEAT (assumption ORELSE intro ORELSE elim), the player's own, built in; `onStep(state, tactic)` sees each step. */
+export function auto(s, onStep = null) {
   let cur = s
+  const tactics = { assumption, intro, elim }
   for (let k = 0; k < 60 && cur.goals.length; k++) {
-    const next = [assumption, intro, elim].map((t) => t(cur)).find((x) => !x.error)
-    if (!next) return cur
-    cur = next
+    const name = Object.keys(tactics).find((t) => !tactics[t](cur).error)
+    if (!name) return cur
+    cur = tactics[name](cur)
+    onStep?.(cur, name)
   }
   return cur
 }

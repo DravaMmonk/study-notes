@@ -79,12 +79,14 @@ export function solved(eqs) {
 }
 
 /** The most general unifier of an equation set, as a substitution, or null. */
-export function mgu(eqs0) {
+export function mgu(eqs0, onStep = null) {
   let state = { eqs: eqs0, fail: null }
   for (let k = 0; k < 500 && !state.fail && !solved(state.eqs); k++) {
-    const next = ['delete', 'decompose', 'conflict', 'swap', 'check', 'eliminate'].map((r) => UNIFY_RULES[r](state.eqs)).find(Boolean)
-    if (!next) break
+    const rule = ['delete', 'decompose', 'conflict', 'swap', 'check', 'eliminate'].find((r) => UNIFY_RULES[r](state.eqs))
+    if (!rule) break
+    const next = UNIFY_RULES[rule](state.eqs)
     state = { eqs: next.eqs, fail: next.fail ?? null }
+    onStep?.(state, rule)
   }
   if (state.fail || !solved(state.eqs)) return null
   return Object.fromEntries(state.eqs.map(([x, t]) => [x.name, t]))
