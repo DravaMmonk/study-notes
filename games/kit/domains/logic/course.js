@@ -21,7 +21,8 @@ const ease = (level) => (level.solution ? level.solution.nodes.filter((n) => !['
  * A proof level is a schema: its test (`tests: [{ premises, goal }]`) is written in letters, and each test case
  * (`cases`, and `hiddenCases` for its hidden tests) fills the letters in with sentences ({ A: 'Rain', B: 'Wet' }, a
  * compound sentence too: { A: 'Rain ∧ Wind' }). Every case becomes a test of its own, with the case as `subst` and its
- * sentences as its label, so one proof is checked on all of them and the player never meets a bare letter.
+ * sentences as its label, so one proof is checked on all of them; a last shown test keeps the bare letters, the
+ * pattern itself, and is the one a level opens on.
  *   lemmas      { type: { name, desc, statement, premises?, metas } } the parts the player proves
  *   gates       { type: { name, desc, ports, f } } the gates the player builds on a truth circuit (gates.js)
  *   replaces    { part: [part] } a part that takes the place of others: from its level on, those leave the tray
@@ -44,7 +45,9 @@ function expand(level, notation) {
     const parts = Object.values(subst).map((f) => say(f, notation))
     return { premises: Object.fromEntries(Object.entries(schema.premises ?? {}).map(([name, text]) => [name, fill(text)])), goal: fill(schema.goal), subst, label: { zh: parts.map((p) => p.zh).join(' · '), en: parts.map((p) => p.en).join(' · ') } }
   }
-  return { schema, tests: level.cases.map(test), hidden: (level.hiddenCases ?? []).map(test) }
+  // Last of the shown tests, and the one shown first: the schema in its own letters (A := A …), the pattern bare.
+  const letters = Object.fromEntries(Object.keys(level.cases[0] ?? {}).map((l) => [l, l]))
+  return { schema, tests: [...level.cases.map(test), test(letters)], hidden: (level.hiddenCases ?? []).map(test) }
 }
 
 export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {}, primitives, concept = {}, replaces = {} }) {

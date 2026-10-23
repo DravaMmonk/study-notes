@@ -21,7 +21,9 @@ export function validate({ levels, course }) {
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words)) {
     const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : withHidden(level).tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
-    const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l])
+    // The pattern's own letters stand bare in its last test.
+    const bare = new Set(Object.keys(level.cases?.[0] ?? {}))
+    const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l] && !bare.has(l))
     if (missing.length) out.push({ fail: true, text: `${level.id}: no words for ${missing.join(', ')}` })
     if (level.kind === 'proof' && !level.cases) out.push({ fail: true, text: `${level.id}: a proof level needs test cases` })
   }
