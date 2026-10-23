@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { EyeOff, Plus, Redo2, Spline, Undo2, Waypoints } from 'lucide-react'
+import ClearButton from './ClearButton.jsx'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { feeding, inPort, layout, outPort, parsePort, placement, srcNode, srcOf } from './model.js'
@@ -99,6 +100,7 @@ const readMode = () => {
  * @param outNote(node, key)               over each of a block's several outputs (parts.outputs), under its name: what
  *                                         it carries
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
+ * @param onClear                          clears the board: a button at the left of that row, which asks first
  * @param dense                            a board of text: thin blocks, each one's name over its value
  * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is;
  *        resultNote(node, region)         and beside the dot its result goes into, what the frame gives (a frame's
@@ -112,7 +114,7 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, dense = false, regionNote, resultNote }) {
+export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, dense = false, regionNote, resultNote }) {
   const board = useRef(null)
   const [wires, setWires] = useState(readMode)
   const mode = WIRE_MODES.find((m) => m.id === wires)
@@ -287,6 +289,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   return (
     <div className={`pb-board ${dense ? 'is-dense' : ''}`} data-ports={parts.typedPorts ? undefined : 'arrow'} ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
       <div className="pb-tools">
+        {onClear && <span className="pb-steps pb-clear"><ClearButton onClear={onClear} size={16} /></span>}
         {history && (
           <span className="pb-steps">
             <button type="button" onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销', 'Undo')}><Undo2 size={16} /></button>
