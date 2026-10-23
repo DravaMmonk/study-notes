@@ -16,7 +16,7 @@
 // 'prenex', 'skolem' and 'clauseForm' (the input's own, as unify.js makes them), and 'refuted' on clauses with
 // variables. Test inputs are read with unify.js's convention (u … z variables, other lower-case names constants).
 // Tactics (chapter 8): a test { goal, hyps? } starts a proof state, and 'proved' wants no goal left.
-// Theories (chapter 9): a test { eq } starts a proof state on an equation (theory.js), and simp rewrites with the
+// Theories (chapter 9): a test { eq, hyps? } starts a proof state on an equation (theory.js), and simp rewrites with the
 // level's `defs`, handed to every card in the run's ctx.
 import { PartError, evaluate } from '../../engine/circuit.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
@@ -198,7 +198,7 @@ const isFoNnf = (f) => (f.op === '∀' || f.op === '∃' ? isFoNnf(f.body) : f.o
 /** A test's inputs as values, by name. */
 export function inputsOf(test) {
   if (test.goal) return { in: startState(parseFo(test.goal), (test.hyps ?? []).map(parseFo)) }
-  if (test.eq) return { in: startState(parseTh(test.eq)) }
+  if (test.eq) return { in: startState(parseTh(test.eq), (test.hyps ?? []).map(parseTh)) }
   if (test.eqs) return { in: eqsValue(test.eqs.map((e) => e.split(' = ').map(parseTerm))) }
   if (test.clauses) {
     const cs = test.clauses.map((c) => c.split(' ∨ ').map((l) => l.trim()))

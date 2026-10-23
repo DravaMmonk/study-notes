@@ -7,13 +7,14 @@
 //   defs     a level's definitions (`defs`, equation texts), handed to the board's run (machine.js ctx.defs)
 //   rules    a state's extra rules, the lemmas its cards added
 //
-// Terms are written with zero, nil, tt and ff (true and false) the only names; any other bare lower-case word is a variable.
-// A variable's kind is read off its name: n, m, k stand for numbers, xs, ys, zs for lists.
+// Terms are written with zero, nil, tt and ff (true and false), and an automaton's states q0, q1 and letters c0, c1, the
+// only names; any other bare lower-case word is a variable. A variable's kind is read off its name: n, m, k stand for
+// numbers, xs, ys, zs for lists, and u, v, w for strings (lists of letters).
 import { atom, fn, parse, subst, tvar } from './formula.js'
 import { stateValue } from './tactics.js'
 
 const T = (zh, en) => ({ zh, en })
-const NAMES = ['zero', 'nil', 'tt', 'ff']
+const NAMES = ['zero', 'nil', 'tt', 'ff', 'q0', 'q1', 'c0', 'c1']
 const isVar = (t) => t.t === 'var'
 const key = (t) => (isVar(t) ? t.name : `${t.f}(${t.args.map(key).join(',')})`)
 const stripAll = (f) => (f.op === '∀' ? stripAll(f.body) : f)
@@ -90,7 +91,7 @@ export function simp(s, defs = []) {
   return { ...stateValue([{ hyps: g.hyps, goal: boundOf(g.goal).reduceRight((f, v) => ({ op: '∀', v, body: f }), body) }, ...rest]), rules: s.rules }
 }
 
-const kindOf = (v) => (/^[nmk]\d*$/.test(v) ? 'nat' : /^[xyz]s\d*$/.test(v) ? 'list' : null)
+const kindOf = (v) => (/^[nmk]\d*$/.test(v) ? 'nat' : /^([xyz]s|[uvw])\d*$/.test(v) ? 'list' : null)
 
 /** induct: on the first goal's first ∀ variable, a number or a list: the base case, then the step with its hypothesis. */
 export function induct(s) {
@@ -139,4 +140,5 @@ export const THEORY_LEMMAS = {
   revApp: '∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))',
   insLen: '∀ys. ∀x. len(ins(x, ys)) = s(len(ys))',
   itsumGen: '∀xs. ∀n. itsum(xs, n) = plus(n, sum(xs))',
+  runApp: '∀w. ∀u. ∀q. run(q, app(w, u)) = run(run(q, w), u)',
 }
