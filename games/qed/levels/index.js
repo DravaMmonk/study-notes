@@ -9,6 +9,7 @@ import { era2 } from './era2.js'
 import { resolution } from './resolution.js'
 import { quantifiers } from './quantifiers.js'
 import { rules } from './rules.js'
+import { unification } from './unification.js'
 import { WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -27,13 +28,13 @@ export const LEMMAS = {
 
 export const LOGIC = logicCourse({
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...resolution, ...quantifiers, ...rules],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...resolution, ...quantifiers, ...rules, ...unification],
   words: WORDS,
   lemmas: LEMMAS,
   gates: GATES,
   // The machine-board parts the player builds: law cards, normal forms, resolution and the saturator.
-  machines: ['dneg', 'impOr', 'dm', 'dist', 'nnf', 'cnf', 'res', 'saturate'],
-  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'repeat', 'neg', 'conj', 'toClauses', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl'],
+  machines: ['dneg', 'impOr', 'dm', 'dist', 'nnf', 'cnf', 'res', 'saturate', 'unifier', 'clauseForm', 'fores'],
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'repeat', 'neg', 'conj', 'toClauses', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'uDecompose', 'uDelete', 'uConflict', 'uSwap', 'uEliminate', 'uCheck', 'prenex', 'skolem', 'factor'],
   // Joining and splitting ∧ come together, as one idea; so do the three cards that set a refutation up.
-  concept: { andI: 'and', andE: 'and', neg: 'refute', conj: 'refute', toClauses: 'refute', rewrite: 'eq', refl: 'eq' },
+  concept: { andI: 'and', andE: 'and', neg: 'refute', conj: 'refute', toClauses: 'refute', rewrite: 'eq', refl: 'eq', uDecompose: 'unify', uDelete: 'unify', uConflict: 'unify', uSwap: 'unify', uEliminate: 'unify', uCheck: 'unify' },
 })

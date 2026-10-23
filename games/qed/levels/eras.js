@@ -121,4 +121,17 @@ export const ERAS = [
     challenges: [{ level: 'drinker', after: 'q-swap' }],
     chapter: { title: T('量词规则', 'Quantifier rules'), question: T('怎样证明一句话在所有世界里都成立？', 'How do you prove a sentence holds in every world?') },
   },
+  {
+    id: 'unification', machine: 'prover', keeps: 'all',
+    foundation: [
+      // Solving equations and putting formulas into clause form need nothing from each other; resolution needs both.
+      branches(
+        ['unify', '合一', 'Unification', ['u-decompose', 'u-conflict', 'u-swap', 'u-eliminate', 'u-unifier']],
+        ['clauseform', '子句形式', 'Clause form', ['c-prenex', 'c-skolem', 'c-clauseForm']],
+      ),
+      series('foResolution', '一阶归结', 'First-order resolution', ['f-resolve', 'f-factor', 'f-refute']),
+    ],
+    challenges: [{ level: 'u-occurs', after: 'u-eliminate' }],
+    chapter: { title: T('合一', 'Unification'), question: T('子句里有变量时，怎样归结？', 'How do you resolve clauses with variables?') },
+  },
 ]

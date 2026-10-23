@@ -125,4 +125,4 @@ export function patternsOf(formulas) {
 export const compoundTerms = (f) => termsIn(f).filter((t) => t.t === 'fn' && t.args.length).map(termKey)
 
 /** A term as a { zh, en } pair, in a level's notation. */
-export const sayTerm = (t, notation) => ({ zh: termWords(t, notation, 'zh'), en: termWords(t, notation, 'en') })
+export const sayTerm = (t, notation) => ({ zh: termWords(t, notation ?? {}, 'zh'), en: termWords(t, notation ?? {}, 'en') })
