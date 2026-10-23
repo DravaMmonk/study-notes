@@ -126,10 +126,11 @@ export const circuits = [
     target: '(Rain → Wet) ∧ (Wet → Rain)',
     hideTarget: true,
     builds: 'gIff',
+    symbols: ['↔'],
     brief: T('接一块电路，算出「（如果下雨，那么地湿）并且（如果地湿，那么下雨）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) and (if the ground is wet, it rains)” is true.'),
     hint: [T('两个「如果…那么…」，方向相反，再用「与」接起来。', 'Two if…thens pointing opposite ways, joined by And.')],
     solution: board('(Rain → Wet) ∧ (Wet → Rain)', { i1: 'gImp', i2: 'gImp', a: 'gAnd' }, ['Rain>i1.a', 'Wet>i1.b', 'Wet>i2.a', 'Rain>i2.b', 'i1>a.a', 'i2>a.b', 'a>out']),
-    after: T('真的两行，正好是「下雨」和「地湿」一样的两行：都发生，或者都没发生。两个方向都对，就是说两件事<b>同真同假</b>。', 'The two true rows are exactly those where “it rains” and “the ground is wet” agree: both happen, or neither does. Both directions holding means the two are <b>true together and false together</b>.'),
+    after: T('真的两行，正好是「下雨」和「地湿」一样的两行：都发生，或者都没发生。两个方向都对，就是说两件事<b>等价</b>：同真同假，写成 <b>↔</b>，比如「下雨 ↔ 地湿」。', 'The two true rows are exactly those where “it rains” and “the ground is wet” agree: both happen, or neither does. Both directions holding means the two are <b>equivalent</b>: true together and false together, written <b>↔</b>, as in “it rains ↔ the ground is wet”.'),
   },
   // Topic: translate what islanders say into logic (and, or, not; if…then; true together) and wire it; the true row is
 // the answer. The sentence is said in words only.
@@ -163,11 +164,11 @@ export const circuits = [
     brief: T('a 说：「b 是骑士。」把「a 说」翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'a says: “b is a knight.” Translate “a says” into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，只说真话；要么是<b>无赖</b>，只说假话。', 'Everyone on the island is a <b>knight</b>, who only tells the truth, or a <b>knave</b>, who only lies.') },
-      { t: T('「a 说 X」说的是：a 是骑士，X 就是真的；a 不是骑士，X 就是假的。也就是「a 是骑士」和 X <b>同真同假</b>。', '“a says X” means: if a is a knight, X is true; if a is not a knight, X is false. That is, “a is a knight” and X are <b>true together and false together</b>.') },
-      { t: T('「同真同假」正好是你在<level-ref to="g-iff"></level-ref>造出的元件。', '“True together, false together” is just the part you built in <level-ref to="g-iff"></level-ref>.') },
+      { t: T('「a 说 X」说的是：a 是骑士，X 就是真的；a 不是骑士，X 就是假的。也就是「a 是骑士」和 X <b>等价</b>（同真同假）：「a 是骑士 ↔ X」。', '“a says X” means: if a is a knight, X is true; if a is not a knight, X is false. That is, “a is a knight” and X are <b>equivalent</b> (true together, false together): “a is a knight ↔ X”.') },
+      { t: T('「等价」正好是你在<level-ref to="g-iff"></level-ref>造出的元件。', '“Equivalent” is just the part you built in <level-ref to="g-iff"></level-ref>.') },
     ],
     hint: [
-      T('X 在这里是「b 是骑士」：「a 是骑士」和「b 是骑士」同真同假。', 'X here is “b is a knight”: “a is a knight” and “b is a knight” are true together and false together.'),
+      T('X 在这里是「b 是骑士」：「a 是骑士」和「b 是骑士」等价。', 'X here is “b is a knight”: “a is a knight” and “b is a knight” are equivalent.'),
     ],
     solution: board('KA ↔ KB', { e: 'gIff' }, ['KA>e.a', 'KB>e.b', 'e>out']),
     naive: board('KA ↔ KB', { i: 'gImp' }, ['KA>i.a', 'KB>i.b', 'i>out']),
@@ -185,10 +186,10 @@ export const circuits = [
     ],
     hint: [
       T('先翻译 a 的话：「至少有一个是无赖」是「（非 a 是骑士）或（非 b 是骑士）」。', 'Translate what a says first: “at least one is a knave” is “(not a is a knight) or (not b is a knight)”.'),
-      T('再翻译「a 说」：「a 是骑士」和 a 的话同真同假。', 'Then translate “a says”: “a is a knight” and what a says are true together and false together.'),
+      T('再翻译「a 说」：「a 是骑士」和 a 的话等价。', 'Then translate “a says”: “a is a knight” and what a says are equivalent.'),
     ],
     solution: board('KA ↔ (¬KA ∨ ¬KB)', { na: 'gNot', nb: 'gNot', s: 'gOr', e: 'gIff' }, ['KA>na.a', 'KB>nb.a', 'na>s.a', 'nb>s.b', 'KA>e.a', 's>e.b', 'e>out']),
-    after: T('整件事译成：「a 是骑士」与「（非 a 是骑士）或（非 b 是骑士）」同真同假。只有一行为真：a 是骑士，b 是无赖。「同真同假」还有别的译法，比如「（a 是骑士 与 X）或（非 a 是骑士 与 非 X）」，每一行都一样。', 'The whole thing translates to: “a is a knight” and “(not a is a knight) or (not b is a knight)” are true together and false together. Only one row is true: a is a knight and b is a knave. “True together, false together” has other translations too, such as “(a is a knight and X) or (not a is a knight and not X)”, which agree on every row.'),
+    after: T('整件事译成：「a 是骑士」与「（非 a 是骑士）或（非 b 是骑士）」等价。只有一行为真：a 是骑士，b 是无赖。「等价」还有别的译法，比如「（a 是骑士 与 X）或（非 a 是骑士 与 非 X）」，每一行都一样。', 'The whole thing translates to: “a is a knight” and “(not a is a knight) or (not b is a knight)” are equivalent. Only one row is true: a is a knight and b is a knave. “Equivalent” has other translations too, such as “(a is a knight and X) or (not a is a knight and not X)”, which agree on every row.'),
   },
   {
     id: 'e-two',
@@ -201,13 +202,13 @@ export const circuits = [
       { t: T('这一关有两个人说话。「两个人的话都对得上」就是：a 那一句的翻译，<b>与</b> b 那一句的翻译。「我们俩都是骑士」是：a 是骑士 与 b 是骑士。', 'Two people speak this time. “What both say fits” is: the translation of a’s part <b>and</b> the translation of b’s. “We are both knights” is: a is a knight and b is a knight.') },
     ],
     hint: [
-      T('一个人一句「同真同假」：「a 是骑士」对「非 b 是骑士」；「b 是骑士」对「a 是骑士 与 b 是骑士」。', 'One “true together, false together” per person: “a is a knight” with “not b is a knight”; “b is a knight” with “a is a knight and b is a knight”.'),
+      T('一个人一句「等价」：「a 是骑士」对「非 b 是骑士」；「b 是骑士」对「a 是骑士 与 b 是骑士」。', 'One “equivalent” per person: “a is a knight” with “not b is a knight”; “b is a knight” with “a is a knight and b is a knight”.'),
       T('两句都要成立：最后用「与」接起来。', 'Both must hold: join them with And at the end.'),
     ],
     solution: board('(KA ↔ ¬KB) ∧ (KB ↔ KA ∧ KB)', { nb: 'gNot', e1: 'gIff', ab: 'gAnd', e2: 'gIff', all: 'gAnd' }, [
       'KB>nb.a', 'KA>e1.a', 'nb>e1.b', 'KA>ab.a', 'KB>ab.b', 'KB>e2.a', 'ab>e2.b', 'e1>all.a', 'e2>all.b', 'all>out',
     ]),
-    after: T('整件事译成：（「a 是骑士」与「非 b 是骑士」同真同假）与（「b 是骑士」与「a 是骑士 与 b 是骑士」同真同假）。还是只有一行：a 是骑士，b 是无赖。b 的话是假的，正合他无赖的身份。', 'The whole thing translates to: (“a is a knight” and “not b is a knight” true together and false together) and (“b is a knight” and “a is a knight and b is a knight” likewise). Again only one row: a is a knight, b is a knave. What b says is false, just as a knave would say.'),
+    after: T('整件事译成：（「a 是骑士」与「非 b 是骑士」等价）与（「b 是骑士」与「a 是骑士 与 b 是骑士」等价）。还是只有一行：a 是骑士，b 是无赖。b 的话是假的，正合他无赖的身份。', 'The whole thing translates to: (“a is a knight” and “not b is a knight” equivalent) and (“b is a knight” and “a is a knight and b is a knight” equivalent). Again only one row: a is a knight, b is a knave. What b says is false, just as a knave would say.'),
   },
   {
     id: 'e-three',
@@ -221,7 +222,7 @@ export const circuits = [
     ],
     hint: [
       T('「a 和 b 都是无赖」是「（非 a 是骑士）与（非 b 是骑士）」。', '“a and b are both knaves” is “(not a is a knight) and (not b is a knight)”.'),
-      T('三个人，三句「同真同假」，再用「与」把三句接起来。', 'Three people, three “true together, false together” sentences, joined by And.'),
+      T('三个人，三句「等价」，再用「与」把三句接起来。', 'Three people, three “equivalent” sentences, joined by And.'),
     ],
     solution: board('(KA ↔ ¬KB) ∧ (KB ↔ ¬KC) ∧ (KC ↔ ¬KA ∧ ¬KB)', { na: 'gNot', nb: 'gNot', nc: 'gNot', e1: 'gIff', e2: 'gIff', c: 'gAnd', e3: 'gIff', b12: 'gAnd', all: 'gAnd' }, [
       'KA>na.a', 'KB>nb.a', 'KC>nc.a',
@@ -249,5 +250,5 @@ export const circuits = [
 export const GATES = {
   gOr: { name: T('或', 'Or'), desc: T('两个输入里至少有一个是真，就输出真；都是假，输出假。', 'Outputs true when at least one input is true; false when both are false.'), ports: ['a', 'b'], f: ([a, b]) => a || b },
   gImp: { name: T('如果…那么…', 'If…then…'), desc: T('只在 a 是真、b 是假时输出假；其余都输出真。', 'Outputs false only when a is true and b is false; true otherwise.'), ports: ['a', 'b'], f: ([a, b]) => !a || b },
-  gIff: { name: T('同真同假', 'Same truth'), desc: T('a 和 b 同真或同假时输出真；一真一假时输出假。', 'Outputs true when a and b are both true or both false; false when one is true and the other false.'), ports: ['a', 'b'], f: ([a, b]) => a === b },
+  gIff: { name: T('等价', 'Equivalent'), desc: T('a ↔ b：a 和 b 同真或同假时输出真；一真一假时输出假。', 'a ↔ b: outputs true when a and b are both true or both false; false when one is true and the other false.'), ports: ['a', 'b'], f: ([a, b]) => a === b },
 }

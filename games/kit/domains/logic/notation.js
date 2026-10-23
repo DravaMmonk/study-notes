@@ -11,7 +11,7 @@ const WORDS = {
   '→': { zh: (a, b) => `如果${a}，那么${b}`, en: (a, b) => `if ${a} then ${b}` },
   '∧': { zh: (a, b) => `${a}并且${b}`, en: (a, b) => `${a} and ${b}` },
   '∨': { zh: (a, b) => `${a}或者${b}`, en: (a, b) => `${a} or ${b}` },
-  '↔': { zh: (a, b) => `${a}当且仅当${b}`, en: (a, b) => `${a} if and only if ${b}` },
+  '↔': { zh: (a, b) => `${a}等价于${b}`, en: (a, b) => `${a} is equivalent to ${b}` },
 }
 
 /** A formula in a level's notation, in one language ('zh' | 'en'). */

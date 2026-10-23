@@ -406,7 +406,6 @@ export const era2 = [
     id: 'kk-one',
     kind: 'proof',
     title: T('一个岛民', 'One islander'),
-    symbols: ['↔'],
     tests: [{ premises: { p: 'A ↔ ¬A' }, goal: '⊥' }],
     cases: [{ A: 'KA' }, { A: 'KC' }],
     brief: T('一个岛民说：「我是无赖。」证明这话不可能有人说：由「a 是骑士 ↔ ¬a 是骑士」证出矛盾 ⊥。', 'An islander says: “I am a knave.” Prove nobody can say that: from “a is a knight ↔ ¬a is a knight”, prove the contradiction ⊥.'),
@@ -416,7 +415,7 @@ export const era2 = [
     ],
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，永远说真话；要么是<b>无赖</b>，永远说假话。', 'Everyone on the island is a <b>knight</b>, who always tells the truth, or a <b>knave</b>, who always lies.') },
-      { t: T('一个岛民说了一句话，就有：「他是骑士」<b>当且仅当</b>他说的是真的。「…当且仅当…」写成 <b>↔</b>：两个方向的 → 都成立，也就是「(甲 → 乙) ∧ (乙 → 甲)」。证明器把它当成一句 ∧。', 'If an islander says something, then “he is a knight” <b>if and only if</b> what he says is true. “… if and only if …” is written <b>↔</b>: the → holds both ways, that is “(X → Y) ∧ (Y → X)”. The prover reads it as an ∧.') },
+      { t: T('一个岛民说了一句话，「他是骑士」就和他说的话<b>等价</b>：<level-ref to="e-says"></level-ref>里翻译过，写成 <b>↔</b>。真值上，等价是同真同假；证明器里，它是两个方向的 → 都成立，也就是「(甲 → 乙) ∧ (乙 → 甲)」，证明器把它当成一句 ∧。', 'If an islander says something, “he is a knight” is <b>equivalent</b> to what he says: you translated that in <level-ref to="e-says"></level-ref>, written <b>↔</b>. In truth values, equivalent means true together and false together; in the prover it is the → holding both ways, that is “(X → Y) ∧ (Y → X)”, and the prover reads it as an ∧.') },
     ],
     solution: k1,
     after: T('4 步：拆开、合并、两次套用。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。', 'Four steps: split, merge, two Applies. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true.'),
