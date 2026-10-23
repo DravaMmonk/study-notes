@@ -140,7 +140,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const verdictText = result ? (result.pass ? L(board.words.pass) : L(result.reason)) : null
   const shared = { board, parts, lemmas, circuit, view, scene, setParam, text }
 
-  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepId={stepNow?.id ?? null} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
+  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} runAt={run ? `${run.test}:${run.step}:${run.results.length}` : null} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -213,7 +213,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
 
 // The board on a phone: the shared slot board, where a frame is a block with its regions' grids inside it, a sheet
 // per block and the run bar.
-function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepId, setParam, text, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
+function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, runAt, setParam, text, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
   const { Value } = board
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
@@ -234,10 +234,11 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
     scroller,
     scope,
   })
-  // The block computing this step scrolls into view.
+  // A run brings the page down to the preview under the result, and keeps it there as each step shows.
+  const preview = useRef(null)
   useEffect(() => {
-    if (stepId) root.current?.querySelector(`[data-piece="${stepId}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  }, [stepId])
+    if (runAt !== null) preview.current?.scrollIntoView({ block: 'end', behavior: 'smooth' })
+  }, [runAt])
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   // A frame shows what it gives outside; what it opens shows in its regions.
   const thumb = (n) => {
@@ -259,8 +260,14 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
         <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
-        {stepLog}
-        {verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
+        {stepped ? (
+          <section className="lg-preview" ref={preview}>
+            <h3>{tr('运行过程', 'The run')}</h3>
+            {stepLog}
+            {runAt === null && <p className="lg-mark">{tr('点「运行」或「步进」，这里一步一步显示每张卡片算出的结果。', 'Press Run or Step, and each card’s result shows here step by step.')}</p>}
+            {verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
+          </section>
+        ) : verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
       <footer className="run-foot">{dock}</footer>

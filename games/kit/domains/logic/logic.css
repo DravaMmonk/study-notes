@@ -174,3 +174,9 @@
 .lg-occ-text { font-weight: 600; line-height: 2; overflow-wrap: anywhere; }
 .lg-occ-text button { margin: 0 2px; padding: 1px 6px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--ink); background: transparent; font: inherit; cursor: pointer; }
 .lg-occ-text button[aria-pressed='true'] { border-style: solid; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
+
+/* The phone's preview under the result: the run's steps and its verdict. */
+.lg-preview { margin: 12px 0 4px; padding: 10px 12px 12px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); display: grid; gap: 6px; scroll-margin-bottom: 12px; }
+.lg-preview h3 { margin: 0; color: var(--muted); font: 600 12px var(--mono); letter-spacing: .08em; }
+.lg-preview .step-log { margin: 0; }
+.lg-preview .lg-verdict { margin: 0; }
