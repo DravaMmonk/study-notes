@@ -3,7 +3,7 @@
 //
 //   board  { tests, parts(level), start(level), fits(saved, level, parts), Value({ v, text, small, bare }),
 //            scene(level, test, text) → { sequent, want, choices }, settings(parts, node, lemmas), extra?(node, setParam),
-//            nameOf, descOf, iconOf, familyOf (lemmas, type), words }
+//            nameOf, iconOf, familyOf (lemmas, type), textOf (lemmas, type, revisions): a part's text, words }
 import { ArrowRightFromLine, Box, Flag, Repeat, Sigma } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import { regionsFit } from '../../../circuit/index.js'
@@ -16,7 +16,7 @@ import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel } from '../machin
 import { refuted } from '../clauses.js'
 import { clauseFormulaOf } from '../unify.js'
 import { parseTh } from '../theory.js'
-import { MACHINE_TEXT, descOf, familyOf, iconOf, nameOf, partsFor, settingsOf } from './catalog.js'
+import { MACHINE_TEXT, familyOf, iconOf, nameOf, partsFor, settingsOf, textOf, withRevisions } from './catalog.js'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -79,7 +79,7 @@ export const PROOF = {
     </div>
   ) : node.type === 'rewrite' && <Occurrences node={node} ins={ins} setParam={setParam} text={text} />),
   nameOf,
-  descOf,
+  textOf,
   iconOf,
   familyOf,
   words: {
@@ -231,7 +231,7 @@ export const MACHINE = {
   },
   settings: () => [],
   nameOf: (_lemmas, type) => machineName(type),
-  descOf: (_lemmas, type) => MACHINE_TEXT[type]?.desc,
+  textOf: (_lemmas, type, revisions = {}) => withRevisions(MACHINE_TEXT[type], revisions[type]),
   iconOf: (_lemmas, type) => MACHINE_ICONS[type] ?? (MACHINE_PARTS[type]?.frames ? Box : Sigma),
   familyOf: (_lemmas, type) => (MACHINE_PARTS[type]?.frames ? 'box' : 'lemma'),
   words: {

@@ -30,6 +30,14 @@ export const LEMMAS = {
   lem: { name: T('排中律', 'Excluded middle'), desc: T('卡片上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the card; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
 }
 
+// How parts' descriptions grow as the course goes on: from the level `at` on, the description reads this way.
+const REVISIONS = {
+  // 矛盾 brings in ¬A as A → ⊥, so Apply takes ¬A and A to ⊥.
+  mp: [{ at: 'bot', desc: T('由 A → B 和 A 得到 B：接进一句「若…，则…」和它的前一半，得到后一半。¬A 也可以写作 A → ⊥，所以接进 ¬A 和 A，就得到矛盾 ⊥。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part. ¬A can be written A → ⊥, so wire in ¬A and A and out comes the contradiction ⊥.') }],
+  // The knights and knaves bring ↔ into proofs: Split ∧ takes it apart.
+  andE: [{ at: 'kk-one', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
+}
+
 export const LOGIC = logicCourse({
   eras: ERAS,
   levels: [...era0, ...circuits, ...era1, ...era2, ...resolution, ...quantifiers, ...rules, ...unification, ...tactics, ...theory, ...graduation],
@@ -37,6 +45,7 @@ export const LOGIC = logicCourse({
   lemmas: LEMMAS,
   gates: GATES,
   // The machine-board parts the player builds: law cards, normal forms, resolution and the saturator.
+  revisions: REVISIONS,
   machines: ['dneg', 'impOr', 'dmLaw', 'dist', 'nnf', 'cnf', 'res', 'saturate', 'unifier', 'clauseForm', 'fores', 'auto', 'addZero', 'addSucc', 'addComm', 'addAssoc', 'appNil', 'appAssoc', 'revApp', 'insLen', 'itsumGen', 'runApp'],
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'repeat', 'neg', 'conj', 'toClauses', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'uDecompose', 'uDelete', 'uConflict', 'uSwap', 'uEliminate', 'uCheck', 'prenex', 'skolem', 'factor', 'intro', 'assumption', 'elim', 'orElse', 'simp', 'induct', 'cases'],
   // Joining and splitting ∧ come together, as one idea; so do the three cards that set a refutation up.

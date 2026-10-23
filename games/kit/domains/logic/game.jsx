@@ -12,7 +12,7 @@ import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
 import TruthScreen from './ui/TruthScreen.jsx'
 import { ModelScreen, WriteScreen } from './ui/WorldScreens.jsx'
-import { MACHINE_TEXT, RULE_TEXT, descOf, iconOf, nameOf } from './ui/catalog.js'
+import { MACHINE_TEXT, RULE_TEXT, iconOf, nameOf, textOf } from './ui/catalog.js'
 import { PRIMITIVE_GATES } from './gates.js'
 
 /**
@@ -23,13 +23,16 @@ export function defineLogicGame(spec) {
   const { LEVELS, CHAPTERS, LABELS } = spec.logic
   const lemmas = LEVELS[0]?.lemmas ?? {}
   const gates = LEVELS[0]?.gates ?? {}
+  // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
+  const revisions = spec.logic.revisions ?? {}
   // A built part is a proved lemma, a gate built on a truth circuit or a machine part (a law card, a normal form…).
   const machines = Object.fromEntries(spec.logic.machines.map((type) => [type, RULE_TEXT[type] ?? MACHINE_TEXT[type]]))
   const built = { ...gates, ...lemmas, ...machines }
   // The rules and gates the course starts from, each from the levels that bring it in.
   const primitives = [...introductions(spec.logic.course)].map(([type, at]) => {
     const gate = PRIMITIVE_GATES[type] ?? MACHINE_TEXT[type]
-    return { key: `part:${type}`, name: gate?.name ?? nameOf(lemmas, type), desc: gate?.desc ?? descOf(lemmas, type), icon: gate ? Cpu : iconOf(lemmas, type), at }
+    const text = textOf(lemmas, type, revisions)
+    return { key: `part:${type}`, name: gate?.name ?? nameOf(lemmas, type), desc: gate?.desc ?? text?.desc, revisions: gate ? revisions[type] : text?.revisions, icon: gate ? Cpu : iconOf(lemmas, type), at }
   })
   // A part is new in the level that brings it in (`adds`); everything else carries (../../course.js reach).
   const levels = LEVELS.map((L, index) => ({
@@ -76,8 +79,8 @@ export function defineLogicGame(spec) {
       all: [
         ...primitives,
         ...Object.entries(gates).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: Cpu })),
-        ...Object.entries(lemmas).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, icon: iconOf(lemmas, type) })),
-        ...Object.entries(machines).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, icon: Cog })),
+        ...Object.entries(lemmas).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type) })),
+        ...Object.entries(machines).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: Cog })),
       ],
     },
     // Fewer steps (proof steps, or gates) is better.

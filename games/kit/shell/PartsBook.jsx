@@ -16,7 +16,8 @@ import Library, { store, useSeen } from './Library.jsx'
 export function useParts(game, progress) {
   const { seen, markSeen } = useSeen(`${game.id}.parts.seen`)
   const earned = new Set(game.parts?.earned(progress) ?? [])
-  const all = game.parts?.all ?? []
+  // A part's text as far as the player has got (defineGame textFor: a revision once its level is open).
+  const all = (game.parts?.all ?? []).map((part) => game.textFor(part, progress))
   const unread = all.filter((part) => earned.has(part.key) && !seen.has(part.key))
   const filters = game.parts?.filters?.(progress) ?? []
   return { all, earned, seen, markSeen, unread, filters }
