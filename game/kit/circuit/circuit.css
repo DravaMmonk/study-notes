@@ -167,6 +167,9 @@
 .pb-ins.is-many .pb-src { left: 50%; top: calc(100% - 4px); max-width: calc(100% + 18px); padding: 0 5px; font-size: 10.5px; transform: translateX(-50%); }
 .pb-ins.is-many .pb-in { flex: 1 1 0; min-width: 0; }
 .pb-tile:has(> .pb-ins.is-many .pb-src) { padding-top: 34px; }
+/* Likewise the names over several outputs take a row of their own above the bottom edge, clear of what the block shows. */
+/* (:has cannot nest, so the plain outputs are matched by their own class.) */
+.pb-tile:has(> .pb-out.is-many > .pb-o:not(.has-note)), .pb-term:has(> .pb-out.is-many > .pb-o:not(.has-note)) { padding-bottom: 34px; }
 /* The wire display switch (SlotBoard), kept in reach at the top right while the board scrolls. */
 /* The tools ride along as a strip with the board's own ground under them, so the cards scroll beneath it instead of
    showing through a floating pill. */
