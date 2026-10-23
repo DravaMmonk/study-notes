@@ -8,17 +8,17 @@ export const era0 = [
     title: T('一句承诺', 'A promise'),
     ask: 'fill',
     formulas: ['Rain → Wet'],
-    brief: T('天气预报说：「如果下雨，那么地湿。」四种天气里，这句话各是说对了（真）还是说错了（假）？点格子填出来。', 'The forecast says: “If it rains, then the ground is wet.” In each of the four kinds of weather, did it speak true or false? Click the cells to fill them in.'),
+    brief: T('天气预报说：「若下雨，则地湿。」四种天气里，这句话各是说对了（真）还是说错了（假）？点格子填出来。', 'The forecast says: “If it rains, then the ground is wet.” In each of the four kinds of weather, did it speak true or false? Click the cells to fill them in.'),
     hint: [
       T('什么时候你能理直气壮地说预报错了？只有一种情况。', 'When could you rightly say the forecast was wrong? In only one case.'),
       T('没下雨的那两行，预报说错了吗？它只说了下雨的时候会怎样。', 'On the two rows where it did not rain, was the forecast wrong? It only said what happens when it rains.'),
     ],
     intro: [
-      { t: T('天气预报说：<b>如果下雨，那么地湿。</b>这句话可能说对，也可能说错。', 'The forecast says: <b>if it rains, then the ground is wet.</b> That might turn out true, or false.') },
+      { t: T('天气预报说：<b>若下雨，则地湿。</b>这句话可能说对，也可能说错。', 'The forecast says: <b>if it rains, then the ground is wet.</b> That might turn out true, or false.') },
       { t: T('它到底对不对，要看两件事：下没下雨，地湿没湿。两件事各有「是」和「不是」两种，合起来一共四种天气。把四种天气排成四行，就是一张<b>真值表</b>。', 'Whether it is true depends on two things: did it rain, and is the ground wet. Each can go two ways, so there are four kinds of weather in all. Four rows, one per kind: that is a <b>truth table</b>.') },
       { t: T('这一关，替每一行判断这句话说对了还是说错了。「真」就是说对了，「假」就是说错了。', 'In this level, decide for each row whether the sentence spoke true or false.') },
     ],
-    after: T('只有「下了雨，地却没湿」那一行，预报说错了。没下雨的时候，它什么也没承诺，算不上说错，所以是真。从现在起，「如果 X，那么 Y」简写成 <b>X → Y</b>。', 'Only on the row “it rained and the ground is not wet” was the forecast wrong. When it did not rain it promised nothing, so it was not wrong: true. From now on, “if X, then Y” is written <b>X → Y</b>.'),
+    after: T('只有「下了雨，地却没湿」那一行，预报说错了。没下雨的时候，它什么也没承诺，算不上说错，所以是真。从现在起，「若 X，则 Y」简写成 <b>X → Y</b>。', 'Only on the row “it rained and the ground is not wet” was the forecast wrong. When it did not rain it promised nothing, so it was not wrong: true. From now on, “if X, then Y” is written <b>X → Y</b>.'),
   },
   {
     id: 'always',
@@ -30,10 +30,10 @@ export const era0 = [
     brief: T('下面五句话，哪些不管天气怎样都成立？逐句标出来。拿不准，就展开它的表一行一行试。', 'Which of these five hold whatever the weather? Mark each one. If unsure, open its table and try it row by row.'),
     hint: [
       T('一句话永远成立，就是它的表每一行都真。只要有一行是假，就不算。', 'A sentence always holds when every row of its table is true. One false row and it does not.'),
-      T('「如果下雨并且刮风，那么地湿」：有没有一种天气，又下雨又刮风，地却没湿？这些句子没有一句说过下雨地就湿。', '“It rains and it is windy → the ground is wet”: is there weather where it rains and blows and the ground is not wet? None of these sentences says rain makes the ground wet.'),
+      T('「若下雨并且刮风，则地湿」：有没有一种天气，又下雨又刮风，地却没湿？这些句子没有一句说过下雨地就湿。', '“It rains and it is windy → the ground is wet”: is there weather where it rains and blows and the ground is not wet? None of these sentences says rain makes the ground wet.'),
     ],
     intro: [
-      { t: T('<level-ref to="table"></level-ref>的「下雨 → 地湿」有一行是假的：它对不对，得看天气。（从这一关起，「如果 X，那么 Y」写成 <b>X → Y</b>。）', '<level-ref to="table"></level-ref>’s “it rains → the ground is wet” had a false row: whether it holds depends on the weather. (From this level on, “if X, then Y” is written <b>X → Y</b>.)') },
+      { t: T('<level-ref to="table"></level-ref>的「下雨 → 地湿」有一行是假的：它对不对，得看天气。（从这一关起，「若 X，则 Y」写成 <b>X → Y</b>。）', '<level-ref to="table"></level-ref>’s “it rains → the ground is wet” had a false row: whether it holds depends on the weather. (From this level on, “if X, then Y” is written <b>X → Y</b>.)') },
       { t: T('有些话却和天气无关。比如「下雨 → 下雨」：下了雨，当然就是下了雨。不管哪一行，它都真。这样的话叫<b>永真式</b>。', 'Some sentences do not depend on the weather at all. “It rains → it rains”: if it rains, then of course it rains. It is true on every row. Such a sentence is a <b>tautology</b>.') },
       { t: T('下面五句里有的永远成立，有的要看天气。「下雨并且刮风」的意思是两件事都发生了。', 'Of the five below, some always hold and some depend on the weather. “It rains and it is windy” means both happen.') },
     ],

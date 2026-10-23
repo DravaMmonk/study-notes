@@ -1,14 +1,14 @@
 // How a level writes its formulas for the player (《证明完毕》). A level may give its proposition letters everyday
 // sentences (`words`: { Rain: { zh: '下雨', en: 'it rains' } }), so early proofs are about rain and wet ground rather
 // than A and B; and a connective is written as its symbol only once the course has introduced it (`symbols`), in
-// words before that ("如果下雨，那么地湿"). Formulas themselves stay letters underneath (formula.js).
+// words before that ("若下雨，则地湿"). Formulas themselves stay letters underneath (formula.js).
 //
 //   notation  { words: { letter: { zh, en } } | null, symbols: [connective] }
 import { show } from './formula.js'
 
 const BIN = { '→': 1, '↔': 0, '∨': 2, '∧': 3 }
 const WORDS = {
-  '→': { zh: (a, b) => `如果${a}，那么${b}`, en: (a, b) => `if ${a} then ${b}` },
+  '→': { zh: (a, b) => `若${a}，则${b}`, en: (a, b) => `if ${a} then ${b}` },
   '∧': { zh: (a, b) => `${a}并且${b}`, en: (a, b) => `${a} and ${b}` },
   '∨': { zh: (a, b) => `${a}或者${b}`, en: (a, b) => `${a} or ${b}` },
   '↔': { zh: (a, b) => `${a}等价于${b}`, en: (a, b) => `${a} is equivalent to ${b}` },

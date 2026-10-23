@@ -29,7 +29,7 @@ export const GLOSSARY = [
   {
     id: 'truth', group: 'logic', title: T('真值表', 'Truth tables'), at: 'table',
     body: [
-      T('一句由几件小事和「如果…那么…」「并且」这些连接词拼成的话，是真是假只取决于每件小事是真是假。把所有情况列成一行一行，就是它的<b>真值表</b>：n 件小事有 2ⁿ 行。', 'A sentence built from a few small facts and connectives like “if … then …” and “and” is true or false depending only on whether each small fact is. Listing every case, one per row, gives its <b>truth table</b>: n facts make 2ⁿ rows.'),
+      T('一句由几件小事和「若…则…」「并且」这些连接词拼成的话，是真是假只取决于每件小事是真是假。把所有情况列成一行一行，就是它的<b>真值表</b>：n 件小事有 2ⁿ 行。', 'A sentence built from a few small facts and connectives like “if … then …” and “and” is true or false depending only on whether each small fact is. Listing every case, one per row, gives its <b>truth table</b>: n facts make 2ⁿ rows.'),
       T('每一行都真的命题叫<b>永真式</b>。要说明一个命题不是永真式，找出一行反例就够了。每一行都假的命题叫<b>矛盾</b>，证明器里写成 ⊥。', 'A proposition true on every row is a <b>tautology</b>. To show a proposition is not one, a single counterexample row is enough. A proposition false on every row is a <b>contradiction</b>, written ⊥ in the prover.'),
     ],
     see: ['proof'],
@@ -61,12 +61,12 @@ export const GLOSSARY = [
   },
   {
     id: 'lemma', group: 'logic', title: T('引理', 'Lemmas'), at: 'chain',
-    body: [T('证过一次的事可以当规则一直用下去，这叫<b>引理</b>。它在每一组测试上都成立，所以对任何句子都能用：「两段首尾相接的如果…那么…」成了元件「串联」，K 和 S 也是这样成为元件的。', 'Something proved once can be used as a rule from then on: a <b>lemma</b>. It held on every test, so it works for any sentences: “two if … then …s joined end to end” became the part Chain, and K and S became parts the same way.')],
+    body: [T('证过一次的事可以当规则一直用下去，这叫<b>引理</b>。它在每一组测试上都成立，所以对任何句子都能用：「两段首尾相接的若…则…」成了元件「串联」，K 和 S 也是这样成为元件的。', 'Something proved once can be used as a rule from then on: a <b>lemma</b>. It held on every test, so it works for any sentences: “two if … then …s joined end to end” became the part Chain, and K and S became parts the same way.')],
     see: ['board'],
   },
   {
     id: 'deduction', group: 'logic', title: T('演绎定理', 'The deduction theorem'), at: 'x-chain',
-    body: [T('在一个假设下能推出某件事，就能不带假设证出「如果 假设，那么 那件事」。证法是逐步改写：假设本身换成用 K、S 拼出的「如果它，那么它」，和假设无关的步用 K 包一层，套用用 S。', 'If something follows under an assumption, then “if the assumption, then that” can be proved with no assumption. The proof rewrites step by step: the assumption itself becomes “if it, then it”, pieced together from K and S, a step unrelated to it is wrapped in K, and Apply goes through S.')],
+    body: [T('在一个假设下能推出某件事，就能不带假设证出「若 假设，则 那件事」。证法是逐步改写：假设本身换成用 K、S 拼出的「若它，则它」，和假设无关的步用 K 包一层，套用用 S。', 'If something follows under an assumption, then “if the assumption, then that” can be proved with no assumption. The proof rewrites step by step: the assumption itself becomes “if it, then it”, pieced together from K and S, a step unrelated to it is wrapped in K, and Apply goes through S.')],
     see: ['box', 'hilbert'],
   },
   {

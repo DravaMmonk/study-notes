@@ -1,6 +1,6 @@
 // Chapter 1 · 真值电路: the first module of the prover. A sentence's truth value is computed by a board of gates, and
 // the machine runs the board on every row of the truth table (the way 《状态之图》's robot runs one board on every
-// cell). The prover starts with two gates, 与 (and) and 非 (not); the player builds 或 (or) and 如果…那么… from them, then puts a
+// cell). The prover starts with two gates, 与 (and) and 非 (not); the player builds 或 (or) and 若…则… from them, then puts a
 // puzzle into a sentence and lets the table find the answer.
 import { gates } from '../../kit/domains/logic/gates.js'
 
@@ -80,12 +80,12 @@ export const circuits = [
   {
     id: 'g-imp',
     kind: 'gates',
-    title: T('如果下雨，那么地湿', 'If it rains, the ground is wet'),
+    title: T('若下雨，则地湿', 'If it rains, the ground is wet'),
     target: 'Rain → Wet',
     builds: 'gImp',
-    brief: T('接一块电路，算出「如果下雨，那么地湿」在每一行是真是假。', 'Wire a board that works out, on every row, whether “if it rains, then the ground is wet” is true.'),
+    brief: T('接一块电路，算出「若下雨，则地湿」在每一行是真是假。', 'Wire a board that works out, on every row, whether “if it rains, then the ground is wet” is true.'),
     intro: [
-      { t: T('「如果下雨，那么地湿」的真值表，你在纸笔那一章填过：只有「下了雨，地却没湿」那一行是假的。', 'You filled in the table of “if it rains, then the ground is wet” in the pen-and-paper chapter: only the row “it rained and the ground is not wet” is false.') },
+      { t: T('「若下雨，则地湿」的真值表，你在纸笔那一章填过：只有「下了雨，地却没湿」那一行是假的。', 'You filled in the table of “if it rains, then the ground is wet” in the pen-and-paper chapter: only the row “it rained and the ground is not wet” is false.') },
       { t: T('证明器里也还没有这个门。', 'The prover has no gate for it yet either.') },
     ],
     hint: [
@@ -93,7 +93,7 @@ export const circuits = [
       T('也就是「不下雨，或者地湿」。', 'That is, “it is not raining, or the ground is wet”.'),
     ],
     solution: board('Rain → Wet', { n: 'gNot', o: 'gOr' }, ['Rain>n.a', 'n>o.a', 'Wet>o.b', 'o>out']),
-    after: T('「如果 X，那么 Y」和「不 X，或者 Y」每一行都一样。', '“If X, then Y” and “not X, or Y” agree on every row.'),
+    after: T('「若 X，则 Y」和「不 X，或者 Y」每一行都一样。', '“If X, then Y” and “not X, or Y” agree on every row.'),
   },
   {
     id: 'g-always',
@@ -101,8 +101,8 @@ export const circuits = [
     title: T('怎样都对', 'True whatever happens'),
     target: '(Rain → Wet) ∨ (Wet → Rain)',
     hideTarget: true,
-    brief: T('接一块电路，算出「（如果下雨，那么地湿）或者（如果地湿，那么下雨）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) or (if the ground is wet, it rains)” is true.'),
-    hint: [T('先接出两个「如果…那么…」，再用「或」把它们接起来。', 'Wire the two if…thens first, then join them with Or.')],
+    brief: T('接一块电路，算出「（若下雨，则地湿）或者（若地湿，则下雨）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) or (if the ground is wet, it rains)” is true.'),
+    hint: [T('先接出两个「若…则…」，再用「或」把它们接起来。', 'Wire the two if…thens first, then join them with Or.')],
     intro: [
       { t: T('<level-ref to="always"></level-ref>里见过<b>永真式</b>：每一行都真的话，不管情况怎样都成立。', 'You met the <b>tautology</b> in <level-ref to="always"></level-ref>: a sentence true on every row, whatever happens.') },
       { t: T('在电路上它是什么样子？接出这句话，看电路输出这一列。', 'What does one look like as a circuit? Wire this sentence and watch the board’s output column.') },
@@ -116,7 +116,7 @@ export const circuits = [
     title: T('怎样都错', 'False whatever happens'),
     target: '(Rain → Wet) ∧ (Rain ∧ ¬Wet)',
     hideTarget: true,
-    brief: T('接一块电路，算出「（如果下雨，那么地湿）并且（下雨，并且地不湿）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) and (it rains and the ground is not wet)” is true.'),
+    brief: T('接一块电路，算出「（若下雨，则地湿）并且（下雨，并且地不湿）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) and (it rains and the ground is not wet)” is true.'),
     hint: [T('它由两半用「与」接成。右边一半自己又是一个「与」。', 'It is two halves joined by And. The right half is itself an And.')],
     intro: [{ t: T('反过来，每一行都假的话叫<b>矛盾</b>：不管情况怎样都不可能成立。它在电路上又是什么样子？', 'The other way round, a sentence false on every row is a <b>contradiction</b>: it cannot hold whatever happens. What does one look like as a circuit?') }],
     solution: board('(Rain → Wet) ∧ (Rain ∧ ¬Wet)', { i: 'gImp', n: 'gNot', a1: 'gAnd', a2: 'gAnd' }, ['Rain>i.a', 'Wet>i.b', 'Wet>n.a', 'Rain>a1.a', 'n>a1.b', 'i>a2.a', 'a1>a2.b', 'a2>out']),
@@ -130,8 +130,8 @@ export const circuits = [
     hideTarget: true,
     builds: 'gIff',
     symbols: ['↔'],
-    brief: T('接一块电路，算出「（如果下雨，那么地湿）并且（如果地湿，那么下雨）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) and (if the ground is wet, it rains)” is true.'),
-    hint: [T('两个「如果…那么…」，方向相反，再用「与」接起来。', 'Two if…thens pointing opposite ways, joined by And.')],
+    brief: T('接一块电路，算出「（若下雨，则地湿）并且（若地湿，则下雨）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) and (if the ground is wet, it rains)” is true.'),
+    hint: [T('两个「若…则…」，方向相反，再用「与」接起来。', 'Two if…thens pointing opposite ways, joined by And.')],
     solution: board('(Rain → Wet) ∧ (Wet → Rain)', { i1: 'gImp', i2: 'gImp', a: 'gAnd' }, ['Rain>i1.a', 'Wet>i1.b', 'Wet>i2.a', 'Rain>i2.b', 'i1>a.a', 'i2>a.b', 'a>out']),
     after: T('真的两行，正好是「下雨」和「地湿」一样的两行：都发生，或者都没发生。两个方向都对，就是说两件事<b>等价</b>：同真同假，写成 <b>↔</b>，比如「下雨 ↔ 地湿」。', 'The two true rows are exactly those where “it rains” and “the ground is wet” agree: both happen, or neither does. Both directions holding means the two are <b>equivalent</b>: true together and false together, written <b>↔</b>, as in “it rains ↔ the ground is wet”.'),
   },
@@ -175,7 +175,7 @@ export const circuits = [
     ],
     solution: board('KA ↔ KB', { e: 'gIff' }, ['KA>e.a', 'KB>e.b', 'e>out']),
     naive: board('KA ↔ KB', { i: 'gImp' }, ['KA>i.a', 'KB>i.b', 'i>out']),
-    after: T('「a 说 X」译成：（如果 a 是骑士，那么 X）与（如果 X，那么 a 是骑士）。只译一个方向，a 是无赖、b 却是骑士的那一行就漏判成了真。真的有两行：两人都是骑士，或者都是无赖。一句话还定不下答案。', '“a says X” translates to: (if a is a knight, then X) and (if X, then a is a knight). Translate only one direction and the row where a is a knave but b a knight is wrongly true. Two rows are true: both knights, or both knaves. One sentence is not enough to settle it.'),
+    after: T('「a 说 X」译成：（若 a 是骑士，则 X）与（若 X，则 a 是骑士）。只译一个方向，a 是无赖、b 却是骑士的那一行就漏判成了真。真的有两行：两人都是骑士，或者都是无赖。一句话还定不下答案。', '“a says X” translates to: (if a is a knight, then X) and (if X, then a is a knight). Translate only one direction and the row where a is a knave but b a knight is wrongly true. Two rows are true: both knights, or both knaves. One sentence is not enough to settle it.'),
   },
   {
     id: 'e-one',
@@ -252,6 +252,6 @@ export const circuits = [
 /** The gates the player builds: each runs as its own function once built (checked against its level). */
 export const GATES = {
   gOr: { name: T('或 ∨', 'Or ∨'), desc: T('a ∨ b：两个输入里至少有一个是真，就输出真；都是假，输出假。', 'Outputs true when at least one input is true; false when both are false.'), ports: ['a', 'b'], f: ([a, b]) => a || b },
-  gImp: { name: T('如果…那么… →', 'If…then… →'), desc: T('a → b：只在 a 是真、b 是假时输出假；其余都输出真。', 'Outputs false only when a is true and b is false; true otherwise.'), ports: ['a', 'b'], f: ([a, b]) => !a || b },
+  gImp: { name: T('若…则… →', 'If…then… →'), desc: T('a → b：只在 a 是真、b 是假时输出假；其余都输出真。', 'Outputs false only when a is true and b is false; true otherwise.'), ports: ['a', 'b'], f: ([a, b]) => !a || b },
   gIff: { name: T('等价 ↔', 'Equivalent ↔'), desc: T('a ↔ b：a 和 b 同真或同假时输出真；一真一假时输出假。', 'a ↔ b: outputs true when a and b are both true or both false; false when one is true and the other false.'), ports: ['a', 'b'], f: ([a, b]) => a === b },
 }
