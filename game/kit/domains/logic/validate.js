@@ -19,6 +19,7 @@ import { portsOf } from '../../engine/circuit.js'
 import { lettersOf, tautology } from './truth.js'
 import { MACHINE_PARTS, MACHINE_TESTS } from './machine.js'
 import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
+import { checkTerm, parseTerm } from './pterm.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
 
 /** spec: { levels, course }. Returns [{ text, fail? }]. */
@@ -29,7 +30,7 @@ export function validate({ levels: given, course }) {
   const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words && !l.vocab)) {
-    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.eq ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses ?? (t.inputs ? Object.values(t.inputs) : [t.in]))) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'term' ? level.items.flatMap((i) => [...Object.values(i.premises ?? {}), i.goal]) : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.eq ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses ?? (t.inputs ? Object.values(t.inputs) : [t.in]))) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     // The pattern's own letters stand bare in its last test; a machine's tests may end on bare letters too.
     const bare = new Set(level.kind === 'machine' ? 'ABCDEFGHPQRS'.split('') : Object.keys(level.cases?.[0] ?? {}))
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l] && !bare.has(l))
@@ -102,6 +103,16 @@ export function validate({ levels: given, course }) {
     }
     if (level.budget !== undefined && good.score.steps > level.budget) out.push({ fail: true, text: `${level.id}: the solution breaks its budget` })
   }
+  // A term level's reference terms check, and an empty answer does not.
+  for (const level of levels.filter((l) => l.kind === 'term')) {
+    const consts = level.consts ?? []
+    for (const item of level.items) {
+      const hyps = Object.fromEntries(Object.entries(item.premises ?? {}).map(([name, f]) => [name, parse(f, { consts })]))
+      const reason = checkTerm(parseTerm(item.answer), parse(item.goal, { consts }), { hyps, consts })
+      out.push({ fail: Boolean(reason), text: `${level.id} ${keyOf(level.title)}: term ${item.answer} ${reason ? `FAILS ${keyOf(reason)}` : 'PASS'}` })
+      if (item.naive && !checkTerm(parseTerm(item.naive), parse(item.goal, { consts }), { hyps, consts })) out.push({ fail: true, text: `${level.id}: the naive term ${item.naive} checks` })
+    }
+  }
   // A machine part a level builds runs as its built-in implementation: alone, it passes the level that builds it, unless
   // a task of the level proves it (a law card proved on the proof board, then put to work).
   const proven = new Set(given.filter((l) => l.proves || l.tasks?.some((t) => t.proves)).map((l) => l.id))
@@ -128,7 +139,8 @@ export function validate({ levels: given, course }) {
     if (level.unprovable) { out.push({ text: `${level.id} ${keyOf(level.title)}: countermodel found` }); continue }
     const carried = level.lemmas ? reach(course, { id: level.id }).filter((p) => level.lemmas[p] && course.builder(p) !== level.id && !level.without?.includes(p)) : []
     for (const p of carried) {
-      const gives = (t) => lemmaGives(level.lemmas[p], Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }))
+      // A test that asks for a term asks for one proof in particular, not just any.
+      const gives = (t) => !t.term && lemmaGives(level.lemmas[p], Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }))
       if (level.tests.every(gives)) out.push({ fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
     }
     // A later task of a level may use what the level builds.

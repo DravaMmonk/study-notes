@@ -7,6 +7,8 @@ import { vocabulary } from './fol.js'
 import { parseFo } from './unify.js'
 import { parseTh } from './theory.js'
 import { say } from './notation.js'
+import { LOGIC_TESTS } from './proof.js'
+import { lam } from './pterm.js'
 
 // Every rule a proof uses, in the boxes too.
 const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
@@ -58,7 +60,8 @@ function expand(level, notation) {
     const parts = Object.values(subst).map((f) => say(f, notation))
     // A test with nothing to fill in (a level with no letters) is the level's one test.
     const label = parts.length ? { zh: parts.map((p) => p.zh).join(' · '), en: parts.map((p) => p.en).join(' · ') } : { zh: '这一组', en: 'This one' }
-    return { premises: Object.fromEntries(Object.entries(schema.premises ?? {}).map(([name, text]) => [name, fill(text)])), goal: fill(schema.goal), subst, label }
+    // A proof term the level asks for (chapter 6) names premises, not sentences: every case asks for the same.
+    return { premises: Object.fromEntries(Object.entries(schema.premises ?? {}).map(([name, text]) => [name, fill(text)])), goal: fill(schema.goal), ...(schema.term ? { term: schema.term } : {}), subst, label }
   }
   // Last of the tests: the schema in its own letters (A := A …), the pattern bare.
   const letters = Object.fromEntries(Object.keys(level.cases[0] ?? {}).map((l) => [l, l]))
@@ -94,13 +97,15 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
   // A level writes formulas in its own words (notation.js) and with every symbol introduced by then: the symbols of
   // the levels before it in play order, and its own.
+  // Each lemma's own proof term (chapter 6 unfolds a lemma used into it), filled once the levels are read.
+  const lemmaTerms = {}
   let known = []
   const LEVELS = plan.order.map((id) => {
     const level = given.get(id)
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
     known = [...known, ...(level.symbols ?? [])]
     const notation = { words: level.words ?? words, symbols: known }
-    const read = (l) => ({ adds: [], ...l, ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, revisions, notation })
+    const read = (l) => ({ adds: [], ...l, ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, revisions, lemmaTerms, notation })
     if (!level.tasks) return read(level)
     // What the level builds comes of its last task, the level itself.
     const { tasks, builds, ...base } = level
@@ -110,6 +115,14 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))
+  // A lemma's term: the reference proof of the level that builds it, a function of its premises in order.
+  for (const level of LEVELS.filter((l) => lemmas[l.builds])) {
+    const last = level.tasks?.at(-1) ?? level
+    const test = last.tests?.at(-1)
+    if (last.kind !== 'proof' || !test || !last.solution) continue
+    const term = LOGIC_TESTS.runTest(last, last.solution, test).outputs.goal?.term
+    if (term) lemmaTerms[level.builds] = Object.keys(test.premises ?? {}).reduceRight((t, name) => lam(name, t), term)
+  }
   for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!byId.has(r.at)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at}`)
   // A level's number: on an era's main path the era and its place by difficulty ('1-4', numbered), in a topic its
   // code and place ('D2'), C1 …
@@ -134,7 +147,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     replaces: (p) => replaces[p] ?? [],
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
-    naive: (l) => Boolean(byId.get(l.id).naive),
+    naive: (l) => Boolean(byId.get(l.id).naive || byId.get(l.id).items?.some((item) => item.naive)),
     // Every task's answer counts: a part the level's first task uses is used.
     needed: (l) => {
       const answers = (byId.get(l.id).tasks ?? [byId.get(l.id)]).map((t) => t.solution).filter((x) => x?.nodes)

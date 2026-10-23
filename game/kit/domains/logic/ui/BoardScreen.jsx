@@ -100,7 +100,8 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   // Formulas in the level's notation (everyday sentences, symbols once introduced: notation.js).
   const text = (f) => L(say(f, level.notation))
   const scene = board.scene(level, test, text)
-  const { Value } = board
+  // From chapter 6 on (`terms`) every card shows its proof term too.
+  const Value = (props) => <board.Value {...props} terms={Boolean(level.terms)} />
   const result = stepped ? run?.results[shownIndex] : verdict?.results[shownIndex]
   const states = stepped ? playback.states : tests.map((_, k) => (verdict ? (verdict.results[k].pass ? 'pass' : 'fail') : null))
   const best = progress.best?.[level.id]
@@ -141,7 +142,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const shown = stepped ? playback.shown(shownIndex) : { list: [], at: -1 }
   const stepLog = <StepLog steps={shown.list.map((s) => ({ label: s.label, value: s.value ? <Value v={s.value} text={text} /> : null, failed: s.failed }))} at={shown.at} />
   const verdictText = result ? (result.pass ? L(board.words.pass) : L(result.reason)) : null
-  const shared = { board, parts, lemmas, circuit, view, scene, setParam, text }
+  const shared = { board: { ...board, Value }, parts, lemmas, circuit, view, scene, setParam, text }
 
   if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} stepKey={run ? `${run.test}:${run.step}:${run.results.length}` : ''} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
 
