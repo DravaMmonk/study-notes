@@ -75,7 +75,7 @@ export const era1 = [
     ],
     solution: proof({ f: ['impI', { A: 'B' }] }, ['p>f.body', 'f>goal'], { premises: ['p'] }),
     naive: proof({ f: ['impI', { A: 'B' }] }, ['p>goal'], { premises: ['p'] }),
-    after: T('1 步：框假设「刮风」，结论是框外的「下雨」，框外就是「刮风 → 下雨」。「刮风」的假设一直没用上，框照样关得上。以后要证「若…则…」，先假设它的前一半。', 'One step: the box assumes “it is windy”, its conclusion is the “it rains” from outside, and outside is “it is windy → it rains”. The assumption “it is windy” was never used, and the box closes all the same. From now on, to prove an “if … then …”, assume its first half.'),
+    after: T('框假设「刮风」，结论却来自框外的「下雨」：假设不一定要用上，框照样关得上。这就是「已经成立的事，加个条件也照样成立」。以后要证「若…则…」，先假设它的前一半。', 'The box assumes “it is windy”, while its conclusion comes from the “it rains” outside: an assumption need not be used, and the box closes all the same. That is “what holds still holds under a condition”. From now on, to prove an “if … then …”, assume its first half.'),
   },
   {
     id: 'k',
@@ -91,7 +91,7 @@ export const era1 = [
       { t: T('<level-ref to="k2"></level-ref>里，里面框的结论是框外的已知「下雨」；<level-ref to="ident"></level-ref>里，结论是框自己的假设。这一关什么都没给，两样合起来：「下雨」由外面的框假设，再当里面框的结论。', 'In <level-ref to="k2"></level-ref> the inner box concluded the given “it rains” from outside; in <level-ref to="ident"></level-ref> the conclusion was the box’s own assumption. Here nothing is given, so put the two together: the outer box assumes “it rains”, and the inner box concludes it.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'] }, ['f#body>g.body', 'g>f.body', 'f>goal']),
-    after: T('2 步，两个框：外面框的假设，就是里面框的结论。证出来以后，这块电路是元件 <b>K</b>：卡片上选两句话，它直接给出「若 第一句，则（若 第二句，则 第一句）」。只有公理、没有框的证明器，只能把 K 当成不用证的出发点。', 'Two steps, two boxes: the outer box’s assumption is the inner box’s conclusion. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its card and it gives “if the first, then (if the second, then the first)”. A prover with axioms and no box can only take K as a starting point that needs no proof.'),
+    after: T('外面框的假设，正是里面框的结论。证出来以后，这块电路是元件 <b>K</b>：卡片上选两句话，它直接给出「若 第一句，则（若 第二句，则 第一句）」。只有公理、没有框的证明器，只能把 K 当成不用证的出发点。', 'The outer box’s assumption is the inner box’s conclusion. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its card and it gives “if the first, then (if the second, then the first)”. A prover with axioms and no box can only take K as a starting point that needs no proof.'),
   },
   {
     id: 'box',
@@ -125,7 +125,7 @@ export const era1 = [
     ],
     intro: [{ t: T('下雨的时候，只要刮风，就地湿；下雨的时候，一定刮风。那么下雨的时候，就地湿：这是在「下雨」这个条件下做了一次套用。这句话叫 <b>S</b>，读出来就是证明：三层假设，三次套用。', 'When it rains, if it is windy the ground is wet; when it rains, it is windy. So when it rains, the ground is wet: an Apply done under the condition “it rains”. This sentence is called <b>S</b>, and reading it aloud is the proof: three assumptions, three Applies.') }],
     solution: proof({ f: ['impI', { A: 'A → (B → C)' }], g: ['impI', { A: 'A → B' }, 'f'], h: ['impI', { A: 'A' }, 'g'], m1: ['mp', {}, 'h'], m2: ['mp', {}, 'h'], m3: ['mp', {}, 'h'] }, ['f#body>m1.imp', 'h#body>m1.a', 'g#body>m2.imp', 'h#body>m2.a', 'm1>m3.imp', 'm2>m3.a', 'm3>h.body', 'h>g.body', 'g>f.body', 'f>goal']),
-    after: T('6 步。这块电路是元件 <b>S</b>：卡片上选三句，它直接给出整句；再和两句已知各套用一次，就是在条件下套用。只有公理、没有框的证明器，只能把 S 当成不用证的出发点。', 'Six steps. This circuit becomes the part <b>S</b>: choose three sentences on its card and it gives the whole sentence; Apply it with two givens in turn, and that is Apply under a condition. A prover with axioms and no box can only take S as a starting point that needs no proof.'),
+    after: T('三层框依次假设三个前提，框里的套用就是 S 说的话本身：读出这句话，就是它的证明。这块电路是元件 <b>S</b>：卡片上选三句，它直接给出整句；再和两句已知各套用一次，就是在条件下套用。只有公理、没有框的证明器，只能把 S 当成不用证的出发点。', 'Three boxes assume the three premises in turn, and the Applies inside are just what S says: reading the sentence aloud is its proof. This circuit becomes the part <b>S</b>: choose three sentences on its card and it gives the whole sentence; Apply it with two givens in turn, and that is Apply under a condition. A prover with axioms and no box can only take S as a starting point that needs no proof.'),
   },
   {
     id: 'chain',
@@ -141,7 +141,7 @@ export const era1 = [
       { t: T('证明核没有「首尾相接」这条规则，可它有框：要证一句「若…则…」，先假设它的前一半。', 'The kernel has no “join end to end” rule, but it has the box: to prove an “if … then …”, assume its first half.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
-    after: T('3 步：假设「下雨」，框里套用两次。证过一次、之后当规则用的事叫<b>引理</b>：它在每一组测试上都成立，所以对任何句子都能用。这块电路成了元件<b>串联</b>。', 'Three steps: assume “it rains” and Apply twice inside. Something proved once and used as a rule from then on is a <b>lemma</b>: it held on every test, so it works for any sentences. This circuit becomes the part <b>Chain</b>.'),
+    after: T('要证「若…则…」，就假设它的前一半，在框里一路套用下去。证过一次、之后当规则用的事叫<b>引理</b>：它在每一组测试上都成立，所以对任何句子都能用。这块电路成了元件<b>串联</b>。', 'To prove an “if … then …”, assume its first half and apply your way through inside the box. Something proved once and used as a rule from then on is a <b>lemma</b>: it held on every test, so it works for any sentences. This circuit becomes the part <b>Chain</b>.'),
   },
   {
     id: 'ident',
@@ -153,7 +153,7 @@ export const era1 = [
     hint: [T('框的结论可以就是框自己的假设：把左上角「假设」的圆点连到右上角「结论」的圆点。', 'A box’s conclusion can be its own assumption: wire the “Assume” dot at its top left to the “Conclusion” dot at its top right.')],
     intro: [{ t: T('<level-ref to="assume"></level-ref>里，框的结论来自框外的已知。这一关什么都没给，结论只能来自框自己的假设。', 'In <level-ref to="assume"></level-ref> the box’s conclusion came from a given outside it. Here nothing is given, so the conclusion can only be the box’s own assumption.') }],
     solution: proof({ f: ['impI', { A: 'A' }] }, ['f#body>f.body', 'f>goal']),
-    after: T('1 步：一句话推出它自己，这叫<b>恒等</b>。框的结论可以来自框外，也可以就是框自己的假设。', 'One step: a sentence gives itself, which is called <b>identity</b>. A box’s conclusion can come from outside it, or be its own assumption.'),
+    after: T('一句话推出它自己，这叫<b>恒等</b>。框的结论可以来自框外，也可以就是框自己的假设。', 'A sentence gives itself, which is called <b>identity</b>. A box’s conclusion can come from outside it, or be its own assumption.'),
   },
   {
     id: 'twice',
@@ -226,7 +226,7 @@ export const era1 = [
       { t: T('<level-ref to="assume"></level-ref>给已经成立的事加了一个条件。条件可以一个接一个地加：框里可以再放框，里面的框看得见外面框的假设，也看得见板上的已知。', '<level-ref to="assume"></level-ref> put one condition on something that holds. Conditions can be added one after another: a box can sit inside a box, and the inner one sees the outer one’s assumption and the givens on the board.') },
     ],
     solution: proof({ f: ['impI', { A: 'B' }], g: ['impI', { A: 'C' }, 'f'] }, ['p>g.body', 'g>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('2 步，两个框都没用上自己的假设，照样关得上：一句已经成立的话，加上几个条件都还成立。', 'Two steps; neither box used its own assumption, and both close all the same: what holds still holds under as many conditions as you like.'),
+    after: T('两个框都没用上自己的假设，照样关得上：一句已经成立的话，加上几个条件都还成立。框可以一层套一层，每一层都看得见外面的一切。', 'Neither box used its own assumption, and both close all the same: what holds still holds under as many conditions as you like. Boxes nest, and each layer sees everything outside it.'),
   },
   // ---- the parts at work ----
   {
@@ -246,7 +246,7 @@ export const era1 = [
       { t: T('目标有两层「若」，就开两层框，把两个条件都假设出来，再按已知的顺序用掉它们。', 'The goal has two “if”s: open two boxes to assume both conditions, then use them up in the order the given wants.') },
     ],
     solution: proof({ f: ['impI', { A: 'B' }], g: ['impI', { A: 'A' }, 'f'], m1: ['mp', {}, 'g'], m2: ['mp', {}, 'g'] }, ['p>m1.imp', 'g#body>m1.a', 'm1>m2.imp', 'f#body>m2.a', 'm2>g.body', 'g>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('4 步：两层框把条件换了个顺序，框里两次套用。这块电路成了元件<b>交换</b>。', 'Four steps: two boxes put the conditions the other way round, with two Applies inside. This circuit becomes the part <b>Swap</b>.'),
+    after: T('两层框把两个条件按新的顺序假设出来，框里再按已知的顺序用掉它们：条件的先后不影响结论。这块电路成了元件<b>交换</b>。', 'Two boxes assume the two conditions in the new order, and inside they are used in the order the given wants: the order of conditions does not change what follows. This circuit becomes the part <b>Swap</b>.'),
   },
   {
     id: 'mergeUse',
@@ -258,7 +258,7 @@ export const era1 = [
     hint: [T('串联以后，「闹钟响了」说了两遍。', 'After Chain, “the alarm rings” is said twice.')],
     intro: [{ t: T('两张已知首尾相接，可接起来以后，条件多出来一遍。你手里正好有专门处理这件事的元件。', 'The two givens meet end to end, but joined, a condition appears twice. You hold a part made for exactly that.') }],
     solution: proof({ c: ['chain'], g: ['merge'] }, ['p>c.p0', 'q>c.p1', 'c>g.p0', 'g>goal'], { premises: ['p', 'q'] }),
-    after: T('2 步：先串联，接出的句子里条件说了两遍，再合并。', 'Two steps: Chain first, which leaves a condition stated twice, then Merge.'),
+    after: T('串联接出的句子里条件说了两遍，合并把它并成一遍。元件可以一个接一个地用：前一块的输出，正好是后一块要的输入。', 'Chain leaves a condition stated twice, and Merge folds it into one. Parts work one after another: what one gives is just what the next one takes.'),
   },
   {
     id: 'mergeLong',
@@ -270,7 +270,7 @@ export const era1 = [
     hint: [T('接成一段以后，「我坐公交」卡在两遍「闹钟响了」中间。', 'Once joined into one piece, “I take the bus” sits between the two “the alarm rings”s.')],
     intro: [{ t: T('三段首尾相接，最后又绕回了起点「闹钟响了」。可这一圈中间还夹着一个条件「我坐公交」：它是知道的，只是位置不对。', 'Three pieces meet end to end, and the last comes back round to the start, “the alarm rings”. But a condition, “I take the bus”, is caught inside the loop: you know it, it is just in the wrong place.') }],
     solution: proof({ c1: ['chain'], c2: ['chain'], w: ['swap'], m: ['mp'], g: ['merge'] }, ['p>c1.p0', 'q>c1.p1', 'c1>c2.p0', 'r>c2.p1', 'c2>w.p0', 'w>m.imp', 'd>m.a', 'm>g.p0', 'g>goal'], { premises: ['p', 'q', 'r', 'd'] }),
-    after: T('5 步：两次串联接成一段；交换把「我坐公交」换到最外面，用套用去掉；剩下两遍「闹钟响了」，合并。', 'Five steps: two Chains make one piece; Swap brings “I take the bus” outside, and Apply removes it; two “the alarm rings”s are left, and Merge.'),
+    after: T('串联把一长串接成一段，交换把夹在中间的「我坐公交」挪到外面、用套用去掉，合并收掉重复的「闹钟响了」。复杂的证明，常常就是把手上的元件按顺序排好。', 'Chain joins the long run into one piece, Swap brings “I take the bus” out from the middle so Apply can remove it, and Merge folds the repeated “the alarm rings”. A hard proof is often just the parts you hold, put in the right order.'),
   },
   {
     id: 'mergeBoth',
@@ -282,7 +282,7 @@ export const era1 = [
     hint: [T('两句都以「下雨」开头，所以首尾接不上。能不能让第二句以「地湿」开头？', 'Both start with “it rains”, so they do not meet end to end. Can the second be made to start with “the ground is wet”?')],
     intro: [{ t: T('「地湿」在第一句的结尾，也在第二句里，可两句接不上：「下雨」挡在第二句的最前面。第一句自己也说了两遍「下雨」。', '“the ground is wet” ends the first sentence and appears in the second, yet they do not join: “it rains” stands at the front of the second. And the first says “it rains” twice.') }],
     solution: proof({ g1: ['merge'], w: ['swap'], c: ['chain'], g2: ['merge'] }, ['p>g1.p0', 'q>w.p0', 'g1>c.p0', 'w>c.p1', 'c>g2.p0', 'g2>goal'], { premises: ['p', 'q'] }),
-    after: T('4 步：合并第一句；交换第二句，让它以「地湿」开头；两句首尾相接，串联；接出来又说了两遍「下雨」，再合并。（也可以合并第一句以后，用 S 在条件「下雨」下套用。）', 'Four steps: Merge the first; Swap the second so it starts with “the ground is wet”; now they meet end to end, so Chain; the result says “it rains” twice, so Merge again. (Or, after merging the first, apply under the condition “it rains” with S.)'),
+    after: T('两句对不上时，先把它们变成对得上的形状：合并收掉重复，交换调整顺序，串联才接得起来。同一个目标往往有不止一条路，比如合并第一句以后，也可以用 S 在条件「下雨」下套用。', 'When two sentences do not meet, reshape them until they do: Merge folds repeats, Swap reorders, and then Chain joins them. A goal usually has more than one way in; after merging the first, S can also apply under the condition “it rains”.'),
   },
   // The topic without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time.
   {
@@ -334,7 +334,7 @@ export const era1 = [
       k2: ['axK', { A: 'A', B: 'A' }],
       m2: ['mp'],
     }, ['s>m1.imp', 'k1>m1.a', 'm1>m2.imp', 'k2>m2.a', 'm2>goal']),
-    after: T('一句一眼就对的话，没有框要 5 步。', 'An obvious sentence takes five steps without a box.'),
+    after: T('一句一眼就对的话，没有框也得用 K 和 S 拼出来；关键是 S 的第二句选成「下雨 → 下雨」。有框的话，一个空框就够。', 'Even a sentence that is plainly true has to be pieced together from K and S without a box; the key is choosing “it rains → it rains” as S’s second sentence. With a box, one empty box does it.'),
   },
   {
     id: 'x-chain',
@@ -356,7 +356,7 @@ export const era1 = [
       m2: ['mp'],
       m3: ['mp'],
     }, ['k>m1.imp', 'q>m1.a', 's>m2.imp', 'm1>m2.a', 'm2>m3.imp', 'p>m3.a', 'm3>goal'], { premises: ['p', 'q'] }),
-    after: T('5 步。这个改写有固定的做法，任何一个框都能这样换成 K、S 和套用（演绎定理）。所以框不增加能证的东西，只让证明好写得多：这就是证明核把框当成基础元件、把 K 和 S 当成证出来的元件的原因。', 'Five steps. The rewrite follows a fixed recipe, and any box can be traded for K, S and Apply this way (the deduction theorem). So the box adds nothing provable; it only makes proofs far easier to write. That is why the kernel has the box as a part, and K and S as parts you prove.'),
+    after: T('这个改写有固定的做法：框里用到的已知用 K 带上条件，框里的套用换成 S。任何一个框都能这样换成 K、S 和套用，这叫<b>演绎定理</b>。所以框不增加能证的东西，只让证明好写得多：这就是证明核把框当成基础元件、把 K 和 S 当成证出来的元件的原因。', 'The rewrite follows a fixed recipe: a given used inside the box takes the condition with K, and an Apply inside becomes S. Any box can be traded for K, S and Apply this way: the <b>deduction theorem</b>. So the box adds nothing provable; it only makes proofs far easier to write. That is why the kernel has the box as a part, and K and S as parts you prove.'),
   },
   {
     id: 'x-swap',
@@ -381,7 +381,7 @@ export const era1 = [
       m3: ['mp'],
       m4: ['mp'],
     }, ['s>m1.imp', 'p>m1.a', 'k2>m2.imp', 'm1>m2.a', 's2>m3.imp', 'm2>m3.a', 'm3>m4.imp', 'k>m4.a', 'm4>goal'], { premises: ['p'] }),
-    after: T('8 步：S 把外层的条件分到两边，K 补上缺的一段，再用 K、S 把两段接起来。有框只要两层框。', 'Eight steps: S spreads the outer condition over both sides, K supplies the missing piece, and K and S join the two. With boxes it takes two.'),
+    after: T('S 把外层的条件分到两边，K 补上缺的一段，再用 K、S 把两段接起来。有框时两层框就能做完的事，没有框要拼一大串：这就是早期证明器写起来那么费劲的原因。', 'S spreads the outer condition over both sides, K supplies the missing piece, and K and S join the two. What two boxes do takes a long string of pieces without them: that is why proofs in early provers were so laborious to write.'),
   },
   {
     id: 'x-merge',
@@ -406,6 +406,6 @@ export const era1 = [
       m2: ['mp'],
       m3: ['mp'],
     }, ['s>m.imp', 'p>m.a', 's2>m1.imp', 'k1>m1.a', 'm1>m2.imp', 'k2>m2.a', 'm>m3.imp', 'm2>m3.a', 'm3>goal'], { premises: ['p'] }),
-    after: T('8 步：S 并掉一遍「下雨」，剩下的「下雨 → 下雨」用 K、S 拼出 5 步。有框一个框就够：框不增加能证的东西，只让证明好写得多。', 'Eight steps: S folds one “it rains” away, and the “it rains → it rains” left over takes five steps of K and S. With a box one box does it: the box adds nothing provable, it only makes proofs far easier to write.'),
+    after: T('S 并掉一遍「下雨」，剩下的「下雨 → 下雨」再用 K、S 拼出来。有框一个框就够：框不增加能证的东西，只让证明好写得多。用框造的四块元件，没有框也都造得出来。', 'S folds one “it rains” away, and the “it rains → it rains” left over is pieced together from K and S. With a box one box does it: the box adds nothing provable, it only makes proofs far easier to write. All four parts built with boxes can be built without one.'),
   },
 ]

@@ -207,7 +207,7 @@ export const era2 = [
     hint: [T('目标是「若…则…」：假设「下雨」。框里它和已知撞出 ⊥。', 'The goal is an “if … then …”: assume “it rains”. Inside the box it clashes with the given and gives ⊥.')],
     intro: [{ t: T('真值表上，前一半为假的那几行，「若…则…」整句都为真：没下雨的时候，「下雨 → 地湿」说不上错。证明器也认这件事，只是要一步一步推出来。', 'On a truth table, an “if … then …” is true on every row where its first half is false: when it does not rain, “it rains → the ground is wet” cannot be wrong. The prover agrees, step by step.') }],
     solution: proof({ f: ['impI', { A: 'A' }], m: ['mp', {}, 'f'], b: ['botE', { C: 'B' }, 'f'] }, ['p>m.imp', 'f#body>m.a', 'm>b.bot', 'b>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('3 步：假设「下雨」就撞上「¬下雨」，矛盾推出「地湿」。前一半不成立的「若…则…」，后一半是什么都成立。', 'Three steps: assuming “it rains” runs into “¬it rains”, and the contradiction gives “the ground is wet”. An “if … then …” whose first half fails holds whatever its second half.'),
+    after: T('假设「下雨」就撞上「¬下雨」，矛盾推出「地湿」。这正是真值表上那件怪事的理由：前一半不成立的「若…则…」，后一半是什么都成立。', 'Assuming “it rains” runs into “¬it rains”, and the contradiction gives “the ground is wet”. This is the reason behind the truth table’s odd rows: an “if … then …” whose first half fails holds whatever its second half.'),
   },
   {
     id: 'notI',
@@ -231,7 +231,7 @@ export const era2 = [
     hint: [T('「¬路滑」就是「路滑 → ⊥」，「¬下雨」就是「下雨 → ⊥」。三段首尾相接。', '“¬the road is slippery” is “slippery → ⊥”, and “¬it rains” is “it rains → ⊥”. Three pieces meet end to end.')],
     intro: [{ t: T('下雨就地湿，地湿就路滑，可路不滑，所以没下雨。不用开框：想想「¬」在证明器眼里是什么。', 'Rain wets the ground, a wet ground is slippery, the road is not, so it did not rain. No box needed: think about what “¬” is to the prover.') }],
     solution: proof({ c1: ['chain'], c2: ['chain'] }, ['p>c1.p0', 'q>c1.p1', 'c1>c2.p0', 'r>c2.p1', 'c2>goal'], { premises: ['p', 'q', 'r'] }),
-    after: T('2 步，两次串联。「¬」就是「→ ⊥」，所以「没有结果，就没有起因」（否定后件）根本不用新元件：把「⊥」当成链条的最后一环，串联就够了。', 'Two steps, Chain twice. “¬” is “→ ⊥”, so “no effect, no cause” (modus tollens) needs no new part: with “⊥” as the last link, Chain does it.'),
+    after: T('「¬」就是「→ ⊥」，所以「没有结果，就没有起因」（否定后件）根本不用新元件：把「⊥」当成链条的最后一环，串联就够了。', '“¬” is “→ ⊥”, so “no effect, no cause” (modus tollens) needs no new part: with “⊥” as the last link, Chain does it.'),
   },
   {
     id: 'dni',
@@ -243,7 +243,7 @@ export const era2 = [
     hint: [T('「¬¬下雨」是「¬下雨 → ⊥」。假设「¬下雨」，它和已知撞出矛盾。', '“¬¬it rains” is “¬it rains → ⊥”. Assume “¬it rains”; it clashes with the given.')],
     intro: [{ t: T('在下雨，那「没下雨」就不可能成立。', 'It is raining, so “it is not raining” cannot hold.') }],
     solution: proof({ f: ['impI', { A: '¬A' }], m: ['mp', {}, 'f'] }, ['f#body>m.imp', 'p>m.a', 'm>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('2 步。注意方向：由「下雨」得到「¬¬下雨」很容易；反过来，由「¬¬下雨」得到「下雨」，证明器做不到。', 'Two steps. Mind the direction: from “it rains” to “¬¬it rains” is easy; the other way, from “¬¬it rains” to “it rains”, the prover cannot do.'),
+    after: T('注意方向：由「下雨」得到「¬¬下雨」很容易；反过来，由「¬¬下雨」得到「下雨」，证明器做不到。这个不对称，这一章最后会用一条新规则解决。', 'Mind the direction: from “it rains” to “¬¬it rains” is easy; the other way, from “¬¬it rains” to “it rains”, the prover cannot do. That asymmetry is what a new rule at the end of this chapter deals with.'),
   },
   {
     id: 'contra',
@@ -261,7 +261,7 @@ export const era2 = [
       { t: T('<level-ref to="mt"></level-ref>由两张已知给出这件事。这一关什么都没给：把两张已知变成两个框的假设。', '<level-ref to="mt"></level-ref> got this from two givens. Here nothing is given: turn the two givens into the assumptions of two boxes.') },
     ],
     solution: contra,
-    after: T('3 步：两个框、一块串联。不用串联，这里要三层框、5 步。把已知搬进框里，元件就能证出定理。', 'Three steps: two boxes and a Chain. Without Chain it takes three boxes and five. Move the givens into boxes, and a part proves a theorem.'),
+    after: T('把两张已知变成两个框的假设，框里的串联就证出了一句不需要任何已知的定理。逆否和原句永远同真同假：证明「若 P 则 Q」，也可以改证「若非 Q 则非 P」。', 'Turn the two givens into the assumptions of two boxes, and the Chain inside proves a theorem that needs nothing given. A sentence and its contrapositive always agree: to prove “if P then Q”, you may prove “if not Q then not P” instead.'),
   },
   {
     id: 'dsyll',
@@ -273,7 +273,7 @@ export const era2 = [
     hint: [T('分情况。「我坐公交」那一边撞上「¬我坐公交」，得到 ⊥；矛盾推出一切。', 'Take cases. On the “I take the bus” side it runs into “¬I take the bus” and gives ⊥; from a contradiction, anything.')],
     intro: [{ t: T('要么坐公交，要么骑车；没坐公交，那就是骑车。分情况要两边都证出「我骑车」：一边现成，另一边根本不可能发生。', 'Bus or bike; not the bus, so the bike. Cases need “I cycle” on both sides: one side has it already, and the other cannot happen at all.') }],
     solution: proof({ e: ['orE'], m: ['mp', {}, 'e/left'], b: ['botE', { C: 'B' }, 'e/left'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>b.bot', 'b>e.left', 'e#right>e.right', 'e>goal'], { premises: ['p', 'q'] }),
-    after: T('3 步。不可能的那一边，交给矛盾推出一切：它不会发生，所以要它证出什么都行。', 'Three steps. The impossible side goes to “from contradiction, anything”: it never happens, so it may prove whatever is needed.'),
+    after: T('不可能的那一边，交给矛盾推出一切：它不会发生，所以要它证出什么都行。这叫<b>选言三段论</b>，「排除法」做题靠的就是它。', 'The impossible side goes to “from contradiction, anything”: it never happens, so it may prove whatever is needed. This is the <b>disjunctive syllogism</b>, the logic behind every “process of elimination”.'),
   },
   {
     id: 'demorgan',
@@ -301,7 +301,7 @@ export const era2 = [
     hint: [T('德摩根拆出「¬我坐公交」，它和第二张已知首尾相接。', 'De Morgan gives “¬I take the bus”, which meets the second given end to end.')],
     intro: [{ t: T('我既没坐公交也没骑车；我要准时到，就得坐公交。那我准时不了。造过的元件，一起上。', 'I took neither the bus nor my bike; to arrive on time I would have taken the bus. So I will not be on time. Put the parts you built together.') }],
     solution: proof({ d: ['dm'], e: ['andE'], t: ['chain'] }, ['p>d.p0', 'd>e.ab', 'q>t.p0', 'e#left>t.p1', 't>goal'], { premises: ['p', 'q'] }),
-    after: T('3 步，两块都是你造的元件。只用框和套用，这要 8 步以上。', 'Three steps, two of them parts you built. With boxes and Apply alone it takes eight or more.'),
+    after: T('用的两块都是你造的元件：德摩根把「两样都不」拆开，串联把否定一路传回去。造过的元件越多，证明就越像在搭积木。', 'Both parts you used are ones you built: De Morgan splits “neither”, Chain carries the denial all the way back. The more parts you have built, the more a proof is like stacking blocks.'),
   },
   {
     id: 'denyAnte',
@@ -416,7 +416,7 @@ export const era2 = [
       { t: T('一个岛民说了一句话，「他是骑士」就和他说的话<b>等价</b>：<level-ref to="e-says"></level-ref>里翻译过，写成 <b>↔</b>。真值上，等价是同真同假；证明器里，它是两个方向的 → 都成立，也就是「(甲 → 乙) ∧ (乙 → 甲)」，证明器把它当成一句 ∧。', 'If an islander says something, “he is a knight” is <b>equivalent</b> to what he says: you translated that in <level-ref to="e-says"></level-ref>, written <b>↔</b>. In truth values, equivalent means true together and false together; in the prover it is the → holding both ways, that is “(X → Y) ∧ (Y → X)”, and the prover reads it as an ∧.') },
     ],
     solution: k1,
-    after: T('4 步：拆开、合并、两次套用。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。', 'Four steps: split, merge, two Applies. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true.'),
+    after: T('拆开等价，合并重复的条件，再两次套用撞出矛盾。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。这就是「说谎者悖论」的岛上版本。', 'Split the equivalence, merge the repeated condition, then apply twice into a contradiction. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true. It is the island’s version of the liar paradox.'),
   },
   {
     id: 'kk-two',

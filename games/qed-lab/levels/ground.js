@@ -54,7 +54,7 @@ export const ground = [
       { t: T('<b>拼成 ∧</b>：两边都证出来了，就有「左边 ∧ 右边」，正是表里唯一为真的那一行。<b>拆开 ∧</b>：有了「左边 ∧ 右边」，两边就都是真的，它有两个输出口。', '<b>Join ∧</b>: with both sides proved, “left ∧ right”, just the one row of the table where it is true. <b>Split ∧</b>: from “left ∧ right” both sides are true; it has two outputs.') },
     ],
     solution: proof({ e: ['andE'], m: ['mp'], i: ['andI'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>i.a', 'e#right>i.b', 'i>goal'], { premises: ['p', 'q'] }),
-    after: T('拆开、套用、拼成，3 步。两块元件都不用开框：它们只是把「与」门的真值表变成了规则。', 'Split, apply, join: three steps. Neither part opens a box: they are the “and” gate’s truth table turned into rules.'),
+    after: T('拆开、套用、拼成。两块元件都不用开框：它们只是把「与」门的真值表变成了规则。', 'Split, apply, join. Neither part opens a box: they are the “and” gate’s truth table turned into rules.'),
   },
   {
     id: 'or',
@@ -107,7 +107,7 @@ export const ground = [
       { t: T('有了框，它可以证出来。框里可以再放框，里面的框看得见外面框的假设。', 'With boxes it can be proved. A box can sit inside a box, and the inner one sees the outer one’s assumption.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'] }, ['f#body>g.body', 'g>f.body', 'f>goal']),
-    after: T('2 步，一次套用都没用。证出来以后，这块电路是元件 <b>K</b>：卡片上选两句话，它直接给出「如果 第一句，那么（如果 第二句，那么 第一句）」。', 'Two steps, not one Apply. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its card and it gives “if the first, then (if the second, then the first)” at once.'),
+    after: T('一次套用都没用。证出来以后，这块电路是元件 <b>K</b>：卡片上选两句话，它直接给出「如果 第一句，那么（如果 第二句，那么 第一句）」。', 'Not one Apply. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its card and it gives “if the first, then (if the second, then the first)” at once.'),
   },
   {
     id: 's',
@@ -123,7 +123,7 @@ export const ground = [
     ],
     intro: [{ t: T('这句话叫 <b>S</b>，和 K 一起，是只有公理的证明器的全部出发点。它说的是：在同一个条件「下雨」下，也能套用。读出来就是证明：三层假设，三次套用。', 'This sentence is called <b>S</b>; with K it is everything a prover with only axioms starts from. It says: under one condition, “it rains”, Apply still works. Read it aloud and you have the proof: three assumptions, three Applies.') }],
     solution: proof({ f: ['impI', { A: 'A → (B → C)' }], g: ['impI', { A: 'A → B' }, 'f'], h: ['impI', { A: 'A' }, 'g'], m1: ['mp', {}, 'h'], m2: ['mp', {}, 'h'], m3: ['mp', {}, 'h'] }, ['f#body>m1.imp', 'h#body>m1.a', 'g#body>m2.imp', 'h#body>m2.a', 'm1>m3.imp', 'm2>m3.a', 'm3>h.body', 'h>g.body', 'g>f.body', 'f>goal']),
-    after: T('6 步。现在 K 和 S 都是你证出来的元件，不是规定。', 'Six steps. K and S are now parts you proved, not rules you were handed.'),
+    after: T('现在 K 和 S 都是你证出来的元件，不是规定。', 'K and S are now parts you proved, not rules you were handed.'),
   },
   {
     id: 'chain',
@@ -135,7 +135,7 @@ export const ground = [
     hint: [T('目标是一句「如果下雨，那么…」：假设「下雨」，看能套用出什么。', 'The goal is “if it rains, then …”: assume “it rains” and see what Apply gets you.')],
     intro: [{ t: T('两段「如果…那么…」首尾相接。要证一句「如果…那么…」，先假设它的前一半。', 'Two “if … then …”s meet end to end. To prove an “if … then …”, assume its first half.') }],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
-    after: T('3 步：要证「如果…那么…」，就假设它的前一半。下一个专题会拿掉框，看同一件事要费多少力气。', 'Three steps: to prove an “if … then …”, assume its first half. The topic that follows takes the box away to see what the same thing costs.'),
+    after: T('要证「如果…那么…」，就假设它的前一半。下一个专题会拿掉框，看同一件事要费多少力气。', 'To prove an “if … then …”, assume its first half. The topic that follows takes the box away to see what the same thing costs.'),
   },
 
   {
@@ -170,7 +170,7 @@ export const ground = [
       { t: T('要给一句话加条件，框做不了，就得找一句现成的「如果…那么…」来套用。', 'To put a condition on a sentence without a box, find a ready-made “if … then …” to apply.') },
     ],
     solution: proof({ k: ['K', { A: 'A', B: 'B' }], m: ['mp'] }, ['k>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
-    after: T('有框时一步，没有框要 K 加一次套用。', 'One step with a box; without it, K and an Apply.'),
+    after: T('有框时一个框，没有框要 K 加一次套用。', 'One box with a box; without it, K and an Apply.'),
   },
   {
     id: 'x-self',
@@ -192,7 +192,7 @@ export const ground = [
       k2: ['K', { A: 'A', B: 'A' }],
       m2: ['mp'],
     }, ['s>m1.imp', 'k1>m1.a', 'm1>m2.imp', 'k2>m2.a', 'm2>goal']),
-    after: T('一句一眼就对的话，没有框要 5 步。', 'An obvious sentence takes five steps without a box.'),
+    after: T('一句一眼就对的话，没有框也得用 K 和 S 拼出来。', 'Even a plainly true sentence has to be pieced together from K and S without a box.'),
   },
   {
     id: 'x-chain',
@@ -216,6 +216,6 @@ export const ground = [
       m2: ['mp'],
       m3: ['mp'],
     }, ['k>m1.imp', 'q>m1.a', 's>m2.imp', 'm1>m2.a', 'm2>m3.imp', 'p>m3.a', 'm3>goal'], { premises: ['p', 'q'] }),
-    after: T('5 步。这个改写有固定的做法，任何一个框都能这样换成 K、S 和套用（演绎定理）。所以框不增加能证的东西，只是让证明好写得多：这就是证明器把框放进地基、把 K 和 S 降成元件的原因。', 'Five steps. The rewrite follows a fixed recipe, and any box can be traded for K, S and Apply this way (the deduction theorem). So the box adds nothing provable; it only makes proofs far easier to write. That is why the prover puts the box in its foundation and K and S among its parts.'),
+    after: T('这个改写有固定的做法，任何一个框都能这样换成 K、S 和套用（演绎定理）。所以框不增加能证的东西，只是让证明好写得多：这就是证明器把框放进地基、把 K 和 S 降成元件的原因。', 'The rewrite follows a fixed recipe, and any box can be traded for K, S and Apply this way (the deduction theorem). So the box adds nothing provable; it only makes proofs far easier to write. That is why the prover puts the box in its foundation and K and S among its parts.'),
   },
 ]
