@@ -15,6 +15,8 @@
 .lg-formula.is-small b { font-size: 11px; font-weight: 500; }
 .lg-out { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 6px; }
 .lg-out em { color: var(--muted); font: normal 10px var(--mono); }
+/* A card with several outputs keeps its body clear of the dots down its right edge, so each dot's name stays readable. */
+.node.has-outs .lg-card { padding-right: 44px; }
 .lg-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
 .lg-error.is-missing { color: var(--faint); }
 .lg-want { color: var(--muted); font-size: 11.5px; }
