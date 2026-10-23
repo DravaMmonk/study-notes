@@ -39,6 +39,18 @@ export const MACHINE_TEXT = {
   res: { name: T('归结', 'Resolve'), desc: T('子句集里每一对能消的子句都归结一次，新得到的子句加进来；永真的子句不要。', 'Resolves every pair of clauses in the set that cancels, and adds the new clauses; tautologies are dropped.') },
   repeat: { name: T('重复框', 'Repeat frame'), desc: T('框开出它收到的东西，框里接出新的东西送回「结果」；框把结果再送进去，一圈一圈地做，直到不再变化（或推出 ⊥），送出最后一圈的结果。', 'The frame opens with what it receives; what is made inside goes back into “result”; the frame feeds it in again, round after round, until it stops changing (or ⊥ appears), and gives the last round.'), frames: { body: T('每一圈', 'Each round') } },
   saturate: { name: T('饱和器', 'Saturator'), desc: T('一直归结，直到推出 ⊥，或者再也推不出新子句。', 'Keeps resolving until ⊥ appears or no new clause does.') },
+  uDelete: { name: T('删掉', 'Delete'), desc: T('找到一个两边一模一样的等式 t = t，删掉它。', 'Finds an equation with both sides the same, t = t, and deletes it.') },
+  uDecompose: { name: T('拆开', 'Decompose'), desc: T('找到一个 f(s1, …) = f(t1, …)，两边是同一个函数：拆成 s1 = t1, …。', 'Finds f(s1, …) = f(t1, …), the same function on both sides, and splits it into s1 = t1, ….') },
+  uConflict: { name: T('对不上', 'Clash'), desc: T('找到一个两边是不同函数（或不同名字）的等式，宣布失败：怎样代换都对不上。', 'Finds an equation with different functions (or names) on the two sides and declares failure: no substitution makes them meet.') },
+  uSwap: { name: T('翻过来', 'Swap'), desc: T('找到一个 t = x，左边不是变量、右边是变量：翻成 x = t。', 'Finds t = x, not a variable on the left but one on the right, and turns it into x = t.') },
+  uCheck: { name: T('发生检查', 'Occurs check'), desc: T('找到一个 x = t，t 里面又有 x（t 不就是 x）：宣布失败。', 'Finds x = t where x occurs inside t (t not x itself) and declares failure.') },
+  uEliminate: { name: T('代进去', 'Eliminate'), desc: T('找到一个 x = t（t 里没有 x），而 x 还出现在别的等式里：把那些地方的 x 都换成 t。', 'Finds x = t (no x in t) while x still occurs in other equations, and puts t for x there.') },
+  unifier: { name: T('合一器', 'Unifier'), desc: T('把一组等式解到底：每个等式左边是一个变量，右边里没有这些变量（最一般合一子）；合一不了就宣布失败。', 'Solves a set of equations to the end: each with a variable on the left and none of those variables on any right (the most general unifier); failure if there is none.') },
+  prenex: { name: T('化前束范式', 'To prenex form'), desc: T('把否定范式里所有量词按顺序挪到最前面，被约束的变量先改名，免得撞上。', 'Moves every quantifier of an NNF formula to the front, in order, renaming bound variables first so none clash.') },
+  skolem: { name: T('Skolem 化', 'Skolemise'), desc: T('前束范式里每个 ∃x 去掉，x 换成一个新函数，参数是它前面所有 ∀ 的变量。', 'Drops each ∃x of a prenex formula and puts for x a new function of all the ∀ variables before it.') },
+  clauseForm: { name: T('化子句形式', 'To clause form'), desc: T('把一句一阶公式化成一组子句：否定范式、前束、Skolem 化、合取范式，再拆开。', 'Turns a first-order formula into a clause set: NNF, prenex, Skolemise, CNF, then split.') },
+  fores: { name: T('一阶归结', 'First-order resolution'), desc: T('两条子句先各自改名，再把一对相反的项合一，消掉；只消有一条是单项子句的（单元归结）。', 'Renames two clauses apart, unifies a pair of opposite literals and cancels them; only pairs where one clause has a single literal (unit resolution).') },
+  factor: { name: T('因子化', 'Factor'), desc: T('一条子句里两项同号、能合一：合一后并成一项。', 'Two literals of the same sign in a clause that unify are merged into one.') },
 }
 
 const FIXED = { premise: 'source', goal: 'sink' }

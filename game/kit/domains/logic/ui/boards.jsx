@@ -12,7 +12,8 @@ import { allVars, parse, replaceAtoms, show } from '../formula.js'
 import { compoundTerms, patternsOf, sayTerm, subformulas } from '../notation.js'
 import { HOLE, LOGIC_TESTS } from '../proof.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel } from '../machine.js'
-import { clauseFormula, refuted } from '../clauses.js'
+import { refuted } from '../clauses.js'
+import { clauseFormulaOf } from '../unify.js'
 import { MACHINE_TEXT, descOf, familyOf, iconOf, nameOf, partsFor, settingsOf } from './catalog.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -102,6 +103,17 @@ const SHOWN = 6
 function MachineValue({ v, text, small = false }) {
   if (!v) return null
   if (v.kind === 'formula') return <span className={`lg-formula ${small ? 'is-small' : ''}`}><b>{text(v.f)}</b></span>
+  if (v.kind === 'eqs') {
+    const term = (t) => L(sayTerm(t, null))
+    return (
+      <span className={`lg-clauses ${small ? 'is-small' : ''}`}>
+        {v.fail && <b className="lg-fail-tag">{tr('合一失败', 'No unifier')}</b>}
+        {!small && v.fail && <small>{L(v.fail)}</small>}
+        {(small ? [] : v.eqs.slice(0, SHOWN)).map(([s, t], k) => <code key={k}>{term(s)} = {term(t)}</code>)}
+        <small>{v.eqs.length ? tr(`${v.eqs.length} 个等式`, `${v.eqs.length} equation${v.eqs.length === 1 ? '' : 's'}`) : tr('没有等式了', 'No equations left')}</small>
+      </span>
+    )
+  }
   const count = tr(`共 ${v.set.length} 条子句`, `${v.set.length} clause${v.set.length === 1 ? '' : 's'}`)
   const bot = refuted(v.set) && <b className="lg-bot">{tr('推出了空子句 ⊥', 'The empty clause ⊥ is in')}</b>
   // Small (a region's edge, a phone block): how many, and whether ⊥ is in.
@@ -110,7 +122,7 @@ function MachineValue({ v, text, small = false }) {
   return (
     <span className="lg-clauses">
       {bot}
-      {shown.map((c) => <code key={c.join()}>{text(clauseFormula(c))}</code>)}
+      {shown.map((c) => <code key={c.join()}>{text(clauseFormulaOf(c))}</code>)}
       <small>{v.set.length > shown.length + (refuted(v.set) ? 1 : 0) ? tr(`…… ${count}`, `… ${count}`) : count}</small>
     </span>
   )
@@ -124,6 +136,11 @@ const WANT = {
   refuted: T('推出空子句 ⊥', 'the empty clause ⊥'),
   decide: T('推得出 ⊥ 就推出来；推不出，就饱和到再没有新子句', '⊥ if it follows; otherwise saturated, with no new clause left'),
   entails: T('推得出就推出 ⊥；推不出，就饱和到再没有新子句', '⊥ if it follows; otherwise saturated, with no new clause left'),
+  unify: T('解完的等式（能合一时），或者「失败」（不能时）', 'the solved equations (when they unify), or “failed” (when not)'),
+  prenex: T('前束范式', 'prenex form'),
+  skolem: T('Skolem 化以后的样子', 'the Skolemised form'),
+  clauseForm: T('这句话的子句形式', 'this sentence’s clause form'),
+  foRefuted: T('推出空子句 ⊥', 'the empty clause ⊥'),
 }
 const MACHINE_ICONS = { repeat: Repeat, saturate: Sigma }
 const machineName = (type) => MACHINE_TEXT[type]?.name ?? type
@@ -161,7 +178,8 @@ export const MACHINE = {
     const inputs = inputsOf(test)
     const labels = new Map(inputsOfLevel(level).map((i) => [i.name, i.label]))
     const want = L(WANT[test.want ?? level.want])
-    const show = (v) => (v.kind === 'formula' ? text(v.f) : v.set.map((c) => text(clauseFormula(c))).join(tr('；', '; ')))
+    const term = (t) => L(sayTerm(t, null))
+    const show = (v) => (v.kind === 'formula' ? text(v.f) : v.kind === 'eqs' ? v.eqs.map(([s, t]) => `${term(s)} = ${term(t)}`).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormulaOf(c))).join(tr('；', '; ')))
     return {
       sequent: <>{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,

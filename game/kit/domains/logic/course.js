@@ -4,6 +4,7 @@
 import { defineCourse, eraLevels, layout, numbered, offer, usable } from '../../course.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { vocabulary } from './fol.js'
+import { parseFo } from './unify.js'
 import { say } from './notation.js'
 
 // Every rule a proof uses, in the boxes too.
@@ -74,8 +75,9 @@ function vocabOf(level) {
 
 // A machine test's tab: its input, or its claim, in words; a clause set by how many clauses it has.
 function machineLabel(test, notation) {
+  if (test.eqs) return { zh: test.eqs.join('；'), en: test.eqs.join('; ') }
   if (test.clauses) return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
-  return say(parse(test.inputs?.goal ?? test.in ?? Object.values(test.inputs)[0]), notation)
+  return say(parseFo(test.inputs?.goal ?? test.in ?? Object.values(test.inputs)[0]), notation)
 }
 
 export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {} }) {
@@ -124,7 +126,11 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
     naive: (l) => Boolean(byId.get(l.id).naive),
-    needed: (l) => (byId.get(l.id).solution ? rulesIn(byId.get(l.id).solution) : null),
+    // Every task's answer counts: a part the level's first task uses is used.
+    needed: (l) => {
+      const answers = (byId.get(l.id).tasks ?? [byId.get(l.id)]).map((t) => t.solution).filter((x) => x?.nodes)
+      return answers.length ? answers.flatMap(rulesIn) : null
+    },
     folds: (l) => byId.get(l.id).fold ?? [],
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,

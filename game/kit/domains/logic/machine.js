@@ -3,7 +3,7 @@
 // checked against what the level wants. A part is a law card, a normal form, resolution or a repeat frame
 // (clauses.js); the level's parts come from the course as on every board.
 //
-//   value   { kind: 'formula', f } | { kind: 'clauses', set }
+//   value   { kind: 'formula', f } | { kind: 'clauses', set } | { kind: 'eqs', eqs: [[s, t]], fail } (unify.js)
 //   level   { kind: 'machine', want, inputs?: [{ name, label }] (default one, `in`),
 //             tests: [{ in: formula text } | { clauses: [clause text] } | { inputs: { name: formula text } }, want?] }
 //
@@ -11,12 +11,16 @@
 // ('noDneg'), no → or ↔ ('noArrow'), in NNF ('nnf') or CNF ('cnf'); a clause set holding ⊥ ('refuted'); 'decide':
 // ⊥ when the input cannot be satisfied, and otherwise a set closed under resolution without ⊥; and 'entails', for
 // inputs `goal` and any others (what is known): ⊥ when the others entail the goal, and otherwise a saturated set.
+// First-order (chapter 7): 'unify' (a solved equation set that unifies the input, or a failure when none does),
+// 'prenex', 'skolem' and 'clauseForm' (the input's own, as unify.js makes them), and 'refuted' on clauses with
+// variables. Test inputs are read with unify.js's convention (u … z variables, other lower-case names constants).
 import { PartError, evaluate } from '../../engine/circuit.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
 import { framePart } from '../../circuit/frames.js'
-import { and, parse } from './formula.js'
+import { and, same } from './formula.js'
 import { say } from './notation.js'
 import { LAWS, clauseOf, clauseSet, clausesOf, closed, cnf, equivalent, hasArrow, hasDneg, isCnf, isNnf, nnf, refuted, resolveRound, saturate, toEnd } from './clauses.js'
+import { UNIFY_RULES, applyT, clauseFormOf, factorRound, foClausesOf, foNnf, foResolveRound, foSet, hasExists, isPrenex, matrixOf, mgu, parseFo, parseTerm, prenex, sameTerm, skolem, solved } from './unify.js'
 
 const T = (zh, en) => ({ zh, en })
 const fail = (zh, en) => new PartError({ zh, en })
@@ -32,6 +36,15 @@ const clausesIn = (v) => {
   return v.set
 }
 const twoFormulas = (a, b) => [formulaIn(a), formulaIn(b)]
+export const eqsValue = (eqs, fail = null) => ({ kind: 'eqs', eqs, fail })
+const eqsIn = (v) => {
+  if (v.kind !== 'eqs') throw fail('这里要一组等式', 'This needs a set of equations')
+  return v
+}
+// A unification rule card: the rule once, where it first applies; a set already failed passes through.
+const rule = (r) => ({ inputs: ['in'], eval: ({ in: v }) => { const e = eqsIn(v); if (e.fail) return e; const next = UNIFY_RULES[r](e.eqs); return next ? eqsValue(next.eqs, next.fail ?? null) : e } })
+// A first-order formula's ∀ prefix kept while a card works on what is under it.
+const underAll = (f, g) => (f.op === '∀' ? { ...f, body: underAll(f.body, g) } : g(f))
 const law = (rewrite) => ({ inputs: ['in'], eval: ({ in: v }) => formulaValue(toEnd(formulaIn(v), rewrite)) })
 
 /**
@@ -66,7 +79,7 @@ const repeat = {
     const key2 = (x) => JSON.stringify(x)
     let cur = body
     for (let k = 0; k < 60; k++) {
-      if (cur.kind === 'clauses' && refuted(cur.set)) return cur
+      if ((cur.kind === 'clauses' && refuted(cur.set)) || (cur.kind === 'eqs' && cur.fail)) return cur
       const next = step(cur)
       if (key2(next) === key2(cur)) return cur
       cur = next
@@ -85,12 +98,20 @@ export const MACHINE_PARTS = {
   dist: law(LAWS.dist),
   neg: { inputs: ['in'], eval: ({ in: v }) => formulaValue({ op: '¬', a: formulaIn(v) }) },
   conj: { inputs: ['a', 'b'], eval: ({ a, b }) => formulaValue(and(...twoFormulas(a, b))) },
-  nnf: { inputs: ['in'], eval: ({ in: v }) => formulaValue(nnf(formulaIn(v))) },
-  cnf: { inputs: ['in'], eval: ({ in: v }) => formulaValue(cnf(formulaIn(v))) },
+  // On a first-order formula the normal forms reach through quantifiers: ¬∀ is ∃¬, and CNF is made under the ∀s.
+  nnf: { inputs: ['in'], eval: ({ in: v }) => formulaValue(hasQuantifier(formulaIn(v)) ? foNnf(v.f) : nnf(v.f)) },
+  cnf: { inputs: ['in'], eval: ({ in: v }) => formulaValue(underAll(formulaIn(v), cnf)) },
   toClauses: {
     inputs: ['in'],
     eval: ({ in: v }) => {
-      const set = clausesOf(formulaIn(v))
+      const f = formulaIn(v)
+      if (hasExists(f) || !isPrenex(f)) throw fail('这句还有 ∃，或者量词不在最前面：先化前束范式、Skolem 化', 'This still has ∃, or quantifiers not at the front: prenex and Skolemise first')
+      if (f.op === '∀' || hasVars(f)) {
+        const fo = foClausesOf(matrixOf(f))
+        if (!fo) throw fail('∀ 后面还不是合取范式，拆不成子句', 'Under the ∀s it is not CNF yet, so it does not split into clauses')
+        return clausesValue(fo)
+      }
+      const set = clausesOf(f)
       if (!set) throw fail('这句还不是合取范式（一串「或」用「与」连起来），拆不成子句', 'This is not in CNF yet (ors joined by ands), so it does not split into clauses')
       return clausesValue(set)
     },
@@ -98,13 +119,54 @@ export const MACHINE_PARTS = {
   res: { inputs: ['in'], eval: ({ in: v }) => clausesValue(resolveRound(clausesIn(v))) },
   repeat,
   saturate: { inputs: ['in'], eval: ({ in: v }) => clausesValue(saturate(clausesIn(v))) },
+  // Unification (chapter 7): the six rules, and the unifier built from them.
+  uDelete: rule('delete'),
+  uDecompose: rule('decompose'),
+  uConflict: rule('conflict'),
+  uSwap: rule('swap'),
+  uCheck: rule('check'),
+  uEliminate: rule('eliminate'),
+  unifier: {
+    inputs: ['in'],
+    eval: ({ in: v }) => {
+      const e = eqsIn(v)
+      const σ = e.fail ? null : mgu(e.eqs)
+      return σ ? eqsValue(Object.entries(σ).map(([x, t]) => [{ t: 'var', name: x }, t])) : eqsValue(e.eqs, e.fail ?? { zh: '没有合一子', en: 'No unifier' })
+    },
+  },
+  // Clause form (chapter 7).
+  prenex: {
+    inputs: ['in'],
+    eval: ({ in: v }) => {
+      if (!isFoNnf(formulaIn(v))) throw fail('先化否定范式：→ 和 ¬ 会挡住量词', 'To NNF first: → and ¬ stand in the quantifiers’ way')
+      return formulaValue(prenex(v.f))
+    },
+  },
+  skolem: {
+    inputs: ['in'],
+    eval: ({ in: v }) => {
+      if (!isPrenex(formulaIn(v))) throw fail('先化前束范式：量词都要在最前面', 'To prenex form first: every quantifier at the front')
+      return formulaValue(skolem(v.f))
+    },
+  },
+  clauseForm: { inputs: ['in'], eval: ({ in: v }) => clausesValue(clauseFormOf(formulaIn(v))) },
+  // First-order resolution (unit resolution with unification) and factoring.
+  fores: { inputs: ['in'], eval: ({ in: v }) => clausesValue(foResolveRound(clausesIn(v))) },
+  factor: { inputs: ['in'], eval: ({ in: v }) => clausesValue(factorRound(clausesIn(v))) },
 }
+const hasQuantifier = (f) => f.op === '∀' || f.op === '∃' || (f.op === '¬' ? hasQuantifier(f.a) : f.a ? hasQuantifier(f.a) || hasQuantifier(f.b) : false)
+const hasVars = (f) => f.op === 'atom' ? f.args.some(function vars(t) { return t.t === 'var' || t.args.some(vars) }) : f.op === '¬' ? hasVars(f.a) : f.a ? hasVars(f.a) || hasVars(f.b) : false
+const isFoNnf = (f) => (f.op === '∀' || f.op === '∃' ? isFoNnf(f.body) : f.op === '∧' || f.op === '∨' ? isFoNnf(f.a) && isFoNnf(f.b) : f.op === 'atom' || f.op === '⊥' || (f.op === '¬' && f.a.op === 'atom'))
 
 /** A test's inputs as values, by name. */
 export function inputsOf(test) {
-  if (test.clauses) return { in: clausesValue(clauseSet(test.clauses.map((c) => clauseOf(parse(c))))) }
-  if (test.inputs) return Object.fromEntries(Object.entries(test.inputs).map(([name, text]) => [name, formulaValue(parse(text))]))
-  return { in: formulaValue(parse(test.in)) }
+  if (test.eqs) return { in: eqsValue(test.eqs.map((e) => e.split(' = ').map(parseTerm))) }
+  if (test.clauses) {
+    const cs = test.clauses.map((c) => c.split(' ∨ ').map((l) => l.trim()))
+    return { in: clausesValue(cs.some((c) => c.some((l) => /\(/.test(l))) ? foSet(cs) : clauseSet(test.clauses.map((c) => clauseOf(parseFo(c))))) }
+  }
+  if (test.inputs) return Object.fromEntries(Object.entries(test.inputs).map(([name, text]) => [name, formulaValue(parseFo(text))]))
+  return { in: formulaValue(parseFo(test.in)) }
 }
 /** The names and labels of a level's inputs. */
 export const inputsOfLevel = (level) => level.inputs ?? [{ name: 'in', label: { zh: '输入', en: 'Input' } }]
@@ -128,7 +190,28 @@ export function judge(want, test, out, notation) {
     if (!ok(out.f)) { const s = say(out.f, notation); return T(`得到「${s.zh}」，还不是要的形状：${label.zh}`, `It gives “${s.en}”, not yet the shape wanted: ${label.en}`) }
     return ''
   }
+  if (want === 'unify') {
+    if (out.kind !== 'eqs') return T('结果要一组等式', 'The result must be a set of equations')
+    const σ = mgu(input.eqs)
+    if (!σ) return out.fail ? '' : T('这组等式其实合一不了，结果却没有说「失败」', 'These equations have no unifier, yet the result does not say it failed')
+    if (out.fail) return T('这组等式能合一，结果却说失败了', 'These equations can be unified, yet the result says it failed')
+    if (!solved(out.eqs)) return T('还没解完：要每个等式左边都是一个变量，右边里没有这些变量', 'Not solved yet: each equation must have a variable on the left, and none of those variables on any right side')
+    const θ = Object.fromEntries(out.eqs.map(([x, t]) => [x.name, t]))
+    return input.eqs.every(([s, t]) => sameTerm(applyT(s, θ), applyT(t, θ))) ? '' : T('结果代回去，原来的等式两边还不一样', 'Put back into the equations, the result does not make both sides equal')
+  }
+  if (want === 'prenex' || want === 'skolem') {
+    if (out.kind !== 'formula') return T('结果要一句公式', 'The result must be a formula')
+    const ref = want === 'prenex' ? prenex(foNnf(input.f)) : skolem(prenex(foNnf(input.f)))
+    if (want === 'prenex' && !isPrenex(out.f)) return T('量词还没有都挪到最前面', 'Not every quantifier is at the front yet')
+    if (want === 'skolem' && hasExists(out.f)) return T('结果里还有 ∃', 'The result still has ∃')
+    return same(out.f, ref) ? '' : T('结果和照规矩一步步做出来的不一样', 'The result differs from the one made by the rules step by step')
+  }
   if (out.kind !== 'clauses') return T('结果要一组子句', 'The result must be a clause set')
+  if (want === 'clauseForm') {
+    const ref = clauseFormOf(input.f)
+    return ref.length === out.set.length && ref.every((c, k) => c.join() === out.set[k].join()) ? '' : T('结果和这句话的子句形式不一样', 'The result is not this sentence’s clause form')
+  }
+  if (want === 'foRefuted') return refuted(out.set) ? '' : T('结果里还没有空子句 ⊥', 'The result has no empty clause ⊥ yet')
   if (want === 'entails') {
     const known = Object.entries(inputs).filter(([name]) => name !== 'goal').map(([, v]) => v.f)
     const both = [...known, { op: '¬', a: inputs.goal.f }].reduce((acc, f) => (acc ? and(acc, f) : f), null)
