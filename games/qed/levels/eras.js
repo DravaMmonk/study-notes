@@ -66,7 +66,7 @@ export const ERAS = [
       branches(
         ['and', '并且', 'And', ['and', 'andSwap', 'curry', 'uncurry', 'andImp']],
         ['or', '或者', 'Or', ['or', 'cases', 'orSwap', 'orImp']],
-        ['not', '矛盾与否定', 'Contradiction and not', ['bot', 'notI', 'mt', 'dni', 'contra', 'denyAnte']],
+        ['not', '矛盾与否定', 'Contradiction and not', ['notE', 'bot', 'notI', 'mt', 'dni', 'contra', 'denyAnte']],
       ),
       series('mix', '组合', 'Together', ['dist', 'demorgan', 'dmUse']),
       series('classical', '反证法', 'By contradiction', ['notnotlem', 'raa', 'byContra', 'lemCases']),

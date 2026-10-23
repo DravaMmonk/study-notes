@@ -55,7 +55,9 @@ export default {
   // Version 13 dropped 接反了.
   { version: 13, ops: [{ rename: { wrongChain: null } }] },
   // Version 14 added the Identity level: whoever had passed Merge has passed it.
-  { version: 14, ops: [{ solve: ['twice', ['ident']] }] }],
+  { version: 14, ops: [{ solve: ['twice', ['ident']] }] },
+  // Version 15 put a level that reads ¬ as “→ ⊥” before 矛盾: whoever had passed that has passed it.
+  { version: 15, ops: [{ solve: ['bot', ['notE']] }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
