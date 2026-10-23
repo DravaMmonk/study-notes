@@ -39,8 +39,8 @@ export default function ProofScreen({ game, level: entry, saved, save, solve, fl
   const [target, setTarget] = useState(null)
   // After the proof was checked: { pass, results: [{ pass, reason }] } on every test; a change clears it.
   const [verdict, setVerdict] = useState(null)
-  // A level opens on its last shown test: the pattern in bare letters (course.js expand).
-  const [testIndex, setTestIndex] = useState(level.tests.length - 1)
+  // A level opens on its first test, the case its task is written in; the bare letters come last (course.js expand).
+  const [testIndex, setTestIndex] = useState(0)
   const tests = level.tests
   const test = tests[Math.min(testIndex, tests.length - 1)]
   // What the player has here: what this level shows, and what it folds away (../../../course.js offer).
