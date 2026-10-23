@@ -20,7 +20,7 @@ export default function RunDock({ meta, lead, secondary, controls = [], go, clas
         <button key={c.key} type="button" className="run-ctl" onClick={c.onClick} aria-label={c.label} title={c.label} {...c.attrs}>{c.icon}<span>{c.label}</span></button>
       ))}
       {secondary && (
-        <button type="button" className={`run-sec ${secondary.armed ? 'is-armed' : ''}`} onClick={secondary.onClick} {...secondary.attrs}>{secondary.icon}<span>{secondary.label}</span></button>
+        <button type="button" className={`run-sec ${secondary.armed ? 'is-armed' : ''}`} onClick={secondary.onClick} aria-label={secondary.label} title={secondary.label} {...secondary.attrs}>{secondary.icon}<span>{secondary.label}</span></button>
       )}
       {go && (
         <button type="button" className={`run-go ${go.busy ? 'is-busy' : ''} ${go.pass ? 'is-pass' : ''} ${go.pulse ? 'is-pulse' : ''}`} onClick={go.onClick} {...go.attrs}>
