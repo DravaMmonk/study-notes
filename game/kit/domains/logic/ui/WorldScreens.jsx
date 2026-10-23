@@ -28,17 +28,19 @@ const CONNECTIVES = ['¬', '∧', '∨', '→', '↔', '(', ')']
 const thingName = (notation, world) => (k) => (world ? L(notation.words?.[world.things[k]] ?? { zh: world.things[k], en: world.things[k] }) : MARKS[k])
 
 /** A world in words: how many things, and every atom true in it, as sentences. */
-function WorldText({ model, notation, preds, world = null }) {
+function WorldText({ model, notation, preds, world = null, spell = false }) {
   const name = thingName(notation, world)
+  const sayAtom = (p, args) => (notation.words?.[p] ? L(notation.words[p]) : `${p}({0})`).replace(/\{(\d)\}/g, (_, k) => name(args[Number(k)]))
   const atoms = preds.flatMap(([p, n]) => {
     const ext = model.preds[p]
     if (n === 0) return ext ? [L(say({ op: 'atom', pred: p, args: [] }, notation))] : []
-    return [...(ext ?? [])].map((key) => {
-      const args = key.split(',').map(Number)
-      const word = notation.words?.[p] ? L(notation.words[p]) : `${p}({0})`
-      return word.replace(/\{(\d)\}/g, (_, k) => name(args[Number(k)]))
-    })
+    return [...(ext ?? [])].map((key) => sayAtom(p, key.split(',').map(Number)))
   })
+  // A countermodel spells out what does not hold too: what is left out is easy to miss, and it is often the point.
+  const tuples = (n) => (n === 0 ? [[]] : tuples(n - 1).flatMap((t) => model.domain.map((d) => [...t, d])))
+  const missing = spell ? preds.filter(([p]) => p in model.preds).flatMap(([p, n]) => (n === 0
+    ? (model.preds[p] ? [] : [L(say({ op: 'atom', pred: p, args: [] }, notation))])
+    : tuples(n).filter((args) => !model.preds[p]?.has(args.join(','))).map((args) => sayAtom(p, args)))) : []
   // A named world's things are their own names: only other names need saying.
   const consts = Object.entries(model.fns).filter(([c, m]) => m.has('') && !world?.things.includes(c)).map(([c, m]) => `${L(notation.words?.[c] ?? T(c, c))} = ${name(m.get(''))}`)
   return (
@@ -46,6 +48,7 @@ function WorldText({ model, notation, preds, world = null }) {
       <p>{tr(`这个世界有 ${model.domain.length} 样东西：`, `This world has ${model.domain.length} thing${model.domain.length === 1 ? '' : 's'}: `)}<b>{model.domain.map(name).join(tr('、', ', '))}</b></p>
       {consts.length > 0 && <p>{consts.join(tr('；', '; '))}</p>}
       <p>{atoms.length ? atoms.join(tr('；', '; ')) : tr('什么都不成立。', 'Nothing holds.')}</p>
+      {missing.length > 0 && atoms.length > 0 && <p className="fo-not">{tr('不成立的：', 'Not so: ')}{missing.join(tr('；', '; '))}</p>}
     </div>
   )
 }
@@ -133,7 +136,7 @@ export function WriteScreen({ game, level: entry, saved, save, solve, phone }) {
       body: (
         <div className="fo-why">
           <p>{d.first ? tr('在下面这个世界里，你写的为真，原来那句话却为假：', 'In this world what you wrote is true, while the sentence is false:') : tr('在下面这个世界里，原来那句话为真，你写的却为假：', 'In this world the sentence is true, while what you wrote is false:')}</p>
-          <WorldText model={d.model} notation={level.notation} preds={preds} />
+          <WorldText model={d.model} notation={level.notation} preds={preds} spell />
         </div>
       ),
     }

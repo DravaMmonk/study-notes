@@ -147,6 +147,7 @@
 .fo-why p { margin: 0; }
 .fo-world { display: grid; gap: 4px; font-size: 13px; line-height: 1.6; color: var(--body, var(--ink)); }
 .fo-world p { margin: 0; }
+.fo-world .fo-not { color: var(--muted); }
 .fo-worlds { display: grid; gap: 8px; }
 .fo-worlds details { padding: 10px 14px; border-radius: 12px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .fo-worlds summary { cursor: pointer; font-weight: 600; font-size: 13.5px; }
