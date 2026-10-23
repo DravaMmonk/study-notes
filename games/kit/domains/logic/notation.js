@@ -4,9 +4,18 @@
 // words before that ("若下雨，则地湿"). Formulas themselves stay letters underneath (formula.js).
 //
 //   notation  { words: { letter: { zh, en } } | null, symbols: [connective] }
-import { show } from './formula.js'
+//
+// First-order words (chapter 5 on): a predicate's words are a template, its arguments as {0}, {1}
+// (Human: { zh: '{0}是人' }), and a constant's words are its name (ann: { zh: '安' }); a variable stays itself.
+import { show, showTerm } from './formula.js'
 
 const BIN = { '→': 1, '↔': 0, '∨': 2, '∧': 3 }
+const QUANT = {
+  '∀': { zh: (v, b) => `对所有 ${v}，${b}`, en: (v, b) => `for every ${v}, ${b}` },
+  '∃': { zh: (v, b) => `有一个 ${v}，${b}`, en: (v, b) => `there is some ${v} such that ${b}` },
+}
+// A term in words: a constant by its name, anything else as written.
+const termWords = (t, notation, lang) => (t.t === 'fn' && !t.args.length && notation.words?.[t.f] ? notation.words[t.f][lang] : showTerm(t))
 const WORDS = {
   '→': { zh: (a, b) => `若${a}，则${b}`, en: (a, b) => `if ${a} then ${b}` },
   '∧': { zh: (a, b) => `${a}并且${b}`, en: (a, b) => `${a} and ${b}` },
@@ -22,13 +31,15 @@ export function render(f, notation, lang, outer = -1) {
   const part = (g) => (g.op === 'atom' || g.op === '⊥' ? render(g, notation, lang) : `(${render(g, notation, lang)})`)
   switch (f.op) {
     case 'atom': {
-      const word = !f.args.length && notation.words?.[f.pred]
-      return word ? word[lang] : show(f)
+      const word = notation.words?.[f.pred]?.[lang]
+      if (word && f.args.length) return word.replace(/\{(\d)\}/g, (_, k) => termWords(f.args[Number(k)], notation, lang))
+      if (f.pred === '=') return `${termWords(f.args[0], notation, lang)} = ${termWords(f.args[1], notation, lang)}`
+      return word && !f.args.length ? word : show(f)
     }
     case 'meta': return f.name
     case '⊥': return known('⊥') ? '⊥' : lang === 'zh' ? '矛盾' : 'contradiction'
     case '¬': return known('¬') ? `¬${render(f.a, notation, lang, 9)}` : `${lang === 'zh' ? '并非' : 'not '}${part(f.a)}`
-    case '∀': case '∃': return wrap(`${f.op}${f.v}. ${render(f.body, notation, lang, -1)}`, -1)
+    case '∀': case '∃': return known(f.op) ? wrap(`${f.op}${f.v}. ${render(f.body, notation, lang, -1)}`, -1) : wrap(QUANT[f.op][lang](f.v, render(f.body, notation, lang, -1)), -1)
     default: {
       const p = BIN[f.op]
       // An → or ↔ inside another connective always keeps its brackets: A → (B → A), never A → B → A.

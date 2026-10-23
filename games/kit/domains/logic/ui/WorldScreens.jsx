@@ -1,0 +1,247 @@
+import { useMemo, useRef, useState } from 'react'
+import { Check, X } from 'lucide-react'
+import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
+import { L, tr } from '../../../shell/i18n.js'
+import { freeVars, parse } from '../formula.js'
+import { holds } from '../models.js'
+import { say } from '../notation.js'
+import { builtWorld, difference, extent, structureOf } from '../fol.js'
+
+// The screens of first-order levels (《证明完毕》 chapter 5 on), which work on worlds rather than boards:
+//   translate  write each sentence said in words as a formula; it passes when it means the same in every small world,
+//              and a world where it does not is shown otherwise
+//   query      write a formula with a free variable x that picks out the right things in each of the level's worlds
+//   model      build a world (how many things, what holds of each) where the level's sentences are true or false as
+//              asked
+// A formula is typed with the level's vocabulary as buttons (a predicate in words, a name, the quantifiers and the
+// connectives) and read back in words as it is typed.
+
+const T = (zh, en) => ({ zh, en })
+const MARKS = ['①', '②', '③', '④']
+const CONNECTIVES = ['¬', '∧', '∨', '→', '↔', '(', ')']
+
+/** What a thing is called: a named world's thing by its words, a built world's by its mark. */
+const thingName = (notation, world) => (k) => (world ? L(notation.words?.[world.things[k]] ?? { zh: world.things[k], en: world.things[k] }) : MARKS[k])
+
+/** A world in words: how many things, and every atom true in it, as sentences. */
+function WorldText({ model, notation, preds, world = null }) {
+  const name = thingName(notation, world)
+  const atoms = preds.flatMap(([p, n]) => {
+    const ext = model.preds[p]
+    if (n === 0) return ext ? [L(say({ op: 'atom', pred: p, args: [] }, notation))] : []
+    return [...(ext ?? [])].map((key) => {
+      const args = key.split(',').map(Number)
+      const word = notation.words?.[p] ? L(notation.words[p]) : `${p}({0})`
+      return word.replace(/\{(\d)\}/g, (_, k) => name(args[Number(k)]))
+    })
+  })
+  // A named world's things are their own names: only other names need saying.
+  const consts = Object.entries(model.fns).filter(([c, m]) => m.has('') && !world?.things.includes(c)).map(([c, m]) => `${L(notation.words?.[c] ?? T(c, c))} = ${name(m.get(''))}`)
+  return (
+    <div className="fo-world">
+      <p>{tr(`这个世界有 ${model.domain.length} 样东西：`, `This world has ${model.domain.length} thing${model.domain.length === 1 ? '' : 's'}: `)}<b>{model.domain.map(name).join(tr('、', ', '))}</b></p>
+      {consts.length > 0 && <p>{consts.join(tr('；', '; '))}</p>}
+      <p>{atoms.length ? atoms.join(tr('；', '; ')) : tr('什么都不成立。', 'Nothing holds.')}</p>
+    </div>
+  )
+}
+
+/** The level's vocabulary as buttons that type into the input last used. */
+function Vocab({ level, onInsert }) {
+  const { notation } = level
+  const { preds, consts } = level.vocab
+  const vars = level.vars ?? ['x', 'y']
+  const tokens = [
+    ...preds.map(([p, n]) => ({ label: notation.words?.[p] ? L(notation.words[p]).replace(/\{(\d)\}/g, (_, k) => vars[Number(k)] ?? 'z') : p, text: `${p}(${vars.slice(0, n).join(', ')})` })),
+    ...consts.map((c) => ({ label: L(notation.words?.[c] ?? T(c, c)), text: c })),
+    ...(level.quantifiers ?? ['∀', '∃']).flatMap((q) => vars.map((v) => ({ label: `${q}${v}.`, text: `${q}${v}. ` }))),
+    ...vars.map((v) => ({ label: v, text: v })),
+    ...CONNECTIVES.map((c) => ({ label: c, text: ` ${c} `.replace('( ', '(').replace(' )', ')') })),
+  ]
+  return (
+    <div className="fo-vocab" onPointerDown={(e) => e.preventDefault()}>
+      {tokens.map((t) => <button key={t.text + t.label} type="button" onClick={() => onInsert(t.text)}>{t.label}</button>)}
+    </div>
+  )
+}
+
+/** One formula to write: the sentence asked for, the input, and what it reads as. */
+function FormulaInput({ item, value, onChange, onFocus, inputRef, level, verdict }) {
+  const parsed = useMemo(() => {
+    if (!value.trim()) return null
+    try { return { f: parse(value, { consts: level.vocab.names }) } } catch { return { error: true } }
+  }, [value, level])
+  return (
+    <section className={`fo-item ${verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : ''}`}>
+      <p className="fo-say">{verdict && (verdict.pass ? <Check size={14} /> : <X size={14} />)}<span dangerouslySetInnerHTML={{ __html: String(L(item.say)) }} /></p>
+      <input ref={inputRef} className="fo-input" value={value} spellCheck={false} autoCapitalize="off" autoComplete="off" onFocus={onFocus} onChange={(e) => onChange(e.target.value)} placeholder={tr('用下面的按钮写，或直接输入', 'Use the buttons below, or type')} />
+      <p className="fo-read">{parsed?.f ? <>{tr('读作：', 'Reads: ')}<b>{L(say(parsed.f, level.notation))}</b></> : parsed?.error ? <span className="lg-error">{tr('还不是一句完整的公式', 'Not a whole formula yet')}</span> : null}</p>
+      {verdict && !verdict.pass && verdict.body}
+    </section>
+  )
+}
+
+/** Translate and query levels: one input per sentence, checked against every small world or the level's worlds. */
+export function WriteScreen({ game, level: entry, saved, save, solve, phone }) {
+  const level = entry.source
+  const [texts, setTexts] = useState(() => level.items.map((_, k) => saved?.texts?.[k] ?? ''))
+  const [verdicts, setVerdicts] = useState(null)
+  const refs = useRef([])
+  const [focus, setFocus] = useState(0)
+  const preds = level.vocab.preds
+  const change = (k, v) => {
+    const next = texts.map((t, i) => (i === k ? v : t))
+    setTexts(next)
+    save({ texts: next })
+    setVerdicts(null)
+  }
+  const insert = (token) => {
+    const el = refs.current[focus]
+    const [a, b] = el ? [el.selectionStart, el.selectionEnd] : [texts[focus].length, texts[focus].length]
+    const v = texts[focus].slice(0, a) + token + texts[focus].slice(b)
+    change(focus, v)
+    requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(a + token.length, a + token.length) })
+  }
+  const judgeOne = (item, text) => {
+    let f
+    try { f = parse(text, { consts: level.vocab.names }) } catch { return { pass: false, body: <p className="lg-error">{tr('还不是一句完整的公式。', 'Not a whole formula yet.')}</p> } }
+    const target = parse(item.target, { consts: level.vocab.names })
+    const want = level.kind === 'query' ? ['x'] : []
+    const loose = [...freeVars(f)].filter((v) => !want.includes(v))
+    if (loose.length) return { pass: false, body: <p className="lg-error">{tr(`${loose.join('、')} 没有被 ∀ 或 ∃ 管着：它指的是谁？`, `${loose.join(', ')} is not bound by ∀ or ∃: who is it?`)}</p> }
+    if (level.kind === 'query') {
+      for (const world of level.worlds) {
+        const m = structureOf(world, [f, target])
+        const [got, wanted] = [extent(f, m), extent(target, m)]
+        const name = thingName(level.notation, world)
+        const extra = got.filter((d) => !wanted.includes(d)).map(name)
+        const missing = wanted.filter((d) => !got.includes(d)).map(name)
+        if (extra.length || missing.length) {
+          return { pass: false, body: <div className="fo-why"><p>{L(world.title)}{tr('：', ': ')}{extra.length > 0 && tr(`多选了 ${extra.join('、')}；`, `wrongly picks ${extra.join(', ')}; `)}{missing.length > 0 && tr(`漏掉了 ${missing.join('、')}。`, `misses ${missing.join(', ')}.`)}</p></div> }
+        }
+      }
+      return { pass: true }
+    }
+    const d = difference(f, target)
+    if (!d) return { pass: true }
+    return {
+      pass: false,
+      body: (
+        <div className="fo-why">
+          <p>{d.first ? tr('在下面这个世界里，你写的为真，原来那句话却为假：', 'In this world what you wrote is true, while the sentence is false:') : tr('在下面这个世界里，原来那句话为真，你写的却为假：', 'In this world the sentence is true, while what you wrote is false:')}</p>
+          <WorldText model={d.model} notation={level.notation} preds={preds} />
+        </div>
+      ),
+    }
+  }
+  const check = () => {
+    const vs = level.items.map((item, k) => judgeOne(item, texts[k]))
+    setVerdicts(vs)
+    if (vs.every((v) => v.pass)) solve(null)
+  }
+  const passed = verdicts?.every((v) => v.pass)
+  const stage = (
+    <div className="fo-stage">
+      {level.kind === 'query' && (
+        <div className="fo-worlds">
+          {level.worlds.map((world, k) => (
+            <details key={k} open={k === 0}>
+              <summary>{L(world.title)}</summary>
+              <WorldText model={structureOf(world, level.items.map((i) => parse(i.target, { consts: level.vocab.names })))} notation={level.notation} preds={preds} world={world} />
+            </details>
+          ))}
+        </div>
+      )}
+      {level.items.map((item, k) => (
+        <FormulaInput key={k} item={item} value={texts[k]} onChange={(v) => change(k, v)} onFocus={() => setFocus(k)} inputRef={(el) => { refs.current[k] = el }} level={level} verdict={verdicts?.[k]} />
+      ))}
+      <Vocab level={level} onInsert={insert} />
+      <footer className="run-foot"><RunDock go={{ label: passed ? tr('全对', 'All correct') : tr('检查', 'Check'), pass: Boolean(passed), onClick: check }} /></footer>
+    </div>
+  )
+  const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
+  if (phone) return <PhonePage brief={brief} className="fo-level">{stage}</PhonePage>
+  return <Workbench className="fo-level" brief={brief} stage={stage} scroll />
+}
+
+/** Model levels: build a world where each sentence is true or false as asked. */
+export function ModelScreen({ game, level: entry, saved, save, solve, phone }) {
+  const level = entry.source
+  const consts = level.vocab.consts
+  const wants = useMemo(() => level.want.map((w) => ({ ...w, formula: parse(w.f, { consts: level.vocab.names }) })), [level])
+  const preds = level.vocab.preds
+  const max = level.maxSize ?? 3
+  const [world, setWorld] = useState(() => saved?.size ? saved : { size: Math.min(2, max), preds: {}, consts: {} })
+  const [checked, setChecked] = useState(null)
+  const update = (next) => {
+    setWorld(next)
+    save(next)
+    setChecked(null)
+  }
+  const model = useMemo(() => builtWorld(world, level.vocab), [world, level])
+  const values = wants.map((w) => holds(w.formula, model))
+  const toggle = (p, key) => {
+    const has = (world.preds[p] ?? []).includes(key)
+    update({ ...world, preds: { ...world.preds, [p]: has ? world.preds[p].filter((k) => k !== key) : [...(world.preds[p] ?? []), key] } })
+  }
+  const check = () => {
+    const pass = values.every((v, k) => v === wants[k].value)
+    setChecked(pass)
+    if (pass) solve(null)
+  }
+  const name = (k) => MARKS[k]
+  const wordOf = (p, args) => (level.notation.words?.[p] ? L(level.notation.words[p]).replace(/\{(\d)\}/g, (_, k) => args[Number(k)]) : `${p}(${args.join(', ')})`)
+  const stage = (
+    <div className="fo-stage">
+      <section className="fo-build">
+        <div className="fo-size" role="group" aria-label={tr('有几样东西', 'How many things')}>
+          <span>{tr('这个世界有', 'This world has')}</span>
+          {Array.from({ length: max }, (_, k) => k + 1).map((n) => <button key={n} type="button" aria-pressed={world.size === n} onClick={() => update({ ...world, size: n })}>{n}</button>)}
+          <span>{tr('样东西', 'things')}</span>
+        </div>
+        {consts.map((c) => (
+          <div key={c} className="fo-const">
+            <span>{L(level.notation.words?.[c] ?? T(c, c))} =</span>
+            {model.domain.map((k) => <button key={k} type="button" aria-pressed={model.fns[c].get('') === k} onClick={() => update({ ...world, consts: { ...world.consts, [c]: k } })}>{name(k)}</button>)}
+          </div>
+        ))}
+        {preds.map(([p, n]) => (
+          <div key={p} className="fo-pred">
+            {n === 0 && <button type="button" aria-pressed={model.preds[p]} onClick={() => update({ ...world, preds: { ...world.preds, [p]: !world.preds[p] } })}>{L(say({ op: 'atom', pred: p, args: [] }, level.notation))}</button>}
+            {n === 1 && (
+              <>
+                <span className="fo-pred-name">{wordOf(p, ['…'])}</span>
+                <span className="fo-cells">{model.domain.map((k) => <button key={k} type="button" aria-pressed={model.preds[p].has(String(k))} onClick={() => toggle(p, String(k))}>{name(k)}</button>)}</span>
+              </>
+            )}
+            {n === 2 && (
+              <>
+                <span className="fo-pred-name">{wordOf(p, ['…', '…'])}</span>
+                <table className="fo-grid"><tbody>
+                  {model.domain.map((a) => (
+                    <tr key={a}>{model.domain.map((b) => <td key={b}><button type="button" aria-pressed={model.preds[p].has(`${a},${b}`)} onClick={() => toggle(p, `${a},${b}`)} title={wordOf(p, [name(a), name(b)])}>{name(a)}{name(b)}</button></td>)}</tr>
+                  ))}
+                </tbody></table>
+              </>
+            )}
+          </div>
+        ))}
+      </section>
+      <section className="fo-wants">
+        {wants.map((w, k) => (
+          <p key={k} className={`fo-want ${values[k] === w.value ? 'is-pass' : 'is-fail'}`}>
+            {values[k] === w.value ? <Check size={14} /> : <X size={14} />}
+            <b>{L(say(w.formula, level.notation))}</b>
+            <span>{tr(`要${w.value ? '真' : '假'}，现在${values[k] ? '真' : '假'}`, `want ${w.value ? 'true' : 'false'}, now ${values[k] ? 'true' : 'false'}`)}</span>
+          </p>
+        ))}
+        {checked !== null && <p className={`lg-verdict ${checked ? 'is-pass' : 'is-fail'}`}>{checked ? tr('这个世界正合要求。', 'This world fits.') : tr('还有句子的真假不对，打了叉。', 'Some sentences are not yet as asked; they are crossed.')}</p>}
+      </section>
+      <footer className="run-foot"><RunDock go={{ label: checked ? tr('造好了', 'Built') : tr('检查', 'Check'), pass: Boolean(checked), onClick: check }} /></footer>
+    </div>
+  )
+  const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
+  if (phone) return <PhonePage brief={brief} className="fo-level">{stage}</PhonePage>
+  return <Workbench className="fo-level" brief={brief} stage={stage} scroll />
+}
+

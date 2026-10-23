@@ -92,4 +92,18 @@ export const ERAS = [
     topics: [{ id: 'islanders-more', code: 'R', after: ['kk-three', 'entail'], levels: ['r-three', 'r-silent', 'r-ten'], title: T('岛民变多', 'More islanders') }],
     chapter: { title: T('归结', 'Resolution'), question: T('证明器能不能自己找证明？', 'Can the prover find proofs by itself?') },
   },
+  {
+    id: 'quantifiers', machine: 'prover', keeps: 'all',
+    foundation: [
+      // Saying first-order sentences and building worlds for them need nothing from each other.
+      branches(
+        ['translate', '翻译', 'Translating', ['fo-atoms', 'fo-all', 'fo-some', 'fo-nested']],
+        ['worlds', '造世界', 'Building worlds', ['m-world', 'm-make', 'm-counter', 'm-order']],
+      ),
+      'finite',
+    ],
+    practice: [series('splitting', '量词怎么拆', 'Taking quantifiers apart', ['p-only', 'p-split', 'p-exAnd'])],
+    topics: [{ id: 'family', code: 'F', after: 'finite', levels: ['q-children', 'q-grand', 'q-none', 'q-school'], title: T('查族谱', 'Asking a family tree') }],
+    chapter: { title: T('量词与模型', 'Quantifiers and models'), question: T('「每一个」「有一个」怎么说，什么时候为真？', 'How do you say “every” and “some”, and when are they true?') },
+  },
 ]

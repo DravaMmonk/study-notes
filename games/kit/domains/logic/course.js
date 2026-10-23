@@ -3,6 +3,7 @@
 // (proof.js lemma): a level with `builds: '<type>'` makes the lemma spec.lemmas[type] a part once solved.
 import { defineCourse, eraLevels, layout, numbered, offer, usable } from '../../course.js'
 import { parse, replaceAtoms, show } from './formula.js'
+import { vocabulary } from './fol.js'
 import { say } from './notation.js'
 
 // Every rule a proof uses, in the boxes too.
@@ -59,6 +60,16 @@ function expand(level, notation) {
   return { schema, tests: [...level.cases.map(test), test(letters)] }
 }
 
+// A first-order level's vocabulary (fol.js): the predicates and names its sentences use, and any it adds as decoys.
+const WORLD_KINDS = ['translate', 'query', 'model']
+// `names` are every name the level reads (level.consts), so a name typed that the level does not use still parses.
+function vocabOf(level) {
+  const names = level.consts ?? []
+  const texts = level.kind === 'model' ? level.want.map((w) => w.f) : [...level.items.map((i) => i.target), ...(level.decoys ?? [])]
+  const v = vocabulary(texts.map((t) => parse(t, { consts: names })))
+  return { preds: v.preds, consts: v.consts, names: [...new Set([...names, ...v.consts])] }
+}
+
 // A machine test's tab: its input, or its claim, in words; a clause set by how many clauses it has.
 function machineLabel(test, notation) {
   if (test.clauses) return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
@@ -78,7 +89,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
     known = [...known, ...(level.symbols ?? [])]
     const notation = { words: level.words ?? words, symbols: known }
-    const read = (l) => ({ adds: [], ...l, ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, notation })
+    const read = (l) => ({ adds: [], ...l, ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, notation })
     if (!level.tasks) return read(level)
     // What the level builds comes of its last task, the level itself.
     const { tasks, builds, ...base } = level

@@ -7,6 +7,7 @@ import { circuits, GATES } from './circuits.js'
 import { era1 } from './era1.js'
 import { era2 } from './era2.js'
 import { resolution } from './resolution.js'
+import { quantifiers } from './quantifiers.js'
 import { WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -25,7 +26,7 @@ export const LEMMAS = {
 
 export const LOGIC = logicCourse({
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...resolution],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...resolution, ...quantifiers],
   words: WORDS,
   lemmas: LEMMAS,
   gates: GATES,
