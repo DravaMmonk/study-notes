@@ -8,7 +8,7 @@
 // proof that holds parts back (`without`) does not use them, and no reference answer uses a part its level cannot have.
 import { reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
-import { runLevel, withHidden } from '../../engine/tests.js'
+import { runLevel } from '../../engine/tests.js'
 import { parse } from './formula.js'
 import { countermodel } from './models.js'
 import { LOGIC_TESTS, lemmaGives } from './proof.js'
@@ -20,7 +20,7 @@ export function validate({ levels, course }) {
   const out = []
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words)) {
-    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : withHidden(level).tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     // The pattern's own letters stand bare in its last test.
     const bare = new Set(Object.keys(level.cases?.[0] ?? {}))
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l] && !bare.has(l))
@@ -46,7 +46,7 @@ export function validate({ levels, course }) {
       if (wrong.length) out.push({ fail: true, text: `${level.id}: the gate ${level.builds} does not compute its sentence` })
     }
   }
-  for (const level of levels.filter((l) => l.kind === 'proof').map(withHidden)) {
+  for (const level of levels.filter((l) => l.kind === 'proof')) {
     const consts = level.consts ?? []
     for (const test of level.tests) {
       const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))

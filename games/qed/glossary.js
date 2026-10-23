@@ -22,7 +22,7 @@ export const GLOSSARY = [
       T('左边的卡片是<b>已知</b>，右边的是<b>目标</b>。一根线代表「这件事已经证出来了」：一块元件是一条推理规则，输入是它要的东西，输出是它推出的结论。', 'The cards on the left are what is <b>given</b>, the one on the right the <b>goal</b>. A wire means “this has been proved”: a part is a rule of inference, its inputs what it needs, its output the conclusion it draws.'),
       T('卡片上写着它此刻证出的命题。接错了，卡片会说它要什么、接进来的是什么。证完了点「检查证明」。', 'A card shows what it proves right now. Wire it wrong and the card says what it wanted and what it got. When you are done, press “Check proof”.'),
       T('卡片上要填一句话时，从这一关出现过的句子里选。', 'Where a card needs a sentence, pick it from the sentences in the level.'),
-      T('每关有几组<b>测试</b>，每组讲一件不同的事；同一块电路要在每一组上都证得出，还有几组隐藏测试，过关后公开。换一组测试，卡片上的句子跟着换名字，电路不用动：证明只看形状，不看讲的是什么。', 'Each level has a few <b>tests</b>, each about something different; one circuit must prove them all, and a few hidden tests are shown once you pass. Switch tests and the sentences on the cards are renamed while the circuit stays: a proof looks at shape, not at what it is about.'),
+      T('每关有几组<b>测试</b>：最后一组只写字母，是题目的样子本身；其余几组把字母换成日常的句子。同一块电路要在每一组上都证得出。换一组测试，卡片上的句子跟着换名字，电路不用动：证明只看形状，不看讲的是什么，所以字母那一组证得出，换成什么句子都证得出。', 'Each level has a few <b>tests</b>: the last is just letters, the shape of the problem itself; the others put everyday sentences in place of the letters. One circuit must prove them all. Switch tests and the sentences on the cards are renamed while the circuit stays: a proof looks at shape, not at what it is about, so whatever proves the letters proves any sentences put in their place.'),
     ],
     see: ['box', 'lemma'],
   },

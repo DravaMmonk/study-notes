@@ -4,7 +4,8 @@
 // practised; Chain, Swap and Merge are built with boxes and stay in the prover. The challenges hold the box back and prove with K, S and
 // Apply alone, the way a prover with only axioms works.
 // Each level is a pattern (letters appear only here) plus test cases: one proof must hold on every set of sentences,
-// plus a few hidden ones. Brief, intro and pass texts use the first case (rain) as their example.
+// and on the pattern in bare letters, the test a level opens on. Brief, intro and pass texts use the first case (rain)
+// as their example.
 import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -24,7 +25,6 @@ export const era1 = [
     title: T('照抄', 'Copy'),
     tests: [{ premises: { p: 'A' }, goal: 'A' }],
     cases: [{ A: 'Rain' }, { A: 'Bus' }],
-    hiddenCases: [{ A: 'Alarm' }],
     solution: proof({}, ['p>goal'], { premises: ['p'] }),
     brief: T('已知「下雨」为真，证出「下雨」为真。', 'Given that “it rains” is true, prove that “it rains” is true.'),
     hint: [T('从「已知」卡片右边的圆点，连到「目标」卡片左边的圆点。', 'Wire the dot on the right of the “Given” card to the dot on the left of the “Goal” card.')],
@@ -32,7 +32,7 @@ export const era1 = [
       { t: T('上一章的真值电路把一句话一行一行地验，行数一多就验不完。证明器的下一个模块<b>证明核</b>换一个思路：不看真假，只靠规则，从已经知道的事出发，一步一步推出想要的结论。每一步都只看句子的形状，不看天气。', 'The truth circuits of the last chapter check a sentence row by row, and with many rows it never ends. The prover’s next module, <b>the kernel</b>, works the other way: not by truth but by rules alone, it starts from what you know and reaches the conclusion step by step. Each step looks only at the shape of sentences, never at the weather.') },
       { t: T('板上左边的卡片是<b>已知</b>，右边是<b>目标</b>。在真值电路里，「下雨」这张卡片有时送出真、有时送出假；在这里，「已知下雨」说的是：「下雨」为真。证出一句话，说的是：只要已知都为真，它也一定为真。', 'On the board, the cards on the left are what is <b>given</b>, the one on the right is the <b>goal</b>. On a truth circuit the card “it rains” sometimes sent out true and sometimes false; here, “given that it rains” says: “it rains” is true. Proving a sentence says: whenever everything given is true, so is it.') },
       { t: T('板上的一根线，意思是「这句话已经证明为真」。', 'A wire on the board means “this sentence has been proved true”.') },
-      { t: T('板子下面是几组<b>测试</b>，每组讲一件不同的事：这一组讲「下雨」，另一组讲别的。同一块电路要在每一组上都证得出；还有几组隐藏测试，过关后才公开。', 'Under the board are a few <b>tests</b>, each about something different: this one about “it rains”, another about something else. One circuit must prove every one of them; a few hidden tests are checked too, and shown once you pass.') },
+      { t: T('板子下面是几组<b>测试</b>。最后一组只写字母（A、B…），是这道题的样子本身；其余几组把字母换成日常的句子，比如「下雨」。同一块电路要在每一组上都证得出：换一组，卡片上的句子跟着换，电路一点不用动。', 'Under the board are a few <b>tests</b>. The last one is just letters (A, B …), the shape of the problem itself; the others put everyday sentences, like “it rains”, in place of the letters. One circuit must prove every one: switch tests and the sentences on the cards change, while the circuit stays exactly as it is.') },
     ],
     after: T('已知为真的话，不用再推就为真：已知本身就是一个证明，不管它讲的是什么。板上的每一块元件都是一条<b>推理规则</b>：输入口接它需要的东西，输出口给出它推出的结论。', 'What is given as true needs no further step to be true: a given is already a proof, whatever it is about. Each part on the board is a <b>rule of inference</b>: its inputs take what it needs, its output gives what it concludes.'),
   },
@@ -42,7 +42,6 @@ export const era1 = [
     title: T('套用', 'Apply'),
     tests: [{ premises: { p: 'A → B', q: 'B → C', r: 'A' }, goal: 'C' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
-    hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }, { A: 'Rain ∧ Wind', B: 'Wet', C: 'Slip' }],
     adds: ['mp'],
     brief: T('已知「下雨 → 地湿」「地湿 → 路滑」「下雨」，证出「路滑」。', 'Given “it rains → the ground is wet”, “the ground is wet → the road is slippery” and “it rains”, prove “the road is slippery”.'),
     hint: [
@@ -63,7 +62,6 @@ export const era1 = [
     title: T('加一个假设', 'One assumption'),
     tests: [{ premises: { p: 'A' }, goal: 'B → A' }],
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Coffee', B: 'Late' }],
-    hiddenCases: [{ A: 'Sat', B: 'Rain' }],
     adds: ['impI'],
     showcase: 'a box has a region and two dots, and what is made inside leaves only through its conclusion',
     brief: T('已知「下雨」，用假设框证出「刮风 → 下雨」。', 'Given “it rains”, prove “it is windy → it rains” with an assumption box.'),
@@ -85,7 +83,6 @@ export const era1 = [
     title: T('多一个条件也无妨', 'An extra condition'),
     tests: [{ goal: 'A → (B → A)' }],
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Coffee', B: 'Late' }],
-    hiddenCases: [{ A: 'Sat', B: 'Rain' }],
     builds: 'axK',
     brief: T('没有任何已知，证出「下雨 → (刮风 → 下雨)」。', 'With nothing given, prove “it rains → (it is windy → it rains)”.'),
     hint: [T('两个 →，两个框：外面的框假设「下雨」，里面的框假设「刮风」。里面的框要的结论，外面的框已经假设了。', 'Two →s, two boxes: the outer one assumes “it rains”, the inner one “it is windy”. What the inner box must conclude, the outer box has already assumed.')],
@@ -102,7 +99,6 @@ export const era1 = [
     title: T('造一台证明器', 'Build a prover'),
     tests: [{ premises: { p: 'A → (B → C)', q: 'B' }, goal: 'A → C' }],
     cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Alarm', B: 'Coffee', C: 'Awake' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
     brief: T('已知「今天是周六 → (下雨 → 我休息)」和「下雨」，用假设框证出「今天是周六 → 我休息」。', 'Given “today is Saturday → (it rains → I rest)” and “it rains”, prove “today is Saturday → I rest” with an assumption box.'),
     hint: [
       T('框卡片上的「假设」选「今天是周六」。', 'On the box card, set “Assume” to “today is Saturday”.'),
@@ -121,7 +117,6 @@ export const era1 = [
     title: T('在条件下套用', 'Apply under a condition'),
     tests: [{ goal: '(A → (B → C)) → ((A → B) → (A → C))' }],
     cases: [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
     builds: 'axS',
     brief: T('没有任何已知，证出「(下雨 → (刮风 → 地湿)) → ((下雨 → 刮风) → (下雨 → 地湿))」。', 'With nothing given, prove “(it rains → (it is windy → the ground is wet)) → ((it rains → it is windy) → (it rains → the ground is wet))”.'),
     hint: [
@@ -138,7 +133,6 @@ export const era1 = [
     title: T('接起来', 'Join them'),
     tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
-    hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
     builds: 'chain',
     brief: T('已知「下雨 → 地湿」和「地湿 → 路滑」，证出「下雨 → 路滑」。', 'Given “it rains → the ground is wet” and “the ground is wet → the road is slippery”, prove “it rains → the road is slippery”.'),
     hint: [T('目标是一句「如果下雨，那么…」：假设「下雨」，看框里能套用出什么。', 'The goal is “if it rains, then …”: assume “it rains” and see what Apply gets you inside the box.')],
@@ -155,7 +149,6 @@ export const era1 = [
     title: T('假设什么，就得到什么', 'What you assume, you have'),
     tests: [{ goal: 'A → A' }],
     cases: [{ A: 'Rain' }, { A: 'Sat' }],
-    hiddenCases: [{ A: 'Rain → Wet' }],
     brief: T('没有任何已知，证出「下雨 → 下雨」。', 'With nothing given, prove “it rains → it rains”.'),
     hint: [T('框的结论可以就是框自己的假设：把左上角「假设」的圆点连到右上角「结论」的圆点。', 'A box’s conclusion can be its own assumption: wire the “Assume” dot at its top left to the “Conclusion” dot at its top right.')],
     intro: [{ t: T('<level-ref to="assume"></level-ref>里，框的结论来自框外的已知。这一关什么都没给，结论只能来自框自己的假设。', 'In <level-ref to="assume"></level-ref> the box’s conclusion came from a given outside it. Here nothing is given, so the conclusion can only be the box’s own assumption.') }],
@@ -168,7 +161,6 @@ export const era1 = [
     title: T('同一个条件说两遍', 'The same condition twice'),
     tests: [{ premises: { p: 'A → (A → B)' }, goal: 'A → B' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Hungry', B: 'Eat' }],
-    hiddenCases: [{ A: 'Alarm', B: 'Up' }],
     brief: T('已知「下雨 → (下雨 → 地湿)」，证出「下雨 → 地湿」。', 'Given “it rains → (it rains → the ground is wet)”, prove “it rains → the ground is wet”.'),
     hint: [T('目标是「下雨 → 地湿」：假设「下雨」，这个假设可以用两次。', 'The goal is “it rains → the ground is wet”: assume “it rains”, and use the assumption twice.')],
     intro: [
@@ -188,7 +180,6 @@ export const era1 = [
     title: T('用不着的已知', 'A given you do not need'),
     tests: [{ premises: { p: 'A → B', q: 'C → B', r: 'C', s: 'B → D' }, goal: 'D' }],
     cases: [{ A: 'Bus', B: 'OnTime', C: 'Bike', D: 'Happy' }, { A: 'Coffee', B: 'Awake', C: 'Tea', D: 'Pass' }],
-    hiddenCases: [{ A: 'Sat', B: 'Rest', C: 'Sun', D: 'Happy' }],
     brief: T('已知「我坐公交 → 我准时到」「我骑车 → 我准时到」「我骑车」「我准时到 → 我很开心」，证出「我很开心」。', 'Given “I take the bus → I arrive on time”, “I cycle → I arrive on time”, “I cycle” and “I arrive on time → I am happy”, prove “I am happy”.'),
     hint: [T('从目标倒着想：谁能给出「我很开心」？它又要什么？', 'Work back from the goal: what gives “I am happy”? And what does that need?')],
     intro: [{ t: T('已知不一定都用得上。从目标往回找：要证的这句，哪张已知的后一半是它？那张已知的前一半，又从哪里来？', 'Not every given is needed. Work back from the goal: which given has it as its “then” part? And where does that given’s “if” part come from?') }],
@@ -201,7 +192,6 @@ export const era1 = [
     title: T('一句里套着一句', 'A sentence inside a sentence'),
     tests: [{ premises: { p: 'A', q: 'A → (B → C)', r: 'B' }, goal: 'C' }],
     cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
     brief: T('已知「今天是周六」「今天是周六 → (下雨 → 我休息)」「下雨」，证出「我休息」。', 'Given “today is Saturday”, “today is Saturday → (it rains → I rest)” and “it rains”, prove “I rest”.'),
     hint: [T('第一次套用的结果本身是一句「如果…那么…」，它能接进第二块套用的哪个口？', 'The first Apply gives an “if … then …” itself. Which input of a second Apply can it go into?')],
     intro: [{ t: T('「周六的话，下雨我就休息」：「如果…那么…」的后一半，也可以是一句「如果…那么…」。套用一次，剥掉外面一层。', '“On a Saturday, if it rains I rest”: the “then” part of an “if … then …” can be another “if … then …”. One Apply peels off the outer layer.') }],
@@ -214,7 +204,6 @@ export const era1 = [
     title: T('推出来的规则', 'A rule you proved'),
     tests: [{ premises: { p: 'A', q: 'A → (B → C)', r: '(B → C) → D' }, goal: 'D' }],
     cases: [{ A: 'Sat', B: 'Rain', C: 'Rest', D: 'Happy' }, { A: 'Alarm', B: 'Coffee', C: 'Awake', D: 'OnTime' }],
-    hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass', D: 'Happy' }],
     brief: T('已知「今天是周六」「今天是周六 → (下雨 → 我休息)」「(下雨 → 我休息) → 我很开心」，证出「我很开心」。', 'Given “today is Saturday”, “today is Saturday → (it rains → I rest)” and “(it rains → I rest) → I am happy”, prove “I am happy”.'),
     hint: [T('「下雨 → 我休息」不必等到下雨：它本身就能接进套用的「A」口。', '“it rains → I rest” need not wait for rain: it can go into an Apply’s “A” input as it is.')],
     intro: [{ t: T('<level-ref to="nested"></level-ref>把「下雨 → 我休息」用在了下雨上。这一关它整句是另一张已知要的前一半：一句「如果…那么…」也可以是别人的前提。', '<level-ref to="nested"></level-ref> used “it rains → I rest” on the rain. Here the whole of it is what another given needs: an “if … then …” can itself be someone else’s premise.') }],
@@ -228,7 +217,6 @@ export const era1 = [
     title: T('再加一个假设', 'One more assumption'),
     tests: [{ premises: { p: 'A' }, goal: 'B → (C → A)' }],
     cases: [{ A: 'Rain', B: 'Sat', C: 'Wind' }, { A: 'Coffee', B: 'Late', C: 'Tea' }],
-    hiddenCases: [{ A: 'Sat', B: 'Rain', C: 'Bus' }],
     brief: T('已知「下雨」，证出「今天是周六 → (刮风 → 下雨)」。', 'Given “it rains”, prove “today is Saturday → (it is windy → it rains)”.'),
     hint: [
       T('两个 →，两个框：外面的框假设「今天是周六」，里面的框假设「刮风」。', 'Two →s, two boxes: the outer one assumes “today is Saturday”, the inner one “it is windy”.'),
@@ -247,7 +235,6 @@ export const era1 = [
     title: T('换一换条件的顺序', 'Swap the conditions'),
     tests: [{ premises: { p: 'A → (B → C)' }, goal: 'B → (A → C)' }],
     cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
     builds: 'swap',
     brief: T('已知「今天是周六 → (下雨 → 我休息)」，证出「下雨 → (今天是周六 → 我休息)」。', 'Given “today is Saturday → (it rains → I rest)”, prove “it rains → (today is Saturday → I rest)”.'),
     hint: [
@@ -267,7 +254,6 @@ export const era1 = [
     title: T('接起来，再合并', 'Chain, then merge'),
     tests: [{ premises: { p: 'A → B', q: 'B → (A → C)' }, goal: 'A → C' }],
     cases: [{ A: 'Alarm', B: 'Up', C: 'OnTime' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
     brief: T('已知「闹钟响了 → 我起床了」和「我起床了 → (闹钟响了 → 我准时到)」，证出「闹钟响了 → 我准时到」。', 'Given “the alarm rings → I get up” and “I get up → (the alarm rings → I arrive on time)”, prove “the alarm rings → I arrive on time”.'),
     hint: [T('串联以后，「闹钟响了」说了两遍。', 'After Chain, “the alarm rings” is said twice.')],
     intro: [{ t: T('两张已知首尾相接，可接起来以后，条件多出来一遍。你手里正好有专门处理这件事的元件。', 'The two givens meet end to end, but joined, a condition appears twice. You hold a part made for exactly that.') }],
@@ -280,7 +266,6 @@ export const era1 = [
     title: T('绕一大圈', 'A long way round'),
     tests: [{ premises: { p: 'A → B', q: 'B → C', r: 'C → (D → (A → E))', d: 'D' }, goal: 'A → E' }],
     cases: [{ A: 'Alarm', B: 'Up', C: 'Coffee', D: 'Bus', E: 'OnTime' }, { A: 'Rain', B: 'Wet', C: 'Slip', D: 'Bike', E: 'Fall' }],
-    hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Awake', D: 'Tea', E: 'Pass' }],
     brief: T('已知「闹钟响了 → 我起床了」「我起床了 → 我喝了咖啡」「我喝了咖啡 → (我坐公交 → (闹钟响了 → 我准时到))」和「我坐公交」，证出「闹钟响了 → 我准时到」。', 'Given “the alarm rings → I get up”, “I get up → I drink coffee”, “I drink coffee → (I take the bus → (the alarm rings → I arrive on time))” and “I take the bus”, prove “the alarm rings → I arrive on time”.'),
     hint: [T('接成一段以后，「我坐公交」卡在两遍「闹钟响了」中间。', 'Once joined into one piece, “I take the bus” sits between the two “the alarm rings”s.')],
     intro: [{ t: T('三段首尾相接，最后又绕回了起点「闹钟响了」。可这一圈中间还夹着一个条件「我坐公交」：它是知道的，只是位置不对。', 'Three pieces meet end to end, and the last comes back round to the start, “the alarm rings”. But a condition, “I take the bus”, is caught inside the loop: you know it, it is just in the wrong place.') }],
@@ -293,7 +278,6 @@ export const era1 = [
     title: T('对不上的两句', 'Two that do not meet'),
     tests: [{ premises: { p: 'A → (A → B)', q: 'A → (B → C)' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Hungry', B: 'Eat', C: 'Full' }],
-    hiddenCases: [{ A: 'Alarm', B: 'Up', C: 'OnTime' }],
     brief: T('已知「下雨 → (下雨 → 地湿)」和「下雨 → (地湿 → 路滑)」，证出「下雨 → 路滑」。', 'Given “it rains → (it rains → the ground is wet)” and “it rains → (the ground is wet → the road is slippery)”, prove “it rains → the road is slippery”.'),
     hint: [T('两句都以「下雨」开头，所以首尾接不上。能不能让第二句以「地湿」开头？', 'Both start with “it rains”, so they do not meet end to end. Can the second be made to start with “the ground is wet”?')],
     intro: [{ t: T('「地湿」在第一句的结尾，也在第二句里，可两句接不上：「下雨」挡在第二句的最前面。第一句自己也说了两遍「下雨」。', '“the ground is wet” ends the first sentence and appears in the second, yet they do not join: “it rains” stands at the front of the second. And the first says “it rains” twice.') }],
@@ -307,7 +291,6 @@ export const era1 = [
     title: T('不用框加条件', 'A condition without a box'),
     tests: [{ premises: { p: 'A' }, goal: 'B → A' }],
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Coffee', B: 'Late' }],
-    hiddenCases: [{ A: 'Sat', B: 'Rain' }],
     without: ['impI', 'chain', 'swap', 'merge'],
     brief: T('不用假设框，由「下雨」证出「刮风 → 下雨」。', 'Without the assumption box, prove “it is windy → it rains” from “it rains”.'),
     hint: [T('K 的卡片上第一句选「下雨」、第二句选「刮风」，再把它和已知套用。', 'Choose “it rains” and “it is windy” on K’s card, then Apply it with the given.')],
@@ -324,7 +307,6 @@ export const era1 = [
     title: T('不用框在条件下套用', 'Under a condition without a box'),
     tests: [{ premises: { p: 'A → (B → (C → D))', q: 'A → B' }, goal: 'A → (C → D)' }],
     cases: [{ A: 'Sat', B: 'Rain', C: 'Hungry', D: 'Eat' }, { A: 'Exam', B: 'Study', C: 'Coffee', D: 'Awake' }],
-    hiddenCases: [{ A: 'Alarm', B: 'Up', C: 'Bus', D: 'OnTime' }],
     without: ['impI', 'chain', 'swap', 'merge'],
     brief: T('不用假设框，由「今天是周六 → (下雨 → (我饿了 → 我去吃饭))」和「今天是周六 → 下雨」证出「今天是周六 → (我饿了 → 我去吃饭)」。', 'Without the assumption box, prove “today is Saturday → (I am hungry → I go and eat)” from “today is Saturday → (it rains → (I am hungry → I go and eat))” and “today is Saturday → it rains”.'),
     hint: [T('S 的第三句不一定是一个词：这里它是「我饿了 → 我去吃饭」。', 'S’s third sentence need not be one word: here it is “I am hungry → I go and eat”.')],
@@ -338,7 +320,6 @@ export const era1 = [
     title: T('不用框恒等', 'Identity without a box'),
     tests: [{ goal: 'A → A' }],
     cases: [{ A: 'Rain' }, { A: 'Sat' }],
-    hiddenCases: [{ A: 'Rain → Wet' }],
     without: ['impI', 'chain', 'swap', 'merge'],
     brief: T('不用假设框，什么已知都没有，证出「下雨 → 下雨」。', 'Without the assumption box and with nothing given, prove “it rains → it rains”.'),
     hint: [
@@ -361,7 +342,6 @@ export const era1 = [
     title: T('不用框串联', 'Chain without a box'),
     tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
-    hiddenCases: [{ A: 'Exam', B: 'Study', C: 'Pass' }],
     without: ['impI', 'chain', 'swap', 'merge'],
     brief: T('不用假设框，由「下雨 → 地湿」和「地湿 → 路滑」证出「下雨 → 路滑」。', 'Without the assumption box, prove “it rains → the road is slippery” from “it rains → the ground is wet” and “the ground is wet → the road is slippery”.'),
     hint: [
@@ -384,7 +364,6 @@ export const era1 = [
     title: T('不用框交换', 'Swap without a box'),
     tests: [{ premises: { p: 'A → (B → C)' }, goal: 'B → (A → C)' }],
     cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
-    hiddenCases: [{ A: 'Hungry', B: 'Eat', C: 'Full' }],
     without: ['impI', 'chain', 'swap', 'merge'],
     brief: T('不用假设框，由「今天是周六 → (下雨 → 我休息)」证出「下雨 → (今天是周六 → 我休息)」。', 'Without the assumption box, prove “it rains → (today is Saturday → I rest)” from “today is Saturday → (it rains → I rest)”.'),
     hint: [
@@ -410,7 +389,6 @@ export const era1 = [
     title: T('不用框合并', 'Merge without a box'),
     tests: [{ premises: { p: 'A → (A → B)' }, goal: 'A → B' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Hungry', B: 'Eat' }],
-    hiddenCases: [{ A: 'Alarm', B: 'Up' }],
     without: ['impI', 'chain', 'swap', 'merge'],
     brief: T('不用假设框，由「下雨 → (下雨 → 地湿)」证出「下雨 → 地湿」。', 'Without the assumption box, prove “it rains → the ground is wet” from “it rains → (it rains → the ground is wet)”.'),
     hint: [
