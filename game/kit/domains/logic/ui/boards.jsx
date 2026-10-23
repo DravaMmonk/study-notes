@@ -14,6 +14,7 @@ import { HOLE, LOGIC_TESTS } from '../proof.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel } from '../machine.js'
 import { refuted } from '../clauses.js'
 import { clauseFormulaOf } from '../unify.js'
+import { parseTh } from '../theory.js'
 import { MACHINE_TEXT, descOf, familyOf, iconOf, nameOf, partsFor, settingsOf } from './catalog.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -196,7 +197,7 @@ export const MACHINE = {
     const term = (t) => L(sayTerm(t, null))
     const show = (v) => (v.kind === 'state' ? v.goals.map((g) => `${g.hyps.length ? `${g.hyps.map(text).join(tr('；', '; '))} ⊢ ` : ''}${text(g.goal)}`).join(tr('；', '; ')) : v.kind === 'formula' ? text(v.f) : v.kind === 'eqs' ? v.eqs.map(([s, t]) => `${term(s)} = ${term(t)}`).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormulaOf(c))).join(tr('；', '; ')))
     return {
-      sequent: <>{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
+      sequent: <>{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => text(parseTh(d))).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,
       choices: [],
     }
