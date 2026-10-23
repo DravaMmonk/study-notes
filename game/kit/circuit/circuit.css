@@ -207,6 +207,33 @@
 .pb-dot.is-dim { opacity: .25; }
 .pb-dot.over i { transform: scale(1.5); background: var(--accent); }
 @keyframes pb-pulse { 50% { box-shadow: inset 0 0 0 2.5px var(--accent-ink), 0 0 0 9px color-mix(in srgb, var(--accent) 12%, transparent); } }
+
+/* Arrow ports (every board but one whose ports say by their shape what they carry, parts.typedPorts): each dot is a
+   triangle pointing the way its wire runs, an input towards the wire that comes in, an output the way its wire
+   leaves. On the desktop inputs point left and outputs right; on the phone inputs up and outputs down. The triangle
+   is the dot's inner <i> (clipped), its hollow middle that one's ::after; a glow round it is a drop-shadow on the dot. */
+.port > i { display: none; }
+[data-ports='arrow'] .port { --tri: polygon(10% 0, 100% 50%, 10% 100%); --tri-in: polygon(26% 22%, 80% 50%, 26% 78%); background: none; box-shadow: none; }
+[data-ports='arrow'] .port-in { --tri: polygon(90% 0, 0 50%, 90% 100%); --tri-in: polygon(74% 22%, 20% 50%, 74% 78%); }
+[data-ports='arrow'] .port > i { display: block; position: absolute; inset: -1px; background: var(--fam, var(--ink)); clip-path: var(--tri); transition: background 160ms ease; }
+[data-ports='arrow'] .port > i::after { content: ''; position: absolute; inset: 0; background: var(--paper); clip-path: var(--tri-in); transition: background 160ms ease; }
+[data-ports='arrow'] .port.is-wired > i::after { background: var(--fam, var(--ink)); }
+[data-ports='arrow'] .port:hover > i::after, [data-ports='arrow'] .port.is-picked > i::after { background: var(--accent); }
+[data-ports='arrow'] .port.is-picked > i, [data-ports='arrow'] .port.is-target > i { background: var(--accent-ink); }
+[data-ports='arrow'] .port.is-picked { filter: drop-shadow(0 0 3px var(--accent)); }
+[data-ports='arrow'] .port.is-target { animation: arrow-pulse 1.2s ease-in-out infinite; }
+[data-ports='arrow'] .pb-dot.is-in { --tri: polygon(0 90%, 50% 0, 100% 90%); --tri-in: polygon(22% 76%, 50% 20%, 78% 76%); }
+[data-ports='arrow'] .pb-dot.is-out { --tri: polygon(0 10%, 50% 100%, 100% 10%); --tri-in: polygon(22% 24%, 50% 80%, 78% 24%); }
+[data-ports='arrow'] .pb-dot i { position: relative; border-radius: 0; background: var(--ink); box-shadow: none; clip-path: var(--tri); }
+[data-ports='arrow'] .pb-dot i::after { content: ''; position: absolute; inset: 0; background: var(--paper); clip-path: var(--tri-in); }
+[data-ports='arrow'] .pb-dot.is-open i { background: var(--fail); }
+[data-ports='arrow'] .pb-dot.is-wired i::after { background: var(--ink); }
+[data-ports='arrow'] .pb-dot.is-picked i, [data-ports='arrow'] .pb-dot.is-target i { background: var(--accent-ink); box-shadow: none; animation: none; }
+[data-ports='arrow'] .pb-dot.is-picked i::after, [data-ports='arrow'] .pb-dot.over i::after { background: var(--accent); }
+[data-ports='arrow'] .pb-dot.is-picked { filter: drop-shadow(0 0 4px var(--accent)); }
+[data-ports='arrow'] .pb-dot.is-target { animation: arrow-pulse 1.2s ease-in-out infinite; }
+/* Both ends one plain colour: a colour-mix here is animated through oklab, out of gamut, and glows pink. */
+@keyframes arrow-pulse { 0%, 100% { filter: drop-shadow(0 0 1px var(--accent)); } 50% { filter: drop-shadow(0 0 5px var(--accent)); } }
 /* The tray of parts and the bar. */
 .pb-tray { padding: 8px 12px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; border-top: 1px solid var(--hairline); background: var(--paper); }
 .pb-tray::-webkit-scrollbar { display: none; }
@@ -236,6 +263,7 @@
 @media (prefers-reduced-motion: reduce) {
   .pb-tile, .pb-banner, .ph-toast { animation: none; }
   .pb-dot i { transition: none; animation: none; }
+  [data-ports='arrow'] .port.is-target, [data-ports='arrow'] .pb-dot.is-target { animation: none; }
 }
 
 .glyph-text { font: 600 11px/1 var(--mono); }

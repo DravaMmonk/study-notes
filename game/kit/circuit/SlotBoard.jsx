@@ -285,7 +285,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   }
 
   return (
-    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
+    <div className={`pb-board ${dense ? 'is-dense' : ''}`} data-ports={parts.typedPorts ? undefined : 'arrow'} ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
       <div className="pb-tools">
         {history && (
           <span className="pb-steps">

@@ -136,6 +136,7 @@ export function partsFor(circ, u) {
     cardWidth: (node) => (isInput(node.type) ? INPUT_W : CARD_W),
     wireStyle: (wire, graph) => ({ '--fam': colour(byId(graph, splitSrc(wire.from)[0])) }),
     portClass: (node, port, key) => `look-${look(node, port, key ?? null)}`,
+    typedPorts: true,
     refuse: (graph, from, to, port) => {
       const r = linkPorts(fromGraph(graph, circ), io, from, sinkOf(to, port));
       return r.msg ? { zh: r.msg, en: r.msg } : null;

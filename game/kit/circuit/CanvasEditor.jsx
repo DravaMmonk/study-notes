@@ -439,8 +439,8 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
     const icon = parts.icon?.(node)
     const wired = (src) => graph.wires.some((w) => w.from === src)
-    const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点一下，再点另一张卡片的输入；也可以拖过去', 'Click, then click an input of another card; or drag there')} onClick={() => clickPort(outPort(src))} />
-    const inDot = (port, extra = '') => <i className={`port port-in ${graph.wires.some((w) => w.to === node.id && w.port === port) ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} onClick={() => clickPort(inPort(node.id, port))} />
+    const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点一下，再点另一张卡片的输入；也可以拖过去', 'Click, then click an input of another card; or drag there')} onClick={() => clickPort(outPort(src))}><i /></i>
+    const inDot = (port, extra = '') => <i className={`port port-in ${graph.wires.some((w) => w.to === node.id && w.port === port) ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} onClick={() => clickPort(inPort(node.id, port))}><i /></i>
     return (
       <div
         key={node.id}
@@ -523,7 +523,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const canDelete = Boolean(selected?.wire) || Boolean(selectedNode && removable(selectedNode))
 
   return (
-    <div className={`board kit-board ${picking ? 'is-picking' : ''}`} ref={surface} onPointerDown={beginPan} onPointerMove={picking ? (e) => setPointer(pointIn(layer.current, e.clientX, e.clientY)) : undefined}>
+    <div className={`board kit-board ${picking ? 'is-picking' : ''}`} data-ports={parts.typedPorts ? undefined : 'arrow'} ref={surface} onPointerDown={beginPan} onPointerMove={picking ? (e) => setPointer(pointIn(layer.current, e.clientX, e.clientY)) : undefined}>
       <div className="board-grid" style={{ backgroundPosition: `${view.x}px ${view.y}px`, backgroundSize: `${20 * view.zoom}px ${20 * view.zoom}px` }} />
       {!placed && emptyNote && <p className="board-empty">{L(emptyNote)}</p>}
       <div className="board-layer" ref={layer} onAnimationEnd={redraw} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
