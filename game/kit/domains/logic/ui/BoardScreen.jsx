@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, StepLog, TaskCard, TestStatus, TestTabs, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
@@ -141,7 +141,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const verdictText = result ? (result.pass ? L(board.words.pass) : L(result.reason)) : null
   const shared = { board, parts, lemmas, circuit, view, scene, setParam, text }
 
-  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} runAt={run ? `${run.test}:${run.step}` : null} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
+  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} stepKey={run ? `${run.test}:${run.step}:${run.results.length}` : ''} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -215,7 +215,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
 
 // The board on a phone: the shared slot board, where a frame is a block with its regions' grids inside it, a sheet
 // per block and the run bar.
-function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, runAt, logged, began, waiting, onClear, setParam, text, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
+function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, logged, began, waiting, stepKey, onClear, setParam, text, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
   const { Value } = board
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
@@ -236,19 +236,25 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
     scroller,
     scope,
   })
-  // A run (and each test it moves on to) brings the page down to the preview under the result; the board stays put
-  // while the cards light up in turn, and the preview, of a fixed height, follows the steps inside itself.
+  // The run window appears with the run's first step, and the page is at its bottom in the same frame (no scrolling
+  // to watch); after that the window, of a fixed size, follows the steps inside itself and the page stays put.
+  // A card's value showing under the board can push the window down: while the page sits at its bottom it stays
+  // there, until the player scrolls away.
   const preview = useRef(null)
-  useEffect(() => {
-    if (runAt === null) return undefined
-    // After the frame lays out, and only when the preview is not all in view already, so the page never jumps
-    // while it shows.
-    const id = requestAnimationFrame(() => {
-      const [box, view] = [preview.current?.getBoundingClientRect(), scroller.current?.getBoundingClientRect()]
-      if (box && view && (box.bottom > view.bottom || box.top < view.top)) preview.current.scrollIntoView({ block: 'end' })
-    })
-    return () => cancelAnimationFrame(id)
-  }, [runAt])
+  const pinned = useRef(false)
+  const was = useRef(false)
+  useLayoutEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    if (!began) { pinned.current = false; return }
+    if (!was.current) pinned.current = true
+    if (pinned.current) el.scrollTop = el.scrollHeight
+  }, [began, stepKey])
+  useLayoutEffect(() => { was.current = began })
+  const onScroll = () => {
+    const el = scroller.current
+    if (began && el) pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 4
+  }
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   // A frame shows what it gives outside; what it opens shows in its regions.
   const thumb = (n) => {
@@ -267,7 +273,7 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
   return (
     <div className="level-phone is-split lg-phone" ref={root}>
       {testTabs}
-      <div className="lg-scroll" ref={scroller}>
+      <div className="lg-scroll" ref={scroller} onScroll={onScroll}>
         <TaskCard>{brief}</TaskCard>
         <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} onClear={onClear} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
         {stepped ? began && (
