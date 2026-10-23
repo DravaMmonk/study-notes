@@ -179,6 +179,8 @@
    sticky offsets count from inside it. */
 .pb-tools { position: sticky; z-index: 7; top: var(--pb-sticky-top, 0px); justify-self: stretch; margin: -14px 0 -44px; padding: 14px 0 12px; display: flex; justify-content: flex-end; gap: 6px; background: linear-gradient(var(--canvas) 78%, transparent); pointer-events: none; }
 .pb-tools > * { pointer-events: auto; }
+/* Clear sits at the left of the row, undo, redo and the wire switch at the right. */
+.pb-tools > .pb-clear { margin-right: auto; }
 .pb-wiremode, .pb-steps { height: 32px; display: inline-flex; align-items: center; border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--paper) 92%, transparent); box-shadow: 0 0 0 1px var(--rule), 0 8px 18px -12px rgba(0, 0, 0, .5); backdrop-filter: blur(8px); }
 .pb-wiremode { padding: 0 11px 0 9px; gap: 6px; border: 0; font: inherit; font-size: 12px; font-weight: 600; }
 .pb-steps button { width: 38px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 999px; color: inherit; background: transparent; }

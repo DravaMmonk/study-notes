@@ -179,4 +179,7 @@
 .lg-preview { margin: 12px 0 4px; padding: 10px 12px 12px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); display: grid; gap: 6px; scroll-margin-bottom: 12px; }
 .lg-preview h3 { margin: 0; color: var(--muted); font: 600 12px var(--mono); letter-spacing: .08em; }
 .lg-preview .step-log { margin: 0; }
+/* A fixed height once a run starts, so the page does not move as steps come in. */
+.lg-preview .step-log, .lg-preview .lg-preview-empty { height: 190px; max-height: none; }
+.lg-preview .lg-preview-empty { margin: 0; display: grid; place-items: center; text-align: center; padding: 0 12px; }
 .lg-preview .lg-verdict { margin: 0; }

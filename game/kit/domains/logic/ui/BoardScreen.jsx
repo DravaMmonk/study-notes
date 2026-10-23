@@ -130,17 +130,18 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
     return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('还没有接上', 'nothing wired in yet')}</i>
   }
   const passed = stepped ? playback.passed : verdict?.pass
-  const clear = circuit.nodes.some((n) => parts.role(n) === 'part') ? { label: tr('清空', 'Clear'), icon: <Trash2 size={16} />, onClick: reset } : null
+  // Clearing is the board's own (a button among its tools, which asks first).
+  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part') ? reset : null
   const dock = stepped
-    ? <RunDock secondary={clear} {...playback.dock({ go: L(board.words.go), done: L(board.words.passed) })} />
-    : <RunDock secondary={clear} go={{ label: L(passed ? board.words.passed : board.words.go), pass: Boolean(passed), onClick: check }} />
+    ? <RunDock {...playback.dock({ go: L(board.words.go), done: L(board.words.passed) })} />
+    : <RunDock go={{ label: L(passed ? board.words.passed : board.words.go), pass: Boolean(passed), onClick: check }} />
   // The steps of the test shown, so far: what each card gave, the current one marked.
   const shown = stepped ? playback.shown(shownIndex) : { list: [], at: -1 }
   const stepLog = <StepLog steps={shown.list.map((s) => ({ label: s.label, value: s.value ? <Value v={s.value} text={text} /> : null, failed: s.failed }))} at={shown.at} />
   const verdictText = result ? (result.pass ? L(board.words.pass) : L(result.reason)) : null
   const shared = { board, parts, lemmas, circuit, view, scene, setParam, text }
 
-  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} runAt={run ? `${run.test}:${run.step}:${run.results.length}` : null} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
+  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} runAt={run ? `${run.test}:${run.step}` : null} logged={shown.list.length > 0} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -165,6 +166,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
               regionNote={regionNote}
               resultNote={resultNote}
               onTarget={setTarget}
+              onClear={onClear}
               emptyNote={items.length > 0 && board.words.empty}
             />
           </div>
@@ -213,7 +215,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
 
 // The board on a phone: the shared slot board, where a frame is a block with its regions' grids inside it, a sheet
 // per block and the run bar.
-function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, runAt, setParam, text, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
+function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, runAt, logged, onClear, setParam, text, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
   const { Value } = board
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
@@ -234,10 +236,18 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
     scroller,
     scope,
   })
-  // A run brings the page down to the preview under the result, and keeps it there as each step shows.
+  // A run (and each test it moves on to) brings the page down to the preview under the result; the board stays put
+  // while the cards light up in turn, and the preview, of a fixed height, follows the steps inside itself.
   const preview = useRef(null)
   useEffect(() => {
-    if (runAt !== null) preview.current?.scrollIntoView({ block: 'end', behavior: 'smooth' })
+    if (runAt === null) return undefined
+    // After the frame lays out, and only when the preview is not all in view already, so the page never jumps
+    // while it shows.
+    const id = requestAnimationFrame(() => {
+      const [box, view] = [preview.current?.getBoundingClientRect(), scroller.current?.getBoundingClientRect()]
+      if (box && view && (box.bottom > view.bottom || box.top < view.top)) preview.current.scrollIntoView({ block: 'end' })
+    })
+    return () => cancelAnimationFrame(id)
   }, [runAt])
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   // A frame shows what it gives outside; what it opens shows in its regions.
@@ -259,12 +269,12 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
       {testTabs}
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} onClear={onClear} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
         {stepped ? (
           <section className="lg-preview" ref={preview}>
             <h3>{tr('运行过程', 'The run')}</h3>
             {stepLog}
-            {runAt === null && <p className="lg-mark">{tr('点「运行」或「步进」，这里一步一步显示每张卡片算出的结果。', 'Press Run or Step, and each card’s result shows here step by step.')}</p>}
+            {!logged && <p className="lg-mark lg-preview-empty">{tr('点「运行」或「步进」，这里一步一步显示每张卡片算出的结果。', 'Press Run or Step, and each card’s result shows here step by step.')}</p>}
             {verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
           </section>
         ) : verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
