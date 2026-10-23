@@ -15,8 +15,8 @@ const T = (zh, en) => ({ zh, en })
 
 /** The gates the course starts from. */
 export const PRIMITIVE_GATES = {
-  gNot: { name: T('非', 'Not'), desc: T('输入是真，输出假；输入是假，输出真。', 'True in gives false out; false in gives true out.'), ports: ['a'], f: ([a]) => !a },
-  gAnd: { name: T('与', 'And'), desc: T('两个输入都是真，才输出真；否则输出假。', 'Outputs true only when both inputs are true; otherwise false.'), ports: ['a', 'b'], f: ([a, b]) => a && b },
+  gNot: { name: T('非 ¬', 'Not ¬'), desc: T('¬a：输入是真，输出假；输入是假，输出真。', '¬a: true in gives false out; false in gives true out.'), ports: ['a'], f: ([a]) => !a },
+  gAnd: { name: T('与 ∧', 'And ∧'), desc: T('a ∧ b：两个输入都是真，才输出真；否则输出假。', 'a ∧ b: outputs true only when both inputs are true; otherwise false.'), ports: ['a', 'b'], f: ([a, b]) => a && b },
 }
 
 /** Every gate a course knows: the primitive ones and the ones its levels build. */
