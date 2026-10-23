@@ -74,7 +74,7 @@ export const printTerm = (t) => (t ? show(t) : '')
 
 /** A written term, or throws an Error saying where it stops making sense. */
 export function parseTerm(text) {
-  const src = text.replace(/\\/g, '').replace(/λ/g, 'fun ').replace(/↦/g, '=>').replace(/<(?![-=])/g, '⟨').replace(/(?<![-=])>/g, '⟩')
+  const src = text.replace(/\\/g, '').replace(/λ/g, 'fun ').replace(/↦/g, '=>').replace(/<(?![-=])/g, '⟨').replace(/([-=])?>/g, (m, arrow) => (arrow ? m : '⟩'))
   // Lean's qualified names first, then the projections and .elim written after a term, then plain names.
   const tokens = src.match(/fun\b|=>|[⟨⟩(),▸]|(?:Or\.inl|Or\.inr|False\.elim|Classical\.byContradiction)\b|\.(?:1|2|elim)\b|[A-Za-z_][A-Za-z0-9_'₀-₉]*|\S/g) ?? []
   let i = 0

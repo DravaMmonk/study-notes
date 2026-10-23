@@ -104,6 +104,22 @@ export const ERAS = [
     challenges: [{ level: 'drinker', after: 'q-swap' }],
     chapter: { title: T('量词规则', 'Quantifier rules'), question: T('怎样证明一句话在所有世界里都成立？', 'How do you prove a sentence holds in every world?') },
   },
-  // Chapter 6 on are being rebuilt around Isabelle's and Lean's mechanisms (games/qed/DESIGN.md §3); their old levels
+  {
+    id: 'terms', machine: 'prover', keeps: 'all',
+    foundation: [
+      // Reading terms: functions first, then the data each connective's proofs are.
+      series('fn', '读项 · 函数', 'Reading terms: functions', ['t-app', 't-lam', 't-chain', 't-two']),
+      series('data', '读项 · 数据', 'Reading terms: data', ['t-pair', 't-curry', 't-or', 't-mt', 't-absurd']),
+      series('write', '写项', 'Writing terms', ['t-wapp', 't-wlam', 't-wpair', 't-wcases']),
+      // Detours and the quantifiers' terms need nothing from each other.
+      branches(
+        ['detour', '弯路', 'Detours', ['t-detour', 't-beta', 't-casedetour', 't-lemma']],
+        ['quant', '量词的项', 'Quantifiers’ terms', ['t-all', 't-ex']],
+      ),
+    ],
+    challenges: [{ level: 't-dneg', after: 't-wcases' }],
+    chapter: { title: T('证明即程序', 'Proofs are programs'), question: T('接出来的证明本身是什么？', 'What is a wired proof, itself?') },
+  },
+  // Chapter 7 on are being rebuilt around Isabelle's and Lean's mechanisms (games/qed/DESIGN.md §3); their old levels
   // wait in levels/ (resolution, unification, tactics, theory, graduation) until each is rebuilt.
 ]

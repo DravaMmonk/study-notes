@@ -8,6 +8,7 @@ import { era1 } from './era1.js'
 import { era2 } from './era2.js'
 import { quantifiers } from './quantifiers.js'
 import { rules } from './rules.js'
+import { terms } from './terms.js'
 import { WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -34,14 +35,14 @@ const REVISIONS = {
 
 export const LOGIC = logicCourse({
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...terms],
   words: WORDS,
   lemmas: LEMMAS,
   gates: GATES,
   // The machine-board parts the player builds: law cards, normal forms, resolution and the saturator.
   revisions: REVISIONS,
   machines: [],
-  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl'],
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'normalize'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
   concept: { andI: 'and', andE: 'and', rewrite: 'eq', refl: 'eq' },
 })
