@@ -115,7 +115,9 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
       </section>
     </Brief>
   )
-  const itemOf = (type) => ({ type, label: board.nameOf(lemmas, type), desc: board.descOf(lemmas, type), icon: board.iconOf(lemmas, type), family: board.familyOf(lemmas, type), fresh: entry.fresh?.includes(type) })
+  // A part's description as it reads in this level (the game's revisions along the course: defineGame textAt).
+  const descOf = (type) => game.textAt(board.textOf(lemmas, type, level.revisions), entry.id)?.desc
+  const itemOf = (type) => ({ type, label: board.nameOf(lemmas, type), desc: descOf(type), icon: board.iconOf(lemmas, type), family: board.familyOf(lemmas, type), fresh: entry.fresh?.includes(type) })
   const items = palette.map(itemOf)
   const foldedItems = folded.map(itemOf)
   // What a region opens with (or that it opens with nothing yet): at its left edge, or first in its grid on a phone.
@@ -290,7 +292,7 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
       {node && (
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
-            {parts.role(node) === 'part' && <p className="lg-desc">{L(board.descOf(lemmas, node.type))}</p>}
+            {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(node.type))}</p>}
             <CardBody node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} />
             {parts.role(node) === 'part' && <button type="button" className="lg-remove" onClick={() => { editing.remove(node.id); setSheet(null) }}><Trash2 size={15} />{tr('拿掉这一块', 'Remove this block')}</button>}
           </div>

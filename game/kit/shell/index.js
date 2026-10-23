@@ -34,6 +34,10 @@ export { PHONE, useMedia } from './useMedia.js'
  *   glossary      the encyclopedia: { groups: [{ id, title }], entries: [{ id, group, title, body, at?, see? }] }
  *   html          true when level text (brief, rows, intro, dialogs) is the game's own HTML markup
  *   levelLabel(level), isOpen(level, solved, all), better(score, best), bestLabel(best)
+ *
+ * Text that grows as the course goes on (a part's description, say) may carry `revisions: [{ at, …fields }]`: from the
+ * level `at` on, those fields replace the text's own. In a level, a revision counts when the level is `at` or comes
+ * after it (textAt); in the components box, once `at` is open (textFor).
  */
 export function defineGame(def) {
   const levels = def.levels
@@ -65,8 +69,19 @@ export function defineGame(def) {
     unlocksBefore: (level) => [...ancestors(level)].flatMap((id) => byId[id].unlocks ?? []),
     // What a player has unlocked: every solved level's unlocks (so a level that has since come to unlock something gives
     // it to whoever solved it already), and the flags the save holds.
+    /** Is level `id` the level `at`, or one that comes after it? */
+    after: (id, at) => id === at || (byId[id] ? ancestors(byId[id]).has(at) : false),
     flagsOf: (progress) => [...new Set([...progress.flags, ...progress.solved.flatMap((id) => byId[id]?.unlocks ?? [])])],
   }
+  // A text as it reads in level `id`, and as it reads for a player's progress (every revision whose level is open).
+  const revise = (text, applies) => {
+    if (!text?.revisions) return text
+    const later = text.revisions.filter((r) => applies(r.at)).sort((a, b) => index.get(a.at) - index.get(b.at))
+    const { revisions: _, ...base } = text
+    return later.reduce((t, { at: _at, ...fields }) => ({ ...t, ...fields }), base)
+  }
+  game.textAt = (text, id) => revise(text, (at) => game.after(id, at))
+  game.textFor = (text, progress) => revise(text, (at) => Boolean(byId[at]) && isOpen(byId[at], new Set(progress.solved), progress.all))
   // The primitives a level brings in, for the map.
   game.introduced = (level) => (def.parts?.all ?? []).filter((part) => part.at?.includes(level.id))
   // A built part is earned by solving its level; a primitive once a level that brings it in opens. With every level
