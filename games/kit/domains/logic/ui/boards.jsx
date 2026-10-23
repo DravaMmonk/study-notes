@@ -8,9 +8,9 @@ import { ArrowRightFromLine, Box, Flag, Repeat, Sigma } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import { regionsFit } from '../../../circuit/index.js'
 import { startProof } from '../build.js'
-import { allVars, parse, replaceAtoms, show } from '../formula.js'
-import { compoundTerms, patternsOf, sayTerm, subformulas } from '../notation.js'
-import { HOLE, LOGIC_TESTS } from '../proof.js'
+import { allVars, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
+import { compoundTerms, sayTerm, subformulas } from '../notation.js'
+import { LOGIC_TESTS } from '../proof.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel } from '../machine.js'
 import { refuted } from '../clauses.js'
 import { clauseFormulaOf } from '../unify.js'
@@ -57,7 +57,7 @@ export const PROOF = {
     const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))
     const schema = [...Object.values(level.schema.premises ?? {}), level.schema.goal].map((t) => parse(t, { consts }))
     // Terms: the level's names and the variables its sentences use, then a few more; a new variable, from those.
-    const vars = [...new Set([...schema.flatMap((f) => [...allVars(f)]), 'x', 'y', 'z'])].filter((v) => v !== HOLE)
+    const vars = [...new Set([...schema.flatMap((f) => [...allVars(f)]), 'x', 'y', 'z'])]
     // Compound terms the sentences use (s(x), the successor of x) are terms to pick too.
     const compound = [...new Set(schema.flatMap((f) => compoundTerms(f)))]
     return {
@@ -67,19 +67,18 @@ export const PROOF = {
         formula: subformulas(schema).map((f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })),
         term: [...consts, ...vars, ...compound].map((t) => ({ value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) })),
         var: vars.map((v) => ({ value: v, label: v })),
-        pattern: patternsOf(schema).map((f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })),
       },
     }
   },
   settings: (parts, node, lemmas) => settingsOf(parts.rules, node.type, lemmas),
-  extra: (node, setParam) => node.type === 'orI' && (
+  extra: (node, setParam, { ins, text }) => (node.type === 'orI' ? (
     <div className="lg-side" role="group" aria-label={tr('另一边放在', 'Other side goes')} onPointerDown={(e) => e.stopPropagation()}>
       <span>{tr('另一边放', 'Other side')}</span>
       {[['left', tr('左', 'left')], ['right', tr('右', 'right')]].map(([side, label]) => (
         <button key={side} type="button" aria-pressed={(node.params.side ?? 'right') === side} onClick={() => setParam(node.id, 'side', side)}>{label}</button>
       ))}
     </div>
-  ),
+  ) : node.type === 'rewrite' && <Occurrences node={node} ins={ins} setParam={setParam} text={text} />),
   nameOf,
   descOf,
   iconOf,
@@ -95,6 +94,35 @@ export const PROOF = {
     noOpen: T('还没有假设', 'nothing assumed yet'),
     empty: T('从上面一排元件里选一条规则放上来，再从卡片右侧的圆点连到另一张卡片左侧的圆点。', 'Pick a rule from the row above, then wire a dot on the right of a card to a dot on the left of another.'),
   },
+}
+
+// A rewrite card's choice: φ with every s in a box, ticked to be replaced by t. The boxes appear once s = t and φ
+// are wired in.
+const MARK = '\u0001'
+function Occurrences({ node, ins, setParam, text }) {
+  const [e, p] = [ins.eq?.formula, ins.p?.formula]
+  // A term in the level's words: the left side of t = t as the board writes it.
+  const say = (t) => text({ op: 'atom', pred: '=', args: [t, t] }).split(' = ')[0]
+  if (!e || !p) return <span className="lg-mark">{tr('接上 s = t 和 φ(s)，这里会框出每一个 s', 'Wire in s = t and φ(s), and each s shows here in a box')}</span>
+  if (e.op !== 'atom' || e.pred !== '=') return null
+  const s = e.args[0]
+  const n = occurrences(p, s)
+  if (!n) return null
+  const at = node.params.at ?? []
+  const toggle = (k) => setParam(node.id, 'at', at.includes(k) ? at.filter((x) => x !== k) : [...at, k].sort((a, b) => a - b))
+  // φ written with a marker for each occurrence, then cut at the markers.
+  const pieces = text(replaceTerm(p, s, (k) => tvar(`${MARK}${k}${MARK}`), () => true)).split(new RegExp(`${MARK}(\\d+)${MARK}`))
+  const term = say(s)
+  return (
+    <div className="lg-occ" role="group" aria-label={tr('选出要换掉的', 'Choose which to replace')} onPointerDown={(ev) => ev.stopPropagation()}>
+      <small>{tr(`点框选出要换成 ${say(e.args[1])} 的地方`, `Tick where it becomes ${say(e.args[1])}`)}</small>
+      <span className="lg-occ-text">
+        {pieces.map((piece, i) => (i % 2 ? (
+          <button key={i} type="button" aria-pressed={at.includes(Number(piece))} onClick={() => toggle(Number(piece))}>{term}</button>
+        ) : <span key={i}>{piece}</span>))}
+      </span>
+    </div>
+  )
 }
 
 /* ---------- machines ---------- */

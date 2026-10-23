@@ -224,3 +224,42 @@ export function signature(formulas) {
   formulas.forEach(walk)
   return { preds, fns }
 }
+
+/** Every term in a formula, outermost first, each occurrence once, in order. */
+export function termsOf(f, out = []) {
+  const walk = (t) => { out.push(t); if (t.t === 'fn') t.args.forEach(walk) }
+  if (f.op === 'atom') f.args.forEach(walk)
+  else if (f.op === '¬') termsOf(f.a, out)
+  else if (f.body) termsOf(f.body, out)
+  else if (f.a) { termsOf(f.a, out); termsOf(f.b, out) }
+  return out
+}
+
+/**
+ * f with the occurrences of the term t that `pick(k)` chooses replaced by `by` (a term, or (k) → term); k counts the
+ * occurrences in order,
+ * left to right as written, and one inside another occurrence is not counted (it goes with it).
+ */
+export function replaceTerm(f, t, by, pick) {
+  let k = 0
+  const key = showTerm(t)
+  const term = (u) => {
+    if (showTerm(u) === key) { const i = k++; return pick(i) ? (typeof by === 'function' ? by(i) : by) : u }
+    return u.t === 'fn' ? { ...u, args: u.args.map(term) } : u
+  }
+  const walk = (g) => {
+    if (g.op === 'atom') return { ...g, args: g.args.map(term) }
+    if (g.op === '¬') return { ...g, a: walk(g.a) }
+    if (g.body) return { ...g, body: walk(g.body) }
+    if (g.a) return { ...g, a: walk(g.a), b: walk(g.b) }
+    return g
+  }
+  return walk(f)
+}
+
+/** How many times the term t occurs in f, counted as replaceTerm counts them. */
+export function occurrences(f, t) {
+  let n = 0
+  replaceTerm(f, t, t, () => { n++; return false })
+  return n
+}

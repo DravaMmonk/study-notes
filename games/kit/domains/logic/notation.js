@@ -7,7 +7,7 @@
 //
 // First-order words (chapter 5 on): a predicate's words are a template, its arguments as {0}, {1}
 // (Human: { zh: '{0}是人' }), and a constant's words are its name (ann: { zh: '安' }); a variable stays itself.
-import { show, showTerm } from './formula.js'
+import { show, showTerm, termsOf } from './formula.js'
 
 const BIN = { '→': 1, '↔': 0, '∨': 2, '∧': 3 }
 const QUANT = {
@@ -16,7 +16,7 @@ const QUANT = {
 }
 // A term in words: a name by its words, a function by its template (mul: '{0}·{1}'), a variable as written.
 function termWords(t, notation, lang) {
-  if (t.t !== 'fn') return t.name === 'hole' ? '□' : showTerm(t)
+  if (t.t !== 'fn') return showTerm(t)
   const word = notation.words?.[t.f]?.[lang]
   if (!word) return t.args.length ? `${t.f}(${t.args.map((a) => termWords(a, notation, lang)).join(', ')})` : t.f
   // An argument that is itself an operation keeps brackets: (a·b)⁻¹.
@@ -76,53 +76,8 @@ export function subformulas(formulas) {
 }
 
 
-const termKey = (t) => showTerm(t)
-// Every term in a formula, outermost first, each occurrence once in order.
-function termsIn(f, out = []) {
-  const walk = (t) => { out.push(t); if (t.t === 'fn') t.args.forEach(walk) }
-  if (f.op === 'atom') f.args.forEach(walk)
-  else if (f.op === '¬') termsIn(f.a, out)
-  else if (f.body) termsIn(f.body, out)
-  else if (f.a) { termsIn(f.a, out); termsIn(f.b, out) }
-  return out
-}
-// f with the occurrences of term `t` that `pick(k)` chooses (k counts them in order) replaced by `by`.
-function replaceTerm(f, t, by, pick) {
-  let k = 0
-  const term = (u) => {
-    if (termKey(u) === termKey(t)) return pick(k++) ? by : u
-    return u.t === 'fn' ? { ...u, args: u.args.map(term) } : u
-  }
-  const walk = (g) => {
-    if (g.op === 'atom') return { ...g, args: g.args.map(term) }
-    if (g.op === '¬') return { ...g, a: walk(g.a) }
-    if (g.body) return { ...g, body: walk(g.body) }
-    if (g.a) return { ...g, a: walk(g.a), b: walk(g.b) }
-    return g
-  }
-  return walk(f)
-}
-
-/**
- * The patterns a rewrite card offers: each of these sentences with a term's occurrences, all of them or one at a time,
- * marked by the hole (the variable 'hole', shown □), each once.
- */
-export function patternsOf(formulas) {
-  const out = new Map()
-  const hole = { t: 'var', name: 'hole' }
-  for (const g of subformulas(formulas)) {
-    const terms = termsIn(g)
-    for (const t of new Map(terms.map((u) => [termKey(u), u])).values()) {
-      const n = terms.filter((u) => termKey(u) === termKey(t)).length
-      const variants = [replaceTerm(g, t, hole, () => true), ...(n > 1 ? Array.from({ length: n }, (_, i) => replaceTerm(g, t, hole, (k) => k === i)) : [])]
-      for (const v of variants) out.set(show(v), v)
-    }
-  }
-  return [...out.values()]
-}
-
 /** The compound terms (a function of something) in a formula, as written. */
-export const compoundTerms = (f) => termsIn(f).filter((t) => t.t === 'fn' && t.args.length).map(termKey)
+export const compoundTerms = (f) => termsOf(f).filter((t) => t.t === 'fn' && t.args.length).map(showTerm)
 
 /** A term as a { zh, en } pair, in a level's notation. */
 export const sayTerm = (t, notation) => ({ zh: termWords(t, notation ?? {}, 'zh'), en: termWords(t, notation ?? {}, 'en') })

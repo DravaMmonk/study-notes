@@ -135,12 +135,12 @@ export const rules = [
     tests: [{ premises: { p: 'phos = hesp', q: 'P(phos)', t: '∀x. P(x) → Q(x)' }, goal: 'Q(hesp)' }],
     cases: [{ P: 'Bright', Q: 'Seen' }, { P: 'Seen', Q: 'Bright' }],
     brief: T('实现一个证明器，可以从已知「晨星 = 昏星」「晨星很亮」和「∀x. x很亮 → x看得见」，证明出「昏星看得见」。', 'Build a prover that, from “the Morning Star = the Evening Star”, “the Morning Star is bright” and “∀x. x is bright → x can be seen”, proves “the Evening Star can be seen”.'),
-    hint: [T('卡片上的样式里，□ 是要换掉的地方。', 'In the card’s pattern, □ marks the place to replace.')],
+    hint: [T('接好两根线，卡片上会把每个「晨星」框出来：点一下框，那一处就换成「昏星」。', 'Once both wires are in, the card boxes each “the Morning Star”: tick a box and that one becomes “the Evening Star”.')],
     intro: [
       { t: T('古人以为清晨和黄昏天边的亮星是两颗，后来才知道都是金星。两个名字指同一样东西，写作 <b>=</b>。', 'The ancients took the bright star of dawn and the one of dusk for two; later they learned both are Venus. Two names for one thing are written <b>=</b>.') },
-      { t: T('两个新元件：<b>等量代换</b>，接进 s = t 和一句提到 s 的话，按卡片上的样式把 s 换成 t；<b>自反</b>，直接给出 t = t。', 'Two new parts: <b>rewrite</b>, which takes s = t and a sentence about s and, following the card’s pattern, replaces s by t; and <b>reflexivity</b>, which gives t = t at once.') },
+      { t: T('两个新元件：<b>等量代换</b>，接进 s = t 和一句提到 s 的话，卡片上把每个 s 框出来，点选的那几处换成 t；<b>自反</b>，直接给出 t = t。', 'Two new parts: <b>rewrite</b>, which takes s = t and a sentence about s, boxes each s on the card, and replaces the ticked ones by t; and <b>reflexivity</b>, which gives t = t at once.') },
     ],
-    solution: proof({ r: ['rewrite', { pattern: 'P(hole)' }], e: ['allE', { t: 'hesp' }], m: ['mp'] }, ['p>r.eq', 'q>r.p', 't>e.all', 'e>m.imp', 'r>m.a', 'm>goal'], { premises: ['p', 'q', 't'] }),
+    solution: proof({ r: ['rewrite', { at: [0] }], e: ['allE', { t: 'hesp' }], m: ['mp'] }, ['p>r.eq', 'q>r.p', 't>e.all', 'e>m.imp', 'r>m.a', 'm>goal'], { premises: ['p', 'q', 't'] }),
     after: T('相等就是能互相替换：关于晨星说得对的话，关于昏星也对，再往下推也一样。', 'Equal means interchangeable: what is true of the Morning Star is true of the Evening Star, and so is everything it leads to.'),
   },
   {
@@ -155,7 +155,7 @@ export const rules = [
       T('自反给出「晨星 = 晨星」。', 'Reflexivity gives “the Morning Star = the Morning Star”.'),
       T('只换掉它左边那个晨星。', 'Replace only its left Morning Star.'),
     ],
-    solution: proof({ r: ['refl', { t: 'phos' }], w: ['rewrite', { pattern: 'hole = phos' }] }, ['p>w.eq', 'r>w.p', 'w>goal'], { premises: ['p'] }),
+    solution: proof({ r: ['refl', { t: 'phos' }], w: ['rewrite', { at: [0] }] }, ['p>w.eq', 'r>w.p', 'w>goal'], { premises: ['p'] }),
     after: T('等号两边倒过来还相等，不用另加规则：自反加上代换就够了。', 'An equation turned round is still true, with no new rule: reflexivity and rewrite are enough.'),
   },
   {
@@ -167,7 +167,7 @@ export const rules = [
     cases: [],
     brief: T('实现一个证明器，可以从已知「晨星 = 金星」和「金星 = 昏星」，证明出「晨星 = 昏星」。', 'Build a prover that, from “the Morning Star = Venus” and “Venus = the Evening Star”, proves “the Morning Star = the Evening Star”.'),
     hint: [T('把第一句里的金星换掉。', 'Replace Venus in the first.')],
-    solution: proof({ w: ['rewrite', { pattern: 'phos = hole' }] }, ['q>w.eq', 'p>w.p', 'w>goal'], { premises: ['p', 'q'] }),
+    solution: proof({ w: ['rewrite', { at: [0] }] }, ['q>w.eq', 'p>w.p', 'w>goal'], { premises: ['p', 'q'] }),
     after: T('相等一路传下去，还是相等。自反、对称、传递，等号该有的样子都由代换得来。', 'Equality passed along a chain is still equality. Reflexive, symmetric, transitive: all an equals sign should be comes from rewriting.'),
   },
   {

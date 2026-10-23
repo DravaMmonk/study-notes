@@ -21,7 +21,7 @@ export const RULE_TEXT = {
   exI: { name: T('举例', 'Example'), desc: T('接进 P(t)，卡片上选好要得出的 ∃x. P(x) 和例子 t，就得到它。', 'Wire in P(t), choose on the card the ∃x. P(x) to conclude and the example t; out it comes.'), ports: { a: 'P(t)' }, params: { target: T('要得出', 'Conclude'), t: T('项', 'Term') } },
   exE: { name: T('拿出那一个', 'Take the one there is'), desc: T('接进 ∃x. P(x)：框里那一样东西叫 y（卡片上起名），假设 P(y) 证出 C，框外就得 C。C 里不能有 y。', 'Wire in ∃x. P(x): inside the box that thing is y (named on the card); assuming P(y) proves C, and outside you get C. C may not mention y.'), ports: { ex: '∃x. P(x)' }, params: { x: T('见证', 'Witness') }, frames: { body: T('框里', 'Inside') } },
   refl: { name: T('自反', 'Reflexivity'), desc: T('卡片上选一样东西 t，直接给出 t = t。', 'Choose a thing t on the card; it gives t = t at once.'), params: { t: T('项', 'Term') } },
-  rewrite: { name: T('等量代换', 'Rewrite'), desc: T('接进 s = t 和一句提到 s 的话；卡片上的样式里 □ 标出要换的地方，那里的 s 换成 t。', 'Wire in s = t and a sentence about s; the card’s pattern marks with □ where s is to be replaced by t.'), ports: { eq: 's = t', p: 'φ(s)' }, params: { pattern: T('样式', 'Pattern') } },
+  rewrite: { name: T('等量代换', 'Rewrite'), desc: T('接进 s = t 和一句提到 s 的话；卡片上把这句话里的每一个 s 都框出来，点选的那几处换成 t。', 'Wire in s = t and a sentence about s; the card boxes every s in the sentence, and the ones you tick become t.'), ports: { eq: 's = t', p: 'φ(s)' } },
   res: { name: T('归结', 'Resolve'), desc: T('接进两条子句：一条里有 A，另一条里有 ¬A，消掉这一对，剩下的用「或」连起来；什么都不剩就是矛盾 ⊥。一次只消一对。', 'Wire in two clauses, one holding A and the other ¬A: cancel that pair and join what is left with or; nothing left is the contradiction ⊥. One pair at a time.'), ports: { a: 'A ∨ B', b: '¬A ∨ C' } },
 }
 
@@ -77,12 +77,12 @@ const OPENS = T('假设', 'Assume')
 const CLOSES = T('结论', 'Conclusion')
 const GIVES = T('得出', 'Result')
 
-// What a setting picks, when not a sentence: a term (a name or a variable), a new variable, or a rewrite's pattern.
-const KINDS = { allI: { x: 'var' }, exE: { x: 'var' }, allE: { t: 'term' }, exI: { t: 'term' }, refl: { t: 'term' }, rewrite: { pattern: 'pattern' } }
+// What a setting picks, when not a sentence: a term (a name or a variable) or a new variable.
+const KINDS = { allI: { x: 'var' }, exE: { x: 'var' }, allE: { t: 'term' }, exI: { t: 'term' }, refl: { t: 'term' } }
 
 /**
  * The card's settings: [{ key, label, kind }] (orI's side is a switch of its own); a lemma may name its own (`params`).
- * kind: 'formula' (a sentence), 'term', 'var' or 'pattern'.
+ * kind: 'formula' (a sentence), 'term' or 'var'.
  */
 export const settingsOf = (parts, type, lemmas = {}) => (parts[type]?.params ?? []).map((key) => ({ key, label: lemmas[type]?.params?.[key] ?? RULE_TEXT[type]?.params?.[key] ?? key, kind: KINDS[type]?.[key] ?? 'formula' }))
 
