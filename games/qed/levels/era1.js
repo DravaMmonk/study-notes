@@ -4,7 +4,7 @@
 // practised; Chain, Swap and Merge are built with boxes and stay in the prover. The challenges hold the box back and prove with K, S and
 // Apply alone, the way a prover with only axioms works.
 // Each level is a pattern (letters appear only here) plus test cases: one proof must hold on every set of sentences,
-// and on the pattern in bare letters, the test a level opens on. Brief, intro and pass texts use the first case (rain)
+// and on the pattern in bare letters, the last test. Brief, intro and pass texts use the first case (rain)
 // as their example.
 import { proof } from '../../kit/domains/logic/build.js'
 
