@@ -168,7 +168,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
   return (
     <div className="lg-card">
       {role === 'sink' && scene.want}
-      {board.settings(parts, node, lemmas).map((s) => <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={scene.choices} />)}
+      {board.settings(parts, node, lemmas).map((s) => <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={scene.choices[s.kind ?? 'formula']} />)}
       {board.extra?.(node, setParam)}
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
       {role === 'source' && <Value v={value} text={text} bare />}

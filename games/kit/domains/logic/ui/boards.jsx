@@ -8,9 +8,9 @@ import { ArrowRightFromLine, Box, Flag, Repeat, Sigma } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import { regionsFit } from '../../../circuit/index.js'
 import { startProof } from '../build.js'
-import { parse, replaceAtoms, show } from '../formula.js'
-import { subformulas } from '../notation.js'
-import { LOGIC_TESTS } from '../proof.js'
+import { allVars, parse, replaceAtoms, show } from '../formula.js'
+import { compoundTerms, patternsOf, sayTerm, subformulas } from '../notation.js'
+import { HOLE, LOGIC_TESTS } from '../proof.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel } from '../machine.js'
 import { clauseFormula, refuted } from '../clauses.js'
 import { MACHINE_TEXT, descOf, familyOf, iconOf, nameOf, partsFor, settingsOf } from './catalog.js'
@@ -54,10 +54,19 @@ export const PROOF = {
     const goal = parse(test.goal, { consts })
     const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))
     const schema = [...Object.values(level.schema.premises ?? {}), level.schema.goal].map((t) => parse(t, { consts }))
+    // Terms: the level's names and the variables its sentences use, then a few more; a new variable, from those.
+    const vars = [...new Set([...schema.flatMap((f) => [...allVars(f)]), 'x', 'y', 'z'])].filter((v) => v !== HOLE)
+    // Compound terms the sentences use (s(x), the successor of x) are terms to pick too.
+    const compound = [...new Set(schema.flatMap((f) => compoundTerms(f)))]
     return {
       sequent: <>{premises.length > 0 && <>{tr('已知', 'Given')} <b>{premises.map(text).join(tr('；', '; '))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b></>,
       want: <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b></span>,
-      choices: subformulas(schema).map((f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })),
+      choices: {
+        formula: subformulas(schema).map((f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })),
+        term: [...consts, ...vars, ...compound].map((t) => ({ value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) })),
+        var: vars.map((v) => ({ value: v, label: v })),
+        pattern: patternsOf(schema).map((f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })),
+      },
     }
   },
   settings: (parts, node, lemmas) => settingsOf(parts.rules, node.type, lemmas),

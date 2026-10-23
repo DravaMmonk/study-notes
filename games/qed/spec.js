@@ -63,6 +63,6 @@ export default {
   // Version 17 dropped the level that read ¬ as “→ ⊥” on its own; 矛盾 says it in its task.
   { version: 17, ops: [{ rename: { notE: null } }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
-  quotes: ['套用', '德摩根', '归结'],
+  quotes: ['套用', '德摩根', '归结', '取一个', '任取', '拿出那一个'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }

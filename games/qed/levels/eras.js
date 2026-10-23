@@ -106,4 +106,19 @@ export const ERAS = [
     topics: [{ id: 'family', code: 'F', after: 'finite', levels: ['q-children', 'q-grand', 'q-none', 'q-school'], title: T('查族谱', 'Asking a family tree') }],
     chapter: { title: T('量词与模型', 'Quantifiers and models'), question: T('「每一个」「有一个」怎么说，什么时候为真？', 'How do you say “every” and “some”, and when are they true?') },
   },
+  {
+    id: 'qrules', machine: 'prover', keeps: 'all',
+    foundation: [
+      // ∀ and ∃ each need only the proof board; equality comes once both are in hand.
+      branches(
+        ['forall', '对所有', 'For all', ['q-allE', 'q-allI', 'q-rename', 'q-allAnd', 'q-capture']],
+        ['exists', '存在', 'There is', ['q-exI', 'q-exE', 'q-witness']],
+      ),
+      series('equality', '相等', 'Equality', ['q-eq', 'q-sym', 'q-trans']),
+    ],
+    practice: [series('moving', '换序与挪动', 'Swapping and moving', ['q-swap', 'q-move', 'q-ancestor', 'q-bigger'])],
+    topics: [{ id: 'carroll', code: 'S', after: 'q-trans', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') }],
+    challenges: [{ level: 'drinker', after: 'q-swap' }],
+    chapter: { title: T('量词规则', 'Quantifier rules'), question: T('怎样证明一句话在所有世界里都成立？', 'How do you prove a sentence holds in every world?') },
+  },
 ]

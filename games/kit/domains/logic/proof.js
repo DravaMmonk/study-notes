@@ -69,6 +69,9 @@ function literals(f) {
 const flip = (l) => (l.startsWith('¬') ? l.slice(1) : `¬${l}`)
 const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
 
+/** The variable a rewrite's pattern marks its hole with, shown □. */
+export const HOLE = 'hole'
+
 /** The hypothesis id of the assumption a box's region opens. */
 export const hypId = (node, region) => `${node.id}/${region}`
 const assumed = (node, region, formula) => proved(formula, new Map([[hypId(node, region), formula]]))
@@ -207,7 +210,7 @@ export const RULES = {
     },
   },
   refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t)) } },
-  // From s = t and a proof of φ, φ with s replaced by t wherever the card's pattern puts x.
+  // From s = t and a proof of φ, φ with s replaced by t wherever the card's pattern has its hole (□).
   rewrite: {
     inputs: ['eq', 'p'],
     params: ['pattern'],
@@ -215,7 +218,7 @@ export const RULES = {
       const f = e.formula
       if (f.op !== 'atom' || f.pred !== '=') throw need(ctx, SHAPE.eq, f)
       const [s, t] = f.args
-      const x = node.params?.x ?? 'x'
+      const x = node.params?.x ?? HOLE
       const pattern = param(node, 'pattern', ctx)
       if (!same(subst(pattern, x, s), p.formula)) throw need(ctx, subst(pattern, x, s), p.formula)
       return proved(subst(pattern, x, t), union(e, p))
