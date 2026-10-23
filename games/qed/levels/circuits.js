@@ -100,6 +100,10 @@ export const circuits = [
     hideTarget: true,
     brief: T('接一块电路，算出「（如果下雨，那么地湿）或者（如果地湿，那么下雨）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) or (if the ground is wet, it rains)” is true.'),
     hint: [T('先接出两个「如果…那么…」，再用「或」把它们接起来。', 'Wire the two if…thens first, then join them with Or.')],
+    intro: [
+      { t: T('<level-ref to="always"></level-ref>里见过<b>永真式</b>：每一行都真的话，不管情况怎样都成立。', 'You met the <b>tautology</b> in <level-ref to="always"></level-ref>: a sentence true on every row, whatever happens.') },
+      { t: T('在电路上它是什么样子？接出这句话，看电路输出这一列。', 'What does one look like as a circuit? Wire this sentence and watch the board’s output column.') },
+    ],
     solution: board('(Rain → Wet) ∨ (Wet → Rain)', { i1: 'gImp', i2: 'gImp', o: 'gOr' }, ['Rain>i1.a', 'Wet>i1.b', 'Wet>i2.a', 'Rain>i2.b', 'i1>o.a', 'i2>o.b', 'o>out']),
     after: T('四行全是真：这句话不管天气怎样都成立，是一个永真式。电路输出这一列，和输入是什么毫无关系。', 'All four rows are true: the sentence holds whatever the weather, a tautology. The column the board gives does not depend on its inputs at all.'),
   },
@@ -111,8 +115,9 @@ export const circuits = [
     hideTarget: true,
     brief: T('接一块电路，算出「（如果下雨，那么地湿）并且（下雨，并且地不湿）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) and (it rains and the ground is not wet)” is true.'),
     hint: [T('它由两半用「与」接成。右边一半自己又是一个「与」。', 'It is two halves joined by And. The right half is itself an And.')],
+    intro: [{ t: T('反过来，每一行都假的话叫<b>矛盾</b>：不管情况怎样都不可能成立。它在电路上又是什么样子？', 'The other way round, a sentence false on every row is a <b>contradiction</b>: it cannot hold whatever happens. What does one look like as a circuit?') }],
     solution: board('(Rain → Wet) ∧ (Rain ∧ ¬Wet)', { i: 'gImp', n: 'gNot', a1: 'gAnd', a2: 'gAnd' }, ['Rain>i.a', 'Wet>i.b', 'Wet>n.a', 'Rain>a1.a', 'n>a1.b', 'i>a2.a', 'a1>a2.b', 'a2>out']),
-    after: T('四行全是假：没有哪一种天气能让它成立。这样的句子叫矛盾式，也叫不可满足。', 'All four rows are false: no weather makes it hold. Such a sentence is a contradiction, or unsatisfiable.'),
+    after: T('四行全是假：没有哪一种天气能让它成立，这就是矛盾，也叫不可满足。永远是假的话，后面会写成一个符号 <b>⊥</b>。', 'All four rows are false: no weather makes it hold. That is a contradiction, also called unsatisfiable. A sentence that is always false will later be written as one symbol, <b>⊥</b>.'),
   },
   {
     id: 'g-iff',

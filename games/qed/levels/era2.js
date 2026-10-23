@@ -191,7 +191,7 @@ export const era2 = [
     brief: T('已知「门锁着」和「¬门锁着」，证出矛盾「⊥」。', 'Given “the door is locked” and “¬the door is locked”, prove the contradiction “⊥”.'),
     hint: [T('把「¬门锁着」接进套用的「A → B」口，「门锁着」接进「A」口。', 'Wire “¬the door is locked” into Apply’s “A → B” input, and “the door is locked” into its “A” input.')],
     intro: [
-      { t: T('<b>⊥</b> 代表矛盾：一句永远是假的话。「并非…」写成 <b>¬</b>。', '<b>⊥</b> stands for contradiction: a statement that is always false. “Not …” is written <b>¬</b>.') },
+      { t: T('<level-ref to="g-never"></level-ref>里见过<b>矛盾</b>：每一行都假的话。证明器把它写成一个符号 <b>⊥</b>。「并非…」写成 <b>¬</b>。', 'You met the <b>contradiction</b> in <level-ref to="g-never"></level-ref>: a sentence false on every row. The prover writes it as one symbol, <b>⊥</b>. “Not …” is written <b>¬</b>.') },
       { t: T('证明器没有专门管 ¬ 的元件，它这样读 ¬：<br><b>¬门锁着　就是　门锁着 → ⊥</b><br>「并非门锁着」和「如果门锁着，那么矛盾」是同一句话。任何一句话都一样：「¬某句」就是「某句 → ⊥」。', 'The prover has no part for ¬; it reads ¬ like this:<br><b>¬the door is locked　is　the door is locked → ⊥</b><br>“Not the door is locked” and “if the door is locked, then a contradiction” are the same sentence. So for every sentence: “¬it” is “it → ⊥”.') },
       { t: T('所以一句「¬…」可以直接接进任何要「如果…那么…」的口。', 'So a “¬ …” goes straight into any input that wants an “if … then …”.') },
     ],

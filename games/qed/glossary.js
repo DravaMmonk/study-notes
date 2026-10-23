@@ -30,7 +30,7 @@ export const GLOSSARY = [
     id: 'truth', group: 'logic', title: T('真值表', 'Truth tables'), at: 'table',
     body: [
       T('一句由几件小事和「如果…那么…」「并且」这些连接词拼成的话，是真是假只取决于每件小事是真是假。把所有情况列成一行一行，就是它的<b>真值表</b>：n 件小事有 2ⁿ 行。', 'A sentence built from a few small facts and connectives like “if … then …” and “and” is true or false depending only on whether each small fact is. Listing every case, one per row, gives its <b>truth table</b>: n facts make 2ⁿ rows.'),
-      T('每一行都真的命题叫<b>永真式</b>。要说明一个命题不是永真式，找出一行反例就够了。', 'A proposition true on every row is a <b>tautology</b>. To show a proposition is not one, a single counterexample row is enough.'),
+      T('每一行都真的命题叫<b>永真式</b>。要说明一个命题不是永真式，找出一行反例就够了。每一行都假的命题叫<b>矛盾</b>，证明器里写成 ⊥。', 'A proposition true on every row is a <b>tautology</b>. To show a proposition is not one, a single counterexample row is enough. A proposition false on every row is a <b>contradiction</b>, written ⊥ in the prover.'),
     ],
     see: ['proof'],
   },
