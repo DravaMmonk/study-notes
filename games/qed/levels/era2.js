@@ -406,7 +406,7 @@ export const era2 = [
     title: T('一个岛民', 'One islander'),
     tests: [{ premises: { p: 'A ↔ ¬A' }, goal: '⊥' }],
     cases: [{ A: 'KA' }, { A: 'KC' }],
-    brief: T('一个岛民说：「我是无赖。」证明这话不可能有人说：实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士」证明出矛盾 ⊥。', 'An islander says: “I am a knave.” Prove nobody can say that: build a prover that, from “a is a knight ↔ ¬a is a knight”, proves the contradiction ⊥.'),
+    brief: T('一个岛民说：「我是无赖。」证明这话不可能有人说：实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士」（a 是骑士与 a 不是骑士等价，也就是「(a 是骑士 → ¬a 是骑士) ∧ (¬a 是骑士 → a 是骑士)」：若 a 是骑士则 a 不是骑士，并且若 a 不是骑士则 a 是骑士）证明出矛盾 ⊥。', 'An islander says: “I am a knave.” Prove nobody can say that: build a prover that, from “a is a knight ↔ ¬a is a knight” (a being a knight is equivalent to a not being one, that is “(a is a knight → ¬a is a knight) ∧ (¬a is a knight → a is a knight)”: if a is a knight then a is not, and if a is not a knight then a is), proves the contradiction ⊥.'),
     hint: [
       T('拆开 ∧ 也能拆 ↔：拆出「a 是骑士 → ¬a 是骑士」和「¬a 是骑士 → a 是骑士」。', 'Split ∧ splits a ↔ too: into “a is a knight → ¬a is a knight” and “¬a is a knight → a is a knight”.'),
       T('「¬a 是骑士」就是「a 是骑士 → ⊥」，第一句里的「a 是骑士」说了两遍。', '“¬a is a knight” is “a is a knight → ⊥”, so the first one states “a is a knight” twice.'),
