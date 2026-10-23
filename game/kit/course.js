@@ -77,7 +77,7 @@ export const RULE_TEXT = {
   'topic-finale': 'a topic level its finale’s board does not solve (the topic is not one problem growing)',
   'carry-unseen': 'starts from the board of a level that is not among its prerequisites',
   'bare-intro': 'a new primitive whose first level is just that part, wired to the goal',
-  unused: 'a built part that no later reference answer uses',
+  unused: 'a built part that no later reference answer (nor a later task of its own level) uses',
   'optional-built': 'a part built on an optional level (a topic or a challenge) used by a level that does not require that level',
 }
 
@@ -330,7 +330,8 @@ export function audit(course) {
     if (course.abstraction) {
       const used = course.needed(level)?.filter((p) => course.primitives.has(p) || course.needs(p))
       for (const p of ideas) if (used?.length === 1 && course.concept(used[0]) === p && !course.showcase(level)?.trim()) say('bare-intro', level.id, p, 'its first level is that part alone, wired to the goal')
-      for (const b of course.builds(level)) if (!levels.some((l) => course.before(level.id, l.id) && course.needed(l)?.includes(b))) say('unused', level.id, b, 'built here, and no later reference answer uses it')
+      // A later task of the level itself counts: it may put to work what its earlier task proved.
+      for (const b of course.builds(level)) if (!course.needed(level)?.includes(b) && !levels.some((l) => course.before(level.id, l.id) && course.needed(l)?.includes(b))) say('unused', level.id, b, 'built here, and no later reference answer uses it')
     }
     // A part built on an optional level is for the levels that require it alone: anyone else may not have it.
     for (const p of course.needed(level) ?? []) {
