@@ -16,6 +16,8 @@
 //   frames?(node) → [{ name, label, opens }] the regions of a frame (frames.js)
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
+//   typedPorts?                 ports say by their shape what they carry (portClass): round, not the arrows that
+//                                          point the way signals flow everywhere else
 import { wouldCycle } from '../graph.js'
 import { frameEdges, moveInto, scopeRefusal, within } from './frames.js'
 
