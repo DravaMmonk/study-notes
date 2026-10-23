@@ -1,5 +1,5 @@
 import { Fragment, createElement, useEffect, useRef, useState } from 'react'
-import { ChevronDown, Lightbulb } from 'lucide-react'
+import { Check, ChevronDown, Lightbulb, Lock } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { levelRefParts } from './levelRef.js'
 
@@ -55,7 +55,8 @@ export function TaskCard({ children }) {
 }
 
 /**
- * A level's brief, the same in every game: its label and title, the task (one text, or several paragraphs), an
+ * A level's brief, the same in every game: its label and title, its tasks when it has several (TaskSteps), the task
+ * (one text, or several paragraphs), an
  * optional tip, the hints behind a 提示 button (several are shown one at a time), then whatever the level adds below
  * (parts, score…). On a phone the page wraps it in the 任务 card (PhonePage) and the top bar carries the title.
  */
@@ -71,6 +72,7 @@ export function Brief({ game, level, text, tip, hint, children }) {
         <span className="brief-id">{game.levelLabel(level)}</span>
         <h1>{L(level.title)}</h1>
       </header>
+      {level.steps && <TaskSteps steps={level.steps} />}
       {paragraphs.map((p, k) => <Text key={k} game={game} className="brief-text" text={p} />)}
       {tip && <Text game={game} className="brief-tip" text={tip} />}
       {hints.length > 0 && (
@@ -84,6 +86,28 @@ export function Brief({ game, level, text, tip, hint, children }) {
       )}
       {children}
     </>
+  )
+}
+
+/**
+ * A level's tasks in order (GameShell tasks): the one played, the ones passed, and the ones still locked behind the
+ * task before them. Any task open can be gone back to.
+ */
+function TaskSteps({ steps }) {
+  return (
+    <ol className="task-steps">
+      {steps.names.map((name, k) => {
+        const open = k <= steps.done
+        return (
+          <li key={k}>
+            <button type="button" className={`${k === steps.at ? 'is-on' : ''} ${k < steps.done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('先完成上一个任务', 'Finish the task before it first')}>
+              <i>{k < steps.done ? <Check size={12} strokeWidth={2.6} /> : open ? k + 1 : <Lock size={11} strokeWidth={2.2} />}</i>
+              <span>{L(name)}</span>
+            </button>
+          </li>
+        )
+      })}
+    </ol>
   )
 }
 

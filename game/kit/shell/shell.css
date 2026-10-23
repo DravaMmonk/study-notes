@@ -148,6 +148,15 @@
 .brief-head { display: grid; gap: 4px; }
 .brief-id { color: var(--accent-ink); font-family: var(--mono); font-size: 11px; letter-spacing: .1em; }
 .brief-head h1 { margin: 0; font-family: var(--serif); font-size: 26px; font-weight: 500; letter-spacing: -.01em; }
+/* A level's tasks in order: done ones ticked, the one played filled in, the ones still locked dimmed. */
+.task-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.task-steps button { height: 30px; padding: 0 12px 0 5px; display: inline-flex; align-items: center; gap: 7px; border: 0; border-radius: 999px; color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1px var(--rule); font: inherit; font-size: 13px; cursor: pointer; }
+.task-steps i { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; background: var(--hover); font: 600 11px/1 var(--mono); font-style: normal; }
+.task-steps button.is-done i { color: var(--paper); background: var(--status); }
+.task-steps button.is-on { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); font-weight: 600; }
+.task-steps button.is-on i { color: var(--paper); background: var(--accent); }
+.task-steps button:disabled { opacity: .5; cursor: not-allowed; }
+.task-steps button:not(:disabled):not(.is-on):hover { color: var(--ink); background: var(--hover); }
 .brief-text { margin: -8px 0 0; color: var(--heading); font-family: var(--serif); font-size: 17px; line-height: 1.7; }
 .hint-block { margin-top: -10px; }
 .hint-toggle { padding: 4px 0; display: inline-flex; align-items: center; gap: 5px; border: 0; color: var(--accent-ink); background: none; font-size: 12.5px; cursor: pointer; }

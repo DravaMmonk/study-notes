@@ -9,7 +9,10 @@ import { say } from './notation.js'
 const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
 // How hard a level is, for its number: the steps (or gates) of its reference answer; a truth table counts as a short
 // proof.
-const ease = (level) => (level.solution ? level.solution.nodes.filter((n) => !['premise', 'goal', 'letter', 'out'].includes(n.type)).length : 2)
+const ease = (level) => {
+  const main = level.tasks?.at(-1) ?? level
+  return main.solution ? main.solution.nodes.filter((n) => !['premise', 'goal', 'letter', 'out'].includes(n.type)).length : 2
+}
 
 /**
  * spec: {
@@ -29,6 +32,10 @@ const ease = (level) => (level.solution ? level.solution.nodes.filter((n) => !['
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
  * }
+ * A level may be several tasks in order (`tasks: [{ kind, step, brief, … }]`, ../../shell/GameShell.jsx): each is the
+ * level with what the task changes, read like a level of its own, and the last is the level itself (its reference
+ * answer is the level's). A task in another kind than the level's parts names the parts it holds (`parts: [part]`, the
+ * ones the player has), as a truth circuit that translates a puzzle before the proof does.
  * A level may also hold back parts it would carry (`without: [part]`): a proof that must do without the box; and a
  * level that shows a new part's use by itself says why its use is abstract (`showcase: 'reason'`, ../../course.js).
  * A level names only the parts it brings in (`adds`): every part met or built before it in its era carries into it,
@@ -62,7 +69,11 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
     known = [...known, ...(level.symbols ?? [])]
     const notation = { words: level.words ?? words, symbols: known }
-    return { adds: [], ...level, ...(level.cases ? expand(level, notation) : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, notation }
+    const read = (l) => ({ adds: [], ...l, ...(l.cases ? expand(l, notation) : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, notation })
+    if (!level.tasks) return read(level)
+    const { tasks, ...base } = level
+    const all = tasks.map((task, index) => ({ ...read({ ...base, ...task }), task: index }))
+    return { ...all.at(-1), tasks: all }
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))
@@ -97,8 +108,11 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
   })
   // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
   const held = (level) => byId.get(level.id)?.without ?? []
-  const usableIn = (level, flags) => usable(course, { id: level.id }, flags).filter((p) => !held(level).includes(p))
+  // A task that names its parts holds those the player has: a primitive, or a built part once its level is solved.
+  const named = (level, flags) => level.parts.filter((p) => !(lemmas[p] || gates[p]) || flags.has(`lemma:${p}`))
+  const usableIn = (level, flags) => (level.parts ? named(level, flags) : usable(course, { id: level.id }, flags).filter((p) => !held(level).includes(p)))
   const offerIn = (level, flags) => {
+    if (level.parts) return { shown: named(level, flags), folded: [] }
     const { shown, folded, ...rest } = offer(course, { id: level.id }, flags)
     return { ...rest, shown: shown.filter((p) => !held(level).includes(p)), folded: folded.filter((p) => !held(level).includes(p)) }
   }
