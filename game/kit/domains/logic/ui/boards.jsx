@@ -8,8 +8,9 @@ import { ArrowRightFromLine, Box, Flag, Repeat, Sigma } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import { regionsFit } from '../../../circuit/index.js'
 import { startProof } from '../build.js'
-import { allVars, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
-import { compoundTerms, sayTerm, subformulas } from '../notation.js'
+import { occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
+import { sayTerm } from '../notation.js'
+import { choicesOf } from '../choices.js'
 import { LOGIC_TESTS } from '../proof.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel } from '../machine.js'
 import { refuted } from '../clauses.js'
@@ -50,23 +51,21 @@ export const PROOF = {
   fits: (saved, level, parts) => names(saved) === premiseNames(level) && fitsBoard(saved, parts),
   Value: Judgment,
   // A card holds the schema's letters and shows them as this test's sentences, so its choices are the schema's own
-  // sentences, renamed whenever the test changes.
+  // sentences (../choices.js), renamed whenever the test changes.
   scene: (level, test, text) => {
     const consts = level.consts ?? []
     const goal = parse(test.goal, { consts })
     const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))
-    const schema = [...Object.values(level.schema.premises ?? {}), level.schema.goal].map((t) => parse(t, { consts }))
-    // Terms: the level's names and the variables its sentences use, then a few more; a new variable, from those.
-    const vars = [...new Set([...schema.flatMap((f) => [...allVars(f)]), 'x', 'y', 'z'])]
-    // Compound terms the sentences use (s(x), the successor of x) are terms to pick too.
-    const compound = [...new Set(schema.flatMap((f) => compoundTerms(f)))]
+    const offer = choicesOf(level)
+    const sentence = (f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })
     return {
       sequent: <>{premises.length > 0 && <>{tr('已知', 'Given')} <b>{premises.map(text).join(tr('；', '; '))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b></>,
       want: <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b></span>,
       choices: {
-        formula: subformulas(schema).map((f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })),
-        term: [...consts, ...vars, ...compound].map((t) => ({ value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) })),
-        var: vars.map((v) => ({ value: v, label: v })),
+        formula: offer.formula.map(sentence),
+        exists: offer.exists.map(sentence),
+        term: offer.term.map((t) => ({ value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) })),
+        var: offer.var.map((v) => ({ value: v, label: v })),
       },
     }
   },

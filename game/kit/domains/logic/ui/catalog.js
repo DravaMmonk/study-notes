@@ -3,6 +3,7 @@
 // card and a box's regions, and the editor's description of a node (../../../circuit/model.js parts, frames.js).
 import { ArrowRightFromLine, Box, Flag, GitFork, Puzzle, Split } from 'lucide-react'
 import { RULES, rulesOf } from '../proof.js'
+import { SETTING_KINDS } from '../choices.js'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -77,14 +78,11 @@ const OPENS = T('假设', 'Assume')
 const CLOSES = T('结论', 'Conclusion')
 const GIVES = T('得出', 'Result')
 
-// What a setting picks, when not a sentence: a term (a name or a variable) or a new variable.
-const KINDS = { allI: { x: 'var' }, exE: { x: 'var' }, allE: { t: 'term' }, exI: { t: 'term' }, refl: { t: 'term' } }
-
 /**
  * The card's settings: [{ key, label, kind }] (orI's side is a switch of its own); a lemma may name its own (`params`).
- * kind: 'formula' (a sentence), 'term' or 'var'.
+ * kind: 'formula' (a sentence), 'exists' (a sentence that starts with ∃), 'term' or 'var'.
  */
-export const settingsOf = (parts, type, lemmas = {}) => (parts[type]?.params ?? []).map((key) => ({ key, label: lemmas[type]?.params?.[key] ?? RULE_TEXT[type]?.params?.[key] ?? key, kind: KINDS[type]?.[key] ?? 'formula' }))
+export const settingsOf = (parts, type, lemmas = {}) => (parts[type]?.params ?? []).map((key) => ({ key, label: lemmas[type]?.params?.[key] ?? RULE_TEXT[type]?.params?.[key] ?? key, kind: SETTING_KINDS[type]?.[key] ?? 'formula' }))
 
 /** A rule's or lemma's name and what it does. */
 export const nameOf = (lemmas, type) => lemmas[type]?.name ?? RULE_TEXT[type]?.name ?? type
