@@ -28,6 +28,8 @@ export const era2 = [
   {
     id: 'and',
     kind: 'proof',
+    // K and S, built at the end of the last chapter, are not this level's business.
+    fold: ['axK', 'axS'],
     title: T('两个都要', 'Both of them'),
     symbols: ['∧'],
     tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }],
@@ -102,6 +104,8 @@ export const era2 = [
   {
     id: 'or',
     kind: 'proof',
+    // K and S, built at the end of the last chapter, are not this level's business.
+    fold: ['axK', 'axS'],
     title: T('二选一', 'One of two'),
     symbols: ['∨'],
     tests: [{ premises: { p: 'A' }, goal: 'B ∨ (A ∨ B)' }],
@@ -183,6 +187,8 @@ export const era2 = [
   {
     id: 'bot',
     kind: 'proof',
+    // K and S, built at the end of the last chapter, are not this level's business.
+    fold: ['axK', 'axS'],
     title: T('矛盾', 'Contradiction'),
     symbols: ['¬', '⊥'],
     tests: [{ premises: { p: 'A', q: '¬A' }, goal: 'B' }],
