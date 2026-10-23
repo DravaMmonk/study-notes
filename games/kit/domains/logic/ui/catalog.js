@@ -29,7 +29,7 @@ export const RULE_TEXT = {
 export const MACHINE_TEXT = {
   dneg: { name: T('双重否定', 'Double negation'), desc: T('把公式里每一处 ¬¬A 都换成 A，换到一处都不剩。', 'Turns every ¬¬A in the formula into A, until none is left.') },
   impOr: { name: T('箭头化或', 'Arrows to or'), desc: T('把每一处 A → B 换成 ¬A ∨ B，每一处 A ↔ B 换成 (¬A ∨ B) ∧ (¬B ∨ A)。', 'Turns every A → B into ¬A ∨ B, and every A ↔ B into (¬A ∨ B) ∧ (¬B ∨ A).') },
-  dm: { name: T('德摩根', 'De Morgan'), desc: T('把每一处 ¬(A ∧ B) 换成 ¬A ∨ ¬B，每一处 ¬(A ∨ B) 换成 ¬A ∧ ¬B，换到一处都不剩。', 'Turns every ¬(A ∧ B) into ¬A ∨ ¬B and every ¬(A ∨ B) into ¬A ∧ ¬B, until none is left.') },
+  dmLaw: { name: T('德摩根律', 'De Morgan’s laws'), desc: T('把每一处 ¬(A ∧ B) 换成 ¬A ∨ ¬B，每一处 ¬(A ∨ B) 换成 ¬A ∧ ¬B，换到一处都不剩。', 'Turns every ¬(A ∧ B) into ¬A ∨ ¬B and every ¬(A ∨ B) into ¬A ∧ ¬B, until none is left.') },
   dist: { name: T('分配', 'Distribute'), desc: T('把每一处 A ∨ (B ∧ C) 换成 (A ∨ B) ∧ (A ∨ C)（∧ 在左边也一样），换到一处都不剩。', 'Turns every A ∨ (B ∧ C) into (A ∨ B) ∧ (A ∨ C) (with the ∧ on the left too), until none is left.') },
   nnf: { name: T('化否定范式', 'To NNF'), desc: T('把公式改成和它等价、没有 → 和 ↔、¬ 只在字母上的样子。', 'Rewrites a formula into an equivalent one with no → or ↔ and ¬ only on letters.') },
   cnf: { name: T('化合取范式', 'To CNF'), desc: T('把公式改成和它等价的合取范式：几串「或」，用「与」连起来。', 'Rewrites a formula into an equivalent CNF: ors, joined by ands.') },
@@ -55,6 +55,18 @@ export const MACHINE_TEXT = {
   elim: { name: T('用掉已知', 'Elim'), desc: T('用掉第一个目标的一条已知：A ∧ B 拆成两条；A ∨ B 分成两种情况；有了 A 和 A → B，加上 B。', 'Uses up one hypothesis of the first goal: A ∧ B splits in two; A ∨ B makes two cases; with A and A → B, adds B.') },
   orElse: { name: T('不行就换', 'Or else'), desc: T('两个框都拿到同一个状态；第一个框的结果没失败就用它，失败了就用第二个框的。', 'Both regions get the same state; the first region’s result is used unless it failed, and then the second’s.'), frames: { first: T('先试', 'Try first'), second: T('不行再试', 'Else try') } },
   auto: { name: T('自己的 auto', 'Own auto'), desc: T('一圈一圈地试：已知里有、按形状拆、用掉已知，哪个行就用哪个，直到没有目标或都不行。', 'Round after round, tries assumption, intro and elim, using whichever works, until no goal is left or none works.') },
+  simp: { name: T('化简', 'Simp'), desc: T('用定义（和加进来的引理、第一个目标自己的已知）把第一个目标的两边从左往右改写，改到不能再改；两边一样了，这个目标就证完了。', 'Rewrites both sides of the first goal left to right with the definitions (and the lemmas added, and the goal’s own hypotheses) until nothing more changes; once the two sides are the same, that goal is done.') },
+  induct: { name: T('归纳', 'Induction'), desc: T('对第一个目标最前面「对所有」的那个数（或列表）归纳：变成两个目标，0（空列表）的情况，和「对 n 成立，就对 n 的下一个成立」的情况。', 'Inducts on the number (or list) of the first goal’s first “for all”: two goals, the case 0 (the empty list), and the step “if it holds for n, it holds for the next one”.') },
+  cases: { name: T('按条件分', 'Split the if'), desc: T('第一个目标里有一个条件还没定的「如果」：分成两个目标，一个已知条件为真，一个已知它为假。', 'The first goal has an “if” whose condition is not settled: two goals, one knowing the condition is true, one knowing it is false.') },
+  addZero: { name: T('加零', 'Add zero'), desc: T('引理 n + 0 = n，加进化简用的规则。', 'The lemma n + 0 = n, added to the rules simp uses.') },
+  addSucc: { name: T('加后继', 'Add successor'), desc: T('引理 n + S m = S (n + m)，加进化简用的规则。', 'The lemma n + S m = S (n + m), added to the rules simp uses.') },
+  addAssoc: { name: T('加法结合', 'Associativity'), desc: T('引理 (n + m) + k = n + (m + k)，加进化简用的规则。', 'The lemma (n + m) + k = n + (m + k), added to the rules simp uses.') },
+  addComm: { name: T('加法交换', 'Commutativity'), desc: T('引理 n + m = m + n，加进化简用的规则。', 'The lemma n + m = m + n, added to the rules simp uses.') },
+  appNil: { name: T('接空列表', 'Append nil'), desc: T('引理 xs ++ [] = xs，加进化简用的规则。', 'The lemma xs ++ [] = xs, added to the rules simp uses.') },
+  appAssoc: { name: T('拼接结合', 'Append associativity'), desc: T('引理 (xs ++ ys) ++ zs = xs ++ (ys ++ zs)，加进化简用的规则。', 'The lemma (xs ++ ys) ++ zs = xs ++ (ys ++ zs), added to the rules simp uses.') },
+  revApp: { name: T('倒过拼接', 'Reverse of append'), desc: T('引理 rev (xs ++ ys) = rev ys ++ rev xs，加进化简用的规则。', 'The lemma rev (xs ++ ys) = rev ys ++ rev xs, added to the rules simp uses.') },
+  insLen: { name: T('插入长一格', 'Insert adds one'), desc: T('引理 len (ins x ys) = S (len ys)，加进化简用的规则。', 'The lemma len (ins x ys) = S (len ys), added to the rules simp uses.') },
+  itsumGen: { name: T('累加器求和', 'Accumulated sum'), desc: T('引理 itsum xs n = n + sum xs，加进化简用的规则。', 'The lemma itsum xs n = n + sum xs, added to the rules simp uses.') },
   factor: { name: T('因子化', 'Factor'), desc: T('一条子句里两项同号、能合一：合一后并成一项。', 'Two literals of the same sign in a clause that unify are merged into one.') },
 }
 

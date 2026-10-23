@@ -27,7 +27,7 @@ export function validate({ levels: given, course }) {
   const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words && !l.vocab)) {
-    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses ?? (t.inputs ? Object.values(t.inputs) : [t.in]))) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.eq ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses ?? (t.inputs ? Object.values(t.inputs) : [t.in]))) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     // The pattern's own letters stand bare in its last test; a machine's tests may end on bare letters too.
     const bare = new Set(level.kind === 'machine' ? 'ABCDEFGHPQRS'.split('') : Object.keys(level.cases?.[0] ?? {}))
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l] && !bare.has(l))
@@ -102,7 +102,7 @@ export function validate({ levels: given, course }) {
   }
   // A machine part a level builds runs as its built-in implementation: alone, it passes the level that builds it, unless
   // a task of the level proves it (a law card proved on the proof board, then put to work).
-  const proven = new Set(given.filter((l) => l.tasks?.some((t) => t.proves)).map((l) => l.id))
+  const proven = new Set(given.filter((l) => l.proves || l.tasks?.some((t) => t.proves)).map((l) => l.id))
   for (const level of levels.filter((l) => l.builds && MACHINE_PARTS[l.builds] && l.kind === 'machine' && !proven.has(l.id))) {
     const alone = { nodes: [{ id: 'in', type: 'in', params: { name: 'in' } }, { id: 'x', type: level.builds }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [{ from: 'in', to: 'x', port: 'in' }, { from: 'x', to: 'out', port: 'in' }] }
     const run = runLevel(MACHINE_TESTS, level, alone)

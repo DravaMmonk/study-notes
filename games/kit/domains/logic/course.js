@@ -5,6 +5,7 @@ import { defineCourse, eraLevels, layout, numbered, offer, usable } from '../../
 import { parse, replaceAtoms, show } from './formula.js'
 import { vocabulary } from './fol.js'
 import { parseFo } from './unify.js'
+import { parseTh } from './theory.js'
 import { say } from './notation.js'
 
 // Every rule a proof uses, in the boxes too.
@@ -77,12 +78,16 @@ function vocabOf(level) {
 function machineLabel(test, notation) {
   if (test.eqs) return { zh: test.eqs.join('；'), en: test.eqs.join('; ') }
   if (test.goal) return say(parseFo(test.goal), notation)
+  if (test.eq) return say(parseTh(test.eq), notation)
   if (test.clauses) return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
   return say(parseFo(test.inputs?.goal ?? test.in ?? Object.values(test.inputs)[0]), notation)
 }
 
 export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {} }) {
   const built = (p) => Boolean(lemmas[p] || gates[p] || machines.includes(p))
+  // One name, one part: a lemma, a gate and a machine part sharing a type would unlock and show as each other.
+  const clash = machines.filter((p) => lemmas[p] || gates[p]).concat(Object.keys(lemmas).filter((p) => gates[p]))
+  if (clash.length) throw new Error(`built parts share a type: ${clash.join(', ')}`)
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))

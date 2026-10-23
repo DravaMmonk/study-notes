@@ -16,6 +16,8 @@
 // 'prenex', 'skolem' and 'clauseForm' (the input's own, as unify.js makes them), and 'refuted' on clauses with
 // variables. Test inputs are read with unify.js's convention (u … z variables, other lower-case names constants).
 // Tactics (chapter 8): a test { goal, hyps? } starts a proof state, and 'proved' wants no goal left.
+// Theories (chapter 9): a test { eq } starts a proof state on an equation (theory.js), and simp rewrites with the
+// level's `defs`, handed to every card in the run's ctx.
 import { PartError, evaluate } from '../../engine/circuit.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
 import { framePart, within } from '../../circuit/frames.js'
@@ -23,6 +25,7 @@ import { and, same } from './formula.js'
 import { say } from './notation.js'
 import { LAWS, clauseOf, clauseSet, clausesOf, closed, cnf, equivalent, hasArrow, hasDneg, isCnf, isNnf, nnf, refuted, resolveRound, saturate, toEnd } from './clauses.js'
 import { assumption, auto, elim, intro, startState } from './tactics.js'
+import { THEORY_LEMMAS, addRule, cases, induct, parseTh, simp } from './theory.js'
 import { UNIFY_RULES, applyT, clauseFormOf, factorRound, foClausesOf, foNnf, foResolveRound, foSet, hasExists, isPrenex, matrixOf, mgu, parseFo, parseTerm, prenex, sameTerm, skolem, solved } from './unify.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -35,7 +38,7 @@ const stateIn = (v) => {
   return v
 }
 // A tactic card: one step on the state; a failure is the state with what went wrong (the next ORELSE or REPEAT reads it).
-const tactic = (t) => ({ inputs: ['in'], eval: ({ in: v }) => { const s = stateIn(v); return s.error ? s : t({ ...s, error: undefined }) } })
+const tactic = (t) => ({ inputs: ['in'], eval: ({ in: v }, _node, ctx) => { const s = stateIn(v); return s.error ? s : t({ ...s, error: undefined }, ctx) } })
 const formulaIn = (v) => {
   if (v.kind !== 'formula') throw fail('这里要一句公式，接进来的是一组子句', 'This needs a formula; it got a clause set')
   return v.f
@@ -108,7 +111,7 @@ export const MACHINE_PARTS = {
   out: sink(),
   dneg: law(LAWS.dneg),
   impOr: law(LAWS.impOr),
-  dm: law(LAWS.dm),
+  dmLaw: law(LAWS.dm),
   dist: law(LAWS.dist),
   neg: { inputs: ['in'], eval: ({ in: v }) => formulaValue({ op: '¬', a: formulaIn(v) }) },
   conj: { inputs: ['a', 'b'], eval: ({ a, b }) => formulaValue(and(...twoFormulas(a, b))) },
@@ -182,6 +185,11 @@ export const MACHINE_PARTS = {
     },
   },
   factor: { inputs: ['in'], eval: ({ in: v }) => clausesValue(factorRound(clausesIn(v))) },
+  // Theories (chapter 9): simplification, induction, splitting an if, and a card for each lemma proved.
+  simp: tactic((s, ctx) => simp(s, ctx?.defs ?? [])),
+  induct: tactic(induct),
+  cases: tactic(cases),
+  ...Object.fromEntries(Object.entries(THEORY_LEMMAS).map(([type, text]) => [type, tactic((s) => addRule(s, text))])),
 }
 const hasQuantifier = (f) => f.op === '∀' || f.op === '∃' || (f.op === '¬' ? hasQuantifier(f.a) : f.a ? hasQuantifier(f.a) || hasQuantifier(f.b) : false)
 const hasVars = (f) => f.op === 'atom' ? f.args.some(function vars(t) { return t.t === 'var' || t.args.some(vars) }) : f.op === '¬' ? hasVars(f.a) : f.a ? hasVars(f.a) || hasVars(f.b) : false
@@ -190,6 +198,7 @@ const isFoNnf = (f) => (f.op === '∀' || f.op === '∃' ? isFoNnf(f.body) : f.o
 /** A test's inputs as values, by name. */
 export function inputsOf(test) {
   if (test.goal) return { in: startState(parseFo(test.goal), (test.hyps ?? []).map(parseFo)) }
+  if (test.eq) return { in: startState(parseTh(test.eq)) }
   if (test.eqs) return { in: eqsValue(test.eqs.map((e) => e.split(' = ').map(parseTerm))) }
   if (test.clauses) {
     const cs = test.clauses.map((c) => c.split(' ∨ ').map((l) => l.trim()))
@@ -264,7 +273,7 @@ export function judge(want, test, out, notation) {
 /** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
 export const MACHINE_TESTS = {
   runTest: (level, circuit, test) => {
-    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), ctx: { graph: circuit } })
+    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), ctx: { graph: circuit, defs: level.defs ?? [] } })
     return { ...run, outputs: { out: run.outputs.out } }
   },
   check: (level, test, outputs) => {
