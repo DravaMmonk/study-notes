@@ -5,7 +5,7 @@ import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, SlotBoard, Tray, outputsOf, regionsFit, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
-import { runLevel, withHidden } from '../../../engine/tests.js'
+import { runLevel } from '../../../engine/tests.js'
 import { startProof } from '../build.js'
 import { parse, replaceAtoms, show } from '../formula.js'
 import { say, subformulas } from '../notation.js'
@@ -17,8 +17,7 @@ import FormulaField from './FormulaField.jsx'
 // parts. A box is a frame on the same board (../../../circuit/frames.js): its regions hold the cards that work under
 // its assumption, which each region shows at its left edge. Every card shows what it proves right now; whether the proof is done is
 // checked by the run bar, which completes the level. The level is a schema with test cases (course.js): the tests
-// above the strip switch the sentences everywhere, the cards' choices included, and checking runs every case, the
-// hidden ones too.
+// above the strip switch the sentences everywhere, the cards' choices included, and checking runs every case.
 
 const premiseNames = (level) => Object.keys(level.schema.premises ?? {}).sort().join()
 const names = (circuit) => circuit.nodes.filter((n) => n.type === 'premise').map((n) => n.params.name).sort().join()
@@ -30,7 +29,7 @@ const fits = (circuit, parts) => {
     && circuit.wires.every((w) => byId.has(w.to) && parts.inputs(byId.get(w.to)).includes(w.port))
 }
 
-export default function ProofScreen({ game, level: entry, saved, save, solved, solve, flags, progress, phone }) {
+export default function ProofScreen({ game, level: entry, saved, save, solve, flags, progress, phone }) {
   const level = entry.source
   const parts = useMemo(() => partsFor(level.lemmas, Object.keys(level.schema.premises ?? {})), [level])
   const lemmas = level.lemmas
@@ -38,14 +37,12 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
   const [circuit, setCircuit] = useState(() => (saved?.nodes && names(saved) === premiseNames(level) && fits(saved, parts) ? saved : startProof(level)))
   // The box region a new card goes into, or null for the board itself (CanvasEditor onTarget).
   const [target, setTarget] = useState(null)
-  // After the proof was checked: { pass, results: [{ pass, reason }] } on every test, hidden ones last; a change clears it.
+  // After the proof was checked: { pass, results: [{ pass, reason }] } on every test; a change clears it.
   const [verdict, setVerdict] = useState(null)
   // A level opens on its last shown test: the pattern in bare letters (course.js expand).
   const [testIndex, setTestIndex] = useState(level.tests.length - 1)
-  // Hidden tests are checked every time but shown only once the level is solved.
-  const tests = solved ? withHidden(level).tests : level.tests
+  const tests = level.tests
   const test = tests[Math.min(testIndex, tests.length - 1)]
-  const hiddenCount = solved ? 0 : level.hidden?.length ?? 0
   // What the player has here: what this level shows, and what it folds away (../../../course.js offer).
   const { shown: palette, folded } = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
   const view = useMemo(() => LOGIC_TESTS.runTest(level, circuit, test), [level, circuit, test])
@@ -57,7 +54,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
   }
   const reset = () => change(startProof(level))
   const check = () => {
-    const run = runLevel(LOGIC_TESTS, withHidden(level), circuit)
+    const run = runLevel(LOGIC_TESTS, level, circuit)
     setVerdict({ pass: run.pass, results: run.results.map((r) => ({ pass: r.pass, reason: r.checks[0].reason })) })
     if (run.pass) solve(run.score)
     else setTestIndex(Math.max(0, Math.min(level.tests.length - 1, run.results.findIndex((r) => !r.pass))))
@@ -88,7 +85,6 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
   const choices = subformulas(schema).map((f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) }))
   const result = verdict?.results[tests.indexOf(test)]
   const states = tests.map((_, k) => (verdict ? (verdict.results[k].pass ? 'pass' : 'fail') : null))
-  const hiddenFailed = verdict && hiddenCount ? verdict.results.slice(level.tests.length).filter((r) => !r.pass).length : 0
   const best = progress.best?.[level.id]
   const brief = (
     <Brief game={game} level={entry} hint={level.hint} phone={phone}>
@@ -154,7 +150,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
         </div>
       }
       tests={<TestTabs tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />}
-      status={<TestStatus states={states} hidden={{ count: hiddenCount, failed: hiddenFailed, note: HIDDEN_NOTE(hiddenCount) }} />}
+      status={<TestStatus states={states} />}
       outputsTitle={tr('这组测试', 'This test')}
       outputs={
         <div className="lg-strip">
@@ -167,7 +163,6 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
   )
 }
 
-const HIDDEN_NOTE = (count) => ({ zh: `另有 ${count} 组隐藏测试，检查时一起检查，通关后公开。`, en: `${count} more hidden tests are checked with every check and shown once you pass.` })
 
 /** A judgment: the formula proved, and the hypotheses it still rests on, written by `text`. */
 function Formula({ j, text, small = false, bare = false }) {

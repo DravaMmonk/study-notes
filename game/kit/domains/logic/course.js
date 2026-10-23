@@ -19,7 +19,7 @@ const ease = (level) => (level.solution ? level.solution.nodes.filter((n) => !['
  *   words       { letter: { zh, en } } the everyday sentence each letter reads as, in every level
  *
  * A proof level is a schema: its test (`tests: [{ premises, goal }]`) is written in letters, and each test case
- * (`cases`, and `hiddenCases` for its hidden tests) fills the letters in with sentences ({ A: 'Rain', B: 'Wet' }, a
+ * (`cases`) fills the letters in with sentences ({ A: 'Rain', B: 'Wet' }, a
  * compound sentence too: { A: 'Rain ∧ Wind' }). Every case becomes a test of its own, with the case as `subst` and its
  * sentences as its label, so one proof is checked on all of them; a last shown test keeps the bare letters, the
  * pattern itself, and is the one a level opens on.
@@ -47,7 +47,7 @@ function expand(level, notation) {
   }
   // Last of the shown tests, and the one shown first: the schema in its own letters (A := A …), the pattern bare.
   const letters = Object.fromEntries(Object.keys(level.cases[0] ?? {}).map((l) => [l, l]))
-  return { schema, tests: [...level.cases.map(test), test(letters)], hidden: (level.hiddenCases ?? []).map(test) }
+  return { schema, tests: [...level.cases.map(test), test(letters)] }
 }
 
 export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {}, primitives, concept = {}, replaces = {} }) {
