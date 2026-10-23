@@ -59,7 +59,9 @@ export default {
   // Version 15 put a level that reads ¬ as “→ ⊥” before 矛盾: whoever had passed that has passed it.
   { version: 15, ops: [{ solve: ['bot', ['notE']] }] },
   // Version 16 added practice with “from contradiction, anything”: whoever had passed the levels after has them.
-  { version: 16, ops: [{ solve: ['notI', ['exFalso']] }, { solve: ['demorgan', ['dsyll']] }] }],
+  { version: 16, ops: [{ solve: ['notI', ['exFalso']] }, { solve: ['demorgan', ['dsyll']] }] },
+  // Version 17 dropped the level that read ¬ as “→ ⊥” on its own; 矛盾 says it in its task.
+  { version: 17, ops: [{ rename: { notE: null } }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
