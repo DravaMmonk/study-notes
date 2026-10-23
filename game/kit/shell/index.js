@@ -57,6 +57,8 @@ export function defineGame(def) {
     byId,
     isOpen,
     missing: (level, solved) => requiresOf(level).filter((id) => !solved.has(id)).map((id) => byId[id]),
+    // Every level still to pass before `level` opens: the unsolved ones among all it comes after.
+    needed: (level, solved) => [...ancestors(level)].filter((id) => !solved.has(id)).map((id) => byId[id]),
     // Everything a player has unlocked by the time `level` opens: the unlocks of every level it comes after.
     unlocksBefore: (level) => [...ancestors(level)].flatMap((id) => byId[id].unlocks ?? []),
     // What a player has unlocked: every solved level's unlocks (so a level that has since come to unlock something gives

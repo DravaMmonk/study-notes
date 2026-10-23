@@ -16,6 +16,11 @@
 .lg-out { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 6px; }
 .lg-out em { color: var(--muted); font: normal 10px var(--mono); }
 .lg-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
+/* A clause set on the machine board: one clause a line, ⊥ standing out once it is in, and how many. */
+.lg-clauses { min-width: 0; display: grid; gap: 2px; }
+.lg-clauses code { font: 500 12px/1.4 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
+.lg-clauses small { color: var(--muted); font-size: 10.5px; }
+.lg-clauses .lg-bot { color: var(--status); font-size: 12px; }
 .lg-error.is-missing { color: var(--faint); }
 .lg-want { color: var(--muted); font-size: 11.5px; }
 .lg-want b { color: var(--ink); }

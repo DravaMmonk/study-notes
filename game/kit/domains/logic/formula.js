@@ -175,9 +175,9 @@ const sameTerm = (s, t, env) => {
   if (s.t === 'var') return (env.get(s.name) ?? s.name) === t.name
   return s.f === t.f && s.args.length === t.args.length && s.args.every((a, k) => sameTerm(a, t.args[k], env))
 }
-// ¬A means A → ⊥: the two are one formula to every comparison.
-const unneg = (f) => (f.op === '¬' ? bin('→', f.a, BOT) : f)
-/** Are two formulas the same, up to the names of bound variables (and ¬A being A → ⊥)? */
+// ¬A means A → ⊥, and A ↔ B means (A → B) ∧ (B → A): each is one formula with its meaning to every comparison.
+const unneg = (f) => (f.op === '¬' ? bin('→', f.a, BOT) : f.op === '↔' ? bin('∧', bin('→', f.a, f.b), bin('→', f.b, f.a)) : f)
+/** Are two formulas the same, up to the names of bound variables (and ¬A being A → ⊥, A ↔ B both directions)? */
 export function same(f0, g0, env = new Map()) {
   const f = unneg(f0)
   const g = unneg(g0)

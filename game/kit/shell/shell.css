@@ -71,7 +71,16 @@
 .map-node.is-optional { border-style: dashed; }
 .map-node.is-solved { border-color: color-mix(in srgb, var(--status) 55%, var(--rule)); }
 .map-node.is-open { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
-.map-node.is-locked { color: var(--faint); background: var(--canvas); cursor: default; }
+.map-node.is-locked { color: var(--faint); background: var(--canvas); cursor: help; }
+/* A locked level tapped: it and every level still to pass before it light up (useNeeded). */
+.map-node.is-asked { border-color: var(--fail); box-shadow: 0 0 0 2px color-mix(in srgb, var(--fail) 35%, transparent); }
+.map-node.is-needed { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent); color: var(--ink); animation: needed-pulse 1.6s ease-in-out 2; }
+@keyframes needed-pulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 18%, transparent); } }
+.map-needed { position: fixed; z-index: 30; left: 50%; bottom: 20px; width: min(560px, calc(100vw - 32px)); transform: translateX(-50%); display: flex; align-items: flex-start; gap: 8px; padding: 12px 12px 12px 16px; border-radius: 14px; color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--rule), 0 18px 40px -18px rgba(0, 0, 0, .45); font-size: 13.5px; line-height: 1.6; }
+.map-needed p { margin: 0; flex: 1; }
+.map-needed p button { margin: 2px 4px 0 0; padding: 1px 8px; border: 0; border-radius: 999px; color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 14%, transparent); font: inherit; font-weight: 600; cursor: pointer; }
+.map-needed-close { flex: none; width: 26px; height: 26px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; color: var(--muted); background: transparent; cursor: pointer; }
+.level-drawer .map-needed { position: absolute; bottom: 12px; width: calc(100% - 24px); }
 .map-pad { flex: none; width: 16px; height: 16px; display: grid; place-items: center; border-radius: 50%; color: var(--paper); background: var(--paper); box-shadow: 0 0 0 2px var(--rule); }
 .map-node.is-open .map-pad { box-shadow: 0 0 0 2px var(--accent); }
 .map-node.is-next .map-pad { animation: pad-pulse 2.4s ease-in-out infinite; }

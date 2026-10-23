@@ -22,6 +22,23 @@ export const RULE_TEXT = {
   exE: { name: T('取一个', 'Take one'), desc: T('接进 ∃x. P(x)；框里假设 P(y) 证出 C，就得 C。', 'Wire in ∃x. P(x); if assuming P(y) proves C inside the box, then C.'), ports: { ex: '∃x. P(x)' }, params: { x: T('见证', 'Witness') }, frames: { body: T('框里', 'Inside') } },
   refl: { name: T('自反', 'Reflexivity'), desc: T('t = t。', 't = t.'), params: { t: T('项', 'Term') } },
   rewrite: { name: T('等量代换', 'Rewrite'), desc: T('由 s = t 和 φ(s) 得 φ(t)。', 'From s = t and φ(s), φ(t).'), ports: { eq: 's = t', p: 'φ(s)' }, params: { pattern: T('样式', 'Pattern') } },
+  res: { name: T('归结', 'Resolve'), desc: T('接进两条子句：一条里有 A，另一条里有 ¬A，消掉这一对，剩下的用「或」连起来；什么都不剩就是矛盾 ⊥。一次只消一对。', 'Wire in two clauses, one holding A and the other ¬A: cancel that pair and join what is left with or; nothing left is the contradiction ⊥. One pair at a time.'), ports: { a: 'A ∨ B', b: '¬A ∨ C' } },
+}
+
+/** The machine board's parts (../machine.js): name, what each does, and the regions of a frame. */
+export const MACHINE_TEXT = {
+  dneg: { name: T('双重否定', 'Double negation'), desc: T('把公式里每一处 ¬¬A 都换成 A，换到一处都不剩。', 'Turns every ¬¬A in the formula into A, until none is left.') },
+  impOr: { name: T('箭头化或', 'Arrows to or'), desc: T('把每一处 A → B 换成 ¬A ∨ B，每一处 A ↔ B 换成 (¬A ∨ B) ∧ (¬B ∨ A)。', 'Turns every A → B into ¬A ∨ B, and every A ↔ B into (¬A ∨ B) ∧ (¬B ∨ A).') },
+  dm: { name: T('德摩根', 'De Morgan'), desc: T('把每一处 ¬(A ∧ B) 换成 ¬A ∨ ¬B，每一处 ¬(A ∨ B) 换成 ¬A ∧ ¬B，换到一处都不剩。', 'Turns every ¬(A ∧ B) into ¬A ∨ ¬B and every ¬(A ∨ B) into ¬A ∧ ¬B, until none is left.') },
+  dist: { name: T('分配', 'Distribute'), desc: T('把每一处 A ∨ (B ∧ C) 换成 (A ∨ B) ∧ (A ∨ C)（∧ 在左边也一样），换到一处都不剩。', 'Turns every A ∨ (B ∧ C) into (A ∨ B) ∧ (A ∨ C) (with the ∧ on the left too), until none is left.') },
+  nnf: { name: T('化否定范式', 'To NNF'), desc: T('把公式改成和它等价、没有 → 和 ↔、¬ 只在字母上的样子。', 'Rewrites a formula into an equivalent one with no → or ↔ and ¬ only on letters.') },
+  cnf: { name: T('化合取范式', 'To CNF'), desc: T('把公式改成和它等价的合取范式：几串「或」，用「与」连起来。', 'Rewrites a formula into an equivalent CNF: ors, joined by ands.') },
+  neg: { name: T('否定', 'Negate'), desc: T('在接进来的公式前面加一个 ¬。', 'Puts a ¬ in front of the formula wired in.') },
+  conj: { name: T('并起来', 'Join'), desc: T('把接进来的两句用 ∧ 连成一句。', 'Joins the two formulas wired in with ∧.'), ports: { a: 'A', b: 'B' } },
+  toClauses: { name: T('拆成子句', 'Into clauses'), desc: T('把一句合取范式拆开：每一串「或」是一条子句。', 'Splits a CNF formula: each or-chain is one clause.') },
+  res: { name: T('归结', 'Resolve'), desc: T('子句集里每一对能消的子句都归结一次，新得到的子句加进来；永真的子句不要。', 'Resolves every pair of clauses in the set that cancels, and adds the new clauses; tautologies are dropped.') },
+  repeat: { name: T('重复框', 'Repeat frame'), desc: T('框开出它收到的东西，框里接出新的东西送回「结果」；框把结果再送进去，一圈一圈地做，直到不再变化（或推出 ⊥），送出最后一圈的结果。', 'The frame opens with what it receives; what is made inside goes back into “result”; the frame feeds it in again, round after round, until it stops changing (or ⊥ appears), and gives the last round.'), frames: { body: T('每一圈', 'Each round') } },
+  saturate: { name: T('饱和器', 'Saturator'), desc: T('一直归结，直到推出 ⊥，或者再也推不出新子句。', 'Keeps resolving until ⊥ appears or no new clause does.') },
 }
 
 const FIXED = { premise: 'source', goal: 'sink' }

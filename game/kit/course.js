@@ -18,7 +18,9 @@
 //
 // eras: [{ id, title?, machine?, keeps?: 'all' | [part], foundation: [item], practice?: [item], topics?: [{ id, title?,
 //          levels: [level id], after?, requires? }], challenges?: [{ level, after? }] }]
-// A branch's `after` is a level, or several when it needs the ends of a parallel set's branches but not the rest.
+// A branch's `after` is a level, or several when it needs the ends of a parallel set's branches but not the rest; a
+// topic may also name levels of earlier eras there (a topic that goes on from one in an earlier chapter): it requires
+// them, and hangs on its own era's track at its last `after`.
 // Within an era every part, once met, is in every later level of it. Between eras it is the era's call, and every era
 // after the first must make it (audit `era-keeps`): keeps: 'all' when it carries on from the eras before it (the same
 // machine extended or upgraded), keeps: [part…] when it changes topic and takes only those parts across ([] for none).
@@ -76,6 +78,7 @@ export const RULE_TEXT = {
   'carry-unseen': 'starts from the board of a level that is not among its prerequisites',
   'bare-intro': 'a new primitive whose first level is just that part, wired to the goal',
   unused: 'a built part that no later reference answer uses',
+  'optional-built': 'a part built on an optional level (a topic or a challenge) used by a level that does not require that level',
 }
 
 /** Roles of a level within its era. A topic of one level is just its finale. */
@@ -217,16 +220,20 @@ export function reach(course, level) {
 /**
  * The parts a level really holds for a player with `flags` (the unlocks of the levels solved, plus a level's grants):
  * of everything it can reach, a primitive, and a built part once its builder level is solved (until the content is
- * fixed, a part no level builds, or one the level builds itself: audit reports both).
+ * fixed, a part no level builds, or one the level builds itself: audit reports both). A part built on an optional level
+ * (a topic or a challenge) is held only by the levels that require that level.
  */
 export function usable(course, level, flags) {
   return reach(course, level).filter((p) => {
     if (course.primitives.has(p)) return true
     const need = course.needs(p), by = course.builder(p)
     if (!need || !by || by === level.id) return true
+    // A part built on an optional level is only for the levels that require that level.
+    if (OPTIONAL.includes(course.plan?.place.get(by)?.role) && !course.before(by, level.id)) return false
     return flags.has(need)
   })
 }
+const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
 
 /**
  * What a level shows of the parts it holds, so that a level with many parts does not leave the player lost: the parts
@@ -324,6 +331,11 @@ export function audit(course) {
       const used = course.needed(level)?.filter((p) => course.primitives.has(p) || course.needs(p))
       for (const p of ideas) if (used?.length === 1 && course.concept(used[0]) === p && !course.showcase(level)?.trim()) say('bare-intro', level.id, p, 'its first level is that part alone, wired to the goal')
       for (const b of course.builds(level)) if (!levels.some((l) => course.before(level.id, l.id) && course.needed(l)?.includes(b))) say('unused', level.id, b, 'built here, and no later reference answer uses it')
+    }
+    // A part built on an optional level is for the levels that require it alone: anyone else may not have it.
+    for (const p of course.needed(level) ?? []) {
+      const by = course.builder(p)
+      if (by && by !== level.id && OPTIONAL.includes(plan?.place.get(by)?.role) && !course.before(by, level.id)) say('optional-built', level.id, p, `built on the optional level ${by}, which this level does not require`)
     }
     if (role === 'challenge' && ideas.size) say('challenge-new', level.id, [...ideas].join(' '), 'a challenge brings nothing new')
     else if (ideas.size > 1) say('many-new', level.id, [...ideas].join(' '), `${ideas.size} new parts in one level (one new idea per level)`)

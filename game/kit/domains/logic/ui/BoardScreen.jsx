@@ -1,0 +1,254 @@
+import { useMemo, useRef, useState } from 'react'
+import { Trash2 } from 'lucide-react'
+import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs } from '../../../shell/index.js'
+import Sheet from '../../../shell/Sheet.jsx'
+import { L, tr } from '../../../shell/i18n.js'
+import { CanvasEditor, Notice, Palette, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
+import { MISSING } from '../../../engine/circuit.js'
+import { runLevel } from '../../../engine/tests.js'
+import { say } from '../notation.js'
+import FormulaField from './FormulaField.jsx'
+
+// A level of the logic domain played on the shared circuit editor (《证明完毕》): a proof, whose wires carry proved
+// judgments, or a machine, whose wires carry formulas and clause sets (boards.jsx says how each runs, is judged and
+// shows what its wires carry). The level's inputs are on the left and what it must reach on the right; a frame (a
+// proof's assumption box, a machine's repeat frame) holds cards in its regions on the same board
+// (../../../circuit/frames.js). Every card shows what it gives right now on the test picked; the run bar checks every
+// test, which completes the level. The tests above the strip switch the case everywhere, the cards' choices included.
+
+/** The screen for one board (boards.jsx), as a level kind's Screen. */
+export const boardScreen = (board) => function LogicBoard(props) { return <BoardScreen board={board} {...props} /> }
+
+function BoardScreen({ board, game, level: entry, saved, save, solve, flags, progress, phone }) {
+  const level = entry.source
+  const parts = useMemo(() => board.parts(level), [board, level])
+  const lemmas = level.lemmas
+  // A saved board that no longer fits the level or the game starts fresh.
+  const [circuit, setCircuit] = useState(() => (saved?.nodes && board.fits(saved, level, parts) ? saved : board.start(level)))
+  // The frame region a new card goes into, or null for the board itself (CanvasEditor onTarget).
+  const [target, setTarget] = useState(null)
+  // After a check: { pass, results: [{ pass, reason }] } on every test; a change clears it.
+  const [verdict, setVerdict] = useState(null)
+  // A level opens on its first test, the case its task is written in.
+  const [testIndex, setTestIndex] = useState(0)
+  const tests = level.tests
+  const test = tests[Math.min(testIndex, tests.length - 1)]
+  // What the player has here, of the parts this board runs (../../../course.js offer).
+  const offered = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
+  const palette = offered.shown.filter((t) => parts.rules[t])
+  const folded = offered.folded.filter((t) => parts.rules[t])
+  const view = useMemo(() => board.tests.runTest(level, circuit, test), [board, level, circuit, test])
+
+  const change = (next, { keep } = {}) => {
+    setCircuit(next)
+    save(next)
+    if (!keep) setVerdict(null)
+  }
+  const reset = () => change(board.start(level))
+  const check = () => {
+    const run = runLevel(board.tests, level, circuit)
+    setVerdict({ pass: run.pass, results: run.results.map((r) => ({ pass: r.pass, reason: r.checks[0].reason })) })
+    if (run.pass) solve(run.score)
+    else setTestIndex(Math.max(0, Math.min(tests.length - 1, run.results.findIndex((r) => !r.pass))))
+    return run.pass
+  }
+  const addNode = (type, extra = {}) => {
+    const taken = new Set(circuit.nodes.map((n) => n.id))
+    let k = circuit.nodes.length
+    while (taken.has(`${type}-${k}`)) k += 1
+    const id = `${type}-${k}`
+    return { id, graph: { ...circuit, nodes: [...circuit.nodes, { id, type, params: {}, ...extra }] } }
+  }
+  // A new card goes into the region chosen last, while its frame is there and open.
+  const into = target && circuit.nodes.some((n) => n.id === target.split('/')[0] && !n.fold) ? target : null
+  const add = (type) => {
+    const [x, y] = spotIn(circuit, into)
+    change(addNode(type, { x, y, ...(into ? { in: into } : {}) }).graph)
+  }
+  const setParam = (id, key, value) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
+
+  // Formulas in the level's notation (everyday sentences, symbols once introduced: notation.js).
+  const text = (f) => L(say(f, level.notation))
+  const scene = board.scene(level, test, text)
+  const { Value } = board
+  const result = verdict?.results[tests.indexOf(test)]
+  const states = tests.map((_, k) => (verdict ? (verdict.results[k].pass ? 'pass' : 'fail') : null))
+  const best = progress.best?.[level.id]
+  const brief = (
+    <Brief game={game} level={entry} hint={level.hint} phone={phone}>
+      <section className="lg-score">
+        <div className="stat-row">
+          <div className="stat"><b>{board.tests.score(level, circuit).steps}</b><span>{L(board.words.steps)}</span></div>
+          {level.budget !== undefined && <div className="stat"><b>{level.budget}</b><span>{tr('最多', 'At most')}</span></div>}
+          {best && <div className="stat"><b>{best.steps}</b><span>{tr('最少', 'Best')}</span></div>}
+        </div>
+      </section>
+    </Brief>
+  )
+  const itemOf = (type) => ({ type, label: board.nameOf(lemmas, type), desc: board.descOf(lemmas, type), icon: board.iconOf(lemmas, type), family: board.familyOf(lemmas, type), fresh: entry.fresh?.includes(type) })
+  const items = palette.map(itemOf)
+  const foldedItems = folded.map(itemOf)
+  // What a region opens with (or that it opens with nothing yet): at its left edge, or first in its grid on a phone.
+  const regionNote = (node, region) => {
+    const v = view.values.get(srcOf(node, region))
+    return v ? <Value v={v} text={text} small /> : <i className="lg-mark">{L(board.words.noOpen)}</i>
+  }
+  // By a region's result: what the frame gives (or why it gives nothing yet).
+  const resultNote = (node) => {
+    const [v, error] = [view.values.get(node.id), view.errors.get(node.id)]
+    if (v) return <Value v={v} text={text} small />
+    return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('还没有接上', 'nothing wired in yet')}</i>
+  }
+  const passed = verdict?.pass
+  const dock = (
+    <RunDock
+      secondary={circuit.nodes.some((n) => parts.role(n) === 'part') ? { label: tr('清空', 'Clear'), icon: <Trash2 size={16} />, onClick: reset } : null}
+      go={{ label: L(passed ? board.words.passed : board.words.go), pass: Boolean(passed), onClick: check }}
+    />
+  )
+  const verdictText = result ? (result.pass ? L(board.words.pass) : L(result.reason)) : null
+  const shared = { board, parts, lemmas, circuit, view, scene, setParam, text }
+
+  if (phone) return <PhoneBoard {...shared} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
+
+  return (
+    <CircuitLayout
+      className="lg-level"
+      brief={brief}
+      parts={items.length + foldedItems.length > 0 && <Palette compact items={items} folded={foldedItems} onAdd={add} />}
+      canvas={
+        <div className="lg-stage">
+          <div className="lg-board">
+            <CanvasEditor
+              key={level.id}
+              scope={level.id}
+              graph={circuit}
+              onChange={change}
+              parts={parts}
+              width={160}
+              height={150}
+              body={(node) => <CardBody node={node} {...shared} />}
+              head={(node) => parts.role(node) === 'sink' && result && <em className="node-verdict">{L(result.pass ? board.words.reached : board.words.notYet)}</em>}
+              cardClass={(node) => `lg-node ${parts.role(node) === 'sink' && result ? (result.pass ? 'is-pass' : 'is-fail') : ''}`}
+              wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
+              regionNote={regionNote}
+              resultNote={resultNote}
+              onTarget={setTarget}
+              emptyNote={items.length > 0 && board.words.empty}
+            />
+          </div>
+        </div>
+      }
+      tests={<TestTabs tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />}
+      status={<TestStatus states={states} />}
+      outputsTitle={tr('这组测试', 'This test')}
+      outputs={
+        <div className="lg-strip">
+          <p className="lg-sequent">{scene.sequent}</p>
+          <p className={`lg-verdict ${result ? (result.pass ? 'is-pass' : 'is-fail') : ''}`}>{verdictText ?? L(board.words.idle)}</p>
+        </div>
+      }
+      actions={<footer className="run-foot">{dock}</footer>}
+    />
+  )
+}
+
+// Under a card's ports: its settings, and what it gives (or why it cannot yet); a frame shows that by its regions'
+// results instead, and folded, how much it holds.
+function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, text }) {
+  const { Value } = board
+  const value = view.values.get(node.id)
+  const error = view.errors.get(node.id)
+  const role = parts.role(node)
+  const regions = new Set(parts.frames(node).map((r) => r.name))
+  const outs = parts.outputs(node)?.filter((o) => !regions.has(o.key))
+  const multi = outs && !(outs.length === 1 && outs[0].key === null) ? outs : null
+  const held = regions.size ? within(circuit, node.id).size : 0
+  const problem = error && <span className={`lg-error ${error === MISSING ? 'is-missing' : ''}`}>{error === MISSING ? tr('等接线', 'Waiting for wires') : L(error)}</span>
+  return (
+    <div className="lg-card">
+      {role === 'sink' && scene.want}
+      {board.settings(parts, node, lemmas).map((s) => <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={scene.choices} />)}
+      {board.extra?.(node, setParam)}
+      {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
+      {role === 'source' && <Value v={value} text={text} bare />}
+      {role !== 'source' && (!regions.size || node.fold) && (problem || (multi ? multi.map((o) => (
+        <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Value v={view.values.get(srcOf(node, o.key))} text={text} /></span>
+      )) : <Value v={value} text={text} />))}
+    </div>
+  )
+}
+
+// The board on a phone: the shared slot board, where a frame is a block with its regions' grids inside it, a sheet
+// per block and the run bar.
+function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, setParam, text, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
+  const { Value } = board
+  const [sheet, setSheet] = useState(null) // { node } or { slot, region }
+  const root = useRef(null)
+  const scroller = useRef(null)
+  const editing = useSlotEditing({
+    graph: circuit,
+    onChange: change,
+    parts,
+    create: (_, type, at, region) => {
+      const [x, y] = spotIn(circuit, region)
+      return addNode(type, { slot: at, x, y, ...(region ? { in: region } : {}) })
+    },
+    label: parts.label,
+    openNode: (id) => setSheet({ node: id }),
+    openSlot: (at, region) => items.length + foldedItems.length > 0 && setSheet({ slot: at, region }),
+    reset,
+    root,
+    scroller,
+    scope,
+  })
+  const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
+  // A frame shows what it gives outside; what it opens shows in its regions.
+  const thumb = (n) => {
+    const error = view.errors.get(n.id)
+    const outs = parts.frames(n).length ? [] : outputsOf(parts, n)
+    if (outs.length > 1) return <span className="lg-chips">{outs.map((o) => <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Value v={view.values.get(srcOf(n, o.key))} text={text} small /></span>)}</span>
+    if (error) return error === MISSING ? <i className="lg-mark">{tr('待接线', 'unwired')}</i> : <span className="lg-error">{L(error)}</span>
+    return <Value v={view.values.get(n.id)} text={text} small />
+  }
+  const sinkBody = (n) => (
+    <span className="lg-sink">
+      {scene.want}
+      <Value v={view.values.get(n.id)} text={text} small />
+    </span>
+  )
+  return (
+    <div className="level-phone is-split lg-phone" ref={root}>
+      {testTabs}
+      <div className="lg-scroll" ref={scroller}>
+        <TaskCard>{brief}</TaskCard>
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
+        {verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
+      </div>
+      <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
+      <footer className="run-foot">{dock}</footer>
+      <Notice editing={editing} />
+      {node && (
+        <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
+          <div className="lg-sheet">
+            {parts.role(node) === 'part' && <p className="lg-desc">{L(board.descOf(lemmas, node.type))}</p>}
+            <CardBody node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} />
+            {parts.role(node) === 'part' && <button type="button" className="lg-remove" onClick={() => { editing.remove(node.id); setSheet(null) }}><Trash2 size={15} />{tr('拿掉这一块', 'Remove this block')}</button>}
+          </div>
+        </Sheet>
+      )}
+      {sheet?.slot !== undefined && (
+        <Sheet title={tr(`放进第 ${sheet.slot + 1} 格`, `Place in slot ${sheet.slot + 1}`)} onClose={() => setSheet(null)}>
+          <div className="lg-add">
+            {[...items, ...foldedItems].map((item) => (
+              <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot, sheet.region); setSheet(null) }}>
+                <b>{L(item.label)}</b>
+                <small>{L(item.desc)}</small>
+              </button>
+            ))}
+          </div>
+        </Sheet>
+      )}
+    </div>
+  )
+}

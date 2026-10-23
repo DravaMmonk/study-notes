@@ -1,6 +1,6 @@
 // A logic game on the shared shell (../../shell): its spec becomes the shell's game description, with the logic
 // domain's screens (a proof on the circuit editor, a truth table), its parts box of proved lemmas and its map art.
-import { Cpu, Grid2x2Check, Workflow } from 'lucide-react'
+import { Cog, Cpu, Grid2x2Check, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
@@ -8,9 +8,10 @@ import { tr } from '../../shell/i18n.js'
 import { migrations } from '../../shell/saves.js'
 import GatesScreen from './ui/GatesScreen.jsx'
 import Hero from './ui/Hero.jsx'
-import ProofScreen from './ui/ProofScreen.jsx'
+import { boardScreen } from './ui/BoardScreen.jsx'
+import { MACHINE, PROOF } from './ui/boards.jsx'
 import TruthScreen from './ui/TruthScreen.jsx'
-import { descOf, iconOf, nameOf } from './ui/catalog.js'
+import { MACHINE_TEXT, RULE_TEXT, descOf, iconOf, nameOf } from './ui/catalog.js'
 import { PRIMITIVE_GATES } from './gates.js'
 
 /**
@@ -21,11 +22,12 @@ export function defineLogicGame(spec) {
   const { LEVELS, CHAPTERS, LABELS } = spec.logic
   const lemmas = LEVELS[0]?.lemmas ?? {}
   const gates = LEVELS[0]?.gates ?? {}
-  // A built part is a proved lemma or a gate built on a truth circuit.
-  const built = { ...gates, ...lemmas }
+  // A built part is a proved lemma, a gate built on a truth circuit or a machine part (a law card, a normal form…).
+  const machines = Object.fromEntries(spec.logic.machines.map((type) => [type, RULE_TEXT[type] ?? MACHINE_TEXT[type]]))
+  const built = { ...gates, ...lemmas, ...machines }
   // The rules and gates the course starts from, each from the levels that bring it in.
   const primitives = [...introductions(spec.logic.course)].map(([type, at]) => {
-    const gate = PRIMITIVE_GATES[type]
+    const gate = PRIMITIVE_GATES[type] ?? MACHINE_TEXT[type]
     return { key: `part:${type}`, name: gate?.name ?? nameOf(lemmas, type), desc: gate?.desc ?? descOf(lemmas, type), icon: gate ? Cpu : iconOf(lemmas, type), at }
   })
   // A part is new in the level that brings it in (`adds`); everything else carries (../../course.js reach).
@@ -58,7 +60,8 @@ export function defineLogicGame(spec) {
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
     kinds: {
-      proof: { Screen: ProofScreen, icon: Workflow, label: { zh: '证明', en: 'Proof' } },
+      proof: { Screen: boardScreen(PROOF), icon: Workflow, label: { zh: '证明', en: 'Proof' } },
+      machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '机器', en: 'Machine' } },
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
     },
@@ -69,6 +72,7 @@ export function defineLogicGame(spec) {
         ...primitives,
         ...Object.entries(gates).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: Cpu })),
         ...Object.entries(lemmas).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, icon: iconOf(lemmas, type) })),
+        ...Object.entries(machines).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, icon: Cog })),
       ],
     },
     // Fewer steps (proof steps, or gates) is better.
