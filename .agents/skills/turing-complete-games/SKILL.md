@@ -32,6 +32,16 @@ design doc if it is topic-specific), not into this skill.
 - `npm run check` (in `trace-viewer/`) must be clean before committing curriculum changes; `npm test` for kit
   changes.
 
+## Purpose: depth, not brevity
+
+These games exist to go step by step from the very first idea to advanced knowledge. Length is never a reason to
+cut: as long as every level has real content and the layout follows the rules below, a longer era or a longer
+course is better — a complex mechanism taken apart into more pieces, each built up from the one below it in more
+detail, is exactly the point. When planning, do not cap the number of levels or chapters, merge eras to save
+length, or skip a sub-mechanism because "the course is already long"; take a hard mechanism apart until each piece
+is one small step, and give each piece its practice. What is not allowed is padding: levels that repeat without a
+new dimension, or chapters with no mechanism of their own.
+
 ## Curriculum review checklist
 
 The audit cannot see everything. Before calling a curriculum done, check these by hand (they come from real
