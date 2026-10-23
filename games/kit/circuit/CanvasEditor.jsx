@@ -39,7 +39,7 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * @param head(node) extra marks in a card's header (a pass/fail badge…)
  * @param caption(node) a fixed card's line under its title (what it carries)
  * @param outNote(node, key) beside each of a card's several outputs (parts.outputs), after its name: what it carries.
- *   Those outputs sit on the card's right edge over its body, which keeps that edge free (.node.has-outs)
+ *   Those outputs run down the card's right edge; the body starts a blank row below the lowest port on either side.
  * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, width (a card's, unless parts.cardWidth(node) gives
  *   its own), height (for fitting), emptyNote, overlay
  * Windows floating over the board (FloatWindow, in `overlay`) are kept clear when fitting: the circuit goes between
@@ -410,8 +410,6 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const listed = parts.outputs?.(node)?.filter((o) => !own.has(o.key)) ?? null
     // A frame keeps its own result as a plain output; several outputs of other cards run down the right edge.
     const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
-    // A part may put each output on a row of its own under the ports, what it carries (outNote) beside its dot.
-    const inline = Boolean(outs && parts.outsInline?.(node))
     const icon = parts.icon?.(node)
     const wired = (src) => graph.wires.some((w) => w.from === src)
     const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点一下，再点另一张卡片的输入；也可以拖过去', 'Click, then click an input of another card; or drag there')} onClick={() => clickPort(outPort(src))} />
@@ -423,7 +421,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
         data-piece={node.id}
         data-family={parts.family(node)}
         data-io={role === 'source' ? tr('输入', 'IN') : role === 'sink' ? tr('输出', 'OUT') : undefined}
-        className={`node is-${role} ${regions.length ? 'is-frame' : ''} ${node.fold ? 'is-folded' : ''} ${outs ? 'has-outs' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
+        className={`node is-${role} ${regions.length ? 'is-frame' : ''} ${node.fold ? 'is-folded' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
         onClick={picking ? (e) => !e.target.closest('[data-p], button, input, select, label, .frame-regions') && clickCard(node.id) : undefined}
         style={{ left: node.x, top: node.y, [regions.length ? 'minWidth' : 'width']: widthOf(node), ...parts.cardStyle?.(node) }}
       >
@@ -443,9 +441,9 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
             </button>
           )}
         </div>
-        {/* Several outputs run down the card's right edge beside its body (the game leaves that edge free), so
-            they never make the card longer. */}
-        <div className="node-ports" style={{ minHeight: (outs && !inline ? ports.length : Math.max(1, ports.length)) * ROW }}>
+        {/* Several outputs run down the card's right edge; the body starts a blank row below the lowest port on
+            either side, so nothing it shows runs under an output's name. */}
+        <div className="node-ports" style={{ minHeight: (outs ? Math.max(ports.length, outs.length) + 1 : Math.max(1, ports.length)) * ROW }}>
           {caption && role !== 'part' && <span className={`node-carries ${role === 'source' ? 'is-input' : ''}`}>{L(caption(node))}</span>}
           {ports.map((port, index) => (
             <span key={port} className="node-port-label" style={{ top: index * ROW }}>
@@ -454,7 +452,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
             </span>
           ))}
           {role !== 'sink' && !outs && outDot(node.id, parts.portClass?.(node, null) ?? '')}
-          {role !== 'sink' && !inline && outs?.map((o, index) => (
+          {role !== 'sink' && outs?.map((o, index) => (
             <span key={o.key} className="node-port-out" style={{ top: index * ROW }}>
               {o.glyph ? <span className="node-out-name is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>}
               {outNote?.(node, o.key)}
@@ -462,16 +460,6 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
             </span>
           ))}
         </div>
-        {role !== 'sink' && inline && (
-          <div className="node-out-rows">
-            {outs.map((o) => (
-              <div key={o.key} className="node-out-row" title={L(o.label)}>
-                {outNote?.(node, o.key)}
-                {outDot(srcOf(node, o.key), parts.portClass?.(node, null, o.key) ?? '')}
-              </div>
-            ))}
-          </div>
-        )}
         {body?.(node)}
         {regions.length > 0 && !node.fold && (
           <div className="frame-regions">
