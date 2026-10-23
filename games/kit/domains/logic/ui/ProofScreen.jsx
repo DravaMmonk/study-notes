@@ -143,6 +143,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solve, fl
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
               regionNote={regionNote}
               resultNote={resultNote}
+              outNote={(node, key) => <Formula j={view.values.get(srcOf(node, key))} text={text} />}
               onTarget={setTarget}
               emptyNote={items.length > 0 && { zh: '从上面一排元件里选一条规则放上来，再从卡片右侧的圆点连到另一张卡片左侧的圆点。', en: 'Pick a rule from the row above, then wire a dot on the right of a card to a dot on the left of another.' }}
             />
@@ -201,9 +202,7 @@ function CardBody({ node, parts, lemmas, circuit, view, goal, setParam, text, ch
       )}
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
       {role === 'source' && <Formula j={value} text={text} bare />}
-      {role !== 'source' && (!regions.size || node.fold) && (problem || (multi ? multi.map((o) => (
-        <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Formula j={view.values.get(srcOf(node, o.key))} text={text} /></span>
-      )) : <Formula j={value} text={text} />))}
+      {role !== 'source' && (!regions.size || node.fold) && (problem || (!multi && <Formula j={value} text={text} />))}
     </div>
   )
 }
@@ -235,7 +234,8 @@ function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text
   const thumb = (n) => {
     const error = view.errors.get(n.id)
     const outs = parts.frames(n).length ? [] : outputsOf(parts, n)
-    if (outs.length > 1) return <span className="lg-chips">{outs.map((o) => <Formula key={o.key} j={view.values.get(srcOf(n, o.key))} text={text} small />)}</span>
+    // Several outputs show what each gives over its own dot (outNote), not here.
+    if (outs.length > 1) return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : null
     if (error) return error === MISSING ? <i className="lg-mark">{tr('待接线', 'unwired')}</i> : <span className="lg-error">{L(error)}</span>
     return <Formula j={view.values.get(n.id)} text={text} small />
   }
@@ -250,7 +250,7 @@ function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text
       {testTabs}
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={(n) => (n.type === 'goal' && result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={(n) => (n.type === 'goal' && result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} outNote={(n, key) => <Formula j={view.values.get(srcOf(n, key))} text={text} small />} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
         {result && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{result.pass ? tr('目标证出来了，没有留下开着的假设。', 'The goal is proved, with no hypothesis left open.') : L(result.reason)}</p>}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
