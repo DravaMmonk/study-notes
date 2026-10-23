@@ -9,8 +9,9 @@
 import { reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
-import { parse } from './formula.js'
-import { countermodel } from './models.js'
+import { freeVars, parse } from './formula.js'
+import { countermodel, holds } from './models.js'
+import { builtWorld, extent, structureOf } from './fol.js'
 import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
 import { proof } from './build.js'
 import { portsOf } from '../../engine/circuit.js'
@@ -24,13 +25,36 @@ export function validate({ levels: given, course }) {
   // Every task of a level is checked as a level of its own (course.js tasks).
   const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
   // A level in everyday words has a sentence for every letter it uses.
-  for (const level of levels.filter((l) => l.notation?.words)) {
+  for (const level of levels.filter((l) => l.notation?.words && !l.vocab)) {
     const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'machine' ? level.tests.flatMap((t) => t.clauses ?? (t.inputs ? Object.values(t.inputs) : [t.in])) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     // The pattern's own letters stand bare in its last test; a machine's tests may end on bare letters too.
     const bare = new Set(level.kind === 'machine' ? 'ABCDEFGH'.split('') : Object.keys(level.cases?.[0] ?? {}))
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l] && !bare.has(l))
     if (missing.length) out.push({ fail: true, text: `${level.id}: no words for ${missing.join(', ')}` })
     if (level.kind === 'proof' && !level.cases) out.push({ fail: true, text: `${level.id}: a proof level needs test cases` })
+  }
+  // First-order levels: every predicate and name has words; a query picks something out in some world; a model level's
+  // reference world (`answer`) gives each sentence the value asked, and its naive one (`wrong`) does not.
+  for (const level of levels.filter((l) => l.vocab)) {
+    const words = level.notation.words ?? {}
+    const missing = [...level.vocab.preds.map(([p]) => p), ...level.vocab.consts].filter((w) => !words[w])
+    if (missing.length) out.push({ fail: true, text: `${level.id}: no words for ${missing.join(', ')}` })
+    const consts = level.vocab.names
+    if (level.kind === 'translate') for (const item of level.items) if (freeVars(parse(item.target, { consts })).size) out.push({ fail: true, text: `${level.id}: ${item.target} has a free variable` })
+    if (level.kind === 'query') {
+      for (const world of level.worlds) for (const t of world.things) if (!words[t]) out.push({ fail: true, text: `${level.id}: no words for the thing ${t}` })
+      for (const item of level.items) {
+        const f = parse(item.target, { consts })
+        const free = [...freeVars(f)]
+        if (free.length !== 1 || free[0] !== 'x') out.push({ fail: true, text: `${level.id}: a query needs the free variable x alone: ${item.target}` })
+        else if (!level.worlds.some((w) => extent(f, structureOf(w, [f])).length)) out.push({ fail: true, text: `${level.id}: ${item.target} picks out nothing in any world` })
+      }
+    }
+    if (level.kind === 'model') {
+      const fits = (w) => w.size <= (level.maxSize ?? 3) && level.want.every((x) => holds(parse(x.f, { consts }), builtWorld(w, level.vocab)) === x.value)
+      out.push({ fail: !fits(level.answer), text: `${level.id} ${keyOf(level.title)}: world ${fits(level.answer) ? 'PASS' : 'FAIL'}` })
+      if (level.wrong) out.push({ fail: fits(level.wrong), text: `  naive ${fits(level.wrong) ? 'PASSES (bad)' : 'fails'}` })
+    }
   }
   for (const level of levels.filter((l) => l.kind === 'truth')) {
     const formulas = level.formulas.map((t) => parse(t))
@@ -104,4 +128,5 @@ export function validate({ levels: given, course }) {
   }
   return out
 }
+
 
