@@ -40,7 +40,8 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
   const [target, setTarget] = useState(null)
   // After the proof was checked: { pass, results: [{ pass, reason }] } on every test, hidden ones last; a change clears it.
   const [verdict, setVerdict] = useState(null)
-  const [testIndex, setTestIndex] = useState(0)
+  // A level opens on its last shown test: the pattern in bare letters (course.js expand).
+  const [testIndex, setTestIndex] = useState(level.tests.length - 1)
   // Hidden tests are checked every time but shown only once the level is solved.
   const tests = solved ? withHidden(level).tests : level.tests
   const test = tests[Math.min(testIndex, tests.length - 1)]
