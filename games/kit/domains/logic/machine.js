@@ -95,7 +95,11 @@ const repeat = {
     for (let k = 0; k < 60; k++) {
       if ((cur.kind === 'clauses' && refuted(cur.set)) || (cur.kind === 'eqs' && cur.fail)) return cur
       if (cur.kind === 'state' && !cur.goals.length) return cur
+      // A traced run (../../engine/circuit.js) sees each round: what the frame opens with, its cards, what comes back.
+      // The board's own pass was the first round; these are the second on.
+      ctx.trace?.push({ id: node.id, key: 'body', value: cur })
       const next = step(cur)
+      ctx.trace?.push({ id: node.id, key: null, round: k + 2, value: next })
       // A tactic that fails ends the repeat with the state before it (REPEAT).
       if (next.kind === 'state' && next.error) return cur
       if (key2(next) === key2(cur)) return cur
@@ -275,6 +279,13 @@ export const MACHINE_TESTS = {
   runTest: (level, circuit, test) => {
     const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), ctx: { graph: circuit, defs: level.defs ?? [] } })
     return { ...run, outputs: { out: run.outputs.out } }
+  },
+  // The run of one test with every step it took, in order (../../engine/circuit.js trace): only what reaches the
+  // result runs, so a card lying about unwired takes no step.
+  trace: (level, circuit, test) => {
+    const trace = []
+    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), targets: ['out'], ctx: { graph: circuit, defs: level.defs ?? [], trace } })
+    return { trace, run: { ...run, outputs: { out: run.outputs.out } } }
   },
   check: (level, test, outputs) => {
     const problem = judge(test.want ?? level.want, test, outputs.out, level.notation)

@@ -6,6 +6,8 @@ export { Brief, PhonePage, PinnedPlay, TaskCard, Text, Workbench } from './Layou
 export { Dialog, useEscape } from './Dialogs.jsx'
 export { default as CircuitLayout, TestStatus } from './CircuitLayout.jsx'
 export { default as RunDock } from './RunDock.jsx'
+export { default as StepLog } from './StepLog.jsx'
+export { usePlayback } from './usePlayback.jsx'
 export { default as TestTabs } from './TestTabs.jsx'
 export { default as Sheet } from './Sheet.jsx'
 export { L, getLang, isPair, keyOf, tr } from './i18n.js'

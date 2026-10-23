@@ -15,6 +15,11 @@
 //   sink?         true for a circuit's output: its value is what reaches its 'in' port, and a missing one is no error
 //   eval(ins, node, ctx, key) → value     ins: { port: value } of the connected ports (and idle ones)
 //
+// With `ctx.trace` (an array) every node computed is pushed onto it in the order it ran, { id, key, value } or
+// { id, key, error }, so a board can replay the run one step at a time; a part that runs a circuit inside it (a frame
+// going round) passes the same ctx, and its cards' steps land in the same trace. Ids starting with '__' are the
+// engine's own and are not traced.
+//
 // Values are pulled from the targets back (by default every node), each computed once. A part that throws a PartError
 // marks its node with that message, and the nodes downstream read it as missing; a Halt stops the whole evaluation
 // (a robot reading a cell not computed yet). Anything else a part throws marks its node as unable to compute.
@@ -65,7 +70,11 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
   const errors = new Map()
   const done = new Set()
   // A node's first error is the one it shows.
-  const fault = (id, message) => { if (!errors.has(id)) errors.set(id, message) }
+  const fault = (id, message, key = null) => {
+    if (!errors.has(id)) errors.set(id, message)
+    note({ id, key, error: message })
+  }
+  const note = (step) => { if (ctx.trace && !step.id.startsWith('__')) ctx.trace.push(step) }
 
   // The value of a source, or undefined when its node cannot give one.
   const pull = (src) => {
@@ -111,14 +120,16 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
     }
     try {
       const ready = prepare ? prepare(ins, node, part) : ins
-      values.set(doneKey, part.eval(ready, node, ctx, key ?? undefined))
+      const value = part.eval(ready, node, ctx, key ?? undefined)
+      values.set(doneKey, value)
+      note({ id, key, value })
     } catch (error) {
       if (error instanceof Halt) {
         // What was computed before the halt, for whoever shows the stopped step.
         error.values ??= values
         throw error
       }
-      fault(id, error instanceof PartError ? error.label : BROKEN)
+      fault(id, error instanceof PartError ? error.label : BROKEN, key)
     }
   }
 
