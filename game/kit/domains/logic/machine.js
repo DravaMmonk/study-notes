@@ -4,6 +4,7 @@
 // (clauses.js); the level's parts come from the course as on every board.
 //
 //   value   { kind: 'formula', f } | { kind: 'clauses', set } | { kind: 'eqs', eqs: [[s, t]], fail } (unify.js)
+//           | { kind: 'state', goals, error? } (tactics.js)
 //   level   { kind: 'machine', want, inputs?: [{ name, label }] (default one, `in`),
 //             tests: [{ in: formula text } | { clauses: [clause text] } | { inputs: { name: formula text } }, want?] }
 //
@@ -14,12 +15,14 @@
 // First-order (chapter 7): 'unify' (a solved equation set that unifies the input, or a failure when none does),
 // 'prenex', 'skolem' and 'clauseForm' (the input's own, as unify.js makes them), and 'refuted' on clauses with
 // variables. Test inputs are read with unify.js's convention (u … z variables, other lower-case names constants).
+// Tactics (chapter 8): a test { goal, hyps? } starts a proof state, and 'proved' wants no goal left.
 import { PartError, evaluate } from '../../engine/circuit.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
-import { framePart } from '../../circuit/frames.js'
+import { framePart, within } from '../../circuit/frames.js'
 import { and, same } from './formula.js'
 import { say } from './notation.js'
 import { LAWS, clauseOf, clauseSet, clausesOf, closed, cnf, equivalent, hasArrow, hasDneg, isCnf, isNnf, nnf, refuted, resolveRound, saturate, toEnd } from './clauses.js'
+import { assumption, auto, elim, intro, startState } from './tactics.js'
 import { UNIFY_RULES, applyT, clauseFormOf, factorRound, foClausesOf, foNnf, foResolveRound, foSet, hasExists, isPrenex, matrixOf, mgu, parseFo, parseTerm, prenex, sameTerm, skolem, solved } from './unify.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -27,6 +30,12 @@ const fail = (zh, en) => new PartError({ zh, en })
 export const formulaValue = (f) => ({ kind: 'formula', f })
 export const clausesValue = (set) => ({ kind: 'clauses', set })
 
+const stateIn = (v) => {
+  if (v.kind !== 'state') throw fail('这里要一个证明状态（还没证完的目标）', 'This needs a proof state (the goals still open)')
+  return v
+}
+// A tactic card: one step on the state; a failure is the state with what went wrong (the next ORELSE or REPEAT reads it).
+const tactic = (t) => ({ inputs: ['in'], eval: ({ in: v }) => { const s = stateIn(v); return s.error ? s : t({ ...s, error: undefined }) } })
 const formulaIn = (v) => {
   if (v.kind !== 'formula') throw fail('这里要一句公式，接进来的是一组子句', 'This needs a formula; it got a clause set')
   return v.f
@@ -57,7 +66,9 @@ const repeat = {
   eval: ({ in: v, body }, node, ctx, key) => {
     if (key) return v
     const graph = ctx.graph
-    const inside = graph.nodes.filter((n) => n.in === `${node.id}/body`)
+    // Everything inside the frame, frames inside it with their own cards too.
+    const deep = within(graph, node.id)
+    const inside = graph.nodes.filter((n) => deep.has(n.id))
     const ids = new Set(inside.map((n) => n.id))
     const back = graph.wires.find((w) => w.to === node.id && w.port === 'body')
     if (!back) throw fail('框里还没有接到「结果」上', 'Nothing inside is wired to the result yet')
@@ -80,7 +91,10 @@ const repeat = {
     let cur = body
     for (let k = 0; k < 60; k++) {
       if ((cur.kind === 'clauses' && refuted(cur.set)) || (cur.kind === 'eqs' && cur.fail)) return cur
+      if (cur.kind === 'state' && !cur.goals.length) return cur
       const next = step(cur)
+      // A tactic that fails ends the repeat with the state before it (REPEAT).
+      if (next.kind === 'state' && next.error) return cur
       if (key2(next) === key2(cur)) return cur
       cur = next
     }
@@ -152,6 +166,21 @@ export const MACHINE_PARTS = {
   clauseForm: { inputs: ['in'], eval: ({ in: v }) => clausesValue(clauseFormOf(formulaIn(v))) },
   // First-order resolution (unit resolution with unification) and factoring.
   fores: { inputs: ['in'], eval: ({ in: v }) => clausesValue(foResolveRound(clausesIn(v))) },
+  // Tactics (chapter 8).
+  assumption: tactic(assumption),
+  intro: tactic(intro),
+  elim: tactic(elim),
+  auto: tactic(auto),
+  // ORELSE: both regions open with the state; the first region's result unless it failed, else the second's.
+  orElse: {
+    ...framePart(['in'], [{ name: 'first', opens: true }, { name: 'second', opens: true }]),
+    eval: ({ in: v, first, second }, _node, _ctx, key) => {
+      if (key) return v
+      if (first && !first.error) return first
+      if (second) return second
+      throw fail('两个框都还没接到结果上', 'Neither region is wired to its result yet')
+    },
+  },
   factor: { inputs: ['in'], eval: ({ in: v }) => clausesValue(factorRound(clausesIn(v))) },
 }
 const hasQuantifier = (f) => f.op === '∀' || f.op === '∃' || (f.op === '¬' ? hasQuantifier(f.a) : f.a ? hasQuantifier(f.a) || hasQuantifier(f.b) : false)
@@ -160,6 +189,7 @@ const isFoNnf = (f) => (f.op === '∀' || f.op === '∃' ? isFoNnf(f.body) : f.o
 
 /** A test's inputs as values, by name. */
 export function inputsOf(test) {
+  if (test.goal) return { in: startState(parseFo(test.goal), (test.hyps ?? []).map(parseFo)) }
   if (test.eqs) return { in: eqsValue(test.eqs.map((e) => e.split(' = ').map(parseTerm))) }
   if (test.clauses) {
     const cs = test.clauses.map((c) => c.split(' ∨ ').map((l) => l.trim()))
@@ -189,6 +219,11 @@ export function judge(want, test, out, notation) {
     if (!equivalent(out.f, input.f)) return T('结果和原来的公式不等价了', 'The result is no longer equivalent to the formula')
     if (!ok(out.f)) { const s = say(out.f, notation); return T(`得到「${s.zh}」，还不是要的形状：${label.zh}`, `It gives “${s.en}”, not yet the shape wanted: ${label.en}`) }
     return ''
+  }
+  if (want === 'proved') {
+    if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
+    if (out.error) return out.error
+    return out.goals.length ? T(`还剩 ${out.goals.length} 个目标没证完`, `${out.goals.length} goal${out.goals.length === 1 ? '' : 's'} still open`) : ''
   }
   if (want === 'unify') {
     if (out.kind !== 'eqs') return T('结果要一组等式', 'The result must be a set of equations')

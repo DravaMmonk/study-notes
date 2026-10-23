@@ -50,6 +50,11 @@ export const MACHINE_TEXT = {
   skolem: { name: T('Skolem 化', 'Skolemise'), desc: T('前束范式里每个 ∃x 去掉，x 换成一个新函数，参数是它前面所有 ∀ 的变量。', 'Drops each ∃x of a prenex formula and puts for x a new function of all the ∀ variables before it.') },
   clauseForm: { name: T('化子句形式', 'To clause form'), desc: T('把一句一阶公式化成一组子句：否定范式、前束、Skolem 化、合取范式，再拆开。', 'Turns a first-order formula into a clause set: NNF, prenex, Skolemise, CNF, then split.') },
   fores: { name: T('一阶归结', 'First-order resolution'), desc: T('两条子句先各自改名，再把一对相反的项合一，消掉；只消有一条是单项子句的（单元归结）。', 'Renames two clauses apart, unifies a pair of opposite literals and cancels them; only pairs where one clause has a single literal (unit resolution).') },
+  assumption: { name: T('已知里有', 'Assumption'), desc: T('第一个目标就在它的已知里：这个目标证完了。', 'The first goal is among its hypotheses: that goal is done.') },
+  intro: { name: T('按形状拆', 'Intro'), desc: T('按第一个目标的样子倒着用引入规则：A → B 变成「已知 A，证 B」；A ∧ B 变成两个目标；∀x 换成一个新变量。', 'Takes the first goal apart by its shape, an introduction rule read backwards: A → B becomes “given A, prove B”; A ∧ B two goals; ∀x a new variable.') },
+  elim: { name: T('用掉已知', 'Elim'), desc: T('用掉第一个目标的一条已知：A ∧ B 拆成两条；A ∨ B 分成两种情况；有了 A 和 A → B，加上 B。', 'Uses up one hypothesis of the first goal: A ∧ B splits in two; A ∨ B makes two cases; with A and A → B, adds B.') },
+  orElse: { name: T('不行就换', 'Or else'), desc: T('两个框都拿到同一个状态；第一个框的结果没失败就用它，失败了就用第二个框的。', 'Both regions get the same state; the first region’s result is used unless it failed, and then the second’s.'), frames: { first: T('先试', 'Try first'), second: T('不行再试', 'Else try') } },
+  auto: { name: T('自己的 auto', 'Own auto'), desc: T('一圈一圈地试：已知里有、按形状拆、用掉已知，哪个行就用哪个，直到没有目标或都不行。', 'Round after round, tries assumption, intro and elim, using whichever works, until no goal is left or none works.') },
   factor: { name: T('因子化', 'Factor'), desc: T('一条子句里两项同号、能合一：合一后并成一项。', 'Two literals of the same sign in a clause that unify are merged into one.') },
 }
 

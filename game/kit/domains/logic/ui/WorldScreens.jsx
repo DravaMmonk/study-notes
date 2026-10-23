@@ -6,6 +6,7 @@ import { freeVars, parse } from '../formula.js'
 import { holds } from '../models.js'
 import { say } from '../notation.js'
 import { builtWorld, difference, extent, structureOf } from '../fol.js'
+import { answersFor, factsOf, hornOf } from '../tactics.js'
 
 // The screens of first-order levels (《证明完毕》 chapter 5 on), which work on worlds rather than boards:
 //   translate  write each sentence said in words as a formula; it passes when it means the same in every small world,
@@ -13,6 +14,9 @@ import { builtWorld, difference, extent, structureOf } from '../fol.js'
 //   query      write a formula with a free variable x that picks out the right things in each of the level's worlds
 //   model      build a world (how many things, what holds of each) where the level's sentences are true or false as
 //              asked
+//   prolog     write rules (∀… conditions → conclusion) that, with each world's facts, answer the level's queries as its
+//              own rules do; solved depth first in the order written (tactics.js), so a rule that asks the wrong thing
+//              first loops
 // A formula is typed with the level's vocabulary as buttons (a predicate in words, a name, the quantifiers and the
 // connectives) and read back in words as it is typed.
 
@@ -134,15 +138,40 @@ export function WriteScreen({ game, level: entry, saved, save, solve, phone }) {
       ),
     }
   }
-  const check = () => {
-    const vs = level.items.map((item, k) => judgeOne(item, texts[k]))
-    setVerdicts(vs)
-    if (vs.every((v) => v.pass)) solve(null)
+  // Rules are judged together: each must be a rule, and together they must answer every query in every world.
+  const judgeRules = () => {
+    const rules = []
+    for (const [k, text] of texts.entries()) {
+      let f
+      try { f = parse(text, { consts: level.vocab.names }) } catch { return level.items.map((_, i) => (i === k ? { pass: false, body: <p className="lg-error">{tr('还不是一句完整的公式。', 'Not a whole formula yet.')}</p> } : null)) }
+      const rule = hornOf(f)
+      if (!rule) return level.items.map((_, i) => (i === k ? { pass: false, body: <p className="lg-error">{tr('规则要写成「∀x. … 条件 ∧ … → 结论」，结论是一个谓词。', 'A rule must read “∀x. … condition ∧ … → conclusion”, its conclusion one predicate.')}</p> } : null))
+      rules.push(rule)
+    }
+    const reference = level.items.map((item) => hornOf(parse(item.target, { consts: level.vocab.names })))
+    for (const world of level.worlds) {
+      const facts = factsOf(world)
+      for (const q of level.queries) {
+        const query = parse(q, { consts: level.vocab.names })
+        const got = answersFor(query, [...facts, ...rules])
+        const want = answersFor(query, [...facts, ...reference])
+        const fault = got.loop
+          ? tr(`问「${L(say(query, level.notation))}」时绕起了圈：规则一直在问同一个问题，停不下来。`, `Asking “${L(say(query, level.notation))}” goes round in circles: the rules keep asking the same question and never stop.`)
+          : got.join(';') !== want.join(';') ? tr(`问「${L(say(query, level.notation))}」，答案不对。`, `Asking “${L(say(query, level.notation))}” gets the wrong answer.`) : null
+        if (fault) return level.items.map(() => ({ pass: false, body: <div className="fo-why"><p>{L(world.title)}{tr('：', ': ')}{fault}</p></div> }))
+      }
+    }
+    return level.items.map(() => ({ pass: true }))
   }
-  const passed = verdicts?.every((v) => v.pass)
+  const check = () => {
+    const vs = level.kind === 'prolog' ? judgeRules() : level.items.map((item, k) => judgeOne(item, texts[k]))
+    setVerdicts(vs)
+    if (vs.every((v) => v?.pass)) solve(null)
+  }
+  const passed = verdicts?.every((v) => v?.pass)
   const stage = (
     <div className="fo-stage">
-      {level.kind === 'query' && (
+      {(level.kind === 'query' || level.kind === 'prolog') && (
         <div className="fo-worlds">
           {level.worlds.map((world, k) => (
             <details key={k} open={k === 0}>
