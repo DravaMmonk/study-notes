@@ -118,3 +118,16 @@ test('a lemma gives a goal in one step only when the givens fit its premises', (
   assert.equal(lemmaGives(chain, [parse('Q → R'), parse('P → Q')], parse('P → R')), true)
   assert.equal(lemmaGives(chain, [parse('P → (Q → R)'), parse('Q')], parse('P → R')), false)
 })
+
+test('proof terms: written, printed, checked, reduced', async () => {
+  const { parseTerm, printTerm, checkTerm, normalize, alphaEq } = await import('./pterm.js')
+  const t = parseTerm('fun p => p.elim (fun a => Or.inr a) (fun b => Or.inl b)')
+  assert.equal(printTerm(t), 'fun p => p.elim (fun a => Or.inr a) (fun b => Or.inl b)')
+  assert.equal(checkTerm(t, parse('A ∨ B → B ∨ A')), '')
+  assert.ok(checkTerm(parseTerm('fun a k => a k'), parse('A → ¬¬A')))
+  assert.equal(checkTerm(parseTerm('fun a k => k a'), parse('A → ¬¬A')), '')
+  assert.equal(checkTerm(parseTerm('h.elim (fun y hy => ⟨y, hy.1⟩)'), parse('∃x. P(x)'), { hyps: { h: parse('∃x. P(x) ∧ Q(x)') } }), '')
+  assert.equal(printTerm(normalize(parseTerm('(fun h => ⟨h, q⟩.1) a'))), 'a')
+  assert.ok(alphaEq(parseTerm('fun x y => x'), parseTerm('fun a b => a')))
+  assert.ok(!alphaEq(parseTerm('fun x y => x'), parseTerm('fun a b => b')))
+})

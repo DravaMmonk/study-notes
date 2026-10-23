@@ -16,10 +16,11 @@ import { framePart } from '../../circuit/frames.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
 import { BOT, all, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, show, subst, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
+import { absurd, cases, fst, inl, inr, lam, obj, open as unpack, pair, papp, pconst, psubst, pvar, raa, rfl, snd } from './pterm.js'
 import { clauseFormula } from './clauses.js'
 
-/** A judgment: `formula` from `hyps`. */
-export const proved = (formula, hyps = new Map()) => ({ formula, hyps })
+/** A judgment: `formula` from `hyps`, with its proof term (pterm.js). */
+export const proved = (formula, hyps = new Map(), term = null) => ({ formula, hyps, term })
 const union = (...js) => new Map(js.flatMap((j) => [...j.hyps]))
 // What a port needed (a formula, or a SHAPE) and the formula that reached it, written in the level's notation.
 const need = (ctx, what, got) => {
@@ -71,7 +72,15 @@ const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
 
 /** The hypothesis id of the assumption a box's region opens. */
 export const hypId = (node, region) => `${node.id}/${region}`
-const assumed = (node, region, formula) => proved(formula, new Map([[hypId(node, region), formula]]))
+// The name a box gives its assumption in the proof term: h1 for the outermost box, h2 inside it, and so on.
+const depthOf = (node, ctx) => {
+  const byId = new Map((ctx.graph?.nodes ?? []).map((n) => [n.id, n]))
+  let d = 1
+  for (let at = node.in; at; at = byId.get(at.split('/')[0])?.in) d++
+  return d
+}
+const hypName = (node, ctx) => `h${depthOf(node, ctx)}`
+const assumed = (node, region, formula, ctx) => proved(formula, new Map([[hypId(node, region), formula]]), pvar(hypName(node, ctx)))
 export const RULES = {
   // The proof's own ends: a premise, and the goal.
   premise: source(),
@@ -84,7 +93,7 @@ export const RULES = {
       const f = asImp(i.formula)
       if (f.op !== '→') throw need(ctx, SHAPE.imp, i.formula)
       if (!same(f.a, a.formula)) throw need(ctx, f.a, a.formula)
-      return proved(f.b, union(i, a))
+      return proved(f.b, union(i, a), papp(i.term, a.term))
     },
   },
 
@@ -94,10 +103,10 @@ export const RULES = {
     params: ['A'],
     eval: ({ body }, node, ctx, key) => {
       const A = param(node, 'A', ctx)
-      return key ? assumed(node, key, A) : proved(imp(A, body.formula), without(body.hyps, hypId(node, 'body')))
+      return key ? assumed(node, key, A, ctx) : proved(imp(A, body.formula), without(body.hyps, hypId(node, 'body')), lam(hypName(node, ctx), body.term))
     },
   },
-  andI: { inputs: ['a', 'b'], eval: ({ a, b }) => proved(and(a.formula, b.formula), union(a, b)) },
+  andI: { inputs: ['a', 'b'], eval: ({ a, b }) => proved(and(a.formula, b.formula), union(a, b), pair(a.term, b.term)) },
   // A ↔ B is (A → B) ∧ (B → A) to the rules, so splitting it gives its two directions.
   andE: {
     inputs: ['ab'],
@@ -105,7 +114,7 @@ export const RULES = {
     eval: ({ ab }, _n, ctx, key) => {
       const f = asAnd(ab.formula)
       if (f.op !== '∧') throw need(ctx, SHAPE.and, ab.formula)
-      return proved(key === 'right' ? f.b : f.a, ab.hyps)
+      return proved(key === 'right' ? f.b : f.a, ab.hyps, key === 'right' ? snd(ab.term) : fst(ab.term))
     },
   },
   orI: {
@@ -113,16 +122,18 @@ export const RULES = {
     params: ['other'],
     eval: ({ a }, node, ctx) => {
       const other = param(node, 'other', ctx)
-      return proved(node.params?.side === 'left' ? or(other, a.formula) : or(a.formula, other), a.hyps)
+      const left = node.params?.side === 'left'
+      return proved(left ? or(other, a.formula) : or(a.formula, other), a.hyps, left ? inr(a.term) : inl(a.term))
     },
   },
   orE: {
     ...framePart(['ab'], [{ name: 'left', opens: true }, { name: 'right', opens: true }]),
     eval: ({ ab, left: l, right: r }, node, ctx, key) => {
       if (ab.formula.op !== '∨') throw need(ctx, SHAPE.or, ab.formula)
-      if (key) return assumed(node, key, key === 'left' ? ab.formula.a : ab.formula.b)
+      if (key) return assumed(node, key, key === 'left' ? ab.formula.a : ab.formula.b, ctx)
       if (!same(l.formula, r.formula)) { const [a, b] = [sayIn(ctx, l.formula), sayIn(ctx, r.formula)]; throw fail(`两种情况证出的不一样：${a.zh}；${b.zh}`, `The two cases prove different things: ${a.en}; ${b.en}`) }
-      return proved(l.formula, new Map([...ab.hyps, ...without(l.hyps, hypId(node, 'left')), ...without(r.hyps, hypId(node, 'right'))]))
+      const h = hypName(node, ctx)
+      return proved(l.formula, new Map([...ab.hyps, ...without(l.hyps, hypId(node, 'left')), ...without(r.hyps, hypId(node, 'right'))]), cases(ab.term, h, l.term, h, r.term))
     },
   },
   botE: {
@@ -130,7 +141,7 @@ export const RULES = {
     params: ['C'],
     eval: ({ bot }, node, ctx) => {
       if (bot.formula.op !== '⊥') throw need(ctx, SHAPE.bot, bot.formula)
-      return proved(param(node, 'C', ctx), bot.hyps)
+      return proved(param(node, 'C', ctx), bot.hyps, absurd(bot.term))
     },
   },
   // Classical: from ¬¬A, A.
@@ -140,7 +151,7 @@ export const RULES = {
       const f = asImp(nna.formula)
       const inner = f.op === '→' && same(f.b, BOT) ? asImp(f.a) : null
       if (!inner || inner.op !== '→' || !same(inner.b, BOT)) throw need(ctx, SHAPE.nn, nna.formula)
-      return proved(inner.a, nna.hyps)
+      return proved(inner.a, nna.hyps, raa(nna.term))
     },
   },
 
@@ -158,7 +169,7 @@ export const RULES = {
       if (pairs.length > 1) throw fail('能消的不止一对：归结一次只消一对，同时消两对得到的不是它们的推论', 'More than one pair cancels: resolution removes one pair at a time, and removing two at once does not follow')
       // What is left of the first clause, then what is new of the second, in the order written.
       const left = [...new Set([...c.filter((l) => l !== pairs[0]), ...d.filter((l) => l !== flip(pairs[0]))])]
-      return proved(clauseFormula(left), union(a, b))
+      return proved(clauseFormula(left), union(a, b), papp(papp(pconst('res'), a.term), b.term))
     },
   },
 
@@ -170,7 +181,7 @@ export const RULES = {
       const x = node.params?.x
       if (!x) throw fail('先给新变量起个名字', 'Name the new variable first')
       for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里，不能对它说「任取」`, `${x} occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not arbitrary`)
-      return proved(all(x, body.formula), body.hyps)
+      return proved(all(x, body.formula), body.hyps, lam(x, body.term))
     },
   },
   allE: {
@@ -178,7 +189,8 @@ export const RULES = {
     params: ['t'],
     eval: ({ all: a }, node, ctx) => {
       if (a.formula.op !== '∀') throw need(ctx, SHAPE.all, a.formula)
-      return proved(subst(a.formula.body, a.formula.v, termOf(node, ctx)), a.hyps)
+      const t = termOf(node, ctx)
+      return proved(subst(a.formula.body, a.formula.v, t), a.hyps, papp(a.term, obj(t)))
     },
   },
   exI: {
@@ -189,7 +201,7 @@ export const RULES = {
       if (target.op !== '∃') throw need(ctx, SHAPE.ex, target)
       const instance = subst(target.body, target.v, termOf(node, ctx))
       if (!same(instance, a.formula)) throw need(ctx, instance, a.formula)
-      return proved(target, a.hyps)
+      return proved(target, a.hyps, pair(obj(termOf(node, ctx)), a.term))
     },
   },
   exE: {
@@ -199,14 +211,14 @@ export const RULES = {
       if (e.formula.op !== '∃') throw need(ctx, SHAPE.ex, e.formula)
       const y = node.params?.x
       if (!y) throw fail('先给见证起个名字', 'Name the witness first')
-      if (key) return assumed(node, key, subst(e.formula.body, e.formula.v, tvar(y)))
+      if (key) return assumed(node, key, subst(e.formula.body, e.formula.v, tvar(y)), ctx)
       if (freeVars(body.formula).has(y)) throw fail(`结论里不能有见证 ${y}`, `The conclusion may not mention the witness ${y}`)
       const open = without(body.hyps, hypId(node, 'body'))
       for (const h of open.values()) if (freeVars(h).has(y)) throw fail(`${y} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里`, `${y} occurs in the open hypothesis ${sayIn(ctx, h).en}`)
-      return proved(body.formula, new Map([...e.hyps, ...open]))
+      return proved(body.formula, new Map([...e.hyps, ...open]), unpack(e.term, y, hypName(node, ctx), body.term))
     },
   },
-  refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t)) } },
+  refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t), new Map(), rfl) } },
   // From s = t and a proof of φ, φ with the occurrences of s the card marks (params.at, their places in order) replaced
   // by t. The card shows φ with each s in a box to tick (ui/boards.jsx).
   rewrite: {
@@ -219,7 +231,7 @@ export const RULES = {
       if (!n) { const [a, b] = [sayTerm(s, ctx.notation), sayIn(ctx, p.formula)]; throw fail(`「${b.zh}」里没有 ${a.zh}`, `“${b.en}” does not mention ${a.en}`) }
       const at = (node.params?.at ?? []).filter((k) => k < n)
       if (!at.length) throw fail('在卡片上点框，选出要换掉的那几处', 'Tick the boxes on the card to choose which to replace')
-      return proved(replaceTerm(p.formula, s, t, (k) => at.includes(k)), union(e, p))
+      return proved(replaceTerm(p.formula, s, t, (k) => at.includes(k)), union(e, p), psubst(e.term, p.term))
     },
   },
 }
@@ -280,7 +292,7 @@ export function lemma({ statement, premises = [], metas }) {
         if (!match(s, j.formula, bind)) throw need(ctx, SHAPE.fits, j.formula)
       })
       for (const m of open) bind[m] = param(node, m, ctx)
-      return proved(instantiate(conclusion, bind), union(...schemas.map((_, k) => ins[`p${k}`])))
+      return proved(instantiate(conclusion, bind), union(...schemas.map((_, k) => ins[`p${k}`])), schemas.reduce((t, _, k) => papp(t, ins[`p${k}`].term), pconst(node.type)))
     },
   }
 }
@@ -318,7 +330,7 @@ export const rulesOf = (lemmas = {}) => ({ ...RULES, ...Object.fromEntries(Objec
 export function premisesOf(test, consts = []) {
   return Object.fromEntries(Object.entries(test.premises ?? {}).map(([name, text]) => {
     const f = parse(text, { consts })
-    return [name, proved(f, new Map([[name, f]]))]
+    return [name, proved(f, new Map([[name, f]]), pvar(name))]
   }))
 }
 
@@ -329,7 +341,7 @@ export function premisesOf(test, consts = []) {
 export const LOGIC_TESTS = {
   runTest: (level, circuit, test) => {
     const consts = level.consts ?? []
-    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst } })
+    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, graph: circuit } })
     return { ...run, outputs: { goal: run.outputs.goal } }
   },
   check: (level, test, outputs) => {
