@@ -1,5 +1,5 @@
 // Theories (《证明完毕》 chapter 9): functions defined by equations over natural numbers (zero, s(n)), lists (nil,
-// cons(x, xs)) and truth values (true, false, if), simplification by rewriting with those equations left to right, and
+// cons(x, xs)) and truth values (tt, ff, if), simplification by rewriting with those equations left to right, and
 // induction. A goal is an equation, maybe under ∀, on the machine board's proof state (tactics.js); a proved equation
 // becomes a card that adds it to the rules simp uses.
 //
@@ -7,13 +7,13 @@
 //   defs     a level's definitions (`defs`, equation texts), handed to the board's run (machine.js ctx.defs)
 //   rules    a state's extra rules, the lemmas its cards added
 //
-// Terms are written with zero, nil, true and false the only names; any other bare lower-case word is a variable.
+// Terms are written with zero, nil, tt and ff (true and false) the only names; any other bare lower-case word is a variable.
 // A variable's kind is read off its name: n, m, k stand for numbers, xs, ys, zs for lists.
 import { atom, fn, parse, subst, tvar } from './formula.js'
 import { stateValue } from './tactics.js'
 
 const T = (zh, en) => ({ zh, en })
-const NAMES = ['zero', 'nil', 'true', 'false']
+const NAMES = ['zero', 'nil', 'tt', 'ff']
 const isVar = (t) => t.t === 'var'
 const key = (t) => (isVar(t) ? t.name : `${t.f}(${t.args.map(key).join(',')})`)
 const stripAll = (f) => (f.op === '∀' ? stripAll(f.body) : f)
@@ -111,7 +111,7 @@ export function induct(s) {
 function openIf(t) {
   if (isVar(t)) return null
   for (const a of t.args) { const c = openIf(a); if (c) return c }
-  return t.f === 'if' && !(t.args[0].t === 'fn' && (t.args[0].f === 'true' || t.args[0].f === 'false')) ? t.args[0] : null
+  return t.f === 'if' && !(t.args[0].t === 'fn' && (t.args[0].f === 'tt' || t.args[0].f === 'ff')) ? t.args[0] : null
 }
 
 /** cases: the first goal split on the condition of its first open if: once with it true, once with it false. */
@@ -122,7 +122,7 @@ export function cases(s) {
   const c = isEq(goal) && (openIf(goal.args[0]) ?? openIf(goal.args[1]))
   if (!c) return { ...s, error: T('第一个目标里没有还没定下来的「如果」', 'The first goal has no “if” still open') }
   const split = (value) => ({ hyps: [...g.hyps, atom('=', [c, fn(value)])], goal: g.goal })
-  return { ...stateValue([split('true'), split('false'), ...rest]), rules: s.rules }
+  return { ...stateValue([split('tt'), split('ff'), ...rest]), rules: s.rules }
 }
 
 /** A lemma's card: its equation added to the rules simp uses. */

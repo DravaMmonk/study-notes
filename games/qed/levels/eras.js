@@ -145,4 +145,19 @@ export const ERAS = [
     topics: [{ id: 'prolog', code: 'P', after: ['q-school', 'tac-intro'], levels: ['p-grand', 'p-anc', 'p-order'], title: T('用规则推族谱', 'Rules over a family tree') }],
     chapter: { title: T('策略', 'Tactics'), question: T('证明器能不能自己证明？', 'Can the prover prove by itself?') },
   },
+  {
+    id: 'theory', machine: 'prover', keeps: 'all',
+    foundation: [
+      series('simp', '化简', 'Simplification', ['th-compute', 'th-lists']),
+      // Numbers and lists are inducted on alike; each line's lemmas stand on the ones before.
+      branches(
+        ['natInduction', '数的归纳', 'Induction on numbers', ['th-zero', 'th-succ', 'th-comm', 'th-assoc']],
+        ['listInduction', '列表的归纳', 'Induction on lists', ['th-appNil', 'th-appAssoc', 'th-revApp']],
+      ),
+    ],
+    practice: ['th-len', 'th-revrev'],
+    topics: [{ id: 'sorting', code: 'I', after: 'th-appNil', levels: ['sort-ins', 'sort-run', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') }],
+    challenges: [{ level: 'tail-sum', after: 'th-assoc' }, { level: 'loop', after: 'th-comm' }],
+    chapter: { title: T('理论', 'Theories'), question: T('数和列表的事，怎样让机器来证？', 'How does a machine prove things about numbers and lists?') },
+  },
 ]
