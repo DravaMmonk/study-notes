@@ -1,6 +1,6 @@
-import { createElement, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useEscape } from './Dialogs.jsx'
-import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw } from 'lucide-react'
+import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 
@@ -185,7 +185,7 @@ function stack({ at, edges, box, below, x, w, join }) {
  * A chapter's level tree, on the map and in the level drawer: a button for each level (byId: the chapter's levels)
  * joined by wires. current: the level being played (marked); next: the one to play next (its pad pulses).
  */
-export function LevelTree({ game, track, byId, solved, all, best = () => null, current, next, compact, onOpen }) {
+export function LevelTree({ game, track, byId, solved, all, best = () => null, current, next, compact, onOpen, needed = null }) {
   const { w, h, col, gap, plain, minor } = compact ? SIZE.compact : SIZE.full
   const { at, edges } = useMemo(() => center(plot(track)), [track])
   const scroll = useRef(null)
@@ -227,7 +227,7 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
     const score = won && best(level.id) && game.bestLabel?.(best(level.id))
     const here = level.id === current
     return (
-      <button key={level.id} data-level={level.id} style={style} title={L(level.title)} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${game.core(level) ? '' : 'is-minor'} ${optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''}`} disabled={!open} onClick={() => onOpen(level.id)}>
+      <button key={level.id} data-level={level.id} style={style} title={L(level.title)} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${game.core(level) ? '' : 'is-minor'} ${optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''} ${needed?.ids.has(level.id) ? 'is-needed' : ''} ${needed?.asked === level.id ? 'is-asked' : ''}`} aria-disabled={!open} onClick={() => (open ? onOpen(level.id) : needed?.ask(level.id))}>
         <span className="map-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={9} />}</span>
         <span className="map-node-id">{game.levelLabel(level)}</span>
         <span className="map-node-title">{L(level.title)}</span>
@@ -269,12 +269,46 @@ function UnlockChip({ items, style }) {
   )
 }
 
+/**
+ * A locked level asks what it waits for: tapping it lights up every level still to pass before it (on every tree that
+ * shows them) and says which of those can be played now. Returns { asked, ids, ask(id), clear(), first }.
+ */
+export function useNeeded(game, solved, all) {
+  const [asked, setAsked] = useState(null)
+  const ids = new Set(asked ? game.needed(game.byId[asked], solved).map((level) => level.id) : [])
+  const ready = asked ? game.needed(game.byId[asked], solved).filter((level) => game.isOpen(level, solved, all)) : []
+  return { asked, ids, ready, ask: (id) => setAsked(id === asked ? null : id), clear: () => setAsked(null) }
+}
+
+/** What a locked level waits for, in a note over the trees: the levels to pass, and the ones open now, each a link. */
+export function NeededNote({ game, needed, onOpen }) {
+  useEffect(() => {
+    if (!needed.asked) return undefined
+    // The first level open now comes into view, so the player sees where to go.
+    const first = needed.ready[0]
+    document.querySelector(`.map-node[data-level="${first?.id ?? [...needed.ids][0]}"]`)?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' })
+    return undefined
+  }, [needed.asked])
+  if (!needed.asked) return null
+  const level = game.byId[needed.asked]
+  return (
+    <div className="map-needed" role="status">
+      <p>
+        {tr(`${game.levelLabel(level)}「${L(level.title)}」还要先通过 ${needed.ids.size} 关（已高亮）。`, `${game.levelLabel(level)} “${L(level.title)}” needs ${needed.ids.size} more level${needed.ids.size === 1 ? '' : 's'} passed first (lit up).`)}
+        {needed.ready.length > 0 && <>{tr('现在就能做：', ' Open now: ')}{needed.ready.map((r) => <button key={r.id} type="button" onClick={() => { needed.clear(); onOpen(r.id) }}>{game.levelLabel(r)} {L(r.title)}</button>)}</>}
+      </p>
+      <button type="button" className="map-needed-close" onClick={needed.clear} aria-label={tr('关掉', 'Close')}><X size={14} /></button>
+    </div>
+  )
+}
+
 export default function LevelMap({ game, progress, solved, onAll, onOpen, focus, onReset, onParts, partsNew = 0, onWiki, unread = 0, theme }) {
   const levels = game.levels
   const done = levels.filter((level) => solved.has(level.id)).length
   const next = levels.find((level) => !solved.has(level.id) && game.isOpen(level, solved, progress.all))
   const [progressOpen, setProgressOpen] = useState(false)
   const phone = useMedia(PHONE)
+  const needed = useNeeded(game, solved, progress.all)
   const root = useRef(null)
   // Back from a level, the map opens on that level's node, and keeps it there while the page above settles (the hero's
   // illustration loads late) until the player scrolls.
@@ -339,11 +373,12 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
                 {chapter.question && <p>{L(chapter.question)}</p>}
                 <span className="chapter-meter"><i style={{ width: `${(finished / inChapter.length) * 100}%` }} /></span>
               </header>
-              <LevelTree game={game} track={chapter.track} byId={byId} solved={solved} all={progress.all} best={(id) => progress.best[id]} next={next} compact={phone} onOpen={onOpen} />
+              <LevelTree game={game} track={chapter.track} byId={byId} solved={solved} all={progress.all} best={(id) => progress.best[id]} next={next} compact={phone} onOpen={onOpen} needed={needed} />
             </section>
           )
         })}
       </div>
+      <NeededNote game={game} needed={needed} onOpen={onOpen} />
       {progressOpen && <ProgressDialog progress={progress} onAll={onAll} onReset={onReset} onClose={() => setProgressOpen(false)} />}
     </main>
   )

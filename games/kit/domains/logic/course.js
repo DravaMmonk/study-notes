@@ -28,6 +28,8 @@ const ease = (level) => {
  * itself. A level opens on its first case, the one its task is written in.
  *   lemmas      { type: { name, desc, statement, premises?, metas } } the parts the player proves
  *   gates       { type: { name, desc, ports, f } } the gates the player builds on a truth circuit (gates.js)
+ *   machines    [type] the machine-board parts the player builds (machine.js, named in ui/catalog.js MACHINE_TEXT): a
+ *               level with `builds` one of them unlocks it, its built-in implementation checked by that level's tests
  *   replaces    { part: [part] } a part that takes the place of others: from its level on, those leave the tray
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
@@ -57,7 +59,14 @@ function expand(level, notation) {
   return { schema, tests: [...level.cases.map(test), test(letters)] }
 }
 
-export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {}, primitives, concept = {}, replaces = {} }) {
+// A machine test's tab: its input, or its claim, in words; a clause set by how many clauses it has.
+function machineLabel(test, notation) {
+  if (test.clauses) return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
+  return say(parse(test.inputs?.goal ?? test.in ?? Object.values(test.inputs)[0]), notation)
+}
+
+export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {} }) {
+  const built = (p) => Boolean(lemmas[p] || gates[p] || machines.includes(p))
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
@@ -69,10 +78,11 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
     known = [...known, ...(level.symbols ?? [])]
     const notation = { words: level.words ?? words, symbols: known }
-    const read = (l) => ({ adds: [], ...l, ...(l.cases ? expand(l, notation) : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, notation })
+    const read = (l) => ({ adds: [], ...l, ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, notation })
     if (!level.tasks) return read(level)
-    const { tasks, ...base } = level
-    const all = tasks.map((task, index) => ({ ...read({ ...base, ...task }), task: index }))
+    // What the level builds comes of its last task, the level itself.
+    const { tasks, builds, ...base } = level
+    const all = tasks.map((task, index) => ({ ...read({ ...base, ...(index === tasks.length - 1 && builds ? { builds } : {}), ...task }), task: index }))
     return { ...all.at(-1), tasks: all }
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
@@ -96,7 +106,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     primitives,
     concept: (p) => concept[p] ?? p,
     adds: (l) => byId.get(l.id).adds,
-    needs: (p) => (lemmas[p] || gates[p] ? `lemma:${p}` : null),
+    needs: (p) => (built(p) ? `lemma:${p}` : null),
     replaces: (p) => replaces[p] ?? [],
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
@@ -109,12 +119,13 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
   // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
   const held = (level) => byId.get(level.id)?.without ?? []
   // A task that names its parts holds those the player has: a primitive, or a built part once its level is solved.
-  const named = (level, flags) => level.parts.filter((p) => !(lemmas[p] || gates[p]) || flags.has(`lemma:${p}`))
+  // The task after the one that proves a level's part may use it already (a law proved, then put to work).
+  const named = (level, flags) => level.parts.filter((p) => !built(p) || flags.has(`lemma:${p}`) || (level.task > 0 && level.builds === p))
   const usableIn = (level, flags) => (level.parts ? named(level, flags) : usable(course, { id: level.id }, flags).filter((p) => !held(level).includes(p)))
   const offerIn = (level, flags) => {
     if (level.parts) return { shown: named(level, flags), folded: [] }
     const { shown, folded, ...rest } = offer(course, { id: level.id }, flags)
     return { ...rest, shown: shown.filter((p) => !held(level).includes(p)), folded: folded.filter((p) => !held(level).includes(p)) }
   }
-  return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn }
+  return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn, machines }
 }

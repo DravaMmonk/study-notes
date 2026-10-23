@@ -71,8 +71,25 @@ export const ERAS = [
       series('mix', '组合', 'Together', ['dist', 'dsyll', 'demorgan', 'dmUse']),
       series('classical', '反证法', 'By contradiction', ['notnotlem', 'raa', 'byContra', 'lemCases']),
     ],
-    topics: [{ id: 'knights', code: 'K', after: 'lemCases', levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
+    // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.
+    topics: [{ id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
     challenges: [{ level: 'peirce', after: 'lemCases' }],
     chapter: { title: T('连接词', 'Connectives'), question: T('有了「与」「或」「非」，证明器还要哪些规则？', 'With “and”, “or” and “not”, what more rules does the prover need?') },
+  },
+  {
+    id: 'resolution', machine: 'prover',
+    // The prover keeps every module; each board shows the parts it runs.
+    keeps: 'all',
+    foundation: [
+      // Rewriting and clauses need nothing from each other; refutation needs both.
+      branches(
+        ['rewrite', '改写', 'Rewriting', ['law-dneg', 'subst', 'law-imp', 'law-dm', 'nnf', 'law-dist', 'cnf']],
+        ['clauses', '子句与归结', 'Clauses and resolution', ['resolve', 'refute', 'onePair', 'repeat', 'satisfiable']],
+      ),
+      series('refutation', '反驳', 'Refutation', ['entail', 'valid', 'manyKnown', 'circuit']),
+    ],
+    // The islanders again, after the connectives chapter's.
+    topics: [{ id: 'islanders-more', code: 'R', after: ['kk-three', 'entail'], levels: ['r-three', 'r-silent', 'r-ten'], title: T('岛民变多', 'More islanders') }],
+    chapter: { title: T('归结', 'Resolution'), question: T('证明器能不能自己找证明？', 'Can the prover find proofs by itself?') },
   },
 ]

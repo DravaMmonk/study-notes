@@ -6,6 +6,7 @@ import { era0 } from './era0.js'
 import { circuits, GATES } from './circuits.js'
 import { era1 } from './era1.js'
 import { era2 } from './era2.js'
+import { resolution } from './resolution.js'
 import { WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -24,11 +25,13 @@ export const LEMMAS = {
 
 export const LOGIC = logicCourse({
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...resolution],
   words: WORDS,
   lemmas: LEMMAS,
   gates: GATES,
-  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa'],
-  // Joining and splitting ∧ come together, as one idea.
-  concept: { andI: 'and', andE: 'and' },
+  // The machine-board parts the player builds: law cards, normal forms, resolution and the saturator.
+  machines: ['dneg', 'impOr', 'dm', 'dist', 'nnf', 'cnf', 'res', 'saturate'],
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'repeat', 'neg', 'conj', 'toClauses'],
+  // Joining and splitting ∧ come together, as one idea; so do the three cards that set a refutation up.
+  concept: { andI: 'and', andE: 'and', neg: 'refute', conj: 'refute', toClauses: 'refute' },
 })

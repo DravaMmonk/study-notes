@@ -31,9 +31,20 @@ export const WORDS = {
   Locked: T('门锁着', 'the door is locked'),
   Moon: T('月亮是奶酪做的', 'the moon is made of cheese'),
   Pigs: T('猪会飞', 'pigs fly'),
-  // The island of knights and knaves: what four islanders are.
+  // The island of knights and knaves: what each islander is.
   KA: T('a 是骑士', 'a is a knight'),
   KB: T('b 是骑士', 'b is a knight'),
   KC: T('c 是骑士', 'c is a knight'),
   KD: T('d 是骑士', 'd is a knight'),
+  KE: T('e 是骑士', 'e is a knight'),
+  KF: T('f 是骑士', 'f is a knight'),
+  KG: T('g 是骑士', 'g is a knight'),
+  KH: T('h 是骑士', 'h is a knight'),
+  KI: T('i 是骑士', 'i is a knight'),
+  KJ: T('j 是骑士', 'j is a knight'),
+  // A half adder: two input bits, the sum bit and the carry bit.
+  InA: T('输入 a 是 1', 'input a is 1'),
+  InB: T('输入 b 是 1', 'input b is 1'),
+  Sum: T('和位是 1', 'the sum bit is 1'),
+  Carry: T('进位是 1', 'the carry bit is 1'),
 }

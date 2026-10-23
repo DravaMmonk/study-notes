@@ -7,6 +7,7 @@
 // 'from>to.port' ('from>goal' into the goal); a box's assumption is the source '<box>#<region>' and what a region
 // proves goes into the box's port of that region's name. A premise is a source named as the level names it.
 import { RULES } from './proof.js'
+import { MACHINE_PARTS } from './machine.js'
 
 const parse = (wires) => wires.map((s) => {
   const [from, to] = s.split('>')
@@ -14,20 +15,31 @@ const parse = (wires) => wires.map((s) => {
   return { from, to: id, port }
 })
 
-/** A proof of a level's goal from its premises. */
-export function proof(nodes, wires, { premises = [] } = {}) {
+// Cards go in rows of three, in the order written, in whichever region holds them.
+function cardsOf(nodes, registry) {
   const entries = Object.entries(nodes)
-  const region = (where) => (where && !where.includes('/') ? `${where}/${RULES[nodes[where][0]].frames()[0].name}` : where)
-  // Cards go in rows of three, in the order written, in whichever region holds them.
+  const region = (where) => (where && !where.includes('/') ? `${where}/${registry[nodes[where][0]].frames()[0].name}` : where)
   const count = new Map()
-  const cards = entries.map(([id, [type, params = {}, where]]) => {
+  return entries.map(([id, [type, params = {}, where]]) => {
     const at = region(where) ?? ''
     const k = count.get(at) ?? 0
     count.set(at, k + 1)
     return { id, type, params, ...(at ? { in: at } : {}), x: (at ? 44 : 220) + (k % 3) * 200, y: (at ? 20 : 40) + Math.floor(k / 3) * 190 }
   })
+}
+
+/** A machine board (machine.js): its inputs (named), the cards, and the result `out`; written like a proof. */
+export function machine(nodes, wires, { inputs = ['in'] } = {}) {
   return {
-    nodes: [...premises.map((name, k) => ({ id: name, type: 'premise', params: { name }, x: 20, y: 40 + k * 130 })), ...cards, { id: 'goal', type: 'goal', params: { name: 'goal' }, x: 900, y: 40 }],
+    nodes: [...inputs.map((name, k) => ({ id: name, type: 'in', params: { name }, x: 20, y: 40 + k * 130 })), ...cardsOf(nodes, MACHINE_PARTS), { id: 'out', type: 'out', params: { name: 'out' }, x: 900, y: 40 }],
+    wires: parse(wires),
+  }
+}
+
+/** A proof of a level's goal from its premises. */
+export function proof(nodes, wires, { premises = [] } = {}) {
+  return {
+    nodes: [...premises.map((name, k) => ({ id: name, type: 'premise', params: { name }, x: 20, y: 40 + k * 130 })), ...cardsOf(nodes, RULES), { id: 'goal', type: 'goal', params: { name: 'goal' }, x: 900, y: 40 }],
     wires: parse(wires),
   }
 }

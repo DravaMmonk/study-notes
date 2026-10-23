@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, PanelLeftClose } from 'lucide-react'
 import { L, tr } from './i18n.js'
-import { LevelTree } from './LevelMap.jsx'
+import { LevelTree, NeededNote, useNeeded } from './LevelMap.jsx'
 
 // The level drawer, pulled out from the left over a level: every chapter as its level tree (the map's, compact), the
 // current chapter open and the current level marked. Picking a level switches to it directly, without the map.
@@ -10,6 +10,13 @@ export default function LevelDrawer({ game, current, solved, all, onOpen, onClos
   const chapterOf = levels.find((level) => level.id === current)?.chapter
   const [openChapters, setOpenChapters] = useState(() => new Set([chapterOf]))
   const list = useRef(null)
+  // A locked level lights up what it waits for; the chapters holding those open.
+  const needed = useNeeded(game, solved, all)
+  useEffect(() => {
+    if (!needed.asked) return
+    const chapters = levels.filter((level) => needed.ids.has(level.id)).map((level) => level.chapter)
+    setOpenChapters((open) => new Set([...open, ...chapters]))
+  }, [needed.asked])
   useEffect(() => {
     list.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'center' })
   }, [current])
@@ -43,11 +50,12 @@ export default function LevelDrawer({ game, current, solved, all, onOpen, onClos
                 <span className="drawer-chapter-count">{finished}/{inChapter.length}</span>
                 <ChevronDown size={14} className="drawer-chevron" />
               </button>
-              {expanded && <LevelTree game={game} track={chapter.track} byId={new Map(inChapter.map((level) => [level.id, level]))} solved={solved} all={all} current={current} compact onOpen={onOpen} />}
+              {expanded && <LevelTree game={game} track={chapter.track} byId={new Map(inChapter.map((level) => [level.id, level]))} solved={solved} all={all} current={current} compact onOpen={onOpen} needed={needed} />}
             </section>
           )
         })}
       </div>
+      <NeededNote game={game} needed={needed} onOpen={onOpen} />
     </nav>
   )
 }

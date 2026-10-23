@@ -9,6 +9,7 @@ import { lettersOf, rowsOf, tautology, valueOn } from '../truth.js'
 //   fill     fill in the formula's value on every row, then check
 //   valid    mark each formula as always true or not; any row of its table can be tried first
 //   counter  find a row that makes the formula false: each row tried shows its value
+//   sat      find a row that makes the formula true, the same way
 const TF = (v) => (v ? tr('真', 'T') : tr('假', 'F'))
 
 export default function TruthScreen({ game, level: entry, saved, save, solve, phone }) {
@@ -26,7 +27,8 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, ph
   const tryRow = (f, k) => {
     update({ tried: { ...state.tried, [`${f}:${k}`]: true } })
     const rows = rowsOf(lettersOf([formulas[f]]))
-    if (level.ask === 'counter' && !valueOn(formulas[f], rows[k])) {
+    const value = valueOn(formulas[f], rows[k])
+    if ((level.ask === 'counter' && !value) || (level.ask === 'sat' && value)) {
       setChecked({ pass: true, wrong: new Set() })
       solve(null)
     }
@@ -75,7 +77,7 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, ph
   const stage = (
     <div className="lg-truth">
       {level.ask === 'fill' && table(0, { fill: true })}
-      {level.ask === 'counter' && table(0)}
+      {(level.ask === 'counter' || level.ask === 'sat') && table(0)}
       {level.ask === 'valid' && formulas.map((f, k) => (
         <section key={k} className={`lg-claim ${checked?.wrong.has(k) ? 'is-wrong' : ''}`}>
           <header>
@@ -89,8 +91,8 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, ph
           <details><summary>{tr('列表来算', 'Work it out on a table')}</summary>{table(k)}</details>
         </section>
       ))}
-      {checked && <p className={`lg-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`}>{checked.pass ? (level.ask === 'counter' ? tr('找到了：这一行它是假的。', 'Found it: it is false on this row.') : tr('全对。', 'All correct.')) : tr(`还有 ${checked.wrong.size} 处不对，标红了。`, `${checked.wrong.size} still wrong, marked in red.`)}</p>}
-      {level.ask !== 'counter' && <footer className="run-foot"><RunDock go={{ label: checked?.pass ? tr('全对', 'All correct') : tr('检查', 'Check'), pass: Boolean(checked?.pass), onClick: check }} /></footer>}
+      {checked && <p className={`lg-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`}>{checked.pass ? (level.ask === 'counter' ? tr('找到了：这一行它是假的。', 'Found it: it is false on this row.') : level.ask === 'sat' ? tr('找到了：这一行它是真的。', 'Found it: it is true on this row.') : tr('全对。', 'All correct.')) : tr(`还有 ${checked.wrong.size} 处不对，标红了。`, `${checked.wrong.size} still wrong, marked in red.`)}</p>}
+      {level.ask !== 'counter' && level.ask !== 'sat' && <footer className="run-foot"><RunDock go={{ label: checked?.pass ? tr('全对', 'All correct') : tr('检查', 'Check'), pass: Boolean(checked?.pass), onClick: check }} /></footer>}
     </div>
   )
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />

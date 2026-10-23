@@ -5,7 +5,7 @@ import { circ, usesSensor } from '../../kit/domains/table/circuit/components.js'
 import { T, tr } from '../../kit/domains/table/i18n.js';
 
 // Every layer: stay as you were, or step over from the layer you come from and book what the step brings in.
-const TRADER = circ([['c', 'bp:knaptable']], ['tap:left>c:0', 'tap:leftPrev>c:1', 'tap:gain>c:2', 'c>out:cell']);
+const TRADER = circ([['a', 'add'], ['m', 'mmax']], ['tap:leftPrev>a:0', 'tap:gain>a:1', 'tap:left>m:0', 'a>m:1', 'm>out:cell']);
 
 export const layercake = [
   {
