@@ -27,7 +27,7 @@ const need = (ctx, what, got) => {
 }
 const T = (zh, en) => ({ zh, en })
 const SHAPE = {
-  imp: T('一句「如果…那么…」', 'an “if … then …”'),
+  imp: T('一句「若…则…」', 'an “if … then …”'),
   and: T('一句「…并且…」', 'an “… and …”'),
   or: T('一句「…或者…」', 'an “… or …”'),
   bot: T('矛盾 ⊥', 'a contradiction ⊥'),
