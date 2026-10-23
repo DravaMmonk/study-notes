@@ -14,8 +14,8 @@
 import { PartError } from '../../engine/circuit.js'
 import { framePart } from '../../circuit/frames.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
-import { BOT, all, and, bin, eq, freeVars, imp, or, parse, replaceAtoms, same, show, subst, tvar } from './formula.js'
-import { say } from './notation.js'
+import { BOT, all, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, show, subst, tvar } from './formula.js'
+import { say, sayTerm } from './notation.js'
 import { clauseFormula } from './clauses.js'
 
 /** A judgment: `formula` from `hyps`. */
@@ -68,9 +68,6 @@ function literals(f) {
 }
 const flip = (l) => (l.startsWith('¬') ? l.slice(1) : `¬${l}`)
 const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
-
-/** The variable a rewrite's pattern marks its hole with, shown □. */
-export const HOLE = 'hole'
 
 /** The hypothesis id of the assumption a box's region opens. */
 export const hypId = (node, region) => `${node.id}/${region}`
@@ -210,18 +207,19 @@ export const RULES = {
     },
   },
   refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t)) } },
-  // From s = t and a proof of φ, φ with s replaced by t wherever the card's pattern has its hole (□).
+  // From s = t and a proof of φ, φ with the occurrences of s the card marks (params.at, their places in order) replaced
+  // by t. The card shows φ with each s in a box to tick (ui/boards.jsx).
   rewrite: {
     inputs: ['eq', 'p'],
-    params: ['pattern'],
     eval: ({ eq: e, p }, node, ctx) => {
       const f = e.formula
       if (f.op !== 'atom' || f.pred !== '=') throw need(ctx, SHAPE.eq, f)
       const [s, t] = f.args
-      const x = node.params?.x ?? HOLE
-      const pattern = param(node, 'pattern', ctx)
-      if (!same(subst(pattern, x, s), p.formula)) throw need(ctx, subst(pattern, x, s), p.formula)
-      return proved(subst(pattern, x, t), union(e, p))
+      const n = occurrences(p.formula, s)
+      if (!n) { const [a, b] = [sayTerm(s, ctx.notation), sayIn(ctx, p.formula)]; throw fail(`「${b.zh}」里没有 ${a.zh}`, `“${b.en}” does not mention ${a.en}`) }
+      const at = (node.params?.at ?? []).filter((k) => k < n)
+      if (!at.length) throw fail('在卡片上点框，选出要换掉的那几处', 'Tick the boxes on the card to choose which to replace')
+      return proved(replaceTerm(p.formula, s, t, (k) => at.includes(k)), union(e, p))
     },
   },
 }

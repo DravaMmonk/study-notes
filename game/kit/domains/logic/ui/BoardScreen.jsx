@@ -201,7 +201,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
     <div className="lg-card">
       {role === 'sink' && scene.want}
       {board.settings(parts, node, lemmas).map((s) => <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={scene.choices[s.kind ?? 'formula']} />)}
-      {board.extra?.(node, setParam)}
+      {board.extra?.(node, setParam, { ins: Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, view.values.get(w.from)])), text })}
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
       {role === 'source' && <Value v={value} text={text} bare />}
       {role !== 'source' && (!regions.size || node.fold) && (problem || (multi ? multi.map((o) => (

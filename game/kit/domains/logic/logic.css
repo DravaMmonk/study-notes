@@ -167,3 +167,10 @@
 .fo-want span { margin-left: auto; color: var(--muted); font-size: 12px; }
 .fo-want.is-pass svg { color: var(--status); }
 .fo-want.is-fail svg { color: var(--fail); }
+
+/* A rewrite card's choice: the sentence with each s in a box; a ticked box becomes t. */
+.lg-occ { display: grid; gap: 4px; }
+.lg-occ small { color: var(--muted); font-size: 11.5px; }
+.lg-occ-text { font-weight: 600; line-height: 2; overflow-wrap: anywhere; }
+.lg-occ-text button { margin: 0 2px; padding: 1px 6px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--ink); background: transparent; font: inherit; cursor: pointer; }
+.lg-occ-text button[aria-pressed='true'] { border-style: solid; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
