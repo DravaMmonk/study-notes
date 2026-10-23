@@ -360,6 +360,8 @@ export const era1 = [
   },
   {
     id: 'x-swap',
+    // The proof's steps name sentences the premise and goal do not hold whole: the card offers them too.
+    sentences: ['(A → B) → (A → C)'],
     kind: 'proof',
     title: T('不用框交换', 'Swap without a box'),
     tests: [{ premises: { p: 'A → (B → C)' }, goal: 'B → (A → C)' }],
@@ -385,6 +387,7 @@ export const era1 = [
   },
   {
     id: 'x-merge',
+    sentences: ['A → A'],
     kind: 'proof',
     title: T('不用框合并', 'Merge without a box'),
     tests: [{ premises: { p: 'A → (A → B)' }, goal: 'A → B' }],

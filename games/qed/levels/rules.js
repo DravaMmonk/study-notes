@@ -303,6 +303,7 @@ export const rules = [
   },
   {
     id: 'drinker',
+    sentences: ['¬∃y. ¬D(y)'],
     kind: 'proof',
     title: T('酒鬼悖论', 'The drinker paradox'),
     tests: [{ goal: '∃x. D(x) → ∀y. D(y)' }],

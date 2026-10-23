@@ -9,7 +9,7 @@
 import { reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
-import { freeVars, parse } from './formula.js'
+import { freeVars, parse, show } from './formula.js'
 import { countermodel, holds } from './models.js'
 import { builtWorld, extent, structureOf } from './fol.js'
 import { answersFor, factsOf, hornOf } from './tactics.js'
@@ -18,6 +18,7 @@ import { proof } from './build.js'
 import { portsOf } from '../../engine/circuit.js'
 import { lettersOf, tautology } from './truth.js'
 import { MACHINE_PARTS, MACHINE_TESTS } from './machine.js'
+import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
 
 /** spec: { levels, course }. Returns [{ text, fail? }]. */
@@ -134,6 +135,16 @@ export function validate({ levels: given, course }) {
     const held = course && new Set([...reach(course, { id: level.id }), 'premise', 'goal', ...(level.task > 0 && builder.get(level.id) ? [builder.get(level.id)] : [])])
     const missing = held ? [...new Set(level.solution.nodes.map((n) => n.type).filter((t) => !held.has(t)))] : []
     if (missing.length) out.push({ fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
+    // Every sentence, term or variable the reference proof picks on a card is one the card offers (choices.js).
+    const offer = choicesOf(level)
+    const offered = Object.fromEntries(Object.entries(offer).map(([kind, list]) => [kind, new Set(list.map((x) => (typeof x === 'string' ? x : show(x))))]))
+    for (const n of level.solution.nodes) {
+      for (const [key, value] of Object.entries(n.params ?? {})) {
+        const kind = SETTING_KINDS[n.type]?.[key] ?? 'formula'
+        if (typeof value !== 'string' || ['name', 'side'].includes(key) || !(RULES[n.type]?.params ?? level.lemmas?.[n.type]?.metas ?? []).includes(key)) continue
+        if (!offered[kind].has(choiceKey(kind, value, level))) out.push({ fail: true, text: `${level.id}: the solution picks ${value} on ${n.type}, which its card does not offer (add it to the level's sentences)` })
+      }
+    }
     const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
     if (banned.length) out.push({ fail: true, text: `${level.id}: the solution uses ${banned.join(', ')}, which the level holds back` })
     const good = runLevel(LOGIC_TESTS, level, level.solution)
