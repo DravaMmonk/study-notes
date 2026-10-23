@@ -61,7 +61,9 @@ export default {
   // Version 16 added practice with “from contradiction, anything”: whoever had passed the levels after has them.
   { version: 16, ops: [{ solve: ['notI', ['exFalso']] }, { solve: ['demorgan', ['dsyll']] }] },
   // Version 17 dropped the level that read ¬ as “→ ⊥” on its own; 矛盾 says it in its task.
-  { version: 17, ops: [{ rename: { notE: null } }] }],
+  { version: 17, ops: [{ rename: { notE: null } }] },
+  // Version 18: K1 builds the liar, and the De Morgan's laws card got a type of its own.
+  { version: 18, ops: [{ grant: ['kk-one', 'lemma:liar'] }, { grant: ['law-dm', 'lemma:dmLaw'] }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用', '德摩根', '归结', '取一个', '任取', '拿出那一个'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },

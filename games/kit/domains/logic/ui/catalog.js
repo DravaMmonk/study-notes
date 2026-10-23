@@ -66,6 +66,7 @@ export const MACHINE_TEXT = {
   appAssoc: { name: T('拼接结合', 'Append associativity'), desc: T('引理 (xs ++ ys) ++ zs = xs ++ (ys ++ zs)，加进化简用的规则。', 'The lemma (xs ++ ys) ++ zs = xs ++ (ys ++ zs), added to the rules simp uses.') },
   revApp: { name: T('倒过拼接', 'Reverse of append'), desc: T('引理 rev (xs ++ ys) = rev ys ++ rev xs，加进化简用的规则。', 'The lemma rev (xs ++ ys) = rev ys ++ rev xs, added to the rules simp uses.') },
   insLen: { name: T('插入长一格', 'Insert adds one'), desc: T('引理 len (ins x ys) = S (len ys)，加进化简用的规则。', 'The lemma len (ins x ys) = S (len ys), added to the rules simp uses.') },
+  runApp: { name: T('分两段跑', 'Run in two parts'), desc: T('引理 run q (w ++ u) = run (run q w) u，加进化简用的规则。', 'The lemma run q (w ++ u) = run (run q w) u, added to the rules simp uses.') },
   itsumGen: { name: T('累加器求和', 'Accumulated sum'), desc: T('引理 itsum xs n = n + sum xs，加进化简用的规则。', 'The lemma itsum xs n = n + sum xs, added to the rules simp uses.') },
   factor: { name: T('因子化', 'Factor'), desc: T('一条子句里两项同号、能合一：合一后并成一项。', 'Two literals of the same sign in a clause that unify are merged into one.') },
 }

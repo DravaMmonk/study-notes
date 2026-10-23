@@ -160,4 +160,13 @@ export const ERAS = [
     challenges: [{ level: 'tail-sum', after: 'th-assoc' }, { level: 'loop', after: 'th-comm' }],
     chapter: { title: T('理论', 'Theories'), question: T('数和列表的事，怎样让机器来证？', 'How does a machine prove things about numbers and lists?') },
   },
+  {
+    id: 'graduation', machine: 'prover', keeps: 'all',
+    foundation: [series('automata', '自动机', 'Automata', ['dfa-run', 'dfa-runApp', 'dfa-same'])],
+    practice: ['dfa-product'],
+    // The liar of chapter 3's islanders grows into the diagonal argument: its topic comes first.
+    topics: [{ id: 'undecidable', code: 'U', after: ['kk-one', 'dfa-run'], levels: ['u-barber', 'u-cantor', 'u-ls', 'u-halt'], title: T('不可判定', 'Undecidable') }],
+    challenges: [{ level: 'fooling', after: 'dfa-same' }],
+    chapter: { title: T('毕业', 'Graduation'), question: T('用整台证明器，能证明计算的极限吗？', 'Can the whole prover prove the limits of computation?') },
+  },
 ]

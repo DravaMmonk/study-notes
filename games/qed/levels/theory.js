@@ -11,7 +11,7 @@ import { WORDS } from './words.js'
 const T = (zh, en) => ({ zh, en })
 const chain = (cards) => machine(Object.fromEntries(cards.map((c, k) => [`c${k}`, [c]])), ['in>c0.in', ...cards.slice(1).map((_, k) => `c${k}>c${k + 1}.in`), `c${cards.length - 1}>out`])
 // This chapter's terms read as written in Isabelle: S n the number after n, x :: xs a list with x in front.
-const words = {
+export const THEORY_WORDS = {
   ...WORDS,
   zero: T('0', '0'),
   s: T('S {0}', 'S {0}'),
@@ -30,8 +30,8 @@ const words = {
   ins: T('ins {0} {1}', 'ins {0} {1}'),
   sort: T('sort {0}', 'sort {0}'),
 }
-const NAT = ['plus(zero, m) = m', 'plus(s(n), m) = s(plus(n, m))']
-const LIST = ['app(nil, ys) = ys', 'app(cons(x, xs), ys) = cons(x, app(xs, ys))', 'len(nil) = zero', 'len(cons(x, xs)) = s(len(xs))']
+export const NAT = ['plus(zero, m) = m', 'plus(s(n), m) = s(plus(n, m))']
+export const LIST = ['app(nil, ys) = ys', 'app(cons(x, xs), ys) = cons(x, app(xs, ys))', 'len(nil) = zero', 'len(cons(x, xs)) = s(len(xs))']
 const REV = [...LIST, 'rev(nil) = nil', 'rev(cons(x, xs)) = app(rev(xs), cons(x, nil))']
 const SUM = [...NAT, 'sum(nil) = zero', 'sum(cons(x, xs)) = plus(x, sum(xs))', 'itsum(nil, n) = n', 'itsum(cons(x, xs), n) = itsum(xs, plus(n, x))']
 const SORT = [
@@ -41,7 +41,7 @@ const SORT = [
   'sort(nil) = nil', 'sort(cons(x, xs)) = ins(x, sort(xs))',
   'len(nil) = zero', 'len(cons(x, xs)) = s(len(xs))',
 ]
-const th = (level) => ({ kind: 'machine', want: 'proved', words, ...level })
+const th = (level) => ({ kind: 'machine', want: 'proved', words: THEORY_WORDS, ...level })
 const BY_INDUCTION = chain(['induct', 'simp', 'simp'])
 const STUCK = chain(['simp'])
 
@@ -283,7 +283,7 @@ export const theory = [
     title: T('尾递归求和', 'A sum with an accumulator'),
     builds: 'itsumGen',
     defs: SUM,
-    words,
+    words: THEORY_WORDS,
     tasks: [
       {
         kind: 'machine',

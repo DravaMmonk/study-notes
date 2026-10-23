@@ -12,6 +12,7 @@ import { rules } from './rules.js'
 import { unification } from './unification.js'
 import { tactics } from './tactics.js'
 import { theory } from './theory.js'
+import { graduation } from './graduation.js'
 import { WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -25,17 +26,18 @@ export const LEMMAS = {
   merge: { name: T('合并', 'Merge'), desc: T('接进 A → (A → B)，给出 A → B：说了两遍的条件并成一遍。', 'Wire in A → (A → B); it gives A → B: a condition stated twice, stated once.'), statement: 'A → B', premises: ['A → (A → B)'], metas: ['A', 'B'], ports: ['A → (A → B)'] },
   dm: { name: T('德摩根', 'De Morgan'), desc: T('接进 ¬(A ∨ B)，给出 ¬A ∧ ¬B：两个都不成立。', 'Wire in ¬(A ∨ B); it gives ¬A ∧ ¬B: neither holds.'), statement: '¬A ∧ ¬B', premises: ['¬(A ∨ B)'], metas: ['A', 'B'], ports: ['¬(A ∨ B)'] },
   nnlem: { name: T('排中不可否定', 'Undeniable middle'), desc: T('卡片上选一句 A，直接给出 ¬¬(A ∨ ¬A)。', 'Choose a sentence A on the card; it gives ¬¬(A ∨ ¬A) at once.'), statement: '¬¬(A ∨ ¬A)', metas: ['A'], ports: [] },
+  liar: { name: T('说谎者', 'The liar'), desc: T('接进 A ↔ ¬A，直接给出矛盾 ⊥：没有人能说「我是无赖」。', 'Wire in A ↔ ¬A; it gives the contradiction ⊥ at once: nobody can say “I am a knave”.'), statement: '⊥', premises: ['A ↔ ¬A'], metas: ['A'], ports: ['A ↔ ¬A'] },
   lem: { name: T('排中律', 'Excluded middle'), desc: T('卡片上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the card; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
 }
 
 export const LOGIC = logicCourse({
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...resolution, ...quantifiers, ...rules, ...unification, ...tactics, ...theory],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...resolution, ...quantifiers, ...rules, ...unification, ...tactics, ...theory, ...graduation],
   words: WORDS,
   lemmas: LEMMAS,
   gates: GATES,
   // The machine-board parts the player builds: law cards, normal forms, resolution and the saturator.
-  machines: ['dneg', 'impOr', 'dmLaw', 'dist', 'nnf', 'cnf', 'res', 'saturate', 'unifier', 'clauseForm', 'fores', 'auto', 'addZero', 'addSucc', 'addComm', 'addAssoc', 'appNil', 'appAssoc', 'revApp', 'insLen', 'itsumGen'],
+  machines: ['dneg', 'impOr', 'dmLaw', 'dist', 'nnf', 'cnf', 'res', 'saturate', 'unifier', 'clauseForm', 'fores', 'auto', 'addZero', 'addSucc', 'addComm', 'addAssoc', 'appNil', 'appAssoc', 'revApp', 'insLen', 'itsumGen', 'runApp'],
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'repeat', 'neg', 'conj', 'toClauses', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'uDecompose', 'uDelete', 'uConflict', 'uSwap', 'uEliminate', 'uCheck', 'prenex', 'skolem', 'factor', 'intro', 'assumption', 'elim', 'orElse', 'simp', 'induct', 'cases'],
   // Joining and splitting ∧ come together, as one idea; so do the three cards that set a refutation up.
   concept: { andI: 'and', andE: 'and', neg: 'refute', conj: 'refute', toClauses: 'refute', rewrite: 'eq', refl: 'eq', uDecompose: 'unify', uDelete: 'unify', uConflict: 'unify', uSwap: 'unify', uEliminate: 'unify', uCheck: 'unify', intro: 'tactic', assumption: 'tactic', elim: 'tactic' },

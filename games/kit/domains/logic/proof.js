@@ -236,6 +236,7 @@ function match(schema, f0, bind) {
     return true
   }
   // ¬A is A → ⊥ and A ↔ B is (A → B) ∧ (B → A) here too, whichever side writes it which way.
+  if (schema.op === '↔') return match(asAnd(schema), f0, bind)
   const f = schema.op === '→' ? asImp(f0) : schema.op === '∧' ? asAnd(f0) : f0
   const g = schema.op === '¬' && f.op === '→' && same(f.b, BOT) ? { op: '→', a: schema.a, b: BOT } : schema
   if (g.op !== f.op) return false
