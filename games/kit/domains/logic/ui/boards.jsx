@@ -16,19 +16,21 @@ import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel } from '../machin
 import { refuted } from '../clauses.js'
 import { clauseFormulaOf } from '../unify.js'
 import { parseTh } from '../theory.js'
+import { printTerm } from '../pterm.js'
 import { MACHINE_TEXT, familyOf, iconOf, nameOf, partsFor, settingsOf, textOf, withRevisions } from './catalog.js'
 
 const T = (zh, en) => ({ zh, en })
 
 /* ---------- proofs ---------- */
 
-/** A judgment: the formula proved, and the hypotheses it still rests on. */
-function Judgment({ v, text, small = false, bare = false }) {
+/** A judgment: the formula proved, the hypotheses it still rests on, and (from chapter 6, `terms`) its proof term. */
+function Judgment({ v, text, small = false, bare = false, terms = false }) {
   if (!v) return null
   const hyps = [...v.hyps.values()]
   return (
     <span className={`lg-formula ${small ? 'is-small' : ''}`}>
       <b>{text(v.formula)}</b>
+      {terms && v.term && <code className="lg-term" title={tr('证明项', 'Proof term')}>{printTerm(v.term)}</code>}
       {!small && !bare && hyps.length > 0 && <small>{tr('依赖', 'from')} {hyps.map(text).join(tr('；', '; '))}</small>}
     </span>
   )
@@ -59,8 +61,9 @@ export const PROOF = {
     const offer = choicesOf(level)
     const sentence = (f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })
     return {
-      sequent: <>{premises.length > 0 && <>{tr('已知', 'Given')} <b>{premises.map(text).join(tr('；', '; '))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b></>,
-      want: <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b></span>,
+      // Chapter 6 names each premise (its proof term is that name) and may ask for the proof's term too.
+      sequent: <>{premises.length > 0 && <>{tr('已知', 'Given')} <b>{Object.entries(test.premises).map(([name, t]) => `${level.terms ? `${name}: ` : ''}${text(parse(t, { consts }))}`).join(tr('；', '; '))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b>{test.term && <> · {tr('项要是', 'with the term')} <code className="lg-term">{test.term}</code></>}</>,
+      want: <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b>{test.term && <><br />{tr('项要是', 'Term')} <code className="lg-term">{test.term}</code></>}</span>,
       choices: {
         formula: offer.formula.map(sentence),
         exists: offer.exists.map(sentence),

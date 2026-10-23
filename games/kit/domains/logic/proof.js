@@ -16,7 +16,7 @@ import { framePart } from '../../circuit/frames.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
 import { BOT, all, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, show, subst, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
-import { absurd, cases, fst, inl, inr, lam, obj, open as unpack, pair, papp, pconst, psubst, pvar, raa, rfl, snd } from './pterm.js'
+import { absurd, alphaEq, cases, fst, inl, inr, lam, normalize, obj, open as unpack, pair, papp, parseTerm, pconst, printTerm, psubst, pvar, raa, rfl, snd } from './pterm.js'
 import { clauseFormula } from './clauses.js'
 
 /** A judgment: `formula` from `hyps`, with its proof term (pterm.js). */
@@ -218,6 +218,8 @@ export const RULES = {
       return proved(body.formula, new Map([...e.hyps, ...open]), unpack(e.term, y, hypName(node, ctx), body.term))
     },
   },
+  // Chapter 6: the same sentence, its proof's detours taken out (a lemma used is unfolded into its own proof).
+  normalize: { inputs: ['a'], eval: ({ a }, _n, ctx) => proved(a.formula, a.hyps, normalize(a.term, { unfold: ctx.unfold })) },
   refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t), new Map(), rfl) } },
   // From s = t and a proof of φ, φ with the occurrences of s the card marks (params.at, their places in order) replaced
   // by t. The card shows φ with each s in a box to tick (ui/boards.jsx).
@@ -341,12 +343,14 @@ export function premisesOf(test, consts = []) {
 export const LOGIC_TESTS = {
   runTest: (level, circuit, test) => {
     const consts = level.consts ?? []
-    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, graph: circuit } })
+    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, graph: circuit, unfold: (name) => level.lemmaTerms?.[name] ?? null } })
     return { ...run, outputs: { goal: run.outputs.goal } }
   },
+  // A test may ask for the proof's term too (chapter 6): the same up to the names it binds.
   check: (level, test, outputs) => {
     const goal = parse(test.goal, { consts: level.consts ?? [] })
     const problem = closes(outputs.goal, goal, Object.keys(test.premises ?? {}), level.notation)
+      || (test.term && !alphaEq(outputs.goal.term, parseTerm(test.term)) ? { zh: `证明的项是 ${printTerm(outputs.goal.term)}，要的是 ${test.term}`, en: `The proof’s term is ${printTerm(outputs.goal.term)}; the one wanted is ${test.term}` } : '')
     return [{ name: 'goal', pass: !problem, reason: problem }]
   },
   // A shorter proof is a better one.
