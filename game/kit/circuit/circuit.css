@@ -401,3 +401,11 @@
 .palette-item.is-folded, .pb-part.is-folded { opacity: .72; border-style: dashed; }
 .palette-item.is-folded { box-shadow: inset 0 0 0 1px var(--line); background: transparent; }
 .pb-more { color: var(--muted); }
+
+/* ---- a run stepping through the board (shell/usePlayback): the card computing this step ---- */
+.node.is-step { box-shadow: var(--card-lift), 0 0 0 2.5px var(--accent); }
+.node.is-frame.is-step > .frame-back { box-shadow: var(--card-lift), 0 0 0 2.5px var(--accent); }
+.node.is-step.is-step-fail, .node.is-frame.is-step.is-step-fail > .frame-back { box-shadow: var(--card-lift), 0 0 0 2.5px var(--fail); }
+.pb-tile.is-step, .pb-term.is-step { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2.5px var(--accent); }
+.pb-frame.is-step { box-shadow: 0 0 0 2.5px var(--accent); }
+.pb-tile.is-step.is-step-fail, .pb-term.is-step.is-step-fail, .pb-frame.is-step.is-step-fail { box-shadow: 0 0 0 2.5px var(--fail); }

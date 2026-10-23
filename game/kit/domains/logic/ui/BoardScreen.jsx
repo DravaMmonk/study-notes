@@ -1,6 +1,6 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Trash2 } from 'lucide-react'
-import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs } from '../../../shell/index.js'
+import { Brief, CircuitLayout, RunDock, StepLog, TaskCard, TestStatus, TestTabs, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
@@ -8,6 +8,7 @@ import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
 import { say } from '../notation.js'
 import FormulaField from './FormulaField.jsx'
+import { machineSteps, machineViewAt } from './stepping.js'
 
 // A level of the logic domain played on the shared circuit editor (《证明完毕》): a proof, whose wires carry proved
 // judgments, or a machine, whose wires carry formulas and clause sets (boards.jsx says how each runs, is judged and
@@ -15,6 +16,9 @@ import FormulaField from './FormulaField.jsx'
 // proof's assumption box, a machine's repeat frame) holds cards in its regions on the same board
 // (../../../circuit/frames.js). Every card shows what it gives right now on the test picked; the run bar checks every
 // test, which completes the level. The tests above the strip switch the case everywhere, the cards' choices included.
+// A board whose tests can be traced (a machine: boards.jsx) runs step by step instead (../../../shell/usePlayback.jsx):
+// the card computing lights up, the board shows what had been computed by then, the strip lists every step's result,
+// and the run stops at the first step or test that fails.
 
 /** The screen for one board (boards.jsx), as a level kind's Screen. */
 export const boardScreen = (board) => function LogicBoard(props) { return <BoardScreen board={board} {...props} /> }
@@ -37,7 +41,33 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const offered = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
   const palette = offered.shown.filter((t) => parts.rules[t])
   const folded = offered.folded.filter((t) => parts.rules[t])
-  const view = useMemo(() => board.tests.runTest(level, circuit, test), [board, level, circuit, test])
+  const live = useMemo(() => board.tests.runTest(level, circuit, test), [board, level, circuit, test])
+
+  // Step by step, on a board that can trace its run: each test traced once per board.
+  const stepped = Boolean(board.tests.trace)
+  const name = (node) => (parts.role(node) === 'part' ? board.nameOf(lemmas, node.type) : parts.label(node))
+  const traces = useMemo(() => new Map(), [board, level, circuit])
+  const tracedOf = (k) => {
+    if (!traces.has(k)) {
+      const traced = board.tests.trace(level, circuit, tests[k])
+      traces.set(k, { ...traced, steps: machineSteps(traced, circuit, name) })
+    }
+    return traces.get(k)
+  }
+  const playback = usePlayback({
+    count: tests.length,
+    stepsOf: (k) => tracedOf(k).steps,
+    check: (k) => board.tests.check(level, tests[k], tracedOf(k).run.outputs)[0].reason,
+    onSolve: () => solve(board.tests.score(level, circuit)),
+    onTest: setTestIndex,
+    board: circuit,
+  })
+  const shownIndex = tests.indexOf(test)
+  const run = stepped ? playback.run : null
+  const onThis = run && run.test === shownIndex
+  const view = onThis ? machineViewAt(tracedOf(shownIndex), tracedOf(shownIndex).steps, run.step) : live
+  const stepNow = onThis && run.step >= 0 ? tracedOf(shownIndex).steps[run.step] ?? null : null
+  const stepClass = (node) => (stepNow?.id === node.id ? `is-step ${stepNow.failed ? 'is-step-fail' : ''}` : '')
 
   const change = (next, { keep } = {}) => {
     setCircuit(next)
@@ -71,8 +101,8 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const text = (f) => L(say(f, level.notation))
   const scene = board.scene(level, test, text)
   const { Value } = board
-  const result = verdict?.results[tests.indexOf(test)]
-  const states = tests.map((_, k) => (verdict ? (verdict.results[k].pass ? 'pass' : 'fail') : null))
+  const result = stepped ? run?.results[shownIndex] : verdict?.results[shownIndex]
+  const states = stepped ? playback.states : tests.map((_, k) => (verdict ? (verdict.results[k].pass ? 'pass' : 'fail') : null))
   const best = progress.best?.[level.id]
   const brief = (
     <Brief game={game} level={entry} hint={level.hint} phone={phone}>
@@ -99,17 +129,18 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
     if (v) return <Value v={v} text={text} small />
     return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('还没有接上', 'nothing wired in yet')}</i>
   }
-  const passed = verdict?.pass
-  const dock = (
-    <RunDock
-      secondary={circuit.nodes.some((n) => parts.role(n) === 'part') ? { label: tr('清空', 'Clear'), icon: <Trash2 size={16} />, onClick: reset } : null}
-      go={{ label: L(passed ? board.words.passed : board.words.go), pass: Boolean(passed), onClick: check }}
-    />
-  )
+  const passed = stepped ? playback.passed : verdict?.pass
+  const clear = circuit.nodes.some((n) => parts.role(n) === 'part') ? { label: tr('清空', 'Clear'), icon: <Trash2 size={16} />, onClick: reset } : null
+  const dock = stepped
+    ? <RunDock secondary={clear} {...playback.dock({ go: L(board.words.go), done: L(board.words.passed) })} />
+    : <RunDock secondary={clear} go={{ label: L(passed ? board.words.passed : board.words.go), pass: Boolean(passed), onClick: check }} />
+  // The steps of the test shown, so far: what each card gave, the current one marked.
+  const shown = stepped ? playback.shown(shownIndex) : { list: [], at: -1 }
+  const stepLog = <StepLog steps={shown.list.map((s) => ({ label: s.label, value: s.value ? <Value v={s.value} text={text} /> : null, failed: s.failed }))} at={shown.at} />
   const verdictText = result ? (result.pass ? L(board.words.pass) : L(result.reason)) : null
   const shared = { board, parts, lemmas, circuit, view, scene, setParam, text }
 
-  if (phone) return <PhoneBoard {...shared} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
+  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepId={stepNow?.id ?? null} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -129,7 +160,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
               height={150}
               body={(node) => <CardBody node={node} {...shared} />}
               head={(node) => parts.role(node) === 'sink' && result && <em className="node-verdict">{L(result.pass ? board.words.reached : board.words.notYet)}</em>}
-              cardClass={(node) => `lg-node ${parts.role(node) === 'sink' && result ? (result.pass ? 'is-pass' : 'is-fail') : ''}`}
+              cardClass={(node) => `lg-node ${parts.role(node) === 'sink' && result ? (result.pass ? 'is-pass' : 'is-fail') : ''} ${stepClass(node)}`}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
               regionNote={regionNote}
               resultNote={resultNote}
@@ -145,6 +176,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
       outputs={
         <div className="lg-strip">
           <p className="lg-sequent">{scene.sequent}</p>
+          {stepLog}
           <p className={`lg-verdict ${result ? (result.pass ? 'is-pass' : 'is-fail') : ''}`}>{verdictText ?? L(board.words.idle)}</p>
         </div>
       }
@@ -181,7 +213,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
 
 // The board on a phone: the shared slot board, where a frame is a block with its regions' grids inside it, a sheet
 // per block and the run bar.
-function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, setParam, text, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
+function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepId, setParam, text, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
   const { Value } = board
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
@@ -202,6 +234,10 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
     scroller,
     scope,
   })
+  // The block computing this step scrolls into view.
+  useEffect(() => {
+    if (stepId) root.current?.querySelector(`[data-piece="${stepId}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [stepId])
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   // A frame shows what it gives outside; what it opens shows in its regions.
   const thumb = (n) => {
@@ -222,7 +258,8 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
       {testTabs}
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
+        {stepLog}
         {verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { Halt, MISSING, PartError, evaluate } from './circuit.js'
 import { packed, runBoard, sink, source } from './boards.js'
 import { walk } from './machine.js'
+import { paceOf, viewAt } from './trace.js'
 import { runLevel, withHidden } from './tests.js'
 
 const PARTS = {
@@ -111,4 +112,24 @@ test('a level runs its tests through the domain, hidden ones too', () => {
   assert.equal(run.results[0].pass, true)
   assert.equal(run.constraint, 'too many')
   assert.equal(run.pass, false)
+})
+
+test('a traced run lists every node in the order it ran, and replays to any step', () => {
+  const c = io([{ id: 'a', type: 'add' }, { id: 'n', type: 'neg' }, { id: 'h', type: 'half' }, { id: 'stray', type: 'neg' }], w('in>a.a in>a.b a>n n>h h>out'))
+  const trace = []
+  runBoard(c, { parts: PARTS, bind: { in: 3 }, targets: ['out'], ctx: { trace } })
+  assert.deepEqual(trace.map((e) => [e.id, e.value ?? e.error.en]), [['in', 3], ['a', 6], ['n', -6], ['h', -3]])
+  const mid = viewAt(trace, 1)
+  assert.equal(mid.values.get('a'), 6)
+  assert.equal(mid.values.has('n'), false)
+  const odd = []
+  runBoard(c, { parts: PARTS, bind: { in: 1.5 }, targets: ['out'], ctx: { trace: odd } })
+  assert.deepEqual(odd.at(-1), { id: 'h', key: null, error: { zh: '奇数', en: 'odd' } })
+})
+
+test('a run plays its first test slowly and the rest fast, and squeezes a long one', () => {
+  assert.ok(paceOf(0, 5).per > paceOf(1, 5).per)
+  assert.equal(paceOf(1, 5).stride, 1)
+  assert.ok(paceOf(1, 1000).stride > 1)
+  assert.ok(paceOf(0, 1000).per * Math.ceil(1000 / paceOf(0, 1000).stride) <= 12000)
 })
