@@ -4,6 +4,7 @@
 // lean on. Proof by contradiction comes after "undeniable middle", when the prover is one step from it.
 // The knights-and-knaves topic is about the islanders. Each level is a pattern plus test cases (see era1.js).
 import { proof } from '../../kit/domains/logic/build.js'
+import { gates } from '../../kit/domains/logic/gates.js'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -23,6 +24,12 @@ const deMorgan = proof({
 }, ['na#body>i.a', 'p>m.imp', 'i>m.a', 'm>na.body', 'nb#body>i2.a', 'p>m2.imp', 'i2>m2.a', 'm2>nb.body', 'na>c.a', 'nb>c.b', 'c>goal'], { premises: ['p'] })
 // Knights and knaves, one islander: A ↔ ¬A gives ⊥. Split it: A → ¬A merges into ¬A, and ¬A gives A back.
 const k1 = proof({ e: ['andE'], g: ['merge'], m1: ['mp'], m2: ['mp'] }, ['p>e.ab', 'e#left>g.p0', 'e#right>m1.imp', 'g>m1.a', 'g>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p'] })
+
+// An islander level's two tasks (../../kit/shell/GameShell.jsx): translate what is said into a truth circuit, with the
+// gates built in the truth-circuit chapter, then prove from it.
+const board = (target, nodes, wires) => gates(nodes, wires, { target })
+const translate = (task) => ({ kind: 'gates', step: T('翻译', 'Translate'), blind: true, parts: ['gNot', 'gAnd', 'gOr', 'gImp', 'gIff'], ...task })
+const prove = (task) => ({ kind: 'proof', step: T('证明', 'Prove'), ...task })
 
 export const era2 = [
   {
@@ -402,73 +409,103 @@ export const era2 = [
   },
   {
     id: 'kk-one',
-    kind: 'proof',
     title: T('一个岛民', 'One islander'),
-    tests: [{ premises: { p: 'A ↔ ¬A' }, goal: '⊥' }],
-    cases: [{ A: 'KA' }, { A: 'KC' }],
-    brief: T('一个岛民说：「我是无赖。」证明这话不可能有人说：实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士」（也就是「(a 是骑士 → ¬a 是骑士) ∧ (¬a 是骑士 → a 是骑士)」）证明出矛盾 ⊥。', 'An islander says: “I am a knave.” Prove nobody can say that: build a prover that, from “a is a knight ↔ ¬a is a knight” (that is “(a is a knight → ¬a is a knight) ∧ (¬a is a knight → a is a knight)”), proves the contradiction ⊥.'),
-    hint: [
-      T('拆开 ∧ 也能拆 ↔：拆出「a 是骑士 → ¬a 是骑士」和「¬a 是骑士 → a 是骑士」。', 'Split ∧ splits a ↔ too: into “a is a knight → ¬a is a knight” and “¬a is a knight → a is a knight”.'),
-      T('「¬a 是骑士」就是「a 是骑士 → ⊥」，第一句里的「a 是骑士」说了两遍。', '“¬a is a knight” is “a is a knight → ⊥”, so the first one states “a is a knight” twice.'),
+    tasks: [
+      translate({
+        target: 'KA ↔ ¬KA',
+        brief: T('一个岛民 a 说：「我是无赖。」把这件事翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'An islander a says: “I am a knave.” Translate this into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
+        hint: [T('「我是无赖」就是「¬a 是骑士」；「a 说」就是「a 是骑士」和他的话等价。', '“I am a knave” is “¬a is a knight”; “a says” is “a is a knight” equivalent to what he says.')],
+        solution: board('KA ↔ ¬KA', { n: 'gNot', e: 'gIff' }, ['KA>n.a', 'KA>e.a', 'n>e.b', 'e>out']),
+        after: T('译成「a 是骑士 ↔ ¬a 是骑士」，两行都是假：他是骑士也好，是无赖也好，都对不上。真值表把两种身份都试了一遍；接下来，证明器要从这句话直接推出矛盾，不必一行一行地试。', 'It translates to “a is a knight ↔ ¬a is a knight”, false on both rows: knight or knave, it does not fit. The truth table tried both; next, the prover must get a contradiction from the sentence directly, without trying row by row.'),
+      }),
+      prove({
+        tests: [{ premises: { p: 'A ↔ ¬A' }, goal: '⊥' }],
+        cases: [{ A: 'KA' }, { A: 'KC' }],
+        brief: T('一个岛民说：「我是无赖。」证明这话不可能有人说：实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士」（也就是「(a 是骑士 → ¬a 是骑士) ∧ (¬a 是骑士 → a 是骑士)」）证明出矛盾 ⊥。', 'An islander says: “I am a knave.” Prove nobody can say that: build a prover that, from “a is a knight ↔ ¬a is a knight” (that is “(a is a knight → ¬a is a knight) ∧ (¬a is a knight → a is a knight)”), proves the contradiction ⊥.'),
+        hint: [
+          T('拆开 ∧ 也能拆 ↔：拆出「a 是骑士 → ¬a 是骑士」和「¬a 是骑士 → a 是骑士」。', 'Split ∧ splits a ↔ too: into “a is a knight → ¬a is a knight” and “¬a is a knight → a is a knight”.'),
+          T('「¬a 是骑士」就是「a 是骑士 → ⊥」，第一句里的「a 是骑士」说了两遍。', '“¬a is a knight” is “a is a knight → ⊥”, so the first one states “a is a knight” twice.'),
+        ],
+        solution: k1,
+      }),
     ],
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，永远说真话；要么是<b>无赖</b>，永远说假话。', 'Everyone on the island is a <b>knight</b>, who always tells the truth, or a <b>knave</b>, who always lies.') },
       { t: T('一个岛民说了一句话，「他是骑士」就和他说的话<b>等价</b>：<level-ref to="e-says"></level-ref>里翻译过，写成 <b>↔</b>。真值上，等价是同真同假；证明器里，它是两个方向的 → 都成立，也就是「(甲 → 乙) ∧ (乙 → 甲)」，证明器把它当成一句 ∧。', 'If an islander says something, “he is a knight” is <b>equivalent</b> to what he says: you translated that in <level-ref to="e-says"></level-ref>, written <b>↔</b>. In truth values, equivalent means true together and false together; in the prover it is the → holding both ways, that is “(X → Y) ∧ (Y → X)”, and the prover reads it as an ∧.') },
     ],
-    solution: k1,
     after: T('拆开等价，合并重复的条件，再两次套用撞出矛盾。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。这就是「说谎者悖论」的岛上版本。', 'Split the equivalence, merge the repeated condition, then apply twice into a contradiction. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true. It is the island’s version of the liar paradox.'),
   },
   {
     id: 'kk-two',
-    kind: 'proof',
     title: T('两个岛民', 'Two islanders'),
-    tests: [{ premises: { p: 'A ↔ ¬A ∧ ¬B' }, goal: '¬A ∧ B' }],
-    cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
-    brief: T('第一个岛民说：「我们俩都是无赖。」实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士 ∧ ¬b 是骑士」证明出「¬a 是骑士 ∧ b 是骑士」。', 'The first islander says: “We are both knaves.” Build a prover that, from “a is a knight ↔ ¬a is a knight ∧ ¬b is a knight”, proves “¬a is a knight ∧ b is a knight”.'),
-    hint: [
-      T('「¬a 是骑士」：假设 a 是骑士，他的话就成了真的，可话里说他是无赖。', '“¬a is a knight”: suppose a is a knight; then what he says is true, and it says he is a knave.'),
-      T('有了「¬a 是骑士」，接上「他的话 → a 是骑士」，就知道他的话是假的。再用反证法：假设「¬b 是骑士」，他的话就成了真的。', 'With “¬a is a knight”, joined after “his statement → a is a knight”, his statement is false. Then by contradiction: assume “¬b is a knight”, and his statement comes true.'),
+    tasks: [
+      translate({
+        target: 'KA ↔ ¬KA ∧ ¬KB',
+        brief: T('岛上有 a、b 两个人，a 说：「我们俩都是无赖。」把这件事翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'Two people, a and b; a says: “We are both knaves.” Translate this into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
+        hint: [T('「我们俩都是无赖」是「¬a 是骑士 ∧ ¬b 是骑士」；「a 说」是「a 是骑士」和它等价。', '“We are both knaves” is “¬a is a knight ∧ ¬b is a knight”; “a says” makes “a is a knight” equivalent to it.')],
+        solution: board('KA ↔ ¬KA ∧ ¬KB', { na: 'gNot', nb: 'gNot', both: 'gAnd', e: 'gIff' }, ['KA>na.a', 'KB>nb.a', 'na>both.a', 'nb>both.b', 'KA>e.a', 'both>e.b', 'e>out']),
+        after: T('四行里只有一行为真：a 是无赖，b 是骑士。真值表给出了答案，可它是把四种情况挨个试出来的；接下来，证明器要从 a 的话一步步推出这个答案。', 'Only one of the four rows is true: a is a knave and b a knight. The truth table found the answer by trying all four cases; next, the prover must reason its way from what a says to that answer.'),
+      }),
+      prove({
+        tests: [{ premises: { p: 'A ↔ ¬A ∧ ¬B' }, goal: '¬A ∧ B' }],
+        cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
+        brief: T('第一个岛民说：「我们俩都是无赖。」实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士 ∧ ¬b 是骑士」证明出「¬a 是骑士 ∧ b 是骑士」。', 'The first islander says: “We are both knaves.” Build a prover that, from “a is a knight ↔ ¬a is a knight ∧ ¬b is a knight”, proves “¬a is a knight ∧ b is a knight”.'),
+        hint: [
+          T('「¬a 是骑士」：假设 a 是骑士，他的话就成了真的，可话里说他是无赖。', '“¬a is a knight”: suppose a is a knight; then what he says is true, and it says he is a knave.'),
+          T('有了「¬a 是骑士」，接上「他的话 → a 是骑士」，就知道他的话是假的。再用反证法：假设「¬b 是骑士」，他的话就成了真的。', 'With “¬a is a knight”, joined after “his statement → a is a knight”, his statement is false. Then by contradiction: assume “¬b is a knight”, and his statement comes true.'),
+        ],
+        solution: proof({
+          e: ['andE'],
+          na: ['impI', { A: 'A' }],
+          m1: ['mp', {}, 'na'],
+          s: ['andE', {}, 'na'],
+          m2: ['mp', {}, 'na'],
+          t: ['chain'],
+          nnb: ['impI', { A: '¬B' }],
+          c: ['andI', {}, 'nnb'],
+          m3: ['mp', {}, 'nnb'],
+          b: ['raa'],
+          both: ['andI'],
+        }, ['p>e.ab', 'e#left>m1.imp', 'na#body>m1.a', 'm1>s.ab', 's#left>m2.imp', 'na#body>m2.a', 'm2>na.body', 'e#right>t.p0', 'na>t.p1', 'na>c.a', 'nnb#body>c.b', 't>m3.imp', 'c>m3.a', 'm3>nnb.body', 'nnb>b.nna', 'na>both.a', 'b>both.b', 'both>goal'], { premises: ['p'] }),
+      }),
     ],
     intro: [{ t: T('第二个岛民什么也没说。可第一个人的话里提到了他，就够推出他是什么人了。', 'The second islander says nothing. But the first one’s statement mentions him, and that is enough to work out what he is.') }],
-    solution: proof({
-      e: ['andE'],
-      na: ['impI', { A: 'A' }],
-      m1: ['mp', {}, 'na'],
-      s: ['andE', {}, 'na'],
-      m2: ['mp', {}, 'na'],
-      t: ['chain'],
-      nnb: ['impI', { A: '¬B' }],
-      c: ['andI', {}, 'nnb'],
-      m3: ['mp', {}, 'nnb'],
-      b: ['raa'],
-      both: ['andI'],
-    }, ['p>e.ab', 'e#left>m1.imp', 'na#body>m1.a', 'm1>s.ab', 's#left>m2.imp', 'na#body>m2.a', 'm2>na.body', 'e#right>t.p0', 'na>t.p1', 'na>c.a', 'nnb#body>c.b', 't>m3.imp', 'c>m3.a', 'm3>nnb.body', 'nnb>b.nna', 'na>both.a', 'b>both.b', 'both>goal'], { premises: ['p'] }),
     after: T('第一个人不能是骑士（那他就说了假话），所以是无赖；无赖的话是假的，所以「两个都是无赖」不成立：第二个人是骑士。', 'The first cannot be a knight (he would have said something false), so he is a knave; a knave’s words are false, so “both are knaves” fails: the second is a knight.'),
   },
   {
     id: 'kk-three',
-    kind: 'proof',
     title: T('骑士与无赖', 'Knights and knaves'),
-    tests: [{ premises: { p: 'A ↔ ¬A ∨ B' }, goal: 'A ∧ B' }],
-    cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
-    brief: T('第一个岛民说：「我是无赖，或者另一个人是骑士。」两个人各是什么？实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士 ∨ b 是骑士」证明出「a 是骑士 ∧ b 是骑士」。', 'The first islander says: “I am a knave, or the other one is a knight.” What is each of them? Build a prover that, from “a is a knight ↔ ¬a is a knight ∨ b is a knight”, proves “a is a knight ∧ b is a knight”.'),
-    hint: [
-      T('a 是不是骑士，两边都讨论：排中律加分情况。是骑士，就是了；是无赖，他的话就成了真的。', 'Whether a is a knight, take both sides: Excluded middle and cases. A knight, done; a knave, and his statement comes true.'),
-      T('有了「a 是骑士」，他的话就是真的；再对他的话分情况，「我是无赖」那一半会撞出矛盾。', 'With “a is a knight”, his statement is true; take cases on it, and the “I am a knave” half runs into a contradiction.'),
+    tasks: [
+      translate({
+        target: 'KA ↔ ¬KA ∨ KB',
+        brief: T('岛上有 a、b 两个人，a 说：「我是无赖，或者 b 是骑士。」把这件事翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'Two people, a and b; a says: “I am a knave, or b is a knight.” Translate this into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
+        hint: [T('a 的话是「¬a 是骑士 ∨ b 是骑士」；「a 说」是「a 是骑士」和它等价。', 'What a says is “¬a is a knight ∨ b is a knight”; “a says” makes “a is a knight” equivalent to it.')],
+        solution: board('KA ↔ ¬KA ∨ KB', { na: 'gNot', o: 'gOr', e: 'gIff' }, ['KA>na.a', 'na>o.a', 'KB>o.b', 'KA>e.a', 'o>e.b', 'e>out']),
+        after: T('只有一行为真：两个人都是骑士。表上看得出答案；接下来，证明器要说清它为什么非得如此。', 'Only one row is true: both are knights. The table shows the answer; next, the prover must show why it has to be so.'),
+      }),
+      prove({
+        tests: [{ premises: { p: 'A ↔ ¬A ∨ B' }, goal: 'A ∧ B' }],
+        cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
+        brief: T('第一个岛民说：「我是无赖，或者另一个人是骑士。」两个人各是什么？实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士 ∨ b 是骑士」证明出「a 是骑士 ∧ b 是骑士」。', 'The first islander says: “I am a knave, or the other one is a knight.” What is each of them? Build a prover that, from “a is a knight ↔ ¬a is a knight ∨ b is a knight”, proves “a is a knight ∧ b is a knight”.'),
+        hint: [
+          T('a 是不是骑士，两边都讨论：排中律加分情况。是骑士，就是了；是无赖，他的话就成了真的。', 'Whether a is a knight, take both sides: Excluded middle and cases. A knight, done; a knave, and his statement comes true.'),
+          T('有了「a 是骑士」，他的话就是真的；再对他的话分情况，「我是无赖」那一半会撞出矛盾。', 'With “a is a knight”, his statement is true; take cases on it, and the “I am a knave” half runs into a contradiction.'),
+        ],
+        solution: proof({
+          e: ['andE'],
+          l: ['lem', { A: 'A' }],
+          o: ['orE'],
+          i: ['orI', { other: 'B', side: 'right' }, 'o/right'],
+          m: ['mp', {}, 'o/right'],
+          says: ['mp'],
+          c: ['orE'],
+          m2: ['mp', {}, 'c/left'],
+          no: ['botE', { C: 'B' }, 'c/left'],
+          both: ['andI'],
+        }, ['p>e.ab', 'l>o.ab', 'o#left>o.left', 'o#right>i.a', 'e#right>m.imp', 'i>m.a', 'm>o.right', 'e#left>says.imp', 'o>says.a', 'says>c.ab', 'c#left>m2.imp', 'o>m2.a', 'm2>no.bot', 'no>c.left', 'c#right>c.right', 'o>both.a', 'c>both.b', 'both>goal'], { premises: ['p'] }),
+      }),
     ],
     intro: [{ t: T('这一次，先自己想清楚答案，再把它证出来。', 'This time, work out the answer yourself first, then prove it.') }],
-    solution: proof({
-      e: ['andE'],
-      l: ['lem', { A: 'A' }],
-      o: ['orE'],
-      i: ['orI', { other: 'B', side: 'right' }, 'o/right'],
-      m: ['mp', {}, 'o/right'],
-      says: ['mp'],
-      c: ['orE'],
-      m2: ['mp', {}, 'c/left'],
-      no: ['botE', { C: 'B' }, 'c/left'],
-      both: ['andI'],
-    }, ['p>e.ab', 'l>o.ab', 'o#left>o.left', 'o#right>i.a', 'e#right>m.imp', 'i>m.a', 'm>o.right', 'e#left>says.imp', 'o>says.a', 'says>c.ab', 'c#left>m2.imp', 'o>m2.a', 'm2>no.bot', 'no>c.left', 'c#right>c.right', 'o>both.a', 'c>both.b', 'both>goal'], { premises: ['p'] }),
     after: T('两个都是骑士。如果第一个人是无赖，他的话就成了真话，无赖说不出真话；所以他是骑士，他的话是真的，而「我是无赖」那一半是假的，只能是另一个人是骑士。', 'Both are knights. If the first were a knave his statement would be true, and a knave cannot say something true; so he is a knight, his statement is true, and since “I am a knave” is false, the other must be a knight.'),
   },
 ]

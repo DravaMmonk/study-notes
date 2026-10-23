@@ -16,8 +16,10 @@ import { lettersOf, tautology } from './truth.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
 
 /** spec: { levels, course }. Returns [{ text, fail? }]. */
-export function validate({ levels, course }) {
+export function validate({ levels: given, course }) {
   const out = []
+  // Every task of a level is checked as a level of its own (course.js tasks).
+  const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words)) {
     const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])

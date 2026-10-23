@@ -9,7 +9,7 @@
 //
 // migrations(steps) gives the shell's { version, migrate } (progress.js): version is the newest step's.
 
-const RECORDS = ['data', 'boards', 'best', 'introSeen']
+const RECORDS = ['data', 'boards', 'best', 'tasks', 'introSeen']
 
 function rename(save, to) {
   const move = typeof to === 'function' ? to : (id) => (id in to ? to[id] : id)

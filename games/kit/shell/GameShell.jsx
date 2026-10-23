@@ -5,7 +5,7 @@ import { currentLang } from '../lang.js'
 import { mountBarMenus } from '../menu.js'
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
-import { Dialog, FailDialog, SolvedDialog } from './Dialogs.jsx'
+import { Dialog, FailDialog, SolvedDialog, TaskDoneDialog } from './Dialogs.jsx'
 import Encyclopedia, { useWiki } from './Encyclopedia.jsx'
 import PartsBook, { useParts } from './PartsBook.jsx'
 import IntroSheet from './IntroSheet.jsx'
@@ -26,10 +26,21 @@ const SITE = { games: '../index.html' }
  *   { game, level, saved, save(data, { quiet }), solved, solve(score?), fail(info), flags, progress, theme, phone }
  *
  * and lays itself out with Workbench / PhonePage and Brief from Layout.jsx.
+ *
+ * A level may be several tasks done in order (`tasks: [{ kind, step, … }]`, each what that task changes of the level:
+ * its screen's kind, its name `step`, its brief, its `after`…). Each task is played as a level of its own kind, the
+ * last one being the level itself: a task opens once the one before it is passed, passing it says what it taught and
+ * goes on, and passing the last passes the level. The tasks passed are kept per level (progress.tasks), and what each
+ * task's screen keeps goes in the level's data as a list, one entry a task.
  */
 export default function GameShell({ game }) {
   const [progress, setProgress] = useState(() => game.store.load())
   const [levelId, setLevelId] = useState(() => new URLSearchParams(window.location.search).get('level'))
+  // The tasks of a level passed so far (all of them once it is solved), and the one played: the first not yet passed.
+  const tasksDone = (id, p = progress) => (p.solved.includes(id) ? game.byId[id]?.tasks?.length ?? 1 : p.tasks?.[id] ?? 0)
+  const firstTask = (id) => Math.min(tasksDone(id), (game.byId[id]?.tasks?.length ?? 1) - 1)
+  const [taskAt, setTaskAt] = useState(() => (levelId && game.byId[levelId] ? firstTask(levelId) : 0))
+  const [taskWon, setTaskWon] = useState(null) // the task just passed, on a level with several
   // A level's 引入 opens by itself the first time the level is entered (after the game's first-run dialog), and
   // again whenever the player asks for it from the bar.
   const [introFor, setIntroFor] = useState(null)
@@ -77,6 +88,8 @@ export default function GameShell({ game }) {
   const open = (id) => {
     if (!id) setLeft(levelId)
     setLevelId(id)
+    setTaskAt(id && game.byId[id] ? firstTask(id) : 0)
+    setTaskWon(null)
     setWon(null)
     setFailure(null)
     setFails(0)
@@ -92,9 +105,27 @@ export default function GameShell({ game }) {
   const wiki = useWiki(game, progress, solved, level)
   const box = useParts(game, progress)
 
+  // The task played, as a level of its own: the level with what the task changes, and its steps for the brief.
+  const tasks = level?.tasks ?? null
+  const done = level ? tasksDone(level.id) : 0
+  const goTask = (k) => {
+    setTaskAt(k)
+    setTaskWon(null)
+    setFailure(null)
+    setFails(0)
+  }
+  const played = tasks ? { ...level, ...tasks[taskAt], steps: { names: tasks.map((t) => t.step), at: taskAt, done, go: goTask } } : level
+  const kept = (data) => (tasks ? (Array.isArray(data) ? data[taskAt] ?? undefined : undefined) : data)
+
   // What a level screen can do to the shell.
-  const save = (data) => setProgress((p) => ({ ...p, data: { ...p.data, [level.id]: data } }))
+  const save = (data) => setProgress((p) => ({ ...p, data: { ...p.data, [level.id]: tasks ? Object.assign(Array.from({ length: tasks.length }, (_, k) => (Array.isArray(p.data[level.id]) ? p.data[level.id][k] ?? null : null)), { [taskAt]: data }) : data } }))
   const solve = (score) => {
+    if (tasks && taskAt < tasks.length - 1) {
+      setProgress((p) => ({ ...p, tasks: { ...p.tasks, [level.id]: Math.max(tasksDone(level.id, p), taskAt + 1) } }))
+      setTaskWon(taskAt)
+      setFailure(null)
+      return
+    }
     setProgress((p) => {
       const best = p.best[level.id]
       return {
@@ -133,7 +164,7 @@ export default function GameShell({ game }) {
   }
 
   const intro = level && game.intro(level)?.length > 0
-  const kind = level && game.kinds[level.kind]
+  const kind = level && game.kinds[played.kind]
 
   return (
     <div className={`game ${level ? 'is-playing' : 'is-mapping'}`} data-game={game.id}>
@@ -198,7 +229,7 @@ export default function GameShell({ game }) {
             />
           )}
           {kind
-            ? createElement(kind.Screen, { key: level.id, game, level, saved: progress.data[level.id], save, solved: solved.has(level.id), solve, fail, flags, progress, theme, phone })
+            ? createElement(kind.Screen, { key: `${level.id}#${taskAt}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || done > taskAt, solve, fail, flags, progress, theme, phone })
             : <div className="board-loading">{tr('这种关卡还没做好。', 'This kind of level is not built yet.')}</div>}
         </div>
       )}
@@ -213,6 +244,9 @@ export default function GameShell({ game }) {
             setProgress((p) => ({ ...p, introSeen: { ...p.introSeen, [level.id]: true } }))
           }}
         />
+      )}
+      {taskWon !== null && tasks && (
+        <TaskDoneDialog game={game} level={level} task={tasks[taskWon]} index={taskWon} next={tasks[taskWon + 1]} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon + 1)} />
       )}
       {won && level && won === level.id && (
         <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} />
