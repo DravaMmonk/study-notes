@@ -104,7 +104,8 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     // What the level builds comes of its last task, the level itself.
     const { tasks, builds, ...base } = level
     const all = tasks.map((task, index) => ({ ...read({ ...base, ...(index === tasks.length - 1 && builds ? { builds } : {}), ...task }), task: index }))
-    return { ...all.at(-1), tasks: all }
+    // A part any task brings in is new to the level, whichever task it is.
+    return { ...all.at(-1), adds: [...new Set(all.flatMap((t) => t.adds))], tasks: all }
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))
@@ -145,7 +146,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
   const held = (level) => byId.get(level.id)?.without ?? []
   // A task that names its parts holds those the player has: a primitive, or a built part once its level is solved.
   // The task after the one that proves a level's part may use it already (a law proved, then put to work).
-  const named = (level, flags) => level.parts.filter((p) => !built(p) || flags.has(`lemma:${p}`) || (level.task > 0 && level.builds === p))
+  const named = (level, flags) => level.parts.filter((p) => !built(p) || flags.has(`lemma:${p}`) || (level.task > 0 && byId.get(level.id).builds === p))
   const usableIn = (level, flags) => (level.parts ? named(level, flags) : usable(course, { id: level.id }, flags).filter((p) => !held(level).includes(p)))
   const offerIn = (level, flags) => {
     if (level.parts) return { shown: named(level, flags), folded: [] }

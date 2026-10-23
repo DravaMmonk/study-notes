@@ -24,6 +24,7 @@ import { checkGates, gatesOf, rowsFor } from './gates.js'
 export function validate({ levels: given, course }) {
   const out = []
   // Every task of a level is checked as a level of its own (course.js tasks).
+  const builder = new Map(given.map((l) => [l.id, l.builds]))
   const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words && !l.vocab)) {
@@ -130,7 +131,7 @@ export function validate({ levels: given, course }) {
       if (level.tests.every(gives)) out.push({ fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
     }
     // A later task of a level may use what the level builds.
-    const held = course && new Set([...reach(course, { id: level.id }), 'premise', 'goal', ...(level.task > 0 && level.builds ? [level.builds] : [])])
+    const held = course && new Set([...reach(course, { id: level.id }), 'premise', 'goal', ...(level.task > 0 && builder.get(level.id) ? [builder.get(level.id)] : [])])
     const missing = held ? [...new Set(level.solution.nodes.map((n) => n.type).filter((t) => !held.has(t)))] : []
     if (missing.length) out.push({ fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
     const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
