@@ -65,7 +65,9 @@ export default {
   // Version 18: K1 builds the liar, and the De Morgan's laws card got a type of its own.
   { version: 18, ops: [{ grant: ['kk-one', 'lemma:liar'] }, { grant: ['law-dm', 'lemma:dmLaw'] }] },
   // Version 19 folded 没有 ⊥，也是答案 into 一圈又一圈 as its second and third tasks.
-  { version: 19, ops: [{ rename: { satisfiable: null } }] }],
+  { version: 19, ops: [{ rename: { satisfiable: null } }] },
+  // Version 20 built translations and queries from chips, one sentence per task: what was typed before is dropped.
+  { version: 20, ops: [{ data: (value, id) => (['fo-atoms', 'fo-all', 'fo-some', 'fo-nested', 'p-only', 'q-children', 'q-grand', 'q-none', 'q-school'].includes(id) ? undefined : value) }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用', '德摩根', '归结', '取一个', '任取', '拿出那一个'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },

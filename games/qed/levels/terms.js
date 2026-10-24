@@ -1,5 +1,5 @@
 // Chapter 6 · Proofs are programs (Curry–Howard): every card on the proof board now shows its proof term too, the
-// way Lean writes it. Reading terms first: Apply is application, the box is λ, Chain is composition, and one sentence
+// way Lean writes it (the chapter carries over Lean's idea; the names stay in the encyclopedia). Reading terms first: Apply is application, the box is λ, Chain is composition, and one sentence
 // can have two different proofs; then the data: ∧ is a pair, ∨ carries a tag, ¬ is a function, ⊥ gives anything. Then
 // the term board, where the player writes short terms and the machine checks their type. Detours (a pair taken apart,
 // a box applied at once) bring in the Normalize card, which also unfolds a lemma into its own term; ∀ is a function
@@ -40,7 +40,7 @@ export const terms = [
       }),
     ],
     intro: [
-      { t: T('前面接出的每一个证明，本身也是一样东西。Lean 把它写成一个<b>项</b>，再检查这个项的类型是不是要证的那句话。从这一关起，证明板上每张卡片在它证出的那句下面，多一行它的项。', 'Every proof you have wired is itself a thing. Lean writes it as a <b>term</b>, and checks that the term’s type is the sentence to be proved. From this level on, every card on the proof board shows its term under the sentence it proves.') },
+      { t: T('前面接出的每一个证明，本身也是一样东西，可以写成一个<b>项</b>。这一章迁移的是 Lean 的思路：证明就是项，检查证明就是检查项的类型。从这一关起，证明板上每张卡片在它证出的那句下面，多一行它的项。', 'Every proof you have wired is itself a thing, and can be written as a <b>term</b>. This chapter carries over Lean’s idea: a proof is a term, and checking a proof is checking the term’s type. From this level on, every card on the proof board shows its term under the sentence it proves.') },
       { t: T('已知各有一个名字，名字就是它的项：p 证的是 p 那一句。一句「A → B」的证明是一个<b>函数</b>：给它一个 A 的证明，它还你一个 B 的证明。所以套用写成<b>应用</b>：p 用在 q 上，写作 p q，中间只隔一个空格。', 'Each given has a name, and the name is its term: p proves the sentence called p. A proof of “A → B” is a <b>function</b>: give it a proof of A and it gives back a proof of B. So Apply is written as <b>application</b>: p used on q is p q, with only a space between.') },
       { t: T('目标卡片上写着要的项。读懂它，就知道该怎么接。', 'The goal card shows the term wanted. Read it, and you know how to wire.') },
     ],
@@ -56,7 +56,7 @@ export const terms = [
     brief: T('实现一个证明器，可以从已知 p：「下雨 → (刮风 → 地湿)」、q：「刮风」证明出「下雨 → 地湿」，项要是 fun h => p h q。', 'Build a prover that, from p: “it rains → (it is windy → the ground is wet)” and q: “it is windy”, proves “it rains → the ground is wet”, with the term fun h => p h q.'),
     hint: [T('fun h => … 是一个框，h 是框里假设的那一句；箭头后面是框里要接出的东西。', 'fun h => … is a box, h the sentence it assumes; after the arrow is what is wired inside it.')],
     intro: [
-      { t: T('要造一个函数，就写 <b>fun h => …</b>：「拿到一个 h，就给出 …」。假设框做的正是这件事：框里假设的那一句有了一个名字 h，框里证出的东西用到 h，框外得到的是一个等着 h 的函数。这就是 <b>λ</b>（Lean 里也可以写成 λ h => …）。', 'To make a function, write <b>fun h => …</b>: “given an h, give …”. The assumption box does just that: the sentence it assumes gets a name h, what is proved inside uses h, and outside you get a function waiting for an h. This is <b>λ</b> (Lean also lets you write λ h => …).') },
+      { t: T('要造一个函数，就写 <b>fun h => …</b>：「拿到一个 h，就给出 …」。假设框做的正是这件事：框里假设的那一句有了一个名字 h，框里证出的东西用到 h，框外得到的是一个等着 h 的函数。这就是 <b>λ</b>（也可以写成 λ h => …）。', 'To make a function, write <b>fun h => …</b>: “given an h, give …”. The assumption box does just that: the sentence it assumes gets a name h, what is proved inside uses h, and outside you get a function waiting for an h. This is <b>λ</b> (it may also be written λ h => …).') },
       { t: T('框里的假设在卡片上叫 h1；框套框时，里面一层叫 h2。名字只是记号：fun h => h 和 fun x => x 是同一个项。', 'A box’s assumption is called h1 on the card; a box inside it calls its own h2. The names are only labels: fun h => h and fun x => x are the same term.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
@@ -197,8 +197,8 @@ export const terms = [
     ],
     brief: T('这回不接线：每一句要证的话，写出它的证明项。', 'No wiring this time: for each sentence to prove, write its proof term.'),
     hint: [T('名字就是证明；一个「若…则…」的证明是函数，写在它要用到的证明前面。', 'A name is a proof; the proof of an “if … then …” is a function, written before the proof it is used on.')],
-    intro: [{ t: T('新的板：<b>写项板</b>。按钮能敲出项的各个零件，也可以直接打字。写好了，机器检查这个项的类型是不是要证的那句话，就像 Lean 做的那样。', 'A new board: the <b>term board</b>. The buttons type the pieces of a term, or you can type directly. When it is written, the machine checks that the term’s type is the sentence to prove, as Lean does.') }],
-    after: T('机器没有看你怎么想到的，只检查写下的项：每一次应用，函数的前一半都要和参数对得上。这就是 Lean 的核做的事：<b>证明检查就是类型检查</b>。', 'The machine does not look at how you found it, only at the term written: at every application, the function’s first half must match the argument. This is what Lean’s kernel does: <b>proof checking is type checking</b>.'),
+    intro: [{ t: T('新的板：<b>写项板</b>。按钮能敲出项的各个零件，也可以直接打字。写好了，机器检查这个项的类型是不是要证的那句话。', 'A new board: the <b>term board</b>. The buttons type the pieces of a term, or you can type directly. When it is written, the machine checks that the term’s type is the sentence to prove.') }],
+    after: T('机器没有看你怎么想到的，只检查写下的项：每一次应用，函数的前一半都要和参数对得上。证明器的核做的就是这件事：<b>证明检查就是类型检查</b>。', 'The machine does not look at how you found it, only at the term written: at every application, the function’s first half must match the argument. This is what a prover’s kernel does: <b>proof checking is type checking</b>.'),
   },
   {
     id: 't-wlam',
@@ -321,7 +321,7 @@ export const terms = [
     hint: [T('串联的项是 chain p q；chain 自己也有一个项，就是当初证它时接出来的那个。', 'Chain’s term is chain p q; chain itself has a term as well, the one wired when it was proved.')],
     intro: [{ t: T('一条引理的名字背后，是证它的那个项。化简证明遇到引理的名字，会把它展开成那个项，再接着化简。', 'Behind a lemma’s name is the term that proved it. When Normalize meets a lemma’s name it unfolds it into that term, then carries on.') }],
     solution: proof({ c: ['chain'], n: ['normalize'] }, ['p>c.p0', 'q>c.p1', 'c>n.a', 'n>goal'], { premises: ['p', 'q'] }),
-    after: T('chain 是 fun p q h => q (p h)；用在 p、q 上再化简，就和直接接线的项一样了。引理只是给项起的名字，展开以后，整个证明是一个只用最初规则的项，谁都可以拿去独立复查。这叫 <b>de Bruijn 准则</b>：检查证明的核要小，证明本身要能交给别人重新检查。Isabelle 走另一条路：它不留证明项，定理是一种只有核能造出来的抽象类型（LCF 的做法），一样可信。', 'chain is fun p q h => q (p h); applied to p and q and normalized, it is the same term as the one wired directly. A lemma is only a name given to a term; unfolded, the whole proof is a term using only the first rules, which anyone can check again on their own. This is the <b>de Bruijn criterion</b>: the kernel that checks proofs is small, and a proof can be handed to someone else to check again. Isabelle goes another way: it keeps no proof terms, and a theorem is an abstract type only the kernel can make (the LCF approach), just as trustworthy.'),
+    after: T('chain 是 fun p q h => q (p h)；用在 p、q 上再化简，就和直接接线的项一样了。引理只是给项起的名字，展开以后，整个证明是一个只用最初规则的项，谁都可以拿去独立复查。检查证明的核可以很小，证明本身可以交给别人重新检查。', 'chain is fun p q h => q (p h); applied to p and q and normalized, it is the same term as the one wired directly. A lemma is only a name given to a term; unfolded, the whole proof is a term using only the first rules, which anyone can check again on their own. The kernel that checks proofs can be small, and a proof can be handed to someone else to check again.'),
   },
 
   // ---------- quantifiers ----------
@@ -346,7 +346,7 @@ export const terms = [
       }),
     ],
     intro: [{ t: T('「∀x. …」的证明也是函数，只是参数不是证明，而是一样东西：给它一样东西 t，它还你关于 t 的那句话的证明。还回来的句子跟着 t 变，这叫<b>依赖函数</b>。取一个，写成把那样东西传进去：p ann。', 'A proof of “∀x. …” is a function too, but its argument is not a proof, it is a thing: give it a thing t and it gives back a proof of the sentence about t. The sentence given back depends on t, so this is a <b>dependent function</b>. Take one is written as passing the thing in: p ann.') }],
-    after: T('任取框是 fun x，假设框是 fun h，写起来一模一样，区别只在参数是东西还是证明。Lean 里两者本来就是同一种东西：→ 只是不依赖参数的 ∀。', 'The for-any box is fun x and the assumption box fun h, written exactly alike; the only difference is whether the argument is a thing or a proof. In Lean they are one and the same: → is just a ∀ that does not depend on its argument.'),
+    after: T('任取框是 fun x，假设框是 fun h，写起来一模一样，区别只在参数是东西还是证明。两者本来就是同一种东西：→ 只是不依赖参数的 ∀。', 'The for-any box is fun x and the assumption box fun h, written exactly alike; the only difference is whether the argument is a thing or a proof. They are one and the same: → is just a ∀ that does not depend on its argument.'),
   },
   {
     id: 't-ex',
@@ -387,6 +387,6 @@ export const terms = [
       T('拿到 a 和 k，谁能用在谁身上？k 等着一个下雨的证明。', 'Given a and k, which can be used on which? k waits for a proof that it rains.'),
     ],
     intro: [{ t: T('把每个 ¬ 都换成「→ ⊥」，再读要证的句子。', 'Turn every ¬ into “→ ⊥”, then read the sentence to prove.') }],
-    after: T('A → ¬¬A 是 fun a k => k a：拿着 a，等别人给一个「A 就矛盾」的 k，把 a 交给它。反过来的 ¬¬A → A 写不出项：没有程序能从「A 不会不成立」里变出 A 的证明。所以反证法没有对应的程序，Lean 把它当作公理（Classical.byContradiction），Isabelle 的 HOL 本来就是经典逻辑。可三重否定能化成一重，第二句的项正是这样。', 'A → ¬¬A is fun a k => k a: holding a, wait for a k saying “A gives a contradiction”, and hand a to it. The other way, ¬¬A → A, has no term: no program can conjure a proof of A out of “A cannot fail”. So proof by contradiction has no program behind it; Lean takes it as an axiom (Classical.byContradiction), and Isabelle’s HOL is classical from the start. Yet three negations do come down to one, which is what the second term does.'),
+    after: T('A → ¬¬A 是 fun a k => k a：拿着 a，等别人给一个「A 就矛盾」的 k，把 a 交给它。反过来的 ¬¬A → A 写不出项：没有程序能从「A 不会不成立」里变出 A 的证明。所以反证法没有对应的程序，要用它，只能当作一条公理另外加上。可三重否定能化成一重，第二句的项正是这样。', 'A → ¬¬A is fun a k => k a: holding a, wait for a k saying “A gives a contradiction”, and hand a to it. The other way, ¬¬A → A, has no term: no program can conjure a proof of A out of “A cannot fail”. So proof by contradiction has no program behind it: to use it, it must be added as an axiom of its own. Yet three negations do come down to one, which is what the second term does.'),
   },
 ]

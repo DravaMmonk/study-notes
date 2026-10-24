@@ -19,44 +19,47 @@ const FAMILY_TWO = {
 }
 export const families = [FAMILY_ONE, FAMILY_TWO]
 const query = (level) => ({ kind: 'query', consts, worlds: families, ...level })
+// A translation level: one sentence per task, each built from the same chips (every sentence's words, and the decoys).
+const STEPS = [T('第一句', 'Sentence 1'), T('第二句', 'Sentence 2'), T('第三句', 'Sentence 3')]
+const sentences = (list, decoys = []) => list.map((task, k) => ({ kind: 'translate', step: STEPS[k], decoys: [...list.filter((_, j) => j !== k).map((t) => t.target), ...decoys], ...task }))
+const BRIEF = T('用下面的块，把这句话拼成公式。', 'Build this sentence as a formula from the pieces below.')
 
 export const quantifiers = [
   {
     id: 'fo-atoms',
-    kind: 'translate',
     consts,
     title: T('谁是什么', 'Who is what'),
-    items: [
-      { say: T('苏格拉底是人。', 'Socrates is human.'), target: 'Human(soc)' },
-      { say: T('安是博的父母。', 'Ann is a parent of Bo.'), target: 'Parent(ann, bo)' },
-      { say: T('博不喜欢安。', 'Bo does not like Ann.'), target: '¬Likes(bo, ann)' },
-    ],
-    decoys: ['Mortal(soc)', 'Likes(ann, bo)'],
-    brief: T('用下面的词，把每句话写成公式。', 'Write each sentence as a formula with the words below.'),
-    hint: [T('「安是博的父母」：谁写在前面，谁写在后面？', '“Ann is a parent of Bo”: who goes first, and who second?')],
+    tasks: sentences([
+      { say: T('苏格拉底是人。', 'Socrates is human.'), target: 'Human(soc)', hint: [T('放上谓词「①是人」，再把苏格拉底放进 ①。', 'Put down the predicate “① is human”, then put Socrates in ①.')] },
+      { say: T('安是博的父母。', 'Ann is a parent of Bo.'), target: 'Parent(ann, bo)', hint: [T('「①是②的父母」：谁是 ①，谁是 ②？', '“① is a parent of ②”: who is ①, and who is ②?')] },
+      { say: T('博不喜欢安。', 'Bo does not like Ann.'), target: '¬Likes(bo, ann)', hint: [T('最外面是「并非」：先放 ¬，再在它里面放「喜欢」。', 'The outermost piece is “not”: put ¬ first, then “likes” inside it.')] },
+    ], ['Mortal(soc)']),
+    brief: BRIEF,
     intro: [
       { t: T('到现在为止，一个字母只能是一整句话：每个人是不是骑士，就要一人一个字母。要是全城的人都要说到呢？命题逻辑说不出「每一个人」「有一个人」。', 'So far a letter can only be a whole sentence: whether each person is a knight takes a letter per person. What about everyone in a city? Propositional logic cannot say “everyone” or “someone”.') },
       { t: T('这一章把一句话拆开：<b>名字</b>指一样东西（苏格拉底、安），<b>谓词</b>说东西的性质或关系（「…是人」「…是…的父母」）。「苏格拉底是人」写成 Human(soc)。', 'This chapter takes a sentence apart: a <b>name</b> stands for a thing (Socrates, Ann), a <b>predicate</b> says what things are or how they relate (“… is human”, “… is a parent of …”). “Socrates is human” is written Human(soc).') },
-      { t: T('这一章先不证明，只学这样的话怎么说、在一个世界里是真是假。写好的公式下面会用文字读出来。', 'No proofs yet in this chapter: only how to say such things and when they are true in a world. Each formula you write is read back in words beneath it.') },
+      { t: T('这一章先不证明，只学这样的话怎么说、在一个世界里是真是假。一道题一句话：用下面的块把它拼成公式，块里有空位的，再往空位里放别的块。拼完整了，下面会用文字读出来。', 'No proofs yet in this chapter: only how to say such things and when they are true in a world. One sentence at a time: build it as a formula from the pieces below, and where a piece has empty places, put other pieces in them. Once it is whole, it is read back in words beneath.') },
     ],
     after: T('一句话拆成了名字和谓词，同一个谓词可以说任何东西：Human(soc)、Human(ann)。谓词的位置有先后：Parent(ann, bo) 和 Parent(bo, ann) 是两回事。', 'A sentence comes apart into names and predicates, and one predicate can be said of anything: Human(soc), Human(ann). A predicate’s places have an order: Parent(ann, bo) and Parent(bo, ann) are different things.'),
   },
   {
     id: 'fo-all',
-    kind: 'translate',
     consts,
     symbols: ['∀'],
     title: T('对所有 ∀', 'For all ∀'),
-    items: [
-      { say: T('人都会死。', 'Every human is mortal.'), target: '∀x. Human(x) → Mortal(x)' },
-      { say: T('每个人都喜欢安。', 'Everyone likes Ann.'), target: '∀x. Human(x) → Likes(x, ann)' },
-      { say: T('安喜欢每一个人。', 'Ann likes everyone.'), target: '∀x. Human(x) → Likes(ann, x)' },
-    ],
-    brief: T('用下面的词，把每句话写成公式。', 'Write each sentence as a formula with the words below.'),
-    hint: [
-      T('「人都会死」：对每一样东西 x，如果 x 是人，那么 x 会死。', '“Every human is mortal”: for every thing x, if x is human then x is mortal.'),
-      T('写成「x 是人 ∧ x 会死」，说的是世上每一样东西都是人。', 'Writing “x is human ∧ x is mortal” says every thing in the world is human.'),
-    ],
+    tasks: sentences([
+      {
+        say: T('人都会死。', 'Every human is mortal.'),
+        target: '∀x. Human(x) → Mortal(x)',
+        hint: [
+          T('「人都会死」：对每一样东西 x，如果 x 是人，那么 x 会死。', '“Every human is mortal”: for every thing x, if x is human then x is mortal.'),
+          T('写成「x 是人 ∧ x 会死」，说的是世上每一样东西都是人。', 'Writing “x is human ∧ x is mortal” says every thing in the world is human.'),
+        ],
+      },
+      { say: T('每个人都喜欢安。', 'Everyone likes Ann.'), target: '∀x. Human(x) → Likes(x, ann)', hint: [T('和「人都会死」一个形状：对所有 x，若 x 是人，则……', 'The same shape as “every human is mortal”: for every x, if x is human, then …')] },
+      { say: T('安喜欢每一个人。', 'Ann likes everyone.'), target: '∀x. Human(x) → Likes(ann, x)', hint: [T('这回 x 是被喜欢的那一个：在「①喜欢②」里，它在哪个位置？', 'This time x is the one liked: in “① likes ②”, which place is it?')] },
+    ]),
+    brief: BRIEF,
     intro: [
       { t: T('新符号 <b>∀</b>，读作「对所有」：∀x. P(x) 说的是，世上每一样东西 x，P(x) 都成立。x 是一个<b>变量</b>，代表「随便哪一样」。', 'A new symbol, <b>∀</b>, read “for all”: ∀x. P(x) says that for every thing x in the world, P(x) holds. x is a <b>variable</b>, standing for “any one”.') },
       { t: T('写错了不要紧：检查时会找出一个小世界，在那里你写的和原句一真一假。', 'Mistakes are fine: checking finds a small world where what you wrote and the sentence come apart.') },
@@ -65,35 +68,35 @@ export const quantifiers = [
   },
   {
     id: 'fo-some',
-    kind: 'translate',
     consts,
     symbols: ['∃'],
     title: T('存在 ∃', 'There exists ∃'),
-    items: [
-      { say: T('有的鸟不会飞。', 'Some bird does not fly.'), target: '∃x. Bird(x) ∧ ¬Flies(x)' },
-      { say: T('有人喜欢安。', 'Someone likes Ann.'), target: '∃x. Human(x) ∧ Likes(x, ann)' },
-      { say: T('没有人喜欢博。', 'Nobody likes Bo.'), target: '¬∃x. Human(x) ∧ Likes(x, bo)' },
-    ],
-    brief: T('用下面的词，把每句话写成公式。', 'Write each sentence as a formula with the words below.'),
-    hint: [
-      T('「有的鸟不会飞」：有一样东西 x，x 是鸟，并且 x 不会飞。', '“Some bird does not fly”: there is a thing x that is a bird and does not fly.'),
-      T('写成「x 是鸟 → x 不会飞」，只要世上有一样不是鸟的东西，这句就成立了。', 'Writing “x is a bird → x does not fly” is made true by anything at all that is not a bird.'),
-    ],
+    tasks: sentences([
+      {
+        say: T('有的鸟不会飞。', 'Some bird does not fly.'),
+        target: '∃x. Bird(x) ∧ ¬Flies(x)',
+        hint: [
+          T('「有的鸟不会飞」：有一样东西 x，x 是鸟，并且 x 不会飞。', '“Some bird does not fly”: there is a thing x that is a bird and does not fly.'),
+          T('写成「x 是鸟 → x 不会飞」，只要世上有一样不是鸟的东西，这句就成立了。', 'Writing “x is a bird → x does not fly” is made true by anything at all that is not a bird.'),
+        ],
+      },
+      { say: T('有人喜欢安。', 'Someone likes Ann.'), target: '∃x. Human(x) ∧ Likes(x, ann)', hint: [T('有一样东西 x，x 是人，并且……', 'There is a thing x that is human, and …')] },
+      { say: T('没有人喜欢博。', 'Nobody likes Bo.'), target: '¬∃x. Human(x) ∧ Likes(x, bo)', hint: [T('「没有人」就是「并非有一个人」：最外面先放 ¬。', '“Nobody” is “not someone”: put ¬ outermost first.')] },
+    ]),
+    brief: BRIEF,
     intro: [{ t: T('新符号 <b>∃</b>，读作「存在」：∃x. P(x) 说的是，世上至少有一样东西 x，P(x) 成立。', 'A new symbol, <b>∃</b>, read “there exists”: ∃x. P(x) says there is at least one thing x with P(x).') }],
     after: T('∃ 配 ∧，∀ 配 →，正好反过来。「没有人喜欢博」可以写成「¬∃x…」，也可以写成「∀x. x 是人 → ¬x 喜欢博」：两个写法在每个世界里都一样。', '∃ goes with ∧, ∀ with →: the other way round. “Nobody likes Bo” can be “¬∃x …” or “∀x. x is human → ¬x likes Bo”: the two agree in every world.'),
   },
   {
     id: 'fo-nested',
-    kind: 'translate',
     consts,
     title: T('量词套量词', 'One inside another'),
-    items: [
-      { say: T('每个人都有父母。', 'Everyone has a parent.'), target: '∀x. Human(x) → ∃y. Parent(y, x)' },
-      { say: T('有个人谁都喜欢。', 'Someone likes everyone.'), target: '∃x. Human(x) ∧ ∀y. Human(y) → Likes(x, y)' },
-      { say: T('每个人都喜欢某个人。', 'Everyone likes someone.'), target: '∀x. Human(x) → ∃y. Human(y) ∧ Likes(x, y)' },
-    ],
-    brief: T('用下面的词，把每句话写成公式。', 'Write each sentence as a formula with the words below.'),
-    hint: [T('里面那个量词用另一个变量 y。', 'The inner quantifier takes another variable, y.')],
+    tasks: sentences([
+      { say: T('每个人都有父母。', 'Everyone has a parent.'), target: '∀x. Human(x) → ∃y. Parent(y, x)', hint: [T('里面那个量词用另一个变量 y：x 的父母是谁？有一个就行。', 'The inner quantifier takes another variable, y: who is x’s parent? Some y, that is all.')] },
+      { say: T('有个人谁都喜欢。', 'Someone likes everyone.'), target: '∃x. Human(x) ∧ ∀y. Human(y) → Likes(x, y)', hint: [T('外面是有一个 x，里面是对所有 y。', 'Outside, some x; inside, every y.')] },
+      { say: T('每个人都喜欢某个人。', 'Everyone likes someone.'), target: '∀x. Human(x) → ∃y. Human(y) ∧ Likes(x, y)', hint: [T('外面是对所有 x，里面是有一个 y；y 也得是人。', 'Outside, every x; inside, some y, and y must be human too.')] },
+    ]),
+    brief: BRIEF,
     intro: [{ t: T('一个量词里面还可以有量词。每个量词有自己的变量，管到它后面的整段：∀x. … ∃y. … 里，x 和 y 各指各的。变量被某个量词管着，叫<b>约束</b>的；没有量词管着，叫<b>自由</b>的，那句话就说不清在讲谁。', 'A quantifier may hold another. Each has its own variable and reaches over everything after it: in ∀x. … ∃y. …, x and y each stand for their own thing. A variable some quantifier covers is <b>bound</b>; one no quantifier covers is <b>free</b>, and then the sentence does not say whom it means.') }],
     after: T('「有个人谁都喜欢」和「每个人都喜欢某个人」只差量词的先后，意思却差得远：前一句是同一个人喜欢所有人，后一句是每人各有各喜欢的人。', '“Someone likes everyone” and “everyone likes someone” differ only in the order of quantifiers, yet mean very different things: one person who likes all, or each with someone of their own.'),
   },
@@ -178,16 +181,14 @@ export const quantifiers = [
   },
   {
     id: 'p-only',
-    kind: 'translate',
     consts,
     title: T('只有', 'Only'),
-    items: [
-      { say: T('只有鸟会飞。', 'Only birds fly.'), target: '∀x. Flies(x) → Bird(x)' },
-      { say: T('不是所有鸟都会飞。', 'Not every bird flies.'), target: '¬∀x. Bird(x) → Flies(x)' },
-      { say: T('会飞的都不是人。', 'Nothing that flies is human.'), target: '∀x. Flies(x) → ¬Human(x)' },
-    ],
-    brief: T('用下面的词，把每句话写成公式。', 'Write each sentence as a formula with the words below.'),
-    hint: [T('「只有鸟会飞」：会飞的，一定是鸟。哪边是条件？', '“Only birds fly”: whatever flies is a bird. Which side is the condition?')],
+    tasks: sentences([
+      { say: T('只有鸟会飞。', 'Only birds fly.'), target: '∀x. Flies(x) → Bird(x)', hint: [T('「只有鸟会飞」：会飞的，一定是鸟。哪边是条件？', '“Only birds fly”: whatever flies is a bird. Which side is the condition?')] },
+      { say: T('不是所有鸟都会飞。', 'Not every bird flies.'), target: '¬∀x. Bird(x) → Flies(x)', hint: [T('最外面是 ¬，管着一整句「鸟都会飞」。', 'The outermost piece is ¬, over the whole of “every bird flies”.')] },
+      { say: T('会飞的都不是人。', 'Nothing that flies is human.'), target: '∀x. Flies(x) → ¬Human(x)', hint: [T('对所有 x，若 x 会飞，则……', 'For every x, if x flies, then …')] },
+    ]),
+    brief: BRIEF,
     after: T('「只有鸟会飞」和「鸟都会飞」箭头方向相反，最容易译反。「不是所有鸟都会飞」和「有的鸟不会飞」在每个世界里都一样：¬∀ 就是 ∃¬。', '“Only birds fly” and “every bird flies” point the arrow opposite ways, and are the easiest to get backwards. “Not every bird flies” and “some bird does not fly” agree in every world: ¬∀ is ∃¬.'),
   },
   {
@@ -222,9 +223,9 @@ export const quantifiers = [
   query({
     id: 'q-children',
     title: T('谁是安的孩子', 'Who are Ann’s children'),
-    items: [{ say: T('x 是安的孩子。', 'x is a child of Ann.'), target: 'Parent(ann, x)' }],
+    say: T('x 是安的孩子。', 'x is a child of Ann.'), target: 'Parent(ann, x)',
     decoys: ['School(x)'],
-    brief: T('写一句带着 x 的话，在每一家里，让它正好选中安的孩子。', 'Write a sentence with x in it that picks out exactly Ann’s children in each family.'),
+    brief: T('拼一句带着 x 的话，在每一家里，让它正好选中安的孩子。', 'Build a sentence with x in it that picks out exactly Ann’s children in each family.'),
     hint: [T('「安是 x 的父母」。', '“Ann is a parent of x”.')],
     intro: [
       { t: T('一句话里留一个自由的 x，它就成了一个<b>查询</b>：世界里哪些东西放进 x 能让这句话成立，就是查询的答案。数据库的查询语言 SQL，核心正是这样的一阶逻辑。', 'Leave one x free in a sentence and it becomes a <b>query</b>: the things of a world that make it true when put in for x are the answer. The core of SQL, the language of databases, is first-order logic like this.') },
@@ -235,26 +236,26 @@ export const quantifiers = [
   query({
     id: 'q-grand',
     title: T('谁当了祖父母', 'Who are grandparents'),
-    items: [{ say: T('x 是某个人的祖父母。', 'x is a grandparent of someone.'), target: '∃y. ∃z. Parent(x, y) ∧ Parent(y, z)' }],
+    say: T('x 是某个人的祖父母。', 'x is a grandparent of someone.'), target: '∃y. ∃z. Parent(x, y) ∧ Parent(y, z)',
     decoys: ['School(x)'],
-    brief: T('写一句带着 x 的话，在每一家里，让它正好选中当了祖父母的人。', 'Write a sentence with x in it that picks out exactly the grandparents in each family.'),
+    brief: T('拼一句带着 x 的话，在每一家里，让它正好选中当了祖父母的人。', 'Build a sentence with x in it that picks out exactly the grandparents in each family.'),
     hint: [T('x 是 y 的父母，y 又是 z 的父母。y 和 z 是谁？存在就行。', 'x is a parent of y, and y of z. Who are y and z? Some, that is all.')],
     after: T('中间那一代 y 和孙辈 z 不在答案里，所以用 ∃ 把它们「藏」起来：查询只关心 x。', 'The middle generation y and the grandchild z are not part of the answer, so ∃ hides them: the query cares only about x.'),
   }),
   query({
     id: 'q-none',
     title: T('谁没有孩子', 'Who has no children'),
-    items: [{ say: T('x 没有孩子。', 'x has no children.'), target: '¬∃y. Parent(x, y)' }],
+    say: T('x 没有孩子。', 'x has no children.'), target: '¬∃y. Parent(x, y)',
     decoys: ['School(x)'],
-    brief: T('写一句带着 x 的话，在每一家里，让它正好选中没有孩子的人。', 'Write a sentence with x in it that picks out exactly those with no children in each family.'),
+    brief: T('拼一句带着 x 的话，在每一家里，让它正好选中没有孩子的人。', 'Build a sentence with x in it that picks out exactly those with no children in each family.'),
     hint: [T('「x 有孩子」是什么？在它前面加个 ¬。', 'What is “x has a child”? Put a ¬ in front.')],
     after: T('「没有孩子」要看遍整家人才知道：查询里的 ¬∃ 就是「一个都找不到」。', '“No children” needs the whole family looked through: ¬∃ in a query is “none to be found”.'),
   }),
   query({
     id: 'q-school',
     title: T('孩子都在上学的家长', 'Parents whose children all go to school'),
-    items: [{ say: T('x 有孩子，而且 x 的孩子都在上学。', 'x has children, and all of x’s children go to school.'), target: '(∃y. Parent(x, y)) ∧ ∀y. Parent(x, y) → School(y)' }],
-    brief: T('写一句带着 x 的话，在每一家里，让它正好选中「有孩子、孩子又都在上学」的人。', 'Write a sentence with x in it that picks out exactly those who have children, all of whom go to school.'),
+    say: T('x 有孩子，而且 x 的孩子都在上学。', 'x has children, and all of x’s children go to school.'), target: '(∃y. Parent(x, y)) ∧ ∀y. Parent(x, y) → School(y)',
+    brief: T('拼一句带着 x 的话，在每一家里，让它正好选中「有孩子、孩子又都在上学」的人。', 'Build a sentence with x in it that picks out exactly those who have children, all of whom go to school.'),
     hint: [
       T('两件事用 ∧ 连起来：「有孩子」用 ∃，「孩子都在上学」用 ∀。', 'Join two things with ∧: “has children” with ∃, “all children at school” with ∀.'),
       T('只写「孩子都在上学」，没有孩子的人也会被选中：没有孩子，这句话就空着成立。', 'With only “all children at school”, those with no children are picked too: with no children, it holds emptily.'),

@@ -131,3 +131,17 @@ test('proof terms: written, printed, checked, reduced', async () => {
   assert.ok(alphaEq(parseTerm('fun x y => x'), parseTerm('fun a b => a')))
   assert.ok(!alphaEq(parseTerm('fun x y => x'), parseTerm('fun a b => b')))
 })
+
+test('formulas built from chips: holes in reading order, pieces taken out whole', async () => {
+  const { chipsOf, complete, holesOf, kindAt, missingChips, setAt } = await import('./formulaTree.js')
+  const level = { kind: 'translate', consts: ['soc'], vocab: { preds: [['Mortal', 1], ['Human', 1]], consts: ['soc'] }, notation: { symbols: ['∀'] } }
+  const chips = new Map(chipsOf(level).map((c) => [c.key, c]))
+  const put = (tree, key) => setAt(tree, holesOf(tree).find((h) => h.kind === chips.get(key).kind).path, chips.get(key).make())
+  let tree = ['∀x', '→', 'P:Human', 'v:x', 'P:Mortal', 'v:x'].reduce(put, null)
+  assert.ok(complete(tree))
+  assert.ok(same(tree, parse('∀x. Human(x) → Mortal(x)')))
+  assert.equal(kindAt(tree, [0, 0, 0]), 'term')
+  tree = setAt(tree, [0, 0], null)
+  assert.deepEqual(holesOf(tree), [{ path: [0, 0], kind: 'formula' }])
+  assert.deepEqual(missingChips(parse('∃x. Human(x)'), [...chips.values()]), ['∃x'])
+})

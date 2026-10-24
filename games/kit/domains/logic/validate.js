@@ -19,6 +19,7 @@ import { portsOf } from '../../engine/circuit.js'
 import { lettersOf, tautology } from './truth.js'
 import { MACHINE_PARTS, MACHINE_TESTS } from './machine.js'
 import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
+import { chipsOf, missingChips } from './formulaTree.js'
 import { checkTerm, parseTerm } from './pterm.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
 
@@ -44,15 +45,19 @@ export function validate({ levels: given, course }) {
     const missing = [...level.vocab.preds.map(([p]) => p), ...level.vocab.consts].filter((w) => !words[w])
     if (missing.length) out.push({ fail: true, text: `${level.id}: no words for ${missing.join(', ')}` })
     const consts = level.vocab.names
-    if (level.kind === 'translate') for (const item of level.items) if (freeVars(parse(item.target, { consts })).size) out.push({ fail: true, text: `${level.id}: ${item.target} has a free variable` })
+    if (level.kind === 'translate' || level.kind === 'query') {
+      // The sentence can be built from the chips the task offers (formulaTree.js).
+      const f = parse(level.target, { consts })
+      const missingChip = missingChips(f, chipsOf(level))
+      if (missingChip.length) out.push({ fail: true, text: `${level.id}: ${level.target} needs chips not on offer: ${missingChip.join(', ')}` })
+      if (level.kind === 'translate' && freeVars(f).size) out.push({ fail: true, text: `${level.id}: ${level.target} has a free variable` })
+    }
     if (level.kind === 'query') {
       for (const world of level.worlds) for (const t of world.things) if (!words[t]) out.push({ fail: true, text: `${level.id}: no words for the thing ${t}` })
-      for (const item of level.items) {
-        const f = parse(item.target, { consts })
-        const free = [...freeVars(f)]
-        if (free.length !== 1 || free[0] !== 'x') out.push({ fail: true, text: `${level.id}: a query needs the free variable x alone: ${item.target}` })
-        else if (!level.worlds.some((w) => extent(f, structureOf(w, [f])).length)) out.push({ fail: true, text: `${level.id}: ${item.target} picks out nothing in any world` })
-      }
+      const f = parse(level.target, { consts })
+      const free = [...freeVars(f)]
+      if (free.length !== 1 || free[0] !== 'x') out.push({ fail: true, text: `${level.id}: a query needs the free variable x alone: ${level.target}` })
+      else if (!level.worlds.some((w) => extent(f, structureOf(w, [f])).length)) out.push({ fail: true, text: `${level.id}: ${level.target} picks out nothing in any world` })
     }
     if (level.kind === 'prolog') {
       const rules = level.items.map((i) => hornOf(parse(i.target, { consts })))

@@ -184,3 +184,13 @@
 .lg-preview .step-log { margin: 0; height: auto; max-height: none; min-height: 0; align-content: start; }
 .lg-preview .lg-preview-empty { margin: 0; display: grid; place-items: center; text-align: center; }
 .lg-preview .lg-verdict { margin: 0; max-height: 4.6em; overflow: auto; }
+
+/* Formulas built from chips (FormulaScreen.jsx, on the shared strip): the sentence to say, and a colour per kind of piece. */
+.fo-prompt { font-size: 20px; }
+.fo-level { --fam-pred: #3f7fb5; --fam-name: #2f918f; --fam-var: #7a6fb0; --fam-quant: #b4579a; --fam-conn: #b98516; }
+:root[data-theme='night'] .fo-level, :root[data-theme='blueprint'] .fo-level { --fam-pred: #8db3d6; --fam-name: #7fc2c2; --fam-var: #b3a9dc; --fam-quant: #c5a0cc; --fam-conn: #e0ac4f; }
+.fo-level [data-family='pred'] { --fam: var(--fam-pred); }
+.fo-level [data-family='name'] { --fam: var(--fam-name); }
+.fo-level [data-family='var'] { --fam: var(--fam-var); }
+.fo-level [data-family='quant'] { --fam: var(--fam-quant); }
+.fo-level [data-family='conn'] { --fam: var(--fam-conn); }

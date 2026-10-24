@@ -11,9 +11,11 @@ import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
 import TruthScreen from './ui/TruthScreen.jsx'
-import { ModelScreen, WriteScreen } from './ui/WorldScreens.jsx'
+import { ModelScreen, RulesScreen } from './ui/WorldScreens.jsx'
+import FormulaScreen from './ui/FormulaScreen.jsx'
 import { MACHINE_TEXT, RULE_TEXT, iconOf, nameOf, textOf } from './ui/catalog.js'
 import TermScreen from './ui/TermScreen.jsx'
+import '../../strip/strip.css'
 import { PRIMITIVE_GATES } from './gates.js'
 
 /**
@@ -69,10 +71,10 @@ export function defineLogicGame(spec) {
       machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '机器', en: 'Machine' } },
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
-      translate: { Screen: WriteScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
-      query: { Screen: WriteScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
+      translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
+      query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: Boxes, label: { zh: '造世界', en: 'Build a world' } },
-      prolog: { Screen: WriteScreen, icon: ScrollText, label: { zh: '写规则', en: 'Write rules' } },
+      prolog: { Screen: RulesScreen, icon: ScrollText, label: { zh: '写规则', en: 'Write rules' } },
       term: { Screen: TermScreen, icon: Braces, label: { zh: '写项', en: 'Write a term' } },
     },
     unlocked: (level) => level.unlocks.map((flag) => ({ label: built[flag.slice('lemma:'.length)].name })),
