@@ -176,3 +176,11 @@ test('a thing put where a sentence goes waits for a predicate to take it', async
   assert.deepEqual(straysOf(tree), [])
   assert.ok(same(tree, parse('Parent(ann, bo)', { consts: ['ann', 'bo'] })))
 })
+
+test('a lemma over a quantified letter fits any variable and keeps it', async () => {
+  const { lemma } = await import('./proof.js')
+  const qdm = lemma({ statement: '∃x. ¬P', premises: ['¬∀x. P'], metas: ['P'] })
+  const got = qdm.eval({ p0: { formula: parse('¬∀y. D(y)'), hyps: new Map(), term: null } }, { type: 'qdm', params: {} }, {})
+  assert.ok(same(got.formula, parse('∃y. ¬D(y)')))
+  assert.ok(lemmaGives({ statement: '∃x. ¬P', premises: ['¬∀x. P'], metas: ['P'] }, [parse('¬∀z. R(z, z)')], parse('∃z. ¬R(z, z)')))
+})
