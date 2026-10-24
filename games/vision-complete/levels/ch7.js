@@ -43,7 +43,7 @@ function matcher(windowed) {
   for (let d = 0; d < 4; d++) {
     let last = 'right'
     for (let s = 0; s < d; s++) {
-      nodes[`r${d}${s}`] = ['shift', { dir: '→' }]
+      nodes[`r${d}${s}`] = ['shift', { dir: 'right' }]
       wires.push(`${last}>r${d}${s}`)
       last = `r${d}${s}`
     }
@@ -162,8 +162,8 @@ const cross = (a, b) => vec(a.data[1] * b.data[2] - a.data[2] * b.data[1], a.dat
 const crossGraph = (wrap = true) =>
   build(
     {
-      a1: ['shift', { dir: '←', border: wrap ? 'wrap' : 'zero' }], a2: ['shift', { dir: '←', border: wrap ? 'wrap' : 'zero' }],
-      b1: ['shift', { dir: '←', border: wrap ? 'wrap' : 'zero' }], b2: ['shift', { dir: '←', border: wrap ? 'wrap' : 'zero' }],
+      a1: ['shift', { dir: 'left', border: wrap ? 'wrap' : 'zero' }], a2: ['shift', { dir: 'left', border: wrap ? 'wrap' : 'zero' }],
+      b1: ['shift', { dir: 'left', border: wrap ? 'wrap' : 'zero' }], b2: ['shift', { dir: 'left', border: wrap ? 'wrap' : 'zero' }],
       p: ['arith', { op: 'mul' }], q: ['arith', { op: 'mul' }], c: ['arith', { op: 'sub' }],
     },
     ['a>a1', 'a1>a2', 'b>b1', 'b1>b2', 'a1>p.a', 'b2>p.b', 'a2>q.a', 'b1>q.b', 'p>c.a', 'q>c.b', 'c>out'],

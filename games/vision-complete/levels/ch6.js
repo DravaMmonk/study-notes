@@ -70,7 +70,7 @@ const peakTests = (cases) => cases.map(([label, list]) => test(label, { in: bump
 const peakGraph = () =>
   build(
     {
-      l: ['shift', { dir: '←' }], r: ['shift', { dir: '→' }], h1: 'max', h: 'max', u: ['shift', { dir: '↑' }], d: ['shift', { dir: '↓' }], v1: 'max', v: 'max',
+      l: ['shift', { dir: 'left' }], r: ['shift', { dir: 'right' }], h1: 'max', h: 'max', u: ['shift', { dir: 'up' }], d: ['shift', { dir: 'down' }], v1: 'max', v: 'max',
       df: ['arith', { op: 'sub' }], eq: ['threshold', { t: -0.025 }], big: ['threshold', { t: PEAK_T }], m: ['arith', { op: 'mul' }],
     },
     ['in>l', 'in>r', 'in>h1.a', 'l>h1.b', 'h1>h.a', 'r>h.b', 'h>u', 'h>d', 'h>v1.a', 'u>v1.b', 'v1>v.a', 'd>v.b', 'in>df.a', 'v>df.b', 'df>eq', 'in>big', 'eq>m.a', 'big>m.b', 'm>out'],

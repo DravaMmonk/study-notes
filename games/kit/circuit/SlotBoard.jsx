@@ -103,6 +103,8 @@ const readMode = () => {
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
  * @param onClear                          clears the board: a button just left of undo and redo, which asks first
  *                                         (the row starts with the switcher between the level's saved boards, SaveSlots)
+ * @param onChange(graph), types           a board given these can be read in from text (SaveSlots): the editor's
+ *                                         change, and the parts this level offers
  * @param dense                            a board of text: thin blocks, each one's name over its value
  * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is;
  *        resultNote(node, region)         and beside the dot its result goes into, what the frame gives (a frame's
@@ -116,7 +118,7 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, dense = false, regionNote, resultNote }) {
+export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote }) {
   const board = useRef(null)
   const [wires, setWires] = useState(readMode)
   const mode = WIRE_MODES.find((m) => m.id === wires)
@@ -291,7 +293,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   return (
     <div className={`pb-board ${dense ? 'is-dense' : ''}`} data-ports={parts.typedPorts ? undefined : 'arrow'} ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
       <div className="pb-tools">
-        {!fixed && <SaveSlots phone />}
+        {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {onClear && <span className="pb-steps pb-clear"><ClearButton onClear={onClear} size={16} /></span>}
         {history && (
           <span className="pb-steps">

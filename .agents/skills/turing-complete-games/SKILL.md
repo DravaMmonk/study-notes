@@ -31,6 +31,8 @@ design doc if it is topic-specific), not into this skill.
 - Never grant a part directly; a non-primitive part is unlocked only by the level that builds it.
 - `npm run check` (in `trace-viewer/`) must be clean before committing curriculum changes; `npm test` for kit
   changes.
+- Part types, port names and setting values are ASCII, so every board prints as a blueprint (`kit/circuit/text.js`,
+  `games/DESIGN.md` §6): symbols go in labels; a notation that is symbolic by nature gets a `parts.text` spelling.
 
 ## Purpose: depth, not brevity
 

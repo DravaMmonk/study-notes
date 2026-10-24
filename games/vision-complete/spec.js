@@ -23,6 +23,16 @@ const CH5 = { '5-1': '5-2', '5-2': '5-5', '5-3': '5-7' }
 const CH6_8 = { '6-2': null, '6-3': '6-6', '6-4': '6-8', '6-5': '6-11', '7-3': null, '7-4': null, '8-2': '8-4', '8-3': '8-6' }
 // Version 13 dropped 1-16 (the scanner finale covers it); the scanner moved up to 1-16.
 const SCANNER = { '1-16': null, '1-17': '1-16' }
+// Version 15 spells every key of a board in ASCII, so a board reads as plain text (kit/circuit/text.js): Shift's
+// directions by name, the reparameterisation's ports as mu, sigma, eps.
+const ARROWS = { '→': 'right', '←': 'left', '↓': 'down', '↑': 'up' }
+const GREEK = { μ: 'mu', σ: 'sigma', ε: 'eps' }
+const asciiCircuit = (c) => ({
+  ...c,
+  nodes: c.nodes.map((n) => (n.type === 'shift' && n.params?.dir in ARROWS ? { ...n, params: { ...n.params, dir: ARROWS[n.params.dir] } } : n)),
+  wires: c.wires.map((w) => (w.port in GREEK ? { ...w, port: GREEK[w.port] } : w)),
+})
+const asciiBoard = (board) => (board?.nodes ? { ...asciiCircuit(board), ...(board.passed && { passed: asciiCircuit(board.passed) }) } : board)
 const SAVES = [
   ...Object.entries(RENUMBERED).map(([version, moved]) => ({ version: Number(version), ops: [{ rename: moved }] })),
   { version: 7, ops: [{ fields: { boards: 'data', seenIntro: 'seenPower' } }] },
@@ -37,6 +47,7 @@ const SAVES = [
   // Version 14 turned 2-2 into the stacking bench, which hands out the Average part, and opened the probe series with
   // two benches before the probe (2-3 → 2-5, and the rest of chapter 2 two on); whoever built the probe has met them.
   { version: 14, ops: [{ grant: ['2-2', 'mean'] }, { rename: shiftIds('2-', 3, 2) }, { solve: ['2-5', ['2-3', '2-4']] }] },
+  { version: 15, ops: [{ data: asciiBoard }] },
 ]
 
 // How the parts box tries a part: a part from a level without tests on 1-1's pictures; the decoder and the

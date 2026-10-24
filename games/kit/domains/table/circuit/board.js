@@ -137,6 +137,8 @@ export function partsFor(circ, u) {
     wireStyle: (wire, graph) => ({ '--fam': colour(byId(graph, splitSrc(wire.from)[0])) }),
     portClass: (node, port, key) => `look-${look(node, port, key ?? null)}`,
     typedPorts: true,
+    // As text (kit/circuit/text.js): an input card is written out with what it reads, and the layer it reads from.
+    text: { sets: (node) => (isInput(node.type) ? ['type', 'value'] : []) },
     refuse: (graph, from, to, port) => {
       const r = linkPorts(fromGraph(graph, circ), io, from, sinkOf(to, port));
       return r.msg ? { zh: r.msg, en: r.msg } : null;

@@ -178,6 +178,8 @@ export default function GameShell({ game }) {
   }
   const slotsCtl = slots && {
     ...slots,
+    game: game.id,
+    level: level.id,
     open: slotted(openSlot),
     add: slotted(addSlot),
     rename: (k, name) => setProgress((p) => renameSlot(p, level.id, k, name)),

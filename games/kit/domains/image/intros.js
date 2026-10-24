@@ -1,7 +1,7 @@
 // A level's 引入: the pages read before playing it, each { t, fig? }. t is a { zh, en } paragraph (either side may use
 // <b>…</b>); fig is an optional picture, one of three:
 //   { test: 0 }                            the level's test 0: input → expected (circuit levels only)
-//   { part: 'shift', params: { dir: '→' }, input: 'square' }
+//   { part: 'shift', params: { dir: 'right' }, input: 'square' }
 //                                          one part working on a picture: input → part → output. A part with two
 //                                          inputs takes inputs: ['square', 'disk']. The pictures are source()'s.
 //   { figure: 'conv-press' }               one of the notes' figures (trace-viewer/src/figures)

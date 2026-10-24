@@ -35,7 +35,7 @@ const hblur = {
   adds: ['arith', 'merge'],
   tests: each(scenes(), (img) => correlate(img, H3)),
   hidden: each([[{ zh: '挪开的字母 F', en: 'Shifted letter F' }, P.glyph(GLYPHS.F, 0.1, 0.9, 5, 2)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(11)]], (img) => correlate(img, H3)),
-  solution: build({ l: ['shift', { dir: '←' }], r: ['shift', { dir: '→' }], a: ['arith', { op: 'add' }], b: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 1 / 3 }] }, ['in>l', 'in>r', 'l>a.a', 'r>a.b', 'a>b.a', 'in>b.b', 'b>k.a', 'k>out', 'kN>k.b']),
+  solution: build({ l: ['shift', { dir: 'left' }], r: ['shift', { dir: 'right' }], a: ['arith', { op: 'add' }], b: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 1 / 3 }] }, ['in>l', 'in>r', 'l>a.a', 'r>a.b', 'a>b.a', 'in>b.b', 'b>k.a', 'k>out', 'kN>k.b']),
 }
 
 const vblur = {
@@ -47,7 +47,7 @@ const vblur = {
   unlocks: [],
   tests: each(scenes().slice(0, 4), (img) => correlate(img, V3)),
   hidden: each([[{ zh: '横条', en: 'Horizontal bar' }, P.stepY(9)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(12)]], (img) => correlate(img, V3)),
-  solution: build({ u: ['shift', { dir: '↑' }], d: ['shift', { dir: '↓' }], a: ['arith', { op: 'add' }], b: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 1 / 3 }] }, ['in>u', 'in>d', 'u>a.a', 'd>a.b', 'a>b.a', 'in>b.b', 'b>k.a', 'k>out', 'kN>k.b']),
+  solution: build({ u: ['shift', { dir: 'up' }], d: ['shift', { dir: 'down' }], a: ['arith', { op: 'add' }], b: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 1 / 3 }] }, ['in>u', 'in>d', 'u>a.a', 'd>a.b', 'a>b.a', 'in>b.b', 'b>k.a', 'k>out', 'kN>k.b']),
   naive: build({ h: 'blur3h' }, ['in>h', 'h>out']),
 }
 
@@ -62,11 +62,11 @@ const boxBlur = {
   constraint: (score) => (score.cost > 6 ? { zh: `计算量 ${score.cost}，超过 6`, en: `Cost ${score.cost}, over 6` } : ''),
   tests: each(scenes(), (img) => box(img)),
   hidden: each([[{ zh: '挪开的字母 L', en: 'Shifted letter L' }, P.glyph(GLYPHS.L, 0.1, 0.9, 2, 5)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(13)]], (img) => box(img)),
-  solution: build({ h: 'blur3h', u: ['shift', { dir: '↑' }], d: ['shift', { dir: '↓' }], a: ['arith', { op: 'add' }], b: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 1 / 3 }] }, ['in>h', 'h>u', 'h>d', 'u>a.a', 'd>a.b', 'a>b.a', 'h>b.b', 'b>k.a', 'k>out', 'kN>k.b']),
+  solution: build({ h: 'blur3h', u: ['shift', { dir: 'up' }], d: ['shift', { dir: 'down' }], a: ['arith', { op: 'add' }], b: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 1 / 3 }] }, ['in>h', 'h>u', 'h>d', 'u>a.a', 'd>a.b', 'a>b.a', 'h>b.b', 'b>k.a', 'k>out', 'kN>k.b']),
   naive: (() => {
     const nodes = {}
     const wires = []
-    const offsets = [['←', null], ['→', null], ['↑', null], ['↓', null], ['←', '↑'], ['←', '↓'], ['→', '↑'], ['→', '↓']]
+    const offsets = [['left', null], ['right', null], ['up', null], ['down', null], ['left', 'up'], ['left', 'down'], ['right', 'up'], ['right', 'down']]
     offsets.forEach(([a, b], i) => {
       nodes[`s${i}`] = ['shift', { dir: a }]
       wires.push(`in>s${i}`)
@@ -135,8 +135,8 @@ const step = {
   unlocks: ['diffx', 'diffy'],
   tests: each([[{ zh: '台阶', en: 'Step' }, P.stepX(8)], [{ zh: '方块', en: 'Square' }, P.square()], [{ zh: '斜坡', en: 'Ramp' }, P.rampX()], [{ zh: '字母 L', en: 'Letter L' }, P.glyph(GLYPHS.L)]], diffx),
   hidden: each([[{ zh: '亮到暗的台阶', en: 'Bright-to-dark step' }, P.stepX(5, 0.85, 0.15)], [{ zh: '挪开的字母 F', en: 'Shifted letter F' }, P.glyph(GLYPHS.F, 0.1, 0.9, 6, 4)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(17)]], diffx),
-  solution: build({ l: ['shift', { dir: '←' }], d: ['arith', { op: 'sub' }] }, ['in>l', 'l>d.a', 'in>d.b', 'd>out']),
-  naive: build({ l: ['shift', { dir: '→' }], d: ['arith', { op: 'sub' }] }, ['in>l', 'l>d.a', 'in>d.b', 'd>out']),
+  solution: build({ l: ['shift', { dir: 'left' }], d: ['arith', { op: 'sub' }] }, ['in>l', 'l>d.a', 'in>d.b', 'd>out']),
+  naive: build({ l: ['shift', { dir: 'right' }], d: ['arith', { op: 'sub' }] }, ['in>l', 'l>d.a', 'in>d.b', 'd>out']),
 }
 
 const edgeTarget = (img) => map(diffx(box(img)), (v) => (v > 0.15 ? 1 : 0))
@@ -174,8 +174,8 @@ const weighted = {
   unlocks: ['kernel3'],
   tests: each([[{ zh: '亮点', en: 'Bright dot' }, P.impulse(7, 7)], [{ zh: '方块', en: 'Square' }, P.square()], [{ zh: '字母 F', en: 'Letter F' }, P.glyph(GLYPHS.F)]], (img) => convolve(img, STAMP)),
   hidden: each([[{ zh: '挪开的字母 T', en: 'Shifted letter T' }, P.glyph(GLYPHS.T, 0.1, 0.9, 5, 4)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(22)]], (img) => convolve(img, STAMP)),
-  solution: build({ u: ['shift', { dir: '↑' }], r: ['shift', { dir: '→' }], rd: ['shift', { dir: '↓' }], a: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 0.5 }] }, ['in>u', 'in>r', 'r>rd', 'u>a.a', 'rd>a.b', 'a>k.a', 'k>out', 'kN>k.b']),
-  naive: build({ u: ['shift', { dir: '↓' }], r: ['shift', { dir: '←' }], rd: ['shift', { dir: '↑' }], a: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 0.5 }] }, ['in>u', 'in>r', 'r>rd', 'u>a.a', 'rd>a.b', 'a>k.a', 'k>out', 'kN>k.b']),
+  solution: build({ u: ['shift', { dir: 'up' }], r: ['shift', { dir: 'right' }], rd: ['shift', { dir: 'down' }], a: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 0.5 }] }, ['in>u', 'in>r', 'r>rd', 'u>a.a', 'rd>a.b', 'a>k.a', 'k>out', 'kN>k.b']),
+  naive: build({ u: ['shift', { dir: 'down' }], r: ['shift', { dir: 'left' }], rd: ['shift', { dir: 'up' }], a: ['arith', { op: 'add' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 0.5 }] }, ['in>u', 'in>r', 'r>rd', 'u>a.a', 'rd>a.b', 'a>k.a', 'k>out', 'kN>k.b']),
 }
 
 const MYSTERY = [0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25]
@@ -206,9 +206,9 @@ const pad = {
   withhold: ['edge-pad'],
   tests: each([[{ zh: '亮条贴左边', en: 'Bright bar on the left edge' }, P.stepX(4, 0.85, 0.2)], [{ zh: '字母 F 贴左边', en: 'Letter F on the left edge' }, P.glyph(GLYPHS.F, 0.15, 0.9, 0, 3)], [{ zh: '方块贴左边', en: 'Square on the left edge' }, P.square(0, 4, 6, 0.1, 0.9)], [{ zh: '斜坡', en: 'Ramp' }, fromFn(16, 16, (x, y) => 0.1 + 0.05 * y)]], (img) => shift(img, 1, 0, 'edge')),
   hidden: each([[{ zh: '随机纹理', en: 'Random texture' }, P.noise(31)], [{ zh: '亮底暗块', en: 'Dark block on bright background' }, P.square(0, 9, 5, 0.85, 0.25)]], (img) => shift(img, 1, 0, 'edge')),
-  solution: build({ r: ['shift', { dir: '→' }], l: ['shift', { dir: '←' }], b: ['shift', { dir: '→' }], d: ['arith', { op: 'sub' }], a: ['arith', { op: 'add' }] }, ['in>r', 'in>l', 'l>b', 'in>d.a', 'b>d.b', 'r>a.a', 'd>a.b', 'a>out']),
-  alsoFails: [build({ r: ['shift', { dir: '→' }], a: ['arith', { op: 'add' }] }, ['in>r', 'r>a.a', 'in>a.b', 'a>out'])],
-  naive: build({ r: ['shift', { dir: '→' }] }, ['in>r', 'r>out']),
+  solution: build({ r: ['shift', { dir: 'right' }], l: ['shift', { dir: 'left' }], b: ['shift', { dir: 'right' }], d: ['arith', { op: 'sub' }], a: ['arith', { op: 'add' }] }, ['in>r', 'in>l', 'l>b', 'in>d.a', 'b>d.b', 'r>a.a', 'd>a.b', 'a>out']),
+  alsoFails: [build({ r: ['shift', { dir: 'right' }], a: ['arith', { op: 'add' }] }, ['in>r', 'r>a.a', 'in>a.b', 'a>out'])],
+  naive: build({ r: ['shift', { dir: 'right' }] }, ['in>r', 'r>out']),
 }
 
 const frame = {
@@ -224,7 +224,7 @@ const frame = {
   tests: each([[{ zh: '亮底方块', en: 'Square on bright background' }, P.square(5, 5, 6, 0.85, 0.3)], [{ zh: '亮底圆', en: 'Circle on bright background' }, P.disk(7.5, 7.5, 4, 0.9, 0.2)], [{ zh: '亮底字母', en: 'Letter on bright background' }, P.glyph(GLYPHS.T, 0.9, 0.2)]], (img) => box(img, 'edge')),
   hidden: each([[{ zh: '贴边的暗方块', en: 'Dark square on the edge' }, P.square(0, 10, 5, 0.8, 0.3)], [{ zh: '亮底字母 X', en: 'Letter X on bright background' }, P.glyph(GLYPHS.X, 0.75, 0.15, 6, 4)], [{ zh: '亮底竖条', en: 'Vertical bar on bright background' }, P.stepX(13, 0.9, 0.35)]], (img) => box(img, 'edge')),
   solution: build(
-    { l: ['shift', { dir: '←', border: 'edge' }], r: ['shift', { dir: '→', border: 'edge' }], h: 'merge', three: ['const', { c: 3 }], hq: ['arith', { op: 'div' }], u: ['shift', { dir: '↑', border: 'edge' }], d: ['shift', { dir: '↓', border: 'edge' }], v: 'merge', vq: ['arith', { op: 'div' }] },
+    { l: ['shift', { dir: 'left', border: 'edge' }], r: ['shift', { dir: 'right', border: 'edge' }], h: 'merge', three: ['const', { c: 3 }], hq: ['arith', { op: 'div' }], u: ['shift', { dir: 'up', border: 'edge' }], d: ['shift', { dir: 'down', border: 'edge' }], v: 'merge', vq: ['arith', { op: 'div' }] },
     ['in>l', 'in>r', 'l>h.a', 'in>h.b', 'r>h.c', 'h>hq.a', 'three>hq.b', 'hq>u', 'hq>d', 'u>v.a', 'hq>v.b', 'd>v.c', 'v>vq.a', 'three>vq.b', 'vq>out'],
   ),
   naive: build({ b: 'box3' }, ['in>b', 'b>out']),
@@ -254,10 +254,10 @@ const direct5 = (dir, back, p, from) => {
 }
 
 const box5 = (() => {
-  const h = sum5('←', '→')
-  const v = sum5('↑', '↓')
-  const dh = direct5('←', '→', 'h', 'in')
-  const dv = direct5('↑', '↓', 'v', 'hk')
+  const h = sum5('left', 'right')
+  const v = sum5('up', 'down')
+  const dh = direct5('left', 'right', 'h', 'in')
+  const dv = direct5('up', 'down', 'v', 'hk')
   return {
     id: '1-13',
     chapter: 1,

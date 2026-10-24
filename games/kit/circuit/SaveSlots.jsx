@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Check, ChevronDown, Copy, Layers, Pencil, Plus, X } from 'lucide-react'
+import { Check, ChevronDown, ClipboardPaste, Copy, FileText, Layers, Pencil, Plus, X } from 'lucide-react'
 import { Dialog } from '../shell/Dialogs.jsx'
 import { tr } from '../shell/i18n.js'
+import BlueprintDialog from './BlueprintDialog.jsx'
 
 /**
  * A level's saved boards (../shell/slots.js), handed to the board's editor by the shell around a level's screen:
- * { at, list: [{ no, name }], open(k), add({ copy }), rename(k, name), drop(k) }. Outside a level (a bench in the parts
+ * { game, level, at, list: [{ no, name }], open(k), add({ copy }), rename(k, name), drop(k) }. Outside a level (a bench in the parts
  * box, an intro) there is none, and the editors show no switcher.
  */
 export const SlotsContext = createContext(null)
@@ -15,14 +16,17 @@ const labelOf = (slot) => slot.name || tr(`电路 ${slot.no}`, `Board ${slot.no}
 
 /**
  * The switcher between a level's saved boards: a button naming the board played, opening a list to play another,
- * rename or drop one, or start a new one (fresh, or a copy of this one). On the desktop board it sits in the bottom
- * left corner and opens upwards; on a phone it starts the row of tools and opens downwards (`phone`).
+ * rename or drop one, or start a new one (fresh, or a copy of this one); and the board on screen as text, its
+ * blueprint (BlueprintDialog), to copy out or import. `board`: { graph, parts, change(graph), types } from the editor
+ * (without `types` the text can be read but not imported). On the desktop board it sits in the bottom left corner and
+ * opens upwards; on a phone it starts the row of tools and opens downwards (`phone`).
  */
-export default function SaveSlots({ phone = false }) {
+export default function SaveSlots({ phone = false, board = null }) {
   const slots = useContext(SlotsContext)
   const [open, setOpen] = useState(false)
   const [naming, setNaming] = useState(null) // the slot being renamed
   const [dropping, setDropping] = useState(null) // the slot asked about before it goes
+  const [text, setText] = useState(null) // the blueprint dialog: 'show' | 'read'
   const root = useRef(null)
   useEffect(() => {
     if (!open) return undefined
@@ -93,8 +97,15 @@ export default function SaveSlots({ phone = false }) {
             <button type="button" role="menuitem" onClick={act(() => slots.add({ copy: false }))}><Plus size={13} aria-hidden="true" />{tr('新建空白电路', 'New empty board')}</button>
             <button type="button" role="menuitem" onClick={act(() => slots.add({ copy: true }))}><Copy size={13} aria-hidden="true" />{tr('复制这块电路', 'Copy this board')}</button>
           </div>
+          {board && (
+            <div className="slots-add">
+              <button type="button" role="menuitem" onClick={act(() => setText('show'))}><FileText size={13} aria-hidden="true" />{tr('以文本查看 / 复制', 'View / copy as text')}</button>
+              {board.types && <button type="button" role="menuitem" onClick={act(() => setText('read'))}><ClipboardPaste size={13} aria-hidden="true" />{tr('从文本导入', 'Import from text')}</button>}
+            </div>
+          )}
         </div>
       )}
+      {text && board && <BlueprintDialog board={board} head={{ game: slots.game, level: slots.level }} mode={text} onClose={() => setText(null)} />}
       {/* On the page itself: the tools' blurred backing would otherwise hold the dialog inside it. */}
       {dropping !== null && slots.list[dropping] && createPortal(
         <Dialog

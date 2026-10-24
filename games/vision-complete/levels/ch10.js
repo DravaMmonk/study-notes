@@ -94,7 +94,7 @@ const apGraph = (prefix = true) => {
   if (prefix) {
     let last = 'f'
     for (const step of [1, 2, 4, 8]) {
-      Object.assign(n, { [`h${step}`]: ['shift', { dir: '→', n: step }], [`p${step}`]: ['arith', { op: 'add' }] })
+      Object.assign(n, { [`h${step}`]: ['shift', { dir: 'right', n: step }], [`p${step}`]: ['arith', { op: 'add' }] })
       w.push(`${last}>h${step}`, `${last}>p${step}.a`, `h${step}>p${step}.b`)
       last = `p${step}`
     }

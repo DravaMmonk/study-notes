@@ -14,6 +14,18 @@
 const BIN = { '→': 1, '↔': 0, '∨': 2, '∧': 3 }
 const ASCII = [['<->', '↔'], ['->', '→'], ['&', '∧'], ['|', '∨'], ['~', '¬'], ['!', '¬'], ['forall', '∀'], ['exists', '∃'], ['false', '⊥'], ['_|_', '⊥']]
 
+// A formula in plain ASCII and back, for a board written as text (../../circuit/text.js): the symbols by the ASCII
+// spellings parse() reads, a quantifier as `forall x.` (its symbol takes no space after it).
+const TO_ASCII = [['↔', '<->'], ['→', '->'], ['∧', '&'], ['∨', '|'], ['¬', '~'], ['∀', 'forall '], ['∃', 'exists '], ['⊥', 'false']]
+const FROM_ASCII = [['_|_', '⊥'], ...ASCII.filter(([a]) => a !== '_|_')]
+export const asciiOf = (text) => TO_ASCII.reduce((s, [a, b]) => s.split(a).join(b), text)
+export const unasciiOf = (text) => FROM_ASCII.reduce((s, [a, b]) => s.split(a).join(b), text).replace(/([∀∃])\s+/g, '$1')
+/** A board's text form (circuit/text.js): every setting that is a formula, written in ASCII. */
+export const FORMULA_TEXT = {
+  value: (_node, _key, v) => (typeof v === 'string' ? asciiOf(v) : v),
+  read: (_node, _key, v) => (typeof v === 'string' ? unasciiOf(v) : v),
+}
+
 export const atom = (pred, args = []) => ({ op: 'atom', pred, args })
 export const not = (a) => ({ op: '¬', a })
 export const bin = (op, a, b) => ({ op, a, b })

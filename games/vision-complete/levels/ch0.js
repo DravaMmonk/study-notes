@@ -61,8 +61,8 @@ const twoDown = {
   unlocks: [],
   tests: scenes().slice(0, 4).map(([label, img]) => test(label, { in: img }, { out: shift(img, 2, 2) })),
   hidden: [[{ zh: '挪开的字母 L', en: 'Shifted letter L' }, P.glyph(GLYPHS.L, 0.1, 0.9, 5, 2)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(5)]].map(([label, img]) => test(label, { in: img }, { out: shift(img, 2, 2) })),
-  solution: build({ a: ['shift', { dir: '→' }], b: ['shift', { dir: '→' }], c: ['shift', { dir: '↓' }], d: ['shift', { dir: '↓' }] }, ['in>a', 'a>b', 'b>c', 'c>d', 'd>out']),
-  naive: build({ a: ['shift', { dir: '→' }], c: ['shift', { dir: '↓' }] }, ['in>a', 'a>c', 'c>out']),
+  solution: build({ a: ['shift', { dir: 'right' }], b: ['shift', { dir: 'right' }], c: ['shift', { dir: 'down' }], d: ['shift', { dir: 'down' }] }, ['in>a', 'a>b', 'b>c', 'c>d', 'd>out']),
+  naive: build({ a: ['shift', { dir: 'right' }], c: ['shift', { dir: 'down' }] }, ['in>a', 'a>c', 'c>out']),
 }
 
 const negative = {
@@ -189,7 +189,7 @@ const outline = (() => {
     tests: cases.map(([label, inside, seed]) => make(label, inside, seed)),
     hidden: hiddenCases.map(([label, inside, seed]) => make(label, inside, seed)),
     solution: g(
-      { d: 'sub', m: ['threshold', { t: 0.2 }], l: ['shift', { dir: '←' }], r: ['shift', { dir: '→' }], u: ['shift', { dir: '↑' }], w: ['shift', { dir: '↓' }], a1: 'add', a2: 'add', a3: 'add', a4: 'add', avg: 'mul', avgN: ['const', { c: 0.2 }], core: ['threshold', { t: 0.9 }], ring: 'sub' },
+      { d: 'sub', m: ['threshold', { t: 0.2 }], l: ['shift', { dir: 'left' }], r: ['shift', { dir: 'right' }], u: ['shift', { dir: 'up' }], w: ['shift', { dir: 'down' }], a1: 'add', a2: 'add', a3: 'add', a4: 'add', avg: 'mul', avgN: ['const', { c: 0.2 }], core: ['threshold', { t: 0.9 }], ring: 'sub' },
       ['scene>d.a', 'empty>d.b', 'd>m', 'm>l', 'm>r', 'm>u', 'm>w', 'l>a1.a', 'r>a1.b', 'u>a2.a', 'w>a2.b', 'a1>a3.a', 'a2>a3.b', 'a3>a4.a', 'm>a4.b', 'a4>avg.a', 'avg>core', 'm>ring.a', 'core>ring.b', 'ring>out', 'avgN>avg.b'],
     ),
     naive: g({ d: 'sub', m: ['threshold', { t: 0.2 }] }, ['scene>d.a', 'empty>d.b', 'd>m', 'm>out']),

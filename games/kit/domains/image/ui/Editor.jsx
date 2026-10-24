@@ -15,7 +15,7 @@ import { IMAGE_VIEWS, KIND_NAMES, kindOf, nodeView, viewsIn } from './views/view
 const NODE_W = 140
 const PORT_ROW = 20 // the height of a port's row on a card (games/kit/circuit CanvasEditor.jsx)
 
-export default function Editor({ graph, onChange, run, testIndex, flags, sensors, outputLabels, views, ioKinds, scan, onScan, theme, hasPalette, focus, refit, onClear }) {
+export default function Editor({ graph, onChange, run, testIndex, flags, sensors, outputLabels, views, ioKinds, scan, onScan, theme, hasPalette, types, focus, refit, onClear }) {
   const [peek, setPeek] = useState(null)
   const [menu, setMenu] = useState(null) // id of the card whose view menu is open
   const values = run?.results[testIndex]?.values
@@ -123,6 +123,7 @@ export default function Editor({ graph, onChange, run, testIndex, flags, sensors
       width={NODE_W}
       emptyNote={hasPalette && { zh: '从上面一排元件里选一个放上来，再点卡片右侧的圆点、点另一张卡片左侧的圆点，就连上了（也可以直接拖过去）。', en: 'Pick a part from the row above to place it, then click the dot on the right of a card and a dot on the left of another to wire them (or drag between them).' }}
       onClear={onClear}
+      types={types}
       corner={imageCards.length > 0 && offered.length > 1 && (
         <div className="board-views" role="group" aria-label={tr('所有图像卡片的显示方式', 'Display of every image card')} onPointerDown={(e) => e.stopPropagation()}>
           <span className="board-views-label">{tr('全部画成', 'Draw all as')}</span>

@@ -250,7 +250,7 @@
   .map-chapters { --map-gutter: 12px; padding-top: 4px; padding-bottom: 28px; gap: 32px; }
 
   .dialog-scrim { align-items: end; padding: 0; }
-  .dialog { width: 100%; max-height: calc(100dvh - env(safe-area-inset-top) - 16px); padding: 22px 20px calc(18px + env(safe-area-inset-bottom)); border-radius: 20px 20px 0 0; animation: sheet-in 280ms cubic-bezier(.2, .8, .2, 1); }
+  .dialog { box-sizing: border-box; width: 100%; max-height: calc(100dvh - env(safe-area-inset-top) - 16px); padding: 22px 20px calc(18px + env(safe-area-inset-bottom)); border-radius: 20px 20px 0 0; animation: sheet-in 280ms cubic-bezier(.2, .8, .2, 1); }
   .dialog p { font-size: 16px; line-height: 1.65; }
   .dialog-actions { bottom: calc(-18px - env(safe-area-inset-bottom)); margin-bottom: calc(-18px - env(safe-area-inset-bottom)); padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
   .dialog-actions { flex-direction: column-reverse; }

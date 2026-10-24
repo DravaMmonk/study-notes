@@ -202,7 +202,7 @@ const newBlob = {
   check: { tolerance: 0.05, mismatches: 2 },
   tests: newTests(draws(2030, 3), (i) => ({ zh: `第 ${i + 1} 次抽`, en: `Draw ${i + 1}` })),
   hidden: newTests(draws(2031, 2), (i) => ({ zh: `又抽一次 ${i + 1}`, en: `Another draw ${i + 1}` })),
-  solution: build({ r: 'dg_reparam', d: 'dg_decoder' }, ['mu>r.μ', 'sigma>r.σ', 'eps>r.ε', 'r>d', 'd>out'], { inputs: ['eps', 'mu', 'sigma'] }),
+  solution: build({ r: 'dg_reparam', d: 'dg_decoder' }, ['mu>r.mu', 'sigma>r.sigma', 'eps>r.eps', 'r>d', 'd>out'], { inputs: ['eps', 'mu', 'sigma'] }),
   naive: build({ d: 'dg_decoder' }, ['mu>d', 'd>out'], { inputs: ['eps', 'mu', 'sigma'] }),
 }
 
@@ -287,10 +287,10 @@ const sides = {
   hidden: sideTests([[{ zh: '又是左边', en: 'Left again' }, SIDES[3], 0]]),
   solution: build(
     { one: ['const', { c: 1 }], oc: ['arith', { op: 'sub' }], wl: ['arith', { op: 'mul' }], wr: ['arith', { op: 'mul' }], mu: ['arith', { op: 'add' }], r: 'dg_reparam', d: 'dg_decoder' },
-    ['one>oc.a', 'c>oc.b', 'left>wl.a', 'oc>wl.b', 'right>wr.a', 'c>wr.b', 'wl>mu.a', 'wr>mu.b', 'mu>r.μ', 'sigma>r.σ', 'eps>r.ε', 'r>d', 'd>out'],
+    ['one>oc.a', 'c>oc.b', 'left>wl.a', 'oc>wl.b', 'right>wr.a', 'c>wr.b', 'wl>mu.a', 'wr>mu.b', 'mu>r.mu', 'sigma>r.sigma', 'eps>r.eps', 'r>d', 'd>out'],
     { inputs: ['eps', 'c', 'left', 'right', 'sigma'] },
   ),
-  naive: build({ r: 'dg_reparam', d: 'dg_decoder' }, ['left>r.μ', 'sigma>r.σ', 'eps>r.ε', 'r>d', 'd>out'], { inputs: ['eps', 'c', 'left', 'right', 'sigma'] }),
+  naive: build({ r: 'dg_reparam', d: 'dg_decoder' }, ['left>r.mu', 'sigma>r.sigma', 'eps>r.eps', 'r>d', 'd>out'], { inputs: ['eps', 'c', 'left', 'right', 'sigma'] }),
 }
 
 // ---------------- 8-10 还原 x₀ · 8-11 修一张旧照片 ----------------
@@ -401,7 +401,7 @@ export const levels = [
     hidden: reparamHidden,
     solution: latentGraph({ m: ['dg_mu', { w: TEACHER_MU }], s: ['dg_sigma', { w: TEACHER_SIGMA }], x: ['arith', { op: 'mul' }], a: ['arith', { op: 'add' }], d: 'dg_decoder' }, ['s>x.a', 'eps>x.b', 'm>a.a', 'x>a.b', 'a>d', 'd>out']),
     // Even with the teacher's own μ and σ, fresh draws cannot reproduce (or be trained towards) the tests.
-    naive: latentGraph({ m: ['dg_mu', { w: TEACHER_MU }], s: ['dg_sigma', { w: TEACHER_SIGMA }], z: 'dg_sample', d: 'dg_decoder' }, ['m>z.μ', 's>z.σ', 'z>d', 'd>out']),
+    naive: latentGraph({ m: ['dg_mu', { w: TEACHER_MU }], s: ['dg_sigma', { w: TEACHER_SIGMA }], z: 'dg_sample', d: 'dg_decoder' }, ['m>z.mu', 's>z.sigma', 'z>d', 'd>out']),
     alsoFails: [
       latentGraph({ m: ['dg_mu', { w: TEACHER_MU }], d: 'dg_decoder' }, ['m>d', 'd>out']),
       latentGraph({ m: ['dg_mu', { w: TEACHER_MU }], a: ['arith', { op: 'add' }], d: 'dg_decoder' }, ['m>a.a', 'eps>a.b', 'a>d', 'd>out']),

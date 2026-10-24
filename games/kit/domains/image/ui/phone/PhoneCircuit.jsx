@@ -138,6 +138,8 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
           onSlot={editing.onSlot}
           history={editing.history}
           onClear={onClear}
+          onChange={onChange}
+          types={level.palette}
         />
         {steps.length > 0 && <p className="pb-howto">{tr('点两个圆点连线，或从一个圆点拖到另一个；点已接好的输入口就拆掉。按住一块可以挪格子，拖回下面的托盘就是拿掉。', 'Tap two dots to connect them, or drag from one dot to another; tap a wired input to unplug it. Hold a block to move it to another slot; drag it back onto the tray to remove it.')}</p>}
         {/* Under the board: what the hidden tests say, training, this test's details, and the score last. */}

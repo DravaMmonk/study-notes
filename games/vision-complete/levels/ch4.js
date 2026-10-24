@@ -585,7 +585,7 @@ const pooling = {
     const base = [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
     return test(label, { in: dotsAt(base.map(([x, y]) => [x + dx, y + dy])) }, { out: maxPool(dotsAt(base), 2) })
   }),
-  solution: build({ l: ['shift', { dir: '←' }], m1: 'max', u: ['shift', { dir: '↑' }], m2: 'max', d: 'downsample' }, ['in>l', 'in>m1.a', 'l>m1.b', 'm1>u', 'm1>m2.a', 'u>m2.b', 'm2>d', 'd>out']),
+  solution: build({ l: ['shift', { dir: 'left' }], m1: 'max', u: ['shift', { dir: 'up' }], m2: 'max', d: 'downsample' }, ['in>l', 'in>m1.a', 'l>m1.b', 'm1>u', 'm1>m2.a', 'u>m2.b', 'm2>d', 'd>out']),
   naive: build({ d: 'downsample' }, ['in>d', 'd>out']),
 }
 
