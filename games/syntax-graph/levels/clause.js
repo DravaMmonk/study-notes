@@ -17,51 +17,76 @@ const WE = role('author', 'pl', T('我们（作者）', 'we (the authors)'), T('
 export const levels = [
   {
     id: '1-1',
-    title: T('主语', 'Subject'),
-    brief: T('让句子说出这张语义图的意思：谁、发生了什么、什么时候。', 'Make the sentence say what the meaning graph says: who, what happened, and when.'),
+    title: T('先定时间', 'Time first'),
+    brief: T('让句子说出语义图的意思。主语和动词已经放好，你来定时间。', 'Make the sentence say what the meaning graph says. The subject and the verb are in place; you set the time.'),
     intro: [
       { t: T('在这里，一句话是一排按顺序排好的<b>位置</b>，每个位置只收一种词。词放进去，句子就念出来。', 'Here a sentence is a row of <b>places</b> in order, and each place takes one kind of word. Put words in, and the sentence reads itself out.') },
-      { t: T('每一关的目标是一张<b>语义图</b>：中间是发生的事，连出去的是参与的人和物，下面写着时间。语义图只说意思，不说用哪个词。', 'Each level’s goal is a <b>meaning graph</b>: what happens in the middle, the people and things taking part around it, and the time below. It gives only the meaning, never the words.') },
-      { t: T('<b>主语</b>是句子说的那个人或物，放在最前面。它是一个<b>名词短语</b>，比如 <i>the model</i>。', 'The <b>subject</b> is who or what the sentence is about, and it comes first. It is a <b>noun phrase</b>, such as <i>the model</i>.') },
+      { t: T('每一关的目标是一张<b>语义图</b>：最上面是时间，中间是发生的事，连出去的是参与的人和物。语义图只说意思，不说用哪个词。', 'Each level’s goal is a <b>meaning graph</b>: the time on top, what happens in the middle, and the people and things taking part around it. It gives only the meaning, never the words.') },
+      { t: T('说英语的人开口之前，就已经知道这件事是什么时候的：已经过去了，还是将要发生。这个决定落在谓语开头的<b>时体</b>位置上，所以每一关亮起的第一个位置都是它。', 'Before an English speaker says a word, they already know when the thing is: over, or still to come. That decision sits in the <b>tense</b> place at the start of the predicate, which is why it is the first place to light up in every level.') },
     ],
-    hint: [T('先读语义图：参与者是哪个、单数还是复数。', 'Read the meaning graph first: which participant it is, and whether it is singular or plural.')],
+    hint: [T('读语义图最上面的时间。', 'Read the time at the top of the meaning graph.')],
     meaning: { pred: 'converge', tense: 'past', aspect: 'simple', gloss: PAST, roles: { THEME: role('model', 'sg', T('模型', 'model')) } },
-    palette: { np: ['models', 'model'] },
-    preset: { INFL: 'ed', V: 'converge' },
+    palette: { infl: ['will', 'ed'] },
+    preset: { SUBJ: 'model', V: 'converge' },
     answer: { SUBJ: 'model', INFL: 'ed', V: 'converge' },
-    traps: [{ answer: { SUBJ: 'models', INFL: 'ed', V: 'converge' }, fails: 'role' }],
+    traps: [{ answer: { SUBJ: 'model', INFL: 'will', V: 'converge' }, fails: 'time' }],
     debrief: {
       title: T('The model converged.', 'The model converged.'),
-      body: [T('<i>the models</i> 也放得进主语的位置，但语义图要的是一个模型：放得进，不等于意思对。', '<i>the models</i> fits the subject place too, but the graph wants one model: fitting is not yet saying the right thing.')],
-      note: T('放得进靠语法，说得对靠意思；两样都要。', 'Fitting is grammar; saying the right thing is meaning. You need both.'),
+      body: [
+        T('你没有碰动词，它自己从 <i>converge</i> 变成了 <i>converged</i>：动词说成什么形式，由它前面的时体决定。换成 <i>will</i>，它又会变回 <i>converge</i>。', 'You never touched the verb, yet <i>converge</i> became <i>converged</i> by itself: the tense in front of a verb decides the form it is said in. Switch to <i>will</i> and it goes back to <i>converge</i>.'),
+        T('母语者说话也是这样：先有“这件事已经过去了”这个意思，<i>-ed</i> 是最后自动接上的，说的人不会觉得自己在“加”词尾。', 'Native speakers work the same way: the sense that “this is over” comes first, and the <i>-ed</i> is attached last, without the speaker feeling they are “adding” an ending.'),
+      ],
+      note: T('先定时间；动词的形式跟着时体走。', 'Set the time first; the verb’s form follows the tense.'),
     },
   },
   {
     id: '1-2',
-    title: T('谓语', 'Predicate'),
+    title: T('再接动词', 'Then the verb'),
     brief: T('让句子说出语义图的意思。这一次，动词也要你来选。', 'Make the sentence say what the meaning graph says. This time the verb is yours to choose too.'),
     intro: [
-      { t: T('主语后面是<b>谓语</b>：说主语怎么了。谓语的核心是<b>动词</b>。', 'After the subject comes the <b>predicate</b>: what happens to the subject. Its core is the <b>verb</b>.') },
+      { t: T('谓语的核心是<b>动词</b>：说主语怎么了。时体定好以后，动词的位置上就写着它要用的形式，等一个动词放进去。', 'The core of the predicate is the <b>verb</b>: what happens to the subject. Once the tense is set, the verb’s place says the form it will take, waiting for a verb to drop in.') },
       { t: T('这一关的动词都是<b>不及物</b>的：后面什么也不跟，句子到动词就完整了。', 'The verbs in this level are all <b>intransitive</b>: nothing follows them, and the sentence is complete at the verb.') },
     ],
     hint: [T('语义图中间那个词，就是要说的事。', 'The word in the middle of the meaning graph is what has to be said.')],
     meaning: { pred: 'fail', tense: 'past', aspect: 'simple', gloss: PAST, roles: { THEME: role('experiment', 'sg', T('实验', 'experiment')) } },
-    palette: { np: ['algorithm', 'experiments', 'experiment'], verb: ['converge', 'fail'] },
-    preset: { INFL: 'ed' },
+    palette: { verb: ['converge', 'fail'], infl: ['will', 'ed'] },
+    preset: { SUBJ: 'experiment' },
     answer: { SUBJ: 'experiment', INFL: 'ed', V: 'fail' },
-    traps: [{ answer: { SUBJ: 'experiment', INFL: 'ed', V: 'converge' }, fails: 'pred' }, { answer: { SUBJ: 'algorithm', INFL: 'ed', V: 'fail' }, fails: 'role' }],
+    traps: [{ answer: { SUBJ: 'experiment', INFL: 'ed', V: 'converge' }, fails: 'pred' }, { answer: { SUBJ: 'experiment', INFL: 'will', V: 'fail' }, fails: 'time' }],
     debrief: {
       title: T('The experiment failed.', 'The experiment failed.'),
-      body: [T('谓语里的 <i>-ed</i> 把 <i>fail</i> 变成了 <i>failed</i>：动词念成什么形式，由它前面的时体来定。', 'The <i>-ed</i> in the predicate turned <i>fail</i> into <i>failed</i>: the form a verb takes is decided by the tense in front of it.')],
-      note: T('小句 = 主语 + 谓语；动词的形式由时体决定。', 'A clause = subject + predicate; the tense decides the verb’s form.'),
+      body: [
+        T('换一个动词，<i>-ed</i> 还留在原地：把 <i>fail</i> 换成 <i>converge</i>，句子就念成 <i>converged</i>。词尾属于句子的框架，不属于哪一个动词。', 'Swap the verb and the <i>-ed</i> stays where it is: put <i>converge</i> in place of <i>fail</i> and the sentence says <i>converged</i>. The ending belongs to the sentence’s frame, not to any one verb.'),
+        T('母语者的口误也是这样错的：想说 <i>I’d hear one if I knew it</i>，说成了 <i>I’d know one if I heard it</i>。两个动词换了位置，过去时却留在原处，接到了换过来的词上。', 'Native speakers’ slips go wrong the same way: meaning <i>I’d hear one if I knew it</i>, someone says <i>I’d know one if I heard it</i>. The two verbs swap places, but the past tense stays put and lands on the verb that moved in.'),
+      ],
+      note: T('先搭好框架（时体），再把动词放进去；词尾是框架给的。', 'Build the frame (the tense) first, then drop the verb in; the ending comes from the frame.'),
     },
   },
   {
     id: '1-3',
-    title: T('时与一致', 'Tense and agreement'),
-    brief: T('让句子说出语义图的意思。这一次，时体也要你来选。', 'Make the sentence say what the meaning graph says. This time the tense is yours to choose too.'),
+    title: T('主语', 'Subject'),
+    brief: T('让句子说出语义图的意思。这一次，主语也要你来选。', 'Make the sentence say what the meaning graph says. This time the subject is yours to choose too.'),
     intro: [
-      { t: T('谓语开头的<b>时体</b>（INFL）定下时间：<i>-s</i> 和 <i>∅</i> 是现在，<i>-ed</i> 是过去，<i>will</i> 是将来。论文里说算法、定理的性质，用一般现在时。', 'The <b>tense</b> (INFL) at the start of the predicate sets the time: <i>-s</i> and <i>∅</i> are present, <i>-ed</i> is past, <i>will</i> is future. A paper states properties of algorithms and theorems in the simple present.') },
+      { t: T('<b>主语</b>是句子说的那个人或物，放在最前面。它是一个<b>名词短语</b>，比如 <i>the model</i>。', 'The <b>subject</b> is who or what the sentence is about, and it comes first. It is a <b>noun phrase</b>, such as <i>the model</i>.') },
+      { t: T('主语加上谓语（时体、动词）就是一个<b>小句</b>：最小的完整句子。', 'A subject plus a predicate (tense and verb) makes a <b>clause</b>: the smallest complete sentence.') },
+    ],
+    hint: [T('读语义图：参与者是哪个、单数还是复数。', 'Read the meaning graph: which participant it is, and whether it is singular or plural.')],
+    meaning: { pred: 'terminate', tense: 'past', aspect: 'simple', gloss: PAST, roles: { THEME: role('algorithm', 'pl', T('算法', 'algorithms'), T('不止一个', 'more than one')) } },
+    palette: { np: ['algorithm', 'algorithms'], verb: ['fail', 'terminate'], infl: ['will', 'ed'] },
+    answer: { SUBJ: 'algorithms', INFL: 'ed', V: 'terminate' },
+    traps: [{ answer: { SUBJ: 'algorithm', INFL: 'ed', V: 'terminate' }, fails: 'role' }, { answer: { SUBJ: 'algorithms', INFL: 'will', V: 'terminate' }, fails: 'time' }],
+    debrief: {
+      title: T('The algorithms terminated.', 'The algorithms terminated.'),
+      body: [T('<i>the algorithm</i> 也放得进主语的位置，但语义图要的不止一个算法：放得进，不等于意思对。', '<i>the algorithm</i> fits the subject place too, but the graph wants more than one algorithm: fitting is not yet saying the right thing.')],
+      note: T('小句 = 主语 + 谓语。放得进靠语法，说得对靠意思；两样都要。', 'A clause = subject + predicate. Fitting is grammar; saying the right thing is meaning. You need both.'),
+    },
+  },
+  {
+    id: '1-4',
+    title: T('时与一致', 'Tense and agreement'),
+    brief: T('让句子说出语义图的意思。这一次的时间是现在。', 'Make the sentence say what the meaning graph says. This time it is about the present.'),
+    intro: [
+      { t: T('时体里多了两个现在时：<i>-s</i>，和什么也不加的 <i>∅</i>。论文里说算法、定理的性质，用一般现在时。', 'The tenses now include two presents: <i>-s</i>, and <i>∅</i>, which adds nothing. A paper states properties of algorithms and theorems in the simple present.') },
       { t: T('时体还带着<b>一致</b>的要求：有的只接某几种主语。词块下面写着它要什么样的主语；放不进去时，会告诉你为什么。', 'A tense also carries an <b>agreement</b> requirement: some take only certain subjects. The line under each word says what subject it needs; when it will not go in, you are told why.') },
     ],
     hint: [T('现在时有两个：<i>-s</i> 和 <i>∅</i>，它们要的主语不一样。', 'There are two present tenses, <i>-s</i> and <i>∅</i>, and they need different subjects.')],
@@ -75,12 +100,12 @@ export const levels = [
     ],
     debrief: {
       title: T('The algorithms terminate.', 'The algorithms terminate.'),
-      body: [T('英语的现在时要和主语<b>一致</b>：第三人称单数用 <i>-s</i>（<i>the algorithm terminates</i>），其余用不加词尾的形式。论文里最常见的主谓不一致，就出在长主语之后忘了它是单数还是复数。', 'The English present has to <b>agree</b> with its subject: third-person singular takes <i>-s</i> (<i>the algorithm terminates</i>), everything else the bare form. The commonest agreement slip in papers comes after a long subject, when the writer loses track of its number.')],
+      body: [T('和 <i>the algorithms terminated</i> 比，只有时间变了；可 <i>-ed</i> 对任何主语都一样，现在时却要看主语。', 'Next to <i>the algorithms terminated</i>, only the time has changed; but <i>-ed</i> is the same for every subject, while the present depends on the subject.'), T('英语的现在时要和主语<b>一致</b>：第三人称单数用 <i>-s</i>（<i>the algorithm terminates</i>），其余用不加词尾的形式。论文里最常见的主谓不一致，就出在长主语之后忘了它是单数还是复数。', 'The English present has to <b>agree</b> with its subject: third-person singular takes <i>-s</i> (<i>the algorithm terminates</i>), everything else the bare form. The commonest agreement slip in papers comes after a long subject, when the writer loses track of its number.')],
       note: T('一致：时体和主语，在人称和数上要对得上。', 'Agreement: the tense and the subject must match in person and number.'),
     },
   },
   {
-    id: '1-4',
+    id: '1-5',
     title: T('宾语', 'Object'),
     brief: T('让句子说出语义图的意思。', 'Make the sentence say what the meaning graph says.'),
     intro: [
@@ -103,9 +128,9 @@ export const levels = [
     },
   },
   {
-    id: '1-5',
+    id: '1-6',
     title: T('完成体', 'Perfect'),
-    brief: T('让句子说出语义图的意思。注意语义图下面的时间。', 'Make the sentence say what the meaning graph says. Mind the time under the graph.'),
+    brief: T('让句子说出语义图的意思。注意语义图上面的时间。', 'Make the sentence say what the meaning graph says. Mind the time at the top of the graph.'),
     intro: [
       { t: T('时间不止过去、现在、将来。<b>体</b>说的是从哪个角度看一件事：<b>完成体</b>说它已经做完，而且结果还在。', 'Time is more than past, present and future. <b>Aspect</b> is the angle an event is seen from: the <b>perfect</b> says it is done and its result still stands.') },
       { t: T('完成体的时体带着一个助动词，并要求动词用<b>过去分词</b>（<i>-en</i> 形式，如 <i>accepted</i>、<i>withdrawn</i>）。', 'A perfect tense brings an auxiliary and asks for the verb’s <b>past participle</b> (its <i>-en</i> form, as in <i>accepted</i>, <i>withdrawn</i>).') },
@@ -129,7 +154,7 @@ export const levels = [
     },
   },
   {
-    id: '1-6',
+    id: '1-7',
     title: T('格', 'Case'),
     brief: T('以作者的口吻说出语义图的意思。两个参与者前文都已提过，用代词说。', 'Say what the meaning graph says in the authors’ voice. Both participants have been mentioned already, so use pronouns.'),
     intro: [
@@ -153,7 +178,7 @@ export const levels = [
     },
   },
   {
-    id: '1-7',
+    id: '1-8',
     title: T('进行体', 'Progressive'),
     brief: T('让句子说出语义图的意思。', 'Make the sentence say what the meaning graph says.'),
     intro: [
@@ -176,7 +201,7 @@ export const levels = [
     },
   },
   {
-    id: '1-8',
+    id: '1-9',
     title: T('三个位置', 'Three places'),
     brief: T('让句子说出语义图的意思。能过关的说法不止一种，用的词越少越好。', 'Make the sentence say what the meaning graph says. More than one way passes; the fewer words, the better.'),
     intro: [
@@ -202,7 +227,7 @@ export const levels = [
     },
   },
   {
-    id: '1-9',
+    id: '1-10',
     title: T('过去的过去', 'Before then'),
     brief: T('让句子说出语义图的意思。', 'Make the sentence say what the meaning graph says.'),
     hint: [
@@ -224,7 +249,7 @@ export const levels = [
     },
   },
   {
-    id: '1-10',
+    id: '1-11',
     title: T('代码给谁', 'Code for whom'),
     brief: T('以作者的口吻说出语义图的意思：审稿人前文已提过。用的词越少越好。', 'Say what the meaning graph says in the authors’ voice; the reviewers were mentioned earlier. The fewer words, the better.'),
     hint: [T('三件事要同时对：代词的格、完成体的一致、接收方的位置。', 'Three things have to be right at once: the pronouns’ case, the perfect’s agreement and where the recipient goes.')],

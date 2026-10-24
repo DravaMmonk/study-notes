@@ -2,8 +2,8 @@ import { Check, X } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import { ASPECT_NAME, ROLE_NAME, TENSE_NAME } from '../engine/grammar.js'
 
-// A level's meaning graph, the goal of every syntax level: the predicate in the middle, an edge to each participant
-// with its role, the time underneath. After a run (`run`, sentence.js check) each piece is marked: a tick, or a cross
+// A level's meaning graph, the goal of every syntax level: the time on top (it is settled first), then the predicate,
+// and an edge from it to each participant with its role. After a run (`run`, sentence.js check) each piece is marked: a tick, or a cross
 // and what the sentence said there instead.
 
 const Mark = ({ result }) => {
@@ -19,6 +19,11 @@ export default function Meaning({ meaning, sense, run }) {
   const roles = Object.entries(meaning.roles)
   return (
     <figure className="sx-meaning" aria-label={tr('语义图', 'Meaning graph')}>
+      <div className={`sx-time ${state(checked?.time)}`}>
+        <b>{tr(`${TENSE_NAME[meaning.tense].zh} · ${ASPECT_NAME[meaning.aspect].zh}`, `${TENSE_NAME[meaning.tense].en} ${ASPECT_NAME[meaning.aspect].en}`)}</b>
+        <span>{L(meaning.gloss)}</span>
+        <Mark result={checked?.time} />
+      </div>
       <div className={`sx-pred ${state(checked?.pred)}`}>
         <b>{L(sense)}</b>
         {checked?.pred ? <Mark result={checked.pred} /> : <small>{tr('发生的事', 'what happens')}</small>}
@@ -38,11 +43,6 @@ export default function Meaning({ meaning, sense, run }) {
       {checked?.extra.length > 0 && (
         <p className="sx-mark is-no sx-extra"><X size={13} />{tr(`句子里多出了${checked.extra.map((r) => ROLE_NAME[r].zh).join('、')}`, `The sentence has an extra ${checked.extra.map((r) => ROLE_NAME[r].en).join(', ')}`)}</p>
       )}
-      <div className={`sx-time ${state(checked?.time)}`}>
-        <b>{tr(`${TENSE_NAME[meaning.tense].zh} · ${ASPECT_NAME[meaning.aspect].zh}`, `${TENSE_NAME[meaning.tense].en} ${ASPECT_NAME[meaning.aspect].en}`)}</b>
-        <span>{L(meaning.gloss)}</span>
-        <Mark result={checked?.time} />
-      </div>
     </figure>
   )
 }

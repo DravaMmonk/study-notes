@@ -2,7 +2,7 @@
 // on a small lexicon of its own (a game's lexicon is only data).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { place, refuse, refusals, slotsOf } from './engine/grammar.js'
+import { nextSlot, place, refuse, refusals, slotName, slotsOf } from './engine/grammar.js'
 import { defineLexicon } from './engine/lexicon.js'
 import { check, surface, toClause } from './engine/sentence.js'
 import { fate } from './validate.js'
@@ -97,4 +97,15 @@ test('an unfinished clause names its empty slots', () => {
   assert.equal(run.complete, false)
   assert.deepEqual(run.open, ['SUBJ', 'OBJ'])
   assert.deepEqual(run.groups.filter((g) => g.gap).map((g) => g.slot), ['SUBJ', 'OBJ'])
+})
+
+test('a clause is planned time first: the tense is the next place, and the verb place names the form it holds', () => {
+  const clause = toClause({ SUBJ: 'model' })
+  assert.equal(nextSlot(lex, clause), 'INFL')
+  assert.deepEqual(slotName(lex, clause, 'V'), { zh: '动词', en: 'verb' })
+  const framed = toClause({ SUBJ: 'model', INFL: 'ed' })
+  assert.equal(nextSlot(lex, framed), 'V')
+  assert.deepEqual(slotName(lex, framed, 'V'), { zh: '动词（过去式）', en: 'verb (past)' })
+  assert.equal(nextSlot(lex, toClause({ INFL: 'has', V: 'accept' })), 'SUBJ')
+  assert.equal(nextSlot(lex, toClause({ SUBJ: 'model', INFL: 'ed', V: 'converge' })), null)
 })

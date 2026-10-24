@@ -3,7 +3,7 @@ import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
-import { SLOT_KIND, SLOT_LABEL, place, slotsOf } from '../engine/grammar.js'
+import { SLOT_KIND, nextSlot, place, slotName, slotsOf } from '../engine/grammar.js'
 import { familyOf, featuresOf } from '../engine/parts.js'
 import { check, openSlots, surface, toClause } from '../engine/sentence.js'
 import Meaning from './Meaning.jsx'
@@ -11,8 +11,10 @@ import Sentence from './Sentence.jsx'
 
 // A syntax level, the same in every syntax game and on every screen: the meaning graph to say, the clause written out
 // as it reads with a box for each empty place (subject, then the predicate: tense, verb and the places the verb
-// opens), the words to fill it with, and the run bar. Running checks the sentence against the meaning graph; a pass solves the level with
-// its word count as the score.
+// opens), the words to fill it with, and the run bar. The box marked next is the tense until it is set, and an empty
+// verb box names the form the tense holds for it: a clause is planned time first, the way it is meant, and said in
+// reading order. Running checks the sentence against the meaning graph; a pass solves the level with its word count
+// as the score.
 
 const CHIP_GROUPS = [['np', { zh: '名词短语', en: 'Noun phrases' }], ['infl', { zh: '时体', en: 'Tense' }], ['verb', { zh: '动词', en: 'Verbs' }]]
 
@@ -51,7 +53,7 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
     if (k) line.push(' ')
     if (key === 'TO') line.push('to ')
     const said = surface(lex, clause, key)
-    if (!said) return line.push({ hole: key, label: SLOT_LABEL[key] })
+    if (!said) return line.push({ hole: key, label: slotName(lex, clause, key) })
     const text = k === 0 ? `${said.text.charAt(0).toUpperCase()}${said.text.slice(1)}` : said.text
     line.push({ piece: key, family: familyOf(lex, clause[key]), fixed: Boolean(preset[key]), dim: said.dim, parts: [text] })
   })
@@ -82,7 +84,7 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
     <div className="sx-stage">
       {phone && meaning}
       <StripTools history={history} onClear={() => change({ ...preset })} empty={!Object.keys(clause).some((s) => clause[s] && !preset[s])} note={note} />
-      <Strip line={line} label={{ zh: '小句', en: 'clause' }} next={strip.selected ?? slots.find((s) => !clause[s]) ?? null} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
+      <Strip line={line} label={{ zh: '小句', en: 'clause' }} next={strip.selected ?? nextSlot(lex, clause)} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       <Sentence run={live} target={spec.target} best={progress.best[level.id]} />
       <Chips groups={chips} onChip={strip.onChip} />
       {verdict && <p className={`sx-verdict ${run.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict}</p>}
