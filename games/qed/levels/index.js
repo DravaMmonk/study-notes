@@ -29,8 +29,8 @@ export const LEMMAS = {
 const REVISIONS = {
   // 矛盾 brings in ¬A as A → ⊥, so Apply takes ¬A and A to ⊥.
   mp: [{ at: 'bot', desc: T('由 A → B 和 A 得到 B：接进一句「若…，则…」和它的前一半，得到后一半。¬A 也可以写作 A → ⊥，所以接进 ¬A 和 A，就得到矛盾 ⊥。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part. ¬A can be written A → ⊥, so wire in ¬A and A and out comes the contradiction ⊥.') }],
-  // The knights and knaves bring ↔ into proofs: Split ∧ takes it apart.
-  andE: [{ at: 'kk-one', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
+  // ↔ comes into proofs on the main path with 两个方向: Split ∧ takes it apart.
+  andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
 }
 
 export const LOGIC = logicCourse({

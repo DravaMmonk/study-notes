@@ -38,7 +38,7 @@ export const quantifiers = [
     intro: [
       { t: T('到现在为止，一个字母只能是一整句话：每个人是不是骑士，就要一人一个字母。要是全城的人都要说到呢？命题逻辑说不出「每一个人」「有一个人」。', 'So far a letter can only be a whole sentence: whether each person is a knight takes a letter per person. What about everyone in a city? Propositional logic cannot say “everyone” or “someone”.') },
       { t: T('这一章把一句话拆开：<b>名字</b>指一样东西（苏格拉底、安），<b>谓词</b>说东西的性质或关系（「…是人」「…是…的父母」）。「苏格拉底是人」写成 Human(soc)。', 'This chapter takes a sentence apart: a <b>name</b> stands for a thing (Socrates, Ann), a <b>predicate</b> says what things are or how they relate (“… is human”, “… is a parent of …”). “Socrates is human” is written Human(soc).') },
-      { t: T('这一章先不证明，只学这样的话怎么说、在一个世界里是真是假。一道题一句话：用下面的块把它拼成公式，块里有空位的，再往空位里放别的块。拼完整了，下面会用文字读出来。', 'No proofs yet in this chapter: only how to say such things and when they are true in a world. One sentence at a time: build it as a formula from the pieces below, and where a piece has empty places, put other pieces in them. Once it is whole, it is read back in words beneath.') },
+      { t: T('这一章先不证明，只学这样的话怎么说、在一个世界里是真是假。一道题一句话：用下面的块把它拼成公式。块填进去就写成文字，它自己要填的地方留成框，再往框里填别的块。', 'No proofs yet in this chapter: only how to say such things and when they are true in a world. One sentence at a time: build it as a formula from the pieces below. A piece put in is written out as words, with a box for each place it leaves to fill, and other pieces go in those boxes.') },
     ],
     after: T('一句话拆成了名字和谓词，同一个谓词可以说任何东西：Human(soc)、Human(ann)。谓词的位置有先后：Parent(ann, bo) 和 Parent(bo, ann) 是两回事。', 'A sentence comes apart into names and predicates, and one predicate can be said of anything: Human(soc), Human(ann). A predicate’s places have an order: Parent(ann, bo) and Parent(bo, ann) are different things.'),
   },

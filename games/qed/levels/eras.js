@@ -64,7 +64,7 @@ export const ERAS = [
     foundation: [
       // And, or and not each need only the box; the mixed problems wait for all three.
       branches(
-        ['and', '并且', 'And', ['and', 'andSwap', 'curry', 'uncurry', 'andImp']],
+        ['and', '并且', 'And', ['and', 'andSwap', 'curry', 'uncurry', 'andImp', 'iffUse']],
         ['or', '或者', 'Or', ['or', 'cases', 'orSwap', 'orImp']],
         ['not', '矛盾与否定', 'Contradiction and not', ['bot', 'exFalso', 'notI', 'mt', 'dni', 'contra', 'denyAnte']],
       ),

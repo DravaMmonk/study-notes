@@ -103,6 +103,30 @@ export const era2 = [
     after: T('框的「假设」口连了两根线。一根线证出来的东西，分给几块元件都行。', 'The box’s “Assume” dot has two wires. What one wire proves can feed as many parts as you like.'),
   },
   {
+    id: 'iffUse',
+    title: T('两个方向', 'Both directions'),
+    tasks: [
+      prove({
+        step: T('一个方向', 'One direction'),
+        tests: [{ premises: { p: 'A ↔ B', q: 'A' }, goal: 'B' }],
+        cases: [{ A: 'Sat', B: 'Rest' }, { A: 'Coffee', B: 'Awake' }],
+        brief: T('实现一个证明器，可以从已知「今天是周六 ↔ 我休息」和「今天是周六」，证明出「我休息」。', 'Build a prover that, from “today is Saturday ↔ I rest” and “today is Saturday”, proves “I rest”.'),
+        hint: [T('「拆开 ∧」也能拆 ↔：拆出两个方向的「若…则…」，用对的那一个。', 'Split ∧ splits ↔ too: into the two “if … then …”s; use the right one.')],
+        solution: proof({ e: ['andE'], m: ['mp'] }, ['p>e.ab', 'e#left>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] }),
+      }),
+      prove({
+        step: T('另一个方向', 'The other direction'),
+        tests: [{ premises: { p: 'A ↔ B', q: '¬A' }, goal: '¬B' }],
+        cases: [{ A: 'Sat', B: 'Rest' }, { A: 'Coffee', B: 'Awake' }],
+        brief: T('再从「今天是周六 ↔ 我休息」和「¬今天是周六」，证明出「¬我休息」。', 'Now from “today is Saturday ↔ I rest” and “¬today is Saturday”, prove “¬I rest”.'),
+        hint: [T('这回要用另一个方向：假设「我休息」，看能不能撞出矛盾。', 'This time it takes the other direction: assume “I rest” and see whether it runs into a contradiction.')],
+        solution: proof({ e: ['andE'], f: ['impI', { A: 'B' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>e.ab', 'e#right>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
+      }),
+    ],
+    intro: [{ t: T('真值电路里，<level-ref to="g-iff"></level-ref>的等价 ↔ 是同真同假。证明器里，A ↔ B 就是两个方向的 → 都成立：「(A → B) ∧ (B → A)」，证明器把它当成一句 ∧。', 'In the truth circuits, the equivalence ↔ of <level-ref to="g-iff"></level-ref> meant true together and false together. In the prover, A ↔ B is the → holding both ways, “(A → B) ∧ (B → A)”, and the prover reads it as an ∧.') }],
+    after: T('等价能拆成两个方向，用哪个方向看手里有什么、要证什么。「拆开 ∧」的说明里，从此多了这一句。', 'An equivalence splits into its two directions, and which one to use depends on what you hold and what you must prove. Split ∧’s description now says so too.'),
+  },
+  {
     id: 'or',
     kind: 'proof',
     // K and S, built at the end of the last chapter, are not this level's business.
@@ -431,7 +455,7 @@ export const era2 = [
     ],
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，永远说真话；要么是<b>无赖</b>，永远说假话。', 'Everyone on the island is a <b>knight</b>, who always tells the truth, or a <b>knave</b>, who always lies.') },
-      { t: T('一个岛民说了一句话，「他是骑士」就和他说的话<b>等价</b>：<level-ref to="e-says"></level-ref>里翻译过，写成 <b>↔</b>。真值上，等价是同真同假；证明器里，它是两个方向的 → 都成立，也就是「(甲 → 乙) ∧ (乙 → 甲)」，证明器把它当成一句 ∧。', 'If an islander says something, “he is a knight” is <b>equivalent</b> to what he says: you translated that in <level-ref to="e-says"></level-ref>, written <b>↔</b>. In truth values, equivalent means true together and false together; in the prover it is the → holding both ways, that is “(X → Y) ∧ (Y → X)”, and the prover reads it as an ∧.') },
+      { t: T('一个岛民说了一句话，「他是骑士」就和他说的话<b>等价</b>：<level-ref to="e-says"></level-ref>里翻译过，写成 <b>↔</b>；证明器里怎样拆开它，<level-ref to="iffUse"></level-ref>里做过。', 'If an islander says something, “he is a knight” is <b>equivalent</b> to what he says: you translated that in <level-ref to="e-says"></level-ref>, written <b>↔</b>; how the prover takes it apart, you did in <level-ref to="iffUse"></level-ref>.') },
     ],
     after: T('拆开等价，合并重复的条件，再两次套用撞出矛盾。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。这就是「说谎者悖论」的岛上版本。', 'Split the equivalence, merge the repeated condition, then apply twice into a contradiction. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true. It is the island’s version of the liar paradox.'),
   },

@@ -4,13 +4,13 @@ import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { Chips, Strip, useStrip } from '../../../strip/index.js'
 import { freeVars, parse } from '../formula.js'
-import { say } from '../notation.js'
 import { difference, extent, structureOf } from '../fol.js'
 import { chipsOf, complete, holesOf, kindAt, kidsOf, nodeAt, setAt } from '../formulaTree.js'
 import { WorldText, thingName } from './WorldScreens.jsx'
 
 // Translate and query tasks (《证明完毕》 chapter 4): one sentence said in words, built as a formula from chips on the
-// shared strip (games/kit/strip, as 《句法之图》 builds a clause), and read back in words once it is whole. A
+// shared strip (games/kit/strip, as 《句法之图》 builds a clause), which writes it out as it reads, a box for each
+// empty place. A
 // translation passes when it means the same as the sentence in every small world, and shows a world where it does
 // not otherwise; a query (x left free) passes when it picks out the right things in each of the level's worlds.
 //
@@ -19,25 +19,33 @@ import { WorldText, thingName } from './WorldScreens.jsx'
 const T = (zh, en) => ({ zh, en })
 const PLACES = ['①', '②', '③']
 const GROUPS = [['pred', T('谓词', 'Predicates')], ['name', T('名字', 'Names')], ['var', T('变量', 'Variables')], ['quant', T('量词', 'Quantifiers')], ['conn', T('连接词', 'Connectives')]]
-const JOINS = { '∧': T('并且', 'and'), '∨': T('或者', 'or'), '→': T('若…则…', 'if … then …') }
 const keyOf = (path) => ['r', ...path].join('.')
 const pathOf = (key) => key.split('.').slice(1).map(Number)
 
-/** A predicate's words with its places numbered: ①是②的父母. */
+/** A predicate's words with its places numbered: ①是②的父母 (on its chip). */
 const placesOf = (notation, pred) => (notation.words?.[pred] ? L(notation.words[pred]).replace(/\{(\d)\}/g, (_, k) => PLACES[Number(k)]) : pred)
 
-/** The formula as the strip's tree of slots: each piece a group of its own slot and its children's. */
-function stripOf(node, path, kind, notation) {
+/**
+ * The formula as it reads, for the strip: each piece its own words, with a box for every empty place, so the line
+ * reads as the formula does (∀x. x是人 → x会死). A whole ∀, ∃ or connective inside a connective keeps its brackets.
+ */
+function segmentOf(node, path, kind, notation, bracket = false) {
   const key = keyOf(path)
-  if (!node) return { key, label: kind === 'term' ? T('一样东西', 'a thing') : T('一句话', 'a sentence') }
-  if (node.t) return { key, label: node.t === 'var' ? T('变量', 'variable') : T('名字', 'name'), value: { text: node.t === 'var' ? node.name : L(notation.words?.[node.f] ?? T(node.f, node.f)), family: node.t === 'var' ? 'var' : 'name' } }
-  const kids = kidsOf(node).map((kid, k) => stripOf(kid.value, [...path, k], kid.kind, notation))
-  const head = (text, label, family) => ({ key, label, value: { text, family } })
+  if (!node) return { hole: key, label: kind === 'term' ? T('谁', 'who') : T('一句话', 'a sentence') }
+  const piece = (family, parts) => ({ piece: key, family, parts: bracket ? ['(', ...parts, ')'] : parts })
+  if (node.t) return piece(node.t === 'var' ? 'var' : 'name', [node.t === 'var' ? node.name : L(notation.words?.[node.f] ?? T(node.f, node.f))])
+  const kid = (k, inner) => {
+    const { value, kind: takes } = kidsOf(node)[k]
+    return segmentOf(value, [...path, k], takes, notation, inner && Boolean(value) && !value.t && value.op !== 'atom' && value.op !== '¬')
+  }
   switch (node.op) {
-    case 'atom': return { key: `${key}g`, items: [head(placesOf(notation, node.pred), T('谓词', 'predicate'), 'pred'), ...kids.map((k, i) => (k.value ? { ...k, label: T(PLACES[i], PLACES[i]) } : { ...k, label: T(`${PLACES[i]} 是谁`, `who is ${PLACES[i]}`) }))] }
-    case '¬': return { key: `${key}g`, label: T('并非', 'not'), items: [head('¬', T('连接词', 'connective'), 'conn'), ...kids] }
-    case '∀': case '∃': return { key: `${key}g`, label: node.op === '∀' ? T(`对所有 ${node.v}`, `for every ${node.v}`) : T(`有一个 ${node.v}`, `some ${node.v}`), items: [head(`${node.op}${node.v}.`, T('量词', 'quantifier'), 'quant'), ...kids] }
-    default: return { key: `${key}g`, label: JOINS[node.op], items: [kids[0], head(node.op, T('连接词', 'connective'), 'conn'), kids[1]] }
+    case 'atom': {
+      const words = notation.words?.[node.pred] ? L(notation.words[node.pred]) : `${node.pred}(${node.args.map((_, k) => `{${k}}`).join(', ')})`
+      return piece('pred', words.split(/(\{\d\})/).filter(Boolean).map((w) => (/^\{\d\}$/.test(w) ? kid(Number(w[1])) : w)))
+    }
+    case '¬': return piece('conn', ['¬', kid(0, true)])
+    case '∀': case '∃': return piece('quant', [`${node.op}${node.v}. `, kid(0)])
+    default: return piece('conn', [kid(0, true), ` ${node.op} `, kid(1, true)])
   }
 }
 
@@ -122,7 +130,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
     .filter((g) => g.chips.length)
   const note = strip.note
     ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>
-    : <p className="ks-note">{tree ? tr('点下面的块，它会进第一个能放它的空位；点已放的块把它连同里面的一起拿掉。', 'Tap a piece below and it goes into the first empty place that takes it; tap a placed piece to take it out with all inside it.') : tr('从最外面的那一块开始：整句话是什么形状？', 'Start with the outermost piece: what shape is the whole sentence?')}</p>
+    : <p className="ks-note">{tree ? tr('点下面的块，它会填进第一个能放它的框；点已经填进去的字，把它连同里面的一起拿掉。', 'Tap a piece below and it fills the first box that takes it; tap words already in to take them out with all inside.') : tr('从最外面的那一块开始：整句话是什么形状？', 'Start with the outermost piece: what shape is the whole sentence?')}</p>
   const stage = (
     <div className="fo-stage">
       <p className="fo-say fo-prompt" dangerouslySetInnerHTML={{ __html: String(L(level.say)) }} />
@@ -136,9 +144,8 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
           ))}
         </div>
       )}
-      <Strip tree={{ key: 'top', label: T('公式', 'formula'), items: [stripOf(tree, [], 'formula', notation)] }} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
+      <Strip line={[segmentOf(tree, [], 'formula', notation)]} label={T('公式', 'formula')} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
-      <p className="fo-read">{whole ? <>{tr('读作：', 'Reads: ')}<b>{L(say(tree, notation))}</b></> : null}</p>
       {verdict && (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界里，都和原句一样真假。', 'True and false with the sentence in every small world.')}</p> : verdict.body)}
       <Chips groups={groups} onChip={strip.onChip} />
       <footer className="run-foot">

@@ -9,12 +9,11 @@ import { check, openSlots, surface, toClause } from '../engine/sentence.js'
 import Meaning from './Meaning.jsx'
 import Sentence from './Sentence.jsx'
 
-// A syntax level, the same in every syntax game and on every screen: the meaning graph to say, the clause as a strip
-// of slots in reading order (subject, then the predicate: tense, verb and the places the verb opens), the words to
-// fill it with, and the run bar. Running checks the sentence against the meaning graph; a pass solves the level with
+// A syntax level, the same in every syntax game and on every screen: the meaning graph to say, the clause written out
+// as it reads with a box for each empty place (subject, then the predicate: tense, verb and the places the verb
+// opens), the words to fill it with, and the run bar. Running checks the sentence against the meaning graph; a pass solves the level with
 // its word count as the score.
 
-const KIND_FAMILY = { np: 'np', infl: 'infl', verb: 'verb' }
 const CHIP_GROUPS = [['np', { zh: '名词短语', en: 'Noun phrases' }], ['infl', { zh: '时体', en: 'Tense' }], ['verb', { zh: '动词', en: 'Verbs' }]]
 
 export default function SyntaxScreen({ game, level, saved, save, solve, progress, phone }) {
@@ -46,24 +45,17 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
     fixed: (slot) => Boolean(preset[slot]),
   })
 
-  const slot = (key) => {
-    const type = clause[key]
+  // The clause as it reads: each slot's words, or a box for an empty one; a bare suffix (-ed) is a small mark.
+  const line = []
+  slots.forEach((key, k) => {
+    if (k) line.push(' ')
+    if (key === 'TO') line.push('to ')
     const said = surface(lex, clause, key)
-    const part = type && lex.part(type)
-    return {
-      key,
-      label: SLOT_LABEL[key],
-      lead: key === 'TO' ? 'to' : null,
-      fixed: Boolean(preset[key]),
-      family: KIND_FAMILY[SLOT_KIND[key]],
-      value: said && { text: said.text, dim: said.dim, family: familyOf(lex, type), sub: part.kind === 'np' ? null : said.dim || said.text === part.text ? null : part.text },
-    }
-  }
-  const tree = {
-    key: 'S',
-    label: { zh: '小句', en: 'clause' },
-    items: [slot('SUBJ'), { key: 'VP', label: { zh: '谓语', en: 'predicate' }, items: slots.slice(1).map(slot) }],
-  }
+    if (!said) return line.push({ hole: key, label: SLOT_LABEL[key] })
+    const text = k === 0 ? `${said.text.charAt(0).toUpperCase()}${said.text.slice(1)}` : said.text
+    line.push({ piece: key, family: familyOf(lex, clause[key]), fixed: Boolean(preset[key]), dim: said.dim, parts: [text] })
+  })
+  line.push('.')
   const used = new Set(Object.values(clause))
   const chips = CHIP_GROUPS
     .map(([kind, label]) => ({ key: kind, label, chips: level.palette.filter((t) => lex.part(t).kind === kind).map((t) => ({ key: t, text: lex.part(t).text, sub: featuresOf(lex, t), family: familyOf(lex, t), used: used.has(t) })) }))
@@ -98,7 +90,7 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
   const stage = (
     <div className="sx-stage">
       {phone && meaning}
-      <Strip tree={tree} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
+      <Strip line={line} label={{ zh: '小句', en: 'clause' }} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
       <Sentence run={live} target={spec.target} best={progress.best[level.id]} />
       <Chips groups={chips} onChip={strip.onChip} />
