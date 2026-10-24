@@ -8,7 +8,8 @@ import { L, tr } from '../shell/i18n.js'
 //   line     [segment]   the whole thing in reading order
 //   segment  a string (text that belongs to no piece: a full stop, a fixed word)
 //          | { hole: key, label: { zh, en } }                    an empty place, its label written faintly inside
-//          | { piece: key, family?, fixed?, dim?, parts: [segment] }  a piece put in: its strings are its words
+//          | { piece: key, family?, fixed?, dim?, bad?, parts: [segment] }  a piece put in: its strings are its words
+//            (`bad`: marked red, it does not belong where it stands yet)
 //   next      where the next chip goes, always marked: a hole's key, or 'end' (a caret after the line, where a piece
 //             that joins on after the last whole thing goes)
 //   selected  the hole picked to receive the next chip      flash  keys just refused (they shake)
@@ -42,7 +43,7 @@ function Segments({ parts, owner = null, next, selected, flash, onSlot }) {
       )
     }
     return (
-      <span key={part.piece} className={`ks-piece ${flash.includes(part.piece) ? 'is-refused' : ''}`} data-family={part.family}>
+      <span key={part.piece} className={`ks-piece ${part.bad ? 'is-bad' : ''} ${flash.includes(part.piece) ? 'is-refused' : ''}`} data-family={part.family}>
         <Segments parts={part.parts} owner={part} next={next} selected={selected} flash={flash} onSlot={onSlot} />
       </span>
     )

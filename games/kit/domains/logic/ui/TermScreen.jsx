@@ -64,7 +64,7 @@ export default function TermScreen({ game, level: entry, saved, save, solve, pho
   const premises = Object.entries(level.premises ?? {})
   const note = strip.note
     ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>
-    : <p className="ks-note">{tree ? tr('点下面的块，它会填进第一个框；没有框了，再点 □ □、□.1、□.2、□.elim，它接在最后那个项上。高亮的地方就是下一块要去的位置。点已经填进去的字，把它连同里面的一起拿掉。', 'Tap a piece below and it fills the first box; with no box left, □ □, □.1, □.2 and □.elim take the last term. The highlight marks where the next piece goes. Tap words already in to take them out with all inside.') : tr('从最外面那一层开始：要证的这句话，它的证明是什么形状？', 'Start with the outermost layer: what shape is a proof of this sentence?')}</p>
+    : <p className="ks-note">{tr('点击文字可以删除。', 'Tap words to delete them.')}</p>
   const stage = (
     <div className="fo-stage">
       <section className="tm-given">
