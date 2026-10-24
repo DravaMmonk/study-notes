@@ -37,7 +37,7 @@
 .sx-thing { width: 100%; max-width: 180px; padding: 6px 4px; display: grid; gap: 1px; border-radius: var(--r-sm); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); }
 .sx-thing b { font-size: var(--fs-small); font-weight: 600; }
 .sx-thing small { font-size: 12px; color: var(--muted); line-height: 1.35; }
-.sx-time { width: 100%; margin-top: 14px; padding: 8px 10px; display: grid; gap: 2px; border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px var(--rule); font-size: var(--fs-ui); }
+.sx-time { width: 100%; margin-bottom: 14px; padding: 8px 10px; display: grid; gap: 2px; border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px var(--rule); font-size: var(--fs-ui); }
 .sx-time b { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--fam-infl); }
 .is-ok.sx-pred, .is-ok .sx-thing, .is-ok.sx-time { box-shadow: inset 0 0 0 1.5px var(--sx-ok); }
 .is-no.sx-pred, .is-no .sx-thing, .is-no.sx-time { box-shadow: inset 0 0 0 1.5px var(--fail); }

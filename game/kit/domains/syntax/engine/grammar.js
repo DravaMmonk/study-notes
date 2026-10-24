@@ -45,6 +45,15 @@ export const ROLE_NAME = {
   RECIPIENT: { zh: '接收方', en: 'recipient' },
 }
 
+/** The verb forms an INFL part can ask for, as an empty verb place names them. */
+export const FORM_NAME = {
+  base: { zh: '原形', en: 'bare' },
+  s: { zh: '-s 形式', en: '-s form' },
+  past: { zh: '过去式', en: 'past' },
+  pp: { zh: '过去分词', en: 'past participle' },
+  ing: { zh: '-ing 形式', en: '-ing form' },
+}
+
 export const TENSE_NAME = { present: { zh: '现在', en: 'present' }, past: { zh: '过去', en: 'past' }, future: { zh: '将来', en: 'future' } }
 export const ASPECT_NAME = { simple: { zh: '一般', en: 'simple' }, perfect: { zh: '完成', en: 'perfect' }, progressive: { zh: '进行', en: 'progressive' } }
 
@@ -82,6 +91,24 @@ export function shortFeatures(np) {
 
 /** The slots a clause has, in reading order: subject, tense, verb, then the places the verb's frame opens. */
 export const slotsOf = (lex, clause) => ['SUBJ', 'INFL', 'V', ...(clause.V ? lex.part(clause.V).ports.map(([slot]) => slot) : [])]
+
+/**
+ * The empty slot to settle next, in the order a speaker plans a clause rather than the order it is said: the time
+ * first (it is part of what is meant before any word is chosen, and it builds the predicate's frame), then the rest in
+ * reading order, the verb dropping into the form the frame already holds for it.
+ */
+export function nextSlot(lex, clause) {
+  const open = slotsOf(lex, clause).filter((s) => !clause[s])
+  return open.includes('INFL') ? 'INFL' : open[0] ?? null
+}
+
+/** An empty slot's name; the verb's says the form its INFL holds for it ("动词（过去式）"). */
+export function slotName(lex, clause, slot) {
+  const name = SLOT_LABEL[slot]
+  if (slot !== 'V' || !clause.INFL) return name
+  const form = FORM_NAME[lex.part(clause.INFL).verb]
+  return { zh: `${name.zh}（${form.zh}）`, en: `${name.en} (${form.en})` }
+}
 
 const pair = (zh, en) => ({ zh, en })
 const quote = (text) => `“${text}”`

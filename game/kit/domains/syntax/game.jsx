@@ -15,11 +15,12 @@ import '../../strip/strip.css'
 import './ui/syntax.css'
 import { defineGame } from '../../shell/index.js'
 import { isCore } from '../../course.js'
+import { migrations } from '../../shell/saves.js'
 import { tr } from '../../shell/i18n.js'
 import Hero from './ui/Hero.jsx'
 import Screen from './ui/Screen.jsx'
 
-/** spec: { id, title, kicker, lede, syntax (syntaxCourse's result), glossary } */
+/** spec: { id, title, kicker, lede, syntax (syntaxCourse's result), glossary, saves: migration steps (../../shell/saves.js) } */
 export function defineSyntaxGame(spec) {
   const { LEVELS, CHAPTERS, lex } = spec.syntax
   const game = defineGame({
@@ -46,7 +47,7 @@ export function defineSyntaxGame(spec) {
       after: L.debrief.body,
       note: L.debrief.note,
     })),
-    progress: { version: 1 },
+    progress: migrations(spec.saves ?? []),
     intro: (level) => level.source.intro,
     kinds: { sentence: { Screen, icon: BookOpenText, label: { zh: '句子', en: 'Sentence' } } },
     // Fewer words is better; a ★ beats no ★.
