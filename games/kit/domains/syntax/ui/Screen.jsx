@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { Trash2 } from 'lucide-react'
 import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { Chips, Strip, useStrip } from '../../../strip/index.js'
+import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
+import { useHistory } from '../../../circuit/useHistory.js'
 import { SLOT_KIND, SLOT_LABEL, place, slotsOf } from '../engine/grammar.js'
 import { familyOf, featuresOf } from '../engine/parts.js'
 import { check, openSlots, surface, toClause } from '../engine/sentence.js'
@@ -23,13 +23,13 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
   const [clause, setClause] = useState(() => ({ ...(saved?.clause ?? {}), ...preset }))
   const [run, setRun] = useState(null) // the last run's result, until the clause changes
   const live = useMemo(() => check(lex, spec, clause), [lex, spec, clause])
-  const [armed, setArmed] = useState(false)
 
   const change = (next) => {
     setClause(next)
     save({ clause: next })
     setRun(null)
   }
+  const history = useHistory(clause, change, level.id, 0)
   const slots = slotsOf(lex, clause)
   const strip = useStrip({
     put: (slot, chip) => {
@@ -67,15 +67,6 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
     setRun(result)
     if (result.pass) solve({ words: result.words, star: result.star })
   }
-  const clear = () => {
-    if (!armed) {
-      setArmed(true)
-      window.setTimeout(() => setArmed(false), 2600)
-      return
-    }
-    setArmed(false)
-    change({ ...preset })
-  }
   const verdict = run && (run.pass
     ? (run.star ? tr('意思全对。', 'Every part of the meaning matches.') : tr(`意思全对，但用了 ${run.words} 个词；★ 要不超过 ${spec.target} 个。`, `Every part of the meaning matches, but it takes ${run.words} words; the ★ needs at most ${spec.target}.`))
     : !run.complete ? tr(`句子还没填完：${L(openSlots(run.open))}还空着。`, `The sentence is not finished: ${L(openSlots(run.open))} still empty.`)
@@ -90,6 +81,7 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
   const stage = (
     <div className="sx-stage">
       {phone && meaning}
+      <StripTools history={history} onClear={() => change({ ...preset })} empty={!Object.keys(clause).some((s) => clause[s] && !preset[s])} />
       <Strip line={line} label={{ zh: '小句', en: 'clause' }} next={strip.selected ?? slots.find((s) => !clause[s]) ?? null} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
       <Sentence run={live} target={spec.target} best={progress.best[level.id]} />
@@ -97,7 +89,6 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
       {verdict && <p className={`sx-verdict ${run.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict}</p>}
       <footer className="run-foot">
         <RunDock
-          secondary={Object.keys(clause).some((s) => clause[s] && !preset[s]) ? { label: armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), icon: <Trash2 size={16} />, armed, onClick: clear } : null}
           go={{ label: run?.pass ? tr('意思对上了', 'Meaning matches') : tr('对照语义图', 'Check the meaning'), pass: Boolean(run?.pass), onClick: go }}
         />
       </footer>

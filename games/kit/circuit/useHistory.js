@@ -7,11 +7,12 @@ const MERGE_MS = 700
 /**
  * Undo and redo for a board, the same in every game and on both boards. A change is seen here wherever it was made
  * (a card, a sheet, the parts list, the game's own controls): each graph unlike the one before is a step. `scope`
- * names the board (a level's stage); a new one starts the history over.
+ * names the board (a level's stage); a new one starts the history over. `merge` is how close together (ms) changes
+ * count as one step: a strip's taps are each a step of their own (0).
  *
  * @returns { undo, redo, canUndo, canRedo }
  */
-export function useHistory(graph, onChange, scope = null) {
+export function useHistory(graph, onChange, scope = null, merge = MERGE_MS) {
   const shot = JSON.stringify(graph)
   const h = useRef(null)
   h.current ??= { scope, shot, graph, past: [], future: [], at: 0 }
@@ -23,7 +24,7 @@ export function useHistory(graph, onChange, scope = null) {
     if (s.scope !== scope) Object.assign(s, { scope, past: [], future: [], at: 0 })
     else if (shot !== s.shot) {
       const now = Date.now()
-      if (now - s.at > MERGE_MS) s.past = [...s.past.slice(1 - DEPTH), s.graph]
+      if (now - s.at > merge) s.past = [...s.past.slice(1 - DEPTH), s.graph]
       s.future = []
       s.at = now
       render()
