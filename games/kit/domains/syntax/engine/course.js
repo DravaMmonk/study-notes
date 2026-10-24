@@ -5,8 +5,11 @@
 // syntaxCourse({ lexicon, eras, levels })
 //   lexicon  { nouns, verbs } (lexicon.js; the times are the grammar's)
 //   eras     [{ id, machine, title, kicker?, question?, foundation, practice?, topics?, challenges? }]
-//   levels   [{ id, title, brief, hint?, intro?, context, meaning, palette: { np?, verb?, time? }, preset?, refer?,
-//              why?, answer, traps?, target?, debrief: { title, body, note } }], in any order
+//   levels   in any order, each a sentence level or a drill:
+//            sentence  { id, title, brief, hint?, intro?, context, meaning, palette: { np?, verb?, time? }, preset?,
+//                        refer?, why?, answer, traps?, target?, debrief: { title, body, note } }
+//            drill     { id, kind: 'drill', title, brief, hint?, intro?, move: { zh, en }, items: [item], debrief }
+//                        (engine/drill.js says what an item is; `move` names the writing situation its items share)
 //     context  [{ zh, en }]: the situation the sentence is said in, which the player reads to decide (the time and the
 //              viewpoint are never written on the meaning graph; they follow from here)
 //     meaning  { pred, tense, aspect, roles: { ROLE: { ent, number, label, note? } } }: what the sentence must say.
@@ -24,6 +27,7 @@
 // Returns { lex, LEVELS, CHAPTERS, course, concept }.
 
 import { defineCourse, eraLevels, layout } from '../../../course.js'
+import { optionsOf } from './drill.js'
 import { defineLexicon } from './lexicon.js'
 
 const KINDS = ['np', 'verb', 'time']
@@ -41,7 +45,10 @@ export function syntaxCourse({ lexicon, eras, levels }) {
       ...level,
       era: eraOf.get(id).id,
       requires: plan.requires.get(id) ?? [],
-      palette: KINDS.flatMap((kind) => (level.palette?.[kind] ?? []).map((key) => lex.type(kind, key))),
+      // A drill's palette is the times its items weigh: they are what it practises.
+      palette: level.kind === 'drill'
+        ? [...new Set(level.items.flatMap(optionsOf))].map((key) => lex.type('time', key))
+        : KINDS.flatMap((kind) => (level.palette?.[kind] ?? []).map((key) => lex.type(kind, key))),
     }
   })
   const CHAPTERS = eras.map((era) => ({ id: era.id, kicker: era.kicker, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))

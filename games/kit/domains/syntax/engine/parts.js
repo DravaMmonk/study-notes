@@ -15,5 +15,5 @@ export function featuresOf(lex, type) {
   if (!p) return null
   if (p.kind === 'np') return p.pronoun ? features(p) : p.number === 'sg' ? { zh: '单数', en: 'singular' } : { zh: '复数', en: 'plural' }
   if (p.kind === 'verb') return { zh: `${p.sense.zh} · ${FRAMES[p.frame].label}`, en: `${p.sense.en} · ${FRAMES[p.frame].label}` }
-  return { zh: `${TENSE_NAME[p.tense].zh}·${ASPECT_NAME[p.aspect].zh} · ${p.shape}`, en: `${TENSE_NAME[p.tense].en} ${ASPECT_NAME[p.aspect].en} · ${p.shape}` }
+  return { zh: `${TENSE_NAME[p.tense].zh} · ${ASPECT_NAME[p.aspect].zh}`, en: `${TENSE_NAME[p.tense].en} ${ASPECT_NAME[p.aspect].en}` }
 }

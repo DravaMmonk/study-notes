@@ -76,10 +76,10 @@ export const TIMES = {
 }
 
 /**
- * The questions a native speaker settles before a clause, which together give its time (Reichenbach's reference
- * point and the view from it): is it one event or something that holds in general; where do you stand to say it; and
- * from there, do you see the whole event, the result it left, or a moment while it goes on. Something that holds in
- * general needs no more: it is the simple present.
+ * The questions behind a time (Reichenbach's reference point and the view from it): is it one event or something
+ * that holds in general; where do you stand to say it; and from there, do you see the whole event, the result it left,
+ * or a moment while it goes on. They explain a time when a player picks the wrong one; a player never has to answer
+ * them to pick one, because a native speaker does not either.
  */
 export const TIME_QUESTIONS = [
   {
@@ -110,13 +110,6 @@ export const TIME_QUESTIONS = [
   },
 ]
 
-/** The time a full set of answers gives, or null (unanswered, or one event seen whole from now: see `timeGap`). */
-export function timeOf(answers) {
-  if (answers.kind === 'general') return 'present.simple'
-  if (answers.kind !== 'episode' || !answers.stand || !answers.view) return null
-  return answers.stand === 'present' && answers.view === 'simple' ? null : `${answers.stand}.${answers.view}`
-}
-
 /** The answers a time stands for. */
 export function answersOf(key) {
   if (key === 'present.simple') return { kind: 'general' }
@@ -130,11 +123,6 @@ export function timeWords(key) {
   const parts = TIME_QUESTIONS.filter((q) => answers[q.id]).map((q) => q.options.find(([id]) => id === answers[q.id])[1])
   return { zh: parts.map((p) => p.zh).join(' · '), en: parts.map((p) => p.en).join(' · ') }
 }
-
-/** Why a full set of answers gives no time: one event, seen whole from now. */
-export const timeGap = (answers) => (answers.kind === 'episode' && answers.stand === 'present' && answers.view === 'simple'
-  ? { zh: '站在现在看一次具体的事，英语里要么看它留下的结果，要么看它正在进行；“整件事就在此刻”只出现在解说之类的场合。', en: 'Standing now and looking at one event, English sees either the result it left or the event going on; “happening now, as a whole” belongs to running commentary and the like.' }
-  : null)
 
 /**
  * Which question a chosen time answers differently from the one meant (1, 2 or 3), and a plain reason for it, for a

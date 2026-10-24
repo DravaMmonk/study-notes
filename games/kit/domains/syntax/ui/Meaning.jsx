@@ -32,7 +32,7 @@ export default function Meaning({ context, meaning, sense, run }) {
         <b>{tr('时间和视角', 'Time and viewpoint')}</b>
         {checked
           ? <span>{tr(`这里要的是：${timeWords(`${meaning.tense}.${meaning.aspect}`).zh}（${TENSE_NAME[meaning.tense].zh}${ASPECT_NAME[meaning.aspect].zh}）`, `Meant here: ${timeWords(`${meaning.tense}.${meaning.aspect}`).en} (${TENSE_NAME[meaning.tense].en} ${ASPECT_NAME[meaning.aspect].en})`)}</span>
-          : <span>{tr('从情境里判断：回答下面的三个问题', 'Judge it from the situation: answer the three questions below')}</span>}
+          : <span>{tr('从情境里判断', 'Judge it from the situation')}</span>}
         {checked?.time && !checked.time.ok && <small className="sx-step">{L(STEP[checked.time.step])}</small>}
         <Mark result={checked?.time} />
       </div>

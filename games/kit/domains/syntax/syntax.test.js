@@ -2,7 +2,7 @@
 // sentence, and the meaning check, on a small lexicon of its own (a game's lexicon is only data).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { answersOf, nextSlot, place, refuse, refusals, slotName, slotsOf, timeGap, timeOf } from './engine/grammar.js'
+import { answersOf, nextSlot, place, refuse, refusals, slotName, slotsOf, timeWords } from './engine/grammar.js'
 import { defineLexicon } from './engine/lexicon.js'
 import { check, surface, toClause } from './engine/sentence.js'
 import { fate } from './validate.js'
@@ -117,13 +117,8 @@ test('a clause is planned time first: the time is the next place, and the verb p
   assert.equal(nextSlot(lex, toClause({ SUBJ: 'model', TIME: 'past.simple', V: 'converge' })), null)
 })
 
-test('the time questions give a time, and a time gives back its answers', () => {
-  assert.equal(timeOf({ kind: 'general' }), 'present.simple')
-  assert.equal(timeOf({ kind: 'episode', stand: 'present', view: 'perfect' }), 'present.perfect')
-  assert.equal(timeOf({ kind: 'episode', stand: 'past', view: 'perfect' }), 'past.perfect')
-  assert.equal(timeOf({ kind: 'episode', stand: 'past' }), null)
-  // One event seen whole from now is no time English uses here, and says why.
-  assert.equal(timeOf({ kind: 'episode', stand: 'present', view: 'simple' }), null)
-  assert.ok(timeGap({ kind: 'episode', stand: 'present', view: 'simple' }))
-  for (const key of ['present.simple', 'past.simple', 'future.progressive', 'present.perfect']) assert.equal(timeOf(answersOf(key)), key)
+test('a time is explained by the questions behind it', () => {
+  assert.deepEqual(answersOf('present.simple'), { kind: 'general' })
+  assert.deepEqual(answersOf('past.perfect'), { kind: 'episode', stand: 'past', view: 'perfect' })
+  assert.equal(timeWords('present.perfect').zh, '一次具体的事 · 现在 · 已经做完，结果还在')
 })
