@@ -1,89 +1,87 @@
-import { useMemo, useRef, useState } from 'react'
-import { Check, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { Chips, Strip, useStrip } from '../../../strip/index.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { checkTerm, parseTerm, printTerm } from '../pterm.js'
+import { checkTerm } from '../pterm.js'
+import { chipsOf, complete, holesOf, nodeAt, segmentOf, setAt } from '../termTree.js'
 
-// Term levels (《证明完毕》 chapter 6): the player writes a short proof term, as Lean writes one, for each sentence to
-// prove from named premises, and the machine checks the term's type is that sentence (pterm.js). The buttons type
-// the pieces a term is made of; what is typed is read back as the machine understands it.
+// Term tasks (《证明完毕》 chapter 6): the named premises and the sentence to prove, and a proof term built from
+// chips on the shared strip (games/kit/strip), written out as it reads with a box for each empty place. The machine
+// checks the finished term's type is that sentence (pterm.js), and says where it is not.
 //
-//   level  { kind: 'term', items: [{ premises: { name: formula text }, goal: formula text, answer: term text }], consts? }
+//   level  { kind: 'term', premises: { name: formula text }, goal: formula text, answer: term text, naive?, consts? }
 
-const PIECES = ['fun h => ', '⟨', ', ', '⟩', '.1', '.2', 'Or.inl ', 'Or.inr ', '.elim ', 'False.elim ', '(', ')']
-
-/** One term to write: what is given, what to prove, the input and what it reads as. */
-function TermInput({ item, value, onChange, onFocus, inputRef, level, verdict }) {
-  const text = (f) => L(say(parse(f, { consts: level.consts ?? [] }), level.notation))
-  const read = useMemo(() => {
-    if (!value.trim()) return null
-    try { return { t: printTerm(parseTerm(value)) } } catch { return { error: true } }
-  }, [value])
-  return (
-    <section className={`fo-item ${verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : ''}`}>
-      <p className="fo-say">
-        {verdict && (verdict.pass ? <Check size={14} /> : <X size={14} />)}
-        <span>
-          {Object.keys(item.premises ?? {}).length > 0 && <>{tr('已知', 'Given')} {Object.entries(item.premises).map(([name, f]) => <span key={name} className="tm-given"><code>{name}</code>：{text(f)}</span>)} · </>}
-          {tr('要证', 'Prove')} <b>{text(item.goal)}</b>
-        </span>
-      </p>
-      <input ref={inputRef} className="fo-input" value={value} spellCheck={false} autoCapitalize="off" autoComplete="off" onFocus={onFocus} onChange={(e) => onChange(e.target.value)} placeholder={tr('写一个项，比如 fun h => h', 'Write a term, such as fun h => h')} />
-      <p className="fo-read">{read?.t ? <>{tr('读作：', 'Reads: ')}<code className="lg-term">{read.t}</code></> : read?.error ? <span className="lg-error">{tr('还不是一个完整的项', 'Not a whole term yet')}</span> : null}</p>
-      {verdict && !verdict.pass && <p className="lg-error">{L(verdict.reason)}</p>}
-    </section>
-  )
-}
+const T = (zh, en) => ({ zh, en })
+const GROUPS = [['name', T('名字', 'Names')], ['form', T('写法', 'Forms')]]
+const pathOf = (key) => key.split('.').slice(1).map(Number)
 
 export default function TermScreen({ game, level: entry, saved, save, solve, phone }) {
   const level = entry.source
-  const [texts, setTexts] = useState(() => level.items.map((_, k) => saved?.texts?.[k] ?? ''))
-  const [verdicts, setVerdicts] = useState(null)
-  const [focus, setFocus] = useState(0)
-  const refs = useRef([])
   const consts = level.consts ?? []
-  const change = (k, v) => {
-    const next = texts.map((t, i) => (i === k ? v : t))
-    setTexts(next)
-    save({ texts: next })
-    setVerdicts(null)
+  const text = (f) => L(say(parse(f, { consts }), level.notation))
+  const [tree, setTree] = useState(() => saved?.tree ?? null)
+  const [verdict, setVerdict] = useState(null)
+  const [armed, setArmed] = useState(false)
+  const chips = useMemo(() => chipsOf(level.premises ?? {}, tree), [level, tree])
+  const change = (next) => {
+    setTree(next)
+    save({ tree: next })
+    setVerdict(null)
   }
-  const insert = (piece) => {
-    const el = refs.current[focus]
-    const [a, b] = el ? [el.selectionStart, el.selectionEnd] : [texts[focus].length, texts[focus].length]
-    const v = texts[focus].slice(0, a) + piece + texts[focus].slice(b)
-    change(focus, v)
-    requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(a + piece.length, a + piece.length) })
-  }
-  const judge = (item, value) => {
-    let term
-    try { term = parseTerm(value) } catch { return { pass: false, reason: { zh: '还不是一个完整的项。', en: 'Not a whole term yet.' } } }
-    const hyps = Object.fromEntries(Object.entries(item.premises ?? {}).map(([name, f]) => [name, parse(f, { consts })]))
-    const reason = checkTerm(term, parse(item.goal, { consts }), { hyps, consts, notation: level.notation })
-    return { pass: !reason, reason }
-  }
+  const strip = useStrip({
+    put: (slot, key) => {
+      change(setAt(tree, pathOf(slot), chips.find((c) => c.key === key).make(tree)))
+      return null
+    },
+    take: (slot) => change(setAt(tree, pathOf(slot), null)),
+    target: () => { const hole = holesOf(tree)[0]; return hole ? ['r', ...hole.path].join('.') : null },
+    filled: (slot) => nodeAt(tree, pathOf(slot)) !== null,
+    fixed: () => false,
+  })
   const check = () => {
-    const vs = level.items.map((item, k) => judge(item, texts[k]))
-    setVerdicts(vs)
-    if (vs.every((v) => v.pass)) solve(null)
+    strip.clearSelection()
+    if (!complete(tree)) return setVerdict({ pass: false, reason: T('还有框没填：项要每个位置都填上。', 'Some boxes are still empty: every place must be filled.') })
+    const hyps = Object.fromEntries(Object.entries(level.premises ?? {}).map(([name, f]) => [name, parse(f, { consts })]))
+    const reason = checkTerm(tree, parse(level.goal, { consts }), { hyps, consts, notation: level.notation })
+    setVerdict({ pass: !reason, reason })
+    if (!reason) solve(null)
   }
-  const passed = verdicts?.every((v) => v.pass)
-  // The premises' names are pieces too.
-  const names = [...new Set(level.items.flatMap((item) => Object.keys(item.premises ?? {})))]
+  const clear = () => {
+    if (!armed) {
+      setArmed(true)
+      window.setTimeout(() => setArmed(false), 2600)
+      return
+    }
+    setArmed(false)
+    change(null)
+  }
+  const groups = GROUPS.map(([group, label]) => ({ key: group, label, chips: chips.filter((c) => c.group === group).map((c) => ({ key: c.key, text: c.text, sub: c.sub, family: group })) })).filter((g) => g.chips.length)
+  const premises = Object.entries(level.premises ?? {})
+  const note = strip.note
+    ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>
+    : <p className="ks-note">{tree ? tr('点下面的块，它会填进第一个框；点已经填进去的字，把它连同里面的一起拿掉。', 'Tap a piece below and it fills the first box; tap words already in to take them out with all inside.') : tr('从最外面那一层开始：要证的这句话，它的证明是什么形状？', 'Start with the outermost layer: what shape is a proof of this sentence?')}</p>
   const stage = (
     <div className="fo-stage">
-      {level.items.map((item, k) => (
-        <TermInput key={k} item={item} value={texts[k]} onChange={(v) => change(k, v)} onFocus={() => setFocus(k)} inputRef={(el) => { refs.current[k] = el }} level={level} verdict={verdicts?.[k]} />
-      ))}
-      <div className="fo-vocab" onPointerDown={(e) => e.preventDefault()}>
-        {[...names, ...PIECES].map((p) => <button key={p} type="button" onClick={() => insert(p)}><code>{p.trim() || p}</code></button>)}
-      </div>
-      <footer className="run-foot"><RunDock go={{ label: passed ? tr('全对', 'All correct') : tr('检查', 'Check'), pass: Boolean(passed), onClick: check }} /></footer>
+      <section className="tm-given">
+        {premises.length > 0 && <p>{tr('已知', 'Given')} {premises.map(([name, f]) => <span key={name} className="tm-premise"><code>{name}</code>：{text(f)}</span>)}</p>}
+        <p className="fo-say fo-prompt">{tr('要证', 'Prove')} <b>{text(level.goal)}</b></p>
+      </section>
+      <Strip line={[segmentOf(tree)]} label={T('证明项', 'proof term')} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
+      {note}
+      {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型对上了：这个项证的正是这句话。', 'The type matches: this term proves exactly this sentence.') : L(verdict.reason)}</p>}
+      <Chips groups={groups} onChip={strip.onChip} />
+      <footer className="run-foot">
+        <RunDock
+          secondary={tree ? { label: armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), icon: <Trash2 size={16} />, armed, onClick: clear } : null}
+          go={{ label: verdict?.pass ? tr('对了', 'Right') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }}
+        />
+      </footer>
     </div>
   )
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  if (phone) return <PhonePage brief={brief} className="fo-level">{stage}</PhonePage>
-  return <Workbench className="fo-level" brief={brief} stage={stage} scroll />
+  if (phone) return <PhonePage brief={brief} className="fo-level tm-level">{stage}</PhonePage>
+  return <Workbench className="fo-level tm-level" brief={brief} stage={stage} scroll />
 }

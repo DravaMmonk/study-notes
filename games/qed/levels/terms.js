@@ -7,6 +7,10 @@
 import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
+// A term level: one problem per task (TermScreen.jsx).
+const PROBLEMS = [T('第一题', 'Problem 1'), T('第二题', 'Problem 2'), T('第三题', 'Problem 3'), T('第四题', 'Problem 4')]
+const WRITE = T('用下面的块，拼出这句话的证明项。', 'Build the proof term of this sentence from the pieces below.')
+const write = (list) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[k], brief: WRITE, ...task }))
 const prove = (task) => ({ kind: 'proof', terms: true, step: T('证明', 'Prove'), ...task })
 const RAIN = [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Alarm', B: 'Coffee', C: 'Awake' }]
 const CHAIN = [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }]
@@ -188,58 +192,46 @@ export const terms = [
   // ---------- writing terms ----------
   {
     id: 't-wapp',
-    kind: 'term',
     title: T('写一个应用', 'Write an application'),
-    items: [
-      { premises: { p: 'Rain → Wet', q: 'Rain' }, goal: 'Wet', answer: 'p q' },
-      { premises: { p: 'Rain → (Wind → Wet)', q: 'Rain', r: 'Wind' }, goal: 'Wet', answer: 'p q r' },
-      { premises: { p: 'Rain → Wet', q: 'Wet → Slip', r: 'Rain' }, goal: 'Slip', answer: 'q (p r)' },
-    ],
-    brief: T('这回不接线：每一句要证的话，写出它的证明项。', 'No wiring this time: for each sentence to prove, write its proof term.'),
-    hint: [T('名字就是证明；一个「若…则…」的证明是函数，写在它要用到的证明前面。', 'A name is a proof; the proof of an “if … then …” is a function, written before the proof it is used on.')],
-    intro: [{ t: T('新的板：<b>写项板</b>。按钮能敲出项的各个零件，也可以直接打字。写好了，机器检查这个项的类型是不是要证的那句话。', 'A new board: the <b>term board</b>. The buttons type the pieces of a term, or you can type directly. When it is written, the machine checks that the term’s type is the sentence to prove.') }],
-    after: T('机器没有看你怎么想到的，只检查写下的项：每一次应用，函数的前一半都要和参数对得上。证明器的核做的就是这件事：<b>证明检查就是类型检查</b>。', 'The machine does not look at how you found it, only at the term written: at every application, the function’s first half must match the argument. This is what a prover’s kernel does: <b>proof checking is type checking</b>.'),
+    tasks: write([
+      { premises: { p: 'Rain → Wet', q: 'Rain' }, goal: 'Wet', answer: 'p q', hint: [T('先放「□ □」：前一个框放函数，后一个框放用在它上面的证明。', 'Put down “□ □” first: the function in the first box, the proof it is used on in the second.')] },
+      { premises: { p: 'Rain → (Wind → Wet)', q: 'Rain', r: 'Wind' }, goal: 'Wet', answer: 'p q r', hint: [T('p q r 是 (p q) r：最外面那次应用的函数，本身又是一次应用。', 'p q r is (p q) r: the function of the outermost application is itself an application.')] },
+      { premises: { p: 'Rain → Wet', q: 'Wet → Slip', r: 'Rain' }, goal: 'Slip', answer: 'q (p r)', hint: [T('最后用的是 q，它要的「地湿」从哪来？', 'The last one used is q; where does the “ground is wet” it needs come from?')] },
+    ]),
+    intro: [{ t: T('新的板：<b>写项板</b>。不接线了，用下面的块把证明项拼出来：块填进去就写成字，它自己要填的地方留成框，再往框里填别的块。拼完了，机器检查这个项的类型是不是要证的那句话。', 'A new board: the <b>term board</b>. No wiring now: build the proof term from the pieces below. A piece put in is written out, with a box for each place it leaves to fill, and other pieces go in those boxes. When it is whole, the machine checks that the term’s type is the sentence to prove.') }],
+    after: T('机器没有看你怎么想到的，只检查拼出的项：每一次应用，函数的前一半都要和参数对得上。证明器的核做的就是这件事：<b>证明检查就是类型检查</b>。', 'The machine does not look at how you found it, only at the term built: at every application, the function’s first half must match the argument. This is what a prover’s kernel does: <b>proof checking is type checking</b>.'),
   },
   {
     id: 't-wlam',
-    kind: 'term',
     title: T('写一个 λ', 'Write a λ'),
-    items: [
-      { premises: {}, goal: 'Rain → Rain', answer: 'fun h => h' },
-      { premises: { p: 'Wet' }, goal: 'Rain → Wet', answer: 'fun h => p' },
-      { premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip', answer: 'fun h => q (p h)' },
-      { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Wind → (Rain → Wet)', answer: 'fun w r => p r w' },
-    ],
-    brief: T('每一句要证的话，写出它的证明项。', 'For each sentence to prove, write its proof term.'),
-    hint: [T('要证「A → B」，写 fun h => …，h 证的是 A，箭头后面写 B 的证明。', 'To prove “A → B”, write fun h => …: h proves A, and after the arrow comes a proof of B.')],
-    after: T('最后一句是<b>交换</b>：拿到 w 和 r，按 p 要的次序交出去。框的次序和参数的次序是同一件事。', 'The last one is <b>Swap</b>: given w and r, hand them on in the order p wants. The order of boxes and the order of arguments are one thing.'),
+    tasks: write([
+      { premises: {}, goal: 'Rain → Rain', answer: 'fun a => a', hint: [T('要证「若…则…」，先放「fun _ => □」：它给前一半起了个名字。', 'To prove an “if … then …”, put down “fun _ => □” first: it gives the first half a name.')] },
+      { premises: { p: 'Wet' }, goal: 'Rain → Wet', answer: 'fun a => p', hint: [T('拿到的 a 不一定要用上。', 'The a you are given need not be used.')] },
+      { premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip', answer: 'fun a => q (p a)', hint: [T('拿到 a，先用 p，再用 q。', 'Given a, use p, then q.')] },
+      { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Wind → (Rain → Wet)', answer: 'fun a b => p b a', hint: [T('两层 fun：a 证的是刮风，b 证的是下雨。p 先要哪一个？', 'Two funs: a proves it is windy, b that it rains. Which does p want first?')] },
+    ]),
+    after: T('最后一题是<b>交换</b>：拿到 a 和 b，按 p 要的次序交出去。框的次序和参数的次序是同一件事。', 'The last one is <b>Swap</b>: given a and b, hand them on in the order p wants. The order of boxes and the order of arguments are one thing.'),
   },
   {
     id: 't-wpair',
-    kind: 'term',
     title: T('写一对', 'Write a pair'),
-    items: [
-      { premises: { p: 'Rain', q: 'Wind' }, goal: 'Rain ∧ Wind', answer: '⟨p, q⟩' },
-      { premises: { p: 'Rain ∧ Wind' }, goal: 'Wind ∧ Rain', answer: '⟨p.2, p.1⟩' },
-      { premises: { p: 'Rain ∧ Wind → Wet' }, goal: 'Rain → (Wind → Wet)', answer: 'fun a b => p ⟨a, b⟩' },
-      { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Rain ∧ Wind → Wet', answer: 'fun h => p h.1 h.2' },
-    ],
-    brief: T('每一句要证的话，写出它的证明项。', 'For each sentence to prove, write its proof term.'),
-    hint: [T('⟨a, b⟩ 拼一对；h.1、h.2 取出一半。', '⟨a, b⟩ makes a pair; h.1 and h.2 take out a half.')],
-    after: T('第三、四句一来一回：柯里化，和它的反过来。两种函数可以互相改写，所以两句话互相推得出。', 'The third and fourth go there and back: currying and its reverse. Each kind of function can be rewritten as the other, so each sentence gives the other.'),
+    tasks: write([
+      { premises: { p: 'Rain', q: 'Wind' }, goal: 'Rain ∧ Wind', answer: '⟨p, q⟩', hint: [T('「…并且…」的证明是一对。', 'A proof of “… and …” is a pair.')] },
+      { premises: { p: 'Rain ∧ Wind' }, goal: 'Wind ∧ Rain', answer: '⟨p.2, p.1⟩', hint: [T('p.1 是 p 的左一半，p.2 是右一半。', 'p.1 is the left half of p, p.2 the right.')] },
+      { premises: { p: 'Rain ∧ Wind → Wet' }, goal: 'Rain → (Wind → Wet)', answer: 'fun a b => p ⟨a, b⟩', hint: [T('拿到 a 和 b，拼成一对交给 p。', 'Given a and b, make a pair and give it to p.')] },
+      { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Rain ∧ Wind → Wet', answer: 'fun a => p a.1 a.2', hint: [T('拿到的 a 是一对，p 要的却是一个一个。', 'The a you get is a pair, but p wants them one at a time.')] },
+    ]),
+    after: T('第三、四题一来一回：柯里化，和它的反过来。两种函数可以互相改写，所以两句话互相推得出。', 'The third and fourth go there and back: currying and its reverse. Each kind of function can be rewritten as the other, so each sentence gives the other.'),
   },
   {
     id: 't-wcases',
-    kind: 'term',
     title: T('写分情况', 'Write cases'),
-    items: [
-      { premises: { p: 'Rain' }, goal: 'Rain ∨ Sat', answer: 'Or.inl p' },
-      { premises: { p: 'Rain ∨ Sat' }, goal: 'Sat ∨ Rain', answer: 'p.elim (fun a => Or.inr a) (fun b => Or.inl b)' },
-      { premises: { p: 'Rain ∨ Sat', q: 'Rain → Rest', r: 'Sat → Rest' }, goal: 'Rest', answer: 'p.elim (fun a => q a) (fun b => r b)' },
-      { premises: { p: 'Rain', q: '¬Rain' }, goal: 'Rest', answer: 'False.elim (q p)' },
-    ],
-    brief: T('每一句要证的话，写出它的证明项。', 'For each sentence to prove, write its proof term.'),
-    hint: [T('p.elim 后面跟两个 fun：一个处理左边，一个处理右边。', 'p.elim is followed by two funs: one for the left, one for the right.')],
+    tasks: write([
+      { premises: { p: 'Rain' }, goal: 'Rain ∨ Sat', answer: 'Or.inl p', hint: [T('给 p 贴上标签：它是左边那句。', 'Tag p: it is the left one.')] },
+      { premises: { p: 'Rain ∨ Sat' }, goal: 'Sat ∨ Rain', answer: 'p.elim (fun a => Or.inr a) (fun b => Or.inl b)', hint: [T('分情况：两个 fun 各处理一边，在新的「或者」里，它们各在哪一边？', 'Cases: each fun handles one side; in the new “or”, which side is each on?')] },
+      { premises: { p: 'Rain ∨ Sat', q: 'Rain → Rest', r: 'Sat → Rest' }, goal: 'Rest', answer: 'p.elim (fun a => q a) (fun b => r b)', hint: [T('两种情况各要证出「我休息」。', 'Each case must prove “I rest”.')] },
+      { premises: { p: 'Rain', q: '¬Rain' }, goal: 'Rest', answer: 'False.elim (q p)', hint: [T('q 用在 p 上是矛盾。', 'q used on p is the contradiction.')] },
+    ]),
     after: T('∧、∨、→、¬、⊥，每个连接词都有它的项：一对、带标签的值、函数、到空类型的函数、空类型本身。证明板上的每一条规则，都是造一种值或者用一种值。', '∧, ∨, →, ¬, ⊥: each connective has its terms: a pair, a tagged value, a function, a function into the empty type, the empty type itself. Every rule on the proof board makes a kind of value or uses one.'),
   },
 
@@ -375,18 +367,26 @@ export const terms = [
   // ---------- challenge ----------
   {
     id: 't-dneg',
-    kind: 'term',
     title: T('双重否定的项', 'The term of double negation'),
-    items: [
-      { premises: {}, goal: 'Rain → ¬¬Rain', answer: 'fun a k => k a', naive: 'fun a k => a k' },
-      { premises: {}, goal: '¬¬¬Rain → ¬Rain', answer: 'fun k a => k (fun j => j a)' },
-    ],
-    brief: T('写出这两句的证明项。', 'Write the proof terms of these two sentences.'),
-    hint: [
-      T('¬¬下雨 是 (下雨 → ⊥) → ⊥：它是一个函数，参数本身又是一个函数。', '¬¬it rains is (it rains → ⊥) → ⊥: a function whose argument is itself a function.'),
-      T('拿到 a 和 k，谁能用在谁身上？k 等着一个下雨的证明。', 'Given a and k, which can be used on which? k waits for a proof that it rains.'),
-    ],
+    tasks: write([
+      {
+        premises: {},
+        goal: 'Rain → ¬¬Rain',
+        answer: 'fun a b => b a',
+        naive: 'fun a b => a b',
+        hint: [
+          T('¬¬下雨 是 (下雨 → ⊥) → ⊥：它是一个函数，参数本身又是一个函数。', '¬¬it rains is (it rains → ⊥) → ⊥: a function whose argument is itself a function.'),
+          T('拿到 a 和 b，谁能用在谁身上？b 等着一个下雨的证明。', 'Given a and b, which can be used on which? b waits for a proof that it rains.'),
+        ],
+      },
+      {
+        premises: {},
+        goal: '¬¬¬Rain → ¬Rain',
+        answer: 'fun a b => a (fun c => c b)',
+        hint: [T('a 等着一个「¬¬下雨」，手里的 b 证的是下雨：第一题刚造过这样的东西。', 'a waits for a “¬¬it rains”, and the b in hand proves it rains: the first problem just made such a thing.')],
+      },
+    ]),
     intro: [{ t: T('把每个 ¬ 都换成「→ ⊥」，再读要证的句子。', 'Turn every ¬ into “→ ⊥”, then read the sentence to prove.') }],
-    after: T('A → ¬¬A 是 fun a k => k a：拿着 a，等别人给一个「A 就矛盾」的 k，把 a 交给它。反过来的 ¬¬A → A 写不出项：没有程序能从「A 不会不成立」里变出 A 的证明。所以反证法没有对应的程序，要用它，只能当作一条公理另外加上。可三重否定能化成一重，第二句的项正是这样。', 'A → ¬¬A is fun a k => k a: holding a, wait for a k saying “A gives a contradiction”, and hand a to it. The other way, ¬¬A → A, has no term: no program can conjure a proof of A out of “A cannot fail”. So proof by contradiction has no program behind it: to use it, it must be added as an axiom of its own. Yet three negations do come down to one, which is what the second term does.'),
+    after: T('A → ¬¬A 是 fun a b => b a：拿着 a，等别人给一个「A 就矛盾」的 b，把 a 交给它。反过来的 ¬¬A → A 写不出项：没有程序能从「A 不会不成立」里变出 A 的证明。所以反证法没有对应的程序，要用它，只能当作一条公理另外加上。可三重否定能化成一重，第二题的项正是这样。', 'A → ¬¬A is fun a b => b a: holding a, wait for a b saying “A gives a contradiction”, and hand a to it. The other way, ¬¬A → A, has no term: no program can conjure a proof of A out of “A cannot fail”. So proof by contradiction has no program behind it: to use it, it must be added as an axiom of its own. Yet three negations do come down to one, which is what the second term does.'),
   },
 ]

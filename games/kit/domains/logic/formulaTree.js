@@ -6,6 +6,7 @@
 //   chip   { key, kind: 'formula' | 'term', group, text, make() }
 //   path   the child indices from the root to a node: [] is the root, [1, 0] the first child of its second child
 import { all, atom, bin, ex, fn, not, tvar } from './formula.js'
+import { holeTree } from '../../strip/tree.js'
 
 const CONNECTIVES = ['¬', '∧', '∨', '→']
 const QUANTIFIERS = ['∀', '∃']
@@ -30,30 +31,7 @@ function withKid(node, k, value) {
   }
 }
 
-/** The node at a path (null: an empty hole). */
-export const nodeAt = (root, path) => path.reduce((node, k) => kidsOf(node)[k]?.value ?? null, root)
-
-/** The tree with the node at a path replaced (null empties that hole). */
-export function setAt(root, path, value) {
-  if (!path.length) return value
-  const [k, ...rest] = path
-  return withKid(root, k, setAt(kidsOf(root)[k].value, rest, value))
-}
-
-/** Every empty hole, in reading order, with the kind it takes. */
-export function holesOf(root, path = [], kind = 'formula') {
-  if (!root) return [{ path, kind }]
-  return kidsOf(root).flatMap((kid, k) => holesOf(kid.value, [...path, k], kid.kind))
-}
-
-/** Whether a node is a whole formula, every hole filled. */
-export const complete = (root) => Boolean(root) && !holesOf(root).length
-
-/** The kind of thing the hole or node at a path takes. */
-export function kindAt(root, path) {
-  if (!path.length) return 'formula'
-  return kidsOf(nodeAt(root, path.slice(0, -1)))[path[path.length - 1]].kind
-}
+export const { nodeAt, setAt, holesOf, kindAt, complete } = holeTree({ kids: kidsOf, withKid, root: 'formula' })
 
 /**
  * The chips a sentence is built from: the level's predicates and names, the quantifiers the course has introduced

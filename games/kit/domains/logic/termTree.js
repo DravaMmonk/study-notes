@@ -1,0 +1,80 @@
+// A proof term built from chips (《证明完毕》 chapter 6's term writing), shown on the shared strip (games/kit/strip):
+// the term is the usual tree (pterm.js) with holes left as null. A chip is one piece of it: a name (a premise, or one
+// a fun or a case split has bound), or a form with holes: fun _ => □, □ □ (application), ⟨□, □⟩, □.1, □.2, Or.inl □,
+// Or.inr □, □.elim (fun _ => □) (fun _ => □), False.elim □. A form that binds a name takes the first letter free in
+// the term, so a name is never bound twice.
+import { holeTree } from '../../strip/tree.js'
+import { absurd, cases, fst, inl, inr, lam, pair, papp, pvar, snd } from './pterm.js'
+
+const T = (zh, en) => ({ zh, en })
+const LETTERS = 'abcdefgjk'.split('')
+const KID = { lam: ['body'], app: ['f', 'a'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], absurd: ['p'] }
+
+const kids = (node) => (KID[node.k] ?? []).map((field) => ({ kind: 'term', value: node[field] }))
+const withKid = (node, k, value) => ({ ...node, [KID[node.k][k]]: value })
+export const { nodeAt, setAt, holesOf, complete } = holeTree({ kids, withKid, root: 'term' })
+
+/** Every name the term binds. */
+export function boundIn(node, out = []) {
+  if (!node) return out
+  if (node.k === 'lam') out.push(node.x)
+  if (node.k === 'cases') out.push(node.x, node.y)
+  for (const kid of kids(node)) boundIn(kid.value, out)
+  return out
+}
+const fresh = (tree, n = 1) => LETTERS.filter((x) => !boundIn(tree).includes(x)).slice(0, n)
+
+/** The forms a term is built from, in the order the chapter brings them in. */
+export const FORMS = [
+  { key: 'fun', text: 'fun _ => □', sub: T('造一个函数（框）', 'make a function (a box)'), make: (tree) => lam(fresh(tree)[0], null) },
+  { key: 'app', text: '□ □', sub: T('应用（套用）', 'apply'), make: () => papp(null, null) },
+  { key: 'pair', text: '⟨□, □⟩', sub: T('一对', 'a pair'), make: () => pair(null, null) },
+  { key: 'fst', text: '□.1', sub: T('左一半', 'left half'), make: () => fst(null) },
+  { key: 'snd', text: '□.2', sub: T('右一半', 'right half'), make: () => snd(null) },
+  { key: 'inl', text: 'Or.inl □', sub: T('是左边', 'the left one'), make: () => inl(null) },
+  { key: 'inr', text: 'Or.inr □', sub: T('是右边', 'the right one'), make: () => inr(null) },
+  { key: 'elim', text: '□.elim (fun _ => □) (fun _ => □)', sub: T('分情况', 'cases'), make: (tree) => { const [x, y] = fresh(tree, 2); return cases(null, x, null, y, null) } },
+  { key: 'absurd', text: 'False.elim □', sub: T('矛盾推出一切', 'from ⊥, anything'), make: () => absurd(null) },
+]
+
+/** The chips of a term task: the premises' names, the names the term binds so far, then the forms. */
+export function chipsOf(premises, tree) {
+  const names = [...Object.keys(premises), ...boundIn(tree)]
+  return [...names.map((name) => ({ key: `v:${name}`, group: 'name', text: name, make: () => pvar(name) })), ...FORMS.map((f) => ({ ...f, group: 'form' }))]
+}
+
+/** The forms a whole term uses that no chip makes (none: it can be built). */
+export function missingForms(term) {
+  const known = new Set([...Object.keys(KID), 'var'])
+  const walk = (node) => [node.k, ...kids(node).flatMap((kid) => walk(kid.value))]
+  return [...new Set(walk(term))].filter((k) => !known.has(k))
+}
+
+/**
+ * The term as it reads (Lean's way), for the strip: each piece its own words, a box for every empty place. A piece
+ * that is not a name, a pair or a projection keeps brackets where it is an argument or what is projected.
+ */
+export function segmentOf(node, path = [], bracket = false) {
+  const key = ['r', ...path].join('.')
+  if (!node) return { hole: key, label: T('项', 'term') }
+  const piece = (family, parts) => ({ piece: key, family, parts: bracket ? ['(', ...parts, ')'] : parts })
+  const atomic = (n) => !n || ['var', 'pair', 'fst', 'snd'].includes(n.k)
+  const kid = (k, tight) => {
+    const value = kids(node)[k].value
+    return segmentOf(value, [...path, k], tight && !atomic(value))
+  }
+  switch (node.k) {
+    case 'var': return piece('name', [node.name])
+    case 'lam': return piece('fun', [`fun ${node.x} => `, kid(0)])
+    // The function of an application may itself be one (p q r); anything else in it keeps its brackets.
+    case 'app': return piece('app', [segmentOf(node.f, [...path, 0], Boolean(node.f) && !atomic(node.f) && node.f.k !== 'app'), ' ', kid(1, true)])
+    case 'pair': return piece('pair', ['⟨', kid(0), ', ', kid(1), '⟩'])
+    case 'fst': return piece('pair', [kid(0, true), '.1'])
+    case 'snd': return piece('pair', [kid(0, true), '.2'])
+    case 'inl': return piece('or', ['Or.inl ', kid(0, true)])
+    case 'inr': return piece('or', ['Or.inr ', kid(0, true)])
+    case 'cases': return piece('or', [kid(0, true), `.elim (fun ${node.x} => `, kid(1), `) (fun ${node.y} => `, kid(2), ')'])
+    case 'absurd': return piece('absurd', ['False.elim ', kid(0, true)])
+    default: return piece('name', ['?'])
+  }
+}

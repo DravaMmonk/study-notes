@@ -148,7 +148,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     replaces: (p) => replaces[p] ?? [],
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
-    naive: (l) => Boolean(byId.get(l.id).naive || byId.get(l.id).items?.some((item) => item.naive)),
+    naive: (l) => Boolean(byId.get(l.id).naive || byId.get(l.id).tasks?.some((task) => task.naive)),
     // Every task's answer counts: a part the level's first task uses is used.
     needed: (l) => {
       const answers = (byId.get(l.id).tasks ?? [byId.get(l.id)]).map((t) => t.solution).filter((x) => x?.nodes)

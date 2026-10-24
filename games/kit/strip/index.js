@@ -4,3 +4,4 @@
 // idea. A game brings its line, chips and the rule for what goes where (useStrip `put`).
 export { Chips, Strip } from './Strip.jsx'
 export { useStrip } from './useStrip.js'
+export { holeTree } from './tree.js'

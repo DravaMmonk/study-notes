@@ -70,7 +70,9 @@ export default {
   { version: 20, ops: [{ data: (value, id) => (['fo-atoms', 'fo-all', 'fo-some', 'fo-nested', 'p-only', 'q-children', 'q-grand', 'q-none', 'q-school'].includes(id) ? undefined : value) }] },
   // Version 21 put 两个方向 (↔ split into its directions) at the end of the And line: whoever had passed the mixed
   // problems after it has passed it.
-  { version: 21, ops: [{ solve: ['dist', ['iffUse']] }] }],
+  { version: 21, ops: [{ solve: ['dist', ['iffUse']] }] },
+  // Version 22 built proof terms from chips, one problem per task: what was typed before is dropped.
+  { version: 22, ops: [{ data: (value, id) => (['t-wapp', 't-wlam', 't-wpair', 't-wcases', 't-dneg'].includes(id) ? undefined : value) }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用', '德摩根', '归结', '取一个', '任取', '拿出那一个'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
