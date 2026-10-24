@@ -3,12 +3,12 @@
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;min-height:100dvh;color:var(--ink);font:15px/1.65 var(--sans);background:radial-gradient(900px 420px at 85% -10%,color-mix(in srgb,var(--accent) 9%,transparent),transparent 70%),var(--canvas)}
 a{color:inherit;text-decoration:none}
-main{max-width:1160px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)) 96px}
+main{max-width:1240px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)) 96px}
 
 .games{display:grid;gap:clamp(4px,1.5vw,16px);margin-top:8px}
-.game{--ease:cubic-bezier(.2,.7,.2,1);position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:center}
+.game{--ease:cubic-bezier(.2,.7,.2,1);position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:center}
 /* The panel hugs the text, so its height follows the copy; it runs left behind the figure, which stands taller. */
-.game-body::before{content:"";position:absolute;inset:0 0 0 -46%;z-index:-1;border-radius:28px;background:var(--paper);
+.game-body::before{content:"";position:absolute;inset:0 0 0 -56%;z-index:-1;border-radius:28px;background:var(--paper);
   box-shadow:0 34px 64px -44px rgb(30 26 18 / .4);transition:box-shadow .5s var(--ease)}
 .game:hover .game-body::before{box-shadow:0 42px 80px -44px rgb(30 26 18 / .5)}
 .game:focus-visible{outline:none}
@@ -16,8 +16,8 @@ main{max-width:1160px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)
 
 .game-art{aspect-ratio:16/9;display:grid;place-items:center;transition:transform .6s var(--ease)}
 .game:hover .game-art{transform:translateY(-6px)}
-.game-art>.bx,.game-art>.an{width:100%}
-.game-art>.figure-host{width:88%}
+.game-art>.bx,.game-art>.an{width:112%}
+.game-art>.figure-host{width:100%}
 
 .game-body{position:relative;display:flex;flex-direction:column;padding:22px clamp(24px,4vw,48px) 18px clamp(4px,1vw,12px)}
 .game-meta{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 0;color:var(--accent-ink);font:var(--fs-label)/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase}
@@ -43,7 +43,6 @@ main{max-width:1160px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)
   .game-body::before{inset:-40px 0 0;border-radius:22px}
   .game-art{aspect-ratio:16/11;padding:0 4%;margin-bottom:-36px}
   .game-body{padding:4px 22px 18px}
-}
 }
 @media (prefers-reduced-motion:reduce){.game-art,.game-go span,.game-body::before{transition:none}.game:hover .game-art{transform:none}}
 /* English pages hide the Chinese markup until hub.js has swapped it. */
