@@ -73,7 +73,7 @@ const WORLD_KINDS = ['translate', 'query', 'model', 'prolog']
 // `names` are every name the level reads (level.consts), so a name typed that the level does not use still parses.
 function vocabOf(level) {
   const names = level.consts ?? []
-  const texts = level.kind === 'model' ? level.want.map((w) => w.f) : [...level.items.map((i) => i.target), ...(level.decoys ?? []), ...(level.queries ?? [])]
+  const texts = level.kind === 'model' ? level.want.map((w) => w.f) : level.kind === 'prolog' ? [...level.items.map((i) => i.target), ...level.queries] : [level.target, ...(level.decoys ?? [])]
   const v = vocabulary(texts.map((t) => parse(t, { consts: names })))
   return { preds: v.preds, consts: v.consts, names: [...new Set([...names, ...v.consts])] }
 }
@@ -108,10 +108,11 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     const read = (l) => ({ adds: [], ...l, ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, revisions, lemmaTerms, notation })
     if (!level.tasks) return read(level)
     // What the level builds comes of its last task, the level itself.
-    const { tasks, builds, ...base } = level
+    // The level's pass text is the level's, shown when its last task is done: a task has only its own.
+    const { tasks, builds, after, ...base } = level
     const all = tasks.map((task, index) => ({ ...read({ ...base, ...(index === tasks.length - 1 && builds ? { builds } : {}), ...task }), task: index }))
     // A part any task brings in is new to the level, whichever task it is.
-    return { ...all.at(-1), adds: [...new Set(all.flatMap((t) => t.adds))], tasks: all }
+    return { ...all.at(-1), after, adds: [...new Set(all.flatMap((t) => t.adds))], tasks: all }
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))

@@ -2,22 +2,20 @@ import { useMemo, useRef, useState } from 'react'
 import { Check, X } from 'lucide-react'
 import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { freeVars, parse } from '../formula.js'
+import { parse } from '../formula.js'
 import { holds } from '../models.js'
 import { say } from '../notation.js'
-import { builtWorld, difference, extent, structureOf } from '../fol.js'
+import { builtWorld, structureOf } from '../fol.js'
 import { answersFor, factsOf, hornOf } from '../tactics.js'
 
-// The screens of first-order levels (《证明完毕》 chapter 5 on), which work on worlds rather than boards:
-//   translate  write each sentence said in words as a formula; it passes when it means the same in every small world,
-//              and a world where it does not is shown otherwise
-//   query      write a formula with a free variable x that picks out the right things in each of the level's worlds
+// The screens of first-order levels (《证明完毕》) that work on worlds rather than boards (translations and queries,
+// built from chips, are FormulaScreen.jsx):
 //   model      build a world (how many things, what holds of each) where the level's sentences are true or false as
 //              asked
 //   prolog     write rules (∀… conditions → conclusion) that, with each world's facts, answer the level's queries as its
 //              own rules do; solved depth first in the order written (tactics.js), so a rule that asks the wrong thing
 //              first loops
-// A formula is typed with the level's vocabulary as buttons (a predicate in words, a name, the quantifiers and the
+// A rule is typed with the level's vocabulary as buttons (a predicate in words, a name, the quantifiers and the
 // connectives) and read back in words as it is typed.
 
 const T = (zh, en) => ({ zh, en })
@@ -25,10 +23,10 @@ const MARKS = ['①', '②', '③', '④']
 const CONNECTIVES = ['¬', '∧', '∨', '→', '↔', '(', ')']
 
 /** What a thing is called: a named world's thing by its words, a built world's by its mark. */
-const thingName = (notation, world) => (k) => (world ? L(notation.words?.[world.things[k]] ?? { zh: world.things[k], en: world.things[k] }) : MARKS[k])
+export const thingName = (notation, world) => (k) => (world ? L(notation.words?.[world.things[k]] ?? { zh: world.things[k], en: world.things[k] }) : MARKS[k])
 
 /** A world in words: how many things, and every atom true in it, as sentences. */
-function WorldText({ model, notation, preds, world = null, spell = false }) {
+export function WorldText({ model, notation, preds, world = null, spell = false }) {
   const name = thingName(notation, world)
   const sayAtom = (p, args) => (notation.words?.[p] ? L(notation.words[p]) : `${p}({0})`).replace(/\{(\d)\}/g, (_, k) => name(args[Number(k)]))
   const atoms = preds.flatMap(([p, n]) => {
@@ -88,8 +86,8 @@ function FormulaInput({ item, value, onChange, onFocus, inputRef, level, verdict
   )
 }
 
-/** Translate and query levels: one input per sentence, checked against every small world or the level's worlds. */
-export function WriteScreen({ game, level: entry, saved, save, solve, phone }) {
+/** Prolog levels: one input per rule; the rules are judged together against every world's queries. */
+export function RulesScreen({ game, level: entry, saved, save, solve, phone }) {
   const level = entry.source
   const [texts, setTexts] = useState(() => level.items.map((_, k) => saved?.texts?.[k] ?? ''))
   const [verdicts, setVerdicts] = useState(null)
@@ -108,38 +106,6 @@ export function WriteScreen({ game, level: entry, saved, save, solve, phone }) {
     const v = texts[focus].slice(0, a) + token + texts[focus].slice(b)
     change(focus, v)
     requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(a + token.length, a + token.length) })
-  }
-  const judgeOne = (item, text) => {
-    let f
-    try { f = parse(text, { consts: level.vocab.names }) } catch { return { pass: false, body: <p className="lg-error">{tr('还不是一句完整的公式。', 'Not a whole formula yet.')}</p> } }
-    const target = parse(item.target, { consts: level.vocab.names })
-    const want = level.kind === 'query' ? ['x'] : []
-    const loose = [...freeVars(f)].filter((v) => !want.includes(v))
-    if (loose.length) return { pass: false, body: <p className="lg-error">{tr(`${loose.join('、')} 没有被 ∀ 或 ∃ 管着：它指的是谁？`, `${loose.join(', ')} is not bound by ∀ or ∃: who is it?`)}</p> }
-    if (level.kind === 'query') {
-      for (const world of level.worlds) {
-        const m = structureOf(world, [f, target])
-        const [got, wanted] = [extent(f, m), extent(target, m)]
-        const name = thingName(level.notation, world)
-        const extra = got.filter((d) => !wanted.includes(d)).map(name)
-        const missing = wanted.filter((d) => !got.includes(d)).map(name)
-        if (extra.length || missing.length) {
-          return { pass: false, body: <div className="fo-why"><p>{L(world.title)}{tr('：', ': ')}{extra.length > 0 && tr(`多选了 ${extra.join('、')}；`, `wrongly picks ${extra.join(', ')}; `)}{missing.length > 0 && tr(`漏掉了 ${missing.join('、')}。`, `misses ${missing.join(', ')}.`)}</p></div> }
-        }
-      }
-      return { pass: true }
-    }
-    const d = difference(f, target)
-    if (!d) return { pass: true }
-    return {
-      pass: false,
-      body: (
-        <div className="fo-why">
-          <p>{d.first ? tr('在下面这个世界里，你写的为真，原来那句话却为假：', 'In this world what you wrote is true, while the sentence is false:') : tr('在下面这个世界里，原来那句话为真，你写的却为假：', 'In this world the sentence is true, while what you wrote is false:')}</p>
-          <WorldText model={d.model} notation={level.notation} preds={preds} spell />
-        </div>
-      ),
-    }
   }
   // Rules are judged together: each must be a rule, and together they must answer every query in every world.
   const judgeRules = () => {
@@ -167,23 +133,21 @@ export function WriteScreen({ game, level: entry, saved, save, solve, phone }) {
     return level.items.map(() => ({ pass: true }))
   }
   const check = () => {
-    const vs = level.kind === 'prolog' ? judgeRules() : level.items.map((item, k) => judgeOne(item, texts[k]))
+    const vs = judgeRules()
     setVerdicts(vs)
     if (vs.every((v) => v?.pass)) solve(null)
   }
   const passed = verdicts?.every((v) => v?.pass)
   const stage = (
     <div className="fo-stage">
-      {(level.kind === 'query' || level.kind === 'prolog') && (
-        <div className="fo-worlds">
-          {level.worlds.map((world, k) => (
-            <details key={k} open={k === 0}>
-              <summary>{L(world.title)}</summary>
-              <WorldText model={structureOf(world, level.items.map((i) => parse(i.target, { consts: level.vocab.names })))} notation={level.notation} preds={preds} world={world} />
-            </details>
-          ))}
-        </div>
-      )}
+      <div className="fo-worlds">
+        {level.worlds.map((world, k) => (
+          <details key={k} open={k === 0}>
+            <summary>{L(world.title)}</summary>
+            <WorldText model={structureOf(world, level.items.map((i) => parse(i.target, { consts: level.vocab.names })))} notation={level.notation} preds={preds} world={world} />
+          </details>
+        ))}
+      </div>
       {level.items.map((item, k) => (
         <FormulaInput key={k} item={item} value={texts[k]} onChange={(v) => change(k, v)} onFocus={() => setFocus(k)} inputRef={(el) => { refs.current[k] = el }} level={level} verdict={verdicts?.[k]} />
       ))}
