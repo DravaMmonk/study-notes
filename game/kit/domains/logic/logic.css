@@ -194,3 +194,18 @@
 .fo-level [data-family='var'] { --fam: var(--fam-var); }
 .fo-level [data-family='quant'] { --fam: var(--fam-quant); }
 .fo-level [data-family='conn'] { --fam: var(--fam-conn); }
+
+/* Term tasks (TermScreen.jsx): the named premises, the sentence to prove, and a colour per kind of piece. */
+.tm-given { display: grid; gap: 6px; }
+.tm-given p { margin: 0; }
+.tm-premise { margin-right: 14px; white-space: nowrap; }
+.tm-premise code { font-family: var(--mono); color: var(--code-ink); }
+.tm-level .ks-strip { font-family: var(--mono); font-size: 20px; }
+.tm-level { --fam-fun: #b4579a; --fam-app: #b98516; --fam-pairs: #3f7fb5; --fam-or: #2f918f; --fam-absurd: #b4523f; }
+:root[data-theme='night'] .tm-level, :root[data-theme='blueprint'] .tm-level { --fam-fun: #c5a0cc; --fam-app: #e0ac4f; --fam-pairs: #8db3d6; --fam-or: #7fc2c2; --fam-absurd: #e09a8a; }
+.tm-level [data-family='fun'] { --fam: var(--fam-fun); }
+.tm-level [data-family='app'] { --fam: var(--fam-app); }
+.tm-level [data-family='pair'] { --fam: var(--fam-pairs); }
+.tm-level [data-family='or'] { --fam: var(--fam-or); }
+.tm-level [data-family='absurd'] { --fam: var(--fam-absurd); }
+.tm-level .ks-chip b { font-family: var(--mono); font-size: 15px; }
