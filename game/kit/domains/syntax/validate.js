@@ -8,10 +8,13 @@
 //     star, when the level has a word target)
 //   · every trap is turned down where the level says it is: by the grammar, or at the predicate, the time, a role,
 //     or the star
+//   · a drill's every item is sound: its words are the lexicon's and the grammar's, it offers at least one other time,
+//     each with its reason, and no two options read the same
 //   · the level says why each time it offers, other than the one meant, is wrong here (a wrong choice always gets a
 //     native speaker's reason, not only a mark)
 
 import { keyOf } from '../../shell/i18n.js'
+import { itemProblems } from './engine/drill.js'
 import { refusals } from './engine/grammar.js'
 import { answerTypes, check, toClause } from './engine/sentence.js'
 
@@ -36,6 +39,12 @@ export function validate({ syntax }) {
   const out = lex.problems.map((p) => ({ fail: true, text: `lexicon: ${p}` }))
   const lemmas = new Set(lex.types().map(lex.part).filter((p) => p.kind === 'verb').map((p) => p.lemma))
   for (const level of LEVELS) {
+    if (level.kind === 'drill') {
+      const problems = level.items.flatMap((item, k) => itemProblems(lex, item).map((p) => `item ${k + 1}: ${p}`))
+      if (!level.items.length) problems.push('no items')
+      out.push({ fail: problems.length > 0, text: `${level.id} ${keyOf(level.title)}: ${problems.length ? problems.join('; ') : `${level.items.length} items sound`}` })
+      continue
+    }
     const problems = []
     for (const type of [...level.palette, ...answerTypes(level.preset), ...answerTypes(level.answer), ...(level.traps ?? []).flatMap((t) => answerTypes(t.answer))]) {
       if (!lex.part(type)) problems.push(`${type} is not in the lexicon`)

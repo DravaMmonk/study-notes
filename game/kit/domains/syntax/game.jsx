@@ -10,7 +10,7 @@
 //   ui/                 the level screen (desktop and phone), the meaning graph, the sentence, the map's picture
 //   validate.js         every level's reference answer and traps (npm run check)
 //   syntax.test.js      the grammar, the sentence and the meaning check (npm test)
-import { BookOpenText } from 'lucide-react'
+import { BookOpenText, Zap } from 'lucide-react'
 import '../../strip/strip.css'
 import './ui/syntax.css'
 import { defineGame } from '../../shell/index.js'
@@ -18,6 +18,7 @@ import { isCore } from '../../course.js'
 import { migrations } from '../../shell/saves.js'
 import { tr } from '../../shell/i18n.js'
 import Hero from './ui/Hero.jsx'
+import Drill from './ui/Drill.jsx'
 import Screen from './ui/Screen.jsx'
 import { timeWords } from './engine/grammar.js'
 import { contrasts } from './engine/sentence.js'
@@ -52,18 +53,26 @@ export function defineSyntaxGame(spec) {
       requires: L.requires,
       title: L.title,
       brief: L.brief,
-      kind: 'sentence',
+      kind: L.kind ?? 'sentence',
       palette: L.palette,
       afterTitle: L.debrief.title,
-      after: [...L.debrief.body, ...pairs(lex, L)],
+      after: L.kind === 'drill' ? L.debrief.body : [...L.debrief.body, ...pairs(lex, L)],
       note: L.debrief.note,
     })),
     progress: migrations(spec.saves ?? []),
     intro: (level) => level.source.intro,
-    kinds: { sentence: { Screen, icon: BookOpenText, label: { zh: '句子', en: 'Sentence' } } },
-    // Fewer words is better; a ★ beats no ★.
-    better: (score, best) => Boolean(score) && (!best || (score.star && !best.star) || (score.star === best.star && score.words < best.words)),
-    bestLabel: (best) => tr(`${best.words} 个词`, `${best.words} words`),
+    kinds: {
+      sentence: { Screen, icon: BookOpenText, label: { zh: '句子', en: 'Sentence' } },
+      drill: { Screen: Drill, icon: Zap, label: { zh: '快练', en: 'Drill' } },
+    },
+    // A ★ beats no ★; then fewer words (a sentence) or fewer misses (a drill) is better.
+    better: (score, best) => {
+      if (!score) return false
+      if (!best || (score.star && !best.star)) return true
+      const cost = (s) => s.words ?? s.misses
+      return score.star === best.star && cost(score) < cost(best)
+    },
+    bestLabel: (best) => ('misses' in best ? tr(`首次答错 ${best.misses} 题`, `${best.misses} missed`) : tr(`${best.words} 个词`, `${best.words} words`)),
   })
   game.syntax = { lex }
   return game
