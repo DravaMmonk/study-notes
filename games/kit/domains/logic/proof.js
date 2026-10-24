@@ -14,10 +14,13 @@
 import { PartError } from '../../engine/circuit.js'
 import { framePart } from '../../circuit/frames.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
-import { BOT, all, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, show, subst, tvar } from './formula.js'
+import { BOT, all, allVars, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, show, subst, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { absurd, alphaEq, cases, fst, inl, inr, lam, normalize, obj, open as unpack, pair, papp, parseTerm, pconst, printTerm, psubst, pvar, raa, rfl, snd } from './pterm.js'
 import { clauseFormula } from './clauses.js'
+
+// The variables a quantifier binds; a particular thing is named a, b or c (choices.js).
+const BOUND = ['x', 'y', 'z', 'u', 'v', 'w']
 
 /** A judgment: `formula` from `hyps`, with its proof term (pterm.js). */
 export const proved = (formula, hyps = new Map(), term = null) => ({ formula, hyps, term })
@@ -179,9 +182,11 @@ export const RULES = {
     params: ['x'],
     eval: ({ body }, node, ctx) => {
       const x = node.params?.x
-      if (!x) throw fail('先给新变量起个名字', 'Name the new variable first')
+      if (!x) throw fail('先选好任取的那一样叫什么', 'Name the thing taken first')
       for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里，不能对它说「任取」`, `${x} occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not arbitrary`)
-      return proved(all(x, body.formula), body.hyps, lam(x, body.term))
+      // The name (a, b, c) is a particular thing inside the box; outside, a bound variable (x, y, z) takes its place.
+      const v = BOUND.find((u) => !allVars(body.formula).has(u))
+      return proved(all(v, subst(body.formula, x, tvar(v))), body.hyps, lam(x, body.term))
     },
   },
   allE: {

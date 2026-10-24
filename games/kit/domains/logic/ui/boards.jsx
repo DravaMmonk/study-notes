@@ -68,7 +68,7 @@ export const PROOF = {
         formula: offer.formula.map(sentence),
         exists: offer.exists.map(sentence),
         term: offer.term.map((t) => ({ value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) })),
-        var: offer.var.map((v) => ({ value: v, label: v })),
+        name: offer.name.map((v) => ({ value: v, label: v })),
       },
     }
   },
