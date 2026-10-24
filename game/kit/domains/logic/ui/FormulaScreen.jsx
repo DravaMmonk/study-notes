@@ -149,8 +149,9 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
           ))}
         </div>
       )}
-      <StripTools history={history} onClear={() => change(null)} empty={!tree} note={note} />
+      <StripTools history={history} onClear={() => change(null)} empty={!tree} />
       <Strip line={[segmentOf(tree, [], 'formula', notation)]} label={T('公式', 'formula')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
+      {note}
       {verdict && (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界里，都和原句一样真假。', 'True and false with the sentence in every small world.')}</p> : verdict.body)}
       <Chips groups={groups} onChip={strip.onChip} />
       <footer className="run-foot">
