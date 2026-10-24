@@ -18,7 +18,7 @@ import { WorldText, thingName } from './WorldScreens.jsx'
 
 const T = (zh, en) => ({ zh, en })
 const PLACES = ['①', '②', '③']
-const STRAY = T('标红的是一样东西，还不是一句完整的话：接着放一个谓词，它就进谓词的第一个位置。', 'What is marked red is a thing, not yet a whole sentence: put a predicate next and it takes the predicate’s first place.')
+const STRAY = T('还不是一句完整的话', 'Not a whole sentence yet')
 const GROUPS = [['pred', T('谓词', 'Predicates')], ['name', T('名字', 'Names')], ['var', T('变量', 'Variables')], ['quant', T('量词', 'Quantifiers')], ['conn', T('连接词', 'Connectives')]]
 const keyOf = (path) => ['r', ...path].join('.')
 const pathOf = (key) => key.split('.').slice(1).map(Number)
