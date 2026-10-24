@@ -5,7 +5,7 @@ import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
 import { freeVars, parse } from '../formula.js'
 import { difference, extent, structureOf } from '../fol.js'
-import { chipsOf, complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt } from '../formulaTree.js'
+import { chipsOf, complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt, straysOf } from '../formulaTree.js'
 import { WorldText, thingName } from './WorldScreens.jsx'
 
 // Translate and query tasks (《证明完毕》 chapter 4): one sentence said in words, built as a formula from chips on the
@@ -18,6 +18,7 @@ import { WorldText, thingName } from './WorldScreens.jsx'
 
 const T = (zh, en) => ({ zh, en })
 const PLACES = ['①', '②', '③']
+const STRAY = T('标红的是一样东西，还不是一句完整的话：接着放一个谓词，它就进谓词的第一个位置。', 'What is marked red is a thing, not yet a whole sentence: put a predicate next and it takes the predicate’s first place.')
 const GROUPS = [['pred', T('谓词', 'Predicates')], ['name', T('名字', 'Names')], ['var', T('变量', 'Variables')], ['quant', T('量词', 'Quantifiers')], ['conn', T('连接词', 'Connectives')]]
 const keyOf = (path) => ['r', ...path].join('.')
 const pathOf = (key) => key.split('.').slice(1).map(Number)
@@ -33,7 +34,8 @@ function segmentOf(node, path, kind, notation, bracket = false) {
   const key = keyOf(path)
   if (!node) return { hole: key, label: kind === 'term' ? T('谁', 'who') : T('一句话', 'a sentence') }
   const piece = (family, parts) => ({ piece: key, family, parts: bracket ? ['(', ...parts, ')'] : parts })
-  if (node.t) return piece(node.t === 'var' ? 'var' : 'name', [node.t === 'var' ? node.name : L(notation.words?.[node.f] ?? T(node.f, node.f))])
+  // A thing where a sentence goes is marked: it is not a sentence yet.
+  if (node.t) return { ...piece(node.t === 'var' ? 'var' : 'name', [node.t === 'var' ? node.name : L(notation.words?.[node.f] ?? T(node.f, node.f))]), bad: kind === 'formula' }
   const kid = (k, inner) => {
     const { value, kind: takes } = kidsOf(node)[k]
     return segmentOf(value, [...path, k], takes, notation, inner && Boolean(value) && !value.t && value.op !== 'atom' && value.op !== '¬')
@@ -68,16 +70,18 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
     put: (slot, key) => {
       const path = pathOf(slot)
       const chip = byKey.get(key)
-      if (chip.kind !== kindAt(tree, path)) return chip.kind === 'term' ? T('这里要放一句话，不是一样东西。', 'This place takes a sentence, not a thing.') : T('这里要放一样东西：一个名字或一个变量。', 'This place takes a thing: a name or a variable.')
-      // Onto the sentence the line ends with (see target): it becomes the connective's first side.
+      // A thing may stand where a sentence goes (marked until a predicate takes it); a sentence never where a thing goes.
+      if (chip.kind === 'formula' && kindAt(tree, path) === 'term') return T('这里要放一样东西：一个名字或一个变量。', 'This place takes a thing: a name or a variable.')
+      // Onto what the line ends with (see target): it becomes the piece's first part.
       const last = nodeAt(tree, path)
       change(setAt(tree, path, last ? setAt(chip.make(), [0], last) : chip.make()))
       return null
     },
     take: (slot) => change(setAt(tree, pathOf(slot), null)),
-    // The first box that takes it; with no box left, a connective between two sentences joins on after the last one.
+    // The first box that takes it (a thing goes in any box); with no box left, a connective joins on after the last
+    // sentence, and a predicate takes a thing the line ends with as its first place.
     target: (key) => {
-      const hole = holesOf(tree).find((h) => h.kind === byKey.get(key).kind)
+      const hole = holesOf(tree).find((h) => byKey.get(key).kind === 'term' || h.kind === 'formula')
       if (hole) return keyOf(hole.path)
       const last = byKey.get(key).leads && joinsOnto(tree, key)
       return last ? keyOf(last) : null
@@ -85,10 +89,11 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
     filled: (slot) => nodeAt(tree, pathOf(slot)) !== null,
     fixed: () => false,
   })
-  const whole = complete(tree)
+  const strays = straysOf(tree)
+  const whole = complete(tree) && !strays.length
   // Where the next piece goes, always marked: the box picked, else the first box, else after the whole sentence.
   const first = holesOf(tree)[0]
-  const next = strip.selected ?? (first ? keyOf(first.path) : whole ? 'end' : null)
+  const next = strip.selected ?? (first ? keyOf(first.path) : complete(tree) ? 'end' : null)
 
   const judge = () => {
     const want = level.kind === 'query' ? ['x'] : []
@@ -119,7 +124,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
   }
   const check = () => {
     strip.clearSelection()
-    const v = whole ? judge() : { pass: false, body: <p className="lg-error">{tr('还有空位没填：一句话要每个位置都填上。', 'Some places are still empty: every place must be filled.')}</p> }
+    const v = strays.length ? { pass: false, body: <p className="lg-error">{L(STRAY)}</p> } : whole ? judge() : { pass: false, body: <p className="lg-error">{tr('还有空位没填：一句话要每个位置都填上。', 'Some places are still empty: every place must be filled.')}</p> }
     setVerdict(v)
     if (v.pass) solve(null)
   }
@@ -129,7 +134,8 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
     .filter((g) => g.chips.length)
   const note = strip.note
     ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>
-    : <p className="ks-note">{tree ? tr('点下面的块，它会填进第一个能放它的框；没有框了，再点 ∧ ∨ →，它接在最后那句话后面。高亮的地方就是下一块要去的位置。点已经填进去的字，把它连同里面的一起拿掉。', 'Tap a piece below and it fills the first box that takes it; with no box left, ∧ ∨ → join on after the last sentence. The highlight marks where the next piece goes. Tap words already in to take them out with all inside.') : tr('从最外面的那一块开始：整句话是什么形状？', 'Start with the outermost piece: what shape is the whole sentence?')}</p>
+    : strays.length ? <p className="ks-note is-bad" role="status">{L(STRAY)}</p>
+    : <p className="ks-note">{tr('点击文字可以删除。', 'Tap words to delete them.')}</p>
   const stage = (
     <div className="fo-stage">
       <p className="fo-say fo-prompt" dangerouslySetInnerHTML={{ __html: String(L(level.say)) }} />

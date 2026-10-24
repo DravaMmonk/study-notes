@@ -74,7 +74,7 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
   const sense = lex.types().map(lex.part).find((p) => p.kind === 'verb' && p.lemma === spec.meaning.pred).sense
   const note = strip.note
     ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>
-    : <p className="ks-note">{!clause.V ? tr('选好动词，它要的宾语位置会接在后面。', 'Pick a verb, and the places it needs follow it.') : strip.selected ? tr(`选中了${L(SLOT_LABEL[strip.selected])}：点下面一个词放进去。`, `${L(SLOT_LABEL[strip.selected])} selected: tap a word below to put it there.`) : tr('点下面的词，它会进第一个能放它的空位；点已放的词把它拿掉。', 'Tap a word below and it goes into the first empty place that takes it; tap a placed word to take it out.')}</p>
+    : <p className="ks-note">{tr('点击文字可以删除。', 'Tap words to delete them.')}</p>
 
   const meaning = <Meaning meaning={spec.meaning} sense={sense} run={run} />
   const brief = <Brief game={game} level={level} hint={spec.hint} />

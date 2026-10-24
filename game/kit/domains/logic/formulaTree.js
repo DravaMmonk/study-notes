@@ -1,7 +1,8 @@
 // A formula built from chips (《证明完毕》 chapter 4's translations and queries), shown on the shared strip
 // (games/kit/strip): the formula is the usual tree (formula.js) with holes left as null; a chip is one piece of it, a
 // predicate with a hole per place, a name, a variable, a quantifier with its variable, or a connective with a hole
-// per side. Putting a chip in a hole fills it; taking a piece out empties its hole, with everything inside it.
+// per side. Putting a chip in a hole fills it; taking a piece out empties its hole, with everything inside it. A thing may
+// be put where a sentence goes (it is marked as not yet a sentence): a predicate put next takes it as its first place.
 //
 //   chip   { key, kind: 'formula' | 'term', group, text, make() }
 //   path   the child indices from the root to a node: [] is the root, [1, 0] the first child of its second child
@@ -40,10 +41,19 @@ const PREC = { '→': 1, '∨': 2, '∧': 3 }
  * written formula would read (¬ and a tighter connective are taken in; → groups to the right, ∧ and ∨ to the left; a
  * quantifier reaches to the end, so it is never climbed out of). Null when the line ends with a box.
  */
-export function joinsOnto(root, op) {
+export function joinsOnto(root, key) {
   const last = tree.trailing(root, 'formula')
   if (!last) return null
-  return tree.outward(root, last, (parent) => parent.op === '¬' || (PREC[parent.op] !== undefined && (PREC[parent.op] > PREC[op] || (parent.op === op && op !== '→'))))
+  // A predicate takes a thing left where a sentence goes, as its first place: 安, then ①是②的父母, is 安是②的父母.
+  if (key.startsWith('P:')) return nodeAt(root, last).t ? last : null
+  return tree.outward(root, last, (parent) => parent.op === '¬' || (PREC[parent.op] !== undefined && (PREC[parent.op] > PREC[key] || (parent.op === key && key !== '→'))))
+}
+
+/** Where a thing (a name or a variable) stands in a sentence's place: put there, it is not yet a sentence. */
+export function straysOf(root, path = [], kind = 'formula') {
+  if (!root) return []
+  if (root.t) return kind === 'formula' ? [path] : []
+  return kidsOf(root).flatMap((kid, k) => straysOf(kid.value, [...path, k], kid.kind))
 }
 
 /**
@@ -59,7 +69,8 @@ export function chipsOf(level) {
   const quantifiers = QUANTIFIERS.filter((q) => level.notation.symbols.includes(q))
   const vars = level.kind === 'query' ? ['x', 'y', 'z'] : quantifiers.length ? ['x', 'y'] : []
   return [
-    ...preds.map(([p, n]) => ({ key: `P:${p}`, kind: 'formula', group: 'pred', pred: p, places: n, make: () => atom(p, Array(n).fill(null)) })),
+    // A predicate (`leads`) can take a thing the line ends with as its first place.
+    ...preds.map(([p, n]) => ({ key: `P:${p}`, kind: 'formula', group: 'pred', pred: p, places: n, leads: n > 0, make: () => atom(p, Array(n).fill(null)) })),
     ...consts.map((c) => ({ key: `c:${c}`, kind: 'term', group: 'name', name: c, make: () => fn(c) })),
     ...vars.map((v) => ({ key: `v:${v}`, kind: 'term', group: 'var', text: v, make: () => tvar(v) })),
     ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),

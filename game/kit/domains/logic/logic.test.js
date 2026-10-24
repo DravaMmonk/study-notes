@@ -163,3 +163,16 @@ test('a connective put after a whole sentence takes it as its first side', async
   const ib = ['→', 'P:Human', 'v:x', 'P:Mortal', 'v:x'].reduce(fill, null)
   assert.ok(same(['P:Human', 'v:x'].reduce(fill, join(ib, '→')), parse('Human(x) → (Mortal(x) → Human(x))')))
 })
+
+test('a thing put where a sentence goes waits for a predicate to take it', async () => {
+  const { chipsOf, holesOf, setAt, nodeAt, joinsOnto, straysOf } = await import('./formulaTree.js')
+  const level = { kind: 'translate', consts: ['ann', 'bo'], vocab: { preds: [['Parent', 2]], consts: ['ann', 'bo'] }, notation: { symbols: [] } }
+  const chips = new Map(chipsOf(level).map((c) => [c.key, c]))
+  let tree = chips.get('c:ann').make()
+  assert.deepEqual(straysOf(tree), [[]])
+  const at = joinsOnto(tree, 'P:Parent')
+  tree = setAt(tree, at, setAt(chips.get('P:Parent').make(), [0], nodeAt(tree, at)))
+  tree = setAt(tree, holesOf(tree)[0].path, chips.get('c:bo').make())
+  assert.deepEqual(straysOf(tree), [])
+  assert.ok(same(tree, parse('Parent(ann, bo)', { consts: ['ann', 'bo'] })))
+})
