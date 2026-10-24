@@ -145,3 +145,21 @@ test('formulas built from chips: holes in reading order, pieces taken out whole'
   assert.deepEqual(holesOf(tree), [{ path: [0, 0], kind: 'formula' }])
   assert.deepEqual(missingChips(parse('∃x. Human(x)'), [...chips.values()]), ['∃x'])
 })
+
+test('a connective put after a whole sentence takes it as its first side', async () => {
+  const { chipsOf, holesOf, setAt, nodeAt, joinsOnto } = await import('./formulaTree.js')
+  const level = { kind: 'translate', consts: [], vocab: { preds: [['Mortal', 1], ['Human', 1]], consts: [] }, notation: { symbols: ['∀'] } }
+  const chips = new Map(chipsOf(level).map((c) => [c.key, c]))
+  const fill = (tree, key) => setAt(tree, holesOf(tree).find((h) => h.kind === chips.get(key).kind).path, chips.get(key).make())
+  let tree = ['∀x', 'P:Human', 'v:x'].reduce(fill, null)
+  const join = (t, op) => { const at = joinsOnto(t, op); return setAt(t, at, setAt(chips.get(op).make(), [0], nodeAt(t, at))) }
+  assert.deepEqual(joinsOnto(tree, '→'), [0])
+  tree = ['P:Mortal', 'v:x'].reduce(fill, join(tree, '→'))
+  assert.ok(same(tree, parse('∀x. Human(x) → Mortal(x)')))
+  assert.equal(joinsOnto(['∀x', 'P:Human'].reduce(fill, null), '→'), null)
+  // A ∧ B then → takes A ∧ B; A → B then → takes only B.
+  const ab = ['∧', 'P:Human', 'v:x', 'P:Mortal', 'v:x'].reduce(fill, null)
+  assert.ok(same(['P:Human', 'v:x'].reduce(fill, join(ab, '→')), parse('Human(x) ∧ Mortal(x) → Human(x)')))
+  const ib = ['→', 'P:Human', 'v:x', 'P:Mortal', 'v:x'].reduce(fill, null)
+  assert.ok(same(['P:Human', 'v:x'].reduce(fill, join(ib, '→')), parse('Human(x) → (Mortal(x) → Human(x))')))
+})

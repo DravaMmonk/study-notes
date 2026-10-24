@@ -9,18 +9,21 @@ import { L, tr } from '../shell/i18n.js'
 //   segment  a string (text that belongs to no piece: a full stop, a fixed word)
 //          | { hole: key, label: { zh, en } }                    an empty place, its label written faintly inside
 //          | { piece: key, family?, fixed?, dim?, parts: [segment] }  a piece put in: its strings are its words
+//   next      where the next chip goes, always marked: a hole's key, or 'end' (a caret after the line, where a piece
+//             that joins on after the last whole thing goes)
 //   selected  the hole picked to receive the next chip      flash  keys just refused (they shake)
 //   onSlot(key)  a hole or a piece was tapped
 
-export function Strip({ line, label, selected, flash = [], onSlot }) {
+export function Strip({ line, label, next = null, selected, flash = [], onSlot }) {
   return (
     <div className="ks-strip" role="group" aria-label={L(label) ?? tr('句子', 'Sentence')}>
-      <Segments parts={line} selected={selected} flash={flash} onSlot={onSlot} />
+      <Segments parts={line} next={next} selected={selected} flash={flash} onSlot={onSlot} />
+      {next === 'end' && <span className="ks-caret" aria-hidden="true" />}
     </div>
   )
 }
 
-function Segments({ parts, owner = null, selected, flash, onSlot }) {
+function Segments({ parts, owner = null, next, selected, flash, onSlot }) {
   return parts.map((part, k) => {
     if (typeof part === 'string') {
       if (!owner) return <span key={k} className="ks-plain">{part}</span>
@@ -33,14 +36,14 @@ function Segments({ parts, owner = null, selected, flash, onSlot }) {
     if (part.hole) {
       const name = L(part.label)
       return (
-        <button key={part.hole} type="button" className={`ks-hole ${selected === part.hole ? 'is-selected' : ''} ${flash.includes(part.hole) ? 'is-refused' : ''}`} data-slot={part.hole} aria-pressed={selected === part.hole} onClick={() => onSlot(part.hole)} aria-label={tr(`${name}：空，点一下选中`, `${name}: empty; tap to select`)}>
+        <button key={part.hole} type="button" className={`ks-hole ${selected === part.hole ? 'is-selected' : ''} ${next === part.hole ? 'is-next' : ''} ${flash.includes(part.hole) ? 'is-refused' : ''}`} data-slot={part.hole} aria-pressed={selected === part.hole} onClick={() => onSlot(part.hole)} aria-label={tr(`${name}：空，点一下选中`, `${name}: empty; tap to select`)}>
           {name}
         </button>
       )
     }
     return (
       <span key={part.piece} className={`ks-piece ${flash.includes(part.piece) ? 'is-refused' : ''}`} data-family={part.family}>
-        <Segments parts={part.parts} owner={part} selected={selected} flash={flash} onSlot={onSlot} />
+        <Segments parts={part.parts} owner={part} next={next} selected={selected} flash={flash} onSlot={onSlot} />
       </span>
     )
   })

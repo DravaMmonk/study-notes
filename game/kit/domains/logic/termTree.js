@@ -12,7 +12,18 @@ const KID = { lam: ['body'], app: ['f', 'a'], pair: ['a', 'b'], fst: ['p'], snd:
 
 const kids = (node) => (KID[node.k] ?? []).map((field) => ({ kind: 'term', value: node[field] }))
 const withKid = (node, k, value) => ({ ...node, [KID[node.k][k]]: value })
-export const { nodeAt, setAt, holesOf, complete } = holeTree({ kids, withKid, root: 'term' })
+const tree = holeTree({ kids, withKid, root: 'term' })
+export const { nodeAt, setAt, holesOf, complete } = tree
+
+/**
+ * What a form that starts with its box takes when put after a whole term: the last term, and for an application the
+ * whole application it ends (p q then □ □ is p q □, application groups to the left). Null when the line ends with a box.
+ */
+export function joinsOnto(root, key) {
+  const last = tree.trailing(root, 'term')
+  if (!last) return null
+  return key === 'app' ? tree.outward(root, last, (parent, k) => parent.k === 'app' && k === 1) : last
+}
 
 /** Every name the term binds. */
 export function boundIn(node, out = []) {
@@ -24,16 +35,16 @@ export function boundIn(node, out = []) {
 }
 const fresh = (tree, n = 1) => LETTERS.filter((x) => !boundIn(tree).includes(x)).slice(0, n)
 
-/** The forms a term is built from, in the order the chapter brings them in. */
+/** The forms a term is built from, in the order the chapter brings them in; one that starts with its first box (`leads`) can take the term the line ends with. */
 export const FORMS = [
   { key: 'fun', text: 'fun _ => □', sub: T('造一个函数（框）', 'make a function (a box)'), make: (tree) => lam(fresh(tree)[0], null) },
-  { key: 'app', text: '□ □', sub: T('应用（套用）', 'apply'), make: () => papp(null, null) },
+  { key: 'app', leads: true, text: '□ □', sub: T('应用（套用）', 'apply'), make: () => papp(null, null) },
   { key: 'pair', text: '⟨□, □⟩', sub: T('一对', 'a pair'), make: () => pair(null, null) },
-  { key: 'fst', text: '□.1', sub: T('左一半', 'left half'), make: () => fst(null) },
-  { key: 'snd', text: '□.2', sub: T('右一半', 'right half'), make: () => snd(null) },
+  { key: 'fst', leads: true, text: '□.1', sub: T('左一半', 'left half'), make: () => fst(null) },
+  { key: 'snd', leads: true, text: '□.2', sub: T('右一半', 'right half'), make: () => snd(null) },
   { key: 'inl', text: 'Or.inl □', sub: T('是左边', 'the left one'), make: () => inl(null) },
   { key: 'inr', text: 'Or.inr □', sub: T('是右边', 'the right one'), make: () => inr(null) },
-  { key: 'elim', text: '□.elim (fun _ => □) (fun _ => □)', sub: T('分情况', 'cases'), make: (tree) => { const [x, y] = fresh(tree, 2); return cases(null, x, null, y, null) } },
+  { key: 'elim', leads: true, text: '□.elim (fun _ => □) (fun _ => □)', sub: T('分情况', 'cases'), make: (tree) => { const [x, y] = fresh(tree, 2); return cases(null, x, null, y, null) } },
   { key: 'absurd', text: 'False.elim □', sub: T('矛盾推出一切', 'from ⊥, anything'), make: () => absurd(null) },
 ]
 
