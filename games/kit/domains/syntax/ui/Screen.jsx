@@ -83,8 +83,9 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
   const stage = (
     <div className="sx-stage">
       {phone && meaning}
-      <StripTools history={history} onClear={() => change({ ...preset })} empty={!Object.keys(clause).some((s) => clause[s] && !preset[s])} note={note} />
+      <StripTools history={history} onClear={() => change({ ...preset })} empty={!Object.keys(clause).some((s) => clause[s] && !preset[s])} />
       <Strip line={line} label={{ zh: '小句', en: 'clause' }} next={strip.selected ?? nextSlot(lex, clause)} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
+      {note}
       <Sentence run={live} target={spec.target} best={progress.best[level.id]} />
       <Chips groups={chips} onChip={strip.onChip} />
       {verdict && <p className={`sx-verdict ${run.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict}</p>}
