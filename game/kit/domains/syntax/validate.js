@@ -39,6 +39,24 @@ export function validate({ syntax }) {
   const out = lex.problems.map((p) => ({ fail: true, text: `lexicon: ${p}` }))
   const lemmas = new Set(lex.types().map(lex.part).filter((p) => p.kind === 'verb').map((p) => p.lemma))
   for (const level of LEVELS) {
+    if (level.kind === 'run') {
+      // Every fill of every template is said under each phrasing the run can hand out, and each reads differently.
+      const { run } = level
+      const held = [...new Set([...run.start, ...run.rewards])]
+      const problems = []
+      for (const t of run.templates) {
+        if (!held.includes(t.answer)) problems.push(`${t.id}: its answer ${t.answer} is never held`)
+        for (const k of Object.keys(t.why ?? {})) if (!held.includes(k)) problems.push(`${t.id}: a reason for ${k}, which is never held`)
+        t.fills.forEach((f, k) => {
+          const why = Object.fromEntries(held.filter((p) => p !== t.answer).map((p) => [p, t.why?.[p] ?? '']))
+          for (const p of itemProblems(lex, { context: f.context, words: f.words, answer: t.answer, why })) problems.push(`${t.id}.${k}: ${p}`)
+        })
+      }
+      for (const kind of ['reviews', 'strict', 'committee', 'night']) if (!run.stops[kind]) problems.push(`no ${kind} stop`)
+      const fills = run.templates.reduce((n, t) => n + t.fills.length, 0)
+      out.push({ fail: problems.length > 0, text: `${level.id} ${keyOf(level.title)}: ${problems.length ? problems.join('; ') : `${run.templates.length} templates, ${fills} situations sound`}` })
+      continue
+    }
     if (level.kind === 'drill') {
       const problems = level.items.flatMap((item, k) => itemProblems(lex, item).map((p) => `item ${k + 1}: ${p}`))
       if (!level.items.length) problems.push('no items')

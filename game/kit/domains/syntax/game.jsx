@@ -10,7 +10,7 @@
 //   ui/                 the level screen (desktop and phone), the meaning graph, the sentence, the map's picture
 //   validate.js         every level's reference answer and traps (npm run check)
 //   syntax.test.js      the grammar, the sentence and the meaning check (npm test)
-import { BookOpenText, Zap } from 'lucide-react'
+import { BookOpenText, Route, Zap } from 'lucide-react'
 import '../../strip/strip.css'
 import './ui/syntax.css'
 import { defineGame } from '../../shell/index.js'
@@ -19,6 +19,7 @@ import { migrations } from '../../shell/saves.js'
 import { tr } from '../../shell/i18n.js'
 import Hero from './ui/Hero.jsx'
 import Drill from './ui/Drill.jsx'
+import Run from './ui/Run.jsx'
 import Screen from './ui/Screen.jsx'
 import { timeWords } from './engine/grammar.js'
 import { contrasts } from './engine/sentence.js'
@@ -56,7 +57,7 @@ export function defineSyntaxGame(spec) {
       kind: L.kind ?? 'sentence',
       palette: L.palette,
       afterTitle: L.debrief.title,
-      after: L.kind === 'drill' ? L.debrief.body : [...L.debrief.body, ...pairs(lex, L)],
+      after: L.kind === 'drill' || L.kind === 'run' ? L.debrief.body : [...L.debrief.body, ...pairs(lex, L)],
       note: L.debrief.note,
     })),
     progress: migrations(spec.saves ?? []),
@@ -64,6 +65,7 @@ export function defineSyntaxGame(spec) {
     kinds: {
       sentence: { Screen, icon: BookOpenText, label: { zh: '句子', en: 'Sentence' } },
       drill: { Screen: Drill, icon: Zap, label: { zh: '快练', en: 'Drill' } },
+      run: { Screen: Run, icon: Route, label: { zh: '投稿', en: 'Submission' } },
     },
     // A ★ beats no ★; then fewer words (a sentence) or fewer misses (a drill) is better.
     better: (score, best) => {
