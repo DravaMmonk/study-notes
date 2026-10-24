@@ -12,7 +12,7 @@ import { compoundTerms, subformulas } from './notation.js'
 export const NAMES = ['a', 'b', 'c']
 
 /** What each card's settings pick, when not any sentence (the default, 'formula'). */
-export const SETTING_KINDS = { allI: { x: 'name' }, exE: { x: 'name' }, allE: { t: 'term' }, exI: { t: 'term', target: 'exists' }, refl: { t: 'term' } }
+export const SETTING_KINDS = { allI: { x: 'name' }, exE: { x: 'name' }, allE: { t: 'term' }, exI: { target: 'exists' }, refl: { t: 'term' } }
 
 // A formula with each of its free variables replaced by a name, every way.
 function named(f) {

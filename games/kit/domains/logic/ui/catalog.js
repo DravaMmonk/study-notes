@@ -20,7 +20,7 @@ export const RULE_TEXT = {
   raa: { name: T('反证法', 'By contradiction'), desc: T('由 ¬¬A 得到 A。', 'From ¬¬A, A.'), ports: { nna: '¬¬A' } },
   allI: { name: T('任取', 'For any'), desc: T('一个框：框里随便取一样东西，卡片上给它起名 a、b 或 c（不能出现在还开着的假设里）。框里证出 P(a)，框外得 ∀x. P(x)。', 'A box: inside it any thing at all, named a, b or c on the card (in no hypothesis still open). Prove P(a) inside; outside you get ∀x. P(x).'), params: { x: T('名字', 'Name') }, frames: { body: T('框里', 'Inside') } },
   allE: { name: T('取一个', 'Take one'), desc: T('接进 ∀x. P(x)，在卡片上选一样东西 t，得到 P(t)。', 'Wire in ∀x. P(x) and choose a thing t on the card; out comes P(t).'), ports: { all: '∀x. P(x)' }, params: { t: T('项', 'Term') } },
-  exI: { name: T('举例', 'Example'), desc: T('接进 P(t)，卡片上选好要得出的 ∃x. P(x) 和例子 t，就得到它。', 'Wire in P(t), choose on the card the ∃x. P(x) to conclude and the example t; out it comes.'), ports: { a: 'P(t)' }, params: { target: T('要得出', 'Conclude'), t: T('项', 'Term') } },
+  exI: { name: T('举例', 'Example'), desc: T('接进 P(t)，得到 ∃x. P(x)：t 就是例子，卡片自己认出来。关卡里只有一句「存在」对得上时自动得出它；有几句时，在卡片上选要得出哪一句（比如 a喜欢a 可以得出 ∃x. x喜欢x，也可以得出 ∃x. a喜欢x）。', 'Wire in P(t); out comes ∃x. P(x), with t the example, read off by the card. When only one “there is” of the level fits, it is concluded at once; when several do, choose on the card which (a likes a gives ∃x. x likes x, and also ∃x. a likes x).'), ports: { a: 'P(t)' }, params: { target: T('要得出', 'Conclude') } },
   exE: { name: T('拿出那一个', 'Take the one there is'), desc: T('接进 ∃x. P(x)：框里那一样东西叫 a（卡片上起名 a、b 或 c），假设 P(a) 证出 C，框外就得 C。C 里不能有 a。', 'Wire in ∃x. P(x): inside the box that thing is a (named a, b or c on the card); assuming P(a) proves C, and outside you get C. C may not mention a.'), ports: { ex: '∃x. P(x)' }, params: { x: T('见证', 'Witness') }, frames: { body: T('框里', 'Inside') } },
   normalize: { name: T('化简证明', 'Simplify proof'), desc: T('接进一个证明，送出同一句话的证明，只是把弯路去掉了：先开框又马上套用、先拼成一对又马上拆开、先放进「或」又马上分情况，都直接接上；用到的引理展开成它自己的证明。', 'Wire in a proof; out comes a proof of the same sentence with its detours taken out: a box opened and at once applied, a pair made and at once split, a side of an or taken and at once split again, each wired straight through; a lemma used is unfolded into its own proof.'), ports: { a: 'A' } },
   refl: { name: T('自反', 'Reflexivity'), desc: T('卡片上选一样东西 t，直接给出 t = t。', 'Choose a thing t on the card; it gives t = t at once.'), params: { t: T('项', 'Term') } },
@@ -84,7 +84,7 @@ const GIVES = T('得出', 'Result')
  * The card's settings: [{ key, label, kind }] (orI's side is a switch of its own); a lemma may name its own (`params`).
  * kind: 'formula' (a sentence), 'exists' (a sentence that starts with ∃), 'term' or 'name' (a particular thing: a, b, c).
  */
-export const settingsOf = (parts, type, lemmas = {}) => (parts[type]?.params ?? []).map((key) => ({ key, label: lemmas[type]?.params?.[key] ?? RULE_TEXT[type]?.params?.[key] ?? key, kind: SETTING_KINDS[type]?.[key] ?? 'formula' }))
+export const settingsOf = (parts, type, lemmas = {}) => (parts[type]?.params ?? []).map((key) => ({ key, label: lemmas[type]?.params?.[key] ?? RULE_TEXT[type]?.params?.[key] ?? key, kind: SETTING_KINDS[type]?.[key] ?? 'formula', blank: SETTING_KINDS[type]?.[key] === 'exists' ? T('自动', 'Automatic') : null }))
 
 /** A part's text with the game's revisions of it along the course (logicCourse `revisions`; defineGame textAt / textFor). */
 export const withRevisions = (text, list) => (text && list ? { ...text, revisions: list } : text)
