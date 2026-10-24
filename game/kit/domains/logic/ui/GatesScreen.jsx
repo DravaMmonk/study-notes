@@ -97,6 +97,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
   const itemOf = (type) => ({ type, label: parts.rules[type].name, desc: parts.rules[type].desc, icon: parts.icon({ type }), family: parts.family({ type }), fresh: entry.fresh?.includes(type) })
   const items = palette.filter((t) => parts.rules[t]).map(itemOf)
   const foldedItems = folded.filter((t) => parts.rules[t]).map(itemOf)
+  const types = [...palette, ...folded].filter((t) => parts.rules[t])
   const brief = (
     <Brief game={game} level={entry} hint={level.hint} phone={phone}>
       <section className="lg-score">
@@ -134,7 +135,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
   )
   const body = (node) => <div className="lg-card"><CardValue value={valueOf(node)} error={errorOf(node)} /></div>
 
-  if (phone) return <PhoneGates {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf }} scope={level.id} />
+  if (phone) return <PhoneGates {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, types }} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -146,6 +147,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
           <div className="lg-board">
             <CanvasEditor
               onClear={onClear}
+              types={types}
               key={level.id}
               scope={level.id}
               graph={circuit}
@@ -176,7 +178,7 @@ function CardValue({ value, error }) {
 }
 
 // The board on a phone: the shared slot board, the truth table under it, and the run bar.
-function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, scope }) {
+function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, types, scope }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -200,7 +202,7 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
     <div className="level-phone is-split lg-phone" ref={root}>
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <CardValue value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <CardValue value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={types} />
         {table}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />

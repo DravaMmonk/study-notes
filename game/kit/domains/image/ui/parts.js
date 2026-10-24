@@ -6,7 +6,7 @@ import { familyOf, iconOf } from './catalog.js'
 // Vision Complete's nodes, described for the shared circuit editor (games/kit/circuit): the level's inputs are the
 // sources, its outputs the sinks, everything else a part. Wires only need to avoid loops, which the editor checks.
 
-export const PORT_LABELS = { a: 'a', b: 'b', in: '', left: { zh: '左', en: 'left' }, right: { zh: '右', en: 'right' }, c0: 'd=0', c1: 'd=1', c2: 'd=2', c3: 'd=3' }
+export const PORT_LABELS = { a: 'a', b: 'b', in: '', left: { zh: '左', en: 'left' }, right: { zh: '右', en: 'right' }, c0: 'd=0', c1: 'd=1', c2: 'd=2', c3: 'd=3', mu: 'μ', sigma: 'σ', eps: 'ε' }
 
 /** The parts of one level: its input cards are its sensors (ui/sensors.js), its output cards named by the level (or Output). */
 export function partsFor({ sensors, outputLabels } = {}) {

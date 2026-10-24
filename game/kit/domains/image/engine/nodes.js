@@ -14,11 +14,12 @@ import { SEGMENT } from './parts/segment.js'
 // of a choice available. A choice with `buttons` is a set of buttons rather than a menu: 'pad' lays four directions
 // out as a cross, 'grid' two by two.
 
+// Each direction by its name, shown as its arrow.
 const DIRS = {
-  '→': [1, 0],
-  '←': [-1, 0],
-  '↓': [0, 1],
-  '↑': [0, -1],
+  right: [1, 0, '→'],
+  left: [-1, 0, '←'],
+  down: [0, 1, '↓'],
+  up: [0, -1, '↑'],
 }
 
 const borderParam = { key: 'border', label: { zh: '边界', en: 'Border' }, kind: 'select', options: [['zero', { zh: '补 0', en: 'Pad with 0' }], ['edge', { zh: '复制边缘', en: 'Replicate edge' }]], default: 'zero', unlock: 'edge-filter' }
@@ -50,11 +51,11 @@ export const NODE_TYPES = {
     label: { zh: '平移', en: 'Shift' },
     inputs: ['in'],
     params: [
-      { key: 'dir', label: { zh: '方向', en: 'Direction' }, kind: 'select', buttons: 'pad', options: Object.keys(DIRS).map((d) => [d, d]), default: '→' },
+      { key: 'dir', label: { zh: '方向', en: 'Direction' }, kind: 'select', buttons: 'pad', options: Object.entries(DIRS).map(([d, [, , arrow]]) => [d, arrow]), default: 'right' },
       { key: 'n', label: { zh: '格数', en: 'Steps' }, kind: 'number', min: 1, max: 16, step: 1, default: 1, unlock: 'long-shift' },
       shiftBorder,
     ],
-    eval: ({ in: a }, p) => shift(a, DIRS[p.dir ?? '→'][0] * (p.n ?? 1), DIRS[p.dir ?? '→'][1] * (p.n ?? 1), borderOf(p)),
+    eval: ({ in: a }, p) => shift(a, DIRS[p.dir ?? 'right'][0] * (p.n ?? 1), DIRS[p.dir ?? 'right'][1] * (p.n ?? 1), borderOf(p)),
     cost: 0,
     unlock: 'shift',
   },

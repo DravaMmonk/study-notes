@@ -4,6 +4,7 @@
 import { ArrowRightFromLine, Box, Flag, GitFork, Puzzle, Split } from 'lucide-react'
 import { RULES, rulesOf } from '../proof.js'
 import { SETTING_KINDS } from '../choices.js'
+import { FORMULA_TEXT } from '../formula.js'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -123,6 +124,7 @@ export function partsFor(lemmas = {}, premises = []) {
     },
     cardWidth: (node) => (parts[node.type]?.frames ? 240 : FIXED[node.type] ? 170 : 160),
     frames: (node) => (parts[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: RULE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),
+    text: FORMULA_TEXT,
     rules: parts,
   }
 }

@@ -41,6 +41,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const offered = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
   const palette = offered.shown.filter((t) => parts.rules[t])
   const folded = offered.folded.filter((t) => parts.rules[t])
+  const types = [...palette, ...folded]
   const live = useMemo(() => board.tests.runTest(level, circuit, test), [board, level, circuit, test])
 
   // Step by step, on a board that can trace its run: each test traced once per board.
@@ -143,7 +144,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const verdictText = result ? (result.pass ? L(board.words.pass) : L(result.reason)) : null
   const shared = { board: { ...board, Value }, parts, lemmas, circuit, view, scene, setParam, text }
 
-  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} stepKey={run ? `${run.test}:${run.step}:${run.results.length}` : ''} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} scope={level.id} />
+  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} stepKey={run ? `${run.test}:${run.step}:${run.results.length}` : ''} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} types={types} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -169,6 +170,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
               resultNote={resultNote}
               onTarget={setTarget}
               onClear={onClear}
+              types={types}
               emptyNote={items.length > 0 && board.words.empty}
             />
           </div>
@@ -217,7 +219,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
 
 // The board on a phone: the shared slot board, where a frame is a block with its regions' grids inside it, a sheet
 // per block and the run bar.
-function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, logged, began, waiting, stepKey, onClear, setParam, text, brief, items, foldedItems, dock, change, addNode, scope, testTabs, regionNote, resultNote }) {
+function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, logged, began, waiting, stepKey, onClear, setParam, text, brief, items, foldedItems, dock, change, addNode, types, scope, testTabs, regionNote, resultNote }) {
   const { Value } = board
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
@@ -276,7 +278,7 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
       {testTabs}
       <div className="lg-scroll" ref={scroller} onScroll={onScroll}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} onClear={onClear} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} onClear={onClear} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onChange={change} types={types} />
         {stepped ? began && (
           <section className="lg-preview" ref={preview}>
             <h3>{tr('运行过程', 'The run')}</h3>

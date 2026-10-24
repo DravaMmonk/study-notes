@@ -223,7 +223,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
         </>
       }
       parts={palette.length > 0 && compactParts}
-      canvas={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} onClear={clearCircuit} />}
+      canvas={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} types={palette} onClear={clearCircuit} />}
       tests={<TestPanel {...half} part="tests" />}
       status={<TestStatus states={states} hidden={hidden} />}
       outputs={<TestPanel {...half} part="row" />}

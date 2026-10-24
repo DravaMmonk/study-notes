@@ -50,11 +50,12 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * region's left edge says beside its dot (the assumption it makes), `resultNote(node, region)` what its right edge
  * says beside the dot its result goes into (what the frame gives); `onTarget(region | null)` hears where a new card
  * should go; `onClear` puts a clear button (it asks first) at the start of the corner's tools. In a level, the board's bottom
- * left corner switches between the level's saved boards (SaveSlots); `corner` is whatever the game puts beside it. `minFit` is the smallest zoom a fit may
+ * left corner switches between the level's saved boards and shows the board as text (SaveSlots); `types`, the parts
+ * this level offers, lets text be imported onto it; `corner` is whatever the game puts beside it. `minFit` is the smallest zoom a fit may
  * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away. `scope` names the
  * board for undo (a level's stage): a new one starts the history over.
  */
-export default function CanvasEditor({ graph, onChange, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+export default function CanvasEditor({ graph, onChange, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
   const history = useHistory(graph, onChange, scope)
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   // A part can be taken off the board; so can a source the game lets the player place (parts.removable).
@@ -570,7 +571,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
       {refused && <p className="board-refusal" role="status">{L(refused)}</p>}
       {overlay}
       <div className="board-corner" onPointerDown={(e) => e.stopPropagation()}>
-        <SaveSlots />
+        <SaveSlots board={{ graph, parts, change: onChange, types }} />
         {corner}
       </div>
       <div className="board-zoom" onPointerDown={(e) => e.stopPropagation()}>

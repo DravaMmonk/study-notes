@@ -132,8 +132,8 @@ export const GENERATIVE = {
   dg_sample: {
     label: { zh: '采样 z ~ N(μ, σ²)', en: 'Sample z ~ N(μ, σ²)' },
     description: { zh: '每算一次都重新抽一个随机数', en: 'Draws a fresh random number every time it runs' },
-    inputs: ['μ', 'σ'],
-    eval: ({ μ: mu, σ: sigma }) => {
+    inputs: ['mu', 'sigma'],
+    eval: ({ mu, sigma }) => {
       const next = random(Math.floor(Math.random() * 2 ** 31))
       return code(Array.from(mu.data, (m, i) => m + sigma.data[i] * gaussian(next)))
     },
@@ -143,8 +143,8 @@ export const GENERATIVE = {
   dg_reparam: {
     label: { zh: '重参数化 μ + σ·ε', en: 'Reparameterization μ + σ·ε' },
     description: { zh: '随机只从 ε 进来，μ、σ 照常求导', en: 'Randomness enters only through ε; μ and σ differentiate as usual' },
-    inputs: ['μ', 'σ', 'ε'],
-    eval: ({ μ: mu, σ: sigma, ε: eps }) => code(Array.from(mu.data, (m, i) => m + sigma.data[i] * eps.data[i])),
+    inputs: ['mu', 'sigma', 'eps'],
+    eval: ({ mu, sigma, eps }) => code(Array.from(mu.data, (m, i) => m + sigma.data[i] * eps.data[i])),
     cost: 2,
     unlock: 'dg-reparam',
   },

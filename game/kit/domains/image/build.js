@@ -1,7 +1,7 @@
 import { defaultParams, snapSetting } from './engine/nodes.js'
 
 // Build a graph from a compact description, for reference solutions and starting boards:
-// build({ a: ['shift', { dir: '→' }], s: 'add' }, ['in>a', 'a>s.a', 'in>s.b', 's>out'])
+// build({ a: ['shift', { dir: 'right' }], s: 'add' }, ['in>a', 'a>s.a', 'in>s.b', 's>out'])
 // Input and output nodes are named by their port name; `in>s.b` wires node `in` to port `b` of `s`.
 export function build(nodes, wires, { inputs = ['in'], outputs = ['out'] } = {}) {
   const graph = { nodes: [], wires: [] }

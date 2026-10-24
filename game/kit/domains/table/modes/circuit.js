@@ -471,6 +471,8 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
       setLayer(id, choice) { if (busy()) return; setLayer(id, choice); buzz(6); rt.refresh(); },
       reset() { setCirc(fresh()); rt.refresh(); },
       palette: () => itemsOf(paletteAll()),
+      /** Every kind the player may place on this stage, shown or folded (a board read from text may use any). */
+      types: () => offeredParts(),
       folded: () => itemsOf(foldedParts()),
       consts: () => stage().consts || [0, 1, 2, 3, 4, 5],
       /** The models a merger can swap to in place (its wires stay). */

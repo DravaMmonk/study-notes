@@ -60,10 +60,10 @@
 .choice.is-pad { grid-template-columns: repeat(3, 22px); grid-template-rows: repeat(3, 18px); }
 .choice.is-grid { grid-template-columns: repeat(2, 24px); grid-template-rows: repeat(2, 19px); }
 .choice.is-pad button, .choice.is-grid button { height: auto; padding: 0; }
-.choice.is-pad > [data-v="↑"] { grid-area: 1 / 2; }
-.choice.is-pad > [data-v="←"] { grid-area: 2 / 1; }
-.choice.is-pad > [data-v="→"] { grid-area: 2 / 3; }
-.choice.is-pad > [data-v="↓"] { grid-area: 3 / 2; }
+.choice.is-pad > [data-v="up"] { grid-area: 1 / 2; }
+.choice.is-pad > [data-v="left"] { grid-area: 2 / 1; }
+.choice.is-pad > [data-v="right"] { grid-area: 2 / 3; }
+.choice.is-pad > [data-v="down"] { grid-area: 3 / 2; }
 .choice.is-roomy { gap: 6px; }
 .choice.is-roomy button { flex: 1 1 auto; height: auto; min-height: 44px; padding: 0 12px; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 15px; }
 .choice.is-roomy button[aria-checked="true"] { color: var(--ink); background: color-mix(in srgb, var(--accent) 10%, var(--paper)); box-shadow: inset 0 0 0 2px var(--accent); }
@@ -116,6 +116,22 @@
 .slots.is-phone .slots-toggle span { max-width: 7.5em; }
 .slots.is-phone .slots-pick, .slots.is-phone .slots-add button { height: 40px; font-size: 14px; }
 .slots.is-phone .slots-icon { width: 38px; height: 38px; }
+
+/* ---- a board as text (BlueprintDialog) ---- */
+.dialog.blueprint { width: min(680px, 100%); min-width: 0; }
+.dialog.blueprint .blueprint-note { color: var(--muted); font-family: var(--sans); font-size: 13.5px; line-height: 1.6; }
+.blueprint-text { display: block; box-sizing: border-box; width: 100%; min-width: 0; height: min(46vh, 360px); min-height: 160px; margin: 4px 0 0; padding: 12px 14px; border: 0; border-radius: 12px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: 12.5px/1.6 var(--mono); tab-size: 2; white-space: pre; overflow: auto; resize: vertical; }
+.blueprint-text:focus { outline: none; box-shadow: inset 0 0 0 1.5px var(--accent); }
+.blueprint-errors { margin: 10px 0 0; padding: 8px 12px; list-style: none; border-radius: 10px; color: var(--fail); background: color-mix(in srgb, var(--fail) 8%, transparent); font-size: 13px; line-height: 1.55; }
+.blueprint-tools { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.blueprint-tools button { height: 30px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 8px; color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--rule); font-family: var(--sans); font-size: 12.5px; cursor: pointer; }
+.blueprint-tools button:hover { background: var(--hover); }
+.blueprint-tools svg { color: var(--muted); }
+.dialog.blueprint .dialog-actions button:disabled { opacity: .4; cursor: default; }
+@media (max-width: 760px) {
+  .blueprint-text { height: 38dvh; font-size: 12px; }
+  .blueprint-tools button { flex: 1; justify-content: center; height: 38px; }
+}
 
 /* A board on a phone: only the fit button stays, top right (phones pinch to zoom). */
 @media (max-width: 760px) {
