@@ -5,22 +5,25 @@
   --fam-np: #3f7fb5;
   --fam-pronoun: #2f918f;
   --fam-verb: #b4579a;
-  --fam-infl: #b98516;
+  --fam-time: #b98516;
   --sx-ok: #4f8a55;
 }
 :root[data-theme='night'], :root[data-theme='blueprint'] {
   --fam-np: #8db3d6;
   --fam-pronoun: #7fc2c2;
   --fam-verb: #c5a0cc;
-  --fam-infl: #e0ac4f;
+  --fam-time: #e0ac4f;
   --sx-ok: #95c08a;
 }
 [data-family='np'] { --fam: var(--fam-np); }
 [data-family='pronoun'] { --fam: var(--fam-pronoun); }
 [data-family='verb'] { --fam: var(--fam-verb); }
-[data-family='infl'] { --fam: var(--fam-infl); }
+[data-family='time'] { --fam: var(--fam-time); }
 
-/* ---- the meaning graph ---- */
+/* ---- the context and the meaning graph ---- */
+.sx-context { margin: 0 0 14px; padding: 10px 12px; display: grid; gap: 6px; justify-self: stretch; border-left: 3px solid var(--fam-time); border-radius: var(--r-sm); background: var(--canvas); font-size: var(--fs-ui); line-height: 1.55; text-align: left; }
+.sx-context p { margin: 0; }
+.sx-context-label { font-family: var(--mono); font-size: var(--fs-label); letter-spacing: var(--track-label); color: var(--muted); }
 .sx-meaning { margin: 0; padding: 14px 12px 12px; display: grid; justify-items: center; border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .sx-pred { position: relative; padding: 5px 18px; display: grid; justify-items: center; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--ink); }
 .sx-pred b { font-family: var(--serif); font-size: 19px; font-weight: 600; line-height: 1.2; }
@@ -38,7 +41,8 @@
 .sx-thing b { font-size: var(--fs-small); font-weight: 600; }
 .sx-thing small { font-size: 12px; color: var(--muted); line-height: 1.35; }
 .sx-time { width: 100%; margin-bottom: 14px; padding: 8px 10px; display: grid; gap: 2px; border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px var(--rule); font-size: var(--fs-ui); }
-.sx-time b { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--fam-infl); }
+.sx-time b { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--fam-time); }
+.sx-time span { color: var(--muted); }
 .is-ok.sx-pred, .is-ok .sx-thing, .is-ok.sx-time { box-shadow: inset 0 0 0 1.5px var(--sx-ok); }
 .is-no.sx-pred, .is-no .sx-thing, .is-no.sx-time { box-shadow: inset 0 0 0 1.5px var(--fail); }
 .sx-mark { display: inline-flex; align-items: baseline; gap: 4px; margin: 4px 0 0; font-size: 12.5px; line-height: 1.4; text-align: left; }

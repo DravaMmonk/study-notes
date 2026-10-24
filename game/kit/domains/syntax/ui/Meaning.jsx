@@ -2,26 +2,35 @@ import { Check, X } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import { ASPECT_NAME, ROLE_NAME, TENSE_NAME } from '../engine/grammar.js'
 
-// A level's meaning graph, the goal of every syntax level: the time on top (it is settled first), then the predicate,
-// and an edge from it to each participant with its role. After a run (`run`, sentence.js check) each piece is marked: a tick, or a cross
-// and what the sentence said there instead.
+// A level's goal: the situation the sentence is said in, then the meaning graph: the time on top (it is settled first),
+// then the predicate, and an edge from it to each participant with its role. The graph never names the time and the
+// viewpoint: the player reads them off the situation, and a run shows the one meant. After a run (`run`, sentence.js
+// check) each piece is marked: a tick, or a cross and why it is not what is meant there.
 
 const Mark = ({ result }) => {
   if (!result) return null
   return result.ok
     ? <span className="sx-mark is-ok"><Check size={13} />{tr('对上了', 'Matches')}</span>
-    : <span className="sx-mark is-no"><X size={13} />{L(result.why)}</span>
+    : <span className="sx-mark is-no"><X size={13} /><span dangerouslySetInnerHTML={{ __html: L(result.why) }} /></span>
 }
 const state = (result) => (!result ? '' : result.ok ? 'is-ok' : 'is-no')
 
-export default function Meaning({ meaning, sense, run }) {
+export default function Meaning({ context, meaning, sense, run }) {
   const checked = run?.complete ? run : null
   const roles = Object.entries(meaning.roles)
   return (
     <figure className="sx-meaning" aria-label={tr('语义图', 'Meaning graph')}>
+      {context?.length > 0 && (
+        <div className="sx-context">
+          <span className="sx-context-label">{tr('情境', 'Situation')}</span>
+          {context.map((line, k) => <p key={k} dangerouslySetInnerHTML={{ __html: L(line) }} />)}
+        </div>
+      )}
       <div className={`sx-time ${state(checked?.time)}`}>
-        <b>{tr(`${TENSE_NAME[meaning.tense].zh} · ${ASPECT_NAME[meaning.aspect].zh}`, `${TENSE_NAME[meaning.tense].en} ${ASPECT_NAME[meaning.aspect].en}`)}</b>
-        <span>{L(meaning.gloss)}</span>
+        <b>{tr('时间和视角', 'Time and viewpoint')}</b>
+        {checked
+          ? <span>{tr(`这里要的是${TENSE_NAME[meaning.tense].zh} · ${ASPECT_NAME[meaning.aspect].zh}`, `Meant here: ${TENSE_NAME[meaning.tense].en} ${ASPECT_NAME[meaning.aspect].en}`)}</span>
+          : <span>{tr('从情境里判断', 'Judge it from the situation')}</span>}
         <Mark result={checked?.time} />
       </div>
       <div className={`sx-pred ${state(checked?.pred)}`}>

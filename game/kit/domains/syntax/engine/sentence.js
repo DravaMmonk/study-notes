@@ -1,17 +1,19 @@
 // From a clause to a sentence and its meaning, and that meaning against a level's: the syntax domain's run.
 //
-// A clause is { SUBJ, INFL, V, OBJ?, IOBJ?, TO? }, each slot a part's type (np:paper, infl:has, verb:accept) or empty.
+// A clause is { SUBJ, TIME, V, OBJ?, IOBJ?, TO? }, each slot a part's type (np:paper, time:perfect, verb:accept) or
+// empty.
 //
-//   surface(lex, clause, slot)  what a slot says: the noun phrase, the auxiliaries, the verb in the form asked for
+//   surface(lex, clause, slot)  what a slot says: the noun phrase in its case, the auxiliaries, the verb in the form
+//                               its time asks for
 //   words(lex, clause)          the sentence word group by word group, with gaps for the empty slots
 //   check(lex, level, clause)   the whole run: the sentence, its meaning, each part of the level's meaning matched or
-//                               not (and why), and the score (its words)
+//                               not (and why: a wrong time gives the level's own reason for it), and the score
 //   toClause(answer)            a clause from a level's answer written with lexicon keys ({ SUBJ: 'paper', … })
 
-import { ASPECT_NAME, ROLE_NAME, SLOT_LABEL, TENSE_NAME, slotsOf } from './grammar.js'
+import { ASPECT_NAME, ROLE_NAME, SLOT_LABEL, TENSE_NAME, inflect, said, slotsOf } from './grammar.js'
 
 const pair = (zh, en) => ({ zh, en })
-const KIND_OF = { SUBJ: 'np', INFL: 'infl', V: 'verb', OBJ: 'np', IOBJ: 'np', TO: 'np' }
+const KIND_OF = { SUBJ: 'np', TIME: 'time', V: 'verb', OBJ: 'np', IOBJ: 'np', TO: 'np' }
 
 /** A clause from an answer (or a preset) written with lexicon keys. */
 export const toClause = (answer = {}) => Object.fromEntries(Object.entries(answer).filter(([, key]) => key).map(([slot, key]) => [slot, `${KIND_OF[slot]}:${key}`]))
@@ -19,16 +21,22 @@ export const toClause = (answer = {}) => Object.fromEntries(Object.entries(answe
 export const answerTypes = (answer = {}) => Object.values(toClause(answer))
 
 /**
- * What a slot says. The INFL slot says its auxiliaries (or nothing, for a bare suffix: `dim` then shows its label);
- * the verb is said in the form its INFL asks for, its bare form until there is one.
+ * What a slot says. A noun phrase is said in the case its place asks for. The time slot says its auxiliaries, worked
+ * out with the subject (or nothing, for a bare ending: `dim` then shows its shape, "-ed"); the verb is said in the
+ * form its time asks for, its bare form until there is one.
  */
 export function surface(lex, clause, slot) {
   const part = clause[slot] && lex.part(clause[slot])
   if (!part) return null
-  if (part.kind === 'np') return { text: part.text }
-  if (part.kind === 'infl') return part.aux.length ? { text: part.aux.join(' ') } : { text: part.text, dim: true }
-  const infl = clause.INFL && lex.part(clause.INFL)
-  return { text: part.forms[infl ? infl.verb : 'base'] }
+  if (part.kind === 'np') return { text: said(part, slot) }
+  const subject = clause.SUBJ && lex.part(clause.SUBJ)
+  if (part.kind === 'time') {
+    const { aux } = inflect(part, subject)
+    return aux.length ? { text: aux.join(' ') } : { text: part.shape, dim: true }
+  }
+  const time = clause.TIME && lex.part(clause.TIME)
+  const form = time ? inflect(time, subject).verb : 'base'
+  return { text: part.forms[form === 's|base' ? 'base' : form] }
 }
 
 /** The sentence in order, [{ text, slot }] for what is said and [{ gap, slot }] for an empty slot. */
@@ -56,7 +64,7 @@ export const openSlots = (open) => pair(open.map((s) => SLOT_LABEL[s].zh).join('
 /**
  * A run of a level's clause. `level.meaning` is { pred, tense, aspect, roles: { ROLE: { ent, number } } };
  * `level.target` (optional) is the most words that earn the star; `level.refer` (optional) says what each pronoun
- * of the level names.
+ * of the level names; `level.why` (optional) is { time key: { zh, en } }, why that time is the wrong one here.
  *
  *   { complete, open, groups, sentence, words, pass, star,
  *     pred: { ok, why? }, time: { ok, why? }, roles: { ROLE: { ok, why?, slot? } }, extra: [ROLE] }
@@ -69,11 +77,13 @@ export function check(lex, level, clause) {
   if (!complete) return result
   const want = level.meaning
   const verb = lex.part(clause.V)
-  const infl = lex.part(clause.INFL)
+  const time = lex.part(clause.TIME)
   result.pred = verb.lemma === want.pred ? { ok: true } : { ok: false, why: pair(`这里说的是 ${verb.lemma}（${verb.sense.zh}）`, `This says ${verb.lemma} (${verb.sense.en})`) }
-  const time = (t, a) => pair(`${TENSE_NAME[t].zh} · ${ASPECT_NAME[a].zh}`, `${TENSE_NAME[t].en} ${ASPECT_NAME[a].en}`)
-  const said = time(infl.tense, infl.aspect)
-  result.time = infl.tense === want.tense && infl.aspect === want.aspect ? { ok: true } : { ok: false, why: pair(`说成了${said.zh}`, `This says ${said.en}`) }
+  const named = (t, a) => pair(`${TENSE_NAME[t].zh} · ${ASPECT_NAME[a].zh}`, `${TENSE_NAME[t].en} ${ASPECT_NAME[a].en}`)
+  const says = named(time.tense, time.aspect)
+  result.time = time.tense === want.tense && time.aspect === want.aspect
+    ? { ok: true }
+    : { ok: false, why: level.why?.[time.key] ?? pair(`说成了${says.zh}`, `This says ${says.en}`) }
   // The roles the sentence fills: the subject's (the verb's own), then each object slot's.
   const filled = { [verb.subject]: 'SUBJ' }
   for (const [slot, role] of verb.ports) filled[role] = slot
@@ -86,8 +96,9 @@ export function check(lex, level, clause) {
     const part = lex.part(clause[slot])
     // A pronoun names whatever the level's context makes it name (level.refer: { she: 'reviewer' }).
     const ent = level.refer?.[part.key] ?? part.ent
-    if (ent !== thing.ent) result.roles[role] = { ok: false, slot, why: pair(`这里是“${part.text}”`, `This is “${part.text}”`) }
-    else if (part.number !== thing.number) result.roles[role] = { ok: false, slot, why: pair(`数不对：“${part.text}”是${part.number === 'sg' ? '单数' : '复数'}`, `Wrong number: “${part.text}” is ${part.number === 'sg' ? 'singular' : 'plural'}`) }
+    const text = said(part, slot)
+    if (ent !== thing.ent) result.roles[role] = { ok: false, slot, why: pair(`这里是“${text}”`, `This is “${text}”`) }
+    else if (part.number !== thing.number) result.roles[role] = { ok: false, slot, why: pair(`数不对：“${text}”是${part.number === 'sg' ? '单数' : '复数'}`, `Wrong number: “${text}” is ${part.number === 'sg' ? 'singular' : 'plural'}`) }
     else result.roles[role] = { ok: true, slot }
   }
   result.extra = Object.keys(filled).filter((role) => !want.roles[role])

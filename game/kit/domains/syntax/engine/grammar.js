@@ -1,21 +1,22 @@
 // The grammar every syntax game plays on: the places a clause has, in the order they are said, what each takes, and
-// the rules a word must keep to go there (kind, case, agreement). A game brings only its words (a lexicon, see
-// lexicon.js); the rules here are the same for every level and every game.
+// the forms the machine works out for the player. A game brings only its words (a lexicon, see lexicon.js); the rules
+// here are the same for every level and every game.
 //
 // A clause is a row of slots in reading order, grouped the way the sentence is built:
 //
-//   [ SUBJ ] [ INFL  V  objects… ]
-//   subject   predicate: the head that sets the time, the verb, and the places its frame opens
+//   [ SUBJ ] [ TIME  V  objects… ]
+//   subject   predicate: the time and viewpoint, the verb, and the places its frame opens
 //
-// The verb's frame says which object slots follow it and which role each fills. The INFL part decides the
-// auxiliaries and the verb's form, and must agree with the subject.
+// The player decides what a native speaker decides before speaking (the time and the viewpoint, which words fill
+// which places); the grammar says it: auxiliaries, verb forms, agreement with the subject and a pronoun's case are
+// worked out here and never refused.
 
 /** The kind of word each slot takes. */
-export const SLOT_KIND = { SUBJ: 'np', INFL: 'infl', V: 'verb', OBJ: 'np', IOBJ: 'np', TO: 'np' }
+export const SLOT_KIND = { SUBJ: 'np', TIME: 'time', V: 'verb', OBJ: 'np', IOBJ: 'np', TO: 'np' }
 
 export const SLOT_LABEL = {
   SUBJ: { zh: '主语', en: 'subject' },
-  INFL: { zh: '时体', en: 'tense' },
+  TIME: { zh: '时间', en: 'time' },
   V: { zh: '动词', en: 'verb' },
   OBJ: { zh: '宾语', en: 'object' },
   IOBJ: { zh: '间接宾语', en: 'indirect object' },
@@ -25,7 +26,7 @@ export const SLOT_LABEL = {
 export const KIND_NAME = {
   np: { zh: '名词短语', en: 'a noun phrase' },
   verb: { zh: '动词', en: 'a verb' },
-  infl: { zh: '时体', en: 'a tense' },
+  time: { zh: '时间和视角', en: 'a time and viewpoint' },
 }
 
 /**
@@ -45,10 +46,11 @@ export const ROLE_NAME = {
   RECIPIENT: { zh: '接收方', en: 'recipient' },
 }
 
-/** The verb forms an INFL part can ask for, as an empty verb place names them. */
+/** The verb forms a time can ask for, as an empty verb place names them. */
 export const FORM_NAME = {
   base: { zh: '原形', en: 'bare' },
   s: { zh: '-s 形式', en: '-s form' },
+  's|base': { zh: '原形或 -s 形式', en: 'bare or -s form' },
   past: { zh: '过去式', en: 'past' },
   pp: { zh: '过去分词', en: 'past participle' },
   ing: { zh: '-ing 形式', en: '-ing form' },
@@ -57,40 +59,41 @@ export const FORM_NAME = {
 export const TENSE_NAME = { present: { zh: '现在', en: 'present' }, past: { zh: '过去', en: 'past' }, future: { zh: '将来', en: 'future' } }
 export const ASPECT_NAME = { simple: { zh: '一般', en: 'simple' }, perfect: { zh: '完成', en: 'perfect' }, progressive: { zh: '进行', en: 'progressive' } }
 
-/**
- * Which subjects an INFL part agrees with. English marks agreement only in the present (and in was/were): `3sg`
- * for -s, has, is; `non3sg` for the bare form and have; `1sg` for am; `other` for are and were (not I, not 3sg);
- * `was` for I and 3sg; `any` where nothing is marked (-ed, had, will).
- */
 const third = (np) => np.person === 3 && np.number === 'sg'
 const first = (np) => np.person === 1 && np.number === 'sg'
-export const AGREEMENT = {
-  any: { test: () => true, name: { zh: '任意主语', en: 'any subject' } },
-  '3sg': { test: third, name: { zh: '第三人称单数主语', en: 'a third-person singular subject' } },
-  non3sg: { test: (np) => !third(np), name: { zh: '不是第三人称单数的主语', en: 'a subject that is not third-person singular' } },
-  '1sg': { test: first, name: { zh: '主语 I', en: 'the subject I' } },
-  other: { test: (np) => !third(np) && !first(np), name: { zh: '既不是 I、也不是第三人称单数的主语', en: 'a subject other than I or third-person singular' } },
-  was: { test: (np) => third(np) || first(np), name: { zh: 'I 或第三人称单数主语', en: 'I or a third-person singular subject' } },
+
+/**
+ * How a time is said with a subject: { aux: [word], verb: form }. English marks agreement only in the present (and in
+ * was/were); before there is a subject, a form that depends on it is given both ways ('has/have', 's|base').
+ */
+export function inflect(time, subject) {
+  const pick = (known, unknown) => (subject ? known() : unknown)
+  const { tense, aspect } = time
+  if (aspect === 'simple') {
+    if (tense === 'present') return { aux: [], verb: pick(() => (third(subject) ? 's' : 'base'), 's|base') }
+    return tense === 'past' ? { aux: [], verb: 'past' } : { aux: ['will'], verb: 'base' }
+  }
+  if (aspect === 'perfect') {
+    const have = tense === 'present' ? [pick(() => (third(subject) ? 'has' : 'have'), 'has/have')] : tense === 'past' ? ['had'] : ['will', 'have']
+    return { aux: have, verb: 'pp' }
+  }
+  const be = tense === 'present'
+    ? [pick(() => (first(subject) ? 'am' : third(subject) ? 'is' : 'are'), 'is/are')]
+    : tense === 'past' ? [pick(() => (first(subject) || third(subject) ? 'was' : 'were'), 'was/were')] : ['will', 'be']
+  return { aux: be, verb: 'ing' }
 }
 
-/** What a noun phrase is, as the grammar sees it: "3rd person singular, nominative". */
+/** A noun phrase as said in a slot: a pronoun takes its nominative as the subject and its accusative elsewhere. */
+export const said = (np, slot) => (np.forms ? np.forms[slot === 'SUBJ' ? 'nom' : 'acc'] : np.text)
+
+/** What a noun phrase is, as the grammar sees it: "第三人称单数" / "third person singular". */
 export function features(np) {
   const person = { 1: ['第一', 'first'], 2: ['第二', 'second'], 3: ['第三', 'third'] }[np.person]
-  const kase = np.case === 'nom' ? ['主格', 'nominative'] : np.case === 'acc' ? ['宾格', 'accusative'] : null
-  return {
-    zh: `${person[0]}人称${np.number === 'sg' ? '单数' : '复数'}${kase ? ` · ${kase[0]}` : ''}`,
-    en: `${person[1]} person ${np.number === 'sg' ? 'singular' : 'plural'}${kase ? ` · ${kase[1]}` : ''}`,
-  }
+  return { zh: `${person[0]}人称${np.number === 'sg' ? '单数' : '复数'}`, en: `${person[1]} person ${np.number === 'sg' ? 'singular' : 'plural'}` }
 }
 
-/** The short features line under a noun phrase: "3 单 · 主格" / "3sg · nom". */
-export function shortFeatures(np) {
-  const kase = np.case === 'nom' ? ['主格', 'nom'] : np.case === 'acc' ? ['宾格', 'acc'] : null
-  return { zh: `${np.person}${np.number === 'sg' ? '单' : '复'}${kase ? ` · ${kase[0]}` : ''}`, en: `${np.person}${np.number}${kase ? ` · ${kase[1]}` : ''}` }
-}
-
-/** The slots a clause has, in reading order: subject, tense, verb, then the places the verb's frame opens. */
-export const slotsOf = (lex, clause) => ['SUBJ', 'INFL', 'V', ...(clause.V ? lex.part(clause.V).ports.map(([slot]) => slot) : [])]
+/** The slots a clause has, in reading order: subject, time, verb, then the places the verb's frame opens. */
+export const slotsOf = (lex, clause) => ['SUBJ', 'TIME', 'V', ...(clause.V ? lex.part(clause.V).ports.map(([slot]) => slot) : [])]
 
 /**
  * The empty slot to settle next, in the order a speaker plans a clause rather than the order it is said: the time
@@ -99,52 +102,40 @@ export const slotsOf = (lex, clause) => ['SUBJ', 'INFL', 'V', ...(clause.V ? lex
  */
 export function nextSlot(lex, clause) {
   const open = slotsOf(lex, clause).filter((s) => !clause[s])
-  return open.includes('INFL') ? 'INFL' : open[0] ?? null
+  return open.includes('TIME') ? 'TIME' : open[0] ?? null
 }
 
-/** An empty slot's name; the verb's says the form its INFL holds for it ("动词（过去式）"). */
+/** The verb form a clause's time asks for, given its subject so far, or null with no time yet. */
+export const verbForm = (lex, clause) => (clause.TIME ? inflect(lex.part(clause.TIME), clause.SUBJ && lex.part(clause.SUBJ)).verb : null)
+
+/** An empty slot's name; the verb's says the form its time holds for it ("动词（过去式）"). */
 export function slotName(lex, clause, slot) {
   const name = SLOT_LABEL[slot]
-  if (slot !== 'V' || !clause.INFL) return name
-  const form = FORM_NAME[lex.part(clause.INFL).verb]
-  return { zh: `${name.zh}（${form.zh}）`, en: `${name.en} (${form.en})` }
+  const form = slot === 'V' && verbForm(lex, clause)
+  if (!form) return name
+  return { zh: `${name.zh}（${FORM_NAME[form].zh}）`, en: `${name.en} (${FORM_NAME[form].en})` }
 }
 
 const pair = (zh, en) => ({ zh, en })
 const quote = (text) => `“${text}”`
 
 /**
- * Why the word `type` cannot go into `slot` of `clause` (the clause as it stands, a slot's old word aside), or null.
- * The reasons name the features that clash, so a refusal teaches the rule it enforces.
+ * Why the word `type` cannot go into `slot` of `clause`, or null. Only the clause's shape is refused (a word of the
+ * wrong kind, a place the verb does not open): forms, agreement and case are the machine's to work out.
  */
 export function refuse(lex, clause, slot, type) {
   const part = lex.part(type)
   if (!part) return null
   const takes = SLOT_KIND[slot]
   if (takes !== part.kind) {
+    const name = typeof part.text === 'string' ? part.text : part.text.en
     return pair(
-      `${SLOT_LABEL[slot].zh}的位置只放${KIND_NAME[takes].zh}，${quote(part.text)}是${KIND_NAME[part.kind].zh}。`,
-      `The ${SLOT_LABEL[slot].en} slot takes ${KIND_NAME[takes].en}; ${quote(part.text)} is ${KIND_NAME[part.kind].en}.`,
+      `${SLOT_LABEL[slot].zh}的位置只放${KIND_NAME[takes].zh}，${quote(name)}是${KIND_NAME[part.kind].zh}。`,
+      `The ${SLOT_LABEL[slot].en} slot takes ${KIND_NAME[takes].en}; ${quote(name)} is ${KIND_NAME[part.kind].en}.`,
     )
   }
   if (!slotsOf(lex, clause).includes(slot)) return pair('这个动词后面没有这个位置。', 'This verb opens no such place.')
-  if (part.kind === 'np') {
-    if (slot === 'SUBJ' && part.case === 'acc') return pair(`格不对：主语要主格，${quote(part.text)}是宾格。`, `Wrong case: a subject is nominative, and ${quote(part.text)} is accusative.`)
-    if (slot !== 'SUBJ' && part.case === 'nom') return pair(`格不对：${SLOT_LABEL[slot].zh}要宾格，${quote(part.text)}是主格。`, `Wrong case: an ${SLOT_LABEL[slot].en} is accusative, and ${quote(part.text)} is nominative.`)
-    if (slot === 'SUBJ' && clause.INFL) return disagree(lex.part(clause.INFL), part)
-  }
-  if (part.kind === 'infl' && clause.SUBJ) return disagree(part, lex.part(clause.SUBJ))
   return null
-}
-
-function disagree(head, subject) {
-  const agree = AGREEMENT[head.agree]
-  if (agree.test(subject)) return null
-  const f = features(subject)
-  return pair(
-    `主谓不一致：${quote(head.text)}要${agree.name.zh}，${quote(subject.text)}是${f.zh}。`,
-    `Subject and verb disagree: ${quote(head.text)} needs ${agree.name.en}, and ${quote(subject.text)} is ${f.en}.`,
-  )
 }
 
 /**
