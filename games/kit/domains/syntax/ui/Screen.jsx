@@ -90,7 +90,7 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
   const stage = (
     <div className="sx-stage">
       {phone && meaning}
-      <Strip line={line} label={{ zh: '小句', en: 'clause' }} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
+      <Strip line={line} label={{ zh: '小句', en: 'clause' }} next={strip.selected ?? slots.find((s) => !clause[s]) ?? null} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
       <Sentence run={live} target={spec.target} best={progress.best[level.id]} />
       <Chips groups={chips} onChip={strip.onChip} />

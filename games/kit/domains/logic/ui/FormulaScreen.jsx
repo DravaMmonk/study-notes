@@ -5,7 +5,7 @@ import { L, tr } from '../../../shell/i18n.js'
 import { Chips, Strip, useStrip } from '../../../strip/index.js'
 import { freeVars, parse } from '../formula.js'
 import { difference, extent, structureOf } from '../fol.js'
-import { chipsOf, complete, holesOf, kindAt, kidsOf, nodeAt, setAt } from '../formulaTree.js'
+import { chipsOf, complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt } from '../formulaTree.js'
 import { WorldText, thingName } from './WorldScreens.jsx'
 
 // Translate and query tasks (《证明完毕》 chapter 4): one sentence said in words, built as a formula from chips on the
@@ -69,18 +69,26 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
       const path = pathOf(slot)
       const chip = byKey.get(key)
       if (chip.kind !== kindAt(tree, path)) return chip.kind === 'term' ? T('这里要放一句话，不是一样东西。', 'This place takes a sentence, not a thing.') : T('这里要放一样东西：一个名字或一个变量。', 'This place takes a thing: a name or a variable.')
-      change(setAt(tree, path, chip.make()))
+      // Onto the sentence the line ends with (see target): it becomes the connective's first side.
+      const last = nodeAt(tree, path)
+      change(setAt(tree, path, last ? setAt(chip.make(), [0], last) : chip.make()))
       return null
     },
     take: (slot) => change(setAt(tree, pathOf(slot), null)),
+    // The first box that takes it; with no box left, a connective between two sentences joins on after the last one.
     target: (key) => {
       const hole = holesOf(tree).find((h) => h.kind === byKey.get(key).kind)
-      return hole ? keyOf(hole.path) : null
+      if (hole) return keyOf(hole.path)
+      const last = byKey.get(key).leads && joinsOnto(tree, key)
+      return last ? keyOf(last) : null
     },
     filled: (slot) => nodeAt(tree, pathOf(slot)) !== null,
     fixed: () => false,
   })
   const whole = complete(tree)
+  // Where the next piece goes, always marked: the box picked, else the first box, else after the whole sentence.
+  const first = holesOf(tree)[0]
+  const next = strip.selected ?? (first ? keyOf(first.path) : whole ? 'end' : null)
 
   const judge = () => {
     const want = level.kind === 'query' ? ['x'] : []
@@ -130,7 +138,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
     .filter((g) => g.chips.length)
   const note = strip.note
     ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>
-    : <p className="ks-note">{tree ? tr('点下面的块，它会填进第一个能放它的框；点已经填进去的字，把它连同里面的一起拿掉。', 'Tap a piece below and it fills the first box that takes it; tap words already in to take them out with all inside.') : tr('从最外面的那一块开始：整句话是什么形状？', 'Start with the outermost piece: what shape is the whole sentence?')}</p>
+    : <p className="ks-note">{tree ? tr('点下面的块，它会填进第一个能放它的框；没有框了，再点 ∧ ∨ →，它接在最后那句话后面。高亮的地方就是下一块要去的位置。点已经填进去的字，把它连同里面的一起拿掉。', 'Tap a piece below and it fills the first box that takes it; with no box left, ∧ ∨ → join on after the last sentence. The highlight marks where the next piece goes. Tap words already in to take them out with all inside.') : tr('从最外面的那一块开始：整句话是什么形状？', 'Start with the outermost piece: what shape is the whole sentence?')}</p>
   const stage = (
     <div className="fo-stage">
       <p className="fo-say fo-prompt" dangerouslySetInnerHTML={{ __html: String(L(level.say)) }} />
@@ -144,7 +152,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
           ))}
         </div>
       )}
-      <Strip line={[segmentOf(tree, [], 'formula', notation)]} label={T('公式', 'formula')} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
+      <Strip line={[segmentOf(tree, [], 'formula', notation)]} label={T('公式', 'formula')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
       {verdict && (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界里，都和原句一样真假。', 'True and false with the sentence in every small world.')}</p> : verdict.body)}
       <Chips groups={groups} onChip={strip.onChip} />

@@ -31,7 +31,20 @@ function withKid(node, k, value) {
   }
 }
 
-export const { nodeAt, setAt, holesOf, kindAt, complete } = holeTree({ kids: kidsOf, withKid, root: 'formula' })
+const tree = holeTree({ kids: kidsOf, withKid, root: 'formula' })
+export const { nodeAt, setAt, holesOf, kindAt, complete } = tree
+
+const PREC = { '→': 1, '∨': 2, '∧': 3 }
+/**
+ * What a connective `op` put after a whole sentence takes as its first side: the last whole sentence, widened as the
+ * written formula would read (¬ and a tighter connective are taken in; → groups to the right, ∧ and ∨ to the left; a
+ * quantifier reaches to the end, so it is never climbed out of). Null when the line ends with a box.
+ */
+export function joinsOnto(root, op) {
+  const last = tree.trailing(root, 'formula')
+  if (!last) return null
+  return tree.outward(root, last, (parent) => parent.op === '¬' || (PREC[parent.op] !== undefined && (PREC[parent.op] > PREC[op] || (parent.op === op && op !== '→'))))
+}
 
 /**
  * The chips a sentence is built from: the level's predicates and names, the quantifiers the course has introduced
@@ -50,7 +63,8 @@ export function chipsOf(level) {
     ...consts.map((c) => ({ key: `c:${c}`, kind: 'term', group: 'name', name: c, make: () => fn(c) })),
     ...vars.map((v) => ({ key: `v:${v}`, kind: 'term', group: 'var', text: v, make: () => tvar(v) })),
     ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
-    ...CONNECTIVES.map((c) => ({ key: c, kind: 'formula', group: 'conn', text: c, make: () => (c === '¬' ? not(null) : bin(c, null, null)) })),
+    // A connective between two sentences (`leads`) can take the sentence the line ends with as its first.
+    ...CONNECTIVES.map((c) => ({ key: c, kind: 'formula', group: 'conn', text: c, leads: c !== '¬', make: () => (c === '¬' ? not(null) : bin(c, null, null)) })),
   ]
 }
 

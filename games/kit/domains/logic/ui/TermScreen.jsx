@@ -6,7 +6,7 @@ import { Chips, Strip, useStrip } from '../../../strip/index.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { checkTerm } from '../pterm.js'
-import { chipsOf, complete, holesOf, nodeAt, segmentOf, setAt } from '../termTree.js'
+import { chipsOf, complete, holesOf, joinsOnto, nodeAt, segmentOf, setAt } from '../termTree.js'
 
 // Term tasks (《证明完毕》 chapter 6): the named premises and the sentence to prove, and a proof term built from
 // chips on the shared strip (games/kit/strip), written out as it reads with a box for each empty place. The machine
@@ -33,14 +33,25 @@ export default function TermScreen({ game, level: entry, saved, save, solve, pho
   }
   const strip = useStrip({
     put: (slot, key) => {
-      change(setAt(tree, pathOf(slot), chips.find((c) => c.key === key).make(tree)))
+      const path = pathOf(slot)
+      const made = chips.find((c) => c.key === key).make(tree)
+      // Onto the term the line ends with (see target): it goes in the form's first box.
+      const last = nodeAt(tree, path)
+      change(setAt(tree, path, last ? setAt(made, [0], last) : made))
       return null
     },
     take: (slot) => change(setAt(tree, pathOf(slot), null)),
-    target: () => { const hole = holesOf(tree)[0]; return hole ? ['r', ...hole.path].join('.') : null },
+    // The first box; with no box left, a form that starts with its box (□ □, □.1, □.elim …) takes the last term.
+    target: (key) => {
+      const at = holesOf(tree)[0]?.path ?? (chips.find((c) => c.key === key).leads ? joinsOnto(tree, key) : null)
+      return at ? ['r', ...at].join('.') : null
+    },
     filled: (slot) => nodeAt(tree, pathOf(slot)) !== null,
     fixed: () => false,
   })
+  // Where the next piece goes, always marked: the box picked, else the first box, else after the whole term.
+  const first = holesOf(tree)[0]
+  const next = strip.selected ?? (first ? ['r', ...first.path].join('.') : complete(tree) ? 'end' : null)
   const check = () => {
     strip.clearSelection()
     if (!complete(tree)) return setVerdict({ pass: false, reason: T('还有框没填：项要每个位置都填上。', 'Some boxes are still empty: every place must be filled.') })
@@ -62,14 +73,14 @@ export default function TermScreen({ game, level: entry, saved, save, solve, pho
   const premises = Object.entries(level.premises ?? {})
   const note = strip.note
     ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>
-    : <p className="ks-note">{tree ? tr('点下面的块，它会填进第一个框；点已经填进去的字，把它连同里面的一起拿掉。', 'Tap a piece below and it fills the first box; tap words already in to take them out with all inside.') : tr('从最外面那一层开始：要证的这句话，它的证明是什么形状？', 'Start with the outermost layer: what shape is a proof of this sentence?')}</p>
+    : <p className="ks-note">{tree ? tr('点下面的块，它会填进第一个框；没有框了，再点 □ □、□.1、□.2、□.elim，它接在最后那个项上。高亮的地方就是下一块要去的位置。点已经填进去的字，把它连同里面的一起拿掉。', 'Tap a piece below and it fills the first box; with no box left, □ □, □.1, □.2 and □.elim take the last term. The highlight marks where the next piece goes. Tap words already in to take them out with all inside.') : tr('从最外面那一层开始：要证的这句话，它的证明是什么形状？', 'Start with the outermost layer: what shape is a proof of this sentence?')}</p>
   const stage = (
     <div className="fo-stage">
       <section className="tm-given">
         {premises.length > 0 && <p>{tr('已知', 'Given')} {premises.map(([name, f]) => <span key={name} className="tm-premise"><code>{name}</code>：{text(f)}</span>)}</p>}
         <p className="fo-say fo-prompt">{tr('要证', 'Prove')} <b>{text(level.goal)}</b></p>
       </section>
-      <Strip line={[segmentOf(tree)]} label={T('证明项', 'proof term')} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
+      <Strip line={[segmentOf(tree)]} label={T('证明项', 'proof term')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
       {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型对上了：这个项证的正是这句话。', 'The type matches: this term proves exactly this sentence.') : L(verdict.reason)}</p>}
       <Chips groups={groups} onChip={strip.onChip} />
