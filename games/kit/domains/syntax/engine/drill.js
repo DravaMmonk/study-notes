@@ -21,23 +21,27 @@ const join = (groups) => groups.map((g) => g.text).join(' ')
 /** The times an item offers, in a fixed order that says nothing about which one is meant. */
 export const optionsOf = (item) => [item.answer, ...Object.keys(item.why ?? {})].sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b))
 
+/** The verb group a clause's words say under a time: "have added", "added", "will add". */
+export function phrased(lex, clause, key) {
+  return join(words(lex, toClause({ ...clause, TIME: key })).filter((g) => GROUP.has(g.slot)))
+}
+
 /**
- * An item as the player sees it: { before, after, options: [{ key, text }], sentence }. `before` and `after` are the
- * sentence around the verb group (capitalised, with its full stop); `sentence` is the whole of it with the time meant.
+ * A clause said with the time meant, split around its verb group: { before, after, sentence }. `before` is capitalised,
+ * `after` ends with the full stop.
  */
-export function drillItem(lex, item) {
-  const say = (key) => words(lex, toClause({ ...item.words, TIME: key }))
-  const meant = say(item.answer)
-  const first = meant.findIndex((g) => GROUP.has(g.slot))
+export function framed(lex, clause, key) {
+  const said = words(lex, toClause({ ...clause, TIME: key }))
+  const first = said.findIndex((g) => GROUP.has(g.slot))
   let last = first
-  meant.forEach((g, k) => { if (GROUP.has(g.slot)) last = k })
-  const before = join(meant.slice(0, first))
-  return {
-    before: before && `${before.charAt(0).toUpperCase()}${before.slice(1)}`,
-    after: `${join(meant.slice(last + 1))}.`,
-    options: optionsOf(item).map((key) => ({ key, text: join(say(key).filter((g) => GROUP.has(g.slot))) })),
-    sentence: sentenceOf(meant),
-  }
+  said.forEach((g, k) => { if (GROUP.has(g.slot)) last = k })
+  const before = join(said.slice(0, first))
+  return { before: before && `${before.charAt(0).toUpperCase()}${before.slice(1)}`, after: `${join(said.slice(last + 1))}.`, sentence: sentenceOf(said) }
+}
+
+/** An item as the player sees it: the sentence around the verb group, and the verb group under each time it offers. */
+export function drillItem(lex, item) {
+  return { ...framed(lex, item.words, item.answer), options: optionsOf(item).map((key) => ({ key, text: phrased(lex, item.words, key) })) }
 }
 
 /** What is wrong with an item, as text (empty when it is sound). */

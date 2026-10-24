@@ -54,11 +54,11 @@ export const GAMES = [
   {
     id: 'syntax-graph', href: 'syntax-graph/index.html', title: '句法之图', en: 'Syntax Graph', topic: { zh: '计算机学术写作', en: 'Academic Writing in Computer Science' },
     desc: {
-      zh: '读一张语义图，把名词短语、时体和动词按语序放进一句论文里的英语。放错位置会被语法拒绝，说错意思会在语义图上标红。从最短的一句起步，一路写到母语作者也会写错的句子。',
-      en: 'Read a meaning graph and put noun phrases, tenses and verbs in order into a sentence from a paper. A word in the wrong place is refused by the grammar; a wrong meaning is marked red on the graph. Start from the shortest sentence and work up to the ones native authors get wrong.',
+      zh: '在论文和审稿的真实场合里，一题几秒地练出母语者“场合一出现，说法就跟着来”的直觉；选错了，告诉你母语者为什么不这么说。练熟了，就去走一次路线每回都不一样的投稿。',
+      en: 'In the real situations of a paper and its review, a few seconds an item, train the native writer’s instinct that a situation calls up its wording; pick wrong and you are told why a native speaker would not say it. Then take a submission whose route is new every time.',
     },
-    levels: 7, art: 'stick', dev: true,
-    page: { icon: 'M32 14v14M32 28 17 48M32 28l15 20', description: '句法之图 Syntax Graph：计算机学术英语的语法解谜游戏。Grammar puzzles for academic writing in computer science.' },
+    levels: 8, art: 'stick', dev: true,
+    page: { icon: 'M32 14v14M32 28 17 48M32 28l15 20', description: '句法之图 Syntax Graph：按场合练出母语者的说法，计算机学术英语。Native wording by situation, for academic writing in computer science.' },
     progress: () => (read('syntax-graph.v1')?.solved || []).length,
   },
 ];

@@ -7,6 +7,7 @@ import { syntaxCourse } from '../kit/domains/syntax/engine/course.js'
 import { shiftIds } from '../kit/shell/saves.js'
 import { entries, groups } from './glossary.js'
 import { nouns, verbs } from './lexicon.js'
+import { levels as run } from './levels/run.js'
 import { levels as time } from './levels/time.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -22,10 +23,11 @@ const eras = [
     kicker: T('第一章', 'Era 1'),
     question: T('开口之前，一件事是什么时候的，又从哪里看它？', 'Before you speak, when is the thing, and where do you look at it from?'),
     foundation: ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7'],
+    topics: [{ id: 'submission', title: T('投稿', 'Submission'), levels: ['1-R'], after: '1-7' }],
   },
 ]
 
-const SYNTAX = syntaxCourse({ lexicon: { nouns, verbs }, eras, levels: time })
+const SYNTAX = syntaxCourse({ lexicon: { nouns, verbs }, eras, levels: [...time, ...run] })
 
 export default {
   id: 'syntax-graph',

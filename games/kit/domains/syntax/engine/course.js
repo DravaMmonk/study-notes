@@ -10,6 +10,8 @@
 //                        refer?, why?, answer, traps?, target?, debrief: { title, body, note } }
 //            drill     { id, kind: 'drill', title, brief, hint?, intro?, move: { zh, en }, items: [item], debrief }
 //                        (engine/drill.js says what an item is; `move` names the writing situation its items share)
+//            run       { id, kind: 'run', title, brief, hint?, intro?, run, debrief } (engine/run.js says what `run`
+//                        holds: credibility, phrasings to start with and to win, the route's stops, the templates)
 //     context  [{ zh, en }]: the situation the sentence is said in, which the player reads to decide (the time and the
 //              viewpoint are never written on the meaning graph; they follow from here)
 //     meaning  { pred, tense, aspect, roles: { ROLE: { ent, number, label, note? } } }: what the sentence must say.
@@ -45,10 +47,12 @@ export function syntaxCourse({ lexicon, eras, levels }) {
       ...level,
       era: eraOf.get(id).id,
       requires: plan.requires.get(id) ?? [],
-      // A drill's palette is the times its items weigh: they are what it practises.
+      // A drill's palette is the times its items weigh, a run's the phrasings it can hand out: what they practise.
       palette: level.kind === 'drill'
         ? [...new Set(level.items.flatMap(optionsOf))].map((key) => lex.type('time', key))
-        : KINDS.flatMap((kind) => (level.palette?.[kind] ?? []).map((key) => lex.type(kind, key))),
+        : level.kind === 'run'
+          ? [...new Set([...level.run.start, ...level.run.rewards])].map((key) => lex.type('time', key))
+          : KINDS.flatMap((kind) => (level.palette?.[kind] ?? []).map((key) => lex.type(kind, key))),
     }
   })
   const CHAPTERS = eras.map((era) => ({ id: era.id, kicker: era.kicker, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))

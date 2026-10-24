@@ -122,3 +122,51 @@ test('a time is explained by the questions behind it', () => {
   assert.deepEqual(answersOf('past.perfect'), { kind: 'episode', stand: 'past', view: 'perfect' })
   assert.equal(timeWords('present.perfect').zh, '一次具体的事 · 现在 · 已经做完，结果还在')
 })
+
+test('a run: a seeded route, comments the player holds a phrasing for, credibility lost and won back', async () => {
+  const { newRun, enter, play, take, night, situations } = await import('./engine/run.js')
+  const fill = (zh, words) => ({ context: T(zh, zh), words })
+  const spec = {
+    credibility: 5,
+    rows: 5,
+    start: ['past.simple', 'present.perfect'],
+    rewards: ['present.simple'],
+    stops: { reviews: { comments: 2, weight: 2 }, strict: { comments: 2, weight: 3, twists: 1 }, committee: { comments: 3, weight: 3, twists: 1 }, night: {} },
+    templates: [
+      { id: 'done', answer: 'present.perfect', why: { 'past.simple': T('现在', 'now') }, fills: [fill('a', { SUBJ: 'model', V: 'accept', OBJ: 'paper' }), fill('b', { SUBJ: 'authors', V: 'accept', OBJ: 'paper' })] },
+      { id: 'then', answer: 'past.simple', twist: true, fills: [fill('c', { SUBJ: 'model', V: 'converge' }), fill('d', { SUBJ: 'models', V: 'converge' })] },
+      { id: 'rule', answer: 'present.simple', fills: [fill('e', { SUBJ: 'model', V: 'converge' })] },
+    ],
+  }
+  assert.equal(situations(spec).length, 5)
+  const a = newRun(spec, 7)
+  assert.deepEqual(newRun(spec, 7).route, a.route) // the same seed, the same route
+  assert.deepEqual(a.route[0], ['reviews'])
+  assert.deepEqual(a.route.at(-1), ['committee'])
+  assert.ok(a.route.flat().includes('strict') && a.route.flat().includes('night'))
+  let s = enter(spec, a, 0, {})
+  assert.equal(s.phase, 'comments')
+  assert.equal(s.comments.length, 2)
+  // Only situations the player holds a phrasing for: nothing in the simple present yet.
+  assert.ok(s.comments.every((c) => !c.key.startsWith('rule')))
+  const answer = (key) => situations(spec).find((x) => x.key === key).answer
+  const wrong = (key) => (answer(key) === 'past.simple' ? 'present.perfect' : 'past.simple')
+  let r = play(spec, s, 0, wrong(s.comments[0].key))
+  assert.equal(r.right, false)
+  assert.equal(r.state.credibility, 3)
+  assert.deepEqual(r.state.missed, [s.comments[0].key])
+  r = play(spec, r.state, 1, answer(r.state.comments[1].key))
+  assert.equal(r.right, true)
+  assert.equal(r.state.phase, 'offer')
+  assert.deepEqual(r.state.offer, ['present.simple'])
+  s = take(spec, r.state, 'present.simple')
+  assert.ok('present.simple' in s.held)
+  assert.equal(s.phase, 'route')
+  // A night's revision brings back what was got wrong, and costs nothing to miss.
+  const n = night(spec, { ...s, phase: 'night', stop: 'night' }, 'revise', {})
+  assert.ok(n.comments.some((c) => c.key === s.missed[0]) && n.comments.every((c) => c.weight === 0))
+  assert.equal(night(spec, { ...s, credibility: 1 }, 'rest').credibility, 5)
+  // Credibility at nothing ends the run.
+  const lost = play(spec, { ...s, phase: 'comments', stop: 'reviews', credibility: 2, comments: [{ key: 'done.0', weight: 2, picked: null }] }, 0, 'past.simple')
+  assert.equal(lost.state.phase, 'lost')
+})
