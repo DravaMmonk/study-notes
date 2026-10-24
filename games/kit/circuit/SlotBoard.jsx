@@ -106,7 +106,9 @@ const readMode = () => {
  * @param onChange(graph), types           a board given these can be read in from text (SaveSlots): the editor's
  *                                         change, and the parts this level offers
  * @param dense                            a board of text: thin blocks, each one's name over its value
- * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is;
+ * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is (or, for a
+ *                                         region that opens none, what the frame holds there: the thing a
+ *                                         for-any box takes, say);
  *        resultNote(node, region)         and beside the dot its result goes into, what the frame gives (a frame's
  *                                         block shows nothing else of it)
  *
@@ -270,7 +272,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
               <header className="pb-region-head">
                 {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
                 {r.opens && <em>{L(parts.outputs?.(node)?.find((o) => o.key === r.name)?.label ?? '')}</em>}
-                {r.opens && regionNote?.(node, r.name)}
+                {regionNote?.(node, r.name)}
                 {r.opens && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
               </header>
               {grid(`${node.id}/${r.name}`)}
