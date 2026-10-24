@@ -277,7 +277,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
         <RunDock
           meta={d.meta ? html(d.meta) : null}
           controls={(d.ctrl ?? []).map((c) => ({ key: c.act, label: c.label, icon: CTRL_ICON[c.icon], attrs: { 'data-act': c.act } }))}
-          secondary={d.sec ? { label: html(d.sec), icon: d.secAct === 'clear' ? <Trash2 size={16} /> : undefined, armed: Boolean(ctl.st?.armed), attrs: { 'data-act': d.secAct } } : null}
+          secondary={d.sec ? { label: html(d.sec), icon: d.secAct === 'clear' ? <Trash2 size={16} /> : undefined, attrs: { 'data-act': d.secAct } } : null}
           go={d.go ? { label: d.go, busy: Boolean(d.busy), pulse: Boolean(L.coach && L.coach(ctl.st).run), icon: !d.busy && d.goIcon ? <i className="run-icon" dangerouslySetInnerHTML={{ __html: d.goIcon }} /> : undefined, attrs: { 'data-act': d.act } } : null}
         />
       )}

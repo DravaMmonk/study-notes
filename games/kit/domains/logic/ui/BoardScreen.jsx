@@ -74,7 +74,6 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
     save(next)
     if (!keep) setVerdict(null)
   }
-  const reset = () => change(board.start(level))
   const check = () => {
     const run = runLevel(board.tests, level, circuit)
     setVerdict({ pass: run.pass, results: run.results.map((r) => ({ pass: r.pass, reason: r.checks[0].reason })) })
@@ -134,7 +133,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   }
   const passed = stepped ? playback.passed : verdict?.pass
   // Clearing is the board's own (a button among its tools, which asks first).
-  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part') ? reset : null
+  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part') ? () => change(board.start(level)) : null
   const dock = stepped
     ? <RunDock {...playback.dock({ go: L(board.words.go), done: L(board.words.passed) })} />
     : <RunDock go={{ label: L(passed ? board.words.passed : board.words.go), pass: Boolean(passed), onClick: check }} />
@@ -144,7 +143,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const verdictText = result ? (result.pass ? L(board.words.pass) : L(result.reason)) : null
   const shared = { board: { ...board, Value }, parts, lemmas, circuit, view, scene, setParam, text }
 
-  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} stepKey={run ? `${run.test}:${run.step}:${run.results.length}` : ''} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} reset={reset} scope={level.id} />
+  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} stepKey={run ? `${run.test}:${run.step}:${run.results.length}` : ''} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -218,7 +217,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
 
 // The board on a phone: the shared slot board, where a frame is a block with its regions' grids inside it, a sheet
 // per block and the run bar.
-function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, logged, began, waiting, stepKey, onClear, setParam, text, brief, items, foldedItems, dock, change, addNode, reset, scope, testTabs, regionNote, resultNote }) {
+function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, logged, began, waiting, stepKey, onClear, setParam, text, brief, items, foldedItems, dock, change, addNode, scope, testTabs, regionNote, resultNote }) {
   const { Value } = board
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
@@ -234,7 +233,6 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
     label: parts.label,
     openNode: (id) => setSheet({ node: id }),
     openSlot: (at, region) => items.length + foldedItems.length > 0 && setSheet({ slot: at, region }),
-    reset,
     root,
     scroller,
     scope,

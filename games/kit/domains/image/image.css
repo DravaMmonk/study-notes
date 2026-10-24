@@ -83,7 +83,7 @@
 .view-menu span { display: grid; gap: 1px; }
 .view-menu b { font-size: 12.5px; font-weight: 500; }
 .view-menu small { color: var(--muted); font-size: 10.5px; line-height: 1.35; }
-.board-views { position: absolute; z-index: 5; left: 14px; bottom: 14px; display: flex; align-items: center; gap: 1px; padding: 2px; border-radius: 10px; background: color-mix(in srgb, var(--paper) 88%, transparent); box-shadow: 0 0 0 1px var(--hairline), 0 6px 18px -12px rgba(0, 0, 0, .4); backdrop-filter: blur(10px); }
+.board-views { display: flex; align-items: center; gap: 1px; padding: 2px; border-radius: 10px; background: color-mix(in srgb, var(--paper) 88%, transparent); box-shadow: 0 0 0 1px var(--hairline), 0 6px 18px -12px rgba(0, 0, 0, .4); backdrop-filter: blur(10px); }
 .board-views-label { padding: 0 6px 0 8px; color: var(--muted); font-size: 11px; white-space: nowrap; }
 .board-views button { height: 28px; padding: 0 8px; display: inline-flex; align-items: center; gap: 4px; border: 0; border-radius: 8px; color: var(--muted); background: transparent; font: inherit; font-size: 11.5px; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
 .board-views button:hover { color: var(--ink); background: var(--hover); }
@@ -180,7 +180,6 @@
 
 /* ---- phone ---- */
 @media (max-width: 760px) {
-  .board-views { top: 12px; left: 12px; bottom: auto; }
   /* Phones pinch to zoom, so only the fit button stays next to the view bar. */
   .board-views-label, .board-views button span { display: none; }
   .board-views button { width: 32px; padding: 0; justify-content: center; }

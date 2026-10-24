@@ -12,6 +12,8 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setLevelRefs } from './levelRef.js'
+import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
+import { SlotsContext } from '../circuit/SaveSlots.jsx'
 
 // Every game sits at game/<id>/index.html, under the games hub (game/index.html): on the published site, and on the
 // dev server too (trace-viewer/vite.config.js).
@@ -32,6 +34,9 @@ const SITE = { games: '../index.html' }
  * last one being the level itself: a task opens once the one before it is passed, passing it says what it taught and
  * goes on, and passing the last passes the level. The tasks passed are kept per level (progress.tasks), and what each
  * task's screen keeps goes in the level's data as a list, one entry a task.
+ *
+ * A level may keep several boards (slots.js): the board's editor switches between them (SaveSlots, through
+ * SlotsContext), and the screen starts over on the one chosen, as it does when the level is entered.
  */
 export default function GameShell({ game }) {
   const [progress, setProgress] = useState(() => game.store.load())
@@ -163,6 +168,22 @@ export default function GameShell({ game }) {
     open(target.id)
   }
 
+  // The level's saved boards. Choosing another starts the screen over on it, with nothing left of the last run.
+  const slots = level ? slotsOf(progress, level.id) : null
+  const slotted = (f) => (...args) => {
+    setProgress((p) => f(p, level.id, ...args))
+    setWon(null)
+    setFailure(null)
+    setFails(0)
+  }
+  const slotsCtl = slots && {
+    ...slots,
+    open: slotted(openSlot),
+    add: slotted(addSlot),
+    rename: (k, name) => setProgress((p) => renameSlot(p, level.id, k, name)),
+    drop: slotted(dropSlot),
+  }
+
   const intro = level && game.intro(level)?.length > 0
   const kind = level && game.kinds[played.kind]
 
@@ -229,7 +250,7 @@ export default function GameShell({ game }) {
             />
           )}
           {kind
-            ? createElement(kind.Screen, { key: `${level.id}#${taskAt}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || done > taskAt, solve, fail, flags, progress, theme, phone })
+            ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${taskAt}#${slots.list[slots.at].no}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || done > taskAt, solve, fail, flags, progress, theme, phone })}</SlotsContext.Provider>
             : <div className="board-loading">{tr('这种关卡还没做好。', 'This kind of level is not built yet.')}</div>}
         </div>
       )}

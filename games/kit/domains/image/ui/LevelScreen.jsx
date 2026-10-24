@@ -1,5 +1,4 @@
 import { Suspense, createElement, useMemo, useState } from 'react'
-import { Trash2 } from 'lucide-react'
 import { Brief, CircuitLayout, PhonePage, PinnedPlay, RunDock, TestStatus, Workbench } from '../../../shell/index.js'
 import { Palette, freeSpot } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
@@ -57,7 +56,6 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   // The circuit's results update live, but whether it passes is only shown, and the level only completed, once
   // the player runs the tests; any change to the circuit makes it untested again.
   const [tested, setTested] = useState(false)
-  const [armed, setArmed] = useState(false) // 清空 pressed once, waiting for the second press
   const [losses, setLosses] = useState([]) // [{ train, check }] per training step
   // Levels about the learning rate offer a few to choose from and take each step as it comes, without halving it.
   const [rate, setRate] = useState(level.trainRates?.[1] ?? level.trainRate ?? 1)
@@ -177,17 +175,8 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
       {progress.best[level.id] && <p className="panel-note">{tr(`最佳：${progress.best[level.id].nodes} 个节点 · 计算量 ${progress.best[level.id].cost}`, `Best: ${progress.best[level.id].nodes} parts · cost ${progress.best[level.id].cost}`)}</p>}
     </section>
   )
-  // Clearing the circuit asks twice, as everywhere in the kit's run bar.
-  const clearCircuit = () => {
-    if (!armed) {
-      setArmed(true)
-      window.setTimeout(() => setArmed(false), 2600)
-      return
-    }
-    setArmed(false)
-    change(startBoard(level))
-    setLosses([])
-  }
+  // Clearing is the board's own tool (it asks first); it takes the training curve with it.
+  const clearCircuit = board.nodes.some((n) => !NODE_TYPES[n.type].fixed) ? () => { change(startBoard(level)); setLosses([]) } : null
   const play = level.kind === 'board' ? (
     <Suspense fallback={<div className="board-loading">{tr('载入中…', 'Loading…')}</div>}>
       <BoardLevel level={level} onSolve={() => solve(null)} theme={theme} />
@@ -204,7 +193,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
     if (level.kind === 'graph') {
       return (
         <div className="level-phone level-graph is-split">
-          <PhoneCircuit level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onReset={() => { change(startBoard(level)); setLosses([]) }} brief={brief} training={training} footer={score} testDetails={testPanel} />
+          <PhoneCircuit level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onClear={clearCircuit} brief={brief} training={training} footer={score} testDetails={testPanel} />
         </div>
       )
     }
@@ -234,7 +223,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
         </>
       }
       parts={palette.length > 0 && compactParts}
-      canvas={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} />}
+      canvas={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} onClear={clearCircuit} />}
       tests={<TestPanel {...half} part="tests" />}
       status={<TestStatus states={states} hidden={hidden} />}
       outputs={<TestPanel {...half} part="row" />}
@@ -248,7 +237,6 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
       actions={
         <footer className="run-foot">
           <RunDock
-            secondary={board.nodes.some((n) => !NODE_TYPES[n.type].fixed) ? { label: armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), icon: <Trash2 size={16} />, armed, onClick: clearCircuit } : null}
             go={{ label: shown?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(shown?.pass && !hiddenMiss), onClick: runTests }}
           />
         </footer>
