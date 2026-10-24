@@ -68,3 +68,21 @@
 /* ---- the phone ---- */
 .level-phone.sx-level .sx-stage { padding: 12px 12px 0; }
 .level-phone.sx-level .sx-stage > .run-foot { position: sticky; bottom: 0; z-index: 4; margin: 0 -12px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--hairline); background: var(--paper); }
+
+/* ---- the time questions ---- */
+.sx-step { font-family: var(--mono); font-size: var(--fs-label); letter-spacing: var(--track-label); color: var(--fail); }
+.sx-questions { margin: 0; padding: 12px 14px; display: grid; gap: 10px; border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.sx-questions-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.sx-questions-head b { font-family: var(--mono); font-size: var(--fs-label); letter-spacing: var(--track-label); font-weight: 500; color: var(--fam-time); }
+.sx-questions-head span { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.sx-question { margin: 0; padding: 0; border: 0; display: grid; gap: 6px; min-width: 0; }
+.sx-question legend { padding: 0; font-size: var(--fs-ui); color: var(--heading); }
+.sx-question legend i { font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--muted); margin-right: 6px; }
+.sx-question.is-off { opacity: 0.45; }
+.sx-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.sx-option { padding: 5px 11px; border: 1px solid var(--rule); border-radius: 999px; background: var(--canvas); color: var(--ink); font: inherit; font-size: var(--fs-small); line-height: 1.35; text-align: left; cursor: pointer; }
+.sx-option:hover:not(:disabled) { border-color: var(--fam-time); }
+.sx-option.is-on { border-color: var(--fam-time); background: color-mix(in srgb, var(--fam-time) 14%, transparent); color: var(--heading); box-shadow: inset 0 0 0 1px var(--fam-time); }
+.sx-option:disabled { cursor: default; opacity: 0.4; }
+.sx-option:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sx-gap { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--fail); }

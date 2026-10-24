@@ -59,6 +59,104 @@ export const FORM_NAME = {
 export const TENSE_NAME = { present: { zh: '现在', en: 'present' }, past: { zh: '过去', en: 'past' }, future: { zh: '将来', en: 'future' } }
 export const ASPECT_NAME = { simple: { zh: '一般', en: 'simple' }, perfect: { zh: '完成', en: 'perfect' }, progressive: { zh: '进行', en: 'progressive' } }
 
+/**
+ * Every time a clause can have, keyed `<tense>.<aspect>` (time:past.simple), with the way English marks it. The times
+ * are the grammar's, the same for every game; a level offers some of them (its palette) as the choices it weighs.
+ */
+export const TIMES = {
+  'present.simple': '-s / ∅',
+  'past.simple': '-ed',
+  'future.simple': 'will',
+  'present.perfect': 'have + -en',
+  'past.perfect': 'had + -en',
+  'future.perfect': 'will have + -en',
+  'present.progressive': 'be + -ing',
+  'past.progressive': 'was + -ing',
+  'future.progressive': 'will be + -ing',
+}
+
+/**
+ * The questions a native speaker settles before a clause, which together give its time (Reichenbach's reference
+ * point and the view from it): is it one event or something that holds in general; where do you stand to say it; and
+ * from there, do you see the whole event, the result it left, or a moment while it goes on. Something that holds in
+ * general needs no more: it is the simple present.
+ */
+export const TIME_QUESTIONS = [
+  {
+    id: 'kind',
+    ask: { zh: '这是一次具体的事，还是不限于哪一次？', en: 'Is this one event, or not tied to any one time?' },
+    options: [
+      ['episode', { zh: '一次具体的事', en: 'one event' }],
+      ['general', { zh: '不限于哪一次：规律、性质、习惯', en: 'not tied to one time: a rule, a property, a habit' }],
+    ],
+  },
+  {
+    id: 'stand',
+    ask: { zh: '你站在哪一刻说它？', en: 'Which moment do you stand at to say it?' },
+    options: [
+      ['present', { zh: '现在', en: 'now' }],
+      ['past', { zh: '过去某一刻', en: 'a moment in the past' }],
+      ['future', { zh: '将来某一刻', en: 'a moment to come' }],
+    ],
+  },
+  {
+    id: 'view',
+    ask: { zh: '从那一刻看，这件事……', en: 'Seen from that moment, the event…' },
+    options: [
+      ['simple', { zh: '整件事就在那一刻', en: 'happens there, as a whole' }],
+      ['perfect', { zh: '已经做完，结果还在', en: 'is done, and its result stands' }],
+      ['progressive', { zh: '正在进行，还没完', en: 'is going on, not finished' }],
+    ],
+  },
+]
+
+/** The time a full set of answers gives, or null (unanswered, or one event seen whole from now: see `timeGap`). */
+export function timeOf(answers) {
+  if (answers.kind === 'general') return 'present.simple'
+  if (answers.kind !== 'episode' || !answers.stand || !answers.view) return null
+  return answers.stand === 'present' && answers.view === 'simple' ? null : `${answers.stand}.${answers.view}`
+}
+
+/** The answers a time stands for. */
+export function answersOf(key) {
+  if (key === 'present.simple') return { kind: 'general' }
+  const [stand, view] = key.split('.')
+  return { kind: 'episode', stand, view }
+}
+
+/** The answers a time stands for, in words: "一次具体的事 · 现在 · 已经做完，结果还在". */
+export function timeWords(key) {
+  const answers = answersOf(key)
+  const parts = TIME_QUESTIONS.filter((q) => answers[q.id]).map((q) => q.options.find(([id]) => id === answers[q.id])[1])
+  return { zh: parts.map((p) => p.zh).join(' · '), en: parts.map((p) => p.en).join(' · ') }
+}
+
+/** Why a full set of answers gives no time: one event, seen whole from now. */
+export const timeGap = (answers) => (answers.kind === 'episode' && answers.stand === 'present' && answers.view === 'simple'
+  ? { zh: '站在现在看一次具体的事，英语里要么看它留下的结果，要么看它正在进行；“整件事就在此刻”只出现在解说之类的场合。', en: 'Standing now and looking at one event, English sees either the result it left or the event going on; “happening now, as a whole” belongs to running commentary and the like.' }
+  : null)
+
+/**
+ * Which question a chosen time answers differently from the one meant (1, 2 or 3), and a plain reason for it, for a
+ * level that gives no reason of its own.
+ */
+export function timeStep(chosen, wanted) {
+  const a = answersOf(chosen)
+  const b = answersOf(wanted)
+  const option = (q, id) => TIME_QUESTIONS[q].options.find(([key]) => key === id)[1]
+  if (a.kind !== b.kind) {
+    return { step: 1, why: b.kind === 'general'
+      ? { zh: '这里说的不是哪一次发生的事，而是不限于哪一次、一直成立的事。', en: 'This is not about one event but about something that holds, not tied to any one time.' }
+      : { zh: '这里说的是一次具体的事，不是规律或习惯。', en: 'This is one event, not a rule or a habit.' } }
+  }
+  if (a.stand !== b.stand) {
+    const at = option(1, b.stand)
+    return { step: 2, why: { zh: `站的时刻不对：这里要站在“${at.zh}”说。`, en: `Wrong moment to stand at: here you speak from “${at.en}”.` } }
+  }
+  const view = option(2, b.view)
+  return { step: 3, why: { zh: `看的角度不对：从那一刻看，这件事是“${view.zh}”。`, en: `Wrong view: seen from that moment, the event “${view.en}”.` } }
+}
+
 const third = (np) => np.person === 3 && np.number === 'sg'
 const first = (np) => np.person === 1 && np.number === 'sg'
 

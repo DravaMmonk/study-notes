@@ -33,6 +33,7 @@
 
 .ks-chips { display: grid; gap: 10px; }
 .ks-chip-group { display: grid; gap: 6px; }
+.ks-chip-group.is-locked .ks-chip { opacity: 0.45; }
 .ks-chip-label { font-family: var(--mono); font-size: var(--fs-label); letter-spacing: var(--track-label); color: var(--muted); }
 .ks-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .ks-chip { min-height: 46px; padding: 5px 12px; display: grid; justify-items: start; align-content: center; gap: 1px; border: 0; border-radius: 12px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline), inset 0 -3px 0 var(--fam, var(--rule)); font: inherit; text-align: left; cursor: pointer; }

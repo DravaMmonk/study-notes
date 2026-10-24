@@ -19,6 +19,17 @@ import { migrations } from '../../shell/saves.js'
 import { tr } from '../../shell/i18n.js'
 import Hero from './ui/Hero.jsx'
 import Screen from './ui/Screen.jsx'
+import { timeWords } from './engine/grammar.js'
+import { contrasts } from './engine/sentence.js'
+
+// The pass dialog's minimal pairs: the same sentence with every other time the level weighed, each with the answers
+// to the time questions it stands for, so a player sees what the other choices would have said.
+function pairs(lex, level) {
+  const list = contrasts(lex, level)
+  if (!list.length) return []
+  const lines = (lang) => list.map(({ key, sentence }) => `<i>${sentence}</i> · ${timeWords(key)[lang]}`).join('<br>')
+  return [{ zh: `<b>换一种时间，同一句话说的是：</b><br>${lines('zh')}`, en: `<b>With another time, the same sentence says:</b><br>${lines('en')}` }]
+}
 
 /** spec: { id, title, kicker, lede, syntax (syntaxCourse's result), glossary, saves: migration steps (../../shell/saves.js) } */
 export function defineSyntaxGame(spec) {
@@ -44,7 +55,7 @@ export function defineSyntaxGame(spec) {
       kind: 'sentence',
       palette: L.palette,
       afterTitle: L.debrief.title,
-      after: L.debrief.body,
+      after: [...L.debrief.body, ...pairs(lex, L)],
       note: L.debrief.note,
     })),
     progress: migrations(spec.saves ?? []),

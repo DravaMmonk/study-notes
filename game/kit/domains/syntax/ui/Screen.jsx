@@ -1,22 +1,26 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
-import { SLOT_KIND, nextSlot, place, slotName, slotsOf } from '../engine/grammar.js'
+import { SLOT_KIND, answersOf, nextSlot, place, slotName, slotsOf, timeOf } from '../engine/grammar.js'
 import { familyOf, featuresOf } from '../engine/parts.js'
 import { check, openSlots, surface, toClause } from '../engine/sentence.js'
 import Meaning from './Meaning.jsx'
 import Sentence from './Sentence.jsx'
+import TimeQuestions from './TimeQuestions.jsx'
 
-// A syntax level, the same in every syntax game and on every screen: the meaning graph to say, the clause written out
-// as it reads with a box for each empty place (subject, then the predicate: tense, verb and the places the verb
-// opens), the words to fill it with, and the run bar. The box marked next is the time until it is set, and an empty
-// verb box names the form the time holds for it: a clause is planned time first, the way it is meant, and said in
-// reading order. The forms, agreement and case are the machine's; the player makes only the decisions. Running checks the sentence against the meaning graph; a pass solves the level with its word count
-// as the score.
+// A syntax level, the same in every syntax game and on every screen: the situation and meaning graph to say, the clause
+// written out as it reads with a box for each empty place (subject, then the predicate: time, verb and the places the
+// verb opens), the time questions, the words to fill the rest with, and the run bar.
+//
+// A clause is planned time first, the way it is meant, and said in reading order: the time is set by answering the
+// time questions, and until it is, the other places are locked; once it is, an empty verb box names the form the time
+// holds for it. The forms, agreement and case are the machine's; the player makes only the decisions. Running checks
+// the sentence against the meaning graph; a pass solves the level with its word count as the score.
 
-const CHIP_GROUPS = [['time', { zh: '时间和视角', en: 'Time and viewpoint' }], ['np', { zh: '名词短语', en: 'Noun phrases' }], ['verb', { zh: '动词', en: 'Verbs' }]]
+const CHIP_GROUPS = [['np', { zh: '名词短语', en: 'Noun phrases' }], ['verb', { zh: '动词', en: 'Verbs' }]]
+const TIME_FIRST = { zh: '先回答时间的问题，再放词。', en: 'Answer the time questions before placing words.' }
 
 export default function SyntaxScreen({ game, level, saved, save, solve, progress, phone }) {
   const { lex } = game.syntax
@@ -33,8 +37,26 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
   }
   const history = useHistory(clause, change, level.id, 0)
   const slots = slotsOf(lex, clause)
+  const timed = Boolean(clause.TIME)
+
+  // The answers to the time questions: the clause's time once there is one; until then, whatever has been answered so
+  // far. A time set elsewhere (undo, clear, taking it out) brings the answers along.
+  const [answers, setAnswers] = useState(() => (clause.TIME ? answersOf(lex.part(clause.TIME).key) : {}))
+  useEffect(() => {
+    setAnswers((now) => (clause.TIME ? answersOf(lex.part(clause.TIME).key) : timeOf(now) ? {} : now))
+  }, [clause.TIME, lex])
+  const answer = (question, id) => {
+    const next = { ...answers, [question]: id }
+    setAnswers(next)
+    const key = timeOf(next)
+    const type = key && lex.type('time', key)
+    if (type !== (clause.TIME ?? null)) change(Object.fromEntries(Object.entries({ ...clause, TIME: type || undefined }).filter(([, v]) => v)))
+  }
+  const allowed = useMemo(() => new Set(level.palette.filter((t) => lex.part(t).kind === 'time').map((t) => lex.part(t).key)), [level, lex])
+
   const strip = useStrip({
     put: (slot, chip) => {
+      if (slot !== 'TIME' && !timed) return TIME_FIRST
       const r = place(lex, clause, slot, chip)
       if (r.why) return r.why
       change(r.clause)
@@ -60,7 +82,7 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
   line.push('.')
   const used = new Set(Object.values(clause))
   const chips = CHIP_GROUPS
-    .map(([kind, label]) => ({ key: kind, label, chips: level.palette.filter((t) => lex.part(t).kind === kind).map((t) => ({ key: t, text: L(lex.part(t).text), sub: featuresOf(lex, t), family: familyOf(lex, t), used: used.has(t) })) }))
+    .map(([kind, label]) => ({ key: kind, label, locked: !timed, chips: level.palette.filter((t) => lex.part(t).kind === kind).map((t) => ({ key: t, text: L(lex.part(t).text), sub: featuresOf(lex, t), family: familyOf(lex, t), used: used.has(t) })) }))
     .filter((g) => g.chips.length)
 
   const go = () => {
@@ -87,6 +109,7 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
       <Strip line={line} label={{ zh: '小句', en: 'clause' }} next={strip.selected ?? nextSlot(lex, clause)} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
       <Sentence run={live} target={spec.target} best={progress.best[level.id]} />
+      <TimeQuestions allowed={allowed} answers={answers} onAnswer={answer} />
       <Chips groups={chips} onChip={strip.onChip} />
       {verdict && <p className={`sx-verdict ${run.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict}</p>}
       <footer className="run-foot">
