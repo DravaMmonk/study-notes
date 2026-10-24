@@ -93,12 +93,12 @@ export const quantifiers = [
     title: T('量词套量词', 'One inside another'),
     tasks: sentences([
       { say: T('每个人都有父母。', 'Everyone has a parent.'), target: '∀x. Human(x) → ∃y. Parent(y, x)', hint: [T('里面那个量词用另一个变量 y：x 的父母是谁？有一个就行。', 'The inner quantifier takes another variable, y: who is x’s parent? Some y, that is all.')] },
-      { say: T('有个人谁都喜欢。', 'Someone likes everyone.'), target: '∃x. Human(x) ∧ ∀y. Human(y) → Likes(x, y)', hint: [T('外面是有一个 x，里面是对所有 y。', 'Outside, some x; inside, every y.')] },
+      { say: T('有个人喜欢任何人。', 'Someone likes everyone.'), target: '∃x. Human(x) ∧ ∀y. Human(y) → Likes(x, y)', hint: [T('外面是有一个 x，里面是对所有 y。', 'Outside, some x; inside, every y.')] },
       { say: T('每个人都喜欢某个人。', 'Everyone likes someone.'), target: '∀x. Human(x) → ∃y. Human(y) ∧ Likes(x, y)', hint: [T('外面是对所有 x，里面是有一个 y；y 也得是人。', 'Outside, every x; inside, some y, and y must be human too.')] },
     ]),
     brief: BRIEF,
     intro: [{ t: T('一个量词里面还可以有量词。每个量词有自己的变量，管到它后面的整段：∀x. … ∃y. … 里，x 和 y 各指各的。变量被某个量词管着，叫<b>约束</b>的；没有量词管着，叫<b>自由</b>的，那句话就说不清在讲谁。', 'A quantifier may hold another. Each has its own variable and reaches over everything after it: in ∀x. … ∃y. …, x and y each stand for their own thing. A variable some quantifier covers is <b>bound</b>; one no quantifier covers is <b>free</b>, and then the sentence does not say whom it means.') }],
-    after: T('「有个人谁都喜欢」和「每个人都喜欢某个人」只差量词的先后，意思却差得远：前一句是同一个人喜欢所有人，后一句是每人各有各喜欢的人。', '“Someone likes everyone” and “everyone likes someone” differ only in the order of quantifiers, yet mean very different things: one person who likes all, or each with someone of their own.'),
+    after: T('「有个人喜欢任何人」和「每个人都喜欢某个人」只差量词的先后，意思却差得远：前一句是同一个人喜欢所有人，后一句是每人各有各喜欢的人。', '“Someone likes everyone” and “everyone likes someone” differ only in the order of quantifiers, yet mean very different things: one person who likes all, or each with someone of their own.'),
   },
   {
     id: 'm-world',
