@@ -184,3 +184,12 @@ test('a lemma over a quantified letter fits any variable and keeps it', async ()
   assert.ok(same(got.formula, parse('∃y. ¬D(y)')))
   assert.ok(lemmaGives({ statement: '∃x. ¬P', premises: ['¬∀x. P'], metas: ['P'] }, [parse('¬∀z. R(z, z)')], parse('∃z. ¬R(z, z)')))
 })
+
+test('Example reads off its example, and picks the one ∃ sentence that fits', async () => {
+  const { RULES } = await import('./proof.js')
+  const input = { a: { formula: parse('Likes(a, a)'), hyps: new Map(), term: null } }
+  const ctx = { consts: [], subst: {}, exists: [parse('∃x. Likes(x, x)')] }
+  assert.ok(same(RULES.exI.eval(input, { params: {} }, ctx).formula, parse('∃x. Likes(x, x)')))
+  assert.ok(same(RULES.exI.eval(input, { params: { target: '∃x. Likes(a, x)' } }, ctx).formula, parse('∃x. Likes(a, x)')))
+  assert.throws(() => RULES.exI.eval(input, { params: {} }, { ...ctx, exists: [parse('∃x. Likes(x, x)'), parse('∃x. Likes(x, a)')] }))
+})

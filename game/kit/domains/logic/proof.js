@@ -14,8 +14,9 @@
 import { PartError } from '../../engine/circuit.js'
 import { framePart } from '../../circuit/frames.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
-import { BOT, all, allVars, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, show, subst, tvar } from './formula.js'
+import { BOT, all, allVars, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, show, subst, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
+import { choicesOf } from './choices.js'
 import { absurd, alphaEq, cases, fst, inl, inr, lam, normalize, obj, open as unpack, pair, papp, parseTerm, pconst, printTerm, psubst, pvar, raa, rfl, snd } from './pterm.js'
 import { clauseFormula } from './clauses.js'
 
@@ -57,6 +58,12 @@ function termOf(node, ctx = {}) {
   const text = node.params?.t
   if (!text) throw fail('先填一个项', 'Fill in a term first')
   return parse(`${text} = ${text}`, { consts: ctx.consts ?? [] }).args[0]
+}
+// The thing a formula is an example of an ∃ sentence by: the term t with target.body[x := t] the formula, or null.
+// When x does not occur in the body, any thing will do, and a stands for it.
+function exampleIn(target, f) {
+  if (!freeVars(target.body).has(target.v)) return same(target.body, f) ? tvar('a') : null
+  return termsOf(f).find((t) => same(subst(target.body, target.v, t), f)) ?? null
 }
 // ¬A is A → ⊥ to the rules, and A ↔ B is (A → B) ∧ (B → A).
 const asImp = (f) => (f.op === '¬' ? imp(f.a, BOT) : f)
@@ -198,15 +205,22 @@ export const RULES = {
       return proved(subst(a.formula.body, a.formula.v, t), a.hyps, papp(a.term, obj(t)))
     },
   },
+  // The example is read off: what stands where the target's variable does. The target is the one chosen on the card,
+  // or, left unchosen, the level's one ∃ sentence the input is an example of.
   exI: {
     inputs: ['a'],
-    params: ['target', 't'],
+    params: ['target'],
     eval: ({ a }, node, ctx) => {
-      const target = param(node, 'target', ctx)
-      if (target.op !== '∃') throw need(ctx, SHAPE.ex, target)
-      const instance = subst(target.body, target.v, termOf(node, ctx))
-      if (!same(instance, a.formula)) throw need(ctx, instance, a.formula)
-      return proved(target, a.hyps, pair(obj(termOf(node, ctx)), a.term))
+      if (node.params?.target) {
+        const target = param(node, 'target', ctx)
+        if (target.op !== '∃') throw need(ctx, SHAPE.ex, target)
+        const t = exampleIn(target, a.formula)
+        if (!t) throw need(ctx, subst(target.body, target.v, tvar(target.v)), a.formula)
+        return proved(target, a.hyps, pair(obj(t), a.term))
+      }
+      const fits = (ctx.exists ?? []).map((f) => replaceAtoms(f, ctx.subst ?? {})).filter((f) => exampleIn(f, a.formula))
+      if (fits.length !== 1) throw fail(fits.length ? '对得上的「存在」不止一句：在卡片上选好要得出的那句' : '它不是哪一句「存在」的例子', fits.length ? 'More than one “there is” fits: choose on the card the one to conclude' : 'It is an example of no “there is”')
+      return proved(fits[0], a.hyps, pair(obj(exampleIn(fits[0], a.formula)), a.term))
     },
   },
   exE: {
@@ -356,7 +370,7 @@ export function premisesOf(test, consts = []) {
 export const LOGIC_TESTS = {
   runTest: (level, circuit, test) => {
     const consts = level.consts ?? []
-    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, graph: circuit, unfold: (name) => level.lemmaTerms?.[name] ?? null } })
+    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, graph: circuit, exists: choicesOf(level).exists, unfold: (name) => level.lemmaTerms?.[name] ?? null } })
     return { ...run, outputs: { goal: run.outputs.goal } }
   },
   // A test may ask for the proof's term too (chapter 6): the same up to the names it binds.
