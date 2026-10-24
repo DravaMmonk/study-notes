@@ -6,7 +6,7 @@
 // level is one use of a lemma it carries away from done. A truth circuit's reference board gives its sentence on every
 // row, its naive one does not (or breaks its gate budget), and a gate it builds computes exactly that sentence. A
 // proof that holds parts back (`without`) does not use them, and no reference answer uses a part its level cannot have.
-import { reach } from '../../course.js'
+import { formsAt, reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
 import { freeVars, parse, show } from './formula.js'
@@ -148,7 +148,9 @@ export function validate({ levels: given, course }) {
     const carried = level.lemmas ? reach(course, { id: level.id }).filter((p) => level.lemmas[p] && course.builder(p) !== level.id && !level.without?.includes(p)) : []
     for (const p of carried) {
       // A test that asks for a term asks for one proof in particular, not just any.
-      const gives = (t) => !t.term && lemmaGives(level.lemmas[p], Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }))
+      const l = level.lemmas[p]
+      const forms = l.forms ? formsAt(course, l.forms[0].key, level.revisions?.[p], level.id) : null
+      const gives = (t) => !t.term && lemmaGives(l, Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }), forms)
       if (level.tests.every(gives)) out.push({ fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
     }
     // A later task of a level may use what the level builds.
@@ -161,9 +163,14 @@ export function validate({ levels: given, course }) {
     for (const n of level.solution.nodes) {
       for (const [key, value] of Object.entries(n.params ?? {})) {
         const kind = SETTING_KINDS[n.type]?.[key] ?? 'formula'
-        if (typeof value !== 'string' || ['name', 'side'].includes(key) || !(RULES[n.type]?.params ?? level.lemmas?.[n.type]?.metas ?? []).includes(key)) continue
+        if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || !(RULES[n.type]?.params ?? level.lemmas?.[n.type]?.metas ?? []).includes(key)) continue
         if (!offered[kind].has(choiceKey(kind, value, level))) out.push({ fail: true, text: `${level.id}: the solution picks ${value} on ${n.type}, which its card does not offer (add it to the level's sentences)` })
       }
+    }
+    // A card of a part with forms is in a shape the level offers: its first, or one an upgrade passed before brings.
+    for (const n of level.solution.nodes.filter((m) => level.lemmas?.[m.type]?.forms && m.params?.form)) {
+      const l = level.lemmas[n.type]
+      if (!formsAt(course, l.forms[0].key, level.revisions?.[n.type], level.id).includes(n.params.form)) out.push({ fail: true, text: `${level.id}: the solution puts ${n.type} in the shape ${n.params.form}, which the level does not offer yet` })
     }
     const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
     if (banned.length) out.push({ fail: true, text: `${level.id}: the solution uses ${banned.join(', ')}, which the level holds back` })

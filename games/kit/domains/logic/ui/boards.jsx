@@ -72,7 +72,7 @@ export const PROOF = {
       },
     }
   },
-  settings: (parts, node, lemmas) => settingsOf(parts.rules, node.type, lemmas),
+  settings: (parts, node, lemmas) => settingsOf(parts.rules, node, lemmas),
   extra: (node, setParam, { ins, text }) => (node.type === 'orI' ? (
     <div className="lg-side" role="group" aria-label={tr('另一边放在', 'Other side goes')} onPointerDown={(e) => e.stopPropagation()}>
       <span>{tr('另一边放', 'Other side')}</span>

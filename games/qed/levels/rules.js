@@ -1,9 +1,9 @@
 // Chapter 5 · Quantifier rules: back on the proof board, with ∀ and ∃. Two lines first: for all (take one; for any,
 // a box whose variable is new; renaming; ∀ over ∧; a substitution that would capture) and there is (an example; take
 // the one there is, a box; the one taken stays in its box). Then two lines that need both: swapping and moving
-// quantifiers, and negating them (¬∃ is ∀¬, ∃¬ gives ¬∀, and ¬∀ gives ∃¬ only by contradiction: the part Quantifier
-// De Morgan). Equality comes last, its own mechanism: equals replace equals, both ways round and along a chain. Lewis
-// Carroll's syllogism puzzles are the topic; the drinker paradox, which leans on Quantifier De Morgan, the challenge.
+// quantifiers, and negating them (¬∃ is ∀¬, ∃¬ gives ¬∀, and ¬∀ gives ∃¬ only by contradiction: each a new shape
+// of De Morgan's card). Equality comes last, its own mechanism: equals replace equals, both ways round and along a chain. Lewis
+// Carroll's syllogism puzzles are the topic; the drinker paradox, which leans on De Morgan's ¬∀ shape, the challenge.
 import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -153,7 +153,7 @@ export const rules = [
       }),
     ],
     intro: [{ t: T('「没有人在喝酒」和「人人都没在喝酒」说的是一回事：否定穿过量词，∃ 就变成 ∀。两个方向各证一遍。', '“Nobody is drinking” and “everyone is not drinking” say the same: negation passes through the quantifier and ∃ turns into ∀. Prove it each way.') }],
-    after: T('¬∃ 和 ∀¬ 互相推得出，两个方向都没用反证法。这是 <level-ref to="demorgan"></level-ref>的量词版：∃ 像一个很长的「或者」，∀ 像一个很长的「并且」。', '¬∃ and ∀¬ give each other, and neither way took proof by contradiction. It is the quantifier version of <level-ref to="demorgan"></level-ref>: ∃ is like a long “or”, ∀ like a long “and”.'),
+    after: T('¬∃ 和 ∀¬ 互相推得出，两个方向都没用反证法。这是 <level-ref to="demorgan"></level-ref>的量词版：∃ 像一个很长的「或者」，∀ 像一个很长的「并且」。德摩根升级了：卡片上多了 ¬∃ 和 ∀¬ 互相转换的两个形状。', '¬∃ and ∀¬ give each other, and neither way took proof by contradiction. It is the quantifier version of <level-ref to="demorgan"></level-ref>: ∃ is like a long “or”, ∀ like a long “and”. De Morgan is upgraded: its card gains the two shapes that turn ¬∃ and ∀¬ into each other.'),
   },
   {
     id: 'q-exNot',
@@ -164,14 +164,13 @@ export const rules = [
     brief: T('实现一个证明器，可以从已知「∃x. ¬x在喝酒」（有人没在喝酒），证明出「¬∀x. x在喝酒」（并非人人都在喝酒）。', 'Build a prover that, from “∃x. ¬x is drinking” (someone is not drinking), proves “¬∀x. x is drinking” (not everyone is drinking).'),
     hint: [T('假设人人都在喝酒，把那个没喝的人拿出来，他也在「人人」里。', 'Suppose everyone is drinking; take out the one who is not, who is among “everyone” too.')],
     solution: proof({ f: ['impI', { A: '∀x. P(x)' }], e: ['exE', { x: 'a' }, 'f'], a: ['allE', { t: 'a' }, 'e'], m: ['mp', {}, 'e'] }, ['p>e.ex', 'f#body>a.all', 'e#body>m.imp', 'a>m.a', 'm>e.body', 'e>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('一个反例就推翻「人人」：∃¬ 推得出 ¬∀，也不用反证法。反过来呢？', 'One counterexample overturns “everyone”: ∃¬ gives ¬∀, again without proof by contradiction. And the other way?'),
+    after: T('一个反例就推翻「人人」：∃¬ 推得出 ¬∀，也不用反证法。德摩根又多一个形状。反过来呢？', 'One counterexample overturns “everyone”: ∃¬ gives ¬∀, again without proof by contradiction. De Morgan gains another shape. And the other way?'),
   },
   {
     id: 'q-notAll',
     kind: 'proof',
     title: T('并非人人', 'Not everyone'),
     sentences: ['¬∃x. ¬P(x)'],
-    builds: 'qdm',
     tests: [{ premises: { p: '¬∀x. P(x)' }, goal: '∃x. ¬P(x)' }],
     cases: DRINK,
     brief: T('实现一个证明器，可以从已知「¬∀x. x在喝酒」（并非人人都在喝酒），证明出「∃x. ¬x在喝酒」（有人没在喝酒）。', 'Build a prover that, from “¬∀x. x is drinking” (not everyone is drinking), proves “∃x. ¬x is drinking” (someone is not drinking).'),
@@ -190,7 +189,7 @@ export const rules = [
       m2: ['mp', {}, 'k'],
       r2: ['raa'],
     }, ['j#body>i.a', 'k#body>mj.imp', 'i>mj.a', 'mj>j.body', 'j>r1.nna', 'r1>g.body', 'p>m2.imp', 'g>m2.a', 'm2>k.body', 'k>r2.nna', 'r2>goal'], { premises: ['p'] }),
-    after: T('这个方向用了两次反证法：证出了「有一个」，却说不出是谁。直觉主义逻辑不承认这样的「存在」。这块电路成了元件<b>量词德摩根</b>：接进「¬∀x. …」，给出「∃x. ¬…」。', 'This way took proof by contradiction twice: it proves “there is one” without saying who. Intuitionistic logic does not accept such an “exists”. This circuit becomes the part <b>Quantifier De Morgan</b>: wire in “¬∀x. …” and it gives “∃x. ¬…”.'),
+    after: T('这个方向用了两次反证法：证出了「有一个」，却说不出是谁。直觉主义逻辑不承认这样的「存在」。德摩根又多了这个形状：八个方向都齐了，接进「¬∀x. …」，给出「∃x. ¬…」。', 'This way took proof by contradiction twice: it proves “there is one” without saying who. Intuitionistic logic does not accept such an “exists”. De Morgan gains this shape too, all eight ways now: wire in “¬∀x. …” and it gives “∃x. ¬…”.'),
   },
   {
     id: 'q-eq',
@@ -380,7 +379,7 @@ export const rules = [
       e: ['orE'],
       h: ['impI', { A: 'D(a)' }, 'e/left'],
       i1: ['exI', {}, 'e/left'],
-      q: ['qdm', {}, 'e/right'],
+      q: ['dm', { form: 'notAll' }, 'e/right'],
       f: ['exE', { x: 'a' }, 'e/right'],
       h2: ['impI', { A: 'D(a)' }, 'f'],
       m3: ['mp', {}, 'h2'],

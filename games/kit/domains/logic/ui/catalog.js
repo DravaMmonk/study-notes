@@ -3,6 +3,8 @@
 // card and a box's regions, and the editor's description of a node (../../../circuit/model.js parts, frames.js).
 import { ArrowRightFromLine, Box, Flag, GitFork, Puzzle, Split } from 'lucide-react'
 import { RULES, rulesOf } from '../proof.js'
+import { portsOf } from '../../../engine/circuit.js'
+import { formOf, paramsOf } from '../../../engine/forms.js'
 import { SETTING_KINDS } from '../choices.js'
 import { FORMULA_TEXT } from '../formula.js'
 
@@ -82,9 +84,10 @@ const GIVES = T('得出', 'Result')
 
 /**
  * The card's settings: [{ key, label, kind }] (orI's side is a switch of its own); a lemma may name its own (`params`).
- * kind: 'formula' (a sentence), 'exists' (a sentence that starts with ∃), 'term' or 'name' (a particular thing: a, b, c).
+ * kind: 'formula' (a sentence), 'exists' (a sentence that starts with ∃), 'term', 'name' (a particular thing: a, b,
+ * c) or 'form' (which shape a part with several forms is in, engine/forms.js).
  */
-export const settingsOf = (parts, type, lemmas = {}) => (parts[type]?.params ?? []).map((key) => ({ key, label: lemmas[type]?.params?.[key] ?? RULE_TEXT[type]?.params?.[key] ?? key, kind: SETTING_KINDS[type]?.[key] ?? 'formula', blank: SETTING_KINDS[type]?.[key] === 'exists' ? T('自动', 'Automatic') : null }))
+export const settingsOf = (parts, node, lemmas = {}) => [...(parts[node.type]?.forms ? [{ key: 'form', kind: 'form' }] : []), ...paramsOf(parts[node.type], node).map((key) => ({ key, label: lemmas[node.type]?.params?.[key] ?? RULE_TEXT[node.type]?.params?.[key] ?? key, kind: SETTING_KINDS[node.type]?.[key] ?? 'formula', blank: SETTING_KINDS[node.type]?.[key] === 'exists' ? T('自动', 'Automatic') : null }))]
 
 /** A part's text with the game's revisions of it along the course (logicCourse `revisions`; defineGame textAt / textFor). */
 export const withRevisions = (text, list) => (text && list ? { ...text, revisions: list } : text)
@@ -100,7 +103,7 @@ export const iconOf = (lemmas, type) => ICONS[familyOf(lemmas, type)] ?? Split
 export function partsFor(lemmas = {}, premises = []) {
   const parts = rulesOf(lemmas)
   return {
-    inputs: (node) => (FIXED[node.type] ? (FIXED[node.type] === 'sink' ? ['in'] : []) : parts[node.type]?.inputs ?? []),
+    inputs: (node) => (FIXED[node.type] ? (FIXED[node.type] === 'sink' ? ['in'] : []) : parts[node.type] ? portsOf(parts[node.type], node) : []),
     role: (node) => (FIXED[node.type] ? FIXED[node.type] : 'part'),
     label: (node) => {
       if (node.type === 'goal') return T('目标', 'Goal')
@@ -110,6 +113,7 @@ export function partsFor(lemmas = {}, premises = []) {
     portLabel: (node, port) => {
       if (RULE_TEXT[node.type]?.frames?.[port]) return CLOSES
       const l = lemmas[node.type]
+      if (l?.forms) return (l.forms.find((f) => f.key === formOf(parts[node.type], node)).premises ?? [])[Number(port.slice(1))]
       if (l) return l.ports[Number(port.slice(1))]
       return RULE_TEXT[node.type]?.ports?.[port] ?? ''
     },

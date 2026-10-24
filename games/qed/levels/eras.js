@@ -68,8 +68,8 @@ export const ERAS = [
         ['or', '或者', 'Or', ['or', 'cases', 'orSwap', 'orImp']],
         ['not', '矛盾与否定', 'Contradiction and not', ['bot', 'exFalso', 'notI', 'mt', 'dni', 'contra', 'denyAnte']],
       ),
-      series('mix', '组合', 'Together', ['dist', 'dsyll', 'demorgan', 'dmUse']),
-      series('classical', '反证法', 'By contradiction', ['notnotlem', 'raa', 'byContra', 'lemCases']),
+      series('mix', '组合', 'Together', ['dist', 'dsyll', 'demorgan', 'dmBack', 'dmUse', 'dmOr']),
+      series('classical', '反证法', 'By contradiction', ['notnotlem', 'raa', 'byContra', 'lemCases', 'dmAnd']),
     ],
     // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.
     topics: [{ id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],

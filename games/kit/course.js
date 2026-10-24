@@ -377,3 +377,9 @@ export function audit(course) {
   }
   return out
 }
+
+/**
+ * The forms a part's card offers in level `id` (engine/forms.js): its first, and every one an upgrade passed before
+ * the level brings (`revisions` [{ by, forms }], as shell/index.js reads them).
+ */
+export const formsAt = (course, first, revisions = [], id) => [first, ...revisions.filter((r) => r.by && r.forms && course.before(r.by, id)).flatMap((r) => r.forms)]
