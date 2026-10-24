@@ -11,12 +11,12 @@ import Sentence from './Sentence.jsx'
 
 // A syntax level, the same in every syntax game and on every screen: the meaning graph to say, the clause written out
 // as it reads with a box for each empty place (subject, then the predicate: tense, verb and the places the verb
-// opens), the words to fill it with, and the run bar. The box marked next is the tense until it is set, and an empty
-// verb box names the form the tense holds for it: a clause is planned time first, the way it is meant, and said in
-// reading order. Running checks the sentence against the meaning graph; a pass solves the level with its word count
+// opens), the words to fill it with, and the run bar. The box marked next is the time until it is set, and an empty
+// verb box names the form the time holds for it: a clause is planned time first, the way it is meant, and said in
+// reading order. The forms, agreement and case are the machine's; the player makes only the decisions. Running checks the sentence against the meaning graph; a pass solves the level with its word count
 // as the score.
 
-const CHIP_GROUPS = [['np', { zh: '名词短语', en: 'Noun phrases' }], ['infl', { zh: '时体', en: 'Tense' }], ['verb', { zh: '动词', en: 'Verbs' }]]
+const CHIP_GROUPS = [['time', { zh: '时间和视角', en: 'Time and viewpoint' }], ['np', { zh: '名词短语', en: 'Noun phrases' }], ['verb', { zh: '动词', en: 'Verbs' }]]
 
 export default function SyntaxScreen({ game, level, saved, save, solve, progress, phone }) {
   const { lex } = game.syntax
@@ -60,7 +60,7 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
   line.push('.')
   const used = new Set(Object.values(clause))
   const chips = CHIP_GROUPS
-    .map(([kind, label]) => ({ key: kind, label, chips: level.palette.filter((t) => lex.part(t).kind === kind).map((t) => ({ key: t, text: lex.part(t).text, sub: featuresOf(lex, t), family: familyOf(lex, t), used: used.has(t) })) }))
+    .map(([kind, label]) => ({ key: kind, label, chips: level.palette.filter((t) => lex.part(t).kind === kind).map((t) => ({ key: t, text: L(lex.part(t).text), sub: featuresOf(lex, t), family: familyOf(lex, t), used: used.has(t) })) }))
     .filter((g) => g.chips.length)
 
   const go = () => {
@@ -78,7 +78,7 @@ export default function SyntaxScreen({ game, level, saved, save, solve, progress
     ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>
     : <p className="ks-note">{tr('点击文字可以删除。', 'Tap words to delete them.')}</p>
 
-  const meaning = <Meaning meaning={spec.meaning} sense={sense} run={run} />
+  const meaning = <Meaning context={spec.context} meaning={spec.meaning} sense={sense} run={run} />
   const brief = <Brief game={game} level={level} hint={spec.hint} />
   const stage = (
     <div className="sx-stage">

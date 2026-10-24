@@ -8,6 +8,8 @@
 //     star, when the level has a word target)
 //   · every trap is turned down where the level says it is: by the grammar, or at the predicate, the time, a role,
 //     or the star
+//   · the level says why each time it offers, other than the one meant, is wrong here (a wrong choice always gets a
+//     native speaker's reason, not only a mark)
 
 import { keyOf } from '../../shell/i18n.js'
 import { refusals } from './engine/grammar.js'
@@ -50,6 +52,11 @@ export function validate({ syntax }) {
         const fails = fate(lex, level, trap.answer)
         if (fails !== trap.fails) problems.push(`a trap should fail at ${trap.fails} but ${fails === 'pass' ? 'passes' : `fails at ${fails}`}: ${JSON.stringify(trap.answer)}`)
       }
+    }
+    for (const type of level.palette) {
+      const time = lex.part(type)
+      if (time?.kind !== 'time' || (time.tense === level.meaning?.tense && time.aspect === level.meaning?.aspect)) continue
+      if (!level.why?.[time.key]) problems.push(`no reason given for choosing ${type}`)
     }
     const traps = level.traps?.length ?? 0
     out.push({ fail: problems.length > 0, text: `${level.id} ${keyOf(level.title)}: ${problems.length ? problems.join('; ') : `answer PASS, ${traps} trap${traps === 1 ? '' : 's'} turned down`}` })

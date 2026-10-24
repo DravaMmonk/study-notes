@@ -1,12 +1,13 @@
-// 句法之图 Syntax Graph: English grammar for academic writing in computer science, as puzzles, on the syntax domain
-// (kit/domains/syntax).
+// 句法之图 Syntax Graph: how a native speaker puts an English sentence together, for academic writing in computer
+// science, as puzzles on the syntax domain (kit/domains/syntax). The grammar is the machine's; the player makes the
+// decisions a native speaker makes before speaking.
 // Everything here is the course: the words (lexicon.js), the levels (levels/), the encyclopedia (glossary.js); the
 // game it makes is game.js. The design is DESIGN.md beside this file.
 import { syntaxCourse } from '../kit/domains/syntax/engine/course.js'
 import { shiftIds } from '../kit/shell/saves.js'
 import { entries, groups } from './glossary.js'
-import { inflections, nouns, verbs } from './lexicon.js'
-import { levels as clause } from './levels/clause.js'
+import { nouns, times, verbs } from './lexicon.js'
+import { levels as viewpoint } from './levels/viewpoint.js'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -14,26 +15,25 @@ const eras = [
   {
     id: 1,
     machine: 'clause',
-    title: T('小句', 'The clause'),
+    title: T('时间和视角', 'Time and viewpoint'),
     kicker: T('第一章', 'Era 1'),
-    question: T('一句话最少要有什么，各部分又怎样咬合在一起？', 'What does a sentence need at the least, and how do its parts lock together?'),
-    foundation: ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9'],
-    practice: ['1-10', '1-11'],
-    topics: [{ id: 'review', title: T('投稿', 'Submitting a paper'), levels: ['1-S1', '1-S2', '1-S3'], after: '1-9' }],
+    question: T('开口之前，一件事是什么时候的，又从哪里看它？', 'Before you speak, when is the thing, and where do you look at it from?'),
+    foundation: ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12'],
+    topics: [{ id: 'review', title: T('投稿', 'Submitting a paper'), levels: ['1-S1', '1-S2', '1-S3'], after: '1-12' }],
   },
 ]
 
-const SYNTAX = syntaxCourse({ lexicon: { nouns, verbs, inflections }, eras, levels: clause })
+const SYNTAX = syntaxCourse({ lexicon: { nouns, verbs, times }, eras, levels: viewpoint })
 
 export default {
   id: 'syntax-graph',
   domain: 'syntax',
   title: T('句法之图', 'Syntax Graph'),
   // Still in development: the demo has era 1 of the course in DESIGN.md.
-  kicker: T('开发中 · 一格一格搭出论文里的英语句子', 'In development · The sentences of a paper, built place by place'),
+  kicker: T('开发中 · 像母语者那样想一句英语', 'In development · Think a sentence the way a native speaker does'),
   lede: T(
-    '读一张语义图，像以英语为母语的人那样组织一句话：先定时间和视角，搭好句子的框架，再把名词短语和动词放进去，词尾跟着框架自己接上。放错位置会被语法拒绝，说错意思会在语义图上标红。从论文里最短的一句开始，最终写出母语作者也会写错的句子。',
-    'Read a meaning graph and put an English sentence together the way a native speaker does: settle the time and the angle first, build the sentence’s frame, then drop in the noun phrases and the verb, whose endings follow from the frame. A word in the wrong place is refused by the grammar; a wrong meaning is marked red on the graph. Start from the shortest sentence in a paper and end up writing the ones native authors get wrong.',
+    '母语者开口之前，已经替一句话做好了几个决定：这件事是什么时候的、从哪里看它，谁当主语，读者认不认得出它，什么先说、什么后说。每一关给一段论文或审稿里的情境，你来做这些决定，词形和语法由机器配好；说错了，会告诉你母语者为什么不这么说。最终写出母语作者也会写错的句子。',
+    'Before a native speaker says a sentence, they have already decided a few things: when the thing is and where they look at it from, what the subject is, whether the reader can pick it out, what goes first and what last. Each level gives a situation from a paper or its review; you make these decisions, and the machine handles the forms and the grammar. When you get one wrong, you are told why a native speaker would not say it. In the end you write the sentences native authors get wrong.',
   ),
   eras,
   syntax: SYNTAX,
@@ -50,6 +50,9 @@ export default {
       { solve: ['1-2', ['1-1']] },
       { solve: ['1-3', ['1-1', '1-2']] },
     ] },
+    // Version 3 handed the grammar to the machine and made era 1 about time and viewpoint: every level after the first
+    // is a new puzzle, and its old clause (written with tense heads that no longer exist) is dropped with it.
+    { version: 3, ops: [{ rename: (id) => (id === '1-1' ? id : null) }, { data: () => null }] },
   ],
-  texts: { chapters: SYNTAX.CHAPTERS, glossary: entries, nouns, verbs },
+  texts: { chapters: SYNTAX.CHAPTERS, glossary: entries, nouns, verbs, times },
 }

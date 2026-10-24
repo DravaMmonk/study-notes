@@ -3,15 +3,19 @@
 // it requires, and the course the shared audit checks (npm run check).
 //
 // syntaxCourse({ lexicon, eras, levels })
-//   lexicon  { nouns, verbs, inflections } (lexicon.js)
+//   lexicon  { nouns, verbs, times } (lexicon.js)
 //   eras     [{ id, machine, title, kicker?, question?, foundation, practice?, topics?, challenges? }]
-//   levels   [{ id, title, brief, hint?, intro?, meaning, palette: { np?, verb?, infl? }, preset?, refer?, answer,
-//              traps?, target?, debrief: { title, body, note } }], in any order
-//     meaning  { pred, tense, aspect, gloss, roles: { ROLE: { ent, number, label, note? } } }: what the sentence must
-//              say. `label` and `note` are what the player reads; `ent` and `number` are what the check compares.
+//   levels   [{ id, title, brief, hint?, intro?, context, meaning, palette: { np?, verb?, time? }, preset?, refer?,
+//              why?, answer, traps?, target?, debrief: { title, body, note } }], in any order
+//     context  [{ zh, en }]: the situation the sentence is said in, which the player reads to decide (the time and the
+//              viewpoint are never written on the meaning graph; they follow from here)
+//     meaning  { pred, tense, aspect, roles: { ROLE: { ent, number, label, note? } } }: what the sentence must say.
+//              `label` and `note` are what the player reads; `ent` and `number` are what the check compares.
 //     preset   part of the answer already in its slots, fixed (same shape as the answer)
 //     refer    what each pronoun names here ({ she: 'reviewer' }): the context the sentence is said in
-//     answer   the reference sentence as a clause of lexicon keys ({ SUBJ, INFL, V, OBJ?, IOBJ?, TO? })
+//     why      { time key: { zh, en } }: for each wrong time the level offers, why a native speaker would not say it
+//              here (validate.js asks for one per wrong time)
+//     answer   the reference sentence as a clause of lexicon keys ({ SUBJ, TIME, V, OBJ?, IOBJ?, TO? })
 //     traps    [{ answer, fails: 'grammar' | 'pred' | 'time' | 'role' | 'star' }]: sentences a player is likely to
 //              try, which the level must turn down where it says (validate.js runs them and the answer)
 // Returns { lex, LEVELS, CHAPTERS, course, concept }.
@@ -19,7 +23,7 @@
 import { defineCourse, eraLevels, layout } from '../../../course.js'
 import { defineLexicon } from './lexicon.js'
 
-const KINDS = ['np', 'verb', 'infl']
+const KINDS = ['np', 'verb', 'time']
 
 export function syntaxCourse({ lexicon, eras, levels }) {
   const lex = defineLexicon(lexicon)
@@ -38,14 +42,13 @@ export function syntaxCourse({ lexicon, eras, levels }) {
     }
   })
   const CHAPTERS = eras.map((era) => ({ id: era.id, kicker: era.kicker, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))
-  // One idea a level (games/DESIGN.md): a noun phrase is one idea, a pronoun with case another, a verb frame one,
-  // and an aspect one (its tenses and agreement forms are that aspect's models).
+  // One idea a level (games/DESIGN.md). What is taught is how a native speaker decides, not the grammar the machine
+  // works out: the words are one idea (putting them in places), and each viewpoint is one (its tenses are that
+  // viewpoint's models).
   const concept = (type) => {
     const p = lex.part(type)
     if (!p) return type
-    if (p.kind === 'np') return p.case ? 'pronoun' : 'noun-phrase'
-    if (p.kind === 'verb') return `frame:${p.frame === 'dative' ? 'ditransitive' : p.frame}`
-    return `aspect:${p.aspect}`
+    return p.kind === 'time' ? `viewpoint:${p.aspect}` : 'words'
   }
   const palettes = new Map(LEVELS.map((L) => [L.id, L.palette]))
   const course = defineCourse({
