@@ -5,29 +5,30 @@ body{margin:0;min-height:100dvh;color:var(--ink);font:15px/1.65 var(--sans);back
 a{color:inherit;text-decoration:none}
 main{max-width:1160px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)) 96px}
 
-.games{display:grid;gap:clamp(28px,4.5vw,52px);margin-top:8px}
-.game{--ease:cubic-bezier(.2,.7,.2,1);position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);align-items:center}
-.game::before{content:"";position:absolute;inset:7% 0 7% 30%;z-index:-1;border-radius:28px;background:var(--paper);
+.games{display:grid;gap:clamp(4px,1.5vw,16px);margin-top:8px}
+.game{--ease:cubic-bezier(.2,.7,.2,1);position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:center}
+/* The panel hugs the text, so its height follows the copy; it runs left behind the figure, which stands taller. */
+.game-body::before{content:"";position:absolute;inset:0 0 0 -46%;z-index:-1;border-radius:28px;background:var(--paper);
   box-shadow:0 34px 64px -44px rgb(30 26 18 / .4);transition:box-shadow .5s var(--ease)}
-.game:hover::before{box-shadow:0 42px 80px -44px rgb(30 26 18 / .5)}
+.game:hover .game-body::before{box-shadow:0 42px 80px -44px rgb(30 26 18 / .5)}
 .game:focus-visible{outline:none}
-.game:focus-visible::before{outline:2px solid var(--accent);outline-offset:4px}
+.game:focus-visible .game-body::before{outline:2px solid var(--accent);outline-offset:4px}
 
 .game-art{aspect-ratio:16/9;display:grid;place-items:center;transition:transform .6s var(--ease)}
 .game:hover .game-art{transform:translateY(-6px)}
 .game-art>.bx,.game-art>.an{width:100%}
 .game-art>.figure-host{width:88%}
 
-.game-body{display:flex;flex-direction:column;padding:clamp(28px,3vw,40px) clamp(28px,5vw,64px) clamp(28px,3vw,36px) clamp(8px,2vw,28px)}
+.game-body{position:relative;display:flex;flex-direction:column;padding:22px clamp(24px,4vw,48px) 18px clamp(4px,1vw,12px)}
 .game-meta{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 0;color:var(--accent-ink);font:var(--fs-label)/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase}
 .game-no{color:var(--faint);letter-spacing:.08em}
 .game-no::after{content:"";display:inline-block;width:22px;height:1px;margin:0 12px;vertical-align:middle;background:var(--rule)}
 .dev-tag{margin-left:12px;padding:2px 8px;border-radius:999px;color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 14%,transparent);font-style:normal;letter-spacing:.08em}
-.game-title{margin:14px 0 0;color:var(--heading);font:500 clamp(28px,3.2vw,38px)/1.12 var(--serif);letter-spacing:-.01em}
-.game-title small{display:block;margin-top:10px;color:var(--faint);font:var(--fs-label)/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase}
-.game-desc{margin:18px 0 0;max-width:30em;color:var(--body);font:15px/1.8 var(--sans);text-wrap:pretty}
+.game-title{margin:10px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px;color:var(--heading);font:500 clamp(24px,2.6vw,30px)/1.15 var(--serif);letter-spacing:-.01em}
+.game-title small{color:var(--faint);font:var(--fs-label)/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+.game-desc{margin:10px 0 0;max-width:34em;color:var(--body);font:14px/1.7 var(--sans);text-wrap:pretty}
 
-.game-foot{margin-top:24px;padding-top:16px;display:flex;align-items:center;gap:14px;border-top:1px solid var(--hairline);color:var(--muted);font:var(--fs-label)/1 var(--mono);letter-spacing:.06em}
+.game-foot{margin-top:14px;padding-top:12px;display:flex;align-items:center;gap:14px;border-top:1px solid var(--hairline);color:var(--muted);font:var(--fs-label)/1 var(--mono);letter-spacing:.06em}
 .meter{flex:0 1 120px;height:2px;overflow:hidden;border-radius:2px;background:var(--hairline)}
 .meter i{display:block;height:100%;border-radius:inherit;background:var(--status)}
 .game-go{margin-left:auto;display:inline-flex;align-items:center;gap:8px;color:var(--ink);font:600 var(--fs-ui)/1 var(--sans);letter-spacing:.02em}
@@ -39,13 +40,11 @@ main{max-width:1160px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)
 /* Narrow screens: the figure on top, rising out of the panel's top edge. */
 @media (max-width:760px){
   .game{grid-template-columns:1fr}
-  .game::before{inset:34% 0 0;border-radius:22px}
-  .game-art{aspect-ratio:16/11;padding:0 4%}
-  .game-body{padding:8px 24px 28px}
-  .game-title{margin-top:14px}
-  .game-desc{margin-top:16px;font-size:14.5px}
-  .game-foot{margin-top:24px;padding-top:16px}
+  .game-body::before{inset:-40px 0 0;border-radius:22px}
+  .game-art{aspect-ratio:16/11;padding:0 4%;margin-bottom:-36px}
+  .game-body{padding:4px 22px 18px}
 }
-@media (prefers-reduced-motion:reduce){.game-art,.game-go span,.game::before{transition:none}.game:hover .game-art{transform:none}}
+}
+@media (prefers-reduced-motion:reduce){.game-art,.game-go span,.game-body::before{transition:none}.game:hover .game-art{transform:none}}
 /* English pages hide the Chinese markup until hub.js has swapped it. */
 html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
