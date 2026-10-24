@@ -85,7 +85,6 @@
 
 /* ---- cards ---- */
 .kit-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
-.kit-cards.is-wide { grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 22px; }
 .kit-card {
   position: relative; display: grid; grid-template-rows: auto 1fr; overflow: hidden;
   border-radius: var(--r-lg); color: var(--ink); background: var(--paper); text-decoration: none;
