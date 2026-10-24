@@ -72,7 +72,10 @@ export default {
   // problems after it has passed it.
   { version: 21, ops: [{ solve: ['dist', ['iffUse']] }] },
   // Version 22 built proof terms from chips, one problem per task: what was typed before is dropped.
-  { version: 22, ops: [{ data: (value, id) => (['t-wapp', 't-wlam', 't-wpair', 't-wcases', 't-dneg'].includes(id) ? undefined : value) }] }],
+  { version: 22, ops: [{ data: (value, id) => (['t-wapp', 't-wlam', 't-wpair', 't-wcases', 't-dneg'].includes(id) ? undefined : value) }] },
+  // Version 23 put the negated quantifiers (ending with the part Quantifier De Morgan) before the drinker paradox, which
+  // now uses the part: whoever had passed the paradox has passed them and holds the part.
+  { version: 23, ops: [{ solve: ['drinker', ['q-notEx', 'q-exNot', 'q-notAll']] }, { grant: ['drinker', 'lemma:qdm'] }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用', '德摩根', '归结', '取一个', '任取', '拿出那一个'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },

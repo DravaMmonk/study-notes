@@ -92,16 +92,22 @@ export const ERAS = [
   {
     id: 'qrules', machine: 'prover', keeps: 'all',
     foundation: [
-      // ∀ and ∃ each need only the proof board; equality comes once both are in hand.
+      // ∀ and ∃ each need only the proof board.
       branches(
         ['forall', '对所有', 'For all', ['q-allE', 'q-allI', 'q-rename', 'q-allAnd', 'q-capture']],
         ['exists', '存在', 'There is', ['q-exI', 'q-exE', 'q-witness']],
       ),
+      // With both in hand: quantifiers swapped and moved, and quantifiers negated (the last needs proof by
+      // contradiction and becomes a part); neither needs the other.
+      branches(
+        ['moving', '换序与挪动', 'Swapping and moving', ['q-swap', 'q-move', 'q-ancestor', 'q-bigger']],
+        ['negation', '量词的否定', 'Negating quantifiers', ['q-notEx', 'q-exNot', 'q-notAll']],
+      ),
+      // Equality is a new mechanism of its own, last: nothing before it in the chapter needs it.
       series('equality', '相等', 'Equality', ['q-eq', 'q-sym', 'q-trans']),
     ],
-    practice: [series('moving', '换序与挪动', 'Swapping and moving', ['q-swap', 'q-move', 'q-ancestor', 'q-bigger'])],
-    topics: [{ id: 'carroll', code: 'S', after: 'q-trans', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') }],
-    challenges: [{ level: 'drinker', after: 'q-swap' }],
+    topics: [{ id: 'carroll', code: 'S', after: 'q-move', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') }],
+    challenges: [{ level: 'drinker', after: 'q-notAll' }],
     chapter: { title: T('量词规则', 'Quantifier rules'), question: T('怎样证明一句话在所有世界里都成立？', 'How do you prove a sentence holds in every world?') },
   },
   {

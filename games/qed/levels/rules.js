@@ -1,11 +1,14 @@
 // Chapter 5 · Quantifier rules: back on the proof board, with ∀ and ∃. Two lines first: for all (take one; for any,
 // a box whose variable is new; renaming; ∀ over ∧; a substitution that would capture) and there is (an example; take
-// the one there is, a box; the one taken stays in its box). Then equality: equals replace equals, both ways round and
-// along a chain. Practice swaps and moves quantifiers. Lewis Carroll's syllogism puzzles are the topic; the drinker
-// paradox the challenge.
+// the one there is, a box; the one taken stays in its box). Then two lines that need both: swapping and moving
+// quantifiers, and negating them (¬∃ is ∀¬, ∃¬ gives ¬∀, and ¬∀ gives ∃¬ only by contradiction: the part Quantifier
+// De Morgan). Equality comes last, its own mechanism: equals replace equals, both ways round and along a chain. Lewis
+// Carroll's syllogism puzzles are the topic; the drinker paradox, which leans on Quantifier De Morgan, the challenge.
 import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
+const prove = (task) => ({ kind: 'proof', ...task })
+const DRINK = [{ P: 'Drinks' }, { P: 'Sings' }]
 const PERSON = [{ P: 'Human', Q: 'Mortal' }, { P: 'Student', Q: 'School' }]
 
 export const rules = [
@@ -125,6 +128,69 @@ export const rules = [
     brief: T('「有一只鸟」推得出「苏格拉底是鸟」吗？造一个世界说明推不出：有鸟，苏格拉底却不是。', 'Does “there is a bird” give “Socrates is a bird”? Build a world showing it does not: there is a bird, yet Socrates is not one.'),
     hint: [T('两样东西：一样是苏格拉底，另一样是鸟。', 'Two things: one is Socrates, the other a bird.')],
     after: T('拿出那一个给出的名字，不能和已经有的名字混在一起：那一样东西是谁，并不知道。', 'The name take the one there is gives may not be mixed with names already in use: which thing it is, nobody knows.'),
+  },
+  // Negating a quantifier: ¬∃ and ∀¬ give each other, ∃¬ gives ¬∀, all without proof by contradiction; ¬∀ gives ∃¬
+  // only with it, twice, and that one becomes a part.
+  {
+    id: 'q-notEx',
+    title: T('一个都没有', 'Not a single one'),
+    tasks: [
+      prove({
+        step: T('没有，就是都不', 'None is all not'),
+        tests: [{ premises: { p: '¬∃x. P(x)' }, goal: '∀x. ¬P(x)' }],
+        cases: DRINK,
+        brief: T('实现一个证明器，可以从已知「¬∃x. x在喝酒」（没有人在喝酒），证明出「∀x. ¬x在喝酒」（人人都没喝）。', 'Build a prover that, from “¬∃x. x is drinking” (nobody is drinking), proves “∀x. ¬x is drinking” (everyone is not drinking).'),
+        hint: [T('任取一个 x，假设它在喝酒：它就是一个例子，和已知撞出矛盾。', 'Take any x and suppose it is drinking: then it is an example, and it runs into the given.')],
+        solution: proof({ g: ['allI', { x: 'x' }], f: ['impI', { A: 'P(x)' }, 'g'], i: ['exI', { target: '∃x. P(x)', t: 'x' }, 'f'], m: ['mp', {}, 'f'] }, ['f#body>i.a', 'p>m.imp', 'i>m.a', 'm>f.body', 'f>g.body', 'g>goal'], { premises: ['p'] }),
+      }),
+      prove({
+        step: T('都不，就是没有', 'All not is none'),
+        tests: [{ premises: { p: '∀x. ¬P(x)' }, goal: '¬∃x. P(x)' }],
+        cases: DRINK,
+        brief: T('再从「∀x. ¬x在喝酒」证明出「¬∃x. x在喝酒」。', 'Now from “∀x. ¬x is drinking”, prove “¬∃x. x is drinking”.'),
+        hint: [T('假设有人在喝酒，把他拿出来，再从已知里取他。', 'Suppose someone is drinking, take them out, and take them from the given too.')],
+        solution: proof({ f: ['impI', { A: '∃x. P(x)' }], e: ['exE', { x: 'y' }, 'f'], a: ['allE', { t: 'y' }, 'e'], m: ['mp', {}, 'e'] }, ['f#body>e.ex', 'p>a.all', 'a>m.imp', 'e#body>m.a', 'm>e.body', 'e>f.body', 'f>goal'], { premises: ['p'] }),
+      }),
+    ],
+    intro: [{ t: T('「没有人在喝酒」和「人人都没在喝酒」说的是一回事：否定穿过量词，∃ 就变成 ∀。两个方向各证一遍。', '“Nobody is drinking” and “everyone is not drinking” say the same: negation passes through the quantifier and ∃ turns into ∀. Prove it each way.') }],
+    after: T('¬∃ 和 ∀¬ 互相推得出，两个方向都没用反证法。这是 <level-ref to="demorgan"></level-ref>的量词版：∃ 像一个很长的「或者」，∀ 像一个很长的「并且」。', '¬∃ and ∀¬ give each other, and neither way took proof by contradiction. It is the quantifier version of <level-ref to="demorgan"></level-ref>: ∃ is like a long “or”, ∀ like a long “and”.'),
+  },
+  {
+    id: 'q-exNot',
+    kind: 'proof',
+    title: T('有一个不', 'One who does not'),
+    tests: [{ premises: { p: '∃x. ¬P(x)' }, goal: '¬∀x. P(x)' }],
+    cases: DRINK,
+    brief: T('实现一个证明器，可以从已知「∃x. ¬x在喝酒」（有人没在喝酒），证明出「¬∀x. x在喝酒」（并非人人都在喝酒）。', 'Build a prover that, from “∃x. ¬x is drinking” (someone is not drinking), proves “¬∀x. x is drinking” (not everyone is drinking).'),
+    hint: [T('假设人人都在喝酒，把那个没喝的人拿出来，他也在「人人」里。', 'Suppose everyone is drinking; take out the one who is not, who is among “everyone” too.')],
+    solution: proof({ f: ['impI', { A: '∀x. P(x)' }], e: ['exE', { x: 'y' }, 'f'], a: ['allE', { t: 'y' }, 'e'], m: ['mp', {}, 'e'] }, ['p>e.ex', 'f#body>a.all', 'e#body>m.imp', 'a>m.a', 'm>e.body', 'e>f.body', 'f>goal'], { premises: ['p'] }),
+    after: T('一个反例就推翻「人人」：∃¬ 推得出 ¬∀，也不用反证法。反过来呢？', 'One counterexample overturns “everyone”: ∃¬ gives ¬∀, again without proof by contradiction. And the other way?'),
+  },
+  {
+    id: 'q-notAll',
+    kind: 'proof',
+    title: T('并非人人', 'Not everyone'),
+    sentences: ['¬∃x. ¬P(x)'],
+    builds: 'qdm',
+    tests: [{ premises: { p: '¬∀x. P(x)' }, goal: '∃x. ¬P(x)' }],
+    cases: DRINK,
+    brief: T('实现一个证明器，可以从已知「¬∀x. x在喝酒」（并非人人都在喝酒），证明出「∃x. ¬x在喝酒」（有人没在喝酒）。', 'Build a prover that, from “¬∀x. x is drinking” (not everyone is drinking), proves “∃x. ¬x is drinking” (someone is not drinking).'),
+    hint: [
+      T('已知里没有一个具体的人可以拿来举例。反过来假设「¬∃x. ¬x在喝酒」：没有人不喝。', 'The given names nobody to use as an example. Suppose the opposite, “¬∃x. ¬x is drinking”: nobody fails to drink.'),
+      T('在这个假设下，任取一个 x：要是他没喝，他就是一个「没喝的人」，撞上假设。所以他喝了（反证法），人人都喝，又撞上已知。', 'Under that, take any x: if they were not drinking, they would be someone not drinking, against the supposition. So they drink (by contradiction), everyone drinks, and that runs into the given.'),
+    ],
+    intro: [{ t: T('反过来，从「并非人人都在喝酒」推出「有人没在喝酒」。这一回已知没有交出任何一个人。', 'The other way: from “not everyone is drinking” to “someone is not drinking”. This time the given hands over nobody at all.') }],
+    solution: proof({
+      k: ['impI', { A: '¬∃x. ¬P(x)' }],
+      g: ['allI', { x: 'x' }, 'k'],
+      j: ['impI', { A: '¬P(x)' }, 'g'],
+      i: ['exI', { target: '∃x. ¬P(x)', t: 'x' }, 'j'],
+      mj: ['mp', {}, 'j'],
+      r1: ['raa', {}, 'g'],
+      m2: ['mp', {}, 'k'],
+      r2: ['raa'],
+    }, ['j#body>i.a', 'k#body>mj.imp', 'i>mj.a', 'mj>j.body', 'j>r1.nna', 'r1>g.body', 'p>m2.imp', 'g>m2.a', 'm2>k.body', 'k>r2.nna', 'r2>goal'], { premises: ['p'] }),
+    after: T('这个方向用了两次反证法：证出了「有一个」，却说不出是谁。直觉主义逻辑不承认这样的「存在」。这块电路成了元件<b>量词德摩根</b>：接进「¬∀x. …」，给出「∃x. ¬…」。', 'This way took proof by contradiction twice: it proves “there is one” without saying who. Intuitionistic logic does not accept such an “exists”. This circuit becomes the part <b>Quantifier De Morgan</b>: wire in “¬∀x. …” and it gives “∃x. ¬…”.'),
   },
   {
     id: 'q-eq',
@@ -303,7 +369,6 @@ export const rules = [
   },
   {
     id: 'drinker',
-    sentences: ['¬∃y. ¬D(y)'],
     kind: 'proof',
     title: T('酒鬼悖论', 'The drinker paradox'),
     tests: [{ goal: '∃x. D(x) → ∀y. D(y)' }],
@@ -315,14 +380,7 @@ export const rules = [
       e: ['orE'],
       h: ['impI', { A: 'D(x)' }, 'e/left'],
       i1: ['exI', { target: '∃x. D(x) → ∀y. D(y)', t: 'x' }, 'e/left'],
-      k: ['impI', { A: '¬∃y. ¬D(y)' }, 'e/right'],
-      g: ['allI', { x: 'y' }, 'k'],
-      j: ['impI', { A: '¬D(y)' }, 'g'],
-      ij: ['exI', { target: '∃y. ¬D(y)', t: 'y' }, 'j'],
-      mj: ['mp', {}, 'j'],
-      r1: ['raa', {}, 'g'],
-      m2: ['mp', {}, 'k'],
-      r2: ['raa', {}, 'e/right'],
+      q: ['qdm', {}, 'e/right'],
       f: ['exE', { x: 'y' }, 'e/right'],
       h2: ['impI', { A: 'D(y)' }, 'f'],
       m3: ['mp', {}, 'h2'],
@@ -330,8 +388,7 @@ export const rules = [
       i2: ['exI', { target: '∃x. D(x) → ∀y. D(y)', t: 'y' }, 'f'],
     }, [
       'l>e.ab', 'e#left>h.body', 'h>i1.a', 'i1>e.left',
-      'j#body>ij.a', 'k#body>mj.imp', 'ij>mj.a', 'mj>j.body', 'j>r1.nna', 'r1>g.body', 'e#right>m2.imp', 'g>m2.a', 'm2>k.body', 'k>r2.nna',
-      'r2>f.ex', 'f#body>m3.imp', 'h2#body>m3.a', 'm3>b.bot', 'b>h2.body', 'h2>i2.a', 'i2>f.body', 'f>e.right', 'e>goal',
+      'e#right>q.p0', 'q>f.ex', 'f#body>m3.imp', 'h2#body>m3.a', 'm3>b.bot', 'b>h2.body', 'h2>i2.a', 'i2>f.body', 'f>e.right', 'e>goal',
     ]),
     naive: proof({ h: ['impI', { A: 'D(x)' }], i: ['exI', { target: '∃x. D(x) → ∀y. D(y)', t: 'x' }] }, ['h#body>h.body', 'h>i.a', 'i>goal']),
     after: T('大家都在喝，随便哪个人都行；有人没喝，那个人就是：他没喝，「他喝酒就大家都喝」就空着成立了。这句话听着荒唐，却是经典逻辑的定理，靠的是排中律：不知道是哪种情况，两种都讨论。', 'If everyone drinks, anyone will do; if someone does not, that one will: they do not drink, so “if they drink, everyone does” holds emptily. It sounds absurd, yet it is a theorem of classical logic, resting on excluded middle: not knowing which case holds, take both.'),

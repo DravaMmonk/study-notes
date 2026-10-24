@@ -255,13 +255,21 @@ function match(schema, f0, bind) {
   if (g.op === 'atom') return same(g, f)
   if (g.op === '⊥') return true
   if (g.op === '¬') return match(g.a, f.a, bind)
-  if (g.op === '∀' || g.op === '∃') return same(g, f)
+  // A quantifier over a letter (∀x. P, the body a letter) fits any variable: the letter takes the body, and the variable
+  // the lemma writes is the one fitted, so what it gives binds the same one (¬∀y. D(y) gives ∃y. ¬D(y)).
+  if (g.op === '∀' || g.op === '∃') {
+    if (!metasIn(g.body).size) return same(g, f)
+    const v = `$${g.v}`
+    if (bind[v] && bind[v] !== f.v) return false
+    bind[v] = f.v
+    return match(g.body, f.body, bind)
+  }
   return match(g.a, f.a, bind) && match(g.b, f.b, bind)
 }
 function instantiate(f, bind) {
   if (f.op === 'meta') return bind[f.name]
   if (f.op === '¬') return { op: '¬', a: instantiate(f.a, bind) }
-  if (f.op === '∀' || f.op === '∃') return { ...f, body: instantiate(f.body, bind) }
+  if (f.op === '∀' || f.op === '∃') return { ...f, v: bind[`$${f.v}`] ?? f.v, body: instantiate(f.body, bind) }
   if (f.a) return bin(f.op, instantiate(f.a, bind), instantiate(f.b, bind))
   return f
 }
