@@ -52,13 +52,14 @@ function Segments({ parts, owner = null, next, selected, flash, onSlot }) {
 
 /**
  * The tray of chips under a strip: tap one to put it in the selected box, or in the first empty box that takes it.
- * A chip in use is greyed out.  groups: [{ key, label, chips: [{ key, text, sub?, family?, used? }] }]
+ * A chip in use is greyed out; a locked group is dimmed but still answers a tap (the game says why it is locked).
+ * groups: [{ key, label, locked?, chips: [{ key, text, sub?, family?, used? }] }]
  */
 export function Chips({ groups, onChip }) {
   return (
     <div className="ks-chips">
       {groups.map((g) => (
-        <section key={g.key} className="ks-chip-group" aria-label={L(g.label)}>
+        <section key={g.key} className={`ks-chip-group ${g.locked ? 'is-locked' : ''}`} aria-label={L(g.label)}>
           <span className="ks-chip-label">{L(g.label)}</span>
           <div className="ks-chip-row">
             {g.chips.map((c) => (

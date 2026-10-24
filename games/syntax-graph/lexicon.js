@@ -1,7 +1,7 @@
-// 句法之图's words: the vocabulary of a computer science paper and its review, and the times and viewpoints a speaker
-// chooses between. Only data: what each word is to the grammar (games/kit/domains/syntax/engine/lexicon.js says the
-// shape). The grammar itself (frames, the forms each time asks for, agreement, case) is the syntax domain's, the same
-// for every level, and the machine works it out for the player.
+// 句法之图's words: the vocabulary of a computer science paper and its review. Only data: what each word is to the
+// grammar (games/kit/domains/syntax/engine/lexicon.js says the shape). The grammar itself (frames, the times and the
+// questions that set them, the forms each time asks for, agreement, case) is the syntax domain's, the same for every
+// level, and the machine works the forms out for the player.
 
 const T = (zh, en) => ({ zh, en })
 const np = (text, ent, number, sense) => ({ text, ent, number, sense })
@@ -53,18 +53,4 @@ export const verbs = {
   read: verb('read', 'reads', 'read', 'read', 'reading', 'transitive', T('读', 'read')),
   send: verb('send', 'sends', 'sent', 'sent', 'sending', 'ditransitive', T('发送', 'send')),
   'send-to': verb('send', 'sends', 'sent', 'sent', 'sending', 'dative', T('发送', 'send'), { lemma: 'send' }),
-}
-
-// The times and viewpoints, named the way a speaker weighs them rather than by their grammar: each says when, and from
-// where the event is looked at.
-const time = (label, shape, tense, aspect) => ({ label, shape, tense, aspect })
-
-export const times = {
-  past: time(T('那时 · 整件事', 'then · the whole event'), '-ed', 'past', 'simple'),
-  present: time(T('一般成立', 'holds in general'), '-s / ∅', 'present', 'simple'),
-  future: time(T('将来', 'later'), 'will', 'future', 'simple'),
-  perfect: time(T('到现在 · 结果还在', 'up to now · the result stands'), 'have + -en', 'present', 'perfect'),
-  pastPerfect: time(T('那时之前 · 已经做完', 'before then · already done'), 'had + -en', 'past', 'perfect'),
-  progressive: time(T('此刻 · 正在进行', 'now · in progress'), 'be + -ing', 'present', 'progressive'),
-  pastProgressive: time(T('那时 · 正在进行', 'then · in progress'), 'was + -ing', 'past', 'progressive'),
 }

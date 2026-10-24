@@ -3,7 +3,7 @@
 // it requires, and the course the shared audit checks (npm run check).
 //
 // syntaxCourse({ lexicon, eras, levels })
-//   lexicon  { nouns, verbs, times } (lexicon.js)
+//   lexicon  { nouns, verbs } (lexicon.js; the times are the grammar's)
 //   eras     [{ id, machine, title, kicker?, question?, foundation, practice?, topics?, challenges? }]
 //   levels   [{ id, title, brief, hint?, intro?, context, meaning, palette: { np?, verb?, time? }, preset?, refer?,
 //              why?, answer, traps?, target?, debrief: { title, body, note } }], in any order
@@ -13,8 +13,11 @@
 //              `label` and `note` are what the player reads; `ent` and `number` are what the check compares.
 //     preset   part of the answer already in its slots, fixed (same shape as the answer)
 //     refer    what each pronoun names here ({ she: 'reviewer' }): the context the sentence is said in
+//     palette.time  the times the level weighs (grammar.js TIMES keys, 'present.perfect'): the time questions offer
+//              the answers these use, and the level introduces them in the course audit
 //     why      { time key: { zh, en } }: for each wrong time the level offers, why a native speaker would not say it
-//              here (validate.js asks for one per wrong time)
+//              here (validate.js asks for one per wrong time); any other wrong time gets a plain reason from the
+//              question it answers differently
 //     answer   the reference sentence as a clause of lexicon keys ({ SUBJ, TIME, V, OBJ?, IOBJ?, TO? })
 //     traps    [{ answer, fails: 'grammar' | 'pred' | 'time' | 'role' | 'star' }]: sentences a player is likely to
 //              try, which the level must turn down where it says (validate.js runs them and the answer)

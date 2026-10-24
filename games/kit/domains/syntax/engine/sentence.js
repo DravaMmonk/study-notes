@@ -7,10 +7,11 @@
 //                               its time asks for
 //   words(lex, clause)          the sentence word group by word group, with gaps for the empty slots
 //   check(lex, level, clause)   the whole run: the sentence, its meaning, each part of the level's meaning matched or
-//                               not (and why: a wrong time gives the level's own reason for it), and the score
+//                               not (and why: a wrong time says which time question went the other way, with the
+//                               level's own reason for it), and the score
 //   toClause(answer)            a clause from a level's answer written with lexicon keys ({ SUBJ: 'paper', … })
 
-import { ASPECT_NAME, ROLE_NAME, SLOT_LABEL, TENSE_NAME, inflect, said, slotsOf } from './grammar.js'
+import { ROLE_NAME, SLOT_LABEL, inflect, said, slotsOf, timeStep } from './grammar.js'
 
 const pair = (zh, en) => ({ zh, en })
 const KIND_OF = { SUBJ: 'np', TIME: 'time', V: 'verb', OBJ: 'np', IOBJ: 'np', TO: 'np' }
@@ -56,6 +57,14 @@ export function sentenceOf(groups) {
   return `${text.charAt(0).toUpperCase()}${text.slice(1)}.`
 }
 
+/** The level's reference sentence said with each other time it weighs (its palette): [{ key, sentence }]. */
+export function contrasts(lex, level) {
+  const clause = toClause(level.answer)
+  return level.palette
+    .filter((t) => lex.part(t)?.kind === 'time' && t !== clause.TIME)
+    .map((t) => ({ key: lex.part(t).key, sentence: sentenceOf(words(lex, { ...clause, TIME: t })) }))
+}
+
 export const wordCount = (groups) => groups.reduce((sum, g) => sum + (g.gap ? 0 : g.text.split(' ').length), 0)
 
 /** The empty slots, in words: "主语、宾语" / "subject, object". */
@@ -67,7 +76,7 @@ export const openSlots = (open) => pair(open.map((s) => SLOT_LABEL[s].zh).join('
  * of the level names; `level.why` (optional) is { time key: { zh, en } }, why that time is the wrong one here.
  *
  *   { complete, open, groups, sentence, words, pass, star,
- *     pred: { ok, why? }, time: { ok, why? }, roles: { ROLE: { ok, why?, slot? } }, extra: [ROLE] }
+ *     pred: { ok, why? }, time: { ok, step?, why? }, roles: { ROLE: { ok, why?, slot? } }, extra: [ROLE] }
  */
 export function check(lex, level, clause) {
   const groups = words(lex, clause)
@@ -79,11 +88,13 @@ export function check(lex, level, clause) {
   const verb = lex.part(clause.V)
   const time = lex.part(clause.TIME)
   result.pred = verb.lemma === want.pred ? { ok: true } : { ok: false, why: pair(`这里说的是 ${verb.lemma}（${verb.sense.zh}）`, `This says ${verb.lemma} (${verb.sense.en})`) }
-  const named = (t, a) => pair(`${TENSE_NAME[t].zh} · ${ASPECT_NAME[a].zh}`, `${TENSE_NAME[t].en} ${ASPECT_NAME[a].en}`)
-  const says = named(time.tense, time.aspect)
-  result.time = time.tense === want.tense && time.aspect === want.aspect
-    ? { ok: true }
-    : { ok: false, why: level.why?.[time.key] ?? pair(`说成了${says.zh}`, `This says ${says.en}`) }
+  const meant = `${want.tense}.${want.aspect}`
+  if (time.key === meant) result.time = { ok: true }
+  else {
+    // Which of the time questions went the other way, and why: the level's own reason, or a plain one.
+    const { step, why } = timeStep(time.key, meant)
+    result.time = { ok: false, step, why: level.why?.[time.key] ?? why }
+  }
   // The roles the sentence fills: the subject's (the verb's own), then each object slot's.
   const filled = { [verb.subject]: 'SUBJ' }
   for (const [slot, role] of verb.ports) filled[role] = slot

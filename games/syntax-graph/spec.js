@@ -6,10 +6,13 @@
 import { syntaxCourse } from '../kit/domains/syntax/engine/course.js'
 import { shiftIds } from '../kit/shell/saves.js'
 import { entries, groups } from './glossary.js'
-import { nouns, times, verbs } from './lexicon.js'
+import { nouns, verbs } from './lexicon.js'
 import { levels as viewpoint } from './levels/viewpoint.js'
 
 const T = (zh, en) => ({ zh, en })
+
+// The times of save version 3, by their keys since (version 4).
+const TIME_KEYS = { past: 'past.simple', present: 'present.simple', future: 'future.simple', perfect: 'present.perfect', pastPerfect: 'past.perfect', progressive: 'present.progressive', pastProgressive: 'past.progressive' }
 
 const eras = [
   {
@@ -23,7 +26,7 @@ const eras = [
   },
 ]
 
-const SYNTAX = syntaxCourse({ lexicon: { nouns, verbs, times }, eras, levels: viewpoint })
+const SYNTAX = syntaxCourse({ lexicon: { nouns, verbs }, eras, levels: viewpoint })
 
 export default {
   id: 'syntax-graph',
@@ -53,6 +56,8 @@ export default {
     // Version 3 handed the grammar to the machine and made era 1 about time and viewpoint: every level after the first
     // is a new puzzle, and its old clause (written with tense heads that no longer exist) is dropped with it.
     { version: 3, ops: [{ rename: (id) => (id === '1-1' ? id : null) }, { data: () => null }] },
+    // Version 4 set the time by answering questions: the times are the grammar's, keyed by tense and aspect.
+    { version: 4, ops: [{ data: (value) => (value?.clause?.TIME ? { ...value, clause: { ...value.clause, TIME: `time:${TIME_KEYS[value.clause.TIME.slice(5)]}` } } : value) }] },
   ],
-  texts: { chapters: SYNTAX.CHAPTERS, glossary: entries, nouns, verbs, times },
+  texts: { chapters: SYNTAX.CHAPTERS, glossary: entries, nouns, verbs },
 }

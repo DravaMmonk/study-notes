@@ -21,7 +21,8 @@ export const entries = [
     id: 'places', group: 'play', title: T('位置', 'Places'),
     body: [
       T('句子是一排按语序排好的位置：主语，然后是谓语里的时间、动词和动词要的宾语。下面的括号标出哪些位置合成一个成分。', 'A sentence is a row of places in reading order: the subject, then the predicate’s time, verb and the objects the verb needs. The brackets underneath show which places make up one constituent.'),
-      T('点一个词，它会进第一个能放它的空位；先点一个位置，再点词，就放进那个位置。点已放好的词把它拿掉。亮起的位置是建议先定的那个：时间总在最前。', 'Tap a word and it goes into the first empty place that takes it; tap a place first and then a word to put it there. Tap a placed word to take it out. The lit place is the one to settle next: the time always comes first.'),
+      T('时间由句子下面的三个问题定下：这是一次具体的事吗？你站在哪一刻说它？从那一刻看它是什么样子？答完之前，其余位置都锁着。', 'The time is set by the three questions under the sentence: is this one event? Which moment do you stand at to say it? Seen from there, what does it look like? Until they are answered, the other places are locked.'),
+      T('点一个词，它会进第一个能放它的空位；先点一个位置，再点词，就放进那个位置。点已放好的词把它拿掉。', 'Tap a word and it goes into the first empty place that takes it; tap a place first and then a word to put it there. Tap a placed word to take it out.'),
       T('有的关给出词数目标，用更少的词拿到 ★。', 'Some levels set a word target: hit it to earn the ★.'),
     ],
     see: ['situation'],
@@ -30,7 +31,7 @@ export const entries = [
     id: 'machine', group: 'play', title: T('机器替你做的', 'What the machine does'),
     body: [
       T('词形全由机器配：动词的 <i>-ed</i>、<i>-s</i>、<i>-ing</i> 和过去分词，<i>has / have</i>、<i>is / are</i>、<i>was / were</i> 和主语的一致，代词在主语位置说 <i>we</i>、在别处说 <i>us</i>。这些是规则，母语者说话时不去想它们。', 'The machine handles every form: the verb’s <i>-ed</i>, <i>-s</i>, <i>-ing</i> and past participle, agreement in <i>has / have</i>, <i>is / are</i>, <i>was / were</i>, and a pronoun said <i>we</i> as the subject and <i>us</i> elsewhere. These are rules, and native speakers do not think about them while speaking.'),
-      T('你做的是规则替不了的决定：这件事从哪里看、谁当主语、哪个词放在哪。', 'What you make are the decisions no rule makes for you: where to look at the event from, what the subject is, which word goes where.'),
+      T('你做的是规则替不了的决定：这件事从哪里看、谁当主语、哪个词放在哪。过关后，窗口里会列出同一句话换成别的时间会说成什么，方便对照。', 'What you make are the decisions no rule makes for you: where to look at the event from, what the subject is, which word goes where. After a pass, the dialog lists what the same sentence would say with the other times, to compare.'),
     ],
   },
   {

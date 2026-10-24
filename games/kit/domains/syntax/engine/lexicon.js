@@ -9,15 +9,15 @@
 //   verbs   { key: { forms: { base, s, past, pp, ing }, frame, lemma?, subject?, sense: { zh, en } } }
 //           `frame` is one of grammar.js FRAMES; `lemma` names the verb in a level's meaning (by default the key, so
 //           two frames of one verb share it); `subject` is the subject's role (AGENT by default)
-//   times   { key: { label: { zh, en }, shape, tense, aspect } }
-//           a time and viewpoint as the player chooses it ("up to now · the result stands"); `shape` is how English
-//           marks it ("have + -en"); the grammar works out the words from the tense, the aspect and the subject
 //
-// A word's type in a clause is `<kind>:<key>` (np:paper, verb:accept, time:perfect).
+// The times are not a game's words but the grammar's (grammar.js TIMES): every lexicon has all of them, as
+// time:<tense>.<aspect>, and the grammar works out their words from the subject.
+//
+// A word's type in a clause is `<kind>:<key>` (np:paper, verb:accept, time:present.perfect).
 
-import { ASPECT_NAME, FRAMES, TENSE_NAME } from './grammar.js'
+import { ASPECT_NAME, FRAMES, TENSE_NAME, TIMES } from './grammar.js'
 
-export function defineLexicon({ nouns = {}, verbs = {}, times = {} }) {
+export function defineLexicon({ nouns = {}, verbs = {} }) {
   const parts = new Map()
   const problems = []
   for (const [key, n] of Object.entries(nouns)) {
@@ -31,9 +31,10 @@ export function defineLexicon({ nouns = {}, verbs = {}, times = {} }) {
     const frame = FRAMES[v.frame] ?? FRAMES.intransitive
     parts.set(`verb:${key}`, { kind: 'verb', key, lemma: v.lemma ?? key, text: v.frame === 'dative' ? `${v.forms.base} … to` : v.forms.base, forms: v.forms, frame: v.frame, ports: frame.ports, subject: v.subject ?? 'AGENT', sense: v.sense })
   }
-  for (const [key, t] of Object.entries(times)) {
-    if (!TENSE_NAME[t.tense] || !ASPECT_NAME[t.aspect]) problems.push(`time:${key}: unknown tense or aspect`)
-    parts.set(`time:${key}`, { kind: 'time', key, text: t.label, shape: t.shape, tense: t.tense, aspect: t.aspect })
+  for (const [key, shape] of Object.entries(TIMES)) {
+    const [tense, aspect] = key.split('.')
+    const text = { zh: `${TENSE_NAME[tense].zh} · ${ASPECT_NAME[aspect].zh}`, en: `${TENSE_NAME[tense].en} ${ASPECT_NAME[aspect].en}` }
+    parts.set(`time:${key}`, { kind: 'time', key, text, shape, tense, aspect })
   }
   return {
     problems,
