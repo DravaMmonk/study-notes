@@ -209,3 +209,5 @@
 .tm-level [data-family='or'] { --fam: var(--fam-or); }
 .tm-level [data-family='absurd'] { --fam: var(--fam-absurd); }
 .tm-level .ks-chip b { font-family: var(--mono); font-size: 15px; }
+.lg-taken { font-size: 12px; color: var(--muted); }
+.lg-taken b { font-family: var(--serif); font-size: 14px; color: var(--ink); }

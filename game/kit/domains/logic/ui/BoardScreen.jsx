@@ -127,6 +127,8 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const foldedItems = folded.map(itemOf)
   // What a region opens with (or that it opens with nothing yet): at its left edge, or first in its grid on a phone.
   const regionNote = (node, region) => {
+    // A for-any box opens no assumption: its region holds the thing it takes.
+    if (node.type === 'allI') return node.params?.x ? <span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.x}</b></span> : <i className="lg-mark">{tr('还没给它起名', 'not named yet')}</i>
     const v = view.values.get(srcOf(node, region))
     return v ? <Value v={v} text={text} small /> : <i className="lg-mark">{L(board.words.noOpen)}</i>
   }
