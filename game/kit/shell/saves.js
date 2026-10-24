@@ -5,11 +5,12 @@
 //   { fields: { old field: new field } }     the save's own fields move (a field missing on the save is left alone)
 //   { grant: [level id, flag] }              a flag for whoever solved that level
 //   { solve: [level id, [level id…]] }       levels counted solved for whoever solved that one
-//   { data: (value, level id) → value }      every level's kept state rewritten (a part renamed or gone from boards)
+//   { data: (value, level id) → value }      every level's kept state rewritten (a part renamed or gone from boards),
+//                                            the boards waiting in its other slots too (slots.js)
 //
 // migrations(steps) gives the shell's { version, migrate } (progress.js): version is the newest step's.
 
-const RECORDS = ['data', 'boards', 'best', 'tasks', 'introSeen']
+const RECORDS = ['data', 'boards', 'slots', 'best', 'tasks', 'introSeen']
 
 function rename(save, to) {
   const move = typeof to === 'function' ? to : (id) => (id in to ? to[id] : id)
@@ -33,7 +34,11 @@ const OPS = {
     return out
   },
   grant: (save, [level, flag]) => ((save.solved ?? []).includes(level) && !(save.flags ?? []).includes(flag) ? { ...save, flags: [...(save.flags ?? []), flag] } : save),
-  data: (save, f) => (save.data ? { ...save, data: Object.fromEntries(Object.entries(save.data).map(([id, value]) => [id, f(value, id)])) } : save),
+  data: (save, f) => ({
+    ...save,
+    ...(save.data && { data: Object.fromEntries(Object.entries(save.data).map(([id, value]) => [id, f(value, id)])) }),
+    ...(save.slots && { slots: Object.fromEntries(Object.entries(save.slots).map(([id, s]) => [id, { ...s, list: s.list.map((slot) => ('data' in slot ? { ...slot, data: f(slot.data, id) } : slot)) }])) }),
+  }),
   solve: (save, [level, ids]) => ((save.solved ?? []).includes(level) ? { ...save, solved: [...new Set([...save.solved, ...ids])] } : save),
 }
 

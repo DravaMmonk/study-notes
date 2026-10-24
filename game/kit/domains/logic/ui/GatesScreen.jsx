@@ -60,9 +60,8 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
     setCircuit(next)
     save(next)
   }
-  const reset = () => change(startGates(level))
   // Clearing is the board's own (a button among its tools, which asks first).
-  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part') ? reset : null
+  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part') ? () => change(startGates(level)) : null
   // A run down the table: every row checked at once, shown one at a time; over budget fails it once every row is right.
   const checked = useMemo(() => checkGates(level, circuit), [level, circuit])
   const playback = usePlayback({
@@ -135,7 +134,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
   )
   const body = (node) => <div className="lg-card"><CardValue value={valueOf(node)} error={errorOf(node)} /></div>
 
-  if (phone) return <PhoneGates {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, reset, onClear, table, body, valueOf, errorOf }} scope={level.id} />
+  if (phone) return <PhoneGates {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf }} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -177,7 +176,7 @@ function CardValue({ value, error }) {
 }
 
 // The board on a phone: the shared slot board, the truth table under it, and the run bar.
-function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, addNode, reset, onClear, table, body, valueOf, errorOf, scope }) {
+function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, scope }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -192,7 +191,6 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
     label: parts.label,
     openNode: (id) => setSheet({ node: id }),
     openSlot: (at) => items.length + foldedItems.length > 0 && setSheet({ slot: at }),
-    reset,
     root,
     scroller,
     scope,

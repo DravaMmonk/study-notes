@@ -6,7 +6,7 @@ import { Check, Play, SkipForward } from 'lucide-react'
 // bottom of the page on a phone.
 //
 // meta: a line on where the level stands (a node)   lead: anything before it (an undo button)
-// secondary: { label, icon?, armed?, onClick?, attrs? }     go: { label, busy?, pass?, pulse?, icon?, onClick?, attrs? }
+// secondary: { label, icon?, onClick?, attrs? }     go: { label, busy?, pass?, pulse?, icon?, onClick?, attrs? }
 // controls: [{ key, label, icon, onClick?, attrs? }] small buttons before them (step through a run, pause, go on)
 // attrs are spread onto the button, so a page that handles clicks itself (data-act=…) can keep doing so.
 
@@ -20,7 +20,7 @@ export default function RunDock({ meta, lead, secondary, controls = [], go, clas
         <button key={c.key} type="button" className="run-ctl" onClick={c.onClick} aria-label={c.label} title={c.label} {...c.attrs}>{c.icon}<span>{c.label}</span></button>
       ))}
       {secondary && (
-        <button type="button" className={`run-sec ${secondary.armed ? 'is-armed' : ''}`} onClick={secondary.onClick} aria-label={secondary.label} title={secondary.label} {...secondary.attrs}>{secondary.icon}<span>{secondary.label}</span></button>
+        <button type="button" className="run-sec" onClick={secondary.onClick} aria-label={secondary.label} title={secondary.label} {...secondary.attrs}>{secondary.icon}<span>{secondary.label}</span></button>
       )}
       {go && (
         <button type="button" className={`run-go ${go.busy ? 'is-busy' : ''} ${go.pass ? 'is-pass' : ''} ${go.pulse ? 'is-pulse' : ''}`} onClick={go.onClick} {...go.attrs}>

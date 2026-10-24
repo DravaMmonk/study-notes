@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { EyeOff, Plus, Redo2, Spline, Undo2, Waypoints } from 'lucide-react'
 import ClearButton from './ClearButton.jsx'
+import SaveSlots from './SaveSlots.jsx'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { feeding, inPort, layout, outPort, parsePort, placement, srcNode, srcOf } from './model.js'
@@ -100,7 +101,8 @@ const readMode = () => {
  * @param outNote(node, key)               over each of a block's several outputs (parts.outputs), under its name: what
  *                                         it carries
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
- * @param onClear                          clears the board: a button at the left of that row, which asks first
+ * @param onClear                          clears the board: a button just left of undo and redo, which asks first
+ *                                         (the row starts with the switcher between the level's saved boards, SaveSlots)
  * @param dense                            a board of text: thin blocks, each one's name over its value
  * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is;
  *        resultNote(node, region)         and beside the dot its result goes into, what the frame gives (a frame's
@@ -289,6 +291,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   return (
     <div className={`pb-board ${dense ? 'is-dense' : ''}`} data-ports={parts.typedPorts ? undefined : 'arrow'} ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
       <div className="pb-tools">
+        {!fixed && <SaveSlots phone />}
         {onClear && <span className="pb-steps pb-clear"><ClearButton onClear={onClear} size={16} /></span>}
         {history && (
           <span className="pb-steps">

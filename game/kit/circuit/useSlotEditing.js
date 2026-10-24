@@ -13,24 +13,22 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  * block itself), or drag between them; tapping a wired input unplugs it. Parts come from the tray: tap to drop into
  * the next free slot, or hold and drag into a slot; holding a placed part moves it, and dragging it back onto the
  * tray removes it. A frame's regions are grids of their own (model.js placement): a slot there is the same, and a
- * part dragged into one moves into the frame, or out of it onto the board. Every change can be undone and redone (useHistory); clearing asks twice.
+ * part dragged into one moves into the frame, or out of it onto the board. Every change can be undone and redone (useHistory).
  *
  * @param graph, onChange(graph), parts            the circuit and the game's description of its nodes (model.js)
  * @param create(graph, type, at, region) → { graph, id }  add a part of `type` in slot `at` of `region` (null: the
  *                                                 board itself; the game makes its nodes)
  * @param label(node)                              a block's own name (without its number)
  * @param openNode(id), openSlot(at, region)       the game's sheets for a block and an empty slot
- * @param reset()                                  start the circuit over
  * @param root, scroller                           refs to the element that holds the board and tray, and to the board's
  *                                                 scrolling pane (drags start inside `root` and scroll `scroller`)
  * @param scope                                    names the board for undo (a level's stage)
  * @returns state and handlers for SlotBoard (`history`: its undo and redo), Tray and Notice
  */
-export function useSlotEditing({ graph, onChange, parts, create, label, openNode, openSlot, reset, root, scroller, scope }) {
+export function useSlotEditing({ graph, onChange, parts, create, label, openNode, openSlot, root, scroller, scope }) {
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
   const history = useHistory(graph, onChange, scope)
   const [toast, setToast] = useState(null) // a { zh, en } pair, read in the current language when shown
-  const [armed, setArmed] = useState(false)
   const { sources, steps, sinks } = layout(graph, parts)
   // Parts are numbered in reading order: the board's slots, and a frame's regions right after the frame.
   const ordered = []
@@ -64,11 +62,6 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     const timer = setTimeout(() => setToast(null), 3600)
     return () => clearTimeout(timer)
   }, [toast])
-  useEffect(() => {
-    if (!armed) return undefined
-    const timer = setTimeout(() => setArmed(false), 2600)
-    return () => clearTimeout(timer)
-  }, [armed])
 
   // Wiring: a source (an output dot) to a sink (an input dot), in either order.
   const refusal = (a, b) => {
@@ -148,16 +141,6 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     buzz([6, 40, 6])
     edit(removeNode(graph, id), { zh: `拿掉了 ${nameOf(byId(graph, id))}`, en: `Removed ${nameOf(byId(graph, id))}` })
   }
-  const clear = () => {
-    if (!armed) {
-      buzz(4)
-      setArmed(true)
-      return
-    }
-    setArmed(false)
-    reset()
-    setToast({ zh: '清空了电路', en: 'Circuit cleared' })
-  }
 
   // Drag and drop on the board, the tray and the dots, through the kit's drag.js. Handlers read the latest state
   // through a ref.
@@ -209,7 +192,7 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
 
   return {
     picking, unpick: () => setPicking(null), canLand, onPort, onNode, onSlot, nameOf,
-    place, placeFirstFree, remove, edit, clear, armed, toast, say: setToast, pickNote,
+    place, placeFirstFree, remove, edit, toast, say: setToast, pickNote,
     history: { ...history, undo: step(history.undo), redo: step(history.redo) },
     sources, steps, sinks,
   }

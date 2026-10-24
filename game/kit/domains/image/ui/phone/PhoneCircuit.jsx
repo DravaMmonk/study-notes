@@ -25,7 +25,7 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 // An output and its expected value can only be compared cell by cell when they are the same size.
 const fits = (img, expected) => img.w === expected.w && img.h === expected.h
 
-export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph, onChange, onReset, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
+export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph, onChange, onClear, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
   const [sheet, setSheet] = useState(null)
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
@@ -46,7 +46,6 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
     label: parts.label,
     openNode: (id) => setSheet({ kind: 'part', node: id }),
     openSlot: (at) => level.palette.length && setSheet({ kind: 'add', at }),
-    reset: onReset,
   })
   const { nameOf, sources, steps } = editing
   const wasPassing = useRef(run?.pass)
@@ -138,6 +137,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
           onNode={editing.onNode}
           onSlot={editing.onSlot}
           history={editing.history}
+          onClear={onClear}
         />
         {steps.length > 0 && <p className="pb-howto">{tr('点两个圆点连线，或从一个圆点拖到另一个；点已接好的输入口就拆掉。按住一块可以挪格子，拖回下面的托盘就是拿掉。', 'Tap two dots to connect them, or drag from one dot to another; tap a wired input to unplug it. Hold a block to move it to another slot; drag it back onto the tray to remove it.')}</p>}
         {/* Under the board: what the hidden tests say, training, this test's details, and the score last. */}
@@ -158,10 +158,9 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
 
       <Tray items={level.palette.filter((type) => !level.folded?.includes(type)).map(trayItem)} folded={(level.folded ?? []).map(trayItem)} onPick={editing.placeFirstFree} />
 
-      {/* The kit's run bar (RunDock), as in every level: clear, and Run. */}
+      {/* The kit's run bar (RunDock), as in every level: Run. */}
       <footer className="run-foot">
         <RunDock
-          secondary={steps.length > 0 ? { label: editing.armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), icon: <Trash2 size={16} />, armed: editing.armed, onClick: editing.clear } : null}
           go={{ label: run?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(run?.pass && !hiddenMiss), onClick: test }}
         />
       </footer>

@@ -84,7 +84,7 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
     dirs: { ...(L.solutionDirs || L.dirs || {}) },
     scan: stages.map((s) => (s.dial ? s.solutionScan : null)),
     filter: stages.map((s) => s.solutionFilter || 'all'),
-    armed: false, ti: 0, status: [], view: null,
+    ti: 0, status: [], view: null,
     typed: {}, robot: null, sel: null, input: '',
   };
   const robot = ROBOTS[L.robot];
@@ -103,7 +103,7 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
   const io = () => ({ sensors: V().sensors, outs: V().outs });
   const label = t => (L.testLabel || V().label)(t);
   const busy = () => rt.cur.running;
-  const changed = () => { st.status = tests().map(() => null); st.view = null; st.armed = false; rt.persist(); };
+  const changed = () => { st.status = tests().map(() => null); st.view = null; rt.persist(); };
   st.status = tests().map(() => null);
   const setCirc = c => { st.circs[st.stage] = c; changed(); };
   const shownStep = () => { const v = st.view; if (!v || !v.k) return null; return v.res.steps[v.focus ?? v.k - 1]; };
@@ -525,8 +525,6 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
       return {
         meta,
         ctrl: [{ act: 'step', icon: 'step', label: tr('单步', 'Step') }],
-        sec: circ().nodes.length ? (st.armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear')) : '',
-        secAct: 'clear',
         go: tr('运行测试', 'Run tests'),
         act: 'run',
       };
@@ -563,11 +561,6 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
         setCirc({ ...circ(), layers: n }); st.robot = null; st.typed = {}; changed(); buzz(6); rt.refresh();
       }
       if (name === 'answer') { const m = Number(el.dataset.v), on = circ().answerLayers || [0]; setCirc({ ...circ(), answerLayers: on.includes(m) ? on.filter(x => x !== m) : [...on, m] }); changed(); buzz(6); rt.refresh(); }
-      if (name === 'clear') {
-        if (!st.armed) { st.armed = true; rt.refresh(); setTimeout(() => { if (st.armed) { st.armed = false; rt.refresh(); } }, 2600); return; }
-        setCirc(fresh());
-        rt.refresh();
-      }
     },
     onCell(id) {
       const v = st.view;

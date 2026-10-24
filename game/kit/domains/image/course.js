@@ -53,13 +53,15 @@ export function imageCourse({ eras, chapters, levels, views = {}, primitives, co
   const levelById = Object.fromEntries(LEVELS.map((level) => [level.id, level]))
   const CHAPTERS = chapters.map((chapter) => ({ ...chapter, track: plan.tracks.get(chapter.id) }))
 
-  // A level that packs its circuit offers it as a part once solved: the player's own passing circuit.
+  // A level that packs its circuit offers it as a part once solved: the player's own passing circuit, from the board
+  // played on that level or, when that one has not passed, from one of its other saved boards (shell/slots.js).
   for (const level of LEVELS) if (level.packs) NODE_TYPES[`own-${level.id}`] = ownPart(level)
   const syncOwn = (progress) => {
     for (const level of LEVELS) {
       if (!level.packs) continue
       const data = progress.solved.includes(level.id) ? progress.data[level.id] : null
-      const circuit = data?.passed ?? data
+      const waiting = progress.slots?.[level.id]?.list.find((slot) => slot.data?.passed)?.data
+      const circuit = data?.passed ?? waiting?.passed ?? data
       if (circuit?.nodes) OWN.set(level.id, circuit)
       else OWN.delete(level.id)
     }
