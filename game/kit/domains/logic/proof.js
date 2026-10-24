@@ -13,6 +13,7 @@
 // and what reached it.
 import { PartError } from '../../engine/circuit.js'
 import { framePart } from '../../circuit/frames.js'
+import { formed } from '../../engine/forms.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
 import { BOT, all, allVars, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, show, subst, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
@@ -302,10 +303,16 @@ const metasIn = (f, out = new Set()) => {
 
 /**
  * A lemma the player proved, as a rule: from `premises` (schemas, one input each) to `statement`, with schematic
- * letters `metas`. The letters the premises fix come from what is wired in; the others are set on the card. It is
+ * letters `metas`. A lemma with `forms` ([{ key, label, statement, premises, metas? }]) is one card of several shapes,
+ * switched on the card (engine/forms.js); the course says which it offers where. The letters the premises fix come from what is wired in; the others are set on the card. It is
  * sound because the level that built it checked the proof.
  */
-export function lemma({ statement, premises = [], metas }) {
+export function lemma(l) {
+  if (l.forms) return formed(l.forms.map((f, k) => ({ key: f.key, ...lemmaForm({ metas: l.metas, ...f }, k ? `.${f.key}` : '') })))
+  return lemmaForm(l)
+}
+// One shape of a lemma; its proof term names the card (and the form, for any but the first).
+function lemmaForm({ statement, premises = [], metas }, suffix = '') {
   const conclusion = parse(statement, { metas })
   const schemas = premises.map((p) => parse(p, { metas }))
   const fixed = new Set(schemas.flatMap((s) => [...metasIn(s)]))
@@ -321,7 +328,7 @@ export function lemma({ statement, premises = [], metas }) {
         if (!match(s, j.formula, bind)) throw need(ctx, SHAPE.fits, j.formula)
       })
       for (const m of open) bind[m] = param(node, m, ctx)
-      return proved(instantiate(conclusion, bind), union(...schemas.map((_, k) => ins[`p${k}`])), schemas.reduce((t, _, k) => papp(t, ins[`p${k}`].term), pconst(node.type)))
+      return proved(instantiate(conclusion, bind), union(...schemas.map((_, k) => ins[`p${k}`])), schemas.reduce((t, _, k) => papp(t, ins[`p${k}`].term), pconst(`${node.type}${suffix}`)))
     },
   }
 }
@@ -330,7 +337,9 @@ export function lemma({ statement, premises = [], metas }) {
  * Does one use of a lemma, wired straight from `givens` (formulas), give `goal`? A level that a lemma it carries
  * proves in one step teaches nothing new: `npm run check` reports it.
  */
-export function lemmaGives({ statement, premises = [], metas }, givens, goal) {
+export function lemmaGives(l, givens, goal, forms = null) {
+  if (l.forms) return l.forms.filter((f) => !forms || forms.includes(f.key)).some((f) => lemmaGives({ metas: l.metas, ...f }, givens, goal))
+  const { statement, premises = [], metas } = l
   const schemas = premises.map((p) => parse(p, { metas }))
   const fit = (k, bind) => k === schemas.length || givens.some((g) => {
     const next = { ...bind }

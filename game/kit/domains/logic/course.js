@@ -33,7 +33,8 @@ const ease = (level) => {
  * itself. A level opens on its first case, the one its task is written in.
  *   lemmas      { type: { name, desc, statement, premises?, metas } } the parts the player proves
  *   gates       { type: { name, desc, ports, f } } the gates the player builds on a truth circuit (gates.js)
- *   revisions   { type: [{ at: level id, desc }] } a part's description as it grows along the course
+ *   revisions   { type: [{ at | by: level id, desc?, forms? }] } a part's description as it grows along the course,
+ *               and the shapes (forms) an upgrade earned at `by` adds to its card
  *   machines    [type] the machine-board parts the player builds (machine.js, named in ui/catalog.js MACHINE_TEXT): a
  *               level with `builds` one of them unlocks it, its built-in implementation checked by that level's tests
  *   replaces    { part: [part] } a part that takes the place of others: from its level on, those leave the tray
@@ -124,7 +125,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     const term = LOGIC_TESTS.runTest(last, last.solution, test).outputs.goal?.term
     if (term) lemmaTerms[level.builds] = Object.keys(test.premises ?? {}).reduceRight((t, name) => lam(name, t), term)
   }
-  for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!byId.has(r.at)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at}`)
+  for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!byId.has(r.at ?? r.by)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at ?? r.by}`)
   // A level's number: on an era's main path the era and its place by difficulty ('1-4', numbered), in a topic its
   // code and place ('D2'), C1 …
   // for the era's challenges.

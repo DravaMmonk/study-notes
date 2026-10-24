@@ -461,3 +461,10 @@
 .pb-tile.is-step, .pb-term.is-step { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2.5px var(--accent); }
 .pb-frame.is-step { box-shadow: 0 0 0 2.5px var(--accent); }
 .pb-tile.is-step.is-step-fail, .pb-term.is-step.is-step-fail, .pb-frame.is-step.is-step-fail { box-shadow: 0 0 0 2.5px var(--fail); }
+
+/* A card's shape switch (FormSwitch.jsx), for a part with several forms. */
+.form-switch label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; }
+.form-switch label > span { color: var(--muted); font-size: 11px; }
+.form-switch select { min-width: 0; height: 26px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12.5px var(--mono); }
+.form-switch select:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
+.form-switch b { font: 500 12.5px var(--mono); color: var(--ink); }

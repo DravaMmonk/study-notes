@@ -8,6 +8,8 @@ import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
 import { say } from '../notation.js'
 import FormulaField from './FormulaField.jsx'
+import FormSwitch from '../../../circuit/FormSwitch.jsx'
+import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt } from './stepping.js'
 
 // A level of the logic domain played on the shared circuit editor (《证明完毕》): a proof, whose wires carry proved
@@ -118,6 +120,8 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   )
   // A part's description as it reads in this level (the game's revisions along the course: defineGame textAt).
   const descOf = (type) => game.textAt(board.textOf(lemmas, type, level.revisions), entry.id)?.desc
+  // The shapes a card of a part with forms offers here: its first, and every one an upgrade passed before brings.
+  const formsOf = (type) => game.textAt(board.textOf(lemmas, type, level.revisions), entry.id)?.forms ?? []
   const itemOf = (type) => ({ type, label: board.nameOf(lemmas, type), desc: descOf(type), icon: board.iconOf(lemmas, type), family: board.familyOf(lemmas, type), fresh: entry.fresh?.includes(type) })
   const items = palette.map(itemOf)
   const foldedItems = folded.map(itemOf)
@@ -142,7 +146,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const shown = stepped ? playback.shown(shownIndex) : { list: [], at: -1 }
   const stepLog = <StepLog steps={shown.list.map((s) => ({ label: s.label, value: s.value ? <Value v={s.value} text={text} /> : null, failed: s.failed }))} at={shown.at} />
   const verdictText = result ? (result.pass ? L(board.words.pass) : L(result.reason)) : null
-  const shared = { board: { ...board, Value }, parts, lemmas, circuit, view, scene, setParam, text }
+  const shared = { board: { ...board, Value }, parts, lemmas, circuit, view, scene, setParam, text, formsOf }
 
   if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} stepKey={run ? `${run.test}:${run.step}:${run.results.length}` : ''} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} types={types} descOf={descOf} scope={level.id} />
 
@@ -191,9 +195,12 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   )
 }
 
+// The shapes a part with forms offers on its card here: its first, and those `more` brings, each with its label.
+const shapesOf = (part, l, more) => part.forms.filter((k, i) => i === 0 || more.includes(k)).map((k) => ({ key: k, label: l?.forms.find((f) => f.key === k).label ?? k }))
+
 // Under a card's ports: its settings, and what it gives (or why it cannot yet); a frame shows that by its regions'
 // results instead, and folded, how much it holds.
-function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, text }) {
+function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, text, formsOf }) {
   const { Value } = board
   const value = view.values.get(node.id)
   const error = view.errors.get(node.id)
@@ -206,7 +213,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
   return (
     <div className="lg-card">
       {role === 'sink' && scene.want}
-      {board.settings(parts, node, lemmas).map((s) => <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} />)}
+      {board.settings(parts, node, lemmas).map((s) => (s.kind === 'form' ? <FormSwitch key="form" value={formOf(parts.rules[node.type], node)} options={shapesOf(parts.rules[node.type], lemmas[node.type], formsOf(node.type))} onChange={(v) => setParam(node.id, 'form', v)} /> : <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} />))}
       {board.extra?.(node, setParam, { ins: Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, view.values.get(w.from)])), text })}
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
       {role === 'source' && <Value v={value} text={text} bare />}
@@ -219,7 +226,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
 
 // The board on a phone: the shared slot board, where a frame is a block with its regions' grids inside it, a sheet
 // per block and the run bar.
-function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, logged, began, waiting, stepKey, onClear, setParam, text, brief, items, foldedItems, dock, change, addNode, types, descOf, scope, testTabs, regionNote, resultNote }) {
+function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, logged, began, waiting, stepKey, onClear, setParam, text, formsOf, brief, items, foldedItems, dock, change, addNode, types, descOf, scope, testTabs, regionNote, resultNote }) {
   const { Value } = board
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
@@ -294,7 +301,7 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(node.type))}</p>}
-            <CardBody node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} />
+            <CardBody node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} formsOf={formsOf} />
             {parts.role(node) === 'part' && <button type="button" className="lg-remove" onClick={() => { editing.remove(node.id); setSheet(null) }}><Trash2 size={15} />{tr('拿掉这一块', 'Remove this block')}</button>}
           </div>
         </Sheet>

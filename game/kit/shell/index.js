@@ -35,9 +35,11 @@ export { PHONE, useMedia } from './useMedia.js'
  *   html          true when level text (brief, rows, intro, dialogs) is the game's own HTML markup
  *   levelLabel(level), isOpen(level, solved, all), better(score, best), bestLabel(best)
  *
- * Text that grows as the course goes on (a part's description, say) may carry `revisions: [{ at, …fields }]`: from the
- * level `at` on, those fields replace the text's own. In a level, a revision counts when the level is `at` or comes
- * after it (textAt); in the components box, once `at` is open (textFor).
+ * Text that grows as the course goes on (a part's description, say) may carry `revisions: [{ at | by, …fields }]`:
+ * from the level `at` on, or once the level `by` is passed (an upgrade the player earns there), those fields replace
+ * the text's own. In a level, a revision counts when the level is `at` or comes after it, or comes after `by`
+ * (textAt); in the components box, once `at` is open or `by` is solved (textFor). An upgrade may bring new abilities
+ * as well as words: `forms` (engine/forms.js) adds to the forms a part's card offers, each revision's to the last's.
  */
 export function defineGame(def) {
   const levels = def.levels
@@ -76,12 +78,12 @@ export function defineGame(def) {
   // A text as it reads in level `id`, and as it reads for a player's progress (every revision whose level is open).
   const revise = (text, applies) => {
     if (!text?.revisions) return text
-    const later = text.revisions.filter((r) => applies(r.at)).sort((a, b) => index.get(a.at) - index.get(b.at))
+    const later = text.revisions.filter(applies).sort((a, b) => index.get(a.at ?? a.by) - index.get(b.at ?? b.by))
     const { revisions: _, ...base } = text
-    return later.reduce((t, { at: _at, ...fields }) => ({ ...t, ...fields }), base)
+    return later.reduce((t, { at: _at, by: _by, forms, ...fields }) => ({ ...t, ...fields, ...(forms ? { forms: [...new Set([...(t.forms ?? []), ...forms])] } : {}) }), base)
   }
-  game.textAt = (text, id) => revise(text, (at) => game.after(id, at))
-  game.textFor = (text, progress) => revise(text, (at) => Boolean(byId[at]) && isOpen(byId[at], new Set(progress.solved), progress.all))
+  game.textAt = (text, id) => revise(text, (r) => (r.at ? game.after(id, r.at) : Boolean(byId[id]) && ancestors(byId[id]).has(r.by)))
+  game.textFor = (text, progress) => revise(text, (r) => (r.at ? Boolean(byId[r.at]) && isOpen(byId[r.at], new Set(progress.solved), progress.all) : progress.all || progress.solved.includes(r.by)))
   // The primitives a level brings in, for the map.
   game.introduced = (level) => (def.parts?.all ?? []).filter((part) => part.at?.includes(level.id))
   // A built part is earned by solving its level; a primitive once a level that brings it in opens. With every level

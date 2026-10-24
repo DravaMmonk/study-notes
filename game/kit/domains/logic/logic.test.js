@@ -193,3 +193,17 @@ test('Example reads off its example, and picks the one ∃ sentence that fits', 
   assert.ok(same(RULES.exI.eval(input, { params: { target: '∃x. Likes(a, x)' } }, ctx).formula, parse('∃x. Likes(a, x)')))
   assert.throws(() => RULES.exI.eval(input, { params: {} }, { ...ctx, exists: [parse('∃x. Likes(x, x)'), parse('∃x. Likes(x, a)')] }))
 })
+
+test('a lemma of several shapes computes as the shape its card is switched to', async () => {
+  const { lemma } = await import('./proof.js')
+  const dm = lemma({ metas: ['A', 'B', 'P'], forms: [
+    { key: 'notOr', statement: '¬A ∧ ¬B', premises: ['¬(A ∨ B)'] },
+    { key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] },
+  ] })
+  const j = (f) => ({ p0: { formula: parse(f), hyps: new Map(), term: null } })
+  assert.deepEqual(dm.forms, ['notOr', 'notAll'])
+  assert.ok(same(dm.eval(j('¬(Rain ∨ Wind)'), { type: 'dm', params: {} }, {}).formula, parse('¬Rain ∧ ¬Wind')))
+  assert.ok(same(dm.eval(j('¬∀y. D(y)'), { type: 'dm', params: { form: 'notAll' } }, {}).formula, parse('∃y. ¬D(y)')))
+  assert.ok(lemmaGives({ metas: ['P'], forms: [{ key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] }] }, [parse('¬∀y. D(y)')], parse('∃y. ¬D(y)'), ['notAll']))
+  assert.equal(lemmaGives({ metas: ['P'], forms: [{ key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] }] }, [parse('¬∀y. D(y)')], parse('∃y. ¬D(y)'), []), false)
+})
