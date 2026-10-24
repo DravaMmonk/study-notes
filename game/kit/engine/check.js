@@ -1,6 +1,6 @@
 /* global process */
 // npm run check [-- <game id>…] — every game against the rules every game follows: the course audit (../course.js),
-// unique level ids that require only real levels, every text a { zh, en } pair with a real English side, and then
+// the level count on the hub (../../games.js), unique level ids that require only real levels, every text a { zh, en } pair with a real English side, and then
 // its domain's own checks (../domains/<domain>/validate.js: reference answers pass, naive ones fail, …).
 //
 // A game is checked through its spec, games/<id>/spec.js, which runs under node:
@@ -30,6 +30,9 @@ for (const id of ids) {
     const hits = found.filter((f) => f.rule === rule)
     if (hits.length) fail(`course: ${text} (${hits.length}): ${hits.map((f) => `${f.part}@${f.level}`).join('  ')}`)
   }
+
+  const listed = GAMES.find((game) => game.id === id).levels
+  if (listed !== spec.levels.length) fail(`hub: games.js lists ${listed} levels, the game has ${spec.levels.length}`)
 
   const seen = new Set()
   for (const level of spec.levels) {
