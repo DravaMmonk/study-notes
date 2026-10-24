@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { Trash2 } from 'lucide-react'
 import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { Chips, Strip, useStrip } from '../../../strip/index.js'
+import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
+import { useHistory } from '../../../circuit/useHistory.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { checkTerm } from '../pterm.js'
@@ -24,13 +24,13 @@ export default function TermScreen({ game, level: entry, saved, save, solve, pho
   const text = (f) => L(say(parse(f, { consts }), level.notation))
   const [tree, setTree] = useState(() => saved?.tree ?? null)
   const [verdict, setVerdict] = useState(null)
-  const [armed, setArmed] = useState(false)
   const chips = useMemo(() => chipsOf(level.premises ?? {}, tree), [level, tree])
   const change = (next) => {
     setTree(next)
     save({ tree: next })
     setVerdict(null)
   }
+  const history = useHistory(tree, change, `${entry.id}:${level.task ?? 0}`, 0)
   const strip = useStrip({
     put: (slot, key) => {
       const path = pathOf(slot)
@@ -60,15 +60,6 @@ export default function TermScreen({ game, level: entry, saved, save, solve, pho
     setVerdict({ pass: !reason, reason })
     if (!reason) solve(null)
   }
-  const clear = () => {
-    if (!armed) {
-      setArmed(true)
-      window.setTimeout(() => setArmed(false), 2600)
-      return
-    }
-    setArmed(false)
-    change(null)
-  }
   const groups = GROUPS.map(([group, label]) => ({ key: group, label, chips: chips.filter((c) => c.group === group).map((c) => ({ key: c.key, text: c.text, sub: c.sub, family: group })) })).filter((g) => g.chips.length)
   const premises = Object.entries(level.premises ?? {})
   const note = strip.note
@@ -80,13 +71,13 @@ export default function TermScreen({ game, level: entry, saved, save, solve, pho
         {premises.length > 0 && <p>{tr('已知', 'Given')} {premises.map(([name, f]) => <span key={name} className="tm-premise"><code>{name}</code>：{text(f)}</span>)}</p>}
         <p className="fo-say fo-prompt">{tr('要证', 'Prove')} <b>{text(level.goal)}</b></p>
       </section>
+      <StripTools history={history} onClear={() => change(null)} empty={!tree} />
       <Strip line={[segmentOf(tree)]} label={T('证明项', 'proof term')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
       {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型对上了：这个项证的正是这句话。', 'The type matches: this term proves exactly this sentence.') : L(verdict.reason)}</p>}
       <Chips groups={groups} onChip={strip.onChip} />
       <footer className="run-foot">
         <RunDock
-          secondary={tree ? { label: armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), icon: <Trash2 size={16} />, armed, onClick: clear } : null}
           go={{ label: verdict?.pass ? tr('对了', 'Right') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }}
         />
       </footer>

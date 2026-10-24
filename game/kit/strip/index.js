@@ -5,3 +5,4 @@
 export { Chips, Strip } from './Strip.jsx'
 export { useStrip } from './useStrip.js'
 export { holeTree } from './tree.js'
+export { StripTools } from './StripTools.jsx'

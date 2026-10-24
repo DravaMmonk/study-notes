@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { Trash2 } from 'lucide-react'
 import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { Chips, Strip, useStrip } from '../../../strip/index.js'
+import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
+import { useHistory } from '../../../circuit/useHistory.js'
 import { freeVars, parse } from '../formula.js'
 import { difference, extent, structureOf } from '../fol.js'
 import { chipsOf, complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt } from '../formulaTree.js'
@@ -58,12 +58,12 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
   const byKey = useMemo(() => new Map(chips.map((c) => [c.key, c])), [chips])
   const [tree, setTree] = useState(() => saved?.tree ?? null)
   const [verdict, setVerdict] = useState(null)
-  const [armed, setArmed] = useState(false)
   const change = (next) => {
     setTree(next)
     save({ tree: next })
     setVerdict(null)
   }
+  const history = useHistory(tree, change, `${entry.id}:${level.task ?? 0}`, 0)
   const strip = useStrip({
     put: (slot, key) => {
       const path = pathOf(slot)
@@ -123,15 +123,6 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
     setVerdict(v)
     if (v.pass) solve(null)
   }
-  const clear = () => {
-    if (!armed) {
-      setArmed(true)
-      window.setTimeout(() => setArmed(false), 2600)
-      return
-    }
-    setArmed(false)
-    change(null)
-  }
 
   const groups = GROUPS
     .map(([group, label]) => ({ key: group, label, chips: chips.filter((c) => c.group === group).map((c) => ({ key: c.key, family: group, text: c.group === 'pred' ? placesOf(notation, c.pred) : c.group === 'name' ? L(notation.words?.[c.name] ?? T(c.name, c.name)) : c.text })) }))
@@ -152,13 +143,13 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
           ))}
         </div>
       )}
+      <StripTools history={history} onClear={() => change(null)} empty={!tree} />
       <Strip line={[segmentOf(tree, [], 'formula', notation)]} label={T('公式', 'formula')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
       {verdict && (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界里，都和原句一样真假。', 'True and false with the sentence in every small world.')}</p> : verdict.body)}
       <Chips groups={groups} onChip={strip.onChip} />
       <footer className="run-foot">
         <RunDock
-          secondary={tree ? { label: armed ? tr('确认清空', 'Confirm clear') : tr('清空', 'Clear'), icon: <Trash2 size={16} />, armed, onClick: clear } : null}
           go={{ label: verdict?.pass ? tr('对了', 'Right') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }}
         />
       </footer>
