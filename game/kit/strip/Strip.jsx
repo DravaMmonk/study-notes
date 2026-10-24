@@ -1,65 +1,54 @@
 import { L, tr } from '../shell/i18n.js'
 
-// A strip of typed slots in reading order, nested into labelled groups: a bracketed tree the player fills from a
-// tray of chips, the same on a desktop and a phone (one tap, no wires). Where a circuit says how data flows, a strip
-// says how a sequence is built: each group is a constituent, and its bracket and label sit under its slots.
+// The strip: what is being built, written out as it reads, with a framed box for every place still empty, the way a
+// calculator writes a formula in natural display. A piece put in is plain text from then on, and its own empty places
+// are boxes inside it; tapping a piece's words takes the piece out (with everything inside it), tapping a box selects
+// it. The same on a desktop and a phone: one tap, no wires, and no separate read-back: the strip is the sentence.
 //
-//   tree   { key, label?, items: [node] }   node: a group (the same shape) or a slot
-//   slot   { key, label, value?: { text, sub?, family?, dim? }, fixed?, lead?, family? }
-//          `value` is what fills it (null: empty); `fixed` slots belong to the level and cannot be emptied; `lead`
-//          is a word the slot always says before its value (a preposition, say)
-//   selected  the slot key picked to receive the next chip       flash  slot keys just refused (they shake)
-//   onSlot(key)  a slot was tapped
+//   line     [segment]   the whole thing in reading order
+//   segment  a string (text that belongs to no piece: a full stop, a fixed word)
+//          | { hole: key, label: { zh, en } }                    an empty place, its label written faintly inside
+//          | { piece: key, family?, fixed?, dim?, parts: [segment] }  a piece put in: its strings are its words
+//   selected  the hole picked to receive the next chip      flash  keys just refused (they shake)
+//   onSlot(key)  a hole or a piece was tapped
 
-export function Strip({ tree, selected, flash = [], onSlot }) {
+export function Strip({ line, label, selected, flash = [], onSlot }) {
   return (
-    <div className="ks-strip" role="group" aria-label={L(tree.label) ?? tr('句子', 'Sentence')}>
-      <Group node={tree} top selected={selected} flash={flash} onSlot={onSlot} />
+    <div className="ks-strip" role="group" aria-label={L(label) ?? tr('句子', 'Sentence')}>
+      <Segments parts={line} selected={selected} flash={flash} onSlot={onSlot} />
     </div>
   )
 }
 
-function Group({ node, top, selected, flash, onSlot }) {
-  return (
-    <div className={`ks-group ${top ? 'is-top' : ''}`}>
-      <div className="ks-row">
-        {node.items.map((item) => (item.items
-          ? <Group key={item.key} node={item} selected={selected} flash={flash} onSlot={onSlot} />
-          : <Slot key={item.key} slot={item} selected={selected === item.key} flash={flash.includes(item.key)} onSlot={onSlot} />))}
-      </div>
-      {node.label && <span className="ks-bracket">{L(node.label)}</span>}
-    </div>
-  )
-}
-
-function Slot({ slot, selected, flash, onSlot }) {
-  const v = slot.value
-  const name = L(slot.label)
-  return (
-    <div className="ks-cell">
-      <span className="ks-line">
-        {slot.lead && <span className="ks-lead">{slot.lead}</span>}
-        <button
-          type="button"
-          className={`ks-slot ${v ? 'is-filled' : 'is-empty'} ${slot.fixed ? 'is-fixed' : ''} ${selected ? 'is-selected' : ''} ${flash ? 'is-refused' : ''}`}
-          data-family={v?.family ?? slot.family}
-          data-slot={slot.key}
-          onClick={() => onSlot(slot.key)}
-          aria-pressed={selected}
-          aria-label={v ? tr(`${name}：${v.text}${slot.fixed ? '' : '，点一下拿掉'}`, `${name}: ${v.text}${slot.fixed ? '' : '; tap to take it out'}`) : tr(`${name}：空，点一下选中`, `${name}: empty; tap to select`)}
-        >
-          <b className={v?.dim ? 'is-dim' : ''}>{v ? v.text : '＋'}</b>
-          {v?.sub && <small>{L(v.sub)}</small>}
+function Segments({ parts, owner = null, selected, flash, onSlot }) {
+  return parts.map((part, k) => {
+    if (typeof part === 'string') {
+      if (!owner) return <span key={k} className="ks-plain">{part}</span>
+      return (
+        <button key={k} type="button" className={`ks-word ${owner.dim ? 'is-dim' : ''}`} data-family={owner.family} data-piece={owner.piece} disabled={owner.fixed} onClick={() => onSlot(owner.piece)} aria-label={owner.fixed ? part : tr(`${part}：点一下拿掉`, `${part}: tap to take out`)}>
+          {part}
         </button>
+      )
+    }
+    if (part.hole) {
+      const name = L(part.label)
+      return (
+        <button key={part.hole} type="button" className={`ks-hole ${selected === part.hole ? 'is-selected' : ''} ${flash.includes(part.hole) ? 'is-refused' : ''}`} data-slot={part.hole} aria-pressed={selected === part.hole} onClick={() => onSlot(part.hole)} aria-label={tr(`${name}：空，点一下选中`, `${name}: empty; tap to select`)}>
+          {name}
+        </button>
+      )
+    }
+    return (
+      <span key={part.piece} className={`ks-piece ${flash.includes(part.piece) ? 'is-refused' : ''}`} data-family={part.family}>
+        <Segments parts={part.parts} owner={part} selected={selected} flash={flash} onSlot={onSlot} />
       </span>
-      <span className="ks-label">{name}</span>
-    </div>
-  )
+    )
+  })
 }
 
 /**
- * The tray of chips under a strip: tap one to put it in the selected slot, or in the first empty slot that takes
- * it. A chip in use is greyed out.  groups: [{ key, label, chips: [{ key, text, sub?, family?, used? }] }]
+ * The tray of chips under a strip: tap one to put it in the selected box, or in the first empty box that takes it.
+ * A chip in use is greyed out.  groups: [{ key, label, chips: [{ key, text, sub?, family?, used? }] }]
  */
 export function Chips({ groups, onChip }) {
   return (

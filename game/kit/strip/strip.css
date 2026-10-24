@@ -1,30 +1,21 @@
-/* The strip (games/kit/strip): slots in reading order on one line that wraps, each group's bracket and label under
-   its slots, and the tray of chips. Colours come from the kit's tokens; `--fam` is a chip's or slot's family colour,
-   set by the game with [data-family]. */
-.ks-strip { padding: 14px 12px 10px; overflow-x: auto; border-radius: var(--r-lg); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
-.ks-group { display: inline-grid; justify-items: stretch; gap: 4px; vertical-align: top; }
-.ks-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 8px; }
-.ks-group:not(.is-top) > .ks-row { padding: 0 2px; }
-.ks-bracket { position: relative; padding-top: 7px; font-family: var(--mono); font-size: var(--fs-label); letter-spacing: var(--track-label); color: var(--muted); text-align: center; white-space: nowrap; }
-.ks-bracket::before { content: ''; position: absolute; left: 4px; right: 4px; top: 0; height: 5px; border: 1.5px solid var(--rule); border-top: 0; border-radius: 0 0 4px 4px; }
-.ks-group.is-top { display: grid; }
-
-.ks-cell { display: grid; justify-items: center; gap: 3px; }
-.ks-line { display: flex; align-items: center; gap: 6px; }
-.ks-lead { font-family: var(--serif); font-size: 19px; color: var(--heading); }
-.ks-slot { min-width: 74px; min-height: 52px; padding: 6px 12px; display: grid; justify-items: center; align-content: center; gap: 1px; border: 0; border-radius: 12px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1.5px var(--rule); font: inherit; cursor: pointer; transition: box-shadow 140ms ease, transform 140ms ease; }
-.ks-slot.is-empty { box-shadow: inset 0 0 0 1.5px var(--rule); background: transparent; border: 1.5px dashed transparent; }
-.ks-slot.is-empty b { font-family: var(--sans); font-size: 18px; font-weight: 400; color: var(--faint); }
-.ks-slot.is-filled { background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--fam, var(--ink)), inset 0 -3px 0 var(--fam, var(--ink)); }
-.ks-slot.is-fixed { cursor: default; background: color-mix(in srgb, var(--fam, var(--ink)) 8%, var(--paper)); }
-.ks-slot.is-selected { box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
-.ks-slot.is-refused { box-shadow: inset 0 0 0 2px var(--fail); animation: ks-shake 420ms ease; }
-.ks-slot b { font-family: var(--serif); font-size: 19px; font-weight: 500; line-height: 1.25; white-space: nowrap; }
-.ks-slot b.is-dim { color: var(--muted); font-family: var(--mono); font-size: 14px; }
-.ks-slot small { font-family: var(--mono); font-size: 10.5px; color: var(--muted); white-space: nowrap; }
-.ks-slot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.ks-label { font-size: 11.5px; color: var(--muted); text-align: center; }
+/* The strip (games/kit/strip): one line of text that wraps, as it reads, with a framed box for each empty place, and
+   the tray of chips. Colours come from the kit's tokens; `--fam` is a piece's or chip's family colour, set by the game
+   with [data-family]. */
+.ks-strip { padding: 18px 16px; border-radius: var(--r-lg); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); font-family: var(--serif); font-size: 24px; line-height: 2; color: var(--heading); overflow-wrap: anywhere; }
+.ks-plain { white-space: pre-wrap; }
+.ks-piece { white-space: pre-wrap; }
+.ks-word { margin: 0; padding: 0; border: 0; border-radius: 4px; color: inherit; background: none; font: inherit; line-height: inherit; white-space: pre-wrap; cursor: pointer; box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--fam, var(--rule)) 70%, transparent); transition: background 120ms ease; }
+.ks-word:hover:not(:disabled) { background: color-mix(in srgb, var(--fam, var(--accent)) 14%, transparent); }
+.ks-word:disabled { cursor: default; box-shadow: none; color: inherit; }
+.ks-word.is-dim { font-family: var(--mono); font-size: 0.6em; vertical-align: super; color: var(--muted); }
+.ks-word:focus-visible, .ks-hole:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ks-hole { display: inline-block; min-width: 2.4em; margin: 0 2px; padding: 0 6px; border: 1.5px dashed var(--rule); border-radius: 6px; color: var(--faint); background: transparent; font: 13px/1.9 var(--sans); vertical-align: 0.15em; cursor: pointer; transition: border-color 120ms ease, box-shadow 120ms ease; }
+.ks-hole:hover { border-color: var(--muted); }
+.ks-hole.is-selected { border: 1.5px solid var(--accent); color: var(--accent-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.ks-hole.is-refused, .ks-piece.is-refused { animation: ks-shake 420ms ease; }
+.ks-hole.is-refused { border-color: var(--fail); }
 @keyframes ks-shake { 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+.ks-piece.is-refused { display: inline-block; }
 
 .ks-chips { display: grid; gap: 10px; }
 .ks-chip-group { display: grid; gap: 6px; }
@@ -40,6 +31,7 @@
 .ks-note { margin: 0; min-height: 1.45em; font-size: var(--fs-ui); line-height: 1.45; color: var(--muted); }
 .ks-note.is-bad { color: var(--fail); }
 
+@media (max-width: 640px) { .ks-strip { padding: 14px 12px; font-size: 21px; } }
 @media (prefers-reduced-motion: reduce) {
-  .ks-slot.is-refused { animation: none; }
+  .ks-hole.is-refused, .ks-piece.is-refused { animation: none; }
 }
