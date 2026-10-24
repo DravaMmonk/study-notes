@@ -71,9 +71,8 @@ export default function TermScreen({ game, level: entry, saved, save, solve, pho
         {premises.length > 0 && <p>{tr('已知', 'Given')} {premises.map(([name, f]) => <span key={name} className="tm-premise"><code>{name}</code>：{text(f)}</span>)}</p>}
         <p className="fo-say fo-prompt">{tr('要证', 'Prove')} <b>{text(level.goal)}</b></p>
       </section>
-      <StripTools history={history} onClear={() => change(null)} empty={!tree} />
+      <StripTools history={history} onClear={() => change(null)} empty={!tree} note={note} />
       <Strip line={[segmentOf(tree)]} label={T('证明项', 'proof term')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
-      {note}
       {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型对上了：这个项证的正是这句话。', 'The type matches: this term proves exactly this sentence.') : L(verdict.reason)}</p>}
       <Chips groups={groups} onChip={strip.onChip} />
       <footer className="run-foot">

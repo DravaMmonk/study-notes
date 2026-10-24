@@ -23,9 +23,10 @@
 @keyframes ks-shake { 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
 .ks-piece.is-refused { display: inline-block; }
 
-/* The row of tools above the strip, as on the circuit boards: clear on the left, undo and redo on the right. */
-.ks-tools { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: -6px; }
-.ks-tools > .ks-clear { margin-right: auto; }
+/* The row of tools above the strip, as on the circuit boards: clear on the left with the note beside it, undo and
+   redo on the right. */
+.ks-tools { display: flex; align-items: center; gap: 10px; margin-bottom: -6px; }
+.ks-tools-note { flex: 1; min-width: 0; }
 .ks-pill { height: 32px; display: inline-flex; align-items: center; border-radius: 999px; color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--rule); }
 .ks-pill button { width: 38px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 999px; color: inherit; background: transparent; cursor: pointer; }
 .ks-pill button:disabled, .ks-clear.is-idle button { opacity: .3; pointer-events: none; }
