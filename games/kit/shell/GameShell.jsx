@@ -102,7 +102,7 @@ export default function GameShell({ game }) {
     if (id) url.searchParams.set('level', id)
     else url.searchParams.delete('level')
     window.history.replaceState({}, '', url)
-    if (id || !levelId) window.scrollTo({ top: 0 })
+    if (id || !levelId) window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
   const level = levelId ? game.byId[levelId] : null

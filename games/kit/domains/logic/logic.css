@@ -81,7 +81,6 @@
 .lg-sheet .lg-card { padding: 0; gap: 12px; }
 .lg-sheet .lg-field select { height: 40px; font-size: 16px; }
 .lg-desc { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; }
-.lg-remove { height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 12px; color: var(--fail); background: var(--canvas); font: inherit; }
 .lg-add { display: grid; gap: 8px; }
 .lg-add button { padding: 10px 12px; display: grid; gap: 2px; text-align: left; border: 0; border-radius: 12px; color: var(--ink); background: var(--canvas); box-shadow: inset 3px 0 0 var(--fam); font: inherit; }
 .lg-add small { color: var(--muted); font-size: 12.5px; }

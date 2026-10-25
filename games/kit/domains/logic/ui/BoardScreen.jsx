@@ -1,9 +1,8 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Trash2 } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, StepLog, TaskCard, TestStatus, TestTabs, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, RemoveButton, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
 import { say } from '../notation.js'
@@ -304,7 +303,7 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(node.type))}</p>}
             <CardBody node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} formsOf={formsOf} />
-            {parts.role(node) === 'part' && <button type="button" className="lg-remove" onClick={() => { editing.remove(node.id); setSheet(null) }}><Trash2 size={15} />{tr('拿掉这一块', 'Remove this block')}</button>}
+            {parts.role(node) === 'part' && <RemoveButton onClick={() => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}
