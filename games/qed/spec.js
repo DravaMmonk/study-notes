@@ -75,13 +75,13 @@ export default {
   { version: 22, ops: [{ data: (value, id) => (['t-wapp', 't-wlam', 't-wpair', 't-wcases', 't-dneg'].includes(id) ? undefined : value) }] },
   // Version 23 put the negated quantifiers (ending with the part Quantifier De Morgan) before the drinker paradox, which
   // now uses the part: whoever had passed the paradox has passed them and holds the part.
-  { version: 23, ops: [{ solve: ['drinker', ['q-notEx', 'q-exNot', 'q-notAll']] }, { grant: ['drinker', 'lemma:qdm'] },
+  { version: 23, ops: [{ solve: ['drinker', ['q-notEx', 'q-exNot', 'q-notAll']] }, { grant: ['drinker', 'lemma:qdm'] }] },
   // Version 24 folded Quantifier De Morgan into De Morgan, one card of several shapes, and added the De Morgan levels
   // 德摩根，反过来, 不是这个就是那个不 and 并非两个都: whoever had passed what follows each has passed it.
-  { version: 24, ops: [{ solve: ['dmUse', ['dmBack']] }, { solve: ['notnotlem', ['dmOr']] }, { solve: ['fo-atoms', ['dmAnd']] },
+  { version: 24, ops: [{ solve: ['dmUse', ['dmBack']] }, { solve: ['notnotlem', ['dmOr']] }, { solve: ['fo-atoms', ['dmAnd']] }] },
   // Version 25 put 核来把关 and 证明项放回板上 at the end of the proof-term writing line: whoever had passed what follows
   // has passed them.
-  { version: 25, ops: [{ solve: ['t-detour', ['t-kernel', 't-exact']] }, { solve: ['t-all', ['t-kernel', 't-exact']] }] }] }] }],
+  { version: 25, ops: [{ solve: ['t-detour', ['t-kernel', 't-exact']] }, { solve: ['t-all', ['t-kernel', 't-exact']] }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用', '德摩根', '归结', '取一个', '任取', '拿出那一个'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
