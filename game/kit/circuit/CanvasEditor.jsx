@@ -382,7 +382,8 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   // The region under a dragged card's pointer (not one of its own), or null for the board: anywhere inside its outline
   // counts, its head too, not just the field its cards sit on. Its field is returned, where the card's place counts from.
   const fieldAt = (g) => document.elementsFromPoint(g.x, g.y).find((el) => el.classList?.contains('frame-region') && !g.el.contains(el))?.querySelector(':scope > .frame-field') ?? null
-  // A card dropped lands where it was let go: in the region under the pointer, or on the board.
+  // A card dropped lands where it was let go: in the region under the pointer, or on the board. The board has no edge,
+  // so a card goes as far up or left as it is taken; a region's cards stay inside its field, which starts at 0.
   const place = (g) => {
     const root = layer.current
     const node = byId.get(g.id)
@@ -390,7 +391,8 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const box = g.el.getBoundingClientRect()
     const [x0, y0] = pointIn(root, box.left, box.top)
     const [ox, oy] = field ? pointIn(root, field.getBoundingClientRect().left, field.getBoundingClientRect().top) : [0, 0]
-    const [x, y] = [Math.max(0, Math.round(x0 + g.dx - ox)), Math.max(0, Math.round(y0 + g.dy - oy))]
+    const floor = (v) => (field ? Math.max(0, v) : v)
+    const [x, y] = [floor(Math.round(x0 + g.dx - ox)), floor(Math.round(y0 + g.dy - oy))]
     const region = field?.dataset.region ?? null
     if (region === (node.in ?? null)) return onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === g.id ? { ...n, x, y } : n)) }, { keep: true })
     const next = moveInto(graph, parts, g.id, region, x, y)
