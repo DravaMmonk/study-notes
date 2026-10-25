@@ -5,8 +5,11 @@
 //            { op: '¬', a }                        ¬A, shown as itself but meaning A → ⊥ to the rules
 //            { op: '∧' | '∨' | '→' | '↔', a, b }
 //            { op: '∀' | '∃', v, body }            v: a variable's name
-//            { op: 'meta', name }                  a schematic letter in a rule or lemma (A, B, C…), bound by unify
-//   term     { t: 'var', name } | { t: 'fn', f, args: [term] }   a constant is a function with no args
+//            { op: 'meta', name, args? }           a schematic letter in a lemma (A, B, C…), bound by matching; or a
+//                                                  rule's metavariable ?A, ?P(x) (schematic.js), with the things it
+//                                                  is about
+//   term     { t: 'var', name } | { t: 'fn', f, args: [term] }   a constant is a function with no args; a variable
+//            named ?t is a rule's metavariable for a thing
 //            { t: '=', … } does not exist: equality is the atom '='(s, t), shown s = t
 //
 // parse() reads the notation the game shows (and ASCII: -> & | ~ forall exists false, <->); show() writes it back.
@@ -42,11 +45,12 @@ export const fn = (f, args = []) => ({ t: 'fn', f, args })
 export const eq = (s, t) => atom('=', [s, t])
 
 /** Read a formula. Upper-case names are atoms (or, in `metas`, schematic letters); a lower-case name is a function
- *  when it takes arguments, a constant when it is in `consts`, and otherwise a variable. */
+ *  when it takes arguments, a constant when it is in `consts`, and otherwise a variable. A name written with ? is a
+ *  metavariable: ?A a sentence (?P(x) one about x), ?t a thing. */
 export function parse(text, { metas = [], consts = [] } = {}) {
   let src = text
   for (const [a, b] of ASCII) src = src.split(a).join(b)
-  const tokens = src.match(/[A-Za-z][A-Za-z0-9_']*|[()∀∃¬∧∨→↔⊥,.=]|\S/g) ?? []
+  const tokens = src.match(/\??[A-Za-z][A-Za-z0-9_']*|[()∀∃¬∧∨→↔⊥,.=]|\S/g) ?? []
   let i = 0
   const peek = () => tokens[i]
   const eat = (t) => {
@@ -55,7 +59,8 @@ export function parse(text, { metas = [], consts = [] } = {}) {
   }
   const term = () => {
     const name = tokens[i++]
-    if (!name || !/^[a-z]/.test(name)) throw new Error(`expected a term at ${name ?? 'the end'} in ${text}`)
+    if (!name || !/^\??[a-z]/.test(name)) throw new Error(`expected a term at ${name ?? 'the end'} in ${text}`)
+    if (name.startsWith('?')) return tvar(name)
     if (peek() === '(') {
       eat('(')
       const args = [term()]
@@ -76,19 +81,20 @@ export function parse(text, { metas = [], consts = [] } = {}) {
       return { op: t, v, body: formula(0) }
     }
     if (t === '(') { i++; const f = formula(0); eat(')'); return f }
-    if (t && /^[A-Z]/.test(t)) {
+    if (t && /^\??[A-Z]/.test(t)) {
       i++
-      if (metas.includes(t)) return meta(t)
+      const args = []
       if (peek() === '(') {
         eat('(')
-        const args = [term()]
+        args.push(term())
         while (peek() === ',') { eat(','); args.push(term()) }
         eat(')')
-        return atom(t, args)
       }
-      return atom(t)
+      if (t.startsWith('?')) return args.length ? { op: 'meta', name: t, args } : meta(t)
+      if (metas.includes(t)) return meta(t)
+      return atom(t, args)
     }
-    if (t && /^[a-z]/.test(t)) {
+    if (t && /^\??[a-z]/.test(t)) {
       const s = term()
       eat('=')
       return eq(s, term())
@@ -117,7 +123,7 @@ export function show(f, outer = -1) {
   const wrap = (s, level) => (level < outer ? `(${s})` : s)
   switch (f.op) {
     case 'atom': return f.pred === '=' ? `${showTerm(f.args[0])} = ${showTerm(f.args[1])}` : f.args.length ? `${f.pred}(${f.args.map(showTerm).join(', ')})` : f.pred
-    case 'meta': return f.name
+    case 'meta': return f.args?.length ? `${f.name}(${f.args.map(showTerm).join(', ')})` : f.name
     case '⊥': return '⊥'
     case '¬': return `¬${show(f.a, 9)}`
     case '∀': case '∃': return wrap(`${f.op}${f.v}. ${show(f.body, -1)}`, -1)
@@ -155,7 +161,7 @@ const termVars = (t, out) => {
 /** The variables free in a formula. */
 export function freeVars(f, out = new Set()) {
   switch (f.op) {
-    case 'atom': f.args.forEach((t) => termVars(t, out)); break
+    case 'atom': case 'meta': (f.args ?? []).forEach((t) => termVars(t, out)); break
     case '¬': freeVars(f.a, out); break
     case '∀': case '∃': { const inner = freeVars(f.body); inner.delete(f.v); inner.forEach((v) => out.add(v)); break }
     case '∧': case '∨': case '→': case '↔': freeVars(f.a, out); freeVars(f.b, out); break
@@ -166,7 +172,7 @@ export function freeVars(f, out = new Set()) {
 /** Every variable a formula names, bound or free. */
 export function allVars(f, out = new Set()) {
   switch (f.op) {
-    case 'atom': f.args.forEach((t) => termVars(t, out)); break
+    case 'atom': case 'meta': (f.args ?? []).forEach((t) => termVars(t, out)); break
     case '¬': allVars(f.a, out); break
     case '∀': case '∃': out.add(f.v); allVars(f.body, out); break
     case '∧': case '∨': case '→': case '↔': allVars(f.a, out); allVars(f.b, out); break
@@ -184,6 +190,7 @@ const fresh = (base, taken) => {
 export function subst(f, v, by) {
   switch (f.op) {
     case 'atom': return atom(f.pred, f.args.map((t) => substTerm(t, v, by)))
+    case 'meta': return f.args?.length ? { ...f, args: f.args.map((t) => substTerm(t, v, by)) } : f
     case '¬': return not(subst(f.a, v, by))
     case '∀': case '∃': {
       if (f.v === v) return f
@@ -215,7 +222,7 @@ export function same(f0, g0, env = new Map()) {
   if (f.op !== g.op) return false
   switch (f.op) {
     case 'atom': return f.pred === g.pred && f.args.length === g.args.length && f.args.every((t, k) => sameTerm(t, g.args[k], env))
-    case 'meta': return f.name === g.name
+    case 'meta': return f.name === g.name && (f.args ?? []).length === (g.args ?? []).length && (f.args ?? []).every((t, k) => sameTerm(t, g.args[k], env))
     case '⊥': return true
     case '∀': case '∃': return same(f.body, g.body, new Map([...env, [f.v, g.v]]))
     default: return same(f.a, g.a, env) && same(f.b, g.b, env)

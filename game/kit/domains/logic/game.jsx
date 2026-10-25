@@ -1,6 +1,6 @@
 // A logic game on the shared shell (../../shell): its spec becomes the shell's game description, with the logic
 // domain's screens (a proof on the circuit editor, a truth table), its parts box of proved lemmas and its map art.
-import { Boxes, Braces, Cog, Cpu, Grid2x2Check, Languages, ScrollText, Search, Workflow } from 'lucide-react'
+import { Boxes, Braces, Cog, Cpu, Grid2x2Check, Languages, Search, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
@@ -11,7 +11,7 @@ import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
 import TruthScreen from './ui/TruthScreen.jsx'
-import { ModelScreen, RulesScreen } from './ui/WorldScreens.jsx'
+import { ModelScreen } from './ui/WorldScreens.jsx'
 import FormulaScreen from './ui/FormulaScreen.jsx'
 import { MACHINE_TEXT, RULE_TEXT, iconOf, nameOf, textOf } from './ui/catalog.js'
 import TermScreen from './ui/TermScreen.jsx'
@@ -74,7 +74,6 @@ export function defineLogicGame(spec) {
       translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
       query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: Boxes, label: { zh: '造世界', en: 'Build a world' } },
-      prolog: { Screen: RulesScreen, icon: ScrollText, label: { zh: '写规则', en: 'Write rules' } },
       term: { Screen: TermScreen, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
     },
     unlocked: (level) => level.unlocks.map((flag) => ({ label: built[flag.slice('lemma:'.length)].name })),

@@ -15,8 +15,9 @@ const parse = (wires) => wires.map((s) => {
   return { from, to: id, port }
 })
 
-// Cards go in rows of three, in the order written, in whichever region holds them.
-function cardsOf(nodes, registry) {
+// Cards go in rows of three, in the order written, in whichever region holds them; `rowHeight` leaves room for a
+// card's settings and what it shows.
+function cardsOf(nodes, registry, rowHeight = 190) {
   const entries = Object.entries(nodes)
   const region = (where) => (where && !where.includes('/') ? `${where}/${registry[nodes[where][0]].frames()[0].name}` : where)
   const count = new Map()
@@ -24,14 +25,14 @@ function cardsOf(nodes, registry) {
     const at = region(where) ?? ''
     const k = count.get(at) ?? 0
     count.set(at, k + 1)
-    return { id, type, params, ...(at ? { in: at } : {}), x: (at ? 44 : 220) + (k % 3) * 200, y: (at ? 20 : 40) + Math.floor(k / 3) * 190 }
+    return { id, type, params, ...(at ? { in: at } : {}), x: (at ? 44 : 220) + (k % 3) * 200, y: (at ? 20 : 40) + Math.floor(k / 3) * rowHeight }
   })
 }
 
 /** A machine board (machine.js): its inputs (named), the cards, and the result `out`; written like a proof. */
 export function machine(nodes, wires, { inputs = ['in'] } = {}) {
   return {
-    nodes: [...inputs.map((name, k) => ({ id: name, type: 'in', params: { name }, x: 20, y: 40 + k * 130 })), ...cardsOf(nodes, MACHINE_PARTS), { id: 'out', type: 'out', params: { name: 'out' }, x: 900, y: 40 }],
+    nodes: [...inputs.map((name, k) => ({ id: name, type: 'in', params: { name }, x: 20, y: 40 + k * 130 })), ...cardsOf(nodes, MACHINE_PARTS, 300), { id: 'out', type: 'out', params: { name: 'out' }, x: 900, y: 40 }],
     wires: parse(wires),
   }
 }

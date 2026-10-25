@@ -176,6 +176,9 @@ export function layout(eras) {
   return { order, place, requires, tracks }
 }
 
+// A showcase's reason, written plainly or in each language.
+const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
+
 export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], carries = () => true, needed = () => null, folds = () => [], showcase = () => null, abstraction = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
@@ -329,7 +332,7 @@ export function audit(course) {
     // And a part a level builds is used by a later level's reference answer. Both for courses that keep the chain.
     if (course.abstraction) {
       const used = course.needed(level)?.filter((p) => course.primitives.has(p) || course.needs(p))
-      for (const p of ideas) if (used?.length === 1 && course.concept(used[0]) === p && !course.showcase(level)?.trim()) say('bare-intro', level.id, p, 'its first level is that part alone, wired to the goal')
+      for (const p of ideas) if (used?.length === 1 && course.concept(used[0]) === p && !shown(course.showcase(level))) say('bare-intro', level.id, p, 'its first level is that part alone, wired to the goal')
       // A later task of the level itself counts: it may put to work what its earlier task proved.
       for (const b of course.builds(level)) if (!course.needed(level)?.includes(b) && !levels.some((l) => course.before(level.id, l.id) && course.needed(l)?.includes(b))) say('unused', level.id, b, 'built here, and no later reference answer uses it')
     }

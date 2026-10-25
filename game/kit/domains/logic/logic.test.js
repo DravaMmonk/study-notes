@@ -207,3 +207,54 @@ test('a lemma of several shapes computes as the shape its card is switched to', 
   assert.ok(lemmaGives({ metas: ['P'], forms: [{ key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] }] }, [parse('¬∀y. D(y)')], parse('∃y. ¬D(y)'), ['notAll']))
   assert.equal(lemmaGives({ metas: ['P'], forms: [{ key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] }] }, [parse('¬∀y. D(y)')], parse('∃y. ¬D(y)'), []), false)
 })
+
+test('unification solves sentences with ?-letters, patterns as functions, and refuses what has no solution', async () => {
+  const { FULL, parseEquation, sideText, solveEqs } = await import('./schematic.js')
+  const solve = (text) => {
+    const set = solveEqs([parseEquation(text)], { rules: FULL })
+    return set.fail ? 'fail' : set.eqs.map((e) => `${sideText(e.s)} ≐ ${sideText(e.t)}`).join('; ')
+  }
+  assert.equal(solve('?A ∧ ?B ≐ Rain ∧ Wind'), '?A ≐ Rain; ?B ≐ Wind')
+  assert.equal(solve('?A ∧ ?A ≐ Rain ∧ Wind'), 'fail')
+  assert.equal(solve('?A ≐ ?A → Wet'), 'fail')
+  assert.equal(solve('¬?A ≐ Rain → ⊥'), '?A ≐ Rain')
+  assert.equal(solve('∀x. ?P(x) ≐ ∀y. Likes(y, ann)'), '?P ≐ fun x => Likes(x, ann)')
+  // ?A may not take a bound variable out of its quantifier.
+  assert.equal(solve('∀x. ?A ≐ ∀x. Human(x)'), 'fail')
+})
+
+test('rules used backwards leave ?-letters that a given settles later, and a fixed thing comes too late for an older one', async () => {
+  const { parseS } = await import('./schematic.js')
+  const { KERNEL, assumption, drule, erule, rule, startState } = await import('./tactics.js')
+  const step = (s, ...r) => { const out = r[0](s, ...r.slice(1)); assert.ok(out.results, JSON.stringify(out.fail)); return out.results[0] }
+  let s = startState(parseS('Wet'), ['Rain → Wet', 'Rain'].map(parseS))
+  s = step(s, rule, KERNEL.mp)
+  assert.equal(show(s.goals[1].goal), '?A')
+  s = step(s, assumption)
+  assert.equal(show(s.goals[0].goal), 'Rain')
+  assert.equal(step(s, assumption).goals.length, 0)
+  // Take one only fits forwards: backwards ?P(?t) is no pattern.
+  const t = startState(parseS('Mortal(soc)'), ['∀x. Human(x) → Mortal(x)', 'Human(soc)'].map(parseS))
+  assert.ok(rule(t, KERNEL.spec).fail)
+  assert.equal(step(step(step(t, drule, KERNEL.spec), erule, KERNEL.mp), assumption).goals.length, 0)
+  // An example left before the thing was taken out cannot become it.
+  let u = startState(parseS('∃x. Rich(x)'), [parseS('∃x. Human(x) ∧ Rich(x)')])
+  u = step(step(step(u, rule, KERNEL.exI), erule, KERNEL.exE), erule, KERNEL.conjE)
+  assert.match(assumption(u).fail.en, /was left before/)
+})
+
+test('a machine backtracks once its level says so, and a search finds every answer to a question', async () => {
+  const { MACHINE_TESTS } = await import('./machine.js')
+  const { machine } = await import('./build.js')
+  const script = machine({ a: ['rule', { rule: 'exI' }], b: ['rule', { rule: 'conjI' }], c: ['assumption'], d: ['assumption'] }, ['in>a.in', 'a>b.in', 'b>c.in', 'c>d.in', 'd>out'])
+  const test1 = { goal: '∃x. Human(x) ∧ Likes(x, ann)', hyps: ['Human(cy)', 'Human(bo)', 'Likes(bo, ann)'] }
+  const level = { kind: 'machine', want: 'proved', tests: [test1] }
+  assert.equal(runLevel(MACHINE_TESTS, level, script).pass, false)
+  assert.equal(runLevel(MACHINE_TESTS, { ...level, backtrack: true }, script).pass, true)
+  const ask = {
+    kind: 'machine', want: 'answers', backtrack: true,
+    rules: { grand: { name: { zh: '祖父母', en: 'Grandparent' }, premises: ['Parent(?x, ?y)', 'Parent(?y, ?z)'], conclusion: 'Grand(?x, ?z)' } },
+    tests: [{ goal: 'Grand(ann, ?w)', hyps: ['Parent(ann, bo)', 'Parent(bo, cy)', 'Parent(bo, dee)'], answers: ['cy', 'dee'] }],
+  }
+  assert.equal(runLevel(MACHINE_TESTS, ask, machine({ g: ['rule', { rule: 'grand' }], a: ['assumption'], b: ['assumption'] }, ['in>g.in', 'g>a.in', 'a>b.in', 'b>out'])).pass, true)
+})

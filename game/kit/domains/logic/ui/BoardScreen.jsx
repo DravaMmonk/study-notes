@@ -7,6 +7,7 @@ import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
 import { say } from '../notation.js'
 import FormulaField from './FormulaField.jsx'
+import RuleField from './RuleField.jsx'
 import TermField from './TermField.jsx'
 import { namesInScope } from '../proof.js'
 import FormSwitch from '../../../circuit/FormSwitch.jsx'
@@ -22,6 +23,8 @@ import { machineSteps, machineViewAt } from './stepping.js'
 // A board whose tests can be traced (a machine: boards.jsx) runs step by step instead (../../../shell/usePlayback.jsx):
 // the card computing lights up, the board shows what had been computed by then, the strip lists every step's result,
 // and the run stops at the first step or test that fails.
+
+const T = (zh, en) => ({ zh, en })
 
 /** The screen for one board (boards.jsx), as a level kind's Screen. */
 export const boardScreen = (board) => function LogicBoard(props) { return <BoardScreen board={board} {...props} /> }
@@ -54,7 +57,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const tracedOf = (k) => {
     if (!traces.has(k)) {
       const traced = board.tests.trace(level, circuit, tests[k])
-      traces.set(k, { ...traced, steps: machineSteps(traced, circuit, name, (type) => board.nameOf(lemmas, type)) })
+      traces.set(k, { ...traced, steps: machineSteps(traced, circuit, name, (type) => board.nameOf(lemmas, type), { failing: (tests[k].want ?? level.want) === 'fails' }) })
     }
     return traces.get(k)
   }
@@ -198,8 +201,23 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   )
 }
 
-// The shapes a part with forms offers on its card here: its first, and those `more` brings, each with its label.
-const shapesOf = (part, l, more) => part.forms.filter((k, i) => i === 0 || more.includes(k)).map((k) => ({ key: k, label: l?.forms.find((f) => f.key === k).label ?? k }))
+// The shapes a part with forms offers on its card here: its first, and those `more` brings, each with its label (its
+// text's `forms`, [{ key, label }]).
+const shapesOf = (part, text, more) => part.forms.filter((k, i) => i === 0 || more.includes(k)).map((k) => ({ key: k, label: text?.forms?.find((f) => f.key === k)?.label ?? k }))
+const DEPTHS = [2, 3, 4, 5, 6, 8, 10, 12]
+
+// One setting on a card: what kind it is decides how it is chosen (board.settings).
+function Setting({ s, node, board, parts, lemmas, circuit, scene, setParam, formsOf }) {
+  const value = node.params[s.key] ?? ''
+  const set = (v) => setParam(node.id, s.key, v)
+  switch (s.kind) {
+    case 'proof': return <TermField label={s.label} value={value} onChange={set} scope={namesInScope(node, circuit, scene.premiseNames ?? [])} title={board.nameOf(lemmas, node.type)} />
+    case 'form': return <FormSwitch value={formOf(parts.rules[node.type], node)} options={shapesOf(parts.rules[node.type], board.textOf(lemmas, node.type), formsOf(node.type))} onChange={set} label={board.textOf(lemmas, node.type)?.formLabel} />
+    case 'rule': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rule} />
+    case 'depth': return <FormulaField label={s.label} value={String(value)} onChange={set} choices={DEPTHS.map((d) => ({ value: String(d), label: tr(`${d} 层`, `${d} levels`) }))} blank={T('不限', 'No limit')} />
+    default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} />
+  }
+}
 
 // Under a card's ports: its settings, and what it gives (or why it cannot yet); a frame shows that by its regions'
 // results instead, and folded, how much it holds.
@@ -216,7 +234,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
   return (
     <div className="lg-card">
       {role === 'sink' && scene.want}
-      {board.settings(parts, node, lemmas).map((s) => (s.kind === 'proof' ? <TermField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} scope={namesInScope(node, circuit, scene.premiseNames ?? [])} title={board.nameOf(lemmas, node.type)} /> : s.kind === 'form' ? <FormSwitch key="form" value={formOf(parts.rules[node.type], node)} options={shapesOf(parts.rules[node.type], lemmas[node.type], formsOf(node.type))} onChange={(v) => setParam(node.id, 'form', v)} /> : <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} />))}
+      {board.settings(parts, node, lemmas).map((s) => <Setting key={s.key} s={s} node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} scene={scene} setParam={setParam} formsOf={formsOf} />)}
       {board.extra?.(node, setParam, { ins: Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, view.values.get(w.from)])), text })}
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
       {role === 'source' && <Value v={value} text={text} bare />}
