@@ -7,6 +7,8 @@ import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
 import { say } from '../notation.js'
 import FormulaField from './FormulaField.jsx'
+import TermField from './TermField.jsx'
+import { namesInScope } from '../proof.js'
 import FormSwitch from '../../../circuit/FormSwitch.jsx'
 import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt } from './stepping.js'
@@ -214,7 +216,7 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
   return (
     <div className="lg-card">
       {role === 'sink' && scene.want}
-      {board.settings(parts, node, lemmas).map((s) => (s.kind === 'form' ? <FormSwitch key="form" value={formOf(parts.rules[node.type], node)} options={shapesOf(parts.rules[node.type], lemmas[node.type], formsOf(node.type))} onChange={(v) => setParam(node.id, 'form', v)} /> : <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} />))}
+      {board.settings(parts, node, lemmas).map((s) => (s.kind === 'proof' ? <TermField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} scope={namesInScope(node, circuit, scene.premiseNames ?? [])} title={board.nameOf(lemmas, node.type)} /> : s.kind === 'form' ? <FormSwitch key="form" value={formOf(parts.rules[node.type], node)} options={shapesOf(parts.rules[node.type], lemmas[node.type], formsOf(node.type))} onChange={(v) => setParam(node.id, 'form', v)} /> : <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} />))}
       {board.extra?.(node, setParam, { ins: Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, view.values.get(w.from)])), text })}
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
       {role === 'source' && <Value v={value} text={text} bare />}

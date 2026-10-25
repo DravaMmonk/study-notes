@@ -48,9 +48,9 @@ export const FORMS = [
   { key: 'absurd', text: 'False.elim □', sub: T('矛盾推出一切', 'from ⊥, anything'), make: () => absurd(null) },
 ]
 
-/** The chips of a term task: the premises' names, the names the term binds so far, then the forms. */
-export function chipsOf(premises, tree) {
-  const names = [...Object.keys(premises), ...boundIn(tree)]
+/** The chips of a proof term: the names in scope (premises, assumptions), those the term binds so far, the forms. */
+export function chipsOf(scope, tree) {
+  const names = [...scope, ...boundIn(tree)]
   return [...names.map((name) => ({ key: `v:${name}`, group: 'name', text: name, make: () => pvar(name) })), ...FORMS.map((f) => ({ ...f, group: 'form' }))]
 }
 

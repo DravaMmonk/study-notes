@@ -120,6 +120,9 @@ export function validate({ levels: given, course }) {
     const unbuilt = missingForms(answer)
     if (unbuilt.length) out.push({ fail: true, text: `${level.id}: ${level.answer} uses forms no chip makes: ${unbuilt.join(', ')}` })
     if (level.naive && !checkTerm(parseTerm(level.naive), goal, { hyps, consts })) out.push({ fail: true, text: `${level.id}: the naive term ${level.naive} checks` })
+    // A term handed over to mend is wrong to begin with, and can be built on with the chips.
+    if (level.given && !checkTerm(parseTerm(level.given), goal, { hyps, consts })) out.push({ fail: true, text: `${level.id}: the given term ${level.given} already checks` })
+    if (level.given && missingForms(parseTerm(level.given)).length) out.push({ fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
   }
   // A machine part a level builds runs as its built-in implementation: alone, it passes the level that builds it, unless
   // a task of the level proves it (a law card proved on the proof board, then put to work).
@@ -163,7 +166,7 @@ export function validate({ levels: given, course }) {
     for (const n of level.solution.nodes) {
       for (const [key, value] of Object.entries(n.params ?? {})) {
         const kind = SETTING_KINDS[n.type]?.[key] ?? 'formula'
-        if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || !(RULES[n.type]?.params ?? level.lemmas?.[n.type]?.metas ?? []).includes(key)) continue
+        if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || kind === 'proof' || !(RULES[n.type]?.params ?? level.lemmas?.[n.type]?.metas ?? []).includes(key)) continue
         if (!offered[kind].has(choiceKey(kind, value, level))) out.push({ fail: true, text: `${level.id}: the solution picks ${value} on ${n.type}, which its card does not offer (add it to the level's sentences)` })
       }
     }

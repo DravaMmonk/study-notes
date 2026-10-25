@@ -235,6 +235,53 @@ export const terms = [
     after: T('∧、∨、→、¬、⊥，每个连接词都有它的证明项：一对、带标签的值、函数、到空类型的函数、空类型本身。证明板上的每一条规则，都是造一种值或者用一种值。', '∧, ∨, →, ¬, ⊥: each connective has its terms: a pair, a tagged value, a function, a function into the empty type, the empty type itself. Every rule on the proof board makes a kind of value or uses one.'),
   },
 
+  {
+    id: 't-kernel',
+    title: T('核来把关', 'The kernel checks'),
+    tasks: write([
+      { premises: { p: 'Rain → Wet', q: 'Rain' }, goal: 'Wet', given: 'q p', answer: 'p q', hint: [T('先点检查，看核说什么：谁是函数，谁是参数？', 'Check first and see what the kernel says: which is the function, which the argument?')] },
+      { premises: { p: 'Rain ∧ Wind' }, goal: 'Wind ∧ Rain', given: '⟨p.1, p.2⟩', answer: '⟨p.2, p.1⟩', hint: [T('要证的这一对，左边该是哪一半？', 'In the pair to prove, which half goes on the left?')] },
+      { premises: { p: 'Rain ∨ Sat' }, goal: 'Sat ∨ Rain', given: 'p.elim (fun a => Or.inl a) (fun b => Or.inr b)', answer: 'p.elim (fun a => Or.inr a) (fun b => Or.inl b)', hint: [T('a 证的是下雨，在「今天是周六 ∨ 下雨」里，下雨在哪一边？', 'a proves it rains; in “today is Saturday ∨ it rains”, which side is that?')] },
+      { premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip', given: 'fun a => p (q a)', answer: 'fun a => q (p a)', hint: [T('拿到的 a 证的是下雨，先该交给谁？', 'The a you get proves it rains: who should get it first?')] },
+    ]),
+    intro: [{ t: T('这几个证明项是别人写的，都说证出了要证的那句。先点检查，看核怎么说，再把它们改对。核不管证明项是谁写的、怎么想出来的，只查每一处的类型对不对得上。', 'These proof terms were written by someone else, each claiming to prove its sentence. Check first and see what the kernel says, then mend them. The kernel does not care who wrote a proof term or how they found it; it only checks that every type fits.') }],
+    after: T('核只认类型：写错一处，它就指出错在哪。证明项留了下来，谁都可以拿去再查一遍，不必相信写它的人，也不必相信想出它的那段自动化。检查证明的核可以做得很小，所以可信。', 'The kernel goes by types alone: one mistake and it says where. The proof term stays, and anyone can check it again, trusting neither whoever wrote it nor the automation that found it. The kernel that checks proofs can be small, and that is why it can be trusted.'),
+  },
+
+  {
+    id: 't-exact',
+    title: T('证明项放回板上', 'Proof terms back on the board'),
+    tasks: [
+      prove({
+        adds: ['exact'],
+        step: T('整个证明', 'A whole proof'),
+        tests: [{ premises: { p: 'A → (B → C)', q: 'B' }, goal: 'A → C' }],
+        cases: RAIN,
+        brief: T('实现一个证明器，可以从已知 p：「下雨 → (刮风 → 地湿)」、q：「刮风」证明出「下雨 → 地湿」。这回用新元件<b>证明项</b>：在卡片上写出证明项。', 'Build a prover that, from p: “it rains → (it is windy → the ground is wet)” and q: “it is windy”, proves “it rains → the ground is wet”. This time use the new part, <b>proof term</b>: write the proof term on its card.'),
+        hint: [T('点卡片上的证明项，拼出它：拿到 a，连同 q 一起交给 p。', 'Tap the proof term on the card and build it: given a, hand it to p together with q.')],
+        solution: proof({ x: ['exact', { A: 'A → C', term: 'fun a => p a q' }] }, ['x>goal'], { premises: ['p', 'q'] }),
+      }),
+      prove({
+        step: T('框里的证明项', 'A proof term in a box'),
+        tests: [{ goal: '(A ∧ B → C) → (A → (B → C))' }],
+        cases: RAIN,
+        brief: T('不需要任何已知，证明出「(下雨 ∧ 刮风 → 地湿) → (下雨 → (刮风 → 地湿))」：用一个假设框，框里放一张证明项卡片。', 'From nothing given, prove “(it rains ∧ it is windy → the ground is wet) → (it rains → (it is windy → the ground is wet))”: one assumption box, with a proof-term card inside it.'),
+        hint: [T('框里的证明项可以叫出框的假设：外面第一层框的假设叫 h1。', 'A proof term inside a box can name the box’s assumption: the outermost box’s is h1.')],
+        solution: proof({ f: ['impI', { A: 'A ∧ B → C' }], x: ['exact', { A: 'A → (B → C)', term: 'fun a b => h1 ⟨a, b⟩' }, 'f'] }, ['x>f.body', 'f>goal']),
+      }),
+      prove({
+        step: T('和别的元件接在一起', 'Wired with other parts'),
+        tests: [{ premises: { p: 'A ∧ B', q: 'B ∧ A → C' }, goal: 'C' }],
+        cases: RAIN,
+        brief: T('从已知 p：「下雨 ∧ 刮风」、q：「刮风 ∧ 下雨 → 地湿」证明出「地湿」：一张证明项卡片证出中间那一句，再接上套用。', 'From p: “it rains ∧ it is windy” and q: “it is windy ∧ it rains → the ground is wet”, prove “the ground is wet”: a proof-term card proves the sentence in between, then Apply.'),
+        hint: [T('证明项卡片证「刮风 ∧ 下雨」，它的输出和别的卡片一样能接线。', 'The proof-term card proves “it is windy ∧ it rains”; its output wires on like any card’s.')],
+        solution: proof({ x: ['exact', { A: 'B ∧ A', term: '⟨p.2, p.1⟩' }], m: ['mp'] }, ['q>m.imp', 'x>m.a', 'm>goal'], { premises: ['p', 'q'] }),
+      }),
+    ],
+    intro: [{ t: T('写出来的证明项，也能放回证明板上用：新元件<b>证明项</b>的卡片上选好要证的句子，再拼出它的证明项。核检查通过，这张卡片就证出了那句话，和接线证出的一样能接给别的卡片。', 'A proof term once written can go back on the proof board: on the new part <b>proof term</b>, choose the sentence to prove and build its proof term. When the kernel accepts it, the card has proved that sentence, and its output wires on just like a wired proof’s.') }],
+    after: T('接线和写证明项是同一件事的两种写法，可以混着用：哪一段好接就接线，哪一段好写就写证明项。', 'Wiring and writing a proof term are two ways to write one thing, and they mix: wire where wiring is easier, write a term where writing is.'),
+  },
+
   // ---------- detours ----------
   {
     id: 't-detour',

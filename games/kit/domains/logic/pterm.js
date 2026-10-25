@@ -151,7 +151,7 @@ let fresh = 0
 const freshName = (x) => `${x.replace(/'+$/, '')}'${++fresh}`
 
 // The names a term uses free (things and hypotheses alike).
-function freeIn(t, out = new Set(), bound = new Set()) {
+export function freeIn(t, out = new Set(), bound = new Set()) {
   const go = (u, b) => freeIn(u, out, b)
   switch (t.k) {
     case 'var': if (!bound.has(t.name)) out.add(t.name); break
