@@ -1,47 +1,96 @@
-// The machine board (《证明完毕》 chapter 4 on): a circuit whose wires carry formulas or clause sets instead of proved
-// judgments. Its sources (`in` cards, one per input the level names) give the test's inputs, its sink `out` is
-// checked against what the level wants. A part is a law card, a normal form, resolution or a repeat frame
-// (clauses.js); the level's parts come from the course as on every board.
+// The machine board (《证明完毕》 chapter 7 on): a circuit whose wires carry equations, proof states, formulas or
+// clause sets instead of proved judgments. Its sources (`in` cards, one per input the level names) give the test's
+// inputs, its sink `out` is checked against what the level wants. A part is a rule of unification, a tactic, a frame
+// that runs what it holds again and again (repeat, depth-first search, every goal) or tries two things (or else,
+// append), a law card, a normal form or resolution (clauses.js); the level's parts come from the course as on every
+// board.
 //
-//   value   { kind: 'formula', f } | { kind: 'clauses', set } | { kind: 'eqs', eqs: [[s, t]], fail } (unify.js)
-//           | { kind: 'state', goals, error? } (tactics.js)
+//   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
+//           | { kind: 'formula', f } | { kind: 'clauses', set }
 //   level   { kind: 'machine', want, inputs?: [{ name, label }] (default one, `in`),
-//             tests: [{ in: formula text } | { clauses: [clause text] } | { inputs: { name: formula text } }, want?] }
+//             rules?: { key: { name, premises: [text], conclusion: text } }, backtrack?,
+//             tests: [{ eqs: [equation text] } | { goal, hyps?, answers? } | { in: formula text }
+//             | { clauses: [clause text] } | { inputs: { name: formula text } }, want?] }
 //
-// What a level wants of its output (`want`, or a test's own): a formula equivalent to the input with no ¬¬
-// ('noDneg'), no → or ↔ ('noArrow'), in NNF ('nnf') or CNF ('cnf'); a clause set holding ⊥ ('refuted'); 'decide':
-// ⊥ when the input cannot be satisfied, and otherwise a set closed under resolution without ⊥; and 'entails', for
-// inputs `goal` and any others (what is known): ⊥ when the others entail the goal, and otherwise a saturated set.
-// First-order (chapter 7): 'unify' (a solved equation set that unifies the input, or a failure when none does),
-// 'prenex', 'skolem' and 'clauseForm' (the input's own, as unify.js makes them), and 'refuted' on clauses with
-// variables. Test inputs are read with unify.js's convention (u … z variables, other lower-case names constants).
-// Tactics (chapter 8): a test { goal, hyps? } starts a proof state, and 'proved' wants no goal left.
-// Theories (chapter 9): a test { eq, hyps? } starts a proof state on an equation (theory.js), and simp rewrites with the
-// level's `defs`, handed to every card in the run's ctx.
+// What a level wants of its output (`want`, or a test's own): 'unify' (the solved equations, when the input has a
+// unifier, or a failure when it has none), 'proved' (no goal left), 'answers' (every way of proving the goal, as a
+// question's answers: the test's `answers`, the things its ?-letters become), 'fails' (the goal cannot be proved, and
+// the machine says so, having stopped); a formula equivalent to the input with
+// no ¬¬ ('noDneg'), no → or ↔ ('noArrow'), in NNF ('nnf') or CNF ('cnf'); a clause set holding ⊥ ('refuted');
+// 'decide', 'entails', and on first-order formulas 'prenex', 'skolem', 'clauseForm' and 'foRefuted'. Theories
+// (chapter 9): a test { eq, hyps? } starts a proof state on an equation (theory.js), and simp rewrites with the level's
+// `defs`.
+//
+// Rules on cards (rule, erule, drule) are named by key in the level's rule book (ruleBookOf: the kernel's rules, the
+// lemmas' and the level's own). Until a level says `backtrack`, a tactic gives only its first result; from then on,
+// every result, and each card after it works on each of them in turn (tactics.js).
 import { PartError, evaluate } from '../../engine/circuit.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
 import { framePart, within } from '../../circuit/frames.js'
+import { formed } from '../../engine/forms.js'
 import { and, same } from './formula.js'
 import { say } from './notation.js'
 import { LAWS, clauseOf, clauseSet, clausesOf, closed, cnf, equivalent, hasArrow, hasDneg, isCnf, isNnf, nnf, refuted, resolveRound, saturate, toEnd } from './clauses.js'
-import { assumption, auto, elim, intro, startState } from './tactics.js'
+import { KERNEL, answerOf, asValue, assumption, auto, defer, depthFirst, drule, eachRule, erule, resultsOf, rule, rulesNamed, startState } from './tactics.js'
+import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, sameSide, sideText, solveEqs, solved } from './schematic.js'
 import { THEORY_LEMMAS, addRule, cases, induct, parseTh, simp } from './theory.js'
-import { UNIFY_RULES, applyT, clauseFormOf, factorRound, foClausesOf, foNnf, foResolveRound, foSet, hasExists, isPrenex, matrixOf, mgu, parseFo, parseTerm, prenex, sameTerm, skolem, solved } from './unify.js'
+import { clauseFormOf, factorRound, foClausesOf, foNnf, foResolveRound, foSet, hasExists, isPrenex, matrixOf, parseFo, prenex, skolem } from './unify.js'
 
 const T = (zh, en) => ({ zh, en })
 const fail = (zh, en) => new PartError({ zh, en })
 export const formulaValue = (f) => ({ kind: 'formula', f })
 export const clausesValue = (set) => ({ kind: 'clauses', set })
+export const eqsValue = (eqs, fail = null) => ({ kind: 'eqs', eqs, fail })
+
+const books = new WeakMap()
+/** A level's rule book: every rule a card may name, by key (the kernel's, each lemma's shapes, the level's own). */
+export function ruleBookOf(level) {
+  if (!books.has(level)) {
+    const own = Object.entries(level.rules ?? {}).map(([key, r]) => ({ ...ruleOf(key, r.name, r.premises ?? [], r.conclusion), own: true }))
+    const lemmas = Object.entries(level.lemmas ?? {}).flatMap(([type, l]) => lemmaRules(type, l))
+    books.set(level, Object.fromEntries([...Object.values(KERNEL), ...lemmas, ...own].map((r) => [r.key, r])))
+  }
+  return books.get(level)
+}
 
 const stateIn = (v) => {
   if (v.kind !== 'state') throw fail('这里要一个证明状态（还没证完的目标）', 'This needs a proof state (the goals still open)')
   return v
 }
-// A tactic card: one step on the state; a failure is the state with what went wrong (the next ORELSE or REPEAT reads it).
-const tactic = (t) => ({ inputs: ['in'], eval: ({ in: v }, node, ctx) => { const s = stateIn(v); return s.error ? s : t({ ...s, error: undefined }, ctx, node) } })
+const firstOf = (s) => ({ ...s, more: undefined })
+// A tactic card: on each result it is handed (only the first, until the level backtracks), every result it makes; a
+// failure is the state with what went wrong (a frame reads it). An input that failed passes through.
+const tactic = (t) => ({
+  inputs: ['in'],
+  eval: ({ in: v }, node, ctx) => {
+    const s = stateIn(v)
+    if (s.error) return s
+    const out = []
+    let why = null
+    for (const one of ctx.backtrack ? resultsOf(s) : [firstOf(s)]) {
+      const r = t(one, ctx, node)
+      if (r.fail) why ??= r.fail
+      else out.push(...r.results)
+      if (out.length >= 24) break
+    }
+    const made = asValue(ctx.backtrack ? out : out.slice(0, 1), { ...firstOf(s), error: why })
+    return s.endless ? { ...made, endless: true } : made
+  },
+})
+// A tactic of the theories (chapter 9): one state to the next.
+const step = (t) => ({ inputs: ['in'], eval: ({ in: v }, node, ctx) => { const s = stateIn(v); return s.error ? s : t({ ...s, error: undefined }, ctx, node) } })
+// The rules a card's setting names; none chosen yet, or one the level does not have, cannot run.
+function chosen(ctx, node) {
+  const key = node.params?.rule
+  if (!key) throw fail('卡片上还没选规则', 'No rule chosen on the card yet')
+  const rules = rulesNamed(key, ctx.rules ?? KERNEL)
+  if (!rules.length) throw fail('这一关没有这条规则', 'This level has no such rule')
+  return rules
+}
+const ruleCard = (t) => ({ ...tactic((s, ctx, node) => eachRule(s, chosen(ctx, node), t)), params: ['rule'] })
 // A step inside a part, for a traced run (../../engine/circuit.js): a round of it, or the card it applies (`sub`).
 const inner = (ctx, node, value, extra) => ctx?.trace?.push({ id: node.id, key: null, inner: true, value, ...extra })
-const UNIFY_CARDS = { delete: 'uDelete', decompose: 'uDecompose', conflict: 'uConflict', swap: 'uSwap', check: 'uCheck', eliminate: 'uEliminate' }
+const UNIFY_CARDS = { delete: 'uDelete', decompose: 'uDecompose', conflict: 'uConflict', swap: 'uSwap', check: 'uCheck', eliminate: 'uEliminate', pattern: 'uPattern' }
 const formulaIn = (v) => {
   if (v.kind !== 'formula') throw fail('这里要一句公式，接进来的是一组子句', 'This needs a formula; it got a clause set')
   return v.f
@@ -51,64 +100,153 @@ const clausesIn = (v) => {
   return v.set
 }
 const twoFormulas = (a, b) => [formulaIn(a), formulaIn(b)]
-export const eqsValue = (eqs, fail = null) => ({ kind: 'eqs', eqs, fail })
 const eqsIn = (v) => {
   if (v.kind !== 'eqs') throw fail('这里要一组等式', 'This needs a set of equations')
   return v
 }
 // A unification rule card: the rule once, where it first applies; a set already failed passes through.
-const rule = (r) => ({ inputs: ['in'], eval: ({ in: v }) => { const e = eqsIn(v); if (e.fail) return e; const next = UNIFY_RULES[r](e.eqs); return next ? eqsValue(next.eqs, next.fail ?? null) : e } })
+const unifyCard = (r) => ({ inputs: ['in'], eval: ({ in: v }) => { const e = eqsIn(v); if (e.fail) return e; const next = UNIFY_RULES[r](e.eqs, {}); return next ? eqsValue(next.eqs, next.fail ?? null) : e } })
 // A first-order formula's ∀ prefix kept while a card works on what is under it.
 const underAll = (f, g) => (f.op === '∀' ? { ...f, body: underAll(f.body, g) } : g(f))
 const law = (rewrite) => ({ inputs: ['in'], eval: ({ in: v }) => formulaValue(toEnd(formulaIn(v), rewrite)) })
 
 /**
+ * What a frame's region makes of a value, run on its own: the cards inside the frame (frames inside it with their own),
+ * with what the region opens with given as the value. Only what the frame opens can be read inside it.
+ */
+function regionRun(node, ctx, region) {
+  const graph = ctx.graph
+  const deep = within(graph, node.id)
+  const inside = graph.nodes.filter((n) => deep.has(n.id))
+  const ids = new Set(inside.map((n) => n.id))
+  const back = graph.wires.find((w) => w.to === node.id && w.port === region)
+  if (!back) throw fail('框里还没有接到「结果」上', 'Nothing inside is wired to the result yet')
+  for (const w of graph.wires.filter((x) => ids.has(x.to))) {
+    if (!ids.has(w.from.split('#')[0]) && w.from !== `${node.id}#${region}`) throw fail('框里只能用框开出来的东西', 'Inside the frame, only what the frame opens can be used')
+  }
+  const OPEN = '__open'
+  const sub = {
+    nodes: [{ id: OPEN, type: '__open' }, ...inside.map(({ in: _, ...n }) => n)],
+    wires: graph.wires.filter((w) => ids.has(w.to)).map((w) => (w.from === `${node.id}#${region}` ? { ...w, from: OPEN } : w)),
+  }
+  const parts = ctx.engine.parts
+  // quiet: the cards' steps stay out of a traced run (a search shows its steps its own way).
+  return (value, quiet = false) => {
+    const { values } = evaluate(sub, { parts: (type) => (type === '__open' ? { inputs: [], eval: () => value } : parts[type]), ctx: quiet ? { ...ctx, trace: null } : ctx })
+    const out = values.get(back.from)
+    if (out === undefined) throw fail('框里有一张卡片算不出来', 'A card inside cannot compute')
+    return out
+  }
+}
+
+/**
  * The repeat frame: what its region makes from the value it opens with is fed back in, again and again, until it
- * stops changing (or a clause set holds ⊥). Only what the region opens can be read inside it. Its region shows the
- * first round; the frame gives the last.
+ * stops changing (or a clause set holds ⊥, an equation set fails, no goal is left, or a tactic fails: then the round
+ * before stands). On proof states it follows the first result only. Its region shows the first round; the frame gives
+ * the last.
  */
 const repeat = {
   ...framePart(['in'], [{ name: 'body', opens: true }]),
   eval: ({ in: v, body }, node, ctx, key) => {
     if (key) return v
-    const graph = ctx.graph
-    // Everything inside the frame, frames inside it with their own cards too.
-    const deep = within(graph, node.id)
-    const inside = graph.nodes.filter((n) => deep.has(n.id))
-    const ids = new Set(inside.map((n) => n.id))
-    const back = graph.wires.find((w) => w.to === node.id && w.port === 'body')
-    if (!back) throw fail('框里还没有接到「结果」上', 'Nothing inside is wired to the result yet')
-    for (const w of graph.wires.filter((x) => ids.has(x.to))) {
-      if (!ids.has(w.from.split('#')[0]) && w.from !== `${node.id}#body`) throw fail('重复框里只能用框开出来的东西', 'Inside the repeat frame, only what the frame opens can be used')
-    }
-    const OPEN = '__open'
-    const sub = {
-      nodes: [{ id: OPEN, type: '__open' }, ...inside.map(({ in: _, ...n }) => n)],
-      wires: graph.wires.filter((w) => ids.has(w.to)).map((w) => (w.from === `${node.id}#body` ? { ...w, from: OPEN } : w)),
-    }
-    const parts = ctx.engine.parts
-    const step = (value) => {
-      const { values, errors } = evaluate(sub, { parts: (type) => (type === '__open' ? { inputs: [], eval: () => value } : parts[type]), ctx })
-      const out = values.get(back.from)
-      if (out === undefined) throw fail('框里有一张卡片算不出来', 'A card inside cannot compute')
-      return out
-    }
-    const key2 = (x) => JSON.stringify(x)
-    let cur = body
+    const round = regionRun(node, ctx, 'body')
+    const first = (x) => (x.kind === 'state' ? firstOf(x) : x)
+    const same2 = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+    let cur = first(v)
     for (let k = 0; k < 60; k++) {
       if ((cur.kind === 'clauses' && refuted(cur.set)) || (cur.kind === 'eqs' && cur.fail)) return cur
-      if (cur.kind === 'state' && !cur.goals.length) return cur
+      if (cur.kind === 'state' && (cur.error || !cur.goals.length)) return cur
       // A traced run (../../engine/circuit.js) sees each round: what the frame opens with, its cards, what comes back.
       // The board's own pass was the first round; these are the second on.
-      ctx.trace?.push({ id: node.id, key: 'body', value: cur })
-      const next = step(cur)
-      ctx.trace?.push({ id: node.id, key: null, round: k + 2, value: next, quiet: true })
-      // A tactic that fails ends the repeat with the state before it (REPEAT).
+      let next
+      if (k === 0) next = first(body)
+      else {
+        ctx.trace?.push({ id: node.id, key: 'body', value: cur })
+        next = first(round(cur))
+        ctx.trace?.push({ id: node.id, key: null, round: k + 1, value: next, quiet: true })
+      }
       if (next.kind === 'state' && next.error) return cur
-      if (key2(next) === key2(cur)) return cur
+      if (same2(next, cur)) return cur
       cur = next
     }
     throw fail('转了 60 圈还没停下来', 'Still changing after 60 rounds')
+  },
+}
+
+const LIMIT = 600
+/**
+ * Depth-first search: what the region makes of each result it is handed, and of each result of that, deeper and
+ * deeper, every state with no goal left found, in order. A path stops at the card's depth, when it has one.
+ */
+const search = {
+  ...framePart(['in'], [{ name: 'body', opens: true }]),
+  params: ['depth'],
+  eval: ({ in: v }, node, ctx, key) => {
+    if (key) return v
+    const s = stateIn(v)
+    if (s.error) return s
+    const round = regionRun(node, ctx, 'body')
+    const depth = Number(node.params?.depth) || Infinity
+    let k = 0
+    const expand = (x) => {
+      const out = round(x, true)
+      if (++k <= 30) inner(ctx, node, out, { label: T(`第 ${k} 步`, `step ${k}`) })
+      return out.error ? [] : resultsOf(out)
+    }
+    const { found, stopped } = depthFirst(resultsOf(s), expand, { depth, limit: LIMIT, most: 60 })
+    // A search that has not stopped gives what it found so far (the first is enough to prove a goal), and says it goes
+    // on: asking for every answer then never ends.
+    const none = stopped ? T(`搜了 ${LIMIT} 步还没停下来：有一条路走不到头`, `Searched ${LIMIT} steps without stopping: one path never ends`)
+      : depth < Infinity ? T(`${depth} 层以内都搜遍了，也没有证完`, `Searched everything within ${depth} levels without finishing`) : T('都搜遍了，也没有证完', 'Searched everything without finishing')
+    const out = asValue(found, { ...firstOf(s), error: none })
+    return stopped ? { ...out, endless: true } : out
+  },
+}
+
+/** Every goal: the region run on each goal of the state in turn, each on its own (Isabelle's ALLGOALS, Lean's <;>). */
+const each = {
+  ...framePart(['in'], [{ name: 'body', opens: true }]),
+  eval: ({ in: v }, node, ctx, key) => {
+    if (key) return v
+    const s = stateIn(v)
+    if (s.error) return s
+    const round = regionRun(node, ctx, 'body')
+    const put = (g, σ) => ({ ...g, hyps: g.hyps.map((h) => instantiate(h, σ ?? {})), goal: instantiate(g.goal, σ ?? {}) })
+    // Partial results: the goals made so far, and what is known; each goal of the start is done on each of them.
+    let partial = (ctx.backtrack ? resultsOf(s) : [firstOf(s)]).map((x) => ({ ...x, goals: [] }))
+    let why = null
+    for (const g of s.goals) {
+      const next = []
+      for (const p of partial) {
+        const out = round({ ...p, goals: [put(g, p.inst)] }, true)
+        if (out.error) { why ??= out.error; continue }
+        for (const r of ctx.backtrack ? resultsOf(out) : [firstOf(out)]) next.push({ ...r, more: undefined, goals: [...p.goals.map((x) => put(x, r.inst)), ...r.goals] })
+      }
+      if (!next.length) return { ...firstOf(s), error: why }
+      partial = next.slice(0, 24)
+    }
+    return asValue(partial)
+  },
+}
+
+// Or else: both regions open with the value; the first region's result unless it failed, else the second's.
+const orElse = {
+  ...framePart(['in'], [{ name: 'first', opens: true }, { name: 'second', opens: true }]),
+  eval: ({ in: v, first, second }, _node, _ctx, key) => {
+    if (key) return v
+    if (first && !first.error) return first
+    if (second) return second
+    throw fail('两个框都还没接到结果上', 'Neither region is wired to its result yet')
+  },
+}
+// Append: both regions open with the value; every result of the first region, then every result of the second.
+const append = {
+  ...framePart(['in'], [{ name: 'first', opens: true }, { name: 'second', opens: true }]),
+  eval: ({ in: v, first, second }, _node, _ctx, key) => {
+    if (key) return v
+    if (!first || !second) throw fail('两个框都要接到结果上', 'Both regions must be wired to their results')
+    const ok = [first, second].filter((x) => !x.error)
+    return ok.length ? asValue(ok.flatMap(resultsOf)) : first
   },
 }
 
@@ -116,6 +254,42 @@ const repeat = {
 export const MACHINE_PARTS = {
   in: source(),
   out: sink(),
+  // Unification (chapter 7): its rules, the unifier built from them, and patterns.
+  uDelete: unifyCard('delete'),
+  uDecompose: unifyCard('decompose'),
+  uConflict: unifyCard('conflict'),
+  uSwap: unifyCard('swap'),
+  uCheck: unifyCard('check'),
+  uEliminate: unifyCard('eliminate'),
+  uPattern: unifyCard('pattern'),
+  unifier: {
+    inputs: ['in'],
+    eval: ({ in: v }, node, ctx) => {
+      const e = eqsIn(v)
+      if (e.fail) return e
+      const set = solveEqs(e.eqs, { onStep: (state, r) => inner(ctx, node, eqsValue(state.eqs, state.fail), { sub: UNIFY_CARDS[r] }) })
+      return eqsValue(set.eqs, set.fail)
+    },
+  },
+  repeat,
+  // Tactics (chapters 7 and 8).
+  rule: ruleCard(rule),
+  assumption: tactic(assumption),
+  erule: ruleCard(erule),
+  drule: formed([
+    { key: 'drule', ...ruleCard((s, r) => drule(s, r)) },
+    { key: 'frule', ...ruleCard((s, r) => drule(s, r, true)) },
+  ]),
+  defer: tactic(defer),
+  orElse,
+  append,
+  search,
+  each,
+  auto: tactic((s, _ctx) => {
+    const { found } = auto(s)
+    return found.length ? { results: found } : { fail: T('auto 没有证完', 'auto did not finish') }
+  }),
+  // Formulas and clauses (the old normal-form and resolution chapters, waiting to be rebuilt in chapter 12).
   dneg: law(LAWS.dneg),
   impOr: law(LAWS.impOr),
   dmLaw: law(LAWS.dm),
@@ -141,25 +315,8 @@ export const MACHINE_PARTS = {
     },
   },
   res: { inputs: ['in'], eval: ({ in: v }) => clausesValue(resolveRound(clausesIn(v))) },
-  repeat,
-  // A built part that goes round inside (the saturator, the unifier, auto) shows each of its rounds in a traced run.
+  // A built part that goes round inside (the saturator, the unifier) shows each of its rounds in a traced run.
   saturate: { inputs: ['in'], eval: ({ in: v }, node, ctx) => clausesValue(saturate(clausesIn(v), 60, (set, round) => inner(ctx, node, clausesValue(set), { round }))) },
-  // Unification (chapter 7): the six rules, and the unifier built from them.
-  uDelete: rule('delete'),
-  uDecompose: rule('decompose'),
-  uConflict: rule('conflict'),
-  uSwap: rule('swap'),
-  uCheck: rule('check'),
-  uEliminate: rule('eliminate'),
-  unifier: {
-    inputs: ['in'],
-    eval: ({ in: v }, node, ctx) => {
-      const e = eqsIn(v)
-      const σ = e.fail ? null : mgu(e.eqs, (state, rule) => inner(ctx, node, eqsValue(state.eqs, state.fail), { sub: UNIFY_CARDS[rule] }))
-      return σ ? eqsValue(Object.entries(σ).map(([x, t]) => [{ t: 'var', name: x }, t])) : eqsValue(e.eqs, e.fail ?? { zh: '没有合一子', en: 'No unifier' })
-    },
-  },
-  // Clause form (chapter 7).
   prenex: {
     inputs: ['in'],
     eval: ({ in: v }) => {
@@ -177,27 +334,12 @@ export const MACHINE_PARTS = {
   clauseForm: { inputs: ['in'], eval: ({ in: v }) => clausesValue(clauseFormOf(formulaIn(v))) },
   // First-order resolution (unit resolution with unification) and factoring.
   fores: { inputs: ['in'], eval: ({ in: v }) => clausesValue(foResolveRound(clausesIn(v))) },
-  // Tactics (chapter 8).
-  assumption: tactic(assumption),
-  intro: tactic(intro),
-  elim: tactic(elim),
-  auto: tactic((s, ctx, node) => auto(s, (state, name) => inner(ctx, node, state, { sub: name }))),
-  // ORELSE: both regions open with the state; the first region's result unless it failed, else the second's.
-  orElse: {
-    ...framePart(['in'], [{ name: 'first', opens: true }, { name: 'second', opens: true }]),
-    eval: ({ in: v, first, second }, _node, _ctx, key) => {
-      if (key) return v
-      if (first && !first.error) return first
-      if (second) return second
-      throw fail('两个框都还没接到结果上', 'Neither region is wired to its result yet')
-    },
-  },
   factor: { inputs: ['in'], eval: ({ in: v }) => clausesValue(factorRound(clausesIn(v))) },
   // Theories (chapter 9): simplification, induction, splitting an if, and a card for each lemma proved.
-  simp: tactic((s, ctx) => simp(s, ctx?.defs ?? [])),
-  induct: tactic(induct),
-  cases: tactic(cases),
-  ...Object.fromEntries(Object.entries(THEORY_LEMMAS).map(([type, text]) => [type, tactic((s) => addRule(s, text))])),
+  simp: step((s, ctx) => simp(s, ctx?.defs ?? [])),
+  induct: step(induct),
+  cases: step(cases),
+  ...Object.fromEntries(Object.entries(THEORY_LEMMAS).map(([type, text]) => [type, step((s) => addRule(s, text))])),
 }
 const hasQuantifier = (f) => f.op === '∀' || f.op === '∃' || (f.op === '¬' ? hasQuantifier(f.a) : f.a ? hasQuantifier(f.a) || hasQuantifier(f.b) : false)
 const hasVars = (f) => f.op === 'atom' ? f.args.some(function vars(t) { return t.t === 'var' || t.args.some(vars) }) : f.op === '¬' ? hasVars(f.a) : f.a ? hasVars(f.a) || hasVars(f.b) : false
@@ -205,9 +347,9 @@ const isFoNnf = (f) => (f.op === '∀' || f.op === '∃' ? isFoNnf(f.body) : f.o
 
 /** A test's inputs as values, by name. */
 export function inputsOf(test) {
-  if (test.goal) return { in: startState(parseFo(test.goal), (test.hyps ?? []).map(parseFo)) }
+  if (test.goal) return { in: startState(parseS(test.goal), (test.hyps ?? []).map(parseS)) }
   if (test.eq) return { in: startState(parseTh(test.eq), (test.hyps ?? []).map(parseTh)) }
-  if (test.eqs) return { in: eqsValue(test.eqs.map((e) => e.split(' = ').map(parseTerm))) }
+  if (test.eqs) return { in: eqsValue(test.eqs.map(parseEquation)) }
   if (test.clauses) {
     const cs = test.clauses.map((c) => c.split(' ∨ ').map((l) => l.trim()))
     return { in: clausesValue(cs.some((c) => c.some((l) => /\(/.test(l))) ? foSet(cs) : clauseSet(test.clauses.map((c) => clauseOf(parseFo(c))))) }
@@ -224,6 +366,9 @@ const WANTS = {
   nnf: [T('¬ 只在字母上（否定范式）', '¬ only on letters (NNF)'), (f) => isNnf(f)],
   cnf: [T('合取范式', 'CNF'), (f) => isCnf(f)],
 }
+
+/** A question's answers in a list of results: what its ?-letters become in each that has no goal left. */
+export const answersIn = (out) => [...new Set(resultsOf(out).filter((s) => !s.error && !s.goals.length).map((s) => answerOf(s).map(sideText).join(', ')))].sort()
 
 /** Is the output what the test wants? '' or why not. */
 export function judge(want, test, out, notation) {
@@ -242,14 +387,31 @@ export function judge(want, test, out, notation) {
     if (out.error) return out.error
     return out.goals.length ? T(`还剩 ${out.goals.length} 个目标没证完`, `${out.goals.length} goal${out.goals.length === 1 ? '' : 's'} still open`) : ''
   }
+  if (want === 'fails') {
+    if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
+    if (out.endless) return out.error ?? T('搜索停不下来', 'The search never stops')
+    if (!out.error) return out.goals.length ? T('这一句证不出来，机器却还没有说「证不出来」', 'This cannot be proved, yet the machine has not said so') : T('这一句不该证得出来', 'This should not be provable')
+    return ''
+  }
+  if (want === 'answers') {
+    if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
+    if (out.endless) return T('要找出所有答案，可搜索停不下来：有一条路走不到头', 'Every answer is wanted, but the search never stops: one path never ends')
+    if (out.error) return out.error
+    const got = answersIn(out)
+    const wanted = [...new Set(test.answers)].sort()
+    if (got.join(';') === wanted.join(';')) return ''
+    const list = (xs) => (xs.length ? xs.join('、') : '没有')
+    const listEn = (xs) => (xs.length ? xs.join(', ') : 'none')
+    return T(`找到的答案是 ${list(got)}，应该是 ${list(wanted)}`, `The answers found are ${listEn(got)}; they should be ${listEn(wanted)}`)
+  }
   if (want === 'unify') {
     if (out.kind !== 'eqs') return T('结果要一组等式', 'The result must be a set of equations')
-    const σ = mgu(input.eqs)
-    if (!σ) return out.fail ? '' : T('这组等式其实合一不了，结果却没有说「失败」', 'These equations have no unifier, yet the result does not say it failed')
+    const ref = solveEqs(input.eqs, { rules: FULL })
+    if (ref.fail) return out.fail ? '' : T('这组等式其实合一不了，结果却没有说「失败」', 'These equations have no unifier, yet the result does not say it failed')
     if (out.fail) return T('这组等式能合一，结果却说失败了', 'These equations can be unified, yet the result says it failed')
-    if (!solved(out.eqs)) return T('还没解完：要每个等式左边都是一个变量，右边里没有这些变量', 'Not solved yet: each equation must have a variable on the left, and none of those variables on any right side')
-    const θ = Object.fromEntries(out.eqs.map(([x, t]) => [x.name, t]))
-    return input.eqs.every(([s, t]) => sameTerm(applyT(s, θ), applyT(t, θ))) ? '' : T('结果代回去，原来的等式两边还不一样', 'Put back into the equations, the result does not make both sides equal')
+    if (!solved(out.eqs)) return T('还没解完：要每个等式左边都是一个 ?，右边里没有这些 ?', 'Not solved yet: each equation must have a ?-letter on the left, and none of those letters on any right side')
+    const σ = Object.fromEntries(out.eqs.map((e) => [e.s.name, e.t]))
+    return input.eqs.every((e) => sameSide(instantiate(e.s, σ), instantiate(e.t, σ))) ? '' : T('结果代回去，原来的等式两边还不一样', 'Put back into the equations, the result does not make both sides equal')
   }
   if (want === 'prenex' || want === 'skolem') {
     if (out.kind !== 'formula') return T('结果要一句公式', 'The result must be a formula')
@@ -278,17 +440,19 @@ export function judge(want, test, out, notation) {
   return closed(out.set) ? '' : T('结果还能再归结出新子句：还没饱和', 'The result still resolves into new clauses: not saturated yet')
 }
 
+const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, defs: level.defs ?? [], rules: ruleBookOf(level), backtrack: Boolean(level.backtrack), ...extra })
+
 /** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
 export const MACHINE_TESTS = {
   runTest: (level, circuit, test) => {
-    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), ctx: { graph: circuit, defs: level.defs ?? [] } })
+    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), ctx: ctxOf(level, circuit) })
     return { ...run, outputs: { out: run.outputs.out } }
   },
   // The run of one test with every step it took, in order (../../engine/circuit.js trace): only what reaches the
   // result runs, so a card lying about unwired takes no step.
   trace: (level, circuit, test) => {
     const trace = []
-    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), targets: ['out'], ctx: { graph: circuit, defs: level.defs ?? [], trace } })
+    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
     return { trace, run: { ...run, outputs: { out: run.outputs.out } } }
   },
   check: (level, test, outputs) => {

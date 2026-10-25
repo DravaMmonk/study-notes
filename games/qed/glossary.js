@@ -123,4 +123,22 @@ export const GLOSSARY = [
     ],
     see: ['curry-howard', 'lemma'],
   },
+  {
+    id: 'unification', group: 'logic', title: T('元变量与合一', 'Metavariables and unification'), at: 'r-match',
+    body: [
+      T('一条规则写成 ⟦前提⟧ ⟹ 结论，里面待定的部分叫<b>元变量</b>：?A、?B 是任何一句话，?t 是任何一样东西，?P(x) 是任何一句关于 x 的话。Isabelle 的规则都这样写（它的元逻辑 Pure 里，⟹ 是「推出」，⋀ 是「对任何」）；Lean 的 apply 留下的空位 ?m 也是元变量。', 'A rule is written ⟦premises⟧ ⟹ conclusion, and the parts left open in it are <b>metavariables</b>: ?A and ?B any sentence, ?t any thing, ?P(x) any sentence about x. Isabelle writes every rule this way (in its metalogic Pure, ⟹ is “yields” and ⋀ “for any”); the holes ?m Lean’s apply leaves are metavariables too.'),
+      T('<b>合一</b>是解等式 s ≐ t：给元变量找一组替换，让两边变得一模一样。一阶的合一由几条规则解到底（Martelli 和 Montanari 的写法：拆开、删掉、对不上、翻过来、发生检查、代进去），解出的是<b>最一般合一子</b>，只定下非定不可的部分。合一在 1965 年由 Robinson 为归结证明发明，后来成了 Prolog、类型推导和证明助手的心脏。', '<b>Unification</b> solves equations s ≐ t: it finds what to put in for the metavariables so that both sides become the same. First-order unification is solved by a few rules (Martelli and Montanari’s form: decompose, delete, clash, swap, occurs check, eliminate), and what it finds is the <b>most general unifier</b>, settling only what must be settled. Robinson invented it in 1965 for resolution proofs; it became the heart of Prolog, type inference and proof assistants.'),
+      T('元变量后面跟着变量（?P(x)）就是<b>高阶</b>合一，一般说来解不止一个，甚至判定不了有没有解。Miller 发现：元变量只跟着各不相同的约束变量时（<b>模式</b>），解只有一个，?P 就是把那些变量当参数的函数。Isabelle 和 Lean 在日常使用中靠的正是模式合一；不是模式的，就留着等别处定下来。', 'A metavariable followed by variables (?P(x)) makes unification <b>higher-order</b>, which in general has more than one solution and is not even decidable. Miller found that when a metavariable is followed only by distinct bound variables (a <b>pattern</b>), there is one solution: ?P is the function with those variables as its parameters. Isabelle and Lean rely on pattern unification day to day; what is not a pattern waits to be settled elsewhere.'),
+    ],
+    see: ['provers', 'tactics'],
+  },
+  {
+    id: 'tactics', group: 'logic', title: T('策略与回溯', 'Tactics and backtracking'), at: 's-orelse',
+    body: [
+      T('<b>策略</b>是把一个证明状态变成新证明状态的程序。它只能用规则一步步地变，所以策略组合得再复杂，证出的东西都经过核：这是 Milner 在 LCF 里的设计，自动化不必可信，只要核可信。Isabelle 的证明状态本身就是一条定理 ⟦子目标⟧ ⟹ 目标，证完一个子目标就少一个前提；Lean 的证明状态是一组还没填的元变量。', 'A <b>tactic</b> is a program that turns a proof state into new ones. It can only change it a rule at a time, so however intricate tactics get, what they prove goes through the kernel: Milner’s design in LCF, where the automation need not be trusted, only the kernel. In Isabelle a proof state is itself a theorem ⟦subgoals⟧ ⟹ goal, one premise fewer for each subgoal proved; in Lean it is a set of metavariables still to fill.'),
+      T('<b>组合子</b>把策略拼成更大的策略：一个接一个（THEN）、不行就换（ORELSE）、重复（REPEAT）、每个目标都做（ALLGOALS，Lean 的 <;>）、可做可不做（TRY）。Isabelle 的策略给出的是<b>一串结果</b>，后面的策略对每一种都试，走不通就退回去换下一种：这就是<b>回溯</b>，再加上深度优先搜索，就能拼出自己的 auto。', '<b>Combinators</b> put tactics together into bigger ones: one after another (THEN), or else (ORELSE), repeat (REPEAT), on every goal (ALLGOALS, Lean’s <;>), maybe (TRY). Isabelle’s tactics give <b>a run of results</b>; later tactics try each, going back to the next when stuck: this is <b>backtracking</b>, and with depth-first search it builds an auto of one’s own.'),
+      T('Prolog 就是同一台机器：程序是一组规则，提问是带元变量的目标，回答是证出来时元变量变成了什么。规则写的次序、子目标先问哪个，决定了搜索停不停得下来。', 'Prolog is the same machine: a program is a set of rules, a question a goal with metavariables, an answer what they became in a proof. The order rules are written in, and which subgoal is asked first, decide whether the search stops.'),
+    ],
+    see: ['unification', 'classical'],
+  },
 ]

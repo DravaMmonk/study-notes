@@ -126,6 +126,36 @@ export const ERAS = [
     challenges: [{ level: 't-dneg', after: 't-wcases' }],
     chapter: { title: T('证明即程序', 'Proofs are programs'), question: T('接出来的证明本身是什么？', 'What is a wired proof, itself?') },
   },
-  // Chapter 7 on are being rebuilt around Isabelle's and Lean's mechanisms (games/qed/DESIGN.md §3); their old levels
-  // wait in levels/ (resolution, unification, tactics, theory, graduation) until each is rebuilt.
+  {
+    id: 'metavars', machine: 'prover', keeps: 'all',
+    foundation: [
+      // The machine that unifies, a rule of unification a level, then the repeat frame runs them: the unifier.
+      series('unify', '合一', 'Unification', ['r-match', 'r-delete', 'r-clash', 'r-twice', 'r-both', 'r-occurs', 'r-unifier']),
+      // On proof states: a goal replaced by a rule's premises, ?-letters settled later, lemmas as rules.
+      series('backward', '倒着用规则', 'Rules backwards', ['r-rule', 'r-subgoals', 'r-assumption', 'r-meta', 'r-lemma']),
+      // Elimination rules use a given up.
+      series('elim', '用掉已知', 'Using givens up', ['r-elim', 'r-cases', 'r-false', 'r-dist']),
+      // Patterns ?P(x), and the quantifier rules: backwards, forwards, kept.
+      series('quant', '量词与模式', 'Quantifiers and patterns', ['r-pattern', 'r-allI', 'r-exI', 'r-drule', 'r-frule', 'r-exE']),
+    ],
+    challenges: [{ level: 'r-order', after: 'r-exE' }],
+    chapter: { title: T('规则与元变量', 'Rules and metavariables'), question: T('卡片能不能自己从目标里读出该填的句子？', 'Can a card read off the goal what to fill in?') },
+  },
+  {
+    id: 'tactics', machine: 'prover', keeps: 'all',
+    foundation: [
+      // Combinators on proof states: or else, repeat, both, try, every goal.
+      series('combine', '组合', 'Combining', ['s-orelse', 's-repeat', 's-mix', 's-try', 's-each']),
+      // Which goal settles a ?-letter; every result, append, depth-first search.
+      series('backtrack', '回溯', 'Backtracking', ['s-defer', 's-results', 's-append', 's-search']),
+      // Rule sets: the player's own auto, and what it leaves out.
+      series('auto', '自己的 auto', 'Your own auto', ['s-intro', 's-elim', 's-auto', 's-lem']),
+    ],
+    // Prolog is rule resolution and depth-first search: it goes on from chapter 4's family tree.
+    topics: [{ id: 'prolog', code: 'P', after: ['s-search', 'q-grand'], levels: ['pl-grand', 'pl-anc', 'pl-order'], title: T('用规则推族谱', 'A family tree by rules') }],
+    challenges: [{ level: 's-loop', after: 's-search' }],
+    chapter: { title: T('策略', 'Tactics'), question: T('能不能让机器自己去试该用哪条规则？', 'Can the machine try for itself which rule to use?') },
+  },
+  // Chapter 9 on are being rebuilt around Isabelle's and Lean's mechanisms (games/qed/DESIGN.md §3); their old levels
+  // wait in levels/ (resolution, clauseform, theory, graduation) until each is rebuilt.
 ]

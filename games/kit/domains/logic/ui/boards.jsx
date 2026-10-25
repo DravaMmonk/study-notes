@@ -4,7 +4,7 @@
 //   board  { tests, parts(level), start(level), fits(saved, level, parts), Value({ v, text, small, bare }),
 //            scene(level, test, text) → { sequent, want, choices }, settings(parts, node, lemmas), extra?(node, setParam),
 //            nameOf, iconOf, familyOf (lemmas, type), textOf (lemmas, type, revisions): a part's text, words }
-import { ArrowRightFromLine, Box, Flag, Repeat, Sigma } from 'lucide-react'
+import { ArrowRightFromLine, Box, Flag, Repeat, Rows3, Search, Sigma } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import { regionsFit } from '../../../circuit/index.js'
 import { startProof } from '../build.js'
@@ -12,7 +12,10 @@ import { FORMULA_TEXT, occurrences, parse, replaceAtoms, replaceTerm, show, tvar
 import { sayTerm } from '../notation.js'
 import { choicesOf } from '../choices.js'
 import { LOGIC_TESTS } from '../proof.js'
-import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel } from '../machine.js'
+import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel, ruleBookOf } from '../machine.js'
+import { RULE_SETS, ruleText } from '../schematic.js'
+import { paramsOf } from '../../../engine/forms.js'
+import { portsOf } from '../../../engine/circuit.js'
 import { refuted } from '../clauses.js'
 import { clauseFormulaOf } from '../unify.js'
 import { parseTh } from '../theory.js'
@@ -131,30 +134,35 @@ function Occurrences({ node, ins, setParam, text }) {
 /* ---------- machines ---------- */
 
 const SHOWN = 6
-/** A formula, or a clause set: its clauses (the first few), and ⊥ standing out once it is in. */
+// A side of an equation (a sentence, a thing, or what a pattern's letter stands for), an equation and a goal, written
+// in the level's words: ⋀ for the variables bound around an equation and the things a goal has fixed.
+const sideOf = (x, text) => ('t' in x ? text({ op: 'atom', pred: '=', args: [x, x] }).split(' = ')[0] : x.op === 'lam' ? `fun ${x.params.join(' ')} => ${text(x.body)}` : text(x))
+const eqText = (e, text) => `${e.bound.length ? `⋀${e.bound.join(' ')}. ` : ''}${sideOf(e.s, text)} ≐ ${sideOf(e.t, text)}`
+const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` : ''}${g.hyps.length ? `${g.hyps.map(text).join(tr('；', '; '))} ⊢ ` : ''}${text(g.goal)}`
+/** A formula, equations, a proof state, or a clause set: its clauses (the first few), and ⊥ standing out once it is in. */
 function MachineValue({ v, text, small = false }) {
   if (!v) return null
   if (v.kind === 'formula') return <span className={`lg-formula ${small ? 'is-small' : ''}`}><b>{text(v.f)}</b></span>
   if (v.kind === 'state') {
-    if (small) return <span className="lg-clauses is-small">{v.error ? <b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b> : !v.goals.length ? <b className="lg-bot">{tr('证完了', 'Proved')}</b> : <small>{tr(`还有 ${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'} left`)}</small>}</span>
+    const others = v.more?.length ?? 0
+    const alt = others > 0 && <small className="lg-alts">{tr(`第 1 种结果，共 ${others + 1} 种`, `result 1 of ${others + 1}`)}</small>
+    if (small) return <span className="lg-clauses is-small">{v.error ? <b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b> : !v.goals.length ? <b className="lg-bot">{tr('证完了', 'Proved')}</b> : <small>{tr(`还有 ${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'} left`)}</small>}{alt}</span>
     return (
       <span className="lg-clauses">
         {v.error && <><b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b><small>{L(v.error)}</small></>}
         {!v.goals.length && <b className="lg-bot">{tr('没有目标了：证完了', 'No goals left: proved')}</b>}
-        {v.goals.slice(0, SHOWN).map((g, k) => (
-          <code key={k}>{g.hyps.length > 0 && <small className="lg-hyps">{g.hyps.map(text).join(tr('；', '; '))} ⊢ </small>}{text(g.goal)}</code>
-        ))}
+        {v.goals.slice(0, SHOWN).map((g, k) => <code key={k}>{goalText(g, text)}</code>)}
         {v.goals.length > 0 && <small>{tr(`${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'}`)}</small>}
+        {alt}
       </span>
     )
   }
   if (v.kind === 'eqs') {
-    const term = (t) => L(sayTerm(t, null))
     return (
       <span className={`lg-clauses ${small ? 'is-small' : ''}`}>
         {v.fail && <b className="lg-fail-tag">{tr('合一失败', 'No unifier')}</b>}
         {!small && v.fail && <small>{L(v.fail)}</small>}
-        {(small ? [] : v.eqs.slice(0, SHOWN)).map(([s, t], k) => <code key={k}>{term(s)} = {term(t)}</code>)}
+        {(small ? [] : v.eqs.slice(0, SHOWN)).map((e, k) => <code key={k}>{eqText(e, text)}</code>)}
         <small>{v.eqs.length ? tr(`${v.eqs.length} 个等式`, `${v.eqs.length} equation${v.eqs.length === 1 ? '' : 's'}`) : tr('没有等式了', 'No equations left')}</small>
       </span>
     )
@@ -182,20 +190,37 @@ const WANT = {
   decide: T('推得出 ⊥ 就推出来；推不出，就饱和到再没有新子句', '⊥ if it follows; otherwise saturated, with no new clause left'),
   entails: T('推得出就推出 ⊥；推不出，就饱和到再没有新子句', '⊥ if it follows; otherwise saturated, with no new clause left'),
   unify: T('解完的等式（能合一时），或者「失败」（不能时）', 'the solved equations (when they unify), or “failed” (when not)'),
+  answers: T('找出所有答案', 'every answer'),
+  fails: T('证不出来时，停下来说证不出来', 'when it cannot be proved, to stop and say so'),
   prenex: T('前束范式', 'prenex form'),
   skolem: T('Skolem 化以后的样子', 'the Skolemised form'),
   clauseForm: T('这句话的子句形式', 'this sentence’s clause form'),
   foRefuted: T('推出空子句 ⊥', 'the empty clause ⊥'),
   proved: T('没有目标了：证完', 'no goals left: proved'),
 }
-const MACHINE_ICONS = { repeat: Repeat, saturate: Sigma }
+const MACHINE_ICONS = { repeat: Repeat, saturate: Sigma, search: Search, each: Rows3 }
+// The rules a tactic card offers, in groups: the rule sets (once the level has them), the introduction rules, the
+// elimination and other rules, the lemmas proved, the level's own.
+function ruleGroups(level, text) {
+  const book = ruleBookOf(level)
+  const option = (r) => ({ value: r.key, label: r.name, text: ruleText(r, text) })
+  const rules = Object.values(book)
+  const intro = new Set(RULE_SETS.intro.rules)
+  return [
+    ...(level.ruleSets ? [{ label: T('一组规则', 'Rule sets'), options: Object.entries(RULE_SETS).map(([value, set]) => ({ value, label: set.name })) }] : []),
+    { label: T('引入规则', 'Introduction rules'), options: rules.filter((r) => intro.has(r.key)).map(option) },
+    { label: T('消去规则和其他', 'Elimination and other rules'), options: rules.filter((r) => !intro.has(r.key) && !r.lemma && !r.own).map(option) },
+    { label: T('证出的引理', 'Lemmas proved'), options: rules.filter((r) => r.lemma).map(option) },
+    ...(level.rules ? [{ label: T('这一关的规则', 'This level’s rules'), options: rules.filter((r) => r.own).map(option) }] : []),
+  ]
+}
 const machineName = (type) => MACHINE_TEXT[type]?.name ?? type
 
 /** The editor's description of a machine board (../../../circuit/model.js parts), for a level's inputs. */
 function machinePartsFor(level) {
   const labels = new Map(inputsOfLevel(level).map((i) => [i.name, i.label]))
   return {
-    inputs: (node) => (node.type === 'out' ? ['in'] : node.type === 'in' ? [] : MACHINE_PARTS[node.type]?.inputs ?? []),
+    inputs: (node) => (node.type === 'out' ? ['in'] : node.type === 'in' ? [] : MACHINE_PARTS[node.type] ? portsOf(MACHINE_PARTS[node.type], node) : []),
     role: (node) => (node.type === 'in' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
     label: (node) => (node.type === 'in' ? labels.get(node.params.name) ?? T('输入', 'Input') : node.type === 'out' ? T('结果', 'Result') : machineName(node.type)),
     portLabel: (node, port) => (MACHINE_TEXT[node.type]?.frames?.[port] ? T('结果', 'Result') : MACHINE_TEXT[node.type]?.ports?.[port] ?? ''),
@@ -226,15 +251,17 @@ export const MACHINE = {
     const inputs = inputsOf(test)
     const labels = new Map(inputsOfLevel(level).map((i) => [i.name, i.label]))
     const want = L(WANT[test.want ?? level.want])
-    const term = (t) => L(sayTerm(t, null))
-    const show = (v) => (v.kind === 'state' ? v.goals.map((g) => `${g.hyps.length ? `${g.hyps.map(text).join(tr('；', '; '))} ⊢ ` : ''}${text(g.goal)}`).join(tr('；', '; ')) : v.kind === 'formula' ? text(v.f) : v.kind === 'eqs' ? v.eqs.map(([s, t]) => `${term(s)} = ${term(t)}`).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormulaOf(c))).join(tr('；', '; ')))
+    const show = (v) => (v.kind === 'state' ? v.goals.map((g) => goalText(g, text)).join(tr('；', '; ')) : v.kind === 'formula' ? text(v.f) : v.kind === 'eqs' ? v.eqs.map((e) => eqText(e, text)).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormulaOf(c))).join(tr('；', '; ')))
     return {
       sequent: <>{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => text(parseTh(d))).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,
-      choices: [],
+      choices: { rule: ruleGroups(level, text) },
     }
   },
-  settings: () => [],
+  settings: (parts, node) => [
+    ...(parts.rules[node.type]?.forms ? [{ key: 'form', kind: 'form' }] : []),
+    ...paramsOf(parts.rules[node.type], node).map((key) => ({ key, label: MACHINE_TEXT[node.type]?.params?.[key] ?? key, kind: key })),
+  ],
   nameOf: (_lemmas, type) => machineName(type),
   textOf: (_lemmas, type, revisions = {}) => withRevisions(MACHINE_TEXT[type], revisions[type]),
   iconOf: (_lemmas, type) => MACHINE_ICONS[type] ?? (MACHINE_PARTS[type]?.frames ? Box : Sigma),

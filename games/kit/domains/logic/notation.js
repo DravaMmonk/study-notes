@@ -17,8 +17,9 @@ const QUANT = {
 // A term in words: a name by its words, a function by its template (mul: '{0}·{1}'), a variable as written.
 function termWords(t, notation, lang) {
   if (t.t !== 'fn') return showTerm(t)
+  // A word with places is a function's: a bare name of the same letter (a thing a box took, c) is just itself.
   const word = notation.words?.[t.f]?.[lang]
-  if (!word) return t.args.length ? `${t.f}(${t.args.map((a) => termWords(a, notation, lang)).join(', ')})` : t.f
+  if (!word || (!t.args.length && /\{\d\}/.test(word))) return t.args.length ? `${t.f}(${t.args.map((a) => termWords(a, notation, lang)).join(', ')})` : t.f
   // An argument that is itself an operation keeps brackets: (a·b)⁻¹.
   const arg = (a) => (a.t === 'fn' && a.args.length > 1 ? `(${termWords(a, notation, lang)})` : termWords(a, notation, lang))
   return t.args.length ? word.replace(/\{(\d)\}/g, (_, k) => arg(t.args[Number(k)])) : word
@@ -44,7 +45,7 @@ export function render(f, notation, lang, outer = -1) {
       // A predicate named on its own (a test case's P := Human) reads with its places left open.
       return word && !f.args.length ? word.replace(/\{\d\}/g, '…') : show(f)
     }
-    case 'meta': return f.name
+    case 'meta': return f.args?.length ? `${f.name}(${f.args.map((t) => termWords(t, notation, lang)).join(', ')})` : f.name
     case '⊥': return known('⊥') ? '⊥' : lang === 'zh' ? '矛盾' : 'contradiction'
     case '¬': return known('¬') ? `¬${render(f.a, notation, lang, 9)}` : `${lang === 'zh' ? '并非' : 'not '}${part(f.a)}`
     case '∀': case '∃': return known(f.op) ? wrap(`${f.op}${f.v}. ${render(f.body, notation, lang, -1)}`, -1) : wrap(QUANT[f.op][lang](f.v, render(f.body, notation, lang, -1)), -1)

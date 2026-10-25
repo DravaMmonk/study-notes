@@ -12,7 +12,6 @@ import { runLevel } from '../../engine/tests.js'
 import { freeVars, parse, show } from './formula.js'
 import { countermodel, holds } from './models.js'
 import { builtWorld, extent, structureOf } from './fol.js'
-import { answersFor, factsOf, hornOf } from './tactics.js'
 import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
 import { proof } from './build.js'
 import { portsOf } from '../../engine/circuit.js'
@@ -59,21 +58,6 @@ export function validate({ levels: given, course }) {
       const free = [...freeVars(f)]
       if (free.length !== 1 || free[0] !== 'x') out.push({ fail: true, text: `${level.id}: a query needs the free variable x alone: ${level.target}` })
       else if (!level.worlds.some((w) => extent(f, structureOf(w, [f])).length)) out.push({ fail: true, text: `${level.id}: ${level.target} picks out nothing in any world` })
-    }
-    if (level.kind === 'prolog') {
-      const rules = level.items.map((i) => hornOf(parse(i.target, { consts })))
-      if (rules.some((r) => !r)) out.push({ fail: true, text: `${level.id}: a reference rule is not a Horn rule` })
-      else {
-        const answers = level.worlds.flatMap((w) => level.queries.map((q) => answersFor(parse(q, { consts }), [...factsOf(w), ...rules])))
-        const bad = answers.some((a) => a.loop) ? 'loops' : answers.every((a) => !a.length) ? 'answers nothing' : null
-        out.push({ fail: Boolean(bad), text: `${level.id} ${keyOf(level.title)}: rules ${bad ?? 'PASS'}` })
-        for (const world of level.worlds) for (const t of world.things) if (!words[t]) out.push({ fail: true, text: `${level.id}: no words for the thing ${t}` })
-      }
-      if (level.naiveRules) {
-        const naive = level.naiveRules.map((t) => hornOf(parse(t, { consts })))
-        const loops = level.worlds.some((w) => level.queries.some((q) => answersFor(parse(q, { consts }), [...factsOf(w), ...naive]).loop))
-        out.push({ fail: !loops, text: `  naive ${loops ? 'loops' : 'does NOT loop (bad)'}` })
-      }
     }
     if (level.kind === 'model') {
       const fits = (w) => w.size <= (level.maxSize ?? 3) && level.want.every((x) => holds(parse(x.f, { consts }), builtWorld(w, level.vocab)) === x.value)

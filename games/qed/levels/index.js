@@ -9,6 +9,8 @@ import { era2 } from './era2.js'
 import { quantifiers } from './quantifiers.js'
 import { rules } from './rules.js'
 import { terms } from './terms.js'
+import { metavars } from './metavars.js'
+import { strategies } from './strategies.js'
 import { WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -56,18 +58,31 @@ const REVISIONS = {
   mp: [{ at: 'bot', desc: T('由 A → B 和 A 得到 B：接进一句「若…，则…」和它的前一半，得到后一半。¬A 也可以写作 A → ⊥，所以接进 ¬A 和 A，就得到矛盾 ⊥。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part. ¬A can be written A → ⊥, so wire in ¬A and A and out comes the contradiction ⊥.') }],
   // ↔ comes into proofs on the main path with 两个方向: Split ∧ takes it apart.
   andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
+
+  // The machine parts grow along chapters 7 and 8: quantifiers taken apart and patterns (做成函数), the kept form of
+  // Forward, every result once the cards backtrack (一串结果), rule sets (按形状拆).
+  uDecompose: [{ at: 'r-pattern', desc: T('找到一个两边样子相同的等式，拆成各部分对各部分的几个等式。两边都是「对所有」（或都是「存在」）时，拆出两边的身体，让它们用同一个变量，等式前面记上 ⋀x：x 是量词管着的。', 'Finds an equation with the same shape on both sides and splits it into an equation for each pair of parts. When both sides are “for all” (or both “there is”), it takes out the two bodies, with one variable for both, and marks the equation ⋀x: x is bound by a quantifier.') }],
+  uCheck: [{ at: 'r-pattern', desc: T('找到一个 ?A ≐ t，?A 不能是 t，就宣布失败：t 里面又有 ?A；或者 t 里有前面 ⋀ 管着的变量（?A 不能把它带出量词）。', 'Finds ?A ≐ t where ?A cannot be t and declares failure: ?A occurs inside t, or t has a variable bound by the ⋀ in front (?A cannot take it out of its quantifier).') }],
+  unifier: [{ at: 'r-pattern', desc: T('把一组等式解到底：每个等式左边是一个 ?，右边里没有这些 ?（最一般合一子）；合一不了就宣布失败。?P(x) 这样的等式它不会解，原样留下。', 'Solves a set of equations to the end: each with a ?-letter on the left and none of those letters on any right (the most general unifier); failure if there is none. An equation like ?P(x) it cannot solve, and leaves as it is.') }],
+  drule: [{ at: 'r-frule', forms: ['frule'], desc: T('卡片上选一条规则：它的第一条前提和一条已知合一，加进规则的结论；卡片上切换：那条已知换掉，还是留着（留着就还能再用）。规则剩下的前提各成一个目标，排在前面。', 'Choose a rule on the card: its first premise is unified with a hypothesis, and the rule’s conclusion is added; switch on the card whether that hypothesis is replaced or kept (kept, it can be used again). Each other premise of the rule is a goal, in front.') }],
+  repeat: [{ at: 's-results', desc: T('框开出它收到的东西，框里接出新的东西送回「结果」；框把结果再送进去，一圈一圈地做，直到不再变化或者失败（停在失败前的一圈），送出最后一圈的结果。有几种结果时，它只顺着第一种往下做。', 'The frame opens with what it receives; what is made inside goes back into “result”; the frame feeds it in again, round after round, until it stops changing or fails (stopping at the round before), and gives the last round. With several results, it follows only the first.') }],
+  rule: [{ at: 's-intro', desc: T('卡片上选一条规则，或者一组规则（一组：每一条都试，对上的每一条都是一种结果）。第一个目标和规则的结论合一，换成规则的前提；没对上的 ? 留在目标里。', 'Choose a rule on the card, or a set of rules (a set: each is tried, and each that fits is a result). The first goal is unified with the rule’s conclusion and replaced by its premises; a ?-letter left open stays in the goals.') }],
+  assumption: [{ at: 's-results', desc: T('第一个目标和它的一条已知合一：对上了，这个目标就证完了。每一条对上的已知都是一种结果，按从上往下的顺序。', 'The first goal is unified with one of its hypotheses: when one fits, that goal is done. Each hypothesis that fits is a result, in order from the top.') }],
+  erule: [{ at: 's-results', desc: T('卡片上选一条规则（或一组）：它的结论和第一个目标合一，它的第一条前提和一条已知合一，那条已知用掉；剩下的前提各成一个目标。每一条对上的已知都是一种结果。', 'Choose a rule (or a set) on the card: its conclusion is unified with the first goal and its first premise with a hypothesis, which is used up; each other premise is a goal. Each hypothesis that fits is a result.') }],
 }
 
 export const LOGIC = logicCourse({
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...terms],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...terms, ...metavars, ...strategies],
   words: WORDS,
   lemmas: LEMMAS,
   gates: GATES,
-  // The machine-board parts the player builds: law cards, normal forms, resolution and the saturator.
   revisions: REVISIONS,
-  machines: [],
-  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'normalize', 'exact'],
+  // The machine-board parts the player builds: the unifier and auto.
+  machines: ['unifier', 'auto'],
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'normalize', 'exact',
+    'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption', 'erule', 'drule',
+    'orElse', 'each', 'defer', 'append', 'search'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
   concept: { andI: 'and', andE: 'and', rewrite: 'eq', refl: 'eq' },
 })

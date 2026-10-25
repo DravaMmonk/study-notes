@@ -1,113 +1,13 @@
-// Chapter 7 · Unification: resolution for clauses with variables. Two lines first: unification (equations solved by
-// six rules, each a card, run in the repeat frame until solved: the unifier) and clause form (prenex form, Skolem
-// functions for ∃, then the CNF and clauses of chapter 4). They meet in first-order resolution: unify a pair of
-// opposite literals and cancel them, factor, and refute what chapter 6 proved by hand. The occurs check is the
-// challenge.
+// Clause form and first-order resolution, waiting to be rebuilt in chapter 12 (games/qed/DESIGN.md §3): prenex form,
+// Skolem functions for ∃, the CNF and clauses, then first-order resolution: unify a pair of opposite literals (with
+// chapter 7's unifier) and cancel them, factor, and refute what chapter 5 proved by hand.
 import { machine } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
-// The rules in the repeat frame, in order, until the equations are solved.
-const solver = (cards) => machine(
-  { r: ['repeat'], ...Object.fromEntries(cards.map((c, k) => [`c${k}`, [c, {}, 'r']])) },
-  ['in>r.in', 'r#body>c0.in', ...cards.slice(1).map((_, k) => `c${k}>c${k + 1}.in`), `c${cards.length - 1}>r.body`, 'r>out'],
-)
-const RULES = ['uDecompose', 'uDelete', 'uConflict', 'uSwap', 'uEliminate']
 const KNOWN = T('已知', 'Known')
 const CLAIM = T('要证', 'Claim')
 
-export const unification = [
-  {
-    id: 'u-decompose',
-    kind: 'machine',
-    title: T('拆开', 'Decompose'),
-    adds: ['uDecompose', 'uDelete'],
-    want: 'unify',
-    tests: [{ eqs: ['f(x, b) = f(a, b)'] }, { eqs: ['f(x, y) = f(a, c)'] }, { eqs: ['g(x, h(y)) = g(c, h(a))'] }],
-    brief: T('接一台机器：把每组等式解到底，解出每个变量该换成什么。', 'Wire a machine that solves each set of equations to the end, working out what each variable must become.'),
-    hint: [T('一张卡片一次只拆一处。放进重复框，一圈一圈地拆，拆完再删掉两边一样的。', 'A card splits one place at a time. Put them in the repeat frame and split round after round, deleting what is the same on both sides.')],
-    intro: [
-      { t: T('<level-ref to="repeat"></level-ref>的饱和器只认得字母。<level-ref to="q-allE"></level-ref>里的「x是人 → x会死」写成子句是「¬x是人 ∨ x会死」，要和「苏格拉底是人」消掉，得先让 x 变成苏格拉底。', 'The saturator of <level-ref to="repeat"></level-ref> knows only letters. “x is human → x is mortal” from <level-ref to="q-allE"></level-ref> becomes the clause “¬x is human ∨ x is mortal”, and to cancel it against “Socrates is human”, x must first become Socrates.') },
-      { t: T('找到一种换法，让两边一模一样，叫<b>合一</b>。这一章的机器板上，线传的是一组等式：f、g、h 是函数，a、b、c 是名字，x、y、z 是变量。', 'Finding replacements that make two sides exactly alike is <b>unification</b>. On this chapter’s machine board a wire carries a set of equations: f, g, h are functions, a, b, c names, x, y, z variables.') },
-      { t: T('两张新卡片：<b>拆开</b>把 f(…) = f(…) 拆成一个个参数的等式；<b>删掉</b>去掉两边一样的等式。', 'Two new cards: <b>decompose</b> splits f(…) = f(…) into equations between the arguments; <b>delete</b> drops an equation whose sides are the same.') },
-    ],
-    solution: solver(['uDecompose', 'uDelete']),
-    naive: machine({ d: ['uDecompose'], e: ['uDelete'] }, ['in>d.in', 'd>e.in', 'e>out']),
-    after: T('解完的样子：每个等式左边是一个变量，右边是它该换成的东西。这一组换法就是<b>合一子</b>。', 'Solved, each equation has a variable on the left and what it must become on the right. That set of replacements is a <b>unifier</b>.'),
-  },
-  {
-    id: 'u-conflict',
-    kind: 'machine',
-    title: T('对不上', 'They clash'),
-    adds: ['uConflict'],
-    want: 'unify',
-    tests: [{ eqs: ['f(x) = g(a)'] }, { eqs: ['f(x, c) = f(a, c)'] }, { eqs: ['f(a, x) = f(b, c)'] }],
-    brief: T('接一台机器：能解的解到底；解不了的，要说出「失败」。', 'Wire a machine: solve what can be solved; for what cannot, say it failed.'),
-    hint: [T('两边是不同的函数，或者不同的名字，怎么换都对不上。', 'Different functions or different names on the two sides never meet, whatever is replaced.')],
-    intro: [{ t: T('新卡片<b>对不上</b>：发现一个等式两边的函数或名字不同，就宣布失败。', 'A new card, <b>clash</b>: on finding an equation whose sides have different functions or names, it declares failure.') }],
-    solution: solver(['uDecompose', 'uDelete', 'uConflict']),
-    naive: solver(['uDecompose', 'uDelete']),
-    after: T('名字是定死的，安就是安，换不成博；只有变量能换。', 'A name is fixed: Ann is Ann and cannot become Bo. Only variables can be replaced.'),
-  },
-  {
-    id: 'u-swap',
-    kind: 'machine',
-    title: T('翻过来', 'Swap'),
-    adds: ['uSwap'],
-    want: 'unify',
-    tests: [{ eqs: ['f(a, y) = f(x, b)'] }, { eqs: ['g(c) = g(z)'] }, { eqs: ['h(x, a) = h(b, y)'] }],
-    brief: T('接一台机器，把每组等式解到底。', 'Wire a machine that solves each set of equations to the end.'),
-    hint: [T('a = x 也是在说 x 该换成 a，只是写反了。', 'a = x also says x must become a; it is just written the wrong way round.')],
-    intro: [{ t: T('新卡片<b>翻过来</b>：等式左边不是变量、右边是变量，就把它翻过来。', 'A new card, <b>swap</b>: when the left side is not a variable and the right side is, turn the equation round.') }],
-    solution: solver(['uDecompose', 'uDelete', 'uConflict', 'uSwap']),
-    naive: solver(['uDecompose', 'uDelete', 'uConflict']),
-    after: T('合一不分左右：两边都可以有变量，两边的变量都会被换掉。', 'Unification has no left or right: both sides may have variables, and both sides’ variables get replaced.'),
-  },
-  {
-    id: 'u-eliminate',
-    kind: 'machine',
-    title: T('代进去', 'Eliminate'),
-    adds: ['uEliminate'],
-    want: 'unify',
-    tests: [{ eqs: ['f(x, x) = f(a, y)'] }, { eqs: ['g(x, f(x)) = g(y, z)'] }, { eqs: ['h(x, y) = h(f(y), a)'] }],
-    brief: T('接一台机器，把每组等式解到底。', 'Wire a machine that solves each set of equations to the end.'),
-    hint: [T('解出了 x 是什么，别的等式里的 x 也要跟着换掉。', 'Once x is solved, the x in the other equations must change too.')],
-    intro: [{ t: T('新卡片<b>代进去</b>：有了 x = t，就把别的等式里的 x 都换成 t。', 'A new card, <b>eliminate</b>: given x = t, put t for x in the other equations.') }],
-    solution: solver(RULES),
-    naive: solver(['uDecompose', 'uDelete', 'uConflict', 'uSwap']),
-    after: T('f(x, x) = f(a, y)：x 是 a，y 又得等于 x，所以也是 a。一个变量解出来，就要传给所有用到它的地方。', 'f(x, x) = f(a, y): x is a, and y must equal x, so it is a too. A variable once solved is passed on to everywhere it is used.'),
-  },
-  {
-    id: 'u-unifier',
-    kind: 'machine',
-    title: T('合一器', 'The unifier'),
-    builds: 'unifier',
-    want: 'unify',
-    tests: [
-      { eqs: ['f(x, g(y)) = f(h(z), g(a))'] },
-      { eqs: ['g(x, y, z) = g(y, z, a)'] },
-      { eqs: ['f(g(x), x) = f(y, a)', 'h(y) = h(z)'] },
-      { eqs: ['f(x, a) = f(g(y), y)'] },
-      { eqs: ['f(x) = f(g(a))', 'x = h(b)'] },
-    ],
-    brief: T('接一台机器：能合一的解到底，不能的说「失败」。', 'Wire a machine: solve what unifies to the end, and say “failed” for what does not.'),
-    hint: [T('五张卡片都放进重复框。', 'All five cards in the repeat frame.')],
-    solution: solver(RULES),
-    naive: solver(['uDecompose', 'uDelete', 'uSwap', 'uEliminate']),
-    after: T('五条规则放进重复框，一圈圈做到停：这就是<b>合一器</b>，它现在是一块元件。它找到的是<b>最一般合一子</b>：只换必须换的，不多换一点。', 'Five rules in the repeat frame, round after round until it stops: that is the <b>unifier</b>, a part now. It finds the <b>most general unifier</b>: it replaces only what must be replaced, nothing more.'),
-  },
-  {
-    id: 'u-occurs',
-    kind: 'machine',
-    title: T('发生检查', 'The occurs check'),
-    adds: ['uCheck'],
-    want: 'unify',
-    tests: [{ eqs: ['f(x) = f(g(x))'] }, { eqs: ['f(x, y) = f(y, g(x))'] }, { eqs: ['f(x, a) = f(g(y), y)'] }],
-    brief: T('接一台机器：能合一的解到底，不能的说「失败」。这几组里藏着一种五条规则都发现不了的失败。', 'Wire a machine: solve what unifies to the end, and say “failed” for what does not. These hide a failure that none of the five rules can see.'),
-    hint: [T('x = g(x)：把 x 换成 g(x)，右边又多出一个 x。', 'x = g(x): replace x by g(x), and the right side gains another x.')],
-    solution: solver(['uDecompose', 'uDelete', 'uConflict', 'uSwap', 'uCheck', 'uEliminate']),
-    naive: solver(RULES),
-    after: T('x = g(x) 没有解：换一次多一层，永远换不完。<b>发生检查</b>先看 x 在不在右边里面。为了快，Prolog 默认不做这一步，所以会把这种等式「解」成无穷长的项。', 'x = g(x) has no solution: each replacement adds a layer, forever. The <b>occurs check</b> looks first whether x is inside the other side. For speed, Prolog skips it by default, and so “solves” such an equation into an infinitely long term.'),
-  },
+export const clauseform = [
   {
     id: 'c-prenex',
     kind: 'machine',
@@ -161,7 +61,7 @@ export const unification = [
         kind: 'machine',
         step: T('合一', 'Unify'),
         want: 'unify',
-        tests: [{ eqs: ['x = soc'] }, { eqs: ['g(x, f(y)) = g(a, z)'] }, { eqs: ['g(x, x) = g(a, b)'] }],
+        tests: [{ eqs: ['?x ≐ soc'] }, { eqs: ['Likes(?x, s(?y)) ≐ Likes(ann, ?z)'] }, { eqs: ['Likes(?x, ?x) ≐ Likes(ann, bo)'] }],
         brief: T('要消掉「¬x是人」和「苏格拉底是人」，x 得先换成苏格拉底。用合一器解出每一对项该怎么换。', 'To cancel “¬x is human” against “Socrates is human”, x must first become Socrates. Use the unifier to work out each pair’s replacements.'),
         hint: [T('合一器一张就够。', 'The unifier alone is enough.')],
         solution: machine({ u: ['unifier'] }, ['in>u.in', 'u>out']),

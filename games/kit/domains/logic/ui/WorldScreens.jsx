@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Check, X } from 'lucide-react'
 import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
@@ -6,7 +6,6 @@ import { parse } from '../formula.js'
 import { holds } from '../models.js'
 import { say } from '../notation.js'
 import { builtWorld, structureOf } from '../fol.js'
-import { answersFor, factsOf, hornOf } from '../tactics.js'
 
 // The screens of first-order levels (《证明完毕》) that work on worlds rather than boards (translations and queries,
 // built from chips, are FormulaScreen.jsx):
@@ -86,81 +85,6 @@ function FormulaInput({ item, value, onChange, onFocus, inputRef, level, verdict
   )
 }
 
-/** Prolog levels: one input per rule; the rules are judged together against every world's queries. */
-export function RulesScreen({ game, level: entry, saved, save, solve, phone }) {
-  const level = entry.source
-  const [texts, setTexts] = useState(() => level.items.map((_, k) => saved?.texts?.[k] ?? ''))
-  const [verdicts, setVerdicts] = useState(null)
-  const refs = useRef([])
-  const [focus, setFocus] = useState(0)
-  const preds = level.vocab.preds
-  const change = (k, v) => {
-    const next = texts.map((t, i) => (i === k ? v : t))
-    setTexts(next)
-    save({ texts: next })
-    setVerdicts(null)
-  }
-  const insert = (token) => {
-    const el = refs.current[focus]
-    const [a, b] = el ? [el.selectionStart, el.selectionEnd] : [texts[focus].length, texts[focus].length]
-    const v = texts[focus].slice(0, a) + token + texts[focus].slice(b)
-    change(focus, v)
-    requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(a + token.length, a + token.length) })
-  }
-  // Rules are judged together: each must be a rule, and together they must answer every query in every world.
-  const judgeRules = () => {
-    const rules = []
-    for (const [k, text] of texts.entries()) {
-      let f
-      try { f = parse(text, { consts: level.vocab.names }) } catch { return level.items.map((_, i) => (i === k ? { pass: false, body: <p className="lg-error">{tr('还不是一句完整的公式。', 'Not a whole formula yet.')}</p> } : null)) }
-      const rule = hornOf(f)
-      if (!rule) return level.items.map((_, i) => (i === k ? { pass: false, body: <p className="lg-error">{tr('规则要写成「∀x. … 条件 ∧ … → 结论」，结论是一个谓词。', 'A rule must read “∀x. … condition ∧ … → conclusion”, its conclusion one predicate.')}</p> } : null))
-      rules.push(rule)
-    }
-    const reference = level.items.map((item) => hornOf(parse(item.target, { consts: level.vocab.names })))
-    for (const world of level.worlds) {
-      const facts = factsOf(world)
-      for (const q of level.queries) {
-        const query = parse(q, { consts: level.vocab.names })
-        const got = answersFor(query, [...facts, ...rules])
-        const want = answersFor(query, [...facts, ...reference])
-        const fault = got.loop
-          ? tr(`问「${L(say(query, level.notation))}」时绕起了圈：规则一直在问同一个问题，停不下来。`, `Asking “${L(say(query, level.notation))}” goes round in circles: the rules keep asking the same question and never stop.`)
-          : got.join(';') !== want.join(';') ? tr(`问「${L(say(query, level.notation))}」，答案不对。`, `Asking “${L(say(query, level.notation))}” gets the wrong answer.`) : null
-        if (fault) return level.items.map(() => ({ pass: false, body: <div className="fo-why"><p>{L(world.title)}{tr('：', ': ')}{fault}</p></div> }))
-      }
-    }
-    return level.items.map(() => ({ pass: true }))
-  }
-  const check = () => {
-    const vs = judgeRules()
-    setVerdicts(vs)
-    if (vs.every((v) => v?.pass)) solve(null)
-  }
-  const passed = verdicts?.every((v) => v?.pass)
-  const stage = (
-    <div className="fo-stage">
-      <div className="fo-worlds">
-        {level.worlds.map((world, k) => (
-          <details key={k} open={k === 0}>
-            <summary>{L(world.title)}</summary>
-            <WorldText model={structureOf(world, level.items.map((i) => parse(i.target, { consts: level.vocab.names })))} notation={level.notation} preds={preds} world={world} />
-          </details>
-        ))}
-      </div>
-      {level.items.map((item, k) => (
-        <FormulaInput key={k} item={item} value={texts[k]} onChange={(v) => change(k, v)} onFocus={() => setFocus(k)} inputRef={(el) => { refs.current[k] = el }} level={level} verdict={verdicts?.[k]} />
-      ))}
-      <Vocab level={level} onInsert={insert} />
-      <footer className="run-foot"><RunDock go={{ label: passed ? tr('全对', 'All correct') : tr('检查', 'Check'), pass: Boolean(passed), onClick: check }} /></footer>
-    </div>
-  )
-  const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  if (phone) return <PhonePage brief={brief} className="fo-level">{stage}</PhonePage>
-  return <Workbench className="fo-level" brief={brief} stage={stage} scroll />
-}
-
-/** Model levels: build a world where each sentence is true or false as asked. */
 export function ModelScreen({ game, level: entry, saved, save, solve, phone }) {
   const level = entry.source
   const consts = level.vocab.consts
