@@ -54,7 +54,7 @@ export default function TermScreen({ game, level: entry, saved, save, solve, pho
   const next = strip.selected ?? (first ? ['r', ...first.path].join('.') : complete(tree) ? 'end' : null)
   const check = () => {
     strip.clearSelection()
-    if (!complete(tree)) return setVerdict({ pass: false, reason: T('还有框没填：项要每个位置都填上。', 'Some boxes are still empty: every place must be filled.') })
+    if (!complete(tree)) return setVerdict({ pass: false, reason: T('还有框没填：证明项要每个位置都填上。', 'Some boxes are still empty: every place must be filled.') })
     const hyps = Object.fromEntries(Object.entries(level.premises ?? {}).map(([name, f]) => [name, parse(f, { consts })]))
     const reason = checkTerm(tree, parse(level.goal, { consts }), { hyps, consts, notation: level.notation })
     setVerdict({ pass: !reason, reason })

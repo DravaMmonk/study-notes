@@ -75,7 +75,7 @@ export function defineLogicGame(spec) {
       query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: Boxes, label: { zh: '造世界', en: 'Build a world' } },
       prolog: { Screen: RulesScreen, icon: ScrollText, label: { zh: '写规则', en: 'Write rules' } },
-      term: { Screen: TermScreen, icon: Braces, label: { zh: '写项', en: 'Write a term' } },
+      term: { Screen: TermScreen, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
     },
     unlocked: (level) => level.unlocks.map((flag) => ({ label: built[flag.slice('lemma:'.length)].name })),
     core: (level) => isCore(spec.logic.course, level),
