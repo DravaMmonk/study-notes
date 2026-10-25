@@ -89,7 +89,7 @@ export function SgCanvas({ board, overlay }) {
         minFit={0.62}
         overlay={overlay}
         scope={board.stage()}
-        onClear={graph.nodes.length ? board.reset : null}
+        onClear={board.clearable() ? board.reset : null}
         types={board.types()}
       />
     </div>
@@ -141,7 +141,7 @@ export function SgPhone({ board, rootRef, dock }) {
   return (
     <>
       <div className="sg-slots" ref={scroller}>
-        <SlotBoard graph={graph} parts={parts} nameOf={editing.nameOf} thumb={thumb} tileExtra={tileExtra} outNote={(node, key) => (isInput(node.type) ? <b className="sg-oval">{board.outValue(node, key) || '—'}</b> : null)} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={graph.nodes.length ? board.reset : null} onChange={board.change} types={board.types()} />
+        <SlotBoard graph={graph} parts={parts} nameOf={editing.nameOf} thumb={thumb} tileExtra={tileExtra} outNote={(node, key) => (isInput(node.type) ? <b className="sg-oval">{board.outValue(node, key) || '—'}</b> : null)} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={board.clearable() ? board.reset : null} onChange={board.change} types={board.types()} />
       </div>
       <div className="sg-foot">
         {/* On a phone a part goes by its name alone; what it does is in its sheet. */}

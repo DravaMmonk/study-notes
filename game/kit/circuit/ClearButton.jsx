@@ -6,13 +6,13 @@ import { tr } from '../shell/i18n.js'
 
 // The board's clear button, in each editor's own row of tools (the desktop board's corner, the phone board's top
 // row, a strip's row): it asks first, since a whole board is a lot to lose, though undo brings it back. A strip says
-// what it clears in its own words (`title`, `lines`).
+// what it clears in its own words (`title`, `lines`). Without `onClear` it is greyed out: there is nothing to clear.
 export default function ClearButton({ onClear, size = 14, title = null, lines = null }) {
   const [asking, setAsking] = useState(false)
   const close = () => setAsking(false)
   return (
     <>
-      <button type="button" onClick={() => setAsking(true)} aria-label={tr('清空', 'Clear')} title={tr('清空', 'Clear')}><Trash2 size={size} /></button>
+      <button type="button" onClick={() => setAsking(true)} disabled={!onClear} aria-label={tr('清空', 'Clear')} title={tr('清空', 'Clear')}><Trash2 size={size} /></button>
       {/* On the page itself: the tools' blurred backing would otherwise hold the dialog inside it. */}
       {asking && createPortal(
         <Dialog

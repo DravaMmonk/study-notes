@@ -101,7 +101,8 @@ const readMode = () => {
  * @param outNote(node, key)               over each of a block's several outputs (parts.outputs), under its name: what
  *                                         it carries
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
- * @param onClear                          clears the board: a button just left of undo and redo, which asks first
+ * @param onClear                          clears the board: a button just left of undo and redo, which asks first;
+ *                                          without it the button stays, greyed out
  *                                         (the row starts with the switcher between the level's saved boards, SaveSlots)
  * @param onChange(graph), types           a board given these can be read in from text (SaveSlots): the editor's
  *                                         change, and the parts this level offers
@@ -296,7 +297,8 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
     <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
       <div className="pb-tools">
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
-        {onClear && <span className="pb-steps pb-clear"><ClearButton onClear={onClear} size={16} /></span>}
+        {/* Always there on an editable board; greyed out while there is nothing to clear (no onClear). */}
+        {!fixed && <span className="pb-steps pb-clear"><ClearButton onClear={onClear} size={16} /></span>}
         {history && (
           <span className="pb-steps">
             <button type="button" onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销', 'Undo')}><Undo2 size={16} /></button>
