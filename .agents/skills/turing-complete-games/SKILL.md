@@ -118,7 +118,8 @@ Before calling a change done (`games/DESIGN.md` §7, steps 8–10):
 The shared editors are in `games/kit/circuit/`:
 
 - Desktop: free canvas of cards, wires dragged from an output port (dropping on a card wires its first free
-  input), Delete removes the selection, pan / pinch / Ctrl-wheel zoom, fit-to-board.
+  input); clicking a wired input takes its wire off and leaves it in hand on its output, to click onto another
+  input or drop on the board; Delete removes the selection, pan / pinch / Ctrl-wheel zoom, fit-to-board.
 - Phone: slot grid with inputs on top and outputs at the bottom, no pan or zoom; tap a port, compatible ports
   light up, tap another to wire; drags start after a short hold so swipes still scroll; tray doubles as delete.
 - Both edit the same graph; illegal wires are refused at connection time with a reason
