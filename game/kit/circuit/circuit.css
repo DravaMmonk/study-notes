@@ -286,6 +286,9 @@
 [data-ports='arrow'] .pb-dot.is-target { animation: arrow-pulse 1.2s ease-in-out infinite; }
 /* Both ends one plain colour: a colour-mix here is animated through oklab, out of gamut, and glows pink. */
 @keyframes arrow-pulse { 0%, 100% { filter: drop-shadow(0 0 1px var(--accent)); } 50% { filter: drop-shadow(0 0 5px var(--accent)); } }
+/* A part's sheet ends with this: take the block off the board. */
+.sheet-remove { height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 12px; color: var(--fail); background: var(--canvas); font: inherit; }
+
 /* The tray of parts and the bar. */
 .pb-tray { padding: 8px 12px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; border-top: 1px solid var(--hairline); background: var(--paper); }
 .pb-tray::-webkit-scrollbar { display: none; }

@@ -1,19 +1,15 @@
 import { createElement } from 'react'
-import { Check, ChevronRight, X } from 'lucide-react'
 import { evaluate } from '../../engine/graph.js'
 import { NODE_TYPES, inputsOf } from '../../engine/nodes.js'
 import { FAMILIES, describe, familyOf, iconOf } from '../catalog.js'
 import { L, keyOf, tr } from '../../../../shell/i18n.js'
 import ValueView from '../views/ValueView.jsx'
 import { formatNumber, kindOf } from '../views/views.js'
-import { feeding } from '../../../../circuit/index.js'
 import { insertAfter } from './ops.js'
 import Sheet from '../../../../shell/Sheet.jsx'
-import { PORT_LABELS as PORT_TAGS } from '../parts.js'
 
-// Pieces the phone circuit screen shares: the chip that shows a setting, the sheet for adding a
-// part (each previewed where it would go), the list for choosing a source, and the test cards.
-
+// Pieces the phone circuit screen shares: the chip that shows a setting and the sheet for adding a part (each
+// previewed where it would go).
 
 export function ParamChip({ param, value }) {
   if (param.kind === 'select') return <>{L(param.options.find(([v]) => v === value)?.[1]) ?? value}</>
@@ -61,22 +57,3 @@ export function AddSheet({ level, graph, previewFrom, test, title, theme, onAdd,
     </Sheet>
   )
 }
-
-export function SourceSheet({ graph, node, port, options, nameOf, thumb, onPick, onClose }) {
-  const current = feeding(graph, node.id, port)
-  return (
-    <Sheet title={inputsOf(node.type).length > 1 ? tr(`「${nameOf(node)}」 的输入 ${L(PORT_TAGS[port]) ?? port}`, `"${nameOf(node)}" input ${L(PORT_TAGS[port]) ?? port}`) : tr(`「${nameOf(node)}」 读哪个结果`, `Which result "${nameOf(node)}" reads`)} onClose={onClose}>
-      <div className="ph-sources">
-        {options.map((n) => (
-          <button key={n.id} className={`ph-source ${n.id === current ? 'is-on' : ''}`} onClick={() => onPick(n.id)}>
-            {thumb(n, 56)}
-            <span>{nameOf(n)}</span>
-            {n.id === current ? <Check size={18} /> : <ChevronRight size={16} />}
-          </button>
-        ))}
-        {current && <button className="ph-source is-clear" onClick={() => onPick(null)}><X size={18} /><span>{tr('断开', 'Disconnect')}</span></button>}
-      </div>
-    </Sheet>
-  )
-}
-

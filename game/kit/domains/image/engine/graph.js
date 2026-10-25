@@ -1,4 +1,3 @@
-import { wouldCycle as cycles } from '../../../graph.js'
 import { PartError } from '../../../engine/circuit.js'
 import { runBoard, sink, source } from '../../../engine/boards.js'
 import { runLevel as runTests } from '../../../engine/tests.js'
@@ -7,8 +6,6 @@ import { NODE_TYPES, inputsOf } from './nodes.js'
 
 // A graph is { nodes: [{ id, type, x, y, params }], wires: [{ from, to, port }] } where `from` and
 // `to` are node ids and `port` is the input port name on `to`. Each node has a single output.
-
-export const wouldCycle = (graph, from, to) => cycles(graph.wires.map((w) => [w.from, w.to]), from, to)
 
 export function order(graph) {
   const incoming = new Map(graph.nodes.map((node) => [node.id, 0]))

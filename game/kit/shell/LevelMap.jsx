@@ -311,11 +311,11 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
   const needed = useNeeded(game, solved, progress.all)
   const root = useRef(null)
   // Back from a level, the map opens on that level's node, and keeps it there while the page above settles (the hero's
-  // illustration loads late) until the player scrolls.
+  // illustration loads late) until the player scrolls. It jumps there, whatever a game's page CSS says about smooth scrolling.
   useLayoutEffect(() => {
     const el = root.current.querySelector(`[data-level="${focus}"]`)
     if (!el) return undefined
-    const keep = () => el.scrollIntoView({ block: 'center', inline: 'center' })
+    const keep = () => el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' })
     keep()
     const resize = new ResizeObserver(keep)
     resize.observe(root.current)

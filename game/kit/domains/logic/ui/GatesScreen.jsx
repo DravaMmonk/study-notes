@@ -1,9 +1,9 @@
 import { useMemo, useRef, useState } from 'react'
-import { ArrowRightFromLine, CircleDot, Cpu, ToggleLeft, Trash2 } from 'lucide-react'
+import { ArrowRightFromLine, CircleDot, Cpu, ToggleLeft } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, RemoveButton, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
@@ -213,7 +213,7 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(parts.rules[node.type].desc)}</p>}
             {body(node)}
-            {parts.role(node) === 'part' && <button type="button" className="lg-remove" onClick={() => { editing.remove(node.id); setSheet(null) }}><Trash2 size={15} />{tr('拿掉这一块', 'Remove this block')}</button>}
+            {parts.role(node) === 'part' && <RemoveButton onClick={() => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}

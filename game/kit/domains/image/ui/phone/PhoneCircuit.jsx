@@ -1,19 +1,18 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, Check, ChevronRight, Trash2, X } from 'lucide-react'
-import { wouldCycle } from '../../engine/graph.js'
+import { ArrowDownToLine, Check, X } from 'lucide-react'
 import { NODE_TYPES, inputsOf, settingsOf } from '../../engine/nodes.js'
 import { L, tr } from '../../../../shell/i18n.js'
-import { Notice, SlotBoard, Tray, connect, feeding, useSlotEditing } from '../../../../circuit/index.js'
+import { Notice, RemoveButton, SlotBoard, Tray, feeding, useSlotEditing } from '../../../../circuit/index.js'
 import { RunDock, TaskCard, TestTabs } from '../../../../shell/index.js'
 import { describe, familyOf, iconOf } from '../catalog.js'
-import { PORT_LABELS, partsFor } from '../parts.js'
+import { partsFor } from '../parts.js'
 import ImageView from '../ImageView.jsx'
 import ValueView from '../views/ValueView.jsx'
 import ViewSwitch from '../views/ViewSwitch.jsx'
 import { KIND_NAMES, kindOf, nodeView } from '../views/views.js'
 import { InlineParam, KernelEditor, NumberEditor } from './Editors.jsx'
 import { placeAt, setParam } from './ops.js'
-import { AddSheet, ParamChip, SourceSheet } from './parts.jsx'
+import { AddSheet, ParamChip } from './parts.jsx'
 import Sheet from '../../../../shell/Sheet.jsx'
 import './phone.css'
 
@@ -21,7 +20,7 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 
 // Vision Complete's phone circuit screen: the shared phone board (games/kit/circuit: SlotBoard, useSlotEditing,
 // Tray, Notice, the same editing as 状态之图) with this game's tests along the top, its task, its blocks' pictures,
-// and its sheets for a block, a source, a setting and the tests.
+// and its sheets for a block, a slot and a setting. Wiring is done on the board only, as in every game.
 // An output and its expected value can only be compared cell by cell when they are the same size.
 const fits = (img, expected) => img.w === expected.w && img.h === expected.h
 
@@ -47,7 +46,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
     openNode: (id) => setSheet({ kind: 'part', node: id }),
     openSlot: (at) => level.palette.length && setSheet({ kind: 'add', at }),
   })
-  const { nameOf, sources, steps } = editing
+  const { nameOf, sources } = editing
   const wasPassing = useRef(run?.pass)
   useEffect(() => {
     if (run?.pass && !wasPassing.current) buzz([12, 60, 18])
@@ -119,7 +118,6 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
 
       <div className="pb-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        {!steps.length && level.palette.length > 0 && <p className="pb-howto is-first">{tr('从下面的托盘点一个元件放进空格，再点两个圆点把它接上：一头点块底下的输出口，一头点块顶上的输入口。', 'Tap a part in the tray below to drop it into a free slot, then tap two dots to wire it: one output under a block, one input on top of a block.')}</p>}
         <SlotBoard
           graph={graph}
           parts={parts}
@@ -141,7 +139,6 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
           onChange={onChange}
           types={level.palette}
         />
-        {steps.length > 0 && <p className="pb-howto">{tr('点两个圆点连线，或从一个圆点拖到另一个；点已接好的输入口就拆掉。按住一块可以挪格子，拖回下面的托盘就是拿掉。', 'Tap two dots to connect them, or drag from one dot to another; tap a wired input to unplug it. Hold a block to move it to another slot; drag it back onto the tray to remove it.')}</p>}
         {/* Under the board: what the hidden tests say, training, this test's details, and the score last. */}
         <div className="pb-below">
           {hiddenMiss ? (
@@ -178,12 +175,8 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
           <Sheet title={nameOf(node)} onClose={() => setSheet(null)}>
             <PartPanel
               node={node}
-              graph={graph}
               flags={flags}
               ioKinds={ioKinds}
-              nameOf={nameOf}
-              byId={byId}
-              thumb={thumb}
               value={values?.get(node.id)}
               error={errors?.get(node.id)}
               check={node.type === 'output' ? checks?.find((c) => c.name === node.params.name) : null}
@@ -193,31 +186,14 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
               theme={theme}
               scan={scan}
               onScan={onScan}
-              onSource={(port) => setSheet({ kind: 'source', node: node.id, port })}
               onParam={(key, cell) => setSheet({ kind: 'param', node: node.id, key, cell })}
               onSetParam={(key, v) => onChange(setParam(graph, node.id, key, v))}
               onView={(v) => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, view: v } : n)) }, { keep: true })}
-              onDelete={NODE_TYPES[node.type].fixed ? null : () => remove(node.id)}
+              onRemove={NODE_TYPES[node.type].fixed ? null : () => remove(node.id)}
             />
           </Sheet>
         )
       })()}
-      {sheet?.kind === 'source' && (
-        <SourceSheet
-          graph={graph}
-          node={byId(sheet.node)}
-          port={sheet.port}
-          options={[...sources, ...steps].filter((n) => n.id !== sheet.node && !wouldCycle(graph, n.id, sheet.node))}
-          nameOf={nameOf}
-          thumb={thumb}
-          onPick={(from) => {
-            buzz()
-            editing.edit(connect(graph, sheet.node, sheet.port, from))
-            setSheet({ kind: 'part', node: sheet.node })
-          }}
-          onClose={() => setSheet({ kind: 'part', node: sheet.node })}
-        />
-      )}
       {sheet?.kind === 'param' && (() => {
         const target = byId(sheet.node)
         const param = NODE_TYPES[target.type].params.find((p) => p.key === sheet.key)
@@ -233,9 +209,8 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
   )
 }
 
-// One block in a sheet: where its inputs come from, its settings, and what it makes on this test.
-function PartPanel({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, error, check, expected, tolerance, views, theme, scan, onScan, onSource, onParam, onSetParam, onView, onDelete }) {
-  const ports = node.type === 'input' ? [] : inputsOf(node.type)
+// One block in a sheet: what it is, its settings, and what it makes on this test (its wires are on the board).
+function PartPanel({ node, flags, ioKinds, value, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove }) {
   const params = settingsOf(node.type, flags)
   const shown = nodeView(node, views)
   return (
@@ -243,7 +218,6 @@ function PartPanel({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, er
       <header className="pc-inspect-head">
         <span className="ph-node">{node.type === 'output' ? <ArrowDownToLine size={15} /> : createElement(iconOf(node.type), { size: 15, strokeWidth: 1.8 })}</span>
         <small>{node.type === 'input' || node.type === 'output' ? L(KIND_NAMES[ioKinds?.[node.params.name]]) : describe(node.type)}</small>
-        {onDelete && <button className="pc-icon is-danger" onClick={onDelete} aria-label={tr('拿掉这一块', 'Remove this block')}><Trash2 size={17} /></button>}
       </header>
 
       {params.length > 0 && (
@@ -278,24 +252,7 @@ function PartPanel({ node, graph, flags, ioKinds, nameOf, byId, thumb, value, er
         {kindOf(value ?? expected) === 'image' && <ViewSwitch value={shown} onChange={onView} shows={views?.shows} fresh={views?.fresh} compact />}
       </div>
 
-      {ports.length > 0 && (
-        <div className="pc-section">
-          <span className="pc-label">{tr('读哪个结果 · 也可以在板上连圆点', 'Which result it reads · or connect the dots on the board')}</span>
-          <div className="pc-ports">
-            {ports.map((port) => {
-              const from = byId(feeding(graph, node.id, port))
-              return (
-                <button key={port} className={`pc-port ${from ? '' : 'is-empty'}`} onClick={() => onSource(port)}>
-                  {ports.length > 1 && <i>{L(PORT_LABELS[port]) ?? port}</i>}
-                  {from ? thumb(from, 38) : null}
-                  <span>{from ? nameOf(from) : tr('还没接', 'Not connected')}</span>
-                  <ChevronRight size={15} />
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
+      {onRemove && <RemoveButton onClick={onRemove} />}
     </div>
   )
 }
