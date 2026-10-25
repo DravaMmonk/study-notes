@@ -470,6 +470,8 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
       layerOf: node => layerOf(asNode(node)),
       setLayer(id, choice) { if (busy()) return; setLayer(id, choice); buzz(6); rt.refresh(); },
       reset() { setCirc(fresh()); rt.refresh(); },
+      /** Whether clearing would take anything away: a part, a wire, or something an input card reads. */
+      clearable: () => circ().wires.length > 0 || circ().nodes.some(n => !(n.id in CARDS) || picksOf(n).length > 0),
       palette: () => itemsOf(paletteAll()),
       /** Every kind the player may place on this stage, shown or folded (a board read from text may use any). */
       types: () => offeredParts(),

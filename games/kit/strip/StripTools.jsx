@@ -21,8 +21,8 @@ export function StripTools({ history, onClear, empty }) {
   })
   return (
     <div className="ks-tools">
-      <span className={`ks-pill ks-clear ${empty ? 'is-idle' : ''}`}>
-        <ClearButton onClear={onClear} size={16} title={tr('清空整句？', 'Clear it all?')} lines={[tr('已经填进去的都会拿掉。清空以后还可以撤销。', 'Everything put in goes. Undo brings it back.')]} />
+      <span className="ks-pill ks-clear">
+        <ClearButton onClear={empty ? null : onClear} size={16} title={tr('清空整句？', 'Clear it all?')} lines={[tr('已经填进去的都会拿掉。清空以后还可以撤销。', 'Everything put in goes. Undo brings it back.')]} />
       </span>
       <span className="ks-pill">
         <button type="button" onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销（⌘/Ctrl+Z）', 'Undo (⌘/Ctrl+Z)')}><Undo2 size={16} /></button>
