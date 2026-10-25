@@ -293,7 +293,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   }
 
   return (
-    <div className={`pb-board ${dense ? 'is-dense' : ''}`} data-ports={parts.typedPorts ? undefined : 'arrow'} ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
+    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
       <div className="pb-tools">
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {onClear && <span className="pb-steps pb-clear"><ClearButton onClear={onClear} size={16} /></span>}
