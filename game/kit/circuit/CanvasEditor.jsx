@@ -7,13 +7,13 @@ import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { moveInto } from './frames.js'
-import { baseRefusal, clearSpot, connect, ends, inPort, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
+import { baseRefusal, clearSpot, connect, ends, feeding, inPort, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
 import { useHistory } from './useHistory.js'
 
 // The desktop circuit board, the same in every game: parts are cards, wires run from a card's output (a dot on its
 // right) to another card's input (a dot on its left). Drag a card by its header to move it; drag from an output dot
 // to an input dot, or onto a card, to wire it, or click one dot and then another (or the card), as on the phone;
-// click a card or a wire to select it and press Delete (or the × on a card) to remove it. Drag the background to pan, pinch or ⌘/Ctrl-scroll to zoom, and the corner buttons zoom or fit;
+// click a wired input to take its wire off and carry it to another input; click a card or a wire to select it and press Delete (or the × on a card) to remove it. Drag the background to pan, pinch or ⌘/Ctrl-scroll to zoom, and the corner buttons zoom or fit;
 // every edit can be undone and redone there too, or with ⌘/Ctrl-Z, ⇧⌘/Ctrl-Z and Ctrl-Y. A wire the game refuses
 // (parts.refuse) is not made, and its reason shows at the top of the board for a moment.
 //
@@ -348,7 +348,16 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const e = ends(a, b)
     return e && byId.has(e.to) && byId.has(srcNode(e.from)) ? refusal(e.from, e.to, e.port) : null
   }
+  // With nothing picked, clicking a wired input takes its wire off that input and leaves it in hand, still on its
+  // output: click another input (or a card) to plug it in there, or anywhere else to drop it. Any other dot is picked.
   const clickPort = (p) => {
+    const at = parsePort(p)
+    const from = !picking && at.side === 'in' ? feeding(graph, at.id, at.port) : null
+    if (from) {
+      setRefused(null)
+      onChange(connect(graph, at.id, at.port, null))
+      return pick(outPort(from))
+    }
     if (!picking || picking === p) return pick(picking === p ? null : p)
     const e = wireOf(picking, p)
     if (e) {
@@ -446,7 +455,10 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const icon = parts.icon?.(node)
     const wired = (src) => graph.wires.some((w) => w.from === src)
     const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点一下，再点另一张卡片的输入；也可以拖过去', 'Click, then click an input of another card; or drag there')} onClick={() => clickPort(outPort(src))}><i /></i>
-    const inDot = (port, extra = '') => <i className={`port port-in ${graph.wires.some((w) => w.to === node.id && w.port === port) ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} onClick={() => clickPort(inPort(node.id, port))}><i /></i>
+    const inDot = (port, extra = '') => {
+      const wired = graph.wires.some((w) => w.to === node.id && w.port === port)
+      return <i className={`port port-in ${wired ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} title={wired && !picking ? tr('点一下取下这根线，再点别的输入口接过去', 'Click to take this wire off; click another input to plug it there') : undefined} onClick={() => clickPort(inPort(node.id, port))}><i /></i>
+    }
     return (
       <div
         key={node.id}
