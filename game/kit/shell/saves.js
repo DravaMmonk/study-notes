@@ -50,6 +50,8 @@ export const shiftIds = (prefix, from, by) => (id) => {
 
 /** steps: [{ version, ops: [op] }] in version order. */
 export function migrations(steps) {
+  // A step written inside another's ops (a misplaced bracket) would never run: refuse it when the game loads.
+  for (const step of steps) for (const op of step.ops) if (!OPS[Object.keys(op)[0]]) throw new Error(`save step ${step.version}: unknown operation ${Object.keys(op)[0]}`)
   return {
     version: Math.max(1, ...steps.map((s) => s.version)),
     migrate: (saved) => {
