@@ -57,7 +57,7 @@ const param = (node, key, ctx = {}) => {
 // The term a card names (params.t).
 function termOf(node, ctx = {}) {
   const text = node.params?.t
-  if (!text) throw fail('先填一个项', 'Fill in a term first')
+  if (!text) throw fail('先在卡片上选好哪一样', 'Choose the thing on the card first')
   return parse(`${text} = ${text}`, { consts: ctx.consts ?? [] }).args[0]
 }
 // The thing a formula is an example of an ∃ sentence by: the term t with target.body[x := t] the formula, or null.
@@ -386,7 +386,7 @@ export const LOGIC_TESTS = {
   check: (level, test, outputs) => {
     const goal = parse(test.goal, { consts: level.consts ?? [] })
     const problem = closes(outputs.goal, goal, Object.keys(test.premises ?? {}), level.notation)
-      || (test.term && !alphaEq(outputs.goal.term, parseTerm(test.term)) ? { zh: `证明的项是 ${printTerm(outputs.goal.term)}，要的是 ${test.term}`, en: `The proof’s term is ${printTerm(outputs.goal.term)}; the one wanted is ${test.term}` } : '')
+      || (test.term && !alphaEq(outputs.goal.term, parseTerm(test.term)) ? { zh: `证明项是 ${printTerm(outputs.goal.term)}，要的是 ${test.term}`, en: `The proof’s term is ${printTerm(outputs.goal.term)}; the one wanted is ${test.term}` } : '')
     return [{ name: 'goal', pass: !problem, reason: problem }]
   },
   // A shorter proof is a better one.

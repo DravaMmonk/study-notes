@@ -67,7 +67,7 @@ export function missingForms(term) {
  */
 export function segmentOf(node, path = [], bracket = false) {
   const key = ['r', ...path].join('.')
-  if (!node) return { hole: key, label: T('项', 'term') }
+  if (!node) return { hole: key, label: T('证明项', 'proof term') }
   const piece = (family, parts) => ({ piece: key, family, parts: bracket ? ['(', ...parts, ')'] : parts })
   const atomic = (n) => !n || ['var', 'pair', 'fst', 'snd'].includes(n.k)
   const kid = (k, tight) => {
