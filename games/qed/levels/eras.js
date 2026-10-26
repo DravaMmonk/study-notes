@@ -129,8 +129,9 @@ export const ERAS = [
   {
     id: 'metavars', machine: 'prover', keeps: 'all',
     foundation: [
-      // The machine that unifies, a rule of unification a level, then the repeat frame runs them: the unifier.
-      series('unify', '合一', 'Unification', ['r-match', 'r-delete', 'r-clash', 'r-twice', 'r-both', 'r-occurs', 'r-unifier']),
+      // The machine that unifies: splitting, all the way down in the repeat frame, then a rule of unification a level,
+      // each going round with the others; all six make the unifier.
+      series('unify', '合一', 'Unification', ['r-match', 'r-deep', 'r-delete', 'r-clash', 'r-twice', 'r-both', 'r-occurs', 'r-unifier']),
       // On proof states: a goal replaced by a rule's premises, ?-letters settled later, lemmas as rules.
       series('backward', '倒着用规则', 'Rules backwards', ['r-rule', 'r-subgoals', 'r-assumption', 'r-meta', 'r-lemma']),
       // Elimination rules use a given up.

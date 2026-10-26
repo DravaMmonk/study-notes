@@ -81,7 +81,10 @@ export default {
   { version: 24, ops: [{ solve: ['dmUse', ['dmBack']] }, { solve: ['notnotlem', ['dmOr']] }, { solve: ['fo-atoms', ['dmAnd']] }] },
   // Version 25 put 核来把关 and 证明项放回板上 at the end of the proof-term writing line: whoever had passed what follows
   // has passed them.
-  { version: 25, ops: [{ solve: ['t-detour', ['t-kernel', 't-exact']] }, { solve: ['t-all', ['t-kernel', 't-exact']] }] }],
+  { version: 25, ops: [{ solve: ['t-detour', ['t-kernel', 't-exact']] }, { solve: ['t-all', ['t-kernel', 't-exact']] }] },
+  // Version 26 brought the repeat frame in right after the first unification level (拆到底): whoever had passed what
+  // follows has passed it.
+  { version: 26, ops: [{ solve: ['r-delete', ['r-deep']] }] }],
   // Level titles that are also the names of parts or ideas: a text may quote them as such.
   quotes: ['套用', '德摩根', '归结', '取一个', '任取', '拿出那一个'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
