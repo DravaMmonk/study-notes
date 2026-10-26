@@ -170,7 +170,7 @@ const weighted = {
   title: { zh: '拼出加权和', en: 'Build a weighted sum' },
   brief: { zh: '有人用一种邻居加权和处理了这些图。用平移、常数和四则运算，搭出同样的处理。', en: 'Someone processed these images with a weighted sum of neighbours. Build the same processing out of shifts, constants, multiplications and additions.' },
   hint: { zh: '先看亮点那一组：一个亮点变成了几个点？各在哪里，各有多亮？', en: 'Look at the bright dot first: how many dots did one dot turn into? Where is each, and how bright?' },
-  after: { zh: '亮点被处理成什么样，就是这种处理的「印章」：每个输入像素都盖一个，挪到对应位置、乘上权重再相加。把权重排成 3×3 的小方阵，就是核。从现在起你有了「3×3 核」元件，九个权重一次填好。', en: 'Whatever a bright dot is turned into is the "stamp" of the processing: every input pixel presses one, moved to its place, multiplied by its weight and added up. Arrange the weights in a small 3×3 grid and you have a kernel. From now on you have the "3×3 kernel" part, with all nine weights set at once.' },
+  after: { zh: '亮点被处理成什么样，就是这种处理的「印章」：每个输入像素都盖一个，挪到对应位置、乘上权重再相加。把权重排成 3×3 的小方阵，就是核。', en: 'Whatever a bright dot is turned into is the "stamp" of the processing: every input pixel presses one, moved to its place, multiplied by its weight and added up. Arrange the weights in a small 3×3 grid and you have a kernel.' },
   unlocks: ['kernel3'],
   tests: each([[{ zh: '亮点', en: 'Bright dot' }, P.impulse(7, 7)], [{ zh: '方块', en: 'Square' }, P.square()], [{ zh: '字母 F', en: 'Letter F' }, P.glyph(GLYPHS.F)]], (img) => convolve(img, STAMP)),
   hidden: each([[{ zh: '挪开的字母 T', en: 'Shifted letter T' }, P.glyph(GLYPHS.T, 0.1, 0.9, 5, 4)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(22)]], (img) => convolve(img, STAMP)),
@@ -204,7 +204,7 @@ const padding = {
       step: { zh: '平移', en: 'Shift' },
       brief: { zh: '向右平移一格，但最左一列不补 0，而是照抄原图最左一列。', en: 'Shift right by one pixel, but instead of padding the leftmost column with 0, copy the original image\'s leftmost column.' },
       hint: { zh: '先做出补 0 的平移：它只错在最左一列。能不能单独拿到「原图的最左一列，其余全是 0」？', en: 'First build the zero-padded shift: it is wrong only in the leftmost column. Can you get "the original\'s leftmost column, with 0 everywhere else" on its own?' },
-      after: { zh: '你拼出的就是「复制边缘」：图外缺的值，用离它最近的边上像素代替，不会凭空造出一道黑边。从现在起，平移元件的「边界」设置里多了「复制边缘」，做的就是你刚才拼的这件事。', en: 'What you built is "Replicate edge": a missing value outside the image is replaced by the nearest pixel on the edge, so no black border appears out of nowhere. From now on, the Shift part\'s "Border" setting has a "Replicate edge" option that does exactly what you just built.' },
+      after: { zh: '你拼出的就是「复制边缘」：图外缺的值，用离它最近的边上像素代替，不会凭空造出一道黑边。', en: 'What you built is "Replicate edge": a missing value outside the image is replaced by the nearest pixel on the edge, so no black border appears out of nowhere.' },
       unlocks: ['edge-pad'],
       // The border setting is what this task builds by hand, so it stays out of reach here even for a player who has it.
       withhold: ['edge-pad'],
@@ -218,7 +218,7 @@ const padding = {
       step: { zh: '平均', en: 'Average' },
       brief: { zh: '在亮背景上做 3×3 平均，边缘不能发黑。', en: 'Take a 3×3 average on a bright background without the border going dark.' },
       hint: { zh: '3×3 平均元件只会在图外补 0。哪个元件已经会另一种补法？', en: 'The 3×3 average part can only pad with 0 outside the image. Which part already knows another way to pad?' },
-      after: { zh: '补 0 等于在图外画了一圈黑框，平均时把黑色混了进来。你用复制边缘的平移拼出了不发黑的平均。从现在起，3×3 平均、高斯、Sobel 这些滤波元件的「边界」设置里也有了「复制边缘」。', en: 'Padding with 0 draws a black frame round the image, and averaging mixes that black in. You built an average that does not darken from shifts that replicate the edge. From now on, the "Border" setting on filters such as the 3×3 average, the Gaussian and Sobel has "Replicate edge" too.' },
+      after: { zh: '补 0 等于在图外画了一圈黑框，平均时把黑色混了进来。复制边缘的平移拼出的平均就不会发黑。', en: 'Padding with 0 draws a black frame round the image, and averaging mixes that black in. Built from shifts that replicate the edge, the average does not darken.' },
       unlocks: ['edge-filter'],
       // The filters' border setting is what this task builds by hand, so it stays out of reach here even for a player who has it.
       withhold: ['edge-filter'],

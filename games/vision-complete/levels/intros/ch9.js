@@ -25,8 +25,8 @@ export default {
   '9-2': [
     {
       t: {
-        zh: '<level-ref to="9-1"></level-ref>搭的「转置卷积」现在是现成的元件，核可以自己填。',
-        en: 'The "Transposed convolution" you built in <level-ref to="9-1"></level-ref> is now a ready-made part, with a kernel you fill in yourself.',
+        zh: '托盘里的「转置卷积」先补零放大一倍，再用一个 3×3 的核走一遍，核可以自己填。',
+        en: 'The Transposed convolution in the tray zero-upsamples to twice the size, then runs a 3×3 kernel over it; you fill in the kernel yourself.',
       },
     },
     {
@@ -55,8 +55,8 @@ export default {
   '9-4': [
     {
       t: {
-        zh: '<level-ref to="9-3"></level-ref>搭的「反池化」现在是现成的元件。',
-        en: 'The "Unpool" you built in <level-ref to="9-3"></level-ref> is now a ready-made part.',
+        zh: '托盘里的「反池化」把池化后的每个值放回池化前它所在的那一格，其余格子为 0。',
+        en: 'The Unpool in the tray puts each pooled value back in the cell it came from before pooling; every other cell is 0.',
       },
     },
     {
@@ -91,8 +91,8 @@ export default {
   '9-6': [
     {
       t: {
-        zh: '<level-ref to="9-5"></level-ref>搭的「k 均值一步」现在是现成的元件。',
-        en: 'The "One k-means step" you built in <level-ref to="9-5"></level-ref> is now a ready-made part.',
+        zh: '托盘里的「k 均值一步」按分界 m 把值分成两类，输出两类平均值的正中间。',
+        en: 'The One k-means step in the tray splits the values into two classes at the boundary m and outputs halfway between the two class averages.',
       },
     },
     {

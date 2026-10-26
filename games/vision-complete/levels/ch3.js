@@ -70,7 +70,7 @@ const ball = {
   title: { zh: '画一个球', en: 'Draw a ball' },
   brief: { zh: '输入是一块表面每一点的朝向（法线的 x、y、z 三个分量）和它的反射率。灯从右上方照来，方向是 (0.48, −0.36, 0.8)（x 向右，y 向下，z 朝着相机）。画出相机拍到的样子：亮度 = 反射率 × cos θ，θ 是法线和灯的方向的夹角。', en: 'The inputs are which way each point of a surface faces (the x, y and z of its normal) and its reflectance. The lamp shines from the upper right, from direction (0.48, −0.36, 0.8) (x to the right, y down, z towards the camera). Draw what the camera sees: brightness = reflectance × cos θ, where θ is the angle between the normal and the lamp direction.' },
   hint: { zh: '两个单位长度的方向，夹角的 cos 等于它们的分量两两相乘再相加。', en: 'For two directions of unit length, the cos of the angle between them is their components multiplied pairwise and added.' },
-  after: { zh: '这就是朗伯模型：哑光表面的亮度 = 灯 × 反射率 × cos θ。正对着灯最亮，越斜越暗，因为同一束光铺到了更大的面积上。你搭的电路成了「朗伯着色」元件，灯的方向可调；背光的地方，它输出 0。', en: 'This is the Lambertian model: the brightness of a matte surface = lamp × reflectance × cos θ. Facing the lamp is brightest, and the more it turns away the darker it gets, because the same beam spreads over a larger area. Your circuit is now the "Lambert shading" part, with an adjustable lamp direction; where the surface faces away, it outputs 0.' },
+  after: { zh: '这就是朗伯模型：哑光表面的亮度 = 灯 × 反射率 × cos θ。正对着灯最亮，越斜越暗，因为同一束光铺到了更大的面积上；背着灯的地方是 0。', en: 'This is the Lambertian model: the brightness of a matte surface = lamp × reflectance × cos θ. Facing the lamp is brightest, and the more it turns away the darker it gets, because the same beam spreads over a larger area; where the surface faces away it is 0.' },
   unlocks: ['lambert'],
   tests: [
     [{ zh: '白球', en: 'White ball' }, 'dome', 'white'],
@@ -142,7 +142,7 @@ const camera = {
   inputLabels: { in: { zh: '光谱', en: 'Spectrum' }, sr: { zh: 'R 灵敏度', en: 'R sensitivity' }, sg: { zh: 'G 灵敏度', en: 'G sensitivity' }, sb: { zh: 'B 灵敏度', en: 'B sensitivity' } },
   title: { zh: '相机的三个数', en: 'A camera\'s three numbers' },
   brief: { zh: '「光谱」是从紫（400 nm）到红（700 nm）的 10 个波段各有多少光。相机有三种感光元件，各有一条灵敏度曲线。每种的读数 = 光谱乘上它的灵敏度曲线，再求平均。输出 R、G、B 三个读数。', en: 'The "Spectrum" is how much light there is in each of 10 bands from violet (400 nm) to red (700 nm). The camera has three kinds of sensor, each with a sensitivity curve. Each sensor reads the spectrum times its sensitivity curve, averaged. Output the three readings, R, G and B.' },
-  after: { zh: '一整条光谱，被三种感光元件压成三个数，这就是相机（和人眼）看到的颜色。你搭的电路成了「感光」元件：选 R、G 或 B，它就按那条曲线读数。', en: 'A whole spectrum, squeezed by three kinds of sensor into three numbers: that is the colour a camera (and an eye) sees. Your circuit is now the "Sensor" part: choose R, G or B and it reads with that curve.' },
+  after: { zh: '一整条光谱，被三种感光元件压成三个数，这就是相机（和人眼）看到的颜色。', en: 'A whole spectrum, squeezed by three kinds of sensor into three numbers: that is the colour a camera (and an eye) sees.' },
   unlocks: ['sense'],
   check: { tolerance: 0.01 },
   tests: [[{ zh: '日光', en: 'Daylight' }, 'daylight'], [{ zh: '苹果', en: 'An apple' }, 'apple'], [{ zh: '树叶', en: 'A leaf' }, 'leaf'], [{ zh: '天空', en: 'The sky' }, 'sky']].map(([label, key]) => spectrumTest(label, key)),

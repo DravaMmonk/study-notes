@@ -69,7 +69,7 @@ const findDisparity = {
   title: { zh: '找视差', en: 'Find the disparity' },
   brief: { zh: '左右两台相机拍同一个场景。输出每个像素的视差 d（0 … 3）：右图里同一个点比左图往左挪了几格。', en: 'Two cameras, left and right, photograph the same scene. Output each pixel\'s disparity d (0 … 3): how many pixels further left the same point is in the right image.' },
   hint: { zh: '对每个可能的 d，把右图挪一挪再和左图比。单个像素比不准时，看看它周围。', en: 'For each possible d, shift the right image and compare it with the left one. When single pixels do not compare reliably, look at what is around them.' },
-  after: { zh: '形状只在「匹配」里出现：每张图单看都只是杂点。对应点只需在同一行里找，视差越大，物体越近。你的搜索现在是现成的元件「视差搜索」。', en: 'The shape only appears through matching: each image on its own is just speckle. Corresponding points only need to be searched for along the same row, and the larger the disparity, the nearer the object. Your search is now a ready-made part, "Disparity search".' },
+  after: { zh: '形状只在「匹配」里出现：每张图单看都只是杂点。对应点只需在同一行里找，视差越大，物体越近。', en: 'The shape only appears through matching: each image on its own is just speckle. Corresponding points only need to be searched for along the same row, and the larger the disparity, the nearer the object.' },
   unlocks: ['disparity'],
   adds: ['argmin4'],
   check: { tolerance: 0.1, mismatches: 34 },

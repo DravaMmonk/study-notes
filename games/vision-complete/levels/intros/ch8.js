@@ -30,8 +30,8 @@ export default {
   '8-2': [
     {
       t: {
-        zh: '<level-ref to="8-1"></level-ref>训练好的一对编码器、解码器，现在是现成的元件：编码器把一个斑点变成两个数，解码器把两个数画成斑点。',
-        en: 'The encoder and decoder you trained in <level-ref to="8-1"></level-ref> are now ready-made parts: the encoder turns a blob into two numbers, and the decoder draws two numbers as a blob.',
+        zh: '托盘里有训练好的编码器和解码器：编码器把一个斑点变成两个数，解码器把两个数画成斑点。',
+        en: 'The tray holds the trained encoder and decoder: the encoder turns a blob into two numbers, and the decoder draws two numbers as a blob.',
       },
     },
     {
@@ -87,8 +87,8 @@ export default {
   '8-5': [
     {
       t: {
-        zh: '<level-ref to="8-4"></level-ref>的「重参数化」现在是现成的元件：μ、σ、ε 进去，出来 μ + σ·ε。',
-        en: '<level-ref to="8-4"></level-ref>\'s "Reparameterization" is now a ready-made part: μ, σ and ε go in, μ + σ·ε comes out.',
+        zh: '托盘里的「重参数化」：μ、σ、ε 进去，出来 μ + σ·ε。',
+        en: 'The Reparameterization in the tray: μ, σ and ε go in, μ + σ·ε comes out.',
       },
     },
     {
@@ -149,8 +149,8 @@ export default {
   '8-8': [
     {
       t: {
-        zh: '<level-ref to="8-7"></level-ref>搭的「加噪」现在是现成的元件。',
-        en: 'The "Add noise" you built in <level-ref to="8-7"></level-ref> is now a ready-made part.',
+        zh: '托盘里的「加噪」把 x₀ 一步加噪到第 t 步：输出 √ᾱ·x₀ + √(1 − ᾱ)·ε。',
+        en: 'The Add noise in the tray takes x₀ straight to step t: it outputs √ᾱ·x₀ + √(1 − ᾱ)·ε.',
       },
     },
     {
@@ -194,8 +194,8 @@ export default {
   '8-11': [
     {
       t: {
-        zh: '<level-ref to="8-10"></level-ref>搭的「还原」现在是现成的元件。可真要用的时候，没人告诉你噪声是什么。',
-        en: 'The "Restore" you built in <level-ref to="8-10"></level-ref> is now a ready-made part. But when it is actually needed, nobody tells you what the noise was.',
+        zh: '托盘里的「还原」由 x_t 和噪声 ε 还原 x₀。可真要用的时候，没人告诉你噪声是什么。',
+        en: 'The Restore in the tray recovers x₀ from x_t and the noise ε. But when it is actually needed, nobody tells you what the noise was.',
       },
     },
     {

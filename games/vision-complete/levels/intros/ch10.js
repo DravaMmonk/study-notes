@@ -18,8 +18,8 @@ export default {
   '10-2': [
     {
       t: {
-        zh: '<level-ref to="10-1"></level-ref>搭的「IoU」现在是现成的元件。',
-        en: 'The "IoU" you built in <level-ref to="10-1"></level-ref> is now a ready-made part.',
+        zh: '托盘里的「IoU」输出两个框掩膜的交并比：重叠面积除以合起来的面积。',
+        en: 'The IoU in the tray outputs the intersection over union of two box masks: the overlap divided by the area they cover together.',
       },
     },
     {
@@ -54,8 +54,8 @@ export default {
   '10-4': [
     {
       t: {
-        zh: '<level-ref to="10-3"></level-ref>搭的「AP 计」现在是现成的元件。',
-        en: 'The "AP meter" you built in <level-ref to="10-3"></level-ref> is now a ready-made part.',
+        zh: '托盘里的「AP 计」读按分数排好的对错、名次和标注数 G，输出 AP。',
+        en: 'The AP meter in the tray reads right or wrong in score order, the ranks and the number labelled G, and outputs the AP.',
       },
     },
     {

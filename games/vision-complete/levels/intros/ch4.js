@@ -70,7 +70,7 @@ export default {
     },
   ],
   '4-8': [
-    { t: { zh: '<level-ref to="4-7"></level-ref>搭出的「负数变 0、正数不变」现在是现成的元件 ReLU。', en: 'The "negatives become 0, positives stay" you built in <level-ref to="4-7"></level-ref> is now the ready-made part ReLU.' } },
+    { t: { zh: '托盘里的 ReLU 让负数变 0、正数不变。', en: 'The ReLU in the tray turns negatives into 0 and leaves positives as they are.' } },
     { t: { zh: '这一关你要做的：两张图逐格比较，每格输出较大的那个。要想的问题：a 比 b 大多少？这个差什么时候是正的？', en: 'Your task in this level: compare two pictures cell by cell and output the larger value in each. Something to think about: how much bigger is a than b? When is that difference positive?' }, fig: { test: 0, caption: { zh: '第一组：方块和圆盘', en: 'Set 1: a square and a disc' } } },
   ],
   '4-9': [
@@ -114,7 +114,7 @@ export default {
       },
       fig: { test: 0, caption: { zh: '第一组：特征点在原位', en: 'Set 1: the feature points in their original place' } },
     },
-    { t: { zh: '有时特征点会整体偏一格。这一关的要求是：偏了一格，缩小后的结果也要和原位时完全一样。<level-ref to="4-10"></level-ref>的「取较大」现在是现成的元件。', en: 'Sometimes all the feature points are off by one pixel. This level\'s requirement: off by one pixel, the shrunk result must be exactly the same as in place. <level-ref to="4-10"></level-ref>\'s "Larger" is now a ready-made part.' }, fig: { test: 1, caption: { zh: '另一组：整体偏到右下，期望不变', en: 'Another set: everything shifted down and to the right, same expected output' } } },
+    { t: { zh: '有时特征点会整体偏一格。这一关的要求是：偏了一格，缩小后的结果也要和原位时完全一样。', en: 'Sometimes all the feature points are off by one pixel. This level\'s requirement: off by one pixel, the shrunk result must be exactly the same as in place. ' }, fig: { test: 1, caption: { zh: '另一组：整体偏到右下，期望不变', en: 'Another set: everything shifted down and to the right, same expected output' } } },
   ],
   '4-12': [
     {

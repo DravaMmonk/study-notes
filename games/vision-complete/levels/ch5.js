@@ -95,8 +95,8 @@ const twoPatches = {
   },
   hint: { zh: '一个数和一整块相乘时，这个数用在每一格上。先把两个分数算出来。', en: 'When a single number multiplies a whole patch, it applies to every cell. Work out the two scores first.' },
   after: {
-    zh: '分数是点积 q·k 除以 √d（这里 d = 16）；取 e 的指数再归一化叫 softmax，权重都是正的，加起来是 1，最像的那块分得最多。让图里的每个图块都向所有图块这样提问，就是注意力，现在是现成的元件「注意力」。',
-    en: 'The score is the dot product q·k divided by √d (here d = 16); taking e to the power and normalising is called softmax, so the weights are positive, add up to 1, and the most alike patch gets the most. Let every patch of a picture ask every patch like this and you have attention, now a ready-made part, "Attention".',
+    zh: '分数是点积 q·k 除以 √d（这里 d = 16）；取 e 的指数再归一化叫 softmax，权重都是正的，加起来是 1，最像的那块分得最多。让图里的每个图块都向所有图块这样提问，就是注意力。',
+    en: 'The score is the dot product q·k divided by √d (here d = 16); taking e to the power and normalising is called softmax, so the weights are positive, add up to 1, and the most alike patch gets the most. Let every patch of a picture ask every patch like this and you have attention.',
   },
   unlocks: ['attention'],
   tests: pairs([

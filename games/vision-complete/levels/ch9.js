@@ -24,7 +24,7 @@ const twice = {
   title: { zh: '放大一倍', en: 'Twice the size' },
   brief: { zh: '把 8×8 的图放大成 16×16：每个像素变成 2×2 的一小块，四格都一样。', en: 'Enlarge an 8×8 picture to 16×16: every pixel becomes a 2×2 block, all four cells the same.' },
   hint: { zh: '「补零放大」把每个像素放在 2×2 的左上角。剩下三格从哪里取数？', en: '"Zero upsample" puts each pixel in the top left of its 2×2. Where do the other three cells get their number?' },
-  after: { zh: '先补零放大、再用一个核走一遍，就是步幅为 2 的转置卷积：核决定空出来的格子从哪些邻居、按什么比例取数。分割网络的解码器靠它把小特征图一层层放大回原图大小。它现在是现成的元件「转置卷积」，核可以换。', en: 'Zero-upsample first, then run a kernel over it: that is a transposed convolution with stride 2, and the kernel decides which neighbours, in what proportion, fill the empty cells. The decoder of a segmentation network uses it to enlarge small feature maps layer by layer back to the size of the picture. It is now a ready-made part, "Transposed convolution", with a kernel you can change.' },
+  after: { zh: '先补零放大、再用一个核走一遍，就是步幅为 2 的转置卷积：核决定空出来的格子从哪些邻居、按什么比例取数。分割网络的解码器靠它把小特征图一层层放大回原图大小。', en: 'Zero-upsample first, then run a kernel over it: that is a transposed convolution with stride 2, and the kernel decides which neighbours, in what proportion, fill the empty cells. The decoder of a segmentation network uses it to enlarge small feature maps layer by layer back to the size of the picture.' },
   unlocks: ['tconv'],
   adds: ['zeroUp'],
   tests: upTests(smallPictures, NEAREST),

@@ -115,8 +115,8 @@ export default {
   '7-6': [
     {
       t: {
-        zh: '<level-ref to="7-5"></level-ref>搭的「叉积」现在是现成的元件。',
-        en: 'The "Cross product" you built in <level-ref to="7-5"></level-ref> is now a ready-made part.',
+        zh: '托盘里的「叉积」输出两个三维向量的叉积 a × b。',
+        en: 'The Cross product in the tray outputs the cross product a × b of two 3-vectors.',
       },
     },
     {
@@ -151,8 +151,8 @@ export default {
   '7-8': [
     {
       t: {
-        zh: '<level-ref to="7-7"></level-ref>搭的「极线」现在是现成的元件。',
-        en: 'The "Epipolar line" you built in <level-ref to="7-7"></level-ref> is now a ready-made part.',
+        zh: '托盘里的「极线」读 F 的三列和点 (x, y)，输出极线 F·p。',
+        en: 'The Epipolar line in the tray reads the three columns of F and a point (x, y), and outputs the epipolar line F·p.',
       },
     },
     {

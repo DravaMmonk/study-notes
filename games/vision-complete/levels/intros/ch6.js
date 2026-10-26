@@ -52,8 +52,8 @@ export default {
   '6-3': [
     {
       t: {
-        zh: '<level-ref to="6-2"></level-ref>搭的「找峰」现在是现成的元件。',
-        en: 'The "Peak finder" you built in <level-ref to="6-2"></level-ref> is now a ready-made part.',
+        zh: '托盘里的「找峰」在比 3×3 邻居都不小、又大于 0.3 的格子输出 1，其余输出 0。',
+        en: 'The Peak finder in the tray outputs 1 where a cell is no smaller than its 3×3 neighbours and above 0.3, and 0 elsewhere.',
       },
     },
     {
@@ -94,8 +94,8 @@ export default {
   '6-5': [
     {
       t: {
-        zh: '<level-ref to="6-4"></level-ref>搭的「匹配器」现在是现成的元件：接上三个距离，它给出配上的候选编号。',
-        en: 'The "Matcher" you built in <level-ref to="6-4"></level-ref> is now a ready-made part: give it three distances and it returns the number of the matching candidate.',
+        zh: '托盘里的「匹配器」接上三个距离，它给出配上的候选编号。',
+        en: 'The Matcher in the tray takes three distances and returns the number of the matching candidate.',
       },
     },
     {
@@ -141,8 +141,8 @@ export default {
   '6-7': [
     {
       t: {
-        zh: '投票台通关后，「Hough 累加器」是现成的元件：亮点进去，出来一张 (θ, ρ) 的票数图。',
-        en: 'Now that the voting bench is done, "Hough accumulator" is a ready-made part: bright points go in, and a map of votes over (θ, ρ) comes out.',
+        zh: '托盘里的「Hough 累加器」：亮点进去，出来一张 (θ, ρ) 的票数图。',
+        en: 'The Hough accumulator in the tray: bright points go in, and a map of votes over (θ, ρ) comes out.',
       },
     },
     {
@@ -186,8 +186,8 @@ export default {
   '6-9': [
     {
       t: {
-        zh: '共识台通关后，「RANSAC 找直线」是现成的元件：轮数 k 和 δ 都能调。',
-        en: 'Now that the consensus bench is done, "RANSAC line" is a ready-made part, with the rounds k and δ to set.',
+        zh: '托盘里的「RANSAC 找直线」，轮数 k 和 δ 都能调。',
+        en: 'The RANSAC line in the tray has the rounds k and δ to set.',
       },
     },
     {
@@ -242,8 +242,8 @@ export default {
   '6-12': [
     {
       t: {
-        zh: '<level-ref to="6-11"></level-ref>通关后，「求单应」是现成的元件：点对进去，出来 H 的 9 个数。这一关先不用它，H 直接给你。',
-        en: 'Now that <level-ref to="6-11"></level-ref> is done, "Solve homography" is a ready-made part: pairs go in and the 9 numbers of H come out. This level does not need it yet: H is given.',
+        zh: '托盘里的「求单应」：点对进去，出来 H 的 9 个数。这一关先不用它，H 直接给你。',
+        en: 'The Solve homography in the tray: pairs go in and the 9 numbers of H come out. This level does not need it yet: H is given.',
       },
     },
     {
