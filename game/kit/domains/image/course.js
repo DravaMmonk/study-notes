@@ -21,6 +21,8 @@ const ARITHMETIC = ['const', 'add', 'sub', 'mul', 'arith', 'merge']
  * }
  * A level names only the parts it brings in (`adds`): every part met or built before it carries into it, and what it
  * folds away (`fold`); see ../../course.js reach and offer.
+ * A level may be several tasks in order (`tasks: [{ step, brief, tests, hidden, solution, unlocks?, withhold?, … }]`):
+ * each task is the level with what it changes, and a level that shows a new part alone says why (`showcase`).
  * Returns { CHAPTERS, LEVELS, levelById, course, usableIn(level, flags), offerIn(level, flags), syncOwn(progress) }.
  */
 export function imageCourse({ eras, chapters, levels, views = {}, primitives, concept = {}, replaces = {} }) {
@@ -44,10 +46,17 @@ export function imageCourse({ eras, chapters, levels, views = {}, primitives, co
   })
 
   const unlocksOf = (level) => [...(level.unlocks ?? []), ...(level.packs ? [`own-${level.id}`] : [])]
+  const read = (id, level) => ({ kind: 'graph', inputs: ['in'], outputs: ['out'], grants: [], adds: [], check: { tolerance: 0.02 }, ...level, ...viewsAt(id), unlocks: unlocksOf(level), requires: requires.get(id) ?? [], carry: carry.get(id) })
+  // A level of several tasks (`tasks`, ../../shell/GameShell.jsx) is read task by task, each the level with what the
+  // task changes; the last is the level itself. What a task unlocks, the tasks after it hold at once (`opens`); the
+  // level unlocks all of it, and brings in every part any task brings in.
   const LEVELS = plan.order.map((id) => {
     const level = byIdAll[id]
     if (!level) throw new Error(`route names a level that does not exist: ${id}`)
-    return { kind: 'graph', inputs: ['in'], outputs: ['out'], grants: [], adds: [], check: { tolerance: 0.02 }, ...level, ...viewsAt(id), unlocks: unlocksOf(level), requires: requires.get(id) ?? [], carry: carry.get(id) }
+    if (!level.tasks) return read(id, level)
+    const { tasks, ...base } = level
+    const all = tasks.map((task, k) => ({ ...read(id, { ...base, ...task }), opens: task.unlocks ?? [], task: k }))
+    return { ...all.at(-1), unlocks: [...new Set([...unlocksOf(base), ...all.flatMap((t) => t.unlocks)])], adds: [...new Set(all.flatMap((t) => t.adds))], tasks: all }
   })
   for (const level of levels) if (!LEVELS.some((l) => l.id === level.id)) throw new Error(`level ${level.id} is not on the route`)
   const levelById = Object.fromEntries(LEVELS.map((level) => [level.id, level]))
@@ -74,7 +83,7 @@ export function imageCourse({ eras, chapters, levels, views = {}, primitives, co
     levels: LEVELS.map((l) => ({ id: l.id, unlocks: l.unlocks ?? [] })),
     eras,
     concept: (p) => concept[p] ?? p,
-    naive: (l) => Boolean(levelById[l.id].naive),
+    naive: (l) => (levelById[l.id].tasks ?? [levelById[l.id]]).some((t) => t.naive),
     primitives,
     adds: (l) => levelById[l.id].adds,
     needs: (p) => NODE_TYPES[p]?.unlock ?? null,
@@ -83,8 +92,14 @@ export function imageCourse({ eras, chapters, levels, views = {}, primitives, co
     replaces: (p) => replaces[p] ?? [],
     // The probe level's black boxes stay in their level.
     carries: (p) => !p.startsWith('mystery'),
-    needed: (l) => levelById[l.id].solution?.nodes.map((n) => n.type) ?? null,
+    // Every task's answer counts: a part only the first task of a level uses is used.
+    needed: (l) => {
+      const answers = (levelById[l.id].tasks ?? [levelById[l.id]]).map((t) => t.solution).filter((s) => s?.nodes)
+      return answers.length ? answers.flatMap((s) => s.nodes.map((n) => n.type)) : null
+    },
     folds: (l) => levelById[l.id].fold ?? [],
+    showcase: (l) => levelById[l.id].showcase ?? null,
+    abstraction: true,
   })
   // A circuit level's palette is everything it can hold (../../course.js reach): the parts it brings in, then the
   // carried ones; a board or probe level has only what it brings in.
@@ -93,6 +108,7 @@ export function imageCourse({ eras, chapters, levels, views = {}, primitives, co
     const carried = level.kind === 'graph' ? reach(course, level).filter((type) => !level.adds.includes(type)) : []
     level.fresh = level.adds
     level.palette = [...arithmeticFirst(level.adds), ...arithmeticFirst(carried)]
+    for (const task of level.tasks ?? []) Object.assign(task, { fresh: level.fresh, palette: level.palette })
   }
   /** The parts a level can really offer a player holding `flags` (the shell's: unlocks of solved levels, and grants). */
   const usableIn = (level, flags) => usable(course, { id: level.id }, flags)

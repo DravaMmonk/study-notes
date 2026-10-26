@@ -137,7 +137,6 @@ export const NODE_TYPES = {
     unlock: 'gauss',
   },
   diffx: { label: { zh: '横向差分', en: 'Horizontal difference' }, inputs: ['in'], eval: ({ in: a }) => zip(shift(a, -1, 0), a, (x, y) => x - y), cost: 1, unlock: 'diffx' },
-  diffy: { label: { zh: '纵向差分', en: 'Vertical difference' }, inputs: ['in'], eval: ({ in: a }) => zip(shift(a, 0, -1), a, (x, y) => x - y), cost: 1, unlock: 'diffy' },
   sobelx: { label: 'Sobel x', inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => correlate(a, SOBEL_X, borderOf(p)), cost: 6, unlock: 'sobel' },
   sobely: { label: 'Sobel y', inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => correlate(a, SOBEL_Y, borderOf(p)), cost: 6, unlock: 'sobel' },
   kernel3: {
@@ -155,14 +154,6 @@ export const NODE_TYPES = {
     eval: ({ in: a }, p) => correlate(a, p.w ?? Array(9).fill(0)),
     cost: 9,
     unlock: 'learn3',
-  },
-  sharpen: {
-    label: { zh: '锐化', en: 'Sharpen' },
-    inputs: ['in'],
-    params: [{ key: 'k', label: { zh: '强度', en: 'Strength' }, kind: 'number', min: 0, max: 3, step: 0.1, default: 1 }, borderParam],
-    eval: ({ in: a }, p) => zip(a, correlate(a, gaussianKernel(1), borderOf(p)), (x, b) => x + (p.k ?? 1) * (x - b)),
-    cost: 12,
-    unlock: 'sharpen',
   },
   downsample: { label: { zh: '隔点取样', en: 'Downsample' }, inputs: ['in'], eval: ({ in: a }) => downsample(a, 2), cost: 0, unlock: 'downsample' },
   maxpool: { label: { zh: '2×2 最大池化', en: '2×2 max pool' }, inputs: ['in'], eval: ({ in: a }) => maxPool(a, 2), cost: 3, unlock: 'maxpool' },

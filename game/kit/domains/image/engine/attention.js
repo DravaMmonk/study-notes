@@ -60,16 +60,3 @@ export function attention(Q, K = Q, V = K, s = 1, P = PATCH) {
   })
   return untokens(out, q.cols, q.rows, P)
 }
-
-// Position encoding: token number i (reading order) gets g·i added to every one of its pixels, z̃_i = z_i + p_i.
-export function positionCode(img, g = 0.05, P = PATCH) {
-  const cols = Math.floor(img.w / P)
-  const out = image(img.w, img.h)
-  for (let y = 0; y < img.h; y++) {
-    for (let x = 0; x < img.w; x++) {
-      const index = Math.floor(y / P) * cols + Math.floor(x / P)
-      out.data[y * img.w + x] = img.data[y * img.w + x] + g * index
-    }
-  }
-  return out
-}
