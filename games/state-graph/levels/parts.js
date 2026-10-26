@@ -24,7 +24,7 @@ export const PARTS = {
   multikey: { name: T('多钥匙计数器', 'Multi-key Counter'), desc: T('一块电路板管所有层。捡到钥匙，路线从少一把钥匙的那层搬上来；门关着，就拦下。', 'One circuit board runs every layer. When a key is picked up, routes move over from the layer with one key fewer; when a door is shut, they are blocked.') },
   state: { name: T('刚好够用的状态', 'Just Enough State'), desc: T('记得太少，答案会错；记得太多，表会爆。只记会影响未来的事。', 'Remember too little and the answer is wrong; remember too much and the table explodes. Remember only what affects the future.') },
   topdown: { name: T('备忘递归', 'Memoised Recursion'), desc: T('从要问的那一格出发，需要谁就问谁；问过的记下来。顺序会自己冒出来。', 'Start from the cell you want, ask whichever cells it needs, and write down every answer. The order emerges by itself.') },
-  value: { name: T('打折器', 'Discounter'), desc: T('取最多四条来路里最大的，再乘上卡片上的数（比如 0.9）。', 'Takes the largest of up to four ways in, then multiplies it by the number set on its card (0.9, say).') },
+  value: { name: T('打折器', 'Discounter'), desc: T('取最多四条来路里最大的，再乘上元件上的数（比如 0.9）。', 'Takes the largest of up to four ways in, then multiplies it by the number set on its part (0.9, say).') },
   expect: { name: T('期望', 'Expectation'), desc: T('结果不确定时，把每种结果按可能性加权，再比较。', 'When the outcome is uncertain, weight each outcome by how likely it is, then compare.') },
   viterbi: { name: T('维特比', 'Viterbi'), desc: T('每一列每一种标签，记下到这里最省的解释：上一列各行加上转移代价，取较小。', 'For every tag in every column, keep the cheapest explanation up to here: each row of the previous column plus its transition cost, then the min.') },
   local: { name: T('局部对齐', 'Local Alignment'), desc: T('低于 0 就截成 0：重新开始，比背着负分走下去强。答案在表里最大的那一格。', 'Anything below 0 is cut to 0: starting afresh beats carrying a negative score along. The answer is the largest cell in the table.') },

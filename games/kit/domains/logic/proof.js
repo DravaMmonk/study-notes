@@ -51,13 +51,13 @@ const fail = (zh, en) => new PartError({ zh, en })
 // (ctx.subst: A := it rains), so one proof runs on every case; the level's constants come through ctx.consts.
 const param = (node, key, ctx = {}) => {
   const text = node.params?.[key]
-  if (typeof text !== 'string' || !text.trim()) throw fail('先在卡片上选好句子', 'Choose the sentences on the card first')
+  if (typeof text !== 'string' || !text.trim()) throw fail('先在元件上选好句子', 'Choose the sentences on the part first')
   return replaceAtoms(parse(text, { consts: ctx.consts ?? [] }), ctx.subst ?? {})
 }
 // The term a card names (params.t).
 function termOf(node, ctx = {}) {
   const text = node.params?.t
-  if (!text) throw fail('先在卡片上选好哪一样', 'Choose the thing on the card first')
+  if (!text) throw fail('先在元件上选好哪一样', 'Choose the thing on the part first')
   return parse(`${text} = ${text}`, { consts: ctx.consts ?? [] }).args[0]
 }
 // The thing a formula is an example of an ∃ sentence by: the term t with target.body[x := t] the formula, or null.
@@ -241,7 +241,7 @@ export const RULES = {
         return proved(target, a.hyps, pair(obj(t), a.term))
       }
       const fits = (ctx.exists ?? []).map((f) => replaceAtoms(f, ctx.subst ?? {})).filter((f) => exampleIn(f, a.formula))
-      if (fits.length !== 1) throw fail(fits.length ? '对得上的「存在」不止一句：在卡片上选好要得出的那句' : '它不是哪一句「存在」的例子', fits.length ? 'More than one “there is” fits: choose on the card the one to conclude' : 'It is an example of no “there is”')
+      if (fits.length !== 1) throw fail(fits.length ? '对得上的「存在」不止一句：在元件上选好要得出的那句' : '它不是哪一句「存在」的例子', fits.length ? 'More than one “there is” fits: choose on the part the one to conclude' : 'It is an example of no “there is”')
       return proved(fits[0], a.hyps, pair(obj(exampleIn(fits[0], a.formula)), a.term))
     },
   },
@@ -268,7 +268,7 @@ export const RULES = {
     params: ['A', 'term'],
     eval: (_, node, ctx) => {
       const target = param(node, 'A', ctx)
-      if (!node.params?.term) throw fail('先在卡片上写好证明项', 'Write the proof term on the card first')
+      if (!node.params?.term) throw fail('先在元件上写好证明项', 'Write the proof term on the part first')
       const term = parseTerm(node.params.term)
       const scope = scopeOf(node, ctx)
       const reason = checkTerm(term, target, { hyps: Object.fromEntries([...scope].map(([name, h]) => [name, h.formula])), consts: ctx.consts ?? [], notation: ctx.notation })
@@ -289,7 +289,7 @@ export const RULES = {
       const n = occurrences(p.formula, s)
       if (!n) { const [a, b] = [sayTerm(s, ctx.notation), sayIn(ctx, p.formula)]; throw fail(`「${b.zh}」里没有 ${a.zh}`, `“${b.en}” does not mention ${a.en}`) }
       const at = (node.params?.at ?? []).filter((k) => k < n)
-      if (!at.length) throw fail('在卡片上点框，选出要换掉的那几处', 'Tick the boxes on the card to choose which to replace')
+      if (!at.length) throw fail('在元件上点框，选出要换掉的那几处', 'Tick the boxes on the part to choose which to replace')
       return proved(replaceTerm(p.formula, s, t, (k) => at.includes(k)), union(e, p), psubst(e.term, p.term))
     },
   },

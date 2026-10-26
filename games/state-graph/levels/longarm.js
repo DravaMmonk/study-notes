@@ -11,7 +11,7 @@ export const longarm = [
     id: 'frog', ch: 7, title: T('青蛙过河', 'The frog crosses'), short: T('伸缩臂', 'The telescopic arm'), mode: 'circuit', robot: 'reach',
     intro: [
       { t: T('一只青蛙要过河。河里一排石头，岸边算第 0 块。每块石头上写着「↶ k」：<b>青蛙只能从往回数第 k 块石头跳到这里</b>。', 'A frog wants to cross a river. There is a row of stones, and the bank counts as stone 0. Each stone says “↶ k”: <b>the frog can only jump onto it from the stone k back</b>.') },
-      { t: T('往回数的那块可能很远，5×5 的视野装不下。这一代的机器人「长臂」有一条<b>伸缩臂</b>：站在每块石头上，它会伸到往回数第 k 块。伸缩臂够到的那一格在视野下面，点它，视野卡片上就多一个输出口。', 'The stone k back can be far away, out of a 5×5 view. This era’s robot, Longarm, has a <b>telescopic arm</b>: on each stone it reaches the stone k back. What the arm reaches sits under the view; click it and the View card gets an output for it.') },
+      { t: T('往回数的那块可能很远，5×5 的视野装不下。这一代的机器人「长臂」有一条<b>伸缩臂</b>：站在每块石头上，它会伸到往回数第 k 块。伸缩臂够到的那一格在视野下面，点它，视野元件上就多一个输出口。', 'The stone k back can be far away, out of a 5×5 view. This era’s robot, Longarm, has a <b>telescopic arm</b>: on each stone it reaches the stone k back. What the arm reaches sits under the view; click it and the View part gets an output for it.') },
     ],
     mission: { goal: T('算出青蛙跳到最后一块石头，<b>一共要跳几次</b>。', 'Work out <b>how many jumps</b> the frog needs to reach the last stone.'), how: T('从岸边往前，一块一块算。岸边还没跳，是 0 次。', 'Work forward from the bank, stone by stone. On the bank the frog hasn’t jumped yet: 0 jumps.') },
     world: 'river', facts: ['bank'],

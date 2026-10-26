@@ -98,7 +98,7 @@ export const PROOF = {
     reached: T('证到了', 'Proved'),
     notYet: T('还没有', 'Not yet'),
     noOpen: T('还没有假设', 'nothing assumed yet'),
-    empty: T('从上面一排元件里选一条规则放上来，再从卡片右侧的圆点连到另一张卡片左侧的圆点。', 'Pick a rule from the row above, then wire a dot on the right of a card to a dot on the left of another.'),
+    empty: T('从上面一排元件里选一条规则放上来，再从元件右侧的圆点连到另一个元件左侧的圆点。', 'Pick a rule from the row above, then wire a dot on the right of a part to a dot on the left of another.'),
   },
 }
 
@@ -269,7 +269,7 @@ export const MACHINE = {
   iconOf: (_lemmas, type) => MACHINE_ICONS[type] ?? (MACHINE_PARTS[type]?.frames ? Box : Sigma),
   familyOf: (_lemmas, type) => (MACHINE_PARTS[type]?.frames ? 'box' : 'lemma'),
   words: {
-    steps: T('卡片', 'Cards'),
+    steps: T('元件', 'Cards'),
     go: T('运行全部测试', 'Run every test'),
     passed: T('全部通过', 'All passed'),
     pass: T('这组测试通过了。', 'This test passes.'),

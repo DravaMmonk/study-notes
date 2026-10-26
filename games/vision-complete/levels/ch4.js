@@ -623,7 +623,7 @@ const deeper = {
   chapter: 4,
   title: { zh: '再深一倍', en: 'Twice as deep' },
   brief: { zh: '把至少 12 个卷积层串成一条路，训练它做测试里那种轻微的模糊。', en: 'Chain at least 12 conv layers into one path and train it to do the light blur in the tests.' },
-  hint: { zh: '<level-ref to="4-16"></level-ref>里每一层是怎样接的？托盘里的「残差块」一张卡片就是那样一块。', en: 'How was each layer wired in <level-ref to="4-16"></level-ref>? A Residual block card in the tray is one such block.' },
+  hint: { zh: '<level-ref to="4-16"></level-ref>里每一层是怎样接的？托盘里的「残差块」一个元件就是那样一块。', en: 'How was each layer wired in <level-ref to="4-16"></level-ref>? A Residual block part in the tray is one such block.' },
   after: { zh: '十二层和六层一样好训：每一块一开始都原样通过，训练只需让少数几块学出那一点改动，梯度沿着捷径直达每一层。ResNet 就这样把网络堆到了一百多层。', en: 'Twelve layers train as easily as six: every block starts out passing its input straight through, training only has to teach a few of them the small change, and the gradient reaches every layer along the shortcuts. This is how ResNet stacks networks to more than a hundred layers.' },
   unlocks: [],
   trainRate: 1,

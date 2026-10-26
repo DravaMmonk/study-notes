@@ -22,7 +22,7 @@ const open = {
   chapter: 0,
   title: { zh: '睁眼', en: 'Open your eyes' },
   brief: { zh: '把输入接到输出。', en: 'Connect the input to the output.' },
-  hint: { zh: '从「输入」卡片右边的圆点按住，拖到「输出」卡片左边的圆点。', en: 'Press on the dot on the right of the "Input" card and drag it to the dot on the left of the "Output" card.' },
+  hint: { zh: '从「输入」元件右边的圆点按住，拖到「输出」元件左边的圆点。', en: 'Press on the dot on the right of the "Input" part and drag it to the dot on the left of the "Output" part.' },
   after: { zh: '你看到的每一张图，都只是一格一格的数字。把鼠标停在任意一格上，看看它是多少。', en: 'Every image you see is just a grid of numbers, cell by cell. Hover over any cell to see its value.' },
   unlocks: [],
   tests: scenes().map(([label, img]) => test(label, { in: img }, { out: img })),

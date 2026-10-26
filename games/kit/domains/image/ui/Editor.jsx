@@ -121,11 +121,11 @@ export default function Editor({ graph, onChange, run, testIndex, flags, sensors
       refit={refit}
       wireState={(wire) => (values?.get(wire.from) ? 'live' : 'dead')}
       width={NODE_W}
-      emptyNote={hasPalette && { zh: '从上面一排元件里选一个放上来，再点卡片右侧的圆点、点另一张卡片左侧的圆点，就连上了（也可以直接拖过去）。', en: 'Pick a part from the row above to place it, then click the dot on the right of a card and a dot on the left of another to wire them (or drag between them).' }}
+      emptyNote={hasPalette && { zh: '从上面一排元件里选一个放上来，再点元件右侧的圆点、点另一个元件左侧的圆点，就连上了（也可以直接拖过去）。', en: 'Pick a part from the row above to place it, then click the dot on the right of a part and a dot on the left of another to wire them (or drag between them).' }}
       onClear={onClear}
       types={types}
       corner={imageCards.length > 0 && offered.length > 1 && (
-        <div className="board-views" role="group" aria-label={tr('所有图像卡片的显示方式', 'Display of every image card')} onPointerDown={(e) => e.stopPropagation()}>
+        <div className="board-views" role="group" aria-label={tr('所有图像元件的显示方式', 'Display of every image part')} onPointerDown={(e) => e.stopPropagation()}>
           <span className="board-views-label">{tr('全部画成', 'Draw all as')}</span>
           {offered.map(([key, option]) => (
             <button key={key} aria-pressed={shared === key} title={tr(`${L(option.label)}：${L(option.hint)}`, `${L(option.label)}: ${L(option.hint)}`)} onClick={() => showAs(imageCards.map((n) => n.id), key)}>

@@ -19,9 +19,9 @@ export const circuits = [
     brief: T('接一块电路，算出「不是『不下雨』」在每一行是真是假。', 'Wire a board that works out, on every row, whether “it is not the case that it is not raining” is true.'),
     intro: [
       { t: T('纸笔那一章，你一行一行地手填真值表。这一章把这件事交给机器：你只接一块电路，机器把它在每一行上各跑一遍，整张表就填满了。', 'In the pen-and-paper chapter you filled in truth tables by hand, row by row. Now a machine does it: you wire one board, the machine runs it on every row, and the whole table is filled in.') },
-      { t: T('板子左边的卡片是「下雨」：哪一行下雨，它就送出真，否则送出假。右边是「这句话」：接到它的线送来什么，这一行这句话就是什么。', 'The card on the left of the board is “it rains”: on a row where it rains it sends out true, otherwise false. On the right is “the sentence”: whatever reaches it is the sentence’s value on that row.') },
+      { t: T('板子左边的元件是「下雨」：哪一行下雨，它就送出真，否则送出假。右边是「这句话」：接到它的线送来什么，这一行这句话就是什么。', 'The part on the left of the board is “it rains”: on a row where it rains it sends out true, otherwise false. On the right is “the sentence”: whatever reaches it is the sentence’s value on that row.') },
       { t: T('新元件<b>非</b>，符号写作 <b>¬</b>：输入是真，输出假；输入是假，输出真。「不下雨」就是「¬下雨」。', 'A new part, <b>Not</b>, written <b>¬</b>: true in gives false out; false in gives true out. “It is not raining” is “¬it rains”.') },
-      { t: T('下面的真值表里，点一行，板上每张卡片就显示它在那一行的值。', 'Click a row of the truth table below, and every card on the board shows its value on that row.') },
+      { t: T('下面的真值表里，点一行，板上每个元件就显示它在那一行的值。', 'Click a row of the truth table below, and every part on the board shows its value on that row.') },
     ],
     hint: [T('「不下雨」是一个「非」接在「下雨」后面。再说一次「不是」呢？', '“It is not raining” is a Not after “it rains”. And saying “not” once more?')],
     solution: board('¬¬Rain', { n1: 'gNot', n2: 'gNot' }, ['Rain>n1.a', 'n1>n2.a', 'n2>out']),
@@ -51,7 +51,7 @@ export const circuits = [
     brief: T('接一块电路，算出「不是『又下雨又刮风』」在每一行是真是假。', 'Wire a board that works out, on every row, whether “it is not the case that it both rains and is windy” is true.'),
     intro: [
       { t: T('否定可以只管一件事，也可以管一整句。「不下雨，并且刮风」和「不是『又下雨又刮风』」听着像，意思却不一样：「不」管的范围不同。', 'Not can apply to one thing, or to a whole sentence. “It is not raining and it is windy” and “it is not the case that it both rains and is windy” sound alike but mean different things: what the Not covers is different.') },
-      { t: T('写成符号时，这个范围靠括号标出来。在电路里，它就是「非」接在哪一块后面。', 'Written in symbols, brackets mark how far it reaches. On a board, it is which card the Not comes after.') },
+      { t: T('写成符号时，这个范围靠括号标出来。在电路里，它就是「非」接在哪一块后面。', 'Written in symbols, brackets mark how far it reaches. On a board, it is which part the Not comes after.') },
     ],
     hint: [T('「非」要管的是「又下雨又刮风」这一整件事。', 'The Not covers the whole of “it both rains and is windy”.')],
     solution: board('¬(Rain ∧ Wind)', { a: 'gAnd', n: 'gNot' }, ['Rain>a.a', 'Wind>a.b', 'a>n.a', 'n>out']),

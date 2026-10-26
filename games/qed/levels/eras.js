@@ -140,7 +140,7 @@ export const ERAS = [
       series('quant', '量词与模式', 'Quantifiers and patterns', ['r-pattern', 'r-allI', 'r-exI', 'r-drule', 'r-frule', 'r-exE']),
     ],
     challenges: [{ level: 'r-order', after: 'r-exE' }],
-    chapter: { title: T('规则与元变量', 'Rules and metavariables'), question: T('卡片能不能自己从目标里读出该填的句子？', 'Can a card read off the goal what to fill in?') },
+    chapter: { title: T('规则与元变量', 'Rules and metavariables'), question: T('元件能不能自己从目标里读出该填的句子？', 'Can a part read off the goal what to fill in?') },
   },
   {
     id: 'tactics', machine: 'prover', keeps: 'all',

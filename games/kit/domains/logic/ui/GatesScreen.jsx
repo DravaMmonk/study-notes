@@ -3,7 +3,7 @@ import { ArrowRightFromLine, CircleDot, Cpu, ToggleLeft } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, RemoveButton, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
@@ -90,7 +90,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
   const verdict = run?.over ? { pass: playback.passed } : null
   const verdictText = !verdict ? null
     : verdict.pass ? tr('每一行都对：这块电路算出了这句话的整张真值表。', 'Every row is right: this board computes the sentence’s whole truth table.')
-    : run.final || tr('这一行算错了，机器停在了这里：板上每张卡片显示的是它在这一行算出的值。', 'This row is wrong, and the machine stopped here: every card on the board shows what it computed on this row.')
+    : run.final || tr('这一行算错了，机器停在了这里：板上每个元件显示的是它在这一行算出的值。', 'This row is wrong, and the machine stopped here: every part on the board shows what it computed on this row.')
   const valueOf = (node) => (node.type === 'out' ? view.value : view.values.get(node.id))
   const errorOf = (node) => view.errors.get(node.id)
 
@@ -158,7 +158,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
               body={body}
               cardClass={(node) => `lg-node ${node.type === 'out' && verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : ''}`}
               wireState={(wire) => (view.values.get(wire.from) !== undefined ? 'live' : 'dead')}
-              emptyNote={{ zh: '从上面一排元件里选一个门放上来，再从卡片右侧的圆点连到另一张卡片左侧的圆点。', en: 'Pick a gate from the row above, then wire a dot on the right of a card to a dot on the left of another.' }}
+              emptyNote={{ zh: '从上面一排元件里选一个门放上来，再从元件右侧的圆点连到另一个元件左侧的圆点。', en: 'Pick a gate from the row above, then wire a dot on the right of a part to a dot on the left of another.' }}
             />
           </div>
         </div>
@@ -202,7 +202,7 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
     <div className="level-phone is-split lg-phone" ref={root}>
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <CardValue value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={types} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <CardValue value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={types} />
         {table}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
@@ -213,12 +213,12 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(parts.rules[node.type].desc)}</p>}
             {body(node)}
-            {parts.role(node) === 'part' && <RemoveButton onClick={() => { editing.remove(node.id); setSheet(null) }} />}
+            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={() => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}
       {sheet?.slot !== undefined && (
-        <Sheet title={tr(`放进第 ${sheet.slot + 1} 格`, `Place in slot ${sheet.slot + 1}`)} onClose={() => setSheet(null)}>
+        <Sheet title={tr('放在这一格', 'Place in this slot')} onClose={() => setSheet(null)}>
           <div className="lg-add">
             {[...items, ...foldedItems].map((item) => (
               <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot); setSheet(null) }}>

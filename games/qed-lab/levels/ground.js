@@ -15,9 +15,9 @@ export const ground = [
     cases: [{ A: 'Rain' }, { A: 'Bus' }],
     solution: proof({}, ['p>goal'], { premises: ['p'] }),
     brief: T('已知「下雨」为真，证出「下雨」为真。', 'Given that “it rains” is true, prove that “it rains” is true.'),
-    hint: [T('从「已知」卡片右边的圆点，连到「目标」卡片左边的圆点。', 'Wire the dot on the right of the “Given” card to the dot on the left of the “Goal” card.')],
+    hint: [T('从「已知」元件右边的圆点，连到「目标」元件左边的圆点。', 'Wire the dot on the right of the “Given” part to the dot on the left of the “Goal” part.')],
     intro: [
-      { t: T('这台证明器的地基只有两块元件，后面的一切都要在它们上面搭出来。先看板子：左边的卡片是<b>已知</b>，右边是<b>目标</b>，一根线的意思是「这句话已经证明为真」。', 'This prover’s foundation is two parts, and everything else is built on them. First the board: the cards on the left are <b>given</b>, the one on the right is the <b>goal</b>, and a wire means “this sentence has been proved true”.') },
+      { t: T('这台证明器的地基只有两块元件，后面的一切都要在它们上面搭出来。先看板子：左边的元件是<b>已知</b>，右边是<b>目标</b>，一根线的意思是「这句话已经证明为真」。', 'This prover’s foundation is two parts, and everything else is built on them. First the board: the parts on the left are <b>given</b>, the one on the right is the <b>goal</b>, and a wire means “this sentence has been proved true”.') },
       { t: T('板子下面是几组测试，每组讲一件不同的事；同一块电路要在每一组上都证得出。', 'Under the board are a few tests, each about something different; one circuit must prove every one of them.') },
     ],
     after: T('已知为真的话，本身就是一个证明。', 'A given is already a proof of itself.'),
@@ -68,7 +68,7 @@ export const ground = [
     hint: [T('套用得到「我准时到」，再用引入 ∨ 把它放到右边，左边选「我迟到了」。', 'Apply to get “I arrive on time”, then Bring in ∨ puts it on the right, with “I am late” on the left.')],
     intro: [
       { t: T('「或」门：两边至少一个真，就输出真。「…或…」写成 <b>∨</b>。', 'The “or” gate: true when at least one side is. “… or …” is written <b>∨</b>.') },
-      { t: T('<b>引入 ∨</b>：证出了一边，另一边是什么都行，整句就成立。另一边是哪句、放左边还是右边，在卡片上选。', '<b>Bring in ∨</b>: with one side proved, the whole holds whatever the other side is. Choose the other side, and whether it goes left or right, on the card.') },
+      { t: T('<b>引入 ∨</b>：证出了一边，另一边是什么都行，整句就成立。另一边是哪句、放左边还是右边，在元件上选。', '<b>Bring in ∨</b>: with one side proved, the whole holds whatever the other side is. Choose the other side, and whether it goes left or right, on the part.') },
     ],
     solution: proof({ m: ['mp'], o: ['orI', { other: 'C', side: 'left' }] }, ['q>m.imp', 'p>m.a', 'm>o.a', 'o>goal'], { premises: ['p', 'q'] }),
     after: T('知道一边，就知道「这边 ∨ 随便哪边」。反过来不行：光有一句 ∨，不知道是哪一边成立，要用掉它，得等到有了框。', 'Knowing one side, you know “this ∨ anything”. Not the other way round: an ∨ alone does not say which side holds, and using one up waits until there are boxes.'),
@@ -82,12 +82,12 @@ export const ground = [
     adds: ['impI'],
     brief: T('已知「今天是周六 → (下雨 → 我休息)」和「下雨」，证出「今天是周六 → 我休息」。', 'Given “today is Saturday → (it rains → I rest)” and “it rains”, prove “today is Saturday → I rest”.'),
     hint: [
-      T('框卡片上的「假设」选「今天是周六」。', 'On the box card, set “Assume” to “today is Saturday”.'),
+      T('框元件上的「假设」选「今天是周六」。', 'On the box, set “Assume” to “today is Saturday”.'),
       T('在框里放两块套用：先把第一张已知套用到假设上，再套用到「下雨」上，结果接到框的「结论」。', 'Put two Applies in the box: apply the first given to the assumption, then the result to “it rains”, and wire that to the box’s “Conclusion”.'),
     ],
     intro: [
       { t: T('地基的第二块元件是<b>假设框</b>。人会这样想：「假设今天是周六。那下雨我就休息；现在确实下雨，所以我休息。所以，如果今天是周六，那么我休息。」', 'The foundation’s second part is the <b>assumption box</b>. A person thinks: “Suppose today is Saturday. Then if it rains I rest; it is raining, so I rest. So if today is Saturday, then I rest.”') },
-      { t: T('框卡片上选要假设的话，框左上角给出它；在框里证出的东西接到框右上角的「结论」，框外就得到「如果 假设，那么 结论」。点一下框里，新放的元件就落在框里。', 'Choose on the box card what to assume, and its top left gives it; wire what you prove inside to “Conclusion” at its top right, and outside you get “if the assumption, then the conclusion”. Click inside the box and new parts land there.') },
+      { t: T('框元件上选要假设的话，框左上角给出它；在框里证出的东西接到框右上角的「结论」，框外就得到「如果 假设，那么 结论」。点一下框里，新放的元件就落在框里。', 'Choose on the box what to assume, and its top left gives it; wire what you prove inside to “Conclusion” at its top right, and outside you get “if the assumption, then the conclusion”. Click inside the box and new parts land there.') },
       { t: T('套用用掉一句「如果…那么…」，框造出一句「如果…那么…」：地基就是这一对。', 'Apply uses an “if … then …” up, the box makes one: the foundation is this pair.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
@@ -107,7 +107,7 @@ export const ground = [
       { t: T('有了框，它可以证出来。框里可以再放框，里面的框看得见外面框的假设。', 'With boxes it can be proved. A box can sit inside a box, and the inner one sees the outer one’s assumption.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'] }, ['f#body>g.body', 'g>f.body', 'f>goal']),
-    after: T('一次套用都没用。证出来以后，这块电路是元件 <b>K</b>：卡片上选两句话，它直接给出「如果 第一句，那么（如果 第二句，那么 第一句）」。', 'Not one Apply. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its card and it gives “if the first, then (if the second, then the first)” at once.'),
+    after: T('一次套用都没用。证出来以后，这块电路是元件 <b>K</b>：元件上选两句话，它直接给出「如果 第一句，那么（如果 第二句，那么 第一句）」。', 'Not one Apply. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its part and it gives “if the first, then (if the second, then the first)” at once.'),
   },
   {
     id: 's',
@@ -164,7 +164,7 @@ export const ground = [
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Coffee', B: 'Late' }],
     without: ['impI'],
     brief: T('不用假设框，由「下雨」证出「刮风 → 下雨」。', 'Without the assumption box, prove “it is windy → it rains” from “it rains”.'),
-    hint: [T('K 的卡片上第一句选「下雨」、第二句选「刮风」，再把它套用到已知上。', 'Choose “it rains” and “it is windy” on K’s card, then apply it to the given.')],
+    hint: [T('K 的元件上第一句选「下雨」、第二句选「刮风」，再把它套用到已知上。', 'Choose “it rains” and “it is windy” on K’s part, then apply it to the given.')],
     intro: [
       { t: T('这个专题把框拿走，只剩套用和你证出的 K、S。早期的证明器（希尔伯特系统）就是这样：只有一条规则和几条公理。', 'This topic takes the box away, leaving Apply and the K and S you proved. Early provers (Hilbert systems) were like this: one rule and a few axioms.') },
       { t: T('要给一句话加条件，框做不了，就得找一句现成的「如果…那么…」来套用。', 'To put a condition on a sentence without a box, find a ready-made “if … then …” to apply.') },

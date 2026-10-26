@@ -94,7 +94,7 @@ const readMode = () => {
  * @param nameOf(node)                     a block's name (with its number, for parts)
  * @param thumb(node, size)                what a block shows; sinkBody(node) what a sink shows; tileExtra(node) a line
  *                                         under a part's name (a setting); sinkClass(node) a sink's state
- * @param picking, canLand(p), onPort(p), onNode(id), onSlot(at)    from useSlotEditing
+ * @param picking, moving, canLand(p), onPort(p), onNode(id), onSlot(at)    from useSlotEditing
  * @param fixed                            a circuit that is only looked at and tried (a bench in the parts box): just its
  *                                         own blocks, no empty slots to fill
  * @param nodeClass(node)                  extra classes for a block (the selected one, the one a bench is about)
@@ -121,7 +121,7 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote }) {
+export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote }) {
   const board = useRef(null)
   const [wires, setWires] = useState(readMode)
   const mode = WIRE_MODES.find((m) => m.id === wires)
@@ -235,7 +235,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
       if (!node) {
         out.push(
           <div key={`slot-${at}`} className="pb-cell" data-slot={at} data-region={region ?? ''}>
-            <button type="button" className="pb-slot" onClick={() => onSlot(at, region)} aria-label={tr(`在第 ${at + 1} 格放一个元件`, `Place a part in slot ${at + 1}`)}><Plus size={20} /></button>
+            <button type="button" className="pb-slot" onClick={() => onSlot(at, region)} aria-label={tr('在这一格放一个元件', 'Place a part in this slot')}><Plus size={20} /></button>
           </div>,
         )
         continue
@@ -243,7 +243,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
       const extra = tileExtra?.(node)
       out.push(
         <div key={node.id} className="pb-cell" data-slot={at} data-region={region ?? ''}>
-          <div className={`pb-tile ${nodeClass?.(node) ?? ''}`} data-piece={node.id} data-drag={fixed ? undefined : true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
+          <div className={`pb-tile ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-drag={fixed ? undefined : true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
             <span className="pb-thumb">{thumb(node, 84)}</span>
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
@@ -261,7 +261,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
     const ports = inputs(node)
     return (
       <div key={node.id} className="pb-cell is-wide" data-slot={at} data-region={region ?? ''}>
-        <div className={`pb-frame ${nodeClass?.(node) ?? ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
+        <div className={`pb-frame ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
           <div className="pb-frame-head" data-drag={fixed ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
@@ -294,7 +294,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   }
 
   return (
-    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-wires={fixed ? 'all' : wires}>
+    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={fixed ? 'all' : wires}>
       <div className="pb-tools">
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {/* Always there on an editable board; greyed out while there is nothing to clear (no onClear). */}

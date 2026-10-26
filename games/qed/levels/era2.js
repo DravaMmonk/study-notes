@@ -139,7 +139,7 @@ export const era2 = [
     hint: [T('从里往外：先引入「今天是周六 ∨ 今天是周日」（另一边放右边），再把它放到一句 ∨ 的右边。', 'From the inside out: first bring in “today is Saturday ∨ today is Sunday” (the other side on the right), then put that on the right of another ∨.')],
     intro: [
       { t: T('「今天是周末」的意思是：今天是周六，<b>或者</b>今天是周日。至少一个成立就行，两个都成立也算：这就是<level-ref to="g-or"></level-ref>里的「或 ∨」门。', '“It is the weekend” means: today is Saturday, <b>or</b> today is Sunday. At least one is enough, and both count too: just the “Or ∨” gate of <level-ref to="g-or"></level-ref>.') },
-      { t: T('<b>引入 ∨</b>：有了一句话，「它 ∨ 随便哪句」就成立。在卡片上选另一边是哪句话，再选它放左边还是右边。', '<b>Bring in ∨</b>: from a sentence, “it ∨ any other” holds. On the card, choose the other side and whether it goes left or right.') },
+      { t: T('<b>引入 ∨</b>：有了一句话，「它 ∨ 随便哪句」就成立。在元件上选另一边是哪句话，再选它放左边还是右边。', '<b>Bring in ∨</b>: from a sentence, “it ∨ any other” holds. On the part, choose the other side and whether it goes left or right.') },
     ],
     solution: proof({ i: ['orI', { other: 'B', side: 'right' }], j: ['orI', { other: 'B', side: 'left' }] }, ['p>i.a', 'i>j.a', 'j>goal'], { premises: ['p'] }),
     after: T('知道「今天是周六」，就知道「今天是周日 ∨ 今天是周六」。反过来不行：只知道「今天是周日 ∨ 今天是周六」，并不知道是哪一边。要用掉一个 ∨，光有它还不够。', 'Knowing “today is Saturday”, you know “today is Sunday ∨ today is Saturday”. Not the other way round: “today is Sunday ∨ today is Saturday” does not say which side holds. Using up an ∨ takes more than the ∨ itself.'),
@@ -153,15 +153,15 @@ export const era2 = [
     adds: ['orE'],
     brief: T('实现一个证明器，可以从已知「我坐公交 ∨ 我骑车」「我坐公交 → 我准时到」「我骑车 → 我准时到」，证明出「我准时到」。', 'Build a prover that, from “I take the bus ∨ I cycle”, “I take the bus → I arrive on time” and “I cycle → I arrive on time”, proves “I arrive on time”.'),
     hint: [
-      T('放一块分情况，把已知「我坐公交 ∨ 我骑车」接进卡片上标着「A ∨ B」的输入口。卡片下半部分有两个框：情况一的「假设」是「我坐公交」，情况二的是「我骑车」。', 'Place a Case by case and wire the given “I take the bus ∨ I cycle” into the input marked “A ∨ B” on its card. The lower half of the card holds two boxes: case one’s “Assume” is “I take the bus”, case two’s “I cycle”.'),
+      T('放一块分情况，把已知「我坐公交 ∨ 我骑车」接进元件上标着「A ∨ B」的输入口。元件下半部分有两个框：情况一的「假设」是「我坐公交」，情况二的是「我骑车」。', 'Place a Case by case and wire the given “I take the bus ∨ I cycle” into the input marked “A ∨ B” on its part. The lower half of the part holds two boxes: case one’s “Assume” is “I take the bus”, case two’s “I cycle”.'),
       T('情况一的框里放一块套用：「我坐公交 → 我准时到」接「A → B」口，框左上角的「假设」接「A」口，结果接到这个框右上角的「结论」。情况二照样做。', 'In case one’s box put an Apply: “I take the bus → I arrive on time” into its “A → B” input, the box’s “Assume” at its top left into its “A” input, and the result into “Conclusion” at the box’s top right. Do the same in case two.'),
-      T('两个框都证出「我准时到」以后，分情况卡片右上角的输出就是「我准时到」，接到目标。', 'Once both boxes prove “I arrive on time”, the output at the Case by case card’s top right gives “I arrive on time”: wire it to the goal.'),
+      T('两个框都证出「我准时到」以后，分情况元件右上角的输出就是「我准时到」，接到目标。', 'Once both boxes prove “I arrive on time”, the output at the Case by case part’s top right gives “I arrive on time”: wire it to the goal.'),
     ],
     intro: [
       { t: T('要么我坐公交，要么我骑车，可还不知道是哪一个。坐公交的话，我准时到；骑车的话，我也准时到。所以不管是哪一个，我准时到。', 'Either I take the bus or I cycle, and you do not know which. If I take the bus, I arrive on time; if I cycle, I arrive on time too. So whichever it is, I arrive on time.') },
       { t: T('光有「我坐公交 ∨ 我骑车」，不能直接拆出「我坐公交」：说不定是骑车。证明器的办法是<b>每一种情况都试一遍</b>：先假设是左边那种，证出结论；再假设是右边那种，也证出同一个结论。两种都通，结论就成立。', 'From “I take the bus ∨ I cycle” alone you cannot take out “I take the bus”: perhaps I cycled. The prover’s way is to <b>try every case</b>: assume the left one and prove the conclusion; assume the right one and prove the same conclusion. If both work, the conclusion holds.') },
-      { t: T('<b>分情况</b>这块元件就是这样：它像一个假设框，只是<b>有两个框</b>。卡片上标着「A ∨ B」的输入口接一句「左边 ∨ 右边」；卡片下半部分是「情况一」「情况二」两个框，情况一的左上角给出「左边」，情况二的左上角给出「右边」，各当一个假设用。', '<b>Case by case</b> works just that way: it is like an assumption box, but with <b>two boxes</b>. The input marked “A ∨ B” on its card takes a “left ∨ right”; the lower half of the card holds the boxes Case one and Case two, and the top left of case one gives “left”, that of case two gives “right”, each an assumption to work with.') },
-      { t: T('在两个框里分别证出<b>同一句话</b>，接到各自右上角的「结论」，卡片右上角的输出就给出这句话。两个框证出的不一样，卡片会提示你。', 'Prove the <b>same sentence</b> in each box and wire it to that box’s “Conclusion” at its top right, and the output at the card’s top right gives that sentence. If the two boxes prove different things, the card says so.') },
+      { t: T('<b>分情况</b>这块元件就是这样：它像一个假设框，只是<b>有两个框</b>。元件上标着「A ∨ B」的输入口接一句「左边 ∨ 右边」；元件下半部分是「情况一」「情况二」两个框，情况一的左上角给出「左边」，情况二的左上角给出「右边」，各当一个假设用。', '<b>Case by case</b> works just that way: it is like an assumption box, but with <b>two boxes</b>. The input marked “A ∨ B” on its part takes a “left ∨ right”; the lower half of the part holds the boxes Case one and Case two, and the top left of case one gives “left”, that of case two gives “right”, each an assumption to work with.') },
+      { t: T('在两个框里分别证出<b>同一句话</b>，接到各自右上角的「结论」，元件右上角的输出就给出这句话。两个框证出的不一样，元件会提示你。', 'Prove the <b>same sentence</b> in each box and wire it to that box’s “Conclusion” at its top right, and the output at the part’s top right gives that sentence. If the two boxes prove different things, the part says so.') },
     ],
     solution: proof({ e: ['orE'], m: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>e.left', 'r>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q', 'r'] }),
     after: T('不知道是哪一种，就每一种都证一遍。这就是用掉 ∨ 的规则：证明里的「分类讨论」。', 'Not knowing which, prove it for each. That is the rule that uses up an ∨: the “case analysis” of every proof.'),
@@ -218,12 +218,12 @@ export const era2 = [
     brief: T('一个证人说「门锁着」，又说「¬门锁着」（也就是「门锁着 → ⊥」）。实现一个证明器，可以由这两句证明出「月亮是奶酪做的」。', 'A witness says “the door is locked”, and also “¬the door is locked” (that is “the door is locked → ⊥”). Build a prover that, from the two, proves “the moon is made of cheese”.'),
     hint: [
       T('「¬门锁着」就是「门锁着 → ⊥」：把它接进套用的「A → B」口，「门锁着」接进「A」口，得到 ⊥。', '“¬the door is locked” is “the door is locked → ⊥”: wire it into Apply’s “A → B” input and “the door is locked” into its “A” input, and you get ⊥.'),
-      T('得到 ⊥ 以后，用「矛盾推出一切」，卡片上选「月亮是奶酪做的」。', 'Once you have ⊥, use “From contradiction” and choose “the moon is made of cheese” on its card.'),
+      T('得到 ⊥ 以后，用「矛盾推出一切」，元件上选「月亮是奶酪做的」。', 'Once you have ⊥, use “From contradiction” and choose “the moon is made of cheese” on its part.'),
     ],
     intro: [
       { t: T('一个证人先说「门锁着」，又说「门没锁」。两句不可能都对。', 'A witness says “the door is locked”, then “the door is not locked”. Both cannot be true.') },
       { t: T('<level-ref to="g-never"></level-ref>里见过<b>矛盾</b>：每一行都假的话。证明器把它写成一个符号 <b>⊥</b>。「非」写成 <b>¬</b>（<level-ref to="g-not"></level-ref>里的「非 ¬」门），证明器没有专门管 ¬ 的元件，它这样读：<br><b>¬门锁着　就是　门锁着 → ⊥</b><br>「门没锁」和「若门锁着，则矛盾」是同一句话，所以「¬门锁着」可以直接接进要「若…则…」的口。', 'You met the <b>contradiction</b> in <level-ref to="g-never"></level-ref>: a sentence false on every row. The prover writes it as one symbol, <b>⊥</b>. “Not” is written <b>¬</b> (the “Not ¬” gate of <level-ref to="g-not"></level-ref>); the prover has no part for ¬ and reads it like this:<br><b>¬the door is locked　is　the door is locked → ⊥</b><br>“The door is not locked” and “if the door is locked, then a contradiction” are the same sentence, so “¬the door is locked” goes straight into an input that wants an “if … then …”.') },
-      { t: T('<b>矛盾推出一切</b>：有了 ⊥，卡片上选什么，就能证出什么。', '<b>From contradiction, anything</b>: from ⊥, prove whatever is chosen on the card.') },
+      { t: T('<b>矛盾推出一切</b>：有了 ⊥，元件上选什么，就能证出什么。', '<b>From contradiction, anything</b>: from ⊥, prove whatever is chosen on the part.') },
     ],
     solution: proof({ m: ['mp'], b: ['botE', { C: 'B' }] }, ['q>m.imp', 'p>m.a', 'm>b.bot', 'b>goal'], { premises: ['p', 'q'] }),
     after: T('证词自相矛盾，就什么都能「证」出来，连「月亮是奶酪做的」也行。一组已知一旦矛盾就毫无用处：这是逻辑拼命要避开矛盾的原因。', 'Contradictory testimony “proves” anything, even “the moon is made of cheese”. A set of givens that contradicts itself is useless: that is why logic works so hard to avoid contradiction.'),
@@ -332,7 +332,7 @@ export const era2 = [
     hint: [T('要证的是一个否定：假设「今天是周六 ∨ 今天是周日」，两种情况各撞出矛盾。', 'The goal is a negation: assume “today is Saturday ∨ today is Sunday” and get a contradiction in each case.')],
     intro: [{ t: T('<level-ref to="demorgan"></level-ref>只证了一半。反过来，两个都不成立，那「这个或者那个」也不成立。', '<level-ref to="demorgan"></level-ref> proved only half. The other way: if neither holds, then “this or that” does not hold either.') }],
     solution: proof({ f: ['impI', { A: 'A ∨ B' }], e: ['andE'], o: ['orE', {}, 'f'], m1: ['mp', {}, 'o/left'], m2: ['mp', {}, 'o/right'] }, ['p>e.ab', 'f#body>o.ab', 'e#left>m1.imp', 'o#left>m1.a', 'm1>o.left', 'e#right>m2.imp', 'o#right>m2.a', 'm2>o.right', 'o>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('两个方向都证过了，¬(A ∨ B) 和 ¬A ∧ ¬B 说的是一回事。德摩根升级了：卡片上多了一个形状，切换一下就反过来用。', 'Both ways proved: ¬(A ∨ B) and ¬A ∧ ¬B say the same thing. De Morgan is upgraded: its card has a second shape, and switching it runs the law backwards.'),
+    after: T('两个方向都证过了，¬(A ∨ B) 和 ¬A ∧ ¬B 说的是一回事。德摩根升级了：元件上多了一个形状，切换一下就反过来用。', 'Both ways proved: ¬(A ∨ B) and ¬A ∧ ¬B say the same thing. De Morgan is upgraded: its part has a second shape, and switching it runs the law backwards.'),
   },
   {
     id: 'dmUse',

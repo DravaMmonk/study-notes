@@ -27,12 +27,12 @@ export const era1 = [
     cases: [{ A: 'Rain' }, { A: 'Bus' }],
     solution: proof({}, ['p>goal'], { premises: ['p'] }),
     brief: T('实现一个证明器，可以从已知「下雨」为真，证明出「下雨」为真。', 'Build a prover that, given that “it rains” is true, proves that “it rains” is true.'),
-    hint: [T('从「已知」卡片右边的圆点，连到「目标」卡片左边的圆点。', 'Wire the dot on the right of the “Given” card to the dot on the left of the “Goal” card.')],
+    hint: [T('从「已知」元件右边的圆点，连到「目标」元件左边的圆点。', 'Wire the dot on the right of the “Given” part to the dot on the left of the “Goal” part.')],
     intro: [
       { t: T('上一章的真值电路把一句话一行一行地验，行数一多就验不完。证明器的下一个模块<b>证明核</b>换一个思路：不看真假，只靠规则，从已经知道的事出发，一步一步推出想要的结论。每一步都只看句子的形状，不看天气。', 'The truth circuits of the last chapter check a sentence row by row, and with many rows it never ends. The prover’s next module, <b>the kernel</b>, works the other way: not by truth but by rules alone, it starts from what you know and reaches the conclusion step by step. Each step looks only at the shape of sentences, never at the weather.') },
-      { t: T('板上左边的卡片是<b>已知</b>，右边是<b>目标</b>。在真值电路里，「下雨」这张卡片有时送出真、有时送出假；在这里，「已知下雨」说的是：「下雨」为真。证出一句话，说的是：只要已知都为真，它也一定为真。', 'On the board, the cards on the left are what is <b>given</b>, the one on the right is the <b>goal</b>. On a truth circuit the card “it rains” sometimes sent out true and sometimes false; here, “given that it rains” says: “it rains” is true. Proving a sentence says: whenever everything given is true, so is it.') },
+      { t: T('板上左边的元件是<b>已知</b>，右边是<b>目标</b>。在真值电路里，「下雨」这个元件有时送出真、有时送出假；在这里，「已知下雨」说的是：「下雨」为真。证出一句话，说的是：只要已知都为真，它也一定为真。', 'On the board, the parts on the left are what is <b>given</b>, the one on the right is the <b>goal</b>. On a truth circuit the part “it rains” sometimes sent out true and sometimes false; here, “given that it rains” says: “it rains” is true. Proving a sentence says: whenever everything given is true, so is it.') },
       { t: T('板上的一根线，意思是「这句话已经证明为真」。', 'A wire on the board means “this sentence has been proved true”.') },
-      { t: T('板子下面是几组<b>测试</b>。最后一组只写字母（A、B…），是这道题的样子本身；其余几组把字母换成日常的句子，比如「下雨」。同一块电路要在每一组上都证得出：换一组，卡片上的句子跟着换，电路一点不用动。', 'Under the board are a few <b>tests</b>. The last one is just letters (A, B …), the shape of the problem itself; the others put everyday sentences, like “it rains”, in place of the letters. One circuit must prove every one: switch tests and the sentences on the cards change, while the circuit stays exactly as it is.') },
+      { t: T('板子下面是几组<b>测试</b>。最后一组只写字母（A、B…），是这道题的样子本身；其余几组把字母换成日常的句子，比如「下雨」。同一块电路要在每一组上都证得出：换一组，元件上的句子跟着换，电路一点不用动。', 'Under the board are a few <b>tests</b>. The last one is just letters (A, B …), the shape of the problem itself; the others put everyday sentences, like “it rains”, in place of the letters. One circuit must prove every one: switch tests and the sentences on the parts change, while the circuit stays exactly as it is.') },
     ],
     after: T('已知为真的话，不用再推就为真：已知本身就是一个证明，不管它讲的是什么。板上的每一块元件都是一条<b>推理规则</b>：输入口接它需要的东西，输出口给出它推出的结论。', 'What is given as true needs no further step to be true: a given is already a proof, whatever it is about. Each part on the board is a <b>rule of inference</b>: its inputs take what it needs, its output gives what it concludes.'),
   },
@@ -51,7 +51,7 @@ export const era1 = [
     intro: [
       { t: T('下雨就地湿，地湿就路滑；现在下雨了。不用想也知道：路滑。可这里有两步，每一步都是同一个动作：有了「若…则…」和它的前一半，就有后一半。证明核要把这个动作变成一条规则，才能照着做。', 'Rain makes the ground wet, a wet ground makes the road slippery, and it is raining. Without thinking: the road is slippery. That took two steps, each the same move: from an “if … then …” and its “if” part, its “then” part. The kernel needs that move as a rule it can follow.') },
       { t: T('<b>套用</b>：一个输入口接「若…，则…」，另一个接它的前一半，输出口给出后一半。它用掉一句「若…则…」，是证明核的基础元件。', '<b>Apply</b>: one input takes an “if …, then …”, the other its “if” part, and out comes the “then” part. It uses an “if … then …” up, and is one of the kernel’s parts.') },
-      { t: T('从上面的元件栏放套用，把已知接进去，最后接到目标。接错了，卡片会说它要什么、接进来的是什么。换一组测试看看：电路不用动，句子全换了。', 'Place Applies from the row of parts above, wire the givens in, and finally wire to the goal. Wire it wrong and the card says what it wanted and what it got. Switch tests: the circuit stays, every sentence changes.') },
+      { t: T('从上面的元件栏放套用，把已知接进去，最后接到目标。接错了，元件会说它要什么、接进来的是什么。换一组测试看看：电路不用动，句子全换了。', 'Place Applies from the row of parts above, wire the givens in, and finally wire to the goal. Wire it wrong and the part says what it wanted and what it got. Switch tests: the circuit stays, every sentence changes.') },
     ],
     solution: proof({ m1: ['mp'], m2: ['mp'] }, ['p>m1.imp', 'r>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p', 'q', 'r'] }),
     after: T('套用只认形状：「若…则…」配上它的前一半，就得到后一半，不管讲的是天气、闹钟还是考试。推出来的「地湿」又当了下一步的前提：线上的每一句，都可以接着用。证明靠得住，已知的事也得靠得住。', 'Apply only looks at shape: an “if … then …” with its “if” part gives its “then” part, whether it is about the weather, an alarm or an exam. The “the ground is wet” you proved became the next step’s premise: every sentence on a wire can be used again. A proof is only as good as what it starts from.'),
@@ -66,11 +66,11 @@ export const era1 = [
     showcase: 'a box has a region and two dots, and what is made inside leaves only through its conclusion',
     brief: T('实现一个证明器，可以从已知「下雨」，用假设框证明出「刮风 → 下雨」。', 'Build a prover that, from “it rains”, proves “it is windy → it rains” with an assumption box.'),
     hint: [
-      T('框卡片上的「假设」选「刮风」。', 'On the box card, set “Assume” to “it is windy”.'),
+      T('框元件上的「假设」选「刮风」。', 'On the box, set “Assume” to “it is windy”.'),
       T('把已知「下雨」连到框右上角「结论」的圆点；再把框的输出接到目标。', 'Wire the given “it rains” to the “Conclusion” dot at the box’s top right; then wire the box’s output to the goal.'),
     ],
     intro: [
-      { t: T('<level-ref to="copy"></level-ref>里，要证的就是已知，接过去就行。这一关要证的是「若刮风，则下雨」：已经知道下雨，那不管刮不刮风，都在下雨。证明核的基础元件<b>假设框</b>专门造「若…则…」：在框卡片上选要假设的话，框左上角就给出它（「假设」）；接到框右上角「结论」的东西，框外就成了「若 假设，则 结论」。框里看得见板上的已知。', 'In <level-ref to="copy"></level-ref> the goal was the given, and a wire did it. Here the goal is “if it is windy, then it rains”: you know it rains, so windy or not, it rains. The kernel’s part the <b>assumption box</b> makes exactly such “if … then …”s: choose on the box card what to assume, and its top left gives it (“Assume”); whatever reaches “Conclusion” at its top right becomes, outside, “if the assumption, then the conclusion”. From inside the box the givens on the board are visible.') },
+      { t: T('<level-ref to="copy"></level-ref>里，要证的就是已知，接过去就行。这一关要证的是「若刮风，则下雨」：已经知道下雨，那不管刮不刮风，都在下雨。证明核的基础元件<b>假设框</b>专门造「若…则…」：在框元件上选要假设的话，框左上角就给出它（「假设」）；接到框右上角「结论」的东西，框外就成了「若 假设，则 结论」。框里看得见板上的已知。', 'In <level-ref to="copy"></level-ref> the goal was the given, and a wire did it. Here the goal is “if it is windy, then it rains”: you know it rains, so windy or not, it rains. The kernel’s part the <b>assumption box</b> makes exactly such “if … then …”s: choose on the box what to assume, and its top left gives it (“Assume”); whatever reaches “Conclusion” at its top right becomes, outside, “if the assumption, then the conclusion”. From inside the box the givens on the board are visible.') },
       { t: T('<b>假设</b>不是说它真的成立，而是推理时暂时把它当作出发点；框一关，它就成了结论里「若」后面那半句。', 'An <b>assumption</b> does not claim it holds: it is a starting point taken for the moment, and once the box closes it becomes the “if” half of the conclusion.') },
     ],
     solution: proof({ f: ['impI', { A: 'B' }] }, ['p>f.body', 'f>goal'], { premises: ['p'] }),
@@ -91,7 +91,7 @@ export const era1 = [
       { t: T('<level-ref to="k2"></level-ref>里，里面框的结论是框外的已知「下雨」；<level-ref to="ident"></level-ref>里，结论是框自己的假设。这一关什么都没给，两样合起来：「下雨」由外面的框假设，再当里面框的结论。', 'In <level-ref to="k2"></level-ref> the inner box concluded the given “it rains” from outside; in <level-ref to="ident"></level-ref> the conclusion was the box’s own assumption. Here nothing is given, so put the two together: the outer box assumes “it rains”, and the inner box concludes it.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'] }, ['f#body>g.body', 'g>f.body', 'f>goal']),
-    after: T('外面框的假设，正是里面框的结论。证出来以后，这块电路是元件 <b>K</b>：卡片上选两句话，它直接给出「若 第一句，则（若 第二句，则 第一句）」。只有公理、没有框的证明器，只能把 K 当成不用证的出发点。', 'The outer box’s assumption is the inner box’s conclusion. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its card and it gives “if the first, then (if the second, then the first)”. A prover with axioms and no box can only take K as a starting point that needs no proof.'),
+    after: T('外面框的假设，正是里面框的结论。证出来以后，这块电路是元件 <b>K</b>：元件上选两句话，它直接给出「若 第一句，则（若 第二句，则 第一句）」。只有公理、没有框的证明器，只能把 K 当成不用证的出发点。', 'The outer box’s assumption is the inner box’s conclusion. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its part and it gives “if the first, then (if the second, then the first)”. A prover with axioms and no box can only take K as a starting point that needs no proof.'),
   },
   {
     id: 'box',
@@ -101,7 +101,7 @@ export const era1 = [
     cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Alarm', B: 'Coffee', C: 'Awake' }],
     brief: T('实现一个证明器，可以从已知「今天是周六 → (下雨 → 我休息)」和「下雨」，用假设框证明出「今天是周六 → 我休息」。', 'Build a prover that, from “today is Saturday → (it rains → I rest)” and “it rains”, proves “today is Saturday → I rest” with an assumption box.'),
     hint: [
-      T('框卡片上的「假设」选「今天是周六」。', 'On the box card, set “Assume” to “today is Saturday”.'),
+      T('框元件上的「假设」选「今天是周六」。', 'On the box, set “Assume” to “today is Saturday”.'),
       T('点一下框里的空白，再放两块套用，它们就落在框里。第一张已知配上框左上角的「假设」，套用得「下雨 → 我休息」；再配上「下雨」套用，得「我休息」，接到框右上角的「结论」。最后把框的输出接到目标。', 'Click the empty space inside the box, then place two Applies: they land in it. The first given with “Assume” at the box’s top left gives “it rains → I rest” by Apply; Apply again with “it rains” gives “I rest”: wire it to “Conclusion” at the box’s top right. Last, wire the box’s output to the goal.'),
     ],
     intro: [
@@ -125,7 +125,7 @@ export const era1 = [
     ],
     intro: [{ t: T('下雨的时候，只要刮风，就地湿；下雨的时候，一定刮风。那么下雨的时候，就地湿：这是在「下雨」这个条件下做了一次套用。这句话叫 <b>S</b>，读出来就是证明：三层假设，三次套用。', 'When it rains, if it is windy the ground is wet; when it rains, it is windy. So when it rains, the ground is wet: an Apply done under the condition “it rains”. This sentence is called <b>S</b>, and reading it aloud is the proof: three assumptions, three Applies.') }],
     solution: proof({ f: ['impI', { A: 'A → (B → C)' }], g: ['impI', { A: 'A → B' }, 'f'], h: ['impI', { A: 'A' }, 'g'], m1: ['mp', {}, 'h'], m2: ['mp', {}, 'h'], m3: ['mp', {}, 'h'] }, ['f#body>m1.imp', 'h#body>m1.a', 'g#body>m2.imp', 'h#body>m2.a', 'm1>m3.imp', 'm2>m3.a', 'm3>h.body', 'h>g.body', 'g>f.body', 'f>goal']),
-    after: T('三层框依次假设三个前提，框里的套用就是 S 说的话本身：读出这句话，就是它的证明。这块电路是元件 <b>S</b>：卡片上选三句，它直接给出整句；再和两句已知各套用一次，就是在条件下套用。只有公理、没有框的证明器，只能把 S 当成不用证的出发点。', 'Three boxes assume the three premises in turn, and the Applies inside are just what S says: reading the sentence aloud is its proof. This circuit becomes the part <b>S</b>: choose three sentences on its card and it gives the whole sentence; Apply it with two givens in turn, and that is Apply under a condition. A prover with axioms and no box can only take S as a starting point that needs no proof.'),
+    after: T('三层框依次假设三个前提，框里的套用就是 S 说的话本身：读出这句话，就是它的证明。这块电路是元件 <b>S</b>：元件上选三句，它直接给出整句；再和两句已知各套用一次，就是在条件下套用。只有公理、没有框的证明器，只能把 S 当成不用证的出发点。', 'Three boxes assume the three premises in turn, and the Applies inside are just what S says: reading the sentence aloud is its proof. This circuit becomes the part <b>S</b>: choose three sentences on its part and it gives the whole sentence; Apply it with two givens in turn, and that is Apply under a condition. A prover with axioms and no box can only take S as a starting point that needs no proof.'),
   },
   {
     id: 'chain',
@@ -293,7 +293,7 @@ export const era1 = [
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Coffee', B: 'Late' }],
     without: ['impI', 'chain', 'swap', 'merge'],
     brief: T('实现一个证明器，不用假设框，可以从已知「下雨」证明出「刮风 → 下雨」。', 'Build a prover that, without the assumption box, proves “it is windy → it rains” from “it rains”.'),
-    hint: [T('K 的卡片上第一句选「下雨」、第二句选「刮风」，再把它和已知套用。', 'Choose “it rains” and “it is windy” on K’s card, then Apply it with the given.')],
+    hint: [T('K 的元件上第一句选「下雨」、第二句选「刮风」，再把它和已知套用。', 'Choose “it rains” and “it is windy” on K’s part, then Apply it with the given.')],
     intro: [
       { t: T('这个专题把框拿走，只剩套用和你证出的 K、S；用框造的串联、交换、合并也都用不上。早期的证明器（希尔伯特系统）就是这样：一条规则，几条公理。', 'This topic takes the box away, leaving Apply and the K and S you proved; Chain, Swap and Merge, built with boxes, are out of reach too. Early provers (Hilbert systems) were like this: one rule and a few axioms.') },
       { t: T('没有框，要给一句话加条件，就得找一句现成的「若…则…」来套用。', 'Without a box, to put a condition on a sentence, find a ready-made “if … then …” to apply.') },
@@ -310,7 +310,7 @@ export const era1 = [
     without: ['impI', 'chain', 'swap', 'merge'],
     brief: T('实现一个证明器，不用假设框，可以从已知「今天是周六 → (下雨 → (我饿了 → 我去吃饭))」和「今天是周六 → 下雨」证明出「今天是周六 → (我饿了 → 我去吃饭)」。', 'Build a prover that, without the assumption box, proves “today is Saturday → (I am hungry → I go and eat)” from “today is Saturday → (it rains → (I am hungry → I go and eat))” and “today is Saturday → it rains”.'),
     hint: [T('S 的第三句不一定是一个词：这里它是「我饿了 → 我去吃饭」。', 'S’s third sentence need not be one word: here it is “I am hungry → I go and eat”.')],
-    intro: [{ t: T('有框的话：假设「今天是周六」，框里套用两次。没有框，在条件下套用就是 S 的事：卡片上选三句，它给出整句，再和两张已知各套用一次。三句可以是任何句子，也可以是本身带着「若…则…」的句子。', 'With a box: assume “today is Saturday” and Apply twice inside. Without one, Apply under a condition is S’s job: choose three sentences on its card for the whole sentence, then Apply it with the two givens in turn. The three can be any sentences, including ones that are themselves “if … then …”.') }],
+    intro: [{ t: T('有框的话：假设「今天是周六」，框里套用两次。没有框，在条件下套用就是 S 的事：元件上选三句，它给出整句，再和两张已知各套用一次。三句可以是任何句子，也可以是本身带着「若…则…」的句子。', 'With a box: assume “today is Saturday” and Apply twice inside. Without one, Apply under a condition is S’s job: choose three sentences on its part for the whole sentence, then Apply it with the two givens in turn. The three can be any sentences, including ones that are themselves “if … then …”.') }],
     solution: proof({ s: ['axS', { A: 'A', B: 'B', C: 'C → D' }], m1: ['mp'], m2: ['mp'] }, ['s>m1.imp', 'p>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>goal'], { premises: ['p', 'q'] }),
     after: T('S 加两次套用，只是第三句长了。看清楚每句话的「若」和「则」各是哪一块，S 就套得上。', 'S and two Applies, with a longer third sentence. See which piece is each sentence’s “if” and which its “then”, and S fits.'),
   },

@@ -42,10 +42,10 @@ export const GLOSSARY = [
     group: 'play',
     title: { zh: '搭电路', en: 'Building a circuit' },
     body: [
-      { zh: '大多数关卡要你搭一个电路。「输入」卡片装着关卡给的数据，「输出」卡片是你交出去的结果，卡片上还标着装的是图像、波形还是数值。两者之间放元件，用线连起来。', en: 'Most levels ask you to build a circuit. The “Input” card holds the data the level gives you and the “Output” card is the result you hand in; each card also says whether it carries an image, a waveform or a number. In between you place parts and wire them together.' },
+      { zh: '大多数关卡要你搭一个电路。「输入」元件装着关卡给的数据，「输出」元件是你交出去的结果，元件上还标着装的是图像、波形还是数值。两者之间放元件，用线连起来。', en: 'Most levels ask you to build a circuit. The “Input” part holds the data the level gives you and the “Output” part is the result you hand in; each part also says whether it carries an image, a waveform or a number. In between you place parts and wire them together.' },
       { zh: '每个元件有一个或几个输入口（比如 a、b，或者左、右），只有一个输出点。线从一块的输出点连到另一块的输入口：一个输出可以接给很多处，一个输入口只读一根线。线不能绕成圈，因为一块不能等自己算完再算自己。', en: 'Every part has one or more input ports (such as a and b, or left and right) and a single output dot. A wire runs from one block’s output dot to another block’s input port: an output can feed many places, but each input port reads from one wire. Wires cannot form a loop, since a block cannot wait for itself to finish.' },
-      { zh: '有的元件带设置，比如乘几、门槛多高、往哪个方向挪、九个权重。改一个设置，所有卡片上的结果马上跟着变；输入没接满的元件会提示还缺输入。', en: 'Some parts have settings: what to multiply by, how high a threshold is, which way to shift, nine weights. Change a setting and the results on every card update at once; a part with an input left unwired says it is missing one.' },
-      { zh: '每张卡片都显示它在当前选中的那组测试上算出的结果，所以你可以沿着电路一路看图像怎样变化。', en: 'Every card shows what it produces on the currently selected test, so you can follow the image as it changes along the circuit.' },
+      { zh: '有的元件带设置，比如乘几、门槛多高、往哪个方向挪、九个权重。改一个设置，所有元件上的结果马上跟着变；输入没接满的元件会提示还缺输入。', en: 'Some parts have settings: what to multiply by, how high a threshold is, which way to shift, nine weights. Change a setting and the results on every part update at once; a part with an input left unwired says it is missing one.' },
+      { zh: '每个元件都显示它在当前选中的那组测试上算出的结果，所以你可以沿着电路一路看图像怎样变化。', en: 'Every part shows what it produces on the currently selected test, so you can follow the image as it changes along the circuit.' },
     ],
     see: ['tests', 'views', 'unlock', 'layout'],
   },
@@ -55,7 +55,7 @@ export const GLOSSARY = [
     title: { zh: '测试与隐藏测试', en: 'Tests and hidden tests' },
     body: [
       { zh: '每关有几组测试，每组是一份输入和一份期望的输出。你的输出要和期望逐格比对：每格允许差一点点（容差），尺寸也必须一样；有的关允许少数几格出错。', en: 'Each level has a few tests, and each test is an input with its expected output. Your output is compared with the expected one cell by cell: each cell may be off by a tiny amount (the tolerance), and the size must match too. Some levels let a few cells be wrong.' },
-      { zh: '卡片上的结果随时更新，但过没过要按「运行测试」才算。测试全部通过，这一关就完成了；没过时，第一组没过的测试会被选中。之后只要改动电路，就要重新测试。', en: 'The results on the cards update all the time, but whether they pass only counts once you press “Run tests”. When every test passes, the level is complete; if not, the first failing test is selected for you. After any change to the circuit, the tests need running again.' },
+      { zh: '元件上的结果随时更新，但过没过要按「运行测试」才算。测试全部通过，这一关就完成了；没过时，第一组没过的测试会被选中。之后只要改动电路，就要重新测试。', en: 'The results on the parts update all the time, but whether they pass only counts once you press “Run tests”. When every test passes, the level is complete; if not, the first failing test is selected for you. After any change to the circuit, the tests need running again.' },
       { zh: '很多关还有<b>隐藏测试</b>：每次运行都一起检查，但只告诉你有几组没过，通关后才公开。看得见的测试全过、隐藏测试却没过，说明电路可能只对这几张图凑巧成立。', en: 'Many levels also have <b>hidden tests</b>: they are checked on every run, but you only learn how many failed, and they are shown once you pass. If every visible test passes but a hidden one fails, your circuit may only happen to work on those particular pictures.' },
     ],
     see: ['details', 'circuit'],
@@ -67,7 +67,7 @@ export const GLOSSARY = [
     body: [
       { zh: '测试面板列出每组测试，点一组看它的详情：输入、期望、你的输出，以及一张误差图，标出哪些格子超出了容差。没过的那组会写明原因，比如有几个像素超出容差，或者尺寸不对。', en: 'The test panel lists every test; pick one to see its details: the input, the expected output, your output, and an error map marking which cells are outside the tolerance. A failing test says why, such as how many pixels are outside the tolerance, or that the size is wrong.' },
       { zh: '把指针停在图上，可以读出每一格的数值和期望值。输出是一个数时，期望、允许范围和你的读数画在同一条刻度上；输出是一行时，画成曲线，期望曲线外围有一条允许带。', en: 'Hover over a picture to read the value in each cell and the value expected there. When the output is a single number, the expected value, the allowed range and your reading are drawn on one scale; when it is a single row, it is drawn as a curve, with an allowed band round the expected curve.' },
-      { zh: '选中哪一组测试，板上所有卡片就都显示这一组的结果。手机上点顶上的测试标签切换，详情在底栏的「测试详情」里。', en: 'Whichever test is selected, every card on the board shows its results for that test. On a phone, tap the test tabs along the top to switch, and find the details under “Test details” in the bottom bar.' },
+      { zh: '选中哪一组测试，板上所有元件就都显示这一组的结果。手机上点顶上的测试标签切换，详情在底栏的「测试详情」里。', en: 'Whichever test is selected, every part on the board shows its results for that test. On a phone, tap the test tabs along the top to switch, and find the details under “Test details” in the bottom bar.' },
     ],
     see: ['tests', 'views'],
   },
@@ -87,7 +87,7 @@ export const GLOSSARY = [
     group: 'play',
     title: { zh: '电脑与手机', en: 'Desktop and phone' },
     body: [
-      { zh: '电脑上是一张工作台：左边是任务、提示和元件栏，中间是画布，右边是测试面板。点元件栏里的元件，它就放到画布的空处；从卡片右侧的圆点拖线到另一张卡片；选中卡片或连线后按 Delete 删除。', en: 'On a desktop the screen is a workbench: the task, hint and parts list on the left, the board in the middle and the test panel on the right. Click a part in the list to drop it in a free spot on the board; drag a wire from the dot on the right of a card to another card; select a card or wire and press Delete to remove it.' },
+      { zh: '电脑上是一张工作台：左边是任务、提示和元件栏，中间是画布，右边是测试面板。点元件栏里的元件，它就放到画布的空处；从元件右侧的圆点拖线到另一个元件；选中元件或连线后按 Delete 删除。', en: 'On a desktop the screen is a workbench: the task, hint and parts list on the left, the board in the middle and the test panel on the right. Click a part in the list to drop it in a free spot on the board; drag a wire from the dot on the right of a part to another part; select a part or wire and press Delete to remove it.' },
       { zh: '拖动画布的空白处可以平移，按住 ⌘/Ctrl 滚动或双指捏合可以缩放，角上的按钮能把整个电路缩放到合适大小。', en: 'Drag an empty part of the board to pan, hold ⌘/Ctrl and scroll (or pinch) to zoom, and the corner buttons fit the whole circuit into view.' },
       { zh: '手机上是一块竖着的电路板：输入在最上面，输出在最下面，中间是两列格位。点底部托盘里的元件放进空格，点两个圆点就连上线，点已接好的输入口就拆掉；按住一块可以换格子，拖回托盘就是拿掉。点一块打开它的面板，看说明、改设置。', en: 'On a phone it is a tall circuit board: the inputs at the top, the outputs at the bottom and two columns of slots in between. Tap a part in the tray at the bottom to drop it into a free slot, tap two dots to wire them, and tap a wired input to unplug it; hold a block to move it to another slot, or drag it back onto the tray to remove it. Tap a block to open its panel, with its description and settings.' },
       { zh: '手机的底栏有「撤销」、测试详情、「清空」（要点两次）和「运行测试」。两种布局改的是同一份电路。', en: 'The phone’s bottom bar has “Undo”, the test details, “Clear” (tap twice) and “Run tests”. Both layouts edit the same circuit.' },
@@ -99,7 +99,7 @@ export const GLOSSARY = [
     group: 'play',
     title: { zh: '接线显示', en: 'Wire display' },
     body: [
-      { zh: '手机的电路板上，元件一多，线就会交错成一团。板子右上角的接线开关在三种显示之间轮换：「全部接线」、「隐藏输入接线」（不画从输入卡片出发的线）和「隐藏接线」。', en: 'On the phone’s circuit board, wires soon tangle once there are a few parts. The wire switch at the top right of the board cycles through three displays: “All wires”, “No input wires” (the wires leaving the input cards are not drawn) and “No wires”.' },
+      { zh: '手机的电路板上，元件一多，线就会交错成一团。板子右上角的接线开关在三种显示之间轮换：「全部接线」、「隐藏输入接线」（不画从输入元件出发的线）和「隐藏接线」。', en: 'On the phone’s circuit board, wires soon tangle once there are a few parts. The wire switch at the top right of the board cycles through three displays: “All wires”, “No input wires” (the wires leaving the input parts are not drawn) and “No wires”.' },
       { zh: '把线藏起来，电路并没有变。每个接好的输入口旁有个小标签，写着它读的是哪一块；选中一个圆点时，它所在那一块的线照样会画出来。', en: 'Hiding wires does not change the circuit. Each wired input has a small tag beside it naming the block it reads from, and while a dot is picked, the wires of its own block are still drawn.' },
       { zh: '这个选择记在这台设备的浏览器里，换一关也不变。', en: 'The choice is remembered in this browser and stays the same from level to level.' },
     ],
@@ -148,7 +148,7 @@ export const GLOSSARY = [
     body: [
       { zh: '电路里传的都是一格格数字，但可以换着画法看。一个数画成读数，一行数画成波形；二维的图一开始画成像素，往后的关卡会陆续带来剖面、地形、频谱和坡度四种画法。', en: 'Everything in a circuit is a grid of numbers, but you can draw it in different ways. A single number is drawn as a reading and a single row as a waveform; a 2-D image starts out drawn as pixels, and later levels bring in four more ways: profile, terrain, spectrum and slope.' },
       { zh: '「像素」把亮度画成灰度，有负数的图以中灰为 0。「地形」把亮度当高度：模糊把山削圆，边缘是悬崖。「坡度」画等高线和指向变亮最快方向的箭头。「剖面」画图上一行的亮度曲线，在图上拖动换一行。「频谱」画各频率的波有多强，中心是频率 (0, 0)。', en: '“Pixels” draws brightness as grey; an image with negative values puts 0 at mid-grey. “Terrain” treats brightness as height: blurring rounds off the hills and edges are cliffs. “Slope” draws contour lines and arrows pointing where the image brightens fastest. “Profile” draws the brightness along one row as a curve; drag on the picture to change row. “Spectrum” shows how strong the wave at each frequency is, with frequency (0, 0) at the centre.' },
-      { zh: '每张卡片可以单独换画法；电脑上画布左下角的「全部画成」一次换掉所有图像卡片，旁边的按钮恢复这一关的默认画法。换画法不改电路，也不用重新测试。', en: 'Each card can switch its own view; on a desktop, “Draw all as” at the bottom left of the board switches every image card at once, and the button beside it restores the level’s default views. Changing the view does not change the circuit and needs no new test run.' },
+      { zh: '每个元件可以单独换画法；电脑上画布左下角的「全部画成」一次换掉所有图像元件，旁边的按钮恢复这一关的默认画法。换画法不改电路，也不用重新测试。', en: 'Each part can switch its own view; on a desktop, “Draw all as” at the bottom left of the board switches every image part at once, and the button beside it restores the level’s default views. Changing the view does not change the circuit and needs no new test run.' },
     ],
     see: ['details', 'edge', 'spectrum'],
   },

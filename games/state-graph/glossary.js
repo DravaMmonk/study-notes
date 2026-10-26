@@ -42,17 +42,17 @@ export const GLOSSARY = [
     id: 'robot', group: 'play', title: { zh: '机器人与视野', en: 'The robot and its view' }, at: 'copy',
     body: [
       { zh: '在电路板关卡里，计算交给一个<b>机器人</b>。它一格一格地走过整张表，在每一格上运行同一块电路板，把结果写进脚下这一格。', en: 'In circuit-board levels the computing is done by a <b>robot</b>. It walks the whole table cell by cell, runs the same circuit board on every cell, and writes the result into the cell it stands on.' },
-      { zh: '<b>机器人视野</b>中间的红框，是它脚下的格子。电路板要读视野里的一格，就在视野里点它，电路板左边的「视野」卡片上就多一个读它的输出口；被读的格子在视野里带蓝框。表外面的格子显示「界外」，送来的是「—」。', en: 'The red frame in the middle of the <b>robot’s view</b> is the cell it stands on. For the circuit board to read a cell in view, click it in the view: the “View” card on the left of the circuit board gains an output that reads it, and a cell being read has a blue frame in the view. Cells beyond the table show “out”, and what they send is “—”.' },
-      { zh: '视野下面的<b>本格信息</b>，是关于这一格的事实。点一条，「本格信息」卡片上就多一个读它的输出口。', en: 'The <b>This cell</b> panel under the view lists facts about the cell. Click one, and the “This cell” card gains an output that reads it.' },
+      { zh: '<b>机器人视野</b>中间的红框，是它脚下的格子。电路板要读视野里的一格，就在视野里点它，电路板左边的「视野」元件上就多一个读它的输出口；被读的格子在视野里带蓝框。表外面的格子显示「界外」，送来的是「—」。', en: 'The red frame in the middle of the <b>robot’s view</b> is the cell it stands on. For the circuit board to read a cell in view, click it in the view: the “View” part on the left of the circuit board gains an output that reads it, and a cell being read has a blue frame in the view. Cells beyond the table show “out”, and what they send is “—”.' },
+      { zh: '视野下面的<b>本格信息</b>，是关于这一格的事实。点一条，「本格信息」元件上就多一个读它的输出口。', en: 'The <b>This cell</b> panel under the view lists facts about the cell. Click one, and the “This cell” part gains an output that reads it.' },
     ],
     see: ['board', 'testBoard', 'models'],
   },
   {
     id: 'board', group: 'play', title: { zh: '电路板', en: 'Circuit board' }, at: 'copy',
     body: [
-      { zh: '<b>电路板</b>写的是一格的规则：只写一次，机器人在每一格上都照着它算。「视野」和「本格信息」两张卡片是它的输入，红框的「本格」是它的输出，中间放元件。', en: 'A <b>circuit board</b> is the rule for one cell: you write it once, and the robot follows it on every cell. The “View” and “This cell” cards are its inputs, the red-framed “this cell” is its output, and components go in between.' },
+      { zh: '<b>电路板</b>写的是一格的规则：只写一次，机器人在每一格上都照着它算。「视野」和「本格信息」两个元件是它的输入，红框的「本格」是它的输出，中间放元件。', en: 'A <b>circuit board</b> is the rule for one cell: you write it once, and the robot follows it on every cell. The “View” and “This cell” parts are its inputs, the red-framed “this cell” is its output, and components go in between.' },
       { zh: '线总是从一个<b>输出圆点</b>接到一个<b>输入圆点</b>：从圆点拖过去，或者先点一个圆点、再点另一个。一个输入口只接一根线，新接的会替换旧的；一个输出可以接给好几个口。', en: 'A wire always runs from an <b>output dot</b> to an <b>input dot</b>: drag from one dot to the other, or click one dot and then the other. An input takes one wire, so a new one replaces the old; an output can feed several inputs.' },
-      { zh: '接不上的线会被拒绝，并告诉你原因，比如信号对不上，或者线会绕成一个圈。在电脑上，点选一张卡片或一根线，按 Delete 就能删掉；拖动空白处可以挪动电路板。', en: 'A wire that cannot go in is refused, with the reason: the signals do not match, say, or the wire would make a loop. On a computer, click a card or a wire to select it and press Delete to remove it; drag the empty background to move the board around.' },
+      { zh: '接不上的线会被拒绝，并告诉你原因，比如信号对不上，或者线会绕成一个圈。在电脑上，点选一个元件或一根线，按 Delete 就能删掉；拖动空白处可以挪动电路板。', en: 'A wire that cannot go in is refused, with the reason: the signals do not match, say, or the wire would make a loop. On a computer, click a part or a wire to select it and press Delete to remove it; drag the empty background to move the board around.' },
       { zh: '在手机上，电路板有一个接线显示按钮，可以在「全部接线」「隐藏输入接线」「隐藏接线」之间切换，线多的时候看得清楚些。', en: 'On a phone, the board has a wire display button that switches between “All wires”, “No input wires” and “No wires”, so a busy board is easier to read.' },
     ],
     see: ['component', 'robot', 'part'],
@@ -96,7 +96,7 @@ export const GLOSSARY = [
     id: 'arms', group: 'play', title: { zh: '伸缩臂', en: 'Telescopic arm' }, at: 'knaptable',
     body: [
       { zh: '「长臂」有一条<b>伸缩臂</b>：它伸多远，由这一格的数据决定，比如往左伸出「这件物品的重量」那么多格，读到视野外面的格子。', en: 'Longarm has a <b>telescopic arm</b>: how far it reaches depends on the cell’s own data, such as reaching left by as many cells as “this item’s weight”, so it can read cells outside its view.' },
-      { zh: '视野下面有伸缩臂一栏，它够得着的格子都在那里；点一格，「视野」卡片上就多一个读它的输出口。', en: 'Under the view is the arm’s own row, showing the cells it can reach; click one, and the “View” card gains an output that reads it.' },
+      { zh: '视野下面有伸缩臂一栏，它够得着的格子都在那里；点一格，「视野」元件上就多一个读它的输出口。', en: 'Under the view is the arm’s own row, showing the cells it can reach; click one, and the “View” part gains an output that reads it.' },
     ],
     see: ['models', 'sweep'],
   },

@@ -4,7 +4,7 @@ export default {
     { t: { zh: '到目前为止，输出的每一格只看输入里同一位置的那一格。这一章换个思路：算一格时，也看看它周围的邻居。', en: 'So far, each output cell has looked only at the cell in the same position in the input. This chapter changes that: when computing a cell, also look at the neighbours around it.' } },
     { t: { zh: '最简单的例子是取平均。把一格换成它和邻居的平均，孤零零的亮点会被摊开，忽亮忽暗的毛刺会被抹平。手机夜景模式压噪点，用的就是同类的办法。', en: 'The simplest example is averaging. Replace a cell with the average of itself and its neighbours, and a lone bright dot gets spread out while flickering specks get smoothed away. A phone\'s night mode uses the same kind of trick to suppress noise.' } },
     { t: { zh: '从这一章起，相加、相减、相乘合成一个元件「四则运算」：在元件上选 +、−、× 或 ÷。÷ 是新的：a ÷ b 把 a 的每一格除以 b 的同一格。还有一个新元件「汇合器」：它有三个输入口，把接进来的图逐格加起来，空着的口不算。', en: 'From this chapter on, add, subtract and multiply are one part, Arithmetic: choose +, −, × or ÷ on the part. ÷ is new: a ÷ b divides each cell of a by the same cell of b. There is also a new part, the Merger: it has three inputs and adds the pictures wired into them cell by cell; an empty input is skipped.' } },
-    { t: { zh: '新画法「剖面」：把图上一行的亮度画成一条曲线，在图上拖动就换一行。卡片和测试区的画法按钮里都能切到它。', en: 'A new way of drawing, "Profile": the brightness along one row of the picture as a curve; drag on the picture to change row. Switch to it with the drawing buttons on a card or in the test area.' } },
+    { t: { zh: '新画法「剖面」：把图上一行的亮度画成一条曲线，在图上拖动就换一行。元件和测试区的画法按钮里都能切到它。', en: 'A new way of drawing, "Profile": the brightness along one row of the picture as a curve; drag on the picture to change row. Switch to it with the drawing buttons on a part or in the test area.' } },
     { t: { zh: '这一关你要做的：每一格换成它自己和左右两个邻居的平均。看看下面的期望：方块左右两条边多出一圈灰，上下两条边却没变。', en: 'Your task in this level: replace each cell with the average of itself and its left and right neighbours. Look at the expected output below: the square\'s left and right edges gain a band of grey, but its top and bottom edges do not change.' }, fig: { test: 0, caption: { zh: '第一组测试：方块', en: 'Set 1: square' } } },
   ],
   '1-2': [
@@ -51,7 +51,7 @@ export default {
   ],
   '1-10': [
     { t: { zh: '这一章的平均、高斯、差分、锐化，连同把图挪一格的平移，都能写成一个 3×3 核。熟练以后，看一眼处理前后的图，就该猜得出用了什么核。', en: 'This chapter\'s average, Gaussian, difference and sharpen, along with the shift that moves an image by one pixel, can all be written as a 3×3 kernel. With practice, one look at an image before and after should tell you which kernel was used.' }, fig: { figure: 'conv-press', caption: { zh: '核压过整张图', en: 'A kernel passing over the whole image' } } },
-    { t: { zh: '台上每轮给一张输入和一张输出，下面四张卡片各是一个核，数字按「3×3 核」元件的读法排列。选出做出这张输出的那一个。', en: 'Each round, the bench shows an input and an output. Each of the four cards below is a kernel, with its numbers laid out the way the "3×3 kernel" part reads them. Pick the one that made this output.' } },
+    { t: { zh: '台上每轮给一张输入和一张输出，下面四个元件各是一个核，数字按「3×3 核」元件的读法排列。选出做出这张输出的那一个。', en: 'Each round, the bench shows an input and an output. Each of the four parts below is a kernel, with its numbers laid out the way the "3×3 kernel" part reads them. Pick the one that made this output.' } },
     { t: { zh: '一共十轮，对八轮过关，越往后给的时间越短，也可以关掉计时先练。要想的问题：不逐格去算，只扫一眼核里的数，你靠什么认出它？', en: 'There are ten rounds, and eight right answers pass. Later rounds give you less time, and you can switch the timer off to practise first. Something to think about: without working it out cell by cell, just glancing at the numbers in a kernel, how do you recognise it?' } },
   ],
   '1-11': [

@@ -274,7 +274,12 @@
 .pb-dot.is-in i { position: relative; }
 .pb-dot.is-in:not(.is-wired) i::after { inset: 4px; }
 /* A part's sheet ends with this: take the block off the board. */
-.sheet-remove { height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 12px; color: var(--fail); background: var(--canvas); font: inherit; }
+.sheet-actions { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }
+.sheet-remove, .sheet-move { height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 12px; color: var(--fail); background: var(--canvas); font: inherit; }
+.sheet-move { color: var(--ink); }
+/* A part on the move: it and the slots it can go to are marked until a slot is tapped. */
+.pb-board[data-moving] .pb-slot { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 10%, transparent); outline-color: var(--accent); }
+.pb-tile.is-moving, .pb-frame.is-moving { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent); }
 
 /* The tray of parts and the bar. */
 .pb-tray { padding: 8px 12px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; border-top: 1px solid var(--hairline); background: var(--paper); }
