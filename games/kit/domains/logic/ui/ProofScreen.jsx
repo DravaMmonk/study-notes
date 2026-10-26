@@ -95,7 +95,7 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
       <section className="lg-score">
         <div className="stat-row">
           <div className="stat"><b>{LOGIC_TESTS.score(level, circuit).steps}</b><span>{tr('步数', 'Steps')}</span></div>
-          {best && <div className="stat"><b>{best.steps}</b><span>{tr('最少', 'Best')}</span></div>}
+          {best && <div className="stat"><b>{best.steps}</b><span>{tr('最佳步数', 'Best')}</span></div>}
         </div>
       </section>
     </Brief>
@@ -106,13 +106,13 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
   // What a region assumes (or that it cannot assume anything yet): at its left edge, or first in its grid on a phone.
   const regionNote = (node, region) => {
     const j = view.values.get(srcOf(node, region))
-    return j ? <Formula j={j} text={text} small /> : <i className="lg-mark">{tr('还没有假设', 'nothing assumed yet')}</i>
+    return j ? <Formula j={j} text={text} small /> : <i className="lg-mark">{tr('尚未设置假设', 'nothing assumed yet')}</i>
   }
   // By a region's result: what the box gives (or why it gives nothing yet). The box's card shows nothing else of it.
   const resultNote = (node) => {
     const [j, error] = [view.values.get(node.id), view.errors.get(node.id)]
     if (j) return <Formula j={j} text={text} small />
-    return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('还没有接上', 'nothing wired in yet')}</i>
+    return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('尚未连接', 'nothing wired in yet')}</i>
   }
   const run = verdict ? { pass: verdict.pass } : null
   const dock = (
@@ -142,24 +142,24 @@ export default function ProofScreen({ game, level: entry, saved, save, solved, s
               width={160}
               height={150}
               body={(node) => <CardBody node={node} {...shared} />}
-              head={(node) => node.type === 'goal' && result && <em className="node-verdict">{result.pass ? tr('证到了', 'Proved') : tr('还没有', 'Not yet')}</em>}
+              head={(node) => node.type === 'goal' && result && <em className="node-verdict">{result.pass ? tr('已证明', 'Proved') : tr('尚未证明', 'Not yet')}</em>}
               cardClass={(node) => `lg-node ${node.type === 'goal' && result ? (result.pass ? 'is-pass' : 'is-fail') : ''}`}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
               regionNote={regionNote}
               resultNote={resultNote}
               onTarget={setTarget}
-              emptyNote={items.length > 0 && { zh: '从上面一排元件里选一条规则放上来，再从卡片右侧的圆点连到另一张卡片左侧的圆点。', en: 'Pick a rule from the row above, then wire a dot on the right of a card to a dot on the left of another.' }}
+              emptyNote={items.length > 0 && { zh: '从上方元件栏选择推理规则并放入电路板，再将卡片右侧的输出端连接至另一张卡片左侧的输入端。', en: 'Pick a rule from the row above, then wire a dot on the right of a card to a dot on the left of another.' }}
             />
           </div>
         </div>
       }
       tests={<TestTabs tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />}
       status={<TestStatus states={states} hidden={{ count: hiddenCount, failed: hiddenFailed, note: HIDDEN_NOTE(hiddenCount) }} />}
-      outputsTitle={tr('这组测试', 'This test')}
+      outputsTitle={tr('当前测试', 'This test')}
       outputs={
         <div className="lg-strip">
-          <p className="lg-sequent">{premises.length > 0 && <>{tr('已知', 'Given')} <b>{premises.map(text).join(tr('；', '; '))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b></p>
-          <p className={`lg-verdict ${result ? (result.pass ? 'is-pass' : 'is-fail') : ''}`}>{result ? (result.pass ? tr('目标证出来了，没有留下开着的假设。', 'The goal is proved, with no hypothesis left open.') : L(result.reason)) : tr('检查时每组测试都要过：目标收到的是不是要证的那句，还有没有没关上的假设。', 'Checking runs every test: does the goal receive the sentence to prove, and is any hypothesis left open?')}</p>
+          <p className="lg-sequent">{premises.length > 0 && <>{tr('前提', 'Given')} <b>{premises.map(text).join(tr('；', '; '))}</b> · </>}{tr('待证命题', 'prove')} <b>{text(goal)}</b></p>
+          <p className={`lg-verdict ${result ? (result.pass ? 'is-pass' : 'is-fail') : ''}`}>{result ? (result.pass ? tr('目标已证明，未遗留未解除的临时假设。', 'The goal is proved, with no hypothesis left open.') : L(result.reason)) : tr('检查会运行全部测试，确认输出与目标一致，且仅依赖给定前提，没有未解除的临时假设。', 'Checking runs every test: does the goal receive the sentence to prove, and is any hypothesis left open?')}</p>
         </div>
       }
       actions={<footer className="run-foot">{dock}</footer>}
@@ -191,20 +191,20 @@ function CardBody({ node, parts, circuit, view, goal, setParam, text, choices })
   const outs = parts.outputs(node)?.filter((o) => !regions.has(o.key))
   const multi = outs && !(outs.length === 1 && outs[0].key === null) ? outs : null
   const held = regions.size ? within(circuit, node.id).size : 0
-  const problem = error && <span className={`lg-error ${error === MISSING ? 'is-missing' : ''}`}>{error === MISSING ? tr('等接线', 'Waiting for wires') : L(error)}</span>
+  const problem = error && <span className={`lg-error ${error === MISSING ? 'is-missing' : ''}`}>{error === MISSING ? tr('等待连接', 'Waiting for wires') : L(error)}</span>
   return (
     <div className="lg-card">
-      {node.type === 'goal' && <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b></span>}
+      {node.type === 'goal' && <span className="lg-want">{tr('待证命题', 'Prove')} <b>{text(goal)}</b></span>}
       {settingsOf(parts.rules, node.type).map((s) => <FormulaField key={s.key} label={s.label} value={node.params[s.key] ?? ''} onChange={(v) => setParam(node.id, s.key, v)} choices={choices} />)}
       {node.type === 'orI' && (
-        <div className="lg-side" role="group" aria-label={tr('另一边放在', 'Other side goes')} onPointerDown={(e) => e.stopPropagation()}>
-          <span>{tr('另一边放', 'Other side')}</span>
+        <div className="lg-side" role="group" aria-label={tr('新增析取项的位置', 'Other side goes')} onPointerDown={(e) => e.stopPropagation()}>
+          <span>{tr('新增项位置', 'Other side')}</span>
           {[['left', tr('左', 'left')], ['right', tr('右', 'right')]].map(([side, label]) => (
             <button key={side} type="button" aria-pressed={(node.params.side ?? 'right') === side} onClick={() => setParam(node.id, 'side', side)}>{label}</button>
           ))}
         </div>
       )}
-      {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
+      {node.fold && <span className="lg-held">{held ? tr(`框内 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框内暂无步骤', 'Nothing inside yet')}</span>}
       {role === 'source' && <Formula j={value} text={text} bare />}
       {role !== 'source' && (!regions.size || node.fold) && (problem || (multi ? multi.map((o) => (
         <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Formula j={view.values.get(srcOf(node, o.key))} text={text} /></span>
@@ -241,12 +241,12 @@ function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text
     const error = view.errors.get(n.id)
     const outs = parts.frames(n).length ? [] : outputsOf(parts, n)
     if (outs.length > 1) return <span className="lg-chips">{outs.map((o) => <Formula key={o.key} j={view.values.get(srcOf(n, o.key))} text={text} small />)}</span>
-    if (error) return error === MISSING ? <i className="lg-mark">{tr('待接线', 'unwired')}</i> : <span className="lg-error">{L(error)}</span>
+    if (error) return error === MISSING ? <i className="lg-mark">{tr('待连接', 'unwired')}</i> : <span className="lg-error">{L(error)}</span>
     return <Formula j={view.values.get(n.id)} text={text} small />
   }
   const sinkBody = (n) => (
     <span className="lg-sink">
-      {n.type === 'goal' && <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b></span>}
+      {n.type === 'goal' && <span className="lg-want">{tr('待证命题', 'Prove')} <b>{text(goal)}</b></span>}
       <Formula j={view.values.get(n.id)} text={text} small />
     </span>
   )
@@ -256,7 +256,7 @@ function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
         <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={(n) => (n.type === 'goal' && result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} picking={editing.picking} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} />
-        {result && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{result.pass ? tr('目标证出来了，没有留下开着的假设。', 'The goal is proved, with no hypothesis left open.') : L(result.reason)}</p>}
+        {result && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{result.pass ? tr('目标已证明，未遗留未解除的临时假设。', 'The goal is proved, with no hypothesis left open.') : L(result.reason)}</p>}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
       <footer className="run-foot">{dock}</footer>
@@ -266,12 +266,12 @@ function PhoneProof({ parts, lemmas, circuit, view, goal, result, setParam, text
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(lemmas, node.type))}</p>}
             <CardBody node={node} parts={parts} circuit={circuit} view={view} goal={goal} text={text} choices={choices} setParam={setParam} />
-            {parts.role(node) === 'part' && <button type="button" className="lg-remove" onClick={() => { editing.remove(node.id); setSheet(null) }}><Trash2 size={15} />{tr('拿掉这一块', 'Remove this block')}</button>}
+            {parts.role(node) === 'part' && <button type="button" className="lg-remove" onClick={() => { editing.remove(node.id); setSheet(null) }}><Trash2 size={15} />{tr('移除元件', 'Remove this block')}</button>}
           </div>
         </Sheet>
       )}
       {sheet?.slot !== undefined && (
-        <Sheet title={tr(`放进第 ${sheet.slot + 1} 格`, `Place in slot ${sheet.slot + 1}`)} onClose={() => setSheet(null)}>
+        <Sheet title={tr(`放入第 ${sheet.slot + 1} 格`, `Place in slot ${sheet.slot + 1}`)} onClose={() => setSheet(null)}>
           <div className="lg-add">
             {[...items, ...foldedItems].map((item) => (
               <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot, sheet.region); setSheet(null) }}>

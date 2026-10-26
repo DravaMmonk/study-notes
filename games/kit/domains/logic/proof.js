@@ -22,20 +22,20 @@ const union = (...js) => new Map(js.flatMap((j) => [...j.hyps]))
 // What a port needed (a formula, or a SHAPE) and the formula that reached it, written in the level's notation.
 const need = (ctx, what, got) => {
   const [w, g] = [what.op ? say(what, ctx.notation) : what, say(got, ctx.notation)]
-  return new PartError({ zh: `这里要 ${w.zh}，接进来的是 ${g.zh}`, en: `This needs ${w.en}; it got ${g.en}` })
+  return new PartError({ zh: `所需输入：${w.zh}；实际输入：${g.zh}`, en: `This needs ${w.en}; it got ${g.en}` })
 }
 const T = (zh, en) => ({ zh, en })
 const SHAPE = {
-  imp: T('一句「如果…那么…」', 'an “if … then …”'),
-  and: T('一句「…并且…」', 'an “… and …”'),
-  or: T('一句「…或者…」', 'an “… or …”'),
+  imp: T('条件命题「如果……那么……」', 'an “if … then …”'),
+  and: T('合取命题「……并且……」', 'an “… and …”'),
+  or: T('析取命题「……或者……」', 'an “… or …”'),
   bot: T('矛盾 ⊥', 'a contradiction ⊥'),
-  nn: T('一句「并非并非…」', 'a “not not …”'),
-  iff: T('一句「…当且仅当…」', 'an “… if and only if …”'),
-  all: T('一句「对所有 x…」', 'a “for all x …”'),
-  ex: T('一句「存在 x…」', 'a “there is an x …”'),
+  nn: T('双重否定命题 ¬¬A', 'a “not not …”'),
+  iff: T('双条件命题「……当且仅当……」', 'an “… if and only if …”'),
+  all: T('全称命题「对所有 x，……」', 'a “for all x …”'),
+  ex: T('存在命题「存在 x，使得……」', 'a “there is an x …”'),
   eq: T('一个等式', 'an equation'),
-  fits: T('一句这块元件接得上的话', 'a sentence this part accepts'),
+  fits: T('符合此规则输入要求的命题', 'a sentence this part accepts'),
 }
 const sayIn = (ctx, f) => say(f, ctx.notation)
 const fail = (zh, en) => new PartError({ zh, en })
@@ -43,13 +43,13 @@ const fail = (zh, en) => new PartError({ zh, en })
 // (ctx.subst: A := it rains), so one proof runs on every case; the level's constants come through ctx.consts.
 const param = (node, key, ctx = {}) => {
   const text = node.params?.[key]
-  if (typeof text !== 'string' || !text.trim()) throw fail('先在卡片上选好句子', 'Choose the sentences on the card first')
+  if (typeof text !== 'string' || !text.trim()) throw fail('请先在卡片上选择命题', 'Choose the sentences on the card first')
   return replaceAtoms(parse(text, { consts: ctx.consts ?? [] }), ctx.subst ?? {})
 }
 // The term a card names (params.t).
 function termOf(node, ctx = {}) {
   const text = node.params?.t
-  if (!text) throw fail('先填一个项', 'Fill in a term first')
+  if (!text) throw fail('请先填写一个项', 'Fill in a term first')
   return parse(`${text} = ${text}`, { consts: ctx.consts ?? [] }).args[0]
 }
 // ¬A is A → ⊥ to the rules.
@@ -116,7 +116,7 @@ export const RULES = {
     eval: ({ ab, left: l, right: r }, node, ctx, key) => {
       if (ab.formula.op !== '∨') throw need(ctx, SHAPE.or, ab.formula)
       if (key) return assumed(node, key, key === 'left' ? ab.formula.a : ab.formula.b)
-      if (!same(l.formula, r.formula)) { const [a, b] = [sayIn(ctx, l.formula), sayIn(ctx, r.formula)]; throw fail(`两种情况证出的不一样：${a.zh}；${b.zh}`, `The two cases prove different things: ${a.en}; ${b.en}`) }
+      if (!same(l.formula, r.formula)) { const [a, b] = [sayIn(ctx, l.formula), sayIn(ctx, r.formula)]; throw fail(`两个分支的结论不一致：${a.zh}；${b.zh}`, `The two cases prove different things: ${a.en}; ${b.en}`) }
       return proved(l.formula, new Map([...ab.hyps, ...without(l.hyps, hypId(node, 'left')), ...without(r.hyps, hypId(node, 'right'))]))
     },
   },
@@ -155,8 +155,8 @@ export const RULES = {
     params: ['x'],
     eval: ({ body }, node, ctx) => {
       const x = node.params?.x
-      if (!x) throw fail('先给新变量起个名字', 'Name the new variable first')
-      for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里，不能对它说「任取」`, `${x} occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not arbitrary`)
+      if (!x) throw fail('请先设置新变量的名称', 'Name the new variable first')
+      for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 自由出现于未解除的假设「${sayIn(ctx, h).zh}」中，不能应用全称引入`, `${x} occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not arbitrary`)
       return proved(all(x, body.formula), body.hyps)
     },
   },
@@ -185,11 +185,11 @@ export const RULES = {
     eval: ({ ex: e, body }, node, ctx, key) => {
       if (e.formula.op !== '∃') throw need(ctx, SHAPE.ex, e.formula)
       const y = node.params?.x
-      if (!y) throw fail('先给见证起个名字', 'Name the witness first')
+      if (!y) throw fail('请先设置见证变量的名称', 'Name the witness first')
       if (key) return assumed(node, key, subst(e.formula.body, e.formula.v, tvar(y)))
-      if (freeVars(body.formula).has(y)) throw fail(`结论里不能有见证 ${y}`, `The conclusion may not mention the witness ${y}`)
+      if (freeVars(body.formula).has(y)) throw fail(`见证变量 ${y} 不能自由出现于结论中`, `The conclusion may not mention the witness ${y}`)
       const open = without(body.hyps, hypId(node, 'body'))
-      for (const h of open.values()) if (freeVars(h).has(y)) throw fail(`${y} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里`, `${y} occurs in the open hypothesis ${sayIn(ctx, h).en}`)
+      for (const h of open.values()) if (freeVars(h).has(y)) throw fail(`见证变量 ${y} 自由出现于其他未解除的假设「${sayIn(ctx, h).zh}」中`, `${y} occurs in the open hypothesis ${sayIn(ctx, h).en}`)
       return proved(body.formula, new Map([...e.hyps, ...open]))
     },
   },
@@ -287,10 +287,10 @@ export function lemmaGives({ statement, premises = [], metas }, givens, goal) {
  * the level's notation.
  */
 export function closes(judgment, goal, premiseIds, notation = null) {
-  if (!judgment) return { zh: '没有证到终点', en: 'Nothing reaches the goal' }
-  if (!same(judgment.formula, goal)) { const [got, want] = [say(judgment.formula, notation), say(goal, notation)]; return { zh: `证出的是「${got.zh}」，要的是「${want.zh}」`, en: `It proves “${got.en}”; the goal is “${want.en}”` } }
+  if (!judgment) return { zh: '尚未向目标提供证明结论', en: 'Nothing reaches the goal' }
+  if (!same(judgment.formula, goal)) { const [got, want] = [say(judgment.formula, notation), say(goal, notation)]; return { zh: `当前结论为「${got.zh}」；待证命题为「${want.zh}」`, en: `It proves “${got.en}”; the goal is “${want.en}”` } }
   const open = [...judgment.hyps].filter(([id]) => !premiseIds.includes(id)).map(([, f]) => say(f, notation))
-  if (open.length) return { zh: `还开着假设「${open.map((f) => f.zh).join('」「')}」`, en: `Hypotheses still open: ${open.map((f) => `“${f.en}”`).join(', ')}` }
+  if (open.length) return { zh: `仍依赖未解除的临时假设「${open.map((f) => f.zh).join('」「')}」`, en: `Hypotheses still open: ${open.map((f) => `“${f.en}”`).join(', ')}` }
   return ''
 }
 

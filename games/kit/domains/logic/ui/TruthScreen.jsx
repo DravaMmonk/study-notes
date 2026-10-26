@@ -81,15 +81,15 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, ph
           <header>
             <b>{text(f)}</b>
             <span className="lg-mark-pick" role="group">
-              {[[true, tr('永远成立', 'Always true')], [false, tr('不总成立', 'Not always')]].map(([v, label]) => (
+              {[[true, tr('恒成立', 'Always true')], [false, tr('非恒成立', 'Not always')]].map(([v, label]) => (
                 <button key={label} type="button" aria-pressed={state.marks[k] === v} onClick={() => update({ marks: { ...state.marks, [k]: v } })}>{label}</button>
               ))}
             </span>
           </header>
-          <details><summary>{tr('列表来算', 'Work it out on a table')}</summary>{table(k)}</details>
+          <details><summary>{tr('展开真值表', 'Work it out on a table')}</summary>{table(k)}</details>
         </section>
       ))}
-      {checked && <p className={`lg-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`}>{checked.pass ? (level.ask === 'counter' ? tr('找到了：这一行它是假的。', 'Found it: it is false on this row.') : tr('全对。', 'All correct.')) : tr(`还有 ${checked.wrong.size} 处不对，标红了。`, `${checked.wrong.size} still wrong, marked in red.`)}</p>}
+      {checked && <p className={`lg-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`}>{checked.pass ? (level.ask === 'counter' ? tr('已找到反例：命题在这一行为假。', 'Found it: it is false on this row.') : tr('全部正确。', 'All correct.')) : tr(`仍有 ${checked.wrong.size} 处错误，已用红色标出。`, `${checked.wrong.size} still wrong, marked in red.`)}</p>}
       {level.ask !== 'counter' && <footer className="run-foot"><RunDock go={{ label: checked?.pass ? tr('全对', 'All correct') : tr('检查', 'Check'), pass: Boolean(checked?.pass), onClick: check }} /></footer>}
     </div>
   )

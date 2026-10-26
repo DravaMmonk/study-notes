@@ -8,23 +8,23 @@ const T = (zh, en) => ({ zh, en })
 
 /** Every rule: name, what it does, port labels, setting labels and the regions of a box (`frames`). */
 export const RULE_TEXT = {
-  mp: { name: T('分离', 'Detach'), desc: T('由 A → B 和 A 得到 B：接进一句「如果…，那么…」和它的前一半，得到后一半。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part.'), ports: { imp: 'A → B', a: 'A' } },
-  axK: { name: T('公理 K', 'Axiom K'), desc: T('A → (B → A)：已经成立的事，加上什么条件都还成立。第一句 A、第二句 B 在卡片上选。', 'A → (B → A): what holds still holds under any condition. Choose the first sentence A and the second B on the card.'), params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
-  axS: { name: T('公理 S', 'Axiom S'), desc: T('(A → (B → C)) → ((A → B) → (A → C))：在条件 A 下也能分离。三句 A、B、C 在卡片上选。', '(A → (B → C)) → ((A → B) → (A → C)): Detach works under a condition A too. Choose A, B and C on the card.'), params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
-  impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A、证出 B，框外得到 A → B。', 'Assume A inside the box and prove B; outside you get A → B.'), params: { A: T('假设', 'Assume') }, frames: { body: T('框里', 'Inside') } },
-  andI: { name: T('拼成 ∧', 'Join ∧'), desc: T('由 A 和 B 得到 A ∧ B。', 'From A and B, A ∧ B.'), ports: { a: 'A', b: 'B' } },
-  andE: { name: T('拆开 ∧', 'Split ∧'), desc: T('由 A ∧ B 得到 A，也得到 B。', 'From A ∧ B, A, and also B.'), ports: { ab: 'A ∧ B' }, outs: { left: ['A', 'A'], right: ['B', 'B'] } },
-  orI: { name: T('引入 ∨', 'Bring in ∨'), desc: T('由 A 得到 A ∨ B（或 B ∨ A），另一边 B 和放在哪边在卡片上选。', 'From A, A ∨ B (or B ∨ A); choose B and its side on the card.'), ports: { a: 'A' }, params: { other: T('另一边', 'Other side') } },
-  orE: { name: T('分情况', 'Case by case'), desc: T('接进 A ∨ B：假设 A 证出 C，假设 B 也证出 C，就得到 C。', 'Wire in A ∨ B: if assuming A proves C and assuming B proves C, then C.'), ports: { ab: 'A ∨ B' }, frames: { left: T('情况一', 'Case one'), right: T('情况二', 'Case two') } },
-  botE: { name: T('矛盾推出一切', 'From contradiction'), desc: T('由矛盾 ⊥ 得到卡片上选的任何一句。', 'From the contradiction ⊥, whatever is chosen on the card.'), ports: { bot: '⊥' }, params: { C: T('得出', 'Conclude') } },
-  raa: { name: T('反证法', 'By contradiction'), desc: T('由 ¬¬A 得到 A。', 'From ¬¬A, A.'), ports: { nna: '¬¬A' } },
-  iffE: { name: T('拆开 ↔', 'Split ↔'), desc: T('由 A ↔ B 得到 A → B，也得到 B → A。', 'From A ↔ B, A → B, and also B → A.'), ports: { iff: 'A ↔ B' }, outs: { ltr: ['A → B', '→'], rtl: ['B → A', '←'] } },
-  allI: { name: T('任取', 'For any'), desc: T('框里对一个新变量 x 证出 P(x)，框外得 ∀x. P(x)。', 'Prove P(x) inside the box for a new variable x; outside you get ∀x. P(x).'), params: { x: T('变量', 'Variable') }, frames: { body: T('框里', 'Inside') } },
-  allE: { name: T('代入', 'Instantiate'), desc: T('由 ∀x. P(x) 得 P(t)。', 'From ∀x. P(x), P(t).'), ports: { all: '∀x. P(x)' }, params: { t: T('项', 'Term') } },
-  exI: { name: T('举例', 'Example'), desc: T('由 P(t) 得 ∃x. P(x)。', 'From P(t), ∃x. P(x).'), ports: { a: 'P(t)' }, params: { target: T('要得出', 'Conclude'), t: T('项', 'Term') } },
-  exE: { name: T('取一个', 'Take one'), desc: T('接进 ∃x. P(x)；框里假设 P(y) 证出 C，就得 C。', 'Wire in ∃x. P(x); if assuming P(y) proves C inside the box, then C.'), ports: { ex: '∃x. P(x)' }, params: { x: T('见证', 'Witness') }, frames: { body: T('框里', 'Inside') } },
-  refl: { name: T('自反', 'Reflexivity'), desc: T('t = t。', 't = t.'), params: { t: T('项', 'Term') } },
-  rewrite: { name: T('等量代换', 'Rewrite'), desc: T('由 s = t 和 φ(s) 得 φ(t)。', 'From s = t and φ(s), φ(t).'), ports: { eq: 's = t', p: 'φ(s)' }, params: { pattern: T('样式', 'Pattern') } },
+  mp: { name: T('分离规则', 'Detach'), desc: T('由 A → B 和 A 推出 B，也称肯定前件式。A 是条件命题的前件，B 是后件。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part.'), ports: { imp: 'A → B', a: 'A' } },
+  axK: { name: T('公理 K', 'Axiom K'), desc: T('A → (B → A)：已成立的命题 A，在附加条件 B 后仍然成立。在卡片上选择 A、B，得到公理模式 K 的一个实例。', 'A → (B → A): what holds still holds under any condition. Choose the first sentence A and the second B on the card.'), params: { A: T('命题 A', 'First'), B: T('命题 B', 'Second') } },
+  axS: { name: T('公理 S', 'Axiom S'), desc: T('(A → (B → C)) → ((A → B) → (A → C))：在共同条件 A 下组合分离推理。在卡片上选择 A、B、C，得到一个公理实例。', '(A → (B → C)) → ((A → B) → (A → C)): Detach works under a condition A too. Choose A, B and C on the card.'), params: { A: T('命题 A', 'First'), B: T('命题 B', 'Second'), C: T('命题 C', 'Third') } },
+  impI: { name: T('假设框', 'Assumption box'), desc: T('蕴含引入：在临时假设 A 下推出 B，解除该假设后得到 A → B，其他前提仍然保留。', 'Assume A inside the box and prove B; outside you get A → B.'), params: { A: T('假设', 'Assume') }, frames: { body: T('框内', 'Inside') } },
+  andI: { name: T('合取引入 ∧', 'Join ∧'), desc: T('由 A 和 B 得到 A ∧ B。', 'From A and B, A ∧ B.'), ports: { a: 'A', b: 'B' } },
+  andE: { name: T('合取消去 ∧', 'Split ∧'), desc: T('由 A ∧ B 得到 A，也得到 B。', 'From A ∧ B, A, and also B.'), ports: { ab: 'A ∧ B' }, outs: { left: ['A', 'A'], right: ['B', 'B'] } },
+  orI: { name: T('析取引入 ∨', 'Bring in ∨'), desc: T('由 A 推出 A ∨ B 或 B ∨ A。在卡片上选择新增的析取项 B 及其位置。', 'From A, A ∨ B (or B ∨ A); choose B and its side on the card.'), ports: { a: 'A' }, params: { other: T('新增析取项', 'Other side') } },
+  orE: { name: T('析取消去 ∨', 'Case by case'), desc: T('分类讨论：由 A ∨ B 出发，在假设 A 和假设 B 的两个分支中分别推出 C，解除分支假设后得到 C。', 'Wire in A ∨ B: if assuming A proves C and assuming B proves C, then C.'), ports: { ab: 'A ∨ B' }, frames: { left: T('情况一', 'Case one'), right: T('情况二', 'Case two') } },
+  botE: { name: T('矛盾消去 ⊥', 'From contradiction'), desc: T('由矛盾 ⊥ 推出任意命题，也称爆炸原理。在卡片上选择目标命题。', 'From the contradiction ⊥, whatever is chosen on the card.'), ports: { bot: '⊥' }, params: { C: T('目标命题', 'Conclude') } },
+  raa: { name: T('双重否定消去', 'By contradiction'), desc: T('由 ¬¬A 推出 A。这是一条经典规则；结合否定引入，可以实现反证法。', 'From ¬¬A, A.'), ports: { nna: '¬¬A' } },
+  iffE: { name: T('双条件消去 ↔', 'Split ↔'), desc: T('由 A ↔ B 得到 A → B，也得到 B → A。', 'From A ↔ B, A → B, and also B → A.'), ports: { iff: 'A ↔ B' }, outs: { ltr: ['A → B', '→'], rtl: ['B → A', '←'] } },
+  allI: { name: T('全称引入 ∀', 'For any'), desc: T('对任意变量 x 证明 P(x)，得到 ∀x. P(x)。x 不能自由出现于结论仍依赖的任何假设中。', 'Prove P(x) inside the box for a new variable x; outside you get ∀x. P(x).'), params: { x: T('变量', 'Variable') }, frames: { body: T('框内', 'Inside') } },
+  allE: { name: T('全称消去 ∀', 'Instantiate'), desc: T('由 ∀x. P(x)，用项 t 代入 x，得到 P(t)。', 'From ∀x. P(x), P(t).'), ports: { all: '∀x. P(x)' }, params: { t: T('项', 'Term') } },
+  exI: { name: T('存在引入 ∃', 'Example'), desc: T('由一个见证项 t 的性质 P(t)，推出 ∃x. P(x)。', 'From P(t), ∃x. P(x).'), ports: { a: 'P(t)' }, params: { target: T('目标命题', 'Conclude'), t: T('项', 'Term') } },
+  exE: { name: T('存在消去 ∃', 'Take one'), desc: T('由 ∃x. P(x)，临时假设 P(y) 并推出 C。y 不能自由出现于 C 或其他未解除的假设中；解除 P(y) 后得到 C。', 'Wire in ∃x. P(x); if assuming P(y) proves C inside the box, then C.'), ports: { ex: '∃x. P(x)' }, params: { x: T('见证变量', 'Witness') }, frames: { body: T('框内', 'Inside') } },
+  refl: { name: T('等式自反性', 'Reflexivity'), desc: T('任意项 t 都满足 t = t。', 't = t.'), params: { t: T('项', 'Term') } },
+  rewrite: { name: T('等式代换', 'Rewrite'), desc: T('由 s = t 和 φ(s)，将指定位置的 s 替换为 t，得到 φ(t)。', 'From s = t and φ(s), φ(t).'), ports: { eq: 's = t', p: 'φ(s)' }, params: { pattern: T('公式模式', 'Pattern') } },
 }
 
 const FIXED = { premise: 'source', goal: 'sink' }
@@ -51,7 +51,7 @@ export function partsFor(lemmas = {}, premises = []) {
     role: (node) => (FIXED[node.type] ? FIXED[node.type] : 'part'),
     label: (node) => {
       if (node.type === 'goal') return T('目标', 'Goal')
-      if (node.type === 'premise') return premises.length > 1 ? T(`已知 ${premises.indexOf(node.params.name) + 1}`, `Given ${premises.indexOf(node.params.name) + 1}`) : T('已知', 'Given')
+      if (node.type === 'premise') return premises.length > 1 ? T(`前提 ${premises.indexOf(node.params.name) + 1}`, `Given ${premises.indexOf(node.params.name) + 1}`) : T('前提', 'Given')
       return nameOf(lemmas, node.type)
     },
     portLabel: (node, port) => {

@@ -44,7 +44,7 @@ test('a wrong premise is named with what it needed', () => {
   const c = proof({ m: ['mp'] }, ['p>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] })
   const r = run(level, c)
   assert.equal(r.pass, false)
-  assert.deepEqual(r.results[0].errors.get('m'), { zh: '这里要 A，接进来的是 C', en: 'This needs A; it got C' })
+  assert.deepEqual(r.results[0].errors.get('m'), { zh: '所需输入：A；实际输入：C', en: 'This needs A; it got C' })
 })
 
 test('→ introduction closes its assumption; an open one fails', () => {
