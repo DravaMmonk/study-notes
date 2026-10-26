@@ -271,3 +271,28 @@ test('a machine backtracks once its level says so, and a search finds every answ
   }
   assert.equal(runLevel(MACHINE_TESTS, ask, machine({ g: ['rule', { rule: 'grand' }], a: ['assumption'], b: ['assumption'] }, ['in>g.in', 'g>a.in', 'a>b.in', 'b>out'])).pass, true)
 })
+
+test('a proof state can build its proof term, each goal a hole, and the kernel checks the finished term', async () => {
+  const { parseS } = await import('./schematic.js')
+  const { KERNEL, assumption, erule, proofTermOf, rule, startState } = await import('./tactics.js')
+  const { kernelCheck } = await import('./machine.js')
+  const { printTerm } = await import('./pterm.js')
+  const step = (s, t, r) => t(s, r).results[0]
+  let s = startState(parseS('Rain ∧ Wind → Wind ∧ Rain'), [], { terms: true })
+  s = step(step(s, rule, KERNEL.impI), erule, KERNEL.conjE)
+  s = step(s, rule, KERNEL.conjI)
+  assert.equal(printTerm(proofTermOf(s)), 'fun h1 => ⟨?m4, ?m5⟩')
+  s = step(step(s, assumption), assumption)
+  assert.equal(printTerm(proofTermOf(s)), 'fun h1 => ⟨h1.2, h1.1⟩')
+  assert.equal(kernelCheck({}, { goal: 'Rain ∧ Wind → Wind ∧ Rain' }, s), '')
+  // A level's own rule is an axiom the kernel may use, unless nobody proved it.
+  const conv = { conv: { name: { zh: '认识是相互的', en: 'Knowing goes both ways' }, premises: ['Knows(?x, ?y)'], conclusion: 'Knows(?y, ?x)' } }
+  const test = { goal: 'Knows(bo, ann)', hyps: ['Knows(ann, bo)'] }
+  let t = startState(parseS(test.goal), test.hyps.map(parseS), { terms: true })
+  const level = { rules: conv }
+  const { ruleBookOf } = await import('./machine.js')
+  t = step(step(t, rule, ruleBookOf(level).conv), assumption)
+  assert.equal(kernelCheck(level, test, t), '')
+  const unproved = { rules: { conv: { ...conv.conv, unproved: true } } }
+  assert.match(kernelCheck(unproved, test, t).en, /conv/)
+})

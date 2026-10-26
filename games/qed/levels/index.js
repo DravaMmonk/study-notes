@@ -68,7 +68,8 @@ const REVISIONS = {
   erule: [{ at: 's-results', desc: T('元件上选一条规则：先用规则，再拿已知里有对上它留下的第一个目标。规则的结论对上第一个目标，第一条前提对上一条已知；剩下的前提各成一个目标。每一条对上的已知都是一种结果。', 'Choose a rule on the part: Rule, then Assumption on the first goal it leaves. The rule’s conclusion fits the first goal and its first premise a hypothesis; each other premise is a goal. Each hypothesis that fits is a result.') }],
 }
 
-export const LOGIC = logicCourse({
+// The course as logicCourse takes it (a branch of the game, qed-terms, builds its own from it).
+export const COURSE = {
   eras: ERAS,
   levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...terms, ...metavars, ...strategies],
   words: WORDS,
@@ -82,4 +83,5 @@ export const LOGIC = logicCourse({
     'append', 'each', 'defer', 'search'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
   concept: { andI: 'and', andE: 'and', rewrite: 'eq', refl: 'eq' },
-})
+}
+export const LOGIC = logicCourse(COURSE)

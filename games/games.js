@@ -42,6 +42,16 @@ export const GAMES = [
     progress: () => (read('qed.v1')?.solved || []).length,
   },
   {
+    id: 'qed-terms', href: 'qed-terms/index.html', title: '证明完毕 · 证明项分支', en: 'Q.E.D. · Proof-term branch', topic: { zh: '形式化证明', en: 'Formal Proof' },
+    desc: {
+      zh: '《证明完毕》的试做分支：倒着证的时候，每个目标都是证明项里的一个洞，证完以后由核检查整个证明项。',
+      en: 'A trial branch of Q.E.D.: proving backwards, each goal is a hole in the proof term, and once done the kernel checks the whole term.',
+    },
+    levels: 172, art: 'detach', dev: true, hidden: true,
+    page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 证明项分支：证明状态一边证一边填出证明项。Q.E.D. proof-term branch: a proof state fills in its proof term as it goes.' },
+    progress: () => (read('qed-terms.v1')?.solved || []).length,
+  },
+  {
     id: 'qed-lab', href: 'qed-lab/index.html', title: '证明完毕 · 试做', en: 'Q.E.D. · Trial', topic: { zh: '形式化证明', en: 'Formal Proof' },
     desc: {
       zh: '从套用和假设框搭起证明器，加上与、或的规则，用框证出公理 K 和 S，再拿掉框，只靠公理证明。',
