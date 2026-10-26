@@ -13,7 +13,7 @@
 // `more` the further results after this one, when a tactic gives several, and `endless` that a search making them did
 // not stop (schematic.js does the unifying).
 import { fn, subst } from './formula.js'
-import { KERNEL_RULES, RULE_SETS, instantiate, metasIn, unify } from './schematic.js'
+import { ELIM_RULES, INTRO_RULES, KERNEL_RULES, instantiate, metasIn, unify } from './schematic.js'
 
 const T = (zh, en) => ({ zh, en })
 const NO_GOALS = T('已经没有目标了', 'No goals left')
@@ -78,21 +78,20 @@ function lift(premises, g, s) {
   })
   return { goals, fixed }
 }
+const keyOf = (f) => JSON.stringify(f)
+const unique = (fs) => [...new Map(fs.map((f) => [keyOf(f), f])).values()]
 // The state after a step: the new goals in front of the rest, everything with σ put in.
 function after(s, σ, goals, scopes, fixed = []) {
   const put = (f) => instantiate(f, σ)
   return {
     kind: 'state',
-    goals: goals.map((g) => ({ fixes: fixesOf(g), hyps: g.hyps.map(put), goal: put(g.goal) })),
+    goals: goals.map((g) => ({ fixes: fixesOf(g), hyps: unique(g.hyps.map(put)), goal: put(g.goal) })),
     scopes,
     inst: σ,
     fixed: [...(s.fixed ?? []), ...fixed],
     query: s.query ?? [],
   }
 }
-
-/** The rules a key names: one rule, or each of a set's (rules: the level's rule book, by key). */
-export const rulesNamed = (key, rules) => (RULE_SETS[key] ? RULE_SETS[key].rules.map((k) => rules[k]) : rules[key] ? [rules[key]] : [])
 
 /* ---------- tactics: state → { results: [state] } | { fail } ---------- */
 
@@ -120,54 +119,19 @@ export function assumption(s) {
     results.push(after(s, u.σ, s.goals.slice(1), s.scopes ?? {}))
   }
   if (results.length) return { results }
-  return { fail: late(why) ?? T('第一个目标和哪一条已知都对不上', 'The first goal fits none of its hypotheses') }
+  return { fail: late(why) ?? NONE }
 }
+const NONE = T('第一个目标和哪一条已知都对不上', 'The first goal fits none of its hypotheses')
 
 // Of the reasons unifying failed, the one worth saying: a metavariable that may not become a thing fixed after it.
 const late = (why) => why.find((w) => /之前留下|was left before/.test(w.en)) ?? null
 
-// A rule whose first premise is a plain sentence: what it says about the hypothesis it uses up.
-const major = (r) => (r.premises[0] && !r.premises[0].fixes.length && !r.premises[0].hyps.length ? r.premises[0].show : null)
-
-/** erule: like rule, and its first premise unified with a hypothesis, which it uses up (each that fits is a result). */
+/** erule: rule, then assumption on the goal it leaves first (the rule's first premise fitted to a hypothesis). */
 export function erule(s, R) {
-  const g = s.goals[0]
-  if (!g) return { fail: NO_GOALS }
-  if (!major(R)) return { fail: T(`「${R.name.zh}」没有能对上已知的第一条前提`, `“${R.name.en}” has no first premise to fit a hypothesis`) }
-  const results = []
-  const why = []
-  g.hyps.forEach((h, i) => {
-    const r = renamed(R, metasOfState(s))
-    const scopes = { ...s.scopes, ...Object.fromEntries(r.metas.map((m) => [m, fixesOf(g)])) }
-    const u = unify([[r.conclusion, g.goal], [major(r), h]], s.inst ?? {}, { scopes, fixed: s.fixed ?? [] })
-    if (u.fail) { why.push(u.fail); return }
-    const { goals, fixed } = lift(r.premises.slice(1), { ...g, hyps: g.hyps.filter((_, k) => k !== i) }, s)
-    results.push(after(s, u.σ, [...goals, ...s.goals.slice(1)], scopes, fixed))
-  })
-  if (results.length) return { results }
-  return { fail: late(why) ?? T(`「${R.name.zh}」对不上：结论要对上第一个目标，第一条前提要对上一条已知`, `“${R.name.en}” does not fit: its conclusion must fit the first goal and its first premise a hypothesis`) }
-}
-
-/**
- * drule: the rule's first premise unified with a hypothesis, which becomes the rule's conclusion (frule: the
- * hypothesis stays, and the conclusion is added); the rule's other premises are goals of their own, in front.
- */
-export function drule(s, R, keep = false) {
-  const g = s.goals[0]
-  if (!g) return { fail: NO_GOALS }
-  if (!major(R)) return { fail: T(`「${R.name.zh}」没有能对上已知的第一条前提`, `“${R.name.en}” has no first premise to fit a hypothesis`) }
-  const results = []
-  g.hyps.forEach((h, i) => {
-    const r = renamed(R, metasOfState(s))
-    const scopes = { ...s.scopes, ...Object.fromEntries(r.metas.map((m) => [m, fixesOf(g)])) }
-    const u = unify([[major(r), h]], s.inst ?? {}, { scopes, fixed: s.fixed ?? [] })
-    if (u.fail) return
-    const hyps = keep ? g.hyps : g.hyps.filter((_, k) => k !== i)
-    const { goals, fixed } = lift(r.premises.slice(1), { ...g, hyps }, s)
-    results.push(after(s, u.σ, [...goals, { fixes: fixesOf(g), hyps: [...hyps, r.conclusion], goal: g.goal }, ...s.goals.slice(1)], scopes, fixed))
-  })
-  if (results.length) return { results }
-  return { fail: T(`「${R.name.zh}」的第一条前提对不上哪一条已知`, `The first premise of “${R.name.en}” fits no hypothesis`) }
+  const r = rule(s, R)
+  if (r.fail) return r
+  const a = assumption(r.results[0])
+  return a.fail && a.fail === NONE ? { fail: T(`「${R.name.zh}」的第一条前提对不上哪一条已知`, `The first premise of “${R.name.en}” fits no hypothesis`) } : a
 }
 
 /** defer: the first goal moved to the end. */
@@ -188,37 +152,75 @@ export function eachRule(s, rules, tactic) {
   return results.length ? { results } : { fail: why ?? T('没有规则', 'No rule') }
 }
 
+// A state's goals by their sentence, each with its hypotheses written out (kept, as a search compares a state with
+// every one on its path).
+const indexed = new WeakMap()
+function goalsBy(s) {
+  if (!indexed.has(s)) {
+    const by = new Map()
+    for (const g of s.goals) {
+      const k = keyOf(g.goal)
+      if (!by.has(k)) by.set(k, [])
+      by.get(k).push({ fixes: fixesOf(g), hyps: g.hyps.map(keyOf) })
+    }
+    indexed.set(s, by)
+  }
+  return indexed.get(s)
+}
+// Is a goal (g2) no easier than another with the same sentence (g): each hypothesis of g2 one of g's, once each thing
+// g2 fixed beyond g's is named as one of g's (taking a thing out again gives nothing new).
+function noEasier(g2, g) {
+  const have = new Set(g.hyps)
+  const extra = g2.fixes.filter((x) => !g.fixes.includes(x))
+  const namings = extra.reduce((list, x) => list.flatMap((m) => g.fixes.map((y) => [...m, [keyOf(fn(x)), keyOf(fn(y))]])), [[]])
+  return namings.some((m) => g2.hyps.every((h) => have.has(m.reduce((k, [x, y]) => k.split(x).join(y), h))))
+}
+/** A state that is no nearer the end than one before it: each goal of that one has a goal here no easier than it. */
+export function noProgress(next, before) {
+  const there = goalsBy(next)
+  for (const [k, goals] of goalsBy(before)) {
+    const same = there.get(k)
+    if (!same || !goals.every((g) => same.some((g2) => noEasier(g2, g)))) return false
+  }
+  return true
+}
+
 /**
  * Depth first: the results of `expand` on each state, deeper and deeper, every state with no goal left found, in
- * order; a path stops at `depth` steps (when given). { found, stopped }: stopped when it went on for `limit` steps.
+ * order; a path stops at `depth` steps (when given), and is not followed into a state no nearer the end than one
+ * already on it. { found, stopped }: stopped when it went on for `limit` steps.
  */
 export function depthFirst(starts, expand, { depth = Infinity, limit = 600, most = 12 } = {}) {
   const found = []
   let steps = 0
   let stopped = false
-  const go = (s, d) => {
+  const go = (s, d, path) => {
     if (found.length >= most || stopped) return
     if (!s.goals.length) { found.push(s); return }
     if (d >= depth) return
     if (++steps > limit) { stopped = true; return }
-    for (const next of expand(s)) go(next, d + 1)
+    const on = [s, ...path]
+    for (const next of expand(s)) if (!on.some((b) => noProgress(next, b))) go(next, d + 1, on)
   }
-  for (const s of starts) go(s, 0)
+  for (const s of starts) go(s, 0, [])
   return { found, stopped }
 }
 
 /** The kernel's rules by key. */
 export const KERNEL = Object.fromEntries(KERNEL_RULES.map((r) => [r.key, r]))
 
-/**
- * auto: depth first, each step trying assumption, then every introduction rule, then every elimination rule on a
- * hypothesis; at most `depth` steps on a path (the player's own, built in: search, append and two rule sets).
- */
-export function auto(s, { depth = 12, limit = 4000 } = {}) {
-  const expand = (x) => [
-    ...(assumption(x).results ?? []),
-    ...(eachRule(x, rulesNamed('intro', KERNEL), rule).results ?? []),
-    ...(eachRule(x, rulesNamed('elim', KERNEL), erule).results ?? []),
-  ]
-  return depthFirst([s], expand, { depth, limit })
+/** frule: the rule used forward, as the player builds it: Have (cut) leaves a sentence ?A to prove first, then erule. */
+export function frule(s, R) {
+  const c = rule(s, KERNEL.cut)
+  return c.fail ? c : erule(c.results[0], R)
+}
+
+const ok = (r) => r.results ?? []
+/** One step taking the first goal apart by its shape: every introduction rule that fits (rules: the rule book). */
+export const introStep = (s, rules = KERNEL) => eachRule(s, INTRO_RULES.map((k) => rules[k]), rule)
+/** One step using a hypothesis: every elimination rule that fits one, by erule. */
+export const elimStep = (s, rules = KERNEL) => eachRule(s, ELIM_RULES.map((k) => rules[k]), erule)
+/** auto, as the player builds it: depth-first search, each step assumption, then taking the goal apart, then using a hypothesis. */
+export function auto(starts, rules = KERNEL, { limit = 250, most = 60 } = {}) {
+  return depthFirst(starts, (x) => [...ok(assumption(x)), ...ok(introStep(x, rules)), ...ok(elimStep(x, rules))], { limit, most })
 }

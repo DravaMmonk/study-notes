@@ -225,7 +225,7 @@ test('unification solves sentences with ?-letters, patterns as functions, and re
 
 test('rules used backwards leave ?-letters that a given settles later, and a fixed thing comes too late for an older one', async () => {
   const { parseS } = await import('./schematic.js')
-  const { KERNEL, assumption, drule, erule, rule, startState } = await import('./tactics.js')
+  const { KERNEL, assumption, erule, frule, rule, startState } = await import('./tactics.js')
   const step = (s, ...r) => { const out = r[0](s, ...r.slice(1)); assert.ok(out.results, JSON.stringify(out.fail)); return out.results[0] }
   let s = startState(parseS('Wet'), ['Rain → Wet', 'Rain'].map(parseS))
   s = step(s, rule, KERNEL.mp)
@@ -236,11 +236,24 @@ test('rules used backwards leave ?-letters that a given settles later, and a fix
   // Take one only fits forwards: backwards ?P(?t) is no pattern.
   const t = startState(parseS('Mortal(soc)'), ['∀x. Human(x) → Mortal(x)', 'Human(soc)'].map(parseS))
   assert.ok(rule(t, KERNEL.spec).fail)
-  assert.equal(step(step(step(t, drule, KERNEL.spec), erule, KERNEL.mp), assumption).goals.length, 0)
+  // Forward is Have, then the rule on a given: the given stays, and the rule's conclusion joins it.
+  const f = step(t, frule, KERNEL.spec)
+  assert.equal(f.goals[0].hyps.length, 3)
+  assert.equal(step(step(f, erule, KERNEL.mp), assumption).goals.length, 0)
   // An example left before the thing was taken out cannot become it.
   let u = startState(parseS('∃x. Rich(x)'), [parseS('∃x. Human(x) ∧ Rich(x)')])
   u = step(step(step(u, rule, KERNEL.exI), erule, KERNEL.exE), erule, KERNEL.conjE)
   assert.match(assumption(u).fail.en, /was left before/)
+})
+
+test('a search does not follow a step that gives nothing new, so using givens again comes to an end', async () => {
+  const { parseS } = await import('./schematic.js')
+  const { auto, startState } = await import('./tactics.js')
+  const run = (goal) => auto([startState(parseS(goal))])
+  assert.ok(run('(∃x. Human(x) ∧ Likes(x, ann)) → ∃x. Likes(x, ann)').found.length)
+  // Not provable without proof by contradiction: the search runs out of new steps rather than of time.
+  const lost = run('(¬Rain → Rain) → Rain')
+  assert.equal(lost.found.length + Number(lost.stopped), 0)
 })
 
 test('a machine backtracks once its level says so, and a search finds every answer to a question', async () => {

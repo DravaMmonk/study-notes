@@ -327,13 +327,13 @@ export const KERNEL_RULES = [
   ruleOf('allE', R('取一个，再用', 'Take one, then use'), ['∀x. ?P(x)', '⟦?P(?t)⟧ ⟹ ?C'], '?C'),
   ruleOf('exE', R('拿出那一个', 'Take the one there is'), ['∃x. ?P(x)', '⋀x. ⟦?P(x)⟧ ⟹ ?C'], '?C'),
   ruleOf('raa', R('反证法', 'By contradiction'), ['¬¬?A'], '?A'),
+  // A sentence proved on the way and then used, as a wire on the proof board does (Lean's have).
+  ruleOf('cut', R('先证一句', 'Have'), ['?A', '⟦?A⟧ ⟹ ?C'], '?C'),
   ruleOf('refl', R('自反', 'Reflexivity'), [], '?t = ?t'),
 ]
-/** The rule sets a card can try all of, each rule in turn: the introduction and the elimination rules. */
-export const RULE_SETS = {
-  intro: { name: T('引入规则（一组）', 'Introduction rules (a set)'), rules: ['conjI', 'impI', 'disjI1', 'disjI2', 'allI', 'exI'] },
-  elim: { name: T('消去规则（一组）', 'Elimination rules (a set)'), rules: ['conjE', 'disjE', 'impE', 'botE', 'exE', 'allE'] },
-}
+/** The introduction rules (a goal taken apart by its shape) and the elimination rules (a given used), in order. */
+export const INTRO_RULES = ['conjI', 'impI', 'disjI1', 'disjI2', 'allI', 'exI']
+export const ELIM_RULES = ['conjE', 'disjE', 'impE', 'botE', 'exE', 'allE']
 
 // A lemma's letters are ?-letters as a rule; a letter under a quantifier is about its variable (∀x. P is ∀x. ?P(x)).
 function metaRule(f, letters, bound = []) {
