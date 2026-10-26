@@ -243,7 +243,7 @@ const inputNames = (circuit) => circuit.nodes.filter((n) => n.type === 'in').map
 
 export const MACHINE = {
   tests: MACHINE_TESTS,
-  // Inputs and results hold equations, goals or clauses: shown in full, in a box of a fixed height.
+  // Inputs and results hold equations, goals or clauses: shown in full, in a box sized as a step's result in the run.
   ioBox: true,
   parts: (level) => machinePartsFor(level),
   start: startMachine,

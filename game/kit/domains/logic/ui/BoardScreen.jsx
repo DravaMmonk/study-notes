@@ -206,8 +206,8 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
 const shapesOf = (part, text, more) => part.forms.filter((k, i) => i === 0 || more.includes(k)).map((k) => ({ key: k, label: text?.forms?.find((f) => f.key === k)?.label ?? k }))
 const DEPTHS = [2, 3, 4, 5, 6, 8, 10, 12]
 
-// What a machine board's input and result hold (`board.ioBox`), written out in full in a box of a fixed height, the
-// size of a step's result in the run (shell StepLog): longer, it scrolls.
+// What a machine board's input and result hold (`board.ioBox`), written out in full, in a box sized as a step's result
+// in the run (shell StepLog): as tall as what it holds, up to that result's height, and scrolling past it.
 const IoBox = ({ children }) => <div className="lg-io" onPointerDown={(e) => e.stopPropagation()}>{children}</div>
 
 // One setting on a card: what kind it is decides how it is chosen (board.settings).
