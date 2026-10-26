@@ -11,6 +11,7 @@
 //       | { k: 'absurd', p }              False.elim p
 //       | { k: 'raa', p }                 byContradiction p                       (classical: from ¬¬A, A)
 //       | { k: 'rfl' } | { k: 'subst', h, p }   h ▸ p | { k: 'const', name }   (a lemma, by its card's name)
+//       | { k: 'hole', name }                ?m1: a place still to fill (a goal of a proof state, tactics.js)
 //
 // Written terms follow Lean: `fun h => …`, `f a`, `⟨a, b⟩`, `p.1`, `p.2`, `Or.inl a`, `Or.inr b`, `p.elim f g`,
 // `False.elim p`, `byContradiction p`, `rfl`, `h ▸ p`.
@@ -35,6 +36,16 @@ export const raa = (p) => ({ k: 'raa', p })
 export const rfl = { k: 'rfl' }
 export const psubst = (h, p) => ({ k: 'subst', h, p })
 export const pconst = (name) => ({ k: 'const', name })
+export const hole = (name) => ({ k: 'hole', name })
+
+const KIDS = { app: ['f', 'a'], lam: ['body'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], open: ['p', 'body'], absurd: ['p'], raa: ['p'], subst: ['h', 'p'] }
+/** A term with every part rewritten by f (bottom up): f(term) for each node, its own parts already rewritten. */
+export function mapTerm(t, f) {
+  const parts = KIDS[t.k]
+  return f(parts ? { ...t, ...Object.fromEntries(parts.map((k) => [k, mapTerm(t[k], f)])) } : t)
+}
+/** A term with each hole filled as `fills` says (fills may hold holes in turn); a hole not filled stays. */
+export const fillHoles = (t, fills) => mapTerm(t, (u) => (u.k === 'hole' && fills[u.name] ? fillHoles(fills[u.name], fills) : u))
 
 /* ---------- printing ---------- */
 
@@ -64,6 +75,7 @@ function show(t, outer = 0) {
     case 'absurd': return wrap(`False.elim ${show(t.p, 2)}`, 1)
     case 'raa': return wrap(`byContradiction ${show(t.p, 2)}`, 1)
     case 'subst': return wrap(`${show(t.h, 1)} ▸ ${show(t.p, 0)}`, 0)
+    case 'hole': return `?${t.name}`
     default: return '?'
   }
 }

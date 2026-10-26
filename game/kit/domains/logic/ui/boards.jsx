@@ -13,6 +13,7 @@ import { sayTerm } from '../notation.js'
 import { choicesOf } from '../choices.js'
 import { LOGIC_TESTS } from '../proof.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel, parseGoal, ruleBookOf } from '../machine.js'
+import { proofTermOf } from '../tactics.js'
 import { INTRO_RULES, ruleText } from '../schematic.js'
 import { paramsOf } from '../../../engine/forms.js'
 import { portsOf } from '../../../engine/circuit.js'
@@ -138,7 +139,8 @@ const SHOWN = 6
 // in the level's words: ⋀ for the variables bound around an equation and the things a goal has fixed.
 const sideOf = (x, text) => ('t' in x ? text({ op: 'atom', pred: '=', args: [x, x] }).split(' = ')[0] : x.op === 'lam' ? `fun ${x.params.join(' ')} => ${text(x.body)}` : text(x))
 const eqText = (e, text) => `${e.bound.length ? `⋀${e.bound.join(' ')}. ` : ''}${sideOf(e.s, text)} ≐ ${sideOf(e.t, text)}`
-const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` : ''}${g.hyps.length ? `${g.hyps.map(text).join(tr('；', '; '))} ⊢ ` : ''}${text(g.goal)}`
+// A goal of a state that builds its proof term names each hypothesis by its term (p, h1, p.1 …), as Lean does.
+const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` : ''}${g.hyps.length ? `${g.hyps.map((h, k) => (g.terms ? `${printTerm(g.terms[k])}: ${text(h)}` : text(h))).join(tr('；', '; '))} ⊢ ` : ''}${text(g.goal)}`
 /** A formula, equations, a proof state, or a clause set: its clauses (the first few), and ⊥ standing out once it is in. */
 function MachineValue({ v, text, small = false }) {
   if (!v) return null
@@ -151,7 +153,8 @@ function MachineValue({ v, text, small = false }) {
       <span className="lg-clauses">
         {v.error && <><b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b><small>{L(v.error)}</small></>}
         {!v.goals.length && <b className="lg-bot">{tr('没有目标了：证完了', 'No goals left: proved')}</b>}
-        {v.goals.slice(0, SHOWN).map((g, k) => <code key={k}>{goalText(g, text)}</code>)}
+        {v.goals.slice(0, SHOWN).map((g, k) => <code key={k}>{v.root && <small className="lg-hole">?{g.hole}</small>}{goalText(g, text)}</code>)}
+        {v.root && !v.error && <code className="lg-term" title={tr('证明项', 'Proof term')}>{printTerm(proofTermOf(v))}</code>}
         {v.goals.length > 0 && <small>{tr(`${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'}`)}</small>}
         {alt}
       </span>
