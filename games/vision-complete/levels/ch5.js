@@ -297,10 +297,10 @@ const order = {
     en: 'Q and K decide whom to look at; V decides what comes back. For the result to know where the bright and dark patches sit, which input should carry the position?',
   },
   after: {
-    zh: '没有位置时，把两个图块对调，注意力的输出也只是跟着对调：它看到的是一袋图块，不是一串。你给每个图块加上了它的编号乘一个小数：这叫位置编码 z̃ᵢ = zᵢ + pᵢ，每个图块带着自己的地址，顺序才进得了计算。它现在是现成的元件「位置编码」。ViT 在进入第一层之前就把位置加到每个图块上。',
-    en: "Without position, swap two patches and attention's output just swaps with them: it sees a bag of patches, not a sequence. You added each patch's number times a small amount: this is a positional encoding z̃ᵢ = zᵢ + pᵢ, so every patch carries its own address and order can enter the computation. It is now a ready-made part, \"Positional encoding\". ViT adds the position to every patch before the first layer.",
+    zh: '没有位置时，把两个图块对调，注意力的输出也只是跟着对调：它看到的是一袋图块，不是一串。你给每个图块加上了它的编号乘一个小数：这叫位置编码 z̃ᵢ = zᵢ + pᵢ，每个图块带着自己的地址，顺序才进得了计算。ViT 在进入第一层之前就把位置加到每个图块上。',
+    en: "Without position, swap two patches and attention's output just swaps with them: it sees a bag of patches, not a sequence. You added each patch's number times a small amount: this is a positional encoding z̃ᵢ = zᵢ + pᵢ, so every patch carries its own address and order can enter the computation. ViT adds the position to every patch before the first layer.",
   },
-  unlocks: ['posenc'],
+  unlocks: [],
   tests: ORDER_TESTS,
   hidden: ORDER_HIDDEN,
   solution: orderGraph({ position: 'v' }),

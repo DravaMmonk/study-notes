@@ -161,10 +161,15 @@ export default {
     },
   ],
   '4-14': [
+    { t: { zh: '<level-ref to="4-13"></level-ref>的核分辨的是红和绿。颜色还有另一组对立：蓝和黄。沙漠的天际线、海边的沙滩，交界两边常常一样亮，只是颜色不同。', en: 'The kernel in <level-ref to="4-13"></level-ref> told red from green. Colour has another opposition: blue and yellow. On a desert skyline or a beach, the two sides of the border are often equally bright and differ only in colour.' } },
+    { t: { zh: '托盘里的「多通道 3×3 核」一个核横跨 R、G、B 三张图，27 个权重一起训练。', en: 'The Multichannel 3×3 kernel in the tray spans the R, G and B images with one kernel, its 27 weights trained together.' } },
+    { t: { zh: '这一关你要做的：只描出蓝与黄的交界，只是变亮变暗的地方要是 0。要想的问题：黄色和蓝色，在三张图里各是什么样？', en: 'Your task: trace only the border between blue and yellow; places that just get brighter or darker must be 0. Something to think about: what do yellow and blue each look like in the three images?' }, fig: { test: 0, caption: { zh: '第一组：天和沙，一条平线', en: 'Set 1: sky and sand, a level line' } } },
+  ],
+  '4-15': [
     { t: { zh: '在<level-ref to="4-13"></level-ref>里，一个核横跨三个通道，学会了看颜色的对比。这一关在街景里找红灯：红灯又亮又红，可街上还有暗处的红车、白色的路灯和绿灯。', en: 'In <level-ref to="4-13"></level-ref> one kernel spanned three channels and learned to see colour contrast. This level looks for red lights in street scenes: a red light is bright and red, but the street also has red cars in the shade, white street lamps and green lights.' } },
     { t: { zh: '这一关你要做的：只标出红灯。要想的问题：「亮」和「红」，各要看哪几个通道？', en: 'Your task in this level: mark only the red lights. Something to think about: which channels does "bright" need, and which does "red"?' }, fig: { test: 0, caption: { zh: '第一组：路口', en: 'Set 1: a crossing' } } },
   ],
-  '4-15': [
+  '4-16': [
     {
       t: {
         zh: '网络越深（层越多），能表达的东西越复杂，今天认图的网络动辄几十上百层。可早年人们发现，层数一多，有时反而训不出来。',
@@ -180,11 +185,15 @@ export default {
       fig: { test: 0, caption: { zh: '第一组测试：字母 X → 轻微锐化', en: 'Set 1: the letter X → slightly sharpened' } },
     },
   ],
-  '4-16': [
+  '4-17': [
+    { t: { zh: '<level-ref to="4-16"></level-ref>里，6 层的网络加上捷径就训得动了。今天认图的网络动辄上百层，再深下去还行吗？', en: 'In <level-ref to="4-16"></level-ref>, a 6-layer network trained once it had shortcuts. Today\'s image-recognition networks run to a hundred layers or more: does it still work deeper down?' } },
+    { t: { zh: '这一关你要做的：把至少 12 个卷积层串成一条路，训练它学会测试里那种轻微的模糊。每个卷积层都从很小的随机数开始。', en: 'Your task: chain at least 12 conv layers into one path and train it to learn the light blur in the tests. Every conv layer starts from very small random numbers.' }, fig: { test: 0, caption: { zh: '第一组测试：字母 X → 轻微模糊', en: 'Set 1: the letter X → lightly blurred' } } },
+  ],
+  '4-18': [
     { t: { zh: '这是一道挑战关，可以跳过。它不需要新元件。', en: 'This is a challenge level, and you can skip it. It needs no new parts.' } },
     { t: { zh: '手机上的网络要省电。这一关要两张输出，都由三个通道各自做过 3×3 平均之后混出来。两个多通道核要花 58 的计算量，这一关只给 30。', en: 'Networks on phones must save power. This level wants two outputs, both mixed from the three channels after each has had a 3×3 average. Two multichannel kernels cost 58, and this level allows only 30.' }, fig: { test: 0, caption: { zh: '第一组：红绿对半', en: 'Set 1: half red, half green' } } },
   ],
-  '4-17': [
+  '4-19': [
     {
       t: {
         zh: '考试前把往年题连答案一起背下来，旧题全对，新题照样不会。模型也会这样：它在训练样本上越来越准，不等于它在新样本上也准。',
@@ -204,12 +213,12 @@ export default {
       },
     },
   ],
-  '4-18': [
-    { t: { zh: '这一章最后三关，要搭一台零件分拣机：传送带上有 X、O、+ 三种零件，相机拍一张，机器说是哪一种。<level-ref to="4-17"></level-ref>看到，模型要在新样本上也准才算数。', en: 'The last three levels of this chapter build a parts sorter: X, O and + parts ride the belt, the camera takes a picture and the machine says which kind it is. <level-ref to="4-17"></level-ref> showed that a model only counts if it is right on new samples too.' } },
+  '4-20': [
+    { t: { zh: '这一章最后三关，要搭一台零件分拣机：传送带上有 X、O、+ 三种零件，相机拍一张，机器说是哪一种。<level-ref to="4-19"></level-ref>看到，模型要在新样本上也准才算数。', en: 'The last three levels of this chapter build a parts sorter: X, O and + parts ride the belt, the camera takes a picture and the machine says which kind it is. <level-ref to="4-19"></level-ref> showed that a model only counts if it is right on new samples too.' } },
     { t: { zh: '三选一时，网络先给每一类打一个分。可分数可正可负，加起来也不是 1，不能直接当成「有多大把握」。', en: 'Choosing one of three, the network first gives each class a score. But scores can be positive or negative and do not add up to 1, so they cannot be read as "how sure" directly.' } },
     { t: { zh: '这一关你要做的：把三个分变成三个概率，规则在说明里。要想的问题：负的分该怎么办？', en: 'Your task in this level: turn the three scores into three probabilities, by the rule in the brief. Something to think about: what should happen to a negative score?' }, fig: { test: 0, caption: { zh: '第一组：分数 (2, 0, −1)', en: 'Set 1: scores (2, 0, −1)' } } },
   ],
-  '4-19': [
+  '4-21': [
     { t: { zh: '分拣机正式上线：零件的位置、深浅都不一样，有的带噪点。最后几组是「新零件」，不参加训练，只用来检查。', en: 'The sorter goes live: parts sit in different places, at different strengths, some with noise. The last few sets are "new parts" that take no part in training and are only checked.' }, fig: { test: 0, caption: { zh: '第一组：一个 X', en: 'Set 1: an X' } } },
     { t: { zh: '这一关你要做的：输出三个概率，正确那一类大于 0.55，另两类小于 0.45。要想的问题：三类零件靠哪些笔画区分？网络要看出几种笔画？', en: 'Your task in this level: output three probabilities, above 0.55 for the right class and below 0.45 for the other two. Something to think about: which strokes tell the three kinds apart? How many kinds of stroke must the network see?' } },
   ],

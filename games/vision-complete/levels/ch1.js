@@ -118,7 +118,7 @@ const sharpen = {
   title: { zh: '锐化', en: 'Sharpen' },
   brief: { zh: '让细节更清楚：输出 = 原图 + 1.5 ×（原图 − 模糊图）。模糊用 σ = 1 的高斯。', en: 'Make the details clearer: output = original + 1.5 × (original − blurred). Blur with a Gaussian of σ = 1.' },
   after: { zh: '原图减去模糊图，剩下的正是细节（高频）。把细节加回去，图就变“锐”了。', en: 'The original minus the blurred image leaves exactly the detail (the high frequencies). Add the detail back and the image becomes "sharper".' },
-  unlocks: ['sharpen'],
+  unlocks: [],
   tests: each(scenes().slice(0, 4), sharpened),
   hidden: each([[{ zh: '挪开的字母 L', en: 'Shifted letter L' }, P.glyph(GLYPHS.L, 0.1, 0.9, 5, 4)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(21)]], sharpened),
   solution: build({ g: ['gauss', { sigma: 1 }], d: ['arith', { op: 'sub' }], k: ['arith', { op: 'mul' }], kN: ['const', { c: 1.5 }], a: ['arith', { op: 'add' }] }, ['in>g', 'in>d.a', 'g>d.b', 'd>k.a', 'in>a.a', 'k>a.b', 'a>out', 'kN>k.b']),
@@ -131,8 +131,8 @@ const step = {
   chapter: 1,
   title: { zh: '台阶在哪', en: 'Where is the step?' },
   brief: { zh: '在亮度突然变化的地方输出变化量：输出 = 右边邻居 − 自己。', en: 'Where the brightness suddenly changes, output the amount of change: output = right neighbour − self.' },
-  after: { zh: '边缘就是相邻像素的差。平坦处差为 0，台阶处差最大。「右边邻居 − 自己」只看得见竖着的边；同样的道理，「下边邻居 − 自己」看得见横着的边。两个现在都是现成的元件：真实的边朝哪个方向都有，两个方向都得量。', en: 'An edge is the difference between neighbouring pixels. On flat ground the difference is 0; at a step it is largest. "Right neighbour − self" only sees vertical edges; in the same way, "neighbour below − self" sees horizontal ones. Both are now ready-made parts: real edges run every way, so both directions have to be measured.' },
-  unlocks: ['diffx', 'diffy'],
+  after: { zh: '边缘就是相邻像素的差。平坦处差为 0，台阶处差最大。「右边邻居 − 自己」只看得见竖着的边；横着的边，要看「下边邻居 − 自己」。真实的边朝哪个方向都有，两个方向都得量。', en: 'An edge is the difference between neighbouring pixels. On flat ground the difference is 0; at a step it is largest. "Right neighbour − self" only sees vertical edges; horizontal ones need "neighbour below − self". Real edges run every way, so both directions have to be measured.' },
+  unlocks: ['diffx'],
   tests: each([[{ zh: '台阶', en: 'Step' }, P.stepX(8)], [{ zh: '方块', en: 'Square' }, P.square()], [{ zh: '斜坡', en: 'Ramp' }, P.rampX()], [{ zh: '字母 L', en: 'Letter L' }, P.glyph(GLYPHS.L)]], diffx),
   hidden: each([[{ zh: '亮到暗的台阶', en: 'Bright-to-dark step' }, P.stepX(5, 0.85, 0.15)], [{ zh: '挪开的字母 F', en: 'Shifted letter F' }, P.glyph(GLYPHS.F, 0.1, 0.9, 6, 4)], [{ zh: '随机纹理', en: 'Random texture' }, P.noise(17)]], diffx),
   solution: build({ l: ['shift', { dir: 'left' }], d: ['arith', { op: 'sub' }] }, ['in>l', 'l>d.a', 'in>d.b', 'd>out']),
@@ -194,43 +194,46 @@ const guess = {
   naive: build({ k: ['kernel3', { w: MYSTERY }] }, ['in>k', 'k>out']),
 }
 
-const pad = {
+// Padding, in two tasks: the Shift part's replicate edge built by hand, then the filters' from shifts that have it.
+const padding = {
   id: '1-11',
   chapter: 1,
   title: { zh: '补边', en: 'Padding' },
-  brief: { zh: '向右平移一格，但最左一列不补 0，而是照抄原图最左一列。', en: 'Shift right by one pixel, but instead of padding the leftmost column with 0, copy the original image\'s leftmost column.' },
-  hint: { zh: '先做出补 0 的平移：它只错在最左一列。能不能单独拿到「原图的最左一列，其余全是 0」？', en: 'First build the zero-padded shift: it is wrong only in the leftmost column. Can you get "the original\'s leftmost column, with 0 everywhere else" on its own?' },
-  after: { zh: '你拼出的就是「复制边缘」：图外缺的值，用离它最近的边上像素代替，不会凭空造出一道黑边。从现在起，平移元件的「边界」设置里多了「复制边缘」，做的就是你刚才拼的这件事。', en: 'What you built is "Replicate edge": a missing value outside the image is replaced by the nearest pixel on the edge, so no black border appears out of nowhere. From now on, the Shift part\'s "Border" setting has a "Replicate edge" option that does exactly what you just built.' },
-  unlocks: ['edge-pad'],
-  // The border setting is what this level builds by hand, so it stays out of reach here even for a player who has it.
-  withhold: ['edge-pad'],
-  tests: each([[{ zh: '亮条贴左边', en: 'Bright bar on the left edge' }, P.stepX(4, 0.85, 0.2)], [{ zh: '字母 F 贴左边', en: 'Letter F on the left edge' }, P.glyph(GLYPHS.F, 0.15, 0.9, 0, 3)], [{ zh: '方块贴左边', en: 'Square on the left edge' }, P.square(0, 4, 6, 0.1, 0.9)], [{ zh: '斜坡', en: 'Ramp' }, fromFn(16, 16, (x, y) => 0.1 + 0.05 * y)]], (img) => shift(img, 1, 0, 'edge')),
-  hidden: each([[{ zh: '随机纹理', en: 'Random texture' }, P.noise(31)], [{ zh: '亮底暗块', en: 'Dark block on bright background' }, P.square(0, 9, 5, 0.85, 0.25)]], (img) => shift(img, 1, 0, 'edge')),
-  solution: build({ r: ['shift', { dir: 'right' }], l: ['shift', { dir: 'left' }], b: ['shift', { dir: 'right' }], d: ['arith', { op: 'sub' }], a: ['arith', { op: 'add' }] }, ['in>r', 'in>l', 'l>b', 'in>d.a', 'b>d.b', 'r>a.a', 'd>a.b', 'a>out']),
-  alsoFails: [build({ r: ['shift', { dir: 'right' }], a: ['arith', { op: 'add' }] }, ['in>r', 'r>a.a', 'in>a.b', 'a>out'])],
-  naive: build({ r: ['shift', { dir: 'right' }] }, ['in>r', 'r>out']),
+  tasks: [
+    {
+      step: { zh: '平移', en: 'Shift' },
+      brief: { zh: '向右平移一格，但最左一列不补 0，而是照抄原图最左一列。', en: 'Shift right by one pixel, but instead of padding the leftmost column with 0, copy the original image\'s leftmost column.' },
+      hint: { zh: '先做出补 0 的平移：它只错在最左一列。能不能单独拿到「原图的最左一列，其余全是 0」？', en: 'First build the zero-padded shift: it is wrong only in the leftmost column. Can you get "the original\'s leftmost column, with 0 everywhere else" on its own?' },
+      after: { zh: '你拼出的就是「复制边缘」：图外缺的值，用离它最近的边上像素代替，不会凭空造出一道黑边。从现在起，平移元件的「边界」设置里多了「复制边缘」，做的就是你刚才拼的这件事。', en: 'What you built is "Replicate edge": a missing value outside the image is replaced by the nearest pixel on the edge, so no black border appears out of nowhere. From now on, the Shift part\'s "Border" setting has a "Replicate edge" option that does exactly what you just built.' },
+      unlocks: ['edge-pad'],
+      // The border setting is what this task builds by hand, so it stays out of reach here even for a player who has it.
+      withhold: ['edge-pad'],
+      tests: each([[{ zh: '亮条贴左边', en: 'Bright bar on the left edge' }, P.stepX(4, 0.85, 0.2)], [{ zh: '字母 F 贴左边', en: 'Letter F on the left edge' }, P.glyph(GLYPHS.F, 0.15, 0.9, 0, 3)], [{ zh: '方块贴左边', en: 'Square on the left edge' }, P.square(0, 4, 6, 0.1, 0.9)], [{ zh: '斜坡', en: 'Ramp' }, fromFn(16, 16, (x, y) => 0.1 + 0.05 * y)]], (img) => shift(img, 1, 0, 'edge')),
+      hidden: each([[{ zh: '随机纹理', en: 'Random texture' }, P.noise(31)], [{ zh: '亮底暗块', en: 'Dark block on bright background' }, P.square(0, 9, 5, 0.85, 0.25)]], (img) => shift(img, 1, 0, 'edge')),
+      solution: build({ r: ['shift', { dir: 'right' }], l: ['shift', { dir: 'left' }], b: ['shift', { dir: 'right' }], d: ['arith', { op: 'sub' }], a: ['arith', { op: 'add' }] }, ['in>r', 'in>l', 'l>b', 'in>d.a', 'b>d.b', 'r>a.a', 'd>a.b', 'a>out']),
+      alsoFails: [build({ r: ['shift', { dir: 'right' }], a: ['arith', { op: 'add' }] }, ['in>r', 'r>a.a', 'in>a.b', 'a>out'])],
+      naive: build({ r: ['shift', { dir: 'right' }] }, ['in>r', 'r>out']),
+    },
+    {
+      step: { zh: '平均', en: 'Average' },
+      brief: { zh: '在亮背景上做 3×3 平均，边缘不能发黑。', en: 'Take a 3×3 average on a bright background without the border going dark.' },
+      hint: { zh: '3×3 平均元件只会在图外补 0。哪个元件已经会另一种补法？', en: 'The 3×3 average part can only pad with 0 outside the image. Which part already knows another way to pad?' },
+      after: { zh: '补 0 等于在图外画了一圈黑框，平均时把黑色混了进来。你用复制边缘的平移拼出了不发黑的平均。从现在起，3×3 平均、高斯、Sobel 这些滤波元件的「边界」设置里也有了「复制边缘」。', en: 'Padding with 0 draws a black frame round the image, and averaging mixes that black in. You built an average that does not darken from shifts that replicate the edge. From now on, the "Border" setting on filters such as the 3×3 average, the Gaussian and Sobel has "Replicate edge" too.' },
+      unlocks: ['edge-filter'],
+      // The filters' border setting is what this task builds by hand, so it stays out of reach here even for a player who has it.
+      withhold: ['edge-filter'],
+      tests: each([[{ zh: '亮底方块', en: 'Square on bright background' }, P.square(5, 5, 6, 0.85, 0.3)], [{ zh: '亮底圆', en: 'Circle on bright background' }, P.disk(7.5, 7.5, 4, 0.9, 0.2)], [{ zh: '亮底字母', en: 'Letter on bright background' }, P.glyph(GLYPHS.T, 0.9, 0.2)]], (img) => box(img, 'edge')),
+      hidden: each([[{ zh: '贴边的暗方块', en: 'Dark square on the edge' }, P.square(0, 10, 5, 0.8, 0.3)], [{ zh: '亮底字母 X', en: 'Letter X on bright background' }, P.glyph(GLYPHS.X, 0.75, 0.15, 6, 4)], [{ zh: '亮底竖条', en: 'Vertical bar on bright background' }, P.stepX(13, 0.9, 0.35)]], (img) => box(img, 'edge')),
+      solution: build(
+        { l: ['shift', { dir: 'left', border: 'edge' }], r: ['shift', { dir: 'right', border: 'edge' }], h: 'merge', three: ['const', { c: 3 }], hq: ['arith', { op: 'div' }], u: ['shift', { dir: 'up', border: 'edge' }], d: ['shift', { dir: 'down', border: 'edge' }], v: 'merge', vq: ['arith', { op: 'div' }] },
+        ['in>l', 'in>r', 'l>h.a', 'in>h.b', 'r>h.c', 'h>hq.a', 'three>hq.b', 'hq>u', 'hq>d', 'u>v.a', 'hq>v.b', 'd>v.c', 'v>vq.a', 'three>vq.b', 'vq>out'],
+      ),
+      naive: build({ b: 'box3' }, ['in>b', 'b>out']),
+    },
+  ],
 }
 
-const frame = {
-  id: '1-12',
-  chapter: 1,
-  title: { zh: '黑框', en: 'Black frame' },
-  brief: { zh: '在亮背景上做 3×3 平均，边缘不能发黑。', en: 'Take a 3×3 average on a bright background without the border going dark.' },
-  hint: { zh: '3×3 平均元件只会在图外补 0。哪个元件已经会另一种补法？', en: 'The 3×3 average part can only pad with 0 outside the image. Which part already knows another way to pad?' },
-  after: { zh: '补 0 等于在图外画了一圈黑框，平均时把黑色混了进来。你用复制边缘的平移拼出了不发黑的平均。从现在起，3×3 平均、高斯这些滤波元件的「边界」设置里也有了「复制边缘」。', en: 'Padding with 0 draws a black frame round the image, and averaging mixes that black in. You built an average that does not darken from shifts that replicate the edge. From now on, the "Border" setting on filters such as the 3×3 average and the Gaussian has "Replicate edge" too.' },
-  unlocks: ['edge-filter'],
-  // The filters' border setting is what this level builds by hand, so it stays out of reach here even for a player who has it.
-  withhold: ['edge-filter'],
-  tests: each([[{ zh: '亮底方块', en: 'Square on bright background' }, P.square(5, 5, 6, 0.85, 0.3)], [{ zh: '亮底圆', en: 'Circle on bright background' }, P.disk(7.5, 7.5, 4, 0.9, 0.2)], [{ zh: '亮底字母', en: 'Letter on bright background' }, P.glyph(GLYPHS.T, 0.9, 0.2)]], (img) => box(img, 'edge')),
-  hidden: each([[{ zh: '贴边的暗方块', en: 'Dark square on the edge' }, P.square(0, 10, 5, 0.8, 0.3)], [{ zh: '亮底字母 X', en: 'Letter X on bright background' }, P.glyph(GLYPHS.X, 0.75, 0.15, 6, 4)], [{ zh: '亮底竖条', en: 'Vertical bar on bright background' }, P.stepX(13, 0.9, 0.35)]], (img) => box(img, 'edge')),
-  solution: build(
-    { l: ['shift', { dir: 'left', border: 'edge' }], r: ['shift', { dir: 'right', border: 'edge' }], h: 'merge', three: ['const', { c: 3 }], hq: ['arith', { op: 'div' }], u: ['shift', { dir: 'up', border: 'edge' }], d: ['shift', { dir: 'down', border: 'edge' }], v: 'merge', vq: ['arith', { op: 'div' }] },
-    ['in>l', 'in>r', 'l>h.a', 'in>h.b', 'r>h.c', 'h>hq.a', 'three>hq.b', 'hq>u', 'hq>d', 'u>v.a', 'hq>v.b', 'd>v.c', 'v>vq.a', 'three>vq.b', 'vq>out'],
-  ),
-  naive: build({ b: 'box3' }, ['in>b', 'b>out']),
-}
-
-// ---------------- 1-13 5×5 平均 (challenge) ----------------
+// ---------------- 1-12 5×5 平均 (challenge) ----------------
 
 // Pictures with a dark margin four pixels wide, so sums that slide past the border lose nothing.
 const BOX5 = Array(25).fill(1 / 25)
@@ -259,7 +262,7 @@ const box5 = (() => {
   const dh = direct5('left', 'right', 'h', 'in')
   const dv = direct5('up', 'down', 'v', 'hk')
   return {
-    id: '1-13',
+    id: '1-12',
     chapter: 1,
     title: { zh: '5×5 平均', en: 'A 5×5 average' },
     brief: { zh: '每个像素换成它周围 5×5 共 25 格的平均。计算量不能超过 8。', en: 'Replace each pixel with the average of the 25 cells in the 5×5 block around it. The cost must not exceed 8.' },
@@ -275,7 +278,7 @@ const box5 = (() => {
   }
 })()
 
-// ---------------- 1-14 … 1-16 扫描仪 (series) ----------------
+// ---------------- 1-13 … 1-15 扫描仪 (series) ----------------
 
 // A 24×24 scan: a sheet of paper on a dark desk, a few lines of text on it, sometimes sensor noise. The scanner
 // outputs the paper's edges.
@@ -304,7 +307,7 @@ const sobelGraph = (border, t, blur) => build(
 )
 
 const clean = {
-  id: '1-14',
+  id: '1-13',
   chapter: 1,
   title: { zh: '先去噪', en: 'Clean up first' },
   brief: { zh: '扫描仪的传感器有噪声。把扫描件变成期望里那样干净、柔和的图。', en: 'The scanner\'s sensor is noisy. Turn the scan into a clean, soft image like the expected one.' },
@@ -332,7 +335,7 @@ const clean = {
 }
 
 const border = {
-  id: '1-15',
+  id: '1-14',
   views: { in: 'pixels', out: 'pixels', mid: 'terrain' },
   chapter: 1,
   title: { zh: '别把图边当纸边', en: 'The image edge is not the paper edge' },
@@ -356,12 +359,12 @@ const border = {
 
 const textLines = [[7, 7, 9], [7, 10, 6], [7, 13, 10], [7, 16, 8]]
 const scanner = {
-  id: '1-16',
+  id: '1-15',
   views: { in: 'pixels', out: 'pixels', mid: 'terrain' },
   chapter: 1,
   title: { zh: '扫描仪', en: 'Scanner' },
   brief: { zh: '真实的扫描件：有噪声，有字，纸常常超出扫描范围。输出纸张的边，和期望一样。', en: 'Real scans: noisy, with text, and the paper often runs off the edge. Output the paper\'s edges, as in the expected image.' },
-  hint: { zh: '<level-ref to="1-14"></level-ref>和<level-ref to="1-15"></level-ref>各解决了一件事，这次纸上还有字。字的笔画只有一格粗，纸边却是一大片亮挨着一大片暗。', en: '<level-ref to="1-14"></level-ref> and <level-ref to="1-15"></level-ref> each solved one thing, and this time there is text on the paper too. Text strokes are one pixel thick, while a paper edge is a large bright area beside a large dark one.' },
+  hint: { zh: '<level-ref to="1-13"></level-ref>和<level-ref to="1-14"></level-ref>各解决了一件事，这次纸上还有字。字的笔画只有一格粗，纸边却是一大片亮挨着一大片暗。', en: '<level-ref to="1-13"></level-ref> and <level-ref to="1-14"></level-ref> each solved one thing, and this time there is text on the paper too. Text strokes are one pixel thick, while a paper edge is a large bright area beside a large dark one.' },
   after: { zh: '大一点的高斯模糊把噪点和细笔画都糊成一片浅灰，几乎没有坡度；纸边是大块明暗的交界，糊了还是一道坡。看多粗的东西，就先模糊到多粗：这个「尺度」的想法后面会一再出现。扫描 App 找纸张四边，第一步就是这样一条流水线：模糊掉噪声和字，在不制造假边的前提下求梯度，再取阈值。找到的边，后面再拟合成四条直线，就能把斜拍的纸拉正。', en: 'A larger Gaussian blur turns the grain and the thin strokes into a faint grey with almost no slope, while a paper edge, where large areas of light and dark meet, is still a slope after blurring. To look for things of a certain size, blur to that size first: this idea of "scale" will keep coming back. A scanning app finding the four sides of a page starts with exactly this pipeline: blur away the noise and the text, take gradients without inventing edges at the border, then threshold. The edges found are later fitted with four straight lines, so a page photographed at an angle can be straightened.' },
   unlocks: [],
   check: { tolerance: 0.02, mismatches: 8 },
@@ -445,4 +448,4 @@ const racerLevel = {
   },
 }
 
-export const levels = [hblur, vblur, boxBlur, rounder, sharpen, step, noisyEdge, weighted, guess, racerLevel, pad, frame, box5, clean, border, scanner]
+export const levels = [hblur, vblur, boxBlur, rounder, sharpen, step, noisyEdge, weighted, guess, racerLevel, padding, box5, clean, border, scanner]

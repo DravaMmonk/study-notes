@@ -7,6 +7,9 @@
 //   { solve: [level id, [level id…]] }       levels counted solved for whoever solved that one
 //   { data: (value, level id) → value }      every level's kept state rewritten (a part renamed or gone from boards),
 //                                            the boards waiting in its other slots too (slots.js)
+//   { merge: [level id, [level id…]] }       levels that became the tasks of one level, in order: their boards make
+//                                            its list of task boards, the run of them solved from the first its tasks
+//                                            passed (all of them: the level solved); their other slots are dropped
 //
 // migrations(steps) gives the shell's { version, migrate } (progress.js): version is the newest step's.
 
@@ -39,6 +42,21 @@ const OPS = {
     ...(save.data && { data: Object.fromEntries(Object.entries(save.data).map(([id, value]) => [id, f(value, id)])) }),
     ...(save.slots && { slots: Object.fromEntries(Object.entries(save.slots).map(([id, s]) => [id, { ...s, list: s.list.map((slot) => ('data' in slot ? { ...slot, data: f(slot.data, id) } : slot)) }])) }),
   }),
+  merge: (save, [into, ids]) => {
+    const solved = save.solved ?? []
+    const run = ids.findIndex((id) => !solved.includes(id))
+    const passed = run < 0 ? ids.length : run
+    const out = { ...save, solved: [...solved.filter((id) => !ids.includes(id)), ...(passed === ids.length ? [into] : [])] }
+    for (const field of RECORDS) {
+      if (!save[field]) continue
+      out[field] = Object.fromEntries(Object.entries(save[field]).filter(([id]) => !ids.includes(id)))
+    }
+    if (save.data && ids.some((id) => save.data[id] != null)) out.data[into] = ids.map((id) => save.data[id] ?? null)
+    if (save.best?.[ids.at(-1)]) out.best[into] = save.best[ids.at(-1)]
+    if (save.introSeen && ids.some((id) => save.introSeen[id])) out.introSeen[into] = ids.map((id) => save.introSeen[id]).find(Boolean)
+    if (passed && passed < ids.length) out.tasks = { ...out.tasks, [into]: passed }
+    return out
+  },
   solve: (save, [level, ids]) => ((save.solved ?? []).includes(level) ? { ...save, solved: [...new Set([...save.solved, ...ids])] } : save),
 }
 

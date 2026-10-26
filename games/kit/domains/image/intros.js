@@ -1,6 +1,7 @@
 // A level's 引入: the pages read before playing it, each { t, fig? }. t is a { zh, en } paragraph (either side may use
 // <b>…</b>); fig is an optional picture, one of three:
-//   { test: 0 }                            the level's test 0: input → expected (circuit levels only)
+//   { test: 0 }                            the level's test 0: input → expected (circuit levels only); on a level
+//                                          of several tasks, { task: 0, test: 0 } is a test of that task
 //   { part: 'shift', params: { dir: 'right' }, input: 'square' }
 //                                          one part working on a picture: input → part → output. A part with two
 //                                          inputs takes inputs: ['square', 'disk']. The pictures are source()'s.
@@ -18,6 +19,9 @@ export function source(spec, level) {
   const [name, ...args] = Array.isArray(spec) ? spec : [spec]
   return patterns[name] ? patterns[name](...args) : null
 }
+
+/** The test a { test } figure shows: of the level, or of one of its tasks ({ task }). */
+export const figureTest = (fig, level) => (fig.task === undefined ? level : level.tasks?.[fig.task])?.tests?.[fig.test] ?? null
 
 // What a part makes of its inputs, for a { part } figure. Throws on anything the figure cannot draw.
 export function partFigure(fig, level) {
@@ -48,7 +52,7 @@ export function introProblems(pages, level, figures) {
     if (!text || !text.trim()) problems.push(`${where}没有文字`)
     const fig = page.fig
     if (!fig) return
-    if (fig.test !== undefined && !level.tests?.[fig.test]) problems.push(`${where}要第 ${fig.test} 组测试，可这一关没有`)
+    if (fig.test !== undefined && !figureTest(fig, level)) problems.push(`${where}要${fig.task === undefined ? '' : `第 ${fig.task + 1} 个任务的`}第 ${fig.test} 组测试，可这一关没有`)
     if (fig.figure && !figures.includes(fig.figure)) problems.push(`${where}没有插图 ${fig.figure}`)
     if (fig.part) {
       try {

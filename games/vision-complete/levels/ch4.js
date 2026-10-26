@@ -70,16 +70,19 @@ const LAP = [0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]
 const NEG_LAP = LAP.map((v) => -v)
 const ZERO9 = Array(9).fill(0)
 
-function colourScene(paint) {
+// A colour picture's three channels (each less 0.5) and the edges of one colour contrast in it: the Laplacian of
+// `mix(r, g, b)`, red against green unless told otherwise.
+const RED_GREEN = (r, g) => r - g
+function colourScene(paint, mix = RED_GREEN) {
   const [r, g, b] = [0, 1, 2].map((c) => fromFn(16, 16, (x, y) => paint(x, y)[c] - 0.5))
-  return { inputs: { r, g, b }, expected: { out: correlate(zip(r, g, (p, q) => p - q), LAP) } }
+  return { inputs: { r, g, b }, expected: { out: correlate(fromFn(16, 16, (x, y) => mix(...[r, g, b].map((c) => c.data[y * 16 + x]))), LAP) } }
 }
 const RED = [0.7, 0.3, 0.3]
 const GREEN = [0.3, 0.7, 0.3]
-const colourNoise = (seed) => {
+const colourNoise = (seed, mix) => {
   const next = random(seed)
   const values = Array.from({ length: 3 * 256 }, () => 0.1 + 0.8 * next())
-  return colourScene((x, y) => [0, 1, 2].map((c) => values[c * 256 + y * 16 + x]))
+  return colourScene((x, y) => [0, 1, 2].map((c) => values[c * 256 + y * 16 + x]), mix)
 }
 
 const rgbInputs = { inputs: ['r', 'g', 'b'] }
@@ -160,7 +163,7 @@ const xoNet = ({ relu = true, pool = 'max', w = CONV_INIT, p = [1, 0] } = {}) =>
   return build(nodes, wires)
 }
 
-// ---------------- 4-7 · 训不动的深网 ----------------
+// ---------------- 4-16 · 训不动的深网 ----------------
 // Target: a light sharpen, H(x) = x + 0.25·(x − 3×3 mean), i.e. "almost the input". Six conv layers
 // in a row, all starting from CONV_INIT (≈ ±0.02): the signal shrinks ~50× per layer, so every
 // layer's gradient is a product of five tiny numbers and the loss stays flat. With x + F(x) around
@@ -508,6 +511,50 @@ const channels = (() => {
     }
   })()
 
+// ---------------- 4-14 蓝天与黄沙 ----------------
+// The other colour contrast, blue against yellow (red + green), on the multichannel kernel: blue +LAP, red and green
+// −LAP/2 each, so a change in every channel alike still cancels. Trained from zero with the game's trainer at rate 8,
+// it passes the visible tests after 34 steps and the hidden ones from step 37.
+
+const BLUE_YELLOW = (r, g, b) => b - (r + g) / 2
+const SKY = [0.3, 0.45, 0.85]
+const SAND = [0.8, 0.7, 0.3]
+const rgbKernel = (wr, wg, wb) => build({ k: ['lrnRgb', { w: [...wr, ...wg, ...wb] }] }, ['r>k.r', 'g>k.g', 'b>k.b', 'k>out'], rgbInputs)
+const HALF_NEG_LAP = LAP.map((v) => -v / 2)
+
+const blueYellow = (() => {
+  const scene = (paint) => colourScene(paint, BLUE_YELLOW)
+  const cases = [
+    [{ zh: '天和沙，一条平线', en: 'Sky and sand, a level line' }, scene((x, y) => (y < 7 ? SKY : SAND))],
+    [{ zh: '只有明暗', en: 'Only light and dark' }, scene((x, y) => (x > 4 && x < 11 && y > 4 && y < 11 ? [0.8, 0.8, 0.8] : [0.2, 0.2, 0.2]))],
+    [{ zh: '起伏的沙丘', en: 'Rolling dunes' }, scene((x, y) => (y < 6 + Math.round(2 * Math.sin(x / 2)) ? SKY : SAND))],
+    [{ zh: '彩色噪点 A', en: 'Colour noise A' }, colourNoise(41, BLUE_YELLOW)],
+    [{ zh: '彩色噪点 B', en: 'Colour noise B' }, colourNoise(43, BLUE_YELLOW)],
+  ]
+  const hiddenCases = [
+    [{ zh: '斜着的沙坡', en: 'A slanting slope of sand' }, scene((x, y) => (x + y < 15 ? SKY : SAND))],
+    [{ zh: '彩色噪点 C', en: 'Colour noise C' }, colourNoise(47, BLUE_YELLOW)],
+    [{ zh: '灰色渐变', en: 'A grey gradient' }, scene((x) => [0.25 + 0.03 * x, 0.25 + 0.03 * x, 0.25 + 0.03 * x])],
+  ]
+  return {
+    id: '4-14',
+    chapter: 4,
+    title: { zh: '蓝天与黄沙', en: 'Blue sky, yellow sand' },
+    inputs: ['r', 'g', 'b'],
+    inputLabels: { r: { zh: '红 R', en: 'Red R' }, g: { zh: '绿 G', en: 'Green G' }, b: { zh: '蓝 B', en: 'Blue B' } },
+    brief: { zh: '输入是一张风景的红、绿、蓝三张图（都已减去 0.5）。只描出蓝与黄交界处的边，只是变亮变暗的地方输出 0。', en: 'The input is a landscape as three images, red, green and blue (each with 0.5 already subtracted). Trace only the edges where blue meets yellow; output 0 where things only get brighter or darker.' },
+    hint: { zh: '黄色的光，是哪两种颜色的光加起来的？', en: 'Yellow light is made of which two colours of light added together?' },
+    after: { zh: '黄是红加绿，所以蓝黄的对比是「蓝 − 红绿的平均」：三个通道一起变亮时，正负互相抵消。同一个多通道核，换一组权重就看另一种颜色对比。训练好的 CNN 第一层里，红绿和蓝黄两组对比滤波器都很常见，人眼视网膜里的颜色对立也正是这两组。', en: 'Yellow is red plus green, so the blue–yellow contrast is "blue − the average of red and green": when all three channels brighten together, the plus and minus cancel. The same multichannel kernel, with other weights, sees another colour contrast. Both red–green and blue–yellow contrast filters are common in the first layer of a trained CNN, and they are exactly the two colour oppositions of the human retina.' },
+    unlocks: [],
+    trainRate: 8,
+    tests: cases.map(([label, { inputs, expected }]) => test(label, inputs, expected)),
+    hidden: hiddenCases.map(([label, { inputs, expected }]) => test(label, inputs, expected)),
+    solution: rgbKernel(HALF_NEG_LAP, HALF_NEG_LAP, LAP),
+    naive: build({ k: ['learn3', { w: LAP }] }, ['b>k', 'k>out'], rgbInputs),
+    alsoFails: [rgbKernel(LAP, NEG_LAP, ZERO9)],
+  }
+})()
+
 const xoLevel = {
     id: '4-12',
     chapter: 4,
@@ -528,7 +575,7 @@ const xoLevel = {
   }
 
 const deepLevel = {
-    id: '4-15',
+    id: '4-16',
     chapter: 4,
     title: { zh: '训不动的深网', en: 'The deep net that will not train' },
     brief: { zh: '把至少 6 个卷积层串成一条路，训练它做一次轻微的锐化：输出 = 原图 + 0.25 ×（原图 − 3×3 平均）。', en: 'Chain at least 6 conv layers into one path and train it to do a light sharpen: output = image + 0.25 × (image − 3×3 average).' },
@@ -558,6 +605,47 @@ const deepLevel = {
       deepNet(true),
     ],
   }
+
+// ---------------- 4-17 再深一倍 ----------------
+// Twelve residual blocks learn a light blur, H(x) = x + 0.5·(3×3 mean − x). Every block starts as the identity, so
+// depth does not stall the trainer: at rate 1 the visible tests pass after 42 steps (the hidden ones from step 30).
+
+const soften = (img) => zip(img, correlate(img, BOX3), (a, b) => a + 0.5 * (b - a))
+const DEEPER = 12
+const resNet = (blocks, weights = () => CONV_INIT) => {
+  const nodes = Object.fromEntries(Array.from({ length: blocks }, (_, i) => [`r${i}`, ['lrnRes', { w: [...weights(i)] }]]))
+  return build(nodes, [...Array.from({ length: blocks }, (_, i) => `${i ? `r${i - 1}` : 'in'}>r${i}`), `r${blocks - 1}>out`])
+}
+const SOFTEN_RESIDUAL = BOX3.map((v, i) => 0.5 * (v - (i === 4 ? 1 : 0)))
+
+const deeper = {
+  id: '4-17',
+  chapter: 4,
+  title: { zh: '再深一倍', en: 'Twice as deep' },
+  brief: { zh: '把至少 12 个卷积层串成一条路，训练它做测试里那种轻微的模糊。', en: 'Chain at least 12 conv layers into one path and train it to do the light blur in the tests.' },
+  hint: { zh: '<level-ref to="4-16"></level-ref>里每一层是怎样接的？托盘里的「残差块」一张卡片就是那样一块。', en: 'How was each layer wired in <level-ref to="4-16"></level-ref>? A Residual block card in the tray is one such block.' },
+  after: { zh: '十二层和六层一样好训：每一块一开始都原样通过，训练只需让少数几块学出那一点改动，梯度沿着捷径直达每一层。ResNet 就这样把网络堆到了一百多层。', en: 'Twelve layers train as easily as six: every block starts out passing its input straight through, training only has to teach a few of them the small change, and the gradient reaches every layer along the shortcuts. This is how ResNet stacks networks to more than a hundred layers.' },
+  unlocks: [],
+  trainRate: 1,
+  check: { tolerance: 0.04 },
+  constraint: (_, graph) => {
+    const depth = depthOf(graph)
+    return depth < DEEPER ? { zh: `最深的一条路上只有 ${depth} 个卷积层，至少要 ${DEEPER} 个`, en: `The deepest path has only ${depth} conv ${depth === 1 ? 'layer' : 'layers'}; it needs at least ${DEEPER}` } : ''
+  },
+  tests: [
+    [{ zh: '字母 X', en: 'Letter X' }, P.glyph(GLYPHS.X)],
+    [{ zh: '圆盘', en: 'Disc' }, P.disk()],
+    [{ zh: '带噪方块', en: 'Noisy square' }, addNoise(P.square(3, 5, 7), 3, 0.2)],
+    [{ zh: '棋盘', en: 'Checkerboard' }, P.checker(3)],
+  ].map(([label, img]) => test(label, { in: img }, { out: soften(img) })),
+  hidden: [
+    [{ zh: '字母 L', en: 'Letter L' }, P.glyph(GLYPHS.L, 0.2, 0.8, 4, 3)],
+    [{ zh: '竖条纹', en: 'Vertical stripes' }, P.stripes(6, 0.2, 0.8)],
+  ].map(([label, img]) => test(label, { in: img }, { out: soften(img) })),
+  solution: resNet(DEEPER, (i) => (i === 0 ? SOFTEN_RESIDUAL : ZERO9)),
+  naive: deepNet(false, DEEPER),
+  alsoFails: [resNet(DEEPER), resNet(DEEP, (i) => (i === 0 ? SOFTEN_RESIDUAL : ZERO9))],
+}
 
 // ---------------- 4-11 挪一格也不变 ----------------
 
@@ -589,7 +677,7 @@ const pooling = {
   naive: build({ d: 'downsample' }, ['in>d', 'd>out']),
 }
 
-// ---------------- 4-14 红灯在哪 ----------------
+// ---------------- 4-15 红灯在哪 ----------------
 
 // Street scenes in three channels: red lights (bright and red), red cars in shade (red but dark), white street lamps
 // (bright but not red), and green lights.
@@ -617,7 +705,7 @@ const streetTest = ([label, layout]) => {
 const rgb = (nodes, wires) => build(nodes, wires, { inputs: ['r', 'g', 'b'] })
 
 const redLights = {
-  id: '4-14',
+  id: '4-15',
   chapter: 4,
   inputs: ['r', 'g', 'b'],
   inputLabels: { r: { zh: '红 R', en: 'Red R' }, g: { zh: '绿 G', en: 'Green G' }, b: { zh: '蓝 B', en: 'Blue B' } },
@@ -633,7 +721,7 @@ const redLights = {
   alsoFails: [rgb({ s: ['arith', { op: 'add' }], h: ['arith', { op: 'mul' }], hN: ['const', { c: 0.5 }], d: ['arith', { op: 'sub' }], red: ['threshold', { t: 0.25 }] }, ['g>s.a', 'b>s.b', 's>h.a', 'r>d.a', 'h>d.b', 'd>red', 'red>out', 'hN>h.b'])],
 }
 
-// ---------------- 4-16 省一点算 (challenge) ----------------
+// ---------------- 4-18 省一点算 (challenge) ----------------
 
 // Two output maps from a colour picture, both made of the same blurred channels: R − G, and R + G − 2B.
 const blur3 = (img) => correlate(img, Array(9).fill(1 / 9))
@@ -650,7 +738,7 @@ const ZERO = Array(9).fill(0)
 const mixGraph = (nodes, wires) => build(nodes, wires, { inputs: ['r', 'g', 'b'], outputs: ['o1', 'o2'] })
 
 const cheaper = {
-  id: '4-16',
+  id: '4-18',
   chapter: 4,
   inputs: ['r', 'g', 'b'],
   inputLabels: { r: { zh: '红 R', en: 'Red R' }, g: { zh: '绿 G', en: 'Green G' }, b: { zh: '蓝 B', en: 'Blue B' } },
@@ -672,7 +760,7 @@ const cheaper = {
   naive: mixGraph({ k1: ['lrnRgb', { w: [...BOX_W, ...BOX_W.map((v) => -v), ...ZERO] }], k2: ['lrnRgb', { w: [...BOX_W, ...BOX_W, ...BOX_W.map((v) => -2 * v)] }] }, ['r>k1.r', 'g>k1.g', 'b>k1.b', 'r>k2.r', 'g>k2.g', 'b>k2.b', 'k1>o1', 'k2>o2']),
 }
 
-// ---------------- 4-18 三选一, 4-20 分拣机 (series) ----------------
+// ---------------- 4-20 三选一, 4-21 分拣机 (series) ----------------
 
 // Three scores in, three probabilities out: e^s ÷ the sum of all three e^s.
 const SCORES = { inputs: ['sx', 'so', 'sp'], inputLabels: { sx: { zh: 'X 的分', en: 'Score X' }, so: { zh: 'O 的分', en: 'Score O' }, sp: { zh: '+ 的分', en: 'Score +' } } }
@@ -694,7 +782,7 @@ const softmaxParts = (x, o, p) => ({
 const pickOne = (() => {
   const s = softmaxParts('sx', 'so', 'sp')
   return {
-    id: '4-18',
+    id: '4-20',
     chapter: 4,
     ...SCORES,
     ...CLASSES,
@@ -751,7 +839,7 @@ const sorterNet = (w = { conv: SORT_INITS, dense: null }) => {
 }
 
 const sorter = {
-  id: '4-19',
+  id: '4-21',
   chapter: 4,
   ...CLASSES,
   title: { zh: '分拣机', en: 'Sorting machine' },
@@ -767,7 +855,7 @@ const sorter = {
   naive: sorterNet(),
 }
 
-// ---------------- 4-17 什么时候停 (bench) ----------------
+// ---------------- 4-19 什么时候停 (bench) ----------------
 
 // Ten noisy samples of sin(2.2x), fitted by a degree-9 polynomial (kit/domains/image/benches/fitting.js). Training
 // checkpoints are log-spaced from step 0 to 40 000.
@@ -789,7 +877,7 @@ const STOP_STAGES = [
 const STOP = stopBench({ degree: 10, seed: 7, truth: (x) => Math.sin(2.2 * x), train: 10, noise: 0.6, valid: 40, checkpoints: CHECKPOINTS, rate: 0.5, lambdas: LAMBDAS, slack: STOP_SLACK, stages: STOP_STAGES })
 
 const stopLevel = {
-  id: '4-17',
+  id: '4-19',
   kind: 'board',
   board: 'EarlyStop',
   chapter: 4,
@@ -812,4 +900,4 @@ const stopLevel = {
   },
 }
 
-export const levels = [oneKnob, twoKnobs, learnKernel, shake, singleNeuron, xor, bothEdges, larger, stride, seeFurther, pooling, xoLevel, channels, redLights, deepLevel, cheaper, stopLevel, pickOne, sorter]
+export const levels = [oneKnob, twoKnobs, learnKernel, shake, singleNeuron, xor, bothEdges, larger, stride, seeFurther, pooling, xoLevel, channels, blueYellow, redLights, deepLevel, deeper, cheaper, stopLevel, pickOne, sorter]

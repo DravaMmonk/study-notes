@@ -300,7 +300,7 @@ export const GLOSSARY = [
     body: [
       { zh: '处理最边上的像素时，有的邻居落在图外。图外没有数据，只能自己补上一些值，补什么直接决定了边上一圈的结果。', en: 'When processing the pixels at the very edge, some neighbours fall outside the image. There is no data out there, so values have to be filled in, and what is filled in directly decides the result all round the border.' },
       { zh: '<b>补 0</b> 等于在图外画了一圈黑框：在亮背景上做平均，边上会多出一圈暗边，求导时还会在图边造出假边缘。<b>复制边缘</b>把图外缺的值当作离它最近的边上像素，不会凭空造出边界。', en: '<b>Padding with 0</b> amounts to drawing a black frame round the image: averaging on a bright background leaves a dark ring round the border, and differentiating creates a false edge there. <b>Replicate edge</b> treats each missing value as the nearest pixel on the edge, so no border appears out of nowhere.' },
-      { zh: '在这个游戏里，平移元件的「边界」设置可以在「补 0」和「复制边缘」之间选。', en: 'In this game, the Shift part’s “Border” setting can choose between “Pad with 0” and “Replicate edge”.' },
+      { zh: '在这个游戏里，平移和各个滤波元件的「边界」设置都可以在「补 0」和「复制边缘」之间选。', en: 'In this game, the “Border” setting of Shift and of every filter can choose between “Pad with 0” and “Replicate edge”.' },
     ],
     see: ['filter', 'invariance', 'convlayer'],
   },
@@ -320,7 +320,7 @@ export const GLOSSARY = [
     id: 'kernelread',
     group: 'image',
     title: { zh: '认核', en: 'Reading a kernel' },
-    at: '1-11',
+    at: '1-10',
     body: [
       { zh: '熟练以后，扫一眼核里的数就能猜出它做什么。全是正数、加起来为 1 的核在平滑，权重越集中在中心，结果越接近原图。', en: 'With practice, a glance at the numbers in a kernel tells you what it does. All positive and adding up to 1 means smoothing, and the more the weight is concentrated in the centre, the closer the result is to the original.' },
       { zh: '加起来为 0 的核在平坦处输出 0，只对变化有反应，是在求导。中心大、四周为负的是锐化。只有一个 1 的核是平移：按互相关的读法，图挪动的方向和 1 偏离中心的方向相反。', en: 'A kernel that adds up to 0 gives 0 on flat ground and responds only to change: it is a derivative. A large centre with negative surroundings is sharpening. A kernel with a single 1 is a shift: read as cross-correlation, the image moves the opposite way from where the 1 sits off-centre.' },
@@ -561,11 +561,11 @@ export const GLOSSARY = [
     id: 'channels',
     group: 'learn',
     title: { zh: '多通道', en: 'Multiple channels' },
-    at: '4-14',
+    at: '4-13',
     body: [
       { zh: '彩色图是三张图叠在一起：红、绿、蓝各一张，叫三个<b>通道</b>。卷积网络每一层的输出也往往有很多通道，每个滤波器出一张。', en: 'A colour image is three images stacked together, one each for red, green and blue, called three <b>channels</b>. Each layer of a convolutional network usually outputs many channels too, one per filter.' },
       { zh: '一个卷积核要同时覆盖所有输入通道：3 个通道的 3×3 核有 3×3×3 = 27 个权重，三份乘积加成一张输出。不同通道的权重可以一正一负，这样同时变亮的部分互相抵消，只剩颜色的对比。', en: 'A convolution kernel has to cover all the input channels at once: a 3×3 kernel over 3 channels has 3×3×3 = 27 weights, and the three sets of products add up to one output. The weights for different channels can have opposite signs, so whatever brightens in every channel cancels out and only the colour contrast is left.' },
-      { zh: '训练好的卷积网络第一层里，常能看到这种对颜色对比敏感的滤波器。', en: 'In the first layer of a trained convolutional network you often find such filters tuned to colour contrast.' },
+      { zh: '训练好的卷积网络第一层里，常能看到这种对颜色对比敏感的滤波器：红对绿、蓝对黄，和人眼视网膜里的两组颜色对立一样。', en: 'In the first layer of a trained convolutional network you often find such filters tuned to colour contrast: red against green and blue against yellow, the same two colour oppositions as in the human retina.' },
     ],
     see: ['colour', 'convlayer', 'cnn'],
   },
@@ -585,7 +585,7 @@ export const GLOSSARY = [
     id: 'overfit',
     group: 'learn',
     title: { zh: '过拟合与正则化', en: 'Overfitting and regularisation' },
-    at: '4-18',
+    at: '4-19',
     body: [
       { zh: '训练误差一直降，新样本上的误差却先降后升：后半段模型在背训练样本里的噪声，这叫<b>过拟合</b>。所以要留一部分数据只用来检查，叫<b>验证集</b>。', en: 'The training error keeps falling, but the error on new samples falls and then rises: in the second half the model is memorising the noise in its training samples. This is <b>overfitting</b>. That is why part of the data is kept back for checking only: the <b>validation set</b>.' },
       { zh: '办法之一是<b>提前停止</b>：在验证误差最低时停下。办法之二是<b>正则化</b>：给大权重加代价（L2），让模型不愿意为了几个点把曲线拧得很弯。', en: 'One fix is <b>early stopping</b>: stop where the validation error is lowest. Another is <b>regularisation</b>: put a cost on large weights (L2), so the model will not bend the curve sharply just to hit a few points.' },
@@ -597,7 +597,7 @@ export const GLOSSARY = [
     id: 'residual',
     group: 'learn',
     title: { zh: '梯度消失与残差连接', en: 'Vanishing gradients and residual connections' },
-    at: '4-17',
+    at: '4-16',
     body: [
       { zh: '网络越深，能表达的越多，可层一多反而常常训不动。直接堆叠时，每层的梯度都要乘上其余各层的权重，乘的次数一多就接近 0，损失纹丝不动，这叫<b>梯度消失</b>。', en: 'A deeper network can express more, yet with many layers it often will not train. When layers are simply stacked, each layer’s gradient is multiplied by the weights of the other layers, and with enough factors it gets close to 0 and the loss does not budge. This is the <b>vanishing gradient</b> problem.' },
       { zh: '<b>残差连接</b>把每一块的输入直接加到它的输出上：y = F(x) + x。每块一开始就是「原样通过」，只需学和原样的差 F(x)，梯度也能沿着捷径直达每一层。ResNet 就靠它把网络堆到上百层。', en: 'A <b>residual connection</b> adds each block’s input straight to its output: y = F(x) + x. Every block starts out “passing its input straight through” and only has to learn the difference F(x), and the gradient reaches every layer directly along the shortcut. This is how ResNet stacks networks to more than a hundred layers.' },

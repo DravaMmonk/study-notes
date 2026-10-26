@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { NODE_TYPES } from '../engine/nodes.js'
-import { partFigure } from '../intros.js'
+import { figureTest, partFigure } from '../intros.js'
 import { L, tr } from '../../../shell/i18n.js'
 import FigureStage from './FigureStage.jsx'
 import ValueView from './views/ValueView.jsx'
@@ -26,7 +26,7 @@ export default function IntroFigure({ fig, level, theme }) {
     )
   }
   if (fig.test !== undefined) {
-    const test = level.tests?.[fig.test]
+    const test = figureTest(fig, level)
     if (!test) return null
     return (
       <figure className="intro-figure">

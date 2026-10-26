@@ -32,6 +32,11 @@ const asciiCircuit = (c) => ({
   nodes: c.nodes.map((n) => (n.type === 'shift' && n.params?.dir in ARROWS ? { ...n, params: { ...n.params, dir: ARROWS[n.params.dir] } } : n)),
   wires: c.wires.map((w) => (w.port in GREEK ? { ...w, port: GREEK[w.port] } : w)),
 })
+// Version 16 made the two padding levels (1-11, 1-12) the two tasks of 1-11 and moved the rest of chapter 1 down one,
+// and put two practice levels into chapter 4 (4-14 on the multichannel kernel, 4-17 on residual blocks), moving the
+// levels after each up; whoever passed a level after one of them has passed it.
+const PADDING = { '1-13': '1-12', '1-14': '1-13', '1-15': '1-14', '1-16': '1-15' }
+const CH4 = { '4-14': '4-15', '4-15': '4-16', '4-16': '4-18', '4-17': '4-19', '4-18': '4-20', '4-19': '4-21' }
 const asciiBoard = (board) => (board?.nodes ? { ...asciiCircuit(board), ...(board.passed && { passed: asciiCircuit(board.passed) }) } : board)
 const SAVES = [
   ...Object.entries(RENUMBERED).map(([version, moved]) => ({ version: Number(version), ops: [{ rename: moved }] })),
@@ -48,6 +53,7 @@ const SAVES = [
   // two benches before the probe (2-3 → 2-5, and the rest of chapter 2 two on); whoever built the probe has met them.
   { version: 14, ops: [{ grant: ['2-2', 'mean'] }, { rename: shiftIds('2-', 3, 2) }, { solve: ['2-5', ['2-3', '2-4']] }] },
   { version: 15, ops: [{ data: asciiBoard }] },
+  { version: 16, ops: [{ merge: ['1-11', ['1-11', '1-12']] }, { rename: PADDING }, { rename: CH4 }, { solve: ['4-15', ['4-14']] }, { solve: ['4-19', ['4-17']] }, { solve: ['5-1', ['4-17']] }] },
 ]
 
 // How the parts box tries a part: a part from a level without tests on 1-1's pictures; the decoder and the

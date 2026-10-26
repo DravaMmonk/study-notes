@@ -25,7 +25,7 @@ import './phone/phone.css'
 // home: for a primitive, the level that brings it in, tried like the level that unlocks a part.
 function benchFor(levels, box, flag, type, home, sample = false) {
   // A setting rather than a part is tried on the part it belongs to.
-  const nodeType = flag === 'edge-pad' ? 'shift' : flag === 'edge-filter' ? 'box3' : type
+  const nodeType = flag === 'edge-filter' ? 'box3' : type
   const spec = NODE_TYPES[nodeType]
   if (!spec) return null
   const own = levels.find((l) => (l.unlocks ?? []).includes(flag) || l.id === home)
@@ -34,7 +34,7 @@ function benchFor(levels, box, flag, type, home, sample = false) {
   const tests = source.tests.slice(0, 3).map((t) => ({ label: t.label, inputs: t.inputs, expected: {} }))
   const names = Object.keys(tests[0]?.inputs ?? {})
   const ports = spec.inputs ?? []
-  const params = { ...defaultParams(nodeType), ...(flag === 'edge-pad' || flag === 'edge-filter' ? { border: 'edge' } : {}) }
+  const params = { ...defaultParams(nodeType), ...(flag === 'edge-filter' ? { border: 'edge' } : {}) }
 
   // The part on its own, fed straight from the inputs; when its ports do not line up with them, its level's own
   // circuit, which has the part in it.

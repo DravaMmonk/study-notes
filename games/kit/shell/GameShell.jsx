@@ -34,7 +34,8 @@ const SITE = { games: '../index.html' }
  * last one being the level itself: a task opens once the one before it is passed, passing it says what it taught and
  * goes on, and passing the last passes the level. The tasks passed are kept per level (progress.tasks), and what each
  * task's screen keeps goes in the level's data as a list, one entry a task. A task marked `carries` goes on with what
- * the task before it made: it opens on that task's board.
+ * the task before it made: it opens on that task's board. A task holds the flags the tasks before it open (`opens`),
+ * before the level unlocks them.
  *
  * A level may keep several boards (slots.js): the board's editor switches between them (SaveSlots, through
  * SlotsContext), and the screen starts over on the one chosen, as it does when the level is entered.
@@ -154,13 +155,15 @@ export default function GameShell({ game }) {
     setFails(count)
     setFailure({ info, fails: count })
   }
-  // A level may withhold a flag the player already has, when its puzzle is to build that very thing by hand.
+  // A level (or the task played) may withhold a flag the player already has, when its puzzle is to build that very
+  // thing by hand. A task holds what the tasks before it in the level opened (`opens`).
   const flags = useMemo(() => {
     if (!level) return new Set()
-    const set = new Set([...game.flagsOf(progress), ...(level.grants ?? []), ...(progress.all ? game.unlocksBefore(level) : [])])
-    for (const flag of level.withhold ?? []) set.delete(flag)
+    const opened = tasks ? tasks.slice(0, taskAt).flatMap((t) => t.opens ?? []) : []
+    const set = new Set([...game.flagsOf(progress), ...(level.grants ?? []), ...opened, ...(progress.all ? game.unlocksBefore(level) : [])])
+    for (const flag of (tasks?.[taskAt] ?? level).withhold ?? []) set.delete(flag)
     return set
-  }, [game, progress, level])
+  }, [game, progress, level, tasks, taskAt])
   // A reference to another level in any text (levelRef.js) shows that level's number and title, and asks before going
   // there.
   const [goTo, setGoTo] = useState(null)

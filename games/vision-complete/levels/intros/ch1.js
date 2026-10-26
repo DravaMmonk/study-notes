@@ -36,7 +36,7 @@ export default {
   '1-7': [
     { t: { zh: '真实的照片都带着<b>噪声</b>：光线暗时，传感器收到的光少，每格的数会随机地偏高或偏低一点。把夜里拍的照片放大，看到的颗粒就是它。', en: 'Real photos always carry <b>noise</b>: in dim light the sensor receives little light, and each cell\'s number comes out randomly a little too high or too low. Zoom into a photo taken at night and the grain you see is noise.' } },
     { t: { zh: '<level-ref to="1-6"></level-ref>的边缘检测在干净的图上很准。这一关的图里，每一格都在微微抖动，台阶两边本该平坦的地方也到处是小起伏。', en: 'The edge detection from <level-ref to="1-6"></level-ref> was accurate on clean images. In this level every cell jitters slightly, and the areas on either side of the step that should be flat are full of small bumps.' } },
-    { t: { zh: '要想的问题：一个真正的台阶，和噪声造成的抖动，区别在哪里？你搭的「右边邻居 − 自己」和「下边邻居 − 自己」现在是现成的元件「横向差分」「纵向差分」。', en: 'Something to think about: how does a real step differ from the jitter caused by noise? The "right neighbour − self" and "neighbour below − self" you built are now ready-made parts: "Horizontal difference" and "Vertical difference".' } },
+    { t: { zh: '要想的问题：一个真正的台阶，和噪声造成的抖动，区别在哪里？', en: 'Something to think about: how does a real step differ from the jitter caused by noise?' } },
     { t: { zh: '这一关你要做的：只在真正的台阶处输出 1，其余输出 0。每组测试的台阶位置不同，都是左暗右亮。', en: 'Your task in this level: output 1 only at the real step and 0 everywhere else. Each test has its step in a different place, always dark on the left and bright on the right.' }, fig: { test: 0, caption: { zh: '第一组测试：带噪声的台阶', en: 'Set 1: a noisy step' } } },
   ],
   '1-8': [
@@ -57,31 +57,26 @@ export default {
   '1-11': [
     { t: { zh: '平移一格时，最边上那一列的数要从图外取。图外没有数据，平移元件一直补 0，也就是黑色。可拍到的东西不会在图边突然变黑，这一列是假的。', en: 'When you shift by one pixel, the numbers for the outermost column have to come from outside the image. There is no data out there, so the Shift part has always padded with 0, which is black. But what a camera captures does not suddenly turn black at the image border: that column is fake.' }, fig: { part: 'shift', params: { dir: 'right' }, input: ['stepX', 4, 0.85, 0.2], caption: { zh: '补 0 的平移：最左一列变成了黑的', en: 'Zero-padded shift: the leftmost column turns black' } } },
     { t: { zh: '更自然的补法是照抄：图外缺的那一格，就当它和离它最近的边上像素一样。这叫<b>复制边缘</b>。修图软件放大、模糊照片时，图边就是这样处理的。', en: 'A more natural way to pad is to copy: treat each missing cell outside the image as equal to the nearest pixel on the edge. This is called <b>replicate edge</b>. Photo editors handle the image border this way when they enlarge or blur a photo.' } },
-    { t: { zh: '这一关没有现成的设置可选，要你用平移、常数和加减乘这些元件，自己拼出来。拼成之后，它会变成平移元件「边界」设置里的一个选项。', en: 'This level has no ready-made setting to pick: you build it yourself from parts such as Shift, Constant, Add, Subtract and Multiply. Once you have built it, it becomes an option in the Shift part\'s "Border" setting.' } },
-    { t: { zh: '这一关你要做的：向右平移一格，最左一列照抄原图的最左一列。测试图都在左边贴着东西。', en: 'Your task in this level: shift right by one pixel, with the leftmost column copied from the original\'s leftmost column. Every test image has something touching its left edge.' }, fig: { test: 0, caption: { zh: '第一组测试：亮条贴着左边', en: 'Set 1: a bright bar on the left edge' } } },
+    { t: { zh: '在暗背景上看不出问题，换成亮背景，毛病就露出来了。拍一张天空再模糊，照片四周多出一圈暗边，像加了一个本来不存在的相框。', en: 'On a dark background you cannot see the problem; switch to a bright one and it shows. Blur a photo of the sky and a dark ring appears round the edges, like a frame that was never there.' }, fig: { part: 'box3', input: 'test', caption: { zh: '亮底图直接做 3×3 平均', en: 'A plain 3×3 average of an image on a bright background' } } },
+    { t: { zh: '这一关分两个任务，都没有现成的设置可选，要你自己拼出来。先用平移和四则运算，拼出向右平移一格、最左一列照抄原图的平移；拼成之后，它会变成平移元件「边界」设置里的一个选项。', en: 'This level has two tasks, and neither has a ready-made setting to pick: you build both yourself. First, from Shift and Arithmetic, build a shift right by one pixel whose leftmost column is copied from the original; once built, it becomes an option in the Shift part\'s "Border" setting.' }, fig: { task: 0, test: 0, caption: { zh: '第一个任务的第一组测试：亮条贴着左边', en: 'Task 1, set 1: a bright bar on the left edge' } } },
+    { t: { zh: '然后在亮底图上做 3×3 平均，输出和输入一样大，边上一圈不能发黑。', en: 'Then take a 3×3 average of images on a bright background, with the output the same size as the input and no dark ring round the border.' }, fig: { task: 1, test: 0, caption: { zh: '第二个任务的第一组测试：亮底方块', en: 'Task 2, set 1: square on bright background' } } },
   ],
   '1-12': [
-    { t: { zh: '算最边上一格的平均时，有几个邻居落在图外面。图外没有数据，元件只能自己补上一些值。补什么，直接决定了边上一圈的结果。', en: 'When averaging a cell at the very edge, some of its neighbours fall outside the image. There is no data there, so the part has to fill in some values itself. What it fills in directly decides the result all round the border.' } },
-    { t: { zh: '在暗背景上看不出问题，换成亮背景，毛病就露出来了。拍一张天空再模糊，照片四周多出一圈暗边，像加了一个本来不存在的相框。', en: 'On a dark background you cannot see the problem; switch to a bright one and it shows. Blur a photo of the sky and a dark ring appears round the edges, like a frame that was never there.' }, fig: { part: 'box3', input: 'test', caption: { zh: '亮底图直接做 3×3 平均', en: 'A plain 3×3 average of an image on a bright background' } } },
-    { t: { zh: '3×3 平均元件只会在图外补 0。这一关要你自己拼出一个边上不发黑的 3×3 平均。', en: 'The 3×3 average part can only pad with 0 outside the image. In this level you build a 3×3 average that does not darken at the border yourself.' } },
-    { t: { zh: '这一关你要做的：在亮底图上做 3×3 平均，输出和输入一样大，边上一圈不能发黑。', en: 'Your task in this level: take a 3×3 average of images on a bright background, with the output the same size as the input and no dark ring round the border.' }, fig: { test: 0, caption: { zh: '第一组测试：亮底方块', en: 'Set 1: square on bright background' } } },
-  ],
-  '1-13': [
     { t: { zh: '这是一道挑战关，可以跳过。它不需要新元件。', en: 'This is a challenge level, and you can skip it. It needs no new parts.' } },
     { t: { zh: '5×5 的平均要把 25 格加起来。像方块模糊那样先横后竖，计算量是 10，这一关只给 8。测试图四周都留着一圈黑边。', en: 'A 5×5 average adds up 25 cells. Splitting it into across and down, as with the box blur, costs 10, and this level allows only 8. Every test picture has a dark margin all round.' } },
     { t: { zh: '要想的问题：平移不花计算量，只有加法和乘法才花。', en: 'Something to think about: shifting costs nothing; only additions and multiplications do.' }, fig: { test: 0, caption: { zh: '第一组测试：方块和它的 5×5 平均', en: 'Set 1: a square and its 5×5 average' } } },
   ],
-  '1-14': [
+  '1-13': [
     { t: { zh: '扫描 App 拍下一张纸，要先找出纸的四边，才能把它裁下来、拉正。这一章最后三关，就来搭这样一台扫描仪。', en: 'A scanning app that photographs a sheet of paper must first find the sheet\'s four sides before it can crop and straighten it. The last three levels of this chapter build such a scanner.' } },
     { t: { zh: '真实的扫描件有三个麻烦：传感器的噪点、纸上的字，还有超出扫描范围的纸。先对付第一个。', en: 'Real scans bring three problems: sensor noise, the text on the paper, and paper that runs off the edge of the scan. First, the noise.' } },
     { t: { zh: '这一关你要做的：把带颗粒的扫描件变成期望里那样干净、柔和的图。', en: 'Your task in this level: turn the grainy scan into a clean, soft image like the expected one.' }, fig: { test: 1, caption: { zh: '第二组测试：纸贴着上边', en: 'Set 2: paper against the top' } } },
   ],
-  '1-15': [
+  '1-14': [
     { t: { zh: '纸常常比扫描范围大，一直铺到图边。图边是扫描仪看到的尽头，不是纸的边。', en: 'The paper is often bigger than the scan and runs right up to the image border. The border is where the scanner\'s view ends, not where the paper ends.' } },
     { t: { zh: '这一关没有噪声，也没有字。纸边用 x、y 两个方向的 Sobel 来找：两个响应各自平方再相加，大于 0.04 的地方输出 1。', en: 'This level has no noise and no text. Find the paper\'s edges with Sobel in both directions: square each response, add them, and output 1 wherever the sum is above 0.04.' } },
     { t: { zh: '这一关你要做的：输出纸的边。图边不能被当成纸边。', en: 'Your task in this level: output the paper\'s edges. The image border must not count as one.' }, fig: { test: 1, caption: { zh: '第二组测试：纸出了右边', en: 'Set 2: paper running off the right' } } },
   ],
-  '1-16': [
+  '1-15': [
     { t: { zh: '扫描仪的最后一关：噪声、字、超出范围的纸，全都会遇到。', en: 'The scanner\'s final level: noise, text and paper running off the scan, all at once.' } },
     { t: { zh: '纸上的字也有边，而且很多：每一笔都是一条暗线，两侧各有一道边。扫描仪要找的却只是纸的四边。', en: 'The text on the paper has edges too, lots of them: every stroke is a dark line with an edge on each side. But the scanner only wants the paper\'s four sides.' } },
     { t: { zh: '这一关你要做的：输出纸张的边，和期望一样。要想的问题：字的笔画和纸边，大小差了多少？', en: 'Your task in this level: output the paper\'s edges, matching the expected image. Something to think about: how different in size are a stroke of text and a paper edge?' }, fig: { test: 0, caption: { zh: '第一组测试：一页带噪声的字', en: 'Set 1: a noisy page of text' } } },

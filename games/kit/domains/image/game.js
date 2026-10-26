@@ -22,12 +22,10 @@ const partOfFlag = () => {
 }
 // What a setting (not a part of its own) does, for the parts box.
 const OPTION_DESCRIPTIONS = {
-  'edge-pad': { zh: '平移元件的「边界」设置多了「复制边缘」：图外缺的值，用离它最近的边上像素代替，不再补 0，图边就不会冒出一道假的黑框。', en: 'The Shift part’s “Border” setting gains “Replicate edge”: a value missing beyond the picture takes the nearest pixel on the edge instead of 0, so no false black frame appears round the picture.' },
-  'edge-filter': { zh: '3×3 平均、高斯、Sobel 这些滤波元件的「边界」设置多了「复制边缘」，边上一圈不会因为补 0 而发黑。', en: 'The “Border” setting on filters such as the 3×3 average, the Gaussian and Sobel gains “Replicate edge”, so the border no longer darkens from padding with 0.' },
+  'edge-filter': { zh: '平移和 3×3 平均、高斯、Sobel 这些滤波元件的「边界」设置多了「复制边缘」：图外缺的值，用离它最近的边上像素代替，不再补 0，图边就不会冒出一道假的黑框。', en: 'The “Border” setting of Shift and of filters such as the 3×3 average, the Gaussian and Sobel gains “Replicate edge”: a value missing beyond the picture takes the nearest pixel on the edge instead of 0, so no false black frame appears round the picture.' },
 }
 const OPTION_NAMES = {
-  'edge-pad': { zh: '平移补边：复制边缘', en: 'Shift padding: replicate edge' },
-  'edge-filter': { zh: '滤波补边：复制边缘', en: 'Filter padding: replicate edge' },
+  'edge-filter': { zh: '补边：复制边缘', en: 'Padding: replicate edge' },
   shift: { zh: '平移', en: 'Shift' },
   invert: { zh: '反相', en: 'Invert' },
 }
@@ -44,7 +42,10 @@ export function defineImageGame(spec) {
     if (type && NODE_TYPES[type]) return { key: flag, label: NODE_TYPES[type].label, name: NODE_TYPES[type].label, desc: descriptionOf(type), family: familyOf(type), icon: iconOf(type) }
     return { key: flag, label: OPTION_NAMES[flag] ?? flag, name: OPTION_NAMES[flag] ?? flag, desc: OPTION_DESCRIPTIONS[flag] }
   }
-  const allFlags = [...new Set(spec.levels.flatMap((level) => level.unlocks ?? []))]
+  // A level of several tasks shows what it unlocks as one: a flag an earlier task opens on the way (the Shift part's
+  // replicate edge, before the filters') is part of what the level unlocks, not an item of its own.
+  const shownUnlocks = (level) => (level.unlocks ?? []).filter((flag) => !level.tasks?.slice(0, -1).some((task) => task.opens.includes(flag)))
+  const allFlags = [...new Set(spec.levels.flatMap(shownUnlocks))]
   const { course } = spec.image
   // The primitives, each from the levels that bring it in.
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, label: NODE_TYPES[type].label, name: NODE_TYPES[type].label, desc: descriptionOf(type), family: familyOf(type), icon: iconOf(type), at }))
@@ -68,7 +69,7 @@ export function defineImageGame(spec) {
       board: { Screen: LevelScreen, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
       probe: { Screen: LevelScreen, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
     },
-    unlocked: (level) => (level.unlocks ?? []).map(unlockOf),
+    unlocked: (level) => shownUnlocks(level).map(unlockOf),
     core: (level) => isCore(course, level),
     parts: { all: [...primitives, ...allFlags.map(unlockOf)], demo: (part, { phone }) => createElement(PartDemo, { key: part.key, flag: part.key, type: part.type ?? PART_OF_FLAG[part.key], home: part.at?.[0], flags: allFlagSet, phone, levels: spec.levels, box: spec.box }) },
     // A better circuit costs less, or as much with fewer parts.

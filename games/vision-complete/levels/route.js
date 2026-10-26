@@ -9,7 +9,7 @@ const series = (id, zh, en, levels) => ({ id, title: { zh, en }, levels })
 // of what the chapters just before it built behind.
 const BASE = [
   'shift', 'const', 'invert', 'threshold', 'arith', 'merge',
-  'blur3h', 'box3', 'gauss', 'sharpen', 'diffx', 'diffy', 'sobelx', 'sobely', 'kernel3',
+  'blur3h', 'box3', 'gauss', 'diffx', 'sobelx', 'sobely', 'kernel3',
   'cos', 'fqWave', 'fqMean', 'sqrt', 'fqSpectrum', 'fqApply', 'fqLowpass', 'downsample',
   'shade', 'sense', 'gradmag', 'globalMax',
   'exp', 'relu', 'max', 'maxpool',
@@ -33,10 +33,10 @@ export const ERAS = [
     foundation: [
       '1-1', '1-2', '1-3', '1-4',
       { parallel: [series('sharpen', '锐化', 'Sharpening', ['1-5']), series('edges', '找边', 'Finding edges', ['1-6', '1-7'])] },
-      { parallel: [series('kernel', '3×3 核', 'The 3×3 kernel', ['1-8', '1-9', '1-10']), series('border', '图的边上', 'At the border', ['1-11', '1-12'])] },
+      { parallel: [series('kernel', '3×3 核', 'The 3×3 kernel', ['1-8', '1-9', '1-10']), series('border', '图的边上', 'At the border', ['1-11'])] },
     ],
-    challenges: [{ level: '1-13', after: '1-3' }],
-    topics: [{ id: 'scanner', levels: ['1-14', '1-15', '1-16'] }],
+    challenges: [{ level: '1-12', after: '1-3' }],
+    topics: [{ id: 'scanner', levels: ['1-13', '1-14', '1-15'] }],
   },
   {
     id: 2, keeps: 'all',
@@ -62,11 +62,11 @@ export const ERAS = [
     id: 4, keeps: 'all',
     foundation: [
       '4-1', '4-2', '4-3', '4-4',
-      { parallel: [series('neuron', '神经元', 'The neuron', ['4-5', '4-6']), series('pool', '非线性和池化', 'Nonlinearity and pooling', ['4-7', '4-8', '4-10', '4-11']), series('conv', '卷积层', 'Convolution layers', ['4-9', '4-13', '4-14'])] },
-      '4-12', '4-15',
+      { parallel: [series('neuron', '神经元', 'The neuron', ['4-5', '4-6']), series('pool', '非线性和池化', 'Nonlinearity and pooling', ['4-7', '4-8', '4-10', '4-11']), series('conv', '卷积层', 'Convolution layers', ['4-9', '4-13', '4-14', '4-15'])] },
+      '4-12', '4-16', '4-17',
     ],
-    challenges: [{ level: '4-16', after: '4-13' }],
-    topics: [{ id: 'sorter', levels: ['4-17', '4-18', '4-19'] }],
+    challenges: [{ level: '4-18', after: '4-13' }],
+    topics: [{ id: 'sorter', levels: ['4-19', '4-20', '4-21'] }],
   },
   {
     id: 5, keeps: 'all',

@@ -1,7 +1,7 @@
 // Parts that see the whole picture (视觉完备 chapter 5): attention over patches, a position code, and the fixed
 // encoder a contrastive bench trains (a picture as 64 features of length 1).
 import { correlate, downsample, gaussianKernel, map } from '../image.js'
-import { attention, positionCode } from '../attention.js'
+import { attention } from '../attention.js'
 
 export const features = (img) => {
   const small = downsample(downsample(correlate(img, gaussianKernel(1.2), 'edge'), 2), 2)
@@ -28,15 +28,6 @@ export const GLOBAL = {
     // Every pixel is a weighted sum over all the patches: on a 16×16 picture, 256 / P² of them, twice over.
     cost: (p) => 512 / (p.P ?? 4) ** 2,
     unlock: 'attention',
-  },
-  posenc: {
-    label: { zh: '位置编码', en: 'Positional encoding' },
-    description: { zh: '按阅读顺序第 i 个图块，每格加上 g·i', en: 'Adds g·i to every pixel of the i-th patch in reading order' },
-    inputs: ['in'],
-    params: [{ key: 'g', label: 'g', kind: 'number', min: 0, max: 0.2, step: 0.01, default: 0.05 }],
-    eval: ({ in: a }, p) => positionCode(a, p.g ?? 0.05),
-    cost: 1,
-    unlock: 'posenc',
   },
   embed: {
     label: { zh: '对比编码器', en: 'Contrastive encoder' },

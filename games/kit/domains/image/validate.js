@@ -1,6 +1,7 @@
 // The image domain's checks for `npm run check` (../../engine/check.js): every level has an intro whose figures
 // exist, every bench proves its lesson (verify()), and every circuit level keeps hidden tests, cannot be met by a
-// constant, passes with its reference circuit and fails with its naive ones. The parts' own text has English too.
+// constant, passes with its reference circuit and fails with its naive ones (every task of a level, too). The parts'
+// own text has English too.
 import { existsSync, readdirSync } from 'node:fs'
 import { keyOf } from '../../shell/i18n.js'
 import { untranslated } from '../../engine/text.js'
@@ -25,7 +26,9 @@ export function validate({ levels, intros }) {
 
   for (const level of levels) for (const problem of introProblems(intros[level.id], level, FIGURES)) fail(`${level.id}: 引入：${problem}`)
 
-  for (const level of levels) {
+  // A level of several tasks is checked task by task, each as a level of its own (`1-11/1`).
+  const played = levels.flatMap((level) => (level.tasks ? level.tasks.map((task, k) => ({ ...task, id: `${level.id}/${k + 1}` })) : [level]))
+  for (const level of played) {
     if (level.kind !== 'graph') {
       // Boards and probes may export verify(): '' when the level is winnable and its lesson holds.
       const problem = level.verify ? level.verify() : ''
