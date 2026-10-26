@@ -13,6 +13,17 @@ const andSwap = proof({ f: ['impI', { A: 'A ∧ B' }], e: ['andE', {}, 'f'], i: 
 // 逆否: (A → B) → (¬B → ¬A), two boxes and a Chain (¬B is B → ⊥).
 const contra = proof({ f: ['impI', { A: 'A → B' }], g: ['impI', { A: '¬B' }, 'f'], t: ['chain', {}, 'g'] }, ['f#body>t.p0', 'g#body>t.p1', 't>g.body', 'g>f.body', 'f>goal'])
 // 德摩根: ¬(A ∨ B) gives ¬A ∧ ¬B, one box for each side.
+// ¬¬(A ∨ ¬A): assuming ¬(A ∨ ¬A), it gives ¬A, and ¬A gives A ∨ ¬A against it.
+const lemDeniedNodes = {
+  f: ['impI', { A: '¬(A ∨ ¬A)' }],
+  na: ['impI', { A: 'A' }, 'f'],
+  i: ['orI', { other: '¬A', side: 'right' }, 'na'],
+  m: ['mp', {}, 'na'],
+  i2: ['orI', { other: 'A', side: 'left' }, 'f'],
+  m2: ['mp', {}, 'f'],
+}
+const lemDeniedWires = ['na#body>i.a', 'f#body>m.imp', 'i>m.a', 'm>na.body', 'na>i2.a', 'f#body>m2.imp', 'i2>m2.a', 'm2>f.body']
+const lemDenied = proof(lemDeniedNodes, [...lemDeniedWires, 'f>goal'])
 const deMorgan = proof({
   na: ['impI', { A: 'A' }],
   i: ['orI', { other: 'B', side: 'right' }, 'na'],
@@ -312,15 +323,14 @@ export const era2 = [
     title: T('德摩根', 'De Morgan'),
     tests: [{ premises: { p: '¬(A ∨ B)' }, goal: '¬A ∧ ¬B' }],
     cases: [{ A: 'Sat', B: 'Sun' }, { A: 'Rain', B: 'Wind' }],
-    builds: 'dm',
     brief: T('实现一个证明器，可以从已知「¬(今天是周六 ∨ 今天是周日)」，证明出「¬今天是周六 ∧ ¬今天是周日」。', 'Build a prover that, from “¬(today is Saturday ∨ today is Sunday)”, proves “¬today is Saturday ∧ ¬today is Sunday”.'),
     hint: [T('「¬今天是周六」怎么来？假设「今天是周六」，看它怎样和「¬(今天是周六 ∨ 今天是周日)」撞出矛盾。「¬今天是周日」同理。', 'Where does “¬today is Saturday” come from? Assume “today is Saturday” and see how it clashes with “¬(today is Saturday ∨ today is Sunday)”. “¬today is Sunday” the same way.')],
     intro: [
       { t: T('「既不是今天是周六也不是今天是周日」和「并非（今天是周六或者今天是周日）」是一回事吗？一半是：由前者推得出后者。', 'Do “neither today is Saturday nor today is Sunday” and “not (today is Saturday or today is Sunday)” say the same thing? Half of it is: the first gives the second.') },
-      { t: T('要拼出「¬今天是周六 ∧ ¬今天是周日」，就各开一个框去证「¬今天是周六」和「¬今天是周日」。证出来以后，这块电路是元件<part-ref to="lemma:dm"></part-ref>。', 'To build “¬today is Saturday ∧ ¬today is Sunday”, open a box each for “¬today is Saturday” and “¬today is Sunday”. Once proved, this circuit becomes the part <part-ref to="lemma:dm"></part-ref>.') },
+      { t: T('要拼出「¬今天是周六 ∧ ¬今天是周日」，就各开一个框去证「¬今天是周六」和「¬今天是周日」。', 'To build “¬today is Saturday ∧ ¬today is Sunday”, open a box each for “¬today is Saturday” and “¬today is Sunday”.') },
     ],
     solution: deMorgan,
-    after: T('现在你有了<part-ref to="lemma:dm"></part-ref>。这个方向不用任何花招。', 'Now you have <part-ref to="lemma:dm"></part-ref>. This direction takes no tricks.'),
+    after: T('否定穿过「或者」，变成两个否定的「并且」：这是<b>德摩根律</b>的一条。这个方向不用任何花招。', 'A negation passing through “or” becomes an “and” of two negations: one of <b>De Morgan’s laws</b>. This direction takes no tricks.'),
   },
   {
     id: 'dmBack',
@@ -332,7 +342,7 @@ export const era2 = [
     hint: [T('要证的是一个否定：假设「今天是周六 ∨ 今天是周日」，两种情况各撞出矛盾。', 'The goal is a negation: assume “today is Saturday ∨ today is Sunday” and get a contradiction in each case.')],
     intro: [{ t: T('<level-ref to="demorgan"></level-ref>只证了一半。反过来，两个都不成立，那「这个或者那个」也不成立。', '<level-ref to="demorgan"></level-ref> proved only half. The other way: if neither holds, then “this or that” does not hold either.') }],
     solution: proof({ f: ['impI', { A: 'A ∨ B' }], e: ['andE'], o: ['orE', {}, 'f'], m1: ['mp', {}, 'o/left'], m2: ['mp', {}, 'o/right'] }, ['p>e.ab', 'f#body>o.ab', 'e#left>m1.imp', 'o#left>m1.a', 'm1>o.left', 'e#right>m2.imp', 'o#right>m2.a', 'm2>o.right', 'o>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('两个方向都证过了，¬(A ∨ B) 和 ¬A ∧ ¬B 说的是一回事。德摩根升级了：元件上多了一个形状，切换一下就反过来用。', 'Both ways proved: ¬(A ∨ B) and ¬A ∧ ¬B say the same thing. De Morgan is upgraded: its part has a second shape, and switching it runs the law backwards.'),
+    after: T('两个方向都证过了，¬(A ∨ B) 和 ¬A ∧ ¬B 说的是一回事。', 'Both ways proved: ¬(A ∨ B) and ¬A ∧ ¬B say the same thing.'),
   },
   {
     id: 'dmUse',
@@ -356,7 +366,7 @@ export const era2 = [
     hint: [T('假设「今天是周六 ∧ 今天是周日」，拆开它；已知的两种情况，各拿一半撞出矛盾。', 'Assume “today is Saturday ∧ today is Sunday” and split it; in each case of the given, one half runs into a contradiction.')],
     intro: [{ t: T('德摩根律还有一对：关于「并且」的否定。先证不难的那个方向：这个不成立，或者那个不成立，那两个就不会都成立。', 'De Morgan’s laws have another pair, about denying “and”. First the easy way round: if this fails or that fails, they do not both hold.') }],
     solution: proof({ f: ['impI', { A: 'A ∧ B' }], e: ['andE', {}, 'f'], o: ['orE', {}, 'f'], m1: ['mp', {}, 'o/left'], m2: ['mp', {}, 'o/right'] }, ['f#body>e.ab', 'p>o.ab', 'o#left>m1.imp', 'e#left>m1.a', 'm1>o.left', 'o#right>m2.imp', 'e#right>m2.a', 'm2>o.right', 'o>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('这个方向也不用反证法。德摩根又多了一个形状：接进 ¬A ∨ ¬B，给出 ¬(A ∧ B)。', 'This way needs no proof by contradiction either. De Morgan gains another shape: wire in ¬A ∨ ¬B, out comes ¬(A ∧ B).'),
+    after: T('这个方向也不用反证法。剩下的那个方向，¬(A ∧ B) 给出 ¬A ∨ ¬B，就没这么简单了。', 'This way needs no proof by contradiction either. The way left, ¬(A ∧ B) giving ¬A ∨ ¬B, is not so simple.'),
   },
   {
     id: 'denyAnte',
@@ -370,49 +380,43 @@ export const era2 = [
     after: T('没下雨，地却湿了：「下雨 → 地湿」没错，「没下雨就不湿」错了。逆否把两边都否定、还换了位置；只否定不换位，就推不出来。', 'No rain, wet ground: “it rains → the ground is wet” holds, “no rain means dry” fails. The contrapositive negates both sides and swaps them; negating without swapping proves nothing.'),
   },
   {
-    id: 'notnotlem',
-    kind: 'proof',
-    title: T('排中律不可否定', 'You cannot deny the excluded middle'),
-    tests: [{ goal: '¬¬(A ∨ ¬A)' }],
-    builds: 'nnlem',
-    cases: [{ A: 'Rain' }, { A: 'Exam' }],
-    brief: T('实现一个证明器，不需要任何已知，就能证明出「¬¬(下雨 ∨ ¬下雨)」。', 'Build a prover that proves “¬¬(it rains ∨ ¬it rains)”. from nothing given'),
-    hint: [
-      T('直接证「下雨 ∨ ¬下雨」是不行的：你不知道该选哪一边。', 'Proving “it rains ∨ ¬it rains” directly will not work: you do not know which side to choose.'),
-      T('假设「¬(下雨 ∨ ¬下雨)」，然后把这个假设用两次。', 'Assume “¬(it rains ∨ ¬it rains)”, and then use that assumption twice.'),
+    id: 'raa',
+    title: T('要么成立，要么不成立', 'It holds or it does not'),
+    builds: 'lem',
+    tasks: [
+      {
+        kind: 'proof',
+        step: T('不可否定', 'Undeniable'),
+        tests: [{ goal: '¬¬(A ∨ ¬A)' }],
+        cases: [{ A: 'Rain' }, { A: 'Exam' }],
+        brief: T('实现一个证明器，不需要任何已知，就能证明出「¬¬(下雨 ∨ ¬下雨)」。', 'Build a prover that proves “¬¬(it rains ∨ ¬it rains)” from nothing given.'),
+        hint: [
+          T('直接证「下雨 ∨ ¬下雨」是不行的：你不知道该选哪一边。', 'Proving “it rains ∨ ¬it rains” directly will not work: you do not know which side to choose.'),
+          T('假设「¬(下雨 ∨ ¬下雨)」，然后把这个假设用两次。', 'Assume “¬(it rains ∨ ¬it rains)”, and then use that assumption twice.'),
+        ],
+        solution: lemDenied,
+        naive: proof({ f: ['impI', { A: '¬(A ∨ ¬A)' }], i: ['orI', { other: '¬A', side: 'right' }, 'f'] }, ['f#body>i.a', 'i>f.body', 'f>goal']),
+        after: T('假设「¬(下雨 ∨ ¬下雨)」：先由它得出「¬下雨」，再由「¬下雨」得出「下雨 ∨ ¬下雨」，和它自己矛盾。证明器证不出「下雨 ∨ ¬下雨」，却证得出「否认它会矛盾」：真值表上永真的话，证明器不一定证得出。', 'Assume “¬(it rains ∨ ¬it rains)”: it gives “¬it rains”, and “¬it rains” gives “it rains ∨ ¬it rains”, which contradicts it. The prover cannot prove “it rains ∨ ¬it rains”, but it can prove that denying it is a contradiction: not everything true on every row is provable by the prover.'),
+      },
+      {
+        kind: 'proof',
+        step: T('反证法', 'By contradiction'),
+        // Goes on with the proof just made: its board opens with it.
+        carries: true,
+        adds: ['raa'],
+        tests: [{ goal: 'A ∨ ¬A' }],
+        sentences: ['¬(A ∨ ¬A)'],
+        cases: [{ A: 'Rain' }, { A: 'Exam' }],
+        brief: T('刚证出的是「否认它会矛盾」，离「下雨 ∨ ¬下雨」只差去掉两个 ¬。数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」新规则<part-ref to="part:raa"></part-ref>：由「并非并非 某句」得到那句。把它接在刚才的证明后面，证明出「下雨 ∨ ¬下雨」。', 'What you just proved is that denying it is a contradiction; “it rains ∨ ¬it rains” is two ¬s away. Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” A new rule, <part-ref to="part:raa"></part-ref>: from “not not a sentence”, the sentence. Add it after the proof you just made, and prove “it rains ∨ ¬it rains”.'),
+        hint: [T('反证法接在最外面那个框的后面。', 'By contradiction goes right after the outermost box.')],
+        solution: proof({ ...lemDeniedNodes, r: ['raa'] }, [...lemDeniedWires, 'f>r.nna', 'r>goal']),
+      },
     ],
     intro: [
       { t: T('「下雨 ∨ ¬下雨」：要么下雨，要么没有。真值表上它每一行都真。可证明器证 ∨ 只有一条路：先证出其中一边。「下雨」和「¬下雨」，你一个也证不出。', '“it rains ∨ ¬it rains”: either it rains or not. It is true on every row of its table. But the prover proves an ∨ only one way: by proving one side first, and you can prove neither “it rains” nor “¬it rains”.') },
-      { t: T('退一步：证明「否认它会导致矛盾」，也就是「¬¬(下雨 ∨ ¬下雨)」。', 'Step back and prove that denying it leads to a contradiction: “¬¬(it rains ∨ ¬it rains)”.') },
+      { t: T('退一步：先证明「否认它会导致矛盾」，也就是「¬¬(下雨 ∨ ¬下雨)」。', 'Step back, and first prove that denying it leads to a contradiction: “¬¬(it rains ∨ ¬it rains)”.') },
     ],
-    solution: proof({
-      f: ['impI', { A: '¬(A ∨ ¬A)' }],
-      na: ['impI', { A: 'A' }, 'f'],
-      i: ['orI', { other: '¬A', side: 'right' }, 'na'],
-      m: ['mp', {}, 'na'],
-      i2: ['orI', { other: 'A', side: 'left' }, 'f'],
-      m2: ['mp', {}, 'f'],
-    }, ['na#body>i.a', 'f#body>m.imp', 'i>m.a', 'm>na.body', 'na>i2.a', 'f#body>m2.imp', 'i2>m2.a', 'm2>f.body', 'f>goal']),
-    naive: proof({ f: ['impI', { A: '¬(A ∨ ¬A)' }], i: ['orI', { other: '¬A', side: 'right' }, 'f'] }, ['f#body>i.a', 'i>f.body', 'f>goal']),
-    after: T('假设「¬(下雨 ∨ ¬下雨)」：先由它得出「¬下雨」，再由「¬下雨」得出「下雨 ∨ ¬下雨」，和它自己矛盾。证明器证不出「下雨 ∨ ¬下雨」，却证得出「否认它会矛盾」：真值表上永真的话，证明器不一定证得出。', 'Assume “¬(it rains ∨ ¬it rains)”: it gives “¬it rains”, and “¬it rains” gives “it rains ∨ ¬it rains”, which contradicts it. The prover cannot prove “it rains ∨ ¬it rains”, but it can prove that denying it is a contradiction: not everything true on every row is provable by the prover.'),
-  },
-  {
-    id: 'raa',
-    kind: 'proof',
-    title: T('反证法', 'By contradiction'),
-    tests: [{ goal: 'A ∨ ¬A' }],
-    cases: [{ A: 'Rain' }, { A: 'Exam' }],
-    adds: ['raa'],
-    builds: 'lem',
-    brief: T('实现一个证明器，不需要任何已知，就能证明出「下雨 ∨ ¬下雨」。', 'Build a prover that proves “it rains ∨ ¬it rains”. from nothing given'),
-    hint: [T('<level-ref to="notnotlem"></level-ref>造的<part-ref to="lemma:nnlem"></part-ref>给出「¬¬(下雨 ∨ ¬下雨)」。还差的那一步，就是新规则做的事。', '<part-ref to="lemma:nnlem"></part-ref>, built in <level-ref to="notnotlem"></level-ref>, gives “¬¬(it rains ∨ ¬it rains)”. The step still missing is what the new rule does.')],
-    intro: [
-      { t: T('这一节你一直在做同一件事：假设一句话，推出矛盾，于是证出「¬那句话」。<level-ref to="notnotlem"></level-ref>更进一步：假设「¬(下雨 ∨ ¬下雨)」推出矛盾，证出「¬¬(下雨 ∨ ¬下雨)」。', 'All this section you have done one thing: assume a sentence, reach a contradiction, and so prove “¬that sentence”. <level-ref to="notnotlem"></level-ref> went further: assuming “¬(it rains ∨ ¬it rains)” led to a contradiction, proving “¬¬(it rains ∨ ¬it rains)”.') },
-      { t: T('可「下雨 ∨ ¬下雨」本身，证明器到现在都证不出来：它的 ∨ 只有一条路，先证出其中一边。真值表说它每一行都真，证明器却差最后一步：去掉两个 ¬。', 'But “it rains ∨ ¬it rains” itself the prover still cannot prove: its ∨ has one way in, proving one side first. The truth table says it holds on every row, and the prover is one step short: dropping the two ¬s.') },
-      { t: T('数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」证明器加上一条新规则<part-ref to="part:raa"></part-ref>：由「并非并非 某句」得到那句。', 'Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” The prover gains a new rule, <part-ref to="part:raa"></part-ref>: from “not not a sentence”, the sentence.') },
-    ],
-    solution: proof({ n: ['nnlem', { A: 'A' }], r: ['raa'] }, ['n>r.nna', 'r>goal']),
-    after: T('这一章一开头就证不出的那句话，现在两块元件就够了，这块电路是元件<part-ref to="lemma:lem"></part-ref>：任何一句话，要么成立，要么不成立。不用反证法的逻辑叫<b>直觉主义逻辑</b>：每个「或」都要说出是哪一边。加上反证法就是<b>经典逻辑</b>：真值表上每一行都真的话，都证得出来。', 'The sentence you could not prove all chapter now takes two parts, and this circuit is the part <part-ref to="lemma:lem"></part-ref>: any sentence holds or it does not. Logic without proof by contradiction is called <b>intuitionistic</b>: every “or” must say which side. Add it and you have <b>classical</b> logic, where everything true on every row can be proved.'),
+    after: T('这一章一开头就证不出的那句话，现在证出来了，这块电路是元件<part-ref to="lemma:lem"></part-ref>：任何一句话，要么成立，要么不成立。不用反证法的逻辑叫<b>直觉主义逻辑</b>：每个「或」都要说出是哪一边。加上反证法就是<b>经典逻辑</b>：真值表上每一行都真的话，都证得出来。', 'The sentence you could not prove all chapter is now proved, and this circuit is the part <part-ref to="lemma:lem"></part-ref>: any sentence holds or it does not. Logic without proof by contradiction is called <b>intuitionistic</b>: every “or” must say which side. Add it and you have <b>classical</b> logic, where everything true on every row can be proved.'),
   },
 
   {
@@ -445,14 +449,18 @@ export const era2 = [
     title: T('并非两个都', 'Not both'),
     tests: [{ premises: { p: '¬(A ∧ B)' }, goal: '¬A ∨ ¬B' }],
     cases: [{ A: 'Sat', B: 'Sun' }, { A: 'Rain', B: 'Wind' }],
+    builds: 'dm',
     brief: T('实现一个证明器，可以从已知「¬(今天是周六 ∧ 今天是周日)」，证明出「¬今天是周六 ∨ ¬今天是周日」。', 'Build a prover that, from “¬(today is Saturday ∧ today is Sunday)”, proves “¬today is Saturday ∨ ¬today is Sunday”.'),
     hint: [
       T('已知没说是哪一个不成立。用排中律：今天是周六，或者不是。', 'The given does not say which one fails. Use excluded middle: today is Saturday, or it is not.'),
       T('是周六的那一边：再假设今天是周日，拼起来就撞上已知，所以「¬今天是周日」。', 'On the Saturday side: assume it is also Sunday; joined, they run into the given, so “¬today is Sunday”.'),
     ],
-    intro: [{ t: T('反过来：两个不会都成立，那么不是这个不成立，就是那个不成立。要证一句 ∨，就得说出是哪一边，而已知没说。', 'The other way: they do not both hold, so this fails or that fails. To prove an ∨ you must say which side, and the given does not say.') }],
+    intro: [
+      { t: T('德摩根律的最后一个方向：两个不会都成立，那么不是这个不成立，就是那个不成立。要证一句 ∨，就得说出是哪一边，而已知没说。', 'The last direction of De Morgan’s laws: they do not both hold, so this fails or that fails. To prove an ∨ you must say which side, and the given does not say.') },
+      { t: T('四个方向都证出来以后，它们合成一块元件<part-ref to="lemma:dm"></part-ref>，元件上切换四种形状。', 'Once all four directions are proved, they make one part, <part-ref to="lemma:dm"></part-ref>, which switches between the four shapes.') },
+    ],
     solution: proof({ l: ['lem', { A: 'A' }], e: ['orE'], g: ['impI', { A: 'B' }, 'e/left'], c: ['andI', {}, 'g'], m: ['mp', {}, 'g'], i1: ['orI', { other: '¬A', side: 'left' }, 'e/left'], i2: ['orI', { other: '¬B', side: 'right' }, 'e/right'] }, ['l>e.ab', 'e#left>c.a', 'g#body>c.b', 'p>m.imp', 'c>m.a', 'm>g.body', 'g>i1.a', 'i1>e.left', 'e#right>i2.a', 'i2>e.right', 'e>goal'], { premises: ['p'] }),
-    after: T('四条德摩根律里，只有这一条要靠排中律：「并非两个都」没说是哪一个，经典逻辑却敢说「总有一个」。德摩根的四个方向都齐了。', 'Of the four De Morgan laws, only this one rests on excluded middle: “not both” does not say which, yet classical logic dares to say “one of them”. All four directions of De Morgan are in hand.'),
+    after: T('四条德摩根律里，只有这一条要靠排中律：「并非两个都」没说是哪一个，经典逻辑却敢说「总有一个」。四个方向都齐了，现在你有了元件<part-ref to="lemma:dm"></part-ref>。', 'Of the four De Morgan laws, only this one rests on excluded middle: “not both” does not say which, yet classical logic dares to say “one of them”. All four directions are in hand, and now you have the part <part-ref to="lemma:dm"></part-ref>.'),
   },
   {
     id: 'peirce',

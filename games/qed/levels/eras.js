@@ -68,8 +68,14 @@ export const ERAS = [
         ['or', '或者', 'Or', ['or', 'cases', 'orSwap', 'orImp']],
         ['not', '矛盾与否定', 'Contradiction and not', ['bot', 'exFalso', 'notI', 'mt', 'dni', 'contra', 'denyAnte']],
       ),
-      series('mix', '组合', 'Together', ['dist', 'dsyll', 'demorgan', 'dmBack', 'dmUse', 'dmOr']),
-      series('classical', '反证法', 'By contradiction', ['notnotlem', 'raa', 'byContra', 'lemCases', 'dmAnd']),
+      series('mix', '组合', 'Together', ['dist', 'dsyll']),
+      // Three of De Morgan's laws need nothing classical; excluded middle needs nothing of them.
+      branches(
+        ['demorgan', '德摩根', 'De Morgan', ['demorgan', 'dmBack', 'dmOr']],
+        ['classical', '排中律', 'Excluded middle', ['raa', 'byContra', 'lemCases']],
+      ),
+      // The fourth law rests on excluded middle; with it the four make the part De Morgan, put to work at once.
+      series('dmAll', '德摩根的四个方向', 'De Morgan, all four ways', ['dmAnd', 'dmUse']),
     ],
     // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.
     topics: [{ id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],

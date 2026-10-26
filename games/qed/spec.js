@@ -84,7 +84,9 @@ export default {
   { version: 25, ops: [{ solve: ['t-detour', ['t-kernel', 't-exact']] }, { solve: ['t-all', ['t-kernel', 't-exact']] }] },
   // Version 26 brought the repeat frame in right after the first unification level (拆到底): whoever had passed what
   // follows has passed it.
-  { version: 26, ops: [{ solve: ['r-delete', ['r-deep']] }] }],
+  { version: 26, ops: [{ solve: ['r-delete', ['r-deep']] }] },
+  // Version 27 made 排中律不可否定 and 反证法 the two tasks of one level (反证法's id), so the part 排中不可否定 is gone.
+  { version: 27, ops: [{ merge: ['raa', ['notnotlem', 'raa']] }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
   quotes: ['任取'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
