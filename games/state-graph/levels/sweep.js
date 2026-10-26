@@ -8,7 +8,7 @@ export const sweep = [
   {
     id: 'prefix', ch: 11, title: T('前面所有的', 'Everything before'), short: T('扫描臂一次读一整段', 'A sweep arm reads a whole run at once'), mode: 'circuit', robot: 'broom',
     intro: [
-      { t: T('新的一章，新的机器人「扫帚」。它多了一条<b>扫描臂</b>，能一次扫过一整段格子，把整段的数一起送进电路板。', 'A new chapter and a new robot: Broom. It has a <b>sweep arm</b> that sweeps a whole run of cells in one go and feeds every number in the run into the circuit board.') },
+      { t: T('新的一章，新的机器人「扫帚」。它多了一条<part-ref to="sweep"></part-ref>，能一次扫过一整段格子，把整段的数一起送进电路板。', 'A new chapter and a new robot: Broom. It has a <part-ref to="sweep"></part-ref> that sweeps a whole run of cells in one go and feeds every number in the run into the circuit board.') },
       { t: T('一条街上，每家门口放着一些钱。机器人要在每家下面写：<b>从 1 号到这一家，一共有多少钱</b>。', 'Along a street, each house has some money at its door. Under each house the robot must write: <b>how much money there is in total from house 1 up to this one</b>.'), fig: { cells: houseRow([3, 1, 4, 1, 5]), edges: [] } },
       { t: T('扫描臂送来的是<b>一整段</b>：接到电路板上的线会变粗。汇合器能直接吃下一整段，段里的每个数都参与。', 'What the sweep arm sends is <b>a whole run</b>: its wire on the circuit board is drawn thicker. A Merger can take a whole run directly, and every number in it takes part.') },
     ],
@@ -19,7 +19,7 @@ export const sweep = [
       {
         world: 'prefix', facts: ['money'], checkAll: true, ask: T('用扫描臂把 1 号到这一家的钱一次扫进来，加起来。', 'Use the sweep arm to bring in the money from house 1 to this one in one go, and add it up.'),
         solution: circ([['m', 'msum']], ['tap:seg>m:0', 'm>out:cell']),
-        hints: [T('在视野下面点「扫描臂」，读它扫过的那一整段。', 'Click the “Sweep arm” under the view to read the whole run it passes over.'), T('把这一整段接进「加起来」汇合器，再接到本格。', 'Wire the whole run into a “sum” Merger, then wire that to this cell.')],
+        hints: [T('在视野下面点<part-ref to="sweep"></part-ref>，读它扫过的那一整段。', 'Click the <part-ref to="sweep"></part-ref> under the view to read the whole run it passes over.'), T('把这一整段接进「加起来」汇合器，再接到本格。', 'Wire the whole run into a “sum” Merger, then wire that to this cell.')],
         done: { head: T('扫出来了', 'Swept'), body: [T('可是扫描臂每到一家，都要从 1 号重新扫一遍：第 100 家要读 100 格。', 'But at every house, the sweep arm sweeps again from house 1: house 100 means reading 100 cells.'), T('<b>左边那一格，不是已经存着「到上一家一共多少」了吗？</b>下一阶段，扫描臂收起来了。', '<b>Doesn’t the cell on the left already hold “the total up to the previous house”?</b> In the next stage, the sweep arm is folded away.')] },
       },
       {
@@ -44,7 +44,7 @@ export const sweep = [
     tests: [{ a: [3, 1, 4, 1, 5, 9, 2, 6] }, { a: [5, 4, 3, 2, 1] }, { a: [2, 6, 3, 4, 1, 7, 5] }],
     solution: circ([['m', 'mmax'], ['k', 'const', 1], ['a', 'add']], ['tap:seg>m:0', 'm>a:0', 'k>a:1', 'a>out:cell']),
     hints: [T('这一根前面可以接任何一根，只要比它矮：点扫描臂，它只会送来比这一根矮的柱子。', 'This post can follow any post shorter than it: click the sweep arm, and it brings in only the posts shorter than this one.'), T('在留下的格子里挑最大的，再算上这一根自己：取较大，然后 + 1。', 'Pick the largest of the cells that remain, then count this post itself: max, then + 1.')],
-    debrief: { title: T('最长上升子序列', 'Longest increasing subsequence'), body: [T('这一格的来路不再是固定的一两格，而是<b>前面所有符合条件的格子</b>，有几条要看数据。', 'This cell’s ways in are no longer one or two fixed cells, but <b>every earlier cell that meets the condition</b>, and how many there are depends on the data.'), T('这个问题叫<b>最长上升子序列</b>：从一串股价里最多挑出几天、一天比一天高，一堆版本最多能排出多长的升级路线，用的都是它。', 'This problem is called the <b>longest increasing subsequence</b>: the most days you can pick from a run of share prices with each day higher than the last, or the longest upgrade path through a pile of versions, both come down to it.')], note: T('来路可以是一整段：在所有比我矮的格子里取最大，再 + 1。', 'The way in can be a whole run: take the max over the cells of every shorter post, then + 1.') },
+    debrief: { title: T('最长上升子序列', 'Longest increasing subsequence'), body: [T('这一格的来路不再是固定的一两格，而是<b>前面所有符合条件的格子</b>，有几条要看数据。', 'This cell’s ways in are no longer one or two fixed cells, but <b>every earlier cell that meets the condition</b>, and how many there are depends on the data.'), T('这个问题叫<wiki-ref to="lis"></wiki-ref>：从一串股价里最多挑出几天、一天比一天高，一堆版本最多能排出多长的升级路线，用的都是它。', 'This problem is called the <wiki-ref to="lis"></wiki-ref>: the most days you can pick from a run of share prices with each day higher than the last, or the longest upgrade path through a pile of versions, both come down to it.')], note: T('来路可以是一整段：在所有比我矮的格子里取最大，再 + 1。', 'The way in can be a whole run: take the max over the cells of every shorter post, then + 1.') },
   },
   {
     id: 'change', ch: 11, title: T('凑零钱', 'Making change'), short: T('每种硬币各退一步', 'Step back by each kind of coin'), mode: 'circuit', robot: 'broom',

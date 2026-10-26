@@ -3,12 +3,12 @@ export default {
   '4-1': [
     { t: { zh: '前几章，元件的参数都是你亲手定的：模糊多少、阈值多高。可手机相册认人脸、语音输入听写，背后的模型有成千上万个数，没人能一个个拧。机器得自己调。', en: 'In earlier chapters you set every part\'s parameters by hand: how much blur, how high a threshold. But the models behind face recognition in your photo app or voice typing have thousands upon thousands of numbers, and nobody can turn them one by one. The machine has to tune itself.' } },
     { t: { zh: '要自己调，先得知道「现在调得有多差」。这个分数叫<b>误差</b>：模型的输出离样本的正确答案有多远，平方后取平均。误差越小越好。', en: 'To tune itself, it first needs to know how badly tuned it is right now. That score is the <b>error</b>: how far the model\'s outputs are from the samples\' correct answers, squared and averaged. The smaller the error, the better.' } },
-    { t: { zh: '新元件「可学习常数」是一个数，这个数不用你填，把它和输入相乘就是 w × 输入。电路里有可学习的元件时，面板里会出现「训练」：每按一步，机器摸一摸误差往哪边下坡，就把旋钮往那边挪一点。', en: 'The new part "Learnable constant" is a number you do not fill in; multiply the input by it and you have w × input. When a circuit has learnable parts, "Training" appears in the panel: at every step the machine feels which way the error slopes down and nudges the knob that way.' } },
+    { t: { zh: '新元件<part-ref to="part:lrnConst"></part-ref>是一个数，这个数不用你填，把它和输入相乘就是 w × 输入。电路里有可学习的元件时，面板里会出现<wiki-ref to="training"></wiki-ref>：每按一步，机器摸一摸误差往哪边下坡，就把旋钮往那边挪一点。', en: 'The new part <part-ref to="part:lrnConst"></part-ref> is a number you do not fill in; multiply the input by it and you have w × input. When a circuit has learnable parts, <wiki-ref to="training"></wiki-ref> appears in the panel: at every step the machine feels which way the error slopes down and nudges the knob that way.' } },
     { t: { zh: '这一关你要做的：每组测试是一个样本，让机器自己找出那个数。要想的问题：每一步该迈多大？迈得太小、太大，各会怎样？', en: 'Your task in this level: each test is one sample; let the machine find the number itself. Something to think about: how big should each step be? What happens if the steps are too small, or too big?' }, fig: { test: 0, caption: { zh: '第一个样本：x = 0.2', en: 'The first sample: x = 0.2' } } },
   ],
   '4-2': [
     { t: { zh: '<level-ref to="4-1"></level-ref>只有一个旋钮。这一关的规律多了一项：输出 = w × 输入 + b，两个旋钮要一起调。', en: '<level-ref to="4-1"></level-ref> had a single knob. This level\'s rule has one more term: output = w × input + b, and the two knobs must be tuned together.' } },
-    { t: { zh: 'w 和 b 各用一个「可学习常数」。', en: 'Use one "Learnable constant" for w and another for b.' } },
+    { t: { zh: 'w 和 b 各用一个<part-ref to="part:lrnConst"></part-ref>。', en: 'Use one <part-ref to="part:lrnConst"></part-ref> for w and another for b.' } },
     { t: { zh: '这一关你要做的：让机器自己找到 w 和 b。要想的问题：两个旋钮时，「往下坡走」指的是往哪个方向走？', en: 'Your task in this level: let the machine find w and b itself. Something to think about: with two knobs, which direction does "walking downhill" mean?' }, fig: { test: 0, caption: { zh: '第一个样本：x = 0.2', en: 'The first sample: x = 0.2' } } },
   ],
   '4-3': [
@@ -20,8 +20,8 @@ export default {
     },
     {
       t: {
-        zh: '新元件「可学习 3×3 核」：和 3×3 核一样拿九个权重去压图，只是权重不用你填，它会照着测试的期望自己调。<level-ref to="4-2"></level-ref>只有一两个旋钮，这次是九个。',
-        en: 'The new part is the "Learnable 3×3 kernel": like the 3×3 kernel, it presses nine weights over the image, but you do not fill in the weights; it tunes them itself to match the tests\' expected outputs. <level-ref to="4-2"></level-ref> had one or two knobs; this time there are nine.',
+        zh: '新元件<part-ref to="part:learn3"></part-ref>：和 3×3 核一样拿九个权重去压图，只是权重不用你填，它会照着测试的期望自己调。<level-ref to="4-2"></level-ref>只有一两个旋钮，这次是九个。',
+        en: 'The new part is <part-ref to="part:learn3"></part-ref>: like the 3×3 kernel, it presses nine weights over the image, but you do not fill in the weights; it tunes them itself to match the tests\' expected outputs. <level-ref to="4-2"></level-ref> had one or two knobs; this time there are nine.',
       },
     },
     {
@@ -45,7 +45,7 @@ export default {
   ],
   '4-6': [
     { t: { zh: '<level-ref to="4-5"></level-ref>的 X 和 O 在平面上各占一边。这一关换了规则：X 是「只有一种笔画」，O 是「两种都有，或者都没有」。', en: '<level-ref to="4-5"></level-ref>\'s X and O each sat on one side of the plane. This level changes the rule: X means "only one kind of stroke", O means "both kinds, or neither".' } },
-    { t: { zh: '<level-ref to="4-5"></level-ref>搭的 1 / (1 + e^(−z)) 现在是现成的「Sigmoid」元件。', en: 'The 1 / (1 + e^(−z)) you built in <level-ref to="4-5"></level-ref> is now the ready-made "Sigmoid" part.' } },
+    { t: { zh: '<level-ref to="4-5"></level-ref>搭的 1 / (1 + e^(−z)) 现在是现成的元件<part-ref to="sigmoid"></part-ref>。', en: 'The 1 / (1 + e^(−z)) you built in <level-ref to="4-5"></level-ref> is now the ready-made part <part-ref to="sigmoid"></part-ref>.' } },
     { t: { zh: '这一关你要做的：X 输出大于 0.6，O 小于 0.4。要想的问题：一个神经元是一条分界线，这些点能被一条直线分开吗？', en: 'Your task in this level: above 0.6 for X, below 0.4 for O. Something to think about: one neuron is one dividing line; can these points be split by a straight line?' } },
   ],
   '4-7': [
@@ -130,7 +130,7 @@ export default {
       },
       fig: { test: 2, caption: { zh: '一组测试：挪了位置、带噪点的 O', en: 'One test set: an O that has moved and has noise' } },
     },
-    { t: { zh: '手里的元件：「卷积层」是从很小的随机数开始的可学习 3×3 核；「求平均」把整张图变成一个数；「全连接」和「Sigmoid」是你在前面搭出来的。', en: 'The parts to hand: "Conv layer" is a learnable 3×3 kernel that starts from very small random numbers; "Average" turns a whole picture into one number; "Dense" and "Sigmoid" are what you built earlier.' } },
+    { t: { zh: '手里的元件：<part-ref to="part:lrnConv"></part-ref>是从很小的随机数开始的可学习 3×3 核；<part-ref to="mean"></part-ref>把整张图变成一个数；「全连接」和<part-ref to="sigmoid"></part-ref>是你在前面搭出来的。', en: 'The parts to hand: <part-ref to="part:lrnConv"></part-ref> is a learnable 3×3 kernel that starts from very small random numbers; <part-ref to="mean"></part-ref> turns a whole picture into one number; "Dense" and <part-ref to="sigmoid"></part-ref> are what you built earlier.' } },
     {
       t: {
         zh: '这一关你要做的：输出一个数，X 大于 0.6，O 小于 0.4。要想的问题：X 和 O 到底差在哪里，什么信息该留下？',
@@ -162,7 +162,7 @@ export default {
   ],
   '4-14': [
     { t: { zh: '<level-ref to="4-13"></level-ref>的核分辨的是红和绿。颜色还有另一组对立：蓝和黄。沙漠的天际线、海边的沙滩，交界两边常常一样亮，只是颜色不同。', en: 'The kernel in <level-ref to="4-13"></level-ref> told red from green. Colour has another opposition: blue and yellow. On a desert skyline or a beach, the two sides of the border are often equally bright and differ only in colour.' } },
-    { t: { zh: '托盘里的「多通道 3×3 核」一个核横跨 R、G、B 三张图，27 个权重一起训练。', en: 'The Multichannel 3×3 kernel in the tray spans the R, G and B images with one kernel, its 27 weights trained together.' } },
+    { t: { zh: '托盘里的<part-ref to="lrn-rgb"></part-ref>一个核横跨 R、G、B 三张图，27 个权重一起训练。', en: 'The <part-ref to="lrn-rgb"></part-ref> in the tray spans the R, G and B images with one kernel, its 27 weights trained together.' } },
     { t: { zh: '这一关你要做的：只描出蓝与黄的交界，只是变亮变暗的地方要是 0。要想的问题：黄色和蓝色，在三张图里各是什么样？', en: 'Your task: trace only the border between blue and yellow; places that just get brighter or darker must be 0. Something to think about: what do yellow and blue each look like in the three images?' }, fig: { test: 0, caption: { zh: '第一组：天和沙，一条平线', en: 'Set 1: sky and sand, a level line' } } },
   ],
   '4-15': [

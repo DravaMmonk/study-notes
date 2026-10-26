@@ -47,7 +47,7 @@ const unknown = {
     [{ zh: '字母 F', en: 'Letter F' }, P.glyph(GLYPHS.F)],
     [{ zh: '方块', en: 'Square' }, P.square(2, 2, 6)],
   ],
-  after: { zh: '正确。你得到了「平移」：整张图挪一格，挪出边界的地方补 0。它的方向可以设成上下左右。', en: 'Correct. You now have "Shift": it moves the whole image by one pixel and fills the gap left at the border with 0. Its direction can be set to up, down, left or right.' },
+  after: { zh: '正确。你得到了<part-ref to="shift"></part-ref>：整张图挪一格，挪出边界的地方补 0。它的方向可以设成上下左右。', en: 'Correct. You now have <part-ref to="shift"></part-ref>: it moves the whole image by one pixel and fills the gap left at the border with 0. Its direction can be set to up, down, left or right.' },
   unlocks: ['shift'],
 }
 
@@ -120,7 +120,7 @@ const gate = {
     [{ zh: '圆盘', en: 'Disc' }, P.disk(7.5, 7.5, 5, 0.3, 0.7)],
     [{ zh: '随机纹理', en: 'Random texture' }, P.noise(4)],
   ],
-  after: { zh: '正确。你得到了「阈值」：大于门槛 t 的格子变 1，其余变 0，t 由你来定。只有 0 和 1 的图叫掩膜，用来标出图里的某块区域。', en: 'Correct. You now have "Threshold": cells above the threshold t become 1 and the rest 0, and you choose t. An image of only 0s and 1s is called a mask; it marks out a region of the picture.' },
+  after: { zh: '正确。你得到了<part-ref to="threshold"></part-ref>：大于门槛 t 的格子变 1，其余变 0，t 由你来定。只有 0 和 1 的图叫掩膜，用来标出图里的某块区域。', en: 'Correct. You now have <part-ref to="threshold"></part-ref>: cells above the threshold t become 1 and the rest 0, and you choose t. An image of only 0s and 1s is called a mask; it marks out a region of the picture.' },
   unlocks: ['threshold'],
 }
 

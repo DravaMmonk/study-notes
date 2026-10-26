@@ -16,7 +16,7 @@ export const farsight = [
     tests: [{ n: 6, broken: [3] }, { n: 8, broken: [2, 5] }, { n: 10, broken: [4, 7] }],
     solution: circ([['c', 'bp:stamp'], ['b', 'block']], ['tap:m1>c:0', 'tap:m2>c:1', 'tap:ground>c:2', 'tap:broken>b:0', 'c>b:1', 'b>out:cell']),
     hints: [
-      T('元件箱里的「路线计数器」也会数走法：前 1 级、前 2 级就是它的两条来路，是地面就是它的起点。', 'The “Route Counter” in your components box counts ways too: 1 step down and 2 steps down are its two ways in, and the ground is its start.'),
+      T('元件箱里的<part-ref to="counter"></part-ref>也会数走法：前 1 级、前 2 级就是它的两条来路，是地面就是它的起点。', 'The <part-ref to="counter"></part-ref> in your components box counts ways too: 1 step down and 2 steps down are its two ways in, and the ground is its start.'),
       T('坏台阶上要掐断：拦截闸在条件是「是」时输出「—」。', 'Cut off the broken steps: a Block gate outputs “—” when its condition is “yes”.'),
     ],
     diagnose: c => (!usesSensor(c, 'broken') ? tr('有的台阶坏了，踩不得。读一读「是坏台阶」。', 'Some steps are broken and can’t be stepped on. Read “is broken”.') : null),

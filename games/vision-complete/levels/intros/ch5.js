@@ -9,8 +9,8 @@ export default {
     },
     {
       t: {
-        zh: '人看图时常拿远处作参照：一排窗户少了一扇，你会照着别的窗户把它想出来。2020 年的 ViT 把图切成小块，让每块直接和所有块比较，按「像不像」决定从谁那里取多少。这叫<b>注意力</b>。',
-        en: 'When people look at a picture they often use distant parts as a reference: if a row of windows is missing one, you imagine it from the others. ViT (2020) cuts the image into small patches and lets each patch compare itself directly with every other, taking more from the ones it looks more like. This is called <b>attention</b>.',
+        zh: '人看图时常拿远处作参照：一排窗户少了一扇，你会照着别的窗户把它想出来。2020 年的 ViT 把图切成小块，让每块直接和所有块比较，按「像不像」决定从谁那里取多少。这叫<part-ref to="attention"></part-ref>。',
+        en: 'When people look at a picture they often use distant parts as a reference: if a row of windows is missing one, you imagine it from the others. ViT (2020) cuts the image into small patches and lets each patch compare itself directly with every other, taking more from the ones it looks more like. This is called <part-ref to="attention"></part-ref>.',
       },
     },
     {
@@ -30,8 +30,8 @@ export default {
   '5-2': [
     {
       t: {
-        zh: '托盘里的「注意力」把 16×16 的图切成 16 个 4×4 的图块，每块都向所有图块提问。参数「q 放大」把分数一起放大：放得越大，越只看最像的几块。',
-        en: 'The Attention in the tray cuts the 16×16 image into 16 patches of 4×4, and every patch asks every patch. The "q scale" parameter scales up all the scores: the larger it is, the more each patch looks only at the few most alike.',
+        zh: '托盘里的<part-ref to="attention"></part-ref>把 16×16 的图切成 16 个 4×4 的图块，每块都向所有图块提问。参数「q 放大」把分数一起放大：放得越大，越只看最像的几块。',
+        en: 'The <part-ref to="attention"></part-ref> in the tray cuts the 16×16 image into 16 patches of 4×4, and every patch asks every patch. The "q scale" parameter scales up all the scores: the larger it is, the more each patch looks only at the few most alike.',
       },
     },
     {
@@ -51,8 +51,8 @@ export default {
     },
     {
       t: {
-        zh: '「注意力」多了一个设置：图块边长 P，可以是 2、4 或 8。',
-        en: 'Attention has gained a setting: the patch size P, which can be 2, 4 or 8.',
+        zh: '<part-ref to="attention"></part-ref>多了一个设置：图块边长 P，可以是 2、4 或 8。',
+        en: '<part-ref to="attention"></part-ref> has gained a setting: the patch size P, which can be 2, 4 or 8.',
       },
     },
     {
@@ -152,8 +152,8 @@ export default {
   '5-8': [
     {
       t: {
-        zh: '托盘里的「对比编码器」把一张图变成一组特征，同一张图的各种变形得到的特征很接近。',
-        en: 'The Contrastive encoder in the tray turns a picture into a set of features, and different versions of the same picture get features close to each other.',
+        zh: '托盘里的<part-ref to="embed"></part-ref>把一张图变成一组特征，同一张图的各种变形得到的特征很接近。',
+        en: 'The <part-ref to="embed"></part-ref> in the tray turns a picture into a set of features, and different versions of the same picture get features close to each other.',
       },
     },
     {

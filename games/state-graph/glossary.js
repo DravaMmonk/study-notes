@@ -71,7 +71,7 @@ export const GLOSSARY = [
     body: [
       { zh: '<b>元件</b>是电路板上的小机器：从输入圆点收信号，从输出圆点送出结果。在电脑上，点「元件」窗里的一项就放上电路板；在手机上，点托盘里的一项，或按住拖到空格上，拖回托盘就拿掉了。点放好的元件，可以改它的设置。', en: '<b>Components</b> are little machines on the circuit board: they take signals at their input dots and send a result from their output dot. On a computer, click one in the Parts window to put it on the board; on a phone, tap one in the tray or hold and drag it onto a slot, and drag it back to the tray to remove it. Click a placed component to change its settings.' },
       { zh: '信号可以是一个数，也可以是「—」，意思是「这里没有路」或「什么也没有」。没接线的输入口，读到的是「—」。', en: 'A signal can be a number, or “—”, which means “there is no road here”, or simply nothing. An input with no wire reads “—”.' },
-      { zh: '<b>汇合器</b>把接进来的几个数加起来；它会跳过「—」，全是「—」时才输出「—」。', en: 'A <b>Merger</b> adds up the numbers wired into it; it skips “—”, and only outputs “—” when every input is “—”.' },
+      { zh: '<part-ref to="part:msum"></part-ref>把接进来的几个数加起来；它会跳过「—」，全是「—」时才输出「—」。', en: 'A <part-ref to="part:msum"></part-ref> adds up the numbers wired into it; it skips “—”, and only outputs “—” when every input is “—”.' },
     ],
     see: ['board', 'part', 'countOpt'],
   },
@@ -242,7 +242,7 @@ export const GLOSSARY = [
   {
     id: 'recognise', group: 'basics', title: { zh: '认出动态规划', en: 'Recognising dynamic programming' }, at: 'ice',
     body: [
-      { zh: '真实的问题不会写着「动态规划」。遇到一个新问题，可以先问三句：<b>最后一步有几种可能？小问题的答案能不能拼出大问题？状态要记住什么？</b>', en: 'Real problems never say “dynamic programming” on them. Faced with a new one, start with three questions: <b>how many possibilities are there for the last step? Can the answers to small problems build the big one? What must the state remember?</b>' },
+      { zh: '真实的问题不会写着<wiki-ref to="dp"></wiki-ref>。遇到一个新问题，可以先问三句：<b>最后一步有几种可能？小问题的答案能不能拼出大问题？状态要记住什么？</b>', en: 'Real problems never say <wiki-ref to="dp"></wiki-ref> on them. Faced with a new one, start with three questions: <b>how many possibilities are there for the last step? Can the answers to small problems build the big one? What must the state remember?</b>' },
       { zh: '也有的问题根本用不着它：如果没有可以拆开、再拼回去的小问题，简单地从头看到尾就够了。', en: 'Some problems do not need it at all: if there are no smaller problems to break off and build back up, simply looking through from start to finish is enough.' },
     ],
     see: ['dp', 'state', 'recurrence'],
@@ -329,7 +329,7 @@ export const GLOSSARY = [
   {
     id: 'rolling', group: 'classic', title: { zh: '滚动数组与完全背包', en: 'Rolling arrays and the unbounded knapsack' }, at: 'roll',
     body: [
-      { zh: '如果每一行只用到上一行，就不必留着整张表：只留一行，原地改写。这叫<b>滚动数组</b>，能把几千行的表压成一行。', en: 'If each row only uses the row above it, there is no need to keep the whole table: keep a single row and rewrite it in place. This is a <b>rolling array</b>, and it can squash a table of thousands of rows into one.' },
+      { zh: '如果每一行只用到上一行，就不必留着整张表：只留一行，原地改写。这叫<part-ref to="roll"></part-ref>，能把几千行的表压成一行。', en: 'If each row only uses the row above it, there is no need to keep the whole table: keep a single row and rewrite it in place. This is a <part-ref to="roll"></part-ref>, and it can squash a table of thousands of rows into one.' },
       { zh: '原地改写有个风险：改一格时要读的那一格，可能这一轮已经改过了，读到的就是「已经拿过这件物品」的值。<b>改写的方向</b>决定了读到的是旧值还是新值。', en: 'Rewriting in place has a catch: the cell you read while rewriting another may already have been rewritten in this pass, and then it holds a value where this item has already been taken. <b>The direction you rewrite in</b> decides whether you read the old value or the new one.' },
       { zh: '每种物品可以拿很多次的背包，叫<b>完全背包</b>。同一块电路板，只换一个改写方向，就能在两种背包之间切换。', en: 'A backpack where each item can be taken many times is the <b>unbounded knapsack</b>. The same circuit board, with only the rewrite direction changed, switches between the two kinds.' },
     ],
@@ -408,7 +408,7 @@ export const GLOSSARY = [
   {
     id: 'expectation', group: 'further', title: { zh: '期望与马尔可夫决策过程', en: 'Expectation and Markov decision processes' }, at: 'slip',
     body: [
-      { zh: '结果不确定时，一个动作的价值，是它每种可能结果<b>按可能性加权</b>加起来，叫<b>期望</b>。比如 80% 到右边、20% 到下面，就是 0.8 × 右边 + 0.2 × 下面。', en: 'When the outcome is uncertain, an action’s value is the sum of its possible outcomes, each <b>weighted by how likely it is</b>; this is the <b>expectation</b>. With an 80% chance of going right and 20% of going down, say, it is 0.8 × right + 0.2 × down.' },
+      { zh: '结果不确定时，一个动作的价值，是它每种可能结果<b>按可能性加权</b>加起来，叫<part-ref to="expect"></part-ref>。比如 80% 到右边、20% 到下面，就是 0.8 × 右边 + 0.2 × 下面。', en: 'When the outcome is uncertain, an action’s value is the sum of its possible outcomes, each <b>weighted by how likely it is</b>; this is the <part-ref to="expect"></part-ref>. With an 80% chance of going right and 20% of going down, say, it is 0.8 × right + 0.2 × down.' },
       { zh: '每一步都带着不确定性做决定的问题，叫<b>马尔可夫决策过程</b>，它是强化学习的数学骨架。规则还是老一套：每个动作算期望，挑最好的，打折，扫到不再变。', en: 'Problems where every decision is made under uncertainty are called <b>Markov decision processes</b>, the mathematical skeleton of reinforcement learning. The rule is the familiar one: work out each action’s expectation, pick the best, discount it, and scan until it settles.' },
     ],
     see: ['valueIter', 'policy'],

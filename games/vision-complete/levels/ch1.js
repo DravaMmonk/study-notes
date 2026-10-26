@@ -419,7 +419,7 @@ const racerLevel = {
   board: 'KernelRacer',
   chapter: 1,
   title: { zh: '核速判', en: 'Kernel sprint' },
-  brief: { zh: '看输入和输出，选出是哪个 3×3 核做的（按「3×3 核」元件的读法）。10 轮对 8 轮过关，越往后越快。', en: 'Look at the input and the output, and pick the 3×3 kernel that made it (read the way the "3×3 kernel" part reads it). Get 8 of 10 rounds right to pass; it gets faster as you go.' },
+  brief: { zh: '看输入和输出，选出是哪个 3×3 核做的（按<part-ref to="kernel3"></part-ref>元件的读法）。10 轮对 8 轮过关，越往后越快。', en: 'Look at the input and the output, and pick the 3×3 kernel that made it (read the way the <part-ref to="kernel3"></part-ref> part reads it). Get 8 of 10 rounds right to pass; it gets faster as you go.' },
   hint: { zh: '权重全正、和为 1：变软。正负相抵、和为 0：平坦处变 0。只有一个 1：整张图挪了一格。', en: 'All weights positive, summing to 1: softer. Positives and negatives cancelling, summing to 0: flat areas become 0. A single 1: the whole image shifts by one pixel.' },
   after: { zh: '你已经能从结果反推核：全正且和为 1 是平滑，越集中越接近原图；和为 0 的核只对变化有反应，是求导；中心大、四周为负是锐化；只有一个 1 是平移，挪的方向和 1 的位置相反。', en: 'You can now work back from a result to its kernel. All positive and summing to 1 is smoothing, and the more concentrated, the closer to the original. A kernel that sums to 0 responds only to change: a derivative. A large centre with negative neighbours is sharpening. A single 1 is a shift, moving the opposite way from where the 1 sits.' },
   unlocks: [],

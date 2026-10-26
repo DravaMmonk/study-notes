@@ -122,7 +122,7 @@ export const GLOSSARY = [
     title: { zh: '元件箱与解锁', en: 'The components box and unlocking' },
     at: '0-2',
     body: [
-      { zh: '过关常会解锁新元件，通过窗口里会列出来。弄清楚的黑箱会变成你的「平移」；亲手搭出的东西，也常会变成现成的元件，之后直接拿来用，不必再关心里面怎么搭。', en: 'Passing a level often unlocks a new part, listed in the passed window. A black box you have figured out becomes your “Shift”, and what you build by hand often becomes a ready-made part too, used directly from then on without your having to think about what is inside.' },
+      { zh: '过关常会解锁新元件，通过窗口里会列出来。弄清楚的黑箱会变成你的<part-ref to="shift"></part-ref>；亲手搭出的东西，也常会变成现成的元件，之后直接拿来用，不必再关心里面怎么搭。', en: 'Passing a level often unlocks a new part, listed in the passed window. A black box you have figured out becomes your <part-ref to="shift"></part-ref>, and what you build by hand often becomes a ready-made part too, used directly from then on without your having to think about what is inside.' },
       { zh: '解锁的也可能是某个设置里的一个新选项。', en: 'An unlock can also be a new option in a setting.' },
       { zh: '每关的元件栏只摆出这一关给的元件。地图上的「元件箱」列出游戏里所有元件，已拿到的点亮并附说明。有的关要你亲手搭出某样东西，这时现成的那个会暂时收起来。', en: 'Each level’s parts list holds only the parts that level offers. The “Parts” box on the map lists every part in the game, with the ones you have earned lit up and described. When a level asks you to build something by hand, the ready-made version is put away for that level.' },
     ],
@@ -147,7 +147,7 @@ export const GLOSSARY = [
     at: '1-1',
     body: [
       { zh: '电路里传的都是一格格数字，但可以换着画法看。一个数画成读数，一行数画成波形；二维的图一开始画成像素，往后的关卡会陆续带来剖面、地形、频谱和坡度四种画法。', en: 'Everything in a circuit is a grid of numbers, but you can draw it in different ways. A single number is drawn as a reading and a single row as a waveform; a 2-D image starts out drawn as pixels, and later levels bring in four more ways: profile, terrain, spectrum and slope.' },
-      { zh: '「像素」把亮度画成灰度，有负数的图以中灰为 0。「地形」把亮度当高度：模糊把山削圆，边缘是悬崖。「坡度」画等高线和指向变亮最快方向的箭头。「剖面」画图上一行的亮度曲线，在图上拖动换一行。「频谱」画各频率的波有多强，中心是频率 (0, 0)。', en: '“Pixels” draws brightness as grey; an image with negative values puts 0 at mid-grey. “Terrain” treats brightness as height: blurring rounds off the hills and edges are cliffs. “Slope” draws contour lines and arrows pointing where the image brightens fastest. “Profile” draws the brightness along one row as a curve; drag on the picture to change row. “Spectrum” shows how strong the wave at each frequency is, with frequency (0, 0) at the centre.' },
+      { zh: '「像素」把亮度画成灰度，有负数的图以中灰为 0。「地形」把亮度当高度：模糊把山削圆，边缘是悬崖。「坡度」画等高线和指向变亮最快方向的箭头。「剖面」画图上一行的亮度曲线，在图上拖动换一行。<part-ref to="spectrum"></part-ref>画各频率的波有多强，中心是频率 (0, 0)。', en: '“Pixels” draws brightness as grey; an image with negative values puts 0 at mid-grey. “Terrain” treats brightness as height: blurring rounds off the hills and edges are cliffs. “Slope” draws contour lines and arrows pointing where the image brightens fastest. “Profile” draws the brightness along one row as a curve; drag on the picture to change row. <part-ref to="spectrum"></part-ref> shows how strong the wave at each frequency is, with frequency (0, 0) at the centre.' },
       { zh: '每个元件可以单独换画法；电脑上画布左下角的「全部画成」一次换掉所有图像元件，旁边的按钮恢复这一关的默认画法。换画法不改电路，也不用重新测试。', en: 'Each part can switch its own view; on a desktop, “Draw all as” at the bottom left of the board switches every image part at once, and the button beside it restores the level’s default views. Changing the view does not change the circuit and needs no new test run.' },
     ],
     see: ['details', 'edge', 'spectrum'],
@@ -195,7 +195,7 @@ export const GLOSSARY = [
     title: { zh: '阈值、掩膜与背景减除', en: 'Thresholds, masks and background subtraction' },
     at: '0-8',
     body: [
-      { zh: '<b>阈值</b>把深浅不一的灰变成「是」或「否」：大于门槛的格子变 1，其余变 0。只有 0 和 1 的图叫<b>掩膜</b>，用来标出图中的某块区域。', en: 'A <b>threshold</b> turns shades of grey into “yes” or “no”: cells above it become 1 and the rest 0. An image of only 0s and 1s is called a <b>mask</b>, and it marks out a region of the picture.' },
+      { zh: '<part-ref to="threshold"></part-ref>把深浅不一的灰变成「是」或「否」：大于门槛的格子变 1，其余变 0。只有 0 和 1 的图叫<b>掩膜</b>，用来标出图中的某块区域。', en: 'A <part-ref to="threshold"></part-ref> turns shades of grey into “yes” or “no”: cells above it become 1 and the rest 0. An image of only 0s and 1s is called a <b>mask</b>, and it marks out a region of the picture.' },
       { zh: '固定的摄像头要找闯进画面的东西，与其看哪里亮，不如和一张没人时拍的参照图比：差别大的地方就是新来的。这叫<b>背景减除</b>，它绕开了「东西本来有多亮」这个未知数。', en: 'For a fixed camera looking for whatever comes into view, comparing with a reference shot of the empty scene works far better than looking for bright spots: wherever the difference is large is new. This is <b>background subtraction</b>, and it sidesteps the unknown of how bright things were to begin with.' },
       { zh: '阈值是最简单的决策，也最脆弱：结果全看门槛定在哪，光照一变，固定的门槛常常失灵。', en: 'A threshold is the simplest kind of decision, and the most fragile: the result depends entirely on where the threshold sits, and a fixed threshold often fails once the lighting changes.' },
     ],
@@ -241,7 +241,7 @@ export const GLOSSARY = [
     title: { zh: '高斯模糊', en: 'Gaussian blur' },
     at: '1-5',
     body: [
-      { zh: '方块模糊把一个亮点摊成一块平顶的方墩，有硬边也有角。<b>高斯模糊</b>的权重在中心最大、越远越小，切开看像一口钟，一个亮点会被摊成一座圆滑的小山。', en: 'A box blur spreads a bright dot into a flat-topped square block, with hard edges and corners. A <b>Gaussian blur</b> weights the centre most and further cells less, like a bell in cross-section, so a bright dot is spread into a smooth little hill.' },
+      { zh: '方块模糊把一个亮点摊成一块平顶的方墩，有硬边也有角。<part-ref to="gauss"></part-ref>的权重在中心最大、越远越小，切开看像一口钟，一个亮点会被摊成一座圆滑的小山。', en: 'A box blur spreads a bright dot into a flat-topped square block, with hard edges and corners. A <part-ref to="gauss"></part-ref> weights the centre most and further cells less, like a bell in cross-section, so a bright dot is spread into a smooth little hill.' },
       { zh: 'σ 决定钟有多宽：σ 越大，图越糊。平滑叠平滑会越来越像高斯，方块模糊连做三次几乎就是一个高斯，这也是高斯在视觉里随处可见的原因之一。', en: 'σ sets how wide the bell is: the larger σ, the blurrier the image. Smoothing on top of smoothing looks more and more like a Gaussian, and three box blurs in a row are almost one; that is one reason Gaussians are everywhere in vision.' },
     ],
     see: ['filter', 'separable', 'convthm'],
@@ -347,7 +347,7 @@ export const GLOSSARY = [
     title: { zh: '波的叠加', en: 'Adding waves' },
     at: '2-5',
     body: [
-      { zh: '任何一条亮度曲线都能拆成一组正弦波：每个频率一个振幅，再加一个相位。这组振幅，就是这条曲线的<b>频谱</b>。', en: 'Any brightness curve can be taken apart into a set of sine waves: one amplitude for each frequency, plus a phase. That set of amplitudes is the curve’s <b>spectrum</b>.' },
+      { zh: '任何一条亮度曲线都能拆成一组正弦波：每个频率一个振幅，再加一个相位。这组振幅，就是这条曲线的<part-ref to="spectrum"></part-ref>。', en: 'Any brightness curve can be taken apart into a set of sine waves: one amplitude for each frequency, plus a phase. That set of amplitudes is the curve’s <part-ref to="spectrum"></part-ref>.' },
       { zh: '边越陡，需要的高频越多。方波只用到奇数频率，振幅按 1、1/3、1/5、1/7 递减；少了高频，陡边旁就会冒出一圈小波纹。', en: 'The steeper an edge, the more high frequencies it needs. A square wave uses only odd frequencies, with amplitudes falling as 1, 1/3, 1/5, 1/7; leave out the high ones and small ripples appear beside the steep edges.' },
       { zh: '模糊过的曲线只剩低频。从这个角度看，模糊就是把高频调小。', en: 'A blurred curve keeps only its low frequencies. Seen this way, blurring means turning the high frequencies down.' },
     ],
@@ -729,7 +729,7 @@ export const GLOSSARY = [
     title: { zh: '极线与基础矩阵', en: 'Epipolar lines and the fundamental matrix' },
     at: '7-7',
     body: [
-      { zh: '真实的两台相机很难摆得正，同一点常跑到别的行。可左图的一个点只确定一条视线，这条视线上所有可能的深度，投到右图都落在同一条直线上，叫<b>极线</b>。', en: 'Real cameras are rarely lined up exactly, so the same point often lands on a different row. But a point in the left image fixes only a line of sight, and every possible depth along it projects into the right image onto one straight line, called the <b>epipolar line</b>.' },
+      { zh: '真实的两台相机很难摆得正，同一点常跑到别的行。可左图的一个点只确定一条视线，这条视线上所有可能的深度，投到右图都落在同一条直线上，叫<part-ref to="own-7-7"></part-ref>。', en: 'Real cameras are rarely lined up exactly, so the same point often lands on a different row. But a point in the left image fixes only a line of sight, and every possible depth along it projects into the right image onto one straight line, called the <part-ref to="own-7-7"></part-ref>.' },
       { zh: '两台相机的相对位置可以事先标定，记成一个 3×3 的<b>基础矩阵</b> F。左图点 p 的极线是 l′ = F·p，写成 a·u′ + b·v′ + c = 0；点落在线上的哪里，取决于它有多远。', en: 'The cameras’ relative position can be calibrated in advance and recorded as a 3×3 <b>fundamental matrix</b> F. The epipolar line of a left-image point p is l′ = F·p, written a·u′ + b·v′ + c = 0; where the point lands on that line depends on how far away it is.' },
       { zh: '于是二维搜索变成了一维，省下大量比较。所有极线都汇向同一点，叫极点。', en: 'So a 2-D search becomes 1-D, saving a great many comparisons. All the epipolar lines meet at one point, the epipole.' },
     ],
@@ -743,7 +743,7 @@ export const GLOSSARY = [
     title: { zh: '自编码器与瓶颈', en: 'Autoencoders and the bottleneck' },
     at: '8-1',
     body: [
-      { zh: '<b>编码器</b>把整张图压成几个数 z，<b>解码器</b>再从 z 画回一张图，训练目标就是输入自己，所以不需要标签。这样的一对叫<b>自编码器</b>。', en: 'An <b>encoder</b> squeezes a whole image into a few numbers z, and a <b>decoder</b> draws an image back from z; the training target is the input itself, so no labels are needed. Such a pair is called an <b>autoencoder</b>.' },
+      { zh: '<part-ref to="part:dg_encode"></part-ref>把整张图压成几个数 z，<part-ref to="part:dg_decode"></part-ref>再从 z 画回一张图，训练目标就是输入自己，所以不需要标签。这样的一对叫<b>自编码器</b>。', en: 'An <part-ref to="part:dg_encode"></part-ref> squeezes a whole image into a few numbers z, and a <part-ref to="part:dg_decode"></part-ref> draws an image back from z; the training target is the input itself, so no labels are needed. Such a pair is called an <b>autoencoder</b>.' },
       { zh: '中间最窄的那层叫<b>瓶颈</b>。它至少要有图像真正变化的那么多个数：一族图只在左右、上下两个方向变，就至少要两个数，一个数只能让它沿一条线变化。', en: 'The narrowest layer in the middle is the <b>bottleneck</b>. It needs at least as many numbers as the ways the images really vary: a family of images that varies only left–right and up–down needs at least two numbers, since one number can only move along a single line.' },
       { zh: '压缩、去噪都从这一步开始。', en: 'Compression and denoising both start from this step.' },
     ],
@@ -791,7 +791,7 @@ export const GLOSSARY = [
     at: '7-5',
     body: [
       { zh: '<b>齐次坐标</b>把点 (x, y) 写成三个数 (x, y, 1)，把直线 ax + by + c = 0 写成 (a, b, c)。点在线上，就是两组数点乘为 0。', en: '<b>Homogeneous coordinates</b> write the point (x, y) as three numbers (x, y, 1) and the line ax + by + c = 0 as (a, b, c). A point lies on a line exactly when their dot product is 0.' },
-      { zh: '两个点的<b>叉积</b>是过它们的直线，两条直线的叉积是它们的交点 (X, Y, W)，表示 (X/W, Y/W)；平行线 W = 0，交在无穷远。', en: 'The <b>cross product</b> of two points is the line through them, and of two lines the point where they meet, (X, Y, W), standing for (X/W, Y/W); parallel lines have W = 0 and meet at infinity.' },
+      { zh: '两个点的<part-ref to="own-7-5"></part-ref>是过它们的直线，两条直线的叉积是它们的交点 (X, Y, W)，表示 (X/W, Y/W)；平行线 W = 0，交在无穷远。', en: 'The <part-ref to="own-7-5"></part-ref> of two points is the line through them, and of two lines the point where they meet, (X, Y, W), standing for (X/W, Y/W); parallel lines have W = 0 and meet at infinity.' },
     ],
     see: ['epipolar', 'homography'],
   },
@@ -845,7 +845,7 @@ export const GLOSSARY = [
     title: { zh: 'IoU 与 AP', en: 'IoU and AP' },
     at: '10-1',
     body: [
-      { zh: '<b>IoU</b>（交并比）= 两个框交集的面积 ÷ 并集的面积，0 到 1。检测出的框和标注的框 IoU 大于 0.5（VOC），才算找对。', en: '<b>IoU</b> (intersection over union) = the area where two boxes overlap ÷ the area they cover together, from 0 to 1. A detected box counts as right when its IoU with the labelled box is above 0.5 (VOC).' },
+      { zh: '<part-ref to="own-10-1"></part-ref>（交并比）= 两个框交集的面积 ÷ 并集的面积，0 到 1。检测出的框和标注的框 IoU 大于 0.5（VOC），才算找对。', en: '<part-ref to="own-10-1"></part-ref> (intersection over union) = the area where two boxes overlap ÷ the area they cover together, from 0 to 1. A detected box counts as right when its IoU with the labelled box is above 0.5 (VOC).' },
       { zh: '把检测结果按分数排好，第 k 名的精确率 = 前 k 名里对的个数 ÷ k；<b>AP</b> 是每个对的那一名的精确率加起来，再除以标注的个数，也就是精确率—召回率曲线下的面积。各类 AP 的平均是 <b>mAP</b>。', en: 'Sort the detections by score: the precision at rank k = the number right in the top k ÷ k, and <b>AP</b> is the precisions at the right ones, added up and divided by the number labelled: the area under the precision–recall curve. The average AP over the classes is <b>mAP</b>.' },
     ],
     see: ['detect'],

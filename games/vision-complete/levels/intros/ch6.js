@@ -15,8 +15,8 @@ export default {
     },
     {
       t: {
-        zh: 'Sobel x、Sobel y 你见过，分别量左右和上下方向的变化。「四则运算」选 ×，就把两张图逐格相乘。',
-        en: 'You have met Sobel x and Sobel y: they measure change left-to-right and top-to-bottom. Set Arithmetic to × and it multiplies two images pixel by pixel.',
+        zh: 'Sobel x、Sobel y 你见过，分别量左右和上下方向的变化。<part-ref to="part:arith"></part-ref>选 ×，就把两张图逐格相乘。',
+        en: 'You have met Sobel x and Sobel y: they measure change left-to-right and top-to-bottom. Set <part-ref to="part:arith"></part-ref> to × and it multiplies two images pixel by pixel.',
       },
       fig: { test: 2, caption: { zh: '直边那组：期望处处是 0', en: 'The straight-edge set: expect 0 everywhere' } },
     },
@@ -52,8 +52,8 @@ export default {
   '6-3': [
     {
       t: {
-        zh: '托盘里的「找峰」在比 3×3 邻居都不小、又大于 0.3 的格子输出 1，其余输出 0。',
-        en: 'The Peak finder in the tray outputs 1 where a cell is no smaller than its 3×3 neighbours and above 0.3, and 0 elsewhere.',
+        zh: '托盘里的<part-ref to="own-6-2"></part-ref>在比 3×3 邻居都不小、又大于 0.3 的格子输出 1，其余输出 0。',
+        en: 'The <part-ref to="own-6-2"></part-ref> in the tray outputs 1 where a cell is no smaller than its 3×3 neighbours and above 0.3, and 0 elsewhere.',
       },
     },
     {
@@ -94,8 +94,8 @@ export default {
   '6-5': [
     {
       t: {
-        zh: '托盘里的「匹配器」接上三个距离，它给出配上的候选编号。',
-        en: 'The Matcher in the tray takes three distances and returns the number of the matching candidate.',
+        zh: '托盘里的<part-ref to="own-6-4"></part-ref>接上三个距离，它给出配上的候选编号。',
+        en: 'The <part-ref to="own-6-4"></part-ref> in the tray takes three distances and returns the number of the matching candidate.',
       },
     },
     {
@@ -141,8 +141,8 @@ export default {
   '6-7': [
     {
       t: {
-        zh: '托盘里的「Hough 累加器」：亮点进去，出来一张 (θ, ρ) 的票数图。',
-        en: 'The Hough accumulator in the tray: bright points go in, and a map of votes over (θ, ρ) comes out.',
+        zh: '托盘里的<part-ref to="hough"></part-ref>：亮点进去，出来一张 (θ, ρ) 的票数图。',
+        en: 'The <part-ref to="hough"></part-ref> in the tray: bright points go in, and a map of votes over (θ, ρ) comes out.',
       },
     },
     {
@@ -186,8 +186,8 @@ export default {
   '6-9': [
     {
       t: {
-        zh: '托盘里的「RANSAC 找直线」，轮数 k 和 δ 都能调。',
-        en: 'The RANSAC line in the tray has the rounds k and δ to set.',
+        zh: '托盘里的<part-ref to="ransac"></part-ref>，轮数 k 和 δ 都能调。',
+        en: 'The <part-ref to="ransac"></part-ref> in the tray has the rounds k and δ to set.',
       },
     },
     {
@@ -242,14 +242,14 @@ export default {
   '6-12': [
     {
       t: {
-        zh: '托盘里的「求单应」：点对进去，出来 H 的 9 个数。这一关先不用它，H 直接给你。',
-        en: 'The Solve homography in the tray: pairs go in and the 9 numbers of H come out. This level does not need it yet: H is given.',
+        zh: '托盘里的<part-ref to="homography"></part-ref>：点对进去，出来 H 的 9 个数。这一关先不用它，H 直接给你。',
+        en: 'The <part-ref to="homography"></part-ref> in the tray: pairs go in and the 9 numbers of H come out. This level does not need it yet: H is given.',
       },
     },
     {
       t: {
-        zh: '新元件「单应变形」按 H 把一张图搬到另一张图上。',
-        en: 'The new part "Homography warp" carries a picture onto another by H.',
+        zh: '新元件<part-ref to="part:warp"></part-ref>按 H 把一张图搬到另一张图上。',
+        en: 'The new part <part-ref to="part:warp"></part-ref> carries a picture onto another by H.',
       },
     },
     {

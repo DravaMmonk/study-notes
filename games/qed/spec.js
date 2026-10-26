@@ -85,7 +85,7 @@ export default {
   // Version 26 brought the repeat frame in right after the first unification level (拆到底): whoever had passed what
   // follows has passed it.
   { version: 26, ops: [{ solve: ['r-delete', ['r-deep']] }] }],
-  // Level titles that are also the names of parts or ideas: a text may quote them as such.
-  quotes: ['套用', '德摩根', '归结', '取一个', '任取', '拿出那一个'],
+  // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
+  quotes: ['任取'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }

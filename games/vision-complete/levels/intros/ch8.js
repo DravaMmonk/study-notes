@@ -9,8 +9,8 @@ export default {
     },
     {
       t: {
-        zh: '新元件「编码器」把整张图压成一行几个数，「解码器」再由这几个数画回一张图。中间这几个数就像寄信只写地址，不用附上整栋房子的照片。',
-        en: 'The new "Encoder" part squeezes the whole image into a short row of numbers, and the "Decoder" draws an image back from those numbers. The few numbers in the middle are like writing just the address on a letter, with no need to enclose a photo of the whole house.',
+        zh: '新元件<part-ref to="part:dg_encode"></part-ref>把整张图压成一行几个数，<part-ref to="part:dg_decode"></part-ref>再由这几个数画回一张图。中间这几个数就像寄信只写地址，不用附上整栋房子的照片。',
+        en: 'The new <part-ref to="part:dg_encode"></part-ref> part squeezes the whole image into a short row of numbers, and the <part-ref to="part:dg_decode"></part-ref> draws an image back from those numbers. The few numbers in the middle are like writing just the address on a letter, with no need to enclose a photo of the whole house.',
       },
     },
     {
@@ -72,8 +72,8 @@ export default {
     },
     {
       t: {
-        zh: '这一关的元件：μ、σ 各是两个可训练的数；「采样」每算一次都抽一个新的随机数；「解码器（已训练）」把两个数画成斑点，一个管左右，一个管上下。',
-        en: 'The parts in this level: μ and σ are each two trainable numbers; "Sample" draws a fresh random number every time it runs; "Decoder (trained)" turns two numbers into a blob, one controlling left-right and the other up-down.',
+        zh: '这一关的元件：μ、σ 各是两个可训练的数；「采样」每算一次都抽一个新的随机数；<part-ref to="dg-decoder"></part-ref>把两个数画成斑点，一个管左右，一个管上下。',
+        en: 'The parts in this level: μ and σ are each two trainable numbers; "Sample" draws a fresh random number every time it runs; <part-ref to="dg-decoder"></part-ref> turns two numbers into a blob, one controlling left-right and the other up-down.',
       },
     },
     {
@@ -149,8 +149,8 @@ export default {
   '8-8': [
     {
       t: {
-        zh: '托盘里的「加噪」把 x₀ 一步加噪到第 t 步：输出 √ᾱ·x₀ + √(1 − ᾱ)·ε。',
-        en: 'The Add noise in the tray takes x₀ straight to step t: it outputs √ᾱ·x₀ + √(1 − ᾱ)·ε.',
+        zh: '托盘里的<part-ref to="own-8-7"></part-ref>把 x₀ 一步加噪到第 t 步：输出 √ᾱ·x₀ + √(1 − ᾱ)·ε。',
+        en: 'The <part-ref to="own-8-7"></part-ref> in the tray takes x₀ straight to step t: it outputs √ᾱ·x₀ + √(1 − ᾱ)·ε.',
       },
     },
     {
@@ -194,14 +194,14 @@ export default {
   '8-11': [
     {
       t: {
-        zh: '托盘里的「还原」由 x_t 和噪声 ε 还原 x₀。可真要用的时候，没人告诉你噪声是什么。',
-        en: 'The Restore in the tray recovers x₀ from x_t and the noise ε. But when it is actually needed, nobody tells you what the noise was.',
+        zh: '托盘里的<part-ref to="own-8-10"></part-ref>由 x_t 和噪声 ε 还原 x₀。可真要用的时候，没人告诉你噪声是什么。',
+        en: 'The <part-ref to="own-8-10"></part-ref> in the tray recovers x₀ from x_t and the noise ε. But when it is actually needed, nobody tells you what the noise was.',
       },
     },
     {
       t: {
-        zh: '「可学习 3×3 核」可以训练：按训练，它自己调权重。',
-        en: 'The "Learnable 3×3 kernel" can be trained: press Train and it adjusts its own weights.',
+        zh: '<part-ref to="part:learn3"></part-ref>可以训练：按训练，它自己调权重。',
+        en: '<part-ref to="part:learn3"></part-ref> can be trained: press Train and it adjusts its own weights.',
       },
     },
     {

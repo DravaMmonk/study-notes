@@ -88,9 +88,12 @@ The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and pa
 - No spoiler of a core idea of the topic (a recurrence, why a merge operation is right); say what a part does,
   never why it solves the level. Mechanical levels may hand-hold.
 - No forward references: nothing about later levels; a pass text only sums up this level.
-- References to another level are links, `<level-ref to="id"></level-ref>` on both the zh and en side (shown as the
-  level's number and title with a link icon, read live, so renumbering needs no copy change; clicking asks, then goes there). Never 「its title」, "上一关", "前两关", "the last
-  level" or a number; `npm run check` reports them. A title that is also a part's name goes in the spec's `quotes`.
+- References to a level, a part or an encyclopedia entry are links, on both the zh and en side:
+  `<level-ref to="id">`, `<part-ref to="part key">`, `<wiki-ref to="entry id">` (each closed at once). They show the
+  name (a level's number too) read live, so renaming or renumbering needs no copy change; a level asks before going
+  there, a part or an entry opens the box or the encyclopedia at it. Never 「its name」, "上一关", "前两关", "the last
+  level" or a number; `npm run check` reports them. A name used for something else (a phrase, a button) goes in the
+  spec's `quotes`.
 - Everything on a board is a 元件 (part) in copy, never 卡片/card or 块/block; the phone board never names slot numbers
   ("放在这一格", "放下了「① 套用」").
 - No level numbers in level copy; refer to earlier things by name. Level numbers belong on the map, in the

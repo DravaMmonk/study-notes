@@ -11,7 +11,7 @@ export const longarm = [
     id: 'frog', ch: 7, title: T('青蛙过河', 'The frog crosses'), short: T('伸缩臂', 'The telescopic arm'), mode: 'circuit', robot: 'reach',
     intro: [
       { t: T('一只青蛙要过河。河里一排石头，岸边算第 0 块。每块石头上写着「↶ k」：<b>青蛙只能从往回数第 k 块石头跳到这里</b>。', 'A frog wants to cross a river. There is a row of stones, and the bank counts as stone 0. Each stone says “↶ k”: <b>the frog can only jump onto it from the stone k back</b>.') },
-      { t: T('往回数的那块可能很远，5×5 的视野装不下。这一代的机器人「长臂」有一条<b>伸缩臂</b>：站在每块石头上，它会伸到往回数第 k 块。伸缩臂够到的那一格在视野下面，点它，视野元件上就多一个输出口。', 'The stone k back can be far away, out of a 5×5 view. This era’s robot, Longarm, has a <b>telescopic arm</b>: on each stone it reaches the stone k back. What the arm reaches sits under the view; click it and the View part gets an output for it.') },
+      { t: T('往回数的那块可能很远，5×5 的视野装不下。这一代的机器人「长臂」有一条<wiki-ref to="arms"></wiki-ref>：站在每块石头上，它会伸到往回数第 k 块。伸缩臂够到的那一格在视野下面，点它，视野元件上就多一个输出口。', 'The stone k back can be far away, out of a 5×5 view. This era’s robot, Longarm, has a <wiki-ref to="arms"></wiki-ref>: on each stone it reaches the stone k back. What the arm reaches sits under the view; click it and the View part gets an output for it.') },
     ],
     mission: { goal: T('算出青蛙跳到最后一块石头，<b>一共要跳几次</b>。', 'Work out <b>how many jumps</b> the frog needs to reach the last stone.'), how: T('从岸边往前，一块一块算。岸边还没跳，是 0 次。', 'Work forward from the bank, stone by stone. On the bank the frog hasn’t jumped yet: 0 jumps.') },
     world: 'river', facts: ['bank'],
@@ -44,7 +44,7 @@ export const longarm = [
     id: 'safefrog', ch: 7, title: T('安全过河', 'A safe crossing'), short: T('可能性要连乘', 'Chances multiply'), mode: 'circuit', robot: 'reach',
     intro: [
       { t: T('石头有的稳、有的滑。每块石头下面写着青蛙在上面站稳的可能，0.9 就是十次里有九次站得稳。一条路线要每一块都站稳，<b>可能性要连乘</b>：0.9 × 0.5 = 0.45。', 'Some stones are steady and some are slippery. Under each stone is the chance the frog keeps its footing, 0.9 meaning nine times out of ten. A route needs every stone to hold, so <b>the chances multiply</b>: 0.9 × 0.5 = 0.45.') },
-      { t: T('新元件<b>乘法器</b>：输出 a × b。', 'A new part, the <b>Multiplier</b>: it outputs a × b.') },
+      { t: T('新元件<part-ref to="part:mul"></part-ref>：输出 a × b。', 'A new part, the <part-ref to="part:mul"></part-ref>: it outputs a × b.') },
     ],
     mission: { goal: T('找出最稳的跳法：青蛙安全跳到最后一块石头的可能，最大是多少？', 'Find the steadiest way across: what is the best chance the frog has of reaching the last stone safely?'), how: T('跳法和<level-ref to="frogfar"></level-ref>一样：从前一块，或从 ↶ 那块。岸边稳稳的，可能是 1。', 'Jumps work as <level-ref to="frogfar"></level-ref>: from the stone before, or from the ↶ stone. The bank is solid: its chance is 1.') },
     world: 'river', facts: ['bank', 'hold'], adds: ['mul'], fresh: ['mul'],

@@ -8,7 +8,7 @@ export default {
   '2-2': [
     { t: { zh: '<level-ref to="2-1"></level-ref>的条纹都是一道干净的波。可真实的图里有方块、字母、边缘，没有一样长得像波。把几道不同频率的波加在一起，能拼出什么样的形状？', en: '<level-ref to="2-1"></level-ref>\'s stripes were a single clean wave. But real pictures have squares, letters and edges, and none of them looks like a wave. What shapes can you make by adding waves of different frequencies together?' } },
     { t: { zh: '声音里也有同样的事：钢琴和小提琴弹同一个音，听起来却不同，因为里面混着的高低不同的波，比例不一样。', en: 'Sound works the same way: a piano and a violin playing the same note sound different, because the waves of different pitch mixed in them come in different proportions.' } },
-    { t: { zh: '台上频率 1 到 8 各有一道正弦波，就是「波」元件选 sin 时的样子。每道波只有一个旋钮：它的振幅。', en: 'The bench has a sine wave for each frequency from 1 to 8, just like the "Wave" part set to sin. Each wave has one knob: its amplitude.' }, fig: { part: 'fqWave', params: { k: 2, form: 'sin' }, inputs: [], caption: { zh: '「波」元件：k = 2 的 sin', en: 'The "Wave" part: sin with k = 2' } } },
+    { t: { zh: '台上频率 1 到 8 各有一道正弦波，就是<part-ref to="wave"></part-ref>元件选 sin 时的样子。每道波只有一个旋钮：它的振幅。', en: 'The bench has a sine wave for each frequency from 1 to 8, just like the <part-ref to="wave"></part-ref> part set to sin. Each wave has one knob: its amplitude.' }, fig: { part: 'fqWave', params: { k: 2, form: 'sin' }, inputs: [], caption: { zh: '<part-ref to="wave"></part-ref>元件：k = 2 的 sin', en: 'The <part-ref to="wave"></part-ref> part: sin with k = 2' } } },
     { t: { zh: '这一关你要做的：调各个频率的振幅，先叠出由两道波组成的目标，再叠出一条接近方波的曲线。要想的问题：光滑的波能拼出一道陡边吗？', en: 'Your task in this level: set the amplitude of each frequency, first to stack up a target made of two waves, then a curve close to a square wave. Something to think about: can smooth waves make a steep edge?' } },
   ],
   '2-3': [
@@ -21,7 +21,7 @@ export default {
   ],
   '2-5': [
     { t: { zh: '<level-ref to="2-3"></level-ref>和<level-ref to="2-4"></level-ref>在台上看过探针怎么工作。这一关要把它搭成电路：输入一条混着几道波、有的还错开的曲线，读出频率 3 那道波的振幅。', en: '<level-ref to="2-3"></level-ref> and <level-ref to="2-4"></level-ref> showed on the bench how a probe works. This level builds it as a circuit: the input is a curve of several waves mixed, some of them shifted, and you read off the amplitude of the frequency-3 wave.' } },
-    { t: { zh: '这一关的电路不处理图像，处理的是一行 32 个点的波形，输出一个数。「求平均」把一行数变成一个数。', en: 'This level\'s circuit does not process an image but a waveform of 32 points, and outputs a single number. "Average" turns a row of numbers into one number.' } },
+    { t: { zh: '这一关的电路不处理图像，处理的是一行 32 个点的波形，输出一个数。<part-ref to="mean"></part-ref>把一行数变成一个数。', en: 'This level\'s circuit does not process an image but a waveform of 32 points, and outputs a single number. <part-ref to="mean"></part-ref> turns a row of numbers into one number.' } },
     {
       t: {
         zh: '这一关你要做的：读出输入里 k = 3 那道波的振幅，也就是它最亮处比它自己的平均高出多少。五条测试波形都要读准。',
@@ -31,14 +31,14 @@ export default {
     },
   ],
   '2-6': [
-    { t: { zh: '<level-ref to="2-5"></level-ref>的探针量一行里的一个频率。图像是二维的，波可以横着、竖着、斜着走。对每一种方向和疏密都做一次探针，读数排成一张图，就是<b>频谱</b>：正中心是平均亮度，越往外的格子代表变化越快的波。', en: '<level-ref to="2-5"></level-ref>\'s probe measured one frequency in a row. Images are 2-D, so waves run across, down or at a slant. Run the probe for every direction and density and lay the readings out as a picture, and you have the <b>spectrum</b>: the centre is the average brightness, and cells further out stand for faster-changing waves.' }, fig: { part: 'fqSpectrum', input: 'test', caption: { zh: '第一组测试照片的频谱', en: 'The spectrum of the first test photo' } } },
+    { t: { zh: '<level-ref to="2-5"></level-ref>的探针量一行里的一个频率。图像是二维的，波可以横着、竖着、斜着走。对每一种方向和疏密都做一次探针，读数排成一张图，就是<part-ref to="spectrum"></part-ref>：正中心是平均亮度，越往外的格子代表变化越快的波。', en: '<level-ref to="2-5"></level-ref>\'s probe measured one frequency in a row. Images are 2-D, so waves run across, down or at a slant. Run the probe for every direction and density and lay the readings out as a picture, and you have the <part-ref to="spectrum"></part-ref>: the centre is the average brightness, and cells further out stand for faster-changing waves.' }, fig: { part: 'fqSpectrum', input: 'test', caption: { zh: '第一组测试照片的频谱', en: 'The spectrum of the first test photo' } } },
     { t: { zh: '相机自动对焦时，要一边挪镜头一边判断：现在这张清楚吗？', en: 'When a camera focuses itself, it moves the lens and keeps asking: is this shot sharp now?' } },
-    { t: { zh: '新画法「频谱」：画出每个频率的波有多强，中心是频率 (0, 0)，越往外频率越高。', en: 'A new way of drawing, "Spectrum": how strong the wave at each frequency is, with frequency (0, 0) at the centre and higher frequencies further out.' } },
+    { t: { zh: '新画法<part-ref to="spectrum"></part-ref>：画出每个频率的波有多强，中心是频率 (0, 0)，越往外频率越高。', en: 'A new way of drawing, <part-ref to="spectrum"></part-ref>: how strong the wave at each frequency is, with frequency (0, 0) at the centre and higher frequencies further out.' } },
     { t: { zh: '这一关你要做的：按说明里的规则，给每张照片算一个清晰度分。「频率半径」是一张和频谱一样大的图，每格写着它离中心多远。要想的问题：糊掉的照片，频谱哪里变暗了？', en: 'Your task in this level: score each photo for sharpness by the rule in the brief. "Frequency radius" is a picture the size of the spectrum, each cell holding its distance from the centre. Something to think about: where does the spectrum of a blurred photo get darker?' } },
   ],
   '2-7': [
     { t: { zh: '音响里常有「均衡器」：一排推杆，每根管一段音高，可以把低音推高、把刺耳的高音拉低。图像也可以这样：直接给每个频率调音量，叫<b>增益</b>，1 是原样保留，0 是完全去掉。', en: 'Stereos often have an "equaliser": a row of sliders, each in charge of a range of pitch, so you can push up the bass and pull down a harsh treble. Pictures can be treated the same way: give each frequency a volume, called a <b>gain</b>, where 1 keeps it as it is and 0 removes it entirely.' } },
-    { t: { zh: '新元件「频域相乘」：把图变到频域，每个频率乘上增益图里对应格子的数，再变回来。增益图和频谱的画法一样，中心是频率 (0, 0)。', en: 'The new part "Multiply in frequency": takes a picture into the frequency domain, multiplies each frequency by the number in the matching cell of a gain picture, and comes back. The gain picture is laid out like a spectrum, with frequency (0, 0) at the centre.' } },
+    { t: { zh: '新元件<part-ref to="part:fqApply"></part-ref>：把图变到频域，每个频率乘上增益图里对应格子的数，再变回来。增益图和频谱的画法一样，中心是频率 (0, 0)。', en: 'The new part <part-ref to="part:fqApply"></part-ref>: takes a picture into the frequency domain, multiplies each frequency by the number in the matching cell of a gain picture, and comes back. The gain picture is laid out like a spectrum, with frequency (0, 0) at the centre.' } },
     { t: { zh: '之前的 3×3 平均、高斯，是在图上让每个像素和邻居混一混。这一关从频率那边下手，结果也是一种模糊。要想的问题：这两种做法是什么关系？', en: 'The 3×3 average and the Gaussian worked on the picture, mixing each pixel with its neighbours. This level works from the frequency side, and the result is a blur too. Something to think about: how are the two approaches related?' } },
     { t: { zh: '这一关你要做的：用「频率半径」做出一张增益图，让输出和期望一样柔和，没有波纹。', en: 'Your task in this level: make a gain picture from "Frequency radius" so the output is as soft as the expected one, with no ripples.' }, fig: { test: 0, caption: { zh: '第一组：带噪点的方块和期望', en: 'Set 1: a noisy square and the expected output' } } },
   ],
@@ -50,7 +50,7 @@ export default {
       },
       fig: { part: 'fqSpectrum', input: 'test', caption: { zh: '第一组测试输入的频谱', en: 'Spectrum of the first test input' } },
     },
-    { t: { zh: '<level-ref to="2-7"></level-ref>搭的东西现在是「频域低通」元件：以中心为圆心留下一块频率。它有两个设置：掩膜形状（硬圆盘或高斯）和半径 R。「频谱」元件可以看任何结果的频谱。', en: 'What you built in <level-ref to="2-7"></level-ref> is now the "Frequency low-pass" part: it keeps a disc of frequencies around the centre. It has two settings: the mask shape (hard disc or Gaussian) and the radius R. The "Spectrum" part shows the spectrum of any result.' } },
+    { t: { zh: '<level-ref to="2-7"></level-ref>搭的东西现在是<part-ref to="freq-filter"></part-ref>元件：以中心为圆心留下一块频率。它有两个设置：掩膜形状（硬圆盘或高斯）和半径 R。<part-ref to="spectrum"></part-ref>元件可以看任何结果的频谱。', en: 'What you built in <level-ref to="2-7"></level-ref> is now the <part-ref to="freq-filter"></part-ref> part: it keeps a disc of frequencies around the centre. It has two settings: the mask shape (hard disc or Gaussian) and the radius R. The <part-ref to="spectrum"></part-ref> part shows the spectrum of any result.' } },
     {
       t: {
         zh: '这一关你要做的：去掉照片里的噪点，输出要和期望一样干净、柔和。四组测试是方块、圆盘、字母和横条，误差图会告诉你差在哪里。',
@@ -124,7 +124,7 @@ export default {
   '2-13': [
     { t: { zh: '相册要给每张照片做缩略图。这一章最后四关，就来搭这样一个缩略图服务：缩小照片，不出莫尔纹，还要算得快。', en: 'A photo album wants a thumbnail for every photo. The last four levels of this chapter build that thumbnail service: shrink photos with no moiré, and do it quickly.' } },
     { t: { zh: '最直接的办法是隔一个点留一个：32×32 的图，每行每列只留一半，就成了 16×16。', en: 'The most direct way is to keep every other pixel: keep half of every row and column of a 32×32 picture and it becomes 16×16.' } },
-    { t: { zh: '「隔点取样」做的就是这件事。对粗大的图案，它的效果很好：一张大格子的棋盘，缩小以后还是棋盘。', en: '"Downsample" does exactly this. On large patterns it works well: a checkerboard of big squares is still a checkerboard after shrinking.' }, fig: { part: 'downsample', input: 'checker', caption: { zh: '隔点取样：大格子棋盘缩成一半', en: 'Downsample: a large-square checkerboard shrunk to half' } } },
+    { t: { zh: '<part-ref to="downsample"></part-ref>做的就是这件事。对粗大的图案，它的效果很好：一张大格子的棋盘，缩小以后还是棋盘。', en: '<part-ref to="downsample"></part-ref> does exactly this. On large patterns it works well: a checkerboard of big squares is still a checkerboard after shrinking.' }, fig: { part: 'downsample', input: 'checker', caption: { zh: '隔点取样：大格子棋盘缩成一半', en: 'Downsample: a large-square checkerboard shrunk to half' } } },
     {
       t: {
         zh: '可测试里还有斑马板（一圈圈越往外越细的环）和细条纹。采样台上一维的实验，在这里换成了二维的图。它们缩小以后，还是原来的样子吗？',

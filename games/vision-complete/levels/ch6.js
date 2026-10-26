@@ -83,7 +83,7 @@ const peaks = {
   inputs: ['in'],
   outputs: ['out'],
   brief: { zh: `一张响应图上有几个鼓包。只在峰顶输出 1：这一格比 3×3 邻居都不小，而且大于 ${PEAK_T}。`, en: `A response map has a few bumps. Output 1 only at the tops: a cell no smaller than any of its 3×3 neighbours, and above ${PEAK_T}.` },
-  hint: { zh: '先算出每一格周围 3×3 里最大的是多少。「取较大」一次只比两张图，可以先横着比、再竖着比。', en: 'First work out the largest value in the 3×3 around each cell. "Larger" compares only two pictures at a time, so compare across first, then down.' },
+  hint: { zh: '先算出每一格周围 3×3 里最大的是多少。<part-ref to="max"></part-ref>一次只比两张图，可以先横着比、再竖着比。', en: 'First work out the largest value in the 3×3 around each cell. <part-ref to="max"></part-ref> compares only two pictures at a time, so compare across first, then down.' },
   after: {
     zh: '「等于周围最大值」的格子才是峰顶：这叫非极大值抑制（NMS）。一块 3×3 的最大值可以拆成先横后竖，和可分离的模糊一个道理。',
     en: 'Only a cell equal to the largest around it is a top: this is called non-maximum suppression (NMS). The maximum over a 3×3 block splits into across then down, just like a separable blur.',
@@ -459,7 +459,7 @@ const pasteBack = {
   inputs: ['photo', 'cover', 'H'],
   inputLabels: { photo: { zh: '照片', en: 'Photo' }, cover: { zh: '封面', en: 'Cover' }, H: { zh: '单应 H（9 个数）', en: 'Homography H (9 numbers)' } },
   brief: { zh: '已知把封面搬到照片里的单应 H。把清楚的封面贴到照片里书的位置上：封面落到的地方是封面，其余还是照片。', en: 'The homography H that carries the cover into the photo is given. Paste the crisp cover over the book in the photo: where the cover lands it is the cover, everywhere else still the photo.' },
-  hint: { zh: '「单应变形」能搬任何一张图。要知道封面落在哪，可以搬一张和封面一样大、全是 1 的图。', en: '"Homography warp" can carry any picture. To know where the cover lands, carry a picture the size of the cover that is all 1.' },
+  hint: { zh: '<part-ref to="part:warp"></part-ref>能搬任何一张图。要知道封面落在哪，可以搬一张和封面一样大、全是 1 的图。', en: '<part-ref to="part:warp"></part-ref> can carry any picture. To know where the cover lands, carry a picture the size of the cover that is all 1.' },
   after: {
     zh: '变形加上一张同样变形的掩膜，就能把一张图合成进另一张：AR 贴图、全景拼接、换天空都是这一步。',
     en: 'A warp plus a mask warped the same way composites one picture into another: AR overlays, panorama stitching and sky replacement all take this step.',

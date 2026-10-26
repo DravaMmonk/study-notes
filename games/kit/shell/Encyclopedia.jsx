@@ -25,7 +25,7 @@ export function useWiki(game, progress, solved, level) {
   return { entries, isOpen, unread, seen, markSeen }
 }
 
-export default function Encyclopedia({ game, wiki, level, phone, onClose }) {
+export default function Encyclopedia({ game, wiki, level, phone, start, onClose }) {
   const { groups = [] } = game.glossary ?? {}
   const { entries, isOpen, seen, markSeen } = wiki
   const lastKey = `${game.id}.wiki.last`
@@ -33,7 +33,7 @@ export default function Encyclopedia({ game, wiki, level, phone, onClose }) {
   const [current, setCurrent] = useState(() => {
     const open = entries.filter(isOpen)
     const here = level && open.filter((entry) => entry.at === level.id)
-    return (here?.find((entry) => !seen.has(entry.id)) ?? here?.[0] ?? open.find((entry) => entry.id === store.read(lastKey, null)) ?? open[0])?.id ?? null
+    return (open.find((entry) => entry.id === start?.id) ?? here?.find((entry) => !seen.has(entry.id)) ?? here?.[0] ?? open.find((entry) => entry.id === store.read(lastKey, null)) ?? open[0])?.id ?? null
   })
   const [shownOnce, setShownOnce] = useState(!phone)
   useEffect(() => {
@@ -42,6 +42,12 @@ export default function Encyclopedia({ game, wiki, level, phone, onClose }) {
     store.write(lastKey, current)
   }, [current, shownOnce]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // A reference clicked inside the encyclopedia moves to that entry.
+  useEffect(() => {
+    if (!start) return
+    setCurrent(start.id)
+    setShownOnce(true)
+  }, [start])
   const pick = (id) => {
     setCurrent(id)
     setShownOnce(true)

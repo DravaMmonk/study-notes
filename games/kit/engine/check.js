@@ -6,11 +6,13 @@
 // A game is checked through its spec, games/<id>/spec.js, which runs under node:
 //   export default { id, domain, title, course, levels, texts?, quotes?, audit?() → [{ rule, level, part, text? }] }
 // `texts` are the objects whose strings a player reads (levels are always included); `quotes` the level titles that
-// are also names of parts or ideas, which a text may quote (any other reference to a level is a link, ../shell/levelRef.js);
+// are also names of parts or ideas, which a text may quote (any other reference to a level, part or encyclopedia
+// entry is a link, ../shell/refs.js);
 // `audit` adds the game's own course problems to the shared audit's.
 import { GAMES } from '../../games.js'
 import { RULE_TEXT, audit } from '../course.js'
-import { levelRefProblems, untranslated } from './text.js'
+import { refProblems, untranslated } from './text.js'
+import { closeGames, loadGame } from './games.mjs'
 
 const asked = process.argv.slice(2)
 const ids = asked.length ? asked : GAMES.map((game) => game.id)
@@ -42,7 +44,15 @@ for (const id of ids) {
   }
 
   for (const [name, value] of Object.entries({ levels: spec.levels, ...(spec.texts ?? {}) })) for (const problem of untranslated(value, name)) fail(`text ${problem}`)
-  for (const [name, value] of Object.entries({ levels: spec.levels, ...(spec.texts ?? {}) })) for (const problem of levelRefProblems(value, name, spec.levels, spec.quotes)) fail(`text ${problem}`)
+  // References to levels, parts and entries: the names come from the game as the shell gets it.
+  const game = await loadGame(id)
+  const names = {
+    level: new Map(game.levels.map((l) => [l.id, String(l.title?.zh ?? l.title)])),
+    part: new Map((game.parts?.all ?? []).map((p) => [p.key, String(p.name?.zh ?? p.name)])),
+    wiki: new Map((game.glossary?.entries ?? []).map((e) => [e.id, String(e.title?.zh ?? e.title)])),
+  }
+  const parts = (game.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, desc: p.desc, revisions: p.revisions }))
+  for (const [name, value] of Object.entries({ levels: spec.levels, ...(spec.texts ?? {}), parts })) for (const problem of refProblems(value, name, names, spec.quotes)) fail(`text ${problem}`)
 
   for (const line of await validate(spec)) {
     if (line.fail) fail(line.text)
@@ -54,4 +64,5 @@ for (const id of ids) {
 }
 
 console.log(problems ? `\n${problems} problem(s)` : '\nall games ok')
+await closeGames()
 process.exit(problems ? 1 : 0)

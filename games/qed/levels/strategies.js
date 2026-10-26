@@ -60,7 +60,7 @@ export const strategies = [
     hint: [T('第一个元件要看目标是什么样子：是「或者」就引入 ∨，是「若…则…」就倒着用假设框。', 'The first part depends on the goal’s shape: an “or” wants Bring in ∨, an “if … then …” the assumption box backwards.')],
     intro: [
       { t: T('到上一章为止，一台机器是一份脚本：元件一个接一个，专证一种样子的目标。从这一章起，一台机器要对付各种样子的目标，它是一个<b>策略</b>：一段会产生证明的程序。Isabelle 的 auto、Lean 的 simp 和 aesop 都是这样的程序。', 'Up to the last chapter a machine was a script: part after part, for goals of one shape. From this chapter on a machine must take goals of many shapes; it is a <b>tactic</b>, a program that makes proofs. Isabelle’s auto and Lean’s simp and aesop are such programs.') },
-      { t: T('新元件<b>不行就换</b>：两个框拿到同一个状态，第一个框的结果没失败就用它，失败了就用第二个框的。', 'A new part, <b>Or else</b>: both regions get the same state; the first region’s result is used unless it failed, and then the second’s.') },
+      { t: T('新元件<part-ref to="part:orElse"></part-ref>：两个框拿到同一个状态，第一个框的结果没失败就用它，失败了就用第二个框的。', 'A new part, <part-ref to="part:orElse"></part-ref>: both regions get the same state; the first region’s result is used unless it failed, and then the second’s.') },
     ],
     solution: machine({ o: ['orElse'], a: ['rule', { rule: 'disjI1' }, 'o/first'], b: ['rule', { rule: 'impI' }, 'o/second'], c: ['assumption'] }, ['in>o.in', 'o#first>a.in', 'a>o.first', 'o#second>b.in', 'b>o.second', 'o>c.in', 'c>out']),
     after: T('策略只会用规则，所以不管它怎样组合，证出来的都是核认可的定理：自动化造不出假定理。', 'A tactic only ever uses rules, so however it is put together, what it proves is a theorem the kernel accepts: automation cannot make a false theorem.'),
@@ -106,7 +106,7 @@ export const strategies = [
     tests: [{ goal: '(Rain → Rain) ∧ (Wind → Wind)' }, { goal: '(Wet ∧ Rain → Wet ∧ Rain) ∧ (Slip → Slip)' }],
     brief: T('接一台机器，最多用 4 个元件，证完每一个目标。', 'Wire a machine of at most 4 parts that proves every goal.'),
     hint: [T('拼成以后的两个目标，要做的是同一件事。', 'The two goals after the join need the same thing done.')],
-    intro: [{ t: T('拼成 ∧ 以后，两个目标要做的事一模一样，元件却要再接一遍。新元件<b>每个目标</b>：框里的元件对每个目标各做一遍，每次只看那一个目标。', 'After Join ∧, the two goals need exactly the same done, yet the parts would have to be wired twice. A new part, <b>Every goal</b>: the parts inside run once on each goal, seeing only that one each time.') }],
+    intro: [{ t: T('拼成 ∧ 以后，两个目标要做的事一模一样，元件却要再接一遍。新元件<part-ref to="part:each"></part-ref>：框里的元件对每个目标各做一遍，每次只看那一个目标。', 'After Join ∧, the two goals need exactly the same done, yet the parts would have to be wired twice. A new part, <part-ref to="part:each"></part-ref>: the parts inside run once on each goal, seeing only that one each time.') }],
     solution: machine({ c: ['rule', { rule: 'conjI' }], e: ['each'], i: ['rule', { rule: 'impI' }, 'e'], a: ['assumption', {}, 'e'] }, ['in>c.in', 'c>e.in', 'e#body>i.in', 'i>a.in', 'a>e.body', 'e>out']),
     after: T('框里的元件只看见一个目标，却对每个目标都做了一遍：同样的事只接一次。', 'The parts inside see one goal, yet run on every goal: the same thing wired only once.'),
   }),
@@ -121,7 +121,7 @@ export const strategies = [
     hint: [T('「是人」的人不止一个，「喜欢安」的只有一个：让知道得多的那个目标先定下 ?t。', 'More than one is human, only one likes Ann: let the goal that knows more settle ?t first.')],
     intro: [
       { t: T('举例倒过来、再拼成以后，有两个目标：?t是人，?t喜欢安。已知里有拿第一个对上的已知：先证「?t是人」，?t 就成了茜，可茜不喜欢安，第二个目标就证不下去了。', 'After Example and Join ∧ backwards there are two goals: ?t is human, ?t likes Ann. Assumption takes the first given that fits: prove “?t is human” first, and ?t becomes Cy, who does not like Ann, so the second goal cannot be proved.') },
-      { t: T('新元件<b>放到最后</b>：把第一个目标挪到最后，第二个目标先证。', 'A new part, <b>Defer</b>: it moves the first goal to the end, so the second is proved first.') },
+      { t: T('新元件<part-ref to="part:defer"></part-ref>：把第一个目标挪到最后，第二个目标先证。', 'A new part, <part-ref to="part:defer"></part-ref>: it moves the first goal to the end, so the second is proved first.') },
     ],
     solution: script(['rule', 'exI'], ['rule', 'conjI'], 'defer', 'assumption', 'assumption'),
     after: T('一个 ? 被哪个目标先定下，结果就不一样：让知道得多的目标先说话。', 'Which goal settles a ?-letter first changes the outcome: let the goal that knows more speak first.'),
@@ -147,7 +147,7 @@ export const strategies = [
     tests: [{ goal: 'Rain ∨ Wind', hyps: ['Wind'] }, { goal: 'Rain ∨ Wind', hyps: ['Rain'] }, { goal: 'Wet ∨ Slip', hyps: ['Slip'] }],
     brief: BRIEF,
     hint: [T('不行就换只要第一个没失败的；「或者」的两边，哪一边对是后面才知道的。', 'Or else keeps only the first that does not fail; which side of the “or” is right shows only later.')],
-    intro: [{ t: T('引入 ∨ 有左右两条规则，对着「或者」的目标两条都不会失败。不行就换只会拿左边那条，后面发现错了也回不去。新元件<b>两条路都要</b>：先是第一个框的每一种结果，再是第二个框的每一种结果。', 'Bring in ∨ has two rules, left and right, and against an “or” goal neither fails. Or else only takes the left one, and finding out later that it was wrong, cannot go back. A new part, <b>Append</b>: every result of the first region, then every result of the second.') }],
+    intro: [{ t: T('引入 ∨ 有左右两条规则，对着「或者」的目标两条都不会失败。不行就换只会拿左边那条，后面发现错了也回不去。新元件<part-ref to="part:append"></part-ref>：先是第一个框的每一种结果，再是第二个框的每一种结果。', 'Bring in ∨ has two rules, left and right, and against an “or” goal neither fails. Or else only takes the left one, and finding out later that it was wrong, cannot go back. A new part, <part-ref to="part:append"></part-ref>: every result of the first region, then every result of the second.') }],
     solution: machine({ p: ['append'], a: ['rule', { rule: 'disjI1' }, 'p/first'], b: ['rule', { rule: 'disjI2' }, 'p/second'], c: ['assumption'] }, ['in>p.in', 'p#first>a.in', 'a>p.first', 'p#second>b.in', 'b>p.second', 'p>c.in', 'c>out']),
     after: T('不行就换是「第一个能走的」，两条路都要是「每一条能走的」：后者留下了回头的余地。', 'Or else means “the first that goes”, Append “every one that goes”: the second leaves room to turn back.'),
   }),
@@ -160,10 +160,10 @@ export const strategies = [
     hint: [T('每一步：已知里有，或者引入 ∨ 的左边，或者右边。走几步，交给搜索。', 'Each step: Assumption, or Bring in ∨ left, or right. How many steps is the search’s business.')],
     intro: [
       { t: T('要证到底要几步，事先不知道。重复框只顺着第一种结果往下走，走进死胡同就停了。', 'How many steps it takes is not known beforehand. The repeat frame follows only the first result, and stops in a dead end.') },
-      { t: T('新元件<b>搜到证完</b>：框里的元件做一步，得到的每一种结果再接着做，一条路走到头（证完，或者做不下去）再退回来换下一条，这叫<b>深度优先搜索</b>。它送出找到的每一个证完的状态。', 'A new part, <b>Search</b>: the parts inside take a step, and each result is stepped on again; one path is followed to its end (done, or stuck) before going back for the next. This is <b>depth-first search</b>. It gives every finished state it finds.') },
+      { t: T('新元件<part-ref to="part:search"></part-ref>：框里的元件做一步，得到的每一种结果再接着做，一条路走到头（证完，或者做不下去）再退回来换下一条，这叫<b>深度优先搜索</b>。它送出找到的每一个证完的状态。', 'A new part, <part-ref to="part:search"></part-ref>: the parts inside take a step, and each result is stepped on again; one path is followed to its end (done, or stuck) before going back for the next. This is <b>depth-first search</b>. It gives every finished state it finds.') },
     ],
     solution: searchOf([['rule', 'disjI1'], ['rule', 'disjI2']]),
-    after: T('一步做什么，加上「搜到证完」，就是一个完整的证明搜索。', 'What to do in a step, plus search until done, is a whole proof search.'),
+    after: T('一步做什么，加上<part-ref to="part:search"></part-ref>，就是一个完整的证明搜索。', 'What to do in a step, plus <part-ref to="part:search"></part-ref>, is a whole proof search.'),
   }),
 
   // ---------- your own auto ----------

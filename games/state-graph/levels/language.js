@@ -75,10 +75,10 @@ export const language = [
     id: 'spell', ch: 16, title: T('你是想打这个词吗', 'Did you mean…?'), short: T('编辑距离，用在纠错上', 'Edit distance, put to work on typos'), mode: 'circuit', robot: 'ranger', uses: ['cost'],
     intro: [
       { t: T('你打出了 ACROS。词典里有几个候选词，哪个离它<b>最近</b>？', 'You typed ACROS. The dictionary has a few candidate words: which one is <b>closest</b> to it?') },
-      { t: T('「最近」就是改动最少：<b>编辑距离</b>。托盘里的「编辑距离器」，算的就是它。', '“Closest” means fewest changes: the <b>edit distance</b>. The “Edit Distance Meter” in the tray works it out.') },
+      { t: T('「最近」就是改动最少：<wiki-ref to="edit"></wiki-ref>。托盘里的<part-ref to="cost"></part-ref>，算的就是它。', '“Closest” means fewest changes: the <wiki-ref to="edit"></wiki-ref>. The <part-ref to="cost"></part-ref> in the tray works it out.') },
       { t: T('每个测试是一个候选词。三个测试都通过后，看看哪个候选词的步数最少。', 'Each test is one candidate word. Once all three tests pass, see which candidate needs the fewest steps.') },
     ],
-    mission: { goal: T('算出打错的词 ACROS 和每个候选词之间的编辑距离（删、插、换各算 1 步）。', 'Work out the edit distance between the typo ACROS and each candidate word (delete, insert and replace each count as 1 step).'), how: T('「编辑距离器」在托盘里，接好它的五个输入就行。', 'The “Edit Distance Meter” is in the tray: just wire up its five inputs.') },
+    mission: { goal: T('算出打错的词 ACROS 和每个候选词之间的编辑距离（删、插、换各算 1 步）。', 'Work out the edit distance between the typo ACROS and each candidate word (delete, insert and replace each count as 1 step).'), how: T('<part-ref to="cost"></part-ref>在托盘里，接好它的五个输入就行。', 'The <part-ref to="cost"></part-ref> is in the tray: just wire up its five inputs.') },
     world: 'align', border0: false, facts: ['same', 'start'],
     tests: [{ left: 'ACROS', top: 'ACROSS' }, { left: 'ACROS', top: 'CROSS' }, { left: 'ACROS', top: 'MACRO' }],
     testLabel: t => `${t.left} → ${t.top}`,

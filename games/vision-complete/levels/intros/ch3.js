@@ -8,18 +8,18 @@ export default {
   ],
   '3-2': [
     { t: { zh: '摄影棚里很少只用一盏灯：主灯之外，还会在另一侧放一盏弱一些的补光，让暗面不至于漆黑。', en: 'Studios rarely use a single lamp: besides the key light, a weaker fill light goes on the other side so the dark side is not pitch black.' } },
-    { t: { zh: '<level-ref to="3-1"></level-ref>的电路现在是「朗伯着色」元件：给它法线和反射率，设好灯的方向，它就画出这盏灯下的样子。', en: '<level-ref to="3-1"></level-ref>\'s circuit is now the "Lambert shading" part: give it the normals and the reflectance, set the lamp direction, and it draws the surface under that lamp.' } },
+    { t: { zh: '<level-ref to="3-1"></level-ref>的电路现在是<part-ref to="lambert"></part-ref>元件：给它法线和反射率，设好灯的方向，它就画出这盏灯下的样子。', en: '<level-ref to="3-1"></level-ref>\'s circuit is now the <part-ref to="lambert"></part-ref> part: give it the normals and the reflectance, set the lamp direction, and it draws the surface under that lamp.' } },
     { t: { zh: '这一关你要做的：主灯不变，再加一盏从左边低处照来的补光，强度是主灯的一半。要想的问题：背对补光的那一面，补光给它的亮度是多少？', en: 'Your task in this level: keep the key light and add a fill light low on the left at half its strength. Something to think about: on the side facing away from the fill light, how much brightness does the fill light give?' }, fig: { test: 0, caption: { zh: '第一组测试：一个高鼓包', en: 'Set 1: a tall bump' } } },
   ],
   '3-3': [
     { t: { zh: '彩色照片每个像素有三个数：R、G、B。可现实里的光不止三种，而是像彩虹那样一整条，从紫到红连成一片，叫<b>光谱</b>。', en: 'Each pixel of a colour photo has three numbers: R, G and B. But real light is not three kinds; it is a whole band like a rainbow, from violet to red, called a <b>spectrum</b>.' } },
     { t: { zh: '相机和人眼一样，只有三种感光元件，各自对一段波长敏感。每种元件对每个波长有多敏感，画出来是一条灵敏度曲线。', en: 'A camera, like the human eye, has only three kinds of sensor, each sensitive to a range of wavelengths. How sensitive each is at each wavelength, drawn out, is its sensitivity curve.' }, fig: { test: 0, caption: { zh: '第一组测试：日光的光谱和三条灵敏度曲线', en: 'Set 1: the daylight spectrum and the three sensitivity curves' } } },
-    { t: { zh: '这一关的输入都是波形：一条光谱和三条灵敏度曲线，每条 10 个点，从紫到红。「求平均」把一行数平均成一个数。', en: 'This level\'s inputs are all waveforms: a spectrum and three sensitivity curves, 10 points each, from violet to red. "Average" turns a row of numbers into one number.' } },
+    { t: { zh: '这一关的输入都是波形：一条光谱和三条灵敏度曲线，每条 10 个点，从紫到红。<part-ref to="mean"></part-ref>把一行数平均成一个数。', en: 'This level\'s inputs are all waveforms: a spectrum and three sensitivity curves, 10 points each, from violet to red. <part-ref to="mean"></part-ref> turns a row of numbers into one number.' } },
     { t: { zh: '这一关你要做的：输出相机读到的 R、G、B 三个数。要想的问题：一整条光谱只记成三个数，丢掉了什么？', en: 'Your task in this level: output the three numbers the camera reads, R, G and B. Something to think about: when a whole spectrum is kept as three numbers, what is thrown away?' } },
   ],
   '3-4': [
     { t: { zh: '布是什么颜色，要看它把每个波长的光反射回来多少，这也是一条曲线。照到布上的光 × 布的反射，才是进到相机里的光谱。', en: 'What colour a cloth is depends on how much light it reflects at each wavelength, which is another curve. The light falling on the cloth × the cloth\'s reflectance is the spectrum that enters the camera.' } },
-    { t: { zh: '<level-ref to="3-3"></level-ref>的电路现在是「感光」元件：选 R、G 或 B，它就按那条灵敏度曲线读一条光谱。', en: '<level-ref to="3-3"></level-ref>\'s circuit is now the "Sensor" part: choose R, G or B and it reads a spectrum with that sensitivity curve.' } },
+    { t: { zh: '<level-ref to="3-3"></level-ref>的电路现在是<part-ref to="sense"></part-ref>元件：选 R、G 或 B，它就按那条灵敏度曲线读一条光谱。', en: '<level-ref to="3-3"></level-ref>\'s circuit is now the <part-ref to="sense"></part-ref> part: choose R, G or B and it reads a spectrum with that sensitivity curve.' } },
     { t: { zh: '这一关有两块布，在日光下相机读到的 R、G、B 一模一样。这一关你要做的：在各种灯下，输出相机读到的布 A 减去布 B。要想的问题：两块布的光谱明明不同，为什么日光下分不出来？', en: 'This level has two cloths whose R, G and B readings are exactly the same in daylight. Your task in this level: under various lamps, output what the camera reads for cloth A minus cloth B. Something to think about: the two cloths\' spectra are plainly different, so why can daylight not tell them apart?' }, fig: { test: 1, caption: { zh: '第二组测试：暖白灯下的两块布', en: 'Set 2: the two cloths under a warm white lamp' } } },
   ],
   '3-5': [
@@ -58,7 +58,7 @@ export default {
   '3-8': [
     { t: { zh: '找边还差一步：定一个门槛，梯度超过它的像素才算边。门槛太低，表面的细纹也算进来；太高，真正的边又会漏掉。', en: 'Finding edges needs one more step: a threshold, so that only pixels whose gradient exceeds it count as edges. Too low, and fine texture counts too; too high, and real edges are missed.' } },
     { t: { zh: '麻烦在灯光。车上的摄像头中午和傍晚都要认出同一条路沿，不可能每换一次光就重调一次门槛。同一张脸在室内和室外，像素数值差得很远，该给的答案却一样。', en: 'The trouble is lighting. A car\'s camera must recognise the same kerb at noon and at dusk; it cannot retune the threshold every time the light changes. The same face indoors and outdoors gives very different pixel values, yet the answer should be the same.' }, fig: { test: 1, caption: { zh: '同一个 F，灯暗了，期望的边不变', en: 'The same F with a dimmer lamp: the expected edges stay the same' } } },
-    { t: { zh: '这一关新出现的元件是「全图最大值」：找出输入里最大的那个数，输出一张处处都是这个数的图。', en: 'New in this level is the part "Global max": it finds the largest number in its input and outputs a picture filled with that number everywhere.' } },
+    { t: { zh: '这一关新出现的元件是<part-ref to="part:globalMax"></part-ref>：找出输入里最大的那个数，输出一张处处都是这个数的图。', en: 'New in this level is the part <part-ref to="part:globalMax"></part-ref>: it finds the largest number in its input and outputs a picture filled with that number everywhere.' } },
     { t: { zh: '这一关你要做的：输入是同一个物体在不同灯光下的照片，有的整体变亮，有的变暗。输出它的边，四组测试的期望完全一样。', en: 'Your task in this level: the inputs are photos of the same object under different lighting, some brighter overall, some dimmer. Output its edges; all four tests expect exactly the same answer.' }, fig: { test: 0, caption: { zh: '第一组测试：原来的灯光 → 期望', en: 'Set 1: the original lighting → expected' } } },
   ],
   '3-9': [

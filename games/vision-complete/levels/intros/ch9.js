@@ -9,8 +9,8 @@ export default {
     },
     {
       t: {
-        zh: '新原件「补零放大」把图放大一倍：每个像素放在 2×2 的左上角，另外三格补 0。',
-        en: 'The new primitive "Zero upsample" doubles the size: each pixel goes in the top left of a 2×2 block, and the other three cells are 0.',
+        zh: '新原件<part-ref to="part:zeroUp"></part-ref>把图放大一倍：每个像素放在 2×2 的左上角，另外三格补 0。',
+        en: 'The new primitive <part-ref to="part:zeroUp"></part-ref> doubles the size: each pixel goes in the top left of a 2×2 block, and the other three cells are 0.',
       },
       fig: { part: 'zeroUp', input: 'impulse', caption: { zh: '一个亮点补零放大', en: 'A bright dot, zero-upsampled' } },
     },
@@ -55,8 +55,8 @@ export default {
   '9-4': [
     {
       t: {
-        zh: '托盘里的「反池化」把池化后的每个值放回池化前它所在的那一格，其余格子为 0。',
-        en: 'The Unpool in the tray puts each pooled value back in the cell it came from before pooling; every other cell is 0.',
+        zh: '托盘里的<part-ref to="own-9-3"></part-ref>把池化后的每个值放回池化前它所在的那一格，其余格子为 0。',
+        en: 'The <part-ref to="own-9-3"></part-ref> in the tray puts each pooled value back in the cell it came from before pooling; every other cell is 0.',
       },
     },
     {
@@ -91,8 +91,8 @@ export default {
   '9-6': [
     {
       t: {
-        zh: '托盘里的「k 均值一步」按分界 m 把值分成两类，输出两类平均值的正中间。',
-        en: 'The One k-means step in the tray splits the values into two classes at the boundary m and outputs halfway between the two class averages.',
+        zh: '托盘里的<part-ref to="own-9-5"></part-ref>按分界 m 把值分成两类，输出两类平均值的正中间。',
+        en: 'The <part-ref to="own-9-5"></part-ref> in the tray splits the values into two classes at the boundary m and outputs halfway between the two class averages.',
       },
     },
     {

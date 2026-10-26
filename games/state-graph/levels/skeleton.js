@@ -91,6 +91,6 @@ export const skeleton = [
     // A challenge: the naive board asks only whether a move exists, not whether it leaves the opponent losing.
     naive: circ([['m', 'many']], ['tap:up>m:0', 'tap:left>m:1', 'tap:ul>m:2', 'm>out:cell']),
     boardOpt: { minScale: 0.62, maxScale: 1.15 },
-    debrief: { title: T('棋盘上的花纹', 'A pattern on the board'), body: [T('「否」都落在 A、B 都是偶数的格子上。这样的局面，不管你怎么拿，对手都能把它变回「两堆都是偶数」。', 'Every “no” falls on a cell where A and B are both even. From such a position, whatever you take, your opponent can turn it back into “both piles even”.'), T('这块电路板存进了元件箱，叫「输赢判定器」：读三个对手局面，判断这一格能不能赢。', 'This board has gone into your Parts as the “Win/Lose Judge”: it reads the three positions your opponent could face and decides whether this cell wins.')], note: T('两堆石子：每个局面 = 任一（对手局面取反）。', 'Two piles: each position = any (opponent’s position, negated).') },
+    debrief: { title: T('棋盘上的花纹', 'A pattern on the board'), body: [T('「否」都落在 A、B 都是偶数的格子上。这样的局面，不管你怎么拿，对手都能把它变回「两堆都是偶数」。', 'Every “no” falls on a cell where A and B are both even. From such a position, whatever you take, your opponent can turn it back into “both piles even”.'), T('这块电路板存进了元件箱，叫<part-ref to="judge"></part-ref>：读三个对手局面，判断这一格能不能赢。', 'This board has gone into your Parts as the <part-ref to="judge"></part-ref>: it reads the three positions your opponent could face and decides whether this cell wins.')], note: T('两堆石子：每个局面 = 任一（对手局面取反）。', 'Two piles: each position = any (opponent’s position, negated).') },
   },
 ];

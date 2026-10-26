@@ -44,12 +44,12 @@ export const era2 = [
     brief: T('实现一个证明器，可以从已知「下雨 ∧ 刮风」，证明出「刮风 ∧ 下雨」。', 'Build a prover that, from “it rains ∧ it is windy”, proves “it is windy ∧ it rains”.'),
     hint: [T('先拆开，再按新的顺序拼起来。', 'Take it apart, then put it back together in the new order.')],
     intro: [
-      { t: T('<level-ref to="g-and"></level-ref>里的「与 ∧」门：两边都真，才输出真。证明器里的「下雨 ∧ 刮风」也是这个意思：下雨，并且刮风。', 'The “And ∧” gate of <level-ref to="g-and"></level-ref>: true only when both sides are. In the prover “it rains ∧ it is windy” means the same: it rains, and it is windy.') },
-      { t: T('这一章的规则成对出现：一条造出它，一条用掉它。<b>拼成 ∧</b>：有了左边，又有了右边，就有「左边 ∧ 右边」。<b>拆开 ∧</b>：从一句「… ∧ …」拆出左边，也拆出右边，它有两个输出口。', 'This chapter’s rules come in pairs: one makes a connective, one uses it up. <b>Join ∧</b>: from a left and a right, “left ∧ right”. <b>Split ∧</b>: from an “… ∧ …”, its left, and also its right; it has two outputs.') },
+      { t: T('<level-ref to="g-and"></level-ref>里的<part-ref to="part:gAnd"></part-ref>门：两边都真，才输出真。证明器里的「下雨 ∧ 刮风」也是这个意思：下雨，并且刮风。', 'The <part-ref to="part:gAnd"></part-ref> gate of <level-ref to="g-and"></level-ref>: true only when both sides are. In the prover “it rains ∧ it is windy” means the same: it rains, and it is windy.') },
+      { t: T('这一章的规则成对出现：一条造出它，一条用掉它。<part-ref to="part:andI"></part-ref>：有了左边，又有了右边，就有「左边 ∧ 右边」。<part-ref to="part:andE"></part-ref>：从一句「… ∧ …」拆出左边，也拆出右边，它有两个输出口。', 'This chapter’s rules come in pairs: one makes a connective, one uses it up. <part-ref to="part:andI"></part-ref>: from a left and a right, “left ∧ right”. <part-ref to="part:andE"></part-ref>: from an “… ∧ …”, its left, and also its right; it has two outputs.') },
       { t: T('这一关不用框。', 'No box needed this time.') },
     ],
     solution: proof({ e: ['andE'], i: ['andI'] }, ['p>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>goal'], { premises: ['p'] }),
-    after: T('先拆后拼，换了个顺序。每个连接词都有一条造它的规则、一条用它的规则：这样的规则体系叫<b>自然演绎</b>。', 'Split, then join in the other order. Every connective has a rule that makes it and a rule that uses it: a system like that is called <b>natural deduction</b>.'),
+    after: T('先拆后拼，换了个顺序。每个连接词都有一条造它的规则、一条用它的规则：这样的规则体系叫<wiki-ref to="natural"></wiki-ref>。', 'Split, then join in the other order. Every connective has a rule that makes it and a rule that uses it: a system like that is called <wiki-ref to="natural"></wiki-ref>.'),
   },
   {
     id: 'andSwap',
@@ -111,7 +111,7 @@ export const era2 = [
         tests: [{ premises: { p: 'A ↔ B', q: 'A' }, goal: 'B' }],
         cases: [{ A: 'Sat', B: 'Rest' }, { A: 'Coffee', B: 'Awake' }],
         brief: T('实现一个证明器，可以从已知「今天是周六 ↔ 我休息」和「今天是周六」，证明出「我休息」。', 'Build a prover that, from “today is Saturday ↔ I rest” and “today is Saturday”, proves “I rest”.'),
-        hint: [T('「拆开 ∧」也能拆 ↔：拆出两个方向的「若…则…」，用对的那一个。', 'Split ∧ splits ↔ too: into the two “if … then …”s; use the right one.')],
+        hint: [T('<part-ref to="part:andE"></part-ref>也能拆 ↔：拆出两个方向的「若…则…」，用对的那一个。', '<part-ref to="part:andE"></part-ref> splits ↔ too: into the two “if … then …”s; use the right one.')],
         solution: proof({ e: ['andE'], m: ['mp'] }, ['p>e.ab', 'e#left>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] }),
       }),
       prove({
@@ -124,7 +124,7 @@ export const era2 = [
       }),
     ],
     intro: [{ t: T('真值电路里，<level-ref to="g-iff"></level-ref>的等价 ↔ 是同真同假。证明器里，A ↔ B 就是两个方向的 → 都成立：「(A → B) ∧ (B → A)」，证明器把它当成一句 ∧。', 'In the truth circuits, the equivalence ↔ of <level-ref to="g-iff"></level-ref> meant true together and false together. In the prover, A ↔ B is the → holding both ways, “(A → B) ∧ (B → A)”, and the prover reads it as an ∧.') }],
-    after: T('等价能拆成两个方向，用哪个方向看手里有什么、要证什么。「拆开 ∧」的说明里，从此多了这一句。', 'An equivalence splits into its two directions, and which one to use depends on what you hold and what you must prove. Split ∧’s description now says so too.'),
+    after: T('等价能拆成两个方向，用哪个方向看手里有什么、要证什么。<part-ref to="part:andE"></part-ref>的说明里，从此多了这一句。', 'An equivalence splits into its two directions, and which one to use depends on what you hold and what you must prove. <part-ref to="part:andE"></part-ref>’s description now says so too.'),
   },
   {
     id: 'or',
@@ -138,8 +138,8 @@ export const era2 = [
     brief: T('实现一个证明器，可以从已知「今天是周六」，证明出「今天是周日 ∨ (今天是周六 ∨ 今天是周日)」。', 'Build a prover that, from “today is Saturday”, proves “today is Sunday ∨ (today is Saturday ∨ today is Sunday)”.'),
     hint: [T('从里往外：先引入「今天是周六 ∨ 今天是周日」（另一边放右边），再把它放到一句 ∨ 的右边。', 'From the inside out: first bring in “today is Saturday ∨ today is Sunday” (the other side on the right), then put that on the right of another ∨.')],
     intro: [
-      { t: T('「今天是周末」的意思是：今天是周六，<b>或者</b>今天是周日。至少一个成立就行，两个都成立也算：这就是<level-ref to="g-or"></level-ref>里的「或 ∨」门。', '“It is the weekend” means: today is Saturday, <b>or</b> today is Sunday. At least one is enough, and both count too: just the “Or ∨” gate of <level-ref to="g-or"></level-ref>.') },
-      { t: T('<b>引入 ∨</b>：有了一句话，「它 ∨ 随便哪句」就成立。在元件上选另一边是哪句话，再选它放左边还是右边。', '<b>Bring in ∨</b>: from a sentence, “it ∨ any other” holds. On the part, choose the other side and whether it goes left or right.') },
+      { t: T('「今天是周末」的意思是：今天是周六，<b>或者</b>今天是周日。至少一个成立就行，两个都成立也算：这就是<level-ref to="g-or"></level-ref>里的<part-ref to="lemma:gOr"></part-ref>门。', '“It is the weekend” means: today is Saturday, <b>or</b> today is Sunday. At least one is enough, and both count too: just the <part-ref to="lemma:gOr"></part-ref> gate of <level-ref to="g-or"></level-ref>.') },
+      { t: T('<part-ref to="part:orI"></part-ref>：有了一句话，「它 ∨ 随便哪句」就成立。在元件上选另一边是哪句话，再选它放左边还是右边。', '<part-ref to="part:orI"></part-ref>: from a sentence, “it ∨ any other” holds. On the part, choose the other side and whether it goes left or right.') },
     ],
     solution: proof({ i: ['orI', { other: 'B', side: 'right' }], j: ['orI', { other: 'B', side: 'left' }] }, ['p>i.a', 'i>j.a', 'j>goal'], { premises: ['p'] }),
     after: T('知道「今天是周六」，就知道「今天是周日 ∨ 今天是周六」。反过来不行：只知道「今天是周日 ∨ 今天是周六」，并不知道是哪一边。要用掉一个 ∨，光有它还不够。', 'Knowing “today is Saturday”, you know “today is Sunday ∨ today is Saturday”. Not the other way round: “today is Sunday ∨ today is Saturday” does not say which side holds. Using up an ∨ takes more than the ∨ itself.'),
@@ -160,7 +160,7 @@ export const era2 = [
     intro: [
       { t: T('要么我坐公交，要么我骑车，可还不知道是哪一个。坐公交的话，我准时到；骑车的话，我也准时到。所以不管是哪一个，我准时到。', 'Either I take the bus or I cycle, and you do not know which. If I take the bus, I arrive on time; if I cycle, I arrive on time too. So whichever it is, I arrive on time.') },
       { t: T('光有「我坐公交 ∨ 我骑车」，不能直接拆出「我坐公交」：说不定是骑车。证明器的办法是<b>每一种情况都试一遍</b>：先假设是左边那种，证出结论；再假设是右边那种，也证出同一个结论。两种都通，结论就成立。', 'From “I take the bus ∨ I cycle” alone you cannot take out “I take the bus”: perhaps I cycled. The prover’s way is to <b>try every case</b>: assume the left one and prove the conclusion; assume the right one and prove the same conclusion. If both work, the conclusion holds.') },
-      { t: T('<b>分情况</b>这块元件就是这样：它像一个假设框，只是<b>有两个框</b>。元件上标着「A ∨ B」的输入口接一句「左边 ∨ 右边」；元件下半部分是「情况一」「情况二」两个框，情况一的左上角给出「左边」，情况二的左上角给出「右边」，各当一个假设用。', '<b>Case by case</b> works just that way: it is like an assumption box, but with <b>two boxes</b>. The input marked “A ∨ B” on its part takes a “left ∨ right”; the lower half of the part holds the boxes Case one and Case two, and the top left of case one gives “left”, that of case two gives “right”, each an assumption to work with.') },
+      { t: T('<part-ref to="part:orE"></part-ref>这块元件就是这样：它像一个假设框，只是<b>有两个框</b>。元件上标着「A ∨ B」的输入口接一句「左边 ∨ 右边」；元件下半部分是「情况一」「情况二」两个框，情况一的左上角给出「左边」，情况二的左上角给出「右边」，各当一个假设用。', '<part-ref to="part:orE"></part-ref> works just that way: it is like an assumption box, but with <b>two boxes</b>. The input marked “A ∨ B” on its part takes a “left ∨ right”; the lower half of the part holds the boxes Case one and Case two, and the top left of case one gives “left”, that of case two gives “right”, each an assumption to work with.') },
       { t: T('在两个框里分别证出<b>同一句话</b>，接到各自右上角的「结论」，元件右上角的输出就给出这句话。两个框证出的不一样，元件会提示你。', 'Prove the <b>same sentence</b> in each box and wire it to that box’s “Conclusion” at its top right, and the output at the part’s top right gives that sentence. If the two boxes prove different things, the part says so.') },
     ],
     solution: proof({ e: ['orE'], m: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>e.left', 'r>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q', 'r'] }),
@@ -218,11 +218,11 @@ export const era2 = [
     brief: T('一个证人说「门锁着」，又说「¬门锁着」（也就是「门锁着 → ⊥」）。实现一个证明器，可以由这两句证明出「月亮是奶酪做的」。', 'A witness says “the door is locked”, and also “¬the door is locked” (that is “the door is locked → ⊥”). Build a prover that, from the two, proves “the moon is made of cheese”.'),
     hint: [
       T('「¬门锁着」就是「门锁着 → ⊥」：把它接进套用的「A → B」口，「门锁着」接进「A」口，得到 ⊥。', '“¬the door is locked” is “the door is locked → ⊥”: wire it into Apply’s “A → B” input and “the door is locked” into its “A” input, and you get ⊥.'),
-      T('得到 ⊥ 以后，用「矛盾推出一切」，元件上选「月亮是奶酪做的」。', 'Once you have ⊥, use “From contradiction” and choose “the moon is made of cheese” on its part.'),
+      T('得到 ⊥ 以后，用<part-ref to="part:botE"></part-ref>，元件上选「月亮是奶酪做的」。', 'Once you have ⊥, use <part-ref to="part:botE"></part-ref> and choose “the moon is made of cheese” on its part.'),
     ],
     intro: [
       { t: T('一个证人先说「门锁着」，又说「门没锁」。两句不可能都对。', 'A witness says “the door is locked”, then “the door is not locked”. Both cannot be true.') },
-      { t: T('<level-ref to="g-never"></level-ref>里见过<b>矛盾</b>：每一行都假的话。证明器把它写成一个符号 <b>⊥</b>。「非」写成 <b>¬</b>（<level-ref to="g-not"></level-ref>里的「非 ¬」门），证明器没有专门管 ¬ 的元件，它这样读：<br><b>¬门锁着　就是　门锁着 → ⊥</b><br>「门没锁」和「若门锁着，则矛盾」是同一句话，所以「¬门锁着」可以直接接进要「若…则…」的口。', 'You met the <b>contradiction</b> in <level-ref to="g-never"></level-ref>: a sentence false on every row. The prover writes it as one symbol, <b>⊥</b>. “Not” is written <b>¬</b> (the “Not ¬” gate of <level-ref to="g-not"></level-ref>); the prover has no part for ¬ and reads it like this:<br><b>¬the door is locked　is　the door is locked → ⊥</b><br>“The door is not locked” and “if the door is locked, then a contradiction” are the same sentence, so “¬the door is locked” goes straight into an input that wants an “if … then …”.') },
+      { t: T('<level-ref to="g-never"></level-ref>里见过<b>矛盾</b>：每一行都假的话。证明器把它写成一个符号 <b>⊥</b>。「非」写成 <b>¬</b>（<level-ref to="g-not"></level-ref>里的<part-ref to="part:gNot"></part-ref>门），证明器没有专门管 ¬ 的元件，它这样读：<br><b>¬门锁着　就是　门锁着 → ⊥</b><br>「门没锁」和「若门锁着，则矛盾」是同一句话，所以「¬门锁着」可以直接接进要「若…则…」的口。', 'You met the <b>contradiction</b> in <level-ref to="g-never"></level-ref>: a sentence false on every row. The prover writes it as one symbol, <b>⊥</b>. “Not” is written <b>¬</b> (the <part-ref to="part:gNot"></part-ref> gate of <level-ref to="g-not"></level-ref>); the prover has no part for ¬ and reads it like this:<br><b>¬the door is locked　is　the door is locked → ⊥</b><br>“The door is not locked” and “if the door is locked, then a contradiction” are the same sentence, so “¬the door is locked” goes straight into an input that wants an “if … then …”.') },
       { t: T('<b>矛盾推出一切</b>：有了 ⊥，元件上选什么，就能证出什么。', '<b>From contradiction, anything</b>: from ⊥, prove whatever is chosen on the part.') },
     ],
     solution: proof({ m: ['mp'], b: ['botE', { C: 'B' }] }, ['q>m.imp', 'p>m.a', 'm>b.bot', 'b>goal'], { premises: ['p', 'q'] }),
@@ -317,10 +317,10 @@ export const era2 = [
     hint: [T('「¬今天是周六」怎么来？假设「今天是周六」，看它怎样和「¬(今天是周六 ∨ 今天是周日)」撞出矛盾。「¬今天是周日」同理。', 'Where does “¬today is Saturday” come from? Assume “today is Saturday” and see how it clashes with “¬(today is Saturday ∨ today is Sunday)”. “¬today is Sunday” the same way.')],
     intro: [
       { t: T('「既不是今天是周六也不是今天是周日」和「并非（今天是周六或者今天是周日）」是一回事吗？一半是：由前者推得出后者。', 'Do “neither today is Saturday nor today is Sunday” and “not (today is Saturday or today is Sunday)” say the same thing? Half of it is: the first gives the second.') },
-      { t: T('要拼出「¬今天是周六 ∧ ¬今天是周日」，就各开一个框去证「¬今天是周六」和「¬今天是周日」。证出来以后，这块电路是元件<b>德摩根</b>。', 'To build “¬today is Saturday ∧ ¬today is Sunday”, open a box each for “¬today is Saturday” and “¬today is Sunday”. Once proved, this circuit becomes the part <b>De Morgan</b>.') },
+      { t: T('要拼出「¬今天是周六 ∧ ¬今天是周日」，就各开一个框去证「¬今天是周六」和「¬今天是周日」。证出来以后，这块电路是元件<part-ref to="lemma:dm"></part-ref>。', 'To build “¬today is Saturday ∧ ¬today is Sunday”, open a box each for “¬today is Saturday” and “¬today is Sunday”. Once proved, this circuit becomes the part <part-ref to="lemma:dm"></part-ref>.') },
     ],
     solution: deMorgan,
-    after: T('现在你有了<b>德摩根</b>。这个方向不用任何花招。', 'Now you have <b>De Morgan</b>. This direction takes no tricks.'),
+    after: T('现在你有了<part-ref to="lemma:dm"></part-ref>。这个方向不用任何花招。', 'Now you have <part-ref to="lemma:dm"></part-ref>. This direction takes no tricks.'),
   },
   {
     id: 'dmBack',
@@ -405,14 +405,14 @@ export const era2 = [
     adds: ['raa'],
     builds: 'lem',
     brief: T('实现一个证明器，不需要任何已知，就能证明出「下雨 ∨ ¬下雨」。', 'Build a prover that proves “it rains ∨ ¬it rains”. from nothing given'),
-    hint: [T('<level-ref to="notnotlem"></level-ref>造的「排中不可否定」给出「¬¬(下雨 ∨ ¬下雨)」。还差的那一步，就是新规则做的事。', 'Undeniable middle, built in <level-ref to="notnotlem"></level-ref>, gives “¬¬(it rains ∨ ¬it rains)”. The step still missing is what the new rule does.')],
+    hint: [T('<level-ref to="notnotlem"></level-ref>造的<part-ref to="lemma:nnlem"></part-ref>给出「¬¬(下雨 ∨ ¬下雨)」。还差的那一步，就是新规则做的事。', '<part-ref to="lemma:nnlem"></part-ref>, built in <level-ref to="notnotlem"></level-ref>, gives “¬¬(it rains ∨ ¬it rains)”. The step still missing is what the new rule does.')],
     intro: [
       { t: T('这一节你一直在做同一件事：假设一句话，推出矛盾，于是证出「¬那句话」。<level-ref to="notnotlem"></level-ref>更进一步：假设「¬(下雨 ∨ ¬下雨)」推出矛盾，证出「¬¬(下雨 ∨ ¬下雨)」。', 'All this section you have done one thing: assume a sentence, reach a contradiction, and so prove “¬that sentence”. <level-ref to="notnotlem"></level-ref> went further: assuming “¬(it rains ∨ ¬it rains)” led to a contradiction, proving “¬¬(it rains ∨ ¬it rains)”.') },
       { t: T('可「下雨 ∨ ¬下雨」本身，证明器到现在都证不出来：它的 ∨ 只有一条路，先证出其中一边。真值表说它每一行都真，证明器却差最后一步：去掉两个 ¬。', 'But “it rains ∨ ¬it rains” itself the prover still cannot prove: its ∨ has one way in, proving one side first. The truth table says it holds on every row, and the prover is one step short: dropping the two ¬s.') },
-      { t: T('数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」证明器加上一条新规则<b>反证法</b>：由「并非并非 某句」得到那句。', 'Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” The prover gains a new rule, <b>by contradiction</b>: from “not not a sentence”, the sentence.') },
+      { t: T('数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」证明器加上一条新规则<part-ref to="part:raa"></part-ref>：由「并非并非 某句」得到那句。', 'Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” The prover gains a new rule, <part-ref to="part:raa"></part-ref>: from “not not a sentence”, the sentence.') },
     ],
     solution: proof({ n: ['nnlem', { A: 'A' }], r: ['raa'] }, ['n>r.nna', 'r>goal']),
-    after: T('这一章一开头就证不出的那句话，现在两块元件就够了，这块电路是元件<b>排中律</b>：任何一句话，要么成立，要么不成立。不用反证法的逻辑叫<b>直觉主义逻辑</b>：每个「或」都要说出是哪一边。加上反证法就是<b>经典逻辑</b>：真值表上每一行都真的话，都证得出来。', 'The sentence you could not prove all chapter now takes two parts, and this circuit is the part <b>Excluded middle</b>: any sentence holds or it does not. Logic without proof by contradiction is called <b>intuitionistic</b>: every “or” must say which side. Add it and you have <b>classical</b> logic, where everything true on every row can be proved.'),
+    after: T('这一章一开头就证不出的那句话，现在两块元件就够了，这块电路是元件<part-ref to="lemma:lem"></part-ref>：任何一句话，要么成立，要么不成立。不用反证法的逻辑叫<b>直觉主义逻辑</b>：每个「或」都要说出是哪一边。加上反证法就是<b>经典逻辑</b>：真值表上每一行都真的话，都证得出来。', 'The sentence you could not prove all chapter now takes two parts, and this circuit is the part <part-ref to="lemma:lem"></part-ref>: any sentence holds or it does not. Logic without proof by contradiction is called <b>intuitionistic</b>: every “or” must say which side. Add it and you have <b>classical</b> logic, where everything true on every row can be proved.'),
   },
 
   {

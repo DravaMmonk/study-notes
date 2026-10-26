@@ -15,8 +15,8 @@ export default {
     },
     {
       t: {
-        zh: '新原件「取最小者编号」接四张图，逐格看哪一张最小，输出它的编号 0–3。',
-        en: 'The new primitive "Index of minimum" takes four pictures and, cell by cell, outputs the number 0–3 of the one that is smallest.',
+        zh: '新原件<part-ref to="part:argmin4"></part-ref>接四张图，逐格看哪一张最小，输出它的编号 0–3。',
+        en: 'The new primitive <part-ref to="part:argmin4"></part-ref> takes four pictures and, cell by cell, outputs the number 0–3 of the one that is smallest.',
       },
     },
     {
@@ -30,8 +30,8 @@ export default {
   '7-2': [
     {
       t: {
-        zh: '<level-ref to="7-1"></level-ref>搭的匹配，现在打包成了元件「视差搜索」。它只有一个参数：窗口，也就是比较时围着每格取多大一块，两张图按整块来比。',
-        en: 'The matching you built in <level-ref to="7-1"></level-ref> is now packed into the "Disparity search" part. It has a single parameter: the window, which is how big a patch to take around each pixel when comparing; the two images are compared patch by patch.',
+        zh: '<level-ref to="7-1"></level-ref>搭的匹配，现在打包成了元件<part-ref to="disparity"></part-ref>。它只有一个参数：窗口，也就是比较时围着每格取多大一块，两张图按整块来比。',
+        en: 'The matching you built in <level-ref to="7-1"></level-ref> is now packed into the <part-ref to="disparity"></part-ref> part. It has a single parameter: the window, which is how big a patch to take around each pixel when comparing; the two images are compared patch by patch.',
       },
     },
     {
@@ -115,8 +115,8 @@ export default {
   '7-6': [
     {
       t: {
-        zh: '托盘里的「叉积」输出两个三维向量的叉积 a × b。',
-        en: 'The Cross product in the tray outputs the cross product a × b of two 3-vectors.',
+        zh: '托盘里的<part-ref to="own-7-5"></part-ref>输出两个三维向量的叉积 a × b。',
+        en: 'The <part-ref to="own-7-5"></part-ref> in the tray outputs the cross product a × b of two 3-vectors.',
       },
     },
     {
@@ -151,8 +151,8 @@ export default {
   '7-8': [
     {
       t: {
-        zh: '托盘里的「极线」读 F 的三列和点 (x, y)，输出极线 F·p。',
-        en: 'The Epipolar line in the tray reads the three columns of F and a point (x, y), and outputs the epipolar line F·p.',
+        zh: '托盘里的<part-ref to="own-7-7"></part-ref>读 F 的三列和点 (x, y)，输出极线 F·p。',
+        en: 'The <part-ref to="own-7-7"></part-ref> in the tray reads the three columns of F and a point (x, y), and outputs the epipolar line F·p.',
       },
     },
     {

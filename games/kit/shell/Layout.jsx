@@ -1,7 +1,7 @@
 import { Fragment, createElement, useEffect, useRef, useState } from 'react'
 import { Check, ChevronDown, Lightbulb, Lock } from 'lucide-react'
 import { L, tr } from './i18n.js'
-import { levelRefParts } from './levelRef.js'
+import { refParts } from './refs.js'
 
 // The level screen's frame, the same in every game. On a desktop it is a workbench: the brief on the left, the
 // stage (the board, a bench, a circuit) in the middle and, when the level has one, a side column (tests, a panel,
@@ -13,9 +13,9 @@ export function Text({ game, as: Tag = 'p', className, text, onClick }) {
   return game?.html ? <Tag className={className} onClick={onClick} dangerouslySetInnerHTML={{ __html: value }} /> : <Tag className={className} onClick={onClick}><Plain text={value} /></Tag>
 }
 
-/** Plain text, with its references to other levels (levelRef.js) as links. */
+/** Plain text, with its references to levels, parts and encyclopedia entries (refs.js) as links. */
 export function Plain({ text }) {
-  return levelRefParts(text).map((part, i) => (typeof part === 'string' ? <Fragment key={i}>{part}</Fragment> : createElement('level-ref', { key: i, to: part.ref })))
+  return refParts(text).map((part, i) => (typeof part === 'string' ? <Fragment key={i}>{part}</Fragment> : createElement(`${part.kind}-ref`, { key: i, to: part.ref })))
 }
 
 /** Desktop workbench: brief | stage | side. The side (optional) is the level's own column element; `scroll` makes

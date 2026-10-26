@@ -252,7 +252,7 @@ const twoSteps = {
   inputs: ['x0', 'e1', 'e2', 'a1', 'a2'],
   inputLabels: { x0: NOISE_LABELS.x0, e1: { zh: '第一次的噪声', en: 'First noise' }, e2: { zh: '第二次的噪声', en: 'Second noise' }, a1: { zh: '第一次的 ᾱ', en: 'First ᾱ' }, a2: { zh: '第二次的 ᾱ', en: 'Second ᾱ' } },
   brief: { zh: '先按 a1 加一次噪，再对结果按 a2 加一次噪。输出加了两次以后的图。', en: 'Add noise once with a1, then add noise to the result again with a2. Output the picture after both.' },
-  hint: { zh: '<level-ref to="8-7"></level-ref>的「加噪」接两次。', en: '<level-ref to="8-7"></level-ref>\'s "Add noise", twice.' },
+  hint: { zh: '<level-ref to="8-7"></level-ref>的<part-ref to="own-8-7"></part-ref>接两次。', en: '<level-ref to="8-7"></level-ref>\'s <part-ref to="own-8-7"></part-ref>, twice.' },
   after: { zh: '展开以后，x₀ 前面的系数是 √(a1·a2)，两份噪声合起来正好是方差 1 − a1·a2 的一份噪声：两次加噪，和按 ᾱ = a1·a2 一次加噪是同一回事。所以扩散的每一步都能一步跳到。', en: 'Expand it and the coefficient of x₀ is √(a1·a2), while the two noises together are exactly one noise of variance 1 − a1·a2: adding noise twice is the same thing as adding it once with ᾱ = a1·a2. That is why any step of diffusion can be reached in one jump.' },
   unlocks: [],
   tests: twoTests([[{ zh: '两小步', en: 'Two small steps' }, 'T', 91, 92, 0.9, 0.8], [{ zh: '一大一小', en: 'One big, one small' }, 'L', 93, 94, 0.5, 0.95], [{ zh: '两大步', en: 'Two big steps' }, 'X', 95, 96, 0.4, 0.5]]),

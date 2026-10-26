@@ -210,7 +210,7 @@ export const terms = [
       { premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip', answer: 'fun a => q (p a)', hint: [T('拿到 a，先用 p，再用 q。', 'Given a, use p, then q.')] },
       { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Wind → (Rain → Wet)', answer: 'fun a b => p b a', hint: [T('两层 fun：a 证的是刮风，b 证的是下雨。p 先要哪一个？', 'Two funs: a proves it is windy, b that it rains. Which does p want first?')] },
     ]),
-    after: T('最后一题是<b>交换</b>：拿到 a 和 b，按 p 要的次序交出去。框的次序和参数的次序是同一件事。', 'The last one is <b>Swap</b>: given a and b, hand them on in the order p wants. The order of boxes and the order of arguments are one thing.'),
+    after: T('最后一题是<part-ref to="lemma:swap"></part-ref>：拿到 a 和 b，按 p 要的次序交出去。框的次序和参数的次序是同一件事。', 'The last one is <part-ref to="lemma:swap"></part-ref>: given a and b, hand them on in the order p wants. The order of boxes and the order of arguments are one thing.'),
   },
   {
     id: 't-wpair',
@@ -257,7 +257,7 @@ export const terms = [
         step: T('整个证明', 'A whole proof'),
         tests: [{ premises: { p: 'A → (B → C)', q: 'B' }, goal: 'A → C' }],
         cases: RAIN,
-        brief: T('实现一个证明器，可以从已知 p：「下雨 → (刮风 → 地湿)」、q：「刮风」证明出「下雨 → 地湿」。这回用新元件<b>证明项</b>：在元件上写出证明项。', 'Build a prover that, from p: “it rains → (it is windy → the ground is wet)” and q: “it is windy”, proves “it rains → the ground is wet”. This time use the new part, <b>proof term</b>: write the proof term on its part.'),
+        brief: T('实现一个证明器，可以从已知 p：「下雨 → (刮风 → 地湿)」、q：「刮风」证明出「下雨 → 地湿」。这回用新元件<part-ref to="part:exact"></part-ref>：在元件上写出证明项。', 'Build a prover that, from p: “it rains → (it is windy → the ground is wet)” and q: “it is windy”, proves “it rains → the ground is wet”. This time use the new part, <part-ref to="part:exact"></part-ref>: write the proof term on its part.'),
         hint: [T('点元件上的证明项，拼出它：拿到 a，连同 q 一起交给 p。', 'Tap the proof term on the part and build it: given a, hand it to p together with q.')],
         solution: proof({ x: ['exact', { A: 'A → C', term: 'fun a => p a q' }] }, ['x>goal'], { premises: ['p', 'q'] }),
       }),
@@ -278,7 +278,7 @@ export const terms = [
         solution: proof({ x: ['exact', { A: 'B ∧ A', term: '⟨p.2, p.1⟩' }], m: ['mp'] }, ['q>m.imp', 'x>m.a', 'm>goal'], { premises: ['p', 'q'] }),
       }),
     ],
-    intro: [{ t: T('写出来的证明项，也能放回证明板上用：新元件<b>证明项</b>的元件上选好要证的句子，再拼出它的证明项。核检查通过，这个元件就证出了那句话，和接线证出的一样能接给别的元件。', 'A proof term once written can go back on the proof board: on the new part <b>proof term</b>, choose the sentence to prove and build its proof term. When the kernel accepts it, the part has proved that sentence, and its output wires on just like a wired proof’s.') }],
+    intro: [{ t: T('写出来的证明项，也能放回证明板上用：新元件<part-ref to="part:exact"></part-ref>的元件上选好要证的句子，再拼出它的证明项。核检查通过，这个元件就证出了那句话，和接线证出的一样能接给别的元件。', 'A proof term once written can go back on the proof board: on the new part <part-ref to="part:exact"></part-ref>, choose the sentence to prove and build its proof term. When the kernel accepts it, the part has proved that sentence, and its output wires on just like a wired proof’s.') }],
     after: T('接线和写证明项是同一件事的两种写法，可以混着用：哪一段好接就接线，哪一段好写就写证明项。', 'Wiring and writing a proof term are two ways to write one thing, and they mix: wire where wiring is easier, write a term where writing is.'),
   },
 

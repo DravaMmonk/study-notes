@@ -7,7 +7,7 @@ import { T } from '../../kit/domains/table/i18n.js';
 
 const PALIN = circ([['a', 'add'], ['k', 'const', 2], ['g', 'pass'], ['m', 'mmax']], ['tap:dl>a:0', 'k>a:1', 'tap:same>g:0', 'a>g:1', 'tap:left>m:0', 'tap:down>m:1', 'g>m:2', 'm>out:cell']);
 const MERGE = circ([['a', 'add'], ['m', 'mmin'], ['b', 'add']], ['tap:segL>a:0', 'tap:segR>a:1', 'a>m:0', 'm>b:0', 'tap:weight>b:1', 'b>out:cell']);
-const ORDER_HINTS = [T('放一块「区间合并器」，把扫描臂的左段们、右段们和本格信息的这段总重，接到它的三个口上。', 'Put down an “Interval Merger”, and wire the sweep arm’s left parts and right parts and This cell’s run weight to its three ports.'), T('每一格读的是同一行左边的格子，和同一列下面的格子：按长度扫，或者逐行从下往上扫，这些格子都已经先算好了。', 'Each cell reads the cells to its left on the same row and the cells below it in the same column: scanning by length, or row by row from the bottom up, those cells have always been computed first.')];
+const ORDER_HINTS = [T('放一块<part-ref to="interval"></part-ref>，把扫描臂的左段们、右段们和本格信息的这段总重，接到它的三个口上。', 'Put down an <part-ref to="interval"></part-ref>, and wire the sweep arm’s left parts and right parts and This cell’s run weight to its three ports.'), T('每一格读的是同一行左边的格子，和同一列下面的格子：按长度扫，或者逐行从下往上扫，这些格子都已经先算好了。', 'Each cell reads the cells to its left on the same row and the cells below it in the same column: scanning by length, or row by row from the bottom up, those cells have always been computed first.')];
 
 export const orders = [
   {
@@ -61,14 +61,14 @@ export const orders = [
     // As a part: the cheapest split (left part + right part, the smallest) plus this run's weight.
     unlock: 'interval', blueprint: { ports: ['segL', 'segR', 'weight'], f: ([l, r, w]) => partFn('add')([partFn('mmin')([partFn('add')([l, r])]), w]) },
     boardOpt: { minScale: 0.6, maxScale: 1.15 },
-    debrief: { title: T('区间合并', 'Interval merging'), body: [T('每一格的来路是<b>所有切分点</b>：段越长，切分点越多。这种「最后一步把两段合起来」的结构，叫区间动态规划。', 'Each cell’s ways in are <b>all its split points</b>: the longer the run, the more split points. This “the last step joins two parts” structure is called interval dynamic programming.'), T('给一串算式加括号、矩阵连乘的最佳顺序、把一排相邻的文件两两合并，用的都是这种区间表。这块电路板存进了元件箱，叫「区间合并器」。', 'Bracketing a chain of calculations, the best order for multiplying a chain of matrices, merging a row of neighbouring files two at a time: all of these use this kind of interval table. This board has gone into your Parts as the “Interval Merger”.')], note: T('区间合并：最后一步合并左段和右段；在所有切分点里挑最省的，再加整段的代价。', 'Interval merging: the last step joins a left part and a right part; pick the cheapest split point, then add the cost of the whole run.') },
+    debrief: { title: T('区间合并', 'Interval merging'), body: [T('每一格的来路是<b>所有切分点</b>：段越长，切分点越多。这种「最后一步把两段合起来」的结构，叫区间动态规划。', 'Each cell’s ways in are <b>all its split points</b>: the longer the run, the more split points. This “the last step joins two parts” structure is called interval dynamic programming.'), T('给一串算式加括号、矩阵连乘的最佳顺序、把一排相邻的文件两两合并，用的都是这种区间表。这块电路板存进了元件箱，叫<part-ref to="interval"></part-ref>。', 'Bracketing a chain of calculations, the best order for multiplying a chain of matrices, merging a row of neighbouring files two at a time: all of these use this kind of interval table. This board has gone into your Parts as the <part-ref to="interval"></part-ref>.')], note: T('区间合并：最后一步合并左段和右段；在所有切分点里挑最省的，再加整段的代价。', 'Interval merging: the last step joins a left part and a right part; pick the cheapest split point, then add the cost of the whole run.') },
   },
   {
     id: 'twoorders', ch: 12, title: T('顺序不止一种', 'More than one order'), short: T('同一块电路板，换个顺序', 'Same board, another order'), mode: 'circuit', robot: 'broom', uses: ['interval'],
     intro: [
       { t: T('在<level-ref to="stones"></level-ref>里，机器人按长度扫。换一个顺序，还能算对吗？', 'In <level-ref to="stones"></level-ref> the robot scanned by length. Would another order work too?') },
       { t: T('这一关有两个阶段，用的是同一块电路板：阶段 1 机器人按长度扫；阶段 2 换成<b>逐行，从下往上</b>。两种顺序下都要算对。', 'This level has two stages on the same circuit board: in stage 1 the robot scans by length; in stage 2 it switches to <b>row by row, from the bottom up</b>. Both orders have to come out right.') },
-      { t: T('「区间合并器」已经在元件箱里，可以直接放上电路板。每一格要读它左边一整排、下面一整列：两种顺序都能让它们先算好吗？', 'The “Interval Merger” is already in your Parts, ready to go on the board. Each cell reads the whole row to its left and the whole column below it: do both orders get those computed first?') },
+      { t: T('<part-ref to="interval"></part-ref>已经在元件箱里，可以直接放上电路板。每一格要读它左边一整排、下面一整列：两种顺序都能让它们先算好吗？', 'The <part-ref to="interval"></part-ref> is already in your Parts, ready to go on the board. Each cell reads the whole row to its left and the whole column below it: do both orders get those computed first?') },
     ],
     mission: { goal: T('合并石子，花费最少。同一块电路板，在两种扫描顺序下各通过一次。', 'Merge the stones as cheaply as possible. Pass once under each of two scan orders, with the same circuit board.'), how: T('阶段 1 机器人按长度扫；阶段 2 电路板留着，机器人换成逐行从下往上扫。', 'In stage 1 the robot scans by length; in stage 2 the board stays and the robot switches to row by row from the bottom up.') },
     tests: [{ w: [5, 2, 4, 1, 3] }, { w: [1, 9, 1, 9, 1, 9] }],
