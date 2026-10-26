@@ -136,7 +136,7 @@ export default function PartDemo({ flag, type, home, flags, phone, levels, box }
           {param.kind === 'select' ? <Choice options={param.options} value={node.params[param.key] ?? param.default} onChange={(v) => change(param.key, v)} label={param.label} layout={param.buttons ?? 'row'} roomy /> : param.kind === 'kernel' ? <KernelEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} /> : <NumberEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} />}
         </div>
       ))}
-      {node.type !== 'input' && node.type !== 'output' && !params.length && <p className="panel-note">{tr('这一块没有设置。', 'This block has no settings.')}</p>}
+      {node.type !== 'input' && node.type !== 'output' && !params.length && <p className="panel-note">{tr('这个元件没有设置。', 'This part has no settings.')}</p>}
     </>
   )
   return (

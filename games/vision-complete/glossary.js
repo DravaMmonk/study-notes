@@ -100,7 +100,7 @@ export const GLOSSARY = [
     title: { zh: '接线显示', en: 'Wire display' },
     body: [
       { zh: '手机的电路板上，元件一多，线就会交错成一团。板子右上角的接线开关在三种显示之间轮换：「全部接线」、「隐藏输入接线」（不画从输入元件出发的线）和「隐藏接线」。', en: 'On the phone’s circuit board, wires soon tangle once there are a few parts. The wire switch at the top right of the board cycles through three displays: “All wires”, “No input wires” (the wires leaving the input parts are not drawn) and “No wires”.' },
-      { zh: '把线藏起来，电路并没有变。每个接好的输入口旁有个小标签，写着它读的是哪一块；选中一个圆点时，它所在那一块的线照样会画出来。', en: 'Hiding wires does not change the circuit. Each wired input has a small tag beside it naming the block it reads from, and while a dot is picked, the wires of its own block are still drawn.' },
+      { zh: '把线藏起来，电路并没有变。每个接好的输入口旁有个小标签，写着它读的是哪个元件；选中一个圆点时，它所在那个元件的线照样会画出来。', en: 'Hiding wires does not change the circuit. Each wired input has a small tag beside it naming the part it reads from, and while a dot is picked, the wires of its own part are still drawn.' },
       { zh: '这个选择记在这台设备的浏览器里，换一关也不变。', en: 'The choice is remembered in this browser and stays the same from level to level.' },
     ],
     see: ['layout'],

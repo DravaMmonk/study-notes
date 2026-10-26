@@ -115,7 +115,7 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     const ports = parts.inputs(node)
     const open = ports.find((port) => !feeding(graph, id, port) && !refusal(p, inPort(id, port))) ?? ports.find((port) => !refusal(p, inPort(id, port)))
     if (!open) {
-      setToast({ zh: '这一块没有能接这根线的口', en: 'This block has no port this wire can go to' })
+      setToast({ zh: '这个元件没有能接这根线的口', en: 'This part has no port this wire can go to' })
       return false
     }
     return wire(p, inPort(id, open))
@@ -221,8 +221,8 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     const node = byId(graph, srcNode(p.id))
     const many = parts.inputs(node).length > 1
     return p.side === 'out'
-      ? tr(`「${nameOf(node)}」接到哪？点一个输入口（块顶上的圆点），或点那一块`, `Where does "${nameOf(node)}" go? Tap an input (a dot on top of a block), or the block itself`)
-      : tr(`「${nameOf(node)}」${many ? `的 ${L(parts.portLabel?.(node, p.port) ?? p.port)} ` : ''}读哪个结果？点一个输出口（块底下的圆点），或点那一块`, `Which result does "${nameOf(node)}"${many ? ` ${L(parts.portLabel?.(node, p.port) ?? p.port)}` : ''} read? Tap an output (a dot under a block), or the block itself`)
+      ? tr(`「${nameOf(node)}」接到哪？点一个输入口（元件顶上的圆点），或点那个元件`, `Where does "${nameOf(node)}" go? Tap an input (a dot on top of a part), or the part itself`)
+      : tr(`「${nameOf(node)}」${many ? `的 ${L(parts.portLabel?.(node, p.port) ?? p.port)} ` : ''}读哪个结果？点一个输出口（元件底下的圆点），或点那个元件`, `Which result does "${nameOf(node)}"${many ? ` ${L(parts.portLabel?.(node, p.port) ?? p.port)}` : ''} read? Tap an output (a dot under a part), or the part itself`)
   })()
 
   return {
