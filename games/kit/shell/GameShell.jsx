@@ -33,7 +33,8 @@ const SITE = { games: '../index.html' }
  * its screen's kind, its name `step`, its brief, its `after`…). Each task is played as a level of its own kind, the
  * last one being the level itself: a task opens once the one before it is passed, passing it says what it taught and
  * goes on, and passing the last passes the level. The tasks passed are kept per level (progress.tasks), and what each
- * task's screen keeps goes in the level's data as a list, one entry a task.
+ * task's screen keeps goes in the level's data as a list, one entry a task. A task marked `carries` goes on with what
+ * the task before it made: it opens on that task's board.
  *
  * A level may keep several boards (slots.js): the board's editor switches between them (SaveSlots, through
  * SlotsContext), and the screen starts over on the one chosen, as it does when the level is entered.
@@ -120,7 +121,12 @@ export default function GameShell({ game }) {
     setFails(0)
   }
   const played = tasks ? { ...level, ...tasks[taskAt], steps: { names: tasks.map((t) => t.step), at: taskAt, done, go: goTask } } : level
-  const kept = (data) => (tasks ? (Array.isArray(data) ? data[taskAt] ?? undefined : undefined) : data)
+  // A task that goes on from the one before (`carries`) opens on that task's board until it has one of its own.
+  const kept = (data) => {
+    if (!tasks) return data
+    const list = Array.isArray(data) ? data : []
+    return list[taskAt] ?? (tasks[taskAt].carries && taskAt > 0 ? list[taskAt - 1] ?? undefined : undefined)
+  }
 
   // What a level screen can do to the shell.
   const save = (data) => setProgress((p) => ({ ...p, data: { ...p.data, [level.id]: tasks ? Object.assign(Array.from({ length: tasks.length }, (_, k) => (Array.isArray(p.data[level.id]) ? p.data[level.id][k] ?? null : null)), { [taskAt]: data }) : data } }))

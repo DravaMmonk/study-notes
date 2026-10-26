@@ -316,6 +316,8 @@ export const terms = [
         solution: pairBox,
       }),
       prove({
+        // Goes on with the proof just made: its board opens with it.
+        carries: true,
         adds: ['normalize'],
         tests: [{ premises: { p: 'A' }, goal: 'A ∧ A', term: '⟨p, p⟩' }],
         cases: [{ A: 'Rain' }, { A: 'Sat' }],
@@ -339,6 +341,8 @@ export const terms = [
         solution: proof(orDetour, [...orDetourWires, 'e>goal'], { premises: ['p', 'q', 'r'] }),
       }),
       prove({
+        // Goes on with the proof just made: its board opens with it.
+        carries: true,
         tests: [{ premises: { p: 'A', q: 'A → C', r: 'B → C' }, goal: 'C', term: 'q p' }],
         cases: [{ A: 'Rain', B: 'Sat', C: 'Rest' }, { A: 'Coffee', B: 'Tea', C: 'Awake' }],
         brief: T('把它化简，证明项要是 q p。', 'Normalize it, with the term q p.'),
