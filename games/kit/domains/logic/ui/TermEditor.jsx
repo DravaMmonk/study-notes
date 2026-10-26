@@ -5,8 +5,7 @@ import { useHistory } from '../../../circuit/useHistory.js'
 import { chipsOf, complete, holesOf, joinsOnto, nodeAt, segmentOf, setAt } from '../termTree.js'
 
 // Building a proof term from chips on the shared strip (games/kit/strip), written out as it reads with a box for each
-// empty place: the term tasks' board (TermScreen.jsx) and the sheet of a proof-term card on the proof board
-// (TermField.jsx). `scope` is the names the term may use (premises, assumptions); `history` names whose undo it is.
+// empty place: the term tasks' board (TermScreen.jsx). `scope` is the names the term may use (premises, assumptions); `history` names whose undo it is.
 
 const T = (zh, en) => ({ zh, en })
 const GROUPS = [['name', T('名字', 'Names')], ['form', T('写法', 'Forms')]]

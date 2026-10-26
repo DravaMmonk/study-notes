@@ -77,7 +77,7 @@ export const LOGIC = logicCourse({
   revisions: REVISIONS,
   // The machine-board parts the player builds: the unifier, the tactics made of Rule and Assumption, and auto.
   machines: ['unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto'],
-  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'normalize', 'exact',
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'normalize',
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
     'append', 'each', 'defer', 'search'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.

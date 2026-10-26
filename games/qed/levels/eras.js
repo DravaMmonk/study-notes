@@ -124,7 +124,7 @@ export const ERAS = [
       series('data', '读证明项 · 数据', 'Reading proof terms: data', ['t-pair', 't-curry', 't-or', 't-mt', 't-absurd']),
       // Once terms can be read, writing them, their detours and the quantifiers' terms need nothing from each other.
       branches(
-        ['write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wlam', 't-wpair', 't-wcases', 't-kernel', 't-exact']],
+        ['write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wlam', 't-wpair', 't-wcases', 't-kernel']],
         ['detour', '弯路', 'Detours', ['t-detour', 't-beta', 't-casedetour', 't-lemma']],
         ['quant', '量词的证明项', 'Quantifiers’ proof terms', ['t-all', 't-ex']],
       ),

@@ -100,7 +100,9 @@ export default {
   // Version 28 kept the primitive tactics to Rule and Assumption: Or else became Alternatives, the Forward card (Use up
   // kept or replaced) became the built Forward, and the rule sets the built Goal apart and Use a given. 几个变量 came in
   // before the quantifier rules: whoever had passed them has passed it.
-  { version: 28, ops: [{ data: (value) => machineCards(value) }, { solve: ['r-allI', ['r-patterns']] }] }],
+  { version: 28, ops: [{ data: (value) => machineCards(value) }, { solve: ['r-allI', ['r-patterns']] }] },
+  // Version 29 dropped 证明项放回板上 and its part: every task of it could be wired without the part.
+  { version: 29, ops: [{ rename: { 't-exact': null } }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
   quotes: ['任取'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
