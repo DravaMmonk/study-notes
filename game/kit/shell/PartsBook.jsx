@@ -23,13 +23,15 @@ export function useParts(game, progress) {
   return { all, earned, seen, markSeen, unread, filters }
 }
 
-const levelOf = (game, part) => game.levels.find((level) => level.unlocks?.includes(part.key) || part.at?.includes(level.id))
+/** The level that earns a part: the one that unlocks it, or for a primitive the first that brings it in. */
+export const levelOf = (game, part) => game.levels.find((level) => level.unlocks?.includes(part.key) || part.at?.includes(level.id))
 
-export default function PartsBook({ game, box, phone, onClose }) {
+export default function PartsBook({ game, box, phone, start, onClose }) {
   const { all: every, earned, seen, markSeen, filters } = box
   const lastKey = `${game.id}.parts.last`
   const filterKey = `${game.id}.parts.filter`
-  const [filter, setFilter] = useState(() => filters.find((f) => f.key === store.read(filterKey, null) && !f.lock)?.key ?? null)
+  // Opened at a part (a reference in a text): no filter that would hide it.
+  const [filter, setFilter] = useState(() => (start ? null : filters.find((f) => f.key === store.read(filterKey, null) && !f.lock)?.key ?? null))
   const narrow = filters.find((f) => f.key === filter)
   const all = narrow ? every.filter((part) => narrow.keys.has(part.key)) : every
   const pickFilter = (key) => {
@@ -38,7 +40,7 @@ export default function PartsBook({ game, box, phone, onClose }) {
   }
   const [current, setCurrent] = useState(() => {
     const open = all.filter((part) => earned.has(part.key))
-    return (open.find((part) => !seen.has(part.key)) ?? open.find((part) => part.key === store.read(lastKey, null)) ?? open[0])?.key ?? null
+    return (open.find((part) => part.key === start?.id) ?? open.find((part) => !seen.has(part.key)) ?? open.find((part) => part.key === store.read(lastKey, null)) ?? open[0])?.key ?? null
   })
   const [shownOnce, setShownOnce] = useState(!phone)
   useEffect(() => {
@@ -46,6 +48,13 @@ export default function PartsBook({ game, box, phone, onClose }) {
     markSeen(current)
     store.write(lastKey, current)
   }, [current, shownOnce]) // eslint-disable-line react-hooks/exhaustive-deps
+  // A reference clicked inside the box (a part's description) moves to that part.
+  useEffect(() => {
+    if (!start) return
+    setFilter(null)
+    setCurrent(start.id)
+    setShownOnce(true)
+  }, [start])
   const pick = (key) => {
     setCurrent(key)
     setShownOnce(true)

@@ -7,11 +7,11 @@ import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 import { Dialog, FailDialog, SolvedDialog, TaskDoneDialog } from './Dialogs.jsx'
 import Encyclopedia, { useWiki } from './Encyclopedia.jsx'
-import PartsBook, { useParts } from './PartsBook.jsx'
+import PartsBook, { levelOf, useParts } from './PartsBook.jsx'
 import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
-import { setLevelRefs } from './levelRef.js'
+import { setRefs } from './refs.js'
 import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 
@@ -164,10 +164,31 @@ export default function GameShell({ game }) {
     for (const flag of (tasks?.[taskAt] ?? level).withhold ?? []) set.delete(flag)
     return set
   }, [game, progress, level, tasks, taskAt])
-  // A reference to another level in any text (levelRef.js) shows that level's number and title, and asks before going
-  // there.
+  // A reference in any text (refs.js): a level shows its number and title and asks before going there; a part or an
+  // encyclopedia entry opens the box or the encyclopedia at it, or says where it opens while it is still locked.
   const [goTo, setGoTo] = useState(null)
-  useEffect(() => setLevelRefs({ level: (id) => (game.byId[id] ? { label: game.levelLabel(game.byId[id]), title: L(game.byId[id].title) } : null), open: (id) => game.byId[id] && setGoTo(id) }), [game, lang])
+  const [sheetAt, setSheetAt] = useState(null) // { id } the box or the encyclopedia opens at
+  const [locked, setLocked] = useState(null) // { title, at } a part or entry the player cannot open yet
+  const partOf = (key) => game.parts?.all.find((p) => p.key === key)
+  const entryOf = (id) => game.glossary?.entries.find((e) => e.id === id)
+  const refName = (kind, id) => {
+    if (kind === 'level') return game.byId[id] ? { label: game.levelLabel(game.byId[id]), title: L(game.byId[id].title) } : null
+    const it = kind === 'part' ? partOf(id) : entryOf(id)
+    return it ? { title: L(kind === 'part' ? it.name : it.title) } : null
+  }
+  const refOpen = (kind, id) => {
+    if (kind === 'level') return game.byId[id] && setGoTo(id)
+    const it = kind === 'part' ? partOf(id) : entryOf(id)
+    if (!it) return
+    const open = kind === 'part' ? box.earned.has(id) : wiki.isOpen(it)
+    if (!open) {
+      const at = kind === 'part' ? levelOf(game, it) : game.byId[it.at]
+      return setLocked({ title: L(kind === 'part' ? it.name : it.title), at })
+    }
+    setSheetAt({ id })
+    setSheet(kind === 'part' ? 'parts' : 'wiki')
+  }
+  useEffect(() => setRefs({ name: refName, open: refOpen }))
   const target = goTo && game.byId[goTo]
   const go = () => {
     setGoTo(null)
@@ -284,11 +305,12 @@ export default function GameShell({ game }) {
         <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} />
       )}
       {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
-      {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} onClose={() => setSheet(null)} />}
-      {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} onClose={() => setSheet(null)} />}
+      {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
+      {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
+      {locked && <Dialog top title={tr(`「${locked.title}」还没解锁`, `“${locked.title}” is still locked`)} lines={[locked.at ? tr(`玩到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `It opens at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('再往后玩一些就能看到。', 'Play on a little to see it.')]} actions={[[tr('好', 'OK'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
       {target && (game.isOpen(target, solved, progress.all)
-        ? <Dialog title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[target.id === level?.id ? tr('你就在这一关。', 'You are on this level.') : tr('这一关的电路和进度都会保存，随时可以回来。', 'This level’s board and progress are kept; you can come back any time.')]} actions={target.id === level?.id ? [[tr('好', 'OK'), () => setGoTo(null)]] : [[tr('取消', 'Cancel'), () => setGoTo(null)], [tr('前往', 'Go'), go]]} onClose={() => setGoTo(null)} />
-        : <Dialog title={tr(`${game.levelLabel(target)}「${L(target.title)}」还没解锁`, `${game.levelLabel(target)} “${L(target.title)}” is still locked`)} lines={[tr('先通过它前面的关卡。', 'Pass the levels before it first.')]} actions={[[tr('好', 'OK'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
+        ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[target.id === level?.id ? tr('你就在这一关。', 'You are on this level.') : tr('这一关的电路和进度都会保存，随时可以回来。', 'This level’s board and progress are kept; you can come back any time.')]} actions={target.id === level?.id ? [[tr('好', 'OK'), () => setGoTo(null)]] : [[tr('取消', 'Cancel'), () => setGoTo(null)], [tr('前往', 'Go'), go]]} onClose={() => setGoTo(null)} />
+        : <Dialog top title={tr(`${game.levelLabel(target)}「${L(target.title)}」还没解锁`, `${game.levelLabel(target)} “${L(target.title)}” is still locked`)} lines={[tr('先通过它前面的关卡。', 'Pass the levels before it first.')]} actions={[[tr('好', 'OK'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
       {game.power && !progress.seenPower && (
         <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始', 'Start'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />
       )}

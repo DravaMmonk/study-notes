@@ -177,6 +177,7 @@
 .family-chip { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border-radius: 6px; color: var(--fam, var(--muted)); background: color-mix(in srgb, var(--fam, var(--muted)) 14%, transparent); font-style: normal; }
 
 .dialog-scrim { position: fixed; z-index: 70; inset: 0; display: grid; place-items: center; padding: 20px; background: var(--scrim); animation: fade-in 200ms ease; }
+.dialog-scrim.is-top { z-index: 90; }
 .dialog { width: min(500px, 100%); max-height: calc(100dvh - 40px); overflow-y: auto; overscroll-behavior: contain; padding: 28px 28px 22px; border-radius: 18px; background: var(--paper); box-shadow: var(--lift), 0 0 0 1px var(--rule); animation: dialog-in 280ms cubic-bezier(.2, .8, .2, 1); }
 .dialog h2 { margin: 0 0 14px; color: var(--muted); font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: .16em; }
 .dialog p { margin: 0 0 10px; color: var(--body); font-family: var(--serif); font-size: 17px; line-height: 1.75; }
@@ -322,7 +323,7 @@
 
 
 /* ---- the encyclopedia (Encyclopedia.jsx): entries by group on the left, the entry on the right ---- */
-.wiki-scrim { z-index: 60; align-items: center; justify-content: center; padding: 24px; }
+.ph-scrim.wiki-scrim { z-index: 75; align-items: center; justify-content: center; padding: 24px; }
 .wiki { width: min(1120px, 100%); height: min(800px, 90dvh); display: flex; flex-direction: column; overflow: hidden; border-radius: 18px; background: var(--paper); box-shadow: 0 0 0 1px var(--rule), 0 24px 60px -24px rgba(0, 0, 0, .45); animation: dialog-in 240ms cubic-bezier(.2, .8, .2, 1); }
 .wiki-head { flex: none; padding: 10px 8px 10px 22px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--hairline); }
 .wiki-head h2 { margin: 0; display: flex; align-items: baseline; gap: 10px; font-family: var(--serif); font-size: 20px; font-weight: 500; }
@@ -508,13 +509,14 @@
 .pb-test .hidden-tag { margin-left: 2px; }
 .pb-test.is-on { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
 
-/* A reference to another level inside a text (levelRef.js): a link chip, the level's title after a link icon. */
-level-ref { display: inline; }
-.level-ref { display: inline-flex; align-items: center; gap: 3px; margin: 0 2px; padding: 0 6px; border: 0; border-radius: 6px; color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 13%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); font: inherit; line-height: 1.45; vertical-align: baseline; white-space: nowrap; cursor: pointer; }
-.level-ref:hover { background: color-mix(in srgb, var(--accent) 24%, transparent); }
-.level-ref:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.level-ref svg { flex: none; }
-.level-ref b { font-family: var(--mono); font-size: .8em; font-weight: 600; opacity: .8; }
+/* A reference inside a text (refs.js): a link chip, an icon and the name of a level (with its number), a part or an
+   encyclopedia entry. */
+level-ref, part-ref, wiki-ref { display: inline; }
+.ref-chip { display: inline-flex; align-items: center; gap: 3px; margin: 0 2px; padding: 0 6px; border: 0; border-radius: 6px; color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 13%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); font: inherit; line-height: 1.45; vertical-align: baseline; white-space: nowrap; cursor: pointer; }
+.ref-chip:hover { background: color-mix(in srgb, var(--accent) 24%, transparent); }
+.ref-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ref-chip svg { flex: none; }
+.ref-chip b { font-family: var(--mono); font-size: .8em; font-weight: 600; opacity: .8; }
 
 /* A run's steps (StepLog): a box of bounded height, each result bounded too, the current step marked. */
 .step-log { position: relative; list-style: none; margin: 8px 0 0; padding: 0; max-height: 190px; max-width: 100%; overflow: auto; display: grid; gap: 4px; overscroll-behavior: contain; }

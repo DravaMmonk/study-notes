@@ -21,11 +21,12 @@ function Paragraphs({ text }) {
   })
 }
 
-/** A plain dialog: a mono title, lines of text, buttons; the last button is the primary one. */
-export function Dialog({ title, lines, actions, intro, onClose }) {
+/** A plain dialog: a mono title, lines of text, buttons; the last button is the primary one. `top`: over every other
+ *  overlay (a reference clicked inside one). */
+export function Dialog({ title, lines, actions, intro, top, onClose }) {
   useEscape(onClose)
   return (
-    <div className="dialog-scrim">
+    <div className={`dialog-scrim ${top ? 'is-top' : ''}`}>
       <div className={`dialog ${intro ? 'is-intro' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
         <h2>{title}</h2>
         {lines.map((line, index) => <p key={index} style={{ '--line': index }}>{line}</p>)}
