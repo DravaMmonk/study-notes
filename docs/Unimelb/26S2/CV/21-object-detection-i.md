@@ -1,6 +1,6 @@
 # COMP90086 Lecture 21 - Object Detection I
 
-来源：`lecture/COMP90086-21-ObjectDetection.pdf`（55 页）。2026-10-13 从 Canvas Week 11 导入；封面沿用 2021 年，按当前发布位置归档。Week 11 录播尚未发生，本篇是讲义预习笔记，不引用老师原话。
+来源：`lecture/COMP90086-21-ObjectDetection.pdf`（2026 版，55 页，Canvas 文件 28975448）；`transcript/COMP90086_2026_SM2 Week-11-W-transcript.txt`（2026-10-14，开头先补充 SAM）。2026-10-26 更新讲义与字幕，页码指 PDF 页码。此前封面为 2021 的版本保存在 `lecture/superseded/2026-10-13/`。
 
 本讲回答：**除了知道图里有什么，怎样指出每个物体在哪里？**
 

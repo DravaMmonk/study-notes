@@ -1,58 +1,80 @@
 # COMP90086 Lecture 22 - Object Detection II
 
-Sources: `lecture/COMP90086-22-ObjectDetection2.pdf` (58 pages). Imported from Canvas Week 11 on 2026-10-13; the cover still says 2021, and some footers still say Week 10. The Week 11 recording has not happened yet, so this note is a preview based on the slides.
+Sources: `lecture/COMP90086-22-ObjectDetection2.pdf` (2026 version, 36 pages, Canvas file 29006972); `transcript/COMP90086_2026_SM2 Week-11-F-transcript.txt` (2026-10-16). Updated 2026-10-26. Page numbers below refer to PDF pages, since printed slide numbers are discontinuous. The earlier 58-page file is preserved under `lecture/superseded/2026-10-13/`; this note follows the new version.
 
-This lecture answers: **how can we predict object boxes more directly, remove duplicate results, and evaluate detection quality fairly?**
+This lecture asks: **how can a model directly predict a set of objects, avoid duplicate detections and evaluate its results?**
 
-Learning path: [Single-stage detection](#topic-1) → [Instance masks](#topic-2) → [NMS](#topic-3) → [AP and mAP](#topic-4). The key point is to keep proposal generation, duplicate-box handling and final evaluation distinct.
+Learning path: [YOLO](#topic-1) → [DETR](#topic-2) → [NMS](#topic-3) → [AP and mAP](#topic-4). Keep model outputs, duplicate handling and evaluation against ground truth separate.
 
 <a id="topic-1"></a>
-## 1. Single-stage detection: predict classes and boxes directly
+## 1. YOLO predicts classes and boxes from the whole image
 
-![PDF 13 - YOLO v1](assets/22-object-detection-ii/slide-13.png)
+![PDF 6 - YOLO v1](assets/22-object-detection-ii/slide-06.png)
 
-Following the network from left to right, whole-image features eventually become class scores and box parameters on a grid. YOLO v1 does not first generate a batch of region proposals and then classify each one; it predicts these outputs directly. The "20 classes, 2 boxes" at the right end of the slide belong to the version and settings shown, not a fixed configuration of every YOLO.
+Read left to right: whole-image features become class scores and box parameters on a grid. YOLO v1 predicts these directly rather than proposing regions and then classifying each one. The “20 classes, 2 boxes” at the right belongs to the illustrated version and configuration, not every YOLO model.
 
-SSD also predicts classes and boxes directly, but places reference boxes on feature layers at several resolutions, helping to cover objects of different scales. Single-stage methods skip the explicit proposal stage, but still have to handle class, location and duplicate predictions.
+Each box has a centre, width, height and confidence score. A grid cell predicts objects whose centres lie in its region. When objects crowd into a small region, the finite grid and box count limit what it can express. These slides discuss early YOLO v1; its speed and accuracy comparisons do not automatically apply to later versions.
 
 <a id="topic-2"></a>
-## 2. Mask R-CNN: which pixels inside the box belong to this object
+## 2. Difficult: why DETR treats detection as set prediction
 
-![PDF 28 - Mask R-CNN branches](assets/22-object-detection-ii/slide-28.png)
+DETR (Detection Transformer) outputs a set of class–box pairs. Their order should not matter: listing the left horse before or after the right horse describes the same detection result.
 
-In the figure, the ROI features split into class, box and mask branches. Mask R-CNN builds on Faster R-CNN by adding a foreground/background prediction inside the region, so that each detected instance has its own pixel mask.
+![PDF 11 - DETR encoder and decoder](assets/22-object-detection-ii/slide-11.png)
 
-Semantic segmentation labels both cows as "cow"; instance segmentation must also distinguish cow 1 from cow 2. The difference between the two kinds of output is covered in [Segmentation Lecture 1](19-segmentation-i.en.md#topic-1); here the focus is on how to obtain instance masks from candidate object regions.
+From left to right, a CNN extracts image features and a Transformer encoder exchanges information across positions. The decoder combines this image information with **object queries**, producing one class and one box per query.
+
+Think of a query as a learned output slot. It is neither a typed question nor a predefined region proposal. The slides use $N=100$ slots: if the image contains fewer than $N$ objects, unused slots should predict **no object**. Thus $N$ limits the number of possible detections; it does not mean that every image contains 100 objects.
+
+### One-to-one matching before the training loss
+
+![PDF 13 - Set prediction matching](assets/22-object-detection-ii/slide-13.png)
+
+Ground truth is on the left and predictions on the right. Arrows cross rows because the first prediction need not correspond to the first answer. Training finds a one-to-one assignment across the sets using class and box costs, then computes losses for the assigned pairs. Slots not assigned to real objects learn to predict no object, with a lower loss weight for that class.
+
+**Common mistake**: several predictions cannot all receive a correct assignment to the same horse. One-to-one training teaches the model to produce a non-duplicated set, so the original DETR introduced here normally does not need NMS to remove duplicate boxes. This does not guarantee that it never makes false detections or misses objects.
+
+| Method | Prediction structure | Main distinction |
+| --- | --- | --- |
+| Faster R-CNN | Proposed regions → classes and box corrections | Two stages; see [Lecture 21](21-object-detection-i.en.md#topic-3) |
+| YOLO v1 | Class and box maps on a grid | Direct predictions can overlap |
+| DETR | Query slots → classes and boxes | Set prediction with one-to-one matching during training |
 
 <a id="topic-3"></a>
-## 3. Key point: NMS removes duplicate boxes
+## 3. NMS removes repeated reports of the same object
 
-![PDF 35 - Duplicate detections](assets/22-object-detection-ii/slide-35.png)
+![PDF 19 - Duplicate detections](assets/22-object-detection-ii/slide-19.png)
 
-On the left, the blue and orange boxes mainly cover the same dog, with an IoU of 0.78; the box for the dog on the right overlaps very little with the blue box. Using the slide example's threshold of 0.7, first keep the highest-scoring blue box at 0.9, then suppress the lower-scoring orange box at 0.8 that overlaps it heavily.
+The blue and orange boxes cover the same left-hand dog with IoU 0.78. The boxes around the other dog overlap little with the blue box. With the slide example's threshold of 0.7, keep the highest-scoring blue box (0.9), suppress the lower-scoring orange box (0.8), and continue with the remaining boxes.
 
-Repeating this process is non-maximum suppression (NMS). It is usually done separately for each class. It uses the overlap between predicted boxes and **does not need ground-truth boxes**. In crowded scenes, different objects can also overlap heavily, so NMS may wrongly remove correct detections.
+This is non-maximum suppression (NMS), usually performed separately for each class. It compares **predictions with predictions**, requiring no ground-truth boxes. Different objects can also overlap heavily, so NMS may remove a correct detection in a crowded scene.
 
 <a id="topic-4"></a>
-## 4. Hard part: evaluation must check ranking, class and location together
+## 4. AP and mAP check ranking, class and position
 
-For one class, sort all detections by score from high to low, then match them to ground-truth boxes using a given IoU threshold. One real object cannot repeatedly earn credit for duplicate detections. As more low-scoring detections are included, compute:
+For one class, rank test-set detections by score, then match them to ground-truth boxes of that class using the chosen IoU threshold. A real object can be successfully matched only once; duplicate detections count as errors rather than extra credit. As progressively lower-scoring detections are included, compute:
 
 $$
 \mathrm{Precision}=\frac{TP}{TP+FP},\qquad
 \mathrm{Recall}=\frac{TP}{N_{\mathrm{GT}}}.
 $$
 
- $TP$ is the number of correctly matched detections, $FP$ the number of wrong detections, and $N_{\mathrm{GT}}$ the number of real objects. Precision asks "of what was reported, how much is correct?", and Recall asks "of what actually exists, how much was found?". Accumulating along the score order gives the P–R curve.
+$TP$ counts correct matches, $FP$ counts false detections and $N_{\mathrm{GT}}$ counts real objects. Precision asks how many reported detections are correct; recall asks how many real objects were found. Accumulating these values along the ranking produces a P–R curve. AP summarises its area for one class; the evaluation protocol specifies the interpolation rule.
 
-![PDF 50 - Class and IoU averaging](assets/22-object-detection-ii/slide-50.png)
+![PDF 34 - Class and IoU averaging](assets/22-object-detection-ii/slide-34.png)
 
-The slides explain single-class AP as the area under the P–R curve; mAP then averages over classes. In the figure, the APs for bird, cat and dog are 0.65, 0.80 and 0.86, averaging 0.77. COCO mAP also averages results over multiple IoU thresholds, so it is usually stricter than a score using only the 0.5 threshold; computation details should follow one consistent evaluation protocol.
+Bird, cat and dog AP are 0.65, 0.80 and 0.86, giving mAP@0.5 = 0.77 after averaging over classes. COCO mAP also averages across IoU thresholds from 0.50 to 0.95 in steps of 0.05. Stricter thresholds demand closer boxes, so these two scores are not directly interchangeable.
 
-**Common mistake**: the IoU threshold in NMS decides which predicted boxes are removed; the IoU threshold in evaluation decides whether a prediction is close enough to a ground-truth box. Both use IoU but serve different tasks, and need not take the same value. A high mAP still cannot replace a concrete analysis of misses, false detections and localisation errors.
+**Common mistake**: the NMS IoU threshold controls which predictions are removed; the evaluation IoU threshold controls whether a prediction matches ground truth. Their purposes differ and their values need not be equal.
 
-## Self-test for this lecture
+## Workshop 12: trace the score back to individual errors
 
-1. Why should outputting ten boxes for one object not score higher than outputting one good box?
-2. Does NMS need ground-truth boxes? What about evaluating AP?
-3. Why must the IoU threshold or evaluation protocol be stated when comparing mAP?
+`workshop/week-12/worksheet12_colab_new.ipynb` runs pretrained TensorFlow 2 detectors and uses FiftyOne for metrics and image-level inspection. Compare models on the same data and evaluation settings, then inspect misses, false positives and misplaced boxes to explain a score difference.
+
+Canvas explicitly states that the problems are already solved inside the notebook, so **there is no separate Week 12 solution**. Colab is recommended. This import did not execute the notebook or download its external datasets or models.
+
+## Self-test
+
+1. Why do 100 DETR queries not imply 100 real objects in every image?
+2. At which stages do one-to-one matching and NMS address duplicate predictions?
+3. What evaluation settings must agree before two reported mAP scores can be compared?

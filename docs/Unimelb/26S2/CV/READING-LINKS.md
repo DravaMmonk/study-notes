@@ -1,8 +1,8 @@
 # COMP90086 Reading Links
 
-Weeks 1-8 were checked on 2026-09-18; Weeks 9-11 were checked on 2026-10-13. Links and bibliographic references are preserved; external websites and textbook full text are not mirrored.
+Weeks 1-8 were checked on 2026-09-18; Weeks 9-11 were checked on 2026-10-13; Weeks 11-12 were updated on 2026-10-26. Links and bibliographic references are preserved; external websites and textbook full text are not mirrored.
 
-Readings Online was rechecked on 2026-10-13 and still returns a Leganto error requesting contact with the subject coordinator or library. The weekly Canvas pages remain accessible.
+Readings Online was rechecked on 2026-10-26 and still returns a Leganto error requesting contact with the subject coordinator or library. The weekly Canvas pages remain accessible.
 
 ## Week 1: Introduction and imaging basics
 
@@ -121,3 +121,11 @@ Interactive lecture resources:
 - [YOLO demo (uses camera)](https://modeldepot.github.io/tfjs-yolo-tiny-demo/)
 
 Workshop 11 setup links: [Google Colab](https://colab.google/) and [Detectron2 installation](https://github.com/facebookresearch/detectron2/blob/main/INSTALL.md). Canvas recommends Colab; the notebooks have not been executed during this import.
+
+## Week 12: Revision and object detection workshop
+
+- [Revision lecture page](https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144262): revision slides and the practice exam; no separate optional reading list is published here.
+- [Practice exam and solutions](https://canvas.lms.unimelb.edu.au/courses/241625/pages/practice-exam): links still point to files 25738178 and 25738180, already archived under `exam/`.
+- [Object detection workshop](https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144274): Colab is recommended; answers are included in `worksheet12_colab_new.ipynb`, with no separate solution notebook.
+
+The notebook links to the [TensorFlow 2 model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md) and [FiftyOne documentation](https://voxel51.com/docs/fiftyone/). These are archived links, not downloaded models or verified current installation instructions.

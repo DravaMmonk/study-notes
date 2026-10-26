@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-13",
+  "checked_at": "2026-10-26",
   "course_url": "https://canvas.lms.unimelb.edu.au/courses/241625/modules",
   "weeks": [
     {
@@ -323,14 +323,15 @@
       "week": 11,
       "title": "Object detection",
       "slides": [
-        25738182,
-        25738181
+        28975448,
+        29006972
       ],
       "lecture_item": 7144261,
       "workshop_item": 7144273,
       "workshop_files": [
         28299379,
-        25738244
+        25738244,
+        28299381
       ],
       "reading": "Computer Vision: Algorithms and Applications 2nd Ed, chapter 6.3",
       "links": [
@@ -344,16 +345,36 @@
         ]
       ],
       "extra": []
+    },
+    {
+      "week": 12,
+      "title": "Revision",
+      "slides": [
+        29060108
+      ],
+      "lecture_item": 7144262,
+      "workshop_item": 7144274,
+      "workshop_files": [
+        28299384
+      ],
+      "solution_status": "Included in worksheet; Canvas explicitly says no separate solution notebook",
+      "reading": "Revision and practice exam links; no separate optional reading list",
+      "links": [
+        [
+          "Practice exam",
+          "https://canvas.lms.unimelb.edu.au/courses/241625/pages/practice-exam"
+        ]
+      ],
+      "extra": []
     }
   ],
   "limitations": [
-    "Week 11 lectures are scheduled for 2026-10-14 and 2026-10-16; transcripts are not yet expected.",
-    "Recordings dated 2026-09-25, 2026-09-30 and 2026-10-02 have no visible transcript panel/download control; a listed recording does not establish that a teaching session took place.",
-    "No Week 11 workshop solution link was visible.",
-    "No Lecture 18 link was visible on the published Week 9-11 lecture pages; source numbering is preserved.",
-    "Readings Online still returns a Leganto error; only weekly reading links and chapter references are archived.",
-    "External notebook downloads, model dependencies and linked websites were not mirrored or executed.",
-    "Week 1-8 sources were retained from the prior audit rather than fully re-audited."
+    "October 23 recording has a downloadable transcript but no usable CV teaching content; it is not counted as a completed course transcript. No separate Lecture 24 PDF is linked on the audited Week 12 page.",
+    "September 25, September 30 and October 2 transcript availability was last checked on October 13; those entries were not re-audited here.",
+    "Lecture numbering still has no Lecture 18 link in the recorded module inventory; no content was invented for that number.",
+    "Readings Online still returns a Leganto error on October 26; weekly links are retained, not external full texts.",
+    "External notebook datasets, models and dependencies were not downloaded or executed.",
+    "Earlier weeks were retained rather than fully re-audited."
   ],
   "resources": [
     {
@@ -431,9 +452,9 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144251",
       "note": "Computer Vision: Algorithms and Applications 2nd Ed, chapter 2",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
       "checked_at": "2026-09-18",
-      "checksum_verified_at": "2026-10-13"
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 2,
@@ -523,9 +544,9 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144252",
       "note": "Computer Vision: Algorithms and Applications 2nd Ed, chapters 3.2, 3.4",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
       "checked_at": "2026-09-18",
-      "checksum_verified_at": "2026-10-13"
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 3,
@@ -615,9 +636,9 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144253",
       "note": "Computer Vision: Algorithms and Applications 2nd Ed, chapters 2.3.2, 7.2, 13.1",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
       "checked_at": "2026-09-18",
-      "checksum_verified_at": "2026-10-13"
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 4,
@@ -707,9 +728,9 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144254",
       "note": "Deep Learning With Python (Chollet), chapters 2.4.3, 5.1; Deep Learning (Goodfellow, Bengio, Courville), chapters 9.2-9.3; Pattern Recognition and Machine Learning (Bishop), chapter 5.5.6",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
       "checked_at": "2026-09-18",
-      "checksum_verified_at": "2026-10-13"
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 5,
@@ -799,9 +820,9 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144255",
       "note": "论文链接；未下载全文。",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
       "checked_at": "2026-09-18",
-      "checksum_verified_at": "2026-10-13"
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 6,
@@ -891,9 +912,9 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144256",
       "note": "Computer Vision: Algorithms and Applications 2nd Ed, chapters 7.1, 7.4, 8.1",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
       "checked_at": "2026-09-18",
-      "checksum_verified_at": "2026-10-13"
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 7,
@@ -983,9 +1004,9 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144257",
       "note": "Computer Vision: Algorithms and Applications 2nd Ed, chapters 11.1-3",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
       "checked_at": "2026-09-18",
-      "checksum_verified_at": "2026-10-13"
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 8,
@@ -1062,9 +1083,9 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144258",
       "note": "Computer Vision: Algorithms and Applications 2nd Ed, chapter 5.5.4",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
       "checked_at": "2026-09-18",
-      "checksum_verified_at": "2026-10-13"
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 9,
@@ -1113,10 +1134,10 @@
       "saved": 1,
       "published": 1,
       "path": "/Users/drava/Local/Academic/CV (26S2)/lecture/COMP90086-21-ObjectDetection.pdf",
-      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738182",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28975448",
       "note": "",
-      "sha256": "90b8b2a6bca790e8a1fe061418ee8e7bb4d11271d0f819d9923a369e4d8db3e1",
-      "checked_at": "2026-10-13"
+      "sha256": "0ff082c0286292bb4babf0868e62bee61a4d5358d607c4ec53bf71b3fcf85261",
+      "checked_at": "2026-10-26"
     },
     {
       "week": 11,
@@ -1126,10 +1147,10 @@
       "saved": 1,
       "published": 1,
       "path": "/Users/drava/Local/Academic/CV (26S2)/lecture/COMP90086-22-ObjectDetection2.pdf",
-      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738181",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/29006972",
       "note": "",
-      "sha256": "a67d7f4f45aedacfe7d34f4a0078ed7b1b9d83d9e4efc9cbb0474a19fe952979",
-      "checked_at": "2026-10-13"
+      "sha256": "924b8c9ac81ab635bf18ee15a628adb63b7c267bd1e69155072b0e1cdb340ac5",
+      "checked_at": "2026-10-26"
     },
     {
       "week": 8,
@@ -1258,8 +1279,8 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144259",
       "checked_at": "2026-10-13",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
-      "checksum_verified_at": "2026-10-13"
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 10,
@@ -1271,8 +1292,8 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144260",
       "checked_at": "2026-10-13",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
-      "checksum_verified_at": "2026-10-13"
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 11,
@@ -1284,19 +1305,93 @@
       "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
       "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144261",
       "checked_at": "2026-10-13",
-      "sha256": "3325c09da5d8c7010b6fe0384a1299b112bb60d4222ff6abd4554c2aea6ff689",
-      "checksum_verified_at": "2026-10-13"
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
+      "checksum_verified_at": "2026-10-26"
     },
     {
       "week": 11,
       "kind": "Workshop solution",
-      "label": "Week 11 solution",
-      "saved": 0,
-      "published": 0,
-      "status": "No solution link on audited pages",
-      "path": "",
-      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144273",
-      "checked_at": "2026-10-13"
+      "label": "worksheet11_solution.ipynb",
+      "saved": 1,
+      "published": 1,
+      "status": "Downloaded and verified",
+      "path": "/Users/drava/Local/Academic/CV (26S2)/workshop/week-11/worksheet11_solution.ipynb",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299381",
+      "checked_at": "2026-10-26",
+      "sha256": "176351ec8198139ddc6258c94ef487ce47a71e5ecd3bf077ad26104e7ec98d99"
+    },
+    {
+      "week": 12,
+      "kind": "Lecture PDF",
+      "label": "COMP90086-23-Revision.pdf",
+      "status": "Downloaded and verified",
+      "saved": 1,
+      "published": 1,
+      "path": "/Users/drava/Local/Academic/CV (26S2)/lecture/COMP90086-23-Revision.pdf",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/29060108",
+      "sha256": "6028bb30677d50063397324af9478488a12797a618c98a00deffb6203b7698b7",
+      "checked_at": "2026-10-26"
+    },
+    {
+      "week": 12,
+      "kind": "Workshop",
+      "label": "worksheet12_colab_new.ipynb",
+      "status": "Downloaded and verified",
+      "saved": 1,
+      "published": 1,
+      "path": "/Users/drava/Local/Academic/CV (26S2)/workshop/week-12/worksheet12_colab_new.ipynb",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299384",
+      "sha256": "6ab685fec14e623b3634cbdf7566b245ef3c1be1b1973922b3fba0d83b69c2ad",
+      "checked_at": "2026-10-26"
+    },
+    {
+      "week": 11,
+      "kind": "Transcript W",
+      "label": "COMP90086_2026_SM2 Week-11-W-transcript.txt",
+      "status": "Downloaded and verified",
+      "saved": 1,
+      "published": 1,
+      "path": "/Users/drava/Local/Academic/CV (26S2)/transcript/COMP90086_2026_SM2 Week-11-W-transcript.txt",
+      "source": "https://echo360.net.au/lesson/G_83d2189c-093e-433c-9246-e12e810bbf41_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-14T15:05:00.000_2026-10-14T16:00:00.000/classroom",
+      "sha256": "e2a9a5d90a40b007e1c8eb747faf47474efb032919392c44369b266476b85b92",
+      "checked_at": "2026-10-26"
+    },
+    {
+      "week": 11,
+      "kind": "Transcript F",
+      "label": "COMP90086_2026_SM2 Week-11-F-transcript.txt",
+      "status": "Downloaded and verified",
+      "saved": 1,
+      "published": 1,
+      "path": "/Users/drava/Local/Academic/CV (26S2)/transcript/COMP90086_2026_SM2 Week-11-F-transcript.txt",
+      "source": "https://echo360.net.au/lesson/G_9427dac1-3bf3-4103-9f12-24fc2f44137a_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-16T13:05:00.000_2026-10-16T14:00:00.000/classroom",
+      "sha256": "7b55281ae2d815dea114ba422cf712e3545f758833c339fb0e88b74cbe193d48",
+      "checked_at": "2026-10-26"
+    },
+    {
+      "week": 12,
+      "kind": "Transcript W",
+      "label": "COMP90086_2026_SM2 Week-12-W-transcript.txt",
+      "status": "Downloaded and verified",
+      "saved": 1,
+      "published": 1,
+      "path": "/Users/drava/Local/Academic/CV (26S2)/transcript/COMP90086_2026_SM2 Week-12-W-transcript.txt",
+      "source": "https://echo360.net.au/lesson/G_83d2189c-093e-433c-9246-e12e810bbf41_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-21T15:05:00.000_2026-10-21T16:00:00.000/classroom",
+      "sha256": "451ef7e5776a87c7c77bcb0f69ab0bc2985cdf89e6a3ad82c6c05310ff7f0c7f",
+      "checked_at": "2026-10-26"
+    },
+    {
+      "week": 12,
+      "kind": "Reading Links",
+      "label": "Week 12 course links",
+      "status": "Links archived; no separate optional reading list",
+      "saved": 1,
+      "published": 1,
+      "path": "/Users/drava/Local/Academic/CV (26S2)/READING-LINKS.md",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144262",
+      "checked_at": "2026-10-26",
+      "sha256": "17071df798238bf358eae0e0e30ba7f6a07cc08457491c22f18b2c7b1cee42b2",
+      "checksum_verified_at": "2026-10-26"
     }
   ],
   "slide_names": [
@@ -1320,7 +1415,8 @@
     "COMP90086-19-Segmentation.pdf",
     "COMP90086-20-Segmentation2.pdf",
     "COMP90086-21-ObjectDetection.pdf",
-    "COMP90086-22-ObjectDetection2.pdf"
+    "COMP90086-22-ObjectDetection2.pdf",
+    "COMP90086-23-Revision.pdf"
   ],
   "download_root": "/Users/drava/Local/Academic/CV (26S2)",
   "mirror_root": "/Users/drava/Local/GitHub/study-notes/docs/Unimelb/26S2/CV",
@@ -1566,8 +1662,8 @@
     "checked_at": "2026-09-18"
   },
   "verification": {
-    "verified_at": "2026-10-13",
-    "matching_local_files": 149,
+    "verified_at": "2026-10-26",
+    "matching_local_files": 159,
     "lecture_pdf_pages": {
       "COMP90086-01-Introduction.pdf": 35,
       "COMP90086-02-Basics.pdf": 41,
@@ -1589,9 +1685,10 @@
       "COMP90086-19-Segmentation.pdf": 50,
       "COMP90086-20-Segmentation2.pdf": 47,
       "COMP90086-21-ObjectDetection.pdf": 55,
-      "COMP90086-22-ObjectDetection2.pdf": 58
+      "COMP90086-22-ObjectDetection2.pdf": 36,
+      "COMP90086-23-Revision.pdf": 20
     },
-    "top_level_notebooks_valid": 21,
+    "top_level_notebooks_valid": 23,
     "files": [
       {
         "path": "lecture/COMP90086-01-Introduction.pdf",
@@ -1659,6 +1756,36 @@
         "sha256": "cff857956680b7ab141dc513e5d8dc89a29666b2812041f41822d8b10b6d1706"
       },
       {
+        "path": "lecture/COMP90086-17-Diffusion.pdf",
+        "bytes": 1800349,
+        "sha256": "8580e95db6f20a758634a79b67a4e6171d0ca2dc0acb0c3ab89b92b8cf758c50"
+      },
+      {
+        "path": "lecture/COMP90086-19-Segmentation.pdf",
+        "bytes": 3872151,
+        "sha256": "8d4c46422af5b529365f8b484cc231b9ffe311d89116761ed0e13bf3b06dc694"
+      },
+      {
+        "path": "lecture/COMP90086-20-Segmentation2.pdf",
+        "bytes": 1949590,
+        "sha256": "42a9af1a5c82f920db2cd2a31ea58b9410fc0ab11b6f20b6c4279a47ed9b4a31"
+      },
+      {
+        "path": "lecture/COMP90086-21-ObjectDetection.pdf",
+        "bytes": 2070594,
+        "sha256": "0ff082c0286292bb4babf0868e62bee61a4d5358d607c4ec53bf71b3fcf85261"
+      },
+      {
+        "path": "lecture/COMP90086-22-ObjectDetection2.pdf",
+        "bytes": 1298632,
+        "sha256": "924b8c9ac81ab635bf18ee15a628adb63b7c267bd1e69155072b0e1cdb340ac5"
+      },
+      {
+        "path": "lecture/COMP90086-23-Revision.pdf",
+        "bytes": 309248,
+        "sha256": "6028bb30677d50063397324af9478488a12797a618c98a00deffb6203b7698b7"
+      },
+      {
         "path": "lecture/COMP90086_12_feature-matching.pdf",
         "bytes": 3622158,
         "sha256": "6608997fb06674ba5ddedf9dc291abf81bf9b562ce3cda4e548163d3a4b5ba8c"
@@ -1672,6 +1799,16 @@
         "path": "lecture/COMP90086_14_two-view-geometry.pdf",
         "bytes": 2726725,
         "sha256": "b4777818ca76806551c6964574b0f35c648f578e325ad0ac4ef7c547da608c28"
+      },
+      {
+        "path": "lecture/superseded/2026-10-13/COMP90086-21-ObjectDetection.pdf",
+        "bytes": 1984486,
+        "sha256": "90b8b2a6bca790e8a1fe061418ee8e7bb4d11271d0f819d9923a369e4d8db3e1"
+      },
+      {
+        "path": "lecture/superseded/2026-10-13/COMP90086-22-ObjectDetection2.pdf",
+        "bytes": 3011811,
+        "sha256": "a67d7f4f45aedacfe7d34f4a0078ed7b1b9d83d9e4efc9cbb0474a19fe952979"
       },
       {
         "path": "transcript/COMP90086_2026_SM2 Week-01-F-transcript.txt",
@@ -1744,9 +1881,49 @@
         "sha256": "9a3f38f40bc389a97b804ece3337aa125c607ce8e1f4e9e4106b7896bd9e5ea2"
       },
       {
+        "path": "transcript/COMP90086_2026_SM2 Week-08-F-transcript.txt",
+        "bytes": 53699,
+        "sha256": "24438a033d4bf0598376b0ebb03cb7f6a3d751ef43d99e4d654038c6907ed59c"
+      },
+      {
         "path": "transcript/COMP90086_2026_SM2 Week-08-W-transcript.txt",
         "bytes": 53154,
         "sha256": "31775088eee01e49f05a6a8a7ed5579783b7fb1cdab293e65129839e02886251"
+      },
+      {
+        "path": "transcript/COMP90086_2026_SM2 Week-09-W-transcript.txt",
+        "bytes": 49662,
+        "sha256": "0b21eda0ab1c0d21d4f155066050cf5fc9eeb3ecbd7278a891c7236c134e840b"
+      },
+      {
+        "path": "transcript/COMP90086_2026_SM2 Week-10-F-transcript.txt",
+        "bytes": 52014,
+        "sha256": "b27b959f37b91994afb03683b02388919feb1a3aa7a5b9fe067773285f5e035c"
+      },
+      {
+        "path": "transcript/COMP90086_2026_SM2 Week-10-W-transcript.txt",
+        "bytes": 54197,
+        "sha256": "b32c4c5cd2c5a28839467660b7f1cd53ff1313b2a8b15fa8a4f1a2b4cba52630"
+      },
+      {
+        "path": "transcript/COMP90086_2026_SM2 Week-11-F-transcript.txt",
+        "bytes": 43232,
+        "sha256": "7b55281ae2d815dea114ba422cf712e3545f758833c339fb0e88b74cbe193d48"
+      },
+      {
+        "path": "transcript/COMP90086_2026_SM2 Week-11-W-transcript.txt",
+        "bytes": 47312,
+        "sha256": "e2a9a5d90a40b007e1c8eb747faf47474efb032919392c44369b266476b85b92"
+      },
+      {
+        "path": "transcript/COMP90086_2026_SM2 Week-12-W-transcript.txt",
+        "bytes": 50010,
+        "sha256": "451ef7e5776a87c7c77bcb0f69ab0bc2985cdf89e6a3ad82c6c05310ff7f0c7f"
+      },
+      {
+        "path": "transcript/needs-review/2026-10-23-non-course-transcript.txt",
+        "bytes": 103,
+        "sha256": "42fa806278cb9463eaf2af57fb1f6110f15b6b52881401d4695d782657577ca9"
       },
       {
         "path": "workshop/packages/week2.zip",
@@ -1782,6 +1959,16 @@
         "path": "workshop/packages/week8.zip",
         "bytes": 1230501,
         "sha256": "5d4e7666880bea0cd6adcfac692a9fe2a7a184fd0079de33ed7a4380e80ec602"
+      },
+      {
+        "path": "workshop/packages/week9-autoencoders-workshop-link.zip",
+        "bytes": 57524658,
+        "sha256": "d943e07ed3e864614b19dc8469e5f2d2e18c0287e3c9f0c3a6108202ebc6856d"
+      },
+      {
+        "path": "workshop/packages/week9-autoencoders.zip",
+        "bytes": 57525126,
+        "sha256": "3bff5dfd8d88e71cf54e3a8511a9aa0d84c4adf7a87deff8a8fa6374bbd254fc"
       },
       {
         "path": "workshop/week-01/worksheet01.ipynb",
@@ -2219,44 +2406,39 @@
         "sha256": "6fd012cf3924ab41c3f36a6d7044bcd3b0846938c82dcdbb7f79c810d0453a6c"
       },
       {
-        "path": "exam/COMP90086_practice_exam.pdf",
-        "bytes": 798448,
-        "sha256": "27fd3dbb0864e0dff31df526a0086d8be54e72526fd95863e29c1add6b260e52"
-      },
-      {
-        "path": "exam/COMP90086_practice_exam_solution.pdf",
-        "bytes": 760842,
-        "sha256": "97f5d3c5da84819d8aa13bd5e91986139cfbe7d5b356c2be8806226bcde24411"
-      },
-      {
-        "path": "lecture/COMP90086-17-Diffusion.pdf",
-        "bytes": 1800349,
-        "sha256": "8580e95db6f20a758634a79b67a4e6171d0ca2dc0acb0c3ab89b92b8cf758c50"
-      },
-      {
-        "path": "lecture/COMP90086-19-Segmentation.pdf",
-        "bytes": 3872151,
-        "sha256": "8d4c46422af5b529365f8b484cc231b9ffe311d89116761ed0e13bf3b06dc694"
-      },
-      {
-        "path": "lecture/COMP90086-20-Segmentation2.pdf",
-        "bytes": 1949590,
-        "sha256": "42a9af1a5c82f920db2cd2a31ea58b9410fc0ab11b6f20b6c4279a47ed9b4a31"
-      },
-      {
-        "path": "lecture/COMP90086-21-ObjectDetection.pdf",
-        "bytes": 1984486,
-        "sha256": "90b8b2a6bca790e8a1fe061418ee8e7bb4d11271d0f819d9923a369e4d8db3e1"
-      },
-      {
-        "path": "lecture/COMP90086-22-ObjectDetection2.pdf",
-        "bytes": 3011811,
-        "sha256": "a67d7f4f45aedacfe7d34f4a0078ed7b1b9d83d9e4efc9cbb0474a19fe952979"
-      },
-      {
         "path": "workshop/week-08/worksheet08_solution.ipynb",
         "bytes": 10720176,
         "sha256": "313f038d78e36c67ad2df36899a199cce45b9cc8eedeaee2e5bc5a8985f2e42f"
+      },
+      {
+        "path": "workshop/week-09/pretrained_checkpoints/checkpoint",
+        "bytes": 69,
+        "sha256": "87386f5dab985c00d9a1c575ecec838947e82e72090bf4084e290f410c193e9e"
+      },
+      {
+        "path": "workshop/week-09/pretrained_checkpoints/ckpt-1.data-00000-of-00001",
+        "bytes": 30332246,
+        "sha256": "9aebd8bacefebcf1210ca8de8d87bcc6ec73ace4f77eeb47c07744cf2f1ba3fe"
+      },
+      {
+        "path": "workshop/week-09/pretrained_checkpoints/ckpt-1.index",
+        "bytes": 3786,
+        "sha256": "134007466877d072667794a7122abde81cdd8e217d732a98688946ad994273ec"
+      },
+      {
+        "path": "workshop/week-09/pretrained_checkpoints/ckpt-2.data-00000-of-00001",
+        "bytes": 30332246,
+        "sha256": "45719e840a3fc5ea5410a3194b4d168f1ddebc2d12b0a20e7c78fedc210b356c"
+      },
+      {
+        "path": "workshop/week-09/pretrained_checkpoints/ckpt-2.index",
+        "bytes": 3786,
+        "sha256": "f0b6776f654f096baaa54d24e388456f2cb421dfa5d843eff143655a0d56729c"
+      },
+      {
+        "path": "workshop/week-09/worksheet9.ipynb",
+        "bytes": 44039,
+        "sha256": "e6a1181e03baaf96880198dcf6d075ef1af60bb22b1e9bd7db6964776ab3c9e8"
       },
       {
         "path": "workshop/week-09/worksheet9_Autoencoders_solution.ipynb",
@@ -2274,317 +2456,411 @@
         "sha256": "fc4c3ab9cc544ee45c6591d5437b8bf1609fdfc55d1fc1c909e6d1e5d169c1e8"
       },
       {
-        "path": "workshop/week-11/worksheet11.ipynb",
-        "bytes": 43866,
-        "sha256": "173aa0659c66a849e0455d4b5e229a4a5daf80e237c391c2bac4fb39d784f10f"
-      },
-      {
         "path": "workshop/week-11/worksheet11-old-24.ipynb",
         "bytes": 43875,
         "sha256": "91689ed86e4b9d4b5dff22634bec8568c0c9df78ba0858dccba04bfa63d2678d"
       },
       {
-        "path": "workshop/packages/week9-autoencoders.zip",
-        "bytes": 57525126,
-        "sha256": "3bff5dfd8d88e71cf54e3a8511a9aa0d84c4adf7a87deff8a8fa6374bbd254fc"
+        "path": "workshop/week-11/worksheet11.ipynb",
+        "bytes": 43866,
+        "sha256": "173aa0659c66a849e0455d4b5e229a4a5daf80e237c391c2bac4fb39d784f10f"
       },
       {
-        "path": "workshop/packages/week9-autoencoders-workshop-link.zip",
-        "bytes": 57524658,
-        "sha256": "d943e07ed3e864614b19dc8469e5f2d2e18c0287e3c9f0c3a6108202ebc6856d"
+        "path": "workshop/week-11/worksheet11_solution.ipynb",
+        "bytes": 6133452,
+        "sha256": "176351ec8198139ddc6258c94ef487ce47a71e5ecd3bf077ad26104e7ec98d99"
       },
       {
-        "path": "transcript/COMP90086_2026_SM2 Week-08-F-transcript.txt",
-        "bytes": 53699,
-        "sha256": "24438a033d4bf0598376b0ebb03cb7f6a3d751ef43d99e4d654038c6907ed59c"
+        "path": "workshop/week-12/worksheet12_colab_new.ipynb",
+        "bytes": 55715134,
+        "sha256": "6ab685fec14e623b3634cbdf7566b245ef3c1be1b1973922b3fba0d83b69c2ad"
       },
       {
-        "path": "transcript/COMP90086_2026_SM2 Week-09-W-transcript.txt",
-        "bytes": 49662,
-        "sha256": "0b21eda0ab1c0d21d4f155066050cf5fc9eeb3ecbd7278a891c7236c134e840b"
+        "path": "exam/COMP90086_practice_exam.pdf",
+        "bytes": 798448,
+        "sha256": "27fd3dbb0864e0dff31df526a0086d8be54e72526fd95863e29c1add6b260e52"
       },
       {
-        "path": "transcript/COMP90086_2026_SM2 Week-10-W-transcript.txt",
-        "bytes": 54197,
-        "sha256": "b32c4c5cd2c5a28839467660b7f1cd53ff1313b2a8b15fa8a4f1a2b4cba52630"
-      },
-      {
-        "path": "transcript/COMP90086_2026_SM2 Week-10-F-transcript.txt",
-        "bytes": 52014,
-        "sha256": "b27b959f37b91994afb03683b02388919feb1a3aa7a5b9fe067773285f5e035c"
-      },
-      {
-        "path": "workshop/week-09/worksheet9.ipynb",
-        "bytes": 44039,
-        "sha256": "e6a1181e03baaf96880198dcf6d075ef1af60bb22b1e9bd7db6964776ab3c9e8"
-      },
-      {
-        "path": "workshop/week-09/pretrained_checkpoints/checkpoint",
-        "bytes": 69,
-        "sha256": "87386f5dab985c00d9a1c575ecec838947e82e72090bf4084e290f410c193e9e"
-      },
-      {
-        "path": "workshop/week-09/pretrained_checkpoints/ckpt-1.data-00000-of-00001",
-        "bytes": 30332246,
-        "sha256": "9aebd8bacefebcf1210ca8de8d87bcc6ec73ace4f77eeb47c07744cf2f1ba3fe"
-      },
-      {
-        "path": "workshop/week-09/pretrained_checkpoints/ckpt-2.data-00000-of-00001",
-        "bytes": 30332246,
-        "sha256": "45719e840a3fc5ea5410a3194b4d168f1ddebc2d12b0a20e7c78fedc210b356c"
-      },
-      {
-        "path": "workshop/week-09/pretrained_checkpoints/ckpt-2.index",
-        "bytes": 3786,
-        "sha256": "f0b6776f654f096baaa54d24e388456f2cb421dfa5d843eff143655a0d56729c"
-      },
-      {
-        "path": "workshop/week-09/pretrained_checkpoints/ckpt-1.index",
-        "bytes": 3786,
-        "sha256": "134007466877d072667794a7122abde81cdd8e217d732a98688946ad994273ec"
+        "path": "exam/COMP90086_practice_exam_solution.pdf",
+        "bytes": 760842,
+        "sha256": "97f5d3c5da84819d8aa13bd5e91986139cfbe7d5b356c2be8806226bcde24411"
       }
     ],
-    "previous_verified_at": "2026-09-18",
-    "scope": "Retained prior file results; appended SHA-256 checked incremental import."
+    "previous_verified_at": "2026-10-13",
+    "scope": "All local categorized source files match by SHA-256; remote audit is limited to the stated incremental scope.",
+    "active_lecture_pdfs": 22,
+    "usable_transcripts": 22
   },
   "counting_basis": "Resource rows track published course items; incremental_import.files tracks physical files including packages, alternate sources and extracted model checkpoints. Unavailable recording dates are listed separately and are not counted as missing teaching lectures.",
-  "readings_error": "Rechecked 2026-10-13: Leganto asks to contact the subject coordinator or library.",
-  "previous_checked_at": "2026-09-18",
-  "audit_scope": "Incremental audit of newly published Week 9-11 lecture/workshop pages, Week 8 workshop follow-up, recordings from 2026-09-18 through 2026-10-09, and Readings Online. Week 1-8 sources were not all re-downloaded.",
+  "readings_error": "Rechecked 2026-10-26: Leganto asks to contact the subject coordinator or library.",
+  "previous_checked_at": "2026-10-13",
+  "audit_scope": "Incremental audit of Week 11-12 lecture/workshop pages, October 14/16/21/23 recordings, practice exam links and Readings Online. Earlier weeks were not fully re-audited.",
   "incremental_import": {
-    "checked_at": "2026-10-13",
+    "checked_at": "2026-10-26",
     "method": "Canvas and Echo360 browser downloads",
     "files": [
       {
-        "path": "lecture/COMP90086-17-Diffusion.pdf",
-        "bytes": 1800349,
-        "sha256": "8580e95db6f20a758634a79b67a4e6171d0ca2dc0acb0c3ab89b92b8cf758c50",
-        "id": 28817241,
-        "week": 9,
-        "kind": "Lecture PDF",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28817241",
-        "downloaded_from": "/Users/drava/Downloads/COMP90086-17-Diffusion.pdf"
-      },
-      {
-        "path": "lecture/COMP90086-19-Segmentation.pdf",
-        "bytes": 3872151,
-        "sha256": "8d4c46422af5b529365f8b484cc231b9ffe311d89116761ed0e13bf3b06dc694",
-        "id": 28936031,
-        "week": 10,
-        "kind": "Lecture PDF",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28936031",
-        "downloaded_from": "/Users/drava/Downloads/COMP90086-19-Segmentation.pdf"
-      },
-      {
-        "path": "lecture/COMP90086-20-Segmentation2.pdf",
-        "bytes": 1949590,
-        "sha256": "42a9af1a5c82f920db2cd2a31ea58b9410fc0ab11b6f20b6c4279a47ed9b4a31",
-        "id": 28936032,
-        "week": 10,
-        "kind": "Lecture PDF",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28936032",
-        "downloaded_from": "/Users/drava/Downloads/COMP90086-20-Segmentation2.pdf"
-      },
-      {
         "path": "lecture/COMP90086-21-ObjectDetection.pdf",
-        "bytes": 1984486,
-        "sha256": "90b8b2a6bca790e8a1fe061418ee8e7bb4d11271d0f819d9923a369e4d8db3e1",
-        "id": 25738182,
+        "sha256": "0ff082c0286292bb4babf0868e62bee61a4d5358d607c4ec53bf71b3fcf85261",
+        "bytes": 2070594,
+        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28975448",
+        "canvas_file_id": 28975448,
         "week": 11,
         "kind": "Lecture PDF",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738182",
-        "downloaded_from": "/Users/drava/Downloads/COMP90086-21-ObjectDetection.pdf"
+        "pages": 55
       },
       {
         "path": "lecture/COMP90086-22-ObjectDetection2.pdf",
-        "bytes": 3011811,
-        "sha256": "a67d7f4f45aedacfe7d34f4a0078ed7b1b9d83d9e4efc9cbb0474a19fe952979",
-        "id": 25738181,
+        "sha256": "924b8c9ac81ab635bf18ee15a628adb63b7c267bd1e69155072b0e1cdb340ac5",
+        "bytes": 1298632,
+        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/29006972",
+        "canvas_file_id": 29006972,
         "week": 11,
         "kind": "Lecture PDF",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738181",
-        "downloaded_from": "/Users/drava/Downloads/COMP90086-22-ObjectDetection2.pdf"
+        "pages": 36
       },
       {
-        "path": "workshop/week-08/worksheet08_solution.ipynb",
-        "bytes": 10720176,
-        "sha256": "313f038d78e36c67ad2df36899a199cce45b9cc8eedeaee2e5bc5a8985f2e42f",
-        "id": 28299372,
-        "week": 8,
-        "kind": "Solution",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299372",
-        "downloaded_from": "/Users/drava/Downloads/worksheet08_solution.ipynb"
+        "path": "lecture/COMP90086-23-Revision.pdf",
+        "sha256": "6028bb30677d50063397324af9478488a12797a618c98a00deffb6203b7698b7",
+        "bytes": 309248,
+        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/29060108",
+        "canvas_file_id": 29060108,
+        "week": 12,
+        "kind": "Lecture PDF",
+        "pages": 20
       },
       {
-        "path": "workshop/week-09/worksheet9_Autoencoders_solution.ipynb",
-        "bytes": 1348324,
-        "sha256": "c55991dfaf37a68672a73ec41a65636ce7f9610b559e08bf6234e2dc663869a9",
-        "id": 28299375,
-        "week": 9,
-        "kind": "Solution",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299375",
-        "downloaded_from": "/Users/drava/Downloads/worksheet9_Autoencoders_solution.ipynb"
-      },
-      {
-        "path": "workshop/week-10/worksheet10-diffusion-solution.ipynb",
-        "bytes": 223819,
-        "sha256": "b7165d0f0effb357de7db7d072c289812758383ffe7ef956238be3099107fac0",
-        "id": 28299377,
-        "week": 10,
-        "kind": "Solution",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299377",
-        "downloaded_from": "/Users/drava/Downloads/worksheet10-diffusion-solution.ipynb"
-      },
-      {
-        "path": "workshop/week-10/worksheet10-diffusion.ipynb",
-        "bytes": 20204,
-        "sha256": "fc4c3ab9cc544ee45c6591d5437b8bf1609fdfc55d1fc1c909e6d1e5d169c1e8",
-        "id": 28299378,
-        "week": 10,
-        "kind": "Workshop",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299378",
-        "downloaded_from": "/Users/drava/Downloads/worksheet10-diffusion.ipynb"
-      },
-      {
-        "path": "workshop/week-11/worksheet11.ipynb",
-        "bytes": 43866,
-        "sha256": "173aa0659c66a849e0455d4b5e229a4a5daf80e237c391c2bac4fb39d784f10f",
-        "id": 28299379,
+        "path": "workshop/week-11/worksheet11_solution.ipynb",
+        "sha256": "176351ec8198139ddc6258c94ef487ce47a71e5ecd3bf077ad26104e7ec98d99",
+        "bytes": 6133452,
+        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299381",
+        "canvas_file_id": 28299381,
         "week": 11,
-        "kind": "Workshop",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299379",
-        "downloaded_from": "/Users/drava/Downloads/worksheet11.ipynb"
+        "kind": "Workshop solution"
       },
       {
-        "path": "workshop/week-11/worksheet11-old-24.ipynb",
-        "bytes": 43875,
-        "sha256": "91689ed86e4b9d4b5dff22634bec8568c0c9df78ba0858dccba04bfa63d2678d",
-        "id": 25738244,
+        "path": "workshop/week-12/worksheet12_colab_new.ipynb",
+        "sha256": "6ab685fec14e623b3634cbdf7566b245ef3c1be1b1973922b3fba0d83b69c2ad",
+        "bytes": 55715134,
+        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299384",
+        "canvas_file_id": 28299384,
+        "week": 12,
+        "kind": "Workshop"
+      },
+      {
+        "path": "transcript/COMP90086_2026_SM2 Week-11-W-transcript.txt",
+        "sha256": "e2a9a5d90a40b007e1c8eb747faf47474efb032919392c44369b266476b85b92",
+        "bytes": 47312,
+        "source": "https://echo360.net.au/lesson/G_83d2189c-093e-433c-9246-e12e810bbf41_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-14T15:05:00.000_2026-10-14T16:00:00.000/classroom",
         "week": 11,
-        "kind": "Workshop legacy",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738244",
-        "downloaded_from": "/Users/drava/Downloads/worksheet11-old-24.ipynb"
-      },
-      {
-        "path": "workshop/packages/week9-autoencoders.zip",
-        "bytes": 57525126,
-        "sha256": "3bff5dfd8d88e71cf54e3a8511a9aa0d84c4adf7a87deff8a8fa6374bbd254fc",
-        "id": 28299376,
-        "week": 9,
-        "kind": "Workshop package",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
-        "downloaded_from": "/Users/drava/Downloads/Week9_Autoencoders.zip"
-      },
-      {
-        "path": "workshop/packages/week9-autoencoders-workshop-link.zip",
-        "bytes": 57524658,
-        "sha256": "d943e07ed3e864614b19dc8469e5f2d2e18c0287e3c9f0c3a6108202ebc6856d",
-        "id": 25738237,
-        "week": 9,
-        "kind": "Workshop package alternate",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738237",
-        "downloaded_from": "/Users/drava/Downloads/Week9_Autoencoders (1).zip"
-      },
-      {
-        "path": "transcript/COMP90086_2026_SM2 Week-08-F-transcript.txt",
-        "bytes": 53699,
-        "sha256": "24438a033d4bf0598376b0ebb03cb7f6a3d751ef43d99e4d654038c6907ed59c",
-        "week": 8,
-        "kind": "Transcript F",
-        "recording_date": "2026-09-18",
-        "source": "https://echo360.net.au/lesson/G_dfd8bbd3-4fe5-4d7b-893b-da1e895569e5_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-09-18T13:05:00.000_2026-09-18T14:00:00.000/classroom"
-      },
-      {
-        "path": "transcript/COMP90086_2026_SM2 Week-09-W-transcript.txt",
-        "bytes": 49662,
-        "sha256": "0b21eda0ab1c0d21d4f155066050cf5fc9eeb3ecbd7278a891c7236c134e840b",
-        "week": 9,
         "kind": "Transcript W",
-        "recording_date": "2026-09-23",
-        "source": "https://echo360.net.au/lesson/G_83d2189c-093e-433c-9246-e12e810bbf41_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-09-23T15:05:00.000_2026-09-23T16:00:00.000/classroom"
+        "recorded_at": "2026-10-14",
+        "usable_course_content": true
       },
       {
-        "path": "transcript/COMP90086_2026_SM2 Week-10-W-transcript.txt",
-        "bytes": 54197,
-        "sha256": "b32c4c5cd2c5a28839467660b7f1cd53ff1313b2a8b15fa8a4f1a2b4cba52630",
-        "week": 10,
-        "kind": "Transcript W",
-        "recording_date": "2026-10-07",
-        "source": "https://echo360.net.au/lesson/G_83d2189c-093e-433c-9246-e12e810bbf41_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-07T15:05:00.000_2026-10-07T16:00:00.000/classroom"
-      },
-      {
-        "path": "transcript/COMP90086_2026_SM2 Week-10-F-transcript.txt",
-        "bytes": 52014,
-        "sha256": "b27b959f37b91994afb03683b02388919feb1a3aa7a5b9fe067773285f5e035c",
-        "week": 10,
+        "path": "transcript/COMP90086_2026_SM2 Week-11-F-transcript.txt",
+        "sha256": "7b55281ae2d815dea114ba422cf712e3545f758833c339fb0e88b74cbe193d48",
+        "bytes": 43232,
+        "source": "https://echo360.net.au/lesson/G_9427dac1-3bf3-4103-9f12-24fc2f44137a_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-16T13:05:00.000_2026-10-16T14:00:00.000/classroom",
+        "week": 11,
         "kind": "Transcript F",
-        "recording_date": "2026-10-09",
-        "source": "https://echo360.net.au/lesson/G_9427dac1-3bf3-4103-9f12-24fc2f44137a_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-09T13:05:00.000_2026-10-09T14:00:00.000/classroom"
+        "recorded_at": "2026-10-16",
+        "usable_course_content": true
       },
       {
-        "path": "workshop/week-09/worksheet9.ipynb",
-        "bytes": 44039,
-        "sha256": "e6a1181e03baaf96880198dcf6d075ef1af60bb22b1e9bd7db6964776ab3c9e8",
-        "week": 9,
-        "kind": "Workshop",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
-        "archive_member": "Week9_Autoencoders/worksheet9.ipynb"
+        "path": "transcript/COMP90086_2026_SM2 Week-12-W-transcript.txt",
+        "sha256": "451ef7e5776a87c7c77bcb0f69ab0bc2985cdf89e6a3ad82c6c05310ff7f0c7f",
+        "bytes": 50010,
+        "source": "https://echo360.net.au/lesson/G_83d2189c-093e-433c-9246-e12e810bbf41_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-21T15:05:00.000_2026-10-21T16:00:00.000/classroom",
+        "week": 12,
+        "kind": "Transcript W",
+        "recorded_at": "2026-10-21",
+        "usable_course_content": true
       },
       {
-        "path": "workshop/week-09/pretrained_checkpoints/checkpoint",
-        "bytes": 69,
-        "sha256": "87386f5dab985c00d9a1c575ecec838947e82e72090bf4084e290f410c193e9e",
-        "week": 9,
-        "kind": "Workshop asset",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
-        "archive_member": "Week9_Autoencoders/pretrained_checkpoints/checkpoint"
-      },
-      {
-        "path": "workshop/week-09/pretrained_checkpoints/ckpt-1.data-00000-of-00001",
-        "bytes": 30332246,
-        "sha256": "9aebd8bacefebcf1210ca8de8d87bcc6ec73ace4f77eeb47c07744cf2f1ba3fe",
-        "week": 9,
-        "kind": "Workshop asset",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
-        "archive_member": "Week9_Autoencoders/pretrained_checkpoints/ckpt-1.data-00000-of-00001"
-      },
-      {
-        "path": "workshop/week-09/pretrained_checkpoints/ckpt-2.data-00000-of-00001",
-        "bytes": 30332246,
-        "sha256": "45719e840a3fc5ea5410a3194b4d168f1ddebc2d12b0a20e7c78fedc210b356c",
-        "week": 9,
-        "kind": "Workshop asset",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
-        "archive_member": "Week9_Autoencoders/pretrained_checkpoints/ckpt-2.data-00000-of-00001"
-      },
-      {
-        "path": "workshop/week-09/pretrained_checkpoints/ckpt-2.index",
-        "bytes": 3786,
-        "sha256": "f0b6776f654f096baaa54d24e388456f2cb421dfa5d843eff143655a0d56729c",
-        "week": 9,
-        "kind": "Workshop asset",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
-        "archive_member": "Week9_Autoencoders/pretrained_checkpoints/ckpt-2.index"
-      },
-      {
-        "path": "workshop/week-09/pretrained_checkpoints/ckpt-1.index",
-        "bytes": 3786,
-        "sha256": "134007466877d072667794a7122abde81cdd8e217d732a98688946ad994273ec",
-        "week": 9,
-        "kind": "Workshop asset",
-        "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
-        "archive_member": "Week9_Autoencoders/pretrained_checkpoints/ckpt-1.index"
+        "path": "transcript/needs-review/2026-10-23-non-course-transcript.txt",
+        "sha256": "42fa806278cb9463eaf2af57fb1f6110f15b6b52881401d4695d782657577ca9",
+        "bytes": 103,
+        "source": "https://echo360.net.au/lesson/G_9427dac1-3bf3-4103-9f12-24fc2f44137a_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-23T13:05:00.000_2026-10-23T14:00:00.000/classroom",
+        "week": 12,
+        "kind": "Transcript F",
+        "recorded_at": "2026-10-23",
+        "usable_course_content": false
       }
     ],
     "notes": [
-      "Week 9 ZIP payload files are identical; differences occur only in __MACOSX metadata. Both original archives are retained.",
-      "Week 11 lecture page links worksheet11.ipynb; workshop page links worksheet11-old-24.ipynb. Both are preserved.",
-      "Week 9 archive extracted without __MACOSX, .DS_Store or notebook checkpoint folders; the original ZIP remains intact."
+      "Lecture 21 and 22 current links replace the old PDFs; the previous bytes are preserved under lecture/superseded/2026-10-13/.",
+      "October 23 transcript contains only unrelated statistics-class conversation (98 characters); archived for review and excluded from usable course transcripts.",
+      "Week 12 answers are included in the supplied notebook; no separate solution is expected.",
+      "Restored missing study-notes workshop/packages/week6.zip from the existing academic archive; ZIP CRC checked before copying."
     ]
   },
   "unavailable_recording_dates": [
     "2026-09-25",
     "2026-09-30",
     "2026-10-02"
+  ],
+  "incremental_import_history": [
+    {
+      "checked_at": "2026-10-13",
+      "method": "Canvas and Echo360 browser downloads",
+      "files": [
+        {
+          "path": "lecture/COMP90086-17-Diffusion.pdf",
+          "bytes": 1800349,
+          "sha256": "8580e95db6f20a758634a79b67a4e6171d0ca2dc0acb0c3ab89b92b8cf758c50",
+          "id": 28817241,
+          "week": 9,
+          "kind": "Lecture PDF",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28817241",
+          "downloaded_from": "/Users/drava/Downloads/COMP90086-17-Diffusion.pdf"
+        },
+        {
+          "path": "lecture/COMP90086-19-Segmentation.pdf",
+          "bytes": 3872151,
+          "sha256": "8d4c46422af5b529365f8b484cc231b9ffe311d89116761ed0e13bf3b06dc694",
+          "id": 28936031,
+          "week": 10,
+          "kind": "Lecture PDF",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28936031",
+          "downloaded_from": "/Users/drava/Downloads/COMP90086-19-Segmentation.pdf"
+        },
+        {
+          "path": "lecture/COMP90086-20-Segmentation2.pdf",
+          "bytes": 1949590,
+          "sha256": "42a9af1a5c82f920db2cd2a31ea58b9410fc0ab11b6f20b6c4279a47ed9b4a31",
+          "id": 28936032,
+          "week": 10,
+          "kind": "Lecture PDF",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28936032",
+          "downloaded_from": "/Users/drava/Downloads/COMP90086-20-Segmentation2.pdf"
+        },
+        {
+          "path": "lecture/COMP90086-21-ObjectDetection.pdf",
+          "bytes": 1984486,
+          "sha256": "90b8b2a6bca790e8a1fe061418ee8e7bb4d11271d0f819d9923a369e4d8db3e1",
+          "id": 25738182,
+          "week": 11,
+          "kind": "Lecture PDF",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738182",
+          "downloaded_from": "/Users/drava/Downloads/COMP90086-21-ObjectDetection.pdf"
+        },
+        {
+          "path": "lecture/COMP90086-22-ObjectDetection2.pdf",
+          "bytes": 3011811,
+          "sha256": "a67d7f4f45aedacfe7d34f4a0078ed7b1b9d83d9e4efc9cbb0474a19fe952979",
+          "id": 25738181,
+          "week": 11,
+          "kind": "Lecture PDF",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738181",
+          "downloaded_from": "/Users/drava/Downloads/COMP90086-22-ObjectDetection2.pdf"
+        },
+        {
+          "path": "workshop/week-08/worksheet08_solution.ipynb",
+          "bytes": 10720176,
+          "sha256": "313f038d78e36c67ad2df36899a199cce45b9cc8eedeaee2e5bc5a8985f2e42f",
+          "id": 28299372,
+          "week": 8,
+          "kind": "Solution",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299372",
+          "downloaded_from": "/Users/drava/Downloads/worksheet08_solution.ipynb"
+        },
+        {
+          "path": "workshop/week-09/worksheet9_Autoencoders_solution.ipynb",
+          "bytes": 1348324,
+          "sha256": "c55991dfaf37a68672a73ec41a65636ce7f9610b559e08bf6234e2dc663869a9",
+          "id": 28299375,
+          "week": 9,
+          "kind": "Solution",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299375",
+          "downloaded_from": "/Users/drava/Downloads/worksheet9_Autoencoders_solution.ipynb"
+        },
+        {
+          "path": "workshop/week-10/worksheet10-diffusion-solution.ipynb",
+          "bytes": 223819,
+          "sha256": "b7165d0f0effb357de7db7d072c289812758383ffe7ef956238be3099107fac0",
+          "id": 28299377,
+          "week": 10,
+          "kind": "Solution",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299377",
+          "downloaded_from": "/Users/drava/Downloads/worksheet10-diffusion-solution.ipynb"
+        },
+        {
+          "path": "workshop/week-10/worksheet10-diffusion.ipynb",
+          "bytes": 20204,
+          "sha256": "fc4c3ab9cc544ee45c6591d5437b8bf1609fdfc55d1fc1c909e6d1e5d169c1e8",
+          "id": 28299378,
+          "week": 10,
+          "kind": "Workshop",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299378",
+          "downloaded_from": "/Users/drava/Downloads/worksheet10-diffusion.ipynb"
+        },
+        {
+          "path": "workshop/week-11/worksheet11.ipynb",
+          "bytes": 43866,
+          "sha256": "173aa0659c66a849e0455d4b5e229a4a5daf80e237c391c2bac4fb39d784f10f",
+          "id": 28299379,
+          "week": 11,
+          "kind": "Workshop",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299379",
+          "downloaded_from": "/Users/drava/Downloads/worksheet11.ipynb"
+        },
+        {
+          "path": "workshop/week-11/worksheet11-old-24.ipynb",
+          "bytes": 43875,
+          "sha256": "91689ed86e4b9d4b5dff22634bec8568c0c9df78ba0858dccba04bfa63d2678d",
+          "id": 25738244,
+          "week": 11,
+          "kind": "Workshop legacy",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738244",
+          "downloaded_from": "/Users/drava/Downloads/worksheet11-old-24.ipynb"
+        },
+        {
+          "path": "workshop/packages/week9-autoencoders.zip",
+          "bytes": 57525126,
+          "sha256": "3bff5dfd8d88e71cf54e3a8511a9aa0d84c4adf7a87deff8a8fa6374bbd254fc",
+          "id": 28299376,
+          "week": 9,
+          "kind": "Workshop package",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
+          "downloaded_from": "/Users/drava/Downloads/Week9_Autoencoders.zip"
+        },
+        {
+          "path": "workshop/packages/week9-autoencoders-workshop-link.zip",
+          "bytes": 57524658,
+          "sha256": "d943e07ed3e864614b19dc8469e5f2d2e18c0287e3c9f0c3a6108202ebc6856d",
+          "id": 25738237,
+          "week": 9,
+          "kind": "Workshop package alternate",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738237",
+          "downloaded_from": "/Users/drava/Downloads/Week9_Autoencoders (1).zip"
+        },
+        {
+          "path": "transcript/COMP90086_2026_SM2 Week-08-F-transcript.txt",
+          "bytes": 53699,
+          "sha256": "24438a033d4bf0598376b0ebb03cb7f6a3d751ef43d99e4d654038c6907ed59c",
+          "week": 8,
+          "kind": "Transcript F",
+          "recording_date": "2026-09-18",
+          "source": "https://echo360.net.au/lesson/G_dfd8bbd3-4fe5-4d7b-893b-da1e895569e5_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-09-18T13:05:00.000_2026-09-18T14:00:00.000/classroom"
+        },
+        {
+          "path": "transcript/COMP90086_2026_SM2 Week-09-W-transcript.txt",
+          "bytes": 49662,
+          "sha256": "0b21eda0ab1c0d21d4f155066050cf5fc9eeb3ecbd7278a891c7236c134e840b",
+          "week": 9,
+          "kind": "Transcript W",
+          "recording_date": "2026-09-23",
+          "source": "https://echo360.net.au/lesson/G_83d2189c-093e-433c-9246-e12e810bbf41_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-09-23T15:05:00.000_2026-09-23T16:00:00.000/classroom"
+        },
+        {
+          "path": "transcript/COMP90086_2026_SM2 Week-10-W-transcript.txt",
+          "bytes": 54197,
+          "sha256": "b32c4c5cd2c5a28839467660b7f1cd53ff1313b2a8b15fa8a4f1a2b4cba52630",
+          "week": 10,
+          "kind": "Transcript W",
+          "recording_date": "2026-10-07",
+          "source": "https://echo360.net.au/lesson/G_83d2189c-093e-433c-9246-e12e810bbf41_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-07T15:05:00.000_2026-10-07T16:00:00.000/classroom"
+        },
+        {
+          "path": "transcript/COMP90086_2026_SM2 Week-10-F-transcript.txt",
+          "bytes": 52014,
+          "sha256": "b27b959f37b91994afb03683b02388919feb1a3aa7a5b9fe067773285f5e035c",
+          "week": 10,
+          "kind": "Transcript F",
+          "recording_date": "2026-10-09",
+          "source": "https://echo360.net.au/lesson/G_9427dac1-3bf3-4103-9f12-24fc2f44137a_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-09T13:05:00.000_2026-10-09T14:00:00.000/classroom"
+        },
+        {
+          "path": "workshop/week-09/worksheet9.ipynb",
+          "bytes": 44039,
+          "sha256": "e6a1181e03baaf96880198dcf6d075ef1af60bb22b1e9bd7db6964776ab3c9e8",
+          "week": 9,
+          "kind": "Workshop",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
+          "archive_member": "Week9_Autoencoders/worksheet9.ipynb"
+        },
+        {
+          "path": "workshop/week-09/pretrained_checkpoints/checkpoint",
+          "bytes": 69,
+          "sha256": "87386f5dab985c00d9a1c575ecec838947e82e72090bf4084e290f410c193e9e",
+          "week": 9,
+          "kind": "Workshop asset",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
+          "archive_member": "Week9_Autoencoders/pretrained_checkpoints/checkpoint"
+        },
+        {
+          "path": "workshop/week-09/pretrained_checkpoints/ckpt-1.data-00000-of-00001",
+          "bytes": 30332246,
+          "sha256": "9aebd8bacefebcf1210ca8de8d87bcc6ec73ace4f77eeb47c07744cf2f1ba3fe",
+          "week": 9,
+          "kind": "Workshop asset",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
+          "archive_member": "Week9_Autoencoders/pretrained_checkpoints/ckpt-1.data-00000-of-00001"
+        },
+        {
+          "path": "workshop/week-09/pretrained_checkpoints/ckpt-2.data-00000-of-00001",
+          "bytes": 30332246,
+          "sha256": "45719e840a3fc5ea5410a3194b4d168f1ddebc2d12b0a20e7c78fedc210b356c",
+          "week": 9,
+          "kind": "Workshop asset",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
+          "archive_member": "Week9_Autoencoders/pretrained_checkpoints/ckpt-2.data-00000-of-00001"
+        },
+        {
+          "path": "workshop/week-09/pretrained_checkpoints/ckpt-2.index",
+          "bytes": 3786,
+          "sha256": "f0b6776f654f096baaa54d24e388456f2cb421dfa5d843eff143655a0d56729c",
+          "week": 9,
+          "kind": "Workshop asset",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
+          "archive_member": "Week9_Autoencoders/pretrained_checkpoints/ckpt-2.index"
+        },
+        {
+          "path": "workshop/week-09/pretrained_checkpoints/ckpt-1.index",
+          "bytes": 3786,
+          "sha256": "134007466877d072667794a7122abde81cdd8e217d732a98688946ad994273ec",
+          "week": 9,
+          "kind": "Workshop asset",
+          "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/28299376",
+          "archive_member": "Week9_Autoencoders/pretrained_checkpoints/ckpt-1.index"
+        }
+      ],
+      "notes": [
+        "Week 9 ZIP payload files are identical; differences occur only in __MACOSX metadata. Both original archives are retained.",
+        "Week 11 lecture page links worksheet11.ipynb; workshop page links worksheet11-old-24.ipynb. Both are preserved.",
+        "Week 9 archive extracted without __MACOSX, .DS_Store or notebook checkpoint folders; the original ZIP remains intact."
+      ]
+    }
+  ],
+  "superseded_resources": [
+    {
+      "path": "lecture/superseded/2026-10-13/COMP90086-21-ObjectDetection.pdf",
+      "original_path": "lecture/COMP90086-21-ObjectDetection.pdf",
+      "sha256": "90b8b2a6bca790e8a1fe061418ee8e7bb4d11271d0f819d9923a369e4d8db3e1",
+      "superseded_at": "2026-10-26",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738182"
+    },
+    {
+      "path": "lecture/superseded/2026-10-13/COMP90086-22-ObjectDetection2.pdf",
+      "original_path": "lecture/COMP90086-22-ObjectDetection2.pdf",
+      "sha256": "a67d7f4f45aedacfe7d34f4a0078ed7b1b9d83d9e4efc9cbb0474a19fe952979",
+      "superseded_at": "2026-10-26",
+      "source": "https://canvas.lms.unimelb.edu.au/courses/241625/files/25738181"
+    }
+  ],
+  "recording_anomalies": [
+    {
+      "path": "transcript/needs-review/2026-10-23-non-course-transcript.txt",
+      "sha256": "42fa806278cb9463eaf2af57fb1f6110f15b6b52881401d4695d782657577ca9",
+      "bytes": 103,
+      "source": "https://echo360.net.au/lesson/G_9427dac1-3bf3-4103-9f12-24fc2f44137a_f3b36a68-5565-4b36-9f65-8d33d4da7453_2026-10-23T13:05:00.000_2026-10-23T14:00:00.000/classroom",
+      "week": 12,
+      "kind": "Transcript F",
+      "recorded_at": "2026-10-23",
+      "usable_course_content": false,
+      "checked_at": "2026-10-26",
+      "reason": "98 characters, unrelated statistics-class conversation; not usable CV teaching content"
+    }
   ]
 }

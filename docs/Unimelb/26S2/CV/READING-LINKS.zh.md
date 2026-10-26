@@ -1,8 +1,8 @@
 # COMP90086 阅读链接
 
-第 1–8 周于 2026-09-18 核对；第 9–11 周于 2026-10-13 核对。链接与文献信息均保留；外部网站和教材全文不做镜像。
+第 1–8 周于 2026-09-18 核对；第 9–11 周于 2026-10-13 核对，第 11–12 周于 2026-10-26 更新。链接与文献信息均保留；外部网站和教材全文不做镜像。
 
-Readings Online 已于 2026-10-13 重新检查，仍返回 Leganto 错误，提示联系科目负责人（subject coordinator）或图书馆。各周的 Canvas 页面仍可访问。
+Readings Online 已于 2026-10-26 重新检查，仍返回 Leganto 错误，提示联系科目负责人（subject coordinator）或图书馆。各周的 Canvas 页面仍可访问。
 
 <a id="week-1-introduction-and-imaging-basics"></a>
 ## 第 1 周：导论与成像基础
@@ -132,3 +132,11 @@ Readings Online 已于 2026-10-13 重新检查，仍返回 Leganto 错误，提�
 - [YOLO 演示（会使用摄像头）](https://modeldepot.github.io/tfjs-yolo-tiny-demo/)
 
 Workshop 11 环境配置链接：[Google Colab](https://colab.google/) 与 [Detectron2 安装说明](https://github.com/facebookresearch/detectron2/blob/main/INSTALL.md)。Canvas 推荐使用 Colab；本次导入期间未运行这些 notebook。
+
+## Week 12: Revision and object detection workshop
+
+- [复习讲义页面](https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144262)：发布复习讲义与练习考试入口，未列出额外可选阅读清单。
+- [练习考试与答案](https://canvas.lms.unimelb.edu.au/courses/241625/pages/practice-exam)：仍链接到已归档的文件 25738178、25738180。
+- [目标检测 Workshop](https://canvas.lms.unimelb.edu.au/courses/241625/modules/items/7144274)：建议使用 Colab；题目已在 `worksheet12_colab_new.ipynb` 中解答，没有单独答案文件。
+
+Notebook 还链接到 [TensorFlow 2 模型库](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md) 和 [FiftyOne 文档](https://voxel51.com/docs/fiftyone/)。这里只归档链接，不代表已下载模型或验证当前安装步骤。Readings Online 于 2026-10-26 复查仍返回错误。

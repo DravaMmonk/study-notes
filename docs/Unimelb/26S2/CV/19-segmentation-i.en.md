@@ -43,11 +43,20 @@ Pages 31–33 of the slides introduce SLIC: initialise centres near an image gri
 
 The RAG in the figure and text is a "region adjacency graph": each node represents a region, edges connect only adjacent regions, and edge weights record their difference. Adjacent regions with small differences can be merged; after merging, differences are recomputed before deciding the next step. This is more compact than processing pixel by pixel, and also preserves region adjacency.
 
-**Supplement**: at the end the slides use GrabCut to show interactive foreground/background separation, leading to the idea of first localising an object and then segmenting within the box. Mask R-CNN is explained in [Object Detection Lecture 2](22-object-detection-ii.en.md#topic-2).
+**Supplement**: the closing slides use GrabCut to illustrate interactive foreground/background separation; a user-specified region helps identify the intended object.
+
+<a id="mask-rcnn"></a>
+### Mask R-CNN: from an object box to its pixel mask
+
+![PDF 44 - Mask R-CNN](assets/19-segmentation-i/slide-44.png)
+
+Read left to right: the detector extracts features for candidate regions, then branches into class, box and mask predictions. Different colours at the right identify different people. Each instance gets its own foreground/background mask, separating people rather than merely assigning all of them the same class. See [Faster R-CNN](21-object-detection-i.en.md#topic-3) for the detection backbone.
 
 ## Workshop connection
 
 `workshop/week-11/worksheet11.ipynb` covers K-means, Mean shift, superpixels and graph methods. `worksheet11-old-24.ipynb` is an older version still linked from another Canvas page, kept separately. When comparing results, fix the same image and observe whether a parameter change affects boundaries, the number of regions or colours; do not equate "smoother" with "more correct".
+
+The official `worksheet11_solution.ipynb` is now archived beside the worksheet.
 
 ## Self-test for this lecture
 

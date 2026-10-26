@@ -43,11 +43,18 @@ Mean shift 从当前位置出发，计算附近样本的加权平均，再向平
 
 图文中的 RAG 是“区域邻接图”：一个节点代表一块区域，只有相邻区域之间连边，边的权重记录差异。可以合并差异较小的相邻区域；合并后重新计算差异，再决定下一步。这样比逐像素处理更紧凑，也保留了区域相邻关系。
 
-**补充**：课件末尾用 GrabCut 展示交互式前景／背景分离，并引出先定位物体、再在框内分割的思路。Mask R-CNN 在 [目标检测第二讲](22-object-detection-ii.md#topic-2) 集中解释。
+**补充**：课件末尾用 GrabCut 展示交互式前景／背景分离；用户指定的区域帮助限定要分出的物体。
+
+<a id="mask-rcnn"></a>
+### Mask R-CNN：从一个物体框走向它的像素掩码
+
+![PDF 44 - Mask R-CNN](assets/19-segmentation-i/slide-44.png)
+
+沿图从左到右看：检测器先提取候选区域的特征，再分出类别、框和掩码分支。右侧不同颜色分别对应不同人的像素区域。掩码分支对每个实例预测前景／背景，因此不只是把所有人标成同一个类别，还能把人和人分开。检测骨干的关系见 [Faster R-CNN](21-object-detection-i.md#topic-3)。
 
 ## Workshop 连接
 
-`workshop/week-11/worksheet11.ipynb` 包含 K-means、Mean shift、超像素和图方法。`worksheet11-old-24.ipynb` 是另一个 Canvas 页面仍链接的旧版，单独保留。比较结果时固定同一张图，观察参数改变的是边界、区域数量还是颜色，不把“更平滑”直接等同于“更正确”。
+`workshop/week-11/worksheet11.ipynb` 包含 K-means、Mean shift、超像素和图方法。`worksheet11-old-24.ipynb` 是另一个 Canvas 页面仍链接的旧版，单独保留。同目录现已补齐 `worksheet11_solution.ipynb`。比较结果时固定同一张图，观察参数改变的是边界、区域数量还是颜色，不把“更平滑”直接等同于“更正确”。
 
 ## 本讲自测
 

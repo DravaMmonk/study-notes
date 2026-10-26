@@ -1,6 +1,6 @@
 # COMP90086 Lecture 20 - Image Segmentation II
 
-来源：`lecture/COMP90086-20-Segmentation2.pdf`（47 页）；`transcript/COMP90086_2026_SM2 Week-10-F-transcript.txt`（2026-10-09）；Week 11 分割练习。2026-10-13 导入，以下使用 PDF 页码。
+来源：`lecture/COMP90086-20-Segmentation2.pdf`（47 页）；`transcript/COMP90086_2026_SM2 Week-10-F-transcript.txt`（2026-10-09）；Week 11 分割练习。2026-10-13 导入，以下使用 PDF 页码。 SAM 的后续讲解见 `transcript/COMP90086_2026_SM2 Week-11-W-transcript.txt`（2026-10-14 开头，本次补齐）。
 
 本讲回答：**怎样让网络给每一个像素预测类别，并保留物体边界？**
 

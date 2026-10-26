@@ -1,41 +1,39 @@
 # COMP90086 Resource Completeness
 
-Incremental check date: **2026-10-13**. Canvas currently shows Weeks 1–11; this check covered Weeks 9–11, newly added recordings and the Week 8 solutions. Existing resources for Weeks 1–8 are kept; their online versions were not re-audited page by page.
+Incremental audit: **2026-10-26**, through Week 12. This update checked Week 11–12 lecture/workshop pages, October 14/16/21/23 recordings, practice-exam links and Readings Online. Earlier resources were retained rather than fully re-audited online.
 
-| Week | Slides PDF | Transcript | Workshop | Solutions | Reading Links |
+| Week | Current slide PDFs | Usable course transcripts | Workshop | Solutions | Reading/course links |
 | --- | --- | --- | --- | --- | --- |
-| 1 | 2 | 2 | Available | Not applicable | Saved |
-| 2–7 (each week) | 2 | 2 | Available | Available | Saved |
-| 8 | 2 | 2 (Friday added in this check) | Available | Added in this check | Saved |
-| 9 | 1 (1 released on the page) | 1; see the date notes below | Downloaded, with pretrained weights | Downloaded | Added in this check |
-| 10 | 2 | 2 | Downloaded | Downloaded | Added in this check |
-| 11 | 2 | Lecture dates not yet reached | Both new and old versions kept | No link on the page yet | Added in this check |
+| 1 | 2 | 2 | Saved | Not applicable | Archived |
+| 2–7, each | 2 | 2 | Saved | Saved | Archived |
+| 8 | 2 | 2 | Saved | Saved | Archived |
+| 9 | 1 published | 1 | Saved, with checkpoints | Saved | Archived |
+| 10 | 2 | 2 | Saved | Saved | Archived |
+| 11 | 2, updated to 2026 versions | 2, added now | Current and legacy versions retained | Added now | Rechecked |
+| 12 | 1 revision PDF | 1 revision transcript; Friday entry anomalous | Added now | Included in notebook; no separate file | Revision and practice-exam links archived |
 
-There are now **21 lecture slide PDFs and 19 transcripts** stored locally. This check added 5 slide PDFs, 4 transcripts, the Week 9–11 exercises, and the Week 8–10 solutions with their accompanying files, **23 resource files** in total (including original archives, old exercise versions and extracted weights). It also added 5 study notes and 17 selected slide screenshots, each with an explanation alongside.
+There are **22 current slide PDFs and 22 usable course transcripts**, plus two superseded PDFs and one anomalous transcript stored separately. Nine files were downloaded in this update: two replacement PDFs, one revision PDF, two notebooks, three usable transcripts and one anomalous transcript.
 
-## Items that are incomplete or need to be kept apart
+## Completed and versioned
 
-- The Week 11 recordings are scheduled for 14 and 16 October; as of the check date they are still in the future, so the two object-detection notes are written from the slides and marked as previews.
-- The Echo360 entries for 25 September, 30 September and 2 October have no visible Transcript panel or download link. A recording entry alone does not prove a lecture was actually given that day, so these three are not counted as missing lecture transcripts.
-- The Week 11 Workshop has no solutions link yet.
-- The released lecture numbering jumps from 17 to 19; the Week 9–11 pages checked this time show no Lecture 18 link, so the original numbering is kept.
-- Readings Online still returned a Leganto error when rechecked on 13 October. The reading links and book chapters on the weekly pages are saved, but it cannot be confirmed whether an additional list exists; nor does this mean the full text of textbooks or external web pages has been downloaded for offline use.
-- External data, model dependencies and download links referenced inside the notebooks were not mirrored separately; no exercises were run and no models were trained in this check.
+- Lecture 21: 55-page 2026 file and October 14 transcript, which starts with a continuation on SAM.
+- Lecture 22: 36-page 2026 file replacing the old 58-page version, with new DETR material. Both language notes and selected screenshots now follow the current file; Mask R-CNN belongs in the segmentation note.
+- Lecture 23: 20-page revision PDF and October 21 transcript, with bilingual revision navigation and worked examples.
+- Week 11 solutions are archived. Week 12 uses `worksheet12_colab_new.ipynb`; Canvas explicitly states that the problems are already solved within it, so no separate solution file is missing.
+- Previous Lecture 21/22 PDFs remain under `lecture/superseded/2026-10-13/`; the main paths contain the currently linked Canvas files. Sources and checksums are recorded in the inventory.
 
-## Sync and verification
+## Remaining limits
 
-- The **149 categorised resource files** in the course directory and in study notes match file by file on SHA-256; the sources and checksums of the new files are stored in the JSON inventory.
-- The 5 new PDFs are readable; the two original Week 9 ZIPs pass integrity checks. All 21 top-level notebooks, stored by week across the library, parse as JSON.
-- Two Week 9 pages offer archives with the same name; the exercises and weights inside are identical, differing only in `__MACOSX` metadata. Both original archives are kept, and system metadata and notebook auto-backups were skipped when extracting.
-- The Week 11 lecture page provides `worksheet11.ipynb` and the Workshop page provides `worksheet11-old-24.ipynb`; they are saved separately so the old version does not overwrite the new one.
-- The cover slides of Lectures 21 and 22 still print 2021, and the footer of Lecture 22 still prints Week 10. These are the source files Canvas currently provides; the covers were not altered, and the files were not re-filed under a different week on that basis.
-- The original full Canvas export and the 2026-09-18 Excel sheet are kept as historical snapshots; this page and the JSON inventory record the state after this incremental check.
+- **October 23 transcript anomaly:** the downloaded text has only 98 characters of unrelated statistics-class conversation, with no usable CV teaching content. It is retained at `transcript/needs-review/2026-10-23-non-course-transcript.txt`, not counted as a completed course transcript. The audited Week 12 page has no separate Lecture 24 PDF link.
+- The absence of transcript controls on September 25/30 and October 2 was last checked October 13, not rechecked here. A scheduled recording entry alone does not establish that teaching occurred.
+- Lecture 18 remains absent from the published numbering; no material was invented for it.
+- Readings Online still returns a Leganto error on October 26. Weekly links and chapter references are archived, not external full texts or a verified additional reading list.
+- External notebook datasets, model weights and dependencies were not mirrored or executed in this update.
 
-## Sources and storage locations
+## Verification and storage
 
-- [Canvas Modules](https://canvas.lms.unimelb.edu.au/courses/241625/modules)
-- [Course notes index](README.en.md)
-- [Reading Links](READING-LINKS.md)
-- [Resource inventory](RESOURCE-INVENTORY.json)
+All **159 categorized source files** in the two local archives match by SHA-256. All **23 top-level weekly notebooks** parse as JSON; exact totals are in `verification` in the [inventory](RESOURCE-INVENTORY.json). Updated PDFs were read and selected slide images visually inspected.
 
-`lecture/`, `transcript/` and `workshop/week-NN/` hold the categorised materials, and `workshop/packages/` keeps the original accompanying packages. One copy is kept in the main course directory and one in study notes; original materials and screenshots stay local and are not committed to the repository.
+[Note index](README.en.md) · [Reading links](READING-LINKS.md) · [Canvas Modules](https://canvas.lms.unimelb.edu.au/courses/241625/modules)
+
+Resources remain in `lecture/`, `transcript/`, `workshop/week-NN/` and `exam/`, with copies in the academic archive and study notes. Raw files and screenshots stay local. The previous full Canvas export and September 18 Excel report remain historical snapshots; this table and the JSON track the latest incremental state.

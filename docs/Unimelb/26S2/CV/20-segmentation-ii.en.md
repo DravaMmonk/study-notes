@@ -1,6 +1,6 @@
 # COMP90086 Lecture 20 - Image Segmentation II
 
-Sources: `lecture/COMP90086-20-Segmentation2.pdf` (47 pages); `transcript/COMP90086_2026_SM2 Week-10-F-transcript.txt` (2026-10-09); the Week 11 segmentation exercise. Imported 2026-10-13; PDF page numbers are used below.
+Sources: `lecture/COMP90086-20-Segmentation2.pdf` (47 pages); `transcript/COMP90086_2026_SM2 Week-10-F-transcript.txt` (2026-10-09); the Week 11 segmentation exercise. Imported 2026-10-13; PDF page numbers are used below. The continuation on SAM is available at the start of `transcript/COMP90086_2026_SM2 Week-11-W-transcript.txt` (2026-10-14, added in this update).
 
 This lecture answers: **how can a network predict a class for every pixel while preserving object boundaries?**
 

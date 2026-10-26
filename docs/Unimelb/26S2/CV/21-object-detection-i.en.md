@@ -1,6 +1,6 @@
 # COMP90086 Lecture 21 - Object Detection I
 
-Sources: `lecture/COMP90086-21-ObjectDetection.pdf` (55 pages). Imported from Canvas Week 11 on 2026-10-13; the cover still says 2021, and it is filed by its current release location. The Week 11 recording has not happened yet, so this is a preview note based on the slides and does not quote the lecturer.
+Sources: `lecture/COMP90086-21-ObjectDetection.pdf` (2026 version, 55 pages, Canvas file 28975448); `transcript/COMP90086_2026_SM2 Week-11-W-transcript.txt` (2026-10-14, beginning with a continuation on SAM). Slides and transcript updated 2026-10-26. References use PDF page numbers. The earlier version with a 2021 cover is preserved under `lecture/superseded/2026-10-13/`.
 
 This lecture answers: **beyond knowing what is in an image, how do we point out where each object is?**
 
