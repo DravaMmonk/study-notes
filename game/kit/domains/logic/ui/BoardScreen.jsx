@@ -206,6 +206,10 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
 const shapesOf = (part, text, more) => part.forms.filter((k, i) => i === 0 || more.includes(k)).map((k) => ({ key: k, label: text?.forms?.find((f) => f.key === k)?.label ?? k }))
 const DEPTHS = [2, 3, 4, 5, 6, 8, 10, 12]
 
+// What a machine board's input and result hold (`board.ioBox`), written out in full in a box of a fixed height, the
+// size of a step's result in the run (shell StepLog): longer, it scrolls.
+const IoBox = ({ children }) => <div className="lg-io" onPointerDown={(e) => e.stopPropagation()}>{children}</div>
+
 // One setting on a card: what kind it is decides how it is chosen (board.settings).
 function Setting({ s, node, board, parts, lemmas, circuit, scene, setParam, formsOf }) {
   const value = node.params[s.key] ?? ''
@@ -237,8 +241,9 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
       {board.settings(parts, node, lemmas).map((s) => <Setting key={s.key} s={s} node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} scene={scene} setParam={setParam} formsOf={formsOf} />)}
       {board.extra?.(node, setParam, { ins: Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, view.values.get(w.from)])), text })}
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
-      {role === 'source' && <Value v={value} text={text} bare />}
-      {role !== 'source' && (!regions.size || node.fold) && (problem || (multi ? multi.map((o) => (
+      {role === 'source' && (board.ioBox ? <IoBox><Value v={value} text={text} /></IoBox> : <Value v={value} text={text} bare />)}
+      {role === 'sink' && board.ioBox && !problem && <IoBox><Value v={value} text={text} /></IoBox>}
+      {role !== 'source' && !(role === 'sink' && board.ioBox && !problem) && (!regions.size || node.fold) && (problem || (multi ? multi.map((o) => (
         <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Value v={view.values.get(srcOf(node, o.key))} text={text} /></span>
       )) : <Value v={value} text={text} />))}
     </div>
@@ -293,12 +298,13 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
     const outs = parts.frames(n).length ? [] : outputsOf(parts, n)
     if (outs.length > 1) return <span className="lg-chips">{outs.map((o) => <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Value v={view.values.get(srcOf(n, o.key))} text={text} small /></span>)}</span>
     if (error) return error === MISSING ? <i className="lg-mark">{tr('待接线', 'unwired')}</i> : <span className="lg-error">{L(error)}</span>
+    if (board.ioBox && parts.role(n) === 'source') return <IoBox><Value v={view.values.get(n.id)} text={text} /></IoBox>
     return <Value v={view.values.get(n.id)} text={text} small />
   }
   const sinkBody = (n) => (
     <span className="lg-sink">
       {scene.want}
-      <Value v={view.values.get(n.id)} text={text} small />
+      {board.ioBox ? <IoBox><Value v={view.values.get(n.id)} text={text} /></IoBox> : <Value v={view.values.get(n.id)} text={text} small />}
     </span>
   )
   return (
