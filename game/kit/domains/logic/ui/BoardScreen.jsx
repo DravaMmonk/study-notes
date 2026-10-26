@@ -8,8 +8,6 @@ import { runLevel } from '../../../engine/tests.js'
 import { say } from '../notation.js'
 import FormulaField from './FormulaField.jsx'
 import RuleField from './RuleField.jsx'
-import TermField from './TermField.jsx'
-import { namesInScope } from '../proof.js'
 import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt } from './stepping.js'
 
@@ -215,7 +213,6 @@ function Setting({ s, node, board, parts, lemmas, circuit, scene, setParam, form
   const value = node.params[s.key] ?? ''
   const set = (v) => setParam(node.id, s.key, v)
   switch (s.kind) {
-    case 'proof': return <TermField label={s.label} value={value} onChange={set} scope={namesInScope(node, circuit, scene.premiseNames ?? [])} title={board.nameOf(lemmas, node.type)} />
     case 'form': return <FormulaField label={board.textOf(lemmas, node.type)?.formLabel ?? T('形状', 'Shape')} value={formOf(parts.rules[node.type], node)} onChange={set} choices={shapesOf(parts.rules[node.type], board.textOf(lemmas, node.type), formsOf(node.type)).map((o) => ({ value: o.key, label: L(o.label) }))} required />
     case 'rule': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rule} />
     // As many regions as the frame has: never fewer than the last one holding something.

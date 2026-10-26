@@ -151,7 +151,7 @@ export function validate({ levels: given, course }) {
     for (const n of level.solution.nodes) {
       for (const [key, value] of Object.entries(n.params ?? {})) {
         const kind = SETTING_KINDS[n.type]?.[key] ?? 'formula'
-        if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || kind === 'proof' || !(RULES[n.type]?.params ?? level.lemmas?.[n.type]?.metas ?? []).includes(key)) continue
+        if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || !(RULES[n.type]?.params ?? level.lemmas?.[n.type]?.metas ?? []).includes(key)) continue
         if (!offered[kind].has(choiceKey(kind, value, level))) out.push({ fail: true, text: `${level.id}: the solution picks ${value} on ${n.type}, which its card does not offer (add it to the level's sentences)` })
       }
     }

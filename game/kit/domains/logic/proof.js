@@ -18,7 +18,7 @@ import { runBoard, sink, source } from '../../engine/boards.js'
 import { BOT, all, allVars, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, show, subst, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'
-import { absurd, alphaEq, cases, checkTerm, freeIn, fst, inl, inr, lam, normalize, obj, open as unpack, pair, papp, parseTerm, pconst, printTerm, psubst, pvar, raa, rfl, snd } from './pterm.js'
+import { absurd, alphaEq, cases, fst, inl, inr, lam, normalize, obj, open as unpack, pair, papp, parseTerm, pconst, printTerm, psubst, pvar, raa, rfl, snd } from './pterm.js'
 import { clauseFormula } from './clauses.js'
 
 // The variables a quantifier binds; a particular thing is named a, b or c (choices.js).
@@ -91,27 +91,6 @@ const depthOf = (node, ctx) => {
   return d
 }
 const hypName = (node, ctx) => `h${depthOf(node, ctx)}`
-/** The names a proof term on a card may use, for its editor: the premises', then each box's around it, outermost first. */
-export function namesInScope(node, graph, premises = []) {
-  const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const boxes = []
-  for (let at = node.in; at; at = byId.get(at.split('/')[0])?.in) {
-    const box = byId.get(at.split('/')[0])
-    if (box?.type === 'impI') boxes.unshift(hypName(box, { graph }))
-  }
-  return [...premises, ...boxes]
-}
-// What a proof term on a card may name: the level's premises, and each box around the card's assumption by the name
-// it has in proof terms (h1 for the outermost). name → { id, formula }.
-function scopeOf(node, ctx) {
-  const scope = new Map(Object.entries(ctx.premises ?? {}).map(([name, j]) => [name, { id: name, formula: j.formula }]))
-  const byId = new Map((ctx.graph?.nodes ?? []).map((n) => [n.id, n]))
-  for (let at = node.in; at; at = byId.get(at.split('/')[0])?.in) {
-    const box = byId.get(at.split('/')[0])
-    if (box?.type === 'impI' && box.params?.A) scope.set(hypName(box, ctx), { id: hypId(box, 'body'), formula: param(box, 'A', ctx) })
-  }
-  return scope
-}
 const assumed = (node, region, formula, ctx) => proved(formula, new Map([[hypId(node, region), formula]]), pvar(hypName(node, ctx)))
 export const RULES = {
   // The proof's own ends: a premise, and the goal.
@@ -261,22 +240,6 @@ export const RULES = {
   },
   // Chapter 6: the same sentence, its proof's detours taken out (a lemma used is unfolded into its own proof).
   normalize: { inputs: ['a'], eval: ({ a }, _n, ctx) => proved(a.formula, a.hyps, normalize(a.term, { unfold: ctx.unfold })) },
-  // A proof term written on the card proves the sentence chosen, when the kernel accepts it (pterm.js checkTerm). The
-  // term may name the level's premises and the assumptions of the boxes around the card (h1, h2…).
-  exact: {
-    inputs: [],
-    params: ['A', 'term'],
-    eval: (_, node, ctx) => {
-      const target = param(node, 'A', ctx)
-      if (!node.params?.term) throw fail('先在元件上写好证明项', 'Write the proof term on the part first')
-      const term = parseTerm(node.params.term)
-      const scope = scopeOf(node, ctx)
-      const reason = checkTerm(term, target, { hyps: Object.fromEntries([...scope].map(([name, h]) => [name, h.formula])), consts: ctx.consts ?? [], notation: ctx.notation })
-      if (reason) throw new PartError(reason)
-      const used = [...freeIn(term)].filter((name) => scope.has(name)).map((name) => scope.get(name))
-      return proved(target, new Map(used.map((h) => [h.id, h.formula])), term)
-    },
-  },
   refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t), new Map(), rfl) } },
   // From s = t and a proof of φ, φ with the occurrences of s the card marks (params.at, their places in order) replaced
   // by t. The card shows φ with each s in a box to tick (ui/boards.jsx).
