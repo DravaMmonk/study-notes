@@ -12,7 +12,8 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  * How the phone board is edited, the same in every game. Wires go dot to dot: tap one dot, then another (or the
  * block itself), or drag between them; tapping a wired input unplugs it. Parts come from the tray: tap to drop into
  * the next free slot, or hold and drag into a slot; holding a placed part moves it, and dragging it back onto the
- * tray removes it. A frame's regions are grids of their own (model.js placement): a slot there is the same, and a
+ * tray removes it. A part's sheet can also start a move (startMove): the next slot tapped takes it, and tapping another
+ * part swaps the two. A frame's regions are grids of their own (model.js placement): a slot there is the same, and a
  * part dragged into one moves into the frame, or out of it onto the board. Every change can be undone and redone (useHistory).
  *
  * @param graph, onChange(graph), parts            the circuit and the game's description of its nodes (model.js)
@@ -27,26 +28,32 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  */
 export function useSlotEditing({ graph, onChange, parts, create, label, openNode, openSlot, root, scroller, scope }) {
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
+  const [moving, setMoving] = useState(null) // a part's id, while choosing the slot it moves to
   const history = useHistory(graph, onChange, scope)
   const [toast, setToast] = useState(null) // a { zh, en } pair, read in the current language when shown
   const { sources, steps, sinks } = layout(graph, parts)
   // Parts are numbered in reading order: the board's slots, and a frame's regions right after the frame.
-  const ordered = []
-  const walk = (region) => {
-    const { cell } = placement(graph, parts, region)
-    for (const id of [...cell.keys()].sort((a, b) => cell.get(a) - cell.get(b))) {
-      ordered.push(id)
-      for (const r of parts.frames?.(byId(graph, id)) ?? []) walk(`${id}/${r.name}`)
+  const orderOf = (g) => {
+    const ordered = []
+    const walk = (region) => {
+      const { cell } = placement(g, parts, region)
+      for (const id of [...cell.keys()].sort((x, y) => cell.get(x) - cell.get(y))) {
+        ordered.push(id)
+        for (const r of parts.frames?.(byId(g, id)) ?? []) walk(`${id}/${r.name}`)
+      }
     }
+    walk(null)
+    return ordered
   }
-  walk(null)
-
-  const nameOf = (node) => {
+  const ordered = orderOf(graph)
+  // A part's name with its number on board `g` (the board as it is, or as it is about to be).
+  const nameIn = (g, node, order = g === graph ? ordered : orderOf(g)) => {
     if (!node) return ''
     if (parts.role(node) !== 'part') return L(label(node))
-    const index = ordered.indexOf(node.id)
+    const index = order.indexOf(node.id)
     return `${NUMBERS[index] ?? `#${index + 1}`} ${L(label(node))}`
   }
+  const nameOf = (node) => nameIn(graph, node)
   const edit = (next, note) => {
     onChange(next)
     setToast(note ?? null)
@@ -84,6 +91,7 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
   }
   const onPort = (p) => {
     const side = parsePort(p)
+    setMoving(null)
     if (!picking) {
       if (side.side === 'in' && feeding(graph, side.id, side.port)) {
         buzz([6, 30, 6])
@@ -107,13 +115,37 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     const ports = parts.inputs(node)
     const open = ports.find((port) => !feeding(graph, id, port) && !refusal(p, inPort(id, port))) ?? ports.find((port) => !refusal(p, inPort(id, port)))
     if (!open) {
-      setToast({ zh: '这一块没有能接这根线的口', en: 'This block has no port this wire can go to' })
+      setToast({ zh: '这个元件没有能接这根线的口', en: 'This part has no port this wire can go to' })
       return false
     }
     return wire(p, inPort(id, open))
   }
-  // While a dot is picked, tapping a block wires it too; otherwise it opens the block's sheet.
+  // Moving a part (from its sheet): the next slot tapped takes it; a slot with a part in it swaps the two.
+  const moveTo = (at, region = null) => {
+    const name = nameOf(byId(graph, moving))
+    const other = [...placement(graph, parts, region).cell].find(([, slot]) => slot === at)?.[0]
+    const next = moveToSlot(graph, parts, moving, at, region)
+    setMoving(null)
+    if (next === graph) return
+    buzz()
+    edit(next, other && other !== moving
+      ? { zh: `「${name}」和「${nameOf(byId(graph, other))}」换了位置`, en: `Swapped "${name}" and "${nameOf(byId(graph, other))}"` }
+      : { zh: `把「${name}」移到了这一格`, en: `Moved "${name}" here` })
+  }
+  const startMove = (id) => {
+    if (parts.role(byId(graph, id) ?? {}) !== 'part') return
+    setPicking(null)
+    setMoving(id)
+  }
+  // While a dot is picked, tapping a block wires it too; while a part is moving, tapping another part swaps them;
+  // otherwise it opens the block's sheet.
   const onNode = (id) => {
+    if (moving) {
+      const node = byId(graph, id)
+      const slot = placement(graph, parts, node.in ?? null).cell.get(id)
+      if (id === moving || parts.role(node) !== 'part' || slot === undefined) return setMoving(null)
+      return moveTo(slot, node.in ?? null)
+    }
     if (picking) {
       if (wireToCard(picking, id)) setPicking(null)
       return
@@ -123,6 +155,7 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
   }
   const onSlot = (at, region = null) => {
     setPicking(null)
+    if (moving) return moveTo(at, region)
     openSlot?.(at, region)
   }
 
@@ -130,16 +163,18 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
   const place = (type, at, region = null) => {
     const { graph: next, id } = create(graph, type, at, region)
     // An input part goes up with the inputs, not into a slot.
+    const name = nameIn(next, byId(next, id))
     const note = parts.role(byId(next, id) ?? {}) === 'source'
-      ? { zh: '放在了最上面的输入区 · 从圆点拉线接上', en: 'Placed with the inputs at the top · wire it up from the dots' }
-      : { zh: `放进了第 ${at + 1} 格 · 从圆点拉线接上`, en: `Placed in slot ${at + 1} · wire it up from the dots` }
+      ? { zh: `放下了「${name}」，在最上面的输入区 · 从圆点拉线接上`, en: `Placed "${name}" with the inputs at the top · wire it up from the dots` }
+      : { zh: `放下了「${name}」 · 从圆点拉线接上`, en: `Placed "${name}" · wire it up from the dots` }
     buzz()
     edit(next, note)
   }
   const placeFirstFree = (type) => place(type, placement(graph, parts).free[0])
   const remove = (id) => {
     buzz([6, 40, 6])
-    edit(removeNode(graph, id), { zh: `拿掉了 ${nameOf(byId(graph, id))}`, en: `Removed ${nameOf(byId(graph, id))}` })
+    setMoving(null)
+    edit(removeNode(graph, id), { zh: `删除了「${nameOf(byId(graph, id))}」`, en: `Deleted "${nameOf(byId(graph, id))}"` })
   }
 
   // Drag and drop on the board, the tray and the dots, through the kit's drag.js. Handlers read the latest state
@@ -180,18 +215,18 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     return enableDrag(el, () => handlers)
   }, [])
 
-  // While a dot is picked, the banner says what to tap next.
-  const pickNote = picking && (() => {
+  // While a dot is picked, or a part is moving, the banner says what to tap next.
+  const pickNote = moving ? tr(`把「${nameOf(byId(graph, moving))}」移到哪？点一个格子`, `Where does "${nameOf(byId(graph, moving))}" go? Tap a slot`) : picking && (() => {
     const p = parsePort(picking)
     const node = byId(graph, srcNode(p.id))
     const many = parts.inputs(node).length > 1
     return p.side === 'out'
-      ? tr(`「${nameOf(node)}」接到哪？点一个输入口（块顶上的圆点），或点那一块`, `Where does "${nameOf(node)}" go? Tap an input (a dot on top of a block), or the block itself`)
-      : tr(`「${nameOf(node)}」${many ? `的 ${L(parts.portLabel?.(node, p.port) ?? p.port)} ` : ''}读哪个结果？点一个输出口（块底下的圆点），或点那一块`, `Which result does "${nameOf(node)}"${many ? ` ${L(parts.portLabel?.(node, p.port) ?? p.port)}` : ''} read? Tap an output (a dot under a block), or the block itself`)
+      ? tr(`「${nameOf(node)}」接到哪？点一个输入口（元件顶上的圆点），或点那个元件`, `Where does "${nameOf(node)}" go? Tap an input (a dot on top of a part), or the part itself`)
+      : tr(`「${nameOf(node)}」${many ? `的 ${L(parts.portLabel?.(node, p.port) ?? p.port)} ` : ''}读哪个结果？点一个输出口（元件底下的圆点），或点那个元件`, `Which result does "${nameOf(node)}"${many ? ` ${L(parts.portLabel?.(node, p.port) ?? p.port)}` : ''} read? Tap an output (a dot under a part), or the part itself`)
   })()
 
   return {
-    picking, unpick: () => setPicking(null), canLand, onPort, onNode, onSlot, nameOf,
+    picking, moving, startMove, unpick: () => { setPicking(null); setMoving(null) }, canLand, onPort, onNode, onSlot, nameOf,
     place, placeFirstFree, remove, edit, toast, say: setToast, pickNote,
     history: { ...history, undo: step(history.undo), redo: step(history.redo) },
     sources, steps, sinks,

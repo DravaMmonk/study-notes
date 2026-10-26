@@ -454,7 +454,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
     const icon = parts.icon?.(node)
     const wired = (src) => graph.wires.some((w) => w.from === src)
-    const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点一下，再点另一张卡片的输入；也可以拖过去', 'Click, then click an input of another card; or drag there')} onClick={() => clickPort(outPort(src))}><i /></i>
+    const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点一下，再点另一个元件的输入；也可以拖过去', 'Click, then click an input of another part; or drag there')} onClick={() => clickPort(outPort(src))}><i /></i>
     const inDot = (port, extra = '') => {
       const wired = graph.wires.some((w) => w.to === node.id && w.port === port)
       return <i className={`port port-in ${wired ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} title={wired && !picking ? tr('点一下取下这根线，再点别的输入口接过去', 'Click to take this wire off; click another input to plug it there') : undefined} onClick={() => clickPort(inPort(node.id, port))}><i /></i>
@@ -481,7 +481,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
           <span className="node-title">{L(parts.label(node))}</span>
           {head?.(node)}
           {removable(node) && (
-            <button className="node-delete" aria-label={tr('删除卡片', 'Delete card')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, node.id))}>
+            <button className="node-delete" aria-label={tr('删除元件', 'Delete part')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, node.id))}>
               <X size={12} />
             </button>
           )}
@@ -579,7 +579,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
 
       {canDelete && (
         <button className="board-delete" onPointerDown={(e) => e.stopPropagation()} onClick={removeSelected}>
-          <Trash2 size={14} /> {selected.wire ? tr('删除连线', 'Delete wire') : tr('删除卡片', 'Delete card')}
+          <Trash2 size={14} /> {selected.wire ? tr('删除连线', 'Delete wire') : tr('删除元件', 'Delete part')}
         </button>
       )}
       {refused && <p className="board-refusal" role="status">{L(refused)}</p>}

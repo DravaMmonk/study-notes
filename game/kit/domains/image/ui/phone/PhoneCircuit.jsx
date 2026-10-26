@@ -2,7 +2,7 @@ import { createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDownToLine, Check, X } from 'lucide-react'
 import { NODE_TYPES, inputsOf, settingsOf } from '../../engine/nodes.js'
 import { L, tr } from '../../../../shell/i18n.js'
-import { Notice, RemoveButton, SlotBoard, Tray, feeding, useSlotEditing } from '../../../../circuit/index.js'
+import { Notice, PartActions, SlotBoard, Tray, feeding, useSlotEditing } from '../../../../circuit/index.js'
 import { RunDock, TaskCard, TestTabs } from '../../../../shell/index.js'
 import { describe, familyOf, iconOf } from '../catalog.js'
 import { partsFor } from '../parts.js'
@@ -130,6 +130,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
             return check && check.pass !== null ? (check.pass ? 'is-pass' : 'is-fail') : ''
           }}
           picking={editing.picking}
+          moving={editing.moving}
           canLand={editing.canLand}
           onPort={editing.onPort}
           onNode={editing.onNode}
@@ -167,7 +168,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
       <Notice editing={editing} />
 
       {sheet?.kind === 'add' && (
-        <AddSheet level={level} graph={graph} previewFrom={sources[0]?.id} test={level.tests[testIndex]} title={tr(`放进第 ${sheet.at + 1} 格`, `Place in slot ${sheet.at + 1}`)} theme={theme} onAdd={(type) => place(type, sheet.at)} onClose={() => setSheet(null)} />
+        <AddSheet level={level} graph={graph} previewFrom={sources[0]?.id} test={level.tests[testIndex]} title={tr('放在这一格', 'Place in this slot')} theme={theme} onAdd={(type) => place(type, sheet.at)} onClose={() => setSheet(null)} />
       )}
       {sheet?.kind === 'part' && byId(sheet.node) && (() => {
         const node = byId(sheet.node)
@@ -190,6 +191,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
               onSetParam={(key, v) => onChange(setParam(graph, node.id, key, v))}
               onView={(v) => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, view: v } : n)) }, { keep: true })}
               onRemove={NODE_TYPES[node.type].fixed ? null : () => remove(node.id)}
+              onMove={parts.role(node) === 'part' ? () => { editing.startMove(node.id); setSheet(null) } : null}
             />
           </Sheet>
         )
@@ -210,7 +212,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
 }
 
 // One block in a sheet: what it is, its settings, and what it makes on this test (its wires are on the board).
-function PartPanel({ node, flags, ioKinds, value, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove }) {
+function PartPanel({ node, flags, ioKinds, value, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove, onMove }) {
   const params = settingsOf(node.type, flags)
   const shown = nodeView(node, views)
   return (
@@ -252,7 +254,7 @@ function PartPanel({ node, flags, ioKinds, value, error, check, expected, tolera
         {kindOf(value ?? expected) === 'image' && <ViewSwitch value={shown} onChange={onView} shows={views?.shows} fresh={views?.fresh} compact />}
       </div>
 
-      {onRemove && <RemoveButton onClick={onRemove} />}
+      {(onRemove || onMove) && <PartActions onMove={onMove} onRemove={onRemove} />}
     </div>
   )
 }

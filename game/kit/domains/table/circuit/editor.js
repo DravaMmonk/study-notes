@@ -44,12 +44,6 @@ export function placement(circ) {
   return { cell, size, free: Array.from({ length: size }, (_, a) => a).filter(a => !used.has(a)) };
 }
 
-export function placeNode(circ, kind, at, value) {
-  // Presets may name their components freely ('m', 'b1'…); new ones are n1, n2… after the highest n-number.
-  const id = `n${Math.max(0, ...circ.nodes.map(n => /^n(\d+)$/.exec(n.id)).filter(Boolean).map(m => +m[1])) + 1}`;
-  return { ...circ, nodes: [...circ.nodes, { id, kind, ...(hasValue(kind) ? { value: valueDefault(kind) } : value !== undefined ? { value } : {}) }], at: { ...placement(circ).cell, [id]: at } };
-}
-
 export function removeNode(circ, id) {
   const at = { ...placement(circ).cell };
   delete at[id];

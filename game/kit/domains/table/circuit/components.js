@@ -111,7 +111,7 @@ Object.assign(COMPONENTS, {
   seem: {
     name: LAYERED, tag: T('视野', 'view'), ins: [], out: 'input',
     f: READ,
-    desc: T('读某一层上机器人身边的格子。卡片上选读哪一层（本层、某一层，或接进来的层号），方框里就是那一层上机器人的视野：点哪几格（最多 3 格），就读哪几格，每一格有自己的输出口。没有那一层，或那一格在棋盘外，就是「—」。', 'Reads cells around the robot on some layer. On its card, choose the layer (this one, a numbered one, or the number wired in); the box shows the robot’s view on that layer: click up to three cells to read, and each gets an output of its own. If there is no such layer, or the cell is off the board, it is “—”.'),
+    desc: T('读某一层上机器人身边的格子。元件上选读哪一层（本层、某一层，或接进来的层号），方框里就是那一层上机器人的视野：点哪几格（最多 3 格），就读哪几格，每一格有自己的输出口。没有那一层，或那一格在棋盘外，就是「—」。', 'Reads cells around the robot on some layer. On its part, choose the layer (this one, a numbered one, or the number wired in); the box shows the robot’s view on that layer: click up to three cells to read, and each gets an output of its own. If there is no such layer, or the cell is off the board, it is “—”.'),
   },
   seel: {
     name: LAYERED, tag: T('视野', 'view'), ins: ['num'], labels: [T('层', 'layer')], out: 'input',
@@ -119,9 +119,9 @@ Object.assign(COMPONENTS, {
     desc: T('读某一层上机器人身边的格子，层号从左边的口接进来（从 0 数起）。点哪几格（最多 3 格），就读哪几格，每一格有自己的输出口。没有那一层，或那一格在棋盘外，就是「—」。', 'Reads cells around the robot on the layer whose number is wired into its port (counting from 0). Click up to three cells to read, and each gets an output of its own. If there is no such layer, or the cell is off the board, it is “—”.'),
   },
   fact: { name: T('本格信息', 'This cell'), tag: T('本格', 'this cell'), ins: [], out: 'input', f: READ, desc: T('机器人脚下这一格的信息。每选一条，就多一个读它的输出口。', 'Facts about the cell under the robot. Each one you pick adds an output that reads it.') },
-  arm: { name: T('臂读取器', 'Arm reader'), tag: T('臂', 'arm'), ins: [], out: 'input', f: READ, desc: T('读机器人的手臂送来的数据。放上后在卡片上选读哪一个。', 'Reads what the robot’s arm brings in. Once it is on the board, choose on the card which one it reads.') },
+  arm: { name: T('臂读取器', 'Arm reader'), tag: T('臂', 'arm'), ins: [], out: 'input', f: READ, desc: T('读机器人的手臂送来的数据。放上后在元件上选读哪一个。', 'Reads what the robot’s arm brings in. Once it is on the board, choose on the part which one it reads.') },
   // A kind check: is this reading (a key's colour, say) of the kind set on the card? 「—」 (no key at all) is not.
-  is: { name: T('类别判断器', 'Kind check'), tag: T('是这一类吗', 'is it this kind'), icon: '∈', ins: ['cat'], out: 'bool', f: ([v], n) => !!v && v.cat === n.value, desc: T('收到的类别（比如钥匙的颜色）是卡片上选的那一类，就输出「是」；不是，或收到「—」，输出「否」。', 'Outputs “yes” when the kind it receives (a key’s colour, say) is the one chosen on its card; otherwise, or for a “—”, “no”.') },
+  is: { name: T('类别判断器', 'Kind check'), tag: T('是这一类吗', 'is it this kind'), icon: '∈', ins: ['cat'], out: 'bool', f: ([v], n) => !!v && v.cat === n.value, desc: T('收到的类别（比如钥匙的颜色）是元件上选的那一类，就输出「是」；不是，或收到「—」，输出「否」。', 'Outputs “yes” when the kind it receives (a key’s colour, say) is the one chosen on its part; otherwise, or for a “—”, “no”.') },
   // The divider: a ÷ b rounded down, or what is left over. Its models swap like a merger's (the wires stay).
   idiv: { name: T('除法器', 'Divider'), tag: T('a ÷ b 取整', 'a ÷ b, whole'), icon: '÷', ins: ['num', 'num'], labels: ['a', 'b'], out: 'num', f: ([a, b]) => (a === null || b === null || !b ? null : Math.floor(a / b)), desc: T('输出 a 除以 b 的整数部分（往下取整）。b 是 0 或有一边是「—」时，输出「—」。', 'Outputs a divided by b, rounded down to a whole number. If b is 0 or either side is “—”, the output is “—”.') },
   imod: { name: T('除法器', 'Divider'), tag: T('a ÷ b 的余数', 'a ÷ b, remainder'), icon: '%', ins: ['num', 'num'], labels: ['a', 'b'], out: 'num', f: ([a, b]) => (a === null || b === null || !b ? null : ((a % b) + b) % b), desc: T('输出 a 除以 b 的余数。b 是 0 或有一边是「—」时，输出「—」。', 'Outputs the remainder of a divided by b. If b is 0 or either side is “—”, the output is “—”.') },

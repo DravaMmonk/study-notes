@@ -82,7 +82,7 @@ const step = (t) => ({ inputs: ['in'], eval: ({ in: v }, node, ctx) => { const s
 // The rules a card's setting names; none chosen yet, or one the level does not have, cannot run.
 function chosen(ctx, node) {
   const key = node.params?.rule
-  if (!key) throw fail('卡片上还没选规则', 'No rule chosen on the card yet')
+  if (!key) throw fail('元件上还没选规则', 'No rule chosen on the part yet')
   const rules = rulesNamed(key, ctx.rules ?? KERNEL)
   if (!rules.length) throw fail('这一关没有这条规则', 'This level has no such rule')
   return rules
@@ -134,7 +134,7 @@ function regionRun(node, ctx, region) {
   return (value, quiet = false) => {
     const { values } = evaluate(sub, { parts: (type) => (type === '__open' ? { inputs: [], eval: () => value } : parts[type]), ctx: quiet ? { ...ctx, trace: null } : ctx })
     const out = values.get(back.from)
-    if (out === undefined) throw fail('框里有一张卡片算不出来', 'A card inside cannot compute')
+    if (out === undefined) throw fail('框里有一个元件算不出来', 'A part inside cannot compute')
     return out
   }
 }

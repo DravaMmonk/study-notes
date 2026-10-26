@@ -14,7 +14,7 @@ import { rt, Anim } from '../runtime.js';
 import { WORLDS, runCircuit, windowOf, visibleSensors, sensorsOf, MAX_ROUNDS } from '../circuit/worlds.js';
 import { ROBOTS } from '../circuit/robots.js';
 import { def, hasValue, blank, evaluate, clone, modelsOf, isInput, isViewReader, familyOf, layerOf as readerLayer, picksOf, withPicks, splitSrc, srcType, sinkType, fits, CARDS, cardOf } from '../circuit/components.js';
-import { viewHTML, removeNode, placeNode, readsOf } from '../circuit/editor.js';
+import { viewHTML, removeNode, readsOf } from '../circuit/editor.js';
 import { toGraph, fromGraph, create, partsFor } from '../circuit/board.js';
 import { placement } from '../../../circuit/model.js';
 import { lookIcon, lookSVG } from '../circuit/looks.js';
@@ -69,7 +69,7 @@ const mergerEntry = models => ({
   tag: lazy(() => models.map(k => def(k).tag).join(' / ')),
   icon: lookIcon('merger'),
   look: 'merger',
-  desc: lazy(() => tr(`把接进来的几个数汇成一个。放上后在卡片上选操作：${models.map(k => def(k).tag).join('、')}；换操作时连线不变。`, `Merges the numbers wired into it into one. Pick its operation on the card once placed: ${models.map(k => def(k).tag).join(', ')}; the wires stay when you swap.`)),
+  desc: lazy(() => tr(`把接进来的几个数汇成一个。放上后在元件上选操作：${models.map(k => def(k).tag).join('、')}；换操作时连线不变。`, `Merges the numbers wired into it into one. Pick its operation on the part once placed: ${models.map(k => def(k).tag).join(', ')}; the wires stay when you swap.`)),
 });
 
 export function circuitMode(L, saved, { flags, game, progress } = {}) {
@@ -274,7 +274,8 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
     return pick() ? lazy(pick) : null;
   };
 
-  function openNode(id) {
+  // move: on a phone, starts moving the part to another slot (the slot board's startMove).
+  function openNode(id, { move } = {}) {
     const n = circ().nodes.find(x => x.id === id), d = def(n.kind);
     const vals = hasValue(n.kind) ? `<div class="chips" role="radiogroup" aria-label="${tr('数值', 'Value')}">${(stage().consts || [0, 1, 2, 3, 4, 5]).map(v => `<button class="chip" type="button" role="radio" aria-checked="${n.value === v}" data-act="val" data-v="${v}">${v}</button>`).join('')}</div>` : '';
     // A kind check is set to one kind (of the sensor wired into it).
@@ -293,15 +294,16 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
     const swap = swaps.length > 1 ? `<div class="optlabel">${tr('操作（换操作时连线不变）', 'Operation (the wires stay when you swap)')}</div><div class="chips" role="radiogroup" aria-label="${tr('操作', 'Operation')}">${swaps.map(k => `<button class="chip" type="button" role="radio" aria-checked="${k === n.kind}" data-act="swap" data-k="${k}">${def(k).tag}</button>`).join('')}</div>` : '';
     rt.openSheet(`<div><div class="kicker sig">${d.bp ? tr('零件', 'Part') : tr('元件', 'Component')}</div><h3 class="sh" id="sheetTitle">${d.name}</h3></div>
       <div class="prose"><p>${d.desc}</p></div>${mode}${box}${pick}${vals}${kinds}${swap}
-      <div class="acts">${fixed ? '' : `<button class="btn sec" type="button" data-act="del">${tr('拿掉这个元件', 'Remove this component')}</button>`}<button class="btn pri" type="button" data-close data-primary>${tr('好', 'OK')}</button></div>`, {
+      <div class="acts">${fixed || !move ? '' : `<button class="btn sec" type="button" data-act="move">${tr('移动', 'Move')}</button>`}${fixed ? '' : `<button class="btn sec" type="button" data-act="del">${tr('删除', 'Delete')}</button>`}<button class="btn pri" type="button" data-close data-primary>${tr('好', 'OK')}</button></div>`, {
       val: el => { setCirc({ ...circ(), nodes: circ().nodes.map(x => (x.id === id ? { ...x, value: +el.dataset.v } : x)) }); rt.closeSheet(); rt.refresh(); },
-      kind: el => { setValue(id, el.dataset.v); buzz(6); rt.refresh(); openNode(id); },
-      pick: el => { togglePick(id, el.dataset.v); buzz(6); rt.refresh(); openNode(id); },
-      layer: el => { setLayer(id, el.dataset.k); buzz(6); rt.refresh(); openNode(id); },
-      pos: el => { const [dr, dc] = el.dataset.d.split(',').map(Number); setPos(id, dr, dc); buzz(6); rt.refresh(); openNode(id); },
+      kind: el => { setValue(id, el.dataset.v); buzz(6); rt.refresh(); openNode(id, { move }); },
+      pick: el => { togglePick(id, el.dataset.v); buzz(6); rt.refresh(); openNode(id, { move }); },
+      layer: el => { setLayer(id, el.dataset.k); buzz(6); rt.refresh(); openNode(id, { move }); },
+      pos: el => { const [dr, dc] = el.dataset.d.split(',').map(Number); setPos(id, dr, dc); buzz(6); rt.refresh(); openNode(id, { move }); },
       swap: el => { setCirc({ ...circ(), nodes: circ().nodes.map(x => (x.id === id ? { ...x, kind: el.dataset.k } : x)) }); buzz(8); rt.closeSheet(); rt.refresh(); },
       del: () => { setCirc(removeNode(circ(), id)); rt.closeSheet(); rt.refresh(); },
-    }, () => openNode(id));
+      move: () => { rt.closeSheet(); move(); },
+    }, () => openNode(id, { move }));
   }
 
   /** A square of a view reader's box: what the cell holds now, its mark, lit when the reader reads it. */
@@ -314,7 +316,8 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
   };
 
   /** Pick a part for an empty slot: the level's parts, each with what it does. */
-  function openSlot(at) {
+  // place(kind): the slot board's place, which puts it in and says so.
+  function openSlot(at, { place }) {
     const fresh = stage().fresh || [];
     const models = offeredParts().filter(k => MERGES.includes(k));
     const rows = shelf(paletteAll()).map(kind => {
@@ -322,11 +325,11 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
       const isNew = one ? models.some(k => fresh.includes(k)) : fresh.includes(kind);
       return `<button class="pal" type="button" data-act="put" data-k="${kind}"><span class="pal-ic">${lookSVG(one ? one.look : kind)}</span><span class="pal-tx"><b>${one ? one.label : d.name}${isNew ? `<em>${tr('新', 'new')}</em>` : ''}</b><small>${one ? one.desc : d.desc}</small></span></button>`;
     }).join('');
-    rt.openSheet(`<div><div class="kicker sig">${tr('元件', 'Components')}</div><h3 class="sh" id="sheetTitle">${tr(`放进第 ${at + 1} 格`, `Put in slot ${at + 1}`)}</h3></div>
+    rt.openSheet(`<div><div class="kicker sig">${tr('元件', 'Components')}</div><h3 class="sh" id="sheetTitle">${tr('放在这一格', 'Place in this slot')}</h3></div>
       <div class="list">${rows}</div>
       <div class="acts"><button class="btn sec" type="button" data-close>${tr('取消', 'Cancel')}</button></div>`, {
-      put: el => { const k = el.dataset.k; setCirc(placeNode(circ(), k, at, isInput(k) ? firstOf(k) : undefined)); buzz(8); rt.closeSheet(); rt.refresh(); },
-    }, () => openSlot(at));
+      put: el => { rt.closeSheet(); place(el.dataset.k); },
+    }, () => openSlot(at, { place }));
   }
 
   /** First step whose outputs differ from the reference circuit's; scanning in rounds, the first cell that settled wrong. */
@@ -485,8 +488,8 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
       /** What one of a reader's outputs carries now, wired or not. */
       outValue: (node, pick) => signal(readPick({ id: node.id, kind: node.type, value: node.value }, pick)),
       swap(id, kind) { if (busy()) return; setCirc({ ...circ(), nodes: circ().nodes.map(x => (x.id === id ? { ...x, kind } : x)) }); buzz(8); rt.refresh(); },
-      openNode: id => { if (!busy() && circ().nodes.some(n => n.id === id)) openNode(id); },
-      openSlot: at => { if (!busy()) openSlot(at); },
+      openNode: (id, extra) => { if (!busy() && circ().nodes.some(n => n.id === id)) openNode(id, extra); },
+      openSlot: (at, extra) => { if (!busy()) openSlot(at, extra); },
     },
     /** Esc: put the number pad away. */
     cancel() {

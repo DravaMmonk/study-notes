@@ -231,7 +231,7 @@ export default function PartDemo({ partKey, phone, levels, borrow }) {
   const valueOf = (id) => (probe && id in probe ? signal(probe[id]) : '')
   const tests = bench.runs.map((r, k) => ({ label: (bench.L.testLabel || V.label)?.(r.t) ?? { zh: `测试 ${k + 1}`, en: `Test ${k + 1}` } }))
   const common = { tests, test: ti, onTest: pickTest, onRun: run, onReset: reset, state: stale ? 'stale' : probe ? 'ran' : 'idle' }
-  const note = { zh: '点测试棋盘上的格子，让机器人站过去；输入卡片读的就是棋盘上的格子，改它就是改那一格。改好点运行，答案会写进红框。', en: 'Click a cell on the test board to send the robot there; an input card reads a cell of the board, so changing it changes that cell. Then run, and the answer goes into the red frame.' }
+  const note = { zh: '点测试棋盘上的格子，让机器人站过去；输入元件读的就是棋盘上的格子，改它就是改那一格。改好点运行，答案会写进红框。', en: 'Click a cell on the test board to send the robot there; an input part reads a cell of the board, so changing it changes that cell. Then run, and the answer goes into the red frame.' }
 
   if (!phone) {
     const body = (node) => {

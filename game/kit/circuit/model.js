@@ -68,8 +68,8 @@ export const moveNode = (graph, id, x, y) => ({ ...graph, nodes: graph.nodes.map
  */
 export function baseRefusal(graph, from, to, port, parts = {}) {
   const { edges, from: start } = parts.frames ? frameEdges(graph, parts) : { edges: graph.wires.map((w) => [srcNode(w.from), w.to]), from: srcNode }
-  if (start(from) === to) return { zh: '一块不能读它自己。', en: 'A block cannot read itself.' }
-  if (wouldCycle(edges, start(from), to)) return { zh: '这样会绕成一个圈：这一块要等自己算完，才能算自己。', en: 'That would make a loop: this block would have to wait for itself to finish.' }
+  if (start(from) === to) return { zh: '一个元件不能读它自己。', en: 'A part cannot read itself.' }
+  if (wouldCycle(edges, start(from), to)) return { zh: '这样会绕成一个圈：这个元件要等自己算完，才能算自己。', en: 'That would make a loop: this part would have to wait for itself to finish.' }
   return parts.frames ? scopeRefusal(graph, parts, from, to, port) : null
 }
 

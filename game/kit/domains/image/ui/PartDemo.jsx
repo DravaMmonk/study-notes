@@ -100,7 +100,7 @@ export default function PartDemo({ flag, type, home, flags, phone, levels, box }
   }
   if (!phone) {
     return (
-      <DemoBench {...common} note={{ zh: '换一张测试图、改改卡片上的设置，再点运行，看看每张卡片输出什么。', en: 'Pick another test picture or change a setting on a card, then run it and see what every card puts out.' }}>
+      <DemoBench {...common} note={{ zh: '换一张测试图、改改元件上的设置，再点运行，看看每个元件输出什么。', en: 'Pick another test picture or change a setting on a part, then run it and see what every part puts out.' }}>
         <Editor graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} sensors={made.sensors} outputLabels={made.bench.outputLabels} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
       </DemoBench>
     )
@@ -136,7 +136,7 @@ export default function PartDemo({ flag, type, home, flags, phone, levels, box }
           {param.kind === 'select' ? <Choice options={param.options} value={node.params[param.key] ?? param.default} onChange={(v) => change(param.key, v)} label={param.label} layout={param.buttons ?? 'row'} roomy /> : param.kind === 'kernel' ? <KernelEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} /> : <NumberEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} />}
         </div>
       ))}
-      {node.type !== 'input' && node.type !== 'output' && !params.length && <p className="panel-note">{tr('这一块没有设置。', 'This block has no settings.')}</p>}
+      {node.type !== 'input' && node.type !== 'output' && !params.length && <p className="panel-note">{tr('这个元件没有设置。', 'This part has no settings.')}</p>}
     </>
   )
   return (
