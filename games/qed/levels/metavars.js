@@ -1,10 +1,12 @@
 // Chapter 7 · Rules and metavariables: a rule is ⟦premises⟧ ⟹ conclusion with ?-letters for any sentence (the way
 // Isabelle writes it; Lean's ?m are the same), and using it backwards means unifying its conclusion with the goal.
 // First the machine that unifies, one rule of unification per level, then the repeat frame runs them to the end: the
-// unifier. Then the proof state: a goal is replaced by a rule's premises, ?-letters left open are settled later by a
-// hypothesis, lemmas are rules too; elimination rules use a hypothesis up. Last, quantifiers: patterns ?P(x), solved
-// as functions; For any and Example backwards; Take one forwards (as a pattern it only fits that way round), kept or
-// used up; Take the one there is. The challenge is the order of taking out and giving an example.
+// unifier. From there two lines need nothing from each other. On proof states: a goal is replaced by a rule's
+// premises, ?-letters left open are settled later by a hypothesis, lemmas are rules too; an elimination rule is a rule
+// and then Assumption, built into one part. On equations: patterns ?P(x), solved as functions. With both, the
+// quantifiers: For any and Example backwards; Take one only forwards (as a pattern it only fits that way round), which
+// is Have and then a rule on a given, built into Forward; Take the one there is. The challenge is the order of taking
+// out and giving an example.
 import { machine } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -14,11 +16,10 @@ const unify = (level) => ({ kind: 'machine', want: 'unify', inputs: EQS, ...leve
 const prove = (level) => ({ kind: 'machine', want: 'proved', inputs: GOAL, ...level })
 
 // A script: the cards one after another from the goal to the result. A step is a card's type, or [type, rule] for a
-// card that uses a rule (frule is the forward card switched to keep the hypothesis).
+// card that uses a rule.
 export function script(...steps) {
   const nodes = Object.fromEntries(steps.map((s, k) => {
     const [type, rule] = [s].flat()
-    if (type === 'frule') return [`c${k}`, ['drule', { rule, form: 'frule' }]]
     return [`c${k}`, [type, rule ? { rule } : {}]]
   }))
   const ids = Object.keys(nodes)
@@ -107,7 +108,7 @@ export const metavars = [
     tests: [{ eqs: ['?A ∧ Wind ≐ Rain ∧ ?B'] }, { eqs: ['Rain → ?B ≐ ?A'] }, { eqs: ['?A → ?A ≐ ?B → Rain'] }, { eqs: ['Rain ∧ ?B ≐ ?A ∨ Wind'] }],
     brief: T('接一台机器：把每组等式解到底；对不上的，说「失败」。', 'Wire a machine that solves each set of equations to the end, or says “failed” when they do not fit.'),
     hint: [T('?-字母跑到右边的等式，先翻过来。', 'Turn round any equation with its ?-letter on the right.')],
-    intro: [{ t: T('目标里也会有 ?：倒着用规则，没对上的 ? 会留在新目标里，等以后再定。那时等式两边都有 ?，会出现「下雨 ≐ ?B」这样 ? 在右边的等式。新元件<part-ref to="part:uSwap"></part-ref>：把它翻成 ?B ≐ 下雨。', 'Goals can hold ?-letters too: a rule used backwards leaves the ones it did not settle in the new goals, to be settled later. Then both sides of an equation have them, and an equation like “it rains ≐ ?B” has its ?-letter on the right. A new part, <part-ref to="part:uSwap"></part-ref>: it turns it into ?B ≐ it rains.') }],
+    intro: [{ t: T('到这里，? 都在等式左边，右边是写定了的句子。可要对上的两句都可以带着 ?：一句还没定下来的话，和规则的结论对。这时会出现「下雨 ≐ ?B」这样 ? 在右边的等式，前面几种元件都只认左边的 ?。新元件<part-ref to="part:uSwap"></part-ref>：把它翻成 ?B ≐ 下雨。', 'So far the ?-letters were all on the left, with fixed sentences on the right. But both sentences being fitted may hold ?-letters: a sentence not settled yet, against a rule’s conclusion. Then an equation like “it rains ≐ ?B” turns up, its ?-letter on the right, and the parts so far only look for one on the left. A new part, <part-ref to="part:uSwap"></part-ref>: it turns it into ?B ≐ it rains.') }],
     solution: looped(['uDecompose', 'uSwap', 'uEliminate', 'uConflict']),
     after: T('?A ≐ 下雨 → ?B 也算解完：?B 还没定，?A 就跟着它。两边的 ? 在合一器眼里一视同仁。', '?A ≐ it rains → ?B counts as solved: ?B is still open, and ?A goes along with it. To the unifier the letters on both sides are alike.'),
   }),
@@ -129,7 +130,7 @@ export const metavars = [
     tests: [{ eqs: ['(?A → ?B) ∧ (?B → ?C) ≐ (Rain → Wet) ∧ (?D → Slip)'] }, { eqs: ['?A ∧ (?B ∨ ?A) ≐ Rain ∧ (Wind ∨ Wet)'] }, { eqs: ['?A → ?B ≐ ?B → ¬?A'] }, { eqs: ['¬¬?A ≐ ¬?B'] }],
     brief: T('接一台机器：不管要拆几层、代几次，都把等式解到底；对不上或者没有解的，说「失败」。造出的机器是新元件<part-ref to="lemma:unifier"></part-ref>。', 'Wire a machine that solves any set of equations to the end, however many levels and substitutions it takes, or says “failed” when they do not fit or have no solution. The machine becomes a new part, the <part-ref to="lemma:unifier"></part-ref>.'),
     hint: [T('每种元件各放一张进重复框，接成一串。', 'Put one part of each kind in the repeat frame, in a row.')],
-    intro: [{ t: T('六种元件都有了：拆开、删掉、对不上、代进去、翻过来、发生检查。这一回的等式，每一种都可能用上，用几次、什么时候用，都看等式自己。', 'All six kinds of part are in hand: Decompose, Delete, Clash, Eliminate, Swap, Occurs check. This time every one may be needed, how often and when depending on the equations themselves.') }],
+    intro: [{ t: T('六种元件都有了：拆开、删掉、对不上、代进去、翻过来、发生检查，每一种都是某组等式卡住时补上的。这一回的等式，每一种都可能用上，用几次、什么时候用，都看等式自己。六种一起装进重复框，就是一台完整的合一机器。', 'All six kinds of part are in hand: Decompose, Delete, Clash, Eliminate, Swap, Occurs check, each added when some set of equations got stuck. This time every one may be needed, how often and when depending on the equations themselves. All six in one repeat frame make a whole unifying machine.') }],
     solution: looped(['uDecompose', 'uDelete', 'uSwap', 'uEliminate', 'uCheck', 'uConflict']),
     after: T('这台机器就是<part-ref to="lemma:unifier"></part-ref>：它解出的是<b>最一般的</b>合一子，只定下非定不可的部分，别的 ? 都留着。', 'This machine is the <part-ref to="lemma:unifier"></part-ref>: it finds the <b>most general</b> unifier, settling only what must be settled and leaving every other ?-letter open.'),
   }),
@@ -156,7 +157,7 @@ export const metavars = [
     tests: [{ goal: '(Rain → (Wind → Rain)) ∧ (Wet ∨ ¬Wet)' }, { goal: '(Slip → (Rain → Slip)) ∧ (Rain ∨ ¬Rain)' }, { goal: '(¬Wet → (Wind → ¬Wet)) ∧ (Rain ∧ Wind ∨ ¬(Rain ∧ Wind))' }],
     brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
     hint: [T('拼成 ∧ 有两条前提：用了它，就有两个目标，先证左边那个。', 'Join ∧ has two premises: used, it leaves two goals, the left one first.')],
-    intro: [{ t: T('拼成 ∧ 有两条前提，倒着用它，一个目标就变成两个。元件总是对第一个目标下手。', 'Join ∧ has two premises; used backwards, one goal becomes two. A part always works on the first goal.') }],
+    intro: [{ t: T('<part-ref to="part:rule"></part-ref>把目标换成规则的前提。K 没有前提，一对上就证完了；拼成 ∧ 有两条前提，倒着用它，一个目标就变成两个，排成一列。元件总是对第一个目标下手。', '<part-ref to="part:rule"></part-ref> replaces a goal with the rule’s premises. K has none, and fitting it finishes the goal; Join ∧ has two, and used backwards it turns one goal into two, in a row. A part always works on the first goal.') }],
     solution: script(['rule', 'conjI'], ['rule', 'axK'], ['rule', 'lem']),
     after: T('目标排成一列，一个元件处理排头的那个。证完一个，下一个顶上来。', 'The goals stand in a row, and a part deals with the first. When one is proved, the next moves up.'),
   }),
@@ -218,31 +219,40 @@ export const metavars = [
   prove({
     id: 'r-elim',
     title: T('先用规则，再对上已知', 'A rule, then a given'),
-    tests: [{ goal: 'Wind ∧ Rain', hyps: ['Rain ∧ Wind'] }, { goal: 'Slip ∧ Wet', hyps: ['Wet ∧ Slip'] }, { goal: 'Wind ∧ Wet', hyps: ['Rain', 'Wet ∧ Wind'] }],
-    brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
-    hint: [T('拆开 ∧ 倒过来用，第一个新目标全是 ?：拿已知里有去定它。', 'Split ∧ used backwards leaves a first goal made of ?-letters: let Assumption settle it.')],
-    intro: [{ t: T('拆开 ∧ 写成规则是 ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C：有了 ?A ∧ ?B，而且由 ?A、?B 能证出 ?C，就有 ?C。结论 ?C 对得上任何目标；第一条前提 ?A ∧ ?B 却从目标里读不出来，它成了一个全是 ? 的目标。', 'Split ∧ as a rule is ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C: given ?A ∧ ?B, and ?C provable from ?A and ?B, you have ?C. Its conclusion ?C fits any goal; its first premise ?A ∧ ?B cannot be read off the goal, and becomes a goal made of ?-letters.') }],
-    solution: script(['rule', 'conjE'], 'assumption', ['rule', 'conjI'], 'assumption', 'assumption'),
-    after: T('拆开 ∧ 这样的规则叫<b>消去规则</b>：它的第一条前提要对上一条已知，结论什么都行。用规则，紧接着拿已知去对第一条前提：这两步总是连着走。', 'A rule like Split ∧ is an <b>elimination rule</b>: its first premise must fit a given, and its conclusion fits anything. Use the rule, then fit its first premise with a given at once: these two steps always go together.'),
+    want: 'becomes',
+    builds: 'erule',
+    builtWith: { rule: 'conjE' },
+    tests: [
+      { goal: 'Wind ∧ Rain', hyps: ['Rain ∧ Wind'], becomes: [['Rain ∧ Wind; Rain; Wind ⊢ Wind ∧ Rain']] },
+      { goal: 'Slip', hyps: ['Wet ∧ Slip'], becomes: [['Wet ∧ Slip; Wet; Slip ⊢ Slip']] },
+      { goal: 'Wind ∧ Wet', hyps: ['Rain', 'Wet ∧ Wind'], becomes: [['Rain; Wet ∧ Wind; Wet; Wind ⊢ Wind ∧ Wet']] },
+    ],
+    brief: T('接一台机器：拆开「并且」那条已知，把每个目标变成要的样子。造出的机器是新元件<part-ref to="lemma:erule"></part-ref>，规则留到元件上去选。', 'Wire a machine that takes the “and” given apart, turning each goal into the one wanted. The machine becomes a new part, <part-ref to="lemma:erule"></part-ref>, the rule left to choose on the part.'),
+    hint: [T('倒着用拆开 ∧，第一个新目标全是 ?：拿已知里有去定它。', 'Split ∧ used backwards leaves a first goal made of ?-letters: let Assumption settle it.')],
+    intro: [
+      { t: T('到这里用过的规则，都是看目标的：结论对上目标，前提成了新目标。拆开 ∧ 写成规则是 ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C：结论 ?C 对得上任何目标，第一条前提 ?A ∧ ?B 却从目标里读不出来，成了一个全是 ? 的目标。', 'The rules used so far all look at the goal: the conclusion fits it, the premises become new goals. Split ∧ as a rule is ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C: its conclusion ?C fits any goal, but its first premise ?A ∧ ?B cannot be read off the goal, and becomes a goal made of ?-letters.') },
+      { t: T('这个目标里的 ?，只有已知能定：一条「并且」的已知对上它，?A、?B 就是那两半，下一个目标的已知里多了这两句。', 'Only a given can settle the ?-letters of that goal: an “and” among the givens fits it, ?A and ?B are its two halves, and the next goal gains those two among its givens.') },
+    ],
+    solution: script(['rule', 'conjE'], 'assumption'),
+    after: T('拆开 ∧ 这样的规则叫<b>消去规则</b>：第一条前提要对上一条已知，结论什么都行。用规则、紧接着拿已知去对第一条前提，这两步总是连着走，所以接成了一个元件。原来那条「并且」还留在已知里。', 'A rule like Split ∧ is an <b>elimination rule</b>: its first premise must fit a given, and its conclusion fits anything. Use the rule, then fit its first premise with a given at once: these two steps always go together, so they became one part. The “and” itself stays among the givens.'),
   }),
   prove({
     id: 'r-cases',
     title: T('分情况', 'Case by case'),
-    adds: ['erule'],
     tests: [{ goal: 'Wind ∨ Rain', hyps: ['Rain ∨ Wind'] }, { goal: 'Slip ∨ Wet', hyps: ['Wet ∨ Slip'] }, { goal: 'Bike ∨ Bus', hyps: ['Bus ∨ Bike'] }],
     brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
-    hint: [T('分情况用掉「或者」那条已知，就有两个目标，各有一边在已知里。引入 ∨ 有左右两条规则。', 'Case by case uses up the “or” given and leaves two goals, each with one side among its givens. Bring in ∨ has two rules, left and right.')],
-    intro: [{ t: T('新元件<part-ref to="part:erule"></part-ref>：把用规则和对上已知并成一步。元件上选的规则，结论对上第一个目标，第一条前提对上一条已知，那条已知随即用掉，不再留在新目标里。分情况是 ⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?C; ⟦?B⟧ ⟹ ?C⟧ ⟹ ?C，正要这样用。', 'A new part, <part-ref to="part:erule"></part-ref>: Rule and Assumption in one step. The rule chosen on the part fits its conclusion to the first goal and its first premise to a given, which is then used up and no longer kept in the new goals. Case by case is ⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?C; ⟦?B⟧ ⟹ ?C⟧ ⟹ ?C, made to be used this way.') }],
+    hint: [T('分情况对上「或者」那条已知，就有两个目标，各有一边在已知里。引入 ∨ 有左右两条规则。', 'Case by case on the “or” given leaves two goals, each with one side among its givens. Bring in ∨ has two rules, left and right.')],
+    intro: [{ t: T('<part-ref to="lemma:erule"></part-ref>不只拆「并且」：元件上能选任何一条消去规则。分情况写成规则是 ⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?C; ⟦?B⟧ ⟹ ?C⟧ ⟹ ?C：第一条前提对上「或者」那条已知，剩下两条前提成了两个目标，各多了「或者」的一边。', '<part-ref to="lemma:erule"></part-ref> takes apart more than “and”: any elimination rule can be chosen on it. Case by case as a rule is ⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?C; ⟦?B⟧ ⟹ ?C⟧ ⟹ ?C: its first premise fits the “or” given, and the other two become two goals, each with one side of the “or” added.') }],
     solution: script(['erule', 'disjE'], ['rule', 'disjI2'], 'assumption', ['rule', 'disjI1'], 'assumption'),
-    after: T('消去规则用掉已知，引入规则拆开目标：一个往前，一个往后，在中间碰头。', 'Elimination rules use givens up, introduction rules take goals apart: one works forward, the other back, and they meet in the middle.'),
+    after: T('消去规则拆已知，引入规则拆目标：一个从上往下，一个从下往上，在中间碰头。', 'Elimination rules take givens apart, introduction rules take goals apart: one works down from the top, the other up from the bottom, and they meet in the middle.'),
   }),
   prove({
     id: 'r-false',
     title: T('自相矛盾的已知', 'Givens that contradict'),
     tests: [{ goal: 'Pigs', hyps: ['Rain', '¬Rain'] }, { goal: 'Moon', hyps: ['¬Wet', 'Wet'] }],
     brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
-    hint: [T('先把目标换成 ⊥。¬下雨 就是 下雨 → ⊥：套用也能用掉它。', 'First turn the goal into ⊥. ¬it rains is it rains → ⊥: Apply can use it up too.')],
-    intro: [{ t: T('目标是一句和已知毫不相干的话。已知里却有一对自相矛盾的句子。', 'The goal has nothing to do with the givens. Among the givens, though, is a pair that contradict each other.') }],
+    hint: [T('先把目标换成 ⊥。¬下雨 就是 下雨 → ⊥：套用也能对上它。', 'First turn the goal into ⊥. ¬it rains is it rains → ⊥: Apply fits it too.')],
+    intro: [{ t: T('目标是一句和已知毫不相干的话，已知里却有一对自相矛盾的句子。证明板上，这时先接出 ⊥，再由矛盾推出一切；倒着走，次序反过来。', 'The goal has nothing to do with the givens, yet among the givens is a pair that contradict each other. On the proof board you would wire out ⊥ first, then from contradiction get anything; going backwards, the order turns round.') }],
     solution: script(['rule', 'botE'], ['erule', 'mp'], 'assumption'),
     after: T('套用当消去规则用：第一条前提 ?A → ?B 对上已知 ¬下雨，因为 ¬下雨 就是 下雨 → ⊥。合一器看的是句子的形状，不是它写成什么样子。', 'Apply as an elimination rule: its first premise ?A → ?B fits the given ¬it rains, since ¬it rains is it rains → ⊥. The unifier looks at a sentence’s shape, not at how it is written.'),
   }),
@@ -272,6 +282,16 @@ export const metavars = [
     solution: looped(['unifier', 'uPattern']),
     after: T('元变量只跟着各不相同的约束变量时，解只有一个，这叫<b>高阶模式</b>（Miller 模式）。?P(安) ≐ 安喜欢安 就不是模式：?P 可以是「x喜欢x」「安喜欢x」「x喜欢安」……解不止一个，机器不猜。', 'When a metavariable is followed only by distinct bound variables there is one solution: a <b>higher-order pattern</b> (Miller’s patterns). ?P(Ann) ≐ Ann likes Ann is no pattern: ?P could be “x likes x”, “Ann likes x”, “x likes Ann” …; there is more than one solution, and the machine does not guess.'),
   }),
+  unify({
+    id: 'r-patterns',
+    title: T('几个变量', 'Several variables'),
+    tests: [{ eqs: ['∀x. ∀y. ?P(x, y) ≐ ∀x. ∀y. Likes(x, y) ∨ Likes(y, x)'] }, { eqs: ['∀x. ?P(x) ∧ ?Q(x) ≐ ∀y. Human(y) ∧ Likes(y, ann)'] }, { eqs: ['∀x. ∀y. ?P(y, x) ≐ ∀x. ∀y. Likes(x, y)'] }, { eqs: ['∀x. ?P(x) ∧ ?A ≐ ∀y. Likes(y, ann) ∧ Likes(y, bo)'] }],
+    brief: T('接一台机器：把每组等式解到底；对不上或者没有解的，说「失败」。', 'Wire a machine that solves each set of equations to the end, or says “failed” when they do not fit or have no solution.'),
+    hint: [T('?P 后面跟着几个变量，解出的函数就有几个参数，次序照 ?P 后面的次序。', 'However many variables follow ?P, the function found has that many parameters, in the order they follow ?P.')],
+    intro: [{ t: T('一句话可以同时说两样东西：?P(x, y) 是一句关于 x 和 y 的话。两个「对所有」一层层拆开，等式前面记上 ⋀x y；?P 后面跟着两个不同的约束变量，还是模式。', 'A sentence may speak of two things at once: ?P(x, y) is a sentence about x and y. Two “for all” split one after the other mark the equation ⋀x y; ?P followed by two distinct bound variables is still a pattern.') }],
+    solution: looped(['unifier', 'uPattern']),
+    after: T('模式只看 ?P 后面是不是各不相同的约束变量，几个都行，次序也随意。后面不跟变量的 ?A，还是不能把约束变量带走。', 'A pattern only asks that ?P be followed by distinct bound variables, however many, in any order. An ?A followed by none still may not take a bound variable out.'),
+  }),
   prove({
     id: 'r-allI',
     title: T('任取倒过来', 'For any, backwards'),
@@ -295,25 +315,31 @@ export const metavars = [
   prove({
     id: 'r-drule',
     title: T('往前推一步', 'One step forward'),
-    adds: ['drule'],
-    tests: [{ goal: 'Mortal(soc)', hyps: ['∀x. Human(x) → Mortal(x)', 'Human(soc)'] }, { goal: 'Flies(cy)', hyps: ['∀x. Bird(x) → Flies(x)', 'Bird(cy)'] }, { goal: 'Likes(ann, bo)', hyps: ['Human(bo)', '∀y. Human(y) → Likes(ann, y)'] }],
-    brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
-    hint: [T('往前推，把「对所有」那条已知换成「?t是人 → ?t会死」；剩下的用套用和已知里有。', 'Forward, turn the “for all” given into “?t is human → ?t is mortal”; the rest is Apply and Assumption.')],
+    want: 'becomes',
+    builds: 'frule',
+    builtWith: { rule: 'spec' },
+    tests: [
+      { goal: 'Mortal(soc)', hyps: ['∀x. Human(x) → Mortal(x)', 'Human(soc)'], becomes: [['∀x. Human(x) → Mortal(x); Human(soc); Human(?t) → Mortal(?t) ⊢ Mortal(soc)']] },
+      { goal: 'Flies(cy)', hyps: ['∀x. Bird(x) → Flies(x)', 'Bird(cy)'], becomes: [['∀x. Bird(x) → Flies(x); Bird(cy); Bird(?t) → Flies(?t) ⊢ Flies(cy)']] },
+      { goal: 'Likes(ann, bo)', hyps: ['Human(bo)', '∀y. Human(y) → Likes(ann, y)'], becomes: [['Human(bo); ∀y. Human(y) → Likes(ann, y); Human(?t) → Likes(ann, ?t) ⊢ Likes(ann, bo)']] },
+    ],
+    brief: T('接一台机器：从「对所有」那条已知取一个，加进已知，把每个目标变成要的样子。造出的机器是新元件<part-ref to="lemma:frule"></part-ref>，规则留到元件上去选。', 'Wire a machine that takes one from the “for all” given and adds it to the givens, turning each goal into the one wanted. The machine becomes a new part, <part-ref to="lemma:frule"></part-ref>, the rule left to choose on the part.'),
+    hint: [T('先证一句倒着用，第一个目标是一个光秃秃的 ?A；规则对已知选取一个，?A 就从「对所有」那条已知里定下来。', 'Have used backwards leaves a bare ?A as the first goal; Rule on a given with Take one settles ?A from the “for all” given.')],
     intro: [
       { t: T('取一个写成规则是 ⟦∀x. ?P(x)⟧ ⟹ ?P(?t)。倒着用，结论 ?P(?t) 要对上「苏格拉底会死」：?P 后面跟的是 ?t，不是约束变量。?P 是「x会死」、?t 是苏格拉底？还是 ?P 就是「苏格拉底会死」、?t 随便？解不止一个，合一器不猜，元件对不上。', 'Take one as a rule is ⟦∀x. ?P(x)⟧ ⟹ ?P(?t). Backwards, its conclusion ?P(?t) must fit “Socrates is mortal”: ?P is followed by ?t, not by a bound variable. Is ?P “x is mortal” with ?t Socrates, or is ?P just “Socrates is mortal” with ?t anything? There is more than one solution, the unifier does not guess, and the part does not fit.') },
-      { t: T('从已知往前推就没有这个问题：第一条前提 ∀x. ?P(x) 对上已知「∀x. x是人 → x会死」，正是模式。新元件<part-ref to="part:drule"></part-ref>：规则的第一条前提对上一条已知，那条已知就换成规则的结论；目标不动。', 'Reasoning forward from a given has no such trouble: the first premise ∀x. ?P(x) fits the given “∀x. x is human → x is mortal”, a pattern. A new part, <part-ref to="part:drule"></part-ref>: the rule’s first premise fits a given, and that given becomes the rule’s conclusion; the goal stays.') },
+      { t: T('证明板上不用倒着来：取一个接在「对所有」那条已知后面，得出的一句再接给别的元件。中间得出一句、再拿来用，写成规则是<b>先证一句</b> ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C。倒着用它，多出一个目标 ?A，证出来的 ?A 进了下一个目标的已知。', 'On the proof board there was no need to go backwards: Take one wired after the “for all” given, and what it gave wired on. Getting a sentence on the way and then using it is, as a rule, <b>Have</b>: ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C. Used backwards it adds a goal ?A, and the ?A proved joins the next goal’s givens.') },
     ],
-    solution: script(['drule', 'spec'], ['erule', 'mp'], 'assumption'),
-    after: T('有的规则只能倒着用（任取），有的只好往前推（取一个）：看合一的时候，是哪一边带着约束变量。', 'Some rules only go backwards (For any), some only forwards (Take one): it depends on which side carries the bound variable when unifying.'),
+    solution: script(['rule', 'cut'], ['erule', 'spec']),
+    after: T('这就是从已知<b>往前推</b>：规则的第一条前提对上一条已知，结论加进已知，原来那条还在。有的规则只能倒着用（任取），有的只好往前推（取一个）：看合一的时候，是哪一边带着约束变量。', 'This is reasoning <b>forward</b> from a given: the rule’s first premise fits a given, its conclusion joins the givens, and the given stays. Some rules only go backwards (For any), some only forwards (Take one): it depends on which side carries the bound variable when unifying.'),
   }),
   prove({
     id: 'r-frule',
-    title: T('留着原来那条', 'Keeping the given'),
+    title: T('同一条用两次', 'The same given twice'),
     tests: [{ goal: 'Even(s(s(s(s(zero)))))', hyps: ['∀x. Even(x) → Even(s(s(x)))', 'Even(zero)'] }, { goal: 'Odd(s(s(s(s(s(zero))))))', hyps: ['∀x. Odd(x) → Odd(s(s(x)))', 'Odd(s(zero))'] }],
     brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
-    hint: [T('「对所有」那一句要用两次：第一次往前推时把它留着。', 'The “for all” given is needed twice: keep it the first time you go forward.')],
-    intro: [{ t: T('往前推的元件可以切换：那条已知<b>换掉</b>还是<b>留着</b>。留着，它就还能再用一次，取另一样东西。', 'The Forward part can be switched: is the given <b>replaced</b> or <b>kept</b>? Kept, it can be used again, for another thing.') }],
-    solution: script(['frule', 'spec'], ['drule', 'spec'], ['erule', 'mp'], ['erule', 'mp'], 'assumption'),
+    hint: [T('「对所有」那一句要往前推两次，每次留下一个自己的 ?t。', 'The “for all” given is taken forward twice, each time leaving a ?t of its own.')],
+    intro: [{ t: T('往前推不拿走原来那条已知：「对所有」那一句推过一次还在，还能再推一次，取另一样东西。', 'Going forward does not take the given away: the “for all” sentence is still there after one step, and can go forward again, for another thing.') }],
+    solution: script(['frule', 'spec'], ['frule', 'spec'], ['erule', 'mp'], ['erule', 'mp'], 'assumption'),
     after: T('两次往前推各留下一个 ?t，名字各不相同：一个定成 0+1+1，一个定成 0。', 'Going forward twice left two ?t letters with names of their own: one became 0+1+1, the other 0.'),
   }),
   prove({
@@ -321,8 +347,8 @@ export const metavars = [
     title: T('拿出那一个倒过来', 'Taking out, backwards'),
     tests: [{ goal: 'Pigs', hyps: ['∃x. Human(x) ∧ ¬Human(x)'] }, { goal: 'Moon', hyps: ['∃y. ¬Bird(y) ∧ Bird(y)'] }],
     brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
-    hint: [T('拿出那一个，用掉「存在」那条已知：那一样东西叫 a，目标前面多了 ⋀a。', 'Take the one there is uses up the “there is” given: that thing is called a, and ⋀a comes in front of the goal.')],
-    intro: [{ t: T('拿出那一个写成规则是 ⟦∃x. ?P(x); ⋀x. ⟦?P(x)⟧ ⟹ ?C⟧ ⟹ ?C：它是消去规则，用掉一条「存在」，换来一样叫 a 的东西和关于它的已知。', 'Take the one there is as a rule is ⟦∃x. ?P(x); ⋀x. ⟦?P(x)⟧ ⟹ ?C⟧ ⟹ ?C: an elimination rule, using up a “there is” for a thing called a and a given about it.') }],
+    hint: [T('规则对已知选拿出那一个，对上「存在」那条已知：那一样东西叫 a，目标前面多了 ⋀a。', 'Rule on a given with Take the one there is, on the “there is” given: that thing is called a, and ⋀a comes in front of the goal.')],
+    intro: [{ t: T('拿出那一个写成规则是 ⟦∃x. ?P(x); ⋀x. ⟦?P(x)⟧ ⟹ ?C⟧ ⟹ ?C。它也是消去规则：第一条前提对上一条「存在」，第二条前提前面的 ⋀x，让新目标里多出一样叫 a 的东西和关于它的已知。', 'Take the one there is as a rule is ⟦∃x. ?P(x); ⋀x. ⟦?P(x)⟧ ⟹ ?C⟧ ⟹ ?C. It is an elimination rule too: its first premise fits a “there is”, and the ⋀x in front of the second gives the new goal a thing called a and a given about it.') }],
     solution: script(['rule', 'botE'], ['erule', 'exE'], ['erule', 'conjE'], ['erule', 'mp'], 'assumption'),
     after: T('a 是这个目标自己取出来的：它前面写着 ⋀a，只在这个目标里有。', 'a was taken out by this goal itself: the ⋀a in front of it says a exists only within this goal.'),
   }),

@@ -122,9 +122,9 @@ export const ERAS = [
       // Reading terms: functions first, then the data each connective's proofs are.
       series('fn', '读证明项 · 函数', 'Reading proof terms: functions', ['t-app', 't-lam', 't-chain', 't-two']),
       series('data', '读证明项 · 数据', 'Reading proof terms: data', ['t-pair', 't-curry', 't-or', 't-mt', 't-absurd']),
-      series('write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wlam', 't-wpair', 't-wcases', 't-kernel', 't-exact']),
-      // Detours and the quantifiers' terms need nothing from each other.
+      // Once terms can be read, writing them, their detours and the quantifiers' terms need nothing from each other.
       branches(
+        ['write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wlam', 't-wpair', 't-wcases', 't-kernel', 't-exact']],
         ['detour', '弯路', 'Detours', ['t-detour', 't-beta', 't-casedetour', 't-lemma']],
         ['quant', '量词的证明项', 'Quantifiers’ proof terms', ['t-all', 't-ex']],
       ),
@@ -138,12 +138,15 @@ export const ERAS = [
       // The machine that unifies: splitting, all the way down in the repeat frame, then a rule of unification a level,
       // each going round with the others; all six make the unifier.
       series('unify', '合一', 'Unification', ['r-match', 'r-deep', 'r-delete', 'r-clash', 'r-twice', 'r-both', 'r-occurs', 'r-unifier']),
-      // On proof states: a goal replaced by a rule's premises, ?-letters settled later, lemmas as rules.
-      series('backward', '倒着用规则', 'Rules backwards', ['r-rule', 'r-subgoals', 'r-assumption', 'r-meta', 'r-lemma']),
-      // Elimination rules use a given up.
-      series('elim', '用掉已知', 'Using givens up', ['r-elim', 'r-cases', 'r-false', 'r-dist']),
-      // Patterns ?P(x), and the quantifier rules: backwards, forwards, kept.
-      series('quant', '量词与模式', 'Quantifiers and patterns', ['r-pattern', 'r-allI', 'r-exI', 'r-drule', 'r-frule', 'r-exE']),
+      // With the unifier, two lines need nothing from each other: on proof states, a goal replaced by a rule's premises,
+      // ?-letters settled later, lemmas as rules, and elimination rules (a rule and Assumption, built into one part);
+      // on equations, patterns ?P(x).
+      branches(
+        ['backward', '倒着用规则', 'Rules backwards', ['r-rule', 'r-subgoals', 'r-assumption', 'r-meta', 'r-lemma', 'r-elim', 'r-cases', 'r-false', 'r-dist']],
+        ['pattern', '模式', 'Patterns', ['r-pattern', 'r-patterns']],
+      ),
+      // The quantifier rules need both: backwards, forwards (Have and a rule on a given, built into one part).
+      series('quant', '量词的规则', 'Quantifier rules', ['r-allI', 'r-exI', 'r-drule', 'r-frule', 'r-exE']),
     ],
     challenges: [{ level: 'r-order', after: 'r-exE' }],
     chapter: { title: T('规则与元变量', 'Rules and metavariables'), question: T('元件能不能自己从目标里读出该填的句子？', 'Can a part read off the goal what to fill in?') },
@@ -151,12 +154,20 @@ export const ERAS = [
   {
     id: 'tactics', machine: 'prover', keeps: 'all',
     foundation: [
-      // Combinators on proof states: or else, repeat, both, try, every goal.
-      series('combine', '组合', 'Combining', ['s-orelse', 's-repeat', 's-mix', 's-try', 's-each']),
-      // Which goal settles a ?-letter; every result, append, depth-first search.
-      series('backtrack', '回溯', 'Backtracking', ['s-defer', 's-results', 's-append', 's-search']),
-      // Rule sets: the player's own auto, and what it leaves out.
-      series('auto', '自己的 auto', 'Your own auto', ['s-intro', 's-elim', 's-auto', 's-lem']),
+      // Combinators on proof states (repeat, alternatives, both, try, every goal) and backtracking (which goal settles a
+      // ?-letter, every result) need nothing from each other.
+      branches(
+        ['combine', '组合', 'Combining', ['s-repeat', 's-orelse', 's-mix', 's-try', 's-each']],
+        ['backtrack', '回溯', 'Backtracking', ['s-defer', 's-results']],
+      ),
+      // With both: alternatives keeping every way and depth-first search; every introduction and every elimination
+      // rule as one part each.
+      branches(
+        ['search', '搜索', 'Search', ['s-append', 's-search']],
+        ['shapes', '按形状', 'By shape', ['s-intro', 's-elim']],
+      ),
+      // The player's own auto, and what it leaves out.
+      series('auto', '自己的 auto', 'Your own auto', ['s-auto', 's-lem']),
     ],
     // Prolog is rule resolution and depth-first search: it goes on from chapter 4's family tree.
     topics: [{ id: 'prolog', code: 'P', after: ['s-search', 'q-grand'], levels: ['pl-grand', 'pl-anc', 'pl-order'], title: T('用规则推族谱', 'A family tree by rules') }],

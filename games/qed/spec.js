@@ -4,6 +4,16 @@ import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import { ERAS } from './levels/eras.js'
 import { LEMMAS, LOGIC } from './levels/index.js'
 
+// A saved machine board (or a level's list of them) with each card as version 28 has it.
+const CARD = (n) => {
+  if (n.type === 'orElse') return { ...n, type: 'append' }
+  if (n.type === 'drule') return { ...n, type: 'frule', params: { rule: n.params?.rule } }
+  if (n.type === 'rule' && n.params?.rule === 'intro') return { ...n, type: 'introRules', params: {} }
+  if (n.type === 'erule' && n.params?.rule === 'elim') return { ...n, type: 'elimRules', params: {} }
+  return n
+}
+const machineCards = (value) => (Array.isArray(value) ? value.map(machineCards) : value?.nodes ? { ...value, nodes: value.nodes.map(CARD) } : value)
+
 export default {
   id: 'qed',
   domain: 'logic',
@@ -86,7 +96,11 @@ export default {
   // follows has passed it.
   { version: 26, ops: [{ solve: ['r-delete', ['r-deep']] }] },
   // Version 27 made 排中律不可否定 and 反证法 the two tasks of one level (反证法's id), so the part 排中不可否定 is gone.
-  { version: 27, ops: [{ merge: ['raa', ['notnotlem', 'raa']] }] }],
+  { version: 27, ops: [{ merge: ['raa', ['notnotlem', 'raa']] }] },
+  // Version 28 kept the primitive tactics to Rule and Assumption: Or else became Alternatives, the Forward card (Use up
+  // kept or replaced) became the built Forward, and the rule sets the built Goal apart and Use a given. 几个变量 came in
+  // before the quantifier rules: whoever had passed them has passed it.
+  { version: 28, ops: [{ data: (value) => machineCards(value) }, { solve: ['r-allI', ['r-patterns']] }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
   quotes: ['任取'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },

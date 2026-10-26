@@ -109,10 +109,11 @@ export function validate({ levels: given, course }) {
     if (level.given && missingForms(parseTerm(level.given)).length) out.push({ fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
   }
   // A machine part a level builds runs as its built-in implementation: alone, it passes the level that builds it, unless
-  // a task of the level proves it (a law card proved on the proof board, then put to work).
+  // a task of the level proves it (a law card proved on the proof board, then put to work). A part whose circuit chose
+  // a rule takes that choice as its setting (`builtWith`: the setting the level's circuit had).
   const proven = new Set(given.filter((l) => l.proves || l.tasks?.some((t) => t.proves)).map((l) => l.id))
   for (const level of levels.filter((l) => l.builds && MACHINE_PARTS[l.builds] && l.kind === 'machine' && !proven.has(l.id))) {
-    const alone = { nodes: [{ id: 'in', type: 'in', params: { name: 'in' } }, { id: 'x', type: level.builds }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [{ from: 'in', to: 'x', port: 'in' }, { from: 'x', to: 'out', port: 'in' }] }
+    const alone = { nodes: [{ id: 'in', type: 'in', params: { name: 'in' } }, { id: 'x', type: level.builds, params: level.builtWith ?? {} }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [{ from: 'in', to: 'x', port: 'in' }, { from: 'x', to: 'out', port: 'in' }] }
     const run = runLevel(MACHINE_TESTS, level, alone)
     if (!run.pass) out.push({ fail: true, text: `${level.id}: the built-in ${level.builds} does not pass the level that builds it` })
   }

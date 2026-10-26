@@ -12,8 +12,8 @@ import { FORMULA_TEXT, occurrences, parse, replaceAtoms, replaceTerm, show, tvar
 import { sayTerm } from '../notation.js'
 import { choicesOf } from '../choices.js'
 import { LOGIC_TESTS } from '../proof.js'
-import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel, ruleBookOf } from '../machine.js'
-import { RULE_SETS, ruleText } from '../schematic.js'
+import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel, parseGoal, ruleBookOf } from '../machine.js'
+import { INTRO_RULES, ruleText } from '../schematic.js'
 import { paramsOf } from '../../../engine/forms.js'
 import { portsOf } from '../../../engine/circuit.js'
 import { refuted } from '../clauses.js'
@@ -199,15 +199,14 @@ const WANT = {
   proved: T('没有目标了：证完', 'no goals left: proved'),
 }
 const MACHINE_ICONS = { repeat: Repeat, saturate: Sigma, search: Search, each: Rows3 }
-// The rules a tactic card offers, in groups: the rule sets (once the level has them), the introduction rules, the
-// elimination and other rules, the lemmas proved, the level's own.
+// The rules a tactic card offers, in groups: the introduction rules, the elimination and other rules, the lemmas
+// proved, the level's own.
 function ruleGroups(level, text) {
   const book = ruleBookOf(level)
   const option = (r) => ({ value: r.key, label: r.name, text: ruleText(r, text) })
   const rules = Object.values(book)
-  const intro = new Set(RULE_SETS.intro.rules)
+  const intro = new Set(INTRO_RULES)
   return [
-    ...(level.ruleSets ? [{ label: T('一组规则', 'Rule sets'), options: Object.entries(RULE_SETS).map(([value, set]) => ({ value, label: set.name })) }] : []),
     { label: T('引入规则', 'Introduction rules'), options: rules.filter((r) => intro.has(r.key)).map(option) },
     { label: T('消去规则和其他', 'Elimination and other rules'), options: rules.filter((r) => !intro.has(r.key) && !r.lemma && !r.own).map(option) },
     { label: T('证出的引理', 'Lemmas proved'), options: rules.filter((r) => r.lemma).map(option) },
@@ -227,7 +226,7 @@ function machinePartsFor(level) {
     family: (node) => (node.type === 'in' ? 'given' : node.type === 'out' ? 'end' : MACHINE_PARTS[node.type]?.frames ? 'box' : 'lemma'),
     icon: (node) => (node.type === 'in' ? ArrowRightFromLine : node.type === 'out' ? Flag : MACHINE_ICONS[node.type] ?? (MACHINE_PARTS[node.type]?.frames ? Box : Sigma)),
     // A frame gives its result, and inside each region what that region opens with.
-    outputs: (node) => (MACHINE_PARTS[node.type]?.frames ? [{ key: null, label: T('得出', 'Result'), short: T('得出', 'Result') }, ...MACHINE_PARTS[node.type].frames().filter((r) => r.opens).map((r) => ({ key: r.name, label: T('收到', 'Receives'), short: T('收到', 'Receives') }))] : null),
+    outputs: (node) => (MACHINE_PARTS[node.type]?.frames ? [{ key: null, label: T('得出', 'Result'), short: T('得出', 'Result') }, ...MACHINE_PARTS[node.type].frames(node).filter((r) => r.opens).map((r) => ({ key: r.name, label: T('收到', 'Receives'), short: T('收到', 'Receives') }))] : null),
     cardWidth: (node) => (MACHINE_PARTS[node.type]?.frames ? 260 : node.type === 'in' || node.type === 'out' ? 190 : 170),
     frames: (node) => (MACHINE_PARTS[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: MACHINE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),
     text: FORMULA_TEXT,
@@ -252,7 +251,9 @@ export const MACHINE = {
   scene: (level, test, text) => {
     const inputs = inputsOf(test)
     const labels = new Map(inputsOfLevel(level).map((i) => [i.name, i.label]))
-    const want = L(WANT[test.want ?? level.want])
+    // A step's results, each its goals, or that it cannot be done.
+    const becomes = test.becomes && (test.becomes.length ? `${tr('变成 ', 'it to become ')}${test.becomes.map((r) => (r.length ? r.map((g) => goalText(parseGoal(g), text)).join(' | ') : tr('证完', 'proved'))).join(tr('，或者 ', ', or '))}` : tr('这一步失败', 'the step to fail'))
+    const want = becomes ?? L(WANT[test.want ?? level.want])
     const show = (v) => (v.kind === 'state' ? v.goals.map((g) => goalText(g, text)).join(tr('；', '; ')) : v.kind === 'formula' ? text(v.f) : v.kind === 'eqs' ? v.eqs.map((e) => eqText(e, text)).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormulaOf(c))).join(tr('；', '; ')))
     return {
       sequent: <>{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => text(parseTh(d))).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,

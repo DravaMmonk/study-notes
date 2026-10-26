@@ -60,7 +60,7 @@ export const terms = [
     brief: T('实现一个证明器，可以从已知 p：「下雨 → (刮风 → 地湿)」、q：「刮风」证明出「下雨 → 地湿」，证明项要是 fun h => p h q。', 'Build a prover that, from p: “it rains → (it is windy → the ground is wet)” and q: “it is windy”, proves “it rains → the ground is wet”, with the term fun h => p h q.'),
     hint: [T('fun h => … 是一个框，h 是框里假设的那一句；箭头后面是框里要接出的东西。', 'fun h => … is a box, h the sentence it assumes; after the arrow is what is wired inside it.')],
     intro: [
-      { t: T('要造一个函数，就写 <b>fun h => …</b>：「拿到一个 h，就给出 …」。假设框做的正是这件事：框里假设的那一句有了一个名字 h，框里证出的东西用到 h，框外得到的是一个等着 h 的函数。这就是 <b>λ</b>（也可以写成 λ h => …）。', 'To make a function, write <b>fun h => …</b>: “given an h, give …”. The assumption box does just that: the sentence it assumes gets a name h, what is proved inside uses h, and outside you get a function waiting for an h. This is <b>λ</b> (it may also be written λ h => …).') },
+      { t: T('套用把一个函数用在证明上。那函数从哪来？证明板上，「若…则…」是假设框造出来的。要造一个函数，就写 <b>fun h => …</b>：「拿到一个 h，就给出 …」。假设框做的正是这件事：框里假设的那一句有了一个名字 h，框里证出的东西用到 h，框外得到的是一个等着 h 的函数。这就是 <b>λ</b>（也可以写成 λ h => …）。', 'Apply uses a function on a proof. Where does the function come from? On the proof board, an “if … then …” is made by the assumption box. To make a function, write <b>fun h => …</b>: “given an h, give …”. The assumption box does just that: the sentence it assumes gets a name h, what is proved inside uses h, and outside you get a function waiting for an h. This is <b>λ</b> (it may also be written λ h => …).') },
       { t: T('框里的假设在元件上叫 h1；框套框时，里面一层叫 h2。名字只是记号：fun h => h 和 fun x => x 是同一个证明项。', 'A box’s assumption is called h1 on the part; a box inside it calls its own h2. The names are only labels: fun h => h and fun x => x are the same term.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>m2.imp', 'q>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
@@ -85,7 +85,7 @@ export const terms = [
         solution: chainByHand,
       }),
     ],
-    intro: [{ t: T('证过的引理也有名字，它们的元件在证明项里就写成名字：用串联，证明项里就是 chain。', 'A lemma you proved has a name too, and its part appears in a term by that name: use Chain, and the term says chain.') }],
+    intro: [{ t: T('有了应用和 fun，就能读出一条引理里面做了什么。证过的引理也有名字，它们的元件在证明项里就写成名字：用串联，证明项里就是 chain；不用它，把串联的接法自己接出来，证明项就把它的做法写了出来。', 'With application and fun, what a lemma does inside can be read. A lemma you proved has a name, and its part appears in a term by that name: use Chain, and the term says chain; wire what Chain does yourself instead, and the term writes out how it works.') }],
     after: T('fun h => q (p h) 先做 p 再做 q：这是函数的<b>复合</b>，数学里写作 q ∘ p。串联这条引理，就是复合这个函数。两个证明项证的是同一句，一个用了引理的名字，一个把它的做法写了出来。', 'fun h => q (p h) does p, then q: function <b>composition</b>, written q ∘ p in mathematics. The lemma Chain is composition. The two terms prove the same sentence; one uses the lemma’s name, the other writes out what it does.'),
   },
   {
@@ -107,7 +107,7 @@ export const terms = [
         solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'A' }, 'f'] }, ['g#body>g.body', 'g>f.body', 'f>goal']),
       }),
     ],
-    intro: [{ t: T('fun a b => … 是 fun a => fun b => … 的简写：两层框。', 'fun a b => … is short for fun a => fun b => …: two boxes.') }],
+    intro: [{ t: T('证明项比证出的那一句记得多：它还记着证明是怎么接的。同一句话接法不同，证明项就不同。fun a b => … 是 fun a => fun b => … 的简写：两层框。', 'A term remembers more than the sentence proved: it also keeps how the proof was wired. Wire one sentence two ways, and the terms differ. fun a b => … is short for fun a => fun b => …: two boxes.') }],
     after: T('真值表只说一句话真不真；证明项还记得它<b>为什么</b>真。同一句话可以有不同的证明，就像同一个类型可以有不同的程序：一个返回第一个参数，一个返回第二个。', 'A truth table only says whether a sentence is true; a proof term also remembers <b>why</b>. One sentence can have different proofs, as one type can have different programs: one returns its first argument, the other its second.'),
   },
 
@@ -121,7 +121,7 @@ export const terms = [
     cases: TWO,
     brief: T('实现一个证明器，可以从已知 p：「下雨 ∧ 今天是周六」证明出「今天是周六 ∧ 下雨」，证明项要是 ⟨p.2, p.1⟩。', 'Build a prover that, from p: “it rains ∧ today is Saturday”, proves “today is Saturday ∧ it rains”, with the term ⟨p.2, p.1⟩.'),
     hint: [T('p.2 是 p 的右一半，p.1 是左一半。', 'p.2 is the right half of p, p.1 the left half.')],
-    intro: [{ t: T('一句「A ∧ B」的证明是一<b>对</b>：一个 A 的证明和一个 B 的证明放在一起，写作 <b>⟨a, b⟩</b>。拆开 ∧ 就是取出一半：<b>p.1</b> 是左边那个，<b>p.2</b> 是右边那个。', 'A proof of “A ∧ B” is a <b>pair</b>: a proof of A and a proof of B together, written <b>⟨a, b⟩</b>. Splitting ∧ takes out one half: <b>p.1</b> is the left one, <b>p.2</b> the right.') }],
+    intro: [{ t: T('「若…则…」的证明是函数。别的连接词，证明又是什么样的东西？先看「并且」：一句「A ∧ B」的证明是一<b>对</b>：一个 A 的证明和一个 B 的证明放在一起，写作 <b>⟨a, b⟩</b>。拆开 ∧ 就是取出一半：<b>p.1</b> 是左边那个，<b>p.2</b> 是右边那个。', 'A proof of an “if … then …” is a function. What are the proofs of the other connectives? First “and”: a proof of “A ∧ B” is a <b>pair</b>: a proof of A and a proof of B together, written <b>⟨a, b⟩</b>. Splitting ∧ takes out one half: <b>p.1</b> is the left one, <b>p.2</b> the right.') }],
     solution: proof({ e: ['andE'], i: ['andI'] }, ['p>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>goal'], { premises: ['p'] }),
     after: T('拼起来 ∧ 就是造一对，拆开 ∧ 就是取出一个分量。程序里这叫有序对或二元组。', 'Joining ∧ makes a pair; splitting it takes out a component. In programs this is an ordered pair, a tuple.'),
   },
@@ -130,6 +130,7 @@ export const terms = [
     kind: 'proof',
     terms: true,
     title: T('一对，还是一个一个', 'A pair, or one at a time'),
+    intro: [{ t: T('「并且」是一对，「若…则…」是函数，两样合在一起：「下雨 ∧ 刮风 → 地湿」的证明吃一对，「下雨 → (刮风 → 地湿)」的证明一个一个地吃。手里有前一种，能造出后一种吗？', '“And” is a pair and “if … then …” a function, and they combine: a proof of “it rains ∧ it is windy → the ground is wet” takes a pair, one of “it rains → (it is windy → the ground is wet)” takes them one at a time. Given the first kind, can you make the second?') }],
     tests: [{ premises: { p: 'A ∧ B → C' }, goal: 'A → (B → C)', term: 'fun a b => p ⟨a, b⟩' }],
     cases: RAIN,
     brief: T('实现一个证明器，可以从已知 p：「下雨 ∧ 刮风 → 地湿」证明出「下雨 → (刮风 → 地湿)」，证明项要是 fun a b => p ⟨a, b⟩。', 'Build a prover that, from p: “it rains ∧ it is windy → the ground is wet”, proves “it rains → (it is windy → the ground is wet)”, with the term fun a b => p ⟨a, b⟩.'),
@@ -147,7 +148,7 @@ export const terms = [
     brief: T('实现一个证明器，可以从已知 p：「下雨 ∨ 今天是周六」证明出「今天是周六 ∨ 下雨」，证明项要是 p.elim (fun a => Or.inr a) (fun b => Or.inl b)。', 'Build a prover that, from p: “it rains ∨ today is Saturday”, proves “today is Saturday ∨ it rains”, with the term p.elim (fun a => Or.inr a) (fun b => Or.inl b).'),
     hint: [T('p.elim 后面的两个 fun 是分情况的两个格子：左格假设左边那句，右格假设右边那句。', 'The two funs after p.elim are the two compartments of Cases: the left assumes the left sentence, the right the right one.')],
     intro: [
-      { t: T('一句「A ∨ B」的证明带着一个<b>标签</b>：Or.inl a 说「是左边，这是它的证明 a」，Or.inr b 说「是右边，证明是 b」。', 'A proof of “A ∨ B” carries a <b>tag</b>: Or.inl a says “the left one, and a proves it”, Or.inr b says “the right one, proved by b”.') },
+      { t: T('一对的两半都在；「或者」却只有一边成立，证明得记着是哪一边。一句「A ∨ B」的证明带着一个<b>标签</b>：Or.inl a 说「是左边，这是它的证明 a」，Or.inr b 说「是右边，证明是 b」。', 'A pair holds both halves; an “or” has one side holding, and its proof must keep which. A proof of “A ∨ B” carries a <b>tag</b>: Or.inl a says “the left one, and a proves it”, Or.inr b says “the right one, proved by b”.') },
       { t: T('分情况写成 <b>p.elim f g</b>：看 p 的标签，是左边就用 f，是右边就用 g。f 和 g 各是一个 fun，也就是分情况元件上的两个格子。', 'Cases is written <b>p.elim f g</b>: look at p’s tag; left, use f; right, use g. f and g are each a fun: the two compartments on the Cases part.') },
     ],
     solution: proof({ e: ['orE'], l: ['orI', { other: 'B', side: 'left' }, 'e/left'], r: ['orI', { other: 'A', side: 'right' }, 'e/right'] }, ['p>e.ab', 'e#left>l.a', 'l>e.left', 'e#right>r.a', 'r>e.right', 'e>goal'], { premises: ['p'] }),
@@ -162,7 +163,7 @@ export const terms = [
     cases: CHAIN,
     brief: T('实现一个证明器，可以从已知 p：「下雨 → 地湿」、q：「¬地湿」证明出「¬下雨」，证明项要是 fun a => q (p a)。', 'Build a prover that, from p: “it rains → the ground is wet” and q: “¬the ground is wet”, proves “¬it rains”, with the term fun a => q (p a).'),
     hint: [T('¬下雨 是 下雨 → ⊥：一个框，拿到下雨，就要给出矛盾。', '¬it rains is it rains → ⊥: a box that, given it rains, must give the contradiction.')],
-    intro: [{ t: T('「¬A」就是「A → ⊥」，所以 ¬A 的证明也是一个函数：给它一个 A 的证明，它还你一个矛盾。q 证的是 ¬B，q 用在一个 B 的证明上，就得到 ⊥。', '“¬A” is “A → ⊥”, so a proof of ¬A is a function too: give it a proof of A and it gives back a contradiction. q proves ¬B; q used on a proof of B gives ⊥.') }],
+    intro: [{ t: T('否定不用新东西：「¬A」就是「A → ⊥」，所以 ¬A 的证明也是一个函数：给它一个 A 的证明，它还你一个矛盾。q 证的是 ¬B，q 用在一个 B 的证明上，就得到 ⊥。', 'Negation needs nothing new: “¬A” is “A → ⊥”, so a proof of ¬A is a function too: give it a proof of A and it gives back a contradiction. q proves ¬B; q used on a proof of B gives ⊥.') }],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
     after: T('看这个证明项：它和<level-ref to="t-chain"></level-ref>里的复合一模一样，只是最后那一句是 ⊥。否定后件，就是把 p 和 q 复合起来。', 'Look at the term: it is exactly the composition of <level-ref to="t-chain"></level-ref>, only the last sentence is ⊥. Denying the consequent is composing p and q.'),
   },
@@ -198,12 +199,13 @@ export const terms = [
       { premises: { p: 'Rain → (Wind → Wet)', q: 'Rain', r: 'Wind' }, goal: 'Wet', answer: 'p q r', hint: [T('p q r 是 (p q) r：最外面那次应用的函数，本身又是一次应用。', 'p q r is (p q) r: the function of the outermost application is itself an application.')] },
       { premises: { p: 'Rain → Wet', q: 'Wet → Slip', r: 'Rain' }, goal: 'Slip', answer: 'q (p r)', hint: [T('最后用的是 q，它要的「地湿」从哪来？', 'The last one used is q; where does the “ground is wet” it needs come from?')] },
     ]),
-    intro: [{ t: T('新的板：<b>证明项板</b>。不接线了，用下面的块把证明项拼出来：块填进去就写成字，它自己要填的地方留成框，再往框里填别的块。拼完了，机器检查这个证明项的类型是不是要证的那句话。', 'A new board: the <b>term board</b>. No wiring now: build the proof term from the pieces below. A piece put in is written out, with a box for each place it leaves to fill, and other pieces go in those boxes. When it is whole, the machine checks that the term’s type is the sentence to prove.') }],
+    intro: [{ t: T('读到这里，证明项都是先接好线、再由元件写出来的。反过来也行：直接写证明项，交给机器去查。新的板：<b>证明项板</b>。不接线了，用下面的块把证明项拼出来：块填进去就写成字，它自己要填的地方留成框，再往框里填别的块。拼完了，机器检查这个证明项的类型是不是要证的那句话。', 'So far every term was written by the parts after the wiring. It works the other way too: write the term yourself, and let the machine check it. A new board: the <b>term board</b>. No wiring now: build the proof term from the pieces below. A piece put in is written out, with a box for each place it leaves to fill, and other pieces go in those boxes. When it is whole, the machine checks that the term’s type is the sentence to prove.') }],
     after: T('机器没有看你怎么想到的，只检查拼出的证明项：每一次应用，函数的前一半都要和参数对得上。证明器的核做的就是这件事：<b>证明检查就是类型检查</b>。', 'The machine does not look at how you found it, only at the term built: at every application, the function’s first half must match the argument. This is what a prover’s kernel does: <b>proof checking is type checking</b>.'),
   },
   {
     id: 't-wlam',
     title: T('写一个 λ', 'Write a λ'),
+    intro: [{ t: T('会写应用了，接着写造函数的 fun：证一句「若…则…」，就是写一个函数，拿到前一半的证明，交出后一半的证明。', 'Application written, now the fun that makes a function: proving an “if … then …” is writing a function that takes a proof of the first half and hands back one of the second.') }],
     tasks: write([
       { premises: {}, goal: 'Rain → Rain', answer: 'fun a => a', hint: [T('要证「若…则…」，先放「fun _ => □」：它给前一半起了个名字。', 'To prove an “if … then …”, put down “fun _ => □” first: it gives the first half a name.')] },
       { premises: { p: 'Wet' }, goal: 'Rain → Wet', answer: 'fun a => p', hint: [T('拿到的 a 不一定要用上。', 'The a you are given need not be used.')] },
@@ -215,6 +217,7 @@ export const terms = [
   {
     id: 't-wpair',
     title: T('写一对', 'Write a pair'),
+    intro: [{ t: T('函数会写了，再写数据：「并且」的证明是一对，写作 ⟨a, b⟩，拆开写作 p.1 和 p.2。', 'Functions written, now data: a proof of “and” is a pair, written ⟨a, b⟩, taken apart as p.1 and p.2.') }],
     tasks: write([
       { premises: { p: 'Rain', q: 'Wind' }, goal: 'Rain ∧ Wind', answer: '⟨p, q⟩', hint: [T('「…并且…」的证明是一对。', 'A proof of “… and …” is a pair.')] },
       { premises: { p: 'Rain ∧ Wind' }, goal: 'Wind ∧ Rain', answer: '⟨p.2, p.1⟩', hint: [T('p.1 是 p 的左一半，p.2 是右一半。', 'p.1 is the left half of p, p.2 the right.')] },
@@ -226,6 +229,7 @@ export const terms = [
   {
     id: 't-wcases',
     title: T('写分情况', 'Write cases'),
+    intro: [{ t: T('最后是「或者」：贴标签写 Or.inl、Or.inr，按标签分情况写 p.elim，后面跟两个 fun。', 'Last, “or”: tag with Or.inl and Or.inr, and take cases on the tag with p.elim followed by two funs.') }],
     tasks: write([
       { premises: { p: 'Rain' }, goal: 'Rain ∨ Sat', answer: 'Or.inl p', hint: [T('给 p 贴上标签：它是左边那句。', 'Tag p: it is the left one.')] },
       { premises: { p: 'Rain ∨ Sat' }, goal: 'Sat ∨ Rain', answer: 'p.elim (fun a => Or.inr a) (fun b => Or.inl b)', hint: [T('分情况：两个 fun 各处理一边，在新的「或者」里，它们各在哪一边？', 'Cases: each fun handles one side; in the new “or”, which side is each on?')] },
@@ -244,7 +248,7 @@ export const terms = [
       { premises: { p: 'Rain ∨ Sat' }, goal: 'Sat ∨ Rain', given: 'p.elim (fun a => Or.inl a) (fun b => Or.inr b)', answer: 'p.elim (fun a => Or.inr a) (fun b => Or.inl b)', hint: [T('a 证的是下雨，在「今天是周六 ∨ 下雨」里，下雨在哪一边？', 'a proves it rains; in “today is Saturday ∨ it rains”, which side is that?')] },
       { premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip', given: 'fun a => p (q a)', answer: 'fun a => q (p a)', hint: [T('拿到的 a 证的是下雨，先该交给谁？', 'The a you get proves it rains: who should get it first?')] },
     ]),
-    intro: [{ t: T('这几个证明项是别人写的，都说证出了要证的那句。先点检查，看核怎么说，再把它们改对。核不管证明项是谁写的、怎么想出来的，只查每一处的类型对不对得上。', 'These proof terms were written by someone else, each claiming to prove its sentence. Check first and see what the kernel says, then mend them. The kernel does not care who wrote a proof term or how they found it; it only checks that every type fits.') }],
+    intro: [{ t: T('写证明项时，每一处都是机器在查：查证明项的，就是证明器的核。这几个证明项是别人写的，都说证出了要证的那句。先点检查，看核怎么说，再把它们改对。核不管证明项是谁写的、怎么想出来的，只查每一处的类型对不对得上。', 'While you wrote terms, the machine checked every place: what checks terms is the prover’s kernel. These proof terms were written by someone else, each claiming to prove its sentence. Check first and see what the kernel says, then mend them. The kernel does not care who wrote a proof term or how they found it; it only checks that every type fits.') }],
     after: T('核只认类型：写错一处，它就指出错在哪。证明项留了下来，谁都可以拿去再查一遍，不必相信写它的人，也不必相信想出它的那段自动化。检查证明的核可以做得很小，所以可信。', 'The kernel goes by types alone: one mistake and it says where. The proof term stays, and anyone can check it again, trusting neither whoever wrote it nor the automation that found it. The kernel that checks proofs can be small, and that is why it can be trusted.'),
   },
 
@@ -278,7 +282,7 @@ export const terms = [
         solution: proof({ x: ['exact', { A: 'B ∧ A', term: '⟨p.2, p.1⟩' }], m: ['mp'] }, ['q>m.imp', 'x>m.a', 'm>goal'], { premises: ['p', 'q'] }),
       }),
     ],
-    intro: [{ t: T('写出来的证明项，也能放回证明板上用：新元件<part-ref to="part:exact"></part-ref>的元件上选好要证的句子，再拼出它的证明项。核检查通过，这个元件就证出了那句话，和接线证出的一样能接给别的元件。', 'A proof term once written can go back on the proof board: on the new part <part-ref to="part:exact"></part-ref>, choose the sentence to prove and build its proof term. When the kernel accepts it, the part has proved that sentence, and its output wires on just like a wired proof’s.') }],
+    intro: [{ t: T('证明板和证明项板，证的是同一种东西。写出来的证明项，也能放回证明板上用：新元件<part-ref to="part:exact"></part-ref>的元件上选好要证的句子，再拼出它的证明项。核检查通过，这个元件就证出了那句话，和接线证出的一样能接给别的元件。', 'The proof board and the term board prove the same things. A proof term once written can go back on the proof board: on the new part <part-ref to="part:exact"></part-ref>, choose the sentence to prove and build its proof term. When the kernel accepts it, the part has proved that sentence, and its output wires on just like a wired proof’s.') }],
     after: T('接线和写证明项是同一件事的两种写法，可以混着用：哪一段好接就接线，哪一段好写就写证明项。', 'Wiring and writing a proof term are two ways to write one thing, and they mix: wire where wiring is easier, write a term where writing is.'),
   },
 
@@ -286,6 +290,7 @@ export const terms = [
   {
     id: 't-detour',
     title: T('先拼又拆', 'Joined, then split'),
+    intro: [{ t: T('同一句话可以有好几个证明项，有的绕了远路：先造出一样东西，马上又把它拆开。', 'One sentence can have several terms, and some take the long way round: make something, then take it apart at once.') }],
     tasks: [
       prove({
         tests: [{ premises: { p: 'A', q: 'B' }, goal: 'A', term: '⟨p, q⟩.1' }],
@@ -332,6 +337,7 @@ export const terms = [
   {
     id: 't-casedetour',
     title: T('标签刚贴上就拆', 'A tag read as soon as it is put on'),
+    intro: [{ t: T('「或者」也有弯路：刚贴上标签，马上又按标签分情况。', '“Or” has its detours too: a tag just put on, and cases taken on it at once.') }],
     tasks: [
       prove({
         tests: [{ premises: { p: 'A', q: 'A → C', r: 'B → C' }, goal: 'C', term: '(Or.inl p).elim (fun a => q a) (fun b => r b)' }],
@@ -388,7 +394,7 @@ export const terms = [
         solution: proof({ g: ['allI', { x: 'a' }], h: ['impI', { A: 'P(a)' }, 'g'] }, ['h#body>h.body', 'h>g.body', 'g>goal']),
       }),
     ],
-    intro: [{ t: T('「∀x. …」的证明也是函数，只是参数不是证明，而是一样东西：给它一样东西 t，它还你关于 t 的那句话的证明。还回来的句子跟着 t 变，这叫<b>依赖函数</b>。取一个，写成把那样东西传进去：p ann。', 'A proof of “∀x. …” is a function too, but its argument is not a proof, it is a thing: give it a thing t and it gives back a proof of the sentence about t. The sentence given back depends on t, so this is a <b>dependent function</b>. Take one is written as passing the thing in: p ann.') }],
+    intro: [{ t: T('到这里的证明项都只关于连接词。量词的证明也是证明项：「∀x. …」的证明也是函数，只是参数不是证明，而是一样东西：给它一样东西 t，它还你关于 t 的那句话的证明。还回来的句子跟着 t 变，这叫<b>依赖函数</b>。取一个，写成把那样东西传进去：p ann。', 'The terms so far were all about connectives. Proofs with quantifiers are terms too: a proof of “∀x. …” is a function, but its argument is not a proof, it is a thing: give it a thing t and it gives back a proof of the sentence about t. The sentence given back depends on t, so this is a <b>dependent function</b>. Take one is written as passing the thing in: p ann.') }],
     after: T('任取框是 fun x，假设框是 fun h，写起来一模一样，区别只在参数是东西还是证明。两者本来就是同一种东西：→ 只是不依赖参数的 ∀。', 'The for-any box is fun x and the assumption box fun h, written exactly alike; the only difference is whether the argument is a thing or a proof. They are one and the same: → is just a ∀ that does not depend on its argument.'),
   },
   {
@@ -411,7 +417,7 @@ export const terms = [
         solution: proof({ f: ['exE', { x: 'a' }], s: ['andE', {}, 'f'], i: ['exI', {}, 'f'] }, ['p>f.ex', 'f#body>s.ab', 's#left>i.a', 'i>f.body', 'f>goal'], { premises: ['p'] }),
       }),
     ],
-    intro: [{ t: T('「∃x. …」的证明是一<b>对</b>：一样东西（见证），和它满足那句话的证明。用它要写 p.elim (fun a h => …)：拿出那样东西叫 a，证明叫 h。', 'A proof of “∃x. …” is a <b>pair</b>: a thing (the witness) and a proof that it fits. Using one is written p.elim (fun a h => …): the thing taken out is called a, its proof h.') }],
+    intro: [{ t: T('∀ 像 →，是函数；∃ 像 ∧：「∃x. …」的证明是一<b>对</b>：一样东西（见证），和它满足那句话的证明。用它要写 p.elim (fun a h => …)：拿出那样东西叫 a，证明叫 h。', '∀ is like →, a function; ∃ is like ∧: a proof of “∃x. …” is a <b>pair</b>: a thing (the witness) and a proof that it fits. Using one is written p.elim (fun a h => …): the thing taken out is called a, its proof h.') }],
     after: T('∀ 是函数，∃ 是一对，正像 → 是函数、∧ 是一对，只是这回的一半是东西。拿出那一个的框里，a 不能逃出框：结果里不能提到它，因为外面不知道它是谁。', '∀ is a function and ∃ a pair, just as → is a function and ∧ a pair, only now one half is a thing. In the take-the-one box, a may not escape: the result may not mention it, since outside nobody knows which it is.'),
   },
 

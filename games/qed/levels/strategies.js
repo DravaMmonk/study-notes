@@ -1,91 +1,97 @@
-// Chapter 8 · Tactics: a machine is no longer a script for one shape of goal but a program for many, a tactic. First the
-// combinators: or else, the repeat frame on proof states, both together, an or else that does nothing (try), every goal.
-// Then backtracking: which goal first can decide a ?-letter (defer); from then on a card gives every result and each
-// card after it works on each (the showcase), append keeps two ways, and depth-first search goes on until no goal is
-// left. Then the player's own auto, from rule sets: introduction rules, elimination rules, both (it becomes a part), and
-// what it cannot do (proof by contradiction, by hand first). The topic asks a family tree by rules (Prolog is rule
-// resolution and depth-first search); the challenge is a search that never stops on what cannot be proved.
+// Chapter 8 · Tactics: a machine is no longer a script for one shape of goal but a program for many, a tactic. Two
+// lines need nothing from each other. Combinators: the repeat frame on proof states, alternatives (the first that does
+// not fail), both together, an alternative that does nothing (try), every goal. Backtracking: which goal first can decide
+// a ?-letter (defer); from then on a card gives every result and each card after it works on each (the showcase). With
+// both, again two lines: alternatives keep every way, and depth-first search goes on until no goal is left; every
+// introduction rule as one part, every elimination rule as another (each built from alternatives). Then the player's
+// own auto, a search over the two (it becomes a part), and what it cannot do (proof by contradiction, by hand first).
+// The topic asks a family tree by rules (Prolog is rule resolution and depth-first search); the challenge is a search
+// that never stops on what cannot be proved.
 import { machine } from '../../kit/domains/logic/build.js'
 import { script } from './metavars.js'
 
 const T = (zh, en) => ({ zh, en })
 const GOAL = [{ name: 'in', label: T('目标', 'Goal') }]
 const prove = (level) => ({ kind: 'machine', want: 'proved', inputs: GOAL, ...level })
-// From 一串结果 on, a card gives every result; from 按形状拆 on, it can try a set of rules.
+// From 一串结果 on, a card gives every result.
 const each = (level) => prove({ backtrack: true, ...level })
-const sets = (level) => each({ ruleSets: true, ...level })
 const ask = (level) => ({ kind: 'machine', want: 'answers', inputs: [{ name: 'in', label: T('问题', 'Question') }], backtrack: true, ...level })
 const BRIEF = T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.')
 
-// Depth-first search over one step: assumption, else (appended) each of the steps given, the last followed by the cards
-// in `region` (all in that step's region); a depth limit when given.
-function searchOf(steps, { depth, region = [] } = {}) {
-  const nodes = { s: ['search', depth ? { depth: String(depth) } : {}] }
-  const wires = ['in>s.in', 's>out']
+// A machine from the goal to the result, its items one after another: a card (its type, or [type, rule]), a frame
+// ({ frame, params?, body: [item] }), or alternatives ({ ways: [[item]] }, an empty way passing the state on).
+const REGIONS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']
+function flow(...items) {
+  const nodes = {}
+  const wires = []
   let n = 0
-  // Fill a region (where), opened by src, its result into dst, with alternatives, each a row of cards.
-  const fill = (alts, where, src, dst) => {
-    if (alts.length === 1) {
-      let from = src
-      for (const [type, params] of alts[0]) {
-        const id = `c${n++}`
-        nodes[id] = [type, params, where]
-        wires.push(`${from}>${id}.in`)
-        from = id
+  const fill = (list, where, src, dst) => {
+    let from = src
+    for (const item of list) {
+      const id = `c${n++}`
+      const at = where ? [where] : []
+      if (item.ways) {
+        nodes[id] = ['append', item.ways.length > 2 ? { ways: String(item.ways.length) } : {}, ...at]
+        item.ways.forEach((way, k) => fill(way, `${id}/${REGIONS[k]}`, `${id}#${REGIONS[k]}`, `${id}.${REGIONS[k]}`))
+      } else if (item.frame) {
+        nodes[id] = [item.frame, item.params ?? {}, ...at]
+        fill(item.body, `${id}/body`, `${id}#body`, `${id}.body`)
+      } else {
+        const [type, rule] = [item].flat()
+        nodes[id] = [type, rule ? { rule } : {}, ...at]
       }
-      wires.push(`${from}>${dst}`)
-      return
+      wires.push(`${from}>${id}.in`)
+      from = id
     }
-    const id = `p${n++}`
-    nodes[id] = ['append', {}, where]
-    wires.push(`${src}>${id}.in`, `${id}>${dst}`)
-    fill([alts[0]], `${id}/first`, `${id}#first`, `${id}.first`)
-    fill(alts.slice(1), `${id}/second`, `${id}#second`, `${id}.second`)
+    wires.push(`${from}>${dst}`)
   }
-  const alts = [[['assumption', {}]], ...steps.map(([type, rule], k) => [[type, { rule }], ...(k === steps.length - 1 ? region.map((t) => [t, {}]) : [])])]
-  fill(alts, 's', 's#body', 's.body')
+  fill(items, null, 'in', 'out')
   return machine(nodes, wires)
 }
+// Depth-first search over one step: assumption, or each of the steps given, the last followed by the cards in
+// `region`; a depth limit when given.
+const searchOf = (steps, { depth, region = [] } = {}) => flow({
+  frame: 'search',
+  params: depth ? { depth: String(depth) } : {},
+  body: [{ ways: [['assumption'], ...steps.map((step, k) => [step, ...(k === steps.length - 1 ? region : [])])] }],
+})
 
 const FAMILY = ['Parent(ann, bo)', 'Parent(bo, cy)', 'Parent(bo, dee)', 'Parent(dee, en)', 'Parent(fay, en)']
 
 export const strategies = [
   // ---------- combinators ----------
   prove({
-    id: 's-orelse',
-    title: T('不行就换', 'Or else'),
-    adds: ['orElse'],
-    tests: [{ goal: 'Wind ∨ Rain', hyps: ['Wind'] }, { goal: 'Rain → Rain' }, { goal: 'Slip ∨ Wet', hyps: ['Slip'] }],
-    brief: BRIEF,
-    hint: [T('第一个元件要看目标是什么样子：是「或者」就引入 ∨，是「若…则…」就倒着用假设框。', 'The first part depends on the goal’s shape: an “or” wants Bring in ∨, an “if … then …” the assumption box backwards.')],
-    intro: [
-      { t: T('到上一章为止，一台机器是一份脚本：元件一个接一个，专证一种样子的目标。从这一章起，一台机器要对付各种样子的目标，它是一个<b>策略</b>：一段会产生证明的程序。Isabelle 的 auto、Lean 的 simp 和 aesop 都是这样的程序。', 'Up to the last chapter a machine was a script: part after part, for goals of one shape. From this chapter on a machine must take goals of many shapes; it is a <b>tactic</b>, a program that makes proofs. Isabelle’s auto and Lean’s simp and aesop are such programs.') },
-      { t: T('新元件<part-ref to="part:orElse"></part-ref>：两个框拿到同一个状态，第一个框的结果没失败就用它，失败了就用第二个框的。', 'A new part, <part-ref to="part:orElse"></part-ref>: both regions get the same state; the first region’s result is used unless it failed, and then the second’s.') },
-    ],
-    solution: machine({ o: ['orElse'], a: ['rule', { rule: 'disjI1' }, 'o/first'], b: ['rule', { rule: 'impI' }, 'o/second'], c: ['assumption'] }, ['in>o.in', 'o#first>a.in', 'a>o.first', 'o#second>b.in', 'b>o.second', 'o>c.in', 'c>out']),
-    after: T('策略只会用规则，所以不管它怎样组合，证出来的都是核认可的定理：自动化造不出假定理。', 'A tactic only ever uses rules, so however it is put together, what it proves is a theorem the kernel accepts: automation cannot make a false theorem.'),
-  }),
-  prove({
     id: 's-repeat',
     title: T('做到做不动', 'Until it cannot'),
     tests: [{ goal: 'Rain → (Wind → (Wet → Rain))' }, { goal: 'Rain → Rain' }, { goal: 'Slip → (Rain → Slip)' }],
     brief: BRIEF,
     hint: [T('「若…则…」有几层，假设框就要倒着用几次。', 'The assumption box is needed backwards once for each level of “if … then …”.')],
-    intro: [{ t: T('重复框在合一器里一圈一圈地合一；放在证明状态上，它一圈一圈地用框里的策略，直到策略失败，停在失败前的那一圈。', 'The repeat frame went round unifying in the unifier; on a proof state it goes round using the tactic inside, until the tactic fails, stopping at the round before.') }],
-    solution: machine({ r: ['repeat'], a: ['rule', { rule: 'impI' }, 'r'], c: ['assumption'] }, ['in>r.in', 'r#body>a.in', 'a>r.body', 'r>c.in', 'c>out']),
-    after: T('失败不算错：它告诉重复框该停了。', 'Failing is no fault here: it tells the frame to stop.'),
+    intro: [
+      { t: T('上一章的机器是一份脚本：元件一个接一个，专证一种样子的目标。「若…则…」有三层，就要接三个假设框；换成两层，机器就得重接。从这一章起，一台机器要对付各种样子的目标：它是一个<b>策略</b>，一段会产生证明的程序。Isabelle 的 auto、Lean 的 simp 都是这样的程序。', 'Last chapter’s machine was a script: part after part, for goals of one shape. Three levels of “if … then …” take three assumption boxes; with two, the machine must be rewired. From this chapter on a machine must take goals of many shapes: it is a <b>tactic</b>, a program that makes proofs. Isabelle’s auto and Lean’s simp are such programs.') },
+      { t: T('合一时碰到过一样的事：要拆几层事先不知道，靠的是<part-ref to="part:repeat"></part-ref>。放在证明状态上，它一圈一圈地用框里的元件，直到元件失败，停在失败前的那一圈。', 'Unifying met the same thing: how many levels to split was not known beforehand, and the <part-ref to="part:repeat"></part-ref> took care of it. On a proof state it goes round using the parts inside, until they fail, stopping at the round before.') },
+    ],
+    solution: flow({ frame: 'repeat', body: [['rule', 'impI']] }, 'assumption'),
+    after: T('失败不算错：它告诉重复框该停了。层数不同的目标，证它们的是同一台机器。', 'Failing is no fault here: it tells the frame to stop. Goals with different numbers of levels are proved by one machine.'),
+  }),
+  prove({
+    id: 's-orelse',
+    title: T('不行就换', 'Or else'),
+    adds: ['append'],
+    tests: [{ goal: 'Wind ∨ Rain', hyps: ['Wind'] }, { goal: 'Rain → Rain' }, { goal: 'Slip ∨ Wet', hyps: ['Slip'] }],
+    brief: BRIEF,
+    hint: [T('第一步要看目标是什么样子：是「或者」就引入 ∨，是「若…则…」就倒着用假设框。', 'The first step depends on the goal’s shape: an “or” wants Bring in ∨, an “if … then …” the assumption box backwards.')],
+    intro: [{ t: T('重复框里只放得下一种做法，可目标的样子不止一种：引入 ∨ 对着「或者」行，对着「若…则…」就失败；假设框正相反。新元件<part-ref to="part:append"></part-ref>：每个框拿到同一个状态，用第一个没失败的框的结果。', 'The repeat frame holds one way of doing things, but goals come in more than one shape: Bring in ∨ fits an “or” and fails on an “if … then …”; the assumption box the other way round. A new part, <part-ref to="part:append"></part-ref>: every region gets the same state, and the result is the first region’s that did not fail.') }],
+    solution: flow({ ways: [[['rule', 'disjI1']], [['rule', 'impI']]] }, 'assumption'),
+    after: T('策略只会用规则，所以不管它怎样组合，证出来的都是核认可的定理：自动化造不出假定理。', 'A tactic only ever uses rules, so however it is put together, what it proves is a theorem the kernel accepts: automation cannot make a false theorem.'),
   }),
   prove({
     id: 's-mix',
     title: T('重复里套着不行就换', 'Or else, repeated'),
     tests: [{ goal: 'Rain → (Wind → Rain ∧ Wind)' }, { goal: '(Rain → Rain) ∧ (Wind → (Rain → Wind))' }, { goal: 'Rain → (Wind → Wind ∧ (Rain ∧ Wind))' }],
     brief: BRIEF,
-    hint: [T('每一圈：目标在已知里就收掉，不然看它是「若…则…」还是「并且」。', 'Each round: if the goal is a given, finish it; otherwise see whether it is an “if … then …” or an “and”.')],
-    intro: [{ t: T('目标一层套一层，「若…则…」和「并且」混在一起，次序每个目标都不一样。', 'Goal inside goal, “if … then …” and “and” mixed, in a different order every time.') }],
-    solution: machine(
-      { r: ['repeat'], o1: ['orElse', {}, 'r'], x: ['assumption', {}, 'o1/first'], o2: ['orElse', {}, 'o1/second'], i: ['rule', { rule: 'impI' }, 'o2/first'], j: ['rule', { rule: 'conjI' }, 'o2/second'] },
-      ['in>r.in', 'r#body>o1.in', 'o1#first>x.in', 'x>o1.first', 'o1#second>o2.in', 'o2#first>i.in', 'i>o2.first', 'o2#second>j.in', 'j>o2.second', 'o2>o1.second', 'o1>r.body', 'r>out'],
-    ),
+    hint: [T('每一圈三条路：目标在已知里就收掉，不然看它是「若…则…」还是「并且」。几条路的元件上可以选三个框。', 'Three ways each round: if the goal is a given, finish it; otherwise see whether it is an “if … then …” or an “and”. Alternatives can be set to three regions.')],
+    intro: [{ t: T('把几条路放进重复框，每一圈先看目标是什么样子，再决定用哪条规则。这一回目标一层套一层，「若…则…」和「并且」混在一起，次序每个目标都不一样。', 'Put Alternatives in the repeat frame, and each round looks at the goal’s shape before choosing a rule. This time goals sit inside goals, “if … then …” and “and” mixed, in a different order every time.') }],
+    solution: flow({ frame: 'repeat', body: [{ ways: [['assumption'], [['rule', 'impI']], [['rule', 'conjI']]] }] }),
     after: T('框里套框，就是程序里的循环套着分支。这台机器已经能证一大类目标了。', 'Frames inside frames are a loop around a branch, as in any program. This machine already proves a whole class of goals.'),
   }),
   prove({
@@ -93,10 +99,10 @@ export const strategies = [
     title: T('可做可不做', 'A step that may not apply'),
     tests: [{ goal: 'Rain ∧ Wind → Rain' }, { goal: 'Rain → Rain' }, { goal: 'Wet ∧ Slip → Wet' }],
     brief: BRIEF,
-    hint: [T('有的目标要拆开一条已知，有的不用。不行就换的第二个框里什么都不放，把收到的直接接到结果。', 'Some goals need a given taken apart, some do not. Leave the second region of Or else empty, wiring what it receives straight to its result.')],
-    intro: [{ t: T('有时某一步可做可不做：能做就做，做不了就当没这一步。', 'Sometimes a step may or may not apply: do it if it can be done, and otherwise go on as if it were not there.') }],
-    solution: machine({ i: ['rule', { rule: 'impI' }], o: ['orElse'], e: ['erule', { rule: 'conjE' }, 'o/first'], c: ['assumption'] }, ['in>i.in', 'i>o.in', 'o#first>e.in', 'e>o.first', 'o#second>o.second', 'o>c.in', 'c>out']),
-    after: T('什么都不做也是一个策略，而且永远成功。和不行就换合起来，就是「试一试」。', 'Doing nothing is a tactic too, one that always succeeds. With Or else it makes “try”.'),
+    hint: [T('有的目标要拆开一条已知，有的不用。几条路的第二个框里什么都不放，把收到的直接接到结果。', 'Some goals need a given taken apart, some do not. Leave the second region of Alternatives empty, wiring what it receives straight to its result.')],
+    intro: [{ t: T('有时某一步可做可不做：已知里有「并且」就该拆开，没有就不必。可规则对已知碰到没有「并且」的已知会失败，整台机器跟着停下。', 'Sometimes a step may or may not apply: an “and” among the givens should be taken apart, and without one there is nothing to do. But Rule on a given fails when no given is an “and”, and the whole machine stops with it.') }],
+    solution: flow(['rule', 'impI'], { ways: [[['erule', 'conjE']], []] }, 'assumption'),
+    after: T('什么都不做也是一个策略，而且永远成功。放在几条路的最后一个框，就是「试一试」。', 'Doing nothing is a tactic too, one that always succeeds. In the last region of Alternatives it makes “try”.'),
   }),
   prove({
     id: 's-each',
@@ -106,8 +112,8 @@ export const strategies = [
     tests: [{ goal: '(Rain → Rain) ∧ (Wind → Wind)' }, { goal: '(Wet ∧ Rain → Wet ∧ Rain) ∧ (Slip → Slip)' }],
     brief: T('接一台机器，最多用 4 个元件，证完每一个目标。', 'Wire a machine of at most 4 parts that proves every goal.'),
     hint: [T('拼成以后的两个目标，要做的是同一件事。', 'The two goals after the join need the same thing done.')],
-    intro: [{ t: T('拼成 ∧ 以后，两个目标要做的事一模一样，元件却要再接一遍。新元件<part-ref to="part:each"></part-ref>：框里的元件对每个目标各做一遍，每次只看那一个目标。', 'After Join ∧, the two goals need exactly the same done, yet the parts would have to be wired twice. A new part, <part-ref to="part:each"></part-ref>: the parts inside run once on each goal, seeing only that one each time.') }],
-    solution: machine({ c: ['rule', { rule: 'conjI' }], e: ['each'], i: ['rule', { rule: 'impI' }, 'e'], a: ['assumption', {}, 'e'] }, ['in>c.in', 'c>e.in', 'e#body>i.in', 'i>a.in', 'a>e.body', 'e>out']),
+    intro: [{ t: T('拼成 ∧ 以后，两个目标要做的事一模一样，可元件只对第一个目标下手，同样的元件要接两遍。新元件<part-ref to="part:each"></part-ref>：框里的元件对每个目标各做一遍，每次只看那一个目标。', 'After Join ∧ the two goals need exactly the same done, yet a part only works on the first goal, so the same parts would be wired twice. A new part, <part-ref to="part:each"></part-ref>: the parts inside run once on each goal, seeing only that one each time.') }],
+    solution: flow(['rule', 'conjI'], { frame: 'each', body: [['rule', 'impI'], 'assumption'] }),
     after: T('框里的元件只看见一个目标，却对每个目标都做了一遍：同样的事只接一次。', 'The parts inside see one goal, yet run on every goal: the same thing wired only once.'),
   }),
 
@@ -120,7 +126,7 @@ export const strategies = [
     brief: BRIEF,
     hint: [T('「是人」的人不止一个，「喜欢安」的只有一个：让知道得多的那个目标先定下 ?t。', 'More than one is human, only one likes Ann: let the goal that knows more settle ?t first.')],
     intro: [
-      { t: T('举例倒过来、再拼成以后，有两个目标：?t是人，?t喜欢安。已知里有拿第一个对上的已知：先证「?t是人」，?t 就成了茜，可茜不喜欢安，第二个目标就证不下去了。', 'After Example and Join ∧ backwards there are two goals: ?t is human, ?t likes Ann. Assumption takes the first given that fits: prove “?t is human” first, and ?t becomes Cy, who does not like Ann, so the second goal cannot be proved.') },
+      { t: T('一个元件做一步，后面的元件接着它的结果做。可一个 ? 留在两个目标里时，先证哪一个，就由哪一个来定它：举例倒过来、再拼成以后，两个目标是 ?t是人、?t喜欢安。已知里有拿第一条对上的已知：先证「?t是人」，?t 就成了茜，可茜不喜欢安，第二个目标就证不下去了。', 'A part takes a step, and the next works on what it gives. But when a ?-letter sits in two goals, whichever is proved first settles it: after Example and Join ∧ backwards the goals are ?t is human, ?t likes Ann. Assumption takes the first given that fits: prove “?t is human” first, and ?t becomes Cy, who does not like Ann, so the second goal cannot be proved.') },
       { t: T('新元件<part-ref to="part:defer"></part-ref>：把第一个目标挪到最后，第二个目标先证。', 'A new part, <part-ref to="part:defer"></part-ref>: it moves the first goal to the end, so the second is proved first.') },
     ],
     solution: script(['rule', 'exI'], ['rule', 'conjI'], 'defer', 'assumption', 'assumption'),
@@ -132,24 +138,25 @@ export const strategies = [
     showcase: T('一个元件现在给出所有对得上的结果，按顺序排成一串；后面的元件对每一种都做一遍，走不通的那几种自己消失：这就是回溯，光看说明想不到后面的元件会替前面的元件收拾残局', 'a part now gives every result that fits, in order; each later part works on each of them, and those that lead nowhere drop out: this is backtracking, and from the description alone one does not guess that later parts clear up after earlier ones'),
     tests: [{ goal: '∃x. Human(x) ∧ Likes(x, ann)', hyps: ['Human(cy)', 'Human(bo)', 'Likes(bo, ann)'] }, { goal: '∃x. Likes(x, ann) ∧ Likes(x, bo)', hyps: ['Likes(cy, ann)', 'Likes(en, bo)', 'Likes(dee, bo)', 'Likes(dee, ann)'] }],
     brief: BRIEF,
-    hint: [T('不用放到最后了：已知里有给出每一个对得上的人，第二张已知里有对每一个都试。', 'No need to defer: Assumption gives everyone who fits, and the second Assumption tries each.')],
+    hint: [T('不用放到最后了：已知里有给出每一个对得上的人，第二个已知里有对每一个都试。', 'No need to defer: Assumption gives everyone who fits, and the second Assumption tries each.')],
     intro: [
-      { t: T('第二组测试里，两个目标都有不止一个人对得上，先证哪一个都会先拿错人。', 'In the second test more than one person fits each goal; whichever goes first takes the wrong one first.') },
+      { t: T('第二组测试里，两个目标都有不止一个人对得上，先证哪一个都会先拿错人：挪动次序也救不了。', 'In the second test more than one person fits each goal; whichever goes first takes the wrong one first, and moving goals round does not help.') },
       { t: T('从这一关起，元件给出<b>所有</b>对得上的结果，一种一种排成一串：已知里有每对上一条已知，就是一种结果。后面的元件对每一种都做一遍，做不下去的那几种自己消失，留下来的第一种就是答案。元件上会写「第 1 种结果，共 n 种」。', 'From this level on a part gives <b>every</b> result that fits, one after another: each given that Assumption fits is a result. Each later part works on every one of them; those that cannot go on drop out, and the first left is the answer. A part shows “result 1 of n”.') },
     ],
     solution: script(['rule', 'exI'], ['rule', 'conjI'], 'assumption', 'assumption'),
     after: T('这就是<b>回溯</b>：走错了路，退回最近一个还有别的选择的地方，换下一种。', 'This is <b>backtracking</b>: down a wrong path, go back to the latest place with another choice and take the next one.'),
   }),
+
+  // ---------- search ----------
   each({
     id: 's-append',
     title: T('两条路都要', 'Both ways'),
-    adds: ['append'],
     tests: [{ goal: 'Rain ∨ Wind', hyps: ['Wind'] }, { goal: 'Rain ∨ Wind', hyps: ['Rain'] }, { goal: 'Wet ∨ Slip', hyps: ['Slip'] }],
     brief: BRIEF,
-    hint: [T('不行就换只要第一个没失败的；「或者」的两边，哪一边对是后面才知道的。', 'Or else keeps only the first that does not fail; which side of the “or” is right shows only later.')],
-    intro: [{ t: T('引入 ∨ 有左右两条规则，对着「或者」的目标两条都不会失败。不行就换只会拿左边那条，后面发现错了也回不去。新元件<part-ref to="part:append"></part-ref>：先是第一个框的每一种结果，再是第二个框的每一种结果。', 'Bring in ∨ has two rules, left and right, and against an “or” goal neither fails. Or else only takes the left one, and finding out later that it was wrong, cannot go back. A new part, <part-ref to="part:append"></part-ref>: every result of the first region, then every result of the second.') }],
-    solution: machine({ p: ['append'], a: ['rule', { rule: 'disjI1' }, 'p/first'], b: ['rule', { rule: 'disjI2' }, 'p/second'], c: ['assumption'] }, ['in>p.in', 'p#first>a.in', 'a>p.first', 'p#second>b.in', 'b>p.second', 'p>c.in', 'c>out']),
-    after: T('不行就换是「第一个能走的」，两条路都要是「每一条能走的」：后者留下了回头的余地。', 'Or else means “the first that goes”, Append “every one that goes”: the second leaves room to turn back.'),
+    hint: [T('引入 ∨ 的左右两条，各放一个框；哪一边对，交给后面的已知里有去挑。', 'Bring in ∨ left and right, one region each; which side is right, leave to the Assumption after.')],
+    intro: [{ t: T('引入 ∨ 有左右两条规则，对着「或者」的目标，两条都不会失败。在<level-ref to="s-orelse"></level-ref>里，几条路只用第一个没失败的框，左边错了也回不去。回溯以后，<part-ref to="part:append"></part-ref>也给出所有结果：先是第一个框的每一种，再是下一个框的每一种。', 'Bring in ∨ has two rules, left and right, and against an “or” neither fails. In <level-ref to="s-orelse"></level-ref> Alternatives took only the first region that did not fail, and a wrong left side could not be undone. With backtracking <part-ref to="part:append"></part-ref> gives every result too: every one of the first region, then every one of the next.') }],
+    solution: flow({ ways: [[['rule', 'disjI1']], [['rule', 'disjI2']]] }, 'assumption'),
+    after: T('没有回溯时，几条路是「第一条能走的」；有了回溯，它是「每一条能走的」，留下了回头的余地。', 'Without backtracking, Alternatives means “the first way that goes”; with it, “every way that goes”, leaving room to turn back.'),
   }),
   each({
     id: 's-search',
@@ -159,52 +166,73 @@ export const strategies = [
     brief: BRIEF,
     hint: [T('每一步：已知里有，或者引入 ∨ 的左边，或者右边。走几步，交给搜索。', 'Each step: Assumption, or Bring in ∨ left, or right. How many steps is the search’s business.')],
     intro: [
-      { t: T('要证到底要几步，事先不知道。重复框只顺着第一种结果往下走，走进死胡同就停了。', 'How many steps it takes is not known beforehand. The repeat frame follows only the first result, and stops in a dead end.') },
+      { t: T('「或者」一层套一层，每一层都要挑一边，要走几步事先不知道。重复框不行：它只顺着第一种结果往下走，走进死胡同就停了。', '“Or” inside “or”: each level needs a side chosen, and how many steps it takes is not known beforehand. The repeat frame will not do: it follows only the first result, and stops in a dead end.') },
       { t: T('新元件<part-ref to="part:search"></part-ref>：框里的元件做一步，得到的每一种结果再接着做，一条路走到头（证完，或者做不下去）再退回来换下一条，这叫<b>深度优先搜索</b>。它送出找到的每一个证完的状态。', 'A new part, <part-ref to="part:search"></part-ref>: the parts inside take a step, and each result is stepped on again; one path is followed to its end (done, or stuck) before going back for the next. This is <b>depth-first search</b>. It gives every finished state it finds.') },
     ],
     solution: searchOf([['rule', 'disjI1'], ['rule', 'disjI2']]),
     after: T('一步做什么，加上<part-ref to="part:search"></part-ref>，就是一个完整的证明搜索。', 'What to do in a step, plus <part-ref to="part:search"></part-ref>, is a whole proof search.'),
   }),
 
-  // ---------- your own auto ----------
-  sets({
+  // ---------- by shape ----------
+  each({
     id: 's-intro',
-    title: T('按形状拆', 'By shape'),
-    tests: [{ goal: 'Rain → (Wind → Rain ∧ Wind)' }, { goal: 'Rain → (Wind → Wind ∨ Wet)' }, { goal: '∀x. Human(x) → Human(x) ∨ Bird(x)' }],
-    brief: BRIEF,
-    hint: [T('引入规则一组：拼成、假设框、引入 ∨、任取、举例，对上哪条用哪条。', 'The introduction rules as a set: join, assumption box, bring in ∨, for any, example, whichever fits.')],
-    intro: [{ t: T('用规则元件上，现在还能选<b>一组规则</b>：选「引入规则（一组）」，每一条引入规则都试，对上的每一条都是一种结果。目标是什么样子，就用哪条规则拆它。', 'The Rule part can now also take <b>a set of rules</b>: with “Introduction rules (a set)” every introduction rule is tried, and each that fits is a result. Whatever the goal’s shape, the rule for it takes it apart.') }],
-    solution: searchOf([['rule', 'intro']]),
-    after: T('引入规则看的是目标：一个目标是什么样子，就是哪条引入规则造出来的。', 'Introduction rules look at the goal: its shape says which introduction rule made it.'),
+    title: T('按形状拆目标', 'The goal by its shape'),
+    want: 'becomes',
+    builds: 'introRules',
+    tests: [
+      { goal: 'Rain ∧ Wind', becomes: [['Rain', 'Wind']] },
+      { goal: 'Rain → Wet', becomes: [['Rain ⊢ Wet']] },
+      { goal: 'Rain ∨ Wind', becomes: [['Rain'], ['Wind']] },
+      { goal: '∀x. Human(x) → Mortal(x)', becomes: [['⋀a. Human(a) → Mortal(a)']] },
+      { goal: '∃x. Human(x)', becomes: [['Human(?t)']] },
+      { goal: 'Rain', becomes: [] },
+    ],
+    brief: T('接一台机器：不管目标是什么样子，都用对得上的引入规则倒着拆一步，每一种拆法都留下；一条都对不上的，失败。造出的机器是新元件<part-ref to="lemma:introRules"></part-ref>。', 'Wire a machine that takes any goal one step apart with the introduction rules that fit, keeping every way; when none fits, it fails. The machine becomes a new part, <part-ref to="lemma:introRules"></part-ref>.'),
+    hint: [T('六条引入规则，每条一个框：几条路的元件上可以选到六个框。对不上的框自己失败。', 'Six introduction rules, one region each: Alternatives can be set to six. A region whose rule does not fit fails by itself.')],
+    intro: [{ t: T('到现在，每一步用哪条规则，都是你看了这一关的目标挑好接进去的。要对付什么样子的目标都行，一步里就得把规则都试一遍。引入规则看的是目标：拼成、假设框、引入 ∨ 左右两条、任取、举例。一个目标是什么样子，就是哪条引入规则造出来的。', 'Until now, which rule each step uses was chosen by you, looking at this level’s goals. To take goals of any shape, a step must try every rule. Introduction rules look at the goal: join, the assumption box, bring in ∨ left and right, for any, example. A goal’s shape says which introduction rule made it.') }],
+    solution: flow({ ways: [[['rule', 'conjI']], [['rule', 'impI']], [['rule', 'disjI1']], [['rule', 'disjI2']], [['rule', 'allI']], [['rule', 'exI']]] }),
+    after: T('对不上的规则自己失败，几条路把对得上的都留下：一个元件，就是「按形状拆目标」。', 'A rule that does not fit fails by itself, and Alternatives keeps the ones that fit: one part that takes the goal apart by its shape.'),
   }),
-  sets({
+  each({
     id: 's-elim',
-    title: T('用掉已知', 'Using givens up'),
-    tests: [{ goal: 'Wind', hyps: ['Rain ∧ Wind'] }, { goal: 'Wet', hyps: ['(Rain ∧ Wind) ∧ Wet'] }, { goal: 'Wind', hyps: ['Wind ∨ Wind'] }, { goal: 'Rain', hyps: ['⊥'] }],
-    brief: BRIEF,
-    hint: [T('这一次目标不用拆，要拆的是已知：消去规则一组。', 'This time it is not the goal that comes apart but the givens: the elimination rules as a set.')],
-    intro: [{ t: T('另一组是<b>消去规则</b>：拆开 ∧、分情况、用上「若…则…」、矛盾推出一切、拿出那一个、取一个再用。用掉已知的元件选它，每一条消去规则对每一条已知都试。', 'The other set is the <b>elimination rules</b>: split ∧, case by case, use an “if”, from contradiction, take the one there is, take one and use it. On the Use up part it tries every elimination rule on every given.') }],
-    solution: searchOf([['erule', 'elim']]),
-    after: T('消去规则看的是已知：已知是什么样子，就能怎样用它。', 'Elimination rules look at the givens: a given’s shape says how it can be used.'),
+    title: T('按形状用已知', 'The givens by their shape'),
+    want: 'becomes',
+    builds: 'elimRules',
+    tests: [
+      { goal: 'Wet', hyps: ['Rain ∧ Wind'], becomes: [['Rain ∧ Wind; Rain; Wind ⊢ Wet']] },
+      { goal: 'Wet', hyps: ['Rain ∨ Wind'], becomes: [['Rain ∨ Wind; Rain ⊢ Wet', 'Rain ∨ Wind; Wind ⊢ Wet']] },
+      { goal: 'Wet', hyps: ['Rain → Wet', 'Rain'], becomes: [['Rain → Wet; Rain ⊢ Rain', 'Rain → Wet; Rain; Wet ⊢ Wet']] },
+      { goal: 'Wet', hyps: ['⊥'], becomes: [[]] },
+      { goal: 'Wet', hyps: ['∃x. Human(x)'], becomes: [['⋀a. ∃x. Human(x); Human(a) ⊢ Wet']] },
+      { goal: 'Wet', hyps: ['∀x. Human(x)'], becomes: [['∀x. Human(x); Human(?t) ⊢ Wet']] },
+      { goal: 'Wet', hyps: ['Rain'], becomes: [] },
+    ],
+    brief: T('接一台机器：每一条消去规则都拿去对已知，每一种对法都留下；一条都对不上的，失败。造出的机器是新元件<part-ref to="lemma:elimRules"></part-ref>。', 'Wire a machine that tries every elimination rule on the givens, keeping every fit; when none fits, it fails. The machine becomes a new part, <part-ref to="lemma:elimRules"></part-ref>.'),
+    hint: [T('六条消去规则，每条一个框，框里是规则对已知。', 'Six elimination rules, one region each, with Rule on a given in it.')],
+    intro: [{ t: T('另一半是消去规则，它们看的是已知：拆开 ∧、分情况、用上「若…则…」、矛盾推出一切、拿出那一个、取一个再用。已知是什么样子，就能怎样用它。', 'The other half are the elimination rules, which look at the givens: split ∧, case by case, use an “if”, from contradiction, take the one there is, take one and use it. A given’s shape says how it can be used.') }],
+    solution: flow({ ways: [[['erule', 'conjE']], [['erule', 'disjE']], [['erule', 'impE']], [['erule', 'botE']], [['erule', 'exE']], [['erule', 'allE']]] }),
+    after: T('拆目标看目标的形状，用已知看已知的形状：两个元件合起来，就是一步里能做的所有事。', 'Goal apart looks at the goal’s shape, Use a given at the givens’: together the two parts are everything one step can do.'),
   }),
-  sets({
+
+  // ---------- your own auto ----------
+  each({
     id: 's-auto',
     title: T('自己的 auto', 'Your own auto'),
     builds: 'auto',
     tests: [{ goal: 'Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)' }, { goal: '(Rain → Wet) → ((Wet → Slip) → (Rain → Slip))' }, { goal: '(∃x. Human(x) ∧ Likes(x, ann)) → ∃x. Likes(x, ann)' }, { goal: '(∀x. Human(x) ∧ Bird(x)) → ∀x. Bird(x)' }],
-    brief: T('接一台机器，证完每一个目标。造出的机器是新元件<b>自己的 auto</b>。', 'Wire a machine that proves every goal. The machine becomes a new part, <b>your own auto</b>.'),
-    hint: [T('每一步：已知里有，或者拆目标，或者用掉已知。', 'Each step: Assumption, or take the goal apart, or use a given up.')],
-    intro: [{ t: T('把两组规则放进同一个搜索里：目标拆得动就拆目标，已知用得上就用已知，都试。这一台机器，是你自己的 auto。', 'Put both sets in one search: take the goal apart where it comes apart, use a given where one can be used, and try them all. This machine is your own auto.') }],
-    solution: searchOf([['rule', 'intro'], ['erule', 'elim']]),
-    after: T('拿出那一个和举例谁先谁后，搜索自己会试，回溯替你找到对的顺序。连接词一章的大多数关，这一个元件就证完了。', 'Whether to take out or give an example first, the search tries for itself, and backtracking finds the order that works. Most levels of the connectives chapter this one part proves.'),
+    brief: T('接一台机器，证完每一个目标。造出的机器是新元件<part-ref to="lemma:auto"></part-ref>。', 'Wire a machine that proves every goal. The machine becomes a new part, <part-ref to="lemma:auto"></part-ref>.'),
+    hint: [T('每一步：已知里有，或者拆目标，或者用已知。', 'Each step: Assumption, or Goal apart, or Use a given.')],
+    intro: [{ t: T('一步里能做的事都齐了：已知里有，拆目标，用已知。放进<part-ref to="part:search"></part-ref>，每一步三样都试，一条路走不通就退回来换下一条。这四个目标，你在连接词和量词两章里都在证明板上一个个接过。', 'Everything one step can do is in hand: Assumption, Goal apart, Use a given. Put them in a <part-ref to="part:search"></part-ref>, and each step tries all three, going back to the next way when a path leads nowhere. These four goals you wired one by one on the proof board, in the chapters on connectives and quantifiers.') }],
+    solution: searchOf(['introRules', 'elimRules']),
+    after: T('拿出那一个和举例谁先谁后，搜索自己会试，回溯替你找到对的顺序。已知不会被拿走，同一条能一用再用；一步走回原地的，搜索不往下走，所以它停得下来。连接词一章的大多数关，这一个元件就证完了。', 'Whether to take out or give an example first, the search tries for itself, and backtracking finds the order that works. Givens are never taken away, so one can be used again and again; a step back where it was the search does not follow, and so it comes to an end. Most levels of the connectives chapter this one part proves.'),
   }),
-  sets({
+  each({
     id: 's-lem',
     title: T('auto 做不到的', 'What auto cannot do'),
     tests: [{ goal: '¬¬Rain → Rain' }, { goal: '(¬Rain → Rain) → Rain' }],
     brief: BRIEF,
     hint: [T('反证法要自己用一次：倒着用它，目标就成了「并非并非」。', 'Use proof by contradiction once yourself: backwards, it makes the goal a “not not”.')],
-    intro: [{ t: T('auto 只用引入和消去规则。反证法 ⟦¬¬?A⟧ ⟹ ?A 的结论对上任何目标：放进搜索里，每个目标都会被它换成「并非并非」，再换一次，一直换下去。所以 auto 不用它，要用就自己先用一次。', 'auto uses only introduction and elimination rules. Proof by contradiction, ⟦¬¬?A⟧ ⟹ ?A, concludes any goal: put in the search, it turns every goal into a “not not”, and again, without end. So auto leaves it out; to use it, use it once yourself first.') }],
+    intro: [{ t: T('auto 只用引入和消去规则。反证法 ⟦¬¬?A⟧ ⟹ ?A 的结论对上任何目标：放进搜索里，每个目标都会被它换成「并非并非」，再换一次，一直换下去，每一步都是新目标。所以 auto 不用它，要用就自己先用一次。', 'auto uses only introduction and elimination rules. Proof by contradiction, ⟦¬¬?A⟧ ⟹ ?A, concludes any goal: put in the search, it turns every goal into a “not not”, and again, without end, each step a new goal. So auto leaves it out; to use it, use it once yourself first.') }],
     solution: script(['rule', 'impI'], ['rule', 'raa'], 'auto'),
     naive: script('auto'),
     after: T('只用引入和消去规则证得出的，正是直觉主义逻辑的定理；排中律、反证法要另外给。', 'What introduction and elimination rules alone prove is exactly intuitionistic logic; excluded middle and proof by contradiction must be given besides.'),
@@ -258,14 +286,14 @@ export const strategies = [
   // ---------- challenge ----------
   each({
     id: 's-loop',
-    title: T('会绕圈的搜索', 'A search that goes round'),
-    rules: { sym: { name: T('认识是相互的', 'Knowing goes both ways'), premises: ['Knows(?x, ?y)'], conclusion: 'Knows(?y, ?x)' } },
-    tests: [{ goal: 'Knows(bo, ann)', hyps: ['Knows(ann, bo)'] }, { goal: 'Knows(cy, bo)', hyps: ['Knows(ann, bo)', 'Knows(bo, cy)'] }, { goal: 'Knows(ann, cy)', hyps: ['Knows(ann, bo)', 'Knows(bo, cy)'], want: 'fails' }],
+    title: T('停不下来的搜索', 'A search that never stops'),
+    rules: { trans: { name: T('年纪大可以传下去', 'Older passes on'), premises: ['Older(?x, ?y)', 'Older(?y, ?z)'], conclusion: 'Older(?x, ?z)' } },
+    tests: [{ goal: 'Older(ann, cy)', hyps: ['Older(ann, bo)', 'Older(bo, cy)'] }, { goal: 'Older(bo, dee)', hyps: ['Older(bo, cy)', 'Older(cy, dee)'] }, { goal: 'Older(cy, ann)', hyps: ['Older(ann, bo)', 'Older(bo, cy)'], want: 'fails' }],
     brief: T('接一台机器：证得出的证完；证不出的，停下来说证不出来。', 'Wire a machine that proves what can be proved, and of what cannot, stops and says so.'),
-    hint: [T('认识是相互的，倒过来用，又能再倒过来。证不出的那一句，搜索永远有下一步可走。', 'Knowing goes both ways; used backwards it can be used backwards again. For the sentence that cannot be proved, the search always has another step.')],
-    intro: [{ t: T('安认识博，博认识茜，可没说安认识茜。证得出的要证完，证不出的，机器也得停下来，说一声证不出来。', 'Ann knows Bo and Bo knows Cy, but nothing says Ann knows Cy. What can be proved must be, and of what cannot, the machine must still stop and say it cannot.') }],
-    solution: searchOf([['rule', 'sym']], { depth: 3 }),
-    naive: searchOf([['rule', 'sym']]),
-    after: T('一条总能用上的规则，让深度优先搜索在证不出的地方一直转下去。给搜索设一个深度，它就一定会停；代价是太深的证明它找不到。auto 一条路最多走 12 步，也是这个道理。', 'A rule that always applies keeps depth-first search going round where nothing can be proved. With a depth limit the search always stops; the price is that a proof deeper than that cannot be found. auto’s 12 steps at most on a path are the same idea.'),
+    hint: [T('倒着用「传下去」，第一个目标里又是一个新的 ?y，还能再倒着用。证不出的那一句，搜索永远有下一步可走，而且每一步都是新目标。', '“Passes on” used backwards leaves a new ?y in the first goal, and can be used backwards again. For the sentence that cannot be proved, the search always has another step, each a new goal.')],
+    intro: [{ t: T('安比博年纪大，博比茜年纪大，所以安比茜年纪大；可茜比安年纪大，怎么也推不出来。证得出的要证完，证不出的，机器也得停下来，说一声证不出来。', 'Ann is older than Bo and Bo older than Cy, so Ann is older than Cy; but that Cy is older than Ann follows from nothing. What can be proved must be, and of what cannot, the machine must still stop and say it cannot.') }],
+    solution: searchOf([['rule', 'trans']], { depth: 3 }),
+    naive: searchOf([['rule', 'trans']]),
+    after: T('走回原地的路，搜索看得出来；可一条每一步都换上新 ? 的路，它看不出是在绕圈，深度优先搜索就在证不出的地方一直走下去。给搜索设一个深度，它就一定会停；代价是更深的证明它找不到。', 'A path back where it was the search can see; a path that puts a new ?-letter in at every step it cannot tell from progress, and depth-first search goes on for ever where nothing can be proved. With a depth limit the search always stops; the price is that a deeper proof cannot be found.'),
   }),
 ]

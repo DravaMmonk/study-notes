@@ -56,7 +56,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const tracedOf = (k) => {
     if (!traces.has(k)) {
       const traced = board.tests.trace(level, circuit, tests[k])
-      traces.set(k, { ...traced, steps: machineSteps(traced, circuit, name, (type) => board.nameOf(lemmas, type), { failing: (tests[k].want ?? level.want) === 'fails' }) })
+      traces.set(k, { ...traced, steps: machineSteps(traced, circuit, name, (type) => board.nameOf(lemmas, type), { failing: (tests[k].want ?? level.want) === 'fails' || tests[k].becomes?.length === 0 }) })
     }
     return traces.get(k)
   }
@@ -204,6 +204,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
 // text's `forms`, [{ key, label }]).
 const shapesOf = (part, text, more) => part.forms.filter((k, i) => i === 0 || more.includes(k)).map((k) => ({ key: k, label: text?.forms?.find((f) => f.key === k)?.label ?? k }))
 const DEPTHS = [2, 3, 4, 5, 6, 8, 10, 12]
+const WAYS = [2, 3, 4, 5, 6]
 
 // What a machine board's input and result hold (`board.ioBox`), written out in full, in a box sized as a step's result
 // in the run (shell StepLog): as tall as what it holds, up to that result's height, and scrolling past it.
@@ -217,6 +218,13 @@ function Setting({ s, node, board, parts, lemmas, circuit, scene, setParam, form
     case 'proof': return <TermField label={s.label} value={value} onChange={set} scope={namesInScope(node, circuit, scene.premiseNames ?? [])} title={board.nameOf(lemmas, node.type)} />
     case 'form': return <FormulaField label={board.textOf(lemmas, node.type)?.formLabel ?? T('形状', 'Shape')} value={formOf(parts.rules[node.type], node)} onChange={set} choices={shapesOf(parts.rules[node.type], board.textOf(lemmas, node.type), formsOf(node.type)).map((o) => ({ value: o.key, label: L(o.label) }))} required />
     case 'rule': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rule} />
+    // As many regions as the frame has: never fewer than the last one holding something.
+    case 'ways': {
+      const regions = parts.frames(node).map((r) => r.name)
+      const held = regions.filter((r) => circuit.nodes.some((n) => n.in === `${node.id}/${r}`) || circuit.wires.some((w) => (w.to === node.id && w.port === r) || w.from === `${node.id}#${r}`))
+      const least = Math.max(2, ...held.map((r) => regions.indexOf(r) + 1))
+      return <FormulaField label={s.label} value={String(value || 2)} onChange={set} choices={WAYS.filter((n) => n >= least).map((n) => ({ value: String(n), label: tr(`${n} 条`, `${n}`) }))} required />
+    }
     case 'depth': return <FormulaField label={s.label} value={String(value)} onChange={set} choices={DEPTHS.map((d) => ({ value: String(d), label: tr(`${d} 层`, `${d} levels`) }))} blank={T('不限', 'No limit')} />
     default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} />
   }

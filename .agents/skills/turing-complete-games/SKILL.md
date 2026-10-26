@@ -68,9 +68,24 @@ problems in 《证明完毕》, see `games/DESIGN.md` §11):
   `[]`) when it changes topic, leaving the rest behind. Ask: is the new machine a continuation of the last one?
 - **Discovery, not transcription.** No level hands over a formula to wire up; a quantity with several parameters
   is a bench that opens one knob per step. A hard mechanism gets its own intro levels as a named series (§2.2).
-- **Order by dependency.** Parallel sets and optional branches follow the part and concept dependencies (§2).
-  Anything that asks "what has the player seen" (new-part marks, view unlocks, unlock-all flags, linked levels in
-  copy) uses the level's prerequisites, never the flat play order.
+- **Branch whatever does not depend** (§1, §2). A run of levels that needs no part unlocked and no idea taught by the
+  run before it must not wait behind it: make them a parallel set, or hang the run after the level it really needs.
+  For each series, list the levels its reference answers and copy actually draw on; a series placed earlier that is
+  not on the list is where the path should split. A branch may be long (several series in a row); at most three
+  branches per set. Anything that asks "what has the player seen" (new-part marks, view unlocks, unlock-all flags,
+  linked levels in copy) uses the level's prerequisites, never the flat play order.
+- **Intros assemble the machine** (§1). The point is building one big machine from the bottom up, not a run of
+  puzzles. Every intro says what the machine in hand (or the level before) cannot do here, what piece this level
+  adds, and where it goes in the machine; "A new part, X: …" only comes after the need for it is said, and an intro
+  that is just that sentence is lazy. A practice level with no new part says which dimension it changes. A chapter's
+  first level says what module the chapter adds and why the last chapter's machine is not enough.
+- **Primitives stay minimal** (§1). Whatever can be wired from parts already held is built by a builder level, never
+  given as a new primitive: ask of every primitive whether the parts in hand make it. A description saying "X and Y in
+  one step", "X, then Y" or "tries each of them" names a built part. A setting that hides a combination of parts (a
+  card offering "a set of rules") is a primitive in disguise too. The built part's implementation does exactly what
+  its circuit does, side effects included (the circuit keeps a hypothesis, so the part keeps it); a choice made in the
+  circuit (which rule, a constant) may stay as a setting on the built part. A builder level of a one-step transform
+  states what the step makes (`becomes` in 《证明完毕》), so the built-in alone can pass it.
 - **Renumbering needs a save migration** (§2): renamed ids, flags now set by another level, new intro levels
   marked passed when a later one is.
 - **Level tree shape.** The map tree is at most three columns wide, at most three levels per row. A parallel set
