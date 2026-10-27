@@ -18,6 +18,7 @@ main{max-width:1240px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)
 .game:hover .game-art{transform:translateY(-6px)}
 .game-art>.bx,.game-art>.an{width:112%}
 .game-art>.figure-host{width:100%}
+.game-art>.loop-host{width:78%!important}
 
 .game-body{position:relative;display:flex;flex-direction:column;padding:22px clamp(24px,4vw,48px) 18px clamp(4px,1vw,12px)}
 .game-meta{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 0;color:var(--accent-ink);font:var(--fs-label)/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase}

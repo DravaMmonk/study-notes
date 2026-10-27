@@ -8,11 +8,12 @@ import { mountBoxy } from './boxy/boxy.js';
 import { mountPress } from './press/press.js';
 import { mountDetach } from './detach/detach.js';
 import { mountStick } from './stick/stick.js';
+import { mountLoop } from './loop/loop.js';
 
 // Card art: each game's illustration, mounted live into its row. All four are anatomy-kit figures built into plain
 // modules for this page (each folder's build.mjs): State Graph's robot Boxy, Vision Complete's filter press, Q.E.D.'s
-// Detach press and Syntax Graph's composing stick.
-const ART = { grid: mountBoxy, pipeline: mountPress, detach: mountDetach, stick: mountStick };
+// Detach press and Syntax Graph's composing stick; Software Factory's agent loop is a plain line drawing (loop/).
+const ART = { grid: mountBoxy, pipeline: mountPress, detach: mountDetach, stick: mountStick, loop: mountLoop };
 let unmount = [];
 
 function render() {
