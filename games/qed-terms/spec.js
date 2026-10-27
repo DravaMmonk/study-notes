@@ -21,6 +21,11 @@ export default {
   saves: [{ version: 2, ops: [
     { data: (value, id) => (['t-lam', 't-pair', 't-wapp', 't-wpair', 't-beta', 't-all'].includes(id) ? undefined : value) },
     { rename: { 't-chain': null, 't-two': null, 't-curry': null, 't-or': null, 't-mt': null, 't-absurd': null, 't-wlam': null, 't-wcases': null, 't-detour': null, 't-casedetour': null, 't-ex': null } },
+  ] },
+  // Version 3: the term writing after the wiring, as Q.E.D.'s version 31.
+  { version: 3, ops: [
+    { data: (value, id) => (['t-wapp', 't-wpair'].includes(id) ? undefined : value) },
+    { solve: ['t-kernel', ['t-wquant']] },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
   quotes: ['任取'],

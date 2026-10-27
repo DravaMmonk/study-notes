@@ -1,14 +1,15 @@
 // A proof term built from chips (《证明完毕》 chapter 6's term writing), shown on the shared strip (games/kit/strip):
 // the term is the usual tree (pterm.js) with holes left as null. A chip is one piece of it: a name (a premise, or one
 // a fun or a case split has bound), or a form with holes: fun _ => □, □ □ (application), ⟨□, □⟩, □.1, □.2, Or.inl □,
-// Or.inr □, □.elim (fun _ => □) (fun _ => □), False.elim □. A form that binds a name takes the first letter free in
+// Or.inr □, □.elim (fun _ => □) (fun _ => □), False.elim □, □.elim (fun _ _ => □) (∃ taken out). A name is a premise's, a
+// thing's (the level's names of things), a lemma's (used as a function of its premises) or one a form bound. A form that binds a name takes the first letter free in
 // the term, so a name is never bound twice.
 import { holeTree } from '../../strip/tree.js'
-import { absurd, cases, fst, inl, inr, lam, pair, papp, pvar, snd } from './pterm.js'
+import { absurd, cases, fst, inl, inr, lam, open, pair, papp, pvar, snd } from './pterm.js'
 
 const T = (zh, en) => ({ zh, en })
 const LETTERS = 'abcdefgjk'.split('')
-const KID = { lam: ['body'], app: ['f', 'a'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], absurd: ['p'] }
+const KID = { lam: ['body'], app: ['f', 'a'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], absurd: ['p'], open: ['p', 'body'] }
 
 const kids = (node) => (KID[node.k] ?? []).map((field) => ({ kind: 'term', value: node[field] }))
 const withKid = (node, k, value) => ({ ...node, [KID[node.k][k]]: value })
@@ -30,6 +31,7 @@ export function boundIn(node, out = []) {
   if (!node) return out
   if (node.k === 'lam') out.push(node.x)
   if (node.k === 'cases') out.push(node.x, node.y)
+  if (node.k === 'open') out.push(node.x, node.h)
   for (const kid of kids(node)) boundIn(kid.value, out)
   return out
 }
@@ -46,6 +48,7 @@ export const FORMS = [
   { key: 'inr', text: 'Or.inr □', sub: T('是右边', 'the right one'), make: () => inr(null) },
   { key: 'elim', leads: true, text: '□.elim (fun _ => □) (fun _ => □)', sub: T('分情况', 'cases'), make: (tree) => { const [x, y] = fresh(tree, 2); return cases(null, x, null, y, null) } },
   { key: 'absurd', text: 'False.elim □', sub: T('矛盾推出一切', 'from ⊥, anything'), make: () => absurd(null) },
+  { key: 'open', leads: true, text: '□.elim (fun _ _ => □)', sub: T('拿出那一个', 'take the one there is'), make: (tree) => { const [x, h] = fresh(tree, 2); return open(null, x, h, null) } },
 ]
 
 /** The chips of a proof term: the names in scope (premises, assumptions), those the term binds so far, the forms. */
@@ -86,6 +89,7 @@ export function segmentOf(node, path = [], bracket = false) {
     case 'inr': return piece('or', ['Or.inr ', kid(0, true)])
     case 'cases': return piece('or', [kid(0, true), `.elim (fun ${node.x} => `, kid(1), `) (fun ${node.y} => `, kid(2), ')'])
     case 'absurd': return piece('absurd', ['False.elim ', kid(0, true)])
+    case 'open': return piece('or', [kid(0, true), `.elim (fun ${node.x} ${node.h} => `, kid(1), ')'])
     default: return piece('name', ['?'])
   }
 }

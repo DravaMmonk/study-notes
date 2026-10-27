@@ -121,12 +121,13 @@ export const ERAS = [
     foundation: [
       // Reading terms: functions, then the data the other connectives' proofs are.
       series('read', '读证明项', 'Reading proof terms', ['t-app', 't-lam', 't-pair']),
-      // Once terms can be read, writing them, their detours and the quantifiers' terms need nothing from each other.
+      // Once terms can be read, their detours and the quantifiers' terms need nothing from each other.
       branches(
-        ['write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wpair', 't-kernel']],
         ['detour', '弯路', 'Detours', ['t-beta', 't-lemma']],
         ['quant', '量词的证明项', 'Quantifiers’ proof terms', ['t-all']],
       ),
+      // Then the terms written, of every part wired before: functions (and lemmas), data, quantifiers; the kernel.
+      series('write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wpair', 't-wquant', 't-kernel']),
     ],
     challenges: [{ level: 't-dneg', after: 't-wpair' }],
     chapter: { title: T('证明即程序', 'Proofs are programs'), question: T('接出来的证明本身是什么？', 'What is a wired proof, itself?') },

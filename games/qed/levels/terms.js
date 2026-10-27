@@ -9,7 +9,7 @@ import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
 // A term level: one problem per task (TermScreen.jsx).
-const PROBLEMS = [T('第一题', 'Problem 1'), T('第二题', 'Problem 2'), T('第三题', 'Problem 3'), T('第四题', 'Problem 4')]
+const PROBLEMS = [T('第一题', 'Problem 1'), T('第二题', 'Problem 2'), T('第三题', 'Problem 3'), T('第四题', 'Problem 4'), T('第五题', 'Problem 5')]
 const WRITE = T('用下面的块，拼出这句话的证明项。', 'Build the proof term of this sentence from the pieces below.')
 const write = (list) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[k], brief: WRITE, ...task }))
 const prove = (task) => ({ kind: 'proof', terms: true, step: T('证明', 'Prove'), ...task })
@@ -128,25 +128,39 @@ export const terms = [
     id: 't-wapp',
     title: T('写函数', 'Write functions'),
     tasks: write([
-      { premises: { p: 'Rain → (Wind → Wet)', q: 'Rain', r: 'Wind' }, goal: 'Wet', answer: 'p q r', hint: [T('先放「□ □」：前一个框放函数，后一个框放用在它上面的证明。p q r 是 (p q) r。', 'Put down “□ □” first: the function in the first box, the proof it is used on in the second. p q r is (p q) r.')] },
+      { premises: { p: 'Rain → (Wind → Wet)', q: 'Rain', r: 'Wind' }, goal: 'Wet', answer: 'p q r', hint: [T('套用写成「□ □」：前一个框放函数，后一个框放用在它上面的证明。p q r 是 (p q) r。', 'Apply is “□ □”: the function in the first box, the proof it is used on in the second. p q r is (p q) r.')] },
       { premises: { p: 'Rain → Wet', q: 'Wet → Slip', r: 'Rain' }, goal: 'Slip', answer: 'q (p r)', hint: [T('最后用的是 q，它要的「地湿」从哪来？', 'The last one used is q; where does the “ground is wet” it needs come from?')] },
-      { premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip', answer: 'fun a => q (p a)', hint: [T('要证「若…则…」，先放「fun _ => □」：拿到 a，先用 p，再用 q。', 'To prove an “if … then …”, put down “fun _ => □” first: given a, use p, then q.')] },
+      { premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip', answer: 'fun a => q (p a)', hint: [T('假设框写成「fun _ => □」：拿到 a，先用 p，再用 q。', 'The assumption box is “fun _ => □”: given a, use p, then q.')] },
+      { premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip', uses: ['chain'], answer: 'chain p q', hint: [T('串联这条引理是一个函数，吃它的两条前提。', 'The lemma Chain is a function taking its two premises.')] },
       { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Wind → (Rain → Wet)', answer: 'fun a b => p b a', hint: [T('两层 fun：a 证的是刮风，b 证的是下雨。p 先要哪一个？', 'Two funs: a proves it is windy, b that it rains. Which does p want first?')] },
     ]),
-    intro: [{ t: T('读到这里，证明项都是先接好线、再由元件写出来的。反过来也行：直接写证明项，交给机器去查。新的板：<b>证明项板</b>。不接线了，用下面的块把证明项拼出来：块填进去就写成字，它自己要填的地方留成框，再往框里填别的块。拼完了，机器检查这个证明项的类型是不是要证的那句话。', 'So far every term was written by the parts after the wiring. It works the other way too: write the term yourself, and let the machine check it. A new board: the <b>term board</b>. No wiring now: build the proof term from the pieces below. A piece put in is written out, with a box for each place it leaves to fill, and other pieces go in those boxes. When it is whole, the machine checks that the term’s type is the sentence to prove.') }],
-    after: T('机器没有看你怎么想到的，只检查拼出的证明项：每一次应用，函数的前一半都要和参数对得上。最后一题是<part-ref to="lemma:swap"></part-ref>：框的次序和参数的次序是同一件事。<b>证明检查就是类型检查</b>。', 'The machine does not look at how you found it, only at the term built: at every application, the function’s first half must match the argument. The last one is <part-ref to="lemma:swap"></part-ref>: the order of boxes and the order of arguments are one thing. <b>Proof checking is type checking</b>.'),
+    intro: [{ t: T('前面每一关都在接线，证明项是元件写出来的：套用写成应用，假设框写成 fun，证出的引理写成它的名字。现在反过来，自己写证明项，交给机器去查。新的板：<b>证明项板</b>。不接线了，用下面的块把证明项拼出来：块填进去就写成字，它自己要填的地方留成框，再往框里填别的块。拼完了，机器检查这个证明项的类型是不是要证的那句话。', 'Every level so far was wired, and the parts wrote the terms: Apply as application, the assumption box as fun, a lemma proved as its name. Now the other way round: write the term yourself and let the machine check it. A new board: the <b>term board</b>. No wiring now: build the proof term from the pieces below. A piece put in is written out, with a box for each place it leaves to fill, and other pieces go in those boxes. When it is whole, the machine checks that the term’s type is the sentence to prove.') }],
+    after: T('机器没有看你怎么想到的，只检查拼出的证明项：每一次应用，函数的前一半都要和参数对得上。第三、四题证的是同一句：一个把串联的做法写了出来，一个只写它的名字。最后一题是<part-ref to="lemma:swap"></part-ref>：框的次序和参数的次序是同一件事。<b>证明检查就是类型检查</b>。', 'The machine does not look at how you found it, only at the term built: at every application, the function’s first half must match the argument. The third and fourth prove one sentence: one writes out what Chain does, the other only its name. The last one is <part-ref to="lemma:swap"></part-ref>: the order of boxes and the order of arguments are one thing. <b>Proof checking is type checking</b>.'),
   },
   {
     id: 't-wpair',
     title: T('写数据', 'Write data'),
     tasks: write([
-      { premises: { p: 'Rain ∧ Wind → Wet' }, goal: 'Rain → (Wind → Wet)', answer: 'fun a b => p ⟨a, b⟩', hint: [T('拿到 a 和 b，拼成一对交给 p。', 'Given a and b, make a pair and give it to p.')] },
-      { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Rain ∧ Wind → Wet', answer: 'fun a => p a.1 a.2', hint: [T('拿到的 a 是一对，p 要的却是一个一个。', 'The a you get is a pair, but p wants them one at a time.')] },
-      { premises: { p: 'Rain ∨ Sat', q: 'Rain → Rest', r: 'Sat → Rest' }, goal: 'Rest', answer: 'p.elim (fun a => q a) (fun b => r b)', hint: [T('两种情况各要证出「我休息」。', 'Each case must prove “I rest”.')] },
-      { premises: { p: 'Rain', q: '¬Rain' }, goal: 'Rest', answer: 'False.elim (q p)', hint: [T('q 用在 p 上是矛盾。', 'q used on p is the contradiction.')] },
+      { premises: { p: 'Rain ∧ Wind → Wet' }, goal: 'Rain → (Wind → Wet)', answer: 'fun a b => p ⟨a, b⟩', hint: [T('拼成 ∧ 写成「⟨□, □⟩」：拿到 a 和 b，拼成一对交给 p。', 'Join ∧ is “⟨□, □⟩”: given a and b, make a pair and give it to p.')] },
+      { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Rain ∧ Wind → Wet', answer: 'fun a => p a.1 a.2', hint: [T('拆开 ∧ 写成「□.1」「□.2」：拿到的 a 是一对，p 要的却是一个一个。', 'Split ∧ is “□.1” and “□.2”: the a you get is a pair, but p wants them one at a time.')] },
+      { premises: { p: 'Rain ∨ Sat' }, goal: 'Sat ∨ Rain', answer: 'p.elim (fun a => Or.inr a) (fun b => Or.inl b)', hint: [T('分情况写成「□.elim (fun _ => □) (fun _ => □)」，引入 ∨ 写成 Or.inl、Or.inr：每种情况各贴到新「或者」的哪一边？', 'Cases is “□.elim (fun _ => □) (fun _ => □)”, Bring in ∨ is Or.inl or Or.inr: in the new “or”, which side does each case go?')] },
+      { premises: { p: 'Rain', q: '¬Rain' }, goal: 'Rest', answer: 'False.elim (q p)', hint: [T('矛盾推出一切写成「False.elim □」；q 用在 p 上是矛盾。', 'From contradiction is “False.elim □”; q used on p is the contradiction.')] },
     ]),
-    intro: [{ t: T('函数会写了，再写数据：一对 ⟨a, b⟩ 和它的两半 p.1、p.2，标签 Or.inl、Or.inr 和按标签分情况的 p.elim，还有 False.elim。', 'Functions written, now data: a pair ⟨a, b⟩ and its halves p.1 and p.2, the tags Or.inl and Or.inr with p.elim taking cases on them, and False.elim.') }],
-    after: T('前两题一来一回：吃一对的函数和一个一个吃的函数可以互相改写，这叫<b>柯里化</b>（Curry），Curry–Howard 对应里的 Curry 也是他。∧、∨、→、¬、⊥ 的证明项，到这里都写过了。', 'The first two go there and back: a function taking a pair and one taking its arguments one at a time can each be rewritten as the other. This is <b>currying</b>, after Haskell Curry, the Curry of Curry–Howard. The terms of ∧, ∨, →, ¬ and ⊥ have all been written now.'),
+    intro: [{ t: T('其余连接词的元件也都写成证明项：拼成 ∧ 是 ⟨a, b⟩，拆开是 p.1、p.2；引入 ∨ 是 Or.inl、Or.inr，分情况是 p.elim；矛盾推出一切是 False.elim。', 'The other connectives’ parts are written as terms too: Join ∧ is ⟨a, b⟩, splitting it p.1 and p.2; Bring in ∨ is Or.inl or Or.inr, Cases is p.elim; from contradiction, anything, is False.elim.') }],
+    after: T('前两题一来一回：吃一对的函数和一个一个吃的函数可以互相改写，这叫<b>柯里化</b>（Curry），Curry–Howard 对应里的 Curry 也是他。连接词的元件，到这里都写过了。', 'The first two go there and back: a function taking a pair and one taking its arguments one at a time can each be rewritten as the other. This is <b>currying</b>, after Haskell Curry, the Curry of Curry–Howard. Every connective’s part has been written now.'),
+  },
+  {
+    id: 't-wquant',
+    consts: ['ann'],
+    title: T('写量词', 'Write quantifiers'),
+    tasks: write([
+      { premises: { p: '∀x. Human(x) → Mortal(x)', q: 'Human(ann)' }, goal: 'Mortal(ann)', answer: 'p ann q', hint: [T('取一个写成应用，参数是那样东西：p 用在安上，再用在 q 上。', 'Take one is an application whose argument is a thing: p used on Ann, then on q.')] },
+      { premises: {}, goal: '∀x. Human(x) → Human(x)', answer: 'fun a b => b', hint: [T('任取也是 fun，拿到的 a 是一样东西。', 'For any is a fun too, and the a it gets is a thing.')] },
+      { premises: { p: 'Human(ann)' }, goal: '∃x. Human(x)', answer: '⟨ann, p⟩', hint: [T('举例写成一对：左边是例子，右边是它满足的证明。', 'Example is a pair: the example on the left, the proof that it fits on the right.')] },
+      { premises: { p: '∃x. Human(x) ∧ Mortal(x)' }, goal: '∃x. Mortal(x)', answer: 'p.elim (fun a b => ⟨a, b.2⟩)', hint: [T('拿出那一个写成「□.elim (fun _ _ => □)」：a 是那样东西，b 是它满足的那句。', 'Take the one there is is “□.elim (fun _ _ => □)”: a is the thing, b the sentence it fits.')] },
+    ]),
+    intro: [{ t: T('量词的元件也一样：取一个是把一样东西交给 ∀ 的证明，任取是 fun，举例是一对，拿出那一个是 p.elim (fun a h => …)。安这样的名字，也在下面的块里。', 'The quantifiers’ parts too: Take one hands a thing to a proof of ∀, For any is fun, Example is a pair, Take the one there is is p.elim (fun a h => …). A name of a thing such as Ann is among the pieces below.') }],
+    after: T('证明板上的每一种元件，现在都能写成证明项。写的时候没有框可以拖、没有线可以接，只剩每一处的类型对不对得上。', 'Every kind of part on the proof board can now be written as a term. Writing, there is no box to drag and no wire to draw; all that is left is whether every type fits.'),
   },
   {
     id: 't-kernel',

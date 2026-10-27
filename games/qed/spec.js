@@ -108,6 +108,12 @@ export default {
   { version: 30, ops: [
     { data: (value, id) => (['t-lam', 't-pair', 't-wapp', 't-wpair', 't-beta', 't-all'].includes(id) ? undefined : value) },
     { rename: { 't-chain': null, 't-two': null, 't-curry': null, 't-or': null, 't-mt': null, 't-absurd': null, 't-wlam': null, 't-wcases': null, 't-detour': null, 't-casedetour': null, 't-ex': null } },
+  ] },
+  // Version 31 put the term writing after the wiring of chapter 6, writing every part wired (a lemma, the quantifiers'
+  // parts in a level of their own): whoever had passed 核来把关 has passed it.
+  { version: 31, ops: [
+    { data: (value, id) => (['t-wapp', 't-wpair'].includes(id) ? undefined : value) },
+    { solve: ['t-kernel', ['t-wquant']] },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
   quotes: ['任取'],

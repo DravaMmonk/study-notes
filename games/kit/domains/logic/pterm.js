@@ -295,9 +295,11 @@ const asAnd = (f) => (f.op === '↔' ? bin('∧', bin('→', f.a, f.b), bin('→
 
 /**
  * Check a term against a formula, in a context of hypotheses (name → formula) and the level's names of things
- * (`consts`). Returns '' or what is wrong ({ zh, en }, in the level's notation).
+ * (`consts`). A lemma is a name applied to proofs of its premises: `lemma(name, [their sentences])` gives what it
+ * proves, or null when it is no lemma or they do not fit. Returns '' or what is wrong ({ zh, en }, in the level's
+ * notation).
  */
-export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null } = {}) {
+export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null, lemma = () => null } = {}) {
   const sayF = (f) => say(f, notation)
   const err = (zh, en) => { throw new PartError(T(zh, en)) }
   const hypsOf = (ctx) => [...ctx.values()].filter((v) => v.f)
@@ -311,14 +313,28 @@ export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null 
     const clash = [...hypsOf(ctx).map((h) => h.f), ...fs].some((f) => freeVars(f).has(x))
     if (clash) err(`${x} 已经在别处用过了，换一个名字`, `${x} is already in use elsewhere: pick another name`)
   }
+  // A lemma used: its name, not otherwise known, applied to every premise it has.
+  const lemmaUse = (t, ctx) => {
+    const args = []
+    let head = t
+    while (head.k === 'app') { args.unshift(head.a); head = head.f }
+    if (head.k !== 'var' || ctx.get(head.name) || lemma(head.name, null) === null) return null
+    const f = lemma(head.name, args.map((a) => infer(a, ctx)))
+    if (f === null) err(`「${head.name}」用在这些证明上对不上它的前提`, `“${head.name}” used on these proofs does not fit its premises`)
+    return f
+  }
   const infer = (t, ctx) => {
     switch (t.k) {
       case 'var': {
         const h = ctx.get(t.name)
         if (h?.f) return h.f
+        const l = lemmaUse(t, ctx)
+        if (l) return l
         return err(`不认识「${t.name}」：它不是哪一条已知`, `“${t.name}” is not anything known`)
       }
       case 'app': {
+        const l = lemmaUse(t, ctx)
+        if (l) return l
         const F = asImp(infer(t.f, ctx))
         if (F.op === '→') { check(t.a, F.a, ctx); return F.b }
         if (F.op === '∀') return subst(F.body, F.v, thingOf(t.a, ctx))

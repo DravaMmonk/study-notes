@@ -302,6 +302,22 @@ const metasIn = (f, out = new Set()) => {
 }
 
 /**
+ * What a lemma proves used on proofs of these sentences, for the term checker (pterm.js checkTerm `lemma`): its
+ * statement with its letters read off the premises, null when the name is no lemma (of one shape) or they do not fit;
+ * asked with no sentences, whether it is a lemma at all.
+ */
+export const lemmaUse = (lemmas = {}) => (name, sentences) => {
+  const l = lemmas[name]
+  if (!l || l.forms) return null
+  if (sentences === null) return true
+  const schemas = (l.premises ?? []).map((p) => parse(p, { metas: l.metas }))
+  const bind = {}
+  if (schemas.length !== sentences.length || !schemas.every((sch, k) => match(sch, sentences[k], bind))) return null
+  const statement = parse(l.statement, { metas: l.metas })
+  return [...metasIn(statement)].every((m) => bind[m]) ? instantiate(statement, bind) : null
+}
+
+/**
  * A lemma the player proved, as a rule: from `premises` (schemas, one input each) to `statement`, with schematic
  * letters `metas`. A lemma with `forms` ([{ key, label, statement, premises, metas? }]) is one card of several shapes,
  * switched on the card (engine/forms.js); the course says which it offers where. The letters the premises fix come from what is wired in; the others are set on the card. It is
