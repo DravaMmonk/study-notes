@@ -128,4 +128,11 @@ export const TERM_WORDS = {
   max: T('max {0} {1}', 'max {0} {1}'),
   tt: T('真', 'true'),
   ff: T('假', 'false'),
+  if: T('若 {0} 则 {1} 否则 {2}', 'if {0} then {1} else {2}'),
+  rev: T('rev {0}', 'rev {0}'),
+  sum: T('sum {0}', 'sum {0}'),
+  itsum: T('itsum {0} {1}', 'itsum {0} {1}'),
+  ins: T('ins {0} {1}', 'ins {0} {1}'),
+  sort: T('sort {0}', 'sort {0}'),
+  f: T('f {0}', 'f {0}'),
 }

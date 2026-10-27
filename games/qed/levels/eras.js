@@ -201,4 +201,21 @@ export const ERAS = [
     challenges: [{ level: 't-dneg', after: 't-wpair' }],
     chapter: { title: T('证明即程序', 'Proofs are programs'), question: T('接出来的证明本身是什么？', 'What is a wired proof, itself?') },
   },
+  {
+    id: 'inductive', machine: 'prover', keeps: 'all',
+    foundation: [
+      // The rules a declaration gives, ending with induction.
+      series('decl', '声明给出的规则', 'What a declaration gives', ['in-distinct', 'in-inject', 'in-cases', 'in-zero']),
+      // Numbers, lists and why a definition must stop need nothing from each other.
+      branches(
+        ['nat', '数', 'Numbers', ['in-succ', 'in-comm', 'in-assoc']],
+        ['list', '列表', 'Lists', ['in-appnil', 'in-appassoc', 'in-revapp']],
+        ['stop', '为什么要停', 'Why it must stop', ['in-noteq', 'in-loop']],
+      ),
+    ],
+    practice: [series('both', '数和列表', 'Numbers and lists', ['in-len', 'in-revrev', 'in-itsum'])],
+    topics: [{ id: 'sort', code: 'I', after: 'in-appnil', levels: ['sort-ins', 'sort-run', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') }],
+    challenges: [{ level: 'in-circle', after: 'in-comm' }],
+    chapter: { title: T('归纳类型', 'Inductive types'), question: T('数和列表从哪里来？对每一个数都成立的事，怎么证？', 'Where do numbers and lists come from, and how is something proved for every one?') },
+  },
 ]

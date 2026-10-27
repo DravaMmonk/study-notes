@@ -8,13 +8,14 @@ import { ArrowRightFromLine, Box, Flag, Repeat, Rows3, Search, Sigma } from 'luc
 import { L, tr } from '../../../shell/i18n.js'
 import { regionsFit } from '../../../circuit/index.js'
 import { startProof } from '../build.js'
-import { FORMULA_TEXT, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
+import { FORMULA_TEXT, fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
 import { sayTerm } from '../notation.js'
 import { choicesOf } from '../choices.js'
 import { LOGIC_TESTS } from '../proof.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel, parseGoal, ruleBookOf } from '../machine.js'
 import { INTRO_RULES, parseS, ruleText } from '../schematic.js'
 import { rewriteBookOf, rewriteText } from '../rewrite.js'
+import { constructorsOf } from '../datatype.js'
 import { paramsOf } from '../../../engine/forms.js'
 import { portsOf } from '../../../engine/circuit.js'
 import { refuted } from '../clauses.js'
@@ -209,7 +210,8 @@ function ruleGroups(level, text) {
   const intro = new Set(INTRO_RULES)
   return [
     { label: T('引入规则', 'Introduction rules'), options: rules.filter((r) => intro.has(r.key)).map(option) },
-    { label: T('消去规则和其他', 'Elimination and other rules'), options: rules.filter((r) => !intro.has(r.key) && !r.lemma && !r.own).map(option) },
+    { label: T('消去规则和其他', 'Elimination and other rules'), options: rules.filter((r) => !intro.has(r.key) && !r.lemma && !r.own && !r.datatype).map(option) },
+    ...(rules.some((r) => r.datatype) ? [{ label: T('类型声明给的规则', 'Rules a declaration gives'), options: rules.filter((r) => r.datatype).map(option) }] : []),
     { label: T('证出的引理', 'Lemmas proved'), options: rules.filter((r) => r.lemma).map(option) },
     ...(level.rules ? [{ label: T('这一关的规则', 'This level’s rules'), options: rules.filter((r) => r.own).map(option) }] : []),
   ]
@@ -223,6 +225,7 @@ function rewriteGroups(level, text) {
   if (level.terms) return [{ label: T('计算规则', 'Computation rules'), options: rules.map(option) }]
   return [
     { label: T('证出的等价律', 'Laws proved'), options: rules.filter((r) => r.group === 'law').map(option) },
+    ...(rules.some((r) => r.group === 'fact') ? [{ label: T('证出的等式', 'Equations proved'), options: rules.filter((r) => r.group === 'fact').map(option) }] : []),
     ...(level.defs?.length ? [{ label: T('定义', 'Definitions'), options: rules.filter((r) => r.group === 'def').map(def) }] : []),
     { label: T('目标的已知', 'The goal’s hypotheses'), options: rules.filter((r) => r.group === 'hyp').map(option) },
   ]
@@ -275,7 +278,7 @@ export const MACHINE = {
     const want = becomes ?? L(WANT[test.want ?? level.want])
     const show = (v) => (v.kind === 'state' ? v.goals.map((g) => goalText(g, text)).join(tr('；', '; ')) : v.kind === 'pterm' ? printTerm(v.term) : v.kind === 'formula' ? text(v.f) : v.kind === 'eqs' ? v.eqs.map((e) => eqText(e, text)).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormulaOf(c))).join(tr('；', '; ')))
     return {
-      sequent: <>{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => defText(d, text)).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
+      sequent: <>{level.datatypes && <span>{tr('类型', 'Types')} <b>{Object.entries(level.datatypes).map(([type, d]) => `${type} = ${constructorsOf(d).map((c) => text({ op: 'atom', pred: '=', args: [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))] }).split(' = ')[0]).join(' | ')}`).join(tr('；', '; '))}</b> · </span>}{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => defText(d, text)).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,
       choices: { rule: ruleGroups(level, text), rewrite: rewriteGroups(level, text) },
     }

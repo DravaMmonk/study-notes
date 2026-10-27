@@ -28,9 +28,10 @@ export function defineLogicGame(spec) {
   const gates = LEVELS[0]?.gates ?? {}
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
   const revisions = spec.logic.revisions ?? {}
-  // A built part is a proved lemma, a gate built on a truth circuit or a machine part (a law card, a normal form…).
+  // A built part is a proved lemma or equation, a gate built on a truth circuit or a machine part (simp, auto…).
   const machines = Object.fromEntries(spec.logic.machines.map((type) => [type, RULE_TEXT[type] ?? MACHINE_TEXT[type]]))
-  const built = { ...gates, ...lemmas, ...machines }
+  const facts = LEVELS[0]?.facts ?? {}
+  const built = { ...gates, ...lemmas, ...facts, ...machines }
   // The rules and gates the course starts from, each from the levels that bring it in.
   const primitives = [...introductions(spec.logic.course)].map(([type, at]) => {
     const gate = PRIMITIVE_GATES[type] ?? MACHINE_TEXT[type]
@@ -84,6 +85,7 @@ export function defineLogicGame(spec) {
         ...Object.entries(gates).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: Cpu })),
         ...Object.entries(lemmas).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type) })),
         ...Object.entries(machines).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: Cog })),
+        ...Object.entries(facts).map(([type, f]) => ({ key: `lemma:${type}`, name: f.name, desc: f.desc, icon: Cog })),
       ],
     },
     // Fewer steps (proof steps, or gates) is better.

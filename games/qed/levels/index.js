@@ -13,6 +13,7 @@ import { strategies } from './strategies.js'
 import { classical } from './classical.js'
 import { simplifier } from './simplifier.js'
 import { terms } from './terms.js'
+import { inductive } from './inductive.js'
 import { WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -79,6 +80,20 @@ export const LEMMAS = {
   lem: { name: T('排中律', 'Excluded middle'), desc: T('元件上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the part; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
 }
 
+// The equations the player proves on the machine board (chapter 11), each a rule and a rewrite rule from then on.
+const fact = (zh, en, statement, desc) => ({ name: T(zh, en), statement, desc })
+export const FACTS = {
+  addZero: fact('加零', 'Add zero', '∀x. plus(x, zero) = x', T('证出的等式 x + 0 = x：一条规则，也是化简的一条改写规则。', 'The equation proved, x + 0 = x: a rule, and a rewrite rule for Simp.')),
+  addSucc: fact('加后继', 'Add successor', '∀x. ∀y. plus(x, s(y)) = s(plus(x, y))', T('证出的等式 x + S y = S (x + y)：一条规则，也是化简的一条改写规则。', 'The equation proved, x + S y = S (x + y): a rule, and a rewrite rule for Simp.')),
+  addComm: fact('加法交换', 'Addition commutes', '∀x. ∀y. plus(x, y) = plus(y, x)', T('证出的等式 x + y = y + x：一条规则，也是一条改写规则（排进化简会来回改，停不下来）。', 'The equation proved, x + y = y + x: a rule, and a rewrite rule (in Simp it turns back and forth, never stopping).')),
+  addAssoc: fact('加法结合', 'Addition associates', '∀x. ∀y. ∀z. plus(plus(x, y), z) = plus(x, plus(y, z))', T('证出的等式 (x + y) + z = x + (y + z)：一条规则，也是化简的一条改写规则。', 'The equation proved, (x + y) + z = x + (y + z): a rule, and a rewrite rule for Simp.')),
+  appNil: fact('接空列表', 'Append nil', '∀xs. app(xs, nil) = xs', T('证出的等式 xs ++ [] = xs：一条规则，也是化简的一条改写规则。', 'The equation proved, xs ++ [] = xs: a rule, and a rewrite rule for Simp.')),
+  appAssoc: fact('拼接结合', 'Append associates', '∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))', T('证出的等式 (xs ++ ys) ++ zs = xs ++ (ys ++ zs)：一条规则，也是化简的一条改写规则。', 'The equation proved, (xs ++ ys) ++ zs = xs ++ (ys ++ zs): a rule, and a rewrite rule for Simp.')),
+  revApp: fact('倒过拼接', 'Reverse of an append', '∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))', T('证出的等式 rev (xs ++ ys) = rev ys ++ rev xs：一条规则，也是化简的一条改写规则。', 'The equation proved, rev (xs ++ ys) = rev ys ++ rev xs: a rule, and a rewrite rule for Simp.')),
+  succNeq: fact('不等于后继', 'Never its successor', '∀x. ¬(x = s(x))', T('证出的 x ≠ S x：一条规则。', 'The x ≠ S x proved: a rule.')),
+  insLen: fact('插入长一格', 'Insert adds one', '∀xs. ∀x. len(ins(x, xs)) = s(len(xs))', T('证出的等式 len (ins x xs) = S (len xs)：一条规则，也是化简的一条改写规则。', 'The equation proved, len (ins x xs) = S (len xs): a rule, and a rewrite rule for Simp.')),
+}
+
 // How parts' descriptions grow as the course goes on: from the level `at` on, the description reads this way.
 const REVISIONS = {
   // De Morgan comes with its four propositional shapes at once, and the quantifier level adds the other four.
@@ -108,9 +123,10 @@ const REVISIONS = {
 
 const COURSE = {
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...terms],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...terms, ...inductive],
   words: WORDS,
   lemmas: LEMMAS,
+  facts: FACTS,
   gates: GATES,
   revisions: REVISIONS,
   // The machine-board parts the player builds: the unifier, the tactics made of Rule and Assumption, auto, simp made

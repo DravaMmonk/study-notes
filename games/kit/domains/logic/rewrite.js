@@ -6,13 +6,13 @@
 //   rule  { key, name, lhs, rhs, conditions: [formula], group: 'law' | 'def' | 'hyp' }
 //
 // Where rules come from (rewriteBookOf): a lemma's two shapes that are each other's converse (¬¬A gives A and A gives
-// ¬¬A: either way round is a rule), the level's definitions (`defs`: equations, maybe with conditions, their
+// ¬¬A: either way round is a rule), the equations proved (the course's `facts`, chapter 11), the level's definitions (`defs`: equations, maybe with conditions, their
 // variables standing for anything), and the goal's own hypotheses (the card's rule 'hyp': the first hypothesis that is
 // an equation or an equivalence and fits somewhere, its ∀ variables standing for anything). On a level about proof
 // terms (`terms`, chapter 10) the rules rewrite a proof term instead: the kernel's computation rules (pterm.js
 // REDUCTIONS), each taking one kind of detour out.
 import { atom, bin, fn, same, show, showTerm, subst, tvar } from './formula.js'
-import { instantiate, isMetaName, lemmaRules, parseS } from './schematic.js'
+import { instantiate, isMetaName, lemmaRules, metasIn, parseS } from './schematic.js'
 import { reduceFirst } from './pterm.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -121,8 +121,10 @@ function rewriteOnce(f, rule) {
   return inForm(f)
 }
 
-// A hypothesis as a rule, its ∀ variables standing for anything: an equation of things, or an equivalence.
+// A hypothesis (or an equation proved) as a rule, its ∀ variables standing for anything: an equation of things, or an
+// equivalence. A hypothesis that still has a ?-letter of the proof in it is not one yet.
 function hypRule(h) {
+  if (metasIn(h).size) return null
   let f = h
   const vars = []
   while (f.op === '∀') { vars.push(f.v); f = f.body }
@@ -213,8 +215,10 @@ export function rewriteBookOf(level) {
         .map((r) => ({ key: r.key, name: r.name, lhs: r.premises[0].show, rhs: r.conclusion, conditions: [], group: 'law' }))
     })
     const defs = (level.defs ?? []).map(defRule)
+    const facts = Object.entries(level.facts ?? {}).filter(([type]) => has(type)).map(([type, f]) => [type, f, hypRule(parseS(f.statement))]).filter(([, , r]) => r)
+      .map(([type, f, r]) => ({ key: type, name: f.name, ...r, conditions: [], group: 'fact' }))
     const hyp = { key: 'hyp', name: T('已知里的等式', 'An equation given'), lhs: null, rhs: null, conditions: [], group: 'hyp' }
-    books.set(level, Object.fromEntries((level.terms ? COMPUTE : [...laws, ...defs, hyp]).map((r) => [r.key, r])))
+    books.set(level, Object.fromEntries((level.terms ? COMPUTE : [...laws, ...facts, ...defs, hyp]).map((r) => [r.key, r])))
   }
   return books.get(level)
 }

@@ -309,3 +309,16 @@ test('a rewrite changes the first place its left side fits, under quantifiers to
   assert.deepEqual(goals(simp), ['s(s(s(zero))) = s(s(s(zero)))'])
   assert.ok(simplify(startState(parseS('¬(Rain ∨ Wind)')), [book['dm.notOr'], book['dm.andNot']]).fail)
 })
+
+test('a declaration gives its rules, and induction read off a goal proves an equation for every number', async () => {
+  const { datatypeRules } = await import('./datatype.js')
+  const { ruleText } = await import('./schematic.js')
+  const { MACHINE_TESTS } = await import('./machine.js')
+  const { machine } = await import('./build.js')
+  const rules = Object.fromEntries(datatypeRules('nat', 'zero | s(nat)').map((r) => [r.key, ruleText(r)]))
+  assert.deepEqual(Object.keys(rules), ['nat.distinct1', 'nat.distinct2', 'nat.inject', 'nat.exhaust', 'nat.induct'])
+  assert.equal(rules['nat.induct'], '⟦?P(zero); (⋀x. ?P(x) ⟹ ?P(s(x)))⟧ ⟹ ∀x. ?P(x)')
+  const level = { kind: 'machine', want: 'proved', datatypes: { nat: 'zero | s(nat)' }, defs: ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))'], tests: [{ goal: '∀x. plus(x, zero) = x' }] }
+  const byInduction = machine({ i: ['rule', { rule: 'nat.induct' }], e: ['each'], s: ['simp', { rewrites: 'def.0,def.1,hyp' }, 'e'], r: ['rule', { rule: 'refl' }, 'e'] }, ['in>i.in', 'i>e.in', 'e#body>s.in', 's>r.in', 'r>e.body', 'e>out'])
+  assert.equal(runLevel(MACHINE_TESTS, level, byInduction).pass, true)
+})

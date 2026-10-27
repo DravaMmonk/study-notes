@@ -38,6 +38,7 @@ import { clauseOf, clauseSet, clausesOf, closed, cnf, equivalent, hasArrow, hasD
 import { KERNEL, answerOf, asValue, assumption, auto, defer, depthFirst, elimStep, erule, frule, introStep, resultsOf, rule, startState } from './tactics.js'
 import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, sameSide, sideText, solveEqs, solved } from './schematic.js'
 import { rewrite, rewriteBookOf, rewriteTerm, simplify } from './rewrite.js'
+import { datatypesRules } from './datatype.js'
 import { alphaEq, lemmasNamed, normalize, parseTerm } from './pterm.js'
 import { clauseFormOf, factorRound, foClausesOf, foNnf, foResolveRound, foSet, hasExists, isPrenex, matrixOf, parseFo, prenex, skolem } from './unify.js'
 
@@ -49,7 +50,8 @@ export const eqsValue = (eqs, fail = null) => ({ kind: 'eqs', eqs, fail })
 
 const books = new WeakMap()
 /**
- * A level's rule book: every rule a card may name, by key: the kernel's, each lemma's shapes and the level's own. A
+ * A level's rule book: every rule a card may name, by key: the kernel's, those its datatypes give (datatype.js), each
+ * lemma's shapes, the equations proved (`facts`) and the level's own. A
  * level of a course (`holds`: the parts it can hold, `forms`: the shapes each lemma has there, course.js) has a kernel
  * rule once it holds its part, and a lemma once the lemma is built, in the shapes it has gained.
  */
@@ -59,7 +61,8 @@ export function ruleBookOf(level) {
     const own = Object.entries(level.rules ?? {}).map(([key, r]) => ({ ...ruleOf(key, r.name, r.premises ?? [], r.conclusion), own: true }))
     const shaped = (type, l) => (r) => !l.forms || !level.forms?.[type] || level.forms[type].includes(r.key.split('.')[1] ?? l.forms[0].key)
     const lemmas = Object.entries(level.lemmas ?? {}).filter(([type]) => has(type)).flatMap(([type, l]) => lemmaRules(type, l).filter(shaped(type, l)))
-    books.set(level, Object.fromEntries([...Object.values(KERNEL).filter((r) => has(r.part)), ...lemmas, ...own].map((r) => [r.key, r])))
+    const facts = Object.entries(level.facts ?? {}).filter(([type]) => has(type)).map(([type, f]) => ({ ...ruleOf(type, f.name, [], f.statement), lemma: type }))
+    books.set(level, Object.fromEntries([...Object.values(KERNEL).filter((r) => has(r.part)), ...datatypesRules(level.datatypes), ...lemmas, ...facts, ...own].map((r) => [r.key, r])))
   }
   return books.get(level)
 }

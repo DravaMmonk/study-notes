@@ -9,7 +9,8 @@
 import { formsAt, reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
-import { freeVars, parse, show } from './formula.js'
+import { freeVars, parse, same, show } from './formula.js'
+import { parseS } from './schematic.js'
 import { countermodel, holds } from './models.js'
 import { builtWorld, extent, structureOf } from './fol.js'
 import { LOGIC_TESTS, RULES, lemmaGives, lemmaUse } from './proof.js'
@@ -120,6 +121,11 @@ export function validate({ levels: given, course }) {
     const alone = { nodes: [{ id: 'in', type: 'in', params: { name: 'in' } }, { id: 'x', type: level.builds, params: level.builtWith ?? {} }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [{ from: 'in', to: 'x', port: 'in' }, { from: 'x', to: 'out', port: 'in' }] }
     const run = runLevel(MACHINE_TESTS, level, alone)
     if (!run.pass) out.push({ fail: true, text: `${level.id}: the built-in ${level.builds} does not pass the level that builds it` })
+  }
+  // An equation a machine level proves is what its every test proves.
+  for (const level of levels.filter((l) => l.kind === 'machine' && l.facts?.[l.builds])) {
+    const statement = parseS(level.facts[level.builds].statement)
+    if (!level.tests.every((t) => t.goal && same(parseS(t.goal), statement))) out.push({ fail: true, text: `${level.id}: its tests are not all the equation ${level.builds} it proves` })
   }
   // A rule a task proves (not a lemma: a part with its own implementation) proves that task in one step.
   for (const level of levels.filter((l) => l.kind === 'proof' && RULES[l.proves])) {
