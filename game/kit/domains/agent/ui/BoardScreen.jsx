@@ -249,10 +249,10 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   return (
     <div className="level-phone is-split ag-phone" ref={root}>
+      {tests}
       <div className="ag-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
         <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <Value value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={types} />
-        {tests}
         {strip}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
