@@ -33,7 +33,7 @@ const ease = (level) => {
  * sentences as its label, so one proof is checked on all of them; a last test keeps the bare letters, the pattern
  * itself. A level opens on its first case, the one its task is written in.
  *   lemmas      { type: { name, desc, statement, premises?, metas } } the parts the player proves
- *   facts       { type: { name, desc, statement } } the equations the player proves on the machine board (chapter 10
+ *   facts       { type: { name, desc, statement } } the equations the player proves on the machine board (chapter 11
  *               on), each a rule and a rewrite rule from then on; a machine level with `builds` one of them proves it
  *   gates       { type: { name, desc, ports, f } } the gates the player builds on a truth circuit (gates.js)
  *   revisions   { type: [{ at | by: level id, desc?, forms? }] } a part's description as it grows along the course,

@@ -1,4 +1,4 @@
-// Clauses and resolution (《证明完毕》 chapter 13): what an automatic prover works on. A proof state whose goal is ⊥ is
+// Clauses and resolution (《证明完毕》 chapter 10): what an automatic prover works on. A proof state whose goal is ⊥ is
 // split into clauses (its hypotheses, each a conjunction of disjunctions of literals, ∀ dropped); resolution cancels a
 // pair of opposite literals of two clauses (unifying them first, when they have variables), round after round, until
 // the empty clause ⊥ appears or nothing new does. Every clause made remembers the clauses it came from: the steps that

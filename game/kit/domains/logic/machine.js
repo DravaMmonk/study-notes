@@ -18,13 +18,13 @@
 // goals written '⋀a. h1; h2 ⊢ goal', its ?-letters named as the machine likes: none, for a step that must fail),
 // 'answers' (every way of proving the goal, as a
 // question's answers: the test's `answers`, the things its ?-letters become), 'fails' (the goal cannot be proved, and
-// the machine says so, having stopped); on clauses (chapter 13), 'clauses' (the clause set the test lists, from a goal),
+// the machine says so, having stopped); on clauses (chapter 10), 'clauses' (the clause set the test lists, from a goal),
 // 'refuted' (a clause set holding ⊥, within the test's `budget` of clauses when it has one) and 'decide' (⊥ when the
 // clauses cannot all hold, saturated without it when they can).
 //
 // Rewriting (chapter 9, rewrite.js): the rewrite card uses one rule of the level's rewrite book (rewriteBookOf: laws
 // proved both ways, the level's `defs`, the goal's hypotheses) once; simp, which the player builds, uses a list of
-// them until none fits. Both rewrite the goal, or (chapter 13, the card's `at`) its hypotheses.
+// them until none fits. Both rewrite the goal, or (chapter 10, the card's `at`) its hypotheses.
 //
 // Rules on cards (rule, erule, frule) are named by key in the level's rule book (ruleBookOf: the kernel's rules, the
 // lemmas' and the level's own). Until a level says `backtrack`, a tactic gives only its first result; from then on,
@@ -300,7 +300,7 @@ export const MACHINE_PARTS = {
   // Rewriting (chapter 9): one rule once, and simp, which the player builds of it, on the goal or the hypotheses.
   rw: { ...tactic((s, ctx, node) => rewrite(s, rewritesOf(ctx, node, 'rewrite')[0], atOf(node))), params: ['rewrite', 'at'] },
   simp: { ...tactic((s, ctx, node) => simplify(s, rewritesOf(ctx, node, 'rewrites'), atOf(node))), params: ['rewrites', 'at'] },
-  // Clauses (chapter 13, resolution.js): ∃ out of the hypotheses, a state split into clauses, a round of resolution
+  // Clauses (chapter 10, resolution.js): ∃ out of the hypotheses, a state split into clauses, a round of resolution
   // (the saturator is built of rounds), someone else's prover, and the certificate replayed in the kernel; what the
   // player builds of them.
   skolem: tactic(skolemStep),
