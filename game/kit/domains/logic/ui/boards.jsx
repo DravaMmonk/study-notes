@@ -133,17 +133,19 @@ function Occurrences({ node, ins, setParam, text }) {
 
 /* ---------- machines ---------- */
 
-const SHOWN = 6
 // A side of an equation (a sentence, a thing, or what a pattern's letter stands for), an equation and a goal, written
 // in the level's words: ⋀ for the variables bound around an equation and the things a goal has fixed.
+/** How many entries a list shows at most: on a card on the board, and in a part's sheet. */
+export const ROWS = { card: 20, sheet: 50 }
 const sideOf = (x, text) => ('t' in x ? text({ op: 'atom', pred: '=', args: [x, x] }).split(' = ')[0] : x.op === 'lam' ? `fun ${x.params.join(' ')} => ${text(x.body)}` : text(x))
 const eqText = (e, text) => `${e.bound.length ? `⋀${e.bound.join(' ')}. ` : ''}${sideOf(e.s, text)} ≐ ${sideOf(e.t, text)}`
 const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` : ''}${g.hyps.length ? `${g.hyps.map(text).join(tr('；', '; '))} ⊢ ` : ''}${text(g.goal)}`
 /**
- * Equations, a proof state, a proof term, or a clause set: its clauses (the first few, each with the clauses it came
- * from), and once ⊥ is in, ⊥ standing out and only the clauses it comes from (the certificate).
+ * Equations, a proof state, a proof term, or a clause set: its clauses (each with the clauses it came from), and once
+ * ⊥ is in, ⊥ standing out and only the clauses it comes from (the certificate). A list shows its first `rows` entries
+ * and ends with how many there are, in a window that scrolls (logic.css: five lines on a card, thirteen in a sheet).
  */
-function MachineValue({ v, text, small = false }) {
+function MachineValue({ v, text, small = false, rows = ROWS.card }) {
   if (!v) return null
   if (v.kind === 'pterm') return <span className={`lg-formula ${small ? 'is-small' : ''}`}><code className="lg-term">{printTerm(v.term)}</code></span>
   if (v.kind === 'state') {
@@ -154,7 +156,7 @@ function MachineValue({ v, text, small = false }) {
       <span className="lg-clauses">
         {v.error && <><b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b><small>{L(v.error)}</small></>}
         {!v.goals.length && <b className="lg-bot">{tr('没有目标了：证完了', 'No goals left: proved')}</b>}
-        {v.goals.slice(0, SHOWN).map((g, k) => <code key={k}>{goalText(g, text)}</code>)}
+        {v.goals.slice(0, rows).map((g, k) => <code key={k}>{goalText(g, text)}</code>)}
         {v.goals.length > 0 && <small>{tr(`${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'}`)}</small>}
         {alt}
       </span>
@@ -165,7 +167,7 @@ function MachineValue({ v, text, small = false }) {
       <span className={`lg-clauses ${small ? 'is-small' : ''}`}>
         {v.fail && <b className="lg-fail-tag">{tr('合一失败', 'No unifier')}</b>}
         {!small && v.fail && <small>{L(v.fail)}</small>}
-        {(small ? [] : v.eqs.slice(0, SHOWN)).map((e, k) => <code key={k}>{eqText(e, text)}</code>)}
+        {(small ? [] : v.eqs.slice(0, rows)).map((e, k) => <code key={k}>{eqText(e, text)}</code>)}
         <small>{v.eqs.length ? tr(`${v.eqs.length} 个等式`, `${v.eqs.length} equation${v.eqs.length === 1 ? '' : 's'}`) : tr('没有等式了', 'No equations left')}</small>
       </span>
     )
@@ -175,7 +177,7 @@ function MachineValue({ v, text, small = false }) {
   // Small (a region's edge, a phone block): how many, and whether ⊥ is in.
   if (small) return <span className="lg-clauses is-small">{bot}<small>{count}</small></span>
   const cert = certificate(v.set)
-  const shown = cert ?? v.set.map((_, i) => i).slice(0, SHOWN)
+  const shown = cert?.slice(0, rows) ?? v.set.map((_, i) => i).slice(0, rows)
   return (
     <span className="lg-clauses">
       {bot}
