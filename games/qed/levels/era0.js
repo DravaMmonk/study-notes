@@ -27,8 +27,9 @@ export const era0 = [
     ask: 'valid',
     symbols: ['→'],
     formulas: ['Rain → Rain', 'Rain → Wet', 'Rain ∧ Wind → Rain', 'Rain → (Wind → Rain)', 'Rain ∧ Wind → Wet'],
-    brief: T('下面五句话，哪些不管天气怎样都成立？逐句标出来。拿不准，就展开它的表一行一行试。', 'Which of these five hold whatever the weather? Mark each one. If unsure, open its table and try it row by row.'),
+    brief: T('下面五句话，哪些不管天气怎样都成立？逐句标出来。', 'Which of these five hold whatever the weather? Mark each one.'),
     hint: [
+      T('拿不准，就展开它的表一行一行试。', 'If unsure, open its table and try it row by row.'),
       T('一句话永远成立，就是它的表每一行都真。只要有一行是假，就不算。', 'A sentence always holds when every row of its table is true. One false row and it does not.'),
       T('「若下雨并且刮风，则地湿」：有没有一种天气，又下雨又刮风，地却没湿？这些句子没有一句说过下雨地就湿。', '“It rains and it is windy → the ground is wet”: is there weather where it rains and blows and the ground is not wet? None of these sentences says rain makes the ground wet.'),
     ],

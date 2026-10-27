@@ -111,7 +111,7 @@ export const structured = [
       { k: 'have', stmt: 'InA ∧ InB', using: ['c', 'h1'], by: 'rule:mp' },
       { k: 'show', stmt: '⊥', using: ['s', 'a1', 'h2'], by: 'rule:mp' },
     ],
-    brief: T('这段脚本里，by 后面不只有规则，还有你造出的机器。选出每一句的 by。', 'In this script, by is followed not only by rules but by machines you built. Choose each row’s by.'),
+    brief: T('选出每一句的 by。', 'Choose each row’s by.'),
     hint: [
       T('由等价和「进位是 1」得出两个输入都是 1，要拆开等价再套用：一张卡片不够。', 'From the equivalence and “the carry is 1” to both inputs being 1 takes splitting the equivalence, then applying: one card is not enough.'),
       T('最后一句要从三句里找矛盾。', 'The last row looks for a contradiction among three sentences.'),
@@ -136,7 +136,7 @@ export const structured = [
       }),
       script({
         step: T('第二题', 'Problem 2'),
-        brief: T('再补一段：这回少了两句。', 'Another one: two rows short this time.'),
+        brief: T('这段脚本少了两句。补上它们。', 'This script is two rows short. Put them in.'),
         premises: { p: 'Rain ∧ Wind', q: 'Wind → Wet', r: 'Rain → Bus' },
         goal: 'Wet ∧ Bus',
         given: [{ k: 'show', stmt: 'Wet ∧ Bus', using: ['h3', 'h4'], by: 'rule:conjI' }],

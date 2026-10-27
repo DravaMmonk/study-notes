@@ -80,7 +80,8 @@ export const classical = [
         tests: [{ goal: 'A ∨ ¬A' }],
         sentences: ['¬(A ∨ ¬A)'],
         cases: [{ A: 'Rain' }, { A: 'Exam' }],
-        brief: T('刚证出的是「否认它会矛盾」，离「下雨 ∨ ¬下雨」只差去掉两个 ¬。数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」新规则<part-ref to="part:raa"></part-ref>：由「并非并非 某句」得到那句。把它接在刚才的证明后面，证明出「下雨 ∨ ¬下雨」。', 'What you just proved is that denying it is a contradiction; “it rains ∨ ¬it rains” is two ¬s away. Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” A new rule, <part-ref to="part:raa"></part-ref>: from “not not a sentence”, the sentence. Add it after the proof you just made, and prove “it rains ∨ ¬it rains”.'),
+        intro: [{ t: T('刚证出的是「否认它会矛盾」，离「下雨 ∨ ¬下雨」只差去掉两个 ¬。数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」新规则<part-ref to="part:raa"></part-ref>：由「并非并非 某句」得到那句。', 'What you just proved is that denying it is a contradiction; “it rains ∨ ¬it rains” is two ¬s away. Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” A new rule, <part-ref to="part:raa"></part-ref>: from “not not a sentence”, the sentence.') }],
+        brief: T('在刚才的证明后面接上反证法，证明出「下雨 ∨ ¬下雨」。', 'Add by contradiction after the proof you just made, and prove “it rains ∨ ¬it rains”.'),
         hint: [T('反证法接在最外面那个框的后面。', 'By contradiction goes right after the outermost box.')],
         solution: proof({ ...lemDeniedNodes, r: ['raa'] }, [...lemDeniedWires, 'f>r.nna', 'r>goal']),
       },
@@ -170,7 +171,8 @@ export const classical = [
       prove({
         tests: [{ premises: { p: 'A ↔ ¬A' }, goal: '⊥' }],
         cases: [{ A: 'KA' }, { A: 'KC' }],
-        brief: T('一个岛民说：「我是无赖。」证明这话不可能有人说：实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士」（也就是「(a 是骑士 → ¬a 是骑士) ∧ (¬a 是骑士 → a 是骑士)」）证明出矛盾 ⊥。', 'An islander says: “I am a knave.” Prove nobody can say that: build a prover that, from “a is a knight ↔ ¬a is a knight” (that is “(a is a knight → ¬a is a knight) ∧ (¬a is a knight → a is a knight)”), proves the contradiction ⊥.'),
+        intro: [{ t: T('证明「我是无赖」这话不可能有人说：从它的翻译推出矛盾。「a 是骑士 ↔ ¬a 是骑士」就是「(a 是骑士 → ¬a 是骑士) ∧ (¬a 是骑士 → a 是骑士)」。', 'Prove nobody can say “I am a knave”: get a contradiction from its translation. “a is a knight ↔ ¬a is a knight” is “(a is a knight → ¬a is a knight) ∧ (¬a is a knight → a is a knight)”.') }],
+        brief: T('实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士」证明出矛盾 ⊥。', 'Build a prover that, from “a is a knight ↔ ¬a is a knight”, proves the contradiction ⊥.'),
         hint: [
           T('拆开 ∧ 也能拆 ↔：拆出「a 是骑士 → ¬a 是骑士」和「¬a 是骑士 → a 是骑士」。', 'Split ∧ splits a ↔ too: into “a is a knight → ¬a is a knight” and “¬a is a knight → a is a knight”.'),
           T('「¬a 是骑士」就是「a 是骑士 → ⊥」，第一句里的「a 是骑士」说了两遍。', '“¬a is a knight” is “a is a knight → ⊥”, so the first one states “a is a knight” twice.'),

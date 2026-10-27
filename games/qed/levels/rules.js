@@ -80,9 +80,9 @@ export const rules = [
       { f: '∃y. Likes(y, y)', value: false },
     ],
     answer: { size: 2, preds: { Likes: ['0,1', '1,0'] } },
-    brief: T('「每样东西都喜欢某样东西」，把 x 换成 y 代进去，好像得到「有一样东西喜欢自己」。造一个世界，说明它推不出来。', '“Everything likes something”: putting y in for x seems to give “something likes itself”. Build a world showing this does not follow.'),
+    brief: T('造一个世界：每样东西都喜欢某样东西，却没有一样东西喜欢自己。', 'Build a world where everything likes something and nothing likes itself.'),
     hint: [T('两样东西，互相喜欢，都不喜欢自己。', 'Two things that like each other and not themselves.')],
-    intro: [{ t: T('<part-ref to="part:allE"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走了，意思全变。', '<part-ref to="part:allE"></part-ref> puts a thing in for x. If what goes in is the variable y and x sits inside an “∃y”, that y is captured by the quantifier, and the meaning changes completely.') }],
+    intro: [{ t: T('<part-ref to="part:allE"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走了，意思全变：「每样东西都喜欢某样东西」，把 x 换成 y 代进去，好像得到「有一样东西喜欢自己」。', '<part-ref to="part:allE"></part-ref> puts a thing in for x. If what goes in is the variable y and x sits inside an “∃y”, that y is captured by the quantifier, and the meaning changes completely: in “everything likes something”, putting y in for x seems to give “something likes itself”.') }],
     after: T('所以代入前要先改名：∀x∃y 里的 y 先改成 z，再把 x 换成 y，得到「∃z. y 喜欢 z」，没毛病。证明器的<part-ref to="part:allE"></part-ref>会自动改名，不会撞上。', 'So rename first: turn the y in ∀x∃y into z, then put y in for x, giving “∃z. y likes z”, which is fine. The prover’s <part-ref to="part:allE"></part-ref> renames by itself and never clashes.'),
   },
   {

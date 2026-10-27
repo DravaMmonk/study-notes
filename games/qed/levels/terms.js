@@ -213,7 +213,8 @@ export const terms = [
           { term: '⟨ann, p⟩.elim (fun a h => ⟨a, h⟩)', becomes: '⟨ann, p⟩' },
           { term: 'chain p q', becomes: 'fun h => q (p h)' },
         ],
-        brief: T('接一台机器，把每个证明项里的弯路都拿掉。造出的机器是新元件<part-ref to="lemma:normalize"></part-ref>。', 'Wire a machine that takes every detour out of each proof term. The machine becomes a new part, <part-ref to="lemma:normalize"></part-ref>.'),
+        brief: T('接一台机器，把每个证明项里的弯路都拿掉。', 'Wire a machine that takes every detour out of each proof term.'),
+        intro: [{ t: T('接出的机器会成为新元件<part-ref to="lemma:normalize"></part-ref>。', 'The machine you wire becomes a new part, <part-ref to="lemma:normalize"></part-ref>.') }],
         hint: [
           T('<part-ref to="lemma:simp"></part-ref>在证明项上也能用：规则换成计算规则，每一种弯路一条。', '<part-ref to="lemma:simp"></part-ref> works on proof terms too: the rules are computation rules, one for each kind of detour.'),
           T('引理的名字也是一处弯路：展开它，就是证它的那个证明项。', 'A lemma’s name is a detour too: unfolded, it is the term that proved it.'),
