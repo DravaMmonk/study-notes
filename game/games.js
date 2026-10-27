@@ -71,4 +71,14 @@ export const GAMES = [
     page: { icon: 'M32 14v14M32 28 17 48M32 28l15 20', description: '句法之图 Syntax Graph：按场合练出母语者的说法，计算机学术英语。Native wording by situation, for academic writing in computer science.' },
     progress: () => (read('syntax-graph.v1')?.solved || []).length,
   },
+  {
+    id: 'factory', href: 'factory/index.html', title: '软件工厂', en: 'Software Factory', topic: { zh: '编码 agent', en: 'Coding Agents' },
+    desc: {
+      zh: '从一次模型调用开始，亲手决定它看到什么、能做什么、什么时候算做完：先替它拿文件，再让它自己读、自己找、改到测试通过，搭出一个自己修 issue 的编码 agent。',
+      en: 'Starting from one model call, decide what it sees, what it may do and when it is done: fetch its files for it, then let it read and look for itself until the tests pass, and build a coding agent that fixes issues on its own.',
+    },
+    levels: 16, art: 'loop', dev: true,
+    page: { icon: 'M20 22a12 12 0 1 1 0 20M20 22l-4 6M20 22l7 2', description: '软件工厂 Software Factory：从一次模型调用搭起编码 agent。A coding agent built up from one model call.' },
+    progress: () => (read('factory.v1')?.solved || []).length,
+  },
 ];
