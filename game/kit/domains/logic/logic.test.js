@@ -296,3 +296,13 @@ test('a proof state can build its proof term, each goal a hole, and the kernel c
   const unproved = { rules: { conv: { ...conv.conv, unproved: true } } }
   assert.match(kernelCheck(unproved, test, t).en, /conv/)
 })
+
+test('a written term may use a lemma as a function of its premises, and take out what there is', async () => {
+  const { checkTerm, parseTerm } = await import('./pterm.js')
+  const { lemmaUse } = await import('./proof.js')
+  const lemma = lemmaUse({ chain: { statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'] } })
+  const hyps = { p: parse('Rain → Wet'), q: parse('Wet → Slip') }
+  assert.equal(checkTerm(parseTerm('chain p q'), parse('Rain → Slip'), { hyps, lemma }), '')
+  assert.ok(checkTerm(parseTerm('chain q p'), parse('Rain → Slip'), { hyps, lemma }))
+  assert.equal(checkTerm(parseTerm('p.elim (fun a b => ⟨a, b.2⟩)'), parse('∃x. Q(x)'), { hyps: { p: parse('∃x. P(x) ∧ Q(x)') } }), '')
+})
