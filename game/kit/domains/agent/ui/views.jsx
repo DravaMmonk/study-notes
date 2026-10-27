@@ -41,8 +41,8 @@ export function ContextValue({ value }) {
 }
 
 /**
- * The context one model call read, as a bar: each entry a block as wide as its tokens, the window marked, what fell
- * out of it grey. Below it, the entries in order.
+ * The context one model call read, as a bar: each entry a block as wide as its tokens, placed where its tokens fall (so
+ * the blocks never run past the bar), the window marked at the end the model reads from, what fell out of it grey. Below it, the entries in order.
  */
 export function ContextBar({ call, window, list = true }) {
   if (!call) return <p className="ag-note">{tr('这一轮没有调用模型。', 'No model call this turn.')}</p>
@@ -51,7 +51,11 @@ export function ContextBar({ call, window, list = true }) {
   return (
     <div className="ag-bar-wrap">
       <div className="ag-bar" style={{ '--window': `${(window / total) * 100}%` }} role="img" aria-label={tr(`模型看到 ${call.tokens} / ${window} tok`, `The model sees ${call.tokens} of ${window} tokens`)}>
-        {all.map(({ e, out }, k) => <i key={k} data-kind={e.kind} className={out ? 'is-out' : ''} style={{ width: `calc(${(e.tokens / total) * 100}% - 2px)` }} title={`${L(entryText(e))} · ${e.tokens} tok`} />)}
+        {all.map(({ e, out }, k) => {
+          // Each entry where its tokens fall along the bar, so the blocks always add up to the bar.
+          const left = (all.slice(0, k).reduce((n, x) => n + x.e.tokens, 0) / total) * 100
+          return <i key={k} data-kind={e.kind} className={out ? 'is-out' : ''} style={{ left: `${left}%`, width: `${(e.tokens / total) * 100}%` }} title={`${L(entryText(e))} · ${e.tokens} tok`} />
+        })}
       </div>
       <p className="ag-bar-meta">
         <span>{tr(`看到 ${call.tokens} tok`, `Sees ${call.tokens} tok`)}</span>

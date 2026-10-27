@@ -60,9 +60,10 @@
 
 /* The context bar: one block per entry, as wide as its tokens; the window's edge; dropped entries grey. */
 .ag-bar-wrap { display: grid; gap: 6px; min-width: 0; }
-.ag-bar { position: relative; display: flex; gap: 2px; height: 16px; }
-.ag-bar i { flex: none; min-width: 3px; border-radius: 3px; background: var(--kind, var(--rule)); }
-.ag-bar i.is-out { background: repeating-linear-gradient(135deg, var(--line) 0 4px, transparent 4px 7px); box-shadow: inset 0 0 0 1px var(--line); }
+.ag-bar { position: relative; height: 16px; }
+/* A block keeps a hair of the bar's background on each side, so neighbours read as separate entries. */
+.ag-bar i { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--kind, var(--rule)); background-clip: content-box; padding: 0 1px; box-sizing: border-box; }
+.ag-bar i.is-out { background: repeating-linear-gradient(135deg, var(--line) 0 4px, transparent 4px 7px); background-clip: content-box; }
 .ag-bar::after { content: ''; position: absolute; top: -4px; bottom: -4px; right: 0; width: var(--window); border: 1.5px solid var(--ink); border-radius: 5px; pointer-events: none; }
 .ag-bar-meta { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); font: 11px var(--mono); }
 .ag-bar-meta .is-out { color: var(--fail); }
@@ -117,7 +118,7 @@
 .ag-phone > .ag-scroll { grid-row: 2; }
 .ag-phone > .pb-tray { grid-row: 3; }
 .ag-phone > .run-foot { grid-row: 4; }
-.ag-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; align-content: start; gap: 12px; }
+.ag-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; align-content: start; gap: 12px; }
 .ag-phone .ag-strip, .ag-hand-phone .ag-hand { grid-template-columns: minmax(0, 1fr); }
 .ag-hand-phone .ag-hand { padding: 12px; }
 .ag-sheet { display: grid; gap: 14px; }
