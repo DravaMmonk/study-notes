@@ -45,12 +45,17 @@ export const clausesValue = (set) => ({ kind: 'clauses', set })
 export const eqsValue = (eqs, fail = null) => ({ kind: 'eqs', eqs, fail })
 
 const books = new WeakMap()
-/** A level's rule book: every rule a card may name, by key (the kernel's, each lemma's shapes, the level's own). */
+/**
+ * A level's rule book: every rule a card may name, by key: the kernel's, each lemma's shapes and the level's own. A
+ * level of a course (`holds`: the parts it can hold, course.js) has a kernel rule once it holds its part, and a lemma
+ * once the lemma is built.
+ */
 export function ruleBookOf(level) {
   if (!books.has(level)) {
+    const has = (p) => !level.holds || level.holds.includes(p)
     const own = Object.entries(level.rules ?? {}).map(([key, r]) => ({ ...ruleOf(key, r.name, r.premises ?? [], r.conclusion), own: true }))
-    const lemmas = Object.entries(level.lemmas ?? {}).flatMap(([type, l]) => lemmaRules(type, l))
-    books.set(level, Object.fromEntries([...Object.values(KERNEL), ...lemmas, ...own].map((r) => [r.key, r])))
+    const lemmas = Object.entries(level.lemmas ?? {}).filter(([type]) => has(type)).flatMap(([type, l]) => lemmaRules(type, l))
+    books.set(level, Object.fromEntries([...Object.values(KERNEL).filter((r) => has(r.part)), ...lemmas, ...own].map((r) => [r.key, r])))
   }
   return books.get(level)
 }

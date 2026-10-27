@@ -1,7 +1,7 @@
 // A course of logic levels, from a game's spec (《证明完毕》): the play order and the tree from its eras
 // (../../course.js layout), each level's number and the parts it can really offer, and the lemmas its levels build
 // (proof.js lemma): a level with `builds: '<type>'` makes the lemma spec.lemmas[type] a part once solved.
-import { defineCourse, eraLevels, layout, numbered, offer, usable } from '../../course.js'
+import { defineCourse, eraLevels, layout, numbered, offer, reach, usable } from '../../course.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { vocabulary } from './fol.js'
 import { parseFo } from './unify.js'
@@ -179,6 +179,12 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
   })
+  // A machine level's rule book has what the level can hold (machine.js ruleBookOf): the kernel's rules opened by
+  // chapter, the lemmas built before it.
+  for (const level of LEVELS.filter((l) => l.kind === 'machine' || l.tasks?.some((t) => t.kind === 'machine'))) {
+    const holds = reach(course, { id: level.id })
+    for (const one of [level, ...(level.tasks ?? [])]) one.holds = holds
+  }
   // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
   const held = (level) => byId.get(level.id)?.without ?? []
   // A task that names its parts holds those the player has: a primitive, or a built part once its level is solved.

@@ -1,4 +1,4 @@
-// Chapter 7 · Rules and metavariables: a rule is ⟦premises⟧ ⟹ conclusion with ?-letters for any sentence (the way
+// Chapter 6 · Rules and metavariables: a rule is ⟦premises⟧ ⟹ conclusion with ?-letters for any sentence (the way
 // Isabelle writes it; Lean's ?m are the same), and using it backwards means unifying its conclusion with the goal.
 // First the machine that unifies, one rule of unification per level, then the repeat frame runs them to the end: the
 // unifier. From there two lines need nothing from each other. On proof states: a goal is replaced by a rule's
@@ -154,11 +154,11 @@ export const metavars = [
   prove({
     id: 'r-subgoals',
     title: T('一个目标变几个', 'One goal becomes several'),
-    tests: [{ goal: '(Rain → (Wind → Rain)) ∧ (Wet ∨ ¬Wet)' }, { goal: '(Slip → (Rain → Slip)) ∧ (Rain ∨ ¬Rain)' }, { goal: '(¬Wet → (Wind → ¬Wet)) ∧ (Rain ∧ Wind ∨ ¬(Rain ∧ Wind))' }],
+    tests: [{ goal: '(Rain → (Wind → Rain)) ∧ ((Wet → (Slip → Rain)) → ((Wet → Slip) → (Wet → Rain)))' }, { goal: '(Slip → (Rain → Slip)) ∧ ((Rain → (Wind → Wet)) → ((Rain → Wind) → (Rain → Wet)))' }, { goal: '(¬Wet → (Wind → ¬Wet)) ∧ ((Bus → (Bike → Late)) → ((Bus → Bike) → (Bus → Late)))' }],
     brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
     hint: [T('拼成 ∧ 有两条前提：用了它，就有两个目标，先证左边那个。', 'Join ∧ has two premises: used, it leaves two goals, the left one first.')],
     intro: [{ t: T('<part-ref to="part:rule"></part-ref>把目标换成规则的前提。K 没有前提，一对上就证完了；拼成 ∧ 有两条前提，倒着用它，一个目标就变成两个，排成一列。元件总是对第一个目标下手。', '<part-ref to="part:rule"></part-ref> replaces a goal with the rule’s premises. K has none, and fitting it finishes the goal; Join ∧ has two, and used backwards it turns one goal into two, in a row. A part always works on the first goal.') }],
-    solution: script(['rule', 'conjI'], ['rule', 'axK'], ['rule', 'lem']),
+    solution: script(['rule', 'conjI'], ['rule', 'axK'], ['rule', 'axS']),
     after: T('目标排成一列，一个元件处理排头的那个。证完一个，下一个顶上来。', 'The goals stand in a row, and a part deals with the first. When one is proved, the next moves up.'),
   }),
   prove({
@@ -204,11 +204,11 @@ export const metavars = [
         solution: script(['rule', 'swap'], 'assumption'),
       }),
       prove({
-        step: T('德摩根', 'De Morgan'),
-        tests: [{ goal: '¬Rain ∧ ¬Wind', hyps: ['¬(Rain ∨ Wind)'] }, { goal: '¬Wet ∧ ¬Slip', hyps: ['¬(Wet ∨ Slip)'] }],
-        brief: T('再用德摩根证完每一个目标。', 'Now prove every goal with De Morgan.'),
-        hint: [T('德摩根的每一种形状都是一条规则，选结论对得上的那一种。', 'Each shape of De Morgan is a rule of its own: choose the one whose conclusion fits.')],
-        solution: script(['rule', 'dm.notOr'], 'assumption'),
+        step: T('合并', 'Merge'),
+        tests: [{ goal: 'Rain → Wet', hyps: ['Rain → (Rain → Wet)'] }, { goal: 'Hungry → Eat', hyps: ['Hungry → (Hungry → Eat)'] }],
+        brief: T('再用合并证完每一个目标。', 'Now prove every goal with Merge.'),
+        hint: [T('合并的结论一对上目标，?A 和 ?B 就都定下来了，剩下的那条前提正是已知。', 'Once Merge’s conclusion fits the goal, ?A and ?B are both settled, and the premise left is just the given.')],
+        solution: script(['rule', 'merge'], 'assumption'),
       }),
     ],
     intro: [{ t: T('证出的引理，本来就是「有了这些，就得到那个」：串联是 ⟦?A → ?B; ?B → ?C⟧ ⟹ ?A → ?C。它和证明核的规则一样能倒着用，元件上都能选到。', 'A lemma you proved already says “given these, you get that”: Chain is ⟦?A → ?B; ?B → ?C⟧ ⟹ ?A → ?C. It can be used backwards just like the kernel’s rules, and the part offers it too.') }],

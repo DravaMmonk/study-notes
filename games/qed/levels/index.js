@@ -8,9 +8,11 @@ import { era1 } from './era1.js'
 import { era2 } from './era2.js'
 import { quantifiers } from './quantifiers.js'
 import { rules } from './rules.js'
-import { terms } from './terms.js'
 import { metavars } from './metavars.js'
 import { strategies } from './strategies.js'
+import { classical } from './classical.js'
+import { simplifier } from './simplifier.js'
+import { terms } from './terms.js'
 import { WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -22,8 +24,8 @@ export const LEMMAS = {
   chain: { name: T('串联', 'Chain'), desc: T('接进 A → B 和 B → C，直接给出 A → C。', 'Wire in A → B and B → C; it gives A → C at once.'), statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'], ports: ['A → B', 'B → C'] },
   swap: { name: T('交换', 'Swap'), desc: T('接进 A → (B → C)，给出 B → (A → C)：两个条件换个顺序。', 'Wire in A → (B → C); it gives B → (A → C): the two conditions swapped.'), statement: 'B → (A → C)', premises: ['A → (B → C)'], metas: ['A', 'B', 'C'], ports: ['A → (B → C)'] },
   merge: { name: T('合并', 'Merge'), desc: T('接进 A → (A → B)，给出 A → B：说了两遍的条件并成一遍。', 'Wire in A → (A → B); it gives A → B: a condition stated twice, stated once.'), statement: 'A → B', premises: ['A → (A → B)'], metas: ['A', 'B'], ports: ['A → (A → B)'] },
-  // De Morgan's laws, one card: built by the level that proves the fourth propositional law, with all four shapes at
-  // once (REVISIONS); the quantifier shapes each come with the level that proves it. Switched on the card.
+  // De Morgan's laws, one card: built with its four propositional shapes at once (REVISIONS), the four quantifier
+  // shapes added by the level that proves them. Switched on the card.
   dm: {
     name: T('德摩根', 'De Morgan'),
     desc: T('德摩根律：否定穿过「或者」「并且」时互相转换，四个方向都有。元件上切换形状：¬(A ∨ B) 和 ¬A ∧ ¬B 互相转换，¬(A ∧ B) 和 ¬A ∨ ¬B 互相转换。', 'De Morgan’s laws: a negation passing through “or” and “and” turns one into the other, all four ways. Switch the shape on the card: ¬(A ∨ B) and ¬A ∧ ¬B each give the other, and so do ¬(A ∧ B) and ¬A ∨ ¬B.'),
@@ -45,19 +47,17 @@ export const LEMMAS = {
 
 // How parts' descriptions grow as the course goes on: from the level `at` on, the description reads this way.
 const REVISIONS = {
-  // De Morgan comes with its four propositional shapes at once, and grows a quantifier shape with each law proved.
+  // De Morgan comes with its four propositional shapes at once, and the quantifier level adds the other four.
   dm: [
-    { by: 'dmAnd', forms: ['andNot', 'orNot', 'notAnd'] },
-    { by: 'q-notEx', forms: ['notEx', 'allNot'], desc: T('德摩根律：否定穿过「或者」「并且」时互相转换；穿过量词也一样，¬∃ 和 ∀¬ 互相转换（∃ 像一个很长的「或者」，∀ 像一个很长的「并且」）。元件上切换形状。', 'De Morgan’s law: a negation passing through “or” and “and” turns one into the other; through a quantifier too, ¬∃ and ∀¬ each give the other (∃ is like a long “or”, ∀ a long “and”). Switch the shape on the card.') },
-    { by: 'q-exNot', forms: ['exNot'], desc: T('德摩根律：否定穿过「或者」「并且」时互相转换；穿过量词也一样：¬∃ 和 ∀¬ 互相转换，∃¬ 给出 ¬∀。元件上切换形状。', 'De Morgan’s law: a negation passing through “or” and “and” turns one into the other; through a quantifier too: ¬∃ and ∀¬ each give the other, and ∃¬ gives ¬∀. Switch the shape on the card.') },
-    { by: 'q-notAll', forms: ['notAll'], desc: T('德摩根律：否定穿过「或者」「并且」「存在」「对所有」时互相转换，八个方向都有了。元件上切换形状。', 'De Morgan’s law: a negation passing through “or”, “and”, “there is” and “for all” turns one into the other, all eight ways now. Switch the shape on the card.') },
+    { by: 'demorgan', forms: ['andNot', 'orNot', 'notAnd'] },
+    { by: 'q-dm', forms: ['notEx', 'allNot', 'exNot', 'notAll'], desc: T('德摩根律：否定穿过「或者」「并且」「存在」「对所有」时互相转换，八个方向都有（∃ 像一个很长的「或者」，∀ 像一个很长的「并且」）。元件上切换形状。', 'De Morgan’s law: a negation passing through “or”, “and”, “there is” and “for all” turns one into the other, all eight ways (∃ is like a long “or”, ∀ a long “and”). Switch the shape on the card.') },
   ],
   // 矛盾 brings in ¬A as A → ⊥, so Apply takes ¬A and A to ⊥.
   mp: [{ at: 'bot', desc: T('由 A → B 和 A 得到 B：接进一句「若…，则…」和它的前一半，得到后一半。¬A 也可以写作 A → ⊥，所以接进 ¬A 和 A，就得到矛盾 ⊥。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part. ¬A can be written A → ⊥, so wire in ¬A and A and out comes the contradiction ⊥.') }],
   // ↔ comes into proofs on the main path with 两个方向: Split ∧ takes it apart.
   andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
 
-  // The machine parts grow along chapters 7 and 8: quantifiers taken apart and patterns (做成函数), every result once
+  // The machine parts grow along chapters 6 and 7: quantifiers taken apart and patterns (做成函数), every result once
   // the cards backtrack (一串结果).
   uDecompose: [{ at: 'r-pattern', desc: T('找到一个两边样子相同的等式，拆成各部分对各部分的几个等式。两边都是「对所有」（或都是「存在」）时，拆出两边的身体，让它们用同一个变量，等式前面记上 ⋀x：x 是量词管着的。', 'Finds an equation with the same shape on both sides and splits it into an equation for each pair of parts. When both sides are “for all” (or both “there is”), it takes out the two bodies, with one variable for both, and marks the equation ⋀x: x is bound by a quantifier.') }],
   uCheck: [{ at: 'r-pattern', desc: T('找到一个 ?A ≐ t，?A 不能是 t，就宣布失败：t 里面又有 ?A；或者 t 里有前面 ⋀ 管着的变量（?A 不能把它带出量词）。', 'Finds ?A ≐ t where ?A cannot be t and declares failure: ?A occurs inside t, or t has a variable bound by the ⋀ in front (?A cannot take it out of its quantifier).') }],
@@ -70,7 +70,7 @@ const REVISIONS = {
 
 const COURSE = {
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...terms, ...metavars, ...strategies],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...terms],
   words: WORDS,
   lemmas: LEMMAS,
   gates: GATES,

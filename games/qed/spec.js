@@ -18,7 +18,7 @@ export default {
   id: 'qed',
   domain: 'logic',
   title: { zh: '证明完毕', en: 'Q.E.D.' },
-  // Still in development: chapters 0-8 of the course in DESIGN.md are in; 9 on are being rebuilt.
+  // Still in development: the chapters in levels/eras.js are in; the rest of DESIGN.md's course is being built.
   kicker: { zh: '开发中 · 把推理搭成电路的解谜', en: 'In development · Puzzles that wire reasoning into circuits' },
   lede: { zh: '不需要任何逻辑学基础。从真值表开始，把推理规则当成元件，一块一块搭出证明，学会假设、分情况和反证；最后能亲手证出逻辑定律，在岛上分辨骑士和无赖，并看清「证明」到底是什么。', en: 'No logic background needed. Starting from truth tables, you wire up proofs with rules of inference as parts and learn to assume, to split into cases and to argue by contradiction; in the end you prove the laws of logic yourself, sort the knights from the knaves on an island, and see what a proof really is.' },
   eras: ERAS,
@@ -114,6 +114,25 @@ export default {
   { version: 31, ops: [
     { data: (value, id) => (['t-wapp', 't-wpair'].includes(id) ? undefined : value) },
     { solve: ['t-kernel', ['t-wquant']] },
+  ] },
+  // Version 32 put each mechanism where it is first needed. Excluded middle went to classical logic, after a level
+  // where auto runs into it, with two new practice levels; De Morgan went to the simplifier, its four propositional
+  // laws one level of four tasks (一路否定回去 gone), its quantifier laws another (量词的德摩根, a new id). Whoever had
+  // passed what follows each new level has passed it. Two levels of rules and metavariables lost their excluded
+  // middle and De Morgan: their boards start afresh.
+  { version: 32, ops: [
+    { solve: ['raa', ['c-wall']] },
+    { solve: ['byContra', ['c-contra']] },
+    { solve: ['lemCases', ['c-either']] },
+    { rename: { dmUse: null } },
+    { merge: ['demorgan', ['demorgan', 'dmBack', 'dmOr', 'dmAnd']] },
+    { merge: ['q-dm', ['q-notEx', 'q-notEx', 'q-exNot', 'q-notAll']] },
+    { data: (value, id) => {
+      if (id === 'q-dm' && Array.isArray(value)) return [value[0]?.[0] ?? null, value[1]?.[1] ?? null, value[2], value[3]]
+      if (id === 'r-subgoals') return undefined
+      if (id === 'r-lemma' && Array.isArray(value)) return [value[0], value[1], null]
+      return value
+    } },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
   quotes: ['任取'],

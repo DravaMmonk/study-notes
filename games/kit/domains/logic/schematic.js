@@ -331,6 +331,9 @@ export const KERNEL_RULES = [
   ruleOf('cut', R('先证一句', 'Have'), ['?A', '⟦?A⟧ ⟹ ?C'], '?C'),
   ruleOf('refl', R('自反', 'Reflexivity'), [], '?t = ?t'),
 ]
+// The proof-board part each kernel rule is (a level has the rule once it holds the part); Have is Apply and a box.
+const PART = { conjI: 'andI', impI: 'impI', disjI1: 'orI', disjI2: 'orI', allI: 'allI', exI: 'exI', mp: 'mp', conjE: 'andE', conjunct1: 'andE', conjunct2: 'andE', disjE: 'orE', impE: 'mp', botE: 'botE', spec: 'allE', allE: 'allE', exE: 'exE', raa: 'raa', cut: 'mp', refl: 'refl' }
+for (const r of KERNEL_RULES) r.part = PART[r.key]
 /** The introduction rules (a goal taken apart by its shape) and the elimination rules (a given used), in order. */
 export const INTRO_RULES = ['conjI', 'impI', 'disjI1', 'disjI2', 'allI', 'exI']
 export const ELIM_RULES = ['conjE', 'disjE', 'impE', 'botE', 'exE', 'allE']

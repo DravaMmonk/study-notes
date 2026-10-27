@@ -176,8 +176,12 @@ function noEasier(g2, g) {
   const namings = extra.reduce((list, x) => list.flatMap((m) => g.fixes.map((y) => [...m, [keyOf(fn(x)), keyOf(fn(y))]])), [[]])
   return namings.some((m) => g2.hyps.every((h) => have.has(m.reduce((k, [x, y]) => k.split(x).join(y), h))))
 }
-/** A state that is no nearer the end than one before it: each goal of that one has a goal here no easier than it. */
+/**
+ * A state that is no nearer the end than one before it: it has as many goals at least, and each goal of that one has
+ * a goal here no easier than it.
+ */
 export function noProgress(next, before) {
+  if (next.goals.length < before.goals.length) return false
   const there = goalsBy(next)
   for (const [k, goals] of goalsBy(before)) {
     const same = there.get(k)

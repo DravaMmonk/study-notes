@@ -1,10 +1,10 @@
-// Chapter 8 · Tactics: a machine is no longer a script for one shape of goal but a program for many, a tactic. Two
+// Chapter 7 · Tactics: a machine is no longer a script for one shape of goal but a program for many, a tactic. Two
 // lines need nothing from each other. Combinators: the repeat frame on proof states, alternatives (the first that does
 // not fail), both together, an alternative that does nothing (try), every goal. Backtracking: which goal first can decide
 // a ?-letter (defer); from then on a card gives every result and each card after it works on each (the showcase). With
 // both, again two lines: alternatives keep every way, and depth-first search goes on until no goal is left; every
 // introduction rule as one part, every elimination rule as another (each built from alternatives). Then the player's
-// own auto, a search over the two (it becomes a part), and what it cannot do (proof by contradiction, by hand first).
+// own auto, a search over the two (it becomes a part).
 // The topic asks a family tree by rules (Prolog is rule resolution and depth-first search); the challenge is a search
 // that never stops on what cannot be proved.
 import { machine } from '../../kit/domains/logic/build.js'
@@ -225,17 +225,6 @@ export const strategies = [
     intro: [{ t: T('一步里能做的事都齐了：已知里有，拆目标，用已知。放进<part-ref to="part:search"></part-ref>，每一步三样都试，一条路走不通就退回来换下一条。这四个目标，你在连接词和量词两章里都在证明板上一个个接过。', 'Everything one step can do is in hand: Assumption, Goal apart, Use a given. Put them in a <part-ref to="part:search"></part-ref>, and each step tries all three, going back to the next way when a path leads nowhere. These four goals you wired one by one on the proof board, in the chapters on connectives and quantifiers.') }],
     solution: searchOf(['introRules', 'elimRules']),
     after: T('拿出那一个和举例谁先谁后，搜索自己会试，回溯替你找到对的顺序。已知不会被拿走，同一条能一用再用；一步走回原地的，搜索不往下走，所以它停得下来。连接词一章的大多数关，这一个元件就证完了。', 'Whether to take out or give an example first, the search tries for itself, and backtracking finds the order that works. Givens are never taken away, so one can be used again and again; a step back where it was the search does not follow, and so it comes to an end. Most levels of the connectives chapter this one part proves.'),
-  }),
-  each({
-    id: 's-lem',
-    title: T('auto 做不到的', 'What auto cannot do'),
-    tests: [{ goal: '¬¬Rain → Rain' }, { goal: '(¬Rain → Rain) → Rain' }],
-    brief: BRIEF,
-    hint: [T('反证法要自己用一次：倒着用它，目标就成了「并非并非」。', 'Use proof by contradiction once yourself: backwards, it makes the goal a “not not”.')],
-    intro: [{ t: T('auto 只用引入和消去规则。反证法 ⟦¬¬?A⟧ ⟹ ?A 的结论对上任何目标：放进搜索里，每个目标都会被它换成「并非并非」，再换一次，一直换下去，每一步都是新目标。所以 auto 不用它，要用就自己先用一次。', 'auto uses only introduction and elimination rules. Proof by contradiction, ⟦¬¬?A⟧ ⟹ ?A, concludes any goal: put in the search, it turns every goal into a “not not”, and again, without end, each step a new goal. So auto leaves it out; to use it, use it once yourself first.') }],
-    solution: script(['rule', 'impI'], ['rule', 'raa'], 'auto'),
-    naive: script('auto'),
-    after: T('只用引入和消去规则证得出的，正是直觉主义逻辑的定理；排中律、反证法要另外给。', 'What introduction and elimination rules alone prove is exactly intuitionistic logic; excluded middle and proof by contradiction must be given besides.'),
   }),
 
   // ---------- topic: a family tree by rules ----------

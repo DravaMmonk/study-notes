@@ -1,8 +1,9 @@
-// 《证明完毕》's course: one machine, the prover the player builds, module by module (one chapter each). Chapter 0 has
-// no machine: a sentence is checked by its truth table by hand. Truth circuits compute a sentence's value on every
-// row; the kernel proves from two parts, Apply and the assumption box, and proves K and S with them; its challenges
-// hold the box back and prove with K and S alone. The next chapter adds the other connectives. Everything built
-// earlier stays in the prover.
+// 《证明完毕》's course: one machine, the prover the player builds, module by module (one chapter each; the plan is
+// games/qed/DESIGN.md §3). Chapter 0 has no machine: a sentence is checked by its truth table by hand. Truth circuits
+// compute a sentence's value on every row; the kernel proves from two parts, Apply and the assumption box; then the
+// connectives, the quantifiers' language and rules, rules with metavariables, tactics, classical logic, the
+// simplifier, and proofs as programs. Everything built earlier stays in the prover. A mechanism comes where it is
+// first needed: excluded middle when auto runs into it, De Morgan with the simplifier.
 const T = (zh, en) => ({ zh, en })
 
 // A named stretch of the main path (one branch of a `parallel` set): each new rule, then practice with it. Branches
@@ -69,17 +70,7 @@ export const ERAS = [
         ['not', '矛盾与否定', 'Contradiction and not', ['bot', 'exFalso', 'notI', 'mt', 'dni', 'contra', 'denyAnte']],
       ),
       series('mix', '组合', 'Together', ['dist', 'dsyll']),
-      // Three of De Morgan's laws need nothing classical; excluded middle needs nothing of them.
-      branches(
-        ['demorgan', '德摩根', 'De Morgan', ['demorgan', 'dmBack', 'dmOr']],
-        ['classical', '排中律', 'Excluded middle', ['raa', 'byContra', 'lemCases']],
-      ),
-      // The fourth law rests on excluded middle; with it the four make the part De Morgan, put to work at once.
-      series('dmAll', '德摩根的四个方向', 'De Morgan, all four ways', ['dmAnd', 'dmUse']),
     ],
-    // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.
-    topics: [{ id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
-    challenges: [{ level: 'peirce', after: 'lemCases' }],
     chapter: { title: T('连接词', 'Connectives'), question: T('有了「与」「或」「非」，证明器还要哪些规则？', 'With “and”, “or” and “not”, what more rules does the prover need?') },
   },
   {
@@ -103,34 +94,14 @@ export const ERAS = [
         ['forall', '对所有', 'For all', ['q-allE', 'q-allI', 'q-rename', 'q-allAnd', 'q-capture']],
         ['exists', '存在', 'There is', ['q-exI', 'q-exE', 'q-witness']],
       ),
-      // With both in hand: quantifiers swapped and moved, and quantifiers negated (the last needs proof by
-      // contradiction and becomes a part); neither needs the other.
+      // With both in hand: quantifiers swapped and moved, and equality, its own mechanism; neither needs the other.
       branches(
         ['moving', '换序与挪动', 'Swapping and moving', ['q-swap', 'q-move', 'q-ancestor', 'q-bigger']],
-        ['negation', '量词的否定', 'Negating quantifiers', ['q-notEx', 'q-exNot', 'q-notAll']],
+        ['equality', '相等', 'Equality', ['q-eq', 'q-sym', 'q-trans']],
       ),
-      // Equality is a new mechanism of its own, last: nothing before it in the chapter needs it.
-      series('equality', '相等', 'Equality', ['q-eq', 'q-sym', 'q-trans']),
     ],
     topics: [{ id: 'carroll', code: 'S', after: 'q-move', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') }],
-    challenges: [{ level: 'drinker', after: 'q-notAll' }],
     chapter: { title: T('量词规则', 'Quantifier rules'), question: T('怎样证明一句话在所有世界里都成立？', 'How do you prove a sentence holds in every world?') },
-  },
-  {
-    id: 'terms', machine: 'prover', keeps: 'all',
-    foundation: [
-      // Reading terms: functions, then the data the other connectives' proofs are.
-      series('read', '读证明项', 'Reading proof terms', ['t-app', 't-lam', 't-pair']),
-      // Once terms can be read, their detours and the quantifiers' terms need nothing from each other.
-      branches(
-        ['detour', '弯路', 'Detours', ['t-beta', 't-lemma']],
-        ['quant', '量词的证明项', 'Quantifiers’ proof terms', ['t-all']],
-      ),
-      // Then the terms written, of every part wired before: functions (and lemmas), data, quantifiers; the kernel.
-      series('write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wpair', 't-wquant', 't-kernel']),
-    ],
-    challenges: [{ level: 't-dneg', after: 't-wpair' }],
-    chapter: { title: T('证明即程序', 'Proofs are programs'), question: T('接出来的证明本身是什么？', 'What is a wired proof, itself?') },
   },
   {
     id: 'metavars', machine: 'prover', keeps: 'all',
@@ -166,14 +137,56 @@ export const ERAS = [
         ['search', '搜索', 'Search', ['s-append', 's-search']],
         ['shapes', '按形状', 'By shape', ['s-intro', 's-elim']],
       ),
-      // The player's own auto, and what it leaves out.
-      series('auto', '自己的 auto', 'Your own auto', ['s-auto', 's-lem']),
+      // The player's own auto.
+      's-auto',
     ],
     // Prolog is rule resolution and depth-first search: it goes on from chapter 4's family tree.
     topics: [{ id: 'prolog', code: 'P', after: ['s-search', 'q-grand'], levels: ['pl-grand', 'pl-anc', 'pl-order'], title: T('用规则推族谱', 'A family tree by rules') }],
     challenges: [{ level: 's-loop', after: 's-search' }],
     chapter: { title: T('策略', 'Tactics'), question: T('能不能让机器自己去试该用哪条规则？', 'Can the machine try for itself which rule to use?') },
   },
-  // Chapter 9 on are being rebuilt around Isabelle's and Lean's mechanisms (games/qed/DESIGN.md §3); their old levels
-  // wait in levels/ (resolution, clauseform, theory, graduation) until each is rebuilt.
+  {
+    id: 'classical', machine: 'prover', keeps: 'all',
+    foundation: [
+      // auto runs into the wall; proof by contradiction comes in, and excluded middle with it.
+      'c-wall', 'raa',
+      // Proof by contradiction, excluded middle with cases, and proof by contradiction on the machine need nothing
+      // from each other.
+      branches(
+        ['contra', '反证法', 'By contradiction', ['byContra', 'c-contra']],
+        ['lem', '排中律', 'Excluded middle', ['lemCases', 'c-either']],
+        ['machine', '机器上的反证法', 'By contradiction on the machine', ['s-lem']],
+      ),
+    ],
+    // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.
+    topics: [{ id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
+    challenges: [{ level: 'peirce', after: 'lemCases' }],
+    chapter: { title: T('经典逻辑', 'Classical logic'), question: T('真值表上每一行都真的话，证明器都证得出吗？', 'Does the prover prove everything true on every row?') },
+  },
+  {
+    id: 'simplifier', machine: 'prover', keeps: 'all',
+    foundation: [
+      // The laws the simplifier rewrites with, each proved in one level of tasks; the quantifier laws add their
+      // shapes to the De Morgan card.
+      series('laws', '规则来自证明', 'Rules from proofs', ['demorgan', 'q-dm']),
+    ],
+    challenges: [{ level: 'drinker', after: 'q-dm' }],
+    chapter: { title: T('化简器', 'The simplifier'), question: T('「算一算」「把否定推进去」这样的目标，能交给机器一路改下去吗？', 'Can goals like “work it out” or “push the negation in” be left to a machine that rewrites all the way?') },
+  },
+  {
+    id: 'terms', machine: 'prover', keeps: 'all',
+    foundation: [
+      // Reading terms: functions, then the data the other connectives' proofs are.
+      series('read', '读证明项', 'Reading proof terms', ['t-app', 't-lam', 't-pair']),
+      // Once terms can be read, their detours and the quantifiers' terms need nothing from each other.
+      branches(
+        ['detour', '弯路', 'Detours', ['t-beta', 't-lemma']],
+        ['quant', '量词的证明项', 'Quantifiers’ proof terms', ['t-all']],
+      ),
+      // Then the terms written, of every part wired before: functions (and lemmas), data, quantifiers; the kernel.
+      series('write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wpair', 't-wquant', 't-kernel']),
+    ],
+    challenges: [{ level: 't-dneg', after: 't-wpair' }],
+    chapter: { title: T('证明即程序', 'Proofs are programs'), question: T('接出来的证明本身是什么？', 'What is a wired proof, itself?') },
+  },
 ]
