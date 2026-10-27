@@ -1,7 +1,7 @@
 // node --test games/kit/shell — a level's saved boards: switching, adding, renaming, dropping, and old saves moving.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
+import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { migrations } from './saves.js'
 
 const start = { data: { a: { nodes: [1] } }, slots: {} }
@@ -24,6 +24,12 @@ test('a copy is its own board', () => {
   const p = addSlot(start, 'a', { copy: true })
   assert.deepEqual(p.data.a, { nodes: [1] })
   assert.notEqual(p.data.a, slotsOf(p, 'a').list[0].data)
+})
+
+test('a dropped slot takes its kept runs with it', () => {
+  const p = { ...addSlot(start, 'a'), runs: { a: { [runKey(0, 1)]: 5, [runKey(1, 1)]: true, [runKey(0, 2)]: 3 } } }
+  assert.deepEqual(dropSlot(p, 'a', 0).runs.a, { [runKey(0, 2)]: 3 })
+  assert.deepEqual(dropSlot(p, 'a', 1).runs.a, { [runKey(0, 1)]: 5, [runKey(1, 1)]: true })
 })
 
 test('names, and dropping the slot played or another', () => {

@@ -43,7 +43,7 @@ const fits = (circuit, level, parts) => {
   return letters === [...rowsFor(level).letters].sort().join() && circuit.nodes.every((n) => n.type === 'letter' || n.type === 'out' || parts.rules[n.type])
 }
 
-export default function GatesScreen({ game, level: entry, saved, save, solve, flags, phone }) {
+export default function GatesScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, flags, phone }) {
   const level = entry.source
   const word = (letter) => say(parse(letter), level.notation)
   const parts = useMemo(() => gatePartsFor(level.gates, word), [level])
@@ -72,6 +72,8 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, fl
     onSolve: () => solve({ steps: checked.gates }),
     onTest: setRowIndex,
     board: circuit,
+    kept: lastRun,
+    onKeep: keepRun,
   })
   const run = playback.run
   const addNode = (type, extra = {}) => {

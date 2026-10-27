@@ -15,24 +15,23 @@ import { tr } from './i18n.js'
 //   onSolve()        every test passed
 //   onTest?(k)       the run moved on to test k
 //   board            anything that changes the board: a new one cancels the run
+//   kept?            how far the board's last run had gone (onKeep's mark): it opens there, held, without solving again
+//   onKeep?(mark)    the run stands still (held or over) after `mark` moves, or there is none (null)
 //
-// A run is { test, step, playing, results: [{ pass, reason }], over, final? }: step −1 before the test's first step,
-// steps.length once its check has run.
+// A run is { test, step, playing, results: [{ pass, reason }], over, final?, n }: step −1 before the test's first step,
+// steps.length once its check has run; n moves made from the start, so the same board replays it from a fresh run.
 
 const reduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-export function usePlayback({ count, stepsOf, check, final, onSolve, onTest, board }) {
-  const [run, setRun] = useState(null)
+export function usePlayback({ count, stepsOf, check, final, onSolve, onTest, board, kept, onKeep }) {
   const cache = useMemo(() => new Map(), [board])
   const steps = (k) => {
     if (!cache.has(k)) cache.set(k, stepsOf(k))
     return cache.get(k)
   }
-  useEffect(() => setRun(null), [board])
 
   // One step on: the next step, the check that ends a test, or the next test.
-  const advance = (r) => {
-    if (!r || r.over) return r
+  const move = (r) => {
     const list = steps(r.test)
     const next = r.step + 1
     if (next < list.length) {
@@ -46,18 +45,30 @@ export function usePlayback({ count, stepsOf, check, final, onSolve, onTest, boa
     if (r.test + 1 < count) return list.length ? { ...r, step: next, results } : { ...r, test: r.test + 1, step: -1, results }
     return { ...r, step: next, playing: false, over: true, results, final: final?.() || '' }
   }
+  const advance = (r) => (!r || r.over ? r : { ...move(r), n: r.n + 1 })
   // Several steps a frame on a long run, never past a failure or into the next test.
   const advanceBy = (r, by) => {
     let cur = advance(r)
     for (let k = 1; k < by && !cur.over && cur.test === r.test; k++) cur = advance(cur)
     return cur
   }
-  const fresh = (playing) => ({ test: 0, step: -1, playing, results: [], over: false })
+  const fresh = (playing) => ({ test: 0, step: -1, playing, results: [], over: false, n: 0 })
   const finish = (r) => {
     let cur = r
     for (let k = 0; k < 1e6 && !cur.over; k++) cur = advance(cur)
     return { ...cur, playing: false }
   }
+
+  // The run belongs to the board it was made on: a new board has none.
+  const [held, setHeld] = useState(() => {
+    if (!kept) return null
+    let r = fresh(false)
+    for (let k = 0; k < kept && !r.over; k++) r = advance(r)
+    return { ...r, board }
+  })
+  const run = held?.board === board ? held : null
+  const setRun = (r) => setHeld(r && { ...r, board })
+  useEffect(() => onKeep?.(run && !run.playing ? run.n : null), [run?.n, run?.playing, board])
 
   useEffect(() => {
     if (!run?.playing) return undefined
@@ -67,7 +78,8 @@ export function usePlayback({ count, stepsOf, check, final, onSolve, onTest, boa
   }, [run])
   useEffect(() => { if (run) onTest?.(run.test) }, [run?.test])
   const passed = Boolean(run?.over && run.results.length === count && run.results.every((x) => x.pass) && !run.final)
-  const solved = useRef(false)
+  // A run replayed as it was kept has been solved already.
+  const solved = useRef(passed)
   useEffect(() => {
     if (passed && !solved.current) { solved.current = true; onSolve() }
     if (!passed) solved.current = false

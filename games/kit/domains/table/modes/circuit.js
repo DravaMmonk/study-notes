@@ -7,7 +7,8 @@
 // A level may have several stages: a new world with new inputs (when a run fails on purpose), or a new question on
 // the same board (when every test passes; `carry` keeps the circuit). A level may also start from the board the player
 // left on an earlier level it requires (the level's `carry`). A stage may give the player a scan-order dial,
-// a filter for the sweeping arm, or scan in rounds until the table settles.
+// a filter for the sweeping arm, or scan in rounds until the table settles. A run that ends (every test passed, or the
+// one that failed) is kept as { stage, test } (the shell's lastRun): the level opens on it again, replayed on the board.
 
 import { $, buzz, toast, signal, wide, paint } from '../util.js';
 import { rt, Anim } from '../runtime.js';
@@ -72,7 +73,7 @@ const mergerEntry = models => ({
   desc: lazy(() => tr(`把接进来的几个数汇成一个。放上后在元件上选操作：${models.map(k => def(k).tag).join('、')}；换操作时连线不变。`, `Merges the numbers wired into it into one. Pick its operation on the part once placed: ${models.map(k => def(k).tag).join(', ')}; the wires stay when you swap.`)),
 });
 
-export function circuitMode(L, saved, { flags, game, progress } = {}) {
+export function circuitMode(L, saved, { flags, game, progress, lastRun } = {}) {
   const stages = L.stages || [L];
   // A level that grows the board of an earlier one (`carry`: that level's id) starts from the player's last board there.
   const carried = L.carry && progress && progress.data[L.carry] && progress.data[L.carry].circs;
@@ -103,7 +104,7 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
   const io = () => ({ sensors: V().sensors, outs: V().outs });
   const label = t => (L.testLabel || V().label)(t);
   const busy = () => rt.cur.running;
-  const changed = () => { st.status = tests().map(() => null); st.view = null; rt.persist(); };
+  const changed = () => { st.status = tests().map(() => null); st.view = null; rt.persist(); rt.keepRun(null); };
   st.status = tests().map(() => null);
   const setCirc = c => { st.circs[st.stage] = c; changed(); };
   const shownStep = () => { const v = st.view; if (!v || !v.k) return null; return v.res.steps[v.focus ?? v.k - 1]; };
@@ -414,6 +415,25 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
     });
   }
 
+  /** Test k run on the board: its result, the first step gone wrong (or cell settled wrong), and the view of its end. */
+  function judge(k) {
+    const t = tests()[k], s = stage(), res = runCircuit(V(), t, circ(), opt()), want = expected()[k];
+    // checkAll levels grade every cell, not just the answer cell.
+    // With layers the player builds, the reference circuit's layers need not mean what the player's do: only the answer is checked.
+    const mm = res.error || s.onFail || V().layered || (!(s.checkAll ?? L.checkAll) && res.value === want) ? null : firstMismatch(t, res);
+    const ok = !res.error && res.value === want && !mm;
+    const stop = mm && mm.key === undefined ? mm.q + 1 : res.steps.length;
+    return { t, res, mm, ok, stop, view: { res, k: 0, pass: ok, end: false, halt: !!(res.error && !res.error.diverge) || (!!mm && mm.key === undefined), focus: null, badKey: mm ? mm.key : undefined } };
+  }
+  // The run kept from the last visit, replayed on the board as it ended: every test up to the one it stopped on.
+  if (lastRun && lastRun.stage === st.stage && lastRun.test < tests().length) {
+    for (let k = 0; k <= lastRun.test; k++) {
+      const { ok, stop, view } = judge(k);
+      st.status[k] = ok ? 'pass' : 'fail';
+      if (k === lastRun.test) { st.ti = k; st.view = { ...view, k: stop, end: true }; }
+    }
+  }
+
   const ctl = {
     st,
     save: () => ({ stage: st.stage, circs: st.circs }),
@@ -583,7 +603,7 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
     },
     /** Run every test; `step` starts the run paused, so the player steps through it. */
     async run({ step = false } = {}) {
-      const c = circ(), Vw = V(), o = opt(), s = stage();
+      const c = circ(), Vw = V(), s = stage();
       const miss = Vw.outs.find(([id]) => !c.wires.some(w => w.to === `out:${id}`));
       if (miss) { toast(tr(`输出口「${miss[1]}」还没接线`, `The output “${miss[1]}” is not wired yet`)); buzz(20); return; }
       st.pick = null;
@@ -594,15 +614,10 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
       rt.startRun({ paused: step });
       st.status = tests().map(() => null);
       for (let k = 0; k < tests().length; k++) {
-        const t = tests()[k], res = runCircuit(Vw, t, c, o), want = expected()[k];
-        // checkAll levels grade every cell, not just the answer cell.
-        // With layers the player builds, the reference circuit's layers need not mean what the player's do: only the answer is checked.
-        const mm = res.error || s.onFail || Vw.layered || (!(s.checkAll ?? L.checkAll) && res.value === want) ? null : firstMismatch(t, res);
-        const ok = !res.error && res.value === want && !mm;
-        const stop = mm && mm.key === undefined ? mm.q + 1 : res.steps.length;
+        const { t, res, mm, ok, stop, view } = judge(k);
         st.ti = k;
         st.status[k] = 'run';
-        st.view = { res, k: 0, pass: ok, end: false, halt: !!(res.error && !res.error.diverge) || (!!mm && mm.key === undefined), focus: null, badKey: mm ? mm.key : undefined };
+        st.view = view;
         rt.refresh();
         // Long runs (many rounds) show several steps per frame, so a run never takes much more than two seconds; a
         // paused run goes one step at a time.
@@ -619,6 +634,7 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
         st.view.end = true;
         st.status[k] = ok ? 'pass' : 'fail';
         if (!ok) {
+          rt.keepRun({ stage: st.stage, test: k });
           rt.endRun();
           rt.refresh();
           if (s.onFail) {
@@ -631,6 +647,7 @@ export function circuitMode(L, saved, { flags, game, progress } = {}) {
         rt.refresh();
         await Anim.wait(420);
       }
+      rt.keepRun({ stage: st.stage, test: tests().length - 1 });
       rt.endRun();
       rt.refresh();
       if (st.stage < stages.length - 1) { stageDone(); return; }
