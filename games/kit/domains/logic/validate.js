@@ -5,7 +5,8 @@
 // Every letter a level shows has its everyday sentence, and every proof level comes as test cases (course.js). No proof
 // level is one use of a lemma it carries away from done. A truth circuit's reference board gives its sentence on every
 // row, its naive one does not (or breaks its gate budget), and a gate it builds computes exactly that sentence. A
-// proof that holds parts back (`without`) does not use them, and no reference answer uses a part its level cannot have.
+// proof that holds parts back (`without`) does not use them, and no reference answer uses a part its level cannot have
+// (but for what its board starts with: a preset names cards of the answer).
 import { formsAt, reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
@@ -32,6 +33,11 @@ export function validate({ levels: given, course }) {
   // Every task of a level is checked as a level of its own (course.js tasks).
   const builder = new Map(given.map((l) => [l.id, l.builds]))
   const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
+  // A preset names cards of the level's reference answer (course.js).
+  for (const level of levels.filter((l) => l.preset)) {
+    const lost = level.preset.filter((id) => !level.solution?.nodes.some((n) => n.id === id))
+    if (lost.length) out.push({ fail: true, text: `${level.id}: its preset names ${lost.join(', ')}, which its reference answer does not have` })
+  }
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words && !l.vocab)) {
     const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'term' ? [...Object.values(level.premises ?? {}), level.goal] : level.kind === 'script' ? [...Object.values(level.premises ?? {}), level.goal, ...(level.sentences ?? [])] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.term ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses)) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
@@ -172,7 +178,7 @@ export function validate({ levels: given, course }) {
     }
     // A later task of a level may use what the level builds.
     const held = course && new Set([...reach(course, { id: level.id }), 'premise', 'goal', ...(level.task > 0 && builder.get(level.id) ? [builder.get(level.id)] : [])])
-    const missing = held ? [...new Set(level.solution.nodes.map((n) => n.type).filter((t) => !held.has(t)))] : []
+    const missing = held ? [...new Set(level.solution.nodes.filter((n) => !level.preset?.includes(n.id)).map((n) => n.type).filter((t) => !held.has(t)))] : []
     if (missing.length) out.push({ fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
     // Every sentence, term or variable the reference proof picks on a card is one the card offers (choices.js).
     const offer = choicesOf(level)

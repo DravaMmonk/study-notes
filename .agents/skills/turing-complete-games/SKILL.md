@@ -97,6 +97,10 @@ shows them at work in 《证明完毕》):
   its circuit does, side effects included (the circuit keeps a hypothesis, so the part keeps it); a choice made in the
   circuit (which rule, a constant) may stay as a setting on the built part. A builder level of a one-step transform
   states what the step makes (`becomes` in 《证明完毕》), so the built-in alone can pass it.
+- **Parts that stay where they are brought.** A go-between soon wrapped into a built part (one round of resolution,
+  inside the saturator) or a part made for one level's scene (someone else's wrong prover) is `local`: never unlocked,
+  never carried; a later level that needs it brings it again. A level whose puzzle turns around something ready-made
+  presets it on the board (`preset`): locked, movable, never deleted or rewired.
 - **Renumbering needs a save migration** (§2): renamed ids, flags now set by another level, new intro levels
   marked passed when a later one is.
 - **Level tree shape.** The map tree is at most three columns wide, at most three levels per row. A parallel set

@@ -158,7 +158,8 @@ const COURSE = {
     'append', 'each', 'defer', 'search', 'rw', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
   concept: { andI: 'and', andE: 'and', rewrite: 'eq', refl: 'eq' },
-  // Someone else's prover is handed over for one level, to be caught out; the reconstructor takes its place after.
-  replaces: { metis: ['oracle'] },
+  // Parts that stay where a level brings them: one round of resolution, soon wrapped into the saturator, and someone
+  // else's prover, on the board of the one level that catches it out.
+  local: ['resolve', 'oracle'],
 }
 export const LOGIC = logicCourse(COURSE)

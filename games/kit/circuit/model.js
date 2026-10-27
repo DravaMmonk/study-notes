@@ -7,6 +7,11 @@
 // circuit computes. A node may sit inside a frame (`in`, `fold`: frames.js). Anything else on a node (params, a
 // value, a view) belongs to the game.
 //
+// A level may put parts and wires on the board before the player starts (its `preset`, put in by withPreset): they are
+// `locked`. The player may move a locked part (within the region it sits in), never take it off; a locked wire is
+// never taken off or replaced. The ports a preset leaves free are the player's to wire. Every editor guards this
+// (keepLocked on each change, lockedRefusal on each wire tried).
+//
 // A game describes its nodes with a `parts` object (see CanvasEditor / useSlotEditing):
 //   inputs(node) → [port]       role(node) → 'source' | 'sink' | 'part'      label(node) → text
 //   portLabel(node, port) → text   family(node) → string   icon(node) → Component
@@ -61,12 +66,59 @@ export function removeNode(graph, id) {
 export const removeWire = (graph, wire) => ({ ...graph, wires: graph.wires.filter((w) => !(w.to === wire.to && w.port === wire.port)) })
 export const moveNode = (graph, id, x, y) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, x, y } : n)) })
 
+/** The preset a level takes from its reference `answer`: the cards `ids`, and the answer's wires between them and the
+ *  nodes `fixed` (the board's own inputs and outputs). */
+export function presetOf(answer, ids, fixed = new Set()) {
+  const picked = new Set(ids)
+  const on = (id) => picked.has(id) || fixed.has(id)
+  return {
+    nodes: answer.nodes.filter((n) => picked.has(n.id)),
+    wires: answer.wires.filter((w) => on(srcNode(w.from)) && on(w.to) && (picked.has(srcNode(w.from)) || picked.has(w.to))),
+  }
+}
+
+/** A level's preset on a board (a fresh one or a saved one): its parts and wires, locked, each where the board
+ *  already has it (with the settings it has there), else where the preset puts it; a wire into a port the preset fills replaces the board's. */
+export function withPreset(graph, preset) {
+  if (!preset) return graph
+  const had = new Map(graph.nodes.map((n) => [n.id, n]))
+  const nodes = preset.nodes.map((n) => {
+    const at = had.get(n.id)
+    return { ...n, ...(at && { x: at.x, y: at.y, slot: at.slot, params: at.params ?? n.params }), locked: true }
+  })
+  const ids = new Set(nodes.map((n) => n.id))
+  const wires = preset.wires.map((w) => ({ ...w, locked: true }))
+  const filled = new Set(wires.map((w) => `${w.to}|${w.port}`))
+  return {
+    ...graph,
+    nodes: [...graph.nodes.filter((n) => !ids.has(n.id)), ...nodes],
+    wires: [...graph.wires.filter((w) => !w.locked && !filled.has(`${w.to}|${w.port}`)), ...wires],
+  }
+}
+
+/** `next` with every locked part and wire of `prev` back in it: a change never takes them off (a part keeps the place
+ *  `next` gives it). */
+export function keepLocked(prev, next) {
+  const nodes = prev.nodes.filter((n) => n.locked)
+  const wires = prev.wires.filter((w) => w.locked)
+  if (!nodes.length && !wires.length) return next
+  return withPreset(next, { nodes, wires })
+}
+
+const LOCKED = { zh: '这根线是关卡接好的，不能改。', en: 'This wire came with the level; it cannot be changed.' }
+/** Why the wire into input `port` of `to` cannot be changed: a locked wire is there. */
+export const lockedRefusal = (graph, to, port) => (graph.wires.some((w) => w.locked && w.to === to && w.port === port) ? LOCKED : null)
+/** Whether a wire is one a level put in. */
+export const isLocked = (graph, wire) => graph.wires.some((w) => w.locked && w.to === wire.to && w.port === wire.port)
+
 /**
  * The reasons every game shares for refusing a wire; a game's `refuse` adds its own (types, say) after these. On a
  * board with frames (`parts.frames`, frames.js) a wire also has to run inward, and a region's own output stands
  * apart from its frame, so a frame may read back what was made from it.
  */
 export function baseRefusal(graph, from, to, port, parts = {}) {
+  const locked = lockedRefusal(graph, to, port)
+  if (locked) return locked
   const { edges, from: start } = parts.frames ? frameEdges(graph, parts) : { edges: graph.wires.map((w) => [srcNode(w.from), w.to]), from: srcNode }
   if (start(from) === to) return { zh: '一个元件不能读它自己。', en: 'A part cannot read itself.' }
   if (wouldCycle(edges, start(from), to)) return { zh: '这样会绕成一个圈：这个元件要等自己算完，才能算自己。', en: 'That would make a loop: this part would have to wait for itself to finish.' }

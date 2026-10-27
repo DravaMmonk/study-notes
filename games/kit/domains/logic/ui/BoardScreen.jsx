@@ -35,7 +35,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
   const parts = useMemo(() => board.parts(level), [board, level])
   const lemmas = level.lemmas
   // A saved board that no longer fits the level or the game starts fresh.
-  const [circuit, setCircuit] = useState(() => (saved?.nodes && board.fits(saved, level, parts) ? saved : board.start(level)))
+  const [circuit, setCircuit] = useState(() => (saved?.nodes && board.fits(saved, level, parts) ? board.lock(level, saved) : board.start(level)))
   // The frame region a new card goes into, or null for the board itself (CanvasEditor onTarget).
   const [target, setTarget] = useState(null)
   // A level opens on its first test, the case its task is written in.
@@ -152,7 +152,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
   }
   const passed = stepped ? playback.passed : verdict?.pass
   // Clearing is the board's own (a button among its tools, which asks first).
-  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part') ? () => change(board.start(level)) : null
+  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part' && !n.locked) ? () => change(board.start(level)) : null
   const dock = stepped
     ? <RunDock {...playback.dock({ go: L(board.words.go), done: L(board.words.passed) })} />
     : <RunDock go={{ label: L(passed ? board.words.passed : board.words.go), pass: Boolean(passed), onClick: check }} />
@@ -348,7 +348,7 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(node.type))}</p>}
             <CardBody node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} formsOf={formsOf} />
-            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={() => { editing.remove(node.id); setSheet(null) }} />}
+            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}

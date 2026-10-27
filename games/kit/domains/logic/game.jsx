@@ -3,7 +3,7 @@
 import { Boxes, Braces, Cog, Cpu, Grid2x2Check, Languages, ScrollText, Search, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
-import { introductions, isCore } from '../../course.js'
+import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import { migrations } from '../../shell/saves.js'
 import GatesScreen from './ui/GatesScreen.jsx'
@@ -39,12 +39,13 @@ export function defineLogicGame(spec) {
     const text = textOf(lemmas, type, revisions)
     return { key: `part:${type}`, name: gate?.name ?? nameOf(lemmas, type), desc: gate?.desc ?? text?.desc, revisions: gate ? revisions[type] : text?.revisions, icon: gate ? Cpu : iconOf(lemmas, type), at }
   })
-  // A part is new in the level that brings it in (`adds`); everything else carries (../../course.js reach).
+  // A part is new in the level that first brings its idea in (`adds`); everything else carries (../../course.js reach).
   const levels = LEVELS.map((L, index) => ({
     id: L.id,
     index,
     source: L,
-    fresh: L.adds,
+    // Marked 新 where its idea is met first: not a part brought in again (a part that stays where it is brought).
+    fresh: L.adds.filter((p) => fresh(spec.logic.course, { id: L.id }).has(spec.logic.course.concept(p))),
     chapter: L.chapter,
     requires: L.requires,
     title: L.title,

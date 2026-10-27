@@ -339,7 +339,9 @@ export const automation = [
     tasks: [
       machine('fails')({
         step: T('重放', 'Replay'),
-        parts: ['clausify', 'oracle', 'replay'],
+        parts: ['clausify', 'replay'],
+        // Someone else's prover is on the board already: the player wires around it.
+        preset: ['c1'],
         tests: [
           { goal: 'Wet', hyps: ['Rain ∨ Wind', '¬Rain ∨ ¬Wind'] },
           { goal: 'Late', hyps: ['Bus ∨ ¬Up', 'Up ∨ ¬Bus'] },
@@ -558,6 +560,7 @@ export const automation = [
       T('只有一个文字的子句，就是已经被迫的事。', 'A one-literal clause is something already forced.'),
     ],
     intro: [{ t: T('饱和器每一圈把每一对都消一遍，大部分新子句用不上。这些子句有一种特别的样子；推出 ⊥ 的时候，子句不能多。', 'Each round the saturator cancels every pair, and most new clauses are never used. These clauses have a special shape, and ⊥ must be reached without making many.') }],
+    adds: ['resolve'],
     solution: flow({ frame: 'repeat', body: [['resolve', null, { unit: 'unit' }]] }),
     naive: flow('saturate'),
     after: T('只和单项子句消：每一步把一件被迫的事往下传。对 Horn 子句这就够了，而且快：SAT 求解器里的<wiki-ref to="unit"></wiki-ref>做的就是这件事。', 'Cancelling only with one-literal clauses passes one forced fact along at each step. For Horn clauses that is enough, and fast: <wiki-ref to="unit"></wiki-ref> in a SAT solver does just this.'),
