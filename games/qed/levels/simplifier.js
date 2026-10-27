@@ -1,15 +1,13 @@
 // Chapter 9 · The simplifier: goals that only want one place changed for another that says the same (¬¬A for A, a
-// negation pushed in) or worked out (1 + 1) take too long rule by rule, so laws proved both ways round become rewrite
+// negation pushed in) take too long rule by rule, so laws proved both ways round become rewrite
 // rules, used left to right, one place at a time (the rewrite card, kit/domains/logic/rewrite.js). Double negation
 // comes first, with the card. Then three lines that need nothing from each other: more laws (arrows to or,
 // distribution), De Morgan (the laws, rewriting the other way, the quantifier laws), and rewriting itself (the first
 // place, then again and again). With all three, simp is built: a repeat frame round alternatives, one rewrite each.
-// Then two lines: normal forms (NNF, CNF, and the order of the rules), and definitions (working out sums and lists,
-// rules with conditions, rewriting with a hypothesis and under ∀). The drinker paradox, which leans on De Morgan's ¬∀
+// Then normal forms (NNF, CNF, and the order of the rules). The drinker paradox, which leans on De Morgan's ¬∀
 // shape, is the challenge.
 import { proof } from '../../kit/domains/logic/build.js'
 import { flow, script } from './machines.js'
-import { TERM_WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
 const prove = (task) => ({ kind: 'proof', ...task })
@@ -24,12 +22,8 @@ const DAYS = [{ A: 'Sat', B: 'Sun' }, { A: 'Rain', B: 'Wind' }]
 const DRINK = [{ P: 'Drinks' }, { P: 'Sings' }]
 const THREE = [{ A: 'Rain', B: 'Wind', C: 'Wet' }, { A: 'Sat', B: 'Rest', C: 'Happy' }]
 const BRIEF = T('接一台机器，把每个目标变成要的样子。', 'Wire a machine that turns each goal into the one wanted.')
-const PROVE = T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.')
 
 // Addition, lists (append, length) and max, defined by equations (each a rewrite rule, def.0 …).
-const NAT = ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))']
-const LIST = ['app(nil, ys) = ys', 'app(cons(x, xs), ys) = cons(x, app(xs, ys))', 'len(nil) = zero', 'len(cons(x, xs)) = s(len(xs))']
-const MAX = ['le(zero, y) = tt', 'le(s(x), zero) = ff', 'le(s(x), s(y)) = le(x, y)', 'le(x, y) = tt ⟹ max(x, y) = y', 'le(x, y) = ff ⟹ max(x, y) = x']
 // The rewrite rules that bring a sentence to negation normal form, and conjunctive normal form after them.
 const NNF = ['arrow.elim', 'dneg.elim', 'dm.notOr', 'dm.notAnd', 'dm.notEx', 'dm.notAll']
 const CNF = [...NNF, 'dist.orAndR', 'dist.orAndL']
@@ -416,81 +410,6 @@ export const simplifier = [
     solution: script(['simp', CNF]),
     naive: script(['simp', ['dist.orAndR', 'dist.orAndL', ...NNF]]),
     after: T('先把否定推到底，再分配，分配就不会在否定里面白做一遍。规则的先后，也是化简的一部分。', 'Push negations all the way in, then distribute, and distribution is not wasted inside a negation. The order of the rules is part of the simplifier too.'),
-  }),
-
-  // ---------- definitions and conditions ----------
-  proves({
-    id: 'sp-compute',
-    title: T('算一算', 'Work it out'),
-    words: TERM_WORDS,
-    defs: NAT,
-    tests: [{ goal: 'plus(s(zero), s(zero)) = s(s(zero))' }, { goal: 'plus(s(s(zero)), s(zero)) = s(s(s(zero)))' }, { goal: 'plus(zero, s(s(zero))) = s(s(zero))' }],
-    brief: PROVE,
-    hint: [T('化简用两条定义，把左边算出来；两边一样了，用规则选<part-ref to="part:refl"></part-ref>。', 'Simp with the two definitions works the left side out; once both sides are the same, Rule with <part-ref to="part:refl"></part-ref>.')],
-    intro: [
-      { t: T('「一加一等于二」怎么证？数可以这样搭出来：0，S 0（0 后面那个数），S S 0……加法用两个等式定义：0 + y = y，S x + y = S (x + y)。', 'How is “one plus one is two” proved? Numbers can be built like this: 0, S 0 (the number after 0), S S 0 … Addition is defined by two equations: 0 + y = y, and S x + y = S (x + y).') },
-      { t: T('定义就是改写规则：从左往右，把式子算下去。<part-ref to="lemma:simp"></part-ref>的规则里多了一组「定义」。', 'A definition is a rewrite rule: left to right, it works an expression out. Among <part-ref to="lemma:simp"></part-ref>’s rules there is now a group of definitions.') },
-    ],
-    solution: script(['simp', ['def.0', 'def.1']], ['rule', 'refl']),
-    after: T('化简把定义从左往右一遍遍用，直到左边算成一个数；两边一样，就是自反。机器的「计算」，就是改写。', 'Simp uses the definitions left to right again and again until the left side is worked out to a number; both sides the same is reflexivity. Computing, for the machine, is rewriting.'),
-  }),
-  proves({
-    id: 'sp-lists',
-    title: T('列表也一样', 'Lists too'),
-    words: TERM_WORDS,
-    defs: LIST,
-    tests: [
-      { goal: 'len(app(cons(ann, nil), cons(bo, nil))) = s(s(zero))' },
-      { goal: 'app(cons(ann, nil), app(cons(bo, nil), cons(cy, nil))) = cons(ann, cons(bo, cons(cy, nil)))' },
-      { goal: 'len(app(cons(ann, cons(bo, nil)), nil)) = s(s(zero))' },
-    ],
-    brief: PROVE,
-    hint: [T('四条定义都排进化简。', 'Line all four definitions up in Simp.')],
-    intro: [{ t: T('列表也这样搭：[] 是空列表，x :: xs 是把 x 放在列表 xs 前面。拼接 ++ 和长度 len 也各用两个等式定义，一个管空列表，一个管前面多了一个的。', 'Lists are built the same way: [] is the empty list, and x :: xs puts x in front of the list xs. Appending ++ and length len are each defined by two equations, one for the empty list and one for a list with one more in front.') }],
-    solution: script(['simp', ['def.0', 'def.1', 'def.2', 'def.3']], ['rule', 'refl']),
-    after: T('数和列表一个样：都是从最简单的那一个（0、[]）一步步搭出来，函数按它是怎么搭的分两种情况定义，化简照着定义算。', 'Numbers and lists are alike: each built step by step from the simplest one (0, []), with functions defined by how it was built, in two cases, and Simp works them out by those definitions.'),
-  }),
-  proves({
-    id: 'sp-cond',
-    title: T('带条件的规则', 'A rule with a condition'),
-    words: TERM_WORDS,
-    defs: MAX,
-    tests: [{ goal: 'max(s(zero), s(s(zero))) = s(s(zero))' }, { goal: 'max(s(s(zero)), s(zero)) = s(s(zero))' }, { goal: 'max(zero, s(zero)) = s(zero)' }],
-    brief: PROVE,
-    hint: [
-      T('max 的两条规则，各走一条路：改写一处，再证两边一样，再证条件。', 'The two rules for max, one way each: rewrite, prove both sides the same, then prove the condition.'),
-      T('条件证不出来的那条路，自己就失败了。', 'The way whose condition cannot be proved fails by itself.'),
-    ],
-    intro: [{ t: T('max 用带<b>条件</b>的等式定义：x ≤ y 是真时，max x y = y；是假时，max x y = x。带条件的规则改写一处以后，条件成了一个新目标，排在后面：证出了它，这一处才算改对了。', 'max is defined by equations with a <b>condition</b>: when x ≤ y is true, max x y = y; when false, max x y = x. A rule with a condition, once it rewrites a place, leaves the condition as a new goal behind: only once it is proved was the rewrite right.') }],
-    solution: flow({ ways: [
-      [['rw', 'def.3'], ['rule', 'refl'], ['simp', ['def.0', 'def.1', 'def.2']], ['rule', 'refl']],
-      [['rw', 'def.4'], ['rule', 'refl'], ['simp', ['def.0', 'def.1', 'def.2']], ['rule', 'refl']],
-    ] }),
-    after: T('条件证不出来，那一处就不该那样改。化简器遇到带条件的规则，就是这样做的：先试着证条件，证得出才改。', 'If the condition cannot be proved, that place should not be changed that way. That is what a simplifier does with a rule that has a condition: it tries to prove the condition, and rewrites only if it can.'),
-  }),
-  proves({
-    id: 'sp-hyp',
-    title: T('拿已知改写', 'Rewriting with a given'),
-    words: TERM_WORDS,
-    defs: [...NAT, ...LIST],
-    tests: [{ goal: 'plus(a, zero) = a → plus(s(a), zero) = s(a)' }, { goal: 'len(app(l, nil)) = len(l) → len(app(cons(ann, l), nil)) = s(len(l))' }],
-    brief: PROVE,
-    hint: [T('先用规则选假设框，把「若」的那一半放进已知。改写规则里有一条是「已知里的等式」。', 'First Rule with the assumption box, putting the “if” half among the givens. One of the rewrite rules is “an equation given”.')],
-    intro: [{ t: T('目标是「若…则…」时，前一半先用假设框倒着放进已知。已知里的一句等式，也能当改写规则：左边换成右边。', 'When the goal is an “if … then …”, the assumption box backwards puts its first half among the givens. An equation among the givens is a rewrite rule too: its left side becomes its right.') }],
-    solution: script(['rule', 'impI'], ['simp', ['def.1', 'def.3', 'def.5', 'hyp']], ['rule', 'refl']),
-    after: T('已知里的等式和定义一样，都能当改写规则。用假设框把条件放进已知，再拿它改写结论：条件在结论里一直有效。', 'An equation given is a rewrite rule, as a definition is. The assumption box puts the condition among the givens, and it rewrites the conclusion: the condition holds throughout the conclusion.'),
-  }),
-  proves({
-    id: 'sp-under',
-    title: T('在「对所有」底下', 'Under “for all”'),
-    words: TERM_WORDS,
-    defs: NAT,
-    tests: [{ goal: '∀x. plus(zero, plus(zero, x)) = x' }, { goal: '∀x. ∀y. plus(s(zero), plus(x, y)) = s(plus(x, y))' }],
-    brief: PROVE,
-    hint: [T('先化简，再把「对所有」倒着拆掉，有几层拆几层，最后两边一样。', 'Simp first, then take the “for all”s apart backwards, as many as there are, and both sides are the same.')],
-    intro: [{ t: T('目标前面有「对所有」，化简照样改它里面的句子：x 不管是什么，0 + x 都能改成 x。', 'With a “for all” in front of the goal, Simp still rewrites inside: whatever x is, 0 + x can become x.') }],
-    solution: flow(['simp', ['def.0', 'def.1']], { frame: 'repeat', body: [['rule', 'allI']] }, ['rule', 'refl']),
-    after: T('改写只看形状：∀ 管着的 x 也只是一个名字，0 + x 照样对得上 0 + y 那条规则的左边。', 'Rewriting looks only at shape: the x bound by ∀ is just a name, and 0 + x fits the left side of the rule 0 + y all the same.'),
   }),
 
   // ---------- challenge ----------

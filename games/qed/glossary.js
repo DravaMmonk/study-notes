@@ -194,6 +194,14 @@ export const GLOSSARY = [
     see: ['proof', 'counterexample'],
   },
   {
+    id: 'completeness', group: 'proof', title: T('完备性', 'completeness'), at: 'copy',
+    body: [
+      T(`真的都证得出，叫<b>完备</b>，是${W('soundness')}的反方向。命题逻辑的证明器是完备的：${W('tautology')}都是定理。一阶逻辑也是：在所有世界里都真的话，都证得出（哥德尔，1929）。`, `A system in which everything true can be proved is <b>complete</b>, the converse of ${W('soundness')}. The prover of propositional logic is complete: every ${W('tautology')} is a theorem. So is first-order logic: a sentence true in every world can be proved (Gödel, 1929).`),
+      T('完备不等于有程序能判定：证得出的总找得到证明，证不出的，搜索却可能停不下来。它也不和不完备性定理冲突：完备说的是在所有世界里都真的话；不完备说的是在自然数这一个世界里真的话，那里有真的却证不出的句子。', 'Complete does not mean a program can decide it: what can be proved can always be found, but on what cannot, the search may never stop. Nor does it clash with incompleteness: completeness is about sentences true in every world; incompleteness is about sentences true of the natural numbers, one world, where some truths cannot be proved.'),
+    ],
+    see: ['soundness', 'incompleteness'],
+  },
+  {
     id: 'assumption', group: 'proof', title: T('假设', 'assumption'), at: 'assume',
     body: [T('<b>假设</b>不是说它真的成立，而是推理时暂时把它当作出发点。在它底下证出的东西都带着它；假设一收回，结论就成了「若 假设，则 那件事」。证 A → B 就是这样：假设 A，证出 B。证明器里，假设放在假设框里，框一关就收回。', 'An <b>assumption</b> does not claim it holds: it is a starting point taken for the moment. What is proved under it carries it along; once it is withdrawn, the conclusion becomes “if the assumption, then that”. That is how A → B is proved: assume A, prove B. In the prover an assumption lives in an assumption box, and closing the box withdraws it.')],
     see: ['box', 'deduction'],
@@ -548,6 +556,26 @@ export const GLOSSARY = [
     id: 'reduction', group: 'limits', title: T('归约', 'reduction'), at: 'u-halt',
     body: [T(`要是能用 B 的解法解出 A，就说 A <b>归约</b>到 B。A 不可判定，B 也就不可判定：不然 B 的判定程序加上这个归约，就判定了 A。这样一个${W('undecidable')}的问题就能传给一串别的问题。`, `If A can be solved with a solver for B, A <b>reduces</b> to B. If A is undecidable, so is B: otherwise B’s decision procedure, with the reduction, would decide A. This is how ${W('undecidable')} spreads from one problem to a whole chain of others.`)],
     see: ['undecidable'],
+  },
+
+  {
+    id: 'goedel-coding', group: 'limits', title: T('哥德尔编码', 'Gödel numbering'), at: 'gd-true',
+    body: [T('给每个符号一个数，再把一句话的符号按次序编成一个数，句子就成了数，证明（一串句子）也成了数。于是「x 是一个证明的编号」「编号是 x 的句子证得出」都成了关于数的话，算术能谈论它自己的证明。程序也是这样编成数的，停机问题里的 ⟨y⟩ 就是。', 'Give each symbol a number, and code a sentence’s symbols in order as one number: a sentence becomes a number, and so does a proof, a list of sentences. Then “x numbers a proof” and “the sentence numbered x can be proved” become sentences about numbers, and arithmetic can speak of its own proofs. Programs are coded as numbers the same way: the ⟨y⟩ of the halting problem is one.')],
+    see: ['incompleteness', 'diagonal'],
+  },
+  {
+    id: 'incompleteness', group: 'limits', title: T('不完备性定理', 'incompleteness theorem'), at: 'gd-true',
+    body: [
+      T(`<b>第一不完备性定理</b>（哥德尔，1931）：一个证明系统，规则能一条条列出来、能谈论自然数、又不矛盾，就有一句 G 它证不出，G 的否定也证不出；而 G 在自然数里是真的。G 由${W('goedel-coding')}和${W('diagonal')}造出，说的是「我证不出」，是${W('liar')}把「真」换成「证得出」的样子。`, `The <b>first incompleteness theorem</b> (Gödel, 1931): a proof system whose rules can be listed one by one, which can speak of the natural numbers and is consistent, has a sentence G it cannot prove, nor its negation; and G is true of the natural numbers. G is built by ${W('goedel-coding')} and the ${W('diagonal')}, and says “I cannot be proved”: the ${W('liar')} with “true” swapped for “provable”.`),
+      T('<b>第二不完备性定理</b>：这样的系统证不出「我不矛盾」。要相信一个系统不矛盾，只能站到它外面。', 'The <b>second incompleteness theorem</b>: such a system cannot prove “I am consistent”. Trusting that a system is consistent means standing outside it.'),
+      T(`它和一阶逻辑的${W('completeness')}不冲突：完备说的是在所有世界里都真的话；G 只在自然数这个世界里真，在别的满足同样规则的世界里可以是假的。加上 G 当新规则也没用，新的系统又有它自己的 G。`, `It does not clash with the ${W('completeness')} of first-order logic: completeness is about sentences true in every world; G is true of the natural numbers, and may be false in other worlds that satisfy the same rules. Adding G as a rule does not help: the new system has a G of its own.`),
+    ],
+    see: ['consistency', 'undecidable'],
+  },
+  {
+    id: 'consistency', group: 'limits', title: T('一致性', 'consistency'), at: 'gd-con',
+    body: [T(`一个证明系统不会既证出一句话、又证出它的否定，叫<b>一致</b>（不矛盾）。不一致的系统因为${W('explosion')}，什么都证得出，等于什么都没说。可靠的系统一定一致；反过来不一定：一致只要求不自相矛盾，不要求证出的都真。`, `A proof system that never proves both a sentence and its negation has <b>consistency</b>. An inconsistent one proves everything, by ${W('explosion')}, and so says nothing. A sound system is consistent; not always the other way: consistency only asks that it not contradict itself, not that what it proves be true.`)],
+    see: ['incompleteness', 'soundness'],
   },
 
   // ---------- proof assistants ----------

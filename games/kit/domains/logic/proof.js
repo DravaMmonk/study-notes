@@ -15,7 +15,7 @@ import { PartError } from '../../engine/circuit.js'
 import { framePart } from '../../circuit/frames.js'
 import { formed } from '../../engine/forms.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
-import { BOT, all, allVars, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, subst, termsOf, tvar } from './formula.js'
+import { BOT, all, allVars, and, bin, eq, fn, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, subst, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'
 import { cancelOne, disjunction, literalsIn } from './resolution.js'
@@ -82,6 +82,11 @@ const depthOf = (node, ctx) => {
 }
 const hypName = (node, ctx) => `h${depthOf(node, ctx)}`
 const assumed = (node, region, formula, ctx) => proved(formula, new Map([[hypId(node, region), formula]]), pvar(hypName(node, ctx)))
+/** What induction on ∀x. φ(x) asks of its boxes, with a the second box's number: φ(0), and φ(S a) from φ(a). */
+export function inductionCases(G, a, consts = []) {
+  const at = (t) => subst(G.body, G.v, t)
+  return { zero: at(parse('zero = zero', { consts }).args[0]), hyp: at(tvar(a)), step: at(fn('s', [tvar(a)])) }
+}
 export const RULES = {
   // The proof's own ends: a premise, and the goal.
   premise: source(),
@@ -225,6 +230,28 @@ export const RULES = {
       const open = without(body.hyps, hypId(node, 'body'))
       for (const h of open.values()) if (freeVars(h).has(y)) throw fail(`${y} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里`, `${y} occurs in the open hypothesis ${sayIn(ctx, h).en}`)
       return proved(body.formula, new Map([...e.hyps, ...open]), unpack(e.term, y, hypName(node, ctx), body.term))
+    },
+  },
+  // ---- induction on numbers (chapter 10) ----
+  // The sentence chosen on the card, ∀x. φ(x), from two boxes: the first proves φ(0); the second takes a number a
+  // (named on the card), opens φ(a) as the induction hypothesis and proves φ(S a). Like For any, a must be new.
+  natInd: {
+    ...framePart([], [{ name: 'zero', opens: false }, { name: 'step', opens: true }]),
+    params: ['P', 'x'],
+    eval: ({ zero, step }, node, ctx, key) => {
+      const G = param(node, 'P', ctx)
+      if (G.op !== '∀') throw need(ctx, SHAPE.all, G)
+      const a = node.params?.x
+      if (!a) throw fail('先选好第二个框里那个数叫什么', 'Name the number of the second box first')
+      if (freeVars(G).has(a)) throw fail(`${a} 已经出现在要证的那句里，换一个名字`, `${a} already occurs in the sentence to prove: pick another name`)
+      const want = inductionCases(G, a, ctx.consts)
+      if (key) return assumed(node, key, want.hyp, ctx)
+      if (!same(zero.formula, want.zero)) throw need(ctx, want.zero, zero.formula)
+      if (!same(step.formula, want.step)) throw need(ctx, want.step, step.formula)
+      const open = without(step.hyps, hypId(node, 'step'))
+      for (const h of open.values()) if (freeVars(h).has(a)) throw fail(`${a} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里`, `${a} occurs in the open hypothesis ${sayIn(ctx, h).en}`)
+      const term = papp(papp(pconst('Nat.rec'), zero.term), lam(a, lam(hypName(node, ctx), step.term)))
+      return proved(G, new Map([...zero.hyps, ...open]), term)
     },
   },
   refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t), new Map(), rfl) } },
@@ -383,7 +410,7 @@ export function premisesOf(test, consts = []) {
 export const LOGIC_TESTS = {
   runTest: (level, circuit, test) => {
     const consts = level.consts ?? []
-    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, premises: premisesOf(test, consts), graph: circuit, exists: choicesOf(level).exists, unfold: (name) => level.lemmaTerms?.[name] ?? null } })
+    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, premises: premisesOf(test, consts), graph: circuit, exists: choicesOf(level).exists } })
     return { ...run, outputs: { goal: run.outputs.goal } }
   },
   // A test may ask for the proof's term too (chapter 6): the same up to the names it binds.

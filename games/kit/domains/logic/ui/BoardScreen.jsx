@@ -6,6 +6,7 @@ import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, outputsOf,
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
 import { parse } from '../formula.js'
+import { inductionCases } from '../proof.js'
 import { say } from '../notation.js'
 import { ScriptView } from './ScriptScreen.jsx'
 import FormulaField from './FormulaField.jsx'
@@ -144,8 +145,13 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
     const v = view.values.get(srcOf(node, region))
     return v ? <Value v={v} text={text} small /> : <i className="lg-mark">{L(board.words.noOpen)}</i>
   }
-  // By a region's result: what the frame gives (or why it gives nothing yet).
-  const resultNote = (node) => {
+  // By a region's result: what the frame gives (or why it gives nothing yet); each box of Induction proves its own case.
+  const resultNote = (node, region) => {
+    if (node.type === 'natInd' && region) {
+      let want = null
+      try { const G = parse(node.params?.P ?? '', { consts: level.consts ?? [] }); if (G.op === '∀' && node.params?.x) want = inductionCases(G, node.params.x, level.consts)[region] } catch { want = null }
+      return want ? <span className="lg-taken">{tr('要证', 'To prove')} <b>{text(want)}</b></span> : <i className="lg-mark">{tr('先选好要证的和名字', 'choose what to prove and the name first')}</i>
+    }
     const [v, error] = [view.values.get(node.id), view.errors.get(node.id)]
     if (v) return <Value v={v} text={text} small />
     return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('还没有接上', 'nothing wired in yet')}</i>

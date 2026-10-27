@@ -153,7 +153,7 @@ const COURSE = {
   // The machine-board parts the player builds: the unifier, the tactics made of Rule and Assumption, auto, simp made
   // of rewrites, and the clause machines (into clauses, the saturator, the reconstructor).
   machines: ['unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'clausify', 'saturate', 'metis'],
-  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl',
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'natInd',
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
     'append', 'each', 'defer', 'search', 'rw', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.

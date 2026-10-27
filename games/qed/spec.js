@@ -143,8 +143,13 @@ export default {
     { data: (value, id) => (id === 't-beta' && Array.isArray(value) ? [value[0], value[2] ?? null, null] : value) },
   ] },
   // The machine task of t-beta is gone, two proof-board tasks in its place.
-  { version: 35, ops: [{ data: (value, id) => (id === 't-beta' && Array.isArray(value) ? [value[0], value[1] ?? null, null, null] : value) }] }],
+  { version: 35, ops: [{ data: (value, id) => (id === 't-beta' && Array.isArray(value) ? [value[0], value[1] ?? null, null, null] : value) }] },
+  // Numbers and lists became a chapter: 手算 1 + 1 comes before 算一算, and 0 加在右边 gained a proof-board task second.
+  { version: 36, ops: [
+    { solve: ['sp-compute', ['nl-plus']] },
+    { data: (value, id) => (id === 'in-zero' && Array.isArray(value) ? [value[0] ?? null, null, value[1] ?? null] : value) },
+  ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
-  quotes: ['任取', '等价', '假设'],
+  quotes: ['任取', '等价', '假设', '我证不出'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }

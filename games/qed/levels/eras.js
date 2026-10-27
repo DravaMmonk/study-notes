@@ -178,20 +178,20 @@ export const ERAS = [
         ['demorgan', '德摩根', 'De Morgan', ['demorgan', 'sp-back', 'q-dm']],
         ['rewrite', '改写一处', 'One place', ['sp-where', 'sp-repeat']],
       ),
-      // simp, built of rewrites in a repeat frame; then normal forms and definitions need nothing from each other.
+      // simp, built of rewrites in a repeat frame; then normal forms.
       'sp-simp',
-      branches(
-        ['forms', '范式', 'Normal forms', ['sp-nnf', 'sp-cnf', 'sp-order']],
-        ['defs', '定义与条件', 'Definitions and conditions', ['sp-compute', 'sp-lists', 'sp-cond', 'sp-hyp', 'sp-under']],
-      ),
+      series('forms', '范式', 'Normal forms', ['sp-nnf', 'sp-cnf', 'sp-order']),
     ],
     challenges: [{ level: 'drinker', after: 'q-dm' }],
-    chapter: { title: T('化简器', 'The simplifier'), question: T('「把否定推进去」「把式子算出来」这样的目标，能交给机器一路改下去吗？', 'Can goals like “push the negation in” or “work the sum out” be left to a machine that rewrites all the way?') },
+    chapter: { title: T('化简器', 'The simplifier'), question: T('「把否定推进去」这样的目标，能交给机器一路改下去吗？', 'Can a goal like “push the negation in” be left to a machine that rewrites all the way?') },
   },
   {
     id: 'inductive', machine: 'prover', keeps: 'all',
     foundation: [
-      // The rules a declaration gives, ending with induction.
+      // Sums worked out by hand on the proof board, then by simp with the definitions: lists, conditions, a given,
+      // under ∀.
+      series('defs', '定义当规则', 'Definitions as rules', ['nl-plus', 'sp-compute', 'sp-lists', 'sp-cond', 'sp-hyp', 'sp-under']),
+      // The rules a declaration gives, ending with induction (by hand, then on the machine).
       series('decl', '声明给出的规则', 'What a declaration gives', ['in-distinct', 'in-inject', 'in-cases', 'in-zero']),
       // Numbers, lists and why a definition must stop need nothing from each other.
       branches(
@@ -201,9 +201,12 @@ export const ERAS = [
       ),
     ],
     practice: [series('both', '数和列表', 'Numbers and lists', ['in-len', 'in-revrev', 'in-itsum'])],
-    topics: [{ id: 'sort', code: 'I', after: 'in-appnil', levels: ['sort-ins', 'sort-run', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') }],
+    topics: [
+      { id: 'sort', code: 'I', after: 'in-appnil', levels: ['sort-ins', 'sort-run', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') },
+      { id: 'goedel', code: 'G', after: ['in-itsum', 'u-halt'], levels: ['gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
+    ],
     challenges: [{ level: 'in-circle', after: 'in-comm' }],
-    chapter: { title: T('归纳类型', 'Inductive types'), question: T('数和列表从哪里来？对每一个数都成立的事，怎么证？', 'Where do numbers and lists come from, and how is something proved for every one?') },
+    chapter: { title: T('数与列表', 'Numbers and lists'), question: T('数和列表怎么算、从哪里来？对每一个数都成立的事，怎么证？', 'How are numbers and lists worked out, and where do they come from? How is something proved for every number?') },
   },
   {
     id: 'terms', machine: 'prover', keeps: 'all',
