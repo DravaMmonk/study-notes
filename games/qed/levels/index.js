@@ -151,8 +151,8 @@ const COURSE = {
   gates: GATES,
   revisions: REVISIONS,
   // The machine-board parts the player builds: the unifier, the tactics made of Rule and Assumption, auto, simp made
-  // of rewrites, and Normalize (simp with the kernel's computation rules, a part of the proof board too).
-  machines: ['unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'normalize', 'clausify', 'saturate', 'metis'],
+  // of rewrites, and the clause machines (into clauses, the saturator, the reconstructor).
+  machines: ['unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'clausify', 'saturate', 'metis'],
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl',
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
     'append', 'each', 'defer', 'search', 'rw', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],

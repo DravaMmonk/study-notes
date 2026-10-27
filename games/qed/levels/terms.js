@@ -1,12 +1,11 @@
-// Chapter 10 · Proofs are programs (Curry–Howard): every part on the proof board now shows its proof term too, the
+// Chapter 11 · Proofs are programs (Curry–Howard): every part on the proof board now shows its proof term too, the
 // way Lean writes it. No new rule of reasoning: the proofs are the kind wired in chapters 2 and 3, read a new way, so
 // each level gathers its small tasks. Reading terms: Apply is application, the box is λ (one sentence, two proofs),
 // the other connectives are data (a pair, a tagged value, ⊥ that gives anything). Then two lines that need nothing
-// from each other: detours, taken out by the kernel's computation rules lined up in Simp (built into Normalize, which
-// unfolds a lemma into its own term too); ∀ as a function of a thing and ∃ as a pair. Then writing terms on the term
+// from each other: detours, wired and then wired again as what the kernel's computation rules work them out to, and a
+// lemma as the name of its own term; ∀ as a function of a thing and ∃ as a pair. Then writing terms on the term
 // board, every part wired before. The challenge is the term of double negation.
 import { proof } from '../../kit/domains/logic/build.js'
-import { script } from './machines.js'
 
 const T = (zh, en) => ({ zh, en })
 // A term level: one problem per task (TermScreen.jsx).
@@ -179,8 +178,7 @@ export const terms = [
   // ---------- detours ----------
   {
     id: 't-beta',
-    title: T('化简弯路', 'Taking out detours'),
-    builds: 'normalize',
+    title: T('算掉弯路', 'Computing detours away'),
     tasks: [
       prove({
         step: T('套用一个框', 'Applying a box'),
@@ -198,49 +196,55 @@ export const terms = [
         hint: [T('先给 p 贴上「左边」的标签，变成一句「或者」，再分情况。', 'First tag p as “the left one”, making an “or”, then take cases.')],
         solution: proof(orDetour, [...orDetourWires, 'e>goal'], { premises: ['p', 'q', 'r'] }),
       }),
-      {
-        kind: 'machine',
-        step: T('拿掉弯路', 'Detours out'),
-        want: 'becomes',
-        terms: true,
-        inputs: [{ name: 'in', label: T('证明项', 'Proof term') }],
-        tests: [
-          { term: '(fun h => ⟨h, h⟩) p', becomes: '⟨p, p⟩' },
-          { term: '(Or.inl p).elim (fun a => q a) (fun b => r b)', becomes: 'q p' },
-          { term: '(Or.inr p).elim (fun a => q a) (fun b => r b)', becomes: 'r p' },
-          { term: '(fun h => h.1) ⟨p, q⟩', becomes: 'p' },
-          { term: '(fun h => h.2) ⟨p, q⟩', becomes: 'q' },
-          { term: '⟨ann, p⟩.elim (fun a h => ⟨a, h⟩)', becomes: '⟨ann, p⟩' },
-          { term: 'chain p q', becomes: 'fun h => q (p h)' },
-        ],
-        brief: T('接一台机器，把每个证明项里的弯路都拿掉。', 'Wire a machine that takes every detour out of each proof term.'),
-        intro: [{ t: T('接出的机器会成为新元件<part-ref to="lemma:normalize"></part-ref>。', 'The machine you wire becomes a new part, <part-ref to="lemma:normalize"></part-ref>.') }],
-        hint: [
-          T('<part-ref to="lemma:simp"></part-ref>在证明项上也能用：规则换成计算规则，每一种弯路一条。', '<part-ref to="lemma:simp"></part-ref> works on proof terms too: the rules are computation rules, one for each kind of detour.'),
-          T('引理的名字也是一处弯路：展开它，就是证它的那个证明项。', 'A lemma’s name is a detour too: unfolded, it is the term that proved it.'),
-        ],
-        solution: script(['simp', ['unfold', 'beta', 'fst', 'snd', 'caseL', 'caseR', 'open']]),
-      },
+      prove({
+        step: T('没有弯路的那一个', 'The one with no detour'),
+        tests: [{ premises: { p: 'A' }, goal: 'A ∧ A', term: '⟨p, p⟩' }],
+        cases: [{ A: 'Rain' }, { A: 'Sat' }],
+        brief: T('还是从「下雨」证明出「下雨 ∧ 下雨」，证明项要是 ⟨p, p⟩。', 'Again from “it rains” prove “it rains ∧ it rains”, now with the term ⟨p, p⟩.'),
+        hint: [T('第一段的框，算下来是什么？', 'What does the box of the first task work out to?')],
+        solution: proof({ c: ['andI'] }, ['p>c.a', 'p>c.b', 'c>goal'], { premises: ['p'] }),
+        naive: pairBox,
+      }),
+      prove({
+        step: T('只走标签那一支', 'Only the tagged branch'),
+        tests: [{ premises: { p: 'A', q: 'A → C', r: 'B → C' }, goal: 'C', term: 'q p' }],
+        cases: [{ A: 'Rain', B: 'Sat', C: 'Rest' }, { A: 'Coffee', B: 'Tea', C: 'Awake' }],
+        brief: T('还是证明出「我休息」，证明项要是 q p。', 'Again prove “I rest”, now with the term q p.'),
+        hint: [T('标签是「左边」，分情况只会走左边那一支。', 'The tag says “the left one”, so the case split only takes the left branch.')],
+        solution: proof({ m: ['mp'] }, ['q>m.imp', 'p>m.a', 'm>goal'], { premises: ['p', 'q', 'r'] }),
+        naive: proof(orDetour, [...orDetourWires, 'e>goal'], { premises: ['p', 'q', 'r'] }),
+      }),
     ],
     intro: [
       { t: T('同一句话可以有好几个证明项，有的绕了远路：先造出一样东西，马上又把它用掉。⟨p, q⟩.1 先拼又拆，算下来就是 p；一个框造出函数，马上又用在 p 上，算下来是框里的证明，把 h 都换成 p。前两段先接出两条弯路。', 'One sentence can have several terms, and some take the long way round: make something and use it up at once. ⟨p, q⟩.1 joins and splits, and works out to just p; a box makes a function used on p at once, and works out to the proof inside with every h replaced by p. The first two tasks wire two such detours.') },
-      { t: T('拿掉弯路是一次改写：每一种弯路，证明核都有一条<b>计算规则</b>，把它换成算下来的样子。最后一段在化简板上，把这些规则排进化简。', 'Taking a detour out is a rewrite: for each kind of detour the kernel has a <b>computation rule</b> that puts what it works out to in its place. The last task, on the simplify board, lines these rules up in Simp.') },
+      { t: T('拿掉弯路是一次计算：每一种弯路，证明核都有一条<b>计算规则</b>，把它换成算下来的样子。后两段证同样的两句，接出算下来的那一个。', 'Taking a detour out is a computation: for each kind of detour the kernel has a <b>computation rule</b> that puts what it works out to in its place. The last two tasks prove the same two sentences and wire what they work out to.') },
     ],
-    after: T('(fun h => b) a 算成 b 里的 h 换成 a，这一步叫<wiki-ref to="beta"></wiki-ref>，就是调用一个函数；对刚贴上标签的值分情况，只会走标签那一支。化简把弯路一处处拿掉，直到一处都不剩，得到<wiki-ref to="normal-form"></wiki-ref>：每个证明项都化得成没有弯路的那一个，证的还是同一句。这台机器成了元件<part-ref to="lemma:normalize"></part-ref>，证明板上也用得上。', '(fun h => b) a works out to b with h replaced by a: <wiki-ref to="beta"></wiki-ref>, calling a function; cases on a value just tagged only take the tagged branch. Simp takes the detours out one by one until none is left, giving the <wiki-ref to="normal-form"></wiki-ref>: every proof term can be brought to one with no detours, proving the same sentence. This machine is now the part <part-ref to="lemma:normalize"></part-ref>, on the proof board too.'),
+    after: T('(fun h => b) a 算成 b 里的 h 换成 a，这一步叫<wiki-ref to="beta"></wiki-ref>，就是调用一个函数；对刚贴上标签的值分情况，只会走标签那一支。把弯路一处处算掉，直到一处都不剩，得到<wiki-ref to="normal-form"></wiki-ref>：证的还是同一句，证明项却短得多，每个证明项都算得到这样一个。', '(fun h => b) a works out to b with h replaced by a: <wiki-ref to="beta"></wiki-ref>, calling a function; cases on a value just tagged only take the tagged branch. Computing the detours away one by one until none is left gives the <wiki-ref to="normal-form"></wiki-ref>: the same sentence proved by a far shorter term, and every proof term can be brought to one.'),
   },
   {
     id: 't-lemma',
-    kind: 'proof',
-    terms: true,
     title: T('引理也是证明项', 'A lemma is a term too'),
-    without: ['impI'],
-    tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C', term: 'fun h => q (p h)' }],
-    cases: CHAIN,
-    brief: T('实现一个证明器，不用假设框，可以从已知 p：「下雨 → 地湿」、q：「地湿 → 路滑」证明出「下雨 → 路滑」，证明项要是 fun h => q (p h)。', 'Build a prover that, without the assumption box, proves “it rains → the road is slippery” from p: “it rains → the ground is wet” and q: “the ground is wet → the road is slippery”, with the term fun h => q (p h).'),
-    hint: [T('串联的证明项是 chain p q；chain 自己也有一个证明项，就是当初证它时接出来的那个。', 'Chain’s term is chain p q; chain itself has a term as well, the one wired when it was proved.')],
-    intro: [{ t: T('证过的引理在证明项里写成它的名字：用串联，证明项里就是 chain p q。名字背后，是证它的那个证明项。<part-ref to="lemma:normalize"></part-ref>遇到引理的名字，会把它展开成那个证明项，再接着拿掉弯路。', 'A lemma you proved appears in a term by its name: use Chain, and the term says chain p q. Behind the name is the term that proved it. When <part-ref to="lemma:normalize"></part-ref> meets a lemma’s name it unfolds it into that term, then carries on taking detours out.') }],
-    solution: proof({ c: ['chain'], n: ['normalize'] }, ['p>c.p0', 'q>c.p1', 'c>n.a', 'n>goal'], { premises: ['p', 'q'] }),
-    after: T('chain 是 fun p q h => q (p h)：先做 p 再做 q，函数的<b>复合</b>。用在 p、q 上再化简，就和直接接线的证明项一样了。引理只是给证明项起的名字，展开以后，整个证明是一个只用最初规则的证明项，谁都可以拿去独立复查。检查证明的核可以很小，证明本身可以交给别人重新检查。', 'chain is fun p q h => q (p h): p, then q, function <b>composition</b>. Applied to p and q and normalized, it is the same term as the one wired directly. A lemma is only a name given to a term; unfolded, the whole proof is a term using only the first rules, which anyone can check again on their own. The kernel that checks proofs can be small, and a proof can be handed to someone else to check again.'),
+    tasks: [
+      prove({
+        step: T('用串联', 'With Chain'),
+        tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C', term: 'chain p q' }],
+        cases: CHAIN,
+        brief: T('实现一个证明器，可以从已知 p：「下雨 → 地湿」、q：「地湿 → 路滑」证明出「下雨 → 路滑」，证明项要是 chain p q。', 'Build a prover that proves “it rains → the road is slippery” from p: “it rains → the ground is wet” and q: “the ground is wet → the road is slippery”, with the term chain p q.'),
+        hint: [T('一张串联就够。', 'One Chain is enough.')],
+        solution: proof({ c: ['chain'] }, ['p>c.p0', 'q>c.p1', 'c>goal'], { premises: ['p', 'q'] }),
+      }),
+      prove({
+        step: T('不用串联', 'Without Chain'),
+        without: ['chain'],
+        tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C', term: 'fun h => q (p h)' }],
+        cases: CHAIN,
+        brief: T('再证一次，不用串联，证明项要是 fun h => q (p h)。', 'Prove it again without Chain, with the term fun h => q (p h).'),
+        hint: [T('当初证串联时接的是什么？', 'What did you wire when you proved Chain?')],
+        solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
+      }),
+    ],
+    intro: [{ t: T('证过的引理在证明项里写成它的名字：用串联，证明项里就是 chain p q。名字背后，是证它的那个证明项。', 'A lemma you proved appears in a term by its name: use Chain, and the term says chain p q. Behind the name is the term that proved it.') }],
+    after: T('chain 自己的证明项是 fun p q h => q (p h)：先做 p 再做 q，函数的<b>复合</b>。把它用在 p、q 上，再做两次<wiki-ref to="beta"></wiki-ref>，就是第二段直接接出的 fun h => q (p h)。引理只是给证明项起的名字，展开以后，整个证明是一个只用最初规则的证明项，谁都可以拿去独立复查。检查证明的核可以很小，证明本身可以交给别人重新检查。', 'Chain’s own term is fun p q h => q (p h): p, then q, function <b>composition</b>. Applied to p and q, with two steps of <wiki-ref to="beta"></wiki-ref>, it is the fun h => q (p h) wired directly in the second task. A lemma is only a name given to a term; unfolded, the whole proof is a term using only the first rules, which anyone can check again on their own. The kernel that checks proofs can be small, and a proof can be handed to someone else to check again.'),
   },
 
   // ---------- quantifiers ----------

@@ -6,8 +6,6 @@ import { parse, replaceAtoms, show } from './formula.js'
 import { vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
 import { say, sayTerm } from './notation.js'
-import { LOGIC_TESTS } from './proof.js'
-import { lam } from './pterm.js'
 
 // Every rule a proof uses, in the boxes too; a machine card that names rules (a rule, a rewrite, simp's list) uses the
 // lemmas they are shapes of.
@@ -94,7 +92,6 @@ function machineLabel(test, notation) {
   }
   // A goal of ⊥ (the hypotheses to search) goes by its first hypothesis.
   if (test.goal) return say(parseS(test.goal === '⊥' && test.hyps?.length ? test.hyps[0] : test.goal), notation)
-  if (test.term) return { zh: test.term, en: test.term }
   return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
 }
 
@@ -108,8 +105,6 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
   // A level writes formulas in its own words (notation.js) and with every symbol introduced by then: the symbols of
   // the levels before it in play order, and its own.
-  // Each lemma's own proof term (chapter 6 unfolds a lemma used into it), filled once the levels are read.
-  const lemmaTerms = {}
   let known = []
   const LEVELS = plan.order.map((id) => {
     const level = given.get(id)
@@ -118,7 +113,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     // A task may have words of its own (numbers written as S n …).
     const read = (l) => {
       const notation = { words: l.words ?? level.words ?? words, symbols: known }
-      return { adds: [], ...l, ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, lemmaTerms, notation }
+      return { adds: [], ...l, ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
     }
     if (!level.tasks) return read(level)
     // What the level builds comes of its last task, the level itself.
@@ -131,30 +126,6 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))
-  // A lemma's term: the reference proof of the level that proves it, a function of its premises in order. A lemma of
-  // several shapes has a term for each (named type.key past the first, as proof.js names them), from the level whose
-  // last test, in its letters, is that shape; any other lemma's is the proof of the level that builds it.
-  const termOf = (l) => {
-    const test = l.tests?.at(-1)
-    if (l.kind !== 'proof' || !test || !l.solution) return null
-    const term = LOGIC_TESTS.runTest(l, l.solution, test).outputs.goal?.term
-    return term ? Object.keys(test.premises ?? {}).reduceRight((t, name) => lam(name, t), term) : null
-  }
-  const plain = (text) => show(parse(text))
-  const proofs = LEVELS.flatMap((l) => l.tasks ?? [l]).filter((l) => l.kind === 'proof' && l.tests?.length)
-  for (const [type, l] of Object.entries(lemmas)) {
-    if (!l.forms) continue
-    l.forms.forEach((f, k) => {
-      const fits = (x) => { const t = x.tests.at(-1); return plain(t.goal) === plain(f.statement) && Object.values(t.premises ?? {}).map(plain).join(';') === (f.premises ?? []).map(plain).join(';') }
-      const by = proofs.find(fits)
-      const term = by && termOf(by)
-      if (term) lemmaTerms[k ? `${type}.${f.key}` : type] = term
-    })
-  }
-  for (const level of LEVELS.filter((l) => lemmas[l.builds] && !lemmas[l.builds].forms)) {
-    const term = termOf(level.tasks?.at(-1) ?? level)
-    if (term) lemmaTerms[level.builds] = term
-  }
   for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!byId.has(r.at ?? r.by)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at ?? r.by}`)
   // A level's number: on an era's main path the era and its place by difficulty ('1-4', numbered), in a topic its
   // code and place ('D2'), C1 …

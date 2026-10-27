@@ -138,11 +138,12 @@ export default {
   // levels gained a rewriting task. Whoever had passed De Morgan has passed double negation and holds its card.
   { version: 33, ops: [{ solve: ['demorgan', ['sp-dneg']] }, { grant: ['demorgan', 'lemma:dneg'] }] },
   // Version 34 made 化简弯路 build Normalize with Simp and the computation rules, on the machine board: its tasks that
-  // used the part on the proof board are gone. Whoever had passed it holds the part.
+  // used the part on the proof board are gone.
   { version: 34, ops: [
     { data: (value, id) => (id === 't-beta' && Array.isArray(value) ? [value[0], value[2] ?? null, null] : value) },
-    { grant: ['t-beta', 'lemma:normalize'] },
-  ] }],
+  ] },
+  // The machine task of t-beta is gone, two proof-board tasks in its place.
+  { version: 35, ops: [{ data: (value, id) => (id === 't-beta' && Array.isArray(value) ? [value[0], value[1] ?? null, null, null] : value) }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
   quotes: ['任取', '等价', '假设'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },

@@ -151,13 +151,12 @@ const sideOf = (x, text) => ('t' in x ? text({ op: 'atom', pred: '=', args: [x, 
 const eqText = (e, text) => `${e.bound.length ? `⋀${e.bound.join(' ')}. ` : ''}${sideOf(e.s, text)} ≐ ${sideOf(e.t, text)}`
 const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` : ''}${g.hyps.length ? `${g.hyps.map(text).join(tr('；', '; '))} ⊢ ` : ''}${text(g.goal)}`
 /**
- * Equations, a proof state, a proof term, or a clause set: its clauses (each with the clauses it came from), and once
- * ⊥ is in, ⊥ standing out and only the clauses it comes from (the certificate). A list is the kit's Entries: a window
- * ending in how many there are.
+ * Equations, a proof state, or a clause set: its clauses (each with the clauses it came from), and once ⊥ is in, ⊥
+ * standing out and only the clauses it comes from (the certificate). A list is the kit's Entries: a window ending in
+ * how many there are.
  */
 function MachineValue({ v, text, small = false }) {
   if (!v) return null
-  if (v.kind === 'pterm') return <span className={`lg-formula ${small ? 'is-small' : ''}`}><code className="lg-term">{printTerm(v.term)}</code></span>
   if (v.kind === 'state') {
     const others = v.more?.length ?? 0
     const alt = others > 0 && <small className="lg-alts">{tr(`第 1 种结果，共 ${others + 1} 种`, `result 1 of ${others + 1}`)}</small>
@@ -230,7 +229,6 @@ function rewriteGroups(level, text) {
   const rules = Object.values(rewriteBookOf(level))
   const option = (r) => ({ value: r.key, label: r.name, text: rewriteText(r, text) })
   const def = (r) => { const s = defText(r.text, text); return { ...option(r), label: T(s, s), text: '' } }
-  if (level.terms) return [{ label: T('计算规则', 'Computation rules'), options: rules.map(option) }]
   return [
     { label: T('证出的等价律', 'Laws proved'), options: rules.filter((r) => r.group === 'law').map(option) },
     ...(rules.some((r) => r.group === 'fact') ? [{ label: T('证出的等式', 'Equations proved'), options: rules.filter((r) => r.group === 'fact').map(option) }] : []),
@@ -282,9 +280,9 @@ export const MACHINE = {
     const inputs = inputsOf(test)
     const labels = new Map(inputsOfLevel(level).map((i) => [i.name, i.label]))
     // A step's results, each its goals, or that it cannot be done.
-    const becomes = test.term ? `${tr('变成 ', 'it to become ')}${test.becomes}` : test.becomes && (test.becomes.length ? `${tr('变成 ', 'it to become ')}${test.becomes.map((r) => (r.length ? r.map((g) => goalText(parseGoal(g), text)).join(' | ') : tr('证完', 'proved'))).join(tr('，或者 ', ', or '))}` : tr('这一步失败', 'the step to fail'))
+    const becomes = test.becomes && (test.becomes.length ? `${tr('变成 ', 'it to become ')}${test.becomes.map((r) => (r.length ? r.map((g) => goalText(parseGoal(g), text)).join(' | ') : tr('证完', 'proved'))).join(tr('，或者 ', ', or '))}` : tr('这一步失败', 'the step to fail'))
     const want = becomes ?? L(WANT[test.want ?? level.want])
-    const show = (v) => (v.kind === 'state' ? v.goals.map((g) => goalText(g, text)).join(tr('；', '; ')) : v.kind === 'pterm' ? printTerm(v.term) : v.kind === 'eqs' ? v.eqs.map((e) => eqText(e, text)).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormula(c))).join(tr('；', '; ')))
+    const show = (v) => (v.kind === 'state' ? v.goals.map((g) => goalText(g, text)).join(tr('；', '; ')) : v.kind === 'eqs' ? v.eqs.map((e) => eqText(e, text)).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormula(c))).join(tr('；', '; ')))
     return {
       sequent: <>{level.datatypes && <span>{tr('类型', 'Types')} <b>{Object.entries(level.datatypes).map(([type, d]) => `${type} = ${constructorsOf(d).map((c) => text({ op: 'atom', pred: '=', args: [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))] }).split(' = ')[0]).join(' | ')}`).join(tr('；', '; '))}</b> · </span>}{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => defText(d, text)).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,

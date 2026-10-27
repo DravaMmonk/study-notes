@@ -19,7 +19,7 @@ import { BOT, all, allVars, and, bin, eq, freeVars, imp, occurrences, or, parse,
 import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'
 import { cancelOne, disjunction, literalsIn } from './resolution.js'
-import { absurd, alphaEq, cases, fst, inl, inr, lam, normalize, obj, open as unpack, pair, papp, parseTerm, pconst, printTerm, psubst, pvar, raa, rfl, snd } from './pterm.js'
+import { absurd, alphaEq, cases, fst, inl, inr, lam, obj, open as unpack, pair, papp, parseTerm, pconst, printTerm, psubst, pvar, raa, rfl, snd } from './pterm.js'
 
 // The variables a quantifier binds; a particular thing is named a, b or c (choices.js).
 const BOUND = ['x', 'y', 'z', 'u', 'v', 'w']
@@ -227,8 +227,6 @@ export const RULES = {
       return proved(body.formula, new Map([...e.hyps, ...open]), unpack(e.term, y, hypName(node, ctx), body.term))
     },
   },
-  // Chapter 6: the same sentence, its proof's detours taken out (a lemma used is unfolded into its own proof).
-  normalize: { inputs: ['a'], eval: ({ a }, _n, ctx) => proved(a.formula, a.hyps, normalize(a.term, { unfold: ctx.unfold })) },
   refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t), new Map(), rfl) } },
   // From s = t and a proof of φ, φ with the occurrences of s the card marks (params.at, their places in order) replaced
   // by t. The card shows φ with each s in a box to tick (ui/boards.jsx).
