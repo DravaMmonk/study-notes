@@ -521,12 +521,17 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .ref-chip b { font-family: var(--mono); font-size: .8em; font-weight: 600; opacity: .8; }
 
 /* A run's steps (StepLog): a box of bounded height, each result bounded too, the current step marked. */
+/* A value of many entries (Entries.jsx): a window of --entry-lines rows that scrolls, five on the board and thirteen in
+   a sheet, its count on the last row; a row is a 12px line and its gap unless the domain sets --entry-row. */
+.entries { min-width: 0; display: grid; gap: 2px; align-content: start; max-height: calc(var(--entry-lines, 5) * var(--entry-row, 18.8px)); overflow: auto; overscroll-behavior: contain; }
+.ph-sheet { --entry-lines: 13; }
+.entries-count { color: var(--muted); font-size: 10.5px; line-height: 1.6; }
 .step-log { position: relative; list-style: none; margin: 8px 0 0; padding: 0; max-height: 190px; max-width: 100%; overflow: auto; display: grid; gap: 4px; overscroll-behavior: contain; }
 .step-log-item { display: grid; gap: 2px; padding: 6px 10px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--rule); background: var(--paper); min-width: 0; }
 .step-log-item.is-on { box-shadow: inset 0 0 0 1.5px var(--ink), inset 3px 0 0 var(--accent); }
 .step-log-item.is-fail { box-shadow: inset 0 0 0 1.5px var(--fail); }
 .step-log-head { display: flex; gap: 8px; align-items: baseline; font: 600 12.5px var(--sans); color: var(--muted); }
 .step-log-head b { font: 600 12px var(--mono); color: var(--ink); min-width: 1.6em; }
-.step-log-value { max-height: 88px; max-width: 100%; overflow: auto; font-size: 13px; }
+.step-log-value { max-height: calc(5 * 18.8px); max-width: 100%; overflow: auto; font-size: 13px; }
 .step-log-value b, .step-log-value code { white-space: nowrap; }
 .step-log-why { font: 600 12.5px var(--sans); color: var(--fail); }

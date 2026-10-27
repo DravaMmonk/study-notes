@@ -6,6 +6,7 @@
 //            nameOf, iconOf, familyOf (lemmas, type), textOf (lemmas, type, revisions): a part's text, words }
 import { ArrowRightFromLine, Box, Flag, Repeat, Rows3, Search, Sigma } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
+import Entries from '../../../shell/Entries.jsx'
 import { regionsFit } from '../../../circuit/index.js'
 import { startProof } from '../build.js'
 import { FORMULA_TEXT, fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
@@ -135,17 +136,15 @@ function Occurrences({ node, ins, setParam, text }) {
 
 // A side of an equation (a sentence, a thing, or what a pattern's letter stands for), an equation and a goal, written
 // in the level's words: ⋀ for the variables bound around an equation and the things a goal has fixed.
-/** How many entries a list shows at most: on a card on the board, and in a part's sheet. */
-export const ROWS = { card: 20, sheet: 50 }
 const sideOf = (x, text) => ('t' in x ? text({ op: 'atom', pred: '=', args: [x, x] }).split(' = ')[0] : x.op === 'lam' ? `fun ${x.params.join(' ')} => ${text(x.body)}` : text(x))
 const eqText = (e, text) => `${e.bound.length ? `⋀${e.bound.join(' ')}. ` : ''}${sideOf(e.s, text)} ≐ ${sideOf(e.t, text)}`
 const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` : ''}${g.hyps.length ? `${g.hyps.map(text).join(tr('；', '; '))} ⊢ ` : ''}${text(g.goal)}`
 /**
  * Equations, a proof state, a proof term, or a clause set: its clauses (each with the clauses it came from), and once
- * ⊥ is in, ⊥ standing out and only the clauses it comes from (the certificate). A list shows its first `rows` entries
- * and ends with how many there are, in a window that scrolls (logic.css: five lines on a card, thirteen in a sheet).
+ * ⊥ is in, ⊥ standing out and only the clauses it comes from (the certificate). A list is the kit's Entries: a window
+ * ending in how many there are.
  */
-function MachineValue({ v, text, small = false, rows = ROWS.card }) {
+function MachineValue({ v, text, small = false }) {
   if (!v) return null
   if (v.kind === 'pterm') return <span className={`lg-formula ${small ? 'is-small' : ''}`}><code className="lg-term">{printTerm(v.term)}</code></span>
   if (v.kind === 'state') {
@@ -153,23 +152,27 @@ function MachineValue({ v, text, small = false, rows = ROWS.card }) {
     const alt = others > 0 && <small className="lg-alts">{tr(`第 1 种结果，共 ${others + 1} 种`, `result 1 of ${others + 1}`)}</small>
     if (small) return <span className="lg-clauses is-small">{v.error ? <b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b> : !v.goals.length ? <b className="lg-bot">{tr('证完了', 'Proved')}</b> : <small>{tr(`还有 ${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'} left`)}</small>}{alt}</span>
     return (
-      <span className="lg-clauses">
-        {v.error && <><b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b><small>{L(v.error)}</small></>}
-        {!v.goals.length && <b className="lg-bot">{tr('没有目标了：证完了', 'No goals left: proved')}</b>}
-        {v.goals.slice(0, rows).map((g, k) => <code key={k}>{goalText(g, text)}</code>)}
-        {v.goals.length > 0 && <small>{tr(`${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'}`)}</small>}
-        {alt}
-      </span>
+      <Entries
+        className="lg-clauses"
+        head={<>
+          {v.error && <><b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b><small>{L(v.error)}</small></>}
+          {!v.goals.length && <b className="lg-bot">{tr('没有目标了：证完了', 'No goals left: proved')}</b>}
+          {alt}
+        </>}
+        count={v.goals.length > 0 && tr(`${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'}`)}
+      >
+        {v.goals.map((g, k) => <code key={k}>{goalText(g, text)}</code>)}
+      </Entries>
     )
   }
   if (v.kind === 'eqs') {
+    const fail = v.fail && <b className="lg-fail-tag">{tr('合一失败', 'No unifier')}</b>
+    const count = v.eqs.length ? tr(`${v.eqs.length} 个等式`, `${v.eqs.length} equation${v.eqs.length === 1 ? '' : 's'}`) : tr('没有等式了', 'No equations left')
+    if (small) return <span className="lg-clauses is-small">{fail}<small>{count}</small></span>
     return (
-      <span className={`lg-clauses ${small ? 'is-small' : ''}`}>
-        {v.fail && <b className="lg-fail-tag">{tr('合一失败', 'No unifier')}</b>}
-        {!small && v.fail && <small>{L(v.fail)}</small>}
-        {(small ? [] : v.eqs.slice(0, rows)).map((e, k) => <code key={k}>{eqText(e, text)}</code>)}
-        <small>{v.eqs.length ? tr(`${v.eqs.length} 个等式`, `${v.eqs.length} equation${v.eqs.length === 1 ? '' : 's'}`) : tr('没有等式了', 'No equations left')}</small>
-      </span>
+      <Entries className="lg-clauses" head={v.fail && <>{fail}<small>{L(v.fail)}</small></>} count={count}>
+        {v.eqs.map((e, k) => <code key={k}>{eqText(e, text)}</code>)}
+      </Entries>
     )
   }
   const count = tr(`共 ${v.set.length} 条子句`, `${v.set.length} clause${v.set.length === 1 ? '' : 's'}`)
@@ -177,13 +180,11 @@ function MachineValue({ v, text, small = false, rows = ROWS.card }) {
   // Small (a region's edge, a phone block): how many, and whether ⊥ is in.
   if (small) return <span className="lg-clauses is-small">{bot}<small>{count}</small></span>
   const cert = certificate(v.set)
-  const shown = cert?.slice(0, rows) ?? v.set.map((_, i) => i).slice(0, rows)
+  const shown = cert ?? v.set.map((_, i) => i)
   return (
-    <span className="lg-clauses">
-      {bot}
+    <Entries className="lg-clauses" head={bot} count={v.endless ? tr(`${count}，还在变多`, `${count}, and still growing`) : count}>
       {shown.map((i) => <code key={i}>{`${i + 1}. ${text(clauseFormula(v.set[i]))}${v.set[i].from ? ` ← ${v.set[i].from.map((k) => k + 1).join(tr('、', ', '))}` : ''}`}</code>)}
-      <small>{v.endless ? tr(`${count}，还在变多`, `${count}, and still growing`) : count}</small>
-    </span>
+    </Entries>
   )
 }
 

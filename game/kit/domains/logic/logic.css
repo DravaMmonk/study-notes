@@ -20,10 +20,6 @@
 .lg-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
 /* A clause set on the machine board: one clause a line, ⊥ standing out once it is in, and how many. */
 .lg-clauses { min-width: 0; display: grid; gap: 2px; }
-/* A list (clauses, goals, equations) is a window of --lines rows that scrolls: five on the board, thirteen in a part's
-   sheet, the count of entries on its last row; a shorter list makes the window shorter. A row is a 12px line and its gap. */
-.lg-sheet { --lines: 13; }
-.lg-clauses:not(.is-small) { max-height: calc(var(--lines, 5) * 18.8px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
 .lg-clauses code { font: 500 12px/1.4 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
 .lg-clauses small { color: var(--muted); font-size: 10.5px; }
 .lg-clauses .lg-bot { color: var(--status); font-size: 12px; }
@@ -89,9 +85,8 @@
 /* A machine's input and result: no taller than a step's result in the run (shell.css .step-log-value), shorter when it
    holds less, scrolling past it. A long line wraps inside the card's width rather than widening the card, so the box
    only ever scrolls one way. */
-.lg-io { min-width: 0; max-height: calc(var(--lines, 5) * 18.8px); max-width: 100%; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; font-size: 13px; line-height: 1.4; }
+.lg-io { min-width: 0; max-width: 100%; font-size: 13px; line-height: 1.4; }
 .lg-io b, .lg-io code { white-space: normal; overflow-wrap: anywhere; }
-.lg-io .lg-clauses { max-height: none; overflow: visible; }
 .lg-phone .pb-thumb .lg-formula b { font-size: 14px; font-weight: 600; }
 .lg-phone .pb-thumb .lg-chips { gap: 4px; }
 .lg-sheet { display: grid; gap: 14px; }

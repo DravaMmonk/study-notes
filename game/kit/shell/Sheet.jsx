@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { tr } from './i18n.js'
+import { InSheet } from './Entries.jsx'
 
 // A bottom sheet: slides up over a dimmed page, closes on the backdrop, on Escape, on the close
-// button, or by dragging its handle down.
+// button, or by dragging its handle down. What it holds knows it is in a sheet (Entries.jsx: longer lists).
 export default function Sheet({ title, onClose, children, footer }) {
   const [drag, setDrag] = useState(0)
   const start = useRef(null)
@@ -44,7 +45,7 @@ export default function Sheet({ title, onClose, children, footer }) {
           <h2>{title}</h2>
           <button className="ph-icon" onClick={onClose} aria-label={tr('关闭', 'Close')}><X size={18} /></button>
         </header>
-        <div className="ph-sheet-body">{children}</div>
+        <div className="ph-sheet-body"><InSheet.Provider value>{children}</InSheet.Provider></div>
         {footer && <div className="ph-sheet-foot">{footer}</div>}
       </div>
     </div>
