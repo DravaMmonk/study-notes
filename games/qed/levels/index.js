@@ -97,7 +97,7 @@ export const LEMMAS = {
   lem: { name: T('排中律', 'Excluded middle'), desc: T('元件上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the part; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
 }
 
-// The equations the player proves on the machine board (chapter 11), each a rule and a rewrite rule from then on.
+// The equations the player proves on the machine board (chapter 10), each a rule and a rewrite rule from then on.
 const fact = (zh, en, statement, desc) => ({ name: T(zh, en), statement, desc })
 export const FACTS = {
   addZero: fact('加零', 'Add zero', '∀x. plus(x, zero) = x', T('证出的等式 x + 0 = x：一条规则，也是化简的一条改写规则。', 'The equation proved, x + 0 = x: a rule, and a rewrite rule for Simp.')),
@@ -144,7 +144,7 @@ const REVISIONS = {
 
 const COURSE = {
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...terms, ...inductive, ...equality, ...automation, ...structured],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...inductive, ...terms, ...equality, ...automation, ...structured],
   words: WORDS,
   lemmas: LEMMAS,
   facts: FACTS,

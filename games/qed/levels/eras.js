@@ -186,22 +186,6 @@ export const ERAS = [
     chapter: { title: T('化简器', 'The simplifier'), question: T('「把否定推进去」「把式子算出来」这样的目标，能交给机器一路改下去吗？', 'Can goals like “push the negation in” or “work the sum out” be left to a machine that rewrites all the way?') },
   },
   {
-    id: 'terms', machine: 'prover', keeps: 'all',
-    foundation: [
-      // Reading terms: functions, then the data the other connectives' proofs are.
-      series('read', '读证明项', 'Reading proof terms', ['t-app', 't-lam', 't-pair']),
-      // Once terms can be read, their detours and the quantifiers' terms need nothing from each other.
-      branches(
-        ['detour', '弯路', 'Detours', ['t-beta', 't-lemma']],
-        ['quant', '量词的证明项', 'Quantifiers’ proof terms', ['t-all']],
-      ),
-      // Then the terms written, of every part wired before: functions (and lemmas), data, quantifiers; the kernel.
-      series('write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wpair', 't-wquant', 't-kernel']),
-    ],
-    challenges: [{ level: 't-dneg', after: 't-wpair' }],
-    chapter: { title: T('证明即程序', 'Proofs are programs'), question: T('接出来的证明本身是什么？', 'What is a wired proof, itself?') },
-  },
-  {
     id: 'inductive', machine: 'prover', keeps: 'all',
     foundation: [
       // The rules a declaration gives, ending with induction.
@@ -217,6 +201,22 @@ export const ERAS = [
     topics: [{ id: 'sort', code: 'I', after: 'in-appnil', levels: ['sort-ins', 'sort-run', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') }],
     challenges: [{ level: 'in-circle', after: 'in-comm' }],
     chapter: { title: T('归纳类型', 'Inductive types'), question: T('数和列表从哪里来？对每一个数都成立的事，怎么证？', 'Where do numbers and lists come from, and how is something proved for every one?') },
+  },
+  {
+    id: 'terms', machine: 'prover', keeps: 'all',
+    foundation: [
+      // Reading terms: functions, then the data the other connectives' proofs are.
+      series('read', '读证明项', 'Reading proof terms', ['t-app', 't-lam', 't-pair']),
+      // Once terms can be read, their detours and the quantifiers' terms need nothing from each other.
+      branches(
+        ['detour', '弯路', 'Detours', ['t-beta', 't-lemma']],
+        ['quant', '量词的证明项', 'Quantifiers’ proof terms', ['t-all']],
+      ),
+      // Then the terms written, of every part wired before: functions (and lemmas), data, quantifiers; the kernel.
+      series('write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wpair', 't-wquant', 't-kernel']),
+    ],
+    challenges: [{ level: 't-dneg', after: 't-wpair' }],
+    chapter: { title: T('证明即程序', 'Proofs are programs'), question: T('接出来的证明本身是什么？', 'What is a wired proof, itself?') },
   },
   {
     id: 'equality', machine: 'prover', keeps: 'all',

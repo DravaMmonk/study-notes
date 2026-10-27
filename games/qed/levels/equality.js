@@ -1,7 +1,7 @@
 // Chapter 12 · Dependent types and equality (the Lean side): an equation is a type too. Its one way in is rfl, its one
 // way out is ▸ (Eq.rec): the rewrite card of chapter 5, whose ticked boxes are the motive. The kernel works sentences
 // out by the level's definitions before comparing them, so what computes is equal by rfl and what does not needs a
-// proof, an equation proved in chapter 11. A type may depend on a value: Vec(n), a vector whose length is in its type
+// proof, an equation proved in chapter 10. A type may depend on a value: Vec(n), a vector whose length is in its type
 // (only the length is kept, so a vector is a proof of Vec(n)). Then both together: appending, and moving a vector
 // across an equation of lengths. The challenge puts one more at the end, where the length does not compute.
 import { proof } from '../../kit/domains/logic/build.js'

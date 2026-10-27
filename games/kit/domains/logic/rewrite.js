@@ -6,10 +6,10 @@
 //   rule  { key, name, lhs, rhs, conditions: [formula], group: 'law' | 'def' | 'hyp' }
 //
 // Where rules come from (rewriteBookOf): a lemma's two shapes that are each other's converse (¬¬A gives A and A gives
-// ¬¬A: either way round is a rule), the equations proved (the course's `facts`, chapter 11), the level's definitions (`defs`: equations, maybe with conditions, their
+// ¬¬A: either way round is a rule), the equations proved (the course's `facts`, chapter 10), the level's definitions (`defs`: equations, maybe with conditions, their
 // variables standing for anything), and the goal's own hypotheses (the card's rule 'hyp': the first hypothesis that is
 // an equation or an equivalence and fits somewhere, its ∀ variables standing for anything). On a level about proof
-// terms (`terms`, chapter 10) the rules rewrite a proof term instead: the kernel's computation rules (pterm.js
+// terms (`terms`, chapter 11) the rules rewrite a proof term instead: the kernel's computation rules (pterm.js
 // REDUCTIONS), each taking one kind of detour out.
 import { atom, bin, fn, same, show, showTerm, subst, tvar } from './formula.js'
 import { instantiate, isMetaName, lemmaRules, metasIn, parseS } from './schematic.js'
