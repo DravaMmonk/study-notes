@@ -163,6 +163,23 @@ export function rewriteTerm(term, rule, unfold) {
 }
 
 /**
+ * A level's definitions working a sentence out: every thing in it rewritten by them (those without conditions) until
+ * none fits, so two sentences that work out alike are one (definitional equality, pterm.js checkTerm `norm`).
+ */
+export function defNormal(defs = []) {
+  const rules = defs.filter((d) => !d.includes('⟹')).map(defRule)
+  return (f) => {
+    let cur = f
+    for (let k = 0; k < 200; k++) {
+      const next = rules.map((r) => rewriteOnce(cur, r)).find(Boolean)
+      if (!next) return cur
+      cur = next.to
+    }
+    return cur
+  }
+}
+
+/**
  * simp, as the player builds it: round after round, the first rule (in order) that fits rewrites the first goal once;
  * until no rule fits. (A repeat frame around alternatives holding one rewrite each.)
  */

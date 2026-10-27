@@ -3,8 +3,8 @@ import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { checkTerm, parseTerm } from '../pterm.js'
-import { lemmaUse } from '../proof.js'
+import { parseTerm } from '../pterm.js'
+import { termTaskOf } from '../termTask.js'
 import { complete } from '../termTree.js'
 import TermEditor from './TermEditor.jsx'
 
@@ -14,7 +14,9 @@ import TermEditor from './TermEditor.jsx'
 //
 //   level  { kind: 'term', premises: { name: formula text }, goal: formula text, answer: term text, given?: term text
 //            (a term to start from, written by someone else, to check and mend), naive?, consts? (names of things,
-//            chips too), uses?: [lemma] (lemmas offered as chips, used as functions of their premises) }
+//            chips too), uses?: [lemma] (lemmas offered as chips, used as functions of their premises), forms?: [form
+//            key] (the forms the strip offers, termTree.js; the first ten by default), defs?: [equation] (two sentences
+//            are one when these work them out alike) }
 
 const T = (zh, en) => ({ zh, en })
 
@@ -32,8 +34,7 @@ export default function TermScreen({ game, level: entry, saved, save, solve, pho
   }
   const check = () => {
     if (!complete(tree)) return setVerdict({ pass: false, reason: T('还有框没填：证明项要每个位置都填上。', 'Some boxes are still empty: every place must be filled.') })
-    const hyps = Object.fromEntries(Object.entries(level.premises ?? {}).map(([name, f]) => [name, parse(f, { consts })]))
-    const reason = checkTerm(tree, parse(level.goal, { consts }), { hyps, consts, notation: level.notation, lemma: lemmaUse(level.lemmas) })
+    const reason = termTaskOf(level).check(tree)
     setVerdict({ pass: !reason, reason })
     if (!reason) solve(null)
   }
@@ -44,7 +45,7 @@ export default function TermScreen({ game, level: entry, saved, save, solve, pho
         {premises.length > 0 && <p>{tr('已知', 'Given')} {premises.map(([name, f]) => <span key={name} className="tm-premise"><code>{name}</code>：{text(f)}</span>)}</p>}
         <p className="fo-say fo-prompt">{tr('要证', 'Prove')} <b>{text(level.goal)}</b></p>
       </section>
-      <TermEditor tree={tree} onChange={change} scope={[...Object.keys(level.premises ?? {}), ...(level.uses ?? []), ...consts]} history={`${entry.id}:${level.task ?? 0}`}>
+      <TermEditor tree={tree} onChange={change} scope={[...Object.keys(level.premises ?? {}), ...(level.uses ?? []), ...consts]} forms={level.forms} history={`${entry.id}:${level.task ?? 0}`}>
         {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型对上了：这个证明项证的正是这句话。', 'The type matches: this proof term proves exactly this sentence.') : L(verdict.reason)}</p>}
       </TermEditor>
       <footer className="run-foot">

@@ -14,6 +14,7 @@ import { classical } from './classical.js'
 import { simplifier } from './simplifier.js'
 import { terms } from './terms.js'
 import { inductive } from './inductive.js'
+import { equality } from './equality.js'
 import { WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -123,7 +124,7 @@ const REVISIONS = {
 
 const COURSE = {
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...terms, ...inductive],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...terms, ...inductive, ...equality],
   words: WORDS,
   lemmas: LEMMAS,
   facts: FACTS,

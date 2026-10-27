@@ -20,7 +20,8 @@ import { lettersOf, tautology } from './truth.js'
 import { MACHINE_PARTS, MACHINE_TESTS } from './machine.js'
 import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
 import { chipsOf, missingChips } from './formulaTree.js'
-import { checkTerm, freeIn, parseTerm } from './pterm.js'
+import { freeIn, parseTerm } from './pterm.js'
+import { termTaskOf } from './termTask.js'
 import { missingForms } from './termTree.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
 
@@ -97,21 +98,20 @@ export function validate({ levels: given, course }) {
   // A term task's reference term checks and can be built from its chips (termTree.js); its naive one does not check.
   for (const level of levels.filter((l) => l.kind === 'term')) {
     const consts = level.consts ?? []
-    const hyps = Object.fromEntries(Object.entries(level.premises ?? {}).map(([name, f]) => [name, parse(f, { consts })]))
-    const goal = parse(level.goal, { consts })
+    const task = termTaskOf(level)
     const answer = parseTerm(level.answer)
-    const reason = checkTerm(answer, goal, { hyps, consts, lemma: lemmaUse(level.lemmas) })
+    const reason = task.check(answer)
     out.push({ fail: Boolean(reason), text: `${level.id} ${keyOf(level.title)}: term ${level.answer} ${reason ? `FAILS ${keyOf(reason)}` : 'PASS'}` })
     // Every name the term uses is a chip of the task: a premise, a thing, a lemma it offers (`uses`).
     const offered = new Set([...Object.keys(level.premises ?? {}), ...consts, ...(level.uses ?? [])])
     const unoffered = [...freeIn(answer)].filter((n) => !offered.has(n))
     if (unoffered.length) out.push({ fail: true, text: `${level.id}: ${level.answer} names ${unoffered.join(', ')}, which no chip gives` })
-    const unbuilt = missingForms(answer)
+    const unbuilt = missingForms(answer, level.forms)
     if (unbuilt.length) out.push({ fail: true, text: `${level.id}: ${level.answer} uses forms no chip makes: ${unbuilt.join(', ')}` })
-    if (level.naive && !checkTerm(parseTerm(level.naive), goal, { hyps, consts, lemma: lemmaUse(level.lemmas) })) out.push({ fail: true, text: `${level.id}: the naive term ${level.naive} checks` })
+    if (level.naive && !task.check(parseTerm(level.naive))) out.push({ fail: true, text: `${level.id}: the naive term ${level.naive} checks` })
     // A term handed over to mend is wrong to begin with, and can be built on with the chips.
-    if (level.given && !checkTerm(parseTerm(level.given), goal, { hyps, consts, lemma: lemmaUse(level.lemmas) })) out.push({ fail: true, text: `${level.id}: the given term ${level.given} already checks` })
-    if (level.given && missingForms(parseTerm(level.given)).length) out.push({ fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
+    if (level.given && !task.check(parseTerm(level.given))) out.push({ fail: true, text: `${level.id}: the given term ${level.given} already checks` })
+    if (level.given && missingForms(parseTerm(level.given), level.forms).length) out.push({ fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
   }
   // A machine part a level builds runs as its built-in implementation: alone, it passes the level that builds it, unless
   // a task of the level proves it (a law card proved on the proof board, then put to work). A part whose circuit chose

@@ -218,4 +218,19 @@ export const ERAS = [
     challenges: [{ level: 'in-circle', after: 'in-comm' }],
     chapter: { title: T('归纳类型', 'Inductive types'), question: T('数和列表从哪里来？对每一个数都成立的事，怎么证？', 'Where do numbers and lists come from, and how is something proved for every one?') },
   },
+  {
+    id: 'equality', machine: 'prover', keeps: 'all',
+    foundation: [
+      // An equation is a type: its one way in (rfl), its one way out (▸, the rewrite card), and the motive.
+      series('eqtype', '相等是类型', 'An equation is a type', ['eq-rfl', 'eq-rec', 'eq-symm', 'eq-trans', 'eq-motive']),
+      // What the kernel computes, and types depending on a value, need nothing from each other.
+      branches(
+        ['kinds', '两种相等', 'Two kinds of equality', ['eq-defeq', 'eq-propeq']],
+        ['dep', '依赖类型', 'Dependent types', ['dt-vec', 'dt-head']],
+      ),
+    ],
+    practice: [series('both', '两样一起', 'Both together', ['dt-app', 'dt-transport'])],
+    challenges: [{ level: 'dt-snoc', after: 'dt-transport' }],
+    chapter: { title: T('依赖类型与相等', 'Dependent types and equality'), question: T('等式本身是什么？类型能依赖一个值吗？', 'What is an equation itself, and can a type depend on a value?') },
+  },
 ]
