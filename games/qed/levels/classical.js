@@ -5,7 +5,7 @@
 // knights-and-knaves topic goes on from the truth-circuit chapter's islanders; Peirce's law is the challenge.
 import { proof } from '../../kit/domains/logic/build.js'
 import { gates } from '../../kit/domains/logic/gates.js'
-import { script } from './metavars.js'
+import { script } from './machines.js'
 
 const T = (zh, en) => ({ zh, en })
 const BRIEF = T('接一台机器：证得出的证完；证不出的，停下来说证不出来。', 'Wire a machine that proves what can be proved, and of what cannot, stops and says so.')

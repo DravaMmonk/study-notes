@@ -133,7 +133,10 @@ export default {
       if (id === 'r-lemma' && Array.isArray(value)) return [value[0], value[1], null]
       return value
     } },
-  ] }],
+  ] },
+  // Version 33 built the simplifier around the laws: double negation and its rewrite card come before De Morgan, whose
+  // levels gained a rewriting task. Whoever had passed De Morgan has passed double negation and holds its card.
+  { version: 33, ops: [{ solve: ['demorgan', ['sp-dneg']] }, { grant: ['demorgan', 'lemma:dneg'] }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
   quotes: ['任取'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },

@@ -13,12 +13,12 @@ import { sayTerm } from '../notation.js'
 import { choicesOf } from '../choices.js'
 import { LOGIC_TESTS } from '../proof.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel, parseGoal, ruleBookOf } from '../machine.js'
-import { INTRO_RULES, ruleText } from '../schematic.js'
+import { INTRO_RULES, parseS, ruleText } from '../schematic.js'
+import { rewriteBookOf, rewriteText } from '../rewrite.js'
 import { paramsOf } from '../../../engine/forms.js'
 import { portsOf } from '../../../engine/circuit.js'
 import { refuted } from '../clauses.js'
 import { clauseFormulaOf } from '../unify.js'
-import { parseTh } from '../theory.js'
 import { printTerm } from '../pterm.js'
 import { MACHINE_TEXT, familyOf, iconOf, nameOf, partsFor, settingsOf, textOf, withRevisions } from './catalog.js'
 
@@ -213,6 +213,23 @@ function ruleGroups(level, text) {
     ...(level.rules ? [{ label: T('这一关的规则', 'This level’s rules'), options: rules.filter((r) => r.own).map(option) }] : []),
   ]
 }
+// The rewrite rules a rewrite card offers, in groups: the laws proved both ways, the level's definitions, the goal's
+// hypotheses.
+function rewriteGroups(level, text) {
+  const rules = Object.values(rewriteBookOf(level))
+  const option = (r) => ({ value: r.key, label: r.name, text: rewriteText(r, text) })
+  const def = (r) => { const s = defText(r.text, text); return { ...option(r), label: T(s, s), text: '' } }
+  return [
+    { label: T('证出的等价律', 'Laws proved'), options: rules.filter((r) => r.group === 'law').map(option) },
+    ...(level.defs?.length ? [{ label: T('定义', 'Definitions'), options: rules.filter((r) => r.group === 'def').map(def) }] : []),
+    { label: T('目标的已知', 'The goal’s hypotheses'), options: rules.filter((r) => r.group === 'hyp').map(option) },
+  ]
+}
+// A definition as the level writes it, in the level's words: 'c ⟹ l = r'.
+function defText(d, text) {
+  const [cond, eq] = d.includes('⟹') ? d.split('⟹') : [null, d]
+  return `${cond ? `${cond.split(';').map((c) => text(parseS(c.trim()))).join(tr('；', '; '))} ⟹ ` : ''}${text(parseS(eq.trim()))}`
+}
 const machineName = (type) => MACHINE_TEXT[type]?.name ?? type
 
 /** The editor's description of a machine board (../../../circuit/model.js parts), for a level's inputs. */
@@ -256,9 +273,9 @@ export const MACHINE = {
     const want = becomes ?? L(WANT[test.want ?? level.want])
     const show = (v) => (v.kind === 'state' ? v.goals.map((g) => goalText(g, text)).join(tr('；', '; ')) : v.kind === 'formula' ? text(v.f) : v.kind === 'eqs' ? v.eqs.map((e) => eqText(e, text)).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormulaOf(c))).join(tr('；', '; ')))
     return {
-      sequent: <>{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => text(parseTh(d))).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
+      sequent: <>{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => defText(d, text)).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,
-      choices: { rule: ruleGroups(level, text) },
+      choices: { rule: ruleGroups(level, text), rewrite: rewriteGroups(level, text) },
     }
   },
   settings: (parts, node) => [

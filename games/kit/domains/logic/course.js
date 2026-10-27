@@ -1,18 +1,19 @@
 // A course of logic levels, from a game's spec (《证明完毕》): the play order and the tree from its eras
 // (../../course.js layout), each level's number and the parts it can really offer, and the lemmas its levels build
 // (proof.js lemma): a level with `builds: '<type>'` makes the lemma spec.lemmas[type] a part once solved.
-import { defineCourse, eraLevels, layout, numbered, offer, reach, usable } from '../../course.js'
+import { defineCourse, eraLevels, formsAt, layout, numbered, offer, reach, usable } from '../../course.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { vocabulary } from './fol.js'
 import { parseFo } from './unify.js'
 import { parseEquation, parseS } from './schematic.js'
-import { parseTh } from './theory.js'
 import { say, sayTerm } from './notation.js'
 import { LOGIC_TESTS } from './proof.js'
 import { lam } from './pterm.js'
 
-// Every rule a proof uses, in the boxes too.
-const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
+// Every rule a proof uses, in the boxes too; a machine card that names rules (a rule, a rewrite, simp's list) uses the
+// lemmas they are shapes of.
+const named = (n) => ['rule', 'rewrite', 'rewrites'].flatMap((k) => (n.params?.[k] ?? '').split(',').filter(Boolean).map((key) => key.split('.')[0]))
+const rulesIn = (circuit) => circuit.nodes.flatMap((n) => [n.type, ...named(n)])
 // How hard a level is, for its number: the steps (or gates) of its reference answer; a truth table counts as a short
 // proof.
 const ease = (level) => {
@@ -87,7 +88,6 @@ function machineLabel(test, notation) {
     return { zh: sides.map(([a, b]) => `${a.zh} ≐ ${b.zh}`).join('；'), en: sides.map(([a, b]) => `${a.en} ≐ ${b.en}`).join('; ') }
   }
   if (test.goal) return say(parseS(test.goal), notation)
-  if (test.eq) return say(parseTh(test.eq), notation)
   if (test.clauses) return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
   return say(parseFo(test.inputs?.goal ?? test.in ?? Object.values(test.inputs)[0]), notation)
 }
@@ -180,10 +180,18 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     abstraction: true,
   })
   // A machine level's rule book has what the level can hold (machine.js ruleBookOf): the kernel's rules opened by
-  // chapter, the lemmas built before it.
+  // chapter, the lemmas built before it, each in the shapes it has gained by then. A task after the first may use
+  // what its level proves already (a law proved on the proof board, then put to work), in every shape it proves.
   for (const level of LEVELS.filter((l) => l.kind === 'machine' || l.tasks?.some((t) => t.kind === 'machine'))) {
     const holds = reach(course, { id: level.id })
-    for (const one of [level, ...(level.tasks ?? [])]) one.holds = holds
+    for (const one of [level, ...(level.tasks ?? [])]) {
+      const later = one.task > 0
+      one.holds = later && level.builds ? [...holds, level.builds] : holds
+      one.forms = Object.fromEntries(Object.entries(lemmas).filter(([, l]) => l.forms).map(([type, l]) => [type, [
+        ...formsAt(course, l.forms[0].key, revisions[type], level.id),
+        ...(later ? (revisions[type] ?? []).filter((r) => r.by === level.id).flatMap((r) => r.forms ?? []) : []),
+      ]]))
+    }
   }
   // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
   const held = (level) => byId.get(level.id)?.without ?? []

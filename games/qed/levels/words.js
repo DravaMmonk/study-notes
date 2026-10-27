@@ -112,3 +112,20 @@ export const WORDS = {
   en: T('恩', 'En'),
   fay: T('菲', 'Fay'),
 }
+
+// Numbers and lists built by functions (chapter 9 on), read the way Isabelle prints them: S n the number after n,
+// x :: xs a list with x in front.
+export const TERM_WORDS = {
+  ...WORDS,
+  zero: T('0', '0'),
+  s: T('S {0}', 'S {0}'),
+  plus: T('{0} + {1}', '{0} + {1}'),
+  nil: T('[]', '[]'),
+  cons: T('{0} :: {1}', '{0} :: {1}'),
+  app: T('{0} ++ {1}', '{0} ++ {1}'),
+  len: T('len {0}', 'len {0}'),
+  le: T('{0} ≤ {1}', '{0} ≤ {1}'),
+  max: T('max {0} {1}', 'max {0} {1}'),
+  tt: T('真', 'true'),
+  ff: T('假', 'false'),
+}

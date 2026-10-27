@@ -20,10 +20,10 @@ export const isMetaName = (name) => name.startsWith('?')
 const isTerm = (x) => 't' in x
 const VARS = ['x', 'y', 'z', 'u', 'v', 'w']
 
-/** A sentence or thing written with metavariables: lower-case names are things (u … z variables), ?A, ?t, ?P(x) letters. */
+/** A sentence or thing written with metavariables: lower-case names are things (u … z, xs, ys, zs variables), ?A, ?t, ?P(x) letters. */
 export function parseS(text) {
   const names = text.match(/(?:^|[^?A-Za-z0-9_'])([a-z][A-Za-z0-9_']*)/g)?.map((m) => m.replace(/^[^a-z]/, '')) ?? []
-  return parse(text, { consts: names.filter((n) => !/^[u-z]\d*$/.test(n)) })
+  return parse(text, { consts: names.filter((n) => !/^([u-z]|[xyz]s)\d*$/.test(n)) })
 }
 /** A side of an equation, as written: a thing when it reads as one (ann, ?t, s(x)), else a sentence. */
 export function parseSide(text) {

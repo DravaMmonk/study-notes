@@ -281,3 +281,31 @@ test('a written term may use a lemma as a function of its premises, and take out
   assert.ok(checkTerm(parseTerm('chain q p'), parse('Rain → Slip'), { hyps, lemma }))
   assert.equal(checkTerm(parseTerm('p.elim (fun a b => ⟨a, b.2⟩)'), parse('∃x. Q(x)'), { hyps: { p: parse('∃x. P(x) ∧ Q(x)') } }), '')
 })
+
+test('a rewrite changes the first place its left side fits, under quantifiers too, and leaves its conditions as goals', async () => {
+  const { rewrite, simplify, rewriteBookOf } = await import('./rewrite.js')
+  const { startState } = await import('./tactics.js')
+  const { parseS } = await import('./schematic.js')
+  const T = (zh, en) => ({ zh, en })
+  const lemmas = {
+    dneg: { name: T('', ''), metas: ['A'], forms: [{ key: 'elim', label: '', statement: 'A', premises: ['¬¬A'] }, { key: 'intro', label: '', statement: '¬¬A', premises: ['A'] }] },
+    dm: { name: T('', ''), metas: ['A', 'B', 'P'], forms: [
+      { key: 'notOr', label: '', statement: '¬A ∧ ¬B', premises: ['¬(A ∨ B)'] }, { key: 'andNot', label: '', statement: '¬(A ∨ B)', premises: ['¬A ∧ ¬B'] },
+      { key: 'notEx', label: '', statement: '∀x. ¬P', premises: ['¬∃x. P'] }, { key: 'allNot', label: '', statement: '¬∃x. P', premises: ['∀x. ¬P'] },
+      { key: 'exNot', label: '', statement: '¬∀x. P', premises: ['∃x. ¬P'] },
+    ] },
+  }
+  const book = rewriteBookOf({ lemmas, defs: ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))', 'le(x, y) = tt ⟹ max(x, y) = y'] })
+  // A shape whose converse is not a shape of its card is no rewrite rule.
+  assert.equal(book['dm.exNot'], undefined)
+  const goals = (r) => r.results[0].goals.map((g) => show(g.goal))
+  const once = (goal, key, hyps = []) => rewrite(startState(parseS(goal), hyps.map(parseS)), book[key])
+  assert.deepEqual(goals(once('¬¬¬¬Rain ∧ ¬¬Wind', 'dneg.elim')), ['¬¬Rain ∧ ¬¬Wind'])
+  assert.deepEqual(goals(once('∀y. ¬∃x. Likes(y, x)', 'dm.notEx')), ['∀y. ∀x. ¬Likes(y, x)'])
+  assert.deepEqual(goals(once('max(zero, s(zero)) = s(zero)', 'def.2')), ['s(zero) = s(zero)', 'le(zero, s(zero)) = tt'])
+  assert.deepEqual(goals(once('s(plus(a, zero)) = s(a)', 'hyp', ['plus(a, zero) = a'])), ['s(a) = s(a)'])
+  assert.ok(once('Rain ∧ Wind', 'dneg.elim').fail)
+  const simp = simplify(startState(parseS('plus(s(s(zero)), s(zero)) = s(s(s(zero)))')), [book['def.0'], book['def.1']])
+  assert.deepEqual(goals(simp), ['s(s(s(zero))) = s(s(s(zero)))'])
+  assert.ok(simplify(startState(parseS('¬(Rain ∨ Wind)')), [book['dm.notOr'], book['dm.andNot']]).fail)
+})

@@ -42,6 +42,40 @@ export const LEMMAS = {
     ],
     ports: ['¬(A ∨ B)'],
   },
+  // The simplifier's laws (chapter 9): each a card of shapes that are each other's converse, so either way round is a
+  // rewrite rule; all its shapes come with the level that proves them (REVISIONS).
+  dneg: {
+    name: T('双重否定', 'Double negation'),
+    desc: T('元件上切换形状：接进 ¬¬A 给出 A；接进 A 给出 ¬¬A。两个方向也都是改写规则。', 'Switch the shape on the card: wire in ¬¬A for A, or A for ¬¬A. Both ways are rewrite rules too.'),
+    metas: ['A'],
+    forms: [
+      { key: 'elim', label: '¬¬A → A', statement: 'A', premises: ['¬¬A'] },
+      { key: 'intro', label: 'A → ¬¬A', statement: '¬¬A', premises: ['A'] },
+    ],
+    ports: ['¬¬A'],
+  },
+  arrow: {
+    name: T('去掉箭头', 'Arrow away'),
+    desc: T('元件上切换形状：接进 A → B 给出 ¬A ∨ B；接进 ¬A ∨ B 给出 A → B。两个方向也都是改写规则。', 'Switch the shape on the card: wire in A → B for ¬A ∨ B, or ¬A ∨ B for A → B. Both ways are rewrite rules too.'),
+    metas: ['A', 'B'],
+    forms: [
+      { key: 'elim', label: 'A → B ⟹ ¬A ∨ B', statement: '¬A ∨ B', premises: ['A → B'] },
+      { key: 'intro', label: '¬A ∨ B ⟹ A → B', statement: 'A → B', premises: ['¬A ∨ B'] },
+    ],
+    ports: ['A → B'],
+  },
+  dist: {
+    name: T('分配', 'Distribute'),
+    desc: T('「或者」分配到「并且」上，四个方向：A ∨ (B ∧ C) 和 (A ∨ B) ∧ (A ∨ C) 互相转换，(A ∧ B) ∨ C 和 (A ∨ C) ∧ (B ∨ C) 互相转换。元件上切换形状；每个方向也都是改写规则。', '“Or” distributed over “and”, four ways: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Switch the shape on the card; each way is a rewrite rule too.'),
+    metas: ['A', 'B', 'C'],
+    forms: [
+      { key: 'orAndR', label: 'A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)', statement: '(A ∨ B) ∧ (A ∨ C)', premises: ['A ∨ (B ∧ C)'] },
+      { key: 'andOrR', label: '(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)', statement: 'A ∨ (B ∧ C)', premises: ['(A ∨ B) ∧ (A ∨ C)'] },
+      { key: 'orAndL', label: '(A ∧ B) ∨ C ⟹ (A ∨ C) ∧ (B ∨ C)', statement: '(A ∨ C) ∧ (B ∨ C)', premises: ['(A ∧ B) ∨ C'] },
+      { key: 'andOrL', label: '(A ∨ C) ∧ (B ∨ C) ⟹ (A ∧ B) ∨ C', statement: '(A ∧ B) ∨ C', premises: ['(A ∨ C) ∧ (B ∨ C)'] },
+    ],
+    ports: ['A ∨ (B ∧ C)'],
+  },
   lem: { name: T('排中律', 'Excluded middle'), desc: T('元件上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the part; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
 }
 
@@ -54,6 +88,10 @@ const REVISIONS = {
   ],
   // 矛盾 brings in ¬A as A → ⊥, so Apply takes ¬A and A to ⊥.
   mp: [{ at: 'bot', desc: T('由 A → B 和 A 得到 B：接进一句「若…，则…」和它的前一半，得到后一半。¬A 也可以写作 A → ⊥，所以接进 ¬A 和 A，就得到矛盾 ⊥。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part. ¬A can be written A → ⊥, so wire in ¬A and A and out comes the contradiction ⊥.') }],
+  // The simplifier's laws come with every shape at once.
+  dneg: [{ by: 'sp-dneg', forms: ['intro'] }],
+  arrow: [{ by: 'sp-arrow', forms: ['intro'] }],
+  dist: [{ by: 'sp-dist', forms: ['andOrR', 'orAndL', 'andOrL'] }],
   // ↔ comes into proofs on the main path with 两个方向: Split ∧ takes it apart.
   andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
 
@@ -75,11 +113,12 @@ const COURSE = {
   lemmas: LEMMAS,
   gates: GATES,
   revisions: REVISIONS,
-  // The machine-board parts the player builds: the unifier, the tactics made of Rule and Assumption, and auto.
-  machines: ['unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto'],
+  // The machine-board parts the player builds: the unifier, the tactics made of Rule and Assumption, auto, and simp
+  // made of rewrites.
+  machines: ['unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp'],
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'normalize',
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
-    'append', 'each', 'defer', 'search'],
+    'append', 'each', 'defer', 'search', 'rw'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
   concept: { andI: 'and', andE: 'and', rewrite: 'eq', refl: 'eq' },
 }

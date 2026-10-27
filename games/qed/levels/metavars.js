@@ -8,6 +8,7 @@
 // is Have and then a rule on a given, built into Forward; Take the one there is. The challenge is the order of taking
 // out and giving an example.
 import { machine } from '../../kit/domains/logic/build.js'
+import { script } from './machines.js'
 
 const T = (zh, en) => ({ zh, en })
 const GOAL = [{ name: 'in', label: T('目标', 'Goal') }]
@@ -15,16 +16,6 @@ const EQS = [{ name: 'in', label: T('等式', 'Equations') }]
 const unify = (level) => ({ kind: 'machine', want: 'unify', inputs: EQS, ...level })
 const prove = (level) => ({ kind: 'machine', want: 'proved', inputs: GOAL, ...level })
 
-// A script: the cards one after another from the goal to the result. A step is a card's type, or [type, rule] for a
-// card that uses a rule.
-export function script(...steps) {
-  const nodes = Object.fromEntries(steps.map((s, k) => {
-    const [type, rule] = [s].flat()
-    return [`c${k}`, [type, rule ? { rule } : {}]]
-  }))
-  const ids = Object.keys(nodes)
-  return machine(nodes, [...ids, 'out'].map((to, k) => `${k ? ids[k - 1] : 'in'}>${to}${to === 'out' ? '' : '.in'}`))
-}
 // The rules of unification in the repeat frame, in order, round after round.
 const looped = (cards) => machine(
   { r: ['repeat'], ...Object.fromEntries(cards.map((c, k) => [`c${k}`, [c, {}, 'r']])) },

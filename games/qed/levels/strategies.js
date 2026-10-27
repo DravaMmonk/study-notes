@@ -7,8 +7,7 @@
 // own auto, a search over the two (it becomes a part).
 // The topic asks a family tree by rules (Prolog is rule resolution and depth-first search); the challenge is a search
 // that never stops on what cannot be proved.
-import { machine } from '../../kit/domains/logic/build.js'
-import { script } from './metavars.js'
+import { flow, script } from './machines.js'
 
 const T = (zh, en) => ({ zh, en })
 const GOAL = [{ name: 'in', label: T('目标', 'Goal') }]
@@ -18,36 +17,6 @@ const each = (level) => prove({ backtrack: true, ...level })
 const ask = (level) => ({ kind: 'machine', want: 'answers', inputs: [{ name: 'in', label: T('问题', 'Question') }], backtrack: true, ...level })
 const BRIEF = T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.')
 
-// A machine from the goal to the result, its items one after another: a card (its type, or [type, rule]), a frame
-// ({ frame, params?, body: [item] }), or alternatives ({ ways: [[item]] }, an empty way passing the state on).
-const REGIONS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']
-function flow(...items) {
-  const nodes = {}
-  const wires = []
-  let n = 0
-  const fill = (list, where, src, dst) => {
-    let from = src
-    for (const item of list) {
-      const id = `c${n++}`
-      const at = where ? [where] : []
-      if (item.ways) {
-        nodes[id] = ['append', item.ways.length > 2 ? { ways: String(item.ways.length) } : {}, ...at]
-        item.ways.forEach((way, k) => fill(way, `${id}/${REGIONS[k]}`, `${id}#${REGIONS[k]}`, `${id}.${REGIONS[k]}`))
-      } else if (item.frame) {
-        nodes[id] = [item.frame, item.params ?? {}, ...at]
-        fill(item.body, `${id}/body`, `${id}#body`, `${id}.body`)
-      } else {
-        const [type, rule] = [item].flat()
-        nodes[id] = [type, rule ? { rule } : {}, ...at]
-      }
-      wires.push(`${from}>${id}.in`)
-      from = id
-    }
-    wires.push(`${from}>${dst}`)
-  }
-  fill(items, null, 'in', 'out')
-  return machine(nodes, wires)
-}
 // Depth-first search over one step: assumption, or each of the steps given, the last followed by the cards in
 // `region`; a depth limit when given.
 const searchOf = (steps, { depth, region = [] } = {}) => flow({

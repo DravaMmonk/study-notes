@@ -166,12 +166,24 @@ export const ERAS = [
   {
     id: 'simplifier', machine: 'prover', keeps: 'all',
     foundation: [
-      // The laws the simplifier rewrites with, each proved in one level of tasks; the quantifier laws add their
-      // shapes to the De Morgan card.
-      series('laws', '规则来自证明', 'Rules from proofs', ['demorgan', 'q-dm']),
+      // Double negation proved both ways, and the rewrite card that uses it.
+      'sp-dneg',
+      // More laws, De Morgan (whose quantifier laws add shapes to its card) and rewriting itself need nothing from
+      // each other.
+      branches(
+        ['laws', '更多等价律', 'More laws', ['sp-arrow', 'sp-dist']],
+        ['demorgan', '德摩根', 'De Morgan', ['demorgan', 'sp-back', 'q-dm']],
+        ['rewrite', '改写一处', 'One place', ['sp-where', 'sp-repeat']],
+      ),
+      // simp, built of rewrites in a repeat frame; then normal forms and definitions need nothing from each other.
+      'sp-simp',
+      branches(
+        ['forms', '范式', 'Normal forms', ['sp-nnf', 'sp-cnf', 'sp-order']],
+        ['defs', '定义与条件', 'Definitions and conditions', ['sp-compute', 'sp-lists', 'sp-cond', 'sp-hyp', 'sp-under']],
+      ),
     ],
     challenges: [{ level: 'drinker', after: 'q-dm' }],
-    chapter: { title: T('化简器', 'The simplifier'), question: T('「算一算」「把否定推进去」这样的目标，能交给机器一路改下去吗？', 'Can goals like “work it out” or “push the negation in” be left to a machine that rewrites all the way?') },
+    chapter: { title: T('化简器', 'The simplifier'), question: T('「把否定推进去」「把式子算出来」这样的目标，能交给机器一路改下去吗？', 'Can goals like “push the negation in” or “work the sum out” be left to a machine that rewrites all the way?') },
   },
   {
     id: 'terms', machine: 'prover', keeps: 'all',

@@ -8,6 +8,7 @@ import { runLevel } from '../../../engine/tests.js'
 import { say } from '../notation.js'
 import FormulaField from './FormulaField.jsx'
 import RuleField from './RuleField.jsx'
+import RulesField from './RulesField.jsx'
 import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt } from './stepping.js'
 
@@ -215,6 +216,8 @@ function Setting({ s, node, board, parts, lemmas, circuit, scene, setParam, form
   switch (s.kind) {
     case 'form': return <FormulaField label={board.textOf(lemmas, node.type)?.formLabel ?? T('形状', 'Shape')} value={formOf(parts.rules[node.type], node)} onChange={set} choices={shapesOf(parts.rules[node.type], board.textOf(lemmas, node.type), formsOf(node.type)).map((o) => ({ value: o.key, label: L(o.label) }))} required />
     case 'rule': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rule} />
+    case 'rewrite': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rewrite} />
+    case 'rewrites': return <RulesField label={s.label} value={value} onChange={set} groups={scene.choices.rewrite} />
     // As many regions as the frame has: never fewer than the last one holding something.
     case 'ways': {
       const regions = parts.frames(node).map((r) => r.name)
