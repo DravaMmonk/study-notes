@@ -1,0 +1,35 @@
+// node --test games/kit/circuit — a level's preset on a board: locked parts and wires stay, the rest is the player's.
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { baseRefusal, connect, keepLocked, removeNode, withPreset } from './model.js'
+
+const board = { nodes: [{ id: 'in', type: 'in', x: 0, y: 0 }, { id: 'out', type: 'out', x: 400, y: 0 }], wires: [] }
+const preset = { nodes: [{ id: 'p', type: 'oracle', x: 200, y: 0 }], wires: [{ from: 'p', to: 'out', port: 'in' }] }
+
+test('a preset goes onto a board locked, where the board already has its parts', () => {
+  const started = withPreset(board, preset)
+  assert.deepEqual(started.nodes.find((n) => n.id === 'p'), { id: 'p', type: 'oracle', x: 200, y: 0, locked: true })
+  assert.deepEqual(started.wires, [{ from: 'p', to: 'out', port: 'in', locked: true }])
+  const moved = { ...started, nodes: started.nodes.map((n) => (n.id === 'p' ? { ...n, x: 90, params: { k: 1 } } : n)) }
+  const again = withPreset(moved, preset)
+  assert.equal(again.nodes.find((n) => n.id === 'p').x, 90)
+  assert.deepEqual(again.nodes.find((n) => n.id === 'p').params, { k: 1 })
+})
+
+test('a change keeps the locked parts and wires, and nothing else of the old board', () => {
+  const started = withPreset(board, preset)
+  const free = connect({ ...started, nodes: [...started.nodes, { id: 'q', type: 'x' }] }, 'p', 'in', 'in')
+  const gone = keepLocked(free, removeNode(free, 'p'))
+  assert.ok(gone.nodes.some((n) => n.id === 'p' && n.locked))
+  assert.ok(gone.wires.some((w) => w.from === 'p' && w.locked))
+  assert.ok(!gone.wires.some((w) => w.to === 'p' && w.port === 'in'))
+  assert.ok(keepLocked(free, removeNode(free, 'q')).nodes.every((n) => n.id !== 'q'))
+  const rewired = keepLocked(free, connect(free, 'out', 'in', 'in'))
+  assert.deepEqual(rewired.wires.filter((w) => w.to === 'out'), [{ from: 'p', to: 'out', port: 'in', locked: true }])
+})
+
+test('a locked wire refuses another wire into its port; a free port takes one', () => {
+  const started = withPreset(board, preset)
+  assert.ok(baseRefusal(started, 'in', 'out', 'in'))
+  assert.equal(baseRefusal(started, 'in', 'p', 'in'), null)
+})

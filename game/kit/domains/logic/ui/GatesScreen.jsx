@@ -215,7 +215,7 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(parts.rules[node.type].desc)}</p>}
             {body(node)}
-            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={() => { editing.remove(node.id); setSheet(null) }} />}
+            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}

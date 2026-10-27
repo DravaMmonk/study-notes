@@ -42,7 +42,11 @@
 //   world(level) → key | null              what a level's world is, the same across a topic
 //   naive(level) → bool                    whether a challenge comes with a naive answer that fails
 //   replaces(part) → [part]                the parts it supersedes: an upgrade, or a merger of several into one
-//   carries(part, level) → bool            whether an earlier part is carried into this level (default: always)
+//   local(part) → bool                     a part that stays in the levels that bring it (`adds`, or a board's preset):
+//                                          solving them never unlocks it, and no later level carries it (a go-between
+//                                          soon replaced, as one round of resolution by the saturator; a part one
+//                                          level's puzzle needs, as someone else's wrong prover). It is still a part met,
+//                                          in the components box.
 //   needed(level) → [part] | null          the parts its reference answer uses (null: no reference to go by)
 //   folds(level) → [part]                  parts the level's spec folds away anyway
 //   showcase(level) → reason | null        why a level shows a new part alone, wired to the goal by itself: only for
@@ -179,7 +183,7 @@ export function layout(eras) {
 // A showcase's reason, written plainly or in each language.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], carries = () => true, needed = () => null, folds = () => [], showcase = () => null, abstraction = false }) {
+export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, folds = () => [], showcase = () => null, abstraction = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -201,13 +205,13 @@ export function defineCourse({ levels, eras = null, primitives, adds, needs, bui
   // lets through only the parts on it; one that keeps 'all' lets everything through.
   const eraOf = (id) => (plan ? eras.findIndex((e) => e.id === plan.place.get(id)?.era) : 0)
   const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => e.keeps === 'all' || e.keeps?.includes(part)) ?? true
-  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, carries, needed, folds, showcase, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, folds, showcase, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
 }
 
 /**
  * Every part a level can ever hold, by the rule every course follows: a part, once met, stays usable in every level
  * after it on the tree (every level this one comes after), unless a part met since replaces it (an upgrade, or a
- * merger), a later machine leaves it behind (an era's `keeps`) or the course keeps it in its own level (`carries`). So a level's spec names only the parts it brings in
+ * merger), a later machine leaves it behind (an era's `keeps`) or it stays where it is brought (`local`). So a level's spec names only the parts it brings in
  * (`adds`); a part the player builds needs no naming at all. In order: the level's own parts, then the carried ones in
  * the order they were met.
  */
@@ -216,7 +220,7 @@ export function reach(course, level) {
   const earlier = course.levels.filter((l) => course.before(l.id, level.id))
   const met = earlier.flatMap((l) => [...course.adds(l), ...course.builds(l)].filter((p) => course.crosses(p, l.id, level.id)))
   const gone = new Set([...own, ...met].flatMap((p) => course.replaces(p)))
-  const carried = met.filter((p) => !own.includes(p) && !gone.has(p) && course.carries(p, level))
+  const carried = met.filter((p) => !own.includes(p) && !gone.has(p) && !course.local(p))
   return [...new Set([...own, ...carried])]
 }
 
@@ -271,12 +275,12 @@ export function fresh(course, level) {
 /**
  * Where the primitives come in, for the components box and the map: for each key (keyOf(part), how the box lists
  * parts; one entry a part by default), the levels on the tree that bring in a part with that key while no level before
- * them has. A part that stays in its own level (`carries`) is no component to keep and is left out. In play order.
+ * them has. In play order.
  */
 export function introductions(course, keyOf = (p) => p) {
   const out = new Map()
   const placed = (l) => !course.plan || course.plan.place.has(l.id)
-  const keys = (l) => course.adds(l).filter((p) => course.primitives.has(p) && course.carries(p, l)).map(keyOf)
+  const keys = (l) => course.adds(l).filter((p) => course.primitives.has(p)).map(keyOf)
   for (const level of course.levels.filter(placed)) {
     const seen = new Set(course.levels.filter((l) => placed(l) && course.before(l.id, level.id)).flatMap(keys))
     for (const k of keys(level)) {
@@ -318,11 +322,11 @@ export function audit(course) {
     const role = plan?.place.get(level.id)?.role
     for (const p of course.adds(level)) {
       const by = course.builder(p)
-      if (course.primitives.has(p)) { if (earlier.includes(p) && course.carries(p, level)) say('carried', level.id, p, 'brought in again, though an earlier level already did'); continue }
+      if (course.primitives.has(p)) { if (earlier.includes(p) && !course.local(p)) say('carried', level.id, p, 'brought in again, though an earlier level already did'); continue }
       if (granted.has(p)) say('granted', level.id, p, 'handed out by the level, not built by the player')
       else if (!by) { if (!unbuilt.has(p)) say('not-built', level.id, p, 'no level builds it and it is not a primitive'); unbuilt.add(p) }
       else if (by === level.id) say('own-level', level.id, p, 'offered in the very level that builds it')
-      else if (course.before(by, level.id) && course.crosses(p, by, level.id) && course.carries(p, level)) say('carried', level.id, p, `named, though it carries here from ${by} anyway`)
+      else if (course.before(by, level.id) && course.crosses(p, by, level.id) && !course.local(p)) say('carried', level.id, p, `named, though it carries here from ${by} anyway`)
       else {
         const optional = ['intro', 'step', 'finale', 'challenge'].includes(plan?.place.get(by)?.role)
         say(optional ? 'optional-needed' : 'built-later', level.id, p, optional ? `needs ${by}, which sits on an optional branch it does not require` : `offered where ${by}, the level that builds it, need not be solved yet`)

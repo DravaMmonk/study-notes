@@ -41,6 +41,7 @@ const ease = (level) => {
  *   machines    [type] the machine-board parts the player builds (machine.js, named in ui/catalog.js MACHINE_TEXT): a
  *               level with `builds` one of them unlocks it, its built-in implementation checked by that level's tests
  *   replaces    { part: [part] } a part that takes the place of others: from its level on, those leave the tray
+ *   local       [part] parts that stay in the levels that bring them, never unlocked or carried on (../../course.js)
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
  * }
@@ -48,6 +49,9 @@ const ease = (level) => {
  * level with what the task changes, read like a level of its own, and the last is the level itself (its reference
  * answer is the level's). A task in another kind than the level's parts names the parts it holds (`parts: [part]`, the
  * ones the player has), as a truth circuit that translates a puzzle before the proof does.
+ * A level may start its board with part of its reference answer in place (`preset: [node id]`, the answer's ids):
+ * those cards, and the answer's wires between them and the board's own inputs and outputs, are locked
+ * (../../circuit/model.js): moved, never deleted or rewired.
  * A level may also hold back parts it would carry (`without: [part]`): a proof that must do without the box; and a
  * level that shows a new part's use by itself says why its use is abstract (`showcase: 'reason'`, ../../course.js).
  * A level names only the parts it brings in (`adds`): every part met or built before it in its era carries into it,
@@ -94,7 +98,7 @@ function machineLabel(test, notation) {
   return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
 }
 
-export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {}, revisions = {} }) {
+export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {}, local = [], revisions = {} }) {
   const built = (p) => Boolean(lemmas[p] || facts[p] || gates[p] || machines.includes(p))
   // One name, one part: a lemma, an equation, a gate and a machine part sharing a type would unlock and show as each other.
   const clash = machines.filter((p) => lemmas[p] || gates[p] || facts[p]).concat(Object.keys(lemmas).filter((p) => gates[p] || facts[p]))
@@ -173,12 +177,13 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     adds: (l) => byId.get(l.id).adds,
     needs: (p) => (built(p) ? `lemma:${p}` : null),
     replaces: (p) => replaces[p] ?? [],
+    local: (p) => local.includes(p),
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
     naive: (l) => Boolean(byId.get(l.id).naive || byId.get(l.id).tasks?.some((task) => task.naive)),
-    // Every task's answer counts: a part the level's first task uses is used.
+    // Every task's answer counts: a part the level's first task uses is used; what its board starts with does not.
     needed: (l) => {
-      const answers = (byId.get(l.id).tasks ?? [byId.get(l.id)]).map((t) => t.solution).filter((x) => x?.nodes)
+      const answers = (byId.get(l.id).tasks ?? [byId.get(l.id)]).filter((t) => t.solution?.nodes).map((t) => ({ ...t.solution, nodes: t.solution.nodes.filter((n) => !t.preset?.includes(n.id)) }))
       return answers.length ? answers.flatMap(rulesIn) : null
     },
     folds: (l) => byId.get(l.id).fold ?? [],

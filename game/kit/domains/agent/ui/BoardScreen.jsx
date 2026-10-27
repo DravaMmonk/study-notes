@@ -265,7 +265,7 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
           <div className="ag-sheet">
             <p className="ag-desc">{L(game.textAt(CARDS[node.type], level.id).desc)}</p>
             {body(node)}
-            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={() => { editing.remove(node.id); setSheet(null) }} />}
+            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}

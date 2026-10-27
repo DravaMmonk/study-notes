@@ -72,7 +72,7 @@ export function syntaxCourse({ lexicon, eras, levels }) {
     primitives: lex.types(),
     adds: (level) => palettes.get(level.id) ?? [],
     // A level's words belong to its sentence and never carry into the next one.
-    carries: () => false,
+    local: () => true,
     needs: () => null,
     builds: () => [],
     concept,

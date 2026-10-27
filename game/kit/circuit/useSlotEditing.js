@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
-import { baseRefusal, byId, connect, ends, feeding, inPort, layout, moveToSlot, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
+import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, moveToSlot, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
 import { drawWires } from './SlotBoard.jsx'
 import { useHistory } from './useHistory.js'
 
@@ -26,9 +26,13 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  * @param scope                                    names the board for undo (a level's stage)
  * @returns state and handlers for SlotBoard (`history`: its undo and redo), Tray and Notice
  */
-export function useSlotEditing({ graph, onChange, parts, create, label, openNode, openSlot, root, scroller, scope }) {
+const LOCKED_MOVE = { zh: '关卡放好的元件不能删，只能在原来的区域里挪动。', en: 'A part the level placed cannot be deleted; it moves only within its own region.' }
+
+export function useSlotEditing({ graph, onChange: given, parts, create, label, openNode, openSlot, root, scroller, scope }) {
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
   const [moving, setMoving] = useState(null) // a part's id, while choosing the slot it moves to
+  // A change never takes off what the level locked on the board (model.js keepLocked).
+  const onChange = (next) => given(keepLocked(graph, next))
   const history = useHistory(graph, onChange, scope)
   const [toast, setToast] = useState(null) // a { zh, en } pair, read in the current language when shown
   const { sources, steps, sinks } = layout(graph, parts)
@@ -93,6 +97,12 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
     const side = parsePort(p)
     setMoving(null)
     if (!picking) {
+      const locked = side.side === 'in' && lockedRefusal(graph, side.id, side.port)
+      if (locked) {
+        buzz(20)
+        setToast(locked)
+        return
+      }
       if (side.side === 'in' && feeding(graph, side.id, side.port)) {
         buzz([6, 30, 6])
         edit(connect(graph, side.id, side.port, null), { zh: '拆掉了一根线', en: 'Unplugged a wire' })
@@ -124,8 +134,11 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
   const moveTo = (at, region = null) => {
     const name = nameOf(byId(graph, moving))
     const other = [...placement(graph, parts, region).cell].find(([, slot]) => slot === at)?.[0]
-    const next = moveToSlot(graph, parts, moving, at, region)
+    const node = byId(graph, moving)
     setMoving(null)
+    // A locked part moves only within the region it sits in.
+    if (node?.locked && region !== (node.in ?? null)) return setToast(LOCKED_MOVE)
+    const next = moveToSlot(graph, parts, node.id, at, region)
     if (next === graph) return
     buzz()
     edit(next, other && other !== moving
@@ -172,6 +185,7 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
   }
   const placeFirstFree = (type) => place(type, placement(graph, parts).free[0])
   const remove = (id) => {
+    if (byId(graph, id)?.locked) return
     buzz([6, 40, 6])
     setMoving(null)
     edit(removeNode(graph, id), { zh: `删除了「${nameOf(byId(graph, id))}」`, en: `Deleted "${nameOf(byId(graph, id))}"` })
@@ -205,7 +219,9 @@ export function useSlotEditing({ graph, onChange, parts, create, label, openNode
           else now.say({ zh: '这一格已经有元件了', en: 'That slot already has a part' })
         }
         if (g.kind === 'piece' && over) {
-          if (slot !== null) now.edit(moveToSlot(now.graph, now.parts, g.id, slot, region))
+          const piece = byId(now.graph, g.id)
+          if (piece?.locked && (slot === null || region !== (piece.in ?? null))) now.say(LOCKED_MOVE)
+          else if (slot !== null) now.edit(moveToSlot(now.graph, now.parts, g.id, slot, region))
           else now.remove(g.id)
         }
         if (board()) drawWires(board(), now.graph, now.parts)

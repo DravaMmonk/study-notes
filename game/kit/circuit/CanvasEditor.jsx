@@ -7,7 +7,7 @@ import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { moveInto } from './frames.js'
-import { baseRefusal, clearSpot, connect, ends, feeding, inPort, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
+import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
 import { useHistory } from './useHistory.js'
 
 // The desktop circuit board, the same in every game: parts are cards, wires run from a card's output (a dot on its
@@ -55,11 +55,13 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away. `scope` names the
  * board for undo (a level's stage): a new one starts the history over.
  */
-export default function CanvasEditor({ graph, onChange, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+export default function CanvasEditor({ graph, onChange: given, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+  // A change never takes off what the level locked on the board (model.js keepLocked).
+  const onChange = (next, opt) => given(keepLocked(graph, next), opt)
   const history = useHistory(graph, onChange, scope)
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   // A part can be taken off the board; so can a source the game lets the player place (parts.removable).
-  const removable = (node) => (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
+  const removable = (node) => !node.locked && (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
   const [dropInto, setDropInto] = useState(null) // the region a dragged card would go into, lit while it hovers
@@ -215,7 +217,8 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
 
   const removeSelected = () => {
     if (!selected) return
-    if (selected.wire) onChange(removeWire(graph, selected.wire))
+    if (selected.wire && isLocked(graph, selected.wire)) setRefused(lockedRefusal(graph, selected.wire.to, selected.wire.port))
+    else if (selected.wire) onChange(removeWire(graph, selected.wire))
     else if (selected.node && removable(byId.get(selected.node) ?? {})) onChange(removeNode(graph, selected.node))
     setSelected(null)
   }
@@ -353,6 +356,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
   const clickPort = (p) => {
     const at = parsePort(p)
     const from = !picking && at.side === 'in' ? feeding(graph, at.id, at.port) : null
+    if (from && lockedRefusal(graph, at.id, at.port)) return setRefused(lockedRefusal(graph, at.id, at.port))
     if (from) {
       setRefused(null)
       onChange(connect(graph, at.id, at.port, null))
@@ -403,6 +407,8 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     const floor = (v) => (field ? Math.max(0, v) : v)
     const [x, y] = [floor(Math.round(x0 + g.dx - ox)), floor(Math.round(y0 + g.dy - oy))]
     const region = field?.dataset.region ?? null
+    // A locked part moves only within the region it sits in: let go elsewhere, it goes back.
+    if (node.locked && region !== (node.in ?? null)) return setTarget(node.in ?? null)
     if (region === (node.in ?? null)) return onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === g.id ? { ...n, x, y } : n)) }, { keep: true })
     const next = moveInto(graph, parts, g.id, region, x, y)
     onChange(next, { keep: next.wires.length === graph.wires.length })
@@ -538,7 +544,7 @@ export default function CanvasEditor({ graph, onChange, parts, body, head, capti
     return [box.width / 2, box.height / 2]
   }
   const selectedNode = selected?.node ? byId.get(selected.node) : null
-  const canDelete = Boolean(selected?.wire) || Boolean(selectedNode && removable(selectedNode))
+  const canDelete = Boolean(selected?.wire && !isLocked(graph, selected.wire)) || Boolean(selectedNode && removable(selectedNode))
 
   return (
     <div className={`board kit-board ${picking ? 'is-picking' : ''}`} ref={surface} onPointerDown={beginPan} onPointerMove={picking ? (e) => setPointer(pointIn(layer.current, e.clientX, e.clientY)) : undefined}>

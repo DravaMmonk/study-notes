@@ -1,13 +1,13 @@
 // The logic domain's boards for BoardScreen (《证明完毕》): how each runs and is judged, what its wires carry and how a
 // card shows it, what a test asks and how the board's cards are described to the editor.
 //
-//   board  { tests, parts(level), start(level), fits(saved, level, parts), Value({ v, text, small, bare }),
+//   board  { tests, parts(level), start(level), lock(level, saved), fits(saved, level, parts), Value({ v, text, small, bare }),
 //            scene(level, test, text) → { sequent, want, choices }, settings(parts, node, lemmas), extra?(node, setParam),
 //            nameOf, iconOf, familyOf (lemmas, type), textOf (lemmas, type, revisions): a part's text, words }
 import { ArrowRightFromLine, Box, Flag, Repeat, Rows3, Search, Sigma } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import Entries from '../../../shell/Entries.jsx'
-import { regionsFit } from '../../../circuit/index.js'
+import { presetOf, regionsFit, withPreset } from '../../../circuit/index.js'
 import { startProof } from '../build.js'
 import { FORMULA_TEXT, fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
 import { sayTerm } from '../notation.js'
@@ -40,6 +40,17 @@ function Judgment({ v, text, small = false, bare = false, terms = false }) {
   )
 }
 
+// A board's start with the level's preset in place (`preset`: ids of its reference answer, course.js), and the preset
+// put back into a saved board (a board saved before the level had one, or before it changed).
+const withLevel = (start) => {
+  const presetFor = (level) => {
+    if (!level.preset) return null
+    const fixed = new Set(start(level).nodes.map((n) => n.id))
+    return presetOf(level.solution, level.preset, fixed)
+  }
+  return { start: (level) => withPreset(start(level), presetFor(level)), lock: (level, saved) => withPreset(saved, presetFor(level)) }
+}
+
 const premiseNames = (level) => Object.keys(level.schema.premises ?? {}).sort().join()
 const names = (circuit) => circuit.nodes.filter((n) => n.type === 'premise').map((n) => n.params.name).sort().join()
 // A saved board still fits: every card a part the board has, every wire into a port its card has, every card in a
@@ -53,7 +64,7 @@ const fitsBoard = (circuit, parts) => {
 export const PROOF = {
   tests: LOGIC_TESTS,
   parts: (level) => partsFor(level.lemmas, Object.keys(level.schema.premises ?? {})),
-  start: startProof,
+  ...withLevel(startProof),
   fits: (saved, level, parts) => names(saved) === premiseNames(level) && fitsBoard(saved, parts),
   Value: Judgment,
   // A card holds the schema's letters and shows them as this test's sentences, so its choices are the schema's own
@@ -264,7 +275,7 @@ export const MACHINE = {
   // Inputs and results hold equations, goals or clauses: shown in full, in a box sized as a step's result in the run.
   ioBox: true,
   parts: (level) => machinePartsFor(level),
-  start: startMachine,
+  ...withLevel(startMachine),
   fits: (saved, level, parts) => inputNames(saved) === inputNames(startMachine(level)) && fitsBoard(saved, parts),
   Value: MachineValue,
   scene: (level, test, text) => {
