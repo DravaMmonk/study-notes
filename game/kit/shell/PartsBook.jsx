@@ -61,15 +61,20 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
   }
 
   const chip = (part, size) => part.icon && <i className="family-chip" data-family={part.family}>{createElement(part.icon, { size, strokeWidth: 1.7 })}</i>
-  // One list in the order the parts are earned, without chapter headings.
+  // One group per chapter, headed as on the map, each in the order its parts are earned.
   const order = (part) => game.levels.indexOf(levelOf(game, part))
-  const groups = [{
-    id: 'parts',
-    items: game.chapters.flatMap((chapter) => all.filter((part) => levelOf(game, part)?.chapter === chapter.id).sort((a, b) => order(a) - order(b))).map((part) => {
+  const heading = (chapter) => {
+    const kicker = (lang) => (chapter.kicker ? chapter.kicker[lang] ?? chapter.kicker : lang === 'zh' ? `第 ${chapter.number ?? chapter.id} 章` : `Chapter ${chapter.number ?? chapter.id}`)
+    return { zh: `${kicker('zh')} · ${chapter.title?.zh ?? chapter.title}`, en: `${kicker('en')} · ${chapter.title?.en ?? chapter.title}` }
+  }
+  const groups = game.chapters.map((chapter) => ({
+    id: String(chapter.id),
+    title: heading(chapter),
+    items: all.filter((part) => levelOf(game, part)?.chapter === chapter.id).sort((a, b) => order(a) - order(b)).map((part) => {
       const level = levelOf(game, part)
       return { id: part.key, title: part.name, lead: chip(part, 13), open: earned.has(part.key), unread: !seen.has(part.key), lock: level ? game.levelLabel(level) : null }
     }),
-  }].filter((group) => group.items.length)
+  })).filter((group) => group.items.length)
 
   const article = (key, back) => {
     const part = all.find((p) => p.key === key)
