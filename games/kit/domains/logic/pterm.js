@@ -273,6 +273,35 @@ export function normalize(t, { unfold = () => null, limit = 500 } = {}) {
   }
   return go(t)
 }
+// The parts of a term, in the order it is written.
+const KIDS = { app: ['f', 'a'], lam: ['body'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], open: ['p', 'body'], absurd: ['p'], raa: ['p'], subst: ['h', 'p'] }
+/**
+ * The kernel's computation rules, one detour each, by key: what a term that is that detour becomes, or null. A lemma's
+ * name unfolds into its own term (`unfold`: name → term or null).
+ */
+export const REDUCTIONS = {
+  unfold: (u, unfold) => (u.k === 'const' ? unfold(u.name) : null),
+  beta: (u) => (u.k === 'app' && u.f.k === 'lam' ? substT(u.f.body, u.f.x, u.a) : null),
+  fst: (u) => (u.k === 'fst' && u.p.k === 'pair' ? u.p.a : null),
+  snd: (u) => (u.k === 'snd' && u.p.k === 'pair' ? u.p.b : null),
+  caseL: (u) => (u.k === 'cases' && u.p.k === 'inl' ? substT(u.l, u.x, u.p.a) : null),
+  caseR: (u) => (u.k === 'cases' && u.p.k === 'inr' ? substT(u.r, u.y, u.p.a) : null),
+  open: (u) => (u.k === 'open' && u.p.k === 'pair' ? substT(substT(u.body, u.x, u.p.a), u.h, u.p.b) : null),
+}
+/** The term with its first detour of one kind (outside in, left to right) taken out; null when it has none. */
+export function reduceFirst(t, key, unfold = () => null) {
+  const here = REDUCTIONS[key](t, unfold)
+  if (here) return here
+  for (const part of KIDS[t.k] ?? []) {
+    const r = reduceFirst(t[part], key, unfold)
+    if (r) return { ...t, [part]: r }
+  }
+  return null
+}
+
+/** A written term with each free name in `names` read as the lemma of that name. */
+export const lemmasNamed = (t, names) => names.reduce((u, n) => substT(u, n, pconst(n)), t)
+
 /** Is a term free of detours? */
 export const isNormal = (t, opts) => alphaEq(normalize(t, opts), t)
 

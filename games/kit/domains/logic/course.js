@@ -88,6 +88,7 @@ function machineLabel(test, notation) {
     return { zh: sides.map(([a, b]) => `${a.zh} ≐ ${b.zh}`).join('；'), en: sides.map(([a, b]) => `${a.en} ≐ ${b.en}`).join('; ') }
   }
   if (test.goal) return say(parseS(test.goal), notation)
+  if (test.term) return { zh: test.term, en: test.term }
   if (test.clauses) return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
   return say(parseFo(test.inputs?.goal ?? test.in ?? Object.values(test.inputs)[0]), notation)
 }

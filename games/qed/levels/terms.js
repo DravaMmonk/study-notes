@@ -1,11 +1,12 @@
-// Chapter 6 · Proofs are programs (Curry–Howard): every part on the proof board now shows its proof term too, the way
-// Lean writes it. No new rule of reasoning: the proofs are the kind wired in chapters 2 and 3, read a new way, so each
-// level gathers its small tasks. Reading terms: Apply is application, the box is λ (one sentence, two proofs), the other
-// connectives are data (a pair, a tagged value, ⊥ that gives anything). Then three lines that need nothing from each
-// other: writing terms on the term board (functions, data, the kernel refusing wrong ones); detours taken out by the
-// Normalize part, which also unfolds a lemma into its own term; ∀ as a function of a thing and ∃ as a pair. The
-// challenge is the term of double negation.
+// Chapter 10 · Proofs are programs (Curry–Howard): every part on the proof board now shows its proof term too, the
+// way Lean writes it. No new rule of reasoning: the proofs are the kind wired in chapters 2 and 3, read a new way, so
+// each level gathers its small tasks. Reading terms: Apply is application, the box is λ (one sentence, two proofs),
+// the other connectives are data (a pair, a tagged value, ⊥ that gives anything). Then two lines that need nothing
+// from each other: detours, taken out by the kernel's computation rules lined up in Simp (built into Normalize, which
+// unfolds a lemma into its own term too); ∀ as a function of a thing and ∃ as a pair. Then writing terms on the term
+// board, every part wired before. The challenge is the term of double negation.
 import { proof } from '../../kit/domains/logic/build.js'
+import { script } from './machines.js'
 
 const T = (zh, en) => ({ zh, en })
 // A term level: one problem per task (TermScreen.jsx).
@@ -46,7 +47,7 @@ export const terms = [
       }),
     ],
     intro: [
-      { t: T('这一章不学新的推理规则：证明核的每一条规则，前几章都接过了。要看的是接出来的证明本身是什么。每一个证明都可以写成一个<b>证明项</b>：把证明写成一个式子，它同时也是一个程序。这一章迁移的是 Lean 的思路：证明就是证明项，检查证明就是检查证明项的类型。从这一关起，证明板上每个元件在它证出的那句下面，多一行它的证明项。', 'This chapter brings no new rule of reasoning: every rule of the kernel has been wired in the chapters before. What it looks at is what a wired proof is. Every proof can be written as a <b>proof term</b>: the proof as an expression, which is a program too. This chapter carries over Lean’s idea: a proof is a term, and checking a proof is checking the term’s type. From this level on, every part on the proof board shows its term under the sentence it proves.') },
+      { t: T('到上一章为止，证明器只回答一个问题：这句话证没证出来。这一章不学新的推理规则，要看的是接出来的证明本身是什么。每一个证明都可以写成一个<b>证明项</b>：把证明写成一个式子，它同时也是一个程序。这一章迁移的是 Lean 的思路：证明就是证明项，检查证明就是检查证明项的类型。从这一关起，证明板上每个元件在它证出的那句下面，多一行它的证明项。', 'Up to the last chapter, the prover answered one question: is this sentence proved? This chapter brings no new rule of reasoning; what it looks at is what a wired proof is. Every proof can be written as a <b>proof term</b>: the proof as an expression, which is a program too. This chapter carries over Lean’s idea: a proof is a term, and checking a proof is checking the term’s type. From this level on, every part on the proof board shows its term under the sentence it proves.') },
       { t: T('已知各有一个名字，名字就是它的证明项：p 证的是 p 那一句。一句「A → B」的证明是一个<b>函数</b>：给它一个 A 的证明，它还你一个 B 的证明。所以套用写成<b>应用</b>：p 用在 q 上，写作 p q，中间只隔一个空格。', 'Each given has a name, and the name is its term: p proves the sentence called p. A proof of “A → B” is a <b>function</b>: give it a proof of A and it gives back a proof of B. So Apply is written as <b>application</b>: p used on q is p q, with only a space between.') },
       { t: T('目标元件上写着要的证明项。读懂它，就知道该怎么接。', 'The goal part shows the term wanted. Read it, and you know how to wire.') },
     ],
@@ -179,6 +180,7 @@ export const terms = [
   {
     id: 't-beta',
     title: T('化简弯路', 'Taking out detours'),
+    builds: 'normalize',
     tasks: [
       prove({
         step: T('套用一个框', 'Applying a box'),
@@ -189,17 +191,6 @@ export const terms = [
         solution: pairBox,
       }),
       prove({
-        step: T('化简', 'Normalize'),
-        // Goes on with the proof just made: its board opens with it.
-        carries: true,
-        adds: ['normalize'],
-        tests: [{ premises: { p: 'A' }, goal: 'A ∧ A', term: '⟨p, p⟩' }],
-        cases: [{ A: 'Rain' }, { A: 'Sat' }],
-        brief: T('把刚才的证明接进新元件<b>化简证明</b>，让证明项变成 ⟨p, p⟩。', 'Wire the proof you just made into the new part <b>Normalize</b>, so the term becomes ⟨p, p⟩.'),
-        hint: [T('化简证明不改证出的那句，只改它的证明项。', 'Normalize leaves the sentence proved alone and changes only its term.')],
-        solution: proof({ f: ['impI', { A: 'A' }], c: ['andI', {}, 'f'], m: ['mp'], n: ['normalize'] }, ['f#body>c.a', 'f#body>c.b', 'c>f.body', 'f>m.imp', 'p>m.a', 'm>n.a', 'n>goal'], { premises: ['p'] }),
-      }),
-      prove({
         step: T('标签刚贴上就拆', 'A tag read at once'),
         tests: [{ premises: { p: 'A', q: 'A → C', r: 'B → C' }, goal: 'C', term: '(Or.inl p).elim (fun a => q a) (fun b => r b)' }],
         cases: [{ A: 'Rain', B: 'Sat', C: 'Rest' }, { A: 'Coffee', B: 'Tea', C: 'Awake' }],
@@ -207,19 +198,34 @@ export const terms = [
         hint: [T('先给 p 贴上「左边」的标签，变成一句「或者」，再分情况。', 'First tag p as “the left one”, making an “or”, then take cases.')],
         solution: proof(orDetour, [...orDetourWires, 'e>goal'], { premises: ['p', 'q', 'r'] }),
       }),
-      prove({
-        step: T('再化简', 'Normalize again'),
-        // Goes on with the proof just made: its board opens with it.
-        carries: true,
-        tests: [{ premises: { p: 'A', q: 'A → C', r: 'B → C' }, goal: 'C', term: 'q p' }],
-        cases: [{ A: 'Rain', B: 'Sat', C: 'Rest' }, { A: 'Coffee', B: 'Tea', C: 'Awake' }],
-        brief: T('把它化简，证明项要是 q p。', 'Normalize it, with the term q p.'),
-        hint: [T('标签是左边，分情况只会走左格。', 'The tag says left, so Cases only takes the left compartment.')],
-        solution: proof({ ...orDetour, n: ['normalize'] }, [...orDetourWires, 'e>n.a', 'n>goal'], { premises: ['p', 'q', 'r'] }),
-      }),
+      {
+        kind: 'machine',
+        step: T('拿掉弯路', 'Detours out'),
+        want: 'becomes',
+        terms: true,
+        inputs: [{ name: 'in', label: T('证明项', 'Proof term') }],
+        tests: [
+          { term: '(fun h => ⟨h, h⟩) p', becomes: '⟨p, p⟩' },
+          { term: '(Or.inl p).elim (fun a => q a) (fun b => r b)', becomes: 'q p' },
+          { term: '(Or.inr p).elim (fun a => q a) (fun b => r b)', becomes: 'r p' },
+          { term: '(fun h => h.1) ⟨p, q⟩', becomes: 'p' },
+          { term: '(fun h => h.2) ⟨p, q⟩', becomes: 'q' },
+          { term: '⟨ann, p⟩.elim (fun a h => ⟨a, h⟩)', becomes: '⟨ann, p⟩' },
+          { term: 'chain p q', becomes: 'fun h => q (p h)' },
+        ],
+        brief: T('接一台机器，把每个证明项里的弯路都拿掉。造出的机器是新元件<part-ref to="lemma:normalize"></part-ref>。', 'Wire a machine that takes every detour out of each proof term. The machine becomes a new part, <part-ref to="lemma:normalize"></part-ref>.'),
+        hint: [
+          T('<part-ref to="lemma:simp"></part-ref>在证明项上也能用：规则换成计算规则，每一种弯路一条。', '<part-ref to="lemma:simp"></part-ref> works on proof terms too: the rules are computation rules, one for each kind of detour.'),
+          T('引理的名字也是一处弯路：展开它，就是证它的那个证明项。', 'A lemma’s name is a detour too: unfolded, it is the term that proved it.'),
+        ],
+        solution: script(['simp', ['unfold', 'beta', 'fst', 'snd', 'caseL', 'caseR', 'open']]),
+      },
     ],
-    intro: [{ t: T('同一句话可以有好几个证明项，有的绕了远路：先造出一样东西，马上又把它用掉。⟨p, q⟩.1 先拼又拆，算下来就是 p；一个框造出函数，马上又用在 p 上，算下来是框里的证明，把 h 都换成 p。', 'One sentence can have several terms, and some take the long way round: make something and use it up at once. ⟨p, q⟩.1 joins and splits, and works out to just p; a box makes a function used on p at once, and works out to the proof inside with every h replaced by p.') }],
-    after: T('(fun h => b) a 算成 b 里的 h 换成 a，这一步叫 <b>β 归约</b>，就是调用一个函数；对刚贴上标签的值分情况，只会走标签那一支，r 根本没用上。化简证明把所有弯路一步步拿掉，得到<b>正规形式</b>：每个证明都能化成没有弯路的那一个，证的还是同一句。', '(fun h => b) a works out to b with h replaced by a: <b>β-reduction</b>, calling a function; cases on a value just tagged only take the tagged branch, and r is never used. Normalize takes out every detour step by step, leaving the <b>normal form</b>: every proof can be brought to one with no detours, proving the same sentence.'),
+    intro: [
+      { t: T('同一句话可以有好几个证明项，有的绕了远路：先造出一样东西，马上又把它用掉。⟨p, q⟩.1 先拼又拆，算下来就是 p；一个框造出函数，马上又用在 p 上，算下来是框里的证明，把 h 都换成 p。前两段先接出两条弯路。', 'One sentence can have several terms, and some take the long way round: make something and use it up at once. ⟨p, q⟩.1 joins and splits, and works out to just p; a box makes a function used on p at once, and works out to the proof inside with every h replaced by p. The first two tasks wire two such detours.') },
+      { t: T('拿掉弯路是一次改写：每一种弯路，证明核都有一条<b>计算规则</b>，把它换成算下来的样子。最后一段在化简板上，把这些规则排进化简。', 'Taking a detour out is a rewrite: for each kind of detour the kernel has a <b>computation rule</b> that puts what it works out to in its place. The last task, on the simplify board, lines these rules up in Simp.') },
+    ],
+    after: T('(fun h => b) a 算成 b 里的 h 换成 a，这一步叫 <b>β 归约</b>，就是调用一个函数；对刚贴上标签的值分情况，只会走标签那一支。化简把弯路一处处拿掉，直到一处都不剩，得到<b>正规形式</b>：每个证明项都化得成没有弯路的那一个，证的还是同一句。这台机器成了元件<part-ref to="lemma:normalize"></part-ref>，证明板上也用得上。', '(fun h => b) a works out to b with h replaced by a: <b>β-reduction</b>, calling a function; cases on a value just tagged only take the tagged branch. Simp takes the detours out one by one until none is left, giving the <b>normal form</b>: every proof term can be brought to one with no detours, proving the same sentence. This machine is now the part <part-ref to="lemma:normalize"></part-ref>, on the proof board too.'),
   },
   {
     id: 't-lemma',
@@ -231,7 +237,7 @@ export const terms = [
     cases: CHAIN,
     brief: T('实现一个证明器，不用假设框，可以从已知 p：「下雨 → 地湿」、q：「地湿 → 路滑」证明出「下雨 → 路滑」，证明项要是 fun h => q (p h)。', 'Build a prover that, without the assumption box, proves “it rains → the road is slippery” from p: “it rains → the ground is wet” and q: “the ground is wet → the road is slippery”, with the term fun h => q (p h).'),
     hint: [T('串联的证明项是 chain p q；chain 自己也有一个证明项，就是当初证它时接出来的那个。', 'Chain’s term is chain p q; chain itself has a term as well, the one wired when it was proved.')],
-    intro: [{ t: T('证过的引理在证明项里写成它的名字：用串联，证明项里就是 chain p q。名字背后，是证它的那个证明项。化简证明遇到引理的名字，会把它展开成那个证明项，再接着化简。', 'A lemma you proved appears in a term by its name: use Chain, and the term says chain p q. Behind the name is the term that proved it. When Normalize meets a lemma’s name it unfolds it into that term, then carries on.') }],
+    intro: [{ t: T('证过的引理在证明项里写成它的名字：用串联，证明项里就是 chain p q。名字背后，是证它的那个证明项。<part-ref to="lemma:normalize"></part-ref>遇到引理的名字，会把它展开成那个证明项，再接着拿掉弯路。', 'A lemma you proved appears in a term by its name: use Chain, and the term says chain p q. Behind the name is the term that proved it. When <part-ref to="lemma:normalize"></part-ref> meets a lemma’s name it unfolds it into that term, then carries on taking detours out.') }],
     solution: proof({ c: ['chain'], n: ['normalize'] }, ['p>c.p0', 'q>c.p1', 'c>n.a', 'n>goal'], { premises: ['p', 'q'] }),
     after: T('chain 是 fun p q h => q (p h)：先做 p 再做 q，函数的<b>复合</b>。用在 p、q 上再化简，就和直接接线的证明项一样了。引理只是给证明项起的名字，展开以后，整个证明是一个只用最初规则的证明项，谁都可以拿去独立复查。检查证明的核可以很小，证明本身可以交给别人重新检查。', 'chain is fun p q h => q (p h): p, then q, function <b>composition</b>. Applied to p and q and normalized, it is the same term as the one wired directly. A lemma is only a name given to a term; unfolded, the whole proof is a term using only the first rules, which anyone can check again on their own. The kernel that checks proofs can be small, and a proof can be handed to someone else to check again.'),
   },

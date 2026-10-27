@@ -8,9 +8,12 @@
 // Where rules come from (rewriteBookOf): a lemma's two shapes that are each other's converse (¬¬A gives A and A gives
 // ¬¬A: either way round is a rule), the level's definitions (`defs`: equations, maybe with conditions, their
 // variables standing for anything), and the goal's own hypotheses (the card's rule 'hyp': the first hypothesis that is
-// an equation or an equivalence and fits somewhere, its ∀ variables standing for anything).
+// an equation or an equivalence and fits somewhere, its ∀ variables standing for anything). On a level about proof
+// terms (`terms`, chapter 10) the rules rewrite a proof term instead: the kernel's computation rules (pterm.js
+// REDUCTIONS), each taking one kind of detour out.
 import { atom, bin, fn, same, show, showTerm, subst, tvar } from './formula.js'
 import { instantiate, isMetaName, lemmaRules, parseS } from './schematic.js'
+import { reduceFirst } from './pterm.js'
 
 const T = (zh, en) => ({ zh, en })
 const isTerm = (x) => 't' in x
@@ -151,6 +154,12 @@ export function rewrite(s, rule) {
   return { fail: T(`「${rule.name.zh}」的左边在第一个目标里哪一处都对不上`, `The left side of “${rule.name.en}” fits nowhere in the first goal`) }
 }
 
+/** A proof term rewritten once by a computation rule, at its first detour of that kind (`unfold`: a lemma's term). */
+export function rewriteTerm(term, rule, unfold) {
+  const out = reduceFirst(term, rule.key, unfold)
+  return out ? { term: out } : { fail: T(`证明项里没有「${rule.name.zh}」能拿掉的弯路`, `The proof term has no detour “${rule.name.en}” takes out`) }
+}
+
 /**
  * simp, as the player builds it: round after round, the first rule (in order) that fits rewrites the first goal once;
  * until no rule fits. (A repeat frame around alternatives holding one rewrite each.)
@@ -177,6 +186,17 @@ function defRule(text, k) {
   return { key: `def.${k}`, name: T(text, text), lhs: eq.args[0], rhs: eq.args[1], conditions, group: 'def', text }
 }
 
+// The kernel's computation rules on proof terms, each written as the detour it takes out.
+const COMPUTE = [
+  { key: 'unfold', name: T('展开引理', 'Unfold a lemma'), text: 'chain ⟼ fun p q h => q (p h)' },
+  { key: 'beta', name: T('调用函数（β 归约）', 'Call a function (β-reduction)'), text: '(fun x => b) a ⟼ b[x := a]' },
+  { key: 'fst', name: T('拼了又取左边', 'Join, then the left'), text: '⟨a, b⟩.1 ⟼ a' },
+  { key: 'snd', name: T('拼了又取右边', 'Join, then the right'), text: '⟨a, b⟩.2 ⟼ b' },
+  { key: 'caseL', name: T('标签是左边', 'Tagged left'), text: '(Or.inl a).elim f g ⟼ f a' },
+  { key: 'caseR', name: T('标签是右边', 'Tagged right'), text: '(Or.inr b).elim f g ⟼ g b' },
+  { key: 'open', name: T('放进去又拿出来', 'Put in, taken out'), text: '⟨t, a⟩.elim (fun x h => b) ⟼ b[x := t, h := a]' },
+].map((r) => ({ ...r, group: 'compute', conditions: [] }))
+
 const books = new WeakMap()
 /**
  * A level's rewrite rules by key: each shape of a lemma whose converse shape the level holds too (keyed as the rule
@@ -194,13 +214,14 @@ export function rewriteBookOf(level) {
     })
     const defs = (level.defs ?? []).map(defRule)
     const hyp = { key: 'hyp', name: T('已知里的等式', 'An equation given'), lhs: null, rhs: null, conditions: [], group: 'hyp' }
-    books.set(level, Object.fromEntries([...laws, ...defs, hyp].map((r) => [r.key, r])))
+    books.set(level, Object.fromEntries((level.terms ? COMPUTE : [...laws, ...defs, hyp]).map((r) => [r.key, r])))
   }
   return books.get(level)
 }
 /** A rewrite rule written out: left ⟼ right, after its conditions. */
 export const rewriteText = (r, say = show) => {
   if (r.group === 'hyp') return ''
+  if (r.group === 'compute') return r.text
   const side = (x) => (isTerm(x) ? say(atom('=', [x, x])).split(' = ')[0] : say(x))
   return `${r.conditions.length ? `${r.conditions.map(say).join('; ')} ⟹ ` : ''}${side(r.lhs)} ⟼ ${side(r.rhs)}`
 }

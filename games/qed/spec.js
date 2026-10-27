@@ -136,7 +136,13 @@ export default {
   ] },
   // Version 33 built the simplifier around the laws: double negation and its rewrite card come before De Morgan, whose
   // levels gained a rewriting task. Whoever had passed De Morgan has passed double negation and holds its card.
-  { version: 33, ops: [{ solve: ['demorgan', ['sp-dneg']] }, { grant: ['demorgan', 'lemma:dneg'] }] }],
+  { version: 33, ops: [{ solve: ['demorgan', ['sp-dneg']] }, { grant: ['demorgan', 'lemma:dneg'] }] },
+  // Version 34 made 化简弯路 build Normalize with Simp and the computation rules, on the machine board: its tasks that
+  // used the part on the proof board are gone. Whoever had passed it holds the part.
+  { version: 34, ops: [
+    { data: (value, id) => (id === 't-beta' && Array.isArray(value) ? [value[0], value[2] ?? null, null] : value) },
+    { grant: ['t-beta', 'lemma:normalize'] },
+  ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
   quotes: ['任取'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
