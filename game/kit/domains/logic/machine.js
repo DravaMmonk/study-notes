@@ -7,10 +7,10 @@
 // runs as its built-in implementation, which does what the circuit that built it does.
 //
 //   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
-//           | { kind: 'pterm', term } (pterm.js) | { kind: 'clauses', set, from?, endless? } (resolution.js)
+//           | { kind: 'clauses', set, from?, endless? } (resolution.js)
 //   level   { kind: 'machine', want, inputs?: [{ name, label }] (default one, `in`),
 //             rules?: { key: { name, premises: [text], conclusion: text } }, backtrack?,
-//             tests: [{ eqs: [equation text] } | { goal, hyps?, answers?, becomes?, clauses?, budget? } | { term, becomes }
+//             tests: [{ eqs: [equation text] } | { goal, hyps?, answers?, becomes?, clauses?, budget? }
 //             | { clauses: [clause text], budget? }, want?] }
 //
 // What a level wants of its output (`want`, or a test's own): 'unify' (the solved equations, when the input has a
@@ -35,9 +35,8 @@ import { framePart, within } from '../../circuit/frames.js'
 import { all, fn, subst, tvar } from './formula.js'
 import { KERNEL, answerOf, asValue, assumption, auto, defer, depthFirst, elimStep, erule, frule, introStep, resultsOf, rule, startState } from './tactics.js'
 import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, sameSide, sideText, solveEqs, solved } from './schematic.js'
-import { rewrite, rewriteBookOf, rewriteTerm, simplify } from './rewrite.js'
+import { rewrite, rewriteBookOf, simplify } from './rewrite.js'
 import { datatypesRules } from './datatype.js'
-import { alphaEq, lemmasNamed, normalize, parseTerm } from './pterm.js'
 import { clausesOfState, oracleRound, parseClause, refuted, replay, resolveRound, saturate } from './resolution.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -122,36 +121,6 @@ const eqsIn = (v) => {
 }
 // A unification rule card: the rule once, where it first applies; a set already failed passes through.
 const unifyCard = (r) => ({ inputs: ['in'], eval: ({ in: v }) => { const e = eqsIn(v); if (e.fail) return e; const next = UNIFY_RULES[r](e.eqs, {}); return next ? eqsValue(next.eqs, next.fail ?? null) : e } })
-
-// A proof term on the machine board (chapter 11): a rewrite card takes its detours out.
-export const termValue = (term) => ({ kind: 'pterm', term })
-const termIn = (v) => {
-  if (v.kind !== 'pterm') throw fail('这里要一个证明项', 'This needs a proof term')
-  return v
-}
-// A rewrite card works on a proof state (its goal, or its hypotheses: the card's `at`), or on a proof term (one
-// rewrite, or simp: until no rule fits).
-function onTerms(part, onTerm, key) {
-  return {
-    ...part,
-    params: [key, 'at'],
-    eval: (ins, node, ctx, k) => {
-      if (ins.in?.kind !== 'pterm') return part.eval(ins, node, ctx, k)
-      const r = onTerm(ins.in.term, ctx, node)
-      if (r.fail) throw new PartError(r.fail)
-      return termValue(r.term)
-    },
-  }
-}
-function simplifyTerm(term, rules, unfold, limit = 200) {
-  let cur = term
-  for (let k = 0; k < limit; k++) {
-    const next = rules.map((r) => rewriteTerm(cur, r, unfold)).find((x) => !x.fail)
-    if (!next) return { term: cur }
-    cur = next.term
-  }
-  return { fail: T(`改了 ${limit} 次还没停下来`, `Still changing after ${limit} rewrites`) }
-}
 
 /**
  * What a frame's region makes of a value, run on its own: the cards inside the frame (frames inside it with their own),
@@ -328,11 +297,9 @@ export const MACHINE_PARTS = {
     const { found } = auto([s], ctx.rules ?? KERNEL)
     return found.length ? { results: found } : { fail: T('auto 没有证完', 'auto did not finish') }
   }),
-  // Rewriting (chapter 9): one rule once, and simp, which the player builds of it; on a proof term (chapter 11) they
-  // take its detours out, and Normalize is simp with every computation rule.
-  rw: onTerms(tactic((s, ctx, node) => rewrite(s, rewritesOf(ctx, node, 'rewrite')[0], atOf(node))), (t, ctx, node) => rewriteTerm(t, rewritesOf(ctx, node, 'rewrite')[0], ctx.unfold), 'rewrite'),
-  simp: onTerms(tactic((s, ctx, node) => simplify(s, rewritesOf(ctx, node, 'rewrites'), atOf(node))), (t, ctx, node) => simplifyTerm(t, rewritesOf(ctx, node, 'rewrites'), ctx.unfold), 'rewrites'),
-  normalize: { inputs: ['in'], eval: ({ in: v }, _node, ctx) => termValue(normalize(termIn(v).term, { unfold: ctx.unfold })) },
+  // Rewriting (chapter 9): one rule once, and simp, which the player builds of it, on the goal or the hypotheses.
+  rw: { ...tactic((s, ctx, node) => rewrite(s, rewritesOf(ctx, node, 'rewrite')[0], atOf(node))), params: ['rewrite', 'at'] },
+  simp: { ...tactic((s, ctx, node) => simplify(s, rewritesOf(ctx, node, 'rewrites'), atOf(node))), params: ['rewrites', 'at'] },
   // Clauses (chapter 13, resolution.js): ∃ out of the hypotheses, a state split into clauses, a round of resolution
   // (the saturator is built of rounds), someone else's prover, and the certificate replayed in the kernel; what the
   // player builds of them.
@@ -419,10 +386,9 @@ function clausify(s0, ctx) {
   return toClauses(s)
 }
 
-/** A test's inputs as values, by name; a proof term's free names that are the level's lemmas are those lemmas. */
-export function inputsOf(test, level = {}) {
+/** A test's inputs as values, by name. */
+export function inputsOf(test) {
   if (test.goal) return { in: startState(parseS(test.goal), (test.hyps ?? []).map(parseS)) }
-  if (test.term) return { in: termValue(lemmasNamed(parseTerm(test.term), Object.keys(level.lemmaTerms ?? {}))) }
   if (test.eqs) return { in: eqsValue(test.eqs.map(parseEquation)) }
   return { in: clausesValue(clauseSetOf(test.clauses)) }
 }
@@ -456,10 +422,6 @@ export function judge(want, test, out, level = {}) {
     if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
     if (out.error) return out.error
     return out.goals.length ? T(`还剩 ${out.goals.length} 个目标没证完`, `${out.goals.length} goal${out.goals.length === 1 ? '' : 's'} still open`) : ''
-  }
-  if (want === 'becomes' && test.term) {
-    if (out.kind !== 'pterm') return T('结果要一个证明项', 'The result must be a proof term')
-    return alphaEq(out.term, parseTerm(test.becomes)) ? '' : T('得到的证明项和要的不一样', 'The proof term made is not the one wanted')
   }
   if (want === 'becomes') {
     if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
@@ -517,7 +479,7 @@ export function judge(want, test, out, level = {}) {
   return resolveRound(out.set).length === out.set.length ? '' : T('结果还能再归结出新子句：还没饱和', 'The result still resolves into new clauses: not saturated yet')
 }
 
-const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), unfold: (name) => level.lemmaTerms?.[name] ?? null, backtrack: Boolean(level.backtrack), ...extra })
+const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), backtrack: Boolean(level.backtrack), ...extra })
 
 /** A machine part run on a proof state with a level's rule and rewrite books (chapter 14: a script's by). */
 export const runTactic = (level, type, params, state) => MACHINE_PARTS[type].eval({ in: state }, { id: type, params }, ctxOf(level, { nodes: [], wires: [] }))
@@ -525,14 +487,14 @@ export const runTactic = (level, type, params, state) => MACHINE_PARTS[type].eva
 /** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
 export const MACHINE_TESTS = {
   runTest: (level, circuit, test) => {
-    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test, level), ctx: ctxOf(level, circuit) })
+    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), ctx: ctxOf(level, circuit) })
     return { ...run, outputs: { out: run.outputs.out } }
   },
   // The run of one test with every step it took, in order (../../engine/circuit.js trace): only what reaches the
   // result runs, so a card lying about unwired takes no step.
   trace: (level, circuit, test) => {
     const trace = []
-    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test, level), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
+    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
     return { trace, run: { ...run, outputs: { out: run.outputs.out } } }
   },
   check: (level, test, outputs) => {

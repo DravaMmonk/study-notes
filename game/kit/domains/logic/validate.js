@@ -161,7 +161,10 @@ export function validate({ levels: given, course }) {
   }
   for (const level of levels.filter((l) => l.kind === 'proof')) {
     const consts = level.consts ?? []
-    for (const test of level.tests) {
+    // Induction is no first-order consequence (worlds with numbers past every S…S 0 satisfy the definitions and not
+    // the conclusion), so a proof that uses it is not held to the countermodel search.
+    const induction = (level.solution?.nodes ?? []).some((n) => n.type === 'natInd')
+    for (const test of induction ? [] : level.tests) {
       const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))
       const m = countermodel(premises, parse(test.goal, { consts }))
       if (level.unprovable && !m) out.push({ fail: true, text: `${level.id}: ${test.goal} should have a countermodel, and none was found` })
