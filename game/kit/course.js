@@ -35,7 +35,8 @@
 //   needs(part) → flag | null              the flag solving its builder level sets (null: built nowhere)
 //   builds(level) → [part]                 the parts solving the level unlocks
 //   granted(level) → [part]                parts a level hands out without their builder being solved
-//   concept(part) → key                    parts that are one new idea together (a merger's models), by default itself
+//   concept(part) → key | null             parts that are one new idea together (a merger's models), by default itself;
+//                                          null for a part that is never a new idea (a level's own givens: its axioms)
 //   machine(level) → machine | null        the machine a level is played on, checked against its era's
 //   uses(level) → [mechanism]              what a level's board relies on (its view, an arm, a scan order…)
 //   can(machine) → [mechanism] | null      what a machine can do: a level needs a machine that can do all it uses
@@ -244,8 +245,8 @@ const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
 
 /**
  * What a level shows of the parts it holds, so that a level with many parts does not leave the player lost: the parts
- * new here, the parts the levels just before it have built, and the ideas its reference answer uses (`needed`, by
- * concept; with no reference to go by, every part). Everything else carried from earlier levels is folded away, still
+ * new here (not its givens, which show as its answer uses them), the parts the levels just before it have built, and
+ * the ideas its reference answer uses (`needed`, by concept; with no reference to go by, every part). Everything else carried from earlier levels is folded away, still
  * usable, and so is every part the level's spec folds (`folds`). Returns { shown, folded }.
  */
 export function offer(course, level, flags) {
@@ -254,12 +255,16 @@ export function offer(course, level, flags) {
   // The answer goes by its parts (not a board's own fixed cards), and only when the player holds them all: a reference
   // built from parts the player cannot have yet says nothing about what to show.
   const isPart = (p) => course.primitives.has(p) || Boolean(course.needs(p)) || course.levels.some((l) => course.adds(l).includes(p))
-  const held = new Set(all.map(course.concept))
+  // A part that is no idea of its own (a level's givens) goes by itself.
+  const idea = (p) => course.concept(p) ?? p
+  const held = new Set(all.map(idea))
   const parts = course.needed(level)?.filter(isPart)
-  const ideas = parts && parts.every((p) => held.has(course.concept(p))) ? new Set(parts.map(course.concept)) : null
+  const ideas = parts && parts.every((p) => held.has(idea(p))) ? new Set(parts.map(idea)) : null
   const just = new Set((course.plan?.requires.get(level.id) ?? []).flatMap((id) => course.builds(course.levels[course.index.get(id)])))
   const fold = new Set(course.folds(level))
-  const shows = (p) => !fold.has(p) && (own.has(p) || just.has(p) || !ideas || ideas.has(course.concept(p)))
+  // What the level brings is shown, but for its givens: only those its answer uses.
+  const brought = (p) => own.has(p) && course.concept(p) !== null
+  const shows = (p) => !fold.has(p) && (brought(p) || just.has(p) || !ideas || ideas.has(idea(p)))
   return { shown: all.filter(shows), folded: all.filter((p) => !shows(p)) }
 }
 
@@ -269,7 +274,7 @@ export function offer(course, level, flags) {
  */
 export function fresh(course, level) {
   const seen = new Set(course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => [...course.adds(l), ...course.builds(l)].map(course.concept)))
-  return new Set(course.adds(level).filter((p) => !course.builder(p)).map(course.concept).filter((c) => !seen.has(c)))
+  return new Set(course.adds(level).filter((p) => !course.builder(p)).map(course.concept).filter((c) => c !== null && !seen.has(c)))
 }
 
 /**

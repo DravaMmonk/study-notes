@@ -5,14 +5,14 @@ import { defineCourse, eraLevels, formsAt, layout, numbered, offer, reach, usabl
 import { parse, replaceAtoms, show } from './formula.js'
 import { vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
+import { axiomPartsOf, rulePartsOf, wireRules } from './machine.js'
 import { say, sayTerm } from './notation.js'
 
 // Every rule a proof uses, in the boxes too; a machine card that names rules (a rule, a rewrite, simp's list) uses the
 // lemmas they are shapes of.
-const named = (n) => ['rule', 'rewrite', 'rewrites'].flatMap((k) => (n.params?.[k] ?? '').split(',').filter(Boolean).map((key) => key.split('.')[0]))
 /** The ids of the cards a level presets on its board. */
 export const presetIds = (level) => (level.preset ?? []).map((item) => item.id ?? item)
-const rulesIn = (circuit) => circuit.nodes.flatMap((n) => [n.type, ...named(n)])
+const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
 // How hard a level is, for its number: the steps (or gates) of its reference answer; a truth table counts as a short
 // proof.
 const ease = (level) => {
@@ -116,7 +116,8 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     // A task may have words of its own (numbers written as S n …).
     const read = (l) => {
       const notation = { words: l.words ?? level.words ?? words, symbols: known }
-      return { adds: [], ...l, ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
+      // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
+      return { ...l, adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
     }
     if (!level.tasks) return read(level)
     // What the level builds comes of its last task, the level itself.
@@ -143,15 +144,17 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     ...(era.challenges ?? []).map((c, k) => [c.level, `C${e}.${k + 1}`]),
   ]))
   const CHAPTERS = eras.map((era) => ({ ...era.chapter, track: plan.tracks.get(era.id) }))
+  // Every axiom part stays in the levels that state it, and is no new idea: it is the level's own given.
+  const axioms = [...new Set(LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'machine').flatMap(axiomPartsOf))]
   const course = defineCourse({
     levels: LEVELS.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,
-    primitives,
-    concept: (p) => concept[p] ?? p,
+    primitives: [...primitives, ...axioms],
+    concept: (p) => concept[p] ?? (axioms.includes(p) ? null : p),
     adds: (l) => byId.get(l.id).adds,
     needs: (p) => (built(p) ? `lemma:${p}` : null),
     replaces: (p) => replaces[p] ?? [],
-    local: (p) => local.includes(p),
+    local: (p) => local.includes(p) || axioms.includes(p),
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
     naive: (l) => Boolean(byId.get(l.id).naive || byId.get(l.id).tasks?.some((task) => task.naive)),
@@ -178,11 +181,18 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
       ]]))
     }
   }
+  // Reference answers name each card's rules on it, short (machine.js wireRules): put on the board as rule parts, now
+  // that each level's rule book is known.
+  for (const one of LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'machine')) {
+    one.solution = wireRules(one.solution, one)
+    one.naive = wireRules(one.naive, one)
+  }
   // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
   const held = (level) => byId.get(level.id)?.without ?? []
   // A task that names its parts holds those the player has: a primitive, or a built part once its level is solved.
   // The task after the one that proves a level's part may use it already (a law proved, then put to work).
-  const named = (level, flags) => level.parts.filter((p) => !built(p) || flags.has(`lemma:${p}`) || (level.task > 0 && byId.get(level.id).builds === p))
+  // On a machine board its rule parts come with them.
+  const named = (level, flags) => [...level.parts.filter((p) => !built(p) || flags.has(`lemma:${p}`) || (level.task > 0 && byId.get(level.id).builds === p)), ...(level.kind === 'machine' ? [...rulePartsOf(level).keys()] : [])]
   const usableIn = (level, flags) => (level.parts ? named(level, flags) : usable(course, { id: level.id }, flags).filter((p) => !held(level).includes(p)))
   const offerIn = (level, flags) => {
     if (level.parts) return { shown: named(level, flags), folded: [] }

@@ -7,7 +7,7 @@
 // runs as its built-in implementation, which does what the circuit that built it does.
 //
 //   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
-//           | { kind: 'clauses', set, from?, endless? } (resolution.js)
+//           | { kind: 'clauses', set, from?, endless? } (resolution.js) | { kind: 'rules', keys: [rule key] }
 //   level   { kind: 'machine', want, inputs?: [{ name, label }] (default one, `in`),
 //             rules?: { key: { name, premises: [text], conclusion: text } }, backtrack?,
 //             tests: [{ eqs: [equation text] } | { goal, hyps?, answers?, becomes?, clauses?, budget? }
@@ -26,9 +26,14 @@
 // proved both ways, the level's `defs`, the goal's hypotheses) once; simp, which the player builds, uses a list of
 // them until none fits. Both rewrite the goal, or (chapter 10, the card's `at`) its hypotheses.
 //
-// Rules on cards (rule, erule, frule) are named by key in the level's rule book (ruleBookOf: the kernel's rules, the
-// lemmas' and the level's own). Until a level says `backtrack`, a tactic gives only its first result; from then on,
-// every result, and each card after it works on each of them in turn (tactics.js).
+// Rules are parts (rulePartsOf): every rule of the level's books is given by a rule part, the part the rule belongs to
+// (a kernel rule's proof-board part, a lemma, an equation proved, the level's own axiom, a datatype's rule, a
+// definition, an equation given). A rule part gives a list of rules: those wired into it (`before`), then its own (the
+// one chosen on it, `use`, when it has several). A card that uses rules (rule, erule, frule, rw, simp) reads the list
+// on its port `rules`: the first that applies, in order (with backtracking, each one's results in turn); simp the
+// whole list, in order. A rule list is a constant: it may be wired into a frame from outside. Until a level says
+// `backtrack`, a tactic gives only its first result; from then on, every result, and each card after it works on each
+// of them in turn (tactics.js).
 import { PartError, evaluate } from '../../engine/circuit.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
 import { framePart, within } from '../../circuit/frames.js'
@@ -63,6 +68,95 @@ export function ruleBookOf(level) {
   return books.get(level)
 }
 
+/** A list of rules, by key in the level's books (rule parts give these), with their names to show. */
+export const rulesValue = (keys, names = []) => ({ kind: 'rules', keys, names })
+const rulesIn = (v) => {
+  if (v?.kind !== 'rules') throw fail('「规则」口要接规则元件', 'The rules port takes rule parts')
+  return v
+}
+// A rule part's type for a key: what part the rule belongs to.
+const slug = (text) => text.replace(/\?/g, '').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_|_$/g, '').toLowerCase()
+const partOfRule = (r) => r.part ?? r.lemma ?? (r.datatype ? r.key.replace(/\./g, '_') : r.key)
+const partOfRewrite = (r) => (r.group === 'law' ? r.key.split('.')[0] : r.group === 'def' ? `def_${slug(r.text)}` : r.key)
+/**
+ * The rule parts a level states for itself, its axioms: its own rules (`rules`), the rules its datatypes give and its
+ * definitions' equations. They are parts of the level that states them (course.js, local).
+ */
+export const axiomPartsOf = (level) => [
+  ...Object.keys(level.rules ?? {}),
+  ...datatypesRules(level.datatypes).map((r) => r.key.replace(/\./g, '_')),
+  ...(level.defs ?? []).map((text) => `def_${slug(text)}`),
+]
+const partBooks = new WeakMap()
+/**
+ * The rule parts a level has: type → [{ key, book: 'rule' | 'rewrite', rule }], every rule of its rule book and its
+ * rewrite book under the part it belongs to (a law proved both ways is a rule and a rewrite rule of the same part).
+ */
+export function rulePartsOf(level) {
+  if (!partBooks.has(level)) {
+    const out = new Map()
+    const put = (type, entry) => {
+      if (!out.has(type)) out.set(type, [])
+      if (!out.get(type).some((e) => e.key === entry.key && e.book === entry.book)) out.get(type).push(entry)
+    }
+    for (const r of Object.values(ruleBookOf(level))) put(partOfRule(r), { key: r.key, book: 'rule', rule: r })
+    for (const r of Object.values(rewriteBookOf(level))) put(partOfRewrite(r), { key: r.key, book: 'rewrite', rule: r })
+    partBooks.set(level, out)
+  }
+  return partBooks.get(level)
+}
+/** The rule part a key of the level's books belongs to, and the choice on it that gives that key. */
+export function rulePartOf(level, key) {
+  for (const [type, entries] of rulePartsOf(level)) if (entries.some((e) => e.key === key)) return { type, use: choicesOfPart(entries).length > 1 ? key : null }
+  return null
+}
+/** The keys a rule part offers to choose from (a law is one choice, rule and rewrite rule alike). */
+export const choicesOfPart = (entries) => [...new Set(entries.map((e) => e.key))]
+const SHORTHAND = ['rule', 'rewrite', 'rewrites']
+/**
+ * A reference answer as the levels write it, short: a card's rules named on it (`rule`, `rewrite`, `rewrites`: keys
+ * of the level's books, comma-separated, in order), put on the board as they are played: a chain of rule parts in
+ * the card's region, wired into its port `rules`.
+ */
+export function wireRules(circuit, level) {
+  if (!circuit?.nodes) return circuit
+  const nodes = []
+  const wires = [...circuit.wires]
+  for (const n of circuit.nodes) {
+    const keys = SHORTHAND.flatMap((k) => String(n.params?.[k] ?? '').split(',').filter(Boolean))
+    if (!keys.length) { nodes.push(n); continue }
+    nodes.push({ ...n, params: Object.fromEntries(Object.entries(n.params).filter(([k]) => !SHORTHAND.includes(k))) })
+    let prev = null
+    keys.forEach((key, i) => {
+      const at = rulePartOf(level, key)
+      if (!at) throw new Error(`${level.id}: no rule part of the level gives ${key}`)
+      const id = `${n.id}r${i}`
+      nodes.push({ id, type: at.type, params: at.use ? { use: at.use } : {}, x: (n.x ?? 0) + i * 30, y: (n.y ?? 0) + 160 + i * 40, ...(n.in ? { in: n.in } : {}) })
+      if (prev) wires.push({ from: prev, to: id, port: 'before' })
+      prev = id
+    })
+    wires.push({ from: prev, to: n.id, port: 'rules' })
+  }
+  return { ...circuit, nodes, wires }
+}
+
+/** A rule part: the list wired into it (`before`), then its own rule. */
+export const RULE_PART = {
+  inputs: ['before'],
+  optional: ['before'],
+  bare: true,
+  params: ['use'],
+  eval: ({ before }, node, ctx) => {
+    const entries = ctx.ruleParts?.get(node.type)
+    if (!entries) throw fail('这一关没有这条规则', 'This level has no such rule')
+    const keys = choicesOfPart(entries)
+    const own = node.params?.use && keys.includes(node.params.use) ? node.params.use : keys[0]
+    const name = entries.find((e) => e.key === own).rule.name
+    const prev = before ? rulesIn(before) : rulesValue([])
+    return rulesValue([...prev.keys, own], [...prev.names, name])
+  },
+}
+
 const stateIn = (v) => {
   if (v.kind !== 'state') throw fail('这里要一个证明状态（还没证完的目标）', 'This needs a proof state (the goals still open)')
   return v
@@ -87,25 +181,35 @@ const tactic = (t) => ({
     return s.endless ? { ...made, endless: true } : made
   },
 })
-// The rule a card's setting names; none chosen yet, or one the level does not have, cannot run.
-function chosen(ctx, node) {
-  const key = node.params?.rule
-  if (!key) throw fail('元件上还没选规则', 'No rule chosen on the part yet')
-  const r = (ctx.rules ?? KERNEL)[key]
-  if (!r) throw fail('这一关没有这条规则', 'This level has no such rule')
-  return r
-}
-const ruleCard = (t) => ({ ...tactic((s, ctx, node) => t(s, chosen(ctx, node))), params: ['rule'] })
-// The rewrite rules a card's setting names (`rewrite`: one; `rewrites`: a list, in order).
-function rewritesOf(ctx, node, key) {
-  const keys = (node.params?.[key] ?? '').split(',').filter(Boolean)
-  if (!keys.length) throw fail('元件上还没选改写规则', 'No rewrite rule chosen on the part yet')
-  return keys.map((k) => {
-    const r = ctx.rewrites?.[k]
-    if (!r) throw fail('这一关没有这条改写规则', 'This level has no such rewrite rule')
-    return r
+// The rules wired into a card, from the book it uses: every one of them must be there.
+function wired(v, book, misfit) {
+  return rulesIn(v).keys.map((k) => {
+    if (!book?.[k]) throw fail(...misfit)
+    return book[k]
   })
 }
+const NOT_RULE = ['接进来的有一条不是推理规则（是改写用的等式）', 'One of the rules wired in is not an inference rule (it is an equation for rewriting)']
+const NOT_REWRITE = ['接进来的有一条不能用来改写（只有等价、等式和定义能改写）', 'One of the rules wired in cannot rewrite (only equivalences, equations and definitions can)']
+// A card that uses rules: each wired in, in order; the first that applies (with backtracking, each one's results).
+function firstThatApplies(rules, ctx, apply) {
+  const out = []
+  let why = null
+  for (const r of rules) {
+    const got = apply(r)
+    if (got.fail) why ??= got.fail
+    else {
+      out.push(...got.results)
+      if (!ctx.backtrack) break
+    }
+  }
+  return out.length ? { results: out } : { fail: why ?? T('没有一条规则用得上', 'None of the rules applies') }
+}
+// A tactic card reading its rules from the port `rules` as well as the state from `in`.
+const usesRules = (t) => {
+  const card = tactic((s, ctx, node) => t(s, ctx, node, ctx.wiredRules))
+  return { inputs: ['in', 'rules'], eval: ({ in: v, rules }, node, ctx) => card.eval({ in: v }, node, { ...ctx, wiredRules: rules }) }
+}
+const ruleCard = (t) => usesRules((s, ctx, _node, rules) => firstThatApplies(wired(rules, ctx.rules ?? KERNEL, NOT_RULE), ctx, (r) => t(s, r)))
 // Where a rewrite card rewrites: the goal, or the hypotheses.
 const atOf = (node) => (node.params?.at === 'hyps' ? 'hyps' : 'goal')
 // A step inside a part, for a traced run (../../engine/circuit.js): a round of it, or the card it applies (`sub`).
@@ -133,18 +237,27 @@ function regionRun(node, ctx, region) {
   const ids = new Set(inside.map((n) => n.id))
   const back = graph.wires.find((w) => w.to === node.id && w.port === region)
   if (!back) throw fail('框里还没有接到「结果」上', 'Nothing inside is wired to the result yet')
+  // A rule list made outside the frame is a constant: the rule parts it comes of run inside too.
+  const byId = new Map(graph.nodes.map((n) => [n.id, n]))
+  const constants = new Set()
+  const constant = (id) => {
+    if (constants.has(id)) return true
+    if (!ctx.ruleParts?.has(byId.get(id)?.type)) return false
+    constants.add(id)
+    return graph.wires.filter((w) => w.to === id).every((w) => constant(w.from.split('#')[0]))
+  }
   for (const w of graph.wires.filter((x) => ids.has(x.to))) {
-    if (!ids.has(w.from.split('#')[0]) && w.from !== `${node.id}#${region}`) throw fail('框里只能用框开出来的东西', 'Inside the frame, only what the frame opens can be used')
+    if (!ids.has(w.from.split('#')[0]) && w.from !== `${node.id}#${region}` && !constant(w.from.split('#')[0])) throw fail('框里只能用框开出来的东西，和框外的规则', 'Inside the frame, only what the frame opens can be used, and rules from outside')
   }
   const OPEN = '__open'
   const sub = {
-    nodes: [{ id: OPEN, type: '__open' }, ...inside.map(({ in: _, ...n }) => n)],
-    wires: graph.wires.filter((w) => ids.has(w.to)).map((w) => (w.from === `${node.id}#${region}` ? { ...w, from: OPEN } : w)),
+    nodes: [{ id: OPEN, type: '__open' }, ...inside.map(({ in: _, ...n }) => n), ...[...constants].filter((id) => !ids.has(id)).map((id) => { const { in: _, ...n } = byId.get(id); return n })],
+    wires: graph.wires.filter((w) => ids.has(w.to) || constants.has(w.to)).map((w) => (w.from === `${node.id}#${region}` ? { ...w, from: OPEN } : w)),
   }
   const parts = ctx.engine.parts
   // quiet: the cards' steps stay out of a traced run (a search shows its steps its own way).
   return (value, quiet = false) => {
-    const { values } = evaluate(sub, { parts: (type) => (type === '__open' ? { inputs: [], eval: () => value } : parts[type]), ctx: quiet ? { ...ctx, trace: null } : ctx })
+    const { values } = evaluate(sub, { parts: (type) => (type === '__open' ? { inputs: [], eval: () => value } : typeof parts === 'function' ? parts(type) : parts[type]), ctx: quiet ? { ...ctx, trace: null } : ctx })
     const out = values.get(back.from)
     if (out === undefined) throw fail('框里有一个元件算不出来', 'A part inside cannot compute')
     return out
@@ -298,8 +411,8 @@ export const MACHINE_PARTS = {
     return found.length ? { results: found } : { fail: T('auto 没有证完', 'auto did not finish') }
   }),
   // Rewriting (chapter 9): one rule once, and simp, which the player builds of it, on the goal or the hypotheses.
-  rw: { ...tactic((s, ctx, node) => rewrite(s, rewritesOf(ctx, node, 'rewrite')[0], atOf(node))), params: ['rewrite', 'at'] },
-  simp: { ...tactic((s, ctx, node) => simplify(s, rewritesOf(ctx, node, 'rewrites'), atOf(node))), params: ['rewrites', 'at'] },
+  rw: { ...usesRules((s, ctx, node, rules) => firstThatApplies(wired(rules, ctx.rewrites, NOT_REWRITE), ctx, (r) => rewrite(s, r, atOf(node)))), params: ['at'] },
+  simp: { ...usesRules((s, ctx, node, rules) => simplify(s, wired(rules, ctx.rewrites, NOT_REWRITE), atOf(node))), params: ['at'] },
   // Clauses (chapter 10, resolution.js): ∃ out of the hypotheses, a state split into clauses, a round of resolution
   // (the saturator is built of rounds), someone else's prover, and the certificate replayed in the kernel; what the
   // player builds of them.
@@ -479,27 +592,34 @@ export function judge(want, test, out, level = {}) {
   return resolveRound(out.set).length === out.set.length ? '' : T('结果还能再归结出新子句：还没饱和', 'The result still resolves into new clauses: not saturated yet')
 }
 
-const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), backtrack: Boolean(level.backtrack), ...extra })
+/** The parts a level's board runs: the machine's, and its rule parts. */
+const partsFor = (level) => {
+  const rules = rulePartsOf(level)
+  return (type) => MACHINE_PARTS[type] ?? (rules.has(type) ? RULE_PART : undefined)
+}
+const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), ...extra })
 
-/** A machine part run on a proof state with a level's rule and rewrite books (chapter 14: a script's by). */
-export const runTactic = (level, type, params, state) => MACHINE_PARTS[type].eval({ in: state }, { id: type, params }, ctxOf(level, { nodes: [], wires: [] }))
+/** A machine part run on a proof state with a level's rule and rewrite books (chapter 14: a script's by), the rules
+ *  `keys` wired in when it uses rules. */
+export const runTactic = (level, type, state, keys = null) => MACHINE_PARTS[type].eval({ in: state, ...(keys ? { rules: rulesValue(keys) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }))
 
 /** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
 export const MACHINE_TESTS = {
   runTest: (level, circuit, test) => {
-    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), ctx: ctxOf(level, circuit) })
+    const run = runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test), ctx: ctxOf(level, circuit) })
     return { ...run, outputs: { out: run.outputs.out } }
   },
   // The run of one test with every step it took, in order (../../engine/circuit.js trace): only what reaches the
   // result runs, so a card lying about unwired takes no step.
   trace: (level, circuit, test) => {
     const trace = []
-    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
+    const run = runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
     return { trace, run: { ...run, outputs: { out: run.outputs.out } } }
   },
   check: (level, test, outputs) => {
     const problem = judge(test.want ?? level.want, test, outputs.out, level)
     return [{ name: 'out', pass: !problem, reason: problem }]
   },
-  score: (level, circuit) => ({ steps: circuit.nodes.filter((n) => n.type !== 'in' && n.type !== 'out').length }),
+  // Rule parts are what the cards read, not steps of the machine.
+  score: (level, circuit) => ({ steps: circuit.nodes.filter((n) => n.type !== 'in' && n.type !== 'out' && !rulePartsOf(level).has(n.type)).length }),
 }

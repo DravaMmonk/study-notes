@@ -79,11 +79,11 @@ export function proves(level, method, goal, hyps) {
     return closed(out.results) ? '' : T('规则用上了，可它的前提不全在 using 的事实里', 'The rule applies, but its premises are not all among the facts used')
   }
   if (method === 'auto' || method === 'metis') {
-    const out = runTactic(level, method, {}, s)
+    const out = runTactic(level, method, s)
     return done(out) ? '' : out.error ?? T(`${method} 没有证完`, `${method} did not finish`)
   }
   const simpWith = (x, extra = []) => {
-    const out = runTactic(level, 'simp', { rewrites: [...(level.simp ?? []), ...extra].join(',') }, x)
+    const out = runTactic(level, 'simp', x, [...(level.simp ?? []), ...extra])
     if (out.error) return [out]
     return [out, ...(rule(out, KERNEL.refl).results ?? []), ...(assumption(out).results ?? [])]
   }

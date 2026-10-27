@@ -256,19 +256,23 @@ test('a search does not follow a step that gives nothing new, so using givens ag
 })
 
 test('a machine backtracks once its level says so, and a search finds every answer to a question', async () => {
-  const { MACHINE_TESTS } = await import('./machine.js')
+  const { MACHINE_TESTS, wireRules } = await import('./machine.js')
   const { machine } = await import('./build.js')
   const script = machine({ a: ['rule', { rule: 'exI' }], b: ['rule', { rule: 'conjI' }], c: ['assumption'], d: ['assumption'] }, ['in>a.in', 'a>b.in', 'b>c.in', 'c>d.in', 'd>out'])
   const test1 = { goal: '∃x. Human(x) ∧ Likes(x, ann)', hyps: ['Human(cy)', 'Human(bo)', 'Likes(bo, ann)'] }
   const level = { kind: 'machine', want: 'proved', tests: [test1] }
-  assert.equal(runLevel(MACHINE_TESTS, level, script).pass, false)
-  assert.equal(runLevel(MACHINE_TESTS, { ...level, backtrack: true }, script).pass, true)
+  assert.equal(runLevel(MACHINE_TESTS, level, wireRules(script, level)).pass, false)
+  assert.equal(runLevel(MACHINE_TESTS, { ...level, backtrack: true }, wireRules(script, level)).pass, true)
   const ask = {
     kind: 'machine', want: 'answers', backtrack: true,
     rules: { grand: { name: { zh: '祖父母', en: 'Grandparent' }, premises: ['Parent(?x, ?y)', 'Parent(?y, ?z)'], conclusion: 'Grand(?x, ?z)' } },
     tests: [{ goal: 'Grand(ann, ?w)', hyps: ['Parent(ann, bo)', 'Parent(bo, cy)', 'Parent(bo, dee)'], answers: ['cy', 'dee'] }],
   }
-  assert.equal(runLevel(MACHINE_TESTS, ask, machine({ g: ['rule', { rule: 'grand' }], a: ['assumption'], b: ['assumption'] }, ['in>g.in', 'g>a.in', 'a>b.in', 'b>out'])).pass, true)
+  assert.equal(runLevel(MACHINE_TESTS, ask, wireRules(machine({ g: ['rule', { rule: 'grand' }], a: ['assumption'], b: ['assumption'] }, ['in>g.in', 'g>a.in', 'a>b.in', 'b>out']), ask)).pass, true)
+  // A card wired a list of rules uses the first that applies.
+  const either = wireRules(machine({ g: ['rule', { rule: 'conjI,grand' }], a: ['assumption'], b: ['assumption'] }, ['in>g.in', 'g>a.in', 'a>b.in', 'b>out']), ask)
+  assert.equal(either.nodes.filter((n) => n.type === 'grand' || n.type === 'andI').length, 2)
+  assert.equal(runLevel(MACHINE_TESTS, ask, either).pass, true)
 })
 
 test('a written term may use a lemma as a function of its premises, and take out what there is', async () => {
@@ -312,14 +316,14 @@ test('a rewrite changes the first place its left side fits, under quantifiers to
 test('a declaration gives its rules, and induction read off a goal proves an equation for every number', async () => {
   const { datatypeRules } = await import('./datatype.js')
   const { ruleText } = await import('./schematic.js')
-  const { MACHINE_TESTS } = await import('./machine.js')
+  const { MACHINE_TESTS, wireRules } = await import('./machine.js')
   const { machine } = await import('./build.js')
   const rules = Object.fromEntries(datatypeRules('nat', 'zero | s(nat)').map((r) => [r.key, ruleText(r)]))
   assert.deepEqual(Object.keys(rules), ['nat.distinct1', 'nat.distinct2', 'nat.inject', 'nat.exhaust', 'nat.induct'])
   assert.equal(rules['nat.induct'], '⟦?P(zero); (⋀x. ?P(x) ⟹ ?P(s(x)))⟧ ⟹ ∀x. ?P(x)')
   const level = { kind: 'machine', want: 'proved', datatypes: { nat: 'zero | s(nat)' }, defs: ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))'], tests: [{ goal: '∀x. plus(x, zero) = x' }] }
   const byInduction = machine({ i: ['rule', { rule: 'nat.induct' }], e: ['each'], s: ['simp', { rewrites: 'def.0,def.1,hyp' }, 'e'], r: ['rule', { rule: 'refl' }, 'e'] }, ['in>i.in', 'i>e.in', 'e#body>s.in', 's>r.in', 'r>e.body', 'e>out'])
-  assert.equal(runLevel(MACHINE_TESTS, level, byInduction).pass, true)
+  assert.equal(runLevel(MACHINE_TESTS, level, wireRules(byInduction, level)).pass, true)
 })
 
 test('clauses: split from a goal turned round, saturated with unification, and the certificate replayed', async () => {
