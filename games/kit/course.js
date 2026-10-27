@@ -247,10 +247,11 @@ const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
  * What a level shows of the parts it holds, so that a level with many parts does not leave the player lost: the parts
  * new here (not its givens, which show as its answer uses them), the parts the levels just before it have built, and
  * the ideas its reference answer uses (`needed`, by concept; with no reference to go by, every part). Everything else carried from earlier levels is folded away, still
- * usable, and so is every part the level's spec folds (`folds`). Returns { shown, folded }.
+ * usable, and so is every part the level's spec folds (`folds`). `also`: parts held here beyond those the course
+ * carries (a task's own level's part, proved by the task before it). Returns { shown, folded }.
  */
-export function offer(course, level, flags) {
-  const all = usable(course, level, flags)
+export function offer(course, level, flags, also = []) {
+  const all = [...usable(course, level, flags), ...also]
   const own = new Set(course.adds(level))
   // The answer goes by its parts (not a board's own fixed cards), and only when the player holds them all: a reference
   // built from parts the player cannot have yet says nothing about what to show.

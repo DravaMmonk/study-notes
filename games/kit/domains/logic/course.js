@@ -193,10 +193,12 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
   // The task after the one that proves a level's part may use it already (a law proved, then put to work).
   // On a machine board its rule parts come with them.
   const named = (level, flags) => [...level.parts.filter((p) => !built(p) || flags.has(`lemma:${p}`) || (level.task > 0 && byId.get(level.id).builds === p)), ...(level.kind === 'machine' ? [...rulePartsOf(level).keys()] : [])]
-  const usableIn = (level, flags) => (level.parts ? named(level, flags) : usable(course, { id: level.id }, flags).filter((p) => !held(level).includes(p)))
+  // What a task after the first holds of its own level's part (the law it has just proved), on top of the course's.
+  const proved = (level) => (level.task > 0 && byId.get(level.id).builds ? [byId.get(level.id).builds] : [])
+  const usableIn = (level, flags) => (level.parts ? named(level, flags) : [...usable(course, { id: level.id }, flags), ...proved(level)].filter((p) => !held(level).includes(p)))
   const offerIn = (level, flags) => {
     if (level.parts) return { shown: named(level, flags), folded: [] }
-    const { shown, folded, ...rest } = offer(course, { id: level.id }, flags)
+    const { shown, folded, ...rest } = offer(course, { id: level.id }, flags, proved(level))
     return { ...rest, shown: shown.filter((p) => !held(level).includes(p)), folded: folded.filter((p) => !held(level).includes(p)) }
   }
   return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn, machines, revisions }
