@@ -10,7 +10,7 @@
 
 **排章的规矩。** `games/DESIGN.md` 第 1 节的三条（不依赖的就分支；引言写的是组装；基础元件保持最少），加上第四条：**一个机制放在它被核心用到的地方，不放在最早能证出它的地方。** 德摩根、排中律第 3 章就能证出来，可它们真正派上用场在后面：排中律和反证法是 auto 撞上的墙（第 8 章），德摩根和双重否定是化简器把否定推进去的规则（第 9 章）。证明项也一样：第 6–9 章的机器用不上它，归纳类型和依赖类型才建在它上面，所以它是第 10 章，紧挨着这两章。
 
-**现状：** 第 0–13 章已做，第 14 章按第 7 节做。规格在 `spec.js` 和 `levels/`，界面和规则在 `kit/domains/logic`。存档迁移见 `spec.js` 的 `saves`。
+**现状：** 第 0–14 章都已做。规格在 `spec.js` 和 `levels/`，界面和规则在 `kit/domains/logic`。存档迁移见 `spec.js` 的 `saves`。
 
 **终点：** 学完以后，学习者手里有一台自己造的证明器，并且知道它的每一层是怎么来的：
 
@@ -24,7 +24,7 @@
 - 相等也是一个类型：改写就是给出一个「动机」；定义相等和命题相等不是一回事；
 - 自动证明器找到的证明要变成核能检查的证书；而且证明器不可能全自动（一阶逻辑的有效性只是半可判定）。
 
-看到 Isabelle 的 `thm`、`⋀`、`⟹`、`?P`、`rule`、`erule`、`back`、`THEN`、`simp add:`、`datatype`、`fun`、`induction`、`sledgehammer`、`metis`、Isar 的 `have … show`，Lean 的 `fun x => …`、`⟨a, b⟩`、`exact`、`apply`、`?m`、`rfl`、`▸`、`Eq.rec`、`induction … with`、`decide`、`calc`，能说出它对应自己造的哪一块。
+看到 Isabelle 的 `thm`、`⋀`、`⟹`、`?P`、`rule`、`erule`、`back`、`THEN`、`simp add:`、`datatype`、`fun`、`induction`、`sledgehammer`、`metis`、Isar 的 `have … show`，Lean 的 `fun x => …`、`⟨a, b⟩`、`exact`、`apply`、`?m`、`rfl`、`▸`、`Eq.rec`、`induction … with`、`decide`，能说出它对应自己造的哪一块。
 
 ---
 
@@ -109,7 +109,7 @@
 | 11 | 归纳类型 | 类型声明给的规则（互不相同、一对一、按情况分、归纳）、为什么要终止 | 数与列表的等式 | 插入排序 | 会绕圈的化简 | `datatype`、`fun`、`induction`；`inductive`、`Nat.rec` |
 | 12 | 依赖类型与相等 | 相等是类型、动机、定义相等与命题相等、依赖类型 | — | — | 接在后面 | `subst`；`▸`、`Eq.rec`、`rfl`、`Vector` |
 | 13 | 自动化与证书 | 子句形式、归结、证书重建、反射、Skolem 化 | **化成子句**、**归结**、**饱和器**、**重建器** | 岛民变多；自动化的边界 | 只标被迫的 | `sledgehammer`、`metis`；`decide`、`aesop` |
-| 14 | 结构化证明（毕业） | Isar / `calc`，脚本与接线对照 | — | — | — | Isar；Lean `calc`、`have` |
+| 14 | 结构化证明（毕业） | 写脚本板：have、show、assume、fix、obtain，by 规则或造好的策略；脚本与接线对照 | — | — | — | Isar；Lean `have`、`show … by` |
 
 ### 3.2 各章
 
@@ -338,15 +338,20 @@
 
 **点题：** 找证明难，查证明容易：外面的证明器再快也只给证书，信的是核。反射把「查」也交给计算：判定程序证明一次是对的，以后每一题都是 `rfl`。一阶逻辑能证的总能找到证明，证不出的不一定停得下（专题二）。
 
-### 第 14 章 · 结构化证明（毕业）　（约 14 关）
+### 第 14 章 · 结构化证明（毕业）　（10 关，`levels/structured.js`）　已做
 
-**动机：** 真正的证明文本是写给人看的结构：Isar 的 `assume … have … show`，Lean 的 `have`、`calc`、`by`。这一章没有新的原始元件：`assume` 是假设框，`have` 是第 6 章的先证一句，`calc` 是一串相等的传递，`by` 后面是自己搭出的策略。
+**动机：** 真正的证明文本是写给人看的结构：Isar 的 `assume … have … show`，Lean 的 `have`、`show … by`。这一章没有新的原始元件：脚本的每一行就是证明板上的一张卡片。
+
+**写脚本板**（`kind: 'script'`，`kit/domains/logic/script.js`、`ui/ScriptScreen.jsx`）：脚本是一行一行，每行选出来，不打字：`have`／`show` 一句话（从关卡的句子和它们的每个部分里选），`using` 点选用到的事实（已知按名字，前面的行按位置叫 h1、a1、o1），`by` 选一条规则（按卡片名字和 Isabelle 的规则名列出）、一台造好的策略（auto、simp 用关卡的化简集合 `simp`、metis、对声明的类型归纳），或者一块（`proof … qed`）。块里第一句是 `assume`（假设框）或 `fix`（任取）；`obtain` 拿出「存在」说的那一样东西（拿出那一个）；块以 `show` 结束。检查时每一行都是一个小证明状态：规则 = `rule` 后用 using 的事实收掉每个前提，策略就是机器板上的那张卡片，所以每一行都落到核规则上。`locked` 的任务只让改 `by`（读脚本）。证明板关可以带一段 `script`，简报里照 Isar 的样子印出来（读完再接线）。
 
 | 路 / 段 | 关 |
 |---|---|
-| 读脚本 | 一句对应一张卡片、`assume` 是框、`from … have` 是接线、`show … by simp` 是化简器（两段任务：先读，再按脚本接线） |
-| 写脚本 | 补一句 `have`、补 `show ?thesis by …`、`calc` 的一步、`obtain` 拆开 ∃ |
-| 合起来 | 骑士与无赖、酒鬼悖论、`rev (rev xs)`：各用结构化证明重写 |
+| 读脚本 | 一句一张卡片（章首；两段：选每行的 by，再照脚本在证明板上接线）、块套着块（同样两段：两层框）、by 后面是一台机器（选规则、auto、metis） |
+| 写脚本 | 补一句 have（两题：给出 show，往前补）、一行就够（by auto；auto 证不出的皮尔士律 by metis；by simp 算加法） |
+| fix ∥ obtain | fix 是任取 ∥ obtain 拆开 ∃ |
+| 整段脚本（练习） | 骑士与无赖（假设 c 是骑士，metis 找矛盾）、倒两次（`by (induction) simp`，化简集合里有倒过拼接）、毕业：理发师（obtain、auto 取一个、metis） |
+
+**没做的：** `calc` 和按情况分的块（`proof (cases)`）。相等的一串可以一行 `by simp`，分情况可以交给 auto 或 metis；这两种块各要一套新的块结构，换来的只是写法。
 
 **收尾点题：** 每一行都落到核规则上；自动化补小步，人写结构和关键引理。
 
@@ -370,7 +375,7 @@
 | 11 | — | 类型声明不是元件：关卡写出它，它给的规则进规则书，用第 6 章的用规则卡片 |
 | 12 | — | 等量代换就是 `Eq.rec`，点的框就是动机；写证明项板添 `rfl` 和 `▸` 两块 |
 | 13 | 拆成子句、归结一圈、重放、Skolem 化 | 拆成子句换了值的种类（证明状态 → 子句集）；归结一圈对每一对用证出的归结规则；重放读证书，查每一步是不是证出的归结规则用了一次；Skolem 化在 ∀ 底下要选择公理。否定目标、改已知是已有卡片；化成子句、饱和器、重建器搭出；反射用定义相等 |
-| 14 | — | 脚本的每一句都对应已有的元件 |
+| 14 | — | 脚本的每一行都对应已有的元件：by 是卡片或造好的策略，块是框 |
 
 **一直被用的封装件和它们的去处：**
 
@@ -409,17 +414,13 @@
 | 相等 | 原始常量、`subst` | `Eq` 归纳类型、`▸`、`Eq.rec` | 第 12 章 |
 | 自动化 | `auto`、`blast`、`sledgehammer` + `metis` | `aesop`、`decide`（反射）、`omega` | 第 7、13 章 |
 | 反例 | `nitpick`、`quickcheck` | `#eval`、`plausible` | 第 4 章 |
-| 证明语言 | Isar | 项模式、`calc`、`have` | 第 14 章 |
+| 证明语言 | Isar | 项模式、`have`、`show … by` | 第 10、14 章 |
 
 ---
 
 ## 6. 引擎：复用什么，补什么
 
-**已有（`games/kit/domains/logic/`）：** 公式（`formula.js`）、证明板与规则（`proof.js`，含证出的引理当规则）、证明项与写证明项板（`pterm.js`、`termTree.js`、`ui/TermScreen.jsx`）、拼公式板（`formulaTree.js`、`ui/FormulaScreen.jsx`，界面是共用的 `kit/strip`）和造世界板（`fol.js`、`ui/WorldScreens.jsx`）、机器板（`machine.js`：等式组、证明状态、公式、子句；重复框、几条路、每个目标、搜到证完）、带元变量的规则与合一（`schematic.js`）、证明状态与策略（`tactics.js`）、子句与归结（`resolution.js`：子句集、归结、饱和、证书、重放；一阶的先合一）、改写与化简（`rewrite.js`）、类型声明给的规则（`datatype.js`）、卡片选项（`choices.js`）；kit 的步进回放（`engine/trace.js`、`shell/usePlayback.jsx`）。
-
-**要补的（按章）：**
-
-1. **脚本与电路互译**（第 14 章）：一个很小的 Isar / Lean 子集，和电路一一对应。
+**已有（`games/kit/domains/logic/`）：** 公式（`formula.js`）、证明板与规则（`proof.js`，含证出的引理当规则）、证明项与写证明项板（`pterm.js`、`termTree.js`、`ui/TermScreen.jsx`）、拼公式板（`formulaTree.js`、`ui/FormulaScreen.jsx`，界面是共用的 `kit/strip`）和造世界板（`fol.js`、`ui/WorldScreens.jsx`）、机器板（`machine.js`：等式组、证明状态、证明项、子句；重复框、几条路、每个目标、搜到证完）、带元变量的规则与合一（`schematic.js`）、证明状态与策略（`tactics.js`）、子句与归结（`resolution.js`：子句集、归结、饱和、证书、重放；一阶的先合一）、改写与化简（`rewrite.js`）、结构化脚本与写脚本板（`script.js`、`ui/ScriptScreen.jsx`）、类型声明给的规则（`datatype.js`）、卡片选项（`choices.js`）；kit 的步进回放（`engine/trace.js`、`shell/usePlayback.jsx`）。
 
 **诚实的限制：**
 
@@ -427,12 +428,5 @@
 - 项是一阶的：没有以函数为参数的项，所以递推子和终止度量（`termination`、`decreasing_by`）不在板上做，只在点题和百科里讲；终止的必要用「停不下来的定义推出矛盾」来讲。
 - 依赖类型只做到向量这一级，向量写成只记长度的命题 `Vec(n)`；不做宇宙层级和归纳族的一般理论，点题里说明。
 - 自动化是归结加因子化和包含删除，重放一步一步查证书（每一步是一次归结或取一个样子）；∃ 在 ∀ 底下的 Skolem 函数要选择公理，重放不做；`blast` 的表证明、`omega` 这类判定过程只在点题里出现。反射只做命题公式（两个字母的真值表）。
-- 脚本只认很小的子集，目的是和电路对照，不是做一个解析器。
+- 脚本是选出来的行，不是解析文本：have、show、assume、fix、obtain 和 proof … qed，没有 `calc` 和按情况分的块。
 
----
-
----
-
-## 7. 实施顺序
-
-1. **第 14 章** 脚本对照。

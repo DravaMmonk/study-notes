@@ -34,8 +34,10 @@ export const asValue = (list, failed) => (list.length ? (list.length > 1 ? { ...
 export const answerOf = (s) => (s.query ?? []).map((m) => instantiate(/^\?[A-Z]/.test(m) ? { op: 'meta', name: m } : { t: 'var', name: m }, s.inst ?? {}))
 
 const fixesOf = (g) => g.fixes ?? []
+// The ?-letters a state knows: those in its goals, those it scopes, and those already settled (a new one may not reuse
+// a settled name).
 function metasOfState(s) {
-  const out = new Set(Object.keys(s.scopes ?? {}))
+  const out = new Set([...Object.keys(s.scopes ?? {}), ...Object.keys(s.inst ?? {})])
   for (const g of s.goals) [g.goal, ...g.hyps].forEach((f) => metasIn(f, out))
   return out
 }
@@ -153,6 +155,16 @@ export function eachRule(s, rules, tactic) {
   return results.length ? { results } : { fail: why ?? T('没有规则', 'No rule') }
 }
 
+// A hypothesis written out with its ?-letters named in the order they appear: Human(?t1) → Animal(?t1) is the same
+// hypothesis as Human(?t) → Animal(?t), so taking one again with a new ?-letter is nothing new. (Goals keep their
+// letters: a goal asking the same of a new ?-letter, as a rule calling itself does, may well be progress.)
+const shapeOf = (f) => {
+  const names = new Map()
+  return keyOf(f).replace(/"name":"(\?[^"]+)"/g, (_, n) => {
+    if (!names.has(n)) names.set(n, `?${names.size}`)
+    return `"name":"${names.get(n)}"`
+  })
+}
 // A state's goals by their sentence, each with its hypotheses written out (kept, as a search compares a state with
 // every one on its path).
 const indexed = new WeakMap()
@@ -162,7 +174,7 @@ function goalsBy(s) {
     for (const g of s.goals) {
       const k = keyOf(g.goal)
       if (!by.has(k)) by.set(k, [])
-      by.get(k).push({ fixes: fixesOf(g), hyps: g.hyps.map(keyOf) })
+      by.get(k).push({ fixes: fixesOf(g), hyps: g.hyps.map(shapeOf) })
     }
     indexed.set(s, by)
   }

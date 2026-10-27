@@ -152,6 +152,14 @@ export const GLOSSARY = [
     see: ['provers', 'tactics'],
   },
   {
+    id: 'scripts', group: 'logic', title: T('结构化证明', 'Structured proofs'), at: 'sc-rows',
+    body: [
+      T('Isabelle 的 <b>Isar</b>（Wenzel，1999 年起）把证明写成给人读的文本：have 先证一句，show 证出要证的那句，assume、fix、obtain 开出假设、任取的东西和拿出来的东西，proof … qed 是一块。每一句后面 by 的那个方法只负责一小步，系统检查每一句。Lean 的写法相近：have h : A := by …，show B，intro，obtain ⟨x, h⟩ := …，再加上把一串等式连起来的 calc。', 'Isabelle’s <b>Isar</b> (Wenzel, from 1999) writes proofs as text for people: have proves a sentence on the way, show the one wanted, assume, fix and obtain bring in an assumption, an arbitrary thing and a thing taken out, and proof … qed is a block. The method after each by does one small step, and the system checks every row. Lean writes much the same: have h : A := by …, show B, intro, obtain ⟨x, h⟩ := …, and calc for a chain of equations.'),
+      T('脚本和证明项、证明电路是同一个证明：每一行是一张卡片，块是框。脚本的好处是读得懂、改得动：一行坏了，只改那一行。大型的形式化（四色定理、开普勒猜想、数学库 mathlib 和 AFP）都是这样写成的：人写结构和引理，自动化补中间的小步。', 'A script, a proof term and a proof circuit are one proof: each row a card, each block a box. A script can be read and mended: when a row breaks, only that row is changed. Large formalisations (the four colour theorem, the Kepler conjecture, the libraries mathlib and the AFP) are written this way: people write the structure and the lemmas, automation fills in the small steps.'),
+    ],
+    see: ['provers', 'automation'],
+  },
+  {
     id: 'unification', group: 'logic', title: T('元变量与合一', 'Metavariables and unification'), at: 'r-match',
     body: [
       T('一条规则写成 ⟦前提⟧ ⟹ 结论，里面待定的部分叫<b>元变量</b>：?A、?B 是任何一句话，?t 是任何一样东西，?P(x) 是任何一句关于 x 的话。Isabelle 的规则都这样写（它的元逻辑 Pure 里，⟹ 是「推出」，⋀ 是「对任何」）；Lean 的 apply 留下的空位 ?m 也是元变量。', 'A rule is written ⟦premises⟧ ⟹ conclusion, and the parts left open in it are <b>metavariables</b>: ?A and ?B any sentence, ?t any thing, ?P(x) any sentence about x. Isabelle writes every rule this way (in its metalogic Pure, ⟹ is “yields” and ⋀ “for any”); the holes ?m Lean’s apply leaves are metavariables too.'),

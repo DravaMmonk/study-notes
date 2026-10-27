@@ -14,6 +14,7 @@ import { parseS } from './schematic.js'
 import { countermodel, holds } from './models.js'
 import { builtWorld, extent, structureOf } from './fol.js'
 import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
+import { checkScript, methodsOf, sentencesOf } from './script.js'
 import { proof } from './build.js'
 import { portsOf } from '../../engine/circuit.js'
 import { lettersOf, tautology } from './truth.js'
@@ -33,7 +34,7 @@ export function validate({ levels: given, course }) {
   const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words && !l.vocab)) {
-    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'term' ? [...Object.values(level.premises ?? {}), level.goal] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.term ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses ?? (t.inputs ? Object.values(t.inputs) : [t.in]))) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'term' ? [...Object.values(level.premises ?? {}), level.goal] : level.kind === 'script' ? [...Object.values(level.premises ?? {}), level.goal, ...(level.sentences ?? [])] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.term ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses)) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     // The pattern's own letters stand bare in its last test; a machine's tests may end on bare letters too.
     const bare = new Set(level.kind === 'machine' ? 'ABCDEFGHPQRS'.split('') : Object.keys(level.cases?.[0] ?? {}))
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l] && !bare.has(l))
@@ -112,6 +113,24 @@ export function validate({ levels: given, course }) {
     // A term handed over to mend is wrong to begin with, and can be built on with the chips.
     if (level.given && !task.check(parseTerm(level.given))) out.push({ fail: true, text: `${level.id}: the given term ${level.given} already checks` })
     if (level.given && missingForms(parseTerm(level.given), level.forms).length) out.push({ fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
+  }
+  // A script task's reference script checks, row by row, with what its rows can choose; its naive one does not, nor
+  // does a script it starts from.
+  for (const level of levels.filter((l) => l.kind === 'script')) {
+    const run = (rows) => checkScript(level, rows)
+    const ref = run(level.answer)
+    out.push({ fail: !ref.pass, text: `${level.id} ${keyOf(level.title)}: script ${ref.pass ? 'PASS' : `FAILS ${keyOf(ref.reason)}`}` })
+    const consts = [...(level.consts ?? []), ...(level.things ?? [])]
+    const sentences = new Set(sentencesOf(level).map((f) => show(f)))
+    const { rules, tactics } = methodsOf(level)
+    const methods = new Set(['proof', ...rules.map((m) => m.key), ...tactics])
+    for (const r of level.answer) {
+      if (r.stmt && !sentences.has(show(parse(r.stmt, { consts })))) out.push({ fail: true, text: `${level.id}: the script states ${r.stmt}, which no row can choose` })
+      if (r.by && !methods.has(r.by)) out.push({ fail: true, text: `${level.id}: the script proves a row by ${r.by}, which the level does not offer` })
+      if (r.thing && !(level.things ?? []).includes(r.thing)) out.push({ fail: true, text: `${level.id}: the script takes ${r.thing}, which no row can name` })
+    }
+    if (level.naive && run(level.naive).pass) out.push({ fail: true, text: `${level.id}: the naive script checks` })
+    if (level.given && run(level.given).pass) out.push({ fail: true, text: `${level.id}: the given script already checks` })
   }
   // A machine part a level builds runs as its built-in implementation: alone, it passes the level that builds it, unless
   // a task of the level proves it (a law card proved on the proof board, then put to work). A part whose circuit chose

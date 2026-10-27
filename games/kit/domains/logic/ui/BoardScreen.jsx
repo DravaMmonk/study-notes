@@ -5,7 +5,9 @@ import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
+import { parse } from '../formula.js'
 import { say } from '../notation.js'
+import { ScriptView } from './ScriptScreen.jsx'
 import FormulaField from './FormulaField.jsx'
 import RuleField from './RuleField.jsx'
 import RulesField from './RulesField.jsx'
@@ -111,6 +113,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const best = progress.best?.[level.id]
   const brief = (
     <Brief game={game} level={entry} hint={level.hint} phone={phone}>
+      {level.script && <ScriptView rows={level.script} text={(t) => text(parse(t, { consts: [...(level.consts ?? []), ...(level.things ?? [])] }))} />}
       <section className="lg-score">
         <div className="stat-row">
           <div className="stat"><b>{board.tests.score(level, circuit).steps}</b><span>{L(board.words.steps)}</span></div>

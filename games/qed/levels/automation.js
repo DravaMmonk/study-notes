@@ -19,7 +19,6 @@ const CLAUSES = [{ name: 'in', label: T('子句', 'Clauses') }]
 const machine = (want, inputs = GOAL) => (level) => ({ kind: 'machine', want, inputs, backtrack: true, ...level })
 const becomes = machine('becomes')
 const proves = machine('proved')
-const BRIEF = T('接一台机器，把每个目标变成要的样子。', 'Wire a machine that turns each goal into the one wanted.')
 const PROVE = T('接一台机器：证得出的证完；证不出的，停下来说证不出来。', 'Wire a machine that proves what can be proved, and of what cannot, stops and says so.')
 // The rewrite rules that bring hypotheses to conjunctive normal form (↔ out first), as chapter 9 lined them up.
 const CNF = ['iff.elim', 'arrow.elim', 'dneg.elim', 'dm.notOr', 'dm.notAnd', 'dm.notEx', 'dm.notAll', 'dist.orAndR', 'dist.orAndL']

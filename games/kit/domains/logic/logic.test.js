@@ -368,3 +368,19 @@ test('a ∀ used on a proof reads its thing off what is to be proved, so the ker
   assert.equal(task('Holds(or(p, neg(p)))').check(parseTerm('sound rfl')), '')
   assert.match(task('Holds(neg(p))').check(parseTerm('sound rfl')).en, /works out to/)
 })
+
+test('a script: each row by a rule or a block, checked row by row', async () => {
+  const { checkScript } = await import('./script.js')
+  const level = { premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip' }
+  const rows = (by) => [
+    { k: 'show', stmt: 'Rain → Slip', by: 'proof' },
+    { k: 'assume', stmt: 'Rain' },
+    { k: 'have', stmt: 'Wet', using: ['p', 'a1'], by },
+    { k: 'show', stmt: 'Slip', using: ['q', 'h1'], by: 'rule:mp' },
+  ]
+  assert.equal(checkScript(level, rows('rule:mp')).pass, true)
+  const wrong = checkScript(level, rows('rule:conjI'))
+  assert.equal(wrong.pass, false)
+  assert.ok(wrong.rows[2] && !wrong.rows[3])
+  assert.equal(checkScript(level, rows('rule:mp').slice(0, 3)).pass, false)
+})

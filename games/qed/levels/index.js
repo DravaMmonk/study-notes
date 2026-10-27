@@ -15,6 +15,7 @@ import { simplifier } from './simplifier.js'
 import { terms } from './terms.js'
 import { inductive } from './inductive.js'
 import { automation } from './automation.js'
+import { structured } from './structured.js'
 import { equality } from './equality.js'
 import { WORDS } from './words.js'
 
@@ -143,7 +144,7 @@ const REVISIONS = {
 
 const COURSE = {
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...terms, ...inductive, ...equality, ...automation],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...terms, ...inductive, ...equality, ...automation, ...structured],
   words: WORDS,
   lemmas: LEMMAS,
   facts: FACTS,

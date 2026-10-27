@@ -344,7 +344,9 @@ export const MACHINE_PARTS = {
   replay: { inputs: ['in'], eval: ({ in: v }) => replayed(clausesIn(v)) },
   clausify: { inputs: ['in'], eval: ({ in: v }, _node, ctx) => clausify(stateIn(v), ctx) },
   metis: tactic((s, ctx) => {
-    const out = replayed(saturated(clausify(s, ctx), null, ctx))
+    let clauses
+    try { clauses = clausify(s, ctx) } catch (e) { if (e instanceof PartError) return { fail: e.label }; throw e }
+    const out = replayed(saturated(clauses, null, ctx))
     return out.error ? { fail: out.error } : { results: [out] }
   }),
 }
@@ -516,6 +518,9 @@ export function judge(want, test, out, level = {}) {
 }
 
 const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), unfold: (name) => level.lemmaTerms?.[name] ?? null, backtrack: Boolean(level.backtrack), ...extra })
+
+/** A machine part run on a proof state with a level's rule and rewrite books (chapter 14: a script's by). */
+export const runTactic = (level, type, params, state) => MACHINE_PARTS[type].eval({ in: state }, { id: type, params }, ctxOf(level, { nodes: [], wires: [] }))
 
 /** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
 export const MACHINE_TESTS = {

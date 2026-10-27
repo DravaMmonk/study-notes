@@ -222,3 +222,27 @@
 .tm-level .ks-chip b { font-family: var(--mono); font-size: 15px; }
 .lg-taken { font-size: 12px; color: var(--muted); }
 .lg-taken b { font-family: var(--serif); font-size: 14px; color: var(--ink); }
+
+/* Script tasks (ScriptScreen.jsx): rows written as Isar writes them, each indented by the block it is in; a script read
+   only (ScriptView), as a brief shows it on the proof board. */
+.sc-rows { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.sc-row { padding: 8px 10px 8px calc(10px + var(--depth, 0) * 22px); border-radius: 10px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); cursor: pointer; }
+.sc-row.is-on { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.sc-row.is-fail { box-shadow: inset 0 0 0 1.5px var(--fail); }
+.sc-row .lg-error { margin: 6px 0 0; font-size: 13px; }
+.sc-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font: 14px var(--mono); }
+.sc-kw { color: var(--accent); font-weight: 600; }
+.sc-name { color: var(--code-ink); }
+.sc-line select { max-width: 100%; height: 32px; padding: 0 6px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 14px var(--sans); }
+.sc-stmt { min-width: 10em; }
+.sc-using { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.sc-using button { min-width: 30px; height: 28px; padding: 0 7px; border: 0; border-radius: 8px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--mono); cursor: pointer; }
+.sc-using button[aria-pressed='true'] { color: var(--paper); background: var(--accent); box-shadow: none; }
+.sc-by { display: inline-flex; align-items: center; gap: 6px; }
+.sc-by select { width: 15em; }
+.sc-remove { margin-left: auto; display: inline-grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 8px; color: var(--muted); background: transparent; cursor: pointer; }
+.sc-remove:hover { background: var(--hover); }
+.sc-add { display: flex; flex-wrap: wrap; gap: 6px; }
+.sc-add button { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; border: 0; border-radius: 9px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--mono); cursor: pointer; }
+.sc-add button:hover { background: var(--hover); }
+.sc-view { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); font: 12px/1.6 var(--mono); white-space: pre; overflow-x: auto; color: var(--ink); }

@@ -184,10 +184,10 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
   })
-  // A machine level's rule book has what the level can hold (machine.js ruleBookOf): the kernel's rules opened by
-  // chapter, the lemmas built before it, each in the shapes it has gained by then. A task after the first may use
+  // A machine level's (and a script's) rule book has what the level can hold (machine.js ruleBookOf): the kernel's
+  // rules opened by chapter, the lemmas built before it, each in the shapes it has gained by then. A task after the first may use
   // what its level proves already (a law proved on the proof board, then put to work), in every shape it proves.
-  for (const level of LEVELS.filter((l) => l.kind === 'machine' || l.tasks?.some((t) => t.kind === 'machine'))) {
+  for (const level of LEVELS.filter((l) => [l, ...(l.tasks ?? [])].some((t) => t.kind === 'machine' || t.kind === 'script'))) {
     const holds = reach(course, { id: level.id })
     for (const one of [level, ...(level.tasks ?? [])]) {
       const later = one.task > 0

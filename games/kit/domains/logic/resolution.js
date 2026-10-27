@@ -88,7 +88,8 @@ function clausesOfHyp(f, why) {
   if (f.op === '∧') return [...clausesOfHyp(f.a, why), ...clausesOfHyp(f.b, why)]
   if (f.op === '∀') return clausesOfHyp(f.body, why)
   if (f.op === '∃') throw why(T('已知里还有 ∃：先 Skolem 化', 'A hypothesis still has ∃: Skolemise first'))
-  // A ∀ inside a disjunction goes out too: in clauses every variable is “for all”.
+  // ¬⊥ always holds: no clause. A ∀ inside a disjunction goes out too: in clauses every variable is “for all”.
+  if (f.op === '¬' && f.a.op === '⊥') return []
   const strip = (g) => (g.op === '∀' ? strip(g.body) : g.op === '∨' ? or(strip(g.a), strip(g.b)) : g)
   const lits = literalsIn(strip(f))
   if (!lits) throw why(T(`「${show(f)}」还不是子句：已知要先化成合取范式`, `“${show(f)}” is not a clause yet: bring the hypotheses to CNF first`))

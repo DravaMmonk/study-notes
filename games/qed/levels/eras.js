@@ -255,4 +255,20 @@ export const ERAS = [
     challenges: [{ level: 'au-horn', after: 'au-saturate' }],
     chapter: { title: T('自动化与证书', 'Automation and certificates'), question: T('证明能交给机器去找吗？机器找到的，凭什么信？', 'Can a machine be left to find proofs, and why believe what it finds?') },
   },
+  {
+    id: 'structured', machine: 'prover', keeps: 'all',
+    foundation: [
+      // Reading scripts: each row's by, then the same proof wired.
+      series('read', '读脚本', 'Reading scripts', ['sc-rows', 'sc-block', 'sc-tactic']),
+      // Writing them: a missing have, one row by a machine.
+      series('write', '写脚本', 'Writing scripts', ['sc-have', 'sc-show']),
+      // For any and take the one there is, as blocks, need nothing from each other.
+      branches(
+        ['fix', 'fix', 'fix', ['sc-fix']],
+        ['obtain', 'obtain', 'obtain', ['sc-obtain']],
+      ),
+    ],
+    practice: [series('whole', '整段脚本', 'Whole scripts', ['sc-knights', 'sc-revrev', 'sc-barber'])],
+    chapter: { title: T('结构化证明', 'Structured proofs'), question: T('证明写成什么样，人读得懂，核也查得了？', 'How is a proof written so people can read it and the kernel can check it?') },
+  },
 ]
