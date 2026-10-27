@@ -17,7 +17,11 @@ export default {
   levels: LOGIC.LEVELS,
   course: LOGIC.course,
   glossary: { groups: GLOSSARY_GROUPS, entries: GLOSSARY },
-  saves: [],
+  // Version 2 gathered chapter 6's small tasks into fewer levels, as Q.E.D.'s version 30 did.
+  saves: [{ version: 2, ops: [
+    { data: (value, id) => (['t-lam', 't-pair', 't-wapp', 't-wpair', 't-beta', 't-all'].includes(id) ? undefined : value) },
+    { rename: { 't-chain': null, 't-two': null, 't-curry': null, 't-or': null, 't-mt': null, 't-absurd': null, 't-wlam': null, 't-wcases': null, 't-detour': null, 't-casedetour': null, 't-ex': null } },
+  ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
   quotes: ['任取'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
