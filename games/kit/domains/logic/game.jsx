@@ -53,7 +53,7 @@ export function defineLogicGame(spec) {
     brief: L.brief,
     after: L.after,
     // A level of several tasks (../../shell/GameShell.jsx): what each changes of the level.
-    tasks: L.tasks?.map((t) => ({ kind: t.kind, step: t.step, source: t, brief: t.brief, after: t.after, carries: t.carries })),
+    tasks: L.tasks?.map((t) => ({ kind: t.kind, step: t.step, source: t, brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
   }))
   const game = defineGame({
     id: spec.id,
