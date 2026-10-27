@@ -19,7 +19,7 @@ import { checkScript, methodsOf, sentencesOf } from './script.js'
 import { proof } from './build.js'
 import { portsOf } from '../../engine/circuit.js'
 import { lettersOf, tautology } from './truth.js'
-import { MACHINE_PARTS, MACHINE_TESTS } from './machine.js'
+import { MACHINE_PARTS, MACHINE_TESTS, rulePartsOf, wireRules } from './machine.js'
 import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
 import { chipsOf, missingChips } from './formulaTree.js'
 import { freeIn, parseTerm } from './pterm.js'
@@ -95,6 +95,10 @@ export function validate({ levels: given, course }) {
     }
   }
   for (const level of levels.filter((l) => l.kind === 'machine')) {
+    // Every part of the answer is one the level can hold, a rule part one its books have.
+    const holds = new Set([...(level.holds ?? []), ...rulePartsOf(level).keys(), ...(level.parts ?? []), 'in', 'out'])
+    const missing = [...new Set(level.solution.nodes.filter((n) => !presetIds(level).includes(n.id)).map((n) => n.type).filter((t) => !holds.has(t) && !(level.task > 0 && t === builder.get(level.id))))]
+    if (level.holds && missing.length) out.push({ fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
     const good = runLevel(MACHINE_TESTS, level, level.solution)
     out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: machine ${good.pass ? 'PASS' : `FAIL ${good.results.filter((r) => !r.pass).map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} cards]` })
     if (level.naive) {
@@ -140,12 +144,12 @@ export function validate({ levels: given, course }) {
     if (level.given && run(level.given).pass) out.push({ fail: true, text: `${level.id}: the given script already checks` })
   }
   // A machine part a level builds runs as its built-in implementation: alone, it passes the level that builds it, unless
-  // a task of the level proves it (a law card proved on the proof board, then put to work). A part whose circuit chose
-  // a rule takes that choice as its setting (`builtWith`: the setting the level's circuit had).
+  // a task of the level proves it (a law card proved on the proof board, then put to work). A part whose circuit used
+  // rules has them wired in (`builtWith`: the rules, written as a reference answer names a card's, machine.js wireRules).
   const proven = new Set(given.filter((l) => l.proves || l.tasks?.some((t) => t.proves)).map((l) => l.id))
   for (const level of levels.filter((l) => l.builds && MACHINE_PARTS[l.builds] && l.kind === 'machine' && !proven.has(l.id))) {
     const alone = { nodes: [{ id: 'in', type: 'in', params: { name: 'in' } }, { id: 'x', type: level.builds, params: level.builtWith ?? {} }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [{ from: 'in', to: 'x', port: 'in' }, { from: 'x', to: 'out', port: 'in' }] }
-    const run = runLevel(MACHINE_TESTS, level, alone)
+    const run = runLevel(MACHINE_TESTS, level, wireRules(alone, level))
     if (!run.pass) out.push({ fail: true, text: `${level.id}: the built-in ${level.builds} does not pass the level that builds it` })
   }
   // An equation a machine level proves is what its every test proves.

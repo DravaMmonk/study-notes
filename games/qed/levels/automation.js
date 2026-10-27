@@ -90,7 +90,7 @@ export const automation = [
           { goal: '(KA ↔ ¬KB) ∧ KC', becomes: [['((¬KA ∨ ¬KB) ∧ (¬¬KB ∨ KA)) ∧ KC']] },
         ],
         brief: T('接一台机器，把每个目标里的 ↔ 换成两串「或者」。', 'Wire a machine that turns the ↔ in each goal into two strings of “or”.'),
-        hint: [T('改写规则选去掉等价的 A ↔ B ⟼ (¬A ∨ B) ∧ (¬B ∨ A)。', 'Choose Equivalence away’s A ↔ B ⟼ (¬A ∨ B) ∧ (¬B ∨ A) as the rewrite rule.')],
+        hint: [T('改写接上去掉等价的 A ↔ B ⟼ (¬A ∨ B) ∧ (¬B ∨ A)。', 'Wire Equivalence away’s A ↔ B ⟼ (¬A ∨ B) ∧ (¬B ∨ A) into Rewrite.')],
         solution: script(['rw', 'iff.elim']),
       }),
     ],

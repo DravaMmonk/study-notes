@@ -1,5 +1,6 @@
 // Reference machines written short (kit/domains/logic/build.js machine): a card is its type, or [type, setting, more]
-// (the rule of a rule card, the rewrite rule of a rewrite card, the list of rewrite rules of simp, given as an array;
+// (the rule of a rule card, the rewrite rule of a rewrite card, the list of rewrite rules of simp, given as an array:
+// the course puts them on the board as rule parts wired into the card, kit/domains/logic/machine.js wireRules;
 // `more` its other settings, { at: 'hyps' }); a frame is { frame, params?, body: [item] }, alternatives { ways: [[item]] } (an empty way
 // passes the state on).
 import { machine } from '../../kit/domains/logic/build.js'

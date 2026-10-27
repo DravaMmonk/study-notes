@@ -36,13 +36,6 @@
 .lg-field label > span { color: var(--muted); font-size: 11px; }
 .lg-field select { min-width: 0; height: 26px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12.5px var(--mono); }
 .lg-field select:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
-.lg-rule-text { display: block; font: 11px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
-/* simp's rules: the list in order, each with a button that takes it off, then a choice adding one more. */
-.lg-rules-label { color: var(--muted); font-size: 11px; }
-.lg-rules { display: grid; gap: 3px; margin: 0; padding: 0 0 0 18px; }
-.lg-rules li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 4px; font-size: 12px; }
-.lg-rules button { display: grid; place-items: center; width: 20px; height: 20px; padding: 0; border: 0; border-radius: var(--r-sm); color: var(--muted); background: transparent; cursor: pointer; }
-.lg-rules button:hover { color: var(--ink); background: var(--canvas); }
 
 .lg-side { display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; }
 .lg-side span { margin-right: auto; }

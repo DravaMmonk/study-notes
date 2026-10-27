@@ -2,20 +2,20 @@
 // card shows it, what a test asks and how the board's cards are described to the editor.
 //
 //   board  { tests, parts(level), start(level), lock(level, saved), fits(saved, level, parts), Value({ v, text, small, bare }),
-//            scene(level, test, text) → { sequent, want, choices }, settings(parts, node, lemmas), extra?(node, setParam),
-//            nameOf, iconOf, familyOf (lemmas, type), textOf (lemmas, type, revisions): a part's text, words }
-import { ArrowRightFromLine, Box, Flag, Repeat, Rows3, Search, Sigma } from 'lucide-react'
+//            scene(level, test, text) → { sequent, want, choices }, settings(parts, node, level), extra?(node, setParam),
+//            nameOf, iconOf, familyOf (level, type), textOf (level, type, revisions): a part's text, words }
+import { ArrowRightFromLine, Box, Flag, GitFork, Repeat, Rows3, Search, Sigma } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import Entries from '../../../shell/Entries.jsx'
 import { presetOf, regionsFit, withPreset } from '../../../circuit/index.js'
 import { startProof } from '../build.js'
 import { FORMULA_TEXT, fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
-import { sayTerm } from '../notation.js'
 import { choicesOf } from '../choices.js'
 import { LOGIC_TESTS } from '../proof.js'
-import { MACHINE_PARTS, MACHINE_TESTS, inputsOf, inputsOfLevel, parseGoal, ruleBookOf } from '../machine.js'
-import { INTRO_RULES, parseS, ruleText } from '../schematic.js'
-import { rewriteBookOf, rewriteText } from '../rewrite.js'
+import { MACHINE_PARTS, MACHINE_TESTS, RULE_PART, choicesOfPart, inputsOf, inputsOfLevel, parseGoal, rulePartsOf } from '../machine.js'
+import { parseS, ruleText } from '../schematic.js'
+import { rewriteText } from '../rewrite.js'
+import { say, sayTerm } from '../notation.js'
 import { constructorsOf } from '../datatype.js'
 import { paramsOf } from '../../../engine/forms.js'
 import { portsOf } from '../../../engine/circuit.js'
@@ -88,7 +88,7 @@ export const PROOF = {
       },
     }
   },
-  settings: (parts, node, lemmas) => settingsOf(parts.rules, node, lemmas),
+  settings: (parts, node, level) => settingsOf(parts.rules, node, level.lemmas),
   extra: (node, setParam, { ins, text }) => (node.type === 'orI' ? (
     <div className="lg-side" role="group" aria-label={tr('另一边放在', 'Other side goes')} onPointerDown={(e) => e.stopPropagation()}>
       <span>{tr('另一边放', 'Other side')}</span>
@@ -97,10 +97,10 @@ export const PROOF = {
       ))}
     </div>
   ) : node.type === 'rewrite' && <Occurrences node={node} ins={ins} setParam={setParam} text={text} />),
-  nameOf,
-  textOf,
-  iconOf,
-  familyOf,
+  nameOf: (level, type) => nameOf(level.lemmas ?? {}, type),
+  textOf: (level, type, revisions) => textOf(level.lemmas ?? {}, type, revisions),
+  iconOf: (level, type) => iconOf(level.lemmas ?? {}, type),
+  familyOf: (level, type) => familyOf(level.lemmas ?? {}, type),
   words: {
     steps: T('步数', 'Steps'),
     go: T('检查证明', 'Check proof'),
@@ -157,6 +157,11 @@ const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` :
  */
 function MachineValue({ v, text, small = false }) {
   if (!v) return null
+  if (v.kind === 'rules') {
+    const count = tr(`${v.keys.length} 条规则`, `${v.keys.length} rule${v.keys.length === 1 ? '' : 's'}`)
+    if (small) return <span className="lg-clauses is-small"><small>{count}</small></span>
+    return <Entries className="lg-clauses" count={v.keys.length > 1 && count}>{v.names.map((n, k) => <code key={k}>{`${k + 1}. ${L(n)}`}</code>)}</Entries>
+  }
   if (v.kind === 'state') {
     const others = v.more?.length ?? 0
     const alt = others > 0 && <small className="lg-alts">{tr(`第 1 种结果，共 ${others + 1} 种`, `result 1 of ${others + 1}`)}</small>
@@ -208,57 +213,58 @@ const WANT = {
   proved: T('没有目标了：证完', 'no goals left: proved'),
 }
 const MACHINE_ICONS = { repeat: Repeat, saturate: Sigma, search: Search, each: Rows3 }
-// The rules a tactic card offers, in groups: the introduction rules, the elimination and other rules, the lemmas
-// proved, the level's own.
-function ruleGroups(level, text) {
-  const book = ruleBookOf(level)
-  const option = (r) => ({ value: r.key, label: r.name, text: ruleText(r, text) })
-  const rules = Object.values(book)
-  const intro = new Set(INTRO_RULES)
-  return [
-    { label: T('引入规则', 'Introduction rules'), options: rules.filter((r) => intro.has(r.key)).map(option) },
-    { label: T('消去规则和其他', 'Elimination and other rules'), options: rules.filter((r) => !intro.has(r.key) && !r.lemma && !r.own && !r.datatype).map(option) },
-    ...(rules.some((r) => r.datatype) ? [{ label: T('类型声明给的规则', 'Rules a declaration gives'), options: rules.filter((r) => r.datatype).map(option) }] : []),
-    { label: T('证出的引理', 'Lemmas proved'), options: rules.filter((r) => r.lemma).map(option) },
-    ...(level.rules ? [{ label: T('这一关的规则', 'This level’s rules'), options: rules.filter((r) => r.own).map(option) }] : []),
-  ]
+// Rule parts (machine.js rulePartsOf): every rule of a level's books comes from the part it belongs to.
+const isRulePart = (level, type) => !MACHINE_PARTS[type] && rulePartsOf(level).has(type)
+// A sentence in the level's words, in each language, for names made of it.
+const inWords = (level, write) => T(write((f) => say(f, level.notation).zh), write((f) => say(f, level.notation).en))
+const ruleName = (level, r) => (r.group === 'def' ? inWords(level, (text) => defText(r.text, text)) : r.name)
+/** A rule part's name: the proof-board part, lemma or equation it is, or its rule's own name. */
+function rulePartName(level, type) {
+  const r = rulePartsOf(level).get(type)[0].rule
+  if (r.part || level.lemmas?.[type]) return nameOf(level.lemmas ?? {}, type)
+  if (level.facts?.[type]) return level.facts[type].name
+  return ruleName(level, r)
 }
-// The rewrite rules a rewrite card offers, in groups: the laws proved both ways, the level's definitions, the goal's
-// hypotheses.
-function rewriteGroups(level, text) {
-  const rules = Object.values(rewriteBookOf(level))
-  const option = (r) => ({ value: r.key, label: r.name, text: rewriteText(r, text) })
-  const def = (r) => { const s = defText(r.text, text); return { ...option(r), label: T(s, s), text: '' } }
-  return [
-    { label: T('证出的等价律', 'Laws proved'), options: rules.filter((r) => r.group === 'law').map(option) },
-    ...(rules.some((r) => r.group === 'fact') ? [{ label: T('证出的等式', 'Equations proved'), options: rules.filter((r) => r.group === 'fact').map(option) }] : []),
-    ...(level.defs?.length ? [{ label: T('定义', 'Definitions'), options: rules.filter((r) => r.group === 'def').map(def) }] : []),
-    { label: T('目标的已知', 'The goal’s hypotheses'), options: rules.filter((r) => r.group === 'hyp').map(option) },
-  ]
+/** What a rule part gives: each of its rules, written out. */
+function rulePartText(level, type) {
+  const entries = rulePartsOf(level).get(type)
+  const written = (e) => (e.book === 'rule' ? ruleText(e.rule, show) : rewriteText(e.rule, show) || L(e.rule.name))
+  const lines = choicesOfPart(entries).map((key) => written(entries.find((e) => e.key === key)))
+  return {
+    name: rulePartName(level, type),
+    desc: T(`给出规则：${lines.join('；')}。接进别的规则元件时，接在它们后面。`, `Gives the rule: ${lines.join('; ')}. Wired another rule part, it comes after their rules.`),
+  }
 }
+/** The choices of a rule part with several rules: [{ value, label }]. */
+const usesOf = (level, type) => {
+  const entries = rulePartsOf(level).get(type)
+  return choicesOfPart(entries).map((key) => ({ value: key, label: L(ruleName(level, entries.find((e) => e.key === key).rule)) }))
+}
+const RULES_PORT = T('规则', 'Rules')
+const BEFORE_PORT = T('前面', 'Before')
 // A definition as the level writes it, in the level's words: 'c ⟹ l = r'.
 function defText(d, text) {
   const [cond, eq] = d.includes('⟹') ? d.split('⟹') : [null, d]
   return `${cond ? `${cond.split(';').map((c) => text(parseS(c.trim()))).join(tr('；', '; '))} ⟹ ` : ''}${text(parseS(eq.trim()))}`
 }
-const machineName = (type) => MACHINE_TEXT[type]?.name ?? type
+const machineName = (level, type) => (isRulePart(level, type) ? rulePartName(level, type) : MACHINE_TEXT[type]?.name ?? type)
 
 /** The editor's description of a machine board (../../../circuit/model.js parts), for a level's inputs. */
 function machinePartsFor(level) {
   const labels = new Map(inputsOfLevel(level).map((i) => [i.name, i.label]))
   return {
-    inputs: (node) => (node.type === 'out' ? ['in'] : node.type === 'in' ? [] : MACHINE_PARTS[node.type] ? portsOf(MACHINE_PARTS[node.type], node) : []),
+    inputs: (node) => (node.type === 'out' ? ['in'] : node.type === 'in' ? [] : MACHINE_PARTS[node.type] ? portsOf(MACHINE_PARTS[node.type], node) : isRulePart(level, node.type) ? portsOf(RULE_PART, node) : []),
     role: (node) => (node.type === 'in' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
-    label: (node) => (node.type === 'in' ? labels.get(node.params.name) ?? T('输入', 'Input') : node.type === 'out' ? T('结果', 'Result') : machineName(node.type)),
-    portLabel: (node, port) => (MACHINE_TEXT[node.type]?.frames?.[port] ? T('结果', 'Result') : MACHINE_TEXT[node.type]?.ports?.[port] ?? ''),
-    family: (node) => (node.type === 'in' ? 'given' : node.type === 'out' ? 'end' : MACHINE_PARTS[node.type]?.frames ? 'box' : 'lemma'),
-    icon: (node) => (node.type === 'in' ? ArrowRightFromLine : node.type === 'out' ? Flag : MACHINE_ICONS[node.type] ?? (MACHINE_PARTS[node.type]?.frames ? Box : Sigma)),
+    label: (node) => (node.type === 'in' ? labels.get(node.params.name) ?? T('输入', 'Input') : node.type === 'out' ? T('结果', 'Result') : machineName(level, node.type)),
+    portLabel: (node, port) => (port === 'rules' ? RULES_PORT : port === 'before' ? BEFORE_PORT : MACHINE_TEXT[node.type]?.frames?.[port] ? T('结果', 'Result') : MACHINE_TEXT[node.type]?.ports?.[port] ?? ''),
+    family: (node) => (node.type === 'in' ? 'given' : node.type === 'out' ? 'end' : isRulePart(level, node.type) ? 'rule' : MACHINE_PARTS[node.type]?.frames ? 'box' : 'lemma'),
+    icon: (node) => (node.type === 'in' ? ArrowRightFromLine : node.type === 'out' ? Flag : isRulePart(level, node.type) ? GitFork : MACHINE_ICONS[node.type] ?? (MACHINE_PARTS[node.type]?.frames ? Box : Sigma)),
     // A frame gives its result, and inside each region what that region opens with.
     outputs: (node) => (MACHINE_PARTS[node.type]?.frames ? [{ key: null, label: T('得出', 'Result'), short: T('得出', 'Result') }, ...MACHINE_PARTS[node.type].frames(node).filter((r) => r.opens).map((r) => ({ key: r.name, label: T('收到', 'Receives'), short: T('收到', 'Receives') }))] : null),
     cardWidth: (node) => (MACHINE_PARTS[node.type]?.frames ? 260 : node.type === 'in' || node.type === 'out' ? 190 : 170),
     frames: (node) => (MACHINE_PARTS[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: MACHINE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),
     text: FORMULA_TEXT,
-    rules: Object.fromEntries(Object.entries(MACHINE_PARTS).filter(([type]) => type !== 'in' && type !== 'out')),
+    rules: { ...Object.fromEntries(Object.entries(MACHINE_PARTS).filter(([type]) => type !== 'in' && type !== 'out')), ...Object.fromEntries([...rulePartsOf(level).keys()].map((type) => [type, RULE_PART])) },
   }
 }
 
@@ -286,17 +292,20 @@ export const MACHINE = {
     return {
       sequent: <>{level.datatypes && <span>{tr('类型', 'Types')} <b>{Object.entries(level.datatypes).map(([type, d]) => `${type} = ${constructorsOf(d).map((c) => text({ op: 'atom', pred: '=', args: [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))] }).split(' = ')[0]).join(' | ')}`).join(tr('；', '; '))}</b> · </span>}{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => defText(d, text)).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,
-      choices: { rule: ruleGroups(level, text), rewrite: rewriteGroups(level, text) },
+      choices: { uses: Object.fromEntries([...rulePartsOf(level).keys()].map((type) => [type, usesOf(level, type)])) },
     }
   },
-  settings: (parts, node) => [
-    ...(parts.rules[node.type]?.forms ? [{ key: 'form', kind: 'form' }] : []),
-    ...paramsOf(parts.rules[node.type], node).map((key) => ({ key, label: MACHINE_TEXT[node.type]?.params?.[key] ?? key, kind: key })),
-  ],
-  nameOf: (_lemmas, type) => machineName(type),
-  textOf: (_lemmas, type, revisions = {}) => withRevisions(MACHINE_TEXT[type], revisions[type]),
-  iconOf: (_lemmas, type) => MACHINE_ICONS[type] ?? (MACHINE_PARTS[type]?.frames ? Box : Sigma),
-  familyOf: (_lemmas, type) => (MACHINE_PARTS[type]?.frames ? 'box' : 'lemma'),
+  // A rule part with several rules chooses one; another card's settings are its own.
+  settings: (parts, node, level) => (isRulePart(level, node.type)
+    ? (usesOf(level, node.type).length > 1 ? [{ key: 'use', label: T('用哪一条', 'Which rule'), kind: 'use' }] : [])
+    : [
+      ...(parts.rules[node.type]?.forms ? [{ key: 'form', kind: 'form' }] : []),
+      ...paramsOf(parts.rules[node.type], node).map((key) => ({ key, label: MACHINE_TEXT[node.type]?.params?.[key] ?? key, kind: key })),
+    ]),
+  nameOf: (level, type) => machineName(level, type),
+  textOf: (level, type, revisions = {}) => (isRulePart(level, type) ? rulePartText(level, type) : withRevisions(MACHINE_TEXT[type], revisions[type])),
+  iconOf: (level, type) => (isRulePart(level, type) ? GitFork : MACHINE_ICONS[type] ?? (MACHINE_PARTS[type]?.frames ? Box : Sigma)),
+  familyOf: (level, type) => (isRulePart(level, type) ? 'rule' : MACHINE_PARTS[type]?.frames ? 'box' : 'lemma'),
   words: {
     steps: T('元件', 'Cards'),
     go: T('运行全部测试', 'Run every test'),

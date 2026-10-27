@@ -13,6 +13,8 @@ const CARD = (n) => {
   return n
 }
 const machineCards = (value) => (Array.isArray(value) ? value.map(machineCards) : value?.nodes ? { ...value, nodes: value.nodes.map(CARD) } : value)
+// A saved board that names a rule on a card (before version 37), dropped: its level starts it afresh.
+const unruled = (board) => (board?.nodes?.some((n) => ['rule', 'rewrite', 'rewrites'].some((k) => n.params?.[k])) ? null : board)
 
 export default {
   id: 'qed',
@@ -148,7 +150,10 @@ export default {
   { version: 36, ops: [
     { solve: ['sp-compute', ['nl-plus']] },
     { data: (value, id) => (id === 'in-zero' && Array.isArray(value) ? [value[0] ?? null, null, value[1] ?? null] : value) },
-  ] }],
+  ] },
+  // Version 37 made rules parts on the machine board, wired into the cards that use them: a board that chose a rule
+  // on a card starts afresh.
+  { version: 37, ops: [{ data: (value) => (Array.isArray(value) ? value.map(unruled) : unruled(value)) }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器'],

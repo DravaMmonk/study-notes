@@ -102,7 +102,7 @@ const fact = (zh, en, statement, desc) => ({ name: T(zh, en), statement, desc })
 export const FACTS = {
   addZero: fact('加零', 'Add zero', '∀x. plus(x, zero) = x', T('证出的等式 x + 0 = x：一条规则，也是化简的一条改写规则。', 'The equation proved, x + 0 = x: a rule, and a rewrite rule for Simp.')),
   addSucc: fact('加后继', 'Add successor', '∀x. ∀y. plus(x, s(y)) = s(plus(x, y))', T('证出的等式 x + S y = S (x + y)：一条规则，也是化简的一条改写规则。', 'The equation proved, x + S y = S (x + y): a rule, and a rewrite rule for Simp.')),
-  addComm: fact('加法交换', 'Addition commutes', '∀x. ∀y. plus(x, y) = plus(y, x)', T('证出的等式 x + y = y + x：一条规则，也是一条改写规则（排进化简会来回改，停不下来）。', 'The equation proved, x + y = y + x: a rule, and a rewrite rule (in Simp it turns back and forth, never stopping).')),
+  addComm: fact('加法交换', 'Addition commutes', '∀x. ∀y. plus(x, y) = plus(y, x)', T('证出的等式 x + y = y + x：一条规则，也是一条改写规则（接进化简会来回改，停不下来）。', 'The equation proved, x + y = y + x: a rule, and a rewrite rule (in Simp it turns back and forth, never stopping).')),
   addAssoc: fact('加法结合', 'Addition associates', '∀x. ∀y. ∀z. plus(plus(x, y), z) = plus(x, plus(y, z))', T('证出的等式 (x + y) + z = x + (y + z)：一条规则，也是化简的一条改写规则。', 'The equation proved, (x + y) + z = x + (y + z): a rule, and a rewrite rule for Simp.')),
   appNil: fact('接空列表', 'Append nil', '∀xs. app(xs, nil) = xs', T('证出的等式 xs ++ [] = xs：一条规则，也是化简的一条改写规则。', 'The equation proved, xs ++ [] = xs: a rule, and a rewrite rule for Simp.')),
   appAssoc: fact('拼接结合', 'Append associates', '∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))', T('证出的等式 (xs ++ ys) ++ zs = xs ++ (ys ++ zs)：一条规则，也是化简的一条改写规则。', 'The equation proved, (xs ++ ys) ++ zs = xs ++ (ys ++ zs): a rule, and a rewrite rule for Simp.')),
@@ -137,9 +137,9 @@ const REVISIONS = {
   repeat: [{ at: 's-results', desc: T('框开出它收到的东西，框里接出新的东西送回「结果」；框把结果再送进去，一圈一圈地做，直到不再变化或者失败（停在失败前的一圈），送出最后一圈的结果。有几种结果时，它只顺着第一种往下做。', 'The frame opens with what it receives; what is made inside goes back into “result”; the frame feeds it in again, round after round, until it stops changing or fails (stopping at the round before), and gives the last round. With several results, it follows only the first.') }],
   assumption: [{ at: 's-results', desc: T('第一个目标和它的一条已知合一：对上了，这个目标就证完了。每一条对上的已知都是一种结果，按从上往下的顺序。', 'The first goal is unified with one of its hypotheses: when one fits, that goal is done. Each hypothesis that fits is a result, in order from the top.') }],
   // Rewriting the hypotheses comes with the clause chapter.
-  rw: [{ at: 'au-hyps', desc: T('元件上选一条改写规则：在第一个目标里，从外往里、从左往右找第一处对得上规则左边的地方，换成右边，只换这一处。规则带条件的，条件成了新目标，排在它后面。哪一处都对不上，就失败。「改哪里」选已知，改的就是第一个目标从上往下第一条对得上的已知。', 'Choose a rewrite rule on the part: in the first goal, outside in and left to right, the first place that fits the rule’s left side becomes its right side, that place alone. A rule with conditions leaves each as a new goal after it. If no place fits, it fails. With “where” set to the hypotheses, it rewrites the first goal’s first hypothesis from the top that the rule fits.') }],
-  simp: [{ at: 'au-hyps', desc: T('元件上排好一串改写规则：每一圈用第一条对得上的规则改写一处，一圈一圈改下去，直到哪一条都对不上。「改哪里」选已知，改的就是第一个目标的已知。', 'Line up rewrite rules on the part: each round, the first rule that fits rewrites one place, round after round, until none fits. With “where” set to the hypotheses, it rewrites the first goal’s hypotheses.') }],
-  erule: [{ at: 's-results', desc: T('元件上选一条规则：先用规则，再拿已知里有对上它留下的第一个目标。规则的结论对上第一个目标，第一条前提对上一条已知；剩下的前提各成一个目标。每一条对上的已知都是一种结果。', 'Choose a rule on the part: Rule, then Assumption on the first goal it leaves. The rule’s conclusion fits the first goal and its first premise a hypothesis; each other premise is a goal. Each hypothesis that fits is a result.') }],
+  rw: [{ at: 'au-hyps', desc: T('接进改写规则：在第一个目标里，从外往里、从左往右找第一处对得上规则左边的地方，换成右边，只换这一处。规则带条件的，条件成了新目标，排在它后面。接进几条时用第一条对得上的；哪一处都对不上，就失败。「改哪里」选已知，改的就是第一个目标从上往下第一条对得上的已知。', 'Takes rewrite rules: in the first goal, outside in and left to right, the first place that fits the rule’s left side becomes its right side, that place alone. A rule with conditions leaves each as a new goal after it. Given several, it uses the first that fits; if no place fits, it fails. With “where” set to the hypotheses, it rewrites the first goal’s first hypothesis from the top that the rule fits.') }],
+  simp: [{ at: 'au-hyps', desc: T('接进一串改写规则：每一圈用第一条对得上的规则改写一处，一圈一圈改下去，直到哪一条都对不上。「改哪里」选已知，改的就是第一个目标的已知。', 'Takes a list of rewrite rules: each round, the first that fits rewrites one place, round after round, until none fits. With “where” set to the hypotheses, it rewrites the first goal’s hypotheses.') }],
+  erule: [{ at: 's-results', desc: T('接进规则：先用规则，再拿已知里有对上它留下的第一个目标。规则的结论对上第一个目标，第一条前提对上一条已知；剩下的前提各成一个目标。接进几条时，每一条、每一条对上的已知都是一种结果。', 'Takes rules: Rule, then Assumption on the first goal it leaves. The rule’s conclusion fits the first goal and its first premise a hypothesis; each other premise is a goal. Each rule wired in, and each hypothesis that fits, is a result.') }],
 }
 
 const COURSE = {
@@ -155,7 +155,7 @@ const COURSE = {
   machines: ['unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'clausify', 'saturate', 'metis'],
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'natInd',
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
-    'append', 'each', 'defer', 'search', 'rw', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
+    'append', 'each', 'defer', 'search', 'rw', 'hyp', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
   concept: { andI: 'and', andE: 'and', rewrite: 'eq', refl: 'eq' },
   // Parts that stay where a level brings them, so the components box keeps only what goes on being used: the steps of

@@ -137,7 +137,7 @@ export const metavars = [
     brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
     hint: [T('三个目标是同一个样子。你证出过一条结论正是这个样子的引理。', 'The three goals have the same shape. You proved a lemma whose conclusion has exactly that shape.')],
     intro: [
-      { t: T('有了合一器，就能倒着用规则（<wiki-ref to="backward"></wiki-ref>）。新元件<part-ref to="part:rule"></part-ref>：元件上选一条规则，它把第一个目标和规则的结论合一，再把目标换成规则的前提，每条前提一个新目标。没有前提的规则对上了，目标就证完了。', 'With the unifier, rules can be used backwards (<wiki-ref to="backward"></wiki-ref>). A new part, <part-ref to="part:rule"></part-ref>: choose a rule on the part; it unifies the first goal with the rule’s conclusion and replaces the goal with the rule’s premises, a new goal for each. A rule with no premises that fits finishes the goal.') },
+      { t: T('有了合一器，就能倒着用规则（<wiki-ref to="backward"></wiki-ref>）。新元件<part-ref to="part:rule"></part-ref>：从它的「规则」口接进一条规则，它把第一个目标和规则的结论合一，再把目标换成规则的前提，每条前提一个新目标。没有前提的规则对上了，目标就证完了。规则也是元件：证明板上的每个元件，在这块板上就是给出它那条规则的元件，几张规则元件可以串成一串接进去。', 'With the unifier, rules can be used backwards (<wiki-ref to="backward"></wiki-ref>). A new part, <part-ref to="part:rule"></part-ref>: wire a rule into its port “Rules”; it unifies the first goal with the rule’s conclusion and replaces the goal with the rule’s premises, a new goal for each. A rule with no premises that fits finishes the goal. Rules are parts too: each proof-board part is, on this board, a part that gives its rule, and several rule parts can be chained into one list.') },
       { t: T('元件上能选的，是证明核的规则，还有你证出的每一条引理：它们都写成 ⟦前提⟧ ⟹ 结论。线上传的东西换了：从这里起，线上是<wiki-ref to="proof-state"></wiki-ref>，还没证完的目标。', 'The part offers the kernel’s rules and every lemma you have proved, each written ⟦premises⟧ ⟹ conclusion. What the wires carry has changed: from here on, a wire carries a <wiki-ref to="proof-state"></wiki-ref>, the goals still open.') },
     ],
     solution: script(['rule', 'axK']),
@@ -318,7 +318,7 @@ export const metavars = [
       { goal: 'Likes(ann, bo)', hyps: ['Human(bo)', '∀y. Human(y) → Likes(ann, y)'], becomes: [['Human(bo); ∀y. Human(y) → Likes(ann, y); Human(?t) → Likes(ann, ?t) ⊢ Likes(ann, bo)']] },
     ],
     brief: T('接一台机器：从「对所有」那条已知取一个，加进已知，把每个目标变成要的样子。', 'Wire a machine that takes one from the “for all” given and adds it to the givens, turning each goal into the one wanted.'),
-    hint: [T('先证一句倒着用，第一个目标是一个光秃秃的 ?A；规则对已知选取一个，?A 就从「对所有」那条已知里定下来。', 'Have used backwards leaves a bare ?A as the first goal; Rule on a given with Take one settles ?A from the “for all” given.')],
+    hint: [T('先证一句倒着用，第一个目标是一个光秃秃的 ?A；规则对已知接上取一个，?A 就从「对所有」那条已知里定下来。', 'Have used backwards leaves a bare ?A as the first goal; Rule on a given with Take one settles ?A from the “for all” given.')],
     intro: [
       { t: T('取一个写成规则是 ⟦∀x. ?P(x)⟧ ⟹ ?P(?t)。倒着用，结论 ?P(?t) 要对上「苏格拉底会死」：?P 后面跟的是 ?t，不是约束变量。?P 是「x会死」、?t 是苏格拉底？还是 ?P 就是「苏格拉底会死」、?t 随便？解不止一个，合一器不猜，元件对不上。', 'Take one as a rule is ⟦∀x. ?P(x)⟧ ⟹ ?P(?t). Backwards, its conclusion ?P(?t) must fit “Socrates is mortal”: ?P is followed by ?t, not by a bound variable. Is ?P “x is mortal” with ?t Socrates, or is ?P just “Socrates is mortal” with ?t anything? There is more than one solution, the unifier does not guess, and the part does not fit.') },
       { t: T('证明板上不用倒着来：取一个接在「对所有」那条已知后面，得出的一句再接给别的元件。中间得出一句、再拿来用，写成规则是<b>先证一句</b> ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C。倒着用它，多出一个目标 ?A，证出来的 ?A 进了下一个目标的已知。接出的机器会成为新元件「往前推」，规则留到元件上去选。', 'On the proof board there was no need to go backwards: Take one wired after the “for all” given, and what it gave wired on. Getting a sentence on the way and then using it is, as a rule, <b>Have</b>: ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C. Used backwards it adds a goal ?A, and the ?A proved joins the next goal’s givens. The machine you wire becomes a new part, “Forward”, the rule left to choose on the part.') },
@@ -342,7 +342,7 @@ export const metavars = [
     title: T('拿出那一个倒过来', 'Taking out, backwards'),
     tests: [{ goal: 'Pigs', hyps: ['∃x. Human(x) ∧ ¬Human(x)'] }, { goal: 'Moon', hyps: ['∃y. ¬Bird(y) ∧ Bird(y)'] }],
     brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
-    hint: [T('规则对已知选拿出那一个，对上「存在」那条已知：那一样东西叫 a，目标前面多了 ⋀a。', 'Rule on a given with Take the one there is, on the “there is” given: that thing is called a, and ⋀a comes in front of the goal.')],
+    hint: [T('规则对已知接上拿出那一个，对上「存在」那条已知：那一样东西叫 a，目标前面多了 ⋀a。', 'Rule on a given with Take the one there is, on the “there is” given: that thing is called a, and ⋀a comes in front of the goal.')],
     intro: [{ t: T('拿出那一个写成规则是 ⟦∃x. ?P(x); ⋀x. ⟦?P(x)⟧ ⟹ ?C⟧ ⟹ ?C。它也是消去规则：第一条前提对上一条「存在」，第二条前提前面的 ⋀x，让新目标里多出一样叫 a 的东西和关于它的已知。', 'Take the one there is as a rule is ⟦∃x. ?P(x); ⋀x. ⟦?P(x)⟧ ⟹ ?C⟧ ⟹ ?C. It is an elimination rule too: its first premise fits a “there is”, and the ⋀x in front of the second gives the new goal a thing called a and a given about it.') }],
     solution: script(['rule', 'botE'], ['erule', 'exE'], ['erule', 'conjE'], ['erule', 'mp'], 'assumption'),
     after: T('a 是这个目标自己取出来的：它前面写着 ⋀a，只在这个目标里有。', 'a was taken out by this goal itself: the ⋀a in front of it says a exists only within this goal.'),
