@@ -541,7 +541,7 @@ export const GLOSSARY = [
   },
   {
     id: 'undecidable', group: 'limits', title: T('不可判定', 'undecidability'), at: 'u-halt',
-    body: [T(`没有判定程序能对每个问题都答对，这类问题就<b>不可判定</b>。停机问题是第一个（Turing，1936）。一阶逻辑的定理是半可判定的：推得出的，归结总能找到；推不出的，饱和可能永远停不下（Church 和 Turing，1936）。所以自动化只能帮忙，不能全包。`, `When no decision procedure answers every problem of a kind correctly, the kind is <b>undecidable</b>. The halting problem was the first (Turing, 1936). First-order validity is semi-decidable: what follows, resolution always finds; what does not, saturation may never stop on (Church and Turing, 1936). So automation can help, but never do it all.`)],
+    body: [T(`没有判定程序能对每个问题都答对，这类问题就<b>不可判定</b>。停机问题是第一个（Turing，1936）。一阶逻辑的定理也不可判定，只是半可判定（Church 和 Turing，1936）：推得出的，按部就班地搜总能找到；推不出的，搜索可能永远停不下。所以自动化只能帮忙，不能全包。`, `When no decision procedure answers every problem of a kind correctly, the kind is <b>undecidable</b>. The halting problem was the first (Turing, 1936). First-order validity is undecidable too, only semi-decidable (Church and Turing, 1936): what follows, a methodical search always finds; on what does not, the search may never stop. So automation can help, but never do it all.`)],
     see: ['reduction', 'refutation'],
   },
   {

@@ -159,7 +159,10 @@ export const ERAS = [
       ),
     ],
     // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.
-    topics: [{ id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
+    topics: [
+      { id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') },
+      { id: 'bounds', code: 'U', after: 'kk-one', levels: ['u-barber', 'u-cantor', 'u-ls', 'u-halt'], title: T('机器做不到的事', 'What no machine can do') },
+    ],
     challenges: [{ level: 'peirce', after: 'lemCases' }],
     chapter: { title: T('经典逻辑', 'Classical logic'), question: T('真值表上每一行都真的话，证明器都证得出吗？', 'Does the prover prove everything true on every row?') },
   },
@@ -250,7 +253,6 @@ export const ERAS = [
     practice: [series('use', '交给机器', 'Handed to the machine', ['au-adder', 'au-machine'])],
     topics: [
       { id: 'islanders-more', code: 'N', after: ['au-replay', 'kk-three'], levels: ['is-three', 'is-silent', 'is-ten'], title: T('岛民变多', 'More islanders') },
-      { id: 'bounds', code: 'U', after: ['au-sledge', 'kk-one'], levels: ['u-barber', 'u-cantor', 'u-ls', 'u-halt'], title: T('自动化的边界', 'What no machine can do') },
     ],
     challenges: [{ level: 'au-horn', after: 'au-saturate' }],
     chapter: { title: T('自动化与证书', 'Automation and certificates'), question: T('证明能交给机器去找吗？机器找到的，凭什么信？', 'Can a machine be left to find proofs, and why believe what it finds?') },

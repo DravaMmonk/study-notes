@@ -6,8 +6,7 @@
 // need nothing from each other: certificates (the saturator's steps replayed by hand, then by the kernel: the
 // reconstructor; and someone else's prover caught out) and reflection (a decision procedure defined by equations, run
 // by the kernel's computing: rfl). Practice uses the reconstructor on circuits and the problems of chapter 5. The
-// islanders come back, many of them; the liar grows into the halting problem; the challenge cancels only what is
-// forced.
+// islanders come back, many of them; the challenge cancels only what is forced.
 import { proof } from '../../kit/domains/logic/build.js'
 import { BASIC } from '../../kit/domains/logic/termTree.js'
 import { flow, script } from './machines.js'
@@ -53,15 +52,6 @@ const ring = (n) => {
   const K = 'ABCDEFGHIJ'.split('').slice(0, n).map((c) => `K${c}`)
   return [...K.slice(0, -1).map((k, i) => `${k} ↔ ¬${K[i + 1]}`), `${K.at(-1)} ↔ ¬${K[0]} ∧ ¬${K[1]}`]
 }
-// The liar made bigger: from X ↔ Y and Y ↔ ¬X, the liar X ↔ ¬X, then ⊥. Its cards go in `region`.
-const liarOf = (two, region) => ({
-  nodes: {
-    s1: ['andE', {}, region], s2: ['andE', {}, region],
-    c1: ['chain', {}, region], c2: ['chain', {}, region],
-    j: ['andI', {}, region], l: ['liar', {}, region],
-  },
-  wires: [`${two[0]}>s1.ab`, `${two[1]}>s2.ab`, 's1#left>c1.p0', 's2#left>c1.p1', 's2#right>c2.p0', 's1#right>c2.p1', 'c1>j.a', 'c2>j.b', 'j>l.p0'],
-})
 const ADDER = ['Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)', 'Carry ↔ InA ∧ InB']
 
 export const automation = [
@@ -476,75 +466,6 @@ export const automation = [
     solution: flow('metis'),
     after: T('十个人的真值表有 1024 行。机器从二十来条子句出发，推出几百条，就找到了矛盾。现代的 SAT 求解器做的也是这件事，只是更会挑先消哪一对，能处理上百万个字母。', 'Ten people make a truth table of 1024 rows. The machine starts from about twenty clauses, makes a few hundred, and finds the contradiction. Modern SAT solvers do just this, only far better at picking which pair to cancel first, and handle millions of letters.'),
   }),
-
-  // ---------- topic: what no machine can do ----------
-  {
-    id: 'u-barber',
-    kind: 'proof',
-    title: T('理发师', 'The barber'),
-    tests: [{ premises: { p: '∃x. ∀y. R(x, y) ↔ ¬R(y, y)' }, goal: '⊥' }],
-    cases: [{ R: 'Shaves' }, { R: 'Teaches' }],
-    brief: T('村里的理发师说：「我给且只给不给自己刮胡子的人刮胡子。」实现一个证明器，从「有这么一个人 x：对所有 y，x 给 y 刮胡子 ↔ y 不给自己刮」证明出矛盾 ⊥。', 'The village barber says: “I shave exactly those who do not shave themselves.” Build a prover that, from “there is an x such that for every y, x shaves y ↔ y does not shave himself”, proves the contradiction ⊥.'),
-    hint: [
-      T('拿出那个理发师，再问：他给不给自己刮？', 'Take the barber out, then ask: does he shave himself?'),
-      T('把 y 取成理发师自己，就是<part-ref to="lemma:liar"></part-ref>。', 'Take y to be the barber himself, and it is <part-ref to="lemma:liar"></part-ref>.'),
-    ],
-    intro: [{ t: T('自动证明器能证的总能找到证明，可证不出的，它不一定停得下来。这个专题从<level-ref to="kk-one"></level-ref>的<part-ref to="lemma:liar"></part-ref>出发，看机器做不到的事。', 'What an automatic prover can prove it always finds a proof of, but what it cannot, it may never stop on. This topic starts from <part-ref to="lemma:liar"></part-ref> of <level-ref to="kk-one"></level-ref> and looks at what no machine can do.') }],
-    solution: proof({ f: ['exE', { x: 'a' }], a: ['allE', { t: 'a' }, 'f'], l: ['liar', {}, 'f'] }, ['p>f.ex', 'f#body>a.all', 'a>l.p0', 'l>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('「对所有 y」里的 y 取成 x 自己，叫<wiki-ref to="diagonal"></wiki-ref>：一张 x 对 y 的表，只看 x 对 x 的那条斜线。理发师说的话套到自己身上，就成了说谎者。', 'Taking the y of “for every y” to be x itself is the <wiki-ref to="diagonal"></wiki-ref>: in a table of x against y, look only at the line of x against x. Turned on himself, the barber’s rule is the liar.'),
-  },
-  {
-    id: 'u-cantor',
-    kind: 'proof',
-    title: T('康托尔', 'Cantor'),
-    tests: [{ premises: { s: '∀z. ∃x. ∀y. P(y, f(x)) ↔ P(y, z)', d: '∃z. ∀y. P(y, z) ↔ ¬P(y, f(y))' }, goal: '⊥' }],
-    cases: [{ P: 'In' }],
-    brief: T('f 给每个 x 配一个集合 f(x)。已知每个集合都是某个 f(x)（f 是满射）；又有一个集合 z，装的正好是不属于 f(y) 的那些 y。实现一个证明器，推出矛盾 ⊥。', 'f gives each x a set f(x). Every set is some f(x) (f is onto); and there is a set z holding exactly the y not in f(y). Build a prover that gets the contradiction ⊥.'),
-    hint: [
-      T('先拿出 z，再拿出那个让 f(x) 和 z 一样的 x，然后都取 y = x。', 'Take out z, then the x whose f(x) is z, then take y = x in both.'),
-      T('得到 X ↔ Y 和 Y ↔ ¬X：两个都拆开，用串联接成 X → ¬X 和 ¬X → X，再拼起来就是说谎者。', 'You get X ↔ Y and Y ↔ ¬X: split both, chain them into X → ¬X and ¬X → X, and joined that is the liar.'),
-    ],
-    solution: (() => {
-      const l = liarOf(['a2', 'a3'], 'e2')
-      return proof({
-        e1: ['exE', { x: 'a' }], a1: ['allE', { t: 'a' }, 'e1'], e2: ['exE', { x: 'b' }, 'e1'],
-        a2: ['allE', { t: 'b' }, 'e2'], a3: ['allE', { t: 'b' }, 'e2'], ...l.nodes,
-      }, ['d>e1.ex', 's>a1.all', 'a1>e2.ex', 'e2#body>a2.all', 'e1#body>a3.all', ...l.wires, 'l>e2.body', 'e2>e1.body', 'e1>goal'], { premises: ['s', 'd'] })
-    })(),
-    naive: proof({ e1: ['exE', { x: 'a' }], a3: ['allE', { t: 'a' }, 'e1'], l: ['liar', {}, 'e1'] }, ['d>e1.ex', 'e1#body>a3.all', 'a3>l.p0', 'l>e1.body', 'e1>goal'], { premises: ['s', 'd'] }),
-    after: T('没有一个 f 能把一个集合的元素和它的所有子集一一对上：子集总是更多。这是康托尔的定理，对角线用在了函数上。', 'No f can match the elements of a set with all its subsets: there are always more subsets. That is Cantor’s theorem, the diagonal turned on functions.'),
-  },
-  {
-    id: 'u-ls',
-    kind: 'proof',
-    title: T('不接受自己的程序', 'Programs that reject themselves'),
-    tests: [{ premises: { r: '∃x. ∀y. M(x, c(y)) ↔ L(c(y))', ls: '∀y. L(c(y)) ↔ ¬M(y, c(y))' }, goal: '⊥' }],
-    cases: [{ M: 'Accepts', L: 'Ls' }],
-    brief: T('⟨y⟩ 是图灵机 y 的编码。L_s 装的是不接受自己编码的机器的编码。实现一个证明器：假设有一台机器 x 识别 L_s，推出矛盾 ⊥。', '⟨y⟩ is the code of the Turing machine y. L_s holds the codes of machines that do not accept their own code. Build a prover: supposing some machine x recognises L_s, get the contradiction ⊥.'),
-    hint: [T('还是对角线：让 x 读它自己的编码。', 'The diagonal again: let x read its own code.')],
-    solution: (() => {
-      const l = liarOf(['a1', 'a2'], 'e')
-      return proof({ e: ['exE', { x: 'a' }], a1: ['allE', { t: 'a' }, 'e'], a2: ['allE', { t: 'a' }, 'e'], ...l.nodes }, ['r>e.ex', 'e#body>a1.all', 'ls>a2.all', ...l.wires, 'l>e.body', 'e>goal'], { premises: ['r', 'ls'] })
-    })(),
-    after: T('程序可以把程序当输入，所以对角线也能用在程序上：L_s 连识别都识别不了。', 'Programs can take programs as input, so the diagonal works on programs too: L_s cannot even be recognised.'),
-  },
-  {
-    id: 'u-halt',
-    kind: 'proof',
-    title: T('停机问题', 'The halting problem'),
-    tests: [{ premises: { con: '(∃x. H(x)) → ∃x. ∀y. T(x, c(y)) ↔ ¬T(y, c(y))', red: '(∃x. G(x)) → ∃x. H(x)' }, goal: '¬∃x. G(x)' }],
-    cases: [{ H: 'DecH', G: 'DecA', T: 'Halts' }],
-    brief: T('已知：要是有判定停机的机器，就能造出一台 x，它在 ⟨y⟩ 上停机恰好当 y 在 ⟨y⟩ 上不停机；要是有判定 A_TM 的机器，就能造出判定停机的机器。实现一个证明器，证明没有机器判定 A_TM。', 'Given: if some machine decides halting, a machine x can be built that halts on ⟨y⟩ exactly when y does not halt on ⟨y⟩; and if some machine decides A_TM, one deciding halting can be built. Build a prover that proves no machine decides A_TM.'),
-    hint: [
-      T('假设有判定 A_TM 的机器，一路套用到造出那台 x。', 'Assume a machine deciding A_TM, and apply all the way to the machine x.'),
-      T('拿出 x，让它读自己的编码。', 'Take out x and let it read its own code.'),
-    ],
-    solution: proof({
-      h: ['impI', { A: '∃x. G(x)' }], m1: ['mp', {}, 'h'], m2: ['mp', {}, 'h'],
-      e: ['exE', { x: 'a' }, 'h'], a: ['allE', { t: 'a' }, 'e'], l: ['liar', {}, 'e'],
-    }, ['red>m1.imp', 'h#body>m1.a', 'con>m2.imp', 'm1>m2.a', 'm2>e.ex', 'e#body>a.all', 'a>l.p0', 'l>e.body', 'e>h.body', 'h>goal'], { premises: ['con', 'red'] }),
-    after: T('假设判定器存在，造出一台和它作对的机器，让它读自己：对角线。再用<wiki-ref to="reduction"></wiki-ref>把一个问题的<wiki-ref to="undecidable"></wiki-ref>传给另一个。一阶逻辑也一样：没有程序能对每一句都回答「推得出还是推不出」，饱和器在推不出的问题上可能永远转下去。从「我是无赖」走到这里，用的一直是同一个说谎者。', 'Suppose a decider exists, build a machine that defies it, and let it read itself: the diagonal. Then a <wiki-ref to="reduction"></wiki-ref> passes <wiki-ref to="undecidable"></wiki-ref> from one problem to another. First-order logic is no different: no program can answer “does it follow?” for every sentence, and on what does not follow the saturator may go round forever. From “I am a knave” to here, it was the same liar all along.'),
-  },
 
   // ---------- challenge ----------
   machine('refuted', CLAUSES)({
