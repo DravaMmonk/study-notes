@@ -521,10 +521,10 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .ref-chip b { font-family: var(--mono); font-size: .8em; font-weight: 600; opacity: .8; }
 
 /* A run's steps (StepLog): a box of bounded height, each result bounded too, the current step marked. */
-/* A value of many entries (Entries.jsx): a window of --entry-lines rows that scrolls, five on the board and thirteen in
-   a sheet, its count on the last row; a row is a 12px line and its gap unless the domain sets --entry-row. */
-.entries { min-width: 0; display: grid; gap: 2px; align-content: start; max-height: calc(var(--entry-lines, 5) * var(--entry-row, 18.8px)); overflow: auto; overscroll-behavior: contain; }
-.ph-sheet { --entry-lines: 13; }
+/* A value of many entries (Entries.jsx): the entries in a window of --entry-lines rows that scrolls, the count fixed
+   on the row under it; a row is a 12px line and its gap unless the domain sets --entry-row. */
+.entries { min-width: 0; display: grid; gap: 2px; align-content: start; }
+.entries-list { min-width: 0; display: grid; gap: 2px; align-content: start; max-height: calc(var(--entry-lines) * var(--entry-row, 18.8px)); overflow: auto; overscroll-behavior: contain; }
 .entries-count { color: var(--muted); font-size: 10.5px; line-height: 1.6; }
 .step-log { position: relative; list-style: none; margin: 8px 0 0; padding: 0; max-height: 190px; max-width: 100%; overflow: auto; display: grid; gap: 4px; overscroll-behavior: contain; }
 .step-log-item { display: grid; gap: 2px; padding: 6px 10px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--rule); background: var(--paper); min-width: 0; }
