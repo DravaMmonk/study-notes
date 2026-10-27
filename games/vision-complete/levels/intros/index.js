@@ -9,6 +9,7 @@ import ch7 from './ch7.js'
 import ch8 from './ch8.js'
 import ch9 from './ch9.js'
 import ch10 from './ch10.js'
+import ch11 from './ch11.js'
 
 // Every level's 引入, by level id: [{ t, fig? }, …]. What a page and its figure may hold: kit/domains/image/intros.js.
-export const INTROS = { ...ch0, ...ch1, ...ch2, ...ch3, ...ch4, ...ch5, ...ch6, ...ch7, ...ch8, ...ch9, ...ch10 }
+export const INTROS = { ...ch0, ...ch1, ...ch2, ...ch3, ...ch4, ...ch5, ...ch6, ...ch7, ...ch8, ...ch9, ...ch10, ...ch11 }

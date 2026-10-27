@@ -11,6 +11,7 @@ export const GLOSSARY_GROUPS = [
   { id: 'geo', title: { zh: '匹配与三维', en: 'Matching and depth' } },
   { id: 'gen', title: { zh: '生成', en: 'Generating images' } },
   { id: 'scene', title: { zh: '分割与检测', en: 'Segmentation and detection' } },
+  { id: 'check', title: { zh: '检查模型', en: 'Checking a model' } },
 ]
 
 export const GLOSSARY = [
@@ -860,5 +861,18 @@ export const GLOSSARY = [
       { zh: '现代检测器在每个位置放几个<b>锚框</b>，再回归四个修正：中心挪 t × 锚框的宽高，宽高乘 e^t。Faster R-CNN、YOLO 都这样做，成绩用 IoU 和 mAP 来量。', en: 'Modern detectors place a few <b>anchors</b> at every position and regress four corrections: the centre moves by t × the anchor\'s width or height, and the size is multiplied by e^t. Faster R-CNN and YOLO both work like this, and are scored with IoU and mAP.' },
     ],
     see: ['nms', 'iou'],
+  },
+  // ---- 检查模型 ----
+  {
+    id: 'occlusion',
+    group: 'check',
+    title: { zh: '遮挡实验与热图', en: 'Occlusion and heat maps' },
+    at: '11-1',
+    body: [
+      { zh: '分类器答对了，不等于它看对了地方：训练集里车总在路上，只认路也能全对。这种<b>捷径</b>要靠检查模型在看哪里才发现得了。', en: 'A classifier that answers right has not necessarily looked in the right place: in a training set where cars always stand on roads, recognising the road alone gets everything right. Such a <b>shortcut</b> is only found by checking where the model looks.' },
+      { zh: '<b>遮挡实验</b>拿一块挡板在图上逐格移动，记下每个位置挡住后分数掉了多少，画成<b>热图</b>。它不需要知道模型里面是什么，CNN、ViT 都能用，代价是每个位置都要重跑一遍模型。挡板常用灰色（数据集的平均色），大小要和物体的部件相当。', en: 'The <b>occlusion experiment</b> slides a patch over the picture cell by cell, notes how far the score drops with each place covered, and draws that as a <b>heat map</b>. It needs nothing from inside the model and works for a CNN or a ViT, at the price of running the model again for every position. The patch is usually grey (the dataset\'s average colour), and about the size of the object\'s parts.' },
+      { zh: '<b>Grad-CAM</b> 只跑一次：用分数对最后一层卷积特征图的梯度，给每个通道一个权重，把特征图加权相加，再过 ReLU 只留支持这个类别的部分。ViT 则可以看类别 token 的注意力落在哪些图块上，但要把各层、各头合起来看（attention rollout），单看一个头容易被骗。', en: '<b>Grad-CAM</b> runs the model once: the gradient of the score with respect to the last convolutional feature maps gives each channel a weight, the maps are added with those weights, and a ReLU keeps only what supports the class. For a ViT one can look at which patches the class token attends to, but the layers and heads have to be combined (attention rollout); a single head alone is easily misleading.' },
+    ],
+    see: ['cnn', 'attention'],
   },
 ]

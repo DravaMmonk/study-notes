@@ -14,6 +14,7 @@ import * as ch5 from './ch5.js'
 import * as ch8 from './ch8.js'
 import * as ch9 from './ch9.js'
 import * as ch10 from './ch10.js'
+import * as ch11 from './ch11.js'
 import { ERAS } from './route.js'
 
 const CHAPTERS = [
@@ -28,6 +29,7 @@ const CHAPTERS = [
   { id: 8, title: { zh: '画出没见过的图', en: 'Drawing the Unseen' }, lecture: { zh: '第 15–17 讲', en: 'Lectures 15–17' }, question: { zh: '从随机数生成图像', en: 'Making images from random numbers' } },
   { id: 9, title: { zh: '每个像素是什么', en: 'What Every Pixel Is' }, lecture: { zh: '第 19–20 讲', en: 'Lectures 19–20' }, question: { zh: '给每个像素一个答案', en: 'An answer for every pixel' } },
   { id: 10, title: { zh: '框出来', en: 'Boxing Things In' }, lecture: { zh: '第 21–22 讲', en: 'Lectures 21–22' }, question: { zh: '东西在哪、有多大', en: 'Where things are, and how big' } },
+  { id: 11, title: { zh: '看它在看哪', en: 'Where Is It Looking?' }, lecture: { zh: '第 23 讲', en: 'Lecture 23' }, question: { zh: '它认的是车还是路', en: 'Does it see the car or the road?' } },
 ]
 
 /** The parts no circuit can build: arithmetic, a few functions, averaging, the trip to the frequency domain and the
@@ -41,7 +43,7 @@ const CONCEPT = { const: 'arithmetic', add: 'arithmetic', sub: 'arithmetic', mul
 // Pictures start out drawn as pixels; every other way of drawing them comes in with a level, as parts do.
 const VIEWS = { profile: '1-1', terrain: '1-4', spectrum: '2-6', slope: '3-7' }
 
-const PACKS = [ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7, ch8, ch9, ch10, optics]
+const PACKS = [ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7, ch8, ch9, ch10, ch11, optics]
 
 // From chapter 1 the four kinds of arithmetic are one part: once met, it takes the place of Add, Subtract and Multiply.
 const REPLACES = { arith: ['add', 'sub', 'mul'] }
