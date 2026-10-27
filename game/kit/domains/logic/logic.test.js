@@ -272,31 +272,6 @@ test('a machine backtracks once its level says so, and a search finds every answ
   assert.equal(runLevel(MACHINE_TESTS, ask, machine({ g: ['rule', { rule: 'grand' }], a: ['assumption'], b: ['assumption'] }, ['in>g.in', 'g>a.in', 'a>b.in', 'b>out'])).pass, true)
 })
 
-test('a proof state can build its proof term, each goal a hole, and the kernel checks the finished term', async () => {
-  const { parseS } = await import('./schematic.js')
-  const { KERNEL, assumption, erule, proofTermOf, rule, startState } = await import('./tactics.js')
-  const { kernelCheck } = await import('./machine.js')
-  const { printTerm } = await import('./pterm.js')
-  const step = (s, t, r) => t(s, r).results[0]
-  let s = startState(parseS('Rain ∧ Wind → Wind ∧ Rain'), [], { terms: true })
-  s = step(step(s, rule, KERNEL.impI), erule, KERNEL.conjE)
-  s = step(s, rule, KERNEL.conjI)
-  assert.equal(printTerm(proofTermOf(s)), 'fun h1 => ⟨?m4, ?m5⟩')
-  s = step(step(s, assumption), assumption)
-  assert.equal(printTerm(proofTermOf(s)), 'fun h1 => ⟨h1.2, h1.1⟩')
-  assert.equal(kernelCheck({}, { goal: 'Rain ∧ Wind → Wind ∧ Rain' }, s), '')
-  // A level's own rule is an axiom the kernel may use, unless nobody proved it.
-  const conv = { conv: { name: { zh: '认识是相互的', en: 'Knowing goes both ways' }, premises: ['Knows(?x, ?y)'], conclusion: 'Knows(?y, ?x)' } }
-  const test = { goal: 'Knows(bo, ann)', hyps: ['Knows(ann, bo)'] }
-  let t = startState(parseS(test.goal), test.hyps.map(parseS), { terms: true })
-  const level = { rules: conv }
-  const { ruleBookOf } = await import('./machine.js')
-  t = step(step(t, rule, ruleBookOf(level).conv), assumption)
-  assert.equal(kernelCheck(level, test, t), '')
-  const unproved = { rules: { conv: { ...conv.conv, unproved: true } } }
-  assert.match(kernelCheck(unproved, test, t).en, /conv/)
-})
-
 test('a written term may use a lemma as a function of its premises, and take out what there is', async () => {
   const { checkTerm, parseTerm } = await import('./pterm.js')
   const { lemmaUse } = await import('./proof.js')
@@ -305,4 +280,107 @@ test('a written term may use a lemma as a function of its premises, and take out
   assert.equal(checkTerm(parseTerm('chain p q'), parse('Rain → Slip'), { hyps, lemma }), '')
   assert.ok(checkTerm(parseTerm('chain q p'), parse('Rain → Slip'), { hyps, lemma }))
   assert.equal(checkTerm(parseTerm('p.elim (fun a b => ⟨a, b.2⟩)'), parse('∃x. Q(x)'), { hyps: { p: parse('∃x. P(x) ∧ Q(x)') } }), '')
+})
+
+test('a rewrite changes the first place its left side fits, under quantifiers too, and leaves its conditions as goals', async () => {
+  const { rewrite, simplify, rewriteBookOf } = await import('./rewrite.js')
+  const { startState } = await import('./tactics.js')
+  const { parseS } = await import('./schematic.js')
+  const T = (zh, en) => ({ zh, en })
+  const lemmas = {
+    dneg: { name: T('', ''), metas: ['A'], forms: [{ key: 'elim', label: '', statement: 'A', premises: ['¬¬A'] }, { key: 'intro', label: '', statement: '¬¬A', premises: ['A'] }] },
+    dm: { name: T('', ''), metas: ['A', 'B', 'P'], forms: [
+      { key: 'notOr', label: '', statement: '¬A ∧ ¬B', premises: ['¬(A ∨ B)'] }, { key: 'andNot', label: '', statement: '¬(A ∨ B)', premises: ['¬A ∧ ¬B'] },
+      { key: 'notEx', label: '', statement: '∀x. ¬P', premises: ['¬∃x. P'] }, { key: 'allNot', label: '', statement: '¬∃x. P', premises: ['∀x. ¬P'] },
+      { key: 'exNot', label: '', statement: '¬∀x. P', premises: ['∃x. ¬P'] },
+    ] },
+  }
+  const book = rewriteBookOf({ lemmas, defs: ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))', 'le(x, y) = tt ⟹ max(x, y) = y'] })
+  // A shape whose converse is not a shape of its card is no rewrite rule.
+  assert.equal(book['dm.exNot'], undefined)
+  const goals = (r) => r.results[0].goals.map((g) => show(g.goal))
+  const once = (goal, key, hyps = []) => rewrite(startState(parseS(goal), hyps.map(parseS)), book[key])
+  assert.deepEqual(goals(once('¬¬¬¬Rain ∧ ¬¬Wind', 'dneg.elim')), ['¬¬Rain ∧ ¬¬Wind'])
+  assert.deepEqual(goals(once('∀y. ¬∃x. Likes(y, x)', 'dm.notEx')), ['∀y. ∀x. ¬Likes(y, x)'])
+  assert.deepEqual(goals(once('max(zero, s(zero)) = s(zero)', 'def.2')), ['s(zero) = s(zero)', 'le(zero, s(zero)) = tt'])
+  assert.deepEqual(goals(once('s(plus(a, zero)) = s(a)', 'hyp', ['plus(a, zero) = a'])), ['s(a) = s(a)'])
+  assert.ok(once('Rain ∧ Wind', 'dneg.elim').fail)
+  const simp = simplify(startState(parseS('plus(s(s(zero)), s(zero)) = s(s(s(zero)))')), [book['def.0'], book['def.1']])
+  assert.deepEqual(goals(simp), ['s(s(s(zero))) = s(s(s(zero)))'])
+  assert.ok(simplify(startState(parseS('¬(Rain ∨ Wind)')), [book['dm.notOr'], book['dm.andNot']]).fail)
+})
+
+test('a declaration gives its rules, and induction read off a goal proves an equation for every number', async () => {
+  const { datatypeRules } = await import('./datatype.js')
+  const { ruleText } = await import('./schematic.js')
+  const { MACHINE_TESTS } = await import('./machine.js')
+  const { machine } = await import('./build.js')
+  const rules = Object.fromEntries(datatypeRules('nat', 'zero | s(nat)').map((r) => [r.key, ruleText(r)]))
+  assert.deepEqual(Object.keys(rules), ['nat.distinct1', 'nat.distinct2', 'nat.inject', 'nat.exhaust', 'nat.induct'])
+  assert.equal(rules['nat.induct'], '⟦?P(zero); (⋀x. ?P(x) ⟹ ?P(s(x)))⟧ ⟹ ∀x. ?P(x)')
+  const level = { kind: 'machine', want: 'proved', datatypes: { nat: 'zero | s(nat)' }, defs: ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))'], tests: [{ goal: '∀x. plus(x, zero) = x' }] }
+  const byInduction = machine({ i: ['rule', { rule: 'nat.induct' }], e: ['each'], s: ['simp', { rewrites: 'def.0,def.1,hyp' }, 'e'], r: ['rule', { rule: 'refl' }, 'e'] }, ['in>i.in', 'i>e.in', 'e#body>s.in', 's>r.in', 'r>e.body', 'e>out'])
+  assert.equal(runLevel(MACHINE_TESTS, level, byInduction).pass, true)
+})
+
+test('clauses: split from a goal turned round, saturated with unification, and the certificate replayed', async () => {
+  const { parseS } = await import('./schematic.js')
+  const { KERNEL, rule, startState } = await import('./tactics.js')
+  const { clauseText, clausesOfState, oracleRound, replay, saturate } = await import('./resolution.js')
+  const why = (t) => new Error(t.en)
+  const turned = (goal, hyps) => [KERNEL.raa, KERNEL.impI].reduce((s, r) => rule(s, r).results[0], startState(parseS(goal), hyps.map(parseS)))
+  const s = turned('Anc(ann, cy)', ['∀x. ∀y. ∀z. ¬Anc(x, y) ∨ ¬Anc(y, z) ∨ Anc(x, z)', 'Anc(ann, bo)', 'Anc(bo, cy)'])
+  const set = clausesOfState(s, why)
+  assert.deepEqual(set.map(clauseText), ['¬Anc(x, y) ∨ ¬Anc(y, z) ∨ Anc(x, z)', 'Anc(ann, bo)', 'Anc(bo, cy)', '¬Anc(ann, cy)'])
+  const done = saturate(set)
+  assert.ok(done.set.some((c) => !c.lits.length))
+  assert.equal(replay({ kind: 'clauses', set: done.set, from: s }).state.goals.length, 0)
+  // A goal that is not ⊥ does not split; a prover that cancels two pairs at once is caught on replay.
+  assert.throws(() => clausesOfState(startState(parseS('Wet')), why))
+  const wrong = turned('Wet', ['Rain ∨ Wind', '¬Rain ∨ ¬Wind'])
+  const fast = saturate(clausesOfState(wrong, why), { round: oracleRound })
+  assert.match(replay({ kind: 'clauses', set: fast.set, from: wrong }).fail.en, /more than one opposite pair/)
+  assert.equal(saturate(clausesOfState(wrong, why)).set.some((c) => !c.lits.length), false)
+})
+
+test('rewriting the hypotheses, under a binder without catching what is put in', async () => {
+  const { parseS } = await import('./schematic.js')
+  const { startState } = await import('./tactics.js')
+  const { rewrite, rewriteBookOf, simplify } = await import('./rewrite.js')
+  const lemmas = { dm: { name: { zh: '', en: '' }, metas: ['A', 'B', 'P'], forms: [
+    { key: 'notEx', label: '', statement: '∀x. ¬P', premises: ['¬∃x. P'] },
+    { key: 'allNot', label: '', statement: '¬∃x. P', premises: ['∀x. ¬P'] },
+    { key: 'notAll', label: '', statement: '∃x. ¬P', premises: ['¬∀x. P'] },
+    { key: 'exNot', label: '', statement: '¬∀x. P', premises: ['∃x. ¬P'] },
+  ] } }
+  const book = rewriteBookOf({ lemmas })
+  const s = startState(parseS('⊥'), ['Human(soc)', '¬∀x. ∃y. Likes(y, x)'].map(parseS))
+  const hyps = (r) => r.results[0].goals[0].hyps.map((h) => show(h))
+  assert.deepEqual(hyps(simplify(s, [book['dm.notAll'], book['dm.notEx']], 'hyps')), ['Human(soc)', '∃x. ∀y. ¬Likes(y, x)'])
+  assert.ok(rewrite(s, book['dm.notAll']).fail)
+})
+
+test('a ∀ used on a proof reads its thing off what is to be proved, so the kernel computes rfl', async () => {
+  const { termTaskOf } = await import('./termTask.js')
+  const { parseTerm } = await import('./pterm.js')
+  const defs = ['ev(p, x) = x', 'ev(neg(z), x) = bnot(ev(z, x))', 'ev(or(z, w), x) = bor(ev(z, x), ev(w, x))', 'bnot(tt) = ff', 'bnot(ff) = tt', 'bor(tt, y) = tt', 'bor(ff, y) = y', 'both(z) = band(ev(z, tt), ev(z, ff))', 'band(tt, y) = y', 'band(ff, y) = ff']
+  const task = (goal) => termTaskOf({ premises: { sound: '∀x. both(x) = tt → Holds(x)' }, consts: ['p', 'tt', 'ff'], defs, goal })
+  assert.equal(task('Holds(or(p, neg(p)))').check(parseTerm('sound rfl')), '')
+  assert.match(task('Holds(neg(p))').check(parseTerm('sound rfl')).en, /works out to/)
+})
+
+test('a script: each row by a rule or a block, checked row by row', async () => {
+  const { checkScript } = await import('./script.js')
+  const level = { premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip' }
+  const rows = (by) => [
+    { k: 'show', stmt: 'Rain → Slip', by: 'proof' },
+    { k: 'assume', stmt: 'Rain' },
+    { k: 'have', stmt: 'Wet', using: ['p', 'a1'], by },
+    { k: 'show', stmt: 'Slip', using: ['q', 'h1'], by: 'rule:mp' },
+  ]
+  assert.equal(checkScript(level, rows('rule:mp')).pass, true)
+  const wrong = checkScript(level, rows('rule:conjI'))
+  assert.equal(wrong.pass, false)
+  assert.ok(wrong.rows[2] && !wrong.rows[3])
+  assert.equal(checkScript(level, rows('rule:mp').slice(0, 3)).pass, false)
 })

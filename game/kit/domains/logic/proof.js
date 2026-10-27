@@ -15,11 +15,11 @@ import { PartError } from '../../engine/circuit.js'
 import { framePart } from '../../circuit/frames.js'
 import { formed } from '../../engine/forms.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
-import { BOT, all, allVars, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, show, subst, termsOf, tvar } from './formula.js'
+import { BOT, all, allVars, and, bin, eq, freeVars, imp, occurrences, or, parse, replaceAtoms, replaceTerm, same, subst, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'
+import { cancelOne, disjunction, literalsIn } from './resolution.js'
 import { absurd, alphaEq, cases, fst, inl, inr, lam, normalize, obj, open as unpack, pair, papp, parseTerm, pconst, printTerm, psubst, pvar, raa, rfl, snd } from './pterm.js'
-import { clauseFormula } from './clauses.js'
 
 // The variables a quantifier binds; a particular thing is named a, b or c (choices.js).
 const BOUND = ['x', 'y', 'z', 'u', 'v', 'w']
@@ -69,16 +69,6 @@ function exampleIn(target, f) {
 // ¬A is A → ⊥ to the rules, and A ↔ B is (A → B) ∧ (B → A).
 const asImp = (f) => (f.op === '¬' ? imp(f.a, BOT) : f)
 const asAnd = (f) => (f.op === '↔' ? and(imp(f.a, f.b), imp(f.b, f.a)) : f)
-// A clause's literals in the order written ('A', '¬A'), [] for ⊥; null when it is not a clause.
-function literals(f) {
-  if (f.op === '⊥') return []
-  if (f.op === 'atom') return [show(f)]
-  if (f.op === '¬' && f.a.op === 'atom') return [`¬${show(f.a)}`]
-  if (f.op !== '∨') return null
-  const [a, b] = [literals(f.a), literals(f.b)]
-  return a && b ? [...new Set([...a, ...b])] : null
-}
-const flip = (l) => (l.startsWith('¬') ? l.slice(1) : `¬${l}`)
 const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
 
 /** The hypothesis id of the assumption a box's region opens. */
@@ -166,21 +156,20 @@ export const RULES = {
     },
   },
 
-  // ---- clauses: resolution (chapter 4) ----
-  // From two clauses with exactly one complementary pair of letters, the clause of everything else (⊥ when nothing is
-  // left). With two pairs the resolvent would be a tautology, so the part refuses: one pair at a time.
+  // ---- clauses: resolution (chapter 13) ----
+  // The card of the resolution lemma (a course's lemma with `card: 'res'`): from two clauses with exactly one
+  // complementary pair of literals, wherever each stands, the clause of everything else (⊥ when nothing is left). With
+  // two pairs the resolvent would be a tautology, so the part refuses: one pair at a time.
   res: {
-    inputs: ['a', 'b'],
-    eval: ({ a, b }, _n, ctx) => {
-      const [c, d] = [literals(a.formula), literals(b.formula)]
+    inputs: ['p0', 'p1'],
+    eval: ({ p0: a, p1: b }, _n, ctx) => {
+      const [c, d] = [literalsIn(a.formula), literalsIn(b.formula)]
       if (!c) throw need(ctx, SHAPE.clause, a.formula)
       if (!d) throw need(ctx, SHAPE.clause, b.formula)
-      const pairs = c.filter((l) => d.includes(flip(l)))
-      if (!pairs.length) throw fail('这两句里没有一对能消掉的文字（一个是 A，另一个是 ¬A）', 'These two have no pair to cancel (A in one, ¬A in the other)')
-      if (pairs.length > 1) throw fail('能消的不止一对：归结一次只消一对，同时消两对得到的不是它们的推论', 'More than one pair cancels: resolution removes one pair at a time, and removing two at once does not follow')
-      // What is left of the first clause, then what is new of the second, in the order written.
-      const left = [...new Set([...c.filter((l) => l !== pairs[0]), ...d.filter((l) => l !== flip(pairs[0]))])]
-      return proved(clauseFormula(left), union(a, b), papp(papp(pconst('res'), a.term), b.term))
+      const r = cancelOne(c, d)
+      if (r.fail === 'none') throw fail('这两句里没有一对能消掉的文字（一个是 A，另一个是 ¬A）', 'These two have no pair to cancel (A in one, ¬A in the other)')
+      if (r.fail) throw fail('能消的不止一对：归结一次只消一对，同时消两对得到的不是它们的推论', 'More than one pair cancels: resolution removes one pair at a time, and removing two at once does not follow')
+      return proved(disjunction(r.lits), union(a, b), papp(papp(pconst('res'), a.term), b.term))
     },
   },
 
@@ -378,7 +367,8 @@ export function closes(judgment, goal, premiseIds, notation = null) {
 }
 
 /** The rules a level can use: every rule, and its lemmas ({ type: { statement, premises, metas } }). */
-export const rulesOf = (lemmas = {}) => ({ ...RULES, ...Object.fromEntries(Object.entries(lemmas).map(([type, l]) => [type, lemma(l)])) })
+// A lemma whose card is one of the kit's (`card`) runs as that card, which may do more than the shape it was proved in.
+export const rulesOf = (lemmas = {}) => ({ ...RULES, ...Object.fromEntries(Object.entries(lemmas).map(([type, l]) => [type, l.card ? RULES[l.card] : lemma(l)])) })
 
 /** A test's premises as judgments, each its own hypothesis (named by the premise). */
 export function premisesOf(test, consts = []) {

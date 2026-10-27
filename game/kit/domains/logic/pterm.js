@@ -11,12 +11,11 @@
 //       | { k: 'absurd', p }              False.elim p
 //       | { k: 'raa', p }                 byContradiction p                       (classical: from ¬¬A, A)
 //       | { k: 'rfl' } | { k: 'subst', h, p }   h ▸ p | { k: 'const', name }   (a lemma, by its card's name)
-//       | { k: 'hole', name }                ?m1: a place still to fill (a goal of a proof state, tactics.js)
 //
 // Written terms follow Lean: `fun h => …`, `f a`, `⟨a, b⟩`, `p.1`, `p.2`, `Or.inl a`, `Or.inr b`, `p.elim f g`,
 // `False.elim p`, `byContradiction p`, `rfl`, `h ▸ p`.
 import { PartError } from '../../engine/circuit.js'
-import { BOT, bin, freeVars, same, showTerm, subst, tvar } from './formula.js'
+import { BOT, atom, bin, freeVars, occurrences, replaceTerm, same, showTerm, subst, tvar } from './formula.js'
 import { say } from './notation.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -36,16 +35,6 @@ export const raa = (p) => ({ k: 'raa', p })
 export const rfl = { k: 'rfl' }
 export const psubst = (h, p) => ({ k: 'subst', h, p })
 export const pconst = (name) => ({ k: 'const', name })
-export const hole = (name) => ({ k: 'hole', name })
-
-const KIDS = { app: ['f', 'a'], lam: ['body'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], open: ['p', 'body'], absurd: ['p'], raa: ['p'], subst: ['h', 'p'] }
-/** A term with every part rewritten by f (bottom up): f(term) for each node, its own parts already rewritten. */
-export function mapTerm(t, f) {
-  const parts = KIDS[t.k]
-  return f(parts ? { ...t, ...Object.fromEntries(parts.map((k) => [k, mapTerm(t[k], f)])) } : t)
-}
-/** A term with each hole filled as `fills` says (fills may hold holes in turn); a hole not filled stays. */
-export const fillHoles = (t, fills) => mapTerm(t, (u) => (u.k === 'hole' && fills[u.name] ? fillHoles(fills[u.name], fills) : u))
 
 /* ---------- printing ---------- */
 
@@ -75,7 +64,6 @@ function show(t, outer = 0) {
     case 'absurd': return wrap(`False.elim ${show(t.p, 2)}`, 1)
     case 'raa': return wrap(`byContradiction ${show(t.p, 2)}`, 1)
     case 'subst': return wrap(`${show(t.h, 1)} ▸ ${show(t.p, 0)}`, 0)
-    case 'hole': return `?${t.name}`
     default: return '?'
   }
 }
@@ -285,6 +273,35 @@ export function normalize(t, { unfold = () => null, limit = 500 } = {}) {
   }
   return go(t)
 }
+// The parts of a term, in the order it is written.
+const KIDS = { app: ['f', 'a'], lam: ['body'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], open: ['p', 'body'], absurd: ['p'], raa: ['p'], subst: ['h', 'p'] }
+/**
+ * The kernel's computation rules, one detour each, by key: what a term that is that detour becomes, or null. A lemma's
+ * name unfolds into its own term (`unfold`: name → term or null).
+ */
+export const REDUCTIONS = {
+  unfold: (u, unfold) => (u.k === 'const' ? unfold(u.name) : null),
+  beta: (u) => (u.k === 'app' && u.f.k === 'lam' ? substT(u.f.body, u.f.x, u.a) : null),
+  fst: (u) => (u.k === 'fst' && u.p.k === 'pair' ? u.p.a : null),
+  snd: (u) => (u.k === 'snd' && u.p.k === 'pair' ? u.p.b : null),
+  caseL: (u) => (u.k === 'cases' && u.p.k === 'inl' ? substT(u.l, u.x, u.p.a) : null),
+  caseR: (u) => (u.k === 'cases' && u.p.k === 'inr' ? substT(u.r, u.y, u.p.a) : null),
+  open: (u) => (u.k === 'open' && u.p.k === 'pair' ? substT(substT(u.body, u.x, u.p.a), u.h, u.p.b) : null),
+}
+/** The term with its first detour of one kind (outside in, left to right) taken out; null when it has none. */
+export function reduceFirst(t, key, unfold = () => null) {
+  const here = REDUCTIONS[key](t, unfold)
+  if (here) return here
+  for (const part of KIDS[t.k] ?? []) {
+    const r = reduceFirst(t[part], key, unfold)
+    if (r) return { ...t, [part]: r }
+  }
+  return null
+}
+
+/** A written term with each free name in `names` read as the lemma of that name. */
+export const lemmasNamed = (t, names) => names.reduce((u, n) => substT(u, n, pconst(n)), t)
+
 /** Is a term free of detours? */
 export const isNormal = (t, opts) => alphaEq(normalize(t, opts), t)
 
@@ -293,14 +310,40 @@ export const isNormal = (t, opts) => alphaEq(normalize(t, opts), t)
 const asImp = (f) => (f.op === '¬' ? bin('→', f.a, BOT) : f)
 const asAnd = (f) => (f.op === '↔' ? bin('∧', bin('→', f.a, f.b), bin('→', f.b, f.a)) : f)
 
+// A formula fitted to another whose variables `vars` stand for any thing: σ filled, or false. Bound variables pair up.
+function fitThings(p, f, vars, σ, env = new Map()) {
+  const term = (s, t) => {
+    if (s.t === 'var' && vars.includes(s.name) && !env.has(s.name)) {
+      if (σ[s.name]) return showTerm(σ[s.name]) === showTerm(t)
+      σ[s.name] = t
+      return true
+    }
+    if (s.t === 'var') return t.t === 'var' && (env.get(s.name) ?? s.name) === t.name
+    return t.t === 'fn' && s.f === t.f && s.args.length === t.args.length && s.args.every((a, k) => term(a, t.args[k]))
+  }
+  const a = p.op === '¬' ? bin('→', p.a, BOT) : p
+  const b = f.op === '¬' ? bin('→', f.a, BOT) : f
+  if (a.op !== b.op) return false
+  switch (a.op) {
+    case 'atom': return a.pred === b.pred && a.args.length === b.args.length && a.args.every((x, k) => term(x, b.args[k]))
+    case '⊥': return true
+    case '∀': case '∃': return fitThings(a.body, b.body, vars, σ, new Map([...env, [a.v, b.v]]))
+    default: return fitThings(a.a, b.a, vars, σ, env) && fitThings(a.b, b.b, vars, σ, env)
+  }
+}
+
 /**
  * Check a term against a formula, in a context of hypotheses (name → formula) and the level's names of things
  * (`consts`). A lemma is a name applied to proofs of its premises: `lemma(name, [their sentences])` gives what it
- * proves, or null when it is no lemma or they do not fit. Returns '' or what is wrong ({ zh, en }, in the level's
- * notation).
+ * proves, or null when it is no lemma or they do not fit. Two sentences are the same once each is worked out
+ * (`norm`: a level's definitions, rewrite.js defNormal; definitional equality), so rfl proves what works out alike. A
+ * ∀ used on a proof rather than a thing reads its things off that proof's type (Lean's implicit arguments); h ▸ p, h
+ * proving a = b, proves the sentence wanted when p proves it with b put back as a (or a as b): the places changed are
+ * the motive. Returns '' or what is wrong ({ zh, en }, in the level's notation).
  */
-export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null, lemma = () => null } = {}) {
+export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null, lemma = () => null, norm = (f) => f } = {}) {
   const sayF = (f) => say(f, notation)
+  const conv = (f, g) => same(norm(f), norm(g))
   const err = (zh, en) => { throw new PartError(T(zh, en)) }
   const hypsOf = (ctx) => [...ctx.values()].filter((v) => v.f)
   // A name standing for a thing: a constant of the level, or a thing bound by a λ or a witness.
@@ -323,6 +366,24 @@ export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null,
     if (f === null) err(`「${head.name}」用在这些证明上对不上它的前提`, `“${head.name}” used on these proofs does not fit its premises`)
     return f
   }
+  // An argument is a thing when it names no proof: an object, or a name that is no hypothesis and no lemma.
+  const isThing = (t, ctx) => t.k === 'obj' || (t.k === 'var' && !ctx.get(t.name)?.f && lemma(t.name, null) === null)
+  // ∀x y. A → B used on a proof of A': x and y read off A' (those not read off stay ∀).
+  const implicit = (F, t, ctx) => {
+    const vars = []
+    let body = F
+    while (body.op === '∀') { vars.push(body.v); body = body.body }
+    const imp = asImp(body)
+    if (imp.op !== '→') return err(`「${printTerm(t.f)}」要的是一样东西，「${printTerm(t.a)}」是一个证明`, `“${printTerm(t.f)}” wants a thing, and “${printTerm(t.a)}” is a proof`)
+    const A = infer(t.a, ctx)
+    const fits = (B) => { const σ = {}; return fitThings(imp.a, B, vars, σ) ? σ : null }
+    const σ = fits(A) ?? fits(norm(A))
+    if (!σ) {
+      return err(`「${printTerm(t.a)}」证的是「${sayF(A).zh}」，对不上「${printTerm(t.f)}」要的「${sayF(imp.a).zh}」`, `“${printTerm(t.a)}” proves “${sayF(A).en}”, which does not fit the “${sayF(imp.a).en}” “${printTerm(t.f)}” wants`)
+    }
+    const out = vars.reduce((f, v) => (σ[v] ? subst(f, v, σ[v]) : f), imp.b)
+    return vars.filter((v) => !σ[v]).reduceRight((f, v) => ({ op: '∀', v, body: f }), out)
+  }
   const infer = (t, ctx) => {
     switch (t.k) {
       case 'var': {
@@ -337,6 +398,7 @@ export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null,
         if (l) return l
         const F = asImp(infer(t.f, ctx))
         if (F.op === '→') { check(t.a, F.a, ctx); return F.b }
+        if (F.op === '∀' && !isThing(t.a, ctx)) return implicit(F, t, ctx)
         if (F.op === '∀') return subst(F.body, F.v, thingOf(t.a, ctx))
         return err(`「${printTerm(t.f)}」证的是「${sayF(F).zh}」，不是一个能套用的东西`, `“${printTerm(t.f)}” proves “${sayF(F).en}”, not something to apply`)
       }
@@ -379,11 +441,42 @@ export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null,
       case 'absurd': return check(t.p, BOT, ctx)
       case 'raa': return check(t.p, { op: '¬', a: { op: '¬', a: A } }, ctx)
       case 'rfl':
-        if (A.op === 'atom' && A.pred === '=' && showTerm(A.args[0]) === showTerm(A.args[1])) return undefined
-        return err(`rfl 只证两边一样的等式，这里要证「${sayF(A).zh}」`, `rfl proves only an equation with the same on both sides; here it must prove “${sayF(A).en}”`)
+        if (A.op === 'atom' && A.pred === '=' && conv(atom('=', [A.args[0], A.args[0]]), A)) return undefined
+        if (A.op === 'atom' && A.pred === '=' && !same(norm(A), A)) { const [a, b] = [sayF(A), sayF(norm(A))]; return err(`rfl 只证两边算下来一样的等式：「${a.zh}」算下来是「${b.zh}」`, `rfl proves only an equation whose sides work out the same: “${a.en}” works out to “${b.en}”`) }
+        return err(`rfl 只证两边算下来一样的等式，这里要证「${sayF(A).zh}」`, `rfl proves only an equation whose sides work out the same; here it must prove “${sayF(A).en}”`)
+      case 'subst': {
+        const H = infer(t.h, ctx)
+        if (H.op !== 'atom' || H.pred !== '=') return err(`「${printTerm(t.h)}」证的不是一句等式，▸ 用不上它`, `“${printTerm(t.h)}” does not prove an equation, so ▸ cannot use it`)
+        const [a, b] = H.args
+        const ways = [[b, a], [a, b]].filter(([from]) => occurrences(A, from))
+        if (!ways.length) return err(`要证的「${sayF(A).zh}」里，等式的哪一边都没有：▸ 不知道换哪里`, `“${sayF(A).en}”, to be proved, has neither side of the equation: ▸ does not know what to change`)
+        let last = null
+        for (const [from, to] of ways) {
+          try { return check(t.p, replaceTerm(A, from, to, () => true), ctx) } catch (e) { if (!(e instanceof PartError)) throw e; last = e }
+        }
+        throw last
+      }
+      case 'app': {
+        // ∀x. A → B used on a proof: x read off what is to be proved when B says it (Lean elaborates against the type
+        // expected), so the proof may be one whose type cannot be read alone (rfl).
+        let head = t.f
+        while (head.k === 'app') head = head.f
+        const F = head.k === 'var' && !ctx.get(head.name)?.f && lemma(head.name, null) !== null ? null : infer(t.f, ctx)
+        if (F?.op === '∀' && !isThing(t.a, ctx)) {
+          const vars = []
+          let body = F
+          while (body.op === '∀') { vars.push(body.v); body = body.body }
+          const imp = asImp(body)
+          const fits = (G) => { const σ = {}; return imp.op === '→' && fitThings(imp.b, G, vars, σ) && vars.every((v) => σ[v]) ? σ : null }
+          const σ = fits(A) ?? fits(norm(A))
+          if (σ) return check(t.a, vars.reduce((f, v) => subst(f, v, σ[v]), imp.a), ctx)
+        }
+      }
+      // Otherwise an application is checked as any other term is: its type inferred.
+      // falls through
       default: {
         const B = infer(t, ctx)
-        if (!same(B, A)) err(`「${printTerm(t)}」证的是「${sayF(B).zh}」，这里要证「${sayF(A).zh}」`, `“${printTerm(t)}” proves “${sayF(B).en}”; here it must prove “${sayF(A).en}”`)
+        if (!conv(B, A)) err(`「${printTerm(t)}」证的是「${sayF(B).zh}」，这里要证「${sayF(A).zh}」`, `“${printTerm(t)}” proves “${sayF(B).en}”; here it must prove “${sayF(A).en}”`)
         return undefined
       }
     }

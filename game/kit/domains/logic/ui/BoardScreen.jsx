@@ -5,9 +5,12 @@ import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
+import { parse } from '../formula.js'
 import { say } from '../notation.js'
+import { ScriptView } from './ScriptScreen.jsx'
 import FormulaField from './FormulaField.jsx'
 import RuleField from './RuleField.jsx'
+import RulesField from './RulesField.jsx'
 import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt } from './stepping.js'
 
@@ -110,6 +113,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const best = progress.best?.[level.id]
   const brief = (
     <Brief game={game} level={entry} hint={level.hint} phone={phone}>
+      {level.script && <ScriptView rows={level.script} text={(t) => text(parse(t, { consts: [...(level.consts ?? []), ...(level.things ?? [])] }))} />}
       <section className="lg-score">
         <div className="stat-row">
           <div className="stat"><b>{board.tests.score(level, circuit).steps}</b><span>{L(board.words.steps)}</span></div>
@@ -215,6 +219,8 @@ function Setting({ s, node, board, parts, lemmas, circuit, scene, setParam, form
   switch (s.kind) {
     case 'form': return <FormulaField label={board.textOf(lemmas, node.type)?.formLabel ?? T('形状', 'Shape')} value={formOf(parts.rules[node.type], node)} onChange={set} choices={shapesOf(parts.rules[node.type], board.textOf(lemmas, node.type), formsOf(node.type)).map((o) => ({ value: o.key, label: L(o.label) }))} required />
     case 'rule': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rule} />
+    case 'rewrite': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rewrite} />
+    case 'rewrites': return <RulesField label={s.label} value={value} onChange={set} groups={scene.choices.rewrite} />
     // As many regions as the frame has: never fewer than the last one holding something.
     case 'ways': {
       const regions = parts.frames(node).map((r) => r.name)
@@ -223,6 +229,8 @@ function Setting({ s, node, board, parts, lemmas, circuit, scene, setParam, form
       return <FormulaField label={s.label} value={String(value || 2)} onChange={set} choices={WAYS.filter((n) => n >= least).map((n) => ({ value: String(n), label: tr(`${n} 条`, `${n}`) }))} required />
     }
     case 'depth': return <FormulaField label={s.label} value={String(value)} onChange={set} choices={DEPTHS.map((d) => ({ value: String(d), label: tr(`${d} 层`, `${d} levels`) }))} blank={T('不限', 'No limit')} />
+    case 'at': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'hyps', label: tr('已知', 'Hypotheses') }]} blank={T('目标', 'Goal')} />
+    case 'unit': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'unit', label: tr('只和单项子句', 'One-literal clauses only') }]} blank={T('任意两条', 'Any two')} />
     default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} />
   }
 }

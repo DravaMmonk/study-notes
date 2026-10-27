@@ -1,18 +1,18 @@
 // A course of logic levels, from a game's spec (《证明完毕》): the play order and the tree from its eras
 // (../../course.js layout), each level's number and the parts it can really offer, and the lemmas its levels build
 // (proof.js lemma): a level with `builds: '<type>'` makes the lemma spec.lemmas[type] a part once solved.
-import { defineCourse, eraLevels, layout, numbered, offer, usable } from '../../course.js'
+import { defineCourse, eraLevels, formsAt, layout, numbered, offer, reach, usable } from '../../course.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { vocabulary } from './fol.js'
-import { parseFo } from './unify.js'
 import { parseEquation, parseS } from './schematic.js'
-import { parseTh } from './theory.js'
 import { say, sayTerm } from './notation.js'
 import { LOGIC_TESTS } from './proof.js'
 import { lam } from './pterm.js'
 
-// Every rule a proof uses, in the boxes too.
-const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
+// Every rule a proof uses, in the boxes too; a machine card that names rules (a rule, a rewrite, simp's list) uses the
+// lemmas they are shapes of.
+const named = (n) => ['rule', 'rewrite', 'rewrites'].flatMap((k) => (n.params?.[k] ?? '').split(',').filter(Boolean).map((key) => key.split('.')[0]))
+const rulesIn = (circuit) => circuit.nodes.flatMap((n) => [n.type, ...named(n)])
 // How hard a level is, for its number: the steps (or gates) of its reference answer; a truth table counts as a short
 // proof.
 const ease = (level) => {
@@ -33,6 +33,8 @@ const ease = (level) => {
  * sentences as its label, so one proof is checked on all of them; a last test keeps the bare letters, the pattern
  * itself. A level opens on its first case, the one its task is written in.
  *   lemmas      { type: { name, desc, statement, premises?, metas } } the parts the player proves
+ *   facts       { type: { name, desc, statement } } the equations the player proves on the machine board (chapter 11
+ *               on), each a rule and a rewrite rule from then on; a machine level with `builds` one of them proves it
  *   gates       { type: { name, desc, ports, f } } the gates the player builds on a truth circuit (gates.js)
  *   revisions   { type: [{ at | by: level id, desc?, forms? }] } a part's description as it grows along the course,
  *               and the shapes (forms) an upgrade earned at `by` adds to its card
@@ -80,22 +82,22 @@ function vocabOf(level) {
   return { preds: v.preds, consts: v.consts, names: [...new Set([...names, ...v.consts])] }
 }
 
-// A machine test's tab: its input, or its claim, in words; a clause set by how many clauses it has.
+// A machine test's tab: its input in words; a clause set by how many clauses it has.
 function machineLabel(test, notation) {
   if (test.eqs) {
     const sides = test.eqs.map(parseEquation).map((e) => [e.s, e.t].map((x) => ('t' in x ? sayTerm(x, notation) : say(x, notation))))
     return { zh: sides.map(([a, b]) => `${a.zh} ≐ ${b.zh}`).join('；'), en: sides.map(([a, b]) => `${a.en} ≐ ${b.en}`).join('; ') }
   }
-  if (test.goal) return say(parseS(test.goal), notation)
-  if (test.eq) return say(parseTh(test.eq), notation)
-  if (test.clauses) return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
-  return say(parseFo(test.inputs?.goal ?? test.in ?? Object.values(test.inputs)[0]), notation)
+  // A goal of ⊥ (the hypotheses to search) goes by its first hypothesis.
+  if (test.goal) return say(parseS(test.goal === '⊥' && test.hyps?.length ? test.hyps[0] : test.goal), notation)
+  if (test.term) return { zh: test.term, en: test.term }
+  return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
 }
 
-export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {}, revisions = {} }) {
-  const built = (p) => Boolean(lemmas[p] || gates[p] || machines.includes(p))
-  // One name, one part: a lemma, a gate and a machine part sharing a type would unlock and show as each other.
-  const clash = machines.filter((p) => lemmas[p] || gates[p]).concat(Object.keys(lemmas).filter((p) => gates[p]))
+export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {}, revisions = {} }) {
+  const built = (p) => Boolean(lemmas[p] || facts[p] || gates[p] || machines.includes(p))
+  // One name, one part: a lemma, an equation, a gate and a machine part sharing a type would unlock and show as each other.
+  const clash = machines.filter((p) => lemmas[p] || gates[p] || facts[p]).concat(Object.keys(lemmas).filter((p) => gates[p] || facts[p]))
   if (clash.length) throw new Error(`built parts share a type: ${clash.join(', ')}`)
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
@@ -109,8 +111,11 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     const level = given.get(id)
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
     known = [...known, ...(level.symbols ?? [])]
-    const notation = { words: level.words ?? words, symbols: known }
-    const read = (l) => ({ adds: [], ...l, ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, gates, revisions, lemmaTerms, notation })
+    // A task may have words of its own (numbers written as S n …).
+    const read = (l) => {
+      const notation = { words: l.words ?? level.words ?? words, symbols: known }
+      return { adds: [], ...l, ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, lemmaTerms, notation }
+    }
     if (!level.tasks) return read(level)
     // What the level builds comes of its last task, the level itself.
     // The level's pass text is the level's, shown when its last task is done: a task has only its own.
@@ -179,6 +184,20 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, gates = {
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
   })
+  // A machine level's (and a script's) rule book has what the level can hold (machine.js ruleBookOf): the kernel's
+  // rules opened by chapter, the lemmas built before it, each in the shapes it has gained by then. A task after the first may use
+  // what its level proves already (a law proved on the proof board, then put to work), in every shape it proves.
+  for (const level of LEVELS.filter((l) => [l, ...(l.tasks ?? [])].some((t) => t.kind === 'machine' || t.kind === 'script'))) {
+    const holds = reach(course, { id: level.id })
+    for (const one of [level, ...(level.tasks ?? [])]) {
+      const later = one.task > 0
+      one.holds = later && level.builds ? [...holds, level.builds] : holds
+      one.forms = Object.fromEntries(Object.entries(lemmas).filter(([, l]) => l.forms).map(([type, l]) => [type, [
+        ...formsAt(course, l.forms[0].key, revisions[type], level.id),
+        ...(later ? (revisions[type] ?? []).filter((r) => r.by === level.id).flatMap((r) => r.forms ?? []) : []),
+      ]]))
+    }
+  }
   // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
   const held = (level) => byId.get(level.id)?.without ?? []
   // A task that names its parts holds those the player has: a primitive, or a built part once its level is solved.

@@ -20,9 +20,14 @@ function termWords(t, notation, lang) {
   // A word with places is a function's: a bare name of the same letter (a thing a box took, c) is just itself.
   const word = notation.words?.[t.f]?.[lang]
   if (!word || (!t.args.length && /\{\d\}/.test(word))) return t.args.length ? `${t.f}(${t.args.map((a) => termWords(a, notation, lang)).join(', ')})` : t.f
-  // An argument that is itself an operation keeps brackets: (a·b)⁻¹.
-  const arg = (a) => (a.t === 'fn' && a.args.length > 1 ? `(${termWords(a, notation, lang)})` : termWords(a, notation, lang))
-  return t.args.length ? word.replace(/\{(\d)\}/g, (_, k) => arg(t.args[Number(k)])) : word
+  return t.args.length ? fill(word, t.args, notation, lang) : word
+}
+// A template's places filled in. An argument that is itself an operation keeps brackets, (a·b)⁻¹; after a name
+// written in front (S {0}, Vec {0}), any argument applied to something does: S (S 0), Vec (x + y).
+function fill(word, args, notation, lang) {
+  const prefix = /^[^{\s]+ \{/.test(word)
+  const arg = (a) => (a.t === 'fn' && a.args.length > (prefix ? 0 : 1) ? `(${termWords(a, notation, lang)})` : termWords(a, notation, lang))
+  return word.replace(/\{(\d)\}/g, (_, k) => arg(args[Number(k)]))
 }
 const WORDS = {
   '→': { zh: (a, b) => `若${a}，则${b}`, en: (a, b) => `if ${a} then ${b}` },
@@ -40,7 +45,7 @@ export function render(f, notation, lang, outer = -1) {
   switch (f.op) {
     case 'atom': {
       const word = notation.words?.[f.pred]?.[lang]
-      if (word && f.args.length) return word.replace(/\{(\d)\}/g, (_, k) => termWords(f.args[Number(k)], notation, lang))
+      if (word && f.args.length) return fill(word, f.args, notation, lang)
       if (f.pred === '=') return `${termWords(f.args[0], notation, lang)} = ${termWords(f.args[1], notation, lang)}`
       // A predicate named on its own (a test case's P := Human) reads with its places left open.
       return word && !f.args.length ? word.replace(/\{\d\}/g, '…') : show(f)

@@ -5,11 +5,11 @@
 // thing's (the level's names of things), a lemma's (used as a function of its premises) or one a form bound. A form that binds a name takes the first letter free in
 // the term, so a name is never bound twice.
 import { holeTree } from '../../strip/tree.js'
-import { absurd, cases, fst, inl, inr, lam, open, pair, papp, pvar, snd } from './pterm.js'
+import { absurd, cases, fst, inl, inr, lam, open, pair, papp, psubst, pvar, rfl, snd } from './pterm.js'
 
 const T = (zh, en) => ({ zh, en })
 const LETTERS = 'abcdefgjk'.split('')
-const KID = { lam: ['body'], app: ['f', 'a'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], absurd: ['p'], open: ['p', 'body'] }
+const KID = { lam: ['body'], app: ['f', 'a'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], absurd: ['p'], open: ['p', 'body'], subst: ['h', 'p'] }
 
 const kids = (node) => (KID[node.k] ?? []).map((field) => ({ kind: 'term', value: node[field] }))
 const withKid = (node, k, value) => ({ ...node, [KID[node.k][k]]: value })
@@ -49,17 +49,22 @@ export const FORMS = [
   { key: 'elim', leads: true, text: '□.elim (fun _ => □) (fun _ => □)', sub: T('分情况', 'cases'), make: (tree) => { const [x, y] = fresh(tree, 2); return cases(null, x, null, y, null) } },
   { key: 'absurd', text: 'False.elim □', sub: T('矛盾推出一切', 'from ⊥, anything'), make: () => absurd(null) },
   { key: 'open', leads: true, text: '□.elim (fun _ _ => □)', sub: T('拿出那一个', 'take the one there is'), make: (tree) => { const [x, h] = fresh(tree, 2); return open(null, x, h, null) } },
+  { key: 'rfl', text: 'rfl', sub: T('两边一样', 'both sides alike'), make: () => rfl },
+  { key: 'subst', leads: true, text: '□ ▸ □', sub: T('等量代换', 'substitute'), make: () => psubst(null, null) },
 ]
+// The forms a strip offers unless its level says (the equality chapter adds rfl and ▸).
+export const BASIC = ['fun', 'app', 'pair', 'fst', 'snd', 'inl', 'inr', 'elim', 'absurd', 'open']
 
 /** The chips of a proof term: the names in scope (premises, assumptions), those the term binds so far, the forms. */
-export function chipsOf(scope, tree) {
+export function chipsOf(scope, tree, forms = BASIC) {
   const names = [...scope, ...boundIn(tree)]
-  return [...names.map((name) => ({ key: `v:${name}`, group: 'name', text: name, make: () => pvar(name) })), ...FORMS.map((f) => ({ ...f, group: 'form' }))]
+  return [...names.map((name) => ({ key: `v:${name}`, group: 'name', text: name, make: () => pvar(name) })), ...FORMS.filter((f) => forms.includes(f.key)).map((f) => ({ ...f, group: 'form' }))]
 }
 
 /** The forms a whole term uses that no chip makes (none: it can be built). */
-export function missingForms(term) {
-  const known = new Set([...Object.keys(KID), 'var'])
+export function missingForms(term, forms = BASIC) {
+  const kinds = { fun: 'lam', elim: 'cases' }
+  const known = new Set(['var', ...forms.map((k) => kinds[k] ?? k)])
   const walk = (node) => [node.k, ...kids(node).flatMap((kid) => walk(kid.value))]
   return [...new Set(walk(term))].filter((k) => !known.has(k))
 }
@@ -90,6 +95,9 @@ export function segmentOf(node, path = [], bracket = false) {
     case 'cases': return piece('or', [kid(0, true), `.elim (fun ${node.x} => `, kid(1), `) (fun ${node.y} => `, kid(2), ')'])
     case 'absurd': return piece('absurd', ['False.elim ', kid(0, true)])
     case 'open': return piece('or', [kid(0, true), `.elim (fun ${node.x} ${node.h} => `, kid(1), ')'])
+    case 'rfl': return piece('name', ['rfl'])
+    // An application binds tighter than ▸: addZero m ▸ v.
+    case 'subst': return piece('app', [segmentOf(node.h, [...path, 0], Boolean(node.h) && !atomic(node.h) && node.h.k !== 'app'), ' ▸ ', kid(1)])
     default: return piece('name', ['?'])
   }
 }

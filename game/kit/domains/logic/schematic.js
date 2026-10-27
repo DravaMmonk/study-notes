@@ -20,10 +20,10 @@ export const isMetaName = (name) => name.startsWith('?')
 const isTerm = (x) => 't' in x
 const VARS = ['x', 'y', 'z', 'u', 'v', 'w']
 
-/** A sentence or thing written with metavariables: lower-case names are things (u … z variables), ?A, ?t, ?P(x) letters. */
+/** A sentence or thing written with metavariables: lower-case names are things (u … z, xs, ys, zs variables), ?A, ?t, ?P(x) letters. */
 export function parseS(text) {
   const names = text.match(/(?:^|[^?A-Za-z0-9_'])([a-z][A-Za-z0-9_']*)/g)?.map((m) => m.replace(/^[^a-z]/, '')) ?? []
-  return parse(text, { consts: names.filter((n) => !/^[u-z]\d*$/.test(n)) })
+  return parse(text, { consts: names.filter((n) => !/^([u-z]|[xyz]s)\d*$/.test(n)) })
 }
 /** A side of an equation, as written: a thing when it reads as one (ann, ?t, s(x)), else a sentence. */
 export function parseSide(text) {
@@ -331,6 +331,9 @@ export const KERNEL_RULES = [
   ruleOf('cut', R('先证一句', 'Have'), ['?A', '⟦?A⟧ ⟹ ?C'], '?C'),
   ruleOf('refl', R('自反', 'Reflexivity'), [], '?t = ?t'),
 ]
+// The proof-board part each kernel rule is (a level has the rule once it holds the part); Have is Apply and a box.
+const PART = { conjI: 'andI', impI: 'impI', disjI1: 'orI', disjI2: 'orI', allI: 'allI', exI: 'exI', mp: 'mp', conjE: 'andE', conjunct1: 'andE', conjunct2: 'andE', disjE: 'orE', impE: 'mp', botE: 'botE', spec: 'allE', allE: 'allE', exE: 'exE', raa: 'raa', cut: 'mp', refl: 'refl' }
+for (const r of KERNEL_RULES) r.part = PART[r.key]
 /** The introduction rules (a goal taken apart by its shape) and the elimination rules (a given used), in order. */
 export const INTRO_RULES = ['conjI', 'impI', 'disjI1', 'disjI2', 'allI', 'exI']
 export const ELIM_RULES = ['conjE', 'disjE', 'impE', 'botE', 'exE', 'allE']

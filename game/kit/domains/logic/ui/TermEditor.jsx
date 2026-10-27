@@ -11,8 +11,8 @@ const T = (zh, en) => ({ zh, en })
 const GROUPS = [['name', T('名字', 'Names')], ['form', T('写法', 'Forms')]]
 const pathOf = (key) => key.split('.').slice(1).map(Number)
 
-export default function TermEditor({ tree, onChange, scope, history: scopeKey, children = null }) {
-  const chips = useMemo(() => chipsOf(scope, tree), [scope, tree])
+export default function TermEditor({ tree, onChange, scope, forms, history: scopeKey, children = null }) {
+  const chips = useMemo(() => chipsOf(scope, tree, forms), [scope, tree, forms])
   const history = useHistory(tree, onChange, scopeKey, 0)
   const strip = useStrip({
     put: (slot, key) => {

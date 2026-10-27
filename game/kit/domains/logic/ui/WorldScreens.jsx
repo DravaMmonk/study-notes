@@ -5,7 +5,7 @@ import { L, tr } from '../../../shell/i18n.js'
 import { parse } from '../formula.js'
 import { holds } from '../models.js'
 import { say } from '../notation.js'
-import { builtWorld, structureOf } from '../fol.js'
+import { builtWorld } from '../fol.js'
 
 // The screens of first-order levels (《证明完毕》) that work on worlds rather than boards (translations and queries,
 // built from chips, are FormulaScreen.jsx):
@@ -19,7 +19,6 @@ import { builtWorld, structureOf } from '../fol.js'
 
 const T = (zh, en) => ({ zh, en })
 const MARKS = ['①', '②', '③', '④']
-const CONNECTIVES = ['¬', '∧', '∨', '→', '↔', '(', ')']
 
 /** What a thing is called: a named world's thing by its words, a built world's by its mark. */
 export const thingName = (notation, world) => (k) => (world ? L(notation.words?.[world.things[k]] ?? { zh: world.things[k], en: world.things[k] }) : MARKS[k])
@@ -47,41 +46,6 @@ export function WorldText({ model, notation, preds, world = null, spell = false 
       <p>{atoms.length ? atoms.join(tr('；', '; ')) : tr('什么都不成立。', 'Nothing holds.')}</p>
       {missing.length > 0 && atoms.length > 0 && <p className="fo-not">{tr('不成立的：', 'Not so: ')}{missing.join(tr('；', '; '))}</p>}
     </div>
-  )
-}
-
-/** The level's vocabulary as buttons that type into the input last used. */
-function Vocab({ level, onInsert }) {
-  const { notation } = level
-  const { preds, consts } = level.vocab
-  const vars = level.vars ?? ['x', 'y']
-  const tokens = [
-    ...preds.map(([p, n]) => ({ label: notation.words?.[p] ? L(notation.words[p]).replace(/\{(\d)\}/g, (_, k) => vars[Number(k)] ?? 'z') : p, text: `${p}(${vars.slice(0, n).join(', ')})` })),
-    ...consts.map((c) => ({ label: L(notation.words?.[c] ?? T(c, c)), text: c })),
-    ...(level.quantifiers ?? ['∀', '∃']).flatMap((q) => vars.map((v) => ({ label: `${q}${v}.`, text: `${q}${v}. ` }))),
-    ...vars.map((v) => ({ label: v, text: v })),
-    ...CONNECTIVES.map((c) => ({ label: c, text: ` ${c} `.replace('( ', '(').replace(' )', ')') })),
-  ]
-  return (
-    <div className="fo-vocab" onPointerDown={(e) => e.preventDefault()}>
-      {tokens.map((t) => <button key={t.text + t.label} type="button" onClick={() => onInsert(t.text)}>{t.label}</button>)}
-    </div>
-  )
-}
-
-/** One formula to write: the sentence asked for, the input, and what it reads as. */
-function FormulaInput({ item, value, onChange, onFocus, inputRef, level, verdict }) {
-  const parsed = useMemo(() => {
-    if (!value.trim()) return null
-    try { return { f: parse(value, { consts: level.vocab.names }) } } catch { return { error: true } }
-  }, [value, level])
-  return (
-    <section className={`fo-item ${verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : ''}`}>
-      <p className="fo-say">{verdict && (verdict.pass ? <Check size={14} /> : <X size={14} />)}<span dangerouslySetInnerHTML={{ __html: String(L(item.say)) }} /></p>
-      <input ref={inputRef} className="fo-input" value={value} spellCheck={false} autoCapitalize="off" autoComplete="off" onFocus={onFocus} onChange={(e) => onChange(e.target.value)} placeholder={tr('用下面的按钮写，或直接输入', 'Use the buttons below, or type')} />
-      <p className="fo-read">{parsed?.f ? <>{tr('读作：', 'Reads: ')}<b>{L(say(parsed.f, level.notation))}</b></> : parsed?.error ? <span className="lg-error">{tr('还不是一句完整的公式', 'Not a whole formula yet')}</span> : null}</p>
-      {verdict && !verdict.pass && verdict.body}
-    </section>
   )
 }
 

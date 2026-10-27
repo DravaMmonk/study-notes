@@ -1,6 +1,6 @@
 // A logic game on the shared shell (../../shell): its spec becomes the shell's game description, with the logic
 // domain's screens (a proof on the circuit editor, a truth table), its parts box of proved lemmas and its map art.
-import { Boxes, Braces, Cog, Cpu, Grid2x2Check, Languages, Search, Workflow } from 'lucide-react'
+import { Boxes, Braces, Cog, Cpu, Grid2x2Check, Languages, ScrollText, Search, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
@@ -15,6 +15,7 @@ import { ModelScreen } from './ui/WorldScreens.jsx'
 import FormulaScreen from './ui/FormulaScreen.jsx'
 import { MACHINE_TEXT, RULE_TEXT, iconOf, nameOf, textOf } from './ui/catalog.js'
 import TermScreen from './ui/TermScreen.jsx'
+import ScriptScreen from './ui/ScriptScreen.jsx'
 import '../../strip/strip.css'
 import { PRIMITIVE_GATES } from './gates.js'
 
@@ -28,9 +29,10 @@ export function defineLogicGame(spec) {
   const gates = LEVELS[0]?.gates ?? {}
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
   const revisions = spec.logic.revisions ?? {}
-  // A built part is a proved lemma, a gate built on a truth circuit or a machine part (a law card, a normal form…).
+  // A built part is a proved lemma or equation, a gate built on a truth circuit or a machine part (simp, auto…).
   const machines = Object.fromEntries(spec.logic.machines.map((type) => [type, RULE_TEXT[type] ?? MACHINE_TEXT[type]]))
-  const built = { ...gates, ...lemmas, ...machines }
+  const facts = LEVELS[0]?.facts ?? {}
+  const built = { ...gates, ...lemmas, ...facts, ...machines }
   // The rules and gates the course starts from, each from the levels that bring it in.
   const primitives = [...introductions(spec.logic.course)].map(([type, at]) => {
     const gate = PRIMITIVE_GATES[type] ?? MACHINE_TEXT[type]
@@ -75,6 +77,7 @@ export function defineLogicGame(spec) {
       query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: Boxes, label: { zh: '造世界', en: 'Build a world' } },
       term: { Screen: TermScreen, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
+      script: { Screen: ScriptScreen, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
     },
     unlocked: (level) => level.unlocks.map((flag) => ({ label: built[flag.slice('lemma:'.length)].name })),
     core: (level) => isCore(spec.logic.course, level),
@@ -84,6 +87,7 @@ export function defineLogicGame(spec) {
         ...Object.entries(gates).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: Cpu })),
         ...Object.entries(lemmas).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type) })),
         ...Object.entries(machines).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: Cog })),
+        ...Object.entries(facts).map(([type, f]) => ({ key: `lemma:${type}`, name: f.name, desc: f.desc, icon: Cog })),
       ],
     },
     // Fewer steps (proof steps, or gates) is better.

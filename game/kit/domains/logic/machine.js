@@ -2,30 +2,29 @@
 // clause sets instead of proved judgments. Its sources (`in` cards, one per input the level names) give the test's
 // inputs, its sink `out` is checked against what the level wants. A part is a rule of unification, a tactic, a frame
 // that runs what it holds again and again (repeat, depth-first search, every goal) or tries several things (the
-// alternatives frame), a law card, a normal form or resolution (clauses.js); the level's parts come from the course as
+// alternatives frame), a rewrite, or a step on clauses (resolution.js); the level's parts come from the course as
 // on every board. A part the player builds (the unifier, erule, frule, the introduction and elimination steps, auto)
 // runs as its built-in implementation, which does what the circuit that built it does.
 //
 //   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
-//           | { kind: 'formula', f } | { kind: 'clauses', set }
+//           | { kind: 'pterm', term } (pterm.js) | { kind: 'clauses', set, from?, endless? } (resolution.js)
 //   level   { kind: 'machine', want, inputs?: [{ name, label }] (default one, `in`),
-//             rules?: { key: { name, premises: [text], conclusion: text, unproved? } }, backtrack?, terms?,
-//             tests: [{ eqs: [equation text] } | { goal, hyps?, answers?, becomes? } | { in: formula text }
-//             | { clauses: [clause text] } | { inputs: { name: formula text } }, want?] }
+//             rules?: { key: { name, premises: [text], conclusion: text } }, backtrack?,
+//             tests: [{ eqs: [equation text] } | { goal, hyps?, answers?, becomes?, clauses?, budget? } | { term, becomes }
+//             | { clauses: [clause text], budget? }, want?] }
 //
 // What a level wants of its output (`want`, or a test's own): 'unify' (the solved equations, when the input has a
 // unifier, or a failure when it has none), 'proved' (no goal left), 'becomes' (the results the test lists, each its
 // goals written '⋀a. h1; h2 ⊢ goal', its ?-letters named as the machine likes: none, for a step that must fail),
 // 'answers' (every way of proving the goal, as a
 // question's answers: the test's `answers`, the things its ?-letters become), 'fails' (the goal cannot be proved, and
-// the machine says so, having stopped); a formula equivalent to the input with
-// no ¬¬ ('noDneg'), no → or ↔ ('noArrow'), in NNF ('nnf') or CNF ('cnf'); a clause set holding ⊥ ('refuted');
-// 'decide', 'entails', and on first-order formulas 'prenex', 'skolem', 'clauseForm' and 'foRefuted'. Theories
-// (chapter 9): a test { eq, hyps? } starts a proof state on an equation (theory.js), and simp rewrites with the level's
-// `defs`.
+// the machine says so, having stopped); on clauses (chapter 13), 'clauses' (the clause set the test lists, from a goal),
+// 'refuted' (a clause set holding ⊥, within the test's `budget` of clauses when it has one) and 'decide' (⊥ when the
+// clauses cannot all hold, saturated without it when they can).
 //
-// A level with `terms` builds each proof state's proof term as it goes (tactics.js), and a finished proof counts only
-// when chapter 6's kernel accepts its term: the level's own rules are axioms it may name, unless marked `unproved`.
+// Rewriting (chapter 9, rewrite.js): the rewrite card uses one rule of the level's rewrite book (rewriteBookOf: laws
+// proved both ways, the level's `defs`, the goal's hypotheses) once; simp, which the player builds, uses a list of
+// them until none fits. Both rewrite the goal, or (chapter 13, the card's `at`) its hypotheses.
 //
 // Rules on cards (rule, erule, frule) are named by key in the level's rule book (ruleBookOf: the kernel's rules, the
 // lemmas' and the level's own). Until a level says `backtrack`, a tactic gives only its first result; from then on,
@@ -33,28 +32,34 @@
 import { PartError, evaluate } from '../../engine/circuit.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
 import { framePart, within } from '../../circuit/frames.js'
-import { and, same, tvar } from './formula.js'
-import { say } from './notation.js'
-import { LAWS, clauseOf, clauseSet, clausesOf, closed, cnf, equivalent, hasArrow, hasDneg, isCnf, isNnf, nnf, refuted, resolveRound, saturate, toEnd } from './clauses.js'
-import { GIVEN, KERNEL, answerOf, asValue, assumption, auto, defer, depthFirst, elimStep, erule, frule, introStep, proofTermOf, resultsOf, rule, startState, thingsOf } from './tactics.js'
-import { checkTerm, normalize } from './pterm.js'
+import { all, fn, subst, tvar } from './formula.js'
+import { KERNEL, answerOf, asValue, assumption, auto, defer, depthFirst, elimStep, erule, frule, introStep, resultsOf, rule, startState } from './tactics.js'
 import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, sameSide, sideText, solveEqs, solved } from './schematic.js'
-import { THEORY_LEMMAS, addRule, cases, induct, parseTh, simp } from './theory.js'
-import { clauseFormOf, factorRound, foClausesOf, foNnf, foResolveRound, foSet, hasExists, isPrenex, matrixOf, parseFo, prenex, skolem } from './unify.js'
+import { rewrite, rewriteBookOf, rewriteTerm, simplify } from './rewrite.js'
+import { datatypesRules } from './datatype.js'
+import { alphaEq, lemmasNamed, normalize, parseTerm } from './pterm.js'
+import { clausesOfState, oracleRound, parseClause, refuted, replay, resolveRound, saturate } from './resolution.js'
 
 const T = (zh, en) => ({ zh, en })
 const fail = (zh, en) => new PartError({ zh, en })
-export const formulaValue = (f) => ({ kind: 'formula', f })
-export const clausesValue = (set) => ({ kind: 'clauses', set })
+export const clausesValue = (set, extra = {}) => ({ kind: 'clauses', set, ...extra })
 export const eqsValue = (eqs, fail = null) => ({ kind: 'eqs', eqs, fail })
 
 const books = new WeakMap()
-/** A level's rule book: every rule a card may name, by key (the kernel's, each lemma's shapes, the level's own). */
+/**
+ * A level's rule book: every rule a card may name, by key: the kernel's, those its datatypes give (datatype.js), each
+ * lemma's shapes, the equations proved (`facts`) and the level's own. A
+ * level of a course (`holds`: the parts it can hold, `forms`: the shapes each lemma has there, course.js) has a kernel
+ * rule once it holds its part, and a lemma once the lemma is built, in the shapes it has gained.
+ */
 export function ruleBookOf(level) {
   if (!books.has(level)) {
-    const own = Object.entries(level.rules ?? {}).map(([key, r]) => ({ ...ruleOf(key, r.name, r.premises ?? [], r.conclusion), own: true, unproved: Boolean(r.unproved) }))
-    const lemmas = Object.entries(level.lemmas ?? {}).flatMap(([type, l]) => lemmaRules(type, l))
-    books.set(level, Object.fromEntries([...Object.values(KERNEL), ...lemmas, ...own].map((r) => [r.key, r])))
+    const has = (p) => !level.holds || level.holds.includes(p)
+    const own = Object.entries(level.rules ?? {}).map(([key, r]) => ({ ...ruleOf(key, r.name, r.premises ?? [], r.conclusion), own: true }))
+    const shaped = (type, l) => (r) => !l.forms || !level.forms?.[type] || level.forms[type].includes(r.key.split('.')[1] ?? l.forms[0].key)
+    const lemmas = Object.entries(level.lemmas ?? {}).filter(([type]) => has(type)).flatMap(([type, l]) => lemmaRules(type, l).filter(shaped(type, l)))
+    const facts = Object.entries(level.facts ?? {}).filter(([type]) => has(type)).map(([type, f]) => ({ ...ruleOf(type, f.name, [], f.statement), lemma: type }))
+    books.set(level, Object.fromEntries([...Object.values(KERNEL).filter((r) => has(r.part)), ...datatypesRules(level.datatypes), ...lemmas, ...facts, ...own].map((r) => [r.key, r])))
   }
   return books.get(level)
 }
@@ -83,8 +88,6 @@ const tactic = (t) => ({
     return s.endless ? { ...made, endless: true } : made
   },
 })
-// A tactic of the theories (chapter 9): one state to the next.
-const step = (t) => ({ inputs: ['in'], eval: ({ in: v }, node, ctx) => { const s = stateIn(v); return s.error ? s : t({ ...s, error: undefined }, ctx, node) } })
 // The rule a card's setting names; none chosen yet, or one the level does not have, cannot run.
 function chosen(ctx, node) {
   const key = node.params?.rule
@@ -94,27 +97,61 @@ function chosen(ctx, node) {
   return r
 }
 const ruleCard = (t) => ({ ...tactic((s, ctx, node) => t(s, chosen(ctx, node))), params: ['rule'] })
+// The rewrite rules a card's setting names (`rewrite`: one; `rewrites`: a list, in order).
+function rewritesOf(ctx, node, key) {
+  const keys = (node.params?.[key] ?? '').split(',').filter(Boolean)
+  if (!keys.length) throw fail('元件上还没选改写规则', 'No rewrite rule chosen on the part yet')
+  return keys.map((k) => {
+    const r = ctx.rewrites?.[k]
+    if (!r) throw fail('这一关没有这条改写规则', 'This level has no such rewrite rule')
+    return r
+  })
+}
+// Where a rewrite card rewrites: the goal, or the hypotheses.
+const atOf = (node) => (node.params?.at === 'hyps' ? 'hyps' : 'goal')
 // A step inside a part, for a traced run (../../engine/circuit.js): a round of it, or the card it applies (`sub`).
 const inner = (ctx, node, value, extra) => ctx?.trace?.push({ id: node.id, key: null, inner: true, value, ...extra })
 const UNIFY_CARDS = { delete: 'uDelete', decompose: 'uDecompose', conflict: 'uConflict', swap: 'uSwap', check: 'uCheck', eliminate: 'uEliminate', pattern: 'uPattern' }
-const formulaIn = (v) => {
-  if (v.kind !== 'formula') throw fail('这里要一句公式，接进来的是一组子句', 'This needs a formula; it got a clause set')
-  return v.f
-}
 const clausesIn = (v) => {
-  if (v.kind !== 'clauses') throw fail('这里要一组子句，接进来的是一句公式：先拆成子句', 'This needs a clause set; it got a formula: split it into clauses first')
-  return v.set
+  if (v.kind !== 'clauses') throw fail('这里要一组子句：先把证明状态拆成子句', 'This needs a clause set: split the proof state into clauses first')
+  return v
 }
-const twoFormulas = (a, b) => [formulaIn(a), formulaIn(b)]
 const eqsIn = (v) => {
   if (v.kind !== 'eqs') throw fail('这里要一组等式', 'This needs a set of equations')
   return v
 }
 // A unification rule card: the rule once, where it first applies; a set already failed passes through.
 const unifyCard = (r) => ({ inputs: ['in'], eval: ({ in: v }) => { const e = eqsIn(v); if (e.fail) return e; const next = UNIFY_RULES[r](e.eqs, {}); return next ? eqsValue(next.eqs, next.fail ?? null) : e } })
-// A first-order formula's ∀ prefix kept while a card works on what is under it.
-const underAll = (f, g) => (f.op === '∀' ? { ...f, body: underAll(f.body, g) } : g(f))
-const law = (rewrite) => ({ inputs: ['in'], eval: ({ in: v }) => formulaValue(toEnd(formulaIn(v), rewrite)) })
+
+// A proof term on the machine board (chapter 10): a rewrite card takes its detours out.
+export const termValue = (term) => ({ kind: 'pterm', term })
+const termIn = (v) => {
+  if (v.kind !== 'pterm') throw fail('这里要一个证明项', 'This needs a proof term')
+  return v
+}
+// A rewrite card works on a proof state (its goal, or its hypotheses: the card's `at`), or on a proof term (one
+// rewrite, or simp: until no rule fits).
+function onTerms(part, onTerm, key) {
+  return {
+    ...part,
+    params: [key, 'at'],
+    eval: (ins, node, ctx, k) => {
+      if (ins.in?.kind !== 'pterm') return part.eval(ins, node, ctx, k)
+      const r = onTerm(ins.in.term, ctx, node)
+      if (r.fail) throw new PartError(r.fail)
+      return termValue(r.term)
+    },
+  }
+}
+function simplifyTerm(term, rules, unfold, limit = 200) {
+  let cur = term
+  for (let k = 0; k < limit; k++) {
+    const next = rules.map((r) => rewriteTerm(cur, r, unfold)).find((x) => !x.fail)
+    if (!next) return { term: cur }
+    cur = next.term
+  }
+  return { fail: T(`改了 ${limit} 次还没停下来`, `Still changing after ${limit} rewrites`) }
+}
 
 /**
  * What a frame's region makes of a value, run on its own: the cards inside the frame (frames inside it with their own),
@@ -291,83 +328,107 @@ export const MACHINE_PARTS = {
     const { found } = auto([s], ctx.rules ?? KERNEL)
     return found.length ? { results: found } : { fail: T('auto 没有证完', 'auto did not finish') }
   }),
-  // Formulas and clauses (the old normal-form and resolution chapters, waiting to be rebuilt in chapter 12).
-  dneg: law(LAWS.dneg),
-  impOr: law(LAWS.impOr),
-  dmLaw: law(LAWS.dm),
-  dist: law(LAWS.dist),
-  neg: { inputs: ['in'], eval: ({ in: v }) => formulaValue({ op: '¬', a: formulaIn(v) }) },
-  conj: { inputs: ['a', 'b'], eval: ({ a, b }) => formulaValue(and(...twoFormulas(a, b))) },
-  // On a first-order formula the normal forms reach through quantifiers: ¬∀ is ∃¬, and CNF is made under the ∀s.
-  nnf: { inputs: ['in'], eval: ({ in: v }) => formulaValue(hasQuantifier(formulaIn(v)) ? foNnf(v.f) : nnf(v.f)) },
-  cnf: { inputs: ['in'], eval: ({ in: v }) => formulaValue(underAll(formulaIn(v), cnf)) },
-  toClauses: {
-    inputs: ['in'],
-    eval: ({ in: v }) => {
-      const f = formulaIn(v)
-      if (hasExists(f) || !isPrenex(f)) throw fail('这句还有 ∃，或者量词不在最前面：先化前束范式、Skolem 化', 'This still has ∃, or quantifiers not at the front: prenex and Skolemise first')
-      if (f.op === '∀' || hasVars(f)) {
-        const fo = foClausesOf(matrixOf(f))
-        if (!fo) throw fail('∀ 后面还不是合取范式，拆不成子句', 'Under the ∀s it is not CNF yet, so it does not split into clauses')
-        return clausesValue(fo)
-      }
-      const set = clausesOf(f)
-      if (!set) throw fail('这句还不是合取范式（一串「或」用「与」连起来），拆不成子句', 'This is not in CNF yet (ors joined by ands), so it does not split into clauses')
-      return clausesValue(set)
-    },
-  },
-  res: { inputs: ['in'], eval: ({ in: v }) => clausesValue(resolveRound(clausesIn(v))) },
-  // A built part that goes round inside (the saturator, the unifier) shows each of its rounds in a traced run.
-  saturate: { inputs: ['in'], eval: ({ in: v }, node, ctx) => clausesValue(saturate(clausesIn(v), 60, (set, round) => inner(ctx, node, clausesValue(set), { round }))) },
-  prenex: {
-    inputs: ['in'],
-    eval: ({ in: v }) => {
-      if (!isFoNnf(formulaIn(v))) throw fail('先化否定范式：→ 和 ¬ 会挡住量词', 'To NNF first: → and ¬ stand in the quantifiers’ way')
-      return formulaValue(prenex(v.f))
-    },
-  },
-  skolem: {
-    inputs: ['in'],
-    eval: ({ in: v }) => {
-      if (!isPrenex(formulaIn(v))) throw fail('先化前束范式：量词都要在最前面', 'To prenex form first: every quantifier at the front')
-      return formulaValue(skolem(v.f))
-    },
-  },
-  clauseForm: { inputs: ['in'], eval: ({ in: v }) => clausesValue(clauseFormOf(formulaIn(v))) },
-  // First-order resolution (unit resolution with unification) and factoring.
-  fores: { inputs: ['in'], eval: ({ in: v }) => clausesValue(foResolveRound(clausesIn(v))) },
-  factor: { inputs: ['in'], eval: ({ in: v }) => clausesValue(factorRound(clausesIn(v))) },
-  // Theories (chapter 9): simplification, induction, splitting an if, and a card for each lemma proved.
-  simp: step((s, ctx) => simp(s, ctx?.defs ?? [])),
-  induct: step(induct),
-  cases: step(cases),
-  ...Object.fromEntries(Object.entries(THEORY_LEMMAS).map(([type, text]) => [type, step((s) => addRule(s, text))])),
+  // Rewriting (chapter 9): one rule once, and simp, which the player builds of it; on a proof term (chapter 10) they
+  // take its detours out, and Normalize is simp with every computation rule.
+  rw: onTerms(tactic((s, ctx, node) => rewrite(s, rewritesOf(ctx, node, 'rewrite')[0], atOf(node))), (t, ctx, node) => rewriteTerm(t, rewritesOf(ctx, node, 'rewrite')[0], ctx.unfold), 'rewrite'),
+  simp: onTerms(tactic((s, ctx, node) => simplify(s, rewritesOf(ctx, node, 'rewrites'), atOf(node))), (t, ctx, node) => simplifyTerm(t, rewritesOf(ctx, node, 'rewrites'), ctx.unfold), 'rewrites'),
+  normalize: { inputs: ['in'], eval: ({ in: v }, _node, ctx) => termValue(normalize(termIn(v).term, { unfold: ctx.unfold })) },
+  // Clauses (chapter 13, resolution.js): ∃ out of the hypotheses, a state split into clauses, a round of resolution
+  // (the saturator is built of rounds), someone else's prover, and the certificate replayed in the kernel; what the
+  // player builds of them.
+  skolem: tactic(skolemStep),
+  toClauses: { inputs: ['in'], eval: ({ in: v }) => toClauses(v) },
+  resolve: { inputs: ['in'], params: ['unit'], eval: ({ in: v }, node) => { const c = clausesIn(v); return { ...c, set: resolveRound(c.set, { unit: node.params?.unit === 'unit' }) } } },
+  saturate: { inputs: ['in'], eval: ({ in: v }, node, ctx) => saturated(clausesIn(v), node, ctx) },
+  oracle: { inputs: ['in'], eval: ({ in: v }, node, ctx) => saturated(clausesIn(v), node, ctx, oracleRound) },
+  replay: { inputs: ['in'], eval: ({ in: v }) => replayed(clausesIn(v)) },
+  clausify: { inputs: ['in'], eval: ({ in: v }, _node, ctx) => clausify(stateIn(v), ctx) },
+  metis: tactic((s, ctx) => {
+    let clauses
+    try { clauses = clausify(s, ctx) } catch (e) { if (e instanceof PartError) return { fail: e.label }; throw e }
+    const out = replayed(saturated(clauses, null, ctx))
+    return out.error ? { fail: out.error } : { results: [out] }
+  }),
 }
-const hasQuantifier = (f) => f.op === '∀' || f.op === '∃' || (f.op === '¬' ? hasQuantifier(f.a) : f.a ? hasQuantifier(f.a) || hasQuantifier(f.b) : false)
-const hasVars = (f) => f.op === 'atom' ? f.args.some(function vars(t) { return t.t === 'var' || t.args.some(vars) }) : f.op === '¬' ? hasVars(f.a) : f.a ? hasVars(f.a) || hasVars(f.b) : false
-const isFoNnf = (f) => (f.op === '∀' || f.op === '∃' ? isFoNnf(f.body) : f.op === '∧' || f.op === '∨' ? isFoNnf(f.a) && isFoNnf(f.b) : f.op === 'atom' || f.op === '⊥' || (f.op === '¬' && f.a.op === 'atom'))
 
-/** A test's inputs as values, by name: a goal's state builds its proof term on a level that shows terms. */
-export function inputsOf(test, level = {}) {
-  if (test.goal) return { in: startState(parseS(test.goal), (test.hyps ?? []).map(parseS), { terms: Boolean(level.terms) }) }
-  if (test.eq) return { in: startState(parseTh(test.eq), (test.hyps ?? []).map(parseTh)) }
-  if (test.eqs) return { in: eqsValue(test.eqs.map(parseEquation)) }
-  if (test.clauses) {
-    const cs = test.clauses.map((c) => c.split(' ∨ ').map((l) => l.trim()))
-    return { in: clausesValue(cs.some((c) => c.some((l) => /\(/.test(l))) ? foSet(cs) : clauseSet(test.clauses.map((c) => clauseOf(parseFo(c))))) }
+// The fixed things Skolem's ∃ out of a hypothesis may name, in order.
+const FRESH = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'k', 'm', 'n']
+const quantified = (f) => f.op === '∀' || f.op === '∃' || (f.op === '¬' ? quantified(f.a) : f.a ? quantified(f.a) || quantified(f.b) : false)
+/**
+ * Skolem: every ∃ in the first goal's hypotheses (in negation normal form) taken out; with none, the state as it is.
+ * One under no ∀ is taken out as take the one there is does, its thing fixed (a name); one under a ∀ becomes a function of the
+ * ∀'s variables (sk1(x) …), which does not follow from the hypotheses (the state is marked: replaying it would need the
+ * axiom of choice).
+ */
+function skolemStep(s) {
+  const g = s.goals[0]
+  if (!g) return { fail: T('已经没有目标了', 'No goals left') }
+  const fixes = [...(g.fixes ?? [])]
+  // Names already about: the fixed things and every name in the goal.
+  const used = new Set([...fixes, ...[...JSON.stringify(g).matchAll(/"f":"([^"]+)"/g)].map((m) => m[1])])
+  let n = 0
+  let choice = false
+  const go = (f, scope) => {
+    if (f.op === '∃') {
+      if (!scope.length) {
+        const a = FRESH.find((x) => !used.has(x))
+        used.add(a)
+        fixes.push(a)
+        return go(subst(f.body, f.v, fn(a)), scope)
+      }
+      choice = true
+      return go(subst(f.body, f.v, fn(`sk${++n}`, scope.map(tvar))), scope)
+    }
+    if (f.op === '∀') return all(f.v, go(f.body, [...scope, f.v]))
+    if (f.op === '∧' || f.op === '∨') return { ...f, a: go(f.a, scope), b: go(f.b, scope) }
+    if (quantified(f)) throw fail('先把已知化成否定范式：¬ 和 → 挡住了量词', 'Bring the hypotheses to negation normal form first: ¬ and → stand in the quantifiers’ way')
+    return f
   }
-  if (test.inputs) return Object.fromEntries(Object.entries(test.inputs).map(([name, text]) => [name, formulaValue(parseFo(text))]))
-  return { in: formulaValue(parseFo(test.in)) }
+  const hyps = g.hyps.map((h) => go(h, []))
+  return { results: [{ ...s, more: undefined, error: undefined, goals: [{ ...g, fixes, hyps }, ...s.goals.slice(1)], ...(choice || s.choice ? { choice: true } : {}) }] }
 }
+function toClauses(v) {
+  const s = firstOf(stateIn(v))
+  if (s.error) throw new PartError(s.error)
+  return clausesValue(clausesOfState(s, (t) => new PartError(t)), { from: s })
+}
+// Rounds until ⊥ or nothing new (a traced run sees each round).
+function saturated(c, node, ctx, round = resolveRound) {
+  const r = saturate(c.set, { round, onRound: node ? (set, k) => inner(ctx, node, { ...c, set }, { round: k }) : null })
+  return { ...c, set: r.set, ...(r.endless ? { endless: true } : {}) }
+}
+// The certificate replayed: the state it came from with its first goal proved, or with what the kernel would not take.
+function replayed(c) {
+  const r = replay(c)
+  if (r.state) return r.state
+  return { ...(c.from ?? { kind: 'state', goals: [] }), error: r.fail }
+}
+// The laws that bring hypotheses to conjunctive normal form, in order (those the level has).
+const CNF_LAWS = ['iff.elim', 'arrow.elim', 'dneg.elim', 'dm.notOr', 'dm.notAnd', 'dm.notEx', 'dm.notAll', 'dist.orAndR', 'dist.orAndL']
+/** Into clauses, as the player builds it: by contradiction, the hypotheses to CNF, ∃ out, split. */
+function clausify(s0, ctx) {
+  const step = (s, t) => {
+    if (s.error) return s
+    const r = t(firstOf(s))
+    return r.fail ? { ...firstOf(s), error: r.fail } : r.results[0]
+  }
+  let s = step(step(s0, (x) => rule(x, KERNEL.raa)), (x) => rule(x, KERNEL.impI))
+  s = step(s, (x) => simplify(x, CNF_LAWS.map((k) => ctx.rewrites?.[k]).filter(Boolean), 'hyps'))
+  s = step(s, skolemStep)
+  if (s.error) throw new PartError(s.error)
+  return toClauses(s)
+}
+
+/** A test's inputs as values, by name; a proof term's free names that are the level's lemmas are those lemmas. */
+export function inputsOf(test, level = {}) {
+  if (test.goal) return { in: startState(parseS(test.goal), (test.hyps ?? []).map(parseS)) }
+  if (test.term) return { in: termValue(lemmasNamed(parseTerm(test.term), Object.keys(level.lemmaTerms ?? {}))) }
+  if (test.eqs) return { in: eqsValue(test.eqs.map(parseEquation)) }
+  return { in: clausesValue(clauseSetOf(test.clauses)) }
+}
+const clauseSetOf = (texts) => [...new Map(texts.map((c) => parseClause(c, parseS)).map((c) => [c.key, c])).values()]
 /** The names and labels of a level's inputs. */
 export const inputsOfLevel = (level) => level.inputs ?? [{ name: 'in', label: { zh: '输入', en: 'Input' } }]
-
-const WANTS = {
-  noDneg: [T('没有 ¬¬', 'no ¬¬'), (f) => !hasDneg(f)],
-  noArrow: [T('没有 → 和 ↔', 'no → or ↔'), (f) => !hasArrow(f)],
-  nnf: [T('¬ 只在字母上（否定范式）', '¬ only on letters (NNF)'), (f) => isNnf(f)],
-  cnf: [T('合取范式', 'CNF'), (f) => isCnf(f)],
-}
 
 /** A question's answers in a list of results: what its ?-letters become in each that has no goal left. */
 export const answersIn = (out) => [...new Set(resultsOf(out).filter((s) => !s.error && !s.goals.length).map((s) => answerOf(s).map(sideText).join(', ')))].sort()
@@ -387,48 +448,18 @@ const canonical = (goals) => {
   })
 }
 
-const aboutSentences = (r) => /"name":"\?[A-Z]/.test(JSON.stringify([r.conclusion, r.premises]))
-// A level's own rule as the kernel takes it, an axiom about its things: ⟦P(?x, ?y); Q(?y)⟧ ⟹ R(?x) is
-// ∀x. ∀y. P(x, y) → (Q(y) → R(x)). (A ?-letter for a sentence has no such reading: such a rule is never an axiom.)
-function axiomOf(r) {
-  const things = thingsOf(r)
-  const bare = (f) => instantiate(f, Object.fromEntries(things.map((n) => [n, tvar(n.slice(1))])))
-  const body = r.premises.reduceRight((acc, p) => ({ op: '→', a: bare(p.show), b: acc }), bare(r.conclusion))
-  return things.reduceRight((acc, n) => ({ op: '∀', v: n.slice(1), body: acc }), body)
-}
-/**
- * The kernel's word on a finished proof's term (chapter 6's checker, pterm.js): '' when it proves the test's goal from
- * its givens (named p, q, r …) and the level's own rules, a lemma unfolded into its own term.
- */
-export function kernelCheck(level, test, out) {
-  // A lemma's first shape has its term under the lemma's own name (course.js).
-  const termOf = (name) => {
-    const [type, key] = name.split('.')
-    return level.lemmaTerms?.[name] ?? (key && level.lemmas?.[type]?.forms?.[0]?.key === key ? level.lemmaTerms?.[type] : null) ?? null
-  }
-  const term = normalize(proofTermOf(out), { unfold: termOf })
-  const hyps = Object.fromEntries([...(test.hyps ?? []).map((h, k) => [GIVEN[k], parseS(h)]), ...Object.values(ruleBookOf(level)).filter((r) => r.own && !r.unproved && !aboutSentences(r)).map((r) => [r.key, axiomOf(r)])])
-  return checkTerm(term, parseS(test.goal), { hyps, notation: level.notation })
-}
-
 /** Is the output what the test wants? '' or why not. */
-export function judge(want, test, out, notation, level = {}) {
-  const inputs = inputsOf(test)
-  const input = inputs.in
+export function judge(want, test, out, level = {}) {
+  const input = inputsOf(test).in
   if (!out) return T('还没有东西接到「结果」', 'Nothing reaches the result yet')
-  if (WANTS[want]) {
-    if (out.kind !== 'formula') return T('结果要一句公式', 'The result must be a formula')
-    const [label, ok] = WANTS[want]
-    if (!equivalent(out.f, input.f)) return T('结果和原来的公式不等价了', 'The result is no longer equivalent to the formula')
-    if (!ok(out.f)) { const s = say(out.f, notation); return T(`得到「${s.zh}」，还不是要的形状：${label.zh}`, `It gives “${s.en}”, not yet the shape wanted: ${label.en}`) }
-    return ''
-  }
   if (want === 'proved') {
     if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
     if (out.error) return out.error
-    if (out.goals.length) return T(`还剩 ${out.goals.length} 个目标没证完`, `${out.goals.length} goal${out.goals.length === 1 ? '' : 's'} still open`)
-    const refused = out.root ? kernelCheck(level, test, out) : ''
-    return refused ? T(`核不认这个证明项：${refused.zh}`, `The kernel refuses this proof term: ${refused.en}`) : ''
+    return out.goals.length ? T(`还剩 ${out.goals.length} 个目标没证完`, `${out.goals.length} goal${out.goals.length === 1 ? '' : 's'} still open`) : ''
+  }
+  if (want === 'becomes' && test.term) {
+    if (out.kind !== 'pterm') return T('结果要一个证明项', 'The result must be a proof term')
+    return alphaEq(out.term, parseTerm(test.becomes)) ? '' : T('得到的证明项和要的不一样', 'The proof term made is not the one wanted')
   }
   if (want === 'becomes') {
     if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
@@ -466,34 +497,30 @@ export function judge(want, test, out, notation, level = {}) {
     const σ = Object.fromEntries(out.eqs.map((e) => [e.s.name, e.t]))
     return input.eqs.every((e) => sameSide(instantiate(e.s, σ), instantiate(e.t, σ))) ? '' : T('结果代回去，原来的等式两边还不一样', 'Put back into the equations, the result does not make both sides equal')
   }
-  if (want === 'prenex' || want === 'skolem') {
-    if (out.kind !== 'formula') return T('结果要一句公式', 'The result must be a formula')
-    const ref = want === 'prenex' ? prenex(foNnf(input.f)) : skolem(prenex(foNnf(input.f)))
-    if (want === 'prenex' && !isPrenex(out.f)) return T('量词还没有都挪到最前面', 'Not every quantifier is at the front yet')
-    if (want === 'skolem' && hasExists(out.f)) return T('结果里还有 ∃', 'The result still has ∃')
-    return same(out.f, ref) ? '' : T('结果和照规矩一步步做出来的不一样', 'The result differs from the one made by the rules step by step')
-  }
   if (out.kind !== 'clauses') return T('结果要一组子句', 'The result must be a clause set')
-  if (want === 'clauseForm') {
-    const ref = clauseFormOf(input.f)
-    return ref.length === out.set.length && ref.every((c, k) => c.join() === out.set[k].join()) ? '' : T('结果和这句话的子句形式不一样', 'The result is not this sentence’s clause form')
+  if (want === 'clauses') {
+    const wanted = clauseSetOf(test.clauses).map((c) => c.key).sort()
+    const got = out.set.map((c) => c.key).sort()
+    return wanted.join(';') === got.join(';') ? '' : T('拆出的子句和要的不一样', 'The clauses made are not the ones wanted')
   }
-  if (want === 'foRefuted') return refuted(out.set) ? '' : T('结果里还没有空子句 ⊥', 'The result has no empty clause ⊥ yet')
-  if (want === 'entails') {
-    const known = Object.entries(inputs).filter(([name]) => name !== 'goal').map(([, v]) => v.f)
-    const both = [...known, { op: '¬', a: inputs.goal.f }].reduce((acc, f) => (acc ? and(acc, f) : f), null)
-    const follows = refuted(saturate(clausesOf(cnf(both))))
-    if (follows) return refuted(out.set) ? '' : T('结果里还没有空子句 ⊥：这一组是推得出来的', 'The result has no empty clause ⊥ yet, and this one does follow')
-    if (refuted(out.set)) return T('结果里有 ⊥，可这一组其实推不出来：机器"证"出了假话', 'The result holds ⊥, yet this one does not follow: the machine “proved” something false')
-    return closed(out.set) ? '' : T('结果还能再归结出新子句：还没饱和', 'The result still resolves into new clauses: not saturated yet')
+  const has = refuted(out.set)
+  if (want === 'refuted') {
+    if (!has) return T('结果里还没有空子句 ⊥', 'The result has no empty clause ⊥ yet')
+    return test.budget && out.set.length > test.budget ? T(`推出 ⊥ 用了 ${out.set.length} 条子句，最多只能有 ${test.budget} 条`, `Reaching ⊥ took ${out.set.length} clauses; at most ${test.budget} are allowed`) : ''
   }
-  const unsat = refuted(saturate(input.kind === 'clauses' ? input.set : clausesOf(cnf(input.f))))
-  if (want === 'refuted' || (want === 'decide' && unsat)) return refuted(out.set) ? '' : T('结果里还没有空子句 ⊥', 'The result has no empty clause ⊥ yet')
-  if (refuted(out.set)) return T('结果里有 ⊥，可这组子句是可满足的', 'The result holds ⊥, yet these clauses can be satisfied')
-  return closed(out.set) ? '' : T('结果还能再归结出新子句：还没饱和', 'The result still resolves into new clauses: not saturated yet')
+  // decide: ⊥ when the clauses cannot all hold; when they can, saturated without it.
+  const start = input.kind === 'clauses' ? input.set : clausify(input, ctxOf(level, { nodes: [], wires: [] })).set
+  const unsat = refuted(saturate(start).set)
+  if (unsat) return has ? '' : T('结果里还没有空子句 ⊥', 'The result has no empty clause ⊥ yet')
+  if (has) return T('结果里有 ⊥，可这组子句是可满足的：机器「证」出了假话', 'The result holds ⊥, yet these clauses can all hold: the machine “proved” something false')
+  if (out.endless) return T('一直推出新子句，停不下来', 'New clauses keep coming: it never stops')
+  return resolveRound(out.set).length === out.set.length ? '' : T('结果还能再归结出新子句：还没饱和', 'The result still resolves into new clauses: not saturated yet')
 }
 
-const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, defs: level.defs ?? [], rules: ruleBookOf(level), backtrack: Boolean(level.backtrack), ...extra })
+const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), unfold: (name) => level.lemmaTerms?.[name] ?? null, backtrack: Boolean(level.backtrack), ...extra })
+
+/** A machine part run on a proof state with a level's rule and rewrite books (chapter 14: a script's by). */
+export const runTactic = (level, type, params, state) => MACHINE_PARTS[type].eval({ in: state }, { id: type, params }, ctxOf(level, { nodes: [], wires: [] }))
 
 /** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
 export const MACHINE_TESTS = {
@@ -509,7 +536,7 @@ export const MACHINE_TESTS = {
     return { trace, run: { ...run, outputs: { out: run.outputs.out } } }
   },
   check: (level, test, outputs) => {
-    const problem = judge(test.want ?? level.want, test, outputs.out, level.notation, level)
+    const problem = judge(test.want ?? level.want, test, outputs.out, level)
     return [{ name: 'out', pass: !problem, reason: problem }]
   },
   score: (level, circuit) => ({ steps: circuit.nodes.filter((n) => n.type !== 'in' && n.type !== 'out').length }),
