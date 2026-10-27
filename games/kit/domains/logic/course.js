@@ -10,6 +10,8 @@ import { say, sayTerm } from './notation.js'
 // Every rule a proof uses, in the boxes too; a machine card that names rules (a rule, a rewrite, simp's list) uses the
 // lemmas they are shapes of.
 const named = (n) => ['rule', 'rewrite', 'rewrites'].flatMap((k) => (n.params?.[k] ?? '').split(',').filter(Boolean).map((key) => key.split('.')[0]))
+/** The ids of the cards a level presets on its board. */
+export const presetIds = (level) => (level.preset ?? []).map((item) => item.id ?? item)
 const rulesIn = (circuit) => circuit.nodes.flatMap((n) => [n.type, ...named(n)])
 // How hard a level is, for its number: the steps (or gates) of its reference answer; a truth table counts as a short
 // proof.
@@ -47,9 +49,10 @@ const ease = (level) => {
  * level with what the task changes, read like a level of its own, and the last is the level itself (its reference
  * answer is the level's). A task in another kind than the level's parts names the parts it holds (`parts: [part]`, the
  * ones the player has), as a truth circuit that translates a puzzle before the proof does.
- * A level may start its board with part of its reference answer in place (`preset: [node id]`, the answer's ids):
- * those cards, and the answer's wires between them and the board's own inputs and outputs, are locked
- * (../../circuit/model.js): moved, never deleted or rewired.
+ * A level may start its board with part of its reference answer in place (`preset: [id | { id, fixed }]`, the
+ * answer's ids): those cards, and the answer's wires between them and the board's own inputs and outputs, are locked
+ * (../../circuit/model.js): moved, never deleted or rewired; `fixed` fixes a card's settings too (true, or [key]).
+ * presetIds(level) lists the ids.
  * A level may also hold back parts it would carry (`without: [part]`): a proof that must do without the box; and a
  * level that shows a new part's use by itself says why its use is abstract (`showcase: 'reason'`, ../../course.js).
  * A level names only the parts it brings in (`adds`): every part met or built before it in its era carries into it,
@@ -154,7 +157,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     naive: (l) => Boolean(byId.get(l.id).naive || byId.get(l.id).tasks?.some((task) => task.naive)),
     // Every task's answer counts: a part the level's first task uses is used; what its board starts with does not.
     needed: (l) => {
-      const answers = (byId.get(l.id).tasks ?? [byId.get(l.id)]).filter((t) => t.solution?.nodes).map((t) => ({ ...t.solution, nodes: t.solution.nodes.filter((n) => !t.preset?.includes(n.id)) }))
+      const answers = (byId.get(l.id).tasks ?? [byId.get(l.id)]).filter((t) => t.solution?.nodes).map((t) => ({ ...t.solution, nodes: t.solution.nodes.filter((n) => !presetIds(t).includes(n.id)) }))
       return answers.length ? answers.flatMap(rulesIn) : null
     },
     folds: (l) => byId.get(l.id).fold ?? [],
