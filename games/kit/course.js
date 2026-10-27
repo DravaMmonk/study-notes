@@ -326,7 +326,8 @@ export function audit(course) {
       if (granted.has(p)) say('granted', level.id, p, 'handed out by the level, not built by the player')
       else if (!by) { if (!unbuilt.has(p)) say('not-built', level.id, p, 'no level builds it and it is not a primitive'); unbuilt.add(p) }
       else if (by === level.id) say('own-level', level.id, p, 'offered in the very level that builds it')
-      else if (course.before(by, level.id) && course.crosses(p, by, level.id) && !course.local(p)) say('carried', level.id, p, `named, though it carries here from ${by} anyway`)
+      // A part that stays where it is brought is brought again by name: that is no carry.
+      else if (course.before(by, level.id) && course.crosses(p, by, level.id)) { if (!course.local(p)) say('carried', level.id, p, `named, though it carries here from ${by} anyway`) }
       else {
         const optional = ['intro', 'step', 'finale', 'challenge'].includes(plan?.place.get(by)?.role)
         say(optional ? 'optional-needed' : 'built-later', level.id, p, optional ? `needs ${by}, which sits on an optional branch it does not require` : `offered where ${by}, the level that builds it, need not be solved yet`)

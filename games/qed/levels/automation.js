@@ -140,7 +140,7 @@ export const automation = [
       T('¬∀ 先要化成 ∃¬，∃ 才露出来。', '¬∀ must become ∃¬ first, before the ∃ shows.'),
       T('第二个目标里，∃y 在 ∀x 底下：y 跟着 x 变。', 'In the second goal ∃y is under ∀x: y depends on x.'),
     ],
-    intro: [{ t: T('子句里只有「对所有」，没有「存在」。已知里的 ∃，前面没有 ∀ 的，就像<part-ref to="part:exE"></part-ref>那样把那一样东西取出来；在 ∀ 底下的不行：「每个人都有父母」，父母是谁跟着这个人变。新元件<part-ref to="part:skolem"></part-ref>把它换成一个新函数 sk1(x)：x 的父母。它只认否定范式里的 ∃。', 'Clauses have only “for all”, no “there is”. An ∃ in a hypothesis with no ∀ outside it is taken out as <part-ref to="part:exE"></part-ref> does; one under a ∀ cannot be: “everyone has a parent”, and who the parent is depends on the person. The new card <part-ref to="part:skolem"></part-ref> puts a new function sk1(x) in its place: the parent of x. It takes only an ∃ in negation normal form.') }],
+    intro: [{ t: T('子句里只有「对所有」，没有「存在」。已知里的 ∃，前面没有 ∀ 的，就像<part-ref to="part:exE"></part-ref>那样把那一样东西取出来；在 ∀ 底下的不行：「每个人都有父母」，父母是谁跟着这个人变。新元件「Skolem 化」把它换成一个新函数 sk1(x)：x 的父母。它只认否定范式里的 ∃。', 'Clauses have only “for all”, no “there is”. An ∃ in a hypothesis with no ∀ outside it is taken out as <part-ref to="part:exE"></part-ref> does; one under a ∀ cannot be: “everyone has a parent”, and who the parent is depends on the person. The new card “Skolemise” puts a new function sk1(x) in its place: the parent of x. It takes only an ∃ in negation normal form.') }],
     solution: script(['simp', CNF, HYPS], 'skolem'),
     naive: script('skolem'),
     after: T('换成<wiki-ref to="skolem"></wiki-ref>以后的已知和原来的<b>不等价</b>：原来只说有这么一个，现在说的是 sk1(x) 就是。可两边同样推得出 ⊥ 或推不出，找矛盾够用了。只是这一步不是已知推出来的，核里做它要选择公理。', 'The hypotheses with a <wiki-ref to="skolem"></wiki-ref> put in are <b>not equivalent</b> to the old ones: those said there is one, these say sk1(x) is it. But each gives ⊥ exactly when the other does, which is all a search for a contradiction needs. Only, this step does not follow from the hypotheses; the kernel would need the axiom of choice for it.'),
@@ -149,7 +149,7 @@ export const automation = [
     id: 'au-clauses',
     title: T('拆成子句', 'Into clauses'),
     builds: 'clausify',
-    adds: ['toClauses'],
+    adds: ['toClauses', 'skolem'],
     tests: [
       { goal: 'Wet', hyps: ['Rain → Wet', 'Rain'], clauses: ['¬Rain ∨ Wet', 'Rain', '¬Wet'] },
       { goal: 'OnTime', hyps: ['Bus ∨ Bike', 'Bus → OnTime', 'Bike → OnTime'], clauses: ['Bus ∨ Bike', '¬Bus ∨ OnTime', '¬Bike ∨ OnTime', '¬OnTime'] },
@@ -158,10 +158,10 @@ export const automation = [
     ],
     brief: T('接一台机器，把每个目标拆成子句：要证的那句的否定和已知一起。', 'Wire a machine that splits each goal into clauses: the negation of what is to be proved, with the hypotheses.'),
     hint: [T('反过来证、改已知、Skolem 化，最后拆开。', 'Prove it backwards, rewrite the hypotheses, Skolemise, and split them.')],
-    intro: [{ t: T('合取范式里，每一串「或者」叫一条<wiki-ref to="clause"></wiki-ref>。新元件<part-ref to="part:toClauses"></part-ref>把目标是 ⊥ 的证明状态拆成一组子句：线上传的不再是证明状态，而是子句。接出的机器会成为新元件<part-ref to="lemma:clausify"></part-ref>。', 'In conjunctive normal form each string of “or” is a <wiki-ref to="clause"></wiki-ref>. The new card <part-ref to="part:toClauses"></part-ref> splits a proof state whose goal is ⊥ into a set of clauses: what the wire carries is no longer a proof state, but clauses. The machine you wire becomes a new part, <part-ref to="lemma:clausify"></part-ref>.') }],
+    intro: [{ t: T('合取范式里，每一串「或者」叫一条<wiki-ref to="clause"></wiki-ref>。新元件「拆成子句」把目标是 ⊥ 的证明状态拆成一组子句：线上传的不再是证明状态，而是子句。接出的机器会成为新元件「化成子句」。', 'In conjunctive normal form each string of “or” is a <wiki-ref to="clause"></wiki-ref>. The new card “Into clauses” splits a proof state whose goal is ⊥ into a set of clauses: what the wire carries is no longer a proof state, but clauses. The machine you wire becomes a new part, “Into clauses, all the way”.') }],
     solution: flow(...INTO),
     naive: flow(['simp', CNF, HYPS], 'skolem', 'toClauses'),
-    after: T('子句里的变量读作「对所有」，取出来的东西成了一个名字。这台机器现在是元件<part-ref to="lemma:clausify"></part-ref>：自动证明器动手之前，先做的就是这一串。', 'A variable in a clause reads as “for all”, and a thing taken out has become a name. This machine is now the part <part-ref to="lemma:clausify"></part-ref>: what an automatic prover does first, before anything else.'),
+    after: T('子句里的变量读作「对所有」，取出来的东西成了一个名字。这台机器现在是元件「化成子句」：自动证明器动手之前，先做的就是这一串。', 'A variable in a clause reads as “for all”, and a thing taken out has become a name. This machine is now the part “Into clauses, all the way”: what an automatic prover does first, before anything else.'),
   }),
 
   // ---------- resolution ----------
@@ -186,10 +186,11 @@ export const automation = [
       o: ['orI', { other: 'B', side: 'left' }, 'e2/right'],
       o2: ['orI', { other: 'C', side: 'right' }, 'e/right'],
     }, ['p>e.ab', 'q>e2.ab', 'e2#left>m.imp', 'e#left>m.a', 'm>b.bot', 'b>e2.left', 'e2#right>o.a', 'o>e2.right', 'e2>e.left', 'e#right>o2.a', 'o2>e.right', 'e>goal'], { premises: ['p', 'q'] }),
-    after: T('消掉一对相反的文字，剩下的用「或」连起来：这就是<wiki-ref to="resolution"></wiki-ref>，现在是元件<part-ref to="lemma:res"></part-ref>。相反的那一对在子句里的哪个位置都行。', 'Cancel a pair of opposite literals and join what is left with or: that is <wiki-ref to="resolution"></wiki-ref>, now the part <part-ref to="lemma:res"></part-ref>. The opposite pair may stand anywhere in the clauses.'),
+    after: T('消掉一对相反的文字，剩下的用「或」连起来：这就是<wiki-ref to="resolution"></wiki-ref>，现在是元件「归结」。相反的那一对在子句里的哪个位置都行。', 'Cancel a pair of opposite literals and join what is left with or: that is <wiki-ref to="resolution"></wiki-ref>, now the part “Resolve”. The opposite pair may stand anywhere in the clauses.'),
   },
   {
     id: 'au-refute',
+    adds: ['res'],
     title: T('推出空子句', 'Down to the empty clause'),
     tasks: [
       {
@@ -198,7 +199,7 @@ export const automation = [
         parts: ['res'],
         tests: [{ premises: { p: '¬A ∨ B', q: 'A', r: '¬B' }, goal: '⊥' }],
         cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Alarm', B: 'Up' }],
-        brief: T('实现一个证明器，只用<part-ref to="lemma:res"></part-ref>，从已知「¬下雨 ∨ 地湿」「下雨」「¬地湿」证明出矛盾 ⊥。', 'Build a prover that, with <part-ref to="lemma:res"></part-ref> alone, proves the contradiction ⊥ from “¬it rains ∨ the ground is wet”, “it rains” and “¬the ground is wet”.'),
+        brief: T('实现一个证明器，只用「归结」，从已知「¬下雨 ∨ 地湿」「下雨」「¬地湿」证明出矛盾 ⊥。', 'Build a prover that, with “Resolve” alone, proves the contradiction ⊥ from “¬it rains ∨ the ground is wet”, “it rains” and “¬the ground is wet”.'),
         hint: [T('「下雨」本身就是一条只有一项的子句。两条子句消完什么都不剩，就是 ⊥。', '“It rains” is itself a clause of one literal. Two clauses that cancel to nothing give ⊥.')],
         solution: proof({ r1: ['res'], r2: ['res'] }, ['q>r1.p0', 'p>r1.p1', 'r1>r2.p0', 'r>r2.p1', 'r2>goal'], { premises: ['p', 'q', 'r'] }),
       },
@@ -224,7 +225,7 @@ export const automation = [
     formulas: ['(Rain ∨ Wind) ∧ (¬Rain ∨ ¬Wind)'],
     brief: T('在真值表里找一行，让「下雨 ∨ 刮风」和「¬下雨 ∨ ¬刮风」都为真。', 'Find a row of the truth table where “it rains ∨ it is windy” and “¬it rains ∨ ¬it is windy” are both true.'),
     hint: [T('只下雨不刮风，两条各是什么？', 'Rain without wind: what is each clause?')],
-    intro: [{ t: T('<part-ref to="lemma:res"></part-ref>碰到两对能消的，会拒绝。「下雨 ∨ 刮风」和「¬下雨 ∨ ¬刮风」里就有两对相反的文字：要是一次把两对都消掉，就什么都不剩了，好像推出了矛盾。为什么不能一起消？', '<part-ref to="lemma:res"></part-ref> refuses when two pairs could cancel. “It rains ∨ it is windy” and “¬it rains ∨ ¬it is windy” hold two such pairs: cancel both at once and nothing is left, as if a contradiction followed. Why not cancel both?') }],
+    intro: [{ t: T('「归结」碰到两对能消的，会拒绝。「下雨 ∨ 刮风」和「¬下雨 ∨ ¬刮风」里就有两对相反的文字：要是一次把两对都消掉，就什么都不剩了，好像推出了矛盾。为什么不能一起消？', '“Resolve” refuses when two pairs could cancel. “It rains ∨ it is windy” and “¬it rains ∨ ¬it is windy” hold two such pairs: cancel both at once and nothing is left, as if a contradiction followed. Why not cancel both?') }],
     after: T('下雨不刮风的那一行，两条子句都真：它们不矛盾。只消一对，得到的是「刮风 ∨ ¬刮风」这种永远成立的话，没用；两对一起消，就错了。', 'On the row with rain and no wind both clauses are true: they do not contradict each other. Cancelling one pair gives something like “it is windy ∨ ¬it is windy”, always true and of no use; cancelling both at once is wrong.'),
   },
   machine('decide', CLAUSES)({
@@ -242,14 +243,15 @@ export const automation = [
     hint: [T('归结一圈还不够：放进重复框。', 'One round of resolution is not enough: put it in a repeat frame.')],
     intro: [
       { t: T('<level-ref to="au-refute"></level-ref>里，每一步消哪一对是你挑的。机器不会挑：新元件「归结一圈」把每一对能消的都消一次，新子句加进来，记下它从哪两条来。', 'In <level-ref to="au-refute"></level-ref> you picked the pair to cancel at each step. A machine does not pick: the new card “a round of resolution” cancels every pair that can be cancelled once, adding each new clause with the two it came from.') },
-      { t: T('子句里有变量时，一对文字先合一，再消：「¬x是人 ∨ x会死」和「苏格拉底是人」，x 合一成苏格拉底。接出的机器会成为新元件<part-ref to="lemma:saturate"></part-ref>。', 'When clauses have variables, a pair of literals is unified first, then cancelled: “¬x is human ∨ x is mortal” and “Socrates is human”, with x unified to Socrates. The machine you wire becomes a new part, <part-ref to="lemma:saturate"></part-ref>.') },
+      { t: T('子句里有变量时，一对文字先合一，再消：「¬x是人 ∨ x会死」和「苏格拉底是人」，x 合一成苏格拉底。接出的机器会成为新元件「饱和器」。', 'When clauses have variables, a pair of literals is unified first, then cancelled: “¬x is human ∨ x is mortal” and “Socrates is human”, with x unified to Socrates. The machine you wire becomes a new part, “Saturator”.') },
     ],
     solution: flow({ frame: 'repeat', body: ['resolve'] }),
     naive: flow('resolve'),
-    after: T('一直归结到推出 ⊥ 或者推不出新东西：这台机器是<b>饱和器</b>，现在是元件<part-ref to="lemma:saturate"></part-ref>。它不挑，会推出很多用不着的子句；可只要推得出矛盾，它就一定推得出来：归结有<wiki-ref to="refutation"></wiki-ref>。推不出 ⊥ 就停下来的，这组子句能同时成立。', 'Resolving until ⊥ appears or nothing new does: this machine is the <b>saturator</b>, now the part <part-ref to="lemma:saturate"></part-ref>. It does not pick, so it makes many clauses it does not need; but whenever a contradiction can be reached, it reaches it: resolution has <wiki-ref to="refutation"></wiki-ref>. When it stops without ⊥, the clauses can all hold at once.'),
+    after: T('一直归结到推出 ⊥ 或者推不出新东西：这台机器是<b>饱和器</b>，现在是元件「饱和器」。它不挑，会推出很多用不着的子句；可只要推得出矛盾，它就一定推得出来：归结有<wiki-ref to="refutation"></wiki-ref>。推不出 ⊥ 就停下来的，这组子句能同时成立。', 'Resolving until ⊥ appears or nothing new does: this machine is the <b>saturator</b>, now the part “Saturator”. It does not pick, so it makes many clauses it does not need; but whenever a contradiction can be reached, it reaches it: resolution has <wiki-ref to="refutation"></wiki-ref>. When it stops without ⊥, the clauses can all hold at once.'),
   }),
   {
     id: 'au-sledge',
+    adds: ['saturate', 'clausify'],
     title: T('交给证明器', 'Hand it to the prover'),
     tasks: [
       machine('decide')({
@@ -261,7 +263,7 @@ export const automation = [
           { goal: 'OnTime', hyps: ['Bus → OnTime', 'Bike ∨ Bus'] },
         ],
         brief: T('接一台机器：目标推得出，就推出 ⊥；推不出，就饱和到再没有新子句。', 'Wire a machine: where the goal follows, reach ⊥; where it does not, saturate until no new clause appears.'),
-        hint: [T('<part-ref to="lemma:clausify"></part-ref>，再<part-ref to="lemma:saturate"></part-ref>。', '<part-ref to="lemma:clausify"></part-ref>, then <part-ref to="lemma:saturate"></part-ref>.')],
+        hint: [T('「化成子句」，再「饱和器」。', '“Into clauses, all the way”, then “Saturator”.')],
         solution: flow('clausify', 'saturate'),
         naive: flow('clausify', 'resolve'),
       }),
@@ -282,6 +284,7 @@ export const automation = [
   // ---------- certificates ----------
   {
     id: 'au-cert',
+    adds: ['saturate', 'clausify', 'res'],
     title: T('证书', 'The certificate'),
     tasks: [
       machine('refuted')({
@@ -297,7 +300,7 @@ export const automation = [
         parts: ['res'],
         tests: [{ premises: { p: '¬A ∨ B', q: '¬B ∨ C', r: 'A', s: '¬C' }, goal: '⊥' }],
         cases: [{ A: 'Alarm', B: 'Up', C: 'Coffee' }],
-        brief: T('照机器的证书，在证明板上用<part-ref to="lemma:res"></part-ref>重放：从这四条子句推出 ⊥。', 'Replay the machine’s certificate on the proof board with <part-ref to="lemma:res"></part-ref>: ⊥ from these four clauses.'),
+        brief: T('照机器的证书，在证明板上用「归结」重放：从这四条子句推出 ⊥。', 'Replay the machine’s certificate on the proof board with “Resolve”: ⊥ from these four clauses.'),
         hint: [T('证书里的第 6 条由第 1、3 条来，第 7 条由第 2、4 条来，⊥ 由第 6、7 条来。', 'In the certificate clause 6 comes from 1 and 3, clause 7 from 2 and 4, and ⊥ from 6 and 7.')],
         solution: proof({ r1: ['res'], r2: ['res'], r3: ['res'] }, ['p>r1.p0', 'r>r1.p1', 'q>r2.p0', 's>r2.p1', 'r1>r3.p0', 'r2>r3.p1', 'r3>goal'], { premises: ['p', 'q', 'r', 's'] }),
       },
@@ -309,7 +312,7 @@ export const automation = [
     id: 'au-replay',
     title: T('让核重放', 'Let the kernel replay it'),
     builds: 'metis',
-    adds: ['replay'],
+    adds: ['replay', 'saturate', 'clausify'],
     tests: [
       { goal: 'Coffee', hyps: ['Alarm → Up', 'Up → Coffee', 'Alarm'] },
       { goal: 'OnTime', hyps: ['Bus ∨ Bike', 'Bus → OnTime', 'Bike → OnTime'] },
@@ -318,13 +321,14 @@ export const automation = [
     ],
     brief: T('接一台机器，证完每一个目标：机器找证书，核来重放。', 'Wire a machine that proves every goal: the machine finds a certificate, the kernel replays it.'),
     hint: [T('饱和器后面接重放。', 'Replay after the saturator.')],
-    intro: [{ t: T('新元件<part-ref to="part:replay"></part-ref>把证书交给核：用到的已知子句要是从已知拆出来的，每一步要由它的两条父子句用你的 auto 证出来。都过了，子句拆出来的那个目标就证完了。接出的机器会成为新元件<part-ref to="lemma:metis"></part-ref>。', 'The new card <part-ref to="part:replay"></part-ref> hands the certificate to the kernel: each input clause used must come out of a hypothesis, and each step must be proved from its two parents by your auto. If all pass, the goal the clauses came from is proved. The machine you wire becomes a new part, <part-ref to="lemma:metis"></part-ref>.') }],
+    intro: [{ t: T('新元件「重放」把证书交给核：用到的已知子句要是从已知拆出来的，每一步要由它的两条父子句用你的 auto 证出来。都过了，子句拆出来的那个目标就证完了。接出的机器会成为新元件<part-ref to="lemma:metis"></part-ref>。', 'The new card “Replay” hands the certificate to the kernel: each input clause used must come out of a hypothesis, and each step must be proved from its two parents by your auto. If all pass, the goal the clauses came from is proved. The machine you wire becomes a new part, <part-ref to="lemma:metis"></part-ref>.') }],
     solution: flow('clausify', 'saturate', 'replay'),
     naive: flow('clausify', 'saturate'),
     after: T('找证书的可以是任何程序，再快再乱都行，只要交出证书；证完目标的是核。这台机器现在是元件<part-ref to="lemma:metis"></part-ref>。', 'Whatever finds the certificate may be any program, however fast or messy, as long as it hands one over; what proves the goal is the kernel. This machine is now the part <part-ref to="lemma:metis"></part-ref>.'),
   }),
   {
     id: 'au-wrong',
+    adds: ['replay', 'clausify'],
     title: T('证明器错了', 'The prover is wrong'),
     tasks: [
       machine('fails')({

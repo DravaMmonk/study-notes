@@ -237,6 +237,7 @@ export const structured = [
   }),
   script({
     id: 'sc-revrev',
+    adds: ['revApp'],
     title: T('倒两次，写成脚本', 'Reversed twice, as a script'),
     brief: WRITE,
     premises: {},
@@ -248,7 +249,7 @@ export const structured = [
     answer: [{ k: 'show', stmt: '∀xs. rev(rev(xs)) = xs', by: 'induct' }],
     naive: [{ k: 'show', stmt: '∀xs. rev(rev(xs)) = xs', by: 'simp' }],
     hint: [T('对 xs 归纳，每种情况化简。', 'Induction on xs, and Simp on each case.')],
-    intro: [{ t: T('这一关的化简集合里有列表的定义和<part-ref to="lemma:revApp"></part-ref>。', 'This level’s simp set holds the definitions of lists and <part-ref to="lemma:revApp"></part-ref>.') }],
+    intro: [{ t: T('这一关的化简集合里有列表的定义和「倒过拼接」。', 'This level’s simp set holds the definitions of lists and “Reverse of an append”.') }],
     after: T('by (induction) simp：对 xs 归纳，每种情况化简。<level-ref to="in-revrev"></level-ref>里那台机器，在脚本里只占一行；它下面垫着的引理，都在化简集合里。', 'by (induction) simp: induction on xs, and Simp on each case. The machine of <level-ref to="in-revrev"></level-ref> takes one row in a script; the lemmas under it are in the simp set.'),
   }),
   script({

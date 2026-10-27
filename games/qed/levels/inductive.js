@@ -201,7 +201,7 @@ export const inductive = [
           T('0 的情况：第一条定义取 0。', 'The case 0: take 0 in the first definition.'),
           T('从 a 到 S a：第二条定义取 a、再取 0，得到 S a + 0 = S (a + 0)；框里假设的 a + 0 = a，用等量代换换进去。', 'From a to S a: the second definition with a, then 0, gives S a + 0 = S (a + 0); the a + 0 = a the box assumes goes in by Rewrite.'),
         ],
-        intro: [{ t: T('新元件<part-ref to="part:natInd"></part-ref>：在元件上选要证的「对所有 x」，它有两个框。第一个框证 0 的情况；第二个框里有一个数 a，假设对 a 成立，证对 S a 也成立。', 'A new part, <part-ref to="part:natInd"></part-ref>: choose on it the “for every x” to prove; it has two boxes. The first proves the case 0; in the second there is a number a, the sentence is assumed for a, and proved for S a.') }],
+        intro: [{ t: T('新元件「归纳」：在元件上选要证的「对所有 x」，它有两个框。第一个框证 0 的情况；第二个框里有一个数 a，假设对 a 成立，证对 S a 也成立。', 'A new part, “Induction”: choose on it the “for every x” to prove; it has two boxes. The first proves the case 0; in the second there is a number a, the sentence is assumed for a, and proved for S a.') }],
         solution: proof({
           n: ['natInd', { P: '∀x. plus(x, zero) = x', x: 'a' }],
           z: ['allE', { t: 'zero' }, 'n/zero'],
@@ -221,7 +221,7 @@ export const inductive = [
       }),
     ],
     intro: [{ t: T('加法的定义只看左边那个数：0 + y = y，S x + y = S (x + y)。0 加在右边呢？具体的数好办，「对所有 x」就要声明的最后一条规则：<wiki-ref to="induction"></wiki-ref>。', 'Addition’s definition looks only at the number on the left: 0 + y = y, S x + y = S (x + y). And 0 on the right? For the numbers it is easy; “for every x” takes the declaration’s last rule: <wiki-ref to="induction"></wiki-ref>.') }],
-    after: T('每个数都是从 0 一步步 S 出来的：0 的时候成立，从 x 成立能推出 S x 也成立，那就对所有数成立。归纳规则是声明给的：有几个构造子，就有几条前提。证出的 x + 0 = x 成了<part-ref to="lemma:addZero"></part-ref>：从此它是一条规则，也是化简的一条改写规则。', 'Every number is reached from 0 by S, step by step: true at 0, and true at S x whenever at x, means true at every number. The induction rule is the declaration’s: one premise per constructor. The x + 0 = x proved is now <part-ref to="lemma:addZero"></part-ref>: a rule from now on, and a rewrite rule for Simp.'),
+    after: T('每个数都是从 0 一步步 S 出来的：0 的时候成立，从 x 成立能推出 S x 也成立，那就对所有数成立。归纳规则是声明给的：有几个构造子，就有几条前提。证出的 x + 0 = x 成了「加零」：从此它是一条规则，也是化简的一条改写规则。', 'Every number is reached from 0 by S, step by step: true at 0, and true at S x whenever at x, means true at every number. The induction rule is the declaration’s: one premise per constructor. The x + 0 = x proved is now “Add zero”: a rule from now on, and a rewrite rule for Simp.'),
   },
 
   // ---------- numbers ----------
@@ -237,21 +237,22 @@ export const inductive = [
     intro: [{ t: T('S 加在右边：x + S y = S (x + y)。两个变量，对哪一个归纳，哪一个留着？', 'S on the right: x + S y = S (x + y). Two variables: which to induct on, and which to leave?') }],
     solution: byInduction('nat', ['simp', [...defs(2), 'hyp']], ['rule', 'allI']),
     naive: script(['rule', 'allI'], ['rule', 'allI'], ['simp', [...defs(2), 'hyp']], ['rule', 'refl']),
-    after: T('归纳假设是「对所有 y，x + S y = S (x + y)」。y 不先固定，假设才用得上：先对谁归纳、哪些留着，是归纳证明里要想的事。这一句成了<part-ref to="lemma:addSucc"></part-ref>。', 'The hypothesis is “for every y, x + S y = S (x + y)”. Leaving y unfixed is what makes it usable: what to induct on and what to leave is what an induction proof makes you think about. This is now <part-ref to="lemma:addSucc"></part-ref>.'),
+    after: T('归纳假设是「对所有 y，x + S y = S (x + y)」。y 不先固定，假设才用得上：先对谁归纳、哪些留着，是归纳证明里要想的事。这一句成了「加后继」。', 'The hypothesis is “for every y, x + S y = S (x + y)”. Leaving y unfixed is what makes it usable: what to induct on and what to leave is what an induction proof makes you think about. This is now “Add successor”.'),
   }),
   proves({
     id: 'in-comm',
+    adds: ['addZero', 'addSucc'],
     title: T('交换', 'Commutativity'),
     builds: 'addComm',
     datatypes: NAT_T,
     defs: NAT,
     tests: [{ goal: '∀x. ∀y. plus(x, y) = plus(y, x)' }],
     brief: PROVE,
-    hint: [T('0 的情况要 y + 0 = y，S 的情况要 y + S x：<part-ref to="lemma:addZero"></part-ref>和<part-ref to="lemma:addSucc"></part-ref>都排进化简。', 'The 0 case needs y + 0 = y, the S case y + S x: line <part-ref to="lemma:addZero"></part-ref> and <part-ref to="lemma:addSucc"></part-ref> up in Simp.')],
+    hint: [T('0 的情况要 y + 0 = y，S 的情况要 y + S x：「加零」和「加后继」都排进化简。', 'The 0 case needs y + 0 = y, the S case y + S x: line “Add zero” and “Add successor” up in Simp.')],
     intro: [{ t: T('交换：x + y = y + x。对 x 归纳，两种情况各卡在哪里？', 'Commutativity: x + y = y + x. Induct on x: where does each case get stuck?') }],
     solution: byInduction('nat', ['rule', 'allI'], ['simp', [...defs(2), 'addZero', 'addSucc', 'hyp']]),
     naive: byInduction('nat', ['rule', 'allI'], ['simp', [...defs(2), 'hyp']]),
-    after: T('一个用了两条等式的归纳证明。数学书上一句「显然」，到机器上就是这样一层层搭出来的。它成了<part-ref to="lemma:addComm"></part-ref>。', 'An induction standing on two equations. What a book calls “obvious” is built up like this on a machine. It is now <part-ref to="lemma:addComm"></part-ref>.'),
+    after: T('一个用了两条等式的归纳证明。数学书上一句「显然」，到机器上就是这样一层层搭出来的。它成了「加法交换」。', 'An induction standing on two equations. What a book calls “obvious” is built up like this on a machine. It is now “Addition commutes”.'),
   }),
   proves({
     id: 'in-assoc',
@@ -264,7 +265,7 @@ export const inductive = [
     hint: [T('对最左边的 x 归纳：定义就是看左边那个数的。', 'Induct on the leftmost x: the definition looks at the number on the left.')],
     intro: [{ t: T('结合：(x + y) + z = x + (y + z)。', 'Associativity: (x + y) + z = x + (y + z).') }],
     solution: byInduction('nat', ['simp', [...defs(2), 'hyp']], { frame: 'repeat', body: [['rule', 'allI']] }),
-    after: T('这一次不用任何等式：变量选对了，定义自己就够。它成了<part-ref to="lemma:addAssoc"></part-ref>。', 'No equation this time: with the right variable chosen, the definition is enough. It is now <part-ref to="lemma:addAssoc"></part-ref>.'),
+    after: T('这一次不用任何等式：变量选对了，定义自己就够。它成了「加法结合」。', 'No equation this time: with the right variable chosen, the definition is enough. It is now “Addition associates”.'),
   }),
 
   // ---------- lists ----------
@@ -279,7 +280,7 @@ export const inductive = [
     hint: [T('倒着用「list 的归纳」，再每个目标化简。', 'Use “list induction” backwards, then simp each goal.')],
     intro: [{ t: T('列表也是声明出来的：list = [] | x :: xs，一个列表要么是空的，要么是在列表 xs 前面接一个 x。声明给的规则一样四类，归纳的第二条前提是从 xs 到 x :: xs。', 'Lists are declared too: list = [] | x :: xs, a list is empty or an x put in front of a list xs. The declaration gives the same four kinds of rule, and induction’s second premise goes from xs to x :: xs.') }],
     solution: byInduction('list', ['simp', [...defs(2), 'hyp']]),
-    after: T('和 x + 0 = x 一模一样的证明。数和列表是同一种东西：都是一层层造出来的<wiki-ref to="inductive"></wiki-ref>。它成了<part-ref to="lemma:appNil"></part-ref>。', 'The very same proof as x + 0 = x. Numbers and lists are the same kind of thing, built up layer by layer: each is an <wiki-ref to="inductive"></wiki-ref>. It is now <part-ref to="lemma:appNil"></part-ref>.'),
+    after: T('和 x + 0 = x 一模一样的证明。数和列表是同一种东西：都是一层层造出来的<wiki-ref to="inductive"></wiki-ref>。它成了「接空列表」。', 'The very same proof as x + 0 = x. Numbers and lists are the same kind of thing, built up layer by layer: each is an <wiki-ref to="inductive"></wiki-ref>. It is now “Append nil”.'),
   }),
   proves({
     id: 'in-appassoc',
@@ -292,21 +293,22 @@ export const inductive = [
     hint: [T('还是对最左边的那个归纳。', 'Induct on the leftmost again.')],
     intro: [{ t: T('拼接也结合：(xs ++ ys) ++ zs = xs ++ (ys ++ zs)。', 'Appending associates too: (xs ++ ys) ++ zs = xs ++ (ys ++ zs).') }],
     solution: byInduction('list', ['simp', [...defs(2), 'hyp']], { frame: 'repeat', body: [['rule', 'allI']] }),
-    after: T('还是和加法结合同一个证明。它成了<part-ref to="lemma:appAssoc"></part-ref>。', 'The same proof as associativity of addition, once more. It is now <part-ref to="lemma:appAssoc"></part-ref>.'),
+    after: T('还是和加法结合同一个证明。它成了「拼接结合」。', 'The same proof as associativity of addition, once more. It is now “Append associates”.'),
   }),
   proves({
     id: 'in-revapp',
+    adds: ['appNil', 'appAssoc'],
     title: T('倒过来拼', 'Reversing an append'),
     builds: 'revApp',
     datatypes: LIST_T,
     defs: REV,
     tests: [{ goal: '∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))' }],
     brief: PROVE,
-    hint: [T('[] 的情况要 rev ys = rev ys ++ []；另一种情况，两个 ++ 要换个结合方式：<part-ref to="lemma:appNil"></part-ref>和<part-ref to="lemma:appAssoc"></part-ref>都排进化简。', 'The [] case needs rev ys = rev ys ++ []; the other one needs two ++ grouped the other way: line <part-ref to="lemma:appNil"></part-ref> and <part-ref to="lemma:appAssoc"></part-ref> up in Simp.')],
+    hint: [T('[] 的情况要 rev ys = rev ys ++ []；另一种情况，两个 ++ 要换个结合方式：「接空列表」和「拼接结合」都排进化简。', 'The [] case needs rev ys = rev ys ++ []; the other one needs two ++ grouped the other way: line “Append nil” and “Append associates” up in Simp.')],
     intro: [{ t: T('rev 把列表倒过来：rev [] = []，rev (x :: xs) = rev xs ++ [x]。把两段拼起来再倒过来，和先倒再拼，有什么关系？', 'rev reverses a list: rev [] = [], rev (x :: xs) = rev xs ++ [x]. What has reversing an append to do with reversing first?') }],
     solution: byInduction('list', ['rule', 'allI'], ['simp', [...defs(2), 'def.4', 'def.5', 'appNil', 'appAssoc', 'hyp']]),
     naive: byInduction('list', ['rule', 'allI'], ['simp', [...defs(2), 'def.4', 'def.5', 'hyp']]),
-    after: T('倒过来的拼接，是先倒后面那段。两条列表的等式在这里一起用上了。它成了<part-ref to="lemma:revApp"></part-ref>。', 'Reversing an append reverses the back part first. Both list equations were used here. It is now <part-ref to="lemma:revApp"></part-ref>.'),
+    after: T('倒过来的拼接，是先倒后面那段。两条列表的等式在这里一起用上了。它成了「倒过拼接」。', 'Reversing an append reverses the back part first. Both list equations were used here. It is now “Reverse of an append”.'),
   }),
 
   // ---------- why a definition must stop ----------
@@ -320,16 +322,17 @@ export const inductive = [
     hint: [T('倒着用归纳。0 的情况用互不相同；S 的情况，一对一把 S a = S (S a) 拆成 a = S a，正撞上已知。', 'Induction backwards. The 0 case is all different; in the S case, one-to-one takes S a = S (S a) to a = S a, against the given.')],
     intro: [{ t: T('没有哪个数等于它自己的后一个：x ≠ S x。声明给的三条规则一起上。', 'No number is the one after itself: x ≠ S x. Three of the declaration’s rules together.') }],
     solution: script(['rule', 'nat.induct'], ['rule', 'impI'], ['erule', 'nat.distinct1'], ['rule', 'impI'], ['erule', 'nat.inject'], ['erule', 'mp'], 'assumption'),
-    after: T('x ≠ S x 成了<part-ref to="lemma:succNeq"></part-ref>。', 'x ≠ S x is now <part-ref to="lemma:succNeq"></part-ref>.'),
+    after: T('x ≠ S x 成了「不等于后继」。', 'x ≠ S x is now “Never its successor”.'),
   }),
   proves({
     id: 'in-loop',
+    adds: ['frule', 'succNeq'],
     title: T('停不下来的定义', 'A definition that never stops'),
     datatypes: NAT_T,
     tests: [{ goal: '⊥', hyps: ['∀x. f(x) = s(f(x))'] }],
     brief: PROVE,
     hint: [
-      T('先证一句：用规则选<part-ref to="lemma:succNeq"></part-ref>，把它放进已知。', 'Have first: Rule with <part-ref to="lemma:succNeq"></part-ref> puts it among the givens.'),
+      T('先证一句：用规则选「不等于后继」，把它放进已知。', 'Have first: Rule with “Never its successor” puts it among the givens.'),
       T('再往前推两次<part-ref to="part:allE"></part-ref>，从两句「对所有」各取出一句，让它们撞上。', 'Then Forward with <part-ref to="part:allE"></part-ref> twice, one sentence out of each “for all”, and let them clash.'),
     ],
     intro: [{ t: T('有人这样「定义」一个函数：f x = S (f x)。要算 f 0，先得算 f 0，永远算不完。在证明器里，这样一句定义不只是算不完：它和 x ≠ S x 放在一起，就推出矛盾。', 'Someone “defines” a function like this: f x = S (f x). Working out f 0 needs f 0 first, for ever. In a prover such a definition does worse than never finish: put beside x ≠ S x, it proves a contradiction.') }],
@@ -352,12 +355,13 @@ export const inductive = [
   }),
   proves({
     id: 'in-revrev',
+    adds: ['revApp'],
     title: T('倒两次', 'Reversed twice'),
     datatypes: LIST_T,
     defs: REV,
     tests: [{ goal: '∀xs. rev(rev(xs)) = xs' }],
     brief: PROVE,
-    hint: [T('rev (rev xs ++ [x]) 要用<part-ref to="lemma:revApp"></part-ref>拆开。', 'rev (rev xs ++ [x]) comes apart with <part-ref to="lemma:revApp"></part-ref>.')],
+    hint: [T('rev (rev xs ++ [x]) 要用「倒过拼接」拆开。', 'rev (rev xs ++ [x]) comes apart with “Reverse of an append”.')],
     intro: [{ t: T('一个列表倒过来，再倒过来，还是它自己。', 'A list reversed and reversed again is itself.') }],
     solution: byInduction('list', ['simp', [...defs(2), 'def.4', 'def.5', 'revApp', 'hyp']]),
     naive: byInduction('list', ['simp', [...defs(2), 'def.4', 'def.5', 'hyp']]),
@@ -365,6 +369,7 @@ export const inductive = [
   }),
   proves({
     id: 'in-itsum',
+    adds: ['addZero', 'addAssoc'],
     title: T('累加器求和', 'Summing with an accumulator'),
     datatypes: LIST_T,
     defs: SUM,
@@ -506,6 +511,7 @@ export const inductive = [
   // ---------- challenge ----------
   proves({
     id: 'in-circle',
+    adds: ['addZero', 'addSucc', 'addComm'],
     title: T('会绕圈的化简', 'Simp going round in circles'),
     datatypes: NAT_T,
     defs: NAT,

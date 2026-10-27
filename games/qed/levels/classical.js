@@ -168,6 +168,7 @@ export const classical = [
   // ---------- topic: knights and knaves ----------
   {
     id: 'kk-one',
+    adds: ['merge'],
     title: T('一个岛民', 'One islander'),
     builds: 'liar',
     tasks: [

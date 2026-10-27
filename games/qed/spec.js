@@ -149,7 +149,8 @@ export default {
     { solve: ['sp-compute', ['nl-plus']] },
     { data: (value, id) => (id === 'in-zero' && Array.isArray(value) ? [value[0] ?? null, null, value[1] ?? null] : value) },
   ] }],
-  // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
-  quotes: ['任取', '等价', '假设', '我证不出'],
+  // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
+  // a part that stays where it is brought, which has no box entry to link).
+  quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }

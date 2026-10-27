@@ -124,8 +124,8 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     // A task's intro is its own (the level's is the level's).
     const { tasks, builds, after, intro, ...base } = level
     const all = tasks.map((task, index) => ({ ...read({ ...base, ...(index === tasks.length - 1 && builds ? { builds } : {}), ...task }), task: index }))
-    // A part any task brings in is new to the level, whichever task it is.
-    return { ...all.at(-1), intro, after, adds: [...new Set(all.flatMap((t) => t.adds))], tasks: all }
+    // A part the level or any task brings in is new to the level, whichever task it is.
+    return { ...all.at(-1), intro, after, adds: [...new Set([...(base.adds ?? []), ...all.flatMap((t) => t.adds)])], tasks: all }
   })
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))

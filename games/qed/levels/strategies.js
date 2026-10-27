@@ -96,7 +96,7 @@ export const strategies = [
     hint: [T('「是人」的人不止一个，「喜欢安」的只有一个：让知道得多的那个目标先定下 ?t。', 'More than one is human, only one likes Ann: let the goal that knows more settle ?t first.')],
     intro: [
       { t: T('一个元件做一步，后面的元件接着它的结果做。可一个 ? 留在两个目标里时，先证哪一个，就由哪一个来定它：举例倒过来、再拼成以后，两个目标是 ?t是人、?t喜欢安。已知里有拿第一条对上的已知：先证「?t是人」，?t 就成了茜，可茜不喜欢安，第二个目标就证不下去了。', 'A part takes a step, and the next works on what it gives. But when a ?-letter sits in two goals, whichever is proved first settles it: after Example and Join ∧ backwards the goals are ?t is human, ?t likes Ann. Assumption takes the first given that fits: prove “?t is human” first, and ?t becomes Cy, who does not like Ann, so the second goal cannot be proved.') },
-      { t: T('新元件<part-ref to="part:defer"></part-ref>：把第一个目标挪到最后，第二个目标先证。', 'A new part, <part-ref to="part:defer"></part-ref>: it moves the first goal to the end, so the second is proved first.') },
+      { t: T('新元件「放到最后」：把第一个目标挪到最后，第二个目标先证。', 'A new part, “Defer”: it moves the first goal to the end, so the second is proved first.') },
     ],
     solution: script(['rule', 'exI'], ['rule', 'conjI'], 'defer', 'assumption', 'assumption'),
     after: T('一个 ? 被哪个目标先定下，结果就不一样：让知道得多的目标先说话。', 'Which goal settles a ?-letter first changes the outcome: let the goal that knows more speak first.'),
@@ -158,7 +158,7 @@ export const strategies = [
     ],
     brief: T('接一台机器：不管目标是什么样子，都用对得上的引入规则倒着拆一步，每一种拆法都留下；一条都对不上的，失败。', 'Wire a machine that takes any goal one step apart with the introduction rules that fit, keeping every way; when none fits, it fails.'),
     hint: [T('六条引入规则，每条一个框：几条路的元件上可以选到六个框。对不上的框自己失败。', 'Six introduction rules, one region each: Alternatives can be set to six. A region whose rule does not fit fails by itself.')],
-    intro: [{ t: T('到现在，每一步用哪条规则，都是你看了这一关的目标挑好接进去的。要对付什么样子的目标都行，一步里就得把规则都试一遍。引入规则看的是目标：拼成、假设框、引入 ∨ 左右两条、任取、举例。一个目标是什么样子，就是哪条引入规则造出来的。接出的机器会成为新元件<part-ref to="lemma:introRules"></part-ref>。', 'Until now, which rule each step uses was chosen by you, looking at this level’s goals. To take goals of any shape, a step must try every rule. Introduction rules look at the goal: join, the assumption box, bring in ∨ left and right, for any, example. A goal’s shape says which introduction rule made it. The machine you wire becomes a new part, <part-ref to="lemma:introRules"></part-ref>.') }],
+    intro: [{ t: T('到现在，每一步用哪条规则，都是你看了这一关的目标挑好接进去的。要对付什么样子的目标都行，一步里就得把规则都试一遍。引入规则看的是目标：拼成、假设框、引入 ∨ 左右两条、任取、举例。一个目标是什么样子，就是哪条引入规则造出来的。接出的机器会成为新元件「拆目标」。', 'Until now, which rule each step uses was chosen by you, looking at this level’s goals. To take goals of any shape, a step must try every rule. Introduction rules look at the goal: join, the assumption box, bring in ∨ left and right, for any, example. A goal’s shape says which introduction rule made it. The machine you wire becomes a new part, “Goal apart”.') }],
     solution: flow({ ways: [[['rule', 'conjI']], [['rule', 'impI']], [['rule', 'disjI1']], [['rule', 'disjI2']], [['rule', 'allI']], [['rule', 'exI']]] }),
     after: T('对不上的规则自己失败，几条路把对得上的都留下：一个元件，就是「按形状拆目标」。', 'A rule that does not fit fails by itself, and Alternatives keeps the ones that fit: one part that takes the goal apart by its shape.'),
   }),
@@ -178,7 +178,7 @@ export const strategies = [
     ],
     brief: T('接一台机器：每一条消去规则都拿去对已知，每一种对法都留下；一条都对不上的，失败。', 'Wire a machine that tries every elimination rule on the givens, keeping every fit; when none fits, it fails.'),
     hint: [T('六条消去规则，每条一个框，框里是规则对已知。', 'Six elimination rules, one region each, with Rule on a given in it.')],
-    intro: [{ t: T('另一半是消去规则，它们看的是已知：拆开 ∧、分情况、用上「若…则…」、矛盾推出一切、拿出那一个、取一个再用。已知是什么样子，就能怎样用它。接出的机器会成为新元件<part-ref to="lemma:elimRules"></part-ref>。', 'The other half are the elimination rules, which look at the givens: split ∧, case by case, use an “if”, from contradiction, take the one there is, take one and use it. A given’s shape says how it can be used. The machine you wire becomes a new part, <part-ref to="lemma:elimRules"></part-ref>.') }],
+    intro: [{ t: T('另一半是消去规则，它们看的是已知：拆开 ∧、分情况、用上「若…则…」、矛盾推出一切、拿出那一个、取一个再用。已知是什么样子，就能怎样用它。接出的机器会成为新元件「用已知」。', 'The other half are the elimination rules, which look at the givens: split ∧, case by case, use an “if”, from contradiction, take the one there is, take one and use it. A given’s shape says how it can be used. The machine you wire becomes a new part, “Use a given”.') }],
     solution: flow({ ways: [[['erule', 'conjE']], [['erule', 'disjE']], [['erule', 'impE']], [['erule', 'botE']], [['erule', 'exE']], [['erule', 'allE']]] }),
     after: T('拆目标看目标的形状，用已知看已知的形状：两个元件合起来，就是一步里能做的所有事。', 'Goal apart looks at the goal’s shape, Use a given at the givens’: together the two parts are everything one step can do.'),
   }),
@@ -186,6 +186,7 @@ export const strategies = [
   // ---------- your own auto ----------
   each({
     id: 's-auto',
+    adds: ['introRules', 'elimRules'],
     title: T('自己的 auto', 'Your own auto'),
     builds: 'auto',
     tests: [{ goal: 'Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)' }, { goal: '(Rain → Wet) → ((Wet → Slip) → (Rain → Slip))' }, { goal: '(∃x. Human(x) ∧ Likes(x, ann)) → ∃x. Likes(x, ann)' }, { goal: '(∀x. Human(x) ∧ Bird(x)) → ∀x. Bird(x)' }],
@@ -227,6 +228,7 @@ export const strategies = [
   }),
   ask({
     id: 'pl-order',
+    adds: ['defer'],
     title: T('先问谁', 'Ask which first'),
     rules: {
       anc1: { name: T('祖先·一代', 'Ancestor: one generation'), premises: ['Parent(?x, ?y)'], conclusion: 'Anc(?x, ?y)' },

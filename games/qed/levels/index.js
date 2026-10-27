@@ -158,8 +158,15 @@ const COURSE = {
     'append', 'each', 'defer', 'search', 'rw', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
   concept: { andI: 'and', andE: 'and', rewrite: 'eq', refl: 'eq' },
-  // Parts that stay where a level brings them: one round of resolution, soon wrapped into the saturator, and someone
-  // else's prover, on the board of the one level that catches it out.
-  local: ['resolve', 'oracle'],
+  // Parts that stay where a level brings them, so the components box keeps only what goes on being used: the steps of
+  // a part built from them soon after (the unifier's moves, Skolemise and Into clauses, one round of resolution, Replay,
+  // the intro and elim rule sets inside auto, the saturator and Into clauses all the way inside the reconstructor), the
+  // lemmas and equations a chapter proves for its own next few levels (merge and swap, the frule and resolution
+  // lemmas, the induction chapter's equations; not ⟷ unfolded, which the built-in clausifier reads from the rule book), a part one stretch of levels needs (the unifier, Defer, the
+  // proof board's induction box) and someone else's prover, on the board of the one level that catches it out. A level
+  // that needs one brings it again.
+  local: ['uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'uPattern', 'unifier', 'defer', 'introRules', 'elimRules', 'frule',
+    'natInd', 'addZero', 'addSucc', 'addComm', 'addAssoc', 'appNil', 'appAssoc', 'revApp', 'succNeq', 'swap', 'merge',
+    'skolem', 'toClauses', 'res', 'resolve', 'saturate', 'clausify', 'replay', 'oracle'],
 }
 export const LOGIC = logicCourse(COURSE)
