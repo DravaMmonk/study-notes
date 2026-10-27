@@ -21,8 +21,14 @@ The design rules live in the repository, not in this skill. Before designing or 
 2. `games/<game>/DESIGN.md` (or `CURRICULUM.md`) — the topic's own design.
 3. The game's spec: `games/<game>/spec.js` and its `levels/` (eras in `levels/eras.js` or `levels/route.js`).
 
-When a lesson is learned while working on a game, write it into `games/DESIGN.md` (and the game's own
-design doc if it is topic-specific), not into this skill.
+**Docs first, and only the current design.** Every change to a course (a new chapter, a reordering, parts split
+or merged, a mechanism moved) is made in the design docs before the code: `games/DESIGN.md` for what holds for every
+game, the game's own design doc for its course. Then the code follows the docs. The docs describe the design as it is
+and the plan ahead, never "it used to be …, now …": delete what no longer holds as you change it (git keeps the
+history); a reordering still to do may stand as a work list in the doc, deleted once done. After each piece of work,
+think about whether it taught a rule more general than the case at hand: if so, write it into the handbook (and into
+this skill's checklists if it is something to check by hand), and rewrite any rule it makes wrong, rather than
+copying the last wording forward.
 
 ## Hard rules
 
@@ -60,7 +66,7 @@ problems in 《证明完毕》, see `games/DESIGN.md` §11):
   `showcase: '<what is abstract about it>'`. A part one sentence explains (a block gate: "yes" gives "—", else it
   passes) gets no level of its own; it first appears inside a real problem.
 - **Motivation on the main path.** A required level's intro must not depend on an optional challenge or topic.
-- **Abstraction keeps rising.** Draw the part dependency graph (§7 step 4). Every built part is used by later
+- **Abstraction keeps rising.** Draw the part dependency graph (§7 step 5). Every built part is used by later
   reference answers, in places where not having it would be long. Later levels lean on higher-level parts; a
   late reference answer built only from primitives means the chain is broken.
 - **Across eras.** Within an era every part met stays usable. Every era after the first declares `keeps`: `'all'`
@@ -79,6 +85,11 @@ problems in 《证明完毕》, see `games/DESIGN.md` §11):
   adds, and where it goes in the machine; "A new part, X: …" only comes after the need for it is said, and an intro
   that is just that sentence is lazy. A practice level with no new part says which dimension it changes. A chapter's
   first level says what module the chapter adds and why the last chapter's machine is not enough.
+- **A mechanism goes where it is first needed** (§1). Being provable or buildable early is no reason to place it
+  early: ask of each mechanism where it is first indispensable, and put it there, ideally as the wall that level
+  hits (in 《证明完毕》 excluded middle comes after the player's own auto fails on it; De Morgan comes with the
+  simplifier that pushes negations in; proof terms come just before the chapters built on them). A chapter that
+  only looks again at what was done before, in a new light, gathers each point's small tasks into one level.
 - **Primitives stay minimal** (§1). Whatever can be wired from parts already held is built by a builder level, never
   given as a new primitive: ask of every primitive whether the parts in hand make it. A description saying "X and Y in
   one step", "X, then Y" or "tries each of them" names a built part. A setting that hides a combination of parts (a
@@ -126,12 +137,13 @@ iOS Safari.
 
 ## Verification
 
-Before calling a change done (`games/DESIGN.md` §7, steps 8–10):
+Before calling a change done (`games/DESIGN.md` §7, steps 9–11):
 
-1. `npm run check` and `npm test` in `trace-viewer/` are clean; build the touched games.
-2. Look in a browser on desktop and phone at a few typical levels per game (layers, sweeps, intervals, big tables),
+1. The design docs say what the change did (docs first, see above), with nothing outdated left in them.
+2. `npm run check` and `npm test` in `trace-viewer/` are clean; build the touched games.
+3. Look in a browser on desktop and phone at a few typical levels per game (layers, sweeps, intervals, big tables),
    not only the one you changed. To watch a run, write the reference solution into the save, then step and run.
-3. Report what was checked and what was not.
+4. Report what was checked and what was not.
 
 ## Interaction
 
