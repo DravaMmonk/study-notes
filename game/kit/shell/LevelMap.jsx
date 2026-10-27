@@ -207,12 +207,24 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
     const el = scroll.current
     el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
   }, [width])
+  // The levels a vertical line at xl would run through between y1 and y2 (other than the wire's own two).
+  const span = (id) => { const size = box(id), left = x(at.get(id).col) + (w - size.w) / 2; return { left, right: left + size.w, top: top.get(id), bottom: top.get(id) + size.h } }
+  const through = (e, xl, y1, y2) => [...at.keys()].filter((o) => o !== e.from && o !== e.to).map(span).filter((r) => r.left < xl && r.right > xl && r.top < y2 && r.bottom > y1)
   // A wire leaves the bottom middle of one node and enters the top middle of the next, turning where stack() says.
+  // One whose drop would run through a level steps aside first, into the nearest gap clear of every level on the way
+  // (the side it is heading for first), and comes back in at its turn.
   const wire = (e) => {
     const a = at.get(e.from), b = at.get(e.to)
     const x1 = x(a.col) + w / 2, y1 = top.get(e.from) + box(e.from).h, x2 = x(b.col) + w / 2, y2 = top.get(e.to)
+    const yb = x1 === x2 ? y2 - plain / 2 : turn.get(e)
+    const hit = through(e, x1, y1, yb)
+    if (hit.length) {
+      const toward = Math.sign(x2 - x1) || 1
+      const lanes = hit.flatMap((r) => [r.left - col / 2, r.right + col / 2]).filter((xl) => !through(e, xl, y1, yb).length)
+      const lane = lanes.sort((p, q) => (Math.sign(q - x1) === toward) - (Math.sign(p - x1) === toward) || Math.abs(p - x1) - Math.abs(q - x1))[0]
+      if (lane !== undefined) return `M${x1} ${y1}V${y1 + below(e.from) / 2}H${lane}V${yb}H${x2}V${y2}`
+    }
     if (x1 === x2) return `M${x1} ${y1}V${y2}`
-    const yb = turn.get(e)
     const s = Math.sign(x2 - x1), r = Math.max(0, Math.min(R, yb - y1, y2 - yb))
     return `M${x1} ${y1}V${yb - r}Q${x1} ${yb} ${x1 + s * r} ${yb}H${x2 - s * r}Q${x2} ${yb} ${x2} ${yb + r}V${y2}`
   }

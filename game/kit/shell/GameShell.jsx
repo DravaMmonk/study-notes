@@ -35,7 +35,8 @@ const SITE = { games: '../index.html' }
  * goes on, and passing the last passes the level. The tasks passed are kept per level (progress.tasks), and what each
  * task's screen keeps goes in the level's data as a list, one entry a task. A task marked `carries` goes on with what
  * the task before it made: it opens on that task's board. A task holds the flags the tasks before it open (`opens`),
- * before the level unlocks them.
+ * before the level unlocks them. A task may bring 引入 pages of its own (`intro`): they open the first time the task is
+ * played (the first task's after the level's), so its brief need only say what it asks.
  *
  * A level may keep several boards (slots.js): the board's editor switches between them (SaveSlots, through
  * SlotsContext), and the screen starts over on the one chosen, as it does when the level is entered.
@@ -48,8 +49,8 @@ export default function GameShell({ game }) {
   const firstTask = (id) => Math.min(tasksDone(id), (game.byId[id]?.tasks?.length ?? 1) - 1)
   const [taskAt, setTaskAt] = useState(() => (levelId && game.byId[levelId] ? firstTask(levelId) : 0))
   const [taskWon, setTaskWon] = useState(null) // the task just passed, on a level with several
-  // A level's 引入 opens by itself the first time the level is entered (after the game's first-run dialog), and
-  // again whenever the player asks for it from the bar.
+  // A level's 引入 opens by itself the first time the level is entered (after the game's first-run dialog), a task's
+  // the first time the task is played, and either again whenever the player asks for it from the bar.
   const [introFor, setIntroFor] = useState(null)
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme)
   // The reading language, shared with every other page (games/kit/lang.js). Changing it re-renders the whole game in
@@ -216,7 +217,10 @@ export default function GameShell({ game }) {
     drop: slotted(dropSlot),
   }
 
-  const intro = level && game.intro(level)?.length > 0
+  // The 引入 of what is played: the level's and its first task's, or a later task's own; seen once per task.
+  const pages = !level ? [] : taskAt === 0 ? [...(game.intro(level) ?? []), ...(tasks?.[0]?.intro ?? [])] : tasks[taskAt].intro ?? []
+  const introKey = level && (taskAt === 0 ? level.id : `${level.id}#${taskAt}`)
+  const intro = pages.length > 0
   const kind = level && game.kinds[played.kind]
 
   return (
@@ -239,7 +243,7 @@ export default function GameShell({ game }) {
             {chapter && <small>{L(chapter.title)}</small>}
           </span>
         )}
-        {intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => setIntroFor(level.id)} aria-label={tr('引入', 'Intro')}><BookOpen size={16} /><span>{tr('引入', 'Intro')}</span></button>}
+        {intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => setIntroFor(introKey)} aria-label={tr('引入', 'Intro')}><BookOpen size={16} /><span>{tr('引入', 'Intro')}</span></button>}
         {level && game.glossary && (
           <button className="kit-btn is-label bar-button notes-button wiki-button" onClick={() => setSheet('wiki')} aria-label={tr(`百科${wiki.unread.length ? `（${wiki.unread.length} 条未读）` : ''}`, `Encyclopedia${wiki.unread.length ? ` (${wiki.unread.length} unread)` : ''}`)}>
             <BookMarked size={16} /><span>{tr('百科', 'Encyclopedia')}</span>{wiki.unread.length > 0 && <i className="wiki-dot" />}
@@ -286,15 +290,17 @@ export default function GameShell({ game }) {
             : <div className="board-loading">{tr('这种关卡还没做好。', 'This kind of level is not built yet.')}</div>}
         </div>
       )}
-      {intro && (introFor === level.id || ((progress.seenPower || !game.power) && !progress.introSeen?.[level.id])) && (
+      {intro && (introFor === introKey || ((progress.seenPower || !game.power) && !progress.introSeen?.[introKey])) && (
         <IntroSheet
-          key={level.id}
+          key={introKey}
           game={game}
           level={level}
+          pages={pages}
+          step={taskAt > 0 ? tasks[taskAt].step : null}
           theme={theme}
           onClose={() => {
             setIntroFor(null)
-            setProgress((p) => ({ ...p, introSeen: { ...p.introSeen, [level.id]: true } }))
+            setProgress((p) => ({ ...p, introSeen: { ...p.introSeen, [introKey]: true } }))
           }}
         />
       )}

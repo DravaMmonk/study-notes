@@ -62,7 +62,7 @@
 .map-tree-scroll { margin-top: 2px; padding: 6px 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; }
 .map-tree { position: relative; margin: 0 auto; }
 .map-wires { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
-.map-wires path { fill: none; stroke: var(--rule); stroke-width: 2; stroke-linecap: round; }
+.map-wires path { fill: none; stroke: var(--rule); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .map-wires path.is-optional { stroke-dasharray: 5 5; }
 .map-wires path.is-lit { stroke: var(--status); }
 .map-node { position: absolute; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 11px; border: 1px solid var(--rule); border-radius: 10px; color: var(--ink); background: var(--card); text-align: left; cursor: pointer; transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
@@ -289,6 +289,7 @@
 .intro-close { width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 12px; color: var(--muted); background: transparent; cursor: pointer; }
 .intro-close:hover { background: var(--hover); }
 .intro-card h2 { margin: 2px 22px 10px; font-family: var(--serif); font-size: 24px; font-weight: 500; }
+.intro-step { display: block; margin-top: 2px; color: var(--muted); font: 500 13px var(--sans); }
 .intro-body { min-height: 0; overflow-y: auto; padding: 0 22px 8px; display: grid; gap: 14px; animation: fade-in 180ms ease; }
 .intro-text { margin: 0; color: var(--body, var(--ink)); font-size: 16px; line-height: 1.8; }
 .intro-text b { color: var(--ink); font-weight: 650; }
