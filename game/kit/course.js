@@ -45,8 +45,8 @@
 //   local(part) → bool                     a part that stays in the levels that bring it (`adds`, or a board's preset):
 //                                          solving them never unlocks it, and no later level carries it (a go-between
 //                                          soon replaced, as one round of resolution by the saturator; a part one
-//                                          level's puzzle needs, as someone else's wrong prover). It is still a part met,
-//                                          in the components box.
+//                                          level's puzzle needs, as someone else's wrong prover). It is in no components
+//                                          box and on no map label; text names it plainly, not as a link.
 //   needed(level) → [part] | null          the parts its reference answer uses (null: no reference to go by)
 //   folds(level) → [part]                  parts the level's spec folds away anyway
 //   showcase(level) → reason | null        why a level shows a new part alone, wired to the goal by itself: only for
@@ -275,12 +275,12 @@ export function fresh(course, level) {
 /**
  * Where the primitives come in, for the components box and the map: for each key (keyOf(part), how the box lists
  * parts; one entry a part by default), the levels on the tree that bring in a part with that key while no level before
- * them has. In play order.
+ * them has. A part that stays where it is brought (`local`) is no component to keep: it is left out. In play order.
  */
 export function introductions(course, keyOf = (p) => p) {
   const out = new Map()
   const placed = (l) => !course.plan || course.plan.place.has(l.id)
-  const keys = (l) => course.adds(l).filter((p) => course.primitives.has(p)).map(keyOf)
+  const keys = (l) => course.adds(l).filter((p) => course.primitives.has(p) && !course.local(p)).map(keyOf)
   for (const level of course.levels.filter(placed)) {
     const seen = new Set(course.levels.filter((l) => placed(l) && course.before(l.id, level.id)).flatMap(keys))
     for (const k of keys(level)) {
