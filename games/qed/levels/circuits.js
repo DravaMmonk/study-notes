@@ -104,7 +104,7 @@ export const circuits = [
     brief: T('接一块电路，算出「（若下雨，则地湿）或者（若地湿，则下雨）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) or (if the ground is wet, it rains)” is true.'),
     hint: [T('先接出两个「若…则…」，再用「或」把它们接起来。', 'Wire the two if…thens first, then join them with Or.')],
     intro: [
-      { t: T('<level-ref to="always"></level-ref>里见过<b>永真式</b>：每一行都真的话，不管情况怎样都成立。', 'You met the <b>tautology</b> in <level-ref to="always"></level-ref>: a sentence true on every row, whatever happens.') },
+      { t: T('<level-ref to="always"></level-ref>里见过<wiki-ref to="tautology"></wiki-ref>：每一行都真的话，不管情况怎样都成立。', 'You met the <wiki-ref to="tautology"></wiki-ref> in <level-ref to="always"></level-ref>: a sentence true on every row, whatever happens.') },
       { t: T('在电路上它是什么样子？接出这句话，看电路输出这一列。', 'What does one look like as a circuit? Wire this sentence and watch the board’s output column.') },
     ],
     solution: board('(Rain → Wet) ∨ (Wet → Rain)', { i1: 'gImp', i2: 'gImp', o: 'gOr' }, ['Rain>i1.a', 'Wet>i1.b', 'Wet>i2.a', 'Rain>i2.b', 'i1>o.a', 'i2>o.b', 'o>out']),
@@ -118,7 +118,7 @@ export const circuits = [
     hideTarget: true,
     brief: T('接一块电路，算出「（若下雨，则地湿）并且（下雨，并且地不湿）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) and (it rains and the ground is not wet)” is true.'),
     hint: [T('它由两半用「与」接成。右边一半自己又是一个「与」。', 'It is two halves joined by And. The right half is itself an And.')],
-    intro: [{ t: T('反过来，每一行都假的话叫<b>矛盾</b>：不管情况怎样都不可能成立。它在电路上又是什么样子？', 'The other way round, a sentence false on every row is a <b>contradiction</b>: it cannot hold whatever happens. What does one look like as a circuit?') }],
+    intro: [{ t: T('反过来，每一行都假的话叫<wiki-ref to="contradiction"></wiki-ref>：不管情况怎样都不可能成立。它在电路上又是什么样子？', 'The other way round, a sentence false on every row is a <wiki-ref to="contradiction"></wiki-ref>: it cannot hold whatever happens. What does one look like as a circuit?') }],
     solution: board('(Rain → Wet) ∧ (Rain ∧ ¬Wet)', { i: 'gImp', n: 'gNot', a1: 'gAnd', a2: 'gAnd' }, ['Rain>i.a', 'Wet>i.b', 'Wet>n.a', 'Rain>a1.a', 'n>a1.b', 'i>a2.a', 'a1>a2.b', 'a2>out']),
     after: T('四行全是假：没有哪一种天气能让它成立，这就是矛盾，也叫不可满足。永远是假的话，后面会写成一个符号 <b>⊥</b>。', 'All four rows are false: no weather makes it hold. That is a contradiction, also called unsatisfiable. A sentence that is always false will later be written as one symbol, <b>⊥</b>.'),
   },
@@ -133,7 +133,7 @@ export const circuits = [
     brief: T('接一块电路，算出「（若下雨，则地湿）并且（若地湿，则下雨）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) and (if the ground is wet, it rains)” is true.'),
     hint: [T('两个「若…则…」，方向相反，再用「与」接起来。', 'Two if…thens pointing opposite ways, joined by And.')],
     solution: board('(Rain → Wet) ∧ (Wet → Rain)', { i1: 'gImp', i2: 'gImp', a: 'gAnd' }, ['Rain>i1.a', 'Wet>i1.b', 'Wet>i2.a', 'Rain>i2.b', 'i1>a.a', 'i2>a.b', 'a>out']),
-    after: T('真的两行，正好是「下雨」和「地湿」一样的两行：都发生，或者都没发生。两个方向都对，就是说两件事<b>等价</b>：同真同假，写成 <b>↔</b>，比如「下雨 ↔ 地湿」。', 'The two true rows are exactly those where “it rains” and “the ground is wet” agree: both happen, or neither does. Both directions holding means the two are <b>equivalent</b>: true together and false together, written <b>↔</b>, as in “it rains ↔ the ground is wet”.'),
+    after: T('真的两行，正好是「下雨」和「地湿」一样的两行：都发生，或者都没发生。两个方向都对，就是<wiki-ref to="equivalence"></wiki-ref>：两件事同真同假，写成 <b>↔</b>，比如「下雨 ↔ 地湿」。', 'The two true rows are exactly those where “it rains” and “the ground is wet” agree: both happen, or neither does. Both directions holding is <wiki-ref to="equivalence"></wiki-ref>: the two are true together and false together, written <b>↔</b>, as in “it rains ↔ the ground is wet”.'),
   },
   // Topic: translate what islanders say into logic (and, or, not; if…then; true together) and wire it; the true row is
 // the answer. The sentence is said in words only.
@@ -167,7 +167,7 @@ export const circuits = [
     brief: T('a 说：「b 是骑士。」把「a 说」翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'a says: “b is a knight.” Translate “a says” into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，只说真话；要么是<b>无赖</b>，只说假话。', 'Everyone on the island is a <b>knight</b>, who only tells the truth, or a <b>knave</b>, who only lies.') },
-      { t: T('「a 说 X」说的是：a 是骑士，X 就是真的；a 不是骑士，X 就是假的。也就是「a 是骑士」和 X <b>等价</b>（同真同假）：「a 是骑士 ↔ X」。', '“a says X” means: if a is a knight, X is true; if a is not a knight, X is false. That is, “a is a knight” and X are <b>equivalent</b> (true together, false together): “a is a knight ↔ X”.') },
+      { t: T('「a 说 X」说的是：a 是骑士，X 就是真的；a 不是骑士，X 就是假的。也就是「a 是骑士」和 X 是<wiki-ref to="equivalence"></wiki-ref>（同真同假）：「a 是骑士 ↔ X」。', '“a says X” means: if a is a knight, X is true; if a is not a knight, X is false. That is, “a is a knight” and X are in <wiki-ref to="equivalence"></wiki-ref> (true together, false together): “a is a knight ↔ X”.') },
       { t: T('「等价」正好是你在<level-ref to="g-iff"></level-ref>造出的元件。', '“Equivalent” is just the part you built in <level-ref to="g-iff"></level-ref>.') },
     ],
     hint: [

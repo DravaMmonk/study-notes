@@ -144,6 +144,6 @@ export default {
     { grant: ['t-beta', 'lemma:normalize'] },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button).
-  quotes: ['任取'],
+  quotes: ['任取', '等价', '假设'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }

@@ -77,7 +77,7 @@ export const automation = [
     brief: T('接一台机器：每个目标都变成 ⊥，要证的那句的否定放进已知。', 'Wire a machine that turns each goal into ⊥, with the negation of what was to be proved among the hypotheses.'),
     hint: [T('反证法把要证的 C 变成 ¬¬C，也就是「¬C → ⊥」。', 'By contradiction turns C into ¬¬C, that is “¬C → ⊥”.')],
     intro: [
-      { t: T('自己的 auto 一步一步用规则，稍大一点的问题就搜不动。Isabelle 的 sledgehammer 把目标交给外面的<b>自动证明器</b>：它们不管引入还是消去，只做一件事：在一堆句子里找矛盾。要证 C，就假设 ¬C，看能不能推出 ⊥。', 'Your own auto uses rules one step at a time, and soon cannot search a bigger problem. Isabelle’s sledgehammer hands goals to outside <b>automatic provers</b>, which know nothing of introduction or elimination and do one thing only: look for a contradiction among a heap of sentences. To prove C, suppose ¬C and see whether ⊥ follows.') },
+      { t: T('自己的 auto 一步一步用规则，稍大一点的问题就搜不动。Isabelle 的 sledgehammer 把目标交给外面的<wiki-ref to="automation"></wiki-ref>：它们不管引入还是消去，只做一件事：在一堆句子里找矛盾。要证 C，就假设 ¬C，看能不能推出 ⊥。', 'Your own auto uses rules one step at a time, and soon cannot search a bigger problem. Isabelle’s sledgehammer hands goals to outside programs, each an <wiki-ref to="automation"></wiki-ref>, which know nothing of introduction or elimination and do one thing only: look for a contradiction among a heap of sentences. To prove C, suppose ¬C and see whether ⊥ follows.') },
       { t: T('第一步，在证明状态上把问题翻过来。', 'The first step turns the problem round, on the proof state.') },
     ],
     solution: script(...NEGATE),
@@ -153,7 +153,7 @@ export const automation = [
     intro: [{ t: T('子句里只有「对所有」，没有「存在」。已知里的 ∃，前面没有 ∀ 的，就像<part-ref to="part:exE"></part-ref>那样把那一样东西取出来；在 ∀ 底下的不行：「每个人都有父母」，父母是谁跟着这个人变。新元件<part-ref to="part:skolem"></part-ref>把它换成一个新函数 sk1(x)：x 的父母。它只认否定范式里的 ∃。', 'Clauses have only “for all”, no “there is”. An ∃ in a hypothesis with no ∀ outside it is taken out as <part-ref to="part:exE"></part-ref> does; one under a ∀ cannot be: “everyone has a parent”, and who the parent is depends on the person. The new card <part-ref to="part:skolem"></part-ref> puts a new function sk1(x) in its place: the parent of x. It takes only an ∃ in negation normal form.') }],
     solution: script(['simp', CNF, HYPS], 'skolem'),
     naive: script('skolem'),
-    after: T('换成函数以后的已知和原来的<b>不等价</b>：原来只说有这么一个，现在说的是 sk1(x) 就是。可两边同样推得出 ⊥ 或推不出，找矛盾够用了。只是这一步不是已知推出来的，核里做它要选择公理。', 'The hypotheses with a function put in are <b>not equivalent</b> to the old ones: those said there is one, these say sk1(x) is it. But each gives ⊥ exactly when the other does, which is all a search for a contradiction needs. Only, this step does not follow from the hypotheses; the kernel would need the axiom of choice for it.'),
+    after: T('换成<wiki-ref to="skolem"></wiki-ref>以后的已知和原来的<b>不等价</b>：原来只说有这么一个，现在说的是 sk1(x) 就是。可两边同样推得出 ⊥ 或推不出，找矛盾够用了。只是这一步不是已知推出来的，核里做它要选择公理。', 'The hypotheses with a <wiki-ref to="skolem"></wiki-ref> put in are <b>not equivalent</b> to the old ones: those said there is one, these say sk1(x) is it. But each gives ⊥ exactly when the other does, which is all a search for a contradiction needs. Only, this step does not follow from the hypotheses; the kernel would need the axiom of choice for it.'),
   }),
   machine('clauses')({
     id: 'au-clauses',
@@ -168,7 +168,7 @@ export const automation = [
     ],
     brief: T('接一台机器，把每个目标拆成子句：要证的那句的否定和已知一起。', 'Wire a machine that splits each goal into clauses: the negation of what is to be proved, with the hypotheses.'),
     hint: [T('反过来证、改已知、Skolem 化，最后拆开。', 'Prove it backwards, rewrite the hypotheses, Skolemise, and split them.')],
-    intro: [{ t: T('合取范式里，每一串「或者」叫一条<b>子句</b>。新元件<part-ref to="part:toClauses"></part-ref>把目标是 ⊥ 的证明状态拆成一组子句：线上传的不再是证明状态，而是子句。接出的机器会成为新元件<part-ref to="lemma:clausify"></part-ref>。', 'In conjunctive normal form each string of “or” is a <b>clause</b>. The new card <part-ref to="part:toClauses"></part-ref> splits a proof state whose goal is ⊥ into a set of clauses: what the wire carries is no longer a proof state, but clauses. The machine you wire becomes a new part, <part-ref to="lemma:clausify"></part-ref>.') }],
+    intro: [{ t: T('合取范式里，每一串「或者」叫一条<wiki-ref to="clause"></wiki-ref>。新元件<part-ref to="part:toClauses"></part-ref>把目标是 ⊥ 的证明状态拆成一组子句：线上传的不再是证明状态，而是子句。接出的机器会成为新元件<part-ref to="lemma:clausify"></part-ref>。', 'In conjunctive normal form each string of “or” is a <wiki-ref to="clause"></wiki-ref>. The new card <part-ref to="part:toClauses"></part-ref> splits a proof state whose goal is ⊥ into a set of clauses: what the wire carries is no longer a proof state, but clauses. The machine you wire becomes a new part, <part-ref to="lemma:clausify"></part-ref>.') }],
     solution: flow(...INTO),
     naive: flow(['simp', CNF, HYPS], 'skolem', 'toClauses'),
     after: T('子句里的变量读作「对所有」，取出来的东西成了一个名字。这台机器现在是元件<part-ref to="lemma:clausify"></part-ref>：自动证明器动手之前，先做的就是这一串。', 'A variable in a clause reads as “for all”, and a thing taken out has become a name. This machine is now the part <part-ref to="lemma:clausify"></part-ref>: what an automatic prover does first, before anything else.'),
@@ -196,7 +196,7 @@ export const automation = [
       o: ['orI', { other: 'B', side: 'left' }, 'e2/right'],
       o2: ['orI', { other: 'C', side: 'right' }, 'e/right'],
     }, ['p>e.ab', 'q>e2.ab', 'e2#left>m.imp', 'e#left>m.a', 'm>b.bot', 'b>e2.left', 'e2#right>o.a', 'o>e2.right', 'e2>e.left', 'e#right>o2.a', 'o2>e.right', 'e>goal'], { premises: ['p', 'q'] }),
-    after: T('消掉一对相反的文字，剩下的用「或」连起来：这就是<b>归结</b>，现在是元件<part-ref to="lemma:res"></part-ref>。相反的那一对在子句里的哪个位置都行。', 'Cancel a pair of opposite literals and join what is left with or: that is <b>resolution</b>, now the part <part-ref to="lemma:res"></part-ref>. The opposite pair may stand anywhere in the clauses.'),
+    after: T('消掉一对相反的文字，剩下的用「或」连起来：这就是<wiki-ref to="resolution"></wiki-ref>，现在是元件<part-ref to="lemma:res"></part-ref>。相反的那一对在子句里的哪个位置都行。', 'Cancel a pair of opposite literals and join what is left with or: that is <wiki-ref to="resolution"></wiki-ref>, now the part <part-ref to="lemma:res"></part-ref>. The opposite pair may stand anywhere in the clauses.'),
   },
   {
     id: 'au-refute',
@@ -256,7 +256,7 @@ export const automation = [
     ],
     solution: flow({ frame: 'repeat', body: ['resolve'] }),
     naive: flow('resolve'),
-    after: T('一直归结到推出 ⊥ 或者推不出新东西：这台机器是<b>饱和器</b>，现在是元件<part-ref to="lemma:saturate"></part-ref>。它不挑，会推出很多用不着的子句；可只要推得出矛盾，它就一定推得出来：归结是<b>反驳完备</b>的。推不出 ⊥ 就停下来的，这组子句能同时成立。', 'Resolving until ⊥ appears or nothing new does: this machine is the <b>saturator</b>, now the part <part-ref to="lemma:saturate"></part-ref>. It does not pick, so it makes many clauses it does not need; but whenever a contradiction can be reached, it reaches it: resolution is <b>refutation complete</b>. When it stops without ⊥, the clauses can all hold at once.'),
+    after: T('一直归结到推出 ⊥ 或者推不出新东西：这台机器是<b>饱和器</b>，现在是元件<part-ref to="lemma:saturate"></part-ref>。它不挑，会推出很多用不着的子句；可只要推得出矛盾，它就一定推得出来：归结有<wiki-ref to="refutation"></wiki-ref>。推不出 ⊥ 就停下来的，这组子句能同时成立。', 'Resolving until ⊥ appears or nothing new does: this machine is the <b>saturator</b>, now the part <part-ref to="lemma:saturate"></part-ref>. It does not pick, so it makes many clauses it does not need; but whenever a contradiction can be reached, it reaches it: resolution has <wiki-ref to="refutation"></wiki-ref>. When it stops without ⊥, the clauses can all hold at once.'),
   }),
   {
     id: 'au-sledge',
@@ -312,7 +312,7 @@ export const automation = [
         solution: proof({ r1: ['res'], r2: ['res'], r3: ['res'] }, ['p>r1.p0', 'r>r1.p1', 'q>r2.p0', 's>r2.p1', 'r1>r3.p0', 'r2>r3.p1', 'r3>goal'], { premises: ['p', 'q', 'r', 's'] }),
       },
     ],
-    intro: [{ t: T('饱和器推出了几十条子句，推出 ⊥ 用到的只有几条。每条推出来的子句都记着它从哪两条来，顺着 ⊥ 往回找，就是一份<b>证书</b>：哪两条消出哪一条。', 'The saturator makes dozens of clauses, and ⊥ needs only a few. Each clause made records the two it came from; following ⊥ back gives a <b>certificate</b>: which two cancel into which.') }],
+    intro: [{ t: T('饱和器推出了几十条子句，推出 ⊥ 用到的只有几条。每条推出来的子句都记着它从哪两条来，顺着 ⊥ 往回找，就是一份<wiki-ref to="certificate"></wiki-ref>：哪两条消出哪一条。', 'The saturator makes dozens of clauses, and ⊥ needs only a few. Each clause made records the two it came from; following ⊥ back gives a <wiki-ref to="certificate"></wiki-ref>: which two cancel into which.') }],
     after: T('机器在一大堆子句里找，你只要照着证书接三张卡片。找证明难，查证明容易：外面的证明器只要交出证书，信不信由核来查。', 'The machine searched a heap of clauses; you only wired three cards along the certificate. Finding a proof is hard and checking one is easy: an outside prover need only hand over its certificate, and the kernel decides whether to believe it.'),
   },
   proves({
@@ -377,7 +377,7 @@ export const automation = [
     brief: PROVE,
     hint: [T('化简里排上这一关所有的定义，最后两边一样，用自反。', 'Line up every definition of this level in Simp; when both sides are alike, use Reflexivity.')],
     intro: [
-      { t: T('另一条路不找证书。公式本身也能写成数据：Or p (Not p) 是一样东西，eval f a b 按定义算出它在 p 取 a、q 取 b 那一行的真假，taut f 把四行都算一遍。这是一个程序，<b>判定</b>一句话是不是永远成立。', 'The other road looks for no certificate. A formula can be written as data too: Or p (Not p) is a thing, eval f a b works out by the definitions whether it is true on the row where p is a and q is b, and taut f works out all four rows. It is a program that <b>decides</b> whether a sentence always holds.') },
+      { t: T('另一条路不找证书。公式本身也能写成数据：Or p (Not p) 是一样东西，eval f a b 按定义算出它在 p 取 a、q 取 b 那一行的真假，taut f 把四行都算一遍。这是一个<wiki-ref to="decision"></wiki-ref>：判定一句话是不是永远成立。', 'The other road looks for no certificate. A formula can be written as data too: Or p (Not p) is a thing, eval f a b works out by the definitions whether it is true on the row where p is a and q is b, and taut f works out all four rows. It is a <wiki-ref to="decision"></wiki-ref>: it decides whether a sentence always holds.') },
     ],
     solution: script(['simp', ALL_DEFS], ['rule', 'refl']),
     naive: script(['rule', 'refl']),
@@ -391,7 +391,7 @@ export const automation = [
       { premises: { sound: SOUND }, goal: 'Taut(disj(neg(conj(p, q)), disj(p, q)))', answer: 'sound rfl', hint: [T('和第一题一样，x 从要证的那句里读出来。', 'As in the first, x is read off the sentence to prove.')] },
       { premises: { sound: SOUND }, goal: 'Taut(neg(conj(p, neg(p))))', answer: 'sound rfl', hint: [T('还是一样的证明项。', 'The same proof term again.')] },
     ]),
-    intro: [{ t: T('已知 sound 说判定程序是对的：taut x 算出真，x 就永远成立。它对所有公式证一次就够了（对公式归纳）。之后每一句，只要核把 taut 算出来。这条路叫<b>反射</b>，Lean 的 decide 就是这样。', 'The given sound says the decision procedure is right: if taut x works out true, x always holds. It is proved once for every formula (by induction on formulas). After that, each sentence only needs the kernel to work taut out. This road is <b>reflection</b>, and Lean’s decide works this way.') }],
+    intro: [{ t: T('已知 sound 说判定程序是对的：taut x 算出真，x 就永远成立。它对所有公式证一次就够了（对公式归纳）。之后每一句，只要核把 taut 算出来。这条路叫<wiki-ref to="reflection"></wiki-ref>，Lean 的 decide 就是这样。', 'The given sound says the decision procedure is right: if taut x works out true, x always holds. It is proved once for every formula (by induction on formulas). After that, each sentence only needs the kernel to work taut out. This road is <wiki-ref to="reflection"></wiki-ref>, and Lean’s decide works this way.') }],
     after: T('三句话三个证明项，都是 sound rfl：证明里没有一步推理，只有一次计算。核检查 rfl 时把 taut 算到底，算的就是一张真值表。', 'Three sentences, three proof terms, all sound rfl: no step of reasoning in them, only one computation. Checking rfl, the kernel works taut out to the end, and what it works out is a truth table.'),
   },
   {
@@ -489,7 +489,7 @@ export const automation = [
     ],
     intro: [{ t: T('自动证明器能证的总能找到证明，可证不出的，它不一定停得下来。这个专题从<level-ref to="kk-one"></level-ref>的<part-ref to="lemma:liar"></part-ref>出发，看机器做不到的事。', 'What an automatic prover can prove it always finds a proof of, but what it cannot, it may never stop on. This topic starts from <part-ref to="lemma:liar"></part-ref> of <level-ref to="kk-one"></level-ref> and looks at what no machine can do.') }],
     solution: proof({ f: ['exE', { x: 'a' }], a: ['allE', { t: 'a' }, 'f'], l: ['liar', {}, 'f'] }, ['p>f.ex', 'f#body>a.all', 'a>l.p0', 'l>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('「对所有 y」里的 y 取成 x 自己，叫<b>对角线</b>：一张 x 对 y 的表，只看 x 对 x 的那条斜线。理发师说的话套到自己身上，就成了说谎者。', 'Taking the y of “for every y” to be x itself is the <b>diagonal</b>: in a table of x against y, look only at the line of x against x. Turned on himself, the barber’s rule is the liar.'),
+    after: T('「对所有 y」里的 y 取成 x 自己，叫<wiki-ref to="diagonal"></wiki-ref>：一张 x 对 y 的表，只看 x 对 x 的那条斜线。理发师说的话套到自己身上，就成了说谎者。', 'Taking the y of “for every y” to be x itself is the <wiki-ref to="diagonal"></wiki-ref>: in a table of x against y, look only at the line of x against x. Turned on himself, the barber’s rule is the liar.'),
   },
   {
     id: 'u-cantor',
@@ -541,7 +541,7 @@ export const automation = [
       h: ['impI', { A: '∃x. G(x)' }], m1: ['mp', {}, 'h'], m2: ['mp', {}, 'h'],
       e: ['exE', { x: 'a' }, 'h'], a: ['allE', { t: 'a' }, 'e'], l: ['liar', {}, 'e'],
     }, ['red>m1.imp', 'h#body>m1.a', 'con>m2.imp', 'm1>m2.a', 'm2>e.ex', 'e#body>a.all', 'a>l.p0', 'l>e.body', 'e>h.body', 'h>goal'], { premises: ['con', 'red'] }),
-    after: T('假设判定器存在，造出一台和它作对的机器，让它读自己：对角线。再用<b>归约</b>把一个问题的不可判定，传给另一个。一阶逻辑也一样：没有程序能对每一句都回答「推得出还是推不出」，饱和器在推不出的问题上可能永远转下去。从「我是无赖」走到这里，用的一直是同一个说谎者。', 'Suppose a decider exists, build a machine that defies it, and let it read itself: the diagonal. Then a <b>reduction</b> passes undecidability from one problem to another. First-order logic is no different: no program can answer “does it follow?” for every sentence, and on what does not follow the saturator may go round forever. From “I am a knave” to here, it was the same liar all along.'),
+    after: T('假设判定器存在，造出一台和它作对的机器，让它读自己：对角线。再用<wiki-ref to="reduction"></wiki-ref>把一个问题的<wiki-ref to="undecidable"></wiki-ref>传给另一个。一阶逻辑也一样：没有程序能对每一句都回答「推得出还是推不出」，饱和器在推不出的问题上可能永远转下去。从「我是无赖」走到这里，用的一直是同一个说谎者。', 'Suppose a decider exists, build a machine that defies it, and let it read itself: the diagonal. Then a <wiki-ref to="reduction"></wiki-ref> passes <wiki-ref to="undecidable"></wiki-ref> from one problem to another. First-order logic is no different: no program can answer “does it follow?” for every sentence, and on what does not follow the saturator may go round forever. From “I am a knave” to here, it was the same liar all along.'),
   },
 
   // ---------- challenge ----------
@@ -560,6 +560,6 @@ export const automation = [
     intro: [{ t: T('饱和器每一圈把每一对都消一遍，大部分新子句用不上。这些子句有一种特别的样子；推出 ⊥ 的时候，子句不能多。', 'Each round the saturator cancels every pair, and most new clauses are never used. These clauses have a special shape, and ⊥ must be reached without making many.') }],
     solution: flow({ frame: 'repeat', body: [['resolve', null, { unit: 'unit' }]] }),
     naive: flow('saturate'),
-    after: T('只和单项子句消：每一步把一件被迫的事往下传。对 Horn 子句这就够了，而且快：SAT 求解器里的<b>单元传播</b>做的就是这件事。', 'Cancelling only with one-literal clauses passes one forced fact along at each step. For Horn clauses that is enough, and fast: <b>unit propagation</b> in a SAT solver does just this.'),
+    after: T('只和单项子句消：每一步把一件被迫的事往下传。对 Horn 子句这就够了，而且快：SAT 求解器里的<wiki-ref to="unit"></wiki-ref>做的就是这件事。', 'Cancelling only with one-literal clauses passes one forced fact along at each step. For Horn clauses that is enough, and fast: <wiki-ref to="unit"></wiki-ref> in a SAT solver does just this.'),
   }),
 ]

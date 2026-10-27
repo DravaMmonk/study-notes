@@ -73,7 +73,7 @@ export default function Encyclopedia({ game, wiki, level, phone, start, onClose 
             <div>
               {entry.see.map((other) => entries.find((e) => e.id === other)).filter(Boolean).map((e) =>
                 isOpen(e)
-                  ? <button key={e.id} type="button" className="wiki-chip" onClick={() => pick(e.id)}>{L(e.title)}</button>
+                  ? <button key={e.id} type="button" className="wiki-chip" onClick={() => pick(e.id)}><span>{L(e.title)}</span></button>
                   : <span key={e.id} className="wiki-chip is-locked">{tr('？？？', '???')}</span>,
               )}
             </div>
@@ -95,6 +95,7 @@ export default function Encyclopedia({ game, wiki, level, phone, start, onClose 
       article={article}
       phone={phone}
       onClose={onClose}
+      start={start}
     />
   )
 }

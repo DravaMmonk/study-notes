@@ -93,7 +93,7 @@ export const GLOSSARY = [
     see: ['robot', 'arms'],
   },
   {
-    id: 'arms', group: 'play', title: { zh: '伸缩臂', en: 'Telescopic arm' }, at: 'knaptable',
+    id: 'arms', group: 'play', title: { zh: '伸缩臂', en: 'Telescopic arm' }, at: 'frog',
     body: [
       { zh: '「长臂」有一条<b>伸缩臂</b>：它伸多远，由这一格的数据决定，比如往左伸出「这件物品的重量」那么多格，读到视野外面的格子。', en: 'Longarm has a <b>telescopic arm</b>: how far it reaches depends on the cell’s own data, such as reaching left by as many cells as “this item’s weight”, so it can read cells outside its view.' },
       { zh: '视野下面有伸缩臂一栏，它够得着的格子都在那里；点一格，「视野」元件上就多一个读它的输出口。', en: 'Under the view is the arm’s own row, showing the cells it can reach; click one, and the “View” part gains an output that reads it.' },

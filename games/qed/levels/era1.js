@@ -29,12 +29,12 @@ export const era1 = [
     brief: T('实现一个证明器，可以从已知「下雨」为真，证明出「下雨」为真。', 'Build a prover that, given that “it rains” is true, proves that “it rains” is true.'),
     hint: [T('从「已知」元件右边的圆点，连到「目标」元件左边的圆点。', 'Wire the dot on the right of the “Given” part to the dot on the left of the “Goal” part.')],
     intro: [
-      { t: T('上一章的真值电路把一句话一行一行地验，行数一多就验不完。证明器的下一个模块<b>证明核</b>换一个思路：不看真假，只靠规则，从已经知道的事出发，一步一步推出想要的结论。每一步都只看句子的形状，不看天气。', 'The truth circuits of the last chapter check a sentence row by row, and with many rows it never ends. The prover’s next module, <b>the kernel</b>, works the other way: not by truth but by rules alone, it starts from what you know and reaches the conclusion step by step. Each step looks only at the shape of sentences, never at the weather.') },
+      { t: T('上一章的真值电路把一句话一行一行地验，行数一多就验不完。证明器的下一个模块<wiki-ref to="kernel"></wiki-ref>换一个思路：不看真假，只靠规则，从已经知道的事出发，一步一步推出想要的结论。每一步都只看句子的形状，不看天气。', 'The truth circuits of the last chapter check a sentence row by row, and with many rows it never ends. The prover’s next module, the <wiki-ref to="kernel"></wiki-ref>, works the other way: not by truth but by rules alone, it starts from what you know and reaches the conclusion step by step. Each step looks only at the shape of sentences, never at the weather.') },
       { t: T('板上左边的元件是<b>已知</b>，右边是<b>目标</b>。在真值电路里，「下雨」这个元件有时送出真、有时送出假；在这里，「已知下雨」说的是：「下雨」为真。证出一句话，说的是：只要已知都为真，它也一定为真。', 'On the board, the parts on the left are what is <b>given</b>, the one on the right is the <b>goal</b>. On a truth circuit the part “it rains” sometimes sent out true and sometimes false; here, “given that it rains” says: “it rains” is true. Proving a sentence says: whenever everything given is true, so is it.') },
       { t: T('板上的一根线，意思是「这句话已经证明为真」。', 'A wire on the board means “this sentence has been proved true”.') },
       { t: T('板子下面是几组<b>测试</b>。最后一组只写字母（A、B…），是这道题的样子本身；其余几组把字母换成日常的句子，比如「下雨」。同一块电路要在每一组上都证得出：换一组，元件上的句子跟着换，电路一点不用动。', 'Under the board are a few <b>tests</b>. The last one is just letters (A, B …), the shape of the problem itself; the others put everyday sentences, like “it rains”, in place of the letters. One circuit must prove every one: switch tests and the sentences on the parts change, while the circuit stays exactly as it is.') },
     ],
-    after: T('已知为真的话，不用再推就为真：已知本身就是一个证明，不管它讲的是什么。板上的每一块元件都是一条<b>推理规则</b>：输入口接它需要的东西，输出口给出它推出的结论。', 'What is given as true needs no further step to be true: a given is already a proof, whatever it is about. Each part on the board is a <b>rule of inference</b>: its inputs take what it needs, its output gives what it concludes.'),
+    after: T('已知为真的话，不用再推就为真：已知本身就是一个证明，不管它讲的是什么。板上的每一块元件都是一条<wiki-ref to="rule"></wiki-ref>：输入口接它需要的东西，输出口给出它推出的结论。', 'What is given as true needs no further step to be true: a given is already a proof, whatever it is about. Each part on the board is a <wiki-ref to="rule"></wiki-ref>: its inputs take what it needs, its output gives what it concludes.'),
   },
   {
     id: 'mp',
@@ -71,7 +71,7 @@ export const era1 = [
     ],
     intro: [
       { t: T('<level-ref to="copy"></level-ref>里，要证的就是已知，接过去就行。这一关要证的是「若刮风，则下雨」：已经知道下雨，那不管刮不刮风，都在下雨。证明核的基础元件<part-ref to="part:impI"></part-ref>专门造「若…则…」：在框元件上选要假设的话，框左上角就给出它（「假设」）；接到框右上角「结论」的东西，框外就成了「若 假设，则 结论」。框里看得见板上的已知。', 'In <level-ref to="copy"></level-ref> the goal was the given, and a wire did it. Here the goal is “if it is windy, then it rains”: you know it rains, so windy or not, it rains. The kernel’s part the <part-ref to="part:impI"></part-ref> makes exactly such “if … then …”s: choose on the box what to assume, and its top left gives it (“Assume”); whatever reaches “Conclusion” at its top right becomes, outside, “if the assumption, then the conclusion”. From inside the box the givens on the board are visible.') },
-      { t: T('<b>假设</b>不是说它真的成立，而是推理时暂时把它当作出发点；框一关，它就成了结论里「若」后面那半句。', 'An <b>assumption</b> does not claim it holds: it is a starting point taken for the moment, and once the box closes it becomes the “if” half of the conclusion.') },
+      { t: T('一个<wiki-ref to="assumption"></wiki-ref>不是说它真的成立，而是推理时暂时把它当作出发点；框一关，它就成了结论里「若」后面那半句。', 'An <wiki-ref to="assumption"></wiki-ref> does not claim it holds: it is a starting point taken for the moment, and once the box closes it becomes the “if” half of the conclusion.') },
     ],
     solution: proof({ f: ['impI', { A: 'B' }] }, ['p>f.body', 'f>goal'], { premises: ['p'] }),
     naive: proof({ f: ['impI', { A: 'B' }] }, ['p>goal'], { premises: ['p'] }),
@@ -91,7 +91,7 @@ export const era1 = [
       { t: T('<level-ref to="k2"></level-ref>里，里面框的结论是框外的已知「下雨」；<level-ref to="ident"></level-ref>里，结论是框自己的假设。这一关什么都没给，两样合起来：「下雨」由外面的框假设，再当里面框的结论。', 'In <level-ref to="k2"></level-ref> the inner box concluded the given “it rains” from outside; in <level-ref to="ident"></level-ref> the conclusion was the box’s own assumption. Here nothing is given, so put the two together: the outer box assumes “it rains”, and the inner box concludes it.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'] }, ['f#body>g.body', 'g>f.body', 'f>goal']),
-    after: T('外面框的假设，正是里面框的结论。证出来以后，这块电路是元件 <part-ref to="lemma:axK"></part-ref>：元件上选两句话，它直接给出「若 第一句，则（若 第二句，则 第一句）」。只有公理、没有框的证明器，只能把 K 当成不用证的出发点。', 'The outer box’s assumption is the inner box’s conclusion. Proved, this circuit becomes the part <part-ref to="lemma:axK"></part-ref>: choose two sentences on its part and it gives “if the first, then (if the second, then the first)”. A prover with axioms and no box can only take K as a starting point that needs no proof.'),
+    after: T('外面框的假设，正是里面框的结论。证出来以后，这块电路是元件 <part-ref to="lemma:axK"></part-ref>：元件上选两句话，它直接给出「若 第一句，则（若 第二句，则 第一句）」。只有<wiki-ref to="axiom"></wiki-ref>、没有框的证明器，只能把 K 当成不用证的出发点。', 'The outer box’s assumption is the inner box’s conclusion. Proved, this circuit becomes the part <part-ref to="lemma:axK"></part-ref>: choose two sentences on its part and it gives “if the first, then (if the second, then the first)”. A prover with no box, where every starting point is an <wiki-ref to="axiom"></wiki-ref>, can only take K as a starting point that needs no proof.'),
   },
   {
     id: 'box',
@@ -141,7 +141,7 @@ export const era1 = [
       { t: T('证明核没有「首尾相接」这条规则，可它有框：要证一句「若…则…」，先假设它的前一半。', 'The kernel has no “join end to end” rule, but it has the box: to prove an “if … then …”, assume its first half.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
-    after: T('要证「若…则…」，就假设它的前一半，在框里一路套用下去。证过一次、之后当规则用的事叫<b>引理</b>：它在每一组测试上都成立，所以对任何句子都能用。这块电路成了元件<part-ref to="lemma:chain"></part-ref>。', 'To prove an “if … then …”, assume its first half and apply your way through inside the box. Something proved once and used as a rule from then on is a <b>lemma</b>: it held on every test, so it works for any sentences. This circuit becomes the part <part-ref to="lemma:chain"></part-ref>.'),
+    after: T('要证「若…则…」，就假设它的前一半，在框里一路套用下去。证过一次、之后当规则用的事叫<wiki-ref to="lemma"></wiki-ref>：它在每一组测试上都成立，所以对任何句子都能用。这块电路成了元件<part-ref to="lemma:chain"></part-ref>。', 'To prove an “if … then …”, assume its first half and apply your way through inside the box. Something proved once and used as a rule from then on is a <wiki-ref to="lemma"></wiki-ref>: it held on every test, so it works for any sentences. This circuit becomes the part <part-ref to="lemma:chain"></part-ref>.'),
   },
   {
     id: 'ident',
@@ -295,7 +295,7 @@ export const era1 = [
     brief: T('实现一个证明器，不用假设框，可以从已知「下雨」证明出「刮风 → 下雨」。', 'Build a prover that, without the assumption box, proves “it is windy → it rains” from “it rains”.'),
     hint: [T('K 的元件上第一句选「下雨」、第二句选「刮风」，再把它和已知套用。', 'Choose “it rains” and “it is windy” on K’s part, then Apply it with the given.')],
     intro: [
-      { t: T('这个专题把框拿走，只剩套用和你证出的 K、S；用框造的串联、交换、合并也都用不上。早期的证明器（希尔伯特系统）就是这样：一条规则，几条公理。', 'This topic takes the box away, leaving Apply and the K and S you proved; Chain, Swap and Merge, built with boxes, are out of reach too. Early provers (Hilbert systems) were like this: one rule and a few axioms.') },
+      { t: T('这个专题把框拿走，只剩套用和你证出的 K、S；用框造的串联、交换、合并也都用不上。早期的证明器（<wiki-ref to="hilbert"></wiki-ref>）就是这样：一条规则，几条<wiki-ref to="axiom"></wiki-ref>。', 'This topic takes the box away, leaving Apply and the K and S you proved; Chain, Swap and Merge, built with boxes, are out of reach too. Early provers (each a <wiki-ref to="hilbert"></wiki-ref>) were like this: one rule, and each other step an <wiki-ref to="axiom"></wiki-ref>.') },
       { t: T('没有框，要给一句话加条件，就得找一句现成的「若…则…」来套用。', 'Without a box, to put a condition on a sentence, find a ready-made “if … then …” to apply.') },
     ],
     solution: proof({ k: ['axK', { A: 'A', B: 'B' }], m: ['mp'] }, ['k>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
@@ -356,7 +356,7 @@ export const era1 = [
       m2: ['mp'],
       m3: ['mp'],
     }, ['k>m1.imp', 'q>m1.a', 's>m2.imp', 'm1>m2.a', 'm2>m3.imp', 'p>m3.a', 'm3>goal'], { premises: ['p', 'q'] }),
-    after: T('这个改写有固定的做法：框里用到的已知用 K 带上条件，框里的套用换成 S。任何一个框都能这样换成 K、S 和套用，这叫<b>演绎定理</b>。所以框不增加能证的东西，只让证明好写得多：这就是证明核把框当成基础元件、把 K 和 S 当成证出来的元件的原因。', 'The rewrite follows a fixed recipe: a given used inside the box takes the condition with K, and an Apply inside becomes S. Any box can be traded for K, S and Apply this way: the <b>deduction theorem</b>. So the box adds nothing provable; it only makes proofs far easier to write. That is why the kernel has the box as a part, and K and S as parts you prove.'),
+    after: T('这个改写有固定的做法：框里用到的已知用 K 带上条件，框里的套用换成 S。任何一个框都能这样换成 K、S 和套用，这叫<wiki-ref to="deduction"></wiki-ref>。所以框不增加能证的东西，只让证明好写得多：这就是证明核把框当成基础元件、把 K 和 S 当成证出来的元件的原因。', 'The rewrite follows a fixed recipe: a given used inside the box takes the condition with K, and an Apply inside becomes S. Any box can be traded for K, S and Apply this way: the <wiki-ref to="deduction"></wiki-ref>. So the box adds nothing provable; it only makes proofs far easier to write. That is why the kernel has the box as a part, and K and S as parts you prove.'),
   },
   {
     id: 'x-swap',

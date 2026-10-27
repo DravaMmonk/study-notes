@@ -57,7 +57,7 @@ export const structured = [
       }),
     ],
     intro: [
-      { t: T('证明助手里真正写下的证明，是一段给人读的<b>脚本</b>。Isabelle 的 Isar 这样写：have 先证一句，show 证出要证的那句，每一句后面 by 说它怎么来；一句话要整块来证，就写 proof … qed。', 'The proofs actually written in a proof assistant are <b>scripts</b> for people to read. Isabelle’s Isar writes them so: have proves a sentence on the way, show proves the one wanted, and by after each row says where it comes from; a sentence proved by a whole block is written proof … qed.') },
+      { t: T('在<wiki-ref to="provers"></wiki-ref>里真正写下的证明，是一段给人读的脚本，叫<wiki-ref to="scripts"></wiki-ref>。Isabelle 的 Isar 这样写：have 先证一句，show 证出要证的那句，每一句后面 by 说它怎么来；一句话要整块来证，就写 proof … qed。', 'The proofs actually written in a <wiki-ref to="provers"></wiki-ref> are scripts for people to read: a <wiki-ref to="scripts"></wiki-ref>. Isabelle’s Isar writes them so: have proves a sentence on the way, show proves the one wanted, and by after each row says where it comes from; a sentence proved by a whole block is written proof … qed.') },
       { t: T('脚本的每一句，都是证明板上的一张卡片：using 后面是接进来的线，by 后面是哪一张卡片。', 'Each row of a script is a card of the proof board: after using are the wires coming in, after by is which card it is.') },
     ],
     after: T('by (rule mp) 就是一张套用，using 的 p、a1 是接进它的两根线；proof … qed 是一个框，assume 是框里的假设，框里最后一句 show 接到框的出口。脚本和电路是同一个证明的两种写法。', 'by (rule mp) is one Apply card, and the p and a1 after using are its two wires in; proof … qed is a box, assume what it assumes, and the show at its end goes to the box’s exit. A script and a circuit are two ways of writing one proof.'),

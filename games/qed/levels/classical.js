@@ -91,7 +91,7 @@ export const classical = [
       { t: T('退一步：先证明「否认它会导致矛盾」，也就是「¬¬(下雨 ∨ ¬下雨)」。auto 证得出这一句；离「下雨 ∨ ¬下雨」，只差两个 ¬。', 'Step back, and first prove that denying it leads to a contradiction: “¬¬(it rains ∨ ¬it rains)”. auto proves that one; it is two ¬s from “it rains ∨ ¬it rains”.') },
       { t: T('证明器在这里有两种做法：Isabelle 的 HOL 从一开始就给证明核加上这一步，Lean 的核不加，要用时另外请出一条公理。这一关走前一条路。', 'Provers part ways here: Isabelle’s HOL gives its kernel this step from the start, while Lean’s kernel does without and calls in an axiom when needed. This level takes the first way.') },
     ],
-    after: T('auto 证不出的那句话，现在证出来了，这块电路是元件<part-ref to="lemma:lem"></part-ref>：任何一句话，要么成立，要么不成立。不用反证法的逻辑叫<b>直觉主义逻辑</b>：每个「或」都要说出是哪一边。加上反证法就是<b>经典逻辑</b>：真值表上每一行都真的话，都证得出来。', 'The sentence auto could not prove is now proved, and this circuit is the part <part-ref to="lemma:lem"></part-ref>: any sentence holds or it does not. Logic without proof by contradiction is called <b>intuitionistic</b>: every “or” must say which side. Add it and you have <b>classical</b> logic, where everything true on every row can be proved.'),
+    after: T('auto 证不出的那句话，现在证出来了，这块电路是元件<part-ref to="lemma:lem"></part-ref>：任何一句话，要么成立，要么不成立（<wiki-ref to="lem"></wiki-ref>）。不用反证法的逻辑叫<wiki-ref to="intuitionistic"></wiki-ref>：每个「或」都要说出是哪一边。加上反证法就是<wiki-ref to="classical"></wiki-ref>：真值表上每一行都真的话，都证得出来。', 'The sentence auto could not prove is now proved, and this circuit is the part <part-ref to="lemma:lem"></part-ref>: any sentence holds or it does not (<wiki-ref to="lem"></wiki-ref>). Logic without proof by contradiction is called <wiki-ref to="intuitionistic"></wiki-ref>: every “or” must say which side. Add it and you have <wiki-ref to="classical"></wiki-ref>, where everything true on every row can be proved.'),
   },
   {
     id: 'byContra',
@@ -182,9 +182,9 @@ export const classical = [
     ],
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，永远说真话；要么是<b>无赖</b>，永远说假话。', 'Everyone on the island is a <b>knight</b>, who always tells the truth, or a <b>knave</b>, who always lies.') },
-      { t: T('一个岛民说了一句话，「他是骑士」就和他说的话<b>等价</b>：<level-ref to="e-says"></level-ref>里翻译过，写成 <b>↔</b>；证明器里怎样拆开它，<level-ref to="iffUse"></level-ref>里做过。', 'If an islander says something, “he is a knight” is <b>equivalent</b> to what he says: you translated that in <level-ref to="e-says"></level-ref>, written <b>↔</b>; how the prover takes it apart, you did in <level-ref to="iffUse"></level-ref>.') },
+      { t: T('一个岛民说了一句话，「他是骑士」就和他说的话是<wiki-ref to="equivalence"></wiki-ref>：<level-ref to="e-says"></level-ref>里翻译过，写成 <b>↔</b>；证明器里怎样拆开它，<level-ref to="iffUse"></level-ref>里做过。', 'If an islander says something, “he is a knight” is in <wiki-ref to="equivalence"></wiki-ref> with what he says: you translated that in <level-ref to="e-says"></level-ref>, written <b>↔</b>; how the prover takes it apart, you did in <level-ref to="iffUse"></level-ref>.') },
     ],
-    after: T('拆开等价，合并重复的条件，再两次套用撞出矛盾。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。这就是「说谎者悖论」的岛上版本，现在是元件<part-ref to="lemma:liar"></part-ref>。', 'Split the equivalence, merge the repeated condition, then apply twice into a contradiction. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true. It is the island’s version of the liar paradox, now the part <part-ref to="lemma:liar"></part-ref>.'),
+    after: T('拆开等价，合并重复的条件，再两次套用撞出矛盾。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。这就是<wiki-ref to="liar"></wiki-ref>的岛上版本，现在是元件<part-ref to="lemma:liar"></part-ref>。', 'Split the equivalence, merge the repeated condition, then apply twice into a contradiction. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true. It is the island’s version of the <wiki-ref to="liar"></wiki-ref>, now the part <part-ref to="lemma:liar"></part-ref>.'),
   },
   {
     id: 'kk-two',

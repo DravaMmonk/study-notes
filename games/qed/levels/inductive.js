@@ -44,8 +44,8 @@ export const inductive = [
       T('有一组测试的等式是反过来写的：两条规则，走几条路。', 'One test has its equation the other way round: two rules, on Alternatives.'),
     ],
     intro: [
-      { t: T('化简器里，数和列表是被算的东西：0、S 0 都是现成的，加法的定义是给定的等式。可「0 不等于 1」，化简证不出来：没有哪条定义说它们不一样。这一章给证明器装上<b>归纳类型</b>：数和列表是怎么来的。', 'In the simplifier, numbers and lists are things to work out: 0 and S 0 are just there, and addition’s definition is equations given. But “0 is not 1” Simp cannot prove: no definition says they differ. This chapter fits the prover with <b>inductive types</b>: where numbers and lists come from.') },
-      { t: T('数是<b>声明</b>出来的：nat = 0 | S nat，一个数要么是 0，要么是某个数的后一个 S n。0 和 S 叫<b>构造子</b>。声明只说了这一句，可它给规则书添了一组规则，第一条：不同的构造子造出的值互不相同，0 = S x 不可能成立，从它推出什么都行。Isabelle 的 datatype、Lean 的 inductive 都是这样的声明。', 'Numbers are <b>declared</b>: nat = 0 | S nat, a number is 0 or the one after some number, S n. 0 and S are <b>constructors</b>. The declaration says only that, yet it adds a group of rules to the rule book, the first: values made by different constructors are different, 0 = S x cannot hold, and from it anything follows. Isabelle’s datatype and Lean’s inductive are declarations like this.') },
+      { t: T('化简器里，数和列表是被算的东西：0、S 0 都是现成的，加法的定义是给定的等式。可「0 不等于 1」，化简证不出来：没有哪条定义说它们不一样。这一章给证明器装上<wiki-ref to="inductive"></wiki-ref>：数和列表是怎么来的。', 'In the simplifier, numbers and lists are things to work out: 0 and S 0 are just there, and addition’s definition is equations given. But “0 is not 1” Simp cannot prove: no definition says they differ. This chapter fits the prover with the <wiki-ref to="inductive"></wiki-ref>: where numbers and lists come from.') },
+      { t: T('数是<b>声明</b>出来的：nat = 0 | S nat，一个数要么是 0，要么是某个数的后一个 S n。0 和 S 叫<wiki-ref to="constructor"></wiki-ref>。声明只说了这一句，可它给规则书添了一组规则，第一条：不同的构造子造出的值互不相同，0 = S x 不可能成立，从它推出什么都行。Isabelle 的 datatype、Lean 的 inductive 都是这样的声明。', 'Numbers are <b>declared</b>: nat = 0 | S nat, a number is 0 or the one after some number, S n. 0 and S are each a <wiki-ref to="constructor"></wiki-ref>. The declaration says only that, yet it adds a group of rules to the rule book, the first: values made by different constructors are different, 0 = S x cannot hold, and from it anything follows. Isabelle’s datatype and Lean’s inductive are declarations like this.') },
     ],
     solution: flow(['rule', 'impI'], { ways: [[['erule', 'nat.distinct1']], [['erule', 'nat.distinct2']]] }),
     after: T('0 和 S x 由不同的构造子造出，所以不相等：这不是一条另加的公理，是声明本身的意思。两个方向各是一条规则。', '0 and S x come from different constructors, so they differ: not an axiom added, but what the declaration means. Each way round is a rule.'),
@@ -57,7 +57,7 @@ export const inductive = [
     tests: [{ goal: 's(a) = s(b) → a = b' }, { goal: 's(s(a)) = s(s(b)) → a = b' }],
     brief: PROVE,
     hint: [T('<part-ref to="part:search"></part-ref>里两条路：已知里有，或者规则对已知选「nat：s 一对一」。', 'Two ways in a <part-ref to="part:search"></part-ref>: Assumption, or Rule on a given with “nat: s is one-to-one”.')],
-    intro: [{ t: T('S a = S b，那么 a = b：同一个构造子造出的两个值相等，参数也就相等，这叫<b>一对一</b>。这也是声明给的一条规则。要拆几层，事先不知道。', 'S a = S b, so a = b: two values made by the same constructor are equal only if their arguments are, which is called <b>one-to-one</b>. This too is a rule the declaration gives. How many layers to take off is not known beforehand.') }],
+    intro: [{ t: T('S a = S b，那么 a = b：同一个构造子造出的两个值相等，参数也就相等，这叫<wiki-ref to="injectivity"></wiki-ref>。这也是声明给的一条规则。要拆几层，事先不知道。', 'S a = S b, so a = b: two values made by the same constructor are equal only if their arguments are, which is called <wiki-ref to="injectivity"></wiki-ref>. This too is a rule the declaration gives. How many layers to take off is not known beforehand.') }],
     solution: flow(['rule', 'impI'], { frame: 'search', body: [{ ways: [['assumption'], [['erule', 'nat.inject']]] }] }),
     after: T('互不相同和一对一，合起来说的是：一个数只有一种造法。', 'All different and one-to-one together say: a number is made in one way only.'),
   }),
@@ -99,7 +99,7 @@ export const inductive = [
         naive: script(['simp', defs(2)], ['rule', 'refl']),
       }),
     ],
-    intro: [{ t: T('加法的定义只看左边那个数：0 + y = y，S x + y = S (x + y)。0 加在右边呢？具体的数好办，「对所有 x」就要声明的最后一条规则：<b>归纳</b>。', 'Addition’s definition looks only at the number on the left: 0 + y = y, S x + y = S (x + y). And 0 on the right? For the numbers it is easy; “for every x” takes the declaration’s last rule: <b>induction</b>.') }],
+    intro: [{ t: T('加法的定义只看左边那个数：0 + y = y，S x + y = S (x + y)。0 加在右边呢？具体的数好办，「对所有 x」就要声明的最后一条规则：<wiki-ref to="induction"></wiki-ref>。', 'Addition’s definition looks only at the number on the left: 0 + y = y, S x + y = S (x + y). And 0 on the right? For the numbers it is easy; “for every x” takes the declaration’s last rule: <wiki-ref to="induction"></wiki-ref>.') }],
     after: T('每个数都是从 0 一步步 S 出来的：0 的时候成立，从 x 成立能推出 S x 也成立，那就对所有数成立。归纳规则是声明给的：有几个构造子，就有几条前提。证出的 x + 0 = x 成了<part-ref to="lemma:addZero"></part-ref>：从此它是一条规则，也是化简的一条改写规则。', 'Every number is reached from 0 by S, step by step: true at 0, and true at S x whenever at x, means true at every number. The induction rule is the declaration’s: one premise per constructor. The x + 0 = x proved is now <part-ref to="lemma:addZero"></part-ref>: a rule from now on, and a rewrite rule for Simp.'),
   },
 
@@ -158,7 +158,7 @@ export const inductive = [
     hint: [T('倒着用「list 的归纳」，再每个目标化简。', 'Use “list induction” backwards, then simp each goal.')],
     intro: [{ t: T('列表也是声明出来的：list = [] | x :: xs，一个列表要么是空的，要么是在列表 xs 前面接一个 x。声明给的规则一样四类，归纳的第二条前提是从 xs 到 x :: xs。', 'Lists are declared too: list = [] | x :: xs, a list is empty or an x put in front of a list xs. The declaration gives the same four kinds of rule, and induction’s second premise goes from xs to x :: xs.') }],
     solution: byInduction('list', ['simp', [...defs(2), 'hyp']]),
-    after: T('和 x + 0 = x 一模一样的证明。数和列表是同一种东西：都是一层层造出来的，叫<b>归纳定义的数据类型</b>。它成了<part-ref to="lemma:appNil"></part-ref>。', 'The very same proof as x + 0 = x. Numbers and lists are the same kind of thing, built up layer by layer: <b>inductively defined datatypes</b>. It is now <part-ref to="lemma:appNil"></part-ref>.'),
+    after: T('和 x + 0 = x 一模一样的证明。数和列表是同一种东西：都是一层层造出来的<wiki-ref to="inductive"></wiki-ref>。它成了<part-ref to="lemma:appNil"></part-ref>。', 'The very same proof as x + 0 = x. Numbers and lists are the same kind of thing, built up layer by layer: each is an <wiki-ref to="inductive"></wiki-ref>. It is now <part-ref to="lemma:appNil"></part-ref>.'),
   }),
   proves({
     id: 'in-appassoc',
@@ -342,6 +342,6 @@ export const inductive = [
     intro: [{ t: T('这几句都要交换律。', 'Each of these needs commutativity.') }],
     solution: flow({ frame: 'repeat', body: [['rule', 'allI']] }, ['simp', [...defs(2), 'addZero', 'addSucc']], { ways: [[['rule', 'refl']], [['rw', 'addComm'], ['rule', 'refl']]] }),
     naive: flow({ frame: 'repeat', body: [['rule', 'allI']] }, ['simp', [...defs(2), 'addZero', 'addSucc', 'addComm']], ['rule', 'refl']),
-    after: T('一条规则左右两边只差变量的位置，化简照直用就会绕圈。只在要它的地方用一次改写，就不会。Isabelle 的办法是给式子排一个固定的次序，只往「更小」的方向改，这叫<b>有序重写</b>。', 'A rule whose sides differ only in where the variables go makes Simp go round in circles; used once, by a rewrite, where it is needed, it does not. Isabelle fixes an order on expressions and rewrites only towards the smaller, which is called <b>ordered rewriting</b>.'),
+    after: T('一条规则左右两边只差变量的位置，化简照直用就会绕圈。只在要它的地方用一次改写，就不会。Isabelle 的办法是给式子排一个固定的次序，只往「更小」的方向改，这叫<wiki-ref to="ordered"></wiki-ref>。', 'A rule whose sides differ only in where the variables go makes Simp go round in circles; used once, by a rewrite, where it is needed, it does not. Isabelle fixes an order on expressions and rewrites only towards the smaller, which is called <wiki-ref to="ordered"></wiki-ref>.'),
   }),
 ]

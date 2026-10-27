@@ -72,9 +72,9 @@ export const simplifier = [
     ],
     intro: [
       { t: T('上一章的证明器，真值表上每一行都真的话都证得出了。可有一类目标，要做的只是把句子里的一处换成说法不同、意思相同的样子：¬¬下雨 换成 下雨，¬(下雨 ∨ 刮风) 换成 ¬下雨 ∧ ¬刮风。在证明板上，要换句子里面的一处，得把整句拆开、换掉、再一层层拼回去；句子套得越深，拼得越久。', 'Last chapter’s prover proves whatever is true on every row. But some goals only want one place in a sentence swapped for another way of saying the same: ¬¬it rains for it rains, ¬(it rains ∨ it is windy) for ¬it rains ∧ ¬it is windy. On the proof board, changing one place inside a sentence means taking the whole sentence apart, swapping it, and putting it back together level by level; the deeper the sentence, the longer it takes.') },
-      { t: T('这一章给证明器装上<b>化简器</b>：先证出两句话互相推得出，再拿这一对当规则，直接在句子里换。Isabelle 和 Lean 的 simp 都是这样的程序。第一对：¬¬A 和 A。', 'This chapter fits the prover with a <b>simplifier</b>: first prove that two sentences give each other, then use the pair as a rule that swaps them right inside a sentence. Isabelle’s and Lean’s simp are such programs. The first pair: ¬¬A and A.') },
+      { t: T('这一章给证明器装上<wiki-ref to="simplifier"></wiki-ref>：先证出两句话互相推得出，再拿这一对当规则，直接在句子里换。Isabelle 和 Lean 的 simp 都是这样的程序。第一对：¬¬A 和 A。', 'This chapter fits the prover with a <wiki-ref to="simplifier"></wiki-ref>: first prove that two sentences give each other, then use the pair as a rule that swaps them right inside a sentence. Isabelle’s and Lean’s simp are such programs. The first pair: ¬¬A and A.') },
     ],
-    after: T('¬¬A ⟼ A 是一条<b>改写规则</b>：左边换成右边，靠的是两边互相推得出。两个方向都证过，<part-ref to="lemma:dneg"></part-ref>的两个形状就都是改写规则。改写只换一处：第一处对得上左边的地方。', '¬¬A ⟼ A is a <b>rewrite rule</b>: its left side becomes its right side, because the two give each other. Both directions are proved, so both shapes of <part-ref to="lemma:dneg"></part-ref> are rewrite rules. A rewrite changes one place: the first that fits the left side.'),
+    after: T('¬¬A ⟼ A 是一条<wiki-ref to="rewrite"></wiki-ref>：左边换成右边，靠的是两边互相推得出。两个方向都证过，<part-ref to="lemma:dneg"></part-ref>的两个形状就都是改写规则。改写只换一处：第一处对得上左边的地方。', '¬¬A ⟼ A is a <wiki-ref to="rewrite"></wiki-ref>: its left side becomes its right side, because the two give each other. Both directions are proved, so both shapes of <part-ref to="lemma:dneg"></part-ref> are rewrite rules. A rewrite changes one place: the first that fits the left side.'),
   },
 
   // ---------- more laws ----------
@@ -241,7 +241,7 @@ export const simplifier = [
       }),
     ],
     intro: [
-      { t: T('「既不是周六也不是周日」和「并非（周六或者周日）」说的是一回事；「并非（周六并且周日）」和「不是周六，或者不是周日」也是。否定穿过「或者」变成「并且」，穿过「并且」变成「或者」：这是<b>德摩根律</b>。', '“Neither Saturday nor Sunday” and “not (Saturday or Sunday)” say the same thing; so do “not (Saturday and Sunday)” and “not Saturday, or not Sunday”. A negation passing through “or” becomes “and”, through “and” becomes “or”: these are <b>De Morgan’s laws</b>.') },
+      { t: T('「既不是周六也不是周日」和「并非（周六或者周日）」说的是一回事；「并非（周六并且周日）」和「不是周六，或者不是周日」也是。否定穿过「或者」变成「并且」，穿过「并且」变成「或者」：这是<wiki-ref to="demorgan"></wiki-ref>。', '“Neither Saturday nor Sunday” and “not (Saturday or Sunday)” say the same thing; so do “not (Saturday and Sunday)” and “not Saturday, or not Sunday”. A negation passing through “or” becomes “and”, through “and” becomes “or”: these are <wiki-ref to="demorgan"></wiki-ref>.') },
       { t: T('两对说法，每对两个方向，四段任务各证一个；四个方向都证出来以后，它们合成一块元件<part-ref to="lemma:dm"></part-ref>，元件上切换四种形状，每一种也是一条改写规则。最后一段拿它们改写。', 'Two pairs of sayings, each pair two ways round: four tasks, one direction each. Once all four are proved they make one part, <part-ref to="lemma:dm"></part-ref>, which switches between the four shapes, each a rewrite rule too. The last task rewrites with them.') },
     ],
     after: T('四个方向里，只有「并非两个都」要靠排中律：它没说是哪一个，经典逻辑却敢说「总有一个」。否定推进括号，「或者」「并且」互换：有了<part-ref to="lemma:dm"></part-ref>，否定能一层层往里推。', 'Of the four directions, only “not both” rests on excluded middle: it does not say which, yet classical logic dares to say “one of them”. A negation pushed inside the brackets swaps “or” and “and”: with <part-ref to="lemma:dm"></part-ref>, negations can be pushed in level by level.'),
@@ -385,7 +385,7 @@ export const simplifier = [
     ],
     brief: BRIEF,
     hint: [T('去掉箭头、去掉双重否定，再把否定推过「或者」「并且」「存在」「对所有」：这些规则都排进化简。', 'Arrows away, double negation off, and negations pushed past “or”, “and”, “there is” and “for all”: line all of these up in Simp.')],
-    intro: [{ t: T('<b>否定范式</b>：句子里没有 →，¬ 只贴在最小的那一句上。自动证明器动手之前，先把句子化成这个样子。手里的等价律够不够？', '<b>Negation normal form</b>: no → in the sentence, and every ¬ on a smallest sentence. Automatic provers bring a sentence to this shape before anything else. Do the laws in hand reach it?') }],
+    intro: [{ t: T('<wiki-ref to="nnf"></wiki-ref>：句子里没有 →，¬ 只贴在最小的那一句上。自动证明器动手之前，先把句子化成这个样子。手里的等价律够不够？', '<wiki-ref to="nnf"></wiki-ref>: no → in the sentence, and every ¬ on a smallest sentence. Automatic provers bring a sentence to this shape before anything else. Do the laws in hand reach it?') }],
     solution: script(['simp', NNF]),
     after: T('化简里排了六条规则，任何一句都化得成否定范式。每条规则都是证出的等价律，所以化出来的句子和原来的一定等价。', 'Six rules lined up in Simp bring any sentence to negation normal form. Each rule is a law proved both ways, so what comes out is sure to be equivalent to what went in.'),
   }),
@@ -399,9 +399,9 @@ export const simplifier = [
     ],
     brief: BRIEF,
     hint: [T('否定范式的规则后面，再加上分配。', 'After the rules for negation normal form, add distribution.')],
-    intro: [{ t: T('<b>合取范式</b>：先是否定范式，再让「或者」都在「并且」底下，几串「或者」用「并且」连起来。下一步的自动证明，要的就是这个样子。', '<b>Conjunctive normal form</b>: negation normal form first, then every “or” under the “and”s, a few strings of “or” joined by “and”. Automatic proof wants sentences in just this shape.') }],
+    intro: [{ t: T('<wiki-ref to="cnf"></wiki-ref>：先是否定范式，再让「或者」都在「并且」底下，几串「或者」用「并且」连起来。下一步的自动证明，要的就是这个样子。', '<wiki-ref to="cnf"></wiki-ref>: negation normal form first, then every “or” under the “and”s, a few strings of “or” joined by “and”. Automatic proof wants sentences in just this shape.') }],
     solution: script(['simp', CNF]),
-    after: T('化出来的每一串「或者」叫一个<b>子句</b>。分配会让句子变长：一句分到两边，就抄了两遍。', 'Each string of “or” that comes out is called a <b>clause</b>. Distribution makes a sentence longer: one sentence distributed over two sides is written out twice.'),
+    after: T('化出来的每一串「或者」叫一个<wiki-ref to="clause"></wiki-ref>。分配会让句子变长：一句分到两边，就抄了两遍。', 'Each string of “or” that comes out is called a <wiki-ref to="clause"></wiki-ref>. Distribution makes a sentence longer: one sentence distributed over two sides is written out twice.'),
   }),
   becomes({
     id: 'sp-order',

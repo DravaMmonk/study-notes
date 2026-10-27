@@ -37,7 +37,7 @@ export const quantifiers = [
     brief: BRIEF,
     intro: [
       { t: T('到现在为止，一个字母只能是一整句话：每个人是不是骑士，就要一人一个字母。要是全城的人都要说到呢？命题逻辑说不出「每一个人」「有一个人」。', 'So far a letter can only be a whole sentence: whether each person is a knight takes a letter per person. What about everyone in a city? Propositional logic cannot say “everyone” or “someone”.') },
-      { t: T('这一章把一句话拆开：<b>名字</b>指一样东西（苏格拉底、安），<b>谓词</b>说东西的性质或关系（「…是人」「…是…的父母」）。「苏格拉底是人」写成 Human(soc)。', 'This chapter takes a sentence apart: a <b>name</b> stands for a thing (Socrates, Ann), a <b>predicate</b> says what things are or how they relate (“… is human”, “… is a parent of …”). “Socrates is human” is written Human(soc).') },
+      { t: T('这一章进入<wiki-ref to="fol"></wiki-ref>，把一句话拆开：<b>名字</b>指一样东西（苏格拉底、安），一个<wiki-ref to="predicate"></wiki-ref>说东西的性质或关系（「…是人」「…是…的父母」）。「苏格拉底是人」写成 Human(soc)。', 'This chapter enters <wiki-ref to="fol"></wiki-ref>, taking a sentence apart: a <b>name</b> stands for a thing (Socrates, Ann), a <wiki-ref to="predicate"></wiki-ref> says what things are or how they relate (“… is human”, “… is a parent of …”). “Socrates is human” is written Human(soc).') },
       { t: T('这一章先不证明，只学这样的话怎么说、在一个世界里是真是假。一道题一句话：用下面的块把它拼成公式。块填进去就写成文字，它自己要填的地方留成框，再往框里填别的块。', 'No proofs yet in this chapter: only how to say such things and when they are true in a world. One sentence at a time: build it as a formula from the pieces below. A piece put in is written out as words, with a box for each place it leaves to fill, and other pieces go in those boxes.') },
     ],
     after: T('一句话拆成了名字和谓词，同一个谓词可以说任何东西：Human(soc)、Human(ann)。谓词的位置有先后：Parent(ann, bo) 和 Parent(bo, ann) 是两回事。', 'A sentence comes apart into names and predicates, and one predicate can be said of anything: Human(soc), Human(ann). A predicate’s places have an order: Parent(ann, bo) and Parent(bo, ann) are different things.'),
@@ -61,7 +61,7 @@ export const quantifiers = [
     ]),
     brief: BRIEF,
     intro: [
-      { t: T('新符号 <b>∀</b>，读作「对所有」：∀x. P(x) 说的是，世上每一样东西 x，P(x) 都成立。x 是一个<b>变量</b>，代表「随便哪一样」。', 'A new symbol, <b>∀</b>, read “for all”: ∀x. P(x) says that for every thing x in the world, P(x) holds. x is a <b>variable</b>, standing for “any one”.') },
+      { t: T('新<wiki-ref to="quantifier"></wiki-ref> <b>∀</b>，读作「对所有」：∀x. P(x) 说的是，世上每一样东西 x，P(x) 都成立。x 是一个<b>变量</b>，代表「随便哪一样」。', 'A new <wiki-ref to="quantifier"></wiki-ref>, <b>∀</b>, read “for all”: ∀x. P(x) says that for every thing x in the world, P(x) holds. x is a <b>variable</b>, standing for “any one”.') },
       { t: T('写错了不要紧：检查时会找出一个小世界，在那里你写的和原句一真一假。', 'Mistakes are fine: checking finds a small world where what you wrote and the sentence come apart.') },
     ],
     after: T('∀ 管的是世上所有的东西，不只是人，所以「人都会死」要带上条件：是人的，才会死。∀ 和 → 总是一起出现：这是一阶逻辑最常见的写法。', '∀ covers every thing in the world, not just people, so “every human is mortal” needs a condition: being human, it is mortal. ∀ and → come together: the most common pattern of first-order logic.'),
@@ -97,7 +97,7 @@ export const quantifiers = [
       { say: T('每个人都喜欢某个人。', 'Everyone likes someone.'), target: '∀x. Human(x) → ∃y. Human(y) ∧ Likes(x, y)', hint: [T('外面是对所有 x，里面是有一个 y；y 也得是人。', 'Outside, every x; inside, some y, and y must be human too.')] },
     ]),
     brief: BRIEF,
-    intro: [{ t: T('一个量词里面还可以有量词。每个量词有自己的变量，管到它后面的整段：∀x. … ∃y. … 里，x 和 y 各指各的。变量被某个量词管着，叫<b>约束</b>的；没有量词管着，叫<b>自由</b>的，那句话就说不清在讲谁。', 'A quantifier may hold another. Each has its own variable and reaches over everything after it: in ∀x. … ∃y. …, x and y each stand for their own thing. A variable some quantifier covers is <b>bound</b>; one no quantifier covers is <b>free</b>, and then the sentence does not say whom it means.') }],
+    intro: [{ t: T('一个量词里面还可以有量词。每个量词有自己的变量，管到它后面的整段：∀x. … ∃y. … 里，x 和 y 各指各的。被某个量词管着的变量是<wiki-ref to="bound"></wiki-ref>；没有量词管着的是<wiki-ref to="free"></wiki-ref>，那句话就说不清在讲谁。', 'A quantifier may hold another. Each has its own variable and reaches over everything after it: in ∀x. … ∃y. …, x and y each stand for their own thing. A variable some quantifier covers is a <wiki-ref to="bound"></wiki-ref>; one no quantifier covers is a <wiki-ref to="free"></wiki-ref>, and then the sentence does not say whom it means.') }],
     after: T('「有个人喜欢任何人」和「每个人都喜欢某个人」只差量词的先后，意思却差得远：前一句是同一个人喜欢所有人，后一句是每人各有各喜欢的人。', '“Someone likes everyone” and “everyone likes someone” differ only in the order of quantifiers, yet mean very different things: one person who likes all, or each with someone of their own.'),
   },
   {
@@ -125,7 +125,7 @@ export const quantifiers = [
       },
     ],
     intro: [
-      { t: T('命题逻辑里，一句话的真假看真值表的哪一行。一阶逻辑里，看的是<b>世界</b>：世界里有几样东西，每样东西是什么、和别的东西是什么关系。', 'In propositional logic, whether a sentence is true depends on the row of the truth table. In first-order logic it depends on the <b>world</b>: how many things there are, what each is and how they relate.') },
+      { t: T('命题逻辑里，一句话的真假看真值表的哪一行。一阶逻辑里，看的是<wiki-ref to="world"></wiki-ref>：世界里有几样东西，每样东西是什么、和别的东西是什么关系。', 'In propositional logic, whether a sentence is true depends on the row of the truth table. In first-order logic it depends on the <wiki-ref to="world"></wiki-ref>: how many things there are, what each is and how they relate.') },
       { t: T('这一关自己造世界：选好有几样东西，再点出每样东西有哪些性质。下面列着要的句子，旁边是它在这个世界里的真假。', 'In this level you build worlds: choose how many things there are, then tap what holds of each. The sentences asked for are listed below, each with whether it is true in this world.') },
     ],
     after: T('同一句话，在一个世界里真，在另一个世界里假。一句话永远成立，就是在所有世界里都真，这样的世界有无穷多个，大小不限。', 'The same sentence is true in one world and false in another. A sentence that “always holds” is true in every world, and there are infinitely many of those, of any size.'),
@@ -144,7 +144,7 @@ export const quantifiers = [
     answer: { size: 2, preds: { Bird: ['0'], Flies: ['1'] } },
     brief: T('造一个世界，让三句话的真假都正合要求。', 'Build a world where all three sentences come out as asked.'),
     hint: [T('要有一只不会飞的鸟，还要有一样会飞、却不是鸟的东西。', 'You need a bird that does not fly, and something that flies but is not a bird.')],
-    after: T('几句话能同时成立，就是有一个世界让它们都成立：这叫<b>可满足</b>。', 'Several sentences hold together when some world makes them all true: they are <b>satisfiable</b>.'),
+    after: T('几句话能同时成立，就是有一个世界让它们都成立：这叫<wiki-ref to="satisfiable"></wiki-ref>。', 'Several sentences hold together when some world makes them all true; this is <wiki-ref to="satisfiable"></wiki-ref>.'),
   },
   {
     id: 'm-counter',
@@ -160,7 +160,7 @@ export const quantifiers = [
     brief: T('「人都会死」「苏格拉底会死」，推得出「苏格拉底是人」吗？造一个世界：前两句真，第三句假。', 'From “every human is mortal” and “Socrates is mortal”, does “Socrates is human” follow? Build a world where the first two are true and the third false.'),
     hint: [T('苏格拉底也可以是一条会死的狗。', 'Socrates could be a mortal dog.')],
     intro: [{ t: T('名字也要在世界里指一样东西：选好「苏格拉底」是哪一样。', 'A name must stand for a thing in the world too: choose which thing is Socrates.') }],
-    after: T('前提都真、结论为假的世界叫<b>反模型</b>：有一个，就说明结论推不出来。证明器的反模型面板找的就是它；这一关你亲手造了一个。', 'A world where the premises hold and the conclusion fails is a <b>countermodel</b>: one is enough to show the conclusion does not follow. The prover’s countermodel panel looks for exactly this; here you built one by hand.'),
+    after: T('前提都真、结论为假的世界叫<wiki-ref to="countermodel"></wiki-ref>：有一个，就说明结论推不出来。证明器的反模型面板找的就是它；这一关你亲手造了一个。', 'A world where the premises hold and the conclusion fails is a <wiki-ref to="countermodel"></wiki-ref>: one is enough to show the conclusion does not follow. The prover’s countermodel panel looks for exactly this; here you built one by hand.'),
   },
   {
     id: 'm-order',
@@ -228,7 +228,7 @@ export const quantifiers = [
     brief: T('拼一句带着 x 的话，在每一家里，让它正好选中安的孩子。', 'Build a sentence with x in it that picks out exactly Ann’s children in each family.'),
     hint: [T('「安是 x 的父母」。', '“Ann is a parent of x”.')],
     intro: [
-      { t: T('一句话里留一个自由的 x，它就成了一个<b>查询</b>：世界里哪些东西放进 x 能让这句话成立，就是查询的答案。数据库的查询语言 SQL，核心正是这样的一阶逻辑。', 'Leave one x free in a sentence and it becomes a <b>query</b>: the things of a world that make it true when put in for x are the answer. The core of SQL, the language of databases, is first-order logic like this.') },
+      { t: T('一句话里留一个自由的 x，它就成了一个<wiki-ref to="query"></wiki-ref>：世界里哪些东西放进 x 能让这句话成立，就是查询的答案。数据库的查询语言 SQL，核心正是这样的一阶逻辑。', 'Leave one x free in a sentence and it becomes a <wiki-ref to="query"></wiki-ref>: the things of a world that make it true when put in for x are the answer. The core of SQL, the language of databases, is first-order logic like this.') },
       { t: T('这里有两家人。同一句查询要在两家里都选对，不能靠记名字。', 'There are two families here. One query must be right in both, so no remembering names.') },
     ],
     after: T('查询只看族谱里写着的关系：「安是 x 的父母」在第一家选出博和茜，在第二家选出茜和迪。', 'A query sees only the relations in the tree: “Ann is a parent of x” picks Bo and Cy in the first family, Cy and Dee in the second.'),
@@ -260,6 +260,6 @@ export const quantifiers = [
       T('两件事用 ∧ 连起来：「有孩子」用 ∃，「孩子都在上学」用 ∀。', 'Join two things with ∧: “has children” with ∃, “all children at school” with ∀.'),
       T('只写「孩子都在上学」，没有孩子的人也会被选中：没有孩子，这句话就空着成立。', 'With only “all children at school”, those with no children are picked too: with no children, it holds emptily.'),
     ],
-    after: T('「孩子都在上学」对没有孩子的人也成立，什么都不用查就为真，叫<b>空真</b>。数据库查询里这个坑很常见，加一句「有孩子」就补上了。', '“All children at school” holds for those with no children, true without checking anything: <b>vacuously</b> true. It is a common trap in database queries, closed by adding “has children”.'),
+    after: T('「孩子都在上学」对没有孩子的人也成立，什么都不用查就为真，叫<wiki-ref to="vacuous"></wiki-ref>。数据库查询里这个坑很常见，加一句「有孩子」就补上了。', '“All children at school” holds for those with no children, true without checking anything: a <wiki-ref to="vacuous"></wiki-ref>. It is a common trap in database queries, closed by adding “has children”.'),
   }),
 ]

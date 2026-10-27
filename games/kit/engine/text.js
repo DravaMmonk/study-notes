@@ -23,7 +23,7 @@ export function untranslated(value, path, out = [], visited = new Set()) {
   return out
 }
 
-const REF = /<(level|part|wiki)-ref to="([^"]+)"><\/\1-ref>/g
+export const REF = /<(level|part|wiki)-ref to="([^"]+)"><\/\1-ref>/g
 // Ways of pointing at another level without a link: by position, or 「its title」 followed by 那一关.
 const POINTING = { zh: /上一关|下一关|前一关|(?<!最)后一关|前两关|前几关|」那一?关/, en: /\b(the last|previous|next|earlier) levels?\b|\blevel on how\b/i }
 const WHAT = { level: 'level', part: 'part', wiki: 'encyclopedia entry' }

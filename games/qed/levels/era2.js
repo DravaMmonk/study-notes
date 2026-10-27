@@ -31,7 +31,7 @@ export const era2 = [
       { t: T('这一关不用框。', 'No box needed this time.') },
     ],
     solution: proof({ e: ['andE'], i: ['andI'] }, ['p>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>goal'], { premises: ['p'] }),
-    after: T('先拆后拼，换了个顺序。每个连接词都有一条造它的规则、一条用它的规则：这样的规则体系叫<wiki-ref to="natural"></wiki-ref>。', 'Split, then join in the other order. Every connective has a rule that makes it and a rule that uses it: a system like that is called <wiki-ref to="natural"></wiki-ref>.'),
+    after: T('先拆后拼，换了个顺序。每个<wiki-ref to="connective"></wiki-ref>都有一条造它的规则、一条用它的规则：这样的规则体系叫<wiki-ref to="natural"></wiki-ref>。', 'Split, then join in the other order. Every <wiki-ref to="connective"></wiki-ref> has a rule that makes it and a rule that uses it: a system like that is called <wiki-ref to="natural"></wiki-ref>.'),
   },
   {
     id: 'andSwap',
@@ -46,7 +46,7 @@ export const era2 = [
       { t: T('这一次连已知都没有，要证的「下雨 ∧ 刮风 → 刮风 ∧ 下雨」是一句永远成立的话。目标是一句「若…则…」，那就开一个框。', 'This time nothing is given: “it rains ∧ it is windy → it is windy ∧ it rains” is a sentence that always holds. The goal is an “if … then …”, so open a box.') },
     ],
     solution: andSwap,
-    after: T('有已知的证明，放进框里，就成了什么都不需要的<b>定理</b>：真值表上的永真式，在这里是证出来的。', 'A proof from givens, put in a box, becomes a <b>theorem</b> that needs nothing: a tautology from the truth tables, now proved.'),
+    after: T('有已知的证明，放进框里，就成了什么都不需要的<wiki-ref to="theorem"></wiki-ref>：真值表上的永真式，在这里是证出来的。', 'A proof from givens, put in a box, becomes a <wiki-ref to="theorem"></wiki-ref> that needs nothing: a tautology from the truth tables, now proved.'),
   },
   {
     id: 'curry',
@@ -204,8 +204,8 @@ export const era2 = [
     ],
     intro: [
       { t: T('一个证人先说「门锁着」，又说「门没锁」。两句不可能都对。', 'A witness says “the door is locked”, then “the door is not locked”. Both cannot be true.') },
-      { t: T('<level-ref to="g-never"></level-ref>里见过<b>矛盾</b>：每一行都假的话。证明器把它写成一个符号 <b>⊥</b>。「非」写成 <b>¬</b>（<level-ref to="g-not"></level-ref>里的<part-ref to="part:gNot"></part-ref>门），证明器没有专门管 ¬ 的元件，它这样读：<br><b>¬门锁着　就是　门锁着 → ⊥</b><br>「门没锁」和「若门锁着，则矛盾」是同一句话，所以「¬门锁着」可以直接接进要「若…则…」的口。', 'You met the <b>contradiction</b> in <level-ref to="g-never"></level-ref>: a sentence false on every row. The prover writes it as one symbol, <b>⊥</b>. “Not” is written <b>¬</b> (the <part-ref to="part:gNot"></part-ref> gate of <level-ref to="g-not"></level-ref>); the prover has no part for ¬ and reads it like this:<br><b>¬the door is locked　is　the door is locked → ⊥</b><br>“The door is not locked” and “if the door is locked, then a contradiction” are the same sentence, so “¬the door is locked” goes straight into an input that wants an “if … then …”.') },
-      { t: T('<b>矛盾推出一切</b>：有了 ⊥，元件上选什么，就能证出什么。', '<b>From contradiction, anything</b>: from ⊥, prove whatever is chosen on the part.') },
+      { t: T('<level-ref to="g-never"></level-ref>里见过<wiki-ref to="contradiction"></wiki-ref>：每一行都假的话。证明器把它写成一个符号 <b>⊥</b>。「非」写成 <b>¬</b>（<level-ref to="g-not"></level-ref>里的<part-ref to="part:gNot"></part-ref>门），证明器没有专门管 ¬ 的元件，它这样读：<br><b>¬门锁着　就是　门锁着 → ⊥</b><br>「门没锁」和「若门锁着，则矛盾」是同一句话，所以「¬门锁着」可以直接接进要「若…则…」的口。', 'You met the <wiki-ref to="contradiction"></wiki-ref> in <level-ref to="g-never"></level-ref>: a sentence false on every row. The prover writes it as one symbol, <b>⊥</b>. “Not” is written <b>¬</b> (the <part-ref to="part:gNot"></part-ref> gate of <level-ref to="g-not"></level-ref>); the prover has no part for ¬ and reads it like this:<br><b>¬the door is locked　is　the door is locked → ⊥</b><br>“The door is not locked” and “if the door is locked, then a contradiction” are the same sentence, so “¬the door is locked” goes straight into an input that wants an “if … then …”.') },
+      { t: T('这是<wiki-ref to="explosion"></wiki-ref>：有了 ⊥，元件上选什么，就能证出什么。', 'This is <wiki-ref to="explosion"></wiki-ref>: from ⊥, prove whatever is chosen on the part.') },
     ],
     solution: proof({ m: ['mp'], b: ['botE', { C: 'B' }] }, ['q>m.imp', 'p>m.a', 'm>b.bot', 'b>goal'], { premises: ['p', 'q'] }),
     after: T('证词自相矛盾，就什么都能「证」出来，连「月亮是奶酪做的」也行。一组已知一旦矛盾就毫无用处：这是逻辑拼命要避开矛盾的原因。', 'Contradictory testimony “proves” anything, even “the moon is made of cheese”. A set of givens that contradicts itself is useless: that is why logic works so hard to avoid contradiction.'),
@@ -270,7 +270,7 @@ export const era2 = [
       T('里面的框看得见「下雨 → 地湿」和「¬地湿」，也就是「地湿 → ⊥」。', 'The inner box sees “it rains → the ground is wet” and “¬the ground is wet”, that is “wet → ⊥”.'),
     ],
     intro: [
-      { t: T('「下雨，就地湿」，那么「没有地湿，就没有下雨」。这叫<b>逆否</b>，和<level-ref to="onerow"></level-ref>里那个错误推理不一样，它永远成立：「(下雨 → 地湿) → (¬地湿 → ¬下雨)」。', '“it rains gives the ground is wet”, so “no the ground is wet, no it rains”. This is the <b>contrapositive</b>, and unlike the bad reasoning in <level-ref to="onerow"></level-ref> it always holds: “(it rains → the ground is wet) → (¬the ground is wet → ¬it rains)”.') },
+      { t: T('「下雨，就地湿」，那么「没有地湿，就没有下雨」。这叫<wiki-ref to="contrapositive"></wiki-ref>，和<level-ref to="onerow"></level-ref>里那个错误推理不一样，它永远成立：「(下雨 → 地湿) → (¬地湿 → ¬下雨)」。', '“it rains gives the ground is wet”, so “no the ground is wet, no it rains”. This is the <wiki-ref to="contrapositive"></wiki-ref>, and unlike the bad reasoning in <level-ref to="onerow"></level-ref> it always holds: “(it rains → the ground is wet) → (¬the ground is wet → ¬it rains)”.') },
       { t: T('<level-ref to="mt"></level-ref>由两张已知给出这件事。这一关什么都没给：把两张已知变成两个框的假设。', '<level-ref to="mt"></level-ref> got this from two givens. Here nothing is given: turn the two givens into the assumptions of two boxes.') },
     ],
     solution: contra,
@@ -286,7 +286,7 @@ export const era2 = [
     hint: [T('分情况。「我坐公交」那一边撞上「¬我坐公交」，得到 ⊥；矛盾推出一切。', 'Take cases. On the “I take the bus” side it runs into “¬I take the bus” and gives ⊥; from a contradiction, anything.')],
     intro: [{ t: T('要么坐公交，要么骑车；没坐公交，那就是骑车。分情况要两边都证出「我骑车」：一边现成，另一边根本不可能发生。', 'Bus or bike; not the bus, so the bike. Cases need “I cycle” on both sides: one side has it already, and the other cannot happen at all.') }],
     solution: proof({ e: ['orE'], m: ['mp', {}, 'e/left'], b: ['botE', { C: 'B' }, 'e/left'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>b.bot', 'b>e.left', 'e#right>e.right', 'e>goal'], { premises: ['p', 'q'] }),
-    after: T('不可能的那一边，交给矛盾推出一切：它不会发生，所以要它证出什么都行。这叫<b>选言三段论</b>，「排除法」做题靠的就是它。', 'The impossible side goes to “from contradiction, anything”: it never happens, so it may prove whatever is needed. This is the <b>disjunctive syllogism</b>, the logic behind every “process of elimination”.'),
+    after: T('不可能的那一边，交给矛盾推出一切：它不会发生，所以要它证出什么都行。这叫<wiki-ref to="dsyll"></wiki-ref>，「排除法」做题靠的就是它。', 'The impossible side goes to “from contradiction, anything”: it never happens, so it may prove whatever is needed. This is the <wiki-ref to="dsyll"></wiki-ref>, the logic behind every “process of elimination”.'),
   },
   {
     id: 'denyAnte',

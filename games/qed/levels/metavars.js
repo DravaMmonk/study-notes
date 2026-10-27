@@ -34,8 +34,8 @@ export const metavars = [
     hint: [T('一张<part-ref to="part:uDecompose"></part-ref>一次只拆一处。第三组要拆两层。', 'One <part-ref to="part:uDecompose"></part-ref> splits one place at a time. The third test needs two levels split.')],
     intro: [
       { t: T('前面每一个元件，句子都要你在元件上选：假设框选假设，引入 ∨ 选另一边，举例选要得出哪一句。可是要证的目标就写在那里，元件本可以自己从目标里读出来。', 'On every part so far you chose the sentences yourself: the assumption box its assumption, Bring in ∨ its other side, Example what it concludes. Yet the goal is written right there, and a part could read them off it.') },
-      { t: T('办法是把规则写成带空位的样子。拼成 ∧ 写作 ⟦?A; ?B⟧ ⟹ ?A ∧ ?B，读作「有了 ?A 和 ?B，就得到 ?A ∧ ?B」：⟦ ⟧ 里是前提，⟹ 后面是结论。?A、?B 叫<b>元变量</b>，可以是任何一句话。这一章迁移的是 Isabelle 写规则、用规则的思路，Lean 里也有同样的空位，写作 ?m。', 'The way is to write a rule with gaps in it. Join ∧ is ⟦?A; ?B⟧ ⟹ ?A ∧ ?B, read “given ?A and ?B, you get ?A ∧ ?B”: the premises in ⟦ ⟧, the conclusion after ⟹. ?A and ?B are <b>metavariables</b>, standing for any sentence at all. This chapter carries over how Isabelle writes and uses rules; Lean has the same gaps, written ?m.') },
-      { t: T('要用一条规则证一个目标，先让规则的结论对上目标：解等式 ?A ∧ ?B ≐ 下雨 ∧ 刮风，找出 ?A 和 ?B 各是什么。这叫<b>合一</b>。新元件<part-ref to="part:uDecompose"></part-ref>：两边样子相同（都是「并且」），就拆成左边对左边、右边对右边。', 'To prove a goal with a rule, first make the rule’s conclusion fit the goal: solve the equation ?A ∧ ?B ≐ it rains ∧ it is windy, finding what ?A and ?B are. This is <b>unification</b>. A new part, <part-ref to="part:uDecompose"></part-ref>: when both sides have the same shape (both “and”), it splits them, left with left and right with right.') },
+      { t: T('办法是把规则写成带空位的样子。拼成 ∧ 写作 ⟦?A; ?B⟧ ⟹ ?A ∧ ?B，读作「有了 ?A 和 ?B，就得到 ?A ∧ ?B」：⟦ ⟧ 里是前提，⟹ 后面是结论。?A、?B 各是一个<wiki-ref to="metavariable"></wiki-ref>，可以是任何一句话。这一章迁移的是<wiki-ref to="isabelle"></wiki-ref>写规则、用规则的思路，<wiki-ref to="lean"></wiki-ref>里也有同样的空位，写作 ?m。', 'The way is to write a rule with gaps in it. Join ∧ is ⟦?A; ?B⟧ ⟹ ?A ∧ ?B, read “given ?A and ?B, you get ?A ∧ ?B”: the premises in ⟦ ⟧, the conclusion after ⟹. ?A and ?B are each a <wiki-ref to="metavariable"></wiki-ref>, standing for any sentence at all. This chapter carries over how <wiki-ref to="isabelle"></wiki-ref> writes and uses rules; <wiki-ref to="lean"></wiki-ref> has the same gaps, written ?m.') },
+      { t: T('要用一条规则证一个目标，先让规则的结论对上目标：解等式 ?A ∧ ?B ≐ 下雨 ∧ 刮风，找出 ?A 和 ?B 各是什么。这叫<wiki-ref to="unification"></wiki-ref>。新元件<part-ref to="part:uDecompose"></part-ref>：两边样子相同（都是「并且」），就拆成左边对左边、右边对右边。', 'To prove a goal with a rule, first make the rule’s conclusion fit the goal: solve the equation ?A ∧ ?B ≐ it rains ∧ it is windy, finding what ?A and ?B are. This is <wiki-ref to="unification"></wiki-ref>. A new part, <part-ref to="part:uDecompose"></part-ref>: when both sides have the same shape (both “and”), it splits them, left with left and right with right.') },
     ],
     solution: chained(['uDecompose', 'uDecompose']),
     after: T('合一就是解等式。解出的 ?A ≐ 下雨，正是倒着用这条规则时 ?A 要填的句子。', 'Unification is solving equations. The ?A ≐ it rains it finds is exactly the sentence ?A stands for when the rule is used backwards.'),
@@ -123,7 +123,7 @@ export const metavars = [
     hint: [T('每种元件各放一张进重复框，接成一串。', 'Put one part of each kind in the repeat frame, in a row.')],
     intro: [{ t: T('六种元件都有了：拆开、删掉、对不上、代进去、翻过来、发生检查，每一种都是某组等式卡住时补上的。这一回的等式，每一种都可能用上，用几次、什么时候用，都看等式自己。六种一起装进重复框，就是一台完整的合一机器。接出的机器会成为新元件<part-ref to="lemma:unifier"></part-ref>。', 'All six kinds of part are in hand: Decompose, Delete, Clash, Eliminate, Swap, Occurs check, each added when some set of equations got stuck. This time every one may be needed, how often and when depending on the equations themselves. All six in one repeat frame make a whole unifying machine. The machine you wire becomes a new part, <part-ref to="lemma:unifier"></part-ref>.') }],
     solution: looped(['uDecompose', 'uDelete', 'uSwap', 'uEliminate', 'uCheck', 'uConflict']),
-    after: T('这台机器就是<part-ref to="lemma:unifier"></part-ref>：它解出的是<b>最一般的</b>合一子，只定下非定不可的部分，别的 ? 都留着。', 'This machine is the <part-ref to="lemma:unifier"></part-ref>: it finds the <b>most general</b> unifier, settling only what must be settled and leaving every other ?-letter open.'),
+    after: T('这台机器就是<part-ref to="lemma:unifier"></part-ref>：它解出的是<wiki-ref to="mgu"></wiki-ref>，只定下非定不可的部分，别的 ? 都留着。', 'This machine is the <part-ref to="lemma:unifier"></part-ref>: it finds the <wiki-ref to="mgu"></wiki-ref>, settling only what must be settled and leaving every other ?-letter open.'),
   }),
 
   // ---------- rules backwards ----------
@@ -136,8 +136,8 @@ export const metavars = [
     brief: T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.'),
     hint: [T('三个目标是同一个样子。你证出过一条结论正是这个样子的引理。', 'The three goals have the same shape. You proved a lemma whose conclusion has exactly that shape.')],
     intro: [
-      { t: T('有了合一器，就能<b>倒着用规则</b>。新元件<part-ref to="part:rule"></part-ref>：元件上选一条规则，它把第一个目标和规则的结论合一，再把目标换成规则的前提，每条前提一个新目标。没有前提的规则对上了，目标就证完了。', 'With the unifier, rules can be <b>used backwards</b>. A new part, <part-ref to="part:rule"></part-ref>: choose a rule on the part; it unifies the first goal with the rule’s conclusion and replaces the goal with the rule’s premises, a new goal for each. A rule with no premises that fits finishes the goal.') },
-      { t: T('元件上能选的，是证明核的规则，还有你证出的每一条引理：它们都写成 ⟦前提⟧ ⟹ 结论。线上传的东西换了：从这里起，线上是<b>证明状态</b>，还没证完的目标。', 'The part offers the kernel’s rules and every lemma you have proved, each written ⟦premises⟧ ⟹ conclusion. What the wires carry has changed: from here on, a wire carries a <b>proof state</b>, the goals still open.') },
+      { t: T('有了合一器，就能倒着用规则（<wiki-ref to="backward"></wiki-ref>）。新元件<part-ref to="part:rule"></part-ref>：元件上选一条规则，它把第一个目标和规则的结论合一，再把目标换成规则的前提，每条前提一个新目标。没有前提的规则对上了，目标就证完了。', 'With the unifier, rules can be used backwards (<wiki-ref to="backward"></wiki-ref>). A new part, <part-ref to="part:rule"></part-ref>: choose a rule on the part; it unifies the first goal with the rule’s conclusion and replaces the goal with the rule’s premises, a new goal for each. A rule with no premises that fits finishes the goal.') },
+      { t: T('元件上能选的，是证明核的规则，还有你证出的每一条引理：它们都写成 ⟦前提⟧ ⟹ 结论。线上传的东西换了：从这里起，线上是<wiki-ref to="proof-state"></wiki-ref>，还没证完的目标。', 'The part offers the kernel’s rules and every lemma you have proved, each written ⟦premises⟧ ⟹ conclusion. What the wires carry has changed: from here on, a wire carries a <wiki-ref to="proof-state"></wiki-ref>, the goals still open.') },
     ],
     solution: script(['rule', 'axK']),
     after: T('同一条 K，套在三句不同的话上，?A、?B 每次都由目标定下来：元件不用再问你填什么。', 'The same K on three different sentences, ?A and ?B settled by the goal each time: the part no longer asks you what to fill in.'),
@@ -225,7 +225,7 @@ export const metavars = [
       { t: T('这个目标里的 ?，只有已知能定：一条「并且」的已知对上它，?A、?B 就是那两半，下一个目标的已知里多了这两句。接出的机器会成为新元件<part-ref to="lemma:erule"></part-ref>，规则留到元件上去选。', 'Only a given can settle the ?-letters of that goal: an “and” among the givens fits it, ?A and ?B are its two halves, and the next goal gains those two among its givens. The machine you wire becomes a new part, <part-ref to="lemma:erule"></part-ref>, the rule left to choose on the part.') },
     ],
     solution: script(['rule', 'conjE'], 'assumption'),
-    after: T('拆开 ∧ 这样的规则叫<b>消去规则</b>：第一条前提要对上一条已知，结论什么都行。用规则、紧接着拿已知去对第一条前提，这两步总是连着走，所以接成了一个元件。原来那条「并且」还留在已知里。', 'A rule like Split ∧ is an <b>elimination rule</b>: its first premise must fit a given, and its conclusion fits anything. Use the rule, then fit its first premise with a given at once: these two steps always go together, so they became one part. The “and” itself stays among the givens.'),
+    after: T('拆开 ∧ 这样的规则叫<wiki-ref to="elim-rule"></wiki-ref>：第一条前提要对上一条已知，结论什么都行。用规则、紧接着拿已知去对第一条前提，这两步总是连着走，所以接成了一个元件。原来那条「并且」还留在已知里。', 'A rule like Split ∧ is an <wiki-ref to="elim-rule"></wiki-ref>: its first premise must fit a given, and its conclusion fits anything. Use the rule, then fit its first premise with a given at once: these two steps always go together, so they became one part. The “and” itself stays among the givens.'),
   }),
   prove({
     id: 'r-cases',
@@ -271,7 +271,7 @@ export const metavars = [
       { t: T('两个「对所有」拆开时，两边的身体用同一个变量，等式前面记上 ⋀x：x 是量词管着的。?A 不能带走 x，所以 ∀x. ?A ≐ ∀x. x是人 没有解（发生检查也查这个）；?P(x) 可以，它本来就是关于 x 的。新元件<part-ref to="part:uPattern"></part-ref>：?P 后面跟着各不相同的 ⋀ 变量时，解出 ?P。', 'When two “for all” are split, both bodies get the same variable, and the equation is marked ⋀x: x is bound by a quantifier. ?A may not take x out with it, so ∀x. ?A ≐ ∀x. x is human has no solution (the occurs check checks this too); ?P(x) may, being about x in the first place. A new part, <part-ref to="part:uPattern"></part-ref>: when ?P is followed by distinct ⋀ variables, it solves ?P.') },
     ],
     solution: looped(['unifier', 'uPattern']),
-    after: T('元变量只跟着各不相同的约束变量时，解只有一个，这叫<b>高阶模式</b>（Miller 模式）。?P(安) ≐ 安喜欢安 就不是模式：?P 可以是「x喜欢x」「安喜欢x」「x喜欢安」……解不止一个，机器不猜。', 'When a metavariable is followed only by distinct bound variables there is one solution: a <b>higher-order pattern</b> (Miller’s patterns). ?P(Ann) ≐ Ann likes Ann is no pattern: ?P could be “x likes x”, “Ann likes x”, “x likes Ann” …; there is more than one solution, and the machine does not guess.'),
+    after: T('元变量只跟着各不相同的约束变量时，解只有一个，这叫<wiki-ref to="pattern"></wiki-ref>（Miller 模式）。?P(安) ≐ 安喜欢安 就不是模式：?P 可以是「x喜欢x」「安喜欢x」「x喜欢安」……解不止一个，机器不猜。', 'When a metavariable is followed only by distinct bound variables there is one solution: a <wiki-ref to="pattern"></wiki-ref> (Miller’s patterns). ?P(Ann) ≐ Ann likes Ann is no pattern: ?P could be “x likes x”, “Ann likes x”, “x likes Ann” …; there is more than one solution, and the machine does not guess.'),
   }),
   unify({
     id: 'r-patterns',
@@ -321,7 +321,7 @@ export const metavars = [
       { t: T('证明板上不用倒着来：取一个接在「对所有」那条已知后面，得出的一句再接给别的元件。中间得出一句、再拿来用，写成规则是<b>先证一句</b> ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C。倒着用它，多出一个目标 ?A，证出来的 ?A 进了下一个目标的已知。接出的机器会成为新元件<part-ref to="lemma:frule"></part-ref>，规则留到元件上去选。', 'On the proof board there was no need to go backwards: Take one wired after the “for all” given, and what it gave wired on. Getting a sentence on the way and then using it is, as a rule, <b>Have</b>: ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C. Used backwards it adds a goal ?A, and the ?A proved joins the next goal’s givens. The machine you wire becomes a new part, <part-ref to="lemma:frule"></part-ref>, the rule left to choose on the part.') },
     ],
     solution: script(['rule', 'cut'], ['erule', 'spec']),
-    after: T('这就是从已知<b>往前推</b>：规则的第一条前提对上一条已知，结论加进已知，原来那条还在。有的规则只能倒着用（任取），有的只好往前推（取一个）：看合一的时候，是哪一边带着约束变量。', 'This is reasoning <b>forward</b> from a given: the rule’s first premise fits a given, its conclusion joins the givens, and the given stays. Some rules only go backwards (For any), some only forwards (Take one): it depends on which side carries the bound variable when unifying.'),
+    after: T('这就是从已知往前推，<wiki-ref to="forward"></wiki-ref>：规则的第一条前提对上一条已知，结论加进已知，原来那条还在。有的规则只能倒着用（任取），有的只好往前推（取一个）：看合一的时候，是哪一边带着约束变量。', 'This is reasoning forward from a given, <wiki-ref to="forward"></wiki-ref>: the rule’s first premise fits a given, its conclusion joins the givens, and the given stays. Some rules only go backwards (For any), some only forwards (Take one): it depends on which side carries the bound variable when unifying.'),
   }),
   prove({
     id: 'r-frule',

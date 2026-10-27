@@ -36,7 +36,7 @@ export const strategies = [
     brief: BRIEF,
     hint: [T('「若…则…」有几层，假设框就要倒着用几次。', 'The assumption box is needed backwards once for each level of “if … then …”.')],
     intro: [
-      { t: T('上一章的机器是一份脚本：元件一个接一个，专证一种样子的目标。「若…则…」有三层，就要接三个假设框；换成两层，机器就得重接。从这一章起，一台机器要对付各种样子的目标：它是一个<b>策略</b>，一段会产生证明的程序。Isabelle 的 auto、Lean 的 simp 都是这样的程序。', 'Last chapter’s machine was a script: part after part, for goals of one shape. Three levels of “if … then …” take three assumption boxes; with two, the machine must be rewired. From this chapter on a machine must take goals of many shapes: it is a <b>tactic</b>, a program that makes proofs. Isabelle’s auto and Lean’s simp are such programs.') },
+      { t: T('上一章的机器是一份脚本：元件一个接一个，专证一种样子的目标。「若…则…」有三层，就要接三个假设框；换成两层，机器就得重接。从这一章起，一台机器要对付各种样子的目标：它是一个<wiki-ref to="tactic"></wiki-ref>，一段会产生证明的程序。Isabelle 的 auto、Lean 的 simp 都是这样的程序。', 'Last chapter’s machine was a script: part after part, for goals of one shape. Three levels of “if … then …” take three assumption boxes; with two, the machine must be rewired. From this chapter on a machine must take goals of many shapes: it is a <wiki-ref to="tactic"></wiki-ref>, a program that makes proofs. Isabelle’s auto and Lean’s simp are such programs.') },
       { t: T('合一时碰到过一样的事：要拆几层事先不知道，靠的是<part-ref to="part:repeat"></part-ref>。放在证明状态上，它一圈一圈地用框里的元件，直到元件失败，停在失败前的那一圈。', 'Unifying met the same thing: how many levels to split was not known beforehand, and the <part-ref to="part:repeat"></part-ref> took care of it. On a proof state it goes round using the parts inside, until they fail, stopping at the round before.') },
     ],
     solution: flow({ frame: 'repeat', body: [['rule', 'impI']] }, 'assumption'),
@@ -113,7 +113,7 @@ export const strategies = [
       { t: T('从这一关起，元件给出<b>所有</b>对得上的结果，一种一种排成一串：已知里有每对上一条已知，就是一种结果。后面的元件对每一种都做一遍，做不下去的那几种自己消失，留下来的第一种就是答案。元件上会写「第 1 种结果，共 n 种」。', 'From this level on a part gives <b>every</b> result that fits, one after another: each given that Assumption fits is a result. Each later part works on every one of them; those that cannot go on drop out, and the first left is the answer. A part shows “result 1 of n”.') },
     ],
     solution: script(['rule', 'exI'], ['rule', 'conjI'], 'assumption', 'assumption'),
-    after: T('这就是<b>回溯</b>：走错了路，退回最近一个还有别的选择的地方，换下一种。', 'This is <b>backtracking</b>: down a wrong path, go back to the latest place with another choice and take the next one.'),
+    after: T('这就是<wiki-ref to="backtracking"></wiki-ref>：走错了路，退回最近一个还有别的选择的地方，换下一种。', 'This is <wiki-ref to="backtracking"></wiki-ref>: down a wrong path, go back to the latest place with another choice and take the next one.'),
   }),
 
   // ---------- search ----------
@@ -136,7 +136,7 @@ export const strategies = [
     hint: [T('每一步：已知里有，或者引入 ∨ 的左边，或者右边。走几步，交给搜索。', 'Each step: Assumption, or Bring in ∨ left, or right. How many steps is the search’s business.')],
     intro: [
       { t: T('「或者」一层套一层，每一层都要挑一边，要走几步事先不知道。重复框不行：它只顺着第一种结果往下走，走进死胡同就停了。', '“Or” inside “or”: each level needs a side chosen, and how many steps it takes is not known beforehand. The repeat frame will not do: it follows only the first result, and stops in a dead end.') },
-      { t: T('新元件<part-ref to="part:search"></part-ref>：框里的元件做一步，得到的每一种结果再接着做，一条路走到头（证完，或者做不下去）再退回来换下一条，这叫<b>深度优先搜索</b>。它送出找到的每一个证完的状态。', 'A new part, <part-ref to="part:search"></part-ref>: the parts inside take a step, and each result is stepped on again; one path is followed to its end (done, or stuck) before going back for the next. This is <b>depth-first search</b>. It gives every finished state it finds.') },
+      { t: T('新元件<part-ref to="part:search"></part-ref>：框里的元件做一步，得到的每一种结果再接着做，一条路走到头（证完，或者做不下去）再退回来换下一条，这叫<wiki-ref to="dfs"></wiki-ref>。它送出找到的每一个证完的状态。', 'A new part, <part-ref to="part:search"></part-ref>: the parts inside take a step, and each result is stepped on again; one path is followed to its end (done, or stuck) before going back for the next. This is <wiki-ref to="dfs"></wiki-ref>. It gives every finished state it finds.') },
     ],
     solution: searchOf([['rule', 'disjI1'], ['rule', 'disjI2']]),
     after: T('一步做什么，加上<part-ref to="part:search"></part-ref>，就是一个完整的证明搜索。', 'What to do in a step, plus <part-ref to="part:search"></part-ref>, is a whole proof search.'),

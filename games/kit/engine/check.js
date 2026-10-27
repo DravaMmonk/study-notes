@@ -11,7 +11,7 @@
 // `audit` adds the game's own course problems to the shared audit's.
 import { GAMES } from '../../games.js'
 import { RULE_TEXT, audit } from '../course.js'
-import { refProblems, untranslated } from './text.js'
+import { REF, refProblems, untranslated } from './text.js'
 import { closeGames, loadGame } from './games.mjs'
 
 const asked = process.argv.slice(2)
@@ -53,6 +53,22 @@ for (const id of ids) {
   }
   const parts = (game.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, desc: p.desc, revisions: p.revisions }))
   for (const [name, value] of Object.entries({ levels: spec.levels, ...(spec.texts ?? {}), parts })) for (const problem of refProblems(value, name, names, spec.quotes)) fail(`text ${problem}`)
+
+  // An entry is linked only where it is open already: in a level it opens at or after, in an entry opening no earlier.
+  const entries = new Map((game.glossary?.entries ?? []).map((e) => [e.id, e]))
+  const opensBy = (at, where) => !at || at === where || (where && spec.course.before(at, where))
+  const linked = (v, out = [], kind = 'wiki') => {
+    if (typeof v === 'string') out.push(...[...v.matchAll(REF)].filter((m) => m[1] === kind).map((m) => m[2]))
+    else if (Array.isArray(v)) v.forEach((x) => linked(x, out, kind))
+    else if (v && typeof v === 'object') for (const key of ['zh', 'intro', 'after', 'brief', 'hint', 'tasks', 't', 'body']) linked(v[key], out, kind)
+    return out
+  }
+  for (const level of spec.levels) for (const id of linked(level)) if (entries.has(id) && !opensBy(entries.get(id).at, level.id)) fail(`${level.id} links the entry ${id}, which opens later (at ${entries.get(id).at})`)
+  // A part likewise: linked in the level that earns it or one after (that level's own intro may name what it builds).
+  const earnedAt = (part) => game.levels.find((l) => l.unlocks?.includes(part.key) || part.at?.includes(l.id))?.id
+  const partsByKey = new Map((game.parts?.all ?? []).map((p) => [p.key, p]))
+  for (const level of spec.levels) for (const key of linked(level, [], 'part')) if (partsByKey.has(key) && !opensBy(earnedAt(partsByKey.get(key)), level.id)) fail(`${level.id} links the part ${key}, earned later (at ${earnedAt(partsByKey.get(key))})`)
+  for (const entry of entries.values()) for (const id of linked(entry)) if (entries.has(id) && !opensBy(entries.get(id).at, entry.at)) fail(`entry ${entry.id} links the entry ${id}, which opens later (at ${entries.get(id).at})`)
 
   for (const line of await validate(spec)) {
     if (line.fail) fail(line.text)

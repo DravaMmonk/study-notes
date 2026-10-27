@@ -15,7 +15,7 @@ export const era0 = [
     ],
     intro: [
       { t: T('天气预报说：<b>若下雨，则地湿。</b>这句话可能说对，也可能说错。', 'The forecast says: <b>if it rains, then the ground is wet.</b> That might turn out true, or false.') },
-      { t: T('它到底对不对，要看两件事：下没下雨，地湿没湿。两件事各有「是」和「不是」两种，合起来一共四种天气。把四种天气排成四行，就是一张<b>真值表</b>。', 'Whether it is true depends on two things: did it rain, and is the ground wet. Each can go two ways, so there are four kinds of weather in all. Four rows, one per kind: that is a <b>truth table</b>.') },
+      { t: T('它到底对不对，要看两件事：下没下雨，地湿没湿。两件事各有「是」和「不是」两种，合起来一共四种天气。把四种天气排成四行，就是一张<wiki-ref to="truth"></wiki-ref>。', 'Whether it is true depends on two things: did it rain, and is the ground wet. Each can go two ways, so there are four kinds of weather in all. Four rows, one per kind: that is a <wiki-ref to="truth"></wiki-ref>.') },
       { t: T('这一关，替每一行判断这句话说对了还是说错了。「真」就是说对了，「假」就是说错了。', 'In this level, decide for each row whether the sentence spoke true or false.') },
     ],
     after: T('只有「下了雨，地却没湿」那一行，预报说错了。没下雨的时候，它什么也没承诺，算不上说错，所以是真。从现在起，「若 X，则 Y」简写成 <b>X → Y</b>。', 'Only on the row “it rained and the ground is not wet” was the forecast wrong. When it did not rain it promised nothing, so it was not wrong: true. From now on, “if X, then Y” is written <b>X → Y</b>.'),
@@ -35,7 +35,7 @@ export const era0 = [
     ],
     intro: [
       { t: T('<level-ref to="table"></level-ref>的「下雨 → 地湿」有一行是假的：它对不对，得看天气。（从这一关起，「若 X，则 Y」写成 <b>X → Y</b>。）', '<level-ref to="table"></level-ref>’s “it rains → the ground is wet” had a false row: whether it holds depends on the weather. (From this level on, “if X, then Y” is written <b>X → Y</b>.)') },
-      { t: T('有些话却和天气无关。比如「下雨 → 下雨」：下了雨，当然就是下了雨。不管哪一行，它都真。这样的话叫<b>永真式</b>。', 'Some sentences do not depend on the weather at all. “It rains → it rains”: if it rains, then of course it rains. It is true on every row. Such a sentence is a <b>tautology</b>.') },
+      { t: T('有些话却和天气无关。比如「下雨 → 下雨」：下了雨，当然就是下了雨。不管哪一行，它都真。这样的话叫<wiki-ref to="tautology"></wiki-ref>。', 'Some sentences do not depend on the weather at all. “It rains → it rains”: if it rains, then of course it rains. It is true on every row. Such a sentence is a <wiki-ref to="tautology"></wiki-ref>.') },
       { t: T('下面五句里有的永远成立，有的要看天气。「下雨并且刮风」的意思是两件事都发生了。', 'Of the five below, some always hold and some depend on the weather. “It rains and it is windy” means both happen.') },
     ],
     after: T('「下雨 → 下雨」「下雨并且刮风 → 下雨」「下雨 → (刮风 → 下雨)」每一行都真：它们对，不是因为天气，而是因为句子的<b>形状</b>。把「下雨」「刮风」换成别的话，照样成立。留意第四句的形状，它很快会变成一条公理。', '“It rains → it rains”, “it rains and it is windy → it rains” and “it rains → (it is windy → it rains)” are true on every row: not because of the weather but because of their <b>shape</b>. Swap in any other sentences and they still hold. Remember the fourth one’s shape: it will soon become an axiom.'),
@@ -53,7 +53,7 @@ export const era0 = [
     ],
     intro: [
       { t: T('有人这样推理：「下雨地就湿。现在地湿了，所以刚才下过雨。」听着挺顺，可它永远成立吗？', 'Someone reasons: “Rain makes the ground wet. The ground is wet, so it rained.” It sounds right. But does it always hold?') },
-      { t: T('要说明一句话<b>不是</b>永远成立，不必把整张表填完：找到一行让它为假，就够了。这一行叫<b>反例</b>。', 'To show a sentence does <b>not</b> always hold, you need not fill the whole table: one row that makes it false is enough. That row is a <b>counterexample</b>.') },
+      { t: T('要说明一句话<b>不是</b>永远成立，不必把整张表填完：找到一行让它为假，就够了。这一行叫<wiki-ref to="counterexample"></wiki-ref>。', 'To show a sentence does <b>not</b> always hold, you need not fill the whole table: one row that makes it false is enough. That row is a <wiki-ref to="counterexample"></wiki-ref>.') },
       { t: T('点「试一试」，看这句话在那一行是真是假。找出让它为假的那一行。', 'Press “Try” to see whether the sentence is true or false on that row. Find the row that makes it false.') },
     ],
     after: T('没下雨，地却湿了（洒水车刚开过去）：「下雨 → 地湿」还是对的，「地湿 → 下雨」却错了，整句为假。一行反例就推翻了它。可要确信一句话<b>永远</b>成立，就得把每一行都验过：事情一多，表有 2ⁿ 行；说到「所有的数」，表根本列不完。', 'No rain, yet the ground is wet (a street sweeper just went by): “it rains → the ground is wet” still holds, but “the ground is wet → it rains” fails, so the whole is false. One row brought it down. But to be sure a sentence <b>always</b> holds, every row must be checked: with more sentences a table has 2ⁿ rows, and for “every number” no table could ever be finished.'),

@@ -64,7 +64,7 @@ export const equality = [
     ],
     showcase: T('证明板上点的框，就是证明项里没写出来的那部分：要证的那句里，哪几处是从等式一边换过来的，叫动机；核从要证的那句和后一个框的类型里把它读出来', 'the boxes ticked on the proof board are the part a term does not write out: which places of the sentence to prove came from one side of the equation, the motive; the kernel reads it off the sentence to prove and the type of the second box'),
     intro: [
-      { t: T('用一个等式只有一种办法，在 Lean 里叫 <b>Eq.rec</b>，写作 <b>h ▸ p</b>：h 证 a = b，p 证一句关于 a 的话，h ▸ p 就证把其中几处 a 换成 b 的那句。换哪几处，叫<b>动机</b>。', 'There is only one way to use an equation, called <b>Eq.rec</b> in Lean and written <b>h ▸ p</b>: h proves a = b, p proves a sentence about a, and h ▸ p proves that sentence with some of its a’s replaced by b. Which places are replaced is the <b>motive</b>.') },
+      { t: T('用一个等式只有一种办法，在 Lean 里叫 <b>Eq.rec</b>，写作 <b>h ▸ p</b>：h 证 a = b，p 证一句关于 a 的话，h ▸ p 就证把其中几处 a 换成 b 的那句。换哪几处，叫<wiki-ref to="motive"></wiki-ref>。', 'There is only one way to use an equation, called <b>Eq.rec</b> in Lean and written <b>h ▸ p</b>: h proves a = b, p proves a sentence about a, and h ▸ p proves that sentence with some of its a’s replaced by b. Which places are replaced is the <wiki-ref to="motive"></wiki-ref>.') },
       { t: T('它就是证明板上的<part-ref to="part:rewrite"></part-ref>：先接一个，看它写出的证明项；再到证明项板上自己写。', 'It is just <part-ref to="part:rewrite"></part-ref> on the proof board: wire one first and see the term it writes, then write it yourself on the term board.') },
     ],
     after: T('等量代换的证明项是 h ▸ p，卡片上点的框没有写进去：核看着要证的那句，把等式的一边换成另一边，看换出来的是不是 p 证的那句。两边都试，所以 h 的方向不用管。', 'The term of rewriting is h ▸ p, without the ticked boxes: the kernel looks at the sentence to prove, replaces one side of the equation by the other, and sees whether that is what p proves. It tries both sides, so the direction of h does not matter.'),
@@ -141,7 +141,7 @@ export const equality = [
       { premises: { p: 'Even(plus(s(s(zero)), m))' }, goal: 'Even(s(s(m)))', defs: NAT, answer: 'p', hint: [T('p 的类型算出来是什么？', 'What does the type of p work out to?')] },
     ]),
     intro: [{ t: T('这一关有加法的定义：0 + y = y，S x + y = S (x + y)。核比较两个类型前，先按定义把它们算到底，算出来一样就算一样。', 'This level has the definition of addition: 0 + y = y and S x + y = S (x + y). Before comparing two types, the kernel works them out by the definitions, and if they come out alike they count as alike.') }],
-    after: T('1 + 1 = 2 用不着证明，rfl 就够了：核会算。按定义算得出来的相等叫<b>定义相等</b>；一个证明的类型也可以按它来换，最后一题的 p 直接就是要的那句。', '1 + 1 = 2 needs no proof; rfl is enough, because the kernel computes. An equality that comes out by working the definitions is a <b>definitional equality</b>; a proof’s type can be read through it too, so in the last problem p is just the sentence wanted.'),
+    after: T('1 + 1 = 2 用不着证明，rfl 就够了：核会算。按定义算得出来的相等叫<wiki-ref to="defeq"></wiki-ref>；一个证明的类型也可以按它来换，最后一题的 p 直接就是要的那句。', '1 + 1 = 2 needs no proof; rfl is enough, because the kernel computes. An equality that comes out by working the definitions is a <wiki-ref to="defeq"></wiki-ref>; a proof’s type can be read through it too, so in the last problem p is just the sentence wanted.'),
   },
   {
     id: 'eq-propeq',
@@ -153,7 +153,7 @@ export const equality = [
       { premises: { p: 'Even(plus(zero, plus(m, zero)))', addZero: ADD_ZERO }, goal: 'Even(m)', defs: NAT, answer: 'addZero m ▸ p', hint: [T('外层的 0 + 算得掉，里层的 + 0 算不掉。', 'The outer 0 + works out, the inner + 0 does not.')] },
     ]),
     intro: [{ t: T('定义只说 0 和 S x 加上 y 是什么，x 是一个不知道的数时，x + 0 就算不下去了。<level-ref to="in-zero"></level-ref>用归纳证出了 x + 0 = x，这一关它是已知 addZero，用法和别的「对所有」一样：addZero m 证 m + 0 = m。', 'The definition only says what 0 and S x plus y are; when x is a number nobody knows, x + 0 does not work out. <level-ref to="in-zero"></level-ref> proved x + 0 = x by induction, and here it is the given addZero, used like any other “for all”: addZero m proves m + 0 = m.') }],
-    after: T('m + 0 = m 是对的，可核算不出来，要一个证明：这叫<b>命题相等</b>。用它换掉类型里的一处，要写 ▸；定义相等不用写，核自己会算。', 'm + 0 = m is true, but the kernel cannot work it out, so it takes a proof: a <b>propositional equality</b>. Using it to replace part of a type takes ▸; a definitional one needs nothing written, since the kernel computes it.'),
+    after: T('m + 0 = m 是对的，可核算不出来，要一个证明：这叫<wiki-ref to="propeq"></wiki-ref>。用它换掉类型里的一处，要写 ▸；定义相等不用写，核自己会算。', 'm + 0 = m is true, but the kernel cannot work it out, so it takes a proof: a <wiki-ref to="propeq"></wiki-ref>. Using it to replace part of a type takes ▸; a definitional one needs nothing written, since the kernel computes it.'),
   },
 
   // ---------- dependent types ----------
@@ -170,7 +170,7 @@ export const equality = [
       { t: T('类型还能依赖一个值。<b>Vec n</b> 是长 n 的向量的类型：长度写在类型里。这里只记长度，一个 Vec n 的证明项就是一个长 n 的向量。', 'A type can depend on a value. <b>Vec n</b> is the type of vectors n long: the length is in the type. Only the length is kept here, so a proof term of Vec n is a vector n long.') },
       { t: T('已知 vnil 是空向量，vcons 在一个长 x 的向量前面接一个，得到长 S x 的。vcons 是「对所有 x」，可 x 不用写：核看它拿到的向量是多长，就知道 x 是几。', 'The given vnil is the empty vector, and vcons puts one in front of a vector x long to give one S x long. vcons is “for all x”, yet x is not written: the kernel sees how long the vector it gets is, and so knows x.') },
     ],
-    after: T('vcons 的类型 ∀x. Vec x → Vec (S x) 说的是：结果的长度依赖参数的长度。这样的类型叫<b>依赖类型</b>；x 由别处读出、不用写的参数叫<b>隐式参数</b>。', 'The type of vcons, ∀x. Vec x → Vec (S x), says the length of the result depends on the length of the argument. Such a type is a <b>dependent type</b>; an argument such as x, read off elsewhere and not written, is an <b>implicit argument</b>.'),
+    after: T('vcons 的类型 ∀x. Vec x → Vec (S x) 说的是：结果的长度依赖参数的长度。这样的类型叫<wiki-ref to="dependent"></wiki-ref>；x 由别处读出、不用写的参数叫<wiki-ref to="implicit"></wiki-ref>。', 'The type of vcons, ∀x. Vec x → Vec (S x), says the length of the result depends on the length of the argument. Such a type is a <wiki-ref to="dependent"></wiki-ref>; an argument such as x, read off elsewhere and not written, is an <wiki-ref to="implicit"></wiki-ref>.'),
   },
   {
     id: 'dt-head',
@@ -208,7 +208,7 @@ export const equality = [
       { premises: { v: 'Vec(m)', vnil: VNIL, append: APPEND, addZero: ADD_ZERO }, goal: 'Vec(m)', defs: NAT, answer: 'addZero m ▸ append v vnil', naive: 'append v vnil', hint: [T('append v vnil 的类型是什么？', 'What is the type of append v vnil?')] },
     ]),
     intro: [{ t: T('一个长 m + 0 的向量，当然就是长 m 的。可核算不出 m + 0 是 m：要拿等式把类型换过去。', 'A vector m + 0 long is of course m long. But the kernel cannot work m + 0 out to m: an equation has to carry the type across.') }],
-    after: T('▸ 不只能换一句话里的东西，也能换一个类型：同一个向量，换上一个相等的长度。这叫<b>搬运</b>。', '▸ can replace things not only in a sentence but in a type: the same vector, under an equal length. This is called <b>transport</b>.'),
+    after: T('▸ 不只能换一句话里的东西，也能换一个类型：同一个向量，换上一个相等的长度。这叫<wiki-ref to="transport"></wiki-ref>。', '▸ can replace things not only in a sentence but in a type: the same vector, under an equal length. This is called <wiki-ref to="transport"></wiki-ref>.'),
   },
 
   // ---------- challenge ----------

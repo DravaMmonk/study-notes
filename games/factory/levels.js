@@ -28,7 +28,7 @@ export const levels = [
     title: T('它只知道你给它的', 'It knows what you give it'),
     brief: T('让模型修好这个 issue，再跑一次测试确认。', 'Get the model to fix this issue, then run the tests to make sure.'),
     intro: [
-      { t: T('这里的<part-ref to="part:model"></part-ref>就是编码 agent 里的那个大模型：读一段文字，给出一个动作。它读到的那段文字叫<b>上下文</b>。', 'The <part-ref to="part:model"></part-ref> here is the large model inside a coding agent: it reads some text and gives one action. The text it reads is its <b>context</b>.') },
+      { t: T('<wiki-ref to="model"></wiki-ref>就是编码 agent 里的那个大模型：读一段文字，给出一个动作。它读到的那段文字叫<b>上下文</b>。', '<wiki-ref to="model"></wiki-ref> is the large model inside a coding agent: it reads some text and gives one action. The text it reads is its <b>context</b>.') },
       { t: T('现在还没有任何机器替你跑它。你自己决定上下文里放什么，按下「调用」，看它做了什么，再自己跑测试。', 'No machine runs it for you yet. You decide what goes into the context, press Call, see what it did, and run the tests yourself.') },
     ],
     hint: [

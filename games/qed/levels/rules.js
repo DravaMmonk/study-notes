@@ -82,7 +82,7 @@ export const rules = [
     answer: { size: 2, preds: { Likes: ['0,1', '1,0'] } },
     brief: T('造一个世界：每样东西都喜欢某样东西，却没有一样东西喜欢自己。', 'Build a world where everything likes something and nothing likes itself.'),
     hint: [T('两样东西，互相喜欢，都不喜欢自己。', 'Two things that like each other and not themselves.')],
-    intro: [{ t: T('<part-ref to="part:allE"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走了，意思全变：「每样东西都喜欢某样东西」，把 x 换成 y 代进去，好像得到「有一样东西喜欢自己」。', '<part-ref to="part:allE"></part-ref> puts a thing in for x. If what goes in is the variable y and x sits inside an “∃y”, that y is captured by the quantifier, and the meaning changes completely: in “everything likes something”, putting y in for x seems to give “something likes itself”.') }],
+    intro: [{ t: T('<part-ref to="part:allE"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走了（<wiki-ref to="capture"></wiki-ref>），意思全变：「每样东西都喜欢某样东西」，把 x 换成 y 代进去，好像得到「有一样东西喜欢自己」。', '<part-ref to="part:allE"></part-ref> puts a thing in for x. If what goes in is the variable y and x sits inside an “∃y”, that y is captured by the quantifier (<wiki-ref to="capture"></wiki-ref>), and the meaning changes completely: in “everything likes something”, putting y in for x seems to give “something likes itself”.') }],
     after: T('所以代入前要先改名：∀x∃y 里的 y 先改成 z，再把 x 换成 y，得到「∃z. y 喜欢 z」，没毛病。证明器的<part-ref to="part:allE"></part-ref>会自动改名，不会撞上。', 'So rename first: turn the y in ∀x∃y into z, then put y in for x, giving “∃z. y likes z”, which is fine. The prover’s <part-ref to="part:allE"></part-ref> renames by itself and never clashes.'),
   },
   {
@@ -138,7 +138,7 @@ export const rules = [
     brief: T('实现一个证明器，可以从已知「晨星 = 昏星」「晨星很亮」和「∀x. x很亮 → x看得见」，证明出「昏星看得见」。', 'Build a prover that, from “the Morning Star = the Evening Star”, “the Morning Star is bright” and “∀x. x is bright → x can be seen”, proves “the Evening Star can be seen”.'),
     hint: [T('接好两根线，元件上会把每个「晨星」框出来：点一下框，那一处就换成「昏星」。', 'Once both wires are in, the part boxes each “the Morning Star”: tick a box and that one becomes “the Evening Star”.')],
     intro: [
-      { t: T('古人以为清晨和黄昏天边的亮星是两颗，后来才知道都是金星。两个名字指同一样东西，写作 <b>=</b>。', 'The ancients took the bright star of dawn and the one of dusk for two; later they learned both are Venus. Two names for one thing are written <b>=</b>.') },
+      { t: T('古人以为清晨和黄昏天边的亮星是两颗，后来才知道都是金星。两个名字指同一样东西，写作 <b>=</b>：<wiki-ref to="equality"></wiki-ref>。', 'The ancients took the bright star of dawn and the one of dusk for two; later they learned both are Venus. Two names for one thing are written <b>=</b>: <wiki-ref to="equality"></wiki-ref>.') },
       { t: T('两个新元件：<part-ref to="part:rewrite"></part-ref>，接进 s = t 和一句提到 s 的话，元件上把每个 s 框出来，点选的那几处换成 t；<part-ref to="part:refl"></part-ref>，直接给出 t = t。', 'Two new parts: <part-ref to="part:rewrite"></part-ref>, which takes s = t and a sentence about s, boxes each s on the part, and replaces the ticked ones by t; and <part-ref to="part:refl"></part-ref>, which gives t = t at once.') },
     ],
     solution: proof({ r: ['rewrite', { at: [0] }], e: ['allE', { t: 'hesp' }], m: ['mp'] }, ['p>r.eq', 'q>r.p', 't>e.all', 'e>m.imp', 'r>m.a', 'm>goal'], { premises: ['p', 'q', 't'] }),
