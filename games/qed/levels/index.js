@@ -14,6 +14,7 @@ import { classical } from './classical.js'
 import { simplifier } from './simplifier.js'
 import { terms } from './terms.js'
 import { inductive } from './inductive.js'
+import { automation } from './automation.js'
 import { equality } from './equality.js'
 import { WORDS } from './words.js'
 
@@ -78,6 +79,20 @@ export const LEMMAS = {
     ],
     ports: ['A ∨ (B ∧ C)'],
   },
+  // Chapter 13: ↔ to clauses (a rewrite rule both ways), resolution (its card takes the opposite pair wherever it stands
+  // in the two clauses), and the liar of the knights topic, which the topic on what no machine can do grows.
+  iff: {
+    name: T('去掉等价', 'Equivalence away'),
+    desc: T('元件上切换形状：接进 A ↔ B 给出 (¬A ∨ B) ∧ (¬B ∨ A)；反过来也行。两个方向也都是改写规则。', 'Switch the shape on the card: wire in A ↔ B for (¬A ∨ B) ∧ (¬B ∨ A), or the other way round. Both ways are rewrite rules too.'),
+    metas: ['A', 'B'],
+    forms: [
+      { key: 'elim', label: 'A ↔ B ⟹ (¬A ∨ B) ∧ (¬B ∨ A)', statement: '(¬A ∨ B) ∧ (¬B ∨ A)', premises: ['A ↔ B'] },
+      { key: 'intro', label: '(¬A ∨ B) ∧ (¬B ∨ A) ⟹ A ↔ B', statement: 'A ↔ B', premises: ['(¬A ∨ B) ∧ (¬B ∨ A)'] },
+    ],
+    ports: ['A ↔ B'],
+  },
+  res: { name: T('归结', 'Resolve'), card: 'res', desc: T('接进两条子句：一条里有 A，另一条里有 ¬A，在哪个位置都行；消掉这一对，剩下的用「或」连起来，什么都不剩就是矛盾 ⊥。一次只消一对。', 'Wire in two clauses, one holding A and the other ¬A, wherever they stand: cancel that pair and join what is left with or; nothing left is the contradiction ⊥. One pair at a time.'), statement: 'B ∨ C', premises: ['A ∨ B', '¬A ∨ C'], metas: ['A', 'B', 'C'], ports: ['A ∨ B', '¬A ∨ C'] },
+  liar: { name: T('说谎者', 'The liar'), desc: T('接进 A ↔ ¬A，给出矛盾 ⊥：没有一句话能和自己的否定同真同假。', 'Wire in A ↔ ¬A; it gives the contradiction ⊥: no sentence is true exactly when its negation is.'), statement: '⊥', premises: ['A ↔ ¬A'], metas: ['A'], ports: ['A ↔ ¬A'] },
   lem: { name: T('排中律', 'Excluded middle'), desc: T('元件上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the part; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
 }
 
@@ -108,6 +123,7 @@ const REVISIONS = {
   dneg: [{ by: 'sp-dneg', forms: ['intro'] }],
   arrow: [{ by: 'sp-arrow', forms: ['intro'] }],
   dist: [{ by: 'sp-dist', forms: ['andOrR', 'orAndL', 'andOrL'] }],
+  iff: [{ by: 'au-iff', forms: ['intro'] }],
   // ↔ comes into proofs on the main path with 两个方向: Split ∧ takes it apart.
   andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
 
@@ -119,12 +135,15 @@ const REVISIONS = {
   append: [{ at: 's-results', desc: T('每个框都拿到同一个状态；先是第一个框的每一种结果，再是下一个框的每一种结果，失败的框不算。元件上选有几个框。', 'Every region gets the same state; every result of the first region, then every result of the next, regions that failed left out. Choose on the part how many regions it has.') }],
   repeat: [{ at: 's-results', desc: T('框开出它收到的东西，框里接出新的东西送回「结果」；框把结果再送进去，一圈一圈地做，直到不再变化或者失败（停在失败前的一圈），送出最后一圈的结果。有几种结果时，它只顺着第一种往下做。', 'The frame opens with what it receives; what is made inside goes back into “result”; the frame feeds it in again, round after round, until it stops changing or fails (stopping at the round before), and gives the last round. With several results, it follows only the first.') }],
   assumption: [{ at: 's-results', desc: T('第一个目标和它的一条已知合一：对上了，这个目标就证完了。每一条对上的已知都是一种结果，按从上往下的顺序。', 'The first goal is unified with one of its hypotheses: when one fits, that goal is done. Each hypothesis that fits is a result, in order from the top.') }],
+  // Rewriting the hypotheses comes with the clause chapter.
+  rw: [{ at: 'au-hyps', desc: T('元件上选一条改写规则：在第一个目标里，从外往里、从左往右找第一处对得上规则左边的地方，换成右边，只换这一处。规则带条件的，条件成了新目标，排在它后面。哪一处都对不上，就失败。「改哪里」选已知，改的就是第一个目标从上往下第一条对得上的已知。', 'Choose a rewrite rule on the part: in the first goal, outside in and left to right, the first place that fits the rule’s left side becomes its right side, that place alone. A rule with conditions leaves each as a new goal after it. If no place fits, it fails. With “where” set to the hypotheses, it rewrites the first goal’s first hypothesis from the top that the rule fits.') }],
+  simp: [{ at: 'au-hyps', desc: T('元件上排好一串改写规则：每一圈用第一条对得上的规则改写一处，一圈一圈改下去，直到哪一条都对不上。「改哪里」选已知，改的就是第一个目标的已知。', 'Line up rewrite rules on the part: each round, the first rule that fits rewrites one place, round after round, until none fits. With “where” set to the hypotheses, it rewrites the first goal’s hypotheses.') }],
   erule: [{ at: 's-results', desc: T('元件上选一条规则：先用规则，再拿已知里有对上它留下的第一个目标。规则的结论对上第一个目标，第一条前提对上一条已知；剩下的前提各成一个目标。每一条对上的已知都是一种结果。', 'Choose a rule on the part: Rule, then Assumption on the first goal it leaves. The rule’s conclusion fits the first goal and its first premise a hypothesis; each other premise is a goal. Each hypothesis that fits is a result.') }],
 }
 
 const COURSE = {
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...terms, ...inductive, ...equality],
+  levels: [...era0, ...circuits, ...era1, ...era2, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...terms, ...inductive, ...equality, ...automation],
   words: WORDS,
   lemmas: LEMMAS,
   facts: FACTS,
@@ -132,11 +151,13 @@ const COURSE = {
   revisions: REVISIONS,
   // The machine-board parts the player builds: the unifier, the tactics made of Rule and Assumption, auto, simp made
   // of rewrites, and Normalize (simp with the kernel's computation rules, a part of the proof board too).
-  machines: ['unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'normalize'],
+  machines: ['unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'normalize', 'clausify', 'saturate', 'metis'],
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl',
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
-    'append', 'each', 'defer', 'search', 'rw'],
+    'append', 'each', 'defer', 'search', 'rw', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
   concept: { andI: 'and', andE: 'and', rewrite: 'eq', refl: 'eq' },
+  // Someone else's prover is handed over for one level, to be caught out; the reconstructor takes its place after.
+  replaces: { metis: ['oracle'] },
 }
 export const LOGIC = logicCourse(COURSE)

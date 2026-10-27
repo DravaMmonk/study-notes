@@ -1,13 +1,13 @@
-// Reference machines written short (kit/domains/logic/build.js machine): a card is its type, or [type, setting] for a
-// card with one setting (the rule of a rule card, the rewrite rule of a rewrite card, the list of rewrite rules of
-// simp, given as an array); a frame is { frame, params?, body: [item] }, alternatives { ways: [[item]] } (an empty way
+// Reference machines written short (kit/domains/logic/build.js machine): a card is its type, or [type, setting, more]
+// (the rule of a rule card, the rewrite rule of a rewrite card, the list of rewrite rules of simp, given as an array;
+// `more` its other settings, { at: 'hyps' }); a frame is { frame, params?, body: [item] }, alternatives { ways: [[item]] } (an empty way
 // passes the state on).
 import { machine } from '../../kit/domains/logic/build.js'
 
 const SETTING = { rw: 'rewrite', simp: 'rewrites' }
 const card = (item) => {
-  const [type, value] = [item].flat()
-  return [type, value === undefined ? {} : { [SETTING[type] ?? 'rule']: [value].flat().join(',') }]
+  const [type, value, more = {}] = [item].flat()
+  return [type, { ...(value == null ? {} : { [SETTING[type] ?? 'rule']: [value].flat().join(',') }), ...more }]
 }
 const REGIONS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']
 

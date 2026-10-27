@@ -55,7 +55,7 @@ function matchTerm(p, x, σ, env) {
   }
   return x.t === 'fn' && p.f === x.f && p.args.length === x.args.length && p.args.every((a, k) => matchTerm(a, x.args[k], σ, env))
 }
-function matchForm(p, x, σ, env, inside) {
+function matchForm(p, x, σ, env, inside, names = {}) {
   if (p.op === 'meta') {
     if (!p.args?.length) return bind(σ, p.name, x)
     const params = p.args.map((a) => (a.t === 'var' ? env.get(a.name) : null))
@@ -67,13 +67,32 @@ function matchForm(p, x, σ, env, inside) {
   switch (p.op) {
     case 'atom': return p.pred === x.pred && p.args.length === x.args.length && p.args.every((a, k) => matchTerm(a, x.args[k], σ, env))
     case '⊥': return true
-    case '¬': return matchForm(p.a, x.a, σ, env, inside)
-    case '∀': case '∃': return matchForm(p.body, x.body, σ, new Map([...env, [p.v, x.v]]), new Set([...inside, x.v]))
-    default: return matchForm(p.a, x.a, σ, env, inside) && matchForm(p.b, x.b, σ, env, inside)
+    case '¬': return matchForm(p.a, x.a, σ, env, inside, names)
+    case '∀': case '∃':
+      names[p.v] = x.v
+      return matchForm(p.body, x.body, σ, new Map([...env, [p.v, x.v]]), new Set([...inside, x.v]), names)
+    default: return matchForm(p.a, x.a, σ, env, inside, names) && matchForm(p.b, x.b, σ, env, inside, names)
   }
 }
 
 /* ---------- one rewrite ---------- */
+
+// A rule's side with its bound variables named as the place it fitted named them (`names`), so what is put in for its
+// ?-letters is never caught by them: ¬∃y. P(y, x) ⟼ ∀y. ¬P(y, x), not ∀x. ¬P(x, x).
+function renamed(f, names) {
+  const term = (t, map) => (t.t === 'var' ? (map[t.name] ? tvar(map[t.name]) : t) : fn(t.f, t.args.map((a) => term(a, map))))
+  const go = (g, map) => {
+    switch (g.op) {
+      case 'atom': return atom(g.pred, g.args.map((a) => term(a, map)))
+      case 'meta': return g.args ? { ...g, args: g.args.map((a) => term(a, map)) } : g
+      case '¬': return { op: '¬', a: go(g.a, map) }
+      case '∀': case '∃': { const v = names[g.v] ?? g.v; return { op: g.op, v, body: go(g.body, { ...map, [g.v]: v }) } }
+      case '⊥': return g
+      default: return bin(g.op, go(g.a, map), go(g.b, map))
+    }
+  }
+  return go(f, {})
+}
 
 // The formula f with the first place a rule fits replaced (pre-order: the place itself, then its parts left to
 // right), and the σ it fitted with; null when it fits nowhere.
@@ -81,11 +100,12 @@ function rewriteOnce(f, rule) {
   const term = isTerm(rule.lhs)
   const tryAt = (x) => {
     const σ = {}
-    return (term ? matchTerm(rule.lhs, x, σ, new Map()) : matchForm(rule.lhs, x, σ, new Map(), new Set())) ? σ : null
+    const names = {}
+    return (term ? matchTerm(rule.lhs, x, σ, new Map()) : matchForm(rule.lhs, x, σ, new Map(), new Set(), names)) ? { σ, rhs: term ? rule.rhs : renamed(rule.rhs, names) } : null
   }
   const inTerm = (t) => {
-    const σ = tryAt(t)
-    if (σ) return { to: instantiate(rule.rhs, σ), σ }
+    const m = tryAt(t)
+    if (m) return { to: instantiate(m.rhs, m.σ), σ: m.σ }
     if (t.t !== 'fn') return null
     for (let k = 0; k < t.args.length; k++) {
       const r = inTerm(t.args[k])
@@ -95,8 +115,8 @@ function rewriteOnce(f, rule) {
   }
   const inForm = (x) => {
     if (!term) {
-      const σ = tryAt(x)
-      if (σ) return { to: instantiate(rule.rhs, σ), σ }
+      const m = tryAt(x)
+      if (m) return { to: instantiate(m.rhs, m.σ), σ: m.σ }
     }
     switch (x.op) {
       case 'atom': {
@@ -140,17 +160,25 @@ function hypRule(h) {
 /**
  * rw: the first goal with the rule used once, at the first place it fits; the rule's conditions, filled in, become
  * goals after it (with the same fixed things and hypotheses). The rule 'hyp' is the first hypothesis of the goal that
- * is an equation or an equivalence and fits somewhere.
+ * is an equation or an equivalence and fits somewhere. `at: 'hyps'` (Lean's simp at) rewrites the first goal's first
+ * hypothesis the rule fits instead of the goal itself; a hypothesis is never a rule for another there.
  */
-export function rewrite(s, rule) {
+export function rewrite(s, rule, at = 'goal') {
   const g = s.goals[0]
   if (!g) return { fail: NO_GOALS }
+  const after = (goal, r, done) => ({ results: [{ ...s, more: undefined, error: undefined, goals: [goal, ...r.conditions.map((c) => ({ ...g, goal: instantiate(c, done.σ) })), ...s.goals.slice(1)] }] })
+  if (at === 'hyps') {
+    if (rule.group === 'hyp') return { fail: T('已知里的等式只用来改目标', 'An equation given rewrites only the goal') }
+    for (const [k, h] of g.hyps.entries()) {
+      const done = rewriteOnce(h, rule)
+      if (done) return after({ ...g, hyps: g.hyps.map((x, i) => (i === k ? done.to : x)) }, rule, done)
+    }
+    return { fail: T(`「${rule.name.zh}」的左边在第一个目标的已知里哪一处都对不上`, `The left side of “${rule.name.en}” fits nowhere in the first goal’s hypotheses`) }
+  }
   const rules = rule.group === 'hyp' ? g.hyps.map(hypRule).filter(Boolean).map((r) => ({ ...rule, ...r, conditions: [] })) : [rule]
   for (const r of rules) {
     const done = rewriteOnce(g.goal, r)
-    if (!done) continue
-    const conditions = r.conditions.map((c) => ({ ...g, goal: instantiate(c, done.σ) }))
-    return { results: [{ ...s, more: undefined, error: undefined, goals: [{ ...g, goal: done.to }, ...conditions, ...s.goals.slice(1)] }] }
+    if (done) return after({ ...g, goal: done.to }, r, done)
   }
   if (rule.group === 'hyp') return { fail: T('目标的已知里，没有一条等式或等价对得上第一个目标的哪一处', 'No equation or equivalence among the hypotheses fits anywhere in the first goal') }
   return { fail: T(`「${rule.name.zh}」的左边在第一个目标里哪一处都对不上`, `The left side of “${rule.name.en}” fits nowhere in the first goal`) }
@@ -183,10 +211,10 @@ export function defNormal(defs = []) {
  * simp, as the player builds it: round after round, the first rule (in order) that fits rewrites the first goal once;
  * until no rule fits. (A repeat frame around alternatives holding one rewrite each.)
  */
-export function simplify(s, rules, limit = 60) {
+export function simplify(s, rules, at = 'goal', limit = 60) {
   let cur = s
   for (let k = 0; k < limit; k++) {
-    const next = rules.map((r) => rewrite(cur, r)).find((x) => !x.fail)
+    const next = rules.map((r) => rewrite(cur, r, at)).find((x) => !x.fail)
     if (!next) return { results: [cur] }
     cur = next.results[0]
   }

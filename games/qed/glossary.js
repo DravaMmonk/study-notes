@@ -142,6 +142,16 @@ export const GLOSSARY = [
     see: ['equality', 'curry-howard'],
   },
   {
+    id: 'automation', group: 'logic', title: T('自动证明与证书', 'Automatic proof and certificates'), at: 'au-negate',
+    body: [
+      T('<b>自动证明器</b>（E、Vampire、Z3 这样的程序）不管引入还是消去，只做一件事：把要证的那句否定了，和已知一起化成<b>子句</b>，再找矛盾。命题逻辑里，<b>归结</b>一条规则就够（反驳完备）；一阶逻辑里先把 ∃ 换成 Skolem 函数，归结前先<b>合一</b>。现代的 SAT 求解器（DPLL、CDCL）也是在子句里找矛盾，只是更会挑：先做<b>单元传播</b>，走不通就记下学到的子句再回头。', '<b>Automatic provers</b> (programs such as E, Vampire and Z3) know nothing of introduction or elimination and do one thing: negate what is to be proved, put it with the hypotheses into <b>clauses</b>, and look for a contradiction. In propositional logic one rule, <b>resolution</b>, is enough (it is refutation complete); in first-order logic ∃ becomes a Skolem function first, and a pair is <b>unified</b> before it is cancelled. Modern SAT solvers (DPLL, CDCL) look for a contradiction among clauses too, only far better at choosing: <b>unit propagation</b> first, and when stuck, a learned clause and a step back.'),
+      T('它们不在核里，可能有错。Isabelle 的 <b>sledgehammer</b> 把目标交给它们，拿回它们用到的那几条事实，再由 <b>metis</b> 在核里重新证一遍（metis 自己也是一个归结证明器，每一步都用核规则）；Lean 和 Coq 里也有把外面的证书在核里重放的做法。这就是<b>证书</b>的意思：找证明难，查证明容易，所以只要查的那一方可信。', 'They are not in the kernel and may be wrong. Isabelle’s <b>sledgehammer</b> hands them a goal, takes back the facts they used, and has <b>metis</b> prove it again in the kernel (metis is itself a resolution prover, every step a kernel rule); Lean and Coq have ways of replaying outside certificates in the kernel too. That is what a <b>certificate</b> is for: finding a proof is hard and checking one is easy, so only the checker has to be trusted.'),
+      T('<b>反射</b>（Lean 的 decide，Coq 的 ssreflect）不留证书：写一个判定程序，证明一次它是对的，以后每一题只要核把程序算出来，证明项就是 rfl。算得快慢，看核怎么算；所以也有判定过程（比如 Lean 里线性算术的 omega）是生成证明，交给核去查。', '<b>Reflection</b> (Lean’s decide, Coq’s ssreflect) keeps no certificate: write a decision procedure, prove once that it is right, and after that every problem needs only the kernel to run the program, the proof term being rfl. How fast depends on how the kernel computes, so some decision procedures (Lean’s omega for linear arithmetic, say) produce a proof for the kernel to check instead.'),
+      T('一阶逻辑的定理是<b>半可判定</b>的：推得出的，归结总能找到；推不出的，饱和可能永远停不下（Church 和 Turing，1936）。所以自动化只能帮忙，不能全包。', 'First-order validity is <b>semi-decidable</b>: what follows, resolution always finds; what does not, saturation may never stop on (Church and Turing, 1936). So automation can help, but never do it all.'),
+    ],
+    see: ['provers', 'tactics'],
+  },
+  {
     id: 'unification', group: 'logic', title: T('元变量与合一', 'Metavariables and unification'), at: 'r-match',
     body: [
       T('一条规则写成 ⟦前提⟧ ⟹ 结论，里面待定的部分叫<b>元变量</b>：?A、?B 是任何一句话，?t 是任何一样东西，?P(x) 是任何一句关于 x 的话。Isabelle 的规则都这样写（它的元逻辑 Pure 里，⟹ 是「推出」，⋀ 是「对任何」）；Lean 的 apply 留下的空位 ?m 也是元变量。', 'A rule is written ⟦premises⟧ ⟹ conclusion, and the parts left open in it are <b>metavariables</b>: ?A and ?B any sentence, ?t any thing, ?P(x) any sentence about x. Isabelle writes every rule this way (in its metalogic Pure, ⟹ is “yields” and ⋀ “for any”); the holes ?m Lean’s apply leaves are metavariables too.'),

@@ -226,6 +226,8 @@ function Setting({ s, node, board, parts, lemmas, circuit, scene, setParam, form
       return <FormulaField label={s.label} value={String(value || 2)} onChange={set} choices={WAYS.filter((n) => n >= least).map((n) => ({ value: String(n), label: tr(`${n} 条`, `${n}`) }))} required />
     }
     case 'depth': return <FormulaField label={s.label} value={String(value)} onChange={set} choices={DEPTHS.map((d) => ({ value: String(d), label: tr(`${d} 层`, `${d} levels`) }))} blank={T('不限', 'No limit')} />
+    case 'at': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'hyps', label: tr('已知', 'Hypotheses') }]} blank={T('目标', 'Goal')} />
+    case 'unit': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'unit', label: tr('只和单项子句', 'One-literal clauses only') }]} blank={T('任意两条', 'Any two')} />
     default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} />
   }
 }

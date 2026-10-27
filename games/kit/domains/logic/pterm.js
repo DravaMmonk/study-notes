@@ -442,6 +442,7 @@ export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null,
       case 'raa': return check(t.p, { op: '¬', a: { op: '¬', a: A } }, ctx)
       case 'rfl':
         if (A.op === 'atom' && A.pred === '=' && conv(atom('=', [A.args[0], A.args[0]]), A)) return undefined
+        if (A.op === 'atom' && A.pred === '=' && !same(norm(A), A)) { const [a, b] = [sayF(A), sayF(norm(A))]; return err(`rfl 只证两边算下来一样的等式：「${a.zh}」算下来是「${b.zh}」`, `rfl proves only an equation whose sides work out the same: “${a.en}” works out to “${b.en}”`) }
         return err(`rfl 只证两边算下来一样的等式，这里要证「${sayF(A).zh}」`, `rfl proves only an equation whose sides work out the same; here it must prove “${sayF(A).en}”`)
       case 'subst': {
         const H = infer(t.h, ctx)
@@ -455,6 +456,24 @@ export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null,
         }
         throw last
       }
+      case 'app': {
+        // ∀x. A → B used on a proof: x read off what is to be proved when B says it (Lean elaborates against the type
+        // expected), so the proof may be one whose type cannot be read alone (rfl).
+        let head = t.f
+        while (head.k === 'app') head = head.f
+        const F = head.k === 'var' && !ctx.get(head.name)?.f && lemma(head.name, null) !== null ? null : infer(t.f, ctx)
+        if (F?.op === '∀' && !isThing(t.a, ctx)) {
+          const vars = []
+          let body = F
+          while (body.op === '∀') { vars.push(body.v); body = body.body }
+          const imp = asImp(body)
+          const fits = (G) => { const σ = {}; return imp.op === '→' && fitThings(imp.b, G, vars, σ) && vars.every((v) => σ[v]) ? σ : null }
+          const σ = fits(A) ?? fits(norm(A))
+          if (σ) return check(t.a, vars.reduce((f, v) => subst(f, v, σ[v]), imp.a), ctx)
+        }
+      }
+      // Otherwise an application is checked as any other term is: its type inferred.
+      // falls through
       default: {
         const B = infer(t, ctx)
         if (!conv(B, A)) err(`「${printTerm(t)}」证的是「${sayF(B).zh}」，这里要证「${sayF(A).zh}」`, `“${printTerm(t)}” proves “${sayF(B).en}”; here it must prove “${sayF(A).en}”`)

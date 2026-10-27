@@ -18,8 +18,7 @@ import { rewriteBookOf, rewriteText } from '../rewrite.js'
 import { constructorsOf } from '../datatype.js'
 import { paramsOf } from '../../../engine/forms.js'
 import { portsOf } from '../../../engine/circuit.js'
-import { refuted } from '../clauses.js'
-import { clauseFormulaOf } from '../unify.js'
+import { certificate, clauseFormula, refuted } from '../resolution.js'
 import { printTerm } from '../pterm.js'
 import { MACHINE_TEXT, familyOf, iconOf, nameOf, partsFor, settingsOf, textOf, withRevisions } from './catalog.js'
 
@@ -140,10 +139,12 @@ const SHOWN = 6
 const sideOf = (x, text) => ('t' in x ? text({ op: 'atom', pred: '=', args: [x, x] }).split(' = ')[0] : x.op === 'lam' ? `fun ${x.params.join(' ')} => ${text(x.body)}` : text(x))
 const eqText = (e, text) => `${e.bound.length ? `⋀${e.bound.join(' ')}. ` : ''}${sideOf(e.s, text)} ≐ ${sideOf(e.t, text)}`
 const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` : ''}${g.hyps.length ? `${g.hyps.map(text).join(tr('；', '; '))} ⊢ ` : ''}${text(g.goal)}`
-/** A formula, equations, a proof state, or a clause set: its clauses (the first few), and ⊥ standing out once it is in. */
+/**
+ * Equations, a proof state, a proof term, or a clause set: its clauses (the first few, each with the clauses it came
+ * from), and once ⊥ is in, ⊥ standing out and only the clauses it comes from (the certificate).
+ */
 function MachineValue({ v, text, small = false }) {
   if (!v) return null
-  if (v.kind === 'formula') return <span className={`lg-formula ${small ? 'is-small' : ''}`}><b>{text(v.f)}</b></span>
   if (v.kind === 'pterm') return <span className={`lg-formula ${small ? 'is-small' : ''}`}><code className="lg-term">{printTerm(v.term)}</code></span>
   if (v.kind === 'state') {
     const others = v.more?.length ?? 0
@@ -173,31 +174,24 @@ function MachineValue({ v, text, small = false }) {
   const bot = refuted(v.set) && <b className="lg-bot">{tr('推出了空子句 ⊥', 'The empty clause ⊥ is in')}</b>
   // Small (a region's edge, a phone block): how many, and whether ⊥ is in.
   if (small) return <span className="lg-clauses is-small">{bot}<small>{count}</small></span>
-  const shown = v.set.filter((c) => c.length).slice(0, SHOWN)
+  const cert = certificate(v.set)
+  const shown = cert ?? v.set.map((_, i) => i).slice(0, SHOWN)
   return (
     <span className="lg-clauses">
       {bot}
-      {shown.map((c) => <code key={c.join()}>{text(clauseFormulaOf(c))}</code>)}
-      <small>{v.set.length > shown.length + (refuted(v.set) ? 1 : 0) ? tr(`…… ${count}`, `… ${count}`) : count}</small>
+      {shown.map((i) => <code key={i}>{`${i + 1}. ${text(clauseFormula(v.set[i]))}${v.set[i].from ? ` ← ${v.set[i].from.map((k) => k + 1).join(tr('、', ', '))}` : ''}`}</code>)}
+      <small>{v.endless ? tr(`${count}，还在变多`, `${count}, and still growing`) : count}</small>
     </span>
   )
 }
 
 const WANT = {
-  noDneg: T('和输入等价，没有 ¬¬', 'equivalent to the input, with no ¬¬'),
-  noArrow: T('和输入等价，没有 → 和 ↔', 'equivalent to the input, with no → or ↔'),
-  nnf: T('和输入等价的否定范式', 'an equivalent NNF'),
-  cnf: T('和输入等价的合取范式', 'an equivalent CNF'),
+  clauses: T('拆成的子句', 'the clauses it splits into'),
   refuted: T('推出空子句 ⊥', 'the empty clause ⊥'),
   decide: T('推得出 ⊥ 就推出来；推不出，就饱和到再没有新子句', '⊥ if it follows; otherwise saturated, with no new clause left'),
-  entails: T('推得出就推出 ⊥；推不出，就饱和到再没有新子句', '⊥ if it follows; otherwise saturated, with no new clause left'),
   unify: T('解完的等式（能合一时），或者「失败」（不能时）', 'the solved equations (when they unify), or “failed” (when not)'),
   answers: T('找出所有答案', 'every answer'),
   fails: T('证不出来时，停下来说证不出来', 'when it cannot be proved, to stop and say so'),
-  prenex: T('前束范式', 'prenex form'),
-  skolem: T('Skolem 化以后的样子', 'the Skolemised form'),
-  clauseForm: T('这句话的子句形式', 'this sentence’s clause form'),
-  foRefuted: T('推出空子句 ⊥', 'the empty clause ⊥'),
   proved: T('没有目标了：证完', 'no goals left: proved'),
 }
 const MACHINE_ICONS = { repeat: Repeat, saturate: Sigma, search: Search, each: Rows3 }
@@ -276,7 +270,7 @@ export const MACHINE = {
     // A step's results, each its goals, or that it cannot be done.
     const becomes = test.term ? `${tr('变成 ', 'it to become ')}${test.becomes}` : test.becomes && (test.becomes.length ? `${tr('变成 ', 'it to become ')}${test.becomes.map((r) => (r.length ? r.map((g) => goalText(parseGoal(g), text)).join(' | ') : tr('证完', 'proved'))).join(tr('，或者 ', ', or '))}` : tr('这一步失败', 'the step to fail'))
     const want = becomes ?? L(WANT[test.want ?? level.want])
-    const show = (v) => (v.kind === 'state' ? v.goals.map((g) => goalText(g, text)).join(tr('；', '; ')) : v.kind === 'pterm' ? printTerm(v.term) : v.kind === 'formula' ? text(v.f) : v.kind === 'eqs' ? v.eqs.map((e) => eqText(e, text)).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormulaOf(c))).join(tr('；', '; ')))
+    const show = (v) => (v.kind === 'state' ? v.goals.map((g) => goalText(g, text)).join(tr('；', '; ')) : v.kind === 'pterm' ? printTerm(v.term) : v.kind === 'eqs' ? v.eqs.map((e) => eqText(e, text)).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormula(c))).join(tr('；', '; ')))
     return {
       sequent: <>{level.datatypes && <span>{tr('类型', 'Types')} <b>{Object.entries(level.datatypes).map(([type, d]) => `${type} = ${constructorsOf(d).map((c) => text({ op: 'atom', pred: '=', args: [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))] }).split(' = ')[0]).join(' | ')}`).join(tr('；', '; '))}</b> · </span>}{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => defText(d, text)).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,

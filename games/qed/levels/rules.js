@@ -7,7 +7,6 @@ import { proof } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
 const prove = (task) => ({ kind: 'proof', ...task })
-const DRINK = [{ P: 'Drinks' }, { P: 'Sings' }]
 const PERSON = [{ P: 'Human', Q: 'Mortal' }, { P: 'Student', Q: 'School' }]
 
 export const rules = [

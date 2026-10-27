@@ -322,3 +322,49 @@ test('a declaration gives its rules, and induction read off a goal proves an equ
   const byInduction = machine({ i: ['rule', { rule: 'nat.induct' }], e: ['each'], s: ['simp', { rewrites: 'def.0,def.1,hyp' }, 'e'], r: ['rule', { rule: 'refl' }, 'e'] }, ['in>i.in', 'i>e.in', 'e#body>s.in', 's>r.in', 'r>e.body', 'e>out'])
   assert.equal(runLevel(MACHINE_TESTS, level, byInduction).pass, true)
 })
+
+test('clauses: split from a goal turned round, saturated with unification, and the certificate replayed', async () => {
+  const { parseS } = await import('./schematic.js')
+  const { KERNEL, rule, startState } = await import('./tactics.js')
+  const { clauseText, clausesOfState, oracleRound, replay, saturate } = await import('./resolution.js')
+  const why = (t) => new Error(t.en)
+  const turned = (goal, hyps) => [KERNEL.raa, KERNEL.impI].reduce((s, r) => rule(s, r).results[0], startState(parseS(goal), hyps.map(parseS)))
+  const s = turned('Anc(ann, cy)', ['∀x. ∀y. ∀z. ¬Anc(x, y) ∨ ¬Anc(y, z) ∨ Anc(x, z)', 'Anc(ann, bo)', 'Anc(bo, cy)'])
+  const set = clausesOfState(s, why)
+  assert.deepEqual(set.map(clauseText), ['¬Anc(x, y) ∨ ¬Anc(y, z) ∨ Anc(x, z)', 'Anc(ann, bo)', 'Anc(bo, cy)', '¬Anc(ann, cy)'])
+  const done = saturate(set)
+  assert.ok(done.set.some((c) => !c.lits.length))
+  assert.equal(replay({ kind: 'clauses', set: done.set, from: s }).state.goals.length, 0)
+  // A goal that is not ⊥ does not split; a prover that cancels two pairs at once is caught on replay.
+  assert.throws(() => clausesOfState(startState(parseS('Wet')), why))
+  const wrong = turned('Wet', ['Rain ∨ Wind', '¬Rain ∨ ¬Wind'])
+  const fast = saturate(clausesOfState(wrong, why), { round: oracleRound })
+  assert.match(replay({ kind: 'clauses', set: fast.set, from: wrong }).fail.en, /more than one opposite pair/)
+  assert.equal(saturate(clausesOfState(wrong, why)).set.some((c) => !c.lits.length), false)
+})
+
+test('rewriting the hypotheses, under a binder without catching what is put in', async () => {
+  const { parseS } = await import('./schematic.js')
+  const { startState } = await import('./tactics.js')
+  const { rewrite, rewriteBookOf, simplify } = await import('./rewrite.js')
+  const lemmas = { dm: { name: { zh: '', en: '' }, metas: ['A', 'B', 'P'], forms: [
+    { key: 'notEx', label: '', statement: '∀x. ¬P', premises: ['¬∃x. P'] },
+    { key: 'allNot', label: '', statement: '¬∃x. P', premises: ['∀x. ¬P'] },
+    { key: 'notAll', label: '', statement: '∃x. ¬P', premises: ['¬∀x. P'] },
+    { key: 'exNot', label: '', statement: '¬∀x. P', premises: ['∃x. ¬P'] },
+  ] } }
+  const book = rewriteBookOf({ lemmas })
+  const s = startState(parseS('⊥'), ['Human(soc)', '¬∀x. ∃y. Likes(y, x)'].map(parseS))
+  const hyps = (r) => r.results[0].goals[0].hyps.map((h) => show(h))
+  assert.deepEqual(hyps(simplify(s, [book['dm.notAll'], book['dm.notEx']], 'hyps')), ['Human(soc)', '∃x. ∀y. ¬Likes(y, x)'])
+  assert.ok(rewrite(s, book['dm.notAll']).fail)
+})
+
+test('a ∀ used on a proof reads its thing off what is to be proved, so the kernel computes rfl', async () => {
+  const { termTaskOf } = await import('./termTask.js')
+  const { parseTerm } = await import('./pterm.js')
+  const defs = ['ev(p, x) = x', 'ev(neg(z), x) = bnot(ev(z, x))', 'ev(or(z, w), x) = bor(ev(z, x), ev(w, x))', 'bnot(tt) = ff', 'bnot(ff) = tt', 'bor(tt, y) = tt', 'bor(ff, y) = y', 'both(z) = band(ev(z, tt), ev(z, ff))', 'band(tt, y) = y', 'band(ff, y) = ff']
+  const task = (goal) => termTaskOf({ premises: { sound: '∀x. both(x) = tt → Holds(x)' }, consts: ['p', 'tt', 'ff'], defs, goal })
+  assert.equal(task('Holds(or(p, neg(p)))').check(parseTerm('sound rfl')), '')
+  assert.match(task('Holds(neg(p))').check(parseTerm('sound rfl')).en, /works out to/)
+})

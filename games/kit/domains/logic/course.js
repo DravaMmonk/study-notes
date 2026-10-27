@@ -4,7 +4,6 @@
 import { defineCourse, eraLevels, formsAt, layout, numbered, offer, reach, usable } from '../../course.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { vocabulary } from './fol.js'
-import { parseFo } from './unify.js'
 import { parseEquation, parseS } from './schematic.js'
 import { say, sayTerm } from './notation.js'
 import { LOGIC_TESTS } from './proof.js'
@@ -83,16 +82,16 @@ function vocabOf(level) {
   return { preds: v.preds, consts: v.consts, names: [...new Set([...names, ...v.consts])] }
 }
 
-// A machine test's tab: its input, or its claim, in words; a clause set by how many clauses it has.
+// A machine test's tab: its input in words; a clause set by how many clauses it has.
 function machineLabel(test, notation) {
   if (test.eqs) {
     const sides = test.eqs.map(parseEquation).map((e) => [e.s, e.t].map((x) => ('t' in x ? sayTerm(x, notation) : say(x, notation))))
     return { zh: sides.map(([a, b]) => `${a.zh} ≐ ${b.zh}`).join('；'), en: sides.map(([a, b]) => `${a.en} ≐ ${b.en}`).join('; ') }
   }
-  if (test.goal) return say(parseS(test.goal), notation)
+  // A goal of ⊥ (the hypotheses to search) goes by its first hypothesis.
+  if (test.goal) return say(parseS(test.goal === '⊥' && test.hyps?.length ? test.hyps[0] : test.goal), notation)
   if (test.term) return { zh: test.term, en: test.term }
-  if (test.clauses) return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
-  return say(parseFo(test.inputs?.goal ?? test.in ?? Object.values(test.inputs)[0]), notation)
+  return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
 }
 
 export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {}, revisions = {} }) {

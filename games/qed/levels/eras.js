@@ -233,4 +233,26 @@ export const ERAS = [
     challenges: [{ level: 'dt-snoc', after: 'dt-transport' }],
     chapter: { title: T('依赖类型与相等', 'Dependent types and equality'), question: T('等式本身是什么？类型能依赖一个值吗？', 'What is an equation itself, and can a type depend on a value?') },
   },
+  {
+    id: 'automation', machine: 'prover', keeps: 'all',
+    foundation: [
+      // Clause form, on proof states: by contradiction, ↔ out, the hypotheses to CNF, ∃ out, split.
+      series('clause', '子句形式', 'Clause form', ['au-negate', 'au-iff', 'au-hyps', 'au-skolem', 'au-clauses']),
+      // Resolution proved, done by hand, one pair at a time, and saturated.
+      series('resolve', '归结', 'Resolution', ['au-resolve', 'au-refute', 'au-onepair', 'au-saturate']),
+      'au-sledge',
+      // Certificates and reflection need nothing from each other.
+      branches(
+        ['cert', '证书', 'Certificates', ['au-cert', 'au-replay', 'au-wrong']],
+        ['reflect', '反射', 'Reflection', ['rf-eval', 'rf-decide', 'rf-false']],
+      ),
+    ],
+    practice: [series('use', '交给机器', 'Handed to the machine', ['au-adder', 'au-machine'])],
+    topics: [
+      { id: 'islanders-more', code: 'N', after: ['au-replay', 'kk-three'], levels: ['is-three', 'is-silent', 'is-ten'], title: T('岛民变多', 'More islanders') },
+      { id: 'bounds', code: 'U', after: ['au-sledge', 'kk-one'], levels: ['u-barber', 'u-cantor', 'u-ls', 'u-halt'], title: T('自动化的边界', 'What no machine can do') },
+    ],
+    challenges: [{ level: 'au-horn', after: 'au-saturate' }],
+    chapter: { title: T('自动化与证书', 'Automation and certificates'), question: T('证明能交给机器去找吗？机器找到的，凭什么信？', 'Can a machine be left to find proofs, and why believe what it finds?') },
+  },
 ]

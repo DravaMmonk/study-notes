@@ -158,6 +158,7 @@ export const classical = [
   {
     id: 'kk-one',
     title: T('一个岛民', 'One islander'),
+    builds: 'liar',
     tasks: [
       translate({
         target: 'KA ↔ ¬KA',
@@ -181,7 +182,7 @@ export const classical = [
       { t: T('岛上的人要么是<b>骑士</b>，永远说真话；要么是<b>无赖</b>，永远说假话。', 'Everyone on the island is a <b>knight</b>, who always tells the truth, or a <b>knave</b>, who always lies.') },
       { t: T('一个岛民说了一句话，「他是骑士」就和他说的话<b>等价</b>：<level-ref to="e-says"></level-ref>里翻译过，写成 <b>↔</b>；证明器里怎样拆开它，<level-ref to="iffUse"></level-ref>里做过。', 'If an islander says something, “he is a knight” is <b>equivalent</b> to what he says: you translated that in <level-ref to="e-says"></level-ref>, written <b>↔</b>; how the prover takes it apart, you did in <level-ref to="iffUse"></level-ref>.') },
     ],
-    after: T('拆开等价，合并重复的条件，再两次套用撞出矛盾。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。这就是「说谎者悖论」的岛上版本。', 'Split the equivalence, merge the repeated condition, then apply twice into a contradiction. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true. It is the island’s version of the liar paradox.'),
+    after: T('拆开等价，合并重复的条件，再两次套用撞出矛盾。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。这就是「说谎者悖论」的岛上版本，现在是元件<part-ref to="lemma:liar"></part-ref>。', 'Split the equivalence, merge the repeated condition, then apply twice into a contradiction. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true. It is the island’s version of the liar paradox, now the part <part-ref to="lemma:liar"></part-ref>.'),
   },
   {
     id: 'kk-two',
