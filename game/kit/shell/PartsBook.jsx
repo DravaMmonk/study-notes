@@ -99,6 +99,7 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
       article={article}
       phone={phone}
       onClose={onClose}
+      start={start}
     />
   )
 }

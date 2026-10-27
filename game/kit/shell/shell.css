@@ -339,6 +339,7 @@
 .wiki-group ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 1px; }
 .wiki-item { width: 100%; min-height: 34px; padding: 6px 10px; display: flex; align-items: center; gap: 8px; border: 0; border-radius: 8px; color: var(--body); background: transparent; font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
 .wiki-item > span { flex: 1; min-width: 0; }
+.wiki-item > span::first-letter, .wiki-article h2::first-letter, .wiki-chip > span::first-letter { text-transform: uppercase; }
 .wiki-item:hover { color: var(--ink); background: var(--hover); }
 .wiki-item.is-current { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule), inset 3px 0 0 var(--accent); font-weight: 600; }
 .wiki-item.is-locked { color: var(--faint); cursor: default; }

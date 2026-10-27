@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Lock, Search, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { useEscape } from './Dialogs.jsx'
@@ -40,9 +40,18 @@ export function useSeen(key) {
   return { seen, markSeen }
 }
 
-export default function Library({ title, subtitle, label, groups, current, onPick, article, phone, onClose, searchLabel, filters }) {
+export default function Library({ title, subtitle, label, groups, current, onPick, article, phone, onClose, searchLabel, filters, start }) {
   const [query, setQuery] = useState('')
-  const [reading, setReading] = useState(!phone && current !== null)
+  // Opened at an entry (a reference clicked), a phone shows that entry rather than the list.
+  const [reading, setReading] = useState(current !== null && (!phone || Boolean(start)))
+  useEffect(() => {
+    if (start) setReading(true)
+  }, [start])
+  // The entry shown is in view in the list too.
+  const nav = useRef(null)
+  useEffect(() => {
+    nav.current?.querySelector('.wiki-item.is-current')?.scrollIntoView({ block: 'center' })
+  }, [current])
   useEscape(onClose)
 
   const show = (id) => {
@@ -56,7 +65,7 @@ export default function Library({ title, subtitle, label, groups, current, onPic
     .filter((group) => group.items.length)
 
   const list = (
-    <nav className="wiki-nav" aria-label={label}>
+    <nav className="wiki-nav" aria-label={label} ref={nav}>
       <label className="wiki-search">
         <Search size={14} aria-hidden="true" />
         <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={searchLabel} aria-label={searchLabel} />
