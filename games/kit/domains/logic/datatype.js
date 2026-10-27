@@ -1,4 +1,4 @@
-// Inductive types (《证明完毕》 chapter 10 on): a declaration names a type's constructors, `datatype nat = zero | s(nat)`,
+// Inductive types (《证明完毕》 chapter 11 on): a declaration names a type's constructors, `datatype nat = zero | s(nat)`,
 // and that is all it says; everything else about the type is a rule it gives, written with metavariables
 // (schematic.js) and used with the rule cards like any other: the constructors are all different (distinct), each
 // is one-to-one (inject), every value is made by one of them (exhaust), and what holds of every constructor, given

@@ -159,10 +159,7 @@ export const ERAS = [
       ),
     ],
     // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.
-    topics: [
-      { id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') },
-      { id: 'bounds', code: 'U', after: 'kk-one', levels: ['u-barber', 'u-cantor', 'u-ls', 'u-halt'], title: T('机器做不到的事', 'What no machine can do') },
-    ],
+    topics: [{ id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
     challenges: [{ level: 'peirce', after: 'lemCases' }],
     chapter: { title: T('经典逻辑', 'Classical logic'), question: T('真值表上每一行都真的话，证明器都证得出吗？', 'Does the prover prove everything true on every row?') },
   },
@@ -184,6 +181,25 @@ export const ERAS = [
     ],
     challenges: [{ level: 'drinker', after: 'q-dm' }],
     chapter: { title: T('化简器', 'The simplifier'), question: T('「把否定推进去」这样的目标，能交给机器一路改下去吗？', 'Can a goal like “push the negation in” be left to a machine that rewrites all the way?') },
+  },
+  {
+    id: 'automation', machine: 'prover', keeps: 'all',
+    foundation: [
+      // Clause form, on proof states: by contradiction, ↔ out, the hypotheses to CNF, ∃ out, split.
+      series('clause', '子句形式', 'Clause form', ['au-negate', 'au-iff', 'au-hyps', 'au-skolem', 'au-clauses']),
+      // Resolution proved, done by hand, one pair at a time, and saturated.
+      series('resolve', '归结', 'Resolution', ['au-resolve', 'au-refute', 'au-onepair', 'au-saturate']),
+      'au-sledge',
+      // Certificates: by hand, by the kernel, and someone else's prover caught out.
+      series('cert', '证书', 'Certificates', ['au-cert', 'au-replay', 'au-wrong']),
+    ],
+    practice: [series('use', '交给机器', 'Handed to the machine', ['au-adder', 'au-machine'])],
+    topics: [
+      { id: 'islanders-more', code: 'N', after: ['au-replay', 'kk-three'], levels: ['is-three', 'is-silent', 'is-ten'], title: T('岛民变多', 'More islanders') },
+      { id: 'bounds', code: 'U', after: ['au-machine', 'kk-one'], levels: ['u-barber', 'u-cantor', 'u-ls', 'u-halt'], title: T('机器做不到的事', 'What no machine can do') },
+    ],
+    challenges: [{ level: 'au-horn', after: 'au-saturate' }],
+    chapter: { title: T('自动化与证书', 'Automation and certificates'), question: T('证明能交给机器去找吗？机器找到的，凭什么信？', 'Can a machine be left to find proofs, and why believe what it finds?') },
   },
   {
     id: 'inductive', machine: 'prover', keeps: 'all',
@@ -231,34 +247,13 @@ export const ERAS = [
       series('eqtype', '相等是类型', 'An equation is a type', ['eq-rfl', 'eq-rec', 'eq-symm', 'eq-trans', 'eq-motive']),
       // What the kernel computes, and types depending on a value, need nothing from each other.
       branches(
-        ['kinds', '两种相等', 'Two kinds of equality', ['eq-defeq', 'eq-propeq']],
+        ['kinds', '两种相等', 'Two kinds of equality', ['eq-defeq', 'rf-eval', 'rf-decide', 'rf-false', 'eq-propeq']],
         ['dep', '依赖类型', 'Dependent types', ['dt-vec', 'dt-head']],
       ),
     ],
     practice: [series('both', '两样一起', 'Both together', ['dt-app', 'dt-transport'])],
     challenges: [{ level: 'dt-snoc', after: 'dt-transport' }],
     chapter: { title: T('依赖类型与相等', 'Dependent types and equality'), question: T('等式本身是什么？类型能依赖一个值吗？', 'What is an equation itself, and can a type depend on a value?') },
-  },
-  {
-    id: 'automation', machine: 'prover', keeps: 'all',
-    foundation: [
-      // Clause form, on proof states: by contradiction, ↔ out, the hypotheses to CNF, ∃ out, split.
-      series('clause', '子句形式', 'Clause form', ['au-negate', 'au-iff', 'au-hyps', 'au-skolem', 'au-clauses']),
-      // Resolution proved, done by hand, one pair at a time, and saturated.
-      series('resolve', '归结', 'Resolution', ['au-resolve', 'au-refute', 'au-onepair', 'au-saturate']),
-      'au-sledge',
-      // Certificates and reflection need nothing from each other.
-      branches(
-        ['cert', '证书', 'Certificates', ['au-cert', 'au-replay', 'au-wrong']],
-        ['reflect', '反射', 'Reflection', ['rf-eval', 'rf-decide', 'rf-false']],
-      ),
-    ],
-    practice: [series('use', '交给机器', 'Handed to the machine', ['au-adder', 'au-machine'])],
-    topics: [
-      { id: 'islanders-more', code: 'N', after: ['au-replay', 'kk-three'], levels: ['is-three', 'is-silent', 'is-ten'], title: T('岛民变多', 'More islanders') },
-    ],
-    challenges: [{ level: 'au-horn', after: 'au-saturate' }],
-    chapter: { title: T('自动化与证书', 'Automation and certificates'), question: T('证明能交给机器去找吗？机器找到的，凭什么信？', 'Can a machine be left to find proofs, and why believe what it finds?') },
   },
   {
     id: 'structured', machine: 'prover', keeps: 'all',

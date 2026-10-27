@@ -1,4 +1,4 @@
-// A term task (《证明完毕》 chapters 10 and 12, ui/TermScreen.jsx): its premises and goal read in its names of things,
+// A term task (《证明完毕》 chapters 12 and 13, ui/TermScreen.jsx): its premises and goal read in its names of things,
 // and the kernel's check of a term for it (pterm.js), sentences compared once the level's definitions work them out.
 import { parse } from './formula.js'
 import { checkTerm } from './pterm.js'

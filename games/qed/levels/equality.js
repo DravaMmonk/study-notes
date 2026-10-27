@@ -1,11 +1,13 @@
-// Chapter 12 · Dependent types and equality (the Lean side): an equation is a type too. Its one way in is rfl, its one
+// Chapter 13 · Dependent types and equality (the Lean side): an equation is a type too. Its one way in is rfl, its one
 // way out is ▸ (Eq.rec): the rewrite card of chapter 5, whose ticked boxes are the motive. The kernel works sentences
 // out by the level's definitions before comparing them, so what computes is equal by rfl and what does not needs a
-// proof, an equation proved in chapter 10. A type may depend on a value: Vec(n), a vector whose length is in its type
+// proof, an equation proved in chapter 11. Reflection leans on that computing: a decision procedure written as
+// definitions, proved right once, after which the kernel computing it is the proof (sound rfl). A type may depend on a value: Vec(n), a vector whose length is in its type
 // (only the length is kept, so a vector is a proof of Vec(n)). Then both together: appending, and moving a vector
 // across an equation of lengths. The challenge puts one more at the end, where the length does not compute.
 import { proof } from '../../kit/domains/logic/build.js'
 import { BASIC } from '../../kit/domains/logic/termTree.js'
+import { script } from './machines.js'
 import { TERM_WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -15,6 +17,27 @@ const FORMS = [...BASIC, 'rfl', 'subst']
 const WORDS = { ...TERM_WORDS, Vec: T('Vec {0}', 'Vec {0}'), Elem: T('Elem', 'Elem') }
 // A level's term tasks, numbered from `from` (after its proof-board tasks).
 const write = (list, from = 0) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[from + k], brief: WRITE, forms: FORMS, words: WORDS, ...task }))
+// Reflection: formulas in two letters p and q as data, their value on a row, and the truth table as a program.
+const TAUT = [
+  'ev(p, x, y) = x', 'ev(q, x, y) = y', 'ev(neg(z), x, y) = bnot(ev(z, x, y))',
+  'ev(conj(z, w), x, y) = band(ev(z, x, y), ev(w, x, y))', 'ev(disj(z, w), x, y) = bor(ev(z, x, y), ev(w, x, y))',
+  'bnot(tt) = ff', 'bnot(ff) = tt', 'band(tt, y) = y', 'band(ff, y) = ff', 'bor(tt, y) = tt', 'bor(ff, y) = y',
+  'taut(z) = band(ev(z, tt, tt), band(ev(z, tt, ff), band(ev(z, ff, tt), ev(z, ff, ff))))',
+]
+const ALL_DEFS = TAUT.map((_, k) => `def.${k}`)
+const DATA = {
+  ...TERM_WORDS,
+  p: T('p', 'p'), q: T('q', 'q'),
+  neg: T('Not {0}', 'Not {0}'), conj: T('And {0} {1}', 'And {0} {1}'), disj: T('Or {0} {1}', 'Or {0} {1}'),
+  ev: T('eval {0} {1} {2}', 'eval {0} {1} {2}'), taut: T('taut {0}', 'taut {0}'),
+  bnot: T('! {0}', '! {0}'), band: T('{0} && {1}', '{0} && {1}'), bor: T('{0} || {1}', '{0} || {1}'),
+  Taut: T('{0} 永远成立', '{0} always holds'),
+}
+const SOUND = '∀x. taut(x) = tt → Taut(x)'
+const COMPLETE = '∀x. taut(x) = ff → ¬Taut(x)'
+const reflect = (list) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[k], brief: WRITE, forms: [...BASIC, 'rfl'], words: DATA, consts: ['p', 'q', 'tt', 'ff'], defs: TAUT, ...task }))
+const proves = (level) => ({ kind: 'machine', want: 'proved', inputs: [{ name: 'in', label: T('目标', 'Goal') }], backtrack: true, ...level })
+const PROVE = T('接一台机器：证得出的证完；证不出的，停下来说证不出来。', 'Wire a machine that proves what can be proved, and of what cannot, stops and says so.')
 const STARS = ['phos', 'hesp', 'venus']
 const NAT = ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))']
 const ADD_ZERO = '∀x. plus(x, zero) = x'
@@ -143,6 +166,49 @@ export const equality = [
     intro: [{ t: T('这一关有加法的定义：0 + y = y，S x + y = S (x + y)。核比较两个类型前，先按定义把它们算到底，算出来一样就算一样。', 'This level has the definition of addition: 0 + y = y and S x + y = S (x + y). Before comparing two types, the kernel works them out by the definitions, and if they come out alike they count as alike.') }],
     after: T('1 + 1 = 2 用不着证明，rfl 就够了：核会算。按定义算得出来的相等叫<wiki-ref to="defeq"></wiki-ref>；一个证明的类型也可以按它来换，最后一题的 p 直接就是要的那句。', '1 + 1 = 2 needs no proof; rfl is enough, because the kernel computes. An equality that comes out by working the definitions is a <wiki-ref to="defeq"></wiki-ref>; a proof’s type can be read through it too, so in the last problem p is just the sentence wanted.'),
   },
+  // ---------- reflection ----------
+  proves({
+    id: 'rf-eval',
+    title: T('判定程序', 'A decision procedure'),
+    words: DATA,
+    defs: TAUT,
+    tests: [
+      { goal: 'taut(disj(p, neg(p))) = tt' },
+      { goal: 'taut(conj(p, q)) = ff' },
+      { goal: 'taut(disj(neg(conj(p, q)), disj(p, q))) = tt' },
+    ],
+    brief: PROVE,
+    hint: [T('化简里排上这一关所有的定义，最后两边一样，用自反。', 'Line up every definition of this level in Simp; when both sides are alike, use Reflexivity.')],
+    intro: [
+      { t: T('<level-ref to="au-cert"></level-ref>里，外面的证明器交来证书，核照着重放。另一条路不找证书，靠的是核会按定义去算。公式本身也能写成数据：Or p (Not p) 是一样东西，eval f a b 按定义算出它在 p 取 a、q 取 b 那一行的真假，taut f 把四行都算一遍。这是一个<wiki-ref to="decision"></wiki-ref>：判定一句话是不是永远成立。', 'In <level-ref to="au-cert"></level-ref>, an outside prover hands over a certificate and the kernel replays it. The other road looks for no certificate and leans on the kernel computing by the definitions. A formula can be written as data too: Or p (Not p) is a thing, eval f a b works out by the definitions whether it is true on the row where p is a and q is b, and taut f works out all four rows. It is a <wiki-ref to="decision"></wiki-ref>: it decides whether a sentence always holds.') },
+    ],
+    solution: script(['simp', ALL_DEFS], ['rule', 'refl']),
+    naive: script(['rule', 'refl']),
+    after: T('判定程序是用定义写成的，化简按定义一路算下去，算出真就是真，算出假就是假。真值表就是这样一个程序。', 'The decision procedure is written as definitions, and Simp works it out by them all the way: true comes out true, false comes out false. A truth table is just such a program.'),
+  }),
+  {
+    id: 'rf-decide',
+    title: T('让核来算', 'Let the kernel compute'),
+    tasks: reflect([
+      { premises: { sound: SOUND }, goal: 'Taut(disj(p, neg(p)))', answer: 'sound rfl', naive: 'rfl', hint: [T('sound 要一个 taut x = 真 的证明。核会按定义算。', 'sound wants a proof of taut x = true, and the kernel computes by the definitions.')] },
+      { premises: { sound: SOUND }, goal: 'Taut(disj(neg(conj(p, q)), disj(p, q)))', answer: 'sound rfl', hint: [T('和第一题一样，x 从要证的那句里读出来。', 'As in the first, x is read off the sentence to prove.')] },
+      { premises: { sound: SOUND }, goal: 'Taut(neg(conj(p, neg(p))))', answer: 'sound rfl', hint: [T('还是一样的证明项。', 'The same proof term again.')] },
+    ]),
+    intro: [{ t: T('已知 sound 说判定程序是对的：taut x 算出真，x 就永远成立。它对所有公式证一次就够了（对公式归纳）。之后每一句，只要核把 taut 算出来。这条路叫<wiki-ref to="reflection"></wiki-ref>，Lean 的 decide 就是这样。', 'The given sound says the decision procedure is right: if taut x works out true, x always holds. It is proved once for every formula (by induction on formulas). After that, each sentence only needs the kernel to work taut out. This road is <wiki-ref to="reflection"></wiki-ref>, and Lean’s decide works this way.') }],
+    after: T('三句话三个证明项，都是 sound rfl：证明里没有一步推理，只有一次计算。核检查 rfl 时把 taut 算到底，算的就是一张真值表。', 'Three sentences, three proof terms, all sound rfl: no step of reasoning in them, only one computation. Checking rfl, the kernel works taut out to the end, and what it works out is a truth table.'),
+  },
+  {
+    id: 'rf-false',
+    title: T('算出来是假', 'It works out false'),
+    tasks: reflect([
+      { premises: { sound: SOUND, complete: COMPLETE }, goal: '¬Taut(conj(p, q))', given: 'sound rfl', answer: 'complete rfl', hint: [T('先点检查，看核把 taut 算成了什么。', 'Check first and see what the kernel works taut out to.')] },
+      { premises: { sound: SOUND, complete: COMPLETE }, goal: '¬Taut(disj(p, q))', answer: 'complete rfl', naive: 'sound rfl', hint: [T('p 和 q 都假的那一行呢？', 'What of the row where p and q are both false?')] },
+      { premises: { sound: SOUND, complete: COMPLETE }, goal: 'Taut(disj(q, neg(q))) ∧ ¬Taut(q)', answer: '⟨sound rfl, complete rfl⟩', hint: [T('一对，两边各算一次。', 'A pair, each side worked out once.')] },
+    ]),
+    intro: [{ t: T('已知 complete 说：taut x 算出假，x 就不是永远成立。判定程序两个方向都回答。', 'The given complete says: if taut x works out false, x does not always hold. The decision procedure answers both ways.') }],
+    after: T('rfl 只认算得出的等式：taut 算出假，sound rfl 就不过。判定程序不会出错地说「是」：要么核算出真，要么算出假，没有第三种。', 'rfl takes only equations that work out: when taut works out false, sound rfl does not pass. The decision procedure cannot wrongly say “yes”: the kernel works out true or false, and there is no third way.'),
+  },
+
   {
     id: 'eq-propeq',
     title: T('要证明的相等', 'Equal by proof'),

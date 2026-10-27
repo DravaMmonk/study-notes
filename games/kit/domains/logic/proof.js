@@ -161,7 +161,7 @@ export const RULES = {
     },
   },
 
-  // ---- clauses: resolution (chapter 13) ----
+  // ---- clauses: resolution (chapter 10) ----
   // The card of the resolution lemma (a course's lemma with `card: 'res'`): from two clauses with exactly one
   // complementary pair of literals, wherever each stands, the clause of everything else (⊥ when nothing is left). With
   // two pairs the resolvent would be a tautology, so the part refuses: one pair at a time.
@@ -232,7 +232,7 @@ export const RULES = {
       return proved(body.formula, new Map([...e.hyps, ...open]), unpack(e.term, y, hypName(node, ctx), body.term))
     },
   },
-  // ---- induction on numbers (chapter 10) ----
+  // ---- induction on numbers (chapter 11) ----
   // The sentence chosen on the card, ∀x. φ(x), from two boxes: the first proves φ(0); the second takes a number a
   // (named on the card), opens φ(a) as the induction hypothesis and proves φ(S a). Like For any, a must be new.
   natInd: {

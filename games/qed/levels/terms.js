@@ -1,4 +1,4 @@
-// Chapter 11 · Proofs are programs (Curry–Howard): every part on the proof board now shows its proof term too, the
+// Chapter 12 · Proofs are programs (Curry–Howard): every part on the proof board now shows its proof term too, the
 // way Lean writes it. No new rule of reasoning: the proofs are the kind wired in chapters 2 and 3, read a new way, so
 // each level gathers its small tasks. Reading terms: Apply is application, the box is λ (one sentence, two proofs),
 // the other connectives are data (a pair, a tagged value, ⊥ that gives anything). Then two lines that need nothing

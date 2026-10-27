@@ -1,16 +1,14 @@
-// Chapter 13 · Automation and certificates: the player's own auto searches rule by rule and soon cannot; automatic
+// Chapter 10 · Automation and certificates: the player's own auto searches rule by rule and soon cannot; automatic
 // provers turn a problem into clauses and look only for a contradiction. Clause form first, all of it on proof states
 // and kernel steps (by contradiction; Simp on the hypotheses, with ↔ out; ∃ taken out; split, a new card), built into
 // Into clauses. Then resolution: proved on the proof board, done by hand, one pair at a time, and a round of it in a
 // repeat frame built into the saturator. Handed a goal, the two together say whether it follows. Then two lines that
 // need nothing from each other: certificates (the saturator's steps replayed by hand, then by the kernel: the
-// reconstructor; and someone else's prover caught out) and reflection (a decision procedure defined by equations, run
-// by the kernel's computing: rfl). Practice uses the reconstructor on circuits and the problems of chapter 5. The
-// islanders come back, many of them; the challenge cancels only what is forced.
+// reconstructor; and someone else's prover caught out). Practice uses the reconstructor on circuits and the problems of
+// chapter 5. The islanders come back, many of them; at the end, the liar grows into what no machine can do, the
+// barber to the halting problem; the challenge cancels only what is forced.
 import { proof } from '../../kit/domains/logic/build.js'
-import { BASIC } from '../../kit/domains/logic/termTree.js'
 import { flow, script } from './machines.js'
-import { TERM_WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
 const GOAL = [{ name: 'in', label: T('目标', 'Goal') }]
@@ -25,33 +23,21 @@ const HYPS = { at: 'hyps' }
 const NEGATE = [['rule', 'raa'], ['rule', 'impI']]
 const INTO = [...NEGATE, ['simp', CNF, HYPS], 'skolem', 'toClauses']
 
-// Reflection: formulas in two letters p and q as data, their value on a row, and the truth table as a program.
-const TAUT = [
-  'ev(p, x, y) = x', 'ev(q, x, y) = y', 'ev(neg(z), x, y) = bnot(ev(z, x, y))',
-  'ev(conj(z, w), x, y) = band(ev(z, x, y), ev(w, x, y))', 'ev(disj(z, w), x, y) = bor(ev(z, x, y), ev(w, x, y))',
-  'bnot(tt) = ff', 'bnot(ff) = tt', 'band(tt, y) = y', 'band(ff, y) = ff', 'bor(tt, y) = tt', 'bor(ff, y) = y',
-  'taut(z) = band(ev(z, tt, tt), band(ev(z, tt, ff), band(ev(z, ff, tt), ev(z, ff, ff))))',
-]
-const ALL_DEFS = TAUT.map((_, k) => `def.${k}`)
-const DATA = {
-  ...TERM_WORDS,
-  p: T('p', 'p'), q: T('q', 'q'),
-  neg: T('Not {0}', 'Not {0}'), conj: T('And {0} {1}', 'And {0} {1}'), disj: T('Or {0} {1}', 'Or {0} {1}'),
-  ev: T('eval {0} {1} {2}', 'eval {0} {1} {2}'), taut: T('taut {0}', 'taut {0}'),
-  bnot: T('! {0}', '! {0}'), band: T('{0} && {1}', '{0} && {1}'), bor: T('{0} || {1}', '{0} || {1}'),
-  Taut: T('{0} 永远成立', '{0} always holds'),
-}
-const SOUND = '∀x. taut(x) = tt → Taut(x)'
-const COMPLETE = '∀x. taut(x) = ff → ¬Taut(x)'
-const PROBLEMS = [T('第一题', 'Problem 1'), T('第二题', 'Problem 2'), T('第三题', 'Problem 3')]
-const WRITE = T('用下面的块，拼出这句话的证明项。', 'Build the proof term of this sentence from the pieces below.')
-const write = (list) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[k], brief: WRITE, forms: [...BASIC, 'rfl'], words: DATA, consts: ['p', 'q', 'tt', 'ff'], defs: TAUT, ...task }))
 
 // Islanders in a ring: each calls the next a knave, and the last says the first two are both knaves.
 const ring = (n) => {
   const K = 'ABCDEFGHIJ'.split('').slice(0, n).map((c) => `K${c}`)
   return [...K.slice(0, -1).map((k, i) => `${k} ↔ ¬${K[i + 1]}`), `${K.at(-1)} ↔ ¬${K[0]} ∧ ¬${K[1]}`]
 }
+// The liar made bigger: from X ↔ Y and Y ↔ ¬X, the liar X ↔ ¬X, then ⊥. Its cards go in `region`.
+const liarOf = (two, region) => ({
+  nodes: {
+    s1: ['andE', {}, region], s2: ['andE', {}, region],
+    c1: ['chain', {}, region], c2: ['chain', {}, region],
+    j: ['andI', {}, region], l: ['liar', {}, region],
+  },
+  wires: [`${two[0]}>s1.ab`, `${two[1]}>s2.ab`, 's1#left>c1.p0', 's2#left>c1.p1', 's2#right>c2.p0', 's1#right>c2.p1', 'c1>j.a', 'c2>j.b', 'j>l.p0'],
+})
 const ADDER = ['Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)', 'Carry ↔ InA ∧ InB']
 
 export const automation = [
@@ -359,49 +345,6 @@ export const automation = [
     after: T('证明器错了，核不会跟着错：重放到它一次消两对的那一步，核证不出来，目标就没有证完。外面的证明器有多少错，都造不出假定理。', 'The prover is wrong, and the kernel does not follow it: at the step where it cancels two pairs at once, the kernel cannot prove the clause, and the goal stays unproved. However many mistakes an outside prover makes, it cannot make a false theorem.'),
   },
 
-  // ---------- reflection ----------
-  proves({
-    id: 'rf-eval',
-    title: T('判定程序', 'A decision procedure'),
-    words: DATA,
-    defs: TAUT,
-    tests: [
-      { goal: 'taut(disj(p, neg(p))) = tt' },
-      { goal: 'taut(conj(p, q)) = ff' },
-      { goal: 'taut(disj(neg(conj(p, q)), disj(p, q))) = tt' },
-    ],
-    brief: PROVE,
-    hint: [T('化简里排上这一关所有的定义，最后两边一样，用自反。', 'Line up every definition of this level in Simp; when both sides are alike, use Reflexivity.')],
-    intro: [
-      { t: T('另一条路不找证书。公式本身也能写成数据：Or p (Not p) 是一样东西，eval f a b 按定义算出它在 p 取 a、q 取 b 那一行的真假，taut f 把四行都算一遍。这是一个<wiki-ref to="decision"></wiki-ref>：判定一句话是不是永远成立。', 'The other road looks for no certificate. A formula can be written as data too: Or p (Not p) is a thing, eval f a b works out by the definitions whether it is true on the row where p is a and q is b, and taut f works out all four rows. It is a <wiki-ref to="decision"></wiki-ref>: it decides whether a sentence always holds.') },
-    ],
-    solution: script(['simp', ALL_DEFS], ['rule', 'refl']),
-    naive: script(['rule', 'refl']),
-    after: T('判定程序是用定义写成的，化简按定义一路算下去，算出真就是真，算出假就是假。真值表就是这样一个程序。', 'The decision procedure is written as definitions, and Simp works it out by them all the way: true comes out true, false comes out false. A truth table is just such a program.'),
-  }),
-  {
-    id: 'rf-decide',
-    title: T('让核来算', 'Let the kernel compute'),
-    tasks: write([
-      { premises: { sound: SOUND }, goal: 'Taut(disj(p, neg(p)))', answer: 'sound rfl', naive: 'rfl', hint: [T('sound 要一个 taut x = 真 的证明。核会按定义算。', 'sound wants a proof of taut x = true, and the kernel computes by the definitions.')] },
-      { premises: { sound: SOUND }, goal: 'Taut(disj(neg(conj(p, q)), disj(p, q)))', answer: 'sound rfl', hint: [T('和第一题一样，x 从要证的那句里读出来。', 'As in the first, x is read off the sentence to prove.')] },
-      { premises: { sound: SOUND }, goal: 'Taut(neg(conj(p, neg(p))))', answer: 'sound rfl', hint: [T('还是一样的证明项。', 'The same proof term again.')] },
-    ]),
-    intro: [{ t: T('已知 sound 说判定程序是对的：taut x 算出真，x 就永远成立。它对所有公式证一次就够了（对公式归纳）。之后每一句，只要核把 taut 算出来。这条路叫<wiki-ref to="reflection"></wiki-ref>，Lean 的 decide 就是这样。', 'The given sound says the decision procedure is right: if taut x works out true, x always holds. It is proved once for every formula (by induction on formulas). After that, each sentence only needs the kernel to work taut out. This road is <wiki-ref to="reflection"></wiki-ref>, and Lean’s decide works this way.') }],
-    after: T('三句话三个证明项，都是 sound rfl：证明里没有一步推理，只有一次计算。核检查 rfl 时把 taut 算到底，算的就是一张真值表。', 'Three sentences, three proof terms, all sound rfl: no step of reasoning in them, only one computation. Checking rfl, the kernel works taut out to the end, and what it works out is a truth table.'),
-  },
-  {
-    id: 'rf-false',
-    title: T('算出来是假', 'It works out false'),
-    tasks: write([
-      { premises: { sound: SOUND, complete: COMPLETE }, goal: '¬Taut(conj(p, q))', given: 'sound rfl', answer: 'complete rfl', hint: [T('先点检查，看核把 taut 算成了什么。', 'Check first and see what the kernel works taut out to.')] },
-      { premises: { sound: SOUND, complete: COMPLETE }, goal: '¬Taut(disj(p, q))', answer: 'complete rfl', naive: 'sound rfl', hint: [T('p 和 q 都假的那一行呢？', 'What of the row where p and q are both false?')] },
-      { premises: { sound: SOUND, complete: COMPLETE }, goal: 'Taut(disj(q, neg(q))) ∧ ¬Taut(q)', answer: '⟨sound rfl, complete rfl⟩', hint: [T('一对，两边各算一次。', 'A pair, each side worked out once.')] },
-    ]),
-    intro: [{ t: T('已知 complete 说：taut x 算出假，x 就不是永远成立。判定程序两个方向都回答。', 'The given complete says: if taut x works out false, x does not always hold. The decision procedure answers both ways.') }],
-    after: T('rfl 只认算得出的等式：taut 算出假，sound rfl 就不过。判定程序不会出错地说「是」：要么核算出真，要么算出假，没有第三种。', 'rfl takes only equations that work out: when taut works out false, sound rfl does not pass. The decision procedure cannot wrongly say “yes”: the kernel works out true or false, and there is no third way.'),
-  },
-
   // ---------- practice ----------
   proves({
     id: 'au-adder',
@@ -470,6 +413,75 @@ export const automation = [
     solution: flow('metis'),
     after: T('十个人的真值表有 1024 行。机器从二十来条子句出发，推出几百条，就找到了矛盾。现代的 SAT 求解器做的也是这件事，只是更会挑先消哪一对，能处理上百万个字母。', 'Ten people make a truth table of 1024 rows. The machine starts from about twenty clauses, makes a few hundred, and finds the contradiction. Modern SAT solvers do just this, only far better at picking which pair to cancel first, and handle millions of letters.'),
   }),
+
+  // ---------- topic: what no machine can do ----------
+  {
+    id: 'u-barber',
+    kind: 'proof',
+    title: T('理发师', 'The barber'),
+    tests: [{ premises: { p: '∃x. ∀y. R(x, y) ↔ ¬R(y, y)' }, goal: '⊥' }],
+    cases: [{ R: 'Shaves' }, { R: 'Teaches' }],
+    brief: T('村里的理发师说：「我给且只给不给自己刮胡子的人刮胡子。」实现一个证明器，从「有这么一个人 x：对所有 y，x 给 y 刮胡子 ↔ y 不给自己刮」证明出矛盾 ⊥。', 'The village barber says: “I shave exactly those who do not shave themselves.” Build a prover that, from “there is an x such that for every y, x shaves y ↔ y does not shave himself”, proves the contradiction ⊥.'),
+    hint: [
+      T('拿出那个理发师，再问：他给不给自己刮？', 'Take the barber out, then ask: does he shave himself?'),
+      T('把 y 取成理发师自己，就是<part-ref to="lemma:liar"></part-ref>。', 'Take y to be the barber himself, and it is <part-ref to="lemma:liar"></part-ref>.'),
+    ],
+    intro: [{ t: T('饱和器能证的总能找到证明，可证不出的，它不一定停得下来。有没有一台机器，对每一句话都能回答证得出还是证不出？这个专题从<level-ref to="kk-one"></level-ref>的<part-ref to="lemma:liar"></part-ref>出发，看机器做不到的事。', 'What the saturator can prove it always finds a proof of, but what it cannot, it may never stop on. Is there a machine that answers for every sentence whether it can be proved? This topic starts from <part-ref to="lemma:liar"></part-ref> of <level-ref to="kk-one"></level-ref> and looks at what no machine can do.') }],
+    solution: proof({ f: ['exE', { x: 'a' }], a: ['allE', { t: 'a' }, 'f'], l: ['liar', {}, 'f'] }, ['p>f.ex', 'f#body>a.all', 'a>l.p0', 'l>f.body', 'f>goal'], { premises: ['p'] }),
+    after: T('「对所有 y」里的 y 取成 x 自己，叫<wiki-ref to="diagonal"></wiki-ref>：一张 x 对 y 的表，只看 x 对 x 的那条斜线。理发师说的话套到自己身上，就成了说谎者。', 'Taking the y of “for every y” to be x itself is the <wiki-ref to="diagonal"></wiki-ref>: in a table of x against y, look only at the line of x against x. Turned on himself, the barber’s rule is the liar.'),
+  },
+  {
+    id: 'u-cantor',
+    kind: 'proof',
+    title: T('康托尔', 'Cantor'),
+    tests: [{ premises: { s: '∀z. ∃x. ∀y. P(y, f(x)) ↔ P(y, z)', d: '∃z. ∀y. P(y, z) ↔ ¬P(y, f(y))' }, goal: '⊥' }],
+    cases: [{ P: 'In' }],
+    brief: T('f 给每个 x 配一个集合 f(x)。已知每个集合都是某个 f(x)（f 是满射）；又有一个集合 z，装的正好是不属于 f(y) 的那些 y。实现一个证明器，推出矛盾 ⊥。', 'f gives each x a set f(x). Every set is some f(x) (f is onto); and there is a set z holding exactly the y not in f(y). Build a prover that gets the contradiction ⊥.'),
+    hint: [
+      T('先拿出 z，再拿出那个让 f(x) 和 z 一样的 x，然后都取 y = x。', 'Take out z, then the x whose f(x) is z, then take y = x in both.'),
+      T('得到 X ↔ Y 和 Y ↔ ¬X：两个都拆开，用串联接成 X → ¬X 和 ¬X → X，再拼起来就是说谎者。', 'You get X ↔ Y and Y ↔ ¬X: split both, chain them into X → ¬X and ¬X → X, and joined that is the liar.'),
+    ],
+    solution: (() => {
+      const l = liarOf(['a2', 'a3'], 'e2')
+      return proof({
+        e1: ['exE', { x: 'a' }], a1: ['allE', { t: 'a' }, 'e1'], e2: ['exE', { x: 'b' }, 'e1'],
+        a2: ['allE', { t: 'b' }, 'e2'], a3: ['allE', { t: 'b' }, 'e2'], ...l.nodes,
+      }, ['d>e1.ex', 's>a1.all', 'a1>e2.ex', 'e2#body>a2.all', 'e1#body>a3.all', ...l.wires, 'l>e2.body', 'e2>e1.body', 'e1>goal'], { premises: ['s', 'd'] })
+    })(),
+    naive: proof({ e1: ['exE', { x: 'a' }], a3: ['allE', { t: 'a' }, 'e1'], l: ['liar', {}, 'e1'] }, ['d>e1.ex', 'e1#body>a3.all', 'a3>l.p0', 'l>e1.body', 'e1>goal'], { premises: ['s', 'd'] }),
+    after: T('没有一个 f 能把一个集合的元素和它的所有子集一一对上：子集总是更多。这是康托尔的定理，对角线用在了函数上。', 'No f can match the elements of a set with all its subsets: there are always more subsets. That is Cantor’s theorem, the diagonal turned on functions.'),
+  },
+  {
+    id: 'u-ls',
+    kind: 'proof',
+    title: T('不接受自己的程序', 'Programs that reject themselves'),
+    tests: [{ premises: { r: '∃x. ∀y. M(x, c(y)) ↔ L(c(y))', ls: '∀y. L(c(y)) ↔ ¬M(y, c(y))' }, goal: '⊥' }],
+    cases: [{ M: 'Accepts', L: 'Ls' }],
+    brief: T('⟨y⟩ 是图灵机 y 的编码。L_s 装的是不接受自己编码的机器的编码。实现一个证明器：假设有一台机器 x 识别 L_s，推出矛盾 ⊥。', '⟨y⟩ is the code of the Turing machine y. L_s holds the codes of machines that do not accept their own code. Build a prover: supposing some machine x recognises L_s, get the contradiction ⊥.'),
+    hint: [T('还是对角线：让 x 读它自己的编码。', 'The diagonal again: let x read its own code.')],
+    solution: (() => {
+      const l = liarOf(['a1', 'a2'], 'e')
+      return proof({ e: ['exE', { x: 'a' }], a1: ['allE', { t: 'a' }, 'e'], a2: ['allE', { t: 'a' }, 'e'], ...l.nodes }, ['r>e.ex', 'e#body>a1.all', 'ls>a2.all', ...l.wires, 'l>e.body', 'e>goal'], { premises: ['r', 'ls'] })
+    })(),
+    after: T('程序可以把程序当输入，所以对角线也能用在程序上：L_s 连识别都识别不了。', 'Programs can take programs as input, so the diagonal works on programs too: L_s cannot even be recognised.'),
+  },
+  {
+    id: 'u-halt',
+    kind: 'proof',
+    title: T('停机问题', 'The halting problem'),
+    tests: [{ premises: { con: '(∃x. H(x)) → ∃x. ∀y. T(x, c(y)) ↔ ¬T(y, c(y))', red: '(∃x. G(x)) → ∃x. H(x)' }, goal: '¬∃x. G(x)' }],
+    cases: [{ H: 'DecH', G: 'DecA', T: 'Halts' }],
+    brief: T('已知：要是有判定停机的机器，就能造出一台 x，它在 ⟨y⟩ 上停机恰好当 y 在 ⟨y⟩ 上不停机；要是有判定 A_TM 的机器，就能造出判定停机的机器。实现一个证明器，证明没有机器判定 A_TM。', 'Given: if some machine decides halting, a machine x can be built that halts on ⟨y⟩ exactly when y does not halt on ⟨y⟩; and if some machine decides A_TM, one deciding halting can be built. Build a prover that proves no machine decides A_TM.'),
+    hint: [
+      T('假设有判定 A_TM 的机器，一路套用到造出那台 x。', 'Assume a machine deciding A_TM, and apply all the way to the machine x.'),
+      T('拿出 x，让它读自己的编码。', 'Take out x and let it read its own code.'),
+    ],
+    solution: proof({
+      h: ['impI', { A: '∃x. G(x)' }], m1: ['mp', {}, 'h'], m2: ['mp', {}, 'h'],
+      e: ['exE', { x: 'a' }, 'h'], a: ['allE', { t: 'a' }, 'e'], l: ['liar', {}, 'e'],
+    }, ['red>m1.imp', 'h#body>m1.a', 'con>m2.imp', 'm1>m2.a', 'm2>e.ex', 'e#body>a.all', 'a>l.p0', 'l>e.body', 'e>h.body', 'h>goal'], { premises: ['con', 'red'] }),
+    after: T('假设判定器存在，造出一台和它作对的机器，让它读自己：对角线。再用<wiki-ref to="reduction"></wiki-ref>把一个问题的<wiki-ref to="undecidable"></wiki-ref>传给另一个。证明也逃不开它：没有程序能对每一句一阶逻辑的话都回答「推得出还是推不出」，所以饱和器在推不出的问题上，总有永远转下去的时候。从「我是无赖」走到这里，用的一直是同一个说谎者。', 'Suppose a decider exists, build a machine that defies it, and let it read itself: the diagonal. Then a <wiki-ref to="reduction"></wiki-ref> passes <wiki-ref to="undecidable"></wiki-ref> from one problem to another. Proof cannot escape it either: no program can answer “does it follow?” for every first-order sentence, so on what does not follow the saturator must sometimes go round forever. From “I am a knave” to here, it was the same liar all along.'),
+  },
 
   // ---------- challenge ----------
   machine('refuted', CLAUSES)({

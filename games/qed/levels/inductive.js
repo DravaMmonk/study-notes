@@ -1,4 +1,4 @@
-// Chapter 10 · Numbers and lists: a sum worked out by hand on the proof board (the definitions as givens, Take one
+// Chapter 11 · Numbers and lists: a sum worked out by hand on the proof board (the definitions as givens, Take one
 // and Rewrite), then by simp with the definitions as rewrite rules: lists, rules with conditions, a given, under ∀.
 // Then numbers and lists are declared (nat = 0 | S nat), and a declaration gives rules (kit/domains/logic/datatype.js)
 // used with the rule cards like any other: the constructors are all different, each is one-to-one, every value is
@@ -55,7 +55,7 @@ export const inductive = [
       T('第二条定义算出 S (0 + S 0)；再用第一条算出 0 + S 0，用等量代换把它换进去。', 'The second definition gives S (0 + S 0); the first works out 0 + S 0, and Rewrite puts it in.'),
     ],
     intro: [
-      { t: T('化简器能把否定推进去，把一句话改成说法不同、意思相同的样子。这一章让证明器认识数和列表：它们怎么算，从哪里来，对每一个都成立的事怎么证。', 'The simplifier pushes negations in, turning a sentence into another way of saying the same. This chapter teaches the prover numbers and lists: how they are worked out, where they come from, and how something is proved for every one.') },
+      { t: T('自动证明器在一堆句子里找矛盾，却多半不会归纳：「对每一个数都成立」，它找不出证明。这一章让证明器认识数和列表：它们怎么算，从哪里来，对每一个都成立的事怎么证。', 'An automatic prover looks for a contradiction among a heap of sentences, but mostly cannot do induction: “for every number”, it finds no proof of. This chapter teaches the prover numbers and lists: how they are worked out, where they come from, and how something is proved for every one.') },
       { t: T('「一加一等于二」怎么证？数可以这样搭出来：0，S 0（0 后面那个数），S S 0……加法用两个等式定义：0 + y = y，S x + y = S (x + y)。在证明板上，这两条定义就是两句已知。', 'How is “one plus one is two” proved? Numbers can be built like this: 0, S 0 (the number after 0), S S 0 … Addition is defined by two equations: 0 + y = y, and S x + y = S (x + y). On the proof board, the two definitions are two givens.') },
     ],
     solution: proof({ e1: ['allE', { t: 'zero' }], e2: ['allE', { t: 's(zero)' }], e3: ['allE', { t: 's(zero)' }], w: ['rewrite', { at: [0] }] }, ['d1>e1.all', 'e1>e2.all', 'd0>e3.all', 'e3>w.eq', 'e2>w.p', 'w>goal'], { premises: ['d0', 'd1'] }),
