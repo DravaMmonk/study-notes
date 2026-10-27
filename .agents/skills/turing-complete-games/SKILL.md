@@ -52,8 +52,8 @@ new dimension, or chapters with no mechanism of their own.
 
 ## Curriculum review checklist
 
-The audit cannot see everything. Before calling a curriculum done, check these by hand (they come from real
-problems in 《证明完毕》, see `games/DESIGN.md` §11):
+The audit cannot see everything. Before calling a curriculum done, check these by hand (`games/DESIGN.md` §11
+shows them at work in 《证明完毕》):
 
 - **Practice density.** Each new mechanism is followed by its own cluster of 3–5 levels that vary it along
   different dimensions (§2.3 table: surface, direction, depth, scaffolding, combination, true-or-false), easy to
