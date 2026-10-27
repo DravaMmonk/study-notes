@@ -1,5 +1,5 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Brief, CircuitLayout, RunDock, StepLog, TaskCard, TestStatus, TestTabs, usePlayback } from '../../../shell/index.js'
+import { Brief, CircuitLayout, RunDock, StepLog, TaskCard, TestStatus, TestTabs, useKeptVerdict, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
@@ -22,14 +22,15 @@ import { machineSteps, machineViewAt } from './stepping.js'
 // test, which completes the level. The tests above the strip switch the case everywhere, the cards' choices included.
 // A board whose tests can be traced (a machine: boards.jsx) runs step by step instead (../../../shell/usePlayback.jsx):
 // the card computing lights up, the board shows what had been computed by then, the strip lists every step's result,
-// and the run stops at the first step or test that fails.
+// and the run stops at the first step or test that fails. Either way the board's last run is kept (the shell's
+// lastRun): the level, or a task of it, opens on it again.
 
 const T = (zh, en) => ({ zh, en })
 
 /** The screen for one board (boards.jsx), as a level kind's Screen. */
 export const boardScreen = (board) => function LogicBoard(props) { return <BoardScreen board={board} {...props} /> }
 
-function BoardScreen({ board, game, level: entry, saved, save, solve, flags, progress, phone }) {
+function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, keepRun, flags, progress, phone }) {
   const level = entry.source
   const parts = useMemo(() => board.parts(level), [board, level])
   const lemmas = level.lemmas
@@ -37,11 +38,15 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
   const [circuit, setCircuit] = useState(() => (saved?.nodes && board.fits(saved, level, parts) ? saved : board.start(level)))
   // The frame region a new card goes into, or null for the board itself (CanvasEditor onTarget).
   const [target, setTarget] = useState(null)
-  // After a check: { pass, results: [{ pass, reason }] } on every test; a change clears it.
-  const [verdict, setVerdict] = useState(null)
   // A level opens on its first test, the case its task is written in.
   const [testIndex, setTestIndex] = useState(0)
   const tests = level.tests
+  // After a check: { pass, results: [{ pass, reason }] } on every test; a change clears it.
+  const judge = () => {
+    const run = runLevel(board.tests, level, circuit)
+    return { pass: run.pass, score: run.score, results: run.results.map((r) => ({ pass: r.pass, reason: r.checks[0].reason })) }
+  }
+  const [verdict, setVerdict] = useKeptVerdict({ lastRun: !board.tests.trace && lastRun, keepRun }, judge)
   const test = tests[Math.min(testIndex, tests.length - 1)]
   // What the player has here, of the parts this board runs (../../../course.js offer).
   const offered = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
@@ -68,6 +73,8 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
     onSolve: () => solve(board.tests.score(level, circuit)),
     onTest: setTestIndex,
     board: circuit,
+    kept: stepped ? lastRun : undefined,
+    onKeep: stepped ? keepRun : undefined,
   })
   const shownIndex = tests.indexOf(test)
   const run = stepped ? playback.run : null
@@ -82,11 +89,11 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, flags, pro
     if (!keep) setVerdict(null)
   }
   const check = () => {
-    const run = runLevel(board.tests, level, circuit)
-    setVerdict({ pass: run.pass, results: run.results.map((r) => ({ pass: r.pass, reason: r.checks[0].reason })) })
-    if (run.pass) solve(run.score)
-    else setTestIndex(Math.max(0, Math.min(tests.length - 1, run.results.findIndex((r) => !r.pass))))
-    return run.pass
+    const v = judge()
+    setVerdict(v)
+    if (v.pass) solve(v.score)
+    else setTestIndex(Math.max(0, Math.min(tests.length - 1, v.results.findIndex((r) => !r.pass))))
+    return v.pass
   }
   const addNode = (type, extra = {}) => {
     const taken = new Set(circuit.nodes.map((n) => n.id))

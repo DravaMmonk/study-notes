@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
+import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { parse, show } from '../formula.js'
 import { say } from '../notation.js'
@@ -46,7 +46,7 @@ function scriptLines(rows, text) {
   return out
 }
 
-export default function ScriptScreen({ game, level: entry, saved, save, solve, phone }) {
+export default function ScriptScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
   const consts = [...(level.consts ?? []), ...(level.things ?? [])]
   const read = (f) => parse(f, { consts })
@@ -55,7 +55,7 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, p
   const keyOf = (t) => { try { return show(read(t)) } catch { return t } }
   const [rows, setRows] = useState(() => saved?.rows ?? level.given ?? [])
   const [at, setAt] = useState(null)
-  const [verdict, setVerdict] = useState(null)
+  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, () => checkScript(level, rows))
   const change = (next) => {
     setRows(next)
     save({ rows: next })

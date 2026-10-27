@@ -12,7 +12,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
+import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 
 // Every game sits at game/<id>/index.html, under the games hub (game/index.html): on the published site, and on the
@@ -25,9 +25,14 @@ const SITE = { games: '../index.html' }
  * defineGame) brings only its content: chapters, levels, intro figures and, for each kind of level, the screen
  * that plays it. A level screen gets
  *
- *   { game, level, saved, save(data, { quiet }), solved, solve(score?), fail(info), flags, progress, theme, phone }
+ *   { game, level, saved, save(data, { quiet }), solved, solve(score?), fail(info), lastRun, keepRun(mark), flags,
+ *     progress, theme, phone }
  *
- * and lays itself out with Workbench / PhonePage and Brief from Layout.jsx.
+ * `lastRun` is how the screen marked its board's last run (progress.runs, per task and slot), or undefined: the screen
+ * replays that run on the board when it opens, so a run outlives leaving the level, another task or a reload.
+ * `keepRun(mark)` keeps a new mark (null: none, as once the board changes).
+ *
+ * The screen lays itself out with Workbench / PhonePage and Brief from Layout.jsx.
  *
  * A level may be several tasks done in order (`tasks: [{ kind, step, … }]`, each what that task changes of the level:
  * its screen's kind, its name `step`, its brief, its `after`…). Each task is played as a level of its own kind, the
@@ -207,6 +212,17 @@ export default function GameShell({ game }) {
     setFailure(null)
     setFails(0)
   }
+  // The last run of the board played (see above).
+  const runAt = slots && runKey(taskAt, slots.list[slots.at].no)
+  const lastRun = level ? progress.runs?.[level.id]?.[runAt] : undefined
+  const keepRun = (mark) => setProgress((p) => {
+    const kept = p.runs?.[level.id] ?? {}
+    if (JSON.stringify(kept[runAt] ?? null) === JSON.stringify(mark ?? null)) return p
+    const next = { ...kept }
+    if (mark == null) delete next[runAt]
+    else next[runAt] = mark
+    return { ...p, runs: { ...p.runs, [level.id]: next } }
+  })
   const slotsCtl = slots && {
     ...slots,
     game: game.id,
@@ -286,7 +302,7 @@ export default function GameShell({ game }) {
             />
           )}
           {kind
-            ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${taskAt}#${slots.list[slots.at].no}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || done > taskAt, solve, fail, flags, progress, theme, phone })}</SlotsContext.Provider>
+            ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || done > taskAt, solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
             : <div className="board-loading">{tr('这种关卡还没做好。', 'This kind of level is not built yet.')}</div>}
         </div>
       )}

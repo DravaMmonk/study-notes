@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
+import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { atom, parse } from '../formula.js'
 import { say } from '../notation.js'
@@ -12,12 +12,24 @@ import { lettersOf, rowsOf, tautology, valueOn } from '../truth.js'
 //   sat      find a row that makes the formula true, the same way
 const TF = (v) => (v ? tr('真', 'T') : tr('假', 'F'))
 
-export default function TruthScreen({ game, level: entry, saved, save, solve, phone }) {
+export default function TruthScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
   const formulas = level.formulas.map((t) => parse(t))
   const text = (f) => L(say(f, level.notation))
   const [state, setState] = useState(() => ({ fill: {}, marks: {}, tried: {}, ...saved }))
-  const [checked, setChecked] = useState(null) // { pass, wrong: Set } after a check
+  // A row of formula f tried that is what the level asks for: false (counter) or true (sat).
+  const hits = (f, k) => {
+    const value = valueOn(formulas[f], rowsOf(lettersOf([formulas[f]]))[k])
+    return (level.ask === 'counter' && !value) || (level.ask === 'sat' && value)
+  }
+  const judge = () => {
+    const wrong = new Set()
+    if (level.ask === 'counter' || level.ask === 'sat') return { pass: Object.keys(state.tried).some((key) => hits(...key.split(':').map(Number))), wrong }
+    if (level.ask === 'fill') rowsOf(lettersOf(formulas)).forEach((row, k) => state.fill[k] !== valueOn(formulas[0], row) && wrong.add(k))
+    if (level.ask === 'valid') formulas.forEach((f, k) => state.marks[k] !== tautology(f) && wrong.add(k))
+    return { pass: wrong.size === 0, wrong }
+  }
+  const [checked, setChecked] = useKeptVerdict({ lastRun, keepRun }, judge) // { pass, wrong: Set } after a check
   const update = (patch) => {
     const next = { ...state, ...patch }
     setState(next)
@@ -26,21 +38,16 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, ph
   }
   const tryRow = (f, k) => {
     update({ tried: { ...state.tried, [`${f}:${k}`]: true } })
-    const rows = rowsOf(lettersOf([formulas[f]]))
-    const value = valueOn(formulas[f], rows[k])
-    if ((level.ask === 'counter' && !value) || (level.ask === 'sat' && value)) {
+    if (hits(f, k)) {
       setChecked({ pass: true, wrong: new Set() })
       solve(null)
     }
   }
 
   const check = () => {
-    const wrong = new Set()
-    if (level.ask === 'fill') rowsOf(lettersOf(formulas)).forEach((row, k) => state.fill[k] !== valueOn(formulas[0], row) && wrong.add(k))
-    if (level.ask === 'valid') formulas.forEach((f, k) => state.marks[k] !== tautology(f) && wrong.add(k))
-    const pass = wrong.size === 0
-    setChecked({ pass, wrong })
-    if (pass) solve(null)
+    const v = judge()
+    setChecked(v)
+    if (v.pass) solve(null)
   }
 
   const table = (fi, { fill = false } = {}) => {

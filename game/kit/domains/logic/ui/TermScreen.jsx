@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
+import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
@@ -20,23 +20,27 @@ import TermEditor from './TermEditor.jsx'
 
 const T = (zh, en) => ({ zh, en })
 
-export default function TermScreen({ game, level: entry, saved, save, solve, phone }) {
+export default function TermScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
   const consts = level.consts ?? []
   const text = (f) => L(say(parse(f, { consts }), level.notation))
   // A task may hand over someone else's term to check and mend (`given`); clearing starts from nothing.
   const [tree, setTree] = useState(() => saved?.tree ?? (level.given ? parseTerm(level.given) : null))
-  const [verdict, setVerdict] = useState(null)
+  const judge = () => {
+    if (!complete(tree)) return { pass: false, reason: T('还有框没填：证明项要每个位置都填上。', 'Some boxes are still empty: every place must be filled.') }
+    const reason = termTaskOf(level).check(tree)
+    return { pass: !reason, reason }
+  }
+  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, judge)
   const change = (next) => {
     setTree(next)
     save({ tree: next })
     setVerdict(null)
   }
   const check = () => {
-    if (!complete(tree)) return setVerdict({ pass: false, reason: T('还有框没填：证明项要每个位置都填上。', 'Some boxes are still empty: every place must be filled.') })
-    const reason = termTaskOf(level).check(tree)
-    setVerdict({ pass: !reason, reason })
-    if (!reason) solve(null)
+    const v = judge()
+    setVerdict(v)
+    if (v.pass) solve(null)
   }
   const premises = Object.entries(level.premises ?? {})
   const stage = (

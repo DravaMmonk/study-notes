@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Check, X } from 'lucide-react'
-import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
+import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { parse } from '../formula.js'
 import { holds } from '../models.js'
@@ -49,21 +49,22 @@ export function WorldText({ model, notation, preds, world = null, spell = false 
   )
 }
 
-export function ModelScreen({ game, level: entry, saved, save, solve, phone }) {
+export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
   const consts = level.vocab.consts
   const wants = useMemo(() => level.want.map((w) => ({ ...w, formula: parse(w.f, { consts: level.vocab.names }) })), [level])
   const preds = level.vocab.preds
   const max = level.maxSize ?? 3
   const [world, setWorld] = useState(() => saved?.size ? saved : { size: Math.min(2, max), preds: {}, consts: {} })
-  const [checked, setChecked] = useState(null)
+  const model = useMemo(() => builtWorld(world, level.vocab), [world, level])
+  const values = wants.map((w) => holds(w.formula, model))
+  // Checked: whether the world fits; null before a check.
+  const [checked, setChecked] = useKeptVerdict({ lastRun, keepRun }, () => values.every((v, k) => v === wants[k].value))
   const update = (next) => {
     setWorld(next)
     save(next)
     setChecked(null)
   }
-  const model = useMemo(() => builtWorld(world, level.vocab), [world, level])
-  const values = wants.map((w) => holds(w.formula, model))
   const toggle = (p, key) => {
     const has = (world.preds[p] ?? []).includes(key)
     update({ ...world, preds: { ...world.preds, [p]: has ? world.preds[p].filter((k) => k !== key) : [...(world.preds[p] ?? []), key] } })

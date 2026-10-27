@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
+import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
@@ -51,7 +51,7 @@ function segmentOf(node, path, kind, notation, bracket = false) {
   }
 }
 
-export default function FormulaScreen({ game, level: entry, saved, save, solve, phone }) {
+export default function FormulaScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
   const { notation } = level
   const consts = level.vocab.names
@@ -59,7 +59,6 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
   const chips = useMemo(() => chipsOf(level), [level])
   const byKey = useMemo(() => new Map(chips.map((c) => [c.key, c])), [chips])
   const [tree, setTree] = useState(() => saved?.tree ?? null)
-  const [verdict, setVerdict] = useState(null)
   const change = (next) => {
     setTree(next)
     save({ tree: next })
@@ -95,7 +94,8 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
   const first = holesOf(tree)[0]
   const next = strip.selected ?? (first ? keyOf(first.path) : complete(tree) ? 'end' : null)
 
-  const judge = () => {
+  // A whole sentence, held against the one asked for.
+  const compare = () => {
     const want = level.kind === 'query' ? ['x'] : []
     const loose = [...freeVars(tree)].filter((v) => !want.includes(v))
     if (loose.length) return { pass: false, body: <p className="lg-error">{tr(`${loose.join('、')} 没有被 ∀ 或 ∃ 管着：它指的是谁？`, `${loose.join(', ')} is not bound by ∀ or ∃: who is it?`)}</p> }
@@ -122,9 +122,11 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
       ),
     }
   }
+  const judge = () => (strays.length ? { pass: false, body: <p className="lg-error">{L(STRAY)}</p> } : whole ? compare() : { pass: false, body: <p className="lg-error">{tr('还有空位没填：一句话要每个位置都填上。', 'Some places are still empty: every place must be filled.')}</p> })
+  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, judge)
   const check = () => {
     strip.clearSelection()
-    const v = strays.length ? { pass: false, body: <p className="lg-error">{L(STRAY)}</p> } : whole ? judge() : { pass: false, body: <p className="lg-error">{tr('还有空位没填：一句话要每个位置都填上。', 'Some places are still empty: every place must be filled.')}</p> }
+    const v = judge()
     setVerdict(v)
     if (v.pass) solve(null)
   }

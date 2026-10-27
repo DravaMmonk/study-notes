@@ -68,7 +68,7 @@ function SinkValue({ node, value, turn }) {
   return value?.type === 'write' ? <span className="ag-action is-write">{L(actionText(value))}</span> : <span className="ag-empty">{tr('这一轮没有写', 'Nothing written this turn')}</span>
 }
 
-export default function BoardScreen({ game, level: entry, saved, save, solve, flags, phone }) {
+export default function BoardScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, flags, phone }) {
   const level = entry.source
   const parts = useMemo(() => partsFor(level.machine.mode), [level])
   const files = useMemo(() => game.agent.filesIn(level), [game, level])
@@ -89,6 +89,8 @@ export default function BoardScreen({ game, level: entry, saved, save, solve, fl
     onSolve: () => solve({ tokens: checked.runs.reduce((n, r) => n + r.tokens, 0) }),
     onTest: setTestIndex,
     board: circuit,
+    kept: lastRun,
+    onKeep: keepRun,
   })
   const { run, states } = playback
 

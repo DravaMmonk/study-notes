@@ -12,14 +12,15 @@ import { SgCanvas, SgParts, SgPhone } from './circuit/BoardView.jsx'
 // (js/modes/*: wire, trace, fill, circuit, …) that draws HTML and talks to the page only through `rt`
 // (runtime.js). This screen gives it the shell's workbench (desktop) or phone page, paints the mode's regions
 // (tests, board, panel, parts, dock), routes clicks and keys to it, and connects `rt` to the shell: pass → solve,
-// fail → the shell's fail dialog, openSheet → the shell's bottom sheet, persist → saved progress.
+// fail → the shell's fail dialog, openSheet → the shell's bottom sheet, persist → saved progress, keepRun → the board's
+// last run (the mode opens on `lastRun`).
 
 // Keys that identify a control across repaints, so focus can return to the same control after a refresh.
 const FOCUS_KEYS = ['act', 'c', 'j', 'k', 'r', 'g', 's', 'o', 'p', 'n', 't', 'v', 'test']
 const focusSig = (el) => FOCUS_KEYS.map((k) => el.dataset[k] || '').join('|')
 const overlayOpen = () => Boolean(document.querySelector('.dialog-scrim, .ph-scrim, .intro-scrim'))
 
-export default function ModeScreen({ game, level, saved, save, solve, fail, flags, progress, phone }) {
+export default function ModeScreen({ game, level, saved, save, solve, fail, lastRun, keepRun, flags, progress, phone }) {
   const L = level.source
   const root = useRef(null)
   const [sheet, setSheet] = useState(null) // { html, acts, redraw } of a sheet the mode opened
@@ -36,12 +37,12 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
   if (!cur.current) {
     cur.current = { L, i: level.index, fails: 0, running: false, ctl: null }
     rt.cur = cur.current
-    cur.current.ctl = MODES[L.mode](L, saved, { flags, game, progress })
+    cur.current.ctl = MODES[L.mode](L, saved, { flags, game, progress, lastRun })
   }
   const ctl = cur.current.ctl
   // The shell's callbacks change identity on every render of the shell; the modes always reach the latest ones.
   const shell = useRef(null)
-  shell.current = { save, solve, fail }
+  shell.current = { save, solve, fail, keepRun }
 
   // The shell functions the modes call, bound to this screen's DOM.
   useLayoutEffect(() => {
@@ -101,6 +102,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, flag
         renderDock()
       },
       persist: () => shell.current.save(ctl.save()),
+      keepRun: (mark) => shell.current.keepRun(mark),
       pass() {
         buzz([15, 40, 15, 40, 60])
         shell.current.solve(null)

@@ -8,7 +8,7 @@ export const rt = {
   cur: null,
   boardWidth: 0, // px the test board may take across, where the page lays it out to a width (a desktop circuit level)
   refresh() {}, refreshKeepRange() {}, renderBoard() {}, repaint() {}, persist() {},
-  pass() {}, fail() {}, startRun() {}, endRun() {},
+  pass() {}, fail() {}, startRun() {}, endRun() {}, keepRun() {},
   openSheet() {}, closeSheet() {},
 };
 
