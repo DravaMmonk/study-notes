@@ -1,7 +1,7 @@
 // node --test games/kit/circuit — a level's preset on a board: locked parts and wires stay, the rest is the player's.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { baseRefusal, connect, keepLocked, removeNode, withPreset } from './model.js'
+import { baseRefusal, connect, keepLocked, presetOf, removeNode, withPreset } from './model.js'
 
 const board = { nodes: [{ id: 'in', type: 'in', x: 0, y: 0 }, { id: 'out', type: 'out', x: 400, y: 0 }], wires: [] }
 const preset = { nodes: [{ id: 'p', type: 'oracle', x: 200, y: 0 }], wires: [{ from: 'p', to: 'out', port: 'in' }] }
@@ -32,4 +32,17 @@ test('a locked wire refuses another wire into its port; a free port takes one', 
   const started = withPreset(board, preset)
   assert.ok(baseRefusal(started, 'in', 'out', 'in'))
   assert.equal(baseRefusal(started, 'in', 'p', 'in'), null)
+})
+
+test('a preset may fix a part\'s settings, all of them or some', () => {
+  const answer = { nodes: [{ id: 'r', type: 'rule', params: { rule: 'K', at: 'goal' } }], wires: [] }
+  const some = withPreset(board, presetOf(answer, [{ id: 'r', fixed: ['rule'] }]))
+  const edited = { ...some, nodes: some.nodes.map((n) => (n.id === 'r' ? { ...n, params: { rule: 'S', at: 'hyps' } } : n)) }
+  assert.deepEqual(keepLocked(some, edited).nodes.find((n) => n.id === 'r').params, { rule: 'K', at: 'hyps' })
+  const all = withPreset(board, presetOf(answer, [{ id: 'r', fixed: true }]))
+  const changed = { ...all, nodes: all.nodes.map((n) => (n.id === 'r' ? { ...n, params: { rule: 'S', at: 'hyps' } } : n)) }
+  assert.deepEqual(keepLocked(all, changed).nodes.find((n) => n.id === 'r').params, { rule: 'K', at: 'goal' })
+  const free = withPreset(board, presetOf(answer, ['r']))
+  const mine = { ...free, nodes: free.nodes.map((n) => (n.id === 'r' ? { ...n, params: { rule: 'S' } } : n)) }
+  assert.deepEqual(keepLocked(free, mine).nodes.find((n) => n.id === 'r').params, { rule: 'S' })
 })

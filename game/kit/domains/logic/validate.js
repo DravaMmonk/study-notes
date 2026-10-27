@@ -26,6 +26,7 @@ import { freeIn, parseTerm } from './pterm.js'
 import { termTaskOf } from './termTask.js'
 import { missingForms } from './termTree.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
+import { presetIds } from './course.js'
 
 /** spec: { levels, course }. Returns [{ text, fail? }]. */
 export function validate({ levels: given, course }) {
@@ -35,7 +36,7 @@ export function validate({ levels: given, course }) {
   const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
   // A preset names cards of the level's reference answer (course.js).
   for (const level of levels.filter((l) => l.preset)) {
-    const lost = level.preset.filter((id) => !level.solution?.nodes.some((n) => n.id === id))
+    const lost = presetIds(level).filter((id) => !level.solution?.nodes.some((n) => n.id === id))
     if (lost.length) out.push({ fail: true, text: `${level.id}: its preset names ${lost.join(', ')}, which its reference answer does not have` })
   }
   // A level in everyday words has a sentence for every letter it uses.
@@ -181,7 +182,7 @@ export function validate({ levels: given, course }) {
     }
     // A later task of a level may use what the level builds.
     const held = course && new Set([...reach(course, { id: level.id }), 'premise', 'goal', ...(level.task > 0 && builder.get(level.id) ? [builder.get(level.id)] : [])])
-    const missing = held ? [...new Set(level.solution.nodes.filter((n) => !level.preset?.includes(n.id)).map((n) => n.type).filter((t) => !held.has(t)))] : []
+    const missing = held ? [...new Set(level.solution.nodes.filter((n) => !presetIds(level).includes(n.id)).map((n) => n.type).filter((t) => !held.has(t)))] : []
     if (missing.length) out.push({ fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
     // Every sentence, term or variable the reference proof picks on a card is one the card offers (choices.js).
     const offer = choicesOf(level)

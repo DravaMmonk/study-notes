@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Brief, CircuitLayout, RunDock, StepLog, TaskCard, TestStatus, TestTabs, useKeptVerdict, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, isFixed, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
 import { parse } from '../formula.js'
@@ -109,7 +109,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
     const [x, y] = spotIn(circuit, into)
     change(addNode(type, { x, y, ...(into ? { in: into } : {}) }).graph)
   }
-  const setParam = (id, key, value) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
+  const setParam = (id, key, value) => !circuit.nodes.some((n) => n.id === id && isFixed(n, key)) && change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
 
   // Formulas in the level's notation (everyday sentences, symbols once introduced: notation.js).
   const text = (f) => L(say(f, level.notation))
@@ -229,22 +229,24 @@ const IoBox = ({ children }) => <div className="lg-io" onPointerDown={(e) => e.s
 function Setting({ s, node, board, parts, lemmas, circuit, scene, setParam, formsOf }) {
   const value = node.params[s.key] ?? ''
   const set = (v) => setParam(node.id, s.key, v)
+  // A setting the level's preset fixed only shows (../../../circuit/model.js).
+  const disabled = isFixed(node, s.key)
   switch (s.kind) {
-    case 'form': return <FormulaField label={board.textOf(lemmas, node.type)?.formLabel ?? T('形状', 'Shape')} value={formOf(parts.rules[node.type], node)} onChange={set} choices={shapesOf(parts.rules[node.type], board.textOf(lemmas, node.type), formsOf(node.type)).map((o) => ({ value: o.key, label: L(o.label) }))} required />
-    case 'rule': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rule} />
-    case 'rewrite': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rewrite} />
-    case 'rewrites': return <RulesField label={s.label} value={value} onChange={set} groups={scene.choices.rewrite} />
+    case 'form': return <FormulaField label={board.textOf(lemmas, node.type)?.formLabel ?? T('形状', 'Shape')} value={formOf(parts.rules[node.type], node)} onChange={set} choices={shapesOf(parts.rules[node.type], board.textOf(lemmas, node.type), formsOf(node.type)).map((o) => ({ value: o.key, label: L(o.label) }))} required disabled={disabled} />
+    case 'rule': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rule} disabled={disabled} />
+    case 'rewrite': return <RuleField label={s.label} value={value} onChange={set} groups={scene.choices.rewrite} disabled={disabled} />
+    case 'rewrites': return <RulesField label={s.label} value={value} onChange={set} groups={scene.choices.rewrite} disabled={disabled} />
     // As many regions as the frame has: never fewer than the last one holding something.
     case 'ways': {
       const regions = parts.frames(node).map((r) => r.name)
       const held = regions.filter((r) => circuit.nodes.some((n) => n.in === `${node.id}/${r}`) || circuit.wires.some((w) => (w.to === node.id && w.port === r) || w.from === `${node.id}#${r}`))
       const least = Math.max(2, ...held.map((r) => regions.indexOf(r) + 1))
-      return <FormulaField label={s.label} value={String(value || 2)} onChange={set} choices={WAYS.filter((n) => n >= least).map((n) => ({ value: String(n), label: tr(`${n} 条`, `${n}`) }))} required />
+      return <FormulaField label={s.label} value={String(value || 2)} onChange={set} choices={WAYS.filter((n) => n >= least).map((n) => ({ value: String(n), label: tr(`${n} 条`, `${n}`) }))} required disabled={disabled} />
     }
-    case 'depth': return <FormulaField label={s.label} value={String(value)} onChange={set} choices={DEPTHS.map((d) => ({ value: String(d), label: tr(`${d} 层`, `${d} levels`) }))} blank={T('不限', 'No limit')} />
-    case 'at': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'hyps', label: tr('已知', 'Hypotheses') }]} blank={T('目标', 'Goal')} />
-    case 'unit': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'unit', label: tr('只和单项子句', 'One-literal clauses only') }]} blank={T('任意两条', 'Any two')} />
-    default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} />
+    case 'depth': return <FormulaField label={s.label} value={String(value)} onChange={set} choices={DEPTHS.map((d) => ({ value: String(d), label: tr(`${d} 层`, `${d} levels`) }))} blank={T('不限', 'No limit')} disabled={disabled} />
+    case 'at': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'hyps', label: tr('已知', 'Hypotheses') }]} blank={T('目标', 'Goal')} disabled={disabled} />
+    case 'unit': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'unit', label: tr('只和单项子句', 'One-literal clauses only') }]} blank={T('任意两条', 'Any two')} disabled={disabled} />
+    default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} disabled={disabled} />
   }
 }
 
