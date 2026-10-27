@@ -13,8 +13,6 @@
 .lg-formula b { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
 /* A proof term (chapter 6): Lean's notation, in the mono face, under what it proves. */
 .lg-term { font-family: var(--mono); font-size: 11px; color: var(--accent-ink); overflow-wrap: anywhere; }
-/* The hole a goal fills in the proof term (a machine state that builds one). */
-.lg-hole { margin-right: 6px; font-family: var(--mono); font-size: 10px; color: var(--accent-ink); }
 .lg-formula small { color: var(--muted); font-family: var(--sans); font-size: 10px; line-height: 1.4; overflow-wrap: anywhere; }
 .lg-formula.is-small b { font-size: 11px; font-weight: 500; }
 .lg-out { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 6px; }

@@ -9,7 +9,7 @@
 //   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
 //           | { kind: 'formula', f } | { kind: 'clauses', set }
 //   level   { kind: 'machine', want, inputs?: [{ name, label }] (default one, `in`),
-//             rules?: { key: { name, premises: [text], conclusion: text, unproved? } }, backtrack?, terms?,
+//             rules?: { key: { name, premises: [text], conclusion: text } }, backtrack?,
 //             tests: [{ eqs: [equation text] } | { goal, hyps?, answers?, becomes? } | { in: formula text }
 //             | { clauses: [clause text] } | { inputs: { name: formula text } }, want?] }
 //
@@ -24,20 +24,16 @@
 // (chapter 9): a test { eq, hyps? } starts a proof state on an equation (theory.js), and simp rewrites with the level's
 // `defs`.
 //
-// A level with `terms` builds each proof state's proof term as it goes (tactics.js), and a finished proof counts only
-// when chapter 6's kernel accepts its term: the level's own rules are axioms it may name, unless marked `unproved`.
-//
 // Rules on cards (rule, erule, frule) are named by key in the level's rule book (ruleBookOf: the kernel's rules, the
 // lemmas' and the level's own). Until a level says `backtrack`, a tactic gives only its first result; from then on,
 // every result, and each card after it works on each of them in turn (tactics.js).
 import { PartError, evaluate } from '../../engine/circuit.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
 import { framePart, within } from '../../circuit/frames.js'
-import { and, same, tvar } from './formula.js'
+import { and, same } from './formula.js'
 import { say } from './notation.js'
 import { LAWS, clauseOf, clauseSet, clausesOf, closed, cnf, equivalent, hasArrow, hasDneg, isCnf, isNnf, nnf, refuted, resolveRound, saturate, toEnd } from './clauses.js'
-import { GIVEN, KERNEL, answerOf, asValue, assumption, auto, defer, depthFirst, elimStep, erule, frule, introStep, proofTermOf, resultsOf, rule, startState, thingsOf } from './tactics.js'
-import { checkTerm, normalize } from './pterm.js'
+import { KERNEL, answerOf, asValue, assumption, auto, defer, depthFirst, elimStep, erule, frule, introStep, resultsOf, rule, startState } from './tactics.js'
 import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, sameSide, sideText, solveEqs, solved } from './schematic.js'
 import { THEORY_LEMMAS, addRule, cases, induct, parseTh, simp } from './theory.js'
 import { clauseFormOf, factorRound, foClausesOf, foNnf, foResolveRound, foSet, hasExists, isPrenex, matrixOf, parseFo, prenex, skolem } from './unify.js'
@@ -52,7 +48,7 @@ const books = new WeakMap()
 /** A level's rule book: every rule a card may name, by key (the kernel's, each lemma's shapes, the level's own). */
 export function ruleBookOf(level) {
   if (!books.has(level)) {
-    const own = Object.entries(level.rules ?? {}).map(([key, r]) => ({ ...ruleOf(key, r.name, r.premises ?? [], r.conclusion), own: true, unproved: Boolean(r.unproved) }))
+    const own = Object.entries(level.rules ?? {}).map(([key, r]) => ({ ...ruleOf(key, r.name, r.premises ?? [], r.conclusion), own: true }))
     const lemmas = Object.entries(level.lemmas ?? {}).flatMap(([type, l]) => lemmaRules(type, l))
     books.set(level, Object.fromEntries([...Object.values(KERNEL), ...lemmas, ...own].map((r) => [r.key, r])))
   }
@@ -347,9 +343,9 @@ const hasQuantifier = (f) => f.op === '∀' || f.op === '∃' || (f.op === '¬' 
 const hasVars = (f) => f.op === 'atom' ? f.args.some(function vars(t) { return t.t === 'var' || t.args.some(vars) }) : f.op === '¬' ? hasVars(f.a) : f.a ? hasVars(f.a) || hasVars(f.b) : false
 const isFoNnf = (f) => (f.op === '∀' || f.op === '∃' ? isFoNnf(f.body) : f.op === '∧' || f.op === '∨' ? isFoNnf(f.a) && isFoNnf(f.b) : f.op === 'atom' || f.op === '⊥' || (f.op === '¬' && f.a.op === 'atom'))
 
-/** A test's inputs as values, by name: a goal's state builds its proof term on a level that shows terms. */
-export function inputsOf(test, level = {}) {
-  if (test.goal) return { in: startState(parseS(test.goal), (test.hyps ?? []).map(parseS), { terms: Boolean(level.terms) }) }
+/** A test's inputs as values, by name. */
+export function inputsOf(test) {
+  if (test.goal) return { in: startState(parseS(test.goal), (test.hyps ?? []).map(parseS)) }
   if (test.eq) return { in: startState(parseTh(test.eq), (test.hyps ?? []).map(parseTh)) }
   if (test.eqs) return { in: eqsValue(test.eqs.map(parseEquation)) }
   if (test.clauses) {
@@ -387,32 +383,8 @@ const canonical = (goals) => {
   })
 }
 
-const aboutSentences = (r) => /"name":"\?[A-Z]/.test(JSON.stringify([r.conclusion, r.premises]))
-// A level's own rule as the kernel takes it, an axiom about its things: ⟦P(?x, ?y); Q(?y)⟧ ⟹ R(?x) is
-// ∀x. ∀y. P(x, y) → (Q(y) → R(x)). (A ?-letter for a sentence has no such reading: such a rule is never an axiom.)
-function axiomOf(r) {
-  const things = thingsOf(r)
-  const bare = (f) => instantiate(f, Object.fromEntries(things.map((n) => [n, tvar(n.slice(1))])))
-  const body = r.premises.reduceRight((acc, p) => ({ op: '→', a: bare(p.show), b: acc }), bare(r.conclusion))
-  return things.reduceRight((acc, n) => ({ op: '∀', v: n.slice(1), body: acc }), body)
-}
-/**
- * The kernel's word on a finished proof's term (chapter 6's checker, pterm.js): '' when it proves the test's goal from
- * its givens (named p, q, r …) and the level's own rules, a lemma unfolded into its own term.
- */
-export function kernelCheck(level, test, out) {
-  // A lemma's first shape has its term under the lemma's own name (course.js).
-  const termOf = (name) => {
-    const [type, key] = name.split('.')
-    return level.lemmaTerms?.[name] ?? (key && level.lemmas?.[type]?.forms?.[0]?.key === key ? level.lemmaTerms?.[type] : null) ?? null
-  }
-  const term = normalize(proofTermOf(out), { unfold: termOf })
-  const hyps = Object.fromEntries([...(test.hyps ?? []).map((h, k) => [GIVEN[k], parseS(h)]), ...Object.values(ruleBookOf(level)).filter((r) => r.own && !r.unproved && !aboutSentences(r)).map((r) => [r.key, axiomOf(r)])])
-  return checkTerm(term, parseS(test.goal), { hyps, notation: level.notation })
-}
-
 /** Is the output what the test wants? '' or why not. */
-export function judge(want, test, out, notation, level = {}) {
+export function judge(want, test, out, notation) {
   const inputs = inputsOf(test)
   const input = inputs.in
   if (!out) return T('还没有东西接到「结果」', 'Nothing reaches the result yet')
@@ -426,9 +398,7 @@ export function judge(want, test, out, notation, level = {}) {
   if (want === 'proved') {
     if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
     if (out.error) return out.error
-    if (out.goals.length) return T(`还剩 ${out.goals.length} 个目标没证完`, `${out.goals.length} goal${out.goals.length === 1 ? '' : 's'} still open`)
-    const refused = out.root ? kernelCheck(level, test, out) : ''
-    return refused ? T(`核不认这个证明项：${refused.zh}`, `The kernel refuses this proof term: ${refused.en}`) : ''
+    return out.goals.length ? T(`还剩 ${out.goals.length} 个目标没证完`, `${out.goals.length} goal${out.goals.length === 1 ? '' : 's'} still open`) : ''
   }
   if (want === 'becomes') {
     if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
@@ -498,18 +468,18 @@ const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, defs: level.def
 /** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
 export const MACHINE_TESTS = {
   runTest: (level, circuit, test) => {
-    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test, level), ctx: ctxOf(level, circuit) })
+    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), ctx: ctxOf(level, circuit) })
     return { ...run, outputs: { out: run.outputs.out } }
   },
   // The run of one test with every step it took, in order (../../engine/circuit.js trace): only what reaches the
   // result runs, so a card lying about unwired takes no step.
   trace: (level, circuit, test) => {
     const trace = []
-    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test, level), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
+    const run = runBoard(circuit, { parts: MACHINE_PARTS, bind: inputsOf(test), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
     return { trace, run: { ...run, outputs: { out: run.outputs.out } } }
   },
   check: (level, test, outputs) => {
-    const problem = judge(test.want ?? level.want, test, outputs.out, level.notation, level)
+    const problem = judge(test.want ?? level.want, test, outputs.out, level.notation)
     return [{ name: 'out', pass: !problem, reason: problem }]
   },
   score: (level, circuit) => ({ steps: circuit.nodes.filter((n) => n.type !== 'in' && n.type !== 'out').length }),
