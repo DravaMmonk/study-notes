@@ -123,7 +123,7 @@ const eqsIn = (v) => {
 // A unification rule card: the rule once, where it first applies; a set already failed passes through.
 const unifyCard = (r) => ({ inputs: ['in'], eval: ({ in: v }) => { const e = eqsIn(v); if (e.fail) return e; const next = UNIFY_RULES[r](e.eqs, {}); return next ? eqsValue(next.eqs, next.fail ?? null) : e } })
 
-// A proof term on the machine board (chapter 10): a rewrite card takes its detours out.
+// A proof term on the machine board (chapter 11): a rewrite card takes its detours out.
 export const termValue = (term) => ({ kind: 'pterm', term })
 const termIn = (v) => {
   if (v.kind !== 'pterm') throw fail('这里要一个证明项', 'This needs a proof term')
@@ -328,7 +328,7 @@ export const MACHINE_PARTS = {
     const { found } = auto([s], ctx.rules ?? KERNEL)
     return found.length ? { results: found } : { fail: T('auto 没有证完', 'auto did not finish') }
   }),
-  // Rewriting (chapter 9): one rule once, and simp, which the player builds of it; on a proof term (chapter 10) they
+  // Rewriting (chapter 9): one rule once, and simp, which the player builds of it; on a proof term (chapter 11) they
   // take its detours out, and Normalize is simp with every computation rule.
   rw: onTerms(tactic((s, ctx, node) => rewrite(s, rewritesOf(ctx, node, 'rewrite')[0], atOf(node))), (t, ctx, node) => rewriteTerm(t, rewritesOf(ctx, node, 'rewrite')[0], ctx.unfold), 'rewrite'),
   simp: onTerms(tactic((s, ctx, node) => simplify(s, rewritesOf(ctx, node, 'rewrites'), atOf(node))), (t, ctx, node) => simplifyTerm(t, rewritesOf(ctx, node, 'rewrites'), ctx.unfold), 'rewrites'),
