@@ -16,9 +16,8 @@
 
 /* ---- cards ---- */
 .ag-card { padding: 4px 10px 0; display: grid; gap: 5px; min-width: 0; }
-.ag-ctx { display: grid; gap: 2px; min-width: 0; }
-.ag-ctx b { font: 600 12.5px var(--sans); color: var(--ink); }
-.ag-ctx small, .ag-kept small { display: block; padding-left: 7px; border-left: 2px solid var(--kind, var(--rule)); color: var(--muted); font-size: 10.5px; line-height: 1.45; overflow-wrap: anywhere; }
+.ag-ctx { --entry-row: 17.2px; }
+.ag-ctx small:not(.entries-count) { display: block; padding-left: 7px; border-left: 2px solid var(--kind, var(--rule)); color: var(--muted); font-size: 10.5px; line-height: 1.45; overflow-wrap: anywhere; }
 .ag-empty { color: var(--faint); font-size: 11.5px; }
 .ag-action { font: 600 12.5px/1.4 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
 .ag-action.is-done { color: var(--accent-ink); }
@@ -50,7 +49,6 @@
 .ag-verdict { margin: 0; font-size: 13px; line-height: 1.55; }
 .ag-verdict.is-pass { color: var(--status); }
 .ag-verdict.is-fail { color: var(--fail); }
-.ag-kept { display: grid; gap: 2px; }
 .ag-score { margin-top: 18px; }
 .ag-score .stat-row { display: flex; flex-wrap: wrap; gap: 14px 18px; }
 .ag-score .stat { display: grid; }

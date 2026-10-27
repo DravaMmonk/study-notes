@@ -166,7 +166,7 @@ export default function BoardScreen({ game, level: entry, saved, save, solve, la
   const test = level.tests[testIndex]
   const steps = (shown.list.length ? shown.list : []).map((t, k) => ({
     label: actionText(t.calls[0]?.action),
-    value: t.kept.length ? <span className="ag-kept">{t.kept.map((e, j) => <small key={j} data-kind={e.kind}>{L(entryText(e))}</small>)}</span> : null,
+    value: t.kept.length ? <ContextValue value={t.kept} /> : null,
   }))
   const verdict = ended ? runOf.fail : null
   const strip = (

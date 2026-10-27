@@ -1,6 +1,7 @@
 // What the agent domain shows besides its boards: an action and an entry in words, a context as a bar of its entries
 // against the window, the repository with what has been done to it, and the issue.
 import { L, tr } from '../../../shell/i18n.js'
+import Entries from '../../../shell/Entries.jsx'
 import { segOf, fileOf, tokensOf } from '../world.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -29,14 +30,13 @@ export function entryText(entry) {
 const WHY = { missing: T('没改', 'not changed'), wrong: T('改错了', 'wrong'), madeup: T('调用了不存在的函数', 'calls a function that does not exist') }
 export const whyText = (why) => WHY[why]
 
-/** A context's value on a card: how many entries and tokens, and the last few. */
+/** A context's value on a card: its entries in order (the kit's Entries), then how many and how many tokens. */
 export function ContextValue({ value }) {
   if (!value.length) return <span className="ag-empty">{tr('空', 'empty')}</span>
   return (
-    <span className="ag-ctx">
-      <b>{tr(`${value.length} 条 · ${tokensOf(value)} tok`, `${value.length} · ${tokensOf(value)} tok`)}</b>
-      {value.slice(-3).map((e, k) => <small key={k} data-kind={e.kind}>{L(entryText(e))}</small>)}
-    </span>
+    <Entries className="ag-ctx" count={tr(`共 ${value.length} 条 · ${tokensOf(value)} tok`, `${value.length} entr${value.length === 1 ? 'y' : 'ies'} · ${tokensOf(value)} tok`)}>
+      {value.map((e, k) => <small key={k} data-kind={e.kind}>{L(entryText(e))}</small>)}
+    </Entries>
   )
 }
 

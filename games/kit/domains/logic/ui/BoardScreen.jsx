@@ -13,7 +13,6 @@ import RuleField from './RuleField.jsx'
 import RulesField from './RulesField.jsx'
 import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt } from './stepping.js'
-import { ROWS } from './boards.jsx'
 
 // A level of the logic domain played on the shared circuit editor (《证明完毕》): a proof, whose wires carry proved
 // judgments, or a machine, whose wires carry formulas and clause sets (boards.jsx says how each runs, is judged and
@@ -244,8 +243,8 @@ function Setting({ s, node, board, parts, lemmas, circuit, scene, setParam, form
 }
 
 // Under a card's ports: its settings, and what it gives (or why it cannot yet); a frame shows that by its regions'
-// results instead, and folded, how much it holds. In a part's sheet (`rows`: ROWS.sheet) a list shows more entries.
-function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, text, formsOf, rows = ROWS.card }) {
+// results instead, and folded, how much it holds.
+function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, text, formsOf }) {
   const { Value } = board
   const value = view.values.get(node.id)
   const error = view.errors.get(node.id)
@@ -261,11 +260,11 @@ function CardBody({ node, board, parts, lemmas, circuit, view, scene, setParam, 
       {board.settings(parts, node, lemmas).map((s) => <Setting key={s.key} s={s} node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} scene={scene} setParam={setParam} formsOf={formsOf} />)}
       {board.extra?.(node, setParam, { ins: Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, view.values.get(w.from)])), text })}
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
-      {role === 'source' && (board.ioBox ? <IoBox><Value rows={rows} v={value} text={text} /></IoBox> : <Value rows={rows} v={value} text={text} bare />)}
-      {role === 'sink' && board.ioBox && !problem && <IoBox><Value rows={rows} v={value} text={text} /></IoBox>}
+      {role === 'source' && (board.ioBox ? <IoBox><Value v={value} text={text} /></IoBox> : <Value v={value} text={text} bare />)}
+      {role === 'sink' && board.ioBox && !problem && <IoBox><Value v={value} text={text} /></IoBox>}
       {role !== 'source' && !(role === 'sink' && board.ioBox && !problem) && (!regions.size || node.fold) && (problem || (multi ? multi.map((o) => (
-        <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Value rows={rows} v={view.values.get(srcOf(node, o.key))} text={text} /></span>
-      )) : <Value rows={rows} v={value} text={text} />))}
+        <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Value v={view.values.get(srcOf(node, o.key))} text={text} /></span>
+      )) : <Value v={value} text={text} />))}
     </div>
   )
 }
@@ -348,7 +347,7 @@ function PhoneBoard({ board, parts, lemmas, circuit, view, scene, result, verdic
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(node.type))}</p>}
-            <CardBody node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} formsOf={formsOf} rows={ROWS.sheet} />
+            <CardBody node={node} board={board} parts={parts} lemmas={lemmas} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} formsOf={formsOf} />
             {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={() => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
