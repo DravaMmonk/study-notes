@@ -241,7 +241,7 @@ export const automation = [
     brief: T('接一台机器：推得出 ⊥ 的，推出来；推不出的，一直归结到再也没有新子句。', 'Wire a machine that reaches ⊥ where it follows, and where it does not, resolves until no new clause appears.'),
     hint: [T('归结一圈还不够：放进重复框。', 'One round of resolution is not enough: put it in a repeat frame.')],
     intro: [
-      { t: T('<level-ref to="au-refute"></level-ref>里，每一步消哪一对是你挑的。机器不会挑：新元件<part-ref to="part:resolve"></part-ref>把每一对能消的都消一次，新子句加进来，记下它从哪两条来。', 'In <level-ref to="au-refute"></level-ref> you picked the pair to cancel at each step. A machine does not pick: the new card <part-ref to="part:resolve"></part-ref> cancels every pair that can be cancelled once, adding each new clause with the two it came from.') },
+      { t: T('<level-ref to="au-refute"></level-ref>里，每一步消哪一对是你挑的。机器不会挑：新元件「归结一圈」把每一对能消的都消一次，新子句加进来，记下它从哪两条来。', 'In <level-ref to="au-refute"></level-ref> you picked the pair to cancel at each step. A machine does not pick: the new card “a round of resolution” cancels every pair that can be cancelled once, adding each new clause with the two it came from.') },
       { t: T('子句里有变量时，一对文字先合一，再消：「¬x是人 ∨ x会死」和「苏格拉底是人」，x 合一成苏格拉底。接出的机器会成为新元件<part-ref to="lemma:saturate"></part-ref>。', 'When clauses have variables, a pair of literals is unified first, then cancelled: “¬x is human ∨ x is mortal” and “Socrates is human”, with x unified to Socrates. The machine you wire becomes a new part, <part-ref to="lemma:saturate"></part-ref>.') },
     ],
     solution: flow({ frame: 'repeat', body: ['resolve'] }),
@@ -337,7 +337,7 @@ export const automation = [
           { goal: 'Late', hyps: ['Bus ∨ ¬Up', 'Up ∨ ¬Bus'] },
         ],
         adds: ['oracle'],
-        brief: T('接一台机器，把<part-ref to="part:oracle"></part-ref>的证书交给核重放。', 'Wire a machine that hands the certificate of <part-ref to="part:oracle"></part-ref> to the kernel to replay.'),
+        brief: T('接一台机器，把别人的证明器的证书交给核重放。', 'Wire a machine that hands the certificate of someone else’s prover to the kernel to replay.'),
         hint: [T('化成子句，别人的证明器，重放。', 'Into clauses, the other prover, replay.')],
         solution: flow('clausify', 'oracle', 'replay'),
       }),
@@ -351,7 +351,7 @@ export const automation = [
         hint: [T('<level-ref to="au-onepair"></level-ref>里那一行，再让地是干的。', 'The row of <level-ref to="au-onepair"></level-ref>, with the ground dry.')],
       },
     ],
-    intro: [{ t: T('别人给了一个证明器，说它比饱和器快得多。快，是因为它两条子句之间有几对相反的文字就一起消掉。', 'Someone hands over a prover, said to be far faster than the saturator. It is fast because it cancels every opposite pair two clauses have, all at once.') }, { t: T('它就是<part-ref to="part:oracle"></part-ref>：每个目标它都推出了 ⊥。', 'It is <part-ref to="part:oracle"></part-ref>: it reaches ⊥ on every goal.') }],
+    intro: [{ t: T('别人给了一个证明器，说它比饱和器快得多。快，是因为它两条子句之间有几对相反的文字就一起消掉。', 'Someone hands over a prover, said to be far faster than the saturator. It is fast because it cancels every opposite pair two clauses have, all at once.') }, { t: T('它已经摆在板上了：每个目标它都推出了 ⊥。', 'It is on the board already: it reaches ⊥ on every goal.') }],
     after: T('证明器错了，核不会跟着错：重放到它一次消两对的那一步，核证不出来，目标就没有证完。外面的证明器有多少错，都造不出假定理。', 'The prover is wrong, and the kernel does not follow it: at the step where it cancels two pairs at once, the kernel cannot prove the clause, and the goal stays unproved. However many mistakes an outside prover makes, it cannot make a false theorem.'),
   },
 

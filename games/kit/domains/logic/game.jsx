@@ -33,6 +33,8 @@ export function defineLogicGame(spec) {
   const machines = Object.fromEntries(spec.logic.machines.map((type) => [type, RULE_TEXT[type] ?? MACHINE_TEXT[type]]))
   const facts = LEVELS[0]?.facts ?? {}
   const built = { ...gates, ...lemmas, ...facts, ...machines }
+  // A part that stays where it is brought (`local`) is in no components box and unlocks nothing to show.
+  const kept = ([type]) => !spec.logic.course.local(type)
   // The rules and gates the course starts from, each from the levels that bring it in.
   const primitives = [...introductions(spec.logic.course)].map(([type, at]) => {
     const gate = PRIMITIVE_GATES[type] ?? MACHINE_TEXT[type]
@@ -80,15 +82,15 @@ export function defineLogicGame(spec) {
       term: { Screen: TermScreen, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
       script: { Screen: ScriptScreen, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
     },
-    unlocked: (level) => level.unlocks.map((flag) => ({ label: built[flag.slice('lemma:'.length)].name })),
+    unlocked: (level) => level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !spec.logic.course.local(type)).map((type) => ({ label: built[type].name })),
     core: (level) => isCore(spec.logic.course, level),
     parts: {
       all: [
         ...primitives,
-        ...Object.entries(gates).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: Cpu })),
-        ...Object.entries(lemmas).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type) })),
-        ...Object.entries(machines).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: Cog })),
-        ...Object.entries(facts).map(([type, f]) => ({ key: `lemma:${type}`, name: f.name, desc: f.desc, icon: Cog })),
+        ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: Cpu })),
+        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type) })),
+        ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: Cog })),
+        ...Object.entries(facts).filter(kept).map(([type, f]) => ({ key: `lemma:${type}`, name: f.name, desc: f.desc, icon: Cog })),
       ],
     },
     // Fewer steps (proof steps, or gates) is better.
