@@ -24,14 +24,14 @@ export const declarations = [
     ],
     intro: [
       { t: T('证明核里只有套用和假设框，没有「并且」。一个新的连接词要先<wiki-ref to="declaration"></wiki-ref>：写出它有哪几种造法。每种造法是一条新规则，用假设来写：「假设下雨，再假设刮风，就得到『下雨并且刮风』」。', 'The kernel has only Apply and the assumption box; there is no “and”. A new connective first needs a <wiki-ref to="declaration"></wiki-ref>: its ways to make it, written out. Each way is a new rule, written with assumptions: “assume it rains, then assume it is windy, and you have ‘it rains and it is windy’”.') },
-      { t: T('一张假设接进另一张的「再假设」，是同一种造法要两样；两张假设各接一个造法口，是两种造法。造法接进连接词以后，核替每一种造法生成一个拆法，拆法取回那种造法交进去的证明。', 'An assumption wired into another’s “then assume” is one way that needs both; two assumptions each in a way of their own are two ways. Once a way goes into the connective, the kernel makes a case for it, which gets back the proofs that way took.') },
+      { t: T('一张假设接进另一张的「先假设」，是同一种造法要两样，顺着线先假设前一句、再假设后一句；两张假设各接一个造法口，是两种造法。造法接进连接词以后，核替每一种造法生成一个拆法，拆法取回那种造法交进去的证明。', 'An assumption wired into another’s “assumed first” is one way that needs both, assumed along the wire; two assumptions each in a way of their own are two ways. Once a way goes into the connective, the kernel makes a case for it, which gets back the proofs that way took.') },
     ],
     brief: T('「下雨，并且刮风」：两份证明都在手里，才证得出。写出它的声明。', '“It rains and it is windy”: proved only with both proofs at hand. Write its declaration.'),
     hint: [
-      T('只有一种造法，要两样：拿两张假设，一张选「下雨」，一张选「刮风」，把「刮风」接进「下雨」的「再假设」。', 'One way, needing both: take two assumptions, one of “it rains” and one of “it is windy”, and wire “it is windy” into the “then assume” of “it rains”.'),
-      T('再把「下雨」接进「并且」的造法 ①。', 'Then wire “it rains” into way ① of “and”.'),
+      T('只有一种造法，要两样：拿两张假设，一张选「下雨」，一张选「刮风」，把「下雨」接进「刮风」的「先假设」。', 'One way, needing both: take two assumptions, one of “it rains” and one of “it is windy”, and wire “it rains” into the “assumed first” of “it is windy”.'),
+      T('再把「刮风」接进「并且」的造法 ①。', 'Then wire “it is windy” into way ① of “and”.'),
     ],
-    solution: isoBoard(['Wind>Rain', 'Rain>1']),
+    solution: isoBoard(['Rain>Wind', 'Wind>1']),
     naive: isoBoard(['Rain>1', 'Wind>2']),
     after: T('一种造法：下雨 → 刮风 → 下雨并且刮风，就是 Lean 的 <code>And.intro</code>。核为它生成了一个拆法，取回交进去的两份证明；两份不全，它就证不出。这条规则不是证出来的：「并且」原本不存在，它是新的规则本身。写成证明，它就是两层假设框，只是框里不用证，结论由声明直接给出。', 'One way: it rains → it is windy → it rains and it is windy, Lean’s <code>And.intro</code>. The kernel made one case for it, which gets back the two proofs handed in; without both, it is not proved. This rule was not proved: “and” did not exist before, so the rule is new in itself. Written as a proof it would be two assumption boxes, with nothing to prove inside: the declaration gives the conclusion.'),
   }),
@@ -50,7 +50,7 @@ export const declarations = [
     brief: T('「今天是周六，或者今天是周日」：手里有其中一份证明就证得出，两份都有也行。写出它的声明。', '“Today is Saturday or today is Sunday”: proved with either proof at hand, and with both. Write its declaration.'),
     hint: [T('两种造法，各要一样：两张假设不串，各接一个造法口。', 'Two ways, each needing one: no chain, each assumption into a way of its own.')],
     solution: isoBoard(['Sat>1', 'Sun>2']),
-    naive: isoBoard(['Sun>Sat', 'Sat>1']),
+    naive: isoBoard(['Sat>Sun', 'Sun>1']),
     after: T('两种造法，就有两个拆法：Lean 的 <code>Or.inl</code>、<code>Or.inr</code>。拿到一份「或者」的证明，不知道是哪种造法造的，只好两个拆法都准备好，看实际是哪一种就走哪一个：这就是分情况。', 'Two ways, so two cases: Lean’s <code>Or.inl</code> and <code>Or.inr</code>. Holding a proof of “or”, you do not know which way made it, so both cases stand ready, and the one it was made by is taken: that is “case by case”.'),
   }),
   declare({

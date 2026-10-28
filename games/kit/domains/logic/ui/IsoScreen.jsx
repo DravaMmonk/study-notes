@@ -22,12 +22,12 @@ const CIRCLED = ['①', '②', '③']
 /** The editor's description of the board (../../circuit/model.js), with the level's words for its letters. */
 function isoPartsFor(level, words) {
   return {
-    inputs: (node) => (node.type === 'hyp' ? ['then'] : node.type === DECL ? declInputs(node) : node.type === 'case' ? ['p'] : []),
+    inputs: (node) => (node.type === 'hyp' ? ['before'] : node.type === DECL ? declInputs(node) : node.type === 'case' ? ['p'] : []),
     role: (node) => (node.type === 'case' ? 'sink' : 'part'),
     label: (node) => (node.type === 'hyp' ? T('假设', 'Assume')
       : node.type === DECL ? T(`「${level.declare.zh}」`, `“${level.declare.en}”`)
       : T(`拆法 ${CIRCLED[node.params.k - 1]}`, `Case ${CIRCLED[node.params.k - 1]}`)),
-    portLabel: (node, port) => (node.type === DECL ? T(`造法 ${CIRCLED[Number(port.slice(1)) - 1]}`, `Way ${CIRCLED[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' ? T('再假设', 'Then assume') : ''),
+    portLabel: (node, port) => (node.type === DECL ? T(`造法 ${CIRCLED[Number(port.slice(1)) - 1]}`, `Way ${CIRCLED[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' ? T('先假设', 'Assumed first') : ''),
     family: (node) => (node.type === 'hyp' ? 'box' : node.type === DECL ? 'lemma' : 'given'),
     icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === DECL ? FileSignature : PackageOpen),
     cardWidth: () => 220,
@@ -35,8 +35,9 @@ function isoPartsFor(level, words) {
   }
 }
 
-const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => n.type === 'hyp' && n.locked)
-const HYP = { type: 'hyp', label: T('假设', 'Assume'), icon: SquareDashedText, family: 'box' }
+const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => n.type === 'hyp' && n.locked) && circuit.wires.every((w) => !w.to.startsWith('hyp-') || w.port === 'before')
+const HYP_DESC = T('假设一句话。一张假设接进它的「先假设」，就是先假设那句、再假设这句；它接进连接词的造法口，这一串就是一种造法。', 'Assume a sentence. An assumption wired into its “assumed first” is assumed before it; wired into a way of the connective, the chain is one way to make it.')
+const HYP = { type: 'hyp', label: T('假设', 'Assume'), desc: HYP_DESC, icon: SquareDashedText, family: 'box' }
 
 export default function IsoScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
@@ -174,7 +175,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
               body={body}
               cardClass={() => 'lg-node'}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
-              emptyNote={{ zh: '从上面拿一张假设，选它假设哪一句；一张假设接进另一张的「再假设」，是同一种造法要两样；假设接进连接词的造法口，就是一种造法。', en: 'Take an assumption from above and pick the sentence it assumes; one wired into another’s “then assume” is one way needing both; one wired into a way of the connective is one way to make it.' }}
+              emptyNote={{ zh: '从上面拿一张假设，选它假设哪一句；一张假设接进另一张的「先假设」，是同一种造法要两样；假设接进连接词的造法口，就是一种造法。', en: 'Take an assumption from above and pick the sentence it assumes; one wired into another’s “assumed first” is one way needing both; one wired into a way of the connective is one way to make it.' }}
             />
           </div>
         </div>
@@ -221,6 +222,7 @@ function PhoneIso({ circuit, parts, items, addHyp, brief, dock, change, onClear,
       {node && (
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
+            {node.type === 'hyp' && <p className="lg-desc">{L(HYP_DESC)}</p>}
             {body(node, 'sheet')}
             {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>

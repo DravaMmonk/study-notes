@@ -1,7 +1,7 @@
 // Declaring a connective (《证明完毕》's chapter of definitions and declarations), the way Lean declares one: by its
 // ways to make it, each a rule of its own, `And.intro : A → B → A ∧ B`. The player takes assumption cards from the
-// tray and picks on each which sentence it assumes. One card wired into another's "then assume" makes one rule of
-// both, assume A, then assume B; a card wired into the connective's card is one way to make it, and each input the
+// tray and picks on each which sentence it assumes. A card wired into another's "assumed first" makes one rule of
+// both, read along the wire: assume A, then assume B; a card wired into the connective's card is one way to make it, and each input the
 // card is given brings one more. So the boards write the constructors' types, `A → B → A ∧ B` (and) or `A → A ∨ B`
 // and `B → A ∨ B` (or), or nothing (⊥). Written as a proof these would be nested assumption boxes; a declared rule
 // has no proof inside, so it is a chain of assumptions, its conclusion given by the declaration.
@@ -34,12 +34,12 @@ const evidence = (letter, n) => ({ kind: 'ev', letter, n })
 
 /** The engine's parts: assumption cards, the connective, and the cases the kernel makes. */
 export const ISO_PARTS = {
-  // An assumption gives a rule: its own sentence, then whatever is wired into its "then assume".
+  // An assumption gives a rule: whatever is wired into its "assumed first", then its own sentence.
   hyp: {
-    inputs: ['then'],
-    optional: ['then'],
+    inputs: ['before'],
+    optional: ['before'],
     bare: true,
-    eval: ({ then }, node) => ({ kind: 'rule', needs: [node.params.name, ...(then?.needs ?? [])] }),
+    eval: ({ before }, node) => ({ kind: 'rule', needs: [...(before?.needs ?? []), node.params.name] }),
   },
   // The connective is made by the first way all of whose assumptions are at hand; with none, it is not made.
   [DECL]: {
@@ -122,8 +122,8 @@ export const startIso = () => ({ nodes: [{ id: DECL, type: DECL, params: { ways:
 export const hypCard = (id, letter, at) => ({ id, type: 'hyp', params: { name: letter }, ...at })
 
 /**
- * A reference board written compactly: isoBoard(['Wind>Rain', 'Rain>1']): a card assuming Wind wired into the
- * "then assume" of a card assuming Rain, the Rain card into the connective's first way.
+ * A reference board written compactly: isoBoard(['Rain>Wind', 'Wind>1']): a card assuming Rain wired into the
+ * "assumed first" of a card assuming Wind, the Wind card into the connective's first way.
  */
 export function isoBoard(wires) {
   const pairs = wires.map((s) => s.split('>'))
@@ -131,6 +131,6 @@ export function isoBoard(wires) {
   const start = startIso()
   return settle({
     nodes: [...start.nodes, ...letters.map((l, k) => hypCard(cardId(l), l, { x: 20, y: 40 + k * 200 }))],
-    wires: pairs.map(([from, to]) => (/^\d$/.test(to) ? { from: cardId(from), to: DECL, port: wayPort(Number(to)) } : { from: cardId(from), to: cardId(to), port: 'then' })),
+    wires: pairs.map(([from, to]) => (/^\d$/.test(to) ? { from: cardId(from), to: DECL, port: wayPort(Number(to)) } : { from: cardId(from), to: cardId(to), port: 'before' })),
   })
 }
