@@ -184,11 +184,14 @@
 .lg-occ-text button { margin: 0 2px; padding: 1px 6px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--ink); background: transparent; font: inherit; cursor: pointer; }
 .lg-occ-text button[aria-pressed='true'] { border-style: solid; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
 
-/* A rule part's rules, each written out: a ticked one is given, in the order listed; a long book scrolls. */
-.lg-ticks { display: grid; gap: 4px; max-height: 13em; overflow-y: auto; overscroll-behavior: contain; }
-.lg-ticks button { padding: 3px 8px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--muted); background: transparent; font: 12px var(--mono); text-align: left; overflow-wrap: anywhere; cursor: pointer; }
-.lg-ticks button[aria-pressed='true'] { border-style: solid; border-color: var(--accent); color: var(--ink); background: color-mix(in srgb, var(--accent) 22%, transparent); }
-.lg-ticks button:disabled { cursor: default; }
+/* A rule part's rules, in the order it gives them, each written out with × to take it off; a menu under them adds
+   one. A long list scrolls. */
+.lg-rules { display: grid; gap: 4px; max-height: 13em; overflow-y: auto; overscroll-behavior: contain; }
+.lg-rule { display: flex; align-items: flex-start; gap: 4px; padding: 3px 4px 3px 8px; border-radius: 6px; background: color-mix(in srgb, var(--accent) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
+.lg-rule code { flex: 1; min-width: 0; padding: 1px 0; font: 12px/1.45 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+.lg-rule button { flex: none; width: 20px; height: 20px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 5px; color: var(--muted); background: none; cursor: pointer; }
+.lg-rule button:hover { color: var(--fail); background: var(--hover); }
+.lg-rules select { width: 100%; padding: 4px 6px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--muted); background: transparent; font: 12px var(--mono); }
 
 /* The phone's preview under the result: the run's steps and its verdict, in a window of one fixed size that shows
    once the run has a step to show. */
@@ -260,7 +263,8 @@
    sheet, whose settings only show. */
 .lg-inside-phone { margin-top: 8px; }
 .lg-inside-scroll { height: 360px; overflow-y: auto; overscroll-behavior: contain; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--hairline); }
-.lg-readonly :is(select, .lg-ticks button, .lg-occ button) { pointer-events: none; }
+.lg-readonly :is(select, .lg-rules, .lg-occ button) { pointer-events: none; }
+.lg-readonly .lg-rules :is(select, button) { display: none; }
 
 /* Inside a built part, its inputs and its result are its own ports: on a desktop, small terminals at the board's
    left and right edges (their name and dot, no card); on a phone, the slot board's top and bottom rows, as thin. */
@@ -272,3 +276,4 @@
 .lg-inside-scroll .pb-term { min-height: 0; padding: 6px 8px; background: none; box-shadow: inset 0 0 0 1px var(--hairline); }
 .lg-inside-scroll .pb-term::after, .lg-inside-scroll .pb-term .pb-thumb, .lg-inside-scroll .pb-term .lg-sink { display: none; }
 .lg-inside-scroll .pb-term .pb-name { color: var(--muted); font-size: 12px; }
+.kit-board.is-readonly .lg-rules :is(select, button) { display: none; }

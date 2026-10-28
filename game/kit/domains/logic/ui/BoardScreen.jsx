@@ -14,7 +14,7 @@ import FormulaField from './FormulaField.jsx'
 import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt, openedAt } from './stepping.js'
 import { openRef } from '../../../shell/refs.js'
-import { ChevronDown, ChevronUp, Pencil } from 'lucide-react'
+import { ChevronDown, ChevronUp, Pencil, X } from 'lucide-react'
 import { MACHINE_PARTS, syncOwn } from '../machine.js'
 
 // A level of the logic domain played on the shared circuit editor (《证明完毕》): a proof, whose wires carry proved
@@ -256,18 +256,26 @@ const WAYS = [2, 3, 4, 5, 6]
 // in the run (shell StepLog): as tall as what it holds, up to that result's height, and scrolling past it.
 const IoBox = ({ children }) => <div className="lg-io" onPointerDown={(e) => e.stopPropagation()}>{children}</div>
 
-// The rules a rule part gives, each written out, ticked on or off; at least one stays ticked. The part gives them in
-// the order listed.
-function RuleTicks({ label, value, onChange, choices, disabled }) {
-  const toggle = (k) => {
-    const next = value.includes(k) ? value.filter((x) => x !== k) : [...value, k]
-    if (next.length) onChange(choices.map((c) => c.value).filter((c) => next.includes(c)))
-  }
+// The rules a rule part gives, in the order it gives them, each written out: × takes one off (never the last), and
+// a menu under them adds one it does not give yet, at the end. A part with one rule only shows it.
+function RuleList({ label, value, onChange, choices, disabled }) {
+  const kept = value.filter((k) => choices.some((c) => c.value === k))
+  const rest = choices.filter((c) => !kept.includes(c.value))
+  const labelOf = (k) => choices.find((c) => c.value === k).label
   return (
-    <div className="lg-ticks" role="group" aria-label={L(label)} onPointerDown={(e) => e.stopPropagation()}>
-      {choices.map((c) => (
-        <button key={c.value} type="button" aria-pressed={value.includes(c.value)} disabled={disabled} onClick={() => toggle(c.value)}>{c.label}</button>
+    <div className="lg-rules" role="group" aria-label={L(label)} onPointerDown={(e) => e.stopPropagation()}>
+      {kept.map((k) => (
+        <div key={k} className="lg-rule">
+          <code>{labelOf(k)}</code>
+          {kept.length > 1 && !disabled && <button type="button" aria-label={tr('去掉这条规则', 'Take this rule off')} onClick={() => onChange(kept.filter((x) => x !== k))}><X size={13} /></button>}
+        </div>
       ))}
+      {rest.length > 0 && !disabled && (
+        <select value="" aria-label={tr('添加规则', 'Add a rule')} onChange={(e) => e.target.value && onChange([...kept, e.target.value])}>
+          <option value="">{tr('＋ 添加规则', '+ Add a rule')}</option>
+          {rest.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+        </select>
+      )}
     </div>
   )
 }
@@ -281,7 +289,7 @@ function Setting({ s, node, board, parts, level, circuit, scene, setParam, forms
   switch (s.kind) {
     case 'form': return <FormulaField label={board.textOf(level, node.type)?.formLabel ?? T('形状', 'Shape')} value={formOf(parts.rules[node.type], node)} onChange={set} choices={shapesOf(parts.rules[node.type], board.textOf(level, node.type), formsOf(node.type)).map((o) => ({ value: o.key, label: L(o.label) }))} required disabled={disabled} />
     // A rule part's own rule, when it has several (../machine.js rulePartsOf).
-    case 'use': return <RuleTicks label={s.label} value={value || [scene.choices.uses[node.type][0].value]} onChange={set} choices={scene.choices.uses[node.type]} disabled={disabled} />
+    case 'use': return <RuleList label={s.label} value={value || [scene.choices.uses[node.type][0].value]} onChange={set} choices={scene.choices.uses[node.type]} disabled={disabled} />
     // As many regions as the frame has: never fewer than the last one holding something.
     case 'ways': {
       const regions = parts.frames(node).map((r) => r.name)
@@ -309,8 +317,8 @@ function CardBody({ node, board, parts, level, circuit, view, scene, setParam, t
   const held = regions.size ? within(circuit, node.id).size : 0
   const problem = error && <span className={`lg-error ${error === MISSING ? 'is-missing' : ''}`}>{error === MISSING ? tr('等接线', 'Waiting for wires') : L(error)}</span>
   const settings = board.settings(parts, node, level)
-  // A rule part whose rules are ticked on it, with none wired in before them, gives just those: the ticks say it.
-  const ticked = settings.some((s) => s.kind === 'use') && !circuit.wires.some((w) => w.to === node.id && w.port === 'before')
+  // A rule part shows the rules it gives of its own (its list); what comes in before them shows on the parts wired in.
+  const ruled = settings.some((s) => s.kind === 'use')
   return (
     <div className="lg-card">
       {role === 'sink' && scene.want}
@@ -319,7 +327,7 @@ function CardBody({ node, board, parts, level, circuit, view, scene, setParam, t
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
       {role === 'source' && (board.ioBox ? <IoBox><Value v={value} text={text} /></IoBox> : <Value v={value} text={text} bare />)}
       {role === 'sink' && board.ioBox && !problem && <IoBox><Value v={value} text={text} /></IoBox>}
-      {role !== 'source' && !(role === 'sink' && board.ioBox && !problem) && (!regions.size || node.fold) && !(ticked && !problem) && (problem || (multi ? multi.map((o) => (
+      {role !== 'source' && !(role === 'sink' && board.ioBox && !problem) && (!regions.size || node.fold) && !(ruled && !problem) && (problem || (multi ? multi.map((o) => (
         <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Value v={view.values.get(srcOf(node, o.key))} text={text} /></span>
       )) : <Value v={value} text={text} />))}
       {node.open && built?.is(node) && <InsideBoard path={[...built.path, node.id]} built={built} board={board} />}

@@ -5,12 +5,14 @@ import Library, { store, useSeen } from './Library.jsx'
 
 // The components box (元件箱), laid out like the encyclopedia: every part the game has, in the order it is earned,
 // each with what it does and a bench to try it on. A game's `parts` brings
-// { all: [{ key, name, desc?, icon?, family? }], demo?(part, { phone }) → React node,
+// { all: [{ key, name, desc?, icon?, family?, rules? }], demo?(part, { phone }) → React node,
 //   filters?(progress) → [{ key, name, icon?, lock?, keys }] }: the demo is a small circuit with the part at its
 // centre that the player can change and run (games/kit/circuit DemoBench), on the desktop board or, on a phone, the
 // phone one. A filter narrows the box to `keys` (a Set), such as the parts one robot can use; `icon` is SVG markup
 // for a 32 × 32 box, and `lock` the label of the level that opens it (null once open). The level that earns a part is the
-// one whose `unlocks` lists its key, or for a primitive the first level that brings it in (`at`).
+// one whose `unlocks` lists its key, or for a primitive the first level that brings it in (`at`). `rules` lists what a
+// part gives as rules ([{ text, form? }], a game whose parts are rules), in a table of their own; a row with a `form`
+// shows once the part's text has that form (revisions' `forms`).
 
 /** Which parts are earned and which are new, for the components box and its button. */
 export function useParts(game, progress) {
@@ -80,12 +82,20 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
     const part = all.find((p) => p.key === key)
     const level = levelOf(game, part)
     const demo = game.parts.demo?.(part, { phone })
+    // A rule a shape gives shows once the part has that shape.
+    const rules = (part.rules ?? []).filter((r) => !r.form || part.forms?.includes(r.form))
     return (
       <article className="wiki-article parts-article" key={key} data-family={part.family}>
         {back}
         {level && <span className="panel-label">{tr(`第 ${game.levelLabel(level)} 关 · ${L(level.title)}`, `Level ${game.levelLabel(level)} · ${L(level.title)}`)}</span>}
         <h2>{chip(part, 18)}{L(part.name)}</h2>
         {part.desc && <p dangerouslySetInnerHTML={{ __html: String(L(part.desc)) }} />}
+        {rules.length > 0 && (
+          <section className="parts-rules">
+            <h3>{tr('给出的规则', 'Rules it gives')}</h3>
+            <table><tbody>{rules.map((r) => <tr key={r.text}><td><code>{r.text}</code></td></tr>)}</tbody></table>
+          </section>
+        )}
         {demo}
       </article>
     )
