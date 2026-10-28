@@ -2,12 +2,12 @@
 //
 //   { version, solved: [levelId], flags: [flag], data: { [levelId]: anything the level keeps },
 //     slots: { [levelId]: the level's other saved boards (slots.js) }, best: { [levelId]: score }, tasks: { [levelId]: tasks passed },
-//     runs: { [levelId]: { '<task>#<slot no>': the board's last run, as its screen marks it } }, seenPower, introSeen: { [levelId]: true }, all }
+//     seenPower, introSeen: { [levelId]: true }, all }
 //
 // A game's own `progress.migrate(saved)` brings an older save (its own version numbers, or an older key it read
 // before the shell existed) up to this shape; `progress.version` is the game's current version.
 
-const blank = (version) => ({ version, solved: [], flags: [], data: {}, slots: {}, best: {}, tasks: {}, runs: {}, seenPower: false, introSeen: {}, all: false })
+const blank = (version) => ({ version, solved: [], flags: [], data: {}, slots: {}, best: {}, tasks: {}, seenPower: false, introSeen: {}, all: false })
 
 export function createProgress({ id, version = 1, migrate = (saved) => saved, legacy = () => null }) {
   const key = `${id}.v1`

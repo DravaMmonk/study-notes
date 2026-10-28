@@ -28,8 +28,9 @@ const SITE = { games: '../index.html' }
  *   { game, level, saved, save(data, { quiet }), solved, solve(score?), fail(info), lastRun, keepRun(mark), flags,
  *     progress, theme, phone }
  *
- * `lastRun` is how the screen marked its board's last run (progress.runs, per task and slot), or undefined: the screen
- * replays that run on the board when it opens, so a run outlives leaving the level, another task or a reload.
+ * `lastRun` is how the screen marked its board's last run (per task and slot, while the level stays open), or
+ * undefined: the screen replays that run on the board when it opens, so a run outlives another task or slot, but not
+ * leaving the level.
  * `keepRun(mark)` keeps a new mark (null: none, as once the board changes).
  *
  * The screen lays itself out with Workbench / PhonePage and Brief from Layout.jsx.
@@ -98,8 +99,12 @@ export default function GameShell({ game }) {
   }, [drawer])
 
   const [left, setLeft] = useState(null) // the level last left for the map, which the map opens at
+  // How each board of the level played last ran ('<task>#<slot no>' → its screen's mark): kept while the level is
+  // open, from task to task and slot to slot, and gone once it is left.
+  const [runs, setRuns] = useState({})
   const open = (id) => {
     if (!id) setLeft(levelId)
+    setRuns({})
     setLevelId(id)
     setTaskAt(id && game.byId[id] ? firstTask(id) : 0)
     setTaskWon(null)
@@ -214,14 +219,13 @@ export default function GameShell({ game }) {
   }
   // The last run of the board played (see above).
   const runAt = slots && runKey(taskAt, slots.list[slots.at].no)
-  const lastRun = level ? progress.runs?.[level.id]?.[runAt] : undefined
-  const keepRun = (mark) => setProgress((p) => {
-    const kept = p.runs?.[level.id] ?? {}
-    if (JSON.stringify(kept[runAt] ?? null) === JSON.stringify(mark ?? null)) return p
+  const lastRun = level ? runs[runAt] : undefined
+  const keepRun = (mark) => setRuns((kept) => {
+    if (JSON.stringify(kept[runAt] ?? null) === JSON.stringify(mark ?? null)) return kept
     const next = { ...kept }
     if (mark == null) delete next[runAt]
     else next[runAt] = mark
-    return { ...p, runs: { ...p.runs, [level.id]: next } }
+    return next
   })
   const slotsCtl = slots && {
     ...slots,
@@ -230,7 +234,12 @@ export default function GameShell({ game }) {
     open: slotted(openSlot),
     add: slotted(addSlot),
     rename: (k, name) => setProgress((p) => renameSlot(p, level.id, k, name)),
-    drop: slotted(dropSlot),
+    // A slot dropped takes its runs with it: a slot added later may take its number.
+    drop: (k) => {
+      const no = slots.list[k].no
+      setRuns((kept) => Object.fromEntries(Object.entries(kept).filter(([key]) => !key.endsWith(`#${no}`))))
+      slotted(dropSlot)(k)
+    },
   }
 
   // The 引入 of what is played: the level's and its first task's, or a later task's own; seen once per task.
