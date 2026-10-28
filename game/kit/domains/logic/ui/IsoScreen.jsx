@@ -1,14 +1,12 @@
 import { useMemo, useRef, useState } from 'react'
-import { CircleDashed, FileSignature, SquareDashedText } from 'lucide-react'
+import { CircleDashed, CircleDot, FileSignature, SquareDashedText } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
 import FormulaField from './FormulaField.jsx'
-import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, runIso, settle, startIso, wayRule, waysIn } from '../iso.js'
-import { ruleText } from '../schematic.js'
+import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, runIso, sentenceOf, settle, startIso, thingCard, wayOf, wayRule, wayText, waysIn } from '../iso.js'
 import { RULE_TEXT } from './catalog.js'
 import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
@@ -26,13 +24,13 @@ const WAY = ['1', '2', '3']
 /** The editor's description of the board (../../circuit/model.js), with the level's words for its sentences. */
 function isoPartsFor(level, words) {
   return {
-    inputs: (node) => (node.type === 'hyp' ? ['before'] : node.type === DECL ? declInputs(node) : []),
+    inputs: (node) => (node.type === 'hyp' || node.type === 'thing' ? ['before'] : node.type === DECL ? declInputs(node) : []),
     role: (node) => (node.type === DECL ? 'sink' : 'part'),
-    label: (node) => (node.type === 'hyp' ? T('假设', 'Assume') : node.type === 'none' ? NONE.label
+    label: (node) => (node.type === 'hyp' ? T('假设', 'Assume') : node.type === 'none' ? NONE.label : node.type === 'thing' ? THING.label
       : T(`「${level.declare.zh}」`, `“${level.declare.en}”`)),
-    portLabel: (node, port) => (node.type === DECL ? T(`造法 ${WAY[Number(port.slice(1)) - 1]}`, `Way ${WAY[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' ? T('先假设', 'Assumed first') : ''),
+    portLabel: (node, port) => (node.type === DECL ? T(`造法 ${WAY[Number(port.slice(1)) - 1]}`, `Way ${WAY[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' || node.type === 'thing' ? T('先假设', 'Assumed first') : ''),
     family: (node) => (node.type === DECL ? 'lemma' : 'box'),
-    icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === 'none' ? CircleDashed : FileSignature),
+    icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === 'none' ? CircleDashed : node.type === 'thing' ? CircleDot : FileSignature),
     cardWidth: () => 220,
     rules: ISO_PARTS,
   }
@@ -42,11 +40,13 @@ const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.n
 const HYP_DESC = T('假设一句话。一张假设接进它的「先假设」，就是先假设那句、再假设这句；它接进连接词的造法口，这一串就是一种造法。', 'Assume a sentence. An assumption wired into its “assumed first” is assumed before it; wired into a way of the connective, the chain is one way to make it.')
 const HYP = { type: 'hyp', label: T('假设', 'Assume'), desc: HYP_DESC, icon: SquareDashedText, family: 'box' }
 const NONE = { type: 'none', label: T('不用假设', 'Assume nothing'), desc: T('什么都不假设。接进连接词的造法口，这种造法不要任何证明就能造。', 'Assume nothing. Wired into a way of the connective, that way makes it with no proof at all.'), icon: CircleDashed, family: 'box' }
-const TRAY = { hyp: HYP, none: NONE }
+const THING = { type: 'thing', label: T('任取一样东西', 'Any thing'), desc: T('任取一样东西，给它一个名字。接在它后面的假设可以提到这个名字：这样的造法对任何东西都成立。', 'Take any thing and give it a name. The assumptions after it may mention the name: such a way holds for any thing at all.'), icon: CircleDot, family: 'box' }
+const TRAY = { hyp: HYP, none: NONE, thing: THING }
 
 export default function IsoScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
-  const words = (letter) => say(parse(letter), level.notation)
+  const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
+  const thingWords = (name) => level.notation.words?.[name] ?? T(name, name)
   const parts = useMemo(() => isoPartsFor(level, words), [level])
   const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved) ? settle(saved) : startIso()))
   const [testIndex, setTestIndex] = useState(0)
@@ -66,7 +66,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     while (taken.has(`${type}-${k}`)) k += 1
     const id = `${type}-${k}`
     const used = new Set(circuit.nodes.filter((n) => n.type === 'hyp').map((n) => n.params.name))
-    const node = type === 'hyp' ? hypCard(id, level.sentences.find((l) => !used.has(l)) ?? level.sentences[0], at) : { id, type, params: {}, ...at }
+    const node = type === 'hyp' ? hypCard(id, level.sentences.find((l) => !used.has(l)) ?? level.sentences[0], at) : type === 'thing' ? thingCard(id, level.binder ?? 'x', at) : { id, type, params: {}, ...at }
     return { id, graph: { ...circuit, nodes: [...circuit.nodes, node] } }
   }
   const pick = (node, name) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, name } } : n)) })
@@ -106,27 +106,33 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const Value = ({ f }) => <PROOF.Value v={{ formula: f, hyps: new Map() }} text={text} />
   const body = (node, at = 'card') => {
     if (node.type === 'none') return null
+    if (node.type === 'thing') return <div className="lg-card"><span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.name}</b></span></div>
     if (node.type === 'hyp') {
-      if (at === 'tile') return <div className="lg-card"><Value f={parse(node.params.name)} /></div>
+      if (at === 'tile') return <div className="lg-card"><Value f={sentenceOf(level, node.params.name)} /></div>
       return <div className="lg-card"><FormulaField label={T('假设', 'Assume')} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /></div>
     }
     const way = (k) => (at === 'sheet' ? tr(`造法 ${WAY[k]}：`, `Way ${WAY[k]}:`) : `${WAY[k]}.`)
     return (
       <div className="lg-card">
-        {ways > 0 && <Entries className="lg-clauses">{Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <code key={k}>{`${way(k)} ${ruleText(wayRule(rule.needs, level), text)}`}</code>)}</Entries>}
+        {ways > 0 && <Entries className="lg-clauses">{Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <code key={k}>{`${way(k)} ${wayText(wayRule(wayOf(rule), level), text)}`}</code>)}</Entries>}
         {view.made ? <span className="lg-tv is-true">{tr(`证得出：造法 ${WAY[view.made.way - 1]}`, `Proved by way ${WAY[view.made.way - 1]}`)}</span> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
       </div>
     )
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
+  // The table's columns: the sentence each situation asks about (when the declared sentence mentions a thing), and
+  // every proof any situation has at hand.
+  const goals = level.tests.some((t) => t.goal)
+  const held = [...new Set(level.tests.flatMap((t) => Object.keys(t.have)))]
   const table = (
     <div className="lg-strip">
       <div className="lg-scroll-x">
         <table className="lg-rows">
           <thead>
             <tr>
-              {level.sentences.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
+              {goals && <th>{tr('要证', 'To prove')}</th>}
+              {held.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
               <th>{tr(`「${level.declare.zh}」`, `“${level.declare.en}”`)}</th>
               <th>{tr('拆法取回', 'Case gets back')}</th>
             </tr>
@@ -137,9 +143,10 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
               const shownRow = run ? k < run.results.length : t === test
               return (
                 <tr key={k} className={`${t === test ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => setTestIndex(k)}>
-                  {level.sentences.map((l) => <td key={l}>{t.have[l] ? `#${t.have[l]}` : '—'}</td>)}
+                  {goals && <td>{t.goal ? L(words(t.goal)) : ''}</td>}
+                  {held.map((l) => <td key={l}>{t.have[l] ? `#${t.have[l]}` : '—'}</td>)}
                   <td>{shownRow ? (r.made ? tr(`证得出：${WAY[r.made.way - 1]}`, `Proved: ${WAY[r.made.way - 1]}`) : tr('证不出', 'Not proved')) : ''}</td>
-                  <td>{shownRow && r.back ? (r.back.length ? r.back.map((x) => `#${x.n}`).join(' · ') : tr('什么都没有', 'Nothing')) : ''}</td>
+                  <td>{shownRow && r.back ? (r.back.length ? r.back.map((x) => (x.kind === 'thing' ? L(thingWords(x.name)) : `#${x.n}`)).join(' · ') : tr('什么都没有', 'Nothing')) : ''}</td>
                 </tr>
               )
             })}
@@ -258,8 +265,8 @@ export function DeclaredRules({ level }) {
     <div className="dialog-note">
       <span className="panel-label">{tr('声明给出的规则', 'The rules it declares')}</span>
       <div className="lg-clauses">
-        {rules.make.map((r, k) => <code key={k}>{tr(`造法 ${WAY[k]}：`, `Way ${WAY[k]}: `)}{ruleText(r, text)}</code>)}
-        <code>{tr('拆法：', 'Cases: ')}{ruleText(rules.take, text)}</code>
+        {rules.make.map((r, k) => <code key={k}>{tr(`造法 ${WAY[k]}：`, `Way ${WAY[k]}: `)}{wayText(r, text)}</code>)}
+        <code>{tr('拆法：', 'Cases: ')}{wayText(rules.take, text)}</code>
       </div>
       {level.adds?.length > 0 && <p>{tr('证明板上从此多了：', 'On the proof board from now on: ')}{level.adds.map((type) => L(RULE_TEXT[type].name)).join(tr('、', ', '))}</p>}
     </div>
