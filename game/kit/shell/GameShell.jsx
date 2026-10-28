@@ -151,8 +151,11 @@ export default function GameShell({ game }) {
     }
     setProgress((p) => {
       const best = p.best[level.id]
+      // The board that passed a level that builds a part: the part runs it from now on.
+      const board = tasks ? p.data[level.id]?.[tasks.length - 1] : p.data[level.id]
       return {
         ...p,
+        ...(level.unlocks?.length && board ? { built: { ...p.built, [level.id]: board } } : {}),
         solved: [...new Set([...p.solved, level.id])],
         flags: [...new Set([...p.flags, ...(level.unlocks ?? [])])],
         best: score && game.better(score, best) ? { ...p.best, [level.id]: score } : p.best,

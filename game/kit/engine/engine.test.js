@@ -79,6 +79,16 @@ test('a packed circuit is a part', () => {
   assert.equal(runBoard(c, { parts, bind: { in: 5 } }).outputs.out, 20)
 })
 
+test('a packed part traces each card inside with its path', () => {
+  const inner = io([{ id: 'a', type: 'add' }], w('in>a.a in>a.b a>out'))
+  const parts = { ...PARTS, dbl: packed({ circuit: inner, inputs: ['in'], output: 'out' }) }
+  const c = io([{ id: 'd', type: 'dbl' }], w('in>d d>out'))
+  const trace = []
+  runBoard(c, { parts, bind: { in: 2 }, ctx: { trace } })
+  assert.ok(trace.some((s) => s.id === 'a' && s.path?.[0] === 'd' && s.value === 4))
+  assert.ok(trace.some((s) => s.id === 'd' && !s.path && s.value === 4))
+})
+
 test('a walk fills a table and stops at a key not written yet', () => {
   const run = (order) => walk({
     order,

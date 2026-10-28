@@ -53,11 +53,12 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * left corner switches between the level's saved boards and shows the board as text (SaveSlots); `types`, the parts
  * this level offers, lets text be imported onto it; `corner` is whatever the game puts beside it. `minFit` is the smallest zoom a fit may
  * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away. `scope` names the
- * board for undo (a level's stage): a new one starts the history over.
+ * board for undo (a level's stage): a new one starts the history over. A `readOnly` board (the inside of a part the
+ * player built, opened while a run steps through it) only shows: it pans, zooms and fits, and nothing on it moves.
  */
-export default function CanvasEditor({ graph, onChange: given, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+export default function CanvasEditor({ graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
   // A change never takes off what the level locked on the board (model.js keepLocked).
-  const onChange = (next, opt) => given(keepLocked(graph, next), opt)
+  const onChange = readOnly ? () => {} : (next, opt) => given(keepLocked(graph, next), opt)
   const history = useHistory(graph, onChange, scope)
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   // A part can be taken off the board; so can a source the game lets the player place (parts.removable).
@@ -547,7 +548,7 @@ export default function CanvasEditor({ graph, onChange: given, parts, body, head
   const canDelete = Boolean(selected?.wire && !isLocked(graph, selected.wire)) || Boolean(selectedNode && removable(selectedNode))
 
   return (
-    <div className={`board kit-board ${picking ? 'is-picking' : ''}`} ref={surface} onPointerDown={beginPan} onPointerMove={picking ? (e) => setPointer(pointIn(layer.current, e.clientX, e.clientY)) : undefined}>
+    <div className={`board kit-board ${picking ? 'is-picking' : ''} ${readOnly ? 'is-readonly' : ''}`} ref={surface} onPointerDown={beginPan} onPointerMove={picking ? (e) => setPointer(pointIn(layer.current, e.clientX, e.clientY)) : undefined}>
       <div className="board-grid" style={{ backgroundPosition: `${view.x}px ${view.y}px`, backgroundSize: `${20 * view.zoom}px ${20 * view.zoom}px` }} />
       {!placed && emptyNote && <p className="board-empty">{L(emptyNote)}</p>}
       <div className="board-layer" ref={layer} onAnimationEnd={redraw} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
@@ -590,15 +591,21 @@ export default function CanvasEditor({ graph, onChange: given, parts, body, head
       )}
       {refused && <p className="board-refusal" role="status">{L(refused)}</p>}
       {overlay}
-      <div className="board-corner" onPointerDown={(e) => e.stopPropagation()}>
-        <SaveSlots board={{ graph, parts, change: onChange, types }} />
-        {corner}
-      </div>
+      {!readOnly && (
+        <div className="board-corner" onPointerDown={(e) => e.stopPropagation()}>
+          <SaveSlots board={{ graph, parts, change: onChange, types }} />
+          {corner}
+        </div>
+      )}
       <div className="board-zoom" onPointerDown={(e) => e.stopPropagation()}>
-        {onClear && <><ClearButton onClear={onClear} /><i className="board-zoom-rule" aria-hidden="true" /></>}
-        <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销（⌘/Ctrl+Z）', 'Undo (⌘/Ctrl+Z)')}><Undo2 size={14} /></button>
-        <button onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做（⇧⌘/Ctrl+Z）', 'Redo (⇧⌘/Ctrl+Z)')}><Redo2 size={14} /></button>
-        <i className="board-zoom-rule" aria-hidden="true" />
+        {!readOnly && (
+          <>
+            {onClear && <><ClearButton onClear={onClear} /><i className="board-zoom-rule" aria-hidden="true" /></>}
+            <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销（⌘/Ctrl+Z）', 'Undo (⌘/Ctrl+Z)')}><Undo2 size={14} /></button>
+            <button onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做（⇧⌘/Ctrl+Z）', 'Redo (⇧⌘/Ctrl+Z)')}><Redo2 size={14} /></button>
+            <i className="board-zoom-rule" aria-hidden="true" />
+          </>
+        )}
         <button onClick={() => zoomAt(0.85, ...centre())} aria-label={tr('缩小', 'Zoom out')}><Minus size={14} /></button>
         <output>{Math.round(view.zoom * 100)}%</output>
         <button onClick={() => zoomAt(1 / 0.85, ...centre())} aria-label={tr('放大', 'Zoom in')}><Plus size={14} /></button>

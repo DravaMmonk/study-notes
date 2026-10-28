@@ -50,3 +50,9 @@ test('migrations move and rewrite the waiting boards too', () => {
   assert.deepEqual(out.data, { b: 10 })
   assert.deepEqual(out.slots.b.list.map((s) => s.data), [undefined, 20])
 })
+
+test('a solved level’s kept board becomes the board its part runs', () => {
+  const { migrate } = migrations([{ version: 2, ops: [{ built: ['a', 'b', 'c'] }] }])
+  const out = migrate({ version: 1, solved: ['a', 'b'], data: { a: { nodes: [1] }, b: [{ nodes: [2] }, { nodes: [3] }], c: { nodes: [4] } } })
+  assert.deepEqual(out.built, { a: { nodes: [1] }, b: { nodes: [3] } })
+})

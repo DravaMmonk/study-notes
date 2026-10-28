@@ -31,16 +31,31 @@ export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, 
 /**
  * A solved circuit as one part: its sources are the part's inputs, `output` the sink it gives. `circuit` is the
  * circuit or a function returning it (the player's latest passing one). Anything else on `extra` is the part's own.
+ * Inside, the parts run with ctx.graph the circuit inside (and whatever `inside(ctx)` adds); a setting on the part
+ * goes to every card inside that has the same setting; and a traced run (circuit.js) sees each card inside as a step of its own, its `path` the ids of
+ * the packed parts it is in, outermost first.
  */
-export function packed({ circuit, inputs, output, ...extra }) {
+export function packed({ circuit, inputs, output, inside: around = (ctx) => ctx, ...extra }) {
   return {
     inputs,
     ...extra,
     eval: (ins, node, ctx) => {
-      const inside = typeof circuit === 'function' ? circuit() : circuit
-      const { outputs, errors } = runBoard(inside, { parts: ctx.engine.parts, prepare: ctx.engine.prepare, ctx, bind: ins })
-      if (errors.size || outputs[output] === undefined) throw new PartError(BROKEN)
+      const inside = withSettings(typeof circuit === 'function' ? circuit() : circuit, node.params, ctx.engine.parts)
+      const trace = ctx.trace && { push: (step) => ctx.trace.push({ ...step, path: [node.id, ...(step.path ?? [])] }) }
+      const { outputs, errors } = runBoard(inside, { parts: ctx.engine.parts, prepare: ctx.engine.prepare, ctx: { ...around(ctx), graph: inside, trace }, bind: ins })
+      if (outputs[output] === undefined) throw new PartError(errors.size ? [...errors.values()][0] : BROKEN)
       return outputs[output]
     },
   }
+}
+
+// A circuit with a packed part's settings put on every card inside that takes them.
+function withSettings(circuit, params = {}, parts) {
+  const keys = Object.keys(params).filter((k) => params[k] !== undefined && params[k] !== '')
+  if (!keys.length) return circuit
+  const partOf = partFn(parts)
+  return { ...circuit, nodes: circuit.nodes.map((n) => {
+    const own = keys.filter((k) => partOf(n.type)?.params?.includes(k))
+    return own.length ? { ...n, params: { ...n.params, ...Object.fromEntries(own.map((k) => [k, params[k]])) } } : n
+  }) }
 }

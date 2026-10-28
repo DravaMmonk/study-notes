@@ -13,7 +13,7 @@
 // `more` the further results after this one, when a tactic gives several, and `endless` that a search making them did
 // not stop (schematic.js does the unifying).
 import { fn, subst } from './formula.js'
-import { ELIM_RULES, INTRO_RULES, KERNEL_RULES, instantiate, metasIn, unify } from './schematic.js'
+import { KERNEL_RULES, instantiate, metasIn, unify } from './schematic.js'
 
 const T = (zh, en) => ({ zh, en })
 const NO_GOALS = T('已经没有目标了', 'No goals left')
@@ -129,30 +129,10 @@ const NONE = T('第一个目标和哪一条已知都对不上', 'The first goal 
 // Of the reasons unifying failed, the one worth saying: a metavariable that may not become a thing fixed after it.
 const late = (why) => why.find((w) => /之前留下|was left before/.test(w.en)) ?? null
 
-/** erule: rule, then assumption on the goal it leaves first (the rule's first premise fitted to a hypothesis). */
-export function erule(s, R) {
-  const r = rule(s, R)
-  if (r.fail) return r
-  const a = assumption(r.results[0])
-  return a.fail && a.fail === NONE ? { fail: T(`「${R.name.zh}」的第一条前提对不上哪一条已知`, `The first premise of “${R.name.en}” fits no hypothesis`) } : a
-}
-
 /** defer: the first goal moved to the end. */
 export function defer(s) {
   if (!s.goals.length) return { fail: NO_GOALS }
   return { results: [{ ...s, more: undefined, error: undefined, goals: [...s.goals.slice(1), s.goals[0]] }] }
-}
-
-/** Each of a list of rules in turn, every result of each (a rule set). */
-export function eachRule(s, rules, tactic) {
-  const results = []
-  let why = null
-  for (const r of rules) {
-    const out = tactic(s, r)
-    if (out.fail) why ??= out.fail
-    else results.push(...out.results)
-  }
-  return results.length ? { results } : { fail: why ?? T('没有规则', 'No rule') }
 }
 
 // A hypothesis written out with its ?-letters named in the order they appear: Human(?t1) → Animal(?t1) is the same
@@ -225,19 +205,3 @@ export function depthFirst(starts, expand, { depth = Infinity, limit = 600, most
 
 /** The kernel's rules by key. */
 export const KERNEL = Object.fromEntries(KERNEL_RULES.map((r) => [r.key, r]))
-
-/** frule: the rule used forward, as the player builds it: Have (cut) leaves a sentence ?A to prove first, then erule. */
-export function frule(s, R) {
-  const c = rule(s, KERNEL.cut)
-  return c.fail ? c : erule(c.results[0], R)
-}
-
-const ok = (r) => r.results ?? []
-/** One step taking the first goal apart by its shape: every introduction rule that fits (rules: the rule book). */
-export const introStep = (s, rules = KERNEL) => eachRule(s, INTRO_RULES.map((k) => rules[k]), rule)
-/** One step using a hypothesis: every elimination rule that fits one, by erule. */
-export const elimStep = (s, rules = KERNEL) => eachRule(s, ELIM_RULES.map((k) => rules[k]), erule)
-/** auto, as the player builds it: depth-first search, each step assumption, then taking the goal apart, then using a hypothesis. */
-export function auto(starts, rules = KERNEL, { limit = 250, most = 60 } = {}) {
-  return depthFirst(starts, (x) => [...ok(assumption(x)), ...ok(introStep(x, rules)), ...ok(elimStep(x, rules))], { limit, most })
-}

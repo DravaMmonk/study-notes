@@ -6,14 +6,17 @@
 //   { grant: [level id, flag] }              a flag for whoever solved that level
 //   { solve: [level id, [level id…]] }       levels counted solved for whoever solved that one
 //   { data: (value, level id) → value }      every level's kept state rewritten (a part renamed or gone from boards),
-//                                            the boards waiting in its other slots too (slots.js)
+//                                            the boards waiting in its other slots too (slots.js), and the board
+//                                            a part was built from (built)
+//   { built: [level id…] }                   for each of these levels solved, the board it keeps (its last task's)
+//                                            becomes the board its part runs (built), as solving it now records
 //   { merge: [level id, [level id…]] }       levels that became the tasks of one level, in order: their boards make
 //                                            its list of task boards, the run of them solved from the first its tasks
 //                                            passed (all of them: the level solved); their other slots are dropped
 //
 // migrations(steps) gives the shell's { version, migrate } (progress.js): version is the newest step's.
 
-const RECORDS = ['data', 'boards', 'slots', 'best', 'tasks', 'introSeen']
+const RECORDS = ['data', 'boards', 'slots', 'built', 'best', 'tasks', 'introSeen']
 
 function rename(save, to) {
   const move = typeof to === 'function' ? to : (id) => (id in to ? to[id] : id)
@@ -40,8 +43,13 @@ const OPS = {
   data: (save, f) => ({
     ...save,
     ...(save.data && { data: Object.fromEntries(Object.entries(save.data).map(([id, value]) => [id, f(value, id)])) }),
+    ...(save.built && { built: Object.fromEntries(Object.entries(save.built).map(([id, value]) => [id, f(value, id)])) }),
     ...(save.slots && { slots: Object.fromEntries(Object.entries(save.slots).map(([id, s]) => [id, { ...s, list: s.list.map((slot) => ('data' in slot ? { ...slot, data: f(slot.data, id) } : slot)) }])) }),
   }),
+  built: (save, ids) => {
+    const boards = ids.filter((id) => (save.solved ?? []).includes(id) && save.data?.[id] != null).map((id) => [id, Array.isArray(save.data[id]) ? save.data[id].at(-1) : save.data[id]]).filter(([, b]) => b)
+    return boards.length ? { ...save, built: { ...save.built, ...Object.fromEntries(boards) } } : save
+  },
   merge: (save, [into, ids]) => {
     const solved = save.solved ?? []
     const run = ids.findIndex((id) => !solved.includes(id))
