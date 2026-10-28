@@ -222,6 +222,22 @@ const WAYS = [2, 3, 4, 5, 6]
 // in the run (shell StepLog): as tall as what it holds, up to that result's height, and scrolling past it.
 const IoBox = ({ children }) => <div className="lg-io" onPointerDown={(e) => e.stopPropagation()}>{children}</div>
 
+// The rules a rule part gives, each written out, ticked on or off; at least one stays ticked. The part gives them in
+// the order listed.
+function RuleTicks({ label, value, onChange, choices, disabled }) {
+  const toggle = (k) => {
+    const next = value.includes(k) ? value.filter((x) => x !== k) : [...value, k]
+    if (next.length) onChange(choices.map((c) => c.value).filter((c) => next.includes(c)))
+  }
+  return (
+    <div className="lg-ticks" role="group" aria-label={L(label)} onPointerDown={(e) => e.stopPropagation()}>
+      {choices.map((c) => (
+        <button key={c.value} type="button" aria-pressed={value.includes(c.value)} disabled={disabled} onClick={() => toggle(c.value)}>{c.label}</button>
+      ))}
+    </div>
+  )
+}
+
 // One setting on a card: what kind it is decides how it is chosen (board.settings).
 function Setting({ s, node, board, parts, level, circuit, scene, setParam, formsOf }) {
   const value = node.params[s.key] ?? ''
@@ -231,7 +247,7 @@ function Setting({ s, node, board, parts, level, circuit, scene, setParam, forms
   switch (s.kind) {
     case 'form': return <FormulaField label={board.textOf(level, node.type)?.formLabel ?? T('形状', 'Shape')} value={formOf(parts.rules[node.type], node)} onChange={set} choices={shapesOf(parts.rules[node.type], board.textOf(level, node.type), formsOf(node.type)).map((o) => ({ value: o.key, label: L(o.label) }))} required disabled={disabled} />
     // A rule part's own rule, when it has several (../machine.js rulePartsOf).
-    case 'use': return <FormulaField label={s.label} value={value || scene.choices.uses[node.type][0].value} onChange={set} choices={scene.choices.uses[node.type]} required disabled={disabled} />
+    case 'use': return <RuleTicks label={s.label} value={value || [scene.choices.uses[node.type][0].value]} onChange={set} choices={scene.choices.uses[node.type]} disabled={disabled} />
     // As many regions as the frame has: never fewer than the last one holding something.
     case 'ways': {
       const regions = parts.frames(node).map((r) => r.name)

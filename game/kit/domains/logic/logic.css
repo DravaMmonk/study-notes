@@ -184,6 +184,12 @@
 .lg-occ-text button { margin: 0 2px; padding: 1px 6px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--ink); background: transparent; font: inherit; cursor: pointer; }
 .lg-occ-text button[aria-pressed='true'] { border-style: solid; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
 
+/* A rule part's rules, each written out: a ticked one is given, in the order listed. */
+.lg-ticks { display: grid; gap: 4px; }
+.lg-ticks button { padding: 3px 8px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--muted); background: transparent; font: 12px var(--mono); text-align: left; overflow-wrap: anywhere; cursor: pointer; }
+.lg-ticks button[aria-pressed='true'] { border-style: solid; border-color: var(--accent); color: var(--ink); background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.lg-ticks button:disabled { cursor: default; }
+
 /* The phone's preview under the result: the run's steps and its verdict, in a window of one fixed size that shows
    once the run has a step to show. */
 .lg-preview { box-sizing: border-box; height: 280px; margin: 12px 0 4px; padding: 10px 12px 12px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 6px; scroll-margin-bottom: 12px; overflow: hidden; }

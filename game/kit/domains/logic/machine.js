@@ -7,7 +7,7 @@
 // runs as its built-in implementation, which does what the circuit that built it does.
 //
 //   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
-//           | { kind: 'clauses', set, from?, endless? } (resolution.js) | { kind: 'rules', keys: [rule key] }
+//           | { kind: 'clauses', set, from?, endless? } (resolution.js) | { kind: 'rules', keys, entries }
 //   level   { kind: 'machine', want, inputs?: [{ name, label }] (default one, `in`),
 //             rules?: { key: { name, premises: [text], conclusion: text } }, backtrack?,
 //             tests: [{ eqs: [equation text] } | { goal, hyps?, answers?, becomes?, clauses?, budget? }
@@ -28,8 +28,8 @@
 //
 // Rules are parts (rulePartsOf): every rule of the level's books is given by a rule part, the part the rule belongs to
 // (a kernel rule's proof-board part, a lemma, an equation proved, the level's own axiom, a datatype's rule, a
-// definition, an equation given). A rule part gives a list of rules: those wired into it (`before`), then its own (the
-// one chosen on it, `use`, when it has several). A card that uses rules (rule, erule, frule, rw, simp) reads the list
+// definition, an equation given). A rule part gives a list of rules: those wired into it (`before`), then its own (those
+// ticked on it, `use`, in the order it lists them, when it has several; its first until any is ticked). A card that uses rules (rule, erule, frule, rw, simp) reads the list
 // on its port `rules`: the first that applies, in order (with backtracking, each one's results in turn); simp the
 // whole list, in order. A rule list is a constant: it may be wired into a frame from outside. Until a level says
 // `backtrack`, a tactic gives only its first result; from then on, every result, and each card after it works on each
@@ -68,8 +68,8 @@ export function ruleBookOf(level) {
   return books.get(level)
 }
 
-/** A list of rules, by key in the level's books (rule parts give these), with their names to show. */
-export const rulesValue = (keys, names = []) => ({ kind: 'rules', keys, names })
+/** A list of rules, by key in the level's books (rule parts give these), with each one's entry ({ book, rule }) to write it out. */
+export const rulesValue = (entries) => ({ kind: 'rules', keys: entries.map((e) => e.key), entries })
 const rulesIn = (v) => {
   if (v?.kind !== 'rules') throw fail('「规则」口要接规则元件', 'The rules port takes rule parts')
   return v
@@ -107,7 +107,7 @@ export function rulePartsOf(level) {
 }
 /** The rule part a key of the level's books belongs to, and the choice on it that gives that key. */
 export function rulePartOf(level, key) {
-  for (const [type, entries] of rulePartsOf(level)) if (entries.some((e) => e.key === key)) return { type, use: choicesOfPart(entries).length > 1 ? key : null }
+  for (const [type, entries] of rulePartsOf(level)) if (entries.some((e) => e.key === key)) return { type, use: choicesOfPart(entries).length > 1 ? [key] : null }
   return null
 }
 /** The keys a rule part offers to choose from (a law is one choice, rule and rewrite rule alike). */
@@ -140,7 +140,12 @@ export function wireRules(circuit, level) {
   return { ...circuit, nodes, wires }
 }
 
-/** A rule part: the list wired into it (`before`), then its own rule. */
+/** The keys a rule part gives of its own: those ticked (`use`), in its order; its first until any is. */
+export const ownRules = (entries, use) => {
+  const keys = choicesOfPart(entries)
+  return use?.length ? keys.filter((k) => use.includes(k)) : keys.slice(0, 1)
+}
+/** A rule part: the list wired into it (`before`), then its own rules. */
 export const RULE_PART = {
   inputs: ['before'],
   optional: ['before'],
@@ -149,11 +154,9 @@ export const RULE_PART = {
   eval: ({ before }, node, ctx) => {
     const entries = ctx.ruleParts?.get(node.type)
     if (!entries) throw fail('这一关没有这条规则', 'This level has no such rule')
-    const keys = choicesOfPart(entries)
-    const own = node.params?.use && keys.includes(node.params.use) ? node.params.use : keys[0]
-    const name = entries.find((e) => e.key === own).rule.name
-    const prev = before ? rulesIn(before) : rulesValue([])
-    return rulesValue([...prev.keys, own], [...prev.names, name])
+    const own = ownRules(entries, node.params?.use).map((k) => entries.find((e) => e.key === k))
+    if (!own.length) throw fail('这块规则元件没有选中的规则', 'This rule part has no rule ticked')
+    return rulesValue([...(before ? rulesIn(before).entries : []), ...own])
   },
 }
 
@@ -601,7 +604,7 @@ const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBook
 
 /** A machine part run on a proof state with a level's rule and rewrite books (chapter 14: a script's by), the rules
  *  `keys` wired in when it uses rules. */
-export const runTactic = (level, type, state, keys = null) => MACHINE_PARTS[type].eval({ in: state, ...(keys ? { rules: rulesValue(keys) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }))
+export const runTactic = (level, type, state, keys = null) => MACHINE_PARTS[type].eval({ in: state, ...(keys ? { rules: rulesValue(keys.map((key) => ({ key }))) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }))
 
 /** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
 export const MACHINE_TESTS = {
