@@ -28,6 +28,9 @@ import { useHistory } from './useHistory.js'
 // (or a card in it, or the frame) makes it where the next new card goes (`onTarget`). A frame folds to its card.
 
 const ROW = 20
+// The elements of this board's own layer that match a selector: not those of a board drawn inside one of its cards
+// (a built part unfolded), whose ids may be the same.
+const ownIn = (layer, selector) => [...(layer?.querySelectorAll(selector) ?? [])].filter((el) => el.closest('.board-layer') === layer)
 // A region's least size, and the room kept round the cards in it.
 const REGION = { w: 240, h: 120, pad: 24 }
 const clampZoom = (z) => Math.min(1.5, Math.max(0.35, Math.round(z * 100) / 100))
@@ -109,12 +112,12 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
     const root = layer.current
     if (!root) return
     const ports = {}
-    for (const el of root.querySelectorAll('[data-p]')) {
+    for (const el of ownIn(root, '[data-p]')) {
       const box = el.getBoundingClientRect()
       ports[el.dataset.p] = pointIn(root, box.left + box.width / 2, box.top + box.height / 2).map(Math.round)
     }
     const sizes = {}
-    for (const el of root.querySelectorAll('[data-node]')) sizes[el.dataset.node] = [el.offsetWidth, el.offsetHeight]
+    for (const el of ownIn(root, '[data-node]')) sizes[el.dataset.node] = [el.offsetWidth, el.offsetHeight]
     const next = { ports, sizes }
     if (JSON.stringify(next) === JSON.stringify(geoRef.current)) return
     geoRef.current = next
@@ -166,7 +169,7 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
     if (added?.length !== 1 || graph.nodes.length !== before.size + 1) return
     const [node] = added
     const drawn = (n) => {
-      const el = layer.current?.querySelector(`[data-node="${CSS.escape(n.id)}"]`)
+      const el = ownIn(layer.current, `[data-node="${CSS.escape(n.id)}"]`)[0]
       return el ? [el.offsetWidth, el.offsetHeight] : sizeOf(n)
     }
     const beside = graph.nodes.filter((n) => n.id !== node.id && (n.in ?? null) === (node.in ?? null)).map((n) => [n.x, n.y, ...drawn(n)])
@@ -182,7 +185,7 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
   const refitRef = useRef(refit)
   // The focused card in the middle of the board, at the zoom shown or one it reads at.
   const centreOn = (id) => {
-    const el = id && layer.current?.querySelector(`[data-node="${CSS.escape(id)}"]`)
+    const el = id && ownIn(layer.current, `[data-node="${CSS.escape(id)}"]`)[0]
     const box = surface.current?.getBoundingClientRect()
     if (!el || !box?.width) return
     const r = el.getBoundingClientRect()
