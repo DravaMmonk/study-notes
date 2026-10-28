@@ -311,7 +311,7 @@ export const MACHINE = {
     go: T('运行全部测试', 'Run every test'),
     passed: T('全部通过', 'All passed'),
     pass: T('这组测试通过了。', 'This test passes.'),
-    idle: T('运行时每组测试都要过：同一台机器，换一个输入再跑一遍。', 'Running checks every test: the same machine, run again on each input.'),
+    idle: T('运行时每组测试都要过：同一个证明助手，换一个输入再跑一遍。', 'Running checks every test: the same proof assistant, run again on each input.'),
     reached: T('对了', 'Right'),
     notYet: T('还不对', 'Not yet'),
     noOpen: T('还没有收到东西', 'nothing received yet'),

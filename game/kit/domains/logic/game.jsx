@@ -73,7 +73,7 @@ export function defineLogicGame(spec) {
     intro: (level) => level.source.intro,
     kinds: {
       proof: { Screen: boardScreen(PROOF), icon: Workflow, label: { zh: '证明', en: 'Proof' } },
-      machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '机器', en: 'Machine' } },
+      machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
       translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },

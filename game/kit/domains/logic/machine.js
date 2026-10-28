@@ -538,7 +538,7 @@ export function judge(want, test, out, level = {}) {
   }
   if (want === 'becomes') {
     if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
-    if (!test.becomes.length) return out.error ? '' : T('这一步应该做不了，机器却做了', 'This step should not apply, yet the machine did it')
+    if (!test.becomes.length) return out.error ? '' : T('这一步应该做不了，证明助手却做了', 'This step should not apply, yet the proof assistant did it')
     if (out.error) return out.error
     const got = resultsOf(out).map((r) => canonical(r.goals))
     const wanted = test.becomes.map((r) => canonical(r.map(parseGoal)))
@@ -549,7 +549,7 @@ export function judge(want, test, out, level = {}) {
   if (want === 'fails') {
     if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
     if (out.endless) return out.error ?? T('搜索停不下来', 'The search never stops')
-    if (!out.error) return out.goals.length ? T('这一句证不出来，机器却还没有说「证不出来」', 'This cannot be proved, yet the machine has not said so') : T('这一句不该证得出来', 'This should not be provable')
+    if (!out.error) return out.goals.length ? T('这一句证不出来，证明助手却还没有说「证不出来」', 'This cannot be proved, yet the proof assistant has not said so') : T('这一句不该证得出来', 'This should not be provable')
     return ''
   }
   if (want === 'answers') {
@@ -587,7 +587,7 @@ export function judge(want, test, out, level = {}) {
   const start = input.kind === 'clauses' ? input.set : clausify(input, ctxOf(level, { nodes: [], wires: [] })).set
   const unsat = refuted(saturate(start).set)
   if (unsat) return has ? '' : T('结果里还没有空子句 ⊥', 'The result has no empty clause ⊥ yet')
-  if (has) return T('结果里有 ⊥，可这组子句是可满足的：机器「证」出了假话', 'The result holds ⊥, yet these clauses can all hold: the machine “proved” something false')
+  if (has) return T('结果里有 ⊥，可这组子句是可满足的：证明助手「证」出了假话', 'The result holds ⊥, yet these clauses can all hold: the proof assistant “proved” something false')
   if (out.endless) return T('一直推出新子句，停不下来', 'New clauses keep coming: it never stops')
   return resolveRound(out.set).length === out.set.length ? '' : T('结果还能再归结出新子句：还没饱和', 'The result still resolves into new clauses: not saturated yet')
 }
