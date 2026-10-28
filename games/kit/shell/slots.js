@@ -52,22 +52,13 @@ export function renameSlot(progress, id, k, name) {
   return { ...progress, slots: { ...progress.slots, [id]: { ...slots, list: replaced(slots.list, k, { ...slots.list[k], name: name.trim() }) } } }
 }
 
-/** The key a board's last run is kept under in progress.runs[id]: the task it is on and its slot's number. */
+/** The key a board's last run is kept under while its level is open (GameShell): the task it is on and its slot's number. */
 export const runKey = (task, no) => `${task}#${no}`
 
-// The level's kept runs without those of slot number `no`.
-const runsWithout = (progress, id, no) => {
-  const kept = progress.runs?.[id]
-  if (!kept) return progress.runs
-  return { ...progress.runs, [id]: Object.fromEntries(Object.entries(kept).filter(([key]) => !key.endsWith(`#${no}`))) }
-}
-
-/** Slot k gone (never the last one), with its kept runs; if it was played, the one before it (or after, for the
- *  first) is played instead. */
+/** Slot k gone (never the last one); if it was played, the one before it (or after, for the first) is played instead. */
 export function dropSlot(progress, id, k) {
   const { at, list } = slotsOf(progress, id)
   if (list.length < 2) return progress
-  const out = { ...progress, runs: runsWithout(progress, id, list[k].no) }
-  if (k !== at) return { ...out, slots: { ...progress.slots, [id]: { at: at - (k < at ? 1 : 0), list: without(list, k) } } }
-  return play(out, id, without(list, k), Math.max(0, k - 1))
+  if (k !== at) return { ...progress, slots: { ...progress.slots, [id]: { at: at - (k < at ? 1 : 0), list: without(list, k) } } }
+  return play(progress, id, without(list, k), Math.max(0, k - 1))
 }

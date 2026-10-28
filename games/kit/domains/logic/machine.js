@@ -610,11 +610,12 @@ export const MACHINE_TESTS = {
     return { ...run, outputs: { out: run.outputs.out } }
   },
   // The run of one test with every step it took, in order (../../engine/circuit.js trace): only what reaches the
-  // result runs, so a card lying about unwired takes no step.
+  // result takes a step, so a card lying about unwired takes none. The board once the run is over is the whole board
+  // run, as before it: the inputs, and a card that reaches nothing with what it gives or lacks.
   trace: (level, circuit, test) => {
     const trace = []
-    const run = runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
-    return { trace, run: { ...run, outputs: { out: run.outputs.out } } }
+    runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
+    return { trace, run: MACHINE_TESTS.runTest(level, circuit, test) }
   },
   check: (level, test, outputs) => {
     const problem = judge(test.want ?? level.want, test, outputs.out, level)

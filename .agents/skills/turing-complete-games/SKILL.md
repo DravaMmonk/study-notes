@@ -136,8 +136,8 @@ The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and pa
 Shared conventions are in `games/DESIGN.md` §2.5 (the map's level tree) and §6 (interface conventions): level tree
 with centred rows and one column per series; a left drawer of level trees inside a level; the pass dialog returns to
 the map and the map lands on that level; input cards hold what they read and are clicked to wire; the test board
-sits in the strip at a modest size; card values repaint on every step of a run; a board's last run stays on it after
-leaving the level, switching task or reloading (`lastRun` / `keepRun`), so a solved level can be looked at again; no newer JS APIs that break older
+sits in the strip at a modest size; card values repaint on every step of a run; a board's last run stays on it while
+the level is open, across tasks and slots (`lastRun` / `keepRun`, in memory), and is gone once the level is left; no newer JS APIs that break older
 iOS Safari.
 
 ## Verification
