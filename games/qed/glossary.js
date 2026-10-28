@@ -222,6 +222,15 @@ export const GLOSSARY = [
     see: ['definition', 'axiom'],
   },
   {
+    id: 'rule-arrow', group: 'proof', title: T('规则箭头 ⟹', 'the rule arrow ⟹'), at: 'decl-and',
+    body: [
+      T('游戏里的规则都写成 ⟦前提⟧ ⟹ 结论，这是 Isabelle 的写法：⟦下雨; 刮风⟧ ⟹ 下雨 ∧ 刮风 说的是「有了下雨和刮风的证明，就得到下雨 ∧ 刮风的证明」。规则里的 ?A、?B 代表任何一句话，?R 代表任何结论。', 'Every rule in the game is written ⟦premises⟧ ⟹ conclusion, the way Isabelle writes it: ⟦it rains; it is windy⟧ ⟹ it rains ∧ it is windy says “with proofs of it rains and it is windy, you have a proof of it rains ∧ it is windy”. In a rule, ?A and ?B stand for any sentence and ?R for any conclusion.'),
+      T('双箭头 ⟹ 和单箭头 → 不在一层。→ 在句子里面：A → B 本身是一句话，可以被证明、被假设、接进别的元件。⟹ 在句子外面，说的是证明之间的关系：有了这些，就有那个。两者靠证明核连在一起：假设框把「假设 A 证出 B」变成一句 A → B，套用反过来，用 A → B 和 A 得到 B。Isabelle 把这两层分开：⟹ 属于它的元逻辑 Pure，→ 属于 HOL 这门逻辑。', 'The double arrow ⟹ and the single arrow → are not on one level. → is inside a sentence: A → B is itself a sentence, which can be proved, assumed and wired into other parts. ⟹ is outside sentences and relates proofs: with these, you have that. The kernel joins them: the assumption box turns “assume A, prove B” into a sentence A → B, and Apply goes back, from A → B and A to B. Isabelle keeps the two levels apart: ⟹ belongs to its meta-logic Pure, → to the logic HOL.'),
+      T('Lean 只有一个箭头。造法写成 <code>And.intro : a → b → a ∧ b</code>：规则就是一句蕴含，造法就是它的证明（Curry–Howard 对应），所以规则能直接像一句 → 那样套用。两种写法说的是同一件事：⟦A; B⟧ ⟹ C 就是 A → B → C。', 'Lean has one arrow. A way to make is written <code>And.intro : a → b → a ∧ b</code>: a rule is an implication, and the way to make is its proof (the Curry–Howard correspondence), so a rule is applied just as a sentence with → is. The two notations say one thing: ⟦A; B⟧ ⟹ C is A → B → C.'),
+    ],
+    see: ['declaration', 'rule'],
+  },
+  {
     id: 'axiom', group: 'proof', title: T('公理', 'axiom'), at: 'k',
     body: [T('<b>公理</b>是不用证、直接拿来当出发点的句子，可以看成没有前提的规则。K：A → (B → A)；S：(A → (B → C)) → ((A → B) → (A → C))。这台证明器里 K 和 S 是用假设框证出来的引理，只有公理的证明器只能把它们直接当公理。', 'An <b>axiom</b> is a sentence taken as a starting point without proof, a rule with no premises. K: A → (B → A); S: (A → (B → C)) → ((A → B) → (A → C)). In this prover K and S are lemmas proved with assumption boxes; a prover with axioms alone can only take them as given.')],
     see: ['hilbert', 'definition'],

@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { CircleDashed, FileSignature, PackageOpen, SquareDashedText } from 'lucide-react'
+import { CircleDashed, FileSignature, SquareDashedText } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
@@ -7,14 +7,16 @@ import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, us
 import FormulaField from './FormulaField.jsx'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { DECL, ISO_PARTS, checkIso, declInputs, hypCard, ruleFormula, runIso, settle, startIso } from '../iso.js'
+import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, runIso, settle, startIso, wayRule, waysIn } from '../iso.js'
+import { ruleText } from '../schematic.js'
+import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
 
 // A connective declared by its ways to make it (iso.js) on the shared circuit editor: assumption cards from the tray,
-// each picking the sentence it assumes, chained to write each way as a rule, and the connective's card, whose inputs grow as ways are wired and
-// whose cases (the kernel's, one for each way) appear as the board's outputs. Each test is a situation, one row of the
-// table under the board: which proofs are at hand, whether the connective is proved and by which way, and what its
-// case gets back. Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
+// each picking the sentence it assumes, chained to write each way as a rule, and the connective's card, the board's
+// output, whose inputs grow as ways are wired. Each test is a situation, one row of the table under the board: which
+// proofs are at hand, whether the connective is proved and by which way, and what its case (the kernel's, one for each
+// way) gets back. Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
 
 const T = (zh, en) => ({ zh, en })
 // Ways and their cases are numbered 1 2 3, apart from the board's own part numbers (①②…); on a card a way is "1.".
@@ -23,20 +25,19 @@ const WAY = ['1', '2', '3']
 /** The editor's description of the board (../../circuit/model.js), with the level's words for its sentences. */
 function isoPartsFor(level, words) {
   return {
-    inputs: (node) => (node.type === 'hyp' ? ['before'] : node.type === 'none' ? [] : node.type === DECL ? declInputs(node) : node.type === 'case' ? ['p'] : []),
-    role: (node) => (node.type === 'case' ? 'sink' : 'part'),
+    inputs: (node) => (node.type === 'hyp' ? ['before'] : node.type === DECL ? declInputs(node) : []),
+    role: (node) => (node.type === DECL ? 'sink' : 'part'),
     label: (node) => (node.type === 'hyp' ? T('假设', 'Assume') : node.type === 'none' ? NONE.label
-      : node.type === DECL ? T(`「${level.declare.zh}」`, `“${level.declare.en}”`)
-      : T(`拆法 ${WAY[node.params.k - 1]}`, `Case ${WAY[node.params.k - 1]}`)),
+      : T(`「${level.declare.zh}」`, `“${level.declare.en}”`)),
     portLabel: (node, port) => (node.type === DECL ? T(`造法 ${WAY[Number(port.slice(1)) - 1]}`, `Way ${WAY[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' ? T('先假设', 'Assumed first') : ''),
-    family: (node) => (node.type === 'hyp' || node.type === 'none' ? 'box' : node.type === DECL ? 'lemma' : 'given'),
-    icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === 'none' ? CircleDashed : node.type === DECL ? FileSignature : PackageOpen),
+    family: (node) => (node.type === DECL ? 'lemma' : 'box'),
+    icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === 'none' ? CircleDashed : FileSignature),
     cardWidth: () => 220,
     rules: ISO_PARTS,
   }
 }
 
-const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => n.type === 'hyp' && n.locked) && circuit.wires.every((w) => !w.to.startsWith('hyp-') || w.port === 'before')
+const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => (n.type === 'hyp' && n.locked) || n.type === 'case') && circuit.wires.every((w) => !w.to.startsWith('hyp-') || w.port === 'before')
 const HYP_DESC = T('假设一句话。一张假设接进它的「先假设」，就是先假设那句、再假设这句；它接进连接词的造法口，这一串就是一种造法。', 'Assume a sentence. An assumption wired into its “assumed first” is assumed before it; wired into a way of the connective, the chain is one way to make it.')
 const HYP = { type: 'hyp', label: T('假设', 'Assume'), desc: HYP_DESC, icon: SquareDashedText, family: 'box' }
 const NONE = { type: 'none', label: T('不用假设', 'Assume nothing'), desc: T('什么都不假设。接进连接词的造法口，这种造法不要任何证明就能造。', 'Assume nothing. Wired into a way of the connective, that way makes it with no proof at all.'), icon: CircleDashed, family: 'box' }
@@ -51,7 +52,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const test = level.tests[Math.min(testIndex, level.tests.length - 1)]
   const view = useMemo(() => runIso(level, circuit, test), [level, circuit, test])
 
-  // Every change goes through the kernel's bookkeeping: ways renumbered, a case for each (iso.js settle).
+  // Every change goes through the kernel's bookkeeping: ways renumbered (iso.js settle).
   const change = (next) => {
     const settled = settle(next)
     setCircuit(settled)
@@ -96,9 +97,10 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     const wire = circuit.wires.find((w) => w.to === DECL && w.port === `c${k}`)
     return wire && view.values.get(wire.from)
   }
-  // What a card shows, as the proof board shows a sentence, saying each thing once: an assumption card its sentence
-  // (picked on the card, or in its sheet), the connective its ways as rules, numbered as its inputs, and whether it is
-  // proved, a case the sentences it gets back. `at` is where: 'card' (the desktop's), 'tile' (a phone's) or 'sheet'.
+  // What a card shows, as the other boards show sentences and rules, saying each thing once: an assumption card its
+  // sentence (picked on the card, or in its sheet), the connective its ways as rules (written as every rule is,
+  // ⟦A; B⟧ ⟹ A ∧ B), numbered as its inputs, and whether it is proved. `at` is where: 'card' (the desktop's), 'tile'
+  // (a phone's) or 'sheet'.
   const text = (f) => L(say(f, level.notation))
   const Value = ({ f }) => <PROOF.Value v={{ formula: f, hyps: new Map() }} text={text} />
   const body = (node, at = 'card') => {
@@ -107,17 +109,13 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
       if (at === 'tile') return <div className="lg-card"><Value f={parse(node.params.name)} /></div>
       return <div className="lg-card"><FormulaField label={T('假设', 'Assume')} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /></div>
     }
-    if (node.type === DECL) {
-      const way = (k) => (at === 'sheet' ? tr(`造法 ${WAY[k]}`, `Way ${WAY[k]}`) : `${WAY[k]}.`)
-      return (
-        <div className="lg-card">
-          {Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <span key={k} className="lg-out"><em>{way(k)}</em><Value f={ruleFormula(rule, level)} /></span>)}
-          {view.made ? <span className="lg-tv is-true">{tr(`证得出：造法 ${WAY[view.made.way - 1]}`, `Proved by way ${WAY[view.made.way - 1]}`)}</span> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
-        </div>
-      )
-    }
-    const back = view.values.get(node.id)
-    return <div className="lg-card">{back?.items.length ? back.items.map((x, k) => <Value key={k} f={parse(x.letter)} />) : <i className="lg-mark">{back ? tr('这种造法没交进证明', 'This way took no proof') : tr('没有', 'Nothing')}</i>}</div>
+    const way = (k) => (at === 'sheet' ? tr(`造法 ${WAY[k]}：`, `Way ${WAY[k]}:`) : `${WAY[k]}.`)
+    return (
+      <div className="lg-card">
+        {ways > 0 && <Entries className="lg-clauses">{Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <code key={k}>{`${way(k)} ${ruleText(wayRule(rule.needs, level), text)}`}</code>)}</Entries>}
+        {view.made ? <span className="lg-tv is-true">{tr(`证得出：造法 ${WAY[view.made.way - 1]}`, `Proved by way ${WAY[view.made.way - 1]}`)}</span> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
+      </div>
+    )
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
@@ -136,12 +134,11 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
             {level.tests.map((t, k) => {
               const r = checked.results[k]
               const shownRow = run ? k < run.results.length : t === test
-              const back = r.made && r.values.get(`case-${r.made.way}`)
               return (
                 <tr key={k} className={`${t === test ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => setTestIndex(k)}>
                   {level.sentences.map((l) => <td key={l}>{t.have[l] ? `#${t.have[l]}` : '—'}</td>)}
                   <td>{shownRow ? (r.made ? tr(`证得出：${WAY[r.made.way - 1]}`, `Proved: ${WAY[r.made.way - 1]}`) : tr('证不出', 'Not proved')) : ''}</td>
-                  <td>{shownRow && back ? back.items.map((x) => `#${x.n}`).join(' · ') : ''}</td>
+                  <td>{shownRow && r.back ? (r.back.length ? r.back.map((x) => `#${x.n}`).join(' · ') : tr('什么都没有', 'Nothing')) : ''}</td>
                 </tr>
               )
             })}
@@ -245,6 +242,24 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
           </div>
         </Sheet>
       )}
+    </div>
+  )
+}
+
+/**
+ * What passing a declaration gives, shown when it is passed: its rules for any sentences, those that make it (one
+ * for each way) and the one the kernel made to take it apart.
+ */
+export function DeclaredRules({ level }) {
+  const text = (f) => L(say(f, level.notation))
+  const rules = declaredRules(level, waysIn(level.solution))
+  return (
+    <div className="dialog-note">
+      <span className="panel-label">{tr('声明给出的规则', 'The rules it declares')}</span>
+      <div className="lg-clauses">
+        {rules.make.map((r, k) => <code key={k}>{tr(`造法 ${WAY[k]}：`, `Way ${WAY[k]}: `)}{ruleText(r, text)}</code>)}
+        <code>{tr('拆法：', 'Cases: ')}{ruleText(rules.take, text)}</code>
+      </div>
     </div>
   )
 }

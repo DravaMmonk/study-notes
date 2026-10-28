@@ -23,7 +23,7 @@ export const declarations = [
       { have: {}, make: false },
     ],
     intro: [
-      { t: T('证明核里只有套用和假设框，没有「并且」。一个新的连接词要先<wiki-ref to="declaration"></wiki-ref>：写出它有哪几种造法。每种造法是一条新规则，用假设来写：「假设下雨，再假设刮风，就得到『下雨并且刮风』」。', 'The kernel has only Apply and the assumption box; there is no “and”. A new connective first needs a <wiki-ref to="declaration"></wiki-ref>: its ways to make it, written out. Each way is a new rule, written with assumptions: “assume it rains, then assume it is windy, and you have ‘it rains and it is windy’”.') },
+      { t: T('证明核里只有套用和假设框，没有「并且」。一个新的连接词要先<wiki-ref to="declaration"></wiki-ref>：写出它有哪几种造法。每种造法是一条新规则，用假设来写：「假设下雨，再假设刮风，就得到『下雨并且刮风』」，写成规则是 ⟦下雨; 刮风⟧ ⟹ 下雨 ∧ 刮风（<wiki-ref to="rule-arrow"></wiki-ref>）。', 'The kernel has only Apply and the assumption box; there is no “and”. A new connective first needs a <wiki-ref to="declaration"></wiki-ref>: its ways to make it, written out. Each way is a new rule, written with assumptions: “assume it rains, then assume it is windy, and you have ‘it rains and it is windy’”, as a rule ⟦it rains; it is windy⟧ ⟹ it rains ∧ it is windy (<wiki-ref to="rule-arrow"></wiki-ref>).') },
       { t: T('一张假设接进另一张的「先假设」，是同一种造法要两样，顺着线先假设前一句、再假设后一句；两张假设各接一个造法口，是两种造法。造法接进连接词以后，核替每一种造法生成一个拆法，拆法取回那种造法交进去的证明。', 'An assumption wired into another’s “assumed first” is one way that needs both, assumed along the wire; two assumptions each in a way of their own are two ways. Once a way goes into the connective, the kernel makes a case for it, which gets back the proofs that way took.') },
     ],
     brief: T('「下雨，并且刮风」：两份证明都在手里，才证得出。写出它的声明。', '“It rains and it is windy”: proved only with both proofs at hand. Write its declaration.'),
@@ -33,7 +33,7 @@ export const declarations = [
     ],
     solution: isoBoard(['Rain>Wind', 'Wind>1']),
     naive: isoBoard(['Rain>1', 'Wind>2']),
-    after: T('一种造法：下雨 → 刮风 → 下雨并且刮风，就是 Lean 的 <code>And.intro</code>。核为它生成了一个拆法，取回交进去的两份证明；两份不全，它就证不出。这条规则不是证出来的：「并且」原本不存在，它是新的规则本身。写成证明，它就是两层假设框，只是框里不用证，结论由声明直接给出。', 'One way: it rains → it is windy → it rains and it is windy, Lean’s <code>And.intro</code>. The kernel made one case for it, which gets back the two proofs handed in; without both, it is not proved. This rule was not proved: “and” did not exist before, so the rule is new in itself. Written as a proof it would be two assumption boxes, with nothing to prove inside: the declaration gives the conclusion.'),
+    after: T('这一种造法就是 Lean 的 <code>And.intro</code>，拆法就是 Isabelle 的 <code>conjE</code>。拆法取回交进去的两份证明；两份不全，它就证不出。这条规则不是证出来的：「并且」原本不存在，它是新的规则本身。写成证明，它就是两层假设框，只是框里不用证，结论由声明直接给出。', 'This one way is Lean’s <code>And.intro</code>, and its case Isabelle’s <code>conjE</code>. The case gets back the two proofs handed in; without both, it is not proved. This rule was not proved: “and” did not exist before, so the rule is new in itself. Written as a proof it would be two assumption boxes, with nothing to prove inside: the declaration gives the conclusion.'),
   }),
   declare({
     id: 'decl-or',
