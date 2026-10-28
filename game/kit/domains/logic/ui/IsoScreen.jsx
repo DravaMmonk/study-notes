@@ -9,10 +9,10 @@ import { say } from '../notation.js'
 import { DECL, ISO_PARTS, checkIso, declInputs, runIso, settle, showEvidence, showRule, startIso } from '../iso.js'
 
 // A connective declared by its ways to make it (iso.js) on the shared circuit editor: an assumption card for each
-// letter (the board's inputs), chained to write each way as a rule, and the connective's card, whose inputs grow as
-// ways are wired and whose cases (the kernel's, one for each way) appear as the board's outputs. Each test is a
-// situation, one row of the table under the board: which proofs are at hand, whether the connective is proved and by
-// which way, and what its case gets back. Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
+// letter, chained to write each way as a rule, and the connective's card, whose inputs grow as ways are wired and
+// whose cases (the kernel's, one for each way) appear as the board's outputs. Each test is a situation, one row of the
+// table under the board: which proofs are at hand, whether the connective is proved and by which way, and what its
+// case gets back. Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
 
 const T = (zh, en) => ({ zh, en })
 const CIRCLED = ['①', '②', '③']
@@ -21,7 +21,7 @@ const CIRCLED = ['①', '②', '③']
 function isoPartsFor(level, words) {
   return {
     inputs: (node) => (node.type === 'hyp' ? ['then'] : node.type === DECL ? declInputs(node) : node.type === 'case' ? ['p'] : []),
-    role: (node) => (node.type === 'hyp' ? 'source' : node.type === 'case' ? 'sink' : 'part'),
+    role: (node) => (node.type === 'case' ? 'sink' : 'part'),
     label: (node) => (node.type === 'hyp' ? T('假设', 'Assume')
       : node.type === DECL ? T(`「${level.declare.zh}」`, `“${level.declare.en}”`)
       : T(`拆法 ${CIRCLED[node.params.k - 1]}`, `Case ${CIRCLED[node.params.k - 1]}`)),
