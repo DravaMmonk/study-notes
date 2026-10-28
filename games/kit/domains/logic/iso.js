@@ -1,6 +1,6 @@
 // Declaring a connective (《证明完毕》's chapter of definitions and declarations), the way Lean declares one: by its
 // ways to make it, each a rule of its own, `And.intro : A → B → A ∧ B`. The board holds an assumption card for each
-// letter, the board's inputs (put there by the level, never deleted). One card wired into another's "then assume" makes one rule of
+// letter (put there by the level, never deleted). One card wired into another's "then assume" makes one rule of
 // both, assume A, then assume B; a card wired into the connective's card is one way to make it, and each input the
 // card is given brings one more. So the boards write the constructors' types, `A → B → A ∧ B` (and) or `A → A ∨ B`
 // and `B → A ∨ B` (or), or nothing (⊥). Written as a proof these would be nested assumption boxes; a declared rule
@@ -126,8 +126,9 @@ export function showRule(rule, level, words) {
 export function startIso(level) {
   return settle({
     nodes: [
-      ...level.letters.map((letter, k) => ({ id: cardId(letter), type: 'hyp', params: { name: letter }, locked: true, x: 20, y: 40 + k * 200 })),
-      { id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 320, y: 40 },
+      // On a phone the assumptions open in the first row and the connective in the row under them.
+      ...level.letters.map((letter, k) => ({ id: cardId(letter), type: 'hyp', params: { name: letter }, locked: true, x: 20, y: 40 + k * 200, slot: k })),
+      { id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 320, y: 40, slot: level.letters.length + (level.letters.length % 2) },
     ],
     wires: [],
   })
