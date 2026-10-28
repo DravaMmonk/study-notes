@@ -90,24 +90,22 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     const wire = circuit.wires.find((w) => w.to === DECL && w.port === `c${k}`)
     return wire && view.values.get(wire.from)
   }
-  // What a card gives is a sentence, shown as the proof board shows one: a rule, the connective, what a case gets back.
+  // What a card shows, as the proof board shows a sentence, saying each thing once: an assumption card its sentence
+  // (picked on the card, or in its sheet), the connective its ways as rules, numbered as its inputs, and whether it is
+  // proved, a case the sentences it gets back. `at` is where: 'card' (the desktop's), 'tile' (a phone's) or 'sheet'.
   const text = (f) => L(say(f, level.notation))
-  const Value = ({ f, small }) => <PROOF.Value v={{ formula: f, hyps: new Map() }} text={text} small={small} />
-  const body = (node, edit = true) => {
+  const Value = ({ f }) => <PROOF.Value v={{ formula: f, hyps: new Map() }} text={text} />
+  const body = (node, at = 'card') => {
     if (node.type === 'hyp') {
-      const rule = view.values.get(node.id)
-      return (
-        <div className="lg-card">
-          {edit && <FormulaField label={T('假设', 'Assume')} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required />}
-          {rule && <Value f={ruleFormula(rule, level)} small={!edit} />}
-        </div>
-      )
+      if (at === 'tile') return <div className="lg-card"><Value f={parse(node.params.name)} /></div>
+      return <div className="lg-card"><FormulaField label={T('假设', 'Assume')} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /></div>
     }
     if (node.type === DECL) {
+      const way = (k) => (at === 'sheet' ? tr(`造法 ${CIRCLED[k]}`, `Way ${CIRCLED[k]}`) : CIRCLED[k])
       return (
         <div className="lg-card">
-          {Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <Value key={k} f={ruleFormula(rule, level)} small />)}
-          {view.made ? <Value f={parse(level.target)} /> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
+          {Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <span key={k} className="lg-out"><em>{way(k)}</em><Value f={ruleFormula(rule, level)} /></span>)}
+          {view.made ? <span className="lg-tv is-true">{tr(`证得出：${way(view.made.way - 1)}`, `Proved: ${way(view.made.way - 1)}`)}</span> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
         </div>
       )
     }
@@ -214,7 +212,7 @@ function PhoneIso({ circuit, parts, items, addHyp, brief, dock, change, onClear,
     <div className="level-phone is-split lg-phone" ref={root}>
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => body(n, false)} sinkBody={body} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={['hyp']} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => body(n, 'tile')} sinkBody={(n) => body(n, 'tile')} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={['hyp']} />
         {table}
       </div>
       <Tray items={items} onPick={editing.placeFirstFree} />
@@ -223,7 +221,7 @@ function PhoneIso({ circuit, parts, items, addHyp, brief, dock, change, onClear,
       {node && (
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
-            {body(node)}
+            {body(node, 'sheet')}
             {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
