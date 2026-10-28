@@ -490,7 +490,7 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
         data-piece={node.id}
         data-family={parts.family(node)}
         data-io={role === 'source' ? tr('输入', 'IN') : role === 'sink' ? tr('输出', 'OUT') : undefined}
-        className={`node is-${role} ${regions.length ? 'is-frame' : ''} ${node.fold ? 'is-folded' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
+        className={`node is-${role} ${parts.packed?.(node) ? 'is-packed' : ''} ${regions.length ? 'is-frame' : ''} ${node.fold ? 'is-folded' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
         onClick={picking ? (e) => !e.target.closest('[data-p], button, input, select, label, .frame-regions') && clickCard(node.id) : undefined}
         style={{ left: node.x, top: node.y, [regions.length ? 'minWidth' : 'width']: widthOf(node), ...parts.cardStyle?.(node) }}
       >

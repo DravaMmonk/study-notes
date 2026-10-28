@@ -6,7 +6,8 @@ import { L, tr } from '../shell/i18n.js'
 // The desktop parts list, the same in every game: click a part to put it on the board (in the first free spot),
 // then wire it from its dots. `compact` shows each part as one line (its icon, name and short tag) with what it does
 // in a tooltip, for a floating window over the board. `folded` parts (still usable, but not what this level's puzzle is
-// about: ../course.js offer) wait behind a 「更多」 button at the end.
+// about: ../course.js offer) wait behind a 「更多」 button at the end. A packed part (`packed`: one that runs a circuit the
+// player built) has a second frame inside its edge, as on the board.
 export default function Palette({ items, folded = [], onAdd, compact = false }) {
   const [more, setMore] = useState(false)
   // A tooltip opens to the right of its part, or to the left when the right would run past the board (or the window).
@@ -21,7 +22,7 @@ export default function Palette({ items, folded = [], onAdd, compact = false }) 
   return (
     <div className={`palette ${compact ? 'is-compact' : ''}`}>
       {[...items, ...(more ? folded.map((item) => ({ ...item, folded: true })) : [])].map((item) => (
-        <button key={item.type} className={`palette-item ${item.folded ? 'is-folded' : ''}`} data-family={item.family} style={item.style} onClick={() => onAdd(item.type)} title={compact ? undefined : L(item.desc)} onPointerEnter={compact ? aim : undefined} onFocus={compact ? aim : undefined} aria-description={compact ? L(item.desc) : undefined}>
+        <button key={item.type} className={`palette-item ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-family={item.family} style={item.style} onClick={() => onAdd(item.type)} title={compact ? undefined : L(item.desc)} onPointerEnter={compact ? aim : undefined} onFocus={compact ? aim : undefined} aria-description={compact ? L(item.desc) : undefined}>
           <i className="family-chip"><Glyph icon={item.icon} size={14} /></i>
           <span className="palette-text">
             <span>{L(item.label)}{item.fresh && <em className="pb-new">{tr('新', 'new')}</em>}</span>

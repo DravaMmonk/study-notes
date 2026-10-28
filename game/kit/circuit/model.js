@@ -19,6 +19,7 @@
 //   refuse(graph, from, to, port) → null, or a { zh, en } reason the wire is not allowed
 //   removable?(node) → whether the player may take it off the board (default: a part)
 //   cardWidth?(node) → px a desktop card is wide, when not the board's width (CanvasEditor)
+//   packed?(node)    → whether it is a packed part: one that runs a circuit the player built (drawn with a second frame)
 //   frames?(node) → [{ name, label, opens }] the regions of a frame (frames.js)
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
