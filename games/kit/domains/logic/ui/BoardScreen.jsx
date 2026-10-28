@@ -153,7 +153,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
   const descOf = (type) => game.textAt(board.textOf(level, type, level.revisions), entry.id)?.desc
   // The shapes a card of a part with forms offers here: its first, and every one an upgrade passed before brings.
   const formsOf = (type) => game.textAt(board.textOf(level, type, level.revisions), entry.id)?.forms ?? []
-  const itemOf = (type) => ({ type, label: board.nameOf(level, type), desc: descOf(type), icon: board.iconOf(level, type), family: board.familyOf(level, type), fresh: entry.fresh?.includes(type) })
+  const itemOf = (type) => ({ type, label: board.nameOf(level, type), desc: descOf(type), icon: board.iconOf(level, type), family: board.familyOf(level, type), packed: parts.packed?.({ type }), fresh: entry.fresh?.includes(type) })
   const items = palette.map(itemOf)
   const foldedItems = folded.map(itemOf)
   // What a region opens with (or that it opens with nothing yet): at its left edge, or first in its grid on a phone.
@@ -363,21 +363,7 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
     if (began && el) pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 4
   }
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
-  // A frame shows what it gives outside; what it opens shows in its regions.
-  const thumb = (n) => {
-    const error = view.errors.get(n.id)
-    const outs = parts.frames(n).length ? [] : outputsOf(parts, n)
-    if (outs.length > 1) return <span className="lg-chips">{outs.map((o) => <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Value v={view.values.get(srcOf(n, o.key))} text={text} small /></span>)}</span>
-    if (error) return error === MISSING ? <i className="lg-mark">{tr('待接线', 'unwired')}</i> : <span className="lg-error">{L(error)}</span>
-    if (board.ioBox && parts.role(n) === 'source') return <IoBox><Value v={view.values.get(n.id)} text={text} /></IoBox>
-    return <Value v={view.values.get(n.id)} text={text} small />
-  }
-  const sinkBody = (n) => (
-    <span className="lg-sink">
-      {scene.want}
-      {board.ioBox ? <IoBox><Value v={view.values.get(n.id)} text={text} /></IoBox> : <Value v={view.values.get(n.id)} text={text} small />}
-    </span>
-  )
+  const { thumb, sinkBody } = phoneFaces({ board, parts, view, text, scene })
   return (
     <div className="level-phone is-split lg-phone" ref={root}>
       {testTabs}
@@ -400,7 +386,7 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(node.type))}</p>}
             <CardBody node={node} board={board} parts={parts} level={level} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} formsOf={formsOf} />
-            {built.is(node) && <InsideBoard path={[node.id]} built={built} board={board} />}
+            {built.is(node) && <InsidePhone path={[node.id]} built={built} board={board} />}
             {parts.role(node) === 'part' && <PartActions onEdit={built.is(node) ? () => { setSheet(null); built.edit(node.type) } : null} onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
@@ -417,6 +403,90 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
           </div>
         </Sheet>
       )}
+    </div>
+  )
+}
+
+// What a phone block shows: a frame what it gives outside (what it opens shows in its regions), a source its value in
+// full, any other its value small; and a sink what the level wants and what reaches it.
+function phoneFaces({ board, parts, view, text, scene }) {
+  const { Value } = board
+  const thumb = (n) => {
+    const error = view.errors.get(n.id)
+    const outs = parts.frames(n).length ? [] : outputsOf(parts, n)
+    if (outs.length > 1) return <span className="lg-chips">{outs.map((o) => <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Value v={view.values.get(srcOf(n, o.key))} text={text} small /></span>)}</span>
+    if (error) return error === MISSING ? <i className="lg-mark">{tr('待接线', 'unwired')}</i> : <span className="lg-error">{L(error)}</span>
+    if (board.ioBox && parts.role(n) === 'source') return <IoBox><Value v={view.values.get(n.id)} text={text} /></IoBox>
+    return <Value v={view.values.get(n.id)} text={text} small />
+  }
+  const sinkBody = (n) => (
+    <span className="lg-sink">
+      {scene.want}
+      {board.ioBox ? <IoBox><Value v={view.values.get(n.id)} text={text} /></IoBox> : <Value v={view.values.get(n.id)} text={text} small />}
+    </span>
+  )
+  return { thumb, sinkBody }
+}
+
+// On a phone, the board a built part runs, in the part's sheet: the phone's slot board, read only, in a window of a
+// fixed height that scrolls, each block showing what it gives in the part's latest run so far and the block the
+// current step is in lit (and scrolled to). Tapping a built part on it goes into that one; the path above goes back.
+function InsidePhone({ path: start, built, board }) {
+  const [path, setPath] = useState(start)
+  const box = useRef(null)
+  const at = built.open(path)
+  useLayoutEffect(() => {
+    const el = box.current
+    const lit = el && at?.lit && el.querySelector(`[data-piece="${CSS.escape(at.lit)}"]`)
+    if (!lit) return
+    // Scroll the window only, never the sheet or the page.
+    const top = lit.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop
+    el.scrollTop = Math.max(0, top - el.clientHeight / 3)
+  }, [at?.lit, path.join('/')])
+  if (!at) return null
+  const parts = built.partsOf(at.level)
+  const text = built.text
+  const scene = board.scene(at.level, at.level.tests[0], text)
+  const { thumb, sinkBody } = phoneFaces({ board, parts, view: at.view, text, scene })
+  const { Value } = board
+  const small = (v) => (v ? <Value v={v} text={text} small /> : null)
+  // The parts the board is in, from the one whose sheet this is: each goes back to its own board.
+  const crumbs = path.slice(start.length - 1).map((id, k) => {
+    const upTo = path.slice(0, start.length + k)
+    const outer = built.open(upTo.slice(0, -1)) ?? { circuit: { nodes: [] } }
+    const node = outer.circuit.nodes.find((n) => n.id === id)
+    return { upTo, label: node ? L(built.partsOf(outer.level ?? at.level).label(node)) : id }
+  })
+  return (
+    <div className="lg-inside-phone">
+      {crumbs.length > 1 && (
+        <nav className="lg-inside-path">
+          {crumbs.map((c, k) => (k < crumbs.length - 1
+            ? <button key={c.upTo.join('/')} type="button" onClick={() => setPath(c.upTo)}>{c.label}</button>
+            : <b key={c.upTo.join('/')}>{c.label}</b>))}
+        </nav>
+      )}
+      <div className="lg-inside-scroll" ref={box}>
+        <SlotBoard
+          key={path.join('/')}
+          fixed
+          dense
+          graph={at.circuit}
+          parts={parts}
+          nameOf={(n) => L(parts.label(n))}
+          thumb={thumb}
+          sinkBody={sinkBody}
+          nodeClass={(n) => (n.id === at.lit ? 'is-step' : '')}
+          regionNote={(n, region) => small(at.view.values.get(srcOf(n, region)))}
+          resultNote={(n) => small(at.view.values.get(n.id))}
+          onPort={() => {}}
+          onSlot={() => {}}
+          onNode={(id) => {
+            const n = at.circuit.nodes.find((x) => x.id === id)
+            if (n && built.is(n)) setPath([...path, id])
+          }}
+        />
+      </div>
     </div>
   )
 }

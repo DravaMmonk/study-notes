@@ -243,7 +243,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
       const extra = tileExtra?.(node)
       out.push(
         <div key={node.id} className="pb-cell" data-slot={at} data-region={region ?? ''}>
-          <div className={`pb-tile ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-drag={fixed ? undefined : true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
+          <div className={`pb-tile ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-drag={fixed ? undefined : true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
             <span className="pb-thumb">{thumb(node, 84)}</span>
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
@@ -261,7 +261,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
     const ports = inputs(node)
     return (
       <div key={node.id} className="pb-cell is-wide" data-slot={at} data-region={region ?? ''}>
-        <div className={`pb-frame ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
+        <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
           <div className="pb-frame-head" data-drag={fixed ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
