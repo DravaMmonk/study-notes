@@ -397,16 +397,16 @@ test('a script: each row by a rule or a block, checked row by row', async () => 
   assert.equal(checkScript(level, rows('rule:mp').slice(0, 3)).pass, false)
 })
 
-test('a declaration by assumption boxes: nested boxes are one way needing both, apart they are two ways, none is no way', () => {
+test('a declaration by assumption cards: chained they are one way needing both, apart two ways, none no way', () => {
   const level = (target, letters, tests) => ({ target, letters, tests, declare: { zh: 'x', en: 'x' } })
   const words = (l) => ({ zh: l, en: l })
   const and = level('A ∧ B', ['A', 'B'], [{ have: { A: 1, B: 2 }, make: true }, { have: { A: 3 }, make: false }, { have: { B: 4 }, make: false }])
-  const nested = isoBoard({ B: 'A' }, ['B>A', 'A>1'], and)
+  const nested = isoBoard(['B>A', 'A>1'], and)
   assert.ok(checkIso(and, nested, words).pass)
   assert.deepEqual(nested.nodes.filter((n) => n.type === 'case').map((n) => n.params.k), [1])
-  assert.equal(checkIso(and, isoBoard({}, ['A>1', 'B>2'], and), words).pass, false)
+  assert.equal(checkIso(and, isoBoard(['A>1', 'B>2'], and), words).pass, false)
   const or = level('A ∨ B', ['A', 'B'], [{ have: { A: 1 }, make: true }, { have: { B: 2 }, make: true }, { have: {}, make: false }])
-  const apart = isoBoard({}, ['A>1', 'B>2'], or)
+  const apart = isoBoard(['A>1', 'B>2'], or)
   const run = checkIso(or, apart, words)
   assert.ok(run.pass)
   assert.equal(run.results[1].made.way, 2)
@@ -415,5 +415,5 @@ test('a declaration by assumption boxes: nested boxes are one way needing both, 
   assert.deepEqual(settled.wires.filter((w) => w.to === 'decl').map((w) => [w.from, w.port]), [['hyp-B', 'c1']])
   assert.deepEqual(settled.nodes.filter((n) => n.type === 'case').map((n) => n.id), ['case-1'])
   const bot = level('⊥', ['A'], [{ have: { A: 1 }, make: false }, { have: {}, make: false }])
-  assert.ok(checkIso(bot, isoBoard({}, [], bot), words).pass)
+  assert.ok(checkIso(bot, isoBoard([], bot), words).pass)
 })

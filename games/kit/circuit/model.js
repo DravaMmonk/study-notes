@@ -89,8 +89,7 @@ export function withPreset(graph, preset) {
   const nodes = preset.nodes.map((n) => {
     const at = had.get(n.id)
     const params = settingsOf(n, at)
-    const placed = at && { x: at.x, y: at.y, slot: at.slot, ...(n.nest ? { in: at.in } : {}) }
-    return { ...n, ...placed, ...(params && { params }), locked: true }
+    return { ...n, ...(at && { x: at.x, y: at.y, slot: at.slot }), ...(params && { params }), locked: true }
   })
   const ids = new Set(nodes.map((n) => n.id))
   const wires = preset.wires.map((w) => ({ ...w, locked: true }))
@@ -123,13 +122,6 @@ const settingsOf = (preset, at) => {
   if (preset.fixed === true) return preset.params
   return { ...at.params, ...Object.fromEntries(preset.fixed.filter((k) => preset.params && k in preset.params).map((k) => [k, preset.params[k]])) }
 }
-
-/**
- * Whether a part must stay in the region it sits in: a locked part does, unless the level lets it nest (`nest`: a
- * frame it put on the board that the player may put into another frame, and take out again; it is still never
- * deleted).
- */
-export const staysPut = (node) => Boolean(node?.locked && !node.nest)
 
 /** Whether a wire is one a level put in. */
 export const isLocked = (graph, wire) => graph.wires.some((w) => w.locked && w.to === wire.to && w.port === wire.port)

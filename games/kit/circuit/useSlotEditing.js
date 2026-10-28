@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
-import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, moveToSlot, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf, staysPut } from './model.js'
+import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, moveToSlot, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
 import { drawWires } from './SlotBoard.jsx'
 import { useHistory } from './useHistory.js'
 
@@ -136,8 +136,8 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     const other = [...placement(graph, parts, region).cell].find(([, slot]) => slot === at)?.[0]
     const node = byId(graph, moving)
     setMoving(null)
-    // A locked part moves only within the region it sits in, unless it may nest.
-    if (staysPut(node) && region !== (node.in ?? null)) return setToast(LOCKED_MOVE)
+    // A locked part moves only within the region it sits in.
+    if (node?.locked && region !== (node.in ?? null)) return setToast(LOCKED_MOVE)
     const next = moveToSlot(graph, parts, node.id, at, region)
     if (next === graph) return
     buzz()
@@ -220,7 +220,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
         }
         if (g.kind === 'piece' && over) {
           const piece = byId(now.graph, g.id)
-          if (piece?.locked && (slot === null || (staysPut(piece) && region !== (piece.in ?? null)))) now.say(LOCKED_MOVE)
+          if (piece?.locked && (slot === null || region !== (piece.in ?? null))) now.say(LOCKED_MOVE)
           else if (slot !== null) now.edit(moveToSlot(now.graph, now.parts, g.id, slot, region))
           else now.remove(g.id)
         }

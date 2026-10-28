@@ -1,13 +1,14 @@
 // Declaring a connective (《证明完毕》's chapter of definitions and declarations), the way Lean declares one: by its
-// ways to make it, each a rule of its own, `And.intro : A → B → A ∧ B`. The board holds an assumption box for each
-// letter (put there by the level, never deleted, but free to go into another box: `nest`, ../../circuit/model.js).
-// A box nested in another and wired into its conclusion makes one rule of both, assume A, then assume B; a box wired
-// into the connective's card is one way to make it, and each input the card is given brings one more. So the boards
-// write the constructors' types, `A → B → A ∧ B` (and) or `A → A ∨ B` and `B → A ∨ B` (or), or nothing (⊥).
+// ways to make it, each a rule of its own, `And.intro : A → B → A ∧ B`. The board holds an assumption card for each
+// letter, the board's inputs (put there by the level, never deleted). One card wired into another's "then assume" makes one rule of
+// both, assume A, then assume B; a card wired into the connective's card is one way to make it, and each input the
+// card is given brings one more. So the boards write the constructors' types, `A → B → A ∧ B` (and) or `A → A ∨ B`
+// and `B → A ∨ B` (or), or nothing (⊥). Written as a proof these would be nested assumption boxes; a declared rule
+// has no proof inside, so it is a chain of assumptions, its conclusion given by the declaration.
 //
 // The way to take it apart is not the player's to build: for every way in, the kernel makes a case of its own (Lean's
 // `cases`, the recursor), numbered as the ways are, which gets back just what that way took. They appear on the
-// board as the ways are wired, and the board shows them working.
+// board as the ways are wired, as its outputs, and the board shows them working.
 //
 // A test is a situation: the proofs at hand (numbered: "it rains #1"), and whether the connective can be proved from
 // them. When it can, the first way with all it needs makes it, and its case gets back the very proofs it took; when
@@ -16,7 +17,6 @@
 // A level: { kind: 'iso', declare: { zh, en } the connective's name, target: its sentence (for the rules' words),
 // letters: [letter], tests: [{ have: { letter: n }, make: bool }] }.
 import { runBoard } from '../../engine/boards.js'
-import { framePart } from '../../circuit/frames.js'
 import { parse } from './formula.js'
 import { say } from './notation.js'
 
@@ -25,7 +25,7 @@ export const DECL = 'decl'
 const MOST = 3
 const wayPort = (k) => `c${k}`
 const caseId = (k) => `case-${k}`
-const boxId = (letter) => `hyp-${letter}`
+const cardId = (letter) => `hyp-${letter}`
 
 /** How many ways the connective's card has wired (its inputs are one more, up to three). */
 export const waysOf = (node) => node.params?.ways ?? 0
@@ -33,14 +33,14 @@ export const declInputs = (node) => Array.from({ length: Math.min(MOST, waysOf(n
 
 const evidence = (letter, n) => ({ kind: 'ev', letter, n })
 
-/** The engine's parts: assumption boxes, the connective, and the cases the kernel makes. */
+/** The engine's parts: assumption cards, the connective, and the cases the kernel makes. */
 export const ISO_PARTS = {
-  // A box gives a rule: its own assumption, then whatever the box wired into its conclusion assumes.
+  // An assumption gives a rule: its own sentence, then whatever is wired into its "then assume".
   hyp: {
-    ...framePart([], [{ name: 'body', opens: false }]),
-    optional: ['body'],
+    inputs: ['then'],
+    optional: ['then'],
     bare: true,
-    eval: ({ body }, node) => ({ kind: 'rule', needs: [node.params.name, ...(body?.needs ?? [])] }),
+    eval: ({ then }, node) => ({ kind: 'rule', needs: [node.params.name, ...(then?.needs ?? [])] }),
   },
   // The connective is made by the first way all of whose assumptions are at hand; with none, it is not made.
   [DECL]: {
@@ -68,25 +68,18 @@ export const ISO_PARTS = {
  * next, and one case for each way, wired from the connective (locked: they are the kernel's, not the player's).
  */
 export function settle(graph) {
-  let decl = graph.nodes.find((n) => n.id === DECL)
+  const decl = graph.nodes.find((n) => n.id === DECL)
   if (!decl) return graph
   const ways = graph.wires.filter((w) => w.to === DECL).sort((a, b) => Number(a.port.slice(1)) - Number(b.port.slice(1)))
   const renumber = new Map(ways.map((w, k) => [w, wayPort(k + 1)]))
   const n = ways.length
-  // On a phone each box on the board keeps its row, the connective takes the row under the last of them and its
-  // cases the cells after it, so wiring never moves them (a board saved before slots gets them here too).
-  const boxes = graph.nodes.filter((x) => x.type === 'hyp')
-  const placed = boxes.map((x, k) => (Number.isInteger(x.slot) ? x : { ...x, slot: 2 * k }))
-  const under = 2 + Math.max(-2, ...placed.filter((x) => !x.in).map((x) => x.slot - (x.slot % 2)))
-  decl = { ...decl, slot: under }
-  graph = { ...graph, nodes: graph.nodes.map((x) => (x.type === 'hyp' ? placed[boxes.indexOf(x)] : x.id === DECL ? decl : x)) }
   const old = new Map(graph.nodes.filter((x) => x.type === 'case').map((x) => [x.params.k, x]))
-  const cases = Array.from({ length: n }, (_, k) => ({ ...(old.get(k + 1) ?? { id: caseId(k + 1), type: 'case', params: { k: k + 1 }, locked: true, x: decl.x + 280, y: (decl.y ?? 40) + k * 130 }), slot: under + 1 + k }))
+  const cases = Array.from({ length: n }, (_, k) => old.get(k + 1) ?? { id: caseId(k + 1), type: 'case', params: { k: k + 1 }, locked: true, x: decl.x + 280, y: (decl.y ?? 40) + k * 130 })
   return {
     ...graph,
     nodes: [...graph.nodes.filter((x) => x.type !== 'case').map((x) => (x.id === DECL ? { ...x, params: { ...x.params, ways: n } } : x)), ...cases],
     wires: [
-      ...graph.wires.filter((w) => w.to !== DECL && !w.to.startsWith('case-')).map((w) => w),
+      ...graph.wires.filter((w) => w.to !== DECL && !w.to.startsWith('case-')),
       ...ways.map((w) => ({ ...w, port: renumber.get(w) })),
       ...cases.map((c) => ({ from: DECL, to: c.id, port: 'p', locked: true })),
     ],
@@ -129,30 +122,27 @@ export function showRule(rule, level, words) {
   return T([...steps.map((s) => s.zh), goal.zh].join(' → '), [...steps.map((s) => s.en), goal.en].join(' → '))
 }
 
-/** The board a level starts from: a box for each letter side by side, and the connective with no way yet. */
+/** The board a level starts from: an assumption card for each letter, and the connective with no way yet. */
 export function startIso(level) {
   return settle({
     nodes: [
-      ...level.letters.map((letter, k) => ({ id: boxId(letter), type: 'hyp', params: { name: letter }, locked: true, nest: true, x: 20 + k * 320, y: 40, slot: 2 * k })),
-      { id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 20 + Math.max(1, level.letters.length) * 320 + 40, y: 40, slot: 2 * level.letters.length },
+      ...level.letters.map((letter, k) => ({ id: cardId(letter), type: 'hyp', params: { name: letter }, locked: true, x: 20, y: 40 + k * 200 })),
+      { id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 320, y: 40 },
     ],
     wires: [],
   })
 }
 
 /**
- * A reference board written compactly: isoBoard({ Wind: 'Rain' }, ['Wind>Rain', 'Rain>1'], level): the Wind box
- * nested in the Rain box, the Wind box wired into the Rain box's conclusion, the Rain box into the connective's
- * first way.
+ * A reference board written compactly: isoBoard(['Wind>Rain', 'Rain>1'], level): the Wind card wired into the Rain
+ * card's "then assume", the Rain card into the connective's first way.
  */
-export function isoBoard(nested, wires, level) {
-  const start = startIso(level)
-  const into = (letter) => (nested[letter] ? { in: `${boxId(nested[letter])}/body` } : {})
+export function isoBoard(wires, level) {
   return settle({
-    nodes: start.nodes.map((n) => (n.type === 'hyp' ? { ...n, ...into(n.params.name) } : n)),
+    ...startIso(level),
     wires: wires.map((s) => {
       const [from, to] = s.split('>')
-      return /^\d$/.test(to) ? { from: boxId(from), to: DECL, port: wayPort(Number(to)) } : { from: boxId(from), to: boxId(to), port: 'body' }
+      return /^\d$/.test(to) ? { from: cardId(from), to: DECL, port: wayPort(Number(to)) } : { from: cardId(from), to: cardId(to), port: 'then' }
     }),
   })
 }
