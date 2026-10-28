@@ -15,6 +15,9 @@ const CARD = (n) => {
 const machineCards = (value) => (Array.isArray(value) ? value.map(machineCards) : value?.nodes ? { ...value, nodes: value.nodes.map(CARD) } : value)
 // A saved board (or a level's list of them) with each rule part's choice a list, as version 39 has it.
 const ticked = (value) => (Array.isArray(value) ? value.map(ticked) : value?.nodes ? { ...value, nodes: value.nodes.map((n) => (typeof n.params?.use === 'string' ? { ...n, params: { ...n.params, use: [n.params.use] } } : n)) } : value)
+// A saved board that uses a rule of numbers or lists as a part of its own (before version 40), dropped.
+const NUMBER_PARTS = /^(def_|nat_|list_|bool_)|^(addZero|addSucc|addComm|addAssoc|appNil|appAssoc|revApp|succNeq|insLen)$/
+const unbooked = (board) => (board?.nodes?.some((n) => NUMBER_PARTS.test(n.type)) ? null : board)
 // A saved board that names a rule on a card (before version 37), dropped: its level starts it afresh.
 const unruled = (board) => (board?.nodes?.some((n) => ['rule', 'rewrite', 'rewrites'].some((k) => n.params?.[k])) ? null : board)
 
@@ -167,9 +170,12 @@ export default {
     { solve: ['q-dm', ['sp-dm']] },
   ] },
   // Version 39 let a rule part give several of its rules: the one it chose is now the one it ticks.
-  { version: 39, ops: [{ data: ticked }] }],
+  { version: 39, ops: [{ data: ticked }] },
+  // Version 40 gathered the rules of numbers and lists (a declaration's, a definition's, an equation proved) into one
+  // part, the rule book of numbers: a board that used one of the parts it replaces starts afresh.
+  { version: 40, ops: [{ data: (value) => (Array.isArray(value) ? value.map(unbooked) : unbooked(value)) }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
-  quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器'],
+  quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }

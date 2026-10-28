@@ -34,7 +34,8 @@ const ease = (level) => {
  * itself. A level opens on its first case, the one its task is written in.
  *   lemmas      { type: { name, desc, statement, premises?, metas } } the parts the player proves
  *   facts       { type: { name, desc, statement } } the equations the player proves on the machine board (chapter 11
- *               on), each a rule and a rewrite rule from then on; a machine level with `builds` one of them proves it
+ *               on): a machine level with `fact` one of them proves it, and from then on it is a rule and a rewrite rule
+ *               of the rule book of numbers (machine.js MATH), in every level after that one (`proven`)
  *   gates       { type: { name, desc, ports, f } } the gates the player builds on a truth circuit (gates.js)
  *   revisions   { type: [{ at | by: level id, desc?, forms? }] } a part's description as it grows along the course,
  *               and the shapes (forms) an upgrade earned at `by` adds to its card
@@ -99,9 +100,9 @@ function machineLabel(test, notation) {
 }
 
 export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {}, local = [], revisions = {} }) {
-  const built = (p) => Boolean(lemmas[p] || facts[p] || gates[p] || machines.includes(p))
-  // One name, one part: a lemma, an equation, a gate and a machine part sharing a type would unlock and show as each other.
-  const clash = machines.filter((p) => lemmas[p] || gates[p] || facts[p]).concat(Object.keys(lemmas).filter((p) => gates[p] || facts[p]))
+  const built = (p) => Boolean(lemmas[p] || gates[p] || machines.includes(p))
+  // One name, one part: a lemma, a gate and a machine part sharing a type would unlock and show as each other.
+  const clash = machines.filter((p) => lemmas[p] || gates[p]).concat(Object.keys(lemmas).filter((p) => gates[p]))
   if (clash.length) throw new Error(`built parts share a type: ${clash.join(', ')}`)
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
@@ -120,11 +121,12 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
       return { ...l, adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
     }
     if (!level.tasks) return read(level)
-    // What the level builds comes of its last task, the level itself.
+    // What the level builds or proves comes of its last task, the level itself.
     // The level's pass text is the level's, shown when its last task is done: a task has only its own.
     // A task's intro is its own (the level's is the level's).
-    const { tasks, builds, after, intro, ...base } = level
-    const all = tasks.map((task, index) => ({ ...read({ ...base, ...(index === tasks.length - 1 && builds ? { builds } : {}), ...task }), task: index }))
+    const { tasks, builds, fact, after, intro, ...base } = level
+    const last = (index) => index === tasks.length - 1
+    const all = tasks.map((task, index) => ({ ...read({ ...base, ...(last(index) && builds ? { builds } : {}), ...(last(index) && fact ? { fact } : {}), ...task }), task: index }))
     // A part the level or any task brings in is new to the level, whichever task it is.
     return { ...all.at(-1), intro, after, adds: [...new Set([...(base.adds ?? []), ...all.flatMap((t) => t.adds)])], tasks: all }
   })
@@ -172,9 +174,12 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
   // what its level proves already (a law proved on the proof board, then put to work), in every shape it proves.
   for (const level of LEVELS.filter((l) => [l, ...(l.tasks ?? [])].some((t) => t.kind === 'machine' || t.kind === 'script'))) {
     const holds = reach(course, { id: level.id })
+    // The equations proved before it (by the levels it comes after), and in a later task its own.
+    const proven = Object.keys(facts).filter((type) => LEVELS.some((l) => l.fact === type && course.before(l.id, level.id)))
     for (const one of [level, ...(level.tasks ?? [])]) {
       const later = one.task > 0
       one.holds = later && level.builds ? [...holds, level.builds] : holds
+      one.proven = later && level.fact ? [...proven, level.fact] : proven
       one.forms = Object.fromEntries(Object.entries(lemmas).filter(([, l]) => l.forms).map(([type, l]) => [type, [
         ...formsAt(course, l.forms[0].key, revisions[type], level.id),
         ...(later ? (revisions[type] ?? []).filter((r) => r.by === level.id).flatMap((r) => r.forms ?? []) : []),

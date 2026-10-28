@@ -12,7 +12,7 @@ import { startProof } from '../build.js'
 import { FORMULA_TEXT, fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
 import { choicesOf } from '../choices.js'
 import { LOGIC_TESTS } from '../proof.js'
-import { MACHINE_PARTS, MACHINE_TESTS, RULE_PART, choicesOfPart, inputsOf, inputsOfLevel, parseGoal, rulePartsOf } from '../machine.js'
+import { MACHINE_PARTS, MACHINE_TESTS, RULE_PART, MATH, choicesOfPart, inputsOf, inputsOfLevel, parseGoal, rulePartsOf } from '../machine.js'
 import { parseS, ruleText } from '../schematic.js'
 import { rewriteText } from '../rewrite.js'
 import { say, sayTerm } from '../notation.js'
@@ -218,11 +218,12 @@ const isRulePart = (level, type) => !MACHINE_PARTS[type] && rulePartsOf(level).h
 // A sentence in the level's words, in each language, for names made of it.
 const inWords = (level, write) => T(write((f) => say(f, level.notation).zh), write((f) => say(f, level.notation).en))
 const ruleName = (level, r) => (r.group === 'def' ? inWords(level, (text) => defText(r.text, text)) : r.name)
-/** A rule part's name: the proof-board part, lemma or equation it is, or its rule's own name. */
+const MATH_NAME = T('数理规则书', 'Rule book of numbers')
+/** A rule part's name: the rule book of numbers, the proof-board part or lemma it is, or its rule's own name. */
 function rulePartName(level, type) {
+  if (type === MATH) return MATH_NAME
   const r = rulePartsOf(level).get(type)[0].rule
   if (r.part || level.lemmas?.[type]) return nameOf(level.lemmas ?? {}, type)
-  if (level.facts?.[type]) return level.facts[type].name
   return ruleName(level, r)
 }
 /** A rule of a rule part's, written out: an inference rule, or a rewrite rule (an equation given goes by its name). */
@@ -231,6 +232,12 @@ const ruleWritten = (e, say = show) => (e.book === 'rule' ? ruleText(e.rule, say
 function rulePartText(level, type) {
   const entries = rulePartsOf(level).get(type)
   const lines = choicesOfPart(entries).map((key) => ruleWritten(entries.find((e) => e.key === key)))
+  if (type === MATH) {
+    return {
+      name: MATH_NAME,
+      desc: T(`这一关的数与列表规则：类型声明给出的、定义里的等式、已经证出的等式。元件上勾选给出哪几条：${lines.join('；')}。接进别的规则元件时，接在它们后面。`, `This level’s rules of numbers and lists: those its declarations give, its definitions’ equations and the equations proved so far. Tick on the part which it gives: ${lines.join('; ')}. Wired another rule part, it comes after their rules.`),
+    }
+  }
   return {
     name: rulePartName(level, type),
     desc: T(`给出规则：${lines.join('；')}。接进别的规则元件时，接在它们后面。`, `Gives the rule: ${lines.join('; ')}. Wired another rule part, it comes after their rules.`),

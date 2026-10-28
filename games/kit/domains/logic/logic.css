@@ -184,8 +184,8 @@
 .lg-occ-text button { margin: 0 2px; padding: 1px 6px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--ink); background: transparent; font: inherit; cursor: pointer; }
 .lg-occ-text button[aria-pressed='true'] { border-style: solid; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
 
-/* A rule part's rules, each written out: a ticked one is given, in the order listed. */
-.lg-ticks { display: grid; gap: 4px; }
+/* A rule part's rules, each written out: a ticked one is given, in the order listed; a long book scrolls. */
+.lg-ticks { display: grid; gap: 4px; max-height: 13em; overflow-y: auto; overscroll-behavior: contain; }
 .lg-ticks button { padding: 3px 8px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--muted); background: transparent; font: 12px var(--mono); text-align: left; overflow-wrap: anywhere; cursor: pointer; }
 .lg-ticks button[aria-pressed='true'] { border-style: solid; border-color: var(--accent); color: var(--ink); background: color-mix(in srgb, var(--accent) 22%, transparent); }
 .lg-ticks button:disabled { cursor: default; }

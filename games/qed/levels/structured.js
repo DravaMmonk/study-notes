@@ -237,7 +237,6 @@ export const structured = [
   }),
   script({
     id: 'sc-revrev',
-    adds: ['revApp'],
     title: T('倒两次，写成脚本', 'Reversed twice, as a script'),
     brief: WRITE,
     premises: {},
