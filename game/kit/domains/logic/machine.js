@@ -249,7 +249,14 @@ const unifyCard = (r) => ({ inputs: ['in'], eval: ({ in: v }) => { const e = eqs
 function regionRun(node, ctx, region) {
   const graph = ctx.graph
   const deep = within(graph, node.id)
-  const inside = graph.nodes.filter((n) => deep.has(n.id))
+  const top = new Map(graph.nodes.map((n) => [n.id, n]))
+  // The region a card inside the frame sits in, at the frame's own level.
+  const regionOf = (n) => {
+    let at = n
+    while (at?.in && at.in.split('/')[0] !== node.id) at = top.get(at.in.split('/')[0])
+    return at?.in?.split('/')[1]
+  }
+  const inside = graph.nodes.filter((n) => deep.has(n.id) && regionOf(n) === region)
   const ids = new Set(inside.map((n) => n.id))
   const back = graph.wires.find((w) => w.to === node.id && w.port === region)
   if (!back) throw fail('框里还没有接到「结果」上', 'Nothing inside is wired to the result yet')
@@ -276,7 +283,8 @@ function regionRun(node, ctx, region) {
   // quiet: the cards' steps stay out of a traced run (a search shows its steps its own way).
   return (value, quiet = false) => {
     const { values } = evaluate(sub, { parts: (type) => (type === '__open' ? { inputs: [], eval: () => value } : typeof parts === 'function' ? parts(type) : parts[type]), ctx: quiet ? { ...ctx, trace: null } : ctx })
-    const out = values.get(back.from)
+    // A region that only passes on what it opens with gives it back.
+    const out = back.from === `${node.id}#${region}` ? value : values.get(back.from)
     if (out === undefined) throw fail('框里有一个元件算不出来', 'A part inside cannot compute')
     return out
   }
@@ -323,6 +331,8 @@ const LIMIT = 250
  */
 const search = {
   ...framePart(['in'], [{ name: 'body', opens: true }]),
+  // It runs its region itself, at every step.
+  reads: () => ['in'],
   params: ['depth'],
   eval: ({ in: v }, node, ctx, key) => {
     if (key) return v
@@ -350,6 +360,8 @@ const search = {
 /** Every goal: the region run on each goal of the state in turn, each on its own (Isabelle's ALLGOALS, Lean's <;>). */
 const each = {
   ...framePart(['in'], [{ name: 'body', opens: true }]),
+  // It runs its region itself, on every goal.
+  reads: () => ['in'],
   eval: ({ in: v }, node, ctx, key) => {
     if (key) return v
     const s = stateIn(v)
@@ -378,15 +390,29 @@ const each = {
 // the card's setting.
 const WAYS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']
 export const waysOf = (node) => WAYS.slice(0, Math.min(WAYS.length, Math.max(2, Number(node?.params?.ways) || 2)))
+/**
+ * Alternatives: each region in turn gets the state the frame does, and only when the ones before it failed: the first
+ * that does not fail gives the result (ORELSE), and the regions after it are not tried. Once the level backtracks,
+ * every region is tried, and every result of each, in order, is the frame's (APPEND). Every region failing, the first
+ * one's failure is the frame's.
+ */
 const append = {
   inputs: (node) => ['in', ...waysOf(node)],
   frames: (node) => waysOf(node).map((name) => ({ name, opens: true })),
   outputs: (node) => [null, ...waysOf(node)],
-  reads: (_node, key) => (key ? ['in'] : undefined),
+  // The frame reads only what it is handed: it runs its regions itself, one after another.
+  reads: () => ['in'],
   params: ['ways'],
-  eval: (ins, node, _ctx, key) => {
-    if (key) return ins.in
-    const got = waysOf(node).map((w) => ins[w])
+  eval: ({ in: v }, node, ctx, key) => {
+    if (key || v?.error) return v
+    const got = []
+    for (const way of waysOf(node)) {
+      // A traced run sees each region tried: what it opens with, then its cards.
+      ctx.trace?.push({ id: node.id, key: way, value: v })
+      const out = regionRun(node, ctx, way)(v)
+      got.push(out)
+      if (!out.error && !ctx.backtrack) break
+    }
     const ok = got.filter((x) => !x.error)
     return ok.length ? asValue(ok.flatMap(resultsOf)) : got[0]
   },
