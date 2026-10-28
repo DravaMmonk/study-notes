@@ -208,3 +208,81 @@ export const moreDeclarations = [
     after: T('一种造法，要两个方向。它和「(下雨 → 地湿) ∧ (地湿 → 下雨)」造法一样、拆法也一样：两份证明一起交进去，一起取回来。所以下一章里，↔ 就当成这样一句「并且」来拆。', 'One way, needing both directions. It is made and taken apart just as “(it rains → the ground is wet) ∧ (the ground is wet → it rains)”: both proofs go in together and come back together. So in the next chapter, ↔ is taken apart as just such an “and”.'),
   }),
 ]
+
+// Declarations further on, each just before the parts it brings are put to work. "There is", with the quantifiers: one
+// way taking a thing and a proof about it; its case is Take the one there is. Equality: one way taking a thing alone,
+// a = a; what takes it apart is rewriting, which is not the plain cases (= is a family of sentences indexed by things),
+// so the level gives it. The numbers, before induction: 0 needs nothing, the next number needs a number; what takes
+// a number apart, with the conclusion already used on the number it was made from, is induction.
+export const thingDeclarations = [
+  declare({
+    id: 'decl-ex',
+    adds: ['exI', 'exE'],
+    title: T('声明「存在」', 'Declaring “there is”'),
+    declare: T('存在', 'there is'),
+    target: '∃y. Human(y)',
+    sentences: ['Human(x)', 'Mortal(x)'],
+    things: ['soc', 'ann'],
+    tray: ['thing', 'hyp'],
+    tests: [
+      { have: { 'Human(soc)': 1 }, make: true },
+      { have: { 'Human(ann)': 2 }, make: true },
+      { have: { 'Mortal(soc)': 3 }, make: false },
+      { have: {}, make: false },
+    ],
+    intro: [
+      { t: T('「对所有」不用声明：任取一样东西证出来，就是对所有东西证出来，这件事证明核本来就会。「存在」不一样：「∃y. y是人」怎样才算证出来？得有某一样东西，再有它是人的证明，比如「苏格拉底是人」。', '“For all” needs no declaration: proved for any thing taken, it is proved for all, and the kernel can do that already. “There is” is different: when is “∃y. y is human” proved? There has to be some thing, and a proof that it is human, such as “Socrates is human”.') },
+      { t: T('托盘里多了一张「任取一样东西」：它取一样东西，叫它 x；接在它后面的假设可以提到 x。', 'The tray has a new card, “any thing”: it takes a thing and calls it x; the assumptions after it may mention x.') },
+    ],
+    brief: T('「存在一个人」：手里有某一样东西是人的证明，就证得出。写出它的声明。', '“There is a human”: proved with a proof that some thing is human at hand. Write its declaration.'),
+    hint: [T('一种造法：先取一样东西，再接一张假设，选「x是人」，接进造法 1。', 'One way: take a thing first, then an assumption choosing “x is human”, into way 1.')],
+    solution: isoBoard(['⋀x>h', 'h>1'], { h: 'Human(x)' }),
+    naive: isoBoard(['h>1'], { h: 'Human(x)' }),
+    after: T('一种造法要两样：一样东西，和它是人的证明。拆法取回的也是这两样，可取回的是苏格拉底还是安，要看当初交进去的是谁；用「存在」的时候并不知道，所以那一样东西只能当一个新名字来用。证明板上从此有了举例（这种造法）和拿出那一个（这个拆法）。', 'One way taking two things: a thing, and a proof that it is human. Its case gets back the same two, but whether it is Socrates or Ann depends on what went in; using “there is”, you do not know, so the thing can only be used under a new name. The proof board now has Example (this way) and Take the one there is (this case).'),
+  }),
+  declare({
+    id: 'decl-eq',
+    adds: ['rewrite', 'refl'],
+    title: T('声明相等', 'Declaring equality'),
+    declare: T('相等', 'equal'),
+    target: 'a = a',
+    binder: 'a',
+    sentences: [],
+    things: ['phos', 'hesp'],
+    tray: ['thing'],
+    tests: [
+      { goal: 'phos = phos', have: {}, make: true },
+      { goal: 'hesp = hesp', have: {}, make: true },
+      { goal: 'phos = hesp', have: {}, make: false },
+    ],
+    take: { premises: ['?a = ?b', '?P(?a)'], conclusion: '?P(?b)' },
+    intro: [{ t: T('晨星和昏星是不是同一颗星？要说两样东西相等，先声明相等。凭空能证出哪些「s = t」？只有一种：每样东西都等于它自己。两个名字不一样的，凭空证不出来。', 'Are the Morning Star and the Evening Star one star? To say two things are equal, declare equality first. Which “s = t” can be proved from nothing? Only one kind: each thing equals itself. Two different names, from nothing, cannot be.') }],
+    brief: T('相等：任何东西都等于它自己；凭空证不出两个不同名字相等。写出它的声明。', 'Equality: everything equals itself; two different names cannot be proved equal from nothing. Write its declaration.'),
+    hint: [T('一种造法，只要取一样东西 a，什么都不用假设。', 'One way that takes a thing a and assumes nothing.')],
+    solution: isoBoard(['⋀a>1']),
+    naive: isoBoard(['∅>1']),
+    after: T('一种造法，只取一样东西：每样东西等于它自己，这就是自反律。它的拆法有点特别：「a = b」只可能是从「a = a」造出来的，所以 b 其实就是 a，关于 a 说的话对 b 也成立。这就是等量代换。证明板上从此有了这两块元件。', 'One way, taking one thing: everything equals itself, which is reflexivity. Its case is a little special: “a = b” can only have been made as “a = a”, so b is really a, and what is said of a holds of b. That is rewriting. The proof board now has both parts.'),
+  }),
+]
+
+export const natDeclaration = [
+  declare({
+    id: 'decl-nat',
+    title: T('声明自然数', 'Declaring the numbers'),
+    declare: T('自然数', 'a number'),
+    target: 'Nat',
+    sentences: ['Nat'],
+    tray: ['hyp', 'none'],
+    tests: [
+      { have: {}, make: true },
+      { have: { Nat: 1 }, make: true, uses: ['Nat'] },
+    ],
+    take: { premises: ['?P(zero)', '⋀n. ⟦?P(n)⟧ ⟹ ?P(s(n))'], conclusion: '?P(?n)' },
+    intro: [{ t: T('化简器把 0、S 0 当现成的东西来算。它们从哪里来？和「并且」一样，靠声明：一个自然数有哪几种造法？', 'The simplifier works with 0 and S 0 as if they were just there. Where do they come from? As with “and”, from a declaration: what are the ways to make a number?') }],
+    brief: T('自然数：什么都没有，也造得出一个（0）；手里有一个数，就造得出它的下一个。写出它的声明。', 'A number: one can be made from nothing (0); with a number at hand, the next one can be made. Write its declaration.'),
+    hint: [T('两种造法：一种什么都不用假设；另一种假设「自然数」，要的正是一个数。', 'Two ways: one assumes nothing; the other assumes “a number”, taking just a number.')],
+    solution: isoBoard(['∅>1', 'Nat>2']),
+    naive: isoBoard(['∅>1']),
+    after: T('两种造法：0 什么都不要，S 要一个数，造出它的下一个，写作 nat = 0 | S nat。第二种造法要的正是一个自然数，所以拆开一个数时，除了取回它是从哪个数来的，还能先对那个数用上要证的结论：这就是归纳假设。它的拆法就是数学归纳法，下面就用这个声明给出的规则。', 'Two ways: 0 takes nothing, S takes a number and makes the next, written nat = 0 | S nat. The second way takes a number itself, so taking a number apart gets back the number it came from, with what is being proved already used on that number: the induction hypothesis. Its case is mathematical induction, and what follows uses the rules this declaration gives.'),
+  }),
+]

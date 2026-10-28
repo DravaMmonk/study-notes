@@ -6,7 +6,7 @@ import { era0 } from './era0.js'
 import { circuits, GATES } from './circuits.js'
 import { era1 } from './era1.js'
 import { era2 } from './era2.js'
-import { declarations, moreDeclarations } from './declare.js'
+import { declarations, moreDeclarations, natDeclaration, thingDeclarations } from './declare.js'
 import { hol } from './hol.js'
 import { quantifiers } from './quantifiers.js'
 import { rules } from './rules.js'
@@ -156,7 +156,7 @@ const REVISIONS = {
 
 const COURSE = {
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...declarations, ...moreDeclarations, ...era2, ...hol, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...automation, ...inductive, ...terms, ...equality, ...structured],
+  levels: [...era0, ...circuits, ...era1, ...declarations, ...moreDeclarations, ...thingDeclarations, ...natDeclaration, ...era2, ...hol, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...automation, ...inductive, ...terms, ...equality, ...structured],
   words: WORDS,
   lemmas: LEMMAS,
   facts: FACTS,
@@ -169,7 +169,7 @@ const COURSE = {
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
     'append', 'each', 'defer', 'search', 'rw', 'hyp', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
-  concept: { andI: 'and', andE: 'and', orI: 'or', orE: 'or', rewrite: 'eq', refl: 'eq' },
+  concept: { andI: 'and', andE: 'and', orI: 'or', orE: 'or', exI: 'ex', exE: 'ex', rewrite: 'eq', refl: 'eq' },
   // Parts that stay where a level brings them, so the components box keeps only what goes on being used: the steps of
   // a part built from them soon after (the unifier's moves, Skolemise and Into clauses, one round of resolution, Replay,
   // the intro and elim rule sets inside auto, the saturator and Into clauses all the way inside the reconstructor), the

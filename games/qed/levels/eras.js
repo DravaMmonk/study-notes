@@ -106,12 +106,12 @@ export const ERAS = [
       // ∀ and ∃ each need only the proof board.
       branches(
         ['forall', '对所有', 'For all', ['q-allE', 'q-allI', 'q-rename', 'q-allAnd', 'q-capture']],
-        ['exists', '存在', 'There is', ['q-exI', 'q-exE', 'q-witness']],
+        ['exists', '存在', 'There is', ['decl-ex', 'q-exI', 'q-exE', 'q-witness']],
       ),
       // With both in hand: quantifiers swapped and moved, and equality, its own mechanism; neither needs the other.
       branches(
         ['moving', '换序与挪动', 'Swapping and moving', ['q-swap', 'q-move', 'q-ancestor', 'q-bigger']],
-        ['equality', '相等', 'Equality', ['q-eq', 'q-sym', 'q-trans']],
+        ['equality', '相等', 'Equality', ['decl-eq', 'q-eq', 'q-sym', 'q-trans']],
       ),
     ],
     topics: [{ id: 'carroll', code: 'S', after: 'q-move', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') }],
@@ -226,7 +226,7 @@ export const ERAS = [
       // under ∀.
       series('defs', '定义当规则', 'Definitions as rules', ['nl-plus', 'sp-compute', 'sp-lists', 'sp-cond', 'sp-hyp', 'sp-under']),
       // The rules a declaration gives, ending with induction (by hand, then on the machine).
-      series('decl', '声明给出的规则', 'What a declaration gives', ['in-distinct', 'in-inject', 'in-cases', 'in-zero']),
+      series('decl', '声明给出的规则', 'What a declaration gives', ['decl-nat', 'in-distinct', 'in-inject', 'in-cases', 'in-zero']),
       // Numbers, lists and why a definition must stop need nothing from each other.
       branches(
         ['nat', '数', 'Numbers', ['in-succ', 'in-comm', 'in-assoc']],

@@ -210,6 +210,13 @@ export default {
     { merge: ['mt', ['mt', 'contra']] },
     { merge: ['h-and-make', ['h-and-make', 'h-and-use']] },
     { merge: ['h-or-make', ['h-or-make', 'h-or-use']] },
+  ] },
+  // "There is", equality and the numbers are declared before their parts are used: whoever has passed those levels has
+  // passed the declarations.
+  { version: 45, ops: [
+    { solve: ['q-exI', ['decl-ex']] },
+    { solve: ['q-eq', ['decl-eq']] },
+    { solve: ['in-distinct', ['decl-nat']] },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

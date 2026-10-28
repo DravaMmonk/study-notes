@@ -17,6 +17,7 @@ export const WORDS = {
   CyYes: T('赛同意', 'Cy agrees'),
   Motion: T('提案通过', 'the motion passes'),
   Truth: T('真', 'True'),
+  Nat: T('自然数', 'a number'),
   Rest: T('我休息', 'I rest'),
   Bus: T('我坐公交', 'I take the bus'),
   Bike: T('我骑车', 'I cycle'),
