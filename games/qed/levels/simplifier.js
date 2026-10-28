@@ -1,4 +1,4 @@
-// Chapter 9 · The simplifier: goals that only want one place changed for another that says the same (¬¬A for A, a
+// Chapter 10 · The simplifier: goals that only want one place changed for another that says the same (¬¬A for A, a
 // negation pushed in) take too long rule by rule, so the laws proved both ways round last chapter become rewrite
 // rules, used left to right, one place at a time (the rewrite card, kit/domains/logic/rewrite.js). The card comes
 // first, with double negation. Then three lines that need nothing from each other: more rules (arrows to or,

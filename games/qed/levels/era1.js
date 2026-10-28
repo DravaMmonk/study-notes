@@ -141,7 +141,7 @@ export const era1 = [
       { t: T('证明核没有「首尾相接」这条规则，可它有框：要证一句「若…则…」，先假设它的前一半。', 'The kernel has no “join end to end” rule, but it has the box: to prove an “if … then …”, assume its first half.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
-    after: T('要证「若…则…」，就假设它的前一半，在框里一路套用下去。证过一次、之后当规则用的事叫<wiki-ref to="lemma"></wiki-ref>：它在每一组测试上都成立，所以对任何句子都能用。这块电路成了元件<part-ref to="lemma:chain"></part-ref>。', 'To prove an “if … then …”, assume its first half and apply your way through inside the box. Something proved once and used as a rule from then on is a <wiki-ref to="lemma"></wiki-ref>: it held on every test, so it works for any sentences. This circuit becomes the part <part-ref to="lemma:chain"></part-ref>.'),
+    after: T('要证「若…则…」，就假设它的前一半，在框里一路套用下去。证过一次、之后当规则用的事叫<wiki-ref to="lemma"></wiki-ref>：它在每一组测试上都成立，所以对任何句子都能用。这块电路成了元件<part-ref to="lemma:chain"></part-ref>。封装就是<wiki-ref to="definition"></wiki-ref>：给这块证明起个名字。用到串联的地方都能换回这块电路，所以封装证不出任何框证不出的东西。', 'To prove an “if … then …”, assume its first half and apply your way through inside the box. Something proved once and used as a rule from then on is a <wiki-ref to="lemma"></wiki-ref>: it held on every test, so it works for any sentences. This circuit becomes the part <part-ref to="lemma:chain"></part-ref>. Packing is a <wiki-ref to="definition"></wiki-ref>: this proof given a name. Wherever Chain is used it can be swapped back for this circuit, so packing proves nothing the box could not.'),
   },
   {
     id: 'ident',

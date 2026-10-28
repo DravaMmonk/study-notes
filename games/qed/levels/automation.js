@@ -1,11 +1,11 @@
-// Chapter 10 · Automation and certificates: the player's own auto searches rule by rule and soon cannot; automatic
+// Chapter 11 · Automation and certificates: the player's own auto searches rule by rule and soon cannot; automatic
 // provers turn a problem into clauses and look only for a contradiction. Clause form first, all of it on proof states
 // and kernel steps (by contradiction; Simp on the hypotheses, with ↔ out; ∃ taken out; split, a new card), built into
 // Into clauses. Then resolution: proved on the proof board, done by hand, one pair at a time, and a round of it in a
 // repeat frame built into the saturator. Handed a goal, the two together say whether it follows. Then two lines that
 // need nothing from each other: certificates (the saturator's steps replayed by hand, then by the kernel: the
 // reconstructor; and someone else's prover caught out). Practice uses the reconstructor on circuits and the problems of
-// chapter 5. The islanders come back, many of them; at the end, the liar grows into what no machine can do, the
+// chapter 6. The islanders come back, many of them; at the end, the liar grows into what no machine can do, the
 // barber to the halting problem; the challenge cancels only what is forced.
 import { proof } from '../../kit/domains/logic/build.js'
 import { flow, script } from './machines.js'
@@ -17,7 +17,7 @@ const machine = (want, inputs = GOAL) => (level) => ({ kind: 'machine', want, in
 const becomes = machine('becomes')
 const proves = machine('proved')
 const PROVE = T('设计一个证明助手：证得出的证完；证不出的，停下来说证不出来。', 'Design a proof assistant that proves what can be proved, and of what cannot, stops and says so.')
-// The rewrite rules that bring hypotheses to conjunctive normal form (↔ out first), as chapter 9 lined them up.
+// The rewrite rules that bring hypotheses to conjunctive normal form (↔ out first), as chapter 10 lined them up.
 const CNF = ['iff.elim', 'arrow.elim', 'dneg.elim', 'dm.notOr', 'dm.notAnd', 'dm.notEx', 'dm.notAll', 'dist.orAndR', 'dist.orAndL']
 const HYPS = { at: 'hyps' }
 const NEGATE = [['rule', 'raa'], ['rule', 'impI']]

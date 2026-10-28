@@ -1,4 +1,4 @@
-// A machine board's run as steps for the shared playback (../../../shell/usePlayback.jsx, 《证明完毕》 chapter 4 on):
+// A machine board's run as steps for the shared playback (../../../shell/usePlayback.jsx, 《证明完毕》 chapter 5 on):
 // every card's own value in the order the engine computed it (../../../engine/circuit.js trace). Inside a repeat frame
 // each card is a step in every round, labelled with its round; inside a search, in every step of the search. A part
 // the player built runs the board that built it (../machine.js builtParts), and each card on that board is a step

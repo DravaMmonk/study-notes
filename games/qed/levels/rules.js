@@ -1,4 +1,4 @@
-// Chapter 5 · Quantifier rules: back on the proof board, with ∀ and ∃. Two lines first: for all (take one; for any,
+// Chapter 6 · Quantifier rules: back on the proof board, with ∀ and ∃. Two lines first: for all (take one; for any,
 // a box whose variable is new; renaming; ∀ over ∧; a substitution that would capture) and there is (an example; take
 // the one there is, a box; the one taken stays in its box). Then two lines that need both: swapping and moving
 // quantifiers, and equality, its own mechanism: equals replace equals, both ways round and along a chain. Lewis

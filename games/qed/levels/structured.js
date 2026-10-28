@@ -1,4 +1,4 @@
-// Chapter 14 · Structured proofs (graduation): a proof written for people to read, as Isar writes it, have … show,
+// Chapter 15 · Structured proofs (graduation): a proof written for people to read, as Isar writes it, have … show,
 // each row one card of the proof board. No new rule: by after a row is a card (a rule, a lemma) or a tactic built
 // before (auto, simp, metis, induction), and a block (proof … qed) is a box: assume for an assumption box, fix for For
 // any, obtain for Take the one there is. Reading first (each row's by chosen, then the same proof wired), then writing

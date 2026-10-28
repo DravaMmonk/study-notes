@@ -161,7 +161,7 @@ export const RULES = {
     },
   },
 
-  // ---- clauses: resolution (chapter 10) ----
+  // ---- clauses: resolution (chapter 11) ----
   // The card of the resolution lemma (a course's lemma with `card: 'res'`): from two clauses with exactly one
   // complementary pair of literals, wherever each stands, the clause of everything else (⊥ when nothing is left). With
   // two pairs the resolvent would be a tautology, so the part refuses: one pair at a time.
@@ -232,7 +232,7 @@ export const RULES = {
       return proved(body.formula, new Map([...e.hyps, ...open]), unpack(e.term, y, hypName(node, ctx), body.term))
     },
   },
-  // ---- induction on numbers (chapter 11) ----
+  // ---- induction on numbers (chapter 12) ----
   // The sentence chosen on the card, ∀x. φ(x), from two boxes: the first proves φ(0); the second takes a number a
   // (named on the card), opens φ(a) as the induction hypothesis and proves φ(S a). Like For any, a must be new.
   natInd: {
@@ -413,7 +413,7 @@ export const LOGIC_TESTS = {
     const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, premises: premisesOf(test, consts), graph: circuit, exists: choicesOf(level).exists } })
     return { ...run, outputs: { goal: run.outputs.goal } }
   },
-  // A test may ask for the proof's term too (chapter 6): the same up to the names it binds.
+  // A test may ask for the proof's term too (chapter 7): the same up to the names it binds.
   check: (level, test, outputs) => {
     const goal = parse(test.goal, { consts: level.consts ?? [] })
     const problem = closes(outputs.goal, goal, Object.keys(test.premises ?? {}), level.notation)

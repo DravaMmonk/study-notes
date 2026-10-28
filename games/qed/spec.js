@@ -180,6 +180,6 @@ export default {
   { version: 41, ops: [{ built: ['r-unifier', 's-intro', 's-elim', 's-auto', 'au-clauses', 'au-saturate', 'au-replay'] }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
-  quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书'],
+  quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],
   texts: { chapters: LOGIC.CHAPTERS, lemmas: LEMMAS, glossary: GLOSSARY },
 }

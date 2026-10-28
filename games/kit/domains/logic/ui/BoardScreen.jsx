@@ -133,7 +133,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
   // Formulas in the level's notation (everyday sentences, symbols once introduced: notation.js).
   const text = (f) => L(say(f, level.notation))
   const scene = board.scene(level, test, text)
-  // From chapter 6 on (`terms`) every card shows its proof term too.
+  // From chapter 7 on (`terms`) every card shows its proof term too.
   const Value = (props) => <board.Value {...props} terms={Boolean(level.terms)} />
   const result = stepped ? run?.results[shownIndex] : verdict?.results[shownIndex]
   const states = stepped ? playback.states : tests.map((_, k) => (verdict ? (verdict.results[k].pass ? 'pass' : 'fail') : null))

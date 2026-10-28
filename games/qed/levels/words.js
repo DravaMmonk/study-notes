@@ -42,7 +42,7 @@ export const WORDS = {
   KH: T('h 是骑士', 'h is a knight'),
   KI: T('i 是骑士', 'i is a knight'),
   KJ: T('j 是骑士', 'j is a knight'),
-  // Two things a and b, for a world small enough to write out (chapter 5).
+  // Two things a and b, for a world small enough to write out (chapter 6).
   HA: T('a 是人', 'a is human'),
   HB: T('b 是人', 'b is human'),
   MA: T('a 会死', 'a is mortal'),
@@ -52,7 +52,7 @@ export const WORDS = {
   InB: T('输入 b 是 1', 'input b is 1'),
   Sum: T('和位是 1', 'the sum bit is 1'),
   Carry: T('进位是 1', 'the carry bit is 1'),
-  // First-order words (chapter 5 on): a predicate's words with its arguments as {0}, {1}; a name's words.
+  // First-order words (chapter 6 on): a predicate's words with its arguments as {0}, {1}; a name's words.
   Human: T('{0}是人', '{0} is human'),
   Mortal: T('{0}会死', '{0} is mortal'),
   Bird: T('{0}是鸟', '{0} is a bird'),
@@ -107,7 +107,7 @@ export const WORDS = {
   fay: T('菲', 'Fay'),
 }
 
-// Numbers and lists built by functions (chapter 9 on), read the way Isabelle prints them: S n the number after n,
+// Numbers and lists built by functions (chapter 10 on), read the way Isabelle prints them: S n the number after n,
 // x :: xs a list with x in front.
 export const TERM_WORDS = {
   ...WORDS,

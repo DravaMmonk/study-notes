@@ -46,7 +46,7 @@ export const LEMMAS = {
     ],
     ports: ['¬(A ∨ B)'],
   },
-  // The equivalences (chapter 8), which the simplifier (chapter 9) rewrites with: each a card of shapes that are each other's converse, so either way round is a
+  // The equivalences (chapter 9), which the simplifier (chapter 10) rewrites with: each a card of shapes that are each other's converse, so either way round is a
   // rewrite rule; all its shapes come with the level that proves them (REVISIONS).
   dneg: {
     name: T('双重否定', 'Double negation'),
@@ -80,7 +80,7 @@ export const LEMMAS = {
     ],
     ports: ['A ∨ (B ∧ C)'],
   },
-  // Chapter 10: ↔ to clauses (a rewrite rule both ways), resolution (its card takes the opposite pair wherever it stands
+  // Chapter 11: ↔ to clauses (a rewrite rule both ways), resolution (its card takes the opposite pair wherever it stands
   // in the two clauses), and the liar of the knights topic, which the topic on what no machine can do grows.
   iff: {
     name: T('去掉等价', 'Equivalence away'),
@@ -97,7 +97,7 @@ export const LEMMAS = {
   lem: { name: T('排中律', 'Excluded middle'), desc: T('元件上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the part; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
 }
 
-// The equations the player proves on the machine board (chapter 11), each a rule and a rewrite rule from then on.
+// The equations the player proves on the machine board (chapter 12), each a rule and a rewrite rule from then on.
 const fact = (zh, en, statement, desc) => ({ name: T(zh, en), statement, desc })
 export const FACTS = {
   addZero: fact('加零', 'Add zero', '∀x. plus(x, zero) = x', T('证出的等式 x + 0 = x：一条规则，也是化简的一条改写规则。', 'The equation proved, x + 0 = x: a rule, and a rewrite rule for Simp.')),
@@ -138,7 +138,7 @@ const REVISIONS = {
   // ↔ comes into proofs on the main path with 两个方向: Split ∧ takes it apart.
   andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
 
-  // The machine parts grow along chapters 6 and 7: quantifiers taken apart and patterns (做成函数), every result once
+  // The machine parts grow along chapters 7 and 8: quantifiers taken apart and patterns (做成函数), every result once
   // the cards backtrack (一串结果).
   uDecompose: [{ at: 'r-pattern', desc: T('找到一个两边样子相同的等式，拆成各部分对各部分的几个等式。两边都是「对所有」（或都是「存在」）时，拆出两边的身体，让它们用同一个变量，等式前面记上 ⋀x：x 是量词管着的。', 'Finds an equation with the same shape on both sides and splits it into an equation for each pair of parts. When both sides are “for all” (or both “there is”), it takes out the two bodies, with one variable for both, and marks the equation ⋀x: x is bound by a quantifier.') }],
   uCheck: [{ at: 'r-pattern', desc: T('找到一个 ?A ≐ t，?A 不能是 t，就宣布失败：t 里面又有 ?A；或者 t 里有前面 ⋀ 管着的变量（?A 不能把它带出量词）。', 'Finds ?A ≐ t where ?A cannot be t and declares failure: ?A occurs inside t, or t has a variable bound by the ⋀ in front (?A cannot take it out of its quantifier).') }],

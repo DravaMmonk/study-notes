@@ -8,7 +8,7 @@ import { difference, extent, structureOf } from '../fol.js'
 import { chipsOf, complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt, straysOf } from '../formulaTree.js'
 import { WorldText, thingName } from './WorldScreens.jsx'
 
-// Translate and query tasks (《证明完毕》 chapter 4): one sentence said in words, built as a formula from chips on the
+// Translate and query tasks (《证明完毕》 chapter 5): one sentence said in words, built as a formula from chips on the
 // shared strip (games/kit/strip, as 《句法之图》 builds a clause), which writes it out as it reads, a box for each
 // empty place. A
 // translation passes when it means the same as the sentence in every small world, and shows a world where it does

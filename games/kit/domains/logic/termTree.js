@@ -1,4 +1,4 @@
-// A proof term built from chips (《证明完毕》 chapter 6's term writing), shown on the shared strip (games/kit/strip):
+// A proof term built from chips (《证明完毕》 chapter 7's term writing), shown on the shared strip (games/kit/strip):
 // the term is the usual tree (pterm.js) with holes left as null. A chip is one piece of it: a name (a premise, or one
 // a fun or a case split has bound), or a form with holes: fun _ => □, □ □ (application), ⟨□, □⟩, □.1, □.2, Or.inl □,
 // Or.inr □, □.elim (fun _ => □) (fun _ => □), False.elim □, □.elim (fun _ _ => □) (∃ taken out). A name is a premise's, a

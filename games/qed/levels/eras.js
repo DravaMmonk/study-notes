@@ -39,6 +39,14 @@ export const ERAS = [
       // prover then uses both parts together.
       branches(['apply', '套用', 'Apply', ['mp', 'pick', 'nested', 'cond']], ['assume', '假设框', 'Assumption box', ['assume', 'k2']]),
       'box',
+    ],
+    chapter: { title: T('证明核', 'The kernel'), question: T('只靠套用和假设框，能证出什么？', 'What can Apply and the assumption box prove?') },
+  },
+  {
+    id: 'packing', machine: 'prover',
+    // The kernel's two parts carry on; what is built here is a proof given a name.
+    keeps: 'all',
+    foundation: [
       // Chain, Swap and Merge, each built with boxes alone, on two lines that need nothing from each other; then the
       // three together, harder each time.
       branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
@@ -56,7 +64,7 @@ export const ERAS = [
       { id: 'nobox-chain', code: 'X', after: 'x-s', levels: ['x-chain', 'x-swap'], title: T('拆掉框：串联与交换', 'Without the box: Chain and Swap') },
       { id: 'nobox-merge', code: 'X', after: 'x-s', levels: ['x-self', 'x-merge'], title: T('拆掉框：恒等与合并', 'Without the box: Identity and Merge') },
     ],
-    chapter: { title: T('证明核', 'The kernel'), question: T('只靠套用和假设框，能证出什么？', 'What can Apply and the assumption box prove?') },
+    chapter: { title: T('封装', 'Packing'), question: T('把一块证明封装成元件，它到底是什么？', 'A proof packed into a part: what is it, really?') },
   },
   {
     id: 'boxes', machine: 'prover',
@@ -140,7 +148,7 @@ export const ERAS = [
       // The player's own auto.
       's-auto',
     ],
-    // Prolog is rule resolution and depth-first search: it goes on from chapter 4's family tree.
+    // Prolog is rule resolution and depth-first search: it goes on from chapter 5's family tree.
     topics: [{ id: 'prolog', code: 'P', after: ['s-search', 'q-grand'], levels: ['pl-grand', 'pl-anc', 'pl-order'], title: T('用规则推族谱', 'A family tree by rules') }],
     challenges: [{ level: 's-loop', after: 's-search' }],
     chapter: { title: T('策略', 'Tactics'), question: T('能不能让证明助手自己去试该用哪条规则？', 'Can the proof assistant try for itself which rule to use?') },

@@ -1,4 +1,4 @@
-// First-order meaning (《证明完毕》 chapter 5 on): whether two formulas say the same thing, which elements of a world a
+// First-order meaning (《证明完毕》 chapter 6 on): whether two formulas say the same thing, which elements of a world a
 // formula with a free variable picks out, and worlds written out by name (models.js evaluates them).
 //
 //   world  { things: [name], preds: { P: [name] | [[name, name]] }, consts?: { c: name } }   a level's own world

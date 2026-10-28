@@ -1,4 +1,4 @@
-// Chapter 3 · Connectives: the prover, Apply and the box and the lemmas built in the kernel chapter (Identity, Chain,
+// Chapter 4 · Connectives: the prover, Apply and the box and the lemmas built in the kernel chapter (Identity, Chain,
 // Swap, Merge) with it, gains ∧, ∨, ⊥ and ¬. Three lines that need nothing from each other (and, or, contradiction
 // and not), each introduced and practised from a few angles, then combined. Only what needs no proof by contradiction
 // is here: excluded middle waits for the chapter where auto runs into it, De Morgan for the simplifier. Each level is

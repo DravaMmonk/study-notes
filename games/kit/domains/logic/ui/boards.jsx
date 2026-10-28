@@ -27,7 +27,7 @@ const T = (zh, en) => ({ zh, en })
 
 /* ---------- proofs ---------- */
 
-/** A judgment: the formula proved, the hypotheses it still rests on, and (from chapter 6, `terms`) its proof term. */
+/** A judgment: the formula proved, the hypotheses it still rests on, and (from chapter 7, `terms`) its proof term. */
 function Judgment({ v, text, small = false, bare = false, terms = false }) {
   if (!v) return null
   const hyps = [...v.hyps.values()]
@@ -76,7 +76,7 @@ export const PROOF = {
     const offer = choicesOf(level)
     const sentence = (f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })
     return {
-      // Chapter 6 names each premise (its proof term is that name) and may ask for the proof's term too.
+      // Chapter 7 names each premise (its proof term is that name) and may ask for the proof's term too.
       sequent: <>{premises.length > 0 && <>{tr('已知', 'Given')} <b>{Object.entries(test.premises).map(([name, t]) => `${level.terms ? `${name}: ` : ''}${text(parse(t, { consts }))}`).join(tr('；', '; '))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b>{test.term && <> · {tr('证明项要是', 'with the proof term')} <code className="lg-term">{test.term}</code></>}</>,
       premiseNames: Object.keys(test.premises ?? {}),
       want: <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b>{test.term && <><br />{tr('证明项要是', 'Proof term')} <code className="lg-term">{test.term}</code></>}</span>,

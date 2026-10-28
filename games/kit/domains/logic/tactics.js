@@ -1,7 +1,7 @@
-// Proof states and tactics (《证明完毕》 chapters 7 and 8). A proof state is the goals still open, each with the things
+// Proof states and tactics (《证明完毕》 chapters 8 and 9). A proof state is the goals still open, each with the things
 // it has fixed and the hypotheses it may use; metavariables a rule left in them are shared by every goal, and filled in
 // wherever one is unified (Isabelle's ?A, Lean's ?m). A tactic takes a state to the states it can make of it: none
-// (it fails, and says why), one, or several (chapter 8: one for each way it applies, tried in order). Tactics only use
+// (it fails, and says why), one, or several (chapter 9: one for each way it applies, tried in order). Tactics only use
 // rules, read backwards: whatever they prove, the kernel proves too.
 //
 //   state  { kind: 'state', goals: [goal], scopes: { ?name: [fixed] }, inst: σ, fixed: [name], query: [?name],

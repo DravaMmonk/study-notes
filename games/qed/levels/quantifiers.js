@@ -1,4 +1,4 @@
-// Chapter 4 · The language of quantifiers and counterexamples: what first-order sentences say and when they are true,
+// Chapter 5 · The language of quantifiers and counterexamples: what first-order sentences say and when they are true,
 // before any proof. Two lines: translating (names and predicates, every, some, one inside another) and worlds (true in
 // one, false in another; a world where the given holds and the claim fails, which is what nitpick looks for; which
 // quantifier comes first). The family topic asks a world questions.

@@ -1,4 +1,4 @@
-// Chapter 7 · Tactics: a machine is no longer a script for one shape of goal but a program for many, a tactic. Two
+// Chapter 8 · Tactics: a machine is no longer a script for one shape of goal but a program for many, a tactic. Two
 // lines need nothing from each other. Combinators: the repeat frame on proof states, alternatives (the first that does
 // not fail), both together, an alternative that does nothing (try), every goal. Backtracking: which goal first can decide
 // a ?-letter (defer); from then on a card gives every result and each card after it works on each (the showcase). With

@@ -1,4 +1,4 @@
-// Chapter 6 · Rules and metavariables: a rule is ⟦premises⟧ ⟹ conclusion with ?-letters for any sentence (the way
+// Chapter 7 · Rules and metavariables: a rule is ⟦premises⟧ ⟹ conclusion with ?-letters for any sentence (the way
 // Isabelle writes it; Lean's ?m are the same), and using it backwards means unifying its conclusion with the goal.
 // First the machine that unifies, one rule of unification per level, then the repeat frame runs them to the end: the
 // unifier. From there two lines need nothing from each other. On proof states: a goal is replaced by a rule's

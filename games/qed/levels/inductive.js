@@ -1,4 +1,4 @@
-// Chapter 11 · Numbers and lists: a sum worked out by hand on the proof board (the definitions as givens, Take one
+// Chapter 12 · Numbers and lists: a sum worked out by hand on the proof board (the definitions as givens, Take one
 // and Rewrite), then by simp with the definitions as rewrite rules: lists, rules with conditions, a given, under ∀.
 // Then numbers and lists are declared (nat = 0 | S nat), and a declaration gives rules (kit/domains/logic/datatype.js)
 // used with the rule cards like any other: the constructors are all different, each is one-to-one, every value is

@@ -212,9 +212,14 @@ export const GLOSSARY = [
     see: ['theorem'],
   },
   {
+    id: 'definition', group: 'proof', title: T('定义', 'definition'), at: 'chain',
+    body: [T(`<b>定义</b>是给已有的东西起一个新名字：一段证明、一句话，或者一种新的句子。定义随时能展开，换回它代表的东西，所以加上定义，证不出任何以前证不出的事；公理不一样，它说的是一件新的事。封装一块证明，就是定义一条${W('lemma')}：Lean 里 <code>theorem chain := …</code> 就是这样一个定义，Isabelle 也把证出的定理连着名字存下来。`, `A <b>definition</b> gives something already there a new name: a proof, a sentence, or a new kind of sentence. A definition can always be unfolded back into what it stands for, so adding one proves nothing that could not be proved before; an axiom is different, it states something new. Packing a proof into a part defines a ${W('lemma')}: in Lean, <code>theorem chain := …</code> is such a definition, and Isabelle too keeps each proved theorem under its name.`)],
+    see: ['lemma'],
+  },
+  {
     id: 'axiom', group: 'proof', title: T('公理', 'axiom'), at: 'k',
     body: [T('<b>公理</b>是不用证、直接拿来当出发点的句子，可以看成没有前提的规则。K：A → (B → A)；S：(A → (B → C)) → ((A → B) → (A → C))。这台证明器里 K 和 S 是用假设框证出来的引理，只有公理的证明器只能把它们直接当公理。', 'An <b>axiom</b> is a sentence taken as a starting point without proof, a rule with no premises. K: A → (B → A); S: (A → (B → C)) → ((A → B) → (A → C)). In this prover K and S are lemmas proved with assumption boxes; a prover with axioms alone can only take them as given.')],
-    see: ['hilbert'],
+    see: ['hilbert', 'definition'],
   },
   {
     id: 'hilbert', group: 'proof', title: T('希尔伯特系统', 'Hilbert system'), at: 'k',

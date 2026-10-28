@@ -1,4 +1,4 @@
-// Chapter 8 · Classical logic: the player's own auto runs into a wall, sentences true on every row that no search with
+// Chapter 9 · Classical logic: the player's own auto runs into a wall, sentences true on every row that no search with
 // introduction and elimination rules proves; the kernel gains one rule, proof by contradiction (from ¬¬A, A), and
 // excluded middle comes of it. Then three lines that need nothing from each other: proof by contradiction on the proof
 // board, excluded middle with cases, and proof by contradiction on the machine, once by hand before auto. Then the

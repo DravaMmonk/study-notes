@@ -1,4 +1,4 @@
-// Structured proof scripts (《证明完毕》 chapter 14), Isar's have … show: a script is rows, each a sentence and how it
+// Structured proof scripts (《证明完毕》 chapter 15), Isar's have … show: a script is rows, each a sentence and how it
 // is proved, and each row is one card of the proof board. A row proves its sentence from the facts it names (`using`,
 // the wires into the card) by a method (`by`): a kernel rule or a lemma (rule, then each premise closed by a fact), or a
 // tactic the player built (auto, simp with the level's simp set, metis, induction): all of them only use rules. Or it
