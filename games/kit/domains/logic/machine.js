@@ -3,8 +3,8 @@
 // inputs, its sink `out` is checked against what the level wants. A part is a rule of unification, a tactic, a frame
 // that runs what it holds again and again (repeat, depth-first search, every goal) or tries several things (the
 // alternatives frame), a rewrite, or a step on clauses (resolution.js); the level's parts come from the course as
-// on every board. A part the player builds (the unifier, erule, frule, the introduction and elimination steps, auto)
-// runs as its built-in implementation, which does what the circuit that built it does.
+// on every board. A part the player builds (the unifier, erule, frule, the introduction and elimination steps, auto,
+// simp, the clause machines) runs the board that built it: the player's, as it last passed (builtParts).
 //
 //   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
 //           | { kind: 'clauses', set, from?, endless? } (resolution.js) | { kind: 'rules', keys, entries }
@@ -36,10 +36,10 @@
 // `backtrack`, a tactic gives only its first result; from then on, every result, and each card after it works on each
 // of them in turn (tactics.js).
 import { PartError, evaluate } from '../../engine/circuit.js'
-import { runBoard, sink, source } from '../../engine/boards.js'
+import { packed, runBoard, sink, source } from '../../engine/boards.js'
 import { framePart, within } from '../../circuit/frames.js'
 import { all, fn, subst, tvar } from './formula.js'
-import { KERNEL, answerOf, asValue, assumption, auto, defer, depthFirst, elimStep, erule, frule, introStep, resultsOf, rule, startState } from './tactics.js'
+import { KERNEL, answerOf, asValue, assumption, defer, depthFirst, resultsOf, rule, startState } from './tactics.js'
 import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, sameSide, sideText, solveEqs, solved } from './schematic.js'
 import { rewrite, rewriteBookOf, simplify } from './rewrite.js'
 import { datatypesRules } from './datatype.js'
@@ -231,7 +231,6 @@ const ruleCard = (t) => usesRules((s, ctx, _node, rules) => firstThatApplies(wir
 const atOf = (node) => (node.params?.at === 'hyps' ? 'hyps' : 'goal')
 // A step inside a part, for a traced run (../../engine/circuit.js): a round of it, or the card it applies (`sub`).
 const inner = (ctx, node, value, extra) => ctx?.trace?.push({ id: node.id, key: null, inner: true, value, ...extra })
-const UNIFY_CARDS = { delete: 'uDelete', decompose: 'uDecompose', conflict: 'uConflict', swap: 'uSwap', check: 'uCheck', eliminate: 'uEliminate', pattern: 'uPattern' }
 const clausesIn = (v) => {
   if (v.kind !== 'clauses') throw fail('这里要一组子句：先把证明状态拆成子句', 'This needs a clause set: split the proof state into clauses first')
   return v
@@ -259,7 +258,9 @@ function regionRun(node, ctx, region) {
   const constants = new Set()
   const constant = (id) => {
     if (constants.has(id)) return true
-    if (!ctx.ruleParts?.has(byId.get(id)?.type)) return false
+    const node = byId.get(id)
+    if (node?.type === 'in' && node.params?.name === 'rules') return constants.add(id)
+    if (!ctx.ruleParts?.has(node?.type)) return false
     constants.add(id)
     return graph.wires.filter((w) => w.to === id).every((w) => constant(w.from.split('#')[0]))
   }
@@ -330,9 +331,10 @@ const search = {
     const round = regionRun(node, ctx, 'body')
     const depth = Number(node.params?.depth) || Infinity
     let k = 0
+    // A traced run sees each step of the search: what the frame hands its region, then the region's cards.
     const expand = (x) => {
-      const out = round(x, true)
-      if (++k <= 30) inner(ctx, node, out, { label: T(`第 ${k} 步`, `step ${k}`) })
+      ctx.trace?.push({ id: node.id, key: 'body', value: x, round: ++k })
+      const out = round(x)
       return out.error ? [] : resultsOf(out)
     }
     const { found, stopped } = depthFirst(resultsOf(s), expand, { depth, limit: LIMIT, most: 60 })
@@ -390,6 +392,8 @@ const append = {
   },
 }
 
+// A part the player builds: only its ports here; it runs the board that built it (builtParts).
+const BUILT = (inputs = ['in']) => ({ inputs, built: true })
 /** The machine board's parts. */
 export const MACHINE_PARTS = {
   in: source(),
@@ -402,50 +406,34 @@ export const MACHINE_PARTS = {
   uCheck: unifyCard('check'),
   uEliminate: unifyCard('eliminate'),
   uPattern: unifyCard('pattern'),
-  unifier: {
-    inputs: ['in'],
-    eval: ({ in: v }, node, ctx) => {
-      const e = eqsIn(v)
-      if (e.fail) return e
-      const set = solveEqs(e.eqs, { onStep: (state, r) => inner(ctx, node, eqsValue(state.eqs, state.fail), { sub: UNIFY_CARDS[r] }) })
-      return eqsValue(set.eqs, set.fail)
-    },
-  },
+  unifier: BUILT(),
   repeat,
   // Tactics (chapters 7 and 8): rule and assumption, and what the player builds of them.
   rule: ruleCard(rule),
   assumption: tactic(assumption),
-  erule: ruleCard(erule),
-  frule: ruleCard(frule),
+  erule: BUILT(['in', 'rules']),
+  frule: BUILT(['in', 'rules']),
   defer: tactic(defer),
   append,
   search,
   each,
-  introRules: tactic((s, ctx) => introStep(s, ctx.rules ?? KERNEL)),
-  elimRules: tactic((s, ctx) => elimStep(s, ctx.rules ?? KERNEL)),
-  auto: tactic((s, ctx) => {
-    const { found } = auto([s], ctx.rules ?? KERNEL)
-    return found.length ? { results: found } : { fail: T('auto 没有证完', 'auto did not finish') }
-  }),
+  introRules: BUILT(),
+  elimRules: BUILT(),
+  auto: BUILT(),
   // Rewriting (chapter 9): one rule once, and simp, which the player builds of it, on the goal or the hypotheses.
   rw: { ...usesRules((s, ctx, node, rules) => firstThatApplies(wired(rules, ctx.rewrites, NOT_REWRITE), ctx, (r) => rewrite(s, r, atOf(node)))), params: ['at'] },
-  simp: { ...usesRules((s, ctx, node, rules) => simplify(s, wired(rules, ctx.rewrites, NOT_REWRITE), atOf(node))), params: ['at'] },
+  simp: { ...BUILT(['in', 'rules']), params: ['at'] },
   // Clauses (chapter 10, resolution.js): ∃ out of the hypotheses, a state split into clauses, a round of resolution
   // (the saturator is built of rounds), someone else's prover, and the certificate replayed in the kernel; what the
   // player builds of them.
   skolem: tactic(skolemStep),
   toClauses: { inputs: ['in'], eval: ({ in: v }) => toClauses(v) },
   resolve: { inputs: ['in'], params: ['unit'], eval: ({ in: v }, node) => { const c = clausesIn(v); return { ...c, set: resolveRound(c.set, { unit: node.params?.unit === 'unit' }) } } },
-  saturate: { inputs: ['in'], eval: ({ in: v }, node, ctx) => saturated(clausesIn(v), node, ctx) },
+  saturate: BUILT(),
   oracle: { inputs: ['in'], eval: ({ in: v }, node, ctx) => saturated(clausesIn(v), node, ctx, oracleRound) },
   replay: { inputs: ['in'], eval: ({ in: v }) => replayed(clausesIn(v)) },
-  clausify: { inputs: ['in'], eval: ({ in: v }, _node, ctx) => clausify(stateIn(v), ctx) },
-  metis: tactic((s, ctx) => {
-    let clauses
-    try { clauses = clausify(s, ctx) } catch (e) { if (e instanceof PartError) return { fail: e.label }; throw e }
-    const out = replayed(saturated(clauses, null, ctx))
-    return out.error ? { fail: out.error } : { results: [out] }
-  }),
+  clausify: BUILT(),
+  metis: BUILT(),
 }
 
 // The fixed things Skolem's ∃ out of a hypothesis may name, in order.
@@ -517,8 +505,10 @@ function clausify(s0, ctx) {
 }
 
 /** A test's inputs as values, by name. */
-export function inputsOf(test) {
-  if (test.goal) return { in: startState(parseS(test.goal), (test.hyps ?? []).map(parseS)) }
+export function inputsOf(test, level) {
+  // A level that builds a part taking rules gives them as an input of its own: the test's rules (`rules`, keys).
+  const rules = test.rules ? { rules: rulesValue(test.rules.map((key) => rulePartsOf(level).get(rulePartOf(level, key).type).find((e) => e.key === key))) } : {}
+  if (test.goal) return { in: startState(parseS(test.goal), (test.hyps ?? []).map(parseS)), ...rules }
   if (test.eqs) return { in: eqsValue(test.eqs.map(parseEquation)) }
   return { in: clausesValue(clauseSetOf(test.clauses)) }
 }
@@ -546,7 +536,7 @@ const canonical = (goals) => {
 
 /** Is the output what the test wants? '' or why not. */
 export function judge(want, test, out, level = {}) {
-  const input = inputsOf(test).in
+  const input = inputsOf(test, level).in
   if (!out) return T('还没有东西接到「结果」', 'Nothing reaches the result yet')
   if (want === 'proved') {
     if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
@@ -609,21 +599,59 @@ export function judge(want, test, out, level = {}) {
   return resolveRound(out.set).length === out.set.length ? '' : T('结果还能再归结出新子句：还没饱和', 'The result still resolves into new clauses: not saturated yet')
 }
 
-/** The parts a level's board runs: the machine's, and its rule parts. */
-const partsFor = (level) => {
-  const rules = rulePartsOf(level)
-  return (type) => MACHINE_PARTS[type] ?? (rules.has(type) ? RULE_PART : undefined)
+/**
+ * The circuits the player's built parts run, by the id of the level that built each: the board that last passed it
+ * (the shell's progress.built, put here by syncOwn). A part not built by the player (every level open) runs its
+ * level's reference board.
+ */
+const OWN = new Map()
+export const syncOwn = (built = {}) => {
+  OWN.clear()
+  for (const [id, board] of Object.entries(built)) if (board?.nodes) OWN.set(id, board)
 }
+const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
+/**
+ * The machine parts a course's levels build, each running the board that built it (a packed part, ../../engine/
+ * boards.js): its inputs are the builder's inputs, its result the builder's. The cards inside use the rules of the
+ * level that uses the part and of the level that built it, and backtrack where either does. `opens()` gives what a
+ * board shows of the part opened: { circuit, level } (the level that built it, whose parts and words it is drawn in).
+ */
+export function builtParts(builders) {
+  return Object.fromEntries(builders.map((b) => {
+    const circuit = () => OWN.get(b.id) ?? b.solution
+    const part = packed({
+      circuit,
+      inputs: inputsOfLevel(b).map((i) => i.name),
+      output: 'out',
+      inside: (ctx) => ({ ...ctx, rules: { ...ruleBookOf(b), ...ctx.rules }, rewrites: { ...rewriteBookOf(b), ...ctx.rewrites }, ruleParts: merged(rulePartsOf(b), ctx.ruleParts), backtrack: ctx.backtrack || Boolean(b.backtrack) }),
+    })
+    return [b.builds, { ...MACHINE_PARTS[b.builds], ...part, eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: b }) }]
+  }))
+}
+// A tactic that cannot go on gives the state it was handed with what went wrong, as every tactic does (a frame reads
+// it), and a state that failed already passes through.
+const failsAsState = (run) => (ins, node, ctx) => {
+  if (ins.in?.kind === 'state' && ins.in.error) return ins.in
+  try {
+    return run(ins, node, ctx)
+  } catch (e) {
+    if (e instanceof PartError && ins.in?.kind === 'state') return { ...firstOf(ins.in), error: e.label }
+    throw e
+  }
+}
+
+/** The parts a level's board runs: the machine's (those the player built running their boards), and rule parts. */
+const partsFor = (level) => (type) => level.built?.[type] ?? MACHINE_PARTS[type] ?? RULE_PART
 const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), ...extra })
 
 /** A machine part run on a proof state with a level's rule and rewrite books (chapter 14: a script's by), the rules
  *  `keys` wired in when it uses rules. */
-export const runTactic = (level, type, state, keys = null) => MACHINE_PARTS[type].eval({ in: state, ...(keys ? { rules: rulesValue(keys.map((key) => ({ key }))) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }))
+export const runTactic = (level, type, state, keys = null) => (level.built?.[type] ?? MACHINE_PARTS[type]).eval({ in: state, ...(keys ? { rules: rulesValue(keys.map((key) => ({ key }))) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }, { engine: { parts: partsFor(level) } }))
 
 /** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
 export const MACHINE_TESTS = {
   runTest: (level, circuit, test) => {
-    const run = runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test), ctx: ctxOf(level, circuit) })
+    const run = runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test, level), ctx: ctxOf(level, circuit) })
     return { ...run, outputs: { out: run.outputs.out } }
   },
   // The run of one test with every step it took, in order (../../engine/circuit.js trace): only what reaches the
@@ -631,7 +659,7 @@ export const MACHINE_TESTS = {
   // run, as before it: the inputs, and a card that reaches nothing with what it gives or lacks.
   trace: (level, circuit, test) => {
     const trace = []
-    runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
+    runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test, level), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
     return { trace, run: MACHINE_TESTS.runTest(level, circuit, test) }
   },
   check: (level, test, outputs) => {

@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Brief, CircuitLayout, RunDock, StepLog, TaskCard, TestStatus, TestTabs, useKeptVerdict, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, isFixed, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
+import { CanvasEditor, FloatWindow, Notice, Palette, PartActions, SlotBoard, Tray, isFixed, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
 import { parse } from '../formula.js'
@@ -11,7 +11,8 @@ import { say } from '../notation.js'
 import { ScriptView } from './ScriptScreen.jsx'
 import FormulaField from './FormulaField.jsx'
 import { formOf } from '../../../engine/forms.js'
-import { machineSteps, machineViewAt } from './stepping.js'
+import { insideAt, machineSteps, machineViewAt } from './stepping.js'
+import { MACHINE_PARTS, syncOwn } from '../machine.js'
 
 // A level of the logic domain played on the shared circuit editor (《证明完毕》): a proof, whose wires carry proved
 // judgments, or a machine, whose wires carry formulas and clause sets (boards.jsx says how each runs, is judged and
@@ -21,8 +22,10 @@ import { machineSteps, machineViewAt } from './stepping.js'
 // test, which completes the level. The tests above the strip switch the case everywhere, the cards' choices included.
 // A board whose tests can be traced (a machine: boards.jsx) runs step by step instead (../../../shell/usePlayback.jsx):
 // the card computing lights up, the board shows what had been computed by then, the strip lists every step's result,
-// and the run stops at the first step or test that fails. Either way the board's last run is kept (the shell's
-// lastRun): the level, or a task of it, opens on it again.
+// and the run stops at the first step or test that fails. A part the player built runs the board that built it, and
+// its steps are steps of the run: while one is under way, that board opens beside the level's (read only), with its
+// cards' values in this run of the part and the card computing lit. Either way the board's last run is kept (the
+// shell's lastRun): the level, or a task of it, opens on it again.
 
 const T = (zh, en) => ({ zh, en })
 
@@ -31,6 +34,8 @@ export const boardScreen = (board) => function LogicBoard(props) { return <Board
 
 function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, keepRun, flags, progress, phone }) {
   const level = entry.source
+  // The parts the player built run the boards that last passed their levels.
+  syncOwn(progress.built)
   const parts = useMemo(() => board.parts(level), [board, level])
   // A saved board that no longer fits the level or the game starts fresh.
   const [circuit, setCircuit] = useState(() => (saved?.nodes && board.fits(saved, level, parts) ? board.lock(level, saved) : board.start(level)))
@@ -55,12 +60,18 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
 
   // Step by step, on a board that can trace its run: each test traced once per board.
   const stepped = Boolean(board.tests.trace)
-  const name = (node) => (parts.role(node) === 'part' ? board.nameOf(level, node.type) : parts.label(node))
+  // A card's name on its own board: the level's, or the board a built part runs (drawn with its level's parts).
+  const partsOf = useMemo(() => {
+    const made = new Map([[level, parts]])
+    return (lvl) => made.get(lvl) ?? made.set(lvl, board.parts(lvl)).get(lvl)
+  }, [board, level, parts])
+  const name = (node, lvl = level) => (partsOf(lvl).role(node) === 'part' ? board.nameOf(lvl, node.type) : partsOf(lvl).label(node))
+  const opens = (type) => level.built?.[type]?.opens?.() ?? null
   const traces = useMemo(() => new Map(), [board, level, circuit])
   const tracedOf = (k) => {
     if (!traces.has(k)) {
       const traced = board.tests.trace(level, circuit, tests[k])
-      traces.set(k, { ...traced, steps: machineSteps(traced, circuit, name, (type) => board.nameOf(level, type), { failing: (tests[k].want ?? level.want) === 'fails' || tests[k].becomes?.length === 0 }) })
+      traces.set(k, { ...traced, steps: machineSteps(traced, circuit, level, { name, partName: (type) => board.nameOf(level, type), opens, isRulePart: (type) => !MACHINE_PARTS[type], failing: (tests[k].want ?? level.want) === 'fails' || tests[k].becomes?.length === 0 }) })
     }
     return traces.get(k)
   }
@@ -79,7 +90,9 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
   const onThis = run && run.test === shownIndex
   const view = onThis ? machineViewAt(tracedOf(shownIndex), tracedOf(shownIndex).steps, run.step) : live
   const stepNow = onThis && run.step >= 0 ? tracedOf(shownIndex).steps[run.step] ?? null : null
-  const stepClass = (node) => (stepNow?.id === node.id ? `is-step ${stepNow.failed ? 'is-step-fail' : ''}` : '')
+  // A step inside a built part lights the part on the level's board.
+  const stepClass = (node) => ((stepNow?.path[0] ?? stepNow?.id) === node.id ? `is-step ${stepNow.failed ? 'is-step-fail' : ''}` : '')
+  const inside = stepNow?.path.length ? insideAt(tracedOf(shownIndex), tracedOf(shownIndex).steps, run.step, circuit, level, opens) : null
 
   const change = (next, { keep } = {}) => {
     setCircuit(next)
@@ -164,8 +177,9 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
   const stepLog = <StepLog steps={shown.list.map((s) => ({ label: s.label, value: s.value ? <Value v={s.value} text={text} /> : null, failed: s.failed }))} at={shown.at} />
   const verdictText = result ? (result.pass ? L(board.words.pass) : L(result.reason)) : null
   const shared = { board: { ...board, Value }, parts, level, circuit, view, scene, setParam, text, formsOf }
+  const insideView = inside && <InsideView inside={inside} board={{ ...board, Value }} parts={partsOf(inside.level)} text={text} name={name} phone={phone} />
 
-  if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} stepKey={run ? `${run.test}:${run.step}:${run.results.length}` : ''} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} types={types} descOf={descOf} scope={level.id} />
+  if (phone) return <PhoneBoard {...shared} insideView={insideView} stepLog={stepLog} stepClass={stepClass} stepped={stepped} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} stepKey={run ? `${run.test}:${run.step}:${run.results.length}` : ''} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} types={types} descOf={descOf} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -193,6 +207,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
               onClear={onClear}
               types={types}
               emptyNote={items.length > 0 && board.words.empty}
+              overlay={insideView && <FloatWindow id="lg-inside" className="lg-inside-window" title={inside.path.map((p) => L(name(p.node, p.level))).join(' › ')} at={{ right: 16, top: 16 }}>{insideView}</FloatWindow>}
             />
           </div>
         </div>
@@ -291,7 +306,7 @@ function CardBody({ node, board, parts, level, circuit, view, scene, setParam, t
 
 // The board on a phone: the shared slot board, where a frame is a block with its regions' grids inside it, a sheet
 // per block and the run bar.
-function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdictText, stepLog, stepClass, stepped, logged, began, waiting, stepKey, onClear, setParam, text, formsOf, brief, items, foldedItems, dock, change, addNode, types, descOf, scope, testTabs, regionNote, resultNote }) {
+function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdictText, insideView, stepLog, stepClass, stepped, logged, began, waiting, stepKey, onClear, setParam, text, formsOf, brief, items, foldedItems, dock, change, addNode, types, descOf, scope, testTabs, regionNote, resultNote }) {
   const { Value } = board
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
@@ -353,8 +368,9 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
         <TaskCard>{brief}</TaskCard>
         <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} onClear={onClear} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onChange={change} types={types} />
         {stepped ? began && (
-          <section className="lg-preview" ref={preview}>
+          <section className={`lg-preview ${insideView ? 'has-inside' : ''}`} ref={preview}>
             <h3>{tr('运行过程', 'The run')}</h3>
+            {insideView}
             {logged ? stepLog : <p className="lg-mark lg-preview-empty">{waiting ? tr('这一组开始运行……', 'This test starts…') : tr('这一组还没有运行到。', 'This test has not been run yet.')}</p>}
             {verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
           </section>
@@ -384,6 +400,31 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
           </div>
         </Sheet>
       )}
+    </div>
+  )
+}
+
+// A built part opened while a run steps through it: the board that built it, read only, each card showing what it gives
+// in this run of the part, the card computing lit. On a phone it says which parts it is in above it.
+function InsideView({ inside, board, parts, text, name, phone }) {
+  const scene = board.scene(inside.level, inside.level.tests[0], text)
+  const shared = { board, parts, level: inside.level, circuit: inside.circuit, view: inside.view, scene, setParam: () => {}, text, formsOf: () => [] }
+  const where = inside.path.map((p) => p.node.id).join('/')
+  return (
+    <div className="lg-inside">
+      {phone && <p className="lg-inside-path">{inside.path.map((p) => L(name(p.node, p.level))).join(' › ')}</p>}
+      <CanvasEditor
+        key={where}
+        readOnly
+        refit
+        graph={inside.circuit}
+        parts={parts}
+        width={160}
+        height={150}
+        body={(node) => <CardBody node={node} {...shared} />}
+        cardClass={(node) => `lg-node ${node.id === inside.step ? 'is-step' : ''}`}
+        wireState={(wire) => (inside.view.values.get(wire.from) ? 'live' : 'dead')}
+      />
     </div>
   )
 }

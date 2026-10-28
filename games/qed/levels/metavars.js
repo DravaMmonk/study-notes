@@ -13,6 +13,8 @@ import { script } from './machines.js'
 const T = (zh, en) => ({ zh, en })
 const GOAL = [{ name: 'in', label: T('目标', 'Goal') }]
 const EQS = [{ name: 'in', label: T('等式', 'Equations') }]
+// A level that builds a part taking rules gives them on the board as an input of its own: the part's port.
+const RULED = [...GOAL, { name: 'rules', label: T('规则', 'Rules') }]
 const unify = (level) => ({ kind: 'machine', want: 'unify', inputs: EQS, ...level })
 const prove = (level) => ({ kind: 'machine', want: 'proved', inputs: GOAL, ...level })
 
@@ -213,20 +215,20 @@ export const metavars = [
     id: 'r-elim',
     title: T('先用规则，再对上已知', 'A rule, then a given'),
     want: 'becomes',
+    inputs: RULED,
     builds: 'erule',
-    builtWith: { rule: 'conjE' },
     tests: [
-      { goal: 'Wind ∧ Rain', hyps: ['Rain ∧ Wind'], becomes: [['Rain ∧ Wind; Rain; Wind ⊢ Wind ∧ Rain']] },
-      { goal: 'Slip', hyps: ['Wet ∧ Slip'], becomes: [['Wet ∧ Slip; Wet; Slip ⊢ Slip']] },
-      { goal: 'Wind ∧ Wet', hyps: ['Rain', 'Wet ∧ Wind'], becomes: [['Rain; Wet ∧ Wind; Wet; Wind ⊢ Wind ∧ Wet']] },
+      { goal: 'Wind ∧ Rain', hyps: ['Rain ∧ Wind'], rules: ['conjE'], becomes: [['Rain ∧ Wind; Rain; Wind ⊢ Wind ∧ Rain']] },
+      { goal: 'Slip', hyps: ['Wet ∧ Slip'], rules: ['conjE'], becomes: [['Wet ∧ Slip; Wet; Slip ⊢ Slip']] },
+      { goal: 'Wind ∧ Wet', hyps: ['Rain', 'Wet ∧ Wind'], rules: ['conjE'], becomes: [['Rain; Wet ∧ Wind; Wet; Wind ⊢ Wind ∧ Wet']] },
     ],
     brief: T('设计一个证明助手：拆开「并且」那条已知，把每个目标变成要的样子。', 'Design a proof assistant that takes the “and” given apart, turning each goal into the one wanted.'),
     hint: [T('倒着用拆开 ∧，第一个新目标全是 ?：拿已知里有去定它。', 'Split ∧ used backwards leaves a first goal made of ?-letters: let Assumption settle it.')],
     intro: [
       { t: T('到这里用过的规则，都是看目标的：结论对上目标，前提成了新目标。拆开 ∧ 写成规则是 ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C：结论 ?C 对得上任何目标，第一条前提 ?A ∧ ?B 却从目标里读不出来，成了一个全是 ? 的目标。', 'The rules used so far all look at the goal: the conclusion fits it, the premises become new goals. Split ∧ as a rule is ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C: its conclusion ?C fits any goal, but its first premise ?A ∧ ?B cannot be read off the goal, and becomes a goal made of ?-letters.') },
-      { t: T('这个目标里的 ?，只有已知能定：一条「并且」的已知对上它，?A、?B 就是那两半，下一个目标的已知里多了这两句。设计出的证明助手会成为新元件<part-ref to="lemma:erule"></part-ref>，规则留到元件上去选。', 'Only a given can settle the ?-letters of that goal: an “and” among the givens fits it, ?A and ?B are its two halves, and the next goal gains those two among its givens. The proof assistant you design becomes a new part, <part-ref to="lemma:erule"></part-ref>, the rule left to choose on the part.') },
+      { t: T('这个目标里的 ?，只有已知能定：一条「并且」的已知对上它，?A、?B 就是那两半，下一个目标的已知里多了这两句。规则从板上的「规则」输入进来；设计出的证明助手会成为新元件<part-ref to="lemma:erule"></part-ref>，这个输入就是它的「规则」口。', 'Only a given can settle the ?-letters of that goal: an “and” among the givens fits it, ?A and ?B are its two halves, and the next goal gains those two among its givens. The rules come in at the board’s input Rules; the proof assistant you design becomes a new part, <part-ref to="lemma:erule"></part-ref>, and that input is its port Rules.') },
     ],
-    solution: script(['rule', 'conjE'], 'assumption'),
+    solution: machine({ c0: ['rule'], c1: ['assumption'] }, ['in>c0', 'rules>c0.rules', 'c0>c1', 'c1>out'], { inputs: ['in', 'rules'] }),
     after: T('拆开 ∧ 这样的规则叫<wiki-ref to="elim-rule"></wiki-ref>：第一条前提要对上一条已知，结论什么都行。用规则、紧接着拿已知去对第一条前提，这两步总是连着走，所以接成了一个元件。原来那条「并且」还留在已知里。', 'A rule like Split ∧ is an <wiki-ref to="elim-rule"></wiki-ref>: its first premise must fit a given, and its conclusion fits anything. Use the rule, then fit its first premise with a given at once: these two steps always go together, so they became one part. The “and” itself stays among the givens.'),
   }),
   prove({
@@ -310,20 +312,20 @@ export const metavars = [
     id: 'r-drule',
     title: T('往前推一步', 'One step forward'),
     want: 'becomes',
+    inputs: RULED,
     builds: 'frule',
-    builtWith: { rule: 'spec' },
     tests: [
-      { goal: 'Mortal(soc)', hyps: ['∀x. Human(x) → Mortal(x)', 'Human(soc)'], becomes: [['∀x. Human(x) → Mortal(x); Human(soc); Human(?t) → Mortal(?t) ⊢ Mortal(soc)']] },
-      { goal: 'Flies(cy)', hyps: ['∀x. Bird(x) → Flies(x)', 'Bird(cy)'], becomes: [['∀x. Bird(x) → Flies(x); Bird(cy); Bird(?t) → Flies(?t) ⊢ Flies(cy)']] },
-      { goal: 'Likes(ann, bo)', hyps: ['Human(bo)', '∀y. Human(y) → Likes(ann, y)'], becomes: [['Human(bo); ∀y. Human(y) → Likes(ann, y); Human(?t) → Likes(ann, ?t) ⊢ Likes(ann, bo)']] },
+      { goal: 'Mortal(soc)', hyps: ['∀x. Human(x) → Mortal(x)', 'Human(soc)'], rules: ['spec'], becomes: [['∀x. Human(x) → Mortal(x); Human(soc); Human(?t) → Mortal(?t) ⊢ Mortal(soc)']] },
+      { goal: 'Flies(cy)', hyps: ['∀x. Bird(x) → Flies(x)', 'Bird(cy)'], rules: ['spec'], becomes: [['∀x. Bird(x) → Flies(x); Bird(cy); Bird(?t) → Flies(?t) ⊢ Flies(cy)']] },
+      { goal: 'Likes(ann, bo)', hyps: ['Human(bo)', '∀y. Human(y) → Likes(ann, y)'], rules: ['spec'], becomes: [['Human(bo); ∀y. Human(y) → Likes(ann, y); Human(?t) → Likes(ann, ?t) ⊢ Likes(ann, bo)']] },
     ],
     brief: T('设计一个证明助手：从「对所有」那条已知取一个，加进已知，把每个目标变成要的样子。', 'Design a proof assistant that takes one from the “for all” given and adds it to the givens, turning each goal into the one wanted.'),
     hint: [T('先证一句倒着用，第一个目标是一个光秃秃的 ?A；规则对已知接上取一个，?A 就从「对所有」那条已知里定下来。', 'Have used backwards leaves a bare ?A as the first goal; Rule on a given with Take one settles ?A from the “for all” given.')],
     intro: [
       { t: T('取一个写成规则是 ⟦∀x. ?P(x)⟧ ⟹ ?P(?t)。倒着用，结论 ?P(?t) 要对上「苏格拉底会死」：?P 后面跟的是 ?t，不是约束变量。?P 是「x会死」、?t 是苏格拉底？还是 ?P 就是「苏格拉底会死」、?t 随便？解不止一个，合一器不猜，元件对不上。', 'Take one as a rule is ⟦∀x. ?P(x)⟧ ⟹ ?P(?t). Backwards, its conclusion ?P(?t) must fit “Socrates is mortal”: ?P is followed by ?t, not by a bound variable. Is ?P “x is mortal” with ?t Socrates, or is ?P just “Socrates is mortal” with ?t anything? There is more than one solution, the unifier does not guess, and the part does not fit.') },
-      { t: T('证明板上不用倒着来：取一个接在「对所有」那条已知后面，得出的一句再接给别的元件。中间得出一句、再拿来用，写成规则是<b>先证一句</b> ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C。倒着用它，多出一个目标 ?A，证出来的 ?A 进了下一个目标的已知。设计出的证明助手会成为新元件「往前推」，规则留到元件上去选。', 'On the proof board there was no need to go backwards: Take one wired after the “for all” given, and what it gave wired on. Getting a sentence on the way and then using it is, as a rule, <b>Have</b>: ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C. Used backwards it adds a goal ?A, and the ?A proved joins the next goal’s givens. The proof assistant you design becomes a new part, “Forward”, the rule left to choose on the part.') },
+      { t: T('证明板上不用倒着来：取一个接在「对所有」那条已知后面，得出的一句再接给别的元件。中间得出一句、再拿来用，写成规则是<b>先证一句</b> ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C。倒着用它，多出一个目标 ?A，证出来的 ?A 进了下一个目标的已知。取一个从板上的「规则」输入进来；设计出的证明助手会成为新元件「往前推」，这个输入就是它的「规则」口。', 'On the proof board there was no need to go backwards: Take one wired after the “for all” given, and what it gave wired on. Getting a sentence on the way and then using it is, as a rule, <b>Have</b>: ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C. Used backwards it adds a goal ?A, and the ?A proved joins the next goal’s givens. Take one comes in at the board’s input Rules; the proof assistant you design becomes a new part, “Forward”, and that input is its port Rules.') },
     ],
-    solution: script(['rule', 'cut'], ['erule', 'spec']),
+    solution: machine({ c0: ['rule', { rule: 'cut' }], c1: ['erule'] }, ['in>c0', 'c0>c1', 'rules>c1.rules', 'c1>out'], { inputs: ['in', 'rules'] }),
     after: T('这就是从已知往前推，<wiki-ref to="forward"></wiki-ref>：规则的第一条前提对上一条已知，结论加进已知，原来那条还在。有的规则只能倒着用（任取），有的只好往前推（取一个）：看合一的时候，是哪一边带着约束变量。', 'This is reasoning forward from a given, <wiki-ref to="forward"></wiki-ref>: the rule’s first premise fits a given, its conclusion joins the givens, and the given stays. Some rules only go backwards (For any), some only forwards (Take one): it depends on which side carries the bound variable when unifying.'),
   }),
   prove({

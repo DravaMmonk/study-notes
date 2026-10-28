@@ -224,8 +224,11 @@ test('unification solves sentences with ?-letters, patterns as functions, and re
 
 test('rules used backwards leave ?-letters that a given settles later, and a fixed thing comes too late for an older one', async () => {
   const { parseS } = await import('./schematic.js')
-  const { KERNEL, assumption, erule, frule, rule, startState } = await import('./tactics.js')
+  const { KERNEL, assumption, rule, startState } = await import('./tactics.js')
   const step = (s, ...r) => { const out = r[0](s, ...r.slice(1)); assert.ok(out.results, JSON.stringify(out.fail)); return out.results[0] }
+  // Rule on a given and Forward, as the player builds them: a rule, then Assumption; Have, then a rule on a given.
+  const erule = (s, R) => { const r = rule(s, R); return r.fail ? r : assumption(r.results[0]) }
+  const frule = (s, R) => { const c = rule(s, KERNEL.cut); return c.fail ? c : erule(c.results[0], R) }
   let s = startState(parseS('Wet'), ['Rain → Wet', 'Rain'].map(parseS))
   s = step(s, rule, KERNEL.mp)
   assert.equal(show(s.goals[1].goal), '?A')
@@ -247,8 +250,13 @@ test('rules used backwards leave ?-letters that a given settles later, and a fix
 
 test('a search does not follow a step that gives nothing new, so using givens again comes to an end', async () => {
   const { parseS } = await import('./schematic.js')
-  const { auto, startState } = await import('./tactics.js')
-  const run = (goal) => auto([startState(parseS(goal))])
+  const { ELIM_RULES, INTRO_RULES } = await import('./schematic.js')
+  const { KERNEL, assumption, depthFirst, rule, startState } = await import('./tactics.js')
+  // The reference auto: each step Assumption, then every introduction rule, then every elimination rule and Assumption.
+  const ok = (r) => r.results ?? []
+  const elim = (x, r) => ok(rule(x, r)).flatMap((y) => ok(assumption(y)))
+  const step = (x) => [...ok(assumption(x)), ...INTRO_RULES.flatMap((k) => ok(rule(x, KERNEL[k]))), ...ELIM_RULES.flatMap((k) => elim(x, KERNEL[k]))]
+  const run = (goal) => depthFirst([startState(parseS(goal))], step, { limit: 250, most: 60 })
   assert.ok(run('(∃x. Human(x) ∧ Likes(x, ann)) → ∃x. Likes(x, ann)').found.length)
   // Not provable without proof by contradiction: the search runs out of new steps rather than of time.
   const lost = run('(¬Rain → Rain) → Rain')
@@ -322,7 +330,7 @@ test('a declaration gives its rules, and induction read off a goal proves an equ
   assert.deepEqual(Object.keys(rules), ['nat.distinct1', 'nat.distinct2', 'nat.inject', 'nat.exhaust', 'nat.induct'])
   assert.equal(rules['nat.induct'], '⟦?P(zero); (⋀x. ?P(x) ⟹ ?P(s(x)))⟧ ⟹ ∀x. ?P(x)')
   const level = { kind: 'machine', want: 'proved', datatypes: { nat: 'zero | s(nat)' }, defs: ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))'], tests: [{ goal: '∀x. plus(x, zero) = x' }] }
-  const byInduction = machine({ i: ['rule', { rule: 'nat.induct' }], e: ['each'], s: ['simp', { rewrites: 'def.0,def.1,hyp' }, 'e'], r: ['rule', { rule: 'refl' }, 'e'] }, ['in>i.in', 'i>e.in', 'e#body>s.in', 's>r.in', 'r>e.body', 'e>out'])
+  const byInduction = machine({ i: ['rule', { rule: 'nat.induct' }], e: ['each'], p: ['repeat', {}, 'e'], s: ['rw', { rewrite: 'def.0,def.1,hyp' }, 'p'], r: ['rule', { rule: 'refl' }, 'e'] }, ['in>i.in', 'i>e.in', 'e#body>p.in', 'p#body>s.in', 's>p.body', 'p>r.in', 'r>e.body', 'e>out'])
   assert.equal(runLevel(MACHINE_TESTS, level, wireRules(byInduction, level)).pass, true)
 })
 

@@ -173,7 +173,11 @@ export default {
   { version: 39, ops: [{ data: ticked }] },
   // Version 40 gathered the rules of numbers and lists (a declaration's, a definition's, an equation proved) into one
   // part, the rule book of numbers: a board that used one of the parts it replaces starts afresh.
-  { version: 40, ops: [{ data: (value) => (Array.isArray(value) ? value.map(unbooked) : unbooked(value)) }] }],
+  { version: 40, ops: [{ data: (value) => (Array.isArray(value) ? value.map(unbooked) : unbooked(value)) }] },
+  // Version 41 ran the parts the player built as the boards that built them: whoever solved a level has its board as
+  // the part's. Rule on a given, Forward and Simp now take their rules at an input of their board, so a board saved
+  // for those levels before does not fit and they are played again.
+  { version: 41, ops: [{ built: ['r-unifier', 's-intro', 's-elim', 's-auto', 'au-clauses', 'au-saturate', 'au-replay'] }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书'],

@@ -5,10 +5,14 @@
 // distribution), De Morgan (negation pushed in, then brought out with the other shapes), and rewriting itself (the
 // first place, then again and again). With all three, simp is built: a repeat frame round alternatives, one rewrite
 // each. Then normal forms (NNF, CNF, and the order of the rules).
+import { machine } from '../../kit/domains/logic/build.js'
 import { flow, script } from './machines.js'
 
 const T = (zh, en) => ({ zh, en })
 const GOAL = [{ name: 'in', label: T('目标', 'Goal') }]
+// The level that builds simp gives its rewrite rules on the board as an input of its own: the part's port.
+const SIMP_RULES = ['dneg.elim', 'dm.notOr', 'dm.notAnd']
+const RULED = [...GOAL, { name: 'rules', label: T('规则', 'Rules') }]
 // A machine on proof states that every card gives every result on (as from the tactics chapter on).
 const machineLevel = (want) => (level) => ({ kind: 'machine', want, inputs: GOAL, backtrack: true, ...level })
 const becomes = machineLevel('becomes')
@@ -146,19 +150,19 @@ export const simplifier = [
   becomes({
     id: 'sp-simp',
     title: T('几条一起', 'Several at once'),
+    inputs: RULED,
     builds: 'simp',
-    builtWith: { rewrites: 'dneg.elim,dm.notOr,dm.notAnd' },
     tests: [
-      { goal: '¬(Rain ∨ ¬Wind)', becomes: [['¬Rain ∧ Wind']] },
-      { goal: '¬¬¬(Rain ∧ Wind)', becomes: [['¬Rain ∨ ¬Wind']] },
-      { goal: '¬(¬Rain ∨ ¬¬Wind) ∧ Wet', becomes: [['(Rain ∧ ¬Wind) ∧ Wet']] },
-      { goal: 'Rain ∧ Wet', becomes: [['Rain ∧ Wet']] },
+      { goal: '¬(Rain ∨ ¬Wind)', rules: SIMP_RULES, becomes: [['¬Rain ∧ Wind']] },
+      { goal: '¬¬¬(Rain ∧ Wind)', rules: SIMP_RULES, becomes: [['¬Rain ∨ ¬Wind']] },
+      { goal: '¬(¬Rain ∨ ¬¬Wind) ∧ Wet', rules: SIMP_RULES, becomes: [['(Rain ∧ ¬Wind) ∧ Wet']] },
+      { goal: 'Rain ∧ Wet', rules: SIMP_RULES, becomes: [['Rain ∧ Wet']] },
     ],
     brief: T('设计一个证明助手：去掉双重否定，把否定推进「或者」「并且」，一直改到哪一处都改不动，把每个目标变成要的样子。', 'Design a proof assistant that takes double negations off and pushes negations into “or” and “and” until nothing more changes, turning each goal into the one wanted.'),
-    hint: [T('重复框里放几条路，每个框一张改写。', 'Alternatives in a repeat frame, one rewrite in each region.')],
-    intro: [{ t: T('一条规则改到底，是重复框里一张改写。这一关要几条规则一起改：每一圈，哪一条对得上，就用哪一条。这就是<b>化简</b>：一组改写规则，改到哪一条都对不上为止。设计出的证明助手会成为新元件<part-ref to="lemma:simp"></part-ref>，改写规则由接进它的规则元件给出，排在一串里。', 'One rule to the end is one rewrite in a repeat frame. Here several rules work together: each round, whichever fits is used. That is <b>simplification</b>: a set of rewrite rules, used until none fits. The proof assistant you design becomes a new part, <part-ref to="lemma:simp"></part-ref>, its rewrite rules given by the rule parts wired into it, as a list.') }],
-    solution: flow({ frame: 'repeat', body: [{ ways: [[['rw', 'dneg.elim']], [['rw', 'dm.notOr']], [['rw', 'dm.notAnd']]] }] }),
-    after: T('重复框套着几条路，每条路一张改写：每一圈用第一条对得上的规则改一处，改到哪一条都对不上。这个证明助手成了元件<part-ref to="lemma:simp"></part-ref>：接进一串改写规则，它就照这个证明助手那样改下去。', 'A repeat frame round Alternatives, a rewrite on each way: each round the first rule that fits changes one place, until none fits. This proof assistant is now the part <part-ref to="lemma:simp"></part-ref>: wire a list of rewrite rules into it, and it rewrites just as the proof assistant did.'),
+    hint: [T('改写接进一串规则时，用第一条对得上的。', 'A rewrite wired a list of rules uses the first that fits.')],
+    intro: [{ t: T('一条规则改到底，是重复框里一张改写。这一关要几条规则一起改：每一圈，哪一条对得上，就用哪一条，改到哪一条都对不上为止。这就是<b>化简</b>。改写规则从板上的「规则」输入进来，一串几条；设计出的证明助手会成为新元件<part-ref to="lemma:simp"></part-ref>，这个输入就是它的「规则」口。', 'One rule to the end is one rewrite in a repeat frame. Here several rules work together: each round, whichever fits is used, until none fits. That is <b>simplification</b>. The rewrite rules come in at the board’s input Rules, a list of them; the proof assistant you design becomes a new part, <part-ref to="lemma:simp"></part-ref>, and that input is its port Rules.') }],
+    solution: machine({ c0: ['repeat'], c1: ['rw', {}, 'c0'] }, ['in>c0', 'c0#body>c1', 'rules>c1.rules', 'c1>c0.body', 'c0>out'], { inputs: ['in', 'rules'] }),
+    after: T('重复框里一张改写，接着一串规则：每一圈用第一条对得上的规则改一处，改到哪一条都对不上。这个证明助手成了元件<part-ref to="lemma:simp"></part-ref>：接进一串改写规则，它跑的就是你这块电路。', 'A rewrite in a repeat frame, wired a list of rules: each round the first rule that fits changes one place, until none fits. This proof assistant is now the part <part-ref to="lemma:simp"></part-ref>: wire a list of rewrite rules into it, and it runs this very circuit.'),
   }),
 
   // ---------- normal forms ----------

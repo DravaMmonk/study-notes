@@ -456,3 +456,6 @@
 .pb-frame.is-step { box-shadow: 0 0 0 2.5px var(--accent); }
 .pb-tile.is-step.is-step-fail, .pb-term.is-step.is-step-fail, .pb-frame.is-step.is-step-fail { box-shadow: 0 0 0 2.5px var(--fail); }
 
+
+/* A board that only shows (the inside of a built part): its cards do not take the pointer, the board still pans. */
+.kit-board.is-readonly .board-layer > *:not(svg), .kit-board.is-readonly .board-wires { pointer-events: none; }

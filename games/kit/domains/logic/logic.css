@@ -250,3 +250,12 @@
 .sc-add button { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; border: 0; border-radius: 9px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--mono); cursor: pointer; }
 .sc-add button:hover { background: var(--hover); }
 .sc-view { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); font: 12px/1.6 var(--mono); white-space: pre; overflow-x: auto; color: var(--ink); }
+
+/* A built part opened while a run steps through it: its board, read only, in a window over the level's board (on a
+   phone, at the top of the run's preview, under which parts it is in). */
+.lg-inside-window { width: min(460px, calc(100% - 32px)); }
+.lg-inside .kit-board { position: relative; height: 300px; border-radius: 10px; }
+.lg-inside .board-zoom { transform: scale(.9); transform-origin: bottom right; }
+.lg-preview.has-inside { height: 520px; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+.lg-preview .lg-inside .kit-board { height: 220px; }
+.lg-inside-path { margin: 0 0 6px; color: var(--muted); font: 600 12px var(--mono); overflow-wrap: anywhere; }

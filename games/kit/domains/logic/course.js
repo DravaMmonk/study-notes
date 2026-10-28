@@ -5,7 +5,7 @@ import { defineCourse, eraLevels, formsAt, layout, numbered, offer, reach, usabl
 import { parse, replaceAtoms, show } from './formula.js'
 import { vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
-import { axiomPartsOf, rulePartsOf, wireRules } from './machine.js'
+import { axiomPartsOf, builtParts, rulePartsOf, wireRules } from './machine.js'
 import { say, sayTerm } from './notation.js'
 
 // Every rule a proof uses, in the boxes too; a machine card that names rules (a rule, a rewrite, simp's list) uses the
@@ -192,6 +192,11 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     one.solution = wireRules(one.solution, one)
     one.naive = wireRules(one.naive, one)
   }
+  // The machine parts the player builds run the boards that built them (machine.js builtParts), on every machine
+  // board and in every script.
+  const builders = [...new Map(LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'machine' && machines.includes(t.builds)).map((t) => [t.builds, t])).values()]
+  const running = builtParts(builders)
+  for (const one of LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])])) one.built = running
   // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
   const held = (level) => byId.get(level.id)?.without ?? []
   // A task that names its parts holds those the player has: a primitive, or a built part once its level is solved.
