@@ -173,12 +173,14 @@ const COURSE = {
   // Parts that stay where a level brings them, so the components box keeps only what goes on being used: the steps of
   // a part built from them soon after (the unifier's moves, Skolemise and Into clauses, one round of resolution, Replay,
   // the intro and elim rule sets inside auto, the saturator and Into clauses all the way inside the reconstructor), the
-  // lemmas a chapter proves for its own next few levels (merge and swap, the frule and resolution
+  // lemmas a chapter proves for its own next few levels (the frule and resolution
   // lemmas; not ⟷ unfolded, which the built-in clausifier reads from the rule book), a part one stretch of levels needs (the unifier, Defer, the
   // proof board's induction box) and someone else's prover, on the board of the one level that catches it out. A level
   // that needs one brings it again.
+  // Chain, Swap and Merge, the definitions of chapter 3, are tools the player reaches for from then on: always shown.
+  staples: ['chain', 'swap', 'merge'],
   local: ['uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'uPattern', 'unifier', 'defer', 'introRules', 'elimRules', 'frule',
-    'natInd', 'swap', 'merge',
+    'natInd',
     'skolem', 'toClauses', 'res', 'resolve', 'saturate', 'clausify', 'replay', 'oracle'],
 }
 export const LOGIC = logicCourse(COURSE)

@@ -170,7 +170,7 @@ export const era1 = [
     builds: 'merge',
     solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>m2.imp', 'f#body>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p'] }),
     naive: proof({ m: ['mp'] }, ['p>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
-    after: T('已知接到自己身上不行：套用的「A」口要的是「下雨」，接进来的却是整句已知。框给出一句「下雨」，套用两次各用一次：一根线证出来的东西，接几块元件都行。这块电路成了元件「合并」。', 'Feeding the given into itself fails: Apply’s “A” input wants “it rains”, and gets the whole given. The box gives one “it rains”, and each Apply uses it: what one wire proves can feed as many parts as you like. This circuit becomes the part “Merge”.'),
+    after: T('已知接到自己身上不行：套用的「A」口要的是「下雨」，接进来的却是整句已知。框给出一句「下雨」，套用两次各用一次：一根线证出来的东西，接几块元件都行。这块电路成了元件<part-ref to="lemma:merge"></part-ref>。', 'Feeding the given into itself fails: Apply’s “A” input wants “it rains”, and gets the whole given. The box gives one “it rains”, and each Apply uses it: what one wire proves can feed as many parts as you like. This circuit becomes the part <part-ref to="lemma:merge"></part-ref>.'),
   },
   // ---- practice with Apply alone ----
 
@@ -246,11 +246,10 @@ export const era1 = [
       { t: T('目标有两层「若」，就开两层框，把两个条件都假设出来，再按已知的顺序用掉它们。', 'The goal has two “if”s: open two boxes to assume both conditions, then use them up in the order the given wants.') },
     ],
     solution: proof({ f: ['impI', { A: 'B' }], g: ['impI', { A: 'A' }, 'f'], m1: ['mp', {}, 'g'], m2: ['mp', {}, 'g'] }, ['p>m1.imp', 'g#body>m1.a', 'm1>m2.imp', 'f#body>m2.a', 'm2>g.body', 'g>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('两层框把两个条件按新的顺序假设出来，框里再按已知的顺序用掉它们：条件的先后不影响结论。这块电路成了元件「交换」。', 'Two boxes assume the two conditions in the new order, and inside they are used in the order the given wants: the order of conditions does not change what follows. This circuit becomes the part “Swap”.'),
+    after: T('两层框把两个条件按新的顺序假设出来，框里再按已知的顺序用掉它们：条件的先后不影响结论。这块电路成了元件<part-ref to="lemma:swap"></part-ref>。', 'Two boxes assume the two conditions in the new order, and inside they are used in the order the given wants: the order of conditions does not change what follows. This circuit becomes the part <part-ref to="lemma:swap"></part-ref>.'),
   },
   {
     id: 'mergeUse',
-    adds: ['merge'],
     kind: 'proof',
     title: T('接起来，再合并', 'Chain, then merge'),
     tests: [{ premises: { p: 'A → B', q: 'B → (A → C)' }, goal: 'A → C' }],
@@ -263,7 +262,6 @@ export const era1 = [
   },
   {
     id: 'mergeLong',
-    adds: ['swap', 'merge'],
     kind: 'proof',
     title: T('绕一大圈', 'A long way round'),
     tests: [{ premises: { p: 'A → B', q: 'B → C', r: 'C → (D → (A → E))', d: 'D' }, goal: 'A → E' }],
@@ -276,7 +274,6 @@ export const era1 = [
   },
   {
     id: 'mergeBoth',
-    adds: ['swap', 'merge'],
     kind: 'proof',
     title: T('对不上的两句', 'Two that do not meet'),
     tests: [{ premises: { p: 'A → (A → B)', q: 'A → (B → C)' }, goal: 'A → C' }],

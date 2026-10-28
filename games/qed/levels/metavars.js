@@ -181,7 +181,6 @@ export const metavars = [
   }),
   {
     id: 'r-lemma',
-    adds: ['swap', 'merge'],
     title: T('证出的引理也是规则', 'Lemmas are rules too'),
     tasks: [
       prove({

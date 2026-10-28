@@ -43,6 +43,7 @@ const ease = (level) => {
  *               level with `builds` one of them unlocks it, its built-in implementation checked by that level's tests
  *   replaces    { part: [part] } a part that takes the place of others: from its level on, those leave the tray
  *   local       [part] parts that stay in the levels that bring them, never unlocked or carried on (../../course.js)
+ *   staples     [part] parts every level holding them shows, whatever its answer uses (../../course.js offer)
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
  * }
@@ -99,7 +100,7 @@ function machineLabel(test, notation) {
   return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
 }
 
-export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {}, local = [], revisions = {} }) {
+export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {}, local = [], staples = [], revisions = {} }) {
   const built = (p) => Boolean(lemmas[p] || gates[p] || machines.includes(p))
   // One name, one part: a lemma, a gate and a machine part sharing a type would unlock and show as each other.
   const clash = machines.filter((p) => lemmas[p] || gates[p]).concat(Object.keys(lemmas).filter((p) => gates[p]))
@@ -166,6 +167,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
       return answers.length ? answers.flatMap(rulesIn) : null
     },
     folds: (l) => byId.get(l.id).fold ?? [],
+    staples,
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
   })
