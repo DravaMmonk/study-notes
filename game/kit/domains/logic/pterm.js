@@ -1,4 +1,4 @@
-// Proof terms (《证明完毕》 chapter 6, Curry–Howard): every proof on the proof board is also a term, the program Lean
+// Proof terms (《证明完毕》 chapter 7, Curry–Howard): every proof on the proof board is also a term, the program Lean
 // would check. An assumption box is a λ, Apply is application, joining ∧ makes a pair and splitting it projects, the
 // sides of ∨ are tagged, a case split eliminates them, ∀ is a function of a thing and ∃ a pair of a witness and a
 // proof. This module builds, prints, reads, compares, reduces and type-checks such terms; proof.js gives every

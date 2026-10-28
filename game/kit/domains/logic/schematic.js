@@ -1,4 +1,4 @@
-// Rules with metavariables (《证明完毕》 chapter 7 on), the way Isabelle writes them: a rule is ⟦premises⟧ ⟹ conclusion,
+// Rules with metavariables (《证明完毕》 chapter 8 on), the way Isabelle writes them: a rule is ⟦premises⟧ ⟹ conclusion,
 // with metavariables for any sentence (?A), any thing (?t) and any sentence about some things (?P(x)). Using a rule
 // means unifying: solving equations s ≐ t between sentences (or things) that have such letters, by a handful of rules,
 // each a card of the machine board (machine.js). A metavariable applied to distinct bound variables, ?P(x) ≐ x是人 under

@@ -33,7 +33,7 @@ const ease = (level) => {
  * sentences as its label, so one proof is checked on all of them; a last test keeps the bare letters, the pattern
  * itself. A level opens on its first case, the one its task is written in.
  *   lemmas      { type: { name, desc, statement, premises?, metas } } the parts the player proves
- *   facts       { type: { name, desc, statement } } the equations the player proves on the machine board (chapter 11
+ *   facts       { type: { name, desc, statement } } the equations the player proves on the machine board (chapter 12
  *               on): a machine level with `fact` one of them proves it, and from then on it is a rule and a rewrite rule
  *               of the rule book of numbers (machine.js MATH), in every level after that one (`proven`)
  *   gates       { type: { name, desc, ports, f } } the gates the player builds on a truth circuit (gates.js)
@@ -70,7 +70,7 @@ function expand(level, notation) {
     const parts = Object.values(subst).map((f) => say(f, notation))
     // A test with nothing to fill in (a level with no letters) is the level's one test.
     const label = parts.length ? { zh: parts.map((p) => p.zh).join(' · '), en: parts.map((p) => p.en).join(' · ') } : { zh: '这一组', en: 'This one' }
-    // A proof term the level asks for (chapter 6) names premises, not sentences: every case asks for the same.
+    // A proof term the level asks for (chapter 7) names premises, not sentences: every case asks for the same.
     return { premises: Object.fromEntries(Object.entries(schema.premises ?? {}).map(([name, text]) => [name, fill(text)])), goal: fill(schema.goal), ...(schema.term ? { term: schema.term } : {}), subst, label }
   }
   // Last of the tests: the schema in its own letters (A := A …), the pattern bare.

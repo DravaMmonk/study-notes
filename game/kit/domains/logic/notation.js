@@ -5,7 +5,7 @@
 //
 //   notation  { words: { letter: { zh, en } } | null, symbols: [connective] }
 //
-// First-order words (chapter 5 on): a predicate's words are a template, its arguments as {0}, {1}
+// First-order words (chapter 6 on): a predicate's words are a template, its arguments as {0}, {1}
 // (Human: { zh: '{0}是人' }), and a constant's words are its name (ann: { zh: '安' }); a variable stays itself.
 import { show, showTerm, termsOf } from './formula.js'
 

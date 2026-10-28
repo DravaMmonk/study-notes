@@ -1,4 +1,4 @@
-// The machine board (《证明完毕》 chapter 7 on): a circuit whose wires carry equations, proof states, formulas or
+// The machine board (《证明完毕》 chapter 8 on): a circuit whose wires carry equations, proof states, formulas or
 // clause sets instead of proved judgments. Its sources (`in` cards, one per input the level names) give the test's
 // inputs, its sink `out` is checked against what the level wants. A part is a rule of unification, a tactic, a frame
 // that runs what it holds again and again (repeat, depth-first search, every goal) or tries several things (the
@@ -18,16 +18,16 @@
 // goals written '⋀a. h1; h2 ⊢ goal', its ?-letters named as the machine likes: none, for a step that must fail),
 // 'answers' (every way of proving the goal, as a
 // question's answers: the test's `answers`, the things its ?-letters become), 'fails' (the goal cannot be proved, and
-// the machine says so, having stopped); on clauses (chapter 10), 'clauses' (the clause set the test lists, from a goal),
+// the machine says so, having stopped); on clauses (chapter 11), 'clauses' (the clause set the test lists, from a goal),
 // 'refuted' (a clause set holding ⊥, within the test's `budget` of clauses when it has one) and 'decide' (⊥ when the
 // clauses cannot all hold, saturated without it when they can).
 //
-// Rewriting (chapter 9, rewrite.js): the rewrite card uses one rule of the level's rewrite book (rewriteBookOf: laws
+// Rewriting (chapter 10, rewrite.js): the rewrite card uses one rule of the level's rewrite book (rewriteBookOf: laws
 // proved both ways, the level's `defs`, the goal's hypotheses) once; simp, which the player builds, uses a list of
-// them until none fits. Both rewrite the goal, or (chapter 10, the card's `at`) its hypotheses.
+// them until none fits. Both rewrite the goal, or (chapter 11, the card's `at`) its hypotheses.
 //
 // Rules are parts (rulePartsOf): every rule of the level's books is given by a rule part, the part the rule belongs to
-// (a kernel rule's proof-board part, a lemma, the level's own axiom, an equation given). Numbers and lists (chapter 11)
+// (a kernel rule's proof-board part, a lemma, the level's own axiom, an equation given). Numbers and lists (chapter 12)
 // are one part, the rule book of numbers (MATH): the rules the level's datatypes give, its definitions' equations and
 // the equations proved so far (the course's facts, a level's `proven`). A rule part gives a list of rules: those wired into it (`before`), then its own (those
 // added on it, `use`, in the order they were added, when it has several; its first until any is). A card that uses rules (rule, erule, frule, rw, simp) reads the list
@@ -422,7 +422,7 @@ const BUILT = (inputs = ['in']) => ({ inputs, built: true })
 export const MACHINE_PARTS = {
   in: source(),
   out: sink(),
-  // Unification (chapter 7): its rules, the unifier built from them, and patterns.
+  // Unification (chapter 8): its rules, the unifier built from them, and patterns.
   uDelete: unifyCard('delete'),
   uDecompose: unifyCard('decompose'),
   uConflict: unifyCard('conflict'),
@@ -432,7 +432,7 @@ export const MACHINE_PARTS = {
   uPattern: unifyCard('pattern'),
   unifier: BUILT(),
   repeat,
-  // Tactics (chapters 7 and 8): rule and assumption, and what the player builds of them.
+  // Tactics (chapters 8 and 9): rule and assumption, and what the player builds of them.
   rule: ruleCard(rule),
   assumption: tactic(assumption),
   erule: BUILT(['in', 'rules']),
@@ -444,10 +444,10 @@ export const MACHINE_PARTS = {
   introRules: BUILT(),
   elimRules: BUILT(),
   auto: BUILT(),
-  // Rewriting (chapter 9): one rule once, and simp, which the player builds of it, on the goal or the hypotheses.
+  // Rewriting (chapter 10): one rule once, and simp, which the player builds of it, on the goal or the hypotheses.
   rw: { ...usesRules((s, ctx, node, rules) => firstThatApplies(wired(rules, ctx.rewrites, NOT_REWRITE), ctx, (r) => rewrite(s, r, atOf(node)))), params: ['at'] },
   simp: { ...BUILT(['in', 'rules']), params: ['at'] },
-  // Clauses (chapter 10, resolution.js): ∃ out of the hypotheses, a state split into clauses, a round of resolution
+  // Clauses (chapter 11, resolution.js): ∃ out of the hypotheses, a state split into clauses, a round of resolution
   // (the saturator is built of rounds), someone else's prover, and the certificate replayed in the kernel; what the
   // player builds of them.
   skolem: tactic(skolemStep),
@@ -668,7 +668,7 @@ const failsAsState = (run) => (ins, node, ctx) => {
 const partsFor = (level) => (type) => level.built?.[type] ?? MACHINE_PARTS[type] ?? RULE_PART
 const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), ...extra })
 
-/** A machine part run on a proof state with a level's rule and rewrite books (chapter 14: a script's by), the rules
+/** A machine part run on a proof state with a level's rule and rewrite books (chapter 15: a script's by), the rules
  *  `keys` wired in when it uses rules. */
 export const runTactic = (level, type, state, keys = null) => (level.built?.[type] ?? MACHINE_PARTS[type]).eval({ in: state, ...(keys ? { rules: rulesValue(keys.map((key) => ({ key }))) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }, { engine: { parts: partsFor(level) } }))
 

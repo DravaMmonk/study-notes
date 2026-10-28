@@ -1,4 +1,4 @@
-// A formula built from chips (《证明完毕》 chapter 4's translations and queries), shown on the shared strip
+// A formula built from chips (《证明完毕》 chapter 5's translations and queries), shown on the shared strip
 // (games/kit/strip): the formula is the usual tree (formula.js) with holes left as null; a chip is one piece of it, a
 // predicate with a hole per place, a name, a variable, a quantifier with its variable, or a connective with a hole
 // per side. Putting a chip in a hole fills it; taking a piece out empties its hole, with everything inside it. A thing may

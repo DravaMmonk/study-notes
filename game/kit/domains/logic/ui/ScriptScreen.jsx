@@ -6,7 +6,7 @@ import { parse, show } from '../formula.js'
 import { say } from '../notation.js'
 import { checkScript, depthsOf, methodText, methodsOf, namesOf, sentencesOf } from '../script.js'
 
-// Script tasks (《证明完毕》 chapter 14): a structured proof written as rows, each a sentence and how it is proved, as
+// Script tasks (《证明完毕》 chapter 15): a structured proof written as rows, each a sentence and how it is proved, as
 // Isar writes it (script.js). A row is chosen, not typed: its sentence from the level's, the facts it uses by name,
 // and after by a rule (named as its card is) or a tactic built before, or a block of rows (proof … qed).
 //

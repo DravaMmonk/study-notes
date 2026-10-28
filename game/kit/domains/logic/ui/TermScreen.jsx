@@ -8,7 +8,7 @@ import { termTaskOf } from '../termTask.js'
 import { complete } from '../termTree.js'
 import TermEditor from './TermEditor.jsx'
 
-// Term tasks (《证明完毕》 chapter 6): the named premises and the sentence to prove, and a proof term built from
+// Term tasks (《证明完毕》 chapter 7): the named premises and the sentence to prove, and a proof term built from
 // chips on the shared strip (games/kit/strip), written out as it reads with a box for each empty place. The machine
 // checks the finished term's type is that sentence (pterm.js), and says where it is not.
 //
