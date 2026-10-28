@@ -269,7 +269,8 @@ function machinePartsFor(level) {
     icon: (node) => (node.type === 'in' ? ArrowRightFromLine : node.type === 'out' ? Flag : isRulePart(level, node.type) ? GitFork : MACHINE_ICONS[node.type] ?? (MACHINE_PARTS[node.type]?.frames ? Box : Sigma)),
     // A frame gives its result, and inside each region what that region opens with.
     outputs: (node) => (MACHINE_PARTS[node.type]?.frames ? [{ key: null, label: T('得出', 'Result'), short: T('得出', 'Result') }, ...MACHINE_PARTS[node.type].frames(node).filter((r) => r.opens).map((r) => ({ key: r.name, label: T('收到', 'Receives'), short: T('收到', 'Receives') }))] : null),
-    cardWidth: (node) => (MACHINE_PARTS[node.type]?.frames ? 260 : node.type === 'in' || node.type === 'out' ? 190 : 170),
+    // A built part unfolded shows the board it runs inside its card.
+    cardWidth: (node) => (MACHINE_PARTS[node.type]?.frames ? 260 : node.type === 'in' || node.type === 'out' ? 190 : MACHINE_PARTS[node.type]?.built && node.open ? 480 : 170),
     frames: (node) => (MACHINE_PARTS[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: MACHINE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),
     text: FORMULA_TEXT,
     rules: { ...Object.fromEntries(Object.entries(MACHINE_PARTS).filter(([type]) => type !== 'in' && type !== 'out')), ...Object.fromEntries([...rulePartsOf(level).keys()].map((type) => [type, RULE_PART])) },
