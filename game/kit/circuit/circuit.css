@@ -466,9 +466,8 @@
 .node-tool:hover { color: var(--ink); background: var(--hover); }
 .node-tool[aria-pressed='true'] { color: var(--accent); }
 
-/* A packed part (parts.packed: it runs a circuit the player built, and opens to show it): a second frame inside its
-   edge, in its family's colour, on the board, the phone's slots, the parts list and the tray. */
-.node.is-packed::after, .pb-tile.is-packed::after, .palette-item.is-packed::after, .pb-part.is-packed::after { content: ''; position: absolute; inset: 3px; border: 1.5px solid color-mix(in srgb, var(--fam, var(--rule)) 70%, transparent); border-radius: 9px; pointer-events: none; }
-.pb-tile.is-packed::after { inset: 4px; border-radius: 12px; }
-.palette-item.is-packed, .pb-part.is-packed { position: relative; }
-.palette-item.is-packed::after, .pb-part.is-packed::after { inset: 2px; border-radius: 8px; }
+/* A packed part (parts.packed: it runs a circuit the player built, and opens to show it): its family chip is solid,
+   the glyph cut out of it in the card's paper, wherever the part is drawn (the board, the phone's slots, the parts
+   list, the tray); the game gives it its own glyph (a circuit board). */
+:is(.node, .pb-tile, .pb-frame, .palette-item, .pb-part).is-packed .family-chip { color: var(--paper); background: var(--fam, var(--muted)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--fam, var(--muted)) 22%, transparent); }
+:is(.pb-tile, .pb-frame).is-packed .pb-glyph { width: 17px; height: 17px; margin-right: 4px; place-items: center; border-radius: 5px; color: var(--paper); background: var(--fam, var(--muted)); vertical-align: -3px; }

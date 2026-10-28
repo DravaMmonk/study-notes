@@ -7,7 +7,7 @@ import { L, tr } from '../shell/i18n.js'
 // then wire it from its dots. `compact` shows each part as one line (its icon, name and short tag) with what it does
 // in a tooltip, for a floating window over the board. `folded` parts (still usable, but not what this level's puzzle is
 // about: ../course.js offer) wait behind a 「更多」 button at the end. A packed part (`packed`: one that runs a circuit the
-// player built) has a second frame inside its edge, as on the board.
+// player built) has a solid family chip, as on the board.
 export default function Palette({ items, folded = [], onAdd, compact = false }) {
   const [more, setMore] = useState(false)
   // A tooltip opens to the right of its part, or to the left when the right would run past the board (or the window).

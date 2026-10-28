@@ -1,6 +1,6 @@
 // A logic game on the shared shell (../../shell): its spec becomes the shell's game description, with the logic
 // domain's screens (a proof on the circuit editor, a truth table), its parts box of proved lemmas and its map art.
-import { Boxes, Braces, Cog, Cpu, Grid2x2Check, Languages, ScrollText, Search, Workflow } from 'lucide-react'
+import { Boxes, Braces, CircuitBoard, Cog, Cpu, Grid2x2Check, Languages, ScrollText, Search, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
@@ -88,7 +88,7 @@ export function defineLogicGame(spec) {
         ...primitives,
         ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: Cpu })),
         ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type) })),
-        ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: Cog })),
+        ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
       ],
     },
     // Fewer steps (proof steps, or gates) is better.
