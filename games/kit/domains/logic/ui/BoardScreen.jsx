@@ -483,7 +483,8 @@ function InsidePhone({ path, built, board }) {
             {built.is(node) && <PartActions onEdit={() => { setDetail(null); built.edit(node.type) }} />}
           </div>
         </Sheet>,
-        document.body,
+        // Beside the sheet it opens from, so it is drawn in the game's own styles.
+        box.current?.closest('.ph-scrim')?.parentElement ?? document.body,
       )}
     </div>
   )
