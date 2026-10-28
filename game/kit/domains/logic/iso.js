@@ -17,8 +17,7 @@
 // A level: { kind: 'iso', declare: { zh, en } the connective's name, target: its sentence (for the rules' words),
 // letters: [letter], tests: [{ have: { letter: n }, make: bool }] }.
 import { runBoard } from '../../engine/boards.js'
-import { parse } from './formula.js'
-import { say } from './notation.js'
+import { imp, parse } from './formula.js'
 
 const T = (zh, en) => ({ zh, en })
 export const DECL = 'decl'
@@ -113,14 +112,8 @@ export function checkIso(level, circuit, words) {
   return { pass: results.every((r) => r.pass), results }
 }
 
-/** A proof in words: a numbered proof of a letter. */
-export const showEvidence = (v, words) => T(`「${words(v.letter).zh}」#${v.n}`, `“${words(v.letter).en}” #${v.n}`)
-/** A rule in words, the way Lean writes a constructor's type: its assumptions in turn, then the connective. */
-export function showRule(rule, level, words) {
-  const goal = say(parse(level.target), level.notation)
-  const steps = rule.needs.map(words)
-  return T([...steps.map((s) => s.zh), goal.zh].join(' → '), [...steps.map((s) => s.en), goal.en].join(' → '))
-}
+/** A rule as a sentence, the way Lean writes a constructor's type: its assumptions in turn, then the connective. */
+export const ruleFormula = (rule, level) => rule.needs.reduceRight((then, letter) => imp(parse(letter), then), parse(level.target))
 
 /** The board a level starts from: the connective, with no way yet. */
 export const startIso = () => ({ nodes: [{ id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 320, y: 40 }], wires: [] })

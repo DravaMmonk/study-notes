@@ -7,7 +7,8 @@ import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, us
 import FormulaField from './FormulaField.jsx'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { DECL, ISO_PARTS, checkIso, declInputs, hypCard, runIso, settle, showEvidence, showRule, startIso } from '../iso.js'
+import { DECL, ISO_PARTS, checkIso, declInputs, hypCard, ruleFormula, runIso, settle, startIso } from '../iso.js'
+import { PROOF } from './boards.jsx'
 
 // A connective declared by its ways to make it (iso.js) on the shared circuit editor: assumption cards from the tray,
 // each picking the sentence it assumes, chained to write each way as a rule, and the connective's card, whose inputs grow as ways are wired and
@@ -89,28 +90,29 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     const wire = circuit.wires.find((w) => w.to === DECL && w.port === `c${k}`)
     return wire && view.values.get(wire.from)
   }
-  // An assumption card picks its sentence on the card itself (`edit`), or shows it (a phone's tile).
+  // What a card gives is a sentence, shown as the proof board shows one: a rule, the connective, what a case gets back.
+  const text = (f) => L(say(f, level.notation))
+  const Value = ({ f, small }) => <PROOF.Value v={{ formula: f, hyps: new Map() }} text={text} small={small} />
   const body = (node, edit = true) => {
     if (node.type === 'hyp') {
       const rule = view.values.get(node.id)
       return (
         <div className="lg-card">
-          {edit ? <FormulaField value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /> : <span className="lg-taken"><b>{L(words(node.params.name))}</b></span>}
-          {rule && <span className="lg-rule">{L(showRule(rule, level, words))}</span>}
+          {edit && <FormulaField value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required />}
+          {rule && <Value f={ruleFormula(rule, level)} small={!edit} />}
         </div>
       )
     }
     if (node.type === DECL) {
       return (
         <div className="lg-card">
-          {Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <span key={k} className="lg-rule">{CIRCLED[k]} {L(showRule(rule, level, words))}</span>)}
-          {ways === 0 && <span className="lg-rule">{tr('还没有造法', 'No way to make it yet')}</span>}
-          <span className={`lg-tv ${view.made ? 'is-true' : 'is-false'}`}>{view.made ? tr(`证得出：用造法 ${CIRCLED[view.made.way - 1]}`, `Proved, by way ${CIRCLED[view.made.way - 1]}`) : tr('证不出', 'Not proved')}</span>
+          {Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <Value key={k} f={ruleFormula(rule, level)} small />)}
+          {view.made ? <Value f={parse(level.target)} /> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
         </div>
       )
     }
     const back = view.values.get(node.id)
-    return <div className="lg-card"><span className={`lg-tv ${back ? 'is-true' : 'is-false'}`}>{back ? `${tr('取回', 'Back')} ${back.items.map((x) => L(showEvidence(x, words))).join(' · ')}` : view.made ? tr('这次不是这种造法', 'Not this way this time') : tr('没有', 'Nothing')}</span></div>
+    return <div className="lg-card">{back ? back.items.map((x, k) => <Value key={k} f={parse(x.letter)} />) : <i className="lg-mark">{tr('没有', 'Nothing')}</i>}</div>
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
