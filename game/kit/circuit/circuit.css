@@ -459,3 +459,4 @@
 
 /* A board that only shows (the inside of a built part): its cards do not take the pointer, the board still pans. */
 .kit-board.is-readonly .board-layer > *:not(svg), .kit-board.is-readonly .board-wires { pointer-events: none; }
+.kit-board.is-readonly .node-delete { display: none; }
