@@ -17,8 +17,8 @@ import { PROOF } from './boards.jsx'
 // case gets back. Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
 
 const T = (zh, en) => ({ zh, en })
-// Ways and their cases are named apart from the board's own part numbers (①②…).
-const WAY = [T('甲', 'A'), T('乙', 'B'), T('丙', 'C')]
+// Ways and their cases are numbered 1 2 3, apart from the board's own part numbers (①②…); on a card a way is "1.".
+const WAY = ['1', '2', '3']
 
 /** The editor's description of the board (../../circuit/model.js), with the level's words for its sentences. */
 function isoPartsFor(level, words) {
@@ -27,8 +27,8 @@ function isoPartsFor(level, words) {
     role: (node) => (node.type === 'case' ? 'sink' : 'part'),
     label: (node) => (node.type === 'hyp' ? T('假设', 'Assume') : node.type === 'none' ? NONE.label
       : node.type === DECL ? T(`「${level.declare.zh}」`, `“${level.declare.en}”`)
-      : T(`拆法${WAY[node.params.k - 1].zh}`, `Case ${WAY[node.params.k - 1].en}`)),
-    portLabel: (node, port) => (node.type === DECL ? T(`造法${WAY[Number(port.slice(1)) - 1].zh}`, `Way ${WAY[Number(port.slice(1)) - 1].en}`) : node.type === 'hyp' ? T('先假设', 'Assumed first') : ''),
+      : T(`拆法 ${WAY[node.params.k - 1]}`, `Case ${WAY[node.params.k - 1]}`)),
+    portLabel: (node, port) => (node.type === DECL ? T(`造法 ${WAY[Number(port.slice(1)) - 1]}`, `Way ${WAY[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' ? T('先假设', 'Assumed first') : ''),
     family: (node) => (node.type === 'hyp' || node.type === 'none' ? 'box' : node.type === DECL ? 'lemma' : 'given'),
     icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === 'none' ? CircleDashed : node.type === DECL ? FileSignature : PackageOpen),
     cardWidth: () => 220,
@@ -108,11 +108,11 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
       return <div className="lg-card"><FormulaField label={T('假设', 'Assume')} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /></div>
     }
     if (node.type === DECL) {
-      const way = (k) => (at === 'sheet' ? tr(`造法${WAY[k].zh}`, `Way ${WAY[k].en}`) : L(WAY[k]))
+      const way = (k) => (at === 'sheet' ? tr(`造法 ${WAY[k]}`, `Way ${WAY[k]}`) : `${WAY[k]}.`)
       return (
         <div className="lg-card">
           {Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <span key={k} className="lg-out"><em>{way(k)}</em><Value f={ruleFormula(rule, level)} /></span>)}
-          {view.made ? <span className="lg-tv is-true">{tr(`证得出：${way(view.made.way - 1)}`, `Proved: ${way(view.made.way - 1)}`)}</span> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
+          {view.made ? <span className="lg-tv is-true">{tr(`证得出：造法 ${WAY[view.made.way - 1]}`, `Proved by way ${WAY[view.made.way - 1]}`)}</span> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
         </div>
       )
     }
@@ -140,7 +140,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
               return (
                 <tr key={k} className={`${t === test ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => setTestIndex(k)}>
                   {level.sentences.map((l) => <td key={l}>{t.have[l] ? `#${t.have[l]}` : '—'}</td>)}
-                  <td>{shownRow ? (r.made ? tr(`证得出：${WAY[r.made.way - 1].zh}`, `Proved: ${WAY[r.made.way - 1].en}`) : tr('证不出', 'Not proved')) : ''}</td>
+                  <td>{shownRow ? (r.made ? tr(`证得出：${WAY[r.made.way - 1]}`, `Proved: ${WAY[r.made.way - 1]}`) : tr('证不出', 'Not proved')) : ''}</td>
                   <td>{shownRow && back ? back.items.map((x) => `#${x.n}`).join(' · ') : ''}</td>
                 </tr>
               )
