@@ -4,7 +4,7 @@
 //   board  { tests, parts(level), start(level), lock(level, saved), fits(saved, level, parts), Value({ v, text, small, bare }),
 //            scene(level, test, text) → { sequent, want, choices }, settings(parts, node, level), extra?(node, setParam),
 //            nameOf, iconOf, familyOf (level, type), textOf (level, type, revisions): a part's text, words }
-import { ArrowRightFromLine, Box, Flag, GitFork, Repeat, Rows3, Search, Sigma } from 'lucide-react'
+import { ArrowRightFromLine, Box, CircuitBoard, Flag, GitFork, Repeat, Rows3, Search, Sigma } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import Entries from '../../../shell/Entries.jsx'
 import { presetOf, regionsFit, withPreset } from '../../../circuit/index.js'
@@ -212,7 +212,9 @@ const WANT = {
   fails: T('证不出来时，停下来说证不出来', 'when it cannot be proved, to stop and say so'),
   proved: T('没有目标了：证完', 'no goals left: proved'),
 }
-const MACHINE_ICONS = { repeat: Repeat, saturate: Sigma, search: Search, each: Rows3 }
+const MACHINE_ICONS = { repeat: Repeat, search: Search, each: Rows3 }
+// A part's glyph: a rule part's fork, a frame's own, and for a part the player built (a packed part) a circuit board.
+const machineIcon = (level, type) => (isRulePart(level, type) ? GitFork : MACHINE_PARTS[type]?.built ? CircuitBoard : MACHINE_ICONS[type] ?? (MACHINE_PARTS[type]?.frames ? Box : Sigma))
 // Rule parts (machine.js rulePartsOf): every rule of a level's books comes from the part it belongs to.
 const isRulePart = (level, type) => !MACHINE_PARTS[type] && rulePartsOf(level).has(type)
 // A sentence in the level's words, in each language, for names made of it.
@@ -266,7 +268,7 @@ function machinePartsFor(level) {
     label: (node) => (node.type === 'in' ? labels.get(node.params.name) ?? T('输入', 'Input') : node.type === 'out' ? T('结果', 'Result') : machineName(level, node.type)),
     portLabel: (node, port) => (port === 'rules' ? RULES_PORT : port === 'before' ? BEFORE_PORT : MACHINE_TEXT[node.type]?.frames?.[port] ? T('结果', 'Result') : MACHINE_TEXT[node.type]?.ports?.[port] ?? ''),
     family: (node) => (node.type === 'in' ? 'given' : node.type === 'out' ? 'end' : isRulePart(level, node.type) ? 'rule' : MACHINE_PARTS[node.type]?.frames ? 'box' : 'lemma'),
-    icon: (node) => (node.type === 'in' ? ArrowRightFromLine : node.type === 'out' ? Flag : isRulePart(level, node.type) ? GitFork : MACHINE_ICONS[node.type] ?? (MACHINE_PARTS[node.type]?.frames ? Box : Sigma)),
+    icon: (node) => (node.type === 'in' ? ArrowRightFromLine : node.type === 'out' ? Flag : machineIcon(level, node.type)),
     // A frame gives its result, and inside each region what that region opens with.
     outputs: (node) => (MACHINE_PARTS[node.type]?.frames ? [{ key: null, label: T('得出', 'Result'), short: T('得出', 'Result') }, ...MACHINE_PARTS[node.type].frames(node).filter((r) => r.opens).map((r) => ({ key: r.name, label: T('收到', 'Receives'), short: T('收到', 'Receives') }))] : null),
     // A part the player built runs the board that built it: a packed part.
@@ -315,7 +317,7 @@ export const MACHINE = {
     ]),
   nameOf: (level, type) => machineName(level, type),
   textOf: (level, type, revisions = {}) => (isRulePart(level, type) ? rulePartText(level, type) : withRevisions(MACHINE_TEXT[type], revisions[type])),
-  iconOf: (level, type) => (isRulePart(level, type) ? GitFork : MACHINE_ICONS[type] ?? (MACHINE_PARTS[type]?.frames ? Box : Sigma)),
+  iconOf: (level, type) => machineIcon(level, type),
   familyOf: (level, type) => (isRulePart(level, type) ? 'rule' : MACHINE_PARTS[type]?.frames ? 'box' : 'lemma'),
   words: {
     steps: T('元件', 'Cards'),
