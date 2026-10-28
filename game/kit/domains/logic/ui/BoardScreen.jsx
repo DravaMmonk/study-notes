@@ -416,7 +416,7 @@ function InsideView({ inside, board, parts, text, name, phone }) {
       <CanvasEditor
         key={where}
         readOnly
-        refit
+        focus={inside.step}
         graph={inside.circuit}
         parts={parts}
         width={160}
