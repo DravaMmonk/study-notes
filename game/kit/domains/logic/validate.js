@@ -153,9 +153,9 @@ export function validate({ levels: given, course }) {
     if (!run.pass) out.push({ fail: true, text: `${level.id}: the built-in ${level.builds} does not pass the level that builds it` })
   }
   // An equation a machine level proves is what its every test proves.
-  for (const level of levels.filter((l) => l.kind === 'machine' && l.facts?.[l.builds])) {
-    const statement = parseS(level.facts[level.builds].statement)
-    if (!level.tests.every((t) => t.goal && same(parseS(t.goal), statement))) out.push({ fail: true, text: `${level.id}: its tests are not all the equation ${level.builds} it proves` })
+  for (const level of levels.filter((l) => l.kind === 'machine' && l.fact)) {
+    const statement = parseS(level.facts[level.fact].statement)
+    if (!level.tests.every((t) => t.goal && same(parseS(t.goal), statement))) out.push({ fail: true, text: `${level.id}: its tests are not all the equation ${level.fact} it proves` })
   }
   // A rule a task proves (not a lemma: a part with its own implementation) proves that task in one step.
   for (const level of levels.filter((l) => l.kind === 'proof' && RULES[l.proves])) {

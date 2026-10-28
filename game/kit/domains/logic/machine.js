@@ -27,8 +27,9 @@
 // them until none fits. Both rewrite the goal, or (chapter 10, the card's `at`) its hypotheses.
 //
 // Rules are parts (rulePartsOf): every rule of the level's books is given by a rule part, the part the rule belongs to
-// (a kernel rule's proof-board part, a lemma, an equation proved, the level's own axiom, a datatype's rule, a
-// definition, an equation given). A rule part gives a list of rules: those wired into it (`before`), then its own (those
+// (a kernel rule's proof-board part, a lemma, the level's own axiom, an equation given). Numbers and lists (chapter 11)
+// are one part, the rule book of numbers (MATH): the rules the level's datatypes give, its definitions' equations and
+// the equations proved so far (the course's facts, a level's `proven`). A rule part gives a list of rules: those wired into it (`before`), then its own (those
 // ticked on it, `use`, in the order it lists them, when it has several; its first until any is ticked). A card that uses rules (rule, erule, frule, rw, simp) reads the list
 // on its port `rules`: the first that applies, in order (with backtracking, each one's results in turn); simp the
 // whole list, in order. A rule list is a constant: it may be wired into a frame from outside. Until a level says
@@ -52,7 +53,7 @@ export const eqsValue = (eqs, fail = null) => ({ kind: 'eqs', eqs, fail })
 const books = new WeakMap()
 /**
  * A level's rule book: every rule a card may name, by key: the kernel's, those its datatypes give (datatype.js), each
- * lemma's shapes, the equations proved (`facts`) and the level's own. A
+ * lemma's shapes, the equations proved it holds (`facts`, those in `proven`) and the level's own. A
  * level of a course (`holds`: the parts it can hold, `forms`: the shapes each lemma has there, course.js) has a kernel
  * rule once it holds its part, and a lemma once the lemma is built, in the shapes it has gained.
  */
@@ -62,7 +63,7 @@ export function ruleBookOf(level) {
     const own = Object.entries(level.rules ?? {}).map(([key, r]) => ({ ...ruleOf(key, r.name, r.premises ?? [], r.conclusion), own: true }))
     const shaped = (type, l) => (r) => !l.forms || !level.forms?.[type] || level.forms[type].includes(r.key.split('.')[1] ?? l.forms[0].key)
     const lemmas = Object.entries(level.lemmas ?? {}).filter(([type]) => has(type)).flatMap(([type, l]) => lemmaRules(type, l).filter(shaped(type, l)))
-    const facts = Object.entries(level.facts ?? {}).filter(([type]) => has(type)).map(([type, f]) => ({ ...ruleOf(type, f.name, [], f.statement), lemma: type }))
+    const facts = factsOf(level).map(([type, f]) => ({ ...ruleOf(type, f.name, [], f.statement), fact: true }))
     books.set(level, Object.fromEntries([...Object.values(KERNEL).filter((r) => has(r.part)), ...datatypesRules(level.datatypes), ...lemmas, ...facts, ...own].map((r) => [r.key, r])))
   }
   return books.get(level)
@@ -74,18 +75,22 @@ const rulesIn = (v) => {
   if (v?.kind !== 'rules') throw fail('「规则」口要接规则元件', 'The rules port takes rule parts')
   return v
 }
+/** The equations proved that a level holds: [type, fact], those in its `proven` (every one, outside a course). */
+export const factsOf = (level) => Object.entries(level.facts ?? {}).filter(([type]) => !level.proven || level.proven.includes(type))
+/** The rule book of numbers: one part for every rule of the numbers and lists a level has. */
+export const MATH = 'math'
 // A rule part's type for a key: what part the rule belongs to.
-const slug = (text) => text.replace(/\?/g, '').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_|_$/g, '').toLowerCase()
-const partOfRule = (r) => r.part ?? r.lemma ?? (r.datatype ? r.key.replace(/\./g, '_') : r.key)
-const partOfRewrite = (r) => (r.group === 'law' ? r.key.split('.')[0] : r.group === 'def' ? `def_${slug(r.text)}` : r.key)
+const partOfRule = (r) => (r.datatype || r.fact ? MATH : r.part ?? r.lemma ?? r.key)
+const partOfRewrite = (r) => (r.group === 'law' ? r.key.split('.')[0] : r.group === 'def' || r.group === 'fact' ? MATH : r.key)
+// The rule book of numbers lists the declarations' rules, then the definitions, then the equations proved.
+const mathRank = (e) => (e.rule.datatype ? 0 : e.rule.group === 'def' ? 1 : 2)
 /**
- * The rule parts a level states for itself, its axioms: its own rules (`rules`), the rules its datatypes give and its
- * definitions' equations. They are parts of the level that states them (course.js, local).
+ * The rule parts a level states for itself, its axioms: its own rules (`rules`), and the rule book of numbers when it
+ * declares a datatype or defines something. They are parts of the level that states them (course.js, local).
  */
 export const axiomPartsOf = (level) => [
   ...Object.keys(level.rules ?? {}),
-  ...datatypesRules(level.datatypes).map((r) => r.key.replace(/\./g, '_')),
-  ...(level.defs ?? []).map((text) => `def_${slug(text)}`),
+  ...(level.datatypes || level.defs?.length ? [MATH] : []),
 ]
 const partBooks = new WeakMap()
 /**
@@ -101,6 +106,7 @@ export function rulePartsOf(level) {
     }
     for (const r of Object.values(ruleBookOf(level))) put(partOfRule(r), { key: r.key, book: 'rule', rule: r })
     for (const r of Object.values(rewriteBookOf(level))) put(partOfRewrite(r), { key: r.key, book: 'rewrite', rule: r })
+    if (out.has(MATH)) out.set(MATH, out.get(MATH).map((e, i) => [e, i]).sort(([a, i], [b, j]) => mathRank(a) - mathRank(b) || i - j).map(([e]) => e))
     partBooks.set(level, out)
   }
   return partBooks.get(level)
@@ -116,7 +122,8 @@ const SHORTHAND = ['rule', 'rewrite', 'rewrites']
 /**
  * A reference answer as the levels write it, short: a card's rules named on it (`rule`, `rewrite`, `rewrites`: keys
  * of the level's books, comma-separated, in order), put on the board as they are played: a chain of rule parts in
- * the card's region, wired into its port `rules`.
+ * the card's region, wired into its port `rules`. Keys in a row that one part gives in its own order are one part,
+ * ticked with them all.
  */
 export function wireRules(circuit, level) {
   if (!circuit?.nodes) return circuit
@@ -127,9 +134,16 @@ export function wireRules(circuit, level) {
     if (!keys.length) { nodes.push(n); continue }
     nodes.push({ ...n, params: Object.fromEntries(Object.entries(n.params).filter(([k]) => !SHORTHAND.includes(k))) })
     let prev = null
+    const parts = rulePartsOf(level)
     keys.forEach((key, i) => {
       const at = rulePartOf(level, key)
       if (!at) throw new Error(`${level.id}: no rule part of the level gives ${key}`)
+      const last = nodes.at(-1)
+      const order = choicesOfPart(parts.get(at.type))
+      if (at.use && last.id === prev && last.type === at.type && order.indexOf(last.params.use.at(-1)) < order.indexOf(key)) {
+        last.params.use = [...last.params.use, key]
+        return
+      }
       const id = `${n.id}r${i}`
       nodes.push({ id, type: at.type, params: at.use ? { use: at.use } : {}, x: (n.x ?? 0) + i * 30, y: (n.y ?? 0) + 160 + i * 40, ...(n.in ? { in: n.in } : {}) })
       if (prev) wires.push({ from: prev, to: id, port: 'before' })

@@ -240,7 +240,7 @@ export function rewriteBookOf(level) {
         .map((r) => ({ key: r.key, name: r.name, lhs: r.premises[0].show, rhs: r.conclusion, conditions: [], group: 'law' }))
     })
     const defs = (level.defs ?? []).map(defRule)
-    const facts = Object.entries(level.facts ?? {}).filter(([type]) => has(type)).map(([type, f]) => [type, f, hypRule(parseS(f.statement))]).filter(([, , r]) => r)
+    const facts = Object.entries(level.facts ?? {}).filter(([type]) => !level.proven || level.proven.includes(type)).map(([type, f]) => [type, f, hypRule(parseS(f.statement))]).filter(([, , r]) => r)
       .map(([type, f, r]) => ({ key: type, name: f.name, ...r, conditions: [], group: 'fact' }))
     const hyp = { key: 'hyp', name: T('已知里的等式', 'An equation given'), lhs: null, rhs: null, conditions: [], group: 'hyp' }
     books.set(level, Object.fromEntries([...laws, ...facts, ...defs, hyp].map((r) => [r.key, r])))
