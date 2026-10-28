@@ -1,12 +1,13 @@
 // A logic game on the shared shell (../../shell): its spec becomes the shell's game description, with the logic
 // domain's screens (a proof on the circuit editor, a truth table), its parts box of proved lemmas and its map art.
-import { Boxes, Braces, CircuitBoard, Cog, Cpu, Grid2x2Check, Languages, ScrollText, Search, Workflow } from 'lucide-react'
+import { Boxes, Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import { migrations } from '../../shell/saves.js'
 import GatesScreen from './ui/GatesScreen.jsx'
+import IsoScreen from './ui/IsoScreen.jsx'
 import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
@@ -81,6 +82,7 @@ export function defineLogicGame(spec) {
       machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
+      iso: { Screen: IsoScreen, icon: FileSignature, label: { zh: '声明', en: 'Declaration' } },
       translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
       query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: Boxes, label: { zh: '造世界', en: 'Build a world' } },
