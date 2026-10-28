@@ -5,6 +5,7 @@
 // a pattern plus test cases (see era1.js).
 import { proof } from '../../kit/domains/logic/build.js'
 import { gates } from '../../kit/domains/logic/gates.js'
+import { isoBoard } from '../../kit/domains/logic/iso.js'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -17,6 +18,9 @@ const prove = (task) => ({ kind: 'proof', step: T('证明', 'Prove'), ...task })
 // the sentence said in words by its truth table. A reference board: ways { id: 'ctor' }, wires as for gates.
 const declare = (task) => ({ kind: 'gates', step: T('声明', 'Declare'), blind: true, parts: ['ctor'], ...task })
 const declared = (target, nodes, wires) => gates(nodes, wires, { target, declare: true })
+// A connective declared by its two ways round (iso.js): ways to prove it into it, its proof taken apart into what
+// comes back, tried on situations of the proofs at hand.
+const twoWays = (task) => ({ kind: 'iso', step: T('声明', 'Declare'), parts: ['pack', 'unpack'], ...task })
 
 export const era2 = [
   {
@@ -29,14 +33,24 @@ export const era2 = [
       { t: T('可证明核里只有套用和假设框，没有「并且」。一个新的连接词要先<b>声明</b>：说清它有几种造法，每种造法要什么。这是把一句大白话的意思写成机器能懂的规格。声明写对了，核才由它生成用它的元件。', 'But the kernel has only Apply and the assumption box; there is no “and”. A new connective is <b>declared</b> first: how many ways there are to make it, and what each way needs. That writes an everyday meaning as a specification a machine can read. Once the declaration is right, the kernel makes the parts that use it.') },
     ],
     tasks: [
-      declare({
+      twoWays({
         declare: T('并且', 'and'),
-        target: 'Rain ∧ Wind',
-        brief: T('「下雨，并且刮风」：下雨成立，刮风也成立，才算。写出「并且」的声明：放几张「一种造法」接进声明，每张造法接进它要的东西。', '“It rains and it is windy”: it holds only when both hold. Write the declaration of “and”: put ways to make it into the declaration, and wire into each way what it needs.'),
-        hint: [T('只有一种办法造出「下雨，并且刮风」：两样都要有。', 'There is one way to make “it rains and it is windy”: it needs both.')],
-        solution: declared('Rain ∧ Wind', { c: 'ctor' }, ['Rain>c.f1', 'Wind>c.f2', 'c>decl.c1']),
-        naive: declared('Rain ∧ Wind', { c1: 'ctor', c2: 'ctor' }, ['Rain>c1.f1', 'Wind>c2.f1', 'c1>decl.c1', 'c2>decl.c2']),
-        after: T('一种造法，两样都要。真值表只在两样都真的那一行为真，正是「并且」的意思。可测对了不等于证明了它对：规格只能拿例子去测。', 'One way, needing both. The truth table is true only on the row where both are, just what “and” means. Testing it right is not proving it right: a specification can only be tested on examples.'),
+        letters: ['Rain', 'Wind'],
+        tests: [
+          { have: { Rain: 1, Wind: 2 }, make: true },
+          { have: { Rain: 3 }, make: false },
+          { have: { Wind: 4 }, make: false },
+          { have: {}, make: false },
+          { have: { Rain: 5, Wind: 6 }, make: true },
+        ],
+        brief: T('「下雨，并且刮风」：手里有「下雨」的证明，又有「刮风」的证明，就能证明它；而且只有这一种办法。设计它的两个方向：放「一种证法」，把它要交的证明接进去，再接进中间的「并且」；放「拆开」，把「并且」拆开，取回交进去的证明，接到右边。证得出的时候，取回的必须正是交进去的那几份。', '“It rains and it is windy”: with a proof that it rains and one that it is windy, it is proved, and that is the only way. Design both ways round: place a way to prove it, wire in the proofs it needs and wire it into “and” in the middle; place Take apart, take “and” apart, and wire the proofs back out on the right. Whenever it is proved, what comes back must be the very proofs handed in.'),
+        hint: [
+          T('一种证法，交「下雨」和「刮风」两份证明。', 'One way, handing in two proofs: that it rains and that it is windy.'),
+          T('拆开以后，第 1 份接到取回「下雨」，第 2 份接到取回「刮风」：和交进去的顺序对上。', 'Taken apart, the 1st goes to “it rains” back and the 2nd to “it is windy” back: in the order they went in.'),
+        ],
+        solution: isoBoard({ p: 'pack', u: 'unpack' }, ['Rain>p.f1', 'Wind>p.f2', 'p>decl.c1', 'decl>u.card', 'u#1>Rain', 'u#2>Wind'], { letters: ['Rain', 'Wind'] }),
+        naive: isoBoard({ p: 'pack', u: 'unpack' }, ['Rain>p.f1', 'p>decl.c1', 'decl>u.card', 'u#1>Rain'], { letters: ['Rain', 'Wind'] }),
+        after: T('造了再拆，拿回的正是交进去的那两份；只有一份时，它证不出来。造和拆互为逆：Lean 里 <code>And.left (And.intro a b)</code> 算回 a，逻辑学里管这叫引入和消去的「和谐」。核由这份声明生成两个元件：造的方向是拼成 ∧，拆的方向是拆开 ∧。', 'Made and taken apart, back come the very two proofs handed in; with only one, it is not proved. Making and taking apart undo each other: in Lean <code>And.left (And.intro a b)</code> computes back to a, and logicians call it the “harmony” of introduction and elimination. From this declaration the kernel makes two parts: making it is Join ∧, taking it apart is Split ∧.'),
       }),
       prove({
         tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }],
