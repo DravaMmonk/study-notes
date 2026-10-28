@@ -214,7 +214,8 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   }
   const icon = (node) => {
     const i = parts.icon?.(node)
-    return i ? <i className="pb-glyph"><Glyph icon={i} size={12} strokeWidth={2} /></i> : null
+    // A packed part's glyph sits on its solid family chip, as on the desktop card.
+    return i ? <i className={`pb-glyph ${parts.packed?.(node) ? 'family-chip' : ''}`}><Glyph icon={i} size={12} strokeWidth={2} /></i> : null
   }
 
   // A grid of slots: the board's, or a region's inside a frame (`region`).

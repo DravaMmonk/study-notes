@@ -470,4 +470,4 @@
    the glyph cut out of it in the card's paper, wherever the part is drawn (the board, the phone's slots, the parts
    list, the tray); the game gives it its own glyph (a circuit board). */
 :is(.node, .pb-tile, .pb-frame, .palette-item, .pb-part).is-packed .family-chip { color: var(--paper); background: var(--fam, var(--muted)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--fam, var(--muted)) 22%, transparent); }
-:is(.pb-tile, .pb-frame).is-packed .pb-glyph { width: 17px; height: 17px; margin-right: 4px; place-items: center; border-radius: 5px; color: var(--paper); background: var(--fam, var(--muted)); vertical-align: -3px; }
+.pb-glyph.family-chip { width: 18px; height: 18px; margin-right: 5px; border-radius: 5px; vertical-align: -4px; }
