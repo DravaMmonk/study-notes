@@ -26,7 +26,7 @@ import { freeIn, parseTerm } from './pterm.js'
 import { termTaskOf } from './termTask.js'
 import { missingForms } from './termTree.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
-import { checkIso } from './iso.js'
+import { checkIso, sentenceOf } from './iso.js'
 import { say } from './notation.js'
 import { presetIds } from './course.js'
 
@@ -98,7 +98,7 @@ export function validate({ levels: given, course }) {
   }
   // A declaration by its two ways round: its reference answer passes every situation, its naive one does not.
   for (const level of levels.filter((l) => l.kind === 'iso')) {
-    const words = (sentence) => say(parse(sentence), level.notation)
+    const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
     const good = checkIso(level, level.solution, words)
     out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: declaration ${good.pass ? 'PASS' : `FAIL ${keyOf(good.ways ?? good.results.find((r) => !r.pass).reason)}`} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
     if (level.naive) {
