@@ -29,7 +29,7 @@ export const declarations = [
     brief: T('「下雨，并且刮风」：两份证明都在手里，才证得出。写出它的声明。', '“It rains and it is windy”: proved only with both proofs at hand. Write its declaration.'),
     hint: [
       T('只有一种造法，要两样：拿两张假设，一张选「下雨」，一张选「刮风」，把「下雨」接进「刮风」的「先假设」。', 'One way, needing both: take two assumptions, one of “it rains” and one of “it is windy”, and wire “it rains” into the “assumed first” of “it is windy”.'),
-      T('再把「刮风」接进「并且」的造法甲。', 'Then wire “it is windy” into way A of “and”.'),
+      T('再把「刮风」接进「并且」的造法 1。', 'Then wire “it is windy” into way 1 of “and”.'),
     ],
     solution: isoBoard(['Rain>Wind', 'Wind>1']),
     naive: isoBoard(['Rain>1', 'Wind>2']),
@@ -166,7 +166,7 @@ export const moreDeclarations = [
       { have: { Rain: 1 }, make: true },
     ],
     brief: T('「真」：不管手里有什么，甚至什么都没有，都证得出。写出它的声明。', 'True: proved whatever is at hand, even nothing at all. Write its declaration.'),
-    hint: [T('一种造法，什么都不用：把「不用假设」接进造法甲。', 'One way that needs nothing: wire “assume nothing” into way A.')],
+    hint: [T('一种造法，什么都不用：把「不用假设」接进造法 1。', 'One way that needs nothing: wire “assume nothing” into way 1.')],
     solution: isoBoard(['∅>1']),
     naive: isoBoard(['Rain>1']),
     after: T('一种造法，什么都不要，就是 Lean 的 <code>True.intro</code>，常写成 ⊤。和 ⊥ 正好相反：⊥ 一种造法都没有，所以怎样都证不出；「真」有一种空造法，所以怎样都证得出。它的拆法什么都取不回：知道「真」，什么也没多知道。', 'One way needing nothing is Lean’s <code>True.intro</code>, often written ⊤. Just the opposite of ⊥: ⊥ has no way, so it is never proved; True has one empty way, so it is always proved. Its case gets nothing back: knowing True, you know nothing more.'),
