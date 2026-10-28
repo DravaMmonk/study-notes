@@ -230,20 +230,16 @@ function rulePartName(level, type) {
 }
 /** A rule of a rule part's, written out: an inference rule, or a rewrite rule (an equation given goes by its name). */
 const ruleWritten = (e, say = show) => (e.book === 'rule' ? ruleText(e.rule, say) : rewriteText(e.rule, say) || L(e.rule.name))
-/** What a rule part gives: each of its rules, written out. */
+/**
+ * What a rule part does, without its rules written out: the part shows them (its ticks, or the rule it gives), and
+ * the components box lists them.
+ */
 function rulePartText(level, type) {
-  const entries = rulePartsOf(level).get(type)
-  const lines = choicesOfPart(entries).map((key) => ruleWritten(entries.find((e) => e.key === key)))
-  if (type === MATH) {
-    return {
-      name: MATH_NAME,
-      desc: T(`这一关的数与列表规则：类型声明给出的、定义里的等式、已经证出的等式。元件上勾选给出哪几条：${lines.join('；')}。接进别的规则元件时，接在它们后面。`, `This level’s rules of numbers and lists: those its declarations give, its definitions’ equations and the equations proved so far. Tick on the part which it gives: ${lines.join('; ')}. Wired another rule part, it comes after their rules.`),
-    }
-  }
-  return {
-    name: rulePartName(level, type),
-    desc: T(`给出规则：${lines.join('；')}。接进别的规则元件时，接在它们后面。`, `Gives the rule: ${lines.join('; ')}. Wired another rule part, it comes after their rules.`),
-  }
+  const several = choicesOfPart(rulePartsOf(level).get(type)).length > 1
+  const after = T('接进别的规则元件时，接在它们后面。', 'Wired another rule part, it comes after their rules.')
+  const join = (a, b) => T(`${a.zh}${b.zh}`, `${a.en} ${b.en}`)
+  if (type === MATH) return { name: MATH_NAME, desc: join(T('这一关的数与列表规则：类型声明给出的、定义里的等式、已经证出的等式，在元件上添加给出哪几条，按添加的次序。', 'This level’s rules of numbers and lists, those its declarations give, its definitions’ equations and the equations proved so far: add on the part which it gives, in the order added.'), after) }
+  return { name: rulePartName(level, type), desc: join(several ? T('给出这个元件的规则，在元件上添加给出哪几条，按添加的次序。', 'Gives this part’s rules: add on the part which, in the order added.') : T('给出这个元件的规则。', 'Gives this part’s rule.'), after) }
 }
 /** The rules a rule part with several offers to tick, each written out in the test's words: [{ value, label }]. */
 const usesOf = (level, type, text) => {
@@ -308,9 +304,9 @@ export const MACHINE = {
       choices: { uses: Object.fromEntries([...rulePartsOf(level).keys()].map((type) => [type, usesOf(level, type, text)])) },
     }
   },
-  // A rule part with several rules ticks which it gives; another card's settings are its own.
+  // A rule part lists the rules it gives (and, with several, adds and takes them off); another card's settings are its own.
   settings: (parts, node, level) => (isRulePart(level, node.type)
-    ? (choicesOfPart(rulePartsOf(level).get(node.type)).length > 1 ? [{ key: 'use', label: T('给出哪几条', 'Which rules'), kind: 'use' }] : [])
+    ? [{ key: 'use', label: T('给出的规则', 'Its rules'), kind: 'use' }]
     : [
       ...(parts.rules[node.type]?.forms ? [{ key: 'form', kind: 'form' }] : []),
       ...paramsOf(parts.rules[node.type], node).map((key) => ({ key, label: MACHINE_TEXT[node.type]?.params?.[key] ?? key, kind: key })),

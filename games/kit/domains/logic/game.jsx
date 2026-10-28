@@ -18,6 +18,7 @@ import TermScreen from './ui/TermScreen.jsx'
 import ScriptScreen from './ui/ScriptScreen.jsx'
 import '../../strip/strip.css'
 import { PRIMITIVE_GATES } from './gates.js'
+import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 
 /**
  * spec: { id, title, kicker, lede: { zh, en } (what the game teaches and what the player ends up building, not how many levels), logic (logicCourse's result), glossary, saves: migration steps
@@ -35,10 +36,15 @@ export function defineLogicGame(spec) {
   // A part that stays where it is brought (`local`) is in no components box and unlocks nothing to show.
   const kept = ([type]) => !spec.logic.course.local(type)
   // The rules and gates the course starts from, each from the levels that bring it in.
+  // The rules a proof-board part gives as a rule part on the machine board (the kernel's rules it is), and those a
+  // lemma gives, one for each of its shapes: a shape after the first only once the player has earned it (`form`).
+  const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === type).map((r) => ({ text: ruleText(r) }))
+  const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
   const primitives = [...introductions(spec.logic.course)].map(([type, at]) => {
     const gate = PRIMITIVE_GATES[type] ?? MACHINE_TEXT[type]
     const text = textOf(lemmas, type, revisions)
-    return { key: `part:${type}`, name: gate?.name ?? nameOf(lemmas, type), desc: gate?.desc ?? text?.desc, revisions: gate ? revisions[type] : text?.revisions, icon: gate ? Cpu : iconOf(lemmas, type), at }
+    const rules = kernelRules(type)
+    return { key: `part:${type}`, name: gate?.name ?? nameOf(lemmas, type), desc: gate?.desc ?? text?.desc, revisions: gate ? revisions[type] : text?.revisions, icon: gate ? Cpu : iconOf(lemmas, type), at, ...(rules.length ? { rules } : {}) }
   })
   // A part is new in the level that first brings its idea in (`adds`); everything else carries (../../course.js reach).
   const levels = LEVELS.map((L, index) => ({
@@ -87,7 +93,7 @@ export function defineLogicGame(spec) {
       all: [
         ...primitives,
         ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: Cpu })),
-        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type) })),
+        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type), rules: lemmaRows(type) })),
         ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
       ],
     },

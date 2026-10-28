@@ -30,7 +30,7 @@
 // (a kernel rule's proof-board part, a lemma, the level's own axiom, an equation given). Numbers and lists (chapter 11)
 // are one part, the rule book of numbers (MATH): the rules the level's datatypes give, its definitions' equations and
 // the equations proved so far (the course's facts, a level's `proven`). A rule part gives a list of rules: those wired into it (`before`), then its own (those
-// ticked on it, `use`, in the order it lists them, when it has several; its first until any is ticked). A card that uses rules (rule, erule, frule, rw, simp) reads the list
+// added on it, `use`, in the order they were added, when it has several; its first until any is). A card that uses rules (rule, erule, frule, rw, simp) reads the list
 // on its port `rules`: the first that applies, in order (with backtracking, each one's results in turn); simp the
 // whole list, in order. A rule list is a constant: it may be wired into a frame from outside. Until a level says
 // `backtrack`, a tactic gives only its first result; from then on, every result, and each card after it works on each
@@ -122,8 +122,8 @@ const SHORTHAND = ['rule', 'rewrite', 'rewrites']
 /**
  * A reference answer as the levels write it, short: a card's rules named on it (`rule`, `rewrite`, `rewrites`: keys
  * of the level's books, comma-separated, in order), put on the board as they are played: a chain of rule parts in
- * the card's region, wired into its port `rules`. Keys in a row that one part gives in its own order are one part,
- * ticked with them all.
+ * the card's region, wired into its port `rules`. Keys in a row that one part gives are one part, with them all added
+ * in that order.
  */
 export function wireRules(circuit, level) {
   if (!circuit?.nodes) return circuit
@@ -134,13 +134,11 @@ export function wireRules(circuit, level) {
     if (!keys.length) { nodes.push(n); continue }
     nodes.push({ ...n, params: Object.fromEntries(Object.entries(n.params).filter(([k]) => !SHORTHAND.includes(k))) })
     let prev = null
-    const parts = rulePartsOf(level)
     keys.forEach((key, i) => {
       const at = rulePartOf(level, key)
       if (!at) throw new Error(`${level.id}: no rule part of the level gives ${key}`)
       const last = nodes.at(-1)
-      const order = choicesOfPart(parts.get(at.type))
-      if (at.use && last.id === prev && last.type === at.type && order.indexOf(last.params.use.at(-1)) < order.indexOf(key)) {
+      if (at.use && last.id === prev && last.type === at.type && !last.params.use.includes(key)) {
         last.params.use = [...last.params.use, key]
         return
       }
@@ -154,10 +152,10 @@ export function wireRules(circuit, level) {
   return { ...circuit, nodes, wires }
 }
 
-/** The keys a rule part gives of its own: those ticked (`use`), in its order; its first until any is. */
+/** The keys a rule part gives of its own: those added on it (`use`), in that order; its first until any is. */
 export const ownRules = (entries, use) => {
   const keys = choicesOfPart(entries)
-  return use?.length ? keys.filter((k) => use.includes(k)) : keys.slice(0, 1)
+  return use?.length ? use.filter((k) => keys.includes(k)) : keys.slice(0, 1)
 }
 /** A rule part: the list wired into it (`before`), then its own rules. */
 export const RULE_PART = {
@@ -169,7 +167,7 @@ export const RULE_PART = {
     const entries = ctx.ruleParts?.get(node.type)
     if (!entries) throw fail('这一关没有这条规则', 'This level has no such rule')
     const own = ownRules(entries, node.params?.use).map((k) => entries.find((e) => e.key === k))
-    if (!own.length) throw fail('这块规则元件没有选中的规则', 'This rule part has no rule ticked')
+    if (!own.length) throw fail('这块规则元件没有加上规则', 'This rule part has no rule added')
     return rulesValue([...(before ? rulesIn(before).entries : []), ...own])
   },
 }
