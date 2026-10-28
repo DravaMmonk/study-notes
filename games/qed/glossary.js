@@ -384,12 +384,12 @@ export const GLOSSARY = [
     see: ['backtracking', 'tactic'],
   },
   {
-    id: 'simplifier', group: 'rules', title: T('化简器', 'simplifier'), at: 'sp-dneg',
+    id: 'simplifier', group: 'rules', title: T('化简器', 'simplifier'), at: 'sp-rw',
     body: [T(`<b>化简器</b>拿一组${W('rewrite')}，在句子里哪一处对得上就换哪一处，一直换到哪一条都对不上。每条规则都是证过的等价或等式，所以每一步都由核认可。Isabelle 和 Lean 的 simp 都是这样的程序，是日常用得最多的自动化。`, `A <b>simplifier</b> takes a set of rules, each a ${W('rewrite')}, and replaces wherever one fits in a sentence, until none fits. Each rule is a proved equivalence or equation, so every step is accepted by the kernel. Isabelle’s and Lean’s simp are such programs, the automation used most every day.`)],
     see: ['rewrite', 'ordered'],
   },
   {
-    id: 'rewrite', group: 'rules', title: T('改写规则', 'rewrite rule'), at: 'sp-dneg',
+    id: 'rewrite', group: 'rules', title: T('改写规则', 'rewrite rule'), at: 'sp-rw',
     body: [T('l ⟼ r 是一条<b>改写规则</b>：句子里对得上左边 l 的地方，换成右边 r。它靠的是 l 和 r 互相推得出（等价），或者 l = r。规则可以带条件：条件证出来了，这一处才算改对了。一组规则改到底，要靠每次都让句子变得「更简单」，否则会绕圈。', 'l ⟼ r is a <b>rewrite rule</b>: a place in a sentence that fits the left side l is replaced by the right side r. It rests on l and r giving each other (equivalence), or on l = r. A rule may carry a condition, and the rewrite is right only once the condition is proved. A set of rules used to the end must make the sentence “simpler” each time, or it goes round in circles.')],
     see: ['simplifier', 'equivalence'],
   },

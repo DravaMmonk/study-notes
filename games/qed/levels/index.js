@@ -46,11 +46,11 @@ export const LEMMAS = {
     ],
     ports: ['¬(A ∨ B)'],
   },
-  // The simplifier's laws (chapter 9): each a card of shapes that are each other's converse, so either way round is a
+  // The equivalences (chapter 8), which the simplifier (chapter 9) rewrites with: each a card of shapes that are each other's converse, so either way round is a
   // rewrite rule; all its shapes come with the level that proves them (REVISIONS).
   dneg: {
     name: T('双重否定', 'Double negation'),
-    desc: T('元件上切换形状：接进 ¬¬A 给出 A；接进 A 给出 ¬¬A。两个方向也都是改写规则。', 'Switch the shape on the card: wire in ¬¬A for A, or A for ¬¬A. Both ways are rewrite rules too.'),
+    desc: T('元件上切换形状：接进 ¬¬A 给出 A；接进 A 给出 ¬¬A。', 'Switch the shape on the card: wire in ¬¬A for A, or A for ¬¬A.'),
     metas: ['A'],
     forms: [
       { key: 'elim', label: '¬¬A → A', statement: 'A', premises: ['¬¬A'] },
@@ -60,7 +60,7 @@ export const LEMMAS = {
   },
   arrow: {
     name: T('去掉箭头', 'Arrow away'),
-    desc: T('元件上切换形状：接进 A → B 给出 ¬A ∨ B；接进 ¬A ∨ B 给出 A → B。两个方向也都是改写规则。', 'Switch the shape on the card: wire in A → B for ¬A ∨ B, or ¬A ∨ B for A → B. Both ways are rewrite rules too.'),
+    desc: T('元件上切换形状：接进 A → B 给出 ¬A ∨ B；接进 ¬A ∨ B 给出 A → B。', 'Switch the shape on the card: wire in A → B for ¬A ∨ B, or ¬A ∨ B for A → B.'),
     metas: ['A', 'B'],
     forms: [
       { key: 'elim', label: 'A → B ⟹ ¬A ∨ B', statement: '¬A ∨ B', premises: ['A → B'] },
@@ -70,7 +70,7 @@ export const LEMMAS = {
   },
   dist: {
     name: T('分配', 'Distribute'),
-    desc: T('「或者」分配到「并且」上，四个方向：A ∨ (B ∧ C) 和 (A ∨ B) ∧ (A ∨ C) 互相转换，(A ∧ B) ∨ C 和 (A ∨ C) ∧ (B ∨ C) 互相转换。元件上切换形状；每个方向也都是改写规则。', '“Or” distributed over “and”, four ways: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Switch the shape on the card; each way is a rewrite rule too.'),
+    desc: T('「或者」分配到「并且」上，四个方向：A ∨ (B ∧ C) 和 (A ∨ B) ∧ (A ∨ C) 互相转换，(A ∧ B) ∨ C 和 (A ∨ C) ∧ (B ∨ C) 互相转换。元件上切换形状。', '“Or” distributed over “and”, four ways: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Switch the shape on the card.'),
     metas: ['A', 'B', 'C'],
     forms: [
       { key: 'orAndR', label: 'A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)', statement: '(A ∨ B) ∧ (A ∨ C)', premises: ['A ∨ (B ∧ C)'] },
@@ -120,10 +120,20 @@ const REVISIONS = {
   ],
   // 矛盾 brings in ¬A as A → ⊥, so Apply takes ¬A and A to ⊥.
   mp: [{ at: 'bot', desc: T('由 A → B 和 A 得到 B：接进一句「若…，则…」和它的前一半，得到后一半。¬A 也可以写作 A → ⊥，所以接进 ¬A 和 A，就得到矛盾 ⊥。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part. ¬A can be written A → ⊥, so wire in ¬A and A and out comes the contradiction ⊥.') }],
-  // The simplifier's laws come with every shape at once.
-  dneg: [{ by: 'sp-dneg', forms: ['intro'] }],
-  arrow: [{ by: 'sp-arrow', forms: ['intro'] }],
-  dist: [{ by: 'sp-dist', forms: ['andOrR', 'orAndL', 'andOrL'] }],
+  // The equivalences come with every shape at once.
+  // From the simplifier on, each shape is a rewrite rule too.
+  dneg: [
+    { by: 'c-dneg', forms: ['intro'] },
+    { at: 'sp-rw', desc: T('元件上切换形状：接进 ¬¬A 给出 A；接进 A 给出 ¬¬A。两个方向也都是改写规则。', 'Switch the shape on the card: wire in ¬¬A for A, or A for ¬¬A. Both ways are rewrite rules too.') },
+  ],
+  arrow: [
+    { by: 'c-arrow', forms: ['intro'] },
+    { at: 'sp-rw', desc: T('元件上切换形状：接进 A → B 给出 ¬A ∨ B；接进 ¬A ∨ B 给出 A → B。两个方向也都是改写规则。', 'Switch the shape on the card: wire in A → B for ¬A ∨ B, or ¬A ∨ B for A → B. Both ways are rewrite rules too.') },
+  ],
+  dist: [
+    { by: 'c-dist', forms: ['andOrR', 'orAndL', 'andOrL'] },
+    { at: 'sp-rw', desc: T('「或者」分配到「并且」上，四个方向：A ∨ (B ∧ C) 和 (A ∨ B) ∧ (A ∨ C) 互相转换，(A ∧ B) ∨ C 和 (A ∨ C) ∧ (B ∨ C) 互相转换。元件上切换形状；每个方向也都是改写规则。', '“Or” distributed over “and”, four ways: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Switch the shape on the card; each way is a rewrite rule too.') },
+  ],
   iff: [{ by: 'au-iff', forms: ['intro'] }],
   // ↔ comes into proofs on the main path with 两个方向: Split ∧ takes it apart.
   andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],

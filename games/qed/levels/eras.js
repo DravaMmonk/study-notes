@@ -3,7 +3,7 @@
 // compute a sentence's value on every row; the kernel proves from two parts, Apply and the assumption box; then the
 // connectives, the quantifiers' language and rules, rules with metavariables, tactics, classical logic, the
 // simplifier, and proofs as programs. Everything built earlier stays in the prover. A mechanism comes where it is
-// first needed: excluded middle when auto runs into it, De Morgan with the simplifier.
+// first needed: excluded middle when auto runs into it, and the equivalences, most of which need it, right after.
 const T = (zh, en) => ({ zh, en })
 
 // A named stretch of the main path (one branch of a `parallel` set): each new rule, then practice with it. Branches
@@ -157,29 +157,33 @@ export const ERAS = [
         ['lem', '排中律', 'Excluded middle', ['lemCases', 'c-either']],
         ['machine', '机器上的反证法', 'By contradiction on the machine', ['s-lem']],
       ),
+      // Equivalences, the laws the simplifier will rewrite with: proved both ways, most by contradiction or excluded
+      // middle, so after both.
+      branches(
+        ['laws', '等价律', 'Equivalences', ['c-dneg', 'c-arrow', 'c-dist']],
+        ['demorgan', '德摩根', 'De Morgan', ['demorgan', 'q-dm']],
+      ),
     ],
     // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.
     topics: [{ id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
-    challenges: [{ level: 'peirce', after: 'lemCases' }],
+    challenges: [{ level: 'peirce', after: 'lemCases' }, { level: 'drinker', after: 'q-dm' }],
     chapter: { title: T('经典逻辑', 'Classical logic'), question: T('真值表上每一行都真的话，证明器都证得出吗？', 'Does the prover prove everything true on every row?') },
   },
   {
     id: 'simplifier', machine: 'prover', keeps: 'all',
     foundation: [
-      // Double negation proved both ways, and the rewrite card that uses it.
-      'sp-dneg',
-      // More laws, De Morgan (whose quantifier laws add shapes to its card) and rewriting itself need nothing from
-      // each other.
+      // The rewrite card, with double negation, proved both ways last chapter.
+      'sp-rw',
+      // More rewrite rules, De Morgan's and rewriting itself need nothing from each other.
       branches(
-        ['laws', '更多等价律', 'More laws', ['sp-arrow', 'sp-dist']],
-        ['demorgan', '德摩根', 'De Morgan', ['demorgan', 'sp-back', 'q-dm']],
+        ['laws', '更多改写规则', 'More rewrite rules', ['sp-laws']],
+        ['demorgan', '推进否定', 'Negation pushed in', ['sp-dm', 'sp-back']],
         ['rewrite', '改写一处', 'One place', ['sp-where', 'sp-repeat']],
       ),
       // simp, built of rewrites in a repeat frame; then normal forms.
       'sp-simp',
       series('forms', '范式', 'Normal forms', ['sp-nnf', 'sp-cnf', 'sp-order']),
     ],
-    challenges: [{ level: 'drinker', after: 'q-dm' }],
     chapter: { title: T('化简器', 'The simplifier'), question: T('「把否定推进去」这样的目标，能交给机器一路改下去吗？', 'Can a goal like “push the negation in” be left to a machine that rewrites all the way?') },
   },
   {

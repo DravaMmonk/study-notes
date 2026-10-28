@@ -153,7 +153,17 @@ export default {
   ] },
   // Version 37 made rules parts on the machine board, wired into the cards that use them: a board that chose a rule
   // on a card starts afresh.
-  { version: 37, ops: [{ data: (value) => (Array.isArray(value) ? value.map(unruled) : unruled(value)) }] }],
+  { version: 37, ops: [{ data: (value) => (Array.isArray(value) ? value.map(unruled) : unruled(value)) }] },
+  // Version 38 proved the equivalences in classical logic (双重否定, 去掉箭头 and 分配 under new ids, 德摩根 and 量词的
+  // 德摩根) and left their rewriting to the simplifier, in levels of its own: each law's last task is gone, and whoever
+  // had passed a law has passed the rewriting that came with it.
+  { version: 38, ops: [
+    { rename: { 'sp-dneg': 'c-dneg', 'sp-arrow': 'c-arrow', 'sp-dist': 'c-dist' } },
+    { data: (value, id) => (['c-dneg', 'c-arrow', 'c-dist', 'demorgan', 'q-dm'].includes(id) && Array.isArray(value) ? value.slice(0, -1) : value) },
+    { solve: ['c-dneg', ['sp-rw']] },
+    { solve: ['c-dist', ['sp-laws']] },
+    { solve: ['q-dm', ['sp-dm']] },
+  ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器'],
