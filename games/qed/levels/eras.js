@@ -56,11 +56,17 @@ export const ERAS = [
   },
   {
     id: 'packing', machine: 'prover',
-    // The kernel's two parts carry on. First definitions: proofs given a name (Chain, Swap, Merge), then three more
-    // levels with them. Then declarations: "and", "or" and the contradiction come into the kernel by their ways to
+    // The kernel's two parts carry on. First definitions: proofs given a name (Chain, Swap, Merge) on two lines, then
+    // three levels with them. Then declarations: "and", "or" and the contradiction come into the kernel by their ways to
     // make them, each written as a rule with assumption boxes (declare.js).
     keeps: 'all',
-    foundation: ['chain', 'swap', 'twice', 'mergeUse', 'mergeLong', 'mergeBoth', 'decl-and', 'decl-or', 'decl-bot'],
+    foundation: [
+      // Chain, Swap and Merge, each built with boxes alone, on two lines that need nothing from each other; then the
+      // three together, harder each time.
+      branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
+      'mergeUse', 'mergeLong', 'mergeBoth',
+      'decl-and', 'decl-or', 'decl-bot',
+    ],
     chapter: { title: T('定义和声明', 'Definitions and declarations'), question: T('怎样把「与」「或」「非」引入证明核？', 'How do “and”, “or” and “not” come into the kernel?') },
   },
   {

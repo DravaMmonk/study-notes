@@ -68,13 +68,20 @@ export const ISO_PARTS = {
  * next, and one case for each way, wired from the connective (locked: they are the kernel's, not the player's).
  */
 export function settle(graph) {
-  const decl = graph.nodes.find((n) => n.id === DECL)
+  let decl = graph.nodes.find((n) => n.id === DECL)
   if (!decl) return graph
   const ways = graph.wires.filter((w) => w.to === DECL).sort((a, b) => Number(a.port.slice(1)) - Number(b.port.slice(1)))
   const renumber = new Map(ways.map((w, k) => [w, wayPort(k + 1)]))
   const n = ways.length
+  // On a phone each box on the board keeps its row, the connective takes the row under the last of them and its
+  // cases the cells after it, so wiring never moves them (a board saved before slots gets them here too).
+  const boxes = graph.nodes.filter((x) => x.type === 'hyp')
+  const placed = boxes.map((x, k) => (Number.isInteger(x.slot) ? x : { ...x, slot: 2 * k }))
+  const under = 2 + Math.max(-2, ...placed.filter((x) => !x.in).map((x) => x.slot - (x.slot % 2)))
+  decl = { ...decl, slot: under }
+  graph = { ...graph, nodes: graph.nodes.map((x) => (x.type === 'hyp' ? placed[boxes.indexOf(x)] : x.id === DECL ? decl : x)) }
   const old = new Map(graph.nodes.filter((x) => x.type === 'case').map((x) => [x.params.k, x]))
-  const cases = Array.from({ length: n }, (_, k) => old.get(k + 1) ?? { id: caseId(k + 1), type: 'case', params: { k: k + 1 }, locked: true, x: decl.x + 280, y: (decl.y ?? 40) + k * 130 })
+  const cases = Array.from({ length: n }, (_, k) => ({ ...(old.get(k + 1) ?? { id: caseId(k + 1), type: 'case', params: { k: k + 1 }, locked: true, x: decl.x + 280, y: (decl.y ?? 40) + k * 130 }), slot: under + 1 + k }))
   return {
     ...graph,
     nodes: [...graph.nodes.filter((x) => x.type !== 'case').map((x) => (x.id === DECL ? { ...x, params: { ...x.params, ways: n } } : x)), ...cases],
@@ -126,8 +133,8 @@ export function showRule(rule, level, words) {
 export function startIso(level) {
   return settle({
     nodes: [
-      ...level.letters.map((letter, k) => ({ id: boxId(letter), type: 'hyp', params: { name: letter }, locked: true, nest: true, x: 20 + k * 320, y: 40 })),
-      { id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 20 + Math.max(1, level.letters.length) * 320 + 40, y: 40 },
+      ...level.letters.map((letter, k) => ({ id: boxId(letter), type: 'hyp', params: { name: letter }, locked: true, nest: true, x: 20 + k * 320, y: 40, slot: 2 * k })),
+      { id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 20 + Math.max(1, level.letters.length) * 320 + 40, y: 40, slot: 2 * level.letters.length },
     ],
     wires: [],
   })
