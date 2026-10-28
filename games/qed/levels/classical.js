@@ -123,7 +123,7 @@ export const classical = [
       T('假设「下雨」，要证的是「地湿」：假设它不成立，看会不会撞上「下雨」。', 'Assume “it rains”; the goal is “the ground is wet”: suppose it fails, and see whether that runs into “it rains”.'),
       T('里面的框给出「¬¬地湿」，反证法去掉两个 ¬。', 'The inner box gives “¬¬the ground is wet”, and By contradiction drops the two ¬s.'),
     ],
-    intro: [{ t: T('<level-ref to="contra"></level-ref>由「下雨 → 地湿」得到「¬地湿 → ¬下雨」，没用反证法。反过来，从逆否推回原句，要证的是一句没有 ¬ 的话，只能靠反证。', '<level-ref to="contra"></level-ref> got “¬the ground is wet → ¬it rains” from “it rains → the ground is wet” without proof by contradiction. The other way, from the contrapositive back to the sentence, the goal has no ¬ in it, and only proof by contradiction reaches it.') }],
+    intro: [{ t: T('<level-ref to="mt"></level-ref>由「下雨 → 地湿」得到「¬地湿 → ¬下雨」，没用反证法。反过来，从逆否推回原句，要证的是一句没有 ¬ 的话，只能靠反证。', '<level-ref to="mt"></level-ref> got “¬the ground is wet → ¬it rains” from “it rains → the ground is wet” without proof by contradiction. The other way, from the contrapositive back to the sentence, the goal has no ¬ in it, and only proof by contradiction reaches it.') }],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: '¬B' }, 'f'], m1: ['mp', {}, 'g'], m2: ['mp', {}, 'g'], r: ['raa', {}, 'f'] }, ['p>m1.imp', 'g#body>m1.a', 'm1>m2.imp', 'f#body>m2.a', 'm2>g.body', 'g>r.nna', 'r>f.body', 'f>goal'], { premises: ['p'] }),
     after: T('有了反证法，逆否和原句才真正可以互相推出：证「若 P 则 Q」，改证「若非 Q 则非 P」也行。没有它，只有一个方向。', 'With proof by contradiction a sentence and its contrapositive really give each other: to prove “if P then Q”, proving “if not Q then not P” will do. Without it, only one way works.'),
   },

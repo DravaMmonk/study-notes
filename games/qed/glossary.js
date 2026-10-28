@@ -90,7 +90,7 @@ export const GLOSSARY = [
     see: ['truth', 'natural'],
   },
   {
-    id: 'contradiction', group: 'prop', title: T('矛盾', 'contradiction'), at: 'g-never',
+    id: 'contradiction', group: 'prop', title: T('矛盾', 'contradiction'), at: 'g-always',
     body: [
       T('每一行都假的话叫<b>矛盾</b>，比如「下雨 ∧ ¬下雨」：没有哪一种情况能让它成立。证明器把它写成一个符号 ⊥。', 'A sentence false on every row is a <b>contradiction</b>, such as “it rains ∧ ¬it rains”: no case can make it hold. The prover writes it as one symbol, ⊥.'),
       T('证明器里 ¬A 就是 A → ⊥：「A 不成立」说的是「A 一成立就矛盾」。所以证 ¬A，就是假设 A、推出 ⊥。', 'In the prover ¬A is A → ⊥: “A does not hold” says “if A held, that would be a contradiction”. So proving ¬A means assuming A and reaching ⊥.'),
@@ -98,7 +98,7 @@ export const GLOSSARY = [
     see: ['satisfiable', 'explosion'],
   },
   {
-    id: 'satisfiable', group: 'prop', title: T('可满足', 'satisfiability'), at: 'g-never',
+    id: 'satisfiable', group: 'prop', title: T('可满足', 'satisfiability'), at: 'g-always',
     body: [
       T(`一句话（或几句话一起）至少在一种情况下为真，叫<b>可满足</b>；一种都没有，就是${W('contradiction')}，也叫不可满足。命题逻辑里，情况是${W('truth')}的一行；一阶逻辑里，情况是一个世界。`, `A sentence (or several together) is <b>satisfiable</b> when it is true in at least one case; when it is true in none it is a ${W('contradiction')}, also called unsatisfiable. In propositional logic a case is a row of the ${W('truth')}; in first-order logic it is a world.`),
       T('A 永真，恰好当 ¬A 不可满足。所以「证 A」和「说明 ¬A 不可满足」是一回事：自动证明器和 SAT 求解器都从这里下手，把要证的那句否定了，看还能不能满足。', 'A is a tautology exactly when ¬A is unsatisfiable. So “prove A” and “show ¬A can never be satisfied” are the same task: automatic provers and SAT solvers start from here, negating what is to be proved and asking whether it can still be satisfied.'),
@@ -114,7 +114,7 @@ export const GLOSSARY = [
     see: ['connective', 'rewrite'],
   },
   {
-    id: 'contrapositive', group: 'prop', title: T('逆否', 'contrapositive'), at: 'contra',
+    id: 'contrapositive', group: 'prop', title: T('逆否', 'contrapositive'), at: 'mt',
     body: [
       T('A → B 的<b>逆否</b>是 ¬B → ¬A：下雨就地湿，那么地不湿就没下雨。两者等价，证明器里只用套用和假设框就能从前者证出后者。', 'The <b>contrapositive</b> of A → B is ¬B → ¬A: if rain makes the ground wet, then a dry ground means no rain. The two are equivalent, and the prover gets the second from the first with Apply and the assumption box alone.'),
       T('它的两个近亲却不成立：B → A（逆）和 ¬A → ¬B（否），都能找到反例。「没下雨所以地不湿」是常见的错误推理。', 'Its two near relatives do not hold: B → A (the converse) and ¬A → ¬B (the inverse) both have counterexamples. “It did not rain, so the ground is dry” is a common mistake.'),
@@ -264,7 +264,7 @@ export const GLOSSARY = [
     see: ['intro-rule', 'normal-form'],
   },
   {
-    id: 'theorem', group: 'proof', title: T('定理', 'theorem'), at: 'andSwap',
+    id: 'theorem', group: 'proof', title: T('定理', 'theorem'), at: 'and',
     body: [T(`不依赖任何已知、证出来的句子叫<b>定理</b>：有已知的证明，放进假设框，就成了定理。可靠的规则证出的定理都是${W('tautology')}；反过来，命题逻辑里每个永真式都是定理（经典逻辑下）。`, `A sentence proved from nothing given is a <b>theorem</b>: put a proof from givens into an assumption box and it becomes one. Every theorem of sound rules is a ${W('tautology')}; conversely, in propositional logic every tautology is a theorem (in classical logic).`)],
     see: ['lemma', 'classical'],
   },

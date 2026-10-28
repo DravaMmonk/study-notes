@@ -189,6 +189,27 @@ export default {
     { solve: ['and', ['decl-and']] },
     { solve: ['or', ['decl-or']] },
     { solve: ['bot', ['decl-bot']] },
+  ] },
+  // Chapters 1 to 4 tightened: short levels on one idea became the tasks of one level, and one level that only repeated
+  // another (a condition, two results) went.
+  { version: 44, ops: [
+    { merge: ['g-always', ['g-always', 'g-never']] },
+    { merge: ['nested', ['nested', 'cond']] },
+    { merge: ['assume', ['assume', 'k2']] },
+    { merge: ['k', ['ident', 'k']] },
+    { merge: ['x-k', ['x-k', 'x-s']] },
+    { merge: ['x-merge', ['x-self', 'x-merge']] },
+    { merge: ['mergeLong', ['mergeUse', 'mergeLong']] },
+    { merge: ['decl-three', ['decl-three', 'decl-or3']] },
+    { rename: { andImp: null } },
+    { merge: ['and', ['and', 'andSwap']] },
+    { merge: ['curry', ['curry', 'uncurry']] },
+    { merge: ['orSwap', ['orSwap', 'orImp']] },
+    { merge: ['bot', ['bot', 'exFalso']] },
+    { merge: ['notI', ['notI', 'dni']] },
+    { merge: ['mt', ['mt', 'contra']] },
+    { merge: ['h-and-make', ['h-and-make', 'h-and-use']] },
+    { merge: ['h-or-make', ['h-or-make', 'h-or-use']] },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

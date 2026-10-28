@@ -24,7 +24,7 @@ export const ERAS = [
       series('gates', '门', 'Gates', ['g-not', 'g-and', 'g-tree']),
       series('build', '造门', 'Building gates', ['g-or', 'g-imp']),
     ],
-    practice: [series('kinds', '三种句子', 'Three kinds of sentence', ['g-always', 'g-never', 'g-iff'])],
+    practice: [series('kinds', '三种句子', 'Three kinds of sentence', ['g-always', 'g-iff'])],
     topics: [{ id: 'islanders', code: 'E', after: 'g-iff', levels: ['e-words', 'e-says', 'e-one', 'e-two', 'e-three'], title: T('把谜题接成电路', 'A puzzle as a circuit') }],
     challenges: [{ level: 'g-xor', after: 'g-or' }],
     chapter: { title: T('真值电路', 'Truth circuits'), question: T('一句话在每一种情况下是真是假，能交给电路去算吗？', 'Can a circuit work out whether a sentence is true in every case?') },
@@ -37,10 +37,10 @@ export const ERAS = [
       'copy',
       // The kernel's two parts, each on its own line: Apply uses an “if … then …” up, the box makes one. Build a
       // prover then uses both parts together.
-      branches(['apply', '套用', 'Apply', ['mp', 'pick', 'nested', 'cond']], ['assume', '假设框', 'Assumption box', ['assume', 'k2']]),
+      branches(['apply', '套用', 'Apply', ['mp', 'pick', 'nested']], ['assume', '假设框', 'Assumption box', ['assume']]),
       'box',
       // K and S, each proved with boxes and built as a part, need nothing from each other.
-      branches(['k', 'K', 'K', ['ident', 'k']], ['s', 'S', 'S', ['s']]),
+      branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
     ],
     // Without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time, once K and S
     // are both in hand (a level's `without` holds back the box and the parts built with it): a condition, Apply under a
@@ -48,9 +48,9 @@ export const ERAS = [
     // and S alone.
     // It splits in two after X2: Chain then Swap on one branch, Identity then Merge on the other.
     topics: [
-      { id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k', 'x-s'], title: T('拆掉框', 'Without the box') },
-      { id: 'nobox-chain', code: 'X', after: 'x-s', levels: ['x-chain', 'x-swap'], title: T('拆掉框：接起来与换顺序', 'Without the box: joining and reordering') },
-      { id: 'nobox-merge', code: 'X', after: 'x-s', levels: ['x-self', 'x-merge'], title: T('拆掉框：恒等与说一遍', 'Without the box: identity and once') },
+      { id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k'], title: T('拆掉框', 'Without the box') },
+      { id: 'nobox-chain', code: 'X', after: 'x-k', levels: ['x-chain', 'x-swap'], title: T('拆掉框：接起来与换顺序', 'Without the box: joining and reordering') },
+      { id: 'nobox-merge', code: 'X', after: 'x-k', levels: ['x-merge'], title: T('拆掉框：恒等与说一遍', 'Without the box: identity and once') },
     ],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠套用和假设框，能证出什么？', 'What can Apply and the assumption box prove?') },
   },
@@ -64,10 +64,10 @@ export const ERAS = [
       // Chain, Swap and Merge, each built with boxes alone, on two lines that need nothing from each other; then the
       // three together, harder each time.
       branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
-      'mergeUse', 'mergeLong', 'mergeBoth',
+      'mergeLong', 'mergeBoth',
       'decl-and', 'decl-or', 'decl-bot',
     ],
-    topics: [{ id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-or3', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') }],
+    topics: [{ id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') }],
     chapter: { title: T('定义和声明', 'Definitions and declarations'), question: T('怎样把「与」「或」「非」引入证明核？', 'How do “and”, “or” and “not” come into the kernel?') },
   },
   {
@@ -77,14 +77,14 @@ export const ERAS = [
     foundation: [
       // And, or and not each need only the box; the mixed problems wait for all three.
       branches(
-        ['and', '并且', 'And', ['and', 'andSwap', 'curry', 'uncurry', 'andImp', 'iffUse']],
-        ['or', '或者', 'Or', ['or', 'cases', 'orSwap', 'orImp']],
-        ['not', '矛盾与否定', 'Contradiction and not', ['bot', 'exFalso', 'notI', 'mt', 'dni', 'contra', 'denyAnte']],
+        ['and', '并且', 'And', ['and', 'curry', 'iffUse']],
+        ['or', '或者', 'Or', ['or', 'cases', 'orSwap']],
+        ['not', '矛盾与否定', 'Contradiction and not', ['bot', 'notI', 'mt', 'denyAnte']],
       ),
       series('mix', '组合', 'Together', ['dist', 'dsyll']),
     ],
-    // How HOL defines the connectives instead, with → alone, after the chapter's last level: optional proofs.
-    topics: [{ id: 'hol', code: 'H', after: 'dsyll', levels: ['h-and-make', 'h-and-use', 'h-or-make', 'h-or-use'], title: T('HOL 怎样定义连接词', 'How HOL defines the connectives') }],
+    // The connectives defined with → alone instead of declared, after the chapter's last level: optional proofs.
+    topics: [{ id: 'hol', code: 'H', after: 'dsyll', levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') }],
     chapter: { title: T('连接词的运用', 'Using the connectives'), question: T('有了声明出来的「与」「或」「非」，能证出些什么？', 'With “and”, “or” and “not” declared, what can be proved?') },
   },
   {
