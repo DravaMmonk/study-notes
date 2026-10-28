@@ -243,7 +243,7 @@ const sameLits = (a, b) => [...new Set(a.map(litText))].sort().join() === [...ne
 
 /**
  * A certificate replayed, from the state the clauses were split from: each input clause used must be a conjunct of a
- * hypothesis with its ∀ taken (Split ∧, Take one); each step must be a use of the resolution lemma on its parents taken
+ * hypothesis with its ∀ taken (∧ elim, Take one); each step must be a use of the resolution lemma on its parents taken
  * at what their variables became (Take one), or a parent taken so two of its literals meet (Take one, A ∨ A is A). The
  * state with its first goal proved, or { fail } naming the step that is not one.
  */
