@@ -22,7 +22,7 @@ function isoPartsFor(level, words) {
   return {
     inputs: (node) => (node.type === 'hyp' ? ['body'] : node.type === DECL ? declInputs(node) : node.type === 'case' ? ['p'] : []),
     role: () => 'part',
-    label: (node) => (node.type === 'hyp' ? T(`假设「${words(node.params.name).zh}」`, `Assume “${words(node.params.name).en}”`)
+    label: (node) => (node.type === 'hyp' ? T('假设', 'Assume')
       : node.type === DECL ? T(`「${level.declare.zh}」`, `“${level.declare.en}”`)
       : T(`拆法 ${CIRCLED[node.params.k - 1]}`, `Case ${CIRCLED[node.params.k - 1]}`)),
     portLabel: (node, port) => (node.type === DECL ? T(`造法 ${CIRCLED[Number(port.slice(1)) - 1]}`, `Way ${CIRCLED[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' ? T('再假设', 'Then assume') : ''),
@@ -96,6 +96,8 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     return <div className="lg-card"><span className={`lg-tv ${back ? 'is-true' : 'is-false'}`}>{back ? `${tr('取回', 'Back')} ${back.items.map((x) => L(showEvidence(x, words))).join(' · ')}` : view.made ? tr('这次不是这种造法', 'Not this way this time') : tr('没有', 'Nothing')}</span></div>
   }
 
+  // What a box assumes, under its name as in the proof board's box.
+  const regionNote = (node) => <span className="lg-taken"><b>{L(words(node.params.name))}</b></span>
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   const table = (
     <div className="lg-strip">
@@ -129,7 +131,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   )
   const dock = <RunDock {...playback.dock({ go: tr('每种情况试一遍', 'Try every situation'), done: tr('每种情况都对', 'Every situation right') })} />
 
-  if (phone) return <PhoneIso {...{ circuit, parts, brief, dock, change, onClear, table, body }} scope={level.id} />
+  if (phone) return <PhoneIso {...{ circuit, parts, brief, dock, change, onClear, table, body, regionNote }} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -149,6 +151,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
               width={220}
               height={120}
               body={body}
+              regionNote={regionNote}
               cardClass={() => 'lg-node'}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
               emptyNote={{ zh: '把一个假设框拖进另一个框里，内框接到外框的「再假设」；外框接进连接词的一个造法口。', en: 'Drag one assumption box into another and wire the inner one to the outer one’s “then assume”; wire the outer box into one of the connective’s ways.' }}
@@ -165,7 +168,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
 }
 
 // The board on a phone: the shared slot board, the situations under it, and the run bar.
-function PhoneIso({ circuit, parts, brief, dock, change, onClear, table, body, scope }) {
+function PhoneIso({ circuit, parts, brief, dock, change, onClear, table, body, regionNote, scope }) {
   const [sheet, setSheet] = useState(null)
   const root = useRef(null)
   const scroller = useRef(null)
@@ -186,7 +189,7 @@ function PhoneIso({ circuit, parts, brief, dock, change, onClear, table, body, s
     <div className="level-phone is-split lg-phone" ref={root}>
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={body} sinkBody={body} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={[]} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={body} sinkBody={body} regionNote={regionNote} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={[]} />
         {table}
       </div>
       <footer className="run-foot">{dock}</footer>
