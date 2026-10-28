@@ -431,6 +431,13 @@ function phoneFaces({ board, parts, view, text, scene }) {
   return { thumb, sinkBody }
 }
 
+// The board a built part runs, as it shows inside the part: only its parts, without the inputs and the result (they
+// are the part's own ports), and without the wires from or to them.
+function partsOnly(circuit, parts) {
+  const ends = new Set(circuit.nodes.filter((n) => parts.role(n) !== 'part').map((n) => n.id))
+  return { ...circuit, nodes: circuit.nodes.filter((n) => !ends.has(n.id)), wires: circuit.wires.filter((w) => !ends.has(w.to) && !ends.has(w.from.split('#')[0])) }
+}
+
 // On a phone, the board a built part runs, in the part's sheet: the phone's slot board, read only, in a window of a
 // fixed height that scrolls, each block showing what it gives in the part's latest run so far and the block the
 // current step is in lit (and scrolled to). Tapping a block opens its own sheet over this one (its description and
@@ -461,7 +468,7 @@ function InsidePhone({ path, built, board }) {
         <SlotBoard
           fixed
           dense
-          graph={at.circuit}
+          graph={partsOnly(at.circuit, parts)}
           parts={parts}
           nameOf={(n) => L(parts.label(n))}
           thumb={thumb}
@@ -510,7 +517,8 @@ function InsideBoard({ path, built, board }) {
   const at = built.open(path)
   if (!at) return null
   const parts = built.partsOf(at.level)
-  const graph = { ...at.circuit, nodes: at.circuit.nodes.map((n) => (opened.has(n.id) ? { ...n, open: true } : n)) }
+  const shown = partsOnly(at.circuit, parts)
+  const graph = { ...shown, nodes: shown.nodes.map((n) => (opened.has(n.id) ? { ...n, open: true } : n)) }
   const toggle = (node) => setOpened((s) => {
     const next = new Set(s)
     if (!next.delete(node.id)) next.add(node.id)
