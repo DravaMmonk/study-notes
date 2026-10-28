@@ -98,7 +98,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
       const rule = view.values.get(node.id)
       return (
         <div className="lg-card">
-          {edit && <FormulaField value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required />}
+          {edit && <FormulaField label={T('假设', 'Assume')} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required />}
           {rule && <Value f={ruleFormula(rule, level)} small={!edit} />}
         </div>
       )
