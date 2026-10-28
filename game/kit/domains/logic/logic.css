@@ -261,3 +261,14 @@
 .lg-inside-phone { margin-top: 8px; }
 .lg-inside-scroll { height: 360px; overflow-y: auto; overscroll-behavior: contain; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--hairline); }
 .lg-readonly :is(select, .lg-ticks button, .lg-occ button) { pointer-events: none; }
+
+/* Inside a built part, its inputs and its result are its own ports: on a desktop, small terminals at the board's
+   left and right edges (their name and dot, no card); on a phone, the slot board's top and bottom rows, as thin. */
+.lg-inside .node.lg-edge { padding-bottom: 0; background: none; box-shadow: none; animation: none; }
+.lg-inside .node.lg-edge::before, .lg-inside .node.lg-edge::after { display: none; }
+.lg-inside .node.lg-edge .node-head { min-height: 0; padding: 0 6px; border: 0; color: var(--muted); font-size: 11.5px; }
+.lg-inside .node.lg-edge .family-chip { display: none; }
+.lg-inside .node.lg-edge .node-ports { min-height: 0 !important; }
+.lg-inside-scroll .pb-term { min-height: 0; padding: 6px 8px; background: none; box-shadow: inset 0 0 0 1px var(--hairline); }
+.lg-inside-scroll .pb-term::after, .lg-inside-scroll .pb-term .pb-thumb, .lg-inside-scroll .pb-term .lg-sink { display: none; }
+.lg-inside-scroll .pb-term .pb-name { color: var(--muted); font-size: 12px; }

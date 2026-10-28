@@ -431,12 +431,25 @@ function phoneFaces({ board, parts, view, text, scene }) {
   return { thumb, sinkBody }
 }
 
-// The board a built part runs, as it shows inside the part: only its parts, without the inputs and the result (they
-// are the part's own ports), and without the wires from or to them.
-function partsOnly(circuit, parts) {
-  const ends = new Set(circuit.nodes.filter((n) => parts.role(n) !== 'part').map((n) => n.id))
-  return { ...circuit, nodes: circuit.nodes.filter((n) => !ends.has(n.id)), wires: circuit.wires.filter((w) => !ends.has(w.to) && !ends.has(w.from.split('#')[0])) }
+// The board a built part runs, as it shows inside the part on a desktop: its inputs and its result are not cards but
+// the part's own ports, drawn small (lg-edge) on the board's left and right edges, beside the parts they feed or come
+// from, so a wire from an input or to the result still shows how the part is wired and in what order.
+function edged(circuit, parts) {
+  const isEnd = (n) => parts.role(n) !== 'part'
+  const placed = circuit.nodes.filter((n) => !isEnd(n) && !n.in)
+  if (!placed.length) return circuit
+  const x0 = Math.min(...placed.map((n) => n.x))
+  const x1 = Math.max(...placed.map((n) => n.x + (parts.cardWidth?.(n) ?? 160)))
+  const y0 = Math.min(...placed.map((n) => n.y))
+  let [ins, outs] = [0, 0]
+  const nodes = circuit.nodes.map((n) => {
+    if (!isEnd(n)) return n
+    return parts.role(n) === 'source' ? { ...n, x: x0 - 150, y: y0 + 60 * ins++ } : { ...n, x: x1 + 60, y: y0 + 60 * outs++ }
+  })
+  return { ...circuit, nodes }
 }
+// The parts of such a board: its inputs and result are narrow.
+const edgeParts = (parts) => ({ ...parts, cardWidth: (n) => (parts.role(n) === 'part' ? parts.cardWidth?.(n) : 90) })
 
 // On a phone, the board a built part runs, in the part's sheet: the phone's slot board, read only, in a window of a
 // fixed height that scrolls, each block showing what it gives in the part's latest run so far and the block the
@@ -468,7 +481,7 @@ function InsidePhone({ path, built, board }) {
         <SlotBoard
           fixed
           dense
-          graph={partsOnly(at.circuit, parts)}
+          graph={at.circuit}
           parts={parts}
           nameOf={(n) => L(parts.label(n))}
           thumb={thumb}
@@ -478,7 +491,7 @@ function InsidePhone({ path, built, board }) {
           resultNote={(n) => small(at.view.values.get(n.id))}
           onPort={() => {}}
           onSlot={() => {}}
-          onNode={setDetail}
+          onNode={(id) => parts.role(at.circuit.nodes.find((n) => n.id === id) ?? {}) === 'part' && setDetail(id)}
         />
       </div>
       {node && createPortal(
@@ -516,8 +529,8 @@ function InsideBoard({ path, built, board }) {
   const [opened, setOpened] = useState(() => new Set())
   const at = built.open(path)
   if (!at) return null
-  const parts = built.partsOf(at.level)
-  const shown = partsOnly(at.circuit, parts)
+  const parts = edgeParts(built.partsOf(at.level))
+  const shown = edged(at.circuit, parts)
   const graph = { ...shown, nodes: shown.nodes.map((n) => (opened.has(n.id) ? { ...n, open: true } : n)) }
   const toggle = (node) => setOpened((s) => {
     const next = new Set(s)
@@ -538,8 +551,8 @@ function InsideBoard({ path, built, board }) {
         width={160}
         height={150}
         head={(node) => <BuiltTools node={node} built={inner} onToggle={() => toggle(node)} />}
-        body={(node) => <CardBody node={node} {...shared} />}
-        cardClass={(node) => `lg-node ${node.id === at.lit ? 'is-step' : ''}`}
+        body={(node) => (parts.role(node) === 'part' ? <CardBody node={node} {...shared} /> : null)}
+        cardClass={(node) => (parts.role(node) === 'part' ? `lg-node ${node.id === at.lit ? 'is-step' : ''}` : 'lg-edge')}
         wireState={(wire) => (at.view.values.get(wire.from) ? 'live' : 'dead')}
       />
     </div>
