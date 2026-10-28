@@ -4,6 +4,7 @@
 // is here: excluded middle waits for the chapter where auto runs into it, De Morgan for the simplifier. Each level is
 // a pattern plus test cases (see era1.js).
 import { proof } from '../../kit/domains/logic/build.js'
+import { gates } from '../../kit/domains/logic/gates.js'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -12,25 +13,44 @@ const andSwap = proof({ f: ['impI', { A: 'A ∧ B' }], e: ['andE', {}, 'f'], i: 
 // 逆否: (A → B) → (¬B → ¬A), two boxes and a Chain (¬B is B → ⊥).
 const contra = proof({ f: ['impI', { A: 'A → B' }], g: ['impI', { A: '¬B' }, 'f'], t: ['chain', {}, 'g'] }, ['f#body>t.p0', 'g#body>t.p1', 't>g.body', 'g>f.body', 'f>goal'])
 const prove = (task) => ({ kind: 'proof', step: T('证明', 'Prove'), ...task })
+// A connective's declaration (gates.js `declare`): its ways to make it, wired from what each needs, checked against
+// the sentence said in words by its truth table. A reference board: ways { id: 'ctor' }, wires as for gates.
+const declare = (task) => ({ kind: 'gates', step: T('声明', 'Declare'), blind: true, parts: ['ctor'], ...task })
+const declared = (target, nodes, wires) => gates(nodes, wires, { target, declare: true })
 
 export const era2 = [
   {
     id: 'and',
-    kind: 'proof',
     // K and S, built at the end of the last chapter, are not this level's business.
     fold: ['axK', 'axS'],
     title: T('两个都要', 'Both of them'),
-    tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }],
-    cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
-    adds: ['andI', 'andE'],
-    brief: T('实现一个证明器，可以从已知「下雨 ∧ 刮风」，证明出「刮风 ∧ 下雨」。', 'Build a prover that, from “it rains ∧ it is windy”, proves “it is windy ∧ it rains”.'),
-    hint: [T('先拆开，再按新的顺序拼起来。', 'Take it apart, then put it back together in the new order.')],
     intro: [
       { t: T('<level-ref to="g-and"></level-ref>里的<part-ref to="part:gAnd"></part-ref>门：两边都真，才输出真。证明器里的「下雨 ∧ 刮风」也是这个意思：下雨，并且刮风。', 'The <part-ref to="part:gAnd"></part-ref> gate of <level-ref to="g-and"></level-ref>: true only when both sides are. In the prover “it rains ∧ it is windy” means the same: it rains, and it is windy.') },
-      { t: T('这一章的规则成对出现：一条造出它，一条用掉它。<part-ref to="part:andI"></part-ref>：有了左边，又有了右边，就有「左边 ∧ 右边」。<part-ref to="part:andE"></part-ref>：从一句「… ∧ …」拆出左边，也拆出右边，它有两个输出口。', 'This chapter’s rules come in pairs: one makes a connective, one uses it up. <part-ref to="part:andI"></part-ref>: from a left and a right, “left ∧ right”. <part-ref to="part:andE"></part-ref>: from an “… ∧ …”, its left, and also its right; it has two outputs.') },
-      { t: T('这一关不用框。', 'No box needed this time.') },
+      { t: T('可证明核里只有套用和假设框，没有「并且」。一个新的连接词要先<b>声明</b>：说清它有几种造法，每种造法要什么。这是把一句大白话的意思写成机器能懂的规格。声明写对了，核才由它生成用它的元件。', 'But the kernel has only Apply and the assumption box; there is no “and”. A new connective is <b>declared</b> first: how many ways there are to make it, and what each way needs. That writes an everyday meaning as a specification a machine can read. Once the declaration is right, the kernel makes the parts that use it.') },
     ],
-    solution: proof({ e: ['andE'], i: ['andI'] }, ['p>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>goal'], { premises: ['p'] }),
+    tasks: [
+      declare({
+        declare: T('并且', 'and'),
+        target: 'Rain ∧ Wind',
+        brief: T('「下雨，并且刮风」：下雨成立，刮风也成立，才算。写出「并且」的声明：放几张「一种造法」接进声明，每张造法接进它要的东西。', '“It rains and it is windy”: it holds only when both hold. Write the declaration of “and”: put ways to make it into the declaration, and wire into each way what it needs.'),
+        hint: [T('只有一种办法造出「下雨，并且刮风」：两样都要有。', 'There is one way to make “it rains and it is windy”: it needs both.')],
+        solution: declared('Rain ∧ Wind', { c: 'ctor' }, ['Rain>c.f1', 'Wind>c.f2', 'c>decl.c1']),
+        naive: declared('Rain ∧ Wind', { c1: 'ctor', c2: 'ctor' }, ['Rain>c1.f1', 'Wind>c2.f1', 'c1>decl.c1', 'c2>decl.c2']),
+        after: T('一种造法，两样都要。真值表只在两样都真的那一行为真，正是「并且」的意思。可测对了不等于证明了它对：规格只能拿例子去测。', 'One way, needing both. The truth table is true only on the row where both are, just what “and” means. Testing it right is not proving it right: a specification can only be tested on examples.'),
+      }),
+      prove({
+        tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }],
+        cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
+        adds: ['andI', 'andE'],
+        brief: T('实现一个证明器，可以从已知「下雨 ∧ 刮风」，证明出「刮风 ∧ 下雨」。', 'Build a prover that, from “it rains ∧ it is windy”, proves “it is windy ∧ it rains”.'),
+        hint: [T('先拆开，再按新的顺序拼起来。', 'Take it apart, then put it back together in the new order.')],
+        intro: [
+          { t: T('核由你的声明生成了两个元件。<part-ref to="part:andI"></part-ref>就是那一种造法：有了左边，又有了右边，就有「左边 ∧ 右边」。只有这一种造法，所以一份「… ∧ …」的证明里一定装着左边的和右边的：<part-ref to="part:andE"></part-ref>把它们各取出来，它有两个输出口（Lean 的 <code>And.intro</code>、<code>And.left</code>、<code>And.right</code>）。', 'The kernel made two parts from your declaration. <part-ref to="part:andI"></part-ref> is its one way to make it: from a left and a right, “left ∧ right”. There is only that way, so a proof of “… ∧ …” always holds a proof of the left and one of the right: <part-ref to="part:andE"></part-ref> takes each out, and has two outputs (Lean’s <code>And.intro</code>, <code>And.left</code>, <code>And.right</code>).') },
+          { t: T('这一关不用框。', 'No box needed this time.') },
+        ],
+        solution: proof({ e: ['andE'], i: ['andI'] }, ['p>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>goal'], { premises: ['p'] }),
+      }),
+    ],
     after: T('先拆后拼，换了个顺序。每个<wiki-ref to="connective"></wiki-ref>都有一条造它的规则、一条用它的规则：这样的规则体系叫<wiki-ref to="natural"></wiki-ref>。', 'Split, then join in the other order. Every <wiki-ref to="connective"></wiki-ref> has a rule that makes it and a rule that uses it: a system like that is called <wiki-ref to="natural"></wiki-ref>.'),
   },
   {
@@ -110,20 +130,34 @@ export const era2 = [
   },
   {
     id: 'or',
-    kind: 'proof',
     // K and S, built at the end of the last chapter, are not this level's business.
     fold: ['axK', 'axS'],
     title: T('二选一', 'One of two'),
-    tests: [{ premises: { p: 'A' }, goal: 'B ∨ (A ∨ B)' }],
-    cases: [{ A: 'Sat', B: 'Sun' }, { A: 'Bus', B: 'Bike' }],
-    adds: ['orI'],
-    brief: T('实现一个证明器，可以从已知「今天是周六」，证明出「今天是周日 ∨ (今天是周六 ∨ 今天是周日)」。', 'Build a prover that, from “today is Saturday”, proves “today is Sunday ∨ (today is Saturday ∨ today is Sunday)”.'),
-    hint: [T('从里往外：先引入「今天是周六 ∨ 今天是周日」（另一边放右边），再把它放到一句 ∨ 的右边。', 'From the inside out: first bring in “today is Saturday ∨ today is Sunday” (the other side on the right), then put that on the right of another ∨.')],
     intro: [
       { t: T('「今天是周末」的意思是：今天是周六，<b>或者</b>今天是周日。至少一个成立就行，两个都成立也算：这就是<level-ref to="g-or"></level-ref>里的<part-ref to="lemma:gOr"></part-ref>门。', '“It is the weekend” means: today is Saturday, <b>or</b> today is Sunday. At least one is enough, and both count too: just the <part-ref to="lemma:gOr"></part-ref> gate of <level-ref to="g-or"></level-ref>.') },
-      { t: T('<part-ref to="part:orI"></part-ref>：有了一句话，「它 ∨ 随便哪句」就成立。在元件上选另一边是哪句话，再选它放左边还是右边。', '<part-ref to="part:orI"></part-ref>: from a sentence, “it ∨ any other” holds. On the part, choose the other side and whether it goes left or right.') },
     ],
-    solution: proof({ i: ['orI', { other: 'B', side: 'right' }], j: ['orI', { other: 'B', side: 'left' }] }, ['p>i.a', 'i>j.a', 'j>goal'], { premises: ['p'] }),
+    tasks: [
+      declare({
+        declare: T('或者', 'or'),
+        target: 'Sat ∨ Sun',
+        brief: T('「今天是周六，或者今天是周日」：至少一个成立就算，两个都成立也算。写出「或者」的声明。', '“Today is Saturday or today is Sunday”: it holds when at least one holds, and when both do too. Write the declaration of “or”.'),
+        hint: [T('有两种办法造出它：今天是周六就行；今天是周日也行。', 'There are two ways to make it: Saturday will do; so will Sunday.')],
+        solution: declared('Sat ∨ Sun', { l: 'ctor', r: 'ctor' }, ['Sat>l.f1', 'Sun>r.f1', 'l>decl.c1', 'r>decl.c2']),
+        naive: declared('Sat ∨ Sun', { c: 'ctor' }, ['Sat>c.f1', 'Sun>c.f2', 'c>decl.c1']),
+        after: T('两种造法，一种要「今天是周六」，一种要「今天是周日」。两个都成立的那一行，两种造法都造得出：所以「或者」两个都成立也算。', 'Two ways, one needing “today is Saturday”, one needing “today is Sunday”. On the row where both hold, both ways can make it: so “or” holds when both do too.'),
+      }),
+      prove({
+        tests: [{ premises: { p: 'A' }, goal: 'B ∨ (A ∨ B)' }],
+        cases: [{ A: 'Sat', B: 'Sun' }, { A: 'Bus', B: 'Bike' }],
+        adds: ['orI'],
+        brief: T('实现一个证明器，可以从已知「今天是周六」，证明出「今天是周日 ∨ (今天是周六 ∨ 今天是周日)」。', 'Build a prover that, from “today is Saturday”, proves “today is Sunday ∨ (today is Saturday ∨ today is Sunday)”.'),
+        hint: [T('从里往外：先引入「今天是周六 ∨ 今天是周日」（另一边放右边），再把它放到一句 ∨ 的右边。', 'From the inside out: first bring in “today is Saturday ∨ today is Sunday” (the other side on the right), then put that on the right of another ∨.')],
+        intro: [
+          { t: T('核由你的声明生成了<part-ref to="part:orI"></part-ref>：有了一句话，「它 ∨ 随便哪句」就成立。元件上选它放左边还是右边，就是选两种造法里的哪一种（Lean 的 <code>Or.inl</code>、<code>Or.inr</code>）；再选另一边是哪句话。', 'The kernel made <part-ref to="part:orI"></part-ref> from your declaration: from a sentence, “it ∨ any other” holds. Choosing on the part whether it goes left or right chooses one of the two ways (Lean’s <code>Or.inl</code>, <code>Or.inr</code>); then choose the other side.') },
+        ],
+        solution: proof({ i: ['orI', { other: 'B', side: 'right' }], j: ['orI', { other: 'B', side: 'left' }] }, ['p>i.a', 'i>j.a', 'j>goal'], { premises: ['p'] }),
+      }),
+    ],
     after: T('知道「今天是周六」，就知道「今天是周日 ∨ 今天是周六」。反过来不行：只知道「今天是周日 ∨ 今天是周六」，并不知道是哪一边。要用掉一个 ∨，光有它还不够。', 'Knowing “today is Saturday”, you know “today is Sunday ∨ today is Saturday”. Not the other way round: “today is Sunday ∨ today is Saturday” does not say which side holds. Using up an ∨ takes more than the ∨ itself.'),
   },
   {
@@ -142,7 +176,7 @@ export const era2 = [
     intro: [
       { t: T('要么我坐公交，要么我骑车，可还不知道是哪一个。坐公交的话，我准时到；骑车的话，我也准时到。所以不管是哪一个，我准时到。', 'Either I take the bus or I cycle, and you do not know which. If I take the bus, I arrive on time; if I cycle, I arrive on time too. So whichever it is, I arrive on time.') },
       { t: T('光有「我坐公交 ∨ 我骑车」，不能直接拆出「我坐公交」：说不定是骑车。证明器的办法是<b>每一种情况都试一遍</b>：先假设是左边那种，证出结论；再假设是右边那种，也证出同一个结论。两种都通，结论就成立。', 'From “I take the bus ∨ I cycle” alone you cannot take out “I take the bus”: perhaps I cycled. The prover’s way is to <b>try every case</b>: assume the left one and prove the conclusion; assume the right one and prove the same conclusion. If both work, the conclusion holds.') },
-      { t: T('<part-ref to="part:orE"></part-ref>这块元件就是这样：它像一个假设框，只是<b>有两个框</b>。元件上标着「A ∨ B」的输入口接一句「左边 ∨ 右边」；元件下半部分是「情况一」「情况二」两个框，情况一的左上角给出「左边」，情况二的左上角给出「右边」，各当一个假设用。', '<part-ref to="part:orE"></part-ref> works just that way: it is like an assumption box, but with <b>two boxes</b>. The input marked “A ∨ B” on its part takes a “left ∨ right”; the lower half of the part holds the boxes Case one and Case two, and the top left of case one gives “left”, that of case two gives “right”, each an assumption to work with.') },
+      { t: T('你声明「或者」时，核还生成了用它的元件：一种造法一个框（Lean 的 <code>Or.elim</code>）。<part-ref to="part:orE"></part-ref>这块元件就是这样：它像一个假设框，只是<b>有两个框</b>。元件上标着「A ∨ B」的输入口接一句「左边 ∨ 右边」；元件下半部分是「情况一」「情况二」两个框，情况一的左上角给出「左边」，情况二的左上角给出「右边」，各当一个假设用。', 'When you declared “or”, the kernel also made the part that uses it: one box for each way to make it (Lean’s <code>Or.elim</code>). <part-ref to="part:orE"></part-ref> works just that way: it is like an assumption box, but with <b>two boxes</b>. The input marked “A ∨ B” on its part takes a “left ∨ right”; the lower half of the part holds the boxes Case one and Case two, and the top left of case one gives “left”, that of case two gives “right”, each an assumption to work with.') },
       { t: T('在两个框里分别证出<b>同一句话</b>，接到各自右上角的「结论」，元件右上角的输出就给出这句话。两个框证出的不一样，元件会提示你。', 'Prove the <b>same sentence</b> in each box and wire it to that box’s “Conclusion” at its top right, and the output at the part’s top right gives that sentence. If the two boxes prove different things, the part says so.') },
     ],
     solution: proof({ e: ['orE'], m: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>e.left', 'r>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q', 'r'] }),
@@ -189,25 +223,39 @@ export const era2 = [
   },
   {
     id: 'bot',
-    kind: 'proof',
     // K and S, built at the end of the last chapter, are not this level's business.
     fold: ['axK', 'axS'],
     title: T('矛盾', 'Contradiction'),
     symbols: ['⊥'],
-    tests: [{ premises: { p: 'A', q: '¬A' }, goal: 'B' }],
-    cases: [{ A: 'Locked', B: 'Moon' }, { A: 'Rain', B: 'Pigs' }],
-    adds: ['botE'],
-    brief: T('实现一个证明器，可以由「门锁着」和「¬门锁着」证明出「月亮是奶酪做的」。', 'Build a prover that, from “the door is locked” and “¬the door is locked”, proves “the moon is made of cheese”.'),
-    hint: [
-      T('「¬门锁着」就是「门锁着 → ⊥」：把它接进套用的「A → B」口，「门锁着」接进「A」口，得到 ⊥。', '“¬the door is locked” is “the door is locked → ⊥”: wire it into Apply’s “A → B” input and “the door is locked” into its “A” input, and you get ⊥.'),
-      T('得到 ⊥ 以后，用<part-ref to="part:botE"></part-ref>，元件上选「月亮是奶酪做的」。', 'Once you have ⊥, use <part-ref to="part:botE"></part-ref> and choose “the moon is made of cheese” on its part.'),
-    ],
     intro: [
       { t: T('一个证人先说「门锁着」，又说「门没锁」。两句不可能都对。', 'A witness says “the door is locked”, then “the door is not locked”. Both cannot be true.') },
       { t: T('<level-ref to="g-never"></level-ref>里见过<wiki-ref to="contradiction"></wiki-ref>：每一行都假的话。证明器把它写成一个符号 <b>⊥</b>。「非」写成 <b>¬</b>（<level-ref to="g-not"></level-ref>里的<part-ref to="part:gNot"></part-ref>门），证明器没有专门管 ¬ 的元件，它这样读：<br><b>¬门锁着　就是　门锁着 → ⊥</b><br>「门没锁」和「若门锁着，则矛盾」是同一句话，所以「¬门锁着」可以直接接进要「若…则…」的口。', 'You met the <wiki-ref to="contradiction"></wiki-ref> in <level-ref to="g-never"></level-ref>: a sentence false on every row. The prover writes it as one symbol, <b>⊥</b>. “Not” is written <b>¬</b> (the <part-ref to="part:gNot"></part-ref> gate of <level-ref to="g-not"></level-ref>); the prover has no part for ¬ and reads it like this:<br><b>¬the door is locked　is　the door is locked → ⊥</b><br>“The door is not locked” and “if the door is locked, then a contradiction” are the same sentence, so “¬the door is locked” goes straight into an input that wants an “if … then …”.') },
-      { t: T('这是<wiki-ref to="explosion"></wiki-ref>：有了 ⊥，元件上选什么，就能证出什么。', 'This is <wiki-ref to="explosion"></wiki-ref>: from ⊥, prove whatever is chosen on the part.') },
     ],
-    solution: proof({ m: ['mp'], b: ['botE', { C: 'B' }] }, ['q>m.imp', 'p>m.a', 'm>b.bot', 'b>goal'], { premises: ['p', 'q'] }),
+    tasks: [
+      declare({
+        declare: T('矛盾', 'contradiction'),
+        target: '⊥',
+        brief: T('矛盾 ⊥：一句怎样都不可能成立的话。写出它的声明。', 'The contradiction ⊥: a sentence that can never hold. Write its declaration.'),
+        hint: [T('怎样都造不出来，就是一种造法都没有。', 'Never made at all means no way to make it.')],
+        solution: declared('⊥', {}, []),
+        naive: declared('⊥', { c: 'ctor' }, ['c>decl.c1']),
+        after: T('一种造法都没有，⊥ 就永远造不出来。声明里什么都不放，也是一份声明。', 'With no way to make it, ⊥ can never be made. A declaration with nothing in it is still a declaration.'),
+      }),
+      prove({
+        tests: [{ premises: { p: 'A', q: '¬A' }, goal: 'B' }],
+        cases: [{ A: 'Locked', B: 'Moon' }, { A: 'Rain', B: 'Pigs' }],
+        adds: ['botE'],
+        brief: T('实现一个证明器，可以由「门锁着」和「¬门锁着」证明出「月亮是奶酪做的」。', 'Build a prover that, from “the door is locked” and “¬the door is locked”, proves “the moon is made of cheese”.'),
+        hint: [
+          T('「¬门锁着」就是「门锁着 → ⊥」：把它接进套用的「A → B」口，「门锁着」接进「A」口，得到 ⊥。', '“¬the door is locked” is “the door is locked → ⊥”: wire it into Apply’s “A → B” input and “the door is locked” into its “A” input, and you get ⊥.'),
+          T('得到 ⊥ 以后，用<part-ref to="part:botE"></part-ref>，元件上选「月亮是奶酪做的」。', 'Once you have ⊥, use <part-ref to="part:botE"></part-ref> and choose “the moon is made of cheese” on its part.'),
+        ],
+        intro: [
+          { t: T('核由你的声明生成了用 ⊥ 的元件<part-ref to="part:botE"></part-ref>。用一句声明出来的话，要对它的每一种造法各证一遍；⊥ 一种造法都没有，所以什么都不用证，想要什么都行。这是<wiki-ref to="explosion"></wiki-ref>：有了 ⊥，元件上选什么，就能证出什么（Lean 的 <code>False.elim</code>）。', 'The kernel made the part that uses ⊥ from your declaration: <part-ref to="part:botE"></part-ref>. Using a declared sentence means proving the goal once for each way to make it; ⊥ has no way at all, so there is nothing to prove, and anything follows. This is <wiki-ref to="explosion"></wiki-ref>: from ⊥, prove whatever is chosen on the part (Lean’s <code>False.elim</code>).') },
+        ],
+        solution: proof({ m: ['mp'], b: ['botE', { C: 'B' }] }, ['q>m.imp', 'p>m.a', 'm>b.bot', 'b>goal'], { premises: ['p', 'q'] }),
+      }),
+    ],
     after: T('证词自相矛盾，就什么都能「证」出来，连「月亮是奶酪做的」也行。一组已知一旦矛盾就毫无用处：这是逻辑拼命要避开矛盾的原因。', 'Contradictory testimony “proves” anything, even “the moon is made of cheese”. A set of givens that contradicts itself is useless: that is why logic works so hard to avoid contradiction.'),
   },
   {

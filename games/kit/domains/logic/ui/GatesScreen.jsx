@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { ArrowRightFromLine, CircleDot, Cpu, ToggleLeft } from 'lucide-react'
+import { ArrowRightFromLine, CircleDot, Cpu, FileSignature, ToggleLeft } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
@@ -7,7 +7,7 @@ import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, us
 import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
+import { DECLARE_PARTS, PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
 
 // A truth-circuit level (《证明完毕》, gates.js) on the shared circuit editor: a card for each letter on the left, the
 // sentence's output on the right, gates as parts. The tests are the rows of the sentence's truth table, picked in the table itself (no row tabs, whose labels would
@@ -16,22 +16,24 @@ import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, star
 // filling it in (../../../shell/usePlayback.jsx, each row a test of no steps): each row's card values and result show
 // in turn, and the run stops on the first row it gets wrong. A `hideTarget`
 // level does not show the target value column; a `blind` one does not show its sentence either: it is a puzzle said in
-// words.
+// words. A declaration (gates.js `declare`) is the same board ending in its declaration card instead of the output.
 
 const TF = (v) => (v === undefined ? '—' : v ? tr('真', 'T') : tr('假', 'F'))
 const T = (zh, en) => ({ zh, en })
 const WRONG_ROW = T('这一行算错了', 'This row is wrong')
 const SOURCE = T('输入', 'Input')
 /** The editor's description of a board of gates (../../circuit/model.js), with a level's words for its letters. */
-function gatePartsFor(built, wordOf) {
-  const all = gatesOf(built)
+const PORT_NAMES = { f1: T('要', 'Needs'), f2: T('要', 'Needs'), f3: T('要', 'Needs'), c1: T('造法', 'Way'), c2: T('造法', 'Way'), c3: T('造法', 'Way') }
+function gatePartsFor(level, wordOf) {
+  const all = gatesOf(level.gates)
+  const end = (node) => node.type === 'out' || node.type === 'decl'
   return {
     inputs: (node) => (node.type === 'out' ? ['in'] : node.type === 'letter' ? [] : all[node.type]?.ports ?? []),
-    role: (node) => (node.type === 'letter' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
-    label: (node) => (node.type === 'letter' ? wordOf(node.params.name) ?? SOURCE : node.type === 'out' ? T('这句话', 'The sentence') : all[node.type]?.name ?? node.type),
-    portLabel: (node, port) => (all[node.type] && all[node.type].ports.length > 1 ? port : ''),
-    family: (node) => (node.type === 'letter' ? 'given' : node.type === 'out' ? 'end' : PRIMITIVE_GATES[node.type] ? 'gate' : 'built'),
-    icon: (node) => (node.type === 'letter' ? ArrowRightFromLine : node.type === 'out' ? CircleDot : PRIMITIVE_GATES[node.type] ? ToggleLeft : Cpu),
+    role: (node) => (node.type === 'letter' ? 'source' : end(node) ? 'sink' : 'part'),
+    label: (node) => (node.type === 'letter' ? wordOf(node.params.name) ?? SOURCE : node.type === 'out' ? T('这句话', 'The sentence') : node.type === 'decl' ? T(`声明「${level.declare.zh}」`, `Declaring “${level.declare.en}”`) : all[node.type]?.name ?? node.type),
+    portLabel: (node, port) => (PORT_NAMES[port] && DECLARE_PARTS[node.type] ? PORT_NAMES[port] : all[node.type] && all[node.type].ports.length > 1 ? port : ''),
+    family: (node) => (node.type === 'letter' ? 'given' : end(node) ? 'end' : PRIMITIVE_GATES[node.type] || DECLARE_PARTS[node.type] ? 'gate' : 'built'),
+    icon: (node) => (node.type === 'letter' ? ArrowRightFromLine : node.type === 'out' ? CircleDot : DECLARE_PARTS[node.type] ? FileSignature : PRIMITIVE_GATES[node.type] ? ToggleLeft : Cpu),
     cardWidth: (node) => (node.type === 'letter' || node.type === 'out' ? 170 : 140),
     rules: all,
   }
@@ -40,13 +42,13 @@ function gatePartsFor(built, wordOf) {
 // A saved board still fits: its letters are the level's, and every card is a gate it knows.
 const fits = (circuit, level, parts) => {
   const letters = circuit.nodes.filter((n) => n.type === 'letter').map((n) => n.params.name).sort().join()
-  return letters === [...rowsFor(level).letters].sort().join() && circuit.nodes.every((n) => n.type === 'letter' || n.type === 'out' || parts.rules[n.type])
+  return letters === [...rowsFor(level).letters].sort().join() && circuit.nodes.some((n) => n.type === (level.declare ? 'decl' : 'out')) && circuit.nodes.every((n) => n.type === 'letter' || n.type === 'out' || parts.rules[n.type])
 }
 
 export default function GatesScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, flags, phone }) {
   const level = entry.source
   const word = (letter) => say(parse(letter), level.notation)
-  const parts = useMemo(() => gatePartsFor(level.gates, word), [level])
+  const parts = useMemo(() => gatePartsFor(level, word), [level])
   const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved, level, parts) ? saved : startGates(level)))
   const [rowIndex, setRowIndex] = useState(0)
   const { letters, rows } = useMemo(() => rowsFor(level), [level])
@@ -68,7 +70,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
     count: rows.length,
     stepsOf: () => [],
     check: (k) => (checked.results[k].pass ? '' : WRONG_ROW),
-    final: () => (checked.overBudget ? tr(`每一行都对，但用了 ${checked.gates} 个门，这一关最多 ${level.budget} 个。`, `Every row is right, but it takes ${checked.gates} gates; this level allows ${level.budget}.`) : ''),
+    final: () => (checked.shape ? L(checked.shape) : checked.overBudget ? tr(`每一行都对，但用了 ${checked.gates} 个门，这一关最多 ${level.budget} 个。`, `Every row is right, but it takes ${checked.gates} gates; this level allows ${level.budget}.`) : ''),
     onSolve: () => solve({ steps: checked.gates }),
     onTest: setRowIndex,
     board: circuit,
@@ -91,9 +93,9 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
   const states = playback.states
   const verdict = run?.over ? { pass: playback.passed } : null
   const verdictText = !verdict ? null
-    : verdict.pass ? tr('每一行都对：这块电路算出了这句话的整张真值表。', 'Every row is right: this board computes the sentence’s whole truth table.')
+    : verdict.pass ? (level.declare ? tr('每一行都对：这份声明说的正是这句话。', 'Every row is right: this declaration says just what the sentence says.') : tr('每一行都对：这块电路算出了这句话的整张真值表。', 'Every row is right: this board computes the sentence’s whole truth table.'))
     : run.final || tr('这一行算错了，机器停在了这里：板上每个元件显示的是它在这一行算出的值。', 'This row is wrong, and the machine stopped here: every part on the board shows what it computed on this row.')
-  const valueOf = (node) => (node.type === 'out' ? view.value : view.values.get(node.id))
+  const valueOf = (node) => (node.type === 'out' || node.type === 'decl' ? view.value : view.values.get(node.id))
   const errorOf = (node) => view.errors.get(node.id)
 
   const itemOf = (type) => ({ type, label: parts.rules[type].name, desc: parts.rules[type].desc, icon: parts.icon({ type }), family: parts.family({ type }), fresh: entry.fresh?.includes(type) })
@@ -104,7 +106,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
     <Brief game={game} level={entry} hint={level.hint} phone={phone}>
       <section className="lg-score">
         <div className="stat-row">
-          <div className="stat"><b>{countGates(level, circuit)}</b><span>{tr('门', 'Gates')}</span></div>
+          <div className="stat"><b>{countGates(level, circuit)}</b><span>{level.declare ? tr('元件', 'Cards') : tr('门', 'Gates')}</span></div>
           {level.budget !== undefined && <div className="stat"><b>{level.budget}</b><span>{tr('最多', 'At most')}</span></div>}
         </div>
       </section>
@@ -115,7 +117,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
       {!level.blind && <p className="lg-sequent">{tr('这句话', 'The sentence')} <b>{sentence}</b></p>}
       <table className="lg-rows">
         <thead>
-          <tr>{letters.map((l) => <th key={l}>{L(word(l))}</th>)}{!hideTarget && <th>{tr('目标真值', 'Target value')}</th>}<th>{tr('电路输出', 'Board output')}</th></tr>
+          <tr>{letters.map((l) => <th key={l}>{L(word(l))}</th>)}{!hideTarget && <th>{tr('目标真值', 'Target value')}</th>}<th>{level.declare ? tr('声明给出', 'Declared') : tr('电路输出', 'Board output')}</th></tr>
         </thead>
         <tbody>
           {rows.map((r, k) => (

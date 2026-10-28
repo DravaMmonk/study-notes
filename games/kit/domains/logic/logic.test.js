@@ -1,5 +1,6 @@
 // node --test games/kit/domains/logic — formulas, rules as parts, boxes, and countermodels. Proofs are written as a
 // level's spec writes them (build.js).
+import { checkGates, declarationShape, gates } from './gates.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { runLevel } from '../../engine/tests.js'
@@ -394,4 +395,16 @@ test('a script: each row by a rule or a block, checked row by row', async () => 
   assert.equal(wrong.pass, false)
   assert.ok(wrong.rows[2] && !wrong.rows[3])
   assert.equal(checkScript(level, rows('rule:mp').slice(0, 3)).pass, false)
+})
+
+test('a declaration means its truth table, and keeps to its shape: no need twice, no way needing more than another', () => {
+  const or = { target: 'Sat ∨ Sun', declare: true }
+  const board = (nodes, wires) => gates(nodes, wires, or)
+  assert.ok(checkGates(or, board({ l: 'ctor', r: 'ctor' }, ['Sat>l.f1', 'Sun>r.f1', 'l>decl.c1', 'r>decl.c2'])).pass)
+  assert.equal(checkGates(or, board({ c: 'ctor' }, ['Sat>c.f1', 'Sun>c.f2', 'c>decl.c1'])).pass, false)
+  const extra = checkGates(or, board({ l: 'ctor', r: 'ctor', b: 'ctor' }, ['Sat>l.f1', 'Sun>r.f1', 'Sat>b.f1', 'Sun>b.f2', 'l>decl.c1', 'r>decl.c2', 'b>decl.c3']))
+  assert.ok(extra.results.every((r) => r.pass) && extra.shape)
+  assert.ok(declarationShape(board({ c: 'ctor' }, ['Sat>c.f1', 'Sat>c.f2', 'c>decl.c1'])))
+  const bot = { target: '⊥', declare: true }
+  assert.ok(checkGates(bot, gates({}, [], bot)).pass)
 })
