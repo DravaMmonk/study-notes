@@ -50,6 +50,8 @@
 //                                          box and on no map label; text names it plainly, not as a link.
 //   needed(level) → [part] | null          the parts its reference answer uses (null: no reference to go by)
 //   folds(level) → [part]                  parts the level's spec folds away anyway
+//   staples      [part]                    parts every level holding them shows, whatever its answer uses (tools the player
+//                                          reaches for all the time)
 //   showcase(level) → reason | null        why a level shows a new part alone, wired to the goal by itself: only for
 //                                          a part whose use is abstract enough to get wrong from its description
 //                                          (an assumption box), never for one a sentence explains (a block gate). The
@@ -184,7 +186,7 @@ export function layout(eras) {
 // A showcase's reason, written plainly or in each language.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, folds = () => [], showcase = () => null, abstraction = false }) {
+export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, folds = () => [], staples = [], showcase = () => null, abstraction = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -206,7 +208,7 @@ export function defineCourse({ levels, eras = null, primitives, adds, needs, bui
   // lets through only the parts on it; one that keeps 'all' lets everything through.
   const eraOf = (id) => (plan ? eras.findIndex((e) => e.id === plan.place.get(id)?.era) : 0)
   const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => e.keeps === 'all' || e.keeps?.includes(part)) ?? true
-  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, folds, showcase, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, folds, staples: new Set(staples), showcase, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -265,7 +267,7 @@ export function offer(course, level, flags, also = []) {
   const fold = new Set(course.folds(level))
   // What the level brings is shown, but for its givens: only those its answer uses.
   const brought = (p) => own.has(p) && course.concept(p) !== null
-  const shows = (p) => !fold.has(p) && (brought(p) || just.has(p) || !ideas || ideas.has(idea(p)))
+  const shows = (p) => !fold.has(p) && (brought(p) || just.has(p) || course.staples.has(p) || !ideas || ideas.has(idea(p)))
   return { shown: all.filter(shows), folded: all.filter((p) => !shows(p)) }
 }
 
