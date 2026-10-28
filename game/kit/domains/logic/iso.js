@@ -15,7 +15,10 @@
 // it cannot, nothing is made. A specification is tested on situations, not proved.
 //
 // A level: { kind: 'iso', declare: { zh, en } the connective's name, target: its sentence (for the rules' words),
-// letters: [letter], tests: [{ have: { letter: n }, make: bool }] }.
+// sentences: [sentence] an assumption card may pick (letters, or sentences like "A → B"), tests: [{ have:
+// { sentence: n }, make: bool }], tray: the cards it offers (['hyp'] unless it says; 'none' assumes nothing, a way that
+// needs no proof, Lean's `True.intro`), ways: the rules the declaration must have, when the situations alone cannot
+// tell (a way's assumptions in order, [[sentence]]) }.
 import { runBoard } from '../../engine/boards.js'
 import { imp, parse } from './formula.js'
 
@@ -24,7 +27,7 @@ export const DECL = 'decl'
 const MOST = 3
 const wayPort = (k) => `c${k}`
 const caseId = (k) => `case-${k}`
-const cardId = (letter) => `hyp-${letter}`
+const cardId = (token) => `hyp-${token}`
 
 /** How many ways the connective's card has wired (its inputs are one more, up to three). */
 export const waysOf = (node) => node.params?.ways ?? 0
@@ -41,6 +44,8 @@ export const ISO_PARTS = {
     bare: true,
     eval: ({ before }, node) => ({ kind: 'rule', needs: [...(before?.needs ?? []), node.params.name] }),
   },
+  // Assuming nothing: a way that needs no proof.
+  none: { inputs: [], bare: true, eval: () => ({ kind: 'rule', needs: [] }) },
   // The connective is made by the first way all of whose assumptions are at hand; with none, it is not made.
   [DECL]: {
     inputs: declInputs,
@@ -92,7 +97,21 @@ export function runIso(level, circuit, test) {
   return { ...run, made: run.values.get(DECL) ?? null }
 }
 
-/** Every test checked: { pass, results: [{ pass, reason, made, back }] }; words(letter) gives a letter's words. */
+/** The rules wired into the connective, in the order of its ways: each the sentences it assumes, in turn. */
+export function waysIn(circuit) {
+  const run = runBoard(circuit, { parts: ISO_PARTS, bind: {} })
+  const decl = circuit.nodes.find((n) => n.id === DECL)
+  return declInputs(decl).flatMap((port) => {
+    const wire = circuit.wires.find((w) => w.to === DECL && w.port === port)
+    const rule = wire && run.values.get(wire.from)
+    return rule ? [rule.needs] : []
+  })
+}
+
+/**
+ * Every test checked: { pass, results: [{ pass, reason, made, back }], ways }; words(sentence) gives a sentence's
+ * words. `ways` says why the rules are not the ones the level asks for (level.ways), when every situation is right.
+ */
 export function checkIso(level, circuit, words) {
   const name = level.declare
   const results = level.tests.map((test) => {
@@ -109,7 +128,11 @@ export function checkIso(level, circuit, words) {
     const pass = Boolean(back) && back.items.length === run.made.items.length && back.items.every((x, k) => x === run.made.items[k])
     return { pass, reason: pass ? null : T('拆开没有取回交进去的证明', 'Taken apart, it does not give back the proofs handed in'), ...run }
   })
-  return { pass: results.every((r) => r.pass), results }
+  const key = (ways) => ways.map((w) => w.join('|')).sort().join('/')
+  const ways = level.ways && key(waysIn(circuit)) !== key(level.ways)
+    ? T(`每种情况都对，但造法不是要求的那条：${level.ways.map((w) => w.map((s) => words(s).zh).join(' → ')).join('；')} → 「${name.zh}」`, `Every situation is right, but the way is not the one asked for: ${level.ways.map((w) => w.map((s) => words(s).en).join(' → ')).join('; ')} → “${name.en}”`)
+    : null
+  return { pass: results.every((r) => r.pass) && !ways, results, ways }
 }
 
 /** A rule as a sentence, the way Lean writes a constructor's type: its assumptions in turn, then the connective. */
@@ -118,19 +141,26 @@ export const ruleFormula = (rule, level) => rule.needs.reduceRight((then, letter
 /** The board a level starts from: the connective, with no way yet. */
 export const startIso = () => ({ nodes: [{ id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 320, y: 40 }], wires: [] })
 
-/** An assumption card for `letter`, as the tray gives it. */
-export const hypCard = (id, letter, at) => ({ id, type: 'hyp', params: { name: letter }, ...at })
+/** An assumption card for `sentence`, as the tray gives it. */
+export const hypCard = (id, sentence, at) => ({ id, type: 'hyp', params: { name: sentence }, ...at })
 
 /**
  * A reference board written compactly: isoBoard(['Rain>Wind', 'Wind>1']): a card assuming Rain wired into the
- * "assumed first" of a card assuming Wind, the Wind card into the connective's first way.
+ * "assumed first" of a card assuming Wind, the Wind card into the connective's first way. A card is named by its
+ * sentence, or by a key of `cards` ({ key: sentence }) when it is not a letter or two cards assume one sentence; '∅'
+ * assumes nothing.
  */
-export function isoBoard(wires) {
+export function isoBoard(wires, cards = {}) {
   const pairs = wires.map((s) => s.split('>'))
-  const letters = [...new Set(pairs.flatMap(([from, to]) => (/^\d$/.test(to) ? [from] : [from, to])))]
+  const tokens = [...new Set(pairs.flatMap(([from, to]) => (/^\d$/.test(to) ? [from] : [from, to])))]
+  const card = (token, k) => {
+    const at = { x: 20, y: 40 + k * 200 }
+    return token === '∅' ? { id: cardId('none'), type: 'none', params: {}, ...at } : hypCard(cardId(token), cards[token] ?? token, at)
+  }
+  const id = (token) => cardId(token === '∅' ? 'none' : token)
   const start = startIso()
   return settle({
-    nodes: [...start.nodes, ...letters.map((l, k) => hypCard(cardId(l), l, { x: 20, y: 40 + k * 200 }))],
-    wires: pairs.map(([from, to]) => (/^\d$/.test(to) ? { from: cardId(from), to: DECL, port: wayPort(Number(to)) } : { from: cardId(from), to: cardId(to), port: 'before' })),
+    nodes: [...start.nodes, ...tokens.map(card)],
+    wires: pairs.map(([from, to]) => (/^\d$/.test(to) ? { from: id(from), to: DECL, port: wayPort(Number(to)) } : { from: id(from), to: id(to), port: 'before' })),
   })
 }

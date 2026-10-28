@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { FileSignature, PackageOpen, SquareDashedText } from 'lucide-react'
+import { CircleDashed, FileSignature, PackageOpen, SquareDashedText } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
@@ -17,19 +17,20 @@ import { PROOF } from './boards.jsx'
 // case gets back. Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
 
 const T = (zh, en) => ({ zh, en })
-const CIRCLED = ['①', '②', '③']
+// Ways and their cases are named apart from the board's own part numbers (①②…).
+const WAY = [T('甲', 'A'), T('乙', 'B'), T('丙', 'C')]
 
-/** The editor's description of the board (../../circuit/model.js), with the level's words for its letters. */
+/** The editor's description of the board (../../circuit/model.js), with the level's words for its sentences. */
 function isoPartsFor(level, words) {
   return {
-    inputs: (node) => (node.type === 'hyp' ? ['before'] : node.type === DECL ? declInputs(node) : node.type === 'case' ? ['p'] : []),
+    inputs: (node) => (node.type === 'hyp' ? ['before'] : node.type === 'none' ? [] : node.type === DECL ? declInputs(node) : node.type === 'case' ? ['p'] : []),
     role: (node) => (node.type === 'case' ? 'sink' : 'part'),
-    label: (node) => (node.type === 'hyp' ? T('假设', 'Assume')
+    label: (node) => (node.type === 'hyp' ? T('假设', 'Assume') : node.type === 'none' ? NONE.label
       : node.type === DECL ? T(`「${level.declare.zh}」`, `“${level.declare.en}”`)
-      : T(`拆法 ${CIRCLED[node.params.k - 1]}`, `Case ${CIRCLED[node.params.k - 1]}`)),
-    portLabel: (node, port) => (node.type === DECL ? T(`造法 ${CIRCLED[Number(port.slice(1)) - 1]}`, `Way ${CIRCLED[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' ? T('先假设', 'Assumed first') : ''),
-    family: (node) => (node.type === 'hyp' ? 'box' : node.type === DECL ? 'lemma' : 'given'),
-    icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === DECL ? FileSignature : PackageOpen),
+      : T(`拆法${WAY[node.params.k - 1].zh}`, `Case ${WAY[node.params.k - 1].en}`)),
+    portLabel: (node, port) => (node.type === DECL ? T(`造法${WAY[Number(port.slice(1)) - 1].zh}`, `Way ${WAY[Number(port.slice(1)) - 1].en}`) : node.type === 'hyp' ? T('先假设', 'Assumed first') : ''),
+    family: (node) => (node.type === 'hyp' || node.type === 'none' ? 'box' : node.type === DECL ? 'lemma' : 'given'),
+    icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === 'none' ? CircleDashed : node.type === DECL ? FileSignature : PackageOpen),
     cardWidth: () => 220,
     rules: ISO_PARTS,
   }
@@ -38,6 +39,8 @@ function isoPartsFor(level, words) {
 const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => n.type === 'hyp' && n.locked) && circuit.wires.every((w) => !w.to.startsWith('hyp-') || w.port === 'before')
 const HYP_DESC = T('假设一句话。一张假设接进它的「先假设」，就是先假设那句、再假设这句；它接进连接词的造法口，这一串就是一种造法。', 'Assume a sentence. An assumption wired into its “assumed first” is assumed before it; wired into a way of the connective, the chain is one way to make it.')
 const HYP = { type: 'hyp', label: T('假设', 'Assume'), desc: HYP_DESC, icon: SquareDashedText, family: 'box' }
+const NONE = { type: 'none', label: T('不用假设', 'Assume nothing'), desc: T('什么都不假设。接进连接词的造法口，这种造法不要任何证明就能造。', 'Assume nothing. Wired into a way of the connective, that way makes it with no proof at all.'), icon: CircleDashed, family: 'box' }
+const TRAY = { hyp: HYP, none: NONE }
 
 export default function IsoScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
@@ -54,17 +57,18 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     setCircuit(settled)
     save(settled)
   }
-  // A card from the tray assumes, to begin with, the first sentence no card on the board assumes yet.
-  const addHyp = (at) => {
+  // A card from the tray; an assumption assumes, to begin with, the first sentence no card on the board assumes yet.
+  const addPart = (type, at) => {
     const taken = new Set(circuit.nodes.map((n) => n.id))
     let k = 1
-    while (taken.has(`hyp-${k}`)) k += 1
+    while (taken.has(`${type}-${k}`)) k += 1
+    const id = `${type}-${k}`
     const used = new Set(circuit.nodes.filter((n) => n.type === 'hyp').map((n) => n.params.name))
-    const id = `hyp-${k}`
-    return { id, graph: { ...circuit, nodes: [...circuit.nodes, hypCard(id, level.letters.find((l) => !used.has(l)) ?? level.letters[0], at)] } }
+    const node = type === 'hyp' ? hypCard(id, level.sentences.find((l) => !used.has(l)) ?? level.sentences[0], at) : { id, type, params: {}, ...at }
+    return { id, graph: { ...circuit, nodes: [...circuit.nodes, node] } }
   }
   const pick = (node, name) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, name } } : n)) })
-  const choices = level.letters.map((l) => ({ value: l, label: L(words(l)) }))
+  const choices = level.sentences.map((l) => ({ value: l, label: L(words(l)) }))
   const onClear = circuit.wires.some((w) => !w.locked) || circuit.nodes.some((n) => n.in) ? () => change(startIso()) : null
   const checked = useMemo(() => checkIso(level, circuit, words), [level, circuit])
   const ways = circuit.nodes.find((n) => n.id === DECL)?.params.ways ?? 0
@@ -72,6 +76,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     count: level.tests.length,
     stepsOf: () => [],
     check: (k) => (checked.results[k].pass ? '' : L(checked.results[k].reason)),
+    final: () => (checked.ways ? L(checked.ways) : ''),
     onSolve: () => solve({ steps: ways }),
     onTest: setTestIndex,
     board: circuit,
@@ -84,7 +89,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const failed = run?.over && !playback.passed ? checked.results[run.results.length - 1] : null
   const verdictText = !verdict ? null : verdict.pass
     ? tr('每一种情况都对：证得出的时候，那种造法的拆法正好取回交进去的证明；证不出的时候，哪种造法都凑不齐。', 'Every situation is right: when it is proved, the case of the way it was made by gets back the very proofs handed in; when it is not, no way has all it needs.')
-    : L(failed.reason)
+    : run.final || L(failed.reason)
 
   // What each card says in the situation picked.
   const ruleInto = (k) => {
@@ -97,12 +102,13 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const text = (f) => L(say(f, level.notation))
   const Value = ({ f }) => <PROOF.Value v={{ formula: f, hyps: new Map() }} text={text} />
   const body = (node, at = 'card') => {
+    if (node.type === 'none') return null
     if (node.type === 'hyp') {
       if (at === 'tile') return <div className="lg-card"><Value f={parse(node.params.name)} /></div>
       return <div className="lg-card"><FormulaField label={T('假设', 'Assume')} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /></div>
     }
     if (node.type === DECL) {
-      const way = (k) => (at === 'sheet' ? tr(`造法 ${CIRCLED[k]}`, `Way ${CIRCLED[k]}`) : CIRCLED[k])
+      const way = (k) => (at === 'sheet' ? tr(`造法${WAY[k].zh}`, `Way ${WAY[k].en}`) : L(WAY[k]))
       return (
         <div className="lg-card">
           {Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <span key={k} className="lg-out"><em>{way(k)}</em><Value f={ruleFormula(rule, level)} /></span>)}
@@ -111,7 +117,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
       )
     }
     const back = view.values.get(node.id)
-    return <div className="lg-card">{back ? back.items.map((x, k) => <Value key={k} f={parse(x.letter)} />) : <i className="lg-mark">{tr('没有', 'Nothing')}</i>}</div>
+    return <div className="lg-card">{back?.items.length ? back.items.map((x, k) => <Value key={k} f={parse(x.letter)} />) : <i className="lg-mark">{back ? tr('这种造法没交进证明', 'This way took no proof') : tr('没有', 'Nothing')}</i>}</div>
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
@@ -121,7 +127,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
         <table className="lg-rows">
           <thead>
             <tr>
-              {level.letters.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
+              {level.sentences.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
               <th>{tr(`「${level.declare.zh}」`, `“${level.declare.en}”`)}</th>
               <th>{tr('拆法取回', 'Case gets back')}</th>
             </tr>
@@ -133,8 +139,8 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
               const back = r.made && r.values.get(`case-${r.made.way}`)
               return (
                 <tr key={k} className={`${t === test ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => setTestIndex(k)}>
-                  {level.letters.map((l) => <td key={l}>{t.have[l] ? `#${t.have[l]}` : '—'}</td>)}
-                  <td>{shownRow ? (r.made ? tr(`证得出 ${CIRCLED[r.made.way - 1]}`, `Proved ${CIRCLED[r.made.way - 1]}`) : tr('证不出', 'Not proved')) : ''}</td>
+                  {level.sentences.map((l) => <td key={l}>{t.have[l] ? `#${t.have[l]}` : '—'}</td>)}
+                  <td>{shownRow ? (r.made ? tr(`证得出：${WAY[r.made.way - 1].zh}`, `Proved: ${WAY[r.made.way - 1].en}`) : tr('证不出', 'Not proved')) : ''}</td>
                   <td>{shownRow && back ? back.items.map((x) => `#${x.n}`).join(' · ') : ''}</td>
                 </tr>
               )
@@ -147,12 +153,12 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   )
   const dock = <RunDock {...playback.dock({ go: tr('每种情况试一遍', 'Try every situation'), done: tr('每种情况都对', 'Every situation right') })} />
 
-  const items = [HYP]
-  const add = () => {
+  const items = (level.tray ?? ['hyp']).map((t) => TRAY[t])
+  const add = (type) => {
     const [x, y] = spotIn(circuit, null)
-    change(addHyp({ x, y }).graph)
+    change(addPart(type, { x, y }).graph)
   }
-  if (phone) return <PhoneIso {...{ circuit, parts, items, addHyp, brief, dock, change, onClear, table, body }} scope={level.id} />
+  if (phone) return <PhoneIso {...{ circuit, parts, items, addPart, brief, dock, change, onClear, table, body }} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -164,7 +170,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
           <div className="lg-board">
             <CanvasEditor
               onClear={onClear}
-              types={['hyp']}
+              types={items.map((i) => i.type)}
               key={level.id}
               scope={level.id}
               graph={circuit}
@@ -189,7 +195,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
 }
 
 // The board on a phone: the shared slot board, the situations under it, the tray and the run bar.
-function PhoneIso({ circuit, parts, items, addHyp, brief, dock, change, onClear, table, body, scope }) {
+function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, scope }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -199,7 +205,7 @@ function PhoneIso({ circuit, parts, items, addHyp, brief, dock, change, onClear,
     parts,
     create: (_, type, at) => {
       const [x, y] = spotIn(circuit, null)
-      return addHyp({ slot: at, x, y })
+      return addPart(type, { slot: at, x, y })
     },
     label: parts.label,
     openNode: (id) => setSheet({ node: id }),
@@ -213,7 +219,7 @@ function PhoneIso({ circuit, parts, items, addHyp, brief, dock, change, onClear,
     <div className="level-phone is-split lg-phone" ref={root}>
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => body(n, 'tile')} sinkBody={(n) => body(n, 'tile')} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={['hyp']} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => body(n, 'tile')} sinkBody={(n) => body(n, 'tile')} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={items.map((i) => i.type)} />
         {table}
       </div>
       <Tray items={items} onPick={editing.placeFirstFree} />
@@ -222,7 +228,7 @@ function PhoneIso({ circuit, parts, items, addHyp, brief, dock, change, onClear,
       {node && (
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
-            {node.type === 'hyp' && <p className="lg-desc">{L(HYP_DESC)}</p>}
+            {TRAY[node.type] && <p className="lg-desc">{L(TRAY[node.type].desc)}</p>}
             {body(node, 'sheet')}
             {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
