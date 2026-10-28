@@ -308,15 +308,18 @@ function CardBody({ node, board, parts, level, circuit, view, scene, setParam, t
   const multi = outs && !(outs.length === 1 && outs[0].key === null) ? outs : null
   const held = regions.size ? within(circuit, node.id).size : 0
   const problem = error && <span className={`lg-error ${error === MISSING ? 'is-missing' : ''}`}>{error === MISSING ? tr('等接线', 'Waiting for wires') : L(error)}</span>
+  const settings = board.settings(parts, node, level)
+  // A rule part whose rules are ticked on it, with none wired in before them, gives just those: the ticks say it.
+  const ticked = settings.some((s) => s.kind === 'use') && !circuit.wires.some((w) => w.to === node.id && w.port === 'before')
   return (
     <div className="lg-card">
       {role === 'sink' && scene.want}
-      {board.settings(parts, node, level).map((s) => <Setting key={s.key} s={s} node={node} board={board} parts={parts} level={level} circuit={circuit} scene={scene} setParam={setParam} formsOf={formsOf} />)}
+      {settings.map((s) => <Setting key={s.key} s={s} node={node} board={board} parts={parts} level={level} circuit={circuit} scene={scene} setParam={setParam} formsOf={formsOf} />)}
       {board.extra?.(node, setParam, { ins: Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, view.values.get(w.from)])), text })}
       {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
       {role === 'source' && (board.ioBox ? <IoBox><Value v={value} text={text} /></IoBox> : <Value v={value} text={text} bare />)}
       {role === 'sink' && board.ioBox && !problem && <IoBox><Value v={value} text={text} /></IoBox>}
-      {role !== 'source' && !(role === 'sink' && board.ioBox && !problem) && (!regions.size || node.fold) && (problem || (multi ? multi.map((o) => (
+      {role !== 'source' && !(role === 'sink' && board.ioBox && !problem) && (!regions.size || node.fold) && !(ticked && !problem) && (problem || (multi ? multi.map((o) => (
         <span key={o.key} className="lg-out"><em>{L(o.short)}</em><Value v={view.values.get(srcOf(node, o.key))} text={text} /></span>
       )) : <Value v={value} text={text} />))}
       {node.open && built?.is(node) && <InsideBoard path={[...built.path, node.id]} built={built} board={board} />}
