@@ -398,7 +398,7 @@ test('a script: each row by a rule or a block, checked row by row', async () => 
 })
 
 test('a declaration by assumption cards: chained they are one way needing both, apart two ways, none no way', () => {
-  const level = (target, letters, tests) => ({ target, letters, tests, declare: { zh: 'x', en: 'x' } })
+  const level = (target, sentences, tests) => ({ target, sentences, tests, declare: { zh: 'x', en: 'x' } })
   const words = (l) => ({ zh: l, en: l })
   const and = level('A ∧ B', ['A', 'B'], [{ have: { A: 1, B: 2 }, make: true }, { have: { A: 3 }, make: false }, { have: { B: 4 }, make: false }])
   const nested = isoBoard(['A>B', 'B>1'])
