@@ -7,7 +7,7 @@ import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import { migrations } from '../../shell/saves.js'
 import GatesScreen from './ui/GatesScreen.jsx'
-import IsoScreen from './ui/IsoScreen.jsx'
+import IsoScreen, { DeclaredRules } from './ui/IsoScreen.jsx'
 import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
@@ -90,6 +90,7 @@ export function defineLogicGame(spec) {
       script: { Screen: ScriptScreen, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
     },
     unlocked: (level) => level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !spec.logic.course.local(type)).map((type) => ({ label: built[type].name })),
+    passed: (level) => (level.source.kind === 'iso' ? <DeclaredRules level={level.source} /> : null),
     core: (level) => isCore(spec.logic.course, level),
     parts: {
       all: [
