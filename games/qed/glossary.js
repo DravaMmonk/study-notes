@@ -375,7 +375,7 @@ export const GLOSSARY = [
   },
   {
     id: 'backtracking', group: 'rules', title: T('回溯', 'backtracking'), at: 's-results',
-    body: [T(`一步有几种走法时，把每一种都留着，走错了就退回最近一个还有别的选择的地方，换下一种：这叫<b>回溯</b>。Isabelle 的策略给出的是一串结果，后面的策略对每一种都试；Prolog 也是这台机器：规则写的次序、子目标先问哪个，决定了搜索停不停得下来。`, `When a step can go several ways, keep every one, and when stuck go back to the latest place with another choice and take the next: this is <b>backtracking</b>. each tactic in Isabelle gives a run of results that the tactics after it try one by one; Prolog is the same machine, where the order rules are written in and which subgoal is asked first decide whether the search stops.`)],
+    body: [T(`一步有几种走法时，把每一种都留着，走错了就退回最近一个还有别的选择的地方，换下一种：这叫<b>回溯</b>。Isabelle 的策略给出的是一串结果，后面的策略对每一种都试；Prolog 也是这个证明助手：规则写的次序、子目标先问哪个，决定了搜索停不停得下来。`, `When a step can go several ways, keep every one, and when stuck go back to the latest place with another choice and take the next: this is <b>backtracking</b>. each tactic in Isabelle gives a run of results that the tactics after it try one by one; Prolog is the same proof assistant, where the order rules are written in and which subgoal is asked first decide whether the search stops.`)],
     see: ['dfs'],
   },
   {

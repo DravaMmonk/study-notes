@@ -17,7 +17,7 @@ import { TERM_WORDS } from './words.js'
 const T = (zh, en) => ({ zh, en })
 const GOAL = [{ name: 'in', label: T('目标', 'Goal') }]
 const proves = (level) => ({ kind: 'machine', want: 'proved', inputs: GOAL, backtrack: true, words: TERM_WORDS, ...level })
-const PROVE = T('接一台机器，证完每一个目标。', 'Wire a machine that proves every goal.')
+const PROVE = T('设计一个证明助手，证完每一个目标。', 'Design a proof assistant that proves every goal.')
 
 const NAT_T = { nat: 'zero | s(nat)' }
 const LIST_T = { list: 'nil | cons(elem, list)' }
@@ -72,7 +72,7 @@ export const inductive = [
     hint: [T('化简用两条定义，把左边算出来；两边一样了，用规则接上<part-ref to="part:refl"></part-ref>。', 'Simp with the two definitions works the left side out; once both sides are the same, Rule with <part-ref to="part:refl"></part-ref>.')],
     intro: [{ t: T('<level-ref to="nl-plus"></level-ref>里每一步做的都一样：拿一条定义，从左往右换。定义就是改写规则：<part-ref to="lemma:simp"></part-ref>的规则里多了一组「定义」，交给它去算。', 'Every step in <level-ref to="nl-plus"></level-ref> was the same: take a definition and replace left to right. A definition is a rewrite rule: among <part-ref to="lemma:simp"></part-ref>’s rules there is now a group of definitions, to work it out.') }],
     solution: script(['simp', ['def.0', 'def.1']], ['rule', 'refl']),
-    after: T('化简把定义从左往右一遍遍用，直到左边算成一个数；两边一样，就是自反。机器的「计算」，就是改写。', 'Simp uses the definitions left to right again and again until the left side is worked out to a number; both sides the same is reflexivity. Computing, for the machine, is rewriting.'),
+    after: T('化简把定义从左往右一遍遍用，直到左边算成一个数；两边一样，就是自反。证明助手的「计算」，就是改写。', 'Simp uses the definitions left to right again and again until the left side is worked out to a number; both sides the same is reflexivity. Computing, for the proof assistant, is rewriting.'),
   }),
   proves({
     id: 'sp-lists',
@@ -214,7 +214,7 @@ export const inductive = [
         datatypes: NAT_T,
         defs: NAT,
         tests: [{ goal: '∀x. plus(x, zero) = x' }],
-        intro: [{ t: T('在机器上，化简改不动 x + 0：x 不知道是 0 还是 S 什么。声明给的归纳规则，做的正是那块两个框的元件做的事：⟦?P(0); ⋀x. ?P(x) ⟹ ?P(S x)⟧ ⟹ ∀x. ?P(x)。', 'On the machine, Simp cannot change x + 0: x is not known to be 0 or S of something. The induction rule the declaration gives does just what the two-box part did: ⟦?P(0); ⋀x. ?P(x) ⟹ ?P(S x)⟧ ⟹ ∀x. ?P(x).') }],
+        intro: [{ t: T('在证明助手上，化简改不动 x + 0：x 不知道是 0 还是 S 什么。声明给的归纳规则，做的正是那块两个框的元件做的事：⟦?P(0); ⋀x. ?P(x) ⟹ ?P(S x)⟧ ⟹ ∀x. ?P(x)。', 'On the proof assistant, Simp cannot change x + 0: x is not known to be 0 or S of something. The induction rule the declaration gives does just what the two-box part did: ⟦?P(0); ⋀x. ?P(x) ⟹ ?P(S x)⟧ ⟹ ∀x. ?P(x).') }],
         brief: T('证明对所有 x，x + 0 = x。', 'Prove x + 0 = x for every x.'),
         hint: [T('倒着用「nat 的归纳」：两个目标，一个是 0 的情况，一个是从 x 到 S x。每个目标各化简一次，第二个要用上已知里的等式。', 'Use “nat induction” backwards: two goals, the case 0 and the step from x to S x. Simp each goal; the second needs the equation among its givens.')],
         solution: byInduction('nat', ['simp', [...defs(2), 'hyp']]),
@@ -253,7 +253,7 @@ export const inductive = [
     intro: [{ t: T('交换：x + y = y + x。对 x 归纳，两种情况各卡在哪里？', 'Commutativity: x + y = y + x. Induct on x: where does each case get stuck?') }],
     solution: byInduction('nat', ['rule', 'allI'], ['simp', [...defs(2), 'addZero', 'addSucc', 'hyp']]),
     naive: byInduction('nat', ['rule', 'allI'], ['simp', [...defs(2), 'hyp']]),
-    after: T('一个用了两条等式的归纳证明。数学书上一句「显然」，到机器上就是这样一层层搭出来的。它成了「加法交换」。', 'An induction standing on two equations. What a book calls “obvious” is built up like this on a machine. It is now “Addition commutes”.'),
+    after: T('一个用了两条等式的归纳证明。数学书上一句「显然」，到证明助手上就是这样一层层搭出来的。它成了「加法交换」。', 'An induction standing on two equations. What a book calls “obvious” is built up like this on a proof assistant. It is now “Addition commutes”.'),
   }),
   proves({
     id: 'in-assoc',

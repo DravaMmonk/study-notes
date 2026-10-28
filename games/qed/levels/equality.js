@@ -37,7 +37,7 @@ const SOUND = '∀x. taut(x) = tt → Taut(x)'
 const COMPLETE = '∀x. taut(x) = ff → ¬Taut(x)'
 const reflect = (list) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[k], brief: WRITE, forms: [...BASIC, 'rfl'], words: DATA, consts: ['p', 'q', 'tt', 'ff'], defs: TAUT, ...task }))
 const proves = (level) => ({ kind: 'machine', want: 'proved', inputs: [{ name: 'in', label: T('目标', 'Goal') }], backtrack: true, ...level })
-const PROVE = T('接一台机器：证得出的证完；证不出的，停下来说证不出来。', 'Wire a machine that proves what can be proved, and of what cannot, stops and says so.')
+const PROVE = T('设计一个证明助手：证得出的证完；证不出的，停下来说证不出来。', 'Design a proof assistant that proves what can be proved, and of what cannot, stops and says so.')
 const STARS = ['phos', 'hesp', 'venus']
 const NAT = ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))']
 const ADD_ZERO = '∀x. plus(x, zero) = x'

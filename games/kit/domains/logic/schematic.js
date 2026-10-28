@@ -272,7 +272,7 @@ export function unify(pairs, σ = {}, opts = {}) {
   if (set.fail) return { fail: set.fail }
   if (!solved(set.eqs)) {
     const e = nonPattern(set.eqs)
-    return { fail: e ? T(`${eqText(e)}：${(flexApp(e.s) ?? flexApp(e.t)).name} 后面跟的不都是不同的约束变量，解不止一个，机器不猜`, `${eqText(e)}: ${(flexApp(e.s) ?? flexApp(e.t)).name} is not applied to distinct bound variables, so there is more than one solution, and the machine does not guess`) : T('合一不了', 'No unifier') }
+    return { fail: e ? T(`${eqText(e)}：${(flexApp(e.s) ?? flexApp(e.t)).name} 后面跟的不都是不同的约束变量，解不止一个，证明助手不猜`, `${eqText(e)}: ${(flexApp(e.s) ?? flexApp(e.t)).name} is not applied to distinct bound variables, so there is more than one solution, and the proof assistant does not guess`) : T('合一不了', 'No unifier') }
   }
   // A solved set may still give a metavariable a thing fixed after it was left.
   const late = UNIFY_RULES.check(set.eqs, opts)

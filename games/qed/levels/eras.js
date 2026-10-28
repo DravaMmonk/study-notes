@@ -143,7 +143,7 @@ export const ERAS = [
     // Prolog is rule resolution and depth-first search: it goes on from chapter 4's family tree.
     topics: [{ id: 'prolog', code: 'P', after: ['s-search', 'q-grand'], levels: ['pl-grand', 'pl-anc', 'pl-order'], title: T('用规则推族谱', 'A family tree by rules') }],
     challenges: [{ level: 's-loop', after: 's-search' }],
-    chapter: { title: T('策略', 'Tactics'), question: T('能不能让机器自己去试该用哪条规则？', 'Can the machine try for itself which rule to use?') },
+    chapter: { title: T('策略', 'Tactics'), question: T('能不能让证明助手自己去试该用哪条规则？', 'Can the proof assistant try for itself which rule to use?') },
   },
   {
     id: 'classical', machine: 'prover', keeps: 'all',
@@ -155,7 +155,7 @@ export const ERAS = [
       branches(
         ['contra', '反证法', 'By contradiction', ['byContra', 'c-contra']],
         ['lem', '排中律', 'Excluded middle', ['lemCases', 'c-either']],
-        ['machine', '机器上的反证法', 'By contradiction on the machine', ['s-lem']],
+        ['machine', '证明助手上的反证法', 'By contradiction on the proof assistant', ['s-lem']],
       ),
       // Equivalences, the laws the simplifier will rewrite with: proved both ways, most by contradiction or excluded
       // middle, so after both.
@@ -184,7 +184,7 @@ export const ERAS = [
       'sp-simp',
       series('forms', '范式', 'Normal forms', ['sp-nnf', 'sp-cnf', 'sp-order']),
     ],
-    chapter: { title: T('化简器', 'The simplifier'), question: T('「把否定推进去」这样的目标，能交给机器一路改下去吗？', 'Can a goal like “push the negation in” be left to a machine that rewrites all the way?') },
+    chapter: { title: T('化简器', 'The simplifier'), question: T('「把否定推进去」这样的目标，能交给证明助手一路改下去吗？', 'Can a goal like “push the negation in” be left to a proof assistant that rewrites all the way?') },
   },
   {
     id: 'automation', machine: 'prover', keeps: 'all',
@@ -197,13 +197,13 @@ export const ERAS = [
       // Certificates: by hand, by the kernel, and someone else's prover caught out.
       series('cert', '证书', 'Certificates', ['au-cert', 'au-replay', 'au-wrong']),
     ],
-    practice: [series('use', '交给机器', 'Handed to the machine', ['au-adder', 'au-machine'])],
+    practice: [series('use', '交给证明助手', 'Handed to the proof assistant', ['au-adder', 'au-machine'])],
     topics: [
       { id: 'islanders-more', code: 'N', after: ['au-replay', 'kk-three'], levels: ['is-three', 'is-silent', 'is-ten'], title: T('岛民变多', 'More islanders') },
       { id: 'bounds', code: 'U', after: ['au-machine', 'kk-one'], levels: ['u-barber', 'u-cantor', 'u-ls', 'u-halt'], title: T('机器做不到的事', 'What no machine can do') },
     ],
     challenges: [{ level: 'au-horn', after: 'au-saturate' }],
-    chapter: { title: T('自动化与证书', 'Automation and certificates'), question: T('证明能交给机器去找吗？机器找到的，凭什么信？', 'Can a machine be left to find proofs, and why believe what it finds?') },
+    chapter: { title: T('自动化与证书', 'Automation and certificates'), question: T('证明能交给证明助手去找吗？证明助手找到的，凭什么信？', 'Can a proof assistant be left to find proofs, and why believe what it finds?') },
   },
   {
     id: 'inductive', machine: 'prover', keeps: 'all',
