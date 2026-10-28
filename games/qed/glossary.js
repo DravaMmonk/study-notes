@@ -209,12 +209,12 @@ export const GLOSSARY = [
   {
     id: 'lemma', group: 'proof', title: T('引理', 'lemma'), at: 'chain',
     body: [T(`证过一次的事可以当规则一直用下去，这叫<b>引理</b>。它在每一组测试上都成立，所以对任何句子都能用：「两段首尾相接的若…则…」成了元件${P('lemma:chain')}，K 和 S 也是这样成为元件的。引理只是给一段证明起的名字，展开以后，整个证明还是只用${W('kernel')}的规则。`, `Something proved once can be used as a rule from then on: a <b>lemma</b>. It held on every test, so it works for any sentences: “two if … then …s joined end to end” became the part ${P('lemma:chain')}, and K and S became parts the same way. A lemma is only a name given to a piece of proof; unfolded, the whole proof still uses only the rules of the ${W('kernel')}.`)],
-    see: ['theorem'],
+    see: ['theorem', 'definition'],
   },
   {
-    id: 'definition', group: 'proof', title: T('定义', 'definition'), at: 'chain',
-    body: [T(`<b>定义</b>是给已有的东西起一个新名字：一段证明、一句话，或者一种新的句子。定义随时能展开，换回它代表的东西，所以加上定义，证不出任何以前证不出的事；公理不一样，它说的是一件新的事。封装一块证明，就是定义一条${W('lemma')}：Lean 里 <code>theorem chain := …</code> 就是这样一个定义，Isabelle 也把证出的定理连着名字存下来。`, `A <b>definition</b> gives something already there a new name: a proof, a sentence, or a new kind of sentence. A definition can always be unfolded back into what it stands for, so adding one proves nothing that could not be proved before; an axiom is different, it states something new. Packing a proof into a part defines a ${W('lemma')}: in Lean, <code>theorem chain := …</code> is such a definition, and Isabelle too keeps each proved theorem under its name.`)],
-    see: ['lemma'],
+    id: 'definition', group: 'proof', title: T('定义', 'definition'), at: 'k',
+    body: [T(`<b>定义</b>是给已有的东西起一个新名字：一段证明、一句话，或者一种新的句子。定义随时能展开，换回它代表的东西，所以加上定义，证不出任何以前证不出的事；公理不一样，它说的是一件新的事。封装一块证明，就是定义一条引理：Lean 里 <code>theorem chain := …</code> 就是这样一个定义，Isabelle 也把证出的定理连着名字存下来。`, `A <b>definition</b> gives something already there a new name: a proof, a sentence, or a new kind of sentence. A definition can always be unfolded back into what it stands for, so adding one proves nothing that could not be proved before; an axiom is different, it states something new. Packing a proof into a part defines a lemma: in Lean, <code>theorem chain := …</code> is such a definition, and Isabelle too keeps each proved theorem under its name.`)],
+    see: ['axiom'],
   },
   {
     id: 'axiom', group: 'proof', title: T('公理', 'axiom'), at: 'k',

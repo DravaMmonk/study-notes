@@ -39,6 +39,18 @@ export const ERAS = [
       // prover then uses both parts together.
       branches(['apply', '套用', 'Apply', ['mp', 'pick', 'nested', 'cond']], ['assume', '假设框', 'Assumption box', ['assume', 'k2']]),
       'box',
+      // K and S, each proved with boxes and built as a part, need nothing from each other.
+      branches(['k', 'K', 'K', ['ident', 'k']], ['s', 'S', 'S', ['s']]),
+    ],
+    // Without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time, once K and S
+    // are both in hand (a level's `without` holds back the box and the parts built with it): a condition, Apply under a
+    // condition, then Chain (compiling a box away, the deduction theorem) and Swap, Identity and Merge, each from K
+    // and S alone.
+    // It splits in two after X2: Chain then Swap on one branch, Identity then Merge on the other.
+    topics: [
+      { id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k', 'x-s'], title: T('拆掉框', 'Without the box') },
+      { id: 'nobox-chain', code: 'X', after: 'x-s', levels: ['x-chain', 'x-swap'], title: T('拆掉框：接起来与换顺序', 'Without the box: joining and reordering') },
+      { id: 'nobox-merge', code: 'X', after: 'x-s', levels: ['x-self', 'x-merge'], title: T('拆掉框：恒等与说一遍', 'Without the box: identity and once') },
     ],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠套用和假设框，能证出什么？', 'What can Apply and the assumption box prove?') },
   },
@@ -51,18 +63,6 @@ export const ERAS = [
       // three together, harder each time.
       branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
       'mergeUse', 'mergeLong', 'mergeBoth',
-      // K and S, each proved with boxes and built as a part, need nothing from each other.
-      branches(['k', 'K', 'K', ['ident', 'k']], ['s', 'S', 'S', ['s']]),
-    ],
-    // Without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time, once K and S
-    // are both in hand (a level's `without` holds back the box and the parts built with it): a condition, Apply under a
-    // condition, then Chain (compiling a box away, the deduction theorem) and Swap, Identity and Merge, each from K
-    // and S alone.
-    // It splits in two after X2: Chain then Swap on one branch, Identity then Merge on the other.
-    topics: [
-      { id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k', 'x-s'], title: T('拆掉框', 'Without the box') },
-      { id: 'nobox-chain', code: 'X', after: 'x-s', levels: ['x-chain', 'x-swap'], title: T('拆掉框：串联与交换', 'Without the box: Chain and Swap') },
-      { id: 'nobox-merge', code: 'X', after: 'x-s', levels: ['x-self', 'x-merge'], title: T('拆掉框：恒等与合并', 'Without the box: Identity and Merge') },
     ],
     chapter: { title: T('封装', 'Packing'), question: T('把一块证明封装成元件，它到底是什么？', 'A proof packed into a part: what is it, really?') },
   },

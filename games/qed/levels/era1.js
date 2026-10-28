@@ -91,7 +91,7 @@ export const era1 = [
       { t: T('<level-ref to="k2"></level-ref>里，里面框的结论是框外的已知「下雨」；<level-ref to="ident"></level-ref>里，结论是框自己的假设。这一关什么都没给，两样合起来：「下雨」由外面的框假设，再当里面框的结论。', 'In <level-ref to="k2"></level-ref> the inner box concluded the given “it rains” from outside; in <level-ref to="ident"></level-ref> the conclusion was the box’s own assumption. Here nothing is given, so put the two together: the outer box assumes “it rains”, and the inner box concludes it.') },
     ],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'] }, ['f#body>g.body', 'g>f.body', 'f>goal']),
-    after: T('外面框的假设，正是里面框的结论。证出来以后，这块电路是元件 <part-ref to="lemma:axK"></part-ref>：元件上选两句话，它直接给出「若 第一句，则（若 第二句，则 第一句）」。只有<wiki-ref to="axiom"></wiki-ref>、没有框的证明器，只能把 K 当成不用证的出发点。', 'The outer box’s assumption is the inner box’s conclusion. Proved, this circuit becomes the part <part-ref to="lemma:axK"></part-ref>: choose two sentences on its part and it gives “if the first, then (if the second, then the first)”. A prover with no box, where every starting point is an <wiki-ref to="axiom"></wiki-ref>, can only take K as a starting point that needs no proof.'),
+    after: T('外面框的假设，正是里面框的结论。证出来以后，这块电路是元件 <part-ref to="lemma:axK"></part-ref>：元件上选两句话，它直接给出「若 第一句，则（若 第二句，则 第一句）」。只有<wiki-ref to="axiom"></wiki-ref>、没有框的证明器，只能把 K 当成不用证的出发点。在这里，K 是一个<wiki-ref to="definition"></wiki-ref>：给这块证明起的名字，用到它的地方都能换回这块电路。', 'The outer box’s assumption is the inner box’s conclusion. Proved, this circuit becomes the part <part-ref to="lemma:axK"></part-ref>: choose two sentences on its part and it gives “if the first, then (if the second, then the first)”. A prover with no box, where every starting point is an <wiki-ref to="axiom"></wiki-ref>, can only take K as a starting point that needs no proof. Here K is a <wiki-ref to="definition"></wiki-ref>: a name given to this proof, which can be swapped back for the circuit wherever it is used.'),
   },
   {
     id: 'box',
@@ -298,7 +298,7 @@ export const era1 = [
     brief: T('实现一个证明器，不用假设框，可以从已知「下雨」证明出「刮风 → 下雨」。', 'Build a prover that, without the assumption box, proves “it is windy → it rains” from “it rains”.'),
     hint: [T('K 的元件上第一句选「下雨」、第二句选「刮风」，再把它和已知套用。', 'Choose “it rains” and “it is windy” on K’s part, then Apply it with the given.')],
     intro: [
-      { t: T('这个专题把框拿走，只剩套用和你证出的 K、S；用框造的串联、交换、合并也都用不上。早期的证明器（<wiki-ref to="hilbert"></wiki-ref>）就是这样：一条规则，几条<wiki-ref to="axiom"></wiki-ref>。', 'This topic takes the box away, leaving Apply and the K and S you proved; Chain, Swap and Merge, built with boxes, are out of reach too. Early provers (each a <wiki-ref to="hilbert"></wiki-ref>) were like this: one rule, and each other step an <wiki-ref to="axiom"></wiki-ref>.') },
+      { t: T('这个专题把框拿走，只剩套用和你证出的 K、S。早期的证明器（<wiki-ref to="hilbert"></wiki-ref>）就是这样：一条规则，几条<wiki-ref to="axiom"></wiki-ref>。', 'This topic takes the box away, leaving Apply and the K and S you proved. Early provers (each a <wiki-ref to="hilbert"></wiki-ref>) were like this: one rule, and each other step an <wiki-ref to="axiom"></wiki-ref>.') },
       { t: T('没有框，要给一句话加条件，就得找一句现成的「若…则…」来套用。', 'Without a box, to put a condition on a sentence, find a ready-made “if … then …” to apply.') },
     ],
     solution: proof({ k: ['axK', { A: 'A', B: 'B' }], m: ['mp'] }, ['k>m.imp', 'p>m.a', 'm>goal'], { premises: ['p'] }),
@@ -342,7 +342,7 @@ export const era1 = [
   {
     id: 'x-chain',
     kind: 'proof',
-    title: T('不用框串联', 'Chain without a box'),
+    title: T('不用框接起来', 'Joining without a box'),
     tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }],
     cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
     without: ['impI', 'chain', 'swap', 'merge'],
@@ -366,14 +366,14 @@ export const era1 = [
     // The proof's steps name sentences the premise and goal do not hold whole: the card offers them too.
     sentences: ['(A → B) → (A → C)'],
     kind: 'proof',
-    title: T('不用框交换', 'Swap without a box'),
+    title: T('不用框换顺序', 'Reordering without a box'),
     tests: [{ premises: { p: 'A → (B → C)' }, goal: 'B → (A → C)' }],
     cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
     without: ['impI', 'chain', 'swap', 'merge'],
     brief: T('实现一个证明器，不用假设框，可以从已知「今天是周六 → (下雨 → 我休息)」证明出「下雨 → (今天是周六 → 我休息)」。', 'Build a prover that, without the assumption box, proves “it rains → (today is Saturday → I rest)” from “today is Saturday → (it rains → I rest)”.'),
     hint: [
       T('S 和已知套用一次，得到「(今天是周六 → 下雨) → (今天是周六 → 我休息)」；K 给出「下雨 → (今天是周六 → 下雨)」。', 'Apply S to the given once: “(today is Saturday → it rains) → (today is Saturday → I rest)”; K gives “it rains → (today is Saturday → it rains)”.'),
-      T('这两段首尾相接，可串联用不上：照<level-ref to="x-chain"></level-ref>的办法，用 K 和 S 把它们接起来。', 'The two meet end to end, but Chain is out of reach: join them with K and S as in <level-ref to="x-chain"></level-ref>.'),
+      T('这两段首尾相接，没有框：照<level-ref to="x-chain"></level-ref>的办法，用 K 和 S 把它们接起来。', 'The two meet end to end, and there is no box: join them with K and S as in <level-ref to="x-chain"></level-ref>.'),
     ],
     intro: [{ t: T('有框的话，两层框把两个条件换个顺序。没有框：S 把外层的条件分到两边，缺的一段用 K 补，两段首尾相接；接起来的那一步，<level-ref to="x-chain"></level-ref>里做过。', 'With boxes, two of them put the two conditions the other way round. Without: S spreads the outer condition over both sides, K supplies the missing piece, and the two meet end to end; joining them you did in <level-ref to="x-chain"></level-ref>.') }],
     solution: proof({
@@ -392,7 +392,7 @@ export const era1 = [
     id: 'x-merge',
     sentences: ['A → A'],
     kind: 'proof',
-    title: T('不用框合并', 'Merge without a box'),
+    title: T('不用框说一遍', 'Once, without a box'),
     tests: [{ premises: { p: 'A → (A → B)' }, goal: 'A → B' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Hungry', B: 'Eat' }],
     without: ['impI', 'chain', 'swap', 'merge'],
