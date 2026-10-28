@@ -1,4 +1,5 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Brief, CircuitLayout, RunDock, StepLog, TaskCard, TestStatus, TestTabs, useKeptVerdict, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
@@ -190,6 +191,8 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
     open: openAt,
     partsOf,
     edit: (type) => openRef('level', opens(type).level.id),
+    // A part's description on the board it sits on (the level's, or the one a built part runs).
+    descOf: (type, lvl) => game.textAt(board.textOf(lvl, type, lvl.revisions), entry.id)?.desc,
     is: (node) => Boolean(MACHINE_PARTS[node.type]?.built && opens(node.type)),
     text,
   }
@@ -430,9 +433,10 @@ function phoneFaces({ board, parts, view, text, scene }) {
 
 // On a phone, the board a built part runs, in the part's sheet: the phone's slot board, read only, in a window of a
 // fixed height that scrolls, each block showing what it gives in the part's latest run so far and the block the
-// current step is in lit (and scrolled to). Tapping a built part on it goes into that one; the path above goes back.
-function InsidePhone({ path: start, built, board }) {
-  const [path, setPath] = useState(start)
+// current step is in lit (and scrolled to). Tapping a block opens its own sheet over this one (its description and
+// value; a built part's board in turn, and its edit button).
+function InsidePhone({ path, built, board }) {
+  const [detail, setDetail] = useState(null)
   const box = useRef(null)
   const at = built.open(path)
   useLayoutEffect(() => {
@@ -442,7 +446,7 @@ function InsidePhone({ path: start, built, board }) {
     // Scroll the window only, never the sheet or the page.
     const top = lit.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop
     el.scrollTop = Math.max(0, top - el.clientHeight / 3)
-  }, [at?.lit, path.join('/')])
+  }, [at?.lit])
   if (!at) return null
   const parts = built.partsOf(at.level)
   const text = built.text
@@ -450,25 +454,11 @@ function InsidePhone({ path: start, built, board }) {
   const { thumb, sinkBody } = phoneFaces({ board, parts, view: at.view, text, scene })
   const { Value } = board
   const small = (v) => (v ? <Value v={v} text={text} small /> : null)
-  // The parts the board is in, from the one whose sheet this is: each goes back to its own board.
-  const crumbs = path.slice(start.length - 1).map((id, k) => {
-    const upTo = path.slice(0, start.length + k)
-    const outer = built.open(upTo.slice(0, -1)) ?? { circuit: { nodes: [] } }
-    const node = outer.circuit.nodes.find((n) => n.id === id)
-    return { upTo, label: node ? L(built.partsOf(outer.level ?? at.level).label(node)) : id }
-  })
+  const node = detail && at.circuit.nodes.find((n) => n.id === detail)
   return (
     <div className="lg-inside-phone">
-      {crumbs.length > 1 && (
-        <nav className="lg-inside-path">
-          {crumbs.map((c, k) => (k < crumbs.length - 1
-            ? <button key={c.upTo.join('/')} type="button" onClick={() => setPath(c.upTo)}>{c.label}</button>
-            : <b key={c.upTo.join('/')}>{c.label}</b>))}
-        </nav>
-      )}
       <div className="lg-inside-scroll" ref={box}>
         <SlotBoard
-          key={path.join('/')}
           fixed
           dense
           graph={at.circuit}
@@ -481,12 +471,20 @@ function InsidePhone({ path: start, built, board }) {
           resultNote={(n) => small(at.view.values.get(n.id))}
           onPort={() => {}}
           onSlot={() => {}}
-          onNode={(id) => {
-            const n = at.circuit.nodes.find((x) => x.id === id)
-            if (n && built.is(n)) setPath([...path, id])
-          }}
+          onNode={setDetail}
         />
       </div>
+      {node && createPortal(
+        <Sheet title={L(parts.label(node))} onClose={() => setDetail(null)}>
+          <div className="lg-sheet lg-readonly">
+            {parts.role(node) === 'part' && <p className="lg-desc">{L(built.descOf(node.type, at.level))}</p>}
+            <CardBody node={node} board={board} parts={parts} level={at.level} circuit={at.circuit} view={at.view} scene={scene} text={text} setParam={() => {}} formsOf={() => []} />
+            {built.is(node) && <InsidePhone path={[...path, node.id]} built={built} board={board} />}
+            {built.is(node) && <PartActions onEdit={() => { setDetail(null); built.edit(node.type) }} />}
+          </div>
+        </Sheet>,
+        document.body,
+      )}
     </div>
   )
 }
