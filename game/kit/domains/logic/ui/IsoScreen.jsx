@@ -3,13 +3,14 @@ import { FileSignature, PackageOpen, SquareDashedText } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, SlotBoard, useSlotEditing } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
+import FormulaField from './FormulaField.jsx'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { DECL, ISO_PARTS, checkIso, declInputs, runIso, settle, showEvidence, showRule, startIso } from '../iso.js'
+import { DECL, ISO_PARTS, checkIso, declInputs, hypCard, runIso, settle, showEvidence, showRule, startIso } from '../iso.js'
 
-// A connective declared by its ways to make it (iso.js) on the shared circuit editor: an assumption card for each
-// letter, chained to write each way as a rule, and the connective's card, whose inputs grow as ways are wired and
+// A connective declared by its ways to make it (iso.js) on the shared circuit editor: assumption cards from the tray,
+// each picking the sentence it assumes, chained to write each way as a rule, and the connective's card, whose inputs grow as ways are wired and
 // whose cases (the kernel's, one for each way) appear as the board's outputs. Each test is a situation, one row of the
 // table under the board: which proofs are at hand, whether the connective is proved and by which way, and what its
 // case gets back. Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
@@ -29,18 +30,18 @@ function isoPartsFor(level, words) {
     family: (node) => (node.type === 'hyp' ? 'box' : node.type === DECL ? 'lemma' : 'given'),
     icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === DECL ? FileSignature : PackageOpen),
     cardWidth: () => 220,
-    removable: () => false,
     rules: ISO_PARTS,
   }
 }
 
-const fits = (circuit, level) => circuit.nodes.some((n) => n.id === DECL) && level.letters.every((l) => circuit.nodes.some((n) => n.type === 'hyp' && n.params.name === l))
+const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => n.type === 'hyp' && n.locked)
+const HYP = { type: 'hyp', label: T('假设', 'Assume'), icon: SquareDashedText, family: 'box' }
 
 export default function IsoScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
   const words = (letter) => say(parse(letter), level.notation)
   const parts = useMemo(() => isoPartsFor(level, words), [level])
-  const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved, level) ? settle(saved) : startIso(level)))
+  const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved) ? settle(saved) : startIso()))
   const [testIndex, setTestIndex] = useState(0)
   const test = level.tests[Math.min(testIndex, level.tests.length - 1)]
   const view = useMemo(() => runIso(level, circuit, test), [level, circuit, test])
@@ -51,7 +52,18 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     setCircuit(settled)
     save(settled)
   }
-  const onClear = circuit.wires.some((w) => !w.locked) || circuit.nodes.some((n) => n.in) ? () => change(startIso(level)) : null
+  // A card from the tray assumes, to begin with, the first sentence no card on the board assumes yet.
+  const addHyp = (at) => {
+    const taken = new Set(circuit.nodes.map((n) => n.id))
+    let k = 1
+    while (taken.has(`hyp-${k}`)) k += 1
+    const used = new Set(circuit.nodes.filter((n) => n.type === 'hyp').map((n) => n.params.name))
+    const id = `hyp-${k}`
+    return { id, graph: { ...circuit, nodes: [...circuit.nodes, hypCard(id, level.letters.find((l) => !used.has(l)) ?? level.letters[0], at)] } }
+  }
+  const pick = (node, name) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, name } } : n)) })
+  const choices = level.letters.map((l) => ({ value: l, label: L(words(l)) }))
+  const onClear = circuit.wires.some((w) => !w.locked) || circuit.nodes.some((n) => n.in) ? () => change(startIso()) : null
   const checked = useMemo(() => checkIso(level, circuit, words), [level, circuit])
   const ways = circuit.nodes.find((n) => n.id === DECL)?.params.ways ?? 0
   const playback = usePlayback({
@@ -77,10 +89,16 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     const wire = circuit.wires.find((w) => w.to === DECL && w.port === `c${k}`)
     return wire && view.values.get(wire.from)
   }
-  const body = (node) => {
+  // An assumption card picks its sentence on the card itself (`edit`), or shows it (a phone's tile).
+  const body = (node, edit = true) => {
     if (node.type === 'hyp') {
       const rule = view.values.get(node.id)
-      return <div className="lg-card"><span className="lg-taken"><b>{L(words(node.params.name))}</b></span>{rule && <span className="lg-rule">{L(showRule(rule, level, words))}</span>}</div>
+      return (
+        <div className="lg-card">
+          {edit ? <FormulaField value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /> : <span className="lg-taken"><b>{L(words(node.params.name))}</b></span>}
+          {rule && <span className="lg-rule">{L(showRule(rule, level, words))}</span>}
+        </div>
+      )
     }
     if (node.type === DECL) {
       return (
@@ -128,18 +146,24 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   )
   const dock = <RunDock {...playback.dock({ go: tr('每种情况试一遍', 'Try every situation'), done: tr('每种情况都对', 'Every situation right') })} />
 
-  if (phone) return <PhoneIso {...{ circuit, parts, brief, dock, change, onClear, table, body }} scope={level.id} />
+  const items = [HYP]
+  const add = () => {
+    const [x, y] = spotIn(circuit, null)
+    change(addHyp({ x, y }).graph)
+  }
+  if (phone) return <PhoneIso {...{ circuit, parts, items, addHyp, brief, dock, change, onClear, table, body }} scope={level.id} />
 
   return (
     <CircuitLayout
       className="lg-level"
       brief={brief}
+      parts={<Palette compact items={items} onAdd={add} />}
       canvas={
         <div className="lg-stage">
           <div className="lg-board">
             <CanvasEditor
               onClear={onClear}
-              types={[]}
+              types={['hyp']}
               key={level.id}
               scope={level.id}
               graph={circuit}
@@ -150,7 +174,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
               body={body}
               cardClass={() => 'lg-node'}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
-              emptyNote={{ zh: '一张假设接进另一张的「再假设」，是同一种造法要两样；假设接进连接词的造法口，就是一种造法。', en: 'An assumption wired into another’s “then assume” is one way needing both; an assumption wired into a way of the connective is one way to make it.' }}
+              emptyNote={{ zh: '从上面拿一张假设，选它假设哪一句；一张假设接进另一张的「再假设」，是同一种造法要两样；假设接进连接词的造法口，就是一种造法。', en: 'Take an assumption from above and pick the sentence it assumes; one wired into another’s “then assume” is one way needing both; one wired into a way of the connective is one way to make it.' }}
             />
           </div>
         </div>
@@ -163,37 +187,53 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   )
 }
 
-// The board on a phone: the shared slot board, the situations under it, and the run bar.
-function PhoneIso({ circuit, parts, brief, dock, change, onClear, table, body, scope }) {
-  const [sheet, setSheet] = useState(null)
+// The board on a phone: the shared slot board, the situations under it, the tray and the run bar.
+function PhoneIso({ circuit, parts, items, addHyp, brief, dock, change, onClear, table, body, scope }) {
+  const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
   const editing = useSlotEditing({
     graph: circuit,
     onChange: change,
     parts,
-    create: () => null,
+    create: (_, type, at) => {
+      const [x, y] = spotIn(circuit, null)
+      return addHyp({ slot: at, x, y })
+    },
     label: parts.label,
-    openNode: (id) => setSheet(id),
-    openSlot: () => {},
+    openNode: (id) => setSheet({ node: id }),
+    openSlot: (at) => setSheet({ slot: at }),
     root,
     scroller,
     scope,
   })
-  const node = sheet && circuit.nodes.find((n) => n.id === sheet)
+  const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   return (
     <div className="level-phone is-split lg-phone" ref={root}>
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={body} sinkBody={body} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={[]} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => body(n, false)} sinkBody={body} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={['hyp']} />
         {table}
       </div>
+      <Tray items={items} onPick={editing.placeFirstFree} />
       <footer className="run-foot">{dock}</footer>
       <Notice editing={editing} />
       {node && (
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
             {body(node)}
+            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
+          </div>
+        </Sheet>
+      )}
+      {sheet?.slot !== undefined && (
+        <Sheet title={tr('放在这一格', 'Place in this slot')} onClose={() => setSheet(null)}>
+          <div className="lg-add">
+            {items.map((item) => (
+              <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot); setSheet(null) }}>
+                <b>{L(item.label)}</b>
+              </button>
+            ))}
           </div>
         </Sheet>
       )}

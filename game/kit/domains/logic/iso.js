@@ -1,6 +1,6 @@
 // Declaring a connective (《证明完毕》's chapter of definitions and declarations), the way Lean declares one: by its
-// ways to make it, each a rule of its own, `And.intro : A → B → A ∧ B`. The board holds an assumption card for each
-// letter (put there by the level, never deleted). One card wired into another's "then assume" makes one rule of
+// ways to make it, each a rule of its own, `And.intro : A → B → A ∧ B`. The player takes assumption cards from the
+// tray and picks on each which sentence it assumes. One card wired into another's "then assume" makes one rule of
 // both, assume A, then assume B; a card wired into the connective's card is one way to make it, and each input the
 // card is given brings one more. So the boards write the constructors' types, `A → B → A ∧ B` (and) or `A → A ∨ B`
 // and `B → A ∨ B` (or), or nothing (⊥). Written as a proof these would be nested assumption boxes; a declared rule
@@ -122,28 +122,22 @@ export function showRule(rule, level, words) {
   return T([...steps.map((s) => s.zh), goal.zh].join(' → '), [...steps.map((s) => s.en), goal.en].join(' → '))
 }
 
-/** The board a level starts from: an assumption card for each letter, and the connective with no way yet. */
-export function startIso(level) {
-  return settle({
-    nodes: [
-      // On a phone the assumptions open in the first row and the connective in the row under them.
-      ...level.letters.map((letter, k) => ({ id: cardId(letter), type: 'hyp', params: { name: letter }, locked: true, x: 20, y: 40 + k * 200, slot: k })),
-      { id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 320, y: 40, slot: level.letters.length + (level.letters.length % 2) },
-    ],
-    wires: [],
-  })
-}
+/** The board a level starts from: the connective, with no way yet. */
+export const startIso = () => ({ nodes: [{ id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 320, y: 40 }], wires: [] })
+
+/** An assumption card for `letter`, as the tray gives it. */
+export const hypCard = (id, letter, at) => ({ id, type: 'hyp', params: { name: letter }, ...at })
 
 /**
- * A reference board written compactly: isoBoard(['Wind>Rain', 'Rain>1'], level): the Wind card wired into the Rain
- * card's "then assume", the Rain card into the connective's first way.
+ * A reference board written compactly: isoBoard(['Wind>Rain', 'Rain>1']): a card assuming Wind wired into the
+ * "then assume" of a card assuming Rain, the Rain card into the connective's first way.
  */
-export function isoBoard(wires, level) {
+export function isoBoard(wires) {
+  const pairs = wires.map((s) => s.split('>'))
+  const letters = [...new Set(pairs.flatMap(([from, to]) => (/^\d$/.test(to) ? [from] : [from, to])))]
+  const start = startIso()
   return settle({
-    ...startIso(level),
-    wires: wires.map((s) => {
-      const [from, to] = s.split('>')
-      return /^\d$/.test(to) ? { from: cardId(from), to: DECL, port: wayPort(Number(to)) } : { from: cardId(from), to: cardId(to), port: 'then' }
-    }),
+    nodes: [...start.nodes, ...letters.map((l, k) => hypCard(cardId(l), l, { x: 20, y: 40 + k * 200 }))],
+    wires: pairs.map(([from, to]) => (/^\d$/.test(to) ? { from: cardId(from), to: DECL, port: wayPort(Number(to)) } : { from: cardId(from), to: cardId(to), port: 'then' })),
   })
 }
