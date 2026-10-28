@@ -434,6 +434,40 @@
 | 反例 | `nitpick`、`quickcheck` | `#eval`、`plausible` | 第 4 章 |
 | 证明语言 | Isar | 项模式、`have`、`show … by` | 第 12、14 章 |
 
+### 5.1 每个元件的真实依托
+
+**规矩：** 目标是让玩家理解证明器为什么可信、怎么运转，所以玩家造出、用到的每个元件都要有真实依托：它的行为等于 Isabelle 或 Lean 里某个具体的东西（方法、策略、规则、核的检查），或者教科书里的标准算法，并且写明是哪个。两个系统做法不同的地方做成分岔，点明各自怎么做。为了教学故意做得和真实系统不一样的（**例外**），要有理由，并且在关卡文案里告诉玩家真实系统怎么做。不发明两边都不是的第三种语义。
+
+状态：✓ 有依托；≈ 有依托，做了简化，理由写在表里；✗ 和真实系统不符，待改。
+
+| 元件 | 依托 | 状态 |
+|---|---|---|
+| 证明板的引入、消去规则（套用、假设框、拼成 ∧……拿出那一个） | HOL 的 `mp`、`impI`、`conjI`… ；Lean 的函数应用、`fun`、构造子和 `cases` | ✓ |
+| 等量代换、自反 | HOL `subst`、`refl`；Lean `▸`、`rfl` | ✓ |
+| 归纳（证明板） | HOL `nat.induct`；Lean `Nat.rec` | ✓ |
+| 反证法 | 两边都是核外的公理：HOL 的 `True_or_False`（`ccontr` 由它推出），Lean 的 `Classical.choice`（`Classical.em`、`byContradiction` 由它推出） | ✗ 第 8 章写成「证明核多一条规则」，应改成「加一条公理」 |
+| 合一的六条规则、合一器 | Martelli–Montanari 的合一算法（教科书算法） | ≈ 真实系统的合一是一体实现，拆成六步是为了能亲手搭 |
+| 做成函数 | Miller 的高阶模式合一（Isabelle 和 Lean 都用） | ✓ |
+| 用规则（接一串规则） | Isabelle `rule r1 r2`：依次试，带回溯；Lean `apply` | ✓ |
+| 已知里有 | Isabelle `assumption`；Lean `assumption` | ✓ |
+| 规则对已知 | Isabelle `erule`：对上的那条已知会被删掉 | ✗ 现在保留那条已知 |
+| 往前推 | Isabelle `frule`（保留原已知）；Lean `have h' := f h` | ✓ |
+| 几条路、重复框、每个目标、放到最后 | Isabelle `APPEND`／`ORELSE`、`REPEAT_DETERM`、`ALLGOALS`、`defer`；Lean `first`、`repeat`、`all_goals`、`swap` | ✓ 重复框只跟第一种结果，等于 `REPEAT_DETERM`，不是 `REPEAT` |
+| 搜到证完 | Isabelle `DEPTH_FIRST`／`DEPTH_SOLVE` | ≈「走回原地不走」是为了让小例子停得下来；真实的 `blast` 另有防循环的办法 |
+| 拆目标、用已知、自己的 auto | Isabelle 经典推理器的引入、消去规则集；只用这些规则的搜索就是 `iprover`（直觉主义的证明搜索） | ✗ 名字叫 auto，可真实的 `auto`、`blast`、`fast` 是经典的，证得出排中律；第 8 章「auto 证不出」只对直觉主义搜索成立 |
+| auto 加一步反证法（第 8 章） | Isabelle 经典推理器用 swap 规则把否定的目标放进已知 | ≈ 关后要说明真实系统怎样避开「一直换下去」 |
+| 改写 | Isabelle `subst`：只换一处（`subst (2)` 选第几处） | ≈ 遍历次序写成「从外往里、从左往右」；Lean 的 `rw` 会换掉所有相同的出现，要在关后点明 |
+| 化简 | Isabelle `simp only`、Lean `simp only`：改到改不动 | ≈ 真实的 simp 由里往外改，规则次序不由用户排；「会绕圈的化简」已经说明有序重写 |
+| 「先后」（第 9 章，规则排列次序改变结果） | 无：真实 simp 的结果不取决于用户列出规则的次序 | ✗ 这一课是这里发明的语义 |
+| 已知里的等式 | Isabelle `subst h`、`simp add: h`；Lean `rw [h]` | ✓ |
+| Skolem 化、拆成子句、化成子句 | Metis 和 sledgehammer 的子句化；∀ 底下的 Skolem 函数要选择公理 | ✓ |
+| 归结一圈、饱和器 | 归结和饱和（教科书算法；真实证明器用 given-clause 循环） | ≈ 一圈全试是为了能看清每一步 |
+| 别人的证明器 | sledgehammer 调用的外部证明器（E、Vampire）不受信任；Isabelle 的 oracle 机制 | ≈ 它的错（一次消掉几对）是为了「证明器错了」那一关故意做的 |
+| 重放、重建器 | `metis` 在核里重新证一遍外部证明器找到的证明 | ✓ |
+| 写证明项板、相等、反射 | Lean 的项、`Eq.rec`、`rfl`、`decide` | ✓ |
+| 写脚本板 | Isar；Lean 策略块里的 `have`、`show` | ✓ |
+| 真值表、真值电路、造世界 | 语义一侧（模型），不是证明器的部件；对应 `nitpick`、`quickcheck`、`decide` | ✓ |
+
 ---
 
 ## 6. 引擎：复用什么，补什么
