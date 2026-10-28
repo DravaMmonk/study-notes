@@ -7,7 +7,7 @@ import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { moveInto } from './frames.js'
-import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
+import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf, staysPut } from './model.js'
 import { useHistory } from './useHistory.js'
 
 // The desktop circuit board, the same in every game: parts are cards, wires run from a card's output (a dot on its
@@ -428,8 +428,8 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
     const floor = (v) => (field ? Math.max(0, v) : v)
     const [x, y] = [floor(Math.round(x0 + g.dx - ox)), floor(Math.round(y0 + g.dy - oy))]
     const region = field?.dataset.region ?? null
-    // A locked part moves only within the region it sits in: let go elsewhere, it goes back.
-    if (node.locked && region !== (node.in ?? null)) return setTarget(node.in ?? null)
+    // A locked part moves only within the region it sits in (unless it may nest): let go elsewhere, it goes back.
+    if (staysPut(node) && region !== (node.in ?? null)) return setTarget(node.in ?? null)
     if (region === (node.in ?? null)) return onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === g.id ? { ...n, x, y } : n)) }, { keep: true })
     const next = moveInto(graph, parts, g.id, region, x, y)
     onChange(next, { keep: next.wires.length === graph.wires.length })

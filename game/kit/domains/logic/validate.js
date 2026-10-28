@@ -99,7 +99,7 @@ export function validate({ levels: given, course }) {
   for (const level of levels.filter((l) => l.kind === 'iso')) {
     const words = (letter) => level.notation.words[letter]
     const good = checkIso(level, level.solution, words)
-    out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: declaration ${good.pass ? 'PASS' : `FAIL ${keyOf(good.results.find((r) => !r.pass).reason)}`} [${good.cards} cards]` })
+    out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: declaration ${good.pass ? 'PASS' : `FAIL ${keyOf(good.results.find((r) => !r.pass).reason)}`} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
     if (level.naive) {
       const bad = checkIso(level, level.naive, words)
       out.push({ fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
