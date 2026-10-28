@@ -471,3 +471,4 @@
    list, the tray); the game gives it its own glyph (a circuit board). */
 :is(.node, .pb-tile, .pb-frame, .palette-item, .pb-part).is-packed .family-chip { color: var(--paper); background: var(--fam, var(--muted)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--fam, var(--muted)) 22%, transparent); }
 .pb-glyph.family-chip { width: 18px; height: 18px; margin-right: 5px; border-radius: 5px; vertical-align: -4px; }
+.pb-name .pb-glyph.family-chip svg { margin: 0; color: inherit; }
