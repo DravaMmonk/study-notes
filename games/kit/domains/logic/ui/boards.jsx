@@ -160,7 +160,7 @@ function MachineValue({ v, text, small = false }) {
   if (v.kind === 'rules') {
     const count = tr(`${v.keys.length} 条规则`, `${v.keys.length} rule${v.keys.length === 1 ? '' : 's'}`)
     if (small) return <span className="lg-clauses is-small"><small>{count}</small></span>
-    return <Entries className="lg-clauses" count={v.keys.length > 1 && count}>{v.names.map((n, k) => <code key={k}>{`${k + 1}. ${L(n)}`}</code>)}</Entries>
+    return <Entries className="lg-clauses" count={v.keys.length > 1 && count}>{v.entries.map((e, k) => <code key={k}>{`${k + 1}. ${ruleWritten(e, text)}`}</code>)}</Entries>
   }
   if (v.kind === 'state') {
     const others = v.more?.length ?? 0
@@ -225,20 +225,21 @@ function rulePartName(level, type) {
   if (level.facts?.[type]) return level.facts[type].name
   return ruleName(level, r)
 }
+/** A rule of a rule part's, written out: an inference rule, or a rewrite rule (an equation given goes by its name). */
+const ruleWritten = (e, say = show) => (e.book === 'rule' ? ruleText(e.rule, say) : rewriteText(e.rule, say) || L(e.rule.name))
 /** What a rule part gives: each of its rules, written out. */
 function rulePartText(level, type) {
   const entries = rulePartsOf(level).get(type)
-  const written = (e) => (e.book === 'rule' ? ruleText(e.rule, show) : rewriteText(e.rule, show) || L(e.rule.name))
-  const lines = choicesOfPart(entries).map((key) => written(entries.find((e) => e.key === key)))
+  const lines = choicesOfPart(entries).map((key) => ruleWritten(entries.find((e) => e.key === key)))
   return {
     name: rulePartName(level, type),
     desc: T(`给出规则：${lines.join('；')}。接进别的规则元件时，接在它们后面。`, `Gives the rule: ${lines.join('; ')}. Wired another rule part, it comes after their rules.`),
   }
 }
-/** The choices of a rule part with several rules: [{ value, label }]. */
-const usesOf = (level, type) => {
+/** The rules a rule part with several offers to tick, each written out in the test's words: [{ value, label }]. */
+const usesOf = (level, type, text) => {
   const entries = rulePartsOf(level).get(type)
-  return choicesOfPart(entries).map((key) => ({ value: key, label: L(ruleName(level, entries.find((e) => e.key === key).rule)) }))
+  return choicesOfPart(entries).map((key) => ({ value: key, label: ruleWritten(entries.find((e) => e.key === key), text) }))
 }
 const RULES_PORT = T('规则', 'Rules')
 const BEFORE_PORT = T('前面', 'Before')
@@ -292,12 +293,12 @@ export const MACHINE = {
     return {
       sequent: <>{level.datatypes && <span>{tr('类型', 'Types')} <b>{Object.entries(level.datatypes).map(([type, d]) => `${type} = ${constructorsOf(d).map((c) => text({ op: 'atom', pred: '=', args: [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))] }).split(' = ')[0]).join(' | ')}`).join(tr('；', '; '))}</b> · </span>}{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => defText(d, text)).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,
-      choices: { uses: Object.fromEntries([...rulePartsOf(level).keys()].map((type) => [type, usesOf(level, type)])) },
+      choices: { uses: Object.fromEntries([...rulePartsOf(level).keys()].map((type) => [type, usesOf(level, type, text)])) },
     }
   },
-  // A rule part with several rules chooses one; another card's settings are its own.
+  // A rule part with several rules ticks which it gives; another card's settings are its own.
   settings: (parts, node, level) => (isRulePart(level, node.type)
-    ? (usesOf(level, node.type).length > 1 ? [{ key: 'use', label: T('用哪一条', 'Which rule'), kind: 'use' }] : [])
+    ? (choicesOfPart(rulePartsOf(level).get(node.type)).length > 1 ? [{ key: 'use', label: T('给出哪几条', 'Which rules'), kind: 'use' }] : [])
     : [
       ...(parts.rules[node.type]?.forms ? [{ key: 'form', kind: 'form' }] : []),
       ...paramsOf(parts.rules[node.type], node).map((key) => ({ key, label: MACHINE_TEXT[node.type]?.params?.[key] ?? key, kind: key })),
