@@ -1,7 +1,7 @@
 // node --test games/kit/circuit — a level's preset on a board: locked parts and wires stay, the rest is the player's.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { baseRefusal, connect, keepLocked, presetOf, removeNode, staysPut, withPreset } from './model.js'
+import { baseRefusal, connect, keepLocked, presetOf, removeNode, withPreset } from './model.js'
 
 const board = { nodes: [{ id: 'in', type: 'in', x: 0, y: 0 }, { id: 'out', type: 'out', x: 400, y: 0 }], wires: [] }
 const preset = { nodes: [{ id: 'p', type: 'oracle', x: 200, y: 0 }], wires: [{ from: 'p', to: 'out', port: 'in' }] }
@@ -45,14 +45,4 @@ test('a preset may fix a part\'s settings, all of them or some', () => {
   const free = withPreset(board, presetOf(answer, ['r']))
   const mine = { ...free, nodes: free.nodes.map((n) => (n.id === 'r' ? { ...n, params: { rule: 'S' } } : n)) }
   assert.deepEqual(keepLocked(free, mine).nodes.find((n) => n.id === 'r').params, { rule: 'S' })
-})
-
-test('a locked part that may nest keeps the region the board gives it; another keeps the preset\'s', () => {
-  const boxes = { nodes: [{ id: 'a', type: 'box', x: 0, y: 0, nest: true }, { id: 'b', type: 'box', x: 200, y: 0, nest: true }, { id: 'c', type: 'x', x: 0, y: 200 }], wires: [] }
-  const started = withPreset({ nodes: [], wires: [] }, boxes)
-  const nested = { ...started, nodes: started.nodes.map((n) => (n.id === 'b' || n.id === 'c' ? { ...n, in: 'a/body' } : n)) }
-  const kept = keepLocked(started, nested)
-  assert.equal(kept.nodes.find((n) => n.id === 'b').in, 'a/body')
-  assert.equal(kept.nodes.find((n) => n.id === 'c').in, undefined)
-  assert.ok(staysPut(kept.nodes.find((n) => n.id === 'c')) && !staysPut(kept.nodes.find((n) => n.id === 'b')))
 })

@@ -1,18 +1,18 @@
 import { useMemo, useRef, useState } from 'react'
-import { Box, FileSignature, PackageOpen } from 'lucide-react'
+import { FileSignature, PackageOpen, SquareDashedText } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, PartActions, SlotBoard, useSlotEditing } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, SlotBoard, useSlotEditing } from '../../../circuit/index.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { DECL, ISO_PARTS, checkIso, declInputs, runIso, settle, showEvidence, showRule, startIso } from '../iso.js'
 
-// A connective declared by its ways to make it (iso.js) on the shared circuit editor: an assumption box for each
-// letter, nested and wired to write each way as a rule, and the connective's card, whose inputs grow as ways are
-// wired and whose cases (the kernel's, one for each way) appear beside it. Each test is a situation, one row of the
-// table under the board: which proofs are at hand, whether the connective is proved and by which way, and what its
-// case gets back. Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
+// A connective declared by its ways to make it (iso.js) on the shared circuit editor: an assumption card for each
+// letter (the board's inputs), chained to write each way as a rule, and the connective's card, whose inputs grow as
+// ways are wired and whose cases (the kernel's, one for each way) appear as the board's outputs. Each test is a
+// situation, one row of the table under the board: which proofs are at hand, whether the connective is proved and by
+// which way, and what its case gets back. Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
 
 const T = (zh, en) => ({ zh, en })
 const CIRCLED = ['①', '②', '③']
@@ -20,16 +20,15 @@ const CIRCLED = ['①', '②', '③']
 /** The editor's description of the board (../../circuit/model.js), with the level's words for its letters. */
 function isoPartsFor(level, words) {
   return {
-    inputs: (node) => (node.type === 'hyp' ? ['body'] : node.type === DECL ? declInputs(node) : node.type === 'case' ? ['p'] : []),
-    role: () => 'part',
+    inputs: (node) => (node.type === 'hyp' ? ['then'] : node.type === DECL ? declInputs(node) : node.type === 'case' ? ['p'] : []),
+    role: (node) => (node.type === 'hyp' ? 'source' : node.type === 'case' ? 'sink' : 'part'),
     label: (node) => (node.type === 'hyp' ? T('假设', 'Assume')
       : node.type === DECL ? T(`「${level.declare.zh}」`, `“${level.declare.en}”`)
       : T(`拆法 ${CIRCLED[node.params.k - 1]}`, `Case ${CIRCLED[node.params.k - 1]}`)),
     portLabel: (node, port) => (node.type === DECL ? T(`造法 ${CIRCLED[Number(port.slice(1)) - 1]}`, `Way ${CIRCLED[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' ? T('再假设', 'Then assume') : ''),
-    frames: (node) => (node.type === 'hyp' ? [{ name: 'body', label: T('', ''), opens: false }] : []),
     family: (node) => (node.type === 'hyp' ? 'box' : node.type === DECL ? 'lemma' : 'given'),
-    icon: (node) => (node.type === 'hyp' ? Box : node.type === DECL ? FileSignature : PackageOpen),
-    cardWidth: (node) => (node.type === 'hyp' ? 260 : 220),
+    icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === DECL ? FileSignature : PackageOpen),
+    cardWidth: () => 220,
     removable: () => false,
     rules: ISO_PARTS,
   }
@@ -81,7 +80,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const body = (node) => {
     if (node.type === 'hyp') {
       const rule = view.values.get(node.id)
-      return <div className="lg-card"><span className="lg-rule">{rule ? L(showRule(rule, level, words)) : ''}</span></div>
+      return <div className="lg-card"><span className="lg-taken"><b>{L(words(node.params.name))}</b></span>{rule && <span className="lg-rule">{L(showRule(rule, level, words))}</span>}</div>
     }
     if (node.type === DECL) {
       return (
@@ -96,8 +95,6 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     return <div className="lg-card"><span className={`lg-tv ${back ? 'is-true' : 'is-false'}`}>{back ? `${tr('取回', 'Back')} ${back.items.map((x) => L(showEvidence(x, words))).join(' · ')}` : view.made ? tr('这次不是这种造法', 'Not this way this time') : tr('没有', 'Nothing')}</span></div>
   }
 
-  // What a box assumes, under its name as in the proof board's box.
-  const regionNote = (node) => <span className="lg-taken"><b>{L(words(node.params.name))}</b></span>
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   const table = (
     <div className="lg-strip">
@@ -131,7 +128,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   )
   const dock = <RunDock {...playback.dock({ go: tr('每种情况试一遍', 'Try every situation'), done: tr('每种情况都对', 'Every situation right') })} />
 
-  if (phone) return <PhoneIso {...{ circuit, parts, brief, dock, change, onClear, table, body, regionNote }} scope={level.id} />
+  if (phone) return <PhoneIso {...{ circuit, parts, brief, dock, change, onClear, table, body }} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -151,10 +148,9 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
               width={220}
               height={120}
               body={body}
-              regionNote={regionNote}
               cardClass={() => 'lg-node'}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
-              emptyNote={{ zh: '把一个假设框拖进另一个框里，内框接到外框的「再假设」；外框接进连接词的一个造法口。', en: 'Drag one assumption box into another and wire the inner one to the outer one’s “then assume”; wire the outer box into one of the connective’s ways.' }}
+              emptyNote={{ zh: '一张假设接进另一张的「再假设」，是同一种造法要两样；假设接进连接词的造法口，就是一种造法。', en: 'An assumption wired into another’s “then assume” is one way needing both; an assumption wired into a way of the connective is one way to make it.' }}
             />
           </div>
         </div>
@@ -168,7 +164,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
 }
 
 // The board on a phone: the shared slot board, the situations under it, and the run bar.
-function PhoneIso({ circuit, parts, brief, dock, change, onClear, table, body, regionNote, scope }) {
+function PhoneIso({ circuit, parts, brief, dock, change, onClear, table, body, scope }) {
   const [sheet, setSheet] = useState(null)
   const root = useRef(null)
   const scroller = useRef(null)
@@ -189,7 +185,7 @@ function PhoneIso({ circuit, parts, brief, dock, change, onClear, table, body, r
     <div className="level-phone is-split lg-phone" ref={root}>
       <div className="lg-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={body} sinkBody={body} regionNote={regionNote} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={[]} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={body} sinkBody={body} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={[]} />
         {table}
       </div>
       <footer className="run-foot">{dock}</footer>
@@ -198,7 +194,6 @@ function PhoneIso({ circuit, parts, brief, dock, change, onClear, table, body, r
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
             {body(node)}
-            {node.nest && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}
