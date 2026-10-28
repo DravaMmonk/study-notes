@@ -356,7 +356,7 @@ export const GLOSSARY = [
   },
   {
     id: 'unification', group: 'rules', title: T('合一', 'unification'), at: 'r-match',
-    body: [T(`<b>合一</b>是解等式 s ≐ t：给${W('metavariable')}找一组替换，让两边变得一模一样。一阶的合一由几条规则解到底（Martelli 和 Montanari 的写法：拆开、删掉、对不上、翻过来、发生检查、代进去）。合一在 1965 年由 Robinson 为归结证明发明，后来成了 Prolog、类型推导和证明助手的心脏。`, `<b>Unification</b> solves equations s ≐ t: it finds what to put in for each ${W('metavariable')} so that both sides become the same. First-order unification is solved by a few rules (Martelli and Montanari’s form: decompose, delete, clash, swap, occurs check, eliminate). Robinson invented it in 1965 for resolution proofs; it became the heart of Prolog, type inference and proof assistants.`)],
+    body: [T(`<b>合一</b>是解等式 s ≐ t：给${W('metavariable')}找一组替换，让两边变得一模一样。一阶的合一由几条规则解到底（Martelli 和 Montanari 的写法：分解、删除、冲突、定向、出现检查、消元）。合一在 1965 年由 Robinson 为归结证明发明，后来成了 Prolog、类型推导和证明助手的心脏。`, `<b>Unification</b> solves equations s ≐ t: it finds what to put in for each ${W('metavariable')} so that both sides become the same. First-order unification is solved by a few rules (Martelli and Montanari’s form: decompose, delete, clash, swap, occurs check, eliminate). Robinson invented it in 1965 for resolution proofs; it became the heart of Prolog, type inference and proof assistants.`)],
     see: ['mgu', 'pattern'],
   },
   {

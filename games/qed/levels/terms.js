@@ -120,7 +120,7 @@ export const terms = [
       { t: T('「若…则…」的证明是函数。别的连接词，证明是各种<b>数据</b>：「A ∧ B」的证明是一<b>对</b>，写作 ⟨a, b⟩，拆开就是取出一半，p.1、p.2。「A ∨ B」只有一边成立，证明带着<b>标签</b>：Or.inl a 说「是左边，证明是 a」，Or.inr b 说「是右边」；分情况写成 p.elim f g，看标签决定用 f 还是 g。', 'A proof of an “if … then …” is a function. The other connectives’ proofs are kinds of <b>data</b>: a proof of “A ∧ B” is a <b>pair</b>, written ⟨a, b⟩, and splitting it takes out a half, p.1 or p.2. In “A ∨ B” only one side holds, and its proof carries a <b>tag</b>: Or.inl a says “the left one, proved by a”, Or.inr b “the right one”; Cases is written p.elim f g, the tag deciding whether f or g is used.') },
       { t: T('否定不用新东西：¬A 就是 A → ⊥，它的证明是一个函数，给它 A 的证明，还你一个矛盾。⊥ 没有证明，像一个没有任何值的类型；万一手里有了一个，<b>False.elim</b> 就把它当成任何一句的证明。', 'Negation needs nothing new: ¬A is A → ⊥, and its proof is a function that, given a proof of A, gives back a contradiction. ⊥ has no proof, like a type with no values; should you hold one, <b>False.elim</b> makes it a proof of any sentence.') },
     ],
-    after: T('拼成 ∧ 是造一对，拆开 ∧ 是取出分量；∨ 是带标签的值，分情况是按标签分支，程序里的 match；矛盾推出一切，在程序里是「这一支走不到」。证明板上的每一条规则，都是造一种值或者用一种值。', 'Joining ∧ makes a pair and splitting it takes a component; ∨ is a tagged value and Cases branches on the tag, a match in a program; from a contradiction anything, in a program, is “this branch is never reached”. Every rule on the proof board makes a kind of value or uses one.'),
+    after: T('引入 ∧ 是造一对，消去 ∧ 是取出分量；∨ 是带标签的值，分情况是按标签分支，程序里的 match；矛盾推出一切，在程序里是「这一支走不到」。证明板上的每一条规则，都是造一种值或者用一种值。', 'Joining ∧ makes a pair and splitting it takes a component; ∨ is a tagged value and Cases branches on the tag, a match in a program; from a contradiction anything, in a program, is “this branch is never reached”. Every rule on the proof board makes a kind of value or uses one.'),
   },
 
   // ---------- writing terms ----------
@@ -141,12 +141,12 @@ export const terms = [
     id: 't-wpair',
     title: T('写数据', 'Write data'),
     tasks: write([
-      { premises: { p: 'Rain ∧ Wind → Wet' }, goal: 'Rain → (Wind → Wet)', answer: 'fun a b => p ⟨a, b⟩', hint: [T('拼成 ∧ 写成「⟨□, □⟩」：拿到 a 和 b，拼成一对交给 p。', 'Join ∧ is “⟨□, □⟩”: given a and b, make a pair and give it to p.')] },
-      { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Rain ∧ Wind → Wet', answer: 'fun a => p a.1 a.2', hint: [T('拆开 ∧ 写成「□.1」「□.2」：拿到的 a 是一对，p 要的却是一个一个。', 'Split ∧ is “□.1” and “□.2”: the a you get is a pair, but p wants them one at a time.')] },
-      { premises: { p: 'Rain ∨ Sat' }, goal: 'Sat ∨ Rain', answer: 'p.elim (fun a => Or.inr a) (fun b => Or.inl b)', hint: [T('分情况写成「□.elim (fun _ => □) (fun _ => □)」，引入 ∨ 写成 Or.inl、Or.inr：每种情况各贴到新「或者」的哪一边？', 'Cases is “□.elim (fun _ => □) (fun _ => □)”, Bring in ∨ is Or.inl or Or.inr: in the new “or”, which side does each case go?')] },
+      { premises: { p: 'Rain ∧ Wind → Wet' }, goal: 'Rain → (Wind → Wet)', answer: 'fun a b => p ⟨a, b⟩', hint: [T('引入 ∧ 写成「⟨□, □⟩」：拿到 a 和 b，拼成一对交给 p。', '∧ intro is “⟨□, □⟩”: given a and b, make a pair and give it to p.')] },
+      { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Rain ∧ Wind → Wet', answer: 'fun a => p a.1 a.2', hint: [T('消去 ∧ 写成「□.1」「□.2」：拿到的 a 是一对，p 要的却是一个一个。', '∧ elim is “□.1” and “□.2”: the a you get is a pair, but p wants them one at a time.')] },
+      { premises: { p: 'Rain ∨ Sat' }, goal: 'Sat ∨ Rain', answer: 'p.elim (fun a => Or.inr a) (fun b => Or.inl b)', hint: [T('分情况写成「□.elim (fun _ => □) (fun _ => □)」，引入 ∨ 写成 Or.inl、Or.inr：每种情况各贴到新「或者」的哪一边？', 'Cases is “□.elim (fun _ => □) (fun _ => □)”, ∨ intro is Or.inl or Or.inr: in the new “or”, which side does each case go?')] },
       { premises: { p: 'Rain', q: '¬Rain' }, goal: 'Rest', answer: 'False.elim (q p)', hint: [T('矛盾推出一切写成「False.elim □」；q 用在 p 上是矛盾。', 'From contradiction is “False.elim □”; q used on p is the contradiction.')] },
     ]),
-    intro: [{ t: T('其余连接词的元件也都写成证明项：拼成 ∧ 是 ⟨a, b⟩，拆开是 p.1、p.2；引入 ∨ 是 Or.inl、Or.inr，分情况是 p.elim；矛盾推出一切是 False.elim。', 'The other connectives’ parts are written as terms too: Join ∧ is ⟨a, b⟩, splitting it p.1 and p.2; Bring in ∨ is Or.inl or Or.inr, Cases is p.elim; from contradiction, anything, is False.elim.') }],
+    intro: [{ t: T('其余连接词的元件也都写成证明项：引入 ∧ 是 ⟨a, b⟩，拆开是 p.1、p.2；引入 ∨ 是 Or.inl、Or.inr，分情况是 p.elim；矛盾推出一切是 False.elim。', 'The other connectives’ parts are written as terms too: ∧ intro is ⟨a, b⟩, splitting it p.1 and p.2; ∨ intro is Or.inl or Or.inr, Cases is p.elim; from contradiction, anything, is False.elim.') }],
     after: T('前两题一来一回：吃一对的函数和一个一个吃的函数可以互相改写，这叫<wiki-ref to="currying"></wiki-ref>（Curry），<wiki-ref to="curry-howard"></wiki-ref>里的 Curry 也是他。连接词的元件，到这里都写过了。', 'The first two go there and back: a function taking a pair and one taking its arguments one at a time can each be rewritten as the other. This is <wiki-ref to="currying"></wiki-ref>, after Haskell Curry, the Curry of the <wiki-ref to="curry-howard"></wiki-ref>. Every connective’s part has been written now.'),
   },
   {

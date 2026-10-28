@@ -153,7 +153,7 @@ export const rules = [
     cases: [],
     brief: T('实现一个证明器，可以从已知「晨星 = 昏星」，证明出「昏星 = 晨星」。', 'Build a prover that, from “the Morning Star = the Evening Star”, proves “the Evening Star = the Morning Star”.'),
     hint: [
-      T('自反给出「晨星 = 晨星」。', 'Reflexivity gives “the Morning Star = the Morning Star”.'),
+      T('自反律给出「晨星 = 晨星」。', 'Reflexivity gives “the Morning Star = the Morning Star”.'),
       T('只换掉它左边那个晨星。', 'Replace only its left Morning Star.'),
     ],
     solution: proof({ r: ['refl', { t: 'phos' }], w: ['rewrite', { at: [0] }] }, ['p>w.eq', 'r>w.p', 'w>goal'], { premises: ['p'] }),

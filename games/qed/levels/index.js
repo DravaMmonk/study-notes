@@ -137,10 +137,10 @@ const REVISIONS = {
     { at: 'sp-rw', desc: T('「或者」分配到「并且」上，四个方向：A ∨ (B ∧ C) 和 (A ∨ B) ∧ (A ∨ C) 互相转换，(A ∧ B) ∨ C 和 (A ∨ C) ∧ (B ∨ C) 互相转换。元件上切换形状；每个方向也都是改写规则。', '“Or” distributed over “and”, four ways: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Switch the shape on the card; each way is a rewrite rule too.') },
   ],
   iff: [{ by: 'au-iff', forms: ['intro'] }],
-  // ↔ comes into proofs on the main path with 两个方向: Split ∧ takes it apart.
+  // ↔ comes into proofs on the main path with 两个方向: ∧ elim takes it apart.
   andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
 
-  // The machine parts grow along chapters 7 and 8: quantifiers taken apart and patterns (做成函数), every result once
+  // The machine parts grow along chapters 7 and 8: quantifiers taken apart and patterns (模式合一), every result once
   // the cards backtrack (一串结果).
   uDecompose: [{ at: 'r-pattern', desc: T('找到一个两边样子相同的等式，拆成各部分对各部分的几个等式。两边都是「对所有」（或都是「存在」）时，拆出两边的身体，让它们用同一个变量，等式前面记上 ⋀x：x 是量词管着的。', 'Finds an equation with the same shape on both sides and splits it into an equation for each pair of parts. When both sides are “for all” (or both “there is”), it takes out the two bodies, with one variable for both, and marks the equation ⋀x: x is bound by a quantifier.') }],
   uCheck: [{ at: 'r-pattern', desc: T('找到一个 ?A ≐ t，?A 不能是 t，就宣布失败：t 里面又有 ?A；或者 t 里有前面 ⋀ 管着的变量（?A 不能把它带出量词）。', 'Finds ?A ≐ t where ?A cannot be t and declares failure: ?A occurs inside t, or t has a variable bound by the ⋀ in front (?A cannot take it out of its quantifier).') }],

@@ -72,7 +72,7 @@ export const inductive = [
     hint: [T('化简用两条定义，把左边算出来；两边一样了，用规则接上<part-ref to="part:refl"></part-ref>。', 'Simp with the two definitions works the left side out; once both sides are the same, Rule with <part-ref to="part:refl"></part-ref>.')],
     intro: [{ t: T('<level-ref to="nl-plus"></level-ref>里每一步做的都一样：拿一条定义，从左往右换。定义就是改写规则：<part-ref to="lemma:simp"></part-ref>的规则里多了一组「定义」，交给它去算。', 'Every step in <level-ref to="nl-plus"></level-ref> was the same: take a definition and replace left to right. A definition is a rewrite rule: among <part-ref to="lemma:simp"></part-ref>’s rules there is now a group of definitions, to work it out.') }],
     solution: script(['simp', ['def.0', 'def.1']], ['rule', 'refl']),
-    after: T('化简把定义从左往右一遍遍用，直到左边算成一个数；两边一样，就是自反。证明助手的「计算」，就是改写。', 'Simp uses the definitions left to right again and again until the left side is worked out to a number; both sides the same is reflexivity. Computing, for the proof assistant, is rewriting.'),
+    after: T('化简把定义从左往右一遍遍用，直到左边算成一个数；两边一样，就是自反律。证明助手的「计算」，就是改写。', 'Simp uses the definitions left to right again and again until the left side is worked out to a number; both sides the same is reflexivity. Computing, for the proof assistant, is rewriting.'),
   }),
   proves({
     id: 'sp-lists',
@@ -202,7 +202,7 @@ export const inductive = [
           T('0 的情况：第一条定义取 0。', 'The case 0: take 0 in the first definition.'),
           T('从 a 到 S a：第二条定义取 a、再取 0，得到 S a + 0 = S (a + 0)；框里假设的 a + 0 = a，用等量代换换进去。', 'From a to S a: the second definition with a, then 0, gives S a + 0 = S (a + 0); the a + 0 = a the box assumes goes in by Rewrite.'),
         ],
-        intro: [{ t: T('新元件「归纳」：在元件上选要证的「对所有 x」，它有两个框。第一个框证 0 的情况；第二个框里有一个数 a，假设对 a 成立，证对 S a 也成立。', 'A new part, “Induction”: choose on it the “for every x” to prove; it has two boxes. The first proves the case 0; in the second there is a number a, the sentence is assumed for a, and proved for S a.') }],
+        intro: [{ t: T('新元件「数学归纳法」：在元件上选要证的「对所有 x」，它有两个框。第一个框证 0 的情况；第二个框里有一个数 a，假设对 a 成立，证对 S a 也成立。', 'A new part, “Induction”: choose on it the “for every x” to prove; it has two boxes. The first proves the case 0; in the second there is a number a, the sentence is assumed for a, and proved for S a.') }],
         solution: proof({
           n: ['natInd', { P: '∀x. plus(x, zero) = x', x: 'a' }],
           z: ['allE', { t: 'zero' }, 'n/zero'],

@@ -135,9 +135,9 @@ export const classical = [
     cases: [{ A: 'Rain', B: 'Coffee' }, { A: 'Bus', B: 'OnTime' }],
     brief: T('实现一个证明器，可以从已知「下雨 → 我喝了咖啡」和「¬下雨 → 我喝了咖啡」，证明出「我喝了咖啡」。', 'Build a prover that, from “it rains → I drink coffee” and “¬it rains → I drink coffee”, proves “I drink coffee”.'),
     hint: [T('排中律给出「下雨 ∨ ¬下雨」，再分情况。', 'Excluded middle gives “it rains ∨ ¬it rains”; then take cases.')],
-    intro: [{ t: T('下雨我喝咖啡，不下雨我也喝咖啡，所以我喝了咖啡。可分情况要一句 ∨，已知里没有：排中律给你一句。', 'Rain or no rain, I drink coffee, so I drank coffee. But Case by case needs an ∨, and none is given: Excluded middle gives you one.') }],
+    intro: [{ t: T('下雨我喝咖啡，不下雨我也喝咖啡，所以我喝了咖啡。可消去 ∨ 要一句 ∨，已知里没有：排中律给你一句。', 'Rain or no rain, I drink coffee, so I drank coffee. But ∨ elim needs an ∨, and none is given: Excluded middle gives you one.') }],
     solution: proof({ l: ['lem', { A: 'A' }], e: ['orE'], m1: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['l>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>e.left', 'q>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q'] }),
-    after: T('排中律加分情况：不知道是哪一边，就两边都讨论。', 'Excluded middle plus Case by case: not knowing which, take both.'),
+    after: T('排中律加分情况：不知道是哪一边，就两边都讨论。', 'Excluded middle plus case by case: not knowing which, take both.'),
   },
   {
     id: 'c-either',
@@ -405,7 +405,7 @@ export const classical = [
         intro: [{ t: T('证明「我是无赖」这话不可能有人说：从它的翻译推出矛盾。「a 是骑士 ↔ ¬a 是骑士」就是「(a 是骑士 → ¬a 是骑士) ∧ (¬a 是骑士 → a 是骑士)」。', 'Prove nobody can say “I am a knave”: get a contradiction from its translation. “a is a knight ↔ ¬a is a knight” is “(a is a knight → ¬a is a knight) ∧ (¬a is a knight → a is a knight)”.') }],
         brief: T('实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士」证明出矛盾 ⊥。', 'Build a prover that, from “a is a knight ↔ ¬a is a knight”, proves the contradiction ⊥.'),
         hint: [
-          T('拆开 ∧ 也能拆 ↔：拆出「a 是骑士 → ¬a 是骑士」和「¬a 是骑士 → a 是骑士」。', 'Split ∧ splits a ↔ too: into “a is a knight → ¬a is a knight” and “¬a is a knight → a is a knight”.'),
+          T('消去 ∧ 也能拆 ↔：拆出「a 是骑士 → ¬a 是骑士」和「¬a 是骑士 → a 是骑士」。', '∧ elim splits a ↔ too: into “a is a knight → ¬a is a knight” and “¬a is a knight → a is a knight”.'),
           T('「¬a 是骑士」就是「a 是骑士 → ⊥」，第一句里的「a 是骑士」说了两遍。', '“¬a is a knight” is “a is a knight → ⊥”, so the first one states “a is a knight” twice.'),
         ],
         solution: k1,

@@ -178,7 +178,7 @@ export const equality = [
       { goal: 'taut(disj(neg(conj(p, q)), disj(p, q))) = tt' },
     ],
     brief: PROVE,
-    hint: [T('化简接进这一关所有的定义，最后两边一样，用自反。', 'Wire every definition of this level into Simp; when both sides are alike, use Reflexivity.')],
+    hint: [T('化简接进这一关所有的定义，最后两边一样，用自反律。', 'Wire every definition of this level into Simp; when both sides are alike, use Reflexivity.')],
     intro: [
       { t: T('<level-ref to="au-cert"></level-ref>里，外面的证明器交来证书，核照着重放。另一条路不找证书，靠的是核会按定义去算。公式本身也能写成数据：Or p (Not p) 是一样东西，eval f a b 按定义算出它在 p 取 a、q 取 b 那一行的真假，taut f 把四行都算一遍。这是一个<wiki-ref to="decision"></wiki-ref>：判定一句话是不是永远成立。', 'In <level-ref to="au-cert"></level-ref>, an outside prover hands over a certificate and the kernel replays it. The other road looks for no certificate and leans on the kernel computing by the definitions. A formula can be written as data too: Or p (Not p) is a thing, eval f a b works out by the definitions whether it is true on the row where p is a and q is b, and taut f works out all four rows. It is a <wiki-ref to="decision"></wiki-ref>: it decides whether a sentence always holds.') },
     ],

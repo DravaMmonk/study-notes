@@ -59,7 +59,7 @@ export const era2 = [
     hint: [T('两个框依次假设「下雨」和「刮风」；在里面把两句假设拼成一句 ∧，交给已知。', 'Two boxes assume “it rains” and “it is windy” in turn; inside, join the two assumptions into one ∧ and hand it to the given.')],
     intro: [{ t: T('「下雨并且刮风，就地湿」和「下雨的话，只要再刮风，就地湿」是一回事。从前者推出后者。', '“If it rains and it is windy, the ground is wet” and “if it rains, then if it is also windy, the ground is wet” say the same. Get the second from the first.') }],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'], c: ['andI', {}, 'g'], m: ['mp', {}, 'g'] }, ['f#body>c.a', 'g#body>c.b', 'p>m.imp', 'c>m.a', 'm>g.body', 'g>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('框给出条件，拼成 ∧ 把两个条件交到一起。', 'The boxes supply the conditions, and Join ∧ hands them over together.'),
+    after: T('框给出条件，引入 ∧ 把两个条件交到一起。', 'The boxes supply the conditions, and ∧ intro hands them over together.'),
   },
   {
     id: 'uncurry',
@@ -136,9 +136,9 @@ export const era2 = [
     adds: ['orE'],
     brief: T('实现一个证明器，可以从已知「我坐公交 ∨ 我骑车」「我坐公交 → 我准时到」「我骑车 → 我准时到」，证明出「我准时到」。', 'Build a prover that, from “I take the bus ∨ I cycle”, “I take the bus → I arrive on time” and “I cycle → I arrive on time”, proves “I arrive on time”.'),
     hint: [
-      T('放一块分情况，把已知「我坐公交 ∨ 我骑车」接进元件上标着「A ∨ B」的输入口。元件下半部分有两个框：情况一的「假设」是「我坐公交」，情况二的是「我骑车」。', 'Place a Case by case and wire the given “I take the bus ∨ I cycle” into the input marked “A ∨ B” on its part. The lower half of the part holds two boxes: case one’s “Assume” is “I take the bus”, case two’s “I cycle”.'),
+      T('放一块消去 ∨，把已知「我坐公交 ∨ 我骑车」接进元件上标着「A ∨ B」的输入口。元件下半部分有两个框：情况一的「假设」是「我坐公交」，情况二的是「我骑车」。', 'Place an ∨ elim and wire the given “I take the bus ∨ I cycle” into the input marked “A ∨ B” on its part. The lower half of the part holds two boxes: case one’s “Assume” is “I take the bus”, case two’s “I cycle”.'),
       T('情况一的框里放一块套用：「我坐公交 → 我准时到」接「A → B」口，框左上角的「假设」接「A」口，结果接到这个框右上角的「结论」。情况二照样做。', 'In case one’s box put an Apply: “I take the bus → I arrive on time” into its “A → B” input, the box’s “Assume” at its top left into its “A” input, and the result into “Conclusion” at the box’s top right. Do the same in case two.'),
-      T('两个框都证出「我准时到」以后，分情况元件右上角的输出就是「我准时到」，接到目标。', 'Once both boxes prove “I arrive on time”, the output at the Case by case part’s top right gives “I arrive on time”: wire it to the goal.'),
+      T('两个框都证出「我准时到」以后，消去 ∨ 元件右上角的输出就是「我准时到」，接到目标。', 'Once both boxes prove “I arrive on time”, the output at the ∨ elim part’s top right gives “I arrive on time”: wire it to the goal.'),
     ],
     intro: [
       { t: T('要么我坐公交，要么我骑车，可还不知道是哪一个。坐公交的话，我准时到；骑车的话，我也准时到。所以不管是哪一个，我准时到。', 'Either I take the bus or I cycle, and you do not know which. If I take the bus, I arrive on time; if I cycle, I arrive on time too. So whichever it is, I arrive on time.') },
@@ -156,7 +156,7 @@ export const era2 = [
     tests: [{ premises: { p: 'A ∨ B' }, goal: 'B ∨ A' }],
     cases: [{ A: 'Bus', B: 'Bike' }, { A: 'Coffee', B: 'Tea' }],
     brief: T('实现一个证明器，可以从已知「我坐公交 ∨ 我骑车」，证明出「我骑车 ∨ 我坐公交」。', 'Build a prover that, from “I take the bus ∨ I cycle”, proves “I cycle ∨ I take the bus”.'),
-    hint: [T('不知道是哪一边，就分情况。每种情况里，用引入 ∨ 换到对的位置。', 'Not knowing which side, split into cases. In each, Bring in ∨ puts it in the right place.')],
+    hint: [T('不知道是哪一边，就分情况。每种情况里，用引入 ∨ 换到对的位置。', 'Not knowing which side, split into cases. In each, ∨ intro puts it in the right place.')],
     intro: [{ t: T('一句 ∨ 拆不开：不知道是哪一边成立，就得分情况。', 'An ∨ will not split: not knowing which side holds, it takes cases.') }],
     solution: proof({ e: ['orE'], l: ['orI', { other: 'B', side: 'left' }, 'e/left'], r: ['orI', { other: 'A', side: 'right' }, 'e/right'] }, ['p>e.ab', 'e#left>l.a', 'l>e.left', 'e#right>r.a', 'r>e.right', 'e>goal'], { premises: ['p'] }),
     after: T('用掉一个 ∨ 要分情况，造出一个 ∨ 要选一边：两件事在一关里都用上了。', 'Using an ∨ takes cases, making one takes a side: this level did both.'),
@@ -171,7 +171,7 @@ export const era2 = [
     hint: [T('目标是「若…则…」，先开一个假设框；框里有了一句 ∨，再分情况。', 'The goal is an “if … then …”: open an assumption box first; with an ∨ inside it, split into cases.')],
     intro: [{ t: T('在<level-ref to="cases"></level-ref>里，「我坐公交 ∨ 我骑车」是已知。这一关它成了要假设的条件：两种框套在一起。', 'In <level-ref to="cases"></level-ref>, “I take the bus ∨ I cycle” was given. Here it is a condition to assume: one kind of box inside the other.') }],
     solution: proof({ f: ['impI', { A: 'A ∨ B' }], e: ['orE', {}, 'f'], m1: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['f#body>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>e.left', 'q>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>f.body', 'f>goal'], { premises: ['p', 'q'] }),
-    after: T('假设框里套着分情况：外面的框给出条件，里面的框分开讨论。', 'Case by case inside an assumption box: the outer box supplies the condition, the inner ones split it.'),
+    after: T('假设框里套着消去 ∨：外面的框给出条件，里面的框分开讨论。', '∨ elim inside an assumption box: the outer box supplies the condition, the inner ones split it.'),
   },
   {
     id: 'dist',
@@ -181,12 +181,12 @@ export const era2 = [
     cases: [{ A: 'Sat', B: 'Rain', C: 'Wind' }, { A: 'Exam', B: 'Coffee', C: 'Tea' }],
     brief: T('实现一个证明器，可以从已知「今天是周六 ∧ (下雨 ∨ 刮风)」，证明出「(今天是周六 ∧ 下雨) ∨ (今天是周六 ∧ 刮风)」。', 'Build a prover that, from “today is Saturday ∧ (it rains ∨ it is windy)”, proves “(today is Saturday ∧ it rains) ∨ (today is Saturday ∧ it is windy)”.'),
     hint: [
-      T('先拆开 ∧，再对拆出来的「下雨 ∨ 刮风」分情况。', 'Split the ∧ first, then take cases on the “it rains ∨ it is windy” it gives.'),
+      T('先消去 ∧，再对拆出来的「下雨 ∨ 刮风」分情况。', 'Split the ∧ first, then take cases on the “it rains ∨ it is windy” it gives.'),
       T('每种情况里，把「今天是周六」和这一情况的假设拼起来，再放进 ∨ 的对应一边。', 'In each case, join “today is Saturday” with that case’s assumption, then put it on the matching side of the ∨.'),
     ],
-    intro: [{ t: T('三种连接词一起上：拆开 ∧、分情况、拼成 ∧、引入 ∨。', 'All three connectives at once: split ∧, case by case, join ∧, bring in ∨.') }],
+    intro: [{ t: T('三种连接词一起上：消去 ∧、消去 ∨、引入 ∧、引入 ∨。', 'All three connectives at once: ∧ elim, ∨ elim, ∧ intro, ∨ intro.') }],
     solution: proof({ s: ['andE'], e: ['orE'], l1: ['andI', {}, 'e/left'], o1: ['orI', { other: 'A ∧ C', side: 'right' }, 'e/left'], l2: ['andI', {}, 'e/right'], o2: ['orI', { other: 'A ∧ B', side: 'left' }, 'e/right'] }, ['p>s.ab', 's#right>e.ab', 's#left>l1.a', 'e#left>l1.b', 'l1>o1.a', 'o1>e.left', 's#left>l2.a', 'e#right>l2.b', 'l2>o2.a', 'o2>e.right', 'e>goal'], { premises: ['p'] }),
-    after: T('拆开 ∧ 给出的「今天是周六」在两种情况里都用上了：框外证出的东西，框里随便用。', 'The “today is Saturday” from Split ∧ served in both cases: what is proved outside a box is free to use inside.'),
+    after: T('消去 ∧ 给出的「今天是周六」在两种情况里都用上了：框外证出的东西，框里随便用。', 'The “today is Saturday” from ∧ elim served in both cases: what is proved outside a box is free to use inside.'),
   },
   {
     id: 'bot',

@@ -310,17 +310,17 @@ const R = (zh, en) => T(zh, en)
  * hypothesis to use up), then the rest.
  */
 export const KERNEL_RULES = [
-  ruleOf('conjI', R('拼成 ∧', 'Join ∧'), ['?A', '?B'], '?A ∧ ?B'),
+  ruleOf('conjI', R('引入 ∧', '∧ intro'), ['?A', '?B'], '?A ∧ ?B'),
   ruleOf('impI', R('假设框', 'Assumption box'), ['⟦?A⟧ ⟹ ?B'], '?A → ?B'),
-  ruleOf('disjI1', R('引入 ∨（左边）', 'Bring in ∨ (left)'), ['?A'], '?A ∨ ?B'),
-  ruleOf('disjI2', R('引入 ∨（右边）', 'Bring in ∨ (right)'), ['?B'], '?A ∨ ?B'),
+  ruleOf('disjI1', R('引入 ∨（左边）', '∨ intro (left)'), ['?A'], '?A ∨ ?B'),
+  ruleOf('disjI2', R('引入 ∨（右边）', '∨ intro (right)'), ['?B'], '?A ∨ ?B'),
   ruleOf('allI', R('任取', 'For any'), ['⋀x. ?P(x)'], '∀x. ?P(x)'),
   ruleOf('exI', R('举例', 'Example'), ['?P(?t)'], '∃x. ?P(x)'),
   ruleOf('mp', R('套用', 'Apply'), ['?A → ?B', '?A'], '?B'),
-  ruleOf('conjE', R('拆开 ∧', 'Split ∧'), ['?A ∧ ?B', '⟦?A; ?B⟧ ⟹ ?C'], '?C'),
-  ruleOf('conjunct1', R('拆开 ∧（左边）', 'Split ∧ (left)'), ['?A ∧ ?B'], '?A'),
-  ruleOf('conjunct2', R('拆开 ∧（右边）', 'Split ∧ (right)'), ['?A ∧ ?B'], '?B'),
-  ruleOf('disjE', R('分情况', 'Case by case'), ['?A ∨ ?B', '⟦?A⟧ ⟹ ?C', '⟦?B⟧ ⟹ ?C'], '?C'),
+  ruleOf('conjE', R('消去 ∧', '∧ elim'), ['?A ∧ ?B', '⟦?A; ?B⟧ ⟹ ?C'], '?C'),
+  ruleOf('conjunct1', R('消去 ∧（左边）', '∧ elim (left)'), ['?A ∧ ?B'], '?A'),
+  ruleOf('conjunct2', R('消去 ∧（右边）', '∧ elim (right)'), ['?A ∧ ?B'], '?B'),
+  ruleOf('disjE', R('消去 ∨', '∨ elim'), ['?A ∨ ?B', '⟦?A⟧ ⟹ ?C', '⟦?B⟧ ⟹ ?C'], '?C'),
   ruleOf('impE', R('用上「若…则…」', 'Use an “if”'), ['?A → ?B', '?A', '⟦?B⟧ ⟹ ?C'], '?C'),
   ruleOf('botE', R('矛盾推出一切', 'From contradiction'), ['⊥'], '?C'),
   ruleOf('spec', R('取一个', 'Take one'), ['∀x. ?P(x)'], '?P(?t)'),
@@ -329,7 +329,7 @@ export const KERNEL_RULES = [
   ruleOf('raa', R('反证法', 'By contradiction'), ['¬¬?A'], '?A'),
   // A sentence proved on the way and then used, as a wire on the proof board does (Lean's have).
   ruleOf('cut', R('先证一句', 'Have'), ['?A', '⟦?A⟧ ⟹ ?C'], '?C'),
-  ruleOf('refl', R('自反', 'Reflexivity'), [], '?t = ?t'),
+  ruleOf('refl', R('自反律', 'Reflexivity'), [], '?t = ?t'),
 ]
 // The proof-board part each kernel rule is (a level has the rule once it holds the part); Have is Apply and a box.
 const PART = { conjI: 'andI', impI: 'impI', disjI1: 'orI', disjI2: 'orI', allI: 'allI', exI: 'exI', mp: 'mp', conjE: 'andE', conjunct1: 'andE', conjunct2: 'andE', disjE: 'orE', impE: 'mp', botE: 'botE', spec: 'allE', allE: 'allE', exE: 'exE', raa: 'raa', cut: 'mp', refl: 'refl' }
