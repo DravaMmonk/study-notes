@@ -125,7 +125,7 @@ export const circuits = [
       { t: T('<level-ref to="always"></level-ref>里见过<wiki-ref to="tautology"></wiki-ref>：每一行都真的话，不管情况怎样都成立。', 'You met the <wiki-ref to="tautology"></wiki-ref> in <level-ref to="always"></level-ref>: a sentence true on every row, whatever happens.') },
       { t: T('在电路上它是什么样子？接出这句话，看电路输出这一列。', 'What does one look like as a circuit? Wire this sentence and watch the board’s output column.') },
     ],
-    after: T('四行全是假：没有哪一种天气能让它成立，这就是矛盾，也叫不可满足。永远是假的话，后面会写成一个符号 <b>⊥</b>。', 'All four rows are false: no weather makes it hold. That is a contradiction, also called unsatisfiable. A sentence that is always false will later be written as one symbol, <b>⊥</b>.'),
+    after: T('四行全是假：没有哪一种天气能让它成立。永远是假的话，后面会写成一个符号 <b>⊥</b>。', 'All four rows are false: no weather makes it hold. A sentence that is always false will later be written as one symbol, <b>⊥</b>.'),
   },
   {
     id: 'g-iff',
@@ -135,6 +135,7 @@ export const circuits = [
     hideTarget: true,
     builds: 'gIff',
     symbols: ['↔'],
+    intro: [{ t: T('两个「若…则…」方向相反：用「或」接起来，怎样都对。换成「与」呢？', 'Two if…thens pointing opposite ways: joined by Or, it is always true. And joined by And?') }],
     brief: T('接一块电路，算出「（若下雨，则地湿）并且（若地湿，则下雨）」在每一行是真是假。', 'Wire a board that works out, on every row, whether “(if it rains, the ground is wet) and (if the ground is wet, it rains)” is true.'),
     hint: [T('两个「若…则…」，方向相反，再用「与」接起来。', 'Two if…thens pointing opposite ways, joined by And.')],
     solution: board('(Rain → Wet) ∧ (Wet → Rain)', { i1: 'gImp', i2: 'gImp', a: 'gAnd' }, ['Rain>i1.a', 'Wet>i1.b', 'Wet>i2.a', 'Rain>i2.b', 'i1>a.a', 'i2>a.b', 'a>out']),

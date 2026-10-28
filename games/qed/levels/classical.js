@@ -87,7 +87,7 @@ export const classical = [
         tests: [{ goal: 'A ∨ ¬A' }],
         sentences: ['¬(A ∨ ¬A)'],
         cases: [{ A: 'Rain' }, { A: 'Exam' }],
-        intro: [{ t: T('刚证出的是「否认它会矛盾」，离「下雨 ∨ ¬下雨」只差去掉两个 ¬。数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」新规则<part-ref to="part:raa"></part-ref>：由「并非并非 某句」得到那句。', 'What you just proved is that denying it is a contradiction; “it rains ∨ ¬it rains” is two ¬s away. Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” A new rule, <part-ref to="part:raa"></part-ref>: from “not not a sentence”, the sentence.') }],
+        intro: [{ t: T('刚证出的是「否认它会矛盾」，离「下雨 ∨ ¬下雨」只差去掉两个 ¬。数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」可这一步证明核证不出，也没有哪个声明给得出：只能把它当成<wiki-ref to="axiom"></wiki-ref>加进来。<part-ref to="part:raa"></part-ref>就是这条公理：由「并非并非 某句」得到那句。', 'What you just proved is that denying it is a contradiction; “it rains ∨ ¬it rains” is two ¬s away. Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” But the kernel cannot prove that step, and no declaration gives it: it can only come in as an <wiki-ref to="axiom"></wiki-ref>. <part-ref to="part:raa"></part-ref> is that axiom: from “not not a sentence”, the sentence.') }],
         brief: T('在刚才的证明后面接上反证法，证明出「下雨 ∨ ¬下雨」。', 'Add by contradiction after the proof you just made, and prove “it rains ∨ ¬it rains”.'),
         hint: [T('反证法接在最外面那个框的后面。', 'By contradiction goes right after the outermost box.')],
         solution: proof({ ...lemDeniedNodes, r: ['raa'] }, [...lemDeniedWires, 'f>r.nna', 'r>goal']),

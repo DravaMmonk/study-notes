@@ -37,7 +37,7 @@ export const ERAS = [
       'copy',
       // The kernel's two parts, each on its own line: Apply uses an “if … then …” up, the box makes one. Build a
       // prover then uses both parts together.
-      branches(['apply', '套用', 'Apply', ['mp', 'pick', 'nested']], ['assume', '假设框', 'Assumption box', ['assume']]),
+      branches(['apply', '套用', 'Apply', ['mp', 'nested']], ['assume', '假设框', 'Assumption box', ['assume']]),
       'box',
       // K and S, each proved with boxes and built as a part, need nothing from each other.
       branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
@@ -64,7 +64,7 @@ export const ERAS = [
       // Chain, Swap and Merge, each built with boxes alone, on two lines that need nothing from each other; then the
       // three together, harder each time.
       branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
-      'mergeLong', 'mergeBoth',
+      'mergeLong',
       'decl-and', 'decl-or', 'decl-bot',
     ],
     topics: [{ id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') }],
@@ -77,11 +77,11 @@ export const ERAS = [
     foundation: [
       // And, or and not each need only the box; the mixed problems wait for all three.
       branches(
-        ['and', '并且', 'And', ['and', 'curry', 'iffUse']],
+        ['and', '并且', 'And', ['and', 'curry']],
         ['or', '或者', 'Or', ['or', 'cases', 'orSwap']],
-        ['not', '矛盾与否定', 'Contradiction and not', ['bot', 'notI', 'mt', 'denyAnte']],
+        ['not', '矛盾与否定', 'Contradiction and not', ['bot', 'notI', 'mt']],
       ),
-      series('mix', '组合', 'Together', ['dist', 'dsyll']),
+      series('mix', '组合', 'Together', ['iffUse', 'dist', 'dsyll']),
     ],
     // The connectives defined with → alone instead of declared, after the chapter's last level: optional proofs.
     topics: [{ id: 'hol', code: 'H', after: 'dsyll', levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') }],

@@ -90,7 +90,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const verdict = run?.over ? { pass: playback.passed } : null
   const failed = run?.over && !playback.passed ? checked.results[run.results.length - 1] : null
   const verdictText = !verdict ? null : verdict.pass
-    ? tr('每一种情况都对：证得出的时候，那种造法的拆法正好取回交进去的证明；证不出的时候，哪种造法都凑不齐。', 'Every situation is right: when it is proved, the case of the way it was made by gets back the very proofs handed in; when it is not, no way has all it needs.')
+    ? tr('每一种情况都对：证得出的时候，拆法在那种造法的情况下正好取回交进去的证明；证不出的时候，哪种造法都凑不齐。', 'Every situation is right: when it is proved, the case of the way it was made by gets back the very proofs handed in; when it is not, no way has all it needs.')
     : run.final || L(failed.reason)
 
   // What each card says in the situation picked.

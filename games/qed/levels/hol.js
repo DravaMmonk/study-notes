@@ -38,7 +38,7 @@ export const hol = [
     ],
     intro: [
       { t: T('第 3 章用声明把「并且」引入了证明核。不声明行不行？只用已有的 → 写出「并且」的意思：「A 并且 B」就是「不管 R 是哪一句，只要能从 A、B 推出 R，就有 R」，写成 (A → (B → R)) → R。这里的 R 代表任意一句话。', 'Chapter 3 brought “and” into the kernel with a declaration. Could it do without? Write what “and” means with the → already there: “A and B” is “whatever sentence R is, if R follows from A and B, then R”, written (A → (B → R)) → R. Here R stands for any sentence.') },
-      { t: T('这句话正是声明「并且」时核生成的拆法。反过来把它当成定义，造它、拆它的规则就都不用新加，用套用和假设框就能证出来。', 'This is just the case the kernel made when you declared “and”. Take it the other way, as the definition, and the rules that make it and take it apart need nothing new: Apply and the box prove them.') },
+      { t: T('这句话说的，正是拆法做的事：取回两份，拿去推出想要的 R。反过来把它当成定义，造它、拆它的规则就都不用新加，用套用和假设框就能证出来。证明核里写不出「不管哪一句」，所以每次用它都得先选定一个 R。', 'This says just what the case does: get the two back, and use them to reach whatever R you want. Take it the other way, as the definition, and the rules that make it and take it apart need nothing new: Apply and the box prove them. The kernel cannot write “whatever sentence”, so each use picks one R first.') },
     ],
     after: T('取 R 为左边，K 就把左边拆了出来。声明里的拆法是核生成的；这里的拆法，是用定义和 K 证出来的。', 'With R the left side, K takes the left side out. A declaration’s case is made by the kernel; this one is proved from the definition and K.'),
   },

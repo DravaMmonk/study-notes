@@ -194,12 +194,13 @@ export default {
   // another (a condition, two results) went.
   { version: 44, ops: [
     { merge: ['g-always', ['g-always', 'g-never']] },
+    { merge: ['mp', ['mp', 'pick']] },
     { merge: ['nested', ['nested', 'cond']] },
     { merge: ['assume', ['assume', 'k2']] },
     { merge: ['k', ['ident', 'k']] },
     { merge: ['x-k', ['x-k', 'x-s']] },
     { merge: ['x-merge', ['x-self', 'x-merge']] },
-    { merge: ['mergeLong', ['mergeUse', 'mergeLong']] },
+    { merge: ['mergeLong', ['mergeUse', 'mergeLong', 'mergeBoth']] },
     { merge: ['decl-three', ['decl-three', 'decl-or3']] },
     { rename: { andImp: null } },
     { merge: ['and', ['and', 'andSwap']] },
@@ -207,7 +208,7 @@ export default {
     { merge: ['orSwap', ['orSwap', 'orImp']] },
     { merge: ['bot', ['bot', 'exFalso']] },
     { merge: ['notI', ['notI', 'dni']] },
-    { merge: ['mt', ['mt', 'contra']] },
+    { merge: ['mt', ['mt', 'contra', 'denyAnte']] },
     { merge: ['h-and-make', ['h-and-make', 'h-and-use']] },
     { merge: ['h-or-make', ['h-or-make', 'h-or-use']] },
   ] },

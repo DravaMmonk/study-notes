@@ -28,7 +28,7 @@ export const declarations = [
     intro: [
       { t: T('串联、交换、合并，都是用套用和假设框证出来、再起了名字的<wiki-ref to="definition"></wiki-ref>。名字起得再多，能证的还是那些：它们都能换回原来的电路。可有一类话，证明核根本说不出来：「下雨，并且刮风」。没有哪块元件造得出一句「并且」，也没有哪块元件用得掉它。', 'Chain, Swap and Merge are <wiki-ref to="definition"></wiki-ref>s: proofs from Apply and the box, given a name. However many names you give, what can be proved stays the same, since each name swaps back for its circuit. But there is a kind of sentence the kernel cannot say at all: “it rains and it is windy”. No part makes an “and”, and no part uses one up.') },
       { t: T('要让证明核认识「并且」，得先<wiki-ref to="declaration"></wiki-ref>：说清楚它怎样才算证出来。「下雨并且刮风」什么时候证得出？两份证明都在手里的时候。把这句话写成一条规则：假设下雨，再假设刮风，就得到「下雨 ∧ 刮风」，写作 ⟦下雨; 刮风⟧ ⟹ 下雨 ∧ 刮风（<wiki-ref to="rule-arrow"></wiki-ref>）。这是它的一种<b>造法</b>。', 'For the kernel to know “and”, it needs a <wiki-ref to="declaration"></wiki-ref>: when does it count as proved? “It rains and it is windy” is proved when both proofs are at hand. As a rule: assume it rains, then assume it is windy, and you have “it rains ∧ it is windy”, written ⟦it rains; it is windy⟧ ⟹ it rains ∧ it is windy (<wiki-ref to="rule-arrow"></wiki-ref>). That is one <b>way to make</b> it.') },
-      { t: T('声明板上，假设卡从托盘拿，卡上选它假设哪一句。一张假设接进另一张的「先假设」，是同一种造法要两样，顺着线先假设前一句、再假设后一句；接进「并且」的造法口，就是一种造法。下面的表格是几种情况：手里有哪些证明，这时该不该证得出。', 'On the declaration board, take assumption cards from the tray and pick on each the sentence it assumes. A card wired into another’s “assumed first” is one way that needs both, assumed along the wire; a card wired into a way of “and” is one way to make it. The table below lists situations: which proofs are at hand, and whether it should then be proved.') },
+      { t: T('假设卡从托盘拿，卡上选它假设哪一句。一种造法要两样，就把一张接进另一张的「先假设」，顺着线先假设前一句、再假设后一句；串好接进「并且」的造法口，就是一种造法。下面的表格是几种情况：手里有哪些证明，这时该不该证得出。', 'On the declaration board, take assumption cards from the tray and pick on each the sentence it assumes. A card wired into another’s “assumed first” is one way that needs both, assumed along the wire; a card wired into a way of “and” is one way to make it. The table below lists situations: which proofs are at hand, and whether it should then be proved.') },
     ],
     brief: T('「下雨，并且刮风」：两份证明都在手里，才证得出。写出它的声明。', '“It rains and it is windy”: proved only with both proofs at hand. Write its declaration.'),
     hint: [
@@ -57,7 +57,7 @@ export const declarations = [
     hint: [T('两种造法，各要一样：两张假设不串，各接一个造法口。', 'Two ways, each needing one: no chain, each assumption into a way of its own.')],
     solution: isoBoard(['Sat>1', 'Sun>2']),
     naive: isoBoard(['Sat>Sun', 'Sun>1']),
-    after: T('两种造法，就有两个拆法。拿到一份「或者」的证明，并不知道它是哪种造法造的，只好两个拆法都准备好，实际是哪一种就走哪一个：这就是分情况。', 'Two ways, so two cases. Holding a proof of “or”, you do not know which way made it, so both cases stand ready, and the one it was made by is taken: that is “case by case”.'),
+    after: T('两种造法，拆法就分两种情况。拿到一份「或者」的证明，并不知道它是哪种造法造的，只好两种情况都准备好，实际是哪一种就走哪一种：这就是分情况。', 'Two ways, so its case splits in two. Holding a proof of “or”, you do not know which way made it, so both stand ready, and the one it was made by is taken: that is “case by case”.'),
   }),
   declare({
     id: 'decl-bot',
@@ -71,12 +71,12 @@ export const declarations = [
       { have: { Rain: 1 }, make: false },
       { have: {}, make: false },
     ],
-    intro: [{ t: T('还差「非」。「不下雨」说的是：要是下雨，就出了矛盾。所以先声明矛盾本身，写作 ⊥：一句不管手里有什么，都不该证得出的话。', '“Not” is left. “It does not rain” says: if it rains, that is a contradiction. So first declare the contradiction itself, written ⊥: a sentence that should never be proved, whatever is at hand.') }],
-    brief: T('矛盾 ⊥：一句不管手里有什么，都证不出来的话。写出它的声明。', 'The contradiction ⊥: a sentence that cannot be proved whatever is at hand. Write its declaration.'),
+    intro: [{ t: T('还差「非」。「不下雨」说的是：要是下雨，就出了矛盾。所以先声明矛盾本身，写作 ⊥：没有哪一种造法造得出它。', '“Not” is left. “It does not rain” says: if it rains, that is a contradiction. So first declare the contradiction itself, written ⊥: no way at all makes it.') }],
+    brief: T('矛盾 ⊥：手里有什么，都没有哪一种造法造得出它。写出它的声明。', 'The contradiction ⊥: whatever is at hand, no way makes it. Write its declaration.'),
     hint: [T('怎样都证不出，就是一种造法都没有。', 'Never proved means no way to make it.')],
     solution: isoBoard([]),
     naive: isoBoard(['Rain>1']),
-    after: T('一种造法都没有，就一个拆法都没有。用它的时候，要对每一种造法各准备一个办法，可一种都没有，所以什么都不用准备：有了矛盾，想要什么都行。「非」不用另外声明：¬A 就是「A → ⊥」的名字，是一个<wiki-ref to="definition"></wiki-ref>。「并且」「或者」「非」都进了证明核，下一章用它们来证明。', 'No way to make it, so no case to take it apart. Using it means readying one move for each way, and there are none, so there is nothing to ready: from a contradiction, anything follows. “Not” needs no declaration of its own: ¬A is a name for “A → ⊥”, a <wiki-ref to="definition"></wiki-ref>. “And”, “or” and “not” are all in the kernel now; the next chapter proves with them.'),
+    after: T('一种造法都没有，拆法就一种情况都不用准备：用它的时候，要对每一种造法各准备一个办法，可一种都没有，所以有了矛盾，想要什么都行。「非」不用另外声明：¬A 就是「A → ⊥」的名字，是一个<wiki-ref to="definition"></wiki-ref>。「并且」「或者」「非」都进了证明核，下一章用它们来证明。', 'No way to make it, so its case has nothing to ready: using it means readying one move for each way, and there are none, so from a contradiction, anything follows. “Not” needs no declaration of its own: ¬A is a name for “A → ⊥”, a <wiki-ref to="definition"></wiki-ref>. “And”, “or” and “not” are all in the kernel now; the next chapter proves with them.'),
   }),
 ]
 
@@ -126,8 +126,8 @@ export const moreDeclarations = [
         naive: isoBoard(['Sat>1', 'Sun>2']),
       }),
     ],
-    intro: [{ t: T('「并且」「或者」各要两样。换成三样：一种造法要三样，或者三种造法各要一样。', '“And” and “or” each take two. Make it three: one way needing three, or three ways needing one each.') }],
-    after: T('三种造法，三个拆法：拿到它的证明，要对三种情况各准备一个办法。造法有几种，分情况就分几支。', 'Three ways, three cases: holding its proof, you ready one move for each of the three. As many ways as there are, so many branches has case by case.'),
+    intro: [{ t: T('「并且」「或者」都只说两句话。换成三句：一种造法要三样，或者三种造法各要一样。', '“And” and “or” speak of two sentences. Make it three: one way needing three, or three ways needing one each.') }],
+    after: T('三种造法，拆法就分三种情况：拿到它的证明，要对三种情况各准备一个办法。造法有几种，分情况就分几支。', 'Three ways, so its case splits in three: holding its proof, you ready one move for each. As many ways as there are, so many branches has case by case.'),
   },
   declare({
     id: 'decl-order',
