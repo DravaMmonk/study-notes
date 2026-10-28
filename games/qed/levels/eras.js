@@ -56,15 +56,12 @@ export const ERAS = [
   },
   {
     id: 'packing', machine: 'prover',
-    // The kernel's two parts carry on; what is built here is a proof given a name.
+    // The kernel's two parts carry on. First definitions: proofs given a name (Chain, Swap, Merge), then three more
+    // levels with them. Then declarations: "and", "or" and the contradiction come into the kernel by their ways to
+    // make them, each written as a rule with assumption boxes (declare.js).
     keeps: 'all',
-    foundation: [
-      // Chain, Swap and Merge, each built with boxes alone, on two lines that need nothing from each other; then the
-      // three together, harder each time.
-      branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
-      'mergeUse', 'mergeLong', 'mergeBoth',
-    ],
-    chapter: { title: T('封装', 'Packing'), question: T('把一块证明封装成元件，它到底是什么？', 'A proof packed into a part: what is it, really?') },
+    foundation: ['chain', 'swap', 'twice', 'mergeUse', 'mergeLong', 'mergeBoth', 'decl-and', 'decl-or', 'decl-bot'],
+    chapter: { title: T('定义和声明', 'Definitions and declarations'), question: T('怎样把「与」「或」「非」引入证明核？', 'How do “and”, “or” and “not” come into the kernel?') },
   },
   {
     id: 'boxes', machine: 'prover',
@@ -79,7 +76,9 @@ export const ERAS = [
       ),
       series('mix', '组合', 'Together', ['dist', 'dsyll']),
     ],
-    chapter: { title: T('连接词', 'Connectives'), question: T('有了「与」「或」「非」，证明器还要哪些规则？', 'With “and”, “or” and “not”, what more rules does the prover need?') },
+    // How HOL defines the connectives instead, with → alone, after the chapter's last level: optional proofs.
+    topics: [{ id: 'hol', code: 'H', after: 'dsyll', levels: ['h-and-make', 'h-and-use', 'h-or-make', 'h-or-use'], title: T('HOL 怎样定义连接词', 'How HOL defines the connectives') }],
+    chapter: { title: T('连接词的运用', 'Using the connectives'), question: T('有了声明出来的「与」「或」「非」，能证出些什么？', 'With “and”, “or” and “not” declared, what can be proved?') },
   },
   {
     id: 'quantifiers', machine: 'prover', keeps: 'all',

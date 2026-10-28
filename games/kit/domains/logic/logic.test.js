@@ -1,8 +1,8 @@
 // node --test games/kit/domains/logic — formulas, rules as parts, boxes, and countermodels. Proofs are written as a
 // level's spec writes them (build.js).
-import { checkGates, declarationShape, gates } from './gates.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { checkIso, isoBoard, settle } from './iso.js'
 import { runLevel } from '../../engine/tests.js'
 import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
@@ -397,14 +397,23 @@ test('a script: each row by a rule or a block, checked row by row', async () => 
   assert.equal(checkScript(level, rows('rule:mp').slice(0, 3)).pass, false)
 })
 
-test('a declaration means its truth table, and keeps to its shape: no need twice, no way needing more than another', () => {
-  const or = { target: 'Sat ∨ Sun', declare: true }
-  const board = (nodes, wires) => gates(nodes, wires, or)
-  assert.ok(checkGates(or, board({ l: 'ctor', r: 'ctor' }, ['Sat>l.f1', 'Sun>r.f1', 'l>decl.c1', 'r>decl.c2'])).pass)
-  assert.equal(checkGates(or, board({ c: 'ctor' }, ['Sat>c.f1', 'Sun>c.f2', 'c>decl.c1'])).pass, false)
-  const extra = checkGates(or, board({ l: 'ctor', r: 'ctor', b: 'ctor' }, ['Sat>l.f1', 'Sun>r.f1', 'Sat>b.f1', 'Sun>b.f2', 'l>decl.c1', 'r>decl.c2', 'b>decl.c3']))
-  assert.ok(extra.results.every((r) => r.pass) && extra.shape)
-  assert.ok(declarationShape(board({ c: 'ctor' }, ['Sat>c.f1', 'Sat>c.f2', 'c>decl.c1'])))
-  const bot = { target: '⊥', declare: true }
-  assert.ok(checkGates(bot, gates({}, [], bot)).pass)
+test('a declaration by assumption boxes: nested boxes are one way needing both, apart they are two ways, none is no way', () => {
+  const level = (target, letters, tests) => ({ target, letters, tests, declare: { zh: 'x', en: 'x' } })
+  const words = (l) => ({ zh: l, en: l })
+  const and = level('A ∧ B', ['A', 'B'], [{ have: { A: 1, B: 2 }, make: true }, { have: { A: 3 }, make: false }, { have: { B: 4 }, make: false }])
+  const nested = isoBoard({ B: 'A' }, ['B>A', 'A>1'], and)
+  assert.ok(checkIso(and, nested, words).pass)
+  assert.deepEqual(nested.nodes.filter((n) => n.type === 'case').map((n) => n.params.k), [1])
+  assert.equal(checkIso(and, isoBoard({}, ['A>1', 'B>2'], and), words).pass, false)
+  const or = level('A ∨ B', ['A', 'B'], [{ have: { A: 1 }, make: true }, { have: { B: 2 }, make: true }, { have: {}, make: false }])
+  const apart = isoBoard({}, ['A>1', 'B>2'], or)
+  const run = checkIso(or, apart, words)
+  assert.ok(run.pass)
+  assert.equal(run.results[1].made.way, 2)
+  // The ways close up when one is taken off: the second becomes the first, its case with it.
+  const settled = settle({ ...apart, wires: apart.wires.filter((w) => !(w.to === 'decl' && w.port === 'c1')) })
+  assert.deepEqual(settled.wires.filter((w) => w.to === 'decl').map((w) => [w.from, w.port]), [['hyp-B', 'c1']])
+  assert.deepEqual(settled.nodes.filter((n) => n.type === 'case').map((n) => n.id), ['case-1'])
+  const bot = level('⊥', ['A'], [{ have: { A: 1 }, make: false }, { have: {}, make: false }])
+  assert.ok(checkIso(bot, isoBoard({}, [], bot), words).pass)
 })

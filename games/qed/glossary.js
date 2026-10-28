@@ -217,6 +217,11 @@ export const GLOSSARY = [
     see: ['axiom'],
   },
   {
+    id: 'declaration', group: 'proof', title: T('声明', 'declaration'), at: 'decl-and',
+    body: [T(`<b>声明</b>引入一种新的句子和它的规则：写出它有哪几种造法，每种造法是一条假设式的新规则（假设有这些证明，就得到它）；这些造法就是全部，所以核替每一种造法生成一个拆法。声明不像${W('definition')}那样能展开消掉，也不像${W('axiom')}那样只能相信：核检查过它合法，再生成拆法，保证不会带来矛盾。Lean 的 <code>inductive</code>、<code>structure</code> 就是声明；Isabelle/HOL 不声明连接词，而是用 → 和 ∀ 定义它们。`, `A <b>declaration</b> brings in a new kind of sentence with its rules: its ways to make it are written out, each a new rule that assumes some proofs and gives the sentence; those ways are all there are, so the kernel makes a case to take it apart for each. Unlike a ${W('definition')} it cannot be unfolded away, and unlike an ${W('axiom')} it is not just believed: the kernel checks it is well formed before making its cases, so it brings no contradiction. Lean’s <code>inductive</code> and <code>structure</code> are declarations; Isabelle/HOL declares no connective, but defines them with → and ∀.`)],
+    see: ['definition', 'axiom'],
+  },
+  {
     id: 'axiom', group: 'proof', title: T('公理', 'axiom'), at: 'k',
     body: [T('<b>公理</b>是不用证、直接拿来当出发点的句子，可以看成没有前提的规则。K：A → (B → A)；S：(A → (B → C)) → ((A → B) → (A → C))。这台证明器里 K 和 S 是用假设框证出来的引理，只有公理的证明器只能把它们直接当公理。', 'An <b>axiom</b> is a sentence taken as a starting point without proof, a rule with no premises. K: A → (B → A); S: (A → (B → C)) → ((A → B) → (A → C)). In this prover K and S are lemmas proved with assumption boxes; a prover with axioms alone can only take them as given.')],
     see: ['hilbert', 'definition'],

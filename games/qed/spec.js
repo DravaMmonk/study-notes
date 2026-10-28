@@ -180,7 +180,16 @@ export default {
   { version: 41, ops: [{ built: ['r-unifier', 's-intro', 's-elim', 's-auto', 'au-clauses', 'au-saturate', 'au-replay'] }] },
   // Version 42 made 两个都要, 二选一 and 矛盾 declare their connective first (a declaration board), then prove with the
   // parts it makes: their proof boards move to the second task.
-  { version: 42, ops: [{ data: (value, id) => (['and', 'or', 'bot'].includes(id) && value && !Array.isArray(value) ? [null, value] : value) }] }],
+  { version: 42, ops: [{ data: (value, id) => (['and', 'or', 'bot'].includes(id) && value && !Array.isArray(value) ? [null, value] : value) }] },
+  // Version 43 moved the declarations into chapter 3 as levels of their own (声明「并且」, 「或者」, 「矛盾」, by
+  // assumption boxes): 两个都要, 二选一 and 矛盾 are one proof again, and whoever had passed one has passed its
+  // declaration.
+  { version: 43, ops: [
+    { data: (value, id) => (['and', 'or', 'bot'].includes(id) && Array.isArray(value) ? value[1] ?? null : value) },
+    { solve: ['and', ['decl-and']] },
+    { solve: ['or', ['decl-or']] },
+    { solve: ['bot', ['decl-bot']] },
+  ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],

@@ -1,125 +1,151 @@
-// Declaring a connective by its two ways round (《证明完毕》's connectives chapter). The board holds evidence: a card
-// for each letter gives a numbered proof of it ("it rains #1") when the test has one, and nothing when it does not.
-// The player builds both ways through the connective's card in the middle: ways to prove it (`pack`, each taking the
-// proofs it needs) wired into it, and its proof taken apart (`unpack`) into the outputs that hand each proof back.
+// Declaring a connective (《证明完毕》's chapter of definitions and declarations), the way Lean declares one: by its
+// ways to make it, each a rule of its own, `And.intro : A → B → A ∧ B`. The board holds an assumption box for each
+// letter (put there by the level, never deleted, but free to go into another box: `nest`, ../../circuit/model.js).
+// A box nested in another and wired into its conclusion makes one rule of both, assume A, then assume B; a box wired
+// into the connective's card is one way to make it, and each input the card is given brings one more. So the boards
+// write the constructors' types, `A → B → A ∧ B` (and) or `A → A ∨ B` and `B → A ∨ B` (or), or nothing (⊥).
 //
-// A test is a situation: which proofs are at hand, and whether the connective can be proved from them. When it can,
-// what goes in must come back out, the very same numbered proofs (made, then taken apart, it is as it was: Lean's
-// And.left (And.intro a b) is a, the "harmony" of an introduction and an elimination rule). When it cannot, the
-// card must stay empty: there is no other way to prove it.
+// The way to take it apart is not the player's to build: for every way in, the kernel makes a case of its own (Lean's
+// `cases`, the recursor), numbered as the ways are, which gets back just what that way took. They appear on the
+// board as the ways are wired, and the board shows them working.
 //
-// A level: { kind: 'iso', declare: { zh, en } the connective's name, letters: [letter], tests: [{ have: { letter: n },
-// make: bool }] }.
-import { runBoard, sink, source } from '../../engine/boards.js'
+// A test is a situation: the proofs at hand (numbered: "it rains #1"), and whether the connective can be proved from
+// them. When it can, the first way with all it needs makes it, and its case gets back the very proofs it took; when
+// it cannot, nothing is made. A specification is tested on situations, not proved.
+//
+// A level: { kind: 'iso', declare: { zh, en } the connective's name, target: its sentence (for the rules' words),
+// letters: [letter], tests: [{ have: { letter: n }, make: bool }] }.
+import { runBoard } from '../../engine/boards.js'
+import { framePart } from '../../circuit/frames.js'
+import { parse } from './formula.js'
+import { say } from './notation.js'
 
 const T = (zh, en) => ({ zh, en })
-const NEEDS = ['f1', 'f2', 'f3']
-const WAYS = ['c1', 'c2', 'c3']
-const ITEMS = ['1', '2', '3']
 export const DECL = 'decl'
-// An input of a way left unwired: the way does not need it.
-const UNUSED = Symbol('unused')
+const MOST = 3
+const wayPort = (k) => `c${k}`
+const caseId = (k) => `case-${k}`
+const boxId = (letter) => `hyp-${letter}`
 
-/** The cards the player places, as the tray and the editor read them. */
-export const ISO_TEXT = {
-  pack: { name: T('一种证法', 'A way to prove it'), desc: T('接进这种证法要交出的证明，最多三份：都交了，就证明了它。', 'Wire in the proofs this way needs, up to three: hand them all in, and it is proved.') },
-  unpack: { name: T('拆开', 'Take apart'), desc: T('接进它的一份证明，从出口取回造它时交进去的证明：第 1 份、第 2 份、第 3 份。', 'Wire in a proof of it, and take back out the proofs handed in to make it: the 1st, the 2nd, the 3rd.') },
-}
-
-/** The engine's parts: evidence cards, the ways and the connective, taking apart, and the outputs. */
-export const ISO_PARTS = {
-  ev: source(),
-  exit: sink(),
-  pack: { inputs: NEEDS, idle: () => UNUSED, eval: (ins) => ({ kind: 'proof', items: NEEDS.map((p) => ins[p]).filter((v) => v !== UNUSED) }) },
-  // The connective holds a proof once some way into it has all it needs: the first such way.
-  [DECL]: {
-    inputs: WAYS,
-    optional: WAYS,
-    eval: (ins) => {
-      const k = WAYS.findIndex((p) => ins[p] !== undefined)
-      return { ...ins[WAYS[k]], way: k + 1 }
-    },
-  },
-  unpack: {
-    inputs: ['card'],
-    outputs: () => ITEMS,
-    // An output past what the proof holds gives nothing: whatever reads it gets nothing back.
-    eval: ({ card }, _node, _ctx, key) => card.items[Number(key) - 1],
-  },
-}
+/** How many ways the connective's card has wired (its inputs are one more, up to three). */
+export const waysOf = (node) => node.params?.ways ?? 0
+export const declInputs = (node) => Array.from({ length: Math.min(MOST, waysOf(node) + 1) }, (_, k) => wayPort(k + 1))
 
 const evidence = (letter, n) => ({ kind: 'ev', letter, n })
-const sameEvidence = (a, b) => a?.kind === 'ev' && a.letter === b.letter && a.n === b.n
 
-/** What the board gives in one test: the engine's values, the connective's proof (or undefined) and each output. */
-export function runIso(level, circuit, test) {
-  const bind = Object.fromEntries(Object.entries(test.have).map(([letter, n]) => [letter, evidence(letter, n)]))
-  const run = runBoard(circuit, { parts: ISO_PARTS, bind })
-  return { ...run, made: run.values.get(DECL), back: run.outputs }
-}
-
-/** Every test checked: { pass, results: [{ pass, reason, made, back }], cards }; say(letter) gives its words. */
-export function checkIso(level, circuit, say) {
-  const results = level.tests.map((test) => {
-    const run = runIso(level, circuit, test)
-    const has = Object.keys(test.have).map(say)
-    if (!test.make) {
-      const pass = run.made === undefined
-      return { pass, reason: pass ? null : T(`只有${has.length ? has.map((h) => h.zh).join('、') : '什么都没有'}，也证出了「${level.declare.zh}」`, `With only ${has.length ? has.map((h) => h.en).join(', ') : 'nothing'}, “${level.declare.en}” is proved`), ...run }
-    }
-    if (run.made === undefined) return { pass: false, reason: T(`手里有${has.map((h) => h.zh).join('、')}，却证不出「${level.declare.zh}」`, `With ${has.map((h) => h.en).join(', ')} at hand, “${level.declare.en}” is not proved`), ...run }
-    for (const letter of level.letters) {
-      const want = evidence(letter, test.have[letter])
-      const got = run.back[letter]
-      if (!sameEvidence(got, want)) {
-        const w = say(letter)
-        return { pass: false, reason: got === undefined ? T(`拆开以后，「${w.zh}」没有取回来`, `Taken apart, “${w.en}” does not come back`) : T(`拆开以后，取回「${w.zh}」的地方拿到的是${showEvidence(got, say).zh}`, `Taken apart, where “${w.en}” comes back there is ${showEvidence(got, say).en}`), ...run }
+/** The engine's parts: assumption boxes, the connective, and the cases the kernel makes. */
+export const ISO_PARTS = {
+  // A box gives a rule: its own assumption, then whatever the box wired into its conclusion assumes.
+  hyp: {
+    ...framePart([], [{ name: 'body', opens: false }]),
+    optional: ['body'],
+    bare: true,
+    eval: ({ body }, node) => ({ kind: 'rule', needs: [node.params.name, ...(body?.needs ?? [])] }),
+  },
+  // The connective is made by the first way all of whose assumptions are at hand; with none, it is not made.
+  [DECL]: {
+    inputs: declInputs,
+    optional: Array.from({ length: MOST }, (_, k) => wayPort(k + 1)),
+    bare: true,
+    eval: (ins, node, ctx) => {
+      const have = ctx.bind ?? {}
+      for (const [k, port] of declInputs(node).entries()) {
+        const rule = ins[port]
+        if (rule && rule.needs.every((l) => l in have)) return { kind: 'proof', way: k + 1, items: rule.needs.map((l) => have[l]) }
       }
-    }
-    return { pass: true, reason: null, ...run }
-  })
-  return { pass: results.every((r) => r.pass), results, cards: countCards(circuit) }
-}
-
-export const countCards = (circuit) => circuit.nodes.filter((n) => ISO_TEXT[n.type]).length
-
-/** A proof as words: a numbered proof of a letter, or the connective's proof and what it holds. */
-export function showEvidence(v, say) {
-  if (v?.kind === 'ev') {
-    const w = say(v.letter)
-    return T(`「${w.zh}」#${v.n}`, `“${w.en}” #${v.n}`)
-  }
-  const items = v.items.map((x) => showEvidence(x, say))
-  const [zh, en] = [items.map((x) => x.zh).join('、') || '什么都没交', items.map((x) => x.en).join(', ') || 'nothing handed in']
-  return v.way ? T(`第 ${v.way} 种证法：${zh}`, `way ${v.way}: ${en}`) : T(`交了：${zh}`, `handed in: ${en}`)
-}
-
-/** The board a level starts from: the evidence on the left, the connective in the middle, the outputs on the right. */
-export function startIso(level) {
-  return {
-    nodes: [
-      ...level.letters.map((letter, k) => ({ id: `in-${letter}`, type: 'ev', params: { name: letter }, x: 20, y: 40 + k * 140 })),
-      { id: DECL, type: DECL, params: {}, locked: true, x: 420, y: 40 },
-      ...level.letters.map((letter, k) => ({ id: `out-${letter}`, type: 'exit', params: { name: letter }, x: 820, y: 40 + k * 140 })),
-    ],
-    wires: [],
-  }
+      return null
+    },
+  },
+  // A case gets back what its way took, when the connective was made that way.
+  case: {
+    inputs: ['p'],
+    eval: ({ p }, node) => (p && p.way === node.params.k ? { kind: 'back', way: p.way, items: p.items } : null),
+  },
 }
 
 /**
- * A reference board written compactly: isoBoard({ p: 'pack', u: 'unpack' }, ['Rain>p.f1', 'p>decl.c1', 'decl>u.card',
- * 'u#1>Rain']). A letter alone names its evidence (as a source) or its output (as a destination).
+ * The board as the kernel keeps it: the connective's wired ways numbered from 1 with no gaps, one input more for the
+ * next, and one case for each way, wired from the connective (locked: they are the kernel's, not the player's).
  */
-export function isoBoard(nodes, wires, level) {
-  const start = startIso(level)
-  const cards = Object.entries(nodes).map(([id, type], k) => ({ id, type, params: {}, x: 220 + (k % 3) * 200, y: 260 + Math.floor(k / 3) * 150 }))
-  const letters = new Set(level.letters)
+export function settle(graph) {
+  const decl = graph.nodes.find((n) => n.id === DECL)
+  if (!decl) return graph
+  const ways = graph.wires.filter((w) => w.to === DECL).sort((a, b) => Number(a.port.slice(1)) - Number(b.port.slice(1)))
+  const renumber = new Map(ways.map((w, k) => [w, wayPort(k + 1)]))
+  const n = ways.length
+  const old = new Map(graph.nodes.filter((x) => x.type === 'case').map((x) => [x.params.k, x]))
+  const cases = Array.from({ length: n }, (_, k) => old.get(k + 1) ?? { id: caseId(k + 1), type: 'case', params: { k: k + 1 }, locked: true, x: decl.x + 280, y: (decl.y ?? 40) + k * 130 })
   return {
-    nodes: [...start.nodes, ...cards],
+    ...graph,
+    nodes: [...graph.nodes.filter((x) => x.type !== 'case').map((x) => (x.id === DECL ? { ...x, params: { ...x.params, ways: n } } : x)), ...cases],
+    wires: [
+      ...graph.wires.filter((w) => w.to !== DECL && !w.to.startsWith('case-')).map((w) => w),
+      ...ways.map((w) => ({ ...w, port: renumber.get(w) })),
+      ...cases.map((c) => ({ from: DECL, to: c.id, port: 'p', locked: true })),
+    ],
+  }
+}
+
+/** What the board gives in one test: the engine's values, the connective (or null) and each case. */
+export function runIso(level, circuit, test) {
+  const bind = Object.fromEntries(Object.entries(test.have).map(([letter, n]) => [letter, evidence(letter, n)]))
+  const run = runBoard(circuit, { parts: ISO_PARTS, bind })
+  return { ...run, made: run.values.get(DECL) ?? null }
+}
+
+/** Every test checked: { pass, results: [{ pass, reason, made, back }] }; words(letter) gives a letter's words. */
+export function checkIso(level, circuit, words) {
+  const name = level.declare
+  const results = level.tests.map((test) => {
+    const run = runIso(level, circuit, test)
+    const has = Object.keys(test.have).map(words)
+    const at = T(has.map((h) => h.zh).join('、') || '什么都没有', has.map((h) => h.en).join(', ') || 'nothing')
+    if (!test.make) {
+      const pass = !run.made
+      return { pass, reason: pass ? null : T(`手里只有${at.zh}，也证出了「${name.zh}」`, `With only ${at.en} at hand, “${name.en}” is proved`), ...run }
+    }
+    if (!run.made) return { pass: false, reason: T(`手里有${at.zh}，却证不出「${name.zh}」`, `With ${at.en} at hand, “${name.en}” is not proved`), ...run }
+    // What the kernel guarantees, shown working: the case of the way it was made by gets back what that way took.
+    const back = run.values.get(caseId(run.made.way))
+    const pass = Boolean(back) && back.items.length === run.made.items.length && back.items.every((x, k) => x === run.made.items[k])
+    return { pass, reason: pass ? null : T('拆开没有取回交进去的证明', 'Taken apart, it does not give back the proofs handed in'), ...run }
+  })
+  return { pass: results.every((r) => r.pass), results }
+}
+
+/** A proof in words: a numbered proof of a letter. */
+export const showEvidence = (v, words) => T(`「${words(v.letter).zh}」#${v.n}`, `“${words(v.letter).en}” #${v.n}`)
+/** A rule in words, the way Lean writes a constructor's type: its assumptions in turn, then the connective. */
+export function showRule(rule, level, words) {
+  const goal = say(parse(level.target), level.notation)
+  const steps = rule.needs.map(words)
+  return T([...steps.map((s) => s.zh), goal.zh].join(' → '), [...steps.map((s) => s.en), goal.en].join(' → '))
+}
+
+/** The board a level starts from: a box for each letter side by side, and the connective with no way yet. */
+export function startIso(level) {
+  return settle({
+    nodes: [
+      ...level.letters.map((letter, k) => ({ id: boxId(letter), type: 'hyp', params: { name: letter }, locked: true, nest: true, x: 20 + k * 320, y: 40 })),
+      { id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 20 + Math.max(1, level.letters.length) * 320 + 40, y: 40 },
+    ],
+    wires: [],
+  })
+}
+
+/**
+ * A reference board written compactly: isoBoard({ Wind: 'Rain' }, ['Wind>Rain', 'Rain>1'], level): the Wind box
+ * nested in the Rain box, the Wind box wired into the Rain box's conclusion, the Rain box into the connective's
+ * first way.
+ */
+export function isoBoard(nested, wires, level) {
+  const start = startIso(level)
+  const into = (letter) => (nested[letter] ? { in: `${boxId(nested[letter])}/body` } : {})
+  return settle({
+    nodes: start.nodes.map((n) => (n.type === 'hyp' ? { ...n, ...into(n.params.name) } : n)),
     wires: wires.map((s) => {
       const [from, to] = s.split('>')
-      const [id, port = 'in'] = letters.has(to) ? [`out-${to}`] : to.split('.')
-      return { from: letters.has(from) ? `in-${from}` : from, to: id, port }
+      return /^\d$/.test(to) ? { from: boxId(from), to: DECL, port: wayPort(Number(to)) } : { from: boxId(from), to: boxId(to), port: 'body' }
     }),
-  }
+  })
 }
