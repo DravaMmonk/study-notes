@@ -12,7 +12,7 @@ const T = (zh, en) => ({ zh, en })
 const join = (a, b, mark = '·') => T(`${a.zh} ${mark} ${b.zh}`, `${a.en} ${mark} ${b.en}`)
 const ROUND = { repeat: (k) => T(`第 ${k} 圈`, `round ${k}`), search: (k) => T(`第 ${k} 步`, `step ${k}`) }
 const samePath = (a = [], b = []) => a.length === b.length && a.every((id, k) => id === b[k])
-const within = (path = [], prefix) => prefix.every((id, k) => id === path[k])
+const within = (path = [], prefix) => path.length >= prefix.length && prefix.every((id, k) => id === path[k])
 
 /**
  * The boards a run goes through: the level's, and inside each built part the board that built it. `opens(type)` is
@@ -113,24 +113,19 @@ export function machineViewAt(traced, steps, k) {
 }
 
 /**
- * The built part step `k` is inside, opened: null on the level's own board; else { path: [{ node, level }] (the parts
- * it is in, outermost first), circuit, level (the one that built it), view (this run of the part so far), step (the
- * card on it computing) }.
+ * A built part opened on a board (its card unfolded, or its sheet on a phone), at `path` (the ids of the parts it is
+ * in, outermost first, and its own): { circuit, level } it runs (the board that built it, and that level), `view` its
+ * cards' values in its latest run up to trace entry `upTo` (empty before it has run), and `lit` the card on it that
+ * the current step (`step`) is in or computing, if any.
  */
-export function insideAt(traced, steps, k, circuit, level, opens) {
-  const step = steps[k]
-  if (!step?.path.length) return null
-  const boardAt = boards(circuit, level, opens)
+export function openedAt(traced, upTo, path, circuit, level, opens, step) {
+  const board = boards(circuit, level, opens)(path)
+  if (!board) return null
   const { trace } = traced
-  // This run of the part: the entries just before the step that are inside it.
-  let from = step.at
-  while (from > 0 && within(trace[from - 1].path, step.path)) from -= 1
-  const board = boardAt(step.path)
-  return {
-    path: step.path.map((id, i) => ({ node: boardAt(step.path.slice(0, i)).byId.get(id), level: boardAt(step.path.slice(0, i)).level })),
-    circuit: board.circuit,
-    level: board.level,
-    view: viewOn(trace, step.path, from, step.at),
-    step: step.id,
-  }
+  let end = Math.min(upTo, trace.length - 1)
+  while (end >= 0 && !within(trace[end].path, path)) end -= 1
+  let from = end
+  while (from > 0 && within(trace[from - 1].path, path)) from -= 1
+  const lit = step && within(step.path, path) ? step.path[path.length] ?? step.id : null
+  return { circuit: board.circuit, level: board.level, view: end < 0 ? { values: new Map(), errors: new Map() } : viewOn(trace, path, from, end), lit }
 }

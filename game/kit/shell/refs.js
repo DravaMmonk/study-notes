@@ -55,6 +55,9 @@ export function setRefs(next) {
   if (typeof document !== 'undefined') for (const el of document.querySelectorAll(KINDS.map((k) => `${k}-ref`).join(','))) el.render?.()
 }
 
+/** Open what a reference points at, as clicking it does (a level asks before going there). */
+export const openRef = (kind, id) => hooks?.open(kind, id)
+
 /** A plain text split into strings and { kind, ref } pieces, for games whose text is not HTML. */
 export function refParts(text) {
   const out = []
