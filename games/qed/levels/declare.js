@@ -12,6 +12,8 @@ const declare = (level) => ({ kind: 'iso', ...level })
 export const declarations = [
   declare({
     id: 'decl-and',
+    // What declaring it gives: its ways to make it and the kernel's case, as parts of the proof board from here on.
+    adds: ['andI', 'andE'],
     title: T('声明「并且」', 'Declaring “and”'),
     declare: T('并且', 'and'),
     target: 'Rain ∧ Wind',
@@ -37,6 +39,7 @@ export const declarations = [
   }),
   declare({
     id: 'decl-or',
+    adds: ['orI', 'orE'],
     title: T('声明「或者」', 'Declaring “or”'),
     declare: T('或者', 'or'),
     target: 'Sat ∨ Sun',
@@ -55,6 +58,7 @@ export const declarations = [
   }),
   declare({
     id: 'decl-bot',
+    adds: ['botE'],
     title: T('声明 ⊥', 'Declaring ⊥'),
     declare: T('矛盾', 'contradiction'),
     symbols: ['⊥'],

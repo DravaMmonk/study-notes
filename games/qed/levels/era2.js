@@ -23,7 +23,6 @@ export const era2 = [
     title: T('两个都要', 'Both of them'),
     tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }],
     cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
-    adds: ['andI', 'andE'],
     brief: T('实现一个证明器，可以从已知「下雨 ∧ 刮风」，证明出「刮风 ∧ 下雨」。', 'Build a prover that, from “it rains ∧ it is windy”, proves “it is windy ∧ it rains”.'),
     hint: [T('先拆开，再按新的顺序拼起来。', 'Take it apart, then put it back together in the new order.')],
     intro: [
@@ -117,7 +116,6 @@ export const era2 = [
     title: T('二选一', 'One of two'),
     tests: [{ premises: { p: 'A' }, goal: 'B ∨ (A ∨ B)' }],
     cases: [{ A: 'Sat', B: 'Sun' }, { A: 'Bus', B: 'Bike' }],
-    adds: ['orI'],
     brief: T('实现一个证明器，可以从已知「今天是周六」，证明出「今天是周日 ∨ (今天是周六 ∨ 今天是周日)」。', 'Build a prover that, from “today is Saturday”, proves “today is Sunday ∨ (today is Saturday ∨ today is Sunday)”.'),
     hint: [T('从里往外：先引入「今天是周六 ∨ 今天是周日」（另一边放右边），再把它放到一句 ∨ 的右边。', 'From the inside out: first bring in “today is Saturday ∨ today is Sunday” (the other side on the right), then put that on the right of another ∨.')],
     intro: [
@@ -133,7 +131,6 @@ export const era2 = [
     title: T('分情况', 'Case by case'),
     tests: [{ premises: { p: 'A ∨ B', q: 'A → C', r: 'B → C' }, goal: 'C' }],
     cases: [{ A: 'Bus', B: 'Bike', C: 'OnTime' }, { A: 'Sat', B: 'Sun', C: 'Rest' }],
-    adds: ['orE'],
     brief: T('实现一个证明器，可以从已知「我坐公交 ∨ 我骑车」「我坐公交 → 我准时到」「我骑车 → 我准时到」，证明出「我准时到」。', 'Build a prover that, from “I take the bus ∨ I cycle”, “I take the bus → I arrive on time” and “I cycle → I arrive on time”, proves “I arrive on time”.'),
     hint: [
       T('放一块消去 ∨，把已知「我坐公交 ∨ 我骑车」接进元件上标着「A ∨ B」的输入口。元件下半部分有两个框：情况一的「假设」是「我坐公交」，情况二的是「我骑车」。', 'Place an ∨ elim and wire the given “I take the bus ∨ I cycle” into the input marked “A ∨ B” on its part. The lower half of the part holds two boxes: case one’s “Assume” is “I take the bus”, case two’s “I cycle”.'),
@@ -197,7 +194,6 @@ export const era2 = [
     symbols: ['⊥'],
     tests: [{ premises: { p: 'A', q: '¬A' }, goal: 'B' }],
     cases: [{ A: 'Locked', B: 'Moon' }, { A: 'Rain', B: 'Pigs' }],
-    adds: ['botE'],
     brief: T('实现一个证明器，可以由「门锁着」和「¬门锁着」证明出「月亮是奶酪做的」。', 'Build a prover that, from “the door is locked” and “¬the door is locked”, proves “the moon is made of cheese”.'),
     hint: [
       T('「¬门锁着」就是「门锁着 → ⊥」：把它接进套用的「A → B」口，「门锁着」接进「A」口，得到 ⊥。', '“¬the door is locked” is “the door is locked → ⊥”: wire it into Apply’s “A → B” input and “the door is locked” into its “A” input, and you get ⊥.'),

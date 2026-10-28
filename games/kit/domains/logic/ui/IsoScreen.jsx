@@ -9,6 +9,7 @@ import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, runIso, settle, startIso, wayRule, waysIn } from '../iso.js'
 import { ruleText } from '../schematic.js'
+import { RULE_TEXT } from './catalog.js'
 import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
 
@@ -248,7 +249,7 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
 
 /**
  * What passing a declaration gives, shown when it is passed: its rules for any sentences, those that make it (one
- * for each way) and the one the kernel made to take it apart.
+ * for each way) and the one the kernel made to take it apart, and the proof-board parts they are from here on.
  */
 export function DeclaredRules({ level }) {
   const text = (f) => L(say(f, level.notation))
@@ -260,6 +261,7 @@ export function DeclaredRules({ level }) {
         {rules.make.map((r, k) => <code key={k}>{tr(`造法 ${WAY[k]}：`, `Way ${WAY[k]}: `)}{ruleText(r, text)}</code>)}
         <code>{tr('拆法：', 'Cases: ')}{ruleText(rules.take, text)}</code>
       </div>
+      {level.adds?.length > 0 && <p>{tr('证明板上从此多了：', 'On the proof board from now on: ')}{level.adds.map((type) => L(RULE_TEXT[type].name)).join(tr('、', ', '))}</p>}
     </div>
   )
 }

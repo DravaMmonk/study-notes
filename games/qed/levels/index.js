@@ -169,7 +169,7 @@ const COURSE = {
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
     'append', 'each', 'defer', 'search', 'rw', 'hyp', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
   // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
-  concept: { andI: 'and', andE: 'and', rewrite: 'eq', refl: 'eq' },
+  concept: { andI: 'and', andE: 'and', orI: 'or', orE: 'or', rewrite: 'eq', refl: 'eq' },
   // Parts that stay where a level brings them, so the components box keeps only what goes on being used: the steps of
   // a part built from them soon after (the unifier's moves, Skolemise and Into clauses, one round of resolution, Replay,
   // the intro and elim rule sets inside auto, the saturator and Into clauses all the way inside the reconstructor), the
