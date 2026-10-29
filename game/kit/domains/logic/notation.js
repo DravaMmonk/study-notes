@@ -48,7 +48,9 @@ export function render(f, notation, lang, outer = -1) {
       if (word && f.args.length) return fill(word, f.args, notation, lang)
       if (f.pred === '=') return `${termWords(f.args[0], notation, lang)} = ${termWords(f.args[1], notation, lang)}`
       // A predicate named on its own (a test case's P := Human) reads with its places left open.
-      return word && !f.args.length ? word.replace(/\{\d\}/g, '…') : show(f)
+      if (word && !f.args.length) return word.replace(/\{\d\}/g, '…')
+      // A predicate without words (a schema's letter, P) keeps its letter, its things in their words: P(安).
+      return f.args.length ? `${f.pred}(${f.args.map((t) => termWords(t, notation, lang)).join(', ')})` : show(f)
     }
     case 'meta': return f.args?.length ? `${f.name}(${f.args.map((t) => termWords(t, notation, lang)).join(', ')})` : f.name
     case '⊥': return known('⊥') ? '⊥' : lang === 'zh' ? '矛盾' : 'contradiction'

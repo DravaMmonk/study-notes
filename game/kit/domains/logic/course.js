@@ -6,7 +6,7 @@ import { parse, replaceAtoms, show } from './formula.js'
 import { vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
 import { axiomPartsOf, builtParts, rulePartsOf, wireRules } from './machine.js'
-import { say, sayTerm } from './notation.js'
+import { render, say, sayTerm } from './notation.js'
 
 // Every rule a proof uses, in the boxes too; a machine card that names rules (a rule, a rewrite, simp's list) uses the
 // lemmas they are shapes of.
@@ -100,6 +100,29 @@ function machineLabel(test, notation) {
   return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }
 }
 
+/**
+ * A proof level's task, written from its schema in letters (the test cases name the letters' everyday sentences):
+ * 已知「A → B」「B → C」，证明出「A → C」. Its premises go by name when the level reads proof terms (p：「A」), a goal
+ * of ⊥ is the contradiction, and a level's `briefNote` (a constraint: without the box, the proof term it wants) follows.
+ */
+function proofBrief(schema, level, notation) {
+  const consts = level.consts ?? []
+  const write = (text, lang) => render(parse(text, { consts }), notation, lang)
+  const premises = Object.entries(schema.premises ?? {})
+  const given = (lang, quote) => premises.map(([name, text]) => `${level.terms ? `${name}${lang === 'zh' ? '：' : ': '}` : ''}${quote(write(text, lang))}`)
+  const zhQuote = (t) => `「${t}」`
+  const enQuote = (t) => `“${t}”`
+  const bot = parse(schema.goal, { consts }).op === '⊥'
+  const goalZh = bot ? `矛盾${notation.symbols.includes('⊥') ? ' ⊥' : ''}` : zhQuote(write(schema.goal, 'zh'))
+  const goalEn = bot ? `a contradiction${notation.symbols.includes('⊥') ? ' ⊥' : ''}` : enQuote(write(schema.goal, 'en'))
+  const enList = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}` : xs[0])
+  const note = level.briefNote ?? { zh: '', en: '' }
+  return {
+    zh: `${premises.length ? `已知${given('zh', zhQuote).join('')}，证明出${goalZh}` : `不需要任何已知，证明出${goalZh}`}。${note.zh}`,
+    en: `${premises.length ? `Given ${enList(given('en', enQuote))}, prove ${goalEn}` : `Prove ${goalEn} from nothing`}.${note.en ? ` ${note.en}` : ''}`,
+  }
+}
+
 export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {}, local = [], staples = [], revisions = {} }) {
   const built = (p) => Boolean(lemmas[p] || gates[p] || machines.includes(p))
   // One name, one part: a lemma, a gate and a machine part sharing a type would unlock and show as each other.
@@ -118,8 +141,9 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     // A task may have words of its own (numbers written as S n …).
     const read = (l) => {
       const notation = { words: l.words ?? level.words ?? words, symbols: known }
+      const expanded = l.cases ? expand(l, notation) : {}
       // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
-      return { ...l, adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...(l.cases ? expand(l, notation) : {}), ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
+      return { ...l, ...(!l.brief && expanded.schema ? { brief: proofBrief(expanded.schema, l, notation) } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
     }
     if (!level.tasks) return read(level)
     // What the level builds or proves comes of its last task, the level itself.
