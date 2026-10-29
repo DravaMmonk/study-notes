@@ -11,7 +11,7 @@ export default function FormulaField({ label, value = '', onChange, choices, bla
       <label>
         <span>{L(label)}</span>
         <select value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)}>
-          {!required && <option value="">{blank ? L(blank) : tr('选一句', 'Pick one')}</option>}
+          {!required && <option value="">{blank ? L(blank) : tr('选择命题', 'Select a proposition')}</option>}
           {choices.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
       </label>
