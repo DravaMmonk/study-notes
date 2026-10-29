@@ -7,6 +7,7 @@ import { portsOf } from '../../../engine/circuit.js'
 import { formOf, paramsOf } from '../../../engine/forms.js'
 import { SETTING_KINDS } from '../choices.js'
 import { FORMULA_TEXT } from '../formula.js'
+import { givesOf } from '../../../circuit/frames.js'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -15,10 +16,11 @@ export const RULE_TEXT = {
   mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B：接进一句「若…，则…」和它的前一半，得到后一半。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part.'), ports: { imp: 'A → B', a: 'A' } },
   impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A、证出 B，框外得到 A → B。', 'Assume A inside the box and prove B; outside you get A → B.'), params: { A: T('假设', 'Assume') }, frames: { body: T('框里', 'Inside') } },
   andI: { name: T('引入 ∧', '∧ intro'), desc: T('由 A 和 B 得到 A ∧ B。它是你声明「并且」时写的那条引入规则。', 'From A and B, A ∧ B. It is the way to make it you wrote declaring “and”.'), ports: { a: 'A', b: 'B' } },
-  andE: { name: T('消去 ∧', '∧ elim'), desc: T('由 A ∧ B 得到 A，也得到 B。它是核由「并且」的声明生成的消去规则：只有一条引入规则，拆开就取回交进去的两样。', 'From A ∧ B, A, and also B. It is the case the kernel made from your declaration of “and”: one way to make it, so taking it apart gets back the two things handed in.'), ports: { ab: 'A ∧ B' }, outs: { left: ['A', 'A'], right: ['B', 'B'] } },
+  andCases: { name: T('消去 ∧', '∧ elim'), desc: T('一块带框的元件。输入口接 A ∧ B；框里同时假设 A 和 B（两个圆点），框里证出的 C 接到「结论」，元件就输出 C。它是消去规则生成器由「并且」的声明生成的：只有一条引入规则，就只有一种情况，交进去的两样都在框里。', 'A part with a box. Wire A ∧ B into its input; the box assumes A and B at once (two dots), and the C proved inside, wired to “conclusion”, is what the part gives. The elimination rule generator made it from the declaration of “and”: one way to make it, so one case, with both things handed in inside the box.'), ports: { ab: 'A ∧ B' }, frames: { body: T('框里', 'Inside') } },
+  andE: { name: T('拆开 ∧', 'Split ∧'), ports: { ab: 'A ∧ B' }, outs: { left: ['A', 'A'], right: ['B', 'B'] } },
   orI: { name: T('引入 ∨', '∨ intro'), desc: T('由 A 得到 A ∨ B（或 B ∨ A），另一边 B 和放在哪边在元件上选。它是你声明「或者」时写的两条引入规则。', 'From A, A ∨ B (or B ∨ A); choose B and its side on the part. It is the two ways to make it you wrote declaring “or”.'), ports: { a: 'A' }, params: { other: T('另一边', 'Other side') } },
-  orE: { name: T('消去 ∨', '∨ elim'), desc: T('一块有两个框的元件。输入口接 A ∨ B；「情况一」的框假设 A，「情况二」的框假设 B。两个框都证出同一句 C、接到各自的「结论」，元件就输出 C：不知道是哪一种，就每一种都证一遍。它是核由「或者」的声明生成的消去规则。', 'A part with two boxes. Wire A ∨ B into its input; the box Case one assumes A, the box Case two assumes B. When both prove the same C, wired to their own “Conclusion”, the part gives C: not knowing which case it is, prove it in each. It is the case the kernel made from your declaration of “or”.'), ports: { ab: 'A ∨ B' }, frames: { left: T('情况一', 'Case one'), right: T('情况二', 'Case two') } },
-  botE: { name: T('矛盾推出一切', 'From contradiction'), desc: T('由矛盾 ⊥ 得到元件上选的任何一句。它是核由 ⊥ 的声明生成的消去规则：没有引入规则，就一种情况都不用证。', 'From the contradiction ⊥, From the contradiction ⊥, whatever is chosen on the part. It is the case the kernel made from the declaration of ⊥: with no way to make it, there is no case to prove.'), ports: { bot: '⊥' }, params: { C: T('得出', 'Conclude') } },
+  orE: { name: T('消去 ∨', '∨ elim'), desc: T('一块有两个框的元件。输入口接 A ∨ B；「情况一」的框假设 A，「情况二」的框假设 B。两个框都证出同一句 C、接到各自的「结论」，元件就输出 C：不知道是哪一种，就每一种都证一遍。它是消去规则生成器由「或者」的声明生成的消去规则。', 'A part with two boxes. Wire A ∨ B into its input; the box Case one assumes A, the box Case two assumes B. When both prove the same C, wired to their own “Conclusion”, the part gives C: not knowing which case it is, prove it in each. It is the case the elimination rule generator made from your declaration of “or”.'), ports: { ab: 'A ∨ B' }, frames: { left: T('情况一', 'Case one'), right: T('情况二', 'Case two') } },
+  botE: { name: T('矛盾推出一切', 'From contradiction'), desc: T('由矛盾 ⊥ 得到元件上选的任何一句。它是消去规则生成器由 ⊥ 的声明生成的消去规则：没有引入规则，就一种情况都不用证。', 'From the contradiction ⊥, From the contradiction ⊥, whatever is chosen on the part. It is the case the elimination rule generator made from the declaration of ⊥: with no way to make it, there is no case to prove.'), ports: { bot: '⊥' }, params: { C: T('得出', 'Conclude') } },
   raa: { name: T('反证法', 'By contradiction'), desc: T('由 ¬¬A 得到 A。它不来自声明，也证不出来：是经典逻辑加进核的公理。', 'From ¬¬A, A. It comes from no declaration and cannot be proved: it is the axiom classical logic adds to the kernel.'), ports: { nna: '¬¬A' } },
   allI: { name: T('任取', 'For any'), desc: T('一个框：框里随便取一样东西，元件上给它起名 a、b 或 c（不能出现在还开着的假设里）。框里证出 P(a)，框外得 ∀x. P(x)。', 'A box: inside it any thing at all, named a, b or c on the part (in no hypothesis still open). Prove P(a) inside; outside you get ∀x. P(x).'), params: { x: T('名字', 'Name') }, frames: { body: T('框里', 'Inside') } },
   allE: { name: T('取一个', 'Take one'), desc: T('接进 ∀x. P(x)，在元件上选一样东西 t，得到 P(t)。', 'Wire in ∀x. P(x) and choose a thing t on the part; out comes P(t).'), ports: { all: '∀x. P(x)' }, params: { t: T('哪一样', 'Which thing') } },
@@ -31,6 +33,13 @@ export const RULE_TEXT = {
 
 /** The machine board's parts (../machine.js): name, what each does, and the regions of a frame. */
 export const MACHINE_TEXT = {
+  // The elimination-rule generator (chapter 3): rules as values, taken apart and put together.
+  anyR: { name: T('任意结论', 'Any conclusion'), desc: T('给出 ?R：任意一句话。', 'Gives ?R: any sentence at all.') },
+  swapConcl: { name: T('换结论', 'Swap conclusion'), desc: T('接进一条规则和一句话：规则的前提不动（取的东西也不动），结论换成这句话。', 'Wire in a rule and a sentence: the rule keeps its premises (and what it takes), with this sentence as its conclusion.'), ports: { rule: T('规则', 'Rule'), to: T('换成', 'Becomes') } },
+  consFront: { name: T('放在最前', 'Put first'), desc: T('把「这一样」放在「一串」的最前面；接进来的不是一串时，两样排成一串。', 'Puts “this” at the front of “a list”; when what comes in is not a list, the two make one.'), ports: { first: T('这一样', 'This'), rest: T('一串', 'A list') } },
+  mkRule: { name: T('组成规则', 'Make a rule'), desc: T('由前提（一串，或者一样）和结论拼成一条规则 ⟦前提⟧ ⟹ 结论。前提是句子就照写；是一条规则，就成了一条带假设的前提。', 'Puts premises (a list, or one thing) and a conclusion together into a rule ⟦premises⟧ ⟹ conclusion. A sentence is a premise as it is; a rule becomes a premise with assumptions of its own.'), ports: { premises: T('前提', 'Premises'), conclusion: T('结论', 'Conclusion') } },
+  eachOf: { name: T('每条', 'For each'), desc: T('接进一串：框开出其中的一样，框里接出的东西送回「结果」；每一样各做一遍，结果按原来的次序排成一串。', 'Wire in a list: the frame opens with one of its items, and what is made inside goes back into “result”; each item in turn, the results a list in the same order.'), frames: { body: T('每一样', 'Each item') } },
+  elimGen: { name: T('消去规则生成器', 'Elimination rule generator'), desc: T('接进一份声明（它的那句话，它的一串引入规则），给出它的消去规则。', 'Wire in a declaration (its sentence, its list of introduction rules); it gives the declaration’s elimination rule.'), ports: { it: T('它', 'It'), ways: T('引入规则', 'Intro rules') } },
   repeat: { name: T('重复框', 'Repeat frame'), desc: T('框开出它收到的东西，框里接出新的东西送回「结果」；框把结果再送进去，一圈一圈地做，直到不再变化（或者失败了，那就停在失败前的一圈），送出最后一圈的结果。', 'The frame opens with what it receives; what is made inside goes back into “result”; the frame feeds it in again, round after round, until it stops changing (or fails: then it stops at the round before), and gives the last round.'), frames: { body: T('每一圈', 'Each round') } },
   uDelete: { name: T('删除', 'Delete'), desc: T('找到一个两边一模一样的等式 t ≐ t，删掉它。', 'Finds an equation with both sides the same, t ≐ t, and deletes it.') },
   uDecompose: { name: T('分解', 'Decompose'), desc: T('找到一个两边样子相同的等式（都是「并且」，都是同一个谓词……），拆成各部分对各部分的几个等式：?A ∧ ?B ≐ 下雨 ∧ 刮风 拆成 ?A ≐ 下雨 和 ?B ≐ 刮风。¬A 当作 A → ⊥ 来拆。', 'Finds an equation with the same shape on both sides (both “and”, both the same predicate …) and splits it into an equation for each pair of parts: ?A ∧ ?B ≐ it rains ∧ it is windy becomes ?A ≐ it rains and ?B ≐ it is windy. ¬A splits as A → ⊥.') },
@@ -101,6 +110,8 @@ export function partsFor(lemmas = {}, premises = []) {
     portLabel: (node, port) => {
       if (RULE_TEXT[node.type]?.frames?.[port]) return CLOSES
       const l = lemmas[node.type]
+      // A lemma that runs as one of the kit's cards has that card's ports.
+      if (l?.card && RULE_TEXT[l.card]?.ports) return RULE_TEXT[l.card].ports[port] ?? ''
       if (l?.forms) return (l.forms.find((f) => f.key === formOf(parts[node.type], node)).premises ?? [])[Number(port.slice(1))]
       if (l) return l.ports[Number(port.slice(1))]
       return RULE_TEXT[node.type]?.ports?.[port] ?? ''
@@ -111,8 +122,8 @@ export function partsFor(lemmas = {}, premises = []) {
     outputs: (node) => {
       const outs = RULE_TEXT[node.type]?.outs
       if (outs) return Object.entries(outs).map(([key, [label, short]]) => ({ key, label, short }))
-      const opens = (parts[node.type]?.frames?.(node) ?? []).filter((r) => r.opens)
-      return opens.length ? [{ key: null, label: GIVES, short: GIVES }, ...opens.map((r) => ({ key: r.name, label: OPENS, short: OPENS }))] : null
+      const opens = (parts[node.type]?.frames?.(node) ?? []).flatMap(givesOf)
+      return opens.length ? [{ key: null, label: GIVES, short: GIVES }, ...opens.map((key) => ({ key, label: OPENS, short: OPENS }))] : null
     },
     cardWidth: (node) => (parts[node.type]?.frames ? 240 : FIXED[node.type] ? 170 : 160),
     frames: (node) => (parts[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: RULE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),

@@ -336,7 +336,7 @@ export default function GameShell({ game }) {
         <TaskDoneDialog game={game} level={level} task={tasks[taskWon]} index={taskWon} next={tasks[taskWon + 1]} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon + 1)} />
       )}
       {won && level && won === level.id && (
-        <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} />
+        <SolvedDialog game={game} level={level} progress={progress} onStay={() => setWon(null)} onExit={() => open(null)} />
       )}
       {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
       {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}

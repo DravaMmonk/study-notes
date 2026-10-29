@@ -8,12 +8,14 @@
 //
 //   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
 //           | { kind: 'clauses', set, from?, endless? } (resolution.js) | { kind: 'rules', keys, entries }
+//           | { kind: 'sentence' | 'rule' | 'list', … } (elimgen.js: the elimination-rule generator, chapter 3)
 //   level   { kind: 'machine', want, inputs?: [{ name, label }] (default one, `in`),
 //             rules?: { key: { name, premises: [text], conclusion: text } }, backtrack?,
 //             tests: [{ eqs: [equation text] } | { goal, hyps?, answers?, becomes?, clauses?, budget? }
 //             | { clauses: [clause text], budget? }, want?] }
 //
-// What a level wants of its output (`want`, or a test's own): 'unify' (the solved equations, when the input has a
+// What a level wants of its output (`want`, or a test's own): 'elim' (the declaration's elimination rule, elimgen.js),
+// 'unify' (the solved equations, when the input has a
 // unifier, or a failure when it has none), 'proved' (no goal left), 'becomes' (the results the test lists, each its
 // goals written '⋀a. h1; h2 ⊢ goal', its ?-letters named as the machine likes: none, for a step that must fail),
 // 'answers' (every way of proving the goal, as a
@@ -44,6 +46,7 @@ import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, rule
 import { rewrite, rewriteBookOf, simplify } from './rewrite.js'
 import { datatypesRules } from './datatype.js'
 import { clausesOfState, oracleRound, parseClause, refuted, replay, resolveRound, saturate } from './resolution.js'
+import { GEN_PARTS, elimInputs, judgeElim, listValue, ruleValue, sentenceValue } from './elimgen.js'
 
 const T = (zh, en) => ({ zh, en })
 const fail = (zh, en) => new PartError({ zh, en })
@@ -258,19 +261,23 @@ function regionRun(node, ctx, region) {
   const ids = new Set(inside.map((n) => n.id))
   const back = graph.wires.find((w) => w.to === node.id && w.port === region)
   if (!back) throw fail('框里还没有接到「结果」上', 'Nothing inside is wired to the result yet')
-  // A rule list made outside the frame is a constant: the rule parts it comes of run inside too.
+  // A rule list made outside the frame is a constant, and so is what a part with no inputs gives (Any conclusion): the
+  // parts it comes of run inside too.
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
   const constants = new Set()
+  const partOf = (type) => (typeof ctx.engine.parts === 'function' ? ctx.engine.parts(type) : ctx.engine.parts[type])
   const constant = (id) => {
     if (constants.has(id)) return true
     const node = byId.get(id)
     if (node?.type === 'in' && node.params?.name === 'rules') return constants.add(id)
+    const part = node && node.type !== 'in' && partOf(node.type)
+    if (Array.isArray(part?.inputs) && !part.inputs.length && !part.frames) return constants.add(id)
     if (!ctx.ruleParts?.has(node?.type)) return false
     constants.add(id)
     return graph.wires.filter((w) => w.to === id).every((w) => constant(w.from.split('#')[0]))
   }
   for (const w of graph.wires.filter((x) => ids.has(x.to))) {
-    if (!ids.has(w.from.split('#')[0]) && w.from !== `${node.id}#${region}` && !constant(w.from.split('#')[0])) throw fail('框里只能用框开出来的东西，和框外的规则', 'Inside the frame, only what the frame opens can be used, and rules from outside')
+    if (!ids.has(w.from.split('#')[0]) && w.from !== `${node.id}#${region}` && !constant(w.from.split('#')[0])) throw fail('框里只能用框开出来的东西，和框外的规则、常量', 'Inside the frame, only what the frame opens can be used, and rules and constants from outside')
   }
   const OPEN = '__open'
   const sub = {
@@ -383,6 +390,28 @@ const each = {
   },
 }
 
+/**
+ * For each (the generator's frame, chapter 3): the region run on every item of the list it is handed, in order, each
+ * result an item of the list it gives. Its region shows the first item's run.
+ */
+const eachOf = {
+  ...framePart(['in'], [{ name: 'body', opens: true }]),
+  // It runs its region itself, on every item.
+  reads: () => ['in'],
+  eval: ({ in: v }, node, ctx, key) => {
+    if (v?.kind !== 'list') throw fail('这里要一串：框对其中的每一样各做一遍', 'This needs a list: the frame works on each of its items')
+    if (key) {
+      if (!v.items.length) throw fail('这一串是空的：框里一次也不做', 'The list is empty: nothing inside runs')
+      return v.items[0]
+    }
+    const round = regionRun(node, ctx, 'body')
+    return listValue(v.items.map((item, k) => {
+      ctx.trace?.push({ id: node.id, key: 'body', value: item, round: k + 1 })
+      return round(item)
+    }))
+  },
+}
+
 // Alternatives (Isabelle's APPEND, ORELSE when only the first result is followed): every region opens with the value;
 // every result of the first region, then every result of the next, those that failed left out. How many regions is
 // the card's setting.
@@ -422,6 +451,11 @@ const BUILT = (inputs = ['in']) => ({ inputs, built: true })
 export const MACHINE_PARTS = {
   in: source(),
   out: sink(),
+  // The elimination-rule generator (chapter 3, elimgen.js): rules taken apart and put together, for each, and what the
+  // player builds of them.
+  ...GEN_PARTS,
+  eachOf,
+  elimGen: BUILT(['it', 'ways']),
   // Unification (chapter 8): its rules, the unifier built from them, and patterns.
   uDelete: unifyCard('delete'),
   uDecompose: unifyCard('decompose'),
@@ -530,6 +564,7 @@ function clausify(s0, ctx) {
 
 /** A test's inputs as values, by name. */
 export function inputsOf(test, level) {
+  if (test.ways) return elimInputs(test, level)
   // A level that builds a part taking rules gives them as an input of its own: the test's rules (`rules`, keys).
   const rules = test.rules ? { rules: rulesValue(test.rules.map((key) => rulePartsOf(level).get(rulePartOf(level, key).type).find((e) => e.key === key))) } : {}
   if (test.goal) return { in: startState(parseS(test.goal), (test.hyps ?? []).map(parseS)), ...rules }
@@ -562,6 +597,7 @@ const canonical = (goals) => {
 export function judge(want, test, out, level = {}) {
   const input = inputsOf(test, level).in
   if (!out) return T('还没有东西接到「结果」', 'Nothing reaches the result yet')
+  if (want === 'elim') return judgeElim(test, out)
   if (want === 'proved') {
     if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
     if (out.error) return out.error
@@ -667,6 +703,19 @@ const failsAsState = (run) => (ins, node, ctx) => {
 /** The parts a level's board runs: the machine's (those the player built running their boards), and rule parts. */
 const partsFor = (level) => (type) => level.built?.[type] ?? MACHINE_PARTS[type] ?? RULE_PART
 const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), ...extra })
+
+/**
+ * A declaration's elimination rule as the player's generator makes it (elimgen.js): the generator built in chapter 3
+ * run on the declared sentence and its ways in (rules); null when it gives no rule.
+ */
+export function generateElim(level, it, ways) {
+  const board = {
+    nodes: [{ id: 'it', type: 'in', params: { name: 'it' } }, { id: 'ways', type: 'in', params: { name: 'ways' } }, { id: 'g', type: 'elimGen', params: {} }, { id: 'out', type: 'out', params: { name: 'out' } }],
+    wires: [{ from: 'it', to: 'g', port: 'it' }, { from: 'ways', to: 'g', port: 'ways' }, { from: 'g', to: 'out', port: 'in' }],
+  }
+  const out = runBoard(board, { parts: partsFor(level), bind: { it: sentenceValue(it), ways: listValue(ways.map(ruleValue)) }, ctx: ctxOf(level, board) }).outputs.out
+  return out?.kind === 'rule' ? out.rule : null
+}
 
 /** A machine part run on a proof state with a level's rule and rewrite books (chapter 15: a script's by), the rules
  *  `keys` wired in when it uses rules. */

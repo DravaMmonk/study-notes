@@ -5,6 +5,7 @@ import SaveSlots from './SaveSlots.jsx'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { feeding, inPort, layout, outPort, parsePort, placement, srcNode, srcOf } from './model.js'
+import { givesOf, regionKeys } from './frames.js'
 
 // The phone circuit board, the same in every game: the sources on top, parts in a two-column grid of slots that
 // keep their place, the sinks at the bottom. A block's inputs are dots on its top edge and its output a dot on its
@@ -138,7 +139,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   // Up to four sources (or sinks) to a row, the rows as even as they can be: five go 3 + 2, eight 4 + 4.
   const cols = (n) => ({ '--cols': n <= 4 ? n : Math.ceil(n / Math.ceil(n / 4)) })
   const regionsOf = (node) => parts.frames?.(node) ?? []
-  const own = (node) => new Set(regionsOf(node).map((r) => r.name))
+  const own = (node) => regionKeys(regionsOf(node))
 
   // Wires are drawn after layout from where the dots really are, and again while a wire is dragged.
   useLayoutEffect(() => {
@@ -271,11 +272,16 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
           {regionsOf(node).map((r) => (
             <section key={r.name} className="pb-region">
               {/* Along the region's top edge: its name, and the value it opens with the dot that gives it. */}
-              <header className="pb-region-head">
+              <header className={`pb-region-head ${givesOf(r).length > 1 ? 'has-many-opens' : ''}`}>
                 {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
-                {r.opens && <em>{L(parts.outputs?.(node)?.find((o) => o.key === r.name)?.label ?? '')}</em>}
-                {regionNote?.(node, r.name)}
-                {r.opens && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
+                {!r.opens && regionNote?.(node, r.name)}
+                {givesOf(r).map((k) => (
+                  <span key={k} className="pb-open">
+                    <em>{L(parts.outputs?.(node)?.find((o) => o.key === k)?.label ?? '')}</em>
+                    {regionNote?.(node, k)}
+                    <span className="pb-out">{dot(outPort(srcOf(node, k)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, k)) ? 'is-wired' : ''}`)}</span>
+                  </span>
+                ))}
               </header>
               {grid(`${node.id}/${r.name}`)}
               {/* Along the region's bottom edge: the dot its result goes into, and what the frame gives. */}

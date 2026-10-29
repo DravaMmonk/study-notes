@@ -7,6 +7,7 @@ import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, freeSpot, 
 import FormulaField from './FormulaField.jsx'
 import { say } from '../notation.js'
 import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, runIso, sentenceOf, settle, startIso, thingCard, wayOf, wayRule, wayText, waysIn } from '../iso.js'
+import { generateElim, syncOwn } from '../machine.js'
 import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
 
@@ -267,18 +268,22 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
 
 /**
  * What passing a declaration gives, shown when it is passed: its rules for any sentences, those that make it (one
- * for each way) and the one the kernel made to take it apart. The proof-board parts they are from here on are listed
- * with what the level unlocks (game.jsx unlocked).
+ * for each way), and the one that takes it apart: the level's own (equality, the numbers), or what the player's
+ * elimination rule generator makes of them once it is built (../machine.js generateElim). The proof-board parts they
+ * are from here on are listed with what the level unlocks (game.jsx unlocked).
  */
-export function DeclaredRules({ level }) {
+export function DeclaredRules({ level, progress }) {
   const text = (f) => L(say(f, level.notation))
   const rules = declaredRules(level, waysIn(level.solution))
+  syncOwn(progress?.built)
+  const generated = !rules.take && (progress?.all || progress?.flags?.includes('lemma:elimGen')) ? generateElim(level, rules.it, rules.make) : null
+  const take = rules.take ?? generated
   return (
     <div className="dialog-note">
       <span className="panel-label">{tr('声明给出的规则', 'The rules it declares')}</span>
       <div className="lg-clauses">
         {rules.make.map((r, k) => <code key={k}>{tr(`引入规则 ${WAY[k]}：`, `Intro rule ${WAY[k]}: `)}{wayText(r, text)}</code>)}
-        <code>{tr('消去规则：', 'Elim rule: ')}{wayText(rules.take, text)}</code>
+        {take && <code>{tr('消去规则：', 'Elim rule: ')}{wayText(take, text)}</code>}
       </div>
     </div>
   )

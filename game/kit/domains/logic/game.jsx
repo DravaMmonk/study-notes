@@ -20,6 +20,13 @@ import ScriptScreen from './ui/ScriptScreen.jsx'
 import '../../strip/strip.css'
 import { PRIMITIVE_GATES } from './gates.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
+import { RULES } from './proof.js'
+
+// A level's declaration task, if it has one: a declaration board (iso.js).
+const isoOf = (level) => (level.kind === 'iso' ? level : level.tasks?.find((t) => t.kind === 'iso') ?? null)
+// A level that gives proof-board rules by passing it (a declaration, a generator), rather than by playing on the proof
+// board.
+const givesRules = (level) => !(level.source.tasks ?? [level.source]).some((t) => t.kind === 'proof')
 
 /**
  * spec: { id, title, kicker, lede: { zh, en } (what the game teaches and what the player ends up building, not how many levels), logic (logicCourse's result), glossary, saves: migration steps
@@ -89,12 +96,16 @@ export function defineLogicGame(spec) {
       term: { Screen: TermScreen, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
       script: { Screen: ScriptScreen, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
     },
-    // What passing a level gives: the parts it builds, and a declaration's proof-board parts (its rules, from here on).
+    // What passing a level gives: the parts it builds, and the proof-board parts a declaration or a generator gives (its
+    // rules, from here on).
     unlocked: (level) => [
       ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !spec.logic.course.local(type)).map((type) => ({ label: built[type].name })),
-      ...(level.source.kind === 'iso' ? level.source.adds ?? [] : []).map((type) => primitives.find((p) => p.key === `part:${type}`)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon, family: 'rule' })),
+      ...(givesRules(level) ? level.source.adds : []).filter((type) => RULES[type]).map((type) => primitives.find((p) => p.key === `part:${type}`)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon, family: 'rule' })),
     ],
-    passed: (level) => (level.source.kind === 'iso' ? <DeclaredRules level={level.source} /> : null),
+    passed: (level, progress) => {
+      const declared = isoOf(level.source)
+      return declared ? <DeclaredRules level={declared} progress={progress} /> : null
+    },
     core: (level) => isCore(spec.logic.course, level),
     parts: {
       all: [

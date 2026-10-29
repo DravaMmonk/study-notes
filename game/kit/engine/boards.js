@@ -32,8 +32,9 @@ export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, 
  * A solved circuit as one part: its sources are the part's inputs, `output` the sink it gives. `circuit` is the
  * circuit or a function returning it (the player's latest passing one). Anything else on `extra` is the part's own.
  * Inside, the parts run with ctx.graph the circuit inside (and whatever `inside(ctx)` adds); a setting on the part
- * goes to every card inside that has the same setting; and a traced run (circuit.js) sees each card inside as a step of its own, its `path` the ids of
- * the packed parts it is in, outermost first.
+ * goes to every card inside that has the same setting; only the cards that reach its result run; and a traced run
+ * (circuit.js) sees each card inside as a step of its own, its `path` the ids of the packed parts it is in, outermost
+ * first.
  */
 export function packed({ circuit, inputs, output, inside: around = (ctx) => ctx, ...extra }) {
   return {
@@ -42,7 +43,9 @@ export function packed({ circuit, inputs, output, inside: around = (ctx) => ctx,
     eval: (ins, node, ctx) => {
       const inside = withSettings(typeof circuit === 'function' ? circuit() : circuit, node.params, ctx.engine.parts)
       const trace = ctx.trace && { push: (step) => ctx.trace.push({ ...step, path: [node.id, ...(step.path ?? [])] }) }
-      const { outputs, errors } = runBoard(inside, { parts: ctx.engine.parts, prepare: ctx.engine.prepare, ctx: { ...around(ctx), graph: inside, trace }, bind: ins })
+      // Only what reaches its result runs, as on a board of its own (a frame that runs its regions itself runs them).
+      const targets = inside.nodes.filter((n) => n.params?.name === output).map((n) => n.id)
+      const { outputs, errors } = runBoard(inside, { parts: ctx.engine.parts, prepare: ctx.engine.prepare, ctx: { ...around(ctx), graph: inside, trace }, bind: ins, targets })
       if (outputs[output] === undefined) throw new PartError(errors.size ? [...errors.values()][0] : BROKEN)
       return outputs[output]
     },
