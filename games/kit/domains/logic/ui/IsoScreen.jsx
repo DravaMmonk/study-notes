@@ -94,8 +94,13 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const states = playback.states
   const verdict = run?.over ? { pass: playback.passed } : null
   const failed = run?.over && !playback.passed ? checked.results[run.results.length - 1] : null
+  // With one intro rule the elim rule gets back what went in; with several it cannot (whoever holds the sentence does
+  // not know which rule made it), it only goes into that rule's case, which is handed what went in.
+  const several = ways > 1
   const verdictText = !verdict ? null : verdict.pass
-    ? tr('每一种情况都对：证得出的时候，消去规则在那条引入规则的情况下正好取回交进去的证明；证不出的时候，哪条引入规则都凑不齐。', 'Every situation is right: when it is proved, the case of the way it was made by gets back the very proofs handed in; when it is not, no way has all it needs.')
+    ? (several
+      ? tr('每一种情况都对：证得出的时候，消去规则走进造它的那条引入规则的情况，交进去的证明交给那种情况；证不出的时候，哪条引入规则都凑不齐。', 'Every situation is right: when it is proved, the elim rule goes into the case of the intro rule that made it, which is handed the proofs that went in; when it is not, no intro rule has all it needs.')
+      : tr('每一种情况都对：证得出的时候，消去规则正好取回交进去的证明；证不出的时候，引入规则凑不齐。', 'Every situation is right: when it is proved, the elim rule gets back the very proofs handed in; when it is not, the intro rule does not have all it needs.'))
     : run.final || L(failed.reason)
 
   // What each card says in the situation picked.
@@ -129,6 +134,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   // The table's columns: the sentence each situation asks about (when the declared sentence mentions a thing), and
   // every proof any situation has at hand.
   const goals = level.tests.some((t) => t.goal)
+  const backText = (back) => back.map((x) => (x.kind === 'thing' ? L(thingWords(x.name)) : `#${x.n}`)).join(' · ')
   const held = [...new Set(level.tests.flatMap((t) => Object.keys(t.have)))]
   const table = (
     <div className="lg-strip">
@@ -139,7 +145,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
               {goals && <th>{tr('要证', 'To prove')}</th>}
               {held.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
               <th>{tr(`「${level.declare.zh}」`, `“${level.declare.en}”`)}</th>
-              <th>{tr('消去规则取回', 'Elim rule gets back')}</th>
+              <th>{several ? tr('消去规则走的情况', 'Case the elim rule takes') : tr('消去规则取回', 'Elim rule gets back')}</th>
             </tr>
           </thead>
           <tbody>
@@ -151,7 +157,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
                   {goals && <td>{t.goal ? L(words(t.goal)) : ''}</td>}
                   {held.map((l) => <td key={l}>{t.have[l] ? `#${t.have[l]}` : '—'}</td>)}
                   <td>{shownRow ? (r.made ? tr(`证得出：${WAY[r.made.way - 1]}`, `Proved: ${WAY[r.made.way - 1]}`) : tr('证不出', 'Not proved')) : ''}</td>
-                  <td>{shownRow && r.back ? (r.back.length ? r.back.map((x) => (x.kind === 'thing' ? L(thingWords(x.name)) : `#${x.n}`)).join(' · ') : tr('什么都没有', 'Nothing')) : ''}</td>
+                  <td>{shownRow && r.back ? (several ? tr(`情况 ${WAY[r.made.way - 1]}`, `Case ${WAY[r.made.way - 1]}`) + (r.back.length ? tr(`，交给它 ${backText(r.back)}`, `, handed ${backText(r.back)}`) : '') : r.back.length ? backText(r.back) : tr('什么都没有', 'Nothing')) : ''}</td>
                 </tr>
               )
             })}
