@@ -10,13 +10,14 @@
 // What is written is not believed: it is checked against the ways in (`intros`, the declaration's), the harmony of
 // introduction and elimination rules. Both checks ask one small question, whether a set of sentences and a set of
 // ways to go on (⟦assumptions⟧ ⟹ conclusion, an ⋀x one fitting any thing) reach a sentence, by going on until nothing
-// new comes (saturate); ?R is a sentence nothing else mentions. The rows are sealed proofs, opened as the check runs:
+// new comes (saturate); ?R is a sentence nothing else mentions. The check is two kinds of test case, shown with no
+// words, only sentences:
 //
-//   gives no more   one row for each way in ({ gives: its sentences, takes: the things it takes, opens: what each rule
-//                   does with it }): from what it handed in (its things named afresh), with the rule's cases as the
-//                   ways to go on, every rule's conclusion is reached. ⊥, with no way in, has no such row.
-//   gives no less   the last row: from the declared sentence alone, with "reach ?R" from each way in, the rules (each
-//                   adding its conclusion once its cases all reach it) bring ?R within reach.
+//   opened          one for each way in: a sealed proof made by it, holding what it handed in (its things named
+//                   afresh); opened, every rule's conclusion is within reach of its cases (gives no more), and the
+//                   case shows what the user holds. ⊥, with no way in, has none.
+//   any ?R          the last: a sealed proof of the declared sentence, with "reach ?R" from each way in; the rules
+//                   (each adding its conclusion once its cases all reach it) bring ?R within reach (gives no less).
 //
 // A level: the declaration's own fields (declare, target, sentences, things, binder, tray) and `intros`: its ways in,
 // [{ needs: [sentence], binds: [name] }] (iso.js waysIn of its reference board).
@@ -24,7 +25,6 @@ import { show } from './formula.js'
 import { general, match, premise, sentenceOf, substThings, thing } from './iso.js'
 import { ruleText } from './schematic.js'
 
-const T = (zh, en) => ({ zh, en })
 /** The elimination rule frame's type, and the id of the one a board starts with. */
 export const TAKE = 'take'
 /** The sealed proof of the declared sentence, on the left. */
@@ -95,36 +95,32 @@ const handed = (way, read) => {
 }
 
 /**
- * Every check: { pass, rows: [{ kind: 'way', way, gives: [sentence], pass, reason } … { kind: 'all', pass, reason }] };
- * words(sentence) gives a sentence's words.
+ * The check, two kinds of test case: { pass, rows: [{ kind: 'way', way, takes, gives, got, pass } … { kind: 'all',
+ * pass }] }. A 'way' row is a sealed proof made by that way in, holding the things it takes and the sentences it gives;
+ * `got` is, for each rule, what the user ends up holding once it is opened: [{ s: a sentence, a thing's name, or ?R,
+ * thing, ok }], ok false for what the proof does not hold.
  */
-export function checkTake(level, circuit, words) {
+export function checkTake(level, circuit) {
   const read = (s) => sentenceOf(level, s)
   const it = read(level.target)
   const rules = rulesOn(circuit)
   const goal = (r) => (r.to === ANY ? STAR : read(r.to))
-  const said = (r) => (r.to === ANY ? T('任意一句 ?R', 'any sentence ?R') : words(r.to))
-  const name = (r, k) => (rules.length > 1 ? T(`第 ${k + 1} 条消去规则`, `elimination rule ${k + 1}`) : T('消去规则', 'the elimination rule'))
-  const list = (xs) => T(xs.map((x) => x.zh).join('、') || '什么都没有', xs.map((x) => x.en).join(', ') || 'nothing')
   const caseWay = (r, c) => ({ needs: c.needs.map(read), vars: new Set(c.binds), to: goal(r) })
   const caseWays = (r) => r.cases.map((c) => caseWay(r, c))
-  // What a rule does with a sealed proof opened: hands back its conclusion as it is, goes into the case that what
-  // it holds fits, or is stuck.
+  // What a rule hands over once a sealed proof is opened: its conclusion as it is, what the case it goes into receives
+  // (the first whose receipts the proof holds), or, stuck, what its cases ask for, marking what the proof lacks.
   const opened = (r, facts) => {
-    if (r.to !== ANY && facts.some((f) => key(f) === key(goal(r)))) return { took: r.to }
+    if (r.to !== ANY && facts.some((f) => key(f) === key(goal(r)))) return [{ s: r.to, ok: true }]
     const i = r.cases.findIndex((c) => saturate(facts, [caseWay(r, c)]).has(key(goal(r))))
-    return i < 0 ? { stuck: true } : { case: i }
+    if (i >= 0) return [...r.cases[i].binds.map((x) => ({ s: x, thing: true, ok: true })), ...r.cases[i].needs.map((s) => ({ s, ok: true }))]
+    const asked = r.cases.flatMap((c) => c.needs.map((s) => ({ s, ok: facts.some((f) => match(read(s), f, new Set(c.binds), {})) })))
+    const marked = asked.every((a) => a.ok) ? asked.map((a) => ({ ...a, ok: false })) : asked
+    return marked.length ? marked : [{ s: r.to, ok: false }]
   }
   // Gives no more: from what each way handed in, every rule's conclusion within reach of its cases.
   const ways = level.intros.map((way, k) => {
     const facts = handed(way, read)
-    const bad = rules.findIndex((r) => !saturate(facts, caseWays(r)).has(key(goal(r))))
-    const given = list(way.needs.map(words))
-    const base = { kind: 'way', way: k, gives: way.needs, takes: way.binds, opens: rules.map((r) => opened(r, facts)) }
-    if (bad < 0) return { ...base, pass: true, reason: null }
-    const r = rules[bad]
-    const n = name(r, bad)
-    return { ...base, pass: false, reason: T(`这份证明是用引入规则 ${k + 1} 造的，里面只有${given.zh}；${n.zh}却要从它得出${said(r).zh}：哪一种情况都收不下它，它多给了`, `This proof was made by intro rule ${k + 1} and holds only ${given.en}; yet ${n.en} would get ${said(r).en} from it: no case takes what it holds, so it gives more`) }
+    return { kind: 'way', way: k, takes: way.binds, gives: way.needs, got: rules.map((r) => opened(r, facts)), pass: rules.every((r) => saturate(facts, caseWays(r)).has(key(goal(r)))) }
   })
   // Gives no less: from the declared sentence alone, the rules bring ?R within reach of "reach ?R" from each way in.
   const target = level.intros.map((w) => ({ needs: w.needs.map(read), vars: new Set(w.binds), to: STAR }))
@@ -138,9 +134,7 @@ export function checkTake(level, circuit, words) {
       if (r.cases.every((c) => saturate([...facts, ...handed(c, read)], target).has(key(g)))) { facts.push(g); grew = true }
     }
   }
-  const whole = saturate(facts, target).has(key(STAR))
-  const all = { kind: 'all', pass: whole, reason: whole ? null : T(`每条引入规则交进去的东西都推得出的 ?R，${rules.length > 1 ? '这组消去规则' : '消去规则'}却推不出：它少给了`, `Every way in reaches ?R from what it hands in, yet ${rules.length > 1 ? 'these elimination rules do' : 'the elimination rule does'} not: it gives less`) }
-  const rows = [...ways, all]
+  const rows = [...ways, { kind: 'all', pass: saturate(facts, target).has(key(STAR)) }]
   return { pass: rows.every((r) => r.pass), rows }
 }
 

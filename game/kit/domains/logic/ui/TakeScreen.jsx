@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Inbox, Package, PackageOpen, SquareSplitHorizontal } from 'lucide-react'
+import { ArrowRight, Check, Inbox, Package, PackageOpen, SquareSplitHorizontal, X } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TestStatus, usePlayback } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Palette, regionsFit, spotIn } from '../../../circuit/index.js'
@@ -13,7 +13,8 @@ import { PhoneCards } from './IsoScreen.jsx'
 // A declaration's elimination rule written by hand (take.js), the other way round from the declaration board: the
 // sealed proof on the left wired into an elimination rule frame, whose regions are its cases, each holding what that
 // case receives. The table under the board is the check: sealed proofs opened one by one (which way made each, what it
-// holds, which case it goes into, or where it is stuck), and last whether the rules give no less than every way in.
+// holds, and what the user holds once a rule has opened it), and last whether ?R, reached by every way in, is reached
+// from the sealed proof too.
 // Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
 
 const T = (zh, en) => ({ zh, en })
@@ -30,6 +31,8 @@ function takePartsFor(level, words) {
     role: (node) => (node.type === IT ? 'source' : node.type === TAKE ? 'sink' : 'part'),
     label: (node) => (node.type === IT ? T(`封好的「${words(level.target).zh}」`, `A sealed “${words(level.target).en}”`) : ITEMS[node.type].label),
     portLabel: (node) => (node.type === TAKE ? T('它', 'It') : ''),
+    // What a case receives is held there, wired nowhere.
+    outputs: (node) => (node.type === 'get' || node.type === 'getThing' ? [] : [{ key: null, label: '' }]),
     family: (node) => (node.type === IT ? 'given' : ITEMS[node.type].family),
     icon: (node) => (node.type === IT ? Package : ITEMS[node.type].icon),
     cardWidth: (node) => (node.type === TAKE ? 300 : 220),
@@ -84,14 +87,14 @@ export default function TakeScreen({ game, level: entry, saved, save, solve, las
   const counts = Array.from({ length: MOST + 1 }, (_, k) => ({ value: String(k), label: tr(`${k} 种`, `${k}`) }))
   const onClear = circuit.nodes.length > 2 || circuit.nodes.some((n) => n.type === TAKE && casesOf(n).length) ? () => change(startTake()) : null
 
-  const checked = useMemo(() => checkTake(level, circuit, words), [level, circuit])
+  const checked = useMemo(() => checkTake(level, circuit), [level, circuit])
   const rows = checked.rows
   const [rowIndex, setRowIndex] = useState(0)
   const rules = rulesOn(circuit)
   const playback = usePlayback({
     count: rows.length,
     stepsOf: () => [],
-    check: (k) => (rows[k].pass ? '' : L(rows[k].reason)),
+    check: (k) => (rows[k].pass ? '' : 'fail'),
     onSolve: () => solve({ steps: rules.reduce((n, r) => n + r.cases.length, 0) }),
     onTest: setRowIndex,
     board: circuit,
@@ -100,10 +103,6 @@ export default function TakeScreen({ game, level: entry, saved, save, solve, las
   })
   const run = playback.run
   const states = playback.states
-  const verdict = run?.over ? { pass: playback.passed } : null
-  const verdictText = !verdict ? null : verdict.pass
-    ? tr('不多给，也不少给：每一份封好的证明打开时，都走进收得下它的那种情况，交出的正是它装着的东西。', 'No more, no less: every sealed proof, opened, goes into the case that takes it and hands over just what it holds.')
-    : L(rows[run.results.length - 1].reason)
 
   // A card shows: the sealed proof its sentence, a Receive card the sentence it receives (picked on it), a frame how
   // many cases and its conclusion (picked) and itself written out as every rule is.
@@ -125,40 +124,39 @@ export default function TakeScreen({ game, level: entry, saved, save, solve, las
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  // What a sealed proof holds, and what each rule does with it once opened.
-  const holds = (r) => [...r.takes.map((x) => tr(`一样东西 ${x}`, `a thing ${x}`)), ...r.gives.map((s) => L(words(s)))].join(tr('、', ', ')) || tr('什么都没有', 'nothing')
-  const did = (o, j) => {
-    const who = rules.length > 1 ? tr(`规则 ${j + 1}：`, `Rule ${j + 1}: `) : ''
-    if (o.took) return `${who}${tr(`直接得出${L(words(o.took))}`, `gives ${L(words(o.took))} as it is`)}`
-    if (o.stuck) return `${who}${tr('卡住：没有一种情况收得下', 'stuck: no case takes it')}`
-    return `${who}${tr(`走进情况 ${CASE[o.case]}`, `into case ${CASE[o.case]}`)}`
+  // The check is test cases with no words: a sealed proof (opened, what it holds; the last, what each way in reaches)
+  // and what the user ends up holding.
+  const chip = (text, bad) => <span className={`lg-chip ${bad ? 'is-bad' : ''}`}>{text}</span>
+  const said = (s) => L(words(s))
+  const reach = (way) => {
+    const from = way.needs.map(said)
+    const lead = way.binds.length ? `⋀${way.binds.join(' ')}. ` : ''
+    return `${lead}${from.length > 1 ? `⟦${from.join('; ')}⟧ ⟹ ` : from.length ? `${from[0]} ⟹ ` : ''}${ANY}`
   }
+  const held = (got) => (got.length ? got.map((g, k) => <span key={k}>{chip(g.thing || g.s === ANY ? g.s : said(g.s), !g.ok)}</span>) : chip('—'))
   const table = (
     <div className="lg-strip">
       <div className="lg-scroll-x">
-        <table className="lg-rows">
-          <thead>
-            <tr><th>{tr('检查', 'Check')}</th><th>{tr('盒子里', 'Inside')}</th><th>{tr('打开以后', 'Opened')}</th><th>{tr('结果', 'Result')}</th></tr>
-          </thead>
+        <table className="lg-rows lg-opens">
           <tbody>
             {rows.map((r, k) => {
               const open = run && k < run.results.length
+              const Box = r.kind === 'way' && open ? PackageOpen : Package
               return (
                 <tr key={k} className={`${k === rowIndex ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => setRowIndex(k)}>
-                  <td>{r.kind === 'way' ? tr(`封好的证明 ${k + 1}`, `Sealed proof ${k + 1}`) : tr('用的人要推出任意一句 ?R', 'Its user wants any sentence ?R')}</td>
-                  <td>{r.kind === 'way' ? (open ? tr(`引入规则 ${r.way + 1} 造的：${holds(r)}`, `made by intro rule ${r.way + 1}: ${holds(r)}`) : '？') : '—'}</td>
-                  <td>{r.kind === 'way' ? (open ? r.opens.map(did).join(tr('；', '; ')) : '') : (open ? tr('每种造法都推得出 ?R 时', 'when every way in reaches ?R') : '')}</td>
-                  <td>{open ? (r.pass ? (r.kind === 'way' ? tr('不多给', 'No more') : tr('不少给', 'No less')) : L(r.reason)) : ''}</td>
+                  <td><span className="lg-chips-row"><Box size={16} aria-hidden="true" />{r.kind === 'way' ? (open ? [...r.takes, ...r.gives.map(said)].map((t, j) => <span key={j}>{chip(t)}</span>) : chip('？')) : level.intros.map((w, j) => <span key={j}>{chip(reach(w))}</span>)}</span></td>
+                  <td><ArrowRight size={14} aria-hidden="true" /></td>
+                  <td>{open && <span className="lg-chips-row">{r.kind === 'way' ? r.got.map((got, j) => <span key={j} className="lg-chip-group">{held(got)}</span>) : chip(ANY, !r.pass)}</span>}</td>
+                  <td>{open && (r.pass ? <Check size={16} aria-label={tr('通过', 'Pass')} /> : <X size={16} aria-label={tr('未通过', 'Fail')} />)}</td>
                 </tr>
               )
             })}
           </tbody>
         </table>
       </div>
-      {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )
-  const dock = <RunDock {...playback.dock({ go: tr('一份份打开', 'Open them one by one'), done: tr('不多给，不少给', 'No more, no less') })} />
+  const dock = <RunDock {...playback.dock({ go: tr('打开', 'Open'), done: tr('全部通过', 'All passed') })} />
 
   const items = [GET, ...((level.tray ?? []).includes('thing') ? [GET_THING] : []), FRAME]
   // On a phone a card goes into the slot picked, inside a case or on the board; a frame beside the last one.

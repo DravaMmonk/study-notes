@@ -258,6 +258,35 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
     return <div className={`pb-grid ${region ? 'is-region' : ''}`}>{out}</div>
   }
 
+  // A frame's regions, each a grid of its own between the value it opens and the dot its result goes into.
+  function regions(node) {
+    return regionsOf(node).map((r) => (
+      <section key={r.name} className="pb-region">
+        {/* Along the region's top edge: its name, and the value it opens with the dot that gives it. */}
+        <header className={`pb-region-head ${givesOf(r).length > 1 ? 'has-many-opens' : ''}`}>
+          {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
+          {!r.opens && regionNote?.(node, r.name)}
+          {givesOf(r).map((k) => (
+            <span key={k} className="pb-open">
+              <em>{L(parts.outputs?.(node)?.find((o) => o.key === k)?.label ?? '')}</em>
+              {regionNote?.(node, k)}
+              <span className="pb-out">{dot(outPort(srcOf(node, k)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, k)) ? 'is-wired' : ''}`)}</span>
+            </span>
+          ))}
+        </header>
+        {grid(`${node.id}/${r.name}`)}
+        {/* Along the region's bottom edge: the dot its result goes into, and what the frame gives. */}
+        {r.closes !== false && (<footer className="pb-closes">
+          <span className="pb-ins">
+            <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)} 的${L(parts.portLabel?.(node, r.name) ?? '')}`, `${nameOf(node)} ${L(parts.portLabel?.(node, r.name) ?? '')}`), `is-in ${feeding(graph, node.id, r.name) ? 'is-wired' : 'is-open'}`)}</span>
+          </span>
+          <em>{L(parts.portLabel?.(node, r.name) ?? '')}</em>
+          {resultNote?.(node, r.name)}
+        </footer>)}
+      </section>
+    ))
+  }
+
   // A frame: its head (held to drag it), each region's grid with the dot its result goes into, then its output.
   function frameBlock(node, at, region) {
     const ports = inputs(node)
@@ -269,31 +298,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
             {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
           </div>
-          {regionsOf(node).map((r) => (
-            <section key={r.name} className="pb-region">
-              {/* Along the region's top edge: its name, and the value it opens with the dot that gives it. */}
-              <header className={`pb-region-head ${givesOf(r).length > 1 ? 'has-many-opens' : ''}`}>
-                {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
-                {!r.opens && regionNote?.(node, r.name)}
-                {givesOf(r).map((k) => (
-                  <span key={k} className="pb-open">
-                    <em>{L(parts.outputs?.(node)?.find((o) => o.key === k)?.label ?? '')}</em>
-                    {regionNote?.(node, k)}
-                    <span className="pb-out">{dot(outPort(srcOf(node, k)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, k)) ? 'is-wired' : ''}`)}</span>
-                  </span>
-                ))}
-              </header>
-              {grid(`${node.id}/${r.name}`)}
-              {/* Along the region's bottom edge: the dot its result goes into, and what the frame gives. */}
-              {r.closes !== false && (<footer className="pb-closes">
-                <span className="pb-ins">
-                  <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)} 的${L(parts.portLabel?.(node, r.name) ?? '')}`, `${nameOf(node)} ${L(parts.portLabel?.(node, r.name) ?? '')}`), `is-in ${feeding(graph, node.id, r.name) ? 'is-wired' : 'is-open'}`)}</span>
-                </span>
-                <em>{L(parts.portLabel?.(node, r.name) ?? '')}</em>
-                {resultNote?.(node, r.name)}
-              </footer>)}
-            </section>
-          ))}
+          {regions(node)}
           {outDots(node)}
         </div>
       </div>
@@ -339,6 +344,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
             {sinkBody ? sinkBody(node) : <span className="pb-thumb">{thumb(node, 64)}</span>}
             <span className="pb-name">{nameOf(node)}</span>
+            {regions(node)}
           </div>
         ))}
       </div>
