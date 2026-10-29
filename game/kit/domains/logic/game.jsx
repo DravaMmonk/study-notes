@@ -1,6 +1,6 @@
 // A logic game on the shared shell (../../shell): its spec becomes the shell's game description, with the logic
 // domain's screens (a proof on the circuit editor, a truth table), its parts box of proved lemmas and its map art.
-import { Boxes, Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, Workflow } from 'lucide-react'
+import { Boxes, Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareSplitHorizontal, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
@@ -8,6 +8,7 @@ import { tr } from '../../shell/i18n.js'
 import { migrations } from '../../shell/saves.js'
 import GatesScreen from './ui/GatesScreen.jsx'
 import IsoScreen, { DeclaredRules } from './ui/IsoScreen.jsx'
+import TakeScreen from './ui/TakeScreen.jsx'
 import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
@@ -90,6 +91,7 @@ export function defineLogicGame(spec) {
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
       iso: { Screen: IsoScreen, icon: FileSignature, label: { zh: '声明', en: 'Declaration' } },
+      take: { Screen: TakeScreen, icon: SquareSplitHorizontal, label: { zh: '写消去规则', en: 'Write the elimination rule' } },
       translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
       query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: Boxes, label: { zh: '造世界', en: 'Build a world' } },
@@ -102,10 +104,7 @@ export function defineLogicGame(spec) {
       ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !spec.logic.course.local(type)).map((type) => ({ label: built[type].name })),
       ...(givesRules(level) ? level.source.adds : []).filter((type) => RULES[type]).map((type) => primitives.find((p) => p.key === `part:${type}`)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon, family: 'rule' })),
     ],
-    passed: (level, progress) => {
-      const declared = isoOf(level.source)
-      return declared ? <DeclaredRules level={declared} progress={progress} /> : null
-    },
+    passed: (level, progress) => (isoOf(level.source) ? <DeclaredRules level={{ ...level.source, id: level.id }} progress={progress} /> : null),
     core: (level) => isCore(spec.logic.course, level),
     parts: {
       all: [
