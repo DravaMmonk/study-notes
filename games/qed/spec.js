@@ -243,6 +243,11 @@ export default {
   // declaration board.
   { version: 49, ops: [
     { data: (value, id) => (DECLARED.includes(id) && Array.isArray(value) ? value[0] ?? null : value) },
+  ] },
+  // Version 50 drops Split ∧ and the two tasks of 两个都要 that built it (the left side, the right side).
+  { version: 50, ops: [
+    { data: (value, id) => (id === 'and' && Array.isArray(value) ? value.slice(2) : value) },
+    { tasks: (passed, id) => (id === 'and' ? Math.max(0, passed - 2) : passed) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

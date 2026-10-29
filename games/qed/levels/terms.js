@@ -93,11 +93,11 @@ export const terms = [
     tasks: [
       prove({
         step: T('∧ 是一对', '∧ is a pair'),
-        tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A', term: '⟨p.2, p.1⟩' }],
+        tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A', term: 'p.elim (fun a b => ⟨b, a⟩)' }],
         cases: TWO,
-        briefNote: T('证明项要是 ⟨p.2, p.1⟩。', 'Its proof term must be ⟨p.2, p.1⟩.'),
-        hint: [T('⟨a, b⟩ 是拼成的一对；p.1 是 p 的左一半，p.2 是右一半。', '⟨a, b⟩ is a pair joined; p.1 is the left half of p, p.2 the right.')],
-        solution: proof({ e: ['andE'], i: ['andI'] }, ['p>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>goal'], { premises: ['p'] }),
+        briefNote: T('证明项要是 p.elim (fun a b => ⟨b, a⟩)。', 'Its proof term must be p.elim (fun a b => ⟨b, a⟩).'),
+        hint: [T('⟨a, b⟩ 是拼成的一对；p.elim (fun a b => …) 把 p 拆成两半，a 是左一半，b 是右一半。', '⟨a, b⟩ is a pair joined; p.elim (fun a b => …) takes p apart, a its left half and b its right.')],
+        solution: proof({ e: ['andCases'], i: ['andI', {}, 'e'] }, ['p>e.ab', 'e#right>i.a', 'e#left>i.b', 'e>goal', 'i>e.body'], { premises: ['p'] }),
       }),
       prove({
         step: T('∨ 带着标签', '∨ carries a tag'),
@@ -117,7 +117,7 @@ export const terms = [
       }),
     ],
     intro: [
-      { t: T('「若…则…」的证明是函数。别的连接词，证明是各种<b>数据</b>：「A ∧ B」的证明是一<b>对</b>，写作 ⟨a, b⟩，拆开就是取出一半，p.1、p.2。「A ∨ B」只有一边成立，证明带着<b>标签</b>：Or.inl a 说「是左边，证明是 a」，Or.inr b 说「是右边」；分情况写成 p.elim f g，看标签决定用 f 还是 g。', 'A proof of an “if … then …” is a function. The other connectives’ proofs are kinds of <b>data</b>: a proof of “A ∧ B” is a <b>pair</b>, written ⟨a, b⟩, and splitting it takes out a half, p.1 or p.2. In “A ∨ B” only one side holds, and its proof carries a <b>tag</b>: Or.inl a says “the left one, proved by a”, Or.inr b “the right one”; Cases is written p.elim f g, the tag deciding whether f or g is used.') },
+      { t: T('「若…则…」的证明是函数。别的连接词，证明是各种<b>数据</b>：「A ∧ B」的证明是一<b>对</b>，写作 ⟨a, b⟩；消去 ∧ 写成 p.elim (fun a b => …)，把这一对拆成两半交给框里（只要一半时，也可以写成 p.1、p.2）。「A ∨ B」只有一边成立，证明带着<b>标签</b>：Or.inl a 说「是左边，证明是 a」，Or.inr b 说「是右边」；分情况写成 p.elim f g，看标签决定用 f 还是 g。', 'A proof of an “if … then …” is a function. The other connectives’ proofs are kinds of <b>data</b>: a proof of “A ∧ B” is a <b>pair</b>, written ⟨a, b⟩; ∧ elim is p.elim (fun a b => …), handing its two halves into the box (or, for one half alone, p.1 or p.2). In “A ∨ B” only one side holds, and its proof carries a <b>tag</b>: Or.inl a says “the left one, proved by a”, Or.inr b “the right one”; Cases is written p.elim f g, the tag deciding whether f or g is used.') },
       { t: T('否定不用新东西：¬A 就是 A → ⊥，它的证明是一个函数，给它 A 的证明，还你一个矛盾。⊥ 没有证明，像一个没有任何值的类型；万一手里有了一个，<b>False.elim</b> 就把它当成任何一句的证明。', 'Negation needs nothing new: ¬A is A → ⊥, and its proof is a function that, given a proof of A, gives back a contradiction. ⊥ has no proof, like a type with no values; should you hold one, <b>False.elim</b> makes it a proof of any sentence.') },
     ],
     after: T('引入 ∧ 是造一对，消去 ∧ 是取出分量；∨ 是带标签的值，分情况是按标签分支，程序里的 match；矛盾推出一切，在程序里是「这一支走不到」。证明板上的每一条规则，都是造一种值或者用一种值。', 'Joining ∧ makes a pair and splitting it takes a component; ∨ is a tagged value and Cases branches on the tag, a match in a program; from a contradiction anything, in a program, is “this branch is never reached”. Every rule on the proof board makes a kind of value or uses one.'),
@@ -146,7 +146,7 @@ export const terms = [
       { premises: { p: 'Rain ∨ Sat' }, goal: 'Sat ∨ Rain', answer: 'p.elim (fun a => Or.inr a) (fun b => Or.inl b)', hint: [T('分情况写成「□.elim (fun _ => □) (fun _ => □)」，引入 ∨ 写成 Or.inl、Or.inr：每种情况各贴到新「或者」的哪一边？', 'Cases is “□.elim (fun _ => □) (fun _ => □)”, ∨ intro is Or.inl or Or.inr: in the new “or”, which side does each case go?')] },
       { premises: { p: 'Rain', q: '¬Rain' }, goal: 'Rest', answer: 'False.elim (q p)', hint: [T('矛盾推出一切写成「False.elim □」；q 用在 p 上是矛盾。', 'From contradiction is “False.elim □”; q used on p is the contradiction.')] },
     ]),
-    intro: [{ t: T('其余连接词的元件也都写成证明项：引入 ∧ 是 ⟨a, b⟩，拆开是 p.1、p.2；引入 ∨ 是 Or.inl、Or.inr，分情况是 p.elim；矛盾推出一切是 False.elim。', 'The other connectives’ parts are written as terms too: ∧ intro is ⟨a, b⟩, splitting it p.1 and p.2; ∨ intro is Or.inl or Or.inr, Cases is p.elim; from contradiction, anything, is False.elim.') }],
+    intro: [{ t: T('其余连接词的元件也都写成证明项：引入 ∧ 是 ⟨a, b⟩，消去 ∧ 是 p.elim (fun a b => …)；引入 ∨ 是 Or.inl、Or.inr，分情况是 p.elim；矛盾推出一切是 False.elim。', 'The other connectives’ parts are written as terms too: ∧ intro is ⟨a, b⟩, ∧ elim p.elim (fun a b => …); ∨ intro is Or.inl or Or.inr, Cases is p.elim; from contradiction, anything, is False.elim.') }],
     after: T('前两题一来一回：吃一对的函数和一个一个吃的函数可以互相改写，这叫<wiki-ref to="currying"></wiki-ref>（Curry），<wiki-ref to="curry-howard"></wiki-ref>里的 Curry 也是他。连接词的元件，到这里都写过了。', 'The first two go there and back: a function taking a pair and one taking its arguments one at a time can each be rewritten as the other. This is <wiki-ref to="currying"></wiki-ref>, after Haskell Curry, the Curry of the <wiki-ref to="curry-howard"></wiki-ref>. Every connective’s part has been written now.'),
   },
   {
@@ -279,11 +279,11 @@ export const terms = [
       }),
       prove({
         step: T('拿出那一个', 'Taking it out'),
-        tests: [{ premises: { p: '∃x. P(x) ∧ Q(x)' }, goal: '∃x. P(x)', term: 'p.elim (fun a h => ⟨a, h.1⟩)' }],
+        tests: [{ premises: { p: '∃x. P(x) ∧ Q(x)' }, goal: '∃x. P(x)', term: 'p.elim (fun a h => h.elim (fun x y => ⟨a, x⟩))' }],
         cases: PERSON,
-        brief: T('从已知 p：「∃x. x是人 ∧ x会死」证明出「∃x. x是人」，证明项要是 p.elim (fun a h => ⟨a, h.1⟩)。', 'From p: “∃x. x is human ∧ x is mortal”, prove “∃x. x is human”, with the term p.elim (fun a h => ⟨a, h.1⟩).'),
+        brief: T('从已知 p：「∃x. x是人 ∧ x会死」证明出「∃x. x是人」，证明项要是 p.elim (fun a h => h.elim (fun x y => ⟨a, x⟩))。', 'From p: “∃x. x is human ∧ x is mortal”, prove “∃x. x is human”, with the term p.elim (fun a h => h.elim (fun x y => ⟨a, x⟩)).'),
         hint: [T('fun a h 是拿出那一个的框：a 是那样东西，h 是它满足的那句。', 'fun a h is the take-the-one box: a is the thing, h the sentence it fits.')],
-        solution: proof({ f: ['exE', { x: 'a' }], s: ['andE', {}, 'f'], i: ['exI', {}, 'f'] }, ['p>f.ex', 'f#body>s.ab', 's#left>i.a', 'i>f.body', 'f>goal'], { premises: ['p'] }),
+        solution: proof({ f: ['exE', { x: 'a' }], s: ['andCases', {}, 'f'], i: ['exI', {}, 's'] }, ['p>f.ex', 'f#body>s.ab', 's#left>i.a', 's>f.body', 'f>goal', 'i>s.body'], { premises: ['p'] }),
       }),
     ],
     intro: [{ t: T('量词的证明也是证明项。「∀x. …」的证明是函数，只是参数不是证明，而是一样东西：给它 t，它还你关于 t 的那句话的证明，这叫<wiki-ref to="dep-function"></wiki-ref>，取一个写成 p ann。「∃x. …」的证明是一<b>对</b>：一样东西（见证），和它满足那句话的证明；用它写 p.elim (fun a h => …)。', 'Proofs with quantifiers are terms too. A proof of “∀x. …” is a function whose argument is not a proof but a thing: given t, it gives back a proof of the sentence about t, a <wiki-ref to="dep-function"></wiki-ref>, and Take one is p ann. A proof of “∃x. …” is a <b>pair</b>: a thing (the witness) and a proof that it fits; using one is p.elim (fun a h => …).') }],

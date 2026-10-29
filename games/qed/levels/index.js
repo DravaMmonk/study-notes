@@ -25,18 +25,6 @@ const T = (zh, en) => ({ zh, en })
 
 // The lemmas the player proves; a part is a pattern, so its description and ports use letters.
 export const LEMMAS = {
-  // Splitting ∧ (chapter 4): proved from ∧ elim, one shape for each side, and run as the kit's card with an output for
-  // each (Lean's And.left and And.right, Isabelle's conjunct1 and conjunct2).
-  andE: {
-    name: T('拆开 ∧', 'Split ∧'), card: 'andE',
-    desc: T('由 A ∧ B 得到 A，也得到 B：两个输出口各取一边。', 'From A ∧ B, A, and also B: one output for each side.'),
-    metas: ['A', 'B'],
-    forms: [
-      { key: 'left', label: 'A ∧ B ⟹ A', statement: 'A', premises: ['A ∧ B'] },
-      { key: 'right', label: 'A ∧ B ⟹ B', statement: 'B', premises: ['A ∧ B'] },
-    ],
-    ports: ['A ∧ B'],
-  },
   axK: { name: T('K', 'K'), desc: T('元件上选两句 A、B，直接给出 A → (B → A)：已经成立的事，加上什么条件都还成立。', 'Choose two sentences A and B on the part; it gives A → (B → A) at once: what holds still holds under any condition.'), statement: 'A → (B → A)', metas: ['A', 'B'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
   axS: { name: T('S', 'S'), desc: T('元件上选三句 A、B、C，直接给出 (A → (B → C)) → ((A → B) → (A → C))：在条件 A 下也能套用。', 'Choose three sentences A, B and C on the part; it gives (A → (B → C)) → ((A → B) → (A → C)) at once: Apply works under a condition A too.'), statement: '(A → (B → C)) → ((A → B) → (A → C))', metas: ['A', 'B', 'C'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
   chain: { name: T('串联', 'Chain'), desc: T('接进 A → B 和 B → C，直接给出 A → C。', 'Wire in A → B and B → C; it gives A → C at once.'), statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'], ports: ['A → B', 'B → C'] },
@@ -149,11 +137,6 @@ const REVISIONS = {
     { at: 'sp-rw', desc: T('「或者」分配到「并且」上，四个方向：A ∨ (B ∧ C) 和 (A ∨ B) ∧ (A ∨ C) 互相转换，(A ∧ B) ∨ C 和 (A ∨ C) ∧ (B ∨ C) 互相转换。元件上切换形状；每个方向也都是改写规则。', '“Or” distributed over “and”, four ways: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Switch the shape on the card; each way is a rewrite rule too.') },
   ],
   iff: [{ by: 'au-iff', forms: ['intro'] }],
-  // ↔ comes into proofs on the main path with 两个方向: ∧ elim takes it apart.
-  andE: [
-    { by: 'and', forms: ['right'] },
-    { at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B：两个输出口各取一边。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B: one output for each side. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') },
-  ],
 
   // The machine parts grow along chapters 7 and 8: quantifiers taken apart and patterns (模式合一), every result once
   // the cards backtrack (一串结果).

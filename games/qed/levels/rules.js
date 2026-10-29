@@ -59,12 +59,12 @@ export const rules = [
     solution: proof({
       g1: ['allI', { x: 'a' }],
       e1: ['allE', { t: 'a' }, 'g1'],
-      s1: ['andE', {}, 'g1'],
+      s1: ['andCases', {}, 'g1'],
       g2: ['allI', { x: 'a' }],
       e2: ['allE', { t: 'a' }, 'g2'],
-      s2: ['andE', {}, 'g2'],
+      s2: ['andCases', {}, 'g2'],
       c: ['andI'],
-    }, ['p>e1.all', 'e1>s1.ab', 's1#left>g1.body', 'p>e2.all', 'e2>s2.ab', 's2#right>g2.body', 'g1>c.a', 'g2>c.b', 'c>goal'], { premises: ['p'] }),
+    }, ['p>e1.all', 'e1>s1.ab', 's1>g1.body', 'p>e2.all', 'e2>s2.ab', 's2>g2.body', 'g1>c.a', 'g2>c.b', 'c>goal', 's1#left>s1.body', 's2#right>s2.body'], { premises: ['p'] }),
     after: T('∀ 对 ∧ 可以随便拆开、并上。<level-ref to="p-split"></level-ref>里 ∀ 对 → 就不行。', '∀ splits over ∧ and joins back freely. Over →, as <level-ref to="p-split"></level-ref> showed, it does not.'),
   },
   {
@@ -90,7 +90,7 @@ export const rules = [
     cases: PERSON,
     hint: [T('拆出「安会死」，接进举例。', 'Split out “Ann is mortal” and wire it into Example.')],
     intro: [{ t: T('<part-ref to="part:exI"></part-ref>就是你声明「存在」时写的那条引入规则：有一样具体的东西满足它，就可以说「存在」。接进一句关于它的话，元件自己认出例子是谁；关卡里只有一句「存在」对得上时，它直接得出那句，对得上的不止一句时，在元件上选要得出哪一句。', '<part-ref to="part:exI"></part-ref> is the way to make it you wrote declaring “there is”: when a particular thing satisfies it, you may say “there exists”. Wire in a sentence about it and the part reads off the example; when only one “there is” of the level fits, out it comes, and when several fit, choose on the part which to conclude.') }],
-    solution: proof({ s: ['andE'], i: ['exI'] }, ['p>s.ab', 's#right>i.a', 'i>goal'], { premises: ['p'] }),
+    solution: proof({ s: ['andCases'], i: ['exI', {}, 's'] }, ['p>s.ab', 's#right>i.a', 's>goal', 'i>s.body'], { premises: ['p'] }),
     after: T('举出一个例子，「存在」就证出来了。反过来，从「存在」出发，就没那么简单了。', 'One example proves “there exists”. Starting from “there exists” is not so simple.'),
   },
   {
@@ -102,7 +102,7 @@ export const rules = [
     cases: PERSON,
     hint: [T('框里给那一样东西起个名字 y，拆开，再拿它举例。', 'Inside the box, name the thing y, split, and use it as the example.')],
     intro: [{ t: T('<part-ref to="part:exE"></part-ref>是「存在」的消去规则：接进「∃x. …」，框里假设那一样东西叫 a（元件上起名），满足这句话。关于 a 你只知道这一点，所以框里证出的结论不能提到 a。', '<part-ref to="part:exE"></part-ref> is the case of “there is”: wire in “∃x. …”; inside the box, that thing is called a (named on the part) and satisfies it. That is all you know about a, so what is proved inside may not mention a.') }],
-    solution: proof({ f: ['exE', { x: 'a' }], s: ['andE', {}, 'f'], i: ['exI', {}, 'f'] }, ['p>f.ex', 'f#body>s.ab', 's#left>i.a', 'i>f.body', 'f>goal'], { premises: ['p'] }),
+    solution: proof({ f: ['exE', { x: 'a' }], s: ['andCases', {}, 'f'], i: ['exI', {}, 's'] }, ['p>f.ex', 'f#body>s.ab', 's#left>i.a', 's>f.body', 'f>goal', 'i>s.body'], { premises: ['p'] }),
     after: T('「有这么一个，就叫它 a 吧」，数学证明里也常这么说。a 只是借来的名字，用完就还：结论里不能有它。', '“There is one; call it a”: mathematical proofs say this often too. a is a borrowed name, given back when done: the conclusion may not hold it.'),
   },
   {
@@ -256,7 +256,7 @@ export const rules = [
     tests: [{ premises: { p: '∀x. B(x) → C(x)', q: '∃x. A(x) ∧ B(x)' }, goal: '∃x. A(x) ∧ C(x)' }],
     cases: [{ A: 'Pet', B: 'Cat', C: 'Fluffy' }, { A: 'Student', B: 'Baby', C: 'Mortal' }],
     hint: [T('拿出那只是猫的宠物，它就是例子。', 'Take out the pet that is a cat; it is the example.')],
-    solution: proof({ f: ['exE', { x: 'a' }], s: ['andE', {}, 'f'], e: ['allE', { t: 'a' }, 'f'], m: ['mp', {}, 'f'], c: ['andI', {}, 'f'], i: ['exI', {}, 'f'] }, ['q>f.ex', 'f#body>s.ab', 'p>e.all', 'e>m.imp', 's#right>m.a', 's#left>c.a', 'm>c.b', 'c>i.a', 'i>f.body', 'f>goal'], { premises: ['p', 'q'] }),
+    solution: proof({ f: ['exE', { x: 'a' }], s: ['andCases', {}, 'f'], e: ['allE', { t: 'a' }, 'f'], m: ['mp', {}, 's'], c: ['andI', {}, 's'], i: ['exI', {}, 's'] }, ['q>f.ex', 'f#body>s.ab', 'p>e.all', 'e>m.imp', 's#right>m.a', 's#left>c.a', 'm>c.b', 'c>i.a', 's>f.body', 'f>goal', 'i>s.body'], { premises: ['p', 'q'] }),
     after: T('「有的」一进来，就要拿出那一个，最后再拿它举例。', 'Once “some” comes in, take out the one there is, and use it as the example at the end.'),
   },
   {
