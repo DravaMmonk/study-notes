@@ -87,17 +87,17 @@ export const declarations = [
     take: {
       intro: [
         { t: T('「并且」声明好了，证明板上却还用不了「下雨 ∧ 刮风」：证明核只知道怎样造出它，不知道拿到它以后能做什么。用掉它的那条规则叫<wiki-ref to="elim-rule"></wiki-ref>，这一段把它写出来。', '“And” is declared, yet the proof board cannot use “it rains ∧ it is windy”: the kernel knows how to make it, not what to do once it has it. The rule that uses it up is its <wiki-ref to="elim-rule"></wiki-ref>, and this task writes it.') },
-        { t: T('消去规则卡的第一条前提就是「下雨 ∧ 刮风」。接进卡里的每一串假设是一种情况：假设这一串，推出结论；结论在卡上选，?R 是任意一句话。写出来的规则要过检查：用每一种造法造出的证明，它都不能得出交进去的东西推不出的（不多给）；每一种造法交进去的东西都推得出的，它也都要推得出（不少给）。', 'The elimination rule card’s first premise is “it rains ∧ it is windy”. Each chain of assumptions wired into it is a case: assume the chain, reach the conclusion; the conclusion is picked on the card, ?R being any sentence at all. What is written must pass a check: from a proof made either way, it may give nothing that what was handed in does not give (no more); and whatever every way’s proofs give, it must give too (no less).') },
+        { t: T('这块板和声明板反着来。左边是一份封好的「下雨 ∧ 刮风」，接进消去规则框。框上选有几种情况；每种情况是框里的一块区域，往里放「收到」卡，说的是这种情况打开时手里会有什么。结论也在框上选，?R 是任意一句话：从收到的东西推出它，是用这条规则的人的事。写出来的规则要过检查：一份份封好的证明，运行时才打开，看它走进哪一种情况；它都不能得出里面装的东西推不出的（不多给），每一种造法都推得出的，它也都要推得出（不少给）。', 'This board runs the other way round from the declaration board. On the left is a sealed “it rains ∧ it is windy”, wired into an elimination rule frame. On the frame, pick how many cases; each case is a region of the frame, and the Receive cards put in it say what you hold when that case is opened. The conclusion is picked on the frame too, ?R being any sentence at all: reaching it from what was received is for whoever uses the rule. What is written must pass a check: sealed proofs, opened only as the check runs, each going into one case; it may give nothing that what a proof holds does not give (no more), and whatever every way gives, it must give too (no less).') },
       ],
       brief: T(`写出「下雨，并且刮风」的消去规则：${CHECK.zh}。`, `Write the elimination rule of “it rains and it is windy”: ${CHECK.en}.`),
       hint: [
         T('拿到「下雨 ∧ 刮风」，就知道交进去的是哪两份证明。', 'Holding “it rains ∧ it is windy”, you know which two proofs went in.'),
-        T('一种情况：假设下雨，再假设刮风，结论选 ?R。', 'One case: assume it rains, then it is windy, and pick ?R as the conclusion.'),
+        T('一种情况，里面收到下雨和刮风，结论选 ?R。', 'One case, receiving it rains and it is windy, with ?R as the conclusion.'),
       ],
-      solution: takeBoard([{ to: ANY, wires: ['Rain>Wind', 'Wind>1'] }]),
+      solution: takeBoard([{ to: ANY, cases: [['Rain', 'Wind']] }]),
       // Less: the left side only. More: anything at all, with no case to earn it.
       naives: [takeBoard([{ to: 'Rain' }]), takeBoard([{ to: ANY }])],
-      after: T('拿到「下雨 ∧ 刮风」，就能假设下雨、又假设刮风，去推任何一句：交进去的两份，一份不多、一份不少地交还。写成两条也行：一条结论选下雨，一条选刮风，合起来一样强。', 'Holding “it rains ∧ it is windy”, you may assume it rains and it is windy and reach any sentence: the two proofs handed in come back, none more and none fewer. Two rules will do too, one concluding it rains and one it is windy: together they are as strong.'),
+      after: T('打开「下雨 ∧ 刮风」，就收到下雨和刮风，拿它们去推任何一句：交进去的两份，一份不多、一份不少地交还。写成两条也行：两个框都不要情况，一条结论选下雨，一条选刮风，合起来一样强。', 'Opening “it rains ∧ it is windy”, you receive it rains and it is windy, to reach any sentence with: the two proofs handed in come back, none more and none fewer. Two rules will do too, two frames with no case, one concluding it rains and one it is windy: together they are as strong.'),
     },
     summary: T('声明写出了怎样造它，消去规则写出了拿到它能做什么，两样对得上，「并且」才进了证明核。这两条规则都不是证出来的：「并且」原本不存在，声明让证明核从此认得它。', 'The declaration says how it is made, the elimination rule what it gives, and only with the two in harmony is “and” in the kernel. Neither rule was proved: “and” did not exist before, and the declaration is what makes the kernel know it.'),
   }),
@@ -125,11 +125,11 @@ export const declarations = [
       brief: T(`写出「今天是周六，或者今天是周日」的消去规则：${CHECK.zh}。`, `Write the elimination rule of “today is Saturday or today is Sunday”: ${CHECK.en}.`),
       hint: [
         T('不知道是哪一条造的，就每一条都准备一个办法。', 'Not knowing which way made it, ready a move for each.'),
-        T('两种情况：一种假设周六，一种假设周日，结论都选 ?R。', 'Two cases: one assumes Saturday, the other Sunday, and the conclusion is ?R.'),
+        T('两种情况：一种收到周六，一种收到周日，结论选 ?R。', 'Two cases: one receives Saturday, the other Sunday, with ?R as the conclusion.'),
       ],
-      solution: takeBoard([{ to: ANY, wires: ['Sat>1', 'Sun>2'] }]),
+      solution: takeBoard([{ to: ANY, cases: [['Sat'], ['Sun']] }]),
       // More: one case wanting both; one case for one way only.
-      naives: [takeBoard([{ to: ANY, wires: ['Sat>Sun', 'Sun>1'] }]), takeBoard([{ to: ANY, wires: ['Sat>1'] }])],
+      naives: [takeBoard([{ to: ANY, cases: [['Sat', 'Sun']] }]), takeBoard([{ to: ANY, cases: [['Sat']] }])],
       after: T('两条引入规则，消去规则就分两种情况。拿到一份「或者」的证明，并不知道它是哪条引入规则造的，只好两种情况都准备好，实际是哪一种就走哪一种：这就是分情况。只准备一种，就多给了：用另一条造的，交不出那种情况要的东西。', 'Two ways, so its elimination rule splits in two. Holding a proof of “or”, you do not know which way made it, so both stand ready, and the one it was made by is taken: that is “case by case”. Ready only one, and it gives more: made the other way, it cannot hand that case what it needs.'),
     },
     summary: T('「或者」推得出的，正好是两条来路都推得出的那些：消去规则把这句话写成了规则。', 'What “or” gives is exactly what both ways in give: its elimination rule writes that as a rule.'),
@@ -158,7 +158,7 @@ export const declarations = [
       hint: [T('有几条引入规则，就有几种情况。', 'As many ways to make it, so many cases.')],
       solution: takeBoard([{ to: ANY }]),
       // Less: a case no way in can reach.
-      naives: [takeBoard([{ to: ANY, wires: ['Rain>1'] }])],
+      naives: [takeBoard([{ to: ANY, cases: [['Rain']] }])],
     },
     summary: T('一条引入规则都没有，消去规则一种情况都不用写，只剩 ⟦⊥⟧ ⟹ ?R：有了矛盾，想要什么都行。检查里也没有「不多给」那几行：没有哪一种造法要比。「非」不用另外声明：¬A 就是「A → ⊥」的名字，是一个<wiki-ref to="definition"></wiki-ref>。', 'No way to make it, so its elimination rule needs no case at all, and is just ⟦⊥⟧ ⟹ ?R: from a contradiction, anything follows. Nor has the check any “no more” line: there is no way in to compare with. “Not” needs no declaration of its own: ¬A is a name for “A → ⊥”, a <wiki-ref to="definition"></wiki-ref>.'),
   }),
@@ -255,10 +255,10 @@ export const moreDeclarations = [
     take: {
       intro: [{ t: T('三条引入规则，各要两个人同意。拿到「提案通过」，又知道些什么？', 'Three ways in, two people agreeing in each. Holding “the motion passes”, what else do you know?') }],
       brief: T(`写出「提案通过」的消去规则：${CHECK.zh}。`, `Write the elimination rule of “the motion passes”: ${CHECK.en}.`),
-      hint: [T('三种情况，各假设两个人同意，和三条引入规则一一对应。', 'Three cases, each assuming two people agree, one for each way in.')],
-      solution: takeBoard([{ to: ANY, wires: ['a1>b1', 'b1>1', 'b2>c2', 'c2>2', 'a3>c3', 'c3>3'] }], VOTE),
+      hint: [T('三种情况，各收到两个人同意，和三条引入规则一一对应。', 'Three cases, each receiving two people agreeing, one for each way in.')],
+      solution: takeBoard([{ to: ANY, cases: [['a1', 'b1'], ['b2', 'c2'], ['a3', 'c3']] }], VOTE),
       // Less: a case for each of the first two ways only. More: Ann agreeing, as if every way had her.
-      naives: [takeBoard([{ to: ANY, wires: ['a1>b1', 'b1>1', 'b2>c2', 'c2>2'] }], VOTE), takeBoard([{ to: 'AnnYes' }])],
+      naives: [takeBoard([{ to: ANY, cases: [['a1', 'b1'], ['b2', 'c2']] }], VOTE), takeBoard([{ to: 'AnnYes' }])],
       after: T('知道提案通过，只知道三种两人组合里有一种同意了，却不知道是哪一种：连安有没有同意都不知道。', 'Knowing the motion passed, you know one of the three pairs agreed, not which: not even whether Ann did.'),
     },
     summary: T('一份新命题的引入规则和消去规则，和连接词的写法一样：几条来路，就是几种情况。', 'A new proposition’s ways in and its elimination rule are written as a connective’s are: as many ways in, so many cases.'),
@@ -283,11 +283,11 @@ export const moreDeclarations = [
     take: {
       intro: [{ t: T('「真」有一条空的引入规则。它的消去规则能拿回什么？', 'True has one way in that needs nothing. What does its elimination rule give back?') }],
       brief: T(`写出「真」的消去规则：${CHECK.zh}。`, `Write the elimination rule of True: ${CHECK.en}.`),
-      hint: [T('一种情况，什么都不用假设：把「不用假设」接进情况 1。', 'One case that assumes nothing: wire “assume nothing” into case 1.')],
-      solution: takeBoard([{ to: ANY, wires: ['∅>1'] }]),
+      hint: [T('一种情况，里面什么都不放。', 'One case, with nothing put in it.')],
+      solution: takeBoard([{ to: ANY, cases: [[]] }]),
       // More: ?R with no case to earn it.
       naives: [takeBoard([{ to: ANY }])],
-      after: T('一种情况，什么都不假设：要从「真」推出 ?R，得先不靠任何东西推出 ?R。知道「真」，什么都没多知道。', 'One case assuming nothing: to get ?R from True, you must first get ?R from nothing at all. Knowing True, you know nothing more.'),
+      after: T('一种情况，什么都收不到：要从「真」推出 ?R，得先不靠任何东西推出 ?R。知道「真」，什么都没多知道。', 'One case receiving nothing: to get ?R from True, you must first get ?R from nothing at all. Knowing True, you know nothing more.'),
     },
     summary: T('⊥ 一条引入规则都没有，消去规则一种情况都不用写，什么都推得出；「真」一条空引入规则，消去规则就要一种空情况，什么都推不出。', '⊥: no way in, no case, anything follows. True: one empty way in, one empty case, nothing follows.'),
   }),
@@ -313,8 +313,8 @@ export const moreDeclarations = [
     take: {
       intro: [{ t: T('「当且仅当」一条引入规则要两句「若…则…」。它的消去规则拿回什么？', '“If and only if” has one way in, taking two “if … then …”s. What does its elimination rule give back?') }],
       brief: T(`写出「下雨当且仅当地湿」的消去规则：${CHECK.zh}。`, `Write the elimination rule of “it rains if and only if the ground is wet”: ${CHECK.en}.`),
-      hint: [T('和「并且」一样：一种情况，假设那两句「若…则…」。', 'As for “and”: one case, assuming the two “if … then …”s.')],
-      solution: takeBoard([{ to: ANY, wires: ['f>g', 'g>1'] }], IFF),
+      hint: [T('和「并且」一样：一种情况，收到那两句「若…则…」。', 'As for “and”: one case, receiving the two “if … then …”s.')],
+      solution: takeBoard([{ to: ANY, cases: [['f', 'g']] }], IFF),
       // Less: one direction only.
       naives: [takeBoard([{ to: 'Rain → Wet' }])],
     },
@@ -355,10 +355,10 @@ export const thingDeclarations = [
     take: {
       intro: [{ t: T('「存在」的引入规则取一样东西和它是人的证明。拿到「∃y. y是人」，知道的是哪一样东西吗？', 'The way in of “there is” takes a thing and a proof that it is human. Holding “∃y. y is human”, do you know which thing?') }],
       brief: T(`写出「存在一个人」的消去规则：${CHECK.zh}。`, `Write the elimination rule of “there is a human”: ${CHECK.en}.`),
-      hint: [T('不知道是哪一样，就任取一样东西：一种情况，先任取一样东西，再假设它是人。', 'Not knowing which, take any thing: one case, any thing first, then assume it is human.')],
-      solution: takeBoard([{ to: ANY, wires: ['⋀x>h', 'h>1'] }], { h: 'Human(x)' }),
+      hint: [T('不知道是哪一样，就收到任意一样东西：一种情况，放一张「收到一样东西」，再放一张「收到」，选「x是人」。', 'Not knowing which, receive any thing: one case, with a Receive a thing card and a Receive card choosing “x is human”.')],
+      solution: takeBoard([{ to: ANY, cases: [['⋀x', 'h']] }], { h: 'Human(x)' }),
       // More: a case that assumes a particular x was handed in.
-      naives: [takeBoard([{ to: ANY, wires: ['h>1'] }], { h: 'Human(x)' })],
+      naives: [takeBoard([{ to: ANY, cases: [['h']] }], { h: 'Human(x)' })],
       after: T('交进去的是苏格拉底还是安，消去的时候不知道，所以那种情况只能对任取的一样东西成立：用「存在」时，那一样东西要起一个新名字。', 'Whether Socrates or Ann went in, eliminating cannot tell, so the case must hold for any thing taken: using “there is”, that thing gets a new name.'),
     },
     summary: T('证明板上从此有了举例（这条引入规则）和拿出那一个（这条消去规则）。', 'The proof board now has Example (this way in) and Take the one there is (this elimination rule).'),
