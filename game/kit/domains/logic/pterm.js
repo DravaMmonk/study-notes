@@ -7,7 +7,8 @@
 //   term  { k: 'var', name } | { k: 'lam', x, body } | { k: 'app', f, a } | { k: 'obj', term }   (a thing: a formula's term)
 //       | { k: 'pair', a, b } | { k: 'fst', p } | { k: 'snd', p } | { k: 'inl', a } | { k: 'inr', a }
 //       | { k: 'cases', p, x, l, y, r }   p.elim (fun x => l) (fun y => r)        (∨ elimination)
-//       | { k: 'open', p, x, h, body }    p.elim (fun x h => body)                (∃ elimination)
+//       | { k: 'open', p, x, h, body }    p.elim (fun x h => body)                (∧ and ∃ elimination: its two halves,
+//                                                                                 or the thing and its proof)
 //       | { k: 'absurd', p }              False.elim p
 //       | { k: 'raa', p }                 byContradiction p                       (classical: from ¬¬A, A)
 //       | { k: 'rfl' } | { k: 'subst', h, p }   h ▸ p | { k: 'const', name }   (a lemma, by its card's name)
@@ -361,8 +362,9 @@ export function checkTerm(term, goal, { hyps = {}, consts = [], notation = null,
         return check(t.r, A, new Map([...ctx, [t.y, { f: P.b }]]))
       }
       case 'open': {
-        const P = infer(t.p, ctx)
-        if (P.op !== '∃') return err(`「${printTerm(t.p)}」证的不是「存在…」，拿不出那一个`, `“${printTerm(t.p)}” does not prove a “there is”, so there is nothing to take out`)
+        const P = asAnd(infer(t.p, ctx))
+        if (P.op === '∧') return check(t.body, A, new Map([...ctx, [t.x, { f: P.a }], [t.h, { f: P.b }]]))
+        if (P.op !== '∃') return err(`「${printTerm(t.p)}」证的不是「…并且…」或「存在…」，拆不开`, `“${printTerm(t.p)}” proves neither an “and” nor a “there is”, so there is nothing to take apart`)
         unused(t.x, ctx, A, P)
         return check(t.body, A, new Map([...ctx, [t.x, { thing: true }], [t.h, { f: subst(P.body, P.v, tvar(t.x)) }]]))
       }

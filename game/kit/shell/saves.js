@@ -8,6 +8,8 @@
 //   { data: (value, level id) → value }      every level's kept state rewritten (a part renamed or gone from boards),
 //                                            the boards waiting in its other slots too (slots.js), and the board
 //                                            a part was built from (built)
+//   { tasks: (passed, level id) → passed }  how many tasks of a level count passed, rewritten (tasks taken out of a
+//                                            level; 0 drops the count)
 //   { built: [level id…] }                   for each of these levels solved, the board it keeps (its last task's)
 //                                            becomes the board its part runs (built), as solving it now records
 //   { merge: [level id, [level id…]] }       levels that became the tasks of one level, in order: their boards make
@@ -82,6 +84,7 @@ const OPS = {
     if (save.introSeen?.[from]) out.introSeen[ids[0]] = save.introSeen[from]
     return out
   },
+  tasks: (save, f) => ({ ...save, tasks: Object.fromEntries(Object.entries(save.tasks ?? {}).map(([id, n]) => [id, f(n, id)]).filter(([, n]) => n > 0)) }),
   solve: (save, [level, ids]) => ((save.solved ?? []).includes(level) ? { ...save, solved: [...new Set([...save.solved, ...ids])] } : save),
 }
 
