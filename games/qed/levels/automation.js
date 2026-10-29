@@ -70,7 +70,6 @@ export const automation = [
         step: T('等价变成两串「或者」', 'Equivalence to two ors'),
         tests: [{ premises: { p: 'A ↔ B' }, goal: '(¬A ∨ B) ∧ (¬B ∨ A)' }],
         cases: [{ A: 'Sat', B: 'Rest' }, { A: 'KA', B: 'KB' }],
-        brief: T('实现一个证明器，可以从已知「今天是周六 ↔ 我休息」，证明出「(¬今天是周六 ∨ 我休息) ∧ (¬我休息 ∨ 今天是周六)」。', 'Build a prover that, from “today is Saturday ↔ I rest”, proves “(¬today is Saturday ∨ I rest) ∧ (¬I rest ∨ today is Saturday)”.'),
         hint: [T('拆开等价，两个方向各去掉箭头。', 'Split the equivalence and take the arrow out of each direction.')],
         solution: proof({ e: ['andE'], a1: ['arrow'], a2: ['arrow'], c: ['andI'] }, ['p>e.ab', 'e#left>a1.p0', 'e#right>a2.p0', 'a1>c.a', 'a2>c.b', 'c>goal'], { premises: ['p'] }),
       },
@@ -158,7 +157,6 @@ export const automation = [
     builds: 'res',
     tests: [{ premises: { p: 'A ∨ B', q: '¬A ∨ C' }, goal: 'B ∨ C' }],
     cases: [{ A: 'Rain', B: 'Bus', C: 'Wet' }, { A: 'Exam', B: 'Rest', C: 'Study' }],
-    brief: T('实现一个证明器，可以从已知「下雨 ∨ 我坐公交」和「¬下雨 ∨ 地湿」，证明出「我坐公交 ∨ 地湿」。', 'Build a prover that, from “it rains ∨ I take the bus” and “¬it rains ∨ the ground is wet”, proves “I take the bus ∨ the ground is wet”.'),
     hint: [
       T('对第一句分情况。坐公交的那一边直接拼成 ∨。', 'Take cases on the first. On the bus side, just make the ∨.'),
       T('下雨的那一边，再对第二句分情况：¬下雨和下雨撞出矛盾，矛盾推出一切；地湿那一边拼成 ∨。', 'On the rain side, take cases on the second: ¬it rains clashes with it rains, and from the contradiction anything; on the wet side, make the ∨.'),
@@ -185,7 +183,7 @@ export const automation = [
         parts: ['res'],
         tests: [{ premises: { p: '¬A ∨ B', q: 'A', r: '¬B' }, goal: '⊥' }],
         cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Alarm', B: 'Up' }],
-        brief: T('实现一个证明器，只用「归结」，从已知「¬下雨 ∨ 地湿」「下雨」「¬地湿」证明出矛盾 ⊥。', 'Build a prover that, with “Resolve” alone, proves the contradiction ⊥ from “¬it rains ∨ the ground is wet”, “it rains” and “¬the ground is wet”.'),
+        briefNote: T('只用「归结」。', 'With “Resolve” alone.'),
         hint: [T('「下雨」本身就是一条只有一项的子句。两条子句消完什么都不剩，就是 ⊥。', '“It rains” is itself a clause of one literal. Two clauses that cancel to nothing give ⊥.')],
         solution: proof({ r1: ['res'], r2: ['res'] }, ['q>r1.p0', 'p>r1.p1', 'r1>r2.p0', 'r>r2.p1', 'r2>goal'], { premises: ['p', 'q', 'r'] }),
       },
@@ -421,7 +419,7 @@ export const automation = [
     title: T('理发师', 'The barber'),
     tests: [{ premises: { p: '∃x. ∀y. R(x, y) ↔ ¬R(y, y)' }, goal: '⊥' }],
     cases: [{ R: 'Shaves' }, { R: 'Teaches' }],
-    brief: T('村里的理发师说：「我给且只给不给自己刮胡子的人刮胡子。」实现一个证明器，从「有这么一个人 x：对所有 y，x 给 y 刮胡子 ↔ y 不给自己刮」证明出矛盾 ⊥。', 'The village barber says: “I shave exactly those who do not shave themselves.” Build a prover that, from “there is an x such that for every y, x shaves y ↔ y does not shave himself”, proves the contradiction ⊥.'),
+    brief: T('村里的理发师说：「我给且只给不给自己刮胡子的人刮胡子。」已知「有这么一个人 x：对所有 y，x 给 y 刮胡子 ↔ y 不给自己刮」，证明出矛盾 ⊥。', 'The village barber says: “I shave exactly those who do not shave themselves.” Given “there is an x such that for every y, x shaves y ↔ y does not shave himself”, prove the contradiction ⊥.'),
     hint: [
       T('拿出那个理发师，再问：他给不给自己刮？', 'Take the barber out, then ask: does he shave himself?'),
       T('把 y 取成理发师自己，就是<part-ref to="lemma:liar"></part-ref>。', 'Take y to be the barber himself, and it is <part-ref to="lemma:liar"></part-ref>.'),
@@ -436,7 +434,7 @@ export const automation = [
     title: T('康托尔', 'Cantor'),
     tests: [{ premises: { s: '∀z. ∃x. ∀y. P(y, f(x)) ↔ P(y, z)', d: '∃z. ∀y. P(y, z) ↔ ¬P(y, f(y))' }, goal: '⊥' }],
     cases: [{ P: 'In' }],
-    brief: T('f 给每个 x 配一个集合 f(x)。已知每个集合都是某个 f(x)（f 是满射）；又有一个集合 z，装的正好是不属于 f(y) 的那些 y。实现一个证明器，推出矛盾 ⊥。', 'f gives each x a set f(x). Every set is some f(x) (f is onto); and there is a set z holding exactly the y not in f(y). Build a prover that gets the contradiction ⊥.'),
+    brief: T('f 给每个 x 配一个集合 f(x)。已知每个集合都是某个 f(x)（f 是满射）；又有一个集合 z，装的正好是不属于 f(y) 的那些 y。推出矛盾 ⊥。', 'f gives each x a set f(x). Every set is some f(x) (f is onto); and there is a set z holding exactly the y not in f(y). Get the contradiction ⊥.'),
     hint: [
       T('先拿出 z，再拿出那个让 f(x) 和 z 一样的 x，然后都取 y = x。', 'Take out z, then the x whose f(x) is z, then take y = x in both.'),
       T('得到 X ↔ Y 和 Y ↔ ¬X：两个都拆开，用串联接成 X → ¬X 和 ¬X → X，再拼起来就是说谎者。', 'You get X ↔ Y and Y ↔ ¬X: split both, chain them into X → ¬X and ¬X → X, and joined that is the liar.'),
@@ -457,7 +455,7 @@ export const automation = [
     title: T('不接受自己的程序', 'Programs that reject themselves'),
     tests: [{ premises: { r: '∃x. ∀y. M(x, c(y)) ↔ L(c(y))', ls: '∀y. L(c(y)) ↔ ¬M(y, c(y))' }, goal: '⊥' }],
     cases: [{ M: 'Accepts', L: 'Ls' }],
-    brief: T('⟨y⟩ 是图灵机 y 的编码。L_s 装的是不接受自己编码的机器的编码。实现一个证明器：假设有一台机器 x 识别 L_s，推出矛盾 ⊥。', '⟨y⟩ is the code of the Turing machine y. L_s holds the codes of machines that do not accept their own code. Build a prover: supposing some machine x recognises L_s, get the contradiction ⊥.'),
+    brief: T('⟨y⟩ 是图灵机 y 的编码。L_s 装的是不接受自己编码的机器的编码。假设有一台机器 x 识别 L_s，推出矛盾 ⊥。', '⟨y⟩ is the code of the Turing machine y. L_s holds the codes of machines that do not accept their own code. Supposing some machine x recognises L_s, get the contradiction ⊥.'),
     hint: [T('还是对角线：让 x 读它自己的编码。', 'The diagonal again: let x read its own code.')],
     solution: (() => {
       const l = liarOf(['a1', 'a2'], 'e')
@@ -471,7 +469,7 @@ export const automation = [
     title: T('停机问题', 'The halting problem'),
     tests: [{ premises: { con: '(∃x. H(x)) → ∃x. ∀y. T(x, c(y)) ↔ ¬T(y, c(y))', red: '(∃x. G(x)) → ∃x. H(x)' }, goal: '¬∃x. G(x)' }],
     cases: [{ H: 'DecH', G: 'DecA', T: 'Halts' }],
-    brief: T('已知：要是有判定停机的机器，就能造出一台 x，它在 ⟨y⟩ 上停机恰好当 y 在 ⟨y⟩ 上不停机；要是有判定 A_TM 的机器，就能造出判定停机的机器。实现一个证明器，证明没有机器判定 A_TM。', 'Given: if some machine decides halting, a machine x can be built that halts on ⟨y⟩ exactly when y does not halt on ⟨y⟩; and if some machine decides A_TM, one deciding halting can be built. Build a prover that proves no machine decides A_TM.'),
+    brief: T('已知：要是有判定停机的机器，就能造出一台 x，它在 ⟨y⟩ 上停机恰好当 y 在 ⟨y⟩ 上不停机；要是有判定 A_TM 的机器，就能造出判定停机的机器。证明没有机器判定 A_TM。', 'Given: if some machine decides halting, a machine x can be built that halts on ⟨y⟩ exactly when y does not halt on ⟨y⟩; and if some machine decides A_TM, one deciding halting can be built. Prove no machine decides A_TM.'),
     hint: [
       T('假设有判定 A_TM 的机器，一路套用到造出那台 x。', 'Assume a machine deciding A_TM, and apply all the way to the machine x.'),
       T('拿出 x，让它读自己的编码。', 'Take out x and let it read its own code.'),

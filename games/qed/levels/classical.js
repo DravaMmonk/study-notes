@@ -69,7 +69,6 @@ export const classical = [
         step: T('不可否定', 'Undeniable'),
         tests: [{ goal: '¬¬(A ∨ ¬A)' }],
         cases: [{ A: 'Rain' }, { A: 'Exam' }],
-        brief: T('实现一个证明器，不需要任何已知，就能证明出「¬¬(下雨 ∨ ¬下雨)」。', 'Build a prover that proves “¬¬(it rains ∨ ¬it rains)” from nothing given.'),
         hint: [
           T('直接证「下雨 ∨ ¬下雨」是不行的：你不知道该选哪一边。', 'Proving “it rains ∨ ¬it rains” directly will not work: you do not know which side to choose.'),
           T('假设「¬(下雨 ∨ ¬下雨)」，然后把这个假设用两次。', 'Assume “¬(it rains ∨ ¬it rains)”, and then use that assumption twice.'),
@@ -106,7 +105,6 @@ export const classical = [
     title: T('反证', 'Proof by contradiction'),
     tests: [{ premises: { p: '¬A → B', q: '¬A → ¬B' }, goal: 'A' }],
     cases: [{ A: 'Locked', B: 'Moon' }, { A: 'Rain', B: 'Wet' }],
-    brief: T('实现一个证明器，可以从已知「¬门锁着 → 月亮是奶酪做的」和「¬门锁着 → ¬月亮是奶酪做的」，证明出「门锁着」。', 'Build a prover that, from “¬the door is locked → the moon is made of cheese” and “¬the door is locked → ¬the moon is made of cheese”, proves “the door is locked”.'),
     hint: [T('像<level-ref to="notI"></level-ref>一样，只是这次假设的是「¬门锁着」。框给出「¬¬门锁着」，剩下一步交给反证法。', 'As in <level-ref to="notI"></level-ref>, only this time assume “¬the door is locked”. The box gives “¬¬the door is locked”; By contradiction does the last step.')],
     intro: [{ t: T('「假设门没锁，就会推出矛盾，所以门锁着。」这就是反证法的完整样子：一个框，加上去掉两个 ¬。', '“Suppose the door is not locked; that leads to a contradiction; so it is locked.” This is proof by contradiction in full: a box, then dropping two ¬s.') }],
     solution: proof({ f: ['impI', { A: '¬A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], m3: ['mp', {}, 'f'], r: ['raa'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'f#body>m2.a', 'm2>m3.imp', 'm1>m3.a', 'm3>f.body', 'f>r.nna', 'r>goal'], { premises: ['p', 'q'] }),
@@ -118,7 +116,6 @@ export const classical = [
     title: T('逆否，反过来', 'The contrapositive, backwards'),
     tests: [{ premises: { p: '¬B → ¬A' }, goal: 'A → B' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Exam', B: 'Study' }],
-    brief: T('实现一个证明器，可以从已知「¬地湿 → ¬下雨」，证明出「下雨 → 地湿」。', 'Build a prover that, from “¬the ground is wet → ¬it rains”, proves “it rains → the ground is wet”.'),
     hint: [
       T('假设「下雨」，要证的是「地湿」：假设它不成立，看会不会撞上「下雨」。', 'Assume “it rains”; the goal is “the ground is wet”: suppose it fails, and see whether that runs into “it rains”.'),
       T('里面的框给出「¬¬地湿」，反证法去掉两个 ¬。', 'The inner box gives “¬¬the ground is wet”, and By contradiction drops the two ¬s.'),
@@ -133,7 +130,6 @@ export const classical = [
     title: T('两边都讨论', 'Take both sides'),
     tests: [{ premises: { p: 'A → B', q: '¬A → B' }, goal: 'B' }],
     cases: [{ A: 'Rain', B: 'Coffee' }, { A: 'Bus', B: 'OnTime' }],
-    brief: T('实现一个证明器，可以从已知「下雨 → 我喝了咖啡」和「¬下雨 → 我喝了咖啡」，证明出「我喝了咖啡」。', 'Build a prover that, from “it rains → I drink coffee” and “¬it rains → I drink coffee”, proves “I drink coffee”.'),
     hint: [T('排中律给出「下雨 ∨ ¬下雨」，再分情况。', 'Excluded middle gives “it rains ∨ ¬it rains”; then take cases.')],
     intro: [{ t: T('下雨我喝咖啡，不下雨我也喝咖啡，所以我喝了咖啡。可消去 ∨ 要一句 ∨，已知里没有：排中律给你一句。', 'Rain or no rain, I drink coffee, so I drank coffee. But ∨ elim needs an ∨, and none is given: Excluded middle gives you one.') }],
     solution: proof({ l: ['lem', { A: 'A' }], e: ['orE'], m1: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['l>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>e.left', 'q>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q'] }),
@@ -145,7 +141,6 @@ export const classical = [
     title: T('不是这样就是那样', 'One way or the other'),
     tests: [{ premises: { p: 'A → B', q: '¬A → C' }, goal: 'B ∨ C' }],
     cases: [{ A: 'Rain', B: 'Bus', C: 'Bike' }, { A: 'Exam', B: 'Study', C: 'Rest' }],
-    brief: T('实现一个证明器，可以从已知「下雨 → 我坐公交」和「¬下雨 → 我骑车」，证明出「我坐公交 ∨ 我骑车」。', 'Build a prover that, from “it rains → I take the bus” and “¬it rains → I cycle”, proves “I take the bus ∨ I cycle”.'),
     hint: [T('下不下雨，两边都讨论；每一边证出的，各放进 ∨ 的一边。', 'Rain or no rain, take both sides; what each side proves goes on its own side of the ∨.')],
     intro: [{ t: T('下雨就坐公交，不下雨就骑车。不知道下不下雨，可总有一样。<level-ref to="lemCases"></level-ref>两种情况证出同一句话；这一回两种情况证出的不一样。', 'If it rains I take the bus, if not I cycle. Whether it rains I do not know, but one of the two it is. In <level-ref to="lemCases"></level-ref> both cases proved the same sentence; this time they prove different ones.') }],
     solution: proof({ l: ['lem', { A: 'A' }], e: ['orE'], m1: ['mp', {}, 'e/left'], i1: ['orI', { other: 'C', side: 'right' }, 'e/left'], m2: ['mp', {}, 'e/right'], i2: ['orI', { other: 'B', side: 'left' }, 'e/right'] }, ['l>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>i1.a', 'i1>e.left', 'q>m2.imp', 'e#right>m2.a', 'm2>i2.a', 'i2>e.right', 'e>goal'], { premises: ['p', 'q'] }),
@@ -172,7 +167,6 @@ export const classical = [
         step: T('去掉两个 ¬', 'Two ¬s off'),
         tests: [{ premises: { p: '¬¬A' }, goal: 'A' }],
         cases: [{ A: 'Rain' }, { A: 'Locked' }],
-        brief: T('实现一个证明器，可以从已知「¬¬下雨」，证明出「下雨」。', 'Build a prover that, from “¬¬it rains”, proves “it rains”.'),
         hint: [T('你手里有一条规则，正好去掉两个 ¬。', 'You hold a rule that takes exactly two ¬s off.')],
         solution: proof({ r: ['raa'] }, ['p>r.nna', 'r>goal'], { premises: ['p'] }),
       }),
@@ -197,7 +191,6 @@ export const classical = [
         step: T('箭头变成或者', 'Arrow to or'),
         tests: [{ premises: { p: 'A → B' }, goal: '¬A ∨ B' }],
         cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Alarm', B: 'Up' }],
-        brief: T('实现一个证明器，可以从已知「下雨 → 地湿」，证明出「¬下雨 ∨ 地湿」。', 'Build a prover that, from “it rains → the ground is wet”, proves “¬it rains ∨ the ground is wet”.'),
         hint: [T('下不下雨，两边都讨论。', 'Rain or no rain: take both sides.')],
         solution: proof({ l: ['lem', { A: 'A' }], e: ['orE'], m: ['mp', {}, 'e/left'], i1: ['orI', { other: '¬A', side: 'left' }, 'e/left'], i2: ['orI', { other: 'B', side: 'right' }, 'e/right'] }, ['l>e.ab', 'p>m.imp', 'e#left>m.a', 'm>i1.a', 'i1>e.left', 'e#right>i2.a', 'i2>e.right', 'e>goal'], { premises: ['p'] }),
       }),
@@ -222,7 +215,6 @@ export const classical = [
         step: T('分到右边', 'Out over the right'),
         tests: [{ premises: { p: 'A ∨ (B ∧ C)' }, goal: '(A ∨ B) ∧ (A ∨ C)' }],
         cases: THREE,
-        brief: T('实现一个证明器，可以从已知「下雨 ∨ (刮风 ∧ 地湿)」，证明出「(下雨 ∨ 刮风) ∧ (下雨 ∨ 地湿)」。', 'Build a prover that, from “it rains ∨ (it is windy ∧ the ground is wet)”, proves “(it rains ∨ it is windy) ∧ (it rains ∨ the ground is wet)”.'),
         hint: [T('对已知分情况：每种情况里各拼一个「并且」。', 'Take cases on the given: in each case, join an “and”.')],
         solution: proof({
           e: ['orE'],
@@ -283,7 +275,6 @@ export const classical = [
         step: T('并非或者', 'Not either'),
         tests: [{ premises: { p: '¬(A ∨ B)' }, goal: '¬A ∧ ¬B' }],
         cases: DAYS,
-        brief: T('实现一个证明器，可以从已知「¬(今天是周六 ∨ 今天是周日)」，证明出「¬今天是周六 ∧ ¬今天是周日」。', 'Build a prover that, from “¬(today is Saturday ∨ today is Sunday)”, proves “¬today is Saturday ∧ ¬today is Sunday”.'),
         hint: [T('「¬今天是周六」怎么来？假设「今天是周六」，看它怎样和已知撞出矛盾。「¬今天是周日」同理。', 'Where does “¬today is Saturday” come from? Assume “today is Saturday” and see how it clashes with the given. “¬today is Sunday” the same way.')],
         solution: proof({
           na: ['impI', { A: 'A' }],
@@ -337,7 +328,6 @@ export const classical = [
         step: T('一个都没有', 'Not a single one'),
         tests: [{ premises: { p: '¬∃x. P(x)' }, goal: '∀x. ¬P(x)' }],
         cases: DRINK,
-        brief: T('实现一个证明器，可以从已知「¬∃x. x在喝酒」（没有人在喝酒），证明出「∀x. ¬x在喝酒」（人人都没喝）。', 'Build a prover that, from “¬∃x. x is drinking” (nobody is drinking), proves “∀x. ¬x is drinking” (everyone is not drinking).'),
         hint: [T('任取一个 a，假设它在喝酒：它就是一个例子，和已知撞出矛盾。', 'Take any a and suppose it is drinking: then it is an example, and it runs into the given.')],
         solution: proof({ g: ['allI', { x: 'a' }], f: ['impI', { A: 'P(a)' }, 'g'], i: ['exI', {}, 'f'], m: ['mp', {}, 'f'] }, ['f#body>i.a', 'p>m.imp', 'i>m.a', 'm>f.body', 'f>g.body', 'g>goal'], { premises: ['p'] }),
       }),
@@ -402,7 +392,6 @@ export const classical = [
         tests: [{ premises: { p: 'A ↔ ¬A' }, goal: '⊥' }],
         cases: [{ A: 'KA' }, { A: 'KC' }],
         intro: [{ t: T('证明「我是无赖」这话不可能有人说：从它的翻译推出矛盾。「a 是骑士 ↔ ¬a 是骑士」就是「(a 是骑士 → ¬a 是骑士) ∧ (¬a 是骑士 → a 是骑士)」。', 'Prove nobody can say “I am a knave”: get a contradiction from its translation. “a is a knight ↔ ¬a is a knight” is “(a is a knight → ¬a is a knight) ∧ (¬a is a knight → a is a knight)”.') }],
-        brief: T('实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士」证明出矛盾 ⊥。', 'Build a prover that, from “a is a knight ↔ ¬a is a knight”, proves the contradiction ⊥.'),
         hint: [
           T('消去 ∧ 也能拆 ↔：拆出「a 是骑士 → ¬a 是骑士」和「¬a 是骑士 → a 是骑士」。', '∧ elim splits a ↔ too: into “a is a knight → ¬a is a knight” and “¬a is a knight → a is a knight”.'),
           T('「¬a 是骑士」就是「a 是骑士 → ⊥」，第一句里的「a 是骑士」说了两遍。', '“¬a is a knight” is “a is a knight → ⊥”, so the first one states “a is a knight” twice.'),
@@ -430,7 +419,7 @@ export const classical = [
       prove({
         tests: [{ premises: { p: 'A ↔ ¬A ∧ ¬B' }, goal: '¬A ∧ B' }],
         cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
-        brief: T('第一个岛民说：「我们俩都是无赖。」实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士 ∧ ¬b 是骑士」证明出「¬a 是骑士 ∧ b 是骑士」。', 'The first islander says: “We are both knaves.” Build a prover that, from “a is a knight ↔ ¬a is a knight ∧ ¬b is a knight”, proves “¬a is a knight ∧ b is a knight”.'),
+        brief: T('第一个岛民说：「我们俩都是无赖。」已知「a 是骑士 ↔ ¬a 是骑士 ∧ ¬b 是骑士」，证明出「¬a 是骑士 ∧ b 是骑士」。', 'The first islander says: “We are both knaves.” Given “a is a knight ↔ ¬a is a knight ∧ ¬b is a knight”, prove “¬a is a knight ∧ b is a knight”.'),
         hint: [
           T('「¬a 是骑士」：假设 a 是骑士，他的话就成了真的，可话里说他是无赖。', '“¬a is a knight”: suppose a is a knight; then what he says is true, and it says he is a knave.'),
           T('有了「¬a 是骑士」，接上「他的话 → a 是骑士」，就知道他的话是假的。再用反证法：假设「¬b 是骑士」，他的话就成了真的。', 'With “¬a is a knight”, joined after “his statement → a is a knight”, his statement is false. Then by contradiction: assume “¬b is a knight”, and his statement comes true.'),
@@ -467,7 +456,7 @@ export const classical = [
       prove({
         tests: [{ premises: { p: 'A ↔ ¬A ∨ B' }, goal: 'A ∧ B' }],
         cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
-        brief: T('第一个岛民说：「我是无赖，或者另一个人是骑士。」两个人各是什么？实现一个证明器，可以从已知「a 是骑士 ↔ ¬a 是骑士 ∨ b 是骑士」证明出「a 是骑士 ∧ b 是骑士」。', 'The first islander says: “I am a knave, or the other one is a knight.” What is each of them? Build a prover that, from “a is a knight ↔ ¬a is a knight ∨ b is a knight”, proves “a is a knight ∧ b is a knight”.'),
+        brief: T('第一个岛民说：「我是无赖，或者另一个人是骑士。」两个人各是什么？已知「a 是骑士 ↔ ¬a 是骑士 ∨ b 是骑士」，证明出「a 是骑士 ∧ b 是骑士」。', 'The first islander says: “I am a knave, or the other one is a knight.” What is each of them? Given “a is a knight ↔ ¬a is a knight ∨ b is a knight”, prove “a is a knight ∧ b is a knight”.'),
         hint: [
           T('a 是不是骑士，两边都讨论：排中律加分情况。是骑士，就是了；是无赖，他的话就成了真的。', 'Whether a is a knight, take both sides: Excluded middle and cases. A knight, done; a knave, and his statement comes true.'),
           T('有了「a 是骑士」，他的话就是真的；再对他的话分情况，「我是无赖」那一半会撞出矛盾。', 'With “a is a knight”, his statement is true; take cases on it, and the “I am a knave” half runs into a contradiction.'),
@@ -496,7 +485,6 @@ export const classical = [
     title: T('皮尔士律', 'Peirce’s law'),
     tests: [{ goal: '((A → B) → A) → A' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Exam', B: 'Pass' }],
-    brief: T('实现一个证明器，不需要任何已知，就能证明出「((下雨 → 地湿) → 下雨) → 下雨」。', 'Build a prover that proves “((it rains → the ground is wet) → it rains) → it rains”. from nothing given'),
     hint: [
       T('框里对「下雨 ∨ ¬下雨」分情况。下雨的那一边，什么都不用做。', 'Inside the box, take cases on “it rains ∨ ¬it rains”. On the raining side there is nothing to do.'),
       T('不下雨的那一边：「¬下雨」能给出「下雨 → 地湿」（假设下雨，就矛盾了，矛盾推出一切）。', 'On the other side: “¬it rains” gives “it rains → the ground is wet” (assume it rains: contradiction, and from that anything).'),
@@ -512,7 +500,7 @@ export const classical = [
     title: T('酒鬼悖论', 'The drinker paradox'),
     tests: [{ goal: '∃x. D(x) → ∀y. D(y)' }],
     cases: [{ D: 'Drinks' }, { D: 'Sings' }],
-    brief: T('酒吧里至少有一个人。实现一个证明器，不需要任何已知，就能证明出「∃x. x在喝酒 → ∀y. y在喝酒」：有这么一个人，只要他喝酒，大家就都在喝。', 'There is at least one person in the pub. Build a prover that proves “∃x. x is drinking → ∀y. y is drinking” from nothing given: there is someone such that, if they drink, everyone drinks.'),
+    brief: T('酒吧里至少有一个人。不需要任何已知，证明出「∃x. x在喝酒 → ∀y. y在喝酒」：有这么一个人，只要他喝酒，大家就都在喝。', 'There is at least one person in the pub. Prove “∃x. x is drinking → ∀y. y is drinking” from nothing given: there is someone such that, if they drink, everyone drinks.'),
     hint: [T('别急着找那个人。先问：是不是大家都在喝？', 'Do not look for that person yet. Ask first: is everyone drinking?')],
     solution: proof({
       l: ['lem', { A: '∀y. D(y)' }],

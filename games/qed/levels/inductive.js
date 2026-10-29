@@ -49,7 +49,7 @@ export const inductive = [
     words: TERM_WORDS,
     cases: [],
     tests: [{ premises: { d0: '∀y. plus(zero, y) = y', d1: '∀x. ∀y. plus(s(x), y) = s(plus(x, y))' }, goal: 'plus(s(zero), s(zero)) = s(s(zero))' }],
-    brief: T('实现一个证明器，从加法的两条定义证明出 1 + 1 = 2。', 'Build a prover that proves 1 + 1 = 2 from the two definitions of addition.'),
+    brief: T('从加法的两条定义证明出 1 + 1 = 2。', 'From the two definitions of addition, prove 1 + 1 = 2.'),
     hint: [
       T('先用取一个，把定义里的 x、y 换成具体的数。', 'First Take one, putting particular numbers in for the x and y of a definition.'),
       T('第二条定义算出 S (0 + S 0)；再用第一条算出 0 + S 0，用等量代换把它换进去。', 'The second definition gives S (0 + S 0); the first works out 0 + S 0, and Rewrite puts it in.'),
@@ -197,7 +197,7 @@ export const inductive = [
         words: TERM_WORDS,
         cases: [],
         tests: [{ premises: { d0: '∀y. plus(zero, y) = y', d1: '∀x. ∀y. plus(s(x), y) = s(plus(x, y))' }, goal: '∀x. plus(x, zero) = x' }],
-        brief: T('实现一个证明器，从加法的两条定义证明出：对所有 x，x + 0 = x。', 'Build a prover that proves x + 0 = x for every x from the two definitions of addition.'),
+        brief: T('从加法的两条定义证明出：对所有 x，x + 0 = x。', 'From the two definitions of addition, prove x + 0 = x for every x.'),
         hint: [
           T('0 的情况：第一条定义取 0。', 'The case 0: take 0 in the first definition.'),
           T('从 a 到 S a：第二条定义取 a、再取 0，得到 S a + 0 = S (a + 0)；框里假设的 a + 0 = a，用等量代换换进去。', 'From a to S a: the second definition with a, then 0, gives S a + 0 = S (a + 0); the a + 0 = a the box assumes goes in by Rewrite.'),
@@ -459,7 +459,7 @@ export const inductive = [
     words: GOEDEL,
     cases: [],
     tests: [{ premises: { diag: 'G ↔ ¬Prov(g)', sound: 'Prov(g) → G' }, goal: 'G ∧ ¬Prov(g)' }],
-    brief: T('实现一个证明器，从这两句已知证明出：G 成立，而且 G 证不出。', 'Build a prover that proves from these two givens: G holds, and G cannot be proved.'),
+    brief: T('从这两句已知证明出：G 成立，而且 G 证不出。', 'From these two givens, prove: G holds, and G cannot be proved.'),
     hint: [
       T('先证 G 证不出：假设它证得出，由可靠得到 G，再由 G 得到它证不出。', 'First prove G cannot be proved: assume it can, get G by soundness, and from G that it cannot.'),
       T('有了「G 证不出」，等价的另一个方向就给出 G。', 'With “G cannot be proved”, the other direction of the equivalence gives G.'),
@@ -481,7 +481,7 @@ export const inductive = [
     words: GOEDEL,
     cases: [],
     tests: [{ premises: { d: 'Prov(g) → Prov(gn)', r: 'Prov(g) → Prov(gp)', con: '¬(Prov(gn) ∧ Prov(gp))' }, goal: '¬Prov(g)' }],
-    brief: T('实现一个证明器，从这三句已知证明出：G 证不出。', 'Build a prover that proves from these three givens: G cannot be proved.'),
+    brief: T('从这三句已知证明出：G 证不出。', 'From these three givens, prove: G cannot be proved.'),
     hint: [T('假设 G 证得出，两句「若…则…」各套用一次，拼起来就和第三句矛盾。', 'Assume G can be proved, apply each “if … then …” once, and the two together contradict the third.')],
     intro: [
       { t: T('<level-ref to="gd-true"></level-ref>用了一句很强的已知：证得出的都是真的。哥德尔要的少得多：只要证明器不矛盾，不会既证出一句话、又证出它的否定。这叫<wiki-ref to="consistency"></wiki-ref>。', '<level-ref to="gd-true"></level-ref> used a strong given: what is proved is true. Gödel needs far less: only that the prover never proves both a sentence and its negation. This is <wiki-ref to="consistency"></wiki-ref>.') },
@@ -498,7 +498,7 @@ export const inductive = [
     words: GOEDEL,
     cases: [],
     tests: [{ premises: { f1: 'Prov(cs) → Prov(gn)', f2: 'Prov(gn) → Prov(g)', first: '¬Prov(g)' }, goal: '¬Prov(cs)' }],
-    brief: T('实现一个证明器，从这三句已知证明出：「证明器不矛盾」证不出。', 'Build a prover that proves from these three givens: “the prover is consistent” cannot be proved.'),
+    brief: T('从这三句已知证明出：「证明器不矛盾」证不出。', 'From these three givens, prove: “the prover is consistent” cannot be proved.'),
     hint: [T('假设它证得出，顺着两句「若…则…」一路套用，撞上第三句。', 'Assume it can be proved, apply your way along the two “if … then …”s, and run into the third.')],
     intro: [{ t: T('「证明器不矛盾」也能写成一句关于数的话，编号记作 ⌜不矛盾⌝。<level-ref to="gd-con"></level-ref>的论证本身也能在系统里做一遍，所以证得出「不矛盾」，就证得出「G 证不出」；G ↔ ¬Prov(⌜G⌝) 证得出，所以证得出「G 证不出」，就证得出 G。第三句是那一关的结论：系统不矛盾，G 就证不出。', '“The prover is consistent” can be written as a sentence about numbers too, numbered ⌜consistent⌝. The argument of <level-ref to="gd-con"></level-ref> can itself be carried out inside the system, so proving “consistent” proves “G cannot be proved”; and since G ↔ ¬Prov(⌜G⌝) can be proved, proving “G cannot be proved” proves G. The third given is that level’s conclusion: if the system is consistent, G cannot be proved.') }],
     solution: proof({ f: ['impI', { A: 'Prov(cs)' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], m3: ['mp', {}, 'f'] }, ['f1>m1.imp', 'f#body>m1.a', 'f2>m2.imp', 'm1>m2.a', 'first>m3.imp', 'm2>m3.a', 'm3>f.body', 'f>goal'], { premises: ['f1', 'f2', 'first'] }),
