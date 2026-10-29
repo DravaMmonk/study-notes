@@ -27,7 +27,6 @@ import { termTaskOf } from './termTask.js'
 import { missingForms } from './termTree.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
 import { checkIso, sentenceOf } from './iso.js'
-import { checkTake } from './take.js'
 import { say } from './notation.js'
 import { presetIds } from './course.js'
 
@@ -44,7 +43,7 @@ export function validate({ levels: given, course }) {
   }
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words && !l.vocab)) {
-    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'iso' || level.kind === 'take' ? level.sentences : level.kind === 'term' ? [...Object.values(level.premises ?? {}), level.goal] : level.kind === 'script' ? [...Object.values(level.premises ?? {}), level.goal, ...(level.sentences ?? [])] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.term || t.ways ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses)) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'iso' ? level.sentences : level.kind === 'term' ? [...Object.values(level.premises ?? {}), level.goal] : level.kind === 'script' ? [...Object.values(level.premises ?? {}), level.goal, ...(level.sentences ?? [])] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.term || t.ways ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses)) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     // The pattern's own letters stand bare in its last test; a machine's tests may end on bare letters too.
     const bare = new Set(level.kind === 'machine' ? 'ABCDEFGHPQRS'.split('') : Object.keys(level.cases?.[0] ?? {}))
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l] && !bare.has(l))
@@ -104,16 +103,6 @@ export function validate({ levels: given, course }) {
     out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: declaration ${good.pass ? 'PASS' : `FAIL ${keyOf(good.ways ?? good.results.find((r) => !r.pass).reason)}`} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
     if (level.naive) {
       const bad = checkIso(level, level.naive, words)
-      out.push({ fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
-    }
-  }
-  // An elimination rule written by hand: its reference answer passes the check (no more, no less), its naive ones
-  // do not.
-  for (const level of levels.filter((l) => l.kind === 'take')) {
-    const good = checkTake(level, level.solution)
-    out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: elimination ${good.pass ? 'PASS' : `FAIL on test ${good.rows.findIndex((r) => !r.pass) + 1}`}` })
-    for (const naive of level.naives ?? []) {
-      const bad = checkTake(level, naive)
       out.push({ fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
     }
   }

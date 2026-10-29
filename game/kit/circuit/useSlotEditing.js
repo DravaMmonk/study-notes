@@ -36,20 +36,17 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   const history = useHistory(graph, onChange, scope)
   const [toast, setToast] = useState(null) // a { zh, en } pair, read in the current language when shown
   const { sources, steps, sinks } = layout(graph, parts)
-  // Parts are numbered in reading order: the board's slots, a frame's regions right after the frame, and last the
-  // regions of a sink that is a frame.
+  // Parts are numbered in reading order: the board's slots, and a frame's regions right after the frame.
   const orderOf = (g) => {
     const ordered = []
-    const inside = (id) => (parts.frames?.(byId(g, id)) ?? []).forEach((r) => walk(`${id}/${r.name}`))
     const walk = (region) => {
       const { cell } = placement(g, parts, region)
       for (const id of [...cell.keys()].sort((x, y) => cell.get(x) - cell.get(y))) {
         ordered.push(id)
-        inside(id)
+        for (const r of parts.frames?.(byId(g, id)) ?? []) walk(`${id}/${r.name}`)
       }
     }
     walk(null)
-    layout(g, parts).sinks.forEach((n) => inside(n.id))
     return ordered
   }
   const ordered = orderOf(graph)

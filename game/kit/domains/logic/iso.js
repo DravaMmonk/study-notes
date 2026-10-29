@@ -8,14 +8,15 @@
 // one more. Written as a proof these would be nested assumption boxes; a declared rule has no proof inside, so it is a
 // chain of cards, its conclusion given by the declaration.
 //
-// The way to take it apart is not written here: the player's generator makes it from the ways in (elimgen.js), a case
-// for every way, numbered as the ways are, which gets back just what that way took. The situations show it.
+// The way to take it apart is not written: the ways in are all the ways there are, so it is made from them
+// (declaredRules), a case for every way, numbered as the ways are, which gets back just what that way took. Chapter 12
+// has the player build the machine that makes it (elimgen.js).
 //
 // A test is a situation: the proofs at hand (numbered: "it rains #1"), and whether the declared sentence can be
 // proved from them, or a sentence of its shape (`goal`, when the declared sentence mentions a thing: "the Morning
 // Star = the Morning Star"). When it can, the way using the most of what is at hand makes it (the first such), with
-// the things its thing cards take found among the level's (`things`), and its case gets back the very things and
-// proofs it took; when it cannot, nothing is made. A specification is tested on situations, not proved.
+// the things its thing cards take found among the level's (`things`); when it cannot, nothing is made. A specification
+// is tested on situations, not proved.
 //
 // A level: { kind: 'iso', declare: { zh, en } its name, target: its sentence (with a thing's name where a way takes
 // one: 'x = x'), sentences: [sentence] an assumption card may pick (letters, or sentences like "A → B" or "Human(x)"),
@@ -37,22 +38,22 @@ const cardId = (token) => `hyp-${token}`
 
 /** How many ways the declared card has wired (its inputs are one more, up to three). */
 export const waysOf = (node) => node.params?.ways ?? 0
-export const declInputs = (node) => growingInputs(node, 'ways')
+export const declInputs = (node) => Array.from({ length: Math.min(MOST, waysOf(node) + 1) }, (_, k) => wayPort(k + 1))
 
 /** A sentence of the level, its things read as names (not variables). */
 export const sentenceOf = (level, text) => parse(text, { consts: level.things ?? [] })
 const keyOf = (f) => show(f)
-export const thing = (name) => ({ t: 'fn', f: name, args: [] })
+const thing = (name) => ({ t: 'fn', f: name, args: [] })
 
 // A sentence with the things in σ put in for their names.
-export function substThings(x, σ) {
-  if (Array.isArray(x)) return x.map((y) => substThings(y, σ))
+function subst(x, σ) {
+  if (Array.isArray(x)) return x.map((y) => subst(y, σ))
   if (!x || typeof x !== 'object') return x
   if (x.t === 'var' && σ[x.name]) return σ[x.name]
-  return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, substThings(v, σ)]))
+  return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, subst(v, σ)]))
 }
 // σ extended so that `pattern`, with `vars` free, is `inst`; null when it cannot be.
-export function match(pattern, inst, vars, σ) {
+function match(pattern, inst, vars, σ) {
   if (pattern && pattern.t === 'var' && vars.has(pattern.name)) {
     if (σ[pattern.name]) return JSON.stringify(σ[pattern.name]) === JSON.stringify(inst) ? σ : null
     return { ...σ, [pattern.name]: inst }
@@ -83,7 +84,7 @@ function satisfy(rule, ctx) {
   for (const σ of assignments) {
     // A way whose sentence still names a free thing does not make the goal's sentence.
     if (!ctx.goal && Object.keys(σ).length < vars.size) continue
-    const items = rule.steps.map((s) => (s.bind !== undefined ? { kind: 'thing', name: σ[s.bind].f } : ctx.have.get(keyOf(substThings(ctx.read(s.need), σ)))))
+    const items = rule.steps.map((s) => (s.bind !== undefined ? { kind: 'thing', name: σ[s.bind].f } : ctx.have.get(keyOf(subst(ctx.read(s.need), σ)))))
     if (items.every(Boolean)) return items
   }
   return null
@@ -115,37 +116,30 @@ export const ISO_PARTS = {
 }
 
 /**
- * A card whose inputs grow as they are wired (the declared card's ways, an elimination rule's cases): its wired inputs
- * numbered from 1 with no gaps, how many kept on the card (`params[count]`), so it has one input more for the next.
+ * The board as the kernel keeps it: the declared card's wired ways numbered from 1 with no gaps, and one input more
+ * for the next.
  */
-export function renumber(graph, id, count) {
-  const card = graph.nodes.find((n) => n.id === id)
-  if (!card) return graph
-  const wired = graph.wires.filter((w) => w.to === id).sort((a, b) => Number(a.port.slice(1)) - Number(b.port.slice(1)))
-  const port = new Map(wired.map((w, k) => [w, wayPort(k + 1)]))
+export function settle(graph) {
+  const decl = graph.nodes.find((n) => n.id === DECL)
+  if (!decl) return graph
+  const ways = graph.wires.filter((w) => w.to === DECL).sort((a, b) => Number(a.port.slice(1)) - Number(b.port.slice(1)))
+  const renumber = new Map(ways.map((w, k) => [w, wayPort(k + 1)]))
+  const n = ways.length
   return {
     ...graph,
-    nodes: graph.nodes.map((x) => (x.id === id ? { ...x, params: { ...x.params, [count]: wired.length } } : x)),
-    wires: [...graph.wires.filter((w) => w.to !== id), ...wired.map((w) => ({ ...w, port: port.get(w) }))],
+    nodes: graph.nodes.map((x) => (x.id === DECL ? { ...x, params: { ...x.params, ways: n } } : x)),
+    wires: [...graph.wires.filter((w) => w.to !== DECL), ...ways.map((w) => ({ ...w, port: renumber.get(w) }))],
   }
 }
-/** The board as the kernel keeps it: the declared card's ways numbered from 1 (renumber). */
-export const settle = (graph) => renumber(graph, DECL, 'ways')
-/** The inputs of a card whose inputs grow (renumber): one per wired input, one more, up to three. */
-export const growingInputs = (node, count) => Array.from({ length: Math.min(MOST, (node.params?.[count] ?? 0) + 1) }, (_, k) => wayPort(k + 1))
-export const GROWING = Array.from({ length: MOST }, (_, k) => wayPort(k + 1))
 
-/**
- * What the board gives in one test: the engine's values, the declared sentence (or null), and what its case gets back
- * (the case of the way it was made by: just the things and proofs that way took).
- */
+/** What the board gives in one test: the engine's values, and the declared sentence (or null). */
 export function runIso(level, circuit, test) {
   const read = (s) => sentenceOf(level, s)
   const have = new Map(Object.entries(test.have).map(([s, n]) => [keyOf(read(s)), evidence(s, n)]))
   const bind = { have, read, things: level.things ?? [], target: read(level.target), goal: test.goal ? read(test.goal) : null }
   const run = runBoard(circuit, { parts: ISO_PARTS, bind })
   const made = run.values.get(DECL) ?? null
-  return { ...run, made, back: made?.items ?? null }
+  return { ...run, made }
 }
 
 /** The rules wired into the declared card, in the order of its ways: { needs, binds } each, in the order taken. */
@@ -160,7 +154,7 @@ export function waysIn(circuit) {
 }
 
 /**
- * Every test checked: { pass, results: [{ pass, reason, made, back }], ways }; words(sentence) gives a sentence's
+ * Every test checked: { pass, results: [{ pass, reason, made }], ways }; words(sentence) gives a sentence's
  * words. `ways` says why the rules are not the ones the level asks for (level.ways), when every situation is right.
  */
 export function checkIso(level, circuit, words) {
@@ -188,7 +182,7 @@ export function checkIso(level, circuit, words) {
   return { pass: results.every((r) => r.pass) && !ways, results, ways }
 }
 
-export const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })
+const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })
 /**
  * A way as a rule: its assumptions in turn are the premises, the declared sentence the conclusion, and a way that
  * takes things is a rule for any of them (`fixes`): ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human.
@@ -200,10 +194,10 @@ export const wayText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.j
 /** A rule's value on the board as a way: { needs, binds }. */
 export const wayOf = (rule) => ({ needs: needsOf(rule), binds: bindsOf(rule) })
 
-// general(level) → g: the declared sentence's own letters and predicates, each a metavariable in turn (?A, ?B … for a sentence, ?P, ?Q …
+// The declared sentence's own letters and predicates, each a metavariable in turn (?A, ?B … for a sentence, ?P, ?Q …
 // for one about things): the rules for any sentences, not just the level's. A new proposition (one whose sentence
 // shares nothing with what it assumes) keeps its sentences.
-export function general(level) {
+function general(level) {
   const atoms = (f, out = []) => {
     if (f.op === 'atom') {
       if (f.pred !== '=' && !out.includes(f.pred)) out.push(f.pred)
@@ -234,16 +228,18 @@ export function general(level) {
 }
 
 /**
- * What a declaration gives, for any sentences: its sentence, one rule for each way to make it, and the rule that takes
- * it apart when the level gives it (`take`: equality, the numbers). Otherwise that rule is the generator's, which the
- * player builds (elimgen.js), run on the sentence and the ways in.
+ * What a declaration gives, for any sentences: one rule for each way to make it, and the rule that takes it apart,
+ * made from them (having it, and for each way a conclusion ?R from what that way took, for any thing it took, gives
+ * ?R), or the level's own (`take`: equality, the numbers).
  */
 export function declaredRules(level, ways) {
   const g = general(level)
+  const R = meta('?R')
   return {
-    it: g(sentenceOf(level, level.target)),
     make: ways.map((way) => wayRule(way, level, g)),
-    take: level.take ? ruleOf('take', null, level.take.premises, level.take.conclusion) : null,
+    take: level.take
+      ? ruleOf('take', null, level.take.premises, level.take.conclusion)
+      : { premises: [premise(g(sentenceOf(level, level.target))), ...ways.map((way) => premise(R, way.needs.map((s) => g(sentenceOf(level, s))), way.binds))], conclusion: R },
   }
 }
 

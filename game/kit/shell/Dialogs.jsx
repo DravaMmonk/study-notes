@@ -59,7 +59,7 @@ export function TaskDoneDialog({ game, level, task, index, next, onStay, onNext 
 }
 
 /** A level passed: what it taught, what it unlocked, its key idea, and the way back to the map. */
-export function SolvedDialog({ game, level, progress, onStay, onExit }) {
+export function SolvedDialog({ game, level, onStay, onExit }) {
   useEscape(onStay)
   const unlocked = game.unlocked(level)
   const note = game.note(level)
@@ -71,7 +71,7 @@ export function SolvedDialog({ game, level, progress, onStay, onExit }) {
         {level.afterTitle && <h3 className="dialog-title" dangerouslySetInnerHTML={{ __html: String(L(level.afterTitle)) }} />}
         <Paragraphs text={level.after} />
         {note && note !== level.after && <p className="dialog-note"><span className="panel-label">{tr('要点', 'Key idea')}</span><span dangerouslySetInnerHTML={{ __html: String(L(note)) }} /></p>}
-        {game.passed(level, progress)}
+        {game.passed(level)}
         {unlocked.length > 0 && (
           <div className="unlocked">
             <span className="panel-label">{tr('解锁', 'Unlocked')}</span>

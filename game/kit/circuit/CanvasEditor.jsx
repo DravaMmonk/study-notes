@@ -546,7 +546,7 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
                     <span className="frame-region-name">{L(r.label)}</span>
                     {/* What the region opens with: a dot for each value, with what it is now. */}
                     {r.opens ? givesOf(r).map((k) => <span key={k} className="frame-open-item">{outDot(srcOf(node, k), 'frame-open')}{regionNote?.(node, k)}</span>) : regionNote?.(node, r.name)}
-                    {r.closes !== false && <span className="frame-region-result">{L(parts.portLabel?.(node, r.name)) ?? ''}{resultNote?.(node, r.name)}{inDot(r.name, 'frame-close')}</span>}
+                    <span className="frame-region-result">{L(parts.portLabel?.(node, r.name)) ?? ''}{resultNote?.(node, r.name)}{inDot(r.name, 'frame-close')}</span>
                   </header>
                   <div className="frame-field" data-region={key} style={{ width: w, height: h }}>
                     {layered(inside).map(card)}
