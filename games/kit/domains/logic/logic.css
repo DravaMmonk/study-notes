@@ -135,14 +135,6 @@
 .lg-rows tbody tr.is-on { background: var(--hover, rgba(0,0,0,.05)); }
 .lg-rows tbody tr.is-pass td:last-child { color: var(--status); }
 .lg-rows tbody tr.is-fail td:last-child { color: var(--fail); }
-/* The elimination board's test cases (ui/TakeScreen.jsx): sentences as chips, what a proof lacks marked. */
-.lg-opens td { padding: 6px 8px; }
-.lg-opens td:first-child, .lg-opens td:nth-child(3) { text-align: left; }
-.lg-chips-row { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-.lg-chip-group { display: inline-flex; flex-wrap: wrap; gap: 4px; }
-.lg-chip-group + .lg-chip-group { padding-left: 6px; border-left: 1px solid var(--line, rgba(0,0,0,.15)); }
-.lg-chip { display: inline-block; padding: 1px 7px; border-radius: 6px; background: var(--hover, rgba(0,0,0,.06)); color: var(--ink); white-space: nowrap; }
-.lg-chip.is-bad { background: color-mix(in srgb, var(--fail) 18%, transparent); color: var(--fail); }
 
 
 /* First-order levels (ui/WorldScreens.jsx): sentences to write, the vocabulary as buttons, worlds in words, and a world

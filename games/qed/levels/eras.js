@@ -61,11 +61,10 @@ export const ERAS = [
   {
     id: 'packing', machine: 'prover',
     // The kernel's parts and the definitions built with them carry on. Declarations: "and", "or" and the contradiction
-    // come into the kernel by their intro rules, each written as a rule with assumption cards, and their elimination
-    // rules written by hand and checked (declare.js); an optional topic declares more (D).
+    // come into the kernel by their intro rules, each written as a rule with assumption cards, their elimination rules
+    // made from them (declare.js); an optional topic declares more (D).
     keeps: 'all',
     foundation: [
-      // Each declaration in two tasks: its ways in, then its elimination rule written by hand and checked.
       'decl-and', 'decl-or', 'decl-bot',
     ],
     topics: [{ id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') }],
@@ -224,8 +223,8 @@ export const ERAS = [
     id: 'inductive', machine: 'prover', keeps: 'all',
     foundation: [
       // Sums worked out by hand on the proof board, then by simp with the definitions: lists, conditions, a given,
-      // under ∀. Beside them, needing nothing of them, the elimination rule generator: the rules written by hand since
-      // chapter 3, made from the ways in.
+      // under ∀. Beside them, needing nothing of them, the elimination rule generator: the step that has made every
+      // elimination rule since chapter 3, built by hand.
       branches(
         ['defs', '定义当规则', 'Definitions as rules', ['nl-plus', 'sp-compute', 'sp-lists', 'sp-cond', 'sp-hyp', 'sp-under']],
         ['gen', '消去规则生成器', 'The elimination rule generator', ['gen-one', 'gen-each']],

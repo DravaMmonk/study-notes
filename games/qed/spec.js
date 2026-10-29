@@ -4,6 +4,9 @@ import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import { ERAS } from './levels/eras.js'
 import { LEMMAS, LOGIC } from './levels/index.js'
 
+// The declarations that had a second task, their elimination rule by hand (save versions 48 to 49).
+const DECLARED = ['decl-and', 'decl-or', 'decl-bot', 'decl-two', 'decl-true', 'decl-iff', 'decl-ex']
+
 // A saved machine board (or a level's list of them) with each card as version 28 has it.
 const CARD = (n) => {
   if (n.type === 'orElse') return { ...n, type: 'append' }
@@ -235,6 +238,11 @@ export default {
   // to chapter 12: a declaration's board is its first task's, and 声明 ⊥'s generator task is gone.
   { version: 48, ops: [
     { data: (value, id) => (['decl-and', 'decl-or', 'decl-two', 'decl-true', 'decl-iff', 'decl-ex', 'decl-nat'].includes(id) && value && !Array.isArray(value) ? [value, null] : id === 'decl-bot' && Array.isArray(value) ? [value[0] ?? null, null] : value) },
+  ] },
+  // Version 49 makes the elimination rule from the ways in again: those declarations are one task, their board the
+  // declaration board.
+  { version: 49, ops: [
+    { data: (value, id) => (DECLARED.includes(id) && Array.isArray(value) ? value[0] ?? null : value) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

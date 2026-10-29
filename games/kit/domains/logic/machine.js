@@ -704,19 +704,6 @@ const failsAsState = (run) => (ins, node, ctx) => {
 const partsFor = (level) => (type) => level.built?.[type] ?? MACHINE_PARTS[type] ?? RULE_PART
 const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), ...extra })
 
-/**
- * A declaration's elimination rule as the player's generator makes it (elimgen.js): the generator built in chapter 12
- * run on the declared sentence and its ways in (rules); null when it gives no rule.
- */
-export function generateElim(level, it, ways) {
-  const board = {
-    nodes: [{ id: 'it', type: 'in', params: { name: 'it' } }, { id: 'ways', type: 'in', params: { name: 'ways' } }, { id: 'g', type: 'elimGen', params: {} }, { id: 'out', type: 'out', params: { name: 'out' } }],
-    wires: [{ from: 'it', to: 'g', port: 'it' }, { from: 'ways', to: 'g', port: 'ways' }, { from: 'g', to: 'out', port: 'in' }],
-  }
-  const out = runBoard(board, { parts: partsFor(level), bind: { it: sentenceValue(it), ways: listValue(ways.map(ruleValue)) }, ctx: ctxOf(level, board) }).outputs.out
-  return out?.kind === 'rule' ? out.rule : null
-}
-
 /** A machine part run on a proof state with a level's rule and rewrite books (chapter 15: a script's by), the rules
  *  `keys` wired in when it uses rules. */
 export const runTactic = (level, type, state, keys = null) => (level.built?.[type] ?? MACHINE_PARTS[type]).eval({ in: state, ...(keys ? { rules: rulesValue(keys.map((key) => ({ key }))) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }, { engine: { parts: partsFor(level) } }))
