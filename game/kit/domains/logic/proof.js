@@ -113,20 +113,8 @@ export const RULES = {
     },
   },
   andI: { inputs: ['a', 'b'], eval: ({ a, b }) => proved(and(a.formula, b.formula), union(a, b), pair(a.term, b.term)) },
-  // ∧ elim as the declaration makes it: ⟦A ∧ B; ⟦A; B⟧ ⟹ C⟧ ⟹ C, one box assuming both sides at once; what is proved
-  // inside comes out. Its term is Lean's p.elim (fun a b => …) (And.elim).
-  andCases: {
-    ...framePart(['ab'], [{ name: 'body', opens: true, gives: ['left', 'right'] }]),
-    eval: ({ ab, body }, node, ctx, key) => {
-      const f = asAnd(ab.formula)
-      if (f.op !== '∧') throw need(ctx, SHAPE.and, ab.formula)
-      const h = hypName(node, ctx)
-      if (key) return proved(key === 'right' ? f.b : f.a, new Map([[hypId(node, key), key === 'right' ? f.b : f.a]]), pvar(key === 'right' ? `${h}'` : h))
-      return proved(body.formula, new Map([...ab.hyps, ...without(without(body.hyps, hypId(node, 'left')), hypId(node, 'right'))]), unpack(ab.term, h, `${h}'`, body.term))
-    },
-  },
-  // Splitting ∧ (Lean's And.left and And.right, the projections p.1 and p.2): A ↔ B is (A → B) ∧ (B → A) to the rules,
-  // so splitting it gives its two directions.
+  // ∧ elim, as the declaration of “and” makes it with one output for each side (Lean's And.left and And.right): A ↔ B
+  // is (A → B) ∧ (B → A) to the rules, so taking it apart gives its two directions.
   andE: {
     inputs: ['ab'],
     outputs: () => ['left', 'right'],

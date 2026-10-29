@@ -441,12 +441,3 @@ test('the elimination rule generator: one case for each way in, its conclusion a
   assert.equal(genRuleText(out.rule), '⟦?A ∨ ?B; (?A ⟹ ?R); (?B ⟹ ?R)⟧ ⟹ ?R')
 })
 
-test('∧ elim assumes both sides in one box, and the box gives what is proved inside', () => {
-  const level = { tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }] }
-  const swap = proof({ c: ['andCases'], i: ['andI', {}, 'c'] }, ['p>c.ab', 'c#right>i.a', 'c#left>i.b', 'i>c.body', 'c>goal'], { premises: ['p'] })
-  assert.ok(run(level, swap).pass)
-  // What the box assumes stays inside it.
-  const leak = proof({ c: ['andCases'] }, ['p>c.ab', 'c#left>c.body', 'c#right>goal'], { premises: ['p'] })
-  assert.equal(run({ tests: [{ premises: { p: 'A ∧ B' }, goal: 'B' }] }, leak).pass, false)
-})
-

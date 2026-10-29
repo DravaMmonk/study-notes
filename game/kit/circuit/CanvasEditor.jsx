@@ -6,7 +6,7 @@ import { enableDrag } from '../drag.js'
 import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
-import { givesOf, moveInto, regionKeys } from './frames.js'
+import { moveInto } from './frames.js'
 import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
 import { useHistory } from './useHistory.js'
 
@@ -474,7 +474,7 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
   function card(node) {
     const role = parts.role(node)
     const regions = regionsOf(node)
-    const own = regionKeys(regions)
+    const own = new Set(regions.map((r) => r.name))
     const ports = parts.inputs(node).filter((p) => !own.has(p))
     const listed = parts.outputs?.(node)?.filter((o) => !own.has(o.key)) ?? null
     // A frame keeps its own result as a plain output; several outputs of other cards run down the right edge.
@@ -542,10 +542,10 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
               const h = Math.max(REGION.h, ...inside.map((n) => n.y + sizeOf(n)[1] + REGION.pad))
               return (
                 <section key={r.name} className={`frame-region ${target === key ? 'is-target' : ''} ${dropInto === key ? 'is-drop' : ''}`}>
-                  <header className={`frame-region-head ${givesOf(r).length > 1 ? 'has-many-opens' : ''}`}>
+                  <header className="frame-region-head">
+                    {r.opens && outDot(srcOf(node, r.name), 'frame-open')}
                     <span className="frame-region-name">{L(r.label)}</span>
-                    {/* What the region opens with: a dot for each value, with what it is now. */}
-                    {r.opens ? givesOf(r).map((k) => <span key={k} className="frame-open-item">{outDot(srcOf(node, k), 'frame-open')}{regionNote?.(node, k)}</span>) : regionNote?.(node, r.name)}
+                    {regionNote?.(node, r.name)}
                     <span className="frame-region-result">{L(parts.portLabel?.(node, r.name)) ?? ''}{resultNote?.(node, r.name)}{inDot(r.name, 'frame-close')}</span>
                   </header>
                   <div className="frame-field" data-region={key} style={{ width: w, height: h }}>

@@ -320,6 +320,8 @@ export const KERNEL_RULES = [
   ruleOf('exI', R('举例', 'Example'), ['?P(?t)'], '∃x. ?P(x)'),
   ruleOf('mp', R('套用', 'Apply'), ['?A → ?B', '?A'], '?B'),
   ruleOf('conjE', R('消去 ∧', '∧ elim'), ['?A ∧ ?B', '⟦?A; ?B⟧ ⟹ ?C'], '?C'),
+  ruleOf('conjunct1', R('消去 ∧（左边）', '∧ elim (left)'), ['?A ∧ ?B'], '?A'),
+  ruleOf('conjunct2', R('消去 ∧（右边）', '∧ elim (right)'), ['?A ∧ ?B'], '?B'),
   ruleOf('disjE', R('消去 ∨', '∨ elim'), ['?A ∨ ?B', '⟦?A⟧ ⟹ ?C', '⟦?B⟧ ⟹ ?C'], '?C'),
   ruleOf('impE', R('用上「若…则…」', 'Use an “if”'), ['?A → ?B', '?A', '⟦?B⟧ ⟹ ?C'], '?C'),
   ruleOf('botE', R('矛盾推出一切', 'From contradiction'), ['⊥'], '?C'),
@@ -332,7 +334,7 @@ export const KERNEL_RULES = [
   ruleOf('refl', R('自反律', 'Reflexivity'), [], '?t = ?t'),
 ]
 // The proof-board part each kernel rule is (a level has the rule once it holds the part); Have is Apply and a box.
-const PART = { conjI: 'andI', impI: 'impI', disjI1: 'orI', disjI2: 'orI', allI: 'allI', exI: 'exI', mp: 'mp', conjE: 'andCases', disjE: 'orE', impE: 'mp', botE: 'botE', spec: 'allE', allE: 'allE', exE: 'exE', raa: 'raa', cut: 'mp', refl: 'refl' }
+const PART = { conjI: 'andI', impI: 'impI', disjI1: 'orI', disjI2: 'orI', allI: 'allI', exI: 'exI', mp: 'mp', conjE: 'andE', conjunct1: 'andE', conjunct2: 'andE', disjE: 'orE', impE: 'mp', botE: 'botE', spec: 'allE', allE: 'allE', exE: 'exE', raa: 'raa', cut: 'mp', refl: 'refl' }
 for (const r of KERNEL_RULES) r.part = PART[r.key]
 /** The introduction rules (a goal taken apart by its shape) and the elimination rules (a given used), in order. */
 export const INTRO_RULES = ['conjI', 'impI', 'disjI1', 'disjI2', 'allI', 'exI']
