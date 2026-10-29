@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { CircleDashed, CircleDot, FileSignature, SquareDashedText } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
@@ -181,14 +181,16 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )
-  const dock = <RunDock {...playback.dock({ go: tr('每种情况试一遍', 'Try every situation'), done: tr('每种情况都对', 'Every situation right') })} />
+  const dock = <RunDock {...playback.dock({ go: tr('点击运行测试', 'Run the tests'), done: tr('每种情况都对', 'Every situation right') })} />
 
   const items = (level.tray ?? ['hyp']).map((t) => TRAY[t])
   const add = (type) => {
     const [x, y] = spotLeft(circuit)
     change(addPart(type, { x, y }).graph)
   }
-  if (phone) return <PhoneIso {...{ circuit, parts, items, addPart, brief, dock, change, onClear, table, body }} scope={level.id} />
+  const began = Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))
+  const stepKey = run ? `${run.test}:${run.step}:${run.results.length}` : ''
+  if (phone) return <PhoneIso {...{ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, began, stepKey }} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -225,7 +227,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
 }
 
 // The board on a phone: the shared slot board, the situations under it, the tray and the run bar.
-function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, scope }) {
+function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, began, stepKey, scope }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -244,10 +246,26 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
     scroller,
     scope,
   })
+  // As on the machine board (BoardScreen.jsx PhoneBoard): a run brings the page to the tables at its bottom, and keeps
+  // it there while the rows fill in, until the player scrolls away.
+  const pinned = useRef(false)
+  const was = useRef(false)
+  useLayoutEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    if (!began) { pinned.current = false; return }
+    if (!was.current) pinned.current = true
+    if (pinned.current) el.scrollTop = el.scrollHeight
+  }, [began, stepKey])
+  useLayoutEffect(() => { was.current = began })
+  const onScroll = () => {
+    const el = scroller.current
+    if (began && el) pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 4
+  }
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   return (
     <div className="level-phone is-split lg-phone" ref={root}>
-      <div className="lg-scroll" ref={scroller}>
+      <div className="lg-scroll" ref={scroller} onScroll={onScroll}>
         <TaskCard>{brief}</TaskCard>
         <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => body(n, 'tile')} sinkBody={(n) => body(n, 'tile')} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={items.map((i) => i.type)} />
         {table}
