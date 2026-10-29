@@ -156,7 +156,7 @@ const REVISIONS = {
 
 const COURSE = {
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...declarations, ...moreDeclarations, ...thingDeclarations, ...natDeclaration, ...era2, ...hol, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...automation, ...generators, ...inductive, ...terms, ...equality, ...structured],
+  levels: [...era0, ...circuits, ...era1, ...declarations, ...moreDeclarations, ...generators, ...thingDeclarations, ...natDeclaration, ...era2, ...hol, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...automation, ...inductive, ...terms, ...equality, ...structured],
   words: WORDS,
   lemmas: LEMMAS,
   facts: FACTS,
@@ -178,8 +178,6 @@ const COURSE = {
   // lemmas; not ⟷ unfolded, which the built-in clausifier reads from the rule book), a part one stretch of levels needs (the unifier, Defer, the
   // proof board's induction box) and someone else's prover, on the board of the one level that catches it out. A level
   // that needs one brings it again.
-  // Chain, Swap and Merge, the definitions of chapter 3, are tools the player reaches for from then on: always shown.
-  staples: ['chain', 'swap', 'merge'],
   local: ['anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'uPattern', 'unifier', 'defer', 'introRules', 'elimRules', 'frule',
     'natInd',
     'skolem', 'toClauses', 'res', 'resolve', 'saturate', 'clausify', 'replay', 'oracle'],

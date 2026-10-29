@@ -33,7 +33,7 @@
 // it is not the plain cases (a family indexed by things, as =; one that takes its own kind, as the numbers):
 // { premises: [text], conclusion: text } in metavariables (schematic.js) }.
 import { runBoard } from '../../engine/boards.js'
-import { meta, parse, show } from './formula.js'
+import { meta, parse, show, subst as substF } from './formula.js'
 import { ruleOf, ruleText } from './schematic.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -148,24 +148,37 @@ export function runIso(level, circuit, test) {
   return { ...run, made }
 }
 
-/** Whether `get` follows from the declared sentence and `holds`, by its elimination rule (one case per way) and Apply. */
+/**
+ * Whether `get` follows from the declared sentence and `holds`, by its elimination rule (one case per way, a thing a
+ * way takes named afresh) with Apply, Take one (on the things known) and Example (for a goal "there is").
+ */
 export function follows(level, circuit, test) {
   const read = (s) => sentenceOf(level, s)
-  // Everything Apply reaches from the facts.
-  const reach = (facts) => {
+  const things = (level.things ?? []).map(thing)
+  // Everything those rules reach from the facts, with these things to take.
+  const reach = (facts, own) => {
     const known = new Map(facts.map((f) => [keyOf(f), f]))
+    const add = (f) => !known.has(keyOf(f)) && known.set(keyOf(f), f)
     let grew = true
     while (grew) {
-      grew = false
+      const size = known.size
       for (const f of [...known.values()]) {
-        if (f.op === '→' && known.has(keyOf(f.a)) && !known.has(keyOf(f.b))) { known.set(keyOf(f.b), f.b); grew = true }
+        if (f.op === '→' && known.has(keyOf(f.a))) add(f.b)
+        if (f.op === '∀') for (const t of [...things, ...own]) add(substF(f.body, f.v, t))
       }
+      grew = known.size > size
     }
     return known
   }
+  const goal = read(test.get)
+  const reached = (known, own) => known.has(keyOf(goal)) || (goal.op === '∃' && [...things, ...own].some((t) => known.has(keyOf(substF(goal.body, goal.v, t)))))
   const start = [read(level.target), ...(test.holds ?? []).map(read)]
-  const goal = keyOf(read(test.get))
-  return reach(start).has(goal) || waysIn(circuit).every((w) => reach([...start, ...w.needs.map(read)]).has(goal))
+  if (reached(reach(start, []), [])) return true
+  return waysIn(circuit).every((w, k) => {
+    const own = w.binds.map((b) => thing(`${b}${k + 1}′`))
+    const σ = Object.fromEntries(w.binds.map((b, j) => [b, own[j]]))
+    return reached(reach([...start, ...w.needs.map((s) => subst(read(s), σ))], own), own)
+  })
 }
 
 /** The rules wired into the declared card, in the order of its ways: { needs, binds } each, in the order taken. */

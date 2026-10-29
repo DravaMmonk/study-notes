@@ -25,6 +25,7 @@ const DECLS = {
   bot: { it: '⊥', ways: [], elim: ['⊥'] },
   ex: { it: '∃y. ?P(y)', ways: ['⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)'], elim: ['∃y. ?P(y)', '⋀x. ⟦?P(x)⟧ ⟹ ?R'] },
   nat: { it: 'Nat', ways: ['Nat', '⟦Nat⟧ ⟹ Nat'], elim: ['Nat', '?R', '⟦Nat⟧ ⟹ ?R'] },
+  two: { it: 'Motion', ways: ['⟦AnnYes; BoYes⟧ ⟹ Motion', '⟦BoYes; CyYes⟧ ⟹ Motion', '⟦AnnYes; CyYes⟧ ⟹ Motion'], elim: ['Motion', '⟦AnnYes; BoYes⟧ ⟹ ?R', '⟦BoYes; CyYes⟧ ⟹ ?R', '⟦AnnYes; CyYes⟧ ⟹ ?R'] },
 }
 const RULECRAFT = ['anyR', 'swapConcl', 'consFront', 'mkRule']
 const generator = (level) => ({
@@ -137,6 +138,9 @@ export const moreDeclarations = [
           { have: { Rain: 4, Wind: 5 }, make: false },
           { have: { Rain: 6, Wet: 7 }, make: false },
           { have: { Wind: 8, Wet: 9 }, make: false },
+          { get: 'Wind', make: true },
+          { get: 'Slip', make: false },
+          { holds: ['Wet → Slip'], get: 'Slip', make: true },
         ],
         brief: T('「下雨、刮风、地湿，三样都要」：三份证明都在手里才证得出。写出它的声明。', '“It rains, it is windy, the ground is wet: all three”: proved only with all three proofs at hand. Write its declaration.'),
         hint: [T('一条引入规则，三张假设串成一串。', 'One way: three assumptions in one chain.')],
@@ -154,6 +158,9 @@ export const moreDeclarations = [
           { have: { Sun: 2 }, make: true },
           { have: { Holiday: 3 }, make: true },
           { have: {}, make: false },
+          { get: 'Sat', make: false },
+          { holds: ['Sat → Rest', 'Sun → Rest', 'Holiday → Rest'], get: 'Rest', make: true },
+          { holds: ['Sat → Rest', 'Sun → Rest'], get: 'Rest', make: false },
         ],
         brief: T('「今天是周六、周日，或者放假」：手里有其中任何一份证明就证得出。写出它的声明。', '“Today is Saturday, Sunday, or a holiday”: proved with any one of the three proofs at hand. Write its declaration.'),
         hint: [T('三条引入规则，各要一样，引入规则口正好用满。', 'Three ways, each needing one: every way in is used.')],
@@ -175,6 +182,8 @@ export const moreDeclarations = [
       { have: { Rain: 1, Wind: 2 }, make: true },
       { have: { Rain: 3 }, make: false },
       { have: { Wind: 4 }, make: false },
+      { get: 'Rain', make: true },
+      { get: 'Wet', make: false },
     ],
     intro: [{ t: T('你声明的「并且」，引入规则先要「下雨」、再要「刮风」。反过来写行不行？表格分得出来吗？', 'The “and” you declared takes “it rains” first, then “it is windy”. Would the other order do? Can the table tell?') }],
     brief: T('写一个先要「刮风」、再要「下雨」的「并且」。', 'Write an “and” that takes “it is windy” first, then “it rains”.'),
@@ -196,6 +205,9 @@ export const moreDeclarations = [
       { have: { AnnYes: 7, BoYes: 8, CyYes: 9 }, make: true },
       { have: { AnnYes: 10 }, make: false },
       { have: { CyYes: 11 }, make: false },
+      { get: 'AnnYes', make: false },
+      { holds: ['AnnYes → Happy', 'BoYes → Happy'], get: 'Happy', make: true },
+      { holds: ['AnnYes → Happy'], get: 'Happy', make: false },
     ],
     intro: [{ t: T('声明出来的不一定是连接词。一件事怎样才算成立，只要说得出有哪几条引入规则，就能声明。', 'What is declared need not be a connective. Whatever counts as holding in a few ways to make it can be declared.') }],
     brief: T('安、博、赛三人投票，至少两人同意，提案就通过。写出「提案通过」的声明。', 'Ann, Bo and Cy vote; with at least two agreeing, the motion passes. Write the declaration of “the motion passes”.'),
@@ -214,6 +226,8 @@ export const moreDeclarations = [
     tests: [
       { have: {}, make: true },
       { have: { Rain: 1 }, make: true },
+      { get: 'Moon', make: false },
+      { holds: ['Rain', 'Rain → Wet'], get: 'Wet', make: true },
     ],
     intro: [{ t: T('⊥ 一条引入规则都没有。反过来，一句什么都不要、总证得出的话，该怎么声明？托盘里多了一张「不用假设」。', '⊥ has no way to make it. The other way round: how to declare a sentence that needs nothing and is always proved? The tray has a new card, “assume nothing”.') }],
     brief: T('「真」：不管手里有什么，甚至什么都没有，都证得出。写出它的声明。', 'True: proved whatever is at hand, even nothing at all. Write its declaration.'),
@@ -234,6 +248,9 @@ export const moreDeclarations = [
       { have: { 'Rain → Wet': 3 }, make: false },
       { have: { 'Wet → Rain': 4 }, make: false },
       { have: {}, make: false },
+      { get: 'Rain → Wet', make: true },
+      { holds: ['Wet'], get: 'Rain', make: true },
+      { get: 'Rain', make: false },
     ],
     intro: [{ t: T('引入规则要的不必是一个字母。真值电路里的 ↔ 是两个方向都对：它要的是两句「若…则…」。', 'What a way takes need not be one letter. The ↔ of the truth circuits holds both ways round: it takes two “if … then …”s.') }],
     brief: T('「下雨当且仅当地湿」：两个方向的「若…则…」都在手里才证得出。写出它的声明。', '“It rains if and only if the ground is wet”: proved only with both “if … then …”s at hand. Write its declaration.'),
@@ -264,6 +281,9 @@ export const thingDeclarations = [
       { have: { 'Human(ann)': 2 }, make: true },
       { have: { 'Mortal(soc)': 3 }, make: false },
       { have: {}, make: false },
+      { get: 'Human(soc)', make: false },
+      { holds: ['∀x. Human(x) → Mortal(x)'], get: '∃y. Mortal(y)', make: true },
+      { holds: ['∀x. Human(x) → Mortal(x)'], get: 'Mortal(soc)', make: false },
     ],
     intro: [
       { t: T('「对所有」不用声明：任取一样东西证出来，就是对所有东西证出来，这件事证明核本来就会。「存在」不一样：「∃y. y是人」怎样才算证出来？得有某一样东西，再有它是人的证明，比如「苏格拉底是人」。', '“For all” needs no declaration: proved for any thing taken, it is proved for all, and the kernel can do that already. “There is” is different: when is “∃y. y is human” proved? There has to be some thing, and a proof that it is human, such as “Socrates is human”.') },
@@ -300,10 +320,12 @@ export const thingDeclarations = [
   }),
 ]
 
-// Chapter 12 · The elimination rule generator: every elimination rule made so far, since chapter 3, has one shape. The
-// player builds, on a machine board whose wires carry rules (elimgen.js), the piece of the kernel that makes it from
-// the ways in: for one way in, then for a list of them (For each); the generator built, ⊥'s rule and "there is"'s come
-// of it unchanged.
+// Chapter 3, an optional branch beside the declarations · The elimination rule generator: the step that makes every
+// declaration's elimination rule, built by hand on a machine board whose wires carry rules (elimgen.js). Two levels
+// with little help: one way in, then a list of them; the tests are the declarations met so far, and hidden ones of
+// shapes not met yet (a way that takes a thing, a new proposition), so passing shows the generator works for any
+// declaration. What the generator cannot do yet (the induction hypothesis, an indexed family) waits in optional levels
+// too, never on the main path.
 export const generators = [
   generator({
     id: 'gen-one',
@@ -311,71 +333,63 @@ export const generators = [
     title: T('拆开它', 'Taking it apart'),
     // The parts that take rules apart and put them together.
     adds: RULECRAFT,
-    tests: [DECLS.and, DECLS.three, DECLS.iff, DECLS.truth, DECLS.ex],
+    tests: [DECLS.and, DECLS.three, DECLS.iff, DECLS.truth],
     intro: [
-      { t: T('<level-ref to="decl-and"></level-ref>以来，每声明一样东西，证明核都替你由引入规则生成了它的<wiki-ref to="elim-rule"></wiki-ref>，生成的形状都一样。这一关把证明核里做这一步的那一块亲手搭出来。', 'Since <level-ref to="decl-and"></level-ref>, each declaration has had its <wiki-ref to="elim-rule"></wiki-ref> made for you by the kernel from the ways in, always of one shape. This level builds that piece of the kernel by hand.') },
-      { t: T('这块板上，线上传的是规则本身。两个输入：一个是声明的那句话，字母换成了 ?A、?B，因为生成的规则要对任何句子都成立；一个是声明写的那条<wiki-ref to="intro-rule"></wiki-ref>。托盘里的元件把规则拆开、拼起来。每组测试是一份只有一条引入规则的声明和它的消去规则，?R 是任意一句话。', 'On this board the wires carry rules themselves. Two inputs: the declared sentence, its letters turned into ?A and ?B, since the rule made must hold for any sentences; and the <wiki-ref to="intro-rule"></wiki-ref> the declaration wrote. The parts in the tray take rules apart and put them together. Each test is a declaration with one way in, and its elimination rule, ?R being any sentence at all.') },
+      { t: T('每声明一样东西，证明核都替你由引入规则生成了它的<wiki-ref to="elim-rule"></wiki-ref>。这条可选的支线，把证明核里做这一步的那一块亲手搭出来。', 'Each time something is declared, the kernel makes its <wiki-ref to="elim-rule"></wiki-ref> for you from the ways in. This optional branch builds that piece of the kernel by hand.') },
+      { t: T('这块板上，线上传的是规则本身。两个输入：声明的那句话（字母换成了 ?A、?B，生成的规则要对任何句子都成立），和它的<wiki-ref to="intro-rule"></wiki-ref>。托盘里的元件把规则拆开、拼起来。每组测试是一份只有一条引入规则的声明，和要生成的消去规则。', 'On this board the wires carry rules themselves. Two inputs: the declared sentence (its letters turned into ?A and ?B, since the rule made must hold for any sentences) and its <wiki-ref to="intro-rule"></wiki-ref>. The parts in the tray take rules apart and put them together. Each test is a declaration with one way in, and the elimination rule to make.') },
     ],
     brief: T('设计一个证明助手：由只有一条引入规则的声明，生成它的消去规则。', 'Design a proof assistant that makes the elimination rule of a declaration with one way to make it.'),
-    hint: [
-      T('消去规则的第一条前提就是「它」，结论是 ?R。', 'The elimination rule’s first premise is “it”, and it concludes ?R.'),
-      T('另一条前提，就是那条引入规则把结论换成 ?R。', 'Its other premise is the way in with its conclusion put as ?R.'),
-      T('把「它」放在那条前提前面，再和 ?R 组成一条规则。', 'Put “it” in front of that premise, and make a rule of them with ?R.'),
-    ],
+    hint: [T('比一比引入规则和要生成的消去规则：哪一部分原样搬过去了，哪一部分换掉了？', 'Compare the way in with the elimination rule to make: which part carries over as it is, and which is replaced?')],
     solution: machine({ r: ['anyR'], s: ['swapConcl'], c: ['consFront'], m: ['mkRule'] }, ['ways>s.rule', 'r>s.to', 'it>c.first', 's>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] }),
-    after: T('引入规则怎样把东西交进去，消去规则就怎样把它们交还：把引入规则的结论换成 ?R，就是一种情况。取东西的引入规则（⋀x）原样带进情况，一点不用改。', 'As the way in hands things over, the elimination rule hands them back: the way in with its conclusion put as ?R is a case. A way in that takes a thing (⋀x) goes into the case as it is, unchanged.'),
+    after: T('引入规则怎样把东西交进去，消去规则就怎样把它们交还：把引入规则的结论换成 ?R，就是一种情况；前面再放上声明的那句，结论是 ?R。', 'As the way in hands things over, the elimination rule hands them back: the way in with its conclusion put as ?R is a case; the declared sentence goes in front, and the conclusion is ?R.'),
   }),
   generator({
     id: 'gen-each',
     title: T('每一条', 'One for each'),
     builds: 'elimGen',
     adds: [...RULECRAFT, 'eachOf'],
-    tests: [DECLS.and, DECLS.or, DECLS.three, DECLS.oneOfThree, DECLS.iff, DECLS.truth, DECLS.ex, DECLS.bot],
-    intro: [{ t: T('<level-ref to="gen-one"></level-ref>搭的电路只认一条引入规则。「或者」有两条，这一次输入的引入规则是一串，而「换结论」只接得下一条规则：一串里的每一条都要各做一遍。新元件「每条」是这样一个框：它开出一串里的一样，框里接出的东西送回「结果」；每一样各做一遍，结果按原来的次序排成一串。这台电路通过以后，就是证明核的消去规则生成器。', 'The board of <level-ref to="gen-one"></level-ref> takes one way in. “Or” has two, so this time the ways in come as a list, and Swap conclusion takes one rule only: each rule of the list must be done in turn. The new part For each is such a frame: it opens with one item of a list, and what is made inside goes back into “result”; each item in turn, the results a list in the same order. Once it passes, this board is the kernel’s elimination rule generator.') }],
-    brief: T('设计一个证明助手：由一份声明的一串引入规则，生成它的消去规则。', 'Design a proof assistant that makes a declaration’s elimination rule from its list of ways in.'),
-    hint: [
-      T('每条引入规则都变成一条前提：把它的结论换成 ?R。', 'Every way in becomes a premise: its conclusion put as ?R.'),
-      T('「换结论」放进「每条」框里；?R 从框外接进去也行。', 'Put Swap conclusion inside For each; ?R may come in from outside the frame.'),
-    ],
+    tests: [DECLS.and, DECLS.or, DECLS.three, DECLS.oneOfThree, DECLS.iff, DECLS.truth, DECLS.bot],
+    // Shapes not met yet: a way that takes a thing ("there is"), and a new proposition of three ways.
+    hidden: [DECLS.ex, DECLS.two],
+    intro: [{ t: T('这一次输入的引入规则是一串，有几条都行，一条都没有也行。新元件「每条」是一个框：一串里的每一样各开一遍，框里接出的东西排成新的一串。', 'This time the ways in come as a list, of any length, even none. The new part For each is a frame: it opens once with each item of a list, and what is made inside makes a new list.') }],
+    brief: T('设计一个证明助手：由一份声明的一串引入规则，生成它的消去规则。还有没见过的声明在隐藏测试里等着。', 'Design a proof assistant that makes a declaration’s elimination rule from its list of ways in. Declarations not met yet wait among the hidden tests.'),
+    hint: [T('每条引入规则各变成一种情况；情况的个数和引入规则一样多。', 'Every way in becomes a case of its own: as many cases as ways.')],
     solution: GENERATOR,
-    after: T('一条引入规则一种情况，一条不多，一条不少。⊥ 一条引入规则都没有，「每条」一次也不做，得出 ⟦⊥⟧ ⟹ ?R，电路一点不用改。这块电路现在是<part-ref to="lemma:elimGen"></part-ref>：Lean 的内核也是这样由每个构造子生成<wiki-ref to="recursor"></wiki-ref>的一种情况，所以它不让你手写消去规则。', 'One case for each way in, none more, none fewer. ⊥ has no way in, so For each runs not once and the board gives ⟦⊥⟧ ⟹ ?R without a change. This board is now the <part-ref to="lemma:elimGen"></part-ref>: Lean’s kernel too makes one case of a <wiki-ref to="recursor"></wiki-ref> from each constructor, which is why it never lets you write an elimination rule.'),
+    after: T('一条引入规则一种情况，一条不多，一条不少。⊥ 一条引入规则都没有，「每条」一次也不做，得出 ⟦⊥⟧ ⟹ ?R。隐藏测试里还有你没声明过的：取一样东西的「存在」，三条来路的「提案通过」，电路一点不用改也都对了。因为它从不看引入规则里面写的是什么，只把结论换成 ?R，所以对任何声明都成立。这块电路现在是<part-ref to="lemma:elimGen"></part-ref>：Lean 的内核也是这样由每个构造子生成<wiki-ref to="recursor"></wiki-ref>的一种情况，所以它不让你手写消去规则。', 'One case for each way in, none more, none fewer. ⊥ has no way in, so For each runs not once and the board gives ⟦⊥⟧ ⟹ ?R. The hidden tests held declarations you have not written: “there is”, whose way takes a thing, and “the motion passes”, with three ways; the board got them right unchanged. It never looks at what a way says inside, only puts its conclusion as ?R, so it works for any declaration. This board is now the <part-ref to="lemma:elimGen"></part-ref>: Lean’s kernel too makes one case of a <wiki-ref to="recursor"></wiki-ref> from each constructor, which is why it never lets you write an elimination rule.'),
   }),
 ]
 
 export const natDeclaration = [
-  {
+  declare({
     id: 'decl-nat',
     title: T('声明自然数', 'Declaring the numbers'),
     declare: T('自然数', 'a number'),
     target: 'Nat',
     sentences: ['Nat'],
     tray: ['hyp', 'none'],
-    // Its elimination rule (mathematical induction) is still the level's own: the generator has no induction
-    // hypothesis yet (games/qed/DESIGN.md, chapter 12's work list).
+    // Its elimination rule (mathematical induction) is the level's own: the generator gives no induction hypothesis
+    // (gen-nat, optional).
     take: { premises: ['?P(zero)', '⋀n. ⟦?P(n)⟧ ⟹ ?P(s(n))'], conclusion: '?P(?n)' },
-    tasks: [
-      declare({
-        step: T('写引入规则', 'Its ways in'),
-        tests: [
-          { have: {}, make: true },
-          { have: { Nat: 1 }, make: true, uses: ['Nat'] },
-        ],
-        brief: T('自然数：什么都没有，也造得出一个（0）；手里有一个数，就造得出它的下一个。写出它的声明。', 'A number: one can be made from nothing (0); with a number at hand, the next one can be made. Write its declaration.'),
-        hint: [T('两条引入规则：一种什么都不用假设；另一种假设「自然数」，要的正是一个数。', 'Two ways: one assumes nothing; the other assumes “a number”, taking just a number.')],
-        solution: isoBoard(['∅>1', 'Nat>2']),
-        naive: isoBoard(['∅>1']),
-        after: T('两条引入规则：0 什么都不要，S 要一个数，造出它的下一个，写作 nat = 0 | S nat。', 'Two ways: 0 takes nothing, S takes a number and makes the next, written nat = 0 | S nat.'),
-      }),
-      generator({
-        step: T('交给生成器', 'To the generator'),
-        tests: [DECLS.nat],
-        intro: [{ t: T('自然数的消去规则，交给<part-ref to="lemma:elimGen"></part-ref>去生成，看它给出什么。', 'Hand the numbers’ elimination rule to the <part-ref to="lemma:elimGen"></part-ref> and see what it gives.') }],
-        brief: T('设计一个证明助手：生成自然数的消去规则。', 'Design a proof assistant that makes the elimination rule of the numbers.'),
-        hint: [T('放上消去规则生成器，把两个输入接进去。', 'Put down the elimination rule generator and wire both inputs into it.')],
-        solution: machine({ g: ['elimGen'] }, ['it>g.it', 'ways>g.ways', 'g>out'], { inputs: ['it', 'ways'] }),
-      }),
+    tests: [
+      { have: {}, make: true },
+      { have: { Nat: 1 }, make: true, uses: ['Nat'] },
     ],
     intro: [{ t: T('化简器把 0、S 0 当现成的东西来算。它们从哪里来？和「并且」一样，靠声明：一个自然数有哪几条引入规则？', 'The simplifier works with 0 and S 0 as if they were just there. Where do they come from? As with “and”, from a declaration: what are the ways to make a number?') }],
-    after: T('生成器给出的只是按情况分：拿到一个数，知道它是 0，或者是某一个数的下一个，却用不上那一个数。可第二条引入规则要的正是一个自然数，所以拆开一个数时，还能先对那个数用上要证的结论：这就是归纳假设。生成器还不会写它，这一次的消去规则由声明直接给出，就是数学归纳法，下面就用这个声明给出的规则。', 'The generator gives only cases: holding a number, you know it is 0 or the next of some number, but cannot use that number. Yet the second way takes a number itself, so taking a number apart may first use what is being proved on that number: the induction hypothesis. The generator cannot write that yet, so this time the elimination rule is the declaration’s own, mathematical induction, and what follows uses the rules this declaration gives.'),
-  },
+    brief: T('自然数：什么都没有，也造得出一个（0）；手里有一个数，就造得出它的下一个。写出它的声明。', 'A number: one can be made from nothing (0); with a number at hand, the next one can be made. Write its declaration.'),
+    hint: [T('两条引入规则：一种什么都不用假设；另一种假设「自然数」，要的正是一个数。', 'Two ways: one assumes nothing; the other assumes “a number”, taking just a number.')],
+    solution: isoBoard(['∅>1', 'Nat>2']),
+    naive: isoBoard(['∅>1']),
+    after: T('两条引入规则：0 什么都不要，S 要一个数，造出它的下一个，写作 nat = 0 | S nat。按情况分，拿到一个数只知道它是 0，或者是某一个数的下一个。可第二条引入规则要的正是一个自然数，所以拆开一个数时，还能先对那个数用上要证的结论：这就是归纳假设。这一次的消去规则就是数学归纳法，下面就用它。', 'Two ways: 0 takes nothing, S takes a number and makes the next, written nat = 0 | S nat. By cases, holding a number tells you only that it is 0 or the next of some number. Yet the second way takes a number itself, so taking a number apart may first use what is being proved on that number: the induction hypothesis. This time the elimination rule is mathematical induction, and what follows uses it.'),
+  }),
+  // Optional, for whoever built the generator: what it makes of the numbers, cases with no induction hypothesis.
+  generator({
+    id: 'gen-nat',
+    title: T('生成器遇上自然数', 'The generator meets the numbers'),
+    tests: [DECLS.nat],
+    intro: [{ t: T('把自然数的声明交给<part-ref to="lemma:elimGen"></part-ref>，看它生成什么，再和声明给出的数学归纳法比一比。', 'Hand the declaration of the numbers to the <part-ref to="lemma:elimGen"></part-ref>, see what it makes, and compare it with the mathematical induction the declaration gives.') }],
+    brief: T('设计一个证明助手：生成自然数的消去规则。', 'Design a proof assistant that makes the elimination rule of the numbers.'),
+    hint: [T('放上消去规则生成器，把两个输入接进去。', 'Put down the elimination rule generator and wire both inputs into it.')],
+    solution: machine({ g: ['elimGen'] }, ['it>g.it', 'ways>g.ways', 'g>out'], { inputs: ['it', 'ways'] }),
+    after: T('生成器给出的只是按情况分：⟦自然数; ?R; ⟦自然数⟧ ⟹ ?R⟧ ⟹ ?R，第二种情况拿到了那个数，却用不上要证的结论。数学归纳法多出来的，是对那个数先用上 ?R：归纳假设。生成器要学会这一步，得先看出哪条引入规则要的正是它自己。', 'The generator gives only cases: ⟦a number; ?R; ⟦a number⟧ ⟹ ?R⟧ ⟹ ?R; the second case gets the number, but not what is being proved of it. What induction adds is ?R used on that number first: the induction hypothesis. To learn it, the generator must first see which way takes the very thing being declared.'),
+  }),
 ]

@@ -67,7 +67,11 @@ export const ERAS = [
     foundation: [
       'decl-and', 'decl-or', 'decl-bot',
     ],
-    topics: [{ id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') }],
+    topics: [
+      { id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') },
+      // The step that makes every elimination rule, built by hand, for whoever wants to see how.
+      { id: 'generator', code: 'E', after: 'decl-bot', levels: ['gen-one', 'gen-each'], title: T('消去规则生成器', 'The elimination rule generator') },
+    ],
     chapter: { title: T('声明', 'Declarations'), question: T('怎样把「与」「或」「非」引入证明核？', 'How do “and”, “or” and “not” come into the kernel?') },
   },
   {
@@ -223,12 +227,8 @@ export const ERAS = [
     id: 'inductive', machine: 'prover', keeps: 'all',
     foundation: [
       // Sums worked out by hand on the proof board, then by simp with the definitions: lists, conditions, a given,
-      // under ∀. Beside them, needing nothing of them, the elimination rule generator: the step that has made every
-      // elimination rule since chapter 3, built by hand.
-      branches(
-        ['defs', '定义当规则', 'Definitions as rules', ['nl-plus', 'sp-compute', 'sp-lists', 'sp-cond', 'sp-hyp', 'sp-under']],
-        ['gen', '消去规则生成器', 'The elimination rule generator', ['gen-one', 'gen-each']],
-      ),
+      // under ∀.
+      series('defs', '定义当规则', 'Definitions as rules', ['nl-plus', 'sp-compute', 'sp-lists', 'sp-cond', 'sp-hyp', 'sp-under']),
       // The rules a declaration gives, ending with induction (by hand, then on the machine).
       series('decl', '声明给出的规则', 'What a declaration gives', ['decl-nat', 'in-distinct', 'in-inject', 'in-cases', 'in-zero']),
       // Numbers, lists and why a definition must stop need nothing from each other.
@@ -240,6 +240,8 @@ export const ERAS = [
     ],
     practice: [series('both', '数和列表', 'Numbers and lists', ['in-len', 'in-revrev', 'in-itsum'])],
     topics: [
+      // What the generator (chapter 3, optional) makes of the numbers.
+      { id: 'gen-nat', code: 'E', after: ['decl-nat', 'gen-each'], levels: ['gen-nat'], title: T('生成器遇上自然数', 'The generator meets the numbers') },
       { id: 'sort', code: 'I', after: 'in-appnil', levels: ['sort-ins', 'sort-run', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') },
       { id: 'goedel', code: 'G', after: ['in-itsum', 'u-halt'], levels: ['gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
     ],

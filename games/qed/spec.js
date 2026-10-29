@@ -249,6 +249,11 @@ export default {
   { version: 50, ops: [
     { data: (value, id) => (id === 'and' && Array.isArray(value) ? value.slice(2) : value) },
     { tasks: (passed, id) => (id === 'and' ? Math.max(0, passed - 2) : passed) },
+  ] },
+  // Version 51: 声明自然数 is one task again (its generator task is the optional 生成器遇上自然数).
+  { version: 51, ops: [
+    { data: (value, id) => (id === 'decl-nat' && Array.isArray(value) ? value[0] ?? null : value) },
+    { tasks: (passed, id) => (id === 'decl-nat' ? 0 : passed) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
