@@ -586,7 +586,7 @@ export const GLOSSARY = [
   },
 
   {
-    id: 'goedel-coding', group: 'limits', title: T('哥德尔编码', 'Gödel numbering'), at: 'gd-true',
+    id: 'goedel-coding', group: 'limits', title: T('哥德尔编码', 'Gödel numbering'), at: 'gd-code',
     body: [T('给每个符号一个数，再把一句话的符号按次序编成一个数，句子就成了数，证明（一串句子）也成了数。于是「x 是一个证明的编号」「编号是 x 的句子证得出」都成了关于数的话，算术能谈论它自己的证明。程序也是这样编成数的，停机问题里的 ⟨y⟩ 就是。', 'Give each symbol a number, and code a sentence’s symbols in order as one number: a sentence becomes a number, and so does a proof, a list of sentences. Then “x numbers a proof” and “the sentence numbered x can be proved” become sentences about numbers, and arithmetic can speak of its own proofs. Programs are coded as numbers the same way: the ⟨y⟩ of the halting problem is one.')],
     see: ['incompleteness', 'diagonal'],
   },

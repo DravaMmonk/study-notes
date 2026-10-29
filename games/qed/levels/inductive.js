@@ -6,9 +6,10 @@
 // machine. Then three lines that need nothing from each other: numbers (S on the right, commutativity, associativity),
 // lists (append nil, append associates, reverse of an append) and why a definition must stop (x ≠ S x; a definition
 // that never stops proves ⊥). Each equation proved is a rule and a rewrite rule from then on (the course's facts).
-// Practice puts both together. Topics: insertion sort; and, after the halting problem, incompleteness (a sentence
-// that says it cannot be proved: true, yet unprovable; consistency is enough; no consistent prover proves itself
-// consistent), on the proof board with the coding and the diagonal given. The challenge is commutativity, which simp
+// Practice puts both together. Topics: insertion sort; and, after the halting problem, incompleteness, Gödel's whole
+// argument in six steps: sentences coded as numbers, proof checking and the diagonal as computations Simp works out,
+// then on the proof board true yet unprovable, consistency is enough, and no consistent prover proves itself
+// consistent. The challenge is commutativity, which simp
 // would turn back and forth for ever.
 import { proof } from '../../kit/domains/logic/build.js'
 import { flow, script } from './machines.js'
@@ -34,7 +35,19 @@ const SORT = [
   'u = tt ⟹ if(u, v, w) = v', 'u = ff ⟹ if(u, v, w) = w',
 ]
 // The incompleteness topic: G, provability of a sentence's code, and the codes it needs.
-const GOEDEL = { G: T('G', 'G'), Prov: T('{0} 证得出', '{0} is provable'), g: T('⌜G⌝', '⌜G⌝'), gn: T('⌜G 证不出⌝', '⌜G is not provable⌝'), gp: T('⌜⌜G⌝ 证得出⌝', '⌜⌜G⌝ is provable⌝'), cs: T('⌜不矛盾⌝', '⌜consistent⌝') }
+const GOEDEL = { G: T('G', 'G'), Prov: T('{0} 证得出', '{0} is provable'), diag: T('对角 {0}', 'the diagonal of {0}'), d: T('⌜D⌝', '⌜D⌝'), g: T('⌜G⌝', '⌜G⌝'), gn: T('⌜G 证不出⌝', '⌜G is not provable⌝'), gp: T('⌜⌜G⌝ 证得出⌝', '⌜⌜G⌝ is provable⌝'), cs: T('⌜不矛盾⌝', '⌜consistent⌝') }
+// The machine levels of the topic: sentences as terms (it rains, ¬, →), their codes (lists of symbol numbers), proofs
+// as trees (axioms and Apply), and the diagonal (a sentence with a gap □, and the code of a sentence put in it).
+const GOEDEL_TERMS = {
+  ...TERM_WORDS,
+  rain: T('下雨', 'it rains'), wet: T('地湿', 'the ground is wet'), slip: T('路滑', 'the road is slippery'),
+  neg: T('¬{0}', '¬{0}'), imp: T('({0} → {1})', '({0} → {1})'), code: T('⌜{0}⌝', '⌜{0}⌝'),
+  one: T('1', '1'), two: T('2', '2'), three: T('3', '3'), four: T('4', '4'),
+  ax: T('公理 {0}', 'axiom {0}'), use: T('套用 [{0}] [{1}]', 'apply [{0}] [{1}]'), concl: T('结论 {0}', 'conclusion {0}'), then: T('{0} 接上 {1}', '{0} meets {1}'),
+  ok: T('查 {0}', 'check {0}'), isax: T('{0} 是公理', '{0} is an axiom'), fits: T('{0} 对得上 {1}', '{0} fits {1}'), both: T('{0} 且 {1}', '{0} and {1}'),
+  nprov: T('「{0} 证不出」', '“{0} cannot be proved”'), dg: T('对角 {0}', 'the diagonal of {0}'), vx: T('□', '□'), qt: T('⌜{0}⌝', '⌜{0}⌝'),
+  diag: T('对角 {0}', 'the diagonal of {0}'), sub: T('{0}[□ := {1}]', '{0}[□ := {1}]'), subt: T('{0}[□ := {1}]', '{0}[□ := {1}]'), val: T('值 {0}', 'value {0}'),
+}
 const defs = (n, from = 0) => Array.from({ length: n }, (_, k) => `def.${from + k}`)
 // Induction, then each goal: the cards given, then both sides the same.
 const byInduction = (type, ...body) => flow(['rule', `${type}.induct`], { frame: 'each', body: [...body, ['rule', 'refl']] })
@@ -451,27 +464,92 @@ export const inductive = [
   }),
 
   // ---------- topic: true, yet unprovable ----------
+  // Gödel's argument in six steps, each with this chapter's tools where it can be: sentences become codes (Simp
+  // works them out), proofs become trees whose checking is a computation (so "provable" is "some proof checks"), the
+  // diagonal is a computation that hands a sentence its own code, and then three proofs on the board: true yet
+  // unprovable, consistency is enough, and no consistent prover proves itself consistent. What stays given is said to
+  // be given: that Prov can be written in arithmetic, and the conditions provability meets.
+  proves({
+    id: 'gd-code',
+    title: T('句子变成数', 'Sentences become numbers'),
+    words: GOEDEL_TERMS,
+    defs: ['code(rain) = cons(one, nil)', 'code(wet) = cons(two, nil)', 'code(neg(x)) = cons(three, code(x))', 'code(imp(x, y)) = cons(four, app(code(x), code(y)))', 'app(nil, ys) = ys', 'app(cons(x, xs), ys) = cons(x, app(xs, ys))'],
+    tests: [
+      { goal: 'code(neg(rain)) = cons(three, cons(one, nil))' },
+      { goal: 'code(imp(rain, wet)) = cons(four, cons(one, cons(two, nil)))' },
+      { goal: 'code(neg(imp(rain, neg(wet)))) = cons(three, cons(four, cons(one, cons(three, cons(two, nil)))))' },
+    ],
+    brief: PROVE,
+    hint: [T('六条定义都接进化简，算完两边一样。', 'Wire all six definitions into Simp; worked out, both sides are the same.')],
+    intro: [
+      { t: T('<level-ref to="u-halt"></level-ref>里，程序可以读程序；这几关讲另一件事：算术可以谈论证明。哥德尔在 1931 年分六步做到：句子变成数，证明变成数、检查证明是一次计算，对角线造出一句说「我证不出」的话，于是它真却证不出，只要不矛盾就够，而且证明器证不了自己不矛盾。前三步用这一章的化简亲手算，后三步在证明板上证。', 'In <level-ref to="u-halt"></level-ref> programs read programs; these levels show something else: arithmetic can speak of proofs. Gödel did it in 1931 in six steps: sentences become numbers; proofs become numbers, and checking one is a computation; the diagonal makes a sentence that says “I cannot be proved”; so it is true yet unprovable; consistency is enough; and a prover cannot prove itself consistent. The first three you work out with this chapter’s Simp, the last three you prove on the board.') },
+      { t: T('第一步是<wiki-ref to="goedel-coding"></wiki-ref>：每个符号一个数，下雨是 1，地湿是 2，¬ 是 3，→ 是 4。一句话从左往右写成一串数，→ 写在它两边的前面，就不用括号。⌜A⌝ 是句子 A 的编码，由四条定义算出来。', 'The first step is <wiki-ref to="goedel-coding"></wiki-ref>: each symbol a number, it rains 1, the ground is wet 2, ¬ 3, → 4. A sentence is written left to right as a list of numbers, → in front of its two sides, so no brackets are needed. ⌜A⌝ is the code of the sentence A, worked out by four definitions.') },
+    ],
+    solution: script(['simp', defs(6)], ['rule', 'refl']),
+    after: T('句子成了一串数；一串数还能再并成一个数（哥德尔用 2^a·3^b·5^c… 把每一位放进一个质数的指数），所以「一句话」和「一个数」可以互相换着说。这样，关于句子的事（比如「它的第一个符号是 ¬」）就成了关于数的事，算术能谈论它。', 'A sentence becomes a list of numbers, and a list can be packed into one number (Gödel put each place in the exponent of a prime, 2^a·3^b·5^c …), so “a sentence” and “a number” can stand for each other. Then a fact about sentences (“its first symbol is ¬”) becomes a fact about numbers, which arithmetic can state.'),
+  }),
+  proves({
+    id: 'gd-check',
+    title: T('检查证明是一次计算', 'Checking a proof is a computation'),
+    words: GOEDEL_TERMS,
+    defs: [
+      'concl(ax(x)) = x', 'concl(use(x, y)) = then(concl(x), concl(y))', 'then(imp(x, y), x) = y',
+      'ok(ax(x)) = isax(x)', 'ok(use(x, y)) = both(both(ok(x), ok(y)), fits(concl(x), concl(y)))', 'fits(imp(x, y), x) = tt', 'both(tt, x) = x',
+      'isax(rain) = tt', 'isax(imp(rain, wet)) = tt', 'isax(imp(wet, slip)) = tt',
+    ],
+    tests: [
+      { goal: 'ok(use(ax(imp(rain, wet)), ax(rain))) = tt' },
+      { goal: 'concl(use(ax(imp(rain, wet)), ax(rain))) = wet' },
+      { goal: 'ok(use(ax(imp(wet, slip)), use(ax(imp(rain, wet)), ax(rain)))) = tt' },
+      { goal: 'concl(use(ax(imp(wet, slip)), use(ax(imp(rain, wet)), ax(rain)))) = slip' },
+    ],
+    brief: PROVE,
+    hint: [T('十条定义都接进化简。', 'Wire all ten definitions into Simp.')],
+    intro: [{ t: T('第二步：证明也写成数。一个证明是一棵树，叶子是公理，每个分叉是一次套用，和你在证明板上接的一样；树也能编成数。检查它只要两件事：每片叶子在公理表里，每次套用对得上（「若 A 则 B」接上的正是 A）。「查」和「结论」各由几条定义算出来；公理表里有：下雨、下雨 → 地湿、地湿 → 路滑。', 'The second step: proofs become numbers too. A proof is a tree whose leaves are axioms and each fork an Apply, just as you wire them on the board; a tree can be coded as a number. Checking it takes two things: each leaf is in the table of axioms, and each Apply fits (the “if A then B” meets just A). “Check” and “conclusion” are each worked out by a few definitions; the table holds: it rains, it rains → the ground is wet, the ground is wet → the road is slippery.') }],
+    solution: script(['simp', defs(10)], ['rule', 'refl']),
+    after: T('检查一个证明总算得完：树有多大，就算几步。于是「A 证得出」就是「有一个数，它是一个能通过检查、结论是 A 的证明」，记作 Prov(⌜A⌝)：它成了一句关于数的话。可要找出那个数，就得一个个试过去：A 证得出时迟早找到，证不出时可能永远找不完，和停机问题一样。', 'Checking a proof always finishes: as many steps as the tree is big. So “A can be proved” is “there is a number that is a proof passing the check, concluding A”, written Prov(⌜A⌝): a sentence about numbers. Yet finding that number means trying them one by one: if A can be proved you find it sooner or later, if not you may search for ever, just like the halting problem.'),
+  }),
+  proves({
+    id: 'gd-diag',
+    title: T('对角线是一次计算', 'The diagonal is a computation'),
+    words: GOEDEL_TERMS,
+    defs: [
+      'diag(x) = sub(x, qt(x))', 'sub(nprov(x), y) = nprov(subt(x, y))', 'subt(vx, y) = y', 'subt(dg(x), y) = dg(subt(x, y))', 'subt(qt(x), y) = qt(x)',
+      'val(qt(x)) = x', 'val(dg(x)) = diag(val(x))',
+    ],
+    tests: [
+      { goal: 'diag(nprov(dg(vx))) = nprov(dg(qt(nprov(dg(vx)))))' },
+      { goal: 'val(dg(qt(nprov(dg(vx))))) = nprov(dg(qt(nprov(dg(vx)))))' },
+    ],
+    brief: PROVE,
+    hint: [T('七条定义都接进化简。第二个目标里，左边先算出「对角」的是谁，再算对角。', 'Wire all seven definitions into Simp. In the second goal, the left side first works out what the diagonal is taken of, then takes it.')],
+    intro: [
+      { t: T('第三步要造一句说「我证不出」的话。难处在于：一句话写不进它自己的编码，编码比句子长。哥德尔绕过去的办法是<wiki-ref to="diagonal"></wiki-ref>：先写一句带空位 □ 的话 D：「对角 □ 证不出」。对角是一次计算：拿一句带空位的话，把它自己的编码 ⌜…⌝ 填进空位。', 'The third step makes a sentence that says “I cannot be proved”. The trouble is that a sentence cannot hold its own code: the code is longer than the sentence. Gödel’s way round is the <wiki-ref to="diagonal"></wiki-ref>: first write a sentence D with a gap □, “the diagonal of □ cannot be proved”. The diagonal is a computation: take a sentence with a gap and put its own code ⌜…⌝ into the gap.') },
+      { t: T('第一个目标算出 G = 对角 D；第二个目标算出 G 里说到的那句话（对角 ⌜D⌝ 的值）是谁。', 'The first goal works out G, the diagonal of D; the second works out which sentence G speaks of (the value of the diagonal of ⌜D⌝).') },
+    ],
+    solution: script(['simp', defs(7)], ['rule', 'refl']),
+    after: T('G 说：「对角 ⌜D⌝ 证不出」，而对角 ⌜D⌝ 算出来正是 G 自己。G 里没有写进它自己的编码，写进去的是 D 的编码和一条「取对角」的指令；一算，就指回 G。这就是对角线引理：对任何一种说法 P(□)，都能造出一句 G，它和 P(⌜G⌝) 等价。<level-ref to="kk-one"></level-ref>的说谎者说「我是无赖」，G 说「我证不出」。', 'G says “the diagonal of ⌜D⌝ cannot be proved”, and the diagonal of ⌜D⌝ works out to G itself. G does not hold its own code: it holds D’s code and an instruction, “take the diagonal”, which, worked out, points back to G. That is the diagonal lemma: for any property P(□) there is a sentence G equivalent to P(⌜G⌝). The liar of <level-ref to="kk-one"></level-ref> says “I am a knave”; G says “I cannot be proved”.'),
+  }),
   {
     id: 'gd-true',
     kind: 'proof',
     title: T('我证不出', 'I cannot be proved'),
-    consts: ['g'],
+    consts: ['g', 'd'],
     words: GOEDEL,
     cases: [],
-    tests: [{ premises: { diag: 'G ↔ ¬Prov(g)', sound: 'Prov(g) → G' }, goal: 'G ∧ ¬Prov(g)' }],
-    brief: T("根据这两条给定前提，证明 G 和 ¬Prov(g) 的合取。", "From the two stated premises, prove the conjunction G ∧ ¬Prov(g)."),
+    tests: [{ premises: { diag: 'G ↔ ¬Prov(diag(d))', calc: 'diag(d) = g', sound: 'Prov(g) → G' }, goal: 'G ∧ ¬Prov(g)' }],
+    brief: T('从这三句已知证明出：G 成立，而且 G 证不出。', 'From these three givens, prove: G holds, and G cannot be proved.'),
     hint: [
-      T('先证 G 证不出：假设它证得出，由可靠得到 G，再由 G 得到它证不出。', 'First prove G cannot be proved: assume it can, get G by soundness, and from G that it cannot.'),
-      T('有了「G 证不出」，等价的另一个方向就给出 G。', 'With “G cannot be proved”, the other direction of the equivalence gives G.'),
+      T('先用第二句改写第一句，得到 G ↔ ¬Prov(⌜G⌝)。', 'First rewrite the first given with the second, getting G ↔ ¬Prov(⌜G⌝).'),
+      T('再证 G 证不出：假设它证得出，由可靠得到 G，再由 G 得到它证不出。有了「G 证不出」，等价的另一个方向就给出 G。', 'Then prove G cannot be proved: assume it can, get G by soundness, and from G that it cannot. With “G cannot be proved”, the other direction of the equivalence gives G.'),
     ],
     intro: [
-      { t: T("<level-ref to=\"kk-one\"></level-ref>中的说谎者陈述导致矛盾。哥德尔句使用相似的自指思路，但陈述的是「我在指定系统中不可证明」。", "The self-referential statement in <level-ref to=\"kk-one\"></level-ref> leads to a contradiction. A Gödel sentence uses a related self-reference, but speaks of provability in a specified system.") },
-      { t: T("通过<wiki-ref to=\"goedel-coding\"></wiki-ref>可以用数表示公式与证明；<level-ref to=\"u-barber\"></level-ref>展示了相关的对角化思路。由此可构造可证明性谓词 Prov。本关直接给出对角化得到的 G ↔ ¬Prov(g)，以及针对 G 的反射前提 Prov(g) → G；这些前提不在本关内构造或验证。", "Through <wiki-ref to=\"goedel-coding\"></wiki-ref>, formulas and proofs can be represented by numbers; <level-ref to=\"u-barber\"></level-ref> illustrates a related diagonal idea. A provability predicate Prov can then be constructed. This level supplies the diagonal equivalence G ↔ ¬Prov(g) and the reflection premise Prov(g) → G for G; it does not construct or verify those premises.") },
+      { t: T('第四步。已知的头两句来自<level-ref to="gd-diag"></level-ref>：G 说的是「对角 ⌜D⌝ 证不出」，而对角 ⌜D⌝ 算出来就是 ⌜G⌝。Prov 来自<level-ref to="gd-check"></level-ref>：有一个能通过检查的证明。第三句是可靠：证得出的都是真的（这里只对 G 用到）。', 'The fourth step. The first two givens come from <level-ref to="gd-diag"></level-ref>: G says “the diagonal of ⌜D⌝ cannot be proved”, and the diagonal of ⌜D⌝ works out to ⌜G⌝. Prov comes from <level-ref to="gd-check"></level-ref>: there is a proof that passes the check. The third is soundness: what can be proved is true (used here for G alone).') },
     ],
     solution: proof({
-      e: ['andE'], f: ['impI', { A: 'Prov(g)' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], m3: ['mp', {}, 'f'], m4: ['mp'], j: ['andI'],
-    }, ['diag>e.ab', 'sound>m1.imp', 'f#body>m1.a', 'e#left>m2.imp', 'm1>m2.a', 'm2>m3.imp', 'f#body>m3.a', 'm3>f.body', 'e#right>m4.imp', 'f>m4.a', 'm4>j.a', 'f>j.b', 'j>goal'], { premises: ['diag', 'sound'] }),
-    after: T("在给定的对角等价式和反射前提下，本关形式推导出 G ∧ ¬Prov(g)。这展示了第一<wiki-ref to=\"incompleteness\"></wiki-ref>涉及的自指结构；完整定理还需要对形式系统、编码及一致性等条件作严格论证。", "From the supplied diagonal equivalence and reflection premise, this level formally derives G ∧ ¬Prov(g). It illustrates the self-referential structure associated with the first <wiki-ref to=\"incompleteness\"></wiki-ref>; the full theorem requires a rigorous treatment of the formal system, coding and consistency assumptions."),
+      w: ['rewrite', { at: [0] }], e: ['andE'], f: ['impI', { A: 'Prov(g)' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], m3: ['mp', {}, 'f'], m4: ['mp'], j: ['andI'],
+    }, ['calc>w.eq', 'diag>w.p', 'w>e.ab', 'sound>m1.imp', 'f#body>m1.a', 'e#left>m2.imp', 'm1>m2.a', 'm2>m3.imp', 'f#body>m3.a', 'm3>f.body', 'e#right>m4.imp', 'f>m4.a', 'm4>j.a', 'f>j.b', 'j>goal'], { premises: ['diag', 'calc', 'sound'] }),
+    after: T('G 是真的，却证不出：这是哥德尔的第一<wiki-ref to="incompleteness"></wiki-ref>。说谎者说的是真假，就推出矛盾；G 说的是证不证得出，矛盾就变成了一句证不出的真话。真正的定理里，Prov 要用加法和乘法写成一句算术的话，这一步很长，这里当作已知；用到的可靠也比需要的强，<level-ref to="gd-con"></level-ref>换成更弱的「不矛盾」。', 'G is true, yet cannot be proved: Gödel’s first <wiki-ref to="incompleteness"></wiki-ref>. Speaking of truth, the liar gives a contradiction; speaking of proof, G turns the contradiction into a truth that cannot be proved. In the real theorem Prov must be written as a sentence of arithmetic, with addition and multiplication, a long step taken as given here; and soundness is more than is needed, so <level-ref to="gd-con"></level-ref> makes do with consistency.'),
   },
   {
     id: 'gd-con',
@@ -481,14 +559,14 @@ export const inductive = [
     words: GOEDEL,
     cases: [],
     tests: [{ premises: { d: 'Prov(g) → Prov(gn)', r: 'Prov(g) → Prov(gp)', con: '¬(Prov(gn) ∧ Prov(gp))' }, goal: '¬Prov(g)' }],
-    brief: T("根据给定的三个可证明性前提，证明 ¬Prov(g)。", "From the three stated provability premises, prove ¬Prov(g)."),
+    brief: T('从这三句已知证明出：G 证不出。', 'From these three givens, prove: G cannot be proved.'),
     hint: [T('假设 G 证得出，两句「若…则…」各套用一次，拼起来就和第三句矛盾。', 'Assume G can be proved, apply each “if … then …” once, and the two together contradict the third.')],
     intro: [
-      { t: T("<level-ref to=\"gd-true\"></level-ref>直接给出了关于 G 的反射前提。本关改用三个关于可证明性的前提，其中一个表达指定的<wiki-ref to=\"consistency\"></wiki-ref>条件。", "<level-ref to=\"gd-true\"></level-ref> directly assumed reflection for G. This level instead supplies three premises about provability, including a stated <wiki-ref to=\"consistency\"></wiki-ref> condition.") },
-      { t: T("本关直接给出两个蕴含：若 G 可证明，则相关的两条命题分别可证明；第三个前提排除这两条命题同时可证明。请在这些前提下推出 ¬Prov(g)。", "The level supplies two implications: if G is provable, then each of two related statements is provable. The third premise rules out both being provable together. Derive ¬Prov(g) from these premises.") },
+      { t: T('第五步。<level-ref to="gd-true"></level-ref>用了可靠：证得出的都是真的。这太强了，证明器自己说不出「我证得出的都是真的」。只要<wiki-ref to="consistency"></wiki-ref>就够：没有哪句话和它的否定都证得出。', 'The fifth step. <level-ref to="gd-true"></level-ref> used soundness: what can be proved is true. That is too strong; a prover cannot say of itself that what it proves is true. <wiki-ref to="consistency"></wiki-ref> is enough: no sentence is provable together with its negation.') },
+      { t: T('头两句已知说的是证明器自己能做的事。第一句：对角线那一步（<level-ref to="gd-diag"></level-ref>）只是一次计算，证明器自己也算得出 G ↔ G 证不出；所以 G 证得出，「G 证不出」也就证得出。第二句：检查证明只是一次计算（<level-ref to="gd-check"></level-ref>），G 要是有证明，证明器把那个数检查一遍，就证得出「⌜G⌝ 证得出」。第三句是不矛盾：「G 证不出」和「⌜G⌝ 证得出」正好互为否定，不能都证得出。', 'The first two givens are about what the prover itself can do. The first: the diagonal step (<level-ref to="gd-diag"></level-ref>) is only a computation, so the prover too works out that G ↔ G cannot be proved; if G can be proved, so can “G cannot be proved”. The second: checking a proof is only a computation (<level-ref to="gd-check"></level-ref>), so if G has a proof, the prover checks that number and proves “⌜G⌝ is provable”. The third is consistency: “G cannot be proved” and “⌜G⌝ is provable” are each other’s negation, and cannot both be provable.') },
     ],
     solution: proof({ f: ['impI', { A: 'Prov(g)' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], j: ['andI', {}, 'f'], m3: ['mp', {}, 'f'] }, ['d>m1.imp', 'f#body>m1.a', 'r>m2.imp', 'f#body>m2.a', 'm1>j.a', 'm2>j.b', 'con>m3.imp', 'j>m3.a', 'm3>f.body', 'f>goal'], { premises: ['d', 'r', 'con'] }),
-    after: T("本关在三条给定前提下推出 ¬Prov(g)。第一不完备性定理中的类似论证还依赖足够表达算术的、可有效公理化的一致理论及其可证明性谓词的性质。", "This level derives ¬Prov(g) from the three given premises. The analogous argument in the first incompleteness theorem also depends on a consistent, effectively axiomatized theory strong enough for arithmetic and properties of its provability predicate."),
+    after: T('只要证明器不矛盾，G 就证不出；而 G 说的正是「G 证不出」，所以 G 是真的。这就是第一不完备性定理：一个不矛盾、规则能一条条列出来、又会算加法和乘法的证明器，总有一句真话证不出。哥德尔原来还要更强一点的条件才证得出 ¬G 也证不出，罗瑟在 1936 年换了一句话，只用不矛盾就够了。', 'As long as the prover is consistent, G cannot be proved; and G says just that, so G is true. That is the first incompleteness theorem: a consistent prover whose rules can be listed one by one and which can do addition and multiplication has a true sentence it cannot prove. Gödel needed a little more to show ¬G cannot be proved either; Rosser, in 1936, changed the sentence so that consistency alone is enough.'),
   },
   {
     id: 'gd-second',
@@ -500,9 +578,9 @@ export const inductive = [
     tests: [{ premises: { f1: 'Prov(cs) → Prov(gn)', f2: 'Prov(gn) → Prov(g)', first: '¬Prov(g)' }, goal: '¬Prov(cs)' }],
     brief: T('从这三句已知证明出：「证明器不矛盾」证不出。', 'From these three givens, prove: “the prover is consistent” cannot be proved.'),
     hint: [T('假设它证得出，顺着两句「若…则…」一路套用，撞上第三句。', 'Assume it can be proved, apply your way along the two “if … then …”s, and run into the third.')],
-    intro: [{ t: T("本关用 Prov(cs) 表示指定的一致性陈述可证明，并给出两个关于可证明性的蕴含，以及 ¬Prov(g) 作为前提。请从这三个前提推出 ¬Prov(cs)。<level-ref to=\"gd-con\"></level-ref>展示了相关的条件推理。", "Here Prov(cs) represents provability of a specified consistency statement. The level supplies two provability implications and ¬Prov(g); derive ¬Prov(cs) from those three premises. <level-ref to=\"gd-con\"></level-ref> illustrates a related conditional argument.") }],
+    intro: [{ t: T('最后一步。⌜不矛盾⌝ 是一句算术的话：「没有哪句话和它的否定都证得出」。头两句已知又是证明器自己能做的事。第一句：<level-ref to="gd-con"></level-ref>整个推理，证明器自己也做得出（它证得出「要是不矛盾，G 就证不出」），所以证得出不矛盾，就证得出「G 证不出」。第二句：它证得出「G 证不出就推出 G」（对角线），所以证得出「G 证不出」，就证得出 G。第三句是<level-ref to=\"gd-con\"></level-ref>的结论。', 'The last step. ⌜consistent⌝ is a sentence of arithmetic: “no sentence is provable together with its negation”. The first two givens are again what the prover itself can do. The first: the prover can carry out the whole argument of <level-ref to="gd-con"></level-ref> (it proves “if consistent, then G cannot be proved”), so proving consistency would prove “G cannot be proved”. The second: it proves “if G cannot be proved, then G” (the diagonal), so proving “G cannot be proved” would prove G. The third is what <level-ref to=\"gd-con\"></level-ref> proved.') }],
     solution: proof({ f: ['impI', { A: 'Prov(cs)' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], m3: ['mp', {}, 'f'] }, ['f1>m1.imp', 'f#body>m1.a', 'f2>m2.imp', 'm1>m2.a', 'first>m3.imp', 'm2>m3.a', 'm3>f.body', 'f>goal'], { premises: ['f1', 'f2', 'first'] }),
-    after: T("从给定的三个前提出发，证明了指定的一致性陈述不可证明。这是第二不完备性定理论证的简化模型；完整定理还要求理论可有效公理化、足够表达算术，并满足相关可证明性条件。", "The three supplied premises imply that the specified consistency statement is unprovable. This is a simplified model of the second incompleteness argument; the full theorem also requires an effectively axiomatized theory strong enough for arithmetic and suitable provability conditions."),
+    after: T('一个不矛盾的证明器，证不出自己不矛盾：这是第二不完备性定理，它让希尔伯特「用有限的方法证明数学不矛盾」的计划落了空。把 G 当作新公理加进去也没用：新的证明器又有它自己的 G。所以 Lean、Isabelle 这样的证明助手不去证自己可靠，而是把要信任的东西压到最小：一个很小的核，和几条公理，就是你在这个游戏里一路搭出来的那些。', 'A consistent prover cannot prove itself consistent: the second incompleteness theorem, which ended Hilbert’s programme of proving mathematics consistent by finite means. Adding G as a new axiom does not help: the new prover has a G of its own. So proof assistants such as Lean and Isabelle do not prove themselves sound; they keep what must be trusted as small as can be: a little kernel and a few axioms, the very things you have built along this game.'),
   },
 
   // ---------- challenge ----------

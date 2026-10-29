@@ -243,7 +243,7 @@ export const ERAS = [
       // What the generator (chapter 3, optional) makes of the numbers.
       { id: 'gen-nat', code: 'E', after: ['decl-nat', 'gen-each'], levels: ['gen-nat'], title: T('生成器遇上自然数', 'The generator meets the numbers') },
       { id: 'sort', code: 'I', after: 'in-appnil', levels: ['sort-ins', 'sort-run', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') },
-      { id: 'goedel', code: 'G', after: ['in-itsum', 'u-halt'], levels: ['gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
+      { id: 'goedel', code: 'G', after: ['in-itsum', 'u-halt'], levels: ['gd-code', 'gd-check', 'gd-diag', 'gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
     ],
     challenges: [{ level: 'in-circle', after: 'in-comm' }],
     chapter: { title: T('数与列表', 'Numbers and lists'), question: T('数和列表怎么算、从哪里来？对每一个数都成立的事，怎么证？', 'How are numbers and lists worked out, and where do they come from? How is something proved for every number?') },
