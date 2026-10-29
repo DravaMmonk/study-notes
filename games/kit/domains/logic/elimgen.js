@@ -1,4 +1,4 @@
-// The elimination-rule generator (《证明完毕》 chapter 3): a machine board whose wires carry rules themselves. Its inputs
+// The elimination-rule generator (《证明完毕》 chapter 12): a machine board whose wires carry rules themselves. Its inputs
 // are a declaration, the sentence it declares (`it`, its letters as metavariables) and its introduction rules
 // (`ways`); its result must be the declaration's elimination rule. The player builds the generator from parts that take
 // rules apart and put them together, the step of Lean's kernel that makes a recursor from an inductive type's

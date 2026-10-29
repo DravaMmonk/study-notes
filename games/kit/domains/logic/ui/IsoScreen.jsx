@@ -8,6 +8,7 @@ import FormulaField from './FormulaField.jsx'
 import { say } from '../notation.js'
 import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, runIso, sentenceOf, settle, startIso, thingCard, wayOf, wayRule, wayText, waysIn } from '../iso.js'
 import { generateElim, syncOwn } from '../machine.js'
+import { takenRules } from '../take.js'
 import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
 
@@ -41,12 +42,12 @@ const HYP_DESC = T('假设一句话。一张假设接进它的「先假设」，
 const HYP = { type: 'hyp', label: T('假设', 'Assume'), desc: HYP_DESC, icon: SquareDashedText, family: 'box' }
 const NONE = { type: 'none', label: T('不用假设', 'Assume nothing'), desc: T('什么都不假设。接进连接词的引入规则口，这条引入规则不要任何证明就能造。', 'Assume nothing. Wired into a way of the connective, that way makes it with no proof at all.'), icon: CircleDashed, family: 'box' }
 const THING = { type: 'thing', label: T('任取一样东西', 'Any thing'), desc: T('任取一样东西，给它一个名字。接在它后面的假设可以提到这个名字：这样的引入规则对任何东西都成立。', 'Take any thing and give it a name. The assumptions after it may mention the name: such a way holds for any thing at all.'), icon: CircleDot, family: 'box' }
-const TRAY = { hyp: HYP, none: NONE, thing: THING }
-// Where a new card goes: the first free spot left of the declared card (the board's output), column by column
-// leftward, so what is wired into it reads left to right.
-const spotLeft = (circuit) => {
-  const decl = circuit.nodes.find((n) => n.id === DECL)
-  return freeSpot({ nodes: circuit.nodes.filter((n) => !n.in) }, { w: 240, h: 150, x0: (decl?.x ?? 320) - 260, dx: -260, cols: 3, y0: decl?.y ?? 40 })
+export const TRAY = { hyp: HYP, none: NONE, thing: THING }
+// Where a new card goes: the first free spot left of the board's output card (`id`), column by column leftward, so
+// what is wired into it reads left to right.
+export const spotLeft = (circuit, id = DECL) => {
+  const out = circuit.nodes.find((n) => n.id === id)
+  return freeSpot({ nodes: circuit.nodes.filter((n) => !n.in) }, { w: 240, h: 150, x0: (out?.x ?? 320) - 260, dx: -260, cols: 3, y0: out?.y ?? 40 })
 }
 
 export default function IsoScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
@@ -175,7 +176,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
     const [x, y] = spotLeft(circuit)
     change(addPart(type, { x, y }).graph)
   }
-  if (phone) return <PhoneIso {...{ circuit, parts, items, addPart, brief, dock, change, onClear, table, body }} scope={level.id} />
+  if (phone) return <PhoneCards {...{ circuit, parts, items, addPart, brief, dock, change, onClear, table, body }} spot={() => spotLeft(circuit)} scope={level.id} />
 
   return (
     <CircuitLayout
@@ -211,8 +212,9 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   )
 }
 
-// The board on a phone: the shared slot board, the situations under it, the tray and the run bar.
-function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, scope }) {
+// A board of cards on a phone (this board and the elimination board, TakeScreen.jsx): the shared slot board, the table
+// under it, the tray and the run bar. `spot()` is where a new card goes on the desktop canvas.
+export function PhoneCards({ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, spot, scope }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -221,7 +223,7 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
     onChange: change,
     parts,
     create: (_, type, at) => {
-      const [x, y] = spotLeft(circuit)
+      const [x, y] = spot()
       return addPart(type, { slot: at, x, y })
     },
     label: parts.label,
@@ -245,7 +247,7 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
       {node && (
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
           <div className="lg-sheet">
-            {TRAY[node.type] && <p className="lg-desc">{L(TRAY[node.type].desc)}</p>}
+            {items.find((i) => i.type === node.type)?.desc && <p className="lg-desc">{L(items.find((i) => i.type === node.type).desc)}</p>}
             {body(node, 'sheet')}
             {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
@@ -268,22 +270,29 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
 
 /**
  * What passing a declaration gives, shown when it is passed: its rules for any sentences, those that make it (one
- * for each way), and the one that takes it apart: the level's own (equality, the numbers), or what the player's
- * elimination rule generator makes of them once it is built (../machine.js generateElim). The proof-board parts they
- * are from here on are listed with what the level unlocks (game.jsx unlocked).
+ * for each way), and those that take it apart: the ones the player wrote by hand and the check let through (take.js),
+ * the level's own (equality, the numbers), or what the player's elimination rule generator makes of the ways once it
+ * is built (../machine.js generateElim). `level` is the passed level (its tasks), `progress` the player's. The
+ * proof-board parts they are from here on are listed with what the level unlocks (game.jsx unlocked).
  */
 export function DeclaredRules({ level, progress }) {
-  const text = (f) => L(say(f, level.notation))
-  const rules = declaredRules(level, waysIn(level.solution))
+  const tasks = level.tasks ?? [level]
+  const declared = tasks.find((t) => t.kind === 'iso')
+  const at = tasks.findIndex((t) => t.kind === 'take')
+  const text = (f) => L(say(f, declared.notation))
+  const rules = declaredRules(declared, waysIn(declared.solution))
   syncOwn(progress?.built)
-  const generated = !rules.take && (progress?.all || progress?.flags?.includes('lemma:elimGen')) ? generateElim(level, rules.it, rules.make) : null
-  const take = rules.take ?? generated
+  const board = at < 0 ? null : (level.tasks ? progress?.data?.[level.id]?.[at] : progress?.data?.[level.id]) ?? tasks[at].solution
+  const takes = board ? takenRules(tasks[at], board, text)
+    : rules.take ? [wayText(rules.take, text)]
+    : progress?.all || progress?.flags?.includes('lemma:elimGen') ? [generateElim(declared, rules.it, rules.make)].filter(Boolean).map((r) => wayText(r, text))
+    : []
   return (
     <div className="dialog-note">
       <span className="panel-label">{tr('声明给出的规则', 'The rules it declares')}</span>
       <div className="lg-clauses">
         {rules.make.map((r, k) => <code key={k}>{tr(`引入规则 ${WAY[k]}：`, `Intro rule ${WAY[k]}: `)}{wayText(r, text)}</code>)}
-        {take && <code>{tr('消去规则：', 'Elim rule: ')}{wayText(take, text)}</code>}
+        {takes.map((r, k) => <code key={`t${k}`}>{tr('消去规则：', 'Elim rule: ')}{r}</code>)}
       </div>
     </div>
   )

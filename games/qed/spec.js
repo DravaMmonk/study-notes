@@ -230,6 +230,11 @@ export default {
     { grant: ['gen-each', 'lemma:elimGen'] },
     { grant: ['and', 'lemma:andE'] },
     { data: (value, id) => (id === 'decl-bot' && value && !Array.isArray(value) ? [value, null] : id === 'and' && Array.isArray(value) ? [null, null, ...value] : value) },
+  ] },
+  // Version 48 had elimination rules written by hand after each declaration (a second task), and moved the generator
+  // to chapter 12: a declaration's board is its first task's, and 声明 ⊥'s generator task is gone.
+  { version: 48, ops: [
+    { data: (value, id) => (['decl-and', 'decl-or', 'decl-two', 'decl-true', 'decl-iff', 'decl-ex', 'decl-nat'].includes(id) && value && !Array.isArray(value) ? [value, null] : id === 'decl-bot' && Array.isArray(value) ? [value[0] ?? null, null] : value) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

@@ -37,22 +37,22 @@ const cardId = (token) => `hyp-${token}`
 
 /** How many ways the declared card has wired (its inputs are one more, up to three). */
 export const waysOf = (node) => node.params?.ways ?? 0
-export const declInputs = (node) => Array.from({ length: Math.min(MOST, waysOf(node) + 1) }, (_, k) => wayPort(k + 1))
+export const declInputs = (node) => growingInputs(node, 'ways')
 
 /** A sentence of the level, its things read as names (not variables). */
 export const sentenceOf = (level, text) => parse(text, { consts: level.things ?? [] })
 const keyOf = (f) => show(f)
-const thing = (name) => ({ t: 'fn', f: name, args: [] })
+export const thing = (name) => ({ t: 'fn', f: name, args: [] })
 
 // A sentence with the things in σ put in for their names.
-function subst(x, σ) {
-  if (Array.isArray(x)) return x.map((y) => subst(y, σ))
+export function substThings(x, σ) {
+  if (Array.isArray(x)) return x.map((y) => substThings(y, σ))
   if (!x || typeof x !== 'object') return x
   if (x.t === 'var' && σ[x.name]) return σ[x.name]
-  return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, subst(v, σ)]))
+  return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, substThings(v, σ)]))
 }
 // σ extended so that `pattern`, with `vars` free, is `inst`; null when it cannot be.
-function match(pattern, inst, vars, σ) {
+export function match(pattern, inst, vars, σ) {
   if (pattern && pattern.t === 'var' && vars.has(pattern.name)) {
     if (σ[pattern.name]) return JSON.stringify(σ[pattern.name]) === JSON.stringify(inst) ? σ : null
     return { ...σ, [pattern.name]: inst }
@@ -83,7 +83,7 @@ function satisfy(rule, ctx) {
   for (const σ of assignments) {
     // A way whose sentence still names a free thing does not make the goal's sentence.
     if (!ctx.goal && Object.keys(σ).length < vars.size) continue
-    const items = rule.steps.map((s) => (s.bind !== undefined ? { kind: 'thing', name: σ[s.bind].f } : ctx.have.get(keyOf(subst(ctx.read(s.need), σ)))))
+    const items = rule.steps.map((s) => (s.bind !== undefined ? { kind: 'thing', name: σ[s.bind].f } : ctx.have.get(keyOf(substThings(ctx.read(s.need), σ)))))
     if (items.every(Boolean)) return items
   }
   return null
@@ -115,21 +115,25 @@ export const ISO_PARTS = {
 }
 
 /**
- * The board as the kernel keeps it: the declared card's wired ways numbered from 1 with no gaps, and one input more
- * for the next.
+ * A card whose inputs grow as they are wired (the declared card's ways, an elimination rule's cases): its wired inputs
+ * numbered from 1 with no gaps, how many kept on the card (`params[count]`), so it has one input more for the next.
  */
-export function settle(graph) {
-  const decl = graph.nodes.find((n) => n.id === DECL)
-  if (!decl) return graph
-  const ways = graph.wires.filter((w) => w.to === DECL).sort((a, b) => Number(a.port.slice(1)) - Number(b.port.slice(1)))
-  const renumber = new Map(ways.map((w, k) => [w, wayPort(k + 1)]))
-  const n = ways.length
+export function renumber(graph, id, count) {
+  const card = graph.nodes.find((n) => n.id === id)
+  if (!card) return graph
+  const wired = graph.wires.filter((w) => w.to === id).sort((a, b) => Number(a.port.slice(1)) - Number(b.port.slice(1)))
+  const port = new Map(wired.map((w, k) => [w, wayPort(k + 1)]))
   return {
     ...graph,
-    nodes: graph.nodes.map((x) => (x.id === DECL ? { ...x, params: { ...x.params, ways: n } } : x)),
-    wires: [...graph.wires.filter((w) => w.to !== DECL), ...ways.map((w) => ({ ...w, port: renumber.get(w) }))],
+    nodes: graph.nodes.map((x) => (x.id === id ? { ...x, params: { ...x.params, [count]: wired.length } } : x)),
+    wires: [...graph.wires.filter((w) => w.to !== id), ...wired.map((w) => ({ ...w, port: port.get(w) }))],
   }
 }
+/** The board as the kernel keeps it: the declared card's ways numbered from 1 (renumber). */
+export const settle = (graph) => renumber(graph, DECL, 'ways')
+/** The inputs of a card whose inputs grow (renumber): one per wired input, one more, up to three. */
+export const growingInputs = (node, count) => Array.from({ length: Math.min(MOST, (node.params?.[count] ?? 0) + 1) }, (_, k) => wayPort(k + 1))
+export const GROWING = Array.from({ length: MOST }, (_, k) => wayPort(k + 1))
 
 /**
  * What the board gives in one test: the engine's values, the declared sentence (or null), and what its case gets back
@@ -184,7 +188,7 @@ export function checkIso(level, circuit, words) {
   return { pass: results.every((r) => r.pass) && !ways, results, ways }
 }
 
-const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })
+export const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })
 /**
  * A way as a rule: its assumptions in turn are the premises, the declared sentence the conclusion, and a way that
  * takes things is a rule for any of them (`fixes`): ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human.
@@ -196,10 +200,10 @@ export const wayText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.j
 /** A rule's value on the board as a way: { needs, binds }. */
 export const wayOf = (rule) => ({ needs: needsOf(rule), binds: bindsOf(rule) })
 
-// The declared sentence's own letters and predicates, each a metavariable in turn (?A, ?B … for a sentence, ?P, ?Q …
+// general(level) → g: the declared sentence's own letters and predicates, each a metavariable in turn (?A, ?B … for a sentence, ?P, ?Q …
 // for one about things): the rules for any sentences, not just the level's. A new proposition (one whose sentence
 // shares nothing with what it assumes) keeps its sentences.
-function general(level) {
+export function general(level) {
   const atoms = (f, out = []) => {
     if (f.op === 'atom') {
       if (f.pred !== '=' && !out.includes(f.pred)) out.push(f.pred)

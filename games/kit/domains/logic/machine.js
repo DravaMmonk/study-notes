@@ -8,7 +8,7 @@
 //
 //   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
 //           | { kind: 'clauses', set, from?, endless? } (resolution.js) | { kind: 'rules', keys, entries }
-//           | { kind: 'sentence' | 'rule' | 'list', … } (elimgen.js: the elimination-rule generator, chapter 3)
+//           | { kind: 'sentence' | 'rule' | 'list', … } (elimgen.js: the elimination-rule generator, chapter 12)
 //   level   { kind: 'machine', want, inputs?: [{ name, label }] (default one, `in`),
 //             rules?: { key: { name, premises: [text], conclusion: text } }, backtrack?,
 //             tests: [{ eqs: [equation text] } | { goal, hyps?, answers?, becomes?, clauses?, budget? }
@@ -391,7 +391,7 @@ const each = {
 }
 
 /**
- * For each (the generator's frame, chapter 3): the region run on every item of the list it is handed, in order, each
+ * For each (the generator's frame, chapter 12): the region run on every item of the list it is handed, in order, each
  * result an item of the list it gives. Its region shows the first item's run.
  */
 const eachOf = {
@@ -451,7 +451,7 @@ const BUILT = (inputs = ['in']) => ({ inputs, built: true })
 export const MACHINE_PARTS = {
   in: source(),
   out: sink(),
-  // The elimination-rule generator (chapter 3, elimgen.js): rules taken apart and put together, for each, and what the
+  // The elimination-rule generator (chapter 12, elimgen.js): rules taken apart and put together, for each, and what the
   // player builds of them.
   ...GEN_PARTS,
   eachOf,
@@ -705,7 +705,7 @@ const partsFor = (level) => (type) => level.built?.[type] ?? MACHINE_PARTS[type]
 const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), ...extra })
 
 /**
- * A declaration's elimination rule as the player's generator makes it (elimgen.js): the generator built in chapter 3
+ * A declaration's elimination rule as the player's generator makes it (elimgen.js): the generator built in chapter 12
  * run on the declared sentence and its ways in (rules); null when it gives no rule.
  */
 export function generateElim(level, it, ways) {

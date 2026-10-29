@@ -62,11 +62,11 @@ export const ERAS = [
     id: 'packing', machine: 'prover',
     // The kernel's parts and the definitions built with them carry on. Declarations: "and", "or" and the contradiction
     // come into the kernel by their intro rules, each written as a rule with assumption cards, and their elimination
-    // rules by the generator the player builds (declare.js); an optional topic declares more (D).
+    // rules written by hand and checked (declare.js); an optional topic declares more (D).
     keeps: 'all',
     foundation: [
-      // Each declaration, then the generator that makes its elimination rule: for one way in, then for a list of them.
-      'decl-and', 'gen-one', 'decl-or', 'gen-each', 'decl-bot',
+      // Each declaration in two tasks: its ways in, then its elimination rule written by hand and checked.
+      'decl-and', 'decl-or', 'decl-bot',
     ],
     topics: [{ id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') }],
     chapter: { title: T('声明', 'Declarations'), question: T('怎样把「与」「或」「非」引入证明核？', 'How do “and”, “or” and “not” come into the kernel?') },
@@ -224,8 +224,12 @@ export const ERAS = [
     id: 'inductive', machine: 'prover', keeps: 'all',
     foundation: [
       // Sums worked out by hand on the proof board, then by simp with the definitions: lists, conditions, a given,
-      // under ∀.
-      series('defs', '定义当规则', 'Definitions as rules', ['nl-plus', 'sp-compute', 'sp-lists', 'sp-cond', 'sp-hyp', 'sp-under']),
+      // under ∀. Beside them, needing nothing of them, the elimination rule generator: the rules written by hand since
+      // chapter 3, made from the ways in.
+      branches(
+        ['defs', '定义当规则', 'Definitions as rules', ['nl-plus', 'sp-compute', 'sp-lists', 'sp-cond', 'sp-hyp', 'sp-under']],
+        ['gen', '消去规则生成器', 'The elimination rule generator', ['gen-one', 'gen-each']],
+      ),
       // The rules a declaration gives, ending with induction (by hand, then on the machine).
       series('decl', '声明给出的规则', 'What a declaration gives', ['decl-nat', 'in-distinct', 'in-inject', 'in-cases', 'in-zero']),
       // Numbers, lists and why a definition must stop need nothing from each other.
