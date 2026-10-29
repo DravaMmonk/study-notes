@@ -452,29 +452,28 @@ test('∧ elim assumes both sides in one box, and the box gives what is proved i
 })
 
 test('an elimination rule written by hand: no more than a way in hands over, no less than every way gives', () => {
-  const words = (l) => ({ zh: l, en: l })
   const level = (target, sentences, intros) => ({ target, sentences, intros, declare: { zh: 'x', en: 'x' } })
   const and = level('A ∧ B', ['A', 'B'], [{ needs: ['A', 'B'], binds: [] }])
-  assert.ok(checkTake(and, takeBoard([{ to: ANY, cases: [['A', 'B']] }]), words).pass)
+  assert.ok(checkTake(and, takeBoard([{ to: ANY, cases: [['A', 'B']] }])).pass)
   // Two projections together are as strong; one alone gives less; ?R from nothing gives more.
-  assert.ok(checkTake(and, takeBoard([{ to: 'A' }, { to: 'B' }]), words).pass)
-  assert.equal(checkTake(and, takeBoard([{ to: 'A' }]), words).rows.at(-1).pass, false)
-  assert.equal(checkTake(and, takeBoard([{ to: ANY }]), words).rows[0].pass, false)
+  assert.ok(checkTake(and, takeBoard([{ to: 'A' }, { to: 'B' }])).pass)
+  assert.equal(checkTake(and, takeBoard([{ to: 'A' }])).rows.at(-1).pass, false)
+  assert.equal(checkTake(and, takeBoard([{ to: ANY }])).rows[0].pass, false)
   const or = level('A ∨ B', ['A', 'B'], [{ needs: ['A'], binds: [] }, { needs: ['B'], binds: [] }])
-  assert.ok(checkTake(or, takeBoard([{ to: ANY, cases: [['A'], ['B']] }]), words).pass)
+  assert.ok(checkTake(or, takeBoard([{ to: ANY, cases: [['A'], ['B']] }])).pass)
   // A case for one way only: made the other way, it cannot reach ?R.
-  const one = checkTake(or, takeBoard([{ to: ANY, cases: [['A']] }]), words)
+  const one = checkTake(or, takeBoard([{ to: ANY, cases: [['A']] }]))
   assert.deepEqual(one.rows.map((r) => r.pass), [true, false, true])
-  // Opened, a proof goes into the case its contents fit; made the other way, it is stuck.
-  assert.deepEqual(one.rows.slice(0, 2).map((r) => r.opens[0]), [{ case: 0 }, { stuck: true }])
+  // Opened, the user holds what the case it fits receives; made the other way, what the case asks for is missing.
+  assert.deepEqual(one.rows.slice(0, 2).map((r) => r.got[0]), [[{ s: 'A', ok: true }], [{ s: 'A', ok: false }]])
   // Tonk: introduced as or, taken apart as and.
-  assert.equal(checkTake(or, takeBoard([{ to: 'B' }]), words).pass, false)
+  assert.equal(checkTake(or, takeBoard([{ to: 'B' }])).pass, false)
   // ⊥: no way in, no case; a case nothing can reach gives less.
   const bot = level('⊥', ['A'], [])
-  assert.ok(checkTake(bot, takeBoard([{ to: ANY }]), words).pass)
-  assert.equal(checkTake(bot, takeBoard([{ to: ANY, cases: [['A']] }]), words).pass, false)
+  assert.ok(checkTake(bot, takeBoard([{ to: ANY }])).pass)
+  assert.equal(checkTake(bot, takeBoard([{ to: ANY, cases: [['A']] }])).pass, false)
   // A way in that takes a thing: its case must take any thing.
   const ex = { ...level('∃y. Human(y)', ['Human(x)'], [{ needs: ['Human(x)'], binds: ['x'] }]), things: ['soc'] }
-  assert.ok(checkTake(ex, takeBoard([{ to: ANY, cases: [['⋀x', 'h']] }], { h: 'Human(x)' }), words).pass)
-  assert.equal(checkTake(ex, takeBoard([{ to: ANY, cases: [['h']] }], { h: 'Human(x)' }), words).pass, false)
+  assert.ok(checkTake(ex, takeBoard([{ to: ANY, cases: [['⋀x', 'h']] }], { h: 'Human(x)' })).pass)
+  assert.equal(checkTake(ex, takeBoard([{ to: ANY, cases: [['h']] }], { h: 'Human(x)' })).pass, false)
 })

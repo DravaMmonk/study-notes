@@ -110,11 +110,10 @@ export function validate({ levels: given, course }) {
   // An elimination rule written by hand: its reference answer passes the check (no more, no less), its naive ones
   // do not.
   for (const level of levels.filter((l) => l.kind === 'take')) {
-    const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
-    const good = checkTake(level, level.solution, words)
-    out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: elimination ${good.pass ? 'PASS' : `FAIL ${keyOf(good.rows.find((r) => !r.pass).reason)}`}` })
+    const good = checkTake(level, level.solution)
+    out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: elimination ${good.pass ? 'PASS' : `FAIL on test ${good.rows.findIndex((r) => !r.pass) + 1}`}` })
     for (const naive of level.naives ?? []) {
-      const bad = checkTake(level, naive, words)
+      const bad = checkTake(level, naive)
       out.push({ fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
     }
   }
