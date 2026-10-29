@@ -29,15 +29,14 @@ const ring = (n) => {
   const K = 'ABCDEFGHIJ'.split('').slice(0, n).map((c) => `K${c}`)
   return [...K.slice(0, -1).map((k, i) => `${k} ↔ ¬${K[i + 1]}`), `${K.at(-1)} ↔ ¬${K[0]} ∧ ¬${K[1]}`]
 }
-// The liar made bigger: from X ↔ Y and Y ↔ ¬X, the liar X ↔ ¬X, then ⊥. Its cards go in `region`: ∧ elim on the
-// first, on the second inside it, and the rest inside both; s1 gives the ⊥.
+// The liar made bigger: from X ↔ Y and Y ↔ ¬X, the liar X ↔ ¬X, then ⊥. Its cards go in `region`.
 const liarOf = (two, region) => ({
   nodes: {
-    s1: ['andCases', {}, region], s2: ['andCases', {}, 's1'],
-    c1: ['chain', {}, 's2'], c2: ['chain', {}, 's2'],
-    j: ['andI', {}, 's2'], l: ['liar', {}, 's2'],
+    s1: ['andE', {}, region], s2: ['andE', {}, region],
+    c1: ['chain', {}, region], c2: ['chain', {}, region],
+    j: ['andI', {}, region], l: ['liar', {}, region],
   },
-  wires: [`${two[0]}>s1.ab`, `${two[1]}>s2.ab`, 's1#left>c1.p0', 's2#left>c1.p1', 's2#right>c2.p0', 's1#right>c2.p1', 'c1>j.a', 'c2>j.b', 'j>l.p0', 'l>s2.body', 's2>s1.body'],
+  wires: [`${two[0]}>s1.ab`, `${two[1]}>s2.ab`, 's1#left>c1.p0', 's2#left>c1.p1', 's2#right>c2.p0', 's1#right>c2.p1', 'c1>j.a', 'c2>j.b', 'j>l.p0'],
 })
 const ADDER = ['Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)', 'Carry ↔ InA ∧ InB']
 
@@ -72,7 +71,7 @@ export const automation = [
         tests: [{ premises: { p: 'A ↔ B' }, goal: '(¬A ∨ B) ∧ (¬B ∨ A)' }],
         cases: [{ A: 'Sat', B: 'Rest' }, { A: 'KA', B: 'KB' }],
         hint: [T('拆开等价，两个方向各去掉箭头。', 'Split the equivalence and take the arrow out of each direction.')],
-        solution: proof({ e: ['andCases'], a1: ['arrow', {}, 'e'], a2: ['arrow', {}, 'e'], c: ['andI', {}, 'e'] }, ['p>e.ab', 'e#left>a1.p0', 'e#right>a2.p0', 'a1>c.a', 'a2>c.b', 'e>goal', 'c>e.body'], { premises: ['p'] }),
+        solution: proof({ e: ['andE'], a1: ['arrow'], a2: ['arrow'], c: ['andI'] }, ['p>e.ab', 'e#left>a1.p0', 'e#right>a2.p0', 'a1>c.a', 'a2>c.b', 'c>goal'], { premises: ['p'] }),
       },
       {
         kind: 'proof',
@@ -81,7 +80,7 @@ export const automation = [
         cases: [{ A: 'Sat', B: 'Rest' }, { A: 'KA', B: 'KB' }],
         brief: T('再从「(¬今天是周六 ∨ 我休息) ∧ (¬我休息 ∨ 今天是周六)」证明出「今天是周六 ↔ 我休息」。', 'Now from “(¬today is Saturday ∨ I rest) ∧ (¬I rest ∨ today is Saturday)”, prove “today is Saturday ↔ I rest”.'),
         hint: [T('↔ 就是两个方向的 → 用「并且」连起来。', '↔ is the two directions of → joined by “and”.')],
-        solution: proof({ e: ['andCases'], a1: ['arrow', { form: 'intro' }, 'e'], a2: ['arrow', { form: 'intro' }, 'e'], c: ['andI', {}, 'e'] }, ['p>e.ab', 'e#left>a1.p0', 'e#right>a2.p0', 'a1>c.a', 'a2>c.b', 'e>goal', 'c>e.body'], { premises: ['p'] }),
+        solution: proof({ e: ['andE'], a1: ['arrow', { form: 'intro' }], a2: ['arrow', { form: 'intro' }], c: ['andI'] }, ['p>e.ab', 'e#left>a1.p0', 'e#right>a2.p0', 'a1>c.a', 'a2>c.b', 'c>goal'], { premises: ['p'] }),
       },
       becomes({
         step: T('改写', 'Rewrite'),
@@ -445,7 +444,7 @@ export const automation = [
       return proof({
         e1: ['exE', { x: 'a' }], a1: ['allE', { t: 'a' }, 'e1'], e2: ['exE', { x: 'b' }, 'e1'],
         a2: ['allE', { t: 'b' }, 'e2'], a3: ['allE', { t: 'b' }, 'e2'], ...l.nodes,
-      }, ['d>e1.ex', 's>a1.all', 'a1>e2.ex', 'e2#body>a2.all', 'e1#body>a3.all', ...l.wires, 's1>e2.body', 'e2>e1.body', 'e1>goal'], { premises: ['s', 'd'] })
+      }, ['d>e1.ex', 's>a1.all', 'a1>e2.ex', 'e2#body>a2.all', 'e1#body>a3.all', ...l.wires, 'l>e2.body', 'e2>e1.body', 'e1>goal'], { premises: ['s', 'd'] })
     })(),
     naive: proof({ e1: ['exE', { x: 'a' }], a3: ['allE', { t: 'a' }, 'e1'], l: ['liar', {}, 'e1'] }, ['d>e1.ex', 'e1#body>a3.all', 'a3>l.p0', 'l>e1.body', 'e1>goal'], { premises: ['s', 'd'] }),
     after: T('没有一个 f 能把一个集合的元素和它的所有子集一一对上：子集总是更多。这是康托尔的定理，对角线用在了函数上。', 'No f can match the elements of a set with all its subsets: there are always more subsets. That is Cantor’s theorem, the diagonal turned on functions.'),
@@ -460,7 +459,7 @@ export const automation = [
     hint: [T('还是对角线：让 x 读它自己的编码。', 'The diagonal again: let x read its own code.')],
     solution: (() => {
       const l = liarOf(['a1', 'a2'], 'e')
-      return proof({ e: ['exE', { x: 'a' }], a1: ['allE', { t: 'a' }, 'e'], a2: ['allE', { t: 'a' }, 'e'], ...l.nodes }, ['r>e.ex', 'e#body>a1.all', 'ls>a2.all', ...l.wires, 's1>e.body', 'e>goal'], { premises: ['r', 'ls'] })
+      return proof({ e: ['exE', { x: 'a' }], a1: ['allE', { t: 'a' }, 'e'], a2: ['allE', { t: 'a' }, 'e'], ...l.nodes }, ['r>e.ex', 'e#body>a1.all', 'ls>a2.all', ...l.wires, 'l>e.body', 'e>goal'], { premises: ['r', 'ls'] })
     })(),
     after: T('程序可以把程序当输入，所以对角线也能用在程序上：L_s 连识别都识别不了。', 'Programs can take programs as input, so the diagonal works on programs too: L_s cannot even be recognised.'),
   },

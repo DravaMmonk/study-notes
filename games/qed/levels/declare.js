@@ -41,7 +41,7 @@ export const declarations = [
     id: 'decl-and',
     // What declaring it gives: its way to make it and the elimination rule made from it, parts of the proof board from
     // here on.
-    adds: ['andI', 'andCases'],
+    adds: ['andI', 'andE'],
     title: T('声明「并且」', 'Declaring “and”'),
     declare: T('并且', 'and'),
     target: 'Rain ∧ Wind',

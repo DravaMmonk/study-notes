@@ -244,7 +244,8 @@ export default {
   { version: 49, ops: [
     { data: (value, id) => (DECLARED.includes(id) && Array.isArray(value) ? value[0] ?? null : value) },
   ] },
-  // Version 50 drops Split ∧ and the two tasks of 两个都要 that built it (the left side, the right side).
+  // Version 50: ∧ elim is the two-output card again, given by 声明「并且」; 两个都要 loses the two tasks that built it
+  // (the left side, the right side).
   { version: 50, ops: [
     { data: (value, id) => (id === 'and' && Array.isArray(value) ? value.slice(2) : value) },
     { tasks: (passed, id) => (id === 'and' ? Math.max(0, passed - 2) : passed) },

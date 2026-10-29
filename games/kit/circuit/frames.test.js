@@ -77,15 +77,3 @@ test('a card added over another moves to the nearest clear spot beside it', () =
   assert.ok(x >= 416 || y >= 516)
   assert.equal(clearSpot([], [140, 120], [0, 0]), null)
 })
-
-test('a region may open several values: each is seen inside it only, and reads back like one', () => {
-  const two = { role: () => 'part', frames: (node) => (node.type === 'pair' ? [{ name: 'body', opens: true, gives: ['left', 'right'] }] : []) }
-  const g = {
-    nodes: [{ id: 'f', type: 'pair' }, { id: 'm', in: 'f/body' }, { id: 'g' }],
-    wires: [{ from: 'f#left', to: 'm', port: 'a' }, { from: 'f#right', to: 'm', port: 'b' }, { from: 'm', to: 'f', port: 'body' }],
-  }
-  assert.deepEqual(framePart(['ab'], two.frames({ type: 'pair' })).outputs(), [null, 'left', 'right'])
-  assert.equal(baseRefusal(g, 'f#right', 'f', 'body', two), null)
-  assert.ok(baseRefusal(g, 'f#left', 'g', 'in', two))
-  assert.deepEqual(moveInto(g, two, 'm', null, 0, 0).wires, [{ from: 'm', to: 'f', port: 'body' }])
-})

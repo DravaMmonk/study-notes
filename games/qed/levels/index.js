@@ -137,6 +137,8 @@ const REVISIONS = {
     { at: 'sp-rw', desc: T('「或者」分配到「并且」上，四个方向：A ∨ (B ∧ C) 和 (A ∨ B) ∧ (A ∨ C) 互相转换，(A ∧ B) ∨ C 和 (A ∨ C) ∧ (B ∨ C) 互相转换。元件上切换形状；每个方向也都是改写规则。', '“Or” distributed over “and”, four ways: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Switch the shape on the card; each way is a rewrite rule too.') },
   ],
   iff: [{ by: 'au-iff', forms: ['intro'] }],
+  // ↔ comes into proofs on the main path with 两个方向: ∧ elim takes it apart.
+  andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B：两个输出口各取一边。它是由「并且」的声明生成的消去规则。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B: one output for each side. It is the elimination rule made from the declaration of “and”. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
 
   // The machine parts grow along chapters 7 and 8: quantifiers taken apart and patterns (模式合一), every result once
   // the cards backtrack (一串结果).
@@ -163,12 +165,12 @@ const COURSE = {
   // The machine-board parts the player builds: the elimination rule generator, the unifier, the tactics made of Rule and Assumption, auto, simp made
   // of rewrites, and the clause machines (into clauses, the saturator, the reconstructor).
   machines: ['elimGen', 'unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'clausify', 'saturate', 'metis'],
-  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'andI', 'andCases', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'natInd',
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'natInd',
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
     'append', 'each', 'defer', 'search', 'rw', 'hyp', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
   // The parts that take rules apart and put them together are one idea (rules as data); joining ∧ and its elimination
   // rule are one, as are rewrite and reflexivity.
-  concept: { anyR: 'rulecraft', swapConcl: 'rulecraft', consFront: 'rulecraft', mkRule: 'rulecraft', andI: 'and', andCases: 'and', orI: 'or', orE: 'or', exI: 'ex', exE: 'ex', rewrite: 'eq', refl: 'eq' },
+  concept: { anyR: 'rulecraft', swapConcl: 'rulecraft', consFront: 'rulecraft', mkRule: 'rulecraft', andI: 'and', andE: 'and', orI: 'or', orE: 'or', exI: 'ex', exE: 'ex', rewrite: 'eq', refl: 'eq' },
   // Parts that stay where a level brings them, so the components box keeps only what goes on being used: the steps of
   // a part built from them soon after (the generator's parts, the unifier's moves, Skolemise and Into clauses, one round of resolution, Replay,
   // the intro and elim rule sets inside auto, the saturator and Into clauses all the way inside the reconstructor), the

@@ -7,7 +7,6 @@ import { portsOf } from '../../../engine/circuit.js'
 import { formOf, paramsOf } from '../../../engine/forms.js'
 import { SETTING_KINDS } from '../choices.js'
 import { FORMULA_TEXT } from '../formula.js'
-import { givesOf } from '../../../circuit/frames.js'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -16,8 +15,7 @@ export const RULE_TEXT = {
   mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和前件 A 推出后件 B。这是分离规则，也称肯定前件式。', 'From A → B and its antecedent A, infer the consequent B. This is modus ponens, also called implication elimination.'), ports: { imp: 'A → B', a: 'A' } },
   impI: { name: T('假设框', 'Assumption box'), desc: T('蕴含引入：在临时假设 A 下证明 B，解除该假设后得到 A → B；其他前提仍保留。', 'Implication introduction: assume A and prove B inside the box. Discharge A to obtain A → B; other premises remain.'), params: { A: T('假设', 'Assume') }, frames: { body: T('框里', 'Inside') } },
   andI: { name: T('引入 ∧', '∧ intro'), desc: T('由 A 和 B 得到 A ∧ B。它是你声明「并且」时写的那条引入规则。', 'From A and B, A ∧ B. It is the way to make it you wrote declaring “and”.'), ports: { a: 'A', b: 'B' } },
-  andCases: { name: T('消去 ∧', '∧ elim'), desc: T('一块带框的元件。输入口接 A ∧ B；框里同时假设 A 和 B（两个圆点），框里证出的 C 接到「结论」，元件就输出 C。它是声明「并且」时由引入规则生成的消去规则：只有一条引入规则，就只有一种情况，交进去的两样都在框里。', 'A part with a box. Wire A ∧ B into its input; the box assumes A and B at once (two dots), and the C proved inside, wired to “conclusion”, is what the part gives. It is the elimination rule made from the way in when “and” was declared: one way to make it, so one case, with both things handed in inside the box.'), ports: { ab: 'A ∧ B' }, frames: { body: T('框里', 'Inside') } },
-  andE: { name: T('拆开 ∧', 'Split ∧'), ports: { ab: 'A ∧ B' }, outs: { left: ['A', 'A'], right: ['B', 'B'] } },
+  andE: { name: T('消去 ∧', '∧ elim'), desc: T('由 A ∧ B 得到 A，也得到 B：两个输出口各取一边。它是由「并且」的声明生成的消去规则：只有一条引入规则，拆开就取回交进去的两样。', 'From A ∧ B, A, and also B: one output for each side. It is the elimination rule made from the declaration of “and”: one way to make it, so taking it apart gets back the two things handed in.'), ports: { ab: 'A ∧ B' }, outs: { left: ['A', 'A'], right: ['B', 'B'] } },
   orI: { name: T('引入 ∨', '∨ intro'), desc: T('由 A 得到 A ∨ B（或 B ∨ A），另一边 B 和放在哪边在元件上选。它是你声明「或者」时写的两条引入规则。', 'From A, A ∨ B (or B ∨ A); choose B and its side on the part. It is the two ways to make it you wrote declaring “or”.'), ports: { a: 'A' }, params: { other: T('另一边', 'Other side') } },
   orE: { name: T('消去 ∨', '∨ elim'), desc: T('一块有两个框的元件。输入口接 A ∨ B；「情况一」的框假设 A，「情况二」的框假设 B。两个框都证出同一句 C、接到各自的「结论」，元件就输出 C：不知道是哪一种，就每一种都证一遍。它是声明「或者」时由两条引入规则生成的消去规则。', 'A part with two boxes. Wire A ∨ B into its input; the box Case one assumes A, the box Case two assumes B. When both prove the same C, wired to their own “Conclusion”, the part gives C: not knowing which case it is, prove it in each. It is the elimination rule made from the two ways in when “or” was declared.'), ports: { ab: 'A ∨ B' }, frames: { left: T('情况一', 'Case one'), right: T('情况二', 'Case two') } },
   botE: { name: T('矛盾推出一切', 'From contradiction'), desc: T('由矛盾 ⊥ 得到元件上选的任何一句。它是声明 ⊥ 时生成的消去规则：没有引入规则，就一种情况都不用证。', 'From contradiction ⊥, infer the proposition selected on the part. This is the elimination rule generated for ⊥, which has no introduction cases.'), ports: { bot: '⊥' }, params: { C: T('得出', 'Conclude') } },
@@ -122,8 +120,8 @@ export function partsFor(lemmas = {}, premises = []) {
     outputs: (node) => {
       const outs = RULE_TEXT[node.type]?.outs
       if (outs) return Object.entries(outs).map(([key, [label, short]]) => ({ key, label, short }))
-      const opens = (parts[node.type]?.frames?.(node) ?? []).flatMap(givesOf)
-      return opens.length ? [{ key: null, label: GIVES, short: GIVES }, ...opens.map((key) => ({ key, label: OPENS, short: OPENS }))] : null
+      const opens = (parts[node.type]?.frames?.(node) ?? []).filter((r) => r.opens)
+      return opens.length ? [{ key: null, label: GIVES, short: GIVES }, ...opens.map((r) => ({ key: r.name, label: OPENS, short: OPENS }))] : null
     },
     cardWidth: (node) => (parts[node.type]?.frames ? 240 : FIXED[node.type] ? 170 : 160),
     frames: (node) => (parts[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: RULE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),

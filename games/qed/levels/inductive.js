@@ -469,14 +469,8 @@ export const inductive = [
       { t: T("通过<wiki-ref to=\"goedel-coding\"></wiki-ref>可以用数表示公式与证明；<level-ref to=\"u-barber\"></level-ref>展示了相关的对角化思路。由此可构造可证明性谓词 Prov。本关直接给出对角化得到的 G ↔ ¬Prov(g)，以及针对 G 的反射前提 Prov(g) → G；这些前提不在本关内构造或验证。", "Through <wiki-ref to=\"goedel-coding\"></wiki-ref>, formulas and proofs can be represented by numbers; <level-ref to=\"u-barber\"></level-ref> illustrates a related diagonal idea. A provability predicate Prov can then be constructed. This level supplies the diagonal equivalence G ↔ ¬Prov(g) and the reflection premise Prov(g) → G for G; it does not construct or verify those premises.") },
     ],
     solution: proof({
-      e: ['andCases'],
-      f: ['impI', { A: 'Prov(g)' }, 'e'],
-      m1: ['mp', {}, 'f'],
-      m2: ['mp', {}, 'f'],
-      m3: ['mp', {}, 'f'],
-      m4: ['mp', {}, 'e'],
-      j: ['andI', {}, 'e'],
-    }, ['diag>e.ab', 'sound>m1.imp', 'f#body>m1.a', 'e#left>m2.imp', 'm1>m2.a', 'm2>m3.imp', 'f#body>m3.a', 'm3>f.body', 'e#right>m4.imp', 'f>m4.a', 'm4>j.a', 'f>j.b', 'e>goal', 'j>e.body'], { premises: ['diag', 'sound'] }),
+      e: ['andE'], f: ['impI', { A: 'Prov(g)' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], m3: ['mp', {}, 'f'], m4: ['mp'], j: ['andI'],
+    }, ['diag>e.ab', 'sound>m1.imp', 'f#body>m1.a', 'e#left>m2.imp', 'm1>m2.a', 'm2>m3.imp', 'f#body>m3.a', 'm3>f.body', 'e#right>m4.imp', 'f>m4.a', 'm4>j.a', 'f>j.b', 'j>goal'], { premises: ['diag', 'sound'] }),
     after: T("在给定的对角等价式和反射前提下，本关形式推导出 G ∧ ¬Prov(g)。这展示了第一<wiki-ref to=\"incompleteness\"></wiki-ref>涉及的自指结构；完整定理还需要对形式系统、编码及一致性等条件作严格论证。", "From the supplied diagonal equivalence and reflection premise, this level formally derives G ∧ ¬Prov(g). It illustrates the self-referential structure associated with the first <wiki-ref to=\"incompleteness\"></wiki-ref>; the full theorem requires a rigorous treatment of the formal system, coding and consistency assumptions."),
   },
   {

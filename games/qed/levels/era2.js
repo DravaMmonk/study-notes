@@ -9,7 +9,7 @@ import { proof } from '../../kit/domains/logic/build.js'
 const T = (zh, en) => ({ zh, en })
 
 // 交换律: A ∧ B → B ∧ A, the swap inside one box.
-const andSwap = proof({ f: ['impI', { A: 'A ∧ B' }], e: ['andCases', {}, 'f'], i: ['andI', {}, 'e'] }, ['f#body>e.ab', 'e#right>i.a', 'e#left>i.b', 'e>f.body', 'f>goal', 'i>e.body'])
+const andSwap = proof({ f: ['impI', { A: 'A ∧ B' }], e: ['andE', {}, 'f'], i: ['andI', {}, 'f'] }, ['f#body>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>f.body', 'f>goal'])
 // 逆否: (A → B) → (¬B → ¬A), two boxes and a Chain (¬B is B → ⊥).
 const contra = proof({ f: ['impI', { A: 'A → B' }], g: ['impI', { A: '¬B' }, 'f'], t: ['chain', {}, 'g'] }, ['f#body>t.p0', 'g#body>t.p1', 't>g.body', 'g>f.body', 'f>goal'])
 const prove = (task) => ({ kind: 'proof', step: T('证明', 'Prove'), ...task })
@@ -25,8 +25,8 @@ export const era2 = [
         step: T('两个都要', 'Both of them'),
         tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }],
         cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
-        hint: [T('消去 ∧ 的框里两边都是假设：在框里按新的顺序拼起来，交回去。', 'Inside ∧ elim’s box both sides are assumed: join them in the new order inside, and hand that back.')],
-        solution: proof({ e: ['andCases'], i: ['andI', {}, 'e'] }, ['p>e.ab', 'e#right>i.a', 'e#left>i.b', 'e>goal', 'i>e.body'], { premises: ['p'] }),
+        hint: [T('先拆开，再按新的顺序拼起来。', 'Take it apart, then put it back together in the new order.')],
+        solution: proof({ e: ['andE'], i: ['andI'] }, ['p>e.ab', 'e#right>i.a', 'e#left>i.b', 'i>goal'], { premises: ['p'] }),
         after: T('先拆后拼，换了个顺序。每个<wiki-ref to="connective"></wiki-ref>都有造它的规则和用它的规则，用的规则由造的规则定：这样的规则体系叫<wiki-ref to="natural"></wiki-ref>。', 'Split, then join in the other order. Every <wiki-ref to="connective"></wiki-ref> has rules that make it and rules that use it, the using fixed by the making: a system like that is called <wiki-ref to="natural"></wiki-ref>.'),
       },
       {
@@ -44,7 +44,7 @@ export const era2 = [
     ],
     intro: [
       { t: T('<level-ref to="g-and"></level-ref>里的<part-ref to="part:gAnd"></part-ref>门：两边都真，才输出真。证明器里的「下雨 ∧ 刮风」也是这个意思：下雨，并且刮风。', 'The <part-ref to="part:gAnd"></part-ref> gate of <level-ref to="g-and"></level-ref>: true only when both sides are. In the prover “it rains ∧ it is windy” means the same: it rains, and it is windy.') },
-      { t: T('上一章你声明了「并且」，证明板上从此多了两块元件。<part-ref to="part:andI"></part-ref>就是那一条引入规则：有了左边，又有了右边，就有「左边 ∧ 右边」。<part-ref to="part:andCases"></part-ref>是由那条引入规则生成的消去规则，在证明板上写成一个框：同时假设左右两边，框里证出什么，它就给出什么。', 'Last chapter you declared “and”, and the proof board gained two parts. <part-ref to="part:andI"></part-ref> is its one way to make it: from a left and a right, “left ∧ right”. <part-ref to="part:andCases"></part-ref> is the elimination rule made from that way in, a box on the proof board: it assumes both sides at once, and whatever is proved inside, it gives.') },
+      { t: T('上一章你声明了「并且」，证明板上从此多了两块元件。<part-ref to="part:andI"></part-ref>就是那一条引入规则：有了左边，又有了右边，就有「左边 ∧ 右边」。只有这一条引入规则，所以一份「… ∧ …」的证明里一定装着左边的和右边的：<part-ref to="part:andE"></part-ref>是由它生成的消去规则，把它们各取出来，两个输出口各给一边。', 'Last chapter you declared “and”, and the proof board gained two parts. <part-ref to="part:andI"></part-ref> is its one way to make it: from a left and a right, “left ∧ right”. There is only that way, so a proof of “… ∧ …” always holds a proof of the left and one of the right: <part-ref to="part:andE"></part-ref>, the elimination rule made from it, takes each out, a side at each of its two outputs.') },
     ],
     after: T('有已知的证明，放进框里，就成了什么都不需要的<wiki-ref to="theorem"></wiki-ref>：真值表上的永真式，在这里是证出来的。', 'A proof from givens, put in a box, becomes a <wiki-ref to="theorem"></wiki-ref> that needs nothing: a tautology from the truth tables, now proved.'),
   },
@@ -68,7 +68,7 @@ export const era2 = [
         cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Alarm', B: 'Coffee', C: 'Awake' }],
         hint: [T('一个框就够：假设「今天是周六 ∧ 下雨」，拆开以后套用两次。', 'One box will do: assume “today is Saturday ∧ it rains”, split it, then Apply twice.')],
         intro: [{ t: T('反过来：两个条件合成一个「并且」。这次只要一个框。', 'The other way: two conditions become one “and”. This time one box is enough.') }],
-        solution: proof({ f: ['impI', { A: 'A ∧ B' }], e: ['andCases', {}, 'f'], m1: ['mp', {}, 'e'], m2: ['mp', {}, 'e'] }, ['f#body>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>m2.imp', 'e#right>m2.a', 'e>f.body', 'f>goal', 'm2>e.body'], { premises: ['p'] }),
+        solution: proof({ f: ['impI', { A: 'A ∧ B' }], e: ['andE', {}, 'f'], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['f#body>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>m2.imp', 'e#right>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p'] }),
       },
     ],
     intro: [{ t: T('「下雨并且刮风，就地湿」和「下雨的话，只要再刮风，就地湿」是一回事。从前者推出后者。', '“If it rains and it is windy, the ground is wet” and “if it rains, then if it is also windy, the ground is wet” say the same. Get the second from the first.') }],
@@ -82,8 +82,8 @@ export const era2 = [
         step: T('一个方向', 'One direction'),
         tests: [{ premises: { p: 'A ↔ B', q: 'A' }, goal: 'B' }],
         cases: [{ A: 'Sat', B: 'Rest' }, { A: 'Coffee', B: 'Awake' }],
-        hint: [T('<part-ref to="part:andCases"></part-ref>也能拆 ↔：框里假设两个方向的「若…则…」，用对的那一个。', '<part-ref to="part:andCases"></part-ref> takes ↔ apart too: its box assumes the two “if … then …”s; use the right one.')],
-        solution: proof({ e: ['andCases'], m: ['mp', {}, 'e'] }, ['p>e.ab', 'e#left>m.imp', 'q>m.a', 'e>goal', 'm>e.body'], { premises: ['p', 'q'] }),
+        hint: [T('<part-ref to="part:andE"></part-ref>也能拆 ↔：拆出两个方向的「若…则…」，用对的那一个。', '<part-ref to="part:andE"></part-ref> splits ↔ too: into the two “if … then …”s; use the right one.')],
+        solution: proof({ e: ['andE'], m: ['mp'] }, ['p>e.ab', 'e#left>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] }),
       }),
       prove({
         step: T('另一个方向', 'The other direction'),
@@ -91,11 +91,11 @@ export const era2 = [
         cases: [{ A: 'Sat', B: 'Rest' }, { A: 'Coffee', B: 'Awake' }],
         brief: T('再从「今天是周六 ↔ 我休息」和「¬今天是周六」，证明出「¬我休息」。', 'Now from “today is Saturday ↔ I rest” and “¬today is Saturday”, prove “¬I rest”.'),
         hint: [T('这回要用另一个方向：假设「我休息」，看能不能撞出矛盾。', 'This time it takes the other direction: assume “I rest” and see whether it runs into a contradiction.')],
-        solution: proof({ e: ['andCases'], f: ['impI', { A: 'B' }, 'e'], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>e.ab', 'e#right>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'e>goal', 'f>e.body'], { premises: ['p', 'q'] }),
+        solution: proof({ e: ['andE'], f: ['impI', { A: 'B' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>e.ab', 'e#right>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
       }),
     ],
     intro: [{ t: T('真值电路里，<level-ref to="g-iff"></level-ref>的等价 ↔ 是同真同假。证明核里，A ↔ B 就是两个方向的 → 都成立：「(A → B) ∧ (B → A)」，所以它当成一句 ∧ 来拆。', 'In the truth circuits, the equivalence ↔ of <level-ref to="g-iff"></level-ref> meant true together and false together. In the kernel, A ↔ B is the → holding both ways, “(A → B) ∧ (B → A)”, so it is taken apart as an ∧.') }],
-    after: T('等价能拆成两个方向，用哪个方向看手里有什么、要证什么。', 'An equivalence splits into its two directions, and which one to use depends on what you hold and what you must prove.'),
+    after: T('等价能拆成两个方向，用哪个方向看手里有什么、要证什么。<part-ref to="part:andE"></part-ref>的说明里，从此多了这一句。', 'An equivalence splits into its two directions, and which one to use depends on what you hold and what you must prove. <part-ref to="part:andE"></part-ref>’s description now says so too.'),
   },
   {
     id: 'or',
@@ -169,7 +169,7 @@ export const era2 = [
       T('每种情况里，把「今天是周六」和这一情况的假设拼起来，再放进 ∨ 的对应一边。', 'In each case, join “today is Saturday” with that case’s assumption, then put it on the matching side of the ∨.'),
     ],
     intro: [{ t: T('两种连接词的四块元件一起上：消去 ∧、消去 ∨、引入 ∧、引入 ∨。', 'Two connectives, all four of their parts at once: ∧ elim, ∨ elim, ∧ intro, ∨ intro.') }],
-    solution: proof({ s: ['andCases'], e: ['orE', {}, 's'], l1: ['andI', {}, 'e/left'], o1: ['orI', { other: 'A ∧ C', side: 'right' }, 'e/left'], l2: ['andI', {}, 'e/right'], o2: ['orI', { other: 'A ∧ B', side: 'left' }, 'e/right'] }, ['p>s.ab', 's#right>e.ab', 's#left>l1.a', 'e#left>l1.b', 'l1>o1.a', 'o1>e.left', 's#left>l2.a', 'e#right>l2.b', 'l2>o2.a', 'o2>e.right', 's>goal', 'e>s.body'], { premises: ['p'] }),
+    solution: proof({ s: ['andE'], e: ['orE'], l1: ['andI', {}, 'e/left'], o1: ['orI', { other: 'A ∧ C', side: 'right' }, 'e/left'], l2: ['andI', {}, 'e/right'], o2: ['orI', { other: 'A ∧ B', side: 'left' }, 'e/right'] }, ['p>s.ab', 's#right>e.ab', 's#left>l1.a', 'e#left>l1.b', 'l1>o1.a', 'o1>e.left', 's#left>l2.a', 'e#right>l2.b', 'l2>o2.a', 'o2>e.right', 'e>goal'], { premises: ['p'] }),
     after: T('消去 ∧ 给出的「今天是周六」在两种情况里都用上了：框外证出的东西，框里随便用。', 'The “today is Saturday” from ∧ elim served in both cases: what is proved outside a box is free to use inside.'),
   },
   {

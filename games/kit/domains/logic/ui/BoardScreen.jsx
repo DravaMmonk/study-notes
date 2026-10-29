@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { Brief, CircuitLayout, RunDock, StepLog, TaskCard, TestStatus, TestTabs, useKeptVerdict, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, isFixed, outputsOf, regionKeys, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, isFixed, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
 import { parse } from '../formula.js'
@@ -311,7 +311,7 @@ function CardBody({ node, board, parts, level, circuit, view, scene, setParam, t
   const value = view.values.get(node.id)
   const error = view.errors.get(node.id)
   const role = parts.role(node)
-  const regions = regionKeys(parts.frames(node))
+  const regions = new Set(parts.frames(node).map((r) => r.name))
   const outs = parts.outputs(node)?.filter((o) => !regions.has(o.key))
   const multi = outs && !(outs.length === 1 && outs[0].key === null) ? outs : null
   const held = regions.size ? within(circuit, node.id).size : 0
