@@ -136,14 +136,14 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const shown = (t, k) => (run ? k < run.results.length : t === test)
   const rowClass = (t, k) => `${t === test ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`
   const table = (
-    <div className="lg-strip">
+    <div className="lg-strip is-tables">
       <div className="lg-scroll-x">
         <table className="lg-rows">
           <thead>
             <tr>
               {goals && <th>{tr('要证', 'To prove')}</th>}
               {held.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
-              <th>{tr(`「${level.declare.zh}」`, `“${level.declare.en}”`)}</th>
+              <th className="lg-result">{tr(`「${level.declare.zh}」`, `“${level.declare.en}”`)}</th>
             </tr>
           </thead>
           <tbody>
@@ -153,29 +153,31 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
                 <tr key={k} className={rowClass(t, k)} onClick={() => setTestIndex(k)}>
                   {goals && <td>{t.goal ? L(words(t.goal)) : ''}</td>}
                   {held.map((l) => <td key={l}>{t.have[l] ? `#${t.have[l]}` : '—'}</td>)}
-                  <td>{shown(t, k) ? (r.made ? tr(`证得出：${WAY[r.made.way - 1]}`, `Proved: ${WAY[r.made.way - 1]}`) : tr('证不出', 'Not proved')) : ''}</td>
+                  <td className="lg-result">{shown(t, k) ? (r.made ? tr(`证得出：${WAY[r.made.way - 1]}`, `Proved: ${WAY[r.made.way - 1]}`) : tr('证不出', 'Not proved')) : ''}</td>
                 </tr>
               )
             })}
           </tbody>
         </table>
-        {uses.length > 0 && (
+      </div>
+      {uses.length > 0 && (
+        <div className="lg-scroll-x">
           <table className="lg-rows">
             <thead>
-              <tr><th>{tr('手里有', 'At hand')}</th><th>{tr('推出', 'To get')}</th><th /></tr>
+              <tr><th>{tr('手里有', 'At hand')}</th><th>{tr('推出', 'To get')}</th><th className="lg-result">{tr('推得出吗', 'Follows?')}</th></tr>
             </thead>
             <tbody>
               {uses.map(({ t, k }) => (
                 <tr key={k} className={rowClass(t, k)} onClick={() => setTestIndex(k)}>
-                  <td>{[level.target, ...(t.holds ?? [])].map((x) => L(words(x))).join(tr('，', ', '))}</td>
+                  <td className="lg-lines">{[level.target, ...(t.holds ?? [])].map((x) => <span key={x}>{L(words(x))}</span>)}</td>
                   <td>{L(words(t.get))}</td>
-                  <td>{shown(t, k) ? (checked.results[k].got ? tr('推得出', 'Follows') : tr('推不出', 'Does not follow')) : ''}</td>
+                  <td className="lg-result">{shown(t, k) ? (checked.results[k].got ? tr('推得出', 'Follows') : tr('推不出', 'Does not follow')) : ''}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        )}
-      </div>
+        </div>
+      )}
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )

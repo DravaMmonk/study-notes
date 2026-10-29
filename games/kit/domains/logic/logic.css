@@ -54,6 +54,7 @@
 
 /* ---- the strip and the brief ---- */
 .lg-strip { display: grid; gap: 6px; }
+.lg-strip.is-tables { gap: 14px; }
 .lg-sequent { margin: 0; font-size: 13px; color: var(--muted); }
 .lg-sequent b { margin: 0 4px; color: var(--ink); }
 .lg-verdict { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
@@ -136,6 +137,10 @@
 .lg-rows tbody tr.is-pass td:last-child { color: var(--status); }
 .lg-rows tbody tr.is-fail td:last-child { color: var(--fail); }
 .lg-rows td:last-child { white-space: nowrap; }
+/* A result column keeps its room before the run fills it, and a cell of several sentences gives each its own line. */
+.lg-rows .lg-result { min-width: 7em; white-space: nowrap; }
+.lg-rows .lg-lines { text-align: left; }
+.lg-rows .lg-lines span { display: block; }
 
 
 /* First-order levels (ui/WorldScreens.jsx): sentences to write, the vocabulary as buttons, worlds in words, and a world
