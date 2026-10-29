@@ -9,6 +9,7 @@
 // its ways in and its elimination rule as proof-board parts (`adds`), which chapter 4 puts to work. Chapter 12 has the
 // player build the machine that makes it (the elimination rule generator).
 import { isoBoard } from '../../kit/domains/logic/iso.js'
+import { TERM_WORDS } from './words.js'
 import { machine } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -359,27 +360,71 @@ export const generators = [
   }),
 ]
 
-export const natDeclaration = [
-  declare({
+// Chapter 12 · Types are declared on the same board: a way is a constructor, an assumption of the type itself its
+// argument of that type, a thing card an element (`datatype`, iso.js typeOf). Passing one puts the type in the course
+// (course.js); the rules the kernel makes of it (cases, induction, the constructors all different) show when it is
+// passed, and what makes them so is said there.
+const TYPE = (level) => declare({ words: TERM_WORDS, ...level })
+export const typeDeclarations = [
+  TYPE({
     id: 'decl-nat',
     title: T('声明自然数', 'Declaring the numbers'),
     declare: T('自然数', 'a number'),
     target: 'Nat',
     sentences: ['Nat'],
     tray: ['hyp', 'none'],
-    // Its elimination rule (mathematical induction) is the level's own: the generator gives no induction hypothesis
-    // (gen-nat, optional).
-    take: { premises: ['?P(zero)', '⋀n. ⟦?P(n)⟧ ⟹ ?P(s(n))'], conclusion: '?P(?n)' },
+    datatype: { type: 'nat', ctors: ['zero', 's'], args: { Nat: 'nat' } },
     tests: [
       { have: {}, make: true },
       { have: { Nat: 1 }, make: true, uses: ['Nat'] },
     ],
-    intro: [{ t: T('化简器把 0、S 0 当现成的东西来算。它们从哪里来？和「并且」一样，靠声明：一个自然数有哪几条引入规则？', 'The simplifier works with 0 and S 0 as if they were just there. Where do they come from? As with “and”, from a declaration: what are the ways to make a number?') }],
+    intro: [
+      { t: T('自动证明器在一堆句子里找矛盾，却多半不会归纳；化简器能改写，可「1 + 1 = 2」怎么证？数从哪里来？这一章把数和列表从头讲起，规则书里的每一条都由你声明出来。', 'An automatic prover hunts for a contradiction among sentences, yet mostly cannot do induction; Simp rewrites, but how is “1 + 1 = 2” proved? Where do numbers come from? This chapter builds numbers and lists from the start, and every rule in the book is declared by you.') },
+      { t: T('和「并且」一样，数也靠声明：一个自然数有哪几条引入规则？这一次声明的是一种东西，引入规则叫<wiki-ref to="constructor"></wiki-ref>：每条造出一个数。', 'As with “and”, numbers come from a declaration: what are the ways to make a number? This time what is declared is a kind of thing, and its ways are called <wiki-ref to="constructor"></wiki-ref>s: each makes a number.') },
+    ],
     brief: T('自然数：什么都没有，也造得出一个（0）；手里有一个数，就造得出它的下一个。写出它的声明。', 'A number: one can be made from nothing (0); with a number at hand, the next one can be made. Write its declaration.'),
     hint: [T('两条引入规则：一种什么都不用假设；另一种假设「自然数」，要的正是一个数。', 'Two ways: one assumes nothing; the other assumes “a number”, taking just a number.')],
     solution: isoBoard(['∅>1', 'Nat>2']),
     naive: isoBoard(['∅>1']),
-    after: T('两条引入规则：0 什么都不要，S 要一个数，造出它的下一个，写作 nat = 0 | S nat。按情况分，拿到一个数只知道它是 0，或者是某一个数的下一个。可第二条引入规则要的正是一个自然数，所以拆开一个数时，还能先对那个数用上要证的结论：这就是归纳假设。这一次的消去规则就是数学归纳法，下面就用它。', 'Two ways: 0 takes nothing, S takes a number and makes the next, written nat = 0 | S nat. By cases, holding a number tells you only that it is 0 or the next of some number. Yet the second way takes a number itself, so taking a number apart may first use what is being proved on that number: the induction hypothesis. This time the elimination rule is mathematical induction, and what follows uses it.'),
+    after: T('两条构造子：0 什么都不要，S 要一个数，造出它的下一个，写作 nat = 0 | S nat。证明核从声明生成三样规则：按情况分（第 3 章那样，一个构造子一种情况：一个数要么是 0，要么是某个数的下一个）；归纳（S 要的正是一个自然数，所以拆开一个数时，还能先对它前面那个数用上要证的结论：归纳假设）；互不相同（只有这两条来路，来路不同造出的就不同：0 不等于任何 S n）。S 是不是一对一（S x = S y 就有 x = y），声明不直接给，后面用定义证出来。', 'Two constructors: 0 takes nothing, S takes a number and makes the next, written nat = 0 | S nat. The kernel makes three kinds of rule of the declaration: cases (as in chapter 3, one case for each constructor: a number is 0 or the next of some number); induction (S takes a number itself, so taking a number apart may first use what is being proved on the number before it: the induction hypothesis); and all different (these are the only ways, and different ways make different numbers: 0 is no S n). Whether S is one-to-one (S x = S y gives x = y) the declaration does not say outright: it is proved later, from a definition.'),
+  }),
+  TYPE({
+    id: 'decl-list',
+    title: T('声明列表', 'Declaring lists'),
+    declare: T('列表', 'a list'),
+    target: 'List',
+    sentences: ['List'],
+    things: ['ann', 'bo'],
+    tray: ['thing', 'hyp', 'none'],
+    datatype: { type: 'list', ctors: ['nil', 'cons'], args: { List: 'list' } },
+    ways: [[], ['⋀x', 'List']],
+    tests: [
+      { have: {}, make: true },
+      { have: { List: 1 }, make: true, uses: ['List'] },
+    ],
+    intro: [{ t: T('一个列表是一串东西：空的 []，或者在一个列表前面再放一样东西 x :: xs。', 'A list is a row of things: the empty one [], or a thing x put in front of a list, x :: xs.') }],
+    brief: T('列表：什么都没有，也造得出一个（空列表）；任取一样东西，再有一个列表，就造得出把它放在前面的列表。写出它的声明。', 'A list: one can be made from nothing (the empty list); taking any thing, with a list at hand, the list with it in front can be made. Write its declaration.'),
+    hint: [T('两条引入规则：一条什么都不用假设；另一条先任取一样东西，再接一张假设「列表」。', 'Two ways: one assumes nothing; the other takes any thing first, then an assumption of “a list”.')],
+    solution: isoBoard(['∅>1', '⋀x>l', 'l>2'], { l: 'List' }),
+    naive: isoBoard(['∅>1', 'l>2'], { l: 'List' }),
+    after: T('list = [] | x :: list。和数一样，生成的归纳规则在 x :: xs 那种情况里先对 xs 用上要证的结论；任取的那样东西只是元素，不是列表，所以对它没有归纳假设。', 'list = [] | x :: list. As with numbers, the induction rule made of it uses what is being proved on xs first in the case x :: xs; the thing taken is an element, not a list, so it gets no induction hypothesis.'),
+  }),
+  TYPE({
+    id: 'decl-bool',
+    title: T('声明真假', 'Declaring true and false'),
+    declare: T('真假值', 'a truth value'),
+    target: 'Bool',
+    sentences: ['Bool'],
+    tray: ['none'],
+    datatype: { type: 'bool', ctors: ['tt', 'ff'], args: {} },
+    ways: [[], []],
+    tests: [{ have: {}, make: true }],
+    intro: [{ t: T('比大小的结果不是一句话，而是一个值：真或者假。它们也是声明出来的一种东西。', 'The result of a comparison is not a sentence but a value: true or false. They too are a kind of thing that is declared.') }],
+    brief: T('真假值：真什么都不要，假也什么都不要，是两样不同的东西。写出它的声明。', 'A truth value: true needs nothing, false needs nothing, and they are two different things. Write its declaration.'),
+    hint: [T('两条引入规则，各接一张「不用假设」。', 'Two ways, each with an “assume nothing”.')],
+    solution: isoBoard(['∅1>1', '∅2>2']),
+    naive: isoBoard(['∅1>1']),
+    after: T('bool = 真 | 假。两条什么都不要的构造子，情况表格分不出一条还是两条，规则本身分得出：按情况分有两种情况，互不相同说真不等于假。程序里的每一个「如果」，在证明里就是对它分一次情况。', 'bool = true | false. Two constructors that need nothing; the situations cannot tell one from two, the rules can: cases has two cases, and all different says true is not false. Every “if” in a program is a case split on it in a proof.'),
   }),
   // Optional, for whoever built the generator: what it makes of the numbers, cases with no induction hypothesis.
   generator({

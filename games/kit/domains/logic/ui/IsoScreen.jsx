@@ -6,7 +6,10 @@ import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, freeSpot, useSlotEditing } from '../../../circuit/index.js'
 import FormulaField from './FormulaField.jsx'
 import { say } from '../notation.js'
-import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, runIso, sentenceOf, settle, startIso, thingCard, wayOf, wayRule, wayText, waysIn } from '../iso.js'
+import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, runIso, sentenceOf, settle, startIso, thingCard, typeOf, wayOf, wayRule, wayText, waysIn } from '../iso.js'
+import { constructorsOf, datatypeRules } from '../datatype.js'
+import { atom, fn, tvar } from '../formula.js'
+import { ruleText } from '../schematic.js'
 import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
 
@@ -305,6 +308,19 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
  */
 export function DeclaredRules({ level }) {
   const text = (f) => L(say(f, level.notation))
+  // A type (chapter 12): its constructors, and the rules the kernel makes of them.
+  if (level.datatype) {
+    const type = typeOf(level)
+    return (
+      <div className="dialog-note">
+        <span className="panel-label">{tr('声明给出的规则', 'The rules it declares')}</span>
+        <div className="lg-clauses">
+          <code>{`${level.datatype.type} = ${constructorsOf(type).map((c) => text(atom('=', [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))])).split(' = ')[0]).join(' | ')}`}</code>
+          {datatypeRules(level.datatype.type, type).map((r) => <code key={r.key}>{`${L(r.name)}：${ruleText(r, text)}`}</code>)}
+        </div>
+      </div>
+    )
+  }
   const rules = declaredRules(level, waysIn(level.solution))
   return (
     <div className="dialog-note">

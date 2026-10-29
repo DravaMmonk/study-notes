@@ -226,15 +226,19 @@ export const ERAS = [
   {
     id: 'inductive', machine: 'prover', keeps: 'all',
     foundation: [
-      // Sums worked out by hand on the proof board, then by simp with the definitions: lists, conditions, a given,
-      // under ∀.
-      series('defs', '定义当规则', 'Definitions as rules', ['nl-plus', 'sp-compute', 'sp-lists', 'sp-cond', 'sp-hyp', 'sp-under']),
-      // The rules a declaration gives, ending with induction (by hand, then on the machine).
-      series('decl', '声明给出的规则', 'What a declaration gives', ['decl-nat', 'in-distinct', 'in-inject', 'in-cases', 'in-zero']),
+      // Numbers declared and addition defined, then worked out by hand and by simp.
+      series('from', '数从哪里来', 'Where numbers come from', ['decl-nat', 'def-plus', 'nl-plus', 'sp-compute', 'sp-under']),
+      // The rules the declaration gives, one-to-one proved, and induction (by hand, then on the machine).
+      series('decl', '声明给出的规则', 'What a declaration gives', ['in-distinct', 'in-inject', 'in-cases', 'in-zero']),
+      // Lists and definitions with a condition need nothing from each other.
+      branches(
+        ['list', '列表', 'Lists', ['decl-list', 'def-list', 'sp-lists', 'sp-hyp']],
+        ['cond', '带条件的定义', 'Definitions with a condition', ['decl-bool', 'def-max', 'sp-cond']],
+      ),
       // Numbers, lists and why a definition must stop need nothing from each other.
       branches(
         ['nat', '数', 'Numbers', ['in-succ', 'in-comm', 'in-assoc']],
-        ['list', '列表', 'Lists', ['in-appnil', 'in-appassoc', 'in-revapp']],
+        ['lists', '列表的等式', 'Equations of lists', ['in-appnil', 'in-appassoc', 'in-revapp']],
         ['stop', '为什么要停', 'Why it must stop', ['in-noteq', 'in-loop']],
       ),
     ],
@@ -242,7 +246,7 @@ export const ERAS = [
     topics: [
       // What the generator (chapter 3, optional) makes of the numbers.
       { id: 'gen-nat', code: 'E', after: ['decl-nat', 'gen-each'], levels: ['gen-nat'], title: T('生成器遇上自然数', 'The generator meets the numbers') },
-      { id: 'sort', code: 'I', after: 'in-appnil', levels: ['sort-ins', 'sort-run', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') },
+      { id: 'sort', code: 'I', after: ['in-appnil', 'sp-cond'], levels: ['sort-ins', 'sort-run', 'sort-if', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') },
       { id: 'goedel', code: 'G', after: ['in-itsum', 'u-halt'], levels: ['gd-code', 'gd-check', 'gd-diag', 'gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
     ],
     challenges: [{ level: 'in-circle', after: 'in-comm' }],

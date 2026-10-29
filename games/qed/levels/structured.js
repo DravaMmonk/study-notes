@@ -13,9 +13,6 @@ const read = (task) => script({ step: T('读', 'Read'), locked: true, brief: T('
 const wire = (task) => ({ kind: 'proof', step: T('接线', 'Wire'), cases: [], brief: T('照着这段脚本，在证明板上接出同一个证明。', 'Wire the same proof on the proof board, following this script.'), ...task })
 const WRITE = T('写一段脚本，证明要证的那句。', 'Write a script that proves the sentence.')
 const ADDER = { s: 'Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)', c: 'Carry ↔ InA ∧ InB' }
-const LIST_T = { list: 'nil | cons(elem, list)' }
-const REV = ['app(nil, ys) = ys', 'app(cons(x, xs), ys) = cons(x, app(xs, ys))', 'rev(nil) = nil', 'rev(cons(x, xs)) = app(rev(xs), cons(x, nil))']
-const NAT = ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))']
 
 // Rain makes it wet, and wet makes it slip: the opening script, and its proof wired.
 const CHAIN = [
@@ -159,7 +156,7 @@ export const structured = [
     tasks: [
       script({ step: T('第一题', 'Problem 1'), brief: WRITE, premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Slip', answer: [{ k: 'show', stmt: 'Rain → Slip', using: ['p', 'q'], by: 'auto' }], naive: [{ k: 'show', stmt: 'Rain → Slip', using: ['p', 'q'], by: 'rule:mp' }], hint: [T('用到的事实都写在 using 里，剩下的交给 auto。', 'Put the facts used after using, and leave the rest to auto.')] }),
       script({ step: T('第二题', 'Problem 2'), brief: WRITE, premises: {}, goal: '((Rain → Wet) → Rain) → Rain', answer: [{ k: 'show', stmt: '((Rain → Wet) → Rain) → Rain', by: 'metis' }], naive: [{ k: 'show', stmt: '((Rain → Wet) → Rain) → Rain', by: 'auto' }], hint: [T('<level-ref to="peirce"></level-ref>：auto 证不出来的。', '<level-ref to="peirce"></level-ref>: auto cannot prove it.')] }),
-      script({ step: T('第三题', 'Problem 3'), brief: WRITE, premises: {}, goal: 'plus(s(zero), s(zero)) = s(s(zero))', consts: ['zero'], words: TERM_WORDS, defs: NAT, simp: ['def.0', 'def.1'], answer: [{ k: 'show', stmt: 'plus(s(zero), s(zero)) = s(s(zero))', by: 'simp' }], naive: [{ k: 'show', stmt: 'plus(s(zero), s(zero)) = s(s(zero))', by: 'rule:refl' }], hint: [T('这一关的化简会按加法的定义算。', 'This level’s Simp works by the definition of addition.')] }),
+      script({ step: T('第三题', 'Problem 3'), brief: WRITE, premises: {}, goal: 'plus(s(zero), s(zero)) = s(s(zero))', consts: ['zero'], words: TERM_WORDS, defs: ['plus'], simp: ['def.0', 'def.1'], answer: [{ k: 'show', stmt: 'plus(s(zero), s(zero)) = s(s(zero))', by: 'simp' }], naive: [{ k: 'show', stmt: 'plus(s(zero), s(zero)) = s(s(zero))', by: 'rule:refl' }], hint: [T('这一关的化简会按加法的定义算。', 'This level’s Simp works by the definition of addition.')] }),
     ],
     intro: [{ t: T('一句话，你造的证明助手证得完，脚本里就只写这一行：show … by auto。', 'When a proof assistant you built proves a sentence outright, the script holds just that one row: show … by auto.') }],
     after: T('真正的脚本里，大半的行都是这样一行：by auto、by simp、by metis。人只在证明助手证不下去的地方，把结构写出来。', 'In real scripts most rows are one row like this: by auto, by simp, by metis. People write out structure only where the proof assistants cannot get through.'),
@@ -241,8 +238,8 @@ export const structured = [
     brief: WRITE,
     premises: {},
     goal: '∀xs. rev(rev(xs)) = xs',
-    datatypes: LIST_T,
-    defs: REV,
+    types: ['list'],
+    defs: ['app', 'rev'],
     words: TERM_WORDS,
     simp: ['def.0', 'def.1', 'def.2', 'def.3', 'revApp'],
     answer: [{ k: 'show', stmt: '∀xs. rev(rev(xs)) = xs', by: 'induct' }],

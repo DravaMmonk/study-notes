@@ -1,16 +1,17 @@
-// Chapter 12 · Numbers and lists: a sum worked out by hand on the proof board (the definitions as givens, Take one
-// and Rewrite), then by simp with the definitions as rewrite rules: lists, rules with conditions, a given, under ∀.
-// Then numbers and lists are declared (nat = 0 | S nat), and a declaration gives rules (kit/domains/logic/datatype.js)
-// used with the rule cards like any other: the constructors are all different, each is one-to-one, every value is
-// made by one of them, and induction, done first by hand with the two-box Induction part, then by the rule on the
-// machine. Then three lines that need nothing from each other: numbers (S on the right, commutativity, associativity),
-// lists (append nil, append associates, reverse of an append) and why a definition must stop (x ≠ S x; a definition
-// that never stops proves ⊥). Each equation proved is a rule and a rewrite rule from then on (the course's facts).
-// Practice puts both together. Topics: insertion sort; and, after the halting problem, incompleteness, Gödel's whole
-// argument in six steps: sentences coded as numbers, proof checking and the diagonal as computations Simp works out,
-// then on the proof board true yet unprovable, consistency is enough, and no consistent prover proves itself
-// consistent. The challenge is commutativity, which simp
-// would turn back and forth for ever.
+// Chapter 12 · Numbers and lists, everything in their rule book declared by the player: the types on the declaration
+// board (declare.js), the functions on the definition board (define.js, one row per constructor, recursion only on a
+// smaller argument). Addition is defined, worked out by hand on the proof board (its equations as givens, Take one and
+// Rewrite), then by simp. The declaration gives rules (kit/domains/logic/datatype.js) used with the rule cards like
+// any other: the constructors are all different, every value is made by one of them, and induction, done first by
+// hand with the two-box Induction part, then by the rule on the machine; one-to-one is proved, from pred. Lists
+// (declared, append and length defined, simp with a given) and definitions with a condition (bool declared, le and
+// max defined) need nothing from each other; then numbers, lists and why a definition must stop. Each equation proved
+// is a rule and a rewrite rule from then on (the course's facts). Practice puts both together. Topics: insertion sort
+// (if, insert and sort defined; if's rules with a condition proved); and, after the halting problem, incompleteness,
+// Gödel's whole argument in six steps: sentences coded as numbers, proof checking and the diagonal as computations
+// Simp works out (machines the levels write, `stated`), then on the proof board true yet unprovable, consistency is
+// enough, and no consistent prover proves itself consistent. The challenge is commutativity, which simp would turn
+// back and forth for ever.
 import { proof } from '../../kit/domains/logic/build.js'
 import { flow, script } from './machines.js'
 import { TERM_WORDS } from './words.js'
@@ -20,20 +21,16 @@ const GOAL = [{ name: 'in', label: T('目标', 'Goal') }]
 const proves = (level) => ({ kind: 'machine', want: 'proved', inputs: GOAL, backtrack: true, words: TERM_WORDS, ...level })
 const PROVE = T('设计一个证明助手，证完每一个目标。', 'Design a proof assistant that proves every goal.')
 
-const NAT_T = { nat: 'zero | s(nat)' }
-const LIST_T = { list: 'nil | cons(elem, list)' }
-const NAT = ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))']
-const MAX = ['le(zero, y) = tt', 'le(s(x), zero) = ff', 'le(s(x), s(y)) = le(x, y)', 'le(x, y) = tt ⟹ max(x, y) = y', 'le(x, y) = ff ⟹ max(x, y) = x']
-const LIST = ['app(nil, ys) = ys', 'app(cons(x, xs), ys) = cons(x, app(xs, ys))', 'len(nil) = zero', 'len(cons(x, xs)) = s(len(xs))']
-const REV = [...LIST, 'rev(nil) = nil', 'rev(cons(x, xs)) = app(rev(xs), cons(x, nil))']
-const SUM = [...NAT, 'sum(nil) = zero', 'sum(cons(x, xs)) = plus(x, sum(xs))', 'itsum(nil, y) = y', 'itsum(cons(x, xs), y) = itsum(xs, plus(y, x))']
-// Insertion sort, and two rules for if with a condition (each follows from if's definition, by cases on the condition).
-const SORT = [
-  'le(zero, y) = tt', 'le(s(x), zero) = ff', 'le(s(x), s(y)) = le(x, y)', 'if(tt, u, v) = u', 'if(ff, u, v) = v',
-  'ins(x, nil) = cons(x, nil)', 'ins(x, cons(y, ys)) = if(le(x, y), cons(x, cons(y, ys)), cons(y, ins(x, ys)))',
-  'sort(nil) = nil', 'sort(cons(x, xs)) = ins(x, sort(xs))', 'len(nil) = zero', 'len(cons(x, xs)) = s(len(xs))',
-  'u = tt ⟹ if(u, v, w) = v', 'u = ff ⟹ if(u, v, w) = w',
-]
+// The types and functions are the player's (declare.js, the definition levels below): a level names those it uses,
+// and gets the equations in the order of their definitions' rows (def.0, def.1 …).
+const NAT = ['nat']
+const LIST = ['list']
+// Insertion sort: comparison, if, insert, sort, and length for what is proved of it.
+const SORT = ['le', 'if', 'ins', 'sort', 'len']
+// A function defined on the definition board (define.js): its rows, each with its right side to pick.
+const define = (level) => ({ kind: 'define', words: TERM_WORDS, ...level })
+const row = (lhs, ...choices) => ({ lhs, choices })
+const DEFINE = T('给每一行选一个右边，让每个测试都算对。', 'Pick a right side for every row so that every test works out right.')
 // The incompleteness topic: G, provability of a sentence's code, and the codes it needs.
 const GOEDEL = { G: T('G', 'G'), Prov: T('{0} 证得出', '{0} is provable'), diag: T('对角 {0}', 'the diagonal of {0}'), d: T('⌜D⌝', '⌜D⌝'), g: T('⌜G⌝', '⌜G⌝'), gn: T('⌜G 证不出⌝', '⌜G is not provable⌝'), gp: T('⌜⌜G⌝ 证得出⌝', '⌜⌜G⌝ is provable⌝'), cs: T('⌜不矛盾⌝', '⌜consistent⌝') }
 // The machine levels of the topic: sentences as terms (it rains, ¬, →), their codes (lists of symbol numbers), proofs
@@ -53,7 +50,25 @@ const defs = (n, from = 0) => Array.from({ length: n }, (_, k) => `def.${from + 
 const byInduction = (type, ...body) => flow(['rule', `${type}.induct`], { frame: 'each', body: [...body, ['rule', 'refl']] })
 
 export const inductive = [
-  // ---------- by hand ----------
+  // ---------- where numbers come from ----------
+  define({
+    id: 'def-plus',
+    title: T('定义加法', 'Defining addition'),
+    fn: 'plus',
+    on: 0,
+    rows: [row('plus(zero, y)', 'y', 'zero', 's(y)'), row('plus(s(x), y)', 's(plus(x, y))', 'plus(x, y)', 's(plus(s(x), y))', 's(y)')],
+    tests: [
+      { term: 'plus(s(zero), s(zero))', value: 's(s(zero))' },
+      { term: 'plus(s(s(zero)), s(zero))', value: 's(s(s(zero)))' },
+      { term: 'plus(zero, s(zero))', value: 's(zero)' },
+    ],
+    solution: ['y', 's(plus(x, y))'],
+    naive: ['y', 's(plus(s(x), y))'],
+    brief: DEFINE,
+    hint: [T('S x + y：先算出 x + y，再取它的下一个。', 'S x + y: work out x + y, then take the next one.')],
+    intro: [{ t: T('数有了，加法还没有。定义一个函数，就是对它要拆的那个数，每个构造子各写一行：0 + y 是什么，S x + y 是什么。右边可以再用加法，可要拆的那个数得变小，不然算不完。', 'There are numbers, but no addition yet. Defining a function means writing one row for each constructor of the number it takes apart: what 0 + y is, and what S x + y is. A right side may use addition again, but on a smaller number, or it never finishes.') }],
+    after: T('每个构造子一行，右边只对 S x 里面的 x 再用加法：这样的定义一层层往下拆，一定算得完。Lean 把它编译成自然数的递推子 Nat.rec，Isabelle 的 fun 先证它会停才收下。两行等式从此进了「数理规则书」。', 'One row per constructor, and addition used again only on the x inside S x: such a definition takes the number apart layer by layer and always finishes. Lean compiles it into the numbers’ recursor Nat.rec; Isabelle’s fun accepts it only once it is proved to stop. The two equations go into the “Rule book of numbers”.'),
+  }),
   {
     id: 'nl-plus',
     kind: 'proof',
@@ -68,8 +83,7 @@ export const inductive = [
       T('第二条定义算出 S (0 + S 0)；再用第一条算出 0 + S 0，用等量代换把它换进去。', 'The second definition gives S (0 + S 0); the first works out 0 + S 0, and Rewrite puts it in.'),
     ],
     intro: [
-      { t: T("此前的自动化流程主要通过归结寻找矛盾，并不直接提供数学归纳。本章引入自然数与列表：从构造子和定义出发，学习计算，并证明对所有元素成立的性质。", "The preceding automation workflow primarily searches for contradictions by resolution; it does not directly supply mathematical induction. This chapter introduces natural numbers and lists, their constructors and definitions, and proofs of properties for all elements.") },
-      { t: T("自然数可以由 0 和后继构造：0、S 0、S (S 0)……加法用两个等式定义：0 + y = y，S x + y = S (x + y)。本关将这些定义作为已知，证明一个具体等式。", "Natural numbers can be constructed from zero and successor: 0, S 0, S (S 0), and so on. Addition is defined by 0 + y = y and S x + y = S (x + y). Use these definitions as givens to prove a concrete equation.") },
+      { t: T('<level-ref to="def-plus"></level-ref>的两条等式，0 + y = y，S x + y = S (x + y)，在证明板上就是两句「对所有」的已知。拿它们证一个具体的等式。', 'The two equations of <level-ref to="def-plus"></level-ref>, 0 + y = y and S x + y = S (x + y), are two “for all” givens on the proof board. Prove a particular equation with them.') },
     ],
     solution: proof({ e1: ['allE', { t: 'zero' }], e2: ['allE', { t: 's(zero)' }], e3: ['allE', { t: 's(zero)' }], w: ['rewrite', { at: [0] }] }, ['d1>e1.all', 'e1>e2.all', 'd0>e3.all', 'e3>w.eq', 'e2>w.p', 'w>goal'], { premises: ['d0', 'd1'] }),
     after: T('三次取一个、一次代换，才算完 1 + 1。数一大，手算就没完没了；可每一步做的都一样：拿一条定义，把对得上左边的地方换成右边。', 'Three Take ones and a Rewrite, just for 1 + 1. With bigger numbers, working by hand never ends; yet every step is the same: take a definition, and where its left side fits, put its right side.'),
@@ -78,8 +92,7 @@ export const inductive = [
   proves({
     id: 'sp-compute',
     title: T('算一算', 'Work it out'),
-    words: TERM_WORDS,
-    defs: NAT,
+    defs: ['plus'],
     tests: [{ goal: 'plus(s(zero), s(zero)) = s(s(zero))' }, { goal: 'plus(s(s(zero)), s(zero)) = s(s(s(zero)))' }, { goal: 'plus(zero, s(s(zero))) = s(s(zero))' }],
     brief: PROVE,
     hint: [T('化简用两条定义，把左边算出来；两边一样了，用规则接上<part-ref to="part:refl"></part-ref>。', 'Simp with the two definitions works the left side out; once both sides are the same, Rule with <part-ref to="part:refl"></part-ref>.')],
@@ -87,11 +100,45 @@ export const inductive = [
     solution: script(['simp', ['def.0', 'def.1']], ['rule', 'refl']),
     after: T('化简把定义从左往右一遍遍用，直到左边算成一个数；两边一样，就是自反律。证明助手的「计算」，就是改写。', 'Simp uses the definitions left to right again and again until the left side is worked out to a number; both sides the same is reflexivity. Computing, for the proof assistant, is rewriting.'),
   }),
+  {
+    id: 'def-list',
+    title: T('定义拼接和长度', 'Defining append and length'),
+    tasks: [
+      define({
+        step: T('拼接', 'Append'),
+        fn: 'app',
+        on: 0,
+        rows: [row('app(nil, ys)', 'ys', 'nil'), row('app(cons(x, xs), ys)', 'cons(x, app(xs, ys))', 'app(xs, cons(x, ys))', 'cons(x, app(cons(x, xs), ys))')],
+        tests: [
+          { term: 'app(cons(ann, nil), cons(bo, nil))', value: 'cons(ann, cons(bo, nil))' },
+          { term: 'app(cons(ann, cons(bo, nil)), cons(cy, nil))', value: 'cons(ann, cons(bo, cons(cy, nil)))' },
+        ],
+        solution: ['ys', 'cons(x, app(xs, ys))'],
+        naive: ['ys', 'app(xs, cons(x, ys))'],
+        brief: DEFINE,
+        hint: [T('x :: xs 接上 ys：x 还在最前面，后面是 xs 接上 ys。', 'x :: xs followed by ys: x stays in front, and behind it comes xs followed by ys.')],
+        intro: [{ t: T('xs ++ ys 把两个列表接起来。拆的是前面那个列表：它空着，或者前面有一样东西 x。', 'xs ++ ys joins two lists. What it takes apart is the first list: empty, or with a thing x in front.') }],
+      }),
+      define({
+        step: T('长度', 'Length'),
+        fn: 'len',
+        on: 0,
+        rows: [row('len(nil)', 'zero', 's(zero)'), row('len(cons(x, xs))', 's(len(xs))', 'len(xs)', 's(len(cons(x, xs)))')],
+        tests: [{ term: 'len(cons(ann, cons(bo, nil)))', value: 's(s(zero))' }, { term: 'len(nil)', value: 'zero' }],
+        solution: ['zero', 's(len(xs))'],
+        naive: ['zero', 'len(xs)'],
+        brief: DEFINE,
+        hint: [T('多一样东西，就长一格。', 'One more thing, one longer.')],
+      }),
+    ],
+    intro: [{ t: T('列表有了，再定义两个函数：拼接和长度。和加法一样，每个构造子一行。', 'With lists declared, define two functions: append and length. As with addition, one row per constructor.') }],
+    after: T('四条等式进了「数理规则书」。长度把一个列表变成一个数：x :: xs 的长度是 S (len xs)，两种类型在一条定义里见面。', 'Four equations go into the “Rule book of numbers”. Length turns a list into a number: the length of x :: xs is S (len xs), two types meeting in one definition.'),
+  },
   proves({
     id: 'sp-lists',
     title: T('列表也一样', 'Lists too'),
-    words: TERM_WORDS,
-    defs: LIST,
+    types: LIST,
+    defs: ['app', 'len'],
     tests: [
       { goal: 'len(app(cons(ann, nil), cons(bo, nil))) = s(s(zero))' },
       { goal: 'app(cons(ann, nil), app(cons(bo, nil), cons(cy, nil))) = cons(ann, cons(bo, cons(cy, nil)))' },
@@ -99,22 +146,64 @@ export const inductive = [
     ],
     brief: PROVE,
     hint: [T('四条定义都接进化简。', 'Wire all four definitions into Simp.')],
-    intro: [{ t: T("列表同样由构造子定义：[] 是空列表，x :: xs 将 x 放在列表 xs 的前面。拼接 ++ 和长度 len 各有两个定义等式，分别对应空列表与非空列表。", "Lists are also defined by constructors: [] is empty, and x :: xs places x at the front of xs. Append ++ and length len each have defining equations for the empty and nonempty cases.") }],
+    intro: [{ t: T('<level-ref to="def-list"></level-ref>定义的拼接 ++ 和长度 len，也交给化简去算。', 'The append ++ and length len defined in <level-ref to="def-list"></level-ref> go to Simp too.') }],
     solution: script(['simp', ['def.0', 'def.1', 'def.2', 'def.3']], ['rule', 'refl']),
     after: T('数和列表一个样：都是从最简单的那一个（0、[]）一步步搭出来，函数按它是怎么搭的分两种情况定义，化简照着定义算。', 'Numbers and lists are alike: each built step by step from the simplest one (0, []), with functions defined by how it was built, in two cases, and Simp works them out by those definitions.'),
   }),
+  {
+    id: 'def-max',
+    title: T('比大小，取大的', 'Comparing, and the larger'),
+    tasks: [
+      define({
+        step: T('比大小', 'Comparing'),
+        fn: 'le',
+        on: 0,
+        rows: [row('le(zero, y)', 'tt', 'ff'), row('le(s(x), zero)', 'ff', 'tt'), row('le(s(x), s(y))', 'le(x, y)', 'tt', 'le(s(x), s(y))')],
+        tests: [
+          { term: 'le(s(zero), s(s(zero)))', value: 'tt' },
+          { term: 'le(s(s(zero)), s(zero))', value: 'ff' },
+          { term: 'le(zero, zero)', value: 'tt' },
+        ],
+        solution: ['tt', 'ff', 'le(x, y)'],
+        naive: ['tt', 'ff', 'tt'],
+        brief: DEFINE,
+        hint: [T('S x ≤ S y 和 x ≤ y 是一回事：两边各拆掉一个 S。', 'S x ≤ S y is the same as x ≤ y: take one S off each side.')],
+        intro: [{ t: T('x ≤ y 算出的是一个真假值。两个数都要拆：0 和谁比，S x 和 0 比，S x 和 S y 比，三行。', 'x ≤ y works out to a truth value. Both numbers are taken apart: 0 against anything, S x against 0, S x against S y: three rows.') }],
+      }),
+      define({
+        step: T('取大的', 'The larger'),
+        fn: 'max',
+        on: null,
+        defs: ['le'],
+        rows: [
+          { lhs: 'max(x, y)', when: 'le(x, y) = tt', choices: ['y', 'x'] },
+          { lhs: 'max(x, y)', when: 'le(x, y) = ff', choices: ['x', 'y'] },
+        ],
+        tests: [
+          { term: 'max(s(zero), s(s(zero)))', value: 's(s(zero))' },
+          { term: 'max(s(s(zero)), zero)', value: 's(s(zero))' },
+        ],
+        solution: ['y', 'x'],
+        naive: ['x', 'y'],
+        brief: DEFINE,
+        hint: [T('x ≤ y 是真，大的是 y。', 'If x ≤ y is true, the larger is y.')],
+        intro: [{ t: T('max 不拆哪个数，而是看 x ≤ y 是真是假：真假各一行，每行带一个<b>条件</b>。', 'max takes no number apart; it looks at whether x ≤ y is true: one row each for true and false, each with a <b>condition</b>.') }],
+      }),
+    ],
+    intro: [{ t: T('<level-ref to="decl-bool"></level-ref>有了真和假，就能定义比大小，再用它定义取大的。', 'With true and false from <level-ref to="decl-bool"></level-ref>, comparison can be defined, and the larger of two with it.') }],
+    after: T('le 的三行一层层拆两个数，max 的两行按条件分：条件也是一种情况，真假两种，一种一行。', 'The three rows of le take two numbers apart layer by layer; the two rows of max split on a condition: a condition is cases too, true and false, one row each.'),
+  },
   proves({
     id: 'sp-cond',
     title: T('带条件的规则', 'A rule with a condition'),
-    words: TERM_WORDS,
-    defs: MAX,
+    defs: ['le', 'max'],
     tests: [{ goal: 'max(s(zero), s(s(zero))) = s(s(zero))' }, { goal: 'max(s(s(zero)), s(zero)) = s(s(zero))' }, { goal: 'max(zero, s(zero)) = s(zero)' }],
     brief: PROVE,
     hint: [
       T('max 的两条规则，各走一条路：改写一处，再证两边一样，再证条件。', 'The two rules for max, one way each: rewrite, prove both sides the same, then prove the condition.'),
       T('条件证不出来的那条路，自己就失败了。', 'The way whose condition cannot be proved fails by itself.'),
     ],
-    intro: [{ t: T('max 用带<b>条件</b>的等式定义：x ≤ y 是真时，max x y = y；是假时，max x y = x。带条件的规则改写一处以后，条件成了一个新目标，排在后面：证出了它，这一处才算改对了。', 'max is defined by equations with a <b>condition</b>: when x ≤ y is true, max x y = y; when false, max x y = x. A rule with a condition, once it rewrites a place, leaves the condition as a new goal behind: only once it is proved was the rewrite right.') }],
+    intro: [{ t: T('<level-ref to="def-max"></level-ref>里 max 的两行带<b>条件</b>：x ≤ y 是真时，max x y = y；是假时，max x y = x。带条件的规则改写一处以后，条件成了一个新目标，排在后面：证出了它，这一处才算改对了。', 'The two rows of max in <level-ref to="def-max"></level-ref> have a <b>condition</b>: when x ≤ y is true, max x y = y; when false, max x y = x. A rule with a condition, once it rewrites a place, leaves the condition as a new goal behind: only once it is proved was the rewrite right.') }],
     solution: flow({ ways: [
       [['rw', 'def.3'], ['rule', 'refl'], ['simp', ['def.0', 'def.1', 'def.2']], ['rule', 'refl']],
       [['rw', 'def.4'], ['rule', 'refl'], ['simp', ['def.0', 'def.1', 'def.2']], ['rule', 'refl']],
@@ -125,8 +214,7 @@ export const inductive = [
     id: 'sp-hyp',
     title: T('拿已知改写', 'Rewriting with a given'),
     adds: ['hyp'],
-    words: TERM_WORDS,
-    defs: [...NAT, ...LIST],
+    defs: ['plus', 'app', 'len'],
     tests: [{ goal: 'plus(a, zero) = a → plus(s(a), zero) = s(a)' }, { goal: 'len(app(l, nil)) = len(l) → len(app(cons(ann, l), nil)) = s(len(l))' }],
     brief: PROVE,
     hint: [T('先用规则接上假设框，把「若」的那一半放进已知。改写规则里有一条是「已知里的等式」。', 'First Rule with the assumption box, putting the “if” half among the givens. One of the rewrite rules is “an equation given”.')],
@@ -137,8 +225,7 @@ export const inductive = [
   proves({
     id: 'sp-under',
     title: T('在「对所有」底下', 'Under “for all”'),
-    words: TERM_WORDS,
-    defs: NAT,
+    defs: ['plus'],
     tests: [{ goal: '∀x. plus(zero, plus(zero, x)) = x' }, { goal: '∀x. ∀y. plus(s(zero), plus(x, y)) = s(plus(x, y))' }],
     brief: PROVE,
     hint: [T('先化简，再把「对所有」倒着拆掉，有几层拆几层，最后两边一样。', 'Simp first, then take the “for all”s apart backwards, as many as there are, and both sides are the same.')],
@@ -151,7 +238,7 @@ export const inductive = [
   proves({
     id: 'in-distinct',
     title: T('0 不等于 1', '0 is not 1'),
-    datatypes: NAT_T,
+    types: NAT,
     tests: [{ goal: '¬(zero = s(zero))' }, { goal: '¬(s(s(zero)) = zero)' }, { goal: '¬(zero = s(a))' }],
     brief: PROVE,
     hint: [
@@ -159,27 +246,56 @@ export const inductive = [
       T('有一组测试的等式是反过来写的：两条规则，走几条路。', 'One test has its equation the other way round: two rules, on Alternatives.'),
     ],
     intro: [
-      { t: T('化简器里，数和列表是被算的东西：0、S 0 都是现成的，加法的定义是给定的等式。可「0 不等于 1」，化简证不出来：没有哪条定义说它们不一样。这一章给证明器装上<wiki-ref to="inductive"></wiki-ref>：数和列表是怎么来的。', 'In the simplifier, numbers and lists are things to work out: 0 and S 0 are just there, and addition’s definition is equations given. But “0 is not 1” Simp cannot prove: no definition says they differ. This chapter fits the prover with the <wiki-ref to="inductive"></wiki-ref>: where numbers and lists come from.') },
-      { t: T('<level-ref to="decl-nat"></level-ref>声明了自然数：nat = 0 | S nat，一个数要么是 0，要么是某个数的后一个 S n。0 和 S 这两条引入规则叫<wiki-ref to="constructor"></wiki-ref>。声明只说了这一句，可它给规则书添了一组规则，第一条：不同的构造子造出的值互不相同，0 = S x 不可能成立，从它推出什么都行。', '<level-ref to="decl-nat"></level-ref> declared the numbers: nat = 0 | S nat, a number is 0 or the one after some number, S n. 0 and S, the two ways, are each a <wiki-ref to="constructor"></wiki-ref>. The declaration says only that, yet it adds a group of rules to the rule book, the first: values made by different constructors are different, 0 = S x cannot hold, and from it anything follows.') },
+      { t: T('化简会算 1 + 1，可「0 不等于 1」它证不出来：没有哪条定义说它们不一样。说它们不一样的是声明：<level-ref to="decl-nat"></level-ref>的 nat = 0 | S nat 是一个<wiki-ref to="inductive"></wiki-ref>，0 和 S 两条来路互不相同，0 = S x 不可能成立，从它推出什么都行。', 'Simp works out 1 + 1, but “0 is not 1” it cannot prove: no definition says they differ. The declaration says so: nat = 0 | S nat of <level-ref to="decl-nat"></level-ref> is an <wiki-ref to="inductive"></wiki-ref>, its two ways 0 and S are different, 0 = S x cannot hold, and from it anything follows.') },
     ],
     solution: flow(['rule', 'impI'], { ways: [[['erule', 'nat.distinct1']], [['erule', 'nat.distinct2']]] }),
     after: T('0 和 S x 由不同的构造子造出，所以不相等：这不是一条另加的公理，是声明本身的意思。两个方向各是一条规则。', '0 and S x come from different constructors, so they differ: not an axiom added, but what the declaration means. Each way round is a rule.'),
   }),
-  proves({
+  {
     id: 'in-inject',
     title: T('一对一', 'One-to-one'),
-    datatypes: NAT_T,
-    tests: [{ goal: 's(a) = s(b) → a = b' }, { goal: 's(s(a)) = s(s(b)) → a = b' }],
-    brief: PROVE,
-    hint: [T('<part-ref to="part:search"></part-ref>里两条路：已知里有，或者规则对已知接上「数理规则书」里 S … = S … 那一条。', 'Two ways in a <part-ref to="part:search"></part-ref>: Assumption, or Rule on a given with the S … = S … rule of the “Rule book of numbers”.')],
-    intro: [{ t: T('S a = S b，那么 a = b：同一个构造子造出的两个值相等，参数也就相等，这叫<wiki-ref to="injectivity"></wiki-ref>。这也是声明给的一条规则。要拆几层，事先不知道。', 'S a = S b, so a = b: two values made by the same constructor are equal only if their arguments are, which is called <wiki-ref to="injectivity"></wiki-ref>. This too is a rule the declaration gives. How many layers to take off is not known beforehand.') }],
-    solution: flow(['rule', 'impI'], { frame: 'search', body: [{ ways: [['assumption'], [['erule', 'nat.inject']]] }] }),
-    after: T('互不相同和一对一，合起来说的是：一个数只有一条引入规则。', 'All different and one-to-one together say: a number is made in one way only.'),
-  }),
+    fact: 'inject',
+    tasks: [
+      define({
+        step: T('前一个数', 'The one before'),
+        fn: 'pred',
+        on: 0,
+        rows: [row('pred(zero)', 'zero', 's(zero)'), row('pred(s(x))', 'x', 's(x)', 'pred(x)')],
+        tests: [
+          { term: 'pred(s(s(zero)))', value: 's(zero)' },
+          { term: 'pred(s(zero))', value: 'zero' },
+          { term: 'pred(zero)', value: 'zero' },
+        ],
+        solution: ['zero', 'x'],
+        naive: ['zero', 'pred(x)'],
+        brief: DEFINE,
+        hint: [T('S x 前一个就是 x；0 前面没有数，就当它是 0。', 'The one before S x is x; nothing comes before 0, so take it as 0.')],
+      }),
+      {
+        kind: 'proof',
+        step: T('S 一对一', 'S is one-to-one'),
+        consts: ['zero'],
+        words: TERM_WORDS,
+        cases: [],
+        tests: [{ premises: { p: '∀x. pred(s(x)) = x' }, goal: '∀x. ∀y. s(x) = s(y) → x = y' }],
+        brief: T('从 pred 的定义证明出：S x = S y，就有 x = y。', 'From the definition of pred, prove: if S x = S y, then x = y.'),
+        hint: [
+          T('pred 的定义取 a、再取 b，得到 pred (S a) = a 和 pred (S b) = b。', 'Take a, and then b, in pred’s definition: pred (S a) = a and pred (S b) = b.'),
+          T('用假设的 S a = S b 把第一句改成 pred (S b) = a，再拿它改第二句的左边。', 'The assumed S a = S b turns the first into pred (S b) = a, which then rewrites the left side of the second.'),
+        ],
+        solution: proof({
+          gx: ['allI', { x: 'a' }], gy: ['allI', { x: 'b' }, 'gx'], f: ['impI', { A: 's(a) = s(b)' }, 'gy'],
+          e1: ['allE', { t: 'a' }, 'f'], e2: ['allE', { t: 'b' }, 'f'], w1: ['rewrite', { at: [0] }, 'f'], w2: ['rewrite', { at: [0] }, 'f'],
+        }, ['p>e1.all', 'p>e2.all', 'f#body>w1.eq', 'e1>w1.p', 'w1>w2.eq', 'e2>w2.p', 'w2>f.body', 'f>gy.body', 'gy>gx.body', 'gx>goal'], { premises: ['p'] }),
+      },
+    ],
+    intro: [{ t: T('S a = S b，那么 a = b：同一个构造子造出的两个值相等，参数也就相等，这叫<wiki-ref to="injectivity"></wiki-ref>。声明没有直接说这一句，可它证得出来：定义一个把 S 拆掉的函数，S a 和 S b 一样，拆掉 S 剩下的也一样。', 'S a = S b, so a = b: two values made by the same constructor are equal only if their arguments are, which is called <wiki-ref to="injectivity"></wiki-ref>. The declaration does not say it outright, but it can be proved: define a function that takes S off, and if S a and S b are the same, so is what is left once S is off.') }],
+    after: T('pred 把 S 拆掉，两边一起拆，剩下的就相等。证出的一对一进了「数理规则书」，写成一条拆开的规则：已知里有 S ?x = S ?y，就换成 ?x = ?y。Lean 的内核也是这样从递推子推出一对一的（noConfusion）。互不相同和一对一，合起来说的是：一个数只有一条造出它的路。', 'pred takes S off; taking it off both sides leaves equals. The one-to-one proved goes into the “Rule book of numbers” as a rule that takes apart: with S ?x = S ?y given, go on with ?x = ?y. Lean’s kernel too gets one-to-one from the recursor (noConfusion). All different and one-to-one together say: a number is made in one way only.'),
+  },
   proves({
     id: 'in-cases',
     title: T('不是 0，就是后一个', 'Zero, or one after'),
-    datatypes: NAT_T,
+    types: NAT,
     tests: [{ goal: '∀x. x = zero ∨ (∃y. x = s(y))' }],
     brief: PROVE,
     hint: [T('先任取，再按情况分；在第一种情况里，已知里有会把 ?t 定下来。', 'For any first, then by cases; in the first case, Assumption settles ?t.')],
@@ -195,8 +311,8 @@ export const inductive = [
     tasks: [
       proves({
         step: T('算具体的数', 'The numbers'),
-        datatypes: NAT_T,
-        defs: NAT,
+        types: NAT,
+        defs: ['plus'],
         tests: [{ goal: 'plus(s(s(zero)), zero) = s(s(zero))' }, { goal: 'plus(s(s(s(zero))), zero) = s(s(s(zero)))' }],
         brief: PROVE,
         hint: [T('化简就够：S 在前面，定义就套得上。', 'Simp is enough: with S in front, the definition fits.')],
@@ -224,8 +340,8 @@ export const inductive = [
       },
       proves({
         step: T('对所有 x', 'For every x'),
-        datatypes: NAT_T,
-        defs: NAT,
+        types: NAT,
+        defs: ['plus'],
         tests: [{ goal: '∀x. plus(x, zero) = x' }],
         intro: [{ t: T('在证明助手上，化简改不动 x + 0：x 不知道是 0 还是 S 什么。声明给的归纳规则，做的正是那块两个框的元件做的事：⟦?P(0); ⋀x. ?P(x) ⟹ ?P(S x)⟧ ⟹ ∀x. ?P(x)。', 'On the proof assistant, Simp cannot change x + 0: x is not known to be 0 or S of something. The induction rule the declaration gives does just what the two-box part did: ⟦?P(0); ⋀x. ?P(x) ⟹ ?P(S x)⟧ ⟹ ∀x. ?P(x).') }],
         brief: T('证明对所有 x，x + 0 = x。', 'Prove x + 0 = x for every x.'),
@@ -243,8 +359,8 @@ export const inductive = [
     id: 'in-succ',
     title: T('S 加在右边', 'S on the right'),
     fact: 'addSucc',
-    datatypes: NAT_T,
-    defs: NAT,
+    types: NAT,
+    defs: ['plus'],
     tests: [{ goal: '∀x. ∀y. plus(x, s(y)) = s(plus(x, y))' }],
     brief: PROVE,
     hint: [T('对 x 归纳，∀y 留着：已知里那句也就对所有 y 成立。', 'Induct on x and leave ∀y alone: the given is then about every y too.')],
@@ -257,8 +373,8 @@ export const inductive = [
     id: 'in-comm',
     title: T('交换', 'Commutativity'),
     fact: 'addComm',
-    datatypes: NAT_T,
-    defs: NAT,
+    types: NAT,
+    defs: ['plus'],
     tests: [{ goal: '∀x. ∀y. plus(x, y) = plus(y, x)' }],
     brief: PROVE,
     hint: [T('0 的情况要 y + 0 = y，S 的情况要 y + S x：在「数理规则书」上勾上证出的 x + 0 = x 和 x + S y = S (x + y)，接进化简。', 'The 0 case needs y + 0 = y, the S case y + S x: tick the x + 0 = x and x + S y = S (x + y) proved on the “Rule book of numbers”, and wire it into Simp.')],
@@ -271,8 +387,8 @@ export const inductive = [
     id: 'in-assoc',
     title: T('结合', 'Associativity'),
     fact: 'addAssoc',
-    datatypes: NAT_T,
-    defs: NAT,
+    types: NAT,
+    defs: ['plus'],
     tests: [{ goal: '∀x. ∀y. ∀z. plus(plus(x, y), z) = plus(x, plus(y, z))' }],
     brief: PROVE,
     hint: [T('对最左边的 x 归纳：定义就是看左边那个数的。', 'Induct on the leftmost x: the definition looks at the number on the left.')],
@@ -286,12 +402,12 @@ export const inductive = [
     id: 'in-appnil',
     title: T('接一个空列表', 'Appending nothing'),
     fact: 'appNil',
-    datatypes: LIST_T,
-    defs: LIST,
+    types: LIST,
+    defs: ['app', 'len'],
     tests: [{ goal: '∀xs. app(xs, nil) = xs' }],
     brief: PROVE,
     hint: [T('倒着用「数理规则书」里 list 的归纳规则，再每个目标化简。', 'Use the list induction rule of the “Rule book of numbers” backwards, then simp each goal.')],
-    intro: [{ t: T('列表也是声明出来的：list = [] | x :: xs，一个列表要么是空的，要么是在列表 xs 前面接一个 x。声明给的规则一样四类，归纳的第二条前提是从 xs 到 x :: xs。', 'Lists are declared too: list = [] | x :: xs, a list is empty or an x put in front of a list xs. The declaration gives the same four kinds of rule, and induction’s second premise goes from xs to x :: xs.') }],
+    intro: [{ t: T('<level-ref to="decl-list"></level-ref>声明的 list = [] | x :: xs 也给出同样几类规则，归纳的第二条前提是从 xs 到 x :: xs。', 'The list = [] | x :: xs declared in <level-ref to="decl-list"></level-ref> gives the same kinds of rule, and induction’s second premise goes from xs to x :: xs.') }],
     solution: byInduction('list', ['simp', [...defs(2), 'hyp']]),
     after: T('和 x + 0 = x 一模一样的证明。数和列表是同一种东西：都是一层层造出来的<wiki-ref to="inductive"></wiki-ref>。它也进了「数理规则书」。', 'The very same proof as x + 0 = x. Numbers and lists are the same kind of thing, built up layer by layer: each is an <wiki-ref to="inductive"></wiki-ref>. It goes into the “Rule book of numbers” too.'),
   }),
@@ -299,8 +415,8 @@ export const inductive = [
     id: 'in-appassoc',
     title: T('拼接也结合', 'Append associates too'),
     fact: 'appAssoc',
-    datatypes: LIST_T,
-    defs: LIST,
+    types: LIST,
+    defs: ['app', 'len'],
     tests: [{ goal: '∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))' }],
     brief: PROVE,
     hint: [T('还是对最左边的那个归纳。', 'Induct on the leftmost again.')],
@@ -308,46 +424,67 @@ export const inductive = [
     solution: byInduction('list', ['simp', [...defs(2), 'hyp']], { frame: 'repeat', body: [['rule', 'allI']] }),
     after: T('还是和加法结合同一个证明。它也进了「数理规则书」。', 'The same proof as associativity of addition, once more. It goes into the “Rule book of numbers” too.'),
   }),
-  proves({
+  {
     id: 'in-revapp',
     title: T('倒过来拼', 'Reversing an append'),
     fact: 'revApp',
-    datatypes: LIST_T,
-    defs: REV,
-    tests: [{ goal: '∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))' }],
-    brief: PROVE,
-    hint: [T('[] 的情况要 rev ys = rev ys ++ []；另一种情况，两个 ++ 要换个结合方式：在「数理规则书」上勾上证出的 xs ++ [] = xs 和 (xs ++ ys) ++ zs = xs ++ (ys ++ zs)，接进化简。', 'The [] case needs rev ys = rev ys ++ []; the other one needs two ++ grouped the other way: tick the xs ++ [] = xs and (xs ++ ys) ++ zs = xs ++ (ys ++ zs) proved on the “Rule book of numbers”, and wire it into Simp.')],
-    intro: [{ t: T('rev 把列表倒过来：rev [] = []，rev (x :: xs) = rev xs ++ [x]。把两段拼起来再倒过来，和先倒再拼，有什么关系？', 'rev reverses a list: rev [] = [], rev (x :: xs) = rev xs ++ [x]. What has reversing an append to do with reversing first?') }],
-    solution: byInduction('list', ['rule', 'allI'], ['simp', [...defs(2), 'def.4', 'def.5', 'appNil', 'appAssoc', 'hyp']]),
-    naive: byInduction('list', ['rule', 'allI'], ['simp', [...defs(2), 'def.4', 'def.5', 'hyp']]),
+    tasks: [
+      define({
+        step: T('定义倒过来', 'Defining reverse'),
+        fn: 'rev',
+        on: 0,
+        defs: ['app'],
+        rows: [row('rev(nil)', 'nil'), row('rev(cons(x, xs))', 'app(rev(xs), cons(x, nil))', 'cons(x, rev(xs))', 'app(cons(x, nil), rev(xs))', 'rev(app(xs, cons(x, nil)))')],
+        tests: [
+          { term: 'rev(cons(ann, cons(bo, cons(cy, nil))))', value: 'cons(cy, cons(bo, cons(ann, nil)))' },
+          { term: 'rev(cons(ann, nil))', value: 'cons(ann, nil)' },
+        ],
+        solution: ['nil', 'app(rev(xs), cons(x, nil))'],
+        naive: ['nil', 'cons(x, rev(xs))'],
+        brief: DEFINE,
+        hint: [T('x :: xs 倒过来：先把 xs 倒过来，x 放到最后。', 'x :: xs reversed: reverse xs first, and put x at the end.')],
+      }),
+      proves({
+        step: T('倒过来拼', 'Reversing an append'),
+        types: LIST,
+        defs: ['app', 'len', 'rev'],
+        tests: [{ goal: '∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))' }],
+        brief: PROVE,
+        hint: [T('[] 的情况要 rev ys = rev ys ++ []；另一种情况，两个 ++ 要换个结合方式：在「数理规则书」上勾上证出的 xs ++ [] = xs 和 (xs ++ ys) ++ zs = xs ++ (ys ++ zs)，接进化简。', 'The [] case needs rev ys = rev ys ++ []; the other one needs two ++ grouped the other way: tick the xs ++ [] = xs and (xs ++ ys) ++ zs = xs ++ (ys ++ zs) proved on the “Rule book of numbers”, and wire it into Simp.')],
+        intro: [{ t: T('把两段拼起来再倒过来，和先倒再拼，有什么关系？', 'What has reversing an append to do with reversing first?') }],
+        solution: byInduction('list', ['rule', 'allI'], ['simp', [...defs(2), 'def.4', 'def.5', 'appNil', 'appAssoc', 'hyp']]),
+        naive: byInduction('list', ['rule', 'allI'], ['simp', [...defs(2), 'def.4', 'def.5', 'hyp']]),
+      }),
+    ],
+    intro: [{ t: T('rev 把列表倒过来。先定义它，再看它和拼接怎么相处。', 'rev reverses a list. Define it first, then see how it gets on with appending.') }],
     after: T('倒过来的拼接，是先倒后面那段。两条列表的等式在这里一起用上了。它也进了「数理规则书」。', 'Reversing an append reverses the back part first. Both list equations were used here. It goes into the “Rule book of numbers” too.'),
-  }),
+  },
 
   // ---------- why a definition must stop ----------
   proves({
     id: 'in-noteq',
     title: T('不等于自己的后一个', 'Never the one after itself'),
     fact: 'succNeq',
-    datatypes: NAT_T,
+    types: NAT,
     tests: [{ goal: '∀x. ¬(x = s(x))' }],
     brief: PROVE,
     hint: [T('倒着用归纳。0 的情况用互不相同；S 的情况，一对一把 S a = S (S a) 拆成 a = S a，正撞上已知。', 'Induction backwards. The 0 case is all different; in the S case, one-to-one takes S a = S (S a) to a = S a, against the given.')],
-    intro: [{ t: T('没有哪个数等于它自己的后一个：x ≠ S x。声明给的三条规则一起上。', 'No number is the one after itself: x ≠ S x. Three of the declaration’s rules together.') }],
-    solution: script(['rule', 'nat.induct'], ['rule', 'impI'], ['erule', 'nat.distinct1'], ['rule', 'impI'], ['erule', 'nat.inject'], ['erule', 'mp'], 'assumption'),
+    intro: [{ t: T('没有哪个数等于它自己的后一个：x ≠ S x。归纳、互不相同和证出的一对一一起上。', 'No number is the one after itself: x ≠ S x. Induction, all different and the one-to-one proved, together.') }],
+    solution: script(['rule', 'nat.induct'], ['rule', 'impI'], ['erule', 'nat.distinct1'], ['rule', 'impI'], ['erule', 'inject'], ['erule', 'mp'], 'assumption'),
     after: T('x ≠ S x 进了「数理规则书」。', 'x ≠ S x goes into the “Rule book of numbers”.'),
   }),
   proves({
     id: 'in-loop',
     adds: ['frule'],
     title: T('停不下来的定义', 'A definition that never stops'),
-    datatypes: NAT_T,
+    types: NAT,
     tests: [{ goal: '⊥', hyps: ['∀x. f(x) = s(f(x))'] }],
     brief: PROVE,
     hint: [
       T('先证一句：用规则接上「数理规则书」里证出的 x ≠ S x，把它放进已知。', 'Have first: Rule with the x ≠ S x proved, from the “Rule book of numbers”, puts it among the givens.'),
       T('再往前推两次<part-ref to="part:allE"></part-ref>，从两句「对所有」各取出一句，让它们撞上。', 'Then Forward with <part-ref to="part:allE"></part-ref> twice, one sentence out of each “for all”, and let them clash.'),
     ],
-    intro: [{ t: T('有人这样「定义」一个函数：f x = S (f x)。要算 f 0，先得算 f 0，永远算不完。在证明器里，这样一句定义不只是算不完：它和 x ≠ S x 放在一起，就推出矛盾。', 'Someone “defines” a function like this: f x = S (f x). Working out f 0 needs f 0 first, for ever. In a prover such a definition does worse than never finish: put beside x ≠ S x, it proves a contradiction.') }],
+    intro: [{ t: T('有人这样「定义」一个函数：f x = S (f x)。定义板不会收它：要算 f 0，先得算 f 0，永远算不完。假如收下了呢？这样一句定义不只是算不完：它和 x ≠ S x 放在一起，就推出矛盾。', 'Someone “defines” a function like this: f x = S (f x). The definition board would not take it: working out f 0 needs f 0 first, for ever. And if it were taken? Such a definition does worse than never finish: put beside x ≠ S x, it proves a contradiction.') }],
     solution: script(['rule', 'cut'], ['rule', 'succNeq'], ['frule', 'spec'], ['frule', 'spec'], ['erule', 'mp'], 'assumption'),
     after: T('f 0 = S (f 0) 撞上 f 0 ≠ S (f 0)：一句停不下来的定义，让证明器什么都证得出来。所以 Isabelle 的 fun、Lean 的 def 接受一个递归定义之前，先要证明它一定会停：每一次调用自己，参数都更小。按构造子一层层拆的递归，参数一定更小，自己就停得下来。', 'f 0 = S (f 0) against f 0 ≠ S (f 0): one definition that never stops lets the prover prove anything. That is why Isabelle’s fun and Lean’s def accept a recursive definition only once it is proved to stop: every call of itself on a smaller argument. Recursion that takes a value apart constructor by constructor always has a smaller argument, and stops by itself.'),
   }),
@@ -356,8 +493,8 @@ export const inductive = [
   proves({
     id: 'in-len',
     title: T('长度相加', 'Lengths add up'),
-    datatypes: LIST_T,
-    defs: [...LIST, ...NAT],
+    types: LIST,
+    defs: ['app', 'len', 'plus'],
     tests: [{ goal: '∀xs. ∀ys. len(app(xs, ys)) = plus(len(xs), len(ys))' }],
     brief: PROVE,
     hint: [T('对 xs 归纳。列表和加法的定义一起接进化简。', 'Induct on xs. Wire the list definitions and addition’s together into Simp.')],
@@ -368,8 +505,8 @@ export const inductive = [
   proves({
     id: 'in-revrev',
     title: T('倒两次', 'Reversed twice'),
-    datatypes: LIST_T,
-    defs: REV,
+    types: LIST,
+    defs: ['app', 'len', 'rev'],
     tests: [{ goal: '∀xs. rev(rev(xs)) = xs' }],
     brief: PROVE,
     hint: [T('rev (rev xs ++ [x]) 要用证出的 rev (xs ++ ys) = rev ys ++ rev xs 拆开。', 'rev (rev xs ++ [x]) comes apart with the rev (xs ++ ys) = rev ys ++ rev xs proved.')],
@@ -378,44 +515,127 @@ export const inductive = [
     naive: byInduction('list', ['simp', [...defs(2), 'def.4', 'def.5', 'hyp']]),
     after: T('这是 Isabelle 教程里的第一个定理。它要先证倒过来拼，那一条又要先证 ++ 的两条：真正的证明大多是这样，一串引理垫在下面。', 'This is the first theorem of the Isabelle tutorial. It needs reversing an append first, and that needs the two about ++: real proofs are mostly like this, a stack of lemmas underneath.'),
   }),
-  proves({
+  {
     id: 'in-itsum',
     title: T('累加器求和', 'Summing with an accumulator'),
-    datatypes: LIST_T,
-    defs: SUM,
-    tests: [{ goal: '∀xs. ∀y. itsum(xs, y) = plus(y, sum(xs))' }],
-    brief: PROVE,
-    hint: [
-      T('对 xs 归纳，∀y 留着：每往后走一步，y 都在变。', 'Induct on xs and leave ∀y alone: y changes at each step along.'),
-      T('[] 的情况要 y + 0 = y；另一种情况，两个 + 要换个结合方式。', 'The [] case needs y + 0 = y; in the other, two + grouped the other way.'),
+    tasks: [
+      define({
+        step: T('求和', 'Sum'),
+        fn: 'sum',
+        on: 0,
+        defs: ['plus'],
+        rows: [row('sum(nil)', 'zero', 's(zero)'), row('sum(cons(x, xs))', 'plus(x, sum(xs))', 'sum(xs)', 'plus(x, sum(cons(x, xs)))')],
+        tests: [{ term: 'sum(cons(s(zero), cons(s(s(zero)), nil)))', value: 's(s(s(zero)))' }, { term: 'sum(nil)', value: 'zero' }],
+        solution: ['zero', 'plus(x, sum(xs))'],
+        naive: ['zero', 'sum(xs)'],
+        brief: DEFINE,
+        hint: [T('x :: xs 的和：x 加上后面那些的和。', 'The sum of x :: xs: x plus the sum of the rest.')],
+        intro: [{ t: T('sum 从后往前加：sum (x :: xs) = x + sum xs。', 'sum adds from the back: sum (x :: xs) = x + sum xs.') }],
+      }),
+      define({
+        step: T('累加器', 'The accumulator'),
+        fn: 'itsum',
+        on: 0,
+        defs: ['plus'],
+        rows: [row('itsum(nil, y)', 'y', 'zero'), row('itsum(cons(x, xs), y)', 'itsum(xs, plus(y, x))', 'itsum(xs, y)', 'itsum(cons(x, xs), plus(y, x))')],
+        tests: [{ term: 'itsum(cons(s(zero), cons(s(s(zero)), nil)), zero)', value: 's(s(s(zero)))' }, { term: 'itsum(nil, s(zero))', value: 's(zero)' }],
+        solution: ['y', 'itsum(xs, plus(y, x))'],
+        naive: ['zero', 'itsum(xs, plus(y, x))'],
+        brief: DEFINE,
+        hint: [T('走到头，y 里已经是加好的和；往后走一步，把 x 加到 y 上。', 'At the end, y already holds the sum; each step along, add x onto y.')],
+        intro: [{ t: T('itsum 一边往后走，一边把元素加到 y 上，走到头 y 就是和（程序员叫它尾递归）。', 'itsum walks along adding each element onto y, and at the end y is the sum (programmers call it tail recursive).') }],
+      }),
+      proves({
+        step: T('一样吗', 'The same?'),
+        types: LIST,
+        defs: ['plus', 'sum', 'itsum'],
+        tests: [{ goal: '∀xs. ∀y. itsum(xs, y) = plus(y, sum(xs))' }],
+        brief: PROVE,
+        hint: [
+          T('对 xs 归纳，∀y 留着：每往后走一步，y 都在变。', 'Induct on xs and leave ∀y alone: y changes at each step along.'),
+          T('[] 的情况要 y + 0 = y；另一种情况，两个 + 要换个结合方式。', 'The [] case needs y + 0 = y; in the other, two + grouped the other way.'),
+        ],
+        solution: byInduction('list', ['rule', 'allI'], ['simp', [...defs(6), 'addZero', 'addAssoc', 'hyp']]),
+        naive: byInduction('list', ['rule', 'allI'], ['simp', [...defs(6), 'hyp']]),
+      }),
     ],
-    intro: [{ t: T('sum 从后往前加：sum (x :: xs) = x + sum xs。itsum 一边往后走，一边把元素加到 y 上，走到头 y 就是和（程序员叫它尾递归）。两种求和是一回事吗？', 'sum adds from the back: sum (x :: xs) = x + sum xs. itsum walks along adding each element onto y, and at the end y is the sum (programmers call it tail recursive). Are the two sums the same?') }],
-    solution: byInduction('list', ['rule', 'allI'], ['simp', [...defs(6), 'addZero', 'addAssoc', 'hyp']]),
-    naive: byInduction('list', ['rule', 'allI'], ['simp', [...defs(6), 'hyp']]),
+    intro: [{ t: T('两种求和：一种从后往前加，一种带着累加器往后走。它们是一回事吗？', 'Two sums: one adding from the back, one walking along with an accumulator. Are they the same?') }],
     after: T('真正想要的是 itsum xs 0 = sum xs。可直接对它归纳会卡住：归纳假设说的是从 0 开始，往后走一步，累加器就不是 0 了。把 0 换成任意的 y，命题更强，归纳假设也更强，反而证得出来：先加强命题，是归纳证明里最常用的一招。', 'What was really wanted is itsum xs 0 = sum xs. But inducting on that gets stuck: the hypothesis is about starting from 0, and one step on the accumulator is no longer 0. With any y for 0 the statement is stronger, the hypothesis stronger with it, and the proof goes through: strengthening the statement is the commonest move in induction.'),
-  }),
+  },
 
   // ---------- topic: insertion sort ----------
-  proves({
+  {
     id: 'sort-ins',
     title: T('插进去', 'Inserting'),
-    datatypes: LIST_T,
-    defs: SORT,
-    tests: [
-      { goal: 'ins(s(zero), cons(zero, cons(s(s(zero)), nil))) = cons(zero, cons(s(zero), cons(s(s(zero)), nil)))' },
-      { goal: 'ins(zero, cons(s(zero), nil)) = cons(zero, cons(s(zero), nil))' },
-      { goal: 'ins(s(s(zero)), cons(zero, nil)) = cons(zero, cons(s(s(zero)), nil))' },
+    tasks: [
+      define({
+        step: T('如果', 'If'),
+        fn: 'if',
+        on: 0,
+        rows: [row('if(tt, v, w)', 'v', 'w'), row('if(ff, v, w)', 'w', 'v')],
+        tests: [{ term: 'if(tt, zero, s(zero))', value: 'zero' }, { term: 'if(ff, zero, s(zero))', value: 's(zero)' }],
+        solution: ['v', 'w'],
+        naive: ['v', 'v'],
+        brief: DEFINE,
+        hint: [T('真就取「则」后面的，假就取「否则」后面的。', 'True takes what follows “then”, false what follows “else”.')],
+        intro: [{ t: T('程序里的「如果」也是一个函数：对它的条件，真假各一行。', 'The “if” of a program is a function too: one row for each of true and false, on its condition.') }],
+      }),
+      define({
+        step: T('插进去', 'Insert'),
+        fn: 'ins',
+        on: 1,
+        defs: ['le', 'if'],
+        rows: [
+          row('ins(x, nil)', 'cons(x, nil)', 'nil'),
+          row('ins(x, cons(y, ys))', 'if(le(x, y), cons(x, cons(y, ys)), cons(y, ins(x, ys)))', 'if(le(x, y), cons(y, ins(x, ys)), cons(x, cons(y, ys)))', 'cons(x, cons(y, ys))'),
+        ],
+        tests: [
+          { term: 'ins(s(zero), cons(zero, cons(s(s(zero)), nil)))', value: 'cons(zero, cons(s(zero), cons(s(s(zero)), nil)))' },
+          { term: 'ins(zero, cons(s(zero), nil))', value: 'cons(zero, cons(s(zero), nil))' },
+          { term: 'ins(s(s(zero)), cons(zero, nil))', value: 'cons(zero, cons(s(s(zero)), nil))' },
+        ],
+        solution: ['cons(x, nil)', 'if(le(x, y), cons(x, cons(y, ys)), cons(y, ins(x, ys)))'],
+        naive: ['cons(x, nil)', 'cons(x, cons(y, ys))'],
+        brief: DEFINE,
+        hint: [T('x 不比第一个 y 大，就放在最前面；不然 y 留在前面，x 插进后面那些里。', 'If x is no bigger than the first, y, it goes in front; else y stays in front and x goes into the rest.')],
+        intro: [{ t: T('ins 把一个数插进排好的列表：拆的是第二个参数，那个列表。', 'ins puts a number into a sorted list: what it takes apart is its second argument, the list.') }],
+      }),
+      define({
+        step: T('排序', 'Sort'),
+        fn: 'sort',
+        on: 0,
+        defs: ['le', 'if', 'ins'],
+        rows: [row('sort(nil)', 'nil'), row('sort(cons(x, xs))', 'ins(x, sort(xs))', 'cons(x, sort(xs))', 'ins(x, xs)')],
+        tests: [
+          { term: 'sort(cons(s(s(zero)), cons(zero, cons(s(zero), nil))))', value: 'cons(zero, cons(s(zero), cons(s(s(zero)), nil)))' },
+          { term: 'sort(cons(s(zero), cons(s(zero), cons(zero, nil))))', value: 'cons(zero, cons(s(zero), cons(s(zero), nil)))' },
+        ],
+        solution: ['nil', 'ins(x, sort(xs))'],
+        naive: ['nil', 'ins(x, xs)'],
+        brief: DEFINE,
+        hint: [T('先把后面那些排好，再把 x 插进去。', 'Sort the rest first, then insert x.')],
+      }),
+      proves({
+        step: T('算几个例子', 'A few examples'),
+        types: LIST,
+        defs: SORT,
+        tests: [
+          { goal: 'ins(s(zero), cons(zero, cons(s(s(zero)), nil))) = cons(zero, cons(s(zero), cons(s(s(zero)), nil)))' },
+          { goal: 'ins(zero, cons(s(zero), nil)) = cons(zero, cons(s(zero), nil))' },
+          { goal: 'ins(s(s(zero)), cons(zero, nil)) = cons(zero, cons(s(s(zero)), nil))' },
+        ],
+        brief: PROVE,
+        hint: [T('比大小、「如果」和插进去的定义都接进化简。', 'Wire the definitions of comparison, if and insert into Simp.')],
+        solution: script(['simp', defs(9)], ['rule', 'refl']),
+      }),
     ],
-    brief: PROVE,
-    hint: [T('比大小 ≤ 和「若…则…否则…」也都是用等式定义的：前面那些定义都接进化简。', 'The comparison ≤ and the if then else are defined by equations too: wire the definitions before those two into Simp.')],
-    intro: [{ t: T('排序是程序，程序也能用等式定义：ins 把一个数插进排好的列表，比前面那个小就放前面，不然往后走。先算几个例子。', 'Sorting is a program, and a program can be defined by equations: ins puts a number into a sorted list, in front if it is no bigger than the first, else further along. Work out a few examples first.') }],
-    solution: script(['simp', defs(11)], ['rule', 'refl']),
+    intro: [{ t: T('排序是程序，程序也能用等式定义：ins 把一个数插进排好的列表，比前面那个小就放前面，不然往后走；sort 把元素一个个插进去。', 'Sorting is a program, and a program can be defined by equations: ins puts a number into a sorted list, in front if it is no bigger than the first, else further along; sort inserts the elements one by one.') }],
     after: T('定义一个函数，就是写一个程序；化简，就是运行它。', 'Defining a function is writing a program; Simp is running it.'),
-  }),
+  },
   proves({
     id: 'sort-run',
     title: T('排一排', 'Sorting'),
-    datatypes: LIST_T,
+    types: LIST,
     defs: SORT,
     tests: [
       { goal: 'sort(cons(s(s(zero)), cons(zero, cons(s(zero), nil)))) = cons(zero, cons(s(zero), cons(s(s(zero)), nil)))' },
@@ -423,36 +643,65 @@ export const inductive = [
     ],
     brief: PROVE,
     hint: [T('还是化简。', 'Simp again.')],
-    intro: [{ t: T('sort [] = []，sort (x :: xs) = ins x (sort xs)：把元素一个个插进去。', 'sort [] = [], sort (x :: xs) = ins x (sort xs): insert the elements one by one.') }],
+    intro: [{ t: T('<level-ref to="sort-ins"></level-ref>定义的 sort，交给化简去运行。', 'The sort defined in <level-ref to="sort-ins"></level-ref>, run by Simp.') }],
     solution: script(['simp', defs(11)], ['rule', 'refl']),
     after: T('跑几个例子，只能说明这几个排对了。要说每个列表都排得对，得证明。', 'Running examples only shows these few come out right. To say every list does, takes a proof.'),
   }),
+  {
+    id: 'sort-if',
+    title: T('如果就分情况', 'An if is a case split'),
+    tasks: [
+      proves({
+        step: T('条件为真', 'A true condition'),
+        fact: 'ifTrue',
+        types: ['bool'],
+        defs: ['if'],
+        tests: [{ goal: '∀u. ∀v. ∀w. u = tt → if(u, v, w) = v' }],
+        brief: PROVE,
+        hint: [T('任取三次、假设框把 u = 真 放进已知；化简用已知里的等式把 u 换成真，再按 if 的定义算。', 'For any three times, and the assumption box puts u = true among the givens; Simp with the equation given turns u into true, then works by if’s definition.')],
+        solution: flow({ frame: 'repeat', body: [['rule', 'allI']] }, ['rule', 'impI'], ['simp', ['def.0', 'def.1', 'hyp']], ['rule', 'refl']),
+        naive: flow({ frame: 'repeat', body: [['rule', 'allI']] }, ['rule', 'impI'], ['simp', ['def.0', 'def.1']], ['rule', 'refl']),
+      }),
+      proves({
+        step: T('条件为假', 'A false condition'),
+        fact: 'ifFalse',
+        types: ['bool'],
+        defs: ['if'],
+        tests: [{ goal: '∀u. ∀v. ∀w. u = ff → if(u, v, w) = w' }],
+        brief: PROVE,
+        hint: [T('和上一段一样。', 'As in the step before.')],
+        solution: flow({ frame: 'repeat', body: [['rule', 'allI']] }, ['rule', 'impI'], ['simp', ['def.0', 'def.1', 'hyp']], ['rule', 'refl']),
+      }),
+    ],
+    intro: [{ t: T('if 的定义只认写明了的真、假。条件是 c ≤ a 这样的式子时，化简不知道它是真是假，就卡住了。从定义证出两条带条件的规则：条件等于真，就取「则」那一边；等于假，就取「否则」那一边。', 'if’s definition knows only a true or false written out. When the condition is something like c ≤ a, Simp does not know which it is, and gets stuck. Prove two rules with a condition from the definition: when the condition equals true, take the “then” side; when false, the “else” side.') }],
+    after: T('两条带条件的规则进了「数理规则书」：化简改写一处，条件就成了要证的目标。<level-ref to="sort-insLen"></level-ref>就靠它们证插入排序的性质。', 'The two rules with a condition go into the “Rule book of numbers”: rewriting with one leaves its condition as a goal. <level-ref to="sort-insLen"></level-ref> proves a property of insertion sort with them.'),
+  },
   proves({
     id: 'sort-insLen',
     title: T('插一个，长一格', 'One in, one longer'),
     fact: 'insLen',
-    datatypes: { ...LIST_T, bool: 'tt | ff' },
+    types: [...LIST, 'bool'],
     defs: SORT,
     tests: [{ goal: '∀xs. ∀x. len(ins(x, xs)) = s(len(xs))' }],
     brief: PROVE,
     hint: [
-      T('第二个目标化简以后，卡在一个「若 c ≤ a 则…否则…」上：谁大，化简不知道。倒着用「数理规则书」里 bool 按情况分的规则，两种情况各用一条带条件的 if 规则改写。', 'After simp, the second goal is stuck on an “if c ≤ a then … else …”: which is bigger, Simp does not know. Use the bool by-cases rule of the “Rule book of numbers” backwards, and in each case rewrite with one of the if rules with a condition.'),
+      T('第二个目标化简以后，卡在一个「若 c ≤ a 则…否则…」上：谁大，化简不知道。倒着用「数理规则书」里 bool 按情况分的规则，两种情况各用<level-ref to="sort-if"></level-ref>证出的一条带条件的规则改写。', 'After simp, the second goal is stuck on an “if c ≤ a then … else …”: which is bigger, Simp does not know. Use the bool by-cases rule of the “Rule book of numbers” backwards, and in each case rewrite with one of the rules with a condition proved in <level-ref to="sort-if"></level-ref>.'),
       T('带条件的规则改写以后，条件排在后面；已知里有拿它去对 ?t = 真，?t 就定下来了。', 'After a rewrite with a condition, the condition waits behind; Assumption fits it to ?t = true, and ?t is settled.'),
     ],
-    intro: [{ t: T('插进一个元素，列表就长一格。程序里有一个「如果」，证明里就要分一次情况：bool = 真 | 假 也是一个声明，它也有按情况分的规则。', 'Insert an element and the list is one longer. An “if” in a program is a case split in its proof: bool = true | false is a declaration too, with its own by-cases rule.') }],
+    intro: [{ t: T('插进一个元素，列表就长一格。程序里有一个「如果」，证明里就要分一次情况：<level-ref to="decl-bool"></level-ref>声明的 bool = 真 | 假 有按情况分的规则。', 'Insert an element and the list is one longer. An “if” in a program is a case split in its proof: the bool = true | false declared in <level-ref to="decl-bool"></level-ref> has its by-cases rule.') }],
     solution: script(
       ['rule', 'list.induct'],
       ['simp', defs(11)], ['rule', 'allI'], ['rule', 'refl'],
       ['rule', 'allI'], ['simp', defs(11)], ['rule', 'bool.exhaust'],
-      ['rw', 'def.11'], ['simp', defs(11)], ['rule', 'refl'], 'assumption',
-      ['rw', 'def.12'], ['simp', [...defs(11), 'hyp']], ['rule', 'refl'], 'assumption',
+      ['rw', 'ifTrue'], ['simp', defs(11)], ['rule', 'refl'], 'assumption',
+      ['rw', 'ifFalse'], ['simp', [...defs(11), 'hyp']], ['rule', 'refl'], 'assumption',
     ),
     after: T('程序里每一个「如果」，证明里就是一次分情况；它的条件由带条件的规则交给已知里有去定。这一句也进了「数理规则书」。', 'Each “if” in a program is a case split in its proof, its condition settled by Assumption once a rule with that condition is used. This goes into the “Rule book of numbers” too.'),
   }),
   proves({
     id: 'sort-len',
     title: T('一个都不少', 'None lost'),
-    datatypes: LIST_T,
+    types: LIST,
     defs: SORT,
     tests: [{ goal: '∀xs. len(sort(xs)) = len(xs)' }],
     brief: PROVE,
@@ -473,7 +722,7 @@ export const inductive = [
     id: 'gd-code',
     title: T('句子变成数', 'Sentences become numbers'),
     words: GOEDEL_TERMS,
-    defs: ['code(rain) = cons(one, nil)', 'code(wet) = cons(two, nil)', 'code(neg(x)) = cons(three, code(x))', 'code(imp(x, y)) = cons(four, app(code(x), code(y)))', 'app(nil, ys) = ys', 'app(cons(x, xs), ys) = cons(x, app(xs, ys))'],
+    stated: ['code(rain) = cons(one, nil)', 'code(wet) = cons(two, nil)', 'code(neg(x)) = cons(three, code(x))', 'code(imp(x, y)) = cons(four, app(code(x), code(y)))', 'app(nil, ys) = ys', 'app(cons(x, xs), ys) = cons(x, app(xs, ys))'],
     tests: [
       { goal: 'code(neg(rain)) = cons(three, cons(one, nil))' },
       { goal: 'code(imp(rain, wet)) = cons(four, cons(one, cons(two, nil)))' },
@@ -492,7 +741,7 @@ export const inductive = [
     id: 'gd-check',
     title: T('检查证明是一次计算', 'Checking a proof is a computation'),
     words: GOEDEL_TERMS,
-    defs: [
+    stated: [
       'concl(ax(x)) = x', 'concl(use(x, y)) = then(concl(x), concl(y))', 'then(imp(x, y), x) = y',
       'ok(ax(x)) = isax(x)', 'ok(use(x, y)) = both(both(ok(x), ok(y)), fits(concl(x), concl(y)))', 'fits(imp(x, y), x) = tt', 'both(tt, x) = x',
       'isax(rain) = tt', 'isax(imp(rain, wet)) = tt', 'isax(imp(wet, slip)) = tt',
@@ -513,7 +762,7 @@ export const inductive = [
     id: 'gd-diag',
     title: T('对角线是一次计算', 'The diagonal is a computation'),
     words: GOEDEL_TERMS,
-    defs: [
+    stated: [
       'diag(x) = sub(x, qt(x))', 'sub(nprov(x), y) = nprov(subt(x, y))', 'subt(vx, y) = y', 'subt(dg(x), y) = dg(subt(x, y))', 'subt(qt(x), y) = qt(x)',
       'val(qt(x)) = x', 'val(dg(x)) = diag(val(x))',
     ],
@@ -587,8 +836,8 @@ export const inductive = [
   proves({
     id: 'in-circle',
     title: T('会绕圈的化简', 'Simp going round in circles'),
-    datatypes: NAT_T,
-    defs: NAT,
+    types: NAT,
+    defs: ['plus'],
     tests: [{ goal: '∀x. ∀y. plus(x, s(y)) = s(plus(y, x))' }, { goal: '∀x. ∀y. plus(s(x), y) = plus(y, s(x))' }, { goal: '∀x. plus(x, s(zero)) = s(x)' }],
     brief: PROVE,
     hint: [

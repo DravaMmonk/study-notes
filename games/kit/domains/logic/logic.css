@@ -284,3 +284,14 @@
 .lg-inside-scroll .pb-term::after, .lg-inside-scroll .pb-term .pb-thumb, .lg-inside-scroll .pb-term .lg-sink { display: none; }
 .lg-inside-scroll .pb-term .pb-name { color: var(--muted); font-size: 12px; }
 .kit-board.is-readonly .lg-rules :is(select, button) { display: none; }
+
+/* The definition board (ui/DefineScreen.jsx): a row a case, its right side picked; the tests under them. */
+.lg-define { max-width: 720px; margin: 0 auto; padding: 28px 24px 40px; display: grid; gap: 18px; }
+.lg-define .run-foot { position: sticky; bottom: 0; }
+.lg-define .lg-rows { width: 100%; }
+@media (max-width: 720px) { .lg-define { padding: 4px 12px 24px; } }
+.lg-defs { display: grid; gap: 10px; }
+.lg-def-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 15px; }
+.lg-def-when { color: var(--muted); }
+.lg-def-lhs { font-weight: 600; color: var(--ink); }
+.lg-def-row select { min-width: 10em; max-width: 100%; padding: 6px 8px; border: 1px solid var(--line, rgba(0,0,0,.15)); border-radius: 8px; background: var(--panel, transparent); color: var(--ink); font: inherit; }

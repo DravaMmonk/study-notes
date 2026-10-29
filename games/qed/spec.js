@@ -5,6 +5,8 @@ import { ERAS } from './levels/eras.js'
 import { LEMMAS, LOGIC } from './levels/index.js'
 
 // The declarations that had a second task, their elimination rule by hand (save versions 48 to 49).
+// The levels that gained definition tasks before their machine (version 52), and how many.
+const DEFINED = { 'in-revapp': 1, 'in-itsum': 2, 'sort-ins': 3 }
 const DECLARED = ['decl-and', 'decl-or', 'decl-bot', 'decl-two', 'decl-true', 'decl-iff', 'decl-ex']
 
 // A saved machine board (or a level's list of them) with each card as version 28 has it.
@@ -254,6 +256,16 @@ export default {
   { version: 51, ops: [
     { data: (value, id) => (id === 'decl-nat' && Array.isArray(value) ? value[0] ?? null : value) },
     { tasks: (passed, id) => (id === 'decl-nat' ? 0 : passed) },
+  ] },
+  // Version 52: chapter 12 declares its types and defines its functions. A level now opened by a type or definition
+  // counts solved for whoever got past it; 一对一 is two new tasks (pred defined, then proved on the proof board), and
+  // 倒过来拼, 累加器求和, 插进去 gained definition tasks before their machine.
+  { version: 52, ops: [
+    { solve: ['sp-compute', ['def-plus']] },
+    { solve: ['sp-lists', ['decl-list', 'def-list']] },
+    { solve: ['sp-cond', ['decl-bool', 'def-max']] },
+    { solve: ['sort-insLen', ['sort-if']] },
+    { data: (value, id) => (id === 'in-inject' ? null : value && !Array.isArray(value) && DEFINED[id] ? [...Array(DEFINED[id]).fill(null), value] : value) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

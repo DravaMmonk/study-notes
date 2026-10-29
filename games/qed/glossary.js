@@ -510,12 +510,12 @@ export const GLOSSARY = [
     see: ['curry-howard'],
   },
   {
-    id: 'inductive', group: 'types', title: T('归纳类型', 'inductive type'), at: 'in-distinct',
+    id: 'inductive', group: 'types', title: T('归纳类型', 'inductive type'), at: 'decl-nat',
     body: [T('一个类型由几个构造子一层层造出来，叫<b>归纳类型</b>：nat = 0 | S nat，list = [] | x # xs。声明只写了这一句，证明器就送上一组规则：不同构造子造的值不相等，同一构造子造的值相等时参数相等，按情况分，归纳，以及按构造子递归定义函数。Isabelle 的 datatype、Lean 的 inductive 都是这样的声明。', 'A type built up layer by layer from a few constructors is an <b>inductive type</b>: nat = 0 | S nat, list = [] | x # xs. The declaration says only that, and the prover supplies a set of rules: values made by different constructors differ, values made by one constructor are equal only if their arguments are, cases, induction, and functions defined by recursion over the constructors. Isabelle’s datatype and Lean’s inductive are such declarations.')],
     see: ['constructor', 'induction'],
   },
   {
-    id: 'constructor', group: 'types', title: T('构造子', 'constructor'), at: 'in-distinct',
+    id: 'constructor', group: 'types', title: T('构造子', 'constructor'), at: 'decl-nat',
     body: [T(`造出${W('inductive')}的值的那几个符号叫<b>构造子</b>：数的 0 和 S，列表的 [] 和 #。类型的每个值都由它们造出，而且只有一种造法：所以 0 ≠ S x，S a = S b 推出 a = b。`, `The symbols that make the values of an ${W('inductive')} are its <b>constructors</b>: 0 and S for numbers, [] and # for lists. Every value of the type is made by them, and in only one way: so 0 ≠ S x, and S a = S b gives a = b.`)],
     see: ['injectivity', 'inductive'],
   },

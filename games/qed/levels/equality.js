@@ -35,11 +35,10 @@ const DATA = {
 }
 const SOUND = '∀x. taut(x) = tt → Taut(x)'
 const COMPLETE = '∀x. taut(x) = ff → ¬Taut(x)'
-const reflect = (list) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[k], brief: WRITE, forms: [...BASIC, 'rfl'], words: DATA, consts: ['p', 'q', 'tt', 'ff'], defs: TAUT, ...task }))
+const reflect = (list) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[k], brief: WRITE, forms: [...BASIC, 'rfl'], words: DATA, consts: ['p', 'q', 'tt', 'ff'], stated: TAUT, ...task }))
 const proves = (level) => ({ kind: 'machine', want: 'proved', inputs: [{ name: 'in', label: T('目标', 'Goal') }], backtrack: true, ...level })
 const PROVE = T('设计一个证明助手：完成需要证明的测试目标，对指定的失败目标报告失败。', 'Design a proof assistant that proves the required test goals and reports failure for the designated failure cases.')
 const STARS = ['phos', 'hesp', 'venus']
-const NAT = ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))']
 const ADD_ZERO = '∀x. plus(x, zero) = x'
 const ADD_SUCC = '∀x. ∀y. plus(x, s(y)) = s(plus(x, y))'
 const VNIL = 'Vec(zero)'
@@ -158,10 +157,10 @@ export const equality = [
     title: T('算出来就相等', 'Equal by computing'),
     consts: ['zero', 'm'],
     tasks: write([
-      { premises: {}, goal: 'plus(s(zero), s(zero)) = s(s(zero))', defs: NAT, answer: 'rfl', hint: [T('按加法的定义把左边算出来。', 'Work the left side out by the definition of addition.')] },
-      { premises: {}, goal: '∀x. plus(zero, x) = x', defs: NAT, answer: 'fun a => rfl', hint: [T('0 + a 按定义算出来是什么？', 'What does 0 + a work out to by the definition?')] },
-      { premises: {}, goal: '∀x. plus(s(zero), x) = s(x)', defs: NAT, answer: 'fun a => rfl', naive: 'rfl', hint: [T('定义算两步。', 'Two steps of the definition.')] },
-      { premises: { p: 'Even(plus(s(s(zero)), m))' }, goal: 'Even(s(s(m)))', defs: NAT, answer: 'p', hint: [T('p 的类型算出来是什么？', 'What does the type of p work out to?')] },
+      { premises: {}, goal: 'plus(s(zero), s(zero)) = s(s(zero))', defs: ['plus'], answer: 'rfl', hint: [T('按加法的定义把左边算出来。', 'Work the left side out by the definition of addition.')] },
+      { premises: {}, goal: '∀x. plus(zero, x) = x', defs: ['plus'], answer: 'fun a => rfl', hint: [T('0 + a 按定义算出来是什么？', 'What does 0 + a work out to by the definition?')] },
+      { premises: {}, goal: '∀x. plus(s(zero), x) = s(x)', defs: ['plus'], answer: 'fun a => rfl', naive: 'rfl', hint: [T('定义算两步。', 'Two steps of the definition.')] },
+      { premises: { p: 'Even(plus(s(s(zero)), m))' }, goal: 'Even(s(s(m)))', defs: ['plus'], answer: 'p', hint: [T('p 的类型算出来是什么？', 'What does the type of p work out to?')] },
     ]),
     intro: [{ t: T('这一关有加法的定义：0 + y = y，S x + y = S (x + y)。核比较两个类型前，先按定义把它们算到底，算出来一样就算一样。', 'This level has the definition of addition: 0 + y = y and S x + y = S (x + y). Before comparing two types, the kernel works them out by the definitions, and if they come out alike they count as alike.') }],
     after: T('1 + 1 = 2 用不着证明，rfl 就够了：核会算。按定义算得出来的相等叫<wiki-ref to="defeq"></wiki-ref>；一个证明的类型也可以按它来换，最后一题的 p 直接就是要的那句。', '1 + 1 = 2 needs no proof; rfl is enough, because the kernel computes. An equality that comes out by working the definitions is a <wiki-ref to="defeq"></wiki-ref>; a proof’s type can be read through it too, so in the last problem p is just the sentence wanted.'),
@@ -171,7 +170,7 @@ export const equality = [
     id: 'rf-eval',
     title: T('判定程序', 'A decision procedure'),
     words: DATA,
-    defs: TAUT,
+    stated: TAUT,
     tests: [
       { goal: 'taut(disj(p, neg(p))) = tt' },
       { goal: 'taut(conj(p, q)) = ff' },
@@ -214,9 +213,9 @@ export const equality = [
     title: T('要证明的相等', 'Equal by proof'),
     consts: ['zero', 'm'],
     tasks: write([
-      { premises: { addZero: ADD_ZERO }, goal: '∀x. plus(x, zero) = x', defs: NAT, answer: 'addZero', naive: 'fun a => rfl', hint: [T('先试 fun a => rfl，看核怎么说。', 'Try fun a => rfl first and see what the kernel says.')] },
-      { premises: { p: 'Even(plus(m, zero))', addZero: ADD_ZERO }, goal: 'Even(m)', defs: NAT, answer: 'addZero m ▸ p', naive: 'p', hint: [T('addZero 用在 m 上，得到 m + 0 = m。', 'addZero used on m gives m + 0 = m.')] },
-      { premises: { p: 'Even(plus(zero, plus(m, zero)))', addZero: ADD_ZERO }, goal: 'Even(m)', defs: NAT, answer: 'addZero m ▸ p', hint: [T('外层的 0 + 算得掉，里层的 + 0 算不掉。', 'The outer 0 + works out, the inner + 0 does not.')] },
+      { premises: { addZero: ADD_ZERO }, goal: '∀x. plus(x, zero) = x', defs: ['plus'], answer: 'addZero', naive: 'fun a => rfl', hint: [T('先试 fun a => rfl，看核怎么说。', 'Try fun a => rfl first and see what the kernel says.')] },
+      { premises: { p: 'Even(plus(m, zero))', addZero: ADD_ZERO }, goal: 'Even(m)', defs: ['plus'], answer: 'addZero m ▸ p', naive: 'p', hint: [T('addZero 用在 m 上，得到 m + 0 = m。', 'addZero used on m gives m + 0 = m.')] },
+      { premises: { p: 'Even(plus(zero, plus(m, zero)))', addZero: ADD_ZERO }, goal: 'Even(m)', defs: ['plus'], answer: 'addZero m ▸ p', hint: [T('外层的 0 + 算得掉，里层的 + 0 算不掉。', 'The outer 0 + works out, the inner + 0 does not.')] },
     ]),
     intro: [{ t: T('定义只说 0 和 S x 加上 y 是什么，x 是一个不知道的数时，x + 0 就算不下去了。<level-ref to="in-zero"></level-ref>用归纳证出了 x + 0 = x，这一关它是已知 addZero，用法和别的「对所有」一样：addZero m 证 m + 0 = m。', 'The definition only says what 0 and S x plus y are; when x is a number nobody knows, x + 0 does not work out. <level-ref to="in-zero"></level-ref> proved x + 0 = x by induction, and here it is the given addZero, used like any other “for all”: addZero m proves m + 0 = m.') }],
     after: T('m + 0 = m 是对的，可核算不出来，要一个证明：这叫<wiki-ref to="propeq"></wiki-ref>。用它换掉类型里的一处，要写 ▸；定义相等不用写，核自己会算。', 'm + 0 = m is true, but the kernel cannot work it out, so it takes a proof: a <wiki-ref to="propeq"></wiki-ref>. Using it to replace part of a type takes ▸; a definitional one needs nothing written, since the kernel computes it.'),
@@ -257,9 +256,9 @@ export const equality = [
     title: T('拼接', 'Appending'),
     consts: ['zero', 'm', 'n'],
     tasks: write([
-      { premises: { v: 'Vec(m)', w: 'Vec(n)', append: APPEND }, goal: 'Vec(plus(m, n))', defs: NAT, answer: 'append v w', naive: 'append w v', hint: [T('append 的两个长度都由向量读出来。', 'Both lengths of append are read off the vectors.')] },
-      { premises: { v: 'Vec(s(zero))', w: 'Vec(s(zero))', append: APPEND }, goal: 'Vec(s(s(zero)))', defs: NAT, answer: 'append v w', hint: [T('append v w 的类型是 Vec (1 + 1)，核会算。', 'append v w has type Vec (1 + 1), and the kernel computes.')] },
-      { premises: { v: 'Vec(m)', one: 'Vec(s(zero))', append: APPEND }, goal: 'Vec(s(m))', defs: NAT, answer: 'append one v', naive: 'append v one', hint: [T('1 + m 和 m + 1，哪一个按定义算得出 S m？', 'Which of 1 + m and m + 1 works out to S m by the definition?')] },
+      { premises: { v: 'Vec(m)', w: 'Vec(n)', append: APPEND }, goal: 'Vec(plus(m, n))', defs: ['plus'], answer: 'append v w', naive: 'append w v', hint: [T('append 的两个长度都由向量读出来。', 'Both lengths of append are read off the vectors.')] },
+      { premises: { v: 'Vec(s(zero))', w: 'Vec(s(zero))', append: APPEND }, goal: 'Vec(s(s(zero)))', defs: ['plus'], answer: 'append v w', hint: [T('append v w 的类型是 Vec (1 + 1)，核会算。', 'append v w has type Vec (1 + 1), and the kernel computes.')] },
+      { premises: { v: 'Vec(m)', one: 'Vec(s(zero))', append: APPEND }, goal: 'Vec(s(m))', defs: ['plus'], answer: 'append one v', naive: 'append v one', hint: [T('1 + m 和 m + 1，哪一个按定义算得出 S m？', 'Which of 1 + m and m + 1 works out to S m by the definition?')] },
     ]),
     intro: [{ t: T('append 把两个向量拼起来，长度相加：∀x y. Vec x → Vec y → Vec (x + y)。这一关有加法的定义，核会把类型里的加法算出来。', 'append puts two vectors together, and the lengths add: ∀x y. Vec x → Vec y → Vec (x + y). This level has the definition of addition, and the kernel works out the addition in a type.') }],
     after: T('类型里的长度也按定义算：长 1 的接在前面，1 + m 算出来就是 S m；接在后面是 m + 1，算不动。', 'A length in a type is worked out by the definitions too: one put in front gives 1 + m, which works out to S m; put at the end it is m + 1, which does not work out.'),
@@ -269,9 +268,9 @@ export const equality = [
     title: T('类型里的相等', 'Equality in a type'),
     consts: ['zero', 'm'],
     tasks: write([
-      { premises: { v: 'Vec(plus(m, zero))', addZero: ADD_ZERO }, goal: 'Vec(m)', defs: NAT, answer: 'addZero m ▸ v', naive: 'v', hint: [T('<level-ref to="eq-propeq"></level-ref>里怎么把 m + 0 换成 m？', 'How did <level-ref to="eq-propeq"></level-ref> turn m + 0 into m?')] },
-      { premises: { v: 'Vec(m)', addZero: ADD_ZERO }, goal: 'Vec(plus(m, zero))', defs: NAT, answer: 'addZero m ▸ v', hint: [T('倒过来也是同一个等式。', 'The other way round is the same equation.')] },
-      { premises: { v: 'Vec(m)', vnil: VNIL, append: APPEND, addZero: ADD_ZERO }, goal: 'Vec(m)', defs: NAT, answer: 'addZero m ▸ append v vnil', naive: 'append v vnil', hint: [T('append v vnil 的类型是什么？', 'What is the type of append v vnil?')] },
+      { premises: { v: 'Vec(plus(m, zero))', addZero: ADD_ZERO }, goal: 'Vec(m)', defs: ['plus'], answer: 'addZero m ▸ v', naive: 'v', hint: [T('<level-ref to="eq-propeq"></level-ref>里怎么把 m + 0 换成 m？', 'How did <level-ref to="eq-propeq"></level-ref> turn m + 0 into m?')] },
+      { premises: { v: 'Vec(m)', addZero: ADD_ZERO }, goal: 'Vec(plus(m, zero))', defs: ['plus'], answer: 'addZero m ▸ v', hint: [T('倒过来也是同一个等式。', 'The other way round is the same equation.')] },
+      { premises: { v: 'Vec(m)', vnil: VNIL, append: APPEND, addZero: ADD_ZERO }, goal: 'Vec(m)', defs: ['plus'], answer: 'addZero m ▸ append v vnil', naive: 'append v vnil', hint: [T('append v vnil 的类型是什么？', 'What is the type of append v vnil?')] },
     ]),
     intro: [{ t: T('一个长 m + 0 的向量，当然就是长 m 的。可核算不出 m + 0 是 m：要拿等式把类型换过去。', 'A vector m + 0 long is of course m long. But the kernel cannot work m + 0 out to m: an equation has to carry the type across.') }],
     after: T('▸ 不只能换一句话里的东西，也能换一个类型：同一个向量，换上一个相等的长度。这叫<wiki-ref to="transport"></wiki-ref>。', '▸ can replace things not only in a sentence but in a type: the same vector, under an equal length. This is called <wiki-ref to="transport"></wiki-ref>.'),
@@ -286,7 +285,7 @@ export const equality = [
       {
         premises: { v: 'Vec(m)', snoc: '∀x. Vec(x) → Vec(plus(x, s(zero)))', addZero: ADD_ZERO, addSucc: ADD_SUCC },
         goal: 'Vec(s(m))',
-        defs: NAT,
+        defs: ['plus'],
         answer: 'addZero m ▸ addSucc m zero ▸ snoc v',
         naive: 'addSucc m zero ▸ snoc v',
         hint: [

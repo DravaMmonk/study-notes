@@ -6,7 +6,7 @@ import { era0 } from './era0.js'
 import { circuits, GATES } from './circuits.js'
 import { era1 } from './era1.js'
 import { era2 } from './era2.js'
-import { declarations, generators, moreDeclarations, natDeclaration, thingDeclarations } from './declare.js'
+import { declarations, generators, moreDeclarations, thingDeclarations, typeDeclarations } from './declare.js'
 import { hol } from './hol.js'
 import { quantifiers } from './quantifiers.js'
 import { rules } from './rules.js'
@@ -99,8 +99,9 @@ export const LEMMAS = {
   lem: { name: T('排中律', 'Excluded middle'), desc: T('元件上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the part; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
 }
 
-// The equations the player proves on the machine board (chapter 12), each a rule and a rewrite rule from then on.
-const fact = (zh, en, statement, desc) => ({ name: T(zh, en), statement, desc })
+// What the player proves of numbers and lists (chapter 12), each a rule from then on, and an equation a rewrite rule
+// too (with its conditions); `rule` writes it as a rule other than the statement (one-to-one, used to take apart).
+const fact = (zh, en, statement, desc, rule) => ({ name: T(zh, en), statement, desc, ...(rule ? { rule } : {}) })
 export const FACTS = {
   addZero: fact('加零', 'Add zero', '∀x. plus(x, zero) = x', T('证出的等式 x + 0 = x：一条规则，也是化简的一条改写规则。', 'The equation proved, x + 0 = x: a rule, and a rewrite rule for Simp.')),
   addSucc: fact('加后继', 'Add successor', '∀x. ∀y. plus(x, s(y)) = s(plus(x, y))', T('证出的等式 x + S y = S (x + y)：一条规则，也是化简的一条改写规则。', 'The equation proved, x + S y = S (x + y): a rule, and a rewrite rule for Simp.')),
@@ -109,6 +110,9 @@ export const FACTS = {
   appNil: fact('接空列表', 'Append nil', '∀xs. app(xs, nil) = xs', T('证出的等式 xs ++ [] = xs：一条规则，也是化简的一条改写规则。', 'The equation proved, xs ++ [] = xs: a rule, and a rewrite rule for Simp.')),
   appAssoc: fact('拼接结合', 'Append associates', '∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))', T('证出的等式 (xs ++ ys) ++ zs = xs ++ (ys ++ zs)：一条规则，也是化简的一条改写规则。', 'The equation proved, (xs ++ ys) ++ zs = xs ++ (ys ++ zs): a rule, and a rewrite rule for Simp.')),
   revApp: fact('倒过拼接', 'Reverse of an append', '∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))', T('证出的等式 rev (xs ++ ys) = rev ys ++ rev xs：一条规则，也是化简的一条改写规则。', 'The equation proved, rev (xs ++ ys) = rev ys ++ rev xs: a rule, and a rewrite rule for Simp.')),
+  inject: fact('一对一', 'One-to-one', '∀x. ∀y. s(x) = s(y) → x = y', T('证出的 S x = S y → x = y，写成拆开的规则：已知里有 S ?x = S ?y，就换成 ?x = ?y 去证。', 'The S x = S y → x = y proved, as a rule that takes apart: with S ?x = S ?y given, prove on with ?x = ?y instead.'), { premises: ['s(?x) = s(?y)', '⟦?x = ?y⟧ ⟹ ?C'], conclusion: '?C' }),
+  ifTrue: fact('如果为真', 'If true', '∀u. ∀v. ∀w. u = tt → if(u, v, w) = v', T('证出的 u = 真 → (若 u 则 v 否则 w) = v：一条规则，也是一条带条件的改写规则。', 'The u = true → (if u then v else w) = v proved: a rule, and a rewrite rule with a condition.')),
+  ifFalse: fact('如果为假', 'If false', '∀u. ∀v. ∀w. u = ff → if(u, v, w) = w', T('证出的 u = 假 → (若 u 则 v 否则 w) = w：一条规则，也是一条带条件的改写规则。', 'The u = false → (if u then v else w) = w proved: a rule, and a rewrite rule with a condition.')),
   succNeq: fact('不等于后继', 'Never its successor', '∀x. ¬(x = s(x))', T('证出的 x ≠ S x：一条规则。', 'The x ≠ S x proved: a rule.')),
   insLen: fact('插入长一格', 'Insert adds one', '∀xs. ∀x. len(ins(x, xs)) = s(len(xs))', T('证出的等式 len (ins x xs) = S (len xs)：一条规则，也是化简的一条改写规则。', 'The equation proved, len (ins x xs) = S (len xs): a rule, and a rewrite rule for Simp.')),
 }
@@ -156,7 +160,7 @@ const REVISIONS = {
 
 const COURSE = {
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...declarations, ...moreDeclarations, ...generators, ...thingDeclarations, ...natDeclaration, ...era2, ...hol, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...automation, ...inductive, ...terms, ...equality, ...structured],
+  levels: [...era0, ...circuits, ...era1, ...declarations, ...moreDeclarations, ...generators, ...thingDeclarations, ...typeDeclarations, ...era2, ...hol, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...automation, ...inductive, ...terms, ...equality, ...structured],
   words: WORDS,
   lemmas: LEMMAS,
   facts: FACTS,

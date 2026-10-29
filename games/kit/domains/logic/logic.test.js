@@ -330,7 +330,7 @@ test('a declaration gives its rules, and induction read off a goal proves an equ
   const { MACHINE_TESTS, wireRules } = await import('./machine.js')
   const { machine } = await import('./build.js')
   const rules = Object.fromEntries(datatypeRules('nat', 'zero | s(nat)').map((r) => [r.key, ruleText(r)]))
-  assert.deepEqual(Object.keys(rules), ['nat.distinct1', 'nat.distinct2', 'nat.inject', 'nat.exhaust', 'nat.induct'])
+  assert.deepEqual(Object.keys(rules), ['nat.distinct1', 'nat.distinct2', 'nat.exhaust', 'nat.induct'])
   assert.equal(rules['nat.induct'], '⟦?P(zero); (⋀x. ?P(x) ⟹ ?P(s(x)))⟧ ⟹ ∀x. ?P(x)')
   const level = { kind: 'machine', want: 'proved', datatypes: { nat: 'zero | s(nat)' }, defs: ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))'], tests: [{ goal: '∀x. plus(x, zero) = x' }] }
   const byInduction = machine({ i: ['rule', { rule: 'nat.induct' }], e: ['each'], p: ['repeat', {}, 'e'], s: ['rw', { rewrite: 'def.0,def.1,hyp' }, 'p'], r: ['rule', { rule: 'refl' }, 'e'] }, ['in>i.in', 'i>e.in', 'e#body>p.in', 'p#body>s.in', 's>p.body', 'p>r.in', 'r>e.body', 'e>out'])

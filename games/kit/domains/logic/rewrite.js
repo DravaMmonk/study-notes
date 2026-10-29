@@ -138,7 +138,7 @@ function rewriteOnce(f, rule) {
   return inForm(f)
 }
 
-// A hypothesis (or an equation proved) as a rule, its ∀ variables standing for anything: an equation of things, or an
+// A hypothesis as a rule, its ∀ variables standing for anything: an equation of things, or an
 // equivalence. A hypothesis that still has a ?-letter of the proof in it is not one yet.
 function hypRule(h) {
   if (metasIn(h).size) return null
@@ -151,6 +151,20 @@ function hypRule(h) {
     return { lhs: l, rhs: r }
   }
   if (f.op === '↔') return { lhs: free(f.a), rhs: free(f.b) }
+  return null
+}
+
+// An equation proved as a rewrite rule: under its ∀s, maybe after conditions (u = tt → if(u, v, w) = v).
+function factRewrite(f) {
+  const vars = []
+  let g = f
+  while (g.op === '∀') { vars.push(g.v); g = g.body }
+  const free = (x) => vars.reduce((h, v) => subst(h, v, tvar(`?${v}`)), x)
+  const conditions = []
+  while (g.op === '→') { conditions.push(free(g.a)); g = g.b }
+  // One whose left side is a bare variable (S x = S y → x = y) rewrites nothing in particular: not a rewrite rule.
+  if (g.op === 'atom' && g.pred === '=') return g.args[0].t === 'var' && vars.includes(g.args[0].name) ? null : { lhs: free(g).args[0], rhs: free(g).args[1], conditions }
+  if (g.op === '↔' && !conditions.length) return { lhs: free(g.a), rhs: free(g.b), conditions }
   return null
 }
 
@@ -240,8 +254,8 @@ export function rewriteBookOf(level) {
         .map((r) => ({ key: r.key, name: r.name, lhs: r.premises[0].show, rhs: r.conclusion, conditions: [], group: 'law' }))
     })
     const defs = (level.defs ?? []).map(defRule)
-    const facts = Object.entries(level.facts ?? {}).filter(([type]) => !level.proven || level.proven.includes(type)).map(([type, f]) => [type, f, hypRule(parseS(f.statement))]).filter(([, , r]) => r)
-      .map(([type, f, r]) => ({ key: type, name: f.name, ...r, conditions: [], group: 'fact' }))
+    const facts = Object.entries(level.facts ?? {}).filter(([type]) => !level.proven || level.proven.includes(type)).map(([type, f]) => [type, f, factRewrite(parseS(f.statement))]).filter(([, , r]) => r)
+      .map(([type, f, r]) => ({ key: type, name: f.name, ...r, group: 'fact' }))
     const hyp = { key: 'hyp', name: T('已知里的等式', 'An equation given'), lhs: null, rhs: null, conditions: [], group: 'hyp' }
     books.set(level, Object.fromEntries([...laws, ...facts, ...defs, hyp].map((r) => [r.key, r])))
   }
