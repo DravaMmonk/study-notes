@@ -18,10 +18,16 @@
 // the things its thing cards take found among the level's (`things`); when it cannot, nothing is made. A specification
 // is tested on situations, not proved.
 //
+// A situation may also use it (`get`): with the declared sentence at hand, and `holds` besides, does `get` follow? The
+// elimination rule made from the player's ways decides (follows): a case for each way, given what that way took, and
+// Apply on what is at hand; `get` follows when every case reaches it. A sentence nothing else mentions stands for any
+// sentence R, so these rows show the declared sentence gives just what its ways in give: no more, no less.
+//
 // A level: { kind: 'iso', declare: { zh, en } its name, target: its sentence (with a thing's name where a way takes
 // one: 'x = x'), sentences: [sentence] an assumption card may pick (letters, or sentences like "A → B" or "Human(x)"),
 // things: [name] the things of the level, binder: the name a thing card gives ('x' unless it says), tests: [{ have:
-// { sentence: n }, goal?, make: bool, uses?: [sentence] what the way it is made by must take }], tray: the cards it
+// { sentence: n }, goal?, make: bool, uses?: [sentence] what the way it is made by must take } | { holds?: [sentence], get,
+// make: bool }], tray: the cards it
 // offers (['hyp'] unless it says: 'hyp', 'thing', 'none'), ways: the rules the declaration must have, when the
 // situations alone cannot tell (a way's assumptions in order, [[sentence]]), take: the rule that takes it apart, when
 // it is not the plain cases (a family indexed by things, as =; one that takes its own kind, as the numbers):
@@ -135,11 +141,31 @@ export function settle(graph) {
 /** What the board gives in one test: the engine's values, and the declared sentence (or null). */
 export function runIso(level, circuit, test) {
   const read = (s) => sentenceOf(level, s)
-  const have = new Map(Object.entries(test.have).map(([s, n]) => [keyOf(read(s)), evidence(s, n)]))
+  const have = new Map(Object.entries(test.have ?? {}).map(([s, n]) => [keyOf(read(s)), evidence(s, n)]))
   const bind = { have, read, things: level.things ?? [], target: read(level.target), goal: test.goal ? read(test.goal) : null }
   const run = runBoard(circuit, { parts: ISO_PARTS, bind })
   const made = run.values.get(DECL) ?? null
   return { ...run, made }
+}
+
+/** Whether `get` follows from the declared sentence and `holds`, by its elimination rule (one case per way) and Apply. */
+export function follows(level, circuit, test) {
+  const read = (s) => sentenceOf(level, s)
+  // Everything Apply reaches from the facts.
+  const reach = (facts) => {
+    const known = new Map(facts.map((f) => [keyOf(f), f]))
+    let grew = true
+    while (grew) {
+      grew = false
+      for (const f of [...known.values()]) {
+        if (f.op === '→' && known.has(keyOf(f.a)) && !known.has(keyOf(f.b))) { known.set(keyOf(f.b), f.b); grew = true }
+      }
+    }
+    return known
+  }
+  const start = [read(level.target), ...(test.holds ?? []).map(read)]
+  const goal = keyOf(read(test.get))
+  return reach(start).has(goal) || waysIn(circuit).every((w) => reach([...start, ...w.needs.map(read)]).has(goal))
 }
 
 /** The rules wired into the declared card, in the order of its ways: { needs, binds } each, in the order taken. */
@@ -154,13 +180,23 @@ export function waysIn(circuit) {
 }
 
 /**
- * Every test checked: { pass, results: [{ pass, reason, made }], ways }; words(sentence) gives a sentence's
+ * Every test checked: { pass, results: [{ pass, reason, made, got? }], ways }; words(sentence) gives a sentence's
  * words. `ways` says why the rules are not the ones the level asks for (level.ways), when every situation is right.
  */
 export function checkIso(level, circuit, words) {
   const name = level.declare
   const results = level.tests.map((test) => {
     const run = runIso(level, circuit, test)
+    if (test.get) {
+      const got = follows(level, circuit, test)
+      const has = [level.target, ...(test.holds ?? [])].map(words)
+      const at = T(has.map((h) => `「${h.zh}」`).join('、'), has.map((h) => `“${h.en}”`).join(', '))
+      const what = words(test.get)
+      const reason = got === test.make ? null : test.make
+        ? T(`手里有${at.zh}，应该推得出「${what.zh}」，按这份声明却推不出`, `With ${at.en} at hand, “${what.en}” should follow, yet by this declaration it does not`)
+        : T(`手里有${at.zh}，按这份声明竟推得出「${what.zh}」：它给得太多了`, `With ${at.en} at hand, this declaration gives “${what.en}”: it gives too much`)
+      return { pass: !reason, reason, ...run, got }
+    }
     const has = Object.keys(test.have).map(words)
     const at = T(has.map((h) => h.zh).join('、') || '什么都没有', has.map((h) => h.en).join(', ') || 'nothing')
     const what = test.goal ? words(test.goal) : name

@@ -135,6 +135,7 @@
 .lg-rows tbody tr.is-on { background: var(--hover, rgba(0,0,0,.05)); }
 .lg-rows tbody tr.is-pass td:last-child { color: var(--status); }
 .lg-rows tbody tr.is-fail td:last-child { color: var(--fail); }
+.lg-rows td:last-child { white-space: nowrap; }
 
 
 /* First-order levels (ui/WorldScreens.jsx): sentences to write, the vocabulary as buttons, worlds in words, and a world

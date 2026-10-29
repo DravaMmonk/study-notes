@@ -2,7 +2,7 @@
 // level's spec writes them (build.js).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { checkIso, isoBoard, settle } from './iso.js'
+import { checkIso, follows, isoBoard, settle } from './iso.js'
 import { runLevel } from '../../engine/tests.js'
 import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
@@ -418,6 +418,20 @@ test('a declaration by assumption cards: chained they are one way needing both, 
   assert.equal(settled.nodes.find((n) => n.id === 'decl').params.ways, 1)
   const bot = level('⊥', ['A'], [{ have: { A: 1 }, make: false }, { have: {}, make: false }])
   assert.ok(checkIso(bot, isoBoard([]), words).pass)
+})
+
+test('using a declaration: what follows is what every way in gives, a sentence nothing mentions standing for any', () => {
+  const level = (target) => ({ target, sentences: ['A', 'B'], declare: { zh: 'x', en: 'x' } })
+  const and = isoBoard(['A>B', 'B>1'])
+  const or = isoBoard(['A>1', 'B>2'])
+  assert.ok(follows(level('A ∧ B'), and, { get: 'A' }))
+  assert.equal(follows(level('A ∧ B'), and, { get: 'C' }), false)
+  assert.ok(follows(level('A ∧ B'), and, { holds: ['A → (B → C)'], get: 'C' }))
+  // Declared as two ways, "and" no longer gives its left side.
+  assert.equal(follows(level('A ∧ B'), or, { get: 'A' }), false)
+  assert.ok(follows(level('A ∨ B'), or, { holds: ['A → C', 'B → C'], get: 'C' }))
+  assert.equal(follows(level('A ∨ B'), or, { holds: ['A → C'], get: 'C' }), false)
+  assert.ok(follows(level('⊥'), isoBoard([]), { get: 'C' }))
 })
 
 test('the elimination rule generator: one case for each way in, its conclusion any ?R; none for ⊥', () => {
