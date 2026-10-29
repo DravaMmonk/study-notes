@@ -215,20 +215,20 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
 // A board of cards on a phone (this board and the elimination board, TakeScreen.jsx): the shared slot board, the table
 // under it, the tray and the run bar. `spot()` is where a new card goes on the desktop canvas.
 export function PhoneCards({ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, spot, scope }) {
-  const [sheet, setSheet] = useState(null) // { node } or { slot }
+  const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const root = useRef(null)
   const scroller = useRef(null)
   const editing = useSlotEditing({
     graph: circuit,
     onChange: change,
     parts,
-    create: (_, type, at) => {
+    create: (_, type, at, region) => {
       const [x, y] = spot()
-      return addPart(type, { slot: at, x, y })
+      return addPart(type, { slot: at, x, y, ...(region ? { in: region } : {}) })
     },
     label: parts.label,
     openNode: (id) => setSheet({ node: id }),
-    openSlot: (at) => setSheet({ slot: at }),
+    openSlot: (at, region) => setSheet({ slot: at, region }),
     root,
     scroller,
     scope,
@@ -257,7 +257,7 @@ export function PhoneCards({ circuit, parts, items, addPart, brief, dock, change
         <Sheet title={tr('放在这一格', 'Place in this slot')} onClose={() => setSheet(null)}>
           <div className="lg-add">
             {items.map((item) => (
-              <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot); setSheet(null) }}>
+              <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot, sheet.region); setSheet(null) }}>
                 <b>{L(item.label)}</b>
               </button>
             ))}

@@ -6,7 +6,9 @@
 //
 // A region that `opens` gives a value of its own, read inside it from the frame's output `<frame>#<region>` (the
 // assumption it makes), or several, one output each, when it names them (`gives: [key…]`: an assumption box that
-// assumes both sides at once); what is made inside a region comes back out through the frame's input named after it.
+// assumes both sides at once); what is made inside a region comes back out through the frame's input named after it,
+// unless the region closes nothing (`closes: false`: no such input is drawn; the frame does not read back what is made
+// inside).
 // So a value is seen where it is made and in every region inside that: a wire may run inward, never outward.
 
 // Any game can use frames: a domain makes a frame part with framePart (its eval gets the region's name as `key` for

@@ -285,13 +285,13 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
               </header>
               {grid(`${node.id}/${r.name}`)}
               {/* Along the region's bottom edge: the dot its result goes into, and what the frame gives. */}
-              <footer className="pb-closes">
+              {r.closes !== false && (<footer className="pb-closes">
                 <span className="pb-ins">
                   <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)} 的${L(parts.portLabel?.(node, r.name) ?? '')}`, `${nameOf(node)} ${L(parts.portLabel?.(node, r.name) ?? '')}`), `is-in ${feeding(graph, node.id, r.name) ? 'is-wired' : 'is-open'}`)}</span>
                 </span>
                 <em>{L(parts.portLabel?.(node, r.name) ?? '')}</em>
                 {resultNote?.(node, r.name)}
-              </footer>
+              </footer>)}
             </section>
           ))}
           {outDots(node)}
