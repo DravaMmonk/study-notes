@@ -147,7 +147,7 @@ export const inductive = [
     ],
     intro: [
       { t: T('化简器里，数和列表是被算的东西：0、S 0 都是现成的，加法的定义是给定的等式。可「0 不等于 1」，化简证不出来：没有哪条定义说它们不一样。这一章给证明器装上<wiki-ref to="inductive"></wiki-ref>：数和列表是怎么来的。', 'In the simplifier, numbers and lists are things to work out: 0 and S 0 are just there, and addition’s definition is equations given. But “0 is not 1” Simp cannot prove: no definition says they differ. This chapter fits the prover with the <wiki-ref to="inductive"></wiki-ref>: where numbers and lists come from.') },
-      { t: T('<level-ref to="decl-nat"></level-ref>声明了自然数：nat = 0 | S nat，一个数要么是 0，要么是某个数的后一个 S n。0 和 S 这两种造法叫<wiki-ref to="constructor"></wiki-ref>。声明只说了这一句，可它给规则书添了一组规则，第一条：不同的构造子造出的值互不相同，0 = S x 不可能成立，从它推出什么都行。', '<level-ref to="decl-nat"></level-ref> declared the numbers: nat = 0 | S nat, a number is 0 or the one after some number, S n. 0 and S, the two ways, are each a <wiki-ref to="constructor"></wiki-ref>. The declaration says only that, yet it adds a group of rules to the rule book, the first: values made by different constructors are different, 0 = S x cannot hold, and from it anything follows.') },
+      { t: T('<level-ref to="decl-nat"></level-ref>声明了自然数：nat = 0 | S nat，一个数要么是 0，要么是某个数的后一个 S n。0 和 S 这两条引入规则叫<wiki-ref to="constructor"></wiki-ref>。声明只说了这一句，可它给规则书添了一组规则，第一条：不同的构造子造出的值互不相同，0 = S x 不可能成立，从它推出什么都行。', '<level-ref to="decl-nat"></level-ref> declared the numbers: nat = 0 | S nat, a number is 0 or the one after some number, S n. 0 and S, the two ways, are each a <wiki-ref to="constructor"></wiki-ref>. The declaration says only that, yet it adds a group of rules to the rule book, the first: values made by different constructors are different, 0 = S x cannot hold, and from it anything follows.') },
     ],
     solution: flow(['rule', 'impI'], { ways: [[['erule', 'nat.distinct1']], [['erule', 'nat.distinct2']]] }),
     after: T('0 和 S x 由不同的构造子造出，所以不相等：这不是一条另加的公理，是声明本身的意思。两个方向各是一条规则。', '0 and S x come from different constructors, so they differ: not an axiom added, but what the declaration means. Each way round is a rule.'),
@@ -161,7 +161,7 @@ export const inductive = [
     hint: [T('<part-ref to="part:search"></part-ref>里两条路：已知里有，或者规则对已知接上「数理规则书」里 S … = S … 那一条。', 'Two ways in a <part-ref to="part:search"></part-ref>: Assumption, or Rule on a given with the S … = S … rule of the “Rule book of numbers”.')],
     intro: [{ t: T('S a = S b，那么 a = b：同一个构造子造出的两个值相等，参数也就相等，这叫<wiki-ref to="injectivity"></wiki-ref>。这也是声明给的一条规则。要拆几层，事先不知道。', 'S a = S b, so a = b: two values made by the same constructor are equal only if their arguments are, which is called <wiki-ref to="injectivity"></wiki-ref>. This too is a rule the declaration gives. How many layers to take off is not known beforehand.') }],
     solution: flow(['rule', 'impI'], { frame: 'search', body: [{ ways: [['assumption'], [['erule', 'nat.inject']]] }] }),
-    after: T('互不相同和一对一，合起来说的是：一个数只有一种造法。', 'All different and one-to-one together say: a number is made in one way only.'),
+    after: T('互不相同和一对一，合起来说的是：一个数只有一条引入规则。', 'All different and one-to-one together say: a number is made in one way only.'),
   }),
   proves({
     id: 'in-cases',

@@ -175,11 +175,11 @@ export function checkIso(level, circuit, words) {
     const taken = new Set(run.made.items.filter((x) => x.kind === 'ev').map((x) => x.sentence))
     const unused = (test.uses ?? []).filter((s) => !taken.has(s)).map(words)
     const pass = !unused.length
-    return { pass, reason: pass ? null : T(`证出了「${what.zh}」，可用的造法没有用上手里的${unused.map((u) => u.zh).join('、')}`, `“${what.en}” is proved, but by a way that does not take the ${unused.map((u) => u.en).join(', ')} at hand`), ...run }
+    return { pass, reason: pass ? null : T(`证出了「${what.zh}」，可用的引入规则没有用上手里的${unused.map((u) => u.zh).join('、')}`, `“${what.en}” is proved, but by a way that does not take the ${unused.map((u) => u.en).join(', ')} at hand`), ...run }
   })
   const key = (ways) => ways.map((w) => w.join('|')).sort().join('/')
   const ways = level.ways && key(waysIn(circuit).map((w) => w.needs)) !== key(level.ways)
-    ? T(`每种情况都对，但造法不是要求的那条：${level.ways.map((w) => `⟦${w.map((s) => words(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every situation is right, but the way is not the one asked for: ${level.ways.map((w) => `⟦${w.map((s) => words(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`)
+    ? T(`每种情况都对，但引入规则不是要求的那条：${level.ways.map((w) => `⟦${w.map((s) => words(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every situation is right, but the way is not the one asked for: ${level.ways.map((w) => `⟦${w.map((s) => words(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`)
     : null
   return { pass: results.every((r) => r.pass) && !ways, results, ways }
 }
@@ -192,7 +192,12 @@ const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })
 export const wayRule = (way, level, g = (f) => f) => ({ fixes: way.binds, premises: way.needs.map((s) => premise(g(sentenceOf(level, s)))), conclusion: g(sentenceOf(level, level.target)) })
 
 /** A rule written out, with the things a way takes in front: ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human. */
-export const wayText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${ruleText(rule, say)}`
+export const wayText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${rule.conclusions ? projections(rule, say) : ruleText(rule, say)}`
+// A rule giving several conclusions at once: ⟦A ∧ B⟧ ⟹ A; B.
+function projections(rule, say) {
+  const one = ruleText({ ...rule, conclusion: rule.conclusions[0] }, say)
+  return `${one.slice(0, one.length - say(rule.conclusions[0]).length)}${rule.conclusions.map(say).join('; ')}`
+}
 /** A rule's value on the board as a way: { needs, binds }. */
 export const wayOf = (rule) => ({ needs: needsOf(rule), binds: bindsOf(rule) })
 
@@ -237,11 +242,17 @@ function general(level) {
 export function declaredRules(level, ways) {
   const g = general(level)
   const R = meta('?R')
+  const target = premise(g(sentenceOf(level, level.target)))
+  // With one way in that takes no thing, taking it apart gives back what that way took, each on its own:
+  // ⟦A ∧ B⟧ ⟹ A; B. Otherwise it is the cases, one for each way, all reaching any ?R.
+  const [only] = ways
+  const plain = !level.take && ways.length === 1 && only.needs.length > 0 && !only.binds?.length
   return {
     make: ways.map((way) => wayRule(way, level, g)),
     take: level.take
       ? ruleOf('take', null, level.take.premises, level.take.conclusion)
-      : { premises: [premise(g(sentenceOf(level, level.target))), ...ways.map((way) => premise(R, way.needs.map((s) => g(sentenceOf(level, s))), way.binds))], conclusion: R },
+      : plain ? { premises: [target], conclusions: only.needs.map((s) => g(sentenceOf(level, s))) }
+      : { premises: [target, ...ways.map((way) => premise(R, way.needs.map((s) => g(sentenceOf(level, s))), way.binds))], conclusion: R },
   }
 }
 

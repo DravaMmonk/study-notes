@@ -38,9 +38,9 @@ export const hol = [
     ],
     intro: [
       { t: T('第 3 章用声明把「并且」引入了证明核。不声明行不行？只用已有的 → 写出「并且」的意思：「A 并且 B」就是「不管 R 是哪一句，只要能从 A、B 推出 R，就有 R」，写成 (A → (B → R)) → R。这里的 R 代表任意一句话。', 'Chapter 3 brought “and” into the kernel with a declaration. Could it do without? Write what “and” means with the → already there: “A and B” is “whatever sentence R is, if R follows from A and B, then R”, written (A → (B → R)) → R. Here R stands for any sentence.') },
-      { t: T('这句话说的，正是拆法做的事：取回两份，拿去推出想要的 R。反过来把它当成定义，造它、拆它的规则就都不用新加，用套用和假设框就能证出来。证明核里写不出「不管哪一句」，所以每次用它都得先选定一个 R。', 'This says just what the case does: get the two back, and use them to reach whatever R you want. Take it the other way, as the definition, and the rules that make it and take it apart need nothing new: Apply and the box prove them. The kernel cannot write “whatever sentence”, so each use picks one R first.') },
+      { t: T('这句话说的，正是消去规则做的事：取回两份，拿去推出想要的 R。反过来把它当成定义，造它、拆它的规则就都不用新加，用套用和假设框就能证出来。证明核里写不出「不管哪一句」，所以每次用它都得先选定一个 R。', 'This says just what the case does: get the two back, and use them to reach whatever R you want. Take it the other way, as the definition, and the rules that make it and take it apart need nothing new: Apply and the box prove them. The kernel cannot write “whatever sentence”, so each use picks one R first.') },
     ],
-    after: T('取 R 为左边，K 就把左边拆了出来。声明里的拆法是核生成的；这里的拆法，是用定义和 K 证出来的。', 'With R the left side, K takes the left side out. A declaration’s case is made by the kernel; this one is proved from the definition and K.'),
+    after: T('取 R 为左边，K 就把左边拆了出来。声明里的消去规则是核生成的；这里的消去规则，是用定义和 K 证出来的。', 'With R the left side, K takes the left side out. A declaration’s case is made by the kernel; this one is proved from the definition and K.'),
   },
   {
     id: 'h-or-make',
@@ -54,7 +54,7 @@ export const hol = [
         brief: T('实现一个证明器，可以从已知「我坐公交」，证明出「(我坐公交 → 我准时到) → ((我骑车 → 我准时到) → 我准时到)」。', 'Build a prover that, from “I take the bus”, proves “(I take the bus → I arrive on time) → ((I cycle → I arrive on time) → I arrive on time)”.'),
         hint: [T('两层框分别假设两句「若…则…」；里面只用得上第一句。', 'Two boxes assume the two “if … then …”s; inside, only the first is needed.')],
         solution: proof({ f: ['impI', { A: 'A → R' }], g: ['impI', { A: 'B → R' }, 'f'], m: ['mp', {}, 'g'] }, ['f#body>m.imp', 'p>m.a', 'm>g.body', 'g>f.body', 'f>goal'], { premises: ['p'] }),
-        after: T('有了「我坐公交」，第二个办法根本用不上：这就是「或者」左边的那种造法。', 'With “I take the bus”, the second move is never needed: that is the way to make “or” on its left.'),
+        after: T('有了「我坐公交」，第二个办法根本用不上：这就是「或者」左边的那条引入规则。', 'With “I take the bus”, the second move is never needed: that is the way to make “or” on its left.'),
       },
       {
         kind: 'proof',
@@ -67,7 +67,7 @@ export const hol = [
         solution: proof({ m1: ['mp'], m2: ['mp'] }, ['p>m1.imp', 'q>m1.a', 'm1>m2.imp', 'r>m2.a', 'm2>goal'], { premises: ['p', 'q', 'r'] }),
       },
     ],
-    intro: [{ t: T('「或者」也一样，拿它的拆法当定义：「A 或者 B」就是「不管 R 是哪一句，只要从 A 能推出 R、从 B 也能推出 R，就有 R」，写成 (A → R) → ((B → R) → R)。', '“Or” the same way, its case taken as its definition: “A or B” is “whatever sentence R is, if R follows from A and R follows from B, then R”, written (A → R) → ((B → R) → R).') }],
-    after: T('两条路比一比：声明「或者」，写的是造法，核生成拆法；定义「或者」，写的是拆法，造法和用法都由它证出来。两条路得到的规则一样。', 'Compare the two roads: declaring “or”, you write its ways to make it and the kernel makes the cases; defining it, you write the case, and making and using are both proved from it. Both roads give the same rules.'),
+    intro: [{ t: T('「或者」也一样，拿它的消去规则当定义：「A 或者 B」就是「不管 R 是哪一句，只要从 A 能推出 R、从 B 也能推出 R，就有 R」，写成 (A → R) → ((B → R) → R)。', '“Or” the same way, its case taken as its definition: “A or B” is “whatever sentence R is, if R follows from A and R follows from B, then R”, written (A → R) → ((B → R) → R).') }],
+    after: T('两条路比一比：声明「或者」，写的是引入规则，核生成消去规则；定义「或者」，写的是消去规则，引入规则和用法都由它证出来。两条路得到的规则一样。', 'Compare the two roads: declaring “or”, you write its ways to make it and the kernel makes the cases; defining it, you write the case, and making and using are both proved from it. Both roads give the same rules.'),
   },
 ]

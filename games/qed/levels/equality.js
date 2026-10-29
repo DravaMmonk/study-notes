@@ -59,7 +59,7 @@ export const equality = [
     ]),
     intro: [
       { t: T('化简器把等式当改写规则用，归纳类型一章又证出了一串等式。可等式本身是什么？这一章看 Lean 的回答：<b>a = b 也是一个类型</b>，它的证明项和别的证明项一样由核检查。', 'The simplifier used equations as rewrite rules, and the chapter on inductive types proved a string of them. But what is an equation itself? This chapter looks at Lean’s answer: <b>a = b is a type too</b>, and its proof terms are checked by the kernel like any other.') },
-      { t: T('等式的证明项只有一种造法：<b>rfl</b>，证的是两边一样的等式 a = a，相当于证明板上的<part-ref to="part:refl"></part-ref>。证明项板上多了这一块。', 'There is only one way to make a proof of an equation: <b>rfl</b>, which proves an equation a = a whose sides are alike, like <part-ref to="part:refl"></part-ref> on the proof board. The term board gains this piece.') },
+      { t: T('等式的证明项只有一条引入规则：<b>rfl</b>，证的是两边一样的等式 a = a，相当于证明板上的<part-ref to="part:refl"></part-ref>。证明项板上多了这一块。', 'There is only one way to make a proof of an equation: <b>rfl</b>, which proves an equation a = a whose sides are alike, like <part-ref to="part:refl"></part-ref> on the proof board. The term board gains this piece.') },
     ],
     after: T('造等式的路只有一条：两边一样。a = a 对什么 a 都成立，所以 ∀x. x = x 是一个 fun，每一次都还 rfl。', 'There is one road to an equation: both sides alike. a = a holds for any a, so ∀x. x = x is a fun that gives rfl every time.'),
   },

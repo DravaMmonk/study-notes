@@ -89,7 +89,11 @@ export function defineLogicGame(spec) {
       term: { Screen: TermScreen, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
       script: { Screen: ScriptScreen, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
     },
-    unlocked: (level) => level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !spec.logic.course.local(type)).map((type) => ({ label: built[type].name })),
+    // What passing a level gives: the parts it builds, and a declaration's proof-board parts (its rules, from here on).
+    unlocked: (level) => [
+      ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !spec.logic.course.local(type)).map((type) => ({ label: built[type].name })),
+      ...(level.source.kind === 'iso' ? level.source.adds ?? [] : []).map((type) => primitives.find((p) => p.key === `part:${type}`)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon, family: 'rule' })),
+    ],
     passed: (level) => (level.source.kind === 'iso' ? <DeclaredRules level={level.source} /> : null),
     core: (level) => isCore(spec.logic.course, level),
     parts: {
