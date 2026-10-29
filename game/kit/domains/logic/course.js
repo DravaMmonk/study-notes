@@ -7,6 +7,8 @@ import { vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
 import { axiomPartsOf, builtParts, rulePartsOf, wireRules } from './machine.js'
 import { render, say, sayTerm } from './notation.js'
+import { typeOf } from './iso.js'
+import { equations } from './define.js'
 
 // Every rule a proof uses, in the boxes too; a machine card that names rules (a rule, a rewrite, simp's list) uses the
 // lemmas they are shapes of.
@@ -17,6 +19,8 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
 // proof.
 const ease = (level) => {
   const main = level.tasks?.at(-1) ?? level
+  // A definition counts its rows.
+  if (main.kind === 'define') return main.rows.length
   return main.solution ? main.solution.nodes.filter((n) => !['premise', 'goal', 'letter', 'out'].includes(n.type)).length : 2
 }
 
@@ -132,6 +136,26 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
   if (clash.length) throw new Error(`built parts share a type: ${clash.join(', ')}`)
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
+  // The types and functions the player declares (chapter 12): a declaration board with `datatype` declares a type, a
+  // definition board (`define`) a function; a later level names them (`types`, `defs`) and gets their text.
+  const declared = { types: new Map(), defs: new Map() }
+  for (const l of levels) {
+    for (const [task, one] of (l.tasks ?? [l]).entries()) {
+      const at = { level: l.id, task: l.tasks ? task : 0 }
+      if (one.datatype) declared.types.set(one.datatype.type, { text: typeOf({ ...l, ...one }), ...at })
+      if (one.kind === 'define') declared.defs.set(one.fn, { eqs: equations(one, one.solution), ...at })
+    }
+  }
+  const lookUp = (table, name, what, id) => {
+    if (!table.has(name)) throw new Error(`level ${id} names ${what} ${name}, which no level declares`)
+    return table.get(name)
+  }
+  // A level's own types and definitions, by name, and the equations it states itself (`stated`).
+  const declarations = (l, id) => ({
+    named: { types: l.types ?? [], defs: l.defs ?? [] },
+    ...(l.types ? { datatypes: Object.fromEntries(l.types.map((t) => [t, lookUp(declared.types, t, 'the type', id).text])) } : {}),
+    ...(l.defs || l.stated ? { defs: [...(l.defs ?? []).flatMap((n) => lookUp(declared.defs, n, 'the function', id).eqs), ...(l.stated ?? [])] } : {}),
+  })
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
   // A level writes formulas in its own words (notation.js) and with every symbol introduced by then: the symbols of
   // the levels before it in play order, and its own.
@@ -145,7 +169,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
       const notation = { words: l.words ?? level.words ?? words, symbols: known }
       const expanded = l.cases ? expand(l, notation) : {}
       // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
-      return { ...l, ...(!l.brief && expanded.schema ? { brief: proofBrief(expanded.schema, l, notation) } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
+      return { ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: proofBrief(expanded.schema, l, notation) } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
     }
     if (!level.tasks) return read(level)
     // What the level builds or proves comes of its last task, the level itself.
@@ -196,17 +220,28 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
   })
+  // A type or function is named only where its declaration comes before: a level after the one that declares it, or a
+  // later task of that level.
+  for (const level of LEVELS) {
+    for (const one of level.tasks ?? [level]) {
+      const before = (d) => (d.level === level.id ? d.task < (one.task ?? 0) : course.before(d.level, level.id))
+      for (const t of one.named.types) if (!before(declared.types.get(t))) throw new Error(`level ${level.id} names the type ${t} before it is declared`)
+      for (const n of one.named.defs) if (!before(declared.defs.get(n))) throw new Error(`level ${level.id} names the function ${n} before it is defined`)
+    }
+  }
   // A machine level's (and a script's) rule book has what the level can hold (machine.js ruleBookOf): the kernel's
   // rules opened by chapter, the lemmas built before it, each in the shapes it has gained by then. A task after the first may use
   // what its level proves already (a law proved on the proof board, then put to work), in every shape it proves.
   for (const level of LEVELS.filter((l) => [l, ...(l.tasks ?? [])].some((t) => t.kind === 'machine' || t.kind === 'script'))) {
     const holds = reach(course, { id: level.id })
     // The equations proved before it (by the levels it comes after), and in a later task its own.
-    const proven = Object.keys(facts).filter((type) => LEVELS.some((l) => l.fact === type && course.before(l.id, level.id)))
+    const proven = Object.keys(facts).filter((type) => LEVELS.some((l) => [l, ...(l.tasks ?? [])].some((t) => t.fact === type) && course.before(l.id, level.id)))
     for (const one of [level, ...(level.tasks ?? [])]) {
       const later = one.task > 0
+      // A task has what the tasks before it in its level proved.
+      const before = (level.tasks ?? []).filter((t) => t.task < one.task && t.fact).map((t) => t.fact)
       one.holds = later && level.builds ? [...holds, level.builds] : holds
-      one.proven = later && level.fact ? [...proven, level.fact] : proven
+      one.proven = [...new Set([...proven, ...before, ...(later && level.fact ? [level.fact] : [])])]
       one.forms = Object.fromEntries(Object.entries(lemmas).filter(([, l]) => l.forms).map(([type, l]) => [type, [
         ...formsAt(course, l.forms[0].key, revisions[type], level.id),
         ...(later ? (revisions[type] ?? []).filter((r) => r.by === level.id).flatMap((r) => r.forms ?? []) : []),

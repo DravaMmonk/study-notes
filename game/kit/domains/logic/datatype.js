@@ -1,8 +1,9 @@
 // Inductive types (《证明完毕》 chapter 12 on): a declaration names a type's constructors, `datatype nat = zero | s(nat)`,
 // and that is all it says; everything else about the type is a rule it gives, written with metavariables
-// (schematic.js) and used with the rule cards like any other: the constructors are all different (distinct), each
-// is one-to-one (inject), every value is made by one of them (exhaust), and what holds of every constructor, given
-// that it holds of its arguments of the type, holds of every value (induct).
+// (schematic.js) and used with the rule cards like any other: the constructors are all different (distinct), every
+// value is made by one of them (exhaust), and what holds of every constructor, given that it holds of its arguments
+// of the type, holds of every value (induct). That a constructor is one-to-one is not given: the course proves it
+// from a function that takes it apart (chapter 12, pred).
 //
 //   declarations  { type: 'c1 | c2(t1, t2) | …' }   a level's `datatypes`, each constructor a name and its arguments'
 //                                                    types (a type of the level, or any name for the things inside)
@@ -24,7 +25,7 @@ export function constructorsOf(text) {
 const applied = (c, names) => (c.args.length ? `${c.f}(${names.join(', ')})` : c.f)
 const namesFor = (c, from = 0, meta = false) => c.args.map((_, k) => `${meta ? '?' : ''}${VARS[from + k]}`)
 
-/** The rules a type's declaration gives, keyed `type.distinct1`, `type.inject`, `type.exhaust`, `type.induct`. */
+/** The rules a type's declaration gives, keyed `type.distinct1`, `type.exhaust`, `type.induct`. */
 export function datatypeRules(type, text) {
   const cs = constructorsOf(text)
   const rules = []
@@ -34,12 +35,6 @@ export function datatypeRules(type, text) {
     const left = applied(a, namesFor(a, 0, true))
     const right = applied(b, namesFor(b, a.args.length, true))
     rules.push(ruleOf(`${type}.distinct${++n}`, T(`${type}：${a.f} 不等于 ${b.f}`, `${type}: ${a.f} is not ${b.f}`), [`${left} = ${right}`], '?C'))
-  }
-  for (const c of cs.filter((x) => x.args.length)) {
-    const xs = namesFor(c, 0, true)
-    const ys = namesFor(c, c.args.length, true)
-    const key = cs.filter((x) => x.args.length).length > 1 ? `${type}.inject.${c.f}` : `${type}.inject`
-    rules.push(ruleOf(key, T(`${type}：${c.f} 一对一`, `${type}: ${c.f} is one-to-one`), [`${applied(c, xs)} = ${applied(c, ys)}`, `⟦${xs.map((x, k) => `${x} = ${ys[k]}`).join('; ')}⟧ ⟹ ?C`], '?C'))
   }
   const fixes = (c) => (c.args.length ? `⋀${namesFor(c).join(' ')}. ` : '')
   rules.push(ruleOf(`${type}.exhaust`, T(`${type} 按情况分`, `${type} by cases`), cs.map((c) => `${fixes(c)}⟦?t = ${applied(c, namesFor(c))}⟧ ⟹ ?C`), '?C'))

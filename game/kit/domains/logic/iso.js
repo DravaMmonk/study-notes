@@ -30,8 +30,8 @@
 // make: bool }], tray: the cards it
 // offers (['hyp'] unless it says: 'hyp', 'thing', 'none'), ways: the rules the declaration must have, when the
 // situations alone cannot tell (a way's assumptions in order, [[sentence]]), take: the rule that takes it apart, when
-// it is not the plain cases (a family indexed by things, as =; one that takes its own kind, as the numbers):
-// { premises: [text], conclusion: text } in metavariables (schematic.js) }.
+// it is not the plain cases (a family indexed by things, as =): { premises: [text], conclusion: text } in metavariables
+// (schematic.js), datatype: the type it declares (chapter 12, typeOf), whose rules the kernel makes (datatype.js) }.
 import { runBoard } from '../../engine/boards.js'
 import { meta, parse, show, subst as substF } from './formula.js'
 import { ruleOf, ruleText } from './schematic.js'
@@ -181,6 +181,18 @@ export function follows(level, circuit, test) {
   })
 }
 
+/**
+ * A type a declaration board declares (chapter 12, `datatype: { type, ctors, args }`): the k-th way is the constructor
+ * ctors[k], its thing cards elements and each assumption the type args[sentence] names: 'zero | s(nat)'.
+ */
+export function typeOf(level) {
+  const { ctors, args } = level.datatype
+  return waysIn(level.solution).map((way, k) => {
+    const of = [...way.binds.map(() => 'elem'), ...way.needs.map((s) => args[s])]
+    return of.length ? `${ctors[k]}(${of.join(', ')})` : ctors[k]
+  }).join(' | ')
+}
+
 /** The rules wired into the declared card, in the order of its ways: { needs, binds } each, in the order taken. */
 export function waysIn(circuit) {
   const run = runBoard(circuit, { parts: ISO_PARTS, bind: {} })
@@ -224,9 +236,11 @@ export function checkIso(level, circuit, words) {
     const pass = !unused.length
     return { pass, reason: pass ? null : T(`证出了「${what.zh}」，可用的引入规则没有用上手里的${unused.map((u) => u.zh).join('、')}`, `“${what.en}” is proved, but by a way that does not take the ${unused.map((u) => u.en).join(', ')} at hand`), ...run }
   })
-  const key = (ways) => ways.map((w) => w.join('|')).sort().join('/')
-  const ways = level.ways && key(waysIn(circuit).map((w) => w.needs)) !== key(level.ways)
-    ? T(`每种情况都对，但引入规则不是要求的那条：${level.ways.map((w) => `⟦${w.map((s) => words(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every situation is right, but the way is not the one asked for: ${level.ways.map((w) => `⟦${w.map((s) => words(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`)
+  // A way as written in `ways`: what it takes in order, a thing as '⋀x'.
+  const key = (ways) => ways.map((w) => w.map((s) => (s.startsWith('⋀') ? '⋀' : s)).join('|')).sort().join('/')
+  const said = (s) => (s.startsWith('⋀') ? T('任取一样东西', 'any thing') : words(s))
+  const ways = level.ways && key(waysIn(circuit).map((w) => [...w.binds.map((b) => `⋀${b}`), ...w.needs])) !== key(level.ways)
+    ? T(`每种情况都对，但引入规则不是要求的那样：${level.ways.map((w) => `⟦${w.map((s) => said(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every situation is right, but the ways are not the ones asked for: ${level.ways.map((w) => `⟦${w.map((s) => said(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`)
     : null
   return { pass: results.every((r) => r.pass) && !ways, results, ways }
 }
@@ -279,7 +293,7 @@ function general(level) {
 /**
  * What a declaration gives, for any sentences: one rule for each way to make it, and the rule that takes it apart,
  * made from them (having it, and for each way a conclusion ?R from what that way took, for any thing it took, gives
- * ?R), or the level's own (`take`: equality, the numbers).
+ * ?R), or the level's own (`take`: equality).
  */
 export function declaredRules(level, ways) {
   const g = general(level)
@@ -303,15 +317,15 @@ export const thingCard = (id, name, at) => ({ id, type: 'thing', params: { name 
  * A reference board written compactly: isoBoard(['Rain>Wind', 'Wind>1']): a card assuming Rain wired into the
  * "assumed first" of a card assuming Wind, the Wind card into the declared card's first way. A card is named by its
  * sentence, or by a key of `cards` ({ key: sentence }) when it is not a letter or two cards assume one sentence; '∅'
- * assumes nothing, and '⋀x' takes the thing x.
+ * (or '∅1', '∅2' … for several) assumes nothing, and '⋀x' takes the thing x.
  */
 export function isoBoard(wires, cards = {}) {
   const pairs = wires.map((s) => s.split('>'))
   const tokens = [...new Set(pairs.flatMap(([from, to]) => (/^\d$/.test(to) ? [from] : [from, to])))]
-  const id = (token) => cardId(token === '∅' ? 'none' : token.startsWith('⋀') ? `thing-${token.slice(1)}` : token)
+  const id = (token) => cardId(token.startsWith('∅') ? `none${token.slice(1)}` : token.startsWith('⋀') ? `thing-${token.slice(1)}` : token)
   const card = (token, k) => {
     const at = { x: 20, y: 40 + k * 200 }
-    if (token === '∅') return { id: id(token), type: 'none', params: {}, ...at }
+    if (token.startsWith('∅')) return { id: id(token), type: 'none', params: {}, ...at }
     if (token.startsWith('⋀')) return thingCard(id(token), token.slice(1), at)
     return hypCard(id(token), cards[token] ?? token, at)
   }
