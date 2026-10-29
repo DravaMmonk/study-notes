@@ -131,7 +131,7 @@ export const era2 = [
       { t: T('上一章你声明了「或者」，随之而来的是<part-ref to="part:orI"></part-ref>：有了一句话，「它 ∨ 随便哪句」就成立。元件上选它放左边还是右边，就是选两条引入规则里的哪一种；再选另一边是哪句话。', 'Last chapter you declared “or”, and with it came <part-ref to="part:orI"></part-ref>: from a sentence, “it ∨ any other” holds. Choosing on the part whether it goes left or right chooses one of the two ways; then choose the other side.') },
     ],
     solution: proof({ i: ['orI', { other: 'B', side: 'right' }], j: ['orI', { other: 'B', side: 'left' }] }, ['p>i.a', 'i>j.a', 'j>goal'], { premises: ['p'] }),
-    after: T('知道「今天是周六」，就知道「今天是周日 ∨ 今天是周六」。反过来不行：只知道「今天是周日 ∨ 今天是周六」，并不知道是哪一边。要用掉一个 ∨，光有它还不够。', 'Knowing “today is Saturday”, you know “today is Sunday ∨ today is Saturday”. Not the other way round: “today is Sunday ∨ today is Saturday” does not say which side holds. Using up an ∨ takes more than the ∨ itself.'),
+    after: T("由「今天是周六」可以推出「今天是周日 ∨ 今天是周六」。反过来，单凭析取命题通常不能分别推出任一析取项。", "From “today is Saturday” we can infer “today is Sunday ∨ today is Saturday”. Conversely, a disjunction alone does not generally establish either disjunct separately."),
   },
   {
     id: 'cases',
@@ -150,7 +150,7 @@ export const era2 = [
       { t: T('「或者」生成的消去规则就是这样：一条引入规则一种情况。<part-ref to="part:orE"></part-ref>像一个假设框，只是<b>有两个框</b>：情况一假设左边，情况二假设右边；两个框证出<b>同一句话</b>，它就给出这句话。', 'The elimination rule made for “or” is just this: one case for each way to make it. <part-ref to="part:orE"></part-ref> is like an assumption box, but with <b>two boxes</b>: case one assumes the left, case two the right; when both prove the <b>same sentence</b>, it gives that sentence.') },
     ],
     solution: proof({ e: ['orE'], m: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>e.left', 'r>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q', 'r'] }),
-    after: T('不知道是哪一种，就每一种都证一遍。这就是用掉 ∨ 的规则：证明里的「分类讨论」。', 'Not knowing which, prove it for each. That is the rule that uses up an ∨: the “case analysis” of every proof.'),
+    after: T("从析取前提出发，分别在两个分支中证明同一结论，再解除分支假设。这是析取消去，也称分类讨论。", "From a disjunction, prove the same conclusion in both branches and discharge the branch assumptions. This is disjunction elimination, also called reasoning by cases."),
   },
   {
     id: 'orSwap',
@@ -163,7 +163,7 @@ export const era2 = [
         cases: [{ A: 'Bus', B: 'Bike' }, { A: 'Coffee', B: 'Tea' }],
         hint: [T('不知道是哪一边，就分情况。每种情况里，用引入 ∨ 换到对的位置。', 'Not knowing which side, split into cases. In each, ∨ intro puts it in the right place.')],
         solution: proof({ e: ['orE'], l: ['orI', { other: 'B', side: 'left' }, 'e/left'], r: ['orI', { other: 'A', side: 'right' }, 'e/right'] }, ['p>e.ab', 'e#left>l.a', 'l>e.left', 'e#right>r.a', 'r>e.right', 'e>goal'], { premises: ['p'] }),
-        after: T('用掉一个 ∨ 要分情况，造出一个 ∨ 要选一边：两件事都用上了。', 'Using an ∨ takes cases, making one takes a side: both came in.'),
+        after: T("析取消去用于分类讨论，析取引入用于构造目标；本任务同时使用了两者。", "Disjunction elimination reasons by cases, while disjunction introduction constructs the goal; this task uses both."),
       },
       {
         kind: 'proof',
@@ -216,7 +216,7 @@ export const era2 = [
         tests: [{ premises: { p: '¬A' }, goal: 'A → B' }],
         cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Locked', B: 'Moon' }],
         hint: [T('目标是「若…则…」：假设「下雨」。框里它和已知撞出 ⊥。', 'The goal is an “if … then …”: assume “it rains”. Inside the box it clashes with the given and gives ⊥.')],
-        intro: [{ t: T('真值表上，前一半为假的那几行，「若…则…」整句都为真：没下雨的时候，「下雨 → 地湿」说不上错。证明器也认这件事，只是要一步一步推出来。', 'On a truth table, an “if … then …” is true on every row where its first half is false: when it does not rain, “it rains → the ground is wet” cannot be wrong. The prover agrees, step by step.') }],
+        intro: [{ t: T("在经典真值表中，条件命题的前件为假时，整个命题为真。本任务用证明规则推导这一具体形式。", "In a classical truth table, a conditional is true whenever its antecedent is false. This task derives a specific instance using proof rules.") }],
         solution: proof({ f: ['impI', { A: 'A' }], m: ['mp', {}, 'f'], b: ['botE', { C: 'B' }, 'f'] }, ['p>m.imp', 'f#body>m.a', 'm>b.bot', 'b>f.body', 'f>goal'], { premises: ['p'] }),
       },
     ],
@@ -225,7 +225,7 @@ export const era2 = [
       { t: T('<level-ref to="g-always"></level-ref>里见过<wiki-ref to="contradiction"></wiki-ref>：每一行都假的话，写作 <b>⊥</b>。上一章声明 ⊥ 时说过：<br><b>¬门锁着　就是　门锁着 → ⊥</b><br>所以「¬门锁着」能直接接进要「若…则…」的口。', 'You met the <wiki-ref to="contradiction"></wiki-ref> in <level-ref to="g-always"></level-ref>: a sentence false on every row, written <b>⊥</b>. Declaring ⊥ last chapter said:<br><b>¬the door is locked　is　the door is locked → ⊥</b><br>so “¬the door is locked” goes straight into an input that wants an “if … then …”.') },
       { t: T('⊥ 一条引入规则都没有，它的消去规则<part-ref to="part:botE"></part-ref>也就一种情况都不用证：有了 ⊥，元件上选什么，就证出什么。这是<wiki-ref to="explosion"></wiki-ref>。', '⊥ has no way to make it, so its case, <part-ref to="part:botE"></part-ref>, has no case to prove: from ⊥, prove whatever is chosen on the part. This is <wiki-ref to="explosion"></wiki-ref>.') },
     ],
-    after: T('假设「下雨」就撞上「¬下雨」，矛盾推出「地湿」。这正是真值表上那件怪事的理由：前一半不成立的「若…则…」，后一半是什么都成立。', 'Assuming “it rains” runs into “¬it rains”, and the contradiction gives “the ground is wet”. This is the reason behind the truth table’s odd rows: an “if … then …” whose first half fails holds whatever its second half.'),
+    after: T("假设「下雨」与已知「¬下雨」产生矛盾，由矛盾消去得到「地湿」。解除临时假设后，得到条件命题。", "Assuming “it rains” contradicts the given “¬it rains”; contradiction elimination yields “the ground is wet”. Discharging the temporary assumption gives the conditional."),
   },
   {
     id: 'notI',

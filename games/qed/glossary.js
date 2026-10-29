@@ -22,36 +22,36 @@ export const GLOSSARY = [
   {
     id: 'map', group: 'play', title: T('关卡地图', 'level map'),
     body: [
-      T('关卡按章排列。第一章纸笔之后，每一章是你装进同一台证明器的一个模块，前面装上的都留着。通过一关，接在它后面的关卡就会打开；岔出去的专题和挑战可以晚些再玩。', 'The levels sit in chapters. After the first, on pen and paper, each chapter is a module you install into the one prover you build, and what is installed stays. Pass a level and the levels after it open; the topics and challenges branching off can wait.'),
-      T('不想按顺序玩，可以打开「全部解锁」。', 'If you would rather not go in order, turn on “Unlock all”.'),
+      T("关卡按章排列。纸笔练习之后，每章向同一台证明器加入一个模块，已获得的能力会按课程安排保留。完成一关后，满足前置条件的关卡解锁；地图中的专题与挑战是可选支线。", "Levels are arranged in chapters. After the pen-and-paper exercises, each chapter adds a module to the same prover, retaining earlier capabilities as the course specifies. Passing a level unlocks those whose prerequisites are met; topics and challenges are optional branches."),
+      T("如需自由选择关卡，可以开启「全部解锁」。", "To choose levels freely, enable “Unlock all”."),
     ],
     see: ['board'],
   },
   {
     id: 'circuit', group: 'play', title: T('真值电路', 'truth circuit'), at: 'g-not',
     body: [
-      T('左边每件小事一个元件：这一行它发生了就送出真，没发生就送出假。右边是「这句话」：接到它的线送来什么，这一行这句话就是什么。中间放门，用线接起来。', 'Each small fact has a part on the left: on a row where it happens it sends out true, otherwise false. On the right is “the sentence”: whatever reaches it is the sentence’s value on that row. Gates go in between, wired together.'),
-      T('下面的真值表里点一行，板上每个元件就显示它在那一行的值。点「一行一行算」，机器从第一行起逐行算下去，每算一行，板上的元件就换成那一行的值；算错的那一行它会停下来。「单步」一次只算一行。', 'Click a row of the truth table below and every part shows its value on that row. Press “Run row by row” and the machine works down the table from the first row; with each row, the parts on the board show that row’s values, and it stops on the first row it gets wrong. “Step” works out one row at a time.'),
-      T('有的关不给出目标真值那一列，免得表格直接透出答案；有的关连句子也只用话说出来，把它翻译成与、或、非再接成电路，就是这一关的题。', 'Some levels hide the target value column, so the table does not give the answer away; in some the sentence is only said in words, and translating it into and, or and not and wiring it is the puzzle.'),
+      T("左侧每个元件代表一个基本命题：在当前行中，命题为真时输出真，否则输出假。右侧的「这句话」接收电路结果，表示复合命题在该行的真值；在中间放置逻辑门并连接它们。", "Each part on the left represents an atomic proposition and outputs its truth value on the current row. The output “the sentence” receives the compound proposition’s value. Place and wire logic gates between them."),
+      T("点击下方真值表的一行，板上元件会显示该行的值。「一行一行算」从第一行开始逐行检查，遇到错误便停止；「单步」每次检查一行。", "Select a row in the truth table to display the values of the parts on that row. “Run row by row” checks from the first row and stops at an error; “Step” checks one row at a time."),
+      T("有些关卡隐藏目标真值列，避免直接给出答案；有些关卡要求先将自然语言陈述转换为逻辑连接词，再搭建对应电路。", "Some levels hide the target truth-value column. Others ask you to translate a natural-language statement into logical connectives and build its circuit."),
     ],
     see: ['truth', 'connective'],
   },
   {
     id: 'board', group: 'play', title: T('证明电路板', 'proof board'), at: 'copy',
     body: [
-      T('左边的元件是<b>已知</b>，右边的是<b>目标</b>。一根线代表「这件事已经证出来了」：一块元件是一条推理规则，输入是它要的东西，输出是它推出的结论。', 'The parts on the left are what is <b>given</b>, the one on the right the <b>goal</b>. A wire means “this has been proved”: a part is a rule of inference, its inputs what it needs, its output the conclusion it draws.'),
-      T('元件上写着它此刻证出的命题。接错了，元件会说它要什么、接进来的是什么。证完了点「检查证明」。', 'A part shows what it proves right now. Wire it wrong and the part says what it wanted and what it got. When you are done, press “Check proof”.'),
-      T('元件上要填一句话时，从这一关出现过的句子里选。', 'Where a part needs a sentence, pick it from the sentences in the level.'),
-      T('每关有几组<b>测试</b>：最后一组只写字母，是题目的样子本身；其余几组把字母换成日常的句子。同一块电路要在每一组上都证得出。换一组测试，元件上的句子跟着换名字，电路不用动：证明只看形状，不看讲的是什么，所以字母那一组证得出，换成什么句子都证得出。', 'Each level has a few <b>tests</b>: the last is just letters, the shape of the problem itself; the others put everyday sentences in place of the letters. One circuit must prove them all. Switch tests and the sentences on the parts are renamed while the circuit stays: a proof looks at shape, not at what it is about, so whatever proves the letters proves any sentences put in their place.'),
+      T("左侧的<b>已知</b>元件提供前提，右侧的<b>目标</b>元件给出待证命题。每个规则元件接收所需的证明并输出结论；连线表示命题已在相应前提和假设下得到证明。", "The <b>given</b> parts on the left supply premises; the <b>goal</b> on the right is the proposition to prove. Each rule part takes the required proofs and yields a conclusion. A wire carries a proposition proved under its associated premises and assumptions."),
+      T("元件显示当前推导的命题。输入不匹配时，它会说明所需命题和实际输入。完成后点击「检查证明」。", "A part displays its current conclusion. When an input does not match, it reports what was required and what it received. Select “Check proof” when ready."),
+      T("需要设置命题时，从元件提供的本关选项中选择。", "When a part requires a proposition, select one from the choices available in the level."),
+      T("每关有几组<b>测试</b>：一组使用题目的字母形式，其余组将字母替换为日常命题。同一电路必须通过各组测试。测试有助于发现不匹配；一般性结论依赖于证明结构及其替换规则，而不是仅凭几个具体例子。", "Each level has <b>tests</b>: one uses the letter schema, while the others substitute everyday propositions. The circuit must pass each test. Tests expose mismatches; a general conclusion rests on the proof structure and its substitution rules, not on a few examples alone."),
     ],
     see: ['rule', 'box'],
   },
   {
     id: 'box', group: 'play', title: T('假设框', 'assumption box'), at: 'assume',
     body: [
-      T('假设框是板上的一个框，框里就能摆元件。在框元件上填要假设的命题，框左上角的「假设」就给出它；框里证出的东西接到框右上角的「结论」，框外就得到「假设 → 结论」。', 'An assumption box is a frame on the board, and parts sit right inside it. Fill in what to assume on the box, and “Assume” at the box’s top left gives it; wire what you prove inside to “Conclusion” at its top right, and outside you get “assumption → conclusion”.'),
-      T('点一下框里的空白，新放的元件就落在框里；板上的元件也可以拖进框里，或拖出来。框里看得见外面的一切，框里证出的东西却只能从「结论」带出去。框元件左上角的箭头把框折叠起来。', 'Click the empty space inside a box and new parts land in it; parts on the board can be dragged into a box, or out of one. From inside a box everything outside is visible, but what is proved inside leaves only through “Conclusion”. The arrow at the top left of the box folds it away.'),
-      T(`框一关，它的${W('assumption')}就不再算数：元件下面列着它还依赖的假设，证到目标时一个都不能剩（前提除外）。`, `Once the box closes, its ${W('assumption')} no longer counts: under each part are the hypotheses it still depends on, and none may be left at the goal (the premises aside).`),
+      T("假设框表达蕴含引入。在元件上选择临时假设 A，在框内推导 B 并将它接至「结论」端，框外便得到 A → B。", "An assumption box expresses implication introduction. Select a temporary assumption A, derive B inside, and connect it to “Conclusion”; the box then yields A → B."),
+      T("点击框内空白处，再放置的元件会进入框内；也可以拖动元件调整位置。框内可以使用外部前提和外层假设。依赖本框假设的结论须经相应规则解除该假设后才能在框外使用。左上角的箭头用于折叠框。", "Click inside the box before placing a part, or drag a part into or out of it. The inside can use external premises and outer assumptions. A conclusion depending on this box’s assumption must discharge it through the appropriate rule before use outside. The arrow folds the box."),
+      T(`输出 A → B 时，本框的临时${W('assumption')}被<b>解除</b>：结论不再依赖它，但其他前提和外层假设仍然保留。目标不能依赖未解除的临时假设。折叠框只是改变显示，不会解除假设。`, `When the box yields A → B, its temporary ${W('assumption')} is <b>discharged</b>. The conclusion no longer depends on it, but other premises and outer assumptions remain. The goal may not depend on undischarged temporary assumptions. Folding the box only changes its display.`),
     ],
     see: ['assumption', 'deduction'],
   },
@@ -60,40 +60,40 @@ export const GLOSSARY = [
   {
     id: 'truth', group: 'prop', title: T('真值表', 'truth table'), at: 'table',
     body: [
-      T('一句由几件小事和「若…则…」「并且」这些连接词拼成的话，是真是假只取决于每件小事是真是假。把所有情况列成一行一行，就是它的<b>真值表</b>：n 件小事有 2ⁿ 行。', 'A sentence built from a few small facts and connectives like “if … then …” and “and” is true or false depending only on whether each small fact is. Listing every case, one per row, gives its <b>truth table</b>: n facts make 2ⁿ rows.'),
-      T('「若 X，则 Y」只在 X 真、Y 假的那一行为假：X 没发生时，它什么也没承诺。这叫<b>实质蕴涵</b>，写成 X → Y。', '“If X, then Y” is false only on the row where X is true and Y false: when X does not happen it promised nothing. This is <b>material implication</b>, written X → Y.'),
+      T("复合命题由基本命题和「若……则……」「并且」等连接词构成。在经典命题逻辑中，复合命题的真值由基本命题的真值决定。<b>真值表</b>逐行列出所有真值组合和对应结果；n 个不同的基本命题共有 2ⁿ 种组合。", "A compound proposition is built from atoms and connectives such as “if … then …” and “and”. In classical propositional logic, its value is determined by the values of its atoms. A <b>truth table</b> lists every assignment and result: n distinct atoms give 2ⁿ assignments."),
+      T("条件命题 X → Y 只在 X 为真、Y 为假时为假；前件 X 为假时，它按定义为真。这种连接词称为<b>实质蕴涵</b>，并不表示 X 导致 Y。", "The conditional X → Y is false only when X is true and Y false. When its antecedent X is false, the conditional is true by definition. This connective is <b>material implication</b>; it does not assert that X causes Y."),
     ],
     see: ['tautology', 'counterexample', 'contradiction'],
   },
   {
     id: 'tautology', group: 'prop', title: T('永真式', 'tautology'), at: 'always',
     body: [
-      T(`${W('truth')}上每一行都真的话叫<b>永真式</b>，比如「下雨 → 下雨」「下雨 ∨ ¬下雨」。它成立不是因为世界是什么样，而是因为句子的形状：把里面的小事换成任何别的话，照样每一行都真。`, `A sentence true on every row of its ${W('truth')} is a <b>tautology</b>, such as “it rains → it rains” or “it rains ∨ ¬it rains”. It holds not because of how the world is but because of its shape: put any other sentences in place of the small facts and it is still true on every row.`),
-      T('要确认一句话是永真式，得验完每一行；n 件小事就是 2ⁿ 行，事情一多就验不动。证明给的是另一条路：不验行，只看形状一步步推。', 'To confirm a tautology every row must be checked, and n facts make 2ⁿ rows, which soon becomes too many. Proof is another road: no rows, only shapes, step by step.'),
+      T(`在${W('truth')}的每一行都为真的命题称为<b>永真式</b>，例如「下雨 → 下雨」和「下雨 ∨ ¬下雨」。对其中的基本命题进行一致替换，得到的实例仍然恒真。`, `A proposition true on every row of its ${W('truth')} is a <b>tautology</b>, for example “it rains → it rains” or “it rains ∨ ¬it rains”. Consistently substituting propositions for its atoms preserves validity.`),
+      T("穷举真值表可以判断命题逻辑公式是否为永真式，但 n 个基本命题需要检查 2ⁿ 行。证明则通过规则逐步推导，无须逐行枚举。", "A complete truth table decides whether a propositional formula is a tautology, but n atoms require 2ⁿ rows. A proof instead derives its conclusion using rules, without enumerating each row."),
     ],
     see: ['counterexample', 'proof'],
   },
   {
     id: 'counterexample', group: 'prop', title: T('反例', 'counterexample'), at: 'onerow',
     body: [
-      T(`要说明一句话不是${W('tautology')}，不必验完整张表：找到一行让它为假就够了，这一行叫<b>反例</b>。反例比证明便宜得多：证明要对所有情况都成立，反例只要一种情况不成立。`, `To show a sentence is not a ${W('tautology')}, the whole table need not be checked: one row that makes it false is enough, and that row is a <b>counterexample</b>. A counterexample is far cheaper than a proof: a proof must hold in every case, a counterexample needs one case that fails.`),
-      T('因为证明器的规则都是可靠的，一句话有反例，它就一定证不出来。动手证一句没把握的话之前，先找反例，常常能省下白费的功夫。', 'Since the prover’s rules are all sound, a sentence with a counterexample can never be proved. Before setting out to prove something uncertain, looking for a counterexample often saves wasted effort.'),
+      T(`要说明一个命题不是${W('tautology')}，只需找到一组使它为假的真值；这组真值称为<b>反例</b>。一个反例足以否定恒真性，但没有找到反例并不自动构成证明。`, `To show a proposition is not a ${W('tautology')}, one truth assignment making it false suffices; this is a <b>counterexample</b>. One counterexample refutes validity, but failure to find one is not by itself a proof.`),
+      T("对于没有前提的命题，只要找到使它为假的真值组合，就能排除它在可靠系统中的无前提证明。若有前提，反例还必须使所有前提为真。", "For a proposition with no premises, an assignment making it false rules out a premise-free proof in a sound system. When premises are present, a counterexample must also make every premise true."),
     ],
     see: ['soundness', 'countermodel'],
   },
   {
     id: 'connective', group: 'prop', title: T('连接词', 'connective'), at: 'g-not',
     body: [
-      T('把小句子拼成大句子的词叫<b>连接词</b>：¬（非）、∧（与）、∨（或）、→（若…则…）、↔（等价）。命题逻辑里，一句话的真假只由它的连接词和每个小句子的真假决定，所以每个连接词都是一个门，一句话就是一块电路。', 'Words that build bigger sentences from smaller ones are <b>connectives</b>: ¬ (not), ∧ (and), ∨ (or), → (if … then …) and ↔ (equivalent). In propositional logic a sentence’s truth is fixed by its connectives and the truth of its small sentences, so each connective is a gate and each sentence a circuit.'),
-      T('连接词之间可以互相表示：只用「与」和「非」就能拼出其余所有的，「或」和「非」也行。证明器里，每个连接词都有自己的规则：怎样证出它，怎样用它。', 'Connectives can stand in for one another: “and” with “not” builds all the rest, and so do “or” with “not”. In the prover each connective has rules of its own: how to prove it and how to use it.'),
+      T("连接词将较小的命题组成复合命题：¬（非）、∧（与）、∨（或）、→（若……则……）、↔（当且仅当）。在经典命题逻辑中，复合命题的真值由连接词和各部分的真值决定，因此可以用逻辑门构建真值电路。", "<b>Connectives</b> form compound propositions from smaller ones: ¬ (not), ∧ (and), ∨ (or), → (if … then …), and ↔ (if and only if). In classical propositional logic, their truth values are determined by their components, so they can be represented by logic gates."),
+      T("在经典真值语义下，可以用「与」和「非」，或用「或」和「非」，表示这些连接词。证明器则为连接词提供相应的引入规则和消去规则。", "Under classical truth-value semantics, these connectives can be expressed using “and” and “not”, or using “or” and “not”. The prover supplies corresponding introduction and elimination rules."),
     ],
     see: ['truth', 'natural'],
   },
   {
     id: 'contradiction', group: 'prop', title: T('矛盾', 'contradiction'), at: 'g-always',
     body: [
-      T('每一行都假的话叫<b>矛盾</b>，比如「下雨 ∧ ¬下雨」：没有哪一种情况能让它成立。证明器把它写成一个符号 ⊥。', 'A sentence false on every row is a <b>contradiction</b>, such as “it rains ∧ ¬it rains”: no case can make it hold. The prover writes it as one symbol, ⊥.'),
-      T('证明器里 ¬A 就是 A → ⊥：「A 不成立」说的是「A 一成立就矛盾」。所以证 ¬A，就是假设 A、推出 ⊥。', 'In the prover ¬A is A → ⊥: “A does not hold” says “if A held, that would be a contradiction”. So proving ¬A means assuming A and reaching ⊥.'),
+      T("在经典真值表的每一行都为假的命题称为<b>矛盾式</b>，例如「下雨 ∧ ¬下雨」。证明器中的 ⊥ 是一个表示矛盾的特殊命题；不能把任意矛盾式都当作与 ⊥ 语法相同。", "A proposition false on every row of a classical truth table is a <b>contradiction</b>, for example “it rains ∧ ¬it rains”. The prover uses ⊥ as a distinguished false proposition; a contradictory formula is not necessarily syntactically identical to ⊥."),
+      T("在本证明器中，¬A 定义为 A → ⊥。因此，证明 ¬A 可以通过假设 A 并从中推出 ⊥ 完成。", "In this prover, ¬A is defined as A → ⊥. To prove ¬A, one can assume A and derive ⊥."),
     ],
     see: ['satisfiable', 'explosion'],
   },
@@ -101,14 +101,14 @@ export const GLOSSARY = [
     id: 'satisfiable', group: 'prop', title: T('可满足', 'satisfiability'), at: 'g-always',
     body: [
       T(`一句话（或几句话一起）至少在一种情况下为真，叫<b>可满足</b>；一种都没有，就是${W('contradiction')}，也叫不可满足。命题逻辑里，情况是${W('truth')}的一行；一阶逻辑里，情况是一个世界。`, `A sentence (or several together) is <b>satisfiable</b> when it is true in at least one case; when it is true in none it is a ${W('contradiction')}, also called unsatisfiable. In propositional logic a case is a row of the ${W('truth')}; in first-order logic it is a world.`),
-      T('A 永真，恰好当 ¬A 不可满足。所以「证 A」和「说明 ¬A 不可满足」是一回事：自动证明器和 SAT 求解器都从这里下手，把要证的那句否定了，看还能不能满足。', 'A is a tautology exactly when ¬A is unsatisfiable. So “prove A” and “show ¬A can never be satisfied” are the same task: automatic provers and SAT solvers start from here, negating what is to be proved and asking whether it can still be satisfied.'),
+      T("在经典命题逻辑中，A 是永真式当且仅当 ¬A 不可满足。基于反驳的证明方法会否定待证命题，再检查是否存在满足它的赋值。", "In classical propositional logic, A is a tautology exactly when ¬A is unsatisfiable. Refutation-based methods negate the goal and check whether a satisfying assignment remains."),
     ],
     see: ['tautology', 'world', 'automation'],
   },
   {
     id: 'equivalence', group: 'prop', title: T('等价', 'equivalence'), at: 'g-iff',
     body: [
-      T('两句话每一行都同真同假，叫<b>等价</b>，写成 A ↔ B。它就是两个方向的「若…则…」合在一起：(A → B) ∧ (B → A)。', 'Two sentences true together and false together on every row are in <b>equivalence</b>, written A ↔ B. It is “if … then …” both ways at once: (A → B) ∧ (B → A).'),
+      T("在经典命题逻辑中，若 A、B 在每个真值组合下同真同假，则二者<b>语义等价</b>。双条件 A ↔ B 表示两个方向的蕴含都成立，可写作 (A → B) ∧ (B → A)。", "In classical propositional logic, A and B are <b>semantically equivalent</b> if they have the same truth value under every assignment. The biconditional A ↔ B states both implications and can be written (A → B) ∧ (B → A)."),
       T('等价的两句可以互相替换：句子里哪一处换成和它等价的话，整句的真假都不变。化简器就是靠这一点，把一句话改成说法不同、意思相同的样子。', 'Equivalent sentences can stand in for each other: replace any part of a sentence with something equivalent and the whole keeps its truth. This is what the simplifier relies on to turn a sentence into another way of saying the same.'),
     ],
     see: ['connective', 'rewrite'],
@@ -116,8 +116,8 @@ export const GLOSSARY = [
   {
     id: 'contrapositive', group: 'prop', title: T('逆否', 'contrapositive'), at: 'mt',
     body: [
-      T('A → B 的<b>逆否</b>是 ¬B → ¬A：下雨就地湿，那么地不湿就没下雨。两者等价，证明器里只用套用和假设框就能从前者证出后者。', 'The <b>contrapositive</b> of A → B is ¬B → ¬A: if rain makes the ground wet, then a dry ground means no rain. The two are equivalent, and the prover gets the second from the first with Apply and the assumption box alone.'),
-      T('它的两个近亲却不成立：B → A（逆）和 ¬A → ¬B（否），都能找到反例。「没下雨所以地不湿」是常见的错误推理。', 'Its two near relatives do not hold: B → A (the converse) and ¬A → ¬B (the inverse) both have counterexamples. “It did not rain, so the ground is dry” is a common mistake.'),
+      T("A → B 的<b>逆否命题</b>是 ¬B → ¬A：若下雨则地湿，那么地不湿时便没有下雨。证明器可用套用和假设框从前者推出后者。", "The <b>contrapositive</b> of A → B is ¬B → ¬A. From “if it rains, the ground is wet”, a dry ground rules out rain. The prover derives this direction using Apply and an assumption box."),
+      T("仅由 A → B 不能一般性地推出其<b>逆命题</b> B → A，也不能推出<b>否命题</b> ¬A → ¬B；两种推理都可以找到反例。", "A → B alone does not generally imply its <b>converse</b> B → A or its <b>inverse</b> ¬A → ¬B; both inferences have counterexamples."),
     ],
     see: ['counterexample'],
   },
@@ -125,7 +125,7 @@ export const GLOSSARY = [
     id: 'explosion', group: 'prop', title: T('矛盾推出一切', 'from contradiction, anything'), at: 'bot',
     body: [
       T(`有了${W('contradiction')} ⊥，什么都证得出：这条规则常叫<b>爆炸原理</b>（拉丁文 ex falso quodlibet）。证明器里它是元件${P('part:botE')}。`, `From a ${W('contradiction')} ⊥ anything can be proved: the rule is often called the <b>principle of explosion</b> (Latin ex falso quodlibet). In the prover it is the part ${P('part:botE')}.`),
-      T('它看着奇怪，其实就是 → 的真值表：前一半为假的「若…则…」总是真。用处在分情况时：不可能的那一种情况，交给它就结了。', 'It looks odd, but it is just the truth table of →: an “if … then …” whose first half is false is always true. It earns its keep in case splits: the impossible case is simply handed to it.'),
+      T("在经典真值语义中，前件为假的条件命题恒为真。证明器则通过矛盾消去规则从 ⊥ 推出所需结论；使用这一规则并不意味着矛盾前提在现实中为真。", "In classical truth-value semantics, a conditional with a false antecedent is true. The prover instead applies contradiction elimination to derive the desired conclusion from ⊥; this does not mean contradictory premises are true in reality."),
     ],
     see: ['dsyll'],
   },
@@ -137,8 +137,8 @@ export const GLOSSARY = [
   {
     id: 'lem', group: 'prop', title: T('排中律', 'excluded middle'), at: 'raa',
     body: [
-      T('A ∨ ¬A：任何一句话，要么成立，要么不成立，没有第三种。它是永真式，却不能只用引入和消去规则证出来，要加上反证法。证出来以后，它是元件<part-ref to="lemma:lem"></part-ref>。', 'A ∨ ¬A: any sentence holds or does not, with no third way. It is a tautology, yet the introduction and elimination rules alone cannot prove it; it takes proof by contradiction. Proved, it is the part <part-ref to="lemma:lem"></part-ref>.'),
-      T(`接受它的是${W('classical')}，不接受它的是${W('intuitionistic')}。`, `Logic that accepts it is ${W('classical')}; logic that does not is ${W('intuitionistic')}.`),
+      T("排中律 A ∨ ¬A 表示命题 A 或其否定成立。它是经典命题逻辑的永真式，但不依赖前提时不能仅凭本游戏的直觉主义规则证明；加入双重否定消去后可以证明。它随后封装为元件<part-ref to=\"lemma:lem\"></part-ref>。", "The law of excluded middle A ∨ ¬A states that A or its negation holds. It is a classical propositional tautology, but has no premise-free proof using this game’s intuitionistic rules alone. Adding double-negation elimination makes it provable; the result becomes <part-ref to=\"lemma:lem\"></part-ref>."),
+      T(`${W('classical')}接受排中律；${W('intuitionistic')}不把它作为一般原则。`, `${W('classical')} accepts excluded middle; ${W('intuitionistic')} does not adopt it as a general principle.`),
     ],
     see: ['classical', 'intuitionistic'],
   },
@@ -167,48 +167,48 @@ export const GLOSSARY = [
   {
     id: 'proof', group: 'proof', title: T('证明', 'proof'), at: 'copy',
     body: [
-      T('证明是一串步骤，每一步都由规则从前面的步骤得来。它不看真假，只看形状：规则对得上就行。', 'A proof is a chain of steps, each drawn by a rule from the steps before. It does not look at truth, only at shape: the rule has to fit.'),
-      T('真值表一行一行地验，行数随小事的个数翻倍；说到「所有的数」，表根本列不完。证明只看形状，所以一个证明对无穷多种情况一次说完。', 'A truth table checks row by row, and the rows double with every fact; for “every number” no table could be finished. A proof looks only at shape, so one proof covers infinitely many cases at once.'),
+      T("<b>证明</b>是从前提、公理和推理规则出发的有限推导。每一步要么是允许的出发点，要么由此前的步骤按规则得到；检查规则适用性依靠公式的结构。", "A <b>proof</b> is a finite derivation from premises, axioms and inference rules. Each step is an allowed starting point or follows from earlier steps by a rule; checking rule applicability depends on formula structure."),
+      T("命题真值表的行数随基本命题数量指数增长。形式证明可以利用一般规则和变量，建立适用于一类情况的结论；涉及无穷对象时，证明仍需使用适当的量词和推理规则。", "A propositional truth table grows exponentially in the number of atoms. A formal proof can use general rules and variables to establish a family of cases; reasoning about infinite domains still requires appropriate quantifiers and rules."),
     ],
     see: ['rule', 'soundness', 'kernel'],
   },
   {
     id: 'rule', group: 'proof', title: T('推理规则', 'rule of inference'), at: 'copy',
-    body: [T('一条<b>推理规则</b>说：有了这几句（前提），就能得到那一句（结论）。比如套用：有了 A → B 和 A，就得到 B。规则只看句子的形状，A、B 换成什么话都行。板上的每一块元件就是一条规则，输入口是前提，输出口是结论。', 'A <b>rule of inference</b> says: given these sentences (the premises), you get that one (the conclusion). Apply, for one: from A → B and A, get B. A rule looks only at the shape of sentences, and A and B may be anything. Each part on the board is a rule, its inputs the premises and its output the conclusion.')],
+    body: [T("<b>推理规则</b>说明怎样从前提推导结论。例如，套用由 A → B 和 A 推出 B。规则的字母表示命题模式，可以按规则允许的方式一致替换。证明板上的规则元件以输入端表示前提、输出端表示结论。", "An <b>inference rule</b> specifies how conclusions follow from premises. For example, Apply derives B from A → B and A. Letters represent proposition schemata and can be consistently instantiated as the rule permits. On the proof board, inputs represent premises and the output represents the conclusion.")],
     see: ['proof', 'kernel'],
   },
   {
     id: 'kernel', group: 'proof', title: T('证明核', 'kernel'), at: 'copy',
     body: [
-      T('<b>证明核</b>是证明器里最小、最要紧的一块：几条基本规则，只有它能认定一句话证出来了。别的一切（引理、策略、化简器、外面的自动证明器）都只是替核找路，最后一步一步都要经过核。', 'The <b>kernel</b> is the smallest and most important piece of a prover: a few basic rules, and the only thing that can declare a sentence proved. Everything else (lemmas, tactics, the simplifier, outside automatic provers) only finds the way for the kernel, and every step in the end goes through it.'),
-      T('所以要信一台证明器，只要信它的核。核越小，越容易查清楚有没有错；这台证明器的核从第一章起就只有几条规则。', 'So to trust a prover, one need only trust its kernel. The smaller the kernel, the easier it is to make sure it has no mistake; this prover’s kernel has been a few rules since its first chapter.'),
+      T("<b>证明核</b>检查由基础规则组成的证明。引理、策略和化简器可以帮助构造证明，但它们的结果仍须由核检查。", "The <b>kernel</b> checks proofs against basic rules. Lemmas, tactics and simplifiers can help construct a proof, but their results must still be checked by the kernel."),
+      T("较小的核更容易审查。对检查结果的信任仍依赖所选公理、核的实现及其运行环境。", "A smaller kernel is easier to audit. Trust in a checked result still depends on the chosen axioms, the kernel implementation and its execution environment."),
     ],
     see: ['soundness', 'provers'],
   },
   {
     id: 'soundness', group: 'proof', title: T('可靠性', 'soundness'), at: 'copy',
     body: [
-      T('规则<b>可靠</b>，是说证得出的东西一定为真：每条规则的前提都真时，结论也真。所以一个反例就说明一句话证不出来。', 'Rules are <b>sound</b> when whatever they prove is true: whenever a rule’s premises are true, so is its conclusion. That is why one counterexample shows a sentence cannot be proved.'),
-      T('反过来，真的东西都证得出，叫<b>完备</b>。命题逻辑和一阶逻辑的证明系统都既可靠又完备（一阶的完备性是哥德尔 1929 年证的）；可完备不等于有程序能判定。', 'The other way round, a system in which everything true can be proved is <b>complete</b>. The proof systems of propositional and first-order logic are both sound and complete (completeness for first-order logic was proved by Gödel in 1929); but complete does not mean a program can decide it.'),
+      T("推理规则<b>可靠</b>，是指当前提均为真时，结论也必为真。要用反例说明结论不能从给定前提推出，需要找到前提全真而结论为假的赋值。", "A rule is <b>sound</b> if its conclusion is true whenever all its premises are true. To refute an inference, a counterexample must make all premises true and the conclusion false."),
+      T("相应的<b>完备性</b>是指语义上有效的结论都能形式证明。可靠性与完备性都相对于具体的规则和语义而言；完备并不意味着存在总会停机的判定程序。", "The corresponding <b>completeness</b> property says that every semantically valid conclusion has a formal proof. Both properties are relative to a particular system and semantics; completeness does not imply a terminating decision procedure."),
     ],
     see: ['proof', 'counterexample'],
   },
   {
     id: 'completeness', group: 'proof', title: T('完备性', 'completeness'), at: 'copy',
     body: [
-      T(`真的都证得出，叫<b>完备</b>，是${W('soundness')}的反方向。命题逻辑的证明器是完备的：${W('tautology')}都是定理。一阶逻辑也是：在所有世界里都真的话，都证得出（哥德尔，1929）。`, `A system in which everything true can be proved is <b>complete</b>, the converse of ${W('soundness')}. The prover of propositional logic is complete: every ${W('tautology')} is a theorem. So is first-order logic: a sentence true in every world can be proved (Gödel, 1929).`),
-      T('完备不等于有程序能判定：证得出的总找得到证明，证不出的，搜索却可能停不下来。它也不和不完备性定理冲突：完备说的是在所有世界里都真的话；不完备说的是在自然数这一个世界里真的话，那里有真的却证不出的句子。', 'Complete does not mean a program can decide it: what can be proved can always be found, but on what cannot, the search may never stop. Nor does it clash with incompleteness: completeness is about sentences true in every world; incompleteness is about sentences true of the natural numbers, one world, where some truths cannot be proved.'),
+      T(`若一个系统能证明其语义中所有有效的命题，就称为<b>完备</b>；这与${W('soundness')}关注的方向相反。经典命题逻辑中每个${W('tautology')}都有形式证明；经典一阶逻辑对所有结构中的有效性也有完备性定理。`, `A system is <b>complete</b> for a semantics if every semantically valid proposition has a proof; this is the converse direction to ${W('soundness')}. Every classical propositional ${W('tautology')} has a proof, and classical first-order logic is complete for validity in all structures.`),
+      T("完备性不等于可判定性：可证明的结论可以通过枚举证明找到，但不可证明时搜索可能不会停止。它也不与算术不完备性矛盾：前者讨论一阶逻辑在所有结构中的有效性，后者涉及满足特定条件的算术理论及其在自然数结构中的真命题。", "Completeness is not decidability: proof enumeration can eventually find a derivation when one exists, but may not stop otherwise. It does not contradict arithmetic incompleteness: the former concerns first-order validity across structures, while the latter concerns true statements about the natural numbers and arithmetic theories satisfying specific conditions."),
     ],
     see: ['soundness', 'incompleteness'],
   },
   {
     id: 'assumption', group: 'proof', title: T('假设', 'assumption'), at: 'assume',
-    body: [T('<b>假设</b>不是说它真的成立，而是推理时暂时把它当作出发点。在它底下证出的东西都带着它；假设一收回，结论就成了「若 假设，则 那件事」。证 A → B 就是这样：假设 A，证出 B。证明器里，假设放在假设框里，框一关就收回。', 'An <b>assumption</b> does not claim it holds: it is a starting point taken for the moment. What is proved under it carries it along; once it is withdrawn, the conclusion becomes “if the assumption, then that”. That is how A → B is proved: assume A, prove B. In the prover an assumption lives in an assumption box, and closing the box withdraws it.')],
+    body: [T("<b>临时假设</b>是推理中暂时采用的前提，并不声称它在现实中为真。若在假设 A 下推出 B，假设框可解除对 A 的依赖，得到 A → B；证明使用的其他前提仍然保留。", "A <b>temporary assumption</b> is a premise adopted for a derivation, not a claim that it is true in reality. If B is derived under A, an assumption box can discharge the dependence on A and yield A → B; other premises used by the proof remain.")],
     see: ['box', 'deduction'],
   },
   {
     id: 'lemma', group: 'proof', title: T('引理', 'lemma'), at: 'chain',
-    body: [T(`证过一次的事可以当规则一直用下去，这叫<b>引理</b>。它在每一组测试上都成立，所以对任何句子都能用：「两段首尾相接的若…则…」成了元件${P('lemma:chain')}，K 和 S 后来也是这样成为元件的。引理只是给一段证明起的名字，展开以后，整个证明还是只用${W('kernel')}的规则。`, `Something proved once can be used as a rule from then on: a <b>lemma</b>. It held on every test, so it works for any sentences: “two if … then …s joined end to end” became the part ${P('lemma:chain')}, and K and S became parts the same way. A lemma is only a name given to a piece of proof; unfolded, the whole proof still uses only the rules of the ${W('kernel')}.`)],
+    body: [T(`<b>引理</b>是已证明、可供后续证明引用的结论。例如，${P('lemma:chain')}将由 A → B 与 B → C 推出 A → C 的推理封装为元件。引理的有效性来自它的证明及允许的替换，而不是仅来自测试样例；展开引理后，仍可追溯到${W('kernel')}的规则。`, `A <b>lemma</b> is a proved result that can be reused in later proofs. For example, ${P('lemma:chain')} packages the inference from A → B and B → C to A → C. Its validity rests on its proof and permitted substitutions, not merely on test examples; unfolding it traces the proof back to the ${W('kernel')} rules.`)],
     see: ['theorem', 'definition'],
   },
   {
@@ -218,7 +218,7 @@ export const GLOSSARY = [
   },
   {
     id: 'declaration', group: 'proof', title: T('声明', 'declaration'), at: 'decl-and',
-    body: [T(`<b>声明</b>引入一种新的句子和它的规则：写出它有哪几条引入规则，每条引入规则是一条假设式的新规则（假设有这些证明，就得到它）；这些引入规则就是全部，所以消去规则也随之定下来：每条引入规则一种情况。声明不像${W('definition')}那样能展开消掉，也不像${W('axiom')}那样只能相信：核检查过它合法，消去规则又是由引入规则生成的、不是写上去的，所以不会带来矛盾；Lean 和 Isabelle 也都这样生成，不让你手写。证明板上的基础元件因此只有三类：证明核自带的（套用、假设框，后来的任取、取一个），声明出来的（并且、或者、⊥，后来的存在、相等、自然数，各自的引入规则和消去规则），和公理（后来的反证法）。Lean 的 <code>inductive</code>、<code>structure</code> 就是声明；Isabelle/HOL 不声明连接词，而是用 → 和 ∀ 定义它们。`, `A <b>declaration</b> brings in a new kind of sentence with its rules: its ways to make it are written out, each a new rule that assumes some proofs and gives the sentence; those ways are all there are, so the rule that takes it apart is fixed by them, one case for each way. Unlike a ${W('definition')} it cannot be unfolded away, and unlike an ${W('axiom')} it is not just believed: the kernel checks it is well formed, and its elimination rule is made from the ways in, not written, so it brings no contradiction; Lean and Isabelle make it so too, and never let you write one. So the proof board’s basic parts are of three kinds only: the kernel’s own (Apply, the box, and later For any and Take one), the declared (and, or, ⊥, and later there is, equality and the numbers, each its ways to make it and its case), and axioms (later, By contradiction). Lean’s <code>inductive</code> and <code>structure</code> are declarations; Isabelle/HOL declares no connective, but defines them with → and ∀.`)],
+    body: [T(`本游戏中的<b>声明</b>指定新连接词的引入规则，证明器据此生成相应的消去规则。它与可展开的${W('definition')}、直接采用的${W('axiom')}承担不同角色。生成规则与其声明的引入方式相对应；声明是否保持一致性还依赖具体规则和系统条件。Lean 的归纳类型及 Isabelle/HOL 的连接词有各自的机制，本游戏是一个简化模型。`, `In this game, a <b>declaration</b> specifies introduction rules for a new connective, from which the prover generates a corresponding elimination rule. This differs from an unfoldable ${W('definition')} and an assumed ${W('axiom')}. The generated rule corresponds to the declared introductions; consistency also depends on the specific rules and system assumptions. Lean’s inductive types and Isabelle/HOL’s connectives have their own mechanisms; the game is a simplified model.`)],
     see: ['definition', 'axiom'],
   },
   {
@@ -242,14 +242,14 @@ export const GLOSSARY = [
   },
   {
     id: 'deduction', group: 'proof', title: T('演绎定理', 'deduction theorem'), at: 'x-chain',
-    body: [T(`在一个${W('assumption')}下能推出某件事，就能不带假设证出「若 假设，则 那件事」。证法是逐步改写：假设本身换成用 K、S 拼出的「若它，则它」，和假设无关的步用 K 包一层，套用用 S。所以假设框不增加能证的东西，只让证明好写得多。`, `If something follows under an ${W('assumption')}, then “if the assumption, then that” can be proved with no assumption. The proof rewrites step by step: the assumption itself becomes “if it, then it”, pieced together from K and S, a step unrelated to it is wrapped in K, and Apply goes through S. So the assumption box adds nothing provable; it only makes proofs far easier to write.`)],
+    body: [T(`<b>演绎定理</b>：若从原有前提及附加${W('assumption')} A 能推出 B，就能仅从原有前提推出 A → B。它解除对 A 的依赖，其他前提仍然保留。在本游戏的蕴含片段中，证明可用 K、S 和套用逐步改写。`, `The <b>deduction theorem</b>: if B follows from existing premises together with an additional ${W('assumption')} A, then A → B follows from the existing premises alone. It removes the dependence on A while retaining the other premises. In this game’s implicational fragment, the derivation can be rewritten using K, S and Apply.`)],
     see: ['hilbert', 'box'],
   },
   {
     id: 'natural', group: 'proof', title: T('自然演绎', 'natural deduction'), at: 'and',
     body: [
-      T(`每个${W('connective')}一对规则的证明系统叫<b>自然演绎</b>（Gentzen，1934）：一条引入规则说怎样证出它，一条消去规则说怎样用它。∧ 是拼起来和拆开，∨ 是二选一和分情况，→ 是假设框和套用，⊥ 是${P('part:botE')}。`, `A proof system with a pair of rules for each ${W('connective')} is <b>natural deduction</b> (Gentzen, 1934): an introduction rule saying how to prove it, and an elimination rule saying how to use it. ∧ is joining and splitting, ∨ choosing a side and splitting into cases, → the assumption box and Apply, and ⊥ ${P('part:botE')}.`),
-      T('它比只有公理的系统更像人的推理：假设一件事，看能推出什么。证明助手的规则大都照它来写。', 'It reads more like human reasoning than a system of axioms: assume something and see what follows. The rules of proof assistants are mostly written after it.'),
+      T(`<b>自然演绎</b>按${W('connective')}组织推理：引入规则说明如何证明带该连接词的命题，消去规则说明如何从它推出结论。例如，∧ 有合取引入和消去，→ 有假设框和套用；⊥ 则有${P('part:botE')}。`, `<b>Natural deduction</b> organizes reasoning by ${W('connective')}: introduction rules establish propositions with that connective, and elimination rules derive consequences from them. For example, ∧ has conjunction introduction and elimination, → has the assumption box and Apply, and ⊥ has ${P('part:botE')}.`),
+      T("自然演绎用临时假设和逐步推理组织证明。证明助手中的规则可以采用类似的形式，但不同系统的内核和规则并不完全相同。", "Natural deduction organizes proofs using temporary assumptions and inference steps. Proof assistants can express rules in similar forms, though their kernels and rule systems differ."),
     ],
     see: ['intro-rule', 'elim-rule', 'hilbert'],
   },
@@ -260,7 +260,7 @@ export const GLOSSARY = [
   },
   {
     id: 'elim-rule', group: 'proof', title: T('消去规则', 'elimination rule'), at: 'decl-and',
-    body: [T(`<b>消去规则</b>用掉一个${W('connective')}：拆开由 A ∧ B 得 A，套用由 A → B 和 A 得 B，分情况用掉 A ∨ B。它的第一条前提是要用的那句，要从已知里来；结论什么都行，看接到哪里。一条句子刚引入就消去，是证明里可以拿掉的弯路。消去规则要和引入规则对得上（<b>和谐</b>）：用哪一种造法造出的，消去时就只交还那种造法交进去的东西（不多给），也全部交还（不少给）；它的可证范围正好是每条来路的可证范围的交。`, `An <b>elimination rule</b> uses a ${W('connective')} up: Split gets A from A ∧ B, Apply gets B from A → B and A, Cases uses up A ∨ B. Its first premise is the sentence used, which must come from what is known; its conclusion can be anything, depending on where it goes. A sentence introduced and at once eliminated is a detour a proof can do without. An elimination rule must answer to the introduction rules (<b>harmony</b>): whichever way made it, eliminating it hands back what that way handed in and nothing else (no more), and all of it (no less); what it gives is exactly what every way in gives.`)],
+    body: [T(`<b>消去规则</b>说明如何使用带有某个${W('connective')}的命题：由 A ∧ B 可得 A，由 A → B 和 A 可得 B；对 A ∨ B 则可以分类讨论。证明中使用一个命题并不会消耗它。引入与消去规则之间的<b>和谐</b>要求消去规则与该连接词的引入方式相协调。`, `An <b>elimination rule</b> explains how to use a proposition with a ${W('connective')}: A follows from A ∧ B; B follows from A → B and A; and A ∨ B supports reasoning by cases. Using a proposition in a proof does not consume it. <b>Harmony</b> requires elimination rules to correspond appropriately to the ways that connective is introduced.`)],
     see: ['intro-rule', 'normal-form'],
   },
   {
@@ -273,17 +273,17 @@ export const GLOSSARY = [
   },
   {
     id: 'theorem', group: 'proof', title: T('定理', 'theorem'), at: 'and',
-    body: [T(`不依赖任何已知、证出来的句子叫<b>定理</b>：有已知的证明，放进假设框，就成了定理。可靠的规则证出的定理都是${W('tautology')}；反过来，命题逻辑里每个永真式都是定理（经典逻辑下）。`, `A sentence proved from nothing given is a <b>theorem</b>: put a proof from givens into an assumption box and it becomes one. Every theorem of sound rules is a ${W('tautology')}; conversely, in propositional logic every tautology is a theorem (in classical logic).`)],
+    body: [T(`不依赖任何未解除前提而证明的命题称为<b>定理</b>。假设框可解除一个指定的临时假设；只有所有其他依赖也被解除时，结果才是无前提的定理。在可靠的经典命题逻辑系统中，定理都是${W('tautology')}；相应的完备系统也能证明每个永真式。`, `A <b>theorem</b> is a proposition proved without undischarged premises. An assumption box discharges one specified temporary assumption; the result is premise-free only when all other dependencies are discharged too. In a sound classical propositional system, theorems are ${W('tautology')} instances; a corresponding complete system proves every tautology.`)],
     see: ['lemma', 'classical'],
   },
   {
     id: 'intuitionistic', group: 'proof', title: T('直觉主义逻辑', 'intuitionistic logic'), at: 'raa',
-    body: [T(`没有反证法的逻辑叫<b>直觉主义逻辑</b>（Brouwer、Heyting）：证 A ∨ B 就得说出是哪一边，证 ∃x 就得给出是哪一个。所以${W('lem')}在这里证不出来，「¬¬(A ∨ ¬A)」却证得出。它的证明都能当程序来跑。`, `Logic without proof by contradiction is <b>intuitionistic logic</b> (Brouwer, Heyting): proving A ∨ B means saying which side, proving ∃x means saying which one. So ${W('lem')} cannot be proved in it, while “¬¬(A ∨ ¬A)” can. Its proofs can all be run as programs.`)],
+    body: [T(`<b>直觉主义逻辑</b>不把双重否定消去或${W('lem')}作为一般原则。它可以证明 ¬¬(A ∨ ¬A)，但不能无前提地证明任意 A 的排中律。对于无前提的析取定理，析取性质保证至少一侧也有证明；带前提的推理还可以使用分类讨论。`, `<b>Intuitionistic logic</b> does not adopt double-negation elimination or ${W('lem')} as a general principle. It proves ¬¬(A ∨ ¬A), but not excluded middle for arbitrary A without premises. For a premise-free disjunction theorem, the disjunction property ensures that at least one disjunct is provable; proofs from premises can also reason by cases.`)],
     see: ['classical', 'curry-howard'],
   },
   {
     id: 'classical', group: 'proof', title: T('经典逻辑', 'classical logic'), at: 'raa',
-    body: [T(`在${W('intuitionistic')}上加上反证法（由 ¬¬A 得 A），就是<b>经典逻辑</b>：${W('lem')}、皮尔士定律 ((A → B) → A) → A 都证得出，真值表上的每个永真式都是定理。数学家日常用的就是它；Isabelle 的 HOL 是经典的，Lean 要用经典推理时加上公理 Classical.em。`, `Add proof by contradiction (from ¬¬A, A) to ${W('intuitionistic')} and you have <b>classical logic</b>: ${W('lem')} and Peirce’s law ((A → B) → A) → A can be proved, and every tautology of the truth tables is a theorem. It is what mathematicians use every day; Isabelle’s HOL is classical, and Lean adds the axiom Classical.em for classical reasoning.`)],
+    body: [T(`在${W('intuitionistic')}上加入<b>双重否定消去</b>（由 ¬¬A 推出 A），可得到相应的<b>经典逻辑</b>。结合否定引入，它支持反证法，并可证明${W('lem')}和皮尔士律。在经典命题逻辑中，每个真值表永真式都有证明。Isabelle/HOL 使用经典逻辑；Lean 可引入经典原则。`, `Adding <b>double-negation elimination</b> (from ¬¬A infer A) to ${W('intuitionistic')} gives the corresponding <b>classical logic</b>. Together with negation introduction, it supports proof by contradiction and proves ${W('lem')} and Peirce’s law. Every classical propositional tautology is provable. Isabelle/HOL is classical; Lean can use classical principles.`)],
     see: ['intuitionistic', 'truth'],
   },
 
@@ -291,8 +291,8 @@ export const GLOSSARY = [
   {
     id: 'fol', group: 'fol', title: T('一阶逻辑', 'first-order logic'), at: 'fo-atoms',
     body: [
-      T('命题逻辑的一个字母是一整句话；<b>一阶逻辑</b>把句子拆开：名字指一样东西，谓词说东西的性质或关系，量词 ∀（对所有）和 ∃（存在）说「每一样」「有一样」。', 'A letter of propositional logic is a whole sentence; <b>first-order logic</b> takes sentences apart: names stand for things, predicates say what things are or how they relate, and the quantifiers ∀ (for all) and ∃ (there exists) say “every” and “some”.'),
-      T('「一阶」说的是量词只管东西，不管性质：可以说「每个人都会死」，不能说「每一种性质都……」。管到性质的是高阶逻辑。数学的大部分、数据库的查询语言，都写得成一阶逻辑。', '“First-order” means quantifiers range over things, not over properties: you can say “everyone is mortal”, not “every property …”. Quantifying over properties is higher-order logic. Most of mathematics, and the query languages of databases, can be written in first-order logic.'),
+      T("命题逻辑通常把一个字母看作整个命题；<b>一阶逻辑</b>还描述命题的内部结构：名字指称对象，谓词表达性质或关系，量词 ∀ 和 ∃ 分别表示「对所有」和「存在」。", "A letter in propositional logic stands for a whole proposition. <b>First-order logic</b> also describes internal structure: names denote objects, predicates express properties or relations, and ∀ and ∃ mean “for all” and “there exists”."),
+      T("「一阶」表示量词的范围是论域中的对象，而不是谓词或性质。它可以表达「每个人都会死」；对所有性质进行量化则属于更高阶的语言。", "“First-order” means that quantifiers range over objects in the domain, not over predicates or properties. It can express “everyone is mortal”; quantifying over all properties requires a higher-order language."),
     ],
     see: ['predicate', 'quantifier', 'world'],
   },
@@ -305,7 +305,7 @@ export const GLOSSARY = [
     id: 'quantifier', group: 'fol', title: T('量词', 'quantifier'), at: 'fo-all',
     body: [
       T('<b>量词</b>说一句话对多少东西成立：∀x. P(x) 说每一样 x 都有 P，∃x. P(x) 说至少有一样。x 是一个变量，代表「随便哪一样」，量词管到它后面的整段。', 'A <b>quantifier</b> says for how many things a sentence holds: ∀x. P(x) says every x has P, ∃x. P(x) that at least one does. x is a variable standing for “any one”, and the quantifier reaches over everything after it.'),
-      T('两种量词互为对偶：¬∀x. P(x) 等价于 ∃x. ¬P(x)。次序要紧：∀x. ∃y. 喜欢(x, y)（每样东西都喜欢某样东西）推不出 ∃y. ∀x. 喜欢(x, y)（有一样东西被所有东西喜欢）。', 'The two are duals: ¬∀x. P(x) is equivalent to ∃x. ¬P(x). Order matters: ∀x. ∃y. Likes(x, y) (everything likes something) does not give ∃y. ∀x. Likes(x, y) (something is liked by everything).'),
+      T("在经典逻辑中，¬∀x. P(x) 与 ∃x. ¬P(x) 等价；从前者到后者一般需要经典推理。量词顺序也很重要：∀x. ∃y. 喜欢(x, y) 推不出 ∃y. ∀x. 喜欢(x, y)。", "In classical logic, ¬∀x. P(x) is equivalent to ∃x. ¬P(x); the forward direction generally requires classical reasoning. Quantifier order matters too: ∀x. ∃y. Likes(x, y) does not imply ∃y. ∀x. Likes(x, y)."),
     ],
     see: ['bound', 'demorgan'],
   },
@@ -316,7 +316,7 @@ export const GLOSSARY = [
   },
   {
     id: 'free', group: 'fol', title: T('自由变量', 'free variable'), at: 'fo-nested',
-    body: [T(`没有量词管着的变量是<b>自由变量</b>：P(x) 说的是哪一样 x，要别处给定。一句话里留着自由变量，就说不清是真是假；把它当成提问，就是一个查询。`, `A variable no quantifier covers is a <b>free variable</b>: which x P(x) speaks of must be given from elsewhere. A sentence with a free variable left in cannot be said to be true or false; read as a question, it is a query.`)],
+    body: [T(`不受相关量词约束的变量是<b>自由变量</b>。例如，P(x) 的真值取决于结构和对 x 的赋值；将自由变量视为待求对象时，可以把公式当作查询。`, `A variable not bound by a relevant quantifier is <b>free</b>. The truth of P(x), for example, depends on a structure and an assignment to x. Treating the free variable as an unknown turns the formula into a query.`)],
     see: ['bound', 'query'],
   },
   {
@@ -593,9 +593,9 @@ export const GLOSSARY = [
   {
     id: 'incompleteness', group: 'limits', title: T('不完备性定理', 'incompleteness theorem'), at: 'gd-true',
     body: [
-      T(`<b>第一不完备性定理</b>（哥德尔，1931）：一个证明系统，规则能一条条列出来、能谈论自然数、又不矛盾，就有一句 G 它证不出，G 的否定也证不出；而 G 在自然数里是真的。G 由${W('goedel-coding')}和${W('diagonal')}造出，说的是「我证不出」，是${W('liar')}把「真」换成「证得出」的样子。`, `The <b>first incompleteness theorem</b> (Gödel, 1931): a proof system whose rules can be listed one by one, which can speak of the natural numbers and is consistent, has a sentence G it cannot prove, nor its negation; and G is true of the natural numbers. G is built by ${W('goedel-coding')} and the ${W('diagonal')}, and says “I cannot be proved”: the ${W('liar')} with “true” swapped for “provable”.`),
-      T('<b>第二不完备性定理</b>：这样的系统证不出「我不矛盾」。要相信一个系统不矛盾，只能站到它外面。', 'The <b>second incompleteness theorem</b>: such a system cannot prove “I am consistent”. Trusting that a system is consistent means standing outside it.'),
-      T(`它和一阶逻辑的${W('completeness')}不冲突：完备说的是在所有世界里都真的话；G 只在自然数这个世界里真，在别的满足同样规则的世界里可以是假的。加上 G 当新规则也没用，新的系统又有它自己的 G。`, `It does not clash with the ${W('completeness')} of first-order logic: completeness is about sentences true in every world; G is true of the natural numbers, and may be false in other worlds that satisfy the same rules. Adding G as a rule does not help: the new system has a G of its own.`),
+      T(`<b>第一不完备性定理</b>适用于可有效公理化、一致且足够表达初等算术的理论：这样的理论存在不能由它证明或反驳的算术命题。经典论证利用${W('goedel-coding')}和${W('diagonal')}构造涉及自身可证明性的句子，其思想与${W('liar')}相关。具体句子的真值和否定是否可证明，需要区分所采用的构造及附加假设。`, `The <b>first incompleteness theorem</b> applies to consistent, effectively axiomatized theories strong enough for elementary arithmetic: such a theory has an arithmetic sentence it can neither prove nor refute. The classical argument uses ${W('goedel-coding')} and ${W('diagonal')} to construct a sentence about its own provability, an idea related to the ${W('liar')}. The truth and possible refutability of a particular sentence depend on the construction and additional assumptions.`),
+      T("<b>第二不完备性定理</b>：满足适当可证明性条件、足够表达算术的可有效公理化一致理论，不能证明其标准形式化的一致性陈述。具体结论依赖理论和一致性陈述的选取。", "The <b>second incompleteness theorem</b>: a consistent, effectively axiomatized theory strong enough for arithmetic and satisfying suitable derivability conditions cannot prove its standard formalized consistency statement. The precise conclusion depends on the theory and consistency statement."),
+      T(`这与一阶逻辑的${W('completeness')}不矛盾：完备性讨论逻辑在所有结构中的有效性，不完备性讨论特定算术理论中是否能证明所有相关算术命题。向理论加入某个独立命题可能解决该命题，但满足同样条件的扩充理论仍会有独立命题。`, `This does not conflict with first-order ${W('completeness')}: logical completeness concerns validity across all structures, whereas incompleteness concerns what a particular arithmetic theory can prove. Adding an independent sentence can settle that sentence, but an extension meeting the same conditions still has independent sentences.`),
     ],
     see: ['consistency', 'undecidable'],
   },

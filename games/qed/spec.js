@@ -29,8 +29,8 @@ export default {
   domain: 'logic',
   title: { zh: '证明完毕', en: 'Q.E.D.' },
   // Still in development: the chapters in levels/eras.js are in; the rest of DESIGN.md's course is being built.
-  kicker: { zh: '开发中 · 把推理搭成电路的解谜', en: 'In development · Puzzles that wire reasoning into circuits' },
-  lede: { zh: '不需要任何逻辑学基础。从真值表开始，把推理规则当成元件，一块一块搭出证明，学会假设、分情况和反证；最后能亲手证出逻辑定律，在岛上分辨骑士和无赖，并看清「证明」到底是什么。', en: 'No logic background needed. Starting from truth tables, you wire up proofs with rules of inference as parts and learn to assume, to split into cases and to argue by contradiction; in the end you prove the laws of logic yourself, sort the knights from the knaves on an island, and see what a proof really is.' },
+  kicker: { zh: '开发中 · 用电路构建证明与证明助手', en: 'In development · Build proofs and proof assistants as circuits' },
+  lede: { zh: '无需逻辑学基础。从真值表出发，将推理规则连接成证明，逐步学习假设、分类讨论、量词与归纳，并搭建能够处理证明目标的证明助手。', en: 'No logic background is required. Start with truth tables, connect inference rules into proofs, and learn assumptions, case analysis, quantifiers and induction as you build a proof assistant.' },
   eras: ERAS,
   logic: LOGIC,
   levels: LOGIC.LEVELS,

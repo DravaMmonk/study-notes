@@ -35,7 +35,7 @@ export const rules = [
     tests: [{ goal: '∀x. P(x) → P(x)' }],
     cases: PERSON,
     hint: [T('框里随便取一样东西，叫它 a，证出「a是人 → a是人」；它对随便哪一样都成立，框外就是「对所有 x」。', 'Inside the box take any thing, call it a, and prove “a is human → a is human”; holding for any one at all, outside it is “for all x”.')],
-    intro: [{ t: T('新元件<b>任取框</b>：框里随便取一样东西，在元件上给它起个名字 a，关于它什么都不知道。框里证出了关于 a 的话，它对哪一样都成立，框外就得到「∀x. …」：a 换成了量词管着的 x。所以 a 必须是新的：还开着的假设里不能提到它。从这里起，特指的一样东西用 a、b、c 称呼，x、y、z 只给量词用。', 'A new part, the <b>for-any box</b>: inside it a thing is taken at random and named on the part, say a; nothing is known about it. Whatever is proved about a inside holds for anything at all, so outside you get “∀x. …”: a is replaced by x, which the quantifier binds. That is why a must be new: no hypothesis still open may mention it. From here on, a particular thing is called a, b or c, and x, y, z are left to the quantifiers.') }],
+    intro: [{ t: T('新元件<b>任取框</b>：框里随便取一样东西，在元件上给它起个名字 a，关于它什么都不知道。框里证出了关于 a 的话，它对哪一样都成立，框外就得到「∀x. …」：a 换成了量词管着的 x。所以 a 必须是新的：还开着的假设里不能提到它。从这里起，特指的一样东西用 a、b、c 称呼，x、y、z 只给量词用。', 'A new part, the <b>for-any box</b>: inside it an arbitrary object is named on the part, say a; no special property of it is assumed. Whatever is proved about a inside holds for anything at all, so outside you get “∀x. …”: a is replaced by x, which the quantifier binds. That is why a must be new: no hypothesis still open may mention it. From here on, a particular thing is called a, b or c, and x, y, z are left to the quantifiers.') }],
     solution: proof({ g: ['allI', { x: 'a' }], h: ['impI', { A: 'P(a)' }, 'g'] }, ['h#body>h.body', 'h>g.body', 'g>goal']),
     after: T('「任取」是数学证明里最常见的一句：「任取一个 a，……，所以对所有 x 都成立。」它可信，只因为那个 a 真的什么特殊的都没有。', '“Take any” is the commonest phrase in mathematical proofs: “take any a …, so it holds for all x.” It is sound only because that a really is nothing special.'),
   },
@@ -211,7 +211,7 @@ export const rules = [
       },
     ],
     intro: [{ t: T('「谁迟到，老师都会生气」和「只要有人迟到，老师就生气」是一回事吗？', 'Is “whoever is late, the teacher is cross” the same as “if anyone is late, the teacher is cross”?') }],
-    after: T('∀x 在条件里的 x 上，挪出来就变成 ∃：这是<b>移动规则</b>。用它能把所有量词都挪到最前面，下一章化子句时要用。', '∀x over an x in the condition turns into ∃ when moved out: a <b>quantifier moving rule</b>. With such rules every quantifier can be moved to the front, which the next chapter needs for clauses.'),
+    after: T("这个方向将条件中关于 x 的全称量词移到外面，并改成存在量词。这是一个<b>量词移动规则</b>；适用时必须检查公式结构和变量条件。", "This direction moves a universal quantifier from the condition to the outside and changes it to an existential quantifier. This is a <b>quantifier-moving rule</b>; its use depends on the formula’s structure and variable conditions."),
   },
   {
     id: 'q-ancestor',
@@ -232,7 +232,7 @@ export const rules = [
     cases: [{ R: 'Less' }, { R: 'Older' }],
     hint: [T('任取一个 a，比它大的例子就是 a+1。', 'Take any a; the example of something bigger is a+1.')],
     solution: proof({ g: ['allI', { x: 'a' }], e: ['allE', { t: 'a' }, 'g'], i: ['exI', {}, 'g'] }, ['p>e.all', 'e>i.a', 'i>g.body', 'g>goal'], { premises: ['p'] }),
-    after: T('「对所有 x，存在 y」：y 可以跟着 x 变。这里 y 就是 x+1，一个由 x 算出来的东西。下一章会把它写成一个函数。', '“For every x there is a y”: y may depend on x. Here y is x+1, worked out from x. The next chapter turns it into a function.'),
+    after: T("「对所有 x，存在 y」允许 y 随 x 改变。本例中可取 y = x + 1，也就是用 x 确定一个见证。", "“For every x there exists a y” allows y to depend on x. Here y = x + 1 supplies a witness determined by x."),
   },
   // Topic: Lewis Carroll's syllogism puzzles, from one syllogism to a chain of them.
   {
@@ -283,6 +283,6 @@ export const rules = [
       m2: ['mp', {}, 'k'],
       m4: ['mp', {}, 'k'],
     }, ['p>e1.all', 'e1>m1.imp', 'h#body>m1.a', 'r>e3.all', 'e3>m3.imp', 'm1>m3.a', 'q>e2.all', 'e2>m2.imp', 'k#body>m2.a', 'm3>m4.imp', 'm2>m4.a', 'm4>k.body', 'k>h.body', 'h>g.body', 'g>goal'], { premises: ['p', 'q', 'r'] }),
-    after: T('卡罗尔说他的题「专为年轻人的头脑锻炼」，可他自己解题，用的也是这几块元件：任取、取一个、套用、假设。现在你的证明器能解他书里的任何一题。', 'Carroll called his puzzles exercise for young minds, yet solving them takes just these parts: for any, take one, Apply and assumption. Your prover can now solve any puzzle in his book.'),
+    after: T("本题将量词规则、套用和临时假设结合起来，形式化了这道卡罗尔推理题中的论证。", "This puzzle combines quantifier rules, Apply and temporary assumptions to formalize the argument in this Carroll example."),
   },
 ]

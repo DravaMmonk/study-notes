@@ -37,7 +37,7 @@ const SOUND = '∀x. taut(x) = tt → Taut(x)'
 const COMPLETE = '∀x. taut(x) = ff → ¬Taut(x)'
 const reflect = (list) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[k], brief: WRITE, forms: [...BASIC, 'rfl'], words: DATA, consts: ['p', 'q', 'tt', 'ff'], defs: TAUT, ...task }))
 const proves = (level) => ({ kind: 'machine', want: 'proved', inputs: [{ name: 'in', label: T('目标', 'Goal') }], backtrack: true, ...level })
-const PROVE = T('设计一个证明助手：证得出的证完；证不出的，停下来说证不出来。', 'Design a proof assistant that proves what can be proved, and of what cannot, stops and says so.')
+const PROVE = T('设计一个证明助手：完成需要证明的测试目标，对指定的失败目标报告失败。', 'Design a proof assistant that proves the required test goals and reports failure for the designated failure cases.')
 const STARS = ['phos', 'hesp', 'venus']
 const NAT = ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))']
 const ADD_ZERO = '∀x. plus(x, zero) = x'
@@ -58,8 +58,8 @@ export const equality = [
       { premises: { p: 'phos = hesp' }, goal: 'Bright(phos) → phos = phos', answer: 'fun h => rfl', naive: 'p', hint: [T('要证的等式两边都是晨星，用不着已知。', 'Both sides of the equation are the Morning Star; the given is not needed.')] },
     ]),
     intro: [
-      { t: T('化简器把等式当改写规则用，归纳类型一章又证出了一串等式。可等式本身是什么？这一章看 Lean 的回答：<b>a = b 也是一个类型</b>，它的证明项和别的证明项一样由核检查。', 'The simplifier used equations as rewrite rules, and the chapter on inductive types proved a string of them. But what is an equation itself? This chapter looks at Lean’s answer: <b>a = b is a type too</b>, and its proof terms are checked by the kernel like any other.') },
-      { t: T('等式的证明项只有一条引入规则：<b>rfl</b>，证的是两边一样的等式 a = a，相当于证明板上的<part-ref to="part:refl"></part-ref>。证明项板上多了这一块。', 'There is only one way to make a proof of an equation: <b>rfl</b>, which proves an equation a = a whose sides are alike, like <part-ref to="part:refl"></part-ref> on the proof board. The term board gains this piece.') },
+      { t: T("此前的化简器使用等式作为改写规则，归纳类型章节也证明了若干等式。本章进一步考察 Lean 对等式的表达：<b>a = b 是一个类型</b>，其证明项同样由内核检查。", "The simplifier used equations as rewrite rules, and the inductive-types chapter proved several equations. This chapter examines equality in Lean: <b>a = b is a type</b>, whose proof terms are checked by the kernel.") },
+      { t: T("等式类型的基本构造子是<b>rfl</b>，用于证明两侧可定义相等的等式；最直接的例子是 a = a。它对应证明板上的<part-ref to=\"part:refl\"></part-ref>。", "The basic constructor of equality is <b>rfl</b>, which proves equality when both sides are definitionally equal; the direct example is a = a. It corresponds to <part-ref to=\"part:refl\"></part-ref> on the proof board.") },
     ],
     after: T('造等式的路只有一条：两边一样。a = a 对什么 a 都成立，所以 ∀x. x = x 是一个 fun，每一次都还 rfl。', 'There is one road to an equation: both sides alike. a = a holds for any a, so ∀x. x = x is a fun that gives rfl every time.'),
   },
@@ -87,7 +87,7 @@ export const equality = [
     ],
     showcase: T('证明板上点的框，就是证明项里没写出来的那部分：要证的那句里，哪几处是从等式一边换过来的，叫动机；核从要证的那句和后一个框的类型里把它读出来', 'the boxes ticked on the proof board are the part a term does not write out: which places of the sentence to prove came from one side of the equation, the motive; the kernel reads it off the sentence to prove and the type of the second box'),
     intro: [
-      { t: T('用一个等式只有一种办法，在 Lean 里叫 <b>Eq.rec</b>，写作 <b>h ▸ p</b>：h 证 a = b，p 证一句关于 a 的话，h ▸ p 就证把其中几处 a 换成 b 的那句。换哪几处，叫<wiki-ref to="motive"></wiki-ref>。', 'There is only one way to use an equation, called <b>Eq.rec</b> in Lean and written <b>h ▸ p</b>: h proves a = b, p proves a sentence about a, and h ▸ p proves that sentence with some of its a’s replaced by b. Which places are replaced is the <wiki-ref to="motive"></wiki-ref>.') },
+      { t: T("Lean 的等式消去可由 <b>Eq.rec</b> 表达，<b>h ▸ p</b> 是常用写法：h 证明 a = b，p 证明关于 a 的性质，由此得到关于 b 的对应性质。需要替换的位置由<wiki-ref to=\"motive\"></wiki-ref>描述。", "Lean’s equality elimination can be expressed by <b>Eq.rec</b>; <b>h ▸ p</b> is a common notation. If h proves a = b and p proves a property of a, transport yields the corresponding property of b. The <wiki-ref to=\"motive\"></wiki-ref> describes the property being transported.") },
       { t: T('它就是证明板上的<part-ref to="part:rewrite"></part-ref>：先接一个，看它写出的证明项；再到证明项板上自己写。', 'It is just <part-ref to="part:rewrite"></part-ref> on the proof board: wire one first and see the term it writes, then write it yourself on the term board.') },
     ],
     after: T('等量代换的证明项是 h ▸ p，卡片上点的框没有写进去：核看着要证的那句，把等式的一边换成另一边，看换出来的是不是 p 证的那句。两边都试，所以 h 的方向不用管。', 'The term of rewriting is h ▸ p, without the ticked boxes: the kernel looks at the sentence to prove, replaces one side of the equation by the other, and sees whether that is what p proves. It tries both sides, so the direction of h does not matter.'),

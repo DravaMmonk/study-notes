@@ -18,10 +18,10 @@ export const circuits = [
     adds: ['gNot'],
     brief: T('接一块电路，算出「不是『不下雨』」在每一行是真是假。', 'Wire a board that works out, on every row, whether “it is not the case that it is not raining” is true.'),
     intro: [
-      { t: T('纸笔那一章，你一行一行地手填真值表。这一章把这件事交给机器：你只接一块电路，机器把它在每一行上各跑一遍，整张表就填满了。', 'In the pen-and-paper chapter you filled in truth tables by hand, row by row. Now a machine does it: you wire one board, the machine runs it on every row, and the whole table is filled in.') },
-      { t: T('板子左边的元件是「下雨」：哪一行下雨，它就送出真，否则送出假。右边是「这句话」：接到它的线送来什么，这一行这句话就是什么。', 'The part on the left of the board is “it rains”: on a row where it rains it sends out true, otherwise false. On the right is “the sentence”: whatever reaches it is the sentence’s value on that row.') },
-      { t: T('新元件<b>非</b>，符号写作 <b>¬</b>：输入是真，输出假；输入是假，输出真。「不下雨」就是「¬下雨」。', 'A new part, <b>Not</b>, written <b>¬</b>: true in gives false out; false in gives true out. “It is not raining” is “¬it rains”.') },
-      { t: T('下面的真值表里，点一行，板上每个元件就显示它在那一行的值。', 'Click a row of the truth table below, and every part on the board shows its value on that row.') },
+      { t: T("纸笔章节通过逐行填写真值表判断命题。本章把同一项计算交给真值电路：搭建一次电路，再对每组真值运行它。", "In the pen-and-paper chapter, you evaluated propositions row by row. A truth circuit performs the same calculation: build it once and run it for each truth assignment.") },
+      { t: T("左侧「下雨」元件输出当前行中该命题的真值；右侧「这句话」接收电路输出，表示复合命题在该行的真值。", "The “it rains” part on the left outputs that proposition’s truth value on the current row. “The sentence” on the right receives the circuit output, the compound proposition’s value on that row.") },
+      { t: T("新元件<b>非</b>表示否定 <b>¬</b>：输入真时输出假，输入假时输出真。例如「不下雨」写作「¬下雨」。", "The new <b>Not</b> part represents negation <b>¬</b>: it outputs false for true and true for false. For example, “it does not rain” is written “¬it rains”.") },
+      { t: T("点击下方真值表的一行，板上元件会显示它们在该行的值。", "Select a row of the truth table below to display each part’s value on that row.") },
     ],
     hint: [T('「不下雨」是一个「非」接在「下雨」后面。再说一次「不是」呢？', '“It is not raining” is a Not after “it rains”. And saying “not” once more?')],
     solution: board('¬¬Rain', { n1: 'gNot', n2: 'gNot' }, ['Rain>n1.a', 'n1>n2.a', 'n2>out']),
@@ -125,7 +125,7 @@ export const circuits = [
       { t: T('<level-ref to="always"></level-ref>里见过<wiki-ref to="tautology"></wiki-ref>：每一行都真的话，不管情况怎样都成立。', 'You met the <wiki-ref to="tautology"></wiki-ref> in <level-ref to="always"></level-ref>: a sentence true on every row, whatever happens.') },
       { t: T('在电路上它是什么样子？接出这句话，看电路输出这一列。', 'What does one look like as a circuit? Wire this sentence and watch the board’s output column.') },
     ],
-    after: T('四行全是假：没有哪一种天气能让它成立。永远是假的话，后面会写成一个符号 <b>⊥</b>。', 'All four rows are false: no weather makes it hold. A sentence that is always false will later be written as one symbol, <b>⊥</b>.'),
+    after: T("四种真值组合都使这个命题为假，因此它是矛盾式。", "All four truth assignments make the proposition false, so it is a contradiction."),
   },
   {
     id: 'g-iff',

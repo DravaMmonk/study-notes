@@ -12,7 +12,7 @@ import { gates } from '../../kit/domains/logic/gates.js'
 import { script } from './machines.js'
 
 const T = (zh, en) => ({ zh, en })
-const BRIEF = T('设计一个证明助手：证得出的证完；证不出的，停下来说证不出来。', 'Design a proof assistant that proves what can be proved, and of what cannot, stops and says so.')
+const BRIEF = T('设计一个证明助手：完成需要证明的测试目标，对指定的失败目标报告失败。', 'Design a proof assistant that proves the required test goals and reports failure for the designated failure cases.')
 const each = (level) => ({ kind: 'machine', want: 'proved', inputs: [{ name: 'in', label: T('目标', 'Goal') }], backtrack: true, ...level })
 
 // ¬¬(A ∨ ¬A): assuming ¬(A ∨ ¬A), it gives ¬A, and ¬A gives A ∨ ¬A against it.
@@ -51,13 +51,13 @@ export const classical = [
       { goal: '((Rain → Wet) → Rain) → Rain', want: 'fails' },
     ],
     brief: BRIEF,
-    hint: [T('不用新元件：你手里的 auto 搜遍了还证不完，就会停下来说证不出来。', 'No new part: the auto you hold stops and says so when it has searched everything without finishing.')],
+    hint: [T("使用已有的 auto 检查这些命题，留意哪些目标没有找到证明。", "Use the existing auto to check these propositions and observe which goals it does not prove.")],
     intro: [
-      { t: T('上一章造出的 auto，连接词一章的大多数关一个元件就证完了。这一章先拿它去试五句话。每一句，真值表上的每一行都是真的。', 'The auto built last chapter proves most levels of the connectives chapter on its own. This chapter starts by trying it on five sentences, every one of them true on every row of its truth table.') },
-      { t: T('证不出来，有两种可能：搜得不够，或者这套规则本来就证不出。auto 搜遍了还证不完，会停下来说一声。', 'When a proof does not come, there are two possibilities: the search was not wide enough, or the rules cannot prove it at all. When auto has searched everything without finishing, it stops and says so.') },
+      { t: T("在前面的课程中，你构建了 auto 来组合推理规则。本关用它检查五个命题；每个命题在经典真值表的所有行中都为真。", "Earlier you built auto to combine inference rules. Test it on five propositions, each true on every row of its classical truth table.") },
+      { t: T("搜索没有找到证明，并不单独说明命题不可证明：也可能是搜索策略或范围的限制。本关通过这些例子比较当前规则与经典真值语义。", "Failure to find a proof does not by itself establish unprovability: the search strategy or bounds may be responsible. These examples compare the current rules with classical truth-value semantics.") },
     ],
     solution: script('auto'),
-    after: T('五句都永远成立，auto 却只证出前两句；后三句它搜遍了，没有一条路走得到头。不是搜得不够：auto 用的是证明核的全部引入和消去规则，这三句光靠它们就是证不出来。证明核要多一条规则。', 'All five always hold, yet auto proves only the first two; the other three it searched through, and no path reached the end. The search was not too narrow: auto uses every introduction and elimination rule of the kernel, and those alone cannot prove these three. The kernel needs one more rule.'),
+    after: T("五个命题都是经典永真式，当前 auto 只证明了其中一部分。对后三个命题，搜索结果展示了现有证明助手的局限；它们在直觉主义命题逻辑中也不能无前提地证明。", "All five propositions are classical tautologies, but the current auto proves only some of them. The search result illustrates a limit of the current assistant; the final three also lack premise-free proofs in intuitionistic propositional logic."),
   }),
   {
     id: 'raa',
@@ -70,34 +70,34 @@ export const classical = [
         tests: [{ goal: '¬¬(A ∨ ¬A)' }],
         cases: [{ A: 'Rain' }, { A: 'Exam' }],
         hint: [
-          T('直接证「下雨 ∨ ¬下雨」是不行的：你不知道该选哪一边。', 'Proving “it rains ∨ ¬it rains” directly will not work: you do not know which side to choose.'),
+          T("本任务要求证明排中律的双重否定，不必直接证明其中某一析取项。", "This task asks for the double negation of excluded middle; you do not need to prove one disjunct directly."),
           T('假设「¬(下雨 ∨ ¬下雨)」，然后把这个假设用两次。', 'Assume “¬(it rains ∨ ¬it rains)”, and then use that assumption twice.'),
         ],
         solution: lemDenied,
         naive: proof({ f: ['impI', { A: '¬(A ∨ ¬A)' }], i: ['orI', { other: '¬A', side: 'right' }, 'f'] }, ['f#body>i.a', 'i>f.body', 'f>goal']),
-        after: T('假设「¬(下雨 ∨ ¬下雨)」：先由它得出「¬下雨」，再由「¬下雨」得出「下雨 ∨ ¬下雨」，和它自己矛盾。证明器证不出「下雨 ∨ ¬下雨」，却证得出「否认它会矛盾」：真值表上永真的话，证明器不一定证得出。', 'Assume “¬(it rains ∨ ¬it rains)”: it gives “¬it rains”, and “¬it rains” gives “it rains ∨ ¬it rains”, which contradicts it. The prover cannot prove “it rains ∨ ¬it rains”, but it can prove that denying it is a contradiction: not everything true on every row is provable by the prover.'),
+        after: T("假设「¬(下雨 ∨ ¬下雨)」可先推出「¬下雨」，再推出「下雨 ∨ ¬下雨」，从而得到矛盾。因此直觉主义规则可以证明排中律的双重否定；这一步还没有证明排中律本身。", "Assuming “¬(it rains ∨ ¬it rains)” yields “¬it rains”, then “it rains ∨ ¬it rains”, a contradiction. Thus the intuitionistic rules prove the double negation of excluded middle, but this is not yet a proof of excluded middle itself."),
       },
       {
         kind: 'proof',
-        step: T('反证法', 'By contradiction'),
+        step: T("双重否定消去", "Double-negation elimination"),
         // Goes on with the proof just made: its board opens with it.
         carries: true,
         adds: ['raa'],
         tests: [{ goal: 'A ∨ ¬A' }],
         sentences: ['¬(A ∨ ¬A)'],
         cases: [{ A: 'Rain' }, { A: 'Exam' }],
-        intro: [{ t: T('刚证出的是「否认它会矛盾」，离「下雨 ∨ ¬下雨」只差去掉两个 ¬。数学家天天走这一步：「假设它不成立，推出矛盾，所以它成立。」可这一步证明核证不出，也没有哪个声明给得出：只能把它当成<wiki-ref to="axiom"></wiki-ref>加进来。<part-ref to="part:raa"></part-ref>就是这条公理：由「并非并非 某句」得到那句。', 'What you just proved is that denying it is a contradiction; “it rains ∨ ¬it rains” is two ¬s away. Mathematicians take that step every day: “suppose it fails; that is a contradiction; so it holds.” But the kernel cannot prove that step, and no declaration gives it: it can only come in as an <wiki-ref to="axiom"></wiki-ref>. <part-ref to="part:raa"></part-ref> is that axiom: from “not not a sentence”, the sentence.') }],
-        brief: T('在刚才的证明后面接上反证法，证明出「下雨 ∨ ¬下雨」。', 'Add by contradiction after the proof you just made, and prove “it rains ∨ ¬it rains”.'),
-        hint: [T('反证法接在最外面那个框的后面。', 'By contradiction goes right after the outermost box.')],
+        intro: [{ t: T("刚才证明了排中律的双重否定。要得到排中律本身，需要经典规则<b>双重否定消去</b>：由 ¬¬A 推出 A。本游戏将<part-ref to=\"part:raa\"></part-ref>作为额外的<wiki-ref to=\"axiom\"></wiki-ref>加入；它与假设框结合，可以实现反证法。", "The preceding task proved the double negation of excluded middle. Deriving excluded middle itself requires the classical rule of <b>double-negation elimination</b>: from ¬¬A infer A. This game adds <part-ref to=\"part:raa\"></part-ref> as an additional <wiki-ref to=\"axiom\"></wiki-ref>; together with an assumption box it supports proof by contradiction.") }],
+        brief: T("在刚才的证明后接上双重否定消去，证明「下雨 ∨ ¬下雨」。", "Apply double-negation elimination to the preceding proof to establish “it rains ∨ ¬it rains”."),
+        hint: [T("将新增的经典规则元件接在最外层假设框的输出之后。", "Connect the “By contradiction” part after the outermost assumption box.")],
         solution: proof({ ...lemDeniedNodes, r: ['raa'] }, [...lemDeniedWires, 'f>r.nna', 'r>goal']),
       },
     ],
     intro: [
-      { t: T('<level-ref to="c-wall"></level-ref>里，auto 证不出「下雨 ∨ ¬下雨」。在证明板上也一样：证 ∨ 只有一条路，先证出其中一边，可「下雨」和「¬下雨」你一个也证不出。', 'In <level-ref to="c-wall"></level-ref>, auto could not prove “it rains ∨ ¬it rains”. The proof board fares no better: an ∨ is proved only one way, by proving one side first, and you can prove neither “it rains” nor “¬it rains”.') },
-      { t: T('退一步：先证明「否认它会导致矛盾」，也就是「¬¬(下雨 ∨ ¬下雨)」。auto 证得出这一句；离「下雨 ∨ ¬下雨」，只差两个 ¬。', 'Step back, and first prove that denying it leads to a contradiction: “¬¬(it rains ∨ ¬it rains)”. auto proves that one; it is two ¬s from “it rains ∨ ¬it rains”.') },
-      { t: T('证明器在这里有两种做法：Isabelle 的 HOL 从一开始就给证明核加上这一步，Lean 的核不加，要用时另外请出一条公理。这一关走前一条路。', 'Provers part ways here: Isabelle’s HOL gives its kernel this step from the start, while Lean’s kernel does without and calls in an axiom when needed. This level takes the first way.') },
+      { t: T("<level-ref to=\"c-wall\"></level-ref>中的 auto 没有证明「下雨 ∨ ¬下雨」。在无前提的直觉主义命题逻辑中，这个排中律实例也不是定理；先考察一个较弱的目标。", "In <level-ref to=\"c-wall\"></level-ref>, auto did not prove “it rains ∨ ¬it rains”. This instance of excluded middle is also not a premise-free theorem of intuitionistic propositional logic. Start with a weaker goal.") },
+      { t: T("先证明「否定排中律会导致矛盾」，即「¬¬(下雨 ∨ ¬下雨)」。它与排中律本身是两个不同的命题。", "First prove that denying excluded middle leads to a contradiction: “¬¬(it rains ∨ ¬it rains)”. This is distinct from excluded middle itself.") },
+      { t: T("经典逻辑允许使用双重否定消去。不同证明助手对经典原则的提供方式不同；本关将这条规则加入游戏的证明核。", "Classical logic permits double-negation elimination. Proof assistants provide classical principles in different ways; this level adds the rule to the game’s proof kernel.") },
     ],
-    after: T('auto 证不出的那句话，现在证出来了，这块电路是元件<part-ref to="lemma:lem"></part-ref>：任何一句话，要么成立，要么不成立（<wiki-ref to="lem"></wiki-ref>）。不用反证法的逻辑叫<wiki-ref to="intuitionistic"></wiki-ref>：每个「或」都要说出是哪一边。加上反证法就是<wiki-ref to="classical"></wiki-ref>：真值表上每一行都真的话，都证得出来。', 'The sentence auto could not prove is now proved, and this circuit is the part <part-ref to="lemma:lem"></part-ref>: any sentence holds or it does not (<wiki-ref to="lem"></wiki-ref>). Logic without proof by contradiction is called <wiki-ref to="intuitionistic"></wiki-ref>: every “or” must say which side. Add it and you have <wiki-ref to="classical"></wiki-ref>, where everything true on every row can be proved.'),
+    after: T("证明完成后，<part-ref to=\"lemma:lem\"></part-ref>元件给出<wiki-ref to=\"lem\"></wiki-ref>。本游戏中，加入双重否定消去前使用<wiki-ref to=\"intuitionistic\"></wiki-ref>规则，加入后可进行<wiki-ref to=\"classical\"></wiki-ref>推理；在经典命题逻辑中，每个真值表永真式都有证明。", "After the proof, <part-ref to=\"lemma:lem\"></part-ref> supplies <wiki-ref to=\"lem\"></wiki-ref>. In this game the rules are <wiki-ref to=\"intuitionistic\"></wiki-ref> before double-negation elimination is added and permit <wiki-ref to=\"classical\"></wiki-ref> reasoning afterwards. Every classical propositional tautology has a proof."),
   },
   {
     id: 'byContra',
@@ -373,7 +373,7 @@ export const classical = [
       { t: T('「没有人在喝酒」和「人人都没在喝酒」说的是一回事：否定穿过量词，∃ 就变成 ∀。∃ 像一个很长的「或者」，∀ 像一个很长的「并且」，所以这还是德摩根律，只是穿过的是量词。', '“Nobody is drinking” and “everyone is not drinking” say the same: negation passes through the quantifier and ∃ turns into ∀. ∃ is like a long “or” and ∀ a long “and”, so this is De Morgan’s law again, passing through a quantifier.') },
       { t: T('同样是两对说法、四个方向。四个方向都证出来，<part-ref to="lemma:dm"></part-ref>上就多四个形状。', 'Again two pairs, four directions. Once all four are proved, <part-ref to="lemma:dm"></part-ref> gains four shapes.') },
     ],
-    after: T('前三个方向都不用反证法；「并非人人」要用两次：证出了「有一个」，却说不出是谁。直觉主义逻辑不承认这样的「存在」。<part-ref to="lemma:dm"></part-ref>八个形状都齐了：否定穿过「或者」「并且」「存在」「对所有」，都能互相转换。', 'The first three directions need no proof by contradiction; “not everyone” takes it twice: it proves “there is one” without saying who. Intuitionistic logic does not accept such an “exists”. <part-ref to="lemma:dm"></part-ref> has all eight shapes now: a negation passing through “or”, “and”, “there is” and “for all” turns each into the other.'),
+    after: T("前三个方向不需要经典规则；由「并非人人」推出「有人不」则需要经典推理。至此，<part-ref to=\"lemma:dm\"></part-ref>包含命题与量词德摩根律的八个方向。", "The first three directions need no classical rule; inferring “someone does not” from “not everyone” requires classical reasoning. <part-ref to=\"lemma:dm\"></part-ref> now contains eight propositional and quantified De Morgan directions."),
   },
   // ---------- topic: knights and knaves ----------
   {
@@ -386,7 +386,7 @@ export const classical = [
         brief: T('一个岛民 a 说：「我是无赖。」把这件事翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'An islander a says: “I am a knave.” Translate this into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
         hint: [T('「我是无赖」就是「¬a 是骑士」；「a 说」就是「a 是骑士」和他的话等价。', '“I am a knave” is “¬a is a knight”; “a says” is “a is a knight” equivalent to what he says.')],
         solution: board('KA ↔ ¬KA', { n: 'gNot', e: 'gIff' }, ['KA>n.a', 'KA>e.a', 'n>e.b', 'e>out']),
-        after: T('译成「a 是骑士 ↔ ¬a 是骑士」，两行都是假：他是骑士也好，是无赖也好，都对不上。真值表把两种身份都试了一遍；接下来，证明器要从这句话直接推出矛盾，不必一行一行地试。', 'It translates to “a is a knight ↔ ¬a is a knight”, false on both rows: knight or knave, it does not fit. The truth table tried both; next, the prover must get a contradiction from the sentence directly, without trying row by row.'),
+        after: T("「a 是骑士 ↔ ¬a 是骑士」在两种身份下都为假，因此真值表给出反例；这说明这些条件不能共同满足。", "“a is a knight ↔ ¬a is a knight” is false under both identity assignments, so the truth table shows that these conditions cannot be satisfied together."),
       }),
       prove({
         tests: [{ premises: { p: 'A ↔ ¬A' }, goal: '⊥' }],

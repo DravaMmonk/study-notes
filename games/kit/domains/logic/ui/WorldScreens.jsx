@@ -120,7 +120,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
             <span>{tr(`要${w.value ? '真' : '假'}，现在${values[k] ? '真' : '假'}`, `want ${w.value ? 'true' : 'false'}, now ${values[k] ? 'true' : 'false'}`)}</span>
           </p>
         ))}
-        {checked !== null && <p className={`lg-verdict ${checked ? 'is-pass' : 'is-fail'}`}>{checked ? tr('这个世界正合要求。', 'This world fits.') : tr('还有句子的真假不对，打了叉。', 'Some sentences are not yet as asked; they are crossed.')}</p>}
+        {checked !== null && <p className={`lg-verdict ${checked ? 'is-pass' : 'is-fail'}`}>{checked ? tr('这个结构满足要求。', 'This structure meets the requirements.') : tr('部分命题的真值不符合要求，已标出。', 'Some propositions have the wrong truth value and are marked.')}</p>}
       </section>
       <footer className="run-foot"><RunDock go={{ label: checked ? tr('造好了', 'Built') : tr('检查', 'Check'), pass: Boolean(checked), onClick: check }} /></footer>
     </div>

@@ -16,7 +16,7 @@ const CLAUSES = [{ name: 'in', label: T('子句', 'Clauses') }]
 const machine = (want, inputs = GOAL) => (level) => ({ kind: 'machine', want, inputs, backtrack: true, ...level })
 const becomes = machine('becomes')
 const proves = machine('proved')
-const PROVE = T('设计一个证明助手：证得出的证完；证不出的，停下来说证不出来。', 'Design a proof assistant that proves what can be proved, and of what cannot, stops and says so.')
+const PROVE = T('设计一个证明助手：完成需要证明的测试目标，对指定的失败目标报告失败。', 'Design a proof assistant that proves the required test goals and reports failure for the designated failure cases.')
 // The rewrite rules that bring hypotheses to conjunctive normal form (↔ out first), as chapter 10 lined them up.
 const CNF = ['iff.elim', 'arrow.elim', 'dneg.elim', 'dm.notOr', 'dm.notAnd', 'dm.notEx', 'dm.notAll', 'dist.orAndR', 'dist.orAndL']
 const HYPS = { at: 'hyps' }
@@ -53,8 +53,8 @@ export const automation = [
     brief: T('设计一个证明助手：每个目标都变成 ⊥，要证的那句的否定放进已知。', 'Design a proof assistant that turns each goal into ⊥, with the negation of what was to be proved among the hypotheses.'),
     hint: [T('反证法把要证的 C 变成 ¬¬C，也就是「¬C → ⊥」。', 'By contradiction turns C into ¬¬C, that is “¬C → ⊥”.')],
     intro: [
-      { t: T('自己的 auto 一步一步用规则，稍大一点的问题就搜不动。Isabelle 的 sledgehammer 把目标交给外面的<wiki-ref to="automation"></wiki-ref>：它们不管引入还是消去，只做一件事：在一堆句子里找矛盾。要证 C，就假设 ¬C，看能不能推出 ⊥。', 'Your own auto uses rules one step at a time, and soon cannot search a bigger problem. Isabelle’s sledgehammer hands goals to outside programs, each an <wiki-ref to="automation"></wiki-ref>, which know nothing of introduction or elimination and do one thing only: look for a contradiction among a heap of sentences. To prove C, suppose ¬C and see whether ⊥ follows.') },
-      { t: T('第一步，在证明状态上把问题翻过来。', 'The first step turns the problem round, on the proof state.') },
+      { t: T("此前构建的 auto 逐步应用规则，面对更大的搜索空间可能效率不足。本章借鉴<wiki-ref to=\"automation\"></wiki-ref>中的反驳思路：为证明目标 C，加入 ¬C 并尝试从前提中推出矛盾。Isabelle 的 Sledgehammer 可以调用外部自动证明器；本游戏只实现其中一条简化流程。", "The auto built earlier applies rules step by step and may struggle with a larger search space. This chapter adapts a refutation approach from <wiki-ref to=\"automation\"></wiki-ref>: to prove C, add ¬C and try to derive a contradiction from the premises. Isabelle’s Sledgehammer can call external provers; this game implements one simplified workflow.") },
+      { t: T("第一步是在证明状态中引入目标的否定。", "The first step introduces the negation of the goal into the proof state.") },
     ],
     solution: script(...NEGATE),
     naive: script(['rule', 'raa']),
@@ -93,7 +93,7 @@ export const automation = [
         solution: script(['rw', 'iff.elim']),
       }),
     ],
-    intro: [{ t: T('化简器的规则里还没有 ↔。岛民的话都是等价：「a 是骑士」和他说的话同真同假。把它化成「或者」和「并且」，要一对新的等价律。', 'The simplifier’s rules have no ↔ yet, and what the islanders say is all equivalences: “a is a knight” true exactly when what he says is. Bringing it to “or” and “and” takes a new pair of laws.') }],
+    intro: [{ t: T("化简器尚未配备双条件 ↔ 的改写规则。岛民谜题使用双条件连接身份与陈述；要将它转为「或者」和「并且」，需要证明对应的等价律。", "The simplifier does not yet have rewrite rules for ↔. The islander puzzles use a biconditional between an identity and a statement; converting it to “or” and “and” requires a corresponding equivalence.") }],
     after: T('A ↔ B 和 (¬A ∨ B) ∧ (¬B ∨ A) 互相推得出，靠的是<part-ref to="lemma:arrow"></part-ref>的两个形状。<part-ref to="lemma:iff"></part-ref>的两个形状也是两条改写规则。', 'A ↔ B and (¬A ∨ B) ∧ (¬B ∨ A) give each other, by the two shapes of <part-ref to="lemma:arrow"></part-ref>. The two shapes of <part-ref to="lemma:iff"></part-ref> are two rewrite rules as well.'),
   },
   becomes({
@@ -106,7 +106,7 @@ export const automation = [
     ],
     brief: T('设计一个证明助手，把每个目标的已知都化成合取范式。', 'Design a proof assistant that brings every hypothesis of each goal to conjunctive normal form.'),
     hint: [T('<level-ref to="sp-cnf"></level-ref>的规则前面，再加上去掉等价。', 'Put Equivalence away in front of the rules of <level-ref to="sp-cnf"></level-ref>.')],
-    intro: [{ t: T('要找矛盾的句子，现在都在已知里，可化简只改目标。化简和改写的卡片上多了一个设定：<b>改哪里</b>，选「已知」，就改第一个目标的已知，从上往下，第一条对得上的那一条。', 'The sentences to search for a contradiction are all among the hypotheses now, but Simp only rewrites the goal. The rewrite and Simp cards gain a setting: <b>where</b>; choose “hypotheses” and they rewrite the first goal’s hypotheses, the first one from the top that a rule fits.') }],
+    intro: [{ t: T("待检查的命题现在位于已知中，而化简器此前只改写目标。将「改哪里」设为「已知」后，改写和化简会从上到下检查第一个目标的已知，并处理首个匹配项。", "The propositions to check now appear among the hypotheses, while the simplifier previously rewrote only goals. Set “Where” to “Hypotheses” to inspect the first goal’s hypotheses from top to bottom and rewrite the first match.") }],
     solution: script(['simp', CNF, HYPS]),
     naive: script(['simp', CNF]),
     after: T('用来改写的都是证出的等价律，改出来的已知和原来的一样强：已知推得出 ⊥，改过的也推得出，反过来也一样。', 'Every rule used is a law proved both ways, so the hypotheses rewritten are exactly as strong as before: if one set gives ⊥, so does the other.'),
@@ -397,10 +397,10 @@ export const automation = [
       { goal: 'KA', hyps: ['KA ↔ ¬KB', 'KC ↔ (KA ↔ KB)'], want: 'fails' },
       { goal: 'KB', hyps: ['KA ↔ ¬KB', 'KC ↔ (KA ↔ KB)'], want: 'fails' },
     ],
-    brief: T('a 说：「b 是无赖。」b 什么也没说。c 说：「a 和 b 是同一种人。」设计一个证明助手：证得出的证完，证不出的说证不出来。', 'a says: “b is a knave.” b says nothing. c says: “a and b are the same kind.” Design a proof assistant that proves what can be proved and says so of what cannot.'),
+    brief: T('a 说：「b 是无赖。」b 什么也没说。c 说：「a 和 b 是同一种人。」设计一个证明助手，证明指定目标，并对指定的失败目标报告失败。', 'a says: “b is a knave.” b says nothing. c says: “a and b are the same kind.” Design a proof assistant that proves the required goal and reports failure for the designated cases.'),
     hint: [T('不是每个人的身份都定得下来。', 'Not everyone’s kind can be settled.')],
     solution: flow('metis'),
-    after: T('c 一定是无赖：a 说 b 是无赖，a 和 b 就不是同一种人，c 说错了。可 a 和 b 谁是骑士，推不出来：两种都对得上。饱和器停下来没有 ⊥，就是在说「不一定」。', 'c must be a knave: a calls b a knave, so a and b are not the same kind, and c is wrong. But which of a and b is the knight does not follow: both fit. The saturator stopping without ⊥ is it saying “not necessarily”.'),
+    after: T('c 一定是无赖：a 说 b 是无赖，所以 a 和 b 不是同一种人，c 说错了。至于谁是骑士，两种安排都符合条件，因此无法确定。饱和器在这些失败测试中没有找到矛盾；一般来说，搜索失败本身并不能证明目标不可推出。', 'c must be a knave: a calls b a knave, so a and b are not the same kind, and c is wrong. Either of them can be the knight while satisfying the clues. The saturator finds no contradiction in these failure cases; in general, search failure alone does not establish that a goal cannot be proved.'),
   }),
   proves({
     id: 'is-ten',
@@ -409,7 +409,7 @@ export const automation = [
     brief: T('十个人排成一圈：a 说「b 是无赖」，b 说「c 是无赖」，……，i 说「j 是无赖」，j 说「a 和 b 都是无赖」。设计一个证明助手，证出几个人的身份。', 'Ten people in a ring: a says “b is a knave”, b says “c is a knave”, …, i says “j is a knave”, and j says “a and b are both knaves”. Design a proof assistant that proves what some of them are.'),
     hint: [T('还是同一个证明助手。', 'Still the same proof assistant.')],
     solution: flow('metis'),
-    after: T('十个人的真值表有 1024 行。证明助手从二十来条子句出发，推出几百条，就找到了矛盾。现代的 SAT 求解器做的也是这件事，只是更会挑先消哪一对，能处理上百万个字母。', 'Ten people make a truth table of 1024 rows. The proof assistant starts from about twenty clauses, makes a few hundred, and finds the contradiction. Modern SAT solvers do just this, only far better at picking which pair to cancel first, and handle millions of letters.'),
+    after: T('十个人的真值表有 1024 行。证明助手从子句出发，通过归结寻找矛盾。现代 SAT 求解器也处理命题公式的可满足性，但通常结合赋值、传播和冲突分析等方法，能够处理规模大得多的问题。', 'A truth table for ten people has 1024 rows. The proof assistant starts from clauses and uses resolution to find a contradiction. Modern SAT solvers also decide propositional satisfiability, typically combining assignments, propagation, and conflict analysis to handle much larger problems.'),
   }),
 
   // ---------- topic: what no machine can do ----------
@@ -424,7 +424,7 @@ export const automation = [
       T('拿出那个理发师，再问：他给不给自己刮？', 'Take the barber out, then ask: does he shave himself?'),
       T('把 y 取成理发师自己，就是<part-ref to="lemma:liar"></part-ref>。', 'Take y to be the barber himself, and it is <part-ref to="lemma:liar"></part-ref>.'),
     ],
-    intro: [{ t: T('饱和器能证的总能找到证明，可证不出的，它不一定停得下来。有没有一台机器，对每一句话都能回答证得出还是证不出？这个专题从<level-ref to="kk-one"></level-ref>的<part-ref to="lemma:liar"></part-ref>出发，看机器做不到的事。', 'What the saturator can prove it always finds a proof of, but what it cannot, it may never stop on. Is there a machine that answers for every sentence whether it can be proved? This topic starts from <part-ref to="lemma:liar"></part-ref> of <level-ref to="kk-one"></level-ref> and looks at what no machine can do.') }],
+    intro: [{ t: T('不受资源限制、按完备策略进行的证明搜索，可能找到存在的证明；对于不可证明的目标，它却未必会停。游戏中的搜索还有资源限制，因此也可能错过证明。有没有一台机器能对每个目标都正确回答是否可证？这个专题从<level-ref to="kk-one"></level-ref>的<part-ref to="lemma:liar"></part-ref>出发，探讨机器能力的边界。', 'An unbounded proof search following a complete strategy can eventually find a proof when one exists, but may not stop when there is none. The game also limits search resources, so it can miss proofs. Can a machine correctly decide provability for every goal? This topic starts from <part-ref to="lemma:liar"></part-ref> in <level-ref to="kk-one"></level-ref> and explores the limits of computation.') }],
     solution: proof({ f: ['exE', { x: 'a' }], a: ['allE', { t: 'a' }, 'f'], l: ['liar', {}, 'f'] }, ['p>f.ex', 'f#body>a.all', 'a>l.p0', 'l>f.body', 'f>goal'], { premises: ['p'] }),
     after: T('「对所有 y」里的 y 取成 x 自己，叫<wiki-ref to="diagonal"></wiki-ref>：一张 x 对 y 的表，只看 x 对 x 的那条斜线。理发师说的话套到自己身上，就成了说谎者。', 'Taking the y of “for every y” to be x itself is the <wiki-ref to="diagonal"></wiki-ref>: in a table of x against y, look only at the line of x against x. Turned on himself, the barber’s rule is the liar.'),
   },

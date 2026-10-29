@@ -35,8 +35,8 @@ export const hol = [
       },
     ],
     intro: [
-      { t: T('第 3 章用声明把「并且」引入了证明核。不声明行不行？只用已有的 → 写出「并且」的意思：「A 并且 B」就是「不管 R 是哪一句，只要能从 A、B 推出 R，就有 R」，写成 (A → (B → R)) → R。这里的 R 代表任意一句话。', 'Chapter 3 brought “and” into the kernel with a declaration. Could it do without? Write what “and” means with the → already there: “A and B” is “whatever sentence R is, if R follows from A and B, then R”, written (A → (B → R)) → R. Here R stands for any sentence.') },
-      { t: T('这句话说的，正是消去规则做的事：取回两份，拿去推出想要的 R。反过来把它当成定义，造它、拆它的规则就都不用新加，用套用和假设框就能证出来。证明核里写不出「不管哪一句」，所以每次用它都得先选定一个 R。', 'This says just what the case does: get the two back, and use them to reach whatever R you want. Take it the other way, as the definition, and the rules that make it and take it apart need nothing new: Apply and the box prove them. The kernel cannot write “whatever sentence”, so each use picks one R first.') },
+      { t: T("在声明章节中，「并且」通过规则加入证明核。本专题考察另一种编码：对选定的命题 R，用已有的 → 写出 (A → (B → R)) → R。它表达：若 R 可由 A 和 B 推出，则 R 成立。", "The declarations chapter added “and” to the kernel through rules. This topic examines another encoding: for a chosen proposition R, write (A → (B → R)) → R using →. It says that if R follows from A and B, then R holds.") },
+      { t: T("这个式子对应合取消去的思路：利用 A 和 B 推出所需的 R。本游戏的证明核不能在公式内量化所有命题，因此每次使用时必须选定 R；单个固定的 R 不等于完整的全称编码。", "This formula follows the idea of conjunction elimination: use A and B to establish the required R. The game’s kernel cannot quantify over all propositions inside a formula, so R must be selected for each use; a single fixed R is not the full universally quantified encoding.") },
     ],
     after: T('取 R 为左边，K 就把左边拆了出来。声明的消去规则是由引入规则生成的；这里的消去规则，是用定义和 K 证出来的。', 'With R the left side, K takes the left side out. A declaration’s elimination rule is made from its ways in; this one is proved from the definition and K.'),
   },

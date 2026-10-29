@@ -57,8 +57,8 @@ export const structured = [
       }),
     ],
     intro: [
-      { t: T('在<wiki-ref to="provers"></wiki-ref>里真正写下的证明，是一段给人读的脚本，叫<wiki-ref to="scripts"></wiki-ref>。Isabelle 的 Isar 这样写：have 先证一句，show 证出要证的那句，每一句后面 by 说它怎么来；一句话要整块来证，就写 proof … qed。', 'The proofs actually written in a <wiki-ref to="provers"></wiki-ref> are scripts for people to read: a <wiki-ref to="scripts"></wiki-ref>. Isabelle’s Isar writes them so: have proves a sentence on the way, show proves the one wanted, and by after each row says where it comes from; a sentence proved by a whole block is written proof … qed.') },
-      { t: T('脚本的每一句，都是证明板上的一张卡片：using 后面是接进来的线，by 后面是哪一张卡片。', 'Each row of a script is a card of the proof board: after using are the wires coming in, after by is which card it is.') },
+      { t: T("<wiki-ref to=\"provers\"></wiki-ref>支持供人阅读的结构化<wiki-ref to=\"scripts\"></wiki-ref>。以 Isabelle 的 Isar 为例：have 引入中间结论，show 指出当前目标，by 指定证明方法；proof … qed 可以组织一个证明块。本章的简化脚本借鉴这一写法。", "<wiki-ref to=\"provers\"></wiki-ref> support structured <wiki-ref to=\"scripts\"></wiki-ref> for human readers. In Isabelle’s Isar, for example, have introduces an intermediate result, show states a goal, by specifies a proof method, and proof … qed organizes a proof block. This chapter adapts those ideas in a simplified script.") },
+      { t: T("在本游戏中，脚本语句与证明板上的元件相对应：using 指出所用事实，by 指出所用规则或证明助手。", "In this game, script statements correspond to proof-board parts: using identifies the facts used, while by identifies the rule or proof assistant.") },
     ],
     after: T('by (rule mp) 就是一张套用，using 的 p、a1 是接进它的两根线；proof … qed 是一个框，assume 是框里的假设，框里最后一句 show 接到框的出口。脚本和电路是同一个证明的两种写法。', 'by (rule mp) is one Apply card, and the p and a1 after using are its two wires in; proof … qed is a box, assume what it assumes, and the show at its end goes to the box’s exit. A script and a circuit are two ways of writing one proof.'),
   },
@@ -81,7 +81,7 @@ export const structured = [
         solution: proof({ f: ['impI', { A: 'Rain' }], g: ['impI', { A: 'Wind' }, 'f'], c: ['andI', {}, 'g'], m: ['mp', {}, 'g'] }, ['f#body>c.a', 'g#body>c.b', 'p>m.imp', 'c>m.a', 'm>g.body', 'g>f.body', 'f>goal'], { premises: ['p'] }),
       }),
     ],
-    intro: [{ t: T('一个块里还能有块：块的深浅，就是框套着框。', 'A block may hold blocks: how deep a block sits is how boxes nest.') }],
+    intro: [{ t: T("证明块可以嵌套；块的层次对应证明板中假设框的嵌套关系。", "Proof blocks can be nested; their nesting corresponds to nested assumption boxes on the proof board.") }],
     after: T('脚本往里缩一层，证明板上就多套一层框；a1 在里面那一块也能用，就像外面的框开出的线能接进里面的框。这是<level-ref to="t-lam"></level-ref>里两层 fun 的另一种写法。', 'One step further in on the script is one box further in on the board; a1 is usable inside the inner block, as a wire the outer box opens may go into the inner one. It is another way of writing the two funs of <level-ref to="t-lam"></level-ref>.'),
   },
   script({

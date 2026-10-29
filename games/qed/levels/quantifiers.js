@@ -36,9 +36,9 @@ export const quantifiers = [
     ], ['Mortal(soc)']),
     brief: BRIEF,
     intro: [
-      { t: T('到现在为止，一个字母只能是一整句话：每个人是不是骑士，就要一人一个字母。要是全城的人都要说到呢？命题逻辑说不出「每一个人」「有一个人」。', 'So far a letter can only be a whole sentence: whether each person is a knight takes a letter per person. What about everyone in a city? Propositional logic cannot say “everyone” or “someone”.') },
-      { t: T('这一章进入<wiki-ref to="fol"></wiki-ref>，把一句话拆开：<b>名字</b>指一样东西（苏格拉底、安），一个<wiki-ref to="predicate"></wiki-ref>说东西的性质或关系（「…是人」「…是…的父母」）。「苏格拉底是人」写成 Human(soc)。', 'This chapter enters <wiki-ref to="fol"></wiki-ref>, taking a sentence apart: a <b>name</b> stands for a thing (Socrates, Ann), a <wiki-ref to="predicate"></wiki-ref> says what things are or how they relate (“… is human”, “… is a parent of …”). “Socrates is human” is written Human(soc).') },
-      { t: T('这一章先不证明，只学这样的话怎么说、在一个世界里是真是假。一道题一句话：用下面的块把它拼成公式。块填进去就写成文字，它自己要填的地方留成框，再往框里填别的块。', 'No proofs yet in this chapter: only how to say such things and when they are true in a world. One sentence at a time: build it as a formula from the pieces below. A piece put in is written out as words, with a box for each place it leaves to fill, and other pieces go in those boxes.') },
+      { t: T("命题逻辑中的字母代表整个命题：若要分别表示每个人是否为骑士，需要为每个人使用不同字母。要表达「每个人」或「有一个人」，需要引入量词。", "A propositional letter represents a whole proposition: expressing whether each person is a knight requires a separate letter for each person. To express “everyone” or “someone”, we need quantifiers.") },
+      { t: T("本章引入<wiki-ref to=\"fol\"></wiki-ref>：<b>名字</b>指称对象，<wiki-ref to=\"predicate\"></wiki-ref>表达对象的性质或关系。例如「苏格拉底是人」写作 Human(soc)。", "This chapter introduces <wiki-ref to=\"fol\"></wiki-ref>: a <b>name</b> denotes an object and a <wiki-ref to=\"predicate\"></wiki-ref> expresses a property or relation. For example, “Socrates is human” is written Human(soc).") },
+      { t: T("本章先学习如何构造公式，以及如何在给定的世界中判断真假。请使用下方的块拼写公式；块中未填的位置可以继续放入其他块。", "This chapter first covers how to construct formulas and evaluate them in a given world. Build each formula using the blocks below; empty positions in a block can be filled with other blocks.") },
     ],
     after: T('一句话拆成了名字和谓词，同一个谓词可以说任何东西：Human(soc)、Human(ann)。谓词的位置有先后：Parent(ann, bo) 和 Parent(bo, ann) 是两回事。', 'A sentence comes apart into names and predicates, and one predicate can be said of anything: Human(soc), Human(ann). A predicate’s places have an order: Parent(ann, bo) and Parent(bo, ann) are different things.'),
   },
@@ -61,8 +61,8 @@ export const quantifiers = [
     ]),
     brief: BRIEF,
     intro: [
-      { t: T('新<wiki-ref to="quantifier"></wiki-ref> <b>∀</b>，读作「对所有」：∀x. P(x) 说的是，世上每一样东西 x，P(x) 都成立。x 是一个<b>变量</b>，代表「随便哪一样」。', 'A new <wiki-ref to="quantifier"></wiki-ref>, <b>∀</b>, read “for all”: ∀x. P(x) says that for every thing x in the world, P(x) holds. x is a <b>variable</b>, standing for “any one”.') },
-      { t: T('写错了不要紧：检查时会找出一个小世界，在那里你写的和原句一真一假。', 'Mistakes are fine: checking finds a small world where what you wrote and the sentence come apart.') },
+      { t: T("全称<wiki-ref to=\"quantifier\"></wiki-ref> <b>∀</b>读作「对所有」：∀x. P(x) 表示论域中的每个对象 x 都满足 P。x 是受该量词约束的变量。", "The universal <wiki-ref to=\"quantifier\"></wiki-ref> <b>∀</b> is read “for all”: ∀x. P(x) states that every object x in the domain satisfies P. The variable x is bound by the quantifier.") },
+      { t: T("如果公式写错，检查器可能给出一个小世界，显示你写的公式与目标在其中的真值不同。", "If the formula is wrong, the checker may find a small world where its truth value differs from the target.") },
     ],
     after: T('∀ 管的是世上所有的东西，不只是人，所以「人都会死」要带上条件：是人的，才会死。∀ 和 → 总是一起出现：这是一阶逻辑最常见的写法。', '∀ covers every thing in the world, not just people, so “every human is mortal” needs a condition: being human, it is mortal. ∀ and → come together: the most common pattern of first-order logic.'),
   },
@@ -217,7 +217,7 @@ export const quantifiers = [
     answer: { size: 2, preds: { Bird: ['0'], Flies: ['1'] } },
     brief: T('造一个世界：有鸟，也有会飞的东西，可是没有会飞的鸟。', 'Build a world with a bird and with something that flies, yet no bird that flies.'),
     hint: [T('两个 ∃ 可以指两样不同的东西。', 'The two ∃s may point at two different things.')],
-    after: T('∃ 拆到 ∧ 两边，每边可以各挑各的；合在一起，就得是同一样东西。∀ 对 ∧、∃ 对 ∨ 才能自由地拆：这些规矩下一章会用证明一一说清。', 'Split over ∧, each ∃ may pick its own; together they must be the same thing. ∀ splits freely over ∧ and ∃ over ∨: the next chapter makes these rules exact with proofs.'),
+    after: T("将两个存在命题分别合取时，它们的见证可以不同；将合取放在同一个存在量词下时，则要求同一个见证。量词能否分配还取决于连接词和推导方向。", "In a conjunction of two existential propositions, the witnesses may differ; an existential over a conjunction requires one common witness. Whether a quantifier distributes also depends on the connective and direction."),
   },
   // Topic: asking a family tree questions. One sentence with a free x is a query; the world answers with what it picks.
   query({
