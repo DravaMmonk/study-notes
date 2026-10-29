@@ -95,6 +95,8 @@ function machineLabel(test, notation) {
     const sides = test.eqs.map(parseEquation).map((e) => [e.s, e.t].map((x) => ('t' in x ? sayTerm(x, notation) : say(x, notation))))
     return { zh: sides.map(([a, b]) => `${a.zh} ≐ ${b.zh}`).join('；'), en: sides.map(([a, b]) => `${a.en} ≐ ${b.en}`).join('; ') }
   }
+  // A declaration (the generator's test) goes by its sentence.
+  if (test.ways) return say(parseS(test.it), notation)
   // A goal of ⊥ (the hypotheses to search) goes by its first hypothesis.
   if (test.goal) return say(parseS(test.goal === '⊥' && test.hyps?.length ? test.hyps[0] : test.goal), notation)
   return { zh: `${test.clauses.length} 条子句`, en: `${test.clauses.length} clauses` }

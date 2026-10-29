@@ -406,6 +406,9 @@
 .frame-region-head .port { top: 50%; margin-top: -6px; }
 .frame-region-head .port.frame-open { left: 6px; right: auto; }
 .frame-region-head .port.frame-close { right: 6px; left: auto; }
+/* A region opening several values: each value's dot sits by its own note. */
+.frame-region-head.has-many-opens .frame-open-item { position: relative; display: inline-flex; align-items: center; padding-left: 16px; }
+.frame-region-head.has-many-opens .frame-open-item .port.frame-open { left: 0; }
 /* The floor cards stand on: it takes presses (to pan, or to choose it), and cards on it are placed from its corner. */
 .frame-field { position: relative; pointer-events: auto; cursor: grab; }
 
@@ -422,6 +425,7 @@
 .pb-region-head { position: relative; min-height: 30px; padding: 4px 8px 12px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 2px 8px; border-bottom: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); color: var(--muted); font-size: 11.5px; }
 .pb-region-head b { color: var(--ink); font-weight: 600; }
 .pb-region-head em { font-style: normal; }
+.pb-region-head.has-many-opens .pb-open { position: relative; display: inline-flex; gap: 4px; align-items: baseline; padding-bottom: 14px; }
 .pb-closes { position: relative; min-height: 30px; padding: 12px 8px 4px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 2px 8px; border-top: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); color: var(--muted); font-size: 11.5px; }
 .pb-closes em { font-style: normal; }
 

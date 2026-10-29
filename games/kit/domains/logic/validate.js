@@ -43,7 +43,7 @@ export function validate({ levels: given, course }) {
   }
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words && !l.vocab)) {
-    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'iso' ? level.sentences : level.kind === 'term' ? [...Object.values(level.premises ?? {}), level.goal] : level.kind === 'script' ? [...Object.values(level.premises ?? {}), level.goal, ...(level.sentences ?? [])] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.term ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses)) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const texts = level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'iso' ? level.sentences : level.kind === 'term' ? [...Object.values(level.premises ?? {}), level.goal] : level.kind === 'script' ? [...Object.values(level.premises ?? {}), level.goal, ...(level.sentences ?? [])] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.term || t.ways ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses)) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     // The pattern's own letters stand bare in its last test; a machine's tests may end on bare letters too.
     const bare = new Set(level.kind === 'machine' ? 'ABCDEFGHPQRS'.split('') : Object.keys(level.cases?.[0] ?? {}))
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l] && !bare.has(l))

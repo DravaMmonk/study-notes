@@ -218,7 +218,7 @@ export const GLOSSARY = [
   },
   {
     id: 'declaration', group: 'proof', title: T('声明', 'declaration'), at: 'decl-and',
-    body: [T(`<b>声明</b>引入一种新的句子和它的规则：写出它有哪几条引入规则，每条引入规则是一条假设式的新规则（假设有这些证明，就得到它）；这些引入规则就是全部，所以核生成一条消去规则，每条引入规则一种情况。声明不像${W('definition')}那样能展开消掉，也不像${W('axiom')}那样只能相信：核检查过它合法，再生成消去规则，保证不会带来矛盾。证明板上的基础元件因此只有三类：证明核自带的（套用、假设框，后来的任取、取一个），声明出来的（并且、或者、⊥，后来的存在、相等、自然数，各自的引入规则和消去规则），和公理（后来的反证法）。Lean 的 <code>inductive</code>、<code>structure</code> 就是声明；Isabelle/HOL 不声明连接词，而是用 → 和 ∀ 定义它们。`, `A <b>declaration</b> brings in a new kind of sentence with its rules: its ways to make it are written out, each a new rule that assumes some proofs and gives the sentence; those ways are all there are, so the kernel makes one case to take it apart, with one branch for each way. Unlike a ${W('definition')} it cannot be unfolded away, and unlike an ${W('axiom')} it is not just believed: the kernel checks it is well formed before making its cases, so it brings no contradiction. So the proof board’s basic parts are of three kinds only: the kernel’s own (Apply, the box, and later For any and Take one), the declared (and, or, ⊥, and later there is, equality and the numbers, each its ways to make it and its case), and axioms (later, By contradiction). Lean’s <code>inductive</code> and <code>structure</code> are declarations; Isabelle/HOL declares no connective, but defines them with → and ∀.`)],
+    body: [T(`<b>声明</b>引入一种新的句子和它的规则：写出它有哪几条引入规则，每条引入规则是一条假设式的新规则（假设有这些证明，就得到它）；这些引入规则就是全部，所以消去规则由引入规则生成，每条引入规则一种情况。声明不像${W('definition')}那样能展开消掉，也不像${W('axiom')}那样只能相信：核检查过它合法，消去规则又是生成的、不是写上去的，所以不会带来矛盾。证明板上的基础元件因此只有三类：证明核自带的（套用、假设框，后来的任取、取一个），声明出来的（并且、或者、⊥，后来的存在、相等、自然数，各自的引入规则和消去规则），和公理（后来的反证法）。Lean 的 <code>inductive</code>、<code>structure</code> 就是声明；Isabelle/HOL 不声明连接词，而是用 → 和 ∀ 定义它们。`, `A <b>declaration</b> brings in a new kind of sentence with its rules: its ways to make it are written out, each a new rule that assumes some proofs and gives the sentence; those ways are all there are, so the rule that takes it apart is made from them, one case for each way. Unlike a ${W('definition')} it cannot be unfolded away, and unlike an ${W('axiom')} it is not just believed: the kernel checks it is well formed, and its elimination rule is made, not written, so it brings no contradiction. So the proof board’s basic parts are of three kinds only: the kernel’s own (Apply, the box, and later For any and Take one), the declared (and, or, ⊥, and later there is, equality and the numbers, each its ways to make it and its case), and axioms (later, By contradiction). Lean’s <code>inductive</code> and <code>structure</code> are declarations; Isabelle/HOL declares no connective, but defines them with → and ∀.`)],
     see: ['definition', 'axiom'],
   },
   {
@@ -254,14 +254,22 @@ export const GLOSSARY = [
     see: ['intro-rule', 'elim-rule', 'hilbert'],
   },
   {
-    id: 'intro-rule', group: 'proof', title: T('引入规则', 'introduction rule'), at: 'and',
+    id: 'intro-rule', group: 'proof', title: T('引入规则', 'introduction rule'), at: 'decl-and',
     body: [T(`<b>引入规则</b>的结论里多出一个${W('connective')}：拼起来由 A、B 得 A ∧ B，二选一由 A 得 A ∨ B，假设框得 A → B。要证一句话，看它最外面的连接词，就知道用哪条引入规则。`, `An <b>introduction rule</b> has a new ${W('connective')} in its conclusion: Join gets A ∧ B from A and B, Choose gets A ∨ B from A, the assumption box gets A → B. To prove a sentence, its outermost connective says which introduction rule to use.`)],
     see: ['elim-rule', 'natural'],
   },
   {
-    id: 'elim-rule', group: 'proof', title: T('消去规则', 'elimination rule'), at: 'and',
+    id: 'elim-rule', group: 'proof', title: T('消去规则', 'elimination rule'), at: 'gen-one',
     body: [T(`<b>消去规则</b>用掉一个${W('connective')}：拆开由 A ∧ B 得 A，套用由 A → B 和 A 得 B，分情况用掉 A ∨ B。它的第一条前提是要用的那句，要从已知里来；结论什么都行，看接到哪里。一条句子刚引入就消去，是证明里可以拿掉的弯路。`, `An <b>elimination rule</b> uses a ${W('connective')} up: Split gets A from A ∧ B, Apply gets B from A → B and A, Cases uses up A ∨ B. Its first premise is the sentence used, which must come from what is known; its conclusion can be anything, depending on where it goes. A sentence introduced and at once eliminated is a detour a proof can do without.`)],
     see: ['intro-rule', 'normal-form'],
+  },
+  {
+    id: 'recursor', group: 'proof', title: T('递推子', 'recursor'), at: 'gen-each',
+    body: [
+      T(`声明一种归纳类型时，Lean 的内核检查过它的构造子（${W('intro-rule')}），就生成它的<b>递推子</b>，也就是它的${W('elim-rule')}：每个构造子一个情况，那个构造子的类型把结论换成任意的 motive（这里的 ?R）。<code>And.rec</code>、<code>Or.rec</code>、<code>False.rec</code> 都是这样来的；Isabelle 的 <code>conjE</code>、<code>disjE</code> 是同样的形状。递推子还带一条计算规则：它遇到构造子就算下去（ι 规约）。`, `When an inductive type is declared, Lean’s kernel checks its constructors (its ${W('intro-rule')}s) and then makes its <b>recursor</b>, its ${W('elim-rule')}: one case for each constructor, the constructor’s type with its conclusion put as any motive (?R here). <code>And.rec</code>, <code>Or.rec</code> and <code>False.rec</code> come of it so; Isabelle’s <code>conjE</code> and <code>disjE</code> have the same shape. A recursor also comes with a rule of computation: met with a constructor, it computes on (ι-reduction).`),
+      T('消去规则为什么只能是这个样子：声明说的是「只有这几条来路」，消去规则把这句话写成规则。它不多给（先引入、再消去的弯路总能拆掉：消去规则还回的，正是引入时交进去的），也不少给（拆开再拼起，拿回原来那句）。证明论把这叫引入规则和消去规则的<b>和谐</b>。消去规则要是能随手写，就能写出 Prior 的 tonk：引入照「或者」，消去照「并且」，什么都证得出。', 'Why the elimination rule can only be so: a declaration says “these are the only ways”, and the elimination rule writes that as a rule. It gives no more (introduce, then eliminate, is a detour that can always be taken out: what the rule hands back is what was handed in), and no less (take apart and put together, and the sentence is back). Proof theory calls this the <b>harmony</b> of introduction and elimination. If elimination rules could simply be written, one could write Prior’s tonk: introduced as “or”, eliminated as “and”, proving anything at all.'),
+    ],
+    see: ['elim-rule', 'declaration'],
   },
   {
     id: 'theorem', group: 'proof', title: T('定理', 'theorem'), at: 'and',

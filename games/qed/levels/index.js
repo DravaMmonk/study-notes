@@ -25,6 +25,18 @@ const T = (zh, en) => ({ zh, en })
 
 // The lemmas the player proves; a part is a pattern, so its description and ports use letters.
 export const LEMMAS = {
+  // Splitting ∧ (chapter 4): proved from ∧ elim, one shape for each side, and run as the kit's card with an output for
+  // each (Lean's And.left and And.right, Isabelle's conjunct1 and conjunct2).
+  andE: {
+    name: T('拆开 ∧', 'Split ∧'), card: 'andE',
+    desc: T('由 A ∧ B 得到 A，也得到 B：两个输出口各取一边。', 'From A ∧ B, A, and also B: one output for each side.'),
+    metas: ['A', 'B'],
+    forms: [
+      { key: 'left', label: 'A ∧ B ⟹ A', statement: 'A', premises: ['A ∧ B'] },
+      { key: 'right', label: 'A ∧ B ⟹ B', statement: 'B', premises: ['A ∧ B'] },
+    ],
+    ports: ['A ∧ B'],
+  },
   axK: { name: T('K', 'K'), desc: T('元件上选两句 A、B，直接给出 A → (B → A)：已经成立的事，加上什么条件都还成立。', 'Choose two sentences A and B on the part; it gives A → (B → A) at once: what holds still holds under any condition.'), statement: 'A → (B → A)', metas: ['A', 'B'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
   axS: { name: T('S', 'S'), desc: T('元件上选三句 A、B、C，直接给出 (A → (B → C)) → ((A → B) → (A → C))：在条件 A 下也能套用。', 'Choose three sentences A, B and C on the part; it gives (A → (B → C)) → ((A → B) → (A → C)) at once: Apply works under a condition A too.'), statement: '(A → (B → C)) → ((A → B) → (A → C))', metas: ['A', 'B', 'C'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
   chain: { name: T('串联', 'Chain'), desc: T('接进 A → B 和 B → C，直接给出 A → C。', 'Wire in A → B and B → C; it gives A → C at once.'), statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'], ports: ['A → B', 'B → C'] },
@@ -138,7 +150,10 @@ const REVISIONS = {
   ],
   iff: [{ by: 'au-iff', forms: ['intro'] }],
   // ↔ comes into proofs on the main path with 两个方向: ∧ elim takes it apart.
-  andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
+  andE: [
+    { by: 'and', forms: ['right'] },
+    { at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B：两个输出口各取一边。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B: one output for each side. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') },
+  ],
 
   // The machine parts grow along chapters 7 and 8: quantifiers taken apart and patterns (模式合一), every result once
   // the cards backtrack (一串结果).
@@ -162,16 +177,17 @@ const COURSE = {
   facts: FACTS,
   gates: GATES,
   revisions: REVISIONS,
-  // The machine-board parts the player builds: the unifier, the tactics made of Rule and Assumption, auto, simp made
+  // The machine-board parts the player builds: the elimination rule generator, the unifier, the tactics made of Rule and Assumption, auto, simp made
   // of rewrites, and the clause machines (into clauses, the saturator, the reconstructor).
-  machines: ['unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'clausify', 'saturate', 'metis'],
-  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'natInd',
+  machines: ['elimGen', 'unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'clausify', 'saturate', 'metis'],
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'andI', 'andCases', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'natInd',
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
     'append', 'each', 'defer', 'search', 'rw', 'hyp', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
-  // Joining and splitting ∧ come together, as one idea; so do rewrite and reflexivity.
-  concept: { andI: 'and', andE: 'and', orI: 'or', orE: 'or', exI: 'ex', exE: 'ex', rewrite: 'eq', refl: 'eq' },
+  // The parts that take rules apart and put them together are one idea (rules as data); joining ∧ and its elimination
+  // rule are one, as are rewrite and reflexivity.
+  concept: { anyR: 'rulecraft', swapConcl: 'rulecraft', consFront: 'rulecraft', mkRule: 'rulecraft', andI: 'and', andCases: 'and', orI: 'or', orE: 'or', exI: 'ex', exE: 'ex', rewrite: 'eq', refl: 'eq' },
   // Parts that stay where a level brings them, so the components box keeps only what goes on being used: the steps of
-  // a part built from them soon after (the unifier's moves, Skolemise and Into clauses, one round of resolution, Replay,
+  // a part built from them soon after (the generator's parts, the unifier's moves, Skolemise and Into clauses, one round of resolution, Replay,
   // the intro and elim rule sets inside auto, the saturator and Into clauses all the way inside the reconstructor), the
   // lemmas a chapter proves for its own next few levels (the frule and resolution
   // lemmas; not ⟷ unfolded, which the built-in clausifier reads from the rule book), a part one stretch of levels needs (the unifier, Defer, the
@@ -179,7 +195,7 @@ const COURSE = {
   // that needs one brings it again.
   // Chain, Swap and Merge, the definitions of chapter 3, are tools the player reaches for from then on: always shown.
   staples: ['chain', 'swap', 'merge'],
-  local: ['uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'uPattern', 'unifier', 'defer', 'introRules', 'elimRules', 'frule',
+  local: ['anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'uPattern', 'unifier', 'defer', 'introRules', 'elimRules', 'frule',
     'natInd',
     'skolem', 'toClauses', 'res', 'resolve', 'saturate', 'clausify', 'replay', 'oracle'],
 }

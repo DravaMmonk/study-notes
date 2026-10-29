@@ -6,7 +6,9 @@ import { checkIso, isoBoard, settle } from './iso.js'
 import { runLevel } from '../../engine/tests.js'
 import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
-import { proof } from './build.js'
+import { machine, proof } from './build.js'
+import { MACHINE_TESTS } from './machine.js'
+import { genRuleText } from './elimgen.js'
 import { LOGIC_TESTS, lemmaGives } from './proof.js'
 import { validate } from './validate.js'
 
@@ -416,4 +418,34 @@ test('a declaration by assumption cards: chained they are one way needing both, 
   assert.equal(settled.nodes.find((n) => n.id === 'decl').params.ways, 1)
   const bot = level('⊥', ['A'], [{ have: { A: 1 }, make: false }, { have: {}, make: false }])
   assert.ok(checkIso(bot, isoBoard([]), words).pass)
+})
+
+test('the elimination rule generator: one case for each way in, its conclusion any ?R; none for ⊥', () => {
+  const level = { kind: 'machine', want: 'elim', inputs: [{ name: 'it' }, { name: 'ways' }] }
+  const board = machine({ r: ['anyR'], e: ['eachOf'], s: ['swapConcl', {}, 'e'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>s.rule', 'r>s.to', 's>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
+  const decl = (it, ways, elim) => ({ it, ways, elim })
+  const tests = [
+    decl('?A ∧ ?B', ['⟦?A; ?B⟧ ⟹ ?A ∧ ?B'], ['?A ∧ ?B', '⟦?A; ?B⟧ ⟹ ?R']),
+    decl('?A ∨ ?B', ['⟦?A⟧ ⟹ ?A ∨ ?B', '⟦?B⟧ ⟹ ?A ∨ ?B'], ['?A ∨ ?B', '⟦?A⟧ ⟹ ?R', '⟦?B⟧ ⟹ ?R']),
+    decl('⊥', [], ['⊥']),
+    // A way that takes a thing keeps it in its case.
+    decl('∃y. ?P(y)', ['⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)'], ['∃y. ?P(y)', '⋀x. ⟦?P(x)⟧ ⟹ ?R']),
+  ]
+  assert.ok(runLevel(MACHINE_TESTS, { ...level, tests }, board).pass)
+  // Without For each, a list of ways does not fit Swap conclusion.
+  const one = machine({ r: ['anyR'], s: ['swapConcl'], c: ['consFront'], m: ['mkRule'] }, ['ways>s.rule', 'r>s.to', 'it>c.first', 's>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
+  assert.equal(runLevel(MACHINE_TESTS, { ...level, tests }, one).pass, false)
+  assert.ok(runLevel(MACHINE_TESTS, { ...level, single: true, tests: tests.slice(0, 1) }, one).pass)
+  // The elimination rule comes out as a value of the board.
+  const out = MACHINE_TESTS.runTest({ ...level, tests }, board, tests[1]).outputs.out
+  assert.equal(genRuleText(out.rule), '⟦?A ∨ ?B; (?A ⟹ ?R); (?B ⟹ ?R)⟧ ⟹ ?R')
+})
+
+test('∧ elim assumes both sides in one box, and the box gives what is proved inside', () => {
+  const level = { tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }] }
+  const swap = proof({ c: ['andCases'], i: ['andI', {}, 'c'] }, ['p>c.ab', 'c#right>i.a', 'c#left>i.b', 'i>c.body', 'c>goal'], { premises: ['p'] })
+  assert.ok(run(level, swap).pass)
+  // What the box assumes stays inside it.
+  const leak = proof({ c: ['andCases'] }, ['p>c.ab', 'c#left>c.body', 'c#right>goal'], { premises: ['p'] })
+  assert.equal(run({ tests: [{ premises: { p: 'A ∧ B' }, goal: 'B' }] }, leak).pass, false)
 })

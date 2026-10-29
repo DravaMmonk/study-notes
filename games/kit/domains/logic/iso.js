@@ -8,8 +8,8 @@
 // one more. Written as a proof these would be nested assumption boxes; a declared rule has no proof inside, so it is a
 // chain of cards, its conclusion given by the declaration.
 //
-// The way to take it apart is not the player's to build: for every way in, the kernel makes a case of its own,
-// numbered as the ways are, which gets back just what that way took. The situations show it.
+// The way to take it apart is not written here: the player's generator makes it from the ways in (elimgen.js), a case
+// for every way, numbered as the ways are, which gets back just what that way took. The situations show it.
 //
 // A test is a situation: the proofs at hand (numbered: "it rains #1"), and whether the declared sentence can be
 // proved from them, or a sentence of its shape (`goal`, when the declared sentence mentions a thing: "the Morning
@@ -192,12 +192,7 @@ const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })
 export const wayRule = (way, level, g = (f) => f) => ({ fixes: way.binds, premises: way.needs.map((s) => premise(g(sentenceOf(level, s)))), conclusion: g(sentenceOf(level, level.target)) })
 
 /** A rule written out, with the things a way takes in front: ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human. */
-export const wayText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${rule.conclusions ? projections(rule, say) : ruleText(rule, say)}`
-// A rule giving several conclusions at once: ⟦A ∧ B⟧ ⟹ A; B.
-function projections(rule, say) {
-  const one = ruleText({ ...rule, conclusion: rule.conclusions[0] }, say)
-  return `${one.slice(0, one.length - say(rule.conclusions[0]).length)}${rule.conclusions.map(say).join('; ')}`
-}
+export const wayText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${ruleText(rule, say)}`
 /** A rule's value on the board as a way: { needs, binds }. */
 export const wayOf = (rule) => ({ needs: needsOf(rule), binds: bindsOf(rule) })
 
@@ -235,24 +230,16 @@ function general(level) {
 }
 
 /**
- * What a declaration gives, for any sentences: one rule for each way to make it, and the rule that takes it apart
- * (its cases): having it, and for each way a conclusion ?R from what that way took (for any thing it took), gives ?R;
- * or the level's own (`take`).
+ * What a declaration gives, for any sentences: its sentence, one rule for each way to make it, and the rule that takes
+ * it apart when the level gives it (`take`: equality, the numbers). Otherwise that rule is the generator's, which the
+ * player builds (elimgen.js), run on the sentence and the ways in.
  */
 export function declaredRules(level, ways) {
   const g = general(level)
-  const R = meta('?R')
-  const target = premise(g(sentenceOf(level, level.target)))
-  // With one way in that takes no thing, taking it apart gives back what that way took, each on its own:
-  // ⟦A ∧ B⟧ ⟹ A; B. Otherwise it is the cases, one for each way, all reaching any ?R.
-  const [only] = ways
-  const plain = !level.take && ways.length === 1 && only.needs.length > 0 && !only.binds?.length
   return {
+    it: g(sentenceOf(level, level.target)),
     make: ways.map((way) => wayRule(way, level, g)),
-    take: level.take
-      ? ruleOf('take', null, level.take.premises, level.take.conclusion)
-      : plain ? { premises: [target], conclusions: only.needs.map((s) => g(sentenceOf(level, s))) }
-      : { premises: [target, ...ways.map((way) => premise(R, way.needs.map((s) => g(sentenceOf(level, s))), way.binds))], conclusion: R },
+    take: level.take ? ruleOf('take', null, level.take.premises, level.take.conclusion) : null,
   }
 }
 

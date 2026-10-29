@@ -61,11 +61,12 @@ export const ERAS = [
   {
     id: 'packing', machine: 'prover',
     // The kernel's parts and the definitions built with them carry on. Declarations: "and", "or" and the contradiction
-    // come into the kernel by their intro rules, each written as a rule with assumption cards (declare.js); an optional
-    // topic declares more (D).
+    // come into the kernel by their intro rules, each written as a rule with assumption cards, and their elimination
+    // rules by the generator the player builds (declare.js); an optional topic declares more (D).
     keeps: 'all',
     foundation: [
-      'decl-and', 'decl-or', 'decl-bot',
+      // Each declaration, then the generator that makes its elimination rule: for one way in, then for a list of them.
+      'decl-and', 'gen-one', 'decl-or', 'gen-each', 'decl-bot',
     ],
     topics: [{ id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') }],
     chapter: { title: T('声明', 'Declarations'), question: T('怎样把「与」「或」「非」引入证明核？', 'How do “and”, “or” and “not” come into the kernel?') },

@@ -19,10 +19,29 @@ export const era2 = [
     id: 'and',
     title: T('两个都要', 'Both of them'),
     fold: ['axK', 'axS'],
+    builds: 'andE',
     tasks: [
       {
         kind: 'proof',
+        step: T('取左', 'The left side'),
+        tests: [{ premises: { p: 'A ∧ B' }, goal: 'A' }],
+        cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
+        hint: [T('消去 ∧ 的框里，两边都是假设；只把左边交回去。', 'Inside ∧ elim’s box both sides are assumed; hand back the left one alone.')],
+        solution: proof({ c: ['andCases'] }, ['p>c.ab', 'c#left>c.body', 'c>goal'], { premises: ['p'] }),
+        after: T('框里假设了两边，只把左边交回去，就从「下雨 ∧ 刮风」得到「下雨」。', 'Both sides assumed in the box, the left one alone handed back: from “it rains ∧ it is windy”, “it rains”.'),
+      },
+      {
+        kind: 'proof',
+        step: T('取右', 'The right side'),
+        tests: [{ premises: { p: 'A ∧ B' }, goal: 'B' }],
+        cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
+        hint: [T('和取左一样，交回去的换成右边。', 'As for the left side, with the right one handed back.')],
+        solution: proof({ c: ['andCases'] }, ['p>c.ab', 'c#right>c.body', 'c>goal'], { premises: ['p'] }),
+      },
+      {
+        kind: 'proof',
         step: T('两个都要', 'Both of them'),
+        intro: [{ t: T('取左、取右合成了一块元件<part-ref to="lemma:andE"></part-ref>：接进 A ∧ B，两个输出口各取一边，不用每次都开框。', 'The left and the right side make one part, <part-ref to="lemma:andE"></part-ref>: wire in A ∧ B, and its two outputs give a side each, with no box to open every time.') }],
         tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ A' }],
         cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
         hint: [T('先拆开，再按新的顺序拼起来。', 'Take it apart, then put it back together in the new order.')],
@@ -44,7 +63,8 @@ export const era2 = [
     ],
     intro: [
       { t: T('<level-ref to="g-and"></level-ref>里的<part-ref to="part:gAnd"></part-ref>门：两边都真，才输出真。证明器里的「下雨 ∧ 刮风」也是这个意思：下雨，并且刮风。', 'The <part-ref to="part:gAnd"></part-ref> gate of <level-ref to="g-and"></level-ref>: true only when both sides are. In the prover “it rains ∧ it is windy” means the same: it rains, and it is windy.') },
-      { t: T('上一章你声明了「并且」，证明板上从此多了两块元件。<part-ref to="part:andI"></part-ref>就是那一条引入规则：有了左边，又有了右边，就有「左边 ∧ 右边」。只有这一条引入规则，所以一份「… ∧ …」的证明里一定装着左边的和右边的：<part-ref to="part:andE"></part-ref>把它们各取出来。声明板上消去规则一起取回的那两份，在这里分成了两个输出口。', 'Last chapter you declared “and”, and the proof board gained two parts. <part-ref to="part:andI"></part-ref> is its one way to make it: from a left and a right, “left ∧ right”. There is only that way, so a proof of “… ∧ …” always holds a proof of the left and one of the right: <part-ref to="part:andE"></part-ref> takes each out. The two proofs its case got back together on the declaration board come out here at two outputs.') },
+      { t: T('上一章你声明了「并且」，证明板上从此多了两块元件。<part-ref to="part:andI"></part-ref>就是那一条引入规则：有了左边，又有了右边，就有「左边 ∧ 右边」。<part-ref to="part:andCases"></part-ref>是生成器给它生成的消去规则：一个框同时假设左右两边，框里证出什么，它就给出什么。', 'Last chapter you declared “and”, and the proof board gained two parts. <part-ref to="part:andI"></part-ref> is its one way to make it: from a left and a right, “left ∧ right”. <part-ref to="part:andCases"></part-ref> is the elimination rule the generator made for it: a box that assumes both sides at once, and whatever is proved inside, it gives.') },
+      { t: T('很多时候只想要其中一边。先用它证出两条规则：由 A ∧ B 得 A，由 A ∧ B 得 B。', 'Often you want just one side. First prove two rules with it: from A ∧ B, A; from A ∧ B, B.') },
     ],
     after: T('有已知的证明，放进框里，就成了什么都不需要的<wiki-ref to="theorem"></wiki-ref>：真值表上的永真式，在这里是证出来的。', 'A proof from givens, put in a box, becomes a <wiki-ref to="theorem"></wiki-ref> that needs nothing: a tautology from the truth tables, now proved.'),
   },
@@ -82,7 +102,7 @@ export const era2 = [
         step: T('一个方向', 'One direction'),
         tests: [{ premises: { p: 'A ↔ B', q: 'A' }, goal: 'B' }],
         cases: [{ A: 'Sat', B: 'Rest' }, { A: 'Coffee', B: 'Awake' }],
-        hint: [T('<part-ref to="part:andE"></part-ref>也能拆 ↔：拆出两个方向的「若…则…」，用对的那一个。', '<part-ref to="part:andE"></part-ref> splits ↔ too: into the two “if … then …”s; use the right one.')],
+        hint: [T('<part-ref to="lemma:andE"></part-ref>也能拆 ↔：拆出两个方向的「若…则…」，用对的那一个。', '<part-ref to="lemma:andE"></part-ref> splits ↔ too: into the two “if … then …”s; use the right one.')],
         solution: proof({ e: ['andE'], m: ['mp'] }, ['p>e.ab', 'e#left>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] }),
       }),
       prove({
@@ -95,7 +115,7 @@ export const era2 = [
       }),
     ],
     intro: [{ t: T('真值电路里，<level-ref to="g-iff"></level-ref>的等价 ↔ 是同真同假。证明核里，A ↔ B 就是两个方向的 → 都成立：「(A → B) ∧ (B → A)」，所以它当成一句 ∧ 来拆。', 'In the truth circuits, the equivalence ↔ of <level-ref to="g-iff"></level-ref> meant true together and false together. In the kernel, A ↔ B is the → holding both ways, “(A → B) ∧ (B → A)”, so it is taken apart as an ∧.') }],
-    after: T('等价能拆成两个方向，用哪个方向看手里有什么、要证什么。<part-ref to="part:andE"></part-ref>的说明里，从此多了这一句。', 'An equivalence splits into its two directions, and which one to use depends on what you hold and what you must prove. <part-ref to="part:andE"></part-ref>’s description now says so too.'),
+    after: T('等价能拆成两个方向，用哪个方向看手里有什么、要证什么。<part-ref to="lemma:andE"></part-ref>的说明里，从此多了这一句。', 'An equivalence splits into its two directions, and which one to use depends on what you hold and what you must prove. <part-ref to="lemma:andE"></part-ref>’s description now says so too.'),
   },
   {
     id: 'or',
@@ -127,7 +147,7 @@ export const era2 = [
     intro: [
       { t: T('要么我坐公交，要么我骑车，可还不知道是哪一个。坐公交的话，我准时到；骑车的话，我也准时到。所以不管是哪一个，我准时到。', 'Either I take the bus or I cycle, and you do not know which. If I take the bus, I arrive on time; if I cycle, I arrive on time too. So whichever it is, I arrive on time.') },
       { t: T('光有「我坐公交 ∨ 我骑车」，不能直接拆出「我坐公交」：说不定是骑车。办法是<b>每一种情况都试一遍</b>：先假设是左边那种，证出结论；再假设是右边那种，也证出同一个结论。两种都通，结论就成立。', 'From “I take the bus ∨ I cycle” alone you cannot take out “I take the bus”: perhaps I cycled. The way out is to <b>try every case</b>: assume the left one and prove the conclusion; assume the right one and prove the same conclusion. If both work, the conclusion holds.') },
-      { t: T('你声明「或者」时，核生成的消去规则就是这样：一条引入规则一种情况。<part-ref to="part:orE"></part-ref>像一个假设框，只是<b>有两个框</b>：情况一假设左边，情况二假设右边；两个框证出<b>同一句话</b>，它就给出这句话。', 'When you declared “or”, the case the kernel made is just this: one case for each way to make it. <part-ref to="part:orE"></part-ref> is like an assumption box, but with <b>two boxes</b>: case one assumes the left, case two the right; when both prove the <b>same sentence</b>, it gives that sentence.') },
+      { t: T('你声明「或者」以后，生成器给它生成的消去规则就是这样：一条引入规则一种情况。<part-ref to="part:orE"></part-ref>像一个假设框，只是<b>有两个框</b>：情况一假设左边，情况二假设右边；两个框证出<b>同一句话</b>，它就给出这句话。', 'Once you declared “or”, the rule the generator made for it is just this: one case for each way to make it. <part-ref to="part:orE"></part-ref> is like an assumption box, but with <b>two boxes</b>: case one assumes the left, case two the right; when both prove the <b>same sentence</b>, it gives that sentence.') },
     ],
     solution: proof({ e: ['orE'], m: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['p>e.ab', 'q>m.imp', 'e#left>m.a', 'm>e.left', 'r>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q', 'r'] }),
     after: T('不知道是哪一种，就每一种都证一遍。这就是用掉 ∨ 的规则：证明里的「分类讨论」。', 'Not knowing which, prove it for each. That is the rule that uses up an ∨: the “case analysis” of every proof.'),

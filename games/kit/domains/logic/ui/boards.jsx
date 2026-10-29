@@ -20,6 +20,7 @@ import { constructorsOf } from '../datatype.js'
 import { paramsOf } from '../../../engine/forms.js'
 import { portsOf } from '../../../engine/circuit.js'
 import { certificate, clauseFormula, refuted } from '../resolution.js'
+import { elimOf, genRuleText } from '../elimgen.js'
 import { printTerm } from '../pterm.js'
 import { MACHINE_TEXT, familyOf, iconOf, nameOf, partsFor, settingsOf, textOf, withRevisions } from './catalog.js'
 
@@ -157,6 +158,14 @@ const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` :
  */
 function MachineValue({ v, text, small = false }) {
   if (!v) return null
+  // The generator's values (chapter 3): a sentence, a rule, a list of them.
+  if (v.kind === 'sentence') return <span className="lg-formula"><b>{text(v.f)}</b></span>
+  if (v.kind === 'rule') return <span className="lg-formula"><code>{genRuleText(v.rule, text)}</code></span>
+  if (v.kind === 'list') {
+    const count = tr(`共 ${v.items.length} 样`, `${v.items.length} item${v.items.length === 1 ? '' : 's'}`)
+    if (small) return <span className="lg-clauses is-small"><small>{count}</small></span>
+    return <Entries className="lg-clauses" count={count}>{v.items.map((x, k) => <code key={k}>{`${k + 1}. ${genValueText(x, text)}`}</code>)}</Entries>
+  }
   if (v.kind === 'rules') {
     const count = tr(`${v.keys.length} 条规则`, `${v.keys.length} rule${v.keys.length === 1 ? '' : 's'}`)
     if (small) return <span className="lg-clauses is-small"><small>{count}</small></span>
@@ -203,7 +212,11 @@ function MachineValue({ v, text, small = false }) {
   )
 }
 
+// A generator value in one line.
+const genValueText = (v, text) => (v.kind === 'sentence' ? text(v.f) : v.kind === 'rule' ? genRuleText(v.rule, text) : v.items.map((x) => genValueText(x, text)).join(tr('；', '; ')))
+
 const WANT = {
+  elim: T('这份声明的消去规则', 'this declaration’s elimination rule'),
   clauses: T('拆成的子句', 'the clauses it splits into'),
   refuted: T('推出空子句 ⊥', 'the empty clause ⊥'),
   decide: T('推得出 ⊥ 就推出来；推不出，就饱和到再没有新子句', '⊥ if it follows; otherwise saturated, with no new clause left'),
@@ -258,6 +271,9 @@ const machineName = (level, type) => (isRulePart(level, type) ? rulePartName(lev
 /** The editor's description of a machine board (../../../circuit/model.js parts), for a level's inputs. */
 function machinePartsFor(level) {
   const labels = new Map(inputsOfLevel(level).map((i) => [i.name, i.label]))
+  // The generator's board (chapter 3) carries rules as values: it takes no rule parts.
+  const ruleParts = level.want === 'elim' ? new Map() : rulePartsOf(level)
+  const isRulePart = (_, type) => ruleParts.has(type) && !MACHINE_PARTS[type]
   return {
     inputs: (node) => (node.type === 'out' ? ['in'] : node.type === 'in' ? [] : MACHINE_PARTS[node.type] ? portsOf(MACHINE_PARTS[node.type], node) : isRulePart(level, node.type) ? portsOf(RULE_PART, node) : []),
     role: (node) => (node.type === 'in' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
@@ -273,7 +289,7 @@ function machinePartsFor(level) {
     cardWidth: (node) => (MACHINE_PARTS[node.type]?.frames ? 260 : node.type === 'in' || node.type === 'out' ? 190 : MACHINE_PARTS[node.type]?.built ? (node.open ? 480 : 210) : 170),
     frames: (node) => (MACHINE_PARTS[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: MACHINE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),
     text: FORMULA_TEXT,
-    rules: { ...Object.fromEntries(Object.entries(MACHINE_PARTS).filter(([type]) => type !== 'in' && type !== 'out')), ...Object.fromEntries([...rulePartsOf(level).keys()].map((type) => [type, RULE_PART])) },
+    rules: { ...Object.fromEntries(Object.entries(MACHINE_PARTS).filter(([type]) => type !== 'in' && type !== 'out')), ...Object.fromEntries([...ruleParts.keys()].map((type) => [type, RULE_PART])) },
   }
 }
 
@@ -296,8 +312,10 @@ export const MACHINE = {
     const labels = new Map(inputsOfLevel(level).map((i) => [i.name, i.label]))
     // A step's results, each its goals, or that it cannot be done.
     const becomes = test.becomes && (test.becomes.length ? `${tr('变成 ', 'it to become ')}${test.becomes.map((r) => (r.length ? r.map((g) => goalText(parseGoal(g), text)).join(' | ') : tr('证完', 'proved'))).join(tr('，或者 ', ', or '))}` : tr('这一步失败', 'the step to fail'))
-    const want = becomes ?? L(WANT[test.want ?? level.want])
-    const show = (v) => (v.kind === 'rules' ? v.entries.map((e) => ruleWritten(e, text)).join(tr('；', '; ')) : v.kind === 'state' ? v.goals.map((g) => goalText(g, text)).join(tr('；', '; ')) : v.kind === 'eqs' ? v.eqs.map((e) => eqText(e, text)).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormula(c))).join(tr('；', '; ')))
+    // The generator's test shows the elimination rule it wants: the specification, one declaration at a time.
+    const elim = test.elim && `${tr('消去规则 ', 'the elimination rule ')}${genRuleText(elimOf(test), text)}`
+    const want = becomes ?? elim ?? L(WANT[test.want ?? level.want])
+    const show = (v) => (['sentence', 'rule', 'list'].includes(v.kind) ? genValueText(v, text) : v.kind === 'rules' ? v.entries.map((e) => ruleWritten(e, text)).join(tr('；', '; ')) : v.kind === 'state' ? v.goals.map((g) => goalText(g, text)).join(tr('；', '; ')) : v.kind === 'eqs' ? v.eqs.map((e) => eqText(e, text)).join(tr('；', '; ')) : v.set.map((c) => text(clauseFormula(c))).join(tr('；', '; ')))
     return {
       sequent: <>{level.datatypes && <span>{tr('类型', 'Types')} <b>{Object.entries(level.datatypes).map(([type, d]) => `${type} = ${constructorsOf(d).map((c) => text({ op: 'atom', pred: '=', args: [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))] }).split(' = ')[0]).join(' | ')}`).join(tr('；', '; '))}</b> · </span>}{level.defs?.length > 0 && <span>{tr('定义', 'Definitions')} <b>{level.defs.map((d) => defText(d, text)).join(tr('；', '; '))}</b> · </span>}{Object.entries(inputs).map(([name, v]) => <span key={name}>{L(labels.get(name) ?? T('输入', 'Input'))} <b>{show(v)}</b> · </span>)}{tr('要', 'want')} <b>{want}</b></>,
       want: <span className="lg-want">{tr('要', 'Want')} <b>{want}</b></span>,
