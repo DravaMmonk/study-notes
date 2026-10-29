@@ -3,7 +3,8 @@
 // than A and B; and a connective is written as its symbol only once the course has introduced it (`symbols`), in
 // words before that ("若下雨，则地湿"). Formulas themselves stay letters underneath (formula.js).
 //
-//   notation  { words: { letter: { zh, en } } | null, symbols: [connective] }
+//   notation  { words: { letter: { zh, en } } | null, symbols: [connective], brackets?: every connective inside another
+//             in brackets, not just → and ↔ (a task's brief) }
 //
 // First-order words (chapter 6 on): a predicate's words are a template, its arguments as {0}, {1}
 // (Human: { zh: '{0}是人' }), and a constant's words are its name (ann: { zh: '安' }); a variable stays itself.
@@ -58,8 +59,10 @@ export function render(f, notation, lang, outer = -1) {
     case '∀': case '∃': return known(f.op) ? wrap(`${f.op}${f.v}. ${render(f.body, notation, lang, -1)}`, -1) : wrap(QUANT[f.op][lang](f.v, render(f.body, notation, lang, -1)), -1)
     default: {
       const p = BIN[f.op]
-      // An → or ↔ inside another connective always keeps its brackets: A → (B → A), never A → B → A.
-      const side = (g, level) => (g.op === '→' || g.op === '↔' ? `(${render(g, notation, lang)})` : render(g, notation, lang, level))
+      // An → or ↔ inside another connective always keeps its brackets: A → (B → A), never A → B → A; with
+      // `brackets` (a task's brief) every connective inside another does: A ∨ (B ∧ C).
+      const inner = (g) => g.op === '→' || g.op === '↔' || (notation.brackets && BIN[g.op] !== undefined)
+      const side = (g, level) => (inner(g) ? `(${render(g, notation, lang)})` : render(g, notation, lang, level))
       if (known(f.op)) return wrap(`${side(f.a, f.op === '→' ? p + 1 : p)} ${f.op} ${side(f.b, f.op === '→' ? p : p + 1)}`, p)
       return WORDS[f.op][lang](part(f.a), part(f.b))
     }

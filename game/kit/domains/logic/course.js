@@ -107,7 +107,8 @@ function machineLabel(test, notation) {
  */
 function proofBrief(schema, level, notation) {
   const consts = level.consts ?? []
-  const write = (text, lang) => render(parse(text, { consts }), notation, lang)
+  // Every connective inside another keeps its brackets: A ∨ (B ∧ C), so the task reads one way only.
+  const write = (text, lang) => render(parse(text, { consts }), { ...notation, brackets: true }, lang)
   const premises = Object.entries(schema.premises ?? {})
   const given = (lang, quote) => premises.map(([name, text]) => `${level.terms ? `${name}${lang === 'zh' ? '：' : ': '}` : ''}${quote(write(text, lang))}`)
   const zhQuote = (t) => `「${t}」`
