@@ -218,7 +218,9 @@ export default {
     { solve: ['q-exI', ['decl-ex']] },
     { solve: ['q-eq', ['decl-eq']] },
     { solve: ['in-distinct', ['decl-nat']] },
-  ] }],
+  ] },
+  // Version 46 split 不用框：恒等与说一遍 back into two levels, 不用框恒等 and 不用框合并.
+  { version: 46, ops: [{ split: ['x-merge', ['x-self', 'x-merge']] }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],

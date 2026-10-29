@@ -13,6 +13,9 @@
 //   { merge: [level id, [level id…]] }       levels that became the tasks of one level, in order: their boards make
 //                                            its list of task boards, the run of them solved from the first its tasks
 //                                            passed (all of them: the level solved); their other slots are dropped
+//   { split: [level id, [level id…]] }       a level whose tasks became levels of their own, in order (the reverse
+//                                            of merge): each takes its task's board, and those its tasks passed are
+//                                            solved; the level's other slots are dropped
 //
 // migrations(steps) gives the shell's { version, migrate } (progress.js): version is the newest step's.
 
@@ -63,6 +66,20 @@ const OPS = {
     if (save.best?.[ids.at(-1)]) out.best[into] = save.best[ids.at(-1)]
     if (save.introSeen && ids.some((id) => save.introSeen[id])) out.introSeen[into] = ids.map((id) => save.introSeen[id]).find(Boolean)
     if (passed && passed < ids.length) out.tasks = { ...out.tasks, [into]: passed }
+    return out
+  },
+  split: (save, [from, ids]) => {
+    const solved = save.solved ?? []
+    const passed = solved.includes(from) ? ids.length : save.tasks?.[from] ?? 0
+    const out = { ...save, solved: [...new Set([...solved.filter((id) => id !== from), ...ids.slice(0, passed)])] }
+    for (const field of RECORDS) {
+      if (!save[field]) continue
+      out[field] = Object.fromEntries(Object.entries(save[field]).filter(([id]) => id !== from))
+    }
+    const boards = save.data?.[from]
+    if (Array.isArray(boards)) ids.forEach((id, k) => { if (boards[k] != null) out.data[id] = boards[k] })
+    if (save.best?.[from]) out.best[ids.at(-1)] = save.best[from]
+    if (save.introSeen?.[from]) out.introSeen[ids[0]] = save.introSeen[from]
     return out
   },
   solve: (save, [level, ids]) => ((save.solved ?? []).includes(level) ? { ...save, solved: [...new Set([...save.solved, ...ids])] } : save),

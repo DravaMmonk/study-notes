@@ -39,6 +39,10 @@ export const ERAS = [
       // prover then uses both parts together.
       branches(['apply', '套用', 'Apply', ['mp', 'nested']], ['assume', '假设框', 'Assumption box', ['assume']]),
       'box',
+      // Proofs kept as parts (definitions): Chain, Swap and Merge, each built with boxes alone, on two lines that need
+      // nothing from each other; then the three together, harder each time.
+      branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
+      'mergeLong',
       // K and S, each proved with boxes and built as a part, need nothing from each other.
       branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
     ],
@@ -50,25 +54,21 @@ export const ERAS = [
     topics: [
       { id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k'], title: T('拆掉框', 'Without the box') },
       { id: 'nobox-chain', code: 'X', after: 'x-k', levels: ['x-chain', 'x-swap'], title: T('拆掉框：接起来与换顺序', 'Without the box: joining and reordering') },
-      { id: 'nobox-merge', code: 'X', after: 'x-k', levels: ['x-merge'], title: T('拆掉框：恒等与说一遍', 'Without the box: identity and once') },
+      { id: 'nobox-merge', code: 'X', after: 'x-k', levels: ['x-self', 'x-merge'], title: T('拆掉框：恒等与合并', 'Without the box: identity and merging') },
     ],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠套用和假设框，能证出什么？', 'What can Apply and the assumption box prove?') },
   },
   {
     id: 'packing', machine: 'prover',
-    // The kernel's two parts carry on. First definitions: proofs given a name (Chain, Swap, Merge) on two lines, then
-    // three levels with them. Then declarations: "and", "or" and the contradiction come into the kernel by their ways to
-    // make them, each written as a rule with assumption cards (declare.js); an optional topic declares more (D).
+    // The kernel's parts and the definitions built with them carry on. Declarations: "and", "or" and the contradiction
+    // come into the kernel by their intro rules, each written as a rule with assumption cards (declare.js); an optional
+    // topic declares more (D).
     keeps: 'all',
     foundation: [
-      // Chain, Swap and Merge, each built with boxes alone, on two lines that need nothing from each other; then the
-      // three together, harder each time.
-      branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
-      'mergeLong',
       'decl-and', 'decl-or', 'decl-bot',
     ],
     topics: [{ id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') }],
-    chapter: { title: T('定义和声明', 'Definitions and declarations'), question: T('怎样把「与」「或」「非」引入证明核？', 'How do “and”, “or” and “not” come into the kernel?') },
+    chapter: { title: T('声明', 'Declarations'), question: T('怎样把「与」「或」「非」引入证明核？', 'How do “and”, “or” and “not” come into the kernel?') },
   },
   {
     id: 'boxes', machine: 'prover',
