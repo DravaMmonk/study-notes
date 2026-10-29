@@ -3,11 +3,10 @@ import { CircleDashed, CircleDot, FileSignature, SquareDashedText } from 'lucide
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
+import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, freeSpot, useSlotEditing } from '../../../circuit/index.js'
 import FormulaField from './FormulaField.jsx'
 import { say } from '../notation.js'
 import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, runIso, sentenceOf, settle, startIso, thingCard, wayOf, wayRule, wayText, waysIn } from '../iso.js'
-import { RULE_TEXT } from './catalog.js'
 import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
 
@@ -28,7 +27,7 @@ function isoPartsFor(level, words) {
     role: (node) => (node.type === DECL ? 'sink' : 'part'),
     label: (node) => (node.type === 'hyp' ? T('假设', 'Assume') : node.type === 'none' ? NONE.label : node.type === 'thing' ? THING.label
       : T(`「${level.declare.zh}」`, `“${level.declare.en}”`)),
-    portLabel: (node, port) => (node.type === DECL ? T(`造法 ${WAY[Number(port.slice(1)) - 1]}`, `Way ${WAY[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' || node.type === 'thing' ? T('先假设', 'Assumed first') : ''),
+    portLabel: (node, port) => (node.type === DECL ? T(`引入规则 ${WAY[Number(port.slice(1)) - 1]}`, `Intro rule ${WAY[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' || node.type === 'thing' ? T('先假设', 'Assumed first') : ''),
     family: (node) => (node.type === DECL ? 'lemma' : 'box'),
     icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === 'none' ? CircleDashed : node.type === 'thing' ? CircleDot : FileSignature),
     cardWidth: () => 220,
@@ -37,11 +36,17 @@ function isoPartsFor(level, words) {
 }
 
 const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => (n.type === 'hyp' && n.locked) || n.type === 'case') && circuit.wires.every((w) => !w.to.startsWith('hyp-') || w.port === 'before')
-const HYP_DESC = T('假设一句话。一张假设接进它的「先假设」，就是先假设那句、再假设这句；它接进连接词的造法口，这一串就是一种造法。', 'Assume a sentence. An assumption wired into its “assumed first” is assumed before it; wired into a way of the connective, the chain is one way to make it.')
+const HYP_DESC = T('假设一句话。一张假设接进它的「先假设」，就是先假设那句、再假设这句；它接进连接词的引入规则口，这一串就是一条引入规则。', 'Assume a sentence. An assumption wired into its “assumed first” is assumed before it; wired into a way of the connective, the chain is one way to make it.')
 const HYP = { type: 'hyp', label: T('假设', 'Assume'), desc: HYP_DESC, icon: SquareDashedText, family: 'box' }
-const NONE = { type: 'none', label: T('不用假设', 'Assume nothing'), desc: T('什么都不假设。接进连接词的造法口，这种造法不要任何证明就能造。', 'Assume nothing. Wired into a way of the connective, that way makes it with no proof at all.'), icon: CircleDashed, family: 'box' }
-const THING = { type: 'thing', label: T('任取一样东西', 'Any thing'), desc: T('任取一样东西，给它一个名字。接在它后面的假设可以提到这个名字：这样的造法对任何东西都成立。', 'Take any thing and give it a name. The assumptions after it may mention the name: such a way holds for any thing at all.'), icon: CircleDot, family: 'box' }
+const NONE = { type: 'none', label: T('不用假设', 'Assume nothing'), desc: T('什么都不假设。接进连接词的引入规则口，这条引入规则不要任何证明就能造。', 'Assume nothing. Wired into a way of the connective, that way makes it with no proof at all.'), icon: CircleDashed, family: 'box' }
+const THING = { type: 'thing', label: T('任取一样东西', 'Any thing'), desc: T('任取一样东西，给它一个名字。接在它后面的假设可以提到这个名字：这样的引入规则对任何东西都成立。', 'Take any thing and give it a name. The assumptions after it may mention the name: such a way holds for any thing at all.'), icon: CircleDot, family: 'box' }
 const TRAY = { hyp: HYP, none: NONE, thing: THING }
+// Where a new card goes: the first free spot left of the declared card (the board's output), column by column
+// leftward, so what is wired into it reads left to right.
+const spotLeft = (circuit) => {
+  const decl = circuit.nodes.find((n) => n.id === DECL)
+  return freeSpot({ nodes: circuit.nodes.filter((n) => !n.in) }, { w: 240, h: 150, x0: (decl?.x ?? 320) - 260, dx: -260, cols: 3, y0: decl?.y ?? 40 })
+}
 
 export default function IsoScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
@@ -90,7 +95,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const verdict = run?.over ? { pass: playback.passed } : null
   const failed = run?.over && !playback.passed ? checked.results[run.results.length - 1] : null
   const verdictText = !verdict ? null : verdict.pass
-    ? tr('每一种情况都对：证得出的时候，拆法在那种造法的情况下正好取回交进去的证明；证不出的时候，哪种造法都凑不齐。', 'Every situation is right: when it is proved, the case of the way it was made by gets back the very proofs handed in; when it is not, no way has all it needs.')
+    ? tr('每一种情况都对：证得出的时候，消去规则在那条引入规则的情况下正好取回交进去的证明；证不出的时候，哪条引入规则都凑不齐。', 'Every situation is right: when it is proved, the case of the way it was made by gets back the very proofs handed in; when it is not, no way has all it needs.')
     : run.final || L(failed.reason)
 
   // What each card says in the situation picked.
@@ -111,11 +116,11 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
       if (at === 'tile') return <div className="lg-card"><Value f={sentenceOf(level, node.params.name)} /></div>
       return <div className="lg-card"><FormulaField label={T('假设', 'Assume')} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /></div>
     }
-    const way = (k) => (at === 'sheet' ? tr(`造法 ${WAY[k]}：`, `Way ${WAY[k]}:`) : `${WAY[k]}.`)
+    const way = (k) => (at === 'sheet' ? tr(`引入规则 ${WAY[k]}：`, `Intro rule ${WAY[k]}:`) : `${WAY[k]}.`)
     return (
       <div className="lg-card">
         {ways > 0 && <Entries className="lg-clauses">{Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <code key={k}>{`${way(k)} ${wayText(wayRule(wayOf(rule), level), text)}`}</code>)}</Entries>}
-        {view.made ? <span className="lg-tv is-true">{tr(`证得出：造法 ${WAY[view.made.way - 1]}`, `Proved by way ${WAY[view.made.way - 1]}`)}</span> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
+        {view.made ? <span className="lg-tv is-true">{tr(`证得出：引入规则 ${WAY[view.made.way - 1]}`, `Proved by intro rule ${WAY[view.made.way - 1]}`)}</span> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
       </div>
     )
   }
@@ -134,7 +139,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
               {goals && <th>{tr('要证', 'To prove')}</th>}
               {held.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
               <th>{tr(`「${level.declare.zh}」`, `“${level.declare.en}”`)}</th>
-              <th>{tr('拆法取回', 'Case gets back')}</th>
+              <th>{tr('消去规则取回', 'Elim rule gets back')}</th>
             </tr>
           </thead>
           <tbody>
@@ -160,7 +165,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
 
   const items = (level.tray ?? ['hyp']).map((t) => TRAY[t])
   const add = (type) => {
-    const [x, y] = spotIn(circuit, null)
+    const [x, y] = spotLeft(circuit)
     change(addPart(type, { x, y }).graph)
   }
   if (phone) return <PhoneIso {...{ circuit, parts, items, addPart, brief, dock, change, onClear, table, body }} scope={level.id} />
@@ -186,7 +191,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
               body={body}
               cardClass={() => 'lg-node'}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
-              emptyNote={{ zh: '从上面拿一张假设，选它假设哪一句；一张假设接进另一张的「先假设」，是同一种造法要两样；假设接进连接词的造法口，就是一种造法。', en: 'Take an assumption from above and pick the sentence it assumes; one wired into another’s “assumed first” is one way needing both; one wired into a way of the connective is one way to make it.' }}
+              emptyNote={{ zh: '从上面拿一张假设，选它假设哪一句；一张假设接进另一张的「先假设」，是同一条引入规则要两样；假设接进连接词的引入规则口，就是一条引入规则。', en: 'Take an assumption from above and pick the sentence it assumes; one wired into another’s “assumed first” is one way needing both; one wired into a way of the connective is one way to make it.' }}
             />
           </div>
         </div>
@@ -209,7 +214,7 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
     onChange: change,
     parts,
     create: (_, type, at) => {
-      const [x, y] = spotIn(circuit, null)
+      const [x, y] = spotLeft(circuit)
       return addPart(type, { slot: at, x, y })
     },
     label: parts.label,
@@ -256,7 +261,8 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
 
 /**
  * What passing a declaration gives, shown when it is passed: its rules for any sentences, those that make it (one
- * for each way) and the one the kernel made to take it apart, and the proof-board parts they are from here on.
+ * for each way) and the one the kernel made to take it apart. The proof-board parts they are from here on are listed
+ * with what the level unlocks (game.jsx unlocked).
  */
 export function DeclaredRules({ level }) {
   const text = (f) => L(say(f, level.notation))
@@ -265,10 +271,9 @@ export function DeclaredRules({ level }) {
     <div className="dialog-note">
       <span className="panel-label">{tr('声明给出的规则', 'The rules it declares')}</span>
       <div className="lg-clauses">
-        {rules.make.map((r, k) => <code key={k}>{tr(`造法 ${WAY[k]}：`, `Way ${WAY[k]}: `)}{wayText(r, text)}</code>)}
-        <code>{tr('拆法：', 'Cases: ')}{wayText(rules.take, text)}</code>
+        {rules.make.map((r, k) => <code key={k}>{tr(`引入规则 ${WAY[k]}：`, `Intro rule ${WAY[k]}: `)}{wayText(r, text)}</code>)}
+        <code>{tr('消去规则：', 'Elim rule: ')}{wayText(rules.take, text)}</code>
       </div>
-      {level.adds?.length > 0 && <p>{tr('证明板上从此多了：', 'On the proof board from now on: ')}{level.adds.map((type) => L(RULE_TEXT[type].name)).join(tr('、', ', '))}</p>}
     </div>
   )
 }
