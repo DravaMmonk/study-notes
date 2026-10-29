@@ -13,7 +13,8 @@ import { PROOF } from './boards.jsx'
 // A connective declared by its ways to make it (iso.js) on the shared circuit editor: assumption cards from the tray,
 // each picking the sentence it assumes, chained to write each way as a rule, and the connective's card, the board's
 // output, whose inputs grow as ways are wired. Each test is a situation, one row of the table under the board: which
-// proofs are at hand, and whether the connective is proved and by which way. Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
+// proofs are at hand, and whether the connective is proved and by which way; or, using it, what follows with it at hand
+// (a second table). Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
 
 const T = (zh, en) => ({ zh, en })
 // Ways are numbered 1 2 3, apart from the board's own part numbers (①②…); on a card a way is "1.".
@@ -93,7 +94,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const verdict = run?.over ? { pass: playback.passed } : null
   const failed = run?.over && !playback.passed ? checked.results[run.results.length - 1] : null
   const verdictText = !verdict ? null : verdict.pass
-    ? tr('每一种情况都对：该证得出的，有一条引入规则凑得齐；证不出的，哪条引入规则都凑不齐。', 'Every situation is right: where it should be proved, some intro rule has all it needs; where not, none has.')
+    ? tr('每一种情况都对：该证得出的，有一条引入规则凑得齐；证不出的，哪条都凑不齐；手里有它时，推得出的正好是每条来路都推得出的。', 'Every situation is right: where it should be proved, some intro rule has all it needs, and where not, none has; with it at hand, what follows is just what every way in gives.')
     : run.final || L(failed.reason)
 
   // What each card says in the situation picked.
@@ -126,8 +127,14 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   // The table's columns: the sentence each situation asks about (when the declared sentence mentions a thing), and
   // every proof any situation has at hand.
-  const goals = level.tests.some((t) => t.goal)
-  const held = [...new Set(level.tests.flatMap((t) => Object.keys(t.have)))]
+  // Two tables: making it (the proofs at hand, and whether it is proved) and using it (what is at hand besides it, the
+  // sentence to get, and whether it follows).
+  const rows = level.tests.map((t, k) => ({ t, k })).filter(({ t }) => !t.get)
+  const uses = level.tests.map((t, k) => ({ t, k })).filter(({ t }) => t.get)
+  const goals = rows.some(({ t }) => t.goal)
+  const held = [...new Set(rows.flatMap(({ t }) => Object.keys(t.have)))]
+  const shown = (t, k) => (run ? k < run.results.length : t === test)
+  const rowClass = (t, k) => `${t === test ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`
   const table = (
     <div className="lg-strip">
       <div className="lg-scroll-x">
@@ -140,19 +147,34 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
             </tr>
           </thead>
           <tbody>
-            {level.tests.map((t, k) => {
+            {rows.map(({ t, k }) => {
               const r = checked.results[k]
-              const shownRow = run ? k < run.results.length : t === test
               return (
-                <tr key={k} className={`${t === test ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => setTestIndex(k)}>
+                <tr key={k} className={rowClass(t, k)} onClick={() => setTestIndex(k)}>
                   {goals && <td>{t.goal ? L(words(t.goal)) : ''}</td>}
                   {held.map((l) => <td key={l}>{t.have[l] ? `#${t.have[l]}` : '—'}</td>)}
-                  <td>{shownRow ? (r.made ? tr(`证得出：${WAY[r.made.way - 1]}`, `Proved: ${WAY[r.made.way - 1]}`) : tr('证不出', 'Not proved')) : ''}</td>
+                  <td>{shown(t, k) ? (r.made ? tr(`证得出：${WAY[r.made.way - 1]}`, `Proved: ${WAY[r.made.way - 1]}`) : tr('证不出', 'Not proved')) : ''}</td>
                 </tr>
               )
             })}
           </tbody>
         </table>
+        {uses.length > 0 && (
+          <table className="lg-rows">
+            <thead>
+              <tr><th>{tr('手里有', 'At hand')}</th><th>{tr('推出', 'To get')}</th><th /></tr>
+            </thead>
+            <tbody>
+              {uses.map(({ t, k }) => (
+                <tr key={k} className={rowClass(t, k)} onClick={() => setTestIndex(k)}>
+                  <td>{[level.target, ...(t.holds ?? [])].map((x) => L(words(x))).join(tr('，', ', '))}</td>
+                  <td>{L(words(t.get))}</td>
+                  <td>{shown(t, k) ? (checked.results[k].got ? tr('推得出', 'Follows') : tr('推不出', 'Does not follow')) : ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
