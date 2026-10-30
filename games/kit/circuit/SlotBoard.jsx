@@ -295,7 +295,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   }
 
   return (
-    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={fixed ? 'all' : wires}>
+    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires}>
       <div className="pb-tools">
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {/* Always there on an editable board; greyed out while there is nothing to clear (no onClear). */}
