@@ -245,7 +245,7 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
         <span className="map-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={9} />}</span>
         <span className="map-node-id">{game.levelLabel(level)}</span>
         <span className="map-node-title">{L(level.title)}</span>
-        {score ? <span className="map-node-best">{score}</span> : kind?.icon && !compact && <span className="map-node-kind" aria-label={L(kind.label)}>{createElement(kind.icon, { size: 13 })}</span>}
+        {score ? <span className="map-node-best">{score}</span> : kind?.icon && !compact && <span className="map-node-kind" aria-label={L(kind.label)}>{createElement(kind.icon, { size: game.core(level) ? 13 : 12 })}</span>}
       </button>
     )
   }
