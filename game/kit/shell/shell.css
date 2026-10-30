@@ -595,12 +595,6 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .level-phone .rt-add { align-self: stretch; justify-content: center; gap: 8px; min-height: 48px; border-width: 1.5px; border-radius: 12px; color: var(--body); font-size: 15px; font-weight: 600; }
 .level-phone .rt-add svg { width: 18px; height: 18px; }
 .rt-form { display: flex; flex-direction: column; gap: 18px; padding: 6px 0 4px; }
-.rt-form-foot { display: flex; align-items: center; gap: 8px; }
-.rt-form-foot button { min-height: 40px; padding: 0 16px; border: 1px solid var(--rule); border-radius: 10px; background: transparent; color: var(--body); font: inherit; font-size: 14px; cursor: pointer; }
-.rt-form-foot button.is-primary { border-color: var(--ink); background: var(--ink); color: var(--paper); font-weight: 600; }
-.rt-form-foot button.is-primary:disabled { opacity: .4; cursor: default; }
-.rt-form-foot .rt-delete { display: inline-flex; align-items: center; gap: 4px; color: var(--fail); border-color: transparent; padding: 0 8px; }
-.rt-why { flex: 1; color: var(--muted); font-size: 12px; text-align: right; }
 .ff-field { display: flex; flex-direction: column; gap: 8px; }
 .ff-label { color: var(--muted); font-size: 12px; letter-spacing: .04em; }
 .ff-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }

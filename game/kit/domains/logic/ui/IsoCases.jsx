@@ -66,7 +66,7 @@ export default function CaseTable({ cases, words, level, choices = [], edit = nu
       blank={() => blankCase(level)}
       max={MOST}
       addLabel={T('添加条例', 'Add a test case')}
-      formTitle={(k) => (k === null ? T('新的检验条例', 'New test case') : T(`第 ${k + 1} 条检验条例`, `Test case ${k + 1}`))}
+      formTitle={(k) => T(`第 ${k + 1} 条检验条例`, `Test case ${k + 1}`)}
       rowClass={rowClass}
       onPick={onPick}
       empty={edit ? T('还没有条例。', 'No test case yet.') : null}
