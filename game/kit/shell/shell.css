@@ -560,21 +560,29 @@ level-ref, part-ref, wiki-ref { display: inline; }
 
 /* A table the player fills in (RowTable.jsx): tall rows that open a form, a large add button, and the form's fields
    (FormFields.jsx). */
-.rt { display: flex; flex-direction: column; gap: 10px; min-width: 0; max-width: 100%; }
-.rt-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
-.rt-table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 13px; }
-.rt-table th { padding: 6px 12px; color: var(--muted); font-weight: 500; text-align: center; border-bottom: 1px solid var(--hairline); }
-.rt-table td { padding: 12px; text-align: center; vertical-align: middle; border-bottom: 1px solid var(--hairline); }
+.rt { display: flex; flex-direction: column; gap: 8px; min-width: 0; max-width: 100%; }
+.rt-scroll { max-width: 100%; overflow-x: auto; }
+.rt-table { border-collapse: collapse; width: max-content; max-width: 100%; font-size: 12.5px; }
+.rt-table th { padding: 3px 10px; color: var(--muted); font-weight: 500; text-align: center; border-bottom: 1px solid var(--hairline); }
+.rt-table td { padding: 3px 10px; text-align: center; vertical-align: middle; border-bottom: 1px solid var(--hairline); }
 .rt-table .is-start { text-align: left; }
-/* A column is as wide as its text, up to about sixteen characters; longer text wraps. */
-.rt-cell { width: max-content; max-width: 16em; margin: 0 auto; }
-.rt-table .is-start .rt-cell { margin: 0; }
 .rt-row.is-editable { cursor: pointer; }
 .rt-row.is-editable:hover, .rt-row.is-editable:focus-visible { background: var(--hover, rgba(0,0,0,.04)); outline: none; }
 .rt-row.is-on { background: var(--hover, rgba(0,0,0,.05)); }
-.rt-empty { margin: 8px 12px; color: var(--muted); font-size: 13px; }
-.rt-add { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; border: 1.5px dashed var(--rule); border-radius: 12px; background: transparent; color: var(--body); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
-.rt-add:hover { border-color: var(--ink); color: var(--ink); }
+.rt-empty { margin: 6px 10px; color: var(--muted); font-size: 12.5px; }
+.rt-add { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px dashed var(--rule); border-radius: 6px; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; cursor: pointer; }
+.rt-add:hover { color: var(--ink); }
+.rt-add svg { width: 14px; height: 14px; }
+/* On a phone: a window of its own that scrolls sideways, columns as wide as their text (wrapping past about sixteen
+   characters), tall rows to tap, and a large add button. */
+.level-phone .rt-scroll { overscroll-behavior-x: contain; }
+.level-phone .rt-table { max-width: none; min-width: 100%; font-size: 13px; }
+.level-phone .rt-table th { padding: 6px 12px; }
+.level-phone .rt-table td { padding: 12px; }
+.level-phone .rt-cell { width: max-content; max-width: 16em; margin: 0 auto; }
+.level-phone .rt-table .is-start .rt-cell { margin: 0; }
+.level-phone .rt-add { align-self: stretch; justify-content: center; gap: 8px; min-height: 48px; border-width: 1.5px; border-radius: 12px; color: var(--body); font-size: 15px; font-weight: 600; }
+.level-phone .rt-add svg { width: 18px; height: 18px; }
 .rt-form { display: flex; flex-direction: column; gap: 18px; padding: 6px 0 4px; }
 .rt-form-foot { display: flex; align-items: center; gap: 8px; }
 .rt-form-foot button { min-height: 40px; padding: 0 16px; border: 1px solid var(--rule); border-radius: 10px; background: transparent; color: var(--body); font: inherit; font-size: 14px; cursor: pointer; }
