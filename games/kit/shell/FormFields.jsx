@@ -65,24 +65,34 @@ export function ChoiceField({ label, value, options, onChange }) {
 
 // The same fields small, inside a table cell (RowTable on a desktop, editing in place): no label of their own.
 
-/** Several values in order, in a cell: each with ×, and a drop-down adding the rest. */
+/**
+ * Several values in order, in a cell: each with ×, and a drop-down adding the rest. With none yet the drop-down says
+ * what it adds; once there is one, it is a small 「添加…」 button on the last value's line.
+ */
 export function InlineList({ value, options, onChange, addLabel }) {
   const name = (v) => L(options.find((o) => o.value === v)?.label ?? v)
   const rest = options.filter((o) => !value.includes(o.value))
+  const select = (className, first) => (
+    <select className={className} value="" aria-label={L(addLabel)} onClick={(e) => e.stopPropagation()} onChange={(e) => e.target.value && onChange([...value, e.target.value])}>
+      <option value="">{first}</option>
+      {rest.map((o) => <option key={o.value} value={o.value}>{L(o.label)}</option>)}
+    </select>
+  )
+  // The small button is its words, with the drop-down laid invisibly over them (a drop-down is as wide as its longest
+  // choice).
+  const adding = (small) => rest.length > 0 && (small
+    ? <label className="ff-inline-add"><span>{tr('添加…', 'Add…')}</span>{select('', tr('添加…', 'Add…'))}</label>
+    : select('ff-inline-select', L(addLabel)))
   return (
     <div className="ff-inline-list">
       {value.map((v, i) => (
         <span key={v}>
           {`${i + 1}. ${name(v)}`}
           <button type="button" aria-label={tr('移除', 'Remove')} onClick={(e) => { e.stopPropagation(); onChange(value.filter((x) => x !== v)) }}><X size={12} /></button>
+          {i === value.length - 1 && adding(true)}
         </span>
       ))}
-      {rest.length > 0 && (
-        <select className="ff-inline-select" value="" onClick={(e) => e.stopPropagation()} onChange={(e) => e.target.value && onChange([...value, e.target.value])}>
-          <option value="">{L(addLabel)}</option>
-          {rest.map((o) => <option key={o.value} value={o.value}>{L(o.label)}</option>)}
-        </select>
-      )}
+      {!value.length && adding(false)}
     </div>
   )
 }
