@@ -170,7 +170,7 @@ export const strategies = [
       { goal: 'Wet', hyps: ['Rain'], becomes: [] },
     ],
     brief: T('设计一个证明助手：每一条消去规则都拿去对已知，每一种对法都留下；一条都对不上的，失败。', 'Design a proof assistant that tries every elimination rule on the givens, keeping every fit; when none fits, it fails.'),
-    hint: [T('消去规则有六条：拆解、分类讨论、套用、矛盾推出一切、实例框、选定一例。', 'There are six elimination rules: Split, Case analysis, Apply, from contradiction, take the one there is, take one.'), T('每条一个框，框里是<part-ref to="lemma:erule"></part-ref>。', 'One region each, with <part-ref to="lemma:erule"></part-ref> in it.')],
+    hint: [T('消去规则有六条：拆解、分类讨论、套用、爆炸、实例框、选定一例。', 'There are six elimination rules: Split, Case analysis, Apply, Explosion, the instance box, choose an instance.'), T('每条一个框，框里是<part-ref to="lemma:erule"></part-ref>。', 'One region each, with <part-ref to="lemma:erule"></part-ref> in it.')],
     intro: [{ t: T('消去规则看的是已知：已知是什么结构，就能怎样用它。设计出的证明助手会成为新元件「分解假设」。', 'Elimination rules look at the givens: a given’s shape says how it can be used. The proof assistant you design becomes a new part, “Use a given”.') }],
     solution: flow({ ways: [[['erule', 'conjE']], [['erule', 'disjE']], [['erule', 'impE']], [['erule', 'botE']], [['erule', 'exE']], [['erule', 'allE']]] }),
   }),

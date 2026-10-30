@@ -141,7 +141,7 @@ export const terms = [
       { premises: { p: 'Rain ∧ Wind → Wet' }, goal: 'Rain → (Wind → Wet)', answer: 'fun a b => p ⟨a, b⟩', hint: [T('拼接写成「⟨□, □⟩」：拿到 a 和 b，拼成一对交给 p。', 'Join is “⟨□, □⟩”: given a and b, make a pair and give it to p.')] },
       { premises: { p: 'Rain → (Wind → Wet)' }, goal: 'Rain ∧ Wind → Wet', answer: 'fun a => p a.1 a.2', hint: [T('拆解写成「□.1」「□.2」：拿到的 a 是一对，p 要的却是一个一个。', 'Split is “□.1” and “□.2”: the a you get is a pair, but p wants them one at a time.')] },
       { premises: { p: 'Rain ∨ Sat' }, goal: 'Sat ∨ Rain', answer: 'p.elim (fun a => Or.inr a) (fun b => Or.inl b)', hint: [T('分情况写成「□.elim (fun _ => □) (fun _ => □)」，补充写成 Or.inl、Or.inr：每种情况各贴到新「或者」的哪一边？', 'Cases is “□.elim (fun _ => □) (fun _ => □)”, Add alternative is Or.inl or Or.inr: in the new “or”, which side does each case go?')] },
-      { premises: { p: 'Rain', q: '¬Rain' }, goal: 'Rest', answer: 'False.elim (q p)', hint: [T('矛盾推出一切写成「False.elim □」；q 用在 p 上是矛盾。', 'From contradiction is “False.elim □”; q used on p is the contradiction.')] },
+      { premises: { p: 'Rain', q: '¬Rain' }, goal: 'Rest', answer: 'False.elim (q p)', hint: [T('爆炸写成「False.elim □」；q 用在 p 上是矛盾。', 'Explosion is “False.elim □”; q used on p is the contradiction.')] },
     ]),
     after: T('A ∧ B → C 和 A → (B → C) 可以互相改写，这叫<wiki-ref to="currying"></wiki-ref>。', 'A ∧ B → C and A → (B → C) can each be rewritten as the other. This is <wiki-ref to="currying"></wiki-ref>.'),
   },

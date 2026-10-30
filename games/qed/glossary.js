@@ -122,7 +122,7 @@ export const GLOSSARY = [
     see: ['counterexample'],
   },
   {
-    id: 'explosion', group: 'prop', title: T('矛盾推出一切', 'from contradiction, anything'), at: 'bot',
+    id: 'explosion', group: 'prop', title: T('爆炸原理', 'principle of explosion'), at: 'bot',
     body: [
       T(`有了${W('contradiction')} ⊥，什么都证得出：这条规则常叫<b>爆炸原理</b>（拉丁文 ex falso quodlibet）。证明器里它是元件${P('part:botE')}。`, `From a ${W('contradiction')} ⊥ anything can be proved: the rule is often called the <b>principle of explosion</b> (Latin ex falso quodlibet). In the prover it is the part ${P('part:botE')}.`),
       T("在经典真值语义中，前件为假的条件命题恒为真。证明器则通过矛盾消去规则从 ⊥ 推出所需结论；使用这一规则并不意味着矛盾前提在现实中为真。", "In classical truth-value semantics, a conditional with a false antecedent is true. The prover instead applies contradiction elimination to derive the desired conclusion from ⊥; this does not mean contradictory premises are true in reality."),

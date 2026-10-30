@@ -47,7 +47,7 @@ export const FORMS = [
   { key: 'inl', text: 'Or.inl □', sub: T('是左边', 'the left one'), make: () => inl(null) },
   { key: 'inr', text: 'Or.inr □', sub: T('是右边', 'the right one'), make: () => inr(null) },
   { key: 'elim', leads: true, text: '□.elim (fun _ => □) (fun _ => □)', sub: T('分情况', 'cases'), make: (tree) => { const [x, y] = fresh(tree, 2); return cases(null, x, null, y, null) } },
-  { key: 'absurd', text: 'False.elim □', sub: T('矛盾推出一切', 'from ⊥, anything'), make: () => absurd(null) },
+  { key: 'absurd', text: 'False.elim □', sub: T('爆炸', 'Explosion'), make: () => absurd(null) },
   { key: 'open', leads: true, text: '□.elim (fun _ _ => □)', sub: T('实例框', 'Instance box'), make: (tree) => { const [x, h] = fresh(tree, 2); return open(null, x, h, null) } },
   { key: 'rfl', text: 'rfl', sub: T('两边一样', 'both sides alike'), make: () => rfl },
   { key: 'subst', leads: true, text: '□ ▸ □', sub: T('等量代换', 'substitute'), make: () => psubst(null, null) },
