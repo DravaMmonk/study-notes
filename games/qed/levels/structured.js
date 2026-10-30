@@ -159,7 +159,7 @@ export const structured = [
   },
   script({
     id: 'sc-fix',
-    title: T('fix 是全称概括', 'fix is For any'),
+    title: T('fix 是任取框', 'fix is the for-any box'),
     brief: WRITE,
     premises: { p: '∀x. Student(x) → Human(x)', q: '∀x. Human(x) → Mortal(x)' },
     goal: '∀x. Student(x) → Mortal(x)',

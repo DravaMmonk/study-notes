@@ -65,10 +65,10 @@ export const ground = [
     cases: [{ A: 'Bike', B: 'OnTime', C: 'Late' }, { A: 'Coffee', B: 'Awake', C: 'Tea' }],
     adds: ['orI'],
     brief: T('已知「我骑车」和「我骑车 → 我准时到」，证出「我迟到了 ∨ 我准时到」。', 'Given “I cycle” and “I cycle → I arrive on time”, prove “I am late ∨ I arrive on time”.'),
-    hint: [T('套用得到「我准时到」，再用引入 ∨ 把它放到右边，左边选「我迟到了」。', 'Apply to get “I arrive on time”, then Bring in ∨ puts it on the right, with “I am late” on the left.')],
+    hint: [T('套用得到「我准时到」，再用补充把它放到右边，左边选「我迟到了」。', 'Apply to get “I arrive on time”, then use Add alternative to put it on the right, with “I am late” on the left.')],
     intro: [
       { t: T('「或」门：两边至少一个真，就输出真。「…或…」写成 <b>∨</b>。', 'The “or” gate: true when at least one side is. “… or …” is written <b>∨</b>.') },
-      { t: T('<b>引入 ∨</b>：证出了一边，另一边是什么都行，整句就成立。另一边是哪句、放左边还是右边，在元件上选。', '<b>Bring in ∨</b>: with one side proved, the whole holds whatever the other side is. Choose the other side, and whether it goes left or right, on the part.') },
+      { t: T('<b>补充</b>：证出其中一边，便可补上另一句，得到「或者」命题。在元件上选另一句和它的位置。', '<b>Add alternative</b>: once one side is proved, add another statement to form an “or”. Choose the other statement and its position on the part.') },
     ],
     solution: proof({ m: ['mp'], o: ['orI', { other: 'C', side: 'left' }] }, ['q>m.imp', 'p>m.a', 'm>o.a', 'o>goal'], { premises: ['p', 'q'] }),
     after: T('知道一边，就知道「这边 ∨ 随便哪边」。反过来不行：光有一句 ∨，不知道是哪一边成立，要用掉它，得等到有了框。', 'Knowing one side, you know “this ∨ anything”. Not the other way round: an ∨ alone does not say which side holds, and using one up waits until there are boxes.'),

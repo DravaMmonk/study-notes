@@ -35,8 +35,8 @@ export const metavars = [
     brief: T('设计一个证明助手：把规则的结论和目标对上，拆到每个等式左边都只剩一个 ?-字母。', 'Design a proof assistant that fits a rule’s conclusion to a goal, splitting until each equation has a single ?-letter on its left.'),
     hint: [T('一个「分解」只拆一层。第三组测试有两层。', 'One Decompose splits one level. The third test has two.')],
     intro: [
-      { t: T('到这里，元件上的句子都由你来选：假设框假设什么，引入 ∨ 补上哪一句。很多时候，目标已经说明了该填什么。', 'So far you have chosen the sentences on parts yourself: what a box assumes, which side ∨ intro adds. Often the goal already says what goes there.') },
-      { t: T('规则可以写成带空位的形式：引入 ∧ 是 ⟦?A; ?B⟧ ⟹ ?A ∧ ?B，方括号里是前提，⟹ 后面是结论。?A、?B 是<wiki-ref to="metavariable"></wiki-ref>。这套写法取自<wiki-ref to="isabelle"></wiki-ref>；<wiki-ref to="lean"></wiki-ref>也有元变量。', 'A rule can be written with blanks: ∧ intro is ⟦?A; ?B⟧ ⟹ ?A ∧ ?B, the premises in brackets, the conclusion after ⟹. ?A and ?B are <wiki-ref to="metavariable"></wiki-ref>s. The notation is <wiki-ref to="isabelle"></wiki-ref>’s; <wiki-ref to="lean"></wiki-ref> has metavariables too.') },
+      { t: T('到这里，元件上的句子都由你来选：假设框假设什么，补充补上哪一句。很多时候，目标已经说明了该填什么。', 'So far you have chosen the sentences on parts yourself: what a box assumes, which side Add alternative adds. Often the goal already says what goes there.') },
+      { t: T('规则可以写成带空位的形式：拼接是 ⟦?A; ?B⟧ ⟹ ?A ∧ ?B，方括号里是前提，⟹ 后面是结论。?A、?B 是<wiki-ref to="metavariable"></wiki-ref>。这套写法取自<wiki-ref to="isabelle"></wiki-ref>；<wiki-ref to="lean"></wiki-ref>也有元变量。', 'A rule can be written with blanks: Join is ⟦?A; ?B⟧ ⟹ ?A ∧ ?B, the premises in brackets, the conclusion after ⟹. ?A and ?B are <wiki-ref to="metavariable"></wiki-ref>s. The notation is <wiki-ref to="isabelle"></wiki-ref>’s; <wiki-ref to="lean"></wiki-ref> has metavariables too.') },
       { t: T('要把规则用到目标上，先得让它的结论和目标对上：解 ?A ∧ ?B ≐ 下雨 ∧ 刮风，求出 ?A 和 ?B。这叫<wiki-ref to="unification"></wiki-ref>。新元件「分解」：把两边结构相同的等式拆成对应部分之间的几个等式。', 'To use a rule on a goal, its conclusion must first fit the goal: solve ?A ∧ ?B ≐ it rains ∧ it is windy for ?A and ?B. This is <wiki-ref to="unification"></wiki-ref>. A new part, “Decompose”, splits an equation whose sides share a shape into equations between corresponding parts.') },
     ],
     solution: chained(['uDecompose', 'uDecompose']),
@@ -76,7 +76,7 @@ export const metavars = [
     tests: [{ eqs: ['?A ∧ ?B ≐ Rain ∨ Wind'] }, { eqs: ['?A → ⊥ ≐ Rain → Wet'] }, { eqs: ['?A ∨ ?B ≐ Rain ∨ (Wind ∧ Wet)'] }, { eqs: ['(?A ∧ ?B) → ?C ≐ (Rain ∨ Wind) → Wet'] }],
     brief: T('设计一个证明助手：能对上的解到底；对不上的，说「失败」。', 'Design a proof assistant that solves what can be fitted to the end, and says “failed” of what cannot.'),
     hint: [T('先拆开，再找两边结构不同的等式。', 'Split first, then look for an equation whose sides differ in shape.')],
-    intro: [{ t: T('规则不一定对得上目标。引入 ∧ 的结论是「并且」，目标是「或者」时，?A、?B 怎样填都对不上。新元件「冲突」：找到两边都不是 ?-字母、结构却不同的等式，宣布失败。用规则时，失败说明该换一条规则。', 'A rule need not fit a goal. ∧ intro concludes an “and”; against an “or”, nothing put in for ?A and ?B makes them fit. A new part, “Conflict”, finds an equation with no ?-letter on either side and sides of different shapes, and declares failure. When using rules, failure means trying another rule.') }],
+    intro: [{ t: T('规则不一定对得上目标。拼接的结论是「并且」，目标是「或者」时，?A、?B 怎样填都对不上。新元件「冲突」：找到两边都不是 ?-字母、结构却不同的等式，宣布失败。用规则时，失败说明该换一条规则。', 'A rule need not fit a goal. Join concludes an “and”; against an “or”, nothing put in for ?A and ?B makes them fit. A new part, “Conflict”, finds an equation with no ?-letter on either side and sides of different shapes, and declares failure. When using rules, failure means trying another rule.') }],
     solution: looped(['uDecompose', 'uConflict']),
   }),
   unify({
@@ -158,7 +158,7 @@ export const metavars = [
     tests: [{ goal: 'Rain → (Wind → Rain ∧ Wind)' }, { goal: 'Wet → (Slip → Wet ∧ Slip)' }, { goal: '¬Rain → (Wind → ¬Rain ∧ Wind)' }],
     brief: T('设计一个证明助手，证完每一个目标。', 'Design a proof assistant that proves every goal.'),
     hint: [T('「并且」的两半，各自在已知里吗？', 'Are the two halves of the “and” each among the givens?')],
-    intro: [{ t: T('引入 ∧ 有两条前提，倒着用它，一个目标变成两个，排成一列。元件总是处理第一个目标；证完一个，下一个顶上来。', '∧ intro has two premises: used backwards, it turns one goal into two, in a row. A part always works on the first goal; when it is proved, the next moves up.') }],
+    intro: [{ t: T('拼接有两条前提，倒着用它，一个目标变成两个，排成一列。元件总是处理第一个目标；证完一个，下一个顶上来。', 'Join has two premises: used backwards, it turns one goal into two, in a row. A part always works on the first goal; when it is proved, the next moves up.') }],
     solution: script(['rule', 'impI'], ['rule', 'impI'], ['rule', 'conjI'], 'assumption', 'assumption'),
   }),
   prove({
@@ -214,7 +214,7 @@ export const metavars = [
     brief: T('设计一个证明助手：拆开「并且」那条已知，把每个目标变成要的样子。', 'Design a proof assistant that takes the “and” given apart, turning each goal into the one wanted.'),
     hint: [T('全是 ? 的目标，什么能确定它？', 'What can settle a goal made of ?-letters?'), T('倒着用规则之后，紧接着用<part-ref to="part:assumption"></part-ref>。', 'Right after the rule used backwards, <part-ref to="part:assumption"></part-ref>.')],
     intro: [
-      { t: T('到这里用过的规则都看目标：结论对上目标，前提成为新目标。消去 ∧ 写成规则是 ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C：结论 ?C 对得上任何目标，第一条前提 ?A ∧ ?B 却无法从目标读出，成了一个全是 ? 的目标。', 'The rules used so far all look at the goal: the conclusion fits it, the premises become new goals. ∧ elim as a rule is ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C: its conclusion ?C fits any goal, but its first premise ?A ∧ ?B cannot be read off the goal, and becomes a goal made of ?-letters.') },
+      { t: T('到这里用过的规则都看目标：结论对上目标，前提成为新目标。拆解写成规则是 ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C：结论 ?C 对得上任何目标，第一条前提 ?A ∧ ?B 却无法从目标读出，成了一个全是 ? 的目标。', 'The rules used so far all look at the goal: the conclusion fits it, the premises become new goals. Split as a rule is ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C: its conclusion ?C fits any goal, but its first premise ?A ∧ ?B cannot be read off the goal, and becomes a goal made of ?-letters.') },
       { t: T('规则从板上的「规则」输入接入；设计出的证明助手会成为新元件<part-ref to="lemma:erule"></part-ref>，这个输入就是它的「规则」口。', 'The rules come in at the board’s input Rules; the proof assistant you design becomes a new part, <part-ref to="lemma:erule"></part-ref>, and that input is its port Rules.') },
     ],
     solution: machine({ c0: ['rule'], c1: ['assumption'] }, ['in>c0', 'rules>c0.rules', 'c0>c1', 'c1>out'], { inputs: ['in', 'rules'] }),
@@ -225,7 +225,7 @@ export const metavars = [
     tests: [{ goal: 'Wind ∨ Rain', hyps: ['Rain ∨ Wind'] }, { goal: 'Slip ∨ Wet', hyps: ['Wet ∨ Slip'] }, { goal: 'Bike ∨ Bus', hyps: ['Bus ∨ Bike'] }],
     brief: T('设计一个证明助手，证完每一个目标。', 'Design a proof assistant that proves every goal.'),
     hint: [T('先拆「或者」那条已知。', 'Take the “or” given apart first.'), T('每种情况里，目标的哪一边在已知里？', 'In each case, which side of the goal is among the givens?')],
-    intro: [{ t: T('<part-ref to="lemma:erule"></part-ref>不只拆「并且」，元件上能选任何一条消去规则。消去 ∨ 写成规则是 ⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?C; ⟦?B⟧ ⟹ ?C⟧ ⟹ ?C。', '<part-ref to="lemma:erule"></part-ref> takes apart more than “and”: any elimination rule can be chosen on it. ∨ elim as a rule is ⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?C; ⟦?B⟧ ⟹ ?C⟧ ⟹ ?C.') }],
+    intro: [{ t: T('<part-ref to="lemma:erule"></part-ref>不只拆「并且」，元件上能选任何一条消去规则。分类讨论写成规则是 ⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?C; ⟦?B⟧ ⟹ ?C⟧ ⟹ ?C。', '<part-ref to="lemma:erule"></part-ref> takes apart more than “and”: any elimination rule can be chosen on it. Case analysis as a rule is ⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?C; ⟦?B⟧ ⟹ ?C⟧ ⟹ ?C.') }],
     solution: script(['erule', 'disjE'], ['rule', 'disjI2'], 'assumption', ['rule', 'disjI1'], 'assumption'),
   }),
   prove({
@@ -275,7 +275,7 @@ export const metavars = [
   }),
   prove({
     id: 'r-allI',
-    title: T('逆用全称概括', 'For any, backwards'),
+    title: T('逆用任取框', 'For-any box, backwards'),
     tests: [{ goal: '∀x. Student(x) ∧ Human(x) → Human(x) ∧ Student(x)' }, { goal: '∀y. Bird(y) ∧ Flies(y) → Flies(y) ∧ Bird(y)' }],
     brief: T('设计一个证明助手，证完每一个目标。', 'Design a proof assistant that proves every goal.'),
     hint: [T('去掉 ∀ 以后，剩下的是熟悉的拆开与拼成。', 'With the ∀ gone, what remains is the familiar splitting and joining.')],
@@ -284,7 +284,7 @@ export const metavars = [
   }),
   prove({
     id: 'r-exI',
-    title: T('逆用存在概括', 'Example, backwards'),
+    title: T('逆用概括', 'Generalise, backwards'),
     tests: [{ goal: '∃x. Human(x) ∧ Likes(x, ann)', hyps: ['Human(bo)', 'Likes(bo, ann)'] }, { goal: '∃x. Bird(x) ∧ Flies(x)', hyps: ['Flies(cy)', 'Bird(cy)'] }, { goal: '∃y. Student(y) ∧ School(y)', hyps: ['Student(dee)', 'School(dee)'] }],
     brief: T('设计一个证明助手，证完每一个目标。', 'Design a proof assistant that proves every goal.'),
     hint: [T('例子是谁，交给已知去定。', 'Who the example is, leave to a given.')],
@@ -323,7 +323,7 @@ export const metavars = [
   }),
   prove({
     id: 'r-exE',
-    title: T('逆用存在实例化', 'Taking out, backwards'),
+    title: T('逆用实例框', 'Taking out, backwards'),
     tests: [{ goal: 'Pigs', hyps: ['∃x. Human(x) ∧ ¬Human(x)'] }, { goal: 'Moon', hyps: ['∃y. ¬Bird(y) ∧ Bird(y)'] }],
     brief: T('设计一个证明助手，证完每一个目标。', 'Design a proof assistant that proves every goal.'),
     hint: [T('已知自相矛盾，矛盾在它说存在的那样东西身上。', 'The given contradicts itself, about the thing it says there is.'), T('<part-ref to="lemma:erule"></part-ref>接上<part-ref to="part:exE"></part-ref>，对上「存在」那条已知。', '<part-ref to="lemma:erule"></part-ref> with <part-ref to="part:exE"></part-ref>, on the “there is” given.')],

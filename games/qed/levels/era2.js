@@ -119,9 +119,9 @@ export const era2 = [
     tests: [{ premises: { p: 'A ∨ B', q: 'A → C', r: 'B → C' }, goal: 'C' }],
     cases: [{ A: 'Bus', B: 'Bike', C: 'OnTime' }, { A: 'Sat', B: 'Sun', C: 'Rest' }],
     hint: [
-      T('放一块消去 ∨，把已知「我坐公交 ∨ 我骑车」接进元件上标着「A ∨ B」的输入口。元件下半部分有两个框：情况一的「假设」是「我坐公交」，情况二的是「我骑车」。', 'Place an ∨ elim and wire the given “I take the bus ∨ I cycle” into the input marked “A ∨ B” on its part. The lower half of the part holds two boxes: case one’s “Assume” is “I take the bus”, case two’s “I cycle”.'),
+      T('放一块分类讨论，把已知「我坐公交 ∨ 我骑车」接进元件上标着「A ∨ B」的输入口。元件下半部分有两个框：情况一的「假设」是「我坐公交」，情况二的是「我骑车」。', 'Place a Case analysis and wire the given “I take the bus ∨ I cycle” into the input marked “A ∨ B” on its part. The lower half of the part holds two boxes: case one’s “Assume” is “I take the bus”, case two’s “I cycle”.'),
       T('情况一的框里放一块套用：「我坐公交 → 我准时到」接「A → B」口，框左上角的「假设」接「A」口，结果接到这个框右上角的「结论」。情况二照样做。', 'In case one’s box put an Apply: “I take the bus → I arrive on time” into its “A → B” input, the box’s “Assume” at its top left into its “A” input, and the result into “Conclusion” at the box’s top right. Do the same in case two.'),
-      T('两个框都证出「我准时到」以后，消去 ∨ 元件右上角的输出就是「我准时到」，接到目标。', 'Once both boxes prove “I arrive on time”, the output at the ∨ elim part’s top right gives “I arrive on time”: wire it to the goal.'),
+      T('两个框都证出「我准时到」以后，分类讨论元件右上角的输出就是「我准时到」，接到目标。', 'Once both boxes prove “I arrive on time”, the output at the Case analysis part’s top right gives “I arrive on time”: wire it to the goal.'),
     ],
     intro: [
       { t: T('要么我坐公交，要么我骑车，不知道是哪一个。坐公交，我准时到；骑车，我也准时到。', 'Either I take the bus or I cycle; which, you do not know. By bus I arrive on time; by bike I arrive on time too.') },
@@ -136,7 +136,7 @@ export const era2 = [
     kind: 'proof',
     tests: [{ premises: { p: 'A ∨ B' }, goal: 'B ∨ A' }],
     cases: [{ A: 'Bus', B: 'Bike' }, { A: 'Coffee', B: 'Tea' }],
-    hint: [T('不知道是哪一边，就分情况。每种情况里，用引入 ∨ 换到对的位置。', 'Not knowing which side, split into cases. In each, ∨ intro puts it in the right place.')],
+    hint: [T('不知道是哪一边，就分情况。每种情况里，用补充换到对的位置。', 'Not knowing which side, split into cases. In each, Add alternative puts it in the right place.')],
     solution: proof({ e: ['orE'], l: ['orI', { other: 'B', side: 'left' }, 'e/left'], r: ['orI', { other: 'A', side: 'right' }, 'e/right'] }, ['p>e.ab', 'e#left>l.a', 'l>e.left', 'e#right>r.a', 'r>e.right', 'e>goal'], { premises: ['p'] }),
   },
   {
@@ -156,7 +156,7 @@ export const era2 = [
     tests: [{ premises: { p: 'A ∧ (B ∨ C)' }, goal: '(A ∧ B) ∨ (A ∧ C)' }],
     cases: [{ A: 'Sat', B: 'Rain', C: 'Wind' }, { A: 'Exam', B: 'Coffee', C: 'Tea' }],
     hint: [
-      T('先消去 ∧，再对拆出来的「下雨 ∨ 刮风」分情况。', 'Split the ∧ first, then take cases on the “it rains ∨ it is windy” it gives.'),
+      T('先拆解，再对拆出来的「下雨 ∨ 刮风」分情况。', 'Split the ∧ first, then take cases on the “it rains ∨ it is windy” it gives.'),
       T('每种情况里，把「今天是周六」和这一情况的假设拼起来，再放进 ∨ 的对应一边。', 'In each case, join “today is Saturday” with that case’s assumption, then put it on the matching side of the ∨.'),
     ],
     solution: proof({ s: ['andE'], e: ['orE'], l1: ['andI', {}, 'e/left'], o1: ['orI', { other: 'A ∧ C', side: 'right' }, 'e/left'], l2: ['andI', {}, 'e/right'], o2: ['orI', { other: 'A ∧ B', side: 'left' }, 'e/right'] }, ['p>s.ab', 's#right>e.ab', 's#left>l1.a', 'e#left>l1.b', 'l1>o1.a', 'o1>e.left', 's#left>l2.a', 'e#right>l2.b', 'l2>o2.a', 'o2>e.right', 'e>goal'], { premises: ['p'] }),

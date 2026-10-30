@@ -142,7 +142,7 @@ const REVISIONS = {
   ],
   iff: [{ by: 'au-iff', forms: ['intro'] }],
   // ↔ comes into proofs on the main path with 两个方向: ∧ elim takes it apart.
-  andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A 和 B，两个输出口各给一边。A ↔ B 即 (A → B) ∧ (B → A)，也照此拆开。', 'From A ∧ B, gives A and B, one at each output. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
+  andE: [{ at: 'iffUse', desc: T('接入 A ∧ B，两个输出口分别得到 A 和 B。A ↔ B 表示 (A → B) ∧ (B → A)，也可以这样拆解。', 'Connect A ∧ B to get A and B at separate outputs. A ↔ B means (A → B) ∧ (B → A) and can be split in the same way.') }],
 
   // The machine parts grow along chapters 7 and 8: quantifiers taken apart and patterns (模式合一), every result once
   // the cards backtrack (一串结果).
