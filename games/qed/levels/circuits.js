@@ -217,6 +217,36 @@ export const circuits = [
     after: T('找一行使几句话同时为真，这类问题叫<wiki-ref to="satisfiable"></wiki-ref>问题（SAT）。', 'Finding a row on which several sentences are all true is the <wiki-ref to="satisfiable"></wiki-ref> problem (SAT).'),
   },
   {
+    id: 'e-count',
+    kind: 'gates',
+    title: T('至少与最多', 'At least and at most'),
+    target: '(KA ↔ (¬KA ∨ ¬KB ∨ ¬KC)) ∧ (KB ↔ ((KA ∨ KB) ∧ (KA ∨ KC) ∧ (KB ∨ KC))) ∧ (KC ↔ (¬KA ∨ KB ∨ KC))',
+    blind: true,
+    brief: T('a 说：「我们三个人里至少有一个无赖。」b 说：「我们三个人里最多有一个无赖。」c 说：「a 不是唯一的骑士。」把三人的话译成逻辑，接成电路：三人的话都和身份相符的行，输出真。', 'a says: “At least one of the three of us is a knave.” b says: “At most one of the three of us is a knave.” c says: “a is not the only knight.” Translate what the three say into logic and wire it: the board outputs true on exactly the rows where what each says fits what they are.'),
+    intro: [
+      { t: T('「至少」「最多」「唯一」说的是人数，与、或、非里没有数数的门。这类话要先换一种说法，换成只谈每个人是不是骑士的句子。', '“At least”, “at most” and “only” speak of how many, and and, or and not have no gate that counts. Such words must first be said another way, as a sentence about whether each person is a knight.') },
+    ],
+    hint: [
+      T('「至少有一个无赖」：三人之中，哪些人可能是那个无赖？', '“At least one is a knave”: of the three, who might that knave be?'),
+      T('「最多有一个无赖」，就是不会有两个人同时是无赖。随便挑两个人，他们之中必须怎样？', '“At most one knave” means no two people are knaves at once. Pick any two people: what must be true of them?'),
+      T('「a 不是唯一的骑士」：要么 a 不是骑士，要么还有别的骑士。', '“a is not the only knight”: either a is not a knight, or there is another knight.'),
+    ],
+    solution: board('(KA ↔ (¬KA ∨ ¬KB ∨ ¬KC)) ∧ (KB ↔ ((KA ∨ KB) ∧ (KA ∨ KC) ∧ (KB ∨ KC))) ∧ (KC ↔ (¬KA ∨ KB ∨ KC))', {
+      na: 'gNot', nb: 'gNot', nc: 'gNot',
+      o1: 'gOr', o2: 'gOr', e1: 'gIff',
+      p1: 'gOr', p2: 'gOr', p3: 'gOr', q1: 'gAnd', q2: 'gAnd', e2: 'gIff',
+      r1: 'gOr', r2: 'gOr', e3: 'gIff',
+      x1: 'gAnd', x2: 'gAnd',
+    }, [
+      'KA>na.a', 'KB>nb.a', 'KC>nc.a',
+      'na>o1.a', 'nb>o1.b', 'o1>o2.a', 'nc>o2.b', 'KA>e1.a', 'o2>e1.b',
+      'KA>p1.a', 'KB>p1.b', 'KA>p2.a', 'KC>p2.b', 'KB>p3.a', 'KC>p3.b', 'p1>q1.a', 'p2>q1.b', 'q1>q2.a', 'p3>q2.b', 'KB>e2.a', 'q2>e2.b',
+      'na>r1.a', 'KB>r1.b', 'r1>r2.a', 'KC>r2.b', 'KC>e3.a', 'r2>e3.b',
+      'e1>x1.a', 'e2>x1.b', 'x1>x2.a', 'e3>x2.b', 'x2>out',
+    ]),
+    after: T('只有一行亮：a 是骑士，b、c 都是无赖。「至少一个」是一串「或」；「最多一个」是每两人之间一个「或」，再用「与」连起来；「不是唯一」也是一串「或」。排班这类问题（至少几人到岗、最多几人同时休假、谁不能单独值班）交给 SAT 求解器时，也是这样把计数的话改写成一串「或」再并起来。', 'Only one row lights up: a is a knight, b and c are knaves. “At least one” is a string of “or”s; “at most one” is an “or” for every pair, joined by “and”; “not the only one” is a string of “or”s too. Problems such as rostering (at least so many on duty, at most so many on leave at once, someone who may not work alone) are put to a SAT solver the same way: each counting phrase rewritten as strings of “or”s, joined together.'),
+  },
+  {
     id: 'g-xor',
     kind: 'gates',
     title: T('只有一样', 'Exactly one'),
