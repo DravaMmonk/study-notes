@@ -7,7 +7,7 @@ import { DECL, derives, judgeCases, propositionsOf, runIso, sentenceOf, wayOf, w
 import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
 import { WAY, isoPartsFor } from './IsoScreen.jsx'
-import CaseTable from './IsoCases.jsx'
+import CaseTable, { blankCase } from './IsoCases.jsx'
 
 // Finding the fault in someone's declarations (the shared play 'audit', ../../../shell/useBoardCases.js): each test
 // case is one of their boards, locked, put on the canvas by its tab; the player writes the test cases (检验条例) in the
@@ -24,9 +24,10 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const judged = (cases) => judgeCases(level, cases, words)
   const boardCases = useBoardCases({
     level,
-    saved,
+    // The cases are set out beforehand (the level's `slots`); a save with another number of them starts over.
+    saved: saved?.work?.length === level.slots ? saved : null,
     save,
-    empty: [],
+    empty: Array.from({ length: level.slots }, () => blankCase(level)),
     judge: (k, cases) => L(judged(cases).judge(k) ?? ''),
     onSolve: () => solve({ steps: boardCases.work.length, unit: 'cases' }),
     lastRun,

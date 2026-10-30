@@ -569,6 +569,7 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .rt-row.is-editable { cursor: pointer; }
 .rt-row.is-editable:hover, .rt-row.is-editable:focus-visible { background: var(--hover, rgba(0,0,0,.04)); outline: none; }
 .rt-row.is-on { background: var(--hover, rgba(0,0,0,.05)); }
+.rt-tip { margin: 0; color: var(--muted); font-size: 12.5px; }
 .rt-empty { margin: 6px 10px; color: var(--muted); font-size: 12.5px; }
 .rt-add { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px dashed var(--rule); border-radius: 6px; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; cursor: pointer; }
 .rt-add:hover { color: var(--ink); }

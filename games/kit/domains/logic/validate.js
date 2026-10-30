@@ -115,6 +115,9 @@ export function validate({ levels: given, course }) {
       const loose = level.boards.findIndex((_, k) => cases.judge(k))
       out.push({ fail: loose >= 0, text: `  cases ${loose < 0 ? 'PASS' : `FAIL on board ${loose + 1}: ${keyOf(cases.judge(loose))}`} [${level.answer.length} cases]` })
       if (level.naive && level.boards.every((_, k) => !judgeCases(level, level.naive, words).judge(k))) out.push({ fail: true, text: '  naive cases PASS (bad)' })
+      // The reference cases fill the cases set out, and keep the goal and expectation the level fixes.
+      if (level.answer.length !== level.slots) out.push({ fail: true, text: `  the reference answer has ${level.answer.length} cases for ${level.slots} set out` })
+      if (level.answer.some((c) => (level.caseGoal && c.goal !== level.caseGoal) || (level.caseMake !== undefined && c.make !== level.caseMake))) out.push({ fail: true, text: '  a reference case breaks the goal or expectation the level fixes' })
       level.boards.forEach(({ board }, k) => { if (checkIso(level, board, words).pass) out.push({ fail: true, text: `  board ${k + 1} passes every situation (bad)` }) })
       continue
     }

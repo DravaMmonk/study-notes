@@ -300,6 +300,12 @@ export default {
   { version: 57, ops: [
     { data: (value, id) => (id === 'decl-or' && Array.isArray(value) && value.length === 2 ? [value[0], null, value[1]] : value) },
     { tasks: (passed, id) => (id === 'decl-or' ? Math.min(passed, 1) : passed) },
+  ] },
+  // Version 58 set out a fixed number of cases in each audit, and gave 声明「并且」 a third task (a declaration too
+  // strong) and 声明「或者」 one wrong declaration instead of two: the cases written and the board corrected start afresh.
+  { version: 58, ops: [
+    { data: (value, id) => (id === 'decl-and' && Array.isArray(value) ? [value[0] ?? null, null, null] : id === 'decl-or' && Array.isArray(value) ? [null, null, null] : value) },
+    { tasks: (passed, id) => (id === 'decl-and' ? Math.min(passed, 1) : id === 'decl-or' ? 0 : passed) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
