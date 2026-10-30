@@ -275,11 +275,11 @@ export function checkCases(level, cases, words) {
   }
   const bad = rows.findIndex((r) => !r.right)
   const loose = caught.findIndex((k) => k < 0)
-  const reason = !cases.length ? T('还没有写条例：添一条，写下手里有什么、这时该不该证得出。', 'No case yet: add one, saying what is at hand and whether it should then be proved.')
-    : bad >= 0 ? T(`第 ${bad + 1} 条的期望不是需求的意思：手里有${at(cases[bad]).zh}时，「${name.zh}」${rows[bad].wants ? '应当证得出' : '不该证得出'}。`, `Case ${bad + 1} does not say what the requirement means: with ${at(cases[bad]).en} at hand, “${name.en}” ${rows[bad].wants ? 'should be proved' : 'should not be proved'}.`)
+  const reason = !cases.length ? T(`尚未编写条例。请添加条例，指明持有哪些证明，以及此时能否引入「${name.zh}」。`, `No test case yet. Add one, stating which proofs are held and whether “${name.en}” may then be introduced.`)
+    : bad >= 0 ? T(`第 ${bad + 1} 条条例的预期与需求不符。请重新考虑：持有${at(cases[bad]).zh}时，依据需求能否引入「${name.zh}」？`, `The expectation of case ${bad + 1} does not agree with the requirement. Reconsider: with ${at(cases[bad]).en} held, may “${name.en}” be introduced according to the requirement?`)
     : loose >= 0 ? (level.wrong.length > 1
-      ? T(`每一条都对，可电路 ${loose + 1} 在每一条上都答对了：还没抓住它错在哪里。`, `Every case is right, but board ${loose + 1} answers each one correctly: its fault is not caught yet.`)
-      : T('每一条都对，可这块电路在每一条上都答对了：还没抓住它错在哪里。', 'Every case is right, but this board answers each one correctly: its fault is not caught yet.'))
+      ? T(`各条条例的预期均正确，但电路 ${loose + 1} 在每条条例上都给出了正确结论，其错误尚未得到揭示。`, `Every expectation is correct, but board ${loose + 1} reaches the right conclusion on every case: its fault has not yet been revealed.`)
+      : T('各条条例的预期均正确，但该声明在每条条例上都给出了正确结论，其错误尚未得到揭示。', 'Every expectation is correct, but this declaration reaches the right conclusion on every case: its fault has not yet been revealed.'))
     : null
   return { pass: !reason, rows, caught, reason }
 }

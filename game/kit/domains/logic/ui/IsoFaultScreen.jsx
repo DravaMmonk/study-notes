@@ -58,8 +58,8 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const failed = run?.over && !playback.passed ? run.results.at(-1) : null
   const verdictText = !verdict ? null : verdict.pass
     ? (level.wrong.length > 1
-      ? tr(`抓住了：${checked.caught.map((k, b) => `电路 ${b + 1} 错在第 ${k + 1} 条`).join('，')}。`, `Caught: ${checked.caught.map((k, b) => `board ${b + 1} goes wrong on case ${k + 1}`).join(', ')}.`)
-      : tr(`抓住了：这块电路在第 ${checked.caught[0] + 1} 条上出错。`, `Caught: this board goes wrong on case ${checked.caught[0] + 1}.`))
+      ? tr(`已找出错误：${checked.caught.map((k, b) => `电路 ${b + 1} 在第 ${k + 1} 条条例上给出错误结论`).join('；')}。`, `Faults found: ${checked.caught.map((k, b) => `board ${b + 1} reaches a wrong conclusion on case ${k + 1}`).join('; ')}.`)
+      : tr(`已找出错误：该声明在第 ${checked.caught[0] + 1} 条条例上给出错误结论。`, `Fault found: this declaration reaches a wrong conclusion on case ${checked.caught[0] + 1}.`))
     : run.final || failed?.reason
 
   // What a card says for the case picked: an assumption its sentence, the declared card its ways and whether it is
@@ -96,8 +96,8 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
             <tr>
               <th>#</th>
               {level.sentences.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
-              <th>{tr(`「${level.declare.zh}」应当`, `“${level.declare.en}” should be`)}</th>
-              {level.wrong.map((_, b) => <th key={b} className="lg-result">{many ? tr(`电路 ${b + 1}`, `Board ${b + 1}`) : tr('这块电路', 'This board')}</th>)}
+              <th>{tr(`预期：「${level.declare.zh}」`, `Expected: “${level.declare.en}”`)}</th>
+              {level.wrong.map((_, b) => <th key={b} className="lg-result">{many ? tr(`电路 ${b + 1}`, `Board ${b + 1}`) : tr('该声明', 'This declaration')}</th>)}
               <th aria-label={tr('删去', 'Remove')} />
             </tr>
           </thead>
@@ -123,7 +123,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
                   return <td key={b} className={`lg-result ${caught ? 'is-caught' : ''}`}>{ran(k) ? result(r.made[b]) : ''}</td>
                 })}
                 <td>
-                  <button type="button" className="lg-drop" aria-label={tr('删去这一条', 'Remove this case')} onClick={(e) => { e.stopPropagation(); change(cases.filter((_, j) => j !== k)) }}><X size={14} /></button>
+                  <button type="button" className="lg-drop" aria-label={tr('删除该条例', 'Remove this case')} onClick={(e) => { e.stopPropagation(); change(cases.filter((_, j) => j !== k)) }}><X size={14} /></button>
                 </td>
               </tr>
             ))}
@@ -132,13 +132,13 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
       </div>
       {cases.length < MOST && (
         <button type="button" className="lg-add-case" onClick={() => { change([...cases, blank()]); setAt(cases.length) }}>
-          <Plus size={14} /> {tr('添一条条例', 'Add a case')}
+          <Plus size={14} /> {tr('添加条例', 'Add a test case')}
         </button>
       )}
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )
-  const dock = <RunDock {...playback.dock({ go: tr('点击运行条例', 'Run the cases'), done: tr('抓住了', 'Caught') })} />
+  const dock = <RunDock {...playback.dock({ go: tr('运行检验条例', 'Run the test cases'), done: tr('已找出错误', 'Fault found') })} />
   // Several wrong boards: one on view at a time.
   const switcher = many && (
     <div className="lg-boards" role="tablist">
@@ -186,7 +186,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
         </div>
       }
       status={<TestStatus states={states} />}
-      outputsTitle={tr('检验条例', 'Cases')}
+      outputsTitle={tr('检验条例', 'Test cases')}
       outputs={table}
       actions={<footer className="run-foot">{dock}</footer>}
     />
