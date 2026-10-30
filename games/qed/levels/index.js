@@ -25,16 +25,16 @@ const T = (zh, en) => ({ zh, en })
 
 // The lemmas the player proves; a part is a pattern, so its description and ports use letters.
 export const LEMMAS = {
-  axK: { name: T('K', 'K'), desc: T('元件上选两句 A、B，直接给出 A → (B → A)：已经成立的事，加上什么条件都还成立。', 'Choose two sentences A and B on the part; it gives A → (B → A) at once: what holds still holds under any condition.'), statement: 'A → (B → A)', metas: ['A', 'B'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
-  axS: { name: T('S', 'S'), desc: T('元件上选三句 A、B、C，直接给出 (A → (B → C)) → ((A → B) → (A → C))：在条件 A 下也能套用。', 'Choose three sentences A, B and C on the part; it gives (A → (B → C)) → ((A → B) → (A → C)) at once: Apply works under a condition A too.'), statement: '(A → (B → C)) → ((A → B) → (A → C))', metas: ['A', 'B', 'C'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
-  chain: { name: T('串联', 'Chain'), desc: T('接进 A → B 和 B → C，直接给出 A → C。', 'Wire in A → B and B → C; it gives A → C at once.'), statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'], ports: ['A → B', 'B → C'] },
-  swap: { name: T('交换', 'Swap'), desc: T('接进 A → (B → C)，给出 B → (A → C)：两个条件换个顺序。', 'Wire in A → (B → C); it gives B → (A → C): the two conditions swapped.'), statement: 'B → (A → C)', premises: ['A → (B → C)'], metas: ['A', 'B', 'C'], ports: ['A → (B → C)'] },
-  merge: { name: T('合并', 'Merge'), desc: T('接进 A → (A → B)，给出 A → B：说了两遍的条件并成一遍。', 'Wire in A → (A → B); it gives A → B: a condition stated twice, stated once.'), statement: 'A → B', premises: ['A → (A → B)'], metas: ['A', 'B'], ports: ['A → (A → B)'] },
+  axK: { name: T('K', 'K'), desc: T('在元件上选定两句 A、B，输出 A → (B → A)。', 'Choose two sentences A and B on the part; gives A → (B → A).'), statement: 'A → (B → A)', metas: ['A', 'B'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
+  axS: { name: T('S', 'S'), desc: T('在元件上选定三句 A、B、C，输出 (A → (B → C)) → ((A → B) → (A → C))。', 'Choose three sentences A, B and C on the part; gives (A → (B → C)) → ((A → B) → (A → C)).'), statement: '(A → (B → C)) → ((A → B) → (A → C))', metas: ['A', 'B', 'C'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
+  chain: { name: T('串联', 'Chain'), desc: T('由 A → B 和 B → C 得到 A → C。', 'From A → B and B → C, gives A → C.'), statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'], ports: ['A → B', 'B → C'] },
+  swap: { name: T('交换', 'Swap'), desc: T('由 A → (B → C) 得到 B → (A → C)。', 'From A → (B → C), gives B → (A → C).'), statement: 'B → (A → C)', premises: ['A → (B → C)'], metas: ['A', 'B', 'C'], ports: ['A → (B → C)'] },
+  merge: { name: T('合并', 'Merge'), desc: T('由 A → (A → B) 得到 A → B。', 'From A → (A → B), gives A → B.'), statement: 'A → B', premises: ['A → (A → B)'], metas: ['A', 'B'], ports: ['A → (A → B)'] },
   // De Morgan's laws, one card: built with its four propositional shapes at once (REVISIONS), the four quantifier
   // shapes added by the level that proves them. Switched on the card.
   dm: {
     name: T('德摩根律', 'De Morgan'),
-    desc: T('德摩根律：否定穿过「或者」「并且」时互相转换，四个方向都有。元件上切换形状：¬(A ∨ B) 和 ¬A ∧ ¬B 互相转换，¬(A ∧ B) 和 ¬A ∨ ¬B 互相转换。', 'De Morgan’s laws: a negation passing through “or” and “and” turns one into the other, all four ways. Switch the shape on the card: ¬(A ∨ B) and ¬A ∧ ¬B each give the other, and so do ¬(A ∧ B) and ¬A ∨ ¬B.'),
+    desc: T('否定与「或者」「并且」互换，四种形状在元件上切换：¬(A ∨ B) 与 ¬A ∧ ¬B 互推，¬(A ∧ B) 与 ¬A ∨ ¬B 互推。', 'A negation trades “or” for “and” and back, four shapes switched on the part: ¬(A ∨ B) and ¬A ∧ ¬B give each other, and so do ¬(A ∧ B) and ¬A ∨ ¬B.'),
     metas: ['A', 'B', 'P'],
     forms: [
       { key: 'notOr', label: '¬(A ∨ B) → ¬A ∧ ¬B', statement: '¬A ∧ ¬B', premises: ['¬(A ∨ B)'] },
@@ -52,7 +52,7 @@ export const LEMMAS = {
   // rewrite rule; all its shapes come with the level that proves them (REVISIONS).
   dneg: {
     name: T('双重否定律', 'Double negation'),
-    desc: T('元件上切换形状：接进 ¬¬A 给出 A；接进 A 给出 ¬¬A。', 'Switch the shape on the card: wire in ¬¬A for A, or A for ¬¬A.'),
+    desc: T('两种形状在元件上切换：由 ¬¬A 得到 A；由 A 得到 ¬¬A。', 'Two shapes switched on the part: from ¬¬A, gives A; from A, gives ¬¬A.'),
     metas: ['A'],
     forms: [
       { key: 'elim', label: '¬¬A → A', statement: 'A', premises: ['¬¬A'] },
@@ -62,7 +62,7 @@ export const LEMMAS = {
   },
   arrow: {
     name: T('蕴涵析取互化', 'Arrow away'),
-    desc: T('元件上切换形状：接进 A → B 给出 ¬A ∨ B；接进 ¬A ∨ B 给出 A → B。', 'Switch the shape on the card: wire in A → B for ¬A ∨ B, or ¬A ∨ B for A → B.'),
+    desc: T('两种形状在元件上切换：由 A → B 得到 ¬A ∨ B；由 ¬A ∨ B 得到 A → B。', 'Two shapes switched on the part: from A → B, gives ¬A ∨ B; from ¬A ∨ B, gives A → B.'),
     metas: ['A', 'B'],
     forms: [
       { key: 'elim', label: 'A → B ⟹ ¬A ∨ B', statement: '¬A ∨ B', premises: ['A → B'] },
@@ -72,7 +72,7 @@ export const LEMMAS = {
   },
   dist: {
     name: T('分配律', 'Distribute'),
-    desc: T('「或者」分配到「并且」上，四个方向：A ∨ (B ∧ C) 和 (A ∨ B) ∧ (A ∨ C) 互相转换，(A ∧ B) ∨ C 和 (A ∨ C) ∧ (B ∨ C) 互相转换。元件上切换形状。', '“Or” distributed over “and”, four ways: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Switch the shape on the card.'),
+    desc: T('「或者」对「并且」分配，四种形状在元件上切换：A ∨ (B ∧ C) 与 (A ∨ B) ∧ (A ∨ C) 互推，(A ∧ B) ∨ C 与 (A ∨ C) ∧ (B ∨ C) 互推。', '“Or” distributed over “and”, four shapes switched on the part: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C).'),
     metas: ['A', 'B', 'C'],
     forms: [
       { key: 'orAndR', label: 'A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)', statement: '(A ∨ B) ∧ (A ∨ C)', premises: ['A ∨ (B ∧ C)'] },
@@ -86,7 +86,7 @@ export const LEMMAS = {
   // in the two clauses), and the liar of the knights topic, which the topic on what no machine can do grows.
   iff: {
     name: T('等价展开', 'Equivalence away'),
-    desc: T('元件上切换形状：接进 A ↔ B 给出 (¬A ∨ B) ∧ (¬B ∨ A)；反过来也行。两个方向也都是改写规则。', 'Switch the shape on the card: wire in A ↔ B for (¬A ∨ B) ∧ (¬B ∨ A), or the other way round. Both ways are rewrite rules too.'),
+    desc: T('两种形状在元件上切换：由 A ↔ B 得到 (¬A ∨ B) ∧ (¬B ∨ A)，反过来也可以。每种形状也是一条改写规则。', 'Two shapes switched on the part: from A ↔ B, gives (¬A ∨ B) ∧ (¬B ∨ A), and the other way round. Each shape is also a rewrite rule.'),
     metas: ['A', 'B'],
     forms: [
       { key: 'elim', label: 'A ↔ B ⟹ (¬A ∨ B) ∧ (¬B ∨ A)', statement: '(¬A ∨ B) ∧ (¬B ∨ A)', premises: ['A ↔ B'] },
@@ -94,27 +94,27 @@ export const LEMMAS = {
     ],
     ports: ['A ↔ B'],
   },
-  res: { name: T('归结', 'Resolve'), card: 'res', desc: T('接进两条子句：一条里有 A，另一条里有 ¬A，在哪个位置都行；消掉这一对，剩下的用「或」连起来，什么都不剩就是矛盾 ⊥。一次只消一对。', 'Wire in two clauses, one holding A and the other ¬A, wherever they stand: cancel that pair and join what is left with or; nothing left is the contradiction ⊥. One pair at a time.'), statement: 'B ∨ C', premises: ['A ∨ B', '¬A ∨ C'], metas: ['A', 'B', 'C'], ports: ['A ∨ B', '¬A ∨ C'] },
-  liar: { name: T('说谎者悖论', 'The liar'), desc: T('接进 A ↔ ¬A，给出矛盾 ⊥：没有一句话能和自己的否定同真同假。', 'Wire in A ↔ ¬A; it gives the contradiction ⊥: no sentence is true exactly when its negation is.'), statement: '⊥', premises: ['A ↔ ¬A'], metas: ['A'], ports: ['A ↔ ¬A'] },
-  lem: { name: T('排中律', 'Excluded middle'), desc: T('元件上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the part; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
+  res: { name: T('归结', 'Resolve'), card: 'res', desc: T('接入两条子句，一条含 A，另一条含 ¬A，位置不限：消去这一对，其余部分用「或者」连起来；什么都不剩时得到矛盾 ⊥。一次只消一对。', 'Wire in two clauses, one holding A and the other ¬A, in any position: that pair is cancelled and what is left is joined with “or”; when nothing is left, gives the contradiction ⊥. One pair at a time.'), statement: 'B ∨ C', premises: ['A ∨ B', '¬A ∨ C'], metas: ['A', 'B', 'C'], ports: ['A ∨ B', '¬A ∨ C'] },
+  liar: { name: T('说谎者悖论', 'The liar'), desc: T('由 A ↔ ¬A 得到矛盾 ⊥。', 'From A ↔ ¬A, gives the contradiction ⊥.'), statement: '⊥', premises: ['A ↔ ¬A'], metas: ['A'], ports: ['A ↔ ¬A'] },
+  lem: { name: T('排中律', 'Excluded middle'), desc: T('在元件上选定一句 A，输出 A ∨ ¬A。', 'Choose a sentence A on the part; gives A ∨ ¬A.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
 }
 
 // What the player proves of numbers and lists (chapter 12), each a rule from then on, and an equation a rewrite rule
 // too (with its conditions); `rule` writes it as a rule other than the statement (one-to-one, used to take apart).
 const fact = (zh, en, statement, desc, rule) => ({ name: T(zh, en), statement, desc, ...(rule ? { rule } : {}) })
 export const FACTS = {
-  addZero: fact('加零', 'Add zero', '∀x. plus(x, zero) = x', T('证出的等式 x + 0 = x：一条规则，也是化简的一条改写规则。', 'The equation proved, x + 0 = x: a rule, and a rewrite rule for Simp.')),
-  addSucc: fact('加后继', 'Add successor', '∀x. ∀y. plus(x, s(y)) = s(plus(x, y))', T('证出的等式 x + S y = S (x + y)：一条规则，也是化简的一条改写规则。', 'The equation proved, x + S y = S (x + y): a rule, and a rewrite rule for Simp.')),
-  addComm: fact('加法交换', 'Addition commutes', '∀x. ∀y. plus(x, y) = plus(y, x)', T('证出的等式 x + y = y + x：一条规则，也是一条改写规则（接进化简会来回改，停不下来）。', 'The equation proved, x + y = y + x: a rule, and a rewrite rule (in Simp it turns back and forth, never stopping).')),
-  addAssoc: fact('加法结合', 'Addition associates', '∀x. ∀y. ∀z. plus(plus(x, y), z) = plus(x, plus(y, z))', T('证出的等式 (x + y) + z = x + (y + z)：一条规则，也是化简的一条改写规则。', 'The equation proved, (x + y) + z = x + (y + z): a rule, and a rewrite rule for Simp.')),
-  appNil: fact('接空列表', 'Append nil', '∀xs. app(xs, nil) = xs', T('证出的等式 xs ++ [] = xs：一条规则，也是化简的一条改写规则。', 'The equation proved, xs ++ [] = xs: a rule, and a rewrite rule for Simp.')),
-  appAssoc: fact('拼接结合', 'Append associates', '∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))', T('证出的等式 (xs ++ ys) ++ zs = xs ++ (ys ++ zs)：一条规则，也是化简的一条改写规则。', 'The equation proved, (xs ++ ys) ++ zs = xs ++ (ys ++ zs): a rule, and a rewrite rule for Simp.')),
-  revApp: fact('倒过拼接', 'Reverse of an append', '∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))', T('证出的等式 rev (xs ++ ys) = rev ys ++ rev xs：一条规则，也是化简的一条改写规则。', 'The equation proved, rev (xs ++ ys) = rev ys ++ rev xs: a rule, and a rewrite rule for Simp.')),
-  inject: fact('一对一', 'One-to-one', '∀x. ∀y. s(x) = s(y) → x = y', T('证出的 S x = S y → x = y，写成拆开的规则：已知里有 S ?x = S ?y，就换成 ?x = ?y 去证。', 'The S x = S y → x = y proved, as a rule that takes apart: with S ?x = S ?y given, prove on with ?x = ?y instead.'), { premises: ['s(?x) = s(?y)', '⟦?x = ?y⟧ ⟹ ?C'], conclusion: '?C' }),
-  ifTrue: fact('如果为真', 'If true', '∀u. ∀v. ∀w. u = tt → if(u, v, w) = v', T('证出的 u = 真 → (若 u 则 v 否则 w) = v：一条规则，也是一条带条件的改写规则。', 'The u = true → (if u then v else w) = v proved: a rule, and a rewrite rule with a condition.')),
-  ifFalse: fact('如果为假', 'If false', '∀u. ∀v. ∀w. u = ff → if(u, v, w) = w', T('证出的 u = 假 → (若 u 则 v 否则 w) = w：一条规则，也是一条带条件的改写规则。', 'The u = false → (if u then v else w) = w proved: a rule, and a rewrite rule with a condition.')),
-  succNeq: fact('不等于后继', 'Never its successor', '∀x. ¬(x = s(x))', T('证出的 x ≠ S x：一条规则。', 'The x ≠ S x proved: a rule.')),
-  insLen: fact('插入长一格', 'Insert adds one', '∀xs. ∀x. len(ins(x, xs)) = s(len(xs))', T('证出的等式 len (ins x xs) = S (len xs)：一条规则，也是化简的一条改写规则。', 'The equation proved, len (ins x xs) = S (len xs): a rule, and a rewrite rule for Simp.')),
+  addZero: fact('加零', 'Add zero', '∀x. plus(x, zero) = x', T('x + 0 = x：一条规则，也是化简的一条改写规则（从左往右）。', 'x + 0 = x: a rule, and a left-to-right rewrite rule for Simp.')),
+  addSucc: fact('加后继', 'Add successor', '∀x. ∀y. plus(x, s(y)) = s(plus(x, y))', T('x + S y = S (x + y)：一条规则，也是化简的一条改写规则（从左往右）。', 'x + S y = S (x + y): a rule, and a left-to-right rewrite rule for Simp.')),
+  addComm: fact('加法交换', 'Addition commutes', '∀x. ∀y. plus(x, y) = plus(y, x)', T('x + y = y + x：一条规则，也是一条改写规则；放进化简会来回改写，停不下来。', 'x + y = y + x: a rule, and a rewrite rule; in Simp it rewrites back and forth without end.')),
+  addAssoc: fact('加法结合', 'Addition associates', '∀x. ∀y. ∀z. plus(plus(x, y), z) = plus(x, plus(y, z))', T('(x + y) + z = x + (y + z)：一条规则，也是化简的一条改写规则（从左往右）。', '(x + y) + z = x + (y + z): a rule, and a left-to-right rewrite rule for Simp.')),
+  appNil: fact('接空列表', 'Append nil', '∀xs. app(xs, nil) = xs', T('xs ++ [] = xs：一条规则，也是化简的一条改写规则（从左往右）。', 'xs ++ [] = xs: a rule, and a left-to-right rewrite rule for Simp.')),
+  appAssoc: fact('拼接结合', 'Append associates', '∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))', T('(xs ++ ys) ++ zs = xs ++ (ys ++ zs)：一条规则，也是化简的一条改写规则（从左往右）。', '(xs ++ ys) ++ zs = xs ++ (ys ++ zs): a rule, and a left-to-right rewrite rule for Simp.')),
+  revApp: fact('倒过拼接', 'Reverse of an append', '∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))', T('rev (xs ++ ys) = rev ys ++ rev xs：一条规则，也是化简的一条改写规则（从左往右）。', 'rev (xs ++ ys) = rev ys ++ rev xs: a rule, and a left-to-right rewrite rule for Simp.')),
+  inject: fact('一对一', 'One-to-one', '∀x. ∀y. s(x) = s(y) → x = y', T('S x = S y → x = y，用作拆分规则：已知中有 S ?x = S ?y 时，换成由 ?x = ?y 继续证。', 'S x = S y → x = y, as a rule that takes apart: when S ?x = S ?y is given, the proof goes on from ?x = ?y instead.'), { premises: ['s(?x) = s(?y)', '⟦?x = ?y⟧ ⟹ ?C'], conclusion: '?C' }),
+  ifTrue: fact('如果为真', 'If true', '∀u. ∀v. ∀w. u = tt → if(u, v, w) = v', T('u = 真 → (若 u 则 v 否则 w) = v：一条规则，也是一条带条件的改写规则。', 'u = true → (if u then v else w) = v: a rule, and a rewrite rule with a condition.')),
+  ifFalse: fact('如果为假', 'If false', '∀u. ∀v. ∀w. u = ff → if(u, v, w) = w', T('u = 假 → (若 u 则 v 否则 w) = w：一条规则，也是一条带条件的改写规则。', 'u = false → (if u then v else w) = w: a rule, and a rewrite rule with a condition.')),
+  succNeq: fact('不等于后继', 'Never its successor', '∀x. ¬(x = s(x))', T('x ≠ S x：一条规则。', 'x ≠ S x: a rule.')),
+  insLen: fact('插入长一格', 'Insert adds one', '∀xs. ∀x. len(ins(x, xs)) = s(len(xs))', T('len (ins x xs) = S (len xs)：一条规则，也是化简的一条改写规则（从左往右）。', 'len (ins x xs) = S (len xs): a rule, and a left-to-right rewrite rule for Simp.')),
 }
 
 // How parts' descriptions grow as the course goes on: from the level `at` on, the description reads this way.
@@ -122,40 +122,40 @@ const REVISIONS = {
   // De Morgan comes with its four propositional shapes at once, and the quantifier level adds the other four.
   dm: [
     { by: 'demorgan', forms: ['andNot', 'orNot', 'notAnd'] },
-    { by: 'q-dm', forms: ['notEx', 'allNot', 'exNot', 'notAll'], desc: T('德摩根律：否定穿过「或者」「并且」「存在」「对所有」时互相转换，八个方向都有（∃ 像一个很长的「或者」，∀ 像一个很长的「并且」）。元件上切换形状。', 'De Morgan’s law: a negation passing through “or”, “and”, “there is” and “for all” turns one into the other, all eight ways (∃ is like a long “or”, ∀ a long “and”). Switch the shape on the card.') },
+    { by: 'q-dm', forms: ['notEx', 'allNot', 'exNot', 'notAll'], desc: T('否定与「或者」「并且」「存在」「对所有」互换，八种形状在元件上切换。', 'A negation trades “or” for “and”, “there is” for “for all”, and back: eight shapes switched on the part.') },
   ],
   // 矛盾 brings in ¬A as A → ⊥, so Apply takes ¬A and A to ⊥.
-  mp: [{ at: 'bot', desc: T('由 A → B 和 A 得到 B：接进一句「若…，则…」和它的前一半，得到后一半。¬A 也可以写作 A → ⊥，所以接进 ¬A 和 A，就得到矛盾 ⊥。', 'From A → B and A, B: wire in an “if …, then …” and its “if” part; out comes the “then” part. ¬A can be written A → ⊥, so wire in ¬A and A and out comes the contradiction ⊥.') }],
+  mp: [{ at: 'bot', desc: T('由 A → B 和 A 得到 B。¬A 即 A → ⊥，所以由 ¬A 和 A 得到矛盾 ⊥。', 'From A → B and A, gives B. ¬A is A → ⊥, so from ¬A and A, gives the contradiction ⊥.') }],
   // The equivalences come with every shape at once.
   // From the simplifier on, each shape is a rewrite rule too.
   dneg: [
     { by: 'c-dneg', forms: ['intro'] },
-    { at: 'sp-rw', desc: T('元件上切换形状：接进 ¬¬A 给出 A；接进 A 给出 ¬¬A。两个方向也都是改写规则。', 'Switch the shape on the card: wire in ¬¬A for A, or A for ¬¬A. Both ways are rewrite rules too.') },
+    { at: 'sp-rw', desc: T('两种形状在元件上切换：由 ¬¬A 得到 A；由 A 得到 ¬¬A。每种形状也是一条改写规则。', 'Two shapes switched on the part: from ¬¬A, gives A; from A, gives ¬¬A. Each shape is also a rewrite rule.') },
   ],
   arrow: [
     { by: 'c-arrow', forms: ['intro'] },
-    { at: 'sp-rw', desc: T('元件上切换形状：接进 A → B 给出 ¬A ∨ B；接进 ¬A ∨ B 给出 A → B。两个方向也都是改写规则。', 'Switch the shape on the card: wire in A → B for ¬A ∨ B, or ¬A ∨ B for A → B. Both ways are rewrite rules too.') },
+    { at: 'sp-rw', desc: T('两种形状在元件上切换：由 A → B 得到 ¬A ∨ B；由 ¬A ∨ B 得到 A → B。每种形状也是一条改写规则。', 'Two shapes switched on the part: from A → B, gives ¬A ∨ B; from ¬A ∨ B, gives A → B. Each shape is also a rewrite rule.') },
   ],
   dist: [
     { by: 'c-dist', forms: ['andOrR', 'orAndL', 'andOrL'] },
-    { at: 'sp-rw', desc: T('「或者」分配到「并且」上，四个方向：A ∨ (B ∧ C) 和 (A ∨ B) ∧ (A ∨ C) 互相转换，(A ∧ B) ∨ C 和 (A ∨ C) ∧ (B ∨ C) 互相转换。元件上切换形状；每个方向也都是改写规则。', '“Or” distributed over “and”, four ways: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Switch the shape on the card; each way is a rewrite rule too.') },
+    { at: 'sp-rw', desc: T('「或者」对「并且」分配，四种形状在元件上切换：A ∨ (B ∧ C) 与 (A ∨ B) ∧ (A ∨ C) 互推，(A ∧ B) ∨ C 与 (A ∨ C) ∧ (B ∨ C) 互推。每种形状也是一条改写规则。', '“Or” distributed over “and”, four shapes switched on the part: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Each shape is also a rewrite rule.') },
   ],
   iff: [{ by: 'au-iff', forms: ['intro'] }],
   // ↔ comes into proofs on the main path with 两个方向: ∧ elim takes it apart.
-  andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A，也得到 B：两个输出口各取一边。它是由「并且」的声明生成的消去规则。A ↔ B 就是 (A → B) ∧ (B → A)，也能这样拆。', 'From A ∧ B, A, and also B: one output for each side. It is the elimination rule made from the declaration of “and”. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
+  andE: [{ at: 'iffUse', desc: T('由 A ∧ B 得到 A 和 B，两个输出口各给一边。A ↔ B 即 (A → B) ∧ (B → A)，也照此拆开。', 'From A ∧ B, gives A and B, one at each output. A ↔ B is (A → B) ∧ (B → A), and splits the same way.') }],
 
   // The machine parts grow along chapters 7 and 8: quantifiers taken apart and patterns (模式合一), every result once
   // the cards backtrack (一串结果).
-  uDecompose: [{ at: 'r-pattern', desc: T('找到一个两边样子相同的等式，拆成各部分对各部分的几个等式。两边都是「对所有」（或都是「存在」）时，拆出两边的身体，让它们用同一个变量，等式前面记上 ⋀x：x 是量词管着的。', 'Finds an equation with the same shape on both sides and splits it into an equation for each pair of parts. When both sides are “for all” (or both “there is”), it takes out the two bodies, with one variable for both, and marks the equation ⋀x: x is bound by a quantifier.') }],
-  uCheck: [{ at: 'r-pattern', desc: T('找到一个 ?A ≐ t，?A 不能是 t，就宣布失败：t 里面又有 ?A；或者 t 里有前面 ⋀ 管着的变量（?A 不能把它带出量词）。', 'Finds ?A ≐ t where ?A cannot be t and declares failure: ?A occurs inside t, or t has a variable bound by the ⋀ in front (?A cannot take it out of its quantifier).') }],
-  unifier: [{ at: 'r-pattern', desc: T('把一组等式解到底：每个等式左边是一个 ?，右边里没有这些 ?（最一般合一子）；合一不了就宣布失败。?P(x) 这样的等式它不会解，原样留下。', 'Solves a set of equations to the end: each with a ?-letter on the left and none of those letters on any right (the most general unifier); failure if there is none. An equation like ?P(x) it cannot solve, and leaves as it is.') }],
-  append: [{ at: 's-results', desc: T('每个框都拿到同一个状态；先是第一个框的每一种结果，再是下一个框的每一种结果，失败的框不算。元件上选有几个框。', 'Every region gets the same state; every result of the first region, then every result of the next, regions that failed left out. Choose on the part how many regions it has.') }],
-  repeat: [{ at: 's-results', desc: T('框开出它收到的东西，框里接出新的东西送回「结果」；框把结果再送进去，一圈一圈地做，直到不再变化或者失败（停在失败前的一圈），送出最后一圈的结果。有几种结果时，它只顺着第一种往下做。', 'The frame opens with what it receives; what is made inside goes back into “result”; the frame feeds it in again, round after round, until it stops changing or fails (stopping at the round before), and gives the last round. With several results, it follows only the first.') }],
-  assumption: [{ at: 's-results', desc: T('第一个目标和它的一条已知合一：对上了，这个目标就证完了。每一条对上的已知都是一种结果，按从上往下的顺序。', 'The first goal is unified with one of its hypotheses: when one fits, that goal is done. Each hypothesis that fits is a result, in order from the top.') }],
+  uDecompose: [{ at: 'r-pattern', desc: T('找到两边结构相同的等式，分解为对应部分之间的等式。两边都是「对所有」（或都是「存在」）时，取出两边的主体，用同一个变量 x，并在等式前记上 ⋀x，表示 x 受量词约束。', 'Finds an equation whose sides have the same structure and splits it into equations between corresponding parts. When both sides are “for all” (or both “there is”), it takes out the two bodies with one variable x for both, and marks the equation ⋀x: x is bound by a quantifier.') }],
+  uCheck: [{ at: 'r-pattern', desc: T('找到等式 ?A ≐ t，?A 不能取 t 时报告失败：t 含有 ?A 而不是 ?A 本身，或者 t 含有前面 ⋀ 约束的变量。', 'Finds ?A ≐ t where ?A cannot be t and reports failure: t contains ?A and is not ?A itself, or t contains a variable bound by the ⋀ in front.') }],
+  unifier: [{ at: 'r-pattern', desc: T('把一组等式解到底：每个等式左边是一个 ?-字母，右边不含这些 ?-字母（最一般合一子）；无法合一时报告失败。?P(x) 这类等式不求解，原样保留。', 'Solves a set of equations to the end: each with a ?-letter on the left and none of those letters on any right side (the most general unifier); reports failure if there is none. An equation like ?P(x) is not solved but left as it is.') }],
+  append: [{ at: 's-results', desc: T('每个框收到相同的状态；依次输出第一个框的每一种结果、下一个框的每一种结果……失败的框没有结果。在元件上选定框的数目。', 'Every region receives the same state; gives every result of the first region, then every result of the next, and so on; a region that fails gives none. The number of regions is chosen on the part.') }],
+  repeat: [{ at: 's-results', desc: T('框收到输入，框内的输出接到「结果」后再送回框内，逐轮重复，直到结果不再变化，输出最后一轮的结果；某一轮失败时，停在失败前的一轮。有几种结果时，只沿第一种继续。', 'The frame receives the input; its inner output goes to “Result” and back into the frame, round after round, until it stops changing, and the last round’s result is given. If a round fails, it stops at the round before. With several results, it goes on from the first only.') }],
+  assumption: [{ at: 's-results', desc: T('第一个目标与它的一条已知合一：成功时这个目标证完。每一条合得上的已知给出一种结果，按从上往下的顺序。', 'Unifies the first goal with one of its hypotheses: on success that goal is closed. Each hypothesis that fits gives one result, in order from the top.') }],
   // Rewriting the hypotheses comes with the clause chapter.
-  rw: [{ at: 'au-hyps', desc: T('接进改写规则：在第一个目标里，从外往里、从左往右找第一处对得上规则左边的地方，换成右边，只换这一处。规则带条件的，条件成了新目标，排在它后面。接进几条时用第一条对得上的；哪一处都对不上，就失败。「改哪里」选已知，改的就是第一个目标从上往下第一条对得上的已知。', 'Takes rewrite rules: in the first goal, outside in and left to right, the first place that fits the rule’s left side becomes its right side, that place alone. A rule with conditions leaves each as a new goal after it. Given several, it uses the first that fits; if no place fits, it fails. With “where” set to the hypotheses, it rewrites the first goal’s first hypothesis from the top that the rule fits.') }],
-  simp: [{ at: 'au-hyps', desc: T('接进一串改写规则：每一圈用第一条对得上的规则改写一处，一圈一圈改下去，直到哪一条都对不上。「改哪里」选已知，改的就是第一个目标的已知。', 'Takes a list of rewrite rules: each round, the first that fits rewrites one place, round after round, until none fits. With “where” set to the hypotheses, it rewrites the first goal’s hypotheses.') }],
-  erule: [{ at: 's-results', desc: T('接进规则：先逆用规则，再以由假设得证处理它留下的第一个目标。规则的结论对上第一个目标，第一条前提对上一条已知；剩下的前提各成一个目标。接进几条时，每一条、每一条对上的已知都是一种结果。', 'Takes rules: Rule, then Assumption on the first goal it leaves. The rule’s conclusion fits the first goal and its first premise a hypothesis; each other premise is a goal. Each rule wired in, and each hypothesis that fits, is a result.') }],
+  rw: [{ at: 'au-hyps', desc: T('接入改写规则：在第一个目标中，由外向内、从左到右找到第一处与规则左边相合的位置，换成规则右边，只换这一处。规则带条件时，每个条件成为新目标，排在这个目标之后。接入多条时用第一条相合的；没有一处相合，元件失败。「改哪里」选「已知」时，改写第一个目标中从上往下第一条相合的已知。', 'Takes rewrite rules: in the first goal, outside in and left to right, the first place that fits the rule’s left side becomes its right side, that place alone. A rule with conditions adds each as a new goal after this one. Given several, it uses the first that fits; if nothing fits, it fails. With “Where” set to the hypotheses, it rewrites the first goal’s first hypothesis from the top that fits.') }],
+  simp: [{ at: 'au-hyps', desc: T('接入改写规则列表：每一轮用第一条相合的规则改写一处，逐轮重复，直到没有规则相合。「改哪里」选「已知」时，改写第一个目标的已知。', 'Takes a list of rewrite rules: each round, the first that fits rewrites one place, round after round, until none fits. With “Where” set to the hypotheses, it rewrites the first goal’s hypotheses.') }],
+  erule: [{ at: 's-results', desc: T('接入规则：规则的结论与第一个目标合一，第一条前提与它的一条已知合一，这个目标换成其余的前提，每条一个目标。每一条规则、每一条合得上的已知都给出一种结果。', 'Takes rules: the rule’s conclusion is unified with the first goal and its first premise with one of that goal’s hypotheses; the goal is replaced by the remaining premises, one goal each. Each rule wired in, and each hypothesis that fits, gives one result.') }],
 }
 
 const COURSE = {
