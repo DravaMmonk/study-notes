@@ -91,7 +91,7 @@ export const ERAS = [
       series('mix', '组合', 'Together', ['iffUse', 'dist', 'dsyll']),
     ],
     // The connectives defined with → alone instead of declared, after the chapter's last level: optional proofs.
-    topics: [{ id: 'hol', code: 'H', after: ['k', 'dsyll'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') }],
+    topics: [{ id: 'hol', code: 'X', after: ['k', 'dsyll'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') }],
     chapter: { title: T('连接词的运用', 'Using the connectives'), question: T('有了声明出来的「与」「或」「非」，能证出些什么？', 'With “and”, “or” and “not” declared, what can be proved?') },
   },
   {
@@ -168,7 +168,7 @@ export const ERAS = [
       's-auto',
     ],
     // Prolog is rule resolution and depth-first search: it goes on from chapter 5's family tree.
-    topics: [{ id: 'prolog', code: 'P', after: ['s-search', 'q-grand'], levels: ['pl-grand', 'pl-anc', 'pl-order'], title: T('用规则推族谱', 'A family tree by rules') }],
+    topics: [{ id: 'prolog', code: 'F', after: ['s-search', 'q-grand'], levels: ['pl-grand', 'pl-anc', 'pl-order'], title: T('用规则推族谱', 'A family tree by rules') }],
     challenges: [{ level: 's-loop', after: 's-search' }],
     chapter: { title: T('策略', 'Tactics'), question: T('能不能让证明助手自己去试该用哪条规则？', 'Can the proof assistant try for itself which rule to use?') },
   },
@@ -192,7 +192,7 @@ export const ERAS = [
       ),
     ],
     // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.
-    topics: [{ id: 'knights', code: 'K', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
+    topics: [{ id: 'knights', code: 'R', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
     challenges: [{ level: 'peirce', after: 'lemCases' }, { level: 'drinker', after: 'q-dm' }],
     chapter: { title: T('经典逻辑', 'Classical logic'), question: T('真值表上每一行都真的话，证明器都证得出吗？', 'Does the prover prove everything true on every row?') },
   },
@@ -226,8 +226,8 @@ export const ERAS = [
     ],
     practice: [series('use', '交给证明助手', 'Handed to the proof assistant', ['au-adder', 'au-machine'])],
     topics: [
-      { id: 'islanders-more', code: 'N', after: ['au-replay', 'kk-three'], levels: ['is-three', 'is-silent', 'is-ten'], title: T('岛民变多', 'More islanders') },
-      { id: 'bounds', code: 'U', after: ['au-machine', 'kk-one'], levels: ['u-barber', 'u-cantor', 'u-ls', 'u-halt'], title: T('机器做不到的事', 'What no machine can do') },
+      { id: 'islanders-more', code: 'R', after: ['au-replay', 'kk-three'], levels: ['is-three', 'is-silent', 'is-ten'], title: T('岛民变多', 'More islanders') },
+      { id: 'bounds', code: 'R', after: ['au-machine', 'kk-one'], levels: ['u-barber', 'u-cantor', 'u-ls', 'u-halt'], title: T('机器做不到的事', 'What no machine can do') },
     ],
     challenges: [{ level: 'au-horn', after: 'au-saturate' }],
     chapter: { title: T('自动化与证书', 'Automation and certificates'), question: T('证明能交给证明助手去找吗？证明助手找到的，凭什么信？', 'Can a proof assistant be left to find proofs, and why believe what it finds?') },
@@ -256,7 +256,7 @@ export const ERAS = [
       // What the generator (optional, as chapter 6 left it) makes of the numbers.
       { id: 'gen-nat', code: 'E', after: ['decl-nat', 'gen-ex'], levels: ['gen-nat'], title: T('生成器遇上自然数', 'The generator meets the numbers') },
       { id: 'sort', code: 'I', after: ['in-appnil', 'sp-cond'], levels: ['sort-ins', 'sort-run', 'sort-if', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') },
-      { id: 'goedel', code: 'G', after: ['in-itsum', 'u-halt'], levels: ['gd-code', 'gd-check', 'gd-diag', 'gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
+      { id: 'goedel', code: 'R', after: ['in-itsum', 'u-halt'], levels: ['gd-code', 'gd-check', 'gd-diag', 'gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
     ],
     challenges: [{ level: 'in-circle', after: 'in-comm' }],
     chapter: { title: T('数与列表', 'Numbers and lists'), question: T('数和列表怎么算、从哪里来？对每一个数都成立的事，怎么证？', 'How are numbers and lists worked out, and where do they come from? How is something proved for every number?') },

@@ -76,6 +76,7 @@ export const RULE_TEXT = {
   'machine-role': 'a foundation, practice, finale or challenge level played on an older machine',
   mechanism: 'played on a machine that cannot do what its board uses',
   'topic-world': 'a topic that spans several worlds',
+  'topic-code': 'topics of one series (one hanging on another\'s level) under different letters, or unrelated series under one',
   'challenge-new': 'a challenge that brings something new',
   'challenge-required': 'a level that requires a challenge',
   'challenge-naive': 'a challenge without a failing naive answer',
@@ -388,6 +389,20 @@ export function audit(course) {
   }
   // Every era after the first says what it takes from the ones before: everything, or a list.
   course.eras?.slice(1).forEach((era) => { if (era.keeps !== 'all' && !Array.isArray(era.keeps)) say('era-keeps', pathLevels(era.foundation)[0] ?? era.id, String(era.id), `era ${era.id} has no keeps`) })
+  // A letter is a series: topics joined by one hanging on another's level share it, across eras too; unrelated series
+  // do not.
+  const topics = course.eras.flatMap((e) => e.topics ?? []).filter((t) => t.code)
+  const series = new Map(topics.map((t) => [t.id, t.id]))
+  const root = (id) => (series.get(id) === id ? id : root(series.get(id)))
+  for (const t of topics) for (const after of [].concat(t.after ?? [])) {
+    const u = topics.find((x) => x.levels.includes(after))
+    if (u) series.set(root(t.id), root(u.id))
+  }
+  for (const t of topics) {
+    const kin = topics.filter((u) => root(u.id) === root(t.id))
+    if (kin.some((u) => u.code !== t.code)) say('topic-code', t.levels[0], t.code, `topic ${t.id} is in one series with ${kin.filter((u) => u.code !== t.code).map((u) => `${u.id} (${u.code})`).join(', ')}`)
+    else if (topics.some((u) => u.code === t.code && root(u.id) !== root(t.id))) say('topic-code', t.levels[0], t.code, `topic ${t.id} shares its letter with a series it does not hang on`)
+  }
   // A topic stays in one world.
   for (const era of course.eras) {
     for (const topic of era.topics ?? []) {

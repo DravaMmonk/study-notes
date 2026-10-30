@@ -103,6 +103,8 @@ shows them at work in 《证明完毕》):
   presets it on the board (`preset`): locked, movable, never deleted or rewired.
 - **Renumbering needs a save migration** (§2): renamed ids, flags now set by another level, new intro levels
   marked passed when a later one is.
+- **Topic codes.** One letter per series: topics hanging on each other's levels (`after`) share a letter, across
+  chapters too, numbered on; unrelated series take different letters (audit `topic-code`).
 - **Level tree shape.** The map tree is at most three columns wide, at most three levels per row. A parallel set
   (`branches`) has at most three branches; split more into two sets in sequence. An optional branch does not get
   its own outward column: `LevelMap.jsx` drops it into the first free rows inside the existing columns below its
