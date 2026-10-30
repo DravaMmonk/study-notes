@@ -23,11 +23,19 @@
 // Apply on what is at hand; `get` follows when every case reaches it. A sentence nothing else mentions stands for any
 // sentence R, so these rows show the declared sentence gives just what its ways in give: no more, no less.
 //
+// Finding the fault (`wrong`): the board holds someone's declaration that is wrong (one board, or several each wrong
+// in its own way), locked, and the player writes the situations instead (checkCases): each the proofs at hand and
+// whether, as the requirement means it, the declared sentence should be proved. Each expectation is judged by the
+// level's reference answer, so a row that says what the requirement does not mean is wrong; the cases pass when every
+// expectation is right and every wrong board goes wrong on one of them. Fewer cases is the better score.
+//
 // A level: { kind: 'iso', declare: { zh, en } its name, target: its sentence (with a thing's name where a way takes
 // one: 'x = x'), sentences: [sentence] an assumption card may pick (letters, or sentences like "A → B" or "Human(x)"),
 // things: [name] the things of the level, binder: the name a thing card gives ('x' unless it says), tests: [{ have:
 // { sentence: n }, goal?, make: bool, uses?: [sentence] what the way it is made by must take } | { holds?: [sentence], get,
-// make: bool }], tray: the cards it
+// make: bool }], wrong: [board] someone's declarations
+// to find the fault in (the player writes the cases), answer: [{ have, make }] reference cases for them, start: the board
+// it opens on (someone's declaration to fix), tray: the cards it
 // offers (['hyp'] unless it says: 'hyp', 'thing', 'none'), ways: the rules the declaration must have, when the
 // situations alone cannot tell (a way's assumptions in order, [[sentence]]), take: the rule that takes it apart, when
 // it is not the plain cases (a family indexed by things, as =): { premises: [text], conclusion: text } in metavariables
@@ -243,6 +251,37 @@ export function checkIso(level, circuit, words) {
     ? T(`每种情况都对，但引入规则不是要求的那样：${level.ways.map((w) => `⟦${w.map((s) => said(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every situation is right, but the ways are not the ones asked for: ${level.ways.map((w) => `⟦${w.map((s) => said(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`)
     : null
   return { pass: results.every((r) => r.pass) && !ways, results, ways }
+}
+
+/** A case the player writes, as a test: the sentences at hand numbered in order. */
+export const caseTest = (c) => ({ have: Object.fromEntries(c.have.map((s, k) => [s, k + 1])), make: c.make })
+
+/**
+ * The player's cases against the wrong boards: { pass, rows: [{ right, wants, made: [made per board] }], caught: [k of
+ * the case that catches each board, or -1], reason }. A row is right when its expectation is what the reference answer
+ * gives; a board is caught by a right row it answers otherwise.
+ */
+export function checkCases(level, cases, words) {
+  const name = level.declare
+  const rows = cases.map((c) => {
+    const test = caseTest(c)
+    const wants = Boolean(runIso(level, level.solution, test).made)
+    return { right: wants === c.make, wants, made: level.wrong.map((board) => runIso(level, board, test).made) }
+  })
+  const caught = level.wrong.map((_, b) => rows.findIndex((r) => r.right && Boolean(r.made[b]) !== r.wants))
+  const at = (c) => {
+    const has = c.have.map(words)
+    return T(has.map((h) => `「${h.zh}」`).join('、') || '什么都没有', has.map((h) => `“${h.en}”`).join(', ') || 'nothing')
+  }
+  const bad = rows.findIndex((r) => !r.right)
+  const loose = caught.findIndex((k) => k < 0)
+  const reason = !cases.length ? T('还没有写条例：添一条，写下手里有什么、这时该不该证得出。', 'No case yet: add one, saying what is at hand and whether it should then be proved.')
+    : bad >= 0 ? T(`第 ${bad + 1} 条的期望不是需求的意思：手里有${at(cases[bad]).zh}时，「${name.zh}」${rows[bad].wants ? '应当证得出' : '不该证得出'}。`, `Case ${bad + 1} does not say what the requirement means: with ${at(cases[bad]).en} at hand, “${name.en}” ${rows[bad].wants ? 'should be proved' : 'should not be proved'}.`)
+    : loose >= 0 ? (level.wrong.length > 1
+      ? T(`每一条都对，可电路 ${loose + 1} 在每一条上都答对了：还没抓住它错在哪里。`, `Every case is right, but board ${loose + 1} answers each one correctly: its fault is not caught yet.`)
+      : T('每一条都对，可这块电路在每一条上都答对了：还没抓住它错在哪里。', 'Every case is right, but this board answers each one correctly: its fault is not caught yet.'))
+    : null
+  return { pass: !reason, rows, caught, reason }
 }
 
 const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })

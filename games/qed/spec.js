@@ -272,6 +272,11 @@ export default {
   { version: 53, ops: [
     { grant: ['gen-one', 'lemma:elimGen'] },
     { built: ['gen-one'] },
+  ] },
+  // Version 54 gave 声明「并且」 a second task (finding the fault in someone's declaration by writing cases) and made
+  // 声明「或者」 find the faults in two before putting one right: the kept board goes to the task that writes one.
+  { version: 54, ops: [
+    { data: (value, id) => (id === 'decl-and' && value && !Array.isArray(value) ? [value, null] : id === 'decl-or' && value && !Array.isArray(value) ? [null, value] : value) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
