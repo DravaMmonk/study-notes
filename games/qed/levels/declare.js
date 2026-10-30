@@ -82,7 +82,7 @@ export const declarations = [
     ],
     solution: isoBoard(['Rain>Wet', 'Wet>1']),
     naive: isoBoard(['Wet>1']),
-    after: T('声明好了：一条引入规则，就是<part-ref to="part:impI"></part-ref>。拿到「下雨 → 地湿」以后能做什么，不用另写：引入规则就是造出它的全部办法，所以用掉它的<wiki-ref to="elim-rule"></wiki-ref>能由引入规则生成：每条引入规则一种情况，交还那条引入规则收进去的东西。这里交还的是「由下雨推得出地湿」本身，再拿到「下雨」就推得出「地湿」，这就是<part-ref to="part:mp"></part-ref>。所以套用不必另外声明：它就是由假设框生成的那条消去规则。', 'Declared: one way in, which is the <part-ref to="part:impI"></part-ref>. What to do with “it rains → the ground is wet” need not be written: the ways in are all the ways to make it, so the <wiki-ref to="elim-rule"></wiki-ref> that uses it up can be made from them: one case for each, giving back what that way took. What comes back here is “the ground is wet, derived from it rains” itself, and with “it rains” that gives “the ground is wet”: that is <part-ref to="part:mp"></part-ref>. So Apply needs no declaration of its own: it is the elimination rule made from the box.'),
+    after: T('这条规则就是「下雨 → 地湿」唯一的、也是全部的引入规则，所以它的<wiki-ref to="elim-rule"></wiki-ref>可以直接由它生成出来。怎样生成，可以到之后的消去规则生成器专题里探索。', 'This rule is the one and only intro rule of “it rains → the ground is wet”, so its <wiki-ref to="elim-rule"></wiki-ref> can be made from it directly. How it is made, the elimination rule generator topic lets you explore later.'),
   }),
   declare({
     // Writing test cases, before writing more declarations: two directions, the declared sentence as the goal (how it
