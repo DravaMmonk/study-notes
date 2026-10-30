@@ -169,8 +169,9 @@ export function runIso(level, circuit, test) {
 }
 
 /**
- * Whether `get` follows from the declared sentence and `holds`, by its elimination rule (one case per way, a thing a
- * way takes named afresh) with Apply, Take one (on the things known) and Example (for a goal "there is").
+ * Whether a test's goal follows from its premises by Apply, Take one (on the things known) and Example (for a goal
+ * "there is"), and by the declared sentence's elimination rule (one case per way, a thing a way takes named afresh)
+ * once the declared sentence is reached.
  */
 export function follows(level, circuit, test) {
   const read = (s) => sentenceOf(level, s)
@@ -192,9 +193,11 @@ export function follows(level, circuit, test) {
   }
   const goal = read(test.goal)
   const reached = (known, own) => known.has(keyOf(goal)) || (goal.op === '∃' && [...things, ...own].some((t) => known.has(keyOf(substF(goal.body, goal.v, t)))))
-  const start = test.given.map(read)
+  // The premises first, as far as Apply and Take one reach (A and A → ⊥ give ⊥); the elimination rule then applies
+  // when the declared sentence is among what they reach, not only among the premises written.
+  const start = [...reach(test.given.map(read), []).values()]
   if (reached(reach(start, []), [])) return true
-  if (!test.given.some((s) => keyOf(read(s)) === keyOf(read(level.target)))) return false
+  if (!start.some((f) => keyOf(f) === keyOf(read(level.target)))) return false
   // What a case hands back: each sentence its way took, one needed under premises as the rule it is (A → B to Apply).
   const handed = (n) => needUnder(n).reduceRight((b, u) => ({ op: '→', a: read(needSentence(u)), b }), read(needSentence(n)))
   return waysIn(circuit).every((w, k) => {
@@ -229,8 +232,8 @@ export function waysIn(circuit) {
 
 /**
  * Whether a test's goal is derivable on this board: { derived, made? }. An intro rule must make it (made: the way and
- * what it took) when the declared sentence is not given and the goal is of its shape; otherwise the elimination rule
- * and Apply decide (follows).
+ * what it took) when the declared sentence is not given and the goal is of its shape, unless the premises reach it by
+ * Apply already; otherwise the elimination rule and Apply decide (follows).
  */
 export function derives(level, circuit, test) {
   const read = (s) => sentenceOf(level, s)
@@ -238,6 +241,8 @@ export function derives(level, circuit, test) {
   const goal = test.goal ? read(test.goal) : target
   const given = test.given.map((s) => keyOf(read(s)))
   const shape = (f) => [f.op, f.pred, f.v !== undefined].join('|')
+  // A goal the premises reach without an intro rule (A and A → ⊥ give ⊥) needs none.
+  if (!test.uses && !given.includes(keyOf(target)) && shape(goal) === shape(target) && follows(level, circuit, { given: test.given, goal: test.goal ?? level.target })) return { derived: true }
   if (test.uses || (!given.includes(keyOf(target)) && shape(goal) === shape(target))) {
     const made = runIso(level, circuit, { given: test.given, goal: test.goal && keyOf(goal) !== keyOf(target) ? test.goal : null }).made
     return { derived: Boolean(made), made }
