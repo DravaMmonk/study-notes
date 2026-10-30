@@ -113,7 +113,7 @@ export const era1 = [
   {
     id: 'box',
     kind: 'proof',
-    title: T('造一台证明器', 'Build a prover'),
+    title: T('假设今天是周六', 'Suppose it is Saturday'),
     tests: [{ premises: { p: 'A → (B → C)', q: 'B' }, goal: 'A → C' }],
     cases: [{ A: 'Sat', B: 'Rain', C: 'Rest' }, { A: 'Alarm', B: 'Coffee', C: 'Awake' }],
     briefNote: T('用假设框。', 'With the assumption box.'),
