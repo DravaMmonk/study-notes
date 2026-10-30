@@ -330,6 +330,12 @@ export default {
     { data: (value, id) => (id === 'decl-imp' && Array.isArray(value) ? value[0] ?? undefined : value) },
     { tasks: (passed, id) => (id === 'decl-imp' ? 0 : passed) },
     { solve: ['decl-and', ['decl-check']] },
+  ] },
+  // Version 64 put 声明「并且」's two audits first and its declaration last, gave 声明「或者」's first audit a fixed goal
+  // and made its last task a declaration from scratch: the declaration written moves to the end, the rest start afresh.
+  { version: 64, ops: [
+    { data: (value, id) => (!Array.isArray(value) ? value : id === 'decl-and' ? [null, null, value[0] ?? null] : id === 'decl-or' ? [null, value[1] ?? null, null] : value) },
+    { tasks: (passed, id) => (['decl-and', 'decl-or'].includes(id) ? 0 : passed) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

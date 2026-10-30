@@ -118,6 +118,7 @@ export function validate({ levels: given, course }) {
       // The reference cases fill the cases set out, and keep the goal and expectation the level fixes.
       const set = level.slots.length ?? level.slots
       if (level.answer.length !== set) out.push({ fail: true, text: `  the reference answer has ${level.answer.length} cases for ${set} set out` })
+      if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.keep ?? []).some((s) => !level.answer[k]?.given.includes(s)))) out.push({ fail: true, text: '  a reference case drops a premise its case keeps' })
       if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.fixed ?? []).some((cell) => JSON.stringify(c[cell]) !== JSON.stringify(level.answer[k]?.[cell])))) out.push({ fail: true, text: '  a reference case changes a cell its case fixes' })
       if (level.answer.some((c) => (level.caseGoal && c.goal !== level.caseGoal) || (level.caseMake !== undefined && c.make !== level.caseMake))) out.push({ fail: true, text: '  a reference case breaks the goal or expectation the level fixes' })
       // A board to check is right (want 'agree'); one to catch is wrong.
