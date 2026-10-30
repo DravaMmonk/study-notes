@@ -86,10 +86,10 @@ export const declarations = [
     after: T('你可能已经注意到，声明板会根据引入规则生成<wiki-ref to="elim-rule"></wiki-ref>。这是因为声明列出了构建该命题的全部方式：要使用它，就可以逐一考虑这些方式。', 'You may have noticed that the declaration board generates an <wiki-ref to="elim-rule"></wiki-ref> from the introduction rules. This is possible because the declaration lists all the ways to construct the statement: using it means considering each of those ways.'),
   }),
   declare({
-    // Writing test cases, before writing more declarations: two directions, the declared sentence as the goal (how it
-    // is made) and as a premise (what follows from it). Four cases set out each time, two written, two with a cell
-    // left: first on the player's own right declaration, every result agreeing; then on someone's wrong one, every
-    // result disagreeing.
+    // Writing test cases, before writing more declarations: a free case agreeing with the player's own right
+    // declaration, then one disagreeing with someone's wrong one; last, the two directions on one declaration, the
+    // declared sentence as the goal (how it is made) and as a premise (what follows from it): 3-1's naive declaration,
+    // which no case of the first direction can tell from the right one.
     id: 'decl-check',
     title: T('检验声明', 'Checking a declaration'),
     ...IMP,
@@ -97,7 +97,7 @@ export const declarations = [
     intro: [
       { t: T('<b>检验条例</b>用来检查声明是否符合我们想表达的意思。每条条例描述一种情况：有哪些<b>前提</b>、要推导什么<b>目标</b>，以及在这些前提下，目标<b>预期</b>能否推导出来。', 'A <b>test case</b> checks whether a declaration captures the intended meaning. Each case describes a situation: the available <b>premises</b>, the <b>goal</b>, and whether the goal is <b>expected</b> to follow from those premises.') },
       { t: T('声明规定了哪些推导可以成立。运行检验时，证明器会按声明给出<b>结果</b>，再与条例中的预期比较。结果不符，就说明声明在这种情况下没有表达出我们想要的意思。', 'A declaration specifies which derivations are allowed. When a test runs, the prover gives a <b>result</b> according to the declaration and compares it with the expectation. A mismatch shows that the declaration does not capture the intended meaning in that situation.') },
-      { t: T('本关先为自己写的声明编写一条结果相符的条例，再为另一份声明找一条结果不符的条例。', 'In this level, first write a case that agrees with your own declaration, then find a case that disagrees with another declaration.') },
+      { t: T('本关先为自己写的声明编写一条结果相符的条例，再为另一份声明找一条结果不符的条例，最后从两个方向检验同一份声明。', 'In this level, first write a case that agrees with your own declaration, then find a case that disagrees with another declaration, and last check one declaration in two directions.') },
     ],
     tasks: [
       {
@@ -126,6 +126,36 @@ export const declarations = [
         intro: [{ t: T('板上换成了别人写的声明。找出一种情况，使这份声明的结果与预期不符，并将这个情况填入表内。', 'The board now holds someone else’s declaration. Find a situation in which its result disagrees with your expectation, and enter it in the table.') }],
         brief: T('找出一种情况：预期符合需求，声明的结果却与预期不符。', 'Find a situation where the expectation meets the requirement but the declaration’s result disagrees with it.'),
         hint: [T('这份声明要的前提和需求一样吗？', 'Does this declaration ask for the same premise as the requirement?')],
+      },
+      {
+        // 3-1's naive declaration, ⟦Wet⟧ ⟹ Rain → Wet: as a goal it is made exactly when the requirement makes it, so
+        // only a case using it as a premise reveals that its elimination rule gives back Wet outright.
+        kind: 'iso',
+        step: T('两个方向', 'Two directions'),
+        play: 'audit',
+        boards: [{ board: isoBoard(['Wet>1']) }],
+        slots: [
+          { given: ['Wet'], make: true, fixed: ['given', 'goal', 'make'] },
+          { given: ['Rain → Wet'], keep: ['Rain → Wet'], fixed: [] },
+        ],
+        answer: [
+          { given: ['Wet'], make: true },
+          { given: ['Rain → Wet'], goal: 'Wet', make: false },
+        ],
+        naive: [
+          { given: ['Wet'], make: true },
+          { given: ['Rain → Wet'], goal: 'Rain', make: false },
+        ],
+        intro: [
+          { t: T('检验一份声明，要从两个方向入手。<b>引入方向</b>以声明的命题为目标，检验在什么前提下可以得到它；<b>使用方向</b>把它放进前提，检验有了它之后能推出什么。引入规则决定前一个方向，由引入规则生成的消去规则决定后一个方向。', 'A declaration is checked from two directions. The <b>introduction direction</b> takes the declared statement as the goal and checks under which premises it can be obtained; the <b>use direction</b> puts it among the premises and checks what follows from it. The intro rules decide the first direction; the elimination rule generated from them decides the second.') },
+          { t: T('板上的声明只要求「地湿」，就引入「下雨 → 地湿」。第 1 条条例已经写好，它从引入方向检验：结果与预期相符。事实上，从这个方向写出的任何条例，这份声明都能通过。', 'The declaration on the board introduces “it rains → the ground is wet” from “the ground is wet” alone. Case 1 is already written and checks the introduction direction: the result agrees with the expectation. In fact this declaration passes every case written from this direction.') },
+        ],
+        brief: T('补全第 2 条条例，从使用方向找出这份声明的错误。', 'Complete case 2 to reveal this declaration’s fault from the use direction.'),
+        hint: [
+          T('这份声明的消去规则是怎样的？它从「下雨 → 地湿」交还什么？', 'What is this declaration’s elimination rule? What does it give back from “it rains → the ground is wet”?'),
+          T('按需求，单凭「下雨 → 地湿」，能推出什么，推不出什么？', 'According to the requirement, what follows from “it rains → the ground is wet” alone, and what does not?'),
+        ],
+        after: T('只从引入方向检验，这份声明找不出错误：只要已经有「地湿」，「下雨 → 地湿」确实成立。但它的消去规则直接交还「地湿」，于是单凭「下雨 → 地湿」也能推出「地湿」，不必先有「下雨」。引入规则写得不准确，问题可能只在使用时暴露，所以两个方向都要检验。', 'From the introduction direction alone this declaration shows no fault: once “the ground is wet” holds, “it rains → the ground is wet” does hold. But its elimination rule gives back “the ground is wet” outright, so “it rains → the ground is wet” alone yields “the ground is wet”, without “it rains” first. An inexact intro rule may show its fault only in use, so both directions must be checked.'),
       },
     ],
     after: T('检验条例只能找出声明的错误，证明不了声明正确。', 'Test cases can show a declaration wrong; they cannot show it right.'),
