@@ -30,9 +30,9 @@ export function isoPartsFor(level, words) {
   return {
     inputs: (node) => (node.type === 'hyp' || node.type === 'thing' ? ['before'] : node.type === DECL ? declInputs(node) : []),
     role: (node) => (node.type === DECL ? 'sink' : 'part'),
-    label: (node) => (node.type === 'hyp' ? T('假设', 'Assume') : node.type === 'none' ? NONE.label : node.type === 'thing' ? THING.label
+    label: (node) => (node.type === 'hyp' ? HYP.label : node.type === 'none' ? NONE.label : node.type === 'thing' ? THING.label
       : T(`「${level.declare.zh}」`, `“${level.declare.en}”`)),
-    portLabel: (node, port) => (node.type === DECL ? T(`引入规则 ${WAY[Number(port.slice(1)) - 1]}`, `Intro rule ${WAY[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' || node.type === 'thing' ? T('先假设', 'Assumed first') : ''),
+    portLabel: (node, port) => (node.type === DECL ? T(`引入规则 ${WAY[Number(port.slice(1)) - 1]}`, `Intro rule ${WAY[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' || node.type === 'thing' ? T('上一个前提', 'Premise before') : ''),
     family: (node) => (node.type === DECL ? 'lemma' : 'box'),
     icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === 'none' ? CircleDashed : node.type === 'thing' ? CircleDot : FileSignature),
     cardWidth: () => 220,
@@ -41,10 +41,10 @@ export function isoPartsFor(level, words) {
 }
 
 const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => (n.type === 'hyp' && n.locked) || n.type === 'case') && circuit.wires.every((w) => !w.to.startsWith('hyp-') || w.port === 'before')
-const HYP_DESC = T('假设一句话。另一个假设接入它的「先假设」口时，先作那个假设，再作这个假设；它接入连接词的引入规则口时，这一串假设构成一条引入规则。', 'Assumes a sentence. An assumption wired into its “assumed first” port is made before it; wired into one of the connective’s intro-rule ports, the chain forms an intro rule.')
-const HYP = { type: 'hyp', label: T('假设', 'Assume'), desc: HYP_DESC, icon: SquareDashedText, family: 'box' }
-const NONE = { type: 'none', label: T('不用假设', 'Assume nothing'), desc: T('不作任何假设。接入连接词的引入规则口时，这条引入规则不需要任何前提。', 'Assumes nothing. Wired into one of the connective’s intro-rule ports, that intro rule needs no premises.'), icon: CircleDashed, family: 'box' }
-const THING = { type: 'thing', label: T('任取一样东西', 'Any thing'), desc: T('任取一样东西并为它命名。接在它后面的假设可以提到这个名字，这样的引入规则对任何东西都成立。', 'Takes an arbitrary thing and names it. Assumptions after it may mention the name, so the intro rule holds for every thing.'), icon: CircleDot, family: 'box' }
+const HYP_DESC = T('引入规则的一个前提，在卡上选择是哪一句。另一个前提接入它的「上一个前提」口时，两者属于同一条引入规则；接入连接词的引入规则口时，这一串前提构成一条引入规则。', 'One premise of an intro rule, its sentence chosen on the card. Another premise wired into its “premise before” port belongs to the same intro rule; wired into one of the connective’s intro-rule ports, the chain of premises forms an intro rule.')
+const HYP = { type: 'hyp', label: T('前提', 'Premise'), desc: HYP_DESC, icon: SquareDashedText, family: 'box' }
+const NONE = { type: 'none', label: T('无前提', 'No premise'), desc: T('接入连接词的引入规则口时，这条引入规则不需要任何前提。', 'Wired into one of the connective’s intro-rule ports, that intro rule needs no premises.'), icon: CircleDashed, family: 'box' }
+const THING = { type: 'thing', label: T('任取一样东西', 'Any thing'), desc: T('任取一样东西并为它命名。接在它后面的前提可以提到这个名字，这样的引入规则对任何东西都成立。', 'Takes an arbitrary thing and names it. Premises after it may mention the name, so the intro rule holds for every thing.'), icon: CircleDot, family: 'box' }
 const TRAY = { hyp: HYP, none: NONE, thing: THING }
 // Where a new card goes: the first free spot left of the declared card (the board's output), column by column
 // leftward, so what is wired into it reads left to right.
@@ -157,7 +157,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
     if (node.type === 'thing') return <div className="lg-card"><span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.name}</b></span></div>
     if (node.type === 'hyp') {
       if (at === 'tile') return <div className="lg-card"><Value f={sentenceOf(level, node.params.name)} /></div>
-      return <div className="lg-card"><FormulaField label={T('假设', 'Assume')} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /></div>
+      return <div className="lg-card"><FormulaField label={HYP.label} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /></div>
     }
     const way = (k) => (at === 'sheet' ? tr(`引入规则 ${WAY[k]}：`, `Intro rule ${WAY[k]}:`) : `${WAY[k]}.`)
     return (
@@ -215,7 +215,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
               body={body}
               cardClass={() => 'lg-node'}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
-              emptyNote={{ zh: '从上方取出假设元件，选择它假设的句子。假设接入另一个假设的「先假设」口时，同一条引入规则需要这两个前提；假设接入连接词的引入规则口时，构成一条引入规则。', en: 'Take an assumption from above and choose the sentence it assumes. Wired into another assumption’s “assumed first” port, both belong to one intro rule; wired into one of the connective’s intro-rule ports, it forms an intro rule.' }}
+              emptyNote={{ zh: '从上方取出前提元件，选择它是哪一句。前提接入另一个前提的「上一个前提」口时，同一条引入规则需要这两个前提；接入连接词的引入规则口时，构成一条引入规则。', en: 'Take a premise from above and choose its sentence. Wired into another premise’s “premise before” port, both belong to one intro rule; wired into one of the connective’s intro-rule ports, it forms an intro rule.' }}
             />
           </div>
         </div>

@@ -233,10 +233,13 @@ export function derives(level, circuit, test) {
   return { derived: follows(level, circuit, { given: test.given, goal: test.goal ?? level.target }) }
 }
 
-/** What a test gives, in words: 「下雨」、「刮风」 (or nothing). */
+/** A test's premises, as a phrase: 前提为「下雨」、「刮风」 (or 没有前提). */
+const cap = (text) => text[0].toUpperCase() + text.slice(1)
 const givenText = (test, words) => {
   const has = test.given.map(words)
-  return T(has.map((h) => `「${h.zh}」`).join('、') || '什么都没有', has.map((h) => `“${h.en}”`).join(', ') || 'nothing')
+  return has.length
+    ? T(`前提为${has.map((h) => `「${h.zh}」`).join('、')}`, `with the premises ${has.map((h) => `“${h.en}”`).join(', ')}`)
+    : T('没有前提', 'with no premises')
 }
 
 /**
@@ -251,15 +254,15 @@ export function checkIso(level, circuit, words) {
     const what = test.goal ? words(test.goal) : name
     if (got.derived !== test.make) {
       const reason = test.make
-        ? T(`已知${at.zh}时，「${what.zh}」应当可推导，这份声明却推导不出。`, `Given ${at.en}, “${what.en}” should be derivable, but this declaration does not derive it.`)
-        : T(`已知${at.zh}时，「${what.zh}」不应当可推导，这份声明却推导出了它。`, `Given ${at.en}, “${what.en}” should not be derivable, but this declaration derives it.`)
+        ? T(`${at.zh}时，「${what.zh}」应当可推导，这份声明却推导不出。`, `${cap(at.en)}, “${what.en}” should be derivable, but this declaration does not derive it.`)
+        : T(`${at.zh}时，「${what.zh}」不应当可推导，这份声明却推导出了它。`, `${cap(at.en)}, “${what.en}” should not be derivable, but this declaration derives it.`)
       return { pass: false, reason, ...got }
     }
     // A way that takes what is given, where the test asks for one.
     const taken = new Set((got.made?.items ?? []).filter((x) => x.kind === 'ev').map((x) => x.sentence))
     const unused = (test.uses ?? []).filter((s) => !taken.has(s)).map(words)
     const pass = !unused.length
-    return { pass, reason: pass ? null : T(`推导出了「${what.zh}」，但用到的引入规则没有用上已知的${unused.map((u) => `「${u.zh}」`).join('、')}。`, `“${what.en}” is derived, but by an intro rule that does not take the given ${unused.map((u) => `“${u.en}”`).join(', ')}.`), ...got }
+    return { pass, reason: pass ? null : T(`推导出了「${what.zh}」，但用到的引入规则没有用上前提${unused.map((u) => `「${u.zh}」`).join('、')}。`, `“${what.en}” is derived, but by an intro rule that does not take the premise ${unused.map((u) => `“${u.en}”`).join(', ')}.`), ...got }
   })
   // A way as written in `ways`: what it takes in order, a thing as '⋀x'.
   const key = (ways) => ways.map((w) => w.map((s) => (s.startsWith('⋀') ? '⋀' : s)).join('|')).sort().join('/')
@@ -293,8 +296,8 @@ export function judgeCases(level, cases, words) {
   const caught = boards.map((_, b) => rows.findIndex((r) => r.right && r.derived[b] !== r.wants))
   const bad = rows.findIndex((r) => !r.right)
   const goal = (c) => (c.goal ? words(c.goal) : name)
-  const wrong = !cases.length ? T('还没有条例。请添加一条，写明已知、目标，以及目标是否应当可推导。', 'No test case yet. Add one, stating what is given, the goal, and whether the goal should be derivable.')
-    : bad >= 0 ? T(`第 ${bad + 1} 条条例的预期与需求不符。请重新考虑：已知${givenText(cases[bad], words).zh}时，按需求「${goal(cases[bad]).zh}」是否可推导？`, `The expectation of case ${bad + 1} does not agree with the requirement. Reconsider: given ${givenText(cases[bad], words).en}, is “${goal(cases[bad]).en}” derivable according to the requirement?`)
+  const wrong = !cases.length ? T('还没有条例。请添加一条，写明前提、目标，以及目标是否应当可推导。', 'No test case yet. Add one, stating the premises, the goal, and whether the goal should be derivable.')
+    : bad >= 0 ? T(`第 ${bad + 1} 条条例的预期与需求不符。请重新考虑：${givenText(cases[bad], words).zh}时，按需求「${goal(cases[bad]).zh}」是否可推导？`, `The expectation of case ${bad + 1} does not agree with the requirement. Reconsider: ${givenText(cases[bad], words).en}, is “${goal(cases[bad]).en}” derivable according to the requirement?`)
     : null
   const judge = (b) => wrong ?? (caught[b] >= 0 ? null : T('各条条例的预期都正确，但这份声明在每一条上都得出了正确结论，还没有暴露它的错误。', 'Every expectation is correct, but this declaration reaches the right conclusion on every case: its fault has not yet been revealed.'))
   return { rows, caught, wrong, judge }
