@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 
-// The test cases (检验条例) of a declaration board, one table of four columns: what is given, the goal, what is expected
+// The test cases (检验条例) of a declaration board, one table of four columns: what is given (numbered), the goal, what is expected
 // of it (预期), and whether the declaration derives it (是否可推导: the result, filled in by a run). The level's cases are
 // read only; an audit's are the player's to write (`edit`): givens added from a drop-down of the level's sentences (as
 // an assumption card picks one) and taken off with ×, the goal picked from the same sentences, and the expectation
@@ -28,9 +28,9 @@ export default function CaseTable({ cases, words, level, choices, edit = null, r
           {cases.map((c, k) => (
             <tr key={k} className={rowClass(k)} onClick={() => onPick(k)}>
               <td className="lg-lines">
-                {c.given.map((s) => (
+                {c.given.map((s, i) => (
                   <span key={s} className="lg-given">
-                    {name(s)}
+                    {`${i + 1}. ${name(s)}`}
                     {edit && <button type="button" className="lg-drop" aria-label={tr('移除这条已知', 'Remove this given')} onClick={(e) => { e.stopPropagation(); set(k, { ...c, given: c.given.filter((x) => x !== s) }) }}><X size={12} /></button>}
                   </span>
                 ))}

@@ -72,9 +72,11 @@ function RepairScreen(props) {
     level,
     saved: props.saved,
     save: props.save,
+    // A board goes through its test cases one step each, stopping at the first that is wrong.
+    stepsOf: (k, board) => checkIso(level, board, words).results.map((r) => (r.pass ? {} : { failed: L(r.reason) })),
     judge: (k, board) => {
       const checked = checkIso(level, board, words)
-      return checked.pass ? '' : L(checked.ways ?? checked.results.find((r) => !r.pass).reason)
+      return checked.ways ? L(checked.ways) : ''
     },
     onSolve: () => props.solve({ steps: cases.boards.reduce((n, b) => n + (b.nodes.find((x) => x.id === DECL)?.params.ways ?? 0), 0) }),
     lastRun: props.lastRun,
@@ -167,9 +169,9 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  // One table of test cases. Correcting, every case shows its result once the board on view is judged; and a row is
-  // lit by the case picked, not by the run.
-  const shown = (k) => (cases ? Boolean(states[cases.at]) : run ? k < run.results.length : false)
+  // One table of test cases, each showing its result only once the run has stepped to it. Correcting, the run steps
+  // through the board on view's cases; a row is lit by the case picked, not by the run.
+  const shown = (k) => (cases ? k < cases.playback.shown(cases.at).list.length : run ? k < run.results.length : false)
   const rowClass = (k) => `${k === testIndex ? 'is-on' : ''} ${!cases && states[k] ? `is-${states[k]}` : ''}`
   const result = (k) => (shown(k) ? { derived: checked.results[k].derived, wrong: !checked.results[k].pass } : null)
   const table = (
