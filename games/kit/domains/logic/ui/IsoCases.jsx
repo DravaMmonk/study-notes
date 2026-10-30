@@ -1,15 +1,16 @@
 import { X } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 
-// The test cases (检验条例) of a declaration board, one table of three columns: what is given, the goal, and whether
-// the goal is derivable. The level's cases are read only; an audit's are the player's to write (`edit`): givens added
-// from a drop-down of the level's sentences (as an assumption card picks one) and taken off with ×, the goal picked
-// from the same sentences, and the expectation switched. `note(k)` adds what the board on view answers, after a run.
+// The test cases (检验条例) of a declaration board, one table of four columns: what is given, the goal, what is expected
+// of it (预期), and whether the declaration derives it (是否可推导: the result, filled in by a run). The level's cases are
+// read only; an audit's are the player's to write (`edit`): givens added from a drop-down of the level's sentences (as
+// an assumption card picks one) and taken off with ×, the goal picked from the same sentences, and the expectation
+// switched. `result(k)` is case k's result on the board on view, { derived, wrong } or null before a run reaches it.
 
-export default function CaseTable({ cases, words, level, choices, edit = null, rowClass = () => '', onPick = () => {}, note = () => null }) {
+export default function CaseTable({ cases, words, level, choices, edit = null, rowClass = () => '', onPick = () => {}, result = () => null }) {
   const name = (s) => L(words(s))
   const goalOf = (c) => c.goal ?? level.target
-  const expected = (make) => (make ? tr('可推导 ✔', 'Derivable ✔') : tr('不可推导 ✘', 'Not derivable ✘'))
+  const derivable = (yes) => (yes ? tr('可推导 ✔', 'Derivable ✔') : tr('不可推导 ✘', 'Not derivable ✘'))
   const set = (k, c) => edit(cases.map((x, j) => (j === k ? c : x)))
   return (
     <div className="lg-scroll-x">
@@ -18,6 +19,7 @@ export default function CaseTable({ cases, words, level, choices, edit = null, r
           <tr>
             <th>{tr('已知', 'Given')}</th>
             <th>{tr('目标', 'Goal')}</th>
+            <th>{tr('预期', 'Expected')}</th>
             <th className="lg-result">{tr('是否可推导', 'Derivable?')}</th>
             {edit && <th aria-label={tr('删除', 'Remove')} />}
           </tr>
@@ -47,12 +49,12 @@ export default function CaseTable({ cases, words, level, choices, edit = null, r
                   </select>
                 ) : name(goalOf(c))}
               </td>
-              <td className="lg-result">
+              <td>
                 {edit
-                  ? <button type="button" className={`lg-pick ${c.make ? 'is-on' : ''}`} onClick={(e) => { e.stopPropagation(); set(k, { ...c, make: !c.make }) }}>{expected(c.make)}</button>
-                  : expected(c.make)}
-                {note(k)}
+                  ? <button type="button" className={`lg-pick ${c.make ? 'is-on' : ''}`} onClick={(e) => { e.stopPropagation(); set(k, { ...c, make: !c.make }) }}>{derivable(c.make)}</button>
+                  : derivable(c.make)}
               </td>
+              <td className={`lg-result ${result(k)?.wrong ? 'is-wrong' : ''}`}>{result(k) ? derivable(result(k).derived) : ''}</td>
               {edit && (
                 <td>
                   <button type="button" className="lg-drop" aria-label={tr('删除这条条例', 'Remove this case')} onClick={(e) => { e.stopPropagation(); edit(cases.filter((_, j) => j !== k)) }}><X size={14} /></button>

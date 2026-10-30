@@ -171,10 +171,10 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   // lit by the case picked, not by the run.
   const shown = (k) => (cases ? Boolean(states[cases.at]) : run ? k < run.results.length : false)
   const rowClass = (k) => `${k === testIndex ? 'is-on' : ''} ${!cases && states[k] ? `is-${states[k]}` : ''}`
-  const note = (k) => (shown(k) && !checked.results[k].pass ? <em className="lg-answer">{tr(checked.results[k].derived ? '（这份声明：可推导）' : '（这份声明：不可推导）', checked.results[k].derived ? ' (this declaration: derivable)' : ' (this declaration: not derivable)')}</em> : null)
+  const result = (k) => (shown(k) ? { derived: checked.results[k].derived, wrong: !checked.results[k].pass } : null)
   const table = (
     <div className="lg-strip is-tables">
-      <CaseTable cases={level.tests} words={words} level={level} rowClass={rowClass} onPick={setTestIndex} note={note} />
+      <CaseTable cases={level.tests} words={words} level={level} rowClass={rowClass} onPick={setTestIndex} result={result} />
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )
