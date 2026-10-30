@@ -132,7 +132,7 @@ export const automation = [
   }),
   machine('clauses')({
     id: 'au-clauses',
-    title: T('完整子句化', 'Into clauses'),
+    title: T('子句化', 'Into clauses'),
     builds: 'clausify',
     adds: ['toClauses', 'skolem'],
     tests: [
