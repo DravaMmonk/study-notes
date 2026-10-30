@@ -298,6 +298,7 @@
 
 /* The test cases of a declaration (ui/IsoCases.jsx, on the shared RowTable): a result that disagrees, a run's rows. */
 .lg-wrong { color: var(--fail); font-weight: 600; }
+.lg-right { color: var(--status); font-weight: 600; }
 .rt-table .lg-lines span { display: block; }
 .rt-row.is-pass td.lg-result { color: var(--status); }
 .rt-row.is-fail td.lg-result { color: var(--fail); }
