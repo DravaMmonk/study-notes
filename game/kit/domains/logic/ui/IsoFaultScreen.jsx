@@ -3,7 +3,7 @@ import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, useBoard
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, SlotBoard } from '../../../circuit/index.js'
 import { say } from '../notation.js'
-import { DECL, derives, judgeCases, listText, propositionsOf, runIso, sentenceOf } from '../iso.js'
+import { DECL, judgeCases, listText, propositionsOf, runIso, sentenceOf } from '../iso.js'
 import { DeclRules, isoPartsFor } from './IsoScreen.jsx'
 import CaseTable, { setOut } from './IsoCases.jsx'
 
@@ -41,7 +41,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const choices = useMemo(() => propositionsOf(level), [level])
   const checked = useMemo(() => judged(cases), [level, cases])
   const current = cases[Math.min(row, cases.length - 1)]
-  const view = useMemo(() => (current ? { ...runIso(level, board, current), ...derives(level, board, current) } : { values: new Map(), made: null, derived: null }), [level, board, current])
+  const view = useMemo(() => (current ? runIso(level, board, current) : { values: new Map() }), [level, board, current])
 
   const { playback } = boardCases
   const run = playback.run
@@ -57,8 +57,8 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
       : tr(`已找出错误：这份声明在第 ${checked.caught[0] + 1} 条条例上得出错误结论。`, `Fault found: this declaration reaches a wrong conclusion on case ${checked.caught[0] + 1}.`))
     : failed?.reason
 
-  // What a card says for the case picked: an assumption its sentence, the declared card its ways and whether it is
-  // proved.
+  // What a card says: a premise its sentence, the declared card its ways. Never whether the case picked is derived: the
+  // table is the player's to fill in, and the result shows only as a run reaches it.
   const text = (f) => L(say(f, level.notation))
   const ways = board.nodes.find((n) => n.id === DECL)?.params.ways ?? 0
   const ruleInto = (k) => {
@@ -75,7 +75,6 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
     return (
       <div className="lg-card">
         <DeclRules level={level} rules={Array.from({ length: ways }, (_, k) => ruleInto(k + 1))} text={text} />
-        {current && (view.made ? <span className="lg-tv is-true">{tr(`由引入${view.made.way}推导出`, `Derived by intro ${view.made.way}`)}</span> : view.derived ? <span className="lg-tv is-true">{tr('可推导', 'Derivable')}</span> : <i className="lg-mark">{tr('不可推导', 'Not derivable')}</i>)}
       </div>
     )
   }
