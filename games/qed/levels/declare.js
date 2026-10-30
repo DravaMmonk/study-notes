@@ -26,7 +26,7 @@ const DECLS = {
   bot: { it: '⊥', ways: [], elim: ['⊥'] },
   ex: { it: '∃y. ?P(y)', ways: ['⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)'], elim: ['∃y. ?P(y)', '⋀x. ⟦?P(x)⟧ ⟹ ?R'] },
   nat: { it: 'Nat', ways: ['Nat', '⟦Nat⟧ ⟹ Nat'], elim: ['Nat', '?R', '⟦Nat⟧ ⟹ ?R'] },
-  // Two things taken by one way: the frame Through “any” sets both aside at once.
+  // Two variables bound by one way: Keep ⋀ sets both aside at once.
   exTwo: { it: '∃u. ∃v. ?P(u, v)', ways: ['⋀x y. ⟦?P(x, y)⟧ ⟹ ∃u. ∃v. ?P(u, v)'], elim: ['∃u. ∃v. ?P(u, v)', '⋀x y. ⟦?P(x, y)⟧ ⟹ ?R'] },
   two: { it: 'Motion', ways: ['⟦AnnYes; BoYes⟧ ⟹ Motion', '⟦BoYes; CyYes⟧ ⟹ Motion', '⟦AnnYes; CyYes⟧ ⟹ Motion'], elim: ['Motion', '⟦AnnYes; BoYes⟧ ⟹ ?R', '⟦BoYes; CyYes⟧ ⟹ ?R', '⟦AnnYes; CyYes⟧ ⟹ ?R'] },
 }
@@ -39,7 +39,7 @@ const generator = (level) => ({
 })
 // The generator for a list of ways in: each one's conclusion put as ?R, inside For each; the declared sentence first.
 // The generator after chapter 6: each way's things taken set aside while its conclusion is swapped.
-const GENERATOR_ANY = machine({ r: ['anyR'], e: ['eachOf'], a: ['throughAny', {}, 'e'], s: ['swapConcl', {}, 'a'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>a.in', 'a#body>s.rule', 'r>s.to', 's>a.body', 'a>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
+const GENERATOR_ANY = machine({ r: ['anyR'], e: ['eachOf'], a: ['keepBound', {}, 'e'], s: ['swapConcl', {}, 'a'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>a.in', 'a#body>s.rule', 'r>s.to', 's>a.body', 'a>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
 const GENERATOR = machine({ r: ['anyR'], e: ['eachOf'], s: ['swapConcl', {}, 'e'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>s.rule', 'r>s.to', 's>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
 
 export const declarations = [
@@ -368,19 +368,19 @@ export const generators = [
     id: 'gen-ex',
     title: T('生成器遇上任取', 'The generator meets “any”'),
     builds: 'elimGen',
-    adds: [...RULECRAFT, 'eachOf', 'throughAny'],
+    adds: [...RULECRAFT, 'eachOf', 'keepBound'],
     tests: [DECLS.and, DECLS.or, DECLS.bot, DECLS.iff, DECLS.ex],
-    // A way that takes two things.
+    // A way that binds two variables.
     hidden: [DECLS.exTwo],
     intro: [
-      { t: T('板上就是你此刻的<part-ref to="lemma:elimGen"></part-ref>。把<level-ref to="decl-ex"></level-ref>交给它：「存在」的引入规则先任取一样东西 x，读进来是「任取 x」包着的一条规则，「换结论」接不上它。', 'The board holds your <part-ref to="lemma:elimGen"></part-ref> as it is now. Hand it <level-ref to="decl-ex"></level-ref>: the way into “there is” takes a thing x first, so it comes in as a rule inside “any x”, and Swap conclusion cannot take it.') },
-      { t: T('新元件「隔着任取」是一个框：把前面的任取拿开，框开出后面那条规则；框里接出的东西，再放回同样的任取后面。前面没有任取的，原样进框。', 'The new part Through “any” is a frame: it sets aside the things taken first and opens with the rule behind them; what is made inside is put back behind the same things taken. A value that takes nothing first goes in as it is.') },
+      { t: T('板上是你当前的<part-ref to="lemma:elimGen"></part-ref>。生成器构造消去规则的方法是：每条引入规则对应一种情况，保留其前提，把结论替换为 ?R。<level-ref to="decl-ex"></level-ref>的引入规则 ⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y) 先任取一个对象 x，在生成器中表示为约束了 x 的一条规则，而不是一条规则本身，因此「换结论」不能直接接受它。', 'The board holds your <part-ref to="lemma:elimGen"></part-ref> as it is now. The generator makes an elimination rule by giving each introduction rule a case: its premises kept, its conclusion replaced by ?R. The introduction rule of <level-ref to="decl-ex"></level-ref>, ⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y), first takes any object x; in the generator it is a rule binding x, not a rule as such, so Swap conclusion cannot take it.') },
+      { t: T('新元件「保留⋀」是一个框：若规则以约束变量开头，框内处理其后的规则，输出时在结果前保留原有的约束变量；若不含约束变量，框内直接处理输入。', 'The new part Keep ⋀ is a frame: if a rule begins with bound variables, the frame works on the rule that follows them, and its output keeps the same bound variables in front; if it has none, the frame works on the input itself.') },
     ],
-    brief: T('升级消去规则生成器：引入规则先任取东西时，也生成它的消去规则。隐藏测试里还有没见过的声明。', 'Upgrade the elimination rule generator to make the elimination rule when a way takes things first too. Declarations not met yet wait among the hidden tests.'),
-    hint: [T('任取留在情况的最前面，换掉的只是任取后面那条规则的结论。', 'The things taken stay at the front of the case; only the conclusion of the rule behind them is swapped.')],
+    brief: T('升级消去规则生成器，使引入规则含有约束变量时也能生成消去规则。隐藏测试中还有尚未见过的声明。', 'Upgrade the elimination rule generator so that it also makes the elimination rule when an introduction rule has bound variables. Declarations not met yet wait among the hidden tests.'),
+    hint: [T('对应的情况中，约束变量保持不变，被替换的只是其后那条规则的结论。', 'In the case made, the bound variables stay as they are; only the conclusion of the rule after them is replaced.')],
     solution: GENERATOR_ANY,
     naive: GENERATOR,
-    after: T('引入规则任取了什么，那一种情况也任取什么：⋀x. ⟦?P(x)⟧ ⟹ ?R。消去「存在」时，交进去的是哪一样东西不知道，所以这种情况要对任取的一样东西都证得出，<part-ref to="part:exE"></part-ref>开出的那一样东西因此要起一个新名字。隐藏测试里一条引入规则任取了两样东西，框一次全拿开，也对了。<part-ref to="lemma:elimGen"></part-ref>现在跑的是这块电路。', 'Whatever a way takes, its case takes too: ⋀x. ⟦?P(x)⟧ ⟹ ?R. Eliminating “there is”, which thing went in is not known, so the case must hold for any thing taken, and that is why the thing <part-ref to="part:exE"></part-ref> opens gets a new name. The hidden test had one way taking two things; the frame sets both aside at once, and it came out right. The <part-ref to="lemma:elimGen"></part-ref> now runs this board.'),
+    after: T('引入规则约束了哪些变量，对应的那种情况也约束同样的变量：⋀x. ⟦?P(x)⟧ ⟹ ?R。消去「存在」时，无从知道构造时用的是哪一个对象，因此该情况须对任意对象成立；这正是<part-ref to="part:exE"></part-ref>要为该对象引入新名字的原因。隐藏测试中有一条引入规则约束了两个变量，「保留⋀」一并保留，结果同样正确。<part-ref to="lemma:elimGen"></part-ref>现在运行的是这块电路。', 'Whatever variables an introduction rule binds, its case binds the same: ⋀x. ⟦?P(x)⟧ ⟹ ?R. Eliminating “there is”, there is no knowing which object it was made with, so the case must hold for any object; that is why <part-ref to="part:exE"></part-ref> gives that object a new name. One hidden test had an introduction rule binding two variables; Keep ⋀ keeps both, and the result is right as well. The <part-ref to="lemma:elimGen"></part-ref> now runs this board.'),
   }),
 ]
 

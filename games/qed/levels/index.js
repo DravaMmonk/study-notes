@@ -169,7 +169,7 @@ const COURSE = {
   // The machine-board parts the player builds: the elimination rule generator, the unifier, the tactics made of Rule and Assumption, auto, simp made
   // of rewrites, and the clause machines (into clauses, the saturator, the reconstructor).
   machines: ['elimGen', 'unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'clausify', 'saturate', 'metis'],
-  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'throughAny', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'natInd',
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'keepBound', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'natInd',
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
     'append', 'each', 'defer', 'search', 'rw', 'hyp', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
   // The parts that take rules apart and put them together are one idea (rules as data); joining ∧ and its elimination
@@ -182,7 +182,7 @@ const COURSE = {
   // lemmas; not ⟷ unfolded, which the built-in clausifier reads from the rule book), a part one stretch of levels needs (the unifier, Defer, the
   // proof board's induction box) and someone else's prover, on the board of the one level that catches it out. A level
   // that needs one brings it again.
-  local: ['anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'throughAny', 'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'uPattern', 'unifier', 'defer', 'introRules', 'elimRules', 'frule',
+  local: ['anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'keepBound', 'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'uPattern', 'unifier', 'defer', 'introRules', 'elimRules', 'frule',
     'natInd',
     'skolem', 'toClauses', 'res', 'resolve', 'saturate', 'clausify', 'replay', 'oracle'],
 }

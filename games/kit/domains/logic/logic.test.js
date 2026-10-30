@@ -444,14 +444,14 @@ test('the elimination rule generator: one case for each way in, its conclusion a
     decl('⊥', [], ['⊥']),
   ]
   assert.ok(runLevel(MACHINE_TESTS, { ...level, tests }, board).pass)
-  // A way that takes things first comes in as a rule inside them: Swap conclusion needs Through “any” around it, which
+  // A way that takes things first comes in as a rule inside them: Swap conclusion needs Keep ⋀ around it, which
   // keeps them in the case, one thing or two.
   const any = [
     decl('∃y. ?P(y)', ['⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)'], ['∃y. ?P(y)', '⋀x. ⟦?P(x)⟧ ⟹ ?R']),
     decl('∃u. ∃v. ?P(u, v)', ['⋀x y. ⟦?P(x, y)⟧ ⟹ ∃u. ∃v. ?P(u, v)'], ['∃u. ∃v. ?P(u, v)', '⋀x y. ⟦?P(x, y)⟧ ⟹ ?R']),
   ]
   assert.equal(runLevel(MACHINE_TESTS, { ...level, tests: any }, board).pass, false)
-  const through = machine({ r: ['anyR'], e: ['eachOf'], a: ['throughAny', {}, 'e'], s: ['swapConcl', {}, 'a'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>a.in', 'a#body>s.rule', 'r>s.to', 's>a.body', 'a>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
+  const through = machine({ r: ['anyR'], e: ['eachOf'], a: ['keepBound', {}, 'e'], s: ['swapConcl', {}, 'a'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>a.in', 'a#body>s.rule', 'r>s.to', 's>a.body', 'a>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
   assert.ok(runLevel(MACHINE_TESTS, { ...level, tests: [...tests, ...any] }, through).pass)
   // Without For each, a list of ways does not fit Swap conclusion.
   const one = machine({ r: ['anyR'], s: ['swapConcl'], c: ['consFront'], m: ['mkRule'] }, ['ways>s.rule', 'r>s.to', 'it>c.first', 's>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
