@@ -24,7 +24,7 @@ export function validate({ levels, intros }) {
   const parts = Object.fromEntries(Object.entries(NODE_TYPES).map(([type, spec]) => [type, { label: spec.label, description: spec.description, params: spec.params }]))
   for (const problem of untranslated(parts, 'parts')) fail(`text ${problem}`)
 
-  for (const level of levels) for (const problem of introProblems(intros[level.id], level, FIGURES)) fail(`${level.id}: 引入：${problem}`)
+  for (const level of levels) for (const problem of introProblems(intros[level.id], level, FIGURES)) fail(`${level.id}: 引言：${problem}`)
 
   // A level of several tasks is checked task by task, each as a level of its own (`1-11/1`).
   const played = levels.flatMap((level) => (level.tasks ? level.tasks.map((task, k) => ({ ...task, id: `${level.id}/${k + 1}` })) : [level]))

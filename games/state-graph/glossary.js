@@ -22,7 +22,7 @@ export const GLOSSARY = [
   {
     id: 'brief', group: 'play', title: { zh: '引入、目标与怎么玩', en: 'Intro, goal and how to play' },
     body: [
-      { zh: '第一次进入一关时，会先打开几页<b>引入</b>，讲清这一关的新问题和新东西。想再看一遍，点顶栏的「引入」；在电脑上可以用 ← 和 → 翻页。', en: 'The first time you enter a level, a few pages of <b>Intro</b> open first, explaining the level’s new problem and anything new in it. To read them again, click “Intro” in the top bar; on a computer, ← and → turn the pages.' },
+      { zh: '第一次进入一关时，会先打开几页<b>引言</b>，讲清这一关的新问题和新东西。想再看一遍，点顶栏的「引言」；在电脑上可以用 ← 和 → 翻页。', en: 'The first time you enter a level, a few pages of <b>Intro</b> open first, explaining the level’s new problem and anything new in it. To read them again, click “Intro” in the top bar; on a computer, ← and → turn the pages.' },
       { zh: '关卡的说明里，<b>目标</b>写着这一关要算出什么，<b>怎么玩</b>写着要动手做什么。卡住的时候，先回去把目标读一遍。', en: 'In the level’s brief, the <b>Goal</b> says what the level wants worked out, and <b>How to play</b> says what you have to do. When you are stuck, read the goal again first.' },
       { zh: '有的关分成几个<b>阶段</b>，同一张地图接连问几个问题；有的阶段会把电路板留给下一阶段。', en: 'Some levels come in several <b>stages</b>, asking a few questions in a row about the same map; some stages hand their circuit board on to the next.' },
       { zh: '不是每一关都要拼电路：有的关在棋盘上亲手连箭头、填数或画路线，「怎么玩」会说清楚。', en: 'Not every level needs a circuit: in some you draw arrows, fill in numbers or trace routes on the board by hand, and “How to play” says which.' },

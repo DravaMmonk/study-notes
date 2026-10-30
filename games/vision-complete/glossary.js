@@ -77,7 +77,7 @@ export const GLOSSARY = [
     group: 'play',
     title: { zh: '引入与提示', en: 'Intros and hints' },
     body: [
-      { zh: '第一次进一关时会弹出几页「引入」：这一关在讲什么、现实里哪里用得到、有什么新元件，以及动手前值得想的问题。之后随时可以点顶栏的「引入」再看。', en: 'The first time you enter a level, a few pages of “Intro” open: what the level is about, where it shows up in the real world, any new parts, and a question worth thinking about before you start. You can reopen it any time from “Intro” in the top bar.' },
+      { zh: '第一次进一关时会弹出几页「引言」：这一关在讲什么、现实里哪里用得到、有什么新元件，以及动手前值得想的问题。之后随时可以点顶栏的「引言」再看。', en: 'The first time you enter a level, a few pages of “Intro” open: what the level is about, where it shows up in the real world, any new parts, and a question worth thinking about before you start. You can reopen it any time from “Intro” in the top bar.' },
       { zh: '任务说明下面有「提示」按钮，卡住时再点开。提示说得比较直接，先自己试一试收获更大。', en: 'Below the task there is a “Hint” button for when you are stuck. Hints are fairly direct, so it pays to try on your own first.' },
       { zh: '过关时，通过窗口会用几句话点明刚才发生了什么。它提到的概念，大多在这本百科里有词条。', en: 'When you pass, the passed window sums up in a few lines what just happened. Most of the ideas it names have an entry in this encyclopedia.' },
     ],
