@@ -81,11 +81,25 @@ function WorldHandle({ rootRef }) {
     try { h = Number(localStorage.getItem(WORLD_KEY)) || null } catch { /* storage may be off */ }
     if (h && rootRef.current) setHeight(rootRef.current, h)
   }, [rootRef])
+  // The strip's height when it just fits what it holds (read with the dragged height taken off for a moment).
+  const natural = (el) => {
+    const world = el.querySelector('.kc-world')
+    const h = el.style.getPropertyValue('--world-h')
+    const max = el.style.getPropertyValue('--world-max')
+    el.style.removeProperty('--world-h')
+    el.style.removeProperty('--world-max')
+    const fit = world.getBoundingClientRect().height
+    if (h) el.style.setProperty('--world-h', h)
+    if (max) el.style.setProperty('--world-max', max)
+    return fit
+  }
+  // A drag goes no shorter than the strip's least height, or than what it holds when that is less: it never jumps
+  // taller on being touched, and can always be brought back to its fitting height.
   const size = (h) => {
     const el = rootRef.current
     if (!el) return null
     const top = el.getBoundingClientRect().top
-    const least = parseFloat(getComputedStyle(el).getPropertyValue('--world-min')) || 270
+    const least = Math.min(parseFloat(getComputedStyle(el).getPropertyValue('--world-min')) || 270, natural(el))
     const next = Math.round(Math.min(Math.max(h, least), (window.innerHeight - top) * 0.78))
     setHeight(el, next)
     return next
