@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { CircleDashed, CircleDot, FileSignature, SquareDashedText } from 'lucide-react'
-import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
+import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, useBoardCases, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, freeSpot, useSlotEditing } from '../../../circuit/index.js'
@@ -52,18 +52,44 @@ const spotLeft = (circuit) => {
   return freeSpot({ nodes: circuit.nodes.filter((n) => !n.in) }, { w: 240, h: 150, x0: (decl?.x ?? 320) - 260, dx: -260, cols: 3, y0: decl?.y ?? 40 })
 }
 
-/** A declaration to write, or (`wrong`) someone's wrong one to find the fault in by writing the cases. */
+/**
+ * A declaration to write; or, by the shared play of checking or correcting by the diagram (`play`,
+ * ../../../shell/useBoardCases.js), someone's wrong ones to find the fault in by writing the situations ('audit'), or
+ * to correct ('repair').
+ */
 export default function IsoScreen(props) {
-  return props.level.source.wrong ? <FaultScreen {...props} /> : <DeclareScreen {...props} />
+  const play = props.level.source.play
+  return play === 'audit' ? <FaultScreen {...props} /> : play === 'repair' ? <RepairScreen {...props} /> : <DeclareScreen {...props} />
 }
 
-function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
+// Correcting someone's declarations: each test case is one of their boards, the player's to change; a board passes
+// when every situation is right on it.
+function RepairScreen(props) {
+  const level = props.level.source
+  const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
+  const cases = useBoardCases({
+    level,
+    saved: props.saved,
+    save: props.save,
+    judge: (k, board) => {
+      const checked = checkIso(level, board, words)
+      return checked.pass ? '' : L(checked.ways ?? checked.results.find((r) => !r.pass).reason)
+    },
+    onSolve: () => props.solve({ steps: cases.boards.reduce((n, b) => n + (b.nodes.find((x) => x.id === DECL)?.params.ways ?? 0), 0) }),
+    lastRun: props.lastRun,
+    keepRun: props.keepRun,
+  })
+  return <DeclareScreen {...props} cases={cases} />
+}
+
+function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone, cases = null }) {
   const level = entry.source
-  // The board it opens on: someone's declaration to fix (`start`), or the declared card alone.
-  const begin = () => level.start ?? startIso()
+  // The board it opens on: the declared card alone, or, correcting, the case on view as it was given.
+  const begin = () => (cases ? level.boards[cases.at].board : startIso())
   const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
   const parts = useMemo(() => isoPartsFor(level, words), [level])
-  const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved) ? settle(saved) : begin()))
+  const [own, setOwn] = useState(() => (saved?.nodes && fits(saved) ? settle(saved) : startIso()))
+  const circuit = cases ? cases.board : own
   const [testIndex, setTestIndex] = useState(0)
   const test = level.tests[Math.min(testIndex, level.tests.length - 1)]
   const view = useMemo(() => runIso(level, circuit, test), [level, circuit, test])
@@ -71,7 +97,8 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   // Every change goes through the kernel's bookkeeping: ways renumbered (iso.js settle).
   const change = (next) => {
     const settled = settle(next)
-    setCircuit(settled)
+    if (cases) return cases.setBoard(settled)
+    setOwn(settled)
     save(settled)
   }
   // A card from the tray; an assumption assumes, to begin with, the first sentence no card on the board assumes yet.
@@ -89,7 +116,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   const onClear = circuit.wires.some((w) => !w.locked) || circuit.nodes.some((n) => n.in) ? () => change(begin()) : null
   const checked = useMemo(() => checkIso(level, circuit, words), [level, circuit])
   const ways = circuit.nodes.find((n) => n.id === DECL)?.params.ways ?? 0
-  const playback = usePlayback({
+  const situations = usePlayback({
     count: level.tests.length,
     stepsOf: () => [],
     check: (k) => (checked.results[k].pass ? '' : L(checked.results[k].reason)),
@@ -100,13 +127,15 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
     kept: lastRun,
     onKeep: keepRun,
   })
+  // Correcting, a run goes through the boards, each judged on every situation.
+  const playback = cases ? cases.playback : situations
   const run = playback.run
   const states = playback.states
   const verdict = run?.over ? { pass: playback.passed } : null
-  const failed = run?.over && !playback.passed ? checked.results[run.results.length - 1] : null
+  const failed = run?.over && !playback.passed ? (cases ? run.results.at(-1) : checked.results[run.results.length - 1]) : null
   const verdictText = !verdict ? null : verdict.pass
     ? tr('每种情况都正确：应当证得出时，有一条引入规则的前提全部具备；应当证不出时，每条引入规则都缺少前提；已知它时，推得出的恰好是每条引入规则都推得出的结论。', 'Every situation is correct: where it should be provable, some intro rule has all its premises; where not, none does; and given it, exactly what follows from every intro rule follows.')
-    : run.final || L(failed.reason)
+    : run.final || (cases ? failed.reason : L(failed.reason))
 
   // What each card says in the situation picked.
   const ruleInto = (k) => {
@@ -144,8 +173,10 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   const uses = level.tests.map((t, k) => ({ t, k })).filter(({ t }) => t.get)
   const goals = rows.some(({ t }) => t.goal)
   const held = [...new Set(rows.flatMap(({ t }) => Object.keys(t.have)))]
-  const shown = (t, k) => (run ? k < run.results.length : t === test)
-  const rowClass = (t, k) => `${t === test ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`
+  // Correcting, every situation shows its result once the board on view is judged; and a row is lit by the situation
+  // picked, not by the run.
+  const shown = (t, k) => (cases ? Boolean(states[cases.at]) : run ? k < run.results.length : t === test)
+  const rowClass = (t, k) => `${t === test ? 'is-on' : ''} ${!cases && states[k] ? `is-${states[k]}` : ''}`
   const table = (
     <div className="lg-strip is-tables">
       <div className="lg-scroll-x">
@@ -201,7 +232,9 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   }
   const began = Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))
   const stepKey = run ? `${run.test}:${run.step}:${run.results.length}` : ''
-  if (phone) return <PhoneIso {...{ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, began, stepKey }} scope={level.id} />
+  // Correcting, the boards are the test cases: their tabs put one on the canvas.
+  const tabs = (onPhone) => cases && level.boards.length > 1 && <TestTabs tests={cases.tests} states={states} index={cases.at} onSelect={cases.select} phone={onPhone} />
+  if (phone) return <PhoneIso {...{ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, began, stepKey }} tabs={tabs(true)} scope={cases ? `${level.id}-${cases.at}` : level.id} />
 
   return (
     <CircuitLayout
@@ -214,7 +247,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
             <CanvasEditor
               onClear={onClear}
               types={items.map((i) => i.type)}
-              key={level.id}
+              key={cases ? `${level.id}-${cases.at}` : level.id}
               scope={level.id}
               graph={circuit}
               onChange={change}
@@ -229,6 +262,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
           </div>
         </div>
       }
+      tests={tabs(false)}
       status={<TestStatus states={states} />}
       outputsTitle={tr('各种情况', 'Situations')}
       outputs={table}
@@ -238,7 +272,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
 }
 
 // The board on a phone: the shared slot board, the situations under it, the tray and the run bar.
-function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, began, stepKey, scope }) {
+function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, began, stepKey, scope, tabs }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -278,6 +312,7 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
     <div className="level-phone is-split lg-phone" ref={root}>
       <div className="lg-scroll" ref={scroller} onScroll={onScroll}>
         <TaskCard>{brief}</TaskCard>
+        {tabs}
         <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => body(n, 'tile')} sinkBody={(n) => body(n, 'tile')} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={items.map((i) => i.type)} />
         {table}
       </div>

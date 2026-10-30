@@ -81,7 +81,8 @@ export const declarations = [
         // Someone's declaration with each sentence a way of its own: one proof at hand already makes it.
         kind: 'iso',
         step: T('找出错误', 'Find the fault'),
-        wrong: [isoBoard(['Rain>1', 'Wind>2'])],
+        play: 'audit',
+        boards: [{ board: isoBoard(['Rain>1', 'Wind>2']) }],
         answer: [{ have: ['Rain'], make: false }],
         naive: [{ have: ['Rain', 'Wind'], make: true }],
         intro: [{ t: T('板上是别人写的一份「并且」的声明，已经锁定。这一段不写声明，改写<b>检验条例</b>：表中每行一条，写明手里有哪些证明，以及按需求此时能否引入「并且」。运行时先按需求核对每条的预期，预期有误就停下；所有条例都无误，并且至少有一条让这份声明得出错误结论，便找出了它的错误。条例越少，成绩越好。', 'On the board is another declaration of “and”, locked. This task asks not for a declaration but for <b>test cases</b>: each row of the table is one, stating which proofs are held and, according to the requirement, whether “and” may then be introduced. A run first checks each case’s expectation against the requirement and stops at the first that is wrong; once every case is right and at least one leads this declaration to a wrong conclusion, the fault has been found. The fewer cases, the better the score.') }],
@@ -117,7 +118,8 @@ export const declarations = [
         // catches both.
         kind: 'iso',
         step: T('找出错误', 'Find the faults'),
-        wrong: [isoBoard(['Sat>Sun', 'Sun>1']), isoBoard(['Sat>1'])],
+        play: 'audit',
+        boards: [{ board: isoBoard(['Sat>Sun', 'Sun>1']) }, { board: isoBoard(['Sat>1']) }],
         answer: [{ have: ['Sat'], make: true }, { have: ['Sun'], make: true }],
         naive: [{ have: ['Sat'], make: true }],
         brief: T('下面两份「或者」的声明各有错误。请编写检验条例，让每份声明至少在一条条例上得出错误结论。', 'Each of these two declarations of “or” is faulty. Write test cases so that each declaration reaches a wrong conclusion on at least one of them.'),
@@ -127,7 +129,8 @@ export const declarations = [
       {
         kind: 'iso',
         step: T('修正', 'Correct it'),
-        start: isoBoard(['Sat>Sun', 'Sun>1']),
+        play: 'repair',
+        boards: [{ board: isoBoard(['Sat>Sun', 'Sun>1']) }],
         brief: T('请修正电路 1，使它符合需求：「今天是周六，或者今天是周日」只要证出其中任一命题就能引入，两个都证出时也一样。', 'Correct board 1 so that it meets the requirement: “today is Saturday or today is Sunday” may be introduced once either proposition is proved, and likewise when both are.'),
         hint: [T('需求包含两种互不相干的情形，每种只要一个前提。', 'The requirement comprises two independent situations, each needing a single premise.')],
       },

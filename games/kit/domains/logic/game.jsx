@@ -117,7 +117,7 @@ export function defineLogicGame(spec) {
         ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
       ],
     },
-    // Fewer steps (proof steps, or gates) is better; fewer cases, where the player writes them (iso.js checkCases).
+    // Fewer steps (proof steps, or gates) is better; fewer cases, where the player writes them (iso.js judgeCases).
     better: (score, best) => Boolean(score) && (!best || score.steps < best.steps),
     bestLabel: (best) => (best.unit === 'cases' ? tr(`${best.steps} 条`, `${best.steps} cases`) : tr(`${best.steps} 步`, `${best.steps} steps`)),
   })

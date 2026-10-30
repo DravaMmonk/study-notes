@@ -1,18 +1,19 @@
 import { useMemo, useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
+import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, useBoardCases } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, SlotBoard } from '../../../circuit/index.js'
 import { say } from '../notation.js'
-import { DECL, caseTest, checkCases, runIso, sentenceOf, wayOf, wayRule, wayText } from '../iso.js'
+import { DECL, caseTest, judgeCases, runIso, sentenceOf, wayOf, wayRule, wayText } from '../iso.js'
 import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
 import { WAY, isoPartsFor } from './IsoScreen.jsx'
 
-// Finding the fault in someone's declaration (iso.js checkCases): their board, locked (one, or several each wrong in
-// its own way), and the cases the player writes in the table under it, each the proofs at hand and whether the declared
-// sentence should then be proved. Running goes down the cases, stopping on one whose expectation the requirement does
-// not mean; the cases pass when every wrong board answers one of them otherwise. Fewer cases is the better score.
+// Finding the fault in someone's declarations (the shared play 'audit', ../../../shell/useBoardCases.js): each test
+// case is one of their boards, locked, put on the canvas by its tab; the player writes the situations in the table
+// under it (iso.js judgeCases), each the proofs at hand and whether the declared sentence should then be proved. A run
+// goes through the boards: one passes when every expectation is what the requirement means and the board answers one
+// of the situations otherwise. Fewer situations is the better score.
 
 const MOST = 8
 const blank = () => ({ have: [], make: true })
@@ -21,14 +22,21 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const level = entry.source
   const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
   const parts = useMemo(() => isoPartsFor(level, words), [level])
-  const [cases, setCases] = useState(() => (Array.isArray(saved?.cases) ? saved.cases : []))
-  const [shown, setShown] = useState(0) // the wrong board on view
-  const [at, setAt] = useState(0) // the case the board shows its answer to
-  const board = level.wrong[shown]
-  const change = (next) => {
-    setCases(next)
-    save({ cases: next })
-  }
+  const [row, setRow] = useState(0) // the situation the board shows its answer to
+  const judged = (cases) => judgeCases(level, cases, words)
+  const boardCases = useBoardCases({
+    level,
+    saved,
+    save,
+    empty: [],
+    judge: (k, cases) => L(judged(cases).judge(k) ?? ''),
+    onSolve: () => solve({ steps: boardCases.work.length, unit: 'cases' }),
+    lastRun,
+    keepRun,
+  })
+  const cases = boardCases.work
+  const board = boardCases.board
+  const change = boardCases.setWork
   const edit = (k, c) => change(cases.map((x, j) => (j === k ? c : x)))
   // A sentence held keeps the level's order, so its number (#1, #2) reads the same in every row.
   const toggle = (k, s) => {
@@ -36,31 +44,21 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
     const have = c.have.includes(s) ? c.have.filter((x) => x !== s) : level.sentences.filter((x) => x === s || c.have.includes(x))
     edit(k, { ...c, have })
   }
-  const checked = useMemo(() => checkCases(level, cases, words), [level, cases])
-  const current = cases[Math.min(at, cases.length - 1)]
+  const checked = useMemo(() => judged(cases), [level, cases])
+  const current = cases[Math.min(row, cases.length - 1)]
   const view = useMemo(() => (current ? runIso(level, board, caseTest(current)) : { values: new Map(), made: null }), [level, board, current])
 
-  const rowReason = (k) => (cases.length && checked.rows[k].right ? '' : L(checked.reason))
-  const playback = usePlayback({
-    count: Math.max(1, cases.length),
-    stepsOf: () => [],
-    check: rowReason,
-    final: () => (checked.pass ? '' : L(checked.reason)),
-    onSolve: () => solve({ steps: cases.length, unit: 'cases' }),
-    onTest: setAt,
-    board: cases,
-    kept: lastRun,
-    onKeep: keepRun,
-  })
+  const { playback } = boardCases
   const run = playback.run
   const states = playback.states
   const verdict = run?.over ? { pass: playback.passed } : null
   const failed = run?.over && !playback.passed ? run.results.at(-1) : null
+  const many = level.boards.length > 1
   const verdictText = !verdict ? null : verdict.pass
-    ? (level.wrong.length > 1
+    ? (many
       ? tr(`已找出错误：${checked.caught.map((k, b) => `电路 ${b + 1} 在第 ${k + 1} 条条例上得出错误结论`).join('；')}。`, `Faults found: ${checked.caught.map((k, b) => `board ${b + 1} reaches a wrong conclusion on case ${k + 1}`).join('; ')}.`)
       : tr(`已找出错误：这份声明在第 ${checked.caught[0] + 1} 条条例上得出错误结论。`, `Fault found: this declaration reaches a wrong conclusion on case ${checked.caught[0] + 1}.`))
-    : run.final || failed?.reason
+    : failed?.reason
 
   // What a card says for the case picked: an assumption its sentence, the declared card its ways and whether it is
   // proved.
@@ -84,10 +82,9 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  const ran = (k) => run && k < run.results.length
-  const rowClass = (k) => `${k === at ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`
+  const ran = Boolean(states[boardCases.at])
+  const rowClass = (k) => (k === row ? 'is-on' : '')
   const result = (made) => (made ? tr(`证得出：${WAY[made.way - 1]}`, `Proved: ${WAY[made.way - 1]}`) : tr('证不出', 'Not proved'))
-  const many = level.wrong.length > 1
   const table = (
     <div className="lg-strip is-tables">
       <div className="lg-scroll-x">
@@ -97,13 +94,13 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
               <th>#</th>
               {level.sentences.map((l) => <th key={l}>{tr(`已知「${words(l).zh}」`, `Given “${words(l).en}”`)}</th>)}
               <th>{tr(`预期：「${level.declare.zh}」`, `Expected: “${level.declare.en}”`)}</th>
-              {level.wrong.map((_, b) => <th key={b} className="lg-result">{many ? tr(`电路 ${b + 1}`, `Board ${b + 1}`) : tr('这份声明', 'This declaration')}</th>)}
+              <th className="lg-result">{many ? L(boardCases.tests[boardCases.at].label) : tr('这份声明', 'This declaration')}</th>
               <th aria-label={tr('删去', 'Remove')} />
             </tr>
           </thead>
           <tbody>
             {cases.map((c, k) => (
-              <tr key={k} className={rowClass(k)} onClick={() => setAt(k)}>
+              <tr key={k} className={rowClass(k)} onClick={() => setRow(k)}>
                 <td>{k + 1}</td>
                 {level.sentences.map((s) => (
                   <td key={s}>
@@ -117,11 +114,11 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
                     {c.make ? tr('证得出', 'Proved') : tr('证不出', 'Not proved')}
                   </button>
                 </td>
-                {level.wrong.map((_, b) => {
+                {(() => {
                   const r = checked.rows[k]
-                  const caught = ran(k) && r.right && Boolean(r.made[b]) !== r.wants
-                  return <td key={b} className={`lg-result ${caught ? 'is-caught' : ''}`}>{ran(k) ? result(r.made[b]) : ''}</td>
-                })}
+                  const caught = ran && r.right && Boolean(r.made[boardCases.at]) !== r.wants
+                  return <td className={`lg-result ${caught ? 'is-caught' : ''}`}>{ran ? result(r.made[boardCases.at]) : ''}</td>
+                })()}
                 <td>
                   <button type="button" className="lg-drop" aria-label={tr('删除这条条例', 'Remove this case')} onClick={(e) => { e.stopPropagation(); change(cases.filter((_, j) => j !== k)) }}><X size={14} /></button>
                 </td>
@@ -131,7 +128,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
         </table>
       </div>
       {cases.length < MOST && (
-        <button type="button" className="lg-add-case" onClick={() => { change([...cases, blank()]); setAt(cases.length) }}>
+        <button type="button" className="lg-add-case" onClick={() => { change([...cases, blank()]); setRow(cases.length) }}>
           <Plus size={14} /> {tr('添加条例', 'Add a test case')}
         </button>
       )}
@@ -139,22 +136,16 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
     </div>
   )
   const dock = <RunDock {...playback.dock({ go: tr('运行检验条例', 'Run the test cases'), done: tr('已找出错误', 'Fault found') })} />
-  // Several wrong boards: one on view at a time.
-  const switcher = many && (
-    <div className="lg-boards" role="tablist">
-      {level.wrong.map((_, b) => (
-        <button key={b} type="button" role="tab" aria-selected={b === shown} className={b === shown ? 'is-on' : ''} onClick={() => setShown(b)}>{tr(`电路 ${b + 1}`, `Board ${b + 1}`)}</button>
-      ))}
-    </div>
-  )
+  // The boards are the test cases: their tabs put one on the canvas.
+  const tabs = (onPhone) => <TestTabs tests={boardCases.tests} states={states} index={boardCases.at} onSelect={boardCases.select} phone={onPhone} />
 
   if (phone) {
     return (
       <div className="level-phone is-split lg-phone">
         <div className="lg-scroll">
           <TaskCard>{brief}</TaskCard>
-          {switcher}
-          <SlotBoard fixed dense key={shown} graph={board} parts={parts} nameOf={(n) => L(parts.label(n))} thumb={body} sinkBody={body} onNode={() => {}} onSlot={() => {}} onPort={() => {}} />
+          {many && tabs(true)}
+          <SlotBoard fixed dense key={boardCases.at} graph={board} parts={parts} nameOf={(n) => L(parts.label(n))} thumb={body} sinkBody={body} onNode={() => {}} onSlot={() => {}} onPort={() => {}} />
           {table}
         </div>
         <footer className="run-foot">{dock}</footer>
@@ -167,11 +158,10 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
       brief={brief}
       canvas={
         <div className="lg-stage">
-          {switcher}
           <div className="lg-board">
             <CanvasEditor
               readOnly
-              key={`${level.id}-${shown}`}
+              key={`${level.id}-${boardCases.at}`}
               scope={level.id}
               graph={board}
               onChange={() => {}}
@@ -185,6 +175,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
           </div>
         </div>
       }
+      tests={tabs(false)}
       status={<TestStatus states={states} />}
       outputsTitle={tr('检验条例', 'Test cases')}
       outputs={table}

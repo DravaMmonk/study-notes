@@ -26,7 +26,7 @@ import { freeIn, parseTerm } from './pterm.js'
 import { termTaskOf } from './termTask.js'
 import { missingForms } from './termTree.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
-import { checkCases, checkIso, sentenceOf } from './iso.js'
+import { checkIso, judgeCases, sentenceOf } from './iso.js'
 import { checkDefine } from './define.js'
 import { say } from './notation.js'
 import { presetIds } from './course.js'
@@ -109,15 +109,17 @@ export function validate({ levels: given, course }) {
     const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
     const good = checkIso(level, level.solution, words)
     out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: declaration ${good.pass ? 'PASS' : `FAIL ${keyOf(good.ways ?? good.results.find((r) => !r.pass).reason)}`} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
-    // Finding the fault: the reference cases catch every wrong board, the naive ones do not; each wrong board fails.
-    if (level.wrong) {
-      const cases = checkCases(level, level.answer, words)
-      out.push({ fail: !cases.pass, text: `  cases ${cases.pass ? 'PASS' : `FAIL ${keyOf(cases.reason)}`} [${level.answer.length} cases]` })
-      if (level.naive && checkCases(level, level.naive, words).pass) out.push({ fail: true, text: '  naive cases PASS (bad)' })
-      level.wrong.forEach((board, k) => { if (checkIso(level, board, words).pass) out.push({ fail: true, text: `  wrong board ${k + 1} passes every situation (bad)` }) })
+    // Checking by the diagram: the reference cases catch every board, the naive ones do not; each board fails.
+    if (level.play === 'audit') {
+      const cases = judgeCases(level, level.answer, words)
+      const loose = level.boards.findIndex((_, k) => cases.judge(k))
+      out.push({ fail: loose >= 0, text: `  cases ${loose < 0 ? 'PASS' : `FAIL on board ${loose + 1}: ${keyOf(cases.judge(loose))}`} [${level.answer.length} cases]` })
+      if (level.naive && level.boards.every((_, k) => !judgeCases(level, level.naive, words).judge(k))) out.push({ fail: true, text: '  naive cases PASS (bad)' })
+      level.boards.forEach(({ board }, k) => { if (checkIso(level, board, words).pass) out.push({ fail: true, text: `  board ${k + 1} passes every situation (bad)` }) })
       continue
     }
-    if (level.start && checkIso(level, level.start, words).pass) out.push({ fail: true, text: '  the board it starts from already passes (bad)' })
+    // Correcting by the diagram: no board given passes already.
+    if (level.play === 'repair') level.boards.forEach(({ board }, k) => { if (checkIso(level, board, words).pass) out.push({ fail: true, text: `  board ${k + 1} to correct already passes (bad)` }) })
     if (level.naive) {
       const bad = checkIso(level, level.naive, words)
       out.push({ fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
