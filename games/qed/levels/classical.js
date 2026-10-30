@@ -85,7 +85,6 @@ export const classical = [
         sentences: ['¬(A ∨ ¬A)'],
         cases: [{ A: 'Rain' }, { A: 'Exam' }],
         intro: [{ t: T('由 ¬¬A 推出 A，叫<b>双重否定消去</b>。现有的规则推不出它，只能作为一条<wiki-ref to="axiom"></wiki-ref>加进证明核：<part-ref to="part:raa"></part-ref>。', 'From ¬¬A, infer A: this is <b>double-negation elimination</b>. The rules so far cannot derive it; it can only come into the kernel as an <wiki-ref to="axiom"></wiki-ref>, <part-ref to="part:raa"></part-ref>.') }],
-        brief: T('证出「下雨 ∨ ¬下雨」。', 'Prove “it rains ∨ ¬it rains”.'),
         hint: [
           T('刚才的证明已经给出「¬¬(下雨 ∨ ¬下雨)」。', 'The proof you just made already gives “¬¬(it rains ∨ ¬it rains)”.'),
           T('把<part-ref to="part:raa"></part-ref>接在最外层假设框的输出后面。', 'Wire <part-ref to="part:raa"></part-ref> after the outermost assumption box.'),
@@ -180,7 +179,6 @@ export const classical = [
         step: T('加上两个 ¬', 'Two ¬s on'),
         tests: [{ premises: { p: 'A' }, goal: '¬¬A' }],
         cases: [{ A: 'Rain' }, { A: 'Locked' }],
-        brief: T('再从「下雨」证明出「¬¬下雨」。', 'Now from “it rains”, prove “¬¬it rains”.'),
         hint: [T('「¬¬下雨」就是「¬下雨 → ⊥」。', '“¬¬it rains” is “¬it rains → ⊥”.')],
         solution: proof({ f: ['impI', { A: '¬A' }], m: ['mp', {}, 'f'] }, ['f#body>m.imp', 'p>m.a', 'm>f.body', 'f>goal'], { premises: ['p'] }),
       }),
@@ -206,7 +204,6 @@ export const classical = [
         step: T('或者变回箭头', 'Or back to an arrow'),
         tests: [{ premises: { p: '¬A ∨ B' }, goal: 'A → B' }],
         cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Alarm', B: 'Up' }],
-        brief: T('再从「¬下雨 ∨ 地湿」证明出「下雨 → 地湿」。', 'Now from “¬it rains ∨ the ground is wet”, prove “it rains → the ground is wet”.'),
         hint: [
           T('先假设「下雨」，再对已知分情况。', 'Assume “it rains” first, then take cases on the given.'),
           T('「¬下雨」那种情况和假设矛盾；矛盾推出一切。', 'The “¬it rains” case contradicts the assumption, and a contradiction gives anything.'),
@@ -236,7 +233,6 @@ export const classical = [
         step: T('合回来', 'Back together'),
         tests: [{ premises: { p: '(A ∨ B) ∧ (A ∨ C)' }, goal: 'A ∨ (B ∧ C)' }],
         cases: THREE,
-        brief: T('再从「(下雨 ∨ 刮风) ∧ (下雨 ∨ 地湿)」证明出「下雨 ∨ (刮风 ∧ 地湿)」。', 'Now from “(it rains ∨ it is windy) ∧ (it rains ∨ the ground is wet)”, prove “it rains ∨ (it is windy ∧ the ground is wet)”.'),
         hint: [
           T('拆开「并且」，得到两句「或者」。', 'Split the “and” into its two “or”s.'),
           T('两句「或者」先后分情况。只有两句都不给出「下雨」时，才要「刮风 ∧ 地湿」。', 'Take cases on the two “or”s in turn. Only when neither gives “it rains” is “it is windy ∧ the ground is wet” needed.'),
@@ -253,7 +249,6 @@ export const classical = [
         step: T('分到左边', 'Out over the left'),
         tests: [{ premises: { p: '(A ∧ B) ∨ C' }, goal: '(A ∨ C) ∧ (B ∨ C)' }],
         cases: THREE,
-        brief: T('再从「(下雨 ∧ 刮风) ∨ 地湿」证明出「(下雨 ∨ 地湿) ∧ (刮风 ∨ 地湿)」。', 'Now from “(it rains ∧ it is windy) ∨ the ground is wet”, prove “(it rains ∨ the ground is wet) ∧ (it is windy ∨ the ground is wet)”.'),
         hint: [T('和第一段一样，只是左右换了。', 'As in the first task, left and right swapped.')],
         solution: proof({
           e: ['orE'],
@@ -265,7 +260,6 @@ export const classical = [
         step: T('合回来（左边）', 'Back together, on the left'),
         tests: [{ premises: { p: '(A ∨ C) ∧ (B ∨ C)' }, goal: '(A ∧ B) ∨ C' }],
         cases: THREE,
-        brief: T('最后从「(下雨 ∨ 地湿) ∧ (刮风 ∨ 地湿)」证明出「(下雨 ∧ 刮风) ∨ 地湿」。', 'Last, from “(it rains ∨ the ground is wet) ∧ (it is windy ∨ the ground is wet)”, prove “(it rains ∧ it is windy) ∨ the ground is wet”.'),
         hint: [T('和第二段一样，只是左右换了。', 'As in the second task, left and right swapped.')],
         solution: proof({
           s: ['andE'], o1: ['orE'],
@@ -305,7 +299,6 @@ export const classical = [
         step: T('两个都不', 'Neither'),
         tests: [{ premises: { p: '¬A ∧ ¬B' }, goal: '¬(A ∨ B)' }],
         cases: DAYS,
-        brief: T('再从「¬今天是周六 ∧ ¬今天是周日」，证明出「¬(今天是周六 ∨ 今天是周日)」。', 'Now from “¬today is Saturday ∧ ¬today is Sunday”, prove “¬(today is Saturday ∨ today is Sunday)”.'),
         hint: [
           T('要证的是一个否定。', 'The goal is a negation.'),
           T('假设「今天是周六 ∨ 今天是周日」，两种情况各推出矛盾。', 'Assume “today is Saturday ∨ today is Sunday” and get a contradiction in each case.'),
@@ -316,7 +309,6 @@ export const classical = [
         step: T('有一个不', 'One fails'),
         tests: [{ premises: { p: '¬A ∨ ¬B' }, goal: '¬(A ∧ B)' }],
         cases: DAYS,
-        brief: T('再从「¬今天是周六 ∨ ¬今天是周日」，证明出「¬(今天是周六 ∧ 今天是周日)」。', 'Now from “¬today is Saturday ∨ ¬today is Sunday”, prove “¬(today is Saturday ∧ today is Sunday)”.'),
         hint: [
           T('要证的又是一个否定。', 'The goal is again a negation.'),
           T('假设「今天是周六 ∧ 今天是周日」，再对已知分情况。', 'Assume “today is Saturday ∧ today is Sunday”, then take cases on the given.'),
@@ -327,7 +319,6 @@ export const classical = [
         step: T('并非两个都', 'Not both'),
         tests: [{ premises: { p: '¬(A ∧ B)' }, goal: '¬A ∨ ¬B' }],
         cases: DAYS,
-        brief: T('最后从「¬(今天是周六 ∧ 今天是周日)」，证明出「¬今天是周六 ∨ ¬今天是周日」。', 'Last, from “¬(today is Saturday ∧ today is Sunday)”, prove “¬today is Saturday ∨ ¬today is Sunday”.'),
         hint: [
           T('已知没说哪一个不成立。', 'The given does not say which one fails.'),
           T('今天是周六，或者不是：两边都讨论。', 'Today is Saturday, or it is not: take both sides.'),
@@ -357,7 +348,6 @@ export const classical = [
         step: T('都不，就是没有', 'All not is none'),
         tests: [{ premises: { p: '∀x. ¬P(x)' }, goal: '¬∃x. P(x)' }],
         cases: DRINK,
-        brief: T('再从「∀x. ¬x在喝酒」证明出「¬∃x. x在喝酒」。', 'Now from “∀x. ¬x is drinking”, prove “¬∃x. x is drinking”.'),
         hint: [
           T('要证的是一个否定：假设有人在喝酒。', 'The goal is a negation: suppose someone is drinking.'),
           T('把这个人取出来，已知对他也成立。', 'Take that person out; the given holds of them too.'),
@@ -368,7 +358,6 @@ export const classical = [
         step: T('有一个不', 'One who does not'),
         tests: [{ premises: { p: '∃x. ¬P(x)' }, goal: '¬∀x. P(x)' }],
         cases: DRINK,
-        brief: T('再从「∃x. ¬x在喝酒」（有人没在喝酒），证明出「¬∀x. x在喝酒」（并非人人都在喝酒）。', 'Now from “∃x. ¬x is drinking” (someone is not drinking), prove “¬∀x. x is drinking” (not everyone is drinking).'),
         hint: [
           T('假设人人都在喝酒。', 'Suppose everyone is drinking.'),
           T('把那个没喝的人取出来：他也在「人人」之中。', 'Take out the one who is not drinking: they are among “everyone” too.'),
@@ -380,7 +369,6 @@ export const classical = [
         sentences: ['¬∃x. ¬P(x)'],
         tests: [{ premises: { p: '¬∀x. P(x)' }, goal: '∃x. ¬P(x)' }],
         cases: DRINK,
-        brief: T('最后从「¬∀x. x在喝酒」（并非人人都在喝酒），证明出「∃x. ¬x在喝酒」（有人没在喝酒）。', 'Last, from “¬∀x. x is drinking” (not everyone is drinking), prove “∃x. ¬x is drinking” (someone is not drinking).'),
         hint: [
           T('已知里没有一个具体的人可以举出来。试试反证。', 'The given names nobody to point to. Try proof by contradiction.'),
           T('假设「¬∃x. ¬x在喝酒」，再看能不能证出人人都在喝酒。', 'Assume “¬∃x. ¬x is drinking”, and see whether everyone drinking follows.'),
@@ -444,7 +432,6 @@ export const classical = [
       prove({
         tests: [{ premises: { p: 'A ↔ ¬A ∧ ¬B' }, goal: '¬A ∧ B' }],
         cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
-        brief: T('已知「a 是骑士 ↔ ¬a 是骑士 ∧ ¬b 是骑士」，证明出「¬a 是骑士 ∧ b 是骑士」。', 'Given “a is a knight ↔ ¬a is a knight ∧ ¬b is a knight”, prove “¬a is a knight ∧ b is a knight”.'),
         hint: [
           T('先证「¬a 是骑士」：假设 a 是骑士，看他的话说了什么。', 'First prove “¬a is a knight”: suppose a is a knight, and look at what he says.'),
           T('a 是无赖，他的话就是假的。b 是骑士这一半，试试反证。', 'If a is a knave, his statement is false. For the half about b, try proof by contradiction.'),
@@ -479,7 +466,6 @@ export const classical = [
       prove({
         tests: [{ premises: { p: 'A ↔ ¬A ∨ B' }, goal: 'A ∧ B' }],
         cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
-        brief: T('已知「a 是骑士 ↔ ¬a 是骑士 ∨ b 是骑士」，证明出「a 是骑士 ∧ b 是骑士」。', 'Given “a is a knight ↔ ¬a is a knight ∨ b is a knight”, prove “a is a knight ∧ b is a knight”.'),
         hint: [
           T('先证「a 是骑士」：他是不是骑士，两边都讨论。', 'First prove “a is a knight”: take both sides of whether he is.'),
           T('a 是骑士，他的话就是真的；再对他的话分情况。', 'If a is a knight, his statement is true; then take cases on it.'),
@@ -521,7 +507,7 @@ export const classical = [
     title: T('酒鬼悖论', 'The drinker paradox'),
     tests: [{ goal: '∃x. D(x) → ∀y. D(y)' }],
     cases: [{ D: 'Drinks' }, { D: 'Sings' }],
-    brief: T('酒吧里至少有一个人。不需要任何已知，证明出「∃x. x在喝酒 → ∀y. y在喝酒」：有这么一个人，只要他喝酒，大家就都在喝。', 'There is at least one person in the pub. Prove “∃x. x is drinking → ∀y. y is drinking” from nothing given: there is someone such that, if they drink, everyone drinks.'),
+    intro: [{ t: T('酒吧里至少有一个人。「∃x. x在喝酒 → ∀y. y在喝酒」说的是：有这么一个人，只要他喝酒，大家就都在喝。', 'There is at least one person in the pub. “∃x. x is drinking → ∀y. y is drinking” says: there is someone such that, if they drink, everyone drinks.') }],
     hint: [
       T('别急着找那个人。先问：是不是大家都在喝？', 'Do not look for that person yet. Ask first: is everyone drinking?'),
       T('不是大家都在喝时，<part-ref to="lemma:dm"></part-ref>能给出什么？', 'If not everyone is drinking, what does <part-ref to="lemma:dm"></part-ref> give?'),

@@ -259,7 +259,7 @@ export const rules = [
     title: T('婴儿驯不了鳄鱼', 'Babies cannot tame crocodiles'),
     tests: [{ premises: { p: '∀x. A(x) → ¬B(x)', q: '∀x. C(x) → D(x)', r: '∀x. ¬B(x) → ¬D(x)' }, goal: '∀x. A(x) → ¬C(x)' }],
     cases: [{ A: 'Baby', B: 'Logical', C: 'Tamer', D: 'Respected' }],
-    brief: T('卡罗尔的原题：「婴儿都不讲道理」「驯得了鳄鱼的都受人尊重」「不讲道理的都不受人尊重」。证明「婴儿都驯不了鳄鱼」。', 'Carroll’s own puzzle: “babies are illogical”, “whoever can tame a crocodile is respected”, “illogical persons are not respected”. Prove “babies cannot tame crocodiles”.'),
+    intro: [{ t: T('卡罗尔的原题：「婴儿都不讲道理」「驯得了鳄鱼的都受人尊重」「不讲道理的都不受人尊重」。证明「婴儿都驯不了鳄鱼」。', 'Carroll’s own puzzle: “babies are illogical”, “whoever can tame a crocodile is respected”, “illogical persons are not respected”. Prove “babies cannot tame crocodiles”.') }],
     hint: [
       T('任取一个 a，假设它是婴儿；要证「¬a驯得了鳄鱼」，就再假设它驯得了，推出矛盾。', 'Take any a and assume it is a baby; to prove “¬a can tame a crocodile”, assume it can, and reach a contradiction.'),
       T('婴儿 → 不讲道理 → 不受尊重；驯得了鳄鱼 → 受尊重：撞上了。', 'Baby → illogical → not respected; tames crocodiles → respected: they clash.'),

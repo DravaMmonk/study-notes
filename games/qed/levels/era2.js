@@ -87,7 +87,6 @@ export const era2 = [
         step: T('另一个方向', 'The other direction'),
         tests: [{ premises: { p: 'A ↔ B', q: '¬A' }, goal: '¬B' }],
         cases: [{ A: 'Sat', B: 'Rest' }, { A: 'Coffee', B: 'Awake' }],
-        brief: T('从「今天是周六 ↔ 我休息」和「¬今天是周六」，证明「¬我休息」。', 'From “today is Saturday ↔ I rest” and “¬today is Saturday”, prove “¬I rest”.'),
         hint: [T('这回要用另一个方向：假设「我休息」，看能不能撞出矛盾。', 'This time it takes the other direction: assume “I rest” and see whether it runs into a contradiction.')],
         solution: proof({ e: ['andE'], f: ['impI', { A: 'B' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>e.ab', 'e#right>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
       }),

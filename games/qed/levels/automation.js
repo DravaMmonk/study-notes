@@ -76,7 +76,6 @@ export const automation = [
         step: T('再变回来', 'And back'),
         tests: [{ premises: { p: '(¬A ∨ B) ∧ (¬B ∨ A)' }, goal: 'A ↔ B' }],
         cases: [{ A: 'Sat', B: 'Rest' }, { A: 'KA', B: 'KB' }],
-        brief: T('再从「(¬今天是周六 ∨ 我休息) ∧ (¬我休息 ∨ 今天是周六)」证明出「今天是周六 ↔ 我休息」。', 'Now from “(¬today is Saturday ∨ I rest) ∧ (¬I rest ∨ today is Saturday)”, prove “today is Saturday ↔ I rest”.'),
         hint: [T('↔ 就是两个方向的 → 用「并且」连起来。', '↔ is the two directions of → joined by “and”.')],
         solution: proof({ e: ['andE'], a1: ['arrow', { form: 'intro' }], a2: ['arrow', { form: 'intro' }], c: ['andI'] }, ['p>e.ab', 'e#left>a1.p0', 'e#right>a2.p0', 'a1>c.a', 'a2>c.b', 'c>goal'], { premises: ['p'] }),
       },
