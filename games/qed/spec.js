@@ -323,7 +323,14 @@ export default {
     { solve: ['decl-and', ['decl-imp']] },
   ] },
   // Version 62 gave 声明「若…则…」 a second task, correcting a wrong declaration: the board written is the first's.
-  { version: 62, ops: [{ data: (value, id) => (id === 'decl-imp' && value && !Array.isArray(value) ? [value, null] : value) }] }],
+  { version: 62, ops: [{ data: (value, id) => (id === 'decl-imp' && value && !Array.isArray(value) ? [value, null] : value) }] },
+  // Version 63 took that second task out into a level of its own, 检验声明, after it: 声明「若…则…」 keeps the board
+  // written, and whoever passed 声明「并且」 has passed the new level too.
+  { version: 63, ops: [
+    { data: (value, id) => (id === 'decl-imp' && Array.isArray(value) ? value[0] ?? undefined : value) },
+    { tasks: (passed, id) => (id === 'decl-imp' ? 0 : passed) },
+    { solve: ['decl-and', ['decl-check']] },
+  ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],
