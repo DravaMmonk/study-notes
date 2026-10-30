@@ -70,8 +70,8 @@ export const declarations = [
     tasks: [
       {
         kind: 'iso',
-        step: T('写声明', 'Write it'),
-        brief: T('「下雨，并且刮风」：两份证明都在手里，才证得出。写出它的声明。', '“It rains and it is windy”: proved only with both proofs at hand. Write its declaration.'),
+        step: T('编写声明', 'Write the declaration'),
+        brief: T('「下雨，并且刮风」仅在两份证明同时具备时才能引入。请写出它的声明。', '“It rains and it is windy” may be introduced only when both proofs are held. Write its declaration.'),
         hint: [
           T('只有一条引入规则，要两样：拿两张假设，一张选「下雨」，一张选「刮风」，把「下雨」接进「刮风」的「先假设」。', 'One way, needing both: take two assumptions, one of “it rains” and one of “it is windy”, and wire “it rains” into the “assumed first” of “it is windy”.'),
           T('再把「刮风」接进「并且」的引入规则 1。', 'Then wire “it is windy” into way 1 of “and”.'),
@@ -80,14 +80,14 @@ export const declarations = [
       {
         // Someone's declaration with each sentence a way of its own: one proof at hand already makes it.
         kind: 'iso',
-        step: T('找错', 'Find the fault'),
+        step: T('找出错误', 'Find the fault'),
         wrong: [isoBoard(['Rain>1', 'Wind>2'])],
         answer: [{ have: ['Rain'], make: false }],
         naive: [{ have: ['Rain', 'Wind'], make: true }],
-        intro: [{ t: T('板上是别人写的一份「并且」的声明，锁着不能改。这一回不写声明，写<b>检验条例</b>：下面的表格每一行是一条，写下手里有哪些证明，再写按需求「并且」这时该不该证得出。运行时，每一条先拿需求来对，期望写错了就停下；条例都对，又有一条让这块电路答错，就抓住了它。条例越少越好。', 'On the board is someone’s declaration of “and”, locked. This time you write no declaration but <b>cases</b>: each row of the table below is one, saying which proofs are at hand and whether, as the requirement means it, “and” should then be proved. A run first checks each case against the requirement and stops on an expectation that is wrong; once the cases are right and one of them makes this board answer wrongly, it is caught. The fewer cases, the better.') }],
-        brief: T('别人写的「并且」：写检验条例，找出一种它会答错的情况。', 'Someone’s “and”: write cases until one finds where it answers wrongly.'),
-        hint: [T('它有两条引入规则，各只要一样。只有一份证明在手里时，按需求该不该证得出？它又怎么答？', 'It has two ways, each needing one. With a single proof at hand, should “and” be proved? And what does it answer?')],
-        after: T('一条条例就够：只有「下雨」时，需求说证不出，这份声明却用引入规则 1 证出来了。它给得太多。这正是你在上一段要避开的错：各接一个口，是「或者」的写法。', 'One case is enough: with only “it rains”, the requirement says not proved, yet this declaration proves it by way 1. It gives too much. It is the very mistake you avoided before: a way for each is how “or” is written.'),
+        intro: [{ t: T('板上是另一份关于「并且」的声明，已被锁定。本任务不再编写声明，而是编写<b>检验条例</b>：表中每一行是一条条例，指明当前持有哪些证明，并依据需求写明此时能否引入「并且」。运行时先依据需求核对每条条例的预期，预期有误即停止；全部条例无误，且至少有一条使该声明给出错误结论，即视为找出了错误。所用条例越少，成绩越好。', 'On the board is another declaration of “and”, locked. This task asks not for a declaration but for <b>test cases</b>: each row of the table is one, stating which proofs are held and, according to the requirement, whether “and” may then be introduced. A run first checks each case’s expectation against the requirement and stops at the first that is wrong; once every case is right and at least one leads this declaration to a wrong conclusion, the fault has been found. The fewer cases, the better the score.') }],
+        brief: T('这份「并且」的声明存在错误。请编写检验条例，找出它给出错误结论的情形。', 'This declaration of “and” is faulty. Write test cases that reveal a situation in which it reaches a wrong conclusion.'),
+        hint: [T('该声明有两条引入规则，每条只需一个前提。仅持有一份证明时，需求要求的结论是什么？该声明给出的又是什么？', 'This declaration has two introduction rules, each needing a single premise. With only one proof held, what conclusion does the requirement call for, and what does the declaration give?')],
+        after: T('一条条例即足以揭示错误：仅持有「下雨」的证明时，需求不允许引入「并且」，该声明却经由引入规则 1 引入了它。它所允许的情形多于需求，属于过弱的规格。为每个前提各设一条引入规则，实为「或者」的写法。', 'A single case suffices: with only a proof of “it rains” held, the requirement does not allow “and” to be introduced, yet this declaration introduces it by intro rule 1. It admits more situations than the requirement does, which makes it too weak a specification. An introduction rule for each premise is, in fact, how “or” is written.'),
       },
     ],
     solution: isoBoard(['Rain>Wind', 'Wind>1']),
@@ -110,26 +110,26 @@ export const declarations = [
       { holds: ['Sat → Rest', 'Sun → Rest'], get: 'Rest', make: true },
       { holds: ['Sat → Rest'], get: 'Rest', make: false },
     ],
-    intro: [{ t: T("合取的引入规则需要两个前提。析取「今天是周六，或者今天是周日」则在任一命题有证明时即可引入，两者都有证明也可以。有人已经写了两份「或者」的声明，都不对：先写检验条例找出它们各错在哪里，再把其中一份改对。", "Conjunction introduction requires two premises. The disjunction “today is Saturday or today is Sunday” can be introduced from a proof of either proposition, including when both are proved. Someone has written two declarations of “or”, both wrong: first write cases to find where each goes wrong, then put one of them right.") }],
+    intro: [{ t: T("合取的引入需要两个前提；析取「今天是周六，或者今天是周日」则在任一命题得到证明时即可引入，两者均得到证明时亦然。下面给出两份关于「或者」的声明，均与这一需求不符。请先编写检验条例，分别找出两者的错误，再修正其中一份。", "Introducing a conjunction requires two premises; the disjunction “today is Saturday or today is Sunday” may be introduced once either proposition is proved, and likewise when both are. Two declarations of “or” follow, neither of which meets this requirement. First write test cases that reveal the fault in each, then correct one of them.") }],
     tasks: [
       {
         // Two wrong declarations: one needs both (the chain of "and"), one has a way for Saturday only. No one case
         // catches both.
         kind: 'iso',
-        step: T('找错', 'Find the faults'),
+        step: T('找出错误', 'Find the faults'),
         wrong: [isoBoard(['Sat>Sun', 'Sun>1']), isoBoard(['Sat>1'])],
         answer: [{ have: ['Sat'], make: true }, { have: ['Sun'], make: true }],
         naive: [{ have: ['Sat'], make: true }],
-        brief: T('别人写的两份「或者」：写检验条例，让两块电路各在一条上答错。', 'Someone’s two declarations of “or”: write cases so that each board answers one of them wrongly.'),
-        hint: [T('点上面的「电路 1」「电路 2」看两份各是怎么接的。一条条例抓得住两块吗？', 'Look at each with “Board 1” and “Board 2” above. Can one case catch both?')],
-        after: T('两块电路错得不一样：电路 1 把两样串成一条引入规则，要两样都在；电路 2 只有「周六」一条来路。只有「周六」时电路 1 答错，只有「周日」时电路 2 答错，所以要两条条例。条例是从需求里想出来的例子，需求的每一层意思都要有一条例子守着。', 'The two go wrong differently: board 1 chains both into one way, needing both; board 2 has only the way from Saturday. Board 1 answers wrongly with only “Saturday”, board 2 with only “Sunday”, so it takes two cases. Cases are examples thought up from the requirement, and each thing it means needs a case to guard it.'),
+        brief: T('以下两份「或者」的声明各有错误。请编写检验条例，使每份声明至少在一条条例上给出错误结论。', 'Each of these two declarations of “or” is faulty. Write test cases so that each declaration reaches a wrong conclusion on at least one of them.'),
+        hint: [T('可通过上方的「电路 1」「电路 2」分别查看两份声明。不妨先考虑：是否存在一条条例，能同时揭示两者的错误？', 'Use “Board 1” and “Board 2” above to examine each declaration. Consider first: is there a single case that reveals both faults at once?')],
+        after: T('两份声明的错误性质不同：电路 1 将两个前提串联为一条引入规则，要求两份证明同时具备，规格过强；电路 2 只有以「周六」为前提的一条引入规则，遗漏了另一种情形。前者在仅持有「周六」时出错，后者在仅持有「周日」时出错，因此至少需要两条条例。检验条例源自对需求的逐项理解：需求的每一层含义，都应有相应的条例加以检验。', 'The two faults differ in kind. Board 1 chains both premises into a single introduction rule, so that both proofs must be held: the specification is too strong. Board 2 has only the introduction rule whose premise is “Saturday”, and so omits the other situation. The former errs when only “Saturday” is held, the latter when only “Sunday” is, so at least two cases are needed. Test cases come from reading the requirement point by point: every part of what it means should be checked by a case of its own.'),
       },
       {
         kind: 'iso',
-        step: T('改对', 'Put it right'),
+        step: T('修正', 'Correct it'),
         start: isoBoard(['Sat>Sun', 'Sun>1']),
-        brief: T('把电路 1 改对：「今天是周六，或者今天是周日」，手里有其中一份证明就证得出，两份都有也行。', 'Put board 1 right: “today is Saturday or today is Sunday” is proved with either proof at hand, and with both.'),
-        hint: [T('两条引入规则，各要一样：拆开两张假设的线，各接一个引入规则口。', 'Two ways, each needing one: undo the wire between the two assumptions and wire each into a way of its own.')],
+        brief: T('请修正电路 1，使之符合需求：「今天是周六，或者今天是周日」在任一命题得到证明时即可引入，两者均得到证明时亦然。', 'Correct board 1 so that it meets the requirement: “today is Saturday or today is Sunday” may be introduced once either proposition is proved, and likewise when both are.'),
+        hint: [T('需求包含两种彼此独立的情形，每种情形只需一个前提。', 'The requirement comprises two independent situations, each needing a single premise.')],
       },
     ],
     solution: isoBoard(['Sat>1', 'Sun>2']),
