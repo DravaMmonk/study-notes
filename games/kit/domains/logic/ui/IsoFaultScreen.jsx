@@ -58,8 +58,8 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const failed = run?.over && !playback.passed ? run.results.at(-1) : null
   const verdictText = !verdict ? null : verdict.pass
     ? (level.wrong.length > 1
-      ? tr(`已找出错误：${checked.caught.map((k, b) => `电路 ${b + 1} 在第 ${k + 1} 条条例上给出错误结论`).join('；')}。`, `Faults found: ${checked.caught.map((k, b) => `board ${b + 1} reaches a wrong conclusion on case ${k + 1}`).join('; ')}.`)
-      : tr(`已找出错误：该声明在第 ${checked.caught[0] + 1} 条条例上给出错误结论。`, `Fault found: this declaration reaches a wrong conclusion on case ${checked.caught[0] + 1}.`))
+      ? tr(`已找出错误：${checked.caught.map((k, b) => `电路 ${b + 1} 在第 ${k + 1} 条条例上得出错误结论`).join('；')}。`, `Faults found: ${checked.caught.map((k, b) => `board ${b + 1} reaches a wrong conclusion on case ${k + 1}`).join('; ')}.`)
+      : tr(`已找出错误：这份声明在第 ${checked.caught[0] + 1} 条条例上得出错误结论。`, `Fault found: this declaration reaches a wrong conclusion on case ${checked.caught[0] + 1}.`))
     : run.final || failed?.reason
 
   // What a card says for the case picked: an assumption its sentence, the declared card its ways and whether it is
@@ -97,7 +97,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
               <th>#</th>
               {level.sentences.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
               <th>{tr(`预期：「${level.declare.zh}」`, `Expected: “${level.declare.en}”`)}</th>
-              {level.wrong.map((_, b) => <th key={b} className="lg-result">{many ? tr(`电路 ${b + 1}`, `Board ${b + 1}`) : tr('该声明', 'This declaration')}</th>)}
+              {level.wrong.map((_, b) => <th key={b} className="lg-result">{many ? tr(`电路 ${b + 1}`, `Board ${b + 1}`) : tr('这份声明', 'This declaration')}</th>)}
               <th aria-label={tr('删去', 'Remove')} />
             </tr>
           </thead>
