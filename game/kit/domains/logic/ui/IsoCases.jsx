@@ -2,9 +2,9 @@ import { ChoiceField, Field, InlineChoice, InlineList, InlineSelect, ListField, 
 import { L, tr } from '../../../shell/i18n.js'
 
 // The test cases (检验条例) of a declaration board, on the shared table the player fills in (../../../shell/RowTable.jsx):
-// four columns, what is given (numbered), the goal, what is expected of it (预期), and whether the declaration derives
+// four columns, the premises (numbered), the goal, what is expected of it (预期), and whether the declaration derives
 // it (结果: the result, filled in only as a run steps to the case). The level's cases are read only; an audit's are
-// the player's to write (`edit`): on a desktop in the table itself, on a phone a case opens in a form where the givens are added from a drop-down of the level's
+// the player's to write (`edit`): on a desktop in the table itself, on a phone a case opens in a form where the premises are added from a drop-down of the level's
 // sentences (as an assumption card picks one) and taken off with ×, the goal is picked from the same sentences, and the
 // expectation chosen; a level's `caseGoal` and `caseMake` fix every case's goal and expectation, and its `slots`
 // sets out that many empty cases beforehand, none added or deleted. The level's own cases do not show what is
@@ -26,7 +26,7 @@ export default function CaseTable({ cases, words, level, choices = [], edit = nu
   const makes = [{ value: true, label: T('可推导', 'Derivable') }, { value: false, label: T('不可推导', 'Not derivable') }]
   const setGoal = (c, set) => (goal) => set({ ...c, goal: goal === level.target ? undefined : goal })
   const columns = [
-    { key: 'given', label: T('已知', 'Given'), align: 'start', edit: (c, set) => <InlineList value={c.given} options={options} onChange={(given) => set({ ...c, given })} addLabel={T('添加已知…', 'Add a given…')} />, cell: (c) => (c.given.length ? <span className="lg-lines">{c.given.map((s, i) => <span key={s}>{`${i + 1}. ${name(s)}`}</span>)}</span> : <span className="lg-mark">{tr('无', 'Nothing')}</span>) },
+    { key: 'given', label: T('前提', 'Premises'), align: 'start', edit: (c, set) => <InlineList value={c.given} options={options} onChange={(given) => set({ ...c, given })} addLabel={T('添加前提…', 'Add a premise…')} />, cell: (c) => (c.given.length ? <span className="lg-lines">{c.given.map((s, i) => <span key={s}>{`${i + 1}. ${name(s)}`}</span>)}</span> : <span className="lg-mark">{tr('无', 'Nothing')}</span>) },
     { key: 'goal', label: T('目标', 'Goal'), edit: level.caseGoal ? null : (c, set) => <InlineSelect value={goalOf(c)} options={options} onChange={setGoal(c, set)} />, cell: (c) => name(goalOf(c)) },
     // A declaration to write or correct keeps its expectations to itself: a run only says whether each result is right.
     ...(edit ? [{ key: 'make', label: T('预期', 'Expected'), edit: level.caseMake !== undefined ? null : (c, set) => <InlineChoice value={c.make} options={makes} onChange={(make) => set({ ...c, make })} />, cell: (c) => derivable(c.make) }] : []),
@@ -34,7 +34,7 @@ export default function CaseTable({ cases, words, level, choices = [], edit = nu
   ]
   const form = (c, set) => (
     <>
-      <ListField label={T('已知', 'Given')} value={c.given} options={options} onChange={(given) => set({ ...c, given })} addLabel={T('添加已知…', 'Add a given…')} none={T('没有已知', 'Nothing given')} />
+      <ListField label={T('前提', 'Premises')} value={c.given} options={options} onChange={(given) => set({ ...c, given })} addLabel={T('添加前提…', 'Add a premise…')} none={T('没有前提', 'No premises')} />
       {level.caseGoal
         ? <Field label={T('目标（固定）', 'Goal (fixed)')}><span className="ff-fixed">{name(level.caseGoal)}</span></Field>
         : <SelectField label={T('目标', 'Goal')} value={goalOf(c)} options={options} onChange={setGoal(c, set)} />}
