@@ -353,6 +353,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick）：
 - 《证明完毕》（`games/qed`）已有第 0–2 代的 demo：`kit/domains/logic` 给出证明关（规则即元件，假设框是画布上的框：区域左边给出假设，区域里证出的接回框的输入口）、真值表关和 `defineLogicGame`。
 - 《句法之图》（`games/syntax-graph`）已有第 1 代的 demo，场景是计算机论文和审稿：`kit/domains/syntax` 给出语法规则（词类、一致、格、动词框架，放词时检查并说明原因）、把小句与语义图逐项比对的检查、句子关界面和 `defineSyntaxGame`；`validate` 除了参考答案，还跑每关写明的陷阱（必须在写明的那一层被拦下）。小句只有四五个位置，用电路搭太重、方向也和语序相反，所以它用 `kit/strip` 的词序条，不走电路编辑器和 `engine/circuit.js`。
 - 《软件工厂》（`games/factory`）已有第 0–2 章：`kit/domains/agent` 给出确定性的模拟模型（`model.js`，每条规则一个单元测试）、抽象仓库和测试报告（`world.js`）、每轮跑一遍板的机器（`run.js`）、第 0 章玩家自己当循环的手动关（`hand.js`）和 `defineAgentGame`；板上的运行用 `usePlayback`，一轮是一步。
+- 《从一根线开始》（`games/network`）和《车在说话》（`games/bus`）还只有设计文档。两款都是几个节点逐拍共用一根线，要先把四样共享的东西做进 kit，做一次两款都用：逐拍世界（`engine/ticks.js`：一拍分「说」和「听」两半，线的规则由领域给）；有状态、多输出的封装件（封装件里的寄存卡按元件路径各存一份状态，给出搭建关的所有结果口；现在的 `packed` 只有一个输出、没有状态）；泳道 × 拍的波形图 / 时序图（`shell/Timeline.jsx`）；换代时把下一层收进世界的整帧的线（由 `check` 对照搭出那一层的关）。最后一样是对「封装件跑学习者的电路」的例外，要在原型里看玩家能不能接受。细节见 `games/bus/DESIGN.md` 第 6 节。
 - 桌面画布拒绝一根线时，会在板子上说出 `parts.refuse` 给的原因（手机格位原本就有），所有电路游戏都受益。
 - 《一切皆文件》的领域模块只有引擎部分（模拟内核、逐行机器、一致性用例，都有单元测试），还没有关卡界面和 `defineXGame`；第一个原型关卡做出来时再加。
 - 机关台仍是每个一份的界面（`domains/image/ui/boards/`），逻辑已和关卡数据分开（`domains/image/benches/`）；还没抽成通用的参数台。
