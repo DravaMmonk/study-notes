@@ -3,9 +3,8 @@ import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, useBoard
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, SlotBoard } from '../../../circuit/index.js'
 import { say } from '../notation.js'
-import { DECL, derives, judgeCases, listText, propositionsOf, runIso, sentenceOf, wayOf, wayRule, wayText } from '../iso.js'
-import Entries from '../../../shell/Entries.jsx'
-import { WAY, isoPartsFor } from './IsoScreen.jsx'
+import { DECL, derives, judgeCases, listText, propositionsOf, runIso, sentenceOf } from '../iso.js'
+import { DeclRules, isoPartsFor } from './IsoScreen.jsx'
 import CaseTable, { setOut } from './IsoCases.jsx'
 
 // Finding the fault in someone's declarations (the shared play 'audit', ../../../shell/useBoardCases.js): each test
@@ -75,8 +74,8 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
     }
     return (
       <div className="lg-card">
-        {ways > 0 && <Entries className="lg-clauses">{Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <code key={k}>{`${WAY[k]}. ${wayText(wayRule(wayOf(rule), level), text)}`}</code>)}</Entries>}
-        {current && (view.made ? <span className="lg-tv is-true">{tr(`由引入规则 ${WAY[view.made.way - 1]} 推导出`, `Derived by intro rule ${WAY[view.made.way - 1]}`)}</span> : view.derived ? <span className="lg-tv is-true">{tr('可推导', 'Derivable')}</span> : <i className="lg-mark">{tr('不可推导', 'Not derivable')}</i>)}
+        <DeclRules level={level} rules={Array.from({ length: ways }, (_, k) => ruleInto(k + 1))} text={text} />
+        {current && (view.made ? <span className="lg-tv is-true">{tr(`由引入${view.made.way}推导出`, `Derived by intro ${view.made.way}`)}</span> : view.derived ? <span className="lg-tv is-true">{tr('可推导', 'Derivable')}</span> : <i className="lg-mark">{tr('不可推导', 'Not derivable')}</i>)}
       </div>
     )
   }

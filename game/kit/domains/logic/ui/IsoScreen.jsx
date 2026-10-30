@@ -39,6 +39,22 @@ export function isoPartsFor(level, words) {
   }
 }
 
+/**
+ * The declared card's rules as they stand: each intro rule wired (引入 1, 2, 3), and the elimination rule made from
+ * them (消去 1), in the level's own sentences. `rules` are the values wired into its ways, in order.
+ */
+export function DeclRules({ level, rules, text }) {
+  const ways = rules.filter(Boolean).map(wayOf)
+  if (!ways.length) return null
+  const elim = declaredRules(level, ways, (f) => f).take
+  return (
+    <Entries className="lg-clauses">
+      {ways.map((way, k) => <code key={k}>{tr(`引入${k + 1}：`, `Intro ${k + 1}: `)}{wayText(wayRule(way, level), text)}</code>)}
+      <code>{tr('消去1：', 'Elim 1: ')}{wayText(elim, text)}</code>
+    </Entries>
+  )
+}
+
 const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => (n.type === 'hyp' && n.locked) || n.type === 'case') && !circuit.wires.some((w) => w.port === 'before')
 const HYP = { type: 'hyp', label: T('前提', 'Premise'), desc: T('引入规则的一个前提 ⟦A⟧，在卡上选择是哪一句。把一组前提接进它的「它的前提」口，它就成了要先有那组前提才推得出的前提，⟦⟦…⟧ ⟹ A⟧。', 'A premise of an intro rule, ⟦A⟧, its sentence chosen on the card. Wire a group of premises into its port “Its premises”, and it becomes a premise derived from those first, ⟦⟦…⟧ ⟹ A⟧.'), icon: SquareDashedText, family: 'box' }
 const JOIN = { type: 'join', label: T('拼接', 'Join'), desc: T('把两组前提拼成一组，⟦A; B⟧：同一条引入规则要齐这几样。', 'Joins two groups of premises into one, ⟦A; B⟧: one intro rule needing all of them.'), icon: Combine, family: 'box' }
@@ -159,11 +175,10 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
       if (at === 'tile') return <div className="lg-card"><span className="lg-pick">{text(sentenceOf(level, node.params.name))}</span>{made(node)}</div>
       return <div className="lg-card"><FormulaField label={HYP.label} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required />{made(node)}</div>
     }
-    const way = (k) => (at === 'sheet' ? tr(`引入规则 ${WAY[k]}：`, `Intro rule ${WAY[k]}:`) : `${WAY[k]}.`)
     return (
       <div className="lg-card">
-        {ways > 0 && <Entries className="lg-clauses">{Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <code key={k}>{`${way(k)} ${wayText(wayRule(wayOf(rule), level), text)}`}</code>)}</Entries>}
-        {view.made ? <span className="lg-tv is-true">{tr(`由引入规则 ${WAY[view.made.way - 1]} 推导出`, `Derived by intro rule ${WAY[view.made.way - 1]}`)}</span> : view.derived ? <span className="lg-tv is-true">{tr('可推导', 'Derivable')}</span> : <i className="lg-mark">{tr('不可推导', 'Not derivable')}</i>}
+        <DeclRules level={level} rules={Array.from({ length: ways }, (_, k) => ruleInto(k + 1))} text={text} />
+        {view.made ? <span className="lg-tv is-true">{tr(`由引入${view.made.way}推导出`, `Derived by intro ${view.made.way}`)}</span> : view.derived ? <span className="lg-tv is-true">{tr('可推导', 'Derivable')}</span> : <i className="lg-mark">{tr('不可推导', 'Not derivable')}</i>}
       </div>
     )
   }
