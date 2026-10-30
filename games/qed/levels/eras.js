@@ -40,9 +40,9 @@ export const ERAS = [
       branches(['apply', '套用', 'Apply', ['mp', 'nested']], ['assume', '假设框', 'Assumption box', ['assume']]),
       'box',
       // Proofs kept as parts (definitions): Chain, Swap and Merge, each built with boxes alone, on two lines that need
-      // nothing from each other; then the three together, harder each time.
+      // nothing from each other; then the three together, a level each, harder each time.
       branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
-      'mergeLong',
+      'mergeUse', 'mergeLong', 'mergeBoth',
       // K and S, each proved with boxes and built as a part, need nothing from each other.
       branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
     ],

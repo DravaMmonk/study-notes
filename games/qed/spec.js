@@ -306,7 +306,9 @@ export default {
   { version: 58, ops: [
     { data: (value, id) => (id === 'decl-and' && Array.isArray(value) ? [value[0] ?? null, null, null] : id === 'decl-or' && Array.isArray(value) ? [null, null, null] : value) },
     { tasks: (passed, id) => (id === 'decl-and' ? Math.min(passed, 1) : id === 'decl-or' ? 0 : passed) },
-  ] }],
+  ] },
+  // Version 59 split 绕一大圈's three tasks back into three levels (接起来，再合并, 绕一大圈, 对不上的两句).
+  { version: 59, ops: [{ split: ['mergeLong', ['mergeUse', 'mergeLong', 'mergeBoth']] }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],
