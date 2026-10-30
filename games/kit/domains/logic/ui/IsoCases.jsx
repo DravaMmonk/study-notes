@@ -7,7 +7,8 @@ import { L, tr } from '../../../shell/i18n.js'
 // the player's to write (`edit`): a case opens in a form where the givens are added from a drop-down of the level's
 // sentences (as an assumption card picks one) and taken off with ×, the goal is picked from the same sentences, and the
 // expectation chosen; a level's `caseGoal` fixes every case's goal. The level's own cases do not show what is
-// expected: a declaration board shows only each result, right or wrong, as a run steps to it. `result(k)` is case k's result on the board on view, { derived, wrong } or null before a run
+// expected: a declaration board shows only each result, green when it agrees with the expectation and red when not,
+// as a run steps to it. `result(k)` is case k's result on the board on view, { derived, wrong } or null before a run
 // reaches it.
 
 const T = (zh, en) => ({ zh, en })
@@ -23,7 +24,7 @@ export default function CaseTable({ cases, words, level, choices = [], edit = nu
     { key: 'goal', label: T('目标', 'Goal'), cell: (c) => name(goalOf(c)) },
     // A declaration to write or correct keeps its expectations to itself: a run only says whether each result is right.
     ...(edit ? [{ key: 'make', label: T('预期', 'Expected'), cell: (c) => derivable(c.make) }] : []),
-    { key: 'result', label: T('结果', 'Result'), className: 'lg-result', cell: (_, k) => (result(k) ? <span className={result(k).wrong ? 'lg-wrong' : ''}>{derivable(result(k).derived)}</span> : '') },
+    { key: 'result', label: T('结果', 'Result'), className: 'lg-result', cell: (_, k) => (result(k) ? <span className={result(k).wrong ? 'lg-wrong' : 'lg-right'}>{derivable(result(k).derived)}</span> : '') },
   ]
   const form = (c, set) => (
     <>
