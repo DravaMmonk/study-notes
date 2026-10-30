@@ -582,6 +582,7 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .ff-inline-add select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 .ff-inline-add:hover { color: var(--ink); border-color: var(--ink); }
 .ff-inline-choice { min-width: 4em; padding: 2px 8px; border: 1px solid var(--rule); border-radius: 6px; background: transparent; color: var(--ink); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.ff-inline-choice.is-unset { color: var(--muted); border-style: dashed; }
 .rt-add svg { width: 14px; height: 14px; }
 /* On a phone: a window of its own that scrolls sideways, columns as wide as their text (wrapping past about sixteen
    characters), tall rows to tap, and a large add button. */

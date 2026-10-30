@@ -106,10 +106,10 @@ export function InlineSelect({ value, options, onChange }) {
   )
 }
 
-/** One of a few values, in a cell: a button that steps to the next. */
-export function InlineChoice({ value, options, onChange }) {
-  const at = Math.max(0, options.findIndex((o) => o.value === value))
+/** One of a few values, in a cell: a button that steps to the next; with none chosen yet it says `unset`. */
+export function InlineChoice({ value, options, onChange, unset }) {
+  const at = options.findIndex((o) => o.value === value)
   return (
-    <button type="button" className="ff-inline-choice" onClick={(e) => { e.stopPropagation(); onChange(options[(at + 1) % options.length].value) }}>{L(options[at].label)}</button>
+    <button type="button" className={`ff-inline-choice ${at < 0 ? 'is-unset' : ''}`} onClick={(e) => { e.stopPropagation(); onChange(options[(at + 1) % options.length].value) }}>{at < 0 ? L(unset) : L(options[at].label)}</button>
   )
 }

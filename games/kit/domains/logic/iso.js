@@ -300,12 +300,13 @@ export function propositionsOf(level) {
  * board b passes, or null }. A row is right when its expectation is what the reference answer gives. What a board must do
  * is the level's `want`: by default be caught (a right row it answers otherwise); 'agree', answer every row as expected
  * (checking a declaration that is right); 'expose', answer every row otherwise. A case may be set out beforehand with some
- * of its cells filled in (`slots: [case]`, each with `fixed`: the cells the player cannot change); a goal not filled in yet is ''.
+ * of its cells filled in (`slots: [case]`, each with `fixed`: the cells the player cannot change); a goal not filled in yet is '',
+ * an expectation null.
  */
 export function judgeCases(level, cases, words) {
   const name = level.declare
   const boards = level.boards.map((b) => b.board)
-  const open = (c) => c.goal === ''
+  const open = (c) => c.goal === '' || c.make === null
   const rows = cases.map((c) => {
     if (open(c)) return { right: false, wants: null, derived: boards.map(() => null) }
     const wants = derives(level, level.solution, c).derived
@@ -318,7 +319,8 @@ export function judgeCases(level, cases, words) {
   // A case whose expectation is fixed: the cells the player fills in are what has to change.
   const reconsider = (k) => {
     const c = cases[k]
-    if (open(c)) return T(`第 ${k + 1} 条条例还没有填目标。`, `Case ${k + 1} has no goal yet.`)
+    if (c.goal === '') return T(`第 ${k + 1} 条条例还没有填目标。`, `Case ${k + 1} has no goal yet.`)
+    if (c.make === null) return T(`第 ${k + 1} 条条例还没有填预期。`, `Case ${k + 1} has no expectation yet.`)
     const at = givenText(c, words)
     if (c.fixed?.includes('make')) return T(`第 ${k + 1} 条条例：按需求，${at.zh}时「${goal(c).zh}」${may(rows[k].wants).zh}，和这一条的预期不同。请改写这一条空着的部分。`, `Case ${k + 1}: according to the requirement, ${at.en}, “${goal(c).en}” is ${may(rows[k].wants).en}, unlike this case’s expectation. Rewrite the part of it left for you.`)
     return T(`第 ${k + 1} 条条例的预期与需求不符。请重新考虑：${at.zh}时，按需求「${goal(c).zh}」是否可推导？`, `The expectation of case ${k + 1} does not agree with the requirement. Reconsider: ${at.en}, is “${goal(c).en}” derivable according to the requirement?`)

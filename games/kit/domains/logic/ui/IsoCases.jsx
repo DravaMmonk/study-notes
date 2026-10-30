@@ -17,11 +17,11 @@ import { L, tr } from '../../../shell/i18n.js'
 const T = (zh, en) => ({ zh, en })
 const MOST = 8
 
-/** An empty case: nothing given, the level's fixed goal and expectation if it has them. */
-export const blankCase = (level) => ({ given: [], ...(level.caseGoal ? { goal: level.caseGoal } : {}), make: level.caseMake ?? true })
+/** An empty case: nothing given, the level's fixed goal and expectation if it has them (an expectation not chosen yet is null). */
+export const blankCase = (level) => ({ given: [], ...(level.caseGoal ? { goal: level.caseGoal } : {}), make: level.caseMake ?? null })
 /** The cases a level sets out beforehand: its `slots`, blank ones, or each as given (cells not fixed left empty). */
 export const setOut = (level) => (Array.isArray(level.slots)
-  ? level.slots.map((c) => ({ given: c.fixed.includes('given') ? c.given : c.keep ?? [], ...(c.keep ? { keep: c.keep } : {}), goal: c.fixed.includes('goal') ? c.goal : '', make: c.fixed.includes('make') ? c.make : true, fixed: c.fixed }))
+  ? level.slots.map((c) => ({ given: c.fixed.includes('given') ? c.given : c.keep ?? [], ...(c.keep ? { keep: c.keep } : {}), goal: c.fixed.includes('goal') ? c.goal : '', make: c.fixed.includes('make') ? c.make : null, fixed: c.fixed }))
   : Array.from({ length: level.slots }, () => blankCase(level)))
 
 export default function CaseTable({ cases, words, level, choices = [], edit = null, rowClass = () => '', onPick = () => {}, result = () => null, phone = false }) {
@@ -32,6 +32,8 @@ export default function CaseTable({ cases, words, level, choices = [], edit = nu
   const setGiven = (c, set) => (given) => set({ ...c, given: [...(c.keep ?? []), ...given.filter((s) => !c.keep?.includes(s))] })
   const unset = T('选择目标…', 'Choose a goal…')
   const derivable = (yes) => (yes ? tr('可推导', 'Derivable') : tr('不可推导', 'Not derivable'))
+  const unsure = T('选择预期…', 'Choose…')
+  const makeCell = (c) => (c.make === null ? <span className="lg-mark">{L(unsure)}</span> : derivable(c.make))
   const options = choices.map((s) => ({ value: s, label: words(s) }))
   const makes = [{ value: true, label: T('可推导', 'Derivable') }, { value: false, label: T('不可推导', 'Not derivable') }]
   const setGoal = (c, set) => (goal) => set({ ...c, goal: goal === level.target ? undefined : goal })
@@ -41,7 +43,7 @@ export default function CaseTable({ cases, words, level, choices = [], edit = nu
     { key: 'given', label: T('前提', 'Premises'), align: 'start', edit: (c, set) => (locked(c, 'given') ? givenCell(c) : <InlineList value={c.given} kept={c.keep} options={options} onChange={setGiven(c, set)} addLabel={T('添加前提…', 'Add a premise…')} />), cell: givenCell },
     { key: 'goal', label: T('目标', 'Goal'), edit: level.caseGoal ? null : (c, set) => (locked(c, 'goal') ? goalCell(c) : <InlineSelect value={goalOf(c)} options={c.goal === '' ? [{ value: '', label: unset }, ...options] : options} onChange={setGoal(c, set)} />), cell: goalCell },
     // A declaration to write or correct keeps its expectations to itself: a run only says whether each result is right.
-    ...(edit ? [{ key: 'make', label: T('预期', 'Expected'), edit: level.caseMake !== undefined ? null : (c, set) => (locked(c, 'make') ? derivable(c.make) : <InlineChoice value={c.make} options={makes} onChange={(make) => set({ ...c, make })} />), cell: (c) => derivable(c.make) }] : []),
+    ...(edit ? [{ key: 'make', label: T('预期', 'Expected'), edit: level.caseMake !== undefined ? null : (c, set) => (locked(c, 'make') ? derivable(c.make) : <InlineChoice value={c.make} options={makes} unset={unsure} onChange={(make) => set({ ...c, make })} />), cell: makeCell }] : []),
     { key: 'result', label: T('结果', 'Result'), className: 'lg-result', cell: (_, k) => (result(k) ? <span className={result(k).wrong ? 'lg-wrong' : 'lg-right'}>{derivable(result(k).derived)}</span> : '') },
   ]
   const form = (c, set) => (
