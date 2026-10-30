@@ -41,7 +41,7 @@ export default function Analyze({ game, level, saved, save, solve, phone }) {
 
   const tap = (u) => {
     if (pending) {
-      if (u.kind !== 'word') return setNote({ text: { zh: '要点一个词。', en: 'Tap a word.' }, bad: true })
+      if (u.kind !== 'word') return setNote({ text: { zh: '请点击一个词。', en: 'Tap a word.' }, bad: true })
       const why = targetRefusal(tokens, all, pending.a, pending.b, u.a)
       if (why) return setNote({ text: why, bad: true })
       change(fold(analysis, pending.a, pending.b, pending.type, u.a))
@@ -59,7 +59,7 @@ export default function Analyze({ game, level, saved, save, solve, phone }) {
     const why = foldRefusal(all, selection.a, selection.b)
     if (why) return setNote({ text: why, bad: true })
     setPending({ ...selection, type })
-    setNote({ text: { zh: `点${TYPES[type].name.zh}修饰的那个词。`, en: `Tap the word the ${TYPES[type].name.en} modifies.` } })
+    setNote({ text: { zh: `点击${TYPES[type].name.zh}修饰的词。`, en: `Tap the word the ${TYPES[type].name.en} modifies.` } })
     return null
   }
   const pickRole = (role) => {
@@ -144,7 +144,7 @@ export default function Analyze({ game, level, saved, save, solve, phone }) {
 
   const status = note
     ? <p className={`sx-note ${note.bad ? 'is-bad' : ''}`} role="status">{L(note.text)}</p>
-    : !result && !selection && !analysis.folds.length && !Object.keys(analysis.roles).length ? <p className="sx-note">{tr('点一个词开始选一段，再点一个词结束。', 'Tap a word to start a stretch, and another to end it.')}</p> : null
+    : !result && !selection && !analysis.folds.length && !Object.keys(analysis.roles).length ? <p className="sx-note">{tr('点击一个词作为选段的起点，再点击一个词作为终点。', 'Tap a word to start a selection and another to end it.')}</p> : null
 
   const brief = <Brief game={game} level={level} hint={spec.hint} />
   const stage = (
@@ -156,12 +156,12 @@ export default function Analyze({ game, level, saved, save, solve, phone }) {
       {result && (
         <div className={`sx-result ${result.pass ? 'is-pass' : 'is-fail'}`} role="status">
           {result.pass
-            ? <p>{tr('拆对了。', 'Taken apart right.')}</p>
+            ? <p>{tr('分析正确。', 'Correct analysis.')}</p>
             : <ul>{result.findings.map((f, k) => <li key={k} dangerouslySetInnerHTML={{ __html: L(f) }} />)}</ul>}
         </div>
       )}
       <footer className="run-foot">
-        <RunDock go={{ label: result?.pass ? tr('拆对了', 'Right') : tr('对照', 'Check'), pass: Boolean(result?.pass), onClick: go }} />
+        <RunDock go={{ label: result?.pass ? tr('分析正确', 'Correct') : tr('对照', 'Check'), pass: Boolean(result?.pass), onClick: go }} />
       </footer>
     </div>
   )
