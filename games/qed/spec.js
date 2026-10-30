@@ -286,6 +286,14 @@ export default {
       const moved = (task) => (task?.cases ? { work: task.cases } : task?.nodes ? { boards: [task] } : task)
       return id === 'decl-and' ? [value[0], moved(value[1])] : [moved(value[0]), moved(value[1])]
     } },
+  ] },
+  // Version 56 wrote a test case as what is given, a goal and whether it is derivable: the cases written keep what they
+  // held as given, the declared sentence their goal.
+  { version: 56, ops: [
+    { data: (value, id) => {
+      const moved = (task) => (Array.isArray(task?.work) ? { work: task.work.map((c) => (c.have ? { given: c.have, make: c.make } : c)) } : task)
+      return id === 'decl-and' && Array.isArray(value) ? [value[0], moved(value[1])] : id === 'decl-or' && Array.isArray(value) ? [moved(value[0]), value[1]] : value
+    } },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

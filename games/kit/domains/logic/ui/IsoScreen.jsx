@@ -6,19 +6,20 @@ import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, freeSpot, useSlotEditing } from '../../../circuit/index.js'
 import FormulaField from './FormulaField.jsx'
 import { say } from '../notation.js'
-import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, runIso, sentenceOf, settle, startIso, thingCard, typeOf, wayOf, wayRule, wayText, waysIn } from '../iso.js'
+import { DECL, ISO_PARTS, checkIso, derives, declInputs, declaredRules, hypCard, runIso, sentenceOf, settle, startIso, thingCard, typeOf, wayOf, wayRule, wayText, waysIn } from '../iso.js'
 import { constructorsOf, datatypeRules } from '../datatype.js'
 import { atom, fn, tvar } from '../formula.js'
 import { ruleText } from '../schematic.js'
 import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
 import FaultScreen from './IsoFaultScreen.jsx'
+import CaseTable from './IsoCases.jsx'
 
 // A connective declared by its ways to make it (iso.js) on the shared circuit editor: assumption cards from the tray,
 // each picking the sentence it assumes, chained to write each way as a rule, and the connective's card, the board's
-// output, whose inputs grow as ways are wired. Each test is a situation, one row of the table under the board: which
-// proofs are at hand, and whether the connective is proved and by which way; or, using it, what follows with it at hand
-// (a second table). Running goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
+// output, whose inputs grow as ways are wired. Each test is a test case (检验条例), one row of the table under the board
+// (ui/IsoCases.jsx): what is given, the goal, and whether it is derivable. Running goes down the rows
+// (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
 
 const T = (zh, en) => ({ zh, en })
 // Ways are numbered 1 2 3, apart from the board's own part numbers (①②…); on a card a way is "1.".
@@ -92,7 +93,8 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   const circuit = cases ? cases.board : own
   const [testIndex, setTestIndex] = useState(0)
   const test = level.tests[Math.min(testIndex, level.tests.length - 1)]
-  const view = useMemo(() => runIso(level, circuit, test), [level, circuit, test])
+  // The case picked, on the board: the values of its cards, and whether its goal is derived (and by which intro rule).
+  const view = useMemo(() => ({ ...runIso(level, circuit, test), ...derives(level, circuit, test) }), [level, circuit, test])
 
   // Every change goes through the kernel's bookkeeping: ways renumbered (iso.js settle).
   const change = (next) => {
@@ -134,7 +136,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   const verdict = run?.over ? { pass: playback.passed } : null
   const failed = run?.over && !playback.passed ? (cases ? run.results.at(-1) : checked.results[run.results.length - 1]) : null
   const verdictText = !verdict ? null : verdict.pass
-    ? tr('每种情况都正确：应当证得出时，有一条引入规则的前提全部具备；应当证不出时，每条引入规则都缺少前提；已知它时，推得出的恰好是每条引入规则都推得出的结论。', 'Every situation is correct: where it should be provable, some intro rule has all its premises; where not, none does; and given it, exactly what follows from every intro rule follows.')
+    ? tr('所有检验条例都正确：应当可推导的目标，这份声明都推导得出；不应当可推导的，都推导不出。', 'Every test case is right: each goal that should be derivable is derived by this declaration, and none that should not be is.')
     : run.final || (cases ? failed.reason : L(failed.reason))
 
   // What each card says in the situation picked.
@@ -159,71 +161,24 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
     return (
       <div className="lg-card">
         {ways > 0 && <Entries className="lg-clauses">{Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <code key={k}>{`${way(k)} ${wayText(wayRule(wayOf(rule), level), text)}`}</code>)}</Entries>}
-        {view.made ? <span className="lg-tv is-true">{tr(`证得出：引入规则 ${WAY[view.made.way - 1]}`, `Proved by intro rule ${WAY[view.made.way - 1]}`)}</span> : <i className="lg-mark">{tr('证不出', 'Not proved')}</i>}
+        {view.made ? <span className="lg-tv is-true">{tr(`由引入规则 ${WAY[view.made.way - 1]} 推导出`, `Derived by intro rule ${WAY[view.made.way - 1]}`)}</span> : view.derived ? <span className="lg-tv is-true">{tr('可推导', 'Derivable')}</span> : <i className="lg-mark">{tr('不可推导', 'Not derivable')}</i>}
       </div>
     )
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  // The table's columns: the sentence each situation asks about (when the declared sentence mentions a thing), and
-  // every proof any situation has at hand.
-  // Two tables: making it (the proofs at hand, and whether it is proved) and using it (what is at hand besides it, the
-  // sentence to get, and whether it follows).
-  const rows = level.tests.map((t, k) => ({ t, k })).filter(({ t }) => !t.get)
-  const uses = level.tests.map((t, k) => ({ t, k })).filter(({ t }) => t.get)
-  const goals = rows.some(({ t }) => t.goal)
-  const held = [...new Set(rows.flatMap(({ t }) => Object.keys(t.have)))]
-  // Correcting, every situation shows its result once the board on view is judged; and a row is lit by the situation
-  // picked, not by the run.
-  const shown = (t, k) => (cases ? Boolean(states[cases.at]) : run ? k < run.results.length : t === test)
-  const rowClass = (t, k) => `${t === test ? 'is-on' : ''} ${!cases && states[k] ? `is-${states[k]}` : ''}`
+  // One table of test cases. Correcting, every case shows its result once the board on view is judged; and a row is
+  // lit by the case picked, not by the run.
+  const shown = (k) => (cases ? Boolean(states[cases.at]) : run ? k < run.results.length : false)
+  const rowClass = (k) => `${k === testIndex ? 'is-on' : ''} ${!cases && states[k] ? `is-${states[k]}` : ''}`
+  const note = (k) => (shown(k) && !checked.results[k].pass ? <em className="lg-answer">{tr(checked.results[k].derived ? '（这份声明：可推导）' : '（这份声明：不可推导）', checked.results[k].derived ? ' (this declaration: derivable)' : ' (this declaration: not derivable)')}</em> : null)
   const table = (
     <div className="lg-strip is-tables">
-      <div className="lg-scroll-x">
-        <table className="lg-rows">
-          <thead>
-            <tr>
-              {goals && <th>{tr('要证', 'To prove')}</th>}
-              {held.map((l) => <th key={l}>{tr(`已知「${words(l).zh}」`, `Given “${words(l).en}”`)}</th>)}
-              <th className="lg-result">{tr(`「${level.declare.zh}」`, `“${level.declare.en}”`)}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(({ t, k }) => {
-              const r = checked.results[k]
-              return (
-                <tr key={k} className={rowClass(t, k)} onClick={() => setTestIndex(k)}>
-                  {goals && <td>{t.goal ? L(words(t.goal)) : ''}</td>}
-                  {held.map((l) => <td key={l}>{t.have[l] ? `#${t.have[l]}` : '—'}</td>)}
-                  <td className="lg-result">{shown(t, k) ? (r.made ? tr(`证得出：${WAY[r.made.way - 1]}`, `Proved: ${WAY[r.made.way - 1]}`) : tr('证不出', 'Not proved')) : ''}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-      {uses.length > 0 && (
-        <div className="lg-scroll-x">
-          <table className="lg-rows">
-            <thead>
-              <tr><th>{tr('已知', 'Given')}</th><th>{tr('目标', 'Goal')}</th><th className="lg-result">{tr('推得出吗', 'Follows?')}</th></tr>
-            </thead>
-            <tbody>
-              {uses.map(({ t, k }) => (
-                <tr key={k} className={rowClass(t, k)} onClick={() => setTestIndex(k)}>
-                  <td className="lg-lines">{[level.target, ...(t.holds ?? [])].map((x) => <span key={x}>{L(words(x))}</span>)}</td>
-                  <td>{L(words(t.get))}</td>
-                  <td className="lg-result">{shown(t, k) ? (checked.results[k].got ? tr('推得出', 'Follows') : tr('推不出', 'Does not follow')) : ''}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <CaseTable cases={level.tests} words={words} level={level} rowClass={rowClass} onPick={setTestIndex} note={note} />
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )
-  const dock = <RunDock {...playback.dock({ go: tr('运行测试', 'Run the tests'), done: tr('每种情况都正确', 'All situations correct') })} />
+  const dock = <RunDock {...playback.dock({ go: tr('运行检验条例', 'Run the test cases'), done: tr('所有条例均正确', 'All cases correct') })} />
 
   const items = (level.tray ?? ['hyp']).map((t) => TRAY[t])
   const add = (type) => {
@@ -264,7 +219,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
       }
       tests={tabs(false)}
       status={<TestStatus states={states} />}
-      outputsTitle={tr('各种情况', 'Situations')}
+      outputsTitle={tr('检验条例', 'Test cases')}
       outputs={table}
       actions={<footer className="run-foot">{dock}</footer>}
     />

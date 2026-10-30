@@ -12,32 +12,30 @@
 // (declaredRules), a case for every way, numbered as the ways are, which gets back just what that way took. Chapter 12
 // has the player build the machine that makes it (elimgen.js).
 //
-// A test is a situation: the proofs at hand (numbered: "it rains #1"), and whether the declared sentence can be
-// proved from them, or a sentence of its shape (`goal`, when the declared sentence mentions a thing: "the Morning
-// Star = the Morning Star"). When it can, the way using the most of what is at hand makes it (the first such), with
-// the things its thing cards take found among the level's (`things`); when it cannot, nothing is made. A specification
-// is tested on situations, not proved.
-//
-// A situation may also use it (`get`): with the declared sentence at hand, and `holds` besides, does `get` follow? The
-// elimination rule made from the player's ways decides (follows): a case for each way, given what that way took, and
-// Apply on what is at hand; `get` follows when every case reaches it. A sentence nothing else mentions stands for any
-// sentence R, so these rows show the declared sentence gives just what its ways in give: no more, no less.
+// A test is a test case (检验条例): what is given, a goal (the declared sentence unless it says, or a sentence of its
+// shape when the declared sentence mentions a thing: "the Morning Star = the Morning Star"), and whether the goal
+// should be derivable (derives). When the declared sentence is not given and the goal is of its shape, an intro rule
+// must make it: the way using the most of what is given makes it (the first such), with the things its thing cards
+// take found among the level's (`things`). When the declared sentence is given, the elimination rule made from the
+// player's ways decides (follows): a case for each way, given what that way took, and Apply on what is given; the
+// goal follows when every case reaches it. A sentence nothing else mentions stands for any sentence R, so these cases
+// show the declared sentence gives just what its ways in give: no more, no less. A specification is tested on cases,
+// not proved.
 //
 // Checking or correcting by the diagram (`play`, ../../shell/useBoardCases.js): the level's test cases are boards
 // (`boards: [{ board }]`), each someone's declaration that is wrong. In 'audit' they are locked and the player writes
-// the situations instead (judgeCases): each the proofs at hand and whether, as the requirement means it, the declared
-// sentence should be proved. Each expectation is judged by the level's reference answer, so a row that says what the
-// requirement does not mean is wrong; a board passes when every expectation is right and the board goes wrong on one
-// of them. Fewer cases is the better score. In 'repair' each board is the player's to correct, judged by the level's
-// situations as a declaration is.
+// the test cases instead (judgeCases), in the same form as the level's. Each expectation is judged by the level's
+// reference answer, so a case that says what the requirement does not mean is wrong; a board passes when every
+// expectation is right and the board goes wrong on one of them. Fewer cases is the better score. In 'repair' each
+// board is the player's to correct, judged by the level's test cases as a declaration is.
 //
 // A level: { kind: 'iso', declare: { zh, en } its name, target: its sentence (with a thing's name where a way takes
 // one: 'x = x'), sentences: [sentence] an assumption card may pick (letters, or sentences like "A → B" or "Human(x)"),
-// things: [name] the things of the level, binder: the name a thing card gives ('x' unless it says), tests: [{ have:
-// { sentence: n }, goal?, make: bool, uses?: [sentence] what the way it is made by must take } | { holds?: [sentence], get,
-// make: bool }], play: 'audit' | 'repair' with boards:
-// [{ label?, board }] someone's declarations to find the fault in or to correct, answer: [{ have, make }] the reference
-// cases for an audit, tray: the cards it
+// things: [name] the things of the level, binder: the name a thing card gives ('x' unless it says), tests: [{ given:
+// [sentence], goal?: sentence, make: bool (derivable or not), uses?: [sentence] what the way it is made by must take }],
+// play: 'audit' | 'repair' with boards:
+// [{ label?, board }] someone's declarations to find the fault in or to correct, answer: [test] the reference cases
+// for an audit, tray: the cards it
 // offers (['hyp'] unless it says: 'hyp', 'thing', 'none'), ways: the rules the declaration must have, when the
 // situations alone cannot tell (a way's assumptions in order, [[sentence]]), take: the rule that takes it apart, when
 // it is not the plain cases (a family indexed by things, as =): { premises: [text], conclusion: text } in metavariables
@@ -151,7 +149,7 @@ export function settle(graph) {
 /** What the board gives in one test: the engine's values, and the declared sentence (or null). */
 export function runIso(level, circuit, test) {
   const read = (s) => sentenceOf(level, s)
-  const have = new Map(Object.entries(test.have ?? {}).map(([s, n]) => [keyOf(read(s)), evidence(s, n)]))
+  const have = new Map((test.given ?? []).map((s, n) => [keyOf(read(s)), evidence(s, n + 1)]))
   const bind = { have, read, things: level.things ?? [], target: read(level.target), goal: test.goal ? read(test.goal) : null }
   const run = runBoard(circuit, { parts: ISO_PARTS, bind })
   const made = run.values.get(DECL) ?? null
@@ -180,10 +178,11 @@ export function follows(level, circuit, test) {
     }
     return known
   }
-  const goal = read(test.get)
+  const goal = read(test.goal)
   const reached = (known, own) => known.has(keyOf(goal)) || (goal.op === '∃' && [...things, ...own].some((t) => known.has(keyOf(substF(goal.body, goal.v, t)))))
-  const start = [read(level.target), ...(test.holds ?? []).map(read)]
+  const start = test.given.map(read)
   if (reached(reach(start, []), [])) return true
+  if (!test.given.some((s) => keyOf(read(s)) === keyOf(read(level.target)))) return false
   return waysIn(circuit).every((w, k) => {
     const own = w.binds.map((b) => thing(`${b}${k + 1}′`))
     const σ = Object.fromEntries(w.binds.map((b, j) => [b, own[j]]))
@@ -215,52 +214,70 @@ export function waysIn(circuit) {
 }
 
 /**
- * Every test checked: { pass, results: [{ pass, reason, made, got? }], ways }; words(sentence) gives a sentence's
- * words. `ways` says why the rules are not the ones the level asks for (level.ways), when every situation is right.
+ * Whether a test's goal is derivable on this board: { derived, made? }. An intro rule must make it (made: the way and
+ * what it took) when the declared sentence is not given and the goal is of its shape; otherwise the elimination rule
+ * and Apply decide (follows).
+ */
+export function derives(level, circuit, test) {
+  const read = (s) => sentenceOf(level, s)
+  const target = read(level.target)
+  const goal = test.goal ? read(test.goal) : target
+  const given = test.given.map((s) => keyOf(read(s)))
+  const shape = (f) => [f.op, f.pred, f.v !== undefined].join('|')
+  if (test.uses || (!given.includes(keyOf(target)) && shape(goal) === shape(target))) {
+    const made = runIso(level, circuit, { given: test.given, goal: test.goal && keyOf(goal) !== keyOf(target) ? test.goal : null }).made
+    return { derived: Boolean(made), made }
+  }
+  if (given.includes(keyOf(goal))) return { derived: true }
+  return { derived: follows(level, circuit, { given: test.given, goal: test.goal ?? level.target }) }
+}
+
+/** What a test gives, in words: 「下雨」、「刮风」 (or nothing). */
+const givenText = (test, words) => {
+  const has = test.given.map(words)
+  return T(has.map((h) => `「${h.zh}」`).join('、') || '什么都没有', has.map((h) => `“${h.en}”`).join(', ') || 'nothing')
+}
+
+/**
+ * Every test checked: { pass, results: [{ pass, reason, derived, made? }], ways }; words(sentence) gives a sentence's
+ * words. `ways` says why the rules are not the ones the level asks for (level.ways), when every test is right.
  */
 export function checkIso(level, circuit, words) {
   const name = level.declare
   const results = level.tests.map((test) => {
-    const run = runIso(level, circuit, test)
-    if (test.get) {
-      const got = follows(level, circuit, test)
-      const has = [level.target, ...(test.holds ?? [])].map(words)
-      const at = T(has.map((h) => `「${h.zh}」`).join('、'), has.map((h) => `“${h.en}”`).join(', '))
-      const what = words(test.get)
-      const reason = got === test.make ? null : test.make
-        ? T(`手里有${at.zh}，应该推得出「${what.zh}」，按这份声明却推不出`, `With ${at.en} at hand, “${what.en}” should follow, yet by this declaration it does not`)
-        : T(`手里有${at.zh}，按这份声明竟推得出「${what.zh}」：它给得太多了`, `With ${at.en} at hand, this declaration gives “${what.en}”: it gives too much`)
-      return { pass: !reason, reason, ...run, got }
-    }
-    const has = Object.keys(test.have).map(words)
-    const at = T(has.map((h) => h.zh).join('、') || '什么都没有', has.map((h) => h.en).join(', ') || 'nothing')
+    const got = derives(level, circuit, test)
+    const at = givenText(test, words)
     const what = test.goal ? words(test.goal) : name
-    if (!test.make) {
-      const pass = !run.made
-      return { pass, reason: pass ? null : T(`手里只有${at.zh}，也证出了「${what.zh}」`, `With only ${at.en} at hand, “${what.en}” is proved`), ...run }
+    if (got.derived !== test.make) {
+      const reason = test.make
+        ? T(`已知${at.zh}时，「${what.zh}」应当可推导，这份声明却推导不出。`, `Given ${at.en}, “${what.en}” should be derivable, but this declaration does not derive it.`)
+        : T(`已知${at.zh}时，「${what.zh}」不应当可推导，这份声明却推导出了它。`, `Given ${at.en}, “${what.en}” should not be derivable, but this declaration derives it.`)
+      return { pass: false, reason, ...got }
     }
-    if (!run.made) return { pass: false, reason: T(`手里有${at.zh}，却证不出「${what.zh}」`, `With ${at.en} at hand, “${what.en}” is not proved`), ...run }
-    // A way that takes what is at hand, where the situation asks for one (the next number from the one at hand).
-    const taken = new Set(run.made.items.filter((x) => x.kind === 'ev').map((x) => x.sentence))
+    // A way that takes what is given, where the test asks for one.
+    const taken = new Set((got.made?.items ?? []).filter((x) => x.kind === 'ev').map((x) => x.sentence))
     const unused = (test.uses ?? []).filter((s) => !taken.has(s)).map(words)
     const pass = !unused.length
-    return { pass, reason: pass ? null : T(`证出了「${what.zh}」，可用的引入规则没有用上手里的${unused.map((u) => u.zh).join('、')}`, `“${what.en}” is proved, but by a way that does not take the ${unused.map((u) => u.en).join(', ')} at hand`), ...run }
+    return { pass, reason: pass ? null : T(`推导出了「${what.zh}」，但用到的引入规则没有用上已知的${unused.map((u) => `「${u.zh}」`).join('、')}。`, `“${what.en}” is derived, but by an intro rule that does not take the given ${unused.map((u) => `“${u.en}”`).join(', ')}.`), ...got }
   })
   // A way as written in `ways`: what it takes in order, a thing as '⋀x'.
   const key = (ways) => ways.map((w) => w.map((s) => (s.startsWith('⋀') ? '⋀' : s)).join('|')).sort().join('/')
   const said = (s) => (s.startsWith('⋀') ? T('任取一样东西', 'any thing') : words(s))
   const ways = level.ways && key(waysIn(circuit).map((w) => [...w.binds.map((b) => `⋀${b}`), ...w.needs])) !== key(level.ways)
-    ? T(`每种情况都对，但引入规则不是要求的那样：${level.ways.map((w) => `⟦${w.map((s) => said(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every situation is right, but the ways are not the ones asked for: ${level.ways.map((w) => `⟦${w.map((s) => said(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`)
+    ? T(`每条条例都正确，但引入规则与要求不符：${level.ways.map((w) => `⟦${w.map((s) => said(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every test case is right, but the intro rules are not the ones asked for: ${level.ways.map((w) => `⟦${w.map((s) => said(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`)
     : null
   return { pass: results.every((r) => r.pass) && !ways, results, ways }
 }
 
-/** A case the player writes, as a test: the sentences at hand numbered in order. */
-export const caseTest = (c) => ({ have: Object.fromEntries(c.have.map((s, k) => [s, k + 1])), make: c.make })
+/** Every sentence a test case of the level may give or aim at: its cards' sentences, its declared one, and its tests'. */
+export function propositionsOf(level) {
+  const all = [...level.sentences, level.target, ...level.tests.flatMap((t) => [...t.given, ...(t.goal ? [t.goal] : [])])]
+  return [...new Set(all)]
+}
 
 /**
- * The player's cases against the level's boards (the play 'audit', ../../shell/useBoardCases.js): { rows: [{ right,
- * wants, made: [made per board] }], caught: [k of the case that catches each board, or -1], wrong: why the cases
+ * The player's cases (tests, as the level's) against the level's boards (the play 'audit', ../../shell/useBoardCases.js):
+ * { rows: [{ right, wants, derived: [per board] }], caught: [k of the case that catches each board, or -1], wrong: why the cases
  * themselves do not do (none yet, or an expectation the requirement does not mean), or null; judge(b): why board b
  * passes, or null }. A row is right when its expectation is what the reference answer gives; a board is caught by a
  * right row it answers otherwise.
@@ -269,18 +286,14 @@ export function judgeCases(level, cases, words) {
   const name = level.declare
   const boards = level.boards.map((b) => b.board)
   const rows = cases.map((c) => {
-    const test = caseTest(c)
-    const wants = Boolean(runIso(level, level.solution, test).made)
-    return { right: wants === c.make, wants, made: boards.map((board) => runIso(level, board, test).made) }
+    const wants = derives(level, level.solution, c).derived
+    return { right: wants === c.make, wants, derived: boards.map((board) => derives(level, board, c).derived) }
   })
-  const caught = boards.map((_, b) => rows.findIndex((r) => r.right && Boolean(r.made[b]) !== r.wants))
-  const at = (c) => {
-    const has = c.have.map(words)
-    return T(has.map((h) => `「${h.zh}」`).join('、') || '什么都没有', has.map((h) => `“${h.en}”`).join(', ') || 'nothing')
-  }
+  const caught = boards.map((_, b) => rows.findIndex((r) => r.right && r.derived[b] !== r.wants))
   const bad = rows.findIndex((r) => !r.right)
-  const wrong = !cases.length ? T(`还没有条例。请添加一条，写明手里有哪些证明，以及此时能否引入「${name.zh}」。`, `No test case yet. Add one, stating which proofs are held and whether “${name.en}” may then be introduced.`)
-    : bad >= 0 ? T(`第 ${bad + 1} 条条例的预期与需求不符。请重新考虑：手里有${at(cases[bad]).zh}时，按需求能否引入「${name.zh}」？`, `The expectation of case ${bad + 1} does not agree with the requirement. Reconsider: with ${at(cases[bad]).en} held, may “${name.en}” be introduced according to the requirement?`)
+  const goal = (c) => (c.goal ? words(c.goal) : name)
+  const wrong = !cases.length ? T('还没有条例。请添加一条，写明已知、目标，以及目标是否应当可推导。', 'No test case yet. Add one, stating what is given, the goal, and whether the goal should be derivable.')
+    : bad >= 0 ? T(`第 ${bad + 1} 条条例的预期与需求不符。请重新考虑：已知${givenText(cases[bad], words).zh}时，按需求「${goal(cases[bad]).zh}」是否可推导？`, `The expectation of case ${bad + 1} does not agree with the requirement. Reconsider: given ${givenText(cases[bad], words).en}, is “${goal(cases[bad]).en}” derivable according to the requirement?`)
     : null
   const judge = (b) => wrong ?? (caught[b] >= 0 ? null : T('各条条例的预期都正确，但这份声明在每一条上都得出了正确结论，还没有暴露它的错误。', 'Every expectation is correct, but this declaration reaches the right conclusion on every case: its fault has not yet been revealed.'))
   return { rows, caught, wrong, judge }
