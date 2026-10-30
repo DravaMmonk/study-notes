@@ -175,7 +175,7 @@ export default function BoardScreen({ game, level: entry, saved, save, solve, la
         <Text game={game} className="ag-issue" text={test.issue.text} />
         <RepoView repo={test.repo} state={turn?.state ?? {}} />
         {ended && <Report report={runOf.report} />}
-        {ended && <p className={`ag-verdict ${verdict ? 'is-fail' : 'is-pass'}`}>{verdict ? L(verdict) : tr('通过：测试全部通过，机器已停止。', 'Passed: all tests are green and the machine has stopped.')}</p>}
+        {ended && <p className={`ag-verdict ${verdict ? 'is-fail' : 'is-pass'}`}>{verdict ? L(verdict) : tr('通过：所有测试均正确，机器已停止。', 'Passed: all tests are green and the machine has stopped.')}</p>}
       </section>
       <section className="ag-col">
         <h3 className="ag-head">{tr('逐轮记录', 'Turn log')}</h3>
