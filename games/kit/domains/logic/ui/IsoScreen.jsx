@@ -156,7 +156,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
     if (node.type === 'thing') return <div className="lg-card"><span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.name}</b></span></div>
     if (node.type === 'join') return <div className="lg-card">{made(node)}</div>
     if (node.type === 'hyp') {
-      if (at === 'tile') return <div className="lg-card">{made(node)}</div>
+      if (at === 'tile') return <div className="lg-card"><span className="lg-pick">{text(sentenceOf(level, node.params.name))}</span>{made(node)}</div>
       return <div className="lg-card"><FormulaField label={HYP.label} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required />{made(node)}</div>
     }
     const way = (k) => (at === 'sheet' ? tr(`引入规则 ${WAY[k]}：`, `Intro rule ${WAY[k]}:`) : `${WAY[k]}.`)
