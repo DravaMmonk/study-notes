@@ -78,9 +78,9 @@ export const PROOF = {
     const sentence = (f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })
     return {
       // Chapter 7 names each premise (its proof term is that name) and may ask for the proof's term too.
-      sequent: <>{premises.length > 0 && <>{tr('已知', 'Given')} <b>{Object.entries(test.premises).map(([name, t]) => `${level.terms ? `${name}: ` : ''}${text(parse(t, { consts }))}`).join(tr('；', '; '))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b>{test.term && <> · {tr('证明项要是', 'with the proof term')} <code className="lg-term">{test.term}</code></>}</>,
+      sequent: <>{premises.length > 0 && <>{tr('已知', 'Given')} <b>{Object.entries(test.premises).map(([name, t]) => `${level.terms ? `${name}: ` : ''}${text(parse(t, { consts }))}`).join(tr('；', '; '))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b>{test.term && <> · {tr('证明项应为', 'with the proof term')} <code className="lg-term">{test.term}</code></>}</>,
       premiseNames: Object.keys(test.premises ?? {}),
-      want: <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b>{test.term && <><br />{tr('证明项要是', 'Proof term')} <code className="lg-term">{test.term}</code></>}</span>,
+      want: <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b>{test.term && <><br />{tr('证明项应为', 'Proof term')} <code className="lg-term">{test.term}</code></>}</span>,
       choices: {
         formula: offer.formula.map(sentence),
         exists: offer.exists.map(sentence),
@@ -106,12 +106,12 @@ export const PROOF = {
     steps: T('步数', 'Steps'),
     go: T('检查证明', 'Check proof'),
     passed: T('证明完毕', 'Q.E.D.'),
-    pass: T('目标证出来了，没有留下开着的假设。', 'The goal is proved, with no hypothesis left open.'),
-    idle: T('检查时每组测试都要过：目标收到的是不是要证的那句，还有没有没关上的假设。', 'Checking runs every test: does the goal receive the sentence to prove, and is any hypothesis left open?'),
-    reached: T('证到了', 'Proved'),
+    pass: T('目标已证出，没有未解除的假设。', 'The goal is proved and no assumption is left open.'),
+    idle: T('每组测试都须通过：目标收到的句子要与待证的句子一致，且不留未解除的假设。', 'Every test must pass: the goal must receive the sentence to prove, with no assumption left open.'),
+    reached: T('已证出', 'Proved'),
     notYet: T('还没有', 'Not yet'),
-    noOpen: T('还没有假设', 'nothing assumed yet'),
-    empty: T('从上面一排元件里选一条规则放上来，再从元件右侧的圆点连到另一个元件左侧的圆点。', 'Pick a rule from the row above, then wire a dot on the right of a part to a dot on the left of another.'),
+    noOpen: T('尚无假设', 'no assumptions yet'),
+    empty: T('从上方元件栏选择规则放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。', 'Place a rule from the bar above, then connect a dot on the right of one part to a dot on the left of another.'),
   },
 }
 
@@ -122,7 +122,7 @@ function Occurrences({ node, ins, setParam, text }) {
   const [e, p] = [ins.eq?.formula, ins.p?.formula]
   // A term in the level's words: the left side of t = t as the board writes it.
   const say = (t) => text({ op: 'atom', pred: '=', args: [t, t] }).split(' = ')[0]
-  if (!e || !p) return <span className="lg-mark">{tr('接上 s = t 和 φ(s)，这里会框出每一个 s', 'Wire in s = t and φ(s), and each s shows here in a box')}</span>
+  if (!e || !p) return <span className="lg-mark">{tr('接入 s = t 和 φ(s) 后，这里会框出每一处 s', 'Wire in s = t and φ(s) to mark each occurrence of s here')}</span>
   if (e.op !== 'atom' || e.pred !== '=') return null
   const s = e.args[0]
   const n = occurrences(p, s)
@@ -133,8 +133,8 @@ function Occurrences({ node, ins, setParam, text }) {
   const pieces = text(replaceTerm(p, s, (k) => tvar(`${MARK}${k}${MARK}`), () => true)).split(new RegExp(`${MARK}(\\d+)${MARK}`))
   const term = say(s)
   return (
-    <div className="lg-occ" role="group" aria-label={tr('选出要换掉的', 'Choose which to replace')} onPointerDown={(ev) => ev.stopPropagation()}>
-      <small>{tr(`点框选出要换成 ${say(e.args[1])} 的地方`, `Tick where it becomes ${say(e.args[1])}`)}</small>
+    <div className="lg-occ" role="group" aria-label={tr('选择要替换的位置', 'Choose occurrences to replace')} onPointerDown={(ev) => ev.stopPropagation()}>
+      <small>{tr(`勾选要替换为 ${say(e.args[1])} 的位置`, `Tick the occurrences to replace with ${say(e.args[1])}`)}</small>
       <span className="lg-occ-text">
         {pieces.map((piece, i) => (i % 2 ? (
           <button key={i} type="button" aria-pressed={at.includes(Number(piece))} onClick={() => toggle(Number(piece))}>{term}</button>
@@ -163,7 +163,7 @@ function MachineValue({ v, text, small = false }) {
   if (v.kind === 'rule') return <span className="lg-formula"><code>{genRuleText(v.rule, text)}</code></span>
   if (v.kind === 'any') return <span className="lg-formula"><code>{genValueText(v, text)}</code></span>
   if (v.kind === 'list') {
-    const count = tr(`共 ${v.items.length} 样`, `${v.items.length} item${v.items.length === 1 ? '' : 's'}`)
+    const count = tr(`共 ${v.items.length} 项`, `${v.items.length} item${v.items.length === 1 ? '' : 's'}`)
     if (small) return <span className="lg-clauses is-small"><small>{count}</small></span>
     return <Entries className="lg-clauses" count={count}>{v.items.map((x, k) => <code key={k}>{`${k + 1}. ${genValueText(x, text)}`}</code>)}</Entries>
   }
@@ -175,13 +175,13 @@ function MachineValue({ v, text, small = false }) {
   if (v.kind === 'state') {
     const others = v.more?.length ?? 0
     const alt = others > 0 && <small className="lg-alts">{tr(`第 1 种结果，共 ${others + 1} 种`, `result 1 of ${others + 1}`)}</small>
-    if (small) return <span className="lg-clauses is-small">{v.error ? <b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b> : !v.goals.length ? <b className="lg-bot">{tr('证完了', 'Proved')}</b> : <small>{tr(`还有 ${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'} left`)}</small>}{alt}</span>
+    if (small) return <span className="lg-clauses is-small">{v.error ? <b className="lg-fail-tag">{tr('这一步失败', 'Step failed')}</b> : !v.goals.length ? <b className="lg-bot">{tr('证明完毕', 'Q.E.D.')}</b> : <small>{tr(`还有 ${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'} left`)}</small>}{alt}</span>
     return (
       <Entries
         className="lg-clauses"
         head={<>
-          {v.error && <><b className="lg-fail-tag">{tr('这一步不行', 'This step fails')}</b><small>{L(v.error)}</small></>}
-          {!v.goals.length && <b className="lg-bot">{tr('没有目标了：证完了', 'No goals left: proved')}</b>}
+          {v.error && <><b className="lg-fail-tag">{tr('这一步失败', 'Step failed')}</b><small>{L(v.error)}</small></>}
+          {!v.goals.length && <b className="lg-bot">{tr('证明完毕', 'Q.E.D.')}</b>}
           {alt}
         </>}
         count={v.goals.length > 0 && tr(`${v.goals.length} 个目标`, `${v.goals.length} goal${v.goals.length === 1 ? '' : 's'}`)}
@@ -201,13 +201,13 @@ function MachineValue({ v, text, small = false }) {
     )
   }
   const count = tr(`共 ${v.set.length} 条子句`, `${v.set.length} clause${v.set.length === 1 ? '' : 's'}`)
-  const bot = refuted(v.set) && <b className="lg-bot">{tr('推出了空子句 ⊥', 'The empty clause ⊥ is in')}</b>
+  const bot = refuted(v.set) && <b className="lg-bot">{tr('推出了空子句 ⊥', 'Derived the empty clause ⊥')}</b>
   // Small (a region's edge, a phone block): how many, and whether ⊥ is in.
   if (small) return <span className="lg-clauses is-small">{bot}<small>{count}</small></span>
   const cert = certificate(v.set)
   const shown = cert ?? v.set.map((_, i) => i)
   return (
-    <Entries className="lg-clauses" head={bot} count={v.endless ? tr(`${count}，还在变多`, `${count}, and still growing`) : count}>
+    <Entries className="lg-clauses" head={bot} count={v.endless ? tr(`${count}，仍在增加`, `${count}, still growing`) : count}>
       {shown.map((i) => <code key={i}>{`${i + 1}. ${text(clauseFormula(v.set[i]))}${v.set[i].from ? ` ← ${v.set[i].from.map((k) => k + 1).join(tr('、', ', '))}` : ''}`}</code>)}
     </Entries>
   )
@@ -221,11 +221,11 @@ const WANT = {
   elim: T('这份声明的消去规则', 'this declaration’s elimination rule'),
   clauses: T('拆成的子句', 'the clauses it splits into'),
   refuted: T('推出空子句 ⊥', 'the empty clause ⊥'),
-  decide: T('推得出 ⊥ 就推出来；推不出，就饱和到再没有新子句', '⊥ if it follows; otherwise saturated, with no new clause left'),
+  decide: T('能推出 ⊥ 时推出 ⊥；否则饱和至不再产生新子句', '⊥ if it follows; otherwise saturation, with no new clause left'),
   unify: T('解完的等式（能合一时），或者「失败」（不能时）', 'the solved equations (when they unify), or “failed” (when not)'),
   answers: T('找出所有答案', 'every answer'),
-  fails: T('证不出来时，停下来说证不出来', 'when it cannot be proved, to stop and say so'),
-  proved: T('没有目标了：证完', 'no goals left: proved'),
+  fails: T('证不出时停止，并报告证不出', 'to stop and report failure when it cannot be proved'),
+  proved: T('证明完毕', 'Q.E.D.'),
 }
 const MACHINE_ICONS = { repeat: Repeat, search: Search, each: Rows3 }
 // A part's glyph: a rule part's fork, a frame's own, and for a part the player built (a packed part) a circuit board.
@@ -251,10 +251,10 @@ const ruleWritten = (e, say = show) => (e.book === 'rule' ? ruleText(e.rule, say
  */
 function rulePartText(level, type) {
   const several = choicesOfPart(rulePartsOf(level).get(type)).length > 1
-  const after = T('接进别的规则元件时，接在它们后面。', 'Wired another rule part, it comes after their rules.')
+  const after = T('接入其他规则元件时，本元件的规则排在它们之后。', 'When other rule parts are wired in, its rules come after theirs.')
   const join = (a, b) => T(`${a.zh}${b.zh}`, `${a.en} ${b.en}`)
-  if (type === MATH) return { name: MATH_NAME, desc: join(T('这一关的数与列表规则：类型声明给出的、定义里的等式、已经证出的等式，在元件上添加给出哪几条，按添加的次序。', 'This level’s rules of numbers and lists, those its declarations give, its definitions’ equations and the equations proved so far: add on the part which it gives, in the order added.'), after) }
-  return { name: rulePartName(level, type), desc: join(several ? T('给出这个元件的规则，在元件上添加给出哪几条，按添加的次序。', 'Gives this part’s rules: add on the part which, in the order added.') : T('给出这个元件的规则。', 'Gives this part’s rule.'), after) }
+  if (type === MATH) return { name: MATH_NAME, desc: join(T('给出这一关的数与列表规则：类型声明生成的规则、定义中的等式和已证出的等式。在元件上添加要给出的规则，按添加顺序排列。', 'Gives this level’s rules for numbers and lists: those generated by its type declarations, its definitions’ equations and the equations proved so far. Add the ones to give on the part; they keep the order added.'), after) }
+  return { name: rulePartName(level, type), desc: join(several ? T('给出这个元件的规则。在元件上添加要给出的规则，按添加顺序排列。', 'Gives this part’s rules. Add the ones to give on the part; they keep the order added.') : T('给出这个元件的规则。', 'Gives this part’s rule.'), after) }
 }
 /** The rules a rule part with several offers to tick, each written out in the test's words: [{ value, label }]. */
 const usesOf = (level, type, text) => {
@@ -336,14 +336,14 @@ export const MACHINE = {
   iconOf: (level, type) => machineIcon(level, type),
   familyOf: (level, type) => (isRulePart(level, type) ? 'rule' : MACHINE_PARTS[type]?.frames ? 'box' : 'lemma'),
   words: {
-    steps: T('元件', 'Cards'),
+    steps: T('元件', 'Parts'),
     go: T('运行全部测试', 'Run every test'),
     passed: T('全部通过', 'All passed'),
     pass: T('这组测试通过了。', 'This test passes.'),
-    idle: T('运行时每组测试都要过：同一个证明助手，换一个输入再跑一遍。', 'Running checks every test: the same proof assistant, run again on each input.'),
-    reached: T('对了', 'Right'),
-    notYet: T('还不对', 'Not yet'),
-    noOpen: T('还没有收到东西', 'nothing received yet'),
-    empty: T('从上面一排元件里选一张放上来，从「输入」接到「结果」。', 'Pick a part from the row above, and wire it from the input to the result.'),
+    idle: T('运行时，同一个证明助手依次处理每组测试的输入，每组都须通过。', 'Running applies the same proof assistant to each test’s input; every test must pass.'),
+    reached: T('通过', 'Passed'),
+    notYet: T('未通过', 'Not yet'),
+    noOpen: T('尚未收到输入', 'nothing received yet'),
+    empty: T('从上方元件栏选择元件放到板上，从「输入」连到「结果」。', 'Place parts from the bar above and wire them from Input to Result.'),
   },
 }

@@ -40,10 +40,10 @@ export function isoPartsFor(level, words) {
 }
 
 const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => (n.type === 'hyp' && n.locked) || n.type === 'case') && circuit.wires.every((w) => !w.to.startsWith('hyp-') || w.port === 'before')
-const HYP_DESC = T('假设一句话。一张假设接进它的「先假设」，就是先假设那句、再假设这句；它接进连接词的引入规则口，这一串就是一条引入规则。', 'Assume a sentence. An assumption wired into its “assumed first” is assumed before it; wired into a way of the connective, the chain is one way to make it.')
+const HYP_DESC = T('假设一句话。另一个假设接入它的「先假设」口时，先作那个假设，再作这个假设；它接入连接词的引入规则口时，这一串假设构成一条引入规则。', 'Assumes a sentence. An assumption wired into its “assumed first” port is made before it; wired into one of the connective’s intro-rule ports, the chain forms an intro rule.')
 const HYP = { type: 'hyp', label: T('假设', 'Assume'), desc: HYP_DESC, icon: SquareDashedText, family: 'box' }
-const NONE = { type: 'none', label: T('不用假设', 'Assume nothing'), desc: T('什么都不假设。接进连接词的引入规则口，这条引入规则不要任何证明就能造。', 'Assume nothing. Wired into a way of the connective, that way makes it with no proof at all.'), icon: CircleDashed, family: 'box' }
-const THING = { type: 'thing', label: T('任取一样东西', 'Any thing'), desc: T('任取一样东西，给它一个名字。接在它后面的假设可以提到这个名字：这样的引入规则对任何东西都成立。', 'Take any thing and give it a name. The assumptions after it may mention the name: such a way holds for any thing at all.'), icon: CircleDot, family: 'box' }
+const NONE = { type: 'none', label: T('不用假设', 'Assume nothing'), desc: T('不作任何假设。接入连接词的引入规则口时，这条引入规则不需要任何前提。', 'Assumes nothing. Wired into one of the connective’s intro-rule ports, that intro rule needs no premises.'), icon: CircleDashed, family: 'box' }
+const THING = { type: 'thing', label: T('任取一样东西', 'Any thing'), desc: T('任取一样东西并为它命名。接在它后面的假设可以提到这个名字，这样的引入规则对任何东西都成立。', 'Takes an arbitrary thing and names it. Assumptions after it may mention the name, so the intro rule holds for every thing.'), icon: CircleDot, family: 'box' }
 const TRAY = { hyp: HYP, none: NONE, thing: THING }
 // Where a new card goes: the first free spot left of the declared card (the board's output), column by column
 // leftward, so what is wired into it reads left to right.
@@ -105,7 +105,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   const verdict = run?.over ? { pass: playback.passed } : null
   const failed = run?.over && !playback.passed ? checked.results[run.results.length - 1] : null
   const verdictText = !verdict ? null : verdict.pass
-    ? tr('每一种情况都对：该证得出的，有一条引入规则凑得齐；证不出的，哪条都凑不齐；手里有它时，推得出的正好是每条来路都推得出的。', 'Every situation is right: where it should be proved, some intro rule has all it needs, and where not, none has; with it at hand, what follows is just what every way in gives.')
+    ? tr('每种情况都正确：应当证得出时，有一条引入规则的前提全部具备；应当证不出时，每条引入规则都缺少前提；已知它时，推得出的恰好是每条引入规则都推得出的结论。', 'Every situation is correct: where it should be provable, some intro rule has all its premises; where not, none does; and given it, exactly what follows from every intro rule follows.')
     : run.final || L(failed.reason)
 
   // What each card says in the situation picked.
@@ -153,7 +153,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
           <thead>
             <tr>
               {goals && <th>{tr('要证', 'To prove')}</th>}
-              {held.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
+              {held.map((l) => <th key={l}>{tr(`已知「${words(l).zh}」`, `Given “${words(l).en}”`)}</th>)}
               <th className="lg-result">{tr(`「${level.declare.zh}」`, `“${level.declare.en}”`)}</th>
             </tr>
           </thead>
@@ -175,7 +175,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
         <div className="lg-scroll-x">
           <table className="lg-rows">
             <thead>
-              <tr><th>{tr('手里有', 'At hand')}</th><th>{tr('推出', 'To get')}</th><th className="lg-result">{tr('推得出吗', 'Follows?')}</th></tr>
+              <tr><th>{tr('已知', 'Given')}</th><th>{tr('目标', 'Goal')}</th><th className="lg-result">{tr('推得出吗', 'Follows?')}</th></tr>
             </thead>
             <tbody>
               {uses.map(({ t, k }) => (
@@ -192,7 +192,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )
-  const dock = <RunDock {...playback.dock({ go: tr('点击运行测试', 'Run the tests'), done: tr('每种情况都对', 'Every situation right') })} />
+  const dock = <RunDock {...playback.dock({ go: tr('运行测试', 'Run the tests'), done: tr('每种情况都正确', 'All situations correct') })} />
 
   const items = (level.tray ?? ['hyp']).map((t) => TRAY[t])
   const add = (type) => {
@@ -224,7 +224,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
               body={body}
               cardClass={() => 'lg-node'}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
-              emptyNote={{ zh: '从上面拿一张假设，选它假设哪一句；一张假设接进另一张的「先假设」，是同一条引入规则要两样；假设接进连接词的引入规则口，就是一条引入规则。', en: 'Take an assumption from above and pick the sentence it assumes; one wired into another’s “assumed first” is one way needing both; one wired into a way of the connective is one way to make it.' }}
+              emptyNote={{ zh: '从上方取出假设元件，选择它假设的句子。假设接入另一个假设的「先假设」口时，同一条引入规则需要这两个前提；假设接入连接词的引入规则口时，构成一条引入规则。', en: 'Take an assumption from above and choose the sentence it assumes. Wired into another assumption’s “assumed first” port, both belong to one intro rule; wired into one of the connective’s intro-rule ports, it forms an intro rule.' }}
             />
           </div>
         </div>
