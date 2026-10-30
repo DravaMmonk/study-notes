@@ -17,8 +17,8 @@ import { L, tr } from '../../../shell/i18n.js'
 const T = (zh, en) => ({ zh, en })
 const MOST = 8
 
-/** An empty case: nothing given, the level's fixed goal and expectation if it has them (an expectation not chosen yet is null). */
-export const blankCase = (level) => ({ given: [], ...(level.caseGoal ? { goal: level.caseGoal } : {}), make: level.caseMake ?? null })
+/** An empty case: no premises, and the goal and expectation left for the player ('' and null) unless the level fixes them. */
+export const blankCase = (level) => ({ given: [], goal: level.caseGoal ?? '', make: level.caseMake ?? null })
 /** The cases a level sets out beforehand: its `slots`, blank ones, or each as given (cells not fixed left empty). */
 export const setOut = (level) => (Array.isArray(level.slots)
   ? level.slots.map((c) => ({ given: c.fixed.includes('given') ? c.given : c.keep ?? [], ...(c.keep ? { keep: c.keep } : {}), goal: c.fixed.includes('goal') ? c.goal : '', make: c.fixed.includes('make') ? c.make : null, fixed: c.fixed }))
