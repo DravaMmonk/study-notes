@@ -1,92 +1,56 @@
-// The syntax domain's checks for `npm run check` (../../engine/check.js), level by level:
+// The syntax domain's checks for `npm run check` (../../engine/check.js), sentence by sentence:
 //
-//   · the lexicon reads (frames, agreement, tense and aspect are ones the grammar knows)
-//   · every word a level offers, presets and answers is in the lexicon; the answer only uses what the level offers,
-//     and the preset is part of the answer
-//   · the meaning names a verb the lexicon has
-//   · the answer's every word is one the grammar allows where it stands, and the answer passes the level (with the
-//     star, when the level has a word target)
-//   · every trap is turned down where the level says it is: by the grammar, or at the predicate, the time, a role,
-//     or the star
-//   · a drill's every item is sound: its words are the lexicon's and the grammar's, it offers at least one other time,
-//     each with its reason, and no two options read the same
-//   · the level says why each time it offers, other than the one meant, is wrong here (a wrong choice always gets a
-//     native speaker's reason, not only a mark)
+//   · every span and word the answer names is in the sentence, once (or picked out with #n)
+//   · the folds never cross, none hangs on a word inside itself, a fold lies inside any fold that holds its word, and
+//     they can all be made in some order (each fold's word still standing when it is made)
+//   · the answer marks a subject and a verb, each role keeps some words standing, and it uses only the roles and
+//     constructions the level has reached
+//   · every misreading names a word the fold could really be hung on
+//   · the answer passes its own check
 
-import { keyOf } from '../../shell/i18n.js'
-import { itemProblems } from './engine/drill.js'
-import { refusals } from './engine/grammar.js'
-import { answerTypes, check, toClause } from './engine/sentence.js'
+import { keyOf, check, order, standing } from './engine/sentence.js'
+import { roleKey } from './engine/types.js'
+import { keyOf as textKey } from '../../shell/i18n.js'
 
-/**
- * How a sentence fares on a level: 'grammar' when the grammar refuses one of its words where it stands, else the first
- * part of the meaning it misses ('pred', 'time', 'role'), 'star' when it passes over the word target, or 'pass'.
- */
-export function fate(lex, level, answer) {
-  const clause = toClause(answer)
-  if (refusals(lex, clause).length) return 'grammar'
-  const run = check(lex, level, clause)
-  if (!run.complete) return 'open'
-  if (!run.pred.ok) return 'pred'
-  if (!run.time.ok) return 'time'
-  if (!Object.values(run.roles).every((r) => r.ok) || run.extra.length) return 'role'
-  return run.star ? 'pass' : 'star'
+const crossing = (f, g) => (f.a < g.a && g.a <= f.b && f.b < g.b) || (g.a < f.a && f.a <= g.b && g.b < f.b)
+
+/** What is wrong with one sentence of a level, as text. */
+export function sentenceProblems(gold, palette) {
+  const problems = [...gold.problems]
+  const { tokens, folds, roles } = gold
+  const keys = folds.map(keyOf)
+  if (new Set(keys).size !== keys.length) problems.push('two folds cover the same words')
+  folds.forEach((f, k) => folds.slice(k + 1).forEach((g) => { if (crossing(f, g)) problems.push(`folds ${keyOf(f)} and ${keyOf(g)} cross`) }))
+  for (const f of folds) {
+    if (f.a <= f.to && f.to <= f.b) problems.push(`fold ${keyOf(f)} hangs on a word inside itself`)
+    for (const g of folds) if (g !== f && g.a <= f.to && f.to <= g.b && !(g.a <= f.a && f.b <= g.b)) problems.push(`fold ${keyOf(f)} hangs on a word inside fold ${keyOf(g)} but lies outside it`)
+    if (!tokens[f.to]?.word) problems.push(`fold ${keyOf(f)} hangs on punctuation`)
+    if (!palette.includes(f.type)) problems.push(`fold ${keyOf(f)} is a ${f.type}, not reached here`)
+    for (const [w] of gold.misread.get(keyOf(f)) ?? []) {
+      if (w === null) continue
+      if (w === f.to) problems.push(`fold ${keyOf(f)}: a misreading on the word it does hang on`)
+      if (!tokens[w]?.word || (f.a <= w && w <= f.b)) problems.push(`fold ${keyOf(f)}: a misreading on a word it cannot hang on`)
+    }
+  }
+  if (!problems.length && !order(folds)) problems.push('the folds cannot all be made: some fold hides the word another hangs on')
+  if (!roles.subj || !roles.verb) problems.push('the answer marks no subject or no verb')
+  for (const [role, span] of Object.entries(roles)) {
+    if (!palette.includes(roleKey(role))) problems.push(`the role ${role} is not reached here`)
+    if (!standing(tokens, folds, span).length) problems.push(`the ${role} has no word left standing`)
+  }
+  if (!problems.length) {
+    const self = check(gold, { folds, roles })
+    if (!self.pass) problems.push(`the answer fails its own check: ${self.findings.map((f) => f.en).join(' ')}`)
+  }
+  return problems
 }
 
 /** spec: { syntax } (engine/course.js syntaxCourse). Returns [{ text, fail? }]. */
 export function validate({ syntax }) {
-  const { lex, LEVELS } = syntax
-  const out = lex.problems.map((p) => ({ fail: true, text: `lexicon: ${p}` }))
-  const lemmas = new Set(lex.types().map(lex.part).filter((p) => p.kind === 'verb').map((p) => p.lemma))
-  for (const level of LEVELS) {
-    if (level.kind === 'run') {
-      // Every fill of every template is said under each phrasing the run can hand out, and each reads differently.
-      const { run } = level
-      const held = [...new Set([...run.start, ...run.rewards])]
-      const problems = []
-      for (const t of run.templates) {
-        if (!held.includes(t.answer)) problems.push(`${t.id}: its answer ${t.answer} is never held`)
-        for (const k of Object.keys(t.why ?? {})) if (!held.includes(k)) problems.push(`${t.id}: a reason for ${k}, which is never held`)
-        t.fills.forEach((f, k) => {
-          const why = Object.fromEntries(held.filter((p) => p !== t.answer).map((p) => [p, t.why?.[p] ?? '']))
-          for (const p of itemProblems(lex, { context: f.context, words: f.words, answer: t.answer, why })) problems.push(`${t.id}.${k}: ${p}`)
-        })
-      }
-      for (const kind of ['reviews', 'strict', 'committee', 'night']) if (!run.stops[kind]) problems.push(`no ${kind} stop`)
-      const fills = run.templates.reduce((n, t) => n + t.fills.length, 0)
-      out.push({ fail: problems.length > 0, text: `${level.id} ${keyOf(level.title)}: ${problems.length ? problems.join('; ') : `${run.templates.length} templates, ${fills} situations sound`}` })
-      continue
-    }
-    if (level.kind === 'drill') {
-      const problems = level.items.flatMap((item, k) => itemProblems(lex, item).map((p) => `item ${k + 1}: ${p}`))
-      if (!level.items.length) problems.push('no items')
-      out.push({ fail: problems.length > 0, text: `${level.id} ${keyOf(level.title)}: ${problems.length ? problems.join('; ') : `${level.items.length} items sound`}` })
-      continue
-    }
-    const problems = []
-    for (const type of [...level.palette, ...answerTypes(level.preset), ...answerTypes(level.answer), ...(level.traps ?? []).flatMap((t) => answerTypes(t.answer))]) {
-      if (!lex.part(type)) problems.push(`${type} is not in the lexicon`)
-    }
-    if (!lemmas.has(level.meaning?.pred)) problems.push(`its meaning names no verb of the lexicon (${level.meaning?.pred})`)
-    if (!level.answer) problems.push('no reference answer')
-    else {
-      const offered = new Set([...level.palette, ...answerTypes(level.preset)])
-      for (const type of answerTypes(level.answer)) if (!offered.has(type)) problems.push(`the answer uses ${type}, which the level does not offer`)
-      for (const [k, v] of Object.entries(level.preset ?? {})) if (level.answer[k] !== v) problems.push(`the preset ${k}: ${v} is not the answer's`)
-      const got = fate(lex, level, level.answer)
-      if (got !== 'pass') problems.push(`the answer does not pass (${got})`)
-      for (const trap of level.traps ?? []) {
-        const fails = fate(lex, level, trap.answer)
-        if (fails !== trap.fails) problems.push(`a trap should fail at ${trap.fails} but ${fails === 'pass' ? 'passes' : `fails at ${fails}`}: ${JSON.stringify(trap.answer)}`)
-      }
-    }
-    for (const type of level.palette) {
-      const time = lex.part(type)
-      if (time?.kind !== 'time' || (time.tense === level.meaning?.tense && time.aspect === level.meaning?.aspect)) continue
-      if (!level.why?.[time.key]) problems.push(`no reason given for choosing ${type}`)
-    }
-    const traps = level.traps?.length ?? 0
-    out.push({ fail: problems.length > 0, text: `${level.id} ${keyOf(level.title)}: ${problems.length ? problems.join('; ') : `answer PASS, ${traps} trap${traps === 1 ? '' : 's'} turned down`}` })
-  }
-  return out
+  return syntax.LEVELS.map((level) => {
+    const sentences = level.tasks ?? [level]
+    const problems = sentences.flatMap((s, k) => sentenceProblems(s.gold, level.palette).map((p) => (level.tasks ? `task ${k + 1}: ${p}` : p)))
+    const folds = sentences.reduce((n, s) => n + s.gold.folds.length, 0)
+    return { fail: problems.length > 0, text: `${level.id} ${textKey(level.title)}: ${problems.length ? problems.join('; ') : `${sentences.length} sentence${sentences.length === 1 ? '' : 's'}, ${folds} fold${folds === 1 ? '' : 's'} sound`}` }
+  })
 }

@@ -52,13 +52,13 @@ export const GAMES = [
     progress: () => (read('qed-lab.v1')?.solved || []).length,
   },
   {
-    id: 'syntax-graph', href: 'syntax-graph/index.html', title: '句法之图', en: 'Syntax Graph', topic: { zh: '计算机学术写作', en: 'Academic Writing in Computer Science' },
+    id: 'syntax-graph', href: 'syntax-graph/index.html', title: '句法之图', en: 'Syntax Graph', topic: { zh: '计算机论文长难句', en: 'Long Sentences in Computer Science Papers' },
     desc: {
-      zh: '在论文和审稿的真实场合里，一题几秒地练出母语者“场合一出现，说法就跟着来”的直觉；选错了，告诉你母语者为什么不这么说。练熟了，就去走一次路线每回都不一样的投稿。',
-      en: 'In the real situations of a paper and its review, a few seconds an item, train the native writer’s instinct that a situation calls up its wording; pick wrong and you are told why a native speaker would not say it. Then take a submission whose route is new every time.',
+      zh: '把计算机论文里的长难句拆开：每个修饰成分折成一块，挂到它修饰的词上，直到主干露出来。从三个词的主干起步，一路拆到母语读者也要读两遍的句子。',
+      en: 'Take apart the long sentences of computer science papers: fold each modifier into one piece and hang it on the word it modifies, until the skeleton shows. Start from a three-word skeleton and work up to sentences native readers have to read twice.',
     },
-    levels: 8, art: 'stick', dev: true,
-    page: { icon: 'M32 14v14M32 28 17 48M32 28l15 20', description: '句法之图 Syntax Graph：按场合练出母语者的说法，计算机学术英语。Native wording by situation, for academic writing in computer science.' },
+    levels: 21, art: 'stick', dev: true,
+    page: { icon: 'M32 14v14M32 28 17 48M32 28l15 20', description: '句法之图 Syntax Graph：拆开计算机论文里的长难句。Taking apart the long sentences of computer science papers.' },
     progress: () => (read('syntax-graph.v1')?.solved || []).length,
   },
   {
