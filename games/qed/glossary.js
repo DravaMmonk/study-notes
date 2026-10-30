@@ -217,12 +217,12 @@ export const GLOSSARY = [
     see: ['axiom'],
   },
   {
-    id: 'declaration', group: 'proof', title: T('声明', 'declaration'), at: 'decl-and',
+    id: 'declaration', group: 'proof', title: T('声明', 'declaration'), at: 'decl-imp',
     body: [T(`本游戏中的<b>声明</b>指定新连接词的引入规则，证明器据此生成相应的消去规则。它与可展开的${W('definition')}、直接采用的${W('axiom')}承担不同角色。生成规则与其声明的引入方式相对应；声明是否保持一致性还依赖具体规则和系统条件。Lean 的归纳类型及 Isabelle/HOL 的连接词有各自的机制，本游戏是一个简化模型。`, `In this game, a <b>declaration</b> specifies introduction rules for a new connective, from which the prover generates a corresponding elimination rule. This differs from an unfoldable ${W('definition')} and an assumed ${W('axiom')}. The generated rule corresponds to the declared introductions; consistency also depends on the specific rules and system assumptions. Lean’s inductive types and Isabelle/HOL’s connectives have their own mechanisms; the game is a simplified model.`)],
     see: ['definition', 'axiom'],
   },
   {
-    id: 'rule-arrow', group: 'proof', title: T('规则箭头 ⟹', 'the rule arrow ⟹'), at: 'decl-and',
+    id: 'rule-arrow', group: 'proof', title: T('规则箭头 ⟹', 'the rule arrow ⟹'), at: 'decl-imp',
     body: [
       T('游戏里的规则都写成 ⟦前提⟧ ⟹ 结论，这是 Isabelle 的写法：⟦下雨; 刮风⟧ ⟹ 下雨 ∧ 刮风 说的是「有了下雨和刮风的证明，就得到下雨 ∧ 刮风的证明」。规则里的 ?A、?B 代表任何一句话，?R 代表任何结论。', 'Every rule in the game is written ⟦premises⟧ ⟹ conclusion, the way Isabelle writes it: ⟦it rains; it is windy⟧ ⟹ it rains ∧ it is windy says “with proofs of it rains and it is windy, you have a proof of it rains ∧ it is windy”. In a rule, ?A and ?B stand for any sentence and ?R for any conclusion.'),
       T('双箭头 ⟹ 和单箭头 → 不在一层。→ 在句子里面：A → B 本身是一句话，可以被证明、被假设、接进别的元件。⟹ 在句子外面，说的是证明之间的关系：有了这些，就有那个。两者靠证明核连在一起：假设框把「假设 A 证出 B」变成一句 A → B，套用反过来，用 A → B 和 A 得到 B。Isabelle 把这两层分开：⟹ 属于它的元逻辑 Pure，→ 属于 HOL 这门逻辑。', 'The double arrow ⟹ and the single arrow → are not on one level. → is inside a sentence: A → B is itself a sentence, which can be proved, assumed and wired into other parts. ⟹ is outside sentences and relates proofs: with these, you have that. The kernel joins them: the assumption box turns “assume A, prove B” into a sentence A → B, and Apply goes back, from A → B and A to B. Isabelle keeps the two levels apart: ⟹ belongs to its meta-logic Pure, → to the logic HOL.'),
@@ -254,12 +254,12 @@ export const GLOSSARY = [
     see: ['intro-rule', 'elim-rule', 'hilbert'],
   },
   {
-    id: 'intro-rule', group: 'proof', title: T('引入规则', 'introduction rule'), at: 'decl-and',
+    id: 'intro-rule', group: 'proof', title: T('引入规则', 'introduction rule'), at: 'decl-imp',
     body: [T(`<b>引入规则</b>的结论里多出一个${W('connective')}：拼起来由 A、B 得 A ∧ B，二选一由 A 得 A ∨ B，假设框得 A → B。要证一句话，看它最外面的连接词，就知道用哪条引入规则。`, `An <b>introduction rule</b> has a new ${W('connective')} in its conclusion: Join gets A ∧ B from A and B, Choose gets A ∨ B from A, the assumption box gets A → B. To prove a sentence, its outermost connective says which introduction rule to use.`)],
     see: ['elim-rule', 'natural'],
   },
   {
-    id: 'elim-rule', group: 'proof', title: T('消去规则', 'elimination rule'), at: 'decl-and',
+    id: 'elim-rule', group: 'proof', title: T('消去规则', 'elimination rule'), at: 'decl-imp',
     body: [T(`<b>消去规则</b>说明如何使用带有某个${W('connective')}的命题：由 A ∧ B 可得 A，由 A → B 和 A 可得 B；对 A ∨ B 则可以分类讨论。证明中使用一个命题并不会消耗它。引入与消去规则之间的<b>和谐</b>要求消去规则与该连接词的引入方式相协调。`, `An <b>elimination rule</b> explains how to use a proposition with a ${W('connective')}: A follows from A ∧ B; B follows from A → B and A; and A ∨ B supports reasoning by cases. Using a proposition in a proof does not consume it. <b>Harmony</b> requires elimination rules to correspond appropriately to the ways that connective is introduced.`)],
     see: ['intro-rule', 'normal-form'],
   },

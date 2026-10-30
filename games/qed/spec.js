@@ -311,7 +311,17 @@ export default {
   { version: 59, ops: [{ split: ['mergeLong', ['mergeUse', 'mergeLong', 'mergeBoth']] }] },
   // Version 60 took K off the rules chapter (K and S became optional): its first three levels have new tasks, and the
   // boards kept for them start afresh.
-  { version: 60, ops: [{ data: (value, id) => (['r-rule', 'r-assumption', 'r-subgoals'].includes(id) ? undefined : value) }] }],
+  { version: 60, ops: [{ data: (value, id) => (['r-rule', 'r-assumption', 'r-subgoals'].includes(id) ? undefined : value) }] },
+  // Version 61 wrote a declaration with premise cards, Join and wires (a card into another's port is a premise needed
+  // under it) instead of cards chained by "premise before": the boards written the old way start afresh, and the new
+  // first level, 声明「若…则…」, counts as passed for whoever passed 声明「并且」.
+  { version: 61, ops: [
+    { data: (value) => {
+      const old = (b) => b?.wires?.some((w) => w.port === 'before') && b.nodes?.some((n) => n.id === 'decl')
+      return Array.isArray(value) ? value.map((b) => (old(b) ? null : b)) : old(value) ? undefined : value
+    } },
+    { solve: ['decl-and', ['decl-imp']] },
+  ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],

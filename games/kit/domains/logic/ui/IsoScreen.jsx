@@ -1,23 +1,22 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { CircleDashed, CircleDot, FileSignature, SquareDashedText } from 'lucide-react'
+import { CircleDashed, CircleDot, Combine, FileSignature, SquareDashedText } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, useBoardCases, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, freeSpot, useSlotEditing } from '../../../circuit/index.js'
 import FormulaField from './FormulaField.jsx'
 import { say } from '../notation.js'
-import { DECL, ISO_PARTS, checkIso, derives, declInputs, declaredRules, hypCard, runIso, sentenceOf, settle, startIso, thingCard, typeOf, wayOf, wayRule, wayText, waysIn } from '../iso.js'
+import { DECL, ISO_PARTS, checkIso, derives, declInputs, declaredRules, hypCard, listText, runIso, sentenceOf, settle, startIso, thingCard, typeOf, wayOf, wayRule, wayText, waysIn } from '../iso.js'
 import { constructorsOf, datatypeRules } from '../datatype.js'
 import { atom, fn, tvar } from '../formula.js'
 import { ruleText } from '../schematic.js'
 import Entries from '../../../shell/Entries.jsx'
-import { PROOF } from './boards.jsx'
 import FaultScreen from './IsoFaultScreen.jsx'
 import CaseTable from './IsoCases.jsx'
 
-// A connective declared by its ways to make it (iso.js) on the shared circuit editor: assumption cards from the tray,
-// each picking the sentence it assumes, chained to write each way as a rule, and the connective's card, the board's
-// output, whose inputs grow as ways are wired. Each test is a test case (检验条例), one row of the table under the board
+// A connective declared by its ways to make it (iso.js) on the shared circuit editor: premise cards from the tray, each
+// picking its sentence (⟦A⟧), Join (;) and wires (⟹) to write each way as a rule, every card showing what it has made,
+// and the connective's card, the board's output, whose inputs grow as ways are wired. Each test is a test case (检验条例), one row of the table under the board
 // (ui/IsoCases.jsx): what is given, the goal, and whether it is derivable. Running goes down the rows
 // (../../../shell/usePlayback.jsx) and stops on the first one that is wrong.
 
@@ -28,24 +27,24 @@ export const WAY = ['1', '2', '3']
 /** The editor's description of the board (../../circuit/model.js), with the level's words for its sentences. */
 export function isoPartsFor(level, words) {
   return {
-    inputs: (node) => (node.type === 'hyp' || node.type === 'thing' ? ['before'] : node.type === DECL ? declInputs(node) : []),
+    inputs: (node) => (node.type === 'hyp' ? ['under'] : node.type === 'join' ? ['a', 'b'] : node.type === DECL ? declInputs(node) : []),
     role: (node) => (node.type === DECL ? 'sink' : 'part'),
-    label: (node) => (node.type === 'hyp' ? HYP.label : node.type === 'none' ? NONE.label : node.type === 'thing' ? THING.label
+    label: (node) => (TRAY[node.type] ? TRAY[node.type].label
       : T(`「${level.declare.zh}」`, `“${level.declare.en}”`)),
-    portLabel: (node, port) => (node.type === DECL ? T(`引入规则 ${WAY[Number(port.slice(1)) - 1]}`, `Intro rule ${WAY[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' || node.type === 'thing' ? T('上一个前提', 'Premise before') : ''),
+    portLabel: (node, port) => (node.type === DECL ? T(`引入规则 ${WAY[Number(port.slice(1)) - 1]}`, `Intro rule ${WAY[Number(port.slice(1)) - 1]}`) : node.type === 'hyp' ? T('它的前提', 'Its premises') : ''),
     family: (node) => (node.type === DECL ? 'lemma' : 'box'),
-    icon: (node) => (node.type === 'hyp' ? SquareDashedText : node.type === 'none' ? CircleDashed : node.type === 'thing' ? CircleDot : FileSignature),
+    icon: (node) => TRAY[node.type]?.icon ?? FileSignature,
     cardWidth: () => 220,
     rules: ISO_PARTS,
   }
 }
 
-const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => (n.type === 'hyp' && n.locked) || n.type === 'case') && circuit.wires.every((w) => !w.to.startsWith('hyp-') || w.port === 'before')
-const HYP_DESC = T('引入规则的一个前提，在卡上选择是哪一句。另一个前提接入它的「上一个前提」口时，两者属于同一条引入规则；接入连接词的引入规则口时，这一串前提构成一条引入规则。', 'One premise of an intro rule, its sentence chosen on the card. Another premise wired into its “premise before” port belongs to the same intro rule; wired into one of the connective’s intro-rule ports, the chain of premises forms an intro rule.')
-const HYP = { type: 'hyp', label: T('前提', 'Premise'), desc: HYP_DESC, icon: SquareDashedText, family: 'box' }
+const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => (n.type === 'hyp' && n.locked) || n.type === 'case') && !circuit.wires.some((w) => w.port === 'before')
+const HYP = { type: 'hyp', label: T('前提', 'Premise'), desc: T('引入规则的一个前提 ⟦A⟧，在卡上选择是哪一句。把一组前提接进它的「它的前提」口，它就成了要先有那组前提才推得出的前提，⟦⟦…⟧ ⟹ A⟧。', 'A premise of an intro rule, ⟦A⟧, its sentence chosen on the card. Wire a group of premises into its port “Its premises”, and it becomes a premise derived from those first, ⟦⟦…⟧ ⟹ A⟧.'), icon: SquareDashedText, family: 'box' }
+const JOIN = { type: 'join', label: T('拼接', 'Join'), desc: T('把两组前提拼成一组，⟦A; B⟧：同一条引入规则要齐这几样。', 'Joins two groups of premises into one, ⟦A; B⟧: one intro rule needing all of them.'), icon: Combine, family: 'box' }
 const NONE = { type: 'none', label: T('无前提', 'No premise'), desc: T('接入连接词的引入规则口时，这条引入规则不需要任何前提。', 'Wired into one of the connective’s intro-rule ports, that intro rule needs no premises.'), icon: CircleDashed, family: 'box' }
-const THING = { type: 'thing', label: T('任取一样东西', 'Any thing'), desc: T('任取一样东西并为它命名。接在它后面的前提可以提到这个名字，这样的引入规则对任何东西都成立。', 'Takes an arbitrary thing and names it. Premises after it may mention the name, so the intro rule holds for every thing.'), icon: CircleDot, family: 'box' }
-const TRAY = { hyp: HYP, none: NONE, thing: THING }
+const THING = { type: 'thing', label: T('任取一样东西', 'Any thing'), desc: T('任取一样东西并为它命名。拼在它后面的前提可以提到这个名字，这样的引入规则对任何东西都成立。', 'Takes an arbitrary thing and names it. Premises joined after it may mention the name, so the intro rule holds for every thing.'), icon: CircleDot, family: 'box' }
+const TRAY = { hyp: HYP, join: JOIN, none: NONE, thing: THING }
 // Where a new card goes: the first free spot left of the declared card (the board's output), column by column
 // leftward, so what is wired into it reads left to right.
 const spotLeft = (circuit) => {
@@ -151,13 +150,14 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   // ⟦A; B⟧ ⟹ A ∧ B), numbered as its inputs, and whether it is proved. `at` is where: 'card' (the desktop's), 'tile'
   // (a phone's) or 'sheet'.
   const text = (f) => L(say(f, level.notation))
-  const Value = ({ f }) => <PROOF.Value v={{ formula: f, hyps: new Map() }} text={text} />
+  const made = (node) => view.values.get(node.id) && <code className="lg-made">{listText(view.values.get(node.id), level, text)}</code>
   const body = (node, at = 'card') => {
     if (node.type === 'none') return null
     if (node.type === 'thing') return <div className="lg-card"><span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.name}</b></span></div>
+    if (node.type === 'join') return <div className="lg-card">{made(node)}</div>
     if (node.type === 'hyp') {
-      if (at === 'tile') return <div className="lg-card"><Value f={sentenceOf(level, node.params.name)} /></div>
-      return <div className="lg-card"><FormulaField label={HYP.label} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required /></div>
+      if (at === 'tile') return <div className="lg-card">{made(node)}</div>
+      return <div className="lg-card"><FormulaField label={HYP.label} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required />{made(node)}</div>
     }
     const way = (k) => (at === 'sheet' ? tr(`引入规则 ${WAY[k]}：`, `Intro rule ${WAY[k]}:`) : `${WAY[k]}.`)
     return (
@@ -182,7 +182,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   )
   const dock = <RunDock {...playback.dock({ go: tr('运行检验条例', 'Run the test cases'), done: tr('所有条例均正确', 'All cases correct') })} />
 
-  const items = (level.tray ?? ['hyp']).map((t) => TRAY[t])
+  const items = (level.tray ?? ['hyp', 'join']).map((t) => TRAY[t])
   const add = (type) => {
     const [x, y] = spotLeft(circuit)
     change(addPart(type, { x, y }).graph)
@@ -215,7 +215,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
               body={body}
               cardClass={() => 'lg-node'}
               wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
-              emptyNote={{ zh: '从上方取出前提元件，选择它是哪一句。前提接入另一个前提的「上一个前提」口时，同一条引入规则需要这两个前提；接入连接词的引入规则口时，构成一条引入规则。', en: 'Take a premise from above and choose its sentence. Wired into another premise’s “premise before” port, both belong to one intro rule; wired into one of the connective’s intro-rule ports, it forms an intro rule.' }}
+              emptyNote={{ zh: '从上方取出前提，选择它是哪一句，再接进连接词的引入规则口。', en: 'Take a premise from above, choose its sentence, and wire it into one of the connective’s intro-rule ports.' }}
             />
           </div>
         </div>

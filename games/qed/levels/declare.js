@@ -1,8 +1,10 @@
 // Chapter 3, second half · Declarations: the kernel has Apply and the box, and no "and", "or" or "contradiction";
 // definitions only name what those two prove, so a connective has to come in another way. It comes in by a
-// declaration: its ways to make it, each a rule written with assumption cards from the tray (iso.js). Chained cards are
-// one way that needs both; cards each into a way of their own are separate ways; no card wired is no way at all. Each
-// situation tests the declaration against what the connective means. `sentences` are what an assumption card may pick.
+// declaration: its ways to make it, each a rule written with premise cards (⟦⟧), Join (;) and wires (⟹) from the tray
+// (iso.js). Joined cards are one way that needs both; cards each into a way of their own are separate ways; a card wired
+// into another's port is a premise that needs it first; no card wired is no way at all. It starts with the one the
+// kernel knows already, → (the box and Apply). Each situation tests the declaration against what the connective
+// means. `sentences` are what a premise card may pick.
 //
 // What takes it apart is not written: the ways in are all the ways there are, so its elimination rule is made from
 // them (iso.js declaredRules), as Lean and Isabelle make it, and the pass text says so. Passing a declaration brings in
@@ -44,6 +46,37 @@ const GENERATOR = machine({ r: ['anyR'], e: ['eachOf'], s: ['swapConcl', {}, 'e'
 
 export const declarations = [
   declare({
+    // The connective the kernel has known since chapter 2: its one way in is the box, the elimination rule made from it
+    // gives back the premise as a rule, and with what it needs, that is Apply. Nothing new for the proof board.
+    id: 'decl-imp',
+    title: T('声明「若…则…」', 'Declaring “if … then …”'),
+    declare: T('若…则…', 'if … then …'),
+    target: 'Rain → Wet',
+    sentences: ['Rain', 'Wet'],
+    tray: ['hyp'],
+    tests: [
+      { given: ['Wet'], make: true },
+      { given: ['Rain', 'Wet'], make: true },
+      { given: ['Rain'], make: false },
+      { given: [], make: false },
+      { given: ['Rain → Wet'], goal: 'Rain', make: false },
+      { given: ['Rain → Wet'], goal: 'Wet', make: false },
+      { given: ['Rain → Wet', 'Rain'], goal: 'Wet', make: true },
+    ],
+    intro: [
+      { t: T('证明核从第一块元件起就认得「若…则…」：<part-ref to="part:impI"></part-ref>造出它，<part-ref to="part:mp"></part-ref>用掉它。接下来要教证明核认得新的连接词，先拿它已经认得的这一个试一试：不证明什么，只说清它<b>怎样才算证出来</b>。说清这件事的一份话叫<wiki-ref to="declaration"></wiki-ref>，其中每一种造出它的办法叫一条<wiki-ref to="intro-rule"></wiki-ref>，写作「⟦前提⟧ ⟹ 结论」（<wiki-ref to="rule-arrow"></wiki-ref>）。', 'The kernel has known “if … then …” since its first part: the <part-ref to="part:impI"></part-ref> makes one, and <part-ref to="part:mp"></part-ref> uses one up. Before the kernel learns new connectives, try the one it already knows: prove nothing, only say <b>what counts as proving it</b>. What says this is a <wiki-ref to="declaration"></wiki-ref>, and each way it gives to make the sentence is an <wiki-ref to="intro-rule"></wiki-ref>, written “⟦premises⟧ ⟹ conclusion” (<wiki-ref to="rule-arrow"></wiki-ref>).') },
+      { t: T('托盘里是前提卡，一张卡就是一组 ⟦⟧：卡上选它是哪一句，卡上写出它此刻是什么。一张卡接进另一张卡的「它的前提」口，就是一个 ⟹：后一张成了要先有前一张才推得出的前提。接进「若…则…」的引入规则口，就补上最后的「⟹ 下雨 → 地湿」。下方的表格是检验条例：手里有哪些前提时，目标该不该推得出。', 'The tray holds premise cards, each card one group ⟦⟧: choose its sentence on it, and it shows what it is so far. A card wired into another’s port “Its premises” is a ⟹: the second becomes a premise derived from the first. Wired into an intro-rule port of “if … then …”, it gains the last “⟹ it rains → the ground is wet”. The table below holds the test cases: with which premises at hand the goal should be derivable.') },
+    ],
+    brief: T('「下雨 → 地湿」只在由「下雨」推得出「地湿」时才能引入。请写出它的声明。', '“It rains → the ground is wet” may be introduced only when “the ground is wet” can be derived from “it rains”. Write its declaration.'),
+    hint: [
+      T('只有一条引入规则，一个前提「地湿」，但它要在「下雨」之下推出。', 'One way, with one premise, “the ground is wet”, to be derived under “it rains”.'),
+      T('把「下雨」接进「地湿」的「它的前提」，再把「地湿」接进引入规则 1。', 'Wire “it rains” into the port “Its premises” of “the ground is wet”, then “the ground is wet” into intro rule 1.'),
+    ],
+    solution: isoBoard(['Rain>Wet', 'Wet>1']),
+    naive: isoBoard(['Wet>1']),
+    after: T('声明好了：一条引入规则，就是<part-ref to="part:impI"></part-ref>。拿到「下雨 → 地湿」以后能做什么，不用另写：引入规则就是造出它的全部办法，所以用掉它的<wiki-ref to="elim-rule"></wiki-ref>能由引入规则生成：每条引入规则一种情况，交还那条引入规则收进去的东西。这里交还的是「由下雨推得出地湿」本身，再拿到「下雨」就推得出「地湿」，这就是<part-ref to="part:mp"></part-ref>。证明核的两块元件，本来就是「若…则…」的一份声明。', 'Declared: one way in, which is the <part-ref to="part:impI"></part-ref>. What to do with “it rains → the ground is wet” need not be written: the ways in are all the ways to make it, so the <wiki-ref to="elim-rule"></wiki-ref> that uses it up can be made from them: one case for each, giving back what that way took. What comes back here is “the ground is wet, derived from it rains” itself, and with “it rains” that gives “the ground is wet”: that is <part-ref to="part:mp"></part-ref>. The kernel’s two parts were a declaration of “if … then …” all along.'),
+  }),
+  declare({
     id: 'decl-and',
     // What declaring it gives: its way to make it and the elimination rule made from it, parts of the proof board from
     // here on.
@@ -63,9 +96,8 @@ export const declarations = [
       { given: ['Rain ∧ Wind', 'Rain → (Wind → Wet)'], goal: 'Wet', make: true },
     ],
     intro: [
-      { t: T("<part-ref to=\"lemma:chain\"></part-ref>、<part-ref to=\"lemma:swap\"></part-ref>、<part-ref to=\"lemma:merge\"></part-ref>都是用已有规则证明并封装的<wiki-ref to=\"definition\"></wiki-ref>。展开这些封装即可回到原来的证明。现在要表达「下雨并且刮风」，证明核还需要认识新的连接词及其规则。", "<part-ref to=\"lemma:chain\"></part-ref>, <part-ref to=\"lemma:swap\"></part-ref> and <part-ref to=\"lemma:merge\"></part-ref> are named <wiki-ref to=\"definition\"></wiki-ref>s of proofs built from existing rules. Unfolding them recovers those proofs. To express “it rains and it is windy”, the kernel needs to recognize a new connective and its rules.") },
-      { t: T("要引入「并且」，先建立一项<wiki-ref to=\"declaration\"></wiki-ref>，说明何时能证明合取：分别有「下雨」和「刮风」的证明时，可得到「下雨 ∧ 刮风」。将这条<b>引入规则</b>写作 ⟦下雨; 刮风⟧ ⟹ 下雨 ∧ 刮风（<wiki-ref to=\"rule-arrow\"></wiki-ref>）。", "To introduce “and”, first make a <wiki-ref to=\"declaration\"></wiki-ref> specifying when a conjunction can be proved: proofs of “it rains” and “it is windy” yield “it rains ∧ it is windy”. Write this <b>introduction rule</b> as ⟦it rains; it is windy⟧ ⟹ it rains ∧ it is windy (<wiki-ref to=\"rule-arrow\"></wiki-ref>).") },
-      { t: T("从托盘放置前提卡，并在每张卡上选择命题。需要两个前提时，将两张卡通过「上一个前提」连接，再接到引入规则端口。下方第一张表格展示不同的可用证明组合，供你检查声明；第二张表格是用它：手里有「下雨 ∧ 刮风」时推得出什么，地湿代表任意别的一句话。", "Place premise cards from the tray and select a proposition on each. When a rule has two premises, connect the cards through “Premise before”, then connect them to the introduction-rule port. The first table below shows combinations of available proofs for checking the declaration; the second uses it: what follows with “it rains ∧ it is windy” at hand, the ground being wet standing for any other sentence.") },
+      { t: T('<level-ref to="decl-imp"></level-ref>里声明的，是证明核本来就认得的连接词。「下雨并且刮风」却是证明核根本说不出的话：<part-ref to="lemma:chain"></part-ref>、<part-ref to="lemma:swap"></part-ref>、<part-ref to="lemma:merge"></part-ref>都只是给框和套用证出的东西起名（<wiki-ref to="definition"></wiki-ref>），起多少名字，能证的都不变。「并且」只能声明：分别有「下雨」和「刮风」的证明时，可得到「下雨 ∧ 刮风」，写作 ⟦下雨; 刮风⟧ ⟹ 下雨 ∧ 刮风。', 'In <level-ref to="decl-imp"></level-ref> the connective declared was one the kernel already knew. “It rains and it is windy” is something the kernel cannot say at all: <part-ref to="lemma:chain"></part-ref>, <part-ref to="lemma:swap"></part-ref> and <part-ref to="lemma:merge"></part-ref> only name what the box and Apply prove (<wiki-ref to="definition"></wiki-ref>s), and however many names there are, what can be proved stays the same. “And” can only be declared: proofs of “it rains” and of “it is windy” give “it rains ∧ it is windy”, written ⟦it rains; it is windy⟧ ⟹ it rains ∧ it is windy.') },
+      { t: T('一条引入规则要两样时，用托盘里的<b>拼接</b>：两组前提接进它，合成一组，就是 ⟦…; …⟧ 里的分号。下方第一张表格检验怎样造出它；第二张是用它：手里有「下雨 ∧ 刮风」时推得出什么，地湿代表任意别的一句话。', 'When a way needs two things, use <b>Join</b> from the tray: two groups of premises wired into it make one, the semicolon in ⟦…; …⟧. The first table below checks how it is made; the second uses it: what follows with “it rains ∧ it is windy” at hand, the ground being wet standing for any other sentence.') },
     ],
     tasks: [
       {
@@ -73,8 +105,8 @@ export const declarations = [
         step: T('编写声明', 'Write the declaration'),
         brief: T('「下雨，并且刮风」仅在两份证明同时具备时才能引入。请写出它的声明。', '“It rains and it is windy” may be introduced only when both proofs are held. Write its declaration.'),
         hint: [
-          T('只有一条引入规则，要两样：拿两张前提，一张选「下雨」，一张选「刮风」，把「下雨」接进「刮风」的「上一个前提」。', 'One way, needing both: take two premises, one of “it rains” and one of “it is windy”, and wire “it rains” into the “premise before” of “it is windy”.'),
-          T('再把「刮风」接进「并且」的引入规则 1。', 'Then wire “it is windy” into way 1 of “and”.'),
+          T('只有一条引入规则，要两样：拿两张前提，一张选「下雨」，一张选「刮风」，都接进一个拼接。', 'One way, needing both: take two premises, one of “it rains” and one of “it is windy”, and wire both into a Join.'),
+          T('再把拼接接进「并且」的引入规则 1。', 'Then wire the Join into way 1 of “and”.'),
         ],
       },
       {
@@ -96,7 +128,7 @@ export const declarations = [
         kind: 'iso',
         step: T('找出过强的声明', 'Too strong'),
         play: 'audit',
-        boards: [{ board: isoBoard(['Rain>Wind', 'Wind>Wet', 'Wet>1']) }],
+        boards: [{ board: isoBoard(['Rain+Wind+Wet>1']) }],
         slots: 1,
         caseMake: true,
         answer: [{ given: ['Rain', 'Wind'], make: true }],
@@ -106,9 +138,9 @@ export const declarations = [
         after: T('前提为「下雨」和「刮风」时，需求允许引入「并且」，这份声明却还要「地湿」，推导不出。它允许的情形比需求少，是过强的规格。过弱的规格放过不该通过的情形，过强的规格拦下应当通过的情形，检验条例要从两个方向去找。', 'With the premises “it rains” and “it is windy”, the requirement allows “and” to be introduced, yet this declaration also asks for “the ground is wet” and does not derive it. It admits fewer situations than the requirement does: it is too strong a specification. A specification too weak lets through what should be refused; one too strong refuses what should pass. Test cases have to look in both directions.'),
       },
     ],
-    solution: isoBoard(['Rain>Wind', 'Wind>1']),
+    solution: isoBoard(['Rain+Wind>1']),
     naive: isoBoard(['Rain>1', 'Wind>2']),
-    after: T('声明好了：一条引入规则，要两样。拿到「下雨 ∧ 刮风」以后能做什么，不用另写：引入规则就是造出它的全部办法，所以它的证明里一定装着交进去的那两份。用掉它的<wiki-ref to="elim-rule"></wiki-ref>因此能由引入规则自动生成：每条引入规则一种情况，收到那条引入规则交进去的东西，拿去推任意一句 ?R。生成它的机器，后面的章节里你会亲手搭出来。两条规则都不是证出来的：「并且」原本不存在，声明让证明核从此认得它。', 'Declared: one way to make it, needing two. What to do with “it rains ∧ it is windy” need not be written: the ways in are all the ways to make it, so its proof must hold the two proofs handed in. Its <wiki-ref to="elim-rule"></wiki-ref> can therefore be made from the ways in: one case for each, receiving what that way handed in, to reach any sentence ?R with. A later chapter has you build the machine that makes it. Neither rule was proved: “and” did not exist before, and the declaration is what makes the kernel know it.'),
+    after: T('声明好了：一条引入规则，要两样。消去规则照样由它生成：一种情况，交还交进去的那两份，拿去推任意一句 ?R。生成它的机器，后面的章节里你会亲手搭出来。和「若…则…」不同，两条规则都不是证明核原有的：「并且」原本不存在，声明让证明核从此认得它。', 'Declared: one way to make it, needing two. Its elimination rule is made from it as before: one case, giving back the two proofs handed in, to reach any sentence ?R with. A later chapter has you build the machine that makes it. Unlike “if … then …”, neither rule was the kernel’s already: “and” did not exist before, and the declaration is what makes the kernel know it.'),
   }),
   declare({
     id: 'decl-or',
@@ -218,10 +250,10 @@ export const moreDeclarations = [
           { given: ['Rain ∧ (Wind ∧ Wet)', 'Wet → Slip'], goal: 'Slip', make: true },
         ],
         brief: T('「下雨、刮风、地湿，三样都要」：三份证明都在手里才证得出。写出它的声明。', '“It rains, it is windy, the ground is wet: all three”: proved only with all three proofs at hand. Write its declaration.'),
-        hint: [T('一条引入规则，三张前提串成一串。', 'One way: three premises in one chain.')],
-        solution: isoBoard(['Rain>Wind', 'Wind>Wet', 'Wet>1']),
-        naive: isoBoard(['Rain>Wind', 'Wind>1', 'Wet>2']),
-        after: T('一条引入规则串三张前提。平常写的「下雨 ∧ 刮风 ∧ 地湿」却不必另外声明：它读作「下雨 ∧ (刮风 ∧ 地湿)」，两层「并且」，拆的时候也拆两层。', 'One way, three premises in a chain. The usual “it rains ∧ it is windy ∧ the ground is wet” needs no declaration of its own, though: it reads “it rains ∧ (it is windy ∧ the ground is wet)”, two “and”s, taken apart twice.'),
+        hint: [T('一条引入规则，三张前提拼成一组。', 'One way: three premises joined into one group.')],
+        solution: isoBoard(['Rain+Wind+Wet>1']),
+        naive: isoBoard(['Rain+Wind>1', 'Wet>2']),
+        after: T('一条引入规则拼三张前提。平常写的「下雨 ∧ 刮风 ∧ 地湿」却不必另外声明：它读作「下雨 ∧ (刮风 ∧ 地湿)」，两层「并且」，拆的时候也拆两层。', 'One way, three premises joined. The usual “it rains ∧ it is windy ∧ the ground is wet” needs no declaration of its own, though: it reads “it rains ∧ (it is windy ∧ the ground is wet)”, two “and”s, taken apart twice.'),
       }),
       declare({
         step: T('三选一', 'One of three'),
@@ -262,9 +294,9 @@ export const moreDeclarations = [
     ],
     intro: [{ t: T('你声明的「并且」，引入规则先要「下雨」、再要「刮风」。反过来写行不行？表格分得出来吗？', 'The “and” you declared takes “it rains” first, then “it is windy”. Would the other order do? Can the table tell?') }],
     brief: T('写一个先要「刮风」、再要「下雨」的「并且」。', 'Write an “and” that takes “it is windy” first, then “it rains”.'),
-    hint: [T('把「刮风」接进「下雨」的「上一个前提」。', 'Wire “it is windy” into the “premise before” of “it rains”.')],
-    solution: isoBoard(['Wind>Rain', 'Rain>1']),
-    naive: isoBoard(['Rain>Wind', 'Wind>1']),
+    hint: [T('拼接时先接「刮风」，再接「下雨」。', 'Join “it is windy” first, then “it rains”.')],
+    solution: isoBoard(['Wind+Rain>1']),
+    naive: isoBoard(['Rain+Wind>1']),
     after: T('两种顺序，每种情况下都一样证得出，表格分不出来。可规则不一样：用它造「并且」时，交证明的顺序跟着变。证明核只认写下来的那一条。', 'In every situation the two orders prove it alike, and the table cannot tell them apart. The rules differ, though: making “and” with it, the proofs go in the other order. The kernel keeps to the rule written down.'),
   }),
   declare({
@@ -286,9 +318,9 @@ export const moreDeclarations = [
     ],
     intro: [{ t: T('声明出来的不一定是连接词。一件事怎样才算成立，只要说得出有哪几条引入规则，就能声明。', 'What is declared need not be a connective. Whatever counts as holding in a few ways to make it can be declared.') }],
     brief: T('安、博、赛三人投票，至少两人同意，提案就通过。写出「提案通过」的声明。', 'Ann, Bo and Cy vote; with at least two agreeing, the motion passes. Write the declaration of “the motion passes”.'),
-    hint: [T('三条引入规则，每种是两个人同意，两张前提串起来。同一句可以拿好几张前提。', 'Three ways, each two people agreeing, two premises in a chain. One sentence may be on several cards.')],
-    solution: isoBoard(['a1>b1', 'b1>1', 'b2>c2', 'c2>2', 'a3>c3', 'c3>3'], VOTE),
-    naive: isoBoard(['a1>b1', 'b1>1', 'b2>c2', 'c2>2'], VOTE),
+    hint: [T('三条引入规则，每种是两个人同意，两张前提拼在一起。同一句可以拿好几张前提。', 'Three ways, each two people agreeing, two premises joined. One sentence may be on several cards.')],
+    solution: isoBoard(['a1+b1>1', 'b2+c2>2', 'a3+c3>3'], VOTE),
+    naive: isoBoard(['a1+b1>1', 'b2+c2>2'], VOTE),
     after: T('三条引入规则，各要两个人，消去规则就是三种情况：知道提案通过，只知道三种两人组合里有一种同意了，连安有没有同意都不知道。可换成「恰好一人同意」就写不出来了：引入规则只能说「有了什么就造得出」，说不了「有了什么就造不出」。', 'Three ways, two people each, so its elimination rule has three cases: knowing the motion passed, you know one of the three pairs agreed, not which, not even whether Ann did. “Exactly one agrees” cannot be written, though: a way can only say what makes it, never what stops it.'),
   }),
   declare({
@@ -329,8 +361,8 @@ export const moreDeclarations = [
     ],
     intro: [{ t: T('引入规则要的不必是一个字母。真值电路里的 ↔ 是两个方向都对：它要的是两句「若…则…」。', 'What a way takes need not be one letter. The ↔ of the truth circuits holds both ways round: it takes two “if … then …”s.') }],
     brief: T('「下雨当且仅当地湿」：两个方向的「若…则…」都在手里才证得出。写出它的声明。', '“It rains if and only if the ground is wet”: proved only with both “if … then …”s at hand. Write its declaration.'),
-    hint: [T('两张前提各是一个方向，串成一条引入规则。', 'Two premises, one for each direction, chained into one way.')],
-    solution: isoBoard(['f>g', 'g>1'], IFF),
+    hint: [T('两张前提各是一个方向，拼成一条引入规则。', 'Two premises, one for each direction, joined into one way.')],
+    solution: isoBoard(['f+g>1'], IFF),
     naive: isoBoard(['f>1', 'g>2'], IFF),
     after: T('一条引入规则，要两个方向，消去规则就一起交还两个方向：它和两个方向的「并且」一样。', 'One way in, taking both directions, so the elimination rule hands both back together: it is an “and” of the two directions.'),
   }),
@@ -362,11 +394,11 @@ export const thingDeclarations = [
     ],
     intro: [
       { t: T('「对所有」不用声明：任取一样东西证出来，就是对所有东西证出来，这件事证明核本来就会。「存在」不一样：「∃y. y是人」怎样才算证出来？得有某一样东西，再有它是人的证明，比如「苏格拉底是人」。', '“For all” needs no declaration: proved for any thing taken, it is proved for all, and the kernel can do that already. “There is” is different: when is “∃y. y is human” proved? There has to be some thing, and a proof that it is human, such as “Socrates is human”.') },
-      { t: T('托盘里多了一张「任取一样东西」：它取一样东西，叫它 x；接在它后面的前提可以提到 x。', 'The tray has a new card, “any thing”: it takes a thing and calls it x; the premises after it may mention x.') },
+      { t: T('托盘里多了一张「任取一样东西」：它取一样东西，叫它 x；拼在它后面的前提可以提到 x。', 'The tray has a new card, “any thing”: it takes a thing and calls it x; the premises joined after it may mention x.') },
     ],
     brief: T('「存在一个人」：手里有某一样东西是人的证明，就证得出。写出它的声明。', '“There is a human”: proved with a proof that some thing is human at hand. Write its declaration.'),
     hint: [T('一条引入规则：先取一样东西，再接一张前提，选「x是人」，接进引入规则 1。', 'One way: take a thing first, then a premise choosing “x is human”, into way 1.')],
-    solution: isoBoard(['⋀x>h', 'h>1'], { h: 'Human(x)' }),
+    solution: isoBoard(['⋀x+h>1'], { h: 'Human(x)' }),
     naive: isoBoard(['h>1'], { h: 'Human(x)' }),
     after: T('一条引入规则要两样：一样东西，和它是人的证明。消去规则就收到任取的一样东西和它是人的证明：交进去的是苏格拉底还是安，消去的时候不知道，所以那一样东西要起一个新名字。证明板上从此有了<part-ref to="part:exI"></part-ref>（引入规则）和<part-ref to="part:exE"></part-ref>（消去规则）。', 'One way in taking two things: a thing, and a proof that it is human. So the elimination rule receives any thing taken and a proof that it is human: whether Socrates or Ann went in, eliminating cannot tell, so that thing gets a new name. The proof board now has <part-ref to="part:exI"></part-ref> (the way in) and <part-ref to="part:exE"></part-ref> (the elimination rule).'),
   }),
@@ -498,8 +530,8 @@ export const typeDeclarations = [
     ],
     intro: [{ t: T('一个列表是一串东西：空的 []，或者在一个列表前面再放一样东西 x :: xs。', 'A list is a row of things: the empty one [], or a thing x put in front of a list, x :: xs.') }],
     brief: T('列表：什么都没有，也造得出一个（空列表）；任取一样东西，再有一个列表，就造得出把它放在前面的列表。写出它的声明。', 'A list: one can be made from nothing (the empty list); taking any thing, with a list at hand, the list with it in front can be made. Write its declaration.'),
-    hint: [T('两条引入规则：一条不需要任何前提；另一条先任取一样东西，再接一张前提「列表」。', 'Two ways: one needs no premise; the other takes any thing first, then the premise “a list”.')],
-    solution: isoBoard(['∅>1', '⋀x>l', 'l>2'], { l: 'List' }),
+    hint: [T('两条引入规则：一条不需要任何前提；另一条先任取一样东西，再拼上一张前提「列表」。', 'Two ways: one needs no premise; the other takes any thing first, then the premise “a list”.')],
+    solution: isoBoard(['∅>1', '⋀x+l>2'], { l: 'List' }),
     naive: isoBoard(['∅>1', 'l>2'], { l: 'List' }),
     after: T('list = [] | x :: list。和数一样，生成的归纳规则在 x :: xs 那种情况里先对 xs 用上要证的结论；任取的那样东西只是元素，不是列表，所以对它没有归纳假设。', 'list = [] | x :: list. As with numbers, the induction rule made of it uses what is being proved on xs first in the case x :: xs; the thing taken is an element, not a list, so it gets no induction hypothesis.'),
   }),

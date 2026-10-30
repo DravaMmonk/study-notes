@@ -2,7 +2,8 @@
 // level's spec writes them (build.js).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { checkIso, follows, isoBoard, settle } from './iso.js'
+import { checkIso, declaredRules, follows, isoBoard, listText, runIso, settle, waysIn } from './iso.js'
+import { ruleText } from './schematic.js'
 import { runLevel } from '../../engine/tests.js'
 import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
@@ -326,12 +327,12 @@ test('a rewrite changes the first place its left side fits, under quantifiers to
 
 test('a declaration gives its rules, and induction read off a goal proves an equation for every number', async () => {
   const { datatypeRules } = await import('./datatype.js')
-  const { ruleText } = await import('./schematic.js')
+
   const { MACHINE_TESTS, wireRules } = await import('./machine.js')
   const { machine } = await import('./build.js')
   const rules = Object.fromEntries(datatypeRules('nat', 'zero | s(nat)').map((r) => [r.key, ruleText(r)]))
   assert.deepEqual(Object.keys(rules), ['nat.distinct1', 'nat.distinct2', 'nat.exhaust', 'nat.induct'])
-  assert.equal(rules['nat.induct'], '⟦?P(zero); (⋀x. ?P(x) ⟹ ?P(s(x)))⟧ ⟹ ∀x. ?P(x)')
+  assert.equal(rules['nat.induct'], '⟦?P(zero); (⋀x. ⟦?P(x)⟧ ⟹ ?P(s(x)))⟧ ⟹ ∀x. ?P(x)')
   const level = { kind: 'machine', want: 'proved', datatypes: { nat: 'zero | s(nat)' }, defs: ['plus(zero, y) = y', 'plus(s(x), y) = s(plus(x, y))'], tests: [{ goal: '∀x. plus(x, zero) = x' }] }
   const byInduction = machine({ i: ['rule', { rule: 'nat.induct' }], e: ['each'], p: ['repeat', {}, 'e'], s: ['rw', { rewrite: 'def.0,def.1,hyp' }, 'p'], r: ['rule', { rule: 'refl' }, 'e'] }, ['in>i.in', 'i>e.in', 'e#body>p.in', 'p#body>s.in', 's>p.body', 'p>r.in', 'r>e.body', 'e>out'])
   assert.equal(runLevel(MACHINE_TESTS, level, wireRules(byInduction, level)).pass, true)
@@ -399,11 +400,11 @@ test('a script: each row by a rule or a block, checked row by row', async () => 
   assert.equal(checkScript(level, rows('rule:mp').slice(0, 3)).pass, false)
 })
 
-test('a declaration by assumption cards: chained they are one way needing both, apart two ways, none no way', () => {
+test('a declaration by premise cards: joined they are one way needing both, apart two ways, none no way', () => {
   const level = (target, sentences, tests) => ({ target, sentences, tests, declare: { zh: 'x', en: 'x' } })
   const words = (l) => ({ zh: l, en: l })
   const and = level('A ∧ B', ['A', 'B'], [{ given: ['A', 'B'], make: true }, { given: ['A'], make: false }, { given: ['B'], make: false }])
-  const nested = isoBoard(['A>B', 'B>1'])
+  const nested = isoBoard(['A+B>1'])
   assert.ok(checkIso(and, nested, words).pass)
   assert.deepEqual(checkIso(and, nested, words).results[0].made.items.map((x) => x.n), [1, 2])
   assert.equal(checkIso(and, isoBoard(['A>1', 'B>2']), words).pass, false)
@@ -420,9 +421,25 @@ test('a declaration by assumption cards: chained they are one way needing both, 
   assert.ok(checkIso(bot, isoBoard([]), words).pass)
 })
 
+test('a premise needed under another (a card wired into a card): → declared, its way the box, its use Apply', () => {
+  const level = { target: 'A → B', sentences: ['A', 'B'], declare: { zh: 'x', en: 'x' }, tests: [
+    { given: ['B'], make: true }, { given: ['A'], make: false }, { given: [], make: false },
+    { given: ['A → B'], goal: 'B', make: false }, { given: ['A → B'], goal: 'A', make: false }, { given: ['A → B', 'A'], goal: 'B', make: true },
+  ] }
+  const words = (l) => ({ zh: l, en: l })
+  const box = isoBoard(['A>B', 'B>1'])
+  assert.ok(checkIso(level, box, words).pass)
+  assert.equal(listText(runIso(level, box, { given: [] }).values.get('hyp-B'), level, show), '⟦⟦A⟧ ⟹ B⟧')
+  // Needing B alone gives B back to whoever has A → B: too weak.
+  assert.equal(checkIso(level, isoBoard(['B>1']), words).pass, false)
+  const rules = declaredRules(level, waysIn(box))
+  assert.equal(ruleText(rules.make[0]), '⟦⟦?A⟧ ⟹ ?B⟧ ⟹ ?A → ?B')
+  assert.equal(ruleText(rules.take), '⟦?A → ?B; ⟦⟦?A⟧ ⟹ ?B⟧ ⟹ ?R⟧ ⟹ ?R')
+})
+
 test('using a declaration: what follows is what every way in gives, a sentence nothing mentions standing for any', () => {
   const level = (target) => ({ target, sentences: ['A', 'B'], declare: { zh: 'x', en: 'x' } })
-  const and = isoBoard(['A>B', 'B>1'])
+  const and = isoBoard(['A+B>1'])
   const or = isoBoard(['A>1', 'B>2'])
   assert.ok(follows(level('A ∧ B'), and, { given: ['A ∧ B'], goal: 'A' }))
   assert.equal(follows(level('A ∧ B'), and, { given: ['A ∧ B'], goal: 'C' }), false)
@@ -459,6 +476,6 @@ test('the elimination rule generator: one case for each way in, its conclusion a
   assert.ok(runLevel(MACHINE_TESTS, { ...level, single: true, tests: tests.slice(0, 1) }, one).pass)
   // The elimination rule comes out as a value of the board.
   const out = MACHINE_TESTS.runTest({ ...level, tests }, board, tests[1]).outputs.out
-  assert.equal(genRuleText(out.rule), '⟦?A ∨ ?B; (?A ⟹ ?R); (?B ⟹ ?R)⟧ ⟹ ?R')
+  assert.equal(genRuleText(out.rule), '⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?R; ⟦?B⟧ ⟹ ?R⟧ ⟹ ?R')
 })
 

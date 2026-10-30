@@ -67,7 +67,7 @@ export const ERAS = [
     // made from them (declare.js); an optional topic declares more (D).
     keeps: 'all',
     foundation: [
-      'decl-and', 'decl-or', 'decl-bot',
+      'decl-imp', 'decl-and', 'decl-or', 'decl-bot',
     ],
     topics: [
       { id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') },

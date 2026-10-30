@@ -1,12 +1,13 @@
 // Declaring something new (《证明完毕》's declaration boards: the connectives in chapter 3, "there is" and = with the
 // quantifiers, the numbers before induction): by its ways to make it, each a rule of its own, written as the game
-// writes every rule, ⟦A; B⟧ ⟹ A ∧ B. The player takes cards from the tray: an assumption card picks the sentence it
-// assumes; a thing card takes any thing, named on the level (x), which the sentences after it may mention (a way that
-// takes a thing is a rule for any thing: ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human); a card assuming nothing makes a way that
-// needs nothing. A card wired into another's "assumed first" makes one rule of both, read along the wire; a card
-// wired into the declared card, the board's output, is one way to make it, and each input that card is given brings
-// one more. Written as a proof these would be nested assumption boxes; a declared rule has no proof inside, so it is a
-// chain of cards, its conclusion given by the declaration.
+// writes every rule, ⟦A; B⟧ ⟹ A ∧ B. Three operations, the three marks of that notation, each card showing what it has
+// made so far: a premise card is ⟦⟧ (it picks its sentence: ⟦A⟧); Join is ; (two lists into one: ⟦A; B⟧); a wire is ⟹
+// (a list wired into a premise card makes a premise that carries premises of its own, ⟦⟦A⟧ ⟹ B⟧; wired into the
+// declared card, the board's output, it is one way to make it, ⟦A; B⟧ ⟹ A ∧ B, and each input that card is given
+// brings one more). A thing card takes any thing, named on the level (x), which the sentences joined after it may
+// mention (a way that takes a thing is a rule for any thing: ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human); a card assuming
+// nothing makes a way that needs nothing. A declared rule has no proof inside, so it is drawn as cards, not as the
+// proof board's boxes.
 //
 // The way to take it apart is not written: the ways in are all the ways there are, so it is made from them
 // (declaredRules), a case for every way, numbered as the ways are, which gets back just what that way took. Chapter 12
@@ -43,7 +44,7 @@
 // (schematic.js), datatype: the type it declares (chapter 12, typeOf), whose rules the kernel makes (datatype.js) }.
 import { runBoard } from '../../engine/boards.js'
 import { meta, parse, show, subst as substF } from './formula.js'
-import { ruleOf, ruleText } from './schematic.js'
+import { premisesText, ruleOf, ruleText } from './schematic.js'
 
 const T = (zh, en) => ({ zh, en })
 export const DECL = 'decl'
@@ -84,9 +85,15 @@ function match(pattern, inst, vars, σ) {
 }
 
 const evidence = (sentence, n) => ({ kind: 'ev', sentence, n })
-const needsOf = (rule) => rule.steps.filter((s) => s.need !== undefined).map((s) => s.need)
+// A card's value: a list of premises in order, { kind: 'rule', steps }, each step a sentence needed ({ need }, with
+// `under`: the steps it is needed under, ⟦⟦A⟧ ⟹ B⟧) or a thing taken ({ bind }). A way's needs are each a sentence, or
+// { need, under: [needs] } for one needed under premises of its own.
+const list = (steps) => ({ kind: 'rule', steps })
+const needsOf = (rule) => rule.steps.filter((s) => s.need !== undefined).map((s) => (s.under ? { need: s.need, under: needsOf({ steps: s.under }) } : s.need))
 const bindsOf = (rule) => rule.steps.filter((s) => s.bind !== undefined).map((s) => s.bind)
-const chain = (before, step) => ({ kind: 'rule', steps: [...(before?.steps ?? []), ...(step ? [step] : [])] })
+/** A need's sentence, and what it is needed under ([] for a plain one). */
+export const needSentence = (n) => (typeof n === 'string' ? n : n.need)
+export const needUnder = (n) => (typeof n === 'string' ? [] : n.under)
 
 // Every way a rule is satisfied in a situation: the things it takes (from the goal it must match, then from the
 // level's things) and the proofs at hand it needs, in the order the rule takes them.
@@ -99,20 +106,24 @@ function satisfy(rule, ctx) {
   for (const σ of assignments) {
     // A way whose sentence still names a free thing does not make the goal's sentence.
     if (!ctx.goal && Object.keys(σ).length < vars.size) continue
-    const items = rule.steps.map((s) => (s.bind !== undefined ? { kind: 'thing', name: σ[s.bind].f } : ctx.have.get(keyOf(subst(ctx.read(s.need), σ)))))
+    // A sentence needed under premises of its own is there when it is at hand or among those premises.
+    const under = (s) => (s.under ?? []).some((u) => u.need !== undefined && keyOf(subst(ctx.read(u.need), σ)) === keyOf(subst(ctx.read(s.need), σ)))
+    const items = rule.steps.map((s) => (s.bind !== undefined ? { kind: 'thing', name: σ[s.bind].f } : ctx.have.get(keyOf(subst(ctx.read(s.need), σ))) ?? (under(s) ? { kind: 'under', sentence: s.need } : null)))
     if (items.every(Boolean)) return items
   }
   return null
 }
 
-/** The engine's parts: assumption cards, thing cards, a card assuming nothing, and the declared card. */
+/** The engine's parts: premise cards, Join, thing cards, a card assuming nothing, and the declared card. */
 export const ISO_PARTS = {
-  // An assumption gives a rule: whatever is wired into its "assumed first", then its own sentence.
-  hyp: { inputs: ['before'], optional: ['before'], bare: true, eval: ({ before }, node) => chain(before, { need: node.params.name }) },
-  // A thing card: what is wired before it, then any thing, by its name.
-  thing: { inputs: ['before'], optional: ['before'], bare: true, eval: ({ before }, node) => chain(before, { bind: node.params.name }) },
+  // A premise card, ⟦A⟧: its sentence; with a list wired into its port, a premise needing those first, ⟦⟦…⟧ ⟹ A⟧.
+  hyp: { inputs: ['under'], optional: ['under'], bare: true, eval: ({ under }, node) => list([{ need: node.params.name, ...(under && { under: under.steps }) }]) },
+  // Join, ;: the first list, then the second.
+  join: { inputs: ['a', 'b'], bare: true, eval: ({ a, b }) => list([...a.steps, ...b.steps]) },
+  // A thing card: any thing, by its name.
+  thing: { inputs: [], bare: true, eval: (_, node) => list([{ bind: node.params.name }]) },
   // Assuming nothing: a way that needs no proof.
-  none: { inputs: [], bare: true, eval: () => chain(null, null) },
+  none: { inputs: [], bare: true, eval: () => list([]) },
   // The declared sentence is made by the way using the most of what is at hand (the first such); with none, it is not.
   [DECL]: {
     inputs: declInputs,
@@ -184,10 +195,12 @@ export function follows(level, circuit, test) {
   const start = test.given.map(read)
   if (reached(reach(start, []), [])) return true
   if (!test.given.some((s) => keyOf(read(s)) === keyOf(read(level.target)))) return false
+  // What a case hands back: each sentence its way took, one needed under premises as the rule it is (A → B to Apply).
+  const handed = (n) => needUnder(n).reduceRight((b, u) => ({ op: '→', a: read(needSentence(u)), b }), read(needSentence(n)))
   return waysIn(circuit).every((w, k) => {
     const own = w.binds.map((b) => thing(`${b}${k + 1}′`))
     const σ = Object.fromEntries(w.binds.map((b, j) => [b, own[j]]))
-    return reached(reach([...start, ...w.needs.map((s) => subst(read(s), σ))], own), own)
+    return reached(reach([...start, ...w.needs.map((n) => subst(handed(n), σ))], own), own)
   })
 }
 
@@ -265,9 +278,10 @@ export function checkIso(level, circuit, words) {
     return { pass, reason: pass ? null : T(`推导出了「${what.zh}」，但用到的引入规则没有用上前提${unused.map((u) => `「${u.zh}」`).join('、')}。`, `“${what.en}” is derived, but by an intro rule that does not take the premise ${unused.map((u) => `“${u.en}”`).join(', ')}.`), ...got }
   })
   // A way as written in `ways`: what it takes in order, a thing as '⋀x'.
+  const flat = (n) => (typeof n === 'string' ? n : `[${n.under.map(flat).join('|')}]${n.need}`)
   const key = (ways) => ways.map((w) => w.map((s) => (s.startsWith('⋀') ? '⋀' : s)).join('|')).sort().join('/')
   const said = (s) => (s.startsWith('⋀') ? T('任取一样东西', 'any thing') : words(s))
-  const ways = level.ways && key(waysIn(circuit).map((w) => [...w.binds.map((b) => `⋀${b}`), ...w.needs])) !== key(level.ways)
+  const ways = level.ways && key(waysIn(circuit).map((w) => [...w.binds.map((b) => `⋀${b}`), ...w.needs.map(flat)])) !== key(level.ways)
     ? T(`每条条例都正确，但引入规则与要求不符：${level.ways.map((w) => `⟦${w.map((s) => said(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every test case is right, but the intro rules are not the ones asked for: ${level.ways.map((w) => `⟦${w.map((s) => said(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`)
     : null
   return { pass: results.every((r) => r.pass) && !ways, results, ways }
@@ -304,14 +318,21 @@ export function judgeCases(level, cases, words) {
 }
 
 const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })
+// A need as a premise: its sentence, needed under its own premises (each a premise in turn).
+const premiseFor = (n, level, g) => premise(g(sentenceOf(level, needSentence(n))), needUnder(n).map((u) => premiseFor(u, level, g)))
 /**
  * A way as a rule: its assumptions in turn are the premises, the declared sentence the conclusion, and a way that
  * takes things is a rule for any of them (`fixes`): ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human.
  */
-export const wayRule = (way, level, g = (f) => f) => ({ fixes: way.binds, premises: way.needs.map((s) => premise(g(sentenceOf(level, s)))), conclusion: g(sentenceOf(level, level.target)) })
+export const wayRule = (way, level, g = (f) => f) => ({ fixes: way.binds, premises: way.needs.map((n) => premiseFor(n, level, g)), conclusion: g(sentenceOf(level, level.target)) })
 
 /** A rule written out, with the things a way takes in front: ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human. */
 export const wayText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${ruleText(rule, say)}`
+/** What a card has made so far, as it is written before ⟹ in a rule: ⋀x. ⟦x is human⟧, ⟦⟦A⟧ ⟹ B⟧ ('' for none). */
+export const listText = (value, level, say) => {
+  const rule = wayRule(wayOf(value), level)
+  return `${rule.fixes.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${premisesText(rule.premises, say)}`
+}
 /** A rule's value on the board as a way: { needs, binds }. */
 export const wayOf = (rule) => ({ needs: needsOf(rule), binds: bindsOf(rule) })
 
@@ -360,7 +381,7 @@ export function declaredRules(level, ways) {
     make: ways.map((way) => wayRule(way, level, g)),
     take: level.take
       ? ruleOf('take', null, level.take.premises, level.take.conclusion)
-      : { premises: [premise(g(sentenceOf(level, level.target))), ...ways.map((way) => premise(R, way.needs.map((s) => g(sentenceOf(level, s))), way.binds))], conclusion: R },
+      : { premises: [premise(g(sentenceOf(level, level.target))), ...ways.map((way) => premise(R, way.needs.map((n) => (needUnder(n).length ? premiseFor(n, level, g) : g(sentenceOf(level, n)))), way.binds))], conclusion: R },
   }
 }
 
@@ -372,14 +393,15 @@ export const hypCard = (id, sentence, at) => ({ id, type: 'hyp', params: { name:
 export const thingCard = (id, name, at) => ({ id, type: 'thing', params: { name }, ...at })
 
 /**
- * A reference board written compactly: isoBoard(['Rain>Wind', 'Wind>1']): a card assuming Rain wired into the
- * "assumed first" of a card assuming Wind, the Wind card into the declared card's first way. A card is named by its
- * sentence, or by a key of `cards` ({ key: sentence }) when it is not a letter or two cards assume one sentence; '∅'
- * (or '∅1', '∅2' … for several) assumes nothing, and '⋀x' takes the thing x.
+ * A reference board written compactly: isoBoard(['Rain+Wind>1']): premise cards of Rain and Wind joined, ⟦Rain; Wind⟧,
+ * into the declared card's first way; 'Rain>Wet' wires Rain into the Wet card's port, ⟦⟦Rain⟧ ⟹ Wet⟧. A card is named
+ * by its sentence, or by a key of `cards` ({ key: sentence }) when it is not a letter or two cards assume one sentence;
+ * '∅' (or '∅1', '∅2' … for several) assumes nothing, and '⋀x' takes the thing x. Joins go left to right: 'A+B+C' is
+ * (A; B); C.
  */
 export function isoBoard(wires, cards = {}) {
   const pairs = wires.map((s) => s.split('>'))
-  const tokens = [...new Set(pairs.flatMap(([from, to]) => (/^\d$/.test(to) ? [from] : [from, to])))]
+  const tokens = [...new Set(pairs.flatMap(([from, to]) => [...from.split('+'), ...(/^\d$/.test(to) ? [] : [to])]))]
   const id = (token) => cardId(token.startsWith('∅') ? `none${token.slice(1)}` : token.startsWith('⋀') ? `thing-${token.slice(1)}` : token)
   const card = (token, k) => {
     const at = { x: 20, y: 40 + k * 200 }
@@ -387,9 +409,16 @@ export function isoBoard(wires, cards = {}) {
     if (token.startsWith('⋀')) return thingCard(id(token), token.slice(1), at)
     return hypCard(id(token), cards[token] ?? token, at)
   }
-  const start = startIso()
-  return settle({
-    nodes: [...start.nodes, ...tokens.map(card)],
-    wires: pairs.map(([from, to]) => (/^\d$/.test(to) ? { from: id(from), to: DECL, port: wayPort(Number(to)) } : { from: id(from), to: id(to), port: 'before' })),
+  const joins = []
+  const out = []
+  // A join of several cards: one Join each step, left to right; its id, the last one's.
+  const source = (from) => from.split('+').map(id).reduce((a, b) => {
+    const j = `join-${joins.length + 1}`
+    joins.push({ id: j, type: 'join', params: {}, x: 260, y: 40 + joins.length * 200 })
+    out.push({ from: a, to: j, port: 'a' }, { from: b, to: j, port: 'b' })
+    return j
   })
+  for (const [from, to] of pairs) out.push(/^\d$/.test(to) ? { from: source(from), to: DECL, port: wayPort(Number(to)) } : { from: source(from), to: id(to), port: 'under' })
+  const start = startIso()
+  return settle({ nodes: [...start.nodes, ...tokens.map(card), ...joins], wires: out })
 }

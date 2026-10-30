@@ -233,6 +233,7 @@
 .tm-level [data-family='absurd'] { --fam: var(--fam-absurd); }
 .tm-level .ks-chip b { font-family: var(--mono); font-size: 15px; }
 .lg-taken { font-size: 12px; color: var(--muted); }
+.lg-made { font: 500 12px/1.4 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
 .lg-taken b { font-family: var(--serif); font-size: 14px; color: var(--ink); }
 
 /* Script tasks (ScriptScreen.jsx): rows written as Isar writes them, each indented by the block it is in; a script read
