@@ -202,6 +202,15 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
     focusRef.current = focus
   })
   useLayoutEffect(() => centreOn(focus), [focus])
+  // A board that already has its size (one opened in place of another: a level's next task) is fitted before it is
+  // first painted, once its cards are measured, so the circuit never shows unfitted for a frame.
+  useLayoutEffect(() => {
+    if (fitted.current || !surface.current?.getBoundingClientRect().width) return
+    if (top.length && !top.every((n) => geo.sizes[n.id])) return
+    fitted.current = true
+    if (focus) centreOn(focus)
+    else fit()
+  })
   useEffect(() => {
     const observer = new ResizeObserver(([entry]) => {
       if ((fitted.current && !refitRef.current) || !entry.contentRect.width) return
