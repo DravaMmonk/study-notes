@@ -1,4 +1,4 @@
-// A level's 引入: the pages read before playing it, each { t, fig? }. t is a { zh, en } paragraph (either side may use
+// A level's introduction: the pages read before playing it, each { t, fig? }. t is a { zh, en } paragraph (either side may use
 // <b>…</b>); fig is an optional picture, one of three:
 //   { test: 0 }                            the level's test 0: input → expected (circuit levels only); on a level
 //                                          of several tasks, { task: 0, test: 0 } is a test of that task
@@ -44,7 +44,7 @@ export function partFigure(fig, level) {
 
 // Every problem with a level's intro: missing pages, empty text, or figures that point at nothing.
 export function introProblems(pages, level, figures) {
-  if (!pages?.length) return ['没有引入']
+  if (!pages?.length) return ['没有引言']
   const problems = []
   pages.forEach((page, i) => {
     const where = `第 ${i + 1} 页`

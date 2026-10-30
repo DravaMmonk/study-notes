@@ -1,5 +1,5 @@
 /* The shared game shell (GameShell and friends), on the kit's tokens: the page, the top bar's level title, the level
-   map, the level drawer, the workbench and brief, dialogs, the 引入 sheet, bottom sheets and the phone page. A game's own
+   map, the level drawer, the workbench and brief, dialogs, the introduction sheet, bottom sheets and the phone page. A game's own
    stylesheet adds only what its levels draw. */
 .game { min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--bar-h) minmax(0, 1fr); color: var(--ink); background: var(--canvas); font-family: var(--sans); }
 /* A level fills the window exactly: pinned to it rather than sized in vh, which iOS Safari can leave stale after a
@@ -280,7 +280,7 @@
 
 /* The bar above already names the level. */
 
-/* A level's 引入: a bottom sheet on a phone, a card in the middle on a desktop. */
+/* A level's introduction: a bottom sheet on a phone, a card in the middle on a desktop. */
 .intro-scrim { position: fixed; z-index: 70; inset: 0; display: grid; place-items: center; padding: 24px; background: var(--scrim); animation: fade-in 160ms ease; }
 .intro-card { width: min(540px, 100%); max-height: min(760px, calc(100dvh - 48px)); display: flex; flex-direction: column; overflow: hidden; border-radius: 20px; background: var(--paper); box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .45), 0 0 0 1px var(--hairline); animation: card-in 220ms cubic-bezier(.2, .8, .2, 1); }
 .intro-head { padding: 14px 10px 0 22px; display: flex; align-items: center; justify-content: space-between; }

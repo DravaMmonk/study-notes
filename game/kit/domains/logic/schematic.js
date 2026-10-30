@@ -326,7 +326,7 @@ export const KERNEL_RULES = [
   ruleOf('conjunct2', R('拆解（右边）', 'Split (right)'), ['?A ∧ ?B'], '?B'),
   ruleOf('disjE', R('分类讨论', 'Case analysis'), ['?A ∨ ?B', '⟦?A⟧ ⟹ ?C', '⟦?B⟧ ⟹ ?C'], '?C'),
   ruleOf('impE', R('用上「若…则…」', 'Use an “if”'), ['?A → ?B', '?A', '⟦?B⟧ ⟹ ?C'], '?C'),
-  ruleOf('botE', R('矛盾推出一切', 'From contradiction'), ['⊥'], '?C'),
+  ruleOf('botE', R('爆炸', 'Explosion'), ['⊥'], '?C'),
   ruleOf('spec', R('选定一例', 'Choose an instance'), ['∀x. ?P(x)'], '?P(?t)'),
   ruleOf('allE', R('选定一例后再使用', 'Choose an instance, then use it'), ['∀x. ?P(x)', '⟦?P(?t)⟧ ⟹ ?C'], '?C'),
   ruleOf('exE', R('实例框', 'Instance box'), ['∃x. ?P(x)', '⋀x. ⟦?P(x)⟧ ⟹ ?C'], '?C'),

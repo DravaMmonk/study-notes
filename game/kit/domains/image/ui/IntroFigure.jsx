@@ -13,7 +13,7 @@ const INPUT_NAMES = {
   empty: { zh: '空场', en: 'Empty scene' },
 }
 
-// The picture on a page of a Vision Complete 引入 (the shell's IntroSheet draws the page around it): a figure from
+// The picture on a page of a Vision Complete introduction (the shell's IntroSheet draws the page around it): a figure from
 // the notes, a test's input and expected output, or a part between an input and its output.
 export default function IntroFigure({ fig, level, theme }) {
   const caption = fig.caption && <figcaption>{L(fig.caption)}</figcaption>
