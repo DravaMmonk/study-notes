@@ -5,13 +5,14 @@ import { Dialog } from './Dialogs.jsx'
 import { L, tr } from './i18n.js'
 
 // A table the player fills in, row by row, the same in every game (a 填表格 level: the test cases of a declaration, …).
-// The table only shows the rows: each is tall enough to tap, and tapping one opens it in a form (a sheet on a phone, a
+// The table only shows the rows, in a window of its own that scrolls sideways: each column is as wide as its text up
+// to a limit (then the text wraps), and each row is tall enough to tap; and tapping one opens it in a form (a sheet on a phone, a
 // panel on a desktop) where it is edited and saved, or deleted; a large button under the table adds a row through the
 // same form. Leaving a form with changes not saved asks first. The game gives the columns and the form's fields
 // (FormFields.jsx has the shared ones); the kit keeps the draft, the saving and the asking.
 //
 //   rows            [row]                          onChange(rows)   the rows saved (absent: the table is read only)
-//   columns         [{ key, label, cell(row, k), className? }]
+//   columns         [{ key, label, cell(row, k), align?: 'start' (default centred), className? }]
 //   form(draft, set) → the fields editing a draft (set(next) replaces it)      blank() → a new row's draft
 //   valid?(draft)   → '' or why it cannot be saved yet
 //   max?            how many rows at most          addLabel, formTitle(k | null)   { zh, en } pairs or a function
@@ -41,13 +42,14 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
     close()
   }
   const why = open ? valid(open.draft) : ''
+  const cellClass = (c) => `${c.align === 'start' ? 'is-start' : ''} ${c.className ?? ''}`
   const text = (x) => L(typeof x === 'function' ? x(open?.at ?? null) : x)
   return (
     <div className="rt">
       <div className="rt-scroll">
         <table className="rt-table">
           <thead>
-            <tr>{columns.map((c) => <th key={c.key} className={c.className}>{L(c.label)}</th>)}</tr>
+            <tr>{columns.map((c) => <th key={c.key} className={cellClass(c)}><div className="rt-cell">{L(c.label)}</div></th>)}</tr>
           </thead>
           <tbody>
             {rows.map((row, k) => (
@@ -58,7 +60,7 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
                 tabIndex={editable ? 0 : undefined}
                 onKeyDown={(e) => editable && (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onPick(k), start(k))}
               >
-                {columns.map((c) => <td key={c.key} className={c.className}>{c.cell(row, k)}</td>)}
+                {columns.map((c) => <td key={c.key} className={cellClass(c)}><div className="rt-cell">{c.cell(row, k)}</div></td>)}
               </tr>
             ))}
           </tbody>

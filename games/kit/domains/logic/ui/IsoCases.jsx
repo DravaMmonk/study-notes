@@ -18,7 +18,7 @@ export default function CaseTable({ cases, words, level, choices = [], edit = nu
   const derivable = (yes) => (yes ? tr('可推导 ✔', 'Derivable ✔') : tr('不可推导 ✘', 'Not derivable ✘'))
   const options = choices.map((s) => ({ value: s, label: words(s) }))
   const columns = [
-    { key: 'given', label: T('已知', 'Given'), cell: (c) => (c.given.length ? <span className="lg-lines">{c.given.map((s, i) => <span key={s}>{`${i + 1}. ${name(s)}`}</span>)}</span> : <span className="lg-mark">{tr('无', 'Nothing')}</span>) },
+    { key: 'given', label: T('已知', 'Given'), align: 'start', cell: (c) => (c.given.length ? <span className="lg-lines">{c.given.map((s, i) => <span key={s}>{`${i + 1}. ${name(s)}`}</span>)}</span> : <span className="lg-mark">{tr('无', 'Nothing')}</span>) },
     { key: 'goal', label: T('目标', 'Goal'), cell: (c) => name(goalOf(c)) },
     { key: 'make', label: T('预期', 'Expected'), cell: (c) => derivable(c.make) },
     { key: 'result', label: T('是否可推导', 'Derivable?'), className: 'lg-result', cell: (_, k) => (result(k) ? <span className={result(k).wrong ? 'lg-wrong' : ''}>{derivable(result(k).derived)}</span> : '') },

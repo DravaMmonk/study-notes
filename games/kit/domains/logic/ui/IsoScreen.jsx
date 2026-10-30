@@ -189,8 +189,9 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   }
   const began = Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))
   const stepKey = run ? `${run.test}:${run.step}:${run.results.length}` : ''
-  // Correcting, the boards are the test cases: their tabs put one on the canvas.
-  const tabs = (onPhone) => cases && level.boards.length > 1 && <TestTabs tests={cases.tests} states={states} index={cases.at} onSelect={cases.select} phone={onPhone} />
+  // Correcting, the boards are the test cases: their tabs, where every board's tests are (at the top on a phone), put
+  // one on the canvas.
+  const tabs = (onPhone) => cases && <TestTabs tests={cases.tests} states={states} index={cases.at} onSelect={cases.select} phone={onPhone} />
   if (phone) return <PhoneIso {...{ circuit, parts, items, addPart, brief, dock, change, onClear, table, body, began, stepKey }} tabs={tabs(true)} scope={cases ? `${level.id}-${cases.at}` : level.id} />
 
   return (
@@ -267,9 +268,9 @@ function PhoneIso({ circuit, parts, items, addPart, brief, dock, change, onClear
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   return (
     <div className="level-phone is-split lg-phone" ref={root}>
+      {tabs}
       <div className="lg-scroll" ref={scroller} onScroll={onScroll}>
         <TaskCard>{brief}</TaskCard>
-        {tabs}
         <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => body(n, 'tile')} sinkBody={(n) => body(n, 'tile')} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={items.map((i) => i.type)} />
         {table}
       </div>
