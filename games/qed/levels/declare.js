@@ -70,10 +70,11 @@ export const declarations = [
     ...IMP,
     tray: ['hyp'],
     intro: [
-      { t: T('此前我们一直在用「若…则…」（→）推理，证明核已经认识它。要让证明核认识新的连接词，需要先写一份<wiki-ref to="declaration"></wiki-ref>，说明它的规则。', 'We have been reasoning with “if … then …” (→), which the proof kernel already knows. To give the kernel a new connective, we first write a <wiki-ref to="declaration"></wiki-ref> describing its rules.') },
-      { t: T('一条规则写作「⟦前提⟧ ⟹ 结论」：满足前提，就可以得到结论。<wiki-ref to="rule-arrow"></wiki-ref> ⟹ 连接的是规则的前提和结论；→ 则是命题里的「若…则…」。', 'A rule is written “⟦premises⟧ ⟹ conclusion”: if its premises hold, the conclusion follows. The <wiki-ref to="rule-arrow"></wiki-ref> ⟹ connects the premises and conclusion of a rule; → means “if … then …” within a statement.') },
-      { t: T('<wiki-ref to="intro-rule"></wiki-ref>说明怎样证明带有这个连接词的命题；<wiki-ref to="elim-rule"></wiki-ref>说明怎样使用这样的命题。例如，<part-ref to="part:impI"></part-ref>由假设 A 下对 B 的证明得到 A → B；<part-ref to="part:mp"></part-ref>则由 A → B 和 A 得到 B。', 'An <wiki-ref to="intro-rule"></wiki-ref> says how to prove a statement with a connective; an <wiki-ref to="elim-rule"></wiki-ref> says how to use such a statement. For example, the <part-ref to="part:impI"></part-ref> obtains A → B from a proof of B under the assumption A; <part-ref to="part:mp"></part-ref> obtains B from A → B and A.') },
-      { t: T('先从熟悉的「若…则…」开始，写出假设框对应的引入规则。声明板会根据引入规则生成消去规则。', 'Start with the familiar “if … then …” and write the introduction rule corresponding to the assumption box. The declaration board generates the elimination rule from it.') },
+      { t: T('此前我们用「若…则…」（→）推理时，一直假定证明核已经认识它。证明核不会自动认识新符号及相关规则：在依赖类型论中，可以通过<wiki-ref to="declaration"></wiki-ref>来拟定新符号的构建和使用规则。', 'When reasoning with “if … then …” (→), we have assumed that the proof kernel already knows it. A kernel does not automatically know new symbols or their rules: in dependent type theory, a <wiki-ref to="declaration"></wiki-ref> can specify how a new symbol is constructed and used.') },
+      { t: T('一条规则写作「⟦前提⟧ ⟹ 结论」：满足前提，就可以得到结论。<wiki-ref to="rule-arrow"></wiki-ref>连接的是规则的前提和结论；→ 则是命题里的「若…则…」。', 'A rule is written “⟦premises⟧ ⟹ conclusion”: if its premises hold, the conclusion follows. The <wiki-ref to="rule-arrow"></wiki-ref> connects the premises and conclusion of a rule; → means “if … then …” within a statement.') },
+      { t: T('<wiki-ref to="intro-rule"></wiki-ref>说明怎样证明带有某个连接词的命题。例如，在假设 A 的条件下证出 B，就能通过<part-ref to="part:impI"></part-ref>得到 A → B。假设框就是「若…则…」的引入规则。', 'An <wiki-ref to="intro-rule"></wiki-ref> says how to prove a statement with a connective. For example, a proof of B under the assumption A gives A → B through the <part-ref to="part:impI"></part-ref>. The assumption box is the introduction rule for “if … then …”.') },
+      { t: T('<wiki-ref to="elim-rule"></wiki-ref>说明怎样使用带有某个连接词的命题。例如，由 A → B 和 A，可以通过<part-ref to="part:mp"></part-ref>得到 B。套用就是「若…则…」的消去规则。', 'An <wiki-ref to="elim-rule"></wiki-ref> says how to use a statement with a connective. For example, A → B and A give B through <part-ref to="part:mp"></part-ref>. Apply is the elimination rule for “if … then …”.') },
+      { t: T('先从熟悉的「若…则…」开始，写出假设框对应的引入规则。', 'Start with the familiar “if … then …” and write the introduction rule corresponding to the assumption box.') },
     ],
     brief: T('如果假设「下雨」后能推出「地湿」，就可以引入「下雨 → 地湿」。请写出它的声明。', 'If “the ground is wet” can be proved assuming “it rains”, we can introduce “it rains → the ground is wet”. Write its declaration.'),
     hint: [
@@ -82,7 +83,7 @@ export const declarations = [
     ],
     solution: isoBoard(['Rain>Wet', 'Wet>1']),
     naive: isoBoard(['Wet>1']),
-    after: T('这份声明只有一条引入规则，证明核可以据此生成对应的<wiki-ref to="elim-rule"></wiki-ref>。', 'This declaration has one introduction rule, from which the kernel can generate the corresponding <wiki-ref to="elim-rule"></wiki-ref>.'),
+    after: T('你可能已经注意到，声明板会根据引入规则生成<wiki-ref to="elim-rule"></wiki-ref>。这是因为声明列出了构建该命题的全部方式：要使用它，就可以逐一考虑这些方式。', 'You may have noticed that the declaration board generates an <wiki-ref to="elim-rule"></wiki-ref> from the introduction rules. This is possible because the declaration lists all the ways to construct the statement: using it means considering each of those ways.'),
   }),
   declare({
     // Writing test cases, before writing more declarations: two directions, the declared sentence as the goal (how it
