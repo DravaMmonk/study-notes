@@ -1,41 +1,33 @@
 // A syntax game on the shared shell (../../shell): its spec becomes the shell's game description, with the syntax
-// domain's level screen (a sentence built on the kit's strip of slots, checked against a meaning graph) and its map
-// art (the composing stick, games/stick).
+// domain's level screen (a long sentence taken apart: modifiers folded onto their words, the skeleton marked) and its
+// map art (the composing stick, games/stick).
 //
-//   engine/grammar.js   slots in reading order, frames, roles, agreement, case: the rules a word must keep
-//   engine/lexicon.js   a game's words, read for the grammar
-//   engine/sentence.js  a clause said as a sentence and checked against a level's meaning
-//   engine/parts.js     how a word looks: its family and features line
+//   engine/sentence.js  tokens, folds and roles; an analysis checked against the answer
+//   engine/types.js     the roles of the skeleton and the constructions a modifier is folded as
 //   engine/course.js    a spec read into levels, play order and the course the audit checks
-//   ui/                 the level screen (desktop and phone), the meaning graph, the sentence, the map's picture
-//   validate.js         every level's reference answer and traps (npm run check)
-//   syntax.test.js      the grammar, the sentence and the meaning check (npm test)
-import { BookOpenText, Route, Zap } from 'lucide-react'
+//   ui/                 the level screen (desktop and phone) and the map's picture
+//   validate.js         every sentence's answer is sound and passes (npm run check)
+//   syntax.test.js      folding, refusals, the check (npm test)
+import { BookOpenText, CornerDownRight, Quote, Rows3, SquareStack } from 'lucide-react'
 import '../../strip/strip.css'
 import './ui/syntax.css'
 import { defineGame } from '../../shell/index.js'
-import { isCore } from '../../course.js'
+import { introductions, isCore } from '../../course.js'
 import { migrations } from '../../shell/saves.js'
 import { tr } from '../../shell/i18n.js'
+import Analyze from './ui/Analyze.jsx'
 import Hero from './ui/Hero.jsx'
-import Drill from './ui/Drill.jsx'
-import Run from './ui/Run.jsx'
-import Screen from './ui/Screen.jsx'
-import { timeWords } from './engine/grammar.js'
-import { contrasts } from './engine/sentence.js'
+import { skeleton } from './engine/sentence.js'
+import { ROLES, TYPES } from './engine/types.js'
 
-// The pass dialog's minimal pairs: the same sentence with every other time the level weighed, each with the answers
-// to the time questions it stands for, so a player sees what the other choices would have said.
-function pairs(lex, level) {
-  const list = contrasts(lex, level)
-  if (!list.length) return []
-  const lines = (lang) => list.map(({ key, sentence }) => `<i>${sentence}</i> · ${timeWords(key)[lang]}`).join('<br>')
-  return [{ zh: `<b>换一种时间，同一句话说的是：</b><br>${lines('zh')}`, en: `<b>With another time, the same sentence says:</b><br>${lines('en')}` }]
-}
+const ICON = { 'role:subj': Rows3, 'role:verb': Rows3, 'role:obj': Rows3, 'role:comp': Rows3, pp: CornerDownRight, rel: Quote }
+const textOf = (key) => (key.startsWith('role:') ? ROLES[key.slice(5)] : TYPES[key])
 
 /** spec: { id, title, kicker, lede, syntax (syntaxCourse's result), glossary, saves: migration steps (../../shell/saves.js) } */
 export function defineSyntaxGame(spec) {
-  const { LEVELS, CHAPTERS, lex } = spec.syntax
+  const { LEVELS, CHAPTERS, course } = spec.syntax
+  const parts = [...introductions(course)].map(([key, at]) => ({ key, name: textOf(key).name, desc: textOf(key).desc, icon: ICON[key] ?? SquareStack, at }))
+  const named = new Map(parts.map((p) => [p.key, p]))
   const game = defineGame({
     id: spec.id,
     title: spec.title,
@@ -45,7 +37,7 @@ export function defineSyntaxGame(spec) {
     html: true,
     glossary: spec.glossary,
     chapters: CHAPTERS,
-    core: (level) => isCore(spec.syntax.course, level),
+    core: (level) => isCore(course, level),
     levels: LEVELS.map((L, index) => ({
       id: L.id,
       index,
@@ -54,28 +46,28 @@ export function defineSyntaxGame(spec) {
       requires: L.requires,
       title: L.title,
       brief: L.brief,
-      kind: L.kind ?? 'sentence',
+      kind: 'analyze',
       palette: L.palette,
       afterTitle: L.debrief.title,
-      after: L.kind === 'drill' || L.kind === 'run' ? L.debrief.body : [...L.debrief.body, ...pairs(lex, L)],
+      after: L.debrief.body,
       note: L.debrief.note,
+      tasks: L.tasks?.map((t) => ({ kind: 'analyze', step: t.step, source: t, brief: t.brief, after: t.after, intro: t.intro })),
     })),
     progress: migrations(spec.saves ?? []),
     intro: (level) => level.source.intro,
-    kinds: {
-      sentence: { Screen, icon: BookOpenText, label: { zh: '句子', en: 'Sentence' } },
-      drill: { Screen: Drill, icon: Zap, label: { zh: '快练', en: 'Drill' } },
-      run: { Screen: Run, icon: Route, label: { zh: '投稿', en: 'Submission' } },
+    // What a level brings in: the roles and constructions it adds, named once it is passed.
+    unlocked: (level) => (level.source.adds ?? []).map((key) => named.get(key)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon })),
+    // The skeleton the sentence leaves once every modifier is folded.
+    passed: (level) => {
+      const last = level.source.tasks ? level.source.tasks[level.source.tasks.length - 1] : level.source
+      return <p className="sx-skeleton"><small>{tr('主干', 'Skeleton')}</small>{skeleton(last.gold)}</p>
     },
-    // A ★ beats no ★; then fewer words (a sentence) or fewer misses (a drill) is better.
-    better: (score, best) => {
-      if (!score) return false
-      if (!best || (score.star && !best.star)) return true
-      const cost = (s) => s.words ?? s.misses
-      return score.star === best.star && cost(score) < cost(best)
-    },
-    bestLabel: (best) => ('misses' in best ? tr(`首次答错 ${best.misses} 题`, `${best.misses} missed`) : tr(`${best.words} 个词`, `${best.words} words`)),
+    parts: { all: parts },
+    kinds: { analyze: { Screen: Analyze, icon: BookOpenText, label: { zh: '拆句', en: 'Take apart' } } },
+    // Fewer checks is better; right the first time earns the ★.
+    better: (score, best) => Boolean(score) && (!best || score.tries < best.tries),
+    bestLabel: (best) => tr(`对照 ${best.tries} 次`, `${best.tries} check${best.tries === 1 ? '' : 's'}`),
   })
-  game.syntax = { lex }
+  game.syntax = { course }
   return game
 }

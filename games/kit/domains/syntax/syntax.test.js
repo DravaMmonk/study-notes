@@ -1,172 +1,110 @@
-// node --test games/kit/domains/syntax — the forms the machine works out, the grammar's refusals, a clause said as a
-// sentence, and the meaning check, on a small lexicon of its own (a game's lexicon is only data).
+// node --test games/kit/domains/syntax — sentence analysis: tokens and spans, folding and its refusals, the check of an
+// analysis against the answer, the order folds can be made in, and the level checks.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { answersOf, nextSlot, place, refuse, refusals, slotName, slotsOf, timeWords } from './engine/grammar.js'
-import { defineLexicon } from './engine/lexicon.js'
-import { check, surface, toClause } from './engine/sentence.js'
-import { fate } from './validate.js'
+import { check, fold, foldRefusal, mark, order, resolve, say, skeleton, standing, targetRefusal, tokenize, units, unfold } from './engine/sentence.js'
+import { sentenceProblems } from './validate.js'
 
 const T = (zh, en) => ({ zh, en })
-const lex = defineLexicon({
-  nouns: {
-    model: { text: 'the model', ent: 'model', number: 'sg' },
-    models: { text: 'the models', ent: 'model', number: 'pl' },
-    paper: { text: 'the paper', ent: 'paper', number: 'sg' },
-    authors: { text: 'the authors', ent: 'author', number: 'pl' },
-    she: { nom: 'she', acc: 'her', number: 'sg', person: 3 },
-    i: { nom: 'I', acc: 'me', number: 'sg', person: 1 },
-    they: { nom: 'they', acc: 'them', number: 'pl', person: 3 },
-  },
-  verbs: {
-    converge: { forms: { base: 'converge', s: 'converges', past: 'converged', pp: 'converged', ing: 'converging' }, frame: 'intransitive', subject: 'THEME', sense: T('收敛', 'converge') },
-    accept: { forms: { base: 'accept', s: 'accepts', past: 'accepted', pp: 'accepted', ing: 'accepting' }, frame: 'transitive', sense: T('接收', 'accept') },
-    send: { forms: { base: 'send', s: 'sends', past: 'sent', pp: 'sent', ing: 'sending' }, frame: 'ditransitive', sense: T('发送', 'send') },
-    'send-to': { forms: { base: 'send', s: 'sends', past: 'sent', pp: 'sent', ing: 'sending' }, frame: 'dative', lemma: 'send', sense: T('发送', 'send') },
-  },
-})
-const accepted = { meaning: { pred: 'accept', tense: 'present', aspect: 'perfect', roles: { AGENT: { ent: 'model', number: 'sg' }, THEME: { ent: 'paper', number: 'sg' } } } }
-const sent = { meaning: { pred: 'send', tense: 'past', aspect: 'simple', roles: { AGENT: { ent: 'model', number: 'sg' }, RECIPIENT: { ent: 'author', number: 'pl' }, THEME: { ent: 'paper', number: 'sg' } } }, target: 7 }
+const spec = {
+  sentence: 'A small change in the weights of the first layer causes a large change in the output.',
+  folds: [
+    { span: 'of the first layer', type: 'pp', to: 'weights' },
+    { span: 'in the weights of the first layer', type: 'pp', to: 'change#1', misread: { causes: T('动作', 'the action') } },
+    { span: 'in the output', type: 'pp', to: 'change#2' },
+  ],
+  roles: { subj: 'A small change', verb: 'causes', obj: 'a large change' },
+  misrole: { subj: { 'the first layer': T('层', 'the layer') } },
+}
+const gold = resolve(spec)
+const at = (phrase) => {
+  const words = tokenize(phrase).map((t) => t.text)
+  const i = gold.tokens.findIndex((_, k) => words.every((w, n) => gold.tokens[k + n]?.text === w))
+  return [i, i + words.length - 1]
+}
+const empty = { folds: [], roles: {} }
 
-test('the lexicon reads, and a bad entry is reported', () => {
-  assert.deepEqual(lex.problems, [])
-  assert.equal(defineLexicon({ verbs: { x: { forms: { base: 'x' }, frame: 'nonsense', sense: T('x', 'x') } } }).problems.length, 1)
-})
-
-test('slots run in reading order, and the verb opens the places its frame needs', () => {
-  assert.deepEqual(slotsOf(lex, {}), ['SUBJ', 'TIME', 'V'])
-  assert.deepEqual(slotsOf(lex, toClause({ V: 'send' })), ['SUBJ', 'TIME', 'V', 'IOBJ', 'OBJ'])
-  assert.deepEqual(slotsOf(lex, toClause({ V: 'send-to' })), ['SUBJ', 'TIME', 'V', 'OBJ', 'TO'])
-  // A new verb keeps only the objects its frame has places for.
-  const { clause } = place(lex, toClause({ V: 'send', IOBJ: 'authors', OBJ: 'paper' }), 'V', 'verb:accept')
-  assert.deepEqual(clause, toClause({ V: 'accept', OBJ: 'paper' }))
+test('a sentence is tokens, and an answer written in words becomes indices', () => {
+  assert.deepEqual(tokenize('Our model, which runs, wins.').map((t) => t.text), ['Our', 'model', ',', 'which', 'runs', ',', 'wins', '.'])
+  assert.equal(say(tokenize('Our model, which runs, wins.'), 0, 7), 'Our model, which runs, wins.')
+  assert.deepEqual(gold.problems, [])
+  assert.equal(gold.folds.length, 3)
+  assert.equal(gold.tokens[gold.folds[1].to].text, 'change')
+  assert.equal(gold.folds[2].to, at('large change')[1])
+  assert.match(resolve({ ...spec, folds: [{ span: 'change', type: 'pp', to: 'causes' }] }).problems[0], /occurs 2 times/)
+  assert.match(resolve({ ...spec, roles: { subj: 'no such words' } }).problems[0], /not in the sentence/)
 })
 
-test('the machine says the time: auxiliaries and verb forms agree with the subject, pronouns take their case', () => {
-  const say = (answer) => check(lex, accepted, toClause(answer)).sentence
-  assert.equal(say({ SUBJ: 'model', TIME: 'present.perfect', V: 'accept', OBJ: 'paper' }), 'The model has accepted the paper.')
-  assert.equal(say({ SUBJ: 'models', TIME: 'present.perfect', V: 'accept', OBJ: 'paper' }), 'The models have accepted the paper.')
-  assert.equal(say({ SUBJ: 'model', TIME: 'present.simple', V: 'accept', OBJ: 'paper' }), 'The model accepts the paper.')
-  assert.equal(say({ SUBJ: 'i', TIME: 'present.progressive', V: 'accept', OBJ: 'she' }), 'I am accepting her.')
-  assert.equal(say({ SUBJ: 'they', TIME: 'past.progressive', V: 'accept', OBJ: 'i' }), 'They were accepting me.')
-  assert.equal(say({ SUBJ: 'she', TIME: 'past.progressive', V: 'accept', OBJ: 'they' }), 'She was accepting them.')
-  // Before there is a subject, what depends on it is given both ways.
-  assert.deepEqual(surface(lex, toClause({ TIME: 'present.perfect' }), 'TIME'), { text: 'has/have' })
-  assert.deepEqual(surface(lex, toClause({ TIME: 'past.simple' }), 'TIME'), { text: '-ed', dim: true })
-  assert.deepEqual(surface(lex, toClause({ V: 'accept' }), 'V'), { text: 'accept' })
-  const dative = check(lex, sent, toClause({ SUBJ: 'model', TIME: 'past.simple', V: 'send-to', OBJ: 'paper', TO: 'authors' }))
-  assert.equal(dative.sentence, 'The model sent the paper to the authors.')
-  assert.ok(dative.pass && !dative.star)
-  assert.ok(check(lex, sent, toClause({ SUBJ: 'model', TIME: 'past.simple', V: 'send', IOBJ: 'authors', OBJ: 'paper' })).star)
+test('folds stand for their words, nest, and never cross', () => {
+  let a = fold(empty, ...at('of the first layer'), 'pp', at('weights')[0])
+  const [x, y] = at('in the weights of the first layer')
+  a = fold(a, x, y, 'pp', at('change')[0])
+  assert.deepEqual(units(gold.tokens, a.folds).filter((u) => u.kind === 'fold').map((u) => [u.a, u.b]), [[x, y]])
+  assert.ok(foldRefusal(a, x, y)) // folded already
+  assert.ok(foldRefusal(a, at('weights')[0], at('causes')[0])) // would cut through a fold
+  assert.equal(foldRefusal(a, x, at('causes')[0]), null)
+  assert.ok(targetRefusal(gold.tokens, a, x, y, at('weights')[0])) // inside itself
+  assert.ok(targetRefusal(gold.tokens, a, ...at('in the output'), at('first')[0])) // folded away
+  assert.ok(targetRefusal(gold.tokens, a, ...at('in the output'), gold.tokens.length - 1)) // the full stop
+  // Unfolding the outer piece leaves the inner one.
+  assert.equal(unfold(a, a.folds[1]).folds.length, 1)
+  assert.deepEqual(standing(gold.tokens, a.folds, [0, 4]), [0, 1, 2])
 })
 
-test('only the clause\'s shape is refused: a word of the wrong kind, a place the verb does not open', () => {
-  assert.match(refuse(lex, {}, 'SUBJ', 'verb:accept').en, /noun phrase/)
-  assert.match(refuse(lex, {}, 'TIME', 'np:model').en, /time and viewpoint/)
-  assert.match(refuse(lex, toClause({ V: 'converge' }), 'OBJ', 'np:paper').en, /no such place/)
-  assert.equal(refuse(lex, toClause({ TIME: 'present.perfect' }), 'SUBJ', 'np:models'), null)
-  assert.equal(refuse(lex, toClause({ V: 'accept' }), 'OBJ', 'np:she'), null)
-  assert.equal(refusals(lex, toClause({ SUBJ: 'models', TIME: 'present.perfect', V: 'accept' })).length, 0)
+test('the answer passes; what is wrong is said, and missing folds are only counted', () => {
+  assert.ok(check(gold, { folds: gold.folds, roles: gold.roles }).pass)
+  const half = { folds: [gold.folds[0]], roles: gold.roles }
+  const r = check(gold, half)
+  assert.equal(r.pass, false)
+  assert.ok(r.findings.some((f) => /2 modifiers/.test(f.en)))
+  // A fold on the wrong word: the level's misreading, or a plain one.
+  const wrong = { ...gold.folds[1], to: at('causes')[0] }
+  assert.equal(check(gold, { folds: [gold.folds[0], wrong, gold.folds[2]], roles: gold.roles }).findings[0].en, 'the action')
+  const plain = { ...gold.folds[2], to: at('causes')[0] }
+  assert.match(check(gold, { folds: [gold.folds[0], gold.folds[1], plain], roles: gold.roles }).findings[0].en, /tells about “causes”/)
+  // The wrong construction, wrong edges, a piece that is no modifier.
+  assert.match(check(gold, { folds: [{ ...gold.folds[0], type: 'rel' }], roles: {} }).findings[0].en, /not a relative clause/)
+  const [o, p] = at('in the output')
+  assert.match(check(gold, { folds: [{ a: o, b: p - 1, type: 'pp', to: at('large change')[1] }], roles: {} }).findings[0].en, /wrong edges/)
+  assert.match(check(gold, { folds: [{ a: at('causes')[0], b: at('causes')[0], type: 'pp', to: 0 }], roles: {} }).findings[0].en, /not one whole modifier/)
 })
 
-test('the meaning check tells the wrong thing, the wrong number, the wrong time and the wrong verb apart', () => {
-  assert.equal(fate(lex, accepted, { SUBJ: 'model', TIME: 'present.perfect', V: 'accept', OBJ: 'paper' }), 'pass')
-  assert.equal(fate(lex, accepted, { SUBJ: 'model', TIME: 'past.simple', V: 'accept', OBJ: 'paper' }), 'time')
-  assert.equal(fate(lex, accepted, { SUBJ: 'paper', TIME: 'present.perfect', V: 'accept', OBJ: 'model' }), 'role')
-  assert.equal(fate(lex, accepted, { SUBJ: 'models', TIME: 'present.perfect', V: 'accept', OBJ: 'paper' }), 'role')
-  assert.equal(fate(lex, accepted, { SUBJ: 'model', TIME: 'present.perfect', V: 'converge' }), 'pred')
-  const run = check(lex, accepted, toClause({ SUBJ: 'models', TIME: 'present.perfect', V: 'accept', OBJ: 'paper' }))
-  assert.match(run.roles.AGENT.why.en, /Wrong number/)
-  assert.equal(run.roles.AGENT.slot, 'SUBJ')
+test('roles: a noun phrase may leave out its little words, the verb group may not, and a mixed-in modifier is named', () => {
+  const folded = { folds: gold.folds, roles: {} }
+  const withRoles = (roles) => check(gold, { ...folded, roles: { verb: gold.roles.verb, obj: gold.roles.obj, ...roles } })
+  assert.ok(withRoles({ subj: at('small change') }).pass)
+  assert.equal(withRoles({ subj: at('A small') }).pass, false) // no head word
+  const unfolded = check(gold, { folds: [gold.folds[2]], roles: { ...gold.roles, subj: [0, at('layer')[0]] } })
+  assert.ok(unfolded.findings.some((f) => /mixed in/.test(f.en)))
+  // A stretch the level has a word for (keyed by its standing words), marked before the modifiers are folded.
+  const early = check(gold, { folds: [gold.folds[2]], roles: { ...gold.roles, subj: at('the first layer') } })
+  assert.ok(early.findings.some((f) => f.en === 'the layer'))
+  assert.ok(check(gold, { ...folded, roles: { ...gold.roles, comp: at('the output') } }).findings.some((f) => /no complement/.test(f.en)))
+  assert.ok(check(gold, { ...folded, roles: { subj: gold.roles.subj } }).findings.some((f) => /verb is not marked/.test(f.en)))
+  assert.ok(check(gold, folded).findings.some((f) => /skeleton is not marked/.test(f.en)))
+  // Marking the same stretch again takes the mark off.
+  assert.deepEqual(mark(mark(empty, 'subj', 0, 2), 'subj', 0, 2).roles, {})
+  assert.equal(skeleton(gold), 'A small change causes a large change.')
 })
 
-test('a wrong time gives the level\'s own reason', () => {
-  const why = { 'past.simple': T('结果还在', 'The result still stands') }
-  const run = check(lex, { ...accepted, why }, toClause({ SUBJ: 'model', TIME: 'past.simple', V: 'accept', OBJ: 'paper' }))
-  assert.equal(run.time.why, why['past.simple'])
-  assert.equal(run.time.step, 2)
-  // Without a reason of the level's, the question that went the other way gives a plain one.
-  const general = check(lex, accepted, toClause({ SUBJ: 'model', TIME: 'present.simple', V: 'accept', OBJ: 'paper' })).time
-  assert.equal(general.step, 1)
-  assert.match(general.why.en, /one event/)
-  assert.equal(check(lex, accepted, toClause({ SUBJ: 'model', TIME: 'present.progressive', V: 'accept', OBJ: 'paper' })).time.step, 3)
+test('folds are made inner first, and before a fold that would hide their word', () => {
+  const made = order(gold.folds)
+  assert.ok(made.indexOf(gold.folds[0]) < made.indexOf(gold.folds[1]))
+  // A modifier goes with its word: folded apart from the piece that holds that word, it is refused and reported.
+  const ok = ['pp', 'role:subj', 'role:verb']
+  const zoo = (outer) => resolve({ sentence: 'The size of models in the zoo grows.', folds: [{ span: outer, type: 'pp', to: 'size' }, { span: 'in the zoo', type: 'pp', to: 'models' }], roles: { subj: 'The size', verb: 'grows' } })
+  assert.deepEqual(sentenceProblems(zoo('of models in the zoo'), ok), [])
+  assert.ok(sentenceProblems(zoo('of models'), ok).some((p) => /lies outside it/.test(p)))
+  const inner = zoo('of models in the zoo').folds[1]
+  assert.ok(foldRefusal({ folds: [inner], roles: {} }, 2, 3)) // 'of models' alone, leaving 'in the zoo' outside
 })
 
-test('a pronoun names what the level says it names', () => {
-  const level = { ...accepted, meaning: { ...accepted.meaning, tense: 'past', aspect: 'simple' }, refer: { she: 'model' } }
-  assert.equal(fate(lex, level, { SUBJ: 'she', TIME: 'past.simple', V: 'accept', OBJ: 'paper' }), 'pass')
-  assert.equal(fate(lex, { ...level, refer: {} }, { SUBJ: 'she', TIME: 'past.simple', V: 'accept', OBJ: 'paper' }), 'role')
-})
-
-test('an unfinished clause names its empty slots', () => {
-  const run = check(lex, accepted, toClause({ TIME: 'present.perfect', V: 'accept' }))
-  assert.equal(run.complete, false)
-  assert.deepEqual(run.open, ['SUBJ', 'OBJ'])
-  assert.deepEqual(run.groups.filter((g) => g.gap).map((g) => g.slot), ['SUBJ', 'OBJ'])
-})
-
-test('a clause is planned time first: the time is the next place, and the verb place names the form it holds', () => {
-  const clause = toClause({ SUBJ: 'model' })
-  assert.equal(nextSlot(lex, clause), 'TIME')
-  assert.deepEqual(slotName(lex, clause, 'V'), { zh: '动词', en: 'verb' })
-  const framed = toClause({ SUBJ: 'model', TIME: 'past.simple' })
-  assert.equal(nextSlot(lex, framed), 'V')
-  assert.deepEqual(slotName(lex, framed, 'V'), { zh: '动词（过去式）', en: 'verb (past)' })
-  assert.deepEqual(slotName(lex, toClause({ TIME: 'present.simple' }), 'V'), { zh: '动词（原形或 -s 形式）', en: 'verb (bare or -s form)' })
-  assert.equal(nextSlot(lex, toClause({ TIME: 'present.perfect', V: 'accept' })), 'SUBJ')
-  assert.equal(nextSlot(lex, toClause({ SUBJ: 'model', TIME: 'past.simple', V: 'converge' })), null)
-})
-
-test('a time is explained by the questions behind it', () => {
-  assert.deepEqual(answersOf('present.simple'), { kind: 'general' })
-  assert.deepEqual(answersOf('past.perfect'), { kind: 'episode', stand: 'past', view: 'perfect' })
-  assert.equal(timeWords('present.perfect').zh, '一次具体的事 · 现在 · 已经做完，结果还在')
-})
-
-test('a run: a seeded route, comments the player holds a phrasing for, credibility lost and won back', async () => {
-  const { newRun, enter, play, take, night, situations } = await import('./engine/run.js')
-  const fill = (zh, words) => ({ context: T(zh, zh), words })
-  const spec = {
-    credibility: 5,
-    rows: 5,
-    start: ['past.simple', 'present.perfect'],
-    rewards: ['present.simple'],
-    stops: { reviews: { comments: 2, weight: 2 }, strict: { comments: 2, weight: 3, twists: 1 }, committee: { comments: 3, weight: 3, twists: 1 }, night: {} },
-    templates: [
-      { id: 'done', answer: 'present.perfect', why: { 'past.simple': T('现在', 'now') }, fills: [fill('a', { SUBJ: 'model', V: 'accept', OBJ: 'paper' }), fill('b', { SUBJ: 'authors', V: 'accept', OBJ: 'paper' })] },
-      { id: 'then', answer: 'past.simple', twist: true, fills: [fill('c', { SUBJ: 'model', V: 'converge' }), fill('d', { SUBJ: 'models', V: 'converge' })] },
-      { id: 'rule', answer: 'present.simple', fills: [fill('e', { SUBJ: 'model', V: 'converge' })] },
-    ],
-  }
-  assert.equal(situations(spec).length, 5)
-  const a = newRun(spec, 7)
-  assert.deepEqual(newRun(spec, 7).route, a.route) // the same seed, the same route
-  assert.deepEqual(a.route[0], ['reviews'])
-  assert.deepEqual(a.route.at(-1), ['committee'])
-  assert.ok(a.route.flat().includes('strict') && a.route.flat().includes('night'))
-  let s = enter(spec, a, 0, {})
-  assert.equal(s.phase, 'comments')
-  assert.equal(s.comments.length, 2)
-  // Only situations the player holds a phrasing for: nothing in the simple present yet.
-  assert.ok(s.comments.every((c) => !c.key.startsWith('rule')))
-  const answer = (key) => situations(spec).find((x) => x.key === key).answer
-  const wrong = (key) => (answer(key) === 'past.simple' ? 'present.perfect' : 'past.simple')
-  let r = play(spec, s, 0, wrong(s.comments[0].key))
-  assert.equal(r.right, false)
-  assert.equal(r.state.credibility, 3)
-  assert.deepEqual(r.state.missed, [s.comments[0].key])
-  r = play(spec, r.state, 1, answer(r.state.comments[1].key))
-  assert.equal(r.right, true)
-  assert.equal(r.state.phase, 'offer')
-  assert.deepEqual(r.state.offer, ['present.simple'])
-  s = take(spec, r.state, 'present.simple')
-  assert.ok('present.simple' in s.held)
-  assert.equal(s.phase, 'route')
-  // A night's revision brings back what was got wrong, and costs nothing to miss.
-  const n = night(spec, { ...s, phase: 'night', stop: 'night' }, 'revise', {})
-  assert.ok(n.comments.some((c) => c.key === s.missed[0]) && n.comments.every((c) => c.weight === 0))
-  assert.equal(night(spec, { ...s, credibility: 1 }, 'rest').credibility, 5)
-  // Credibility at nothing ends the run.
-  const lost = play(spec, { ...s, phase: 'comments', stop: 'reviews', credibility: 2, comments: [{ key: 'done.0', weight: 2, picked: null }] }, 0, 'past.simple')
-  assert.equal(lost.state.phase, 'lost')
+test('the level checks catch a bad answer', () => {
+  const ok = ['pp', 'role:subj', 'role:verb', 'role:obj']
+  assert.deepEqual(sentenceProblems(gold, ok), [])
+  assert.ok(sentenceProblems(gold, ['pp', 'role:subj', 'role:verb']).some((p) => /obj is not reached/.test(p)))
+  const self = resolve({ ...spec, folds: [{ span: 'in the output', type: 'pp', to: 'output' }] })
+  assert.ok(sentenceProblems(self, ok).some((p) => /inside itself/.test(p)))
+  const crossed = resolve({ ...spec, folds: [{ span: 'the weights of', type: 'pp', to: 'causes' }, { span: 'of the first layer', type: 'pp', to: 'weights' }] })
+  assert.ok(sentenceProblems(crossed, ok).some((p) => /cross/.test(p)))
 })
