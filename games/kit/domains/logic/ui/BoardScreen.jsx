@@ -164,7 +164,7 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
   // What a region opens with (or that it opens with nothing yet): at its left edge, or first in its grid on a phone.
   const regionNote = (node, region) => {
     // A for-any box opens no assumption: its region holds the thing it takes.
-    if (node.type === 'allI') return node.params?.x ? <span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.x}</b></span> : <i className="lg-mark">{tr('还没给它起名', 'not named yet')}</i>
+    if (node.type === 'allI') return node.params?.x ? <span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.x}</b></span> : <i className="lg-mark">{tr('尚未命名', 'not named yet')}</i>
     const v = view.values.get(srcOf(node, region))
     return v ? <Value v={v} text={text} small /> : <i className="lg-mark">{L(board.words.noOpen)}</i>
   }
@@ -173,11 +173,11 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
     if (node.type === 'natInd' && region) {
       let want = null
       try { const G = parse(node.params?.P ?? '', { consts: level.consts ?? [] }); if (G.op === '∀' && node.params?.x) want = inductionCases(G, node.params.x, level.consts)[region] } catch { want = null }
-      return want ? <span className="lg-taken">{tr('要证', 'To prove')} <b>{text(want)}</b></span> : <i className="lg-mark">{tr('先选好要证的和名字', 'choose what to prove and the name first')}</i>
+      return want ? <span className="lg-taken">{tr('要证', 'To prove')} <b>{text(want)}</b></span> : <i className="lg-mark">{tr('请先选择要证的句子和名字', 'choose the sentence to prove and the name first')}</i>
     }
     const [v, error] = [view.values.get(node.id), view.errors.get(node.id)]
     if (v) return <Value v={v} text={text} small />
-    return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('还没有接上', 'nothing wired in yet')}</i>
+    return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('尚未接线', 'nothing wired in yet')}</i>
   }
   const passed = stepped ? playback.passed : verdict?.pass
   // Clearing is the board's own (a button among its tools, which asks first).
@@ -271,7 +271,7 @@ function RuleList({ label, value, onChange, choices, disabled }) {
       {kept.map((k) => (
         <div key={k} className="lg-rule">
           <code>{labelOf(k)}</code>
-          {kept.length > 1 && !disabled && <button type="button" aria-label={tr('去掉这条规则', 'Take this rule off')} onClick={() => onChange(kept.filter((x) => x !== k))}><X size={13} /></button>}
+          {kept.length > 1 && !disabled && <button type="button" aria-label={tr('移除这条规则', 'Remove this rule')} onClick={() => onChange(kept.filter((x) => x !== k))}><X size={13} /></button>}
         </div>
       ))}
       {rest.length > 0 && !disabled && (
@@ -319,7 +319,7 @@ function CardBody({ node, board, parts, level, circuit, view, scene, setParam, t
   const outs = parts.outputs(node)?.filter((o) => !regions.has(o.key))
   const multi = outs && !(outs.length === 1 && outs[0].key === null) ? outs : null
   const held = regions.size ? within(circuit, node.id).size : 0
-  const problem = error && <span className={`lg-error ${error === MISSING ? 'is-missing' : ''}`}>{error === MISSING ? tr('等接线', 'Waiting for wires') : L(error)}</span>
+  const problem = error && <span className={`lg-error ${error === MISSING ? 'is-missing' : ''}`}>{error === MISSING ? tr('等待接线', 'Not wired yet') : L(error)}</span>
   const settings = board.settings(parts, node, level)
   // A rule part shows the rules it gives of its own (its list); what comes in before them shows on the parts wired in.
   const ruled = settings.some((s) => s.kind === 'use')
@@ -328,7 +328,7 @@ function CardBody({ node, board, parts, level, circuit, view, scene, setParam, t
       {role === 'sink' && scene.want}
       {settings.map((s) => <Setting key={s.key} s={s} node={node} board={board} parts={parts} level={level} circuit={circuit} scene={scene} setParam={setParam} formsOf={formsOf} />)}
       {board.extra?.(node, setParam, { ins: Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, view.values.get(w.from)])), text })}
-      {node.fold && <span className="lg-held">{held ? tr(`框里 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框里是空的', 'Nothing inside yet')}</span>}
+      {node.fold && <span className="lg-held">{held ? tr(`框内 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框内为空', 'Empty')}</span>}
       {role === 'source' && (board.ioBox ? <IoBox><Value v={value} text={text} /></IoBox> : <Value v={value} text={text} bare />)}
       {role === 'sink' && board.ioBox && !problem && <IoBox><Value v={value} text={text} /></IoBox>}
       {role !== 'source' && !(role === 'sink' && board.ioBox && !problem) && (!regions.size || node.fold) && !(ruled && !problem) && (problem || (multi ? multi.map((o) => (
@@ -391,7 +391,7 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
         {stepped ? began && (
           <section className="lg-preview" ref={preview}>
             <h3>{tr('运行过程', 'The run')}</h3>
-            {logged ? stepLog : <p className="lg-mark lg-preview-empty">{waiting ? tr('这一组开始运行……', 'This test starts…') : tr('这一组还没有运行到。', 'This test has not been run yet.')}</p>}
+            {logged ? stepLog : <p className="lg-mark lg-preview-empty">{waiting ? tr('这组测试开始运行……', 'Running this test…') : tr('这组测试尚未运行。', 'This test has not run yet.')}</p>}
             {verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
           </section>
         ) : verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
@@ -531,8 +531,8 @@ function BuiltTools({ node, built, onToggle }) {
   if (!built.is(node)) return null
   return (
     <>
-      <button type="button" className="node-tool" aria-label={tr('编辑', 'Edit')} title={tr('去搭它的那一关编辑', 'Edit it in the level that builds it')} onPointerDown={(e) => e.stopPropagation()} onClick={() => built.edit(node.type)}><Pencil size={12} /></button>
-      <button type="button" className="node-tool" aria-pressed={Boolean(node.open)} aria-label={node.open ? tr('折叠', 'Fold') : tr('展开', 'Unfold')} onPointerDown={(e) => e.stopPropagation()} onClick={onToggle}>{node.open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}</button>
+      <button type="button" className="node-tool" aria-label={tr('编辑', 'Edit')} title={tr('在搭出它的关卡中编辑', 'Edit in the level that builds it')} onPointerDown={(e) => e.stopPropagation()} onClick={() => built.edit(node.type)}><Pencil size={12} /></button>
+      <button type="button" className="node-tool" aria-pressed={Boolean(node.open)} aria-label={node.open ? tr('折叠', 'Collapse') : tr('展开', 'Expand')} onPointerDown={(e) => e.stopPropagation()} onClick={onToggle}>{node.open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}</button>
     </>
   )
 }

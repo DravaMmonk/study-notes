@@ -70,7 +70,7 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, la
                   ) : tried ? (
                     <span className={`lg-cell is-shown ${valueOn(f, row) ? 'is-t' : 'is-f'}`}>{TF(valueOn(f, row))}</span>
                   ) : (
-                    <button type="button" className="lg-cell" onClick={() => tryRow(fi, k)}>{tr('试一试', 'Try')}</button>
+                    <button type="button" className="lg-cell" onClick={() => tryRow(fi, k)}>{tr('尝试', 'Try')}</button>
                   )}
                 </td>
               </tr>
@@ -90,7 +90,7 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, la
           <header>
             <b>{text(f)}</b>
             <span className="lg-mark-pick" role="group">
-              {[[true, tr('永远成立', 'Always true')], [false, tr('不总成立', 'Not always')]].map(([v, label]) => (
+              {[[true, tr('恒成立', 'Always true')], [false, tr('不恒成立', 'Not always true')]].map(([v, label]) => (
                 <button key={label} type="button" aria-pressed={state.marks[k] === v} onClick={() => update({ marks: { ...state.marks, [k]: v } })}>{label}</button>
               ))}
             </span>
@@ -98,8 +98,8 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, la
           <details><summary>{tr('展开真值表', 'Open the truth table')}</summary>{table(k)}</details>
         </section>
       ))}
-      {checked && <p className={`lg-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`}>{checked.pass ? (level.ask === 'counter' ? tr('已找到反例：该行的命题为假。', 'Counterexample found: the proposition is false on this row.') : level.ask === 'sat' ? tr('已找到满足赋值：该行的命题为真。', 'Satisfying assignment found: the proposition is true on this row.') : tr('全部正确。', 'All answers are correct.')) : tr(`还有 ${checked.wrong.size} 处不对，标红了。`, `${checked.wrong.size} still wrong, marked in red.`)}</p>}
-      {level.ask !== 'counter' && level.ask !== 'sat' && <footer className="run-foot"><RunDock go={{ label: checked?.pass ? tr('全对', 'All correct') : tr('检查', 'Check'), pass: Boolean(checked?.pass), onClick: check }} /></footer>}
+      {checked && <p className={`lg-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`}>{checked.pass ? (level.ask === 'counter' ? tr('已找到反例：命题在这一行为假。', 'Counterexample found: the proposition is false on this row.') : level.ask === 'sat' ? tr('已找到满足赋值：命题在这一行为真。', 'Satisfying assignment found: the proposition is true on this row.') : tr('全部正确。', 'All answers are correct.')) : tr(`还有 ${checked.wrong.size} 处错误，已用红色标出。`, `${checked.wrong.size} still wrong, marked in red.`)}</p>}
+      {level.ask !== 'counter' && level.ask !== 'sat' && <footer className="run-foot"><RunDock go={{ label: checked?.pass ? tr('全部正确', 'All correct') : tr('检查', 'Check'), pass: Boolean(checked?.pass), onClick: check }} /></footer>}
     </div>
   )
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />

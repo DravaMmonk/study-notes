@@ -106,7 +106,7 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, l
                 )}
                 {r.k !== 'fix' && (
                   <select className="sc-stmt" disabled={lock} value={r.stmt ? keyOf(r.stmt) : ''} onChange={(e) => set(i, { stmt: e.target.value })} aria-label={tr('这一句', 'Sentence')}>
-                    <option value="">{tr('选一句', 'Pick one')}</option>
+                    <option value="">{tr('选择句子', 'Choose a sentence')}</option>
                     {sentences.map((f) => <option key={show(f)} value={show(f)}>{text(f)}</option>)}
                   </select>
                 )}
@@ -124,19 +124,19 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, l
                     <span className="sc-kw">by</span>
                     <select disabled={lock && r.by === 'proof'} value={r.by ?? ''} onChange={(e) => set(i, { by: e.target.value })}>
                       <option value="">…</option>
-                      <option value="proof">{tr('一块（proof … qed）', 'a block (proof … qed)')}</option>
+                      <option value="proof">{tr('证明块（proof … qed）', 'a proof block (proof … qed)')}</option>
                       <optgroup label={tr('规则', 'Rules')}>
                         {methods.rules.map((m) => <option key={m.key} value={m.key}>{`${L(m.rule.name)} · ${m.key.slice(5)}`}</option>)}
                       </optgroup>
                       {methods.tactics.length > 0 && (
-                        <optgroup label={tr('造出的策略', 'Tactics built')}>
+                        <optgroup label={tr('自建策略', 'Your tactics')}>
                           {methods.tactics.map((t) => <option key={t} value={t}>{methodText(t)}</option>)}
                         </optgroup>
                       )}
                     </select>
                   </label>
                 )}
-                {!lock && <button type="button" className="sc-remove" aria-label={tr('删掉这一行', 'Remove this row')} onClick={(e) => { e.stopPropagation(); remove(i) }}><X size={14} /></button>}
+                {!lock && <button type="button" className="sc-remove" aria-label={tr('删除这一行', 'Remove this row')} onClick={(e) => { e.stopPropagation(); remove(i) }}><X size={14} /></button>}
               </div>
               {why && <p className="lg-error">{L(why)}</p>}
             </li>
@@ -148,9 +148,9 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, l
           {KINDS.map((k) => <button key={k} type="button" onClick={() => add(k)}><Plus size={13} />{k}</button>)}
         </div>
       )}
-      {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('每一句都由核查过了：证完。', 'Every row is checked by the kernel: proved.') : L(verdict.reason)}</p>}
+      {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('核已检查每一行。证明完毕。', 'The kernel has checked every row. Q.E.D.') : L(verdict.reason)}</p>}
       <footer className="run-foot">
-        <RunDock go={{ label: verdict?.pass ? tr('对了', 'Right') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
+        <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
       </footer>
     </div>
   )

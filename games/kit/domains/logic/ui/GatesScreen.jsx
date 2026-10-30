@@ -20,7 +20,7 @@ import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, star
 
 const TF = (v) => (v === undefined ? '—' : v ? tr('真', 'T') : tr('假', 'F'))
 const T = (zh, en) => ({ zh, en })
-const WRONG_ROW = T('这一行算错了', 'This row is wrong')
+const WRONG_ROW = T('这一行的结果错误', 'This row is wrong')
 const SOURCE = T('输入', 'Input')
 /** The editor's description of a board of gates (../../circuit/model.js), with a level's words for its letters. */
 function gatePartsFor(built, wordOf) {
@@ -68,7 +68,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
     count: rows.length,
     stepsOf: () => [],
     check: (k) => (checked.results[k].pass ? '' : WRONG_ROW),
-    final: () => (checked.overBudget ? tr(`每一行都对，但用了 ${checked.gates} 个门，这一关最多 ${level.budget} 个。`, `Every row is right, but it takes ${checked.gates} gates; this level allows ${level.budget}.`) : ''),
+    final: () => (checked.overBudget ? tr(`每一行都正确，但用了 ${checked.gates} 个门，这一关最多允许 ${level.budget} 个。`, `Every row is correct, but it uses ${checked.gates} gates; this level allows ${level.budget}.`) : ''),
     onSolve: () => solve({ steps: checked.gates }),
     onTest: setRowIndex,
     board: circuit,
@@ -91,8 +91,8 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
   const states = playback.states
   const verdict = run?.over ? { pass: playback.passed } : null
   const verdictText = !verdict ? null
-    : verdict.pass ? tr('每一行都对：这块电路算出了这句话的整张真值表。', 'Every row is right: this board computes the sentence’s whole truth table.')
-    : run.final || tr('这一行算错了，机器停在了这里：板上每个元件显示的是它在这一行算出的值。', 'This row is wrong, and the machine stopped here: every part on the board shows what it computed on this row.')
+    : verdict.pass ? tr('每一行都正确：这块电路算出了这句话的完整真值表。', 'Every row is correct: this circuit computes the sentence’s full truth table.')
+    : run.final || tr('这一行的结果错误，运行停在这里。板上每个元件显示它在这一行算出的值。', 'This row is wrong; the run stopped here. Each part on the board shows its value on this row.')
   const valueOf = (node) => (node.type === 'out' ? view.value : view.values.get(node.id))
   const errorOf = (node) => view.errors.get(node.id)
 
@@ -115,7 +115,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
       {!level.blind && <p className="lg-sequent">{tr('这句话', 'The sentence')} <b>{sentence}</b></p>}
       <table className="lg-rows">
         <thead>
-          <tr>{letters.map((l) => <th key={l}>{L(word(l))}</th>)}{!hideTarget && <th>{tr('目标真值', 'Target value')}</th>}<th>{tr('电路输出', 'Board output')}</th></tr>
+          <tr>{letters.map((l) => <th key={l}>{L(word(l))}</th>)}{!hideTarget && <th>{tr('目标真值', 'Target value')}</th>}<th>{tr('电路输出', 'Circuit output')}</th></tr>
         </thead>
         <tbody>
           {rows.map((r, k) => (
@@ -132,7 +132,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
   )
   const dock = (
     <RunDock
-      {...playback.dock({ go: tr('一行一行算', 'Run row by row'), done: tr('整张表都对', 'Whole table right') })}
+      {...playback.dock({ go: tr('逐行运行', 'Run row by row'), done: tr('真值表全部正确', 'Truth table correct') })}
     />
   )
   const body = (node) => <div className="lg-card"><CardValue value={valueOf(node)} error={errorOf(node)} /></div>
@@ -160,7 +160,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
               body={body}
               cardClass={(node) => `lg-node ${node.type === 'out' && verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : ''}`}
               wireState={(wire) => (view.values.get(wire.from) !== undefined ? 'live' : 'dead')}
-              emptyNote={{ zh: '从上面一排元件里选一个门放上来，再从元件右侧的圆点连到另一个元件左侧的圆点。', en: 'Pick a gate from the row above, then wire a dot on the right of a part to a dot on the left of another.' }}
+              emptyNote={{ zh: '从上方元件栏选择门放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。', en: 'Place a gate from the bar above, then connect a dot on the right of one part to a dot on the left of another.' }}
             />
           </div>
         </div>
@@ -176,7 +176,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
 /** What a card gives on the row picked: true or false, or why it gives nothing yet. */
 function CardValue({ value, error }) {
   if (value !== undefined) return <span className={`lg-tv ${value ? 'is-true' : 'is-false'}`}>{L(TF(value))}</span>
-  return <span className={`lg-error ${error === MISSING || !error ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('等接线', 'Waiting for wires') : L(error)}</span>
+  return <span className={`lg-error ${error === MISSING || !error ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('等待接线', 'Not wired yet') : L(error)}</span>
 }
 
 // The board on a phone: the shared slot board, the truth table under it, and the run bar.

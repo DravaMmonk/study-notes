@@ -44,7 +44,7 @@ export function WorldText({ model, notation, preds, world = null, spell = false 
       <p>{tr(`这个世界有 ${model.domain.length} 样东西：`, `This world has ${model.domain.length} thing${model.domain.length === 1 ? '' : 's'}: `)}<b>{model.domain.map(name).join(tr('、', ', '))}</b></p>
       {consts.length > 0 && <p>{consts.join(tr('；', '; '))}</p>}
       <p>{atoms.length ? atoms.join(tr('；', '; ')) : tr('什么都不成立。', 'Nothing holds.')}</p>
-      {missing.length > 0 && atoms.length > 0 && <p className="fo-not">{tr('不成立的：', 'Not so: ')}{missing.join(tr('；', '; '))}</p>}
+      {missing.length > 0 && atoms.length > 0 && <p className="fo-not">{tr('不成立：', 'False: ')}{missing.join(tr('；', '; '))}</p>}
     </div>
   )
 }
@@ -79,7 +79,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
   const stage = (
     <div className="fo-stage">
       <section className="fo-build">
-        <div className="fo-size" role="group" aria-label={tr('有几样东西', 'How many things')}>
+        <div className="fo-size" role="group" aria-label={tr('东西的数目', 'Number of things')}>
           <span>{tr('这个世界有', 'This world has')}</span>
           {Array.from({ length: max }, (_, k) => k + 1).map((n) => <button key={n} type="button" aria-pressed={world.size === n} onClick={() => update({ ...world, size: n })}>{n}</button>)}
           <span>{tr('样东西', 'things')}</span>
@@ -117,12 +117,12 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
           <p key={k} className={`fo-want ${values[k] === w.value ? 'is-pass' : 'is-fail'}`}>
             {values[k] === w.value ? <Check size={14} /> : <X size={14} />}
             <b>{L(say(w.formula, level.notation))}</b>
-            <span>{tr(`要${w.value ? '真' : '假'}，现在${values[k] ? '真' : '假'}`, `want ${w.value ? 'true' : 'false'}, now ${values[k] ? 'true' : 'false'}`)}</span>
+            <span>{tr(`应为${w.value ? '真' : '假'}，当前为${values[k] ? '真' : '假'}`, `should be ${w.value ? 'true' : 'false'}, is ${values[k] ? 'true' : 'false'}`)}</span>
           </p>
         ))}
         {checked !== null && <p className={`lg-verdict ${checked ? 'is-pass' : 'is-fail'}`}>{checked ? tr('这个结构满足要求。', 'This structure meets the requirements.') : tr('部分命题的真值不符合要求，已标出。', 'Some propositions have the wrong truth value and are marked.')}</p>}
       </section>
-      <footer className="run-foot"><RunDock go={{ label: checked ? tr('造好了', 'Built') : tr('检查', 'Check'), pass: Boolean(checked), onClick: check }} /></footer>
+      <footer className="run-foot"><RunDock go={{ label: checked ? tr('完成', 'Done') : tr('检查', 'Check'), pass: Boolean(checked), onClick: check }} /></footer>
     </div>
   )
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />

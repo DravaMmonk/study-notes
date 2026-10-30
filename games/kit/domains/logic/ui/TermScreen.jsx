@@ -27,7 +27,7 @@ export default function TermScreen({ game, level: entry, saved, save, solve, las
   // A task may hand over someone else's term to check and mend (`given`); clearing starts from nothing.
   const [tree, setTree] = useState(() => saved?.tree ?? (level.given ? parseTerm(level.given) : null))
   const judge = () => {
-    if (!complete(tree)) return { pass: false, reason: T('还有框没填：证明项要每个位置都填上。', 'Some boxes are still empty: every place must be filled.') }
+    if (!complete(tree)) return { pass: false, reason: T('证明项还有空位：每个位置都须填写。', 'The proof term still has empty slots; every slot must be filled.') }
     const reason = termTaskOf(level).check(tree)
     return { pass: !reason, reason }
   }
@@ -50,11 +50,11 @@ export default function TermScreen({ game, level: entry, saved, save, solve, las
         <p className="fo-say fo-prompt">{tr('要证', 'Prove')} <b>{text(level.goal)}</b></p>
       </section>
       <TermEditor tree={tree} onChange={change} scope={[...Object.keys(level.premises ?? {}), ...(level.uses ?? []), ...consts]} forms={level.forms} history={`${entry.id}:${level.task ?? 0}`}>
-        {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型对上了：这个证明项证的正是这句话。', 'The type matches: this proof term proves exactly this sentence.') : L(verdict.reason)}</p>}
+        {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型相符：这个证明项证明的正是这句话。', 'The type checks: this proof term proves exactly this sentence.') : L(verdict.reason)}</p>}
       </TermEditor>
       <footer className="run-foot">
         <RunDock
-          go={{ label: verdict?.pass ? tr('对了', 'Right') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }}
+          go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }}
         />
       </footer>
     </div>

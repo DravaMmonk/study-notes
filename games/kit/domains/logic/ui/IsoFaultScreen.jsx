@@ -95,7 +95,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
           <thead>
             <tr>
               <th>#</th>
-              {level.sentences.map((l) => <th key={l}>{tr(`手里的「${words(l).zh}」`, `“${words(l).en}” at hand`)}</th>)}
+              {level.sentences.map((l) => <th key={l}>{tr(`已知「${words(l).zh}」`, `Given “${words(l).en}”`)}</th>)}
               <th>{tr(`预期：「${level.declare.zh}」`, `Expected: “${level.declare.en}”`)}</th>
               {level.wrong.map((_, b) => <th key={b} className="lg-result">{many ? tr(`电路 ${b + 1}`, `Board ${b + 1}`) : tr('这份声明', 'This declaration')}</th>)}
               <th aria-label={tr('删去', 'Remove')} />
@@ -123,7 +123,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
                   return <td key={b} className={`lg-result ${caught ? 'is-caught' : ''}`}>{ran(k) ? result(r.made[b]) : ''}</td>
                 })}
                 <td>
-                  <button type="button" className="lg-drop" aria-label={tr('删除该条例', 'Remove this case')} onClick={(e) => { e.stopPropagation(); change(cases.filter((_, j) => j !== k)) }}><X size={14} /></button>
+                  <button type="button" className="lg-drop" aria-label={tr('删除这条条例', 'Remove this case')} onClick={(e) => { e.stopPropagation(); change(cases.filter((_, j) => j !== k)) }}><X size={14} /></button>
                 </td>
               </tr>
             ))}

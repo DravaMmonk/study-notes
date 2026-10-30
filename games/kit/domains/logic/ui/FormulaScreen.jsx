@@ -18,7 +18,7 @@ import { WorldText, thingName } from './WorldScreens.jsx'
 
 const T = (zh, en) => ({ zh, en })
 const PLACES = ['①', '②', '③']
-const STRAY = T('还不是一句完整的话', 'Not a whole sentence yet')
+const STRAY = T('还不是完整的句子', 'Not a complete sentence yet')
 const GROUPS = [['pred', T('谓词', 'Predicates')], ['name', T('名字', 'Names')], ['var', T('变量', 'Variables')], ['quant', T('量词', 'Quantifiers')], ['conn', T('连接词', 'Connectives')]]
 const keyOf = (path) => ['r', ...path].join('.')
 const pathOf = (key) => key.split('.').slice(1).map(Number)
@@ -32,7 +32,7 @@ const placesOf = (notation, pred) => (notation.words?.[pred] ? L(notation.words[
  */
 function segmentOf(node, path, kind, notation, bracket = false) {
   const key = keyOf(path)
-  if (!node) return { hole: key, label: kind === 'term' ? T('谁', 'who') : T('一句话', 'a sentence') }
+  if (!node) return { hole: key, label: kind === 'term' ? T('东西', 'thing') : T('句子', 'sentence') }
   const piece = (family, parts) => ({ piece: key, family, parts: bracket ? ['(', ...parts, ')'] : parts })
   // A thing where a sentence goes is marked: it is not a sentence yet.
   if (node.t) return { ...piece(node.t === 'var' ? 'var' : 'name', [node.t === 'var' ? node.name : L(notation.words?.[node.f] ?? T(node.f, node.f))]), bad: kind === 'formula' }
@@ -70,7 +70,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
       const path = pathOf(slot)
       const chip = byKey.get(key)
       // A thing may stand where a sentence goes (marked until a predicate takes it); a sentence never where a thing goes.
-      if (chip.kind === 'formula' && kindAt(tree, path) === 'term') return T('这里要放一样东西：一个名字或一个变量。', 'This place takes a thing: a name or a variable.')
+      if (chip.kind === 'formula' && kindAt(tree, path) === 'term') return T('这里须填入一样东西：名字或变量。', 'This slot takes a thing: a name or a variable.')
       // Onto what the line ends with (see target): it becomes the piece's first part.
       const last = nodeAt(tree, path)
       change(setAt(tree, path, last ? setAt(chip.make(), [0], last) : chip.make()))
@@ -98,7 +98,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
   const compare = () => {
     const want = level.kind === 'query' ? ['x'] : []
     const loose = [...freeVars(tree)].filter((v) => !want.includes(v))
-    if (loose.length) return { pass: false, body: <p className="lg-error">{tr(`${loose.join('、')} 没有被 ∀ 或 ∃ 管着：它指的是谁？`, `${loose.join(', ')} is not bound by ∀ or ∃: who is it?`)}</p> }
+    if (loose.length) return { pass: false, body: <p className="lg-error">{tr(`${loose.join('、')} 不受 ∀ 或 ∃ 约束：它指的是什么？`, `${loose.join(', ')} is not bound by ∀ or ∃: what does it refer to?`)}</p> }
     if (level.kind === 'query') {
       for (const world of level.worlds) {
         const m = structureOf(world, [tree, target])
@@ -116,13 +116,13 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
       pass: false,
       body: (
         <div className="fo-why">
-          <p>{d.first ? tr('在下面这个世界里，你写的为真，原来那句话却为假：', 'In this world what you wrote is true, while the sentence is false:') : tr('在下面这个世界里，原来那句话为真，你写的却为假：', 'In this world the sentence is true, while what you wrote is false:')}</p>
+          <p>{d.first ? tr('在下面的世界中，你写的句子为真，原句却为假：', 'In this world your sentence is true but the original is false:') : tr('在下面的世界中，原句为真，你写的句子却为假：', 'In this world the original is true but your sentence is false:')}</p>
           <WorldText model={d.model} notation={notation} preds={level.vocab.preds} spell />
         </div>
       ),
     }
   }
-  const judge = () => (strays.length ? { pass: false, body: <p className="lg-error">{L(STRAY)}</p> } : whole ? compare() : { pass: false, body: <p className="lg-error">{tr('还有空位没填：一句话要每个位置都填上。', 'Some places are still empty: every place must be filled.')}</p> })
+  const judge = () => (strays.length ? { pass: false, body: <p className="lg-error">{L(STRAY)}</p> } : whole ? compare() : { pass: false, body: <p className="lg-error">{tr('还有空位：句子的每个位置都须填写。', 'Some slots are still empty; every slot must be filled.')}</p> })
   const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, judge)
   const check = () => {
     strip.clearSelection()
@@ -154,11 +154,11 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
       <StripTools history={history} onClear={() => change(null)} empty={!tree} />
       <Strip line={[segmentOf(tree, [], 'formula', notation)]} label={T('公式', 'formula')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
-      {verdict && (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界里，都和原句一样真假。', 'True and false with the sentence in every small world.')}</p> : verdict.body)}
+      {verdict && (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界中，真假都与原句一致。', 'In every small world it has the same truth value as the original.')}</p> : verdict.body)}
       <Chips groups={groups} onChip={strip.onChip} />
       <footer className="run-foot">
         <RunDock
-          go={{ label: verdict?.pass ? tr('对了', 'Right') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }}
+          go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }}
         />
       </footer>
     </div>

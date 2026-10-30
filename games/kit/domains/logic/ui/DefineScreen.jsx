@@ -45,7 +45,7 @@ export default function DefineScreen({ game, level: entry, saved, save, solve, l
           {row.when && <span className="lg-def-when">{cond(row.when)} ⟹</span>}
           <span className="lg-def-lhs">{term(row.lhs)} =</span>
           <select value={picks[k]} onChange={(e) => pick(k, e.target.value)} aria-label={tr(`第 ${k + 1} 行的右边`, `Right side of row ${k + 1}`)}>
-            <option value="">{tr('选右边', 'Pick')}</option>
+            <option value="">{tr('选择右边', 'Choose')}</option>
             {row.choices.map((c) => <option key={c} value={c}>{term(c)}</option>)}
           </select>
         </div>
@@ -56,7 +56,7 @@ export default function DefineScreen({ game, level: entry, saved, save, solve, l
     <div className="lg-strip is-tables">
       <div className="lg-scroll-x">
         <table className="lg-rows">
-          <thead><tr><th>{tr('算', 'Work out')}</th><th>{tr('应当', 'Should be')}</th><th className="lg-result">{tr('算出', 'Comes out')}</th></tr></thead>
+          <thead><tr><th>{tr('表达式', 'Expression')}</th><th>{tr('期望值', 'Expected')}</th><th className="lg-result">{tr('结果', 'Result')}</th></tr></thead>
           <tbody>
             {level.tests.map((test, k) => {
               const r = checked?.rows[k]
@@ -64,21 +64,21 @@ export default function DefineScreen({ game, level: entry, saved, save, solve, l
                 <tr key={k} className={states[k] ? `is-${states[k]}` : ''}>
                   <td>{term(test.term)}</td>
                   <td>{term(test.value)}</td>
-                  <td className="lg-result">{shown(k) && r ? (r.got.loops ? tr('停不下来', 'Never stops') : L(sayTerm(r.got.value, level.notation))) : ''}</td>
+                  <td className="lg-result">{shown(k) && r ? (r.got.loops ? tr('不终止', 'Does not terminate') : L(sayTerm(r.got.value, level.notation))) : ''}</td>
                 </tr>
               )
             })}
             <tr className={states[count - 1] ? `is-${states[count - 1]}` : ''}>
-              <td colSpan={2}>{tr('递归都在更小的参数上', 'Every recursion on a smaller argument')}</td>
-              <td className="lg-result">{shown(count - 1) && checked ? (checked.rows.at(-1).pass ? '✓' : tr(`第 ${checked.rows.at(-1).row + 1} 行没有变小`, `Row ${checked.rows.at(-1).row + 1} is no smaller`)) : ''}</td>
+              <td colSpan={2}>{tr('每次递归调用的参数都更小', 'Every recursive call is on a smaller argument')}</td>
+              <td className="lg-result">{shown(count - 1) && checked ? (checked.rows.at(-1).pass ? '✓' : tr(`第 ${checked.rows.at(-1).row + 1} 行的参数没有变小`, `Row ${checked.rows.at(-1).row + 1}: the argument does not decrease`)) : ''}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      {run?.over && <p className={`lg-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`}>{playback.passed ? tr('每个值都算对了，递归都在更小的参数上：这条定义一定停得下来。', 'Every value comes out right, and every recursion is on a smaller argument: this definition always stops.') : failed?.reason}</p>}
+      {run?.over && <p className={`lg-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`}>{playback.passed ? tr('每个值都正确，每次递归调用的参数都更小，因此这条定义必定终止。', 'Every value is correct and every recursive call is on a smaller argument, so this definition always terminates.') : failed?.reason}</p>}
     </div>
   )
-  const dock = <RunDock {...playback.dock({ go: tr('点击运行测试', 'Run the tests'), done: tr('收下这条定义', 'Definition accepted') })} />
+  const dock = <RunDock {...playback.dock({ go: tr('运行测试', 'Run the tests'), done: tr('定义已接受', 'Definition accepted') })} />
   const stage = (
     <div className="lg-define">
       {rows}
@@ -91,4 +91,4 @@ export default function DefineScreen({ game, level: entry, saved, save, solve, l
   return <Workbench className="lg-define-level" brief={brief} stage={stage} scroll />
 }
 
-const T_PICK = { zh: '每一行都要选一个右边', en: 'Every row needs a right side' }
+const T_PICK = { zh: '每一行都须选择右边', en: 'Every row needs a right side' }

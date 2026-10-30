@@ -10,7 +10,7 @@ import { MISSING, sourceOf } from '../../../engine/circuit.js'
 
 const T = (zh, en) => ({ zh, en })
 const join = (a, b, mark = '·') => T(`${a.zh} ${mark} ${b.zh}`, `${a.en} ${mark} ${b.en}`)
-const ROUND = { repeat: (k) => T(`第 ${k} 圈`, `round ${k}`), search: (k) => T(`第 ${k} 步`, `step ${k}`) }
+const ROUND = { repeat: (k) => T(`第 ${k} 轮`, `round ${k}`), search: (k) => T(`第 ${k} 步`, `step ${k}`) }
 const samePath = (a = [], b = []) => a.length === b.length && a.every((id, k) => id === b[k])
 const within = (path = [], prefix) => path.length >= prefix.length && prefix.every((id, k) => id === path[k])
 
@@ -83,7 +83,7 @@ export function machineSteps(traced, circuit, level, { name, partName, opens, is
     }
     const label = path.reduceRight((inner, _, k) => join(segment(k), inner, '›'), own)
     const top = !path.length
-    const failed = e.error === MISSING ? T(`「${n.zh}」还缺输入`, `“${n.en}” is missing an input`)
+    const failed = e.error === MISSING ? T(`「${n.zh}」缺少输入`, `“${n.en}” is missing an input`)
       : !top ? null
       : e.error ?? (e.value?.kind === 'state' && e.value.error && !node.in && !e.inner && !failing ? e.value.error : null)
     if (e.inner) went.add([...path, node.id].join('/'))
