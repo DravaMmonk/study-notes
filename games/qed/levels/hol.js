@@ -1,4 +1,4 @@
-// Chapter 4's topic · Connectives without declaring them: “and” and “or” defined with → alone. A ∧ B is
+// Chapter 3's topic, after the declarations · Connectives without declaring them: “and” and “or” defined with → alone. A ∧ B is
 // (A → B → R) → R and A ∨ B is (A → R) → (B → R) → R, read with R any sentence (here a letter of its own, a sentence
 // like any other): each definition is the rule the declaration's case gave, and the rules that make and use the
 // connective are proved from it with Apply and the box alone. Some provers define the connectives this way (the
@@ -13,7 +13,7 @@ const OR = [{ A: 'Bus', B: 'Bike', R: 'OnTime' }, { A: 'Sat', B: 'Sun', R: 'Rest
 export const hol = [
   {
     id: 'h-and-make',
-    title: T('只用 → 的「并且」', '“And” with → alone'),
+    title: T('定义「并且」', 'Defining “and”'),
     tasks: [
       {
         kind: 'proof',
@@ -41,7 +41,7 @@ export const hol = [
   },
   {
     id: 'h-or-make',
-    title: T('只用 → 的「或者」', '“Or” with → alone'),
+    title: T('定义「或者」', 'Defining “or”'),
     tasks: [
       {
         kind: 'proof',

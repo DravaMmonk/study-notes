@@ -74,6 +74,9 @@ export const ERAS = [
       'decl-imp', 'decl-check', 'decl-and', 'decl-or', 'decl-bot',
     ],
     topics: [
+      // “And” and “or” defined with → alone instead of declared, right after the declarations: optional proofs (the
+      // taking apart uses K).
+      { id: 'hol', code: 'X', after: ['k', 'decl-bot'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') },
       { id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') },
       // The step that makes every elimination rule, built by hand, for whoever wants to see how.
       { id: 'generator', code: 'E', after: 'decl-bot', levels: ['gen-one', 'gen-each'], title: T('消去规则生成器', 'The elimination rule generator') },
@@ -94,8 +97,6 @@ export const ERAS = [
       series('mix', '组合', 'Together', ['iffUse']),
     ],
     topics: [
-      // The connectives defined with → alone instead of declared, after the chapter's last level: optional proofs.
-      { id: 'hol', code: 'X', after: ['k', 'iffUse'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') },
       { id: 'puzzle-connectives', code: 'P', after: ['mergeBoth', 'iffUse'], levels: ['orImp', 'contra', 'dist', 'dsyll'], title: T('证明谜题：连接词', 'Proof puzzles: connectives') },
     ],
     chapter: { title: T('连接词的运用', 'Using the connectives'), question: T('有了声明出来的「与」「或」「非」，能证出些什么？', 'With “and”, “or” and “not” declared, what can be proved?') },
