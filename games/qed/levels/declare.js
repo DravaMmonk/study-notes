@@ -381,62 +381,101 @@ export const declarations = [
 // and not a connective (and why "exactly one" cannot be declared); a way that needs nothing (True); a way whose
 // assumptions are sentences with → in them (if and only if).
 const VOTE = { a1: 'AnnYes', b1: 'BoYes', b2: 'BoYes', c2: 'CyYes', a3: 'AnnYes', c3: 'CyYes' }
+const THREE = {
+  declare: T('三样都要', 'all three'),
+  target: 'Rain ∧ (Wind ∧ Wet)',
+  sentences: ['Rain', 'Wind', 'Wet'],
+  tests: [
+    { given: ['Rain', 'Wind', 'Wet'], make: true },
+    { given: ['Rain', 'Wind'], make: false },
+    { given: ['Rain', 'Wet'], make: false },
+    { given: ['Wind', 'Wet'], make: false },
+    { given: ['Rain ∧ (Wind ∧ Wet)'], goal: 'Wind', make: true },
+    { given: ['Rain ∧ (Wind ∧ Wet)'], goal: 'Slip', make: false },
+    { given: ['Rain ∧ (Wind ∧ Wet)', 'Wet → Slip'], goal: 'Slip', make: true },
+  ],
+  solution: isoBoard(['Rain+Wind+Wet>1']),
+  naive: isoBoard(['Rain+Wind>1', 'Wet>2']),
+}
+const ONE_OF_THREE = {
+  declare: T('三选一', 'one of three'),
+  target: 'Sat ∨ (Sun ∨ Holiday)',
+  sentences: ['Sat', 'Sun', 'Holiday'],
+  tests: [
+    { given: ['Holiday'], make: true },
+    { given: [], make: false },
+    { given: ['Sat ∨ (Sun ∨ Holiday)'], goal: 'Sat', make: false },
+    { given: ['Sat ∨ (Sun ∨ Holiday)', 'Sat → Rest', 'Sun → Rest', 'Holiday → Rest'], goal: 'Rest', make: true },
+    { given: ['Sat ∨ (Sun ∨ Holiday)', 'Sat → Rest', 'Sun → Rest'], goal: 'Rest', make: false },
+  ],
+  solution: isoBoard(['Sat>1', 'Sun>2', 'Holiday>3']),
+}
 const IFF = { f: 'Rain → Wet', g: 'Wet → Rain' }
 
 export const moreDeclarations = [
   {
+    // A declaration of "all three" with the three split over two ways, found out from both directions; then the
+    // player's own; then "one of three" given, its table filled in.
     id: 'decl-three',
     title: T('三样', 'Three of them'),
     tasks: [
       declare({
-        step: T('三样都要', 'All three'),
-        declare: T('三样都要', 'all three'),
-        target: 'Rain ∧ (Wind ∧ Wet)',
-        sentences: ['Rain', 'Wind', 'Wet'],
-        tests: [
-          { given: ['Rain', 'Wind', 'Wet'], make: true },
-          { given: ['Rain', 'Wind'], make: false },
-          { given: ['Rain', 'Wet'], make: false },
-          { given: ['Wind', 'Wet'], make: false },
-          { given: ['Rain ∧ (Wind ∧ Wet)'], goal: 'Wind', make: true },
-          { given: ['Rain ∧ (Wind ∧ Wet)'], goal: 'Slip', make: false },
-          { given: ['Rain ∧ (Wind ∧ Wet)', 'Wet → Slip'], goal: 'Slip', make: true },
+        ...THREE,
+        step: T('过弱的声明', 'A declaration too weak'),
+        play: 'audit',
+        want: 'expose',
+        boards: [{ board: isoBoard(['Rain+Wind>1', 'Wet>2']) }],
+        slots: [
+          { make: false, fixed: ['goal', 'make'] },
+          { given: ['Rain ∧ (Wind ∧ Wet)'], keep: ['Rain ∧ (Wind ∧ Wet)'], make: true, fixed: ['make'] },
         ],
-        brief: T('「下雨、刮风、地湿，三样都要」：三句都已证出才能引入。写出它的声明。', '“It rains, it is windy, the ground is wet: all three”: introduced only when all three are proved. Write its declaration.'),
+        answer: [
+          { given: ['Wet'], make: false },
+          { given: ['Rain ∧ (Wind ∧ Wet)'], goal: 'Wind', make: true },
+        ],
+        naive: [
+          { given: ['Rain', 'Wind', 'Wet'], make: false },
+          { given: ['Rain ∧ (Wind ∧ Wet)'], goal: 'Rain', make: true },
+        ],
+        intro: [{ t: T('「下雨、刮风、地湿，三样都要」：三句都已证出才能引入。板上这份声明不符合这项需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。', '“It rains, it is windy, the ground is wet: all three” may be introduced only when all three are proved. The declaration on the board does not meet this. Write a test case for each direction, introduction and use, to find its fault.') }],
+        brief: T('编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
+        hint: [
+          T('这份声明有几条引入规则？每条各要哪几样？', 'How many introduction rules does this declaration have, and what does each need?'),
+          T('由它生成的消去规则分成几种情况？每种情况交还哪几句？', 'Into how many cases does the elimination rule made from it split, and what does each case hand back?'),
+        ],
+      }),
+      declare({
+        ...THREE,
+        step: T('三样都要', 'All three'),
+        brief: T('写出「三样都要」的声明。', 'Write the declaration of “all three”.'),
         hint: [T('一条引入规则能要几样？', 'How many things can one introduction rule need?')],
-        solution: isoBoard(['Rain+Wind+Wet>1']),
-        naive: isoBoard(['Rain+Wind>1', 'Wet>2']),
         after: T('平常写的「A ∧ B ∧ C」读作「A ∧ (B ∧ C)」，是两层「并且」，不必另外声明。', 'The usual “A ∧ B ∧ C” reads “A ∧ (B ∧ C)”, two “and”s, and needs no declaration of its own.'),
       }),
       declare({
+        ...ONE_OF_THREE,
         step: T('三选一', 'One of three'),
-        declare: T('三选一', 'one of three'),
-        target: 'Sat ∨ (Sun ∨ Holiday)',
-        sentences: ['Sat', 'Sun', 'Holiday'],
-        tests: [
-          { given: ['Sat'], make: true },
-          { given: ['Sun'], make: true },
-          { given: ['Holiday'], make: true },
-          { given: [], make: false },
-          { given: ['Sat ∨ (Sun ∨ Holiday)'], goal: 'Sat', make: false },
-          { given: ['Sat ∨ (Sun ∨ Holiday)', 'Sat → Rest', 'Sun → Rest', 'Holiday → Rest'], goal: 'Rest', make: true },
-          { given: ['Sat ∨ (Sun ∨ Holiday)', 'Sat → Rest', 'Sun → Rest'], goal: 'Rest', make: false },
-        ],
-        brief: T('「今天是周六、周日，或者放假」：三句中证出任何一句就能引入。写出它的声明。', '“Today is Saturday, Sunday, or a holiday”: introduced once any one of the three is proved. Write its declaration.'),
-        hint: [T('三种情形互不相干，每种只要一样。', 'Three separate situations, each needing one thing.')],
-        solution: isoBoard(['Sat>1', 'Sun>2', 'Holiday>3']),
-        naive: isoBoard(['Sat>1', 'Sun>2']),
+        play: 'audit',
+        want: 'agree',
+        boards: [{ board: ONE_OF_THREE.solution }],
+        slots: ONE_OF_THREE.tests.map(({ given, goal }) => ({ given, ...(goal ? { goal } : {}), fixed: ['given', 'goal'] })),
+        answer: ONE_OF_THREE.tests,
+        naive: ONE_OF_THREE.tests.map((c, k) => (k === 4 ? { ...c, make: !c.make } : c)),
+        intro: [{ t: T('「今天是周六、周日，或者放假」：三句中证出任何一句就能引入。板上是它的声明，三条引入规则各要一样。', '“Today is Saturday, Sunday, or a holiday” may be introduced once any one of the three is proved. The board holds its declaration: three introduction rules, each needing one thing.') }],
+        brief: T('按照这份声明，在表中填出每条条例的目标是否可推导。', 'Following this declaration, fill in whether each case’s goal is derivable.'),
+        hint: [T('要用「三选一」推出一句话，三种情况各自都要推得出它。', 'To derive a sentence from “one of three”, each of the three cases must derive it on its own.')],
+        after: T('引入规则越多，引入越容易，使用越难：每多一条引入规则，消去时就多一种情况要处理。', 'The more introduction rules, the easier to introduce and the harder to use: each one more is one more case to handle when taking it apart.'),
       }),
     ],
     intro: [{ t: T('「并且」「或者」都只连接两句话。这一关换成三句。', '“And” and “or” each join two sentences. Here there are three.') }],
   },
   declare({
+    // Two declarations of "and", the premises in either order: no test case tells them apart; then the player writes
+    // the other order, which only the rule written shows (`ways`).
     id: 'decl-order',
     title: T('换个顺序', 'The other order'),
     declare: T('并且', 'and'),
     target: 'Rain ∧ Wind',
     sentences: ['Rain', 'Wind'],
-    ways: [['Wind', 'Rain']],
     tests: [
       { given: ['Rain', 'Wind'], make: true },
       { given: ['Rain'], make: false },
@@ -445,13 +484,44 @@ export const moreDeclarations = [
       { given: ['Rain ∧ Wind'], goal: 'Wet', make: false },
     ],
     intro: [{ t: T('<level-ref to="decl-and"></level-ref>里的「并且」先要「下雨」、再要「刮风」。反过来写行不行？检验条例分得出来吗？', 'The “and” of <level-ref to="decl-and"></level-ref> takes “it rains” first, then “it is windy”. Would the other order do? Can test cases tell?') }],
-    brief: T('写一个先要「刮风」、再要「下雨」的「并且」。', 'Write an “and” that takes “it is windy” first, then “it rains”.'),
-    hint: [T('拼接的前提有先后。', 'The premises of a Join come in order.')],
+    tasks: [
+      {
+        kind: 'iso',
+        step: T('两种顺序', 'Both orders'),
+        play: 'audit',
+        want: 'agree',
+        boards: [{ board: isoBoard(['Rain+Wind>1']) }, { board: isoBoard(['Wind+Rain>1']) }],
+        slots: [
+          { make: true, fixed: ['goal', 'make'] },
+          { given: ['Rain ∧ Wind'], keep: ['Rain ∧ Wind'], make: true, fixed: ['make'] },
+        ],
+        answer: [
+          { given: ['Rain', 'Wind'], make: true },
+          { given: ['Rain ∧ Wind'], goal: 'Rain', make: true },
+        ],
+        naive: [
+          { given: ['Rain'], make: true },
+          { given: ['Rain ∧ Wind'], goal: 'Rain', make: true },
+        ],
+        intro: [{ t: T('电路 1 先要「下雨」，电路 2 先要「刮风」。请从引入和使用两个方向各写一条预期为可推导的条例，检验两份声明。', 'Board 1 takes “it rains” first, board 2 “it is windy” first. Write a case for each direction, introduction and use, expected derivable, and check both declarations.') }],
+        brief: T('编写两条检验条例，使预期符合需求，两份声明的结果都和预期相符。', 'Write two test cases whose expectations meet the requirement and with which both declarations’ results agree.'),
+        hint: [T('引入「并且」要哪几样？有了「并且」，能拆出哪几句？', 'What does introducing “and” need? What can be taken out of an “and”?')],
+      },
+      {
+        kind: 'iso',
+        step: T('先要「刮风」', '“It is windy” first'),
+        ways: [['Wind', 'Rain']],
+        brief: T('写一个先要「刮风」、再要「下雨」的「并且」。', 'Write an “and” that takes “it is windy” first, then “it rains”.'),
+        hint: [T('拼接的前提有先后。', 'The premises of a Join come in order.')],
+      },
+    ],
     solution: isoBoard(['Wind+Rain>1']),
     naive: isoBoard(['Rain+Wind>1']),
     after: T('检验条例只看推得出什么，看不出规则的写法；证明核却只认写下来的那一条。', 'Test cases see only what can be derived, not how a rule is written; the kernel keeps to the rule written down.'),
   }),
   declare({
+    // A declaration missing one of the three pairs, found out from both directions (only Bo is in every pair it has);
+    // then the player's own.
     id: 'decl-two',
     title: T('至少两样', 'At least two'),
     declare: T('提案通过', 'the motion passes'),
@@ -467,15 +537,49 @@ export const moreDeclarations = [
       { given: ['Motion'], goal: 'AnnYes', make: false },
       { given: ['Motion', 'AnnYes → Happy', 'BoYes → Happy'], goal: 'Happy', make: true },
       { given: ['Motion', 'AnnYes → Happy'], goal: 'Happy', make: false },
+      { given: ['Motion', 'BoYes → Happy'], goal: 'Happy', make: false },
     ],
-    intro: [{ t: T('声明的不一定是连接词：一件事有哪几种成立的方式，说得清楚，就能声明。', 'What is declared need not be a connective: whatever holds in ways that can be spelled out can be declared.') }],
-    brief: T('安、博、赛三人投票，至少两人同意，提案就通过。写出「提案通过」的声明。', 'Ann, Bo and Cy vote; with at least two agreeing, the motion passes. Write the declaration of “the motion passes”.'),
-    hint: [T('两人同意有几种组合？', 'How many pairs can agree?'), T('同一句话可以出现在几张前提上。', 'One sentence may be on several premise cards.')],
+    intro: [{ t: T('声明的不一定是连接词：一件事有哪几种成立的方式，说得清楚，就能声明。安、博、赛三人投票，至少两人同意，提案就通过。', 'What is declared need not be a connective: whatever holds in ways that can be spelled out can be declared. Ann, Bo and Cy vote; with at least two agreeing, the motion passes.') }],
+    tasks: [
+      {
+        kind: 'iso',
+        step: T('找出错误', 'Find the fault'),
+        play: 'audit',
+        want: 'expose',
+        boards: [{ board: isoBoard(['a1+b1>1', 'b2+c2>2'], VOTE) }],
+        slots: [
+          { make: true, fixed: ['goal', 'make'] },
+          { given: ['Motion'], keep: ['Motion'], make: false, fixed: ['make'] },
+        ],
+        answer: [
+          { given: ['AnnYes', 'CyYes'], make: true },
+          { given: ['Motion', 'BoYes → Happy'], goal: 'Happy', make: false },
+        ],
+        naive: [
+          { given: ['AnnYes', 'BoYes'], make: true },
+          { given: ['Motion', 'AnnYes → Happy'], goal: 'Happy', make: false },
+        ],
+        intro: [{ t: T('板上这份「提案通过」的声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。', 'The declaration of “the motion passes” on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault.') }],
+        brief: T('编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
+        hint: [
+          T('两人同意共有几种组合？这份声明写出了哪几种？', 'How many pairs can agree? Which does this declaration write out?'),
+          T('这份声明的每一条引入规则里，都有谁？', 'Who is in every one of this declaration’s introduction rules?'),
+        ],
+      },
+      {
+        kind: 'iso',
+        step: T('编写声明', 'Write the declaration'),
+        brief: T('写出「提案通过」的声明。', 'Write the declaration of “the motion passes”.'),
+        hint: [T('两人同意有几种组合？', 'How many pairs can agree?'), T('同一句话可以出现在几张前提上。', 'One sentence may be on several premise cards.')],
+      },
+    ],
     solution: isoBoard(['a1+b1>1', 'b2+c2>2', 'a3+c3>3'], VOTE),
     naive: isoBoard(['a1+b1>1', 'b2+c2>2'], VOTE),
     after: T('「恰好一人同意」却写不成声明：引入规则只能说有了什么就造得出，说不了有了什么就造不出。', '“Exactly one agrees” cannot be declared, though: an introduction rule can say what makes a sentence, never what stops it.'),
   }),
   declare({
+    // A declaration of True that asks for a premise, found out from both directions; then the player's own, with the
+    // card that needs nothing.
     id: 'decl-true',
     title: T('声明「真」', 'Declaring True'),
     declare: T('真', 'True'),
@@ -486,16 +590,51 @@ export const moreDeclarations = [
       { given: [], make: true },
       { given: ['Rain'], make: true },
       { given: ['Truth'], goal: 'Moon', make: false },
+      { given: ['Truth'], goal: 'Rain', make: false },
       { given: ['Truth', 'Rain', 'Rain → Wet'], goal: 'Wet', make: true },
     ],
-    intro: [{ t: T('反过来，一句什么都不要、总证得出的话，该怎么声明？托盘里新添了「无前提」。', 'The other way round from ⊥: how is a sentence declared that needs nothing and is always proved? The tray now has “no premise”.') }],
-    brief: T('「真」：不管手里有什么，甚至什么都没有，都证得出。写出它的声明。', 'True: proved whatever is at hand, even with nothing at all. Write its declaration.'),
-    hint: [T('它需要几条引入规则，每条要几样？', 'How many introduction rules does it need, and how much does each need?')],
+    intro: [{ t: T('与 ⊥ 相反，「真」什么都不要：不管手里有什么，甚至什么都没有，都证得出。', 'The opposite of ⊥: True needs nothing. It is proved whatever is at hand, even with nothing at all.') }],
+    tasks: [
+      {
+        kind: 'iso',
+        step: T('找出错误', 'Find the fault'),
+        play: 'audit',
+        want: 'expose',
+        boards: [{ board: isoBoard(['Rain>1']) }],
+        slots: [
+          { make: true, fixed: ['goal', 'make'] },
+          { given: ['Truth'], keep: ['Truth'], make: false, fixed: ['make'] },
+        ],
+        answer: [
+          { given: [], make: true },
+          { given: ['Truth'], goal: 'Rain', make: false },
+        ],
+        naive: [
+          { given: ['Rain'], make: true },
+          { given: ['Truth'], goal: 'Moon', make: false },
+        ],
+        intro: [{ t: T('板上这份「真」的声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。', 'The declaration of True on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault.') }],
+        brief: T('编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
+        hint: [
+          T('按需求，什么都没有时，能引入「真」吗？', 'By the requirement, can True be introduced with nothing at hand?'),
+          T('这份声明的消去规则交还什么？按需求，单凭「真」能推出它吗？', 'What does this declaration’s elimination rule hand back? By the requirement, does it follow from True alone?'),
+        ],
+      },
+      {
+        kind: 'iso',
+        step: T('编写声明', 'Write the declaration'),
+        intro: [{ t: T('托盘里新添了「无前提」。', 'The tray now has “no premise”.') }],
+        brief: T('写出「真」的声明。', 'Write the declaration of True.'),
+        hint: [T('它需要几条引入规则，每条要几样？', 'How many introduction rules does it need, and how much does each need?')],
+      },
+    ],
     solution: isoBoard(['∅>1']),
     naive: isoBoard(['Rain>1']),
     after: T('「真」常写作 ⊤，和 ⊥ 正好相对：知道它成立，并没有多知道什么。', 'True is often written ⊤, the very opposite of ⊥: knowing it holds tells you nothing more.'),
   }),
   declare({
+    // A declaration of "if and only if" with either direction enough (too weak), found out from both directions; then
+    // the player's own, its premises sentences with → in them.
     id: 'decl-iff',
     title: T('声明「当且仅当」', 'Declaring “if and only if”'),
     declare: T('当且仅当', 'if and only if'),
@@ -511,9 +650,41 @@ export const moreDeclarations = [
       { given: ['Rain ↔ Wet', 'Wet'], goal: 'Rain', make: true },
       { given: ['Rain ↔ Wet'], goal: 'Rain', make: false },
     ],
-    intro: [{ t: T('前提不必是一个字母，也可以是含 → 的句子。', 'A premise need not be a single letter; it can be a sentence with → in it.') }],
-    brief: T('「下雨当且仅当地湿」：两个方向的「若…则…」都在手里才证得出。写出它的声明。', '“It rains if and only if the ground is wet”: proved only with both “if … then …”s at hand. Write its declaration.'),
-    hint: [T('需求要的两样，是同时都要，还是有一样就够？', 'Does the requirement need both at once, or is either enough?')],
+    intro: [{ t: T('「下雨当且仅当地湿」：两个方向的「若…则…」都在手里，才证得出。', '“It rains if and only if the ground is wet” is proved only with both “if … then …”s at hand.') }],
+    tasks: [
+      {
+        kind: 'iso',
+        step: T('找出错误', 'Find the fault'),
+        play: 'audit',
+        want: 'expose',
+        boards: [{ board: isoBoard(['f>1', 'g>2'], IFF) }],
+        slots: [
+          { make: false, fixed: ['goal', 'make'] },
+          { given: ['Rain ↔ Wet'], keep: ['Rain ↔ Wet'], make: true, fixed: ['make'] },
+        ],
+        answer: [
+          { given: ['Rain → Wet'], make: false },
+          { given: ['Rain ↔ Wet', 'Wet'], goal: 'Rain', make: true },
+        ],
+        naive: [
+          { given: ['Rain → Wet', 'Wet → Rain'], make: false },
+          { given: ['Rain ↔ Wet'], goal: 'Rain', make: true },
+        ],
+        intro: [{ t: T('板上这份「当且仅当」的声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。', 'The declaration of “if and only if” on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault.') }],
+        brief: T('编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
+        hint: [
+          T('这份声明的两条引入规则，各要一样还是两样？', 'Does each of this declaration’s two introduction rules need one thing or two?'),
+          T('有了「下雨 ↔ 地湿」，按需求可以从「地湿」推出什么？这份声明的消去规则每种情况交还什么？', 'With “it rains ↔ the ground is wet”, what follows from “the ground is wet” by the requirement? What does each case of this declaration’s elimination rule hand back?'),
+        ],
+      },
+      {
+        kind: 'iso',
+        step: T('编写声明', 'Write the declaration'),
+        intro: [{ t: T('前提不必是一个字母，也可以是含 → 的句子。', 'A premise need not be a single letter; it can be a sentence with → in it.') }],
+        brief: T('写出「当且仅当」的声明。', 'Write the declaration of “if and only if”.'),
+        hint: [T('需求要的两样，是同时都要，还是有一样就够？', 'Does the requirement need both at once, or is either enough?')],
+      },
+    ],
     solution: isoBoard(['f+g>1'], IFF),
     naive: isoBoard(['f>1', 'g>2'], IFF),
   }),
@@ -545,10 +716,42 @@ export const thingDeclarations = [
     ],
     intro: [
       { t: T('「对所有」不用声明：任取一样东西证出来，就是对所有东西证出来，证明核本来就会。「存在」不同：「∃y. y是人」要有某一样东西，再有它是人的证明，比如「苏格拉底是人」。', '“For all” needs no declaration: proved for any thing taken, it is proved for all, and the kernel can already do that. “There is” is different: “∃y. y is human” needs some thing and a proof that it is human, such as “Socrates is human”.') },
-      { t: T('托盘里新添了「任取一样东西」：它取一样东西，叫它 x；拼在它后面的前提可以提到 x。', 'The tray now has “any thing”: it takes a thing and calls it x; premises joined after it may mention x.') },
     ],
-    brief: T('「存在一个人」：手里有某一样东西是人的证明，就能引入。写出它的声明。', '“There is a human”: introduced with a proof that some thing is human. Write its declaration.'),
-    hint: [T('引入规则要两样：一样东西，和关于它的一句话。', 'The introduction rule needs two things: a thing, and a sentence about it.'), T('先取一样东西，再拼上一张前提「x是人」。', 'Take a thing first, then join a premise “x is human”.')],
+    tasks: [
+      {
+        // Someone's declaration taking a thing and a sentence about it, the wrong sentence.
+        kind: 'iso',
+        step: T('找出错误', 'Find the fault'),
+        play: 'audit',
+        want: 'expose',
+        boards: [{ board: isoBoard(['⋀x+m>1'], { m: 'Mortal(x)' }) }],
+        slots: [
+          { make: false, fixed: ['goal', 'make'] },
+          { given: ['∃y. Human(y)'], keep: ['∃y. Human(y)'], make: false, fixed: ['make'] },
+        ],
+        answer: [
+          { given: ['Mortal(soc)'], make: false },
+          { given: ['∃y. Human(y)'], goal: '∃y. Mortal(y)', make: false },
+        ],
+        naive: [
+          { given: ['Human(soc)'], make: false },
+          { given: ['∃y. Human(y)'], goal: 'Human(soc)', make: false },
+        ],
+        intro: [{ t: T('「存在一个人」：手里有某一样东西是人的证明，就能引入。板上这份声明不符合这项需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。', '“There is a human” may be introduced with a proof that some thing is human. The declaration on the board does not meet this. Write a test case for each direction, introduction and use, to find its fault.') }],
+        brief: T('编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
+        hint: [
+          T('这份声明取了一样东西之后，要的是关于它的哪一句？', 'Having taken a thing, which sentence about it does this declaration ask for?'),
+          T('这份声明的消去规则交还关于那样东西的哪一句？按需求，单凭「存在一个人」，能推出同一句吗？', 'Which sentence about that thing does this declaration’s elimination rule hand back? By the requirement, does the same follow from “there is a human” alone?'),
+        ],
+      },
+      {
+        kind: 'iso',
+        step: T('编写声明', 'Write the declaration'),
+        intro: [{ t: T('托盘里新添了「任取一样东西」：它取一样东西，叫它 x；拼在它后面的前提可以提到 x。', 'The tray now has “any thing”: it takes a thing and calls it x; premises joined after it may mention x.') }],
+        brief: T('写出「存在一个人」的声明。', 'Write the declaration of “there is a human”.'),
+        hint: [T('引入规则要两样：一样东西，和关于它的一句话。', 'The introduction rule needs two things: a thing, and a sentence about it.'), T('先取一样东西，再拼上一张前提「x是人」。', 'Take a thing first, then join a premise “x is human”.')],
+      },
+    ],
     solution: isoBoard(['⋀x+h>1'], { h: 'Human(x)' }),
     naive: isoBoard(['h>1'], { h: 'Human(x)' }),
   }),

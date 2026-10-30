@@ -343,6 +343,14 @@ export default {
     { split: ['orSwap', ['orSwap', 'orImp']] },
     { split: ['mt', ['mt', 'contra', 'denyAnte']] },
     { merge: ['mt', ['mt', 'denyAnte']] },
+  ] },
+  // Version 66 began the later declarations with finding the fault in a wrong one: 三样's two declarations move to the
+  // second task (三选一 became a table to fill in), and the declaration written of 换个顺序, 至少两样, 声明「真」,
+  // 声明「当且仅当」 and 声明「存在」 to their second; their tasks start afresh.
+  { version: 66, ops: [
+    { data: (value, id) => (id === 'decl-three' && Array.isArray(value) ? [null, value[0] ?? null, null]
+      : ['decl-order', 'decl-two', 'decl-true', 'decl-iff', 'decl-ex'].includes(id) && value && !Array.isArray(value) ? [null, value] : value) },
+    { tasks: (passed, id) => (['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff', 'decl-ex'].includes(id) ? 0 : passed) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
