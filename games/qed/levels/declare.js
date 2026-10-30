@@ -95,9 +95,9 @@ export const declarations = [
     ...IMP,
     solution: isoBoard(['Rain>Wet', 'Wet>1']),
     intro: [
-      { t: T('<level-ref to="decl-imp"></level-ref>里的检验条例已经给出，现在来自己编写。每条条例描述一种情况：有哪些<b>前提</b>、要推导什么<b>目标</b>，以及按照需求，目标<b>预期</b>能否推导出来。', 'The test cases in <level-ref to="decl-imp"></level-ref> were provided. Now write your own. Each case describes a situation: the available <b>premises</b>, the <b>goal</b>, and whether the requirement <b>expects</b> that goal to be derivable.') },
-      { t: T('声明规定了哪些推导可以成立。运行检验时，证明机会按声明给出<b>结果</b>，再与条例中的预期比较。结果不符，就说明这份声明在该情况下没有符合需求。', 'A declaration specifies which derivations are allowed. When a test runs, the prover gives a <b>result</b> according to the declaration and compares it with the expectation. A mismatch shows that the declaration fails to meet the requirement in that case.') },
-      { t: T('条例可以检验声明的两方面：什么时候能推出声明的命题，以及有了这个命题还能推出什么。本关先为自己写的声明编写一条结果相符的条例，再为另一份声明找一条结果不符的条例。', 'Cases can check both when the declared statement can be derived and what follows from it. In this level, first write a case that agrees with your own declaration, then find a case that disagrees with another declaration.') },
+      { t: T('<b>检验条例</b>用来检查声明是否符合我们想表达的意思。每条条例描述一种情况：有哪些<b>前提</b>、要推导什么<b>目标</b>，以及在这些前提下，目标<b>预期</b>能否推导出来。', 'A <b>test case</b> checks whether a declaration captures the intended meaning. Each case describes a situation: the available <b>premises</b>, the <b>goal</b>, and whether the goal is <b>expected</b> to follow from those premises.') },
+      { t: T('声明规定了哪些推导可以成立。运行检验时，证明器会按声明给出<b>结果</b>，再与条例中的预期比较。结果不符，就说明声明在这种情况下没有表达出我们想要的意思。', 'A declaration specifies which derivations are allowed. When a test runs, the prover gives a <b>result</b> according to the declaration and compares it with the expectation. A mismatch shows that the declaration does not capture the intended meaning in that situation.') },
+      { t: T('本关先为自己写的声明编写一条结果相符的条例，再为另一份声明找一条结果不符的条例。', 'In this level, first write a case that agrees with your own declaration, then find a case that disagrees with another declaration.') },
     ],
     tasks: [
       {
@@ -110,8 +110,8 @@ export const declarations = [
         slots: 1,
         answer: [{ given: ['Wet'], make: true }],
         naive: [{ given: ['Rain'], make: true }],
-        intro: [{ t: T('板上是你在<level-ref to="decl-imp"></level-ref>写的声明，不能修改。请编写一条条例，看看这份声明在该情况下的结果是否符合预期。', 'The board holds your declaration from <level-ref to="decl-imp"></level-ref>, locked. Write a case to check whether its result agrees with the expectation in that situation.') }],
-        brief: T('编写一条检验条例：预期符合需求，声明的结果与预期相符。', 'Write a test case whose expectation meets the requirement and whose result agrees with it.'),
+        intro: [{ t: T('板上是你在<level-ref to="decl-imp"></level-ref>写的声明。找出一种情况，使这份声明的结果与预期相符，并将这个情况填入表内。', 'The board holds your declaration from <level-ref to="decl-imp"></level-ref>. Find a situation in which its result agrees with your expectation, and enter it in the table.') }],
+        brief: T('找出一种情况：预期符合需求，声明的结果与预期相符。', 'Find a situation where the expectation meets the requirement and the declaration’s result agrees with it.'),
         hint: [T('先定下前提和目标，再按需求想：这时目标该不该推得出？', 'Choose the premises and the goal first, then ask what the requirement says: should the goal be derivable?')],
       },
       {
@@ -123,8 +123,8 @@ export const declarations = [
         slots: 1,
         answer: [{ given: ['Rain'], make: false }],
         naive: [{ given: ['Rain', 'Wet'], make: true }],
-        intro: [{ t: T('板上换成了别人写的声明，同样不能修改。请找出一种情况，让声明的结果与需求给出的预期不同。', 'The board now holds someone else’s declaration, also locked. Find a situation in which its result differs from the expectation set by the requirement.') }],
-        brief: T('编写一条检验条例：预期符合需求，声明的结果却与预期不符。', 'Write a test case whose expectation meets the requirement but whose result disagrees with it.'),
+        intro: [{ t: T('板上换成了别人写的声明。找出一种情况，使这份声明的结果与预期不符，并将这个情况填入表内。', 'The board now holds someone else’s declaration. Find a situation in which its result disagrees with your expectation, and enter it in the table.') }],
+        brief: T('找出一种情况：预期符合需求，声明的结果却与预期不符。', 'Find a situation where the expectation meets the requirement but the declaration’s result disagrees with it.'),
         hint: [T('这份声明要的前提和需求一样吗？', 'Does this declaration ask for the same premise as the requirement?')],
       },
     ],
