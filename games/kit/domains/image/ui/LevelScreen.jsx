@@ -166,13 +166,13 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
     <section className="score">
       <h3 className="panel-label">{tr('评分', 'Score')}</h3>
       <div className="stat-row">
-        <div className="stat"><b>{run?.score.nodes ?? 0}</b><span>{tr('节点', 'Parts')}</span></div>
+        <div className="stat"><b>{run?.score.nodes ?? 0}</b><span>{tr('元件', 'Parts')}</span></div>
         <div className="stat"><b>{run?.score.cost ?? 0}</b><span>{tr('计算量', 'Cost')}</span></div>
         {run?.score.learned > 0 && <div className="stat"><b>{run.score.learned}</b><span>{tr('参数', 'Parameters')}</span></div>}
-        <div className={`stat ${shown?.pass ? 'is-pass' : ''}`}><b>{shown?.untested ? '—' : passed}/{playLevel.tests.length}</b><span>{shown?.untested ? tr('还没测试', 'Not tested') : tr('测试', 'Tests')}</span></div>
+        <div className={`stat ${shown?.pass ? 'is-pass' : ''}`}><b>{shown?.untested ? '—' : passed}/{playLevel.tests.length}</b><span>{shown?.untested ? tr('尚未测试', 'Not tested') : tr('测试', 'Tests')}</span></div>
       </div>
       {run?.constraint && <p className="constraint">{L(run.constraint)}</p>}
-      {progress.best[level.id] && <p className="panel-note">{tr(`最佳：${progress.best[level.id].nodes} 个节点 · 计算量 ${progress.best[level.id].cost}`, `Best: ${progress.best[level.id].nodes} parts · cost ${progress.best[level.id].cost}`)}</p>}
+      {progress.best[level.id] && <p className="panel-note">{tr(`最佳：${progress.best[level.id].nodes} 个元件 · 计算量 ${progress.best[level.id].cost}`, `Best: ${progress.best[level.id].nodes} parts · cost ${progress.best[level.id].cost}`)}</p>}
     </section>
   )
   // Clearing is the board's own tool (it asks first); it takes the training curve with it.
@@ -211,7 +211,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   // run bar.
   const half = { level: playLevel, hiddenCount, hiddenMiss, run: shown, testIndex, onSelect: setTestIndex, sensors, theme, scan, onScan: setScan, inView: roleView('input'), outView: roleView('output'), onView: showRole, probe, onProbe: setProbe }
   const states = playLevel.tests.map((t, k) => (shown?.untested || !shown ? null : shown.results[k]?.pass ? 'pass' : 'fail'))
-  const hidden = { count: hiddenCount, failed: hiddenMiss?.failed, note: hiddenMiss ? { zh: `下面的测试都通过了，但 ${hiddenMiss.total} 组隐藏测试里有 ${hiddenMiss.failed} 组没过：电路可能只对这几张图凑巧成立。`, en: `Every test passes, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.` } : { zh: `另有 ${hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。`, en: `${hiddenCount} more hidden tests are checked with every run and shown once you pass.` } }
+  const hidden = { count: hiddenCount, failed: hiddenMiss?.failed, note: hiddenMiss ? { zh: `以下测试全部通过，但 ${hiddenMiss.total} 组隐藏测试中有 ${hiddenMiss.failed} 组未通过：电路可能只是恰好适用于这几张图。`, en: `Every test passes, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.` } : { zh: `另有 ${hiddenCount} 组隐藏测试，运行测试时一并检查，通关后公开。`, en: `${hiddenCount} more hidden tests are checked with every run and shown once you pass.` } }
   return (
     <CircuitLayout
       className="level-graph"
@@ -248,12 +248,12 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
 // Boards are module-level lazy components looked up by name.
 function BoardLevel({ level, onSolve, theme }) {
   const board = boardFor(level.board)
-  if (!board) return <div className="board-loading">{tr('这个机关台还没做好。', 'This bench is not built yet.')}</div>
+  if (!board) return <div className="board-loading">{tr('这个机关台尚未完成。', 'This bench is not available yet.')}</div>
   return createElement(board, { level, onSolve, theme })
 }
 
 function LossCurve({ losses }) {
-  if (!losses.length) return <p className="panel-note">{tr('还没训练。每一步，所有可学习的权重都朝让误差变小的方向挪一点。', 'Not trained yet. Each step nudges every learnable weight in the direction that makes the error smaller.')}</p>
+  if (!losses.length) return <p className="panel-note">{tr('尚未训练。每训练一步，所有可学习的权重都朝误差减小的方向微调一点。', 'Not trained yet. Each step moves every learnable weight slightly in the direction that reduces the error.')}</p>
   // Both curves share one log scale: the error on the training tests and, when the level keeps new samples back, on those.
   const all = losses.flatMap((l) => [l.train, l.check]).filter((v) => v !== null && Number.isFinite(v))
   const lo = Math.log(Math.min(...all) + 1e-9)

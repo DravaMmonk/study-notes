@@ -45,7 +45,7 @@ export default function CurveView({ img, expected, tolerance, width = 112, heigh
   const shown = value ?? want
   return (
     <div className="curve-wrap" style={{ width }}>
-      <svg className="curve-view" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={tr('波形：指向一个点看它的数值', 'Waveform: point at a spot to read its value')} onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
+      <svg className="curve-view" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={tr('波形：指向某点读取数值', 'Waveform: point at a spot to read its value')} onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
         {lo < 0 && <line className="curve-zero" x1={pad} x2={width - pad} y1={y(0)} y2={y(0)} />}
         <line className="curve-floor" x1={pad} x2={width - pad} y1={height - pad} y2={height - pad} />
         {band && <path className="curve-band" d={band} />}

@@ -80,10 +80,10 @@ export default function AttendContrast({ level, onSolve, theme }) {
   const tag = (i) => `${m.NAMES[quiz[i].image]}${(i % 2) + 1}`
   const at = (i, r = 1) => [Math.cos(shown[i]) * r, -Math.sin(shown[i]) * r]
   const status = report.collapsed
-    ? ['is-fail', tr('坍缩：所有视图挤到了同一个方向，谁也认不出谁。', 'Collapsed: every view is squeezed into the same direction, and none can tell the others apart.')]
+    ? ['is-fail', tr('坍缩：所有视图都挤向同一方向，彼此无法区分。', 'Collapsed: every view is squeezed into the same direction, so none can be told apart.')]
     : report.pass
-      ? ['is-pass', tr('通过：每个视图都认得出自己的搭档。', 'Passed: every view recognises its partner.')]
-      : ['', state.t ? tr('继续训练，看点往哪里走。', 'Keep training and watch where the dots go.') : tr('还没训练：编码器是随机的。', 'Not trained yet: the encoder is random.')]
+      ? ['is-pass', tr('通过：每个视图都能认出自己的搭档。', 'Passed: every view recognises its partner.')]
+      : ['', state.t ? tr('继续训练，观察各点的移动方向。', 'Keep training and watch where the dots move.') : tr('尚未训练：编码器的权重是随机的。', 'Not trained yet: the encoder weights are random.')]
 
   return (
     <div className="bk contrast">
@@ -113,7 +113,7 @@ export default function AttendContrast({ level, onSolve, theme }) {
             })}
           </svg>
           <p className={`bk-verdict contrast-verdict ${status[0]}`} aria-live="polite">{status[1]}</p>
-          <p className="bk-caption contrast-legend"><span>{tr('● 第 1 个视图', '● First view')}</span><span>{tr('○ 第 2 个视图', '○ Second view')}</span><span>{tr('— 连线连着同一张图的两个视图', '— A line joins the two views of the same image')}</span></p>
+          <p className="bk-caption contrast-legend"><span>{tr('● 第 1 个视图', '● First view')}</span><span>{tr('○ 第 2 个视图', '○ Second view')}</span><span>{tr('— 连线连接同一张图的两个视图', '— A line joins the two views of the same image')}</span></p>
         </section>
 
         <div className="bk-stack">
@@ -179,7 +179,7 @@ export default function AttendContrast({ level, onSolve, theme }) {
                 ))}
               </tbody>
             </table>
-            <p className="bk-caption">{tr('数字是选中的概率（%）；粗框是真正的搭档。', 'Numbers are the chance of being picked (%); the bold frame marks the true partner.')}</p>
+            <p className="bk-caption">{tr('数字为选中各视图的概率（%）；粗框标出真正的搭档。', 'Numbers are the probability of each pick (%); the bold frame marks the true partner.')}</p>
           </figure>
         </div>
       </div>
@@ -189,7 +189,7 @@ export default function AttendContrast({ level, onSolve, theme }) {
 
 function LossLine({ losses, positive }) {
   const tail = <> · {tr('正对平均 sim', 'mean sim of positive pairs')} <b>{positive.toFixed(2)}</b></>
-  if (losses.length < 2) return <p className="bk-note contrast-curve-empty">{tr('训练后，损失曲线画在这里', 'After training, the loss curve is drawn here')}{tail}</p>
+  if (losses.length < 2) return <p className="bk-note contrast-curve-empty">{tr('训练后在此显示损失曲线', 'The loss curve appears here after training')}{tail}</p>
   const max = Math.max(...losses)
   const min = Math.min(...losses)
   const span = Math.max(1e-9, max - min)

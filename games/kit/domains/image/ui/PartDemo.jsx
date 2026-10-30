@@ -100,7 +100,7 @@ export default function PartDemo({ flag, type, home, flags, phone, levels, box }
   }
   if (!phone) {
     return (
-      <DemoBench {...common} note={{ zh: '换一张测试图、改改元件上的设置，再点运行，看看每个元件输出什么。', en: 'Pick another test picture or change a setting on a part, then run it and see what every part puts out.' }}>
+      <DemoBench {...common} note={{ zh: '更换测试图或修改元件设置，然后点击运行，查看每个元件的输出。', en: "Pick another test picture or change a part's settings, then run to see what each part outputs." }}>
         <Editor graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} sensors={made.sensors} outputLabels={made.bench.outputLabels} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
       </DemoBench>
     )
@@ -126,7 +126,7 @@ export default function PartDemo({ flag, type, home, flags, phone, levels, box }
   const params = node ? settingsOf(node.type, flags) : []
   const change = (key, v) => onChange(setParam(graph, node.id, key, v))
   const panel = !node ? (
-    <p className="panel-note">{tr('点一块，在这里改它的设置；改好点运行，看每一块输出什么。', 'Tap a block to change its settings here; then run, and see what every block puts out.')}</p>
+    <p className="panel-note">{tr('点击一个元件，在此修改它的设置；然后运行，查看每个元件的输出。', 'Tap a part to change its settings here, then run to see what each part outputs.')}</p>
   ) : (
     <>
       <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'input' ? tr('输入', 'Input') : node.type === 'output' ? tr('输出', 'Output') : describe(node.type)}</small></div>

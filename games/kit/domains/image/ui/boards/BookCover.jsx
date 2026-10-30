@@ -74,7 +74,7 @@ export default function BookCover({ level, onSolve }) {
   const addPair = (cover, photo) => {
     const rest = pairs.filter((p) => p.cover !== cover && p.photo !== photo)
     if (rest.length >= 4) {
-      setMessage({ zh: '最多 4 对点。先删掉一对。', en: 'At most 4 pairs. Delete one first.' })
+      setMessage({ zh: '最多 4 对点，请先删除一对。', en: 'At most 4 pairs. Delete one first.' })
       return
     }
     setMessage('')
@@ -178,15 +178,15 @@ export default function BookCover({ level, onSolve }) {
   const pw = m.PHOTO.w * S
   const ph = m.PHOTO.h * S
 
-  let status = tr('至少连 3 对点，才能把封面贴上去。', 'Join at least 3 pairs before the cover can be pasted on.')
-  if (pairs.length === 3) status = fit.model ? tr('3 对点 → 仿射变换（6 个自由度）。', '3 pairs → affine transform (6 degrees of freedom).') : tr('这 3 对点在一条线上，定不出变换。', 'These 3 pairs lie on one line and cannot fix a transform.')
-  if (pairs.length === 4) status = fit.model ? tr('4 对点 → 单应变换，用 DLT 求解（8 个自由度）。', '4 pairs → homography, solved with DLT (8 degrees of freedom).') : tr('这 4 对点太集中或共线，定不出 H。', 'These 4 pairs are too bunched up or collinear to fix H.')
+  let status = tr('至少需要 3 对点才能贴上封面。', 'At least 3 pairs are needed to paste the cover on.')
+  if (pairs.length === 3) status = fit.model ? tr('3 对点 → 仿射变换（6 个自由度）。', '3 pairs → affine transform (6 degrees of freedom).') : tr('这 3 对点共线，无法确定变换。', 'These 3 pairs are collinear, so the transform is undetermined.')
+  if (pairs.length === 4) status = fit.model ? tr('4 对点 → 单应变换，用 DLT 求解（8 个自由度）。', '4 pairs → homography, solved with DLT (8 degrees of freedom).') : tr('这 4 对点过于集中或共线，无法确定 H。', 'These 4 pairs are too clustered or collinear to determine H.')
   const prompt =
     armed?.side === 'cover'
-      ? tr('已选封面上的点 → 再点照片里同一个点。', 'Cover point selected → now click the same point in the photo.')
+      ? tr('已选封面上的点 → 再点击照片中的同一点。', 'Cover point selected → now click the same point in the photo.')
       : armed?.side === 'photo'
-        ? tr('已选照片里的点 → 再点封面上对应的点。', 'Photo point selected → now click the matching point on the cover.')
-        : tr('点封面上的一个圆点，再点照片里同一个位置的圆点；也可以直接拖过去。', 'Click a dot on the cover, then the dot at the same place in the photo; or just drag across.')
+        ? tr('已选照片中的点 → 再点击封面上的对应点。', 'Photo point selected → now click the matching point on the cover.')
+        : tr('点击封面上的一个圆点，再点击照片中同一位置的圆点；也可以直接拖动连接。', 'Click a dot on the cover, then the dot at the same spot in the photo, or drag from one to the other.')
 
   const marker = (side, i, [x, y], used, r, fs) => {
     const isArmed = armed?.side === side && armed.index === i
@@ -277,7 +277,7 @@ export default function BookCover({ level, onSolve }) {
                   <li key={`${p.cover}-${p.photo}`}>
                     <i>{i + 1}</i>
                     <span>({x}, {y}) → ({u.toFixed(0)}, {v.toFixed(0)})</span>
-                    <button aria-label={tr(`删掉第 ${i + 1} 对`, `Delete pair ${i + 1}`)} onPointerDown={(e) => e.stopPropagation()} onClick={() => setPairs((all) => all.filter((_, j) => j !== i))}><X size={15} /></button>
+                    <button aria-label={tr(`删除第 ${i + 1} 对`, `Delete pair ${i + 1}`)} onPointerDown={(e) => e.stopPropagation()} onClick={() => setPairs((all) => all.filter((_, j) => j !== i))}><X size={15} /></button>
                   </li>
                 )
               })}

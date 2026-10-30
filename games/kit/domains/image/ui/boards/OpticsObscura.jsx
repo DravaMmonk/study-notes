@@ -138,7 +138,7 @@ export default function OpticsObscura({ level, onSolve }) {
           <Dimension x0={Z} x1={s} y={dimY} fs={fs} label={label('f', state.s - state.Z)} />
           <text className="optics-tag is-left" x={-8 * u} y={Y(m.ARROW / 2) + fs * 0.35}>{phone ? `X ${m.ARROW}` : `X = ${m.ARROW} mm`}</text>
         </svg>
-        <figcaption className="bk-caption">{phone ? tr('左右拖孔板和屏幕 · 单位 mm', 'Drag the plate and screen sideways · units: mm') : tr('左右拖孔板和屏幕（也可聚焦后按方向键，Shift 一次 10 mm）', 'Drag the plate and screen sideways (or focus one and use the arrow keys; Shift moves 10 mm)')}</figcaption>
+        <figcaption className="bk-caption">{phone ? tr('左右拖动孔板和屏幕 · 单位 mm', 'Drag the plate and screen sideways · units: mm') : tr('左右拖动孔板和屏幕（也可聚焦后按方向键，按住 Shift 每次移动 10 mm）', 'Drag the plate and screen sideways (or focus one and use the arrow keys; Shift moves 10 mm)')}</figcaption>
       </figure>
 
       <div className="optics-lower">

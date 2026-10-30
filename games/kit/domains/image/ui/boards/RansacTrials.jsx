@@ -80,7 +80,7 @@ export default function RansacTrials({ level, onSolve }) {
             <input className="bk-range" type="range" min={D_MIN} max={D_MAX} step={0.05} value={delta} style={{ '--fill': `${((delta - D_MIN) / (D_MAX - D_MIN)) * 100}%` }} onChange={(e) => setDelta(Number(e.target.value))} aria-label={tr('内点阈值 δ', 'Inlier threshold δ')} />
             <output>{delta.toFixed(2)} px</output>
           </label>
-          <figcaption className="bk-caption">{tr('δ 由三种比例共用。色带是离直线不到 δ 的范围；虚线是真的直线，圈出的是抽中的两点', 'δ is shared by all three ratios. The band covers everything closer than δ to the line; the dashed line is the true line, and the circled points are the two drawn')}</figcaption>
+          <figcaption className="bk-caption">{tr('δ 由三种比例共用。色带是与直线距离小于 δ 的范围；虚线是真实直线，圆圈标出抽中的两点', 'δ is shared by all three ratios. The band covers everything closer than δ to the line; the dashed line is the true line, and the circled points are the two drawn')}</figcaption>
         </figure>
 
         <div className="bk-stack mb-cards">

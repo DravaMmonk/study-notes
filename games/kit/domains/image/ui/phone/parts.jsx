@@ -42,7 +42,7 @@ export function AddSheet({ level, graph, previewFrom, test, title, theme, onAdd,
               return (
                 <button key={type} className="ph-part" data-family={familyOf(type)} onClick={() => onAdd(type)}>
                   <span className="ph-part-preview">
-                    {value ? <ValueView img={value} size={kindOf(value) === 'signal' ? 92 : 64} theme={theme} /> : <span className="ph-part-need">{inputsOf(type).length > 1 ? tr(`${inputsOf(type).length} 个输入`, `${inputsOf(type).length} inputs`) : tr('加上看看', 'Add to see')}</span>}
+                    {value ? <ValueView img={value} size={kindOf(value) === 'signal' ? 92 : 64} theme={theme} /> : <span className="ph-part-need">{inputsOf(type).length > 1 ? tr(`${inputsOf(type).length} 个输入`, `${inputsOf(type).length} inputs`) : tr('添加后预览', 'Add to preview')}</span>}
                   </span>
                   <span className="ph-part-text">
                     <b><i className="family-chip">{createElement(iconOf(type), { size: 12, strokeWidth: 1.8 })}</i>{L(NODE_TYPES[type].label)}{level.fresh?.includes(type) && <em className="pb-new">{tr('新', 'new')}</em>}</b>

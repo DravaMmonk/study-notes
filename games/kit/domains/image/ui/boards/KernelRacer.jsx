@@ -101,12 +101,12 @@ export default function KernelRacer({ level, onSolve, theme }) {
   return (
     <div className="bk racer">
       <header className="bk-panel is-quiet racer-head">
-        <div className="racer-progress" role="img" aria-label={tr(`第 ${Math.min(index + 1, total)} / ${total} 轮，对 ${right} 轮`, `Round ${Math.min(index + 1, total)} / ${total}, ${right} right`)}>
+        <div className="racer-progress" role="img" aria-label={tr(`第 ${Math.min(index + 1, total)} / ${total} 轮，答对 ${right} 轮`, `Round ${Math.min(index + 1, total)} / ${total}, ${right} correct`)}>
           {Array.from({ length: total }, (_, i) => (
             <i key={i} className={i < results.length ? (results[i] ? 'is-right' : 'is-wrong') : i === index && phase === 'play' ? 'is-now' : ''} />
           ))}
         </div>
-        <span className="bk-chip racer-score">{tr(`对 ${right} / ${total} · 过关 ${pass}`, `Right ${right} / ${total} · pass at ${pass}`)}</span>
+        <span className="bk-chip racer-score">{tr(`答对 ${right} / ${total} · 过关需 ${pass}`, `Correct ${right} / ${total} · ${pass} to pass`)}</span>
         <label className="bk-check racer-toggle">
           <input type="checkbox" checked={!timed} onChange={(e) => setTimed(!e.target.checked)} />
           {tr('不限时', 'No time limit')}
@@ -134,7 +134,7 @@ export default function KernelRacer({ level, onSolve, theme }) {
           </section>
 
           <div className="bk-stack">
-            <div className="racer-choices" role="group" aria-label={tr('哪个核', 'Which kernel')}>
+            <div className="racer-choices" role="group" aria-label={tr('选择核', 'Choose a kernel')}>
               {round.choices.map((k, i) => {
                 const state = feedback ? (i === round.answer ? 'is-right' : i === feedback.chosen ? 'is-wrong' : 'is-dim') : ''
                 return (
@@ -148,7 +148,7 @@ export default function KernelRacer({ level, onSolve, theme }) {
               })}
             </div>
             <p className={`bk-verdict racer-note ${feedback ? (feedback.chosen === round.answer ? 'is-pass' : 'is-fail') : ''}`} aria-live="polite">
-              {feedback ? (feedback.chosen === null ? tr('时间到。', 'Time is up.') : feedback.chosen === round.answer ? tr('对。', 'Right.') : tr('不对，是标出的那个。', 'Wrong: it is the one marked.')) : phone ? tr('点一个核。', 'Tap a kernel.') : tr('点选，或按数字键 1–4。', 'Click one, or press 1–4.')}
+              {feedback ? (feedback.chosen === null ? tr('时间到。', 'Time is up.') : feedback.chosen === round.answer ? tr('正确。', 'Correct.') : tr('错误，正确答案已标出。', 'Wrong. The correct one is marked.')) : phone ? tr('点击选择一个核。', 'Tap a kernel.') : tr('点击选择，或按数字键 1–4。', 'Click one, or press 1–4.')}
             </p>
           </div>
         </div>
@@ -158,16 +158,16 @@ export default function KernelRacer({ level, onSolve, theme }) {
         <section className="bk-stage racer-gate">
           {phase === 'done' && (
             <p className={`bk-title racer-result ${right >= pass ? 'is-pass' : ''}`}>
-              {right >= pass ? tr(`对了 ${right} / ${total}，过关。`, `${right} / ${total} right. Passed.`) : tr(`对了 ${right} / ${total}，还差 ${pass - right} 轮。`, `${right} / ${total} right, ${pass - right} short.`)}
+              {right >= pass ? tr(`答对 ${right} / ${total}，过关。`, `${right} / ${total} correct. Passed.`) : tr(`答对 ${right} / ${total}，还差 ${pass - right} 轮。`, `${right} / ${total} correct, ${pass - right} short.`)}
             </p>
           )}
-          <p className="racer-lede">{tr('每一轮给你一张输入、一张输出和四个 3×3 核，选出做这件事的那个。', 'Each round gives you an input, an output and four 3×3 kernels. Pick the one that did it.')}</p>
+          <p className="racer-lede">{tr('每轮给出一张输入图、一张输出图和四个 3×3 核，请选出产生这张输出图的核。', 'Each round shows an input, an output and four 3×3 kernels. Pick the kernel that produced the output.')}</p>
           <div className="racer-rules">
             <span className="bk-chip">{tr(`${total} 轮`, `${total} rounds`)}</span>
-            <span className="bk-chip">{tr(`对 ${pass} 轮过关`, `${pass} right to pass`)}</span>
-            <span className="bk-chip">{timed ? tr(`${level.timeFor(0).toFixed(0)} 秒起，越来越短`, `${level.timeFor(0).toFixed(0)} s at first, then shorter`) : tr('不限时', 'No time limit')}</span>
+            <span className="bk-chip">{tr(`答对 ${pass} 轮过关`, `${pass} correct to pass`)}</span>
+            <span className="bk-chip">{timed ? tr(`首轮 ${level.timeFor(0).toFixed(0)} 秒，逐轮缩短`, `${level.timeFor(0).toFixed(0)} s for the first round, shorter after`) : tr('不限时', 'No time limit')}</span>
           </div>
-          <button className="bk-btn is-primary racer-start" onClick={start} autoFocus>{phase === 'done' ? tr('再来一局', 'Play again') : tr('开始', 'Start')}</button>
+          <button className="bk-btn is-primary racer-start" onClick={start} autoFocus>{phase === 'done' ? tr('再玩一局', 'Play again') : tr('开始', 'Start')}</button>
         </section>
       )}
     </div>

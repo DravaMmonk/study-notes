@@ -45,10 +45,10 @@ export default function SumBench({ level, onSolve }) {
     <div className="bk wv wv-bench">
       <div className="bk-split">
         <section className="bk-stage bk-stack">
-          <Plot width={phone ? 340 : 600} height={phone ? 200 : 240} label={tr('你叠出的曲线和目标', 'Your curve and the target')} lines={[{ curve: curve(s.target), kind: 'target', label: tr('目标', 'target') }, { curve: curve(amps), kind: 'yours', label: tr('你的', 'yours') }]} />
+          <Plot width={phone ? 340 : 600} height={phone ? 200 : 240} label={tr('你叠加出的曲线与目标', 'Your curve and the target')} lines={[{ curve: curve(s.target), kind: 'target', label: tr('目标', 'target') }, { curve: curve(amps), kind: 'yours', label: tr('你的', 'yours') }]} />
           <div className="wv-legend">
             <span><i className="is-target" />{tr('目标', 'Target')}</span>
-            <span><i />{tr('你叠出的', 'Yours')}</span>
+            <span><i />{tr('你叠加出的', 'Yours')}</span>
           </div>
           <div className="wv-strips" aria-label={tr('同一行画成像素', 'The same row drawn as pixels')}>
             <Strip label={tr('目标', 'Target')} values={b.row(s.target)} />
@@ -56,7 +56,7 @@ export default function SumBench({ level, onSolve }) {
           </div>
           <p className="wv-formula">
             0.5{used.length ? used.map(([a, k]) => <span key={k}> + <b>{a.toFixed(2)}</b>·sin(k={k})</span>) : null}
-            <span className="wv-gap"> · {tr(`这一行的平均 ${mean.toFixed(3)}`, `row average ${mean.toFixed(3)}`)} · {tr(`最大误差 ${gap.toFixed(3)}，要不超过 ${b.tolerance}`, `largest error ${gap.toFixed(3)}, at most ${b.tolerance}`)}</span>
+            <span className="wv-gap"> · {tr(`这一行的平均 ${mean.toFixed(3)}`, `row average ${mean.toFixed(3)}`)} · {tr(`最大误差 ${gap.toFixed(3)}，须不超过 ${b.tolerance}`, `largest error ${gap.toFixed(3)}, at most ${b.tolerance}`)}</span>
           </p>
         </section>
 
@@ -74,7 +74,7 @@ export default function SumBench({ level, onSolve }) {
               </label>
             ))}
             <div className="wv-next">
-              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />{L(s.win)}</> : tr('还没和目标重合。', 'Not on the target yet.')}</p>
+              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />{L(s.win)}</> : tr('尚未与目标重合。', 'Not on the target yet.')}</p>
               {passed[stage] && stage < b.stages.length - 1 && <button className="bk-btn is-primary" onClick={advance}>{tr('下一步', 'Next step')} <ArrowRight size={15} /></button>}
             </div>
           </section>

@@ -57,7 +57,7 @@ export default function ProbeBench({ level, onSolve }) {
             <span><i className="is-faint" />{tr('输入', 'Input')}</span>
             <span><i className="is-seen" />{probes.map((probe) => L(probe.name)).join(' · ')}</span>
           </div>
-          <Plot width={width} height={phone ? 150 : 170} lo={-0.6} hi={0.6} ticks={[-0.5, 0, 0.5]} label={tr('逐点相乘和它的平均', 'The product and its average')}
+          <Plot width={width} height={phone ? 150 : 170} lo={-0.6} hi={0.6} ticks={[-0.5, 0, 0.5]} label={tr('逐点乘积与平均值', 'The product and its average')}
             lines={products.flatMap((f, i) => [{ curve: f, kind: 'yours', label: tr('乘积', 'product') }, { curve: () => averages[i], kind: 'target', label: tr('平均', 'average') }])} />
           <div className="wv-legend">
             <span><i />{tr('逐点相乘', 'Product')}</span>
@@ -89,7 +89,7 @@ export default function ProbeBench({ level, onSolve }) {
               )
             })}
             {s.kind === 'combine' && (
-              <div className="wv-picks" role="radiogroup" aria-label={tr('把两个读数合起来', 'Combine the two readings')}>
+              <div className="wv-picks" role="radiogroup" aria-label={tr('合并两个读数', 'Combine the two readings')}>
                 {Object.entries(p.combine).map(([key, c]) => (
                   <button key={key} type="button" role="radio" aria-checked={v.pick === key} className={`bk-btn ${v.pick === key ? 'is-primary' : ''}`} onClick={() => set('pick', key)}>{L(c.name)}</button>
                 ))}

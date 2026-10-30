@@ -37,16 +37,16 @@ export default function ProbeLevel({ level, onSolve, theme }) {
       <div className="probe-machine">
         <figure>
           <ImageView img={input} size={176} theme={theme} grid onHover={read} />
-          <figcaption>{tr('喂进去', 'Fed in')}</figcaption>
+          <figcaption>{tr('输入', 'Input')}</figcaption>
         </figure>
         <div className="probe-box" aria-hidden="true">？？？</div>
         <figure>
           <ImageView img={output} size={176} theme={theme} grid onHover={read} />
-          <figcaption>{tr('出来的', 'Comes out')}</figcaption>
+          <figcaption>{tr('输出', 'Output')}</figcaption>
         </figure>
       </div>
       <p className="pixel-probe" aria-live="polite">
-        {cell ? <>{tr(`第 ${cell.x + 1} 列、第 ${cell.y + 1} 行：`, `Column ${cell.x + 1}, row ${cell.y + 1}: `)}{tr('喂进去 ', 'fed in ')}<b>{at(input)}</b>{tr('，出来 ', ', comes out ')}<b>{at(output)}</b></> : tr('点一下图里的格子（电脑上把鼠标停在上面），读出它的数。', 'Tap a cell in a picture (or point at it on a computer) to read its number.')}
+        {cell ? <>{tr(`第 ${cell.x + 1} 列、第 ${cell.y + 1} 行：`, `Column ${cell.x + 1}, row ${cell.y + 1}: `)}{tr('输入 ', 'input ')}<b>{at(input)}</b>{tr('，输出 ', ', output ')}<b>{at(output)}</b></> : tr('点击图中的格子（电脑上也可将鼠标悬停在格子上），读取它的数值。', 'Tap a cell in a picture (or hover over it on a computer) to read its value.')}
       </p>
       <div className="probe-question">
         <p>{L(level.question)}</p>

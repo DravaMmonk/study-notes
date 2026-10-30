@@ -148,7 +148,7 @@ export default function GanDuel({ level, onSolve }) {
     <section className="bk-stage gan-stage">
       <div className="gan-head">
         <span className="gan-key"><i className="is-real" />{tr('真实数据', 'Real data')}</span>
-        <span className="gan-key"><i className="is-fake" />{tr('生成器画的', 'Generated')}</span>
+        <span className="gan-key"><i className="is-fake" />{tr('生成样本', 'Generated')}</span>
         <span className="gan-key"><i className="is-pen0" />{tr('笔 1', 'Pen 1')}</span>
         <span className="gan-key"><i className="is-pen1" />{tr('笔 2', 'Pen 2')}</span>
         <span className="bk-chip gan-turn">{tr(`第 ${state.turn} 回合`, `Round ${state.turn}`)}</span>
@@ -184,12 +184,12 @@ export default function GanDuel({ level, onSolve }) {
           ))}
 
           {/* titles last, on a paper halo, so the pen lines pass behind them */}
-          <text className="gan-title is-on-band" x={X0 + 8} y={DT + 16}>{tr('鉴定员 D(x)：觉得 x 是真数据的把握', 'Judge D(x): how sure it is that x is real')}</text>
-          <text className="gan-title" x={X0} y={TT - 10}>{tr(`两支笔走过的位置 ↓ 越往下越早（最近 ${TRACE} 回合）`, `Where the two pens have been ↓ lower is earlier (last ${TRACE} rounds)`)}</text>
+          <text className="gan-title is-on-band" x={X0 + 8} y={DT + 16}>{tr('鉴定员 D(x)：判断 x 为真实数据的置信度', 'Judge D(x): confidence that x is real')}</text>
+          <text className="gan-title" x={X0} y={TT - 10}>{tr(`两支笔的历史位置 ↓ 越往下越早（最近 ${TRACE} 回合）`, `Pen positions over time ↓ older further down (last ${TRACE} rounds)`)}</text>
         </svg>
       </div>
       <p className={`bk-verdict gan-verdict ${merged && state.turn > 0 ? 'is-fail' : ''}`} aria-live="polite">
-        {merged && state.turn > 0 ? tr('两支笔重合了，再也分不开：模式坍塌。', 'The two pens have merged and can no longer separate: mode collapse.') : tr('笔 1 和笔 2 各画一半样本；竖线是它们此刻的位置。', 'Pen 1 and pen 2 each draw half the samples; the vertical lines are where they are now.')}
+        {merged && state.turn > 0 ? tr('两支笔已经重合，无法再分开：模式坍塌。', 'The two pens have merged and can no longer separate: mode collapse.') : tr('笔 1 和笔 2 各生成一半样本；竖线标出它们当前的位置。', 'Pen 1 and pen 2 each generate half the samples; the vertical lines mark their current positions.')}
       </p>
     </section>
   )
@@ -208,16 +208,16 @@ export default function GanDuel({ level, onSolve }) {
 
   const actions = (
     <div className="gan-actions">
-      <button className="bk-btn is-primary" disabled={busy} onClick={() => setState((s) => m.turn(s, schedule))}>{tr('走 1 回合', 'Play 1 round')}</button>
-      <button className="bk-btn" disabled={busy} onClick={() => setRunning(10)}>{busy ? tr(`还剩 ${running} 回合`, `${running} ${running === 1 ? 'round' : 'rounds'} left`) : tr('走 10 回合', 'Play 10 rounds')}</button>
-      <button className="bk-btn gan-reset" onClick={reset} aria-label={tr('重来', 'Start over')}><RotateCcw size={14} /><span>{tr('重来', 'Start over')}</span></button>
+      <button className="bk-btn is-primary" disabled={busy} onClick={() => setState((s) => m.turn(s, schedule))}>{tr('运行 1 回合', 'Play 1 round')}</button>
+      <button className="bk-btn" disabled={busy} onClick={() => setRunning(10)}>{busy ? tr(`还剩 ${running} 回合`, `${running} ${running === 1 ? 'round' : 'rounds'} left`) : tr('运行 10 回合', 'Play 10 rounds')}</button>
+      <button className="bk-btn gan-reset" onClick={reset} aria-label={tr('重新开始', 'Start over')}><RotateCcw size={14} /><span>{tr('重新开始', 'Start over')}</span></button>
     </div>
   )
 
   const settings = (
     <section className="bk-panel gan-settings">
-      <Choice label={tr('鉴定员每回合练', 'Judge trains per round')} options={m.OPTIONS.dSteps} value={schedule.dSteps} onChange={set('dSteps')} format={(v) => tr(`${v} 步`, `${v} ${v === 1 ? 'step' : 'steps'}`)} disabled={busy} />
-      <Choice label={tr('生成器每回合练', 'Generator trains per round')} options={m.OPTIONS.gSteps} value={schedule.gSteps} onChange={set('gSteps')} format={(v) => tr(`${v} 步`, `${v} ${v === 1 ? 'step' : 'steps'}`)} disabled={busy} />
+      <Choice label={tr('鉴定员每回合训练', 'Judge steps per round')} options={m.OPTIONS.dSteps} value={schedule.dSteps} onChange={set('dSteps')} format={(v) => tr(`${v} 步`, `${v} ${v === 1 ? 'step' : 'steps'}`)} disabled={busy} />
+      <Choice label={tr('生成器每回合训练', 'Generator steps per round')} options={m.OPTIONS.gSteps} value={schedule.gSteps} onChange={set('gSteps')} format={(v) => tr(`${v} 步`, `${v} ${v === 1 ? 'step' : 'steps'}`)} disabled={busy} />
       <Choice label={tr('生成器步长', 'Generator step size')} options={m.OPTIONS.gRate} value={schedule.gRate} onChange={set('gRate')} format={(v) => String(v)} disabled={busy} />
       {!phone && actions}
     </section>

@@ -48,7 +48,7 @@ export function Keypad({ value, onChange, step = 0.1, min, max, pi = false }) {
       <output className="ph-keypad-value" aria-live="polite">{draft}</output>
       <div className="ph-keypad" role="group" aria-label={tr('数字键盘', 'Number keypad')}>
         {keys.map((key) => (
-          <button key={key} className={`ph-key ${/\d/.test(key) ? '' : 'is-fn'} ${key === '±' ? 'is-sign' : ''} ${key === 'π' ? 'is-pi' : ''}`} onClick={() => press(key)} aria-label={key === 'back' ? tr('删除一位', 'Delete a digit') : key === 'clear' ? tr('清零', 'Clear') : key === '±' ? tr('正负号', 'Change sign') : key === '-' ? tr(`减 ${step}`, `Minus ${step}`) : key === '+' ? tr(`加 ${step}`, `Plus ${step}`) : key}>
+          <button key={key} className={`ph-key ${/\d/.test(key) ? '' : 'is-fn'} ${key === '±' ? 'is-sign' : ''} ${key === 'π' ? 'is-pi' : ''}`} onClick={() => press(key)} aria-label={key === 'back' ? tr('删除一位', 'Delete a digit') : key === 'clear' ? tr('清零', 'Clear') : key === '±' ? tr('切换正负号', 'Change sign') : key === '-' ? tr(`减 ${step}`, `Minus ${step}`) : key === '+' ? tr(`加 ${step}`, `Plus ${step}`) : key}>
             {label[key] ?? key}
           </button>
         ))}
@@ -81,7 +81,7 @@ export function KernelEditor({ param, value, onChange, start = 4 }) {
     return (
       <div className="ph-kernel is-learned">
         {value.map((w, i) => <span key={i} style={{ '--w': Math.max(-1, Math.min(1, w)) }}>{w.toFixed(2)}</span>)}
-        <p>{tr('这些权重由训练决定，不能手调。', 'These weights are set by training and cannot be adjusted by hand.')}</p>
+        <p>{tr('这些权重由训练决定，无法手动调整。', 'These weights are set by training and cannot be adjusted by hand.')}</p>
       </div>
     )
   }
@@ -109,7 +109,7 @@ function Stepper({ value, step, min, max, label, onChange, onKeypad }) {
   return (
     <>
       <button className="ph-step" onClick={() => nudge(-1)} aria-label={tr(`减 ${step}`, `Minus ${step}`)}><Minus size={18} /></button>
-      <button className="ph-step-value" onClick={onKeypad} aria-label={tr(`${label}：${show(value)}，点一下用键盘输入`, `${label}: ${show(value)}, tap to type`)}>{show(value)}</button>
+      <button className="ph-step-value" onClick={onKeypad} aria-label={tr(`${label}：${show(value)}，点击后用键盘输入`, `${label}: ${show(value)}, tap to type`)}>{show(value)}</button>
       <button className="ph-step" onClick={() => nudge(1)} aria-label={tr(`加 ${step}`, `Plus ${step}`)}><Plus size={18} /></button>
     </>
   )

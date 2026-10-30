@@ -81,7 +81,7 @@ export default function ParamControl({ param, value, onChange, roomy, style }) {
       <span>{L(param.label)}</span>
       <span className="param-number">
         <NumberInput value={value ?? 0} onChange={onChange} label={L(param.label)} />
-        {param.pi && <button type="button" className="param-pi" onPointerDown={stop} onClick={() => onChange(timesPi(value ?? 0))} title={tr('乘以 π（是 0 时设成 π）', 'Times π (π when it is 0)')}>π</button>}
+        {param.pi && <button type="button" className="param-pi" onPointerDown={stop} onClick={() => onChange(timesPi(value ?? 0))} title={tr('乘以 π（当前为 0 时设为 π）', 'Multiply by π (sets π when the value is 0)')}>π</button>}
       </span>
     </label>
   )

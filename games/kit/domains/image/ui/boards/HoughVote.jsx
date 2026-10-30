@@ -119,7 +119,7 @@ export default function HoughVote({ level, onSolve, theme }) {
 
   const goals = (
     <section className="bk-panel">
-      <span className="bk-label">{tr('目标 · 前两个峰分别对上 A 和 B', 'Goal · the top two peaks match A and B')}</span>
+      <span className="bk-label">{tr('目标 · 前两个峰分别匹配 A 和 B', 'Goal · the top two peaks match A and B')}</span>
       <ul className="bk-goals">
         {m.scenes.map((s, i) => {
           const hits = runs[i].found.filter((f) => f >= 0).length
@@ -127,7 +127,7 @@ export default function HoughVote({ level, onSolve, theme }) {
             <li key={keyOf(s.label)} className={`bk-goal ${runs[i].pass ? 'is-pass' : ''} ${i === sceneIndex ? 'is-current' : ''}`}>
               {runs[i].pass ? <Check size={16} /> : <X size={16} />}
               <span>{L(s.label)}</span>
-              <b>{tr('对上', 'matched')} {hits}/2</b>
+              <b>{tr('已匹配', 'matched')} {hits}/2</b>
             </li>
           )
         })}
@@ -140,7 +140,7 @@ export default function HoughVote({ level, onSolve, theme }) {
       <span className="bk-label">{L(scene.label)} · {tr('票数最高的峰', 'peaks with the most votes')}</span>
       <table className="mb-table">
         <thead>
-          <tr><th>{tr('峰', 'Peak')}</th><th>θ</th><th>ρ</th><th>{tr('票', 'Votes')}</th><th>{tr('对上', 'Matches')}</th></tr>
+          <tr><th>{tr('峰', 'Peak')}</th><th>θ</th><th>ρ</th><th>{tr('票数', 'Votes')}</th><th>{tr('匹配', 'Match')}</th></tr>
         </thead>
         <tbody>
           {run.peaks.slice(0, 3).map((p, i) => {
@@ -194,7 +194,7 @@ export default function HoughVote({ level, onSolve, theme }) {
               return <text key={`n${i}`} className="mb-line-name" x={line.rho * Math.cos(t) - Math.sin(t) * s} y={line.rho * Math.sin(t) + Math.cos(t) * s}>{NAMES[i]}</text>
             })}
           </svg>
-          <figcaption className="bk-caption">{tr('虚线 A、B 是要找的两条线；实线是票数最高的两个峰（红色：没对上）', 'Dashed A and B are the two lines to find; solid lines are the two peaks with the most votes (red: no match)')}</figcaption>
+          <figcaption className="bk-caption">{tr('虚线 A、B 是要找的两条线；实线是票数最高的两个峰（红色：未匹配）', 'Dashed A and B are the two lines to find; solid lines are the two peaks with the most votes (red: no match)')}</figcaption>
         </figure>
 
         <figure className="mb-hough-acc">
@@ -224,7 +224,7 @@ export default function HoughVote({ level, onSolve, theme }) {
             <span className="mb-axis is-x">θ {fmt(view.t0)}° → {fmt(view.t1)}°</span>
             <span className="mb-axis is-y">ρ {fmt(view.r1)} ↓ {fmt(view.r0)}</span>
           </div>
-          <figcaption className="bk-caption">{tr('每个点在这里投出一条曲线，格子越浓票越多；圆圈 1、2 是两个最高峰，十字是 A、B 的位置', 'Each point votes along a curve here; the darker a cell, the more votes. Circles 1 and 2 are the two highest peaks; the crosses mark A and B')}</figcaption>
+          <figcaption className="bk-caption">{tr('每个边缘点在此沿一条曲线投票，格子颜色越深票数越多；圆圈 1、2 是两个最高峰，十字标出 A、B 的位置', 'Each edge point votes along a curve here; the darker a cell, the more votes. Circles 1 and 2 are the two highest peaks; the crosses mark A and B')}</figcaption>
         </figure>
       </div>
 

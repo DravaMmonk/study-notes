@@ -108,8 +108,8 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
     const { pass, passed: ok, hiddenFailed, hiddenTotal } = onTest()
     if (pass) return
     buzz(20)
-    if (ok === all && hiddenFailed) editing.say({ zh: `这 ${all} 组都通过了，可 ${hiddenTotal} 组隐藏测试里有 ${hiddenFailed} 组没过：电路可能只对这几张图凑巧成立`, en: `All ${all} pass, but ${hiddenFailed} of ${hiddenTotal} hidden tests fail: the circuit may only happen to work on these pictures` })
-    else editing.say(ok ? { zh: `${ok}/${all} 组通过，红色的那组还没对`, en: `${ok}/${all} pass; the red one is not right yet` } : { zh: '还没有一组通过，看看输出和期望差在哪', en: 'None pass yet; compare your output with the expected one' })
+    if (ok === all && hiddenFailed) editing.say({ zh: `这 ${all} 组全部通过，但 ${hiddenTotal} 组隐藏测试中有 ${hiddenFailed} 组未通过：电路可能只是恰好适用于这几张图`, en: `All ${all} pass, but ${hiddenFailed} of ${hiddenTotal} hidden tests fail: the circuit may only happen to work on these pictures` })
+    else editing.say(ok ? { zh: `${ok}/${all} 组通过，标红的测试尚未通过`, en: `${ok}/${all} pass; the ones in red still fail` } : { zh: '尚无测试通过，请比较输出与期望的差异', en: 'None pass yet; compare your output with the expected one' })
   }
 
   return (
@@ -143,9 +143,9 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
         {/* Under the board: what the hidden tests say, training, this test's details, and the score last. */}
         <div className="pb-below">
           {hiddenMiss ? (
-            <p className="hidden-note is-fail">{tr(`这些测试都通过了，但 ${hiddenMiss.total} 组隐藏测试里有 ${hiddenMiss.failed} 组没过：电路可能只对这几张图凑巧成立。`, `These tests all pass, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.`)}</p>
+            <p className="hidden-note is-fail">{tr(`这些测试全部通过，但 ${hiddenMiss.total} 组隐藏测试中有 ${hiddenMiss.failed} 组未通过：电路可能只是恰好适用于这几张图。`, `These tests all pass, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.`)}</p>
           ) : hiddenCount > 0 ? (
-            <p className="hidden-note">{tr(`另有 ${hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。`, `${hiddenCount} more hidden ${hiddenCount === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)}</p>
+            <p className="hidden-note">{tr(`另有 ${hiddenCount} 组隐藏测试，运行测试时一并检查，通关后公开。`, `${hiddenCount} more hidden ${hiddenCount === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)}</p>
           ) : null}
           {training}
           <details className="pb-details">
@@ -202,7 +202,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
         const change = (v) => onChange(setParam(graph, target.id, param.key, v))
         const close = () => setSheet({ kind: 'part', node: target.id })
         return (
-          <Sheet title={`${nameOf(target)} · ${L(param.label)}`} onClose={close} footer={<div className="ph-live"><span>{tr('这一步现在的结果', 'What this step makes now')}</span>{thumb(target, 96)}</div>}>
+          <Sheet title={`${nameOf(target)} · ${L(param.label)}`} onClose={close} footer={<div className="ph-live"><span>{tr('这一步的当前结果', 'Current result of this step')}</span>{thumb(target, 96)}</div>}>
             {param.kind === 'kernel' ? <KernelEditor param={param} value={target.params[param.key]} onChange={change} start={sheet.cell ?? 4} /> : <NumberEditor param={param} value={target.params[param.key]} onChange={change} />}
           </Sheet>
         )
@@ -236,7 +236,7 @@ function PartPanel({ node, flags, ioKinds, value, error, check, expected, tolera
       )}
 
       <div className="pc-section pc-result">
-        <span className="pc-label">{node.type === 'output' ? (check?.pass === null ? tr('还没测试：点「运行测试」看是否通过', 'Not tested yet: press Run tests to see if it passes') : check?.pass ? tr('这组通过', 'This test passes') : L(check?.reason) || tr('还没通过', 'Not passing yet')) : tr('算出的结果（当前这组测试）', 'Result (on the current test)')}</span>
+        <span className="pc-label">{node.type === 'output' ? (check?.pass === null ? tr('尚未测试：点击「运行测试」查看是否通过', 'Not tested yet: run the tests to check') : check?.pass ? tr('这组通过', 'This test passes') : L(check?.reason) || tr('尚未通过', 'Not passing yet')) : tr('计算结果（当前测试）', 'Result (current test)')}</span>
         {error ? (
           <p className="ph-error">{L(error)}</p>
         ) : node.type === 'output' && expected ? (
@@ -249,7 +249,7 @@ function PartPanel({ node, flags, ioKinds, value, error, check, expected, tolera
             )}
           </div>
         ) : (
-          <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 200 : 300} theme={theme} label={tr('还没有结果', 'No result yet')} grid scan={scan} onScan={onScan} />
+          <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 200 : 300} theme={theme} label={tr('尚无结果', 'No result yet')} grid scan={scan} onScan={onScan} />
         )}
         {kindOf(value ?? expected) === 'image' && <ViewSwitch value={shown} onChange={onView} shows={views?.shows} fresh={views?.fresh} compact />}
       </div>
