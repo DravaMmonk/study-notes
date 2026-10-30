@@ -67,14 +67,32 @@ export const declarations = [
       { t: T('证明核从第一块元件起就认得「若…则…」：<part-ref to="part:impI"></part-ref>造出它，<part-ref to="part:mp"></part-ref>用掉它。接下来要教证明核认得新的连接词，先拿它已经认得的这一个试一试：不证明什么，只说清它<b>怎样才算证出来</b>。说清这件事的一份话叫<wiki-ref to="declaration"></wiki-ref>，其中每一种造出它的办法叫一条<wiki-ref to="intro-rule"></wiki-ref>，写作「⟦前提⟧ ⟹ 结论」（<wiki-ref to="rule-arrow"></wiki-ref>）。', 'The kernel has known “if … then …” since its first part: the <part-ref to="part:impI"></part-ref> makes one, and <part-ref to="part:mp"></part-ref> uses one up. Before the kernel learns new connectives, try the one it already knows: prove nothing, only say <b>what counts as proving it</b>. What says this is a <wiki-ref to="declaration"></wiki-ref>, and each way it gives to make the sentence is an <wiki-ref to="intro-rule"></wiki-ref>, written “⟦premises⟧ ⟹ conclusion” (<wiki-ref to="rule-arrow"></wiki-ref>).') },
       { t: T('托盘里是前提卡，一张卡就是一组 ⟦⟧：卡上选它是哪一句，卡上写出它此刻是什么。一张卡接进另一张卡的「它的前提」口，就是一个 ⟹：后一张成了要先有前一张才推得出的前提。接进「若…则…」的引入规则口，就补上最后的「⟹ 下雨 → 地湿」。下方的表格是检验条例：手里有哪些前提时，目标该不该推得出。', 'The tray holds premise cards, each card one group ⟦⟧: choose its sentence on it, and it shows what it is so far. A card wired into another’s port “Its premises” is a ⟹: the second becomes a premise derived from the first. Wired into an intro-rule port of “if … then …”, it gains the last “⟹ it rains → the ground is wet”. The table below holds the test cases: with which premises at hand the goal should be derivable.') },
     ],
-    brief: T('「下雨 → 地湿」只在由「下雨」推得出「地湿」时才能引入。请写出它的声明。', '“It rains → the ground is wet” may be introduced only when “the ground is wet” can be derived from “it rains”. Write its declaration.'),
-    hint: [
-      T('只有一条引入规则，一个前提「地湿」，但它要在「下雨」之下推出。', 'One way, with one premise, “the ground is wet”, to be derived under “it rains”.'),
-      T('把「下雨」接进「地湿」的「它的前提」，再把「地湿」接进引入规则 1。', 'Wire “it rains” into the port “Its premises” of “the ground is wet”, then “the ground is wet” into intro rule 1.'),
+    tasks: [
+      {
+        kind: 'iso',
+        step: T('编写声明', 'Write the declaration'),
+        brief: T('「下雨 → 地湿」只在由「下雨」推得出「地湿」时才能引入。请写出它的声明。', '“It rains → the ground is wet” may be introduced only when “the ground is wet” can be derived from “it rains”. Write its declaration.'),
+        hint: [
+          T('只有一条引入规则，一个前提「地湿」，但它要在「下雨」之下推出。', 'One way, with one premise, “the ground is wet”, to be derived under “it rains”.'),
+          T('把「下雨」接进「地湿」的「它的前提」，再把「地湿」接进引入规则 1。', 'Wire “it rains” into the port “Its premises” of “the ground is wet”, then “the ground is wet” into intro rule 1.'),
+        ],
+        after: T('声明好了：一条引入规则，就是<part-ref to="part:impI"></part-ref>。拿到「下雨 → 地湿」以后能做什么，不用另写：引入规则就是造出它的全部办法，所以用掉它的<wiki-ref to="elim-rule"></wiki-ref>能由引入规则生成：每条引入规则一种情况，交还那条引入规则收进去的东西。这里交还的是「由下雨推得出地湿」本身，再拿到「下雨」就推得出「地湿」，这就是<part-ref to="part:mp"></part-ref>。证明核的两块元件，本来就是「若…则…」的一份声明。', 'Declared: one way in, which is the <part-ref to="part:impI"></part-ref>. What to do with “it rains → the ground is wet” need not be written: the ways in are all the ways to make it, so the <wiki-ref to="elim-rule"></wiki-ref> that uses it up can be made from them: one case for each, giving back what that way took. What comes back here is “the ground is wet, derived from it rains” itself, and with “it rains” that gives “the ground is wet”: that is <part-ref to="part:mp"></part-ref>. The kernel’s two parts were a declaration of “if … then …” all along.')
+      },
+      {
+        // Someone's declaration that makes it from the ground being wet alone: every case of making it is right, and
+        // what it gives back when used is not.
+        kind: 'iso',
+        step: T('错误的声明', 'A wrong declaration'),
+        play: 'repair',
+        boards: [{ board: isoBoard(['Wet>1']) }],
+        intro: [{ t: T('板上是别人写的「若…则…」，可以改。一份声明写得对不对，要拿检验条例去量：条例是这句话原意的样本，哪些情形下造得出它，有了它又推得出什么。先运行，看它在哪一条上和原意不符。', 'On the board is someone else’s “if … then …”, yours to change. Whether a declaration is right is measured by the test cases: samples of what the sentence means, when it can be made and what follows once it is at hand. Run it first, and see on which case it parts from that meaning.') }],
+        brief: T('请修正这份声明，使每一条检验条例都正确。', 'Correct this declaration so that every test case is right.'),
+        hint: [T('造出它的几条都对。错在用它的时候：这份声明生成的消去规则，交还的是什么？', 'The cases that make it are all right. The fault is in using it: what does the elimination rule made from this declaration give back?')],
+      },
     ],
     solution: isoBoard(['Rain>Wet', 'Wet>1']),
     naive: isoBoard(['Wet>1']),
-    after: T('声明好了：一条引入规则，就是<part-ref to="part:impI"></part-ref>。拿到「下雨 → 地湿」以后能做什么，不用另写：引入规则就是造出它的全部办法，所以用掉它的<wiki-ref to="elim-rule"></wiki-ref>能由引入规则生成：每条引入规则一种情况，交还那条引入规则收进去的东西。这里交还的是「由下雨推得出地湿」本身，再拿到「下雨」就推得出「地湿」，这就是<part-ref to="part:mp"></part-ref>。证明核的两块元件，本来就是「若…则…」的一份声明。', 'Declared: one way in, which is the <part-ref to="part:impI"></part-ref>. What to do with “it rains → the ground is wet” need not be written: the ways in are all the ways to make it, so the <wiki-ref to="elim-rule"></wiki-ref> that uses it up can be made from them: one case for each, giving back what that way took. What comes back here is “the ground is wet, derived from it rains” itself, and with “it rains” that gives “the ground is wet”: that is <part-ref to="part:mp"></part-ref>. The kernel’s two parts were a declaration of “if … then …” all along.'),
+    after: T('这份声明造的几条都对：有地湿就造得出，没有就造不出。错在用的时候：它说造出「下雨 → 地湿」只要地湿，生成的消去规则就照这句话，不管有没有下雨，都交还一份地湿。错误的声明，就是引入规则和这句话的原意不符；有的在造的时候露馅，有的只在用的时候露馅，所以检验条例两头都要有。', 'This declaration gets every case of making right: it is made with the ground wet, and not without. The fault is in using it: it says “it rains → the ground is wet” is made from the ground being wet alone, so the elimination rule made from it says so too, and gives back the ground being wet, rain or no rain. A wrong declaration is one whose intro rules part from what the sentence means; some show it when the sentence is made, some only when it is used, so the test cases must look at both.'),
   }),
   declare({
     id: 'decl-and',
