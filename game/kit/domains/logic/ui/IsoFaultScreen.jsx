@@ -79,16 +79,15 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   const ran = Boolean(states[boardCases.at])
   const rowClass = (k) => (k === row ? 'is-on' : '')
-  // After the run reaches the board on view, each row says what it answers, red where that catches it.
-  const note = (k) => {
+  // Once the run reaches the board on view, each case shows what it derives, marked where that catches it.
+  const result = (k) => {
     const r = checked.rows[k]
     if (!ran || !r) return null
-    const caught = r.right && r.derived[boardCases.at] !== r.wants
-    return <em className={`lg-answer ${caught ? 'is-caught' : ''}`}>{tr(r.derived[boardCases.at] ? '（这份声明：可推导）' : '（这份声明：不可推导）', r.derived[boardCases.at] ? ' (this declaration: derivable)' : ' (this declaration: not derivable)')}</em>
+    return { derived: r.derived[boardCases.at], wrong: r.right && r.derived[boardCases.at] !== r.wants }
   }
   const table = (
     <div className="lg-strip is-tables">
-      <CaseTable cases={cases} words={words} level={level} choices={choices} edit={change} rowClass={rowClass} onPick={setRow} note={note} />
+      <CaseTable cases={cases} words={words} level={level} choices={choices} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
       {cases.length < MOST && (
         <button type="button" className="lg-add-case" onClick={() => { change([...cases, blank()]); setRow(cases.length) }}>
           <Plus size={14} /> {tr('添加条例', 'Add a test case')}

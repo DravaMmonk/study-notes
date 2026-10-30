@@ -47,14 +47,21 @@ export default function Library({ title, subtitle, label, groups, current, onPic
   useEffect(() => {
     if (start) setReading(true)
   }, [start])
-  // The entry shown is in view in the list too.
+  // The entry shown is in view in the list too, when it was chosen from outside the list (on opening, or by a
+  // reference); an entry clicked in the list leaves the list where it is.
   const nav = useRef(null)
+  const clicked = useRef(false)
   useEffect(() => {
+    if (clicked.current) {
+      clicked.current = false
+      return
+    }
     nav.current?.querySelector('.wiki-item.is-current')?.scrollIntoView({ block: 'center' })
   }, [current])
   useEscape(onClose)
 
   const show = (id) => {
+    clicked.current = id !== current
     onPick(id)
     setReading(true)
   }

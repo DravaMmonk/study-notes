@@ -302,11 +302,9 @@
 .lg-pick.is-on { border-color: var(--accent, currentColor); color: var(--ink, inherit); font-weight: 600; }
 .lg-drop { display: inline-flex; padding: 2px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
 .lg-drop:hover { color: var(--fail); }
-.lg-rows td.lg-result.is-caught { color: var(--fail); font-weight: 600; }
 .lg-add-case { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px dashed var(--line, rgba(0,0,0,.2)); border-radius: 6px; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; cursor: pointer; }
 .lg-add-case:hover { color: var(--ink, inherit); }
 
 .lg-cases .lg-given { display: flex; align-items: center; gap: 2px; }
 .lg-pick-select { max-width: 14em; padding: 2px 4px; border: 1px solid var(--line, rgba(0,0,0,.15)); border-radius: 6px; background: transparent; color: inherit; font: inherit; font-size: 12px; }
-.lg-answer { display: block; font-style: normal; font-size: 11.5px; color: var(--muted); }
-.lg-answer.is-caught, .lg-rows tr.is-fail .lg-answer { color: var(--fail); font-weight: 600; }
+.lg-rows td.lg-result.is-wrong { color: var(--fail); font-weight: 600; }

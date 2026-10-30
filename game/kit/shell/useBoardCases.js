@@ -16,6 +16,8 @@ import { usePlayback } from './usePlayback.jsx'
 //
 //   level    { play, boards }       saved, save   the level's kept data ({ work } or { boards })
 //   judge(k, x) → '' or why case k fails       empty   the work a new level starts from (audit)
+//   stepsOf(k, x) → the steps a run goes through on case k ([{ failed?: why }], usePlayback's), so a run can stop
+//                   inside a case at the first step that is wrong (a board's own test cases, one at a time)
 //   cases.at, cases.select(k), cases.board (the board on view), cases.boards (every case's, as it stands now),
 //   cases.setBoard(board) (repair), cases.work,
 //   cases.setWork(work) (audit), cases.tests (TestTabs' tests: [{ label }]), cases.playback (usePlayback)
@@ -25,7 +27,7 @@ const T = (zh, en) => ({ zh, en })
 /** A case's label: the level's, or its number. */
 export const caseLabel = (level, k) => level.boards[k].label ?? T(`电路 ${k + 1}`, `Board ${k + 1}`)
 
-export function useBoardCases({ level, saved, save, judge, empty = null, onSolve, lastRun, keepRun }) {
+export function useBoardCases({ level, saved, save, judge, stepsOf = () => [], empty = null, onSolve, lastRun, keepRun }) {
   const repair = level.play === 'repair'
   const [at, setAt] = useState(0)
   const [work, setWorkState] = useState(() => (!repair ? saved?.work ?? empty : null))
@@ -42,7 +44,7 @@ export function useBoardCases({ level, saved, save, judge, empty = null, onSolve
   }
   const playback = usePlayback({
     count: level.boards.length,
-    stepsOf: () => [],
+    stepsOf: (k) => stepsOf(k, repair ? boardOf(k) : work),
     check: (k) => judge(k, repair ? boardOf(k) : work),
     onSolve,
     onTest: setAt,
