@@ -578,6 +578,9 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .ff-inline-list > span { display: inline-flex; align-items: center; gap: 2px; }
 .ff-inline-list button { display: inline-flex; padding: 1px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
 .ff-inline-select { max-width: 16em; padding: 2px 4px; border: 1px solid var(--rule); border-radius: 6px; background: transparent; color: inherit; font: inherit; font-size: 12px; }
+.ff-inline-add { position: relative; display: inline-block; margin-left: 6px; padding: 0 8px; border: 1px dashed var(--rule); border-radius: 6px; color: var(--muted); font-size: 11.5px; line-height: 1.7; cursor: pointer; }
+.ff-inline-add select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.ff-inline-add:hover { color: var(--ink); border-color: var(--ink); }
 .ff-inline-choice { min-width: 4em; padding: 2px 8px; border: 1px solid var(--rule); border-radius: 6px; background: transparent; color: var(--ink); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
 .rt-add svg { width: 14px; height: 14px; }
 /* On a phone: a window of its own that scrolls sideways, columns as wide as their text (wrapping past about sixteen
