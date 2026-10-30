@@ -14,8 +14,8 @@ export function Field({ label, children }) {
   )
 }
 
-/** Several values chosen in order: each listed (numbered) with × to take it off, and a drop-down adding the rest. */
-export function ListField({ label, value, options, onChange, addLabel, none }) {
+/** Several values chosen in order: each listed (numbered) with × to take it off (but those `kept`), and a drop-down adding the rest. */
+export function ListField({ label, value, options, onChange, addLabel, none, kept = [] }) {
   const name = (v) => L(options.find((o) => o.value === v)?.label ?? v)
   const rest = options.filter((o) => !value.includes(o.value))
   return (
@@ -24,7 +24,7 @@ export function ListField({ label, value, options, onChange, addLabel, none }) {
         {value.map((v, i) => (
           <li key={v}>
             <span>{`${i + 1}. ${name(v)}`}</span>
-            <button type="button" aria-label={tr('移除', 'Remove')} onClick={() => onChange(value.filter((x) => x !== v))}><X size={15} /></button>
+            {!kept.includes(v) && <button type="button" aria-label={tr('移除', 'Remove')} onClick={() => onChange(value.filter((x) => x !== v))}><X size={15} /></button>}
           </li>
         ))}
         {!value.length && none && <li className="ff-none">{L(none)}</li>}
@@ -66,10 +66,10 @@ export function ChoiceField({ label, value, options, onChange }) {
 // The same fields small, inside a table cell (RowTable on a desktop, editing in place): no label of their own.
 
 /**
- * Several values in order, in a cell: each with ×, and a drop-down adding the rest. With none yet the drop-down says
+ * Several values in order, in a cell: each with × (but those `kept`), and a drop-down adding the rest. With none yet the drop-down says
  * what it adds; once there is one, it is a small 「添加…」 button on the last value's line.
  */
-export function InlineList({ value, options, onChange, addLabel }) {
+export function InlineList({ value, options, onChange, addLabel, kept = [] }) {
   const name = (v) => L(options.find((o) => o.value === v)?.label ?? v)
   const rest = options.filter((o) => !value.includes(o.value))
   const select = (className, first) => (
@@ -88,7 +88,7 @@ export function InlineList({ value, options, onChange, addLabel }) {
       {value.map((v, i) => (
         <span key={v}>
           {`${i + 1}. ${name(v)}`}
-          <button type="button" aria-label={tr('移除', 'Remove')} onClick={(e) => { e.stopPropagation(); onChange(value.filter((x) => x !== v)) }}><X size={12} /></button>
+          {!kept.includes(v) && <button type="button" aria-label={tr('移除', 'Remove')} onClick={(e) => { e.stopPropagation(); onChange(value.filter((x) => x !== v)) }}><X size={12} /></button>}
           {i === value.length - 1 && adding(true)}
         </span>
       ))}
