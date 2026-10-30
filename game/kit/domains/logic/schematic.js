@@ -294,15 +294,17 @@ export const premiseOf = (text) => {
 export const ruleOf = (key, name, premises, conclusion) => ({ key, name, premises: premises.map(premiseOf), conclusion: parseS(conclusion) })
 
 /** A rule written the way Isabelle writes it: ⟦?A; ?B⟧ ⟹ ?A ∧ ?B (a premise with assumptions of its own in brackets). */
+// A premise written out: a sentence; under premises of its own, those in ⟦⟧ then ⟹ (each a sentence, or a premise in
+// turn): ⟦?A; ?B⟧ ⟹ ?C; one that takes things in brackets of its own, (⋀x. ⟦?P(x)⟧ ⟹ ?Q(x)).
+function premiseText(p, say) {
+  const inner = p.hyps.length ? `${premisesText(p.hyps.map((h) => (h.show ? h : { fixes: [], hyps: [], show: h })), say)} ⟹ ${say(p.show)}` : say(p.show)
+  return p.fixes.length ? `(⋀${p.fixes.join(' ')}. ${inner})` : inner
+}
+/** A rule's premises as written before its ⟹: every group of premises in ⟦⟧, ⟦?A; ⟦?B⟧ ⟹ ?C⟧. */
+export const premisesText = (premises, say = show) => `⟦${premises.map((p) => premiseText(p, say)).join('; ')}⟧`
+
 export function ruleText(rule, say = show) {
-  const prem = (p) => {
-    // Several assumptions go in brackets of their own: (⟦?A; ?B⟧ ⟹ ?C).
-    const hyps = p.hyps.length > 1 ? `⟦${p.hyps.map(say).join('; ')}⟧` : p.hyps.map(say).join('')
-    const inner = p.hyps.length ? `${hyps} ⟹ ${say(p.show)}` : say(p.show)
-    const body = p.fixes.length ? `⋀${p.fixes.join(' ')}. ${inner}` : inner
-    return p.hyps.length || p.fixes.length ? `(${body})` : body
-  }
-  return rule.premises.length ? `⟦${rule.premises.map(prem).join('; ')}⟧ ⟹ ${say(rule.conclusion)}` : say(rule.conclusion)
+  return rule.premises.length ? `${premisesText(rule.premises, say)} ⟹ ${say(rule.conclusion)}` : say(rule.conclusion)
 }
 
 const R = (zh, en) => T(zh, en)

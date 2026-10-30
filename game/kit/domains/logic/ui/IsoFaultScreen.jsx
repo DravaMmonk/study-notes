@@ -3,9 +3,8 @@ import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, useBoard
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, SlotBoard } from '../../../circuit/index.js'
 import { say } from '../notation.js'
-import { DECL, derives, judgeCases, propositionsOf, runIso, sentenceOf, wayOf, wayRule, wayText } from '../iso.js'
+import { DECL, derives, judgeCases, listText, propositionsOf, runIso, sentenceOf, wayOf, wayRule, wayText } from '../iso.js'
 import Entries from '../../../shell/Entries.jsx'
-import { PROOF } from './boards.jsx'
 import { WAY, isoPartsFor } from './IsoScreen.jsx'
 import CaseTable, { blankCase } from './IsoCases.jsx'
 
@@ -56,7 +55,6 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   // What a card says for the case picked: an assumption its sentence, the declared card its ways and whether it is
   // proved.
   const text = (f) => L(say(f, level.notation))
-  const Value = ({ f }) => <PROOF.Value v={{ formula: f, hyps: new Map() }} text={text} />
   const ways = board.nodes.find((n) => n.id === DECL)?.params.ways ?? 0
   const ruleInto = (k) => {
     const wire = board.wires.find((w) => w.to === DECL && w.port === `c${k}`)
@@ -65,7 +63,10 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const body = (node) => {
     if (node.type === 'none') return null
     if (node.type === 'thing') return <div className="lg-card"><span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.name}</b></span></div>
-    if (node.type === 'hyp') return <div className="lg-card"><Value f={sentenceOf(level, node.params.name)} /></div>
+    if (node.type === 'hyp' || node.type === 'join') {
+      const value = runIso(level, board, { given: [] }).values.get(node.id)
+      return <div className="lg-card">{value && <code className="lg-made">{listText(value, level, text)}</code>}</div>
+    }
     return (
       <div className="lg-card">
         {ways > 0 && <Entries className="lg-clauses">{Array.from({ length: ways }, (_, k) => ruleInto(k + 1)).map((rule, k) => rule && <code key={k}>{`${WAY[k]}. ${wayText(wayRule(wayOf(rule), level), text)}`}</code>)}</Entries>}
