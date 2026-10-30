@@ -113,7 +113,7 @@ export const RULES = {
     },
   },
   andI: { inputs: ['a', 'b'], eval: ({ a, b }) => proved(and(a.formula, b.formula), union(a, b), pair(a.term, b.term)) },
-  // ∧ elim, as the declaration of “and” makes it with one output for each side (Lean's And.left and And.right): A ↔ B
+  // Split, as the declaration of “and” makes it with one output for each side (Lean's And.left and And.right): A ↔ B
   // is (A → B) ∧ (B → A) to the rules, so taking it apart gives its two directions.
   andE: {
     inputs: ['ab'],
@@ -186,7 +186,7 @@ export const RULES = {
     eval: ({ body }, node, ctx) => {
       const x = node.params?.x
       if (!x) throw fail('先选好任取的那一样叫什么', 'Name the thing taken first')
-      for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里，不能对它使用全称概括`, `${x} occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not arbitrary`)
+      for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里，不能对它使用任取框`, `${x} occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not arbitrary`)
       // The name (a, b, c) is a particular thing inside the box; outside, a bound variable (x, y, z) takes its place.
       const v = BOUND.find((u) => !allVars(body.formula).has(u))
       return proved(all(v, subst(body.formula, x, tvar(v))), body.hyps, lam(x, body.term))
