@@ -20,10 +20,9 @@ export const rules = [
     cases: PERSON,
     hint: [T('「对所有 x」说的话，对安也成立：在元件上把 x 换成安。', 'What holds for every x holds for Ann: on the part, put Ann in for x.')],
     intro: [
-      { t: T('新元件<part-ref to="part:allE"></part-ref>：接进「∀x. …」，在元件上选一样东西，就得到把 x 换成它的那句话。', 'A new part, <part-ref to="part:allE"></part-ref>: wire in a “∀x. …”, choose a thing on the part, and out comes the sentence with x replaced by it.') },
+      { t: T('新元件<part-ref to="part:allE"></part-ref>：接进「∀x. …」，在元件上选一样东西，输出就是把 x 换成它的那句话。', 'A new part, <part-ref to="part:allE"></part-ref>: wire in a “∀x. …”, choose a thing on the part, and out comes the sentence with x replaced by it.') },
     ],
     solution: proof({ e: ['allE', { t: 'ann' }], m: ['mp'] }, ['p>e.all', 'e>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] }),
-    after: T('人都会死，安是人，所以安会死：这是最古老的三段论，用的正是<part-ref to="part:allE"></part-ref>再套用。', 'Every human is mortal, Ann is human, so Ann is mortal: the oldest syllogism, made of <part-ref to="part:allE"></part-ref> and Apply.'),
   },
   {
     id: 'q-allI',
@@ -33,13 +32,16 @@ export const rules = [
     showcase: T('全称概括不开出假设，它管的是一个变量：框里的变量必须是新的，不能出现在还开着的假设里；光看说明，容易把它当成又一个假设框', 'the for-any box opens no assumption but a variable, which must be new: it may not occur in any hypothesis still open; from its description alone it is easy to take it for another assumption box'),
     tests: [{ goal: '∀x. P(x) → P(x)' }],
     cases: PERSON,
-    hint: [T('框里随便取一样东西，叫它 a，证出「a是人 → a是人」；它对随便哪一样都成立，框外就是「对所有 x」。', 'Inside the box take any thing, call it a, and prove “a is human → a is human”; holding for any one at all, outside it is “for all x”.')],
+    hint: [
+      T('框里要证的，是把 x 换成 a 的那句话。', 'Inside the box, prove the sentence with a in place of x.'),
+      T('框里随便取一样东西，叫它 a，证出「a是人 → a是人」；它对随便哪一样都成立，框外就是「对所有 x」。', 'Inside the box take any thing, call it a, and prove “a is human → a is human”; holding for any one at all, outside it is “for all x”.'),
+    ],
     intro: [
-      { t: T('<level-ref to="m-counter"></level-ref>里，一个世界就说明了一句话推不出。可要说一句话在所有世界里都成立，世界有无穷多个、大小不限，一个个检查不完：得回到证明板上，靠规则。', 'In <level-ref to="m-counter"></level-ref> one world was enough to show a sentence does not follow. But to say a sentence holds in every world, there are infinitely many worlds of every size, too many to check one by one: it is back to the proof board and its rules.') },
-      { t: T('新元件<b>全称概括</b>是一个框：框里随便取一样东西，在元件上给它起个名字 a，关于它什么都不知道。框里证出了关于 a 的话，它对哪一样都成立，框外就得到「∀x. …」：a 换成了量词管着的 x。所以 a 必须是新的：还开着的假设里不能提到它。从这里起，特指的一样东西用 a、b、c 称呼，x、y、z 只给量词用。', 'A new part, the <b>for-any box</b>: inside it an arbitrary object is named on the part, say a; no special property of it is assumed. Whatever is proved about a inside holds for anything at all, so outside you get “∀x. …”: a is replaced by x, which the quantifier binds. That is why a must be new: no hypothesis still open may mention it. From here on, a particular thing is called a, b or c, and x, y, z are left to the quantifiers.') },
+      { t: T('<level-ref to="m-counter"></level-ref>里，一个世界就说明了推不出。要说一句话在所有世界里都成立，世界却检查不完：只能回到证明板上，靠规则。', 'In <level-ref to="m-counter"></level-ref>, one world showed that something does not follow. To show a sentence holds in every world, the worlds cannot all be checked: it is back to the proof board and its rules.') },
+      { t: T('新元件<b>全称概括</b>是一个框：框里随便取一样东西，在元件上给它起名，比如 a，关于它什么都不知道。框里证出关于 a 的话，对哪一样东西都成立，框外就得到「∀x. …」：a 换成了量词管着的 x。所以 a 必须是新的，还开着的假设里不能提到它。从这里起，特指的东西用 a、b、c 称呼，x、y、z 只给量词用。', 'A new part, the <b>for-any box</b>: inside it an arbitrary thing is named on the part, say a, and nothing is known about it. Whatever is proved about a inside holds for anything at all, so outside you get “∀x. …”: a is replaced by x, which the quantifier binds. That is why a must be new: no hypothesis still open may mention it. From here on, a particular thing is called a, b or c, and x, y, z are left to the quantifiers.') },
     ],
     solution: proof({ g: ['allI', { x: 'a' }], h: ['impI', { A: 'P(a)' }, 'g'] }, ['h#body>h.body', 'h>g.body', 'g>goal']),
-    after: T('「任取」是数学证明里最常见的一句：「任取一个 a，……，所以对所有 x 都成立。」它可信，只因为那个 a 真的什么特殊的都没有。', '“Take any” is the commonest phrase in mathematical proofs: “take any a …, so it holds for all x.” It is sound only because that a really is nothing special.'),
+    after: T('「任取一个 a，……，所以对所有 x 成立」：数学证明里最常见的这句话，说的就是这个框。', '“Take any a …, so it holds for all x”: the commonest phrase in mathematical proofs means just this box.'),
   },
   {
     id: 'q-rename',
@@ -49,7 +51,6 @@ export const rules = [
     cases: PERSON,
     hint: [T('任取一个 a，再从已知里取 a。', 'Take any a, then take a out of the given.')],
     solution: proof({ g: ['allI', { x: 'a' }], e: ['allE', { t: 'a' }, 'g'] }, ['p>e.all', 'e>g.body', 'g>goal'], { premises: ['p'] }),
-    after: T('变量叫 x 还是 y 无所谓，只要不和别的撞名。被量词管着的变量只是个占位的记号。', 'Whether the variable is called x or y does not matter, as long as it clashes with nothing. A bound variable only marks a place.'),
   },
   {
     id: 'q-allAnd',
@@ -67,7 +68,6 @@ export const rules = [
       s2: ['andE', {}, 'g2'],
       c: ['andI'],
     }, ['p>e1.all', 'e1>s1.ab', 's1#left>g1.body', 'p>e2.all', 'e2>s2.ab', 's2#right>g2.body', 'g1>c.a', 'g2>c.b', 'c>goal'], { premises: ['p'] }),
-    after: T('∀ 对 ∧ 可以随便拆开、并上。<level-ref to="p-split"></level-ref>里 ∀ 对 → 就不行。', '∀ splits over ∧ and joins back freely. Over →, as <level-ref to="p-split"></level-ref> showed, it does not.'),
   },
   {
     id: 'q-capture',
@@ -80,8 +80,8 @@ export const rules = [
     answer: { size: 2, preds: { Likes: ['0,1', '1,0'] } },
     brief: T('造一个世界：每样东西都喜欢某样东西，却没有一样东西喜欢自己。', 'Build a world where everything likes something and nothing likes itself.'),
     hint: [T('两样东西，互相喜欢，都不喜欢自己。', 'Two things that like each other and not themselves.')],
-    intro: [{ t: T('<part-ref to="part:allE"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走了（<wiki-ref to="capture"></wiki-ref>），意思全变：「每样东西都喜欢某样东西」，把 x 换成 y 代进去，好像得到「有一样东西喜欢自己」。', '<part-ref to="part:allE"></part-ref> puts a thing in for x. If what goes in is the variable y and x sits inside an “∃y”, that y is captured by the quantifier (<wiki-ref to="capture"></wiki-ref>), and the meaning changes completely: in “everything likes something”, putting y in for x seems to give “something likes itself”.') }],
-    after: T('所以代入前要先改名：∀x∃y 里的 y 先改成 z，再把 x 换成 y，得到「∃z. y 喜欢 z」，没毛病。证明器的<part-ref to="part:allE"></part-ref>会自动改名，不会撞上。', 'So rename first: turn the y in ∀x∃y into z, then put y in for x, giving “∃z. y likes z”, which is fine. The prover’s <part-ref to="part:allE"></part-ref> renames by itself and never clashes.'),
+    intro: [{ t: T('<part-ref to="part:allE"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走（<wiki-ref to="capture"></wiki-ref>），意思全变了：在「每样东西都喜欢某样东西」里把 x 换成 y，好像得到「有一样东西喜欢自己」。', '<part-ref to="part:allE"></part-ref> puts a thing in for x. If what goes in is the variable y and x sits inside an “∃y”, that y is caught by the quantifier (<wiki-ref to="capture"></wiki-ref>), and the meaning changes completely: putting y in for x in “everything likes something” seems to give “something likes itself”.') }],
+    after: T('所以代入前要先给量词的变量改名；证明器的<part-ref to="part:allE"></part-ref>会自动这样做。', 'So the quantifier’s variable is renamed before substituting; the prover’s <part-ref to="part:allE"></part-ref> does this by itself.'),
   },
   {
     id: 'q-exI',
@@ -91,9 +91,8 @@ export const rules = [
     tests: [{ premises: { p: 'P(ann) ∧ Q(ann)' }, goal: '∃x. Q(x)' }],
     cases: PERSON,
     hint: [T('拆出「安会死」，接进<part-ref to="part:exI"></part-ref>。', 'Split out “Ann is mortal” and wire it into <part-ref to="part:exI"></part-ref>.')],
-    intro: [{ t: T('<part-ref to="part:exI"></part-ref>就是你声明「存在」时写的那条引入规则：有一样具体的东西满足它，就可以说「存在」。接进一句关于它的话，元件自己认出例子是谁；关卡里只有一句「存在」对得上时，它直接得出那句，对得上的不止一句时，在元件上选要得出哪一句。', '<part-ref to="part:exI"></part-ref> is the way to make it you wrote declaring “there is”: when a particular thing satisfies it, you may say “there exists”. Wire in a sentence about it and the part reads off the example; when only one “there is” of the level fits, out it comes, and when several fit, choose on the part which to conclude.') }],
+    intro: [{ t: T('<part-ref to="part:exI"></part-ref>是<level-ref to="decl-ex"></level-ref>里写下的那条引入规则：有一样具体的东西满足它，就能说「存在」。接进一句关于它的话，元件自己认出例子是谁；能得出的「存在」不止一句时，在元件上选要哪一句。', '<part-ref to="part:exI"></part-ref> is the introduction rule written in <level-ref to="decl-ex"></level-ref>: when a particular thing satisfies it, you may say “there exists”. Wire in a sentence about it and the part reads off the example; when more than one “there is” could follow, choose on the part which.') }],
     solution: proof({ s: ['andE'], i: ['exI'] }, ['p>s.ab', 's#right>i.a', 'i>goal'], { premises: ['p'] }),
-    after: T('举出一个例子，「存在」就证出来了。反过来，从「存在」出发，就没那么简单了。', 'One example proves “there exists”. Starting from “there exists” is not so simple.'),
   },
   {
     id: 'q-exE',
@@ -102,10 +101,10 @@ export const rules = [
     showcase: T('存在实例化是一个框：它开出的那一样东西只在框里有名字，框里证出的结论不能再提到它；光看说明，容易把它当成<part-ref to="part:exI"></part-ref>的反面、一步就完', 'take the one there is is a box: the thing it opens has a name only inside it, and what is proved there may not mention it; from its description alone it is easy to take it for the reverse of <part-ref to="part:exI"></part-ref>, done in a step'),
     tests: [{ premises: { p: '∃x. P(x) ∧ Q(x)' }, goal: '∃x. P(x)' }],
     cases: PERSON,
-    hint: [T('框里给那一样东西起个名字 y，拆开，再拿它举例。', 'Inside the box, name the thing y, split, and use it as the example.')],
-    intro: [{ t: T('<part-ref to="part:exE"></part-ref>是「存在」的消去规则：接进「∃x. …」，框里假设那一样东西叫 a（元件上起名），满足这句话。关于 a 你只知道这一点，所以框里证出的结论不能提到 a。', '<part-ref to="part:exE"></part-ref> is the case of “there is”: wire in “∃x. …”; inside the box, that thing is called a (named on the part) and satisfies it. That is all you know about a, so what is proved inside may not mention a.') }],
+    hint: [T('框里给那一样东西起名 a，拆开，再拿它举例。', 'Inside the box, name the thing a, split, and use it as the example.')],
+    intro: [{ t: T('<part-ref to="part:exE"></part-ref>是「存在」的消去规则：接进「∃x. …」，框里假设那一样东西叫 a（在元件上起名），满足这句话。关于 a 只知道这一点，所以框里证出的结论不能提到 a。', '<part-ref to="part:exE"></part-ref> is the elimination rule of “there is”: wire in “∃x. …”; inside the box, that thing is called a (named on the part) and satisfies it. That is all that is known about a, so the conclusion proved inside may not mention a.') }],
     solution: proof({ f: ['exE', { x: 'a' }], s: ['andE', {}, 'f'], i: ['exI', {}, 'f'] }, ['p>f.ex', 'f#body>s.ab', 's#left>i.a', 'i>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('「有这么一个，就叫它 a 吧」，数学证明里也常这么说。a 只是借来的名字，用完就还：结论里不能有它。', '“There is one; call it a”: mathematical proofs say this often too. a is a borrowed name, given back when done: the conclusion may not hold it.'),
+    after: T('「有这么一个，不妨叫它 a」：数学证明里也常这么说。', '“There is one; call it a”: mathematical proofs say this often too.'),
   },
   {
     id: 'q-witness',
@@ -119,7 +118,6 @@ export const rules = [
     answer: { size: 2, preds: { Bird: ['1'] }, consts: { soc: 0 } },
     brief: T('「有一只鸟」推得出「苏格拉底是鸟」吗？造一个世界说明推不出：有鸟，苏格拉底却不是。', 'Does “there is a bird” give “Socrates is a bird”? Build a world showing it does not: there is a bird, yet Socrates is not one.'),
     hint: [T('两样东西：一样是苏格拉底，另一样是鸟。', 'Two things: one is Socrates, the other a bird.')],
-    after: T('存在实例化给出的名字，不能和已经有的名字混在一起：那一样东西是谁，并不知道。', 'The name take the one there is gives may not be mixed with names already in use: which thing it is, nobody knows.'),
   },
   {
     id: 'q-eq',
@@ -131,10 +129,9 @@ export const rules = [
     hint: [T('接好两根线，元件上会把每个「晨星」框出来：点一下框，那一处就换成「昏星」。', 'Once both wires are in, the part boxes each “the Morning Star”: tick a box and that one becomes “the Evening Star”.')],
     intro: [
       { t: T('古人以为清晨和黄昏天边的亮星是两颗，后来才知道都是金星。两个名字指同一样东西，写作 <b>=</b>：<wiki-ref to="equality"></wiki-ref>。', 'The ancients took the bright star of dawn and the one of dusk for two; later they learned both are Venus. Two names for one thing are written <b>=</b>: <wiki-ref to="equality"></wiki-ref>.') },
-      { t: T('<level-ref to="decl-eq"></level-ref>声明的相等给了两块元件：<part-ref to="part:rewrite"></part-ref>，接进 s = t 和一句提到 s 的话，元件上把每个 s 框出来，点选的那几处换成 t；<part-ref to="part:refl"></part-ref>，直接给出 t = t。', 'The equality declared in <level-ref to="decl-eq"></level-ref> gave two parts: <part-ref to="part:rewrite"></part-ref>, which takes s = t and a sentence about s, boxes each s on the part, and replaces the ticked ones by t; and <part-ref to="part:refl"></part-ref>, which gives t = t at once.') },
+      { t: T('<level-ref to="decl-eq"></level-ref>声明的相等带来两块元件：<part-ref to="part:rewrite"></part-ref>接进 s = t 和一句提到 s 的话，在元件上把每个 s 框出来，点选的几处换成 t；<part-ref to="part:refl"></part-ref>直接给出 t = t。', 'The equality declared in <level-ref to="decl-eq"></level-ref> brought two parts: <part-ref to="part:rewrite"></part-ref> takes s = t and a sentence about s, boxes each s on the part, and replaces the ticked ones by t; <part-ref to="part:refl"></part-ref> gives t = t at once.') },
     ],
     solution: proof({ r: ['rewrite', { at: [0] }], e: ['allE', { t: 'hesp' }], m: ['mp'] }, ['p>r.eq', 'q>r.p', 't>e.all', 'e>m.imp', 'r>m.a', 'm>goal'], { premises: ['p', 'q', 't'] }),
-    after: T('相等就是能互相替换：关于晨星说得对的话，关于昏星也对，再往下推也一样。', 'Equal means interchangeable: what is true of the Morning Star is true of the Evening Star, and so is everything it leads to.'),
   },
   {
     id: 'q-sym',
@@ -143,13 +140,12 @@ export const rules = [
     consts: ['phos', 'hesp'],
     tests: [{ premises: { p: 'phos = hesp' }, goal: 'hesp = phos' }],
     cases: [],
-    brief: T('已知「晨星 = 昏星」，证明出「昏星 = 晨星」。', 'Given “the Morning Star = the Evening Star”, prove “the Evening Star = the Morning Star”.'),
+    brief: T('已知「晨星 = 昏星」，证明「昏星 = 晨星」。', 'Given “the Morning Star = the Evening Star”, prove “the Evening Star = the Morning Star”.'),
     hint: [
       T('自反律给出「晨星 = 晨星」。', 'Reflexivity gives “the Morning Star = the Morning Star”.'),
       T('只换掉它左边那个晨星。', 'Replace only its left Morning Star.'),
     ],
     solution: proof({ r: ['refl', { t: 'phos' }], w: ['rewrite', { at: [0] }] }, ['p>w.eq', 'r>w.p', 'w>goal'], { premises: ['p'] }),
-    after: T('等号两边倒过来还相等，不用另加规则：自反加上代换就够了。', 'An equation turned round is still true, with no new rule: reflexivity and rewrite are enough.'),
   },
   {
     id: 'q-trans',
@@ -158,10 +154,9 @@ export const rules = [
     consts: ['phos', 'venus', 'hesp'],
     tests: [{ premises: { p: 'phos = venus', q: 'venus = hesp' }, goal: 'phos = hesp' }],
     cases: [],
-    brief: T('已知「晨星 = 金星」和「金星 = 昏星」，证明出「晨星 = 昏星」。', 'Given “the Morning Star = Venus” and “Venus = the Evening Star”, prove “the Morning Star = the Evening Star”.'),
+    brief: T('已知「晨星 = 金星」和「金星 = 昏星」，证明「晨星 = 昏星」。', 'Given “the Morning Star = Venus” and “Venus = the Evening Star”, prove “the Morning Star = the Evening Star”.'),
     hint: [T('把第一句里的金星换掉。', 'Replace Venus in the first.')],
     solution: proof({ w: ['rewrite', { at: [0] }] }, ['q>w.eq', 'p>w.p', 'w>goal'], { premises: ['p', 'q'] }),
-    after: T('相等一路传下去，还是相等。自反、对称、传递，等号该有的样子都由代换得来。', 'Equality passed along a chain is still equality. Reflexive, symmetric, transitive: all an equals sign should be comes from rewriting.'),
   },
   {
     id: 'q-swap',
@@ -177,19 +172,20 @@ export const rules = [
         answer: { size: 2, preds: { Likes: ['0,0', '1,1'] } },
         brief: T('「每样东西都有喜欢它的」推得出「有一样东西喜欢所有东西」吗？造一个世界说明推不出。', 'Does “everything is liked by something” give “something likes everything”? Build a world showing it does not.'),
         hint: [T('每样东西只喜欢自己。', 'Each thing likes only itself.')],
-        after: T('这个方向推不出。反过来呢？', 'This way it does not follow. And the other way?'),
       },
       {
         kind: 'proof',
         step: T('证明', 'Prove'),
         tests: [{ premises: { p: '∃x. ∀y. R(x, y)' }, goal: '∀y. ∃x. R(x, y)' }],
         cases: [{ R: 'Likes' }, { R: 'Older' }],
-        hint: [T('任取一个 b；再拿出那个喜欢一切的人，叫他 a；从关于 a 的那句里取 b，再拿 a 举例。', 'Take any b; take out the one who likes everything and call them a; take b from what holds of a, then use a as the example.')],
+        hint: [
+          T('从外往里：目标最外面是 ∀。', 'From the outside in: the goal is a ∀ outermost.'),
+          T('任取一个 b；再拿出那个喜欢一切的人，叫他 a；从关于 a 的那句里取 b，再拿 a 举例。', 'Take any b; take out the one who likes everything and call them a; take b from what holds of a, then use a as the example.'),
+        ],
         solution: proof({ g: ['allI', { x: 'b' }], f: ['exE', { x: 'a' }, 'g'], e: ['allE', { t: 'b' }, 'f'], i: ['exI', {}, 'f'] }, ['p>f.ex', 'f#body>e.all', 'e>i.a', 'i>f.body', 'f>g.body', 'g>goal'], { premises: ['p'] }),
       },
     ],
-    intro: [{ t: T('先找反例，再找证明：一句话推不出，就造一个世界说明；推得出，就证出来。', 'Counterexample first, then proof: if it does not follow, build a world to show it; if it does, prove it.') }],
-    after: T('∃∀ 推得出 ∀∃，反过来推不出。证不出来时，先试着造一个反模型，往往比硬证快。', '∃∀ gives ∀∃, not the other way. When a proof will not come, trying for a countermodel is often faster than pushing on.'),
+    after: T('证不出来时，先试着造一个反模型，往往比硬证更快。', 'When a proof will not come, trying for a countermodel is often faster than pushing on.'),
   },
   {
     id: 'q-move',
@@ -213,7 +209,6 @@ export const rules = [
       },
     ],
     intro: [{ t: T('「谁迟到，老师都会生气」和「只要有人迟到，老师就生气」是一回事吗？', 'Is “whoever is late, the teacher is cross” the same as “if anyone is late, the teacher is cross”?') }],
-    after: T("这个方向将条件中关于 x 的全称量词移到外面，并改成存在量词。这是一个<b>量词移动规则</b>；适用时必须检查公式结构和变量条件。", "This direction moves a universal quantifier from the condition to the outside and changes it to an existential quantifier. This is a <b>quantifier-moving rule</b>; its use depends on the formula’s structure and variable conditions."),
   },
   {
     id: 'q-ancestor',
@@ -224,7 +219,6 @@ export const rules = [
     cases: [{ R: 'Anc' }, { R: 'Older' }],
     hint: [T('三个 ∀，一个一个取：x 是安，y 是博，z 是茜。', 'Three ∀s, taken one at a time: x is Ann, y is Bo, z is Cy.')],
     solution: proof({ e1: ['allE', { t: 'ann' }], e2: ['allE', { t: 'bo' }], e3: ['allE', { t: 'cy' }], c: ['andI'], m: ['mp'] }, ['t>e1.all', 'e1>e2.all', 'e2>e3.all', 'a>c.a', 'b>c.b', 'e3>m.imp', 'c>m.a', 'm>goal'], { premises: ['t', 'a', 'b'] }),
-    after: T('一条规则用三个量词说话，用的时候一个一个填进去。族谱、权限、依赖关系，都是这样一步步推出来的。', 'A rule with three quantifiers is filled in one at a time when used. Family trees, permissions and dependencies are all worked out this way, step by step.'),
   },
   {
     id: 'q-bigger',
@@ -234,7 +228,6 @@ export const rules = [
     cases: [{ R: 'Less' }, { R: 'Older' }],
     hint: [T('任取一个 a，比它大的例子就是 a+1。', 'Take any a; the example of something bigger is a+1.')],
     solution: proof({ g: ['allI', { x: 'a' }], e: ['allE', { t: 'a' }, 'g'], i: ['exI', {}, 'g'] }, ['p>e.all', 'e>i.a', 'i>g.body', 'g>goal'], { premises: ['p'] }),
-    after: T("「对所有 x，存在 y」允许 y 随 x 改变。本例中可取 y = x + 1，也就是用 x 确定一个见证。", "“For every x there exists a y” allows y to depend on x. Here y = x + 1 supplies a witness determined by x."),
   },
   // Topic: Lewis Carroll's syllogism puzzles, from one syllogism to a chain of them.
   {
@@ -245,11 +238,11 @@ export const rules = [
     cases: [{ A: 'Cat', B: 'Pet', C: 'Fluffy' }, { A: 'Baby', B: 'Human', C: 'Mortal' }],
     hint: [T('任取一个 a，假设它是猫，一路套用下去。', 'Take any a, assume it is a cat, and apply all the way.')],
     intro: [
-      { t: T('写《爱丽丝漫游奇境》的刘易斯·卡罗尔是一位逻辑学家。他编过很多推理题：几句「都是」「都不是」「有的」，要推出一句结论。', 'Lewis Carroll, who wrote Alice in Wonderland, was a logician. He made many reasoning puzzles: a few sentences of “all”, “no” and “some”, from which a conclusion must be drawn.') },
+      { t: T('写《爱丽丝漫游奇境》的刘易斯·卡罗尔是一位逻辑学家。他编过许多推理题：几句「都是」「都不是」「有的」，要推出一句结论。', 'Lewis Carroll, author of Alice in Wonderland, was a logician. He made many reasoning puzzles: a few sentences of “all”, “no” and “some”, from which a conclusion must be drawn.') },
       { t: T('最简单的一种是亚里士多德的三段论：「A 都是 B，B 都是 C，所以 A 都是 C」。', 'The simplest kind is Aristotle’s syllogism: “all A are B, all B are C, so all A are C”.') },
     ],
     solution: proof({ g: ['allI', { x: 'a' }], h: ['impI', { A: 'A(a)' }, 'g'], e1: ['allE', { t: 'a' }, 'h'], m1: ['mp', {}, 'h'], e2: ['allE', { t: 'a' }, 'h'], m2: ['mp', {}, 'h'] }, ['p>e1.all', 'e1>m1.imp', 'h#body>m1.a', 'q>e2.all', 'e2>m2.imp', 'm1>m2.a', 'm2>h.body', 'h>g.body', 'g>goal'], { premises: ['p', 'q'] }),
-    after: T('两千多年里，三段论就是逻辑的全部。它其实只是全称概括、全称实例化和套用。', 'For over two thousand years the syllogism was all of logic. It is just for any, take one and Apply.'),
+    after: T('两千多年里，三段论几乎就是逻辑的全部。', 'For over two thousand years the syllogism was nearly all of logic.'),
   },
   {
     id: 's-darii',
@@ -259,7 +252,6 @@ export const rules = [
     cases: [{ A: 'Pet', B: 'Cat', C: 'Fluffy' }, { A: 'Student', B: 'Baby', C: 'Mortal' }],
     hint: [T('拿出那只是猫的宠物，它就是例子。', 'Take out the pet that is a cat; it is the example.')],
     solution: proof({ f: ['exE', { x: 'a' }], s: ['andE', {}, 'f'], e: ['allE', { t: 'a' }, 'f'], m: ['mp', {}, 'f'], c: ['andI', {}, 'f'], i: ['exI', {}, 'f'] }, ['q>f.ex', 'f#body>s.ab', 'p>e.all', 'e>m.imp', 's#right>m.a', 's#left>c.a', 'm>c.b', 'c>i.a', 'i>f.body', 'f>goal'], { premises: ['p', 'q'] }),
-    after: T('「有的」一进来，就要拿出那一个，最后再拿它举例。', 'Once “some” comes in, take out the one there is, and use it as the example at the end.'),
   },
   {
     id: 's-carroll',
@@ -267,12 +259,11 @@ export const rules = [
     title: T('婴儿驯不了鳄鱼', 'Babies cannot tame crocodiles'),
     tests: [{ premises: { p: '∀x. A(x) → ¬B(x)', q: '∀x. C(x) → D(x)', r: '∀x. ¬B(x) → ¬D(x)' }, goal: '∀x. A(x) → ¬C(x)' }],
     cases: [{ A: 'Baby', B: 'Logical', C: 'Tamer', D: 'Respected' }],
-    brief: T('卡罗尔的原题：「婴儿都不讲道理」「驯得了鳄鱼的都受人尊重」「不讲道理的都不受人尊重」。证明出「婴儿都驯不了鳄鱼」。', 'Carroll’s own puzzle: “babies are illogical”, “whoever can tame a crocodile is respected”, “illogical persons are not respected”. Prove “babies cannot tame crocodiles”.'),
+    brief: T('卡罗尔的原题：「婴儿都不讲道理」「驯得了鳄鱼的都受人尊重」「不讲道理的都不受人尊重」。证明「婴儿都驯不了鳄鱼」。', 'Carroll’s own puzzle: “babies are illogical”, “whoever can tame a crocodile is respected”, “illogical persons are not respected”. Prove “babies cannot tame crocodiles”.'),
     hint: [
       T('任取一个 a，假设它是婴儿；要证「¬a驯得了鳄鱼」，就再假设它驯得了，推出矛盾。', 'Take any a and assume it is a baby; to prove “¬a can tame a crocodile”, assume it can, and reach a contradiction.'),
       T('婴儿 → 不讲道理 → 不受尊重；驯得了鳄鱼 → 受尊重：撞上了。', 'Baby → illogical → not respected; tames crocodiles → respected: they clash.'),
     ],
-    intro: [{ t: T('终于是卡罗尔自己的题。每句话各说一件事，要把它们接成一条链。', 'At last, a puzzle of Carroll’s own. Each sentence says one thing; they must be linked into a chain.') }],
     solution: proof({
       g: ['allI', { x: 'a' }],
       h: ['impI', { A: 'A(a)' }, 'g'],
@@ -285,6 +276,5 @@ export const rules = [
       m2: ['mp', {}, 'k'],
       m4: ['mp', {}, 'k'],
     }, ['p>e1.all', 'e1>m1.imp', 'h#body>m1.a', 'r>e3.all', 'e3>m3.imp', 'm1>m3.a', 'q>e2.all', 'e2>m2.imp', 'k#body>m2.a', 'm3>m4.imp', 'm2>m4.a', 'm4>k.body', 'k>h.body', 'h>g.body', 'g>goal'], { premises: ['p', 'q', 'r'] }),
-    after: T("本题将量词规则、套用和临时假设结合起来，形式化了这道卡罗尔推理题中的论证。", "This puzzle combines quantifier rules, Apply and temporary assumptions to formalize the argument in this Carroll example."),
   },
 ]
