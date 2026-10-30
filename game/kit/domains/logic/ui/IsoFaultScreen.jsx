@@ -95,9 +95,9 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   if (phone) {
     return (
       <div className="level-phone is-split lg-phone">
+        {tabs(true)}
         <div className="lg-scroll">
           <TaskCard>{brief}</TaskCard>
-          {many && tabs(true)}
           <SlotBoard fixed dense key={boardCases.at} graph={board} parts={parts} nameOf={(n) => L(parts.label(n))} thumb={body} sinkBody={body} onNode={() => {}} onSlot={() => {}} onPort={() => {}} />
           {table}
         </div>
