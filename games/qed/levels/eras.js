@@ -144,12 +144,13 @@ export const ERAS = [
       // ?-letters settled later, lemmas as rules, and elimination rules (a rule and Assumption, built into one part);
       // on equations, patterns ?P(x).
       branches(
-        ['backward', '逆用规则', 'Rules backwards', ['r-rule', 'r-assumption', 'r-subgoals', 'r-meta', 'r-lemma', 'r-elim', 'r-cases', 'r-false', 'r-dist']],
+        ['backward', '逆用规则', 'Rules backwards', ['r-rule', 'r-assumption', 'r-subgoals', 'r-meta', 'r-lemma', 'r-elim', 'r-cases', 'r-false']],
         ['pattern', '模式', 'Patterns', ['r-pattern', 'r-patterns']],
       ),
       // The quantifier rules need both: backwards, forwards (Have and a rule on a given, built into one part).
       series('quant', '量词的规则', 'Quantifier rules', ['r-allI', 'r-exI', 'r-drule', 'r-frule', 'r-exE']),
     ],
+    topics: [{ id: 'puzzle-rules', code: 'P', after: ['q-bigger', 'r-exE'], levels: ['r-dist'], title: T('证明谜题：一长串规则', 'Proof puzzles: a long run of rules') }],
     challenges: [{ level: 'r-order', after: 'r-exE' }],
     chapter: { title: T('规则与元变量', 'Rules and metavariables'), question: T('元件能不能自己从目标里读出该填的句子？', 'Can a part read off the goal what to fill in?') },
   },
@@ -184,8 +185,8 @@ export const ERAS = [
       // Proof by contradiction, excluded middle with cases, and proof by contradiction on the machine need nothing
       // from each other.
       branches(
-        ['contra', '反证法', 'By contradiction', ['byContra', 'c-contra']],
-        ['lem', '排中律', 'Excluded middle', ['lemCases', 'c-either']],
+        ['contra', '反证法', 'By contradiction', ['byContra']],
+        ['lem', '排中律', 'Excluded middle', ['lemCases']],
         ['machine', '证明助手上的反证法', 'By contradiction on the proof assistant', ['s-lem']],
       ),
       // Equivalences, the laws the simplifier will rewrite with: proved both ways, most by contradiction or excluded
@@ -196,7 +197,10 @@ export const ERAS = [
       ),
     ],
     // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.
-    topics: [{ id: 'knights', code: 'R', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') }],
+    topics: [
+      { id: 'knights', code: 'R', after: ['e-three', 'lemCases'], levels: ['kk-one', 'kk-two', 'kk-three'], title: T('骑士与无赖', 'Knights and knaves') },
+      { id: 'puzzle-classical', code: 'P', after: ['r-dist', 'q-dm'], levels: ['c-contra', 'c-either'], title: T('证明谜题：经典逻辑', 'Proof puzzles: classical logic') },
+    ],
     challenges: [{ level: 'peirce', after: 'lemCases' }, { level: 'drinker', after: 'q-dm' }],
     chapter: { title: T('经典逻辑', 'Classical logic'), question: T('真值表上每一行都真的话，证明器都证得出吗？', 'Does the prover prove everything true on every row?') },
   },
@@ -259,7 +263,7 @@ export const ERAS = [
       // What the generator (optional, as chapter 6 left it) makes of the numbers.
       { id: 'gen-nat', code: 'E', after: ['decl-nat', 'gen-ex'], levels: ['gen-nat'], title: T('生成器遇上自然数', 'The generator meets the numbers') },
       { id: 'sort', code: 'I', after: ['in-appnil', 'sp-cond'], levels: ['sort-ins', 'sort-run', 'sort-if', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') },
-      { id: 'puzzle-lists', code: 'P', after: ['q-bigger', 'in-assoc', 'in-appnil', 'in-loop'], levels: ['in-appassoc', 'in-revapp', 'in-revrev', 'in-len', 'in-itsum'], title: T('证明谜题：数与列表', 'Proof puzzles: numbers and lists') },
+      { id: 'puzzle-lists', code: 'P', after: ['c-either', 'in-assoc', 'in-appnil', 'in-loop'], levels: ['in-appassoc', 'in-revapp', 'in-revrev', 'in-len', 'in-itsum'], title: T('证明谜题：数与列表', 'Proof puzzles: numbers and lists') },
       { id: 'goedel', code: 'R', after: ['in-assoc', 'in-appnil', 'in-loop', 'u-halt'], levels: ['gd-code', 'gd-check', 'gd-diag', 'gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
     ],
     challenges: [{ level: 'in-circle', after: 'in-comm' }],
@@ -276,23 +280,25 @@ export const ERAS = [
         ['quant', '量词的证明项', 'Quantifiers’ proof terms', ['t-all']],
       ),
       // Then the terms written, of every part wired before: functions (and lemmas), data, quantifiers; the kernel.
-      series('write', '写证明项', 'Writing proof terms', ['t-wapp', 't-wpair', 't-wquant', 't-kernel']),
+      series('write', '写证明项', 'Writing proof terms', ['t-wapp', 't-kernel']),
     ],
-    challenges: [{ level: 't-dneg', after: 't-wpair' }],
+    topics: [{ id: 'puzzle-terms', code: 'P', after: ['in-itsum', 't-kernel'], levels: ['t-wpair', 't-wquant'], title: T('证明谜题：写证明项', 'Proof puzzles: writing proof terms') }],
+    challenges: [{ level: 't-dneg', after: 't-wapp' }],
     chapter: { title: T('证明即程序', 'Proofs are programs'), question: T('接出来的证明本身是什么？', 'What is a wired proof, itself?') },
   },
   {
     id: 'equality', machine: 'prover', keeps: 'all',
     foundation: [
       // An equation is a type: its one way in (rfl), its one way out (▸, the rewrite card), and the motive.
-      series('eqtype', '相等是类型', 'An equation is a type', ['eq-rfl', 'eq-rec', 'eq-symm', 'eq-trans', 'eq-motive']),
+      series('eqtype', '相等是类型', 'An equation is a type', ['eq-rfl', 'eq-rec', 'eq-motive']),
       // What the kernel computes, and types depending on a value, need nothing from each other.
       branches(
         ['kinds', '两种相等', 'Two kinds of equality', ['eq-defeq', 'rf-eval', 'rf-decide', 'rf-false', 'eq-propeq']],
         ['dep', '依赖类型', 'Dependent types', ['dt-vec', 'dt-head']],
       ),
     ],
-    practice: [series('both', '两样一起', 'Both together', ['dt-app', 'dt-transport'])],
+    practice: [series('both', '两样一起', 'Both together', ['dt-transport'])],
+    topics: [{ id: 'puzzle-equality', code: 'P', after: ['t-wquant', 'dt-transport'], levels: ['eq-symm', 'eq-trans', 'dt-app'], title: T('证明谜题：相等', 'Proof puzzles: equality') }],
     challenges: [{ level: 'dt-snoc', after: 'dt-transport' }],
     chapter: { title: T('依赖类型与相等', 'Dependent types and equality'), question: T('等式本身是什么？类型能依赖一个值吗？', 'What is an equation itself, and can a type depend on a value?') },
   },
@@ -311,7 +317,7 @@ export const ERAS = [
     ],
     practice: [series('whole', '整段脚本', 'Whole scripts', ['sc-knights', 'sc-barber'])],
     // The list proof of the puzzles (it needs their reverse) as a whole script.
-    topics: [{ id: 'puzzle-script', code: 'P', after: ['in-itsum', 'sc-barber'], levels: ['sc-revrev'], title: T('证明谜题：整段脚本', 'Proof puzzles: a whole script') }],
+    topics: [{ id: 'puzzle-script', code: 'P', after: ['dt-app', 'sc-barber'], levels: ['sc-revrev'], title: T('证明谜题：整段脚本', 'Proof puzzles: a whole script') }],
     chapter: { title: T('结构化证明', 'Structured proofs'), question: T('证明写成什么样，人读得懂，核也查得了？', 'How is a proof written so people can read it and the kernel can check it?') },
   },
 ]
