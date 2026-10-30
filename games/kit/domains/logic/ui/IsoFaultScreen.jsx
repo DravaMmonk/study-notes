@@ -31,6 +31,23 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
     save,
     empty: setOut(level),
     judge: (k, cases) => L(judged(cases).judge(k) ?? ''),
+    // A run goes down the table one case a step, stopping at the case that fails the board.
+    stepsOf: (b, cases) => {
+      const j = judged(cases)
+      const stop = (k) => {
+        if (!j.rows[k].right) return j.wrong
+        if (level.want === 'agree' && j.rows[k].derived[b] !== j.rows[k].wants) return j.judge(b)
+        if (level.want === 'expose' && j.rows[k].derived[b] === j.rows[k].wants) return j.judge(b)
+        return null
+      }
+      const steps = []
+      for (let k = 0; k < cases.length; k++) {
+        const why = stop(k)
+        steps.push(why ? { failed: L(why) } : {})
+        if (why) break
+      }
+      return steps
+    },
     onSolve: () => solve({ steps: boardCases.work.length, unit: 'cases' }),
     lastRun,
     keepRun,
@@ -80,14 +97,15 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  const ran = Boolean(states[boardCases.at])
+  // The cases the run has reached on the board on view.
+  const reached = playback.shown(boardCases.at).list.length
   const rowClass = (k) => (k === row ? 'is-on' : '')
-  // Once the run reaches the board on view, each case shows what it derives, marked where that catches it; a case
-  // set out written in full shows it from the start.
+  // As the run reaches each case on the board on view, the case shows what it derives, marked where that catches it;
+  // a case set out written in full shows it from the start.
   const whole = (c) => ['given', 'goal', 'make'].every((cell) => c?.fixed?.includes(cell))
   const result = (k) => {
     const r = checked.rows[k]
-    if (!(ran || whole(cases[k])) || !r || r.derived[boardCases.at] === null) return null
+    if (!(k < reached || whole(cases[k])) || !r || r.derived[boardCases.at] === null) return null
     return { derived: r.derived[boardCases.at], wrong: r.right && r.derived[boardCases.at] !== r.wants }
   }
   const table = (
