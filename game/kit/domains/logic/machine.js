@@ -413,11 +413,10 @@ const eachOf = {
 }
 
 /**
- * Through “any” (the generator's frame, chapter 6): the things a value takes first put aside, its region run on what
- * they stand in front of, and what comes out put back behind the same things; a value that takes nothing first runs
- * through as it is.
+ * Keep ⋀ (the generator's frame, chapter 6): a value's bound variables set aside, its region run on the rule after
+ * them, and the same bound variables put back in front of what comes out; a value with none runs through as it is.
  */
-const throughAny = {
+const keepBound = {
   ...framePart(['in'], [{ name: 'body', opens: true }]),
   reads: () => ['in'],
   eval: ({ in: v }, node, ctx, key) => {
@@ -473,7 +472,7 @@ export const MACHINE_PARTS = {
   // player builds of them.
   ...GEN_PARTS,
   eachOf,
-  throughAny,
+  keepBound,
   elimGen: BUILT(['it', 'ways']),
   // Unification (chapter 8): its rules, the unifier built from them, and patterns.
   uDelete: unifyCard('delete'),

@@ -11,7 +11,7 @@
 //
 //   value   { kind: 'sentence', f } | { kind: 'rule', rule } | { kind: 'list', items: [value] }
 //           | { kind: 'any', vars: [variable], body: value }   a way that takes things first, ⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y):
-//           the things taken around the rule, opened by the frame 隔着任取 (machine.js `throughAny`, chapter 6)
+//           the things taken around the rule, opened by the frame 保留⋀ (machine.js `keepBound`, chapter 6)
 //   rule    { fixes: [variable], premises: [premise], conclusion } (schematic.js premises)
 //   test    { it: sentence text, ways: [rule text], elim: [premise text] }   the elimination rule's premises; it
 //           concludes ?R. A level with `single` hands its one way in as a rule, not a list.
@@ -50,7 +50,7 @@ export function elimInputs(test, level) {
 /** The elimination rule a test wants. */
 export const elimOf = (test) => ({ fixes: [], premises: test.elim.map(premiseOf), conclusion: meta(ANY) })
 
-const count = (v) => (v.kind === 'list' ? T(`一串 ${v.items.length} 样`, `a list of ${v.items.length}`) : v.kind === 'rule' ? T('一条规则', 'a rule') : v.kind === 'any' ? T(`任取 ${v.vars.join(' ')} 再${count(v.body).zh}`, `${count(v.body).en} for any ${v.vars.join(' ')}`) : T('一句话', 'a sentence'))
+const count = (v) => (v.kind === 'list' ? T(`一串 ${v.items.length} 样`, `a list of ${v.items.length}`) : v.kind === 'rule' ? T('一条规则', 'a rule') : v.kind === 'any' ? T(`约束了 ${v.vars.join(' ')} 的${count(v.body).zh}`, `${count(v.body).en} binding ${v.vars.join(' ')}`) : T('一句话', 'a sentence'))
 const want = (v, kind, what) => {
   if (v?.kind !== kind) throw fail(`这里要${what.zh}，接进来的是${count(v).zh}`, `This needs ${what.en}; it got ${count(v).en}`)
   return v
