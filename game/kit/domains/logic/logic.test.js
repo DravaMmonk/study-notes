@@ -434,7 +434,7 @@ test('using a declaration: what follows is what every way in gives, a sentence n
   assert.ok(follows(level('⊥'), isoBoard([]), { get: 'C' }))
 })
 
-test('the elimination rule generator: one case for each way in, its conclusion any ?R; none for ⊥', () => {
+test('the elimination rule generator: one case for each way in, its conclusion any ?R; none for ⊥; things taken kept', () => {
   const level = { kind: 'machine', want: 'elim', inputs: [{ name: 'it' }, { name: 'ways' }] }
   const board = machine({ r: ['anyR'], e: ['eachOf'], s: ['swapConcl', {}, 'e'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>s.rule', 'r>s.to', 's>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
   const decl = (it, ways, elim) => ({ it, ways, elim })
@@ -442,10 +442,17 @@ test('the elimination rule generator: one case for each way in, its conclusion a
     decl('?A ∧ ?B', ['⟦?A; ?B⟧ ⟹ ?A ∧ ?B'], ['?A ∧ ?B', '⟦?A; ?B⟧ ⟹ ?R']),
     decl('?A ∨ ?B', ['⟦?A⟧ ⟹ ?A ∨ ?B', '⟦?B⟧ ⟹ ?A ∨ ?B'], ['?A ∨ ?B', '⟦?A⟧ ⟹ ?R', '⟦?B⟧ ⟹ ?R']),
     decl('⊥', [], ['⊥']),
-    // A way that takes a thing keeps it in its case.
-    decl('∃y. ?P(y)', ['⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)'], ['∃y. ?P(y)', '⋀x. ⟦?P(x)⟧ ⟹ ?R']),
   ]
   assert.ok(runLevel(MACHINE_TESTS, { ...level, tests }, board).pass)
+  // A way that takes things first comes in as a rule inside them: Swap conclusion needs Through “any” around it, which
+  // keeps them in the case, one thing or two.
+  const any = [
+    decl('∃y. ?P(y)', ['⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)'], ['∃y. ?P(y)', '⋀x. ⟦?P(x)⟧ ⟹ ?R']),
+    decl('∃u. ∃v. ?P(u, v)', ['⋀x y. ⟦?P(x, y)⟧ ⟹ ∃u. ∃v. ?P(u, v)'], ['∃u. ∃v. ?P(u, v)', '⋀x y. ⟦?P(x, y)⟧ ⟹ ?R']),
+  ]
+  assert.equal(runLevel(MACHINE_TESTS, { ...level, tests: any }, board).pass, false)
+  const through = machine({ r: ['anyR'], e: ['eachOf'], a: ['throughAny', {}, 'e'], s: ['swapConcl', {}, 'a'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>a.in', 'a#body>s.rule', 'r>s.to', 's>a.body', 'a>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
+  assert.ok(runLevel(MACHINE_TESTS, { ...level, tests: [...tests, ...any] }, through).pass)
   // Without For each, a list of ways does not fit Swap conclusion.
   const one = machine({ r: ['anyR'], s: ['swapConcl'], c: ['consFront'], m: ['mkRule'] }, ['ways>s.rule', 'r>s.to', 'it>c.first', 's>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
   assert.equal(runLevel(MACHINE_TESTS, { ...level, tests }, one).pass, false)

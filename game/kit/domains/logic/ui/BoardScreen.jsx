@@ -41,8 +41,12 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
   // The parts the player built run the boards that last passed their levels.
   syncOwn(progress.built)
   const parts = useMemo(() => board.parts(level), [board, level])
-  // A saved board that no longer fits the level or the game starts fresh.
-  const [circuit, setCircuit] = useState(() => (saved?.nodes && board.fits(saved, level, parts) ? board.lock(level, saved) : board.start(level)))
+  // A saved board that no longer fits the level or the game starts fresh: an upgrade from the board its part runs now.
+  const [circuit, setCircuit] = useState(() => {
+    if (saved?.nodes && board.fits(saved, level, parts)) return board.lock(level, saved)
+    const from = level.upgrades?.opens().circuit
+    return from && board.fits(from, level, parts) ? board.lock(level, from) : board.start(level)
+  })
   // The frame region a new card goes into, or null for the board itself (CanvasEditor onTarget).
   const [target, setTarget] = useState(null)
   // A level opens on its first test, the case its task is written in.

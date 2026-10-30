@@ -46,7 +46,7 @@ import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, rule
 import { rewrite, rewriteBookOf, simplify } from './rewrite.js'
 import { datatypesRules } from './datatype.js'
 import { clausesOfState, oracleRound, parseClause, refuted, replay, resolveRound, saturate } from './resolution.js'
-import { GEN_PARTS, elimInputs, judgeElim, listValue, ruleValue, sentenceValue } from './elimgen.js'
+import { GEN_PARTS, anyValue, elimInputs, judgeElim, listValue, ruleValue, sentenceValue } from './elimgen.js'
 
 const T = (zh, en) => ({ zh, en })
 const fail = (zh, en) => new PartError({ zh, en })
@@ -412,6 +412,24 @@ const eachOf = {
   },
 }
 
+/**
+ * Through “any” (the generator's frame, chapter 6): the things a value takes first put aside, its region run on what
+ * they stand in front of, and what comes out put back behind the same things; a value that takes nothing first runs
+ * through as it is.
+ */
+const throughAny = {
+  ...framePart(['in'], [{ name: 'body', opens: true }]),
+  reads: () => ['in'],
+  eval: ({ in: v }, node, ctx, key) => {
+    if (!v) throw fail('这里要接进一样东西', 'Something has to be wired in here')
+    const inner = v.kind === 'any' ? v.body : v
+    if (key) return inner
+    ctx.trace?.push({ id: node.id, key: 'body', value: inner, round: 1 })
+    const out = regionRun(node, ctx, 'body')(inner)
+    return v.kind === 'any' ? anyValue(v.vars, out) : out
+  },
+}
+
 // Alternatives (Isabelle's APPEND, ORELSE when only the first result is followed): every region opens with the value;
 // every result of the first region, then every result of the next, those that failed left out. How many regions is
 // the card's setting.
@@ -455,6 +473,7 @@ export const MACHINE_PARTS = {
   // player builds of them.
   ...GEN_PARTS,
   eachOf,
+  throughAny,
   elimGen: BUILT(['it', 'ways']),
   // Unification (chapter 8): its rules, the unifier built from them, and patterns.
   uDelete: unifyCard('delete'),
@@ -672,20 +691,27 @@ export const syncOwn = (built = {}) => {
 const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
 /**
  * The machine parts a course's levels build, each running the board that built it (a packed part, ../../engine/
- * boards.js): its inputs are the builder's inputs, its result the builder's. The cards inside use the rules of the
- * level that uses the part and of the level that built it, and backtrack where either does. `opens()` gives what a
- * board shows of the part opened: { circuit, level } (the level that built it, whose parts and words it is drawn in).
+ * boards.js): its inputs are the builder's inputs, its result the builder's. A part may be built by a chain of levels,
+ * each an upgrade of the one before (games/DESIGN.md): it runs the board of the last of them the player passed, or the
+ * last one's reference board. The cards inside use the rules of the level that uses the part and of the level that
+ * built it, and backtrack where either does. `opens()` gives what a board shows of the part opened: { circuit, level }
+ * (the level that built it, whose parts and words it is drawn in).
  */
-export function builtParts(builders) {
-  return Object.fromEntries(builders.map((b) => {
-    const circuit = () => OWN.get(b.id) ?? b.solution
+export function builtParts(chains) {
+  return Object.fromEntries(chains.map((chain) => {
+    const builder = () => chain.findLast((b) => OWN.has(b.id)) ?? chain.at(-1)
+    const circuit = () => OWN.get(builder().id) ?? builder().solution
+    const last = chain.at(-1)
     const part = packed({
       circuit,
-      inputs: inputsOfLevel(b).map((i) => i.name),
+      inputs: inputsOfLevel(last).map((i) => i.name),
       output: 'out',
-      inside: (ctx) => ({ ...ctx, rules: { ...ruleBookOf(b), ...ctx.rules }, rewrites: { ...rewriteBookOf(b), ...ctx.rewrites }, ruleParts: merged(rulePartsOf(b), ctx.ruleParts), backtrack: ctx.backtrack || Boolean(b.backtrack) }),
+      inside: (ctx) => {
+        const b = builder()
+        return { ...ctx, rules: { ...ruleBookOf(b), ...ctx.rules }, rewrites: { ...rewriteBookOf(b), ...ctx.rewrites }, ruleParts: merged(rulePartsOf(b), ctx.ruleParts), backtrack: ctx.backtrack || Boolean(b.backtrack) }
+      },
     })
-    return [b.builds, { ...MACHINE_PARTS[b.builds], ...part, eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: b }) }]
+    return [last.builds, { ...MACHINE_PARTS[last.builds], ...part, eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: builder() }) }]
   }))
 }
 // A tactic that cannot go on gives the state it was handed with what went wrong, as every tactic does (a frame reads

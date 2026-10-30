@@ -256,11 +256,31 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
   }
   // The machine parts the player builds run the boards that built them (machine.js builtParts), on every machine
   // board and in every script.
-  const builders = [...new Map(LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'machine' && machines.includes(t.builds)).map((t) => [t.builds, t])).values()]
-  const running = builtParts(builders)
-  for (const one of LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])])) one.built = running
+  // A part built by several levels is a chain of upgrades (games/DESIGN.md): a level holds it as the levels of the chain
+  // up to it built it, and an upgrade starts from it as the levels before it left it (`upgrades`, the part's state).
+  const builders = LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'machine' && machines.includes(t.builds))
+    .sort((a, b) => (course.before(a.id, b.id) ? -1 : course.before(b.id, a.id) ? 1 : 0))
+  const chains = Map.groupBy(builders, (b) => b.builds)
+  const upTo = (id, strict) => [...chains.values()].map((chain) => {
+    const some = chain.filter((b) => (b.id === id ? !strict : course.before(b.id, id)))
+    return strict ? some : some.length ? some : chain
+  }).filter((chain) => chain.length)
+  const runs = new Map()
+  const running = (chainsHere) => {
+    const key = chainsHere.map((c) => c.map((b) => b.id).join()).join('|')
+    if (!runs.has(key)) runs.set(key, builtParts(chainsHere))
+    return runs.get(key)
+  }
+  for (const level of LEVELS) {
+    for (const one of [level, ...(level.tasks ?? [])]) {
+      one.built = running(upTo(level.id, false))
+      const before = one.kind === 'machine' && one.builds && upTo(level.id, true).find((c) => c[0].builds === one.builds)
+      if (before) one.upgrades = running([before])[one.builds]
+    }
+  }
   // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
-  const held = (level) => byId.get(level.id)?.without ?? []
+  // Nor does a level hold the part it builds (an upgrade works on the part's own board), past its first task.
+  const held = (level) => [...(byId.get(level.id)?.without ?? []), ...(byId.get(level.id)?.builds && !(level.task > 0) ? [byId.get(level.id).builds] : [])]
   // A task that names its parts holds those the player has: a primitive, or a built part once its level is solved.
   // The task after the one that proves a level's part may use it already (a law proved, then put to work).
   // On a machine board its rule parts come with them.
