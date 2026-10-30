@@ -40,9 +40,9 @@ export const ERAS = [
       branches(['apply', '套用', 'Apply', ['mp', 'nested']], ['assume', '假设框', 'Assumption box', ['assume']]),
       'box',
       // Proofs kept as parts (definitions): Chain, Swap and Merge, each built with boxes alone, on two lines that need
-      // nothing from each other; then the three together, a level each, harder each time.
+      // nothing from each other; then the three together once (the longer puzzles with them are the optional topic P).
       branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
-      'mergeUse', 'mergeLong', 'mergeBoth',
+      'mergeUse',
     ],
     // Without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time, once K and S
     // are both in hand (a level's `without` holds back the box and the parts built with it): a condition, Apply under a
@@ -53,11 +53,14 @@ export const ERAS = [
     topics: [
       // K and S, each proved with boxes and built as a part: optional, needing nothing from each other. They are where a
       // prover with axioms alone starts, which is all they are for (the main path backwards uses the box instead).
-      { id: 'k', code: 'X', after: 'mergeBoth', levels: ['k'], title: T('K', 'K') },
-      { id: 's', code: 'X', after: 'mergeBoth', levels: ['s'], title: T('S', 'S') },
+      { id: 'k', code: 'X', after: 'mergeUse', levels: ['k'], title: T('K', 'K') },
+      { id: 's', code: 'X', after: 'mergeUse', levels: ['s'], title: T('S', 'S') },
       { id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k'], title: T('拆掉框', 'Without the box') },
       { id: 'nobox-chain', code: 'X', after: 'x-k', levels: ['x-chain', 'x-swap'], title: T('拆掉框：接起来与换顺序', 'Without the box: joining and reordering') },
       { id: 'nobox-merge', code: 'X', after: 'x-k', levels: ['x-self', 'x-merge'], title: T('拆掉框：恒等与合并', 'Without the box: identity and merging') },
+      // Proof puzzles (P): the longer, trickier proofs with what each chapter brings, one series through the chapters,
+      // off the main path, which keeps one or two levels of each mechanism.
+      { id: 'puzzle-kernel', code: 'P', after: 'mergeUse', levels: ['mergeLong', 'mergeBoth'], title: T('证明谜题', 'Proof puzzles') },
     ],
     chapter: { title: T('证明核', 'The kernel'), question: T('只靠套用和假设框，能证出什么？', 'What can Apply and the assumption box prove?') },
   },
@@ -88,10 +91,13 @@ export const ERAS = [
         ['or', '或者', 'Or', ['or', 'cases', 'orSwap']],
         ['not', '矛盾与否定', 'Contradiction and not', ['bot', 'notI', 'mt']],
       ),
-      series('mix', '组合', 'Together', ['iffUse', 'dist', 'dsyll']),
+      series('mix', '组合', 'Together', ['iffUse']),
     ],
-    // The connectives defined with → alone instead of declared, after the chapter's last level: optional proofs.
-    topics: [{ id: 'hol', code: 'X', after: ['k', 'dsyll'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') }],
+    topics: [
+      // The connectives defined with → alone instead of declared, after the chapter's last level: optional proofs.
+      { id: 'hol', code: 'X', after: ['k', 'iffUse'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') },
+      { id: 'puzzle-connectives', code: 'P', after: ['mergeBoth', 'iffUse'], levels: ['orImp', 'contra', 'dist', 'dsyll'], title: T('证明谜题：连接词', 'Proof puzzles: connectives') },
+    ],
     chapter: { title: T('连接词的运用', 'Using the connectives'), question: T('有了声明出来的「与」「或」「非」，能证出些什么？', 'With “and”, “or” and “not” declared, what can be proved?') },
   },
   {
@@ -117,16 +123,14 @@ export const ERAS = [
         ['forall', '取一个', 'Take one', ['q-allE', 'q-rename', 'q-allAnd', 'q-capture']],
         ['exists', '存在', 'There is', ['decl-ex', 'q-exI', 'q-exE', 'q-witness']],
       ),
-      // With both in hand: quantifiers swapped and moved, and equality, its own mechanism; neither needs the other.
-      branches(
-        ['moving', '换序与挪动', 'Swapping and moving', ['q-swap', 'q-move', 'q-ancestor', 'q-bigger']],
-        ['equality', '相等', 'Equality', ['decl-eq', 'q-eq', 'q-sym', 'q-trans']],
-      ),
+      // With both in hand, equality, its own mechanism (quantifiers swapped and moved are proof puzzles, topic P).
+      series('equality', '相等', 'Equality', ['decl-eq', 'q-eq', 'q-sym', 'q-trans']),
     ],
     topics: [
       // The generator (chapter 3, optional) upgraded for ways that take things first: it builds on the one before it.
       { id: 'gen-any', code: 'E', after: ['decl-ex', 'gen-each'], levels: ['gen-ex'], title: T('生成器遇上任取', 'The generator meets “any”') },
-      { id: 'carroll', code: 'S', after: 'q-move', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') },
+      { id: 'carroll', code: 'S', after: 'q-trans', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') },
+      { id: 'puzzle-quantifiers', code: 'P', after: ['dsyll', 'q-trans'], levels: ['q-swap', 'q-move', 'q-ancestor', 'q-bigger'], title: T('证明谜题：量词', 'Proof puzzles: quantifiers') },
     ],
     chapter: { title: T('量词规则', 'Quantifier rules'), question: T('怎样证明一句话在所有世界里都成立？', 'How do you prove a sentence holds in every world?') },
   },
@@ -247,16 +251,16 @@ export const ERAS = [
       // Numbers, lists and why a definition must stop need nothing from each other.
       branches(
         ['nat', '数', 'Numbers', ['in-succ', 'in-comm', 'in-assoc']],
-        ['lists', '列表的等式', 'Equations of lists', ['in-appnil', 'in-appassoc', 'in-revapp']],
+        ['lists', '列表的等式', 'Equations of lists', ['in-appnil']],
         ['stop', '为什么要停', 'Why it must stop', ['in-noteq', 'in-loop']],
       ),
     ],
-    practice: [series('both', '数和列表', 'Numbers and lists', ['in-len', 'in-revrev', 'in-itsum'])],
     topics: [
       // What the generator (optional, as chapter 6 left it) makes of the numbers.
       { id: 'gen-nat', code: 'E', after: ['decl-nat', 'gen-ex'], levels: ['gen-nat'], title: T('生成器遇上自然数', 'The generator meets the numbers') },
       { id: 'sort', code: 'I', after: ['in-appnil', 'sp-cond'], levels: ['sort-ins', 'sort-run', 'sort-if', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') },
-      { id: 'goedel', code: 'R', after: ['in-itsum', 'u-halt'], levels: ['gd-code', 'gd-check', 'gd-diag', 'gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
+      { id: 'puzzle-lists', code: 'P', after: ['q-bigger', 'in-assoc', 'in-appnil', 'in-loop'], levels: ['in-appassoc', 'in-revapp', 'in-revrev', 'in-len', 'in-itsum'], title: T('证明谜题：数与列表', 'Proof puzzles: numbers and lists') },
+      { id: 'goedel', code: 'R', after: ['in-assoc', 'in-appnil', 'in-loop', 'u-halt'], levels: ['gd-code', 'gd-check', 'gd-diag', 'gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
     ],
     challenges: [{ level: 'in-circle', after: 'in-comm' }],
     chapter: { title: T('数与列表', 'Numbers and lists'), question: T('数和列表怎么算、从哪里来？对每一个数都成立的事，怎么证？', 'How are numbers and lists worked out, and where do they come from? How is something proved for every number?') },
@@ -305,7 +309,9 @@ export const ERAS = [
         ['obtain', 'obtain', 'obtain', ['sc-obtain']],
       ),
     ],
-    practice: [series('whole', '整段脚本', 'Whole scripts', ['sc-knights', 'sc-revrev', 'sc-barber'])],
+    practice: [series('whole', '整段脚本', 'Whole scripts', ['sc-knights', 'sc-barber'])],
+    // The list proof of the puzzles (it needs their reverse) as a whole script.
+    topics: [{ id: 'puzzle-script', code: 'P', after: ['in-itsum', 'sc-barber'], levels: ['sc-revrev'], title: T('证明谜题：整段脚本', 'Proof puzzles: a whole script') }],
     chapter: { title: T('结构化证明', 'Structured proofs'), question: T('证明写成什么样，人读得懂，核也查得了？', 'How is a proof written so people can read it and the kernel can check it?') },
   },
 ]

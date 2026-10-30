@@ -336,6 +336,13 @@ export default {
   { version: 64, ops: [
     { data: (value, id) => (!Array.isArray(value) ? value : id === 'decl-and' ? [null, null, value[0] ?? null] : id === 'decl-or' ? [null, value[1] ?? null, null] : value) },
     { tasks: (passed, id) => (['decl-and', 'decl-or'].includes(id) ? 0 : passed) },
+  ] },
+  // Version 65 took the longer proofs off the main path into the proof puzzles (topic P): 不管哪一种 and 逆否 are
+  // levels of their own again, out of 或者，换个顺序 and 没有结果，就没有起因.
+  { version: 65, ops: [
+    { split: ['orSwap', ['orSwap', 'orImp']] },
+    { split: ['mt', ['mt', 'contra', 'denyAnte']] },
+    { merge: ['mt', ['mt', 'denyAnte']] },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

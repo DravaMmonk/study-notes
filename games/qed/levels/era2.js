@@ -133,25 +133,21 @@ export const era2 = [
   {
     id: 'orSwap',
     title: T('或者，换个顺序', 'Or, the other way round'),
-    tasks: [
-      {
-        kind: 'proof',
-        step: T('或者，换个顺序', 'Or, the other way round'),
-        tests: [{ premises: { p: 'A ∨ B' }, goal: 'B ∨ A' }],
-        cases: [{ A: 'Bus', B: 'Bike' }, { A: 'Coffee', B: 'Tea' }],
-        hint: [T('不知道是哪一边，就分情况。每种情况里，用引入 ∨ 换到对的位置。', 'Not knowing which side, split into cases. In each, ∨ intro puts it in the right place.')],
-        solution: proof({ e: ['orE'], l: ['orI', { other: 'B', side: 'left' }, 'e/left'], r: ['orI', { other: 'A', side: 'right' }, 'e/right'] }, ['p>e.ab', 'e#left>l.a', 'l>e.left', 'e#right>r.a', 'r>e.right', 'e>goal'], { premises: ['p'] }),
-      },
-      {
-        kind: 'proof',
-        step: T('不管哪一种', 'Whichever it is'),
-        tests: [{ premises: { p: 'A → C', q: 'B → C' }, goal: 'A ∨ B → C' }],
-        cases: [{ A: 'Bus', B: 'Bike', C: 'OnTime' }, { A: 'Sat', B: 'Sun', C: 'Rest' }],
-        hint: [T('目标是「若…则…」，先开一个假设框；框里有了一句 ∨，再分情况。', 'The goal is an “if … then …”: open an assumption box first; with an ∨ inside it, split into cases.')],
-        intro: [{ t: T('在<level-ref to="cases"></level-ref>里，「我坐公交 ∨ 我骑车」是已知；这回它在要证的「若…则…」里。', 'In <level-ref to="cases"></level-ref>, “I take the bus ∨ I cycle” was given; now it sits inside the “if … then …” to be proved.') }],
-        solution: proof({ f: ['impI', { A: 'A ∨ B' }], e: ['orE', {}, 'f'], m1: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['f#body>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>e.left', 'q>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>f.body', 'f>goal'], { premises: ['p', 'q'] }),
-      },
-    ],
+    kind: 'proof',
+    tests: [{ premises: { p: 'A ∨ B' }, goal: 'B ∨ A' }],
+    cases: [{ A: 'Bus', B: 'Bike' }, { A: 'Coffee', B: 'Tea' }],
+    hint: [T('不知道是哪一边，就分情况。每种情况里，用引入 ∨ 换到对的位置。', 'Not knowing which side, split into cases. In each, ∨ intro puts it in the right place.')],
+    solution: proof({ e: ['orE'], l: ['orI', { other: 'B', side: 'left' }, 'e/left'], r: ['orI', { other: 'A', side: 'right' }, 'e/right'] }, ['p>e.ab', 'e#left>l.a', 'l>e.left', 'e#right>r.a', 'r>e.right', 'e>goal'], { premises: ['p'] }),
+  },
+  {
+    id: 'orImp',
+    kind: 'proof',
+    title: T('不管哪一种', 'Whichever it is'),
+    tests: [{ premises: { p: 'A → C', q: 'B → C' }, goal: 'A ∨ B → C' }],
+    cases: [{ A: 'Bus', B: 'Bike', C: 'OnTime' }, { A: 'Sat', B: 'Sun', C: 'Rest' }],
+    hint: [T('目标是「若…则…」，先开一个假设框；框里有了一句 ∨，再分情况。', 'The goal is an “if … then …”: open an assumption box first; with an ∨ inside it, split into cases.')],
+    intro: [{ t: T('在<level-ref to="cases"></level-ref>里，「我坐公交 ∨ 我骑车」是已知；这回它在要证的「若…则…」里。', 'In <level-ref to="cases"></level-ref>, “I take the bus ∨ I cycle” was given; now it sits inside the “if … then …” to be proved.') }],
+    solution: proof({ f: ['impI', { A: 'A ∨ B' }], e: ['orE', {}, 'f'], m1: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['f#body>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>e.left', 'q>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>f.body', 'f>goal'], { premises: ['p', 'q'] }),
   },
   {
     id: 'dist',
@@ -237,20 +233,6 @@ export const era2 = [
         solution: proof({ c1: ['chain'], c2: ['chain'] }, ['p>c1.p0', 'q>c1.p1', 'c1>c2.p0', 'r>c2.p1', 'c2>goal'], { premises: ['p', 'q', 'r'] }),
       },
       {
-        kind: 'proof',
-        step: T('逆否', 'Contrapositive'),
-        tests: [{ goal: '(A → B) → (¬B → ¬A)' }],
-        cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Exam', B: 'Study' }],
-        hint: [
-          T('两个 →，两个框，一个套一个。', 'Two →s, two boxes, one inside the other.'),
-          T('里面的框看得见「下雨 → 地湿」和「¬地湿」，也就是「地湿 → ⊥」。', 'The inner box sees “it rains → the ground is wet” and “¬the ground is wet”, that is “wet → ⊥”.'),
-        ],
-        intro: [
-          { t: T('「下雨，地就湿」，那么「地不湿，就没下雨」。这叫<wiki-ref to="contrapositive"></wiki-ref>。和<level-ref to="onerow"></level-ref>里那个错误的推理不同，它永远成立：「(下雨 → 地湿) → (¬地湿 → ¬下雨)」。', '“If it rains, the ground is wet”, so “if the ground is not wet, it did not rain”. This is the <wiki-ref to="contrapositive"></wiki-ref>, and unlike the bad reasoning of <level-ref to="onerow"></level-ref> it always holds: “(it rains → the ground is wet) → (¬the ground is wet → ¬it rains)”.') },
-        ],
-        solution: contra,
-      },
-      {
         kind: 'truth',
         step: T('否定前件', 'Denying the antecedent'),
         ask: 'counter',
@@ -264,6 +246,21 @@ export const era2 = [
       },
     ],
     intro: [{ t: T('下雨地就湿，地湿路就滑；可路不滑，所以没下雨。', 'Rain wets the ground, a wet ground is slippery; the road is not slippery, so it did not rain.') }],
+  },
+  {
+    id: 'contra',
+    kind: 'proof',
+    title: T('逆否', 'Contrapositive'),
+    tests: [{ goal: '(A → B) → (¬B → ¬A)' }],
+    cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Exam', B: 'Study' }],
+    hint: [
+      T('两个 →，两个框，一个套一个。', 'Two →s, two boxes, one inside the other.'),
+      T('里面的框看得见「下雨 → 地湿」和「¬地湿」，也就是「地湿 → ⊥」。', 'The inner box sees “it rains → the ground is wet” and “¬the ground is wet”, that is “wet → ⊥”.'),
+    ],
+    intro: [
+      { t: T('「下雨，地就湿」，那么「地不湿，就没下雨」。这叫<wiki-ref to="contrapositive"></wiki-ref>。和<level-ref to="onerow"></level-ref>里那个错误的推理不同，它永远成立：「(下雨 → 地湿) → (¬地湿 → ¬下雨)」。', '“If it rains, the ground is wet”, so “if the ground is not wet, it did not rain”. This is the <wiki-ref to="contrapositive"></wiki-ref>, and unlike the bad reasoning of <level-ref to="onerow"></level-ref> it always holds: “(it rains → the ground is wet) → (¬the ground is wet → ¬it rains)”.') },
+    ],
+    solution: contra,
   },
   {
     id: 'dsyll',
