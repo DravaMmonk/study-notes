@@ -26,6 +26,8 @@ const DECLS = {
   bot: { it: '⊥', ways: [], elim: ['⊥'] },
   ex: { it: '∃y. ?P(y)', ways: ['⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)'], elim: ['∃y. ?P(y)', '⋀x. ⟦?P(x)⟧ ⟹ ?R'] },
   nat: { it: 'Nat', ways: ['Nat', '⟦Nat⟧ ⟹ Nat'], elim: ['Nat', '?R', '⟦Nat⟧ ⟹ ?R'] },
+  // Two things taken by one way: the frame Through “any” sets both aside at once.
+  exTwo: { it: '∃u. ∃v. ?P(u, v)', ways: ['⋀x y. ⟦?P(x, y)⟧ ⟹ ∃u. ∃v. ?P(u, v)'], elim: ['∃u. ∃v. ?P(u, v)', '⋀x y. ⟦?P(x, y)⟧ ⟹ ?R'] },
   two: { it: 'Motion', ways: ['⟦AnnYes; BoYes⟧ ⟹ Motion', '⟦BoYes; CyYes⟧ ⟹ Motion', '⟦AnnYes; CyYes⟧ ⟹ Motion'], elim: ['Motion', '⟦AnnYes; BoYes⟧ ⟹ ?R', '⟦BoYes; CyYes⟧ ⟹ ?R', '⟦AnnYes; CyYes⟧ ⟹ ?R'] },
 }
 const RULECRAFT = ['anyR', 'swapConcl', 'consFront', 'mkRule']
@@ -36,6 +38,8 @@ const generator = (level) => ({
   ...level,
 })
 // The generator for a list of ways in: each one's conclusion put as ?R, inside For each; the declared sentence first.
+// The generator after chapter 6: each way's things taken set aside while its conclusion is swapped.
+const GENERATOR_ANY = machine({ r: ['anyR'], e: ['eachOf'], a: ['throughAny', {}, 'e'], s: ['swapConcl', {}, 'a'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>a.in', 'a#body>s.rule', 'r>s.to', 's>a.body', 'a>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
 const GENERATOR = machine({ r: ['anyR'], e: ['eachOf'], s: ['swapConcl', {}, 'e'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>s.rule', 'r>s.to', 's>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
 
 export const declarations = [
@@ -323,14 +327,16 @@ export const thingDeclarations = [
 
 // Chapter 3, an optional branch beside the declarations · The elimination rule generator: the step that makes every
 // declaration's elimination rule, built by hand on a machine board whose wires carry rules (elimgen.js). Two levels
-// with little help: one way in, then a list of them; the tests are the declarations met so far, and hidden ones of
-// shapes not met yet (a way that takes a thing, a new proposition), so passing shows the generator works for any
-// declaration. What the generator cannot do yet (the induction hypothesis, an indexed family) waits in optional levels
-// too, never on the main path.
+// with little help: one way in, which builds the part, then a list of them, its first upgrade on the same board; the
+// tests are the declarations met so far, and a hidden one of a new proposition, so passing shows the generator works
+// for any declaration of those shapes. Every later generator level upgrades the part on the board it runs then
+// (games/DESIGN.md): chapter 6's ways that take things first (gen-ex), and what it cannot do yet (the induction
+// hypothesis, an indexed family) in optional levels too, never on the main path.
 export const generators = [
   generator({
     id: 'gen-one',
     single: true,
+    builds: 'elimGen',
     title: T('拆开它', 'Taking it apart'),
     // The parts that take rules apart and put them together.
     adds: RULECRAFT,
@@ -342,7 +348,7 @@ export const generators = [
     brief: T('设计一个证明助手：由只有一条引入规则的声明，生成它的消去规则。', 'Design a proof assistant that makes the elimination rule of a declaration with one way to make it.'),
     hint: [T('比一比引入规则和要生成的消去规则：哪一部分原样搬过去了，哪一部分换掉了？', 'Compare the way in with the elimination rule to make: which part carries over as it is, and which is replaced?')],
     solution: machine({ r: ['anyR'], s: ['swapConcl'], c: ['consFront'], m: ['mkRule'] }, ['ways>s.rule', 'r>s.to', 'it>c.first', 's>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] }),
-    after: T('引入规则怎样把东西交进去，消去规则就怎样把它们交还：把引入规则的结论换成 ?R，就是一种情况；前面再放上声明的那句，结论是 ?R。', 'As the way in hands things over, the elimination rule hands them back: the way in with its conclusion put as ?R is a case; the declared sentence goes in front, and the conclusion is ?R.'),
+    after: T('引入规则怎样把东西交进去，消去规则就怎样把它们交还：把引入规则的结论换成 ?R，就是一种情况；前面再放上声明的那句，结论是 ?R。这块电路现在是<part-ref to="lemma:elimGen"></part-ref>，只认一条引入规则；<level-ref to="gen-each"></level-ref>在这块电路上升级它。', 'As the way in hands things over, the elimination rule hands them back: the way in with its conclusion put as ?R is a case; the declared sentence goes in front, and the conclusion is ?R. This board is now the <part-ref to="lemma:elimGen"></part-ref>, for one way in only; <level-ref to="gen-each"></level-ref> upgrades it on this board.'),
   }),
   generator({
     id: 'gen-each',
@@ -350,13 +356,31 @@ export const generators = [
     builds: 'elimGen',
     adds: [...RULECRAFT, 'eachOf'],
     tests: [DECLS.and, DECLS.or, DECLS.three, DECLS.oneOfThree, DECLS.iff, DECLS.truth, DECLS.bot],
-    // Shapes not met yet: a way that takes a thing ("there is"), and a new proposition of three ways.
-    hidden: [DECLS.ex, DECLS.two],
-    intro: [{ t: T('这一次输入的引入规则是一串，有几条都行，一条都没有也行。新元件「每条」是一个框：一串里的每一样各开一遍，框里接出的东西排成新的一串。', 'This time the ways in come as a list, of any length, even none. The new part For each is a frame: it opens once with each item of a list, and what is made inside makes a new list.') }],
+    // A shape not met yet: a new proposition of three ways.
+    hidden: [DECLS.two],
+    intro: [{ t: T('板上就是你在<level-ref to="gen-one"></level-ref>搭的生成器，在它上面改。这一次输入的引入规则是一串，有几条都行，一条都没有也行。新元件「每条」是一个框：一串里的每一样各开一遍，框里接出的东西排成新的一串。', 'The board holds the generator you built in <level-ref to="gen-one"></level-ref>; change it there. This time the ways in come as a list, of any length, even none. The new part For each is a frame: it opens once with each item of a list, and what is made inside makes a new list.') }],
     brief: T('设计一个证明助手：由一份声明的一串引入规则，生成它的消去规则。还有没见过的声明在隐藏测试里等着。', 'Design a proof assistant that makes a declaration’s elimination rule from its list of ways in. Declarations not met yet wait among the hidden tests.'),
     hint: [T('每条引入规则各变成一种情况；情况的个数和引入规则一样多。', 'Every way in becomes a case of its own: as many cases as ways.')],
     solution: GENERATOR,
-    after: T('一条引入规则一种情况，一条不多，一条不少。⊥ 一条引入规则都没有，「每条」一次也不做，得出 ⟦⊥⟧ ⟹ ?R。隐藏测试里还有你没声明过的：取一样东西的「存在」，三条来路的「提案通过」，电路一点不用改也都对了。因为它从不看引入规则里面写的是什么，只把结论换成 ?R，所以对任何声明都成立。这块电路现在是<part-ref to="lemma:elimGen"></part-ref>：Lean 的内核也是这样由每个构造子生成<wiki-ref to="recursor"></wiki-ref>的一种情况，所以它不让你手写消去规则。', 'One case for each way in, none more, none fewer. ⊥ has no way in, so For each runs not once and the board gives ⟦⊥⟧ ⟹ ?R. The hidden tests held declarations you have not written: “there is”, whose way takes a thing, and “the motion passes”, with three ways; the board got them right unchanged. It never looks at what a way says inside, only puts its conclusion as ?R, so it works for any declaration. This board is now the <part-ref to="lemma:elimGen"></part-ref>: Lean’s kernel too makes one case of a <wiki-ref to="recursor"></wiki-ref> from each constructor, which is why it never lets you write an elimination rule.'),
+    after: T('一条引入规则一种情况，一条不多，一条不少。⊥ 一条引入规则都没有，「每条」一次也不做，得出 ⟦⊥⟧ ⟹ ?R。隐藏测试里还有你没声明过的三条来路的「提案通过」，电路一点不用改也对了。因为它从不看引入规则里面写的是什么，只把结论换成 ?R，所以这样的声明有多少都成立。<part-ref to="lemma:elimGen"></part-ref>现在跑的是这块电路：Lean 的内核也是这样由每个构造子生成<wiki-ref to="recursor"></wiki-ref>的一种情况，所以它不让你手写消去规则。', 'One case for each way in, none more, none fewer. ⊥ has no way in, so For each runs not once and the board gives ⟦⊥⟧ ⟹ ?R. The hidden test held a declaration you have not written, “the motion passes”, with three ways; the board got it right unchanged. It never looks at what a way says inside, only puts its conclusion as ?R, so it works for every declaration of this kind. The <part-ref to="lemma:elimGen"></part-ref> now runs this board: Lean’s kernel too makes one case of a <wiki-ref to="recursor"></wiki-ref> from each constructor, which is why it never lets you write an elimination rule.'),
+  }),
+  generator({
+    id: 'gen-ex',
+    title: T('生成器遇上任取', 'The generator meets “any”'),
+    builds: 'elimGen',
+    adds: [...RULECRAFT, 'eachOf', 'throughAny'],
+    tests: [DECLS.and, DECLS.or, DECLS.bot, DECLS.iff, DECLS.ex],
+    // A way that takes two things.
+    hidden: [DECLS.exTwo],
+    intro: [
+      { t: T('板上就是你此刻的<part-ref to="lemma:elimGen"></part-ref>。把<level-ref to="decl-ex"></level-ref>交给它：「存在」的引入规则先任取一样东西 x，读进来是「任取 x」包着的一条规则，「换结论」接不上它。', 'The board holds your <part-ref to="lemma:elimGen"></part-ref> as it is now. Hand it <level-ref to="decl-ex"></level-ref>: the way into “there is” takes a thing x first, so it comes in as a rule inside “any x”, and Swap conclusion cannot take it.') },
+      { t: T('新元件「隔着任取」是一个框：把前面的任取拿开，框开出后面那条规则；框里接出的东西，再放回同样的任取后面。前面没有任取的，原样进框。', 'The new part Through “any” is a frame: it sets aside the things taken first and opens with the rule behind them; what is made inside is put back behind the same things taken. A value that takes nothing first goes in as it is.') },
+    ],
+    brief: T('升级消去规则生成器：引入规则先任取东西时，也生成它的消去规则。隐藏测试里还有没见过的声明。', 'Upgrade the elimination rule generator to make the elimination rule when a way takes things first too. Declarations not met yet wait among the hidden tests.'),
+    hint: [T('任取留在情况的最前面，换掉的只是任取后面那条规则的结论。', 'The things taken stay at the front of the case; only the conclusion of the rule behind them is swapped.')],
+    solution: GENERATOR_ANY,
+    naive: GENERATOR,
+    after: T('引入规则任取了什么，那一种情况也任取什么：⋀x. ⟦?P(x)⟧ ⟹ ?R。消去「存在」时，交进去的是哪一样东西不知道，所以这种情况要对任取的一样东西都证得出，<part-ref to="part:exE"></part-ref>开出的那一样东西因此要起一个新名字。隐藏测试里一条引入规则任取了两样东西，框一次全拿开，也对了。<part-ref to="lemma:elimGen"></part-ref>现在跑的是这块电路。', 'Whatever a way takes, its case takes too: ⋀x. ⟦?P(x)⟧ ⟹ ?R. Eliminating “there is”, which thing went in is not known, so the case must hold for any thing taken, and that is why the thing <part-ref to="part:exE"></part-ref> opens gets a new name. The hidden test had one way taking two things; the frame sets both aside at once, and it came out right. The <part-ref to="lemma:elimGen"></part-ref> now runs this board.'),
   }),
 ]
 

@@ -10,8 +10,9 @@
 //   ⟦⊥⟧ ⟹ ?R      no way in at all
 //
 //   value   { kind: 'sentence', f } | { kind: 'rule', rule } | { kind: 'list', items: [value] }
-//   rule    { fixes: [variable], premises: [premise], conclusion } (schematic.js premises; a way that takes a thing,
-//           ⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y), has it in `fixes`)
+//           | { kind: 'any', vars: [variable], body: value }   a way that takes things first, ⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y):
+//           the things taken around the rule, opened by the frame 隔着任取 (machine.js `throughAny`, chapter 6)
+//   rule    { fixes: [variable], premises: [premise], conclusion } (schematic.js premises)
 //   test    { it: sentence text, ways: [rule text], elim: [premise text] }   the elimination rule's premises; it
 //           concludes ?R. A level with `single` hands its one way in as a rule, not a list.
 import { PartError } from '../../engine/circuit.js'
@@ -24,6 +25,7 @@ const fail = (zh, en) => new PartError({ zh, en })
 export const sentenceValue = (f) => ({ kind: 'sentence', f })
 export const ruleValue = (rule) => ({ kind: 'rule', rule })
 export const listValue = (items) => ({ kind: 'list', items })
+export const anyValue = (vars, body) => ({ kind: 'any', vars, body })
 /** Any sentence: the conclusion of an elimination rule. */
 export const ANY = '?R'
 
@@ -35,15 +37,20 @@ export function readRule(text) {
 /** A rule written out, with the things it takes in front. */
 export const genRuleText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${ruleText(rule, say)}`
 
+/** A way in as a value: a rule, inside the things it takes first. */
+const wayValue = (text) => {
+  const { fixes, ...rule } = readRule(text)
+  return fixes.length ? anyValue(fixes, ruleValue({ ...rule, fixes: [] })) : ruleValue({ ...rule, fixes: [] })
+}
 /** A test's inputs: the declared sentence, and its ways in (one rule, on a level with `single`). */
 export function elimInputs(test, level) {
-  const ways = test.ways.map((w) => ruleValue(readRule(w)))
+  const ways = test.ways.map(wayValue)
   return { it: sentenceValue(parseS(test.it)), ways: level.single ? ways[0] : listValue(ways) }
 }
 /** The elimination rule a test wants. */
 export const elimOf = (test) => ({ fixes: [], premises: test.elim.map(premiseOf), conclusion: meta(ANY) })
 
-const count = (v) => (v.kind === 'list' ? T(`一串 ${v.items.length} 样`, `a list of ${v.items.length}`) : v.kind === 'rule' ? T('一条规则', 'a rule') : T('一句话', 'a sentence'))
+const count = (v) => (v.kind === 'list' ? T(`一串 ${v.items.length} 样`, `a list of ${v.items.length}`) : v.kind === 'rule' ? T('一条规则', 'a rule') : v.kind === 'any' ? T(`任取 ${v.vars.join(' ')} 再${count(v.body).zh}`, `${count(v.body).en} for any ${v.vars.join(' ')}`) : T('一句话', 'a sentence'))
 const want = (v, kind, what) => {
   if (v?.kind !== kind) throw fail(`这里要${what.zh}，接进来的是${count(v).zh}`, `This needs ${what.en}; it got ${count(v).en}`)
   return v
@@ -52,6 +59,10 @@ const A_RULE = T('一条规则', 'a rule')
 const A_SENTENCE = T('一句话', 'a sentence')
 // A value as a premise of a rule: a sentence as it is; a rule, ⋀x. ⟦A; B⟧ ⟹ C, as a premise with assumptions of its own.
 function premiseOfValue(v) {
+  if (v.kind === 'any') {
+    const inner = premiseOfValue(v.body)
+    return { ...inner, fixes: [...v.vars, ...inner.fixes] }
+  }
   if (v.kind === 'sentence') return { fixes: [], hyps: [], show: v.f }
   if (v.kind === 'rule') {
     if (v.rule.premises.some((p) => p.hyps.length || p.fixes.length)) throw fail('当前提的规则，自己的前提只能是句子', 'A rule taken as a premise may have only sentences as its premises')

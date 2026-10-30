@@ -266,6 +266,12 @@ export default {
     { solve: ['sp-cond', ['decl-bool', 'def-max']] },
     { solve: ['sort-insLen', ['sort-if']] },
     { data: (value, id) => (id === 'in-inject' ? null : value && !Array.isArray(value) && DEFINED[id] ? [...Array(DEFINED[id]).fill(null), value] : value) },
+  ] },
+  // Version 53: 拆开它 builds the elimination rule generator, which 每一条 then upgrades: whoever solved it holds the
+  // part, running the board kept there until a later upgrade is passed.
+  { version: 53, ops: [
+    { grant: ['gen-one', 'lemma:elimGen'] },
+    { built: ['gen-one'] },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

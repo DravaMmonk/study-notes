@@ -107,9 +107,11 @@ export const ERAS = [
   {
     id: 'qrules', machine: 'prover', keeps: 'all',
     foundation: [
-      // ∀ and ∃ each need only the proof board.
+      // For any first: declaring “there is” takes a thing on the declaration board, as the for-any box does.
+      series('any', '任取', 'For any', ['q-allI']),
+      // Then taking one and “there is” need nothing from each other.
       branches(
-        ['forall', '对所有', 'For all', ['q-allE', 'q-allI', 'q-rename', 'q-allAnd', 'q-capture']],
+        ['forall', '取一个', 'Take one', ['q-allE', 'q-rename', 'q-allAnd', 'q-capture']],
         ['exists', '存在', 'There is', ['decl-ex', 'q-exI', 'q-exE', 'q-witness']],
       ),
       // With both in hand: quantifiers swapped and moved, and equality, its own mechanism; neither needs the other.
@@ -118,7 +120,11 @@ export const ERAS = [
         ['equality', '相等', 'Equality', ['decl-eq', 'q-eq', 'q-sym', 'q-trans']],
       ),
     ],
-    topics: [{ id: 'carroll', code: 'S', after: 'q-move', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') }],
+    topics: [
+      // The generator (chapter 3, optional) upgraded for ways that take things first: it builds on the one before it.
+      { id: 'gen-any', code: 'E', after: ['decl-ex', 'gen-each'], levels: ['gen-ex'], title: T('生成器遇上任取', 'The generator meets “any”') },
+      { id: 'carroll', code: 'S', after: 'q-move', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') },
+    ],
     chapter: { title: T('量词规则', 'Quantifier rules'), question: T('怎样证明一句话在所有世界里都成立？', 'How do you prove a sentence holds in every world?') },
   },
   {
@@ -244,8 +250,8 @@ export const ERAS = [
     ],
     practice: [series('both', '数和列表', 'Numbers and lists', ['in-len', 'in-revrev', 'in-itsum'])],
     topics: [
-      // What the generator (chapter 3, optional) makes of the numbers.
-      { id: 'gen-nat', code: 'E', after: ['decl-nat', 'gen-each'], levels: ['gen-nat'], title: T('生成器遇上自然数', 'The generator meets the numbers') },
+      // What the generator (optional, as chapter 6 left it) makes of the numbers.
+      { id: 'gen-nat', code: 'E', after: ['decl-nat', 'gen-ex'], levels: ['gen-nat'], title: T('生成器遇上自然数', 'The generator meets the numbers') },
       { id: 'sort', code: 'I', after: ['in-appnil', 'sp-cond'], levels: ['sort-ins', 'sort-run', 'sort-if', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') },
       { id: 'goedel', code: 'G', after: ['in-itsum', 'u-halt'], levels: ['gd-code', 'gd-check', 'gd-diag', 'gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },
     ],

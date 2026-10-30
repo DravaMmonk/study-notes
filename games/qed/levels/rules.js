@@ -1,6 +1,6 @@
-// Chapter 6 · Quantifier rules: back on the proof board, with ∀ and ∃. Two lines first: for all (take one; for any,
-// a box whose variable is new; renaming; ∀ over ∧; a substitution that would capture) and there is (an example; take
-// the one there is, a box; the one taken stays in its box). Then two lines that need both: swapping and moving
+// Chapter 6 · Quantifier rules: back on the proof board, with ∀ and ∃. For any first (a box whose variable is new),
+// which declaring “there is” builds on; then two lines: take one (renaming; ∀ over ∧; a substitution that would
+// capture) and there is (an example; take the one there is, a box; the one taken stays in its box). Then two lines that need both: swapping and moving
 // quantifiers, and equality, its own mechanism: equals replace equals, both ways round and along a chain. Lewis
 // Carroll's syllogism puzzles are the topic.
 import { proof } from '../../kit/domains/logic/build.js'
@@ -20,7 +20,6 @@ export const rules = [
     cases: PERSON,
     hint: [T('「对所有 x」说的话，对安也成立：在元件上把 x 换成安。', 'What holds for every x holds for Ann: on the part, put Ann in for x.')],
     intro: [
-      { t: T('<level-ref to="m-counter"></level-ref>里，一个世界就说明了一句话推不出。可要说一句话在所有世界里都成立，世界有无穷多个、大小不限，一个个检查不完：得回到证明板上，靠规则。', 'In <level-ref to="m-counter"></level-ref> one world was enough to show a sentence does not follow. But to say a sentence holds in every world, there are infinitely many worlds of every size, too many to check one by one: it is back to the proof board and its rules.') },
       { t: T('新元件<part-ref to="part:allE"></part-ref>：接进「∀x. …」，在元件上选一样东西，就得到把 x 换成它的那句话。', 'A new part, <part-ref to="part:allE"></part-ref>: wire in a “∀x. …”, choose a thing on the part, and out comes the sentence with x replaced by it.') },
     ],
     solution: proof({ e: ['allE', { t: 'ann' }], m: ['mp'] }, ['p>e.all', 'e>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] }),
@@ -35,7 +34,10 @@ export const rules = [
     tests: [{ goal: '∀x. P(x) → P(x)' }],
     cases: PERSON,
     hint: [T('框里随便取一样东西，叫它 a，证出「a是人 → a是人」；它对随便哪一样都成立，框外就是「对所有 x」。', 'Inside the box take any thing, call it a, and prove “a is human → a is human”; holding for any one at all, outside it is “for all x”.')],
-    intro: [{ t: T('新元件<b>任取框</b>：框里随便取一样东西，在元件上给它起个名字 a，关于它什么都不知道。框里证出了关于 a 的话，它对哪一样都成立，框外就得到「∀x. …」：a 换成了量词管着的 x。所以 a 必须是新的：还开着的假设里不能提到它。从这里起，特指的一样东西用 a、b、c 称呼，x、y、z 只给量词用。', 'A new part, the <b>for-any box</b>: inside it an arbitrary object is named on the part, say a; no special property of it is assumed. Whatever is proved about a inside holds for anything at all, so outside you get “∀x. …”: a is replaced by x, which the quantifier binds. That is why a must be new: no hypothesis still open may mention it. From here on, a particular thing is called a, b or c, and x, y, z are left to the quantifiers.') }],
+    intro: [
+      { t: T('<level-ref to="m-counter"></level-ref>里，一个世界就说明了一句话推不出。可要说一句话在所有世界里都成立，世界有无穷多个、大小不限，一个个检查不完：得回到证明板上，靠规则。', 'In <level-ref to="m-counter"></level-ref> one world was enough to show a sentence does not follow. But to say a sentence holds in every world, there are infinitely many worlds of every size, too many to check one by one: it is back to the proof board and its rules.') },
+      { t: T('新元件<b>任取框</b>：框里随便取一样东西，在元件上给它起个名字 a，关于它什么都不知道。框里证出了关于 a 的话，它对哪一样都成立，框外就得到「∀x. …」：a 换成了量词管着的 x。所以 a 必须是新的：还开着的假设里不能提到它。从这里起，特指的一样东西用 a、b、c 称呼，x、y、z 只给量词用。', 'A new part, the <b>for-any box</b>: inside it an arbitrary object is named on the part, say a; no special property of it is assumed. Whatever is proved about a inside holds for anything at all, so outside you get “∀x. …”: a is replaced by x, which the quantifier binds. That is why a must be new: no hypothesis still open may mention it. From here on, a particular thing is called a, b or c, and x, y, z are left to the quantifiers.') },
+    ],
     solution: proof({ g: ['allI', { x: 'a' }], h: ['impI', { A: 'P(a)' }, 'g'] }, ['h#body>h.body', 'h>g.body', 'g>goal']),
     after: T('「任取」是数学证明里最常见的一句：「任取一个 a，……，所以对所有 x 都成立。」它可信，只因为那个 a 真的什么特殊的都没有。', '“Take any” is the commonest phrase in mathematical proofs: “take any a …, so it holds for all x.” It is sound only because that a really is nothing special.'),
   },

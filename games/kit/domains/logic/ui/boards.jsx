@@ -161,6 +161,7 @@ function MachineValue({ v, text, small = false }) {
   // The generator's values (chapter 3): a sentence, a rule, a list of them.
   if (v.kind === 'sentence') return <span className="lg-formula"><b>{text(v.f)}</b></span>
   if (v.kind === 'rule') return <span className="lg-formula"><code>{genRuleText(v.rule, text)}</code></span>
+  if (v.kind === 'any') return <span className="lg-formula"><code>{genValueText(v, text)}</code></span>
   if (v.kind === 'list') {
     const count = tr(`共 ${v.items.length} 样`, `${v.items.length} item${v.items.length === 1 ? '' : 's'}`)
     if (small) return <span className="lg-clauses is-small"><small>{count}</small></span>
@@ -213,7 +214,8 @@ function MachineValue({ v, text, small = false }) {
 }
 
 // A generator value in one line.
-const genValueText = (v, text) => (v.kind === 'sentence' ? text(v.f) : v.kind === 'rule' ? genRuleText(v.rule, text) : v.items.map((x) => genValueText(x, text)).join(tr('；', '; ')))
+// A value that takes things first reads as a rule does: ⋀x. in front.
+const genValueText = (v, text) => (v.kind === 'sentence' ? text(v.f) : v.kind === 'rule' ? genRuleText(v.rule, text) : v.kind === 'any' ? `⋀${v.vars.join(' ')}. ${genValueText(v.body, text)}` : v.items.map((x) => genValueText(x, text)).join(tr('；', '; ')))
 
 const WANT = {
   elim: T('这份声明的消去规则', 'this declaration’s elimination rule'),

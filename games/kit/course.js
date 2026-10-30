@@ -84,6 +84,7 @@ export const RULE_TEXT = {
   'bare-intro': 'a new primitive whose first level is just that part, wired to the goal',
   unused: 'a built part that no later reference answer (nor a later task of its own level) uses',
   'optional-built': 'a part built on an optional level (a topic or a challenge) used by a level that does not require that level',
+  'upgrade-order': 'a level upgrading a part that does not require the level that built it before',
 }
 
 /** Roles of a level within its era. A topic of one level is just its finale. */
@@ -351,6 +352,11 @@ export function audit(course) {
     for (const p of course.needed(level) ?? []) {
       const by = course.builder(p)
       if (by && by !== level.id && OPTIONAL.includes(plan?.place.get(by)?.role) && !course.before(by, level.id)) say('optional-built', level.id, p, `built on the optional level ${by}, which this level does not require`)
+    }
+    // A level that builds a part built before (an upgrade) requires every level that built it before.
+    for (const b of course.builds(level)) {
+      const earlier = levels.filter((l) => l.id !== level.id && course.builds(l).includes(b) && !course.before(level.id, l.id))
+      for (const l of earlier) if (!course.before(l.id, level.id)) say('upgrade-order', level.id, b, `builds ${b} as ${l.id} does, and does not require it`)
     }
     if (role === 'challenge' && ideas.size) say('challenge-new', level.id, [...ideas].join(' '), 'a challenge brings nothing new')
     else if (ideas.size > 1) say('many-new', level.id, [...ideas].join(' '), `${ideas.size} new parts in one level (one new idea per level)`)
