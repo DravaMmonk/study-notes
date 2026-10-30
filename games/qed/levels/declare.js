@@ -145,8 +145,8 @@ export const declarations = [
       { given: ['Rain ∧ Wind', 'Rain → (Wind → Wet)'], goal: 'Wet', make: true },
     ],
     intro: [
-      { t: T('<level-ref to="decl-imp"></level-ref>声明的是证明核本来就认得的连接词。「下雨并且刮风」却是证明核说不出的话：<part-ref to="lemma:chain"></part-ref>、<part-ref to="lemma:swap"></part-ref>、<part-ref to="lemma:merge"></part-ref>只是给框和套用证出的东西起名（<wiki-ref to="definition"></wiki-ref>），名字再多，能证的也不变。「并且」只能声明。', 'The connective declared in <level-ref to="decl-imp"></level-ref> was one the kernel already knew. “It rains and it is windy” is something the kernel cannot say at all: <part-ref to="lemma:chain"></part-ref>, <part-ref to="lemma:swap"></part-ref> and <part-ref to="lemma:merge"></part-ref> only name what the box and Apply prove (<wiki-ref to="definition"></wiki-ref>s), and no number of names changes what can be proved. “And” has to be declared.') },
-      { t: T('托盘里新添了<b>拼接</b>：几组前提接进它，合成一组，就是 ⟦…; …⟧ 里的分号。检验条例里的「地湿」代表任意别的一句话。', 'The tray now has <b>Join</b>: groups of premises wired into it become one group, the semicolon in ⟦…; …⟧. In the test cases, “the ground is wet” stands for any other sentence.') },
+      { t: T('在<level-ref to="decl-imp"></level-ref>中，我们为证明核已经认识的「若…则…」写了声明。现在要让证明核认识新的连接词「并且」：它表示两句话都成立。', 'In <level-ref to="decl-imp"></level-ref>, we declared “if … then …”, which the kernel already knew. Now we want to introduce a new connective, “and”: both statements must hold.') },
+      { t: T('声明要符合这个意思。先检验两份有错误的声明，再自己写一份。', 'A declaration must capture that meaning. First, examine two faulty declarations; then write one yourself.') },
     ],
     tasks: [
       {
@@ -169,8 +169,8 @@ export const declarations = [
           { given: ['Rain ∧ Wind'], goal: 'Rain', make: true },
         ],
         intro: [
-          { t: T('错误的声明常见两种。一种是<b>过弱</b>：规则太容易满足，允许的情形比需求多，需求说推不出的，它却推得出。', 'Wrong declarations come in two common kinds. One is <b>too weak</b>: its rules are too easy to satisfy, so it admits more than the requirement does and derives what the requirement says cannot be derived.') },
-          { t: T('板上是别人写的一份过弱的「并且」，已锁定。两条条例从两个方向检验它：一条以「下雨 ∧ 刮风」为目标，一条把它放在前提里。', 'On the board is someone else’s “and”, too weak, and locked. The two cases check it from both directions: one with “it rains ∧ it is windy” as the goal, one with it among the premises.') },
+          { t: T('板上是一份别人写的「并且」声明。它的引入条件<b>过弱</b>：有些本不够证明「并且」的前提，也被它接受了。', 'The board holds someone else’s declaration of “and”. Its introduction conditions are <b>too weak</b>: it accepts premises that should not be enough to prove an “and” statement.') },
+          { t: T('声明既决定何时能引入「下雨 ∧ 刮风」，也决定有了它能推出什么。请从这两个方向各写一条检验条例，找出声明的错误。', 'A declaration determines both when “it rains ∧ it is windy” can be introduced and what follows from it. Write a test case for each direction to expose the error.') },
         ],
         brief: T('编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
         hint: [T('这份声明的引入规则各要几样？按需求，「并且」要几样？', 'How much does each of this declaration’s intro rules need? How much does “and” need, by the requirement?')],
@@ -194,13 +194,14 @@ export const declarations = [
           { given: ['Rain', 'Wind', 'Wet'], make: true },
           { given: ['Rain ∧ Wind'], goal: 'Wet', make: false },
         ],
-        intro: [{ t: T('另一种是<b>过强</b>：规则要的比需要的多，允许的情形比需求少，需求说推得出的，它却推不出。板上换成了一份过强的「并且」。', 'The other is <b>too strong</b>: its rules ask for more than is needed, so it admits less than the requirement does and fails to derive what the requirement says can be derived. The board now holds an “and” that is too strong.') }],
+        intro: [{ t: T('板上换成了另一份「并且」声明。这次引入条件<b>过强</b>：有些本来足够证明「并且」的前提，却不能通过这份声明。请再次从引入和使用两个方向检验。', 'The board now holds another declaration of “and”. Its introduction conditions are <b>too strong</b>: premises that should be enough to prove an “and” statement are not enough under this declaration. Check both introduction and use again.') }],
         brief: T('编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
         hint: [T('按需求，「并且」要哪几样？这份声明的引入规则要哪几样？', 'What does “and” need, by the requirement? What does this declaration’s intro rule ask for?')],
       },
       {
         kind: 'iso',
         step: T('编写声明', 'Write the declaration'),
+        intro: [{ t: T('现在请按「并且」的意思写出自己的声明。托盘里的<b>拼接</b>可以把几组前提合成一组；规则中的分号表示这些前提一起需要。', 'Now write your own declaration to capture the meaning of “and”. The tray has <b>Join</b>, which combines groups of premises into one; the semicolon in a rule means those premises are required together.') }],
         brief: T('「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。写出它的声明。', '“It rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write its declaration.'),
         hint: [
           T('只有一条引入规则，它同时要两样。', 'There is one introduction rule, and it needs both at once.'),
