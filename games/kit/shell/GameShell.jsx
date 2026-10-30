@@ -257,11 +257,11 @@ export default function GameShell({ game }) {
       <header className="kit-bar game-bar">
         {level ? (
           <>
-            <button className="kit-btn is-label bar-button" onClick={() => open(null)} aria-label={tr('回到关卡地图', 'Back to the level map')}><ArrowLeft size={16} /><span>{tr('地图', 'Map')}</span></button>
+            <button className="kit-btn is-label bar-button" onClick={() => open(null)} aria-label={tr('返回关卡地图', 'Back to the level map')}><ArrowLeft size={16} /><span>{tr('地图', 'Map')}</span></button>
             <button className={`kit-btn is-label bar-button drawer-toggle ${drawer ? 'is-on' : ''}`} onClick={() => setDrawer(!drawer)} aria-pressed={drawer} aria-label={tr('关卡', 'Levels')}><PanelLeft size={16} /><span>{tr('关卡', 'Levels')}</span></button>
           </>
         ) : (
-          <a className="kit-btn is-label bar-button" href={SITE.games} aria-label={tr('回到游戏列表', 'Back to the games')}><ArrowLeft size={16} /><span>{tr('游戏', 'Games')}</span></a>
+          <a className="kit-btn is-label bar-button" href={SITE.games} aria-label={tr('返回游戏列表', 'Back to the games')}><ArrowLeft size={16} /><span>{tr('游戏', 'Games')}</span></a>
         )}
         <span className="kit-brand game-brand"><i className="kit-chip" aria-hidden="true" /><span>{L(game.title)}</span></span>
         {level && (
@@ -315,7 +315,7 @@ export default function GameShell({ game }) {
           )}
           {kind
             ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || done > taskAt, solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
-            : <div className="board-loading">{tr('这种关卡还没做好。', 'This kind of level is not built yet.')}</div>}
+            : <div className="board-loading">{tr('这类关卡尚在制作中。', 'This kind of level is still being made.')}</div>}
         </div>
       )}
       {intro && (introFor === introKey || ((progress.seenPower || !game.power) && !progress.introSeen?.[introKey])) && (
@@ -341,10 +341,10 @@ export default function GameShell({ game }) {
       {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
       {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
       {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
-      {locked && <Dialog top title={tr(`「${locked.title}」还没解锁`, `“${locked.title}” is still locked`)} lines={[locked.at && locked.at.id === level?.id ? tr('通过这一关就解锁。', 'It opens when you pass this level.') : locked.at ? tr(`玩到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `It opens at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('再往后玩一些就能看到。', 'Play on a little to see it.')]} actions={[[tr('好', 'OK'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
+      {locked && <Dialog top title={tr(`「${locked.title}」尚未解锁`, `“${locked.title}” is still locked`)} lines={[locked.at && locked.at.id === level?.id ? tr('通过这一关后解锁。', 'Unlocked by passing this level.') : locked.at ? tr(`进行到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `Unlocks at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('继续推进后解锁。', 'Unlocks later in the game.')]} actions={[[tr('确定', 'OK'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
       {target && (game.isOpen(target, solved, progress.all)
-        ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[target.id === level?.id ? tr('你就在这一关。', 'You are on this level.') : tr('这一关的电路和进度都会保存，随时可以回来。', 'This level’s board and progress are kept; you can come back any time.')]} actions={target.id === level?.id ? [[tr('好', 'OK'), () => setGoTo(null)]] : [[tr('取消', 'Cancel'), () => setGoTo(null)], [tr('前往', 'Go'), go]]} onClose={() => setGoTo(null)} />
-        : <Dialog top title={tr(`${game.levelLabel(target)}「${L(target.title)}」还没解锁`, `${game.levelLabel(target)} “${L(target.title)}” is still locked`)} lines={[tr('先通过它前面的关卡。', 'Pass the levels before it first.')]} actions={[[tr('好', 'OK'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
+        ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[target.id === level?.id ? tr('你正在这一关。', 'You are on this level.') : tr('这一关的电路和进度都会保存，可以随时返回。', 'This level’s board and progress are kept; you can return at any time.')]} actions={target.id === level?.id ? [[tr('确定', 'OK'), () => setGoTo(null)]] : [[tr('取消', 'Cancel'), () => setGoTo(null)], [tr('前往', 'Go'), go]]} onClose={() => setGoTo(null)} />
+        : <Dialog top title={tr(`${game.levelLabel(target)}「${L(target.title)}」尚未解锁`, `${game.levelLabel(target)} “${L(target.title)}” is still locked`)} lines={[tr('请先通过它的前置关卡。', 'Pass the levels that lead to it first.')]} actions={[[tr('确定', 'OK'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
       {game.power && !progress.seenPower && (
         <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始', 'Start'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />
       )}

@@ -84,7 +84,7 @@ export function frameEdges(graph, parts) {
 export function scopeRefusal(graph, parts, from, to, port) {
   const [seen, at] = [sourceScope(graph, parts, from), portScope(graph, parts, to, port)]
   if (seen.length <= at.length && seen.every((r, k) => r === at[k])) return null
-  return T('这里看不到它：框里得出的东西只能在框里用，要带出框，得接到框的结论上。', 'It cannot be seen from here: what is made inside a box is for use inside it; to take it out, wire it to the box’s conclusion.')
+  return T('此处无法使用：框里得出的结果只能在框里使用；要带出框外，请接到框的结论上。', 'Not available here: what a box derives can be used only inside it; to take it out, wire it to the box’s conclusion.')
 }
 
 /** Every node inside the frame `id`, at any depth. */

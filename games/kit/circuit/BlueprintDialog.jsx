@@ -70,12 +70,12 @@ export default function BlueprintDialog({ board, head, mode, onClose }) {
 
   return createPortal(
     <div className="dialog-scrim" onPointerDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="dialog blueprint" role="dialog" aria-modal="true" aria-label={tr('电路的文本', 'The board as text')}>
-        <h2>{mode === 'show' ? tr('电路的文本', 'The board as text') : tr('从文本导入', 'Import from text')}</h2>
+      <div className="dialog blueprint" role="dialog" aria-modal="true" aria-label={tr('电路文本', 'The board as text')}>
+        <h2>{mode === 'show' ? tr('电路文本', 'The board as text') : tr('从文本导入', 'Import from text')}</h2>
         <p className="blueprint-note">
           {mode === 'show'
-            ? tr('这就是这块电路的蓝图：复制或存成文件，在任何记事本里都能改，再导入回来。', 'This is the board’s blueprint: copy it or save it as a file, edit it in any notepad, and import it back.')
-            : tr('粘贴一份蓝图，或打开一个 .txt 文件。导入会替换这块板上的电路，可以撤销。', 'Paste a blueprint, or open a .txt file. Importing replaces this board’s circuit; undo brings it back.')}
+            ? tr('这是这块电路的蓝图：可以复制或存为文件，在任意文本编辑器中修改后再导入。', 'This is the board’s blueprint: copy it or save it as a file, edit it in any text editor, then import it back.')
+            : tr('粘贴蓝图，或打开 .txt 文件。导入将替换这块板上的电路，此操作可以撤销。', 'Paste a blueprint or open a .txt file. Importing replaces the circuit on this board; you can undo it.')}
         </p>
         <textarea
           ref={box}
@@ -95,7 +95,7 @@ export default function BlueprintDialog({ board, head, mode, onClose }) {
         {errors.length > 0 && (
           <ul className="blueprint-errors" role="alert">
             {errors.slice(0, 6).map((e, k) => <li key={k}>{L(e)}</li>)}
-            {errors.length > 6 && <li>{tr(`还有 ${errors.length - 6} 处`, `${errors.length - 6} more`)}</li>}
+            {errors.length > 6 && <li>{tr(`另有 ${errors.length - 6} 处`, `${errors.length - 6} more`)}</li>}
           </ul>
         )}
         <input ref={file} type="file" accept=".txt,text/plain" hidden onChange={open} />

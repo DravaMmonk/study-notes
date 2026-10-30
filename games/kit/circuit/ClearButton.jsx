@@ -17,7 +17,7 @@ export default function ClearButton({ onClear, size = 14, title = null, lines = 
       {asking && createPortal(
         <Dialog
           title={title ?? tr('清空整块板？', 'Clear the whole board?')}
-          lines={lines ?? [tr('板上放好的元件和接线都会拿掉。清空以后还可以撤销。', 'Every part and wire on the board goes. Undo brings them back.')]}
+          lines={lines ?? [tr('板上的元件和连线将全部移除，清空后仍可撤销。', 'All parts and wires on the board will be removed. You can undo this.')]}
           actions={[[tr('取消', 'Cancel'), close], [tr('清空', 'Clear'), () => { close(); onClear() }]]}
           onClose={close}
         />,

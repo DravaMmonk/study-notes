@@ -20,7 +20,7 @@ export default function StepLog({ steps, at }) {
   }, [steps.length, at])
   if (!steps.length) return null
   return (
-    <ol className="step-log" ref={box} aria-label={tr('运行的每一步', 'Each step of the run')}>
+    <ol className="step-log" ref={box} aria-label={tr('运行步骤', 'Steps of the run')}>
       {steps.map((s, k) => (
         <li key={k} className={`step-log-item ${k === at ? 'is-on' : ''} ${s.failed ? 'is-fail' : ''}`}>
           <span className="step-log-head"><b>{k + 1}</b>{L(s.label)}</span>

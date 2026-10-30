@@ -56,7 +56,7 @@ export default function FloatWindow({ id, title, at, className = '', children })
       <header className="float-head" onPointerDown={drag} title={tr('拖动标题栏移动窗口', 'Drag the title bar to move the window')}>
         <GripHorizontal size={13} aria-hidden="true" />
         <span>{L(title)}</span>
-        <button type="button" onClick={() => setState((s) => ({ ...s, folded: !s.folded }))} aria-expanded={!state.folded} aria-label={state.folded ? tr('展开', 'Expand') : tr('收起', 'Fold')}>
+        <button type="button" onClick={() => setState((s) => ({ ...s, folded: !s.folded }))} aria-expanded={!state.folded} aria-label={state.folded ? tr('展开', 'Expand') : tr('收起', 'Collapse')}>
           {state.folded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
         </button>
       </header>

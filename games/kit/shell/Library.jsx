@@ -84,7 +84,7 @@ export default function Library({ title, subtitle, label, groups, current, onPic
                     {item.unread && <i className="wiki-dot" aria-label={tr('未读', 'Unread')} />}
                   </button>
                 ) : (
-                  <span className="wiki-item is-locked" title={item.lock ? tr(`玩到第 ${item.lock} 关时解锁`, `Opens at level ${item.lock}`) : undefined}>
+                  <span className="wiki-item is-locked" title={item.lock ? tr(`进行到第 ${item.lock} 关时解锁`, `Unlocks at level ${item.lock}`) : undefined}>
                     <Lock size={12} aria-hidden="true" />
                     <span>{tr('？？？', '???')}</span>
                     {item.lock && <small>{item.lock}</small>}
@@ -95,7 +95,7 @@ export default function Library({ title, subtitle, label, groups, current, onPic
           </ul>
         </section>
       ))}
-      {!shown.length && <p className="panel-note">{tr('没有找到。', 'Nothing by that name.')}</p>}
+      {!shown.length && <p className="panel-note">{tr('未找到匹配的条目。', 'No matching entry.')}</p>}
     </nav>
   )
 
@@ -109,7 +109,7 @@ export default function Library({ title, subtitle, label, groups, current, onPic
         </header>
         <div className="wiki-body">
           {(!phone || !reading) && list}
-          {(!phone || reading) && (current !== null ? article(current, back) : <p className="panel-note wiki-empty">{tr('从左边选一项。', 'Pick one on the left.')}</p>)}
+          {(!phone || reading) && (current !== null ? article(current, back) : <p className="panel-note wiki-empty">{tr('请从左侧选择一项。', 'Choose an item on the left.')}</p>)}
         </div>
       </div>
     </div>

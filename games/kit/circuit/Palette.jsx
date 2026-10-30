@@ -33,8 +33,8 @@ export default function Palette({ items, folded = [], onAdd, compact = false }) 
         </button>
       ))}
       {folded.length > 0 && (
-        <button type="button" className={`palette-more ${more ? 'is-open' : ''}`} onClick={() => setMore(!more)} aria-expanded={more} title={tr('这一关用不着、但可以用的元件', 'Parts this level does not need, though you may use them')}>
-          <span>{more ? tr('收起', 'Fewer') : tr(`更多 ${folded.length}`, `${folded.length} more`)}</span>
+        <button type="button" className={`palette-more ${more ? 'is-open' : ''}`} onClick={() => setMore(!more)} aria-expanded={more} title={tr('这一关不必用到、但可以使用的元件', 'Parts this level does not need but you may use')}>
+          <span>{more ? tr('收起', 'Show fewer') : tr(`更多 ${folded.length}`, `${folded.length} more`)}</span>
           <ChevronRight size={14} />
         </button>
       )}

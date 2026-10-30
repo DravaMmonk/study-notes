@@ -481,10 +481,10 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
     const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
     const icon = parts.icon?.(node)
     const wired = (src) => graph.wires.some((w) => w.from === src)
-    const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点一下，再点另一个元件的输入；也可以拖过去', 'Click, then click an input of another part; or drag there')} onClick={() => clickPort(outPort(src))}><i /></i>
+    const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点击后再点击另一个元件的输入口，也可以直接拖动连接', 'Click, then click an input on another part; or drag to it')} onClick={() => clickPort(outPort(src))}><i /></i>
     const inDot = (port, extra = '') => {
       const wired = graph.wires.some((w) => w.to === node.id && w.port === port)
-      return <i className={`port port-in ${wired ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} title={wired && !picking ? tr('点一下取下这根线，再点别的输入口接过去', 'Click to take this wire off; click another input to plug it there') : undefined} onClick={() => clickPort(inPort(node.id, port))}><i /></i>
+      return <i className={`port port-in ${wired ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} title={wired && !picking ? tr('点击取下这根连线，再点击其他输入口重新连接', 'Click to detach this wire, then click another input to reconnect it') : undefined} onClick={() => clickPort(inPort(node.id, port))}><i /></i>
     }
     return (
       <div
@@ -500,7 +500,7 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
         {regions.length > 0 && <div className="frame-back" />}
         <div className="node-head" data-drag onPointerDown={() => choose(node)}>
           {regions.length > 0 && (
-            <button className="frame-fold" aria-label={node.fold ? tr('展开', 'Unfold') : tr('折叠', 'Fold')} aria-expanded={!node.fold} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, fold: !n.fold } : n)) }, { keep: true })}>
+            <button className="frame-fold" aria-label={node.fold ? tr('展开', 'Expand') : tr('折叠', 'Collapse')} aria-expanded={!node.fold} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, fold: !n.fold } : n)) }, { keep: true })}>
               {node.fold ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
             </button>
           )}

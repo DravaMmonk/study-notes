@@ -232,12 +232,12 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   }, [])
 
   // While a dot is picked, or a part is moving, the banner says what to tap next.
-  const pickNote = moving ? tr(`把「${nameOf(byId(graph, moving))}」移到哪？点一个格子`, `Where does "${nameOf(byId(graph, moving))}" go? Tap a slot`) : picking && (() => {
+  const pickNote = moving ? tr(`把「${nameOf(byId(graph, moving))}」移到哪一格？请点击目标格子`, `Where should "${nameOf(byId(graph, moving))}" go? Tap a slot`) : picking && (() => {
     const p = parsePort(picking)
     const node = byId(graph, srcNode(p.id))
     const many = parts.inputs(node).length > 1
     return p.side === 'out'
-      ? tr(`「${nameOf(node)}」接到哪？点一个输入口（元件顶上的圆点），或点那个元件`, `Where does "${nameOf(node)}" go? Tap an input (a dot on top of a part), or the part itself`)
+      ? tr(`「${nameOf(node)}」要接到哪里？请点击一个输入口（元件顶部的圆点）或目标元件`, `Where should "${nameOf(node)}" connect? Tap an input (a dot on top of a part) or the part itself`)
       : tr(`「${nameOf(node)}」${many ? `的 ${L(parts.portLabel?.(node, p.port) ?? p.port)} ` : ''}读哪个结果？点一个输出口（元件底下的圆点），或点那个元件`, `Which result does "${nameOf(node)}"${many ? ` ${L(parts.portLabel?.(node, p.port) ?? p.port)}` : ''} read? Tap an output (a dot under a part), or the part itself`)
   })()
 

@@ -21,7 +21,7 @@ export default function DemoBench({ tests = [], test = 0, onTest, onRun, onReset
             ))}
           </div>
         )}
-        <span className="demo-state" aria-live="polite">{state === 'stale' ? tr('改动了，重新运行看结果', 'Changed: run again to see') : state === 'ran' ? tr('运行完成', 'Ran') : tr('还没运行', 'Not run yet')}</span>
+        <span className="demo-state" aria-live="polite">{state === 'stale' ? tr('已修改，请重新运行查看结果', 'Changed: run again to see the result') : state === 'ran' ? tr('运行完成', 'Run complete') : tr('还没运行', 'Not run yet')}</span>
         {onReset && <button type="button" className="demo-reset" onClick={onReset} aria-label={tr('恢复默认', 'Reset')} title={tr('恢复默认', 'Reset')}><RotateCcw size={14} /></button>}
         <button type="button" className="demo-run" onClick={onRun}><Play size={14} /><span>{tr('运行', 'Run')}</span></button>
       </header>

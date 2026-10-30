@@ -59,7 +59,7 @@ export function TestStatus({ states, hidden }) {
       {hidden?.count > 0 && (
         <span className={`kc-hidden ${hidden.failed ? 'is-fail' : ''}`} title={L(hidden.note)}>
           <EyeOff size={13} aria-hidden="true" />
-          {hidden.failed ? tr(`${hidden.failed} 个没过`, `${hidden.failed} fail`) : `+${hidden.count}`}
+          {hidden.failed ? tr(`${hidden.failed} 个未通过`, `${hidden.failed} failed`) : `+${hidden.count}`}
         </span>
       )}
     </div>
@@ -117,5 +117,5 @@ function WorldHandle({ rootRef }) {
     event.preventDefault()
     keep(size(rootRef.current.querySelector('.kc-world').getBoundingClientRect().height + step))
   }
-  return <div className="kc-resize" role="separator" aria-orientation="horizontal" aria-label={tr('拖动调整测试区高度，双击恢复自动高度', 'Drag to resize the test area; double-click to fit it again')} title={tr('拖动调整高度 · 双击恢复自动', 'Drag to resize · double-click to fit')} tabIndex={0} onPointerDown={down} onDoubleClick={fit} onKeyDown={key} />
+  return <div className="kc-resize" role="separator" aria-orientation="horizontal" aria-label={tr('拖动调整测试区高度，双击恢复自动高度', 'Drag to resize the test area; double-click to fit it again')} title={tr('拖动调整高度 · 双击恢复自动高度', 'Drag to resize · double-click to fit')} tabIndex={0} onPointerDown={down} onDoubleClick={fit} onKeyDown={key} />
 }
