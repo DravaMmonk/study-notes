@@ -36,13 +36,13 @@ export const simplifier = [
       { goal: '(Rain ∨ ¬¬Wind) ∧ Wet', becomes: [['(Rain ∨ Wind) ∧ Wet']] },
     ],
     intro: [
-      { t: T("经典逻辑一章证明了几组等价律。现在需要将命题内部的一部分换成等价的表达式，例如把 ¬¬下雨 改写为 下雨。在证明板上，这通常需要拆开外层结构、完成替换，再逐层重建。", "The classical-logic chapter proved several equivalences. Now a goal may require replacing a subexpression with an equivalent one, such as rewriting ¬¬it rains to it rains. On the proof board this usually means decomposing the surrounding structure, making the replacement, and rebuilding it.") },
-      { t: T("这一章为证明器加入<wiki-ref to=\"simplifier\"></wiki-ref>：将已证明的等价式作为改写规则，在目标内部替换匹配的子式。新元件<part-ref to=\"part:rw\"></part-ref>接收规则，从第一个目标中寻找一处匹配并改写。Isabelle 和 Lean 的 simp 也使用改写规则，但各自的完整机制更丰富。", "This chapter adds a <wiki-ref to=\"simplifier\"></wiki-ref>: proved equivalences become rewrite rules for matching subexpressions of a goal. The new <part-ref to=\"part:rw\"></part-ref> takes rules, finds a match in the first goal, and rewrites one occurrence. Isabelle and Lean also use rewrite rules in simp, though their complete mechanisms are richer.") },
+      { t: T('「刮风 ∧ ¬¬下雨」里的 ¬¬下雨 换成下雨，在证明板上要先拆开外面的「并且」，换掉里面那一句，再拼回去。', 'To turn the ¬¬it rains in “it is windy ∧ ¬¬it rains” into it rains, the proof board must take the outer “and” apart, replace the part inside, and put it back together.') },
+      { t: T('两句话等价，句子里出现一句的地方就能直接换成另一句。这样用的等价式叫<wiki-ref to="rewrite"></wiki-ref>，新元件<part-ref to="part:rw"></part-ref>按一条改写规则在目标里换一处。', 'Where two sentences are equivalent, one can be swapped for the other right inside a sentence. An equivalence used this way is a <wiki-ref to="rewrite"></wiki-ref>; the new part <part-ref to="part:rw"></part-ref> uses one to change one place in the goal.') },
     ],
     brief: T('设计一个证明助手，去掉每个目标里的 ¬¬。', 'Design a proof assistant that takes the ¬¬ out of each goal.'),
-    hint: [T('改写接上双重否定律的 ¬¬A ⟼ A。', 'Wire double negation’s ¬¬A ⟼ A into Rewrite.')],
+    hint: [T('<part-ref to="lemma:dneg"></part-ref>的两个形状都可以当改写规则。', 'Both shapes of <part-ref to="lemma:dneg"></part-ref> can serve as rewrite rules.')],
     solution: script(['rw', 'dneg.elim']),
-    after: T('¬¬A ⟼ A 是一条<wiki-ref to="rewrite"></wiki-ref>：左边换成右边，靠的是两边互相推得出。两个方向都证过，<part-ref to="lemma:dneg"></part-ref>的两个形状就都是改写规则；只证过一个方向的规则，比如反证法，不能拿来改写。改写只换一处：第一处对得上左边的地方。', '¬¬A ⟼ A is a <wiki-ref to="rewrite"></wiki-ref>: its left side becomes its right side, because the two give each other. Both directions are proved, so both shapes of <part-ref to="lemma:dneg"></part-ref> are rewrite rules; a rule proved one way only, like proof by contradiction, does not rewrite. A rewrite changes one place: the first that fits the left side.'),
+    after: T('这是<wiki-ref to="simplifier"></wiki-ref>的基本动作。', 'This is the basic move of a <wiki-ref to="simplifier"></wiki-ref>.'),
   }),
 
   // ---------- more rewrite rules ----------
@@ -58,7 +58,7 @@ export const simplifier = [
           { goal: 'Wind ∨ (Rain → Slip)', becomes: [['Wind ∨ (¬Rain ∨ Slip)']] },
         ],
         brief: T('设计一个证明助手，把每个目标里的「若…则…」换成「或者」。', 'Design a proof assistant that turns the “if … then …” in each goal into an “or”.'),
-        hint: [T('改写接上蕴涵析取互化的 A → B ⟼ ¬A ∨ B。', 'Wire Arrows away’s A → B ⟼ ¬A ∨ B into Rewrite.')],
+        hint: [T('看<part-ref to="lemma:arrow"></part-ref>的两个形状。', 'Look at the two shapes of <part-ref to="lemma:arrow"></part-ref>.')],
         solution: script(['rw', 'arrow.elim']),
       }),
       rewriting({
@@ -68,12 +68,14 @@ export const simplifier = [
           { goal: '(Sat ∧ Rest) ∨ Happy', becomes: [['(Sat ∨ Happy) ∧ (Rest ∨ Happy)']] },
         ],
         brief: T('设计一个证明助手，把每个目标里的「或者」分配到「并且」上。', 'Design a proof assistant that distributes the “or” in each goal over the “and”.'),
-        hint: [T('两种样子，两条改写规则：用<part-ref to="part:append"></part-ref>，每个框放一张改写。', 'Two shapes, two rewrite rules: <part-ref to="part:append"></part-ref>, with a rewrite in each region.')],
+        hint: [
+          T('两个目标里，「并且」一个在右边，一个在左边。', 'In one goal the “and” is on the right, in the other on the left.'),
+          T('一条改写规则只对得上一种样子；两种都要试，见<part-ref to="part:append"></part-ref>。', 'One rewrite rule fits only one shape; to try both, see <part-ref to="part:append"></part-ref>.'),
+        ],
         solution: flow({ ways: [[['rw', 'dist.orAndR']], [['rw', 'dist.orAndL']]] }),
       }),
     ],
-    intro: [{ t: T('<part-ref to="lemma:arrow"></part-ref>和<part-ref to="lemma:dist"></part-ref>也是两个方向都证过的：它们的每个形状，都是一条改写规则。', '<part-ref to="lemma:arrow"></part-ref> and <part-ref to="lemma:dist"></part-ref> are proved both ways too: each of their shapes is a rewrite rule.') }],
-    after: T('一个形状一条改写规则；一个目标里有两种样子，就用<part-ref to="part:append"></part-ref>，每个框放一张改写。', 'One shape, one rewrite rule; a goal that comes in two shapes takes <part-ref to="part:append"></part-ref>, a rewrite in each region.'),
+    intro: [{ t: T('<part-ref to="lemma:arrow"></part-ref>和<part-ref to="lemma:dist"></part-ref>也是两个方向都证过的等价式。', '<part-ref to="lemma:arrow"></part-ref> and <part-ref to="lemma:dist"></part-ref> are equivalences proved both ways too.') }],
   },
 
   // ---------- De Morgan ----------
@@ -85,19 +87,21 @@ export const simplifier = [
         step: T('推进括号', 'Inside the brackets'),
         tests: [{ goal: '¬(Rain ∨ Wind) → Wet', becomes: [['¬Rain ∧ ¬Wind → Wet']] }, { goal: 'Wet ∧ ¬(Sat ∧ Sun)', becomes: [['Wet ∧ (¬Sat ∨ ¬Sun)']] }],
         brief: T('设计一个证明助手，把每个目标里的否定推进括号里。', 'Design a proof assistant that pushes the negation in each goal inside the brackets.'),
-        hint: [T('两种样子，两条改写规则，各放进<part-ref to="part:append"></part-ref>的一个框。', 'Two shapes, two rewrite rules, one in each region of <part-ref to="part:append"></part-ref>.')],
+        hint: [
+          T('一个目标里是 ¬(… ∨ …)，另一个里是 ¬(… ∧ …)。', 'One goal holds ¬(… ∨ …), the other ¬(… ∧ …).'),
+          T('一条改写规则只对得上一种样子；两种都要试，见<part-ref to="part:append"></part-ref>。', 'One rewrite rule fits only one shape; to try both, see <part-ref to="part:append"></part-ref>.'),
+        ],
         solution: flow({ ways: [[['rw', 'dm.notOr']], [['rw', 'dm.notAnd']]] }),
       }),
       rewriting({
         step: T('推过量词', 'Past the quantifier'),
         tests: [{ goal: '¬∀x. Drinks(x)', becomes: [['∃x. ¬Drinks(x)']] }, { goal: 'Wet ∧ ¬∃x. Sings(x)', becomes: [['Wet ∧ (∀x. ¬Sings(x))']] }],
         brief: T('设计一个证明助手，把每个目标里的否定推过量词。', 'Design a proof assistant that pushes the negation in each goal past the quantifier.'),
-        hint: [T('¬∀ 和 ¬∃ 各一条改写规则，各放进<part-ref to="part:append"></part-ref>的一个框。', 'One rewrite rule for ¬∀ and one for ¬∃, each in a region of <part-ref to="part:append"></part-ref>.')],
+        hint: [T('一个目标里是 ¬∀，另一个里是 ¬∃。', 'One goal holds ¬∀, the other ¬∃.')],
         solution: flow({ ways: [[['rw', 'dm.notAll']], [['rw', 'dm.notEx']]] }),
       }),
     ],
-    intro: [{ t: T('<part-ref to="lemma:dm"></part-ref>的八个形状，每一个也是一条改写规则：否定穿过「或者」「并且」，穿过「存在」「对所有」，都能在句子里面直接换。', 'Each of the eight shapes of <part-ref to="lemma:dm"></part-ref> is a rewrite rule too: a negation passing through “or” and “and”, or through “there is” and “for all”, can be swapped right inside a sentence.') }],
-    after: T('否定能一层层往里推了：推进括号，推过量词。', 'Negations can be pushed in level by level now: inside brackets, past quantifiers.'),
+    intro: [{ t: T('<part-ref to="lemma:dm"></part-ref>有八个形状，每一个都可以当改写规则。', '<part-ref to="lemma:dm"></part-ref> has eight shapes, and each can serve as a rewrite rule.') }],
   },
 
   becomes({
@@ -109,10 +113,9 @@ export const simplifier = [
       { goal: 'Happy ∧ (¬Sat ∧ ¬Sun)', becomes: [['Happy ∧ ¬(Sat ∨ Sun)']] },
     ],
     brief: T('设计一个证明助手，把每个目标里的两个否定合成一个，提到括号外面。', 'Design a proof assistant that makes the two negations in each goal one, outside the brackets.'),
-    hint: [T('<part-ref to="lemma:dm"></part-ref>的另外两个形状。两种样子，两条改写规则，各放进<part-ref to="part:append"></part-ref>的一个框。', 'The other two shapes of <part-ref to="lemma:dm"></part-ref>. Two shapes, two rewrite rules, one in each region of <part-ref to="part:append"></part-ref>.')],
-    intro: [{ t: T('改写规则只从左往右换：¬(A ∨ B) ⟼ ¬A ∧ ¬B 能把否定推进去，却提不出来。要往外提，得用反过来的那个形状：<part-ref to="lemma:dm"></part-ref>的形状两两相反，每一个都是一条改写规则。', 'A rewrite rule only works left to right: ¬(A ∨ B) ⟼ ¬A ∧ ¬B pushes a negation in, but cannot bring it out. To bring it out takes the opposite shape: the shapes of <part-ref to="lemma:dm"></part-ref> come in opposite pairs, and each is a rewrite rule.') }],
+    hint: [T('<part-ref to="lemma:dm"></part-ref>里还有没用过的形状。', '<part-ref to="lemma:dm"></part-ref> still has shapes you have not used.')],
+    intro: [{ t: T('改写规则只从左往右换：¬(A ∨ B) ⟼ ¬A ∧ ¬B 能把否定推进去，却提不出来。', 'A rewrite rule works only left to right: ¬(A ∨ B) ⟼ ¬A ∧ ¬B pushes a negation in, but cannot bring it out.') }],
     solution: flow({ ways: [[['rw', 'dm.andNot']], [['rw', 'dm.orNot']]] }),
-    after: T('一对互相推得出的句子，两个方向是两条改写规则：往哪边改，就选哪一条。', 'Two sentences that give each other make two rewrite rules, one each way: to change one way, choose that one.'),
   }),
 
   // ---------- rewriting itself ----------
@@ -125,10 +128,9 @@ export const simplifier = [
       { goal: '¬¬¬¬Wind', becomes: [['Wind']] },
     ],
     brief: BRIEF,
-    hint: [T('一张改写换一处，两处就接两张。', 'One rewrite changes one place: two places, two rewrites.')],
-    intro: [{ t: T('一张<part-ref to="part:rw"></part-ref>只换一处。一个句子里对得上的地方不止一处时，它换哪一处？从外往里、从左往右，第一处对得上的。这一关的每个目标里都有两处 ¬¬。', 'One <part-ref to="part:rw"></part-ref> changes one place. When a sentence has more than one place that fits, which does it change? Outside in, left to right: the first place that fits. Each goal here has two ¬¬s.') }],
+    hint: [T('每个目标里有两处 ¬¬。', 'Each goal has two ¬¬s.')],
+    intro: [{ t: T('<part-ref to="part:rw"></part-ref>只换一处。对得上的地方不止一处时，它从外往里、从左往右，换第一处。', '<part-ref to="part:rw"></part-ref> changes one place. When more than one place fits, it changes the first, going outside in and left to right.') }],
     solution: script(['rw', 'dneg.elim'], ['rw', 'dneg.elim']),
-    after: T('「¬¬¬¬刮风」里，第一张改写换的是最外面的两个 ¬：外面先，里面后；同一层，左边先。', 'In “¬¬¬¬it is windy”, the first rewrite takes the outermost two ¬s: outside before inside, and on one level, left before right.'),
   }),
   becomes({
     id: 'sp-repeat',
@@ -139,11 +141,10 @@ export const simplifier = [
       { goal: '¬¬(¬¬Rain ∨ ¬¬¬¬Wind)', becomes: [['Rain ∨ Wind']] },
     ],
     brief: BRIEF,
-    hint: [T('<part-ref to="part:repeat"></part-ref>把框里的元件一圈一圈地做下去；改写对不上了，就停在前一圈。', 'A <part-ref to="part:repeat"></part-ref> runs what it holds round after round; when the rewrite no longer fits, it stops at the round before.')],
-    intro: [{ t: T('这一回，每个目标里 ¬¬ 的个数都不一样：一处、两处、四处。接几张改写都不对：少了换不完，多了的那张对不上，就失败。', 'This time each goal has a different number of ¬¬s: one, two, four. No number of rewrites will do: too few leave some, and one too many fits nothing and fails.') }],
+    hint: [T('改写的次数要随目标而变。', 'The number of rewrites must depend on the goal.')],
+    intro: [{ t: T('这一回，各个目标里 ¬¬ 的个数不一样。改写对不上任何地方时，就失败。', 'This time the goals hold different numbers of ¬¬s. A rewrite that fits nowhere fails.') }],
     solution: flow({ frame: 'repeat', body: [['rw', 'dneg.elim']] }),
     naive: script(['rw', 'dneg.elim'], ['rw', 'dneg.elim']),
-    after: T('重复框里一张改写，就是「换到一处都不剩」。改写对不上不算错：它告诉重复框该停了。', 'One rewrite in a repeat frame means “until none is left”. A rewrite that fits nothing is no fault: it tells the frame to stop.'),
   }),
 
   // ---------- simp ----------
@@ -158,11 +159,14 @@ export const simplifier = [
       { goal: '¬(¬Rain ∨ ¬¬Wind) ∧ Wet', rules: SIMP_RULES, becomes: [['(Rain ∧ ¬Wind) ∧ Wet']] },
       { goal: 'Rain ∧ Wet', rules: SIMP_RULES, becomes: [['Rain ∧ Wet']] },
     ],
-    brief: T('设计一个证明助手：去掉双重否定，把否定推进「或者」「并且」，一直改到哪一处都改不动，把每个目标变成要的样子。', 'Design a proof assistant that takes double negations off and pushes negations into “or” and “and” until nothing more changes, turning each goal into the one wanted.'),
-    hint: [T('改写接进一串规则时，用第一条对得上的。', 'A rewrite wired a list of rules uses the first that fits.')],
-    intro: [{ t: T('一条规则改到底，是重复框里一张改写。这一关要几条规则一起改：每一圈，哪一条对得上，就用哪一条，改到哪一条都对不上为止。这就是<b>化简</b>。改写规则从板上的「规则」输入进来，一串几条；设计出的证明助手会成为新元件<part-ref to="lemma:simp"></part-ref>，这个输入就是它的「规则」口。', 'One rule to the end is one rewrite in a repeat frame. Here several rules work together: each round, whichever fits is used, until none fits. That is <b>simplification</b>. The rewrite rules come in at the board’s input Rules, a list of them; the proof assistant you design becomes a new part, <part-ref to="lemma:simp"></part-ref>, and that input is its port Rules.') }],
+    brief: T('设计一个证明助手，用「规则」输入的改写规则把每个目标一直改下去，直到哪一条都对不上。', 'Design a proof assistant that rewrites each goal with the rules from the input Rules until none of them fits.'),
+    hint: [
+      T('和<level-ref to="sp-repeat"></level-ref>一样，要改到改不动为止。', 'As in <level-ref to="sp-repeat"></level-ref>, the rewriting goes on until nothing fits.'),
+      T('<part-ref to="part:rw"></part-ref>也能接一串规则，用其中第一条对得上的。', '<part-ref to="part:rw"></part-ref> can take a list of rules too, and uses the first that fits.'),
+    ],
+    intro: [{ t: T('几条改写规则一起用，每次用对得上的那一条，改到哪一条都对不上为止，这叫<b>化简</b>。规则从板上的「规则」输入进来；设计出的证明助手会成为新元件<part-ref to="lemma:simp"></part-ref>，这个输入就是它的「规则」口。', 'Several rewrite rules used together, each time whichever fits, until none fits: this is <b>simplification</b>. The rules come in at the board’s input Rules; the proof assistant you design becomes a new part, <part-ref to="lemma:simp"></part-ref>, and that input becomes its port Rules.') }],
     solution: machine({ c0: ['repeat'], c1: ['rw', {}, 'c0'] }, ['in>c0', 'c0#body>c1', 'rules>c1.rules', 'c1>c0.body', 'c0>out'], { inputs: ['in', 'rules'] }),
-    after: T('重复框里一张改写，接着一串规则：每一圈用第一条对得上的规则改一处，改到哪一条都对不上。这个证明助手成了元件<part-ref to="lemma:simp"></part-ref>：接进一串改写规则，它跑的就是你这块电路。', 'A rewrite in a repeat frame, wired a list of rules: each round the first rule that fits changes one place, until none fits. This proof assistant is now the part <part-ref to="lemma:simp"></part-ref>: wire a list of rewrite rules into it, and it runs this very circuit.'),
+    after: T('Isabelle 和 Lean 的 simp 做的也是这件事。', 'This is what simp does in Isabelle and Lean too.'),
   }),
 
   // ---------- normal forms ----------
@@ -176,10 +180,12 @@ export const simplifier = [
       { goal: '¬∃x. Bird(x) ∧ ¬Flies(x)', becomes: [['∀x. ¬Bird(x) ∨ Flies(x)']] },
     ],
     brief: BRIEF,
-    hint: [T('接上蕴涵析取互化和双重否定律，再把否定推过「或者」「并且」「存在」「对所有」：这些规则都接进化简。', 'Arrows away, double negation off, and negations pushed past “or”, “and”, “there is” and “for all”: wire all of these into Simp.')],
-    intro: [{ t: T('<wiki-ref to="nnf"></wiki-ref>：句子里没有 →，¬ 只贴在最小的那一句上。自动证明器动手之前，先把句子化成这个样子。手里的等价律够不够？', '<wiki-ref to="nnf"></wiki-ref>: no → in the sentence, and every ¬ on a smallest sentence. Automatic provers bring a sentence to this shape before anything else. Do the laws in hand reach it?') }],
+    hint: [
+      T('先去掉 →。', 'Get rid of → first.'),
+      T('再看 ¬ 会出现在哪些连接词和量词前面。', 'Then see in front of which connectives and quantifiers a ¬ can stand.'),
+    ],
+    intro: [{ t: T('<wiki-ref to="nnf"></wiki-ref>：句子里没有 →，¬ 只贴在最小的句子上。', '<wiki-ref to="nnf"></wiki-ref>: no → in the sentence, and every ¬ on a smallest sentence.') }],
     solution: script(['simp', NNF]),
-    after: T('化简接进六条规则，任何一句都化得成否定范式。每条规则都是证出的等价律，所以化出来的句子和原来的一定等价。', 'Six rules wired into Simp bring any sentence to negation normal form. Each rule is a law proved both ways, so what comes out is sure to be equivalent to what went in.'),
   }),
   becomes({
     id: 'sp-cnf',
@@ -190,10 +196,13 @@ export const simplifier = [
       { goal: '(Rain → Wet) ∧ (Wind ∨ (Rain ∧ Slip))', becomes: [['(¬Rain ∨ Wet) ∧ ((Wind ∨ Rain) ∧ (Wind ∨ Slip))']] },
     ],
     brief: BRIEF,
-    hint: [T('否定范式的规则后面，再加上分配律。', 'After the rules for negation normal form, add distribution.')],
-    intro: [{ t: T('<wiki-ref to="cnf"></wiki-ref>：先是否定范式，再让「或者」都在「并且」底下，几串「或者」用「并且」连起来。下一步的自动证明，要的就是这个样子。', '<wiki-ref to="cnf"></wiki-ref>: negation normal form first, then every “or” under the “and”s, a few strings of “or” joined by “and”. Automatic proof wants sentences in just this shape.') }],
+    hint: [
+      T('从否定范式出发。', 'Start from negation normal form.'),
+      T('还差的是让「或者」到「并且」底下去。', 'What is left is to bring every “or” under the “and”s.'),
+    ],
+    intro: [{ t: T('<wiki-ref to="cnf"></wiki-ref>：否定范式，并且「或者」都在「并且」底下，几串「或者」用「并且」连起来。每一串「或者」叫一个<wiki-ref to="clause"></wiki-ref>。', '<wiki-ref to="cnf"></wiki-ref>: negation normal form, with every “or” under the “and”s, a few strings of “or” joined by “and”. Each string of “or” is a <wiki-ref to="clause"></wiki-ref>.') }],
     solution: script(['simp', CNF]),
-    after: T('化出来的每一串「或者」叫一个<wiki-ref to="clause"></wiki-ref>。分配会让句子变长：一句分到两边，就抄了两遍。', 'Each string of “or” that comes out is called a <wiki-ref to="clause"></wiki-ref>. Distribution makes a sentence longer: one sentence distributed over two sides is written out twice.'),
+    after: T('自动证明器动手之前，通常先把句子化成合取范式。', 'Automatic provers usually bring a sentence to conjunctive normal form before anything else.'),
   }),
   becomes({
     id: 'sp-order',
@@ -203,10 +212,9 @@ export const simplifier = [
       { goal: '¬(Rain → (Wind ∧ Wet))', becomes: [['Rain ∧ (¬Wind ∨ ¬Wet)']] },
     ],
     brief: T('设计一个证明助手，把每个目标化成最短的合取范式。', 'Design a proof assistant that brings each goal to its shortest conjunctive normal form.'),
-    hint: [T('否定还在外面的时候先分配，「或者」就分进了否定里面。', 'Distribute while a negation is still outside, and the “or” is distributed inside the negation.')],
-    intro: [{ t: T('同一组规则，排的先后不一样，化出来的样子也可能不一样：化简每一圈用的是排在最前、对得上的那一条。这一关要的是最短的合取范式。', 'The same rules in a different order may give a different result: each round, Simp uses the first rule in the line that fits. Here the shortest conjunctive normal form is wanted.') }],
+    hint: [T('否定还在外面时就分配，会发生什么？', 'What happens if you distribute while a negation is still outside?')],
+    intro: [{ t: T('化简每次用的是排在最前、对得上的那条规则。同一组规则排的先后不同，化出来的句子也可能不同。', 'Each time, Simp uses the first rule in the list that fits. The same rules in a different order can give a different sentence.') }],
     solution: script(['simp', CNF]),
     naive: script(['simp', ['dist.orAndR', 'dist.orAndL', ...NNF]]),
-    after: T('先把否定推到底，再分配，分配就不会在否定里面白做一遍。规则的先后，也是化简的一部分。', 'Push negations all the way in, then distribute, and distribution is not wasted inside a negation. The order of the rules is part of the simplifier too.'),
   }),
 ]

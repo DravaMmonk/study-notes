@@ -51,13 +51,12 @@ export const classical = [
       { goal: '((Rain → Wet) → Rain) → Rain', want: 'fails' },
     ],
     brief: BRIEF,
-    hint: [T("使用已有的 auto 检查这些命题，留意哪些目标没有找到证明。", "Use the existing auto to check these propositions and observe which goals it does not prove.")],
+    hint: [T('用手里的 auto 逐句试，看哪几句证不出。', 'Try each with the auto you have, and see which it cannot prove.')],
     intro: [
-      { t: T("在前面的课程中，你构建了 auto 来组合推理规则。本关用它检查五个命题；每个命题在经典真值表的所有行中都为真。", "Earlier you built auto to combine inference rules. Test it on five propositions, each true on every row of its classical truth table.") },
-      { t: T("搜索没有找到证明，并不单独说明命题不可证明：也可能是搜索策略或范围的限制。本关通过这些例子比较当前规则与经典真值语义。", "Failure to find a proof does not by itself establish unprovability: the search strategy or bounds may be responsible. These examples compare the current rules with classical truth-value semantics.") },
+      { t: T('这五句在真值表的每一行都为真。<part-ref to="lemma:auto"></part-ref>证得出几句？', 'These five sentences are true on every row of their truth tables. How many does <part-ref to="lemma:auto"></part-ref> prove?') },
+      { t: T('搜不到证明，未必就没有证明：也可能是搜索的方法或深度不够。', 'A search that finds no proof does not show there is none: the method or the depth may fall short.') },
     ],
     solution: script('auto'),
-    after: T("五个命题都是经典永真式，当前 auto 只证明了其中一部分。对后三个命题，搜索结果展示了现有证明助手的局限；它们在直觉主义命题逻辑中也不能无前提地证明。", "All five propositions are classical tautologies, but the current auto proves only some of them. The search result illustrates a limit of the current assistant; the final three also lack premise-free proofs in intuitionistic propositional logic."),
   }),
   {
     id: 'raa',
@@ -70,12 +69,11 @@ export const classical = [
         tests: [{ goal: '¬¬(A ∨ ¬A)' }],
         cases: [{ A: 'Rain' }, { A: 'Exam' }],
         hint: [
-          T("本任务要求证明排中律的双重否定，不必直接证明其中某一析取项。", "This task asks for the double negation of excluded middle; you do not need to prove one disjunct directly."),
-          T('假设「¬(下雨 ∨ ¬下雨)」，然后把这个假设用两次。', 'Assume “¬(it rains ∨ ¬it rains)”, and then use that assumption twice.'),
+          T('要证的是一个否定，不必证出「或者」的哪一边。', 'The goal is a negation; neither side of the “or” has to be proved.'),
+          T('假设「¬(下雨 ∨ ¬下雨)」，这个假设要用两次。', 'Assume “¬(it rains ∨ ¬it rains)”; that assumption is used twice.'),
         ],
         solution: lemDenied,
         naive: proof({ f: ['impI', { A: '¬(A ∨ ¬A)' }], i: ['orI', { other: '¬A', side: 'right' }, 'f'] }, ['f#body>i.a', 'i>f.body', 'f>goal']),
-        after: T("假设「¬(下雨 ∨ ¬下雨)」可先推出「¬下雨」，再推出「下雨 ∨ ¬下雨」，从而得到矛盾。因此直觉主义规则可以证明排中律的双重否定；这一步还没有证明排中律本身。", "Assuming “¬(it rains ∨ ¬it rains)” yields “¬it rains”, then “it rains ∨ ¬it rains”, a contradiction. Thus the intuitionistic rules prove the double negation of excluded middle, but this is not yet a proof of excluded middle itself."),
       },
       {
         kind: 'proof',
@@ -86,18 +84,19 @@ export const classical = [
         tests: [{ goal: 'A ∨ ¬A' }],
         sentences: ['¬(A ∨ ¬A)'],
         cases: [{ A: 'Rain' }, { A: 'Exam' }],
-        intro: [{ t: T("刚才证明了排中律的双重否定。要得到排中律本身，需要经典规则<b>双重否定消去</b>：由 ¬¬A 推出 A。本游戏将<part-ref to=\"part:raa\"></part-ref>作为额外的<wiki-ref to=\"axiom\"></wiki-ref>加入；它与假设框结合，可以实现反证法。", "The preceding task proved the double negation of excluded middle. Deriving excluded middle itself requires the classical rule of <b>double-negation elimination</b>: from ¬¬A infer A. This game adds <part-ref to=\"part:raa\"></part-ref> as an additional <wiki-ref to=\"axiom\"></wiki-ref>; together with an assumption box it supports proof by contradiction.") }],
-        brief: T("在刚才的证明后接上双重否定消去，证明「下雨 ∨ ¬下雨」。", "Apply double-negation elimination to the preceding proof to establish “it rains ∨ ¬it rains”."),
-        hint: [T("将新增的经典规则元件接在最外层假设框的输出之后。", "Connect the “By contradiction” part after the outermost assumption box.")],
+        intro: [{ t: T('由 ¬¬A 推出 A，叫<b>双重否定消去</b>。现有的规则推不出它，只能作为一条<wiki-ref to="axiom"></wiki-ref>加进证明核：<part-ref to="part:raa"></part-ref>。', 'From ¬¬A, infer A: this is <b>double-negation elimination</b>. The rules so far cannot derive it; it can only come into the kernel as an <wiki-ref to="axiom"></wiki-ref>, <part-ref to="part:raa"></part-ref>.') }],
+        brief: T('证出「下雨 ∨ ¬下雨」。', 'Prove “it rains ∨ ¬it rains”.'),
+        hint: [
+          T('刚才的证明已经给出「¬¬(下雨 ∨ ¬下雨)」。', 'The proof you just made already gives “¬¬(it rains ∨ ¬it rains)”.'),
+          T('把<part-ref to="part:raa"></part-ref>接在最外层假设框的输出后面。', 'Wire <part-ref to="part:raa"></part-ref> after the outermost assumption box.'),
+        ],
         solution: proof({ ...lemDeniedNodes, r: ['raa'] }, [...lemDeniedWires, 'f>r.nna', 'r>goal']),
       },
     ],
     intro: [
-      { t: T("<level-ref to=\"c-wall\"></level-ref>中的 auto 没有证明「下雨 ∨ ¬下雨」。在无前提的直觉主义命题逻辑中，这个排中律实例也不是定理；先考察一个较弱的目标。", "In <level-ref to=\"c-wall\"></level-ref>, auto did not prove “it rains ∨ ¬it rains”. This instance of excluded middle is also not a premise-free theorem of intuitionistic propositional logic. Start with a weaker goal.") },
-      { t: T("先证明「否定排中律会导致矛盾」，即「¬¬(下雨 ∨ ¬下雨)」。它与排中律本身是两个不同的命题。", "First prove that denying excluded middle leads to a contradiction: “¬¬(it rains ∨ ¬it rains)”. This is distinct from excluded middle itself.") },
-      { t: T("经典逻辑允许使用双重否定消去。不同证明助手对经典原则的提供方式不同；本关将这条规则加入游戏的证明核。", "Classical logic permits double-negation elimination. Proof assistants provide classical principles in different ways; this level adds the rule to the game’s proof kernel.") },
+      { t: T('<level-ref to="c-wall"></level-ref>里，auto 证不出「下雨 ∨ ¬下雨」，<wiki-ref to="lem"></wiki-ref>的一例。先证一句弱一些的：「¬¬(下雨 ∨ ¬下雨)」，否认它就会矛盾。', 'In <level-ref to="c-wall"></level-ref>, auto could not prove “it rains ∨ ¬it rains”, an instance of <wiki-ref to="lem"></wiki-ref>. First a weaker sentence: “¬¬(it rains ∨ ¬it rains)”, that denying it is a contradiction.') },
     ],
-    after: T("证明完成后，<part-ref to=\"lemma:lem\"></part-ref>元件给出<wiki-ref to=\"lem\"></wiki-ref>。本游戏中，加入双重否定消去前使用<wiki-ref to=\"intuitionistic\"></wiki-ref>规则，加入后可进行<wiki-ref to=\"classical\"></wiki-ref>推理；在经典命题逻辑中，每个真值表永真式都有证明。", "After the proof, <part-ref to=\"lemma:lem\"></part-ref> supplies <wiki-ref to=\"lem\"></wiki-ref>. In this game the rules are <wiki-ref to=\"intuitionistic\"></wiki-ref> before double-negation elimination is added and permit <wiki-ref to=\"classical\"></wiki-ref> reasoning afterwards. Every classical propositional tautology has a proof."),
+    after: T('没有双重否定消去的规则，是<wiki-ref to="intuitionistic"></wiki-ref>；加上它，就是<wiki-ref to="classical"></wiki-ref>。经典命题逻辑里，真值表上每一行都真的句子都证得出。', 'The rules without double-negation elimination are <wiki-ref to="intuitionistic"></wiki-ref>; with it, <wiki-ref to="classical"></wiki-ref>. In classical propositional logic, every sentence true on every row has a proof.'),
   },
   {
     id: 'byContra',
@@ -105,10 +104,12 @@ export const classical = [
     title: T('反证', 'Proof by contradiction'),
     tests: [{ premises: { p: '¬A → B', q: '¬A → ¬B' }, goal: 'A' }],
     cases: [{ A: 'Locked', B: 'Moon' }, { A: 'Rain', B: 'Wet' }],
-    hint: [T('像<level-ref to="notI"></level-ref>一样，只是这次假设的是「¬门锁着」。框给出「¬¬门锁着」，剩下一步交给反证法。', 'As in <level-ref to="notI"></level-ref>, only this time assume “¬the door is locked”. The box gives “¬¬the door is locked”; By contradiction does the last step.')],
-    intro: [{ t: T('「假设门没锁，就会推出矛盾，所以门锁着。」这就是反证法的完整样子：一个框，加上去掉两个 ¬。', '“Suppose the door is not locked; that leads to a contradiction; so it is locked.” This is proof by contradiction in full: a box, then dropping two ¬s.') }],
+    hint: [
+      T('要证的「门锁着」里没有 ¬。先想想怎样得到「¬¬门锁着」。', 'The goal, “the door is locked”, has no ¬ in it. First think how to get “¬¬the door is locked”.'),
+      T('和<level-ref to="notI"></level-ref>一样用框，只是这次假设「¬门锁着」。', 'Use a box as in <level-ref to="notI"></level-ref>, only this time assume “¬the door is locked”.'),
+    ],
+    intro: [{ t: T('「假设门没锁，就会推出矛盾，所以门锁着。」这是<b>反证法</b>。', '“Suppose the door is not locked; that leads to a contradiction; so it is locked.” This is <b>proof by contradiction</b>.') }],
     solution: proof({ f: ['impI', { A: '¬A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], m3: ['mp', {}, 'f'], r: ['raa'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'f#body>m2.a', 'm2>m3.imp', 'm1>m3.a', 'm3>f.body', 'f>r.nna', 'r>goal'], { premises: ['p', 'q'] }),
-    after: T('框的那一半，你在这一章已经做过很多遍；反证法只是最后一步。', 'The box half you have done many times this chapter; By contradiction is just the last step.'),
   },
   {
     id: 'c-contra',
@@ -117,12 +118,11 @@ export const classical = [
     tests: [{ premises: { p: '¬B → ¬A' }, goal: 'A → B' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Exam', B: 'Study' }],
     hint: [
-      T('假设「下雨」，要证的是「地湿」：假设它不成立，看会不会撞上「下雨」。', 'Assume “it rains”; the goal is “the ground is wet”: suppose it fails, and see whether that runs into “it rains”.'),
-      T('里面的框给出「¬¬地湿」，反证法去掉两个 ¬。', 'The inner box gives “¬¬the ground is wet”, and By contradiction drops the two ¬s.'),
+      T('先假设「下雨」，要证的就是「地湿」，一句没有 ¬ 的话。', 'Assume “it rains” first; what remains is “the ground is wet”, with no ¬ in it.'),
+      T('「地湿」怎么来，和<level-ref to="byContra"></level-ref>一样。', '“The ground is wet” comes the way it did in <level-ref to="byContra"></level-ref>.'),
     ],
-    intro: [{ t: T('<level-ref to="mt"></level-ref>由「下雨 → 地湿」得到「¬地湿 → ¬下雨」，没用反证法。反过来，从逆否推回原句，要证的是一句没有 ¬ 的话，只能靠反证。', '<level-ref to="mt"></level-ref> got “¬the ground is wet → ¬it rains” from “it rains → the ground is wet” without proof by contradiction. The other way, from the contrapositive back to the sentence, the goal has no ¬ in it, and only proof by contradiction reaches it.') }],
+    intro: [{ t: T('<level-ref to="mt"></level-ref>从原句推出了它的<wiki-ref to="contrapositive"></wiki-ref>。这一回反过来，从逆否推回原句。', '<level-ref to="mt"></level-ref> derived a sentence’s <wiki-ref to="contrapositive"></wiki-ref> from it. This time the other way: from the contrapositive back to the sentence.') }],
     solution: proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: '¬B' }, 'f'], m1: ['mp', {}, 'g'], m2: ['mp', {}, 'g'], r: ['raa', {}, 'f'] }, ['p>m1.imp', 'g#body>m1.a', 'm1>m2.imp', 'f#body>m2.a', 'm2>g.body', 'g>r.nna', 'r>f.body', 'f>goal'], { premises: ['p'] }),
-    after: T('有了反证法，逆否和原句才真正可以互相推出：证「若 P 则 Q」，改证「若非 Q 则非 P」也行。没有它，只有一个方向。', 'With proof by contradiction a sentence and its contrapositive really give each other: to prove “if P then Q”, proving “if not Q then not P” will do. Without it, only one way works.'),
   },
   {
     id: 'lemCases',
@@ -130,10 +130,12 @@ export const classical = [
     title: T('两边都讨论', 'Take both sides'),
     tests: [{ premises: { p: 'A → B', q: '¬A → B' }, goal: 'B' }],
     cases: [{ A: 'Rain', B: 'Coffee' }, { A: 'Bus', B: 'OnTime' }],
-    hint: [T('排中律给出「下雨 ∨ ¬下雨」，再分情况。', 'Excluded middle gives “it rains ∨ ¬it rains”; then take cases.')],
-    intro: [{ t: T('下雨我喝咖啡，不下雨我也喝咖啡，所以我喝了咖啡。可消去 ∨ 要一句 ∨，已知里没有：排中律给你一句。', 'Rain or no rain, I drink coffee, so I drank coffee. But ∨ elim needs an ∨, and none is given: Excluded middle gives you one.') }],
+    hint: [
+      T('下雨和不下雨，两种情况都讨论。', 'Rain and no rain: take both cases.'),
+      T('分情况要一句「或者」，已知里没有。', 'Taking cases needs an “or”, and none is given.'),
+    ],
+    intro: [{ t: T('下雨我喝咖啡，不下雨我也喝咖啡，所以我喝了咖啡。', 'If it rains I drink coffee; if it does not, I drink coffee too. So I drank coffee.') }],
     solution: proof({ l: ['lem', { A: 'A' }], e: ['orE'], m1: ['mp', {}, 'e/left'], m2: ['mp', {}, 'e/right'] }, ['l>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>e.left', 'q>m2.imp', 'e#right>m2.a', 'm2>e.right', 'e>goal'], { premises: ['p', 'q'] }),
-    after: T('排中律加分情况：不知道是哪一边，就两边都讨论。', 'Excluded middle plus case by case: not knowing which, take both.'),
   },
   {
     id: 'c-either',
@@ -141,21 +143,25 @@ export const classical = [
     title: T('不是这样就是那样', 'One way or the other'),
     tests: [{ premises: { p: 'A → B', q: '¬A → C' }, goal: 'B ∨ C' }],
     cases: [{ A: 'Rain', B: 'Bus', C: 'Bike' }, { A: 'Exam', B: 'Study', C: 'Rest' }],
-    hint: [T('下不下雨，两边都讨论；每一边证出的，各放进 ∨ 的一边。', 'Rain or no rain, take both sides; what each side proves goes on its own side of the ∨.')],
-    intro: [{ t: T('下雨就坐公交，不下雨就骑车。不知道下不下雨，可总有一样。<level-ref to="lemCases"></level-ref>两种情况证出同一句话；这一回两种情况证出的不一样。', 'If it rains I take the bus, if not I cycle. Whether it rains I do not know, but one of the two it is. In <level-ref to="lemCases"></level-ref> both cases proved the same sentence; this time they prove different ones.') }],
+    hint: [
+      T('下不下雨，两边都讨论。', 'Rain or no rain: take both sides.'),
+      T('分情况时，两边要证出同一句话。', 'When taking cases, both sides must prove the same sentence.'),
+    ],
+    intro: [{ t: T('下雨就坐公交，不下雨就骑车。不知道下不下雨，可总有一样。', 'If it rains I take the bus; if not, I cycle. I do not know whether it will rain, but it will be one or the other.') }],
     solution: proof({ l: ['lem', { A: 'A' }], e: ['orE'], m1: ['mp', {}, 'e/left'], i1: ['orI', { other: 'C', side: 'right' }, 'e/left'], m2: ['mp', {}, 'e/right'], i2: ['orI', { other: 'B', side: 'left' }, 'e/right'] }, ['l>e.ab', 'p>m1.imp', 'e#left>m1.a', 'm1>i1.a', 'i1>e.left', 'q>m2.imp', 'e#right>m2.a', 'm2>i2.a', 'i2>e.right', 'e>goal'], { premises: ['p', 'q'] }),
-    after: T('两边证出的不一样，就各放进「或者」的一边，两种情况就证出同一句了。', 'When the two sides prove different things, put each on its own side of an “or”, and the two cases prove the same sentence.'),
   },
   each({
     id: 's-lem',
     title: T('auto 加一步反证法', 'auto, after one step by contradiction'),
     tests: [{ goal: '¬¬Rain → Rain' }, { goal: '(¬Rain → Rain) → Rain' }],
     brief: BRIEF,
-    hint: [T('反证法要自己用一次：倒着用它，目标就成了「并非并非」。', 'Use proof by contradiction once yourself: backwards, it makes the goal a “not not”.')],
-    intro: [{ t: T('<level-ref to="c-wall"></level-ref>里 auto 证不出这样的句子。现在规则书里多了<part-ref to="part:raa"></part-ref>，写成规则是 ⟦¬¬?A⟧ ⟹ ?A。可 auto 只用引入和消去规则：反证法的结论对上任何目标，放进搜索里，每个目标都会被它换成「并非并非」，再换一次，一直换下去，每一步都是新目标。', 'In <level-ref to="c-wall"></level-ref> auto could not prove sentences like these. Now the rule book holds <part-ref to="part:raa"></part-ref>, as a rule ⟦¬¬?A⟧ ⟹ ?A. But auto uses only introduction and elimination rules: proof by contradiction concludes any goal, and put in the search it would turn every goal into a “not not”, and again, without end, each step a new goal.') }],
+    hint: [
+      T('auto 本身不必改。', 'auto itself need not change.'),
+      T('在 auto 之前，自己先用几条规则。', 'Before auto, apply a few rules yourself.'),
+    ],
+    intro: [{ t: T('规则书里多了<part-ref to="part:raa"></part-ref>，写成规则是 ⟦¬¬?A⟧ ⟹ ?A。auto 只用引入和消去规则；这条规则的结论对得上任何目标，放进搜索，就会把每个目标换成「并非并非」，再换一次，没有尽头。', 'The rule book now holds <part-ref to="part:raa"></part-ref>, as a rule ⟦¬¬?A⟧ ⟹ ?A. auto uses only introduction and elimination rules; this rule’s conclusion fits any goal, and in the search it would turn every goal into a “not not”, and again, without end.') }],
     solution: script(['rule', 'impI'], ['rule', 'raa'], 'auto'),
     naive: script('auto'),
-    after: T('反证法只在最外面用一次，剩下的交给 auto。只用引入和消去规则证得出的，正是直觉主义逻辑的定理；反证法要另外给，也要人决定在哪里用。', 'Proof by contradiction once, outermost, and auto does the rest. What introduction and elimination rules alone prove is exactly intuitionistic logic; proof by contradiction must be given besides, and someone must decide where it goes.'),
   }),
   // ---------- equivalences: pairs of sentences that give each other, the laws the simplifier rewrites with ----------
   {
@@ -167,7 +173,7 @@ export const classical = [
         step: T('去掉两个 ¬', 'Two ¬s off'),
         tests: [{ premises: { p: '¬¬A' }, goal: 'A' }],
         cases: [{ A: 'Rain' }, { A: 'Locked' }],
-        hint: [T('你手里有一条规则，正好去掉两个 ¬。', 'You hold a rule that takes exactly two ¬s off.')],
+        hint: [T('手里有一条规则正好去掉两个 ¬。', 'One rule you hold takes exactly two ¬s off.')],
         solution: proof({ r: ['raa'] }, ['p>r.nna', 'r>goal'], { premises: ['p'] }),
       }),
       prove({
@@ -175,12 +181,14 @@ export const classical = [
         tests: [{ premises: { p: 'A' }, goal: '¬¬A' }],
         cases: [{ A: 'Rain' }, { A: 'Locked' }],
         brief: T('再从「下雨」证明出「¬¬下雨」。', 'Now from “it rains”, prove “¬¬it rains”.'),
-        hint: [T('「¬¬下雨」是「¬下雨 → ⊥」：假设「¬下雨」。', '“¬¬it rains” is “¬it rains → ⊥”: assume “¬it rains”.')],
+        hint: [T('「¬¬下雨」就是「¬下雨 → ⊥」。', '“¬¬it rains” is “¬it rains → ⊥”.')],
         solution: proof({ f: ['impI', { A: '¬A' }], m: ['mp', {}, 'f'] }, ['f#body>m.imp', 'p>m.a', 'm>f.body', 'f>goal'], { premises: ['p'] }),
       }),
     ],
-    intro: [{ t: T('<part-ref to="part:raa"></part-ref>由「¬¬下雨」得到「下雨」；反过来，由「下雨」也得到「¬¬下雨」。一对句子能互相推得出，说的就是同一件事：它们<wiki-ref to="equivalence"></wiki-ref>。这一路证几对这样的句子，有的要靠反证法，有的不用。', '<part-ref to="part:raa"></part-ref> gets “it rains” from “¬¬it rains”; the other way, “it rains” gives “¬¬it rains” too. Two sentences that give each other say the same thing: they are in <wiki-ref to="equivalence"></wiki-ref>. This stretch proves a few such pairs; some take proof by contradiction, some do not.') }],
-    after: T('¬¬A 和 A 互相推得出：去掉两个 ¬ 要靠反证法，加上不用。两个方向合成一块元件<part-ref to="lemma:dneg"></part-ref>，元件上切换形状。', '¬¬A and A give each other: taking two ¬s off takes proof by contradiction, putting them on does not. The two directions make one part, <part-ref to="lemma:dneg"></part-ref>, which switches shape on the card.'),
+    intro: [
+      { t: T('两句话能互相推出，说的就是同一件事，这叫<wiki-ref to="equivalence"></wiki-ref>。「¬¬下雨」和「下雨」就是一对。', 'Two sentences that each give the other say the same thing: they are in <wiki-ref to="equivalence"></wiki-ref>. “¬¬it rains” and “it rains” are such a pair.') },
+      { t: T('两个方向都证出后，合成一个元件，元件上切换方向。', 'Once both directions are proved, they make one part that switches between the two.') },
+    ],
   },
   {
     id: 'c-arrow',
@@ -191,7 +199,7 @@ export const classical = [
         step: T('箭头变成或者', 'Arrow to or'),
         tests: [{ premises: { p: 'A → B' }, goal: '¬A ∨ B' }],
         cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Alarm', B: 'Up' }],
-        hint: [T('下不下雨，两边都讨论。', 'Rain or no rain: take both sides.')],
+        hint: [T('已知没说下不下雨。', 'The given does not say whether it rains.')],
         solution: proof({ l: ['lem', { A: 'A' }], e: ['orE'], m: ['mp', {}, 'e/left'], i1: ['orI', { other: '¬A', side: 'left' }, 'e/left'], i2: ['orI', { other: 'B', side: 'right' }, 'e/right'] }, ['l>e.ab', 'p>m.imp', 'e#left>m.a', 'm>i1.a', 'i1>e.left', 'e#right>i2.a', 'i2>e.right', 'e>goal'], { premises: ['p'] }),
       }),
       prove({
@@ -199,12 +207,14 @@ export const classical = [
         tests: [{ premises: { p: '¬A ∨ B' }, goal: 'A → B' }],
         cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Alarm', B: 'Up' }],
         brief: T('再从「¬下雨 ∨ 地湿」证明出「下雨 → 地湿」。', 'Now from “¬it rains ∨ the ground is wet”, prove “it rains → the ground is wet”.'),
-        hint: [T('假设「下雨」，再对已知分情况：「¬下雨」那一种撞出矛盾。', 'Assume “it rains”, then take cases on the given: the “¬it rains” case runs into a contradiction.')],
+        hint: [
+          T('先假设「下雨」，再对已知分情况。', 'Assume “it rains” first, then take cases on the given.'),
+          T('「¬下雨」那种情况和假设矛盾；矛盾推出一切。', 'The “¬it rains” case contradicts the assumption, and a contradiction gives anything.'),
+        ],
         solution: proof({ f: ['impI', { A: 'A' }], e: ['orE', {}, 'f'], m: ['mp', {}, 'e/left'], b: ['botE', { C: 'B' }, 'e/left'] }, ['p>e.ab', 'e#left>m.imp', 'f#body>m.a', 'm>b.bot', 'b>e.left', 'e#right>e.right', 'e>f.body', 'f>goal'], { premises: ['p'] }),
       }),
     ],
-    intro: [{ t: T('「下雨，地就湿」和「没下雨，或者地湿」是一回事：只有下雨却不湿的那一行，两句都假。', '“Rain makes the ground wet” and “it does not rain, or the ground is wet” say the same: only the row where it rains and the ground is dry makes either false.') }],
-    after: T('A → B 和 ¬A ∨ B 互相推得出：从左往右要排中律，从右往左不用。两个方向合成元件<part-ref to="lemma:arrow"></part-ref>。', 'A → B and ¬A ∨ B give each other: left to right takes excluded middle, right to left does not. The two directions make the part <part-ref to="lemma:arrow"></part-ref>.'),
+    intro: [{ t: T('「下雨，地就湿」和「没下雨，或者地湿」是一回事：两句都只在下雨而地不湿的那一行为假。', '“If it rains, the ground is wet” and “it does not rain, or the ground is wet” say the same: each is false only on the row where it rains and the ground is dry.') }],
   },
   {
     id: 'c-dist',
@@ -215,7 +225,7 @@ export const classical = [
         step: T('分到右边', 'Out over the right'),
         tests: [{ premises: { p: 'A ∨ (B ∧ C)' }, goal: '(A ∨ B) ∧ (A ∨ C)' }],
         cases: THREE,
-        hint: [T('对已知分情况：每种情况里各拼一个「并且」。', 'Take cases on the given: in each case, join an “and”.')],
+        hint: [T('已知是一句「或者」。', 'The given is an “or”.')],
         solution: proof({
           e: ['orE'],
           i1: ['orI', { other: 'B', side: 'right' }, 'e/left'], i2: ['orI', { other: 'C', side: 'right' }, 'e/left'], c1: ['andI', {}, 'e/left'],
@@ -227,7 +237,10 @@ export const classical = [
         tests: [{ premises: { p: '(A ∨ B) ∧ (A ∨ C)' }, goal: 'A ∨ (B ∧ C)' }],
         cases: THREE,
         brief: T('再从「(下雨 ∨ 刮风) ∧ (下雨 ∨ 地湿)」证明出「下雨 ∨ (刮风 ∧ 地湿)」。', 'Now from “(it rains ∨ it is windy) ∧ (it rains ∨ the ground is wet)”, prove “it rains ∨ (it is windy ∧ the ground is wet)”.'),
-        hint: [T('拆开「并且」，对两句「或者」先后分情况：只有两句都不是「下雨」的那一边，才要拼出「刮风 ∧ 地湿」。', 'Split the “and”, then take cases on the two “or”s in turn: only when neither gives “it rains” must you join “it is windy ∧ the ground is wet”.')],
+        hint: [
+          T('拆开「并且」，得到两句「或者」。', 'Split the “and” into its two “or”s.'),
+          T('两句「或者」先后分情况。只有两句都不给出「下雨」时，才要「刮风 ∧ 地湿」。', 'Take cases on the two “or”s in turn. Only when neither gives “it rains” is “it is windy ∧ the ground is wet” needed.'),
+        ],
         solution: proof({
           s: ['andE'], o1: ['orE'],
           i1: ['orI', { other: 'B ∧ C', side: 'right' }, 'o1/left'],
@@ -263,8 +276,7 @@ export const classical = [
         }, ['p>s.ab', 's#left>o1.ab', 's#right>o2.ab', 'o1#left>c.a', 'o2#left>c.b', 'c>i1.a', 'i1>o2.left', 'o2#right>i2.a', 'i2>o2.right', 'o2>o1.left', 'o1#right>i3.a', 'i3>o1.right', 'o1>goal'], { premises: ['p'] }),
       }),
     ],
-    intro: [{ t: T('「下雨，或者又刮风又地湿」和「下雨或刮风，并且下雨或地湿」是一回事：「或者」能分配到「并且」上，就像乘法分配到加法上。「并且」在右边、在左边各一对，四个方向，四段证明。', '“It rains, or it is windy and wet” and “it rains or is windy, and it rains or is wet” say the same: “or” distributes over “and”, as multiplication over addition. With the “and” on the right and on the left, that is two pairs, four directions, four proofs.') }],
-    after: T('四个方向都不用反证法。有了<part-ref to="lemma:dist"></part-ref>，「或者」就能一层层压到「并且」底下去；代价是句子变长：一句分到两边，就抄了两遍。', 'None of the four directions needs proof by contradiction. With <part-ref to="lemma:dist"></part-ref>, “or” can be pushed under “and” level by level; the price is length: a sentence distributed over two sides is written out twice.'),
+    intro: [{ t: T('「下雨，或者又刮风又地湿」和「下雨或刮风，并且下雨或地湿」是一回事：「或者」分配到「并且」上，就像乘法分配到加法上。「并且」在右边、在左边各一对，共四个方向。', '“It rains, or it is windy and wet” and “it rains or is windy, and it rains or is wet” say the same: “or” distributes over “and”, as multiplication does over addition. With the “and” on the right and on the left, that makes two pairs, four directions.') }],
   },
   {
     id: 'demorgan',
@@ -275,7 +287,10 @@ export const classical = [
         step: T('并非或者', 'Not either'),
         tests: [{ premises: { p: '¬(A ∨ B)' }, goal: '¬A ∧ ¬B' }],
         cases: DAYS,
-        hint: [T('「¬今天是周六」怎么来？假设「今天是周六」，看它怎样和已知撞出矛盾。「¬今天是周日」同理。', 'Where does “¬today is Saturday” come from? Assume “today is Saturday” and see how it clashes with the given. “¬today is Sunday” the same way.')],
+        hint: [
+          T('要证的两半各是一个否定。', 'Each half of the goal is a negation.'),
+          T('假设「今天是周六」，看它怎样和已知矛盾。', 'Assume “today is Saturday” and see how it contradicts the given.'),
+        ],
         solution: proof({
           na: ['impI', { A: 'A' }],
           i: ['orI', { other: 'B', side: 'right' }, 'na'],
@@ -291,7 +306,10 @@ export const classical = [
         tests: [{ premises: { p: '¬A ∧ ¬B' }, goal: '¬(A ∨ B)' }],
         cases: DAYS,
         brief: T('再从「¬今天是周六 ∧ ¬今天是周日」，证明出「¬(今天是周六 ∨ 今天是周日)」。', 'Now from “¬today is Saturday ∧ ¬today is Sunday”, prove “¬(today is Saturday ∨ today is Sunday)”.'),
-        hint: [T('要证的是一个否定：假设「今天是周六 ∨ 今天是周日」，两种情况各撞出矛盾。', 'The goal is a negation: assume “today is Saturday ∨ today is Sunday” and get a contradiction in each case.')],
+        hint: [
+          T('要证的是一个否定。', 'The goal is a negation.'),
+          T('假设「今天是周六 ∨ 今天是周日」，两种情况各推出矛盾。', 'Assume “today is Saturday ∨ today is Sunday” and get a contradiction in each case.'),
+        ],
         solution: proof({ f: ['impI', { A: 'A ∨ B' }], e: ['andE'], o: ['orE', {}, 'f'], m1: ['mp', {}, 'o/left'], m2: ['mp', {}, 'o/right'] }, ['p>e.ab', 'f#body>o.ab', 'e#left>m1.imp', 'o#left>m1.a', 'm1>o.left', 'e#right>m2.imp', 'o#right>m2.a', 'm2>o.right', 'o>f.body', 'f>goal'], { premises: ['p'] }),
       }),
       prove({
@@ -299,7 +317,10 @@ export const classical = [
         tests: [{ premises: { p: '¬A ∨ ¬B' }, goal: '¬(A ∧ B)' }],
         cases: DAYS,
         brief: T('再从「¬今天是周六 ∨ ¬今天是周日」，证明出「¬(今天是周六 ∧ 今天是周日)」。', 'Now from “¬today is Saturday ∨ ¬today is Sunday”, prove “¬(today is Saturday ∧ today is Sunday)”.'),
-        hint: [T('假设「今天是周六 ∧ 今天是周日」，拆开它；已知的两种情况，各拿一半撞出矛盾。', 'Assume “today is Saturday ∧ today is Sunday” and split it; in each case of the given, one half runs into a contradiction.')],
+        hint: [
+          T('要证的又是一个否定。', 'The goal is again a negation.'),
+          T('假设「今天是周六 ∧ 今天是周日」，再对已知分情况。', 'Assume “today is Saturday ∧ today is Sunday”, then take cases on the given.'),
+        ],
         solution: proof({ f: ['impI', { A: 'A ∧ B' }], e: ['andE', {}, 'f'], o: ['orE', {}, 'f'], m1: ['mp', {}, 'o/left'], m2: ['mp', {}, 'o/right'] }, ['f#body>e.ab', 'p>o.ab', 'o#left>m1.imp', 'e#left>m1.a', 'm1>o.left', 'o#right>m2.imp', 'e#right>m2.a', 'm2>o.right', 'o>f.body', 'f>goal'], { premises: ['p'] }),
       }),
       prove({
@@ -308,17 +329,15 @@ export const classical = [
         cases: DAYS,
         brief: T('最后从「¬(今天是周六 ∧ 今天是周日)」，证明出「¬今天是周六 ∨ ¬今天是周日」。', 'Last, from “¬(today is Saturday ∧ today is Sunday)”, prove “¬today is Saturday ∨ ¬today is Sunday”.'),
         hint: [
-          T('已知没说是哪一个不成立。用排中律：今天是周六，或者不是。', 'The given does not say which one fails. Use excluded middle: today is Saturday, or it is not.'),
-          T('是周六的那一边：再假设今天是周日，拼起来就撞上已知，所以「¬今天是周日」。', 'On the Saturday side: assume it is also Sunday; joined, they run into the given, so “¬today is Sunday”.'),
+          T('已知没说哪一个不成立。', 'The given does not say which one fails.'),
+          T('今天是周六，或者不是：两边都讨论。', 'Today is Saturday, or it is not: take both sides.'),
         ],
         solution: proof({ l: ['lem', { A: 'A' }], e: ['orE'], g: ['impI', { A: 'B' }, 'e/left'], c: ['andI', {}, 'g'], m: ['mp', {}, 'g'], i1: ['orI', { other: '¬A', side: 'left' }, 'e/left'], i2: ['orI', { other: '¬B', side: 'right' }, 'e/right'] }, ['l>e.ab', 'e#left>c.a', 'g#body>c.b', 'p>m.imp', 'c>m.a', 'm>g.body', 'g>i1.a', 'i1>e.left', 'e#right>i2.a', 'i2>e.right', 'e>goal'], { premises: ['p'] }),
       }),
     ],
     intro: [
-      { t: T('「既不是周六也不是周日」和「并非（周六或者周日）」说的是一回事；「并非（周六并且周日）」和「不是周六，或者不是周日」也是。否定穿过「或者」变成「并且」，穿过「并且」变成「或者」：这是<wiki-ref to="demorgan"></wiki-ref>。', '“Neither Saturday nor Sunday” and “not (Saturday or Sunday)” say the same thing; so do “not (Saturday and Sunday)” and “not Saturday, or not Sunday”. A negation passing through “or” becomes “and”, through “and” becomes “or”: these are <wiki-ref to="demorgan"></wiki-ref>.') },
-      { t: T('两对说法，每对两个方向，四段任务各证一个；四个方向都证出来以后，它们合成一块元件<part-ref to="lemma:dm"></part-ref>，元件上切换四种形状。', 'Two pairs of sayings, each pair two ways round: four tasks, one direction each. Once all four are proved they make one part, <part-ref to="lemma:dm"></part-ref>, which switches between the four shapes.') },
+      { t: T('「既不是周六也不是周日」和「并非（周六或者周日）」是一回事；「并非（周六并且周日）」和「不是周六，或者不是周日」也是。这是<wiki-ref to="demorgan"></wiki-ref>。', '“Neither Saturday nor Sunday” and “not (Saturday or Sunday)” say the same; so do “not (Saturday and Sunday)” and “not Saturday, or not Sunday”. These are <wiki-ref to="demorgan"></wiki-ref>.') },
     ],
-    after: T('四个方向里，只有「并非两个都」要靠排中律：它没说是哪一个，经典逻辑却敢说「总有一个」。否定推进括号，「或者」「并且」互换：有了<part-ref to="lemma:dm"></part-ref>，否定能一层层往里推。', 'Of the four directions, only “not both” rests on excluded middle: it does not say which, yet classical logic dares to say “one of them”. A negation pushed inside the brackets swaps “or” and “and”: with <part-ref to="lemma:dm"></part-ref>, negations can be pushed in level by level.'),
   },
   {
     id: 'q-dm',
@@ -328,7 +347,10 @@ export const classical = [
         step: T('一个都没有', 'Not a single one'),
         tests: [{ premises: { p: '¬∃x. P(x)' }, goal: '∀x. ¬P(x)' }],
         cases: DRINK,
-        hint: [T('任取一个 a，假设它在喝酒：它就是一个例子，和已知撞出矛盾。', 'Take any a and suppose it is drinking: then it is an example, and it runs into the given.')],
+        hint: [
+          T('任取一个 a，要证的是「¬a在喝酒」。', 'Take any a; the goal is “¬a is drinking”.'),
+          T('假设 a 在喝酒，它就是已知所否认的那种例子。', 'Suppose a is drinking: then a is just the kind of example the given denies.'),
+        ],
         solution: proof({ g: ['allI', { x: 'a' }], f: ['impI', { A: 'P(a)' }, 'g'], i: ['exI', {}, 'f'], m: ['mp', {}, 'f'] }, ['f#body>i.a', 'p>m.imp', 'i>m.a', 'm>f.body', 'f>g.body', 'g>goal'], { premises: ['p'] }),
       }),
       prove({
@@ -336,7 +358,10 @@ export const classical = [
         tests: [{ premises: { p: '∀x. ¬P(x)' }, goal: '¬∃x. P(x)' }],
         cases: DRINK,
         brief: T('再从「∀x. ¬x在喝酒」证明出「¬∃x. x在喝酒」。', 'Now from “∀x. ¬x is drinking”, prove “¬∃x. x is drinking”.'),
-        hint: [T('假设有人在喝酒，把他拿出来，再从已知里取他。', 'Suppose someone is drinking, take them out, and take them from the given too.')],
+        hint: [
+          T('要证的是一个否定：假设有人在喝酒。', 'The goal is a negation: suppose someone is drinking.'),
+          T('把这个人取出来，已知对他也成立。', 'Take that person out; the given holds of them too.'),
+        ],
         solution: proof({ f: ['impI', { A: '∃x. P(x)' }], e: ['exE', { x: 'a' }, 'f'], a: ['allE', { t: 'a' }, 'e'], m: ['mp', {}, 'e'] }, ['f#body>e.ex', 'p>a.all', 'a>m.imp', 'e#body>m.a', 'm>e.body', 'e>f.body', 'f>goal'], { premises: ['p'] }),
       }),
       prove({
@@ -344,7 +369,10 @@ export const classical = [
         tests: [{ premises: { p: '∃x. ¬P(x)' }, goal: '¬∀x. P(x)' }],
         cases: DRINK,
         brief: T('再从「∃x. ¬x在喝酒」（有人没在喝酒），证明出「¬∀x. x在喝酒」（并非人人都在喝酒）。', 'Now from “∃x. ¬x is drinking” (someone is not drinking), prove “¬∀x. x is drinking” (not everyone is drinking).'),
-        hint: [T('假设人人都在喝酒，把那个没喝的人拿出来，他也在「人人」里。', 'Suppose everyone is drinking; take out the one who is not, who is among “everyone” too.')],
+        hint: [
+          T('假设人人都在喝酒。', 'Suppose everyone is drinking.'),
+          T('把那个没喝的人取出来：他也在「人人」之中。', 'Take out the one who is not drinking: they are among “everyone” too.'),
+        ],
         solution: proof({ f: ['impI', { A: '∀x. P(x)' }], e: ['exE', { x: 'a' }, 'f'], a: ['allE', { t: 'a' }, 'e'], m: ['mp', {}, 'e'] }, ['p>e.ex', 'f#body>a.all', 'e#body>m.imp', 'a>m.a', 'm>e.body', 'e>f.body', 'f>goal'], { premises: ['p'] }),
       }),
       prove({
@@ -354,8 +382,8 @@ export const classical = [
         cases: DRINK,
         brief: T('最后从「¬∀x. x在喝酒」（并非人人都在喝酒），证明出「∃x. ¬x在喝酒」（有人没在喝酒）。', 'Last, from “¬∀x. x is drinking” (not everyone is drinking), prove “∃x. ¬x is drinking” (someone is not drinking).'),
         hint: [
-          T('已知里没有一个具体的人可以拿来举例。反过来假设「¬∃x. ¬x在喝酒」：没有人不喝。', 'The given names nobody to use as an example. Suppose the opposite, “¬∃x. ¬x is drinking”: nobody fails to drink.'),
-          T('在这个假设下，任取一个 a：要是他没喝，他就是一个「没喝的人」，撞上假设。所以他喝了（反证法），人人都喝，又撞上已知。', 'Under that, take any a: if they were not drinking, they would be someone not drinking, against the supposition. So they drink (by contradiction), everyone drinks, and that runs into the given.'),
+          T('已知里没有一个具体的人可以举出来。试试反证。', 'The given names nobody to point to. Try proof by contradiction.'),
+          T('假设「¬∃x. ¬x在喝酒」，再看能不能证出人人都在喝酒。', 'Assume “¬∃x. ¬x is drinking”, and see whether everyone drinking follows.'),
         ],
         solution: proof({
           k: ['impI', { A: '¬∃x. ¬P(x)' }],
@@ -370,10 +398,9 @@ export const classical = [
       }),
     ],
     intro: [
-      { t: T('「没有人在喝酒」和「人人都没在喝酒」说的是一回事：否定穿过量词，∃ 就变成 ∀。∃ 像一个很长的「或者」，∀ 像一个很长的「并且」，所以这还是德摩根律，只是穿过的是量词。', '“Nobody is drinking” and “everyone is not drinking” say the same: negation passes through the quantifier and ∃ turns into ∀. ∃ is like a long “or” and ∀ a long “and”, so this is De Morgan’s law again, passing through a quantifier.') },
-      { t: T('同样是两对说法、四个方向。四个方向都证出来，<part-ref to="lemma:dm"></part-ref>上就多四个形状。', 'Again two pairs, four directions. Once all four are proved, <part-ref to="lemma:dm"></part-ref> gains four shapes.') },
+      { t: T('「没有人在喝酒」和「人人都没在喝酒」是一回事。∃ 像一个很长的「或者」，∀ 像一个很长的「并且」，所以<wiki-ref to="demorgan"></wiki-ref>对量词也成立。', '“Nobody is drinking” and “everyone is not drinking” say the same. ∃ is like a long “or” and ∀ a long “and”, so <wiki-ref to="demorgan"></wiki-ref> hold for quantifiers too.') },
+      { t: T('四个方向都证出后，<part-ref to="lemma:dm"></part-ref>多出四个形状。', 'Once all four directions are proved, <part-ref to="lemma:dm"></part-ref> gains four shapes.') },
     ],
-    after: T("前三个方向不需要经典规则；由「并非人人」推出「有人不」则需要经典推理。至此，<part-ref to=\"lemma:dm\"></part-ref>包含命题与量词德摩根律的八个方向。", "The first three directions need no classical rule; inferring “someone does not” from “not everyone” requires classical reasoning. <part-ref to=\"lemma:dm\"></part-ref> now contains eight propositional and quantified De Morgan directions."),
   },
   // ---------- topic: knights and knaves ----------
   {
@@ -383,27 +410,26 @@ export const classical = [
     tasks: [
       translate({
         target: 'KA ↔ ¬KA',
-        brief: T('一个岛民 a 说：「我是无赖。」把这件事翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'An islander a says: “I am a knave.” Translate this into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
-        hint: [T('「我是无赖」就是「¬a 是骑士」；「a 说」就是「a 是骑士」和他的话等价。', '“I am a knave” is “¬a is a knight”; “a says” is “a is a knight” equivalent to what he says.')],
+        brief: T('岛民 a 说：「我是无赖。」把这句话接成电路：a 的话和他的身份相符的那几行，输出真。', 'An islander a says: “I am a knave.” Wire it as a circuit: it outputs true on the rows where what a says fits what a is.'),
+        hint: [T('「我是无赖」就是「¬a 是骑士」。', '“I am a knave” is “¬a is a knight”.')],
         solution: board('KA ↔ ¬KA', { n: 'gNot', e: 'gIff' }, ['KA>n.a', 'KA>e.a', 'n>e.b', 'e>out']),
-        after: T("「a 是骑士 ↔ ¬a 是骑士」在两种身份下都为假，因此真值表给出反例；这说明这些条件不能共同满足。", "“a is a knight ↔ ¬a is a knight” is false under both identity assignments, so the truth table shows that these conditions cannot be satisfied together."),
       }),
       prove({
         tests: [{ premises: { p: 'A ↔ ¬A' }, goal: '⊥' }],
         cases: [{ A: 'KA' }, { A: 'KC' }],
-        intro: [{ t: T('证明「我是无赖」这话不可能有人说：从它的翻译推出矛盾。「a 是骑士 ↔ ¬a 是骑士」就是「(a 是骑士 → ¬a 是骑士) ∧ (¬a 是骑士 → a 是骑士)」。', 'Prove nobody can say “I am a knave”: get a contradiction from its translation. “a is a knight ↔ ¬a is a knight” is “(a is a knight → ¬a is a knight) ∧ (¬a is a knight → a is a knight)”.') }],
+        intro: [{ t: T('证明谁也说不出「我是无赖」：从它的翻译推出矛盾。', 'Prove that nobody can say “I am a knave”: derive a contradiction from its translation.') }],
         hint: [
-          T('消去 ∧ 也能拆 ↔：拆出「a 是骑士 → ¬a 是骑士」和「¬a 是骑士 → a 是骑士」。', '∧ elim splits a ↔ too: into “a is a knight → ¬a is a knight” and “¬a is a knight → a is a knight”.'),
-          T('「¬a 是骑士」就是「a 是骑士 → ⊥」，第一句里的「a 是骑士」说了两遍。', '“¬a is a knight” is “a is a knight → ⊥”, so the first one states “a is a knight” twice.'),
+          T('先把 ↔ 拆成两个方向。', 'First split the ↔ into its two directions.'),
+          T('「¬a 是骑士」就是「a 是骑士 → ⊥」。', '“¬a is a knight” is “a is a knight → ⊥”.'),
         ],
         solution: k1,
       }),
     ],
     intro: [
       { t: T('岛上的人要么是<b>骑士</b>，永远说真话；要么是<b>无赖</b>，永远说假话。', 'Everyone on the island is a <b>knight</b>, who always tells the truth, or a <b>knave</b>, who always lies.') },
-      { t: T('一个岛民说了一句话，「他是骑士」就和他说的话是<wiki-ref to="equivalence"></wiki-ref>：<level-ref to="e-says"></level-ref>里翻译过，写成 <b>↔</b>；证明器里怎样拆开它，<level-ref to="iffUse"></level-ref>里做过。', 'If an islander says something, “he is a knight” is in <wiki-ref to="equivalence"></wiki-ref> with what he says: you translated that in <level-ref to="e-says"></level-ref>, written <b>↔</b>; how the prover takes it apart, you did in <level-ref to="iffUse"></level-ref>.') },
+      { t: T('岛民说一句话，「他是骑士」就和他的话<wiki-ref to="equivalence"></wiki-ref>，写成 ↔。翻译见<level-ref to="e-says"></level-ref>，证明器上拆开 ↔ 见<level-ref to="iffUse"></level-ref>。', 'When an islander says something, “he is a knight” is in <wiki-ref to="equivalence"></wiki-ref> with what he says, written ↔. You translated this in <level-ref to="e-says"></level-ref>, and took ↔ apart on the prover in <level-ref to="iffUse"></level-ref>.') },
     ],
-    after: T('拆开等价，合并重复的条件，再两次套用撞出矛盾。谁都说不出「我是无赖」：骑士说不出假话，无赖说不出真话。这就是<wiki-ref to="liar"></wiki-ref>的岛上版本，现在是元件<part-ref to="lemma:liar"></part-ref>。', 'Split the equivalence, merge the repeated condition, then apply twice into a contradiction. Nobody can say “I am a knave”: a knight cannot say something false, and a knave cannot say something true. It is the island’s version of the <wiki-ref to="liar"></wiki-ref>, now the part <part-ref to="lemma:liar"></part-ref>.'),
+    after: T('这是<wiki-ref to="liar"></wiki-ref>在岛上的样子。', 'This is the island’s form of the <wiki-ref to="liar"></wiki-ref>.'),
   },
   {
     id: 'kk-two',
@@ -411,18 +437,17 @@ export const classical = [
     tasks: [
       translate({
         target: 'KA ↔ ¬KA ∧ ¬KB',
-        brief: T('岛上有 a、b 两个人，a 说：「我们俩都是无赖。」把这件事翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'Two people, a and b; a says: “We are both knaves.” Translate this into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
-        hint: [T('「我们俩都是无赖」是「¬a 是骑士 ∧ ¬b 是骑士」；「a 说」是「a 是骑士」和它等价。', '“We are both knaves” is “¬a is a knight ∧ ¬b is a knight”; “a says” makes “a is a knight” equivalent to it.')],
+        brief: T('岛上有 a、b 两人，a 说：「我们俩都是无赖。」把这句话接成电路：a 的话和他的身份相符的那几行，输出真。', 'Two islanders, a and b; a says: “We are both knaves.” Wire it as a circuit: it outputs true on the rows where what a says fits what a is.'),
+        hint: [T('「我们俩都是无赖」就是「¬a 是骑士 ∧ ¬b 是骑士」。', '“We are both knaves” is “¬a is a knight ∧ ¬b is a knight”.')],
         solution: board('KA ↔ ¬KA ∧ ¬KB', { na: 'gNot', nb: 'gNot', both: 'gAnd', e: 'gIff' }, ['KA>na.a', 'KB>nb.a', 'na>both.a', 'nb>both.b', 'KA>e.a', 'both>e.b', 'e>out']),
-        after: T('四行里只有一行为真：a 是无赖，b 是骑士。真值表给出了答案，可它是把四种情况挨个试出来的；接下来，证明器要从 a 的话一步步推出这个答案。', 'Only one of the four rows is true: a is a knave and b a knight. The truth table found the answer by trying all four cases; next, the prover must reason its way from what a says to that answer.'),
       }),
       prove({
         tests: [{ premises: { p: 'A ↔ ¬A ∧ ¬B' }, goal: '¬A ∧ B' }],
         cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
-        brief: T('第一个岛民说：「我们俩都是无赖。」已知「a 是骑士 ↔ ¬a 是骑士 ∧ ¬b 是骑士」，证明出「¬a 是骑士 ∧ b 是骑士」。', 'The first islander says: “We are both knaves.” Given “a is a knight ↔ ¬a is a knight ∧ ¬b is a knight”, prove “¬a is a knight ∧ b is a knight”.'),
+        brief: T('已知「a 是骑士 ↔ ¬a 是骑士 ∧ ¬b 是骑士」，证明出「¬a 是骑士 ∧ b 是骑士」。', 'Given “a is a knight ↔ ¬a is a knight ∧ ¬b is a knight”, prove “¬a is a knight ∧ b is a knight”.'),
         hint: [
-          T('「¬a 是骑士」：假设 a 是骑士，他的话就成了真的，可话里说他是无赖。', '“¬a is a knight”: suppose a is a knight; then what he says is true, and it says he is a knave.'),
-          T('有了「¬a 是骑士」，接上「他的话 → a 是骑士」，就知道他的话是假的。再用反证法：假设「¬b 是骑士」，他的话就成了真的。', 'With “¬a is a knight”, joined after “his statement → a is a knight”, his statement is false. Then by contradiction: assume “¬b is a knight”, and his statement comes true.'),
+          T('先证「¬a 是骑士」：假设 a 是骑士，看他的话说了什么。', 'First prove “¬a is a knight”: suppose a is a knight, and look at what he says.'),
+          T('a 是无赖，他的话就是假的。b 是骑士这一半，试试反证。', 'If a is a knave, his statement is false. For the half about b, try proof by contradiction.'),
         ],
         solution: proof({
           e: ['andE'],
@@ -439,8 +464,7 @@ export const classical = [
         }, ['p>e.ab', 'e#left>m1.imp', 'na#body>m1.a', 'm1>s.ab', 's#left>m2.imp', 'na#body>m2.a', 'm2>na.body', 'e#right>t.p0', 'na>t.p1', 'na>c.a', 'nnb#body>c.b', 't>m3.imp', 'c>m3.a', 'm3>nnb.body', 'nnb>b.nna', 'na>both.a', 'b>both.b', 'both>goal'], { premises: ['p'] }),
       }),
     ],
-    intro: [{ t: T('第二个岛民什么也没说。可第一个人的话里提到了他，就够推出他是什么人了。', 'The second islander says nothing. But the first one’s statement mentions him, and that is enough to work out what he is.') }],
-    after: T('第一个人不能是骑士（那他就说了假话），所以是无赖；无赖的话是假的，所以「两个都是无赖」不成立：第二个人是骑士。', 'The first cannot be a knight (he would have said something false), so he is a knave; a knave’s words are false, so “both are knaves” fails: the second is a knight.'),
+    intro: [{ t: T('b 什么也没说，可 a 的话提到了他。', 'b says nothing, but what a says mentions him.') }],
   },
   {
     id: 'kk-three',
@@ -448,18 +472,17 @@ export const classical = [
     tasks: [
       translate({
         target: 'KA ↔ ¬KA ∨ KB',
-        brief: T('岛上有 a、b 两个人，a 说：「我是无赖，或者 b 是骑士。」把这件事翻译成逻辑语言，接成电路：哪一行 a 的话和他的身份对得上，哪一行就输出真。', 'Two people, a and b; a says: “I am a knave, or b is a knight.” Translate this into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is.'),
-        hint: [T('a 的话是「¬a 是骑士 ∨ b 是骑士」；「a 说」是「a 是骑士」和它等价。', 'What a says is “¬a is a knight ∨ b is a knight”; “a says” makes “a is a knight” equivalent to it.')],
+        brief: T('岛上有 a、b 两人，a 说：「我是无赖，或者 b 是骑士。」把这句话接成电路：a 的话和他的身份相符的那几行，输出真。', 'Two islanders, a and b; a says: “I am a knave, or b is a knight.” Wire it as a circuit: it outputs true on the rows where what a says fits what a is.'),
+        hint: [T('a 的话是「¬a 是骑士 ∨ b 是骑士」。', 'What a says is “¬a is a knight ∨ b is a knight”.')],
         solution: board('KA ↔ ¬KA ∨ KB', { na: 'gNot', o: 'gOr', e: 'gIff' }, ['KA>na.a', 'na>o.a', 'KB>o.b', 'KA>e.a', 'o>e.b', 'e>out']),
-        after: T('只有一行为真：两个人都是骑士。表上看得出答案；接下来，证明器要说清它为什么非得如此。', 'Only one row is true: both are knights. The table shows the answer; next, the prover must show why it has to be so.'),
       }),
       prove({
         tests: [{ premises: { p: 'A ↔ ¬A ∨ B' }, goal: 'A ∧ B' }],
         cases: [{ A: 'KA', B: 'KB' }, { A: 'KC', B: 'KD' }],
-        brief: T('第一个岛民说：「我是无赖，或者另一个人是骑士。」两个人各是什么？已知「a 是骑士 ↔ ¬a 是骑士 ∨ b 是骑士」，证明出「a 是骑士 ∧ b 是骑士」。', 'The first islander says: “I am a knave, or the other one is a knight.” What is each of them? Given “a is a knight ↔ ¬a is a knight ∨ b is a knight”, prove “a is a knight ∧ b is a knight”.'),
+        brief: T('已知「a 是骑士 ↔ ¬a 是骑士 ∨ b 是骑士」，证明出「a 是骑士 ∧ b 是骑士」。', 'Given “a is a knight ↔ ¬a is a knight ∨ b is a knight”, prove “a is a knight ∧ b is a knight”.'),
         hint: [
-          T('a 是不是骑士，两边都讨论：排中律加分情况。是骑士，就是了；是无赖，他的话就成了真的。', 'Whether a is a knight, take both sides: Excluded middle and cases. A knight, done; a knave, and his statement comes true.'),
-          T('有了「a 是骑士」，他的话就是真的；再对他的话分情况，「我是无赖」那一半会撞出矛盾。', 'With “a is a knight”, his statement is true; take cases on it, and the “I am a knave” half runs into a contradiction.'),
+          T('先证「a 是骑士」：他是不是骑士，两边都讨论。', 'First prove “a is a knight”: take both sides of whether he is.'),
+          T('a 是骑士，他的话就是真的；再对他的话分情况。', 'If a is a knight, his statement is true; then take cases on it.'),
         ],
         solution: proof({
           e: ['andE'],
@@ -475,8 +498,6 @@ export const classical = [
         }, ['p>e.ab', 'l>o.ab', 'o#left>o.left', 'o#right>i.a', 'e#right>m.imp', 'i>m.a', 'm>o.right', 'e#left>says.imp', 'o>says.a', 'says>c.ab', 'c#left>m2.imp', 'o>m2.a', 'm2>no.bot', 'no>c.left', 'c#right>c.right', 'o>both.a', 'c>both.b', 'both>goal'], { premises: ['p'] }),
       }),
     ],
-    intro: [{ t: T('这一次，先自己想清楚答案，再把它证出来。', 'This time, work out the answer yourself first, then prove it.') }],
-    after: T('两个都是骑士。如果第一个人是无赖，他的话就成了真话，无赖说不出真话；所以他是骑士，他的话是真的，而「我是无赖」那一半是假的，只能是另一个人是骑士。', 'Both are knights. If the first were a knave his statement would be true, and a knave cannot say something true; so he is a knight, his statement is true, and since “I am a knave” is false, the other must be a knight.'),
   },
   // ---------- challenges ----------
   {
@@ -486,13 +507,13 @@ export const classical = [
     tests: [{ goal: '((A → B) → A) → A' }],
     cases: [{ A: 'Rain', B: 'Wet' }, { A: 'Exam', B: 'Pass' }],
     hint: [
-      T('框里对「下雨 ∨ ¬下雨」分情况。下雨的那一边，什么都不用做。', 'Inside the box, take cases on “it rains ∨ ¬it rains”. On the raining side there is nothing to do.'),
-      T('不下雨的那一边：「¬下雨」能给出「下雨 → 地湿」（假设下雨，就矛盾了，矛盾推出一切）。', 'On the other side: “¬it rains” gives “it rains → the ground is wet” (assume it rains: contradiction, and from that anything).'),
+      T('下不下雨，两边都讨论。', 'Rain or no rain: take both sides.'),
+      T('不下雨的那一边，要设法得到「下雨 → 地湿」。', 'On the side where it does not rain, find a way to get “it rains → the ground is wet”.'),
     ],
-    intro: [{ t: T('一句只有 → 的话，证明器没有反证法时证不出来，有了就证得出。它看着古怪，真值表上每一行却都真。', 'A sentence with nothing but →, unprovable by the prover without proof by contradiction and provable with it. It looks strange, yet it is true on every row.') }],
+    intro: [{ t: T('这句话只有 →，看着古怪，真值表上每一行却都真。', 'This sentence has nothing but →. It looks strange, yet it is true on every row.') }],
     solution: proof({ f: ['impI', { A: '(A → B) → A' }], l: ['lem', { A: 'A' }, 'f'], e: ['orE', {}, 'f'], g: ['impI', { A: 'A' }, 'e/right'], m: ['mp', {}, 'g'], b: ['botE', { C: 'B' }, 'g'], m2: ['mp', {}, 'e/right'] }, ['l>e.ab', 'e#left>e.left', 'e#right>m.imp', 'g#body>m.a', 'm>b.bot', 'b>g.body', 'f#body>m2.imp', 'g>m2.a', 'm2>e.right', 'e>f.body', 'f>goal']),
     naive: proof({ f: ['impI', { A: '(A → B) → A' }] }, ['f#body>f.body', 'f>goal']),
-    after: T('排中律、分情况、矛盾推出一切，三样一起用。古典逻辑里最出名的怪句子之一，就这样证完了。', 'Excluded middle, cases and ex falso together. One of classical logic’s most famous odd sentences, proved.'),
+    after: T('这是皮尔士律。在只有 → 的语言里，加上它就得到经典逻辑。', 'This is Peirce’s law. Added to a language of → alone, it gives classical logic.'),
   },
   {
     id: 'drinker',
@@ -501,7 +522,10 @@ export const classical = [
     tests: [{ goal: '∃x. D(x) → ∀y. D(y)' }],
     cases: [{ D: 'Drinks' }, { D: 'Sings' }],
     brief: T('酒吧里至少有一个人。不需要任何已知，证明出「∃x. x在喝酒 → ∀y. y在喝酒」：有这么一个人，只要他喝酒，大家就都在喝。', 'There is at least one person in the pub. Prove “∃x. x is drinking → ∀y. y is drinking” from nothing given: there is someone such that, if they drink, everyone drinks.'),
-    hint: [T('别急着找那个人。先问：是不是大家都在喝？', 'Do not look for that person yet. Ask first: is everyone drinking?')],
+    hint: [
+      T('别急着找那个人。先问：是不是大家都在喝？', 'Do not look for that person yet. Ask first: is everyone drinking?'),
+      T('不是大家都在喝时，<part-ref to="lemma:dm"></part-ref>能给出什么？', 'If not everyone is drinking, what does <part-ref to="lemma:dm"></part-ref> give?'),
+    ],
     solution: proof({
       l: ['lem', { A: '∀y. D(y)' }],
       e: ['orE'],
@@ -518,6 +542,6 @@ export const classical = [
       'e#right>q.p0', 'q>f.ex', 'f#body>m3.imp', 'h2#body>m3.a', 'm3>b.bot', 'b>h2.body', 'h2>i2.a', 'i2>f.body', 'f>e.right', 'e>goal',
     ]),
     naive: proof({ h: ['impI', { A: 'D(a)' }], i: ['exI'] }, ['h#body>h.body', 'h>i.a', 'i>goal']),
-    after: T('大家都在喝，随便哪个人都行；有人没喝，那个人就是：他没喝，「他喝酒就大家都喝」就空着成立了。这句话听着荒唐，却是经典逻辑的定理，靠的是排中律：不知道是哪种情况，两种都讨论。', 'If everyone drinks, anyone will do; if someone does not, that one will: they do not drink, so “if they drink, everyone does” holds emptily. It sounds absurd, yet it is a theorem of classical logic, resting on excluded middle: not knowing which case holds, take both.'),
+    after: T('听着荒唐，却是经典逻辑的定理：证明说有这么一个人，却不指出是谁。', 'It sounds absurd, yet it is a theorem of classical logic: the proof says such a person exists without saying who.'),
   },
 ]
