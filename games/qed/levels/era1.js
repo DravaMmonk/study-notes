@@ -60,7 +60,7 @@ export const era1 = [
       },
     ],
     intro: [
-      { t: T("新元件<part-ref to=\"part:mp\"></part-ref>是证明核的第一条规则：一个输入接 A → B，另一个接 A，输出 B。", "The new part <part-ref to=\"part:mp\"></part-ref> is the kernel’s first rule: one input takes A → B, the other A, and it outputs B.") },
+      { t: T("新元件<part-ref to=\"part:mp\"></part-ref>是一条证明规则：一个输入接 A → B，另一个接 A，输出 B。", "The new part <part-ref to=\"part:mp\"></part-ref> is a proof rule: one input takes A → B, the other A, and it outputs B.") },
       { t: T("元件从上方的元件栏放到板上。输入对不上时，元件会显示它要的和收到的。", "Parts go onto the board from the tray above. When an input does not fit, the part shows what it wants and what it got.") },
     ],
     after: T("这条规则在逻辑学里叫<b>肯定前件式</b>（modus ponens）。", "Logicians call this rule <b>modus ponens</b>."),
@@ -99,8 +99,9 @@ export const era1 = [
       },
     ],
     intro: [
-      { t: T('<part-ref to="part:impI"></part-ref>是证明核的第二个元件，专门造「若…则…」。在框上选要假设的话，框左上角的「假设」就给出它；接到右上角「结论」的话，在框外成了「若 假设，则 结论」。', 'The <part-ref to="part:impI"></part-ref> is the kernel’s second part, and it makes “if … then …”s. Choose on the box what to assume, and “Assume” at its top left gives it; whatever reaches “Conclusion” at its top right becomes, outside, “if the assumption, then the conclusion”.') },
-      { t: T('<wiki-ref to="assumption"></wiki-ref>并不断言它成立，只是推理时暂时的出发点。', 'An <wiki-ref to="assumption"></wiki-ref> does not claim to hold: it is only a starting point for the moment.') },
+      { t: T('怎样证明「若 A，则 B」？可以先暂时假设 A，再看能否在这个条件下证明 B。<wiki-ref to="assumption"></wiki-ref>只是推理的出发点，并不表示 A 已经成立。', 'How can we prove “if A, then B”? We can temporarily assume A and prove B under that condition. An <wiki-ref to="assumption"></wiki-ref> is a starting point for reasoning; it does not assert that A already holds.') },
+      { t: T('<part-ref to="part:impI"></part-ref>用一个框表示这段推理。在元件上选择假设 A，框内就可以使用它；将框内证出的 B 接到「结论」，框外便得到 A → B。', 'The <part-ref to="part:impI"></part-ref> represents this reasoning with a box. Choose A as the assumption on the part and it becomes available inside. Connect the B proved inside to “Conclusion”, and the box gives A → B outside.') },
+      { t: T('离开框后，临时假设 A 不再作为已知；框外的结论说明的是：如果 A 成立，那么 B 成立。证明中用到的其他已知仍然保留。', 'Outside the box, the temporary assumption A is no longer a given. The conclusion says that if A holds, B follows; any other givens used in the proof still remain.') },
     ],
   },
   {
@@ -219,7 +220,10 @@ export const era1 = [
         solution: proof({ m1: ['mp'], m2: ['mp'] }, ['q>m1.imp', 'p>m1.a', 'r>m2.imp', 'm1>m2.a', 'm2>goal'], { premises: ['p', 'q', 'r'] }),
       },
     ],
-    intro: [{ t: T("条件命题的后件也可以是条件命题，例如「若今天是周六，则（若下雨，则我休息）」。", "The consequent of a conditional can itself be a conditional, as in “if today is Saturday, then (if it rains, I rest)”.") }],
+    intro: [
+      { t: T('一条条件命题的结论也可以是另一条条件命题。例如，「若今天是周六，则（若下雨，则我休息）」说的是：在今天是周六的条件下，「若下雨，则我休息」成立。', 'The conclusion of a conditional can itself be another conditional. For example, “if today is Saturday, then (if it rains, I rest)” says that the whole statement “if it rains, I rest” holds on the condition that today is Saturday.') },
+      { t: T('括号表明哪些话属于同一层。一次套用得到的结论可以是一整条条件命题；这条命题也能像其他已知一样，作为之后推理的前提。', 'The parentheses show which parts belong together. One use of Apply can produce an entire conditional, which can then serve as a premise in further reasoning, just like a given.') },
+    ],
   },
   // ---- practice with the box ----
   // ---- the parts at work ----
