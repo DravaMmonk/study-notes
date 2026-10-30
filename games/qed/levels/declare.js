@@ -70,19 +70,19 @@ export const declarations = [
     ...IMP,
     tray: ['hyp'],
     intro: [
-      { t: T('到这里为止，我们一直默认证明核认得「若…则…」（→）。其实证明核一开始什么都不认得：引入任何一个新词之前，通常要先为它写一份<wiki-ref to="declaration"></wiki-ref>。', 'So far we have taken it for granted that the kernel knows “if … then …” (→). In fact the kernel starts out knowing nothing: before any new word comes in, it usually has to be given a <wiki-ref to="declaration"></wiki-ref>.') },
-      { t: T('声明不证明什么，只写下一组规则（写作「⟦前提⟧ ⟹ 结论」，<wiki-ref to="rule-arrow"></wiki-ref>），说明含有新词的基本命题（比如「A → B」）怎样由不含这个词的前提造出来（<wiki-ref to="intro-rule"></wiki-ref>），又怎样消解成不含这个词的结论（<wiki-ref to="elim-rule"></wiki-ref>）。', 'A declaration proves nothing. It only writes down a set of rules (written “⟦premises⟧ ⟹ conclusion”, <wiki-ref to="rule-arrow"></wiki-ref>) saying how a basic sentence with the new word in it (such as “A → B”) is made from premises without that word (an <wiki-ref to="intro-rule"></wiki-ref>), and how it is broken down into a conclusion without that word (an <wiki-ref to="elim-rule"></wiki-ref>).') },
-      { t: T('你也许已经注意到：<part-ref to="part:impI"></part-ref>给 B 加上了「A →」，它就是「引入 →」的规则；<part-ref to="part:mp"></part-ref>从「A → B」里去掉了「A →」，它就是「消去 →」的规则。套用还要另一个前提 A，但只要结论里没有了 →，就算消去。', 'You may have noticed it already: the <part-ref to="part:impI"></part-ref> puts “A →” on B, so it is the rule that introduces →; <part-ref to="part:mp"></part-ref> takes “A →” off “A → B”, so it is the rule that eliminates →. Apply needs another premise, A, as well, but once → is gone from the conclusion, that counts as eliminating it.') },
-      { t: T('这一章要用声明的办法，为其余的连接词逐个写下规则。这一关先写下假设框背后的那条引入规则。', 'This chapter writes down the rules of the other connectives one by one, by declaring them. This level starts with the intro rule behind the assumption box.') },
+      { t: T('此前我们一直在用「若…则…」（→）推理，证明核已经认识它。要让证明核认识新的连接词，需要先写一份<wiki-ref to="declaration"></wiki-ref>，说明它的规则。', 'We have been reasoning with “if … then …” (→), which the proof kernel already knows. To give the kernel a new connective, we first write a <wiki-ref to="declaration"></wiki-ref> describing its rules.') },
+      { t: T('一条规则写作「⟦前提⟧ ⟹ 结论」：满足前提，就可以得到结论。<wiki-ref to="rule-arrow"></wiki-ref> ⟹ 连接的是规则的前提和结论；→ 则是命题里的「若…则…」。', 'A rule is written “⟦premises⟧ ⟹ conclusion”: if its premises hold, the conclusion follows. The <wiki-ref to="rule-arrow"></wiki-ref> ⟹ connects the premises and conclusion of a rule; → means “if … then …” within a statement.') },
+      { t: T('<wiki-ref to="intro-rule"></wiki-ref>说明怎样证明带有这个连接词的命题；<wiki-ref to="elim-rule"></wiki-ref>说明怎样使用这样的命题。例如，<part-ref to="part:impI"></part-ref>由假设 A 下对 B 的证明得到 A → B；<part-ref to="part:mp"></part-ref>则由 A → B 和 A 得到 B。', 'An <wiki-ref to="intro-rule"></wiki-ref> says how to prove a statement with a connective; an <wiki-ref to="elim-rule"></wiki-ref> says how to use such a statement. For example, the <part-ref to="part:impI"></part-ref> obtains A → B from a proof of B under the assumption A; <part-ref to="part:mp"></part-ref> obtains B from A → B and A.') },
+      { t: T('先从熟悉的「若…则…」开始，写出假设框对应的引入规则。声明板会根据引入规则生成消去规则。', 'Start with the familiar “if … then …” and write the introduction rule corresponding to the assumption box. The declaration board generates the elimination rule from it.') },
     ],
-    brief: T('「下雨 → 地湿」只在由「下雨」推得出「地湿」时才能引入。请写出它的声明。', '“It rains → the ground is wet” may be introduced only when “the ground is wet” can be derived from “it rains”. Write its declaration.'),
+    brief: T('如果假设「下雨」后能推出「地湿」，就可以引入「下雨 → 地湿」。请写出它的声明。', 'If “the ground is wet” can be proved assuming “it rains”, we can introduce “it rains → the ground is wet”. Write its declaration.'),
     hint: [
-      T('只有一条引入规则，一个前提「地湿」，但它要在「下雨」之下推出。', 'One way, with one premise, “the ground is wet”, to be derived under “it rains”.'),
-      T('把「下雨」接进「地湿」的「它的前提」，再把「地湿」接进引入规则 1。', 'Wire “it rains” into the port “Its premises” of “the ground is wet”, then “the ground is wet” into intro rule 1.'),
+      T('这条引入规则要求在假设「下雨」的条件下推出「地湿」。', 'The introduction rule requires “the ground is wet” to be proved under the assumption “it rains”.'),
+      T('将「下雨」接到「地湿」的「它的前提」输入口，再将「地湿」接到「引入规则 1」。', 'Connect “it rains” to the “Its premises” input of “the ground is wet”, then connect “the ground is wet” to “Intro rule 1”.'),
     ],
     solution: isoBoard(['Rain>Wet', 'Wet>1']),
     naive: isoBoard(['Wet>1']),
-    after: T('这条规则就是「下雨 → 地湿」唯一的、也是全部的引入规则，所以它的<wiki-ref to="elim-rule"></wiki-ref>可以直接由它生成出来。怎样生成，可以到之后的消去规则生成器专题里探索。', 'This rule is the one and only intro rule of “it rains → the ground is wet”, so its <wiki-ref to="elim-rule"></wiki-ref> can be made from it directly. How it is made, the elimination rule generator topic lets you explore later.'),
+    after: T('这份声明只有一条引入规则，证明核可以据此生成对应的<wiki-ref to="elim-rule"></wiki-ref>。', 'This declaration has one introduction rule, from which the kernel can generate the corresponding <wiki-ref to="elim-rule"></wiki-ref>.'),
   }),
   declare({
     // Writing test cases, before writing more declarations: two directions, the declared sentence as the goal (how it
