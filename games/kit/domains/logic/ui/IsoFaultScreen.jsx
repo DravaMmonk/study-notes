@@ -84,7 +84,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   }
   const table = (
     <div className="lg-strip is-tables">
-      <CaseTable cases={cases} words={words} level={level} choices={choices} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
+      <CaseTable phone={phone} cases={cases} words={words} level={level} choices={choices} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )
