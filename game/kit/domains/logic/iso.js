@@ -35,8 +35,8 @@
 // [sentence], goal?: sentence, make: bool (derivable or not), uses?: [sentence] what the way it is made by must take }],
 // play: 'audit' | 'repair' with boards:
 // [{ label?, board }] someone's declarations to find the fault in or to correct, answer: [test] the reference cases
-// for an audit, catches: how many different cases each board must go wrong on (1 unless it says), caseGoal: the goal
-// every case of an audit must have (the player cannot change it), tray: the cards it
+// for an audit, slots: how many cases are set out to fill in, caseGoal, caseMake: the
+// goal and the expectation every case of an audit has (the player cannot change them), tray: the cards it
 // offers (['hyp'] unless it says: 'hyp', 'thing', 'none'), ways: the rules the declaration must have, when the
 // situations alone cannot tell (a way's assumptions in order, [[sentence]]), take: the rule that takes it apart, when
 // it is not the plain cases (a family indexed by things, as =): { premises: [text], conclusion: text } in metavariables
@@ -291,19 +291,13 @@ export function judgeCases(level, cases, words) {
     return { right: wants === c.make, wants, derived: boards.map((board) => derives(level, board, c).derived) }
   })
   const caught = boards.map((_, b) => rows.findIndex((r) => r.right && r.derived[b] !== r.wants))
-  // The different cases (the same givens in any order, the same goal) each board goes wrong on.
-  const same = (c) => JSON.stringify([[...c.given].sort(), c.goal ?? level.target])
-  const catching = boards.map((_, b) => new Set(rows.flatMap((r, k) => (r.right && r.derived[b] !== r.wants ? [same(cases[k])] : []))).size)
-  const most = level.catches ?? 1
   const bad = rows.findIndex((r) => !r.right)
   const goal = (c) => (c.goal ? words(c.goal) : name)
   const wrong = !cases.length ? T('还没有条例。请添加一条，写明已知、目标，以及目标是否应当可推导。', 'No test case yet. Add one, stating what is given, the goal, and whether the goal should be derivable.')
     : bad >= 0 ? T(`第 ${bad + 1} 条条例的预期与需求不符。请重新考虑：已知${givenText(cases[bad], words).zh}时，按需求「${goal(cases[bad]).zh}」是否可推导？`, `The expectation of case ${bad + 1} does not agree with the requirement. Reconsider: given ${givenText(cases[bad], words).en}, is “${goal(cases[bad]).en}” derivable according to the requirement?`)
     : null
-  const judge = (b) => wrong ?? (catching[b] >= most ? null
-    : catching[b] === 0 ? T('各条条例的预期都正确，但这份声明在每一条上都得出了正确结论，还没有暴露它的错误。', 'Every expectation is correct, but this declaration reaches the right conclusion on every case: its fault has not yet been revealed.')
-    : T(`这份声明只在 ${catching[b]} 种情形下得出了错误结论；这一关要求找出至少 ${most} 种不同的情形。`, `This declaration reaches a wrong conclusion in only ${catching[b]} situation${catching[b] === 1 ? '' : 's'}; this task asks for at least ${most} different ones.`))
-  return { rows, caught, catching, wrong, judge }
+  const judge = (b) => wrong ?? (caught[b] >= 0 ? null : T('各条条例的预期都正确，但这份声明在每一条上都得出了正确结论，还没有暴露它的错误。', 'Every expectation is correct, but this declaration reaches the right conclusion on every case: its fault has not yet been revealed.'))
+  return { rows, caught, wrong, judge }
 }
 
 const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })

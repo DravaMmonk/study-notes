@@ -20,8 +20,10 @@ import { L, tr } from './i18n.js'
 //   valid?(draft)   → '' or why it cannot be saved yet
 //   max?            how many rows at most          addLabel, formTitle(k | null)   { zh, en } pairs or a function
 //   rowClass?(k), onPick?(k) (a row picked, also when it is opened), empty? what the table says with no rows
+//   fixed           the rows are set out beforehand: none added, none deleted, each only filled in
+//   tip             on a phone, a line under the table saying a row opens when tapped (a default unless it says)
 
-export default function RowTable({ rows, columns, onChange = null, form, blank, valid = () => '', max = Infinity, addLabel, formTitle, rowClass = () => '', onPick = () => {}, empty = null, phone = false }) {
+export default function RowTable({ rows, columns, onChange = null, form, blank, valid = () => '', max = Infinity, addLabel, formTitle, rowClass = () => '', onPick = () => {}, empty = null, phone = false, fixed = false, tip = null }) {
   const [open, setOpen] = useState(null) // { at: k | null (new), draft, saved }
   const [asking, setAsking] = useState(false)
   const editable = Boolean(onChange)
@@ -57,7 +59,7 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
           <thead>
             <tr>
               {columns.map((c) => <th key={c.key} className={cellClass(c)}><div className="rt-cell">{L(c.label)}</div></th>)}
-              {inPlace && <th aria-label={tr('删除', 'Delete')} />}
+              {inPlace && !fixed && <th aria-label={tr('删除', 'Delete')} />}
             </tr>
           </thead>
           <tbody>
@@ -70,7 +72,7 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
                 onKeyDown={(e) => editable && !inPlace && (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onPick(k), start(k))}
               >
                 {columns.map((c) => <td key={c.key} className={cellClass(c)}><div className="rt-cell">{inPlace && c.edit ? c.edit(row, (next) => setRow(k, next)) : c.cell(row, k)}</div></td>)}
-                {inPlace && (
+                {inPlace && !fixed && (
                   <td>
                     <button type="button" className="rt-drop" aria-label={tr('删除这一行', 'Delete this row')} onClick={(e) => { e.stopPropagation(); onChange(rows.filter((_, j) => j !== k)) }}><X size={14} /></button>
                   </td>
@@ -81,7 +83,8 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
         </table>
         {!rows.length && empty && <p className="rt-empty">{L(empty)}</p>}
       </div>
-      {editable && rows.length < max && (
+      {editable && !inPlace && rows.length > 0 && <p className="rt-tip">{L(tip ?? { zh: '点按任意一行即可修改。', en: 'Tap a row to edit it.' })}</p>}
+      {editable && !fixed && rows.length < max && (
         <button type="button" className="rt-add" onClick={() => (inPlace ? (onChange([...rows, blank()]), onPick(rows.length)) : start(null))}>
           <Plus size={18} /> {L(addLabel)}
         </button>
@@ -92,7 +95,7 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
           onClose={leave}
           footer={
             <div className="rt-form-foot">
-              {open.at !== null && <button type="button" className="rt-delete" onClick={remove}><X size={15} /> {tr('删除', 'Delete')}</button>}
+              {open.at !== null && !fixed && <button type="button" className="rt-delete" onClick={remove}><X size={15} /> {tr('删除', 'Delete')}</button>}
               <span className="rt-why">{why ? L(why) : ''}</span>
               <button type="button" onClick={leave}>{tr('取消', 'Cancel')}</button>
               <button type="button" className="is-primary" disabled={Boolean(why)} onClick={save}>{tr('保存', 'Save')}</button>
