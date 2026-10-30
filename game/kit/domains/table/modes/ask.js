@@ -7,6 +7,7 @@
 import { buzz, fmt, reduced, ICON } from '../util.js';
 import { E } from '../svg.js';
 import { rt, Anim } from '../runtime.js';
+import { paceOf } from '../../../engine/trace.js';
 import { rcName } from '../algo.js';
 import { tr } from '../i18n.js';
 
@@ -74,7 +75,7 @@ export function askMode(L, saved) {
       pending().filter(n => n.depth === d).forEach(open);
       rt.renderBoard();
       rt.refresh();
-      await Anim.wait(260);
+      await Anim.wait(paceOf(0, 0).per);
     }
     rt.endRun();
     finish();
@@ -157,7 +158,8 @@ export function askMode(L, saved) {
     if (st.step >= st.events.length) return;
     if (!all) { st.step++; buzz(5); rt.refresh(); return; }
     rt.startRun();
-    while (st.step < st.events.length) { st.step++; rt.renderBoard(); rt.refresh(); await Anim.wait(240); }
+    const { per, stride } = paceOf(0, st.events.length - st.step);
+    while (st.step < st.events.length) { st.step = Math.min(st.step + (Anim.paused ? 1 : stride), st.events.length); rt.renderBoard(); rt.refresh(); await Anim.wait(per); }
     rt.endRun();
     rt.refresh();
   }

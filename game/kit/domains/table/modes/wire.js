@@ -4,6 +4,7 @@ import { buzz, toast } from '../util.js';
 import { evalGraph } from '../algo.js';
 import { E } from '../svg.js';
 import { rt, Anim } from '../runtime.js';
+import { paceOf } from '../../../engine/trace.js';
 import { tr, lazy } from '../i18n.js';
 
 export function wireMode(L, saved) {
@@ -67,13 +68,14 @@ export function wireMode(L, saved) {
       }
       rt.startRun();
       st.vals = {};
+      const { per } = paceOf(0, res.steps.length);
       for (const s of res.steps) {
         st.vals[s.id] = s.v;
         if (by[s.id].fixed !== undefined) continue;
         st.cur = s.id;
         st.hot = s.ins;
         rt.renderBoard();
-        await Anim.wait(700);
+        await Anim.wait(per);
       }
       st.cur = null; st.hot = [];
       rt.endRun();

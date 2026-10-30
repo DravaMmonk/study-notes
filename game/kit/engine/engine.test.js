@@ -137,9 +137,11 @@ test('a traced run lists every node in the order it ran, and replays to any step
   assert.deepEqual(odd.at(-1), { id: 'h', key: null, error: { zh: '奇数', en: 'odd' } })
 })
 
-test('a run plays its first test slowly and the rest fast, and squeezes a long one', () => {
+test('a run plays its first test slowly and the rest fast, at a pace that does not depend on its length', () => {
   assert.ok(paceOf(0, 5).per > paceOf(1, 5).per)
+  assert.equal(paceOf(0, 5).per, paceOf(0, 40).per)
+  assert.equal(paceOf(1, 5).per, paceOf(1, 1000).per)
   assert.equal(paceOf(1, 5).stride, 1)
   assert.ok(paceOf(1, 1000).stride > 1)
-  assert.ok(paceOf(0, 1000).per * Math.ceil(1000 / paceOf(0, 1000).stride) <= 12000)
+  assert.ok(paceOf(0, 1000).per * (Math.ceil(1000 / paceOf(0, 1000).stride) - 1) <= 12000)
 })

@@ -12,6 +12,7 @@
 
 import { $, buzz, toast, signal, wide, paint } from '../util.js';
 import { rt, Anim } from '../runtime.js';
+import { paceOf } from '../../../engine/trace.js';
 import { WORLDS, runCircuit, windowOf, visibleSensors, sensorsOf, MAX_ROUNDS } from '../circuit/worlds.js';
 import { ROBOTS } from '../circuit/robots.js';
 import { def, hasValue, blank, evaluate, clone, modelsOf, isInput, isViewReader, familyOf, layerOf as readerLayer, picksOf, withPicks, splitSrc, srcType, sinkType, fits, CARDS, cardOf } from '../circuit/components.js';
@@ -619,9 +620,8 @@ export function circuitMode(L, saved, { flags, game, progress, lastRun } = {}) {
         st.status[k] = 'run';
         st.view = view;
         rt.refresh();
-        // Long runs (many rounds) show several steps per frame, so a run never takes much more than two seconds; a
-        // paused run goes one step at a time.
-        const per = Math.max(22, Math.min(220, 1700 / stop)), stride = Math.max(1, Math.ceil(stop / 90));
+        // The kit's pace (several steps a frame on a long run); a paused run goes one step at a time.
+        const { per, stride } = paceOf(k, stop);
         const by = () => (Anim.paused ? 1 : stride);
         for (let j = Math.min(by(), stop); ; j = Math.min(j + by(), stop)) {
           st.view.k = j;
@@ -645,7 +645,7 @@ export function circuitMode(L, saved, { flags, game, progress, lastRun } = {}) {
           return;
         }
         rt.refresh();
-        await Anim.wait(420);
+        await Anim.wait(per);
       }
       rt.keepRun({ stage: st.stage, test: tests().length - 1 });
       rt.endRun();
