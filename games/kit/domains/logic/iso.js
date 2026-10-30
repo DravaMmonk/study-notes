@@ -396,10 +396,10 @@ function general(level) {
 /**
  * What a declaration gives, for any sentences: one rule for each way to make it, and the rule that takes it apart,
  * made from them (having it, and for each way a conclusion ?R from what that way took, for any thing it took, gives
- * ?R), or the level's own (`take`: equality).
+ * ?R), or the level's own (`take`: equality). `g` writes the sentences: by default as any sentences (?A …); the identity
+ * keeps the level's own.
  */
-export function declaredRules(level, ways) {
-  const g = general(level)
+export function declaredRules(level, ways, g = general(level)) {
   const R = meta('?R')
   return {
     make: ways.map((way) => wayRule(way, level, g)),
