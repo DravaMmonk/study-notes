@@ -62,3 +62,44 @@ export function ChoiceField({ label, value, options, onChange }) {
     </Field>
   )
 }
+
+// The same fields small, inside a table cell (RowTable on a desktop, editing in place): no label of their own.
+
+/** Several values in order, in a cell: each with ×, and a drop-down adding the rest. */
+export function InlineList({ value, options, onChange, addLabel }) {
+  const name = (v) => L(options.find((o) => o.value === v)?.label ?? v)
+  const rest = options.filter((o) => !value.includes(o.value))
+  return (
+    <div className="ff-inline-list">
+      {value.map((v, i) => (
+        <span key={v}>
+          {`${i + 1}. ${name(v)}`}
+          <button type="button" aria-label={tr('移除', 'Remove')} onClick={(e) => { e.stopPropagation(); onChange(value.filter((x) => x !== v)) }}><X size={12} /></button>
+        </span>
+      ))}
+      {rest.length > 0 && (
+        <select className="ff-inline-select" value="" onClick={(e) => e.stopPropagation()} onChange={(e) => e.target.value && onChange([...value, e.target.value])}>
+          <option value="">{L(addLabel)}</option>
+          {rest.map((o) => <option key={o.value} value={o.value}>{L(o.label)}</option>)}
+        </select>
+      )}
+    </div>
+  )
+}
+
+/** One value from a drop-down, in a cell. */
+export function InlineSelect({ value, options, onChange }) {
+  return (
+    <select className="ff-inline-select" value={value} onClick={(e) => e.stopPropagation()} onChange={(e) => onChange(e.target.value)}>
+      {options.map((o) => <option key={o.value} value={o.value}>{L(o.label)}</option>)}
+    </select>
+  )
+}
+
+/** One of a few values, in a cell: a button that steps to the next. */
+export function InlineChoice({ value, options, onChange }) {
+  const at = Math.max(0, options.findIndex((o) => o.value === value))
+  return (
+    <button type="button" className="ff-inline-choice" onClick={(e) => { e.stopPropagation(); onChange(options[(at + 1) % options.length].value) }}>{L(options[at].label)}</button>
+  )
+}

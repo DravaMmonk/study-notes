@@ -5,23 +5,29 @@ import { Dialog } from './Dialogs.jsx'
 import { L, tr } from './i18n.js'
 
 // A table the player fills in, row by row, the same in every game (a 填表格 level: the test cases of a declaration, …).
-// The table only shows the rows, in a window of its own that scrolls sideways: each column is as wide as its text up
+// On a desktop the rows are edited in place: each column that can be changed gives its editor (`edit`), a × at the row's
+// end deletes it, and a small button under the table adds a blank row. On a phone the table only shows the rows, in a window of its own that scrolls sideways: each column is as wide as its text up
 // to a limit (then the text wraps), and each row is tall enough to tap; and tapping one opens it in a form (a sheet on a phone, a
 // panel on a desktop) where it is edited and saved, or deleted; a large button under the table adds a row through the
 // same form. Leaving a form with changes not saved asks first. The game gives the columns and the form's fields
 // (FormFields.jsx has the shared ones); the kit keeps the draft, the saving and the asking.
 //
 //   rows            [row]                          onChange(rows)   the rows saved (absent: the table is read only)
-//   columns         [{ key, label, cell(row, k), align?: 'start' (default centred), className? }]
+//   columns         [{ key, label, cell(row, k), edit?(row, set) the in-place editor on a desktop, align?: 'start'
+//                    (default centred), className? }]
+//   phone           edit through the form rather than in place
 //   form(draft, set) → the fields editing a draft (set(next) replaces it)      blank() → a new row's draft
 //   valid?(draft)   → '' or why it cannot be saved yet
 //   max?            how many rows at most          addLabel, formTitle(k | null)   { zh, en } pairs or a function
 //   rowClass?(k), onPick?(k) (a row picked, also when it is opened), empty? what the table says with no rows
 
-export default function RowTable({ rows, columns, onChange = null, form, blank, valid = () => '', max = Infinity, addLabel, formTitle, rowClass = () => '', onPick = () => {}, empty = null }) {
+export default function RowTable({ rows, columns, onChange = null, form, blank, valid = () => '', max = Infinity, addLabel, formTitle, rowClass = () => '', onPick = () => {}, empty = null, phone = false }) {
   const [open, setOpen] = useState(null) // { at: k | null (new), draft, saved }
   const [asking, setAsking] = useState(false)
   const editable = Boolean(onChange)
+  // On a desktop rows are changed in place; on a phone, in the form.
+  const inPlace = editable && !phone
+  const setRow = (k, row) => onChange(rows.map((r, j) => (j === k ? row : r)))
   const start = (at) => {
     const draft = at === null ? blank() : rows[at]
     setOpen({ at, draft, saved: JSON.stringify(draft) })
@@ -49,18 +55,26 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
       <div className="rt-scroll">
         <table className="rt-table">
           <thead>
-            <tr>{columns.map((c) => <th key={c.key} className={cellClass(c)}><div className="rt-cell">{L(c.label)}</div></th>)}</tr>
+            <tr>
+              {columns.map((c) => <th key={c.key} className={cellClass(c)}><div className="rt-cell">{L(c.label)}</div></th>)}
+              {inPlace && <th aria-label={tr('删除', 'Delete')} />}
+            </tr>
           </thead>
           <tbody>
             {rows.map((row, k) => (
               <tr
                 key={k}
-                className={`rt-row ${editable ? 'is-editable' : ''} ${rowClass(k)}`}
-                onClick={() => { onPick(k); if (editable) start(k) }}
-                tabIndex={editable ? 0 : undefined}
-                onKeyDown={(e) => editable && (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onPick(k), start(k))}
+                className={`rt-row ${editable && !inPlace ? 'is-editable' : ''} ${rowClass(k)}`}
+                onClick={() => { onPick(k); if (editable && !inPlace) start(k) }}
+                tabIndex={editable && !inPlace ? 0 : undefined}
+                onKeyDown={(e) => editable && !inPlace && (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onPick(k), start(k))}
               >
-                {columns.map((c) => <td key={c.key} className={cellClass(c)}><div className="rt-cell">{c.cell(row, k)}</div></td>)}
+                {columns.map((c) => <td key={c.key} className={cellClass(c)}><div className="rt-cell">{inPlace && c.edit ? c.edit(row, (next) => setRow(k, next)) : c.cell(row, k)}</div></td>)}
+                {inPlace && (
+                  <td>
+                    <button type="button" className="rt-drop" aria-label={tr('删除这一行', 'Delete this row')} onClick={(e) => { e.stopPropagation(); onChange(rows.filter((_, j) => j !== k)) }}><X size={14} /></button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -68,7 +82,7 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
         {!rows.length && empty && <p className="rt-empty">{L(empty)}</p>}
       </div>
       {editable && rows.length < max && (
-        <button type="button" className="rt-add" onClick={() => start(null)}>
+        <button type="button" className="rt-add" onClick={() => (inPlace ? (onChange([...rows, blank()]), onPick(rows.length)) : start(null))}>
           <Plus size={18} /> {L(addLabel)}
         </button>
       )}

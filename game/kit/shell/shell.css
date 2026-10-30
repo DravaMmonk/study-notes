@@ -572,6 +572,13 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .rt-empty { margin: 6px 10px; color: var(--muted); font-size: 12.5px; }
 .rt-add { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px dashed var(--rule); border-radius: 6px; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; cursor: pointer; }
 .rt-add:hover { color: var(--ink); }
+.rt-drop { display: inline-flex; padding: 2px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.rt-drop:hover { color: var(--fail); }
+.ff-inline-list { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.ff-inline-list > span { display: inline-flex; align-items: center; gap: 2px; }
+.ff-inline-list button { display: inline-flex; padding: 1px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.ff-inline-select { max-width: 16em; padding: 2px 4px; border: 1px solid var(--rule); border-radius: 6px; background: transparent; color: inherit; font: inherit; font-size: 12px; }
+.ff-inline-choice { min-width: 4em; padding: 2px 8px; border: 1px solid var(--rule); border-radius: 6px; background: transparent; color: var(--ink); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
 .rt-add svg { width: 14px; height: 14px; }
 /* On a phone: a window of its own that scrolls sideways, columns as wide as their text (wrapping past about sixteen
    characters), tall rows to tap, and a large add button. */
