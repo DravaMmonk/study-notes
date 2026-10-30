@@ -74,14 +74,14 @@ test('an output that reads only some ports can feed the node it comes from', () 
 
 test('a packed circuit is a part', () => {
   const inner = io([{ id: 'a', type: 'add' }], w('in>a.a in>a.b a>out'))
-  const parts = { ...PARTS, dbl: packed({ circuit: inner, inputs: ['in'], output: 'out' }) }
+  const parts = { ...PARTS, dbl: packed({ circuit: inner, inputs: ['in'], outputs: ['out'] }) }
   const c = io([{ id: 'd', type: 'dbl' }, { id: 'e', type: 'dbl' }], w('in>d d>e e>out'))
   assert.equal(runBoard(c, { parts, bind: { in: 5 } }).outputs.out, 20)
 })
 
 test('a packed part traces each card inside with its path', () => {
   const inner = io([{ id: 'a', type: 'add' }], w('in>a.a in>a.b a>out'))
-  const parts = { ...PARTS, dbl: packed({ circuit: inner, inputs: ['in'], output: 'out' }) }
+  const parts = { ...PARTS, dbl: packed({ circuit: inner, inputs: ['in'], outputs: ['out'] }) }
   const c = io([{ id: 'd', type: 'dbl' }], w('in>d d>out'))
   const trace = []
   runBoard(c, { parts, bind: { in: 2 }, ctx: { trace } })

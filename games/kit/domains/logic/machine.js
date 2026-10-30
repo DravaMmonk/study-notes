@@ -704,7 +704,7 @@ export function builtParts(chains) {
     const part = packed({
       circuit,
       inputs: inputsOfLevel(last).map((i) => i.name),
-      output: 'out',
+      outputs: ['out'],
       inside: (ctx) => {
         const b = builder()
         return { ...ctx, rules: { ...ruleBookOf(b), ...ctx.rules }, rewrites: { ...rewriteBookOf(b), ...ctx.rewrites }, ruleParts: merged(rulePartsOf(b), ctx.ruleParts), backtrack: ctx.backtrack || Boolean(b.backtrack) }
