@@ -226,7 +226,7 @@ export const terms = [
     title: T('引理也是证明项', 'A lemma is a term too'),
     tasks: [
       prove({
-        step: T('用蕴涵传递', 'With Chain'),
+        step: T('用串联', 'With Chain'),
         tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C', term: 'chain p q' }],
         cases: CHAIN,
         briefNote: T('证明项要是 chain p q。', 'Its proof term must be chain p q.'),
@@ -234,7 +234,7 @@ export const terms = [
         solution: proof({ c: ['chain'] }, ['p>c.p0', 'q>c.p1', 'c>goal'], { premises: ['p', 'q'] }),
       }),
       prove({
-        step: T('不用蕴涵传递', 'Without Chain'),
+        step: T('不用串联', 'Without Chain'),
         without: ['chain'],
         tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C', term: 'fun h => q (p h)' }],
         cases: CHAIN,

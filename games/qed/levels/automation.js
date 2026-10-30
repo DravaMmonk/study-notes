@@ -437,7 +437,7 @@ export const automation = [
     brief: T('f 给每个 x 配一个集合 f(x)。已知每个集合都是某个 f(x)（f 是满射）；又有一个集合 z，装的正好是不属于 f(y) 的那些 y。推出矛盾 ⊥。', 'f gives each x a set f(x). Every set is some f(x) (f is onto); and there is a set z holding exactly the y not in f(y). Get the contradiction ⊥.'),
     hint: [
       T('先拿出 z，再拿出那个让 f(x) 和 z 一样的 x，然后都取 y = x。', 'Take out z, then the x whose f(x) is z, then take y = x in both.'),
-      T('得到 X ↔ Y 和 Y ↔ ¬X：两个都拆开，用蕴涵传递接成 X → ¬X 和 ¬X → X，再拼起来就是说谎者。', 'You get X ↔ Y and Y ↔ ¬X: split both, chain them into X → ¬X and ¬X → X, and joined that is the liar.'),
+      T('得到 X ↔ Y 和 Y ↔ ¬X：两个都拆开，用串联接成 X → ¬X 和 ¬X → X，再拼起来就是说谎者。', 'You get X ↔ Y and Y ↔ ¬X: split both, chain them into X → ¬X and ¬X → X, and joined that is the liar.'),
     ],
     solution: (() => {
       const l = liarOf(['a2', 'a3'], 'e2')

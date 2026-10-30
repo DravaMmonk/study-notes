@@ -41,7 +41,7 @@ export const ERAS = [
       'box',
       // Proofs kept as parts (definitions): Chain, Swap and Merge, each built with boxes alone, on two lines that need
       // nothing from each other; then the three together, harder each time.
-      branches(['chain', '蕴涵传递', 'Chain', ['chain', 'swap']], ['merge', '合并前件', 'Merge', ['twice']]),
+      branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
       'mergeLong',
       // K and S, each proved with boxes and built as a part, need nothing from each other.
       branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),

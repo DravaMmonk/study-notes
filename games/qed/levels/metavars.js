@@ -184,21 +184,21 @@ export const metavars = [
     title: T('证出的引理也是规则', 'Lemmas are rules too'),
     tasks: [
       prove({
-        step: T('蕴涵传递', 'Chain'),
+        step: T('串联', 'Chain'),
         tests: [{ goal: 'Rain → Slip', hyps: ['Rain → Wet', 'Wet → Slip'] }, { goal: 'Alarm → Awake', hyps: ['Alarm → Coffee', 'Coffee → Awake'] }],
         brief: T('设计一个证明助手，用你证出的<part-ref to="lemma:chain"></part-ref>证完每一个目标。', 'Design a proof assistant that proves every goal with the <part-ref to="lemma:chain"></part-ref> you proved.'),
         hint: [T('<part-ref to="lemma:chain"></part-ref>的中间那一句，目标里没有：它是个 ?，等已知来定。', '<part-ref to="lemma:chain"></part-ref>’s middle sentence is not in the goal: it is a ?-letter for a given to settle.')],
         solution: script(['rule', 'chain'], 'assumption', 'assumption'),
       }),
       prove({
-        step: T('交换前件', 'Swap'),
+        step: T('交换', 'Swap'),
         tests: [{ goal: 'Wind → (Rain → Wet)', hyps: ['Rain → (Wind → Wet)'] }, { goal: 'Coffee → (Alarm → Awake)', hyps: ['Alarm → (Coffee → Awake)'] }],
         brief: T('再用<part-ref to="lemma:swap"></part-ref>证完每一个目标。', 'Now prove every goal with <part-ref to="lemma:swap"></part-ref>.'),
         hint: [T('<part-ref to="lemma:swap"></part-ref>的前提只有一条，正是已知那一句。', '<part-ref to="lemma:swap"></part-ref> has one premise, and it is just the given.')],
         solution: script(['rule', 'swap'], 'assumption'),
       }),
       prove({
-        step: T('合并前件', 'Merge'),
+        step: T('合并', 'Merge'),
         tests: [{ goal: 'Rain → Wet', hyps: ['Rain → (Rain → Wet)'] }, { goal: 'Hungry → Eat', hyps: ['Hungry → (Hungry → Eat)'] }],
         brief: T('再用<part-ref to="lemma:merge"></part-ref>证完每一个目标。', 'Now prove every goal with <part-ref to="lemma:merge"></part-ref>.'),
         hint: [T('<part-ref to="lemma:merge"></part-ref>的结论一对上目标，?A 和 ?B 就都定下来了，剩下的那条前提正是已知。', 'Once <part-ref to="lemma:merge"></part-ref>’s conclusion fits the goal, ?A and ?B are both settled, and the premise left is just the given.')],
