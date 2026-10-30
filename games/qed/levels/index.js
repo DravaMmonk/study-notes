@@ -27,13 +27,13 @@ const T = (zh, en) => ({ zh, en })
 export const LEMMAS = {
   axK: { name: T('K', 'K'), desc: T('元件上选两句 A、B，直接给出 A → (B → A)：已经成立的事，加上什么条件都还成立。', 'Choose two sentences A and B on the part; it gives A → (B → A) at once: what holds still holds under any condition.'), statement: 'A → (B → A)', metas: ['A', 'B'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second') } },
   axS: { name: T('S', 'S'), desc: T('元件上选三句 A、B、C，直接给出 (A → (B → C)) → ((A → B) → (A → C))：在条件 A 下也能套用。', 'Choose three sentences A, B and C on the part; it gives (A → (B → C)) → ((A → B) → (A → C)) at once: Apply works under a condition A too.'), statement: '(A → (B → C)) → ((A → B) → (A → C))', metas: ['A', 'B', 'C'], ports: [], params: { A: T('第一句', 'First'), B: T('第二句', 'Second'), C: T('第三句', 'Third') } },
-  chain: { name: T('串联', 'Chain'), desc: T('接进 A → B 和 B → C，直接给出 A → C。', 'Wire in A → B and B → C; it gives A → C at once.'), statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'], ports: ['A → B', 'B → C'] },
-  swap: { name: T('交换', 'Swap'), desc: T('接进 A → (B → C)，给出 B → (A → C)：两个条件换个顺序。', 'Wire in A → (B → C); it gives B → (A → C): the two conditions swapped.'), statement: 'B → (A → C)', premises: ['A → (B → C)'], metas: ['A', 'B', 'C'], ports: ['A → (B → C)'] },
-  merge: { name: T('合并', 'Merge'), desc: T('接进 A → (A → B)，给出 A → B：说了两遍的条件并成一遍。', 'Wire in A → (A → B); it gives A → B: a condition stated twice, stated once.'), statement: 'A → B', premises: ['A → (A → B)'], metas: ['A', 'B'], ports: ['A → (A → B)'] },
+  chain: { name: T('蕴涵传递', 'Chain'), desc: T('接进 A → B 和 B → C，直接给出 A → C。', 'Wire in A → B and B → C; it gives A → C at once.'), statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'], ports: ['A → B', 'B → C'] },
+  swap: { name: T('交换前件', 'Swap'), desc: T('接进 A → (B → C)，给出 B → (A → C)：两个条件换个顺序。', 'Wire in A → (B → C); it gives B → (A → C): the two conditions swapped.'), statement: 'B → (A → C)', premises: ['A → (B → C)'], metas: ['A', 'B', 'C'], ports: ['A → (B → C)'] },
+  merge: { name: T('合并前件', 'Merge'), desc: T('接进 A → (A → B)，给出 A → B：说了两遍的条件并成一遍。', 'Wire in A → (A → B); it gives A → B: a condition stated twice, stated once.'), statement: 'A → B', premises: ['A → (A → B)'], metas: ['A', 'B'], ports: ['A → (A → B)'] },
   // De Morgan's laws, one card: built with its four propositional shapes at once (REVISIONS), the four quantifier
   // shapes added by the level that proves them. Switched on the card.
   dm: {
-    name: T('德摩根', 'De Morgan'),
+    name: T('德摩根律', 'De Morgan'),
     desc: T('德摩根律：否定穿过「或者」「并且」时互相转换，四个方向都有。元件上切换形状：¬(A ∨ B) 和 ¬A ∧ ¬B 互相转换，¬(A ∧ B) 和 ¬A ∨ ¬B 互相转换。', 'De Morgan’s laws: a negation passing through “or” and “and” turns one into the other, all four ways. Switch the shape on the card: ¬(A ∨ B) and ¬A ∧ ¬B each give the other, and so do ¬(A ∧ B) and ¬A ∨ ¬B.'),
     metas: ['A', 'B', 'P'],
     forms: [
@@ -51,7 +51,7 @@ export const LEMMAS = {
   // The equivalences (chapter 9), which the simplifier (chapter 10) rewrites with: each a card of shapes that are each other's converse, so either way round is a
   // rewrite rule; all its shapes come with the level that proves them (REVISIONS).
   dneg: {
-    name: T('双重否定', 'Double negation'),
+    name: T('双重否定律', 'Double negation'),
     desc: T('元件上切换形状：接进 ¬¬A 给出 A；接进 A 给出 ¬¬A。', 'Switch the shape on the card: wire in ¬¬A for A, or A for ¬¬A.'),
     metas: ['A'],
     forms: [
@@ -61,7 +61,7 @@ export const LEMMAS = {
     ports: ['¬¬A'],
   },
   arrow: {
-    name: T('去掉箭头', 'Arrow away'),
+    name: T('蕴涵析取互化', 'Arrow away'),
     desc: T('元件上切换形状：接进 A → B 给出 ¬A ∨ B；接进 ¬A ∨ B 给出 A → B。', 'Switch the shape on the card: wire in A → B for ¬A ∨ B, or ¬A ∨ B for A → B.'),
     metas: ['A', 'B'],
     forms: [
@@ -71,7 +71,7 @@ export const LEMMAS = {
     ports: ['A → B'],
   },
   dist: {
-    name: T('分配', 'Distribute'),
+    name: T('分配律', 'Distribute'),
     desc: T('「或者」分配到「并且」上，四个方向：A ∨ (B ∧ C) 和 (A ∨ B) ∧ (A ∨ C) 互相转换，(A ∧ B) ∨ C 和 (A ∨ C) ∧ (B ∨ C) 互相转换。元件上切换形状。', '“Or” distributed over “and”, four ways: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Switch the shape on the card.'),
     metas: ['A', 'B', 'C'],
     forms: [
@@ -85,7 +85,7 @@ export const LEMMAS = {
   // Chapter 11: ↔ to clauses (a rewrite rule both ways), resolution (its card takes the opposite pair wherever it stands
   // in the two clauses), and the liar of the knights topic, which the topic on what no machine can do grows.
   iff: {
-    name: T('去掉等价', 'Equivalence away'),
+    name: T('等价展开', 'Equivalence away'),
     desc: T('元件上切换形状：接进 A ↔ B 给出 (¬A ∨ B) ∧ (¬B ∨ A)；反过来也行。两个方向也都是改写规则。', 'Switch the shape on the card: wire in A ↔ B for (¬A ∨ B) ∧ (¬B ∨ A), or the other way round. Both ways are rewrite rules too.'),
     metas: ['A', 'B'],
     forms: [
@@ -95,7 +95,7 @@ export const LEMMAS = {
     ports: ['A ↔ B'],
   },
   res: { name: T('归结', 'Resolve'), card: 'res', desc: T('接进两条子句：一条里有 A，另一条里有 ¬A，在哪个位置都行；消掉这一对，剩下的用「或」连起来，什么都不剩就是矛盾 ⊥。一次只消一对。', 'Wire in two clauses, one holding A and the other ¬A, wherever they stand: cancel that pair and join what is left with or; nothing left is the contradiction ⊥. One pair at a time.'), statement: 'B ∨ C', premises: ['A ∨ B', '¬A ∨ C'], metas: ['A', 'B', 'C'], ports: ['A ∨ B', '¬A ∨ C'] },
-  liar: { name: T('说谎者', 'The liar'), desc: T('接进 A ↔ ¬A，给出矛盾 ⊥：没有一句话能和自己的否定同真同假。', 'Wire in A ↔ ¬A; it gives the contradiction ⊥: no sentence is true exactly when its negation is.'), statement: '⊥', premises: ['A ↔ ¬A'], metas: ['A'], ports: ['A ↔ ¬A'] },
+  liar: { name: T('说谎者悖论', 'The liar'), desc: T('接进 A ↔ ¬A，给出矛盾 ⊥：没有一句话能和自己的否定同真同假。', 'Wire in A ↔ ¬A; it gives the contradiction ⊥: no sentence is true exactly when its negation is.'), statement: '⊥', premises: ['A ↔ ¬A'], metas: ['A'], ports: ['A ↔ ¬A'] },
   lem: { name: T('排中律', 'Excluded middle'), desc: T('元件上选一句 A，直接给出 A ∨ ¬A：要么成立，要么不成立。', 'Choose a sentence A on the part; it gives A ∨ ¬A: it holds or it does not.'), statement: 'A ∨ ¬A', metas: ['A'], ports: [] },
 }
 
@@ -155,7 +155,7 @@ const REVISIONS = {
   // Rewriting the hypotheses comes with the clause chapter.
   rw: [{ at: 'au-hyps', desc: T('接进改写规则：在第一个目标里，从外往里、从左往右找第一处对得上规则左边的地方，换成右边，只换这一处。规则带条件的，条件成了新目标，排在它后面。接进几条时用第一条对得上的；哪一处都对不上，就失败。「改哪里」选已知，改的就是第一个目标从上往下第一条对得上的已知。', 'Takes rewrite rules: in the first goal, outside in and left to right, the first place that fits the rule’s left side becomes its right side, that place alone. A rule with conditions leaves each as a new goal after it. Given several, it uses the first that fits; if no place fits, it fails. With “where” set to the hypotheses, it rewrites the first goal’s first hypothesis from the top that the rule fits.') }],
   simp: [{ at: 'au-hyps', desc: T('接进一串改写规则：每一圈用第一条对得上的规则改写一处，一圈一圈改下去，直到哪一条都对不上。「改哪里」选已知，改的就是第一个目标的已知。', 'Takes a list of rewrite rules: each round, the first that fits rewrites one place, round after round, until none fits. With “where” set to the hypotheses, it rewrites the first goal’s hypotheses.') }],
-  erule: [{ at: 's-results', desc: T('接进规则：先用规则，再拿已知里有对上它留下的第一个目标。规则的结论对上第一个目标，第一条前提对上一条已知；剩下的前提各成一个目标。接进几条时，每一条、每一条对上的已知都是一种结果。', 'Takes rules: Rule, then Assumption on the first goal it leaves. The rule’s conclusion fits the first goal and its first premise a hypothesis; each other premise is a goal. Each rule wired in, and each hypothesis that fits, is a result.') }],
+  erule: [{ at: 's-results', desc: T('接进规则：先逆用规则，再以由假设得证处理它留下的第一个目标。规则的结论对上第一个目标，第一条前提对上一条已知；剩下的前提各成一个目标。接进几条时，每一条、每一条对上的已知都是一种结果。', 'Takes rules: Rule, then Assumption on the first goal it leaves. The rule’s conclusion fits the first goal and its first premise a hypothesis; each other premise is a goal. Each rule wired in, and each hypothesis that fits, is a result.') }],
 }
 
 const COURSE = {

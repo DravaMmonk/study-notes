@@ -160,7 +160,7 @@ export const classical = [
   // ---------- equivalences: pairs of sentences that give each other, the laws the simplifier rewrites with ----------
   {
     id: 'c-dneg',
-    title: T('双重否定', 'Double negation'),
+    title: T('双重否定律', 'Double negation'),
     builds: 'dneg',
     tasks: [
       prove({
@@ -184,7 +184,7 @@ export const classical = [
   },
   {
     id: 'c-arrow',
-    title: T('去掉箭头', 'Arrows away'),
+    title: T('蕴涵析取互化', 'Arrows away'),
     builds: 'arrow',
     tasks: [
       prove({
@@ -208,7 +208,7 @@ export const classical = [
   },
   {
     id: 'c-dist',
-    title: T('分配', 'Distribution'),
+    title: T('分配律', 'Distribution'),
     builds: 'dist',
     tasks: [
       prove({
@@ -268,7 +268,7 @@ export const classical = [
   },
   {
     id: 'demorgan',
-    title: T('德摩根', 'De Morgan'),
+    title: T('德摩根律', 'De Morgan'),
     builds: 'dm',
     tasks: [
       prove({
@@ -322,7 +322,7 @@ export const classical = [
   },
   {
     id: 'q-dm',
-    title: T('量词的德摩根', 'De Morgan for quantifiers'),
+    title: T('量词的德摩根律', 'De Morgan for quantifiers'),
     tasks: [
       prove({
         step: T('一个都没有', 'Not a single one'),

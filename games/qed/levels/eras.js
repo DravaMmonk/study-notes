@@ -41,7 +41,7 @@ export const ERAS = [
       'box',
       // Proofs kept as parts (definitions): Chain, Swap and Merge, each built with boxes alone, on two lines that need
       // nothing from each other; then the three together, harder each time.
-      branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
+      branches(['chain', '蕴涵传递', 'Chain', ['chain', 'swap']], ['merge', '合并前件', 'Merge', ['twice']]),
       'mergeLong',
       // K and S, each proved with boxes and built as a part, need nothing from each other.
       branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
@@ -137,7 +137,7 @@ export const ERAS = [
       // ?-letters settled later, lemmas as rules, and elimination rules (a rule and Assumption, built into one part);
       // on equations, patterns ?P(x).
       branches(
-        ['backward', '倒着用规则', 'Rules backwards', ['r-rule', 'r-subgoals', 'r-assumption', 'r-meta', 'r-lemma', 'r-elim', 'r-cases', 'r-false', 'r-dist']],
+        ['backward', '逆用规则', 'Rules backwards', ['r-rule', 'r-subgoals', 'r-assumption', 'r-meta', 'r-lemma', 'r-elim', 'r-cases', 'r-false', 'r-dist']],
         ['pattern', '模式', 'Patterns', ['r-pattern', 'r-patterns']],
       ),
       // The quantifier rules need both: backwards, forwards (Have and a rule on a given, built into one part).
@@ -185,7 +185,7 @@ export const ERAS = [
       // middle, so after both.
       branches(
         ['laws', '等价律', 'Equivalences', ['c-dneg', 'c-arrow', 'c-dist']],
-        ['demorgan', '德摩根', 'De Morgan', ['demorgan', 'q-dm']],
+        ['demorgan', '德摩根律', 'De Morgan', ['demorgan', 'q-dm']],
       ),
     ],
     // The islanders go on from the truth-circuit chapter's puzzles: its topic comes first.

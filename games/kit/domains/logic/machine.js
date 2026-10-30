@@ -233,7 +233,7 @@ const atOf = (node) => (node.params?.at === 'hyps' ? 'hyps' : 'goal')
 // A step inside a part, for a traced run (../../engine/circuit.js): a round of it, or the card it applies (`sub`).
 const inner = (ctx, node, value, extra) => ctx?.trace?.push({ id: node.id, key: null, inner: true, value, ...extra })
 const clausesIn = (v) => {
-  if (v.kind !== 'clauses') throw fail('这里要一组子句：先把证明状态拆成子句', 'This needs a clause set: split the proof state into clauses first')
+  if (v.kind !== 'clauses') throw fail('这里要一组子句：先用析出子句把证明状态化为子句', 'This needs a clause set: split the proof state into clauses first')
   return v
 }
 const eqsIn = (v) => {

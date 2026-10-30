@@ -161,7 +161,7 @@ export const era2 = [
   {
     id: 'dist',
     kind: 'proof',
-    title: T('分配', 'Distribute'),
+    title: T('分配律', 'Distribute'),
     tests: [{ premises: { p: 'A ∧ (B ∨ C)' }, goal: '(A ∧ B) ∨ (A ∧ C)' }],
     cases: [{ A: 'Sat', B: 'Rain', C: 'Wind' }, { A: 'Exam', B: 'Coffee', C: 'Tea' }],
     hint: [
@@ -244,7 +244,7 @@ export const era2 = [
         cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }, { A: 'Alarm', B: 'Up', C: 'OnTime' }],
         hint: [T('「¬路滑」就是「路滑 → ⊥」，「¬下雨」就是「下雨 → ⊥」。三段首尾相接。', '“¬the road is slippery” is “slippery → ⊥”, and “¬it rains” is “it rains → ⊥”. Three pieces meet end to end.')],
         solution: proof({ c1: ['chain'], c2: ['chain'] }, ['p>c1.p0', 'q>c1.p1', 'c1>c2.p0', 'r>c2.p1', 'c2>goal'], { premises: ['p', 'q', 'r'] }),
-        after: T('「¬」就是「→ ⊥」，所以「没有结果，就没有起因」（否定后件）根本不用新元件：把「⊥」当成链条的最后一环，串联就够了。', '“¬” is “→ ⊥”, so “no effect, no cause” (modus tollens) needs no new part: with “⊥” as the last link, Chain does it.'),
+        after: T('「¬」就是「→ ⊥」，所以「没有结果，就没有起因」（否定后件）根本不用新元件：把「⊥」当成链条的最后一环，用<part-ref to="lemma:chain"></part-ref>就够了。', '“¬” is “→ ⊥”, so “no effect, no cause” (modus tollens) needs no new part: with “⊥” as the last link, <part-ref to="lemma:chain"></part-ref> does it.'),
       },
       {
         kind: 'proof',
@@ -260,7 +260,7 @@ export const era2 = [
           { t: T('刚才靠的是已知。这回什么都没给：把要用的两句变成两个框的假设。', 'Just now the givens did it. Here nothing is given: turn the two sentences you need into the assumptions of two boxes.') },
         ],
         solution: contra,
-        after: T('框里的串联证出了一句不需要任何已知的定理。逆否和原句永远同真同假：证明「若 P 则 Q」，也可以改证「若非 Q 则非 P」。', 'The Chain inside proves a theorem that needs nothing given. A sentence and its contrapositive always agree: to prove “if P then Q”, you may prove “if not Q then not P” instead.'),
+        after: T('框里的<part-ref to="lemma:chain"></part-ref>证出了一句不需要任何已知的定理。逆否和原句永远同真同假：证明「若 P 则 Q」，也可以改证「若非 Q 则非 P」。', 'The <part-ref to="lemma:chain"></part-ref> inside proves a theorem that needs nothing given. A sentence and its contrapositive always agree: to prove “if P then Q”, you may prove “if not Q then not P” instead.'),
       },
       {
         kind: 'truth',

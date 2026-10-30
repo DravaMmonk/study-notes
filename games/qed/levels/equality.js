@@ -53,7 +53,7 @@ export const equality = [
     consts: ['ann', ...STARS],
     tasks: write([
       { premises: {}, goal: 'ann = ann', answer: 'rfl', hint: [T('新块 rfl 证的就是两边一样的等式。', 'The new piece rfl proves just an equation whose sides are alike.')] },
-      { premises: {}, goal: '∀x. x = x', answer: 'fun a => rfl', hint: [T('任取是 fun：拿到 a，要证的是 a = a。', 'For any is a fun: given a, what is left is a = a.')] },
+      { premises: {}, goal: '∀x. x = x', answer: 'fun a => rfl', hint: [T('<part-ref to="part:allI"></part-ref>是 fun：拿到 a，要证的是 a = a。', '<part-ref to="part:allI"></part-ref> is a fun: given a, what is left is a = a.')] },
       { premises: { p: 'phos = hesp' }, goal: 'Bright(phos) → phos = phos', answer: 'fun h => rfl', naive: 'p', hint: [T('要证的等式两边都是晨星，用不着已知。', 'Both sides of the equation are the Morning Star; the given is not needed.')] },
     ]),
     intro: [

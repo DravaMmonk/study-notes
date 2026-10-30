@@ -62,7 +62,7 @@ export const automation = [
   }),
   {
     id: 'au-iff',
-    title: T('去掉等价', 'Equivalence away'),
+    title: T('等价展开', 'Equivalence away'),
     builds: 'iff',
     tasks: [
       {
@@ -89,7 +89,7 @@ export const automation = [
           { goal: '(KA ↔ ¬KB) ∧ KC', becomes: [['((¬KA ∨ ¬KB) ∧ (¬¬KB ∨ KA)) ∧ KC']] },
         ],
         brief: T('设计一个证明助手，把每个目标里的 ↔ 换成两串「或者」。', 'Design a proof assistant that turns the ↔ in each goal into two strings of “or”.'),
-        hint: [T('改写接上去掉等价的 A ↔ B ⟼ (¬A ∨ B) ∧ (¬B ∨ A)。', 'Wire Equivalence away’s A ↔ B ⟼ (¬A ∨ B) ∧ (¬B ∨ A) into Rewrite.')],
+        hint: [T('改写接上<part-ref to="lemma:iff"></part-ref>的 A ↔ B ⟼ (¬A ∨ B) ∧ (¬B ∨ A)。', 'Wire <part-ref to="lemma:iff"></part-ref>’s A ↔ B ⟼ (¬A ∨ B) ∧ (¬B ∨ A) into Rewrite.')],
         solution: script(['rw', 'iff.elim']),
       }),
     ],
@@ -105,7 +105,7 @@ export const automation = [
       { goal: '⊥', hyps: ['KA ↔ ¬KB', '¬¬KA'], becomes: [['(¬KA ∨ ¬KB) ∧ (KB ∨ KA); KA ⊢ ⊥']] },
     ],
     brief: T('设计一个证明助手，把每个目标的已知都化成合取范式。', 'Design a proof assistant that brings every hypothesis of each goal to conjunctive normal form.'),
-    hint: [T('<level-ref to="sp-cnf"></level-ref>的规则前面，再加上去掉等价。', 'Put Equivalence away in front of the rules of <level-ref to="sp-cnf"></level-ref>.')],
+    hint: [T('<level-ref to="sp-cnf"></level-ref>的规则前面，再加上<part-ref to="lemma:iff"></part-ref>。', 'Put <part-ref to="lemma:iff"></part-ref> in front of the rules of <level-ref to="sp-cnf"></level-ref>.')],
     intro: [{ t: T("待检查的命题现在位于已知中，而化简器此前只改写目标。将「改哪里」设为「已知」后，改写和化简会从上到下检查第一个目标的已知，并处理首个匹配项。", "The propositions to check now appear among the hypotheses, while the simplifier previously rewrote only goals. Set “Where” to “Hypotheses” to inspect the first goal’s hypotheses from top to bottom and rewrite the first match.") }],
     solution: script(['simp', CNF, HYPS]),
     naive: script(['simp', CNF]),
@@ -132,7 +132,7 @@ export const automation = [
   }),
   machine('clauses')({
     id: 'au-clauses',
-    title: T('拆成子句', 'Into clauses'),
+    title: T('完整子句化', 'Into clauses'),
     builds: 'clausify',
     adds: ['toClauses', 'skolem'],
     tests: [
@@ -143,10 +143,10 @@ export const automation = [
     ],
     brief: T('设计一个证明助手，把每个目标拆成子句：要证的那句的否定和已知一起。', 'Design a proof assistant that splits each goal into clauses: the negation of what is to be proved, with the hypotheses.'),
     hint: [T('反过来证、改已知、Skolem 化，最后拆开。', 'Prove it backwards, rewrite the hypotheses, Skolemise, and split them.')],
-    intro: [{ t: T('合取范式里，每一串「或者」叫一条<wiki-ref to="clause"></wiki-ref>。新元件「拆成子句」把目标是 ⊥ 的证明状态拆成一组子句：线上传的不再是证明状态，而是子句。设计出的证明助手会成为新元件「化成子句」。', 'In conjunctive normal form each string of “or” is a <wiki-ref to="clause"></wiki-ref>. The new card “Into clauses” splits a proof state whose goal is ⊥ into a set of clauses: what the wire carries is no longer a proof state, but clauses. The proof assistant you design becomes a new part, “Into clauses, all the way”.') }],
+    intro: [{ t: T('合取范式里，每一串「或者」叫一条<wiki-ref to="clause"></wiki-ref>。新元件「析出子句」把目标是 ⊥ 的证明状态拆成一组子句：线上传的不再是证明状态，而是子句。设计出的证明助手会成为新元件「完整子句化」。', 'In conjunctive normal form each string of “or” is a <wiki-ref to="clause"></wiki-ref>. The new card “Into clauses” splits a proof state whose goal is ⊥ into a set of clauses: what the wire carries is no longer a proof state, but clauses. The proof assistant you design becomes a new part, “Into clauses, all the way”.') }],
     solution: flow(...INTO),
     naive: flow(['simp', CNF, HYPS], 'skolem', 'toClauses'),
-    after: T('子句里的变量读作「对所有」，取出来的东西成了一个名字。这个证明助手现在是元件「化成子句」：自动证明器动手之前，先做的就是这一串。', 'A variable in a clause reads as “for all”, and a thing taken out has become a name. This proof assistant is now the part “Into clauses, all the way”: what an automatic prover does first, before anything else.'),
+    after: T('子句里的变量读作「对所有」，取出来的东西成了一个名字。这个证明助手现在是元件「完整子句化」：自动证明器动手之前，先做的就是这一串。', 'A variable in a clause reads as “for all”, and a thing taken out has become a name. This proof assistant is now the part “Into clauses, all the way”: what an automatic prover does first, before anything else.'),
   }),
 
   // ---------- resolution ----------
@@ -224,9 +224,9 @@ export const automation = [
       { clauses: ['¬Human(x) ∨ Mortal(x)', 'Human(soc)', '¬Mortal(soc)'] },
     ],
     brief: T('设计一个证明助手：推得出 ⊥ 的，推出来；推不出的，一直归结到再也没有新子句。', 'Design a proof assistant that reaches ⊥ where it follows, and where it does not, resolves until no new clause appears.'),
-    hint: [T('归结一圈还不够：放进重复框。', 'One round of resolution is not enough: put it in a repeat frame.')],
+    hint: [T('一轮归结还不够：放进重复框。', 'One round of resolution is not enough: put it in a repeat frame.')],
     intro: [
-      { t: T('<level-ref to="au-refute"></level-ref>里，每一步消哪一对是你挑的。证明助手不会挑：新元件「归结一圈」把每一对能消的都消一次，新子句加进来，记下它从哪两条来。', 'In <level-ref to="au-refute"></level-ref> you picked the pair to cancel at each step. A proof assistant does not pick: the new card “a round of resolution” cancels every pair that can be cancelled once, adding each new clause with the two it came from.') },
+      { t: T('<level-ref to="au-refute"></level-ref>里，每一步消哪一对是你挑的。证明助手不会挑：新元件「一轮归结」把每一对能消的都消一次，新子句加进来，记下它从哪两条来。', 'In <level-ref to="au-refute"></level-ref> you picked the pair to cancel at each step. A proof assistant does not pick: the new card “a round of resolution” cancels every pair that can be cancelled once, adding each new clause with the two it came from.') },
       { t: T('子句里有变量时，一对文字先合一，再消：「¬x是人 ∨ x会死」和「苏格拉底是人」，x 合一成苏格拉底。设计出的证明助手会成为新元件「饱和器」。', 'When clauses have variables, a pair of literals is unified first, then cancelled: “¬x is human ∨ x is mortal” and “Socrates is human”, with x unified to Socrates. The proof assistant you design becomes a new part, “Saturator”.') },
     ],
     solution: flow({ frame: 'repeat', body: ['resolve'] }),
@@ -247,7 +247,7 @@ export const automation = [
           { goal: 'OnTime', hyps: ['Bus → OnTime', 'Bike ∨ Bus'] },
         ],
         brief: T('设计一个证明助手：目标推得出，就推出 ⊥；推不出，就饱和到再没有新子句。', 'Design a proof assistant: where the goal follows, reach ⊥; where it does not, saturate until no new clause appears.'),
-        hint: [T('「化成子句」，再「饱和器」。', '“Into clauses, all the way”, then “Saturator”.')],
+        hint: [T('「完整子句化」，再「饱和器」。', '“Into clauses, all the way”, then “Saturator”.')],
         solution: flow('clausify', 'saturate'),
         naive: flow('clausify', 'resolve'),
       }),
@@ -261,7 +261,7 @@ export const automation = [
         hint: [T('饱和以后只有一个文字的子句，一条条读出来就是那一行。', 'The one-literal clauses after saturating, read one by one, give the row.')],
       },
     ],
-    intro: [{ t: T('化成子句，再饱和：一个目标交给它，它就说得出推得出还是推不出。', 'Into clauses, then saturate: hand it a goal, and it can tell whether the goal follows.') }],
+    intro: [{ t: T('完整子句化，再饱和：一个目标交给它，它就说得出推得出还是推不出。', 'Into clauses, then saturate: hand it a goal, and it can tell whether the goal follows.') }],
     after: T('没准时到，所以没坐公交，所以骑了车：证明助手停下来没有 ⊥，饱和的子句就写着一个反例。可它推出 ⊥ 时说的话，只有它自己信：证明助手板上的子句不是核证出来的。', 'Not on time, so not the bus, so the bike: when the proof assistant stops without ⊥, the saturated clauses spell out a counterexample. But when it reaches ⊥, only the proof assistant vouches for it: clauses on the proof assistant board are not proved by the kernel.'),
   },
 
@@ -325,8 +325,8 @@ export const automation = [
           { goal: 'Late', hyps: ['Bus ∨ ¬Up', 'Up ∨ ¬Bus'] },
         ],
         adds: ['oracle'],
-        brief: T('设计一个证明助手，把别人的证明器的证书交给核重放。', 'Design a proof assistant that hands the certificate of someone else’s prover to the kernel to replay.'),
-        hint: [T('化成子句，别人的证明器，重放。', 'Into clauses, the other prover, replay.')],
+        brief: T('设计一个证明助手，把外部证明器的证书交给核重放。', 'Design a proof assistant that hands the certificate of someone else’s prover to the kernel to replay.'),
+        hint: [T('完整子句化、外部证明器、重放。', 'Into clauses, the other prover, replay.')],
         solution: flow('clausify', 'oracle', 'replay'),
       }),
       {
@@ -437,7 +437,7 @@ export const automation = [
     brief: T('f 给每个 x 配一个集合 f(x)。已知每个集合都是某个 f(x)（f 是满射）；又有一个集合 z，装的正好是不属于 f(y) 的那些 y。推出矛盾 ⊥。', 'f gives each x a set f(x). Every set is some f(x) (f is onto); and there is a set z holding exactly the y not in f(y). Get the contradiction ⊥.'),
     hint: [
       T('先拿出 z，再拿出那个让 f(x) 和 z 一样的 x，然后都取 y = x。', 'Take out z, then the x whose f(x) is z, then take y = x in both.'),
-      T('得到 X ↔ Y 和 Y ↔ ¬X：两个都拆开，用串联接成 X → ¬X 和 ¬X → X，再拼起来就是说谎者。', 'You get X ↔ Y and Y ↔ ¬X: split both, chain them into X → ¬X and ¬X → X, and joined that is the liar.'),
+      T('得到 X ↔ Y 和 Y ↔ ¬X：两个都拆开，用蕴涵传递接成 X → ¬X 和 ¬X → X，再拼起来就是说谎者。', 'You get X ↔ Y and Y ↔ ¬X: split both, chain them into X → ¬X and ¬X → X, and joined that is the liar.'),
     ],
     solution: (() => {
       const l = liarOf(['a2', 'a3'], 'e2')

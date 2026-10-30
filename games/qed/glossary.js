@@ -389,7 +389,7 @@ export const GLOSSARY = [
   },
   {
     id: 'forward', group: 'rules', title: T('正向推理', 'forward reasoning'), at: 'r-drule',
-    body: [T(`从已知出发往前推，叫<b>正向推理</b>：规则的第一条前提对上一条已知，结论加进已知。和${W('backward')}相反，它不看目标。有的规则只能倒着用（任取），有的只好往前推（取一个）：看合一时是哪一边带着约束变量。`, `Reasoning onwards from what is known is <b>forward reasoning</b>: a rule’s first premise fits a given, and its conclusion joins the givens. Unlike ${W('backward')}, it does not look at the goal. Some rules only go backwards (For any), some only forwards (Take one): it depends on which side carries the bound variable when unifying.`)],
+    body: [T(`从已知出发往前推，叫<b>正向推理</b>：规则的第一条前提对上一条已知，结论加进已知。和${W('backward')}相反，它不看目标。有的规则只能倒着用（<part-ref to="part:allI"></part-ref>），有的只好往前推（<part-ref to="part:allE"></part-ref>）：看合一时是哪一边带着约束变量。`, `Reasoning onwards from what is known is <b>forward reasoning</b>: a rule’s first premise fits a given, and its conclusion joins the givens. Unlike ${W('backward')}, it does not look at the goal. Some rules only go backwards (<part-ref to="part:allI"></part-ref>), some only forwards (<part-ref to="part:allE"></part-ref>): it depends on which side carries the bound variable when unifying.`)],
     see: ['backward'],
   },
   {

@@ -79,14 +79,14 @@ export const inductive = [
     tests: [{ premises: { d0: '∀y. plus(zero, y) = y', d1: '∀x. ∀y. plus(s(x), y) = s(plus(x, y))' }, goal: 'plus(s(zero), s(zero)) = s(s(zero))' }],
     brief: T('从加法的两条定义证明出 1 + 1 = 2。', 'From the two definitions of addition, prove 1 + 1 = 2.'),
     hint: [
-      T('先用取一个，把定义里的 x、y 换成具体的数。', 'First Take one, putting particular numbers in for the x and y of a definition.'),
+      T('先用<part-ref to="part:allE"></part-ref>，把定义里的 x、y 换成具体的数。', 'First <part-ref to="part:allE"></part-ref>, putting particular numbers in for the x and y of a definition.'),
       T('第二条定义算出 S (0 + S 0)；再用第一条算出 0 + S 0，用等量代换把它换进去。', 'The second definition gives S (0 + S 0); the first works out 0 + S 0, and Rewrite puts it in.'),
     ],
     intro: [
       { t: T('<level-ref to="def-plus"></level-ref>的两条等式，0 + y = y，S x + y = S (x + y)，在证明板上就是两句「对所有」的已知。拿它们证一个具体的等式。', 'The two equations of <level-ref to="def-plus"></level-ref>, 0 + y = y and S x + y = S (x + y), are two “for all” givens on the proof board. Prove a particular equation with them.') },
     ],
     solution: proof({ e1: ['allE', { t: 'zero' }], e2: ['allE', { t: 's(zero)' }], e3: ['allE', { t: 's(zero)' }], w: ['rewrite', { at: [0] }] }, ['d1>e1.all', 'e1>e2.all', 'd0>e3.all', 'e3>w.eq', 'e2>w.p', 'w>goal'], { premises: ['d0', 'd1'] }),
-    after: T('三次取一个、一次代换，才算完 1 + 1。数一大，手算就没完没了；可每一步做的都一样：拿一条定义，把对得上左边的地方换成右边。', 'Three Take ones and a Rewrite, just for 1 + 1. With bigger numbers, working by hand never ends; yet every step is the same: take a definition, and where its left side fits, put its right side.'),
+    after: T('三次全称实例化、一次代换，才算完 1 + 1。数一大，手算就没完没了；可每一步做的都一样：拿一条定义，把对得上左边的地方换成右边。', 'Three Take ones and a Rewrite, just for 1 + 1. With bigger numbers, working by hand never ends; yet every step is the same: take a definition, and where its left side fits, put its right side.'),
   },
   // ---------- working them out ----------
   proves({
@@ -95,7 +95,7 @@ export const inductive = [
     defs: ['plus'],
     tests: [{ goal: 'plus(s(zero), s(zero)) = s(s(zero))' }, { goal: 'plus(s(s(zero)), s(zero)) = s(s(s(zero)))' }, { goal: 'plus(zero, s(s(zero))) = s(s(zero))' }],
     brief: PROVE,
-    hint: [T('化简用两条定义，把左边算出来；两边一样了，用规则接上<part-ref to="part:refl"></part-ref>。', 'Simp with the two definitions works the left side out; once both sides are the same, Rule with <part-ref to="part:refl"></part-ref>.')],
+    hint: [T('化简用两条定义，把左边算出来；两边一样了，用<part-ref to="part:rule"></part-ref>接上<part-ref to="part:refl"></part-ref>。', 'Simp with the two definitions works the left side out; once both sides are the same, <part-ref to="part:rule"></part-ref> with <part-ref to="part:refl"></part-ref>.')],
     intro: [{ t: T('<level-ref to="nl-plus"></level-ref>里每一步做的都一样：拿一条定义，从左往右换。定义就是改写规则：<part-ref to="lemma:simp"></part-ref>的规则里多了一组「定义」，交给它去算。', 'Every step in <level-ref to="nl-plus"></level-ref> was the same: take a definition and replace left to right. A definition is a rewrite rule: among <part-ref to="lemma:simp"></part-ref>’s rules there is now a group of definitions, to work it out.') }],
     solution: script(['simp', ['def.0', 'def.1']], ['rule', 'refl']),
     after: T('化简把定义从左往右一遍遍用，直到左边算成一个数；两边一样，就是自反律。证明助手的「计算」，就是改写。', 'Simp uses the definitions left to right again and again until the left side is worked out to a number; both sides the same is reflexivity. Computing, for the proof assistant, is rewriting.'),
@@ -217,7 +217,7 @@ export const inductive = [
     defs: ['plus', 'app', 'len'],
     tests: [{ goal: 'plus(a, zero) = a → plus(s(a), zero) = s(a)' }, { goal: 'len(app(l, nil)) = len(l) → len(app(cons(ann, l), nil)) = s(len(l))' }],
     brief: PROVE,
-    hint: [T('先用规则接上假设框，把「若」的那一半放进已知。改写规则里有一条是「已知里的等式」。', 'First Rule with the assumption box, putting the “if” half among the givens. One of the rewrite rules is “an equation given”.')],
+    hint: [T('先用<part-ref to="part:rule"></part-ref>接上假设框，把「若」的那一半放进已知。改写规则里有一条是「已知里的等式」。', 'First <part-ref to="part:rule"></part-ref> with the assumption box, putting the “if” half among the givens. One of the rewrite rules is “an equation given”.')],
     intro: [{ t: T("目标是条件命题时，可以通过假设框引入前件。已知中的等式也可以作为改写规则，将左侧替换为右侧。", "For a conditional goal, an assumption box can introduce the antecedent. An equation among the givens can also serve as a rewrite rule, replacing its left side with its right.") }],
     solution: script(['rule', 'impI'], ['simp', ['def.1', 'def.3', 'def.5', 'hyp']], ['rule', 'refl']),
     after: T('已知里的等式和定义一样，都能当改写规则。用假设框把条件放进已知，再拿它改写结论：条件在结论里一直有效。', 'An equation given is a rewrite rule, as a definition is. The assumption box puts the condition among the givens, and it rewrites the conclusion: the condition holds throughout the conclusion.'),
@@ -242,8 +242,8 @@ export const inductive = [
     tests: [{ goal: '¬(zero = s(zero))' }, { goal: '¬(s(s(zero)) = zero)' }, { goal: '¬(zero = s(a))' }],
     brief: PROVE,
     hint: [
-      T('¬A 就是 A → ⊥：先用规则接上假设框，把等式放进已知，再拿规则对已知接上「数理规则书」里 0 = S … 那一条。', '¬A is A → ⊥: first Rule with the assumption box puts the equation among the givens, then Rule on a given with the 0 = S … rule of the “Rule book of numbers”.'),
-      T('有一组测试的等式是反过来写的：两条规则，走几条路。', 'One test has its equation the other way round: two rules, on Alternatives.'),
+      T('¬A 就是 A → ⊥：先用<part-ref to="part:rule"></part-ref>接上假设框，把等式放进已知，再用<part-ref to="lemma:erule"></part-ref>接上「数理规则书」里 0 = S … 那一条。', '¬A is A → ⊥: first <part-ref to="part:rule"></part-ref> with the assumption box puts the equation among the givens, then <part-ref to="lemma:erule"></part-ref> with the 0 = S … rule of the “Rule book of numbers”.'),
+      T('有一组测试的等式是反过来写的：两条规则，放进<part-ref to="part:append"></part-ref>。', 'One test has its equation the other way round: two rules, on <part-ref to="part:append"></part-ref>.'),
     ],
     intro: [
       { t: T('化简会算 1 + 1，可「0 不等于 1」它证不出来：没有哪条定义说它们不一样。说它们不一样的是声明：<level-ref to="decl-nat"></level-ref>的 nat = 0 | S nat 是一个<wiki-ref to="inductive"></wiki-ref>，0 和 S 两条来路互不相同，0 = S x 不可能成立，从它推出什么都行。', 'Simp works out 1 + 1, but “0 is not 1” it cannot prove: no definition says they differ. The declaration says so: nat = 0 | S nat of <level-ref to="decl-nat"></level-ref> is an <wiki-ref to="inductive"></wiki-ref>, its two ways 0 and S are different, 0 = S x cannot hold, and from it anything follows.') },
@@ -298,10 +298,10 @@ export const inductive = [
     types: NAT,
     tests: [{ goal: '∀x. x = zero ∨ (∃y. x = s(y))' }],
     brief: PROVE,
-    hint: [T('先任取，再按情况分；在第一种情况里，已知里有会把 ?t 定下来。', 'For any first, then by cases; in the first case, Assumption settles ?t.')],
+    hint: [T('先用<part-ref to="part:allI"></part-ref>，再按情况分；在第一种情况里，<part-ref to="part:assumption"></part-ref>会把 ?t 定下来。', '<part-ref to="part:allI"></part-ref> first, then by cases; in the first case, <part-ref to="part:assumption"></part-ref> settles ?t.')],
     intro: [{ t: T('每个数不是 0，就是某个数的后一个：这是<b>按情况分</b>，声明给的又一条规则 ⟦?t = 0 ⟹ ?C; ⋀x. ?t = S x ⟹ ?C⟧ ⟹ ?C：要证 ?C，两种情况各证一遍。?t 是谁，目标里读不出来，留给后面。', 'Every number is 0 or the one after some number: <b>by cases</b>, another rule the declaration gives, ⟦?t = 0 ⟹ ?C; ⋀x. ?t = S x ⟹ ?C⟧ ⟹ ?C: to prove ?C, prove it in each case. Who ?t is cannot be read off the goal, and is left for later.') }],
     solution: script(['rule', 'allI'], ['rule', 'nat.exhaust'], ['rule', 'disjI1'], 'assumption', ['rule', 'disjI2'], ['rule', 'exI'], 'assumption'),
-    after: T('?t 在第一种情况里由已知里有定成了 a，第二种情况的已知跟着变成 a = S x。一个 ? 等到能定的地方再定，和规则与元变量一章一样。', '?t was settled as a by Assumption in the first case, and the second case’s given became a = S x with it. A ?-letter waits for the place that settles it, as in the chapter on rules and metavariables.'),
+    after: T('?t 在第一种情况里由<part-ref to="part:assumption"></part-ref>定成了 a，第二种情况的已知跟着变成 a = S x。一个 ? 等到能定的地方再定，和规则与元变量一章一样。', '?t was settled as a by <part-ref to="part:assumption"></part-ref> in the first case, and the second case’s given became a = S x with it. A ?-letter waits for the place that settles it, as in the chapter on rules and metavariables.'),
   }),
   {
     id: 'in-zero',
@@ -481,8 +481,8 @@ export const inductive = [
     tests: [{ goal: '⊥', hyps: ['∀x. f(x) = s(f(x))'] }],
     brief: PROVE,
     hint: [
-      T('先证一句：用规则接上「数理规则书」里证出的 x ≠ S x，把它放进已知。', 'Have first: Rule with the x ≠ S x proved, from the “Rule book of numbers”, puts it among the givens.'),
-      T('再往前推两次<part-ref to="part:allE"></part-ref>，从两句「对所有」各取出一句，让它们撞上。', 'Then Forward with <part-ref to="part:allE"></part-ref> twice, one sentence out of each “for all”, and let them clash.'),
+      T('先证一句：用<part-ref to="part:rule"></part-ref>接上「数理规则书」里证出的 x ≠ S x，把它放进已知。', 'Have first: <part-ref to="part:rule"></part-ref> with the x ≠ S x proved, from the “Rule book of numbers”, puts it among the givens.'),
+      T('再用前向推理接上<part-ref to="part:allE"></part-ref>两次，从两句「对所有」各取出一句，让它们撞上。', 'Then Forward with <part-ref to="part:allE"></part-ref> twice, one sentence out of each “for all”, and let them clash.'),
     ],
     intro: [{ t: T('有人这样「定义」一个函数：f x = S (f x)。定义板不会收它：要算 f 0，先得算 f 0，永远算不完。假如收下了呢？这样一句定义不只是算不完：它和 x ≠ S x 放在一起，就推出矛盾。', 'Someone “defines” a function like this: f x = S (f x). The definition board would not take it: working out f 0 needs f 0 first, for ever. And if it were taken? Such a definition does worse than never finish: put beside x ≠ S x, it proves a contradiction.') }],
     solution: script(['rule', 'cut'], ['rule', 'succNeq'], ['frule', 'spec'], ['frule', 'spec'], ['erule', 'mp'], 'assumption'),
@@ -658,7 +658,7 @@ export const inductive = [
         defs: ['if'],
         tests: [{ goal: '∀u. ∀v. ∀w. u = tt → if(u, v, w) = v' }],
         brief: PROVE,
-        hint: [T('任取三次、假设框把 u = 真 放进已知；化简用已知里的等式把 u 换成真，再按 if 的定义算。', 'For any three times, and the assumption box puts u = true among the givens; Simp with the equation given turns u into true, then works by if’s definition.')],
+        hint: [T('用三次<part-ref to="part:allI"></part-ref>，再用假设框把 u = 真 放进已知；化简用已知里的等式把 u 换成真，再按 if 的定义算。', '<part-ref to="part:allI"></part-ref> three times, and the assumption box puts u = true among the givens; Simp with the equation given turns u into true, then works by if’s definition.')],
         solution: flow({ frame: 'repeat', body: [['rule', 'allI']] }, ['rule', 'impI'], ['simp', ['def.0', 'def.1', 'hyp']], ['rule', 'refl']),
         naive: flow({ frame: 'repeat', body: [['rule', 'allI']] }, ['rule', 'impI'], ['simp', ['def.0', 'def.1']], ['rule', 'refl']),
       }),
@@ -686,7 +686,7 @@ export const inductive = [
     brief: PROVE,
     hint: [
       T('第二个目标化简以后，卡在一个「若 c ≤ a 则…否则…」上：谁大，化简不知道。倒着用「数理规则书」里 bool 按情况分的规则，两种情况各用<level-ref to="sort-if"></level-ref>证出的一条带条件的规则改写。', 'After simp, the second goal is stuck on an “if c ≤ a then … else …”: which is bigger, Simp does not know. Use the bool by-cases rule of the “Rule book of numbers” backwards, and in each case rewrite with one of the rules with a condition proved in <level-ref to="sort-if"></level-ref>.'),
-      T('带条件的规则改写以后，条件排在后面；已知里有拿它去对 ?t = 真，?t 就定下来了。', 'After a rewrite with a condition, the condition waits behind; Assumption fits it to ?t = true, and ?t is settled.'),
+      T('带条件的规则改写以后，条件排在后面；<part-ref to="part:assumption"></part-ref>拿它去对 ?t = 真，?t 就定下来了。', 'After a rewrite with a condition, the condition waits behind; <part-ref to="part:assumption"></part-ref> fits it to ?t = true, and ?t is settled.'),
     ],
     intro: [{ t: T('插进一个元素，列表就长一格。程序里有一个「如果」，证明里就要分一次情况：<level-ref to="decl-bool"></level-ref>声明的 bool = 真 | 假 有按情况分的规则。', 'Insert an element and the list is one longer. An “if” in a program is a case split in its proof: the bool = true | false declared in <level-ref to="decl-bool"></level-ref> has its by-cases rule.') }],
     solution: script(
@@ -696,7 +696,7 @@ export const inductive = [
       ['rw', 'ifTrue'], ['simp', defs(11)], ['rule', 'refl'], 'assumption',
       ['rw', 'ifFalse'], ['simp', [...defs(11), 'hyp']], ['rule', 'refl'], 'assumption',
     ),
-    after: T('程序里每一个「如果」，证明里就是一次分情况；它的条件由带条件的规则交给已知里有去定。这一句也进了「数理规则书」。', 'Each “if” in a program is a case split in its proof, its condition settled by Assumption once a rule with that condition is used. This goes into the “Rule book of numbers” too.'),
+    after: T('程序里每一个「如果」，证明里就是一次分情况；它的条件由带条件的规则交给<part-ref to="part:assumption"></part-ref>去确定。这一句也进了「数理规则书」。', 'Each “if” in a program is a case split in its proof, its condition settled by <part-ref to="part:assumption"></part-ref> once a rule with that condition is used. This goes into the “Rule book of numbers” too.'),
   }),
   proves({
     id: 'sort-len',

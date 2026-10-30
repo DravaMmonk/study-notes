@@ -262,9 +262,9 @@ export const era1 = [
         step: T('接起来，再合并', 'Chain, then merge'),
         tests: [{ premises: { p: 'A → B', q: 'B → (A → C)' }, goal: 'A → C' }],
         cases: [{ A: 'Alarm', B: 'Up', C: 'OnTime' }, { A: 'Exam', B: 'Study', C: 'Pass' }],
-        hint: [T('串联以后，「闹钟响了」说了两遍。', 'After Chain, “the alarm rings” is said twice.')],
+        hint: [T('用<part-ref to="lemma:chain"></part-ref>以后，「闹钟响了」说了两遍。', 'After <part-ref to="lemma:chain"></part-ref>, “the alarm rings” is said twice.')],
         solution: proof({ c: ['chain'], g: ['merge'] }, ['p>c.p0', 'q>c.p1', 'c>g.p0', 'g>goal'], { premises: ['p', 'q'] }),
-        after: T('串联接出的句子里条件说了两遍，合并把它并成一遍。元件可以一个接一个地用：前一块的输出，正好是后一块要的输入。', 'Chain leaves a condition stated twice, and Merge folds it into one. Parts work one after another: what one gives is just what the next one takes.'),
+        after: T('<part-ref to="lemma:chain"></part-ref>接出的句子里条件说了两遍，<part-ref to="lemma:merge"></part-ref>把它并成一遍。元件可以一个接一个地用：前一块的输出，正好是后一块要的输入。', '<part-ref to="lemma:chain"></part-ref> leaves a condition stated twice, and <part-ref to="lemma:merge"></part-ref> folds it into one. Parts work one after another: what one gives is just what the next one takes.'),
       },
       {
         kind: 'proof',
@@ -274,7 +274,7 @@ export const era1 = [
         hint: [T('接成一段以后，「我坐公交」卡在两遍「闹钟响了」中间。', 'Once joined into one piece, “I take the bus” sits between the two “the alarm rings”s.')],
         intro: [{ t: T('三段首尾相接，最后又绕回了起点「闹钟响了」。可这一圈中间还夹着一个条件「我坐公交」：它是知道的，只是位置不对。', 'Three pieces meet end to end, and the last comes back round to the start, “the alarm rings”. But a condition, “I take the bus”, is caught inside the loop: you know it, it is just in the wrong place.') }],
         solution: proof({ c1: ['chain'], c2: ['chain'], w: ['swap'], m: ['mp'], g: ['merge'] }, ['p>c1.p0', 'q>c1.p1', 'c1>c2.p0', 'r>c2.p1', 'c2>w.p0', 'w>m.imp', 'd>m.a', 'm>g.p0', 'g>goal'], { premises: ['p', 'q', 'r', 'd'] }),
-        after: T('串联把一长串接成一段，交换把夹在中间的「我坐公交」挪到外面、用套用去掉，合并收掉重复的「闹钟响了」。复杂的证明，常常就是把手上的元件按顺序排好。', 'Chain joins the long run into one piece, Swap brings “I take the bus” out from the middle so Apply can remove it, and Merge folds the repeated “the alarm rings”. A hard proof is often just the parts you hold, put in the right order.'),
+        after: T('<part-ref to="lemma:chain"></part-ref>把一长串接成一段，<part-ref to="lemma:swap"></part-ref>把夹在中间的「我坐公交」挪到外面、用套用去掉，<part-ref to="lemma:merge"></part-ref>收掉重复的「闹钟响了」。复杂的证明，常常就是把手上的元件按顺序排好。', '<part-ref to="lemma:chain"></part-ref> joins the long run into one piece, <part-ref to="lemma:swap"></part-ref> brings “I take the bus” out from the middle so Apply can remove it, and <part-ref to="lemma:merge"></part-ref> folds the repeated “the alarm rings”. A hard proof is often just the parts you hold, put in the right order.'),
       },
       {
         kind: 'proof',
@@ -287,7 +287,7 @@ export const era1 = [
       },
     ],
     intro: [{ t: T('两张已知首尾相接，可接起来以后，条件多出来一遍。你手里正好有专门处理这件事的元件。', 'The two givens meet end to end, but joined, a condition appears twice. You hold a part made for exactly that.') }],
-    after: T('两句对不上时，先把它们变成对得上的形状：合并收掉重复，交换调整顺序，串联才接得起来。同一个目标往往有不止一条路。', 'When two sentences do not meet, reshape them until they do: Merge folds repeats, Swap reorders, and then Chain joins them. A goal usually has more than one way in.'),
+    after: T('两句对不上时，先把它们变成对得上的形状：<part-ref to="lemma:merge"></part-ref>收掉重复，<part-ref to="lemma:swap"></part-ref>调整顺序，<part-ref to="lemma:chain"></part-ref>才接得起来。同一个目标往往有不止一条路。', 'When two sentences do not meet, reshape them until they do: <part-ref to="lemma:merge"></part-ref> folds repeats, <part-ref to="lemma:swap"></part-ref> reorders, and then <part-ref to="lemma:chain"></part-ref> joins them. A goal usually has more than one way in.'),
   },
   // The topic without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time.
   {

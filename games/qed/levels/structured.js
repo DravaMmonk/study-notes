@@ -113,7 +113,7 @@ export const structured = [
       T('由等价和「进位是 1」得出两个输入都是 1，要拆开等价再套用：一张卡片不够。', 'From the equivalence and “the carry is 1” to both inputs being 1 takes splitting the equivalence, then applying: one card is not enough.'),
       T('最后一句要从三句里找矛盾。', 'The last row looks for a contradiction among three sentences.'),
     ],
-    intro: [{ t: T('一句话用一张卡片证不完时，by 后面可以是一个造好的证明助手：自己的 auto、化简、重建器。它们只用规则，所以这一句照样是核证出来的。', 'When one card cannot prove a row, by may be followed by a proof assistant already built: your own auto, Simp, the reconstructor. They only use rules, so the row is proved by the kernel all the same.') }],
+    intro: [{ t: T('一句话用一张卡片证不完时，by 后面可以是一个造好的证明助手：自建 auto、化简、证明重建器。它们只用规则，所以这一句照样是核证出来的。', 'When one card cannot prove a row, by may be followed by a proof assistant already built: your own auto, Simp, the reconstructor. They only use rules, so the row is proved by the kernel all the same.') }],
     after: T('结构由人写：先假设、拆出哪一半、要用哪几句；小步交给证明助手：拆等价、找矛盾。真正的证明大多是这样分工的。', 'People write the structure: what to assume, which half to take out, which facts to use; proof assistants do the small steps: taking the equivalence apart, finding the contradiction. Real proofs are mostly shared out like this.'),
   }),
 
@@ -148,7 +148,7 @@ export const structured = [
       }),
     ],
     intro: [{ t: T('写脚本的时候，常常先写出最后一句 show，再往前补：它要用的事实，一句一句 have 出来。', 'Writing a script, one often writes the last show first and fills in backwards: the facts it uses, one have at a time.') }],
-    after: T('从要证的那句倒着往回想，正是<level-ref to="s-intro"></level-ref>里拆目标的想法；写成脚本，顺序却是正着的：先 have，后 show。', 'Thinking back from what is to be proved is the idea of taking goals apart in <level-ref to="s-intro"></level-ref>; written as a script, the order runs forward: have first, show last.'),
+    after: T('从要证的那句倒着往回想，正是<level-ref to="s-intro"></level-ref>里分解目标的想法；写成脚本，顺序却是正着的：先 have，后 show。', 'Thinking back from what is to be proved is the idea of taking goals apart in <level-ref to="s-intro"></level-ref>; written as a script, the order runs forward: have first, show last.'),
   },
   {
     id: 'sc-show',
@@ -163,7 +163,7 @@ export const structured = [
   },
   script({
     id: 'sc-fix',
-    title: T('fix 是任取', 'fix is For any'),
+    title: T('fix 是全称概括', 'fix is For any'),
     brief: WRITE,
     premises: { p: '∀x. Student(x) → Human(x)', q: '∀x. Human(x) → Mortal(x)' },
     goal: '∀x. Student(x) → Mortal(x)',
@@ -227,7 +227,7 @@ export const structured = [
     naive: [{ k: 'show', stmt: '¬KC', using: ['a', 'c'], by: 'auto' }],
     hint: [
       T('假设 c 是骑士，他的话就成立。', 'Suppose c is a knight: then what he says holds.'),
-      T('a 和 b 是同一种人，又一个说另一个是无赖：这个矛盾交给重建器。', 'a and b the same kind, and one calling the other a knave: hand that contradiction to the reconstructor.'),
+      T('a 和 b 是同一种人，又一个说另一个是无赖：这个矛盾交给证明重建器。', 'a and b the same kind, and one calling the other a knave: hand that contradiction to the reconstructor.'),
     ],
     intro: [{ t: T('把证明写给人看：先说假设了什么，推出什么，最后矛盾在哪里；每一步交给合适的证明助手。', 'Write the proof for people: what is supposed, what follows, and where the contradiction lies; each step handed to the right proof assistant.') }],
     after: T('<level-ref to="is-silent"></level-ref>里，证明助手一行证完了它，可读不出为什么。这段脚本说出了为什么：c 要是骑士，a 和 b 就是同一种人，可 a 说 b 是无赖。', 'In <level-ref to="is-silent"></level-ref> the proof assistant proved this in one row, without saying why. This script says why: were c a knight, a and b would be the same kind, yet a calls b a knave.'),
@@ -272,7 +272,7 @@ export const structured = [
       T('假设有这么一个人，把他拿出来，叫他 b。', 'Suppose there is such a person; take him out and call him b.'),
       T('b 给不给自己刮？', 'Does b shave himself?'),
     ],
-    intro: [{ t: T('最后一段脚本，用上这台证明器的每一层：框、拿出那一个、取一个、自己的 auto、重建器。', 'A last script, using every layer of this prover: the box, take the one there is, take one, your own auto, the reconstructor.') }],
-    after: T('四行脚本，每一行都落到核规则上：框是假设，obtain 拿出那一个，auto 取一个，metis 找出说谎者的矛盾。证明器从两块元件长到这里，没有一步是核不认的。', 'Four rows, each down to kernel rules: the box assumes, obtain takes the one there is, auto takes one, metis finds the liar’s contradiction. The prover grew from two parts to this, and not one step was one the kernel would not take.'),
+    intro: [{ t: T('最后一段脚本，用上这台证明器的每一层：框、存在实例化、全称实例化、自建 auto、证明重建器。', 'A last script, using every layer of this prover: the box, take the one there is, take one, your own auto, the reconstructor.') }],
+    after: T('四行脚本，每一行都落到核规则上：框是假设，obtain 进行存在实例化，auto 进行全称实例化，metis 找出说谎者的矛盾。证明器从两块元件长到这里，没有一步是核不认的。', 'Four rows, each down to kernel rules: the box assumes, obtain takes the one there is, auto takes one, metis finds the liar’s contradiction. The prover grew from two parts to this, and not one step was one the kernel would not take.'),
   }),
 ]
