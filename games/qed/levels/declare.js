@@ -78,17 +78,22 @@ export const declarations = [
         ],
       },
       {
-        // Someone's declaration with each sentence a way of its own: one proof at hand already makes it.
+        // Someone's declaration with each sentence a way of its own: one proof at hand already makes it, and holding it
+        // no longer gives either side. Two different cases must catch it.
         kind: 'iso',
         step: T('找出错误', 'Find the fault'),
         play: 'audit',
         boards: [{ board: isoBoard(['Rain>1', 'Wind>2']) }],
-        answer: [{ given: ['Rain'], make: false }],
-        naive: [{ given: ['Rain', 'Wind'], make: true }],
-        intro: [{ t: T('板上是别人写的一份「并且」的声明，已经锁定。这一段不写声明，改写<b>检验条例</b>：表中每行一条，写明已知、目标，以及按需求目标是否应当可推导。运行时先按需求核对每条的预期，预期有误就停下；所有条例都无误，并且至少有一条让这份声明得出错误结论，便找出了它的错误。条例越少，成绩越好。', 'On the board is someone else’s declaration of “and”, locked. This task asks not for a declaration but for <b>test cases</b>: each row of the table is one, stating what is given, the goal, and whether, according to the requirement, the goal should be derivable. A run first checks each case’s expectation against the requirement and stops at the first that is wrong; once every case is right and at least one leads this declaration to a wrong conclusion, its fault has been found. The fewer cases, the better the score.') }],
-        brief: T('这份「并且」的声明有错。请编写检验条例，找出它得出错误结论的情形。', 'This declaration of “and” is faulty. Write test cases that reveal a situation in which it reaches a wrong conclusion.'),
-        hint: [T('这份声明有两条引入规则，每条只要一个前提。已知只有一份证明时，需求要求什么结论？这份声明又给出什么结论？', 'This declaration has two introduction rules, each needing a single premise. With only one proof held, what conclusion does the requirement call for, and what does the declaration give?')],
-        after: T('一条条例就足以暴露错误：手里只有「下雨」的证明时，需求不允许引入「并且」，这份声明却用引入规则 1 引入了它。它允许的情形比需求多，是过弱的规格。每个前提各设一条引入规则，其实是「或者」的写法。', 'A single case suffices: with only a proof of “it rains” held, the requirement does not allow “and” to be introduced, yet this declaration introduces it by intro rule 1. It admits more situations than the requirement does, which makes it too weak a specification. An introduction rule for each premise is, in fact, how “or” is written.'),
+        catches: 2,
+        answer: [{ given: ['Rain'], make: false }, { given: ['Rain ∧ Wind'], goal: 'Rain', make: true }],
+        naive: [{ given: ['Rain'], make: false }, { given: ['Rain'], make: false }],
+        intro: [{ t: T('板上是别人写的一份「并且」的声明，已经锁定。这一段不写声明，改写<b>检验条例</b>：表中每行一条，写明已知、目标，以及按需求目标是否应当可推导。运行时先按需求核对每条的预期，预期有误就停下；所有条例都无误，并且至少有两条不同的条例让这份声明得出错误结论，便找出了它的错误。条例越少，成绩越好。', 'On the board is someone else’s declaration of “and”, locked. This task asks not for a declaration but for <b>test cases</b>: each row of the table is one, stating what is given, the goal, and whether, according to the requirement, the goal should be derivable. A run first checks each case’s expectation against the requirement and stops at the first that is wrong; once every case is right and at least two different cases lead this declaration to a wrong conclusion, its fault has been found. The fewer cases, the better the score.') }],
+        brief: T('这份「并且」的声明有错。请编写检验条例，找出至少两种不同的情形，使这份声明的结果与预期不符。', 'This declaration of “and” is faulty. Write test cases that find at least two different situations in which its result disagrees with the expectation.'),
+        hint: [
+          T('这份声明有两条引入规则，每条只要一个前提。已知只有一份证明时，需求要求什么结论？这份声明又给出什么结论？', 'This declaration has two introduction rules, each needing a single premise. With only one proof held, what conclusion does the requirement call for, and what does the declaration give?'),
+          T('错误不只出在引入上。已知「下雨 ∧ 刮风」时，按需求能推出什么？这份声明的消去规则又能推出什么？', 'The fault is not only in introducing it. Given “it rains ∧ it is windy”, what follows according to the requirement, and what does this declaration’s elimination rule give?'),
+        ],
+        after: T('同一处错误有两种表现。引入时，只有「下雨」的证明，这份声明就用引入规则 1 引入了「并且」，允许的情形比需求多；消去时，已知「下雨 ∧ 刮风」，它却推不出「下雨」，因为消去规则要准备两种情况，其中一种只交还「刮风」。引入规则给得太宽，消去规则就给得太少。每个前提各设一条引入规则，其实是「或者」的写法。', 'One fault shows in two ways. Introducing it, a proof of “it rains” alone lets this declaration introduce “and” by intro rule 1, admitting more situations than the requirement does. Eliminating it, given “it rains ∧ it is windy”, it cannot derive “it rains”, because its elimination rule must provide for two cases and one of them hands back only “it is windy”. Intro rules that admit too much leave an elimination rule that gives too little. An introduction rule for each premise is, in fact, how “or” is written.'),
       },
     ],
     solution: isoBoard(['Rain>Wind', 'Wind>1']),
@@ -125,6 +130,20 @@ export const declarations = [
         brief: T('下面两份「或者」的声明各有错误。请编写检验条例，让每份声明至少在一条条例上得出错误结论。', 'Each of these two declarations of “or” is faulty. Write test cases so that each declaration reaches a wrong conclusion on at least one of them.'),
         hint: [T('用上方的「电路 1」「电路 2」分别查看两份声明。先想一想：有没有一条条例能同时暴露两份的错误？', 'Use “Board 1” and “Board 2” above to examine each declaration. Consider first: is there a single case that reveals both faults at once?')],
         after: T('两份声明错在不同的地方。电路 1 把两个前提串成一条引入规则，要求两份证明同时在手，规格过强；电路 2 只有以「周六」为前提的那条引入规则，漏掉了另一种情形。前者在手里只有「周六」时出错，后者在手里只有「周日」时出错，所以至少要两条条例。检验条例来自对需求的逐项理解：需求的每一层含义，都要有一条条例来检验。', 'The two faults differ in kind. Board 1 chains both premises into a single introduction rule, so that both proofs must be held: the specification is too strong. Board 2 has only the introduction rule whose premise is “Saturday”, and so omits the other situation. The former errs when only “Saturday” is held, the latter when only “Sunday” is, so at least two cases are needed. Test cases come from reading the requirement point by point: every part of what it means should be checked by a case of its own.'),
+      },
+      {
+        // The goal fixed to "I rest": a case must use the declaration (its elimination rule), and one case catches
+        // both, since each wrong declaration has only cases that hand back Saturday.
+        kind: 'iso',
+        step: T('以「我休息」为目标', 'With “I rest” as the goal'),
+        play: 'audit',
+        boards: [{ board: isoBoard(['Sat>Sun', 'Sun>1']) }, { board: isoBoard(['Sat>1']) }],
+        caseGoal: 'Rest',
+        answer: [{ given: ['Sat ∨ Sun', 'Sat → Rest'], goal: 'Rest', make: false }],
+        naive: [{ given: ['Sat ∨ Sun', 'Sat → Rest', 'Sun → Rest'], goal: 'Rest', make: true }],
+        brief: T('目标固定为「我休息」。请编写检验条例，使这两份声明都得出与预期不符的结果。', 'The goal is fixed to “I rest”. Write test cases so that both declarations reach a result that disagrees with the expectation.'),
+        hint: [T('目标不再是「或者」本身，已知里就要有「今天是周六 ∨ 今天是周日」，检验的是它的消去规则。按需求，什么时候推不出「我休息」？', 'The goal is no longer “or” itself, so “today is Saturday ∨ today is Sunday” must be given: the case tests its elimination rule. According to the requirement, when does “I rest” not follow?')],
+        after: T('已知「周六 ∨ 周日」和「周六 → 我休息」时，按需求推不出「我休息」：不知道是哪一天，周日那种情况没有着落。两份错误的声明却都推出了它：电路 1 唯一的情况同时交还周六和周日，电路 2 唯一的情况只交还周六，两者都不必面对「只有周日」的情况。引入规则写错，由它生成的消去规则也随之出错，所以检验消去规则的条例同样能暴露引入规则的错误。', 'Given “Saturday ∨ Sunday” and “Saturday → I rest”, “I rest” does not follow according to the requirement: which day it is is unknown, and the Sunday case is left unmet. Yet both wrong declarations derive it: board 1’s only case hands back both Saturday and Sunday, and board 2’s only case hands back Saturday, so neither has to face a case with Sunday alone. When the intro rules are wrong, the elimination rule made from them is wrong too, so a case testing the elimination rule also reveals a fault in the intro rules.'),
       },
       {
         kind: 'iso',

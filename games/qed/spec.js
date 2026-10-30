@@ -294,6 +294,12 @@ export default {
       const moved = (task) => (Array.isArray(task?.work) ? { work: task.work.map((c) => (c.have ? { given: c.have, make: c.make } : c)) } : task)
       return id === 'decl-and' && Array.isArray(value) ? [value[0], moved(value[1])] : id === 'decl-or' && Array.isArray(value) ? [moved(value[0]), value[1]] : value
     } },
+  ] },
+  // Version 57 put a task between 声明「或者」's two (test cases with the goal fixed to 我休息): the board corrected
+  // moves to the third, and whoever had passed the first has the second still to do.
+  { version: 57, ops: [
+    { data: (value, id) => (id === 'decl-or' && Array.isArray(value) && value.length === 2 ? [value[0], null, value[1]] : value) },
+    { tasks: (passed, id) => (id === 'decl-or' ? Math.min(passed, 1) : passed) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

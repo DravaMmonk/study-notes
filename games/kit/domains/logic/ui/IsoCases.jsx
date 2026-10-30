@@ -1,4 +1,4 @@
-import { ChoiceField, ListField, RowTable, SelectField } from '../../../shell/index.js'
+import { ChoiceField, Field, ListField, RowTable, SelectField } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 
 // The test cases (检验条例) of a declaration board, on the shared table the player fills in (../../../shell/RowTable.jsx):
@@ -6,7 +6,7 @@ import { L, tr } from '../../../shell/i18n.js'
 // it (结果: the result, filled in only as a run steps to the case). The level's cases are read only; an audit's are
 // the player's to write (`edit`): a case opens in a form where the givens are added from a drop-down of the level's
 // sentences (as an assumption card picks one) and taken off with ×, the goal is picked from the same sentences, and the
-// expectation chosen. `result(k)` is case k's result on the board on view, { derived, wrong } or null before a run
+// expectation chosen; a level's `caseGoal` fixes every case's goal. `result(k)` is case k's result on the board on view, { derived, wrong } or null before a run
 // reaches it.
 
 const T = (zh, en) => ({ zh, en })
@@ -26,7 +26,9 @@ export default function CaseTable({ cases, words, level, choices = [], edit = nu
   const form = (c, set) => (
     <>
       <ListField label={T('已知', 'Given')} value={c.given} options={options} onChange={(given) => set({ ...c, given })} addLabel={T('添加已知…', 'Add a given…')} none={T('没有已知', 'Nothing given')} />
-      <SelectField label={T('目标', 'Goal')} value={goalOf(c)} options={options} onChange={(goal) => set({ ...c, goal: goal === level.target ? undefined : goal })} />
+      {level.caseGoal
+        ? <Field label={T('目标（固定）', 'Goal (fixed)')}><span className="ff-fixed">{name(level.caseGoal)}</span></Field>
+        : <SelectField label={T('目标', 'Goal')} value={goalOf(c)} options={options} onChange={(goal) => set({ ...c, goal: goal === level.target ? undefined : goal })} />}
       <ChoiceField label={T('预期', 'Expected')} value={c.make} options={[{ value: true, label: T('可推导', 'Derivable') }, { value: false, label: T('不可推导', 'Not derivable') }]} onChange={(make) => set({ ...c, make })} />
     </>
   )
@@ -36,7 +38,7 @@ export default function CaseTable({ cases, words, level, choices = [], edit = nu
       columns={columns}
       onChange={edit}
       form={form}
-      blank={() => ({ given: [], make: true })}
+      blank={() => ({ given: [], ...(level.caseGoal ? { goal: level.caseGoal } : {}), make: true })}
       max={MOST}
       addLabel={T('添加条例', 'Add a test case')}
       formTitle={(k) => (k === null ? T('新的检验条例', 'New test case') : T(`第 ${k + 1} 条检验条例`, `Test case ${k + 1}`))}

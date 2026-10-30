@@ -589,6 +589,7 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .ff-list li button { display: inline-flex; padding: 8px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
 .ff-list li.ff-none { color: var(--muted); border-style: dashed; }
 .ff-select { min-height: 42px; padding: 0 10px; border: 1px solid var(--rule); border-radius: 10px; background: var(--paper); color: var(--body); font: inherit; font-size: 15px; }
+.ff-fixed { min-height: 42px; display: flex; align-items: center; padding: 0 12px; border: 1px dashed var(--hairline); border-radius: 10px; color: var(--body); font-size: 15px; }
 .ff-choice { display: flex; gap: 8px; }
 .ff-choice button { flex: 1; min-height: 42px; border: 1px solid var(--rule); border-radius: 10px; background: transparent; color: var(--body); font: inherit; font-size: 15px; cursor: pointer; }
 .ff-choice button.is-on { border-color: var(--ink); background: var(--ink); color: var(--paper); font-weight: 600; }
