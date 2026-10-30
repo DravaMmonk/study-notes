@@ -71,7 +71,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
     if (node.type === 'thing') return <div className="lg-card"><span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.name}</b></span></div>
     if (node.type === 'hyp' || node.type === 'join') {
       const value = runIso(level, board, { given: [] }).values.get(node.id)
-      return <div className="lg-card">{value && <code className="lg-made">{listText(value, level, text)}</code>}</div>
+      return <div className="lg-card">{node.type === 'hyp' && <span className="lg-pick">{text(sentenceOf(level, node.params.name))}</span>}{value && <code className="lg-made">{listText(value, level, text)}</code>}</div>
     }
     return (
       <div className="lg-card">
