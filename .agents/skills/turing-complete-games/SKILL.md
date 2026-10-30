@@ -119,6 +119,11 @@ The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and pa
 
 - No spoiler of a core idea of the topic (a recurrence, why a merge operation is right); say what a part does,
   never why it solves the level. Mechanical levels may hand-hold.
+- **Pass texts never touch the answer (hard rule).** A pass text says nothing of the level's answer, wiring or way of
+  solving it: no retelling of what was wired, no why it works, no naming the key step. At most one high-level,
+  abstract pointer where it truly helps; most minor levels (practice, mechanical) get none.
+- **Brevity.** Standard written language, no translationese. Copy runs on from the level before; a point is made once,
+  where it first comes up, never again. Nothing to say means nothing written.
 - No forward references: nothing about later levels; a pass text only sums up this level.
 - References to a level, a part or an encyclopedia entry are links, on both the zh and en side:
   `<level-ref to="id">`, `<part-ref to="part key">`, `<wiki-ref to="entry id">` (each closed at once). They show the
