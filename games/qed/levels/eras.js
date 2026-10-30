@@ -48,12 +48,13 @@ export const ERAS = [
     // are both in hand (a level's `without` holds back the box and the parts built with it): a condition, Apply under a
     // condition, then Chain (compiling a box away, the deduction theorem) and Swap, Identity and Merge, each from K
     // and S alone.
-    // It splits in two after X2: Chain then Swap on one branch, Identity then Merge on the other.
+    // The whole topic is numbered X: K (X1) and S (X2) first, then the box taken away (X3), splitting in two after it:
+    // Chain then Swap on one branch, Identity then Merge on the other.
     topics: [
       // K and S, each proved with boxes and built as a part: optional, needing nothing from each other. They are where a
       // prover with axioms alone starts, which is all they are for (the main path backwards uses the box instead).
-      { id: 'k', code: 'K', after: 'mergeBoth', levels: ['k'], title: T('K', 'K') },
-      { id: 's', code: 'S', after: 'mergeBoth', levels: ['s'], title: T('S', 'S') },
+      { id: 'k', code: 'X', after: 'mergeBoth', levels: ['k'], title: T('K', 'K') },
+      { id: 's', code: 'X', after: 'mergeBoth', levels: ['s'], title: T('S', 'S') },
       { id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k'], title: T('拆掉框', 'Without the box') },
       { id: 'nobox-chain', code: 'X', after: 'x-k', levels: ['x-chain', 'x-swap'], title: T('拆掉框：接起来与换顺序', 'Without the box: joining and reordering') },
       { id: 'nobox-merge', code: 'X', after: 'x-k', levels: ['x-self', 'x-merge'], title: T('拆掉框：恒等与合并', 'Without the box: identity and merging') },
