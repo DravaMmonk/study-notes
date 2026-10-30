@@ -12,6 +12,7 @@ import { atom, fn, tvar } from '../formula.js'
 import { ruleText } from '../schematic.js'
 import Entries from '../../../shell/Entries.jsx'
 import { PROOF } from './boards.jsx'
+import FaultScreen from './IsoFaultScreen.jsx'
 
 // A connective declared by its ways to make it (iso.js) on the shared circuit editor: assumption cards from the tray,
 // each picking the sentence it assumes, chained to write each way as a rule, and the connective's card, the board's
@@ -21,10 +22,10 @@ import { PROOF } from './boards.jsx'
 
 const T = (zh, en) => ({ zh, en })
 // Ways are numbered 1 2 3, apart from the board's own part numbers (①②…); on a card a way is "1.".
-const WAY = ['1', '2', '3']
+export const WAY = ['1', '2', '3']
 
 /** The editor's description of the board (../../circuit/model.js), with the level's words for its sentences. */
-function isoPartsFor(level, words) {
+export function isoPartsFor(level, words) {
   return {
     inputs: (node) => (node.type === 'hyp' || node.type === 'thing' ? ['before'] : node.type === DECL ? declInputs(node) : []),
     role: (node) => (node.type === DECL ? 'sink' : 'part'),
@@ -51,11 +52,18 @@ const spotLeft = (circuit) => {
   return freeSpot({ nodes: circuit.nodes.filter((n) => !n.in) }, { w: 240, h: 150, x0: (decl?.x ?? 320) - 260, dx: -260, cols: 3, y0: decl?.y ?? 40 })
 }
 
-export default function IsoScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
+/** A declaration to write, or (`wrong`) someone's wrong one to find the fault in by writing the cases. */
+export default function IsoScreen(props) {
+  return props.level.source.wrong ? <FaultScreen {...props} /> : <DeclareScreen {...props} />
+}
+
+function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
+  // The board it opens on: someone's declaration to fix (`start`), or the declared card alone.
+  const begin = () => level.start ?? startIso()
   const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
   const parts = useMemo(() => isoPartsFor(level, words), [level])
-  const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved) ? settle(saved) : startIso()))
+  const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved) ? settle(saved) : begin()))
   const [testIndex, setTestIndex] = useState(0)
   const test = level.tests[Math.min(testIndex, level.tests.length - 1)]
   const view = useMemo(() => runIso(level, circuit, test), [level, circuit, test])
@@ -78,7 +86,7 @@ export default function IsoScreen({ game, level: entry, saved, save, solve, last
   }
   const pick = (node, name) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, name } } : n)) })
   const choices = level.sentences.map((l) => ({ value: l, label: L(words(l)) }))
-  const onClear = circuit.wires.some((w) => !w.locked) || circuit.nodes.some((n) => n.in) ? () => change(startIso()) : null
+  const onClear = circuit.wires.some((w) => !w.locked) || circuit.nodes.some((n) => n.in) ? () => change(begin()) : null
   const checked = useMemo(() => checkIso(level, circuit, words), [level, circuit])
   const ways = circuit.nodes.find((n) => n.id === DECL)?.params.ways ?? 0
   const playback = usePlayback({
