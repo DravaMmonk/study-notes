@@ -100,7 +100,7 @@ export const era2 = [
   {
     id: 'or',
     kind: 'proof',
-    // K and S, built at the end of the last chapter, are not this level's business.
+    // K and S, built in the last chapter's optional topics, are not this level's business.
     fold: ['axK', 'axS'],
     title: T('二选一', 'One of two'),
     tests: [{ premises: { p: 'A' }, goal: 'B ∨ (A ∨ B)' }],

@@ -43,8 +43,6 @@ export const ERAS = [
       // nothing from each other; then the three together, a level each, harder each time.
       branches(['chain', '串联', 'Chain', ['chain', 'swap']], ['merge', '合并', 'Merge', ['twice']]),
       'mergeUse', 'mergeLong', 'mergeBoth',
-      // K and S, each proved with boxes and built as a part, need nothing from each other.
-      branches(['k', 'K', 'K', ['k']], ['s', 'S', 'S', ['s']]),
     ],
     // Without the box: K, S and Apply alone, the way a prover with only axioms works, harder each time, once K and S
     // are both in hand (a level's `without` holds back the box and the parts built with it): a condition, Apply under a
@@ -52,6 +50,10 @@ export const ERAS = [
     // and S alone.
     // It splits in two after X2: Chain then Swap on one branch, Identity then Merge on the other.
     topics: [
+      // K and S, each proved with boxes and built as a part: optional, needing nothing from each other. They are where a
+      // prover with axioms alone starts, which is all they are for (the main path backwards uses the box instead).
+      { id: 'k', code: 'K', after: 'mergeBoth', levels: ['k'], title: T('K', 'K') },
+      { id: 's', code: 'S', after: 'mergeBoth', levels: ['s'], title: T('S', 'S') },
       { id: 'nobox', code: 'X', after: ['k', 's'], levels: ['x-k'], title: T('拆掉框', 'Without the box') },
       { id: 'nobox-chain', code: 'X', after: 'x-k', levels: ['x-chain', 'x-swap'], title: T('拆掉框：接起来与换顺序', 'Without the box: joining and reordering') },
       { id: 'nobox-merge', code: 'X', after: 'x-k', levels: ['x-self', 'x-merge'], title: T('拆掉框：恒等与合并', 'Without the box: identity and merging') },
@@ -88,7 +90,7 @@ export const ERAS = [
       series('mix', '组合', 'Together', ['iffUse', 'dist', 'dsyll']),
     ],
     // The connectives defined with → alone instead of declared, after the chapter's last level: optional proofs.
-    topics: [{ id: 'hol', code: 'H', after: 'dsyll', levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') }],
+    topics: [{ id: 'hol', code: 'H', after: ['k', 'dsyll'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') }],
     chapter: { title: T('连接词的运用', 'Using the connectives'), question: T('有了声明出来的「与」「或」「非」，能证出些什么？', 'With “and”, “or” and “not” declared, what can be proved?') },
   },
   {
@@ -137,7 +139,7 @@ export const ERAS = [
       // ?-letters settled later, lemmas as rules, and elimination rules (a rule and Assumption, built into one part);
       // on equations, patterns ?P(x).
       branches(
-        ['backward', '逆用规则', 'Rules backwards', ['r-rule', 'r-subgoals', 'r-assumption', 'r-meta', 'r-lemma', 'r-elim', 'r-cases', 'r-false', 'r-dist']],
+        ['backward', '逆用规则', 'Rules backwards', ['r-rule', 'r-assumption', 'r-subgoals', 'r-meta', 'r-lemma', 'r-elim', 'r-cases', 'r-false', 'r-dist']],
         ['pattern', '模式', 'Patterns', ['r-pattern', 'r-patterns']],
       ),
       // The quantifier rules need both: backwards, forwards (Have and a rule on a given, built into one part).

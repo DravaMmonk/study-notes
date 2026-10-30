@@ -231,8 +231,8 @@ export const GLOSSARY = [
     see: ['declaration', 'rule'],
   },
   {
-    id: 'axiom', group: 'proof', title: T('公理', 'axiom'), at: 'k',
-    body: [T('<b>公理</b>是不用证、直接拿来当出发点的句子，可以看成没有前提的规则。K：A → (B → A)；S：(A → (B → C)) → ((A → B) → (A → C))。这台证明器里 K 和 S 是用假设框证出来的引理，只有公理的证明器只能把它们直接当公理。', 'An <b>axiom</b> is a sentence taken as a starting point without proof, a rule with no premises. K: A → (B → A); S: (A → (B → C)) → ((A → B) → (A → C)). In this prover K and S are lemmas proved with assumption boxes; a prover with axioms alone can only take them as given.')],
+    id: 'axiom', group: 'proof', title: T('公理', 'axiom'), at: 'chain',
+    body: [T('<b>公理</b>是不用证、直接拿来当出发点的句子，可以看成没有前提的规则。K：A → (B → A)；S：(A → (B → C)) → ((A → B) → (A → C))。这台证明器里，K 和 S 都能用假设框证出来，是引理；只有公理的证明器只能把它们直接当公理。', 'An <b>axiom</b> is a sentence taken as a starting point without proof, a rule with no premises. K: A → (B → A); S: (A → (B → C)) → ((A → B) → (A → C)). In this prover K and S can both be proved with assumption boxes, as lemmas; a prover with axioms alone can only take them as given.')],
     see: ['hilbert', 'definition'],
   },
   {
