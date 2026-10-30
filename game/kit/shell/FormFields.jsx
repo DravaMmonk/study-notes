@@ -1,4 +1,6 @@
-import { X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { ChevronDown, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 
 // The fields of a row's form (RowTable.jsx), the same in every game. Each is a labelled block; values are the game's
@@ -66,23 +68,63 @@ export function ChoiceField({ label, value, options, onChange }) {
 // The same fields small, inside a table cell (RowTable on a desktop, editing in place): no label of their own.
 
 /**
- * Several values in order, in a cell: each with ×, and a drop-down adding the rest. With none yet the drop-down says
- * what it adds; once there is one, it is a small 「添加…」 button on the last value's line.
+ * A menu of choices under a button, the same wherever it opens (a native drop-down opens up or down as the system
+ * places it): picking one calls onPick(value); a click elsewhere or Escape closes it.
+ */
+export function AddMenu({ label, options, onPick, small = false }) {
+  const [open, setOpen] = useState(null) // where the list goes: under the button, { top, left, width }
+  const box = useRef(null)
+  const list = useRef(null)
+  // The list floats over the page (a table scrolls inside its own window, which would cut it off), always under the
+  // button, scrolling when the page leaves it little room.
+  const toggle = () => {
+    if (open) return setOpen(null)
+    const r = box.current.getBoundingClientRect()
+    return setOpen({ top: r.bottom + 4, left: r.left, width: r.width })
+  }
+  useEffect(() => {
+    if (!open) return undefined
+    const away = (e) => !box.current?.contains(e.target) && !list.current?.contains(e.target) && setOpen(null)
+    const key = (e) => e.key === 'Escape' && setOpen(null)
+    const shut = () => setOpen(null)
+    window.addEventListener('pointerdown', away)
+    window.addEventListener('keydown', key)
+    window.addEventListener('scroll', shut, true)
+    window.addEventListener('resize', shut)
+    return () => {
+      window.removeEventListener('pointerdown', away)
+      window.removeEventListener('keydown', key)
+      window.removeEventListener('scroll', shut, true)
+      window.removeEventListener('resize', shut)
+    }
+  }, [open])
+  return (
+    <span className={`ff-menu ${small ? 'is-small' : ''}`} ref={box}>
+      <button type="button" className="ff-menu-button" aria-haspopup="listbox" aria-expanded={Boolean(open)} onClick={(e) => { e.stopPropagation(); toggle() }}>
+        {L(label)}<ChevronDown size={small ? 11 : 13} />
+      </button>
+      {open && createPortal(
+        <ul className="ff-menu-list" role="listbox" ref={list} style={{ top: open.top, left: open.left, minWidth: open.width, maxHeight: Math.max(120, window.innerHeight - open.top - 8) }}>
+          {options.map((o) => (
+            <li key={o.value} role="option" aria-selected={false}>
+              <button type="button" onClick={(e) => { e.stopPropagation(); setOpen(null); onPick(o.value) }}>{L(o.label)}</button>
+            </li>
+          ))}
+        </ul>,
+        document.body,
+      )}
+    </span>
+  )
+}
+
+/**
+ * Several values in order, in a cell: each with ×, and a menu adding the rest. With none yet the menu says what it
+ * adds; once there is one, it is a small 「添加…」 button on the last value's line. Both open the same way.
  */
 export function InlineList({ value, options, onChange, addLabel }) {
   const name = (v) => L(options.find((o) => o.value === v)?.label ?? v)
   const rest = options.filter((o) => !value.includes(o.value))
-  const select = (className, first) => (
-    <select className={className} value="" aria-label={L(addLabel)} onClick={(e) => e.stopPropagation()} onChange={(e) => e.target.value && onChange([...value, e.target.value])}>
-      <option value="">{first}</option>
-      {rest.map((o) => <option key={o.value} value={o.value}>{L(o.label)}</option>)}
-    </select>
-  )
-  // The small button is its words, with the drop-down laid invisibly over them (a drop-down is as wide as its longest
-  // choice).
-  const adding = (small) => rest.length > 0 && (small
-    ? <label className="ff-inline-add"><span>{tr('添加…', 'Add…')}</span>{select('', tr('添加…', 'Add…'))}</label>
-    : select('ff-inline-select', L(addLabel)))
+  const adding = (small) => rest.length > 0 && <AddMenu small={small} label={small ? { zh: '添加…', en: 'Add…' } : addLabel} options={rest} onPick={(v) => onChange([...value, v])} />
   return (
     <div className="ff-inline-list">
       {value.map((v, i) => (
