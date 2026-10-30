@@ -273,7 +273,7 @@ function UnlockChip({ items, style }) {
   const [first] = items
   const fresh = items.filter((item) => item.fresh && item.open).map((item) => L(item.label))
   const built = items.filter((item) => !item.fresh && item.open).map((item) => L(item.label))
-  const title = [fresh.length && tr(`这一关新带来：${fresh.join('、')}`, `New in this level: ${fresh.join(', ')}`), built.length && tr(`已解锁：${built.join('、')}`, `Unlocked: ${built.join(', ')}`), items.some((item) => !item.open) && tr('打开或通过这一关就能看到', 'Open or pass this level to see it')].filter(Boolean).join('\n')
+  const title = [fresh.length && tr(`这一关新带来：${fresh.join('、')}`, `New in this level: ${fresh.join(', ')}`), built.length && tr(`已解锁：${built.join('、')}`, `Unlocked: ${built.join(', ')}`), items.some((item) => !item.open) && tr('进入或通过这一关后可见', 'Visible once this level is opened or passed')].filter(Boolean).join('\n')
   return (
     <span className={`map-unlock ${first.open ? 'is-open' : 'is-locked'} ${first.fresh ? 'is-fresh' : ''}`} style={style} title={title}>
       {first.open ? <Package size={11} /> : <Lock size={10} />}
@@ -308,10 +308,10 @@ export function NeededNote({ game, needed, onOpen }) {
   return (
     <div className="map-needed" role="status">
       <p>
-        {tr(`${game.levelLabel(level)}「${L(level.title)}」还要先通过 ${needed.ids.size} 关（已高亮）。`, `${game.levelLabel(level)} “${L(level.title)}” needs ${needed.ids.size} more level${needed.ids.size === 1 ? '' : 's'} passed first (lit up).`)}
-        {needed.ready.length > 0 && <>{tr('现在就能做：', ' Open now: ')}{needed.ready.map((r) => <button key={r.id} type="button" onClick={() => { needed.clear(); onOpen(r.id) }}>{game.levelLabel(r)} {L(r.title)}</button>)}</>}
+        {tr(`${game.levelLabel(level)}「${L(level.title)}」还需先通过 ${needed.ids.size} 关（已高亮）。`, `${game.levelLabel(level)} “${L(level.title)}” needs ${needed.ids.size} more level${needed.ids.size === 1 ? '' : 's'} passed first (lit up).`)}
+        {needed.ready.length > 0 && <>{tr('现在可以进行：', ' Available now: ')}{needed.ready.map((r) => <button key={r.id} type="button" onClick={() => { needed.clear(); onOpen(r.id) }}>{game.levelLabel(r)} {L(r.title)}</button>)}</>}
       </p>
-      <button type="button" className="map-needed-close" onClick={needed.clear} aria-label={tr('关掉', 'Close')}><X size={14} /></button>
+      <button type="button" className="map-needed-close" onClick={needed.clear} aria-label={tr('关闭', 'Close')}><X size={14} /></button>
     </div>
   )
 }
@@ -363,8 +363,8 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
             </button>
           )}
           <div className="map-tools">
-            {onParts && <button className="kit-btn is-label wiki-button" onClick={onParts}><Package size={15} /><span>{tr('元件箱', 'Components')}</span><b>{partsNew > 0 ? tr(`${partsNew} 个新`, `${partsNew} new`) : `${game.parts.earned(progress).length}/${game.parts.all.length}`}</b></button>}
-            {onWiki && <button className="kit-btn is-label wiki-button" onClick={onWiki}><BookMarked size={15} /><span>{tr('百科', 'Encyclopedia')}</span>{unread > 0 && <b>{tr(`${unread} 条新`, `${unread} new`)}</b>}</button>}
+            {onParts && <button className="kit-btn is-label wiki-button" onClick={onParts}><Package size={15} /><span>{tr('元件箱', 'Components')}</span><b>{partsNew > 0 ? tr(`新增 ${partsNew} 个`, `${partsNew} new`) : `${game.parts.earned(progress).length}/${game.parts.all.length}`}</b></button>}
+            {onWiki && <button className="kit-btn is-label wiki-button" onClick={onWiki}><BookMarked size={15} /><span>{tr('百科', 'Encyclopedia')}</span>{unread > 0 && <b>{tr(`新增 ${unread} 条`, `${unread} new`)}</b>}</button>}
             <button className={`kit-btn is-label map-reset ${progress.all ? 'is-all' : ''}`} onClick={() => setProgressOpen(true)} aria-haspopup="dialog">
               <RotateCcw size={14} /><span>{tr('清空进度', 'Clear progress')}</span>{progress.all && <b>{tr('已全部解锁', 'All unlocked')}</b>}
             </button>
@@ -411,10 +411,10 @@ function ProgressDialog({ progress, onAll, onReset, onClose }) {
           <input type="checkbox" checked={Boolean(progress.all)} onChange={(event) => onAll(event.target.checked)} />
           <span className="map-all-switch" aria-hidden="true"><i /></span>
           {progress.all ? <LockOpen size={14} /> : <Lock size={14} />}
-          <span>{tr('全部解锁', 'Unlock all')}<small>{progress.all ? tr('任意一关都能直接玩，元件箱和百科也全部打开；进度照常记录', 'Any level can be played, and the components box and encyclopedia are open in full; progress is still recorded') : tr('打开后不用按顺序，任意一关都能直接玩，元件箱和百科也全部打开', 'Turn on to play any level in any order, with the components box and encyclopedia open in full')}</small></span>
+          <span>{tr('全部解锁', 'Unlock all')}<small>{progress.all ? tr('所有关卡均可直接进入，元件箱和百科全部开放；进度照常记录', 'Every level can be entered directly, and the components box and encyclopedia are fully open; progress is still recorded') : tr('开启后无须按顺序，所有关卡均可直接进入，元件箱和百科全部开放', 'When on, levels can be played in any order, and the components box and encyclopedia are fully open')}</small></span>
         </label>
         <div className="progress-clear">
-          <p>{tr('清空后，通过的关卡、搭好的电路、拿到的元件都会从这台设备上删掉，不能恢复。', 'Clearing removes the levels passed, the circuits built and the components earned from this device, for good.')}</p>
+          <p>{tr('清空后，这台设备上已通过的关卡、搭建的电路和获得的元件将全部删除，无法恢复。', 'Clearing permanently removes the levels passed, the circuits built and the components earned from this device.')}</p>
           <button
             type="button"
             className={`progress-clear-btn ${armed ? 'is-armed' : ''}`}
@@ -428,7 +428,7 @@ function ProgressDialog({ progress, onAll, onReset, onClose }) {
               onClose()
             }}
           >
-            <RotateCcw size={14} />{armed ? tr('再点一次，清空全部进度', 'Click again to clear all progress') : tr('清空全部进度', 'Clear all progress')}
+            <RotateCcw size={14} />{armed ? tr('再次点击即清空全部进度', 'Click again to clear all progress') : tr('清空全部进度', 'Clear all progress')}
           </button>
         </div>
         <div className="dialog-actions">

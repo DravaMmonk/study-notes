@@ -123,7 +123,7 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
 function Filters({ filters, current, onPick }) {
   const chip = (key, name, icon, lock) => (
     <button key={key ?? 'all'} type="button" className="parts-filter" aria-pressed={current === key} disabled={Boolean(lock)} onClick={() => onPick(key)}
-      title={lock ? tr(`玩到第 ${lock} 关时解锁`, `Opens at level ${lock}`) : undefined}>
+      title={lock ? tr(`进行到第 ${lock} 关时解锁`, `Unlocks at level ${lock}`) : undefined}>
       {lock ? <Lock size={12} aria-hidden="true" /> : icon && <svg className="parts-filter-icon" viewBox="0 0 32 32" aria-hidden="true" dangerouslySetInnerHTML={{ __html: icon }} />}
       <span>{lock ? tr('？？？', '???') : L(name)}</span>
       {lock && <small>{lock}</small>}

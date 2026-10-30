@@ -29,7 +29,7 @@ function Segments({ parts, owner = null, next, selected, flash, onSlot }) {
     if (typeof part === 'string') {
       if (!owner) return <span key={k} className="ks-plain">{part}</span>
       return (
-        <button key={k} type="button" className={`ks-word ${owner.dim ? 'is-dim' : ''} ${part.trim() ? '' : 'is-gap'}`} data-family={owner.family} data-piece={owner.piece} disabled={owner.fixed} onClick={() => onSlot(owner.piece)} aria-label={owner.fixed ? part : tr(`${part.trim() || '空格'}：点一下拿掉`, `${part.trim() || 'space'}: tap to take out`)}>
+        <button key={k} type="button" className={`ks-word ${owner.dim ? 'is-dim' : ''} ${part.trim() ? '' : 'is-gap'}`} data-family={owner.family} data-piece={owner.piece} disabled={owner.fixed} onClick={() => onSlot(owner.piece)} aria-label={owner.fixed ? part : tr(`${part.trim() || '空格'}：点击移除`, `${part.trim() || 'space'}: tap to remove`)}>
           {part}
         </button>
       )
@@ -37,7 +37,7 @@ function Segments({ parts, owner = null, next, selected, flash, onSlot }) {
     if (part.hole) {
       const name = L(part.label)
       return (
-        <button key={part.hole} type="button" className={`ks-hole ${selected === part.hole ? 'is-selected' : ''} ${next === part.hole ? 'is-next' : ''} ${flash.includes(part.hole) ? 'is-refused' : ''}`} data-slot={part.hole} aria-pressed={selected === part.hole} onClick={() => onSlot(part.hole)} aria-label={tr(`${name}：空，点一下选中`, `${name}: empty; tap to select`)}>
+        <button key={part.hole} type="button" className={`ks-hole ${selected === part.hole ? 'is-selected' : ''} ${next === part.hole ? 'is-next' : ''} ${flash.includes(part.hole) ? 'is-refused' : ''}`} data-slot={part.hole} aria-pressed={selected === part.hole} onClick={() => onSlot(part.hole)} aria-label={tr(`${name}：空位，点击选中`, `${name}: empty; tap to select`)}>
           {name}
         </button>
       )

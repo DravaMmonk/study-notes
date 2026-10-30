@@ -75,14 +75,14 @@ export function Plot({ lines = [], dots = [], width = 600, height = 200, lo = 0,
   const readings = at
     ? [
         ...lines.map((line) => ({ kind: line.kind, label: L(line.label ?? KIND_LABELS[line.kind] ?? ''), v: valueAt(line.curve, at.u) })),
-        ...dots.filter((d) => at.sample !== undefined && Math.abs(d.u - at.u) < 1e-9).map((d) => ({ kind: d.kind === 'ring' ? 'ring' : 'sample', label: L(d.label) ?? (d.kind === 'ring' ? tr('参照点', 'reference') : tr('采到的值', 'sampled value')), v: d.v, dot: true })),
+        ...dots.filter((d) => at.sample !== undefined && Math.abs(d.u - at.u) < 1e-9).map((d) => ({ kind: d.kind === 'ring' ? 'ring' : 'sample', label: L(d.label) ?? (d.kind === 'ring' ? tr('参照点', 'reference') : tr('采样值', 'sampled value')), v: d.v, dot: true })),
       ]
     : []
   const where = !at ? '' : at.sample !== undefined ? tr(`第 ${at.sample} 个点 / ${at.of}`, `point ${at.sample} / ${at.of}`) : at.pixel !== undefined ? `x = ${at.pixel}` : `x = ${(at.u * span).toFixed(1)} px`
 
   return (
     <div className="wv-plot-wrap">
-      <svg className="wv-plot" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={tr(`${L(label) ?? ''}：指向一处读数`, `${L(label) ?? ''}: point at a spot to read it`)} onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
+      <svg className="wv-plot" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={tr(`${L(label) ?? ''}：指向某处读取数值`, `${L(label) ?? ''}: point at a spot to read it`)} onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
         {ticks.map((t) => (
           <g key={t}>
             <line className={`wv-grid ${t === 0 && lo < 0 ? 'is-zero' : ''}`} x1={left} x2={width - right} y1={y(t)} y2={y(t)} />

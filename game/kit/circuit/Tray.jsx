@@ -10,7 +10,7 @@ export default function Tray({ items, folded = [], onPick }) {
   const [more, setMore] = useState(false)
   if (!items.length && !folded.length) return null
   return (
-    <section className="pb-tray" data-trash aria-label={tr('元件托盘：点一下放进空格，按住拖到某一格', 'Parts tray: tap to drop into a free slot, or hold and drag onto a slot')}>
+    <section className="pb-tray" data-trash aria-label={tr('元件托盘：点击放入空格，或按住拖到指定格子', 'Parts tray: tap to place in a free slot, or hold and drag onto a slot')}>
       {[...items, ...(more ? folded.map((item) => ({ ...item, folded: true })) : [])].map((item) => (
         <button key={item.type} type="button" className={`pb-part ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-tray={item.type} data-family={item.family} onClick={() => onPick(item.type)} title={L(item.desc)}>
           {item.icon && <i className="family-chip"><Glyph icon={item.icon} size={13} /></i>}
@@ -20,7 +20,7 @@ export default function Tray({ items, folded = [], onPick }) {
       ))}
       {folded.length > 0 && (
         <button type="button" className={`pb-part pb-more ${more ? 'is-open' : ''}`} onClick={() => setMore(!more)} aria-expanded={more}>
-          <b>{more ? tr('收起', 'Fewer') : tr(`更多 ${folded.length}`, `${folded.length} more`)}</b>
+          <b>{more ? tr('收起', 'Show fewer') : tr(`更多 ${folded.length}`, `${folded.length} more`)}</b>
           <ChevronRight size={14} />
         </button>
       )}

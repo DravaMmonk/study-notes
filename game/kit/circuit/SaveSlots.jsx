@@ -74,7 +74,7 @@ export default function SaveSlots({ phone = false, board = null }) {
                     defaultValue={slot.name}
                     placeholder={labelOf({ ...slot, name: '' })}
                     maxLength={40}
-                    aria-label={tr('电路的名字', 'Board name')}
+                    aria-label={tr('电路名称', 'Board name')}
                     onFocus={(e) => e.target.select()}
                     onBlur={(e) => commit(k, e.target.value)}
                     onKeyDown={(e) => {
@@ -110,7 +110,7 @@ export default function SaveSlots({ phone = false, board = null }) {
       {dropping !== null && slots.list[dropping] && createPortal(
         <Dialog
           title={tr(`删除「${labelOf(slots.list[dropping])}」？`, `Delete “${labelOf(slots.list[dropping])}”?`)}
-          lines={[tr('这块电路会被删掉，不能撤销。这一关的其他电路不受影响。', 'This board goes for good; undo cannot bring it back. The other boards of this level stay.')]}
+          lines={[tr('删除后无法撤销。这一关的其他电路不受影响。', 'This cannot be undone. The other boards of this level are unaffected.')]}
           actions={[[tr('取消', 'Cancel'), () => setDropping(null)], [tr('删除', 'Delete'), () => { slots.drop(dropping); setDropping(null) }]]}
           onClose={() => setDropping(null)}
         />,

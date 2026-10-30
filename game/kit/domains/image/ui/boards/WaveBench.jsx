@@ -79,7 +79,7 @@ export default function WaveBench({ level, onSolve }) {
               )
             })}
             <div className="wv-next">
-              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />{L(s.win)}</> : tr('还没和目标重合。', 'Not on the target yet.')}</p>
+              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />{L(s.win)}</> : tr('尚未与目标重合。', 'Not on the target yet.')}</p>
               {passed[stage] && stage < w.stages.length - 1 && <button className="bk-btn is-primary" onClick={advance}>{tr('下一步', 'Next step')} <ArrowRight size={15} /></button>}
             </div>
           </section>

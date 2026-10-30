@@ -34,7 +34,7 @@ export default function TestPanel({ level, run, onTest, hiddenCount = 0, hiddenM
     <header className="panel-head">
       <span>{tr('测试', 'Tests')}</span>
       {run?.untested ? (
-        <span className="tests-meter is-untested">{tr('还没测试', 'Not tested yet')}</span>
+        <span className="tests-meter is-untested">{tr('尚未测试', 'Not tested yet')}</span>
       ) : (
         <span className={`tests-meter ${run?.pass ? 'is-pass' : ''}`} aria-label={tr(`${passed} / ${all} 通过`, `${passed} / ${all} passed`)}>
           {level.tests.map((t, index) => <i key={keyOf(t.label)} className={run?.results[index]?.pass ? 'is-on' : ''} />)}
@@ -43,11 +43,11 @@ export default function TestPanel({ level, run, onTest, hiddenCount = 0, hiddenM
       )}
     </header>
   )
-  const runButton = onTest && <button className={`run-tests ${run?.pass && !hiddenMiss ? 'is-pass' : ''}`} onClick={onTest}>{run?.pass && !hiddenMiss ? <Check size={15} /> : <Play size={14} />}{run?.pass && !hiddenMiss ? tr('全部通过 · 再测一次', 'All passed · run again') : tr('运行测试', 'Run tests')}</button>
+  const runButton = onTest && <button className={`run-tests ${run?.pass && !hiddenMiss ? 'is-pass' : ''}`} onClick={onTest}>{run?.pass && !hiddenMiss ? <Check size={15} /> : <Play size={14} />}{run?.pass && !hiddenMiss ? tr('全部通过 · 重新测试', 'All passed · Run again') : tr('运行测试', 'Run tests')}</button>
   const hiddenNote = hiddenMiss ? (
-    <p className="hidden-note is-fail"><X size={13} />{tr(`下面的测试都通过了，但 ${hiddenMiss.total} 组隐藏测试里有 ${hiddenMiss.failed} 组没过：电路可能只对这几张图凑巧成立。`, `Every test below passes, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.`)}</p>
+    <p className="hidden-note is-fail"><X size={13} />{tr(`以下测试全部通过，但 ${hiddenMiss.total} 组隐藏测试中有 ${hiddenMiss.failed} 组未通过：电路可能只是恰好适用于这几张图。`, `Every test below passes, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.`)}</p>
   ) : hiddenCount > 0 ? (
-    <p className="hidden-note"><EyeOff size={13} />{tr(`另有 ${hiddenCount} 组隐藏测试，运行测试时一起检查，通关后公开。`, `${hiddenCount} more hidden ${hiddenCount === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)}</p>
+    <p className="hidden-note"><EyeOff size={13} />{tr(`另有 ${hiddenCount} 组隐藏测试，运行测试时一并检查，通关后公开。`, `${hiddenCount} more hidden ${hiddenCount === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)}</p>
   ) : null
   const states = level.tests.map((_, index) => { const ok = run?.results[index]?.pass; return ok === true ? 'pass' : ok === false ? 'fail' : null })
   const list = <TestTabs tests={level.tests} states={states} index={testIndex} onSelect={onSelect} />
@@ -84,12 +84,12 @@ export default function TestPanel({ level, run, onTest, hiddenCount = 0, hiddenM
     return <OutputImages expected={expected} actual={actual} fits={fits} view={outView} tolerance={tolerance} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} prefix={prefix} />
   }
   const verdictOf = (checks) => {
-    if (!checks.length || checks.some((c) => c?.pass === null || c?.pass === undefined)) return <p className="test-verdict">{tr('点「运行测试」看这组是否通过', 'Press Run tests to see whether this one passes')}</p>
+    if (!checks.length || checks.some((c) => c?.pass === null || c?.pass === undefined)) return <p className="test-verdict">{tr('点击「运行测试」查看这组是否通过', 'Run the tests to check this one')}</p>
     const failed = checks.find((c) => !c.pass)
     return (
       <p className={`test-verdict ${failed ? 'is-fail' : 'is-pass'}`}>
         {failed ? <X size={14} /> : <Check size={14} />}
-        {failed ? L(failed.reason) || tr('未通过', 'Not passed') : tr('这组通过', 'Passed')}
+        {failed ? L(failed.reason) || tr('未通过', 'Failed') : tr('这组通过', 'Passed')}
       </p>
     )
   }
@@ -139,7 +139,7 @@ export default function TestPanel({ level, run, onTest, hiddenCount = 0, hiddenM
       ]
     : null
   const readout = !probe
-    ? tr('指针停在图上看数值', 'Hover a picture to read it')
+    ? tr('将指针悬停在图上即可读取数值', 'Hover over a picture to read its values')
     : readings
       ? <>({probe.x}, {probe.y}) {readings.map(([label, v], k) => <span key={label}>{k ? ' · ' : ''}{label}{v?.at} <b>{v ? v.value.toFixed(3) : '—'}</b></span>)}</>
       : <>{tr('频率 ', 'frequency ')}({probe.x}, {probe.y}) <b>{probe.value.toFixed(3)}</b></>
@@ -196,7 +196,7 @@ function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover,
       {profile && (
         <figure className="test-curve">
           <CurveView img={fits ? rowOf(actual, row) : null} expected={rowOf(expected, row)} tolerance={tolerance} width={280} height={110} onHover={(p) => onHover(p && { ...p, y: row, h: expected.h })} />
-          <figcaption>{tr(`第 ${row} 行：`, `Row ${row}: `)}<i className="is-expected" />{tr('期望', 'expected')} <i className="is-band" />{tr('允许范围', 'allowed band')} <i />{tr('你的输出', 'your output')} · {tr('在图上拖动换一行', 'drag on a picture to change row')}</figcaption>
+          <figcaption>{tr(`第 ${row} 行：`, `Row ${row}: `)}<i className="is-expected" />{tr('期望', 'expected')} <i className="is-band" />{tr('允许范围', 'allowed band')} <i />{tr('你的输出', 'your output')} · {tr('在图上拖动可切换行', 'drag on a picture to pick another row')}</figcaption>
         </figure>
       )}
     </>

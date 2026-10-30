@@ -80,7 +80,7 @@ export function Brief({ game, level, text, tip, hint, children }) {
           {hints.slice(0, shown).map((h, k) => <Text key={k} game={game} className="hint" text={h} />)}
           <button className="hint-toggle" onClick={() => setShown(more ? shown + 1 : 0)} aria-expanded={shown > 0}>
             <Lightbulb size={14} />
-            {more ? (shown ? tr(`再给一个提示（${shown + 1}/${hints.length}）`, `Another hint (${shown + 1}/${hints.length})`) : tr('提示', 'Hint')) : tr('收起提示', 'Hide hints')}
+            {more ? (shown ? tr(`下一条提示（${shown + 1}/${hints.length}）`, `Next hint (${shown + 1}/${hints.length})`) : tr('提示', 'Hint')) : tr('收起提示', 'Hide hints')}
           </button>
         </div>
       )}
@@ -100,7 +100,7 @@ function TaskSteps({ steps }) {
         const open = k <= steps.done
         return (
           <li key={k}>
-            <button type="button" className={`${k === steps.at ? 'is-on' : ''} ${k < steps.done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('先完成上一个任务', 'Finish the task before it first')}>
+            <button type="button" className={`${k === steps.at ? 'is-on' : ''} ${k < steps.done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('请先完成前一个任务', 'Complete the previous task first')}>
               <i>{k < steps.done ? <Check size={12} strokeWidth={2.6} /> : open ? k + 1 : <Lock size={11} strokeWidth={2.2} />}</i>
               <span>{L(name)}</span>
             </button>

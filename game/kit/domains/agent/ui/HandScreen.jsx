@@ -50,15 +50,15 @@ export default function HandScreen({ game, level: entry, saved, save, solve, pho
           {session.context.map((e, k) => (
             <li key={k} data-kind={e.kind} className={view.dropped.includes(e) ? 'is-out' : ''}>
               <span>{L(entryText(e))}</span>
-              {e.kind !== 'issue' && <button type="button" aria-label={tr('拿出上下文', 'Take out of the context')} onClick={() => act(['drop', k])}><X size={13} /></button>}
+              {e.kind !== 'issue' && <button type="button" aria-label={tr('移出上下文', 'Remove from the context')} onClick={() => act(['drop', k])}><X size={13} /></button>}
             </li>
           ))}
         </ol>
         <div className="ag-hand-actions">
           <button type="button" className="ag-go" onClick={() => act(['call'])}><Play size={15} /><span>{tr('调用模型', 'Call the model')}</span></button>
           {loop && <button type="button" onClick={() => act(['list'])}><FolderTree size={15} /><span>{tr('目录', 'File list')}</span></button>}
-          <button type="button" onClick={() => act(['test'])}><FlaskConical size={15} /><span>{tr('跑测试', 'Run tests')}</span></button>
-          <button type="button" className="ag-quiet" onClick={reset} disabled={!ops.length}><RotateCcw size={14} /><span>{tr('重来', 'Start over')}</span></button>
+          <button type="button" onClick={() => act(['test'])}><FlaskConical size={15} /><span>{tr('运行测试', 'Run tests')}</span></button>
+          <button type="button" className="ag-quiet" onClick={reset} disabled={!ops.length}><RotateCcw size={14} /><span>{tr('重新开始', 'Start over')}</span></button>
         </div>
       </section>
       <section className="ag-panel">
@@ -68,8 +68,8 @@ export default function HandScreen({ game, level: entry, saved, save, solve, pho
         <RepoView repo={repo} state={session.state} onAdd={(file) => act(['add', file])} added={files} />
       </section>
       <section className="ag-panel">
-        <h3 className="ag-head">{tr('发生了什么', 'What happened')}</h3>
-        {session.log.length ? <Log log={session.log} /> : <p className="ag-note">{tr('点仓库里的文件把它放进上下文，或者直接调用模型。', 'Click a file of the repository to put it into the context, or call the model straight away.')}</p>}
+        <h3 className="ag-head">{tr('操作记录', 'Log')}</h3>
+        {session.log.length ? <Log log={session.log} /> : <p className="ag-note">{tr('点击仓库中的文件，将它加入上下文；也可以直接调用模型。', 'Click a file in the repository to add it to the context, or call the model directly.')}</p>}
       </section>
     </div>
   )
@@ -82,10 +82,10 @@ function Log({ log }) {
     <ol className="ag-log">
       {[...log].reverse().map((item, k) => (
         <li key={log.length - k} data-op={item.op}>
-          {item.op === 'call' && <><b>{tr('模型', 'Model')}</b><span>{L(actionText(item.action))}</span><em>{tr(`看到 ${item.tokens} tok`, `saw ${item.tokens} tok`)}{item.dropped.length ? tr(` · 丢掉 ${item.dropped.length} 条`, ` · ${item.dropped.length} dropped`) : ''}</em></>}
-          {item.op === 'add' && <><b>{tr('你', 'You')}</b><span>{tr(`放进 ${item.file}`, `Put in ${item.file}`)}</span></>}
-          {item.op === 'list' && <><b>{tr('你', 'You')}</b><span>{tr('放进目录', 'Put in the file list')}</span></>}
-          {item.op === 'drop' && <><b>{tr('你', 'You')}</b><span>{tr(`拿出 ${L(entryText(item.entry))}`, `Took out ${L(entryText(item.entry))}`)}</span></>}
+          {item.op === 'call' && <><b>{tr('模型', 'Model')}</b><span>{L(actionText(item.action))}</span><em>{tr(`看到 ${item.tokens} tok`, `saw ${item.tokens} tok`)}{item.dropped.length ? tr(` · 丢弃 ${item.dropped.length} 条`, ` · ${item.dropped.length} dropped`) : ''}</em></>}
+          {item.op === 'add' && <><b>{tr('你', 'You')}</b><span>{tr(`加入 ${item.file}`, `Added ${item.file}`)}</span></>}
+          {item.op === 'list' && <><b>{tr('你', 'You')}</b><span>{tr('加入目录', 'Added the file list')}</span></>}
+          {item.op === 'drop' && <><b>{tr('你', 'You')}</b><span>{tr(`移出 ${L(entryText(item.entry))}`, `Removed ${L(entryText(item.entry))}`)}</span></>}
           {item.op === 'test' && <><b>{tr('测试', 'Tests')}</b><Report report={item.report} /></>}
         </li>
       ))}

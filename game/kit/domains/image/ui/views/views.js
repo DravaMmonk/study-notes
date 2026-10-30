@@ -9,11 +9,11 @@ import { piText } from '../../engine/pi.js'
 export const kindOf = (img) => (!img ? null : img.w * img.h === 1 ? 'number' : img.h === 1 ? 'signal' : 'image')
 
 export const IMAGE_VIEWS = {
-  pixels: { label: { zh: '像素', en: 'Pixels' }, icon: Grid3x3, hint: { zh: '亮度就是灰度', en: 'brightness as grey level' } },
-  terrain: { label: { zh: '地形', en: 'Terrain' }, icon: Mountain, hint: { zh: '亮度当作高度', en: 'brightness as height' } },
+  pixels: { label: { zh: '像素', en: 'Pixels' }, icon: Grid3x3, hint: { zh: '亮度显示为灰度', en: 'brightness as grey level' } },
+  terrain: { label: { zh: '地形', en: 'Terrain' }, icon: Mountain, hint: { zh: '亮度显示为高度', en: 'brightness as height' } },
   slope: { label: { zh: '坡度', en: 'Slope' }, icon: Navigation, hint: { zh: '箭头指向变亮最快的方向', en: 'arrows point where it brightens fastest' } },
   profile: { label: { zh: '剖面', en: 'Profile' }, icon: ScanLine, hint: { zh: '一行像素的亮度曲线', en: 'the brightness along one row of pixels' } },
-  spectrum: { label: { zh: '频谱', en: 'Spectrum' }, icon: Orbit, hint: { zh: '各频率的波有多强', en: 'how strong the wave at each frequency is' } },
+  spectrum: { label: { zh: '频谱', en: 'Spectrum' }, icon: Orbit, hint: { zh: '各频率分量的强度', en: 'the strength of each frequency' } },
 }
 
 // The view a level starts each role in: `level.views = { in, out, mid }` (2-D values only).

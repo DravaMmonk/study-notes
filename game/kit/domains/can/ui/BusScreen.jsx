@@ -52,7 +52,7 @@ const fits = (circuit, level, partOf) => {
 
 /** What a card shows of a value: a bit, a number, yes or no, or 「—」. */
 function Value({ value, error }) {
-  if (value === undefined) return <span className={`cn-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('等接线', 'Waiting for wires') : L(error)}</span>
+  if (value === undefined) return <span className={`cn-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('待接线', 'Not wired') : L(error)}</span>
   return <span className={`cn-value ${value === null ? 'is-none' : typeof value === 'boolean' ? `is-${value}` : ''}`}>{L(show(value))}</span>
 }
 
@@ -114,7 +114,7 @@ export default function BusScreen({ game, level: entry, saved, save, solve, last
     const set = (key) => (v) => setParam(node, key, v)
     if (node.type === 'reg') return <><Field label={T('名字', 'Name')} value={p.reg ?? 'A'} options={NAMES} onChange={set('reg')} /><Field label={T('初值', 'Start')} value={p.start ?? ''} options={STARTS} onChange={set('start')} /></>
     if (node.type === 'keep') return <Field label={T('名字', 'Name')} value={p.reg ?? 'A'} options={NAMES} onChange={set('reg')} />
-    if (node.type === 'const') return <Field label={T('数', 'Value')} value={p.value ?? '0'} options={NUMBERS} onChange={set('value')} />
+    if (node.type === 'const') return <Field label={T('数值', 'Value')} value={p.value ?? '0'} options={NUMBERS} onChange={set('value')} />
     if (FORMS[node.type]) return <Field label={T('形状', 'Form')} value={p.form ?? Object.keys(FORMS[node.type])[0]} options={Object.entries(FORMS[node.type])} onChange={set('form')} />
     return null
   }
@@ -199,7 +199,7 @@ export default function BusScreen({ game, level: entry, saved, save, solve, last
               body={body}
               outNote={outNote}
               wireState={(wire) => (tick && tick.values.get(wire.from) !== undefined ? 'live' : 'dead')}
-              emptyNote={T('从上面一排元件里选一个放上来，再从一个元件右侧的圆点连到另一个元件左侧的圆点。', 'Pick a part from the row above, then wire a dot on the right of a part to a dot on the left of another.')}
+              emptyNote={T('从上方元件栏选择元件放到板上，再从元件右侧的圆点连线到另一元件左侧的圆点。', 'Add a part from the row above, then drag from a dot on its right side to a dot on another part’s left side.')}
             />
           </div>
         </div>
@@ -256,7 +256,7 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
         </Sheet>
       )}
       {sheet?.slot !== undefined && (
-        <Sheet title={tr('放在这一格', 'Place in this slot')} onClose={() => setSheet(null)}>
+        <Sheet title={tr('放入这一格', 'Place in this slot')} onClose={() => setSheet(null)}>
           <div className="cn-add">
             {[...items, ...foldedItems].map((item) => (
               <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot); setSheet(null) }}>

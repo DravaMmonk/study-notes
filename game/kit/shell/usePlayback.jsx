@@ -118,7 +118,7 @@ export function usePlayback({ count, stepsOf, check, final, onSolve, onTest, boa
         { key: 'step', label: tr('步进', 'Step'), icon: <StepForward size={16} />, onClick: api.step },
         ...(live ? [playing ? { key: 'pause', label: tr('暂停', 'Pause'), icon: <Pause size={16} />, onClick: api.pause } : { key: 'resume', label: tr('继续', 'Continue'), icon: <Play size={16} />, onClick: api.resume }] : []),
       ],
-      go: { label: live ? tr('跳到结果', 'Skip to the end') : passed ? done : go, busy: Boolean(live), pass: passed, onClick: api.play },
+      go: { label: live ? tr('跳至结果', 'Skip to the end') : passed ? done : go, busy: Boolean(live), pass: passed, onClick: api.play },
     }),
   }
   return api

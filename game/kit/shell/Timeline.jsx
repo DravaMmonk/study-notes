@@ -84,7 +84,7 @@ export default function Timeline({ lanes, count, at = -1, marks = [] }) {
         {lanes.map((lane) => <span key={lane.key} style={{ height: LANE }}>{L(lane.label)}</span>)}
       </div>
       <div className="tl-scroll" ref={box}>
-        <svg width={width} height={height} role="img" aria-label={tr('逐拍的波形', 'The run, tick by tick')}>
+        <svg width={width} height={height} role="img" aria-label={tr('逐拍波形', 'Waveform, tick by tick')}>
           {marks.map((t) => <rect key={`m${t}`} className="tl-mark" x={t * CELL} y={0} width={CELL} height={height} />)}
           {at >= 0 && <rect className="tl-at" x={at * CELL} y={0} width={CELL} height={height} />}
           {Array.from({ length: Math.ceil(count / 10) }, (_, k) => <text key={`r${k}`} className="tl-ruler" x={k * 10 * CELL + 2} y={12}>{k * 10}</text>)}

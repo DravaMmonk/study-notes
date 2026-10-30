@@ -70,7 +70,7 @@ export default function Editor({ graph, onChange, run, testIndex, flags, sensors
         <div className="node-preview">
           {error ? <span className="node-error">{L(error)}</span> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label={tr('未连接', 'Not connected')} grid scan={scan} onScan={onScan} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
           {!error && kindOf(value) === 'image' && offered.length > 1 && (
-            <button className={`node-view ${menu === node.id ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={menu === node.id} aria-label={tr(`显示方式：${L(IMAGE_VIEWS[shown].label)}`, `Display: ${L(IMAGE_VIEWS[shown].label)}`)} title={tr('换一种画法', 'Draw it another way')} onPointerDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === node.id ? null : node.id)}>
+            <button className={`node-view ${menu === node.id ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={menu === node.id} aria-label={tr(`显示方式：${L(IMAGE_VIEWS[shown].label)}`, `Display: ${L(IMAGE_VIEWS[shown].label)}`)} title={tr('切换显示方式', 'Change display')} onPointerDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === node.id ? null : node.id)}>
               {createElement(IMAGE_VIEWS[shown].icon, { size: 12, strokeWidth: 1.8 })}
               <span>{L(IMAGE_VIEWS[shown].label)}</span>
             </button>
@@ -121,19 +121,19 @@ export default function Editor({ graph, onChange, run, testIndex, flags, sensors
       refit={refit}
       wireState={(wire) => (values?.get(wire.from) ? 'live' : 'dead')}
       width={NODE_W}
-      emptyNote={hasPalette && { zh: '从上面一排元件里选一个放上来，再点元件右侧的圆点、点另一个元件左侧的圆点，就连上了（也可以直接拖过去）。', en: 'Pick a part from the row above to place it, then click the dot on the right of a part and a dot on the left of another to wire them (or drag between them).' }}
+      emptyNote={hasPalette && { zh: '从上方元件栏选择元件放入电路；点击一个元件右侧的圆点，再点击另一个元件左侧的圆点，即可连线（也可以直接拖动连线）。', en: 'Pick a part from the row above to place it. To wire two parts, click the dot on the right of one and then a dot on the left of the other, or drag between them.' }}
       onClear={onClear}
       types={types}
       corner={imageCards.length > 0 && offered.length > 1 && (
         <div className="board-views" role="group" aria-label={tr('所有图像元件的显示方式', 'Display of every image part')} onPointerDown={(e) => e.stopPropagation()}>
-          <span className="board-views-label">{tr('全部画成', 'Draw all as')}</span>
+          <span className="board-views-label">{tr('全部显示为', 'Show all as')}</span>
           {offered.map(([key, option]) => (
             <button key={key} aria-pressed={shared === key} title={tr(`${L(option.label)}：${L(option.hint)}`, `${L(option.label)}: ${L(option.hint)}`)} onClick={() => showAs(imageCards.map((n) => n.id), key)}>
               {createElement(option.icon, { size: 14, strokeWidth: 1.7 })}
               <span>{L(option.label)}{isNew(key) && <em className="pb-new">{tr('新', 'new')}</em>}</span>
             </button>
           ))}
-          {customised && <button className="board-views-reset" title={tr('恢复这一关的默认画法', "Restore this level's default views")} aria-label={tr('恢复默认画法', 'Restore default views')} onClick={resetViews}><RotateCcw size={13} /></button>}
+          {customised && <button className="board-views-reset" title={tr('恢复本关默认的显示方式', "Restore this level's default display")} aria-label={tr('恢复默认显示方式', 'Restore default display')} onClick={resetViews}><RotateCcw size={13} /></button>}
         </div>
       )}
     />

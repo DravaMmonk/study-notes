@@ -64,7 +64,7 @@ export default function EarlyStop({ level, onSolve }) {
                 ...m.data.vx.filter((_, i) => i % 3 === 0).map((v, i) => ({ u: (v + 1) / 2, v: m.data.vy[i * 3], kind: 'ring', label: tr('新样本', 'new sample') })),
               ]}
             />
-            <div className="wv-legend"><span><i />{tr('模型', 'Model')}</span><span><i className="is-faint" />{tr('真实规律（模型看不到）', 'True rule (hidden from the model)')}</span><span><i className="is-ring" />{tr('新样本', 'New samples')}</span><span><i className="is-point" />{tr('训练样本', 'Training samples')}</span></div>
+            <div className="wv-legend"><span><i />{tr('模型', 'Model')}</span><span><i className="is-faint" />{tr('真实规律（模型不可见）', 'True rule (hidden from the model)')}</span><span><i className="is-ring" />{tr('新样本', 'New samples')}</span><span><i className="is-point" />{tr('训练样本', 'Training samples')}</span></div>
           </div>
           <div>
             <span className="bk-label">{st.control === 'step' ? tr('误差随训练步数（对数刻度）', 'Error by training step (log scale)') : tr('误差随 λ（对数刻度）', 'Error by λ (log scale)')}</span>
@@ -104,7 +104,7 @@ export default function EarlyStop({ level, onSolve }) {
             </div>
             {st.control === 'step' ? (
               <label className="bk-field">
-                <span>{tr('训练了多少步', 'Steps trained')}</span>
+                <span>{tr('训练步数', 'Training steps')}</span>
                 <input className="bk-range" type="range" min={0} max={run.length - 1} step={1} value={s.step} style={{ '--fill': `${(s.step / (run.length - 1)) * 100}%` }} onChange={(event) => update({ ...s, step: Number(event.target.value) })} />
                 <output>{run[s.step].step.toLocaleString('en-US')}</output>
               </label>
@@ -116,7 +116,7 @@ export default function EarlyStop({ level, onSolve }) {
               </label>
             )}
             <div className="wv-next">
-              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />{tr('新样本的误差几乎最低了。', 'The error on new samples is about as low as it gets.')}</> : tr('新样本的误差还不够低。', 'The error on new samples is not low enough yet.')}</p>
+              <p className={`bk-verdict ${match ? 'is-pass' : ''}`} aria-live="polite">{match ? <><Check size={15} />{tr('新样本误差已接近最低。', 'The error on new samples is close to its minimum.')}</> : tr('新样本误差仍不够低。', 'The error on new samples is still too high.')}</p>
               {passed[stage] && stage < m.stages.length - 1 && <button className="bk-btn is-primary" onClick={() => { go(stage + 1); setReached(Math.max(reached, stage + 1)) }}>{tr('下一步', 'Next step')} <ArrowRight size={15} /></button>}
             </div>
           </section>

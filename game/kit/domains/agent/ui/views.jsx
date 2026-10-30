@@ -10,9 +10,9 @@ const T = (zh, en) => ({ zh, en })
 export function actionText(action) {
   if (!action) return T('—', '—')
   if (action.type === 'read') return T(`读 ${action.file}`, `Read ${action.file}`)
-  if (action.type === 'list') return T('要目录', 'Ask for the file list')
-  if (action.type === 'test') return T('要跑测试', 'Ask for the tests')
-  if (action.type === 'done') return action.why === 'no-issue' ? T('做完了（看不到任务）', 'Done (no task in view)') : T('做完了', 'Done')
+  if (action.type === 'list') return T('请求目录', 'Request the file list')
+  if (action.type === 'test') return T('请求运行测试', 'Request a test run')
+  if (action.type === 'done') return action.why === 'no-issue' ? T('做完了（上下文中没有任务）', 'Done (no task in context)') : T('做完了', 'Done')
   const madeup = action.edits.filter((e) => e.how === 'madeup').length
   const names = action.edits.map((e) => segOf(e.at)).join(', ')
   return madeup ? T(`写 ${names}（编了 ${madeup} 处）`, `Write ${names} (${madeup} made up)`) : T(`写 ${names}`, `Write ${names}`)
@@ -27,7 +27,7 @@ export function entryText(entry) {
   return actionText(entry.action)
 }
 
-const WHY = { missing: T('没改', 'not changed'), wrong: T('改错了', 'wrong'), madeup: T('调用了不存在的函数', 'calls a function that does not exist') }
+const WHY = { missing: T('未修改', 'not changed'), wrong: T('改错了', 'wrong'), madeup: T('调用了不存在的函数', 'calls a nonexistent function') }
 export const whyText = (why) => WHY[why]
 
 /** A context's value on a card: its entries in order (the kit's Entries), then how many and how many tokens. */
@@ -50,7 +50,7 @@ export function ContextBar({ call, window, list = true }) {
   const total = Math.max(window, tokensOf(all.map((x) => x.e)))
   return (
     <div className="ag-bar-wrap">
-      <div className="ag-bar" style={{ '--window': `${(window / total) * 100}%` }} role="img" aria-label={tr(`模型看到 ${call.tokens} / ${window} tok`, `The model sees ${call.tokens} of ${window} tokens`)}>
+      <div className="ag-bar" style={{ '--window': `${(window / total) * 100}%` }} role="img" aria-label={tr(`模型看到 ${call.tokens} / ${window} tok`, `Model sees ${call.tokens} of ${window} tokens`)}>
         {all.map(({ e, out }, k) => {
           // Each entry where its tokens fall along the bar, so the blocks always add up to the bar.
           const left = (all.slice(0, k).reduce((n, x) => n + x.e.tokens, 0) / total) * 100
@@ -60,7 +60,7 @@ export function ContextBar({ call, window, list = true }) {
       <p className="ag-bar-meta">
         <span>{tr(`看到 ${call.tokens} tok`, `Sees ${call.tokens} tok`)}</span>
         <span>{tr(`窗口 ${window}`, `Window ${window}`)}</span>
-        {call.dropped.length > 0 && <span className="is-out">{tr(`丢掉 ${call.dropped.length} 条`, `${call.dropped.length} dropped`)}</span>}
+        {call.dropped.length > 0 && <span className="is-out">{tr(`丢弃 ${call.dropped.length} 条`, `${call.dropped.length} dropped`)}</span>}
       </p>
       {list && (
       <ol className="ag-entries">

@@ -40,7 +40,7 @@ function partsFor(mode) {
       const kind = kindOf(source, srcKey(from))
       const wants = wantsOf(target, port)
       if (!kind || wants.includes(kind)) return null
-      return T(`这里要的是${L(KIND_NAME[wants[0]])}，这根线送来的是${L(KIND_NAME[kind])}。`, `This takes ${L(KIND_NAME[wants[0]])}; the wire brings ${L(KIND_NAME[kind])}.`)
+      return T(`这个接口接收${L(KIND_NAME[wants[0]])}，这根线传来的是${L(KIND_NAME[kind])}。`, `This port takes ${L(KIND_NAME[wants[0]])}; this wire carries ${L(KIND_NAME[kind])}.`)
     },
   }
 }
@@ -51,11 +51,11 @@ const fits = (circuit, level) => {
   return fixed === [...level.fixed].sort().join() && circuit.nodes.every((n) => PARTS[n.type])
 }
 
-const flagText = (v) => (v === true ? T('通过', 'Pass') : v === false ? T('没过', 'Fail') : T('没跑', 'Not run'))
+const flagText = (v) => (v === true ? T('通过', 'Pass') : v === false ? T('未通过', 'Fail') : T('未运行', 'Not run'))
 
 /** What a card shows of a value it gives or takes. */
 function Value({ value, error }) {
-  if (value === undefined) return <span className={`ag-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('等接线', 'Waiting for wires') : L(error)}</span>
+  if (value === undefined) return <span className={`ag-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('待接线', 'Not wired') : L(error)}</span>
   if (Array.isArray(value)) return <ContextValue value={value} />
   if (value === null || typeof value === 'boolean') return <span className={`ag-flag is-${value === true ? 'pass' : value === false ? 'fail' : 'none'}`}>{L(flagText(value))}</span>
   return <span className={`ag-action is-${value.type}`}>{L(actionText(value))}</span>
@@ -63,9 +63,9 @@ function Value({ value, error }) {
 
 /** What the repository and stop show: what landed this turn, and whether the machine stops. */
 function SinkValue({ node, value, turn }) {
-  if (!turn) return <span className="ag-error is-missing">{tr('等接线', 'Waiting for wires')}</span>
-  if (node.type === 'stop') return <span className={`ag-flag is-${turn.stop ? 'pass' : 'none'}`}>{turn.stop ? tr('停下', 'Stops') : tr('继续下一轮', 'Goes on')}</span>
-  return value?.type === 'write' ? <span className="ag-action is-write">{L(actionText(value))}</span> : <span className="ag-empty">{tr('这一轮没有写', 'Nothing written this turn')}</span>
+  if (!turn) return <span className="ag-error is-missing">{tr('待接线', 'Not wired')}</span>
+  if (node.type === 'stop') return <span className={`ag-flag is-${turn.stop ? 'pass' : 'none'}`}>{turn.stop ? tr('停下', 'Stops') : tr('继续下一轮', 'Continues')}</span>
+  return value?.type === 'write' ? <span className="ag-action is-write">{L(actionText(value))}</span> : <span className="ag-empty">{tr('本轮未写入', 'Nothing written this turn')}</span>
 }
 
 export default function BoardScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, flags, phone }) {
@@ -115,13 +115,13 @@ export default function BoardScreen({ game, level: entry, saved, save, solve, la
           <label className="ag-field">
             <span>{tr('文件', 'File')}</span>
             <select value={node.params?.file ?? ''} onChange={(e) => setParam(node, 'file', e.target.value)} onPointerDown={(e) => e.stopPropagation()}>
-              <option value="" disabled>{tr('选一个文件', 'Pick a file')}</option>
+              <option value="" disabled>{tr('选择文件', 'Choose a file')}</option>
               {files.map((f) => <option key={f} value={f}>{f}</option>)}
             </select>
           </label>
         )}
         {node.type === 'repo' || node.type === 'stop' ? <SinkValue node={node} value={valueOf(node)} turn={turn} /> : <Value value={valueOf(node)} error={errorOf(node)} />}
-        {call && <small className="ag-sees">{tr(`看到 ${call.tokens} tok`, `sees ${call.tokens} tok`)}{call.dropped.length ? tr(` · 丢掉 ${call.dropped.length} 条`, ` · ${call.dropped.length} dropped`) : ''}</small>}
+        {call && <small className="ag-sees">{tr(`看到 ${call.tokens} tok`, `sees ${call.tokens} tok`)}{call.dropped.length ? tr(` · 丢弃 ${call.dropped.length} 条`, ` · ${call.dropped.length} dropped`) : ''}</small>}
       </div>
     )
   }
@@ -156,9 +156,9 @@ export default function BoardScreen({ game, level: entry, saved, save, solve, la
           <div className="stat"><b>{run ? runOf.tokens : '–'}</b><span>{tr('token', 'tokens')}</span></div>
           <div className="stat"><b>{run ? runOf.turns.length : '–'}</b><span>{level.machine.mode === 'once' ? tr('次调用', 'calls') : tr('轮', 'turns')}</span></div>
           {level.budget?.tokens && <div className="stat"><b>{level.budget.tokens}</b><span>{tr('token 上限', 'token budget')}</span></div>}
-          {level.machine.mode === 'loop' && <div className="stat"><b>{level.budget?.turns ?? level.machine.turns}</b><span>{tr('最多轮数', 'turn limit')}</span></div>}
+          {level.machine.mode === 'loop' && <div className="stat"><b>{level.budget?.turns ?? level.machine.turns}</b><span>{tr('轮数上限', 'turn limit')}</span></div>}
         </div>
-        {passedAll && <p className="ag-total">{tr(`全部测试共 ${totalTokens} token`, `${totalTokens} tokens over every test`)}</p>}
+        {passedAll && <p className="ag-total">{tr(`全部测试共 ${totalTokens} token`, `${totalTokens} tokens across all tests`)}</p>}
       </section>
     </Brief>
   )
@@ -175,11 +175,11 @@ export default function BoardScreen({ game, level: entry, saved, save, solve, la
         <Text game={game} className="ag-issue" text={test.issue.text} />
         <RepoView repo={test.repo} state={turn?.state ?? {}} />
         {ended && <Report report={runOf.report} />}
-        {ended && <p className={`ag-verdict ${verdict ? 'is-fail' : 'is-pass'}`}>{verdict ? L(verdict) : tr('通过：测试全绿，机器停下了。', 'Passed: the tests are green and the machine stopped.')}</p>}
+        {ended && <p className={`ag-verdict ${verdict ? 'is-fail' : 'is-pass'}`}>{verdict ? L(verdict) : tr('通过：所有测试均正确，机器已停止。', 'Passed: all tests are green and the machine has stopped.')}</p>}
       </section>
       <section className="ag-col">
-        <h3 className="ag-head">{tr('每一轮', 'Turn by turn')}</h3>
-        {steps.length ? <StepLog steps={steps} at={shown.at} /> : <p className="ag-note">{tr('运行后在这里逐轮显示模型做了什么、留下了什么。', 'Run it to see here, turn by turn, what the model did and what was kept.')}</p>}
+        <h3 className="ag-head">{tr('逐轮记录', 'Turn log')}</h3>
+        {steps.length ? <StepLog steps={steps} at={shown.at} /> : <p className="ag-note">{tr('运行后，这里逐轮列出模型的动作和留到下一轮的内容。', 'After a run, each turn’s action and kept context appear here.')}</p>}
       </section>
       <section className="ag-col">
         <h3 className="ag-head">{tr('模型看到的', 'What the model sees')}</h3>
@@ -214,7 +214,7 @@ export default function BoardScreen({ game, level: entry, saved, save, solve, la
               outNote={outNote}
               cardClass={(node) => `ag-node ${node.type === 'stop' && turn?.stop ? 'is-stopped' : ''}`}
               wireState={(wire) => (turn && turn.values.get(wire.from) !== undefined ? 'live' : 'dead')}
-              emptyNote={T('从上面一排元件里选一个放上来，再从一个元件右侧的圆点连到另一个元件左侧的圆点。', 'Pick a part from the row above, then wire a dot on the right of a part to a dot on the left of another.')}
+              emptyNote={T('从上方元件栏选择元件放到板上，再从元件右侧的圆点连线到另一元件左侧的圆点。', 'Add a part from the row above, then drag from a dot on its right side to a dot on another part’s left side.')}
             />
           </div>
         </div>
@@ -270,7 +270,7 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
         </Sheet>
       )}
       {sheet?.slot !== undefined && (
-        <Sheet title={tr('放在这一格', 'Place in this slot')} onClose={() => setSheet(null)}>
+        <Sheet title={tr('放入这一格', 'Place in this slot')} onClose={() => setSheet(null)}>
           <div className="ag-add">
             {[...items, ...foldedItems].map((item) => (
               <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot); setSheet(null) }}>

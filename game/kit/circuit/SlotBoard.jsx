@@ -236,7 +236,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
       if (!node) {
         out.push(
           <div key={`slot-${at}`} className="pb-cell" data-slot={at} data-region={region ?? ''}>
-            <button type="button" className="pb-slot" onClick={() => onSlot(at, region)} aria-label={tr('在这一格放一个元件', 'Place a part in this slot')}><Plus size={20} /></button>
+            <button type="button" className="pb-slot" onClick={() => onSlot(at, region)} aria-label={tr('在这一格放置元件', 'Place a part in this slot')}><Plus size={20} /></button>
           </div>,
         )
         continue
@@ -306,7 +306,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
             <button type="button" onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做', 'Redo')}><Redo2 size={16} /></button>
           </span>
         )}
-        <button type="button" className="pb-wiremode" onClick={cycle} aria-label={tr(`接线显示：${L(mode.label)}，点一下换成「${L(next.label)}」`, `Wires: ${L(mode.label)}; tap for "${L(next.label)}"`)}>
+        <button type="button" className="pb-wiremode" onClick={cycle} aria-label={tr(`接线显示：${L(mode.label)}，点击切换为「${L(next.label)}」`, `Wires: ${L(mode.label)}; tap to switch to "${L(next.label)}"`)}>
           <mode.Icon size={15} aria-hidden="true" />
           <span>{L(mode.label)}</span>
         </button>

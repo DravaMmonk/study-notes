@@ -45,9 +45,9 @@ export function TaskDoneDialog({ game, level, task, index, next, onStay, onNext 
   useEscape(onStay)
   return (
     <div className="dialog-scrim">
-      <div className="dialog is-solved" role="dialog" aria-modal="true" aria-label={tr('任务完成', 'Task done')}>
+      <div className="dialog is-solved" role="dialog" aria-modal="true" aria-label={tr('任务完成', 'Task complete')}>
         <div className="solved-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" /><path d="M12 20.5l5.5 5.5L28.5 14" /></svg></div>
-        <h2>{game.levelLabel(level)} {L(level.title)} · {tr(`任务 ${index + 1} 完成`, `Task ${index + 1} done`)}</h2>
+        <h2>{game.levelLabel(level)} {L(level.title)} · {tr(`任务 ${index + 1} 完成`, `Task ${index + 1} complete`)}</h2>
         <Paragraphs text={task.after} />
         <div className="dialog-actions">
           <button onClick={onStay}>{tr('留在这里', 'Stay here')}</button>
@@ -87,7 +87,7 @@ export function SolvedDialog({ game, level, onStay, onExit }) {
         )}
         <div className="dialog-actions">
           <button onClick={onStay}>{tr('留在这里', 'Stay here')}</button>
-          <button className="is-primary" onClick={onExit} autoFocus>{tr('返回关卡导航', 'Back to the level map')}</button>
+          <button className="is-primary" onClick={onExit} autoFocus>{tr('返回关卡地图', 'Back to the level map')}</button>
         </div>
       </div>
     </div>
@@ -100,17 +100,17 @@ export function FailDialog({ fail, fails, onClose }) {
   const hint = fail.hint
   return (
     <div className="dialog-scrim">
-      <div className="dialog is-failed" role="dialog" aria-modal="true" aria-label={tr('没通过', 'Not yet')}>
-        <h2>{tr('没通过', 'Not yet')}</h2>
+      <div className="dialog is-failed" role="dialog" aria-modal="true" aria-label={tr('未通过', 'Not passed')}>
+        <h2>{tr('未通过', 'Not passed')}</h2>
         {fail.head && <h3 className="dialog-title" dangerouslySetInnerHTML={{ __html: String(L(fail.head)) }} />}
         <Paragraphs text={fail.body} />
         {fail.extra && <div className="dialog-extra" dangerouslySetInnerHTML={{ __html: String(L(fail.extra)) }} />}
         {hint && (fails >= 2
           ? <p className="dialog-note"><span className="panel-label">{tr('提示', 'Hint')}</span><span dangerouslySetInnerHTML={{ __html: String(L(hint)) }} /></p>
-          : <p className="dialog-quiet">{tr('再失败一次，这里会给出提示。', 'Miss once more and a hint appears here.')}</p>)}
+          : <p className="dialog-quiet">{tr('再失败一次后，这里将给出提示。', 'One more failed attempt and a hint will appear here.')}</p>)}
         <div className="dialog-actions">
           {fail.cta && <button onClick={() => { onClose(); fail.cta.fn() }}>{L(fail.cta.label)}</button>}
-          <button className="is-primary" onClick={onClose} autoFocus>{tr('回去改改', 'Back to it')}</button>
+          <button className="is-primary" onClick={onClose} autoFocus>{tr('返回修改', 'Revise')}</button>
         </div>
       </div>
     </div>
