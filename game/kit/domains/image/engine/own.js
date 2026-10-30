@@ -11,7 +11,7 @@ const circuitOf = (level) => OWN.get(level.id) ?? level.solution
 
 export function ownPart(level) {
   return {
-    ...packed({ circuit: () => circuitOf(level), inputs: level.inputs ?? ['in'], output: level.outputs?.[0] ?? 'out' }),
+    ...packed({ circuit: () => circuitOf(level), inputs: level.inputs ?? ['in'], outputs: [level.outputs?.[0] ?? 'out'] }),
     kit: true,
     label: level.packs.name,
     description: level.packs.desc,

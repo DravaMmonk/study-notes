@@ -71,4 +71,14 @@ export const GAMES = [
     page: { icon: 'M20 22a12 12 0 1 1 0 20M20 22l-4 6M20 22l7 2', description: '软件工厂 Software Factory：从一次模型调用搭起编码 agent。A coding agent built up from one model call.' },
     progress: () => (read('factory.v1')?.solved || []).length,
   },
+  {
+    id: 'bus', href: 'bus/index.html', title: '车在说话', en: 'The Car Talks', topic: { zh: '车载总线与诊断', en: 'In-Vehicle Bus and Diagnostics' },
+    desc: {
+      zh: '车上几十个控制器共用一根线说话。从“每一拍线上有一位”开始，亲手搭出听懂它们的探针，再长成能读故障码、能刷写软件的诊断仪。',
+      en: 'The dozens of controllers in a car talk over one shared line. Starting from “one bit on the line each tick”, build a probe that understands them, and grow it into a tester that reads fault codes and reflashes software.',
+    },
+    levels: 9, art: 'wave', dev: true,
+    page: { icon: 'M10 30h44M18 30v12M32 30v12M46 30v12M14 20h8v-6h8v6h8v-6h8', description: '车在说话 The Car Talks：车载 CAN 总线与诊断的解谜关卡。The in-vehicle CAN bus and diagnostics as puzzle levels.' },
+    progress: () => (read('bus.v1')?.solved || []).length,
+  },
 ];
