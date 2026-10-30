@@ -14,12 +14,12 @@ export function viewAt(trace, upTo) {
   return { values, errors }
 }
 
-/**
- * How fast a run plays: the first test slowly enough to follow each step, the rest fast, and a long run squeezed so
- * it never drags (several steps a frame once there are many). Returns { per: ms a frame, stride: steps a frame }.
- */
+// Every stepped run in every game plays at the same pace: ms a step on the first test (slow enough to follow), and on
+// the tests after it (fast), and the most a test may take before steps start going several to a frame.
+const PACE = [{ per: 650, most: 12000 }, { per: 110, most: 1700 }]
+
+/** How fast test `test` of a run plays, given its step count: { per: ms a frame, stride: steps a frame }. */
 export function paceOf(test, steps) {
-  const n = Math.max(1, steps)
-  if (test === 0) return { per: Math.max(90, Math.min(650, 8000 / n)), stride: Math.max(1, Math.ceil(n / 120)) }
-  return { per: Math.max(22, Math.min(110, 1700 / n)), stride: Math.max(1, Math.ceil(n / 90)) }
+  const { per, most } = PACE[test === 0 ? 0 : 1]
+  return { per, stride: Math.max(1, Math.ceil((Math.max(1, steps) * per) / most)) }
 }

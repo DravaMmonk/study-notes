@@ -4,6 +4,7 @@
 import { buzz, reduced, ICON } from '../util.js';
 import { E, sceneSVG } from '../svg.js';
 import { rt, Anim } from '../runtime.js';
+import { paceOf } from '../../../engine/trace.js';
 import { seamTable, seamPath, shade } from '../circuit/worlds/picture.js';
 import { tr, lazy } from '../i18n.js';
 
@@ -41,11 +42,10 @@ export function seamMode(L) {
       st.path = seamPath(st.img);
       rt.renderBoard();
       rt.refresh();
-      await Anim.wait(420);
+      await Anim.wait(paceOf(0, n).per);
       cut(st.path);
       rt.renderBoard();
       rt.refresh();
-      await Anim.wait(160);
     }
     rt.endRun();
     rt.refresh();
