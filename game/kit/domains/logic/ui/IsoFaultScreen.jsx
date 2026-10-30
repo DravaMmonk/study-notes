@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { Plus } from 'lucide-react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, useBoardCases } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, SlotBoard } from '../../../circuit/index.js'
@@ -16,8 +15,6 @@ import CaseTable from './IsoCases.jsx'
 // run goes through the boards: one passes when every expectation is what the requirement means and the board answers
 // one of the cases otherwise. Fewer cases is the better score.
 
-const MOST = 8
-const blank = () => ({ given: [], make: true })
 
 export default function FaultScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
@@ -88,11 +85,6 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const table = (
     <div className="lg-strip is-tables">
       <CaseTable cases={cases} words={words} level={level} choices={choices} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
-      {cases.length < MOST && (
-        <button type="button" className="lg-add-case" onClick={() => { change([...cases, blank()]); setRow(cases.length) }}>
-          <Plus size={14} /> {tr('添加条例', 'Add a test case')}
-        </button>
-      )}
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )

@@ -557,3 +557,34 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .parts-rules td { padding: 6px 8px; border-top: 1px solid var(--hairline); }
 .parts-rules tr:last-child td { border-bottom: 1px solid var(--hairline); }
 .parts-rules code { font: 13px/1.5 var(--mono); overflow-wrap: anywhere; }
+
+/* A table the player fills in (RowTable.jsx): tall rows that open a form, a large add button, and the form's fields
+   (FormFields.jsx). */
+.rt { display: flex; flex-direction: column; gap: 10px; }
+.rt-scroll { overflow-x: auto; }
+.rt-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.rt-table th { padding: 6px 12px; color: var(--muted); font-weight: 500; text-align: left; border-bottom: 1px solid var(--hairline); }
+.rt-table td { padding: 12px; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--hairline); }
+.rt-row.is-editable { cursor: pointer; }
+.rt-row.is-editable:hover, .rt-row.is-editable:focus-visible { background: var(--hover, rgba(0,0,0,.04)); outline: none; }
+.rt-row.is-on { background: var(--hover, rgba(0,0,0,.05)); }
+.rt-empty { margin: 8px 12px; color: var(--muted); font-size: 13px; }
+.rt-add { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; border: 1.5px dashed var(--rule); border-radius: 12px; background: transparent; color: var(--body); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.rt-add:hover { border-color: var(--ink); color: var(--ink); }
+.rt-form { display: flex; flex-direction: column; gap: 18px; padding: 6px 0 4px; }
+.rt-form-foot { display: flex; align-items: center; gap: 8px; }
+.rt-form-foot button { min-height: 40px; padding: 0 16px; border: 1px solid var(--rule); border-radius: 10px; background: transparent; color: var(--body); font: inherit; font-size: 14px; cursor: pointer; }
+.rt-form-foot button.is-primary { border-color: var(--ink); background: var(--ink); color: var(--paper); font-weight: 600; }
+.rt-form-foot button.is-primary:disabled { opacity: .4; cursor: default; }
+.rt-form-foot .rt-delete { display: inline-flex; align-items: center; gap: 4px; color: var(--fail); border-color: transparent; padding: 0 8px; }
+.rt-why { flex: 1; color: var(--muted); font-size: 12px; text-align: right; }
+.ff-field { display: flex; flex-direction: column; gap: 8px; }
+.ff-label { color: var(--muted); font-size: 12px; letter-spacing: .04em; }
+.ff-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.ff-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; padding: 0 6px 0 12px; border: 1px solid var(--hairline); border-radius: 10px; font-size: 15px; }
+.ff-list li button { display: inline-flex; padding: 8px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.ff-list li.ff-none { color: var(--muted); border-style: dashed; }
+.ff-select { min-height: 42px; padding: 0 10px; border: 1px solid var(--rule); border-radius: 10px; background: var(--paper); color: var(--body); font: inherit; font-size: 15px; }
+.ff-choice { display: flex; gap: 8px; }
+.ff-choice button { flex: 1; min-height: 42px; border: 1px solid var(--rule); border-radius: 10px; background: transparent; color: var(--body); font: inherit; font-size: 15px; cursor: pointer; }
+.ff-choice button.is-on { border-color: var(--ink); background: var(--ink); color: var(--paper); font-weight: 600; }
