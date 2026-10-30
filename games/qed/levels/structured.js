@@ -9,9 +9,9 @@ import { TERM_WORDS } from './words.js'
 const T = (zh, en) => ({ zh, en })
 // A script task: the rows of `given` to start from; `locked`: only each row's by may change.
 const script = (task) => ({ kind: 'script', ...task })
-const read = (task) => script({ step: T('读', 'Read'), locked: true, brief: T('这段脚本每一句后面的 by 还空着：选出每一句用的是哪一条规则。', 'Each row’s by is still empty in this script: choose the rule each row uses.'), ...task })
-const wire = (task) => ({ kind: 'proof', step: T('接线', 'Wire'), cases: [], brief: T('照着这段脚本，在证明板上接出同一个证明。', 'Wire the same proof on the proof board, following this script.'), ...task })
-const WRITE = T('写一段脚本，证明要证的那句。', 'Write a script that proves the sentence.')
+const read = (task) => script({ step: T('读', 'Read'), locked: true, brief: T('这段脚本每一句后面的 by 还空着。选出每一句用的规则。', 'Each row’s by is still empty in this script. Choose the rule each row uses.'), ...task })
+const wire = (task) => ({ kind: 'proof', step: T('接线', 'Wire'), cases: [], brief: T('在证明板上接出这段脚本写的证明。', 'Wire on the proof board the proof this script writes.'), ...task })
+const WRITE = T('写一段脚本，证出要证的那句。', 'Write a script that proves the sentence.')
 const ADDER = { s: 'Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)', c: 'Carry ↔ InA ∧ InB' }
 
 // Rain makes it wet, and wet makes it slip: the opening script, and its proof wired.
@@ -36,7 +36,7 @@ export const structured = [
   // ---------- reading scripts ----------
   {
     id: 'sc-rows',
-    title: T('一句一张卡片', 'A row is a card'),
+    title: T('一句一个元件', 'A row is a part'),
     tasks: [
       read({
         premises: { p: 'Rain → Wet', q: 'Wet → Slip' },
@@ -44,20 +44,19 @@ export const structured = [
         given: blank(CHAIN),
         answer: CHAIN,
         naive: CHAIN.map((r, k) => (k === 2 ? { ...r, by: 'rule:conjI' } : r)),
-        hint: [T('「下雨」和「下雨 → 地湿」得出「地湿」，是哪一张卡片？', '“It rains” and “it rains → the ground is wet” give “the ground is wet”: which card is that?')],
+        hint: [T('由「下雨」和「下雨 → 地湿」得出「地湿」，用的是哪一条规则？', 'From “it rains” and “it rains → the ground is wet” to “the ground is wet”: which rule is that?')],
       }),
       wire({
         tests: [{ premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Wet ∧ Slip' }],
         script: CHAIN,
-        hint: [T('proof 到 qed 是一个假设框，assume 是框里的假设。', 'proof to qed is an assumption box, and assume is what the box assumes.')],
+        hint: [T('proof 到 qed 是一个假设框，assume 是框里的假设。', 'proof to qed is an assumption box, and assume is what it assumes.')],
         solution: proof({ f: ['impI', { A: 'Rain' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'], c: ['andI', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm1>c.a', 'm2>c.b', 'c>f.body', 'f>goal'], { premises: ['p', 'q'] }),
       }),
     ],
     intro: [
-      { t: T("<wiki-ref to=\"provers\"></wiki-ref>支持供人阅读的结构化<wiki-ref to=\"scripts\"></wiki-ref>。以 Isabelle 的 Isar 为例：have 引入中间结论，show 指出当前目标，by 指定证明方法；proof … qed 可以组织一个证明块。本章的简化脚本借鉴这一写法。", "<wiki-ref to=\"provers\"></wiki-ref> support structured <wiki-ref to=\"scripts\"></wiki-ref> for human readers. In Isabelle’s Isar, for example, have introduces an intermediate result, show states a goal, by specifies a proof method, and proof … qed organizes a proof block. This chapter adapts those ideas in a simplified script.") },
-      { t: T("在本游戏中，脚本语句与证明板上的元件相对应：using 指出所用事实，by 指出所用规则或证明助手。", "In this game, script statements correspond to proof-board parts: using identifies the facts used, while by identifies the rule or proof assistant.") },
+      { t: T('<wiki-ref to="provers"></wiki-ref>里的证明也可以写给人读，这叫<wiki-ref to="scripts"></wiki-ref>。这一章的脚本照 Isabelle 的 Isar 写法：have 证出路上的一句，show 证出要证的那句，by 后面写这一句用的规则或证明助手，using 后面写它用到的事实；proof … qed 是一个块。', 'Proofs in a <wiki-ref to="provers"></wiki-ref> can also be written for people to read: a <wiki-ref to="scripts"></wiki-ref>. This chapter’s scripts follow Isabelle’s Isar: have proves a sentence on the way, show the one wanted, by names the rule or proof assistant a row uses and using the facts it uses; proof … qed is a block.') },
     ],
-    after: T('by (rule mp) 就是一张套用，using 的 p、a1 是接进它的两根线；proof … qed 是一个框，assume 是框里的假设，框里最后一句 show 接到框的出口。脚本和电路是同一个证明的两种写法。', 'by (rule mp) is one Apply card, and the p and a1 after using are its two wires in; proof … qed is a box, assume what it assumes, and the show at its end goes to the box’s exit. A script and a circuit are two ways of writing one proof.'),
+    after: T('脚本和证明电路是同一个证明的两种写法。', 'A script and a proof circuit are two ways of writing one proof.'),
   },
   {
     id: 'sc-block',
@@ -78,8 +77,7 @@ export const structured = [
         solution: proof({ f: ['impI', { A: 'Rain' }], g: ['impI', { A: 'Wind' }, 'f'], c: ['andI', {}, 'g'], m: ['mp', {}, 'g'] }, ['f#body>c.a', 'g#body>c.b', 'p>m.imp', 'c>m.a', 'm>g.body', 'g>f.body', 'f>goal'], { premises: ['p'] }),
       }),
     ],
-    intro: [{ t: T("证明块可以嵌套；块的层次对应证明板中假设框的嵌套关系。", "Proof blocks can be nested; their nesting corresponds to nested assumption boxes on the proof board.") }],
-    after: T('脚本往里缩一层，证明板上就多套一层框；a1 在里面那一块也能用，就像外面的框开出的线能接进里面的框。这是<level-ref to="t-lam"></level-ref>里两层 fun 的另一种写法。', 'One step further in on the script is one box further in on the board; a1 is usable inside the inner block, as a wire the outer box opens may go into the inner one. It is another way of writing the two funs of <level-ref to="t-lam"></level-ref>.'),
+    intro: [{ t: T('块里还可以套块。', 'A block can hold another block.') }],
   },
   script({
     id: 'sc-tactic',
@@ -110,11 +108,11 @@ export const structured = [
     ],
     brief: T('选出每一句的 by。', 'Choose each row’s by.'),
     hint: [
-      T('由等价和「进位是 1」得出两个输入都是 1，要拆开等价再套用：一张卡片不够。', 'From the equivalence and “the carry is 1” to both inputs being 1 takes splitting the equivalence, then applying: one card is not enough.'),
-      T('最后一句要从三句里找矛盾。', 'The last row looks for a contradiction among three sentences.'),
+      T('由等价和「进位是 1」得出两个输入都是 1，一个元件不够。', 'From the equivalence and “the carry is 1” to both inputs being 1: one part is not enough.'),
+      T('最后一句要在三句话里找出矛盾。', 'The last row looks for a contradiction among three sentences.'),
     ],
-    intro: [{ t: T('一句话用一张卡片证不完时，by 后面可以是一个造好的证明助手：自建 auto、化简、证明重建器。它们只用规则，所以这一句照样是核证出来的。', 'When one card cannot prove a row, by may be followed by a proof assistant already built: your own auto, Simp, the reconstructor. They only use rules, so the row is proved by the kernel all the same.') }],
-    after: T('结构由人写：先假设、拆出哪一半、要用哪几句；小步交给证明助手：拆等价、找矛盾。真正的证明大多是这样分工的。', 'People write the structure: what to assume, which half to take out, which facts to use; proof assistants do the small steps: taking the equivalence apart, finding the contradiction. Real proofs are mostly shared out like this.'),
+    intro: [{ t: T('by 后面也可以是造好的证明助手：自建 auto、化简、证明重建器。它们只用规则，所以这一句照样由核证出。', 'by may also be followed by a proof assistant already built: your own auto, Simp, the reconstructor. They use only rules, so the row is still proved by the kernel.') }],
+    after: T('人写结构，证明助手补小步：真正的证明大多这样分工。', 'People write the structure and proof assistants fill in the small steps: most real proofs are shared out this way.'),
   }),
 
   // ---------- writing scripts ----------
@@ -129,7 +127,7 @@ export const structured = [
         goal: 'Slip',
         given: [{ k: 'show', stmt: 'Slip', using: ['q', 'h1'], by: 'rule:mp' }],
         answer: [{ k: 'have', stmt: 'Wet', using: ['p', 'r'], by: 'rule:mp' }, { k: 'show', stmt: 'Slip', using: ['q', 'h1'], by: 'rule:mp' }],
-        hint: [T('show 用的 h1 还没有。先选中第一行，再加的一行会排在它后面；要排在它前面，就把它删掉重写。', 'The h1 that show uses is not there yet. A new row goes after the row selected; to put one in front, remove the row and write it again.')],
+        hint: [T('show 用到的 h1 还没有。新加的一行排在选中的那一行后面；要排到它前面，先删掉它再重写。', 'The h1 that show uses is not there yet. A new row goes after the row selected; to put one in front, remove that row and write it again.')],
       }),
       script({
         step: T('第二题', 'Problem 2'),
@@ -147,8 +145,7 @@ export const structured = [
         hint: [T('先把「下雨 ∧ 刮风」拆成两句。', 'First split “it rains ∧ it is windy” into two.')],
       }),
     ],
-    intro: [{ t: T('写脚本的时候，常常先写出最后一句 show，再往前补：它要用的事实，一句一句 have 出来。', 'Writing a script, one often writes the last show first and fills in backwards: the facts it uses, one have at a time.') }],
-    after: T('从要证的那句倒着往回想，正是<level-ref to="s-intro"></level-ref>里分解目标的想法；写成脚本，顺序却是正着的：先 have，后 show。', 'Thinking back from what is to be proved is the idea of taking goals apart in <level-ref to="s-intro"></level-ref>; written as a script, the order runs forward: have first, show last.'),
+    intro: [{ t: T('写脚本时，常常先写最后一句 show，再往前补它用到的事实，一句一句 have 出来。', 'A script is often written from its last show backwards: the facts it uses are filled in before it, one have at a time.') }],
   },
   {
     id: 'sc-show',
@@ -158,8 +155,7 @@ export const structured = [
       script({ step: T('第二题', 'Problem 2'), brief: WRITE, premises: {}, goal: '((Rain → Wet) → Rain) → Rain', answer: [{ k: 'show', stmt: '((Rain → Wet) → Rain) → Rain', by: 'metis' }], naive: [{ k: 'show', stmt: '((Rain → Wet) → Rain) → Rain', by: 'auto' }], hint: [T('<level-ref to="peirce"></level-ref>：auto 证不出来的。', '<level-ref to="peirce"></level-ref>: auto cannot prove it.')] }),
       script({ step: T('第三题', 'Problem 3'), brief: WRITE, premises: {}, goal: 'plus(s(zero), s(zero)) = s(s(zero))', consts: ['zero'], words: TERM_WORDS, defs: ['plus'], simp: ['def.0', 'def.1'], answer: [{ k: 'show', stmt: 'plus(s(zero), s(zero)) = s(s(zero))', by: 'simp' }], naive: [{ k: 'show', stmt: 'plus(s(zero), s(zero)) = s(s(zero))', by: 'rule:refl' }], hint: [T('这一关的化简会按加法的定义算。', 'This level’s Simp works by the definition of addition.')] }),
     ],
-    intro: [{ t: T('一句话，你造的证明助手证得完，脚本里就只写这一行：show … by auto。', 'When a proof assistant you built proves a sentence outright, the script holds just that one row: show … by auto.') }],
-    after: T('真正的脚本里，大半的行都是这样一行：by auto、by simp、by metis。人只在证明助手证不下去的地方，把结构写出来。', 'In real scripts most rows are one row like this: by auto, by simp, by metis. People write out structure only where the proof assistants cannot get through.'),
+    intro: [{ t: T('一句话若由你造的证明助手一步证完，脚本里就只写一行：show … by auto。', 'When a proof assistant you built proves a sentence outright, the script is a single row: show … by auto.') }],
   },
   script({
     id: 'sc-fix',
@@ -181,9 +177,8 @@ export const structured = [
       { k: 'assume', stmt: 'Student(a)' },
       { k: 'show', stmt: 'Mortal(a)', using: ['p', 'q', 'a1'], by: 'auto' },
     ],
-    hint: [T('块里先 fix 一样东西，再 assume 它是学生。', 'In the block, fix a thing first, then assume it is a student.')],
+    hint: [T('块里先 fix 一样东西。', 'In the block, fix a thing first.')],
     intro: [{ t: T('要证「对所有 x」，块的第一句是 fix：任取一样东西，给它起个名字。', 'To prove “for all x”, the block starts with fix: take any thing and give it a name.') }],
-    after: T('fix 就是<part-ref to="part:allI"></part-ref>：块里证出的，对取来的这一样成立，它又是任取的，所以对所有的都成立。', 'fix is <part-ref to="part:allI"></part-ref>: what the block proves holds of the thing taken, and as it was taken at random, it holds of all.'),
   }),
   script({
     id: 'sc-obtain',
@@ -206,9 +201,8 @@ export const structured = [
       { k: 'have', stmt: 'Flies(b)', using: ['p', 'a1'], by: 'auto' },
       { k: 'show', stmt: '⊥', using: ['a1', 'h1'], by: 'auto' },
     ],
-    hint: [T('假设有这样一只鸟，obtain 把它拿出来，叫它 b。', 'Assume there is such a bird; obtain takes it out and calls it b.')],
-    intro: [{ t: T('已知一句「存在」，obtain 把那一样东西拿出来起个名字，后面的句子都能用它。', 'Given a “there is”, obtain takes that thing out and names it, and the rows after it can use it.') }],
-    after: T('obtain 就是<part-ref to="part:exE"></part-ref>：拿出来的 b 是新的名字，块的结论里不能有它。', 'obtain is <part-ref to="part:exE"></part-ref>: the b taken out is a new name, and the block’s conclusion may not mention it.'),
+    hint: [T('假设真有这样一只鸟。', 'Suppose there is such a bird.')],
+    intro: [{ t: T('有了一句「存在」，obtain 把那一样东西拿出来，起个名字，后面的句子都能用它。', 'Given a “there is”, obtain takes that thing out and names it, and the rows after it can use it.') }],
   }),
 
   // ---------- whole proofs ----------
@@ -229,8 +223,7 @@ export const structured = [
       T('假设 c 是骑士，他的话就成立。', 'Suppose c is a knight: then what he says holds.'),
       T('a 和 b 是同一种人，又一个说另一个是无赖：这个矛盾交给证明重建器。', 'a and b the same kind, and one calling the other a knave: hand that contradiction to the reconstructor.'),
     ],
-    intro: [{ t: T('把证明写给人看：先说假设了什么，推出什么，最后矛盾在哪里；每一步交给合适的证明助手。', 'Write the proof for people: what is supposed, what follows, and where the contradiction lies; each step handed to the right proof assistant.') }],
-    after: T('<level-ref to="is-silent"></level-ref>里，证明助手一行证完了它，可读不出为什么。这段脚本说出了为什么：c 要是骑士，a 和 b 就是同一种人，可 a 说 b 是无赖。', 'In <level-ref to="is-silent"></level-ref> the proof assistant proved this in one row, without saying why. This script says why: were c a knight, a and b would be the same kind, yet a calls b a knave.'),
+    intro: [{ t: T('把证明写给人看：假设了什么，推出什么，矛盾在哪里；每一步交给合适的证明助手。', 'Write the proof for people: what is supposed, what follows, where the contradiction lies; each step handed to the right proof assistant.') }],
   }),
   script({
     id: 'sc-revrev',
@@ -245,8 +238,7 @@ export const structured = [
     answer: [{ k: 'show', stmt: '∀xs. rev(rev(xs)) = xs', by: 'induct' }],
     naive: [{ k: 'show', stmt: '∀xs. rev(rev(xs)) = xs', by: 'simp' }],
     hint: [T('对 xs 归纳，每种情况化简。', 'Induction on xs, and Simp on each case.')],
-    intro: [{ t: T('这一关的化简集合里有列表的定义和「倒过拼接」。', 'This level’s simp set holds the definitions of lists and “Reverse of an append”.') }],
-    after: T('by (induction) simp：对 xs 归纳，每种情况化简。<level-ref to="in-revrev"></level-ref>里那个证明助手，在脚本里只占一行；它下面垫着的引理，都在化简集合里。', 'by (induction) simp: induction on xs, and Simp on each case. The proof assistant of <level-ref to="in-revrev"></level-ref> takes one row in a script; the lemmas under it are in the simp set.'),
+    intro: [{ t: T('这一关的化简集合里有列表的定义和<level-ref to="in-revapp"></level-ref>证出的那条等式。', 'This level’s simp set holds the definitions of lists and the equation proved in <level-ref to="in-revapp"></level-ref>.') }],
   }),
   script({
     id: 'sc-barber',
@@ -272,7 +264,7 @@ export const structured = [
       T('假设有这么一个人，把他拿出来，叫他 b。', 'Suppose there is such a person; take him out and call him b.'),
       T('b 给不给自己刮？', 'Does b shave himself?'),
     ],
-    intro: [{ t: T('最后一段脚本，用上这台证明器的每一层：框、存在实例化、全称实例化、自建 auto、证明重建器。', 'A last script, using every layer of this prover: the box, take the one there is, take one, your own auto, the reconstructor.') }],
-    after: T('四行脚本，每一行都落到核规则上：框是假设，obtain 进行存在实例化，auto 进行全称实例化，metis 找出说谎者的矛盾。证明器从两块元件长到这里，没有一步是核不认的。', 'Four rows, each down to kernel rules: the box assumes, obtain takes the one there is, auto takes one, metis finds the liar’s contradiction. The prover grew from two parts to this, and not one step was one the kernel would not take.'),
+    intro: [{ t: T('最后一段脚本，用上这台证明器的每一层。', 'A last script, using every layer of this prover.') }],
+    after: T('证明器从两个元件长到这里，没有一步是核不认的。', 'The prover grew from two parts to this, and not one step was one the kernel would not take.'),
   }),
 ]
